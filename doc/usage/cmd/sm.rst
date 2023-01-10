@@ -38,6 +38,10 @@ sm efusewrite
   Write into efuse memory bank, starting from <offset>, the <size> bytes
   of data, located at address <address>.
 
+sm efusedump
+  Read <size> bytes starting from <offset> from efuse memory bank and print
+  them to the console.
+
 Configuration
 -------------
 
