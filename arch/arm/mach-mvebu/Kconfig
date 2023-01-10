@@ -331,7 +331,7 @@ choice
 	depends on SPL
 
 config MVEBU_SPL_BOOT_DEVICE_SPI
-	bool "SPI NOR flash"
+	bool "NOR flash (SPI or parallel)"
 	imply ENV_IS_IN_SPI_FLASH
 	imply SPL_DM_SPI
 	imply SPL_SPI_FLASH_SUPPORT
@@ -345,7 +345,7 @@ config MVEBU_SPL_BOOT_DEVICE_NAND
 	select SPL_BOOTROM_SUPPORT
 
 config MVEBU_SPL_BOOT_DEVICE_MMC
-	bool "SDIO/MMC card"
+	bool "eMMC or SD card"
 	imply ENV_IS_IN_MMC
 	# GPIO needed for eMMC/SD card presence detection
 	imply SPL_DM_GPIO
