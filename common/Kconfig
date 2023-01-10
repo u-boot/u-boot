@@ -874,7 +874,7 @@ config UPDATE_COMMON
 
 config UPDATE_TFTP
 	bool "Auto-update using fitImage via TFTP"
-	depends on FIT
+	depends on FIT && OF_LIBFDT && !MTD_NOR_FLASH
 	select UPDATE_COMMON
 	help
 	  This option allows performing update of NOR with data in fitImage
@@ -883,16 +883,24 @@ config UPDATE_TFTP
 config UPDATE_TFTP_CNT_MAX
 	int "The number of connection retries during auto-update"
 	default 0
-	depends on UPDATE_TFTP
+	depends on UPDATE_TFTP || DFU_TFTP
 
 config UPDATE_TFTP_MSEC_MAX
 	int "Delay in mSec to wait for the TFTP server during auto-update"
 	default 100
-	depends on UPDATE_TFTP
+	depends on UPDATE_TFTP || DFU_TFTP
+
+config UPDATE_LOAD_ADDR
+	hex "Address in memory to load the update to"
+	depends on UPDATE_TFTP || DFU_TFTP
+	default 0x100000
+	help
+	  This option defines the location in memory to be used to load the
+	  update to, if 'loadaddr' is not set in the environment.
 
 config UPDATE_FIT
 	bool "Firmware update using fitImage"
-	depends on FIT
+	depends on FIT && OF_LIBFDT
 	depends on DFU
 	select UPDATE_COMMON
 	help
