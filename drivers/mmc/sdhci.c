@@ -995,6 +995,10 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		cfg->host_caps |= MMC_CAP(UHS_SDR50);
 	}
 
+	if ((host->quirks & SDHCI_QUIRK_CAPS_BIT63_FOR_HS400) &&
+	    (caps_1 & SDHCI_SUPPORT_HS400))
+		cfg->host_caps |= MMC_CAP(MMC_HS_400);
+
 	if (caps_1 & SDHCI_SUPPORT_DDR50)
 		cfg->host_caps |= MMC_CAP(UHS_DDR50);
 
