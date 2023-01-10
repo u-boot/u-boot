@@ -26,8 +26,6 @@
 
 #include "../common/board_detect.h"
 
-#define board_is_j721s2_som()	board_ti_k3_is("J721S2X-PM1-SOM")
-
 DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
@@ -101,6 +99,14 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #endif
 
 #ifdef CONFIG_TI_I2C_BOARD_DETECT
+/*
+ * Functions specific to EVM and SK designs of J721S2/AM68 family.
+ */
+
+#define board_is_j721s2_som()	board_ti_k3_is("J721S2X-PM1-SOM")
+
+#define board_is_am68_sk_som() board_ti_k3_is("AM68-SK-SOM")
+
 int do_board_detect(void)
 {
 	int ret;
@@ -136,6 +142,8 @@ static void setup_board_eeprom_env(void)
 
 	if (board_is_j721s2_som())
 		name = "j721s2";
+	else if (board_is_am68_sk_som())
+		name = "am68-sk";
 	else
 		printf("Unidentified board claims %s in eeprom header\n",
 		       board_ti_get_name());
