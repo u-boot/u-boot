@@ -687,7 +687,7 @@ enum bubt_devices {
 	BUBT_MAX_DEV
 };
 
-struct bubt_dev bubt_devs[BUBT_MAX_DEV] = {
+static struct bubt_dev bubt_devs[BUBT_MAX_DEV] = {
 	{"tftp", tftp_read_file, NULL, is_tftp_active},
 	{"usb",  usb_read_file,  NULL, is_usb_active},
 	{"mmc",  mmc_read_file,  mmc_burn_image, is_mmc_active},
@@ -707,7 +707,7 @@ static int bubt_write_file(struct bubt_dev *dst, size_t image_size)
 }
 
 #if defined(CONFIG_ARMADA_8K)
-u32 do_checksum32(u32 *start, int32_t len)
+static u32 do_checksum32(u32 *start, int32_t len)
 {
 	u32 sum = 0;
 	u32 *startp = start;
@@ -1140,7 +1140,7 @@ static int bubt_is_dev_active(struct bubt_dev *dev)
 	return 1;
 }
 
-struct bubt_dev *find_bubt_dev(char *dev_name)
+static struct bubt_dev *find_bubt_dev(char *dev_name)
 {
 	int dev;
 
@@ -1168,7 +1168,7 @@ struct bubt_dev *find_bubt_dev(char *dev_name)
 #endif
 #endif /* DEFAULT_BUBT_DST */
 
-int do_bubt_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+static int do_bubt_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct bubt_dev *src, *dst;
 	size_t image_size;
