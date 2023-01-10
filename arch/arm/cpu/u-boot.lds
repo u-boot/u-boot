@@ -77,11 +77,13 @@ SECTIONS
 	}
 
 #ifndef CONFIG_ARMV7_SECURE_BASE
-#define CONFIG_ARMV7_SECURE_BASE
+#define __ARMV7_SECURE_BASE
 #define __ARMV7_PSCI_STACK_IN_RAM
+#else
+#define __ARMV7_SECURE_BASE	CONFIG_ARMV7_SECURE_BASE
 #endif
 
-	.secure_text CONFIG_ARMV7_SECURE_BASE :
+	.secure_text __ARMV7_SECURE_BASE :
 		AT(ADDR(.__secure_start) + SIZEOF(.__secure_start))
 	{
 		*(._secure.text)
