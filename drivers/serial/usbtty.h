@@ -20,25 +20,6 @@
 #include <usb/udc.h>
 #include <version.h>
 
-/* If no VendorID/ProductID is defined in config.h, pretend to be Linux
- * DO NOT Reuse this Vendor/Product setup with protocol incompatible devices */
-
-#ifndef CONFIG_USBD_VENDORID
-#define CONFIG_USBD_VENDORID		0x0525	/* Linux/NetChip */
-#endif
-#ifndef CONFIG_USBD_PRODUCTID_GSERIAL
-#define CONFIG_USBD_PRODUCTID_GSERIAL	0xa4a6	/* gserial */
-#endif
-#ifndef CONFIG_USBD_PRODUCTID_CDCACM
-#define CONFIG_USBD_PRODUCTID_CDCACM	0xa4a7	/* CDC ACM */
-#endif
-#ifndef CONFIG_USBD_MANUFACTURER
-#define CONFIG_USBD_MANUFACTURER	"Das U-Boot"
-#endif
-#ifndef CONFIG_USBD_PRODUCT_NAME
-#define CONFIG_USBD_PRODUCT_NAME	U_BOOT_VERSION
-#endif
-
 #ifndef CONFIG_USBD_CONFIGURATION_STR
 #define CONFIG_USBD_CONFIGURATION_STR	"TTY via USB"
 #endif
