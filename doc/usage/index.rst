@@ -61,6 +61,7 @@ Shell commands
    cmd/mbr
    cmd/md
    cmd/mmc
+   cmd/part
    cmd/pause
    cmd/pinmux
    cmd/printenv
