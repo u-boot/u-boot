@@ -113,9 +113,15 @@ int do_board_detect(void)
 
 	ret = ti_i2c_eeprom_am6_get_base(CONFIG_EEPROM_BUS_ADDRESS,
 					 CONFIG_EEPROM_CHIP_ADDRESS);
-	if (ret)
-		pr_err("Reading on-board EEPROM at 0x%02x failed %d\n",
-		       CONFIG_EEPROM_CHIP_ADDRESS, ret);
+	if (ret) {
+		printf("EEPROM not available at 0x%02x, trying to read at 0x%02x\n",
+		       CONFIG_EEPROM_CHIP_ADDRESS, CONFIG_EEPROM_CHIP_ADDRESS + 1);
+		ret = ti_i2c_eeprom_am6_get_base(CONFIG_EEPROM_BUS_ADDRESS,
+						 CONFIG_EEPROM_CHIP_ADDRESS + 1);
+		if (ret)
+			pr_err("Reading on-board EEPROM at 0x%02x failed %d\n",
+				CONFIG_EEPROM_CHIP_ADDRESS + 1, ret);
+	}
 
 	return ret;
 }
