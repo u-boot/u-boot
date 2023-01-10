@@ -153,6 +153,7 @@ static const u8 mode2timing[] = {
 	[UHS_DDR50] = MMC_TIMING_UHS_DDR50,
 	[UHS_SDR104] = MMC_TIMING_UHS_SDR104,
 	[MMC_HS_200] = MMC_TIMING_MMC_HS200,
+	[MMC_HS_400] = MMC_TIMING_MMC_HS400,
 };
 
 #if defined(CONFIG_ARCH_VERSAL_NET)
@@ -1132,6 +1133,10 @@ static int arasan_sdhci_probe(struct udevice *dev)
 
 	if (priv->no_1p8)
 		host->quirks |= SDHCI_QUIRK_NO_1_8_V;
+
+	if (CONFIG_IS_ENABLED(ARCH_VERSAL_NET) &&
+	    device_is_compatible(dev, "xlnx,versal-net-5.1-emmc"))
+		host->quirks |= SDHCI_QUIRK_CAPS_BIT63_FOR_HS400;
 
 	plat->cfg.f_max = CONFIG_ZYNQ_SDHCI_MAX_FREQ;
 
