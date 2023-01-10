@@ -41,20 +41,22 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_M68K
-#define CONFIG_SYS_IMMR		CFG_SYS_MBAR
+#define CFG_FSL_I2C_BASE_ADDR	CFG_SYS_MBAR
+#else
+#define CFG_FSL_I2C_BASE_ADDR	CONFIG_SYS_IMMR
 #endif
 
 #if !CONFIG_IS_ENABLED(DM_I2C)
 static const struct fsl_i2c_base *i2c_base[4] = {
-	(struct fsl_i2c_base *)(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_I2C_OFFSET),
+	(struct fsl_i2c_base *)(CFG_FSL_I2C_BASE_ADDR + CONFIG_SYS_FSL_I2C_OFFSET),
 #ifdef CONFIG_SYS_FSL_I2C2_OFFSET
-	(struct fsl_i2c_base *)(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_I2C2_OFFSET),
+	(struct fsl_i2c_base *)(CFG_FSL_I2C_BASE_ADDR + CONFIG_SYS_FSL_I2C2_OFFSET),
 #endif
 #ifdef CONFIG_SYS_FSL_I2C3_OFFSET
-	(struct fsl_i2c_base *)(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_I2C3_OFFSET),
+	(struct fsl_i2c_base *)(CFG_FSL_I2C_BASE_ADDR + CONFIG_SYS_FSL_I2C3_OFFSET),
 #endif
 #ifdef CONFIG_SYS_FSL_I2C4_OFFSET
-	(struct fsl_i2c_base *)(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_I2C4_OFFSET)
+	(struct fsl_i2c_base *)(CFG_FSL_I2C_BASE_ADDR + CONFIG_SYS_FSL_I2C4_OFFSET)
 #endif
 };
 #endif
