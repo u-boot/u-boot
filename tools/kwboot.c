@@ -1976,6 +1976,21 @@ _inject_baudrate_change_code(void *img, size_t *size, int for_data,
 	}
 }
 
+static const char *
+kwboot_img_type(uint8_t blockid)
+{
+	switch (blockid) {
+	case IBR_HDR_I2C_ID: return "I2C";
+	case IBR_HDR_SPI_ID: return "SPI";
+	case IBR_HDR_NAND_ID: return "NAND";
+	case IBR_HDR_SATA_ID: return "SATA";
+	case IBR_HDR_PEX_ID: return "PEX";
+	case IBR_HDR_UART_ID: return "UART";
+	case IBR_HDR_SDIO_ID: return "SDIO";
+	default: return "unknown";
+	}
+}
+
 static int
 kwboot_img_patch(void *img, size_t *size, int baudrate)
 {
@@ -1989,8 +2004,10 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 	hdr = img;
 
-	if (*size < sizeof(struct main_hdr_v1))
+	if (*size < sizeof(struct main_hdr_v1)) {
+		fprintf(stderr, "Invalid image header size\n");
 		goto err;
+	}
 
 	image_ver = kwbimage_version(img);
 	if (image_ver != 0 && image_ver != 1) {
@@ -2000,12 +2017,18 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 	hdrsz = kwbheader_size(hdr);
 
-	if (*size < hdrsz)
+	if (*size < hdrsz) {
+		fprintf(stderr, "Invalid image header size\n");
 		goto err;
+	}
+
+	kwboot_printv("Detected kwbimage v%d with %s boot signature\n", image_ver, kwboot_img_type(hdr->blockid));
 
 	csum = kwboot_hdr_csum8(hdr) - hdr->checksum;
-	if (csum != hdr->checksum)
+	if (csum != hdr->checksum) {
+		fprintf(stderr, "Image has invalid header checksum stored in image header\n");
 		goto err;
+	}
 
 	srcaddr = le32_to_cpu(hdr->srcaddr);
 
@@ -2028,9 +2051,15 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 		break;
 	}
 
-	if (hdrsz > le32_to_cpu(hdr->srcaddr) ||
-	    *size < le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize))
+	if (hdrsz > le32_to_cpu(hdr->srcaddr)) {
+		fprintf(stderr, "Image has invalid data offset stored in image header\n");
 		goto err;
+	}
+
+	if (*size < le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize)) {
+		fprintf(stderr, "Image has invalid data size stored in image header\n");
+		goto err;
+	}
 
 	for_each_opt_hdr_v1 (ohdr, hdr) {
 		if (!opt_hdr_v1_valid_size(ohdr, (const uint8_t *)hdr + hdrsz)) {
