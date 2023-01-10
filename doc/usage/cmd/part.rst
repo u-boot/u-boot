@@ -13,6 +13,7 @@ Synopis
     part start <interface> <dev> <part> <varname>
     part size <interface> <dev> <part> <varname>
     part number <interface> <dev> <part> <varname>
+    part type <interface> <dev>:<part> [varname]
     part types
 
 Description
@@ -81,6 +82,17 @@ part must be specified as partition name.
     varname
         a variable to store the current partition number value into
 
+The 'part type' command prints or sets an environment variable to the partition type UUID.
+
+    interface
+        interface for accessing the block device (mmc, sata, scsi, usb, ....)
+    dev
+        device number
+    part
+        partition number
+    varname
+        a variable to store the current partition type UUID value into
+
 The 'part types' command list supported partition table types.
 
 Examples
@@ -125,6 +137,12 @@ Examples
     => part number host 0 2 varname
     => env print varname
     varname=0x2
+    =>
+    => part type host 0:1
+    ebd0a0a2-b9e5-4433-87c0-68b6b72699c7
+    => part type host 0:1 varname
+    => env print varname
+    varname=ebd0a0a2-b9e5-4433-87c0-68b6b72699c7
     =>
     => part types
     Supported partition tables: EFI, AMIGA, DOS, ISO, MAC
