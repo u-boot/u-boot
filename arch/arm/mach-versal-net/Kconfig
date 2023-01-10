@@ -21,6 +21,18 @@ config SYS_CONFIG_NAME
 	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
 	  will be used for board configuration.
 
+config COUNTER_FREQUENCY
+	int "Timer clock frequency"
+	default 0
+	help
+	  Setup time clock frequency for certain platform
+
+config IOU_SWITCH_DIVISOR0
+	hex "IOU switch divisor0"
+	default 0x20
+	help
+	  Setup time clock divisor for input clock.
+
 config SYS_MEM_RSVD_FOR_MMU
 	bool "Reserve memory for MMU Table"
 	help

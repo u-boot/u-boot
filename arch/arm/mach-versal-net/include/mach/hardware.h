@@ -8,6 +8,36 @@
 #include <linux/bitops.h>
 #endif
 
+struct crlapb_regs {
+	u32 reserved0[67];
+	u32 cpu_r5_ctrl;
+	u32 reserved;
+	u32 iou_switch_ctrl; /* 0x114 */
+	u32 reserved1[13];
+	u32 timestamp_ref_ctrl; /* 0x14c */
+	u32 reserved3[108];
+	u32 rst_cpu_r5;
+	u32 reserved2[17];
+	u32 rst_timestamp; /* 0x348 */
+};
+
+struct iou_scntrs_regs {
+	u32 counter_control_register; /* 0x0 */
+	u32 reserved0[7];
+	u32 base_frequency_id_register; /* 0x20 */
+};
+
+#define VERSAL_NET_CRL_APB_BASEADDR		0xEB5E0000
+#define VERSAL_NET_IOU_SCNTR_SECURE		0xEC920000
+
+#define CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT	BIT(25)
+#define IOU_SWITCH_CTRL_CLKACT_BIT		BIT(25)
+#define IOU_SWITCH_CTRL_DIVISOR0_SHIFT		8
+#define IOU_SCNTRS_CONTROL_EN			1
+
+#define crlapb_base ((struct crlapb_regs *)VERSAL_NET_CRL_APB_BASEADDR)
+#define iou_scntr_secure ((struct iou_scntrs_regs *)VERSAL_NET_IOU_SCNTR_SECURE)
+
 #define PMC_TAP	0xF11A0000
 
 #define PMC_TAP_IDCODE		(PMC_TAP + 0)
