@@ -153,4 +153,9 @@ config SANDBOX_FPGA
 	  This is a driver model based FPGA driver for sandbox.
 	  Currently it is a stub only, as there are no usable uclass methods yet.
 
+config MAX_FPGA_DEVICES
+	int "Maximum number of FPGA devices"
+	depends on FPGA
+	default 5
+
 endmenu

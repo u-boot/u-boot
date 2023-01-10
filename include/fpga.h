@@ -9,10 +9,6 @@
 #ifndef _FPGA_H_
 #define _FPGA_H_
 
-#ifndef CONFIG_MAX_FPGA_DEVICES
-#define CONFIG_MAX_FPGA_DEVICES		5
-#endif
-
 /* fpga_xxxx function return value definitions */
 #define FPGA_SUCCESS		0
 #define FPGA_FAIL		1
