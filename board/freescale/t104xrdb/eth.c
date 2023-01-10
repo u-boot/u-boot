@@ -26,7 +26,7 @@ int board_eth_init(struct bd_info *bis)
 	printf("Initializing Fman\n");
 
 	memac_mdio_info.regs =
-		(struct memac_mdio_controller *)CONFIG_SYS_FM1_DTSEC_MDIO_ADDR;
+		(struct memac_mdio_controller *)CFG_SYS_FM1_DTSEC_MDIO_ADDR;
 	memac_mdio_info.name = DEFAULT_FM_MDIO_NAME;
 
 	/* Register the real 1G MDIO bus */

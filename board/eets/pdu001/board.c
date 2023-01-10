@@ -62,8 +62,8 @@ DECLARE_GLOBAL_DATA_PTR;
  * To get the boot device from 'am33xx_spl_board_init' to
  * 'board_late_init' we therefore use a scratch register from the RTC.
  */
-#define CONFIG_SYS_RTC_SCRATCH0 0x60
-#define BOOT_DEVICE_SAVE_REGISTER (RTC_BASE + CONFIG_SYS_RTC_SCRATCH0)
+#define CFG_SYS_RTC_SCRATCH0 0x60
+#define BOOT_DEVICE_SAVE_REGISTER (RTC_BASE + CFG_SYS_RTC_SCRATCH0)
 
 #ifdef CONFIG_SPL_BUILD
 static void save_boot_device(void)

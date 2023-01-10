@@ -17,8 +17,8 @@
 #include "../mt7621.h"
 #include "dram.h"
 
-#ifndef CONFIG_SYS_INIT_SP_ADDR
-#define CONFIG_SYS_INIT_SP_ADDR	(CFG_SYS_SDRAM_BASE + \
+#ifndef CFG_SYS_INIT_SP_ADDR
+#define CFG_SYS_INIT_SP_ADDR	(CFG_SYS_SDRAM_BASE + \
 				CFG_SYS_INIT_SP_OFFSET)
 #endif
 
@@ -31,7 +31,7 @@
 
 	.macro setup_stack_gd
 	li	t0, -16
-	PTR_LI	t1, CONFIG_SYS_INIT_SP_ADDR
+	PTR_LI	t1, CFG_SYS_INIT_SP_ADDR
 	and	sp, t1, t0		# force 16 byte alignment
 	PTR_SUBU \
 		sp, sp, GD_SIZE		# reserve space for gd
@@ -201,7 +201,7 @@ ENTRY(_start)
 
 #if CONFIG_IS_ENABLED(INIT_STACK_WITHOUT_MALLOC_F)
 	/* Set malloc base */
-	li	t0, (CONFIG_SYS_INIT_SP_ADDR + 15) & (~15)
+	li	t0, (CFG_SYS_INIT_SP_ADDR + 15) & (~15)
 	PTR_S	t0, GD_MALLOC_BASE(k0)	# gd->malloc_base offset
 #endif
 

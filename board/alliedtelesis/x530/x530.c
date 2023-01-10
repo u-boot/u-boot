@@ -26,8 +26,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define MVEBU_DEV_BUS_BASE		(MVEBU_REGISTER(0x10400))
 
-#define CONFIG_NVS_LOCATION		0xf4800000
-#define CONFIG_NVS_SIZE			(512 << 10)
+#define CFG_NVS_LOCATION		0xf4800000
+#define CFG_NVS_SIZE			(512 << 10)
 
 static struct serdes_map board_serdes_map[] = {
 	{PEX0, SERDES_SPEED_5_GBPS, PEX_ROOT_COMPLEX_X1, 0, 0},
@@ -109,7 +109,7 @@ int board_init(void)
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	/* window for NVS */
-	mbus_dt_setup_win(CONFIG_NVS_LOCATION, CONFIG_NVS_SIZE,
+	mbus_dt_setup_win(CFG_NVS_LOCATION, CFG_NVS_SIZE,
 			  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_DEV_CS1);
 
 	/* DEV_READYn is not needed for NVS, ignore it when accessing CS1 */

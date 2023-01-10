@@ -146,7 +146,7 @@ enum {
 	TWSI_STAT_IDLE			= 0xf8
 };
 
-#define CONFIG_SYS_I2C_OCTEON_SLAVE_ADDR	0x77
+#define CFG_SYS_I2C_OCTEON_SLAVE_ADDR	0x77
 
 enum {
 	PROBE_PCI = 0,		/* PCI based probing */
@@ -800,7 +800,7 @@ static int octeon_i2c_probe(struct udevice *dev)
 	twsi->base += twsi->data->reg_offs;
 
 	i2c_slave_addr = dev_read_u32_default(dev, "i2c-sda-hold-time-ns",
-					      CONFIG_SYS_I2C_OCTEON_SLAVE_ADDR);
+					      CFG_SYS_I2C_OCTEON_SLAVE_ADDR);
 
 	ret = clk_get_by_index(dev, 0, &twsi->clk);
 	if (ret < 0)

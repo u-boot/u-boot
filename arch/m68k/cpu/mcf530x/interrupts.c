@@ -24,6 +24,6 @@ void dtimer_intr_setup(void)
 	/* clearing TIMER2 mask, so enabling the related interrupt */
 	out_be32(&icr->imr, in_be32(&icr->imr) & ~0x00000400);
 	/* set TIMER2 interrupt priority */
-	out_8(&icr->icr2, CONFIG_SYS_TMRINTR_PRI);
+	out_8(&icr->icr2, CFG_SYS_TMRINTR_PRI);
 }
 #endif

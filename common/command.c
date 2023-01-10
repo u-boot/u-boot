@@ -68,7 +68,7 @@ int _do_help(struct cmd_tbl *cmd_start, int cmd_items, struct cmd_tbl *cmdtp,
 				return 1;
 			if (usage == NULL)
 				continue;
-			printf("%-*s- %s\n", CONFIG_SYS_HELP_CMD_WIDTH,
+			printf("%-*s- %s\n", CFG_SYS_HELP_CMD_WIDTH,
 			       cmd_array[i]->name, usage);
 		}
 		return 0;

@@ -21,8 +21,8 @@
 
 #ifdef CONFIG_DEBUG_UART_OMAP
 
-#ifndef CONFIG_SYS_NS16550_IER
-#define CONFIG_SYS_NS16550_IER  0x00
+#ifndef CFG_SYS_NS16550_IER
+#define CFG_SYS_NS16550_IER  0x00
 #endif
 
 #define UART_MCRVAL 0x00
@@ -71,7 +71,7 @@ static inline void _debug_uart_init(void)
 
 	baud_divisor = ns16550_calc_divisor(com_port, CONFIG_DEBUG_UART_CLOCK,
 					    CONFIG_BAUDRATE);
-	serial_dout(&com_port->ier, CONFIG_SYS_NS16550_IER);
+	serial_dout(&com_port->ier, CFG_SYS_NS16550_IER);
 	serial_dout(&com_port->mdr1, 0x7);
 	serial_dout(&com_port->mcr, UART_MCRVAL);
 	serial_dout(&com_port->fcr, UART_FCR_DEFVAL);

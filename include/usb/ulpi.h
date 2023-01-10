@@ -20,8 +20,8 @@
 
 #define ULPI_ERROR	(1 << 8) /* overflow from any register value */
 
-#ifndef CONFIG_USB_ULPI_TIMEOUT
-#define CONFIG_USB_ULPI_TIMEOUT 1000	/* timeout in us */
+#ifndef CFG_USB_ULPI_TIMEOUT
+#define CFG_USB_ULPI_TIMEOUT 1000	/* timeout in us */
 #endif
 
 /*

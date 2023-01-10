@@ -41,8 +41,8 @@ static ulong get_sp (void);
 extern void ft_fixup_num_cores(void *blob);
 static void set_clocks_in_mhz (struct bd_info *kbd);
 
-#ifndef CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE
-#define CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
+#ifndef CFG_SYS_LINUX_LOWMEM_MAX_SIZE
+#define CFG_SYS_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
 #endif
 
 static void boot_jump_linux(struct bootm_headers *images)
@@ -133,7 +133,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 #endif
 
 	size = min(bootm_size, get_effective_memsize());
-	size = min(size, (ulong)CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE);
+	size = min(size, (ulong)CFG_SYS_LINUX_LOWMEM_MAX_SIZE);
 
 	if (size < bootm_size) {
 		ulong base = bootmap_base + size;

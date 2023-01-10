@@ -255,14 +255,14 @@ static void fdt_fixup_srio_liodn(void *blob, struct srio_liodn_id_table *tbl)
 }
 #endif
 
-#define CONFIG_SYS_MAX_PCI_EPS		8
+#define CFG_SYS_MAX_PCI_EPS		8
 
 static void fdt_fixup_pci_liodn_offsets(void *fdt, const char *compat,
 					int ep_liodn_start)
 {
 	int off, pci_idx = 0, pci_cnt = 0, i, rc;
 	const uint32_t *base_liodn;
-	uint32_t liodn_offs[CONFIG_SYS_MAX_PCI_EPS + 1] = { 0 };
+	uint32_t liodn_offs[CFG_SYS_MAX_PCI_EPS + 1] = { 0 };
 
 	/*
 	 * Count the number of pci nodes.
@@ -282,7 +282,7 @@ static void fdt_fixup_pci_liodn_offsets(void *fdt, const char *compat,
 			       path, fdt_strerror(rc));
 			continue;
 		}
-		for (i = 0; i < CONFIG_SYS_MAX_PCI_EPS; i++)
+		for (i = 0; i < CFG_SYS_MAX_PCI_EPS; i++)
 			liodn_offs[i + 1] = ep_liodn_start +
 					i * pci_cnt + pci_idx - *base_liodn;
 		rc = fdt_setprop(fdt, off, "fsl,liodn-offset-list",

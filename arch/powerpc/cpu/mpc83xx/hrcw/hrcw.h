@@ -1,4 +1,4 @@
-#define CONFIG_SYS_HRCW_LOW (\
+#define CFG_SYS_HRCW_LOW (\
 	(CONFIG_LBMC_CLOCK_MODE << (31 - 0)) |\
 	(CONFIG_DDR_MC_CLOCK_MODE << (31 - 1)) |\
 	(CONFIG_SYSTEM_PLL_VCO_DIV << (31 - 3)) |\
@@ -9,7 +9,7 @@
 	(CONFIG_QUICC_MULT_FACTOR << (31 - 31)) \
 	)
 
-#define CONFIG_SYS_HRCW_HIGH (\
+#define CFG_SYS_HRCW_HIGH (\
 	(CONFIG_PCI_HOST_MODE << (31 - 0)) |\
 	(CONFIG_PCI_64BIT_MODE << (31 - 1)) |\
 	(CONFIG_PCI_INT_ARBITER1 << (31 - 2)) |\

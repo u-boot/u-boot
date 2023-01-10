@@ -18,8 +18,8 @@
 #endif
 
 /* Default to a width of 8 characters for help message command width */
-#ifndef CONFIG_SYS_HELP_CMD_WIDTH
-#define CONFIG_SYS_HELP_CMD_WIDTH	10
+#ifndef CFG_SYS_HELP_CMD_WIDTH
+#define CFG_SYS_HELP_CMD_WIDTH	10
 #endif
 
 #ifndef	__ASSEMBLY__

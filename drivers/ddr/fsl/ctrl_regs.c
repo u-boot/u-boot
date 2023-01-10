@@ -822,7 +822,7 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 		twot_en = popts->twot_en;
 	}
 
-	sdram_type = CONFIG_FSL_SDRAM_TYPE;
+	sdram_type = CFG_FSL_SDRAM_TYPE;
 
 	dyn_pwr = popts->dynamic_power;
 	dbw = popts->data_bus_width;
@@ -926,7 +926,7 @@ static void set_ddr_sdram_cfg_2(const unsigned int ctrl_num,
 		rcw_en = 1;
 
 	/* DDR4 can have address parity for UDIMM and discrete */
-	if ((CONFIG_FSL_SDRAM_TYPE != SDRAM_TYPE_DDR4) &&
+	if ((CFG_FSL_SDRAM_TYPE != SDRAM_TYPE_DDR4) &&
 	    (!popts->registered_dimm_en)) {
 		ap_en = 0;
 	} else {
@@ -1188,7 +1188,7 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 	 * handled by register chip and RCW settings.
 	 */
 	if ((ddr->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) &&
-	    ((CONFIG_FSL_SDRAM_TYPE != SDRAM_TYPE_DDR4) ||
+	    ((CFG_FSL_SDRAM_TYPE != SDRAM_TYPE_DDR4) ||
 	     !popts->registered_dimm_en)) {
 		if (mclk_ps >= 935) {
 			/* for DDR4-1600/1866/2133 */
@@ -1223,7 +1223,7 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 			}
 
 			if ((ddr->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) &&
-			    ((CONFIG_FSL_SDRAM_TYPE != SDRAM_TYPE_DDR4) ||
+			    ((CFG_FSL_SDRAM_TYPE != SDRAM_TYPE_DDR4) ||
 			     !popts->registered_dimm_en)) {
 				if (mclk_ps >= 935) {
 					/* for DDR4-1600/1866/2133 */
@@ -1983,7 +1983,7 @@ static void set_timing_cfg_7(const unsigned int ctrl_num,
 	tcksrx = max(5U, picos_to_mclk(ctrl_num, 10000));
 
 	if (ddr->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN &&
-	    CONFIG_FSL_SDRAM_TYPE == SDRAM_TYPE_DDR4) {
+	    CFG_FSL_SDRAM_TYPE == SDRAM_TYPE_DDR4) {
 		/* for DDR4 only */
 		par_lat = (ddr->ddr_sdram_rcw_2 & 0xf) + 1;
 		debug("PAR_LAT = %u for mclk_ps = %d\n", par_lat, mclk_ps);

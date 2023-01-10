@@ -48,25 +48,25 @@
 #if defined(CONFIG_SYS_FSL_DDR1)
 #define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(1)
 typedef ddr1_spd_eeprom_t generic_spd_eeprom_t;
-#ifndef CONFIG_FSL_SDRAM_TYPE
-#define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR1
+#ifndef CFG_FSL_SDRAM_TYPE
+#define CFG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR1
 #endif
 #elif defined(CONFIG_SYS_FSL_DDR2)
 #define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(3)
 typedef ddr2_spd_eeprom_t generic_spd_eeprom_t;
-#ifndef CONFIG_FSL_SDRAM_TYPE
-#define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR2
+#ifndef CFG_FSL_SDRAM_TYPE
+#define CFG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR2
 #endif
 #elif defined(CONFIG_SYS_FSL_DDR3)
 typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
-#ifndef CONFIG_FSL_SDRAM_TYPE
-#define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR3
+#ifndef CFG_FSL_SDRAM_TYPE
+#define CFG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR3
 #endif
 #elif defined(CONFIG_SYS_FSL_DDR4)
 #define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(3)	/* FIXME */
 typedef struct ddr4_spd_eeprom_s generic_spd_eeprom_t;
-#ifndef CONFIG_FSL_SDRAM_TYPE
-#define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR4
+#ifndef CFG_FSL_SDRAM_TYPE
+#define CFG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR4
 #endif
 #endif	/* #if defined(CONFIG_SYS_FSL_DDR1) */
 

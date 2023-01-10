@@ -207,7 +207,7 @@ int ulpi_suspend(struct ulpi_viewport *ulpi_vp)
 static int __ulpi_reset_wait(struct ulpi_viewport *ulpi_vp)
 {
 	u32 val;
-	int timeout = CONFIG_USB_ULPI_TIMEOUT;
+	int timeout = CFG_USB_ULPI_TIMEOUT;
 
 	/* Wait for the RESET bit to become zero */
 	while (--timeout) {

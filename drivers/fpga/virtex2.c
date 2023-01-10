@@ -34,8 +34,8 @@
 /*
  * Check for errors during configuration by default
  */
-#ifndef CONFIG_SYS_FPGA_CHECK_ERROR
-#define CONFIG_SYS_FPGA_CHECK_ERROR
+#ifndef CFG_SYS_FPGA_CHECK_ERROR
+#define CFG_SYS_FPGA_CHECK_ERROR
 #endif
 
 /*
@@ -323,7 +323,7 @@ static int virtex2_ssm_load(xilinx_desc *desc, const void *buf, size_t bsize)
 			break;
 		}
 
-#ifdef CONFIG_SYS_FPGA_CHECK_ERROR
+#ifdef CFG_SYS_FPGA_CHECK_ERROR
 		if ((*fn->init)(cookie)) {
 			printf("\n%s:%d:  ** Error: INIT asserted during configuration\n",
 			       __func__, __LINE__);
@@ -458,7 +458,7 @@ static int virtex2_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 				break;
 			}
 
-#ifdef CONFIG_SYS_FPGA_CHECK_ERROR
+#ifdef CFG_SYS_FPGA_CHECK_ERROR
 			if ((*fn->init)(cookie)) {
 				printf("\n%s:%d:  ** Error: INIT asserted during configuration\n",
 				       __func__, __LINE__);

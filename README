@@ -445,12 +445,12 @@ The following options need to be configured:
 		example "env grep" and "setexpr".
 
 - Watchdog:
-		CONFIG_SYS_WATCHDOG_FREQ
+		CFG_SYS_WATCHDOG_FREQ
 		Some platforms automatically call WATCHDOG_RESET()
 		from the timer interrupt handler every
-		CONFIG_SYS_WATCHDOG_FREQ interrupts. If not set by the
+		CFG_SYS_WATCHDOG_FREQ interrupts. If not set by the
 		board configuration file, a default of CONFIG_SYS_HZ/2
-		(i.e. 500) is used. Setting CONFIG_SYS_WATCHDOG_FREQ
+		(i.e. 500) is used. Setting CFG_SYS_WATCHDOG_FREQ
 		to 0 disables calling WATCHDOG_RESET() from the timer
 		interrupt.
 
@@ -523,7 +523,7 @@ The following options need to be configured:
 			CONFIG_LAN91C96_USE_32_BIT
 			Define this to enable 32 bit addressing
 
-			CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT
+			CFG_SYS_DAVINCI_EMAC_PHY_COUNT
 			Define this if you have more then 3 PHYs.
 
 		CONFIG_FTGMAC100
@@ -653,7 +653,7 @@ The following options need to be configured:
 		To enable the ULPI layer support, define CONFIG_USB_ULPI and
 		CONFIG_USB_ULPI_VIEWPORT in your board configuration file.
 		If your ULPI phy needs a different reference clock than the
-		standard 24 MHz then you have to define CONFIG_ULPI_REF_CLK to
+		standard 24 MHz then you have to define CFG_ULPI_REF_CLK to
 		the appropriate value in Hz.
 
 - MMC Support:
@@ -734,7 +734,7 @@ The following options need to be configured:
 		4th and following
 		BOOTP requests:		delay 0 ... 8 sec
 
-		CONFIG_BOOTP_ID_CACHE_SIZE
+		CFG_BOOTP_ID_CACHE_SIZE
 
 		BOOTP packets are uniquely identified using a 32-bit ID. The
 		server will copy the ID from client requests to responses and
@@ -747,7 +747,7 @@ The following options need to be configured:
 		time is too long, U-Boot will retransmit requests. In order
 		to allow earlier responses to still be accepted after these
 		retransmissions, U-Boot's BOOTP client keeps a small cache of
-		IDs. The CONFIG_BOOTP_ID_CACHE_SIZE controls the size of this
+		IDs. The CFG_BOOTP_ID_CACHE_SIZE controls the size of this
 		cache. The default is to keep IDs for up to four outstanding
 		requests. Increasing this will allow U-Boot to accept offers
 		from a BOOTP client in networks with unusually high latency.
@@ -832,11 +832,11 @@ The following options need to be configured:
 		status LED backend implementation. Define CONFIG_LED_STATUS_GPIO
 		to include the gpio_led driver in the U-Boot binary.
 
-		CONFIG_GPIO_LED_INVERTED_TABLE
+		CFG_GPIO_LED_INVERTED_TABLE
 		Some GPIO connected LEDs may have inverted polarity in which
 		case the GPIO high value corresponds to LED off state and
 		GPIO low value corresponds to LED on state.
-		In such cases CONFIG_GPIO_LED_INVERTED_TABLE may be defined
+		In such cases CFG_GPIO_LED_INVERTED_TABLE may be defined
 		with a list of GPIO LEDs that have inverted polarity.
 
 - I2C Support:
@@ -993,7 +993,7 @@ The following options need to be configured:
 		SPI EEPROM, also an instance works with Crystal A/D and
 		D/As on the SACSng board)
 
-		CONFIG_SYS_SPI_MXC_WAIT
+		CFG_SYS_SPI_MXC_WAIT
 		Timeout for waiting until spi transfer completed.
 		default: (CONFIG_SYS_HZ/100)     /* 10 ms */
 
@@ -1023,7 +1023,7 @@ The following options need to be configured:
 		If defined, a function that provides delays in the FPGA
 		configuration driver.
 
-		CONFIG_SYS_FPGA_CHECK_ERROR
+		CFG_SYS_FPGA_CHECK_ERROR
 
 		Check for configuration errors during FPGA bitfile
 		loading. For example, abort during Virtex II
@@ -1319,7 +1319,7 @@ Configuration Settings:
 - CONFIG_SYS_LONGHELP: Defined when you want long help messages included;
 		undefine this when you're short of memory.
 
-- CONFIG_SYS_HELP_CMD_WIDTH: Defined when you want to override the default
+- CFG_SYS_HELP_CMD_WIDTH: Defined when you want to override the default
 		width of the commands listed in the 'help' command output.
 
 - CONFIG_SYS_PROMPT:	This is what U-Boot prints on the console to

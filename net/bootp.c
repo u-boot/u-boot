@@ -44,15 +44,15 @@
 #define PORT_BOOTPS	67		/* BOOTP server UDP port */
 #define PORT_BOOTPC	68		/* BOOTP client UDP port */
 
-#ifndef CONFIG_DHCP_MIN_EXT_LEN		/* minimal length of extension list */
-#define CONFIG_DHCP_MIN_EXT_LEN 64
+#ifndef CFG_DHCP_MIN_EXT_LEN		/* minimal length of extension list */
+#define CFG_DHCP_MIN_EXT_LEN 64
 #endif
 
-#ifndef CONFIG_BOOTP_ID_CACHE_SIZE
-#define CONFIG_BOOTP_ID_CACHE_SIZE 4
+#ifndef CFG_BOOTP_ID_CACHE_SIZE
+#define CFG_BOOTP_ID_CACHE_SIZE 4
 #endif
 
-u32		bootp_ids[CONFIG_BOOTP_ID_CACHE_SIZE];
+u32		bootp_ids[CFG_BOOTP_ID_CACHE_SIZE];
 unsigned int	bootp_num_ids;
 int		bootp_try;
 ulong		bootp_start;
@@ -611,8 +611,8 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	*e++  = 255;		/* End of the list */
 
 	/* Pad to minimal length */
-#ifdef	CONFIG_DHCP_MIN_EXT_LEN
-	while ((e - start) < CONFIG_DHCP_MIN_EXT_LEN)
+#ifdef	CFG_DHCP_MIN_EXT_LEN
+	while ((e - start) < CFG_DHCP_MIN_EXT_LEN)
 		*e++ = 0;
 #endif
 

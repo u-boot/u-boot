@@ -41,10 +41,10 @@
  * PPAACT and SPAACT table for PAMU must be placed on DDR after DDR init
  * due to space crunch on CPC and thus malloc will not work.
  */
-#define CONFIG_SPL_PPAACT_ADDR		0x2e000000
-#define CONFIG_SPL_SPAACT_ADDR		0x2f000000
-#define CONFIG_SPL_JR0_LIODN_S		454
-#define CONFIG_SPL_JR0_LIODN_NS		458
+#define CFG_SPL_PPAACT_ADDR		0x2e000000
+#define CFG_SPL_SPAACT_ADDR		0x2f000000
+#define CFG_SPL_JR0_LIODN_S		454
+#define CFG_SPL_JR0_LIODN_NS		458
 #endif /* ifdef CONFIG_SPL_BUILD */
 
 #ifndef CONFIG_SPL_BUILD

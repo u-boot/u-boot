@@ -128,9 +128,9 @@ struct ept_queue_head {
 	unsigned reserved_4;
 };
 
-#define CONFIG_MAX_PKT(n)	((n) << 16)
-#define CONFIG_ZLT		(1 << 29)	/* stop on zero-len xfer */
-#define CONFIG_IOS		(1 << 15)	/* IRQ on setup */
+#define CFG_MAX_PKT(n)	((n) << 16)
+#define CFG_ZLT		(1 << 29)	/* stop on zero-len xfer */
+#define CFG_IOS		(1 << 15)	/* IRQ on setup */
 
 struct ept_queue_item {
 	unsigned next;

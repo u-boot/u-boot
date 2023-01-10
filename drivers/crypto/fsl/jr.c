@@ -328,7 +328,7 @@ static inline int run_descriptor_jr_idx(uint32_t *desc, uint8_t sec_idx)
 	caam = &caam_st;
 #endif
 	unsigned long long timeval = 0;
-	unsigned long long timeout = CONFIG_USEC_DEQ_TIMEOUT;
+	unsigned long long timeout = CFG_USEC_DEQ_TIMEOUT;
 	struct result op;
 	int ret = 0;
 
@@ -743,8 +743,8 @@ int sec_init_idx(uint8_t sec_idx)
 	 * creating PAMU entries corresponding to these.
 	 * For normal build, these are set in set_liodns().
 	 */
-	liodn_ns = CONFIG_SPL_JR0_LIODN_NS & JRNSLIODN_MASK;
-	liodn_s = CONFIG_SPL_JR0_LIODN_S & JRSLIODN_MASK;
+	liodn_ns = CFG_SPL_JR0_LIODN_NS & JRNSLIODN_MASK;
+	liodn_s = CFG_SPL_JR0_LIODN_S & JRSLIODN_MASK;
 
 	liodnr = sec_in32(&sec->jrliodnr[caam->jrid].ls) &
 		 ~(JRNSLIODN_MASK | JRSLIODN_MASK);

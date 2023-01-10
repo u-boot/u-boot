@@ -45,7 +45,7 @@ extern const struct pinctrl_ops imx_pinctrl_ops;
 
 #define SHARE_MUX_CONF_REG	0x1
 #define ZERO_OFFSET_VALID	0x2
-#define CONFIG_IBE_OBE		0x4
+#define CFG_IBE_OBE		0x4
 #define IMX8_USE_SCU		0x8
 
 #define IOMUXC_CONFIG_SION	(0x1 << 4)

@@ -104,10 +104,10 @@
  * -> WL = AL + CWL + PL = CWL
  * -> RL = AL + CL + PL = CL
  */
-#define CONFIG_WL			9
-#define CONFIG_RL			12
-#define T_RDDATA_EN			((CONFIG_RL - 2) << 8)
-#define T_PHY_WRLAT			(CONFIG_WL - 2)
+#define CFG_WL			9
+#define CFG_RL			12
+#define T_RDDATA_EN			((CFG_RL - 2) << 8)
+#define T_PHY_WRLAT			(CFG_WL - 2)
 
 /* MR0 */
 #define MR0_CL_12			(BIT(4) | BIT(2))
@@ -974,8 +974,8 @@ static void ast2600_sdrammc_common_init(struct ast2600_sdrammc_regs *regs)
 	/* update CL and WL */
 	reg = readl(&regs->ac_timing[1]);
 	reg &= ~(SDRAM_WL_SETTING | SDRAM_CL_SETTING);
-	reg |= FIELD_PREP(SDRAM_WL_SETTING, CONFIG_WL - 5) |
-	       FIELD_PREP(SDRAM_CL_SETTING, CONFIG_RL - 5);
+	reg |= FIELD_PREP(SDRAM_WL_SETTING, CFG_WL - 5) |
+	       FIELD_PREP(SDRAM_CL_SETTING, CFG_RL - 5);
 	writel(reg, &regs->ac_timing[1]);
 
 	writel(DDR4_MR01_MODE, &regs->mr01_mode_setting);

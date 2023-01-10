@@ -28,9 +28,9 @@
 #endif
 
 #if defined(CONFIG_MPC85xx)
-#define CONFIG_DCFG_ADDR	CFG_SYS_MPC85xx_GUTS_ADDR
+#define CFG_DCFG_ADDR	CFG_SYS_MPC85xx_GUTS_ADDR
 #else
-#define CONFIG_DCFG_ADDR	CFG_SYS_FSL_GUTS_ADDR
+#define CFG_DCFG_ADDR	CFG_SYS_FSL_GUTS_ADDR
 #endif
 
 #ifdef CONFIG_SYS_FSL_CCSR_GUR_LE
@@ -44,7 +44,7 @@ int fsl_check_boot_mode_secure(void)
 {
 	uint32_t val;
 	struct ccsr_sfp_regs *sfp_regs = (void *)(CFG_SYS_SFP_ADDR);
-	struct ccsr_gur __iomem *gur = (void *)(CONFIG_DCFG_ADDR);
+	struct ccsr_gur __iomem *gur = (void *)(CFG_DCFG_ADDR);
 
 	val = sfp_in32(&sfp_regs->ospr) & ITS_MASK;
 	if (val == ITS_MASK)

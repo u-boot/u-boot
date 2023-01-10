@@ -9,7 +9,7 @@ set either of these variables to "nc". Input and output can be
 switched independently.
 
 The default buffer size can be overridden by setting
-CONFIG_NETCONSOLE_BUFFER_SIZE.
+CFG_NETCONSOLE_BUFFER_SIZE.
 
 We use an environment variable 'ncip' to set the IP address and the
 port of the destination. The format is <ip_addr>:<port>. If <port> is

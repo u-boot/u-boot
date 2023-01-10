@@ -578,8 +578,8 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 
 #ifdef CONFIG_USB_ULPI
 /* if board file does not set a ULPI reference frequency we default to 24MHz */
-#ifndef CONFIG_ULPI_REF_CLK
-#define CONFIG_ULPI_REF_CLK 24000000
+#ifndef CFG_ULPI_REF_CLK
+#define CFG_ULPI_REF_CLK 24000000
 #endif
 
 /* set up the ULPI USB controller with the parameters provided */
@@ -594,7 +594,7 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 
 	/* set up ULPI reference clock on pllp_out4 */
 	clock_enable(PERIPH_ID_DEV2_OUT);
-	clock_set_pllout(CLOCK_ID_PERIPH, PLL_OUT4, CONFIG_ULPI_REF_CLK);
+	clock_set_pllout(CLOCK_ID_PERIPH, PLL_OUT4, CFG_ULPI_REF_CLK);
 
 	/* reset ULPI phy */
 	if (dm_gpio_is_valid(&config->phy_reset_gpio)) {

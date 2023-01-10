@@ -28,8 +28,8 @@
 #define CMU_MASTER_CDN_O	BIT(24)
 
 #define COMLANE_R138		0xb38
-#define CONFIG_VERSION_REG_MASK	GENMASK(23, 16)
-#define CONFIG_VERSION_REG_SHIFT 16
+#define CFG_VERSION_REG_MASK	GENMASK(23, 16)
+#define CFG_VERSION_REG_SHIFT 16
 #define VERSION			0x70
 
 #define COMLANE_R190		0xb90
@@ -286,8 +286,8 @@ static int serdes_am654_init(struct phy *x)
 	u32 mask;
 	u32 val;
 
-	mask = CONFIG_VERSION_REG_MASK;
-	val = VERSION << CONFIG_VERSION_REG_SHIFT;
+	mask = CFG_VERSION_REG_MASK;
+	val = VERSION << CFG_VERSION_REG_SHIFT;
 	regmap_update_bits(phy->regmap, COMLANE_R138, mask, val);
 
 	val = CMU_MASTER_CDN_O;

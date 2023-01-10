@@ -14,7 +14,7 @@
 #include <asm/immap.h>
 #include <asm/ptrace.h>
 
-#define	NR_IRQS		(CONFIG_SYS_NUM_IRQS)
+#define	NR_IRQS		(CFG_SYS_NUM_IRQS)
 
 /*
  * Interrupt vector functions.

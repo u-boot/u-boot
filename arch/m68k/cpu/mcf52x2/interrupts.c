@@ -37,10 +37,10 @@ int interrupt_init(void)
 #if defined(CONFIG_MCFTMR)
 void dtimer_intr_setup(void)
 {
-	intctrl_t *intp = (intctrl_t *) (CONFIG_SYS_INTR_BASE);
+	intctrl_t *intp = (intctrl_t *) (CFG_SYS_INTR_BASE);
 
 	clrbits_be32(&intp->int_icr1, INT_ICR1_TMR3MASK);
-	setbits_be32(&intp->int_icr1, CONFIG_SYS_TMRINTR_PRI);
+	setbits_be32(&intp->int_icr1, CFG_SYS_TMRINTR_PRI);
 }
 #endif				/* CONFIG_MCFTMR */
 #endif				/* CONFIG_M5272 */
@@ -49,7 +49,7 @@ void dtimer_intr_setup(void)
     defined(CONFIG_M5271) || defined(CONFIG_M5275)
 int interrupt_init(void)
 {
-	int0_t *intp = (int0_t *) (CONFIG_SYS_INTR_BASE);
+	int0_t *intp = (int0_t *) (CFG_SYS_INTR_BASE);
 
 	/* Make sure all interrupts are disabled */
 #if defined(CONFIG_M5208)
@@ -66,11 +66,11 @@ int interrupt_init(void)
 #if defined(CONFIG_MCFTMR)
 void dtimer_intr_setup(void)
 {
-	int0_t *intp = (int0_t *) (CONFIG_SYS_INTR_BASE);
+	int0_t *intp = (int0_t *) (CFG_SYS_INTR_BASE);
 
-	out_8(&intp->icr0[CONFIG_SYS_TMRINTR_NO], CONFIG_SYS_TMRINTR_PRI);
+	out_8(&intp->icr0[CFG_SYS_TMRINTR_NO], CFG_SYS_TMRINTR_PRI);
 	clrbits_be32(&intp->imrl0, 0x00000001);
-	clrbits_be32(&intp->imrl0, CONFIG_SYS_TMRINTR_MASK);
+	clrbits_be32(&intp->imrl0, CFG_SYS_TMRINTR_MASK);
 }
 #endif				/* CONFIG_MCFTMR */
 #endif				/* CONFIG_M5282 | CONFIG_M5271 | CONFIG_M5275 */
@@ -87,7 +87,7 @@ int interrupt_init(void)
 void dtimer_intr_setup(void)
 {
 	mbar_writeLong(MCFSIM_IMR, mbar_readLong(MCFSIM_IMR) & ~0x00000400);
-	mbar_writeByte(MCFSIM_TIMER2ICR, CONFIG_SYS_TMRINTR_PRI);
+	mbar_writeByte(MCFSIM_TIMER2ICR, CFG_SYS_TMRINTR_PRI);
 }
 #endif				/* CONFIG_MCFTMR */
 #endif				/* CONFIG_M5249 || CONFIG_M5253 */

@@ -9,23 +9,23 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 
-#ifndef CONFIG_MPC83XX_GPIO_0_INIT_DIRECTION
-#define CONFIG_MPC83XX_GPIO_0_INIT_DIRECTION 0
+#ifndef CFG_MPC83XX_GPIO_0_INIT_DIRECTION
+#define CFG_MPC83XX_GPIO_0_INIT_DIRECTION 0
 #endif
-#ifndef CONFIG_MPC83XX_GPIO_1_INIT_DIRECTION
-#define CONFIG_MPC83XX_GPIO_1_INIT_DIRECTION 0
+#ifndef CFG_MPC83XX_GPIO_1_INIT_DIRECTION
+#define CFG_MPC83XX_GPIO_1_INIT_DIRECTION 0
 #endif
-#ifndef CONFIG_MPC83XX_GPIO_0_INIT_OPEN_DRAIN
-#define CONFIG_MPC83XX_GPIO_0_INIT_OPEN_DRAIN 0
+#ifndef CFG_MPC83XX_GPIO_0_INIT_OPEN_DRAIN
+#define CFG_MPC83XX_GPIO_0_INIT_OPEN_DRAIN 0
 #endif
-#ifndef CONFIG_MPC83XX_GPIO_1_INIT_OPEN_DRAIN
-#define CONFIG_MPC83XX_GPIO_1_INIT_OPEN_DRAIN 0
+#ifndef CFG_MPC83XX_GPIO_1_INIT_OPEN_DRAIN
+#define CFG_MPC83XX_GPIO_1_INIT_OPEN_DRAIN 0
 #endif
-#ifndef CONFIG_MPC83XX_GPIO_0_INIT_VALUE
-#define CONFIG_MPC83XX_GPIO_0_INIT_VALUE 0
+#ifndef CFG_MPC83XX_GPIO_0_INIT_VALUE
+#define CFG_MPC83XX_GPIO_0_INIT_VALUE 0
 #endif
-#ifndef CONFIG_MPC83XX_GPIO_1_INIT_VALUE
-#define CONFIG_MPC83XX_GPIO_1_INIT_VALUE 0
+#ifndef CFG_MPC83XX_GPIO_1_INIT_VALUE
+#define CFG_MPC83XX_GPIO_1_INIT_VALUE 0
 #endif
 
 static unsigned int gpio_output_value[MPC83XX_GPIO_CTRLRS];
@@ -152,18 +152,18 @@ void mpc83xx_gpio_init_f(void)
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 
 #if MPC83XX_GPIO_CTRLRS >= 1
-	out_be32(&im->gpio[0].dir, CONFIG_MPC83XX_GPIO_0_INIT_DIRECTION);
-	out_be32(&im->gpio[0].odr, CONFIG_MPC83XX_GPIO_0_INIT_OPEN_DRAIN);
-	out_be32(&im->gpio[0].dat, CONFIG_MPC83XX_GPIO_0_INIT_VALUE);
+	out_be32(&im->gpio[0].dir, CFG_MPC83XX_GPIO_0_INIT_DIRECTION);
+	out_be32(&im->gpio[0].odr, CFG_MPC83XX_GPIO_0_INIT_OPEN_DRAIN);
+	out_be32(&im->gpio[0].dat, CFG_MPC83XX_GPIO_0_INIT_VALUE);
 	out_be32(&im->gpio[0].ier, 0xFFFFFFFF); /* Clear all events */
 	out_be32(&im->gpio[0].imr, 0);
 	out_be32(&im->gpio[0].icr, 0);
 #endif
 
 #if MPC83XX_GPIO_CTRLRS >= 2
-	out_be32(&im->gpio[1].dir, CONFIG_MPC83XX_GPIO_1_INIT_DIRECTION);
-	out_be32(&im->gpio[1].odr, CONFIG_MPC83XX_GPIO_1_INIT_OPEN_DRAIN);
-	out_be32(&im->gpio[1].dat, CONFIG_MPC83XX_GPIO_1_INIT_VALUE);
+	out_be32(&im->gpio[1].dir, CFG_MPC83XX_GPIO_1_INIT_DIRECTION);
+	out_be32(&im->gpio[1].odr, CFG_MPC83XX_GPIO_1_INIT_OPEN_DRAIN);
+	out_be32(&im->gpio[1].dat, CFG_MPC83XX_GPIO_1_INIT_VALUE);
 	out_be32(&im->gpio[1].ier, 0xFFFFFFFF); /* Clear all events */
 	out_be32(&im->gpio[1].imr, 0);
 	out_be32(&im->gpio[1].icr, 0);
@@ -174,10 +174,10 @@ void mpc83xx_gpio_init_f(void)
 void mpc83xx_gpio_init_r(void)
 {
 #if MPC83XX_GPIO_CTRLRS >= 1
-	gpio_output_value[0] = CONFIG_MPC83XX_GPIO_0_INIT_VALUE;
+	gpio_output_value[0] = CFG_MPC83XX_GPIO_0_INIT_VALUE;
 #endif
 
 #if MPC83XX_GPIO_CTRLRS >= 2
-	gpio_output_value[1] = CONFIG_MPC83XX_GPIO_1_INIT_VALUE;
+	gpio_output_value[1] = CFG_MPC83XX_GPIO_1_INIT_VALUE;
 #endif
 }

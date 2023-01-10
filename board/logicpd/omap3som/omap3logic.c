@@ -58,7 +58,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG6	0x09030000
 #define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG7	0x00000C50
 
-#define CONFIG_SMC911X_BASE 0x08000000
+#define CFG_SMC911X_BASE 0x08000000
 
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
@@ -226,7 +226,7 @@ int board_late_init(void)
 
 #ifdef CONFIG_SMC911X
 	enable_gpmc_cs_config(gpmc_lan92xx_config, &gpmc_cfg->cs[1],
-			CONFIG_SMC911X_BASE, GPMC_SIZE_16M);
+			CFG_SMC911X_BASE, GPMC_SIZE_16M);
 #endif
 	return 0;
 }

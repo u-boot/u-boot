@@ -587,7 +587,7 @@ enum mv_netc_lanes {
 
 /* Default number of RXQs in use */
 #define MVPP2_DEFAULT_RXQ		1
-#define CONFIG_MV_ETH_RXQ		8	/* increment by 8 */
+#define CFG_MV_ETH_RXQ		8	/* increment by 8 */
 
 /* Max number of Rx descriptors */
 #define MVPP2_MAX_RXD			16

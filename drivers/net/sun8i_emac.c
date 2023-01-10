@@ -43,19 +43,19 @@
 #define MDIO_CMD_MII_CLK_CSR_DIV_128	0x3
 #define MDIO_CMD_MII_CLK_CSR_SHIFT	20
 
-#define CONFIG_TX_DESCR_NUM	32
-#define CONFIG_RX_DESCR_NUM	32
-#define CONFIG_ETH_BUFSIZE	2048 /* Note must be dma aligned */
+#define CFG_TX_DESCR_NUM	32
+#define CFG_RX_DESCR_NUM	32
+#define CFG_ETH_BUFSIZE	2048 /* Note must be dma aligned */
 
 /*
  * The datasheet says that each descriptor can transfers up to 4096 bytes
  * But later, the register documentation reduces that value to 2048,
  * using 2048 cause strange behaviours and even BSP driver use 2047
  */
-#define CONFIG_ETH_RXSIZE	2044 /* Note must fit in ETH_BUFSIZE */
+#define CFG_ETH_RXSIZE	2044 /* Note must fit in ETH_BUFSIZE */
 
-#define TX_TOTAL_BUFSIZE	(CONFIG_ETH_BUFSIZE * CONFIG_TX_DESCR_NUM)
-#define RX_TOTAL_BUFSIZE	(CONFIG_ETH_BUFSIZE * CONFIG_RX_DESCR_NUM)
+#define TX_TOTAL_BUFSIZE	(CFG_ETH_BUFSIZE * CFG_TX_DESCR_NUM)
+#define RX_TOTAL_BUFSIZE	(CFG_ETH_BUFSIZE * CFG_RX_DESCR_NUM)
 
 #define H3_EPHY_DEFAULT_VALUE	0x58000
 #define H3_EPHY_DEFAULT_MASK	GENMASK(31, 15)
@@ -75,7 +75,7 @@
 #define SC_ERXDC_MASK		GENMASK(9, 5)
 #define SC_ERXDC_OFFSET		5
 
-#define CONFIG_MDIO_TIMEOUT	(3 * CONFIG_SYS_HZ)
+#define CFG_MDIO_TIMEOUT	(3 * CONFIG_SYS_HZ)
 
 #define AHB_GATE_OFFSET_EPHY	0
 
@@ -143,8 +143,8 @@ struct emac_dma_desc {
 } __aligned(ARCH_DMA_MINALIGN);
 
 struct emac_eth_dev {
-	struct emac_dma_desc rx_chain[CONFIG_TX_DESCR_NUM];
-	struct emac_dma_desc tx_chain[CONFIG_RX_DESCR_NUM];
+	struct emac_dma_desc rx_chain[CFG_TX_DESCR_NUM];
+	struct emac_dma_desc tx_chain[CFG_RX_DESCR_NUM];
 	char rxbuffer[RX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
 	char txbuffer[TX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
 
@@ -209,7 +209,7 @@ static int sun8i_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 
 	ret = wait_for_bit_le32(priv->mac_reg + EMAC_MII_CMD,
 				MDIO_CMD_MII_BUSY, false,
-				CONFIG_MDIO_TIMEOUT, true);
+				CFG_MDIO_TIMEOUT, true);
 	if (ret < 0)
 		return ret;
 
@@ -244,7 +244,7 @@ static int sun8i_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 
 	return wait_for_bit_le32(priv->mac_reg + EMAC_MII_CMD,
 				 MDIO_CMD_MII_BUSY, false,
-				 CONFIG_MDIO_TIMEOUT, true);
+				 CFG_MDIO_TIMEOUT, true);
 }
 
 static int sun8i_eth_write_hwaddr(struct udevice *dev)
@@ -412,11 +412,11 @@ static void rx_descs_init(struct emac_eth_dev *priv)
 	invalidate_dcache_range((uintptr_t)rxbuffs,
 				(uintptr_t)rxbuffs + sizeof(priv->rxbuffer));
 
-	for (i = 0; i < CONFIG_RX_DESCR_NUM; i++) {
+	for (i = 0; i < CFG_RX_DESCR_NUM; i++) {
 		desc_p = &desc_table_p[i];
-		desc_p->buf_addr = (uintptr_t)&rxbuffs[i * CONFIG_ETH_BUFSIZE];
+		desc_p->buf_addr = (uintptr_t)&rxbuffs[i * CFG_ETH_BUFSIZE];
 		desc_p->next = (uintptr_t)&desc_table_p[i + 1];
-		desc_p->ctl_size = CONFIG_ETH_RXSIZE;
+		desc_p->ctl_size = CFG_ETH_RXSIZE;
 		desc_p->status = EMAC_DESC_OWN_DMA;
 	}
 
@@ -438,9 +438,9 @@ static void tx_descs_init(struct emac_eth_dev *priv)
 	struct emac_dma_desc *desc_p;
 	int i;
 
-	for (i = 0; i < CONFIG_TX_DESCR_NUM; i++) {
+	for (i = 0; i < CFG_TX_DESCR_NUM; i++) {
 		desc_p = &desc_table_p[i];
-		desc_p->buf_addr = (uintptr_t)&txbuffs[i * CONFIG_ETH_BUFSIZE];
+		desc_p->buf_addr = (uintptr_t)&txbuffs[i * CFG_ETH_BUFSIZE];
 		desc_p->next = (uintptr_t)&desc_table_p[i + 1];
 		desc_p->ctl_size = 0;
 		desc_p->status = 0;
@@ -541,7 +541,7 @@ static int sun8i_emac_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 		return 0;
 	}
 
-	if (length > CONFIG_ETH_RXSIZE) {
+	if (length > CFG_ETH_RXSIZE) {
 		debug("RX: Too large packet (%d bytes)\n", length);
 		return 0;
 	}
@@ -575,7 +575,7 @@ static int sun8i_emac_eth_send(struct udevice *dev, void *packet, int length)
 	cache_clean_descriptor(desc_p);
 
 	/* Move to next Descriptor and wrap around */
-	if (++desc_num >= CONFIG_TX_DESCR_NUM)
+	if (++desc_num >= CFG_TX_DESCR_NUM)
 		desc_num = 0;
 	priv->tx_currdescnum = desc_num;
 
@@ -701,7 +701,7 @@ static int sun8i_eth_free_pkt(struct udevice *dev, uchar *packet,
 	cache_clean_descriptor(desc_p);
 
 	/* Move to next desc and wrap-around condition. */
-	if (++desc_num >= CONFIG_RX_DESCR_NUM)
+	if (++desc_num >= CFG_RX_DESCR_NUM)
 		desc_num = 0;
 	priv->rx_currdescnum = desc_num;
 
