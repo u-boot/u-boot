@@ -16,16 +16,6 @@
  */
 #define ARCH_DMA_MINALIGN	128
 
-#if defined(ARC_MMU_ABSENT)
-#define CONFIG_ARC_MMU_VER 0
-#elif defined(CONFIG_ARC_MMU_V2)
-#define CONFIG_ARC_MMU_VER 2
-#elif defined(CONFIG_ARC_MMU_V3)
-#define CONFIG_ARC_MMU_VER 3
-#elif defined(CONFIG_ARC_MMU_V4)
-#define CONFIG_ARC_MMU_VER 4
-#endif
-
 #ifndef __ASSEMBLY__
 
 void cache_init(void);
