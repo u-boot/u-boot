@@ -286,4 +286,13 @@ config HAS_FSL_DR_USB
 config SYS_DPAA_FMAN
 	bool
 
+config SYS_FSL_SRDS_1
+	bool
+
+config SYS_FSL_SRDS_2
+	bool
+
+config SYS_HAS_SERDES
+	bool
+
 endmenu

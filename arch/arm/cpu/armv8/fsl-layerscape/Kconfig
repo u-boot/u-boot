@@ -567,16 +567,7 @@ config SYS_DP_DDR_BASE_PHY
 	  DDR controller uses this value as the base address for binding.
 	  It is mapped to CONFIG_SYS_DP_DDR_BASE for core to access.
 
-config SYS_FSL_SRDS_1
-	bool
-
-config SYS_FSL_SRDS_2
-	bool
-
 config SYS_NXP_SRDS_3
-	bool
-
-config SYS_HAS_SERDES
 	bool
 
 config FSL_TZASC_1
