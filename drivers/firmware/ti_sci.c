@@ -1935,7 +1935,7 @@ static int ti_sci_cmd_proc_auth_boot_image(const struct ti_sci_handle *handle,
 
 	info = handle_to_ti_sci_info(handle);
 
-	xfer = ti_sci_setup_one_xfer(info, TISCI_MSG_PROC_AUTH_BOOT_IMIAGE,
+	xfer = ti_sci_setup_one_xfer(info, TISCI_MSG_PROC_AUTH_BOOT_IMAGE,
 				     TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
