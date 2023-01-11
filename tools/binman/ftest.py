@@ -6188,6 +6188,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             err,
             "Image '.*' is missing external blobs but is still functional: missing")
 
+    def testSectionInner(self):
+        """Test an inner section with a size"""
+        data = self._DoReadFile('267_section_inner.dts')
+        expected = U_BOOT_DATA + tools.get_bytes(0, 12)
+        self.assertEqual(expected, data)
+
 
 if __name__ == "__main__":
     unittest.main()
