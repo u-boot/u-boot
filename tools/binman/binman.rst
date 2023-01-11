@@ -823,6 +823,13 @@ elf-base-sym:
     needed. Add this symbol to the properties for the blob so that symbols can
     be read correctly. See binman_syms_ for more information.
 
+offset-from-elf:
+    Sets the offset of an entry based on a symbol value in an another entry.
+    The format is <&phandle>, "sym_name", <offset> where phandle is the entry
+    containing the blob (with associated ELF file providing symbols), <sym_name>
+    is the symbol to lookup (relative to elf-base-sym) and <offset> is an offset
+    to add to that value.
+
 Examples of the above options can be found in the tests. See the
 tools/binman/test directory.
 

@@ -145,6 +145,7 @@ class Entry(object):
         self.optional = False
         self.overlap = False
         self.elf_base_sym = None
+        self.offset_from_elf = None
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -303,6 +304,8 @@ class Entry(object):
 
         # This is only supported by blobs and sections at present
         self.compress = fdt_util.GetString(self._node, 'compress', 'none')
+        self.offset_from_elf = fdt_util.GetPhandleNameOffset(self._node,
+                                                             'offset-from-elf')
 
     def GetDefaultFilename(self):
         return None
@@ -499,7 +502,10 @@ class Entry(object):
             if self.offset_unset:
                 self.Raise('No offset set with offset-unset: should another '
                            'entry provide this correct offset?')
-            self.offset = tools.align(offset, self.align)
+            elif self.offset_from_elf:
+                self.offset = self.lookup_offset()
+            else:
+                self.offset = tools.align(offset, self.align)
         needed = self.pad_before + self.contents_size + self.pad_after
         needed = tools.align(needed, self.align_size)
         size = self.size
@@ -1328,3 +1334,14 @@ features to produce new behaviours.
                 int: entry address of ELF file
         """
         return None
+
+    def lookup_offset(self):
+        node, sym_name, offset = self.offset_from_elf
+        entry = self.section.FindEntryByNode(node)
+        if not entry:
+            self.Raise("Cannot find entry for node '%s'" % node.name)
+        if not entry.elf_fname:
+            entry.Raise("Need elf-fname property '%s'" % node.name)
+        val = elf.GetSymbolOffset(entry.elf_fname, sym_name,
+                                  entry.elf_base_sym)
+        return val + offset

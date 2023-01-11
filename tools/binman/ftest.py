@@ -6281,6 +6281,34 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         expected = sym_values
         self.assertEqual(expected, data[:len(expected)])
 
+    def testOffsetFromElf(self):
+        """Test a blob with symbols read from an ELF file"""
+        elf_fname = self.ElfTestFile('blob_syms')
+        TestFunctional._MakeInputFile('blob_syms', tools.read_file(elf_fname))
+        TestFunctional._MakeInputFile('blob_syms.bin',
+            tools.read_file(self.ElfTestFile('blob_syms.bin')))
+
+        data = self._DoReadFile('274_offset_from_elf.dts')
+
+        syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
+        base = elf.GetSymbolAddress(elf_fname, '__my_start_sym')
+
+        image = control.images['image']
+        entries = image.GetEntries()
+
+        self.assertIn('inset', entries)
+        inset = entries['inset']
+
+        self.assertEqual(base + 4, inset.offset);
+        self.assertEqual(base + 4, inset.image_pos);
+        self.assertEqual(4, inset.size);
+
+        self.assertIn('inset2', entries)
+        inset = entries['inset2']
+        self.assertEqual(base + 8, inset.offset);
+        self.assertEqual(base + 8, inset.image_pos);
+        self.assertEqual(4, inset.size);
+
 
 if __name__ == "__main__":
     unittest.main()
