@@ -15,6 +15,29 @@
 /* DDR Configuration */
 #define CFG_SYS_SDRAM_BASE1		0x880000000
 
+#ifdef CONFIG_CMD_MMC
+#define DISTRO_BOOT_DEV_MMC(func) func(MMC, mmc, 0) func(MMC, mmc, 1)
+#else
+#define DISTRO_BOOT_DEV_MMC(func)
+#endif
+
+#ifdef CONFIG_CMD_PXE
+#define DISTRO_BOOT_DEV_PXE(func) func(PXE, pxe, na)
+#else
+#define DISTRO_BOOT_DEV_PXE(func)
+#endif
+
+#ifdef CONFIG_CMD_DHCP
+#define DISTRO_BOOT_DEV_DHCP(func) func(DHCP, dhcp, na)
+#else
+#define DISTRO_BOOT_DEV_DHCP(func)
+#endif
+
+#define BOOT_TARGET_DEVICES(func) \
+	DISTRO_BOOT_DEV_MMC(func) \
+	DISTRO_BOOT_DEV_PXE(func) \
+	DISTRO_BOOT_DEV_DHCP(func)
+
 #define PARTS_DEFAULT \
 	/* Linux partitions */ \
 	"name=rootfs,start=0,size=-,uuid=${uuid_gpt_rootfs}\0"
@@ -59,7 +82,8 @@
 	DEFAULT_LINUX_BOOT_ENV						\
 	DEFAULT_MMC_TI_ARGS						\
 	EXTRA_ENV_AM625_BOARD_SETTINGS					\
-	EXTRA_ENV_AM625_BOARD_SETTINGS_MMC
+	EXTRA_ENV_AM625_BOARD_SETTINGS_MMC				\
+	BOOTENV
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>

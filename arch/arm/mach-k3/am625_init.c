@@ -173,21 +173,20 @@ void board_init_f(ulong dummy)
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 {
 	u32 devstat = readl(CTRLMMR_MAIN_DEVSTAT);
+	u32 bootmode = (devstat & MAIN_DEVSTAT_PRIMARY_BOOTMODE_MASK) >>
+				MAIN_DEVSTAT_PRIMARY_BOOTMODE_SHIFT;
 	u32 bootmode_cfg = (devstat & MAIN_DEVSTAT_PRIMARY_BOOTMODE_CFG_MASK) >>
 			    MAIN_DEVSTAT_PRIMARY_BOOTMODE_CFG_SHIFT;
 
-	switch (boot_device) {
-	case BOOT_DEVICE_MMC1:
-		if ((bootmode_cfg & MAIN_DEVSTAT_PRIMARY_MMC_FS_RAW_MASK) >>
-		     MAIN_DEVSTAT_PRIMARY_MMC_FS_RAW_SHIFT)
-			return MMCSD_MODE_EMMCBOOT;
-		return MMCSD_MODE_FS;
 
-	case BOOT_DEVICE_MMC2:
-		return MMCSD_MODE_FS;
-
+	switch (bootmode) {
+	case BOOT_DEVICE_EMMC:
+		return MMCSD_MODE_EMMCBOOT;
+	case BOOT_DEVICE_MMC:
+		if (bootmode_cfg & MAIN_DEVSTAT_PRIMARY_MMC_FS_RAW_MASK)
+			return MMCSD_MODE_RAW;
 	default:
-		return MMCSD_MODE_RAW;
+		return MMCSD_MODE_FS;
 	}
 }
 

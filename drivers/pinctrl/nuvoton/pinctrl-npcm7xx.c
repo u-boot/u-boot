@@ -47,6 +47,10 @@
 #define WD0RST				BIT(29)
 #define WD1RST				BIT(24)
 #define WD2RST				BIT(23)
+#define SWRST1				BIT(28)
+#define SWRST2				BIT(27)
+#define SWRST3				BIT(26)
+#define SW4RST				BIT(25)
 
 #define GPIOX_MODULE_RESET		16
 #define CA9C_RESET			BIT(0)
@@ -1374,6 +1378,14 @@ static bool is_gpio_persist(struct udevice *dev, u8 bank)
 		regmap_read(priv->rst_regmap, NPCM7XX_RST_WD1RCR, &tmp);
 	else if (value & WD2RST)
 		regmap_read(priv->rst_regmap, NPCM7XX_RST_WD2RCR, &tmp);
+	else if (value & SWRST1)
+                regmap_read(priv->rst_regmap, NPCM7XX_RST_SWRSTC1, &tmp);
+	else if (value & SWRST2)
+                regmap_read(priv->rst_regmap, NPCM7XX_RST_SWRSTC2, &tmp);
+	else if (value & SWRST3)
+                regmap_read(priv->rst_regmap, NPCM7XX_RST_SWRSTC3, &tmp);
+	else if (value & SW4RST)
+                regmap_read(priv->rst_regmap, NPCM7XX_RST_SWRSTC4, &tmp);
 	else
 		return false;
 
@@ -1392,11 +1404,19 @@ static int npcm7xx_gpio_reset_persist(struct udevice *dev, unsigned int banknum,
 		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD1RCR, BIT(num), 0);
 		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD2RCR, BIT(num), 0);
 		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_CORSTC, BIT(num), 0);
+		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_SWRSTC1, BIT(num), 0);
+		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_SWRSTC2, BIT(num), 0);
+		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_SWRSTC3, BIT(num), 0);
+		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_SWRSTC4, BIT(num), 0);
 	} else {
 		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD0RCR, BIT(num) | CA9C_RESET, BIT(num) | CA9C_RESET);
 		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD1RCR, BIT(num) | CA9C_RESET, BIT(num) | CA9C_RESET);
 		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_WD2RCR, BIT(num) | CA9C_RESET, BIT(num) | CA9C_RESET);
 		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_CORSTC, BIT(num) | CA9C_RESET, BIT(num) | CA9C_RESET);
+		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_SWRSTC1, BIT(num) | CA9C_RESET, BIT(num) | CA9C_RESET);
+		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_SWRSTC2, BIT(num) | CA9C_RESET, BIT(num) | CA9C_RESET);
+		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_SWRSTC3, BIT(num) | CA9C_RESET, BIT(num) | CA9C_RESET);
+		regmap_update_bits(priv->rst_regmap, NPCM7XX_RST_SWRSTC4, BIT(num) | CA9C_RESET, BIT(num) | CA9C_RESET);
 	}
 
 	return 0;

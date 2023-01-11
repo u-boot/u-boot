@@ -25,8 +25,11 @@ static struct rom_extended_boot_data bootdata __section(".data");
 static void store_boot_info_from_rom(void)
 {
 	bootindex = *(u32 *)(CONFIG_SYS_K3_BOOT_PARAM_TABLE_INDEX);
-	memcpy(&bootdata, (uintptr_t *)ROM_ENTENDED_BOOT_DATA_INFO,
-	       sizeof(struct rom_extended_boot_data));
+
+	if (IS_ENABLED(CONFIG_CPU_V7R)) {
+		memcpy(&bootdata, (uintptr_t *)ROM_ENTENDED_BOOT_DATA_INFO,
+		       sizeof(struct rom_extended_boot_data));
+	}
 }
 
 static void ctrl_mmr_unlock(void)
@@ -121,6 +124,15 @@ void board_init_f(ulong dummy)
 		panic("ROM has not loaded TIFS firmware\n");
 
 	k3_sysfw_loader(true, NULL, NULL);
+#endif
+
+#if defined(CONFIG_CPU_V7R)
+	/*
+	 * Relocate boot information to OCRAM (after TIFS has opend this
+	 * region for us) so the next bootloader stages can keep access to
+	 * primary vs backup bootmodes.
+	 */
+	writel(bootindex, K3_BOOT_PARAM_TABLE_INDEX_OCRAM);
 #endif
 
 	/*

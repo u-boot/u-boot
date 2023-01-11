@@ -163,7 +163,7 @@ config SYS_SOC
 source "board/logicpd/am3517evm/Kconfig"
 source "board/ti/beagle/Kconfig"
 source "board/timll/devkit8000/Kconfig"
-source "board/ti/evm/Kconfig"
+source "board/ti/omap3evm/Kconfig"
 source "board/isee/igep00x0/Kconfig"
 source "board/logicpd/omap3som/Kconfig"
 source "board/nokia/rx51/Kconfig"

@@ -69,7 +69,9 @@ config SYS_K3_BOOT_PARAM_TABLE_INDEX
 	default 0x41cffbfc if SOC_K3_J721E
 	default 0x41cfdbfc if SOC_K3_J721S2
 	default 0x701bebfc if SOC_K3_AM642
-	default 0x43c3f290 if SOC_K3_AM625 || SOC_K3_AM62A7
+	default 0x43c3f290 if SOC_K3_AM625
+	default 0x43c3f290 if SOC_K3_AM62A7 && CPU_V7R
+	default 0x7000f290 if SOC_K3_AM62A7 && ARM64
 	help
 	  Address at which ROM stores the value which determines if SPL
 	  is booted up by primary boot media or secondary boot media.
