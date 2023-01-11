@@ -1322,6 +1322,18 @@ u-boot.ldr:	u-boot
 # Use 'make BINMAN_VERBOSE=3' to set vebosity level
 default_dt := $(if $(DEVICE_TREE),$(DEVICE_TREE),$(CONFIG_DEFAULT_DEVICE_TREE))
 
+ifneq ($(SYSFW_PATH),)
+override BINMAN_INDIRS += $(dir $(SYSFW_PATH))
+endif
+
+ifneq ($(SYSFW_HS_INNER_CERT_PATH),)
+override BINMAN_INDIRS += $(dir $(DM))
+endif
+
+ifneq ($(DM),)
+override BINMAN_INDIRS += $(dir $(DM))
+endif
+
 quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		$(foreach f,$(BINMAN_TOOLPATHS),--toolpath $(f)) \
@@ -1334,6 +1346,7 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		$(foreach f,$(BINMAN_INDIRS),-I $(f)) \
 		-a atf-bl31-path=${BL31} \
 		-a tee-os-path=${TEE} \
+		-a ti-secure-dev-pkg-path=${TI_SECURE_DEV_PKG} \
 		-a opensbi-path=${OPENSBI} \
 		-a default-dt=$(default_dt) \
 		-a scp-path=$(SCP) \

@@ -39,8 +39,45 @@ $(warning "WARNING: Software revision file not found. Default may not work on HS
 endif
 endif
 
+O ?= .
+
+# Board config binary artifacts necessary for packaging of tiboot3.bin
+# and sysfw.itb by binman, currently for general purpose devices and
+# devices that require sysfw.itb in ROM boot image. Currently set up
+# for J721E
+ifdef CONFIG_BINMAN
+
+ifndef CONFIG_TARGET_J7200_R5_EVM
+CONFIG_YAML = $(srctree)/board/ti/$(BOARD)/config.yaml
+else
+CONFIG_YAML = $(srctree)/board/ti/$(BOARD)/config_j7200.yaml
+endif
+
+SCHEMA_YAML = $(srctree)/board/ti/common/schema.yaml
+board-cfg.bin pm-cfg.bin rm-cfg.bin sec-cfg.bin:
+	$(PYTHON3) $(srctree)/tools/tibcfg_gen.py -c $(CONFIG_YAML) -s $(SCHEMA_YAML) -o $(O)
+INPUTS-y	+= board-cfg.bin
+INPUTS-y	+= pm-cfg.bin
+INPUTS-y	+= rm-cfg.bin
+INPUTS-y	+= sec-cfg.bin
+
+combined-sysfw-cfg.bin: board-cfg.bin pm-cfg.bin rm-cfg.bin sec-cfg.bin
+	$(PYTHON3) $(srctree)/tools/k3_sysfw_boardcfg_blob_creator.py -b $(O)/board-cfg.bin -s $(O)/sec-cfg.bin -p $(O)/pm-cfg.bin -r $(O)/rm-cfg.bin -o $(O)/$(@)
+INPUTS-y	+= combined-sysfw-cfg.bin
+
+combined-tifs-cfg.bin: board-cfg.bin pm-cfg.bin rm-cfg.bin sec-cfg.bin
+	$(PYTHON3) $(srctree)/tools/k3_sysfw_boardcfg_blob_creator.py -b $(O)/board-cfg.bin -s $(O)/sec-cfg.bin -p $(O)/pm-cfg.bin -r $(O)/rm-cfg.bin -o $(O)/$(@)
+INPUTS-y	+= combined-tifs-cfg.bin
+
+combined-dm-cfg.bin: pm-cfg.bin rm-cfg.bin
+	$(PYTHON3) $(srctree)/tools/k3_sysfw_boardcfg_blob_creator.py -p $(O)/pm-cfg.bin -r $(O)/rm-cfg.bin -o $(O)/$(@)
+INPUTS-y	+= combined-dm-cfg.bin
+
+endif
+
 # tiboot3.bin is mandated by ROM and ROM only supports R5 boot.
 # So restrict tiboot3.bin creation for CPU_V7R.
+ifndef CONFIG_BINMAN
 ifdef CONFIG_CPU_V7R
 image_check: $(obj)/u-boot-spl.bin FORCE
 	@if [ $(IMAGE_SIZE) -gt $(MAX_SIZE) ]; then			    \
@@ -57,6 +94,7 @@ tiboot3.bin: image_check FORCE
 
 INPUTS-y	+= tiboot3.bin
 endif
+endif
 
 ifdef CONFIG_ARM64
 
@@ -64,6 +102,7 @@ ifeq ($(CONFIG_SOC_K3_J721E),)
 export DM := /dev/null
 endif
 
+ifndef CONFIG_BINMAN
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 SPL_ITS := u-boot-spl-k3_HS.its
 $(SPL_ITS): export IS_HS=1
@@ -71,6 +110,7 @@ INPUTS-y	+= tispl.bin_HS
 else
 SPL_ITS := u-boot-spl-k3.its
 INPUTS-y	+= tispl.bin
+endif
 endif
 
 ifeq ($(CONFIG_SPL_OF_LIST),)

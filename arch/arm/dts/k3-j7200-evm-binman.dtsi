@@ -1,0 +1,377 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2021 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+/ {
+	binman: binman {
+		multiple-images;
+	};
+};
+
+#ifdef CONFIG_TARGET_J7200_R5_EVM
+
+&binman {
+	ti-fs-cert {
+		filename = "ti-fs-cert.bin";
+		ti-fs-firmware-j7200-hs-cert.bin {
+			filename = "ti-fs-firmware-j7200-hs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+	ti-fs-enc {
+		filename = "ti-fs-enc.bin";
+		ti-fs-firmware-j7200-hs-enc.bin {
+			filename = "ti-fs-firmware-j7200-hs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+	tiboot3 {
+		filename = "tiboot3.bin";
+		ti-secure {
+			combined;
+			split-dm;
+			filename = "spl/u-boot-spl.bin";
+			load = <0x41c00000>;
+			sysfw-filename = "ti-fs-enc.bin";
+			sysfw-load = <0x40000>;
+			sysfw-inner-cert = "ti-fs-cert.bin";
+			sysfw-data-filename = "combined-tifs-cfg.bin";
+			sysfw-data-load = <0x7f000>;
+			dm-data-filename = "combined-dm-cfg.bin";
+			dm-data-load = <0x41c80000>;
+			key = "/keys/custMpk.pem";
+			sw-rev = <1>;
+		};
+	};
+};
+
+&binman {
+	ti-fs-gp {
+		filename = "ti-fs-gp.bin";
+		ti-fs-firmware-j7200-gp.bin {
+			filename = "ti-fs-firmware-j7200-gp.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+	tiboot3_unsigned {
+		filename = "tiboot3.bin_unsigned";
+		ti-secure {
+			combined;
+			split-dm;
+			filename = "spl/u-boot-spl.bin";
+			load = <0x41c00000>;
+			sysfw-filename = "ti-fs-gp.bin";
+			sysfw-load = <0x40000>;
+			sysfw-data-filename = "combined-tifs-cfg.bin";
+			sysfw-data-load = <0x7f000>;
+			dm-data-filename = "combined-dm-cfg.bin";
+			dm-data-load = <0x41c80000>;
+			sw-rev = <CONFIG_K3_X509_SWRV>;
+		};
+	};
+};
+
+#endif
+
+#ifdef CONFIG_TARGET_J7200_A72_EVM
+
+#define SPL_NODTB "spl/u-boot-spl-nodtb.bin"
+#define SPL_J7200_EVM_DTB "spl/dts/k3-j7200-common-proc-board.dtb"
+
+#define UBOOT_NODTB "u-boot-nodtb.bin"
+#define J7200_EVM_DTB "arch/arm/dts/k3-j7200-common-proc-board.dtb"
+
+&binman {
+	ti-dm {
+		filename = "ti-dm.bin";
+		blob-ext {
+			filename = "ipc_echo_testb_mcu1_0_release_strip.xer5f";
+		};
+	};
+	ti-spl {
+		filename = "tispl.bin";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "Configuration to load ATF and SPL";
+			#address-cells = <1>;
+
+			images {
+
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					os = "arm-trusted-firmware";
+					load = <CONFIG_K3_ATF_LOAD_ADDR>;
+					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
+					atf-bl31 {
+					};
+				};
+
+				tee {
+					description = "OPTEE";
+					type = "tee";
+					arch = "arm64";
+					compression = "none";
+					os = "tee";
+					load = <0x9e800000>;
+					entry = <0x9e800000>;
+					tee-os {
+					};
+				};
+
+				dm {
+					description = "DM binary";
+					type = "firmware";
+					arch = "arm32";
+					compression = "none";
+					os = "DM";
+					load = <0x89000000>;
+					entry = <0x89000000>;
+					blob-ext {
+						filename = "ti-dm.bin";
+					};
+				};
+
+				spl {
+					description = "SPL (64-bit)";
+					type = "standalone";
+					os = "U-Boot";
+					arch = "arm64";
+					compression = "none";
+					load = <CONFIG_SPL_TEXT_BASE>;
+					entry = <CONFIG_SPL_TEXT_BASE>;
+					ti-secure {
+						filename = SPL_NODTB;
+						secure;
+					};
+				};
+
+				fdt-0 {
+					description = "k3-j7200-common-proc-board";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						filename = SPL_J7200_EVM_DTB;
+						secure;
+					};
+				};
+
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-j7200-common-proc-board";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot {
+		filename = "u-boot.img";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "FIT image with multiple configurations";
+
+			images {
+				uboot {
+					description = "U-Boot for J7200 board";
+					type = "firmware";
+					os = "u-boot";
+					arch = "arm";
+					compression = "none";
+					load = <CONFIG_TEXT_BASE>;
+					ti-secure {
+						filename = UBOOT_NODTB;
+						secure;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-j7200-common-proc-board";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						filename = J7200_EVM_DTB;
+						secure;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-j7200-common-proc-board";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-0";
+				};
+
+			};
+		};
+	};
+};
+
+&binman {
+	ti-spl_unsigned {
+		filename = "tispl.bin_unsigned";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "Configuration to load ATF and SPL";
+			#address-cells = <1>;
+
+			images {
+
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					os = "arm-trusted-firmware";
+					load = <CONFIG_K3_ATF_LOAD_ADDR>;
+					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
+					atf-bl31 {
+						filename = "bl31.bin";
+					};
+				};
+
+				tee {
+					description = "OPTEE";
+					type = "tee";
+					arch = "arm64";
+					compression = "none";
+					os = "tee";
+					load = <0x9e800000>;
+					entry = <0x9e800000>;
+					tee-os {
+						filename = "tee-pager_v2.bin";
+					};
+				};
+
+				dm {
+					description = "DM binary";
+					type = "firmware";
+					arch = "arm32";
+					compression = "none";
+					os = "DM";
+					load = <0x89000000>;
+					entry = <0x89000000>;
+					blob-ext {
+						filename = "ti-dm.bin";
+					};
+				};
+
+				spl {
+					description = "SPL (64-bit)";
+					type = "standalone";
+					os = "U-Boot";
+					arch = "arm64";
+					compression = "none";
+					load = <CONFIG_SPL_TEXT_BASE>;
+					entry = <CONFIG_SPL_TEXT_BASE>;
+					blob {
+						filename = "spl/u-boot-spl-nodtb.bin";
+					};
+				};
+
+				fdt-1 {
+					description = "k3-j7200-common-proc-board";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = SPL_J7200_EVM_DTB;
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-1";
+
+				conf-1 {
+					description = "k3-j7200-common-proc-board";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-1";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot_unsigned {
+		filename = "u-boot.img_unsigned";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "FIT image with multiple configurations";
+
+			images {
+				uboot {
+					description = "U-Boot for J7200 board";
+					type = "firmware";
+					os = "u-boot";
+					arch = "arm";
+					compression = "none";
+					load = <CONFIG_TEXT_BASE>;
+					blob {
+						filename = UBOOT_NODTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
+				fdt-1 {
+					description = "k3-j7200-common-proc-board";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = J7200_EVM_DTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-1";
+
+				conf-1 {
+					description = "k3-j7200-common-proc-board";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-1";
+				};
+			};
+		};
+	};
+};
+#endif

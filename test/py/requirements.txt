@@ -5,6 +5,7 @@ extras==1.0.0
 filelock==3.0.12
 fixtures==3.0.0
 importlib-metadata==0.23
+jsonschema==4.0.0
 linecache2==1.0.0
 more-itertools==7.2.0
 packaging==19.2
