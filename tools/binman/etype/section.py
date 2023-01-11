@@ -332,19 +332,31 @@ class Entry_section(Entry):
             if not required and entry_data is None:
                 return None
 
+            entry_data_final = entry_data
             if entry_data is None:
                 pad_byte = (entry._pad_byte if isinstance(entry, Entry_section)
                             else self._pad_byte)
-                entry_data = tools.get_bytes(self._pad_byte, entry.size)
+                entry_data_final = tools.get_bytes(self._pad_byte, entry.size)
 
-            data = self.GetPaddedDataForEntry(entry, entry_data)
+            data = self.GetPaddedDataForEntry(entry, entry_data_final)
             # Handle empty space before the entry
             pad = (entry.offset or 0) - self._skip_at_start - len(section_data)
             if pad > 0:
                 section_data += tools.get_bytes(self._pad_byte, pad)
 
             # Add in the actual entry data
-            section_data += data
+            if entry.overlap:
+                end_offset = entry.offset + entry.size
+                if end_offset > len(section_data):
+                    entry.Raise("Offset %#x (%d) ending at %#x (%d) must overlap with existing entries" %
+                                (entry.offset, entry.offset, end_offset,
+                                 end_offset))
+                # Don't write anything for null entries'
+                if entry_data is not None:
+                    section_data = (section_data[:entry.offset] + data +
+                                    section_data[entry.offset + entry.size:])
+            else:
+                section_data += data
 
         self.Detail('GetData: %d entries, total size %#x' %
                     (len(self._entries), len(section_data)))
@@ -467,12 +479,13 @@ class Entry_section(Entry):
                             (entry.offset, entry.offset, entry.size, entry.size,
                              self._node.path, self._skip_at_start,
                              self._skip_at_start, max_size, max_size))
-            if entry.offset < offset and entry.size:
-                entry.Raise("Offset %#x (%d) overlaps with previous entry '%s' "
-                            "ending at %#x (%d)" %
-                            (entry.offset, entry.offset, prev_name, offset, offset))
-            offset = entry.offset + entry.size
-            prev_name = entry.GetPath()
+            if not entry.overlap:
+                if entry.offset < offset and entry.size:
+                    entry.Raise("Offset %#x (%d) overlaps with previous entry '%s' ending at %#x (%d)" %
+                                (entry.offset, entry.offset, prev_name, offset,
+                                 offset))
+                offset = entry.offset + entry.size
+                prev_name = entry.GetPath()
 
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time"""

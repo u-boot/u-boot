@@ -98,6 +98,7 @@ class Entry(object):
             An absent entry is removed during processing so that it does not
             appear in the map
         optional (bool): True if this entry contains an optional external blob
+        overlap (bool): True if this entry overlaps with others
     """
     fake_dir = None
 
@@ -142,6 +143,7 @@ class Entry(object):
         self.auto_write_symbols = auto_write_symbols
         self.absent = False
         self.optional = False
+        self.overlap = False
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -294,6 +296,9 @@ class Entry(object):
         self.extend_size = fdt_util.GetBool(self._node, 'extend-size')
         self.missing_msg = fdt_util.GetString(self._node, 'missing-msg')
         self.optional = fdt_util.GetBool(self._node, 'optional')
+        self.overlap = fdt_util.GetBool(self._node, 'overlap')
+        if self.overlap:
+            self.required_props += ['offset', 'size']
 
         # This is only supported by blobs and sections at present
         self.compress = fdt_util.GetString(self._node, 'compress', 'none')

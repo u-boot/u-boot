@@ -6199,6 +6199,69 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFile('268_null.dts')
         self.assertEqual(U_BOOT_DATA + b'\xff\xff\xff\xff' + U_BOOT_IMG_DATA, data)
 
+    def testOverlap(self):
+        """Test an image with a overlapping entry"""
+        data = self._DoReadFile('269_overlap.dts')
+        self.assertEqual(U_BOOT_DATA[:1] + b'aa' + U_BOOT_DATA[3:], data)
+
+        image = control.images['image']
+        entries = image.GetEntries()
+
+        self.assertIn('inset', entries)
+        inset = entries['inset']
+        self.assertEqual(1, inset.offset);
+        self.assertEqual(1, inset.image_pos);
+        self.assertEqual(2, inset.size);
+
+    def testOverlapNull(self):
+        """Test an image with a null overlap"""
+        data = self._DoReadFile('270_overlap_null.dts')
+        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
+
+        # Check the FMAP
+        fhdr, fentries = fmap_util.DecodeFmap(data[len(U_BOOT_DATA):])
+        self.assertEqual(4, fhdr.nareas)
+        fiter = iter(fentries)
+
+        fentry = next(fiter)
+        self.assertEqual(b'SECTION', fentry.name)
+        self.assertEqual(0, fentry.offset)
+        self.assertEqual(len(U_BOOT_DATA), fentry.size)
+        self.assertEqual(0, fentry.flags)
+
+        fentry = next(fiter)
+        self.assertEqual(b'U_BOOT', fentry.name)
+        self.assertEqual(0, fentry.offset)
+        self.assertEqual(len(U_BOOT_DATA), fentry.size)
+        self.assertEqual(0, fentry.flags)
+
+        # Make sure that the NULL entry appears in the FMAP
+        fentry = next(fiter)
+        self.assertEqual(b'NULL', fentry.name)
+        self.assertEqual(1, fentry.offset)
+        self.assertEqual(2, fentry.size)
+        self.assertEqual(0, fentry.flags)
+
+        fentry = next(fiter)
+        self.assertEqual(b'FMAP', fentry.name)
+        self.assertEqual(len(U_BOOT_DATA), fentry.offset)
+
+    def testOverlapBad(self):
+        """Test an image with a bad overlapping entry"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('271_overlap_bad.dts')
+        self.assertIn(
+            "Node '/binman/inset': Offset 0x10 (16) ending at 0x12 (18) must overlap with existing entries",
+            str(exc.exception))
+
+    def testOverlapNoOffset(self):
+        """Test an image with a bad overlapping entry"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('272_overlap_no_size.dts')
+        self.assertIn(
+            "Node '/binman/inset': 'fill' entry is missing properties: size",
+            str(exc.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

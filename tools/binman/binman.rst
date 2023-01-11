@@ -792,6 +792,12 @@ align-default:
 symlink:
     Adds a symlink to the image with string given in the symlink property.
 
+overlap:
+    Indicates that this entry overlaps with others in the same section. These
+    entries should appear at the end of the section. Overlapping entries are not
+    packed with other entries, but their contents are written over other entries
+    in the section. Overlapping entries must have an explicit offset and size.
+
 Examples of the above options can be found in the tests. See the
 tools/binman/test directory.
 
@@ -1720,7 +1726,8 @@ implementation of Pack() is usually sufficient.
 
 Note: for sections, this also checks that the entries do not overlap, nor extend
 outside the section. If the section does not have a defined size, the size is
-set large enough to hold all the entries.
+set large enough to hold all the entries. For entries that are explicitly marked
+as overlapping, this check is skipped.
 
 6. SetImagePos() - sets the image position of every entry. This is the absolute
 position 'image-pos', as opposed to 'offset' which is relative to the containing
