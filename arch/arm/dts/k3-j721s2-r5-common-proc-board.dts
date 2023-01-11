@@ -8,6 +8,7 @@
 #include "k3-j721s2-som-p0.dtsi"
 #include "k3-j721s2-ddr-evm-lp4-4266.dtsi"
 #include "k3-j721s2-ddr.dtsi"
+#include "k3-j721s2-binman.dtsi"
 
 / {
 	chosen {
