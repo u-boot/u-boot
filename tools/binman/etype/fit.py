@@ -655,8 +655,7 @@ class Entry_fit(Entry_section):
 
             for subnode in node.subnodes:
                 subnode_path = f'{rel_path}/{subnode.name}'
-                if has_images and not (subnode.name.startswith('hash') or
-                                       subnode.name.startswith('signature')):
+                if has_images and not self.IsSpecialSubnode(subnode):
                     # This subnode is a content node not meant to appear in
                     # the FIT (e.g. "/images/kernel/u-boot"), so don't call
                     # fsw.add_node() or _add_node() for it.

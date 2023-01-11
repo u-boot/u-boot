@@ -169,6 +169,17 @@ class Entry_section(Entry):
         self._ignore_missing = False
         self._filename = None
 
+    def IsSpecialSubnode(self, node):
+        """Check if a node is a special one used by the section itself
+
+        Some notes are used for hashing / signatures and do not add entries to
+        the actual section.
+
+        Returns:
+            bool: True if the node is a special one, else False
+        """
+        return node.name.startswith('hash') or node.name.startswith('signature')
+
     def ReadNode(self):
         """Read properties from the section node"""
         super().ReadNode()
@@ -195,7 +206,7 @@ class Entry_section(Entry):
 
     def ReadEntries(self):
         for node in self._node.subnodes:
-            if node.name.startswith('hash') or node.name.startswith('signature'):
+            if self.IsSpecialSubnode(node):
                 continue
             entry = Entry.Create(self, node,
                                  expanded=self.GetImage().use_expanded,
