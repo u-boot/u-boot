@@ -80,40 +80,40 @@ rm-cfg:
                     allowed_priority : 0
                     allowed_sched_priority : 0
                 - #10
-                    host_id: 3
-                    allowed_atype : 0x2A
-                    allowed_qos : 0xAAAA
-                    allowed_orderid : 0xAAAAAAAA
-                    allowed_priority : 0xAAAA
-                    allowed_sched_priority : 0xAA
+                    host_id: 0
+                    allowed_atype : 0
+                    allowed_qos : 0
+                    allowed_orderid : 0
+                    allowed_priority : 0
+                    allowed_sched_priority : 0
                 - #11
-                    host_id: 3
-                    allowed_atype : 0x2A
-                    allowed_qos : 0xAAAA
-                    allowed_orderid : 0xAAAAAAAA
-                    allowed_priority : 0xAAAA
-                    allowed_sched_priority : 0xAA
+                    host_id: 0
+                    allowed_atype : 0
+                    allowed_qos : 0
+                    allowed_orderid : 0
+                    allowed_priority : 0
+                    allowed_sched_priority : 0
                 - #12
-                    host_id: 5
-                    allowed_atype : 0x2A
-                    allowed_qos : 0xAAAA
-                    allowed_orderid : 0xAAAAAAAA
-                    allowed_priority : 0xAAAA
-                    allowed_sched_priority : 0xAA
+                    host_id: 0
+                    allowed_atype : 0
+                    allowed_qos : 0
+                    allowed_orderid : 0
+                    allowed_priority : 0
+                    allowed_sched_priority : 0
                 - #13
-                    host_id: 12
-                    allowed_atype : 0x2A
-                    allowed_qos : 0xAAAA
-                    allowed_orderid : 0xAAAAAAAA
-                    allowed_priority : 0xAAAA
-                    allowed_sched_priority : 0xAA
+                    host_id: 0
+                    allowed_atype : 0
+                    allowed_qos : 0
+                    allowed_orderid : 0
+                    allowed_priority : 0
+                    allowed_sched_priority : 0
                 - #14
-                    host_id: 13
-                    allowed_atype : 0x2A
-                    allowed_qos : 0xAAAA
-                    allowed_orderid : 0xAAAAAAAA
-                    allowed_priority : 0xAAAA
-                    allowed_sched_priority : 0xAA
+                    host_id: 0
+                    allowed_atype : 0
+                    allowed_qos : 0
+                    allowed_orderid : 0
+                    allowed_priority : 0
+                    allowed_sched_priority : 0
                 - #15
                     host_id: 0
                     allowed_atype : 0
@@ -157,33 +157,33 @@ rm-cfg:
                     allowed_priority : 0
                     allowed_sched_priority : 0
                 - #21
-                    host_id: 3
-                    allowed_atype : 0x2A
-                    allowed_qos : 0xAAAA
-                    allowed_orderid : 0xAAAAAAAA
-                    allowed_priority : 0xAAAA
-                    allowed_sched_priority : 0xAA
+                    host_id: 0
+                    allowed_atype : 0
+                    allowed_qos : 0
+                    allowed_orderid : 0
+                    allowed_priority : 0
+                    allowed_sched_priority : 0
                 - #22
-                    host_id: 5
-                    allowed_atype : 0x2A
-                    allowed_qos : 0xAAAA
-                    allowed_orderid : 0xAAAAAAAA
-                    allowed_priority : 0xAAAA
-                    allowed_sched_priority : 0xAA
+                    host_id: 0
+                    allowed_atype : 0
+                    allowed_qos : 0
+                    allowed_orderid : 0
+                    allowed_priority : 0
+                    allowed_sched_priority : 0
                 - #23
-                    host_id: 12
-                    allowed_atype : 0x2A
-                    allowed_qos : 0xAAAA
-                    allowed_orderid : 0xAAAAAAAA
-                    allowed_priority : 0xAAAA
-                    allowed_sched_priority : 0xAA
+                    host_id: 0
+                    allowed_atype : 0
+                    allowed_qos : 0
+                    allowed_orderid : 0
+                    allowed_priority : 0
+                    allowed_sched_priority : 0
                 - #24
-                    host_id: 13
-                    allowed_atype : 0x2A
-                    allowed_qos : 0xAAAA
-                    allowed_orderid : 0xAAAAAAAA
-                    allowed_priority : 0xAAAA
-                    allowed_sched_priority : 0xAA
+                    host_id: 0
+                    allowed_atype : 0
+                    allowed_qos : 0
+                    allowed_orderid : 0
+                    allowed_priority : 0
+                    allowed_sched_priority : 0
                 - #25
                     host_id: 0
                     allowed_atype : 0
@@ -220,26 +220,26 @@ rm-cfg:
                     allowed_priority : 0
                     allowed_sched_priority : 0
                 - #30
-                    host_id: 3
-                    allowed_atype : 0x2A
-                    allowed_qos : 0xAAAA
-                    allowed_orderid : 0xAAAAAAAA
-                    allowed_priority : 0xAAAA
-                    allowed_sched_priority : 0xAA
+                    host_id: 0
+                    allowed_atype : 0
+                    allowed_qos : 0
+                    allowed_orderid : 0
+                    allowed_priority : 0
+                    allowed_sched_priority : 0
                 - #31
-                    host_id: 3
-                    allowed_atype : 0x2A
-                    allowed_qos : 0xAAAA
-                    allowed_orderid : 0xAAAAAAAA
-                    allowed_priority : 0xAAAA
-                    allowed_sched_priority : 0xAA
+                    host_id: 0
+                    allowed_atype : 0
+                    allowed_qos : 0
+                    allowed_orderid : 0
+                    allowed_priority : 0
+                    allowed_sched_priority : 0
                 - #32
-                    host_id: 5
-                    allowed_atype : 0x2A
-                    allowed_qos : 0xAAAA
-                    allowed_orderid : 0xAAAAAAAA
-                    allowed_priority : 0xAAAA
-                    allowed_sched_priority : 0xAA
+                    host_id: 0
+                    allowed_atype : 0
+                    allowed_qos : 0
+                    allowed_orderid : 0
+                    allowed_priority : 0
+                    allowed_sched_priority : 0
         resasg:
             subhdr:
                 magic: 0x7B25
