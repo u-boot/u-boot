@@ -236,6 +236,14 @@ static int udc_enable(struct dwc2_udc *dev)
 	return 0;
 }
 
+static int dwc2_gadget_pullup(struct usb_gadget *g, int is_on)
+{
+	clrsetbits_le32(&reg->dctl, SOFT_DISCONNECT,
+			is_on ? 0 : SOFT_DISCONNECT);
+
+	return 0;
+}
+
 #if !CONFIG_IS_ENABLED(DM_USB_GADGET)
 /*
   Register entry point for the peripheral controller driver.
@@ -805,6 +813,7 @@ static void dwc2_fifo_flush(struct usb_ep *_ep)
 }
 
 static const struct usb_gadget_ops dwc2_udc_ops = {
+	.pullup = dwc2_gadget_pullup,
 	/* current versions must always be self-powered */
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)
 	.udc_start		= dwc2_gadget_start,
