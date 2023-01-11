@@ -487,6 +487,13 @@ For x86 devices (with the end-at-4gb property) this base address is not added
 since it is assumed that images are XIP and the offsets already include the
 address.
 
+While U-Boot's symbol updating is handled automatically by the u-boot-spl
+entry type (and others), it is possible to use this feature with any blob. To
+do this, add a `write-symbols` (boolean) property to the node, set the ELF
+filename using `elf-filename` and set 'elf-base-sym' to the base symbol for the
+start of the binary image (this defaults to `__image_copy_start` which is what
+U-Boot uses). See `testBlobSymbol()` for an example.
+
 .. _binman_fdt:
 
 Access to binman entry offsets at run time (fdt)
@@ -797,6 +804,24 @@ overlap:
     entries should appear at the end of the section. Overlapping entries are not
     packed with other entries, but their contents are written over other entries
     in the section. Overlapping entries must have an explicit offset and size.
+
+write-symbols:
+    Indicates that the blob should be updated with symbol values calculated by
+    binman. This is automatic for certain entry types, e.g. `u-boot-spl`. See
+    binman_syms_ for more information.
+
+elf-filename:
+    Sets the file name of a blob's associated ELF file. For example, if the
+    blob is `zephyr.bin` then the ELF file may be `zephyr.elf`. This allows
+    binman to locate symbols and understand the structure of the blob. See
+    binman_syms_ for more information.
+
+elf-base-sym:
+    Sets the name of the ELF symbol that points to the start of a blob. For
+    U-Boot this is `__image_copy_start` and that is the default used by binman
+    if this property is missing. For other projects, a difference symbol may be
+    needed. Add this symbol to the properties for the blob so that symbols can
+    be read correctly. See binman_syms_ for more information.
 
 Examples of the above options can be found in the tests. See the
 tools/binman/test directory.

@@ -144,6 +144,7 @@ class Entry(object):
         self.absent = False
         self.optional = False
         self.overlap = False
+        self.elf_base_sym = None
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -676,7 +677,7 @@ class Entry(object):
             # Check if we are writing symbols into an ELF file
             is_elf = self.GetDefaultFilename() == self.elf_fname
             elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage(),
-                                      is_elf)
+                                      is_elf, self.elf_base_sym)
 
     def CheckEntries(self):
         """Check that the entry offsets are correct

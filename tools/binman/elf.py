@@ -210,7 +210,8 @@ def GetPackString(sym, msg):
         raise ValueError('%s has size %d: only 4 and 8 are supported' %
                          (msg, sym.size))
 
-def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False):
+def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False,
+                          base_sym=None):
     """Replace all symbols in an entry with their correct values
 
     The entry contents is updated so that values for referenced symbols will be
@@ -223,7 +224,10 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False):
             entry
         entry: Entry to process
         section: Section which can be used to lookup symbol values
+        base_sym: Base symbol marking the start of the image
     """
+    if not base_sym:
+        base_sym = '__image_copy_start'
     fname = tools.get_input_filename(elf_fname)
     syms = GetSymbols(fname, ['image', 'binman'])
     if is_elf:
@@ -243,7 +247,7 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False):
     if not syms:
         tout.debug('LookupAndWriteSymbols: no syms')
         return
-    base = syms.get('__image_copy_start')
+    base = syms.get(base_sym)
     if not base and not is_elf:
         tout.debug('LookupAndWriteSymbols: no base')
         return

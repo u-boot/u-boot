@@ -6262,6 +6262,25 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             "Node '/binman/inset': 'fill' entry is missing properties: size",
             str(exc.exception))
 
+    def testBlobSymbol(self):
+        """Test a blob with symbols read from an ELF file"""
+        elf_fname = self.ElfTestFile('blob_syms')
+        TestFunctional._MakeInputFile('blob_syms', tools.read_file(elf_fname))
+        TestFunctional._MakeInputFile('blob_syms.bin',
+            tools.read_file(self.ElfTestFile('blob_syms.bin')))
+
+        data = self._DoReadFile('273_blob_symbol.dts')
+
+        syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
+        addr = elf.GetSymbolAddress(elf_fname, '__my_start_sym')
+        self.assertEqual(syms['_binman_sym_magic'].address, addr)
+        self.assertEqual(syms['_binman_inset_prop_offset'].address, addr + 4)
+        self.assertEqual(syms['_binman_inset_prop_size'].address, addr + 8)
+
+        sym_values = struct.pack('<LLL', elf.BINMAN_SYM_MAGIC_VALUE, 4, 8)
+        expected = sym_values
+        self.assertEqual(expected, data[:len(expected)])
+
 
 if __name__ == "__main__":
     unittest.main()
