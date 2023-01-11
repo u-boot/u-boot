@@ -454,7 +454,7 @@ class Entry(object):
 
         Returns:
             True if the contents were found, False if another call is needed
-            after the other entries are processed.
+            after the other entries are processed, None if there is no contents
         """
         # No contents by default: subclasses can implement this
         return True
@@ -583,7 +583,8 @@ class Entry(object):
         Returns:
             bytes content of the entry, excluding any padding. If the entry is
                 compressed, the compressed data is returned. If the entry data
-                is not yet available, False can be returned
+                is not yet available, False can be returned. If the entry data
+                is null, then None is returned.
         """
         self.Detail('GetData: size %s' % to_hex_size(self.data))
         return self.data

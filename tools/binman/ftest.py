@@ -6194,6 +6194,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         expected = U_BOOT_DATA + tools.get_bytes(0, 12)
         self.assertEqual(expected, data)
 
+    def testNull(self):
+        """Test an image with a null entry"""
+        data = self._DoReadFile('268_null.dts')
+        self.assertEqual(U_BOOT_DATA + b'\xff\xff\xff\xff' + U_BOOT_IMG_DATA, data)
+
 
 if __name__ == "__main__":
     unittest.main()

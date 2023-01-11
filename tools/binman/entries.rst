@@ -1278,6 +1278,19 @@ This will pass in u-boot-spl as the input data and the .cfgout file as the
 
 
 
+.. _etype_null:
+
+Entry: null: An entry which has no contents of its own
+------------------------------------------------------
+
+Note that the size property must be set since otherwise this entry does not
+know how large it should be.
+
+The contents are set by the containing section, e.g. the section's pad
+byte.
+
+
+
 .. _etype_opensbi:
 
 Entry: opensbi: RISC-V OpenSBI fw_dynamic blob

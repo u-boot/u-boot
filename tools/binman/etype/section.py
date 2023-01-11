@@ -320,6 +320,12 @@ class Entry_section(Entry):
             # earlier in the image description. See testCollectionSection().
             if not required and entry_data is None:
                 return None
+
+            if entry_data is None:
+                pad_byte = (entry._pad_byte if isinstance(entry, Entry_section)
+                            else self._pad_byte)
+                entry_data = tools.get_bytes(self._pad_byte, entry.size)
+
             data = self.GetPaddedDataForEntry(entry, entry_data)
             # Handle empty space before the entry
             pad = (entry.offset or 0) - self._skip_at_start - len(section_data)
