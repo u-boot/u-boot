@@ -265,6 +265,7 @@ class Entry_section(Entry):
 
         Args:
             entry: Entry to check
+            entry_data: Data for the entry, False if is null
 
         Returns:
             Contents of the entry along with any pad bytes before and
@@ -678,7 +679,7 @@ class Entry_section(Entry):
         """
         def _CheckDone(entry):
             if entry != skip_entry:
-                if not entry.ObtainContents():
+                if entry.ObtainContents() is False:
                     next_todo.append(entry)
             return entry
 

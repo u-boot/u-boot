@@ -582,7 +582,8 @@ class Entry(object):
 
         Returns:
             bytes content of the entry, excluding any padding. If the entry is
-                compressed, the compressed data is returned
+                compressed, the compressed data is returned. If the entry data
+                is not yet available, False can be returned
         """
         self.Detail('GetData: size %s' % to_hex_size(self.data))
         return self.data
