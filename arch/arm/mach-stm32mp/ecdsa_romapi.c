@@ -81,6 +81,10 @@ static int romapi_ecdsa_verify(struct udevice *dev,
 	memcpy(raw_key + 32, pubkey->y, 32);
 
 	stm32mp_rom_get_ecdsa_functions(&rom);
+
+	/* Mark BootROM region as executable. */
+	mmu_set_region_dcache_behaviour(0, SZ_2M, DCACHE_DEFAULT_OPTION);
+
 	rom_ret = rom.ecdsa_verify_signature(hash, raw_key, signature, algo);
 
 	return rom_ret == ROM_API_SUCCESS ? 0 : -EPERM;
