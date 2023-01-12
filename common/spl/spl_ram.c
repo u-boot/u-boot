@@ -38,12 +38,13 @@ static int spl_ram_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {
 	struct legacy_img_hdr *header;
+	int ret;
 
 	header = (struct legacy_img_hdr *)CONFIG_SPL_LOAD_FIT_ADDRESS;
 
 	if (CONFIG_IS_ENABLED(IMAGE_PRE_LOAD)) {
 		unsigned long addr = (unsigned long)header;
-		int ret = image_pre_load(addr);
+		ret = image_pre_load(addr);
 
 		if (ret)
 			return ret;
@@ -64,7 +65,7 @@ static int spl_ram_load_image(struct spl_image_info *spl_image,
 		debug("Found FIT\n");
 		load.bl_len = 1;
 		load.read = spl_ram_load_read;
-		spl_load_simple_fit(spl_image, &load, 0, header);
+		ret = spl_load_simple_fit(spl_image, &load, 0, header);
 	} else {
 		ulong u_boot_pos = spl_get_image_pos();
 
@@ -85,10 +86,10 @@ static int spl_ram_load_image(struct spl_image_info *spl_image,
 		}
 		header = (struct legacy_img_hdr *)map_sysmem(u_boot_pos, 0);
 
-		spl_parse_image_header(spl_image, bootdev, header);
+		ret = spl_parse_image_header(spl_image, bootdev, header);
 	}
 
-	return 0;
+	return ret;
 }
 #if CONFIG_IS_ENABLED(RAM_DEVICE)
 SPL_LOAD_IMAGE_METHOD("RAM", 0, BOOT_DEVICE_RAM, spl_ram_load_image);

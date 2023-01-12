@@ -112,6 +112,9 @@ int do_spi(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	if ((flag & CMD_FLAG_REPEAT) == 0)
 	{
+		if (argc < 2)
+			return CMD_RET_USAGE;
+
 		if (argc >= 2) {
 			mode = CONFIG_DEFAULT_SPI_MODE;
 			bus = dectoul(argv[1], &cp);

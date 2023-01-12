@@ -756,9 +756,6 @@ static init_fnc_t init_sequence_r[] = {
 	initr_status_led,
 #endif
 	/* PPC has a udelay(20) here dating from 2002. Why? */
-#if defined(CONFIG_GPIO_HOG)
-	gpio_hog_probe_all,
-#endif
 #ifdef CONFIG_BOARD_LATE_INIT
 	board_late_init,
 #endif

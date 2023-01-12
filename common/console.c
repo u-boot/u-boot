@@ -970,6 +970,11 @@ static bool console_update_silent(void)
 	if (!IS_ENABLED(CONFIG_SILENT_CONSOLE))
 		return false;
 
+	if (IS_ENABLED(CONFIG_SILENT_CONSOLE_UNTIL_ENV) && !(gd->flags & GD_FLG_ENV_READY)) {
+		gd->flags |= GD_FLG_SILENT;
+		return false;
+	}
+
 	if (env_get("silent")) {
 		gd->flags |= GD_FLG_SILENT;
 		return false;
