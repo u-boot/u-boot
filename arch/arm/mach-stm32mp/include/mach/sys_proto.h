@@ -77,3 +77,6 @@ void stm32mp_misc_init(void);
 
 /* helper function: read data from OTP */
 u32 get_otp(int index, int shift, int mask);
+
+uintptr_t get_stm32mp_rom_api_table(void);
+uintptr_t get_stm32mp_bl2_dtb(void);

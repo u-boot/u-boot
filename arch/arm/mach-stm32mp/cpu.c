@@ -378,3 +378,38 @@ int arch_misc_init(void)
 
 	return 0;
 }
+
+/*
+ * Without forcing the ".data" section, this would get saved in ".bss". BSS
+ * will be cleared soon after, so it's not suitable.
+ */
+static uintptr_t rom_api_table __section(".data");
+static uintptr_t nt_fw_dtb __section(".data");
+
+/*
+ * The ROM gives us the API location in r0 when starting. This is only available
+ * during SPL, as there isn't (yet) a mechanism to pass this on to u-boot. Save
+ * the FDT address provided by TF-A in r2 at boot time. This function is called
+ * from start.S
+ */
+void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
+		      unsigned long r3)
+{
+	if (IS_ENABLED(CONFIG_STM32_ECDSA_VERIFY))
+		rom_api_table = r0;
+
+	if (IS_ENABLED(CONFIG_TFABOOT))
+		nt_fw_dtb = r2;
+
+	save_boot_params_ret();
+}
+
+uintptr_t get_stm32mp_rom_api_table(void)
+{
+	return rom_api_table;
+}
+
+uintptr_t get_stm32mp_bl2_dtb(void)
+{
+	return nt_fw_dtb;
+}

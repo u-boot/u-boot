@@ -8,26 +8,9 @@
 #include <common.h>
 #include <log.h>
 #include <linux/libfdt.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/sections.h>
 #include <asm/system.h>
-
-/*
- * Force data-section, as .bss will not be valid
- * when save_boot_params is invoked.
- */
-static unsigned long nt_fw_dtb __section(".data");
-
-/*
- * Save the FDT address provided by TF-A in r2 at boot time
- * This function is called from start.S
- */
-void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
-		      unsigned long r3)
-{
-	nt_fw_dtb = r2;
-
-	save_boot_params_ret();
-}
 
 /*
  * Use the saved FDT address provided by TF-A at boot time (NT_FW_CONFIG =
@@ -35,6 +18,8 @@ void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
  */
 void *board_fdt_blob_setup(int *err)
 {
+	unsigned long nt_fw_dtb = get_stm32mp_bl2_dtb();
+
 	log_debug("%s: nt_fw_dtb=%lx\n", __func__, nt_fw_dtb);
 
 	*err = 0;
