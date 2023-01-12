@@ -694,6 +694,21 @@ config ZSTD
 	help
 	  This enables Zstandard decompression library.
 
+if ZSTD
+
+config ZSTD_LIB_MINIFY
+	bool "Minify Zstandard code"
+	default y
+	help
+	  This disables various optional components and changes the
+	  compilation flags to prioritize space-saving.
+
+	  For detailed info, see zstd's lib/README.md
+
+	  https://github.com/facebook/zstd/blob/dev/lib/README.md
+
+endif
+
 config SPL_LZ4
 	bool "Enable LZ4 decompression support in SPL"
 	depends on SPL
