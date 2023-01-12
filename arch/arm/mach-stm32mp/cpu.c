@@ -22,6 +22,7 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <linux/bitops.h>
+#include <spl.h>
 
 /*
  * early TLB into the .data section so that it not get cleared
@@ -413,3 +414,17 @@ uintptr_t get_stm32mp_bl2_dtb(void)
 {
 	return nt_fw_dtb;
 }
+
+#ifdef CONFIG_SPL_BUILD
+void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+{
+	typedef void __noreturn (*image_entry_stm32_t)(u32 romapi);
+	uintptr_t romapi = get_stm32mp_rom_api_table();
+
+	image_entry_stm32_t image_entry =
+		(image_entry_stm32_t)spl_image->entry_point;
+
+	printf("image entry point: 0x%lx\n", spl_image->entry_point);
+	image_entry(romapi);
+}
+#endif
