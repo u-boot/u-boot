@@ -149,14 +149,15 @@ grep TODO/FIXME/HACK:
     # search for HACK within source tree and ignore HACKKIT board
     - grep -r HACK . | grep -v HACKKIT
 
-# build HTML documentation
-htmldocs:
+# build documentation
+docs:
   stage: testsuites
   script:
     - virtualenv -p /usr/bin/python3 /tmp/venvhtml
     - . /tmp/venvhtml/bin/activate
     - pip install -r doc/sphinx/requirements.txt
     - make htmldocs
+    - make infodocs
 
 # some statistics about the code base
 sloccount:
