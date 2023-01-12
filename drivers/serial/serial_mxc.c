@@ -240,11 +240,11 @@ static void mxc_serial_putc(const char c)
 	if (c == '\n')
 		serial_putc('\r');
 
-	writel(c, &mxc_base->txd);
-
 	/* wait for transmitter to be ready */
-	while (!(readl(&mxc_base->ts) & UTS_TXEMPTY))
+	while (readl(&mxc_base->ts) & UTS_TXFULL)
 		schedule();
+
+	writel(c, &mxc_base->txd);
 }
 
 /* Test whether a character is in the RX buffer */
@@ -335,7 +335,7 @@ static int mxc_serial_putc(struct udevice *dev, const char ch)
 	struct mxc_serial_plat *plat = dev_get_plat(dev);
 	struct mxc_uart *const uart = plat->reg;
 
-	if (!(readl(&uart->ts) & UTS_TXEMPTY))
+	if (readl(&uart->ts) & UTS_TXFULL)
 		return -EAGAIN;
 
 	writel(ch, &uart->txd);
