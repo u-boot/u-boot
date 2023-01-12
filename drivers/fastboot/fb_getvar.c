@@ -21,15 +21,9 @@ static void getvar_version_baseband(char *var_parameter, char *response);
 static void getvar_product(char *var_parameter, char *response);
 static void getvar_platform(char *var_parameter, char *response);
 static void getvar_current_slot(char *var_parameter, char *response);
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 static void getvar_has_slot(char *var_parameter, char *response);
-#endif
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 static void getvar_partition_type(char *part_name, char *response);
-#endif
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 static void getvar_partition_size(char *part_name, char *response);
-#endif
 static void getvar_is_userspace(char *var_parameter, char *response);
 
 static const struct {
@@ -84,7 +78,6 @@ static const struct {
 	}
 };
 
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 /**
  * Get partition number and size for any storage type.
  *
@@ -102,28 +95,26 @@ static int getvar_get_part_info(const char *part_name, char *response,
 				size_t *size)
 {
 	int r;
-# if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 	struct blk_desc *dev_desc;
-	struct disk_partition part_info;
-
-	r = fastboot_mmc_get_part_info(part_name, &dev_desc, &part_info,
-				       response);
-	if (r >= 0 && size)
-		*size = part_info.size * part_info.blksz;
-# elif CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)
+	struct disk_partition disk_part;
 	struct part_info *part_info;
 
-	r = fastboot_nand_get_part_info(part_name, &part_info, response);
-	if (r >= 0 && size)
-		*size = part_info->size;
-# else
-	fastboot_fail("this storage is not supported in bootloader", response);
-	r = -ENODEV;
-# endif
+	if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)) {
+		r = fastboot_mmc_get_part_info(part_name, &dev_desc, &disk_part,
+					       response);
+		if (r >= 0 && size)
+			*size = disk_part.size * disk_part.blksz;
+	} else if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)) {
+		r = fastboot_nand_get_part_info(part_name, &part_info, response);
+		if (r >= 0 && size)
+			*size = part_info->size;
+	} else {
+		fastboot_fail("this storage is not supported in bootloader", response);
+		r = -ENODEV;
+	}
 
 	return r;
 }
-#endif
 
 static void getvar_version(char *var_parameter, char *response)
 {
@@ -181,8 +172,7 @@ static void getvar_current_slot(char *var_parameter, char *response)
 	fastboot_okay("a", response);
 }
 
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
-static void getvar_has_slot(char *part_name, char *response)
+static void __maybe_unused getvar_has_slot(char *part_name, char *response)
 {
 	char part_name_wslot[PART_NAME_LEN];
 	size_t len;
@@ -213,10 +203,8 @@ static void getvar_has_slot(char *part_name, char *response)
 fail:
 	fastboot_fail("invalid partition name", response);
 }
-#endif
 
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
-static void getvar_partition_type(char *part_name, char *response)
+static void __maybe_unused getvar_partition_type(char *part_name, char *response)
 {
 	int r;
 	struct blk_desc *dev_desc;
@@ -232,10 +220,8 @@ static void getvar_partition_type(char *part_name, char *response)
 			fastboot_okay(fs_get_type_name(), response);
 	}
 }
-#endif
 
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
-static void getvar_partition_size(char *part_name, char *response)
+static void __maybe_unused getvar_partition_size(char *part_name, char *response)
 {
 	int r;
 	size_t size;
@@ -244,7 +230,6 @@ static void getvar_partition_size(char *part_name, char *response)
 	if (r >= 0)
 		fastboot_response("OKAY", response, "0x%016zx", size);
 }
-#endif
 
 static void getvar_is_userspace(char *var_parameter, char *response)
 {

@@ -1198,6 +1198,7 @@ M:	Sean Anderson <seanga2@gmail.com>
 S:	Maintained
 F:	doc/api/nvmem.rst
 F:	drivers/misc/nvmem.c
+F:	drivers/reboot-mode/reboot-mode-nvmem.c
 F:	include/nvmem.h
 
 NXP C45 TJA11XX PHY DRIVER

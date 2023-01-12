@@ -462,22 +462,22 @@ function check_results() {
 	FAIL=0
 
 	# Check if the ls is showing correct results for 2.5 gb file
-	grep -A7 "Test Case 1 " "$1" | egrep -iq "2621440000 *$4"
+	grep -A7 "Test Case 1 " "$1" | grep -Eiq "2621440000 *$4"
 	pass_fail "TC1: ls of $4"
 
 	# Check if the ls is showing correct results for 1 mb file
-	grep -A7 "Test Case 1 " "$1" | egrep -iq "1048576 *$3"
+	grep -A7 "Test Case 1 " "$1" | grep -Eiq "1048576 *$3"
 	pass_fail "TC1: ls of $3"
 
 	# Check size command on 1MB.file
-	egrep -A3 "Test Case 2a " "$1" | grep -q "filesize=100000"
+	grep -A3 "Test Case 2a " "$1" | grep -q "filesize=100000"
 	pass_fail "TC2: size of $3"
 	# Check size command on 1MB.file via a path using '..'
-	egrep -A3 "Test Case 2b " "$1" | grep -q "filesize=100000"
+	grep -A3 "Test Case 2b " "$1" | grep -q "filesize=100000"
 	pass_fail "TC2: size of $3 via a path using '..'"
 
 	# Check size command on 2.5GB.file
-	egrep -A3 "Test Case 3 " "$1" | grep -q "filesize=9c400000"
+	grep -A3 "Test Case 3 " "$1" | grep -q "filesize=9c400000"
 	pass_fail "TC3: size of $4"
 
 	# Check read full mb of 1MB.file

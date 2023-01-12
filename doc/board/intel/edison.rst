@@ -90,7 +90,7 @@ If you want to check if the board is ready, type:
 
 .. code-block:: none
 
-  lsusb | egrep "8087|8086"
+  lsusb | grep -E "8087|8086"
   Bus 001 Device 004: ID 8086:e005 Intel Corp.
 
 If you see a device with the same ID as above, the board is waiting for your

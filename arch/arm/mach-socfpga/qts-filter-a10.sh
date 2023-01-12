@@ -10,7 +10,7 @@ fix_newlines_in_macros() {
 
 #filter out only what we need from a10 hps.xml
 grep_a10_hps_config() {
-	egrep "clk_hz|i_clk_mgr|i_io48_pin_mux|AXI_SLAVE|AXI_MASTER"
+	grep -E "clk_hz|i_clk_mgr|i_io48_pin_mux|AXI_SLAVE|AXI_MASTER"
 }
 
 #
@@ -35,35 +35,35 @@ EOF
 
 	echo "/* Clocks */"
 	fix_newlines_in_macros \
-		${hps_xml} | egrep "clk_hz" |
+		${hps_xml} | grep "clk_hz" |
 			awk -F"'" '{ gsub("\\.","_",$2) ; \
 				print "#define" " " toupper($2) " " $4}' |
 			sed 's/\.[0-9]//' |
 			sed 's/I_CLK_MGR_//' |
 			sort
 	fix_newlines_in_macros \
-		${hps_xml} | egrep "i_clk_mgr_mainpll" |
+		${hps_xml} | grep "i_clk_mgr_mainpll" |
 			awk -F"'" '{ gsub("\\.","_",$2) ; \
 				print "#define" " " toupper($2) " " $4}' |
 			sed 's/\.[0-9]//' |
 			sed 's/I_CLK_MGR_//' |
 			sort
 	fix_newlines_in_macros \
-		${hps_xml} | egrep "i_clk_mgr_perpll" |
+		${hps_xml} | grep "i_clk_mgr_perpll" |
 			awk -F"'" '{ gsub("\\.","_",$2) ; \
 				print "#define" " " toupper($2) " " $4}' |
 			sed 's/\.[0-9]//' |
 			sed 's/I_CLK_MGR_//' |
 			sort
 	fix_newlines_in_macros \
-		${hps_xml} | egrep "i_clk_mgr_clkmgr" |
+		${hps_xml} | grep "i_clk_mgr_clkmgr" |
 			awk -F"'" '{ gsub("\\.","_",$2) ; \
 				print "#define" " " toupper($2) " " $4}' |
 			sed 's/\.[0-9]//' |
 			sed 's/I_CLK_MGR_//' |
 			sort
 	fix_newlines_in_macros \
-		${hps_xml} | egrep "i_clk_mgr_alteragrp" |
+		${hps_xml} | grep "i_clk_mgr_alteragrp" |
 			awk -F"'" '{ gsub("\\.","_",$2) ; \
 				print "#define" " " toupper($2) " " $4}' |
 			sed 's/\.[0-9]//' |
@@ -77,7 +77,7 @@ EOF
 	echo
 	echo "/* Pin Mux Configuration */"
 	fix_newlines_in_macros \
-		${hps_xml} | egrep "i_io48_pin_mux" |
+		${hps_xml} | grep "i_io48_pin_mux" |
 			awk -F"'" '{ gsub("\\.","_",$2) ; \
 				print "#define" " " toupper($2) " " $4}' |
 			sed 's/I_IO48_PIN_MUX_//' |
@@ -90,7 +90,7 @@ EOF
 	echo
 	echo "/* Bridge Configuration */"
 	fix_newlines_in_macros \
-		${hps_xml} | egrep "AXI_SLAVE|AXI_MASTER" |
+		${hps_xml} | grep -E "AXI_SLAVE|AXI_MASTER" |
 			awk -F"'" '{ gsub("\\.","_",$2) ; \
 				print "#define" " " toupper($2) " " $4}' |
 			sed 's/true/1/' |

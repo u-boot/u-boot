@@ -608,7 +608,7 @@ int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
 	BIGNUM *modulus, *r_squared;
 	uint64_t exponent;
 	uint32_t n0_inv;
-	int parent, node;
+	int parent, node = -FDT_ERR_NOTFOUND;
 	char name[100];
 	int ret;
 	int bits;

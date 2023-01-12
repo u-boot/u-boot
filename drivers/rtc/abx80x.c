@@ -17,6 +17,7 @@
 #include <i2c.h>
 #include <rtc.h>
 #include <log.h>
+#include <linux/bitfield.h>
 
 #define ABX8XX_REG_HTH		0x00
 #define ABX8XX_REG_SC		0x01
@@ -88,6 +89,16 @@
 #define ABX8XX_TRICKLE_STANDARD_DIODE	0x8
 #define ABX8XX_TRICKLE_SCHOTTKY_DIODE	0x4
 
+#define ABX8XX_REG_EXTRAM	0x3f
+#define ABX8XX_EXTRAM_XADS	GENMASK(1, 0)
+
+#define ABX8XX_SRAM_BASE	0x40
+#define ABX8XX_SRAM_WIN_SIZE	0x40U
+#define ABX8XX_RAM_SIZE		256
+
+#define RAM_ADDR_LOWER		GENMASK(5, 0)
+#define RAM_ADDR_UPPER		GENMASK(7, 6)
+
 static u8 trickle_resistors[] = {0, 3, 6, 11};
 
 enum abx80x_chip {AB0801, AB0803, AB0804, AB0805,
@@ -112,29 +123,52 @@ static struct abx80x_cap abx80x_caps[] = {
 	[ABX80X] = {.pn = 0}
 };
 
-static int abx80x_rtc_read8(struct udevice *dev, unsigned int reg)
+static int abx80x_rtc_xfer(struct udevice *dev, unsigned int offset,
+			   u8 *val, unsigned int bytes, bool write)
 {
-	int ret = 0;
-	u8 buf;
+	int ret;
 
-	if (reg > 0xff)
+	if (offset + bytes > ABX8XX_RAM_SIZE)
 		return -EINVAL;
 
-	ret = dm_i2c_read(dev, reg, &buf, sizeof(buf));
-	if (ret < 0)
-		return ret;
+	while (bytes) {
+		u8 extram, reg, len, lower, upper;
 
-	return buf;
+		lower = FIELD_GET(RAM_ADDR_LOWER, offset);
+		upper = FIELD_GET(RAM_ADDR_UPPER, offset);
+		extram = FIELD_PREP(ABX8XX_EXTRAM_XADS, upper);
+		reg = ABX8XX_SRAM_BASE + lower;
+		len = min(lower + bytes, ABX8XX_SRAM_WIN_SIZE) - lower;
+
+		ret = dm_i2c_reg_write(dev, ABX8XX_REG_EXTRAM, extram);
+		if (ret)
+			return ret;
+
+		if (write)
+			ret = dm_i2c_write(dev, reg, val, len);
+		else
+			ret = dm_i2c_read(dev, reg, val, len);
+		if (ret)
+			return ret;
+
+		offset += len;
+		val += len;
+		bytes -= len;
+	}
+
+	return 0;
 }
 
-static int abx80x_rtc_write8(struct udevice *dev, unsigned int reg, int val)
+static int abx80x_rtc_read(struct udevice *dev, unsigned int offset, u8 *val,
+			   unsigned int bytes)
 {
-	u8 buf = (u8)val;
+	return abx80x_rtc_xfer(dev, offset, val, bytes, false);
+}
 
-	if (reg > 0xff)
-		return -EINVAL;
-
-	return dm_i2c_write(dev, reg, &buf, sizeof(buf));
+static int abx80x_rtc_write(struct udevice *dev, unsigned int offset,
+			    const u8 *val, unsigned int bytes)
+{
+	return abx80x_rtc_xfer(dev, offset, (u8 *)val, bytes, true);
 }
 
 static int abx80x_is_rc_mode(struct udevice *dev)
@@ -334,9 +368,9 @@ static int abx80x_rtc_reset(struct udevice *dev)
 static const struct rtc_ops abx80x_rtc_ops = {
 	.get	= abx80x_rtc_read_time,
 	.set	= abx80x_rtc_set_time,
-	.reset  = abx80x_rtc_reset,
-	.read8  = abx80x_rtc_read8,
-	.write8 = abx80x_rtc_write8
+	.reset	= abx80x_rtc_reset,
+	.read	= abx80x_rtc_read,
+	.write	= abx80x_rtc_write,
 };
 
 static int abx80x_dt_trickle_cfg(struct udevice *dev)

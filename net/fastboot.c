@@ -42,7 +42,6 @@ static int fastboot_our_port;
 
 static void boot_downloaded_image(void);
 
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 /**
  * fastboot_udp_send_info() - Send an INFO packet during long commands.
  *
@@ -104,7 +103,6 @@ static void fastboot_timed_send_info(const char *msg)
 		fastboot_udp_send_info(msg);
 	}
 }
-#endif
 
 /**
  * fastboot_send() - Sends a packet in response to received fastboot packet
@@ -309,9 +307,9 @@ void fastboot_start_server(void)
 
 	fastboot_our_port = CONFIG_UDP_FUNCTION_FASTBOOT_PORT;
 
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
-	fastboot_set_progress_callback(fastboot_timed_send_info);
-#endif
+	if (CONFIG_IS_ENABLED(FASTBOOT_FLASH))
+		fastboot_set_progress_callback(fastboot_timed_send_info);
+
 	net_set_udp_handler(fastboot_handler);
 
 	/* zero out server ether in case the server ip has changed */

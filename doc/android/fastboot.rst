@@ -28,6 +28,7 @@ The following OEM commands are supported (if enabled):
 - ``oem partconf`` - this executes ``mmc partconf %x <arg> 0`` to configure eMMC
   with <arg> = boot_ack boot_partition
 - ``oem bootbus``  - this executes ``mmc bootbus %x %s`` to configure eMMC
+- ``oem run`` - this executes an arbitrary U-Boot command
 
 Support for both eMMC and NAND devices is included.
 
@@ -226,6 +227,23 @@ and on the U-Boot side you should see::
    OK
 
    Starting kernel ...
+
+Running Shell Commands
+^^^^^^^^^^^^^^^^^^^^^^
+
+Normally, arbitrary U-Boot command execution is not enabled. This is so
+fastboot can be used to update systems using verified boot. However, such
+functionality can be useful for production or when verified boot is not in use.
+Enable ``CONFIG_FASTBOOT_OEM_RUN`` to use this functionality. This will enable
+``oem run`` command, which can be used with the fastboot client. For example,
+to print "Hello at 115200 baud" (or whatever ``CONFIG_BAUDRATE`` is), run::
+
+    $ fastboot oem run:'echo Hello at $baudrate baud'
+
+You can run any command you would normally run on the U-Boot command line,
+including multiple commands (using e.g. ``;`` or ``&&``) and control structures
+(``if``, ``while``, etc.). The exit code of ``fastboot`` will reflect the exit
+code of the command you ran.
 
 References
 ----------

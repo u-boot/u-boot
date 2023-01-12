@@ -91,20 +91,21 @@ void fastboot_okay(const char *reason, char *response)
  */
 int __weak fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
-#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
 	static const char * const boot_cmds[] = {
 		[FASTBOOT_REBOOT_REASON_BOOTLOADER] = "bootonce-bootloader",
 		[FASTBOOT_REBOOT_REASON_FASTBOOTD] = "boot-fastboot",
 		[FASTBOOT_REBOOT_REASON_RECOVERY] = "boot-recovery"
 	};
+	const int mmc_dev = config_opt_enabled(CONFIG_FASTBOOT_FLASH_MMC,
+					       CONFIG_FASTBOOT_FLASH_MMC_DEV, -1);
+
+	if (!CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC))
+		return -EINVAL;
 
 	if (reason >= FASTBOOT_REBOOT_REASONS_COUNT)
 		return -EINVAL;
 
-	return bcb_write_reboot_reason(CONFIG_FASTBOOT_FLASH_MMC_DEV, "misc", boot_cmds[reason]);
-#else
-    return -EINVAL;
-#endif
+	return bcb_write_reboot_reason(mmc_dev, "misc", boot_cmds[reason]);
 }
 
 /**

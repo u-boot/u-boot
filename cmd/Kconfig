@@ -2539,6 +2539,7 @@ config CMD_MTDPARTS_SHOW_NET_SIZES
 config MTDIDS_DEFAULT
 	string "Default MTD IDs"
 	depends on MTD || SPI_FLASH
+	depends on !SYS_MTDPARTS_RUNTIME
 	help
 	  Defines a default MTD IDs list for use with MTD partitions in the
 	  Linux MTD command line partitions format.
@@ -2546,6 +2547,7 @@ config MTDIDS_DEFAULT
 config MTDPARTS_DEFAULT
 	string "Default MTD partition scheme"
 	depends on MTD || SPI_FLASH
+	depends on !SYS_MTDPARTS_RUNTIME
 	help
 	  Defines a default MTD partitioning scheme in the Linux MTD command
 	  line partitions format
