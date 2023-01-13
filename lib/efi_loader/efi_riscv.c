@@ -31,7 +31,7 @@ efi_riscv_get_boot_hartid(struct riscv_efi_boot_protocol *this,
 	EFI_ENTRY("%p, %p",  this, boot_hartid);
 
 	if (this != &riscv_efi_boot_prot || !boot_hartid)
-		return EFI_INVALID_PARAMETER;
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
 	*boot_hartid = gd->arch.boot_hart;
 

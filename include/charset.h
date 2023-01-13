@@ -178,7 +178,6 @@ s32 utf_to_upper(const s32 code);
  *
  * @s1:		first string to compare
  * @s2:		second string to compare
- * @n:		maximum number of u16 to compare
  * Return:	0  if the first n u16 are the same in s1 and s2
  *		< 0 if the first different u16 in s1 is less than the
  *		corresponding u16 in s2

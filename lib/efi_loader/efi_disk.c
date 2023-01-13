@@ -13,6 +13,7 @@
 #include <dm/device-internal.h>
 #include <dm/tag.h>
 #include <event.h>
+#include <efi_driver.h>
 #include <efi_loader.h>
 #include <fs.h>
 #include <log.h>
@@ -386,6 +387,7 @@ static int efi_fs_exists(struct blk_desc *desc, int part)
  * @part_info:		partition info
  * @part:		partition
  * @disk:		pointer to receive the created handle
+ * @agent_handle:	handle of the EFI block driver
  * Return:		disk object
  */
 static efi_status_t efi_disk_add_dev(
@@ -395,7 +397,8 @@ static efi_status_t efi_disk_add_dev(
 				int dev_index,
 				struct disk_partition *part_info,
 				unsigned int part,
-				struct efi_disk_obj **disk)
+				struct efi_disk_obj **disk,
+				efi_handle_t agent_handle)
 {
 	struct efi_disk_obj *diskobj;
 	struct efi_object *handle;
@@ -529,17 +532,18 @@ error:
 	return ret;
 }
 
-/*
- * Create a handle for a whole raw disk
+/**
+ * efi_disk_create_raw() - create a handle for a whole raw disk
  *
- * @dev		uclass device (UCLASS_BLK)
+ * @dev:		udevice (UCLASS_BLK)
+ * @agent_handle:	handle of the EFI block driver
  *
  * Create an efi_disk object which is associated with @dev.
  * The type of @dev must be UCLASS_BLK.
  *
- * @return	0 on success, -1 otherwise
+ * Return:		0 on success, -1 otherwise
  */
-static int efi_disk_create_raw(struct udevice *dev)
+static int efi_disk_create_raw(struct udevice *dev, efi_handle_t agent_handle)
 {
 	struct efi_disk_obj *disk;
 	struct blk_desc *desc;
@@ -550,7 +554,7 @@ static int efi_disk_create_raw(struct udevice *dev)
 	diskid = desc->devnum;
 
 	ret = efi_disk_add_dev(NULL, NULL, desc,
-			       diskid, NULL, 0, &disk);
+			       diskid, NULL, 0, &disk, agent_handle);
 	if (ret != EFI_SUCCESS) {
 		if (ret == EFI_NOT_READY)
 			log_notice("Disk %s not ready\n", dev->name);
@@ -569,17 +573,18 @@ static int efi_disk_create_raw(struct udevice *dev)
 	return 0;
 }
 
-/*
- * Create a handle for a disk partition
+/**
+ * efi_disk_create_part() - create a handle for a disk partition
  *
- * @dev		uclass device (UCLASS_PARTITION)
+ * @dev:		udevice (UCLASS_PARTITION)
+ * @agent_handle:	handle of the EFI block driver
  *
  * Create an efi_disk object which is associated with @dev.
  * The type of @dev must be UCLASS_PARTITION.
  *
- * @return	0 on success, -1 otherwise
+ * Return:		0 on success, -1 otherwise
  */
-static int efi_disk_create_part(struct udevice *dev)
+static int efi_disk_create_part(struct udevice *dev, efi_handle_t agent_handle)
 {
 	efi_handle_t parent;
 	struct blk_desc *desc;
@@ -608,7 +613,7 @@ static int efi_disk_create_part(struct udevice *dev)
 	dp_parent = (struct efi_device_path *)handler->protocol_interface;
 
 	ret = efi_disk_add_dev(parent, dp_parent, desc, diskid,
-			       info, part, &disk);
+			       info, part, &disk, agent_handle);
 	if (ret != EFI_SUCCESS) {
 		log_err("Adding partition for %s failed\n", dev->name);
 		return -1;
@@ -623,17 +628,18 @@ static int efi_disk_create_part(struct udevice *dev)
 	return 0;
 }
 
-/*
- * Create efi_disk objects for a block device
+/**
+ * efi_disk_probe() - create efi_disk objects for a block device
  *
- * @dev		uclass device (UCLASS_BLK)
+ * @ctx:	event context - driver binding protocol
+ * @event:	EV_PM_POST_PROBE event
  *
  * Create efi_disk objects for partitions as well as a raw disk
  * which is associated with @dev.
  * The type of @dev must be UCLASS_BLK.
  * This function is expected to be called at EV_PM_POST_PROBE.
  *
- * @return	0 on success, -1 otherwise
+ * Return:	0 on success, -1 otherwise
  */
 int efi_disk_probe(void *ctx, struct event *event)
 {
@@ -641,28 +647,30 @@ int efi_disk_probe(void *ctx, struct event *event)
 	enum uclass_id id;
 	struct blk_desc *desc;
 	struct udevice *child;
+	struct efi_driver_binding_extended_protocol *db_prot = ctx;
+	efi_handle_t agent_handle = db_prot->bp.driver_binding_handle;
 	int ret;
 
 	dev = event->data.dm.dev;
 	id = device_get_uclass_id(dev);
 
-	/* TODO: We won't support partitions in a partition */
+	/* We won't support partitions in a partition */
 	if (id != UCLASS_BLK)
 		return 0;
 
 	/*
-	 * avoid creating duplicated objects now that efi_driver
+	 * Avoid creating duplicated objects now that efi_driver
 	 * has already created an efi_disk at this moment.
 	 */
 	desc = dev_get_uclass_plat(dev);
 	if (desc->uclass_id != UCLASS_EFI_LOADER) {
-		ret = efi_disk_create_raw(dev);
+		ret = efi_disk_create_raw(dev, agent_handle);
 		if (ret)
 			return -1;
 	}
 
 	device_foreach_child(child, dev) {
-		ret = efi_disk_create_part(child);
+		ret = efi_disk_create_part(child, agent_handle);
 		if (ret)
 			return -1;
 	}

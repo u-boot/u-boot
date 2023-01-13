@@ -28,6 +28,10 @@ SECTIONS
 		*(.dynamic);
 		. = ALIGN(512);
 	}
+	.rela.dyn : { *(.rela.dyn) }
+	.rela.plt : { *(.rela.plt) }
+	.rela.got : { *(.rela.got) }
+	.rela.data : { *(.rela.data) *(.rela.data*) }
 	_etext = .;
 	_text_size = . - _text;
 	. = ALIGN(4096);
@@ -57,10 +61,6 @@ SECTIONS
 		_edata = .;
 	} :data
 	_data_size = _edata - _data;
-	.rela.dyn : { *(.rela.dyn) }
-	.rela.plt : { *(.rela.plt) }
-	.rela.got : { *(.rela.got) }
-	.rela.data : { *(.rela.data) *(.rela.data*) }
 
 	. = ALIGN(4096);
 	.dynsym   : { *(.dynsym) }
