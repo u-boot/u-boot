@@ -845,7 +845,7 @@ void tftp_start(enum proto_t protocol)
 			e = strchr(net_boot_file_name, ']');
 			len = e - s;
 			if (s && e) {
-				string_to_ip6(s + 1, len, &tftp_remote_ip6);
+				string_to_ip6(s + 1, len - 1, &tftp_remote_ip6);
 				strlcpy(tftp_filename, e + 2, MAX_LEN);
 			} else {
 				strlcpy(tftp_filename, net_boot_file_name, MAX_LEN);
