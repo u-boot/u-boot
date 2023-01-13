@@ -211,7 +211,7 @@ def check_patch(fname, verbose=False, show_types=False, use_tree=False):
             stdout: Full output of checkpatch
     """
     chk = find_check_patch()
-    args = [chk, '--u-boot', '--strict']
+    args = [chk]
     if not use_tree:
         args.append('--no-tree')
     if show_types:
