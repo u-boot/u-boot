@@ -229,6 +229,15 @@ RUN mkdir /tmp/trace && \
     sudo make install && \
     rm -rf /tmp/trace
 
+# Files to run Nokia RX-51 (aka N900) tests
+RUN mkdir -p /opt/nokia && \
+	cd /opt/nokia && \
+	wget https://raw.githubusercontent.com/pali/u-boot-maemo/master/debian/u-boot-gen-combined && \
+	wget http://repository.maemo.org/qemu-n900/qemu-n900.tar.gz && \
+	wget http://repository.maemo.org/pool/maemo5.0/free/k/kernel/kernel_2.6.28-20103103+0m5_armel.deb && \
+	wget http://repository.maemo.org/pool/maemo5.0/free/g/glibc/libc6_2.5.1-1eglibc27+0m5_armel.deb && \
+	wget http://repository.maemo.org/pool/maemo5.0/free/b/busybox/busybox_1.10.2.legal-1osso30+0m5_armel.deb
+
 # Create our user/group
 RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot
 RUN useradd -m -U uboot
