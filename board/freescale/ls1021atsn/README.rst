@@ -50,7 +50,7 @@ To compile and flash an SD card image::
 
 For the QSPI flash, first obtain the Reset Configuration Word binary for
 bootimg from the QSPI flash from the rcw project
-(https://source.codeaurora.org/external/qoriq/qoriq-components/rcw)::
+(https://github.com/nxp-qoriq/rcw)::
 
   make -j 8 && sudo cp ls1021atsn/SSR_PNS_30/rcw_1200_qspiboot.bin.swapped /srv/tftpboot/
 
