@@ -17,7 +17,7 @@ Get and Build the ARM Trusted firmware
 --------------------------------------
 
 Note: builddir is U-Boot build directory (source directory for in-tree builds)
-Get ATF from: https://source.codeaurora.org/external/imx/imx-atf
+Get ATF from: https://github.com/nxp-imx/imx-atf
 branch: imx_5.4.47_2.2.0
 
 .. code-block:: bash

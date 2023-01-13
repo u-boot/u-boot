@@ -16,7 +16,7 @@ Quick Start
 Get and Build the ARM Trusted firmware
 --------------------------------------
 
-Get ATF from: https://source.codeaurora.org/external/imx/imx-atf
+Get ATF from: https://github.com/nxp-imx/imx-atf
 branch: imx_5.4.70_2.3.0
 
 .. code-block:: bash
