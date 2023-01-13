@@ -620,7 +620,7 @@ Prerequisite: check if a MAC address isn't yet programmed in OTP
     STM32MP> env print ethaddr
     ## Error: "ethaddr" not defined
 
-3) check lock status of fuse 57 & 58 (at 0x39, 0=unlocked, 1=locked)::
+3) check lock status of fuse 57 & 58 (at 0x39, 0=unlocked, 0x40000000=locked)::
 
     STM32MP> fuse sense 0 0x10000039 2
     Sensing bank 0:
@@ -640,11 +640,11 @@ Example to set mac address "12:34:56:78:9a:bc"
 
 3) Lock OTP::
 
-    STM32MP> fuse prog 0 0x10000039 1 1
+    STM32MP> fuse prog 0 0x10000039 0x40000000 0x40000000
 
     STM32MP> fuse sense 0 0x10000039 2
     Sensing bank 0:
-       Word 0x10000039: 00000001 00000001
+       Word 0x10000039: 40000000 40000000
 
 4) next REBOOT, in the trace::
 

@@ -22,6 +22,7 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <linux/bitops.h>
+#include <spl.h>
 
 /*
  * early TLB into the .data section so that it not get cleared
@@ -378,3 +379,52 @@ int arch_misc_init(void)
 
 	return 0;
 }
+
+/*
+ * Without forcing the ".data" section, this would get saved in ".bss". BSS
+ * will be cleared soon after, so it's not suitable.
+ */
+static uintptr_t rom_api_table __section(".data");
+static uintptr_t nt_fw_dtb __section(".data");
+
+/*
+ * The ROM gives us the API location in r0 when starting. This is only available
+ * during SPL, as there isn't (yet) a mechanism to pass this on to u-boot. Save
+ * the FDT address provided by TF-A in r2 at boot time. This function is called
+ * from start.S
+ */
+void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
+		      unsigned long r3)
+{
+	if (IS_ENABLED(CONFIG_STM32_ECDSA_VERIFY))
+		rom_api_table = r0;
+
+	if (IS_ENABLED(CONFIG_TFABOOT))
+		nt_fw_dtb = r2;
+
+	save_boot_params_ret();
+}
+
+uintptr_t get_stm32mp_rom_api_table(void)
+{
+	return rom_api_table;
+}
+
+uintptr_t get_stm32mp_bl2_dtb(void)
+{
+	return nt_fw_dtb;
+}
+
+#ifdef CONFIG_SPL_BUILD
+void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+{
+	typedef void __noreturn (*image_entry_stm32_t)(u32 romapi);
+	uintptr_t romapi = get_stm32mp_rom_api_table();
+
+	image_entry_stm32_t image_entry =
+		(image_entry_stm32_t)spl_image->entry_point;
+
+	printf("image entry point: 0x%lx\n", spl_image->entry_point);
+	image_entry(romapi);
+}
+#endif

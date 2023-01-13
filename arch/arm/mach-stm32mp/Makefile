@@ -11,10 +11,10 @@ obj-y += bsec.o
 obj-$(CONFIG_STM32MP13x) += stm32mp13x.o
 obj-$(CONFIG_STM32MP15x) += stm32mp15x.o
 
+obj-$(CONFIG_STM32_ECDSA_VERIFY) += ecdsa_romapi.o
 ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
 obj-y += tzc400.o
-obj-$(CONFIG_STM32_ECDSA_VERIFY) += ecdsa_romapi.o
 else
 obj-y += cmd_stm32prog/
 obj-$(CONFIG_CMD_STM32KEY) += cmd_stm32key.o

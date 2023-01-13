@@ -105,6 +105,16 @@ config USB_KEYBOARD
 	  Say Y here if you want to use a USB keyboard for U-Boot command line
 	  input.
 
+config USB_ONBOARD_HUB
+	bool "Onboard USB hub support"
+	depends on DM_USB
+	---help---
+	  Say Y here if you want to support discrete onboard USB hubs that
+	  don't require an additional control bus for initialization, but
+	  need some non-trivial form of initialization, such as enabling a
+	  power regulator. An example for such a hub is the Microchip
+	  USB2514B.
+
 if USB_KEYBOARD
 
 config USB_KEYBOARD_FN_KEYS

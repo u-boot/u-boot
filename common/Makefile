@@ -26,6 +26,7 @@ obj-$(CONFIG_PHYLIB) += miiphyutil.o
 obj-$(CONFIG_USB_HOST) += usb.o usb_hub.o
 obj-$(CONFIG_USB_GADGET) += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
+obj-$(CONFIG_USB_ONBOARD_HUB) += usb_onboard_hub.o
 
 # others
 obj-$(CONFIG_CONSOLE_MUX) += iomux.o

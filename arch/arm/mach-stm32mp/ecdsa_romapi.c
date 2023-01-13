@@ -24,26 +24,10 @@ struct ecdsa_rom_api {
 					   uint32_t ecc_algo);
 };
 
-/*
- * Without forcing the ".data" section, this would get saved in ".bss". BSS
- * will be cleared soon after, so it's not suitable.
- */
-static uintptr_t rom_api_loc __section(".data");
-
-/*
- * The ROM gives us the API location in r0 when starting. This is only available
- * during SPL, as there isn't (yet) a mechanism to pass this on to u-boot.
- */
-void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
-		      unsigned long r3)
-{
-	rom_api_loc = r0;
-	save_boot_params_ret();
-}
-
 static void stm32mp_rom_get_ecdsa_functions(struct ecdsa_rom_api *rom)
 {
-	uintptr_t verify_ptr = rom_api_loc + ROM_API_OFFSET_ECDSA_VERIFY;
+	uintptr_t verify_ptr = get_stm32mp_rom_api_table() +
+			       ROM_API_OFFSET_ECDSA_VERIFY;
 
 	rom->ecdsa_verify_signature = *(void **)verify_ptr;
 }
@@ -81,6 +65,10 @@ static int romapi_ecdsa_verify(struct udevice *dev,
 	memcpy(raw_key + 32, pubkey->y, 32);
 
 	stm32mp_rom_get_ecdsa_functions(&rom);
+
+	/* Mark BootROM region as executable. */
+	mmu_set_region_dcache_behaviour(0, SZ_2M, DCACHE_DEFAULT_OPTION);
+
 	rom_ret = rom.ecdsa_verify_signature(hash, raw_key, signature, algo);
 
 	return rom_ret == ROM_API_SUCCESS ? 0 : -EPERM;
