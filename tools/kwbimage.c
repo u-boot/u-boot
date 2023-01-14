@@ -2182,7 +2182,7 @@ static int kwbimage_generate_config(void *ptr, struct image_tool_params *params)
 		fprintf(f, "NAND_ECC_MODE %s\n", image_nand_ecc_mode_name(mhdr0->nandeccmode));
 
 	if (mhdr->blockid == IBR_HDR_NAND_ID)
-		fprintf(f, "NAND_PAGE_SIZE 0x%x\n", (unsigned)mhdr->nandpagesize);
+		fprintf(f, "NAND_PAGE_SIZE 0x%x\n", (unsigned)le16_to_cpu(mhdr->nandpagesize));
 
 	if (version != 0 && mhdr->blockid == IBR_HDR_NAND_ID)
 		fprintf(f, "NAND_BLKSZ 0x%x\n", (unsigned)mhdr->nandblocksize);
