@@ -2187,7 +2187,7 @@ static int kwbimage_generate_config(void *ptr, struct image_tool_params *params)
 	if (version != 0 && mhdr->blockid == IBR_HDR_NAND_ID)
 		fprintf(f, "NAND_BLKSZ 0x%x\n", (unsigned)mhdr->nandblocksize);
 
-	if (mhdr->blockid == IBR_HDR_NAND_ID && (mhdr->nandbadblklocation != 0 || is_v0_ext))
+	if (mhdr->blockid == IBR_HDR_NAND_ID && (version != 0 || is_v0_ext))
 		fprintf(f, "NAND_BADBLK_LOCATION 0x%x\n", (unsigned)mhdr->nandbadblklocation);
 
 	if (version == 0 && mhdr->blockid == IBR_HDR_SATA_ID)
