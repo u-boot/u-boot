@@ -75,6 +75,7 @@ Shell commands
    cmd/setexpr
    cmd/size
    cmd/sound
+   cmd/source
    cmd/temperature
    cmd/tftpput
    cmd/true
