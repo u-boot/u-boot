@@ -26,38 +26,62 @@ enum {
 	FUNCF_TRACE	= 1 << 0,	/* Include this function in trace */
 };
 
+/**
+ * struct func_info - information recorded for each function
+ *
+ * @offset: Function offset in the image, measured from the text_base
+ * @name: Function name
+ * @code_size: Total code size of the function
+ * @flags: Either 0 or FUNCF_TRACE
+ * @objsection: the section this function is in
+ */
 struct func_info {
 	unsigned long offset;
 	const char *name;
 	unsigned long code_size;
-	unsigned long call_count;
 	unsigned flags;
-	/* the section this function is in */
 	struct objsection_info *objsection;
 };
 
+/**
+ * enum trace_line_type - whether to include or exclude a function
+ *
+ * @TRACE_LINE_INCLUDE: Include the function
+ * @TRACE_LINE_EXCLUDE: Exclude the function
+ */
 enum trace_line_type {
 	TRACE_LINE_INCLUDE,
 	TRACE_LINE_EXCLUDE,
 };
 
+/**
+ * struct trace_configline_info - information about a config-file line
+ *
+ * @next: Next line
+ * @type: Line type
+ * @name: identifier name / wildcard
+ * @regex: Regex to use if name starts with '/'
+ */
 struct trace_configline_info {
 	struct trace_configline_info *next;
 	enum trace_line_type type;
-	const char *name;	/* identifier name / wildcard */
-	regex_t regex;		/* Regex to use if name starts with / */
+	const char *name;
+	regex_t regex;
 };
 
 /* The contents of the trace config file */
 struct trace_configline_info *trace_config_head;
 
+/* list of all functions in System.map file, sorted by offset in the image */
 struct func_info *func_list;
-int func_count;
-struct trace_call *call_list;
-int call_count;
-int verbose;	/* Verbosity level 0=none, 1=warn, 2=notice, 3=info, 4=debug */
-unsigned long text_offset;		/* text address of first function */
 
+int func_count;			/* number of functions */
+struct trace_call *call_list;	/* list of all calls in the input trace file */
+int call_count;			/* number of calls */
+int verbose;	/* Verbosity level 0=none, 1=warn, 2=notice, 3=info, 4=debug */
+ulong text_offset;		/* text address of first function */
+
+/* debugging helpers */
 static void outf(int level, const char *fmt, ...)
 		__attribute__ ((format (__printf__, 2, 3)));
 #define error(fmt, b...) outf(0, fmt, ##b)
@@ -65,7 +89,6 @@ static void outf(int level, const char *fmt, ...)
 #define notice(fmt, b...) outf(2, fmt, ##b)
 #define info(fmt, b...) outf(3, fmt, ##b)
 #define debug(fmt, b...) outf(4, fmt, ##b)
-
 
 static void outf(int level, const char *fmt, ...)
 {
@@ -84,16 +107,24 @@ static void usage(void)
 		"Usage: proftool [-cmtv] <cmd> <profdata>\n"
 		"\n"
 		"Commands\n"
-		"   dump-ftrace\t\tDump out textual data in ftrace format\n"
+		"   dump-ftrace\t\tDump out records in ftrace format for use by trace-cmd\n"
 		"\n"
 		"Options:\n"
-		"   -c <cfg>\tSpecific config file\n"
+		"   -c <cfg>\tSpecify config file\n"
 		"   -m <map>\tSpecify Systen.map file\n"
+		"   -o <fname>\tSpecify output file\n"
 		"   -t <fname>\tSpecify trace data file (from U-Boot 'trace calls')\n"
 		"   -v <0-4>\tSpecify verbosity\n");
 	exit(EXIT_FAILURE);
 }
 
+/**
+ * h_cmp_offset - bsearch() function to compare two functions bny their offset
+ *
+ * @v1: Pointer to first function (struct func_info)
+ * @v2: Pointer to second function (struct func_info)
+ * Returns: < 0 if v1 offset < v2 offset, 0 if equal, > 0 otherwise
+ */
 static int h_cmp_offset(const void *v1, const void *v2)
 {
 	const struct func_info *f1 = v1, *f2 = v2;
@@ -101,6 +132,15 @@ static int h_cmp_offset(const void *v1, const void *v2)
 	return (f1->offset / FUNC_SITE_SIZE) - (f2->offset / FUNC_SITE_SIZE);
 }
 
+/**
+ * read_system_map() - read the System.map file to create a list of functions
+ *
+ * This also reads the text_offset value, since we assume that the first text
+ * symbol is at that address
+ *
+ * @fin: File to read
+ * Returns: 0 if OK, non-zero on error
+ */
 static int read_system_map(FILE *fin)
 {
 	unsigned long offset, start = 0;
@@ -152,6 +192,7 @@ static int read_system_map(FILE *fin)
 	}
 	notice("%d functions found in map file\n", func_count);
 	text_offset = start;
+
 	return 0;
 }
 
@@ -163,13 +204,22 @@ static int read_data(FILE *fin, void *buff, int size)
 	if (!err)
 		return 1;
 	if (err != size) {
-		error("Cannot read profile file at pos %lx\n", ftell(fin));
+		error("Cannot read trace file at pos %lx\n", ftell(fin));
 		return -1;
 	}
 	return 0;
 }
 
-static struct func_info *find_func_by_offset(uint32_t offset)
+/**
+ * find_func_by_offset() - Look up a function by its offset
+ *
+ * @offset: Offset to search for, from text_base
+ * Returns: function, if found, else NULL
+ *
+ * This does a fast search for a function given its offset from text_base
+ *
+ */
+static struct func_info *find_func_by_offset(uint offset)
 {
 	struct func_info key, *found;
 
@@ -180,8 +230,17 @@ static struct func_info *find_func_by_offset(uint32_t offset)
 	return found;
 }
 
-/* This finds the function which contains the given offset */
-static struct func_info *find_caller_by_offset(uint32_t offset)
+/**
+ * find_caller_by_offset() - finds the function which contains the given offset
+ *
+ * @offset: Offset to search for, from text_base
+ * Returns: function, if found, else NULL
+ *
+ * If the offset falls between two functions, then it is assumed to belong to
+ * the first function (with the lowest offset). This is a way of figuring out
+ * which function owns code at a particular offset
+ */
+static struct func_info *find_caller_by_offset(uint offset)
 {
 	int low;	/* least function that could be a match */
 	int high;	/* greated function that could be a match */
@@ -206,6 +265,15 @@ static struct func_info *find_caller_by_offset(uint32_t offset)
 	return low >= 0 ? &func_list[low] : NULL;
 }
 
+/**
+ * read_calls() - Read the list of calls from the trace data
+ *
+ * The calls are stored consecutively in the trace output produced by U-Boot
+ *
+ * @fin: File to read from
+ * @count: Number of calls to read
+ * Returns: 0 if OK, -1 on error
+ */
 static int read_calls(FILE *fin, size_t count)
 {
 	struct trace_call *call_data;
@@ -222,16 +290,24 @@ static int read_calls(FILE *fin, size_t count)
 	call_data = call_list;
 	for (i = 0; i < count; i++, call_data++) {
 		if (read_data(fin, call_data, sizeof(*call_data)))
-			return 1;
+			return -1;
 	}
 	return 0;
 }
 
-static int read_profile(FILE *fin, int *not_found)
+/**
+ * read_trace() - Read the U-Boot trace file
+ *
+ * Read in the calls from the trace file. The function list is ignored at
+ * present
+ *
+ * @fin: File to read
+ * Returns 0 if OK, non-zero on error
+ */
+static int read_trace(FILE *fin)
 {
 	struct trace_output_hdr hdr;
 
-	*not_found = 0;
 	while (!feof(fin)) {
 		int err;
 
@@ -255,6 +331,14 @@ static int read_profile(FILE *fin, int *not_found)
 	return 0;
 }
 
+/**
+ * read_map_file() - Read the System.map file
+ *
+ * This reads the file into the func_list array
+ *
+ * @fname: Filename to read
+ * Returns 0 if OK, non-zero on error
+ */
 static int read_map_file(const char *fname)
 {
 	FILE *fmap;
@@ -272,28 +356,30 @@ static int read_map_file(const char *fname)
 	return err;
 }
 
-static int read_profile_file(const char *fname)
+/**
+ * read_trace_file() - Open and read the U-Boot trace file
+ *
+ * Read in the calls from the trace file. The function list is ignored at
+ * present
+ *
+ * @fin: File to read
+ * Returns 0 if OK, non-zero on error
+ */
+static int read_trace_file(const char *fname)
 {
-	int not_found = INT_MAX;
 	FILE *fprof;
 	int err;
 
 	fprof = fopen(fname, "rb");
 	if (!fprof) {
-		error("Cannot open profile data file '%s'\n",
+		error("Cannot open trace data file '%s'\n",
 		      fname);
 		return 1;
 	} else {
-		err = read_profile(fprof, &not_found);
+		err = read_trace(fprof);
 		fclose(fprof);
 		if (err)
 			return err;
-
-		if (not_found) {
-			warn("%d profile functions could not be found in the map file - are you sure that your profile data and map file correspond?\n",
-			     not_found);
-			return 1;
-		}
 	}
 	return 0;
 }
@@ -344,6 +430,7 @@ static void check_trace_config_line(struct trace_configline_info *item)
 	}
 }
 
+/** check_trace_config() - Check trace-config file, reporting any problems */
 static void check_trace_config(void)
 {
 	struct trace_configline_info *line;
@@ -377,6 +464,21 @@ static void check_functions(void)
 	     not_found, removed_code_size);
 }
 
+/**
+ * read_trace_config() - read the trace-config file
+ *
+ * This file consists of lines like:
+ *
+ * include-func <regex>
+ * exclude-func <regex>
+ *
+ * where <regex> is a regular expression matched against function names. It
+ * allows some functions to be dropped from the trace when producing ftrace
+ * records
+ *
+ * @fin: File to process
+ * Returns: 0 if OK, -1 on error
+ */
 static int read_trace_config(FILE *fin)
 {
 	char buff[200];
@@ -400,8 +502,7 @@ static int read_trace_config(FILE *fin)
 		if (!*s || *s == '#')
 			continue;
 
-		line = (struct trace_configline_info *)calloc(1,
-							      sizeof(*line));
+		line = (struct trace_configline_info *)calloc(1, sizeof(*line));
 		if (!line) {
 			error("Cannot allocate config line\n");
 			return -1;
@@ -540,15 +641,25 @@ static int make_ftrace(void)
 	return 0;
 }
 
+/**
+ * prof_tool() - Performs requested action
+ *
+ * @argc: Number of arguments (used to obtain the command
+ * @argv: List of arguments
+ * @trace_fname: Filename of input file (trace data from U-Boot)
+ * @map_fname: Filename of map file (System.map from U-Boot)
+ * @trace_config_fname: Trace-configuration file, or NULL if none
+ * @out_fname: Output filename
+ */
 static int prof_tool(int argc, char *const argv[],
-		     const char *prof_fname, const char *map_fname,
-		     const char *trace_config_fname)
+		     const char *trace_fname, const char *map_fname,
+		     const char *trace_config_fname, const char *out_fname)
 {
 	int err = 0;
 
 	if (read_map_file(map_fname))
 		return -1;
-	if (prof_fname && read_profile_file(prof_fname))
+	if (trace_fname && read_trace_file(trace_fname))
 		return -1;
 	if (trace_config_fname && read_trace_config_file(trace_config_fname))
 		return -1;
@@ -572,27 +683,27 @@ int main(int argc, char *argv[])
 	const char *map_fname = "System.map";
 	const char *trace_fname = NULL;
 	const char *config_fname = NULL;
+	const char *out_fname = NULL;
 	int opt;
 
 	verbose = 2;
-	while ((opt = getopt(argc, argv, "c:m:t:v:")) != -1) {
+	while ((opt = getopt(argc, argv, "c:m:o:t:v:")) != -1) {
 		switch (opt) {
 		case 'c':
 			config_fname = optarg;
 			break;
-
 		case 'm':
 			map_fname = optarg;
 			break;
-
+		case 'o':
+			out_fname = optarg;
+			break;
 		case 't':
 			trace_fname = optarg;
 			break;
-
 		case 'v':
 			verbose = atoi(optarg);
 			break;
-
 		default:
 			usage();
 		}
@@ -601,6 +712,13 @@ int main(int argc, char *argv[])
 	if (argc < 1)
 		usage();
 
+	if (!out_fname || !map_fname || !trace_fname) {
+		fprintf(stderr,
+			"Must provide trace data, System.map file and output file\n");
+		usage();
+	}
+
 	debug("Debug enabled\n");
-	return prof_tool(argc, argv, trace_fname, map_fname, config_fname);
+	return prof_tool(argc, argv, trace_fname, map_fname, config_fname,
+			 out_fname);
 }
