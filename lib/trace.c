@@ -39,6 +39,7 @@ struct trace_hdr {
 	int depth_limit;	/* Depth limit to trace to */
 	int max_depth;		/* Maximum depth seen so far */
 	int min_depth;		/* Minimum depth seen so far */
+	bool trace_locked;	/* Used to detect recursive tracing */
 };
 
 /* Pointer to start of trace buffer */
@@ -133,6 +134,14 @@ void notrace __cyg_profile_func_enter(void *func_ptr, void *caller)
 	if (trace_enabled) {
 		int func;
 
+		if (hdr->trace_locked) {
+			trace_enabled = 0;
+			puts("trace: recursion detected, disabling\n");
+			hdr->trace_locked = false;
+			return;
+		}
+
+		hdr->trace_locked = true;
 		trace_swap_gd();
 		add_ftrace(func_ptr, caller, FUNCF_ENTRY);
 		func = func_ptr_to_num(func_ptr);
@@ -146,6 +155,7 @@ void notrace __cyg_profile_func_enter(void *func_ptr, void *caller)
 		if (hdr->depth > hdr->max_depth)
 			hdr->max_depth = hdr->depth;
 		trace_swap_gd();
+		hdr->trace_locked = false;
 	}
 }
 
