@@ -6,7 +6,7 @@
 
 /*
  * Decode and dump U-Boot trace information into formats that can be used
- * by trace-cmd or kernelshark
+ * by trace-cmd, kernelshark or flamegraph.pl
  *
  * See doc/develop/trace.rst for more information
  */
@@ -27,6 +27,8 @@
 #include <trace.h>
 #include <abuf.h>
 
+#include <linux/list.h>
+
 /* Set to 1 to emit version 7 file (currently this doesn't work) */
 #define VERSION7	0
 
@@ -36,6 +38,18 @@
 /* from linux/kernel.h */
 #define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
 #define ALIGN(x, a)		__ALIGN_MASK((x), (typeof(x))(a) - 1)
+
+/**
+ * container_of - cast a member of a structure out to the containing structure
+ * @ptr:	the pointer to the member.
+ * @type:	the type of the container struct this is embedded in.
+ * @member:	the name of the member within the struct.
+ *
+ * (this is needed by list.h)
+ */
+#define container_of(ptr, type, member) ({			\
+	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
+	(type *)( (char *)__mptr - offsetof(type,member) );})
 
 enum {
 	FUNCF_TRACE	= 1 << 0,	/* Include this function in trace */
@@ -99,6 +113,38 @@ enum trace_type {
 	TRACE_BRANCH,
 	TRACE_GRAPH_RET,
 	TRACE_GRAPH_ENT,
+};
+
+/**
+ * struct flame_node - a node in the call-stack tree
+ *
+ * Each stack frame detected in the trace is given a node corresponding to a
+ * function call in the call stack. Functions can appear multiple times when
+ * they are called by a different set of parent functions.
+ *
+ * @parent: Parent node (the call stack for the function that called this one)
+ * @child_head: List of children of this node (functions called from here)
+ * @sibling: Next node in the list of children
+ * @func: Function this node refers to (NULL for root node)
+ * @count: Number of times this call-stack occurred
+ */
+struct flame_node {
+	struct flame_node *parent;
+	struct list_head child_head;
+	struct list_head sibling_node;
+	struct func_info *func;
+	int count;
+};
+
+/**
+ * struct flame_state - state information for building the flame graph
+ *
+ * @node: Current node being processed (corresponds to a function call)
+ * @nodes: Number of nodes created (running count)
+ */
+struct flame_state {
+	struct flame_node *node;
+	int nodes;
 };
 
 /**
@@ -221,6 +267,7 @@ static void usage(void)
 		"\n"
 		"Commands\n"
 		"   dump-ftrace\t\tDump out records in ftrace format for use by trace-cmd\n"
+		"   dump-flamegraph\tWrite a file for use with flamegraph.pl\n"
 		"\n"
 		"Options:\n"
 		"   -c <cfg>\tSpecify config file\n"
@@ -1518,6 +1565,218 @@ static int make_ftrace(FILE *fout, enum out_format_t out_format)
 }
 
 /**
+ * create_node() - Create a new node in the flamegraph tree
+ *
+ * @msg: Message to use for debugging if something goes wrong
+ * Returns: Pointer to newly created node, or NULL on error
+ */
+static struct flame_node *create_node(const char *msg)
+{
+	struct flame_node *node;
+
+	node = calloc(1, sizeof(*node));
+	if (!node) {
+		fprintf(stderr, "Out of memory for %s\n", msg);
+		return NULL;
+	}
+	INIT_LIST_HEAD(&node->child_head);
+
+	return node;
+}
+
+/**
+ * process_call(): Add a call to the flamegraph info
+ *
+ * For function calls, if this call stack has been seen before, this increments
+ * the call count, creating a new node if needed.
+ *
+ * For function returns, it adds up the time spent in this call stack,
+ * subtracting the time spent by child functions.
+ *
+ * @state: Current flamegraph state
+ * @entry: true if this is a function entry, false if a function exit
+ * @timestamp: Timestamp from the trace file (in microseconds)
+ * @func: Function that was called/returned from
+ *
+ * Returns: 0 on success, -ve on error
+ */
+static int process_call(struct flame_state *state, bool entry, ulong timestamp,
+			struct func_info *func)
+{
+	struct flame_node *node = state->node;
+
+	if (entry) {
+		struct flame_node *child, *chd;
+
+		/* see if we have this as a child node already */
+		child = NULL;
+		list_for_each_entry(chd, &node->child_head, sibling_node) {
+			if (chd->func == func) {
+				child = chd;
+				break;
+			}
+		}
+		if (!child) {
+			/* create a new node */
+			child = create_node("child");
+			if (!child)
+				return -1;
+			list_add_tail(&child->sibling_node, &node->child_head);
+			child->func = func;
+			child->parent = node;
+			state->nodes++;
+		}
+		debug("entry %s: move from %s to %s\n", func->name,
+		      node->func ? node->func->name : "(root)",
+		      child->func->name);
+		child->count++;
+		node = child;
+	} else if (node->parent) {
+		debug("exit  %s: move from %s to %s\n", func->name,
+		      node->func->name, node->parent->func ?
+		      node->parent->func->name : "(root)");
+		node = node->parent;
+	}
+
+	state->node = node;
+
+	return 0;
+}
+
+/**
+ * make_flame_tree() - Create a tree of stack traces
+ *
+ * Set up a tree, with the root node having the top-level functions as children
+ * and the leaf nodes being leaf functions. Each node has a count of how many
+ * times this function appears in the trace
+ *
+ * @treep: Returns the resulting flamegraph tree
+ * Returns: 0 on success, -ve on error
+ */
+static int make_flame_tree(struct flame_node **treep)
+{
+	struct flame_state state;
+	struct flame_node *tree;
+	struct trace_call *call;
+	int missing_count = 0;
+	int i, depth;
+
+	/*
+	 * The first thing in the trace may not be the top-level function, so
+	 * set the initial depth so that no function goes below depth 0
+	 */
+	depth = -calc_min_depth();
+
+	tree = create_node("tree");
+	if (!tree)
+		return -1;
+	state.node = tree;
+	state.nodes = 0;
+
+	for (i = 0, call = call_list; i < call_count; i++, call++) {
+		bool entry = TRACE_CALL_TYPE(call) == FUNCF_ENTRY;
+		ulong timestamp = call->flags & FUNCF_TIMESTAMP_MASK;
+		struct func_info *func;
+
+		if (entry)
+			depth++;
+		else
+			depth--;
+
+		func = find_func_by_offset(call->func);
+		if (!func) {
+			warn("Cannot find function at %lx\n",
+			     text_offset + call->func);
+			missing_count++;
+			continue;
+		}
+
+		if (process_call(&state, entry, timestamp, func))
+			return -1;
+	}
+	fprintf(stderr, "%d nodes\n", state.nodes);
+	*treep = tree;
+
+	return 0;
+}
+
+/**
+ * output_tree() - Output a flamegraph tree
+ *
+ * Writes the tree out to a file in a format suitable for flamegraph.pl
+ *
+ * This works by maintaining a string shared across all recursive calls. The
+ * function name for this node is added to the existing string, to make up the
+ * full call-stack description. For example, on entry, @str might contain:
+ *
+ *    "initf_bootstage;bootstage_mark_name"
+ *                                        ^ @base
+ *
+ * with @base pointing to the \0 at the end of the string. This function adds
+ * a ';' following by the name of the current function, e.g. "timer_get_boot_us"
+ * as well as the output value, to get the full line:
+ *
+ * initf_bootstage;bootstage_mark_name;timer_get_boot_us 123
+ *
+ * @fout: Output file
+ * @node: Node to output (pass the whole tree at first)
+ * @str: String to use to build the output line (e.g. 500 charas long)
+ * @maxlen: Maximum length of string
+ * @base: Current base position in the string
+ * @treep: Returns the resulting flamegraph tree
+ * Returns 0 if OK, -1 on error
+ */
+static int output_tree(FILE *fout, const struct flame_node *node,
+		       char *str, int maxlen, int base)
+{
+	const struct flame_node *child;
+	int pos;
+
+	if (node->count)
+		fprintf(fout, "%s %d\n", str, node->count);
+
+	pos = base;
+	if (pos)
+		str[pos++] = ';';
+	list_for_each_entry(child, &node->child_head, sibling_node) {
+		int len;
+
+		len = strlen(child->func->name);
+		if (pos + len + 1 >= maxlen) {
+			fprintf(stderr, "String too short (%d chars)\n",
+				maxlen);
+			return -1;
+		}
+		strcpy(str + pos, child->func->name);
+		if (output_tree(fout, child, str, maxlen, pos + len))
+			return -1;
+	}
+
+	return 0;
+}
+
+/**
+ * make_flamegraph() - Write out a flame graph
+ *
+ * @fout: Output file
+ * Returns 0 if OK, -1 on error
+ */
+static int make_flamegraph(FILE *fout)
+{
+	struct flame_node *tree;
+	char str[500];
+
+	if (make_flame_tree(&tree))
+		return -1;
+
+	*str = '\0';
+	if (output_tree(fout, tree, str, sizeof(str), 0))
+		return -1;
+
+	return 0;
+}
+
+/**
  * prof_tool() - Performs requested action
  *
  * @argc: Number of arguments (used to obtain the command
@@ -1559,6 +1818,17 @@ static int prof_tool(int argc, char *const argv[],
 				return -1;
 			}
 			err = make_ftrace(fout, out_format);
+			fclose(fout);
+		} else if (!strcmp(cmd, "dump-flamegraph")) {
+			FILE *fout;
+
+			fout = fopen(out_fname, "w");
+			if (!fout) {
+				fprintf(stderr, "Cannot write file '%s'\n",
+					out_fname);
+				return -1;
+			}
+			err = make_flamegraph(fout);
 			fclose(fout);
 		} else {
 			warn("Unknown command '%s'\n", cmd);
