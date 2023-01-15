@@ -319,6 +319,10 @@ void trace_print_stats(void)
 	printf("%15d call depth limit\n", hdr->depth_limit);
 	print_grouped_ull(hdr->ftrace_too_deep_count, 10);
 	puts(" calls not traced due to depth\n");
+	print_grouped_ull(hdr->ftrace_size, 10);
+	puts(" max function calls\n");
+	printf("\ntrace buffer %lx call records %lx\n",
+	       (ulong)map_to_sysmem(hdr), (ulong)map_to_sysmem(hdr->ftrace));
 }
 
 void notrace trace_set_enabled(int enabled)
@@ -381,7 +385,7 @@ int notrace trace_init(void *buff, size_t buff_size)
 	hdr = (struct trace_hdr *)buff;
 	needed = sizeof(*hdr) + func_count * sizeof(uintptr_t);
 	if (needed > buff_size) {
-		printf("trace: buffer size %zd bytes: at least %zd needed\n",
+		printf("trace: buffer size %zx bytes: at least %zx needed\n",
 		       buff_size, needed);
 		return -ENOSPC;
 	}
@@ -426,7 +430,7 @@ int notrace trace_early_init(void)
 	hdr = map_sysmem(CONFIG_TRACE_EARLY_ADDR, CONFIG_TRACE_EARLY_SIZE);
 	needed = sizeof(*hdr) + func_count * sizeof(uintptr_t);
 	if (needed > buff_size) {
-		printf("trace: buffer size is %zd bytes, at least %zd needed\n",
+		printf("trace: buffer size is %zx bytes, at least %zx needed\n",
 		       buff_size, needed);
 		return -ENOSPC;
 	}
