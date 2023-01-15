@@ -1,9 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (c) 2013 Google, Inc
+ * Copyright 2023 Google LLC
+ * Written by Simon Glass <sjg@chromium.org>
  */
 
-/* Decode and dump U-Boot profiling information */
+/*
+ * Decode and dump U-Boot trace information into formats that can be used
+ * by trace-cmd or kernelshark
+ *
+ * See doc/develop/trace.rst for more information
+ */
 
 #include <assert.h>
 #include <ctype.h>
@@ -19,11 +25,67 @@
 
 #include <compiler.h>
 #include <trace.h>
+#include <abuf.h>
 
-#define MAX_LINE_LEN 500
+/* Set to 1 to emit version 7 file (currently this doesn't work) */
+#define VERSION7	0
+
+/* enable some debug features */
+#define _DEBUG	0
+
+/* from linux/kernel.h */
+#define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+#define ALIGN(x, a)		__ALIGN_MASK((x), (typeof(x))(a) - 1)
 
 enum {
 	FUNCF_TRACE	= 1 << 0,	/* Include this function in trace */
+	TRACE_PAGE_SIZE	= 4096,		/* Assumed page size for trace */
+	TRACE_PID	= 1,		/* PID to use for U-Boot */
+	LEN_STACK_SIZE	= 4,		/* number of nested length fix-ups */
+	TRACE_PAGE_MASK	= TRACE_PAGE_SIZE - 1,
+	MAX_STACK_DEPTH	= 50,		/* Max nested function calls */
+	MAX_LINE_LEN	= 500,		/* Max characters per line */
+};
+
+/* Section types for v7 format (trace-cmd format) */
+enum {
+	SECTION_OPTIONS,
+};
+
+/* Option types (trace-cmd format) */
+enum {
+	OPTION_DONE,
+	OPTION_DATE,
+	OPTION_CPUSTAT,
+	OPTION_BUFFER,
+	OPTION_TRACECLOCK,
+	OPTION_UNAME,
+	OPTION_HOOK,
+	OPTION_OFFSET,
+	OPTION_CPUCOUNT,
+	OPTION_VERSION,
+	OPTION_PROCMAPS,
+	OPTION_TRACEID,
+	OPTION_TIME_SHIFT,
+	OPTION_GUEST,
+	OPTION_TSC2NSEC,
+};
+
+/* types of trace records (trace-cmd format) */
+enum trace_type {
+	__TRACE_FIRST_TYPE = 0,
+
+	TRACE_FN,
+	TRACE_CTX,
+	TRACE_WAKE,
+	TRACE_STACK,
+	TRACE_PRINT,
+	TRACE_BPRINT,
+	TRACE_MMIO_RW,
+	TRACE_MMIO_MAP,
+	TRACE_BRANCH,
+	TRACE_GRAPH_RET,
+	TRACE_GRAPH_ENT,
 };
 
 /**
@@ -67,6 +129,45 @@ struct trace_configline_info {
 	enum trace_line_type type;
 	const char *name;
 	regex_t regex;
+};
+
+/**
+ * struct tw_len - holds information about a length value that need fix-ups
+ *
+ * This is used to record a placeholder for a u32 or u64 length which is written
+ * to the output file but needs to be updated once the length is actually known
+ *
+ * This allows us to write tw->ptr - @len_base to position @ptr in the file
+ *
+ * @ptr: Position of the length value in the file
+ * @base: Base position for the calculation
+ * @size: Size of the length value, in bytes (4 or 8)
+ */
+struct tw_len {
+	int ptr;
+	int base;
+	int size;
+};
+
+/**
+ * struct twriter - Writer for trace records
+ *
+ * Maintains state used when writing the output file in trace-cmd format
+ *
+ * @ptr: Current file position
+ * @len_stack: Stack of length values that need fixing up
+ * @len: Number of items on @len_stack
+ * @str_buf: Buffer of strings (for v7 format)
+ * @str_ptr: Current write-position in the buffer for strings
+ * @fout: Output file
+ */
+struct twriter {
+	int ptr;
+	struct tw_len len_stack[LEN_STACK_SIZE];
+	int len_count;
+	struct abuf str_buf;
+	int str_ptr;
+	FILE *fout;
 };
 
 /* The contents of the trace config file */
@@ -569,56 +670,577 @@ static int read_trace_config_file(const char *fname)
 	return err;
 }
 
-static void out_func(ulong func_offset, int is_caller, const char *suffix)
+/**
+ * tputh() - Write a 16-bit little-endian value to a file
+ *
+ * @fout: File to write to
+ * @val: Value to write
+ * Returns: number of bytes written (2)
+ */
+static int tputh(FILE *fout, unsigned int val)
 {
-	struct func_info *func;
+	fputc(val, fout);
+	fputc(val >> 8, fout);
 
-	func = (is_caller ? find_caller_by_offset : find_func_by_offset)
-		(func_offset);
-
-	if (func)
-		printf("%s%s", func->name, suffix);
-	else
-		printf("%lx%s", func_offset, suffix);
+	return 2;
 }
 
-/*
- * # tracer: function
- * #
- * #           TASK-PID   CPU#    TIMESTAMP  FUNCTION
- * #              | |      |          |         |
- * #           bash-4251  [01] 10152.583854: path_put <-path_walk
- * #           bash-4251  [01] 10152.583855: dput <-path_put
- * #           bash-4251  [01] 10152.583855: _atomic_dec_and_lock <-dput
+/**
+ * tputl() - Write a 32-bit little-endian value to a file
+ *
+ * @fout: File to write to
+ * @val: Value to write
+ * Returns: number of bytes written (4)
  */
-static int make_ftrace(void)
+static int tputl(FILE *fout, ulong val)
 {
-	struct trace_call *call;
+	fputc(val, fout);
+	fputc(val >> 8, fout);
+	fputc(val >> 16, fout);
+	fputc(val >> 24, fout);
+
+	return 4;
+}
+
+/**
+ * tputh() - Write a 64-bit little-endian value to a file
+ *
+ * @fout: File to write to
+ * @val: Value to write
+ * Returns: number of bytes written (8)
+ */
+static int tputq(FILE *fout, unsigned long long val)
+{
+	tputl(fout, val);
+	tputl(fout, val >> 32U);
+
+	return 8;
+}
+
+/**
+ * tputh() - Write a string to a file
+ *
+ * The string is written without its terminator
+ *
+ * @fout: File to write to
+ * @val: Value to write
+ * Returns: number of bytes written
+ */
+static int tputs(FILE *fout, const char *str)
+{
+	fputs(str, fout);
+
+	return strlen(str);
+}
+
+/**
+ * add_str() - add a name string to the string table
+ *
+ * This is used by the v7 format
+ *
+ * @tw: Writer context
+ * @name: String to write
+ * Returns: Updated value of string pointer, or -1 if out of memory
+ */
+static int add_str(struct twriter *tw, const char *name)
+{
+	int str_ptr;
+	int len;
+
+	len = strlen(name) + 1;
+	str_ptr = tw->str_ptr;
+	tw->str_ptr += len;
+
+	if (tw->str_ptr > abuf_size(&tw->str_buf)) {
+		int new_size;
+
+		new_size = ALIGN(tw->str_ptr, 4096);
+		if (!abuf_realloc(&tw->str_buf, new_size))
+			return -1;
+	}
+
+	return str_ptr;
+}
+
+/**
+ * push_len() - Push a new length request onto the stack
+ *
+ * @tw: Writer context
+ * @base: Base position of the length calculation
+ * @msg: Indicates the type of caller, for debugging
+ * @size: Size of the length value, either 4 bytes or 8
+ * Returns number of bytes written to the file (=@size on success), -ve on error
+ *
+ * This marks a place where a length must be written, covering data that is
+ * about to be written. It writes a placeholder value.
+ *
+ * Once the data is written, calling pop_len() will update the placeholder with
+ * the correct length based on how many bytes have been written
+ */
+static int push_len(struct twriter *tw, int base, const char *msg, int size)
+{
+	struct tw_len *lp;
+
+	if (tw->len_count >= LEN_STACK_SIZE) {
+		fprintf(stderr, "Length-stack overflow: %s\n", msg);
+		return -1;
+	}
+	if (size != 4 && size != 8) {
+		fprintf(stderr, "Length-stack invalid size %d: %s\n", size,
+			msg);
+		return -1;
+	}
+
+	lp = &tw->len_stack[tw->len_count++];
+	lp->base = base;
+	lp->ptr = tw->ptr;
+	lp->size = size;
+
+	return size == 8 ? tputq(tw->fout, 0) : tputl(tw->fout, 0);
+}
+
+/**
+ * pop_len() - Update a length value once the length is known
+ *
+ * Pops a value of the length stack and updates the file at that position with
+ * the number of bytes written between now and then. Once done, the file is
+ * seeked to the current (tw->ptr) position again, so writing can continue as
+ * normal.
+ *
+ * @tw: Writer context
+ * @msg: Indicates the type of caller, for debugging
+ * Returns 0 if OK, -1 on error
+ */
+static int pop_len(struct twriter *tw, const char *msg)
+{
+	struct tw_len *lp;
+	int len, ret;
+
+	if (!tw->len_count) {
+		fprintf(stderr, "Length-stack underflow: %s\n", msg);
+		return -1;
+	}
+
+	lp = &tw->len_stack[--tw->len_count];
+	if (fseek(tw->fout, lp->ptr, SEEK_SET))
+		return -1;
+	len = tw->ptr - lp->base;
+	ret = lp->size == 8 ? tputq(tw->fout, len) : tputl(tw->fout, len);
+	if (ret < 0)
+		return -1;
+	if (fseek(tw->fout, tw->ptr, SEEK_SET))
+		return -1;
+
+	return 0;
+}
+
+/**
+ * start_header() - Start a v7 section
+ *
+ * Writes a header in v7 format
+ *
+ * @tw: Writer context
+ * @id: ID of header to write (SECTION_...)
+ * @flags: Flags value to write
+ * @name: Name of section
+ * Returns: number of bytes written
+ */
+static int start_header(struct twriter *tw, int id, uint flags,
+			const char *name)
+{
+	int str_id;
+	int lptr;
+	int base;
+	int ret;
+
+	base = tw->ptr + 16;
+	lptr = 0;
+	lptr += tputh(tw->fout, id);
+	lptr += tputh(tw->fout, flags);
+	str_id = add_str(tw, name);
+	if (str_id < 0)
+		return -1;
+	lptr += tputl(tw->fout, str_id);
+
+	/* placeholder for size */
+	ret = push_len(tw, base, "v7 header", 8);
+	if (ret < 0)
+		return -1;
+	lptr += ret;
+
+	return lptr;
+}
+
+/**
+ * start_page() - Start a new page of output data
+ *
+ * The output is arranged in 4KB pages with a base timestamp at the start of
+ * each. This starts a new page, making sure it is aligned to 4KB in the output
+ * file.
+ *
+ * @tw: Writer context
+ * @timestamp: Base timestamp for the page
+ */
+static int start_page(struct twriter *tw, ulong timestamp)
+{
+	int start;
+	int ret;
+
+	/* move to start of next page */
+	start = ALIGN(tw->ptr, TRACE_PAGE_SIZE);
+	ret = fseek(tw->fout, start, SEEK_SET);
+	if (ret < 0) {
+		fprintf(stderr, "Cannot seek to page start\n");
+		return -1;
+	}
+	tw->ptr = start;
+
+	/* page header */
+	tw->ptr += tputq(tw->fout, timestamp);
+	ret = push_len(tw, start + 16, "page", 8);
+	if (ret < 0)
+		return ret;
+	tw->ptr += ret;
+
+	return 0;
+}
+
+/**
+ * finish_page() - finish a page
+ *
+ * Sets the lengths correctly and moves to the start of the next page
+ *
+ * @tw: Writer context
+ * Returns: 0 on success, -1 on error
+ */
+static int finish_page(struct twriter *tw)
+{
+	int ret, end;
+
+	ret = pop_len(tw, "page");
+	if (ret < 0)
+		return ret;
+	end = ALIGN(tw->ptr, TRACE_PAGE_SIZE);
+
+	/*
+	 * Write a byte so that the data actually makes to the file, in the case
+	 * that we never write any more pages
+	 */
+	if (tw->ptr != end) {
+		if (fseek(tw->fout, end - 1, SEEK_SET)) {
+			fprintf(stderr, "cannot seek to start of next page\n");
+			return -1;
+		}
+		fputc(0, tw->fout);
+		tw->ptr = end;
+	}
+
+	return 0;
+}
+
+/**
+ * output_headers() - Output v6 headers to the file
+ *
+ * Writes out the various formats so that trace-cmd and kernelshark can make
+ * sense of the data
+ *
+ * This updates tw->ptr as it goes
+ *
+ * @tw: Writer context
+ * Returns: 0 on success, -ve on error
+ */
+static int output_headers(struct twriter *tw)
+{
+	FILE *fout = tw->fout;
+	char str[800];
+	int len, ret;
+
+	tw->ptr += fprintf(fout, "%c%c%ctracing6%c%c%c", 0x17, 0x08, 0x44,
+			   0 /* terminator */, 0 /* little endian */,
+			   4 /* 32-bit long values */);
+
+	/* host-machine page size 4KB */
+	tw->ptr += tputl(fout, 4 << 10);
+
+	tw->ptr += fprintf(fout, "header_page%c", 0);
+
+	snprintf(str, sizeof(str),
+		 "\tfield: u64 timestamp;\toffset:0;\tsize:8;\tsigned:0;\n"
+		 "\tfield: local_t commit;\toffset:8;\tsize:8;\tsigned:1;\n"
+		 "\tfield: int overwrite;\toffset:8;\tsize:1;\tsigned:1;\n"
+		 "\tfield: char data;\toffset:16;\tsize:4080;\tsigned:1;\n");
+	len = strlen(str);
+	tw->ptr += tputq(fout, len);
+	tw->ptr += tputs(fout, str);
+
+	if (VERSION7) {
+		/* no compression */
+		tw->ptr += fprintf(fout, "none%cversion%c\n", 0, 0);
+
+		ret = start_header(tw, SECTION_OPTIONS, 0, "options");
+		if (ret < 0) {
+			fprintf(stderr, "Cannot start option header\n");
+			return -1;
+		}
+		tw->ptr += ret;
+		tw->ptr += tputh(fout, OPTION_DONE);
+		tw->ptr += tputl(fout, 8);
+		tw->ptr += tputl(fout, 0);
+		ret = pop_len(tw, "t7 header");
+		if (ret < 0) {
+			fprintf(stderr, "Cannot finish option header\n");
+			return -1;
+		}
+	}
+
+	tw->ptr += fprintf(fout, "header_event%c", 0);
+	snprintf(str, sizeof(str),
+		 "# compressed entry header\n"
+		 "\ttype_len    :    5 bits\n"
+		 "\ttime_delta  :   27 bits\n"
+		 "\tarray       :   32 bits\n"
+		 "\n"
+		 "\tpadding     : type == 29\n"
+		 "\ttime_extend : type == 30\n"
+		 "\ttime_stamp : type == 31\n"
+		 "\tdata max type_len  == 28\n");
+	len = strlen(str);
+	tw->ptr += tputq(fout, len);
+	tw->ptr += tputs(fout, str);
+
+	/* number of ftrace-event-format files */
+	tw->ptr += tputl(fout, 3);
+
+	snprintf(str, sizeof(str),
+		 "name: function\n"
+		 "ID: 1\n"
+		 "format:\n"
+		 "\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n"
+		 "\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n"
+		 "\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;signed:0;\n"
+		 "\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n"
+		 "\n"
+		 "\tfield:unsigned long ip;\toffset:8;\tsize:8;\tsigned:0;\n"
+		 "\tfield:unsigned long parent_ip;\toffset:16;\tsize:8;\tsigned:0;\n"
+		 "\n"
+		 "print fmt: \" %%ps <-- %%ps\", (void *)REC->ip, (void *)REC->parent_ip\n");
+	len = strlen(str);
+	tw->ptr += tputq(fout, len);
+	tw->ptr += tputs(fout, str);
+
+	snprintf(str, sizeof(str),
+		 "name: funcgraph_entry\n"
+		 "ID: 11\n"
+		 "format:\n"
+		 "\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n"
+		 "\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n"
+		 "\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;signed:0;\n"
+		 "\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n"
+		 "\n"
+		 "\tfield:unsigned long func;\toffset:8;\tsize:8;\tsigned:0;\n"
+		 "\tfield:int depth;\toffset:16;\tsize:4;\tsigned:1;\n"
+		"\n"
+		 "print fmt: \"--> %%ps (%%d)\", (void *)REC->func, REC->depth\n");
+	len = strlen(str);
+	tw->ptr += tputq(fout, len);
+	tw->ptr += tputs(fout, str);
+
+	snprintf(str, sizeof(str),
+		 "name: funcgraph_exit\n"
+		 "ID: 10\n"
+		 "format:\n"
+		 "\tfield:unsigned short common_type;\toffset:0;\tsize:2;\tsigned:0;\n"
+		 "\tfield:unsigned char common_flags;\toffset:2;\tsize:1;\tsigned:0;\n"
+		 "\tfield:unsigned char common_preempt_count;\toffset:3;\tsize:1;signed:0;\n"
+		 "\tfield:int common_pid;\toffset:4;\tsize:4;\tsigned:1;\n"
+		 "\n"
+		 "\tfield:unsigned long func;\toffset:8;\tsize:8;\tsigned:0;\n"
+		 "\tfield:int depth;\toffset:16;\tsize:4;\tsigned:1;\n"
+		 "\tfield:unsigned int overrun;\toffset:20;\tsize:4;\tsigned:0;\n"
+		 "\tfield:unsigned long long calltime;\toffset:24;\tsize:8;\tsigned:0;\n"
+		 "\tfield:unsigned long long rettime;\toffset:32;\tsize:8;\tsigned:0;\n"
+		 "\n"
+		 "print fmt: \"<-- %%ps (%%d) (start: %%llx  end: %%llx) over: %%d\", (void *)REC->func, REC->depth, REC->calltime, REC->rettime, REC->depth\n");
+	len = strlen(str);
+	tw->ptr += tputq(fout, len);
+	tw->ptr += tputs(fout, str);
+
+	return 0;
+}
+
+/**
+ * write_symbols() - Write the symbols out
+ *
+ * Writes the symbol information in the following format to mimic the Linux
+ * /proc/kallsyms file:
+ *
+ * <address> T <name>
+ *
+ * This updates tw->ptr as it goes
+ *
+ * @tw: Writer context
+ * Returns: 0 on success, -ve on error
+ */
+static int write_symbols(struct twriter *tw)
+{
+	char str[200];
+	int ret, i;
+
+	/* write symbols */
+	ret = push_len(tw, tw->ptr + 4, "syms", 4);
+	if (ret < 0)
+		return -1;
+	tw->ptr += ret;
+	for (i = 0; i < func_count; i++) {
+		struct func_info *func = &func_list[i];
+
+		snprintf(str, sizeof(str), "%016lx T %s\n",
+			 text_offset + func->offset, func->name);
+		tw->ptr += tputs(tw->fout, str);
+	}
+	ret = pop_len(tw, "syms");
+	if (ret < 0)
+		return -1;
+	tw->ptr += ret;
+
+	return 0;
+}
+
+/**
+ * write_options() - Write the options out
+ *
+ * Writes various options which are needed or useful. We use OPTION_TSC2NSEC
+ * to indicates that values in the output need to be multiplied by 1000 since
+ * U-Boot's trace values are in microseconds.
+ *
+ * This updates tw->ptr as it goes
+ *
+ * @tw: Writer context
+ * Returns: 0 on success, -ve on error
+ */
+static int write_options(struct twriter *tw)
+{
+	FILE *fout = tw->fout;
+	char str[200];
+	int len;
+
+	/* trace_printk, 0 for now */
+	tw->ptr += tputl(fout, 0);
+
+	/* processes */
+	snprintf(str, sizeof(str), "%d u-boot\n", TRACE_PID);
+	len = strlen(str);
+	tw->ptr += tputq(fout, len);
+	tw->ptr += tputs(fout, str);
+
+	/* number of CPUs */
+	tw->ptr += tputl(fout, 1);
+
+	tw->ptr += fprintf(fout, "options  %c", 0);
+
+	/* traceclock */
+	tw->ptr += tputh(fout, OPTION_TRACECLOCK);
+	tw->ptr += tputl(fout, 0);
+
+	/* uname */
+	tw->ptr += tputh(fout, OPTION_UNAME);
+	snprintf(str, sizeof(str), "U-Boot");
+	len = strlen(str);
+	tw->ptr += tputl(fout, len);
+	tw->ptr += tputs(fout, str);
+
+	/* version */
+	tw->ptr += tputh(fout, OPTION_VERSION);
+	snprintf(str, sizeof(str), "unknown");
+	len = strlen(str);
+	tw->ptr += tputl(fout, len);
+	tw->ptr += tputs(fout, str);
+
+	/* trace ID */
+	tw->ptr += tputh(fout, OPTION_TRACEID);
+	tw->ptr += tputl(fout, 8);
+	tw->ptr += tputq(fout, 0x123456780abcdef0);
+
+	/* time conversion */
+	tw->ptr += tputh(fout, OPTION_TSC2NSEC);
+	tw->ptr += tputl(fout, 16);
+	tw->ptr += tputl(fout, 1000);	/* multiplier */
+	tw->ptr += tputl(fout, 0);	/* shift */
+	tw->ptr += tputq(fout, 0);	/* offset */
+
+	/* cpustat - bogus data for now, but at least it mentions the CPU */
+	tw->ptr += tputh(fout, OPTION_CPUSTAT);
+	snprintf(str, sizeof(str),
+		 "CPU: 0\n"
+		 "entries: 100\n"
+		 "overrun: 43565\n"
+		 "commit overrun: 0\n"
+		 "bytes: 3360\n"
+		 "oldest event ts: 963732.447752\n"
+		 "now ts: 963832.146824\n"
+		 "dropped events: 0\n"
+		 "read events: 42379\n");
+	len = strlen(str);
+	tw->ptr += tputl(fout, len);
+	tw->ptr += tputs(fout, str);
+
+	tw->ptr += tputh(fout, OPTION_DONE);
+
+	return 0;
+}
+
+/**
+ * write_pages() - Write the pages of trace data
+ *
+ * This works through all the calls, writing out as many pages of data as are
+ * needed.
+ *
+ * @tw: Writer context
+ * @missing_countp: Returns number of missing functions (not found in function
+ * list)
+ * @skip_countp: Returns number of skipped functions (excluded from trace)
+ *
+ * Returns: 0 on success, -ve on error
+ */
+static int write_pages(struct twriter *tw, int *missing_countp,
+		       int *skip_countp)
+{
+	int stack_ptr;	/* next free position in stack */
+	int upto, page_upto, i;
 	int missing_count = 0, skip_count = 0;
-	int i;
+	struct trace_call *call;
+	ulong last_timestamp;
+	FILE *fout = tw->fout;
+	int last_delta = 0;
+	int err_count;
+	bool in_page;
 
-	printf("# tracer: function\n"
-	      "#\n"
-	      "# entries-in-buffer/entries-written: 140080/250280   #P:4\n"
-	      "#\n"
-	      "#                              _-----=> irqs-off\n"
-	      "#                             / _----=> need-resched\n"
-	      "#                            | / _---=> hardirq/softirq\n"
-	      "#                            || / _--=> preempt-depth\n"
-	      "#                            ||| /     delay\n"
-	      "#           TASK-PID   CPU#  ||||    TIMESTAMP  FUNCTION\n"
-	      "#              | |       |   ||||       |         |\n");
+	in_page = false;
+	last_timestamp = 0;
+	upto = 0;
+	page_upto = 0;
+	err_count = 0;
+
+	/* maintain a stack of start times for calling functions */
+	stack_ptr = 0;
+
 	for (i = 0, call = call_list; i < call_count; i++, call++) {
-		struct func_info *func = find_func_by_offset(call->func);
-		ulong time = call->flags & FUNCF_TIMESTAMP_MASK;
+		struct func_info *caller_func;
+		struct func_info *func;
+		ulong timestamp;
+		uint rec_words;
+		int delta;
 
-		if (TRACE_CALL_TYPE(call) != FUNCF_ENTRY &&
-		    TRACE_CALL_TYPE(call) != FUNCF_EXIT)
-			continue;
+		func = find_func_by_offset(call->func);
 		if (!func) {
 			warn("Cannot find function at %lx\n",
 			     text_offset + call->func);
 			missing_count++;
+			if (missing_count > 20) {
+				/* perhaps trace does not match System.map */
+				fprintf(stderr, "Too many missing functions\n");
+				return -1;
+			}
 			continue;
 		}
 
@@ -629,12 +1251,186 @@ static int make_ftrace(void)
 			continue;
 		}
 
-		printf("%16s-%-5d [000] ....  %lu.%06lu: ", "uboot", 1,
-		       time / 1000000, time % 1000000);
+		rec_words = 6;
 
-		out_func(call->func, 0, " <- ");
-		out_func(call->caller, 1, "\n");
+		/* convert timestamp from us to ns */
+		timestamp = call->flags & FUNCF_TIMESTAMP_MASK;
+		if (in_page) {
+			if (page_upto + rec_words * 4 > TRACE_PAGE_SIZE) {
+				if (finish_page(tw))
+					return -1;
+				in_page = false;
+			}
+		}
+		if (!in_page) {
+			if (start_page(tw, timestamp))
+				return -1;
+			in_page = true;
+			last_timestamp = timestamp;
+			last_delta = 0;
+			page_upto = tw->ptr & TRACE_PAGE_MASK;
+			if (_DEBUG) {
+				fprintf(stderr,
+					"new page, last_timestamp=%ld, upto=%d\n",
+					last_timestamp, upto);
+			}
+		}
+
+		delta = timestamp - last_timestamp;
+		if (delta < 0) {
+			fprintf(stderr, "Time went backwards\n");
+			err_count++;
+		}
+
+		if (err_count > 20) {
+			fprintf(stderr, "Too many errors, giving up\n");
+			return -1;
+		}
+
+		if (delta > 0x07fffff) {
+			/*
+			 * hard to imagine how this could happen since it means
+			 * that no function calls were made for a long time
+			 */
+			fprintf(stderr, "cannot represent time delta %x\n",
+				delta);
+			return -1;
+		}
+
+		if (_DEBUG) {
+			fprintf(stderr, "%d: delta=%d, stamp=%ld\n",
+				upto, delta, timestamp);
+			fprintf(stderr,
+				"   last_delta %x to %x: last_timestamp=%lx, timestamp=%lx, call->flags=%x, upto=%d\n",
+				last_delta, delta, last_timestamp, timestamp, call->flags, upto);
+		}
+
+		/* type_len is 6, meaning 4 * 6 = 24 bytes */
+		tw->ptr += tputl(fout, rec_words | (uint)delta << 5);
+		tw->ptr += tputh(fout, TRACE_FN);
+		tw->ptr += tputh(fout, 0);	/* flags */
+		tw->ptr += tputl(fout, TRACE_PID);	/* PID */
+		/* function */
+		tw->ptr += tputq(fout, text_offset + func->offset);
+		caller_func = find_caller_by_offset(call->caller);
+		/* caller */
+		tw->ptr += tputq(fout, text_offset + caller_func->offset);
+
+		last_delta = delta;
+		last_timestamp = timestamp;
+		page_upto += 4 + rec_words * 4;
+		upto++;
+		if (stack_ptr == MAX_STACK_DEPTH)
+			break;
 	}
+	if (in_page && finish_page(tw))
+		return -1;
+	*missing_countp = missing_count;
+	*skip_countp = skip_count;
+
+	return 0;
+}
+
+/**
+ * write_flyrecord() - Write the flyrecord information
+ *
+ * Writes the header and pages of data for the "flyrecord" section. It also
+ * writes out the counter-type info, selecting "[local]"
+ *
+ * @tw: Writer context
+ * @missing_countp: Returns number of missing functions (not found in function
+ * list)
+ * @skip_countp: Returns number of skipped functions (excluded from trace)
+ *
+ * Returns: 0 on success, -ve on error
+ */
+static int write_flyrecord(struct twriter *tw, int *missing_countp,
+			   int *skip_countp)
+{
+	int start, ret, len;
+	FILE *fout = tw->fout;
+	char str[200];
+
+	tw->ptr += fprintf(fout, "flyrecord%c", 0);
+
+	/* trace data */
+	start = ALIGN(tw->ptr + 16, TRACE_PAGE_SIZE);
+	tw->ptr += tputq(fout, start);
+
+	/* use a placeholder for the size */
+	ret = push_len(tw, start, "flyrecord", 8);
+	if (ret < 0)
+		return -1;
+	tw->ptr += ret;
+
+	snprintf(str, sizeof(str),
+		 "[local] global counter uptime perf mono mono_raw boot x86-tsc\n");
+	len = strlen(str);
+	tw->ptr += tputq(fout, len);
+	tw->ptr += tputs(fout, str);
+
+	ret = write_pages(tw, missing_countp, skip_countp);
+	if (ret < 0) {
+		fprintf(stderr, "Cannot output pages\n");
+		return -1;
+	}
+
+	ret = pop_len(tw, "flyrecord");
+	if (ret < 0) {
+		fprintf(stderr, "Cannot finish flyrecord header\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+/**
+ * make_ftrace() - Write out an ftrace file
+ *
+ * See here for format:
+ *
+ * https://github.com/rostedt/trace-cmd/blob/master/Documentation/trace-cmd/trace-cmd.dat.v7.5.txt
+ *
+ * @fout: Output file
+ * Returns: 0 on success, -ve on error
+ */
+static int make_ftrace(FILE *fout)
+{
+	int missing_count, skip_count;
+	struct twriter tws, *tw = &tws;
+	int ret;
+
+	memset(tw, '\0', sizeof(*tw));
+	abuf_init(&tw->str_buf);
+	tw->fout = fout;
+
+	tw->ptr = 0;
+	ret = output_headers(tw);
+	if (ret < 0) {
+		fprintf(stderr, "Cannot output headers\n");
+		return -1;
+	}
+	/* number of event systems files */
+	tw->ptr += tputl(fout, 0);
+
+	ret = write_symbols(tw);
+	if (ret < 0) {
+		fprintf(stderr, "Cannot write symbols\n");
+		return -1;
+	}
+
+	ret = write_options(tw);
+	if (ret < 0) {
+		fprintf(stderr, "Cannot write options\n");
+		return -1;
+	}
+
+	ret = write_flyrecord(tw, &missing_count, &skip_count);
+	if (ret < 0) {
+		fprintf(stderr, "Cannot write flyrecord\n");
+		return -1;
+	}
+
 	info("ftrace: %d functions not found, %d excluded\n", missing_count,
 	     skip_count);
 
@@ -669,10 +1465,20 @@ static int prof_tool(int argc, char *const argv[],
 	for (; argc; argc--, argv++) {
 		const char *cmd = *argv;
 
-		if (0 == strcmp(cmd, "dump-ftrace"))
-			err = make_ftrace();
-		else
+		if (!strcmp(cmd, "dump-ftrace")) {
+			FILE *fout;
+
+			fout = fopen(out_fname, "w");
+			if (!fout) {
+				fprintf(stderr, "Cannot write file '%s'\n",
+					out_fname);
+				return -1;
+			}
+			err = make_ftrace(fout);
+			fclose(fout);
+		} else {
 			warn("Unknown command '%s'\n", cmd);
+		}
 	}
 
 	return err;
