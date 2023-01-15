@@ -23,6 +23,7 @@ Shell commands
    cmd/addrmap
    cmd/askenv
    cmd/base
+   cmd/bdinfo
    cmd/blkcache
    cmd/bootd
    cmd/bootdev
