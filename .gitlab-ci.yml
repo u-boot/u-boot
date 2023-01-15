@@ -35,6 +35,9 @@ stages:
     # If we've been asked to use clang only do one configuration.
     - export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD}
     - echo BUILD_ENV ${BUILD_ENV}
+    - if [ -n "${BUILD_ENV}" ]; then
+        export ${BUILD_ENV};
+      fi
     - tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e
         --board ${TEST_PY_BD} ${OVERRIDE}
     - cp ~/grub_x86.efi $UBOOT_TRAVIS_BUILD_DIR/
@@ -266,6 +269,15 @@ sandbox_vpl test.py:
   variables:
     TEST_PY_BD: "sandbox_vpl"
     TEST_PY_TEST_SPEC: "test_vpl_help or test_spl"
+  <<: *buildman_and_testpy_dfn
+
+# Enable tracing and disable LTO, to ensure functions are not elided
+sandbox trace_test.py:
+  variables:
+    TEST_PY_BD: "sandbox"
+    BUILD_ENV: "FTRACE=1 NO_LTO=1"
+    TEST_PY_TEST_SPEC: "trace"
+    OVERRIDE: "-a CONFIG_TRACE=y -a CONFIG_TRACE_EARLY=y -a CONFIG_TRACE_EARLY_SIZE=0x01000000"
   <<: *buildman_and_testpy_dfn
 
 evb-ast2500 test.py:
