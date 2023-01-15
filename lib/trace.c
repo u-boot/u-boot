@@ -118,18 +118,6 @@ static void notrace add_ftrace(void *func_ptr, void *caller, ulong flags)
 	hdr->ftrace_count++;
 }
 
-static void notrace add_textbase(void)
-{
-	if (hdr->ftrace_count < hdr->ftrace_size) {
-		struct trace_call *rec = &hdr->ftrace[hdr->ftrace_count];
-
-		rec->func = CONFIG_TEXT_BASE;
-		rec->caller = 0;
-		rec->flags = FUNCF_TEXTBASE;
-	}
-	hdr->ftrace_count++;
-}
-
 /**
  * __cyg_profile_func_enter() - record function entry
  *
@@ -278,8 +266,11 @@ int trace_list_calls(void *buff, size_t buff_size, size_t *needed)
 
 	/* Update the header */
 	if (output_hdr) {
+		memset(output_hdr, '\0', sizeof(*output_hdr));
 		output_hdr->rec_count = upto;
 		output_hdr->type = TRACE_CHUNK_CALLS;
+		output_hdr->version = TRACE_VERSION;
+		output_hdr->text_base = CONFIG_TEXT_BASE;
 	}
 
 	/* Work out how must of the buffer we used */
@@ -385,10 +376,9 @@ int notrace trace_init(void *buff, size_t buff_size)
 	/* Use any remaining space for the timed function trace */
 	hdr->ftrace = (struct trace_call *)(buff + needed);
 	hdr->ftrace_size = (buff_size - needed) / sizeof(*hdr->ftrace);
-	add_textbase();
+	hdr->depth_limit = CONFIG_TRACE_CALL_DEPTH_LIMIT;
 
 	puts("trace: enabled\n");
-	hdr->depth_limit = CONFIG_TRACE_CALL_DEPTH_LIMIT;
 	trace_enabled = 1;
 	trace_inited = 1;
 
@@ -426,7 +416,6 @@ int notrace trace_early_init(void)
 	/* Use any remaining space for the timed function trace */
 	hdr->ftrace = (struct trace_call *)((char *)hdr + needed);
 	hdr->ftrace_size = (buff_size - needed) / sizeof(*hdr->ftrace);
-	add_textbase();
 	hdr->depth_limit = CONFIG_TRACE_EARLY_CALL_DEPTH_LIMIT;
 	printf("trace: early enable at %08x\n", CONFIG_TRACE_EARLY_ADDR);
 
