@@ -35,9 +35,10 @@ struct trace_hdr {
 	ulong ftrace_count;	/* Num. of ftrace records written */
 	ulong ftrace_too_deep_count;	/* Functions that were too deep */
 
-	int depth;
-	int depth_limit;
-	int max_depth;
+	int depth;		/* Depth of function calls */
+	int depth_limit;	/* Depth limit to trace to */
+	int max_depth;		/* Maximum depth seen so far */
+	int min_depth;		/* Minimum depth seen so far */
 };
 
 /* Pointer to start of trace buffer */
@@ -142,7 +143,7 @@ void notrace __cyg_profile_func_enter(void *func_ptr, void *caller)
 			hdr->untracked_count++;
 		}
 		hdr->depth++;
-		if (hdr->depth > hdr->depth_limit)
+		if (hdr->depth > hdr->max_depth)
 			hdr->max_depth = hdr->depth;
 		trace_swap_gd();
 	}
@@ -158,8 +159,10 @@ void notrace __cyg_profile_func_exit(void *func_ptr, void *caller)
 {
 	if (trace_enabled) {
 		trace_swap_gd();
-		add_ftrace(func_ptr, caller, FUNCF_EXIT);
 		hdr->depth--;
+		add_ftrace(func_ptr, caller, FUNCF_EXIT);
+		if (hdr->depth < hdr->min_depth)
+			hdr->min_depth = hdr->depth;
 		trace_swap_gd();
 	}
 }
@@ -309,8 +312,10 @@ void trace_print_stats(void)
 		printf(" (%lu dropped due to overflow)",
 		       hdr->ftrace_count - hdr->ftrace_size);
 	}
-	puts("\n");
-	printf("%15d maximum observed call depth\n", hdr->max_depth);
+
+	/* Add in minimum depth since the trace did not start at top level */
+	printf("\n%15d maximum observed call depth\n",
+	       hdr->max_depth - hdr->min_depth);
 	printf("%15d call depth limit\n", hdr->depth_limit);
 	print_grouped_ull(hdr->ftrace_too_deep_count, 10);
 	puts(" calls not traced due to depth\n");
@@ -381,8 +386,10 @@ int notrace trace_init(void *buff, size_t buff_size)
 		return -ENOSPC;
 	}
 
-	if (was_disabled)
+	if (was_disabled) {
 		memset(hdr, '\0', needed);
+		hdr->min_depth = INT_MAX;
+	}
 	hdr->func_count = func_count;
 	hdr->call_accum = (uintptr_t *)(hdr + 1);
 
@@ -427,6 +434,7 @@ int notrace trace_early_init(void)
 	memset(hdr, '\0', needed);
 	hdr->call_accum = (uintptr_t *)(hdr + 1);
 	hdr->func_count = func_count;
+	hdr->min_depth = INT_MAX;
 
 	/* Use any remaining space for the timed function trace */
 	hdr->ftrace = (struct trace_call *)((char *)hdr + needed);
