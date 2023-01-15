@@ -67,11 +67,16 @@ enum {
  * @OUT_FMT_DEFAULT: Use the default for the output file
  * @OUT_FMT_FUNCTION: Write ftrace 'function' records
  * @OUT_FMT_FUNCGRAPH: Write ftrace funcgraph_entry and funcgraph_exit records
+ * @OUT_FMT_FLAMEGRAPH_CALLS: Write a file suitable for flamegraph.pl
+ * @OUT_FMT_FLAMEGRAPH_TIMING: Write a file suitable for flamegraph.pl with the
+ * counts set to the number of microseconds used by each function
  */
 enum out_format_t {
 	OUT_FMT_DEFAULT,
 	OUT_FMT_FUNCTION,
 	OUT_FMT_FUNCGRAPH,
+	OUT_FMT_FLAMEGRAPH_CALLS,
+	OUT_FMT_FLAMEGRAPH_TIMING,
 };
 
 /* Section types for v7 format (trace-cmd format) */
@@ -127,6 +132,8 @@ enum trace_type {
  * @sibling: Next node in the list of children
  * @func: Function this node refers to (NULL for root node)
  * @count: Number of times this call-stack occurred
+ * @duration: Number of microseconds taken to run this function, excluding all
+ * of the functions it calls
  */
 struct flame_node {
 	struct flame_node *parent;
@@ -134,16 +141,27 @@ struct flame_node {
 	struct list_head sibling_node;
 	struct func_info *func;
 	int count;
+	ulong duration;
 };
 
 /**
  * struct flame_state - state information for building the flame graph
  *
  * @node: Current node being processed (corresponds to a function call)
+ * @stack: Stack of call-start time for this function as well as the
+ * accumulated total time of all child calls (so we can subtract them from the
+ * function's call time. This is an 'empty' stack, meaning that @stack_ptr
+ * points to the next available stack position
+ * @stack_ptr: points to first empty position in the stack
  * @nodes: Number of nodes created (running count)
  */
 struct flame_state {
 	struct flame_node *node;
+	struct stack_info {
+		ulong timestamp;
+		ulong child_total;
+	} stack[MAX_STACK_DEPTH];
+	int stack_ptr;
 	int nodes;
 };
 
@@ -279,7 +297,11 @@ static void usage(void)
 		"\n"
 		"Subtypes for dump-ftrace:\n"
 		"   function - write function-call records (caller/callee)\n"
-		"   funcgraph - write function entry/exit records (graph)\n");
+		"   funcgraph - write function entry/exit records (graph)\n"
+		"\n"
+		"Subtypes for dump-flamegraph\n"
+		"   calls - create a flamegraph of stack frames\n"
+		"   timing - create a flamegraph of microseconds for each stack frame\n");
 	exit(EXIT_FAILURE);
 }
 
@@ -1604,6 +1626,7 @@ static int process_call(struct flame_state *state, bool entry, ulong timestamp,
 			struct func_info *func)
 {
 	struct flame_node *node = state->node;
+	int stack_ptr = state->stack_ptr;
 
 	if (entry) {
 		struct flame_node *child, *chd;
@@ -1630,14 +1653,44 @@ static int process_call(struct flame_state *state, bool entry, ulong timestamp,
 		      node->func ? node->func->name : "(root)",
 		      child->func->name);
 		child->count++;
+		if (stack_ptr < MAX_STACK_DEPTH) {
+			state->stack[stack_ptr].timestamp = timestamp;
+			state->stack[stack_ptr].child_total = 0;
+		}
+		debug("%d: %20s: entry at %ld\n", stack_ptr, func->name,
+		      timestamp);
+		stack_ptr++;
 		node = child;
 	} else if (node->parent) {
+		ulong total_duration = 0, child_duration = 0;
+		struct stack_info *stk;
+
 		debug("exit  %s: move from %s to %s\n", func->name,
 		      node->func->name, node->parent->func ?
 		      node->parent->func->name : "(root)");
+		if (stack_ptr && stack_ptr <= MAX_STACK_DEPTH) {
+			stk = &state->stack[--stack_ptr];
+
+			/*
+			 * get total duration of the function which just
+			 * exited
+			 */
+			total_duration = timestamp - stk->timestamp;
+			child_duration = stk->child_total;
+
+			if (stack_ptr)
+				state->stack[stack_ptr - 1].child_total += total_duration;
+
+			debug("%d: %20s: exit at %ld, total %ld, child %ld, child_total=%ld\n",
+			      stack_ptr, func->name, timestamp,
+			      total_duration, child_duration,
+			      stk->child_total);
+		}
+		node->duration += total_duration - child_duration;
 		node = node->parent;
 	}
 
+	state->stack_ptr = stack_ptr;
 	state->node = node;
 
 	return 0;
@@ -1650,16 +1703,21 @@ static int process_call(struct flame_state *state, bool entry, ulong timestamp,
  * and the leaf nodes being leaf functions. Each node has a count of how many
  * times this function appears in the trace
  *
+ * @out_format: Output format to use
  * @treep: Returns the resulting flamegraph tree
  * Returns: 0 on success, -ve on error
  */
-static int make_flame_tree(struct flame_node **treep)
+static int make_flame_tree(enum out_format_t out_format,
+			   struct flame_node **treep)
 {
 	struct flame_state state;
 	struct flame_node *tree;
 	struct trace_call *call;
 	int missing_count = 0;
 	int i, depth;
+
+	/* maintain a stack of start times, etc. for 'calling' functions */
+	state.stack_ptr = 0;
 
 	/*
 	 * The first thing in the trace may not be the top-level function, so
@@ -1719,6 +1777,7 @@ static int make_flame_tree(struct flame_node **treep)
  * initf_bootstage;bootstage_mark_name;timer_get_boot_us 123
  *
  * @fout: Output file
+ * @out_format: Output format to use
  * @node: Node to output (pass the whole tree at first)
  * @str: String to use to build the output line (e.g. 500 charas long)
  * @maxlen: Maximum length of string
@@ -1726,14 +1785,32 @@ static int make_flame_tree(struct flame_node **treep)
  * @treep: Returns the resulting flamegraph tree
  * Returns 0 if OK, -1 on error
  */
-static int output_tree(FILE *fout, const struct flame_node *node,
-		       char *str, int maxlen, int base)
+static int output_tree(FILE *fout, enum out_format_t out_format,
+		       const struct flame_node *node, char *str, int maxlen,
+		       int base)
 {
 	const struct flame_node *child;
 	int pos;
 
-	if (node->count)
-		fprintf(fout, "%s %d\n", str, node->count);
+	if (node->count) {
+		if (out_format == OUT_FMT_FLAMEGRAPH_CALLS) {
+			fprintf(fout, "%s %d\n", str, node->count);
+		} else {
+			/*
+			 * Write out the number of microseconds used by this
+			 * call stack. Since the time taken by child calls is
+			 * subtracted from this total, it can reach 0, meaning
+			 * that this function took no time beyond what its
+			 * children used. For this case, write 1 rather than 0,
+			 * so that this call stack appears in the flamegraph.
+			 * This has the effect of inflating the timing slightly,
+			 * but only by at most 1 microsecond per function,
+			 * assuming that is the timestamp resolution
+			 */
+			fprintf(fout, "%s %ld\n", str,
+				node->duration ? node->duration : 1);
+		}
+	}
 
 	pos = base;
 	if (pos)
@@ -1748,7 +1825,8 @@ static int output_tree(FILE *fout, const struct flame_node *node,
 			return -1;
 		}
 		strcpy(str + pos, child->func->name);
-		if (output_tree(fout, child, str, maxlen, pos + len))
+		if (output_tree(fout, out_format, child, str, maxlen,
+				pos + len))
 			return -1;
 	}
 
@@ -1759,18 +1837,19 @@ static int output_tree(FILE *fout, const struct flame_node *node,
  * make_flamegraph() - Write out a flame graph
  *
  * @fout: Output file
+ * @out_format: Output format to use, e.g. function counts or timing
  * Returns 0 if OK, -1 on error
  */
-static int make_flamegraph(FILE *fout)
+static int make_flamegraph(FILE *fout, enum out_format_t out_format)
 {
 	struct flame_node *tree;
 	char str[500];
 
-	if (make_flame_tree(&tree))
+	if (make_flame_tree(out_format, &tree))
 		return -1;
 
 	*str = '\0';
-	if (output_tree(fout, tree, str, sizeof(str), 0))
+	if (output_tree(fout, out_format, tree, str, sizeof(str), 0))
 		return -1;
 
 	return 0;
@@ -1822,13 +1901,16 @@ static int prof_tool(int argc, char *const argv[],
 		} else if (!strcmp(cmd, "dump-flamegraph")) {
 			FILE *fout;
 
+			if (out_format != OUT_FMT_FLAMEGRAPH_CALLS &&
+			    out_format != OUT_FMT_FLAMEGRAPH_TIMING)
+				out_format = OUT_FMT_FLAMEGRAPH_CALLS;
 			fout = fopen(out_fname, "w");
 			if (!fout) {
 				fprintf(stderr, "Cannot write file '%s'\n",
 					out_fname);
 				return -1;
 			}
-			err = make_flamegraph(fout);
+			err = make_flamegraph(fout, out_format);
 			fclose(fout);
 		} else {
 			warn("Unknown command '%s'\n", cmd);
@@ -1858,6 +1940,10 @@ int main(int argc, char *argv[])
 				out_format = OUT_FMT_FUNCTION;
 			} else if (!strcmp("funcgraph", optarg)) {
 				out_format = OUT_FMT_FUNCGRAPH;
+			} else if (!strcmp("calls", optarg)) {
+				out_format = OUT_FMT_FLAMEGRAPH_CALLS;
+			} else if (!strcmp("timing", optarg)) {
+				out_format = OUT_FMT_FLAMEGRAPH_TIMING;
 			} else {
 				fprintf(stderr,
 					"Invalid format: use function, funcgraph, calls, timing\n");
