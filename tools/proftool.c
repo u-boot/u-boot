@@ -47,6 +47,19 @@ enum {
 	MAX_LINE_LEN	= 500,		/* Max characters per line */
 };
 
+/**
+ * enum out_format_t - supported output formats
+ *
+ * @OUT_FMT_DEFAULT: Use the default for the output file
+ * @OUT_FMT_FUNCTION: Write ftrace 'function' records
+ * @OUT_FMT_FUNCGRAPH: Write ftrace funcgraph_entry and funcgraph_exit records
+ */
+enum out_format_t {
+	OUT_FMT_DEFAULT,
+	OUT_FMT_FUNCTION,
+	OUT_FMT_FUNCGRAPH,
+};
+
 /* Section types for v7 format (trace-cmd format) */
 enum {
 	SECTION_OPTIONS,
@@ -211,10 +224,15 @@ static void usage(void)
 		"\n"
 		"Options:\n"
 		"   -c <cfg>\tSpecify config file\n"
+		"   -f <subtype>\tSpecify output subtype\n"
 		"   -m <map>\tSpecify Systen.map file\n"
 		"   -o <fname>\tSpecify output file\n"
 		"   -t <fname>\tSpecify trace data file (from U-Boot 'trace calls')\n"
-		"   -v <0-4>\tSpecify verbosity\n");
+		"   -v <0-4>\tSpecify verbosity\n"
+		"\n"
+		"Subtypes for dump-ftrace:\n"
+		"   function - write function-call records (caller/callee)\n"
+		"   funcgraph - write function entry/exit records (graph)\n");
 	exit(EXIT_FAILURE);
 }
 
@@ -1166,23 +1184,62 @@ static int write_options(struct twriter *tw)
 }
 
 /**
+ * calc_min_depth() - Calculate the minimum call depth from the call list
+ *
+ * Starting with a depth of 0, this works through the call list, adding 1 for
+ * each function call and subtracting 1 for each function return. Most likely
+ * the value ends up being negative, since the trace does not start at the
+ * very top of the call stack, e.g. main(), but some function called by that.
+ *
+ * This value can be used to calculate the depth value for the first call,
+ * such that it never goes negative for subsequent returns.
+ *
+ * Returns: minimum call depth (e.g. -2)
+ */
+static int calc_min_depth(void)
+{
+	struct trace_call *call;
+	int depth, min_depth, i;
+
+	/* Calculate minimum depth */
+	depth = 0;
+	min_depth = 0;
+	for (i = 0, call = call_list; i < call_count; i++, call++) {
+		switch (TRACE_CALL_TYPE(call)) {
+		case FUNCF_ENTRY:
+			depth++;
+			break;
+		case FUNCF_EXIT:
+			depth--;
+			if (depth < min_depth)
+				min_depth = depth;
+			break;
+		}
+	}
+
+	return min_depth;
+}
+
+/**
  * write_pages() - Write the pages of trace data
  *
  * This works through all the calls, writing out as many pages of data as are
  * needed.
  *
  * @tw: Writer context
+ * @out_format: Output format to use
  * @missing_countp: Returns number of missing functions (not found in function
  * list)
  * @skip_countp: Returns number of skipped functions (excluded from trace)
  *
  * Returns: 0 on success, -ve on error
  */
-static int write_pages(struct twriter *tw, int *missing_countp,
-		       int *skip_countp)
+static int write_pages(struct twriter *tw, enum out_format_t out_format,
+		       int *missing_countp, int *skip_countp)
 {
+	ulong func_stack[MAX_STACK_DEPTH];
 	int stack_ptr;	/* next free position in stack */
-	int upto, page_upto, i;
+	int upto, depth, page_upto, i;
 	int missing_count = 0, skip_count = 0;
 	struct trace_call *call;
 	ulong last_timestamp;
@@ -1200,8 +1257,13 @@ static int write_pages(struct twriter *tw, int *missing_countp,
 	/* maintain a stack of start times for calling functions */
 	stack_ptr = 0;
 
+	/*
+	 * The first thing in the trace may not be the top-level function, so
+	 * set the initial depth so that no function goes below depth 0
+	 */
+	depth = -calc_min_depth();
 	for (i = 0, call = call_list; i < call_count; i++, call++) {
-		struct func_info *caller_func;
+		bool entry = TRACE_CALL_TYPE(call) == FUNCF_ENTRY;
 		struct func_info *func;
 		ulong timestamp;
 		uint rec_words;
@@ -1227,7 +1289,10 @@ static int write_pages(struct twriter *tw, int *missing_countp,
 			continue;
 		}
 
-		rec_words = 6;
+		if (out_format == OUT_FMT_FUNCTION)
+			rec_words = 6;
+		else /* 2 header words and then 3 or 8 others */
+			rec_words = 2 + (entry ? 3 : 8);
 
 		/* convert timestamp from us to ns */
 		timestamp = call->flags & FUNCF_TIMESTAMP_MASK;
@@ -1273,24 +1338,59 @@ static int write_pages(struct twriter *tw, int *missing_countp,
 			return -1;
 		}
 
-		if (_DEBUG) {
-			fprintf(stderr, "%d: delta=%d, stamp=%ld\n",
-				upto, delta, timestamp);
-			fprintf(stderr,
-				"   last_delta %x to %x: last_timestamp=%lx, timestamp=%lx, call->flags=%x, upto=%d\n",
-				last_delta, delta, last_timestamp, timestamp, call->flags, upto);
-		}
+		if (out_format == OUT_FMT_FUNCTION) {
+			struct func_info *caller_func;
 
-		/* type_len is 6, meaning 4 * 6 = 24 bytes */
-		tw->ptr += tputl(fout, rec_words | (uint)delta << 5);
-		tw->ptr += tputh(fout, TRACE_FN);
-		tw->ptr += tputh(fout, 0);	/* flags */
-		tw->ptr += tputl(fout, TRACE_PID);	/* PID */
-		/* function */
-		tw->ptr += tputq(fout, text_offset + func->offset);
-		caller_func = find_caller_by_offset(call->caller);
-		/* caller */
-		tw->ptr += tputq(fout, text_offset + caller_func->offset);
+			if (_DEBUG) {
+				fprintf(stderr, "%d: delta=%d, stamp=%ld\n",
+					upto, delta, timestamp);
+				fprintf(stderr,
+					"   last_delta %x to %x: last_timestamp=%lx, "
+					"timestamp=%lx, call->flags=%x, upto=%d\n",
+					last_delta, delta, last_timestamp,
+					timestamp, call->flags, upto);
+			}
+
+			/* type_len is 6, meaning 4 * 6 = 24 bytes */
+			tw->ptr += tputl(fout, rec_words | (uint)delta << 5);
+			tw->ptr += tputh(fout, TRACE_FN);
+			tw->ptr += tputh(fout, 0);	/* flags */
+			tw->ptr += tputl(fout, TRACE_PID);	/* PID */
+			/* function */
+			tw->ptr += tputq(fout, text_offset + func->offset);
+			caller_func = find_caller_by_offset(call->caller);
+			/* caller */
+			tw->ptr += tputq(fout,
+					 text_offset + caller_func->offset);
+		} else {
+			tw->ptr += tputl(fout, rec_words | delta << 5);
+			tw->ptr += tputh(fout, entry ? TRACE_GRAPH_ENT
+						: TRACE_GRAPH_RET);
+			tw->ptr += tputh(fout, 0);	/* flags */
+			tw->ptr += tputl(fout, TRACE_PID); /* PID */
+			/* function */
+			tw->ptr += tputq(fout, text_offset + func->offset);
+			tw->ptr += tputl(fout, depth); /* depth */
+			if (entry) {
+				depth++;
+				if (stack_ptr < MAX_STACK_DEPTH)
+					func_stack[stack_ptr] = timestamp;
+				stack_ptr++;
+			} else {
+				ulong func_duration = 0;
+
+				depth--;
+				if (stack_ptr && stack_ptr <= MAX_STACK_DEPTH) {
+					ulong start = func_stack[--stack_ptr];
+
+					func_duration = timestamp - start;
+				}
+				tw->ptr += tputl(fout, 0);	/* overrun */
+				tw->ptr += tputq(fout, 0);	/* calltime */
+				/* rettime */
+				tw->ptr += tputq(fout, func_duration);
+			}
+		}
 
 		last_delta = delta;
 		last_timestamp = timestamp;
@@ -1314,14 +1414,15 @@ static int write_pages(struct twriter *tw, int *missing_countp,
  * writes out the counter-type info, selecting "[local]"
  *
  * @tw: Writer context
+ * @out_format: Output format to use
  * @missing_countp: Returns number of missing functions (not found in function
  * list)
  * @skip_countp: Returns number of skipped functions (excluded from trace)
  *
  * Returns: 0 on success, -ve on error
  */
-static int write_flyrecord(struct twriter *tw, int *missing_countp,
-			   int *skip_countp)
+static int write_flyrecord(struct twriter *tw, enum out_format_t out_format,
+			   int *missing_countp, int *skip_countp)
 {
 	int start, ret, len;
 	FILE *fout = tw->fout;
@@ -1347,7 +1448,7 @@ static int write_flyrecord(struct twriter *tw, int *missing_countp,
 
 	debug("trace text base %lx, map file %lx\n", text_base, text_offset);
 
-	ret = write_pages(tw, missing_countp, skip_countp);
+	ret = write_pages(tw, out_format, missing_countp, skip_countp);
 	if (ret < 0) {
 		fprintf(stderr, "Cannot output pages\n");
 		return -1;
@@ -1370,9 +1471,10 @@ static int write_flyrecord(struct twriter *tw, int *missing_countp,
  * https://github.com/rostedt/trace-cmd/blob/master/Documentation/trace-cmd/trace-cmd.dat.v7.5.txt
  *
  * @fout: Output file
+ * @out_format: Output format to use
  * Returns: 0 on success, -ve on error
  */
-static int make_ftrace(FILE *fout)
+static int make_ftrace(FILE *fout, enum out_format_t out_format)
 {
 	int missing_count, skip_count;
 	struct twriter tws, *tw = &tws;
@@ -1403,7 +1505,7 @@ static int make_ftrace(FILE *fout)
 		return -1;
 	}
 
-	ret = write_flyrecord(tw, &missing_count, &skip_count);
+	ret = write_flyrecord(tw, out_format, &missing_count, &skip_count);
 	if (ret < 0) {
 		fprintf(stderr, "Cannot write flyrecord\n");
 		return -1;
@@ -1427,7 +1529,8 @@ static int make_ftrace(FILE *fout)
  */
 static int prof_tool(int argc, char *const argv[],
 		     const char *trace_fname, const char *map_fname,
-		     const char *trace_config_fname, const char *out_fname)
+		     const char *trace_config_fname, const char *out_fname,
+		     enum out_format_t out_format)
 {
 	int err = 0;
 
@@ -1446,13 +1549,16 @@ static int prof_tool(int argc, char *const argv[],
 		if (!strcmp(cmd, "dump-ftrace")) {
 			FILE *fout;
 
+			if (out_format != OUT_FMT_FUNCTION &&
+			    out_format != OUT_FMT_FUNCGRAPH)
+				out_format = OUT_FMT_FUNCTION;
 			fout = fopen(out_fname, "w");
 			if (!fout) {
 				fprintf(stderr, "Cannot write file '%s'\n",
 					out_fname);
 				return -1;
 			}
-			err = make_ftrace(fout);
+			err = make_ftrace(fout, out_format);
 			fclose(fout);
 		} else {
 			warn("Unknown command '%s'\n", cmd);
@@ -1464,6 +1570,7 @@ static int prof_tool(int argc, char *const argv[],
 
 int main(int argc, char *argv[])
 {
+	enum out_format_t out_format = OUT_FMT_DEFAULT;
 	const char *map_fname = "System.map";
 	const char *trace_fname = NULL;
 	const char *config_fname = NULL;
@@ -1471,10 +1578,21 @@ int main(int argc, char *argv[])
 	int opt;
 
 	verbose = 2;
-	while ((opt = getopt(argc, argv, "c:m:o:t:v:")) != -1) {
+	while ((opt = getopt(argc, argv, "c:f:m:o:t:v:")) != -1) {
 		switch (opt) {
 		case 'c':
 			config_fname = optarg;
+			break;
+		case 'f':
+			if (!strcmp("function", optarg)) {
+				out_format = OUT_FMT_FUNCTION;
+			} else if (!strcmp("funcgraph", optarg)) {
+				out_format = OUT_FMT_FUNCGRAPH;
+			} else {
+				fprintf(stderr,
+					"Invalid format: use function, funcgraph, calls, timing\n");
+				exit(1);
+			}
 			break;
 		case 'm':
 			map_fname = optarg;
@@ -1504,5 +1622,5 @@ int main(int argc, char *argv[])
 
 	debug("Debug enabled\n");
 	return prof_tool(argc, argv, trace_fname, map_fname, config_fname,
-			 out_fname);
+			 out_fname, out_format);
 }
