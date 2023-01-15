@@ -95,14 +95,12 @@ enum trace_type {
  * @name: Function name
  * @code_size: Total code size of the function
  * @flags: Either 0 or FUNCF_TRACE
- * @objsection: the section this function is in
  */
 struct func_info {
 	unsigned long offset;
 	const char *name;
 	unsigned long code_size;
 	unsigned flags;
-	struct objsection_info *objsection;
 };
 
 /**
@@ -538,31 +536,6 @@ static void check_trace_config(void)
 
 	for (line = trace_config_head; line; line = line->next)
 		check_trace_config_line(line);
-}
-
-/**
- * Check the functions to see if they each have an objsection. If not, then
- * the linker must have eliminated them.
- */
-static void check_functions(void)
-{
-	struct func_info *func, *end;
-	unsigned long removed_code_size = 0;
-	int not_found = 0;
-
-	/* Look for missing functions */
-	for (func = func_list, end = func + func_count; func < end; func++) {
-		if (!func->objsection) {
-			removed_code_size += func->code_size;
-			not_found++;
-		}
-	}
-
-	/* Figure out what functions we want to trace */
-	check_trace_config();
-
-	warn("%d functions removed by linker, %ld code size\n",
-	     not_found, removed_code_size);
 }
 
 /**
@@ -1460,7 +1433,7 @@ static int prof_tool(int argc, char *const argv[],
 	if (trace_config_fname && read_trace_config_file(trace_config_fname))
 		return -1;
 
-	check_functions();
+	check_trace_config();
 
 	for (; argc; argc--, argv++) {
 		const char *cmd = *argv;
