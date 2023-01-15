@@ -213,6 +213,22 @@ RUN git clone https://github.com/stefanberger/swtpm /tmp/swtpm && \
 	make install && \
 	rm -rf /tmp/swtpm
 
+# Build trace-cmd
+RUN mkdir /tmp/trace && \
+    git clone https://git.kernel.org/pub/scm/libs/libtrace/libtraceevent.git /tmp/trace/libtraceevent && \
+    cd /tmp/trace/libtraceevent && \
+    make -j$(nproc) && \
+    sudo make install && \
+    git clone https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git /tmp/trace/libtracefs && \
+    cd /tmp/trace/libtracefs && \
+    make -j$(nproc) && \
+    sudo make install && \
+    git clone https://github.com/rostedt/trace-cmd.git /tmp/trace/trace-cmd && \
+    cd /tmp/trace/trace-cmd && \
+    make -j$(nproc) && \
+    sudo make install && \
+    rm -rf /tmp/trace
+
 # Create our user/group
 RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot
 RUN useradd -m -U uboot
