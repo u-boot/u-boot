@@ -360,8 +360,8 @@ int notrace trace_init(void *buff, size_t buff_size)
 
 	if (!was_disabled) {
 #ifdef CONFIG_TRACE_EARLY
+		ulong used, count;
 		char *end;
-		ulong used;
 
 		/*
 		 * Copy over the early trace data if we have it. Disable
@@ -370,12 +370,19 @@ int notrace trace_init(void *buff, size_t buff_size)
 		trace_enabled = 0;
 		hdr = map_sysmem(CONFIG_TRACE_EARLY_ADDR,
 				 CONFIG_TRACE_EARLY_SIZE);
-		end = (char *)&hdr->ftrace[min(hdr->ftrace_count,
-					       hdr->ftrace_size)];
+		count = min(hdr->ftrace_count, hdr->ftrace_size);
+		end = (char *)&hdr->ftrace[count];
 		used = end - (char *)hdr;
 		printf("trace: copying %08lx bytes of early data from %x to %08lx\n",
 		       used, CONFIG_TRACE_EARLY_ADDR,
 		       (ulong)map_to_sysmem(buff));
+		printf("%lu traced function calls", count);
+		if (hdr->ftrace_count > hdr->ftrace_size) {
+			printf(" (%lu dropped due to overflow)",
+			       hdr->ftrace_count - hdr->ftrace_size);
+			hdr->ftrace_count = hdr->ftrace_size;
+		}
+		puts("\n");
 		memcpy(buff, hdr, used);
 #else
 		puts("trace: already enabled\n");
