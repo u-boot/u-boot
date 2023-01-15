@@ -654,7 +654,8 @@ void *dev_get_priv(const struct udevice *dev)
 	return dm_priv_to_rw(dev->priv_);
 }
 
-void *dev_get_uclass_priv(const struct udevice *dev)
+/* notrace is needed as this is called by timer_get_rate() */
+notrace void *dev_get_uclass_priv(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
