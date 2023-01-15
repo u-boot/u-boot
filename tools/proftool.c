@@ -179,6 +179,7 @@ struct trace_call *call_list;	/* list of all calls in the input trace file */
 int call_count;			/* number of calls */
 int verbose;	/* Verbosity level 0=none, 1=warn, 2=notice, 3=info, 4=debug */
 ulong text_offset;		/* text address of first function */
+ulong text_base;		/* CONFIG_TEXT_BASE from trace file */
 
 /* debugging helpers */
 static void outf(int level, const char *fmt, ...)
@@ -289,7 +290,8 @@ static int read_system_map(FILE *fin)
 		if (func_count > 1)
 			func[-1].code_size = func->offset - func[-1].offset;
 	}
-	notice("%d functions found in map file\n", func_count);
+	notice("%d functions found in map file, start addr %lx\n", func_count,
+	       start);
 	text_offset = start;
 
 	return 0;
@@ -415,6 +417,7 @@ static int read_trace(FILE *fin)
 			break; /* EOF */
 		else if (err)
 			return 1;
+		text_base = hdr.text_base;
 
 		switch (hdr.type) {
 		case TRACE_CHUNK_FUNCS:
@@ -1341,6 +1344,8 @@ static int write_flyrecord(struct twriter *tw, int *missing_countp,
 	len = strlen(str);
 	tw->ptr += tputq(fout, len);
 	tw->ptr += tputs(fout, str);
+
+	debug("trace text base %lx, map file %lx\n", text_base, text_offset);
 
 	ret = write_pages(tw, missing_countp, skip_countp);
 	if (ret < 0) {
