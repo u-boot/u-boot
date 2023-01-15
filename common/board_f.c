@@ -290,7 +290,10 @@ static int setup_mon_len(void)
 {
 #if defined(__ARM__) || defined(__MICROBLAZE__)
 	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
+#elif defined(CONFIG_SANDBOX) && !defined(__riscv)
+	gd->mon_len = (ulong)&_end - (ulong)_init;
 #elif defined(CONFIG_SANDBOX)
+	/* gcc does not provide _init in crti.o on RISC-V */
 	gd->mon_len = 0;
 #elif defined(CONFIG_EFI_APP)
 	gd->mon_len = (ulong)&_end - (ulong)_init;
