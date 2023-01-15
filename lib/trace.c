@@ -321,6 +321,17 @@ void notrace trace_set_enabled(int enabled)
 	trace_enabled = enabled != 0;
 }
 
+static int get_func_count(void)
+{
+	/* Detect no support for mon_len since this means tracing cannot work */
+	if (IS_ENABLED(CONFIG_SANDBOX) && !gd->mon_len) {
+		puts("Tracing is not supported on this board\n");
+		return -ENOTSUPP;
+	}
+
+	return gd->mon_len / FUNC_SITE_SIZE;
+}
+
 /**
  * trace_init() - initialize the tracing system and enable it
  *
@@ -330,10 +341,12 @@ void notrace trace_set_enabled(int enabled)
  */
 int notrace trace_init(void *buff, size_t buff_size)
 {
-	ulong func_count = gd->mon_len / FUNC_SITE_SIZE;
+	int func_count = get_func_count();
 	size_t needed;
 	int was_disabled = !trace_enabled;
 
+	if (func_count < 0)
+		return func_count;
 	trace_save_gd();
 
 	if (!was_disabled) {
@@ -393,10 +406,12 @@ int notrace trace_init(void *buff, size_t buff_size)
  */
 int notrace trace_early_init(void)
 {
-	ulong func_count = gd->mon_len / FUNC_SITE_SIZE;
+	int func_count = get_func_count();
 	size_t buff_size = CONFIG_TRACE_EARLY_SIZE;
 	size_t needed;
 
+	if (func_count < 0)
+		return func_count;
 	/* We can ignore additional calls to this function */
 	if (trace_enabled)
 		return 0;

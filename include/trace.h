@@ -17,14 +17,16 @@ enum {
 	 *
 	 * The value here assumes a minimum instruction size of 4 bytes,
 	 * or that instructions are 2 bytes but there are at least 2 of
-	 * them in every function.
+	 * them in every function. Given that each function needs a call to
+	 * __cyg_profile_func_enter() and __cyg_profile_func_exit() as well,
+	 * we cannot have functions smaller that 16 bytes.
 	 *
 	 * Increasing this value reduces the number of functions we can
 	 * resolve, but reduces the size of the uintptr_t array used for
 	 * our function list, which is the length of the code divided by
 	 * this value.
 	 */
-	FUNC_SITE_SIZE	= 4,	/* distance between function sites */
+	FUNC_SITE_SIZE	= 16,	/* distance between function sites */
 
 	TRACE_VERSION	= 1,
 };
