@@ -17,14 +17,13 @@
 	"ramdisk_addr_r=0x94400000\0" \
 	"scriptaddr=0x87000000\0"
 
+/* Enable Distro Boot */
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 2) \
 	func(MMC, mmc, 0) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
-#undef BOOTENV_RUN_NET_USB_START
-#define BOOTENV_RUN_NET_USB_START ""
 
 /* Initial environment variables */
 #define CFG_EXTRA_ENV_SETTINGS \
