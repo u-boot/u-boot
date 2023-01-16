@@ -124,6 +124,7 @@ config SYS_IVM_EEPROM_PAGE_LEN
 
 config PG_WCOM_UBOOT_UPDATE_SUPPORTED
 	bool "Enable U-boot Field Fail-Safe Update Functionality"
+	select EVENT
 	default n
 	help
 	  Indicates that field fail-safe u-boot update is supported.

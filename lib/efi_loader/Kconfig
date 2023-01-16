@@ -14,8 +14,8 @@ config EFI_LOADER
 	depends on !EFI_APP
 	default y if !ARM || SYS_CPU = armv7 || SYS_CPU = armv8
 	select CHARSET
+	# We need to send DM events, dynamically, in the EFI block driver
 	select DM_EVENT
-	select EVENT
 	select EVENT_DYNAMIC
 	select LIB_UUID
 	imply PARTITION_UUIDS

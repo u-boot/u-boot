@@ -121,6 +121,7 @@ config MACH_PIC32
 	bool "Support Microchip PIC32"
 	select HAS_FIXED_TIMER_FREQUENCY
 	select DM
+	select DM_EVENT
 	select OF_CONTROL
 	imply CMD_DM
 
@@ -128,7 +129,6 @@ config TARGET_BOSTON
 	bool "Support Boston"
 	select HAS_FIXED_TIMER_FREQUENCY
 	select DM
-	imply DM_EVENT
 	select DM_SERIAL
 	select MIPS_CM
 	select SYS_CACHE_SHIFT_6

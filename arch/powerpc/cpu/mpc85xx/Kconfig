@@ -248,6 +248,7 @@ config TARGET_KMP204X
 config TARGET_KMCENT2
 	bool "Support kmcent2"
 	select VENDOR_KM
+	select EVENT
 	select FSL_CORENET
 	select SYS_DPAA_FMAN
 	select SYS_DPAA_PME

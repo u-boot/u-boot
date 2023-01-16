@@ -2622,6 +2622,7 @@ config CMD_DIAG
 
 config CMD_EVENT
 	bool "event - Show information about events"
+	depends on EVENT
 	default y if EVENT_DEBUG
 	help
 	  This enables the 'event' command which provides information about

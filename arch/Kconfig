@@ -93,7 +93,7 @@ config NIOS2
 	bool "Nios II architecture"
 	select CPU
 	select DM
-	imply DM_EVENT
+	select DM_EVENT
 	select OF_CONTROL
 	select SUPPORT_OF_CONTROL
 	imply CMD_DM
@@ -111,9 +111,9 @@ config RISCV
 	select SUPPORT_OF_CONTROL
 	select OF_CONTROL
 	select DM
+	select DM_EVENT
 	imply SPL_SEPARATE_BSS if SPL
 	imply DM_SERIAL
-	imply DM_EVENT
 	imply DM_MMC
 	imply DM_SPI
 	imply DM_SPI_FLASH
@@ -136,6 +136,7 @@ config SANDBOX
 	select BZIP2
 	select CMD_POWEROFF
 	select DM
+	select DM_EVENT
 	select DM_FUZZING_ENGINE
 	select DM_GPIO
 	select DM_I2C
@@ -240,7 +241,6 @@ config X86
 	imply CMD_SF
 	imply CMD_SF_TEST
 	imply CMD_ZBOOT
-	imply DM_EVENT
 	imply DM_GPIO
 	imply DM_KEYBOARD
 	imply DM_MMC
