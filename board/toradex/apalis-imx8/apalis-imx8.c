@@ -169,12 +169,12 @@ void board_mem_get_layout(u64 *phys_sdram_1_start,
 int board_early_init_f(void)
 {
 	sc_pm_clock_rate_t rate = SC_80MHZ;
-	sc_err_t err = 0;
+	int ret;
 
 	/* Set UART1 clock root to 80 MHz and enable it */
-	err = sc_pm_setup_uart(SC_R_UART_1, rate);
-	if (err != SC_ERR_NONE)
-		return 0;
+	ret = sc_pm_setup_uart(SC_R_UART_1, rate);
+	if (ret)
+		return ret;
 
 	setup_iomux_uart();
 
