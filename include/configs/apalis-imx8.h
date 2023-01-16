@@ -9,10 +9,6 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
-#define CFG_SYS_FSL_ESDHC_ADDR	0
-#define USDHC1_BASE_ADDR		0x5b010000
-#define USDHC2_BASE_ADDR		0x5b020000
-
 /* Networking */
 
 #define MEM_LAYOUT_ENV_SETTINGS \
@@ -54,11 +50,6 @@
 		"setexpr blkcnt ${filesize} + 0x1ff && setexpr blkcnt " \
 		"${blkcnt} / 0x200; mmc dev 0 1; mmc write ${loadaddr} 0x0 " \
 		"${blkcnt}; fi\0"
-
-/* Link Definitions */
-
-/* On Apalis iMX8 USDHC1 is eMMC, USDHC2 is 8-bit and USDHC3 is 4-bit MMC/SD */
-#define CFG_SYS_FSL_USDHC_NUM	3
 
 #define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
