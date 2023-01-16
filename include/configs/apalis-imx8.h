@@ -12,10 +12,12 @@
 /* Networking */
 
 #define MEM_LAYOUT_ENV_SETTINGS \
-	"fdt_addr_r=0x84000000\0" \
-	"kernel_addr_r=0x82000000\0" \
-	"ramdisk_addr_r=0x94400000\0" \
-	"scriptaddr=0x87000000\0"
+	"fdt_addr_r=0x9d400000\0" \
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"kernel_comp_addr_r=0xf0000000\0" \
+	"kernel_comp_size=0x08000000\0" \
+	"ramdisk_addr_r=0x9d500000\0" \
+	"scriptaddr=0x9d480000\0"
 
 /* Enable Distro Boot */
 #define BOOT_TARGET_DEVICES(func) \
