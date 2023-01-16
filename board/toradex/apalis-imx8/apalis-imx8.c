@@ -15,10 +15,12 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <command.h>
 #include <env.h>
 #include <errno.h>
-#include <linux/libfdt.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
+#include <linux/libfdt.h>
 
 #include "../common/tdx-cfg-block.h"
 
@@ -29,10 +31,40 @@ DECLARE_GLOBAL_DATA_PTR;
 			 (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) | \
 			 (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
 
+#define PCB_VERS_DETECT	((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
+			 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+			 (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) | \
+			 (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
+
+#define GPIO_PAD_CTRL	((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
+			 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+			 (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) | \
+			 (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
+
+#define PCB_VERS_DEFAULT	((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
+				 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+				 (SC_PAD_28FDSOI_PS_PD << PADRING_PULL_SHIFT) | \
+				 (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT))
+
 #define TDX_USER_FUSE_BLOCK1_A	276
 #define TDX_USER_FUSE_BLOCK1_B	277
 #define TDX_USER_FUSE_BLOCK2_A	278
 #define TDX_USER_FUSE_BLOCK2_B	279
+
+enum pcb_rev_t {
+	PCB_VERSION_1_0,
+	PCB_VERSION_1_1
+};
+
+static iomux_cfg_t pcb_vers_detect[] = {
+	SC_P_MIPI_DSI0_GPIO0_00 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(PCB_VERS_DETECT),
+	SC_P_MIPI_DSI0_GPIO0_01 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(PCB_VERS_DETECT),
+};
+
+static iomux_cfg_t pcb_vers_default[] = {
+	SC_P_MIPI_DSI0_GPIO0_00 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(PCB_VERS_DEFAULT),
+	SC_P_MIPI_DSI0_GPIO0_01 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(PCB_VERS_DEFAULT),
+};
 
 static iomux_cfg_t uart1_pads[] = {
 	SC_P_UART1_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
@@ -180,6 +212,75 @@ int checkboard(void)
 	return 0;
 }
 
+static enum pcb_rev_t get_pcb_revision(void)
+{
+	unsigned int pcb_vers = 0;
+
+	imx8_iomux_setup_multiple_pads(pcb_vers_detect,
+				       ARRAY_SIZE(pcb_vers_detect));
+
+	gpio_request(IMX_GPIO_NR(1, 18),
+		     "PCB version detection on PAD SC_P_MIPI_DSI0_GPIO0_00");
+	gpio_request(IMX_GPIO_NR(1, 19),
+		     "PCB version detection on PAD SC_P_MIPI_DSI0_GPIO0_01");
+	gpio_direction_input(IMX_GPIO_NR(1, 18));
+	gpio_direction_input(IMX_GPIO_NR(1, 19));
+
+	udelay(1000);
+
+	pcb_vers = gpio_get_value(IMX_GPIO_NR(1, 18));
+	pcb_vers |= gpio_get_value(IMX_GPIO_NR(1, 19)) << 1;
+
+	/* Set muxing back to default values for saving energy */
+	imx8_iomux_setup_multiple_pads(pcb_vers_default,
+				       ARRAY_SIZE(pcb_vers_default));
+
+	switch (pcb_vers) {
+	case 0b11:
+		return PCB_VERSION_1_0;
+	case 0b10:
+		return PCB_VERSION_1_1;
+	default:
+		printf("Unknown PCB version=0x%x, default to V1.1\n", pcb_vers);
+		return PCB_VERSION_1_1;
+	}
+}
+
+static void select_dt_from_module_version(void)
+{
+	env_set("soc", "imx8qm");
+	env_set("variant", "-v1.1");
+
+	switch (tdx_hw_tag.prodid) {
+	/* Select Apalis iMX8QM device trees */
+	case APALIS_IMX8QM_IT:
+	case APALIS_IMX8QM_WIFI_BT_IT:
+	case APALIS_IMX8QM_8GB_WIFI_BT_IT:
+		if (get_pcb_revision() == PCB_VERSION_1_0)
+			env_set("variant", "");
+		break;
+	/* Select Apalis iMX8QP device trees */
+	case APALIS_IMX8QP_WIFI_BT:
+	case APALIS_IMX8QP:
+		env_set("soc", "imx8qp");
+		break;
+	default:
+		printf("Unknown Apalis iMX8 module\n");
+		return;
+	}
+}
+
+static int do_select_dt_from_module_version(struct cmd_tbl *cmdtp, int flag,
+					    int argc, char * const argv[])
+{
+	select_dt_from_module_version();
+	return 0;
+}
+
+U_BOOT_CMD(select_dt_from_module_version, CONFIG_SYS_MAXARGS, 1, do_select_dt_from_module_version,
+	   "\n", "    - select devicetree from module version"
+);
+
 int board_init(void)
 {
 	board_gpio_init();
@@ -214,6 +315,8 @@ int board_late_init(void)
 	env_set("board_name", "Apalis iMX8QM");
 	env_set("board_rev", "v1.0");
 #endif
+
+	select_dt_from_module_version();
 
 	return 0;
 }
