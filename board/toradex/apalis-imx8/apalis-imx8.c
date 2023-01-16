@@ -182,9 +182,18 @@ int board_early_init_f(void)
 }
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
+
+#define BKL1_GPIO   IMX_GPIO_NR(1, 10)
+
+static iomux_cfg_t board_gpios[] = {
+	SC_P_LVDS1_GPIO00 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+};
+
 static void board_gpio_init(void)
 {
-	/* TODO */
+	imx8_iomux_setup_multiple_pads(board_gpios, ARRAY_SIZE(board_gpios));
+
+	gpio_request(BKL1_GPIO, "BKL1_GPIO");
 }
 #else
 static inline void board_gpio_init(void) {}
@@ -201,6 +210,14 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 #endif
+
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_direction_output(BKL1_GPIO, 0);
+}
 
 int checkboard(void)
 {
