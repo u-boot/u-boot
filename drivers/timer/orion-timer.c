@@ -25,7 +25,8 @@ struct orion_timer_priv {
 
 static bool early_init_done(void *base)
 {
-	if (readl(base + TIMER_CTRL) & TIMER0_EN)
+	if ((readl(base + TIMER_CTRL) & TIMER0_EN) &&
+	    (readl(base + TIMER0_RELOAD) == ~0))
 		return true;
 	return false;
 }
