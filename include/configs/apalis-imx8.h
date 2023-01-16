@@ -36,7 +36,7 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	"boot_file=Image\0" \
 	"boot_script_dhcp=boot.scr\0" \
-	"console=ttyLP1 earlycon\0" \
+	"console=ttyLP1\0" \
 	"fdt_addr=0x83000000\0"	\
 	"fdt_board=eval\0" \
 	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \
@@ -47,6 +47,8 @@
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=1\0" \
 	"panel=NULL\0" \
+	"setup=setenv setupargs console=tty1 console=${console},${baudrate} " \
+		"consoleblank=0 earlycon\0" \
 	"update_uboot=askenv confirm Did you load u-boot-dtb.imx (y/N)?; " \
 		"if test \"$confirm\" = \"y\"; then " \
 		"setexpr blkcnt ${filesize} + 0x1ff && setexpr blkcnt " \
