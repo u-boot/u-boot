@@ -199,18 +199,6 @@ static void board_gpio_init(void)
 static inline void board_gpio_init(void) {}
 #endif
 
-#if IS_ENABLED(CONFIG_FEC_MXC)
-#include <miiphy.h>
-
-int board_phy_config(struct phy_device *phydev)
-{
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
-	return 0;
-}
-#endif
-
 /*
  * Backlight off before OS handover
  */
