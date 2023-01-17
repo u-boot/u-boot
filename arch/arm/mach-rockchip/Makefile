@@ -45,6 +45,7 @@ obj-$(CONFIG_ROCKCHIP_RK3368) += rk3368/
 obj-$(CONFIG_ROCKCHIP_RK3399) += rk3399/
 obj-$(CONFIG_ROCKCHIP_RK3568) += rk3568/
 obj-$(CONFIG_ROCKCHIP_RV1108) += rv1108/
+obj-$(CONFIG_ROCKCHIP_RV1126) += rv1126/
 
 # Clear out SPL objects, in case this is a TPL build
 obj-spl-$(CONFIG_TPL_BUILD) =

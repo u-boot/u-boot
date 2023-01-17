@@ -36,7 +36,7 @@ void sdram_print_dram_type(unsigned char dramtype)
 }
 
 void sdram_print_ddr_info(struct sdram_cap_info *cap_info,
-			  struct sdram_base_params *base)
+			  struct sdram_base_params *base, u32 split)
 {
 	u64 cap;
 	u32 bg;
@@ -83,6 +83,8 @@ void sdram_print_ddr_info(struct sdram_cap_info *cap_info,
 	cap = sdram_get_cs_cap(cap_info, 3, base->dramtype);
 	if (cap_info->row_3_4)
 		cap = cap * 3 / 4;
+	else if (split)
+		cap = cap / 2 + (split << 24) / 2;
 
 	printascii(" Size=");
 	printdec(cap >> 20);
@@ -123,7 +125,7 @@ inline void sdram_print_dram_type(unsigned char dramtype)
 }
 
 inline void sdram_print_ddr_info(struct sdram_cap_info *cap_info,
-				 struct sdram_base_params *base)
+				 struct sdram_base_params *base, u32 split)
 {
 }
 

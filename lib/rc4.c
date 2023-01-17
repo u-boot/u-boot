@@ -12,7 +12,7 @@
 #endif
 #include <rc4.h>
 
-void rc4_encode(unsigned char *buf, unsigned int len, unsigned char key[16])
+void rc4_encode(unsigned char *buf, unsigned int len, const unsigned char key[16])
 {
 	unsigned char s[256], k[256], temp;
 	unsigned short i, j, t;

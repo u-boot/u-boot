@@ -5,15 +5,23 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <fdt_support.h>
 #include <init.h>
+#include <spl.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
+#include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/grf_px30.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/uart.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_px30.h>
 #include <dt-bindings/clock/px30-cru.h>
+
+const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_EMMC] = "/mmc@ff390000",
+	[BROM_BOOTSOURCE_SD] = "/mmc@ff370000",
+};
 
 static struct mm_region px30_mem_map[] = {
 	{
@@ -234,6 +242,7 @@ enum {
 int arch_cpu_init(void)
 {
 	static struct px30_grf * const grf = (void *)GRF_BASE;
+	static struct px30_cru * const cru = (void *)CRU_BASE;
 	u32 __maybe_unused val;
 
 #ifdef CONFIG_SPL_BUILD
@@ -285,6 +294,9 @@ int arch_cpu_init(void)
 	/* Clear the force_jtag */
 	rk_clrreg(&grf->cpu_con[1], 1 << 7);
 
+	/* Make TSADC and WDT trigger a first global reset */
+	clrsetbits_le32(&cru->glb_rst_con, 0x3, 0x3);
+
 	return 0;
 }
 
@@ -297,8 +309,18 @@ void board_debug_uart_init(void)
 	CONFIG_DEBUG_UART_BASE == 0xff030000)
 	static struct px30_pmugrf * const pmugrf = (void *)PMUGRF_BASE;
 #endif
+#if !defined(CONFIG_DEBUG_UART_BASE) || \
+	(CONFIG_DEBUG_UART_BASE != 0xff158000 && \
+	 CONFIG_DEBUG_UART_BASE != 0xff168000 && \
+	 CONFIG_DEBUG_UART_BASE != 0xff178000 && \
+	 CONFIG_DEBUG_UART_BASE != 0xff030000) || \
+	(defined(CONFIG_DEBUG_UART_BASE) && \
+	 (CONFIG_DEBUG_UART_BASE == 0xff158000 || \
+	  CONFIG_DEBUG_UART_BASE == 0xff168000 || \
+	  CONFIG_DEBUG_UART_BASE == 0xff178000))
 	static struct px30_grf * const grf = (void *)GRF_BASE;
 	static struct px30_cru * const cru = (void *)CRU_BASE;
+#endif
 #if defined(CONFIG_DEBUG_UART_BASE) && CONFIG_DEBUG_UART_BASE == 0xff030000
 	static struct px30_pmucru * const pmucru = (void *)PMUCRU_BASE;
 #endif
@@ -421,3 +443,52 @@ void board_debug_uart_init(void)
 #endif /* CONFIG_DEBUG_UART_BASE && CONFIG_DEBUG_UART_BASE == ... */
 }
 #endif /* CONFIG_DEBUG_UART_BOARD_INIT */
+
+#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
+const char *spl_decode_boot_device(u32 boot_device)
+{
+	int i;
+	static const struct {
+		u32 boot_device;
+		const char *ofpath;
+	} spl_boot_devices_tbl[] = {
+		{ BOOT_DEVICE_MMC2, "/mmc@ff370000" },
+		{ BOOT_DEVICE_MMC1, "/mmc@ff390000" },
+	};
+
+	for (i = 0; i < ARRAY_SIZE(spl_boot_devices_tbl); ++i)
+		if (spl_boot_devices_tbl[i].boot_device == boot_device)
+			return spl_boot_devices_tbl[i].ofpath;
+
+	return NULL;
+}
+
+void spl_perform_fixups(struct spl_image_info *spl_image)
+{
+	void *blob = spl_image->fdt_addr;
+	const char *boot_ofpath;
+	int chosen;
+
+	/*
+	 * Inject the ofpath of the device the full U-Boot (or Linux in
+	 * Falcon-mode) was booted from into the FDT, if a FDT has been
+	 * loaded at the same time.
+	 */
+	if (!blob)
+		return;
+
+	boot_ofpath = spl_decode_boot_device(spl_image->boot_device);
+	if (!boot_ofpath) {
+		pr_err("%s: could not map boot_device to ofpath\n", __func__);
+		return;
+	}
+
+	chosen = fdt_find_or_add_subnode(blob, 0, "chosen");
+	if (chosen < 0) {
+		pr_err("%s: could not find/create '/chosen'\n", __func__);
+		return;
+	}
+	fdt_setprop_string(blob, chosen,
+			   "u-boot,spl-boot-device", boot_ofpath);
+}
+#endif

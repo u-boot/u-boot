@@ -21,7 +21,7 @@ void pctl_read_mr(void __iomem *pctl_base, u32 rank, u32 mr_num)
 	setbits_le32(pctl_base + DDR_PCTL2_MRCTRL0, 1u << 31);
 	while (readl(pctl_base + DDR_PCTL2_MRCTRL0) & (1u << 31))
 		continue;
-	while (readl(pctl_base + DDR_PCTL2_MRSTAT) & MR_WR_BUSY)
+	while (readl(pctl_base + DDR_PCTL2_MRSTAT) & PCTL2_MR_WR_BUSY)
 		continue;
 }
 
@@ -33,7 +33,7 @@ void pctl_read_mr(void __iomem *pctl_base, u32 rank, u32 mr_num)
 int pctl_write_mr(void __iomem *pctl_base, u32 rank, u32 mr_num, u32 arg,
 		  u32 dramtype)
 {
-	while (readl(pctl_base + DDR_PCTL2_MRSTAT) & MR_WR_BUSY)
+	while (readl(pctl_base + DDR_PCTL2_MRSTAT) & PCTL2_MR_WR_BUSY)
 		continue;
 	if (dramtype == DDR3 || dramtype == DDR4) {
 		writel((mr_num << 12) | (rank << 4) | (0 << 0),
@@ -49,7 +49,7 @@ int pctl_write_mr(void __iomem *pctl_base, u32 rank, u32 mr_num, u32 arg,
 	setbits_le32(pctl_base + DDR_PCTL2_MRCTRL0, 1u << 31);
 	while (readl(pctl_base + DDR_PCTL2_MRCTRL0) & (1u << 31))
 		continue;
-	while (readl(pctl_base + DDR_PCTL2_MRSTAT) & MR_WR_BUSY)
+	while (readl(pctl_base + DDR_PCTL2_MRSTAT) & PCTL2_MR_WR_BUSY)
 		continue;
 
 	return 0;

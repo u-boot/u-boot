@@ -1,0 +1,62 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2022 Edgeble AI Technologies Pvt. Ltd.
+ */
+
+#include "rockchip-u-boot.dtsi"
+
+/ {
+	chosen {
+		u-boot,spl-boot-order = \
+			"same-as-spl", &emmc, &sdmmc;
+	};
+
+	dmc {
+		compatible = "rockchip,rv1126-dmc";
+		u-boot,dm-pre-reloc;
+	};
+};
+
+&gpio0 {
+	u-boot,dm-spl;
+};
+
+&gpio1 {
+	u-boot,dm-spl;
+};
+
+&grf {
+	u-boot,dm-spl;
+};
+
+&pmu {
+	u-boot,dm-spl;
+};
+
+&pmugrf {
+	u-boot,dm-spl;
+};
+
+&xin24m {
+	u-boot,dm-spl;
+};
+
+&cru {
+	u-boot,dm-spl;
+};
+
+&pmucru {
+	u-boot,dm-spl;
+};
+
+&sdmmc {
+	u-boot,dm-spl;
+};
+
+&emmc {
+	u-boot,dm-spl;
+};
+
+&uart2 {
+	u-boot,dm-spl;
+};

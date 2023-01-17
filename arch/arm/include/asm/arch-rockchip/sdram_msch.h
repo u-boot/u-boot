@@ -57,6 +57,18 @@ union noc_devtodev0 {
 	} b;
 };
 
+union noc_devtodev_rv1126 {
+	u32 d32;
+	struct {
+		unsigned busrdtord : 3;
+		unsigned reserved0 : 1;
+		unsigned busrdtowr : 4;
+		unsigned buswrtord : 4;
+		unsigned buswrtowr : 3;
+		unsigned reserved2 : 17;
+	} b;
+};
+
 union noc_ddrmode {
 	u32 d32;
 	struct {

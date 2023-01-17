@@ -153,6 +153,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 	rk3399-nanopi-r4s.dtb \
 	rk3399-orangepi.dtb \
 	rk3399-pinebook-pro.dtb \
+	rk3399-pinephone-pro.dtb \
 	rk3399-puma-haikou.dtb \
 	rk3399-roc-pc.dtb \
 	rk3399-roc-pc-mezzanine.dtb \
@@ -169,6 +170,9 @@ dtb-$(CONFIG_ROCKCHIP_RK3568) += \
 dtb-$(CONFIG_ROCKCHIP_RV1108) += \
 	rv1108-elgin-r1.dtb \
 	rv1108-evb.dtb
+
+dtb-$(CONFIG_ROCKCHIP_RV1126) += \
+	rv1126-edgeble-neu2-io.dtb
 
 dtb-$(CONFIG_ARCH_S5P4418) += \
 	s5p4418-nanopi2.dtb
