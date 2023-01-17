@@ -11,6 +11,7 @@
 
 struct bootflow;
 struct bootflow_iter;
+struct bootstd_priv;
 struct udevice;
 
 /**
@@ -32,6 +33,53 @@ enum bootdev_prio_t {
 
 	BOOTDEVP_COUNT,
 };
+
+struct bootdev_hunter;
+
+/**
+ * bootdev_hunter_func - function to probe for bootdevs of a given type
+ *
+ * This should hunt around for bootdevs of the given type, binding them as it
+ * finds them. This may involve bus enumeration, etc.
+ *
+ * @info: Info structure describing this hunter
+ * @show: true to show information from the hunter
+ * Returns: 0 if OK, -ve on error
+ */
+typedef int (*bootdev_hunter_func)(struct bootdev_hunter *info, bool show);
+
+/**
+ * struct bootdev_hunter - information about how to hunt for bootdevs
+ *
+ * @prio: Scanning priority of this hunter
+ * @uclass: Uclass ID for the media associated with this bootdev
+ * @drv: bootdev driver for the things found by this hunter
+ * @hunt: Function to call to hunt for bootdevs of this type (NULL if none)
+ *
+ * Some bootdevs are not visible until other devices are enumerated. For
+ * example, USB bootdevs only appear when the USB bus is enumerated.
+ *
+ * On the other hand, we don't always want to enumerate all the buses just to
+ * find the first valid bootdev. Ideally we want to work through them in
+ * priority order, so that the fastest bootdevs are discovered first.
+ *
+ * This struct holds information about the bootdev so we can determine the probe
+ * order and how to hunt for bootdevs of this type
+ */
+struct bootdev_hunter {
+	enum bootdev_prio_t prio;
+	enum uclass_id uclass;
+	struct driver *drv;
+	bootdev_hunter_func hunt;
+};
+
+/* declare a new bootdev hunter */
+#define BOOTDEV_HUNTER(__name)						\
+	ll_entry_declare(struct bootdev_hunter, __name, bootdev_hunter)
+
+/* access a bootdev hunter by name */
+#define BOOTDEV_HUNTER_GET(__name)						\
+	ll_entry_get(struct bootdev_hunter, __name, bootdev_hunter)
 
 /**
  * struct bootdev_uc_plat - uclass information about a bootdev
@@ -204,6 +252,16 @@ int bootdev_find_by_any(const char *name, struct udevice **devp);
  *	on other error
  */
 int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp);
+
+/**
+ * bootdev_list_hunters() - List the available bootdev hunters
+ *
+ * These provide a way to find new bootdevs by enumerating buses, etc. This
+ * function lists the available hunters
+ *
+ * @std: Pointer to bootstd private info
+ */
+void bootdev_list_hunters(struct bootstd_priv *std);
 
 #if CONFIG_IS_ENABLED(BOOTSTD)
 /**

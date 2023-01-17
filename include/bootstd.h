@@ -33,6 +33,8 @@ struct udevice;
  * @bootmeth_order: List of bootmeth devices to use, in order, NULL-terminated
  * @vbe_bootmeth: Currently selected VBE bootmeth, NULL if none
  * @theme: Node containing the theme information
+ * @hunters_used: Bitmask of used hunters, indexed by their position in the
+ * linker list. The bit is set if the hunter has been used already
  */
 struct bootstd_priv {
 	const char **prefixes;
@@ -45,6 +47,7 @@ struct bootstd_priv {
 	struct udevice **bootmeth_order;
 	struct udevice *vbe_bootmeth;
 	ofnode theme;
+	uint hunters_used;
 };
 
 /**

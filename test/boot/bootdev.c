@@ -221,3 +221,55 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootdev_test_prio, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/* Check listing hunters */
+static int bootdev_test_hunter(struct unit_test_state *uts)
+{
+	struct bootstd_priv *std;
+
+	/* get access to the used hunters */
+	ut_assertok(bootstd_get_priv(&std));
+
+	console_record_reset_enable();
+	bootdev_list_hunters(std);
+	ut_assert_nextline("Prio  Used  Uclass           Hunter");
+	ut_assert_nextlinen("----");
+	ut_assert_nextline("(total hunters: 0)");
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootdev_test_hunter, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/* Check 'bootdev hunt' command */
+static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
+{
+	struct bootstd_priv *std;
+
+	/* get access to the used hunters */
+	ut_assertok(bootstd_get_priv(&std));
+
+	console_record_reset_enable();
+	ut_assertok(run_command("bootdev hunt -l", 0));
+	ut_assert_nextline("Prio  Used  Uclass           Hunter");
+	ut_assert_nextlinen("----");
+	ut_assert_nextline("(total hunters: 0)");
+	ut_assert_console_end();
+
+	/* Scan all hunters */
+	ut_assertok(run_command("bootdev hunt", 0));
+	ut_assert_console_end();
+
+	/* List available hunters */
+	ut_assertok(run_command("bootdev hunt -l", 0));
+	ut_assert_nextlinen("Prio");
+	ut_assert_nextlinen("----");
+	ut_assert_nextline("(total hunters: 0)");
+	ut_assert_console_end();
+
+	ut_asserteq(0, std->hunters_used);
+
+	return 0;
+}
+BOOTSTD_TEST(bootdev_test_cmd_hunt, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
+	     UT_TESTF_ETH_BOOTDEV);

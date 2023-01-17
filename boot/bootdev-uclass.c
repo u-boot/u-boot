@@ -636,6 +636,37 @@ int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp)
 	return 0;
 }
 
+void bootdev_list_hunters(struct bootstd_priv *std)
+{
+	struct bootdev_hunter *orig, *start;
+	int n_ent, i;
+
+	orig = ll_entry_start(struct bootdev_hunter, bootdev_hunter);
+	n_ent = ll_entry_count(struct bootdev_hunter, bootdev_hunter);
+
+	/*
+	 * workaround for strange bug in clang-12 which sees all the below data
+	 * as zeroes. Any access of start seems to fix it, such as
+	 *
+	 *    printf("%p", start);
+	 *
+	 * Use memcpy() to force the correct behaviour.
+	 */
+	memcpy(&start, &orig, sizeof(orig));
+	printf("%4s  %4s  %-15s  %s\n", "Prio", "Used", "Uclass", "Hunter");
+	printf("%4s  %4s  %-15s  %s\n", "----", "----", "---------------", "---------------");
+	for (i = 0; i < n_ent; i++) {
+		struct bootdev_hunter *info = start + i;
+
+		printf("%4d  %4s  %-15s  %s\n", info->prio,
+		       std->hunters_used & BIT(i) ? "*" : "",
+		       uclass_get_name(info->uclass),
+		       info->drv ? info->drv->name : "(none)");
+	}
+
+	printf("(total hunters: %d)\n", n_ent);
+}
+
 static int bootdev_post_bind(struct udevice *dev)
 {
 	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
