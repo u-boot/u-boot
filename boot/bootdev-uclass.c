@@ -375,8 +375,14 @@ static int label_to_uclass(const char *label, int *seqp)
 	log_debug("find %s: seq=%d, id=%d/%s\n", label, seq, id,
 		  uclass_get_name(id));
 	if (id == UCLASS_INVALID) {
-		log_warning("Unknown uclass '%s' in label\n", label);
-		return -EINVAL;
+		/* try some special cases */
+		if (IS_ENABLED(CONFIG_BOOTDEV_SPI_FLASH) &&
+		    !strncmp("spi", label, len)) {
+			id = UCLASS_SPI_FLASH;
+		} else {
+			log_warning("Unknown uclass '%s' in label\n", label);
+			return -EINVAL;
+		}
 	}
 	if (id == UCLASS_USB)
 		id = UCLASS_MASS_STORAGE;

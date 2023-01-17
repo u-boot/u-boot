@@ -80,6 +80,14 @@ config SF_DEFAULT_SPEED
 
 if SPI_FLASH
 
+config BOOTDEV_SPI_FLASH
+	bool "SPI Flash bootdev support"
+	help
+	  Enable a boot device for SPI flash. This allows reading a script
+	  from SPI flash so that it can be used to boot an Operating System.
+
+	  If unsure, say N
+
 config SPI_FLASH_SFDP_SUPPORT
 	bool "SFDP table parsing support for SPI NOR flashes"
 	depends on !SPI_FLASH_BAR

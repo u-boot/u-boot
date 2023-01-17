@@ -332,6 +332,15 @@ void bootflow_remove(struct bootflow *bflow);
 int bootflow_iter_check_blk(const struct bootflow_iter *iter);
 
 /**
+ * bootflow_iter_check_sf() - Check that a bootflow uses SPI FLASH
+ *
+ * This checks the bootdev in the bootflow to make sure it uses SPI flash
+ *
+ * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. ethernet)
+ */
+int bootflow_iter_check_sf(const struct bootflow_iter *iter);
+
+/**
  * bootflow_iter_check_net() - Check that a bootflow uses a network device
  *
  * This checks the bootdev in the bootflow to make sure it uses a network
