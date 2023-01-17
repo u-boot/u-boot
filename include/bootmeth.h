@@ -240,7 +240,7 @@ int bootmeth_set_order(const char *order_str);
  * caller before reading the file.
  *
  * @bflow: Information about file to try
- * @desc: Block descriptor to read from
+ * @desc: Block descriptor to read from (NULL for sandbox host)
  * @prefix: Filename prefix to prepend to @fname (NULL for none)
  * @fname: Filename to read
  * Return: 0 if OK, -ENOMEM if not enough memory to allocate bflow->fname,

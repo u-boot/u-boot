@@ -43,7 +43,7 @@ enum bootflow_state_t {
  * @glob_node: Points to siblings in the global list (all bootdev)
  * @dev: Bootdevice device which produced this bootflow
  * @blk: Block device which contains this bootflow, NULL if this is a network
- *	device
+ *	device or sandbox 'host' device
  * @part: Partition number (0 for whole device)
  * @fs_type: Filesystem type (FS_TYPE...) if this is fixed by the media, else 0.
  *	For example, the sandbox host-filesystem bootdev sets this to
