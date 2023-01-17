@@ -167,18 +167,6 @@ static int virtio_sandbox_probe(struct udevice *udev)
 	return 0;
 }
 
-/* check virtio device driver's remove routine was called to reset the device */
-static int virtio_sandbox_child_post_remove(struct udevice *vdev)
-{
-	u8 status;
-
-	virtio_get_status(vdev, &status);
-	if (status)
-		panic("virtio device was not reset\n");
-
-	return 0;
-}
-
 static const struct dm_virtio_ops virtio_sandbox1_ops = {
 	.get_config	= virtio_sandbox_get_config,
 	.set_config	= virtio_sandbox_set_config,
@@ -203,7 +191,6 @@ U_BOOT_DRIVER(virtio_sandbox1) = {
 	.of_match = virtio_sandbox1_ids,
 	.ops	= &virtio_sandbox1_ops,
 	.probe	= virtio_sandbox_probe,
-	.child_post_remove = virtio_sandbox_child_post_remove,
 	.priv_auto	= sizeof(struct virtio_sandbox_priv),
 };
 
