@@ -35,3 +35,9 @@ U_BOOT_DRIVER(mmc_bootdev) = {
 	.bind		= mmc_bootdev_bind,
 	.of_match	= mmc_bootdev_ids,
 };
+
+BOOTDEV_HUNTER(mmc_bootdev_hunter) = {
+	.prio		= BOOTDEVP_0_INTERNAL_FAST,
+	.uclass		= UCLASS_MMC,
+	.drv		= DM_DRIVER_REF(mmc_bootdev),
+};

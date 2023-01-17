@@ -238,8 +238,9 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 	bootdev_list_hunters(std);
 	ut_assert_nextline("Prio  Used  Uclass           Hunter");
 	ut_assert_nextlinen("----");
+	ut_assert_nextline("  10        mmc              mmc_bootdev");
 	ut_assert_nextline("  40        usb              usb_bootdev");
-	ut_assert_nextline("(total hunters: 1)");
+	ut_assert_nextline("(total hunters: 2)");
 	ut_assert_console_end();
 
 	ut_assertok(bootdev_hunt("usb1", false));
@@ -247,7 +248,8 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 		"Bus usb@1: scanning bus usb@1 for devices... 5 USB Device(s) found");
 	ut_assert_console_end();
 
-	ut_asserteq(GENMASK(0, 0), std->hunters_used);
+	/* USB is second in the list, so bit 1 */
+	ut_asserteq(BIT(1), std->hunters_used);
 
 	return 0;
 }
@@ -267,12 +269,12 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	ut_assertok(run_command("bootdev hunt -l", 0));
 	ut_assert_nextline("Prio  Used  Uclass           Hunter");
 	ut_assert_nextlinen("----");
-	ut_assert_nextline("  40        usb              usb_bootdev");
-	ut_assert_nextline("(total hunters: 1)");
+	ut_assert_skip_to_line("(total hunters: 2)");
 	ut_assert_console_end();
 
 	/* Scan all hunters */
 	ut_assertok(run_command("bootdev hunt", 0));
+	ut_assert_nextline("Hunting with: mmc");
 	ut_assert_nextline("Hunting with: usb");
 	ut_assert_nextline(
 		"Bus usb@1: scanning bus usb@1 for devices... 5 USB Device(s) found");
@@ -282,11 +284,13 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	ut_assertok(run_command("bootdev hunt -l", 0));
 	ut_assert_nextlinen("Prio");
 	ut_assert_nextlinen("----");
+	ut_assert_nextline("  10     *  mmc              mmc_bootdev");
 	ut_assert_nextline("  40     *  usb              usb_bootdev");
-	ut_assert_nextline("(total hunters: 1)");
+
+	ut_assert_nextline("(total hunters: 2)");
 	ut_assert_console_end();
 
-	ut_asserteq(GENMASK(0, 0), std->hunters_used);
+	ut_asserteq(GENMASK(1, 0), std->hunters_used);
 
 	return 0;
 }
