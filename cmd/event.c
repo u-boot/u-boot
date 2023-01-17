@@ -20,7 +20,7 @@ static int do_event_list(struct cmd_tbl *cmdtp, int flag, int argc,
 
 #ifdef CONFIG_SYS_LONGHELP
 static char event_help_text[] =
-	"event list   - list event spies";
+	"list - list event spies";
 #endif
 
 U_BOOT_CMD_WITH_SUBCMDS(event, "Events", event_help_text,
