@@ -886,4 +886,20 @@ static inline struct in_addr env_get_ip(char *var)
  */
 void reset_phy(void);
 
+#if CONFIG_IS_ENABLED(NET)
+/**
+ * eth_set_enable_bootdevs() - Enable or disable binding of Ethernet bootdevs
+ *
+ * These get in the way of bootstd testing, so are normally disabled by tests.
+ * This provide control of this setting. It only affects binding of Ethernet
+ * devices, so if that has already happened, this flag does nothing.
+ *
+ * @enable: true to enable binding of bootdevs when binding new Ethernet
+ * devices, false to disable it
+ */
+void eth_set_enable_bootdevs(bool enable);
+#else
+static inline void eth_set_enable_bootdevs(bool enable) {}
+#endif
+
 #endif /* __NET_H__ */

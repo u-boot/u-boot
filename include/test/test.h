@@ -71,6 +71,7 @@ enum {
 	 * since it cannot access the flags.
 	 */
 	UT_TESTF_MANUAL		= BIT(8),
+	UT_TESTF_ETH_BOOTDEV	= BIT(9),	/* enable Ethernet bootdevs */
 };
 
 /**
@@ -185,6 +186,17 @@ static inline void test_set_eth_enable(bool enable)
 
 /* Allow ethernet to be disabled for testing purposes */
 static inline bool test_eth_enabled(void)
+{
+	bool enabled = true;
+
+#ifdef CONFIG_SANDBOX
+	enabled = sandbox_eth_enabled();
+#endif
+	return enabled;
+}
+
+/* Allow ethernet bootdev to be ignored for testing purposes */
+static inline bool test_eth_bootdev_enabled(void)
 {
 	bool enabled = true;
 

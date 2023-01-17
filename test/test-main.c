@@ -10,6 +10,7 @@
 #include <cyclic.h>
 #include <dm.h>
 #include <event.h>
+#include <net.h>
 #include <of_live.h>
 #include <os.h>
 #include <dm/ofnode.h>
@@ -303,8 +304,13 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 		ut_assertok(do_autoprobe(uts));
 
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
-	    (test->flags & UT_TESTF_SCAN_FDT))
+	    (test->flags & UT_TESTF_SCAN_FDT)) {
+		/*
+		 * only set this if we know the ethernet uclass will be created
+		 */
+		eth_set_enable_bootdevs(test->flags & UT_TESTF_ETH_BOOTDEV);
 		ut_assertok(dm_extended_scan(false));
+	}
 
 	/*
 	 * Do this after FDT scan since dm_scan_other() in bootstd-uclass.c
