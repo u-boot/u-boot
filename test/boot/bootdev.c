@@ -190,6 +190,8 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 	struct bootflow bflow;
 	struct udevice *blk;
 
+	test_set_skip_delays(true);
+
 	/* Start up USB which gives us three additional bootdevs */
 	usb_started = false;
 	ut_assertok(run_command("usb start", 0));
@@ -227,6 +229,8 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 {
 	struct bootstd_priv *std;
 
+	test_set_skip_delays(true);
+
 	/* get access to the used hunters */
 	ut_assertok(bootstd_get_priv(&std));
 
@@ -234,11 +238,16 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 	bootdev_list_hunters(std);
 	ut_assert_nextline("Prio  Used  Uclass           Hunter");
 	ut_assert_nextlinen("----");
-	ut_assert_nextline("(total hunters: 0)");
+	ut_assert_nextline("  40        usb              usb_bootdev");
+	ut_assert_nextline("(total hunters: 1)");
 	ut_assert_console_end();
 
-	ut_assertok(bootdev_hunt("mmc1", false));
+	ut_assertok(bootdev_hunt("usb1", false));
+	ut_assert_nextline(
+		"Bus usb@1: scanning bus usb@1 for devices... 5 USB Device(s) found");
 	ut_assert_console_end();
+
+	ut_asserteq(GENMASK(0, 0), std->hunters_used);
 
 	return 0;
 }
@@ -249,6 +258,8 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 {
 	struct bootstd_priv *std;
 
+	test_set_skip_delays(true);
+
 	/* get access to the used hunters */
 	ut_assertok(bootstd_get_priv(&std));
 
@@ -256,21 +267,26 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	ut_assertok(run_command("bootdev hunt -l", 0));
 	ut_assert_nextline("Prio  Used  Uclass           Hunter");
 	ut_assert_nextlinen("----");
-	ut_assert_nextline("(total hunters: 0)");
+	ut_assert_nextline("  40        usb              usb_bootdev");
+	ut_assert_nextline("(total hunters: 1)");
 	ut_assert_console_end();
 
 	/* Scan all hunters */
 	ut_assertok(run_command("bootdev hunt", 0));
+	ut_assert_nextline("Hunting with: usb");
+	ut_assert_nextline(
+		"Bus usb@1: scanning bus usb@1 for devices... 5 USB Device(s) found");
 	ut_assert_console_end();
 
 	/* List available hunters */
 	ut_assertok(run_command("bootdev hunt -l", 0));
 	ut_assert_nextlinen("Prio");
 	ut_assert_nextlinen("----");
-	ut_assert_nextline("(total hunters: 0)");
+	ut_assert_nextline("  40     *  usb              usb_bootdev");
+	ut_assert_nextline("(total hunters: 1)");
 	ut_assert_console_end();
 
-	ut_asserteq(0, std->hunters_used);
+	ut_asserteq(GENMASK(0, 0), std->hunters_used);
 
 	return 0;
 }

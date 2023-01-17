@@ -20,6 +20,11 @@ static int usb_bootdev_bind(struct udevice *dev)
 	return 0;
 }
 
+static int usb_bootdev_hunt(struct bootdev_hunter *info, bool show)
+{
+	return usb_init();
+}
+
 struct bootdev_ops usb_bootdev_ops = {
 };
 
@@ -34,4 +39,11 @@ U_BOOT_DRIVER(usb_bootdev) = {
 	.ops		= &usb_bootdev_ops,
 	.bind		= usb_bootdev_bind,
 	.of_match	= usb_bootdev_ids,
+};
+
+BOOTDEV_HUNTER(usb_bootdev_hunter) = {
+	.prio		= BOOTDEVP_3_SCAN_SLOW,
+	.uclass		= UCLASS_USB,
+	.hunt		= usb_bootdev_hunt,
+	.drv		= DM_DRIVER_REF(usb_bootdev),
 };
