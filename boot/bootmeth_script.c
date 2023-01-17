@@ -19,18 +19,14 @@
 #include <image.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <net.h>
 
 #define SCRIPT_FNAME1	"boot.scr.uimg"
 #define SCRIPT_FNAME2	"boot.scr"
 
 static int script_check(struct udevice *dev, struct bootflow_iter *iter)
 {
-	int ret;
-
-	/* This only works on block devices */
-	ret = bootflow_iter_check_blk(iter);
-	if (ret)
-		return log_msg_ret("blk", ret);
+	/* This works on block devices, network devices and SPI Flash */
 
 	return 0;
 }
@@ -65,11 +61,11 @@ static int script_fill_info(struct bootflow *bflow)
 	return 0;
 }
 
-static int script_read_bootflow(struct udevice *dev, struct bootflow *bflow)
+static int script_read_bootflow_file(struct udevice *bootstd,
+				     struct bootflow *bflow)
 {
 	struct blk_desc *desc = NULL;
 	const char *const *prefixes;
-	struct udevice *bootstd;
 	const char *prefix;
 	int ret, i;
 
@@ -77,12 +73,12 @@ static int script_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	if (ret)
 		return log_msg_ret("std", ret);
 
-	/* We require a partition table */
-	if (!bflow->part)
-		return -ENOENT;
-
-	if (bflow->blk)
+	if (bflow->blk) {
+		/* We require a partition table */
+		if (!bflow->part)
+			return -ENOENT;
 		 desc = dev_get_uclass_plat(bflow->blk);
+	}
 
 	prefixes = bootstd_get_prefixes(bootstd);
 	i = 0;
@@ -112,6 +108,76 @@ static int script_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	ret = bootmeth_alloc_other(bflow, "boot.bmp", &bflow->logo,
 				   &bflow->logo_size);
 	/* ignore error */
+
+	return 0;
+}
+
+static int script_read_bootflow_net(struct bootflow *bflow)
+{
+	const char *addr_str;
+	int size, ret;
+	char *fname;
+	ulong addr;
+
+	/* figure out the load address */
+	addr_str = env_get("scriptaddr");
+	addr = addr_str ? hextoul(addr_str, NULL) : image_load_addr;
+
+	fname = env_get("boot_script_dhcp");
+	if (!fname)
+		return log_msg_ret("dhc", -EINVAL);
+
+	ret = dhcp_run(addr, fname, true);
+	if (ret)
+		return log_msg_ret("dhc", ret);
+
+	size = env_get_hex("filesize", 0);
+	if (!size)
+		return log_msg_ret("sz", -EINVAL);
+
+	bflow->buf = malloc(size + 1);
+	if (!bflow->buf)
+		return log_msg_ret("buf", -ENOMEM);
+	memcpy(bflow->buf, map_sysmem(addr, size), size);
+	bflow->buf[size] = '\0';
+	bflow->size = size;
+	bflow->state = BOOTFLOWST_READY;
+
+	return 0;
+}
+
+static int script_read_bootflow(struct udevice *dev, struct bootflow *bflow)
+{
+	const struct udevice *media = dev_get_parent(bflow->dev);
+	struct udevice *bootstd;
+	int ret;
+
+	ret = uclass_first_device_err(UCLASS_BOOTSTD, &bootstd);
+	if (ret)
+		return log_msg_ret("std", ret);
+
+	if (IS_ENABLED(CONFIG_CMD_DHCP) &&
+	    device_get_uclass_id(media) == UCLASS_ETH) {
+		/* we only support reading from one device, so ignore 'dev' */
+		ret = script_read_bootflow_net(bflow);
+		if (ret)
+			return log_msg_ret("net", ret);
+	} else {
+		ret = script_read_bootflow_file(bootstd, bflow);
+		if (ret)
+			return log_msg_ret("blk", ret);
+	}
+
+	return 0;
+}
+
+static int script_set_bootflow(struct udevice *dev, struct bootflow *bflow,
+			       char *buf, int size)
+{
+	buf[size] = '\0';
+	bflow->buf = buf;
+	bflow->size = size;
+	bflow->state = BOOTFLOWST_READY;
 
 	return 0;
 }
@@ -162,6 +228,7 @@ static int script_bootmeth_bind(struct udevice *dev)
 static struct bootmeth_ops script_bootmeth_ops = {
 	.check		= script_check,
 	.read_bootflow	= script_read_bootflow,
+	.set_bootflow	= script_set_bootflow,
 	.read_file	= bootmeth_common_read_file,
 	.boot		= script_boot,
 };
