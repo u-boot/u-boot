@@ -88,6 +88,9 @@ void bootflow_iter_init(struct bootflow_iter *iter, int flags)
 	memset(iter, '\0', sizeof(*iter));
 	iter->first_glob_method = -1;
 	iter->flags = flags;
+
+	/* remember the first bootdevs we see */
+	iter->max_devs = BOOTFLOW_MAX_USED_DEVS;
 }
 
 void bootflow_iter_uninit(struct bootflow_iter *iter)
@@ -131,16 +134,22 @@ static void bootflow_iter_set_dev(struct bootflow_iter *iter,
 	iter->dev = dev;
 	iter->method_flags = method_flags;
 
-	if ((iter->flags & (BOOTFLOWF_SHOW | BOOTFLOWF_SINGLE_DEV)) ==
-	    BOOTFLOWF_SHOW) {
-		if (dev)
-			printf("Scanning bootdev '%s':\n", dev->name);
-		else if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) &&
-			 ucp->flags & BOOTMETHF_GLOBAL)
-			printf("Scanning global bootmeth '%s':\n",
-			       iter->method->name);
-		else
-			printf("No more bootdevs\n");
+	if (IS_ENABLED(CONFIG_BOOTSTD_FULL)) {
+		/* record the device for later */
+		if (dev && iter->num_devs < iter->max_devs)
+			iter->dev_used[iter->num_devs++] = dev;
+
+		if ((iter->flags & (BOOTFLOWF_SHOW | BOOTFLOWF_SINGLE_DEV)) ==
+		    BOOTFLOWF_SHOW) {
+			if (dev)
+				printf("Scanning bootdev '%s':\n", dev->name);
+			else if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) &&
+				ucp->flags & BOOTMETHF_GLOBAL)
+				printf("Scanning global bootmeth '%s':\n",
+				iter->method->name);
+			else
+				printf("No more bootdevs\n");
+		}
 	}
 }
 

@@ -14,6 +14,10 @@
 struct bootstd_priv;
 struct expo;
 
+enum {
+	BOOTFLOW_MAX_USED_DEVS	= 16,
+};
+
 /**
  * enum bootflow_state_t - states that a particular bootflow can be in
  *
@@ -173,7 +177,9 @@ enum bootflow_meth_flags_t {
  * @err: Error obtained from checking the last iteration. This is used to skip
  *	forward (e.g. to skip the current partition because it is not valid)
  *	-ESHUTDOWN: try next bootdev
- * @num_devs: Number of bootdevs in @dev_order
+ * @num_devs: Number of bootdevs in @dev_used
+ * @max_devs: Maximum number of entries in @dev_used
+ * @dev_used: List of bootdevs used during iteration
  * @labels: List of labels to scan for bootdevs
  * @cur_label: Current label being processed
  * @num_methods: Number of bootmeth devices in @method_order
@@ -196,6 +202,8 @@ struct bootflow_iter {
 	int first_bootable;
 	int err;
 	int num_devs;
+	int max_devs;
+	struct udevice *dev_used[BOOTFLOW_MAX_USED_DEVS];
 	const char *const *labels;
 	int cur_label;
 	int num_methods;
