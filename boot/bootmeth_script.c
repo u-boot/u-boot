@@ -126,6 +126,8 @@ static int script_boot(struct udevice *dev, struct bootflow *bflow)
 	if (!ret)
 		ret = env_set_hex("devnum", desc->devnum);
 	if (!ret)
+		ret = env_set_hex("distro_bootpart", bflow->part);
+	if (!ret)
 		ret = env_set("prefix", bflow->subdir);
 	if (!ret && IS_ENABLED(CONFIG_ARCH_SUNXI) &&
 	    !strcmp("mmc", blk_get_devtype(bflow->blk)))
@@ -135,6 +137,7 @@ static int script_boot(struct udevice *dev, struct bootflow *bflow)
 
 	log_debug("devtype: %s\n", env_get("devtype"));
 	log_debug("devnum: %s\n", env_get("devnum"));
+	log_debug("distro_bootpart: %s\n", env_get("distro_bootpart"));
 	log_debug("prefix: %s\n", env_get("prefix"));
 	log_debug("mmc_bootdev: %s\n", env_get("mmc_bootdev"));
 

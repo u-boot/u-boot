@@ -144,6 +144,8 @@ enum bootflow_flags_t {
  *	appear first, then the global ones, if any
  * @doing_global: true if we are iterating through the global bootmeths (which
  *	happens before the normal ones)
+ * @method_flags: flags controlling which methods should be used for this @dev
+ * (enum bootflow_meth_flags_t)
  */
 struct bootflow_iter {
 	int flags;
@@ -161,6 +163,7 @@ struct bootflow_iter {
 	int first_glob_method;
 	struct udevice **method_order;
 	bool doing_global;
+	int method_flags;
 };
 
 /**
