@@ -65,12 +65,14 @@
 	BOOT_TARGET_PXE(func) \
 	BOOT_TARGET_DHCP(func) \
 	BOOT_TARGET_SF(func)
+#define BOOT_TARGETS	"mmc1 mmc0 nvme scsi usb pxe dhcp spi"
 #else
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_MMC(func) \
 	BOOT_TARGET_USB(func) \
 	BOOT_TARGET_PXE(func) \
 	BOOT_TARGET_DHCP(func)
+#define BOOT_TARGETS	"mmc1 mmc0 usb pxe dhcp"
 #endif
 
 #ifdef CONFIG_ARM64
