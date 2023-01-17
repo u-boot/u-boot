@@ -63,6 +63,15 @@ struct vidconsole_priv {
 };
 
 /**
+ * struct vidfont_info - information about a font
+ *
+ * @name: Font name, e.g. nimbus_sans_l_regular
+ */
+struct vidfont_info {
+	const char *name;
+};
+
+/**
  * struct vidconsole_ops - Video console operations
  *
  * These operations work on either an absolute console position (measured
@@ -111,6 +120,9 @@ struct vidconsole_ops {
 	/**
 	 * entry_start() - Indicate that text entry is starting afresh
 	 *
+	 * @dev:	Device to adjust
+	 * Returns: 0 on success, -ve on error
+	 *
 	 * Consoles which use proportional fonts need to track the position of
 	 * each character output so that backspace will return to the correct
 	 * place. This method signals to the console driver that a new entry
@@ -123,6 +135,9 @@ struct vidconsole_ops {
 	/**
 	 * backspace() - Handle erasing the last character
 	 *
+	 * @dev:	Device to adjust
+	 * Returns: 0 on success, -ve on error
+	 *
 	 * With proportional fonts the vidconsole uclass cannot itself erase
 	 * the previous character. This optional method will be called when
 	 * a backspace is needed. The driver should erase the previous
@@ -133,10 +148,52 @@ struct vidconsole_ops {
 	 * characters.
 	 */
 	int (*backspace)(struct udevice *dev);
+
+	/**
+	 * get_font() - Obtain information about a font (optional)
+	 *
+	 * @dev:	Device to check
+	 * @seq:	Font number to query (0=first, 1=second, etc.)
+	 * @info:	Returns font information on success
+	 * Returns: 0 on success, -ENOENT if no such font
+	 */
+	int (*get_font)(struct udevice *dev, int seq,
+			struct vidfont_info *info);
+
+	/**
+	 * select_font() - Select a particular font by name / size
+	 *
+	 * @dev:	Device to adjust
+	 * @name:	Font name to use (NULL to use default)
+	 * @size:	Font size to use (0 to use default)
+	 * Returns: 0 on success, -ENOENT if no such font
+	 */
+	int (*select_font)(struct udevice *dev, const char *name, uint size);
 };
 
 /* Get a pointer to the driver operations for a video console device */
 #define vidconsole_get_ops(dev)  ((struct vidconsole_ops *)(dev)->driver->ops)
+
+/**
+ * vidconsole_get_font() - Obtain information about a font
+ *
+ * @dev:	Device to check
+ * @seq:	Font number to query (0=first, 1=second, etc.)
+ * @info:	Returns font information on success
+ * Returns: 0 on success, -ENOENT if no such font, -ENOSYS if there is no such
+ * method
+ */
+int vidconsole_get_font(struct udevice *dev, int seq,
+			struct vidfont_info *info);
+
+/**
+ * vidconsole_select_font() - Select a particular font by name / size
+ *
+ * @dev:	Device to adjust
+ * @name:	Font name to use (NULL to use default)
+ * @size:	Font size to use (0 to use default)
+ */
+int vidconsole_select_font(struct udevice *dev, const char *name, uint size);
 
 /**
  * vidconsole_putc_xy() - write a single character to a position
@@ -234,27 +291,21 @@ void vidconsole_set_cursor_pos(struct udevice *dev, int x, int y);
 /**
  * vidconsole_list_fonts() - List the available fonts
  *
- * This shows a list on the console
- */
-void vidconsole_list_fonts(void);
-
-/**
- * vidconsole_select_font() - Select a font to use
+ * @dev: vidconsole device to check
  *
- * @dev: vidconsole device
- * @name: Font name
- * @size: Size of the font (norminal pixel height) or 0 for default
+ * This shows a list of fonts known by this vidconsole. The list is displayed on
+ * the console (not necessarily @dev but probably)
  */
-int vidconsole_select_font(struct udevice *dev, const char *name, uint size);
+void vidconsole_list_fonts(struct udevice *dev);
 
 /**
- * vidconsole_get_font() - get the current font name and size
+ * vidconsole_get_font_size() - get the current font name and size
  *
  * @dev: vidconsole device
  * @sizep: Place to put the font size (nominal height in pixels)
  * Returns: Current font name
  */
-const char *vidconsole_get_font(struct udevice *dev, uint *sizep);
+const char *vidconsole_get_font_size(struct udevice *dev, uint *sizep);
 
 #ifdef CONFIG_VIDEO_COPY
 /**

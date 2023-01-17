@@ -94,6 +94,10 @@
 			compatible = "u-boot,distro-efi";
 		};
 
+		theme {
+			font-size = <30>;
+		};
+
 		/*
 		 * This is used for the VBE OS-request tests. A FAT filesystem
 		 * created in a partition with the VBE information appearing
@@ -1011,6 +1015,13 @@
 		compatible = "sandbox,mmc";
 		filename = "image.bin";
 		non-removable;
+	};
+
+	/* This is used for bootstd bootmenu tests */
+	mmc4 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "mmc4.img";
 	};
 
 	pch {

@@ -6,6 +6,7 @@
 #ifndef __MENU_H__
 #define __MENU_H__
 
+struct cli_ch_state;
 struct menu;
 
 struct menu *menu_create(char *title, int timeout, int prompt,
@@ -42,20 +43,72 @@ struct bootmenu_data {
 	struct bootmenu_entry *first;	/* first menu entry */
 };
 
+/** enum bootmenu_key - keys that can be returned by the bootmenu */
 enum bootmenu_key {
-	KEY_NONE = 0,
-	KEY_UP,
-	KEY_DOWN,
-	KEY_SELECT,
-	KEY_QUIT,
-	KEY_PLUS,
-	KEY_MINUS,
-	KEY_SPACE,
+	BKEY_NONE = 0,
+	BKEY_UP,
+	BKEY_DOWN,
+	BKEY_SELECT,
+	BKEY_QUIT,
+	BKEY_PLUS,
+	BKEY_MINUS,
+	BKEY_SPACE,
+
+	BKEY_COUNT,
 };
 
-void bootmenu_autoboot_loop(struct bootmenu_data *menu,
-			    enum bootmenu_key *key, int *esc);
-void bootmenu_loop(struct bootmenu_data *menu,
-		   enum bootmenu_key *key, int *esc);
+/**
+ * bootmenu_autoboot_loop() - handle autobooting if no key is pressed
+ *
+ * This shows a prompt to allow the user to press a key to interrupt auto boot
+ * of the first menu option.
+ *
+ * It then waits for the required time (menu->delay in seconds) for a key to be
+ * pressed. If nothing is pressed in that time, @key returns KEY_SELECT
+ * indicating that the current option should be chosen.
+ *
+ * @menu: Menu being processed
+ * @esc: Set to 1 if the escape key is pressed, otherwise not updated
+ * Returns: code for the key the user pressed:
+ *	enter: KEY_SELECT
+ *	Ctrl-C: KEY_QUIT
+ *	anything else: KEY_NONE
+ */
+enum bootmenu_key bootmenu_autoboot_loop(struct bootmenu_data *menu,
+					 struct cli_ch_state *cch);
+
+/**
+ * bootmenu_loop() - handle waiting for a keypress when autoboot is disabled
+ *
+ * This is used when the menu delay is negative, indicating that the delay has
+ * elapsed, or there was no delay to begin with.
+ *
+ * It reads a character and processes it, returning a menu-key code if a
+ * character is recognised
+ *
+ * @menu: Menu being processed
+ * @esc: On input, a non-zero value indicates that an escape sequence has
+ *	resulted in that many characters so far. On exit this is updated to the
+ *	new number of characters
+ * Returns: code for the key the user pressed:
+ *	enter: BKEY_SELECT
+ *	Ctrl-C: BKEY_QUIT
+ *	Up arrow: BKEY_UP
+ *	Down arrow: BKEY_DOWN
+ *	Escape (by itself): BKEY_QUIT
+ *	Plus: BKEY_PLUS
+ *	Minus: BKEY_MINUS
+ *	Space: BKEY_SPACE
+ */
+enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu,
+				struct cli_ch_state *cch);
+
+/**
+ * bootmenu_conv_key() - Convert a U-Boot keypress into a menu key
+ *
+ * @ichar: Keypress to convert (ASCII, including control characters)
+ * Returns: Menu key that corresponds to @ichar, or BKEY_NONE if none
+ */
+enum bootmenu_key bootmenu_conv_key(int ichar);
 
 #endif /* __MENU_H__ */

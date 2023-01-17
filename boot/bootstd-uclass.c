@@ -33,6 +33,8 @@ static int bootstd_of_to_plat(struct udevice *dev)
 					   &priv->prefixes);
 		dev_read_string_list(dev, "bootdev-order",
 				     &priv->bootdev_order);
+
+		priv->theme = ofnode_find_subnode(dev_ofnode(dev), "theme");
 	}
 
 	return 0;

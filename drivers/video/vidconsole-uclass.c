@@ -557,6 +557,39 @@ static void vidconsole_puts(struct stdio_dev *sdev, const char *s)
 	}
 }
 
+void vidconsole_list_fonts(struct udevice *dev)
+{
+	struct vidfont_info info;
+	int ret, i;
+
+	for (i = 0, ret = 0; !ret; i++) {
+		ret = vidconsole_get_font(dev, i, &info);
+		if (!ret)
+			printf("%s\n", info.name);
+	}
+}
+
+int vidconsole_get_font(struct udevice *dev, int seq,
+			struct vidfont_info *info)
+{
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+
+	if (!ops->get_font)
+		return -ENOSYS;
+
+	return ops->get_font(dev, seq, info);
+}
+
+int vidconsole_select_font(struct udevice *dev, const char *name, uint size)
+{
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+
+	if (!ops->select_font)
+		return -ENOSYS;
+
+	return ops->select_font(dev, name, size);
+}
+
 /* Set up the number of rows and colours (rotated drivers override this) */
 static int vidconsole_pre_probe(struct udevice *dev)
 {

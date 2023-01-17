@@ -35,6 +35,36 @@ static int script_check(struct udevice *dev, struct bootflow_iter *iter)
 	return 0;
 }
 
+/**
+ * script_fill_info() - Decode the U-Boot script to find out distro info
+ *
+ * @bflow: Bootflow to process
+ * @return 0 if OK, -ve on error
+ */
+static int script_fill_info(struct bootflow *bflow)
+{
+	char *name = NULL;
+	char *data;
+	uint len;
+	int ret;
+
+	log_debug("parsing bflow file size %x\n", bflow->size);
+
+	ret = image_locate_script(bflow->buf, bflow->size, NULL, NULL, &data, &len);
+	if (!ret) {
+		if (strstr(data, "armbianEnv"))
+			name = "Armbian";
+	}
+
+	if (name) {
+		bflow->os_name = strdup(name);
+		if (!bflow->os_name)
+			return log_msg_ret("os", -ENOMEM);
+	}
+
+	return 0;
+}
+
 static int script_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
 	struct blk_desc *desc = NULL;
@@ -75,6 +105,14 @@ static int script_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	if (ret)
 		return log_msg_ret("read", ret);
 
+	ret = script_fill_info(bflow);
+	if (ret)
+		return log_msg_ret("inf", ret);
+
+	ret = bootmeth_alloc_other(bflow, "boot.bmp", &bflow->logo,
+				   &bflow->logo_size);
+	/* ignore error */
+
 	return 0;
 }
 
@@ -101,7 +139,7 @@ static int script_boot(struct udevice *dev, struct bootflow *bflow)
 	log_debug("mmc_bootdev: %s\n", env_get("mmc_bootdev"));
 
 	addr = map_to_sysmem(bflow->buf);
-	ret = image_source_script(addr, NULL, NULL);
+	ret = cmd_source_script(addr, NULL, NULL);
 	if (ret)
 		return log_msg_ret("boot", ret);
 

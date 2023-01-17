@@ -11,14 +11,23 @@
 #include <bootflow.h>
 #include <bootmeth.h>
 #include <bootstd.h>
+#include <cli.h>
 #include <dm.h>
+#include <expo.h>
 #ifdef CONFIG_SANDBOX
 #include <asm/test.h>
 #endif
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <test/suites.h>
 #include <test/ut.h>
 #include "bootstd_common.h"
+#include "../../boot/bootflow_internal.h"
+#include "../../boot/scene_internal.h"
+
+DECLARE_GLOBAL_DATA_PTR;
+
+extern U_BOOT_DRIVER(bootmeth_script);
 
 static int inject_response(struct unit_test_state *uts)
 {
@@ -188,6 +197,8 @@ static int bootflow_cmd_info(struct unit_test_state *uts)
 	ut_assert_nextline("Filename:  /extlinux/extlinux.conf");
 	ut_assert_nextlinen("Buffer:    ");
 	ut_assert_nextline("Size:      253 (595 bytes)");
+	ut_assert_nextline("OS:        Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)");
+	ut_assert_nextline("Logo:      (none)");
 	ut_assert_nextline("Error:     0");
 	ut_assert_console_end();
 
@@ -460,3 +471,122 @@ static int bootflow_cmd_boot(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootflow_cmd_boot, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/**
+ * prep_mmc4_bootdev() - Set up the mmc4 bootdev so we can access a fake Armbian
+ *
+ * @uts: Unit test state
+ * Returns 0 on success, -ve on failure
+ */
+static int prep_mmc4_bootdev(struct unit_test_state *uts)
+{
+	static const char *order[] = {"mmc2", "mmc1", "mmc4", NULL};
+	struct udevice *dev, *bootstd;
+	struct bootstd_priv *std;
+	const char **old_order;
+	ofnode node;
+
+	/* Enable the mmc4 node since we need a second bootflow */
+	node = ofnode_path("/mmc4");
+	ut_assertok(lists_bind_fdt(gd->dm_root, node, &dev, NULL, false));
+
+	/* Enable the script bootmeth too */
+	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
+	ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_script),
+				"bootmeth_script", 0, ofnode_null(), &dev));
+
+	/* Change the order to include mmc4 */
+	std = dev_get_priv(bootstd);
+	old_order = std->bootdev_order;
+	std->bootdev_order = order;
+
+	console_record_reset_enable();
+	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_console_end();
+
+	/* Restore the order used by the device tree */
+	std->bootdev_order = old_order;
+
+	return 0;
+}
+
+/* Check 'bootflow menu' to select a bootflow */
+static int bootflow_cmd_menu(struct unit_test_state *uts)
+{
+	char prev[3];
+
+	ut_assertok(prep_mmc4_bootdev(uts));
+
+	/* Add keypresses to move to and select the second one in the list */
+	prev[0] = CTL_CH('n');
+	prev[1] = '\r';
+	prev[2] = '\0';
+	ut_asserteq(2, console_in_puts(prev));
+
+	ut_assertok(run_command("bootflow menu", 0));
+	ut_assert_nextline("Selected: Armbian");
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_cmd_menu, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/**
+ * check_font() - Check that the font size for an item matches expectations
+ *
+ * @uts: Unit test state
+ * @scn: Scene containing the text object
+ * @id: ID of the text object
+ * Returns 0 on success, -ve on failure
+ */
+static int check_font(struct unit_test_state *uts, struct scene *scn, uint id,
+		      int font_size)
+{
+	struct scene_obj_txt *txt;
+
+	txt = scene_obj_find(scn, id, SCENEOBJT_TEXT);
+	ut_assertnonnull(txt);
+
+	ut_asserteq(font_size, txt->font_size);
+
+	return 0;
+}
+
+/* Check themes work with a bootflow menu */
+static int bootflow_menu_theme(struct unit_test_state *uts)
+{
+	const int font_size = 30;
+	struct scene *scn;
+	struct expo *exp;
+	ofnode node;
+	int i;
+
+	ut_assertok(prep_mmc4_bootdev(uts));
+
+	ut_assertok(bootflow_menu_new(&exp));
+	node = ofnode_path("/bootstd/theme");
+	ut_assert(ofnode_valid(node));
+	ut_assertok(bootflow_menu_apply_theme(exp, node));
+
+	scn = expo_lookup_scene_id(exp, MAIN);
+	ut_assertnonnull(scn);
+
+	/*
+	 * Check that the txt objects have the correct font size from the
+	 * device tree node: bootstd/theme
+	 *
+	 * Check both menu items, since there are two bootflows
+	 */
+	ut_assertok(check_font(uts, scn, OBJ_PROMPT, font_size));
+	ut_assertok(check_font(uts, scn, OBJ_POINTER, font_size));
+	for (i = 0; i < 2; i++) {
+		ut_assertok(check_font(uts, scn, ITEM_DESC + i, font_size));
+		ut_assertok(check_font(uts, scn, ITEM_KEY + i, font_size));
+		ut_assertok(check_font(uts, scn, ITEM_LABEL + i, font_size));
+	}
+
+	expo_destroy(exp);
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_menu_theme, UT_TESTF_DM | UT_TESTF_SCAN_FDT);

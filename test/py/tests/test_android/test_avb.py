@@ -39,6 +39,7 @@ def test_avb_verify(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_avb')
 @pytest.mark.buildconfigspec('cmd_mmc')
+@pytest.mark.notbuildconfigspec('sandbox')
 def test_avb_mmc_uuid(u_boot_console):
     """Check if 'avb get_uuid' works, compare results with
     'part list mmc 1' output
@@ -97,6 +98,7 @@ def test_avb_is_unlocked(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_avb')
 @pytest.mark.buildconfigspec('cmd_mmc')
+@pytest.mark.notbuildconfigspec('sandbox')
 def test_avb_mmc_read(u_boot_console):
     """Test mmc read operation
     """

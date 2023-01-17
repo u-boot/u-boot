@@ -584,18 +584,24 @@ static struct font_info *console_truetype_find_font(void)
 	return NULL;
 }
 
-void vidconsole_list_fonts(void)
+int console_truetype_get_font(struct udevice *dev, int seq,
+			      struct vidfont_info *info)
 {
 	struct font_info *tab;
+	int i;
 
-	for (tab = font_table; tab->begin; tab++) {
-		if (abs(tab->begin - tab->end) > 4)
-			printf("%s\n", tab->name);
+	for (i = 0, tab = font_table; tab->begin; tab++, i++) {
+		if (i == seq && font_valid(tab)) {
+			info->name = tab->name;
+			return 0;
+		}
 	}
+
+	return -ENOENT;
 }
 
 /**
- * vidconsole_add_metrics() - Add a new font/size combination
+ * truetype_add_metrics() - Add a new font/size combination
  *
  * @dev:	Video console device to update
  * @font_name:	Name of font
@@ -604,8 +610,8 @@ void vidconsole_list_fonts(void)
  * @return 0 if OK, -EPERM if stbtt failed, -E2BIG if the the metrics table is
  *	full
  */
-static int vidconsole_add_metrics(struct udevice *dev, const char *font_name,
-				  uint font_size, const void *font_data)
+static int truetype_add_metrics(struct udevice *dev, const char *font_name,
+				uint font_size, const void *font_data)
 {
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_metrics *met;
@@ -674,7 +680,8 @@ static void select_metrics(struct udevice *dev, struct console_tt_metrics *met)
 	vc_priv->tab_width_frac = VID_TO_POS(met->font_size) * 8 / 2;
 }
 
-int vidconsole_select_font(struct udevice *dev, const char *name, uint size)
+static int truetype_select_font(struct udevice *dev, const char *name,
+				uint size)
 {
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_metrics *met;
@@ -684,7 +691,7 @@ int vidconsole_select_font(struct udevice *dev, const char *name, uint size)
 		if (!size)
 			size = CONFIG_CONSOLE_TRUETYPE_SIZE;
 		if (!name)
-			name = priv->cur_met->font_name;
+			name = font_table->name;
 
 		met = find_metrics(dev, name, size);
 		if (!met) {
@@ -693,8 +700,10 @@ int vidconsole_select_font(struct udevice *dev, const char *name, uint size)
 				    !strcmp(name, tab->name)) {
 					int ret;
 
-					ret = vidconsole_add_metrics(dev,
-						tab->name, size, tab->begin);
+					ret = truetype_add_metrics(dev,
+								   tab->name,
+								   size,
+								   tab->begin);
 					if (ret < 0)
 						return log_msg_ret("add", ret);
 
@@ -715,7 +724,7 @@ int vidconsole_select_font(struct udevice *dev, const char *name, uint size)
 	return 0;
 }
 
-const char *vidconsole_get_font(struct udevice *dev, uint *sizep)
+const char *vidconsole_get_font_size(struct udevice *dev, uint *sizep)
 {
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_metrics *met = priv->cur_met;
@@ -745,7 +754,7 @@ static int console_truetype_probe(struct udevice *dev)
 		return -EBFONT;
 	}
 
-	ret = vidconsole_add_metrics(dev, tab->name, font_size, tab->begin);
+	ret = truetype_add_metrics(dev, tab->name, font_size, tab->begin);
 	if (ret < 0)
 		return log_msg_ret("add", ret);
 	priv->cur_met = &priv->metrics[ret];
@@ -763,6 +772,8 @@ struct vidconsole_ops console_truetype_ops = {
 	.set_row	= console_truetype_set_row,
 	.backspace	= console_truetype_backspace,
 	.entry_start	= console_truetype_entry_start,
+	.get_font	= console_truetype_get_font,
+	.select_font	= truetype_select_font,
 };
 
 U_BOOT_DRIVER(vidconsole_truetype) = {

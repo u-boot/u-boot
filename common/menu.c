@@ -15,6 +15,8 @@
 
 #include "menu.h"
 
+#define ansi 0
+
 /*
  * Internally, each item in a menu is represented by a struct menu_item.
  *
@@ -425,15 +427,19 @@ int menu_destroy(struct menu *m)
 	return 1;
 }
 
-void bootmenu_autoboot_loop(struct bootmenu_data *menu,
-			    enum bootmenu_key *key, int *esc)
+enum bootmenu_key bootmenu_autoboot_loop(struct bootmenu_data *menu,
+					 struct cli_ch_state *cch)
 {
+	enum bootmenu_key key = BKEY_NONE;
 	int i, c;
 
 	while (menu->delay > 0) {
-		printf(ANSI_CURSOR_POSITION, menu->count + 5, 3);
+		if (ansi)
+			printf(ANSI_CURSOR_POSITION, menu->count + 5, 3);
 		printf("Hit any key to stop autoboot: %d ", menu->delay);
 		for (i = 0; i < 100; ++i) {
+			int ichar;
+
 			if (!tstc()) {
 				schedule();
 				mdelay(10);
@@ -443,22 +449,22 @@ void bootmenu_autoboot_loop(struct bootmenu_data *menu,
 			menu->delay = -1;
 			c = getchar();
 
-			switch (c) {
-			case '\e':
-				*esc = 1;
-				*key = KEY_NONE;
+			ichar = cli_ch_process(cch, c);
+
+			switch (ichar) {
+			case '\0':
+				key = BKEY_NONE;
 				break;
-			case '\r':
-				*key = KEY_SELECT;
+			case '\n':
+				key = BKEY_SELECT;
 				break;
 			case 0x3: /* ^C */
-				*key = KEY_QUIT;
+				key = BKEY_QUIT;
 				break;
 			default:
-				*key = KEY_NONE;
+				key = BKEY_NONE;
 				break;
 			}
-
 			break;
 		}
 
@@ -468,93 +474,72 @@ void bootmenu_autoboot_loop(struct bootmenu_data *menu,
 		--menu->delay;
 	}
 
-	printf(ANSI_CURSOR_POSITION ANSI_CLEAR_LINE, menu->count + 5, 1);
+	if (ansi)
+		printf(ANSI_CURSOR_POSITION ANSI_CLEAR_LINE, menu->count + 5, 1);
 
 	if (menu->delay == 0)
-		*key = KEY_SELECT;
+		key = BKEY_SELECT;
+
+	return key;
 }
 
-void bootmenu_loop(struct bootmenu_data *menu,
-		   enum bootmenu_key *key, int *esc)
+enum bootmenu_key bootmenu_conv_key(int ichar)
 {
+	enum bootmenu_key key;
+
+	switch (ichar) {
+	case '\n':
+		/* enter key was pressed */
+		key = BKEY_SELECT;
+		break;
+	case CTL_CH('c'):
+	case '\e':
+		/* ^C was pressed */
+		key = BKEY_QUIT;
+		break;
+	case CTL_CH('p'):
+		key = BKEY_UP;
+		break;
+	case CTL_CH('n'):
+		key = BKEY_DOWN;
+		break;
+	case '+':
+		key = BKEY_PLUS;
+		break;
+	case '-':
+		key = BKEY_MINUS;
+		break;
+	case ' ':
+		key = BKEY_SPACE;
+		break;
+	default:
+		key = BKEY_NONE;
+		break;
+	}
+
+	return key;
+}
+
+enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu,
+				struct cli_ch_state *cch)
+{
+	enum bootmenu_key key;
 	int c;
 
-	if (*esc == 1) {
-		if (tstc()) {
+	c = cli_ch_process(cch, 0);
+	if (!c) {
+		while (!c && !tstc()) {
+			schedule();
+			mdelay(10);
+			c = cli_ch_process(cch, -ETIMEDOUT);
+		}
+		if (!c) {
 			c = getchar();
-		} else {
-			schedule();
-			mdelay(10);
-			if (tstc())
-				c = getchar();
-			else
-				c = '\e';
+			c = cli_ch_process(cch, c);
 		}
-	} else {
-		while (!tstc()) {
-			schedule();
-			mdelay(10);
-		}
-		c = getchar();
 	}
 
-	switch (*esc) {
-	case 0:
-		/* First char of ANSI escape sequence '\e' */
-		if (c == '\e') {
-			*esc = 1;
-			*key = KEY_NONE;
-		}
-		break;
-	case 1:
-		/* Second char of ANSI '[' */
-		if (c == '[') {
-			*esc = 2;
-			*key = KEY_NONE;
-		} else {
-		/* Alone ESC key was pressed */
-			*key = KEY_QUIT;
-			*esc = (c == '\e') ? 1 : 0;
-		}
-		break;
-	case 2:
-	case 3:
-		/* Third char of ANSI (number '1') - optional */
-		if (*esc == 2 && c == '1') {
-			*esc = 3;
-			*key = KEY_NONE;
-			break;
-		}
+	key = bootmenu_conv_key(c);
 
-		*esc = 0;
-
-		/* ANSI 'A' - key up was pressed */
-		if (c == 'A')
-			*key = KEY_UP;
-		/* ANSI 'B' - key down was pressed */
-		else if (c == 'B')
-			*key = KEY_DOWN;
-		/* other key was pressed */
-		else
-			*key = KEY_NONE;
-
-		break;
-	}
-
-	/* enter key was pressed */
-	if (c == '\r')
-		*key = KEY_SELECT;
-
-	/* ^C was pressed */
-	if (c == 0x3)
-		*key = KEY_QUIT;
-
-	if (c == '+')
-		*key = KEY_PLUS;
-
-	if (c == '-')
-		*key = KEY_MINUS;
-
-	if (c == ' ')
-		*key = KEY_SPACE;
+	return key;
 }

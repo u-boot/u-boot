@@ -112,10 +112,13 @@ config VIDEO_BPP32
 
 config VIDEO_ANSI
 	bool "Support ANSI escape sequences in video console"
-	default y
+	default y if EFI_LOADER
 	help
 	  Enable ANSI escape sequence decoding for a more fully functional
-	  console.
+	  console. Functionality includes changing the text colour and moving
+	  the cursor. These date from the 1970s and are still widely used today
+	  to control a text terminal. U-Boot implements these by decoding the
+	  sequences and performing the appropriate operation.
 
 config VIDEO_MIPI_DSI
 	bool "Support MIPI DSI interface"
