@@ -585,6 +585,70 @@ int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
 	return 0;
 }
 
+int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp)
+{
+	struct udevice *dev = *devp;
+	bool found;
+	int ret;
+
+	/* find the next device with this priority */
+	*devp = NULL;
+	log_debug("next prio %d: dev=%p/%s\n", iter->cur_prio, dev,
+		  dev ? dev->name : "none");
+	do {
+		/*
+		 * Don't probe devices here since they may not be of the
+		 * required priority
+		 */
+		if (!dev)
+			uclass_find_first_device(UCLASS_BOOTDEV, &dev);
+		else
+			uclass_find_next_device(&dev);
+		found = false;
+
+		/* scan for the next device with the correct priority */
+		while (dev) {
+			struct bootdev_uc_plat *plat;
+
+			plat = dev_get_uclass_plat(dev);
+			log_debug("- %s: %d, want %d\n", dev->name, plat->prio,
+				  iter->cur_prio);
+			if (plat->prio == iter->cur_prio)
+				break;
+			uclass_find_next_device(&dev);
+		}
+
+		/* none found for this priority, so move to the next */
+		if (!dev) {
+			log_debug("None found at prio %d, moving to %d\n",
+				  iter->cur_prio, iter->cur_prio + 1);
+			if (++iter->cur_prio == BOOTDEVP_COUNT)
+				return log_msg_ret("fin", -ENODEV);
+
+			if (iter->flags & BOOTFLOWF_HUNT) {
+				/* hunt to find new bootdevs */
+				ret = bootdev_hunt_prio(iter->cur_prio,
+							iter->flags &
+							BOOTFLOWF_SHOW);
+				log_debug("- hunt ret %d\n", ret);
+				if (ret)
+					return log_msg_ret("hun", ret);
+			}
+		} else {
+			ret = device_probe(dev);
+			if (ret) {
+				log_debug("Device '%s' failed to probe\n",
+					  dev->name);
+				dev = NULL;
+			}
+		}
+	} while (!dev);
+
+	*devp = dev;
+
+	return 0;
+}
+
 /**
  * h_cmp_bootdev() - Compare two bootdevs to find out which should go first
  *

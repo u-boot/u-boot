@@ -588,3 +588,87 @@ static int bootdev_test_next_label(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootdev_test_next_label, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
 	     UT_TESTF_ETH_BOOTDEV | UT_TESTF_SF_BOOTDEV);
+
+
+/* Check iterating to the next prioirty in a list */
+static int bootdev_test_next_prio(struct unit_test_state *uts)
+{
+	struct bootflow_iter iter;
+	struct bootstd_priv *std;
+	struct bootflow bflow;
+	struct udevice *dev;
+	int ret;
+
+	sandbox_set_eth_enable(false);
+	test_set_skip_delays(true);
+
+	/* get access to the used hunters */
+	ut_assertok(bootstd_get_priv(&std));
+
+	memset(&iter, '\0', sizeof(iter));
+	memset(&bflow, '\0', sizeof(bflow));
+	iter.part = 0;
+	uclass_first_device(UCLASS_BOOTMETH, &bflow.method);
+	iter.cur_prio = 0;
+	iter.flags = BOOTFLOWF_SHOW;
+
+	dev = NULL;
+	console_record_reset_enable();
+	ut_assertok(bootdev_next_prio(&iter, &dev));
+	ut_assertnonnull(dev);
+	ut_asserteq_str("mmc2.bootdev", dev->name);
+
+	/* hunt flag not set, so this should not use any hunters */
+	ut_asserteq(0, std->hunters_used);
+	ut_assert_console_end();
+
+	/* now try again with hunting enabled */
+	iter.flags = BOOTFLOWF_SHOW | BOOTFLOWF_HUNT;
+	iter.cur_prio = 0;
+	iter.part = 0;
+
+	ut_assertok(bootdev_next_prio(&iter, &dev));
+	ut_asserteq_str("mmc2.bootdev", dev->name);
+	ut_assert_nextline("Hunting with: mmc");
+	ut_assert_console_end();
+
+	ut_assertok(bootstd_test_check_mmc_hunter(uts));
+
+	ut_assertok(bootdev_next_prio(&iter, &dev));
+	ut_asserteq_str("mmc1.bootdev", dev->name);
+
+	ut_assertok(bootdev_next_prio(&iter, &dev));
+	ut_asserteq_str("mmc0.bootdev", dev->name);
+	ut_assert_console_end();
+
+	ut_assertok(bootdev_next_prio(&iter, &dev));
+	ut_asserteq_str("spi.bin@0.bootdev", dev->name);
+	ut_assert_skip_to_line("Hunting with: spi_flash");
+
+	/*
+	 * this scans all bootdevs of priority BOOTDEVP_4_SCAN_FAST before it
+	 * starts looking at the devices, so we se virtio as well
+	 */
+	ut_assert_nextline("Hunting with: virtio");
+	ut_assert_nextlinen("SF: Detected m25p16");
+
+	ut_assertok(bootdev_next_prio(&iter, &dev));
+	ut_asserteq_str("spi.bin@1.bootdev", dev->name);
+	ut_assert_nextlinen("SF: Detected m25p16");
+	ut_assert_console_end();
+
+	/* keep going until there are no more bootdevs */
+	do {
+		ret = bootdev_next_prio(&iter, &dev);
+	} while (!ret);
+	ut_asserteq(-ENODEV, ret);
+	ut_assertnull(dev);
+	ut_asserteq(GENMASK(7, 0), std->hunters_used);
+
+	ut_assert_skip_to_line("Hunting with: ethernet");
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootdev_test_next_prio, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
+	     UT_TESTF_SF_BOOTDEV);

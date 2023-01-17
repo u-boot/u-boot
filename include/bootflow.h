@@ -7,6 +7,7 @@
 #ifndef __bootflow_h
 #define __bootflow_h
 
+#include <bootdev.h>
 #include <dm/ofnode_decl.h>
 #include <linux/list.h>
 
@@ -180,6 +181,7 @@ enum bootflow_meth_flags_t {
  * @num_methods: Number of bootmeth devices in @method_order
  * @cur_method: Current method number, an index into @method_order
  * @first_glob_method: First global method, if any, else -1
+ * @cur_prio: Current priority being scanned
  * @method_order: List of bootmeth devices to use, in order. The normal methods
  *	appear first, then the global ones, if any
  * @doing_global: true if we are iterating through the global bootmeths (which
@@ -203,6 +205,7 @@ struct bootflow_iter {
 	int num_methods;
 	int cur_method;
 	int first_glob_method;
+	enum bootdev_prio_t cur_prio;
 	struct udevice **method_order;
 	bool doing_global;
 	int method_flags;

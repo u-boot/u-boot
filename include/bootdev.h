@@ -349,6 +349,20 @@ int bootdev_hunt_and_find_by_label(const char *label, struct udevice **devp,
 int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
 		       int *method_flagsp);
 
+/**
+ * bootdev_next_prio() - Find the next bootdev in priority order
+ *
+ * This moves @devp to the next bootdev with the current priority. If there is
+ * none, then it moves to the next priority and scans for new bootdevs there.
+ *
+ * @iter: Interation info, containing iter->cur_prio
+ * @devp: On entry this is the previous bootdev that was considered. On exit
+ *	this is the new bootdev, if any was found
+ * Returns 0 on success (*devp is updated), -ENODEV if there are no more
+ * bootdevs at any priority
+ */
+int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp);
+
 #if CONFIG_IS_ENABLED(BOOTSTD)
 /**
  * bootdev_setup_for_dev() - Bind a new bootdev device (deprecated)
