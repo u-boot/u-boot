@@ -644,11 +644,22 @@ int scsi_scan(bool verbose)
 	if (verbose)
 		printf("scanning bus for devices...\n");
 
-	blk_unbind_all(UCLASS_SCSI);
-
 	ret = uclass_get(UCLASS_SCSI, &uc);
 	if (ret)
 		return ret;
+
+	/* remove all children of the SCSI devices */
+	uclass_foreach_dev(dev, uc) {
+		log_debug("unbind %s\n", dev->name);
+		ret = device_chld_remove(dev, NULL, DM_REMOVE_NORMAL);
+		if (!ret)
+			ret = device_chld_unbind(dev, NULL);
+		if (ret) {
+			if (verbose)
+				printf("unable to unbind devices (%dE)\n", ret);
+			return log_msg_ret("unb", ret);
+		}
+	}
 
 	uclass_foreach_dev(dev, uc) {
 		ret = scsi_scan_dev(dev, verbose);
