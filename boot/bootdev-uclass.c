@@ -649,96 +649,12 @@ int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp)
 	return 0;
 }
 
-/**
- * h_cmp_bootdev() - Compare two bootdevs to find out which should go first
- *
- * @v1: struct udevice * of first bootdev device
- * @v2: struct udevice * of second bootdev device
- * Return: sort order (<0 if dev1 < dev2, ==0 if equal, >0 if dev1 > dev2)
- */
-static int h_cmp_bootdev(const void *v1, const void *v2)
+int bootdev_setup_iter(struct bootflow_iter *iter, struct udevice **devp,
+		       int *method_flagsp)
 {
-	const struct udevice *dev1 = *(struct udevice **)v1;
-	const struct udevice *dev2 = *(struct udevice **)v2;
-	const struct bootdev_uc_plat *ucp1 = dev_get_uclass_plat(dev1);
-	const struct bootdev_uc_plat *ucp2 = dev_get_uclass_plat(dev2);
-	int diff;
-
-	/* Use priority first */
-	diff = ucp1->prio - ucp2->prio;
-	if (diff)
-		return diff;
-
-	/* Fall back to seq for devices of the same priority */
-	diff = dev_seq(dev1) - dev_seq(dev2);
-
-	return diff;
-}
-
-/**
- * build_order() - Build the ordered list of bootdevs to use
- *
- * This builds an ordered list of devices by one of three methods:
- * - using the boot_targets environment variable, if non-empty
- * - using the bootdev-order devicetree property, if present
- * - sorted by priority and sequence number
- *
- * @bootstd: BOOTSTD device to use
- * @order: Bootdevs listed in default order
- * @max_count: Number of entries in @order
- * Return: number of bootdevs found in the ordering, or -E2BIG if the
- * boot_targets string is too long, or -EXDEV if the ordering produced 0 results
- */
-static int build_order(struct udevice *bootstd, struct udevice **order,
-		       int max_count)
-{
-	const char *overflow_target = NULL;
-	const char *const *labels;
-	struct udevice *dev;
-	int i, ret, count;
-	bool ok;
-
-	labels = bootstd_get_bootdev_order(bootstd, &ok);
-	if (!ok)
-		return log_msg_ret("ord", -ENOMEM);
-	if (labels) {
-		int upto;
-
-		upto = 0;
-		for (i = 0; labels[i]; i++) {
-			ret = bootdev_find_by_label(labels[i], &dev, NULL);
-			if (!ret) {
-				if (upto == max_count) {
-					overflow_target = labels[i];
-					break;
-				}
-				order[upto++] = dev;
-			}
-		}
-		count = upto;
-	} else {
-		/* sort them into priority order */
-		count = max_count;
-		qsort(order, count, sizeof(struct udevice *), h_cmp_bootdev);
-	}
-
-	if (overflow_target) {
-		log_warning("Expected at most %d bootdevs, but overflowed with boot_target '%s'\n",
-			    max_count, overflow_target);
-	}
-
-	if (!count)
-		return log_msg_ret("targ", -EXDEV);
-
-	return count;
-}
-
-int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp)
-{
-	struct udevice *bootstd, *dev = *devp, **order;
+	struct udevice *bootstd, *dev = *devp;
 	bool show = iter->flags & BOOTFLOWF_SHOW;
-	struct uclass *uc;
-	int count, upto;
+	int method_flags;
 	int ret;
 
 	ret = uclass_first_device_err(UCLASS_BOOTSTD, &bootstd);
@@ -757,39 +673,33 @@ int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp)
 	/* Handle scanning a single device */
 	if (dev) {
 		iter->flags |= BOOTFLOWF_SINGLE_DEV;
-		return 0;
+		log_debug("Selected boodev: %s\n", dev->name);
+		method_flags = 0;
+	} else {
+		bool ok;
+
+		/* This either returns a non-empty list or NULL */
+		iter->labels = bootstd_get_bootdev_order(bootstd, &ok);
+		if (!ok)
+			return log_msg_ret("ord", -ENOMEM);
+		log_debug("setup labels %p\n", iter->labels);
+		if (iter->labels) {
+			iter->cur_label = -1;
+			ret = bootdev_next_label(iter, &dev, &method_flags);
+		} else {
+			ret = bootdev_next_prio(iter, &dev);
+			method_flags = 0;
+		}
+		if (!dev)
+			return log_msg_ret("fin", -ENOENT);
+		log_debug("Selected bootdev: %s\n", dev->name);
 	}
 
-	count = uclass_id_count(UCLASS_BOOTDEV);
-	if (!count)
-		return log_msg_ret("count", -ENOENT);
-
-	order = calloc(count, sizeof(struct udevice *));
-	if (!order)
-		return log_msg_ret("order", -ENOMEM);
-
-	/* Get the list of bootdevs */
-	uclass_id_foreach_dev(UCLASS_BOOTDEV, dev, uc)
-		order[upto++] = dev;
-	log_debug("Found %d bootdevs\n", count);
-	if (upto != count)
-		log_debug("Expected %d bootdevs, found %d using aliases\n",
-			  count, upto);
-
-	ret = build_order(bootstd, order, upto);
-	if (ret < 0) {
-		free(order);
-		return log_msg_ret("build", ret);
-	}
-
-	iter->num_devs = ret;
-	iter->dev_order = order;
-	iter->cur_dev = 0;
-
-	dev = *order;
 	ret = device_probe(dev);
 	if (ret)
 		return log_msg_ret("probe", ret);
+	if (method_flagsp)
+		*method_flagsp = method_flags;
 	*devp = dev;
 
 	return 0;

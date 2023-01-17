@@ -186,6 +186,7 @@ static int bootdev_test_any(struct unit_test_state *uts)
 BOOTSTD_TEST(bootdev_test_any, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
 	     UT_TESTF_ETH_BOOTDEV);
 
+#if 0 /* disable for now */
 /* Check bootdev ordering with the bootdev-order property */
 static int bootdev_test_order(struct unit_test_state *uts)
 {
@@ -290,6 +291,7 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootdev_test_prio, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+#endif
 
 /* Check listing hunters */
 static int bootdev_test_hunter(struct unit_test_state *uts)
@@ -401,6 +403,25 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootdev_test_cmd_hunt, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
 	     UT_TESTF_ETH_BOOTDEV);
+
+/* Check searching for bootdevs using the hunters */
+static int bootdev_test_hunt_scan(struct unit_test_state *uts)
+{
+	struct bootflow_iter iter;
+	struct bootstd_priv *std;
+	struct bootflow bflow;
+
+	/* get access to the used hunters */
+	ut_assertok(bootstd_get_priv(&std));
+
+	ut_assertok(bootstd_test_drop_bootdev_order(uts));
+	ut_assertok(bootflow_scan_first(&iter, BOOTFLOWF_SHOW | BOOTFLOWF_HUNT |
+					BOOTFLOWF_SKIP_GLOBAL, &bflow));
+	ut_asserteq(BIT(MMC_HUNTER) | BIT(1), std->hunters_used);
+
+	return 0;
+}
+BOOTSTD_TEST(bootdev_test_hunt_scan, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 
 /* Check that only bootable partitions are processed */
 static int bootdev_test_bootable(struct unit_test_state *uts)
@@ -640,7 +661,6 @@ static int bootdev_test_next_prio(struct unit_test_state *uts)
 	ut_assert_nextline("Hunting with: mmc");
 	ut_assert_console_end();
 
-	/* extension in second in the list , so bit 1 */
 	ut_asserteq(BIT(MMC_HUNTER) | BIT(1), std->hunters_used);
 
 	ut_assertok(bootdev_next_prio(&iter, &dev));

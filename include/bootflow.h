@@ -163,7 +163,8 @@ enum bootflow_meth_flags_t {
  * @flags: Flags to use (see enum bootflow_flags_t). If BOOTFLOWF_GLOBAL_FIRST is
  *	enabled then the global bootmeths are being scanned, otherwise we have
  *	moved onto the bootdevs
- * @dev: Current bootdev, NULL if none
+ * @dev: Current bootdev, NULL if none. This is only ever updated in
+ * bootflow_iter_set_dev()
  * @part: Current partition number (0 for whole device)
  * @method: Current bootmeth
  * @max_part: Maximum hardware partition number in @dev, 0 if there is no
@@ -173,9 +174,6 @@ enum bootflow_meth_flags_t {
  *	forward (e.g. to skip the current partition because it is not valid)
  *	-ESHUTDOWN: try next bootdev
  * @num_devs: Number of bootdevs in @dev_order
- * @cur_dev: Current bootdev number, an index into @dev_order[]
- * @dev_order: List of bootdevs to scan, in order of priority. The scan starts
- *	with the first one on the list
  * @labels: List of labels to scan for bootdevs
  * @cur_label: Current label being processed
  * @num_methods: Number of bootmeth devices in @method_order
@@ -198,8 +196,6 @@ struct bootflow_iter {
 	int first_bootable;
 	int err;
 	int num_devs;
-	int cur_dev;
-	struct udevice **dev_order;
 	const char *const *labels;
 	int cur_label;
 	int num_methods;
