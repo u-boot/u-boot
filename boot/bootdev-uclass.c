@@ -450,14 +450,37 @@ int bootdev_find_by_any(const char *name, struct udevice **devp)
 	return 0;
 }
 
+static int default_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
+				struct bootflow *bflow)
+{
+	struct udevice *blk;
+	int ret;
+
+	ret = bootdev_get_sibling_blk(dev, &blk);
+	/*
+	 * If there is no media, indicate that no more partitions should be
+	 * checked
+	 */
+	if (ret == -EOPNOTSUPP)
+		ret = -ESHUTDOWN;
+	if (ret)
+		return log_msg_ret("blk", ret);
+	assert(blk);
+	ret = bootdev_find_in_blk(dev, blk, iter, bflow);
+	if (ret)
+		return log_msg_ret("find", ret);
+
+	return 0;
+}
+
 int bootdev_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
 			 struct bootflow *bflow)
 {
 	const struct bootdev_ops *ops = bootdev_get_ops(dev);
 
-	if (!ops->get_bootflow)
-		return -ENOSYS;
 	bootflow_init(bflow, dev, iter->method);
+	if (!ops->get_bootflow)
+		return default_get_bootflow(dev, iter, bflow);
 
 	return ops->get_bootflow(dev, iter, bflow);
 }

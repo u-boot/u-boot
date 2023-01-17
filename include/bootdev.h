@@ -50,7 +50,10 @@ struct bootdev_uc_plat {
 /** struct bootdev_ops - Operations for the bootdev uclass */
 struct bootdev_ops {
 	/**
-	 * get_bootflow() - get a bootflow
+	 * get_bootflow() - get a bootflow (optional)
+	 *
+	 * If this is NULL then the default implementaton is used, which is
+	 * default_get_bootflow()
 	 *
 	 * @dev:	Bootflow device to check
 	 * @iter:	Provides current dev, part, method to get. Should update
