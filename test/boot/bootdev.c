@@ -102,22 +102,31 @@ BOOTSTD_TEST(bootdev_test_cmd_select, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 static int bootdev_test_labels(struct unit_test_state *uts)
 {
 	struct udevice *dev, *media;
+	int mflags = 0;
 
-	ut_assertok(bootdev_find_by_label("mmc2", &dev));
+	ut_assertok(bootdev_find_by_label("mmc2", &dev, &mflags));
 	ut_asserteq(UCLASS_BOOTDEV, device_get_uclass_id(dev));
+	ut_asserteq(0, mflags);
 	media = dev_get_parent(dev);
 	ut_asserteq(UCLASS_MMC, device_get_uclass_id(media));
 	ut_asserteq_str("mmc2", media->name);
 
+	/* Check method flags */
+	ut_assertok(bootdev_find_by_label("pxe", &dev, &mflags));
+	ut_asserteq(BOOTFLOW_METHF_PXE_ONLY, mflags);
+	ut_assertok(bootdev_find_by_label("dhcp", &dev, &mflags));
+	ut_asserteq(BOOTFLOW_METHF_DHCP_ONLY, mflags);
+
 	/* Check invalid uclass */
-	ut_asserteq(-EINVAL, bootdev_find_by_label("fred0", &dev));
+	ut_asserteq(-EINVAL, bootdev_find_by_label("fred0", &dev, &mflags));
 
 	/* Check unknown sequence number */
-	ut_asserteq(-ENOENT, bootdev_find_by_label("mmc6", &dev));
+	ut_asserteq(-ENOENT, bootdev_find_by_label("mmc6", &dev, &mflags));
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_labels, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_labels, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
+	     UT_TESTF_ETH_BOOTDEV);
 
 /* Check bootdev ordering with the bootdev-order property */
 static int bootdev_test_order(struct unit_test_state *uts)

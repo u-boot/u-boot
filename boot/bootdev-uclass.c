@@ -359,14 +359,17 @@ int bootdev_unbind_dev(struct udevice *parent)
  *
  * @label: Label to look up (e.g. "mmc1" or "mmc0")
  * @seqp: Returns the sequence number, or -1 if none
+ * @method_flagsp: If non-NULL, returns any flags implied by the label
+ * (enum bootflow_meth_flags_t), 0 if none
  * Returns: sequence number on success, else -ve error code
  */
-static int label_to_uclass(const char *label, int *seqp)
+static int label_to_uclass(const char *label, int *seqp, int *method_flagsp)
 {
+	int seq, len, method_flags;
 	enum uclass_id id;
 	const char *end;
-	int seq, len;
 
+	method_flags = 0;
 	seq = trailing_strtoln_end(label, NULL, &end);
 	len = end - label;
 	if (!len)
@@ -379,6 +382,14 @@ static int label_to_uclass(const char *label, int *seqp)
 		if (IS_ENABLED(CONFIG_BOOTDEV_SPI_FLASH) &&
 		    !strncmp("spi", label, len)) {
 			id = UCLASS_SPI_FLASH;
+		} else if (IS_ENABLED(CONFIG_BOOTDEV_ETH) &&
+		    !strncmp("pxe", label, len)) {
+			id = UCLASS_ETH;
+			method_flags |= BOOTFLOW_METHF_PXE_ONLY;
+		} else if (IS_ENABLED(CONFIG_BOOTDEV_ETH) &&
+		    !strncmp("dhcp", label, len)) {
+			id = UCLASS_ETH;
+			method_flags |= BOOTFLOW_METHF_DHCP_ONLY;
 		} else {
 			log_warning("Unknown uclass '%s' in label\n", label);
 			return -EINVAL;
@@ -387,31 +398,21 @@ static int label_to_uclass(const char *label, int *seqp)
 	if (id == UCLASS_USB)
 		id = UCLASS_MASS_STORAGE;
 	*seqp = seq;
+	if (method_flagsp)
+		*method_flagsp = method_flags;
 
 	return id;
 }
 
-/**
- * bootdev_find_by_label() - Convert a label string to a bootdev device
- *
- * Looks up a label name to find the associated bootdev. For example, if the
- * label name is "mmc2", this will find a bootdev for an mmc device whose
- * sequence number is 2.
- *
- * @label: Label string to convert, e.g. "mmc2"
- * @devp: Returns bootdev device corresponding to that boot label
- * Return: 0 if OK, -EINVAL if the label name (e.g. "mmc") does not refer to a
- *	uclass, -ENOENT if no bootdev for that media has the sequence number
- *	(e.g. 2)
- */
-int bootdev_find_by_label(const char *label, struct udevice **devp)
+int bootdev_find_by_label(const char *label, struct udevice **devp,
+			  int *method_flagsp)
 {
+	int seq, ret, method_flags = 0;
 	struct udevice *media;
 	struct uclass *uc;
 	enum uclass_id id;
-	int seq, ret;
 
-	ret = label_to_uclass(label, &seq);
+	ret = label_to_uclass(label, &seq, &method_flags);
 	if (ret < 0)
 		return log_msg_ret("uc", ret);
 	id = ret;
@@ -441,6 +442,8 @@ int bootdev_find_by_label(const char *label, struct udevice **devp)
 		if (!ret) {
 			log_debug("- found %s\n", bdev->name);
 			*devp = bdev;
+			if (method_flagsp)
+				*method_flagsp = method_flags;
 			return 0;
 		}
 		log_debug("- no device in %s\n", media->name);
@@ -450,9 +453,11 @@ int bootdev_find_by_label(const char *label, struct udevice **devp)
 	return -ENOENT;
 }
 
-int bootdev_find_by_any(const char *name, struct udevice **devp)
+int bootdev_find_by_any(const char *name, struct udevice **devp,
+			int *method_flagsp)
 {
 	struct udevice *dev;
+	int method_flags = 0;
 	int ret, seq;
 	char *endp;
 
@@ -462,18 +467,18 @@ int bootdev_find_by_any(const char *name, struct udevice **devp)
 	if (*endp) {
 		ret = uclass_get_device_by_name(UCLASS_BOOTDEV, name, &dev);
 		if (ret == -ENODEV) {
-			ret = bootdev_find_by_label(name, &dev);
+			ret = bootdev_find_by_label(name, &dev, &method_flags);
 			if (ret) {
 				printf("Cannot find bootdev '%s' (err=%d)\n",
 				       name, ret);
-				return ret;
+				return log_msg_ret("lab", ret);
 			}
 			ret = device_probe(dev);
 		}
 		if (ret) {
 			printf("Cannot probe bootdev '%s' (err=%d)\n", name,
 			       ret);
-			return ret;
+			return log_msg_ret("pro", ret);
 		}
 	} else {
 		ret = uclass_get_device_by_seq(UCLASS_BOOTDEV, seq, &dev);
@@ -484,6 +489,8 @@ int bootdev_find_by_any(const char *name, struct udevice **devp)
 	}
 
 	*devp = dev;
+	if (method_flagsp)
+		*method_flagsp = method_flags;
 
 	return 0;
 }
@@ -593,7 +600,7 @@ static int build_order(struct udevice *bootstd, struct udevice **order,
 
 		upto = 0;
 		for (i = 0; labels[i]; i++) {
-			ret = bootdev_find_by_label(labels[i], &dev);
+			ret = bootdev_find_by_label(labels[i], &dev, NULL);
 			if (!ret) {
 				if (upto == max_count) {
 					overflow_target = labels[i];

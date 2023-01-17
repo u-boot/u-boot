@@ -48,6 +48,9 @@ static int distro_pxe_check(struct udevice *dev, struct bootflow_iter *iter)
 	if (ret)
 		return log_msg_ret("net", ret);
 
+	if (iter->method_flags & BOOTFLOW_METHF_DHCP_ONLY)
+		return log_msg_ret("dhcp", -ENOTSUPP);
+
 	return 0;
 }
 

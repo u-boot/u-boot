@@ -105,6 +105,21 @@ enum bootflow_flags_t {
 };
 
 /**
+ * enum bootflow_meth_flags_t - flags controlling which bootmeths are used
+ *
+ * Used during iteration, e.g. by bootdev_find_by_label(), to determine which
+ * bootmeths are used for the current bootdev. The flags reset when the bootdev
+ * changes
+ *
+ * @BOOTFLOW_METHF_DHCP_ONLY: Only use dhcp (scripts and EFI)
+ * @BOOTFLOW_METHF_PXE_ONLY: Only use pxe (PXE boot)
+ */
+enum bootflow_meth_flags_t {
+	BOOTFLOW_METHF_DHCP_ONLY	= 1 << 0,
+	BOOTFLOW_METHF_PXE_ONLY		= 1 << 1,
+};
+
+/**
  * struct bootflow_iter - state for iterating through bootflows
  *
  * This starts at with the first bootdev/partition/bootmeth and can be used to

@@ -27,6 +27,8 @@
 static int script_check(struct udevice *dev, struct bootflow_iter *iter)
 {
 	/* This works on block devices, network devices and SPI Flash */
+	if (iter->method_flags & BOOTFLOW_METHF_PXE_ONLY)
+		return log_msg_ret("pxe", -ENOTSUPP);
 
 	return 0;
 }

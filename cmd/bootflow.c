@@ -121,7 +121,7 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (argc > 1) {
 			const char *label = argv[1];
 
-			if (bootdev_find_by_any(label, &dev))
+			if (bootdev_find_by_any(label, &dev, NULL))
 				return CMD_RET_FAILURE;
 		}
 	} else {

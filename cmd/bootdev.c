@@ -57,7 +57,7 @@ static int do_bootdev_select(struct cmd_tbl *cmdtp, int flag, int argc,
 		std->cur_bootdev = NULL;
 		return 0;
 	}
-	if (bootdev_find_by_any(argv[1], &dev))
+	if (bootdev_find_by_any(argv[1], &dev, NULL))
 		return CMD_RET_FAILURE;
 
 	std->cur_bootdev = dev;

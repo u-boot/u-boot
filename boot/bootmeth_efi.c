@@ -140,6 +140,10 @@ static int distro_efi_check(struct udevice *dev, struct bootflow_iter *iter)
 	if (bootflow_iter_check_blk(iter) && bootflow_iter_check_net(iter))
 		return log_msg_ret("blk", -ENOTSUPP);
 
+	/* This works on block devices and network devices */
+	if (iter->method_flags & BOOTFLOW_METHF_PXE_ONLY)
+		return log_msg_ret("pxe", -ENOTSUPP);
+
 	return 0;
 }
 

@@ -222,19 +222,26 @@ int bootdev_next_bootflow(struct bootflow **bflowp);
  * @label: Label to look up (e.g. "mmc1" or "mmc0")
  * @devp: Returns the bootdev device found, or NULL if none (note it does not
  *	return the media device, but its bootdev child)
+ * @method_flagsp: If non-NULL, returns any flags implied by the label
+ * (enum bootflow_meth_flags_t), 0 if none. Unset if function fails
  * Return: 0 if OK, -EINVAL if the uclass is not supported by this board,
- *	-ENOENT if there is no device with that number
+ * -ENOENT if there is no device with that number
  */
-int bootdev_find_by_label(const char *label, struct udevice **devp);
+int bootdev_find_by_label(const char *label, struct udevice **devp,
+			  int *method_flagsp);
 
 /**
  * bootdev_find_by_any() - Find a bootdev by name, label or sequence
  *
  * @name: name (e.g. "mmc2.bootdev"), label ("mmc2"), or sequence ("2") to find
  * @devp: returns the device found, on success
- * Return: 0 if OK, -ve on error
+ * @method_flagsp: If non-NULL, returns any flags implied by the label
+ * (enum bootflow_meth_flags_t), 0 if none. Unset if function fails
+ * Return: 0 if OK, -EINVAL if the uclass is not supported by this board,
+ * -ENOENT if there is no device with that number
  */
-int bootdev_find_by_any(const char *name, struct udevice **devp);
+int bootdev_find_by_any(const char *name, struct udevice **devp,
+			int *method_flagsp);
 
 /**
  * bootdev_setup_iter_order() - Set up the ordering of bootdevs to scan
