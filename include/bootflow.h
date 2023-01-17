@@ -91,17 +91,28 @@ struct bootflow {
  * enum bootflow_flags_t - flags for the bootflow iterator
  *
  * @BOOTFLOWF_FIXED: Only used fixed/internal media
- * @BOOTFLOWF_SHOW: Show each bootdev before scanning it
+ * @BOOTFLOWF_SHOW: Show each bootdev before scanning it; show each hunter
+ * before using it
  * @BOOTFLOWF_ALL: Return bootflows with errors as well
- * @BOOTFLOWF_SINGLE_DEV: Just scan one bootmeth
- * @BOOTFLOWF_SKIP_GLOBAL: Don't scan global bootmeths
+ * @BOOTFLOWF_HUNT: Hunt for new bootdevs using the bootdrv hunters
+ *
+ * Internal flags:
+ * @BOOTFLOWF_SINGLE_DEV: (internal) Just scan one bootdev
+ * @BOOTFLOWF_SKIP_GLOBAL: (internal) Don't scan global bootmeths
+ * this uclass
  */
 enum bootflow_flags_t {
 	BOOTFLOWF_FIXED		= 1 << 0,
 	BOOTFLOWF_SHOW		= 1 << 1,
 	BOOTFLOWF_ALL		= 1 << 2,
-	BOOTFLOWF_SINGLE_DEV	= 1 << 3,
-	BOOTFLOWF_SKIP_GLOBAL	= 1 << 4,
+	BOOTFLOWF_HUNT		= 1 << 3,
+
+	/*
+	 * flags used internally by standard boot - do not set these when
+	 * calling bootflow_scan_bootdev() etc.
+	 */
+	BOOTFLOWF_SINGLE_DEV	= 1 << 16,
+	BOOTFLOWF_SKIP_GLOBAL	= 1 << 17,
 };
 
 /**

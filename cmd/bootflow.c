@@ -96,7 +96,7 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct udevice *dev;
 	struct bootflow bflow;
 	bool all = false, boot = false, errors = false, no_global = false;
-	bool list = false;
+	bool list = false, no_hunter = false;
 	int num_valid = 0;
 	bool has_args;
 	int ret, i;
@@ -115,6 +115,7 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 			errors = strchr(argv[1], 'e');
 			no_global = strchr(argv[1], 'G');
 			list = strchr(argv[1], 'l');
+			no_hunter = strchr(argv[1], 'H');
 			argc--;
 			argv++;
 		}
@@ -141,6 +142,8 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 		flags |= BOOTFLOWF_ALL;
 	if (no_global)
 		flags |= BOOTFLOWF_SKIP_GLOBAL;
+	if (!no_hunter)
+		flags |= BOOTFLOWF_HUNT;
 
 	/*
 	 * If we have a device, just scan for bootflows attached to that device
