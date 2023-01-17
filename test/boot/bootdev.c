@@ -241,9 +241,10 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 	ut_assert_nextline("  50        ethernet         eth_bootdev");
 	ut_assert_nextline("  40        ide              ide_bootdev");
 	ut_assert_nextline("  10        mmc              mmc_bootdev");
+	ut_assert_nextline("  30        nvme             nvme_bootdev");
 	ut_assert_nextline("  30        scsi             scsi_bootdev");
 	ut_assert_nextline("  40        usb              usb_bootdev");
-	ut_assert_nextline("(total hunters: 5)");
+	ut_assert_nextline("(total hunters: 6)");
 	ut_assert_console_end();
 
 	ut_assertok(bootdev_hunt("usb1", false));
@@ -251,8 +252,8 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 		"Bus usb@1: scanning bus usb@1 for devices... 5 USB Device(s) found");
 	ut_assert_console_end();
 
-	/* USB is fifth in the list, so bit 4 */
-	ut_asserteq(BIT(4), std->hunters_used);
+	/* USB is fifth in the list, so bit 5 */
+	ut_asserteq(BIT(5), std->hunters_used);
 
 	return 0;
 }
@@ -272,7 +273,7 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	ut_assertok(run_command("bootdev hunt -l", 0));
 	ut_assert_nextline("Prio  Used  Uclass           Hunter");
 	ut_assert_nextlinen("----");
-	ut_assert_skip_to_line("(total hunters: 5)");
+	ut_assert_skip_to_line("(total hunters: 6)");
 	ut_assert_console_end();
 
 	/* Scan all hunters */
@@ -283,6 +284,7 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	ut_assert_nextline("Hunting with: ide");
 	ut_assert_nextline("Bus 0: not available  ");
 	ut_assert_nextline("Hunting with: mmc");
+	ut_assert_nextline("Hunting with: nvme");
 	ut_assert_nextline("Hunting with: scsi");
 	ut_assert_nextline("scanning bus for devices...");
 	ut_assert_skip_to_line("Hunting with: usb");
@@ -297,13 +299,14 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	ut_assert_nextline("  50     *  ethernet         eth_bootdev");
 	ut_assert_nextline("  40     *  ide              ide_bootdev");
 	ut_assert_nextline("  10     *  mmc              mmc_bootdev");
+	ut_assert_nextline("  30     *  nvme             nvme_bootdev");
 	ut_assert_nextline("  30     *  scsi             scsi_bootdev");
 	ut_assert_nextline("  40     *  usb              usb_bootdev");
 
-	ut_assert_nextline("(total hunters: 5)");
+	ut_assert_nextline("(total hunters: 6)");
 	ut_assert_console_end();
 
-	ut_asserteq(GENMASK(4, 0), std->hunters_used);
+	ut_asserteq(GENMASK(5, 0), std->hunters_used);
 
 	return 0;
 }
