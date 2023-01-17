@@ -158,12 +158,10 @@
 					};
 				};
 			};
-
-			configurations {
-				conf {
-					loadables = "atf", "fip";
-				};
-			};
 		};
 	};
+};
+
+&binman_configuration {
+	loadables = "atf", "fip";
 };
