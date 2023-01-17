@@ -284,6 +284,17 @@ void bootdev_list_hunters(struct bootstd_priv *std);
  */
 int bootdev_hunt(const char *spec, bool show);
 
+/**
+ * bootdev_hunt_prio() - Hunt for bootdevs of a particular priority
+ *
+ * This runs all hunters which can find bootdevs of the given priority.
+ *
+ * @prio: Priority to use
+ * @show: true to show each hunter as it is used
+ * Returns: 0 if OK, -ve on error
+ */
+int bootdev_hunt_prio(enum bootdev_prio_t prio, bool show);
+
 #if CONFIG_IS_ENABLED(BOOTSTD)
 /**
  * bootdev_setup_for_dev() - Bind a new bootdev device (deprecated)

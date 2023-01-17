@@ -742,6 +742,31 @@ int bootdev_hunt(const char *spec, bool show)
 	return result;
 }
 
+int bootdev_hunt_prio(enum bootdev_prio_t prio, bool show)
+{
+	struct bootdev_hunter *start;
+	int n_ent, i;
+	int result;
+
+	start = ll_entry_start(struct bootdev_hunter, bootdev_hunter);
+	n_ent = ll_entry_count(struct bootdev_hunter, bootdev_hunter);
+	result = 0;
+
+	log_debug("Hunting for priority %d\n", prio);
+	for (i = 0; i < n_ent; i++) {
+		struct bootdev_hunter *info = start + i;
+		int ret;
+
+		if (prio != info->prio)
+			continue;
+		ret = bootdev_hunt_drv(info, i, show);
+		if (ret && ret != -ENOENT)
+			result = ret;
+	}
+
+	return result;
+}
+
 void bootdev_list_hunters(struct bootstd_priv *std)
 {
 	struct bootdev_hunter *orig, *start;

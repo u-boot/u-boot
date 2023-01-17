@@ -363,3 +363,28 @@ static int bootdev_test_bootable(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootdev_test_bootable, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/* Check hunting for bootdev of a particular priority */
+static int bootdev_test_hunt_prio(struct unit_test_state *uts)
+{
+	test_set_skip_delays(true);
+
+	console_record_reset_enable();
+	ut_assertok(bootdev_hunt_prio(BOOTDEVP_2_SCAN_FAST, false));
+	ut_assert_nextline("scanning bus for devices...");
+	ut_assert_skip_to_line("            Type: Hard Disk");
+	ut_assert_nextlinen("            Capacity:");
+	ut_assert_console_end();
+
+	/* now try a different priority, verbosely */
+	ut_assertok(bootdev_hunt_prio(BOOTDEVP_3_SCAN_SLOW, true));
+	ut_assert_nextline("Hunting with: ide");
+	ut_assert_nextline("Bus 0: not available  ");
+	ut_assert_nextline("Hunting with: usb");
+	ut_assert_nextline(
+		"Bus usb@1: scanning bus usb@1 for devices... 5 USB Device(s) found");
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootdev_test_hunt_prio, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
