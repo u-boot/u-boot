@@ -163,7 +163,15 @@ int bootdev_find_in_blk(struct udevice *dev, struct udevice *blk,
 	 */
 	iter->max_part = MAX_PART_PER_BOOTDEV;
 
-	if (iter->part) {
+	/* If this is the whole disk, check if we have bootable partitions */
+	if (!iter->part) {
+		iter->first_bootable = part_get_bootable(desc);
+		log_debug("checking bootable=%d\n", iter->first_bootable);
+
+	/* if there are bootable partitions, scan only those */
+	} else if (iter->first_bootable ? !info.bootable : iter->part != 1) {
+		return log_msg_ret("boot", -EINVAL);
+	} else {
 		ret = fs_set_blk_dev_with_part(desc, bflow->part);
 		bflow->state = BOOTFLOWST_PART;
 

@@ -123,6 +123,7 @@ enum bootflow_flags_t {
  * @method: Current bootmeth
  * @max_part: Maximum hardware partition number in @dev, 0 if there is no
  *	partition table
+ * @first_bootable: First bootable partition, or 0 if none
  * @err: Error obtained from checking the last iteration. This is used to skip
  *	forward (e.g. to skip the current partition because it is not valid)
  *	-ESHUTDOWN: try next bootdev
@@ -144,6 +145,7 @@ struct bootflow_iter {
 	int part;
 	struct udevice *method;
 	int max_part;
+	int first_bootable;
 	int err;
 	int num_devs;
 	int cur_dev;

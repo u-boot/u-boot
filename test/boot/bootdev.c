@@ -301,3 +301,40 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootdev_test_cmd_hunt, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
 	     UT_TESTF_ETH_BOOTDEV);
+
+/* Check that only bootable partitions are processed */
+static int bootdev_test_bootable(struct unit_test_state *uts)
+{
+	struct bootflow_iter iter;
+	struct bootflow bflow;
+	struct udevice *blk;
+
+	memset(&iter, '\0', sizeof(iter));
+	memset(&bflow, '\0', sizeof(bflow));
+	iter.part = 0;
+	ut_assertok(uclass_get_device_by_name(UCLASS_BLK, "mmc1.blk", &blk));
+	iter.dev = blk;
+	ut_assertok(device_find_next_child(&iter.dev));
+	uclass_first_device(UCLASS_BOOTMETH, &bflow.method);
+
+	/*
+	 * initially we don't have any knowledge of which partitions are
+	 * bootable, but mmc1 has two partitions, with the first one being
+	 * bootable
+	 */
+	iter.part = 2;
+	ut_asserteq(-EINVAL, bootdev_find_in_blk(iter.dev, blk, &iter, &bflow));
+	ut_asserteq(0, iter.first_bootable);
+
+	/* scan with part == 0 to get the partition info */
+	iter.part = 0;
+	ut_asserteq(-ENOENT, bootdev_find_in_blk(iter.dev, blk, &iter, &bflow));
+	ut_asserteq(1, iter.first_bootable);
+
+	/* now it will refuse to use non-bootable partitions */
+	iter.part = 2;
+	ut_asserteq(-EINVAL, bootdev_find_in_blk(iter.dev, blk, &iter, &bflow));
+
+	return 0;
+}
+BOOTSTD_TEST(bootdev_test_bootable, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
