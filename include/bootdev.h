@@ -333,6 +333,22 @@ int bootdev_hunt_prio(enum bootdev_prio_t prio, bool show);
 int bootdev_hunt_and_find_by_label(const char *label, struct udevice **devp,
 				   int *method_flagsp);
 
+/**
+ * bootdev_next_label() - Move to the next bootdev in the label sequence
+ *
+ * Looks through the remaining labels until it finds one that matches a bootdev.
+ * Bootdev scanners are used as needed. For example a label "mmc1" results in
+ * running the "mmc" bootdrv.
+ *
+ * @iter: Interation info, containing iter->cur_label
+ * @devp: New bootdev found, if any was found
+ * @method_flagsp: If non-NULL, returns any flags implied by the label
+ * (enum bootflow_meth_flags_t), 0 if none
+ * Returns 0 if OK, -ENODEV if no bootdev was found
+ */
+int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
+		       int *method_flagsp);
+
 #if CONFIG_IS_ENABLED(BOOTSTD)
 /**
  * bootdev_setup_for_dev() - Bind a new bootdev device (deprecated)

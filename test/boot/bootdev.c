@@ -355,7 +355,7 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* Scan all hunters */
-	sandbox_set_eth_enable(false);
+	test_set_eth_enable(false);
 	test_set_skip_delays(true);
 	ut_assertok(run_command("bootdev hunt", 0));
 	ut_assert_nextline("Hunting with: ethernet");
@@ -510,3 +510,81 @@ static int bootdev_test_hunt_label(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootdev_test_hunt_label, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/* Check iterating to the next label in a list */
+static int bootdev_test_next_label(struct unit_test_state *uts)
+{
+	const char *const labels[] = {"mmc0", "scsi", "dhcp", "pxe", NULL};
+	struct bootflow_iter iter;
+	struct bootstd_priv *std;
+	struct bootflow bflow;
+	struct udevice *dev;
+	int mflags;
+
+	test_set_eth_enable(false);
+
+	/* get access to the used hunters */
+	ut_assertok(bootstd_get_priv(&std));
+
+	memset(&iter, '\0', sizeof(iter));
+	memset(&bflow, '\0', sizeof(bflow));
+	iter.part = 0;
+	uclass_first_device(UCLASS_BOOTMETH, &bflow.method);
+	iter.cur_label = -1;
+	iter.labels = labels;
+
+	dev = NULL;
+	mflags = 123;
+	ut_assertok(bootdev_next_label(&iter, &dev, &mflags));
+	console_record_reset_enable();
+	ut_assert_console_end();
+	ut_assertnonnull(dev);
+	ut_asserteq_str("mmc0.bootdev", dev->name);
+	ut_asserteq(0, mflags);
+
+	ut_assertok(bootstd_test_check_mmc_hunter(uts));
+
+	ut_assertok(bootdev_next_label(&iter, &dev, &mflags));
+	ut_assert_nextline("scanning bus for devices...");
+	ut_assert_skip_to_line(
+		"            Capacity: 1.9 MB = 0.0 GB (4095 x 512)");
+	ut_assert_console_end();
+	ut_assertnonnull(dev);
+	ut_asserteq_str("scsi.id0lun0.bootdev", dev->name);
+	ut_asserteq(BOOTFLOW_METHF_SINGLE_UCLASS, mflags);
+
+	/* SCSI is fifth in the list, so bit 4 */
+	ut_asserteq(BIT(2) | BIT(4), std->hunters_used);
+
+	ut_assertok(bootdev_next_label(&iter, &dev, &mflags));
+	ut_assert_console_end();
+	ut_assertnonnull(dev);
+	ut_asserteq_str("eth@10002000.bootdev", dev->name);
+	ut_asserteq(BOOTFLOW_METHF_SINGLE_UCLASS | BOOTFLOW_METHF_DHCP_ONLY,
+		    mflags);
+
+	/* dhcp: Ethernet is first so bit 0 */
+	ut_asserteq(BIT(2) | BIT(4) | BIT(0), std->hunters_used);
+
+	ut_assertok(bootdev_next_label(&iter, &dev, &mflags));
+	ut_assert_console_end();
+	ut_assertnonnull(dev);
+	ut_asserteq_str("eth@10002000.bootdev", dev->name);
+	ut_asserteq(BOOTFLOW_METHF_SINGLE_UCLASS | BOOTFLOW_METHF_PXE_ONLY,
+		    mflags);
+
+	/* pxe: Ethernet is first so bit 0 */
+	ut_asserteq(BIT(2) | BIT(4) | BIT(0), std->hunters_used);
+
+	mflags = 123;
+	ut_asserteq(-ENODEV, bootdev_next_label(&iter, &dev, &mflags));
+	ut_asserteq(123, mflags);
+	ut_assert_console_end();
+
+	/* no change */
+	ut_asserteq(BIT(2) | BIT(4) | BIT(0), std->hunters_used);
+
+	return 0;
+}
+BOOTSTD_TEST(bootdev_test_next_label, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
+	     UT_TESTF_ETH_BOOTDEV | UT_TESTF_SF_BOOTDEV);

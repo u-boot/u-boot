@@ -175,6 +175,8 @@ enum bootflow_meth_flags_t {
  * @cur_dev: Current bootdev number, an index into @dev_order[]
  * @dev_order: List of bootdevs to scan, in order of priority. The scan starts
  *	with the first one on the list
+ * @labels: List of labels to scan for bootdevs
+ * @cur_label: Current label being processed
  * @num_methods: Number of bootmeth devices in @method_order
  * @cur_method: Current method number, an index into @method_order
  * @first_glob_method: First global method, if any, else -1
@@ -196,6 +198,8 @@ struct bootflow_iter {
 	int num_devs;
 	int cur_dev;
 	struct udevice **dev_order;
+	const char *const *labels;
+	int cur_label;
 	int num_methods;
 	int cur_method;
 	int first_glob_method;

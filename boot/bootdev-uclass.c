@@ -566,6 +566,25 @@ void bootdev_clear_bootflows(struct udevice *dev)
 	}
 }
 
+int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
+		       int *method_flagsp)
+{
+	struct udevice *dev;
+
+	log_debug("next\n");
+	for (dev = NULL; !dev && iter->labels[++iter->cur_label];) {
+		log_debug("Scanning: %s\n", iter->labels[iter->cur_label]);
+		bootdev_hunt_and_find_by_label(iter->labels[iter->cur_label],
+					       &dev, method_flagsp);
+	}
+
+	if (!dev)
+		return log_msg_ret("fin", -ENODEV);
+	*devp = dev;
+
+	return 0;
+}
+
 /**
  * h_cmp_bootdev() - Compare two bootdevs to find out which should go first
  *
@@ -763,8 +782,11 @@ int bootdev_hunt(const char *spec, bool show)
 
 		log_debug("looking at %.*s for %s\n",
 			  (int)max(strlen(name), len), spec, name);
-		if (spec && strncmp(spec, name, max(strlen(name), len)))
-			continue;
+		if (spec && strncmp(spec, name, max(strlen(name), len))) {
+			if (info->uclass != UCLASS_ETH ||
+			    (strcmp("dhcp", spec) && strcmp("pxe", spec)))
+				continue;
+		}
 		ret = bootdev_hunt_drv(info, i, show);
 		if (ret)
 			result = ret;
