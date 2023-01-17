@@ -635,9 +635,5 @@ int ut_run_list(const char *category, const char *prefix,
 	else
 		printf("Failures: %d\n", uts.fail_count);
 
-	/* Best efforts only...ignore errors */
-	if (has_dm_tests)
-		dm_test_restore(uts.of_root);
-
 	return ret;
 }
