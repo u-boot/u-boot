@@ -367,6 +367,7 @@ int bootflow_scan_first(struct udevice *dev, const char *label,
 
 	ret = bootflow_check(iter, bflow);
 	if (ret) {
+		log_debug("check - ret=%d\n", ret);
 		if (ret != BF_NO_MORE_PARTS && ret != -ENOSYS) {
 			if (iter->flags & BOOTFLOWF_ALL)
 				return log_msg_ret("all", ret);
@@ -386,11 +387,13 @@ int bootflow_scan_next(struct bootflow_iter *iter, struct bootflow *bflow)
 
 	do {
 		ret = iter_incr(iter);
+		log_debug("iter_incr: ret=%d\n", ret);
 		if (ret == BF_NO_MORE_DEVICES)
 			return log_msg_ret("done", ret);
 
 		if (!ret) {
 			ret = bootflow_check(iter, bflow);
+			log_debug("check - ret=%d\n", ret);
 			if (!ret)
 				return 0;
 			iter->err = ret;
@@ -399,6 +402,7 @@ int bootflow_scan_next(struct bootflow_iter *iter, struct bootflow *bflow)
 					return log_msg_ret("all", ret);
 			}
 		} else {
+			log_debug("incr failed, err=%d\n", ret);
 			iter->err = ret;
 		}
 
