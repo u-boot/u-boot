@@ -745,6 +745,19 @@ static int armada_37xx_pinctrl_probe(struct udevice *dev)
 	return 0;
 }
 
+static int armada_37xx_pinctrl_bind(struct udevice *dev)
+{
+	/*
+	 * Make sure that the pinctrl driver gets probed after binding
+	 * as on A37XX the pinctrl driver is the one that is also
+	 * registering the GPIO one during probe, so if its not probed
+	 * GPIO-s are not registered as well.
+	 */
+	dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND);
+
+	return 0;
+}
+
 static const struct udevice_id armada_37xx_pinctrl_of_match[] = {
 	{
 		.compatible = "marvell,armada3710-sb-pinctrl",
@@ -762,6 +775,7 @@ U_BOOT_DRIVER(armada_37xx_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(armada_37xx_pinctrl_of_match),
 	.probe = armada_37xx_pinctrl_probe,
+	.bind = armada_37xx_pinctrl_bind,
 	.priv_auto	= sizeof(struct armada_37xx_pinctrl),
 	.ops = &armada_37xx_pinctrl_ops,
 };
