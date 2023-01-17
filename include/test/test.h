@@ -72,6 +72,7 @@ enum {
 	 */
 	UT_TESTF_MANUAL		= BIT(8),
 	UT_TESTF_ETH_BOOTDEV	= BIT(9),	/* enable Ethernet bootdevs */
+	UT_TESTF_SF_BOOTDEV	= BIT(10),	/* enable SPI flash bootdevs */
 };
 
 /**
@@ -220,6 +221,24 @@ static inline bool test_eth_bootdev_enabled(void)
 	enabled = sandbox_eth_enabled();
 #endif
 	return enabled;
+}
+
+/* Allow SPI flash bootdev to be ignored for testing purposes */
+static inline bool test_sf_bootdev_enabled(void)
+{
+	bool enabled = true;
+
+#ifdef CONFIG_SANDBOX
+	enabled = sandbox_sf_bootdev_enabled();
+#endif
+	return enabled;
+}
+
+static inline void test_sf_set_enable_bootdevs(bool enable)
+{
+#ifdef CONFIG_SANDBOX
+	sandbox_sf_set_enable_bootdevs(enable);
+#endif
 }
 
 #endif /* __TEST_TEST_H */

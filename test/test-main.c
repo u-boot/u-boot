@@ -309,6 +309,7 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 		 * only set this if we know the ethernet uclass will be created
 		 */
 		eth_set_enable_bootdevs(test->flags & UT_TESTF_ETH_BOOTDEV);
+		test_sf_set_enable_bootdevs(test->flags & UT_TESTF_SF_BOOTDEV);
 		ut_assertok(dm_extended_scan(false));
 	}
 

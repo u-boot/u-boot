@@ -97,6 +97,7 @@ struct sandbox_state {
 	bool handle_signals;		/* Handle signals within sandbox */
 	bool autoboot_keyed;		/* Use keyed-autoboot feature */
 	bool disable_eth;		/* Disable Ethernet devices */
+	bool disable_sf_bootdevs;	/* Don't bind SPI flash bootdevs */
 
 	/* Pointer to information for each SPI bus/cs */
 	struct sandbox_spi_info spi[CONFIG_SANDBOX_SPI_MAX_BUS]

@@ -460,6 +460,20 @@ bool sandbox_eth_enabled(void)
 	return !state->disable_eth;
 }
 
+void sandbox_sf_set_enable_bootdevs(bool enable)
+{
+	struct sandbox_state *state = state_get_current();
+
+	state->disable_sf_bootdevs = !enable;
+}
+
+bool sandbox_sf_bootdev_enabled(void)
+{
+	struct sandbox_state *state = state_get_current();
+
+	return !state->disable_sf_bootdevs;
+}
+
 int state_init(void)
 {
 	state = &main_state;
