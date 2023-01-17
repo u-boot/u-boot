@@ -66,6 +66,21 @@ struct in_addr {
 int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
+ * dhcp_run() - Run DHCP on the current ethernet device
+ *
+ * This sets the autoload variable, then puts it back to similar to its original
+ * state (y, n or unset).
+ *
+ * @addr: Address to load the file into (0 if @autoload is false)
+ * @fname: Filename of file to load (NULL if @autoload is false or to use the
+ * default filename)
+ * @autoload: true to load the file, false to just get the network IP
+ * @return 0 if OK, -EINVAL if the environment failed, -ENOENT if ant file was
+ * not found
+ */
+int dhcp_run(ulong addr, const char *fname, bool autoload);
+
+/**
  * An incoming packet handler.
  * @param pkt    pointer to the application packet
  * @param dport  destination UDP port
