@@ -143,10 +143,32 @@ static int distro_efi_check(struct udevice *dev, struct bootflow_iter *iter)
 	return 0;
 }
 
+static void distro_efi_get_fdt_name(char *fname, int size)
+{
+	const char *fdt_fname;
+
+	fdt_fname = env_get("fdtfile");
+	if (fdt_fname) {
+		snprintf(fname, size, "dtb/%s", fdt_fname);
+		log_debug("Using device tree: %s\n", fname);
+	} else {
+		const char *soc = env_get("soc");
+		const char *board = env_get("board");
+		const char *boardver = env_get("boardver");
+
+		/* cf the code in label_boot() which seems very complex */
+		snprintf(fname, size, "dtb/%s%s%s%s.dtb",
+			 soc ? soc : "", soc ? "-" : "", board ? board : "",
+			 boardver ? boardver : "");
+		log_debug("Using default device tree: %s\n", fname);
+	}
+}
+
 static int distro_efi_read_bootflow_file(struct udevice *dev,
 					 struct bootflow *bflow)
 {
 	struct blk_desc *desc = NULL;
+	ulong fdt_addr, size;
 	char fname[256];
 	int ret;
 
@@ -170,15 +192,43 @@ static int distro_efi_read_bootflow_file(struct udevice *dev,
 	if (ret)
 		return log_msg_ret("read", -EINVAL);
 
+	distro_efi_get_fdt_name(fname, sizeof(fname));
+	bflow->fdt_fname = strdup(fname);
+	if (!bflow->fdt_fname)
+		return log_msg_ret("fil", -ENOMEM);
+
+	fdt_addr = env_get_hex("fdt_addr_r", 0);
+	ret = bootmeth_common_read_file(dev, bflow, fname, fdt_addr, &size);
+	if (!ret) {
+		bflow->fdt_size = size;
+		bflow->fdt_addr = fdt_addr;
+
+		/*
+		 * TODO: Apply extension overlay
+		 *
+		 * Here we need to load and apply the extension overlay. This is
+		 * not implemented. See do_extension_apply(). The extension
+		 * stuff needs an implementation in boot/extension.c so it is
+		 * separate from the command code. Really the extension stuff
+		 * should use the device tree and a uclass / driver interface
+		 * rather than implementing its own list
+		 */
+	} else {
+		log_debug("No device tree available\n");
+	}
+
 	return 0;
 }
 
 static int distro_efi_read_bootflow_net(struct bootflow *bflow)
 {
-	const char *addr_str;
+	char file_addr[17], fname[256];
+	char *tftp_argv[] = {"tftp", file_addr, fname, NULL};
+	struct cmd_tbl cmdtp = {};	/* dummy */
+	const char *addr_str, *fdt_addr_str;
 	int ret, arch, size;
+	ulong addr, fdt_addr;
 	char str[36];
-	ulong addr;
 
 	ret = get_efi_pxe_vci(str, sizeof(str));
 	if (ret)
@@ -216,6 +266,25 @@ static int distro_efi_read_bootflow_net(struct bootflow *bflow)
 	efi_set_bootdev("Net", "", bflow->fname, map_sysmem(addr, 0),
 			bflow->size);
 
+	/* read the DT file also */
+	fdt_addr_str = env_get("fdt_addr_r");
+	if (!fdt_addr_str)
+		return log_msg_ret("fdt", -EINVAL);
+	fdt_addr = hextoul(fdt_addr_str, NULL);
+	sprintf(file_addr, "%lx", fdt_addr);
+
+	distro_efi_get_fdt_name(fname, sizeof(fname));
+	bflow->fdt_fname = strdup(fname);
+	if (!bflow->fdt_fname)
+		return log_msg_ret("fil", -ENOMEM);
+
+	if (!do_tftpb(&cmdtp, 0, 3, tftp_argv)) {
+		bflow->fdt_size = env_get_hex("filesize", 0);
+		bflow->fdt_addr = fdt_addr;
+	} else {
+		log_debug("No device tree available\n");
+	}
+
 	bflow->state = BOOTFLOWST_READY;
 
 	return 0;
@@ -243,15 +312,39 @@ static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 
 int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 {
+	ulong kernel, fdt;
 	char cmd[50];
+
+	/* A non-zero buffer indicates the kernel is there */
+	if (bflow->buf) {
+		kernel = (ulong)map_to_sysmem(bflow->buf);
+
+		/*
+		 * use the provided device tree if available, else fall back to
+		 * the control FDT
+		 */
+		if (bflow->fdt_fname)
+			fdt = bflow->fdt_addr;
+		else
+			fdt = (ulong)map_to_sysmem(gd->fdt_blob);
+	} else {
+		/*
+		 * This doesn't actually work for network devices:
+		 *
+		 * do_bootefi_image() No UEFI binary known at 0x02080000
+		 *
+		 * But this is the same behaviour for distro boot, so it can be
+		 * fixed here.
+		 */
+		kernel = env_get_hex("kernel_addr_r", 0);
+		fdt = env_get_hex("fdt_addr_r", 0);
+	}
 
 	/*
 	 * At some point we can add a real interface to bootefi so we can call
-	 * this directly. For now, go through the CLI like distro boot.
+	 * this directly. For now, go through the CLI, like distro boot.
 	 */
-	snprintf(cmd, sizeof(cmd), "bootefi %lx %lx",
-		 (ulong)map_to_sysmem(bflow->buf),
-		 (ulong)map_to_sysmem(gd->fdt_blob));
+	snprintf(cmd, sizeof(cmd), "bootefi %lx %lx", kernel, fdt);
 	if (run_command(cmd, 0))
 		return log_msg_ret("run", -EINVAL);
 
