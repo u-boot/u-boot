@@ -145,6 +145,7 @@ static noinline char *put_dec(char *buf, uint64_t num)
 #define LEFT	16		/* left justified */
 #define SMALL	32		/* Must be 32 == 0x20 */
 #define SPECIAL	64		/* 0x */
+#define ERRSTR	128		/* %dE showing error string if enabled */
 
 /*
  * Macro to add a new character to our output string, but only if it will
@@ -678,6 +679,8 @@ repeat:
 			break;
 
 		case 'd':
+			if (fmt[1] == 'E')
+				flags |= ERRSTR;
 		case 'i':
 			flags |= SIGN;
 		case 'u':
@@ -712,6 +715,15 @@ repeat:
 		}
 		str = number(str, end, num, base, field_width, precision,
 			     flags);
+		if (IS_ENABLED(CONFIG_ERRNO_STR) && (flags & ERRSTR)) {
+			const char *p;
+
+			ADDCH(str, ':');
+			ADDCH(str, ' ');
+			for (p = errno_str(num); *p; p++)
+				ADDCH(str, *p);
+			fmt++;
+		}
 	}
 
 	if (size > 0) {
