@@ -183,7 +183,7 @@ static int sandbox_mmc_probe(struct udevice *dev)
 		priv->csize = 0;
 		priv->size = (priv->csize + 1) * SIZE_MULTIPLE; /* 1 MiB */
 
-		priv->buf = malloc(priv->size);
+		priv->buf = calloc(1, priv->size);
 		if (!priv->buf) {
 			log_err("%s: Not enough memory (%x bytes)\n",
 				dev->name, priv->size);
