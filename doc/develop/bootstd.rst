@@ -71,8 +71,14 @@ MMC, NVMe). The bootdev accesses the device, including partitions and
 filesystems that might contain things related to an operating system.
 
 For example, an MMC bootdev provides access to the individual partitions on the
-MMC device. It scans through these to find filesystems, then provides a list of
-these for consideration.
+MMC device. It scans through these to find filesystems with the boot flag set,
+then provides a list of these for consideration.
+
+Some bootdevs are not visible until a bus is enumerated, e.g. flash sticks
+attached via USB. To deal with this, each bootdev has an associated 'hunter'
+which can hunt for bootdevs of a particular uclass type. For example, the SCSI
+bootdev scans the SCSI bus looking for devices, creating a bootdev for each
+Logical Unit Number (LUN) that it finds.
 
 
 Bootmeth
@@ -175,37 +181,16 @@ reading from, but each is responsible for returning a valid bootflow if
 available.
 
 A helper called `bootdev_find_in_blk()` makes it fairly easy to implement this
-function for each media device uclass, in a few lines of code.
+function for each media device uclass, in a few lines of code. For many types
+ot bootdevs, the `get_bootflow` member can be NULL, indicating that the default
+handler is used. This is called `default_get_bootflow()` and it only works with
+block devices.
 
 
 Bootdev drivers
 ---------------
 
 A bootdev driver is typically fairly simple. Here is one for mmc::
-
-    static int mmc_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
-                    struct bootflow *bflow)
-    {
-        struct udevice *mmc_dev = dev_get_parent(dev);
-        struct udevice *blk;
-        int ret;
-
-        ret = mmc_get_blk(mmc_dev, &blk);
-        /*
-         * If there is no media, indicate that no more partitions should be
-         * checked
-         */
-        if (ret == -EOPNOTSUPP)
-            ret = -ESHUTDOWN;
-        if (ret)
-            return log_msg_ret("blk", ret);
-        assert(blk);
-        ret = bootdev_find_in_blk(dev, blk, iter, bflow);
-        if (ret)
-            return log_msg_ret("find", ret);
-
-        return 0;
-    }
 
     static int mmc_bootdev_bind(struct udevice *dev)
     {
@@ -217,7 +202,6 @@ A bootdev driver is typically fairly simple. Here is one for mmc::
     }
 
     struct bootdev_ops mmc_bootdev_ops = {
-        .get_bootflow    = mmc_get_bootflow,
     };
 
     static const struct udevice_id mmc_bootdev_ids[] = {
@@ -233,15 +217,77 @@ A bootdev driver is typically fairly simple. Here is one for mmc::
         .of_match    = mmc_bootdev_ids,
     };
 
-The implementation of the `get_bootflow()` method is simply to obtain the
-block device and call a bootdev helper function to do the rest. The
+You may notice that the `get_bootflow` memory is not provided, so is NULL. This
+means that `default_get_bootflow()` is used. This simply obtains the
+block device and calls a bootdev helper function to do the rest. The
 implementation of `bootdev_find_in_blk()` checks the partition table, and
 attempts to read a file from a filesystem on the partition number given by the
-`@iter->part` parameter.
+`@iter->part` parameter. If there are any bootable partitions in the table,
+then only bootable partitions are considered.
 
-Each bootdev has a priority, which indicates the order in which it is used.
-Faster bootdevs are used first, since they are more likely to be able to boot
-the device quickly.
+Each bootdev has a priority, which indicates the order in which it is used,
+if `boot_targets` is not used. Faster bootdevs are used first, since they are
+more likely to be able to boot the device quickly.
+
+
+Environment Variables
+---------------------
+
+Various environment variables are used by standard boot. These allow the board
+to control where things are placed when booting the OS. You should ensure that
+your boards sets values for these.
+
+fdtfile
+    Name of the flattened device tree (FDT) file to load, e.g.
+    "rockchip/rk3399-rockpro64.dtb"
+
+fdtaddr_addr_r
+    Address at which to load the FDT, e.g. 0x01f00000
+
+fdtoverlay_addr_r (needed if overlays are used)
+    Address at which to load the overlay for the FDT, e.g. 0x02000000
+
+kernel_addr_r
+    Address at which to load the kernel, e.g. 0x02080000
+
+kernel_comp_addr_r
+    Address to which to decompress the kernel, e.g. 0x08000000
+
+kernel_comp_size
+    Size of available space for decompressed kernel, e.g. 0x2000000
+
+pxefile_addr_r
+    Address at which to load the PXE file, e.g. 0x00600000
+
+ramdisk_addr_r
+    Address at which to load the ramdisk, e.g. 0x06000000
+
+scriptaddr
+    Address at which to load the U-Boot script, e.g. 0x00500000
+
+script_offset_f
+    SPI flash offset from which to load the U-Boot script, e.g. 0xffe000
+
+script_size_f
+    Size of the script to load, e.g. 0x2000
+
+Some variables are set by script bootmeth:
+
+devtype
+    Device type being used for boot, e.g. mmc
+
+devnum
+    Device number being used for boot, e.g. 1
+
+distro_bootpart
+    Partition being used for boot, e.g. 2
+
+prefix
+    Directory containing the script
+
+mmc_bootdev
+    Device number being used for boot (e.g. 1). This is only used by MMC on
+    sunxi boards.
 
 
 Device hierarchy
@@ -259,12 +305,21 @@ media device::
     bootdev       1  [   ]   mmc_bootdev           |   |   `-- sdhci@7e300000.bootdev
 
 The bootdev device is typically created automatically in the media uclass'
-`post_bind()` method by calling `bootdev_setup_for_dev()`. The code typically
-something like this::
+`post_bind()` method by calling `bootdev_setup_for_dev()` or
+`bootdev_setup_sibling_blk()`. The code typically something like this::
 
+    /* dev is the Ethernet device */
     ret = bootdev_setup_for_dev(dev, "eth_bootdev");
     if (ret)
         return log_msg_ret("bootdev", ret);
+
+or::
+
+    /* blk is the block device (child of MMC device)
+    ret = bootdev_setup_sibling_blk(blk, "mmc_bootdev");
+    if (ret)
+        return log_msg_ret("bootdev", ret);
+
 
 Here, `eth_bootdev` is the name of the Ethernet bootdev driver and `dev`
 is the ethernet device. This function is safe to call even if standard boot is
@@ -337,6 +392,10 @@ Standard boot is enabled with `CONFIG_BOOTSTD`. Each bootmeth has its own CONFIG
 option also. For example, `CONFIG_BOOTMETH_DISTRO` enables support for distro
 boot from a disk.
 
+To enable all feature sof standard boot, use `CONFIG_BOOTSTD_FULL`. This
+includes the full set of commands, more error messages when things go wrong and
+bootmeth ordering with the bootmeths environment variable.
+
 
 Available bootmeth drivers
 --------------------------
@@ -345,7 +404,8 @@ Bootmeth drivers are provided for:
 
    - distro boot from a disk (syslinux)
    - distro boot from a network (PXE)
-   - EFI boot using bootefi
+   - U-Boot scripts from disk, network or SPI flash
+   - EFI boot using bootefi from disk
    - VBE
    - EFI boot using boot manager
 
@@ -412,26 +472,49 @@ those bootdevs. So, all up, we need a single bootstd device, one or more bootdev
 devices and one or more bootmeth devices.
 
 Once these are ready, typically a `bootflow scan` command is issued. This kicks
-of the iteration process, which involves looking through the bootdevs and their
-partitions one by one to find bootflows.
+of the iteration process, which involves hunting for bootdevs and looking
+through the bootdevs and their partitions one by one to find bootflows.
 
-Iteration is kicked off using `bootflow_scan_first()`, which calls
-`bootflow_scan_bootdev()`.
+Iteration is kicked off using `bootflow_scan_first()`.
 
 The iterator is set up with `bootflow_iter_init()`. This simply creates an
 empty one with the given flags. Flags are used to control whether each
 iteration is displayed, whether to return iterations even if they did not result
 in a valid bootflow, whether to iterate through just a single bootdev, etc.
 
-Then the ordering of bootdevs is determined, by `bootdev_setup_iter_order()`. By
-default, the bootdevs are used in the order specified by the `boot_targets`
-environment variable (e.g. "mmc2 mmc0 usb"). If that is missing then their
-sequence order is used, as determined by the `/aliases` node, or failing that
-their order in the devicetree. For BOOTSTD_FULL, if there is a `bootdev-order`
-property in the bootstd node, then this is used as a final fallback. In any
-case, the iterator ends up with a `dev_order` array containing the bootdevs that
-are going to be used, with `num_devs` set to the number of bootdevs and
-`cur_dev` starting at 0.
+Then the iterator is set up to according to the parameters given:
+
+- When `dev` is provided, then a single bootdev is scanned. In this case,
+  `BOOTFLOWF_SKIP_GLOBAL` and `BOOTFLOWF_SINGLE_DEV` are set. No hunters are
+  used in this case
+
+- Otherwise, when `label` is provided, then a single label or named bootdev is
+  scanned. In this case `BOOTFLOWF_SKIP_GLOBAL` is set and there are three
+  options (with an effect on the `iter_incr()` function described later):
+
+  - If `label` indicates a numeric bootdev number (e.g. "2") then
+    `BOOTFLOW_METHF_SINGLE_DEV` is set. In this case, moving to the next bootdev
+    simple stops, since there is only one. No hunters are used.
+  - If `label` indicates a particular media device (e.g. "mmc1") then
+    `BOOTFLOWF_SINGLE_MEDIA` is set. In this case, moving to the next bootdev
+    processes just the children of the media device. Hunters are used, in this
+    example just the "mmc" hunter.
+  - If `label` indicates a media uclass (e.g. "mmc") then
+    `BOOTFLOWF_SINGLE_UCLASS` is set. In this case, all bootdevs in that uclass
+    are used. Hunters are used, in this example just the "mmc" hunter
+
+- Otherwise, none of the above flags is set and iteration is set up to work
+  through `boot_targets` environment variable (or `bootdev-order` device tree
+  property) in order, running the relevant hunter first. In this case
+  `cur_label` is used to indicate the label being processed. If there is no list
+  of labels, then all bootdevs are processed in order of priority, running the
+  hunters as it goes.
+
+With the above it is therefore possible to iterate in a variety of ways.
+
+No attempt is made to determine the ordering of bootdevs, since this cannot be
+known in advance if we are using the hunters. Any hunter might discover a new
+bootdev and disturb the original ordering.
 
 Next, the ordering of bootmeths is determined, by `bootmeth_setup_iter_order()`.
 By default the ordering is again by sequence number, i.e. the `/aliases` node,
@@ -446,21 +529,21 @@ present, `cur_method` is set to the first one, so that global bootmeths are done
 first. Once all have been used, these bootmeths are dropped from the iteration.
 When there are no global bootmeths, `cur_method` is set to 0.
 
-At this point the iterator is ready to use, with the first bootdev and bootmeth
-selected. Most of the other fields are 0. This means that the current partition
+At this point the iterator is ready to use, with the first bootmeth selected.
+Most of the other fields are 0. This means that the current partition
 is 0, which is taken to mean the whole device, since partition numbers start at
 1. It also means that `max_part` is 0, i.e. the maximum partition number we know
 about is 0, meaning that, as far as we know, there is no partition table on this
 bootdev.
 
-With the iterator ready, `bootflow_scan_bootdev()` checks whether the current
+With the iterator ready, `bootflow_scan_first()` checks whether the current
 settings produce a valid bootflow. This is handled by `bootflow_check()`, which
 either returns 0 (if it got something) or an error if not (more on that later).
 If the `BOOTFLOWF_ALL` iterator flag is set, even errors are returned as
 incomplete bootflows, but normally an error results in moving onto the next
 iteration.
 
-Note that `bootflow_check()` handles global bootmeths explicitly, but calling
+Note that `bootflow_check()` handles global bootmeths explicitly, by calling
 `bootmeth_get_bootflow()` on each one. The `doing_global` flag indicates when
 the iterator is in that state.
 
@@ -468,7 +551,7 @@ The `bootflow_scan_next()` function handles moving onto the next iteration and
 checking it. In fact it sits in a loop doing that repeatedly until it finds
 something it wants to return.
 
-The actual 'moving on' part is implemented in `iter_incr()`. This is a very
+The actual 'moving on' part is implemented in `iter_incr()`. This is a fairly
 simple function. It increments the first counter. If that hits its maximum, it
 sets it to zero and increments the second counter. You can think of all the
 counters together as a number with three digits which increment in order, with
@@ -522,6 +605,12 @@ like this:
 The changeover of the value of `doing_global` from true to false is handled in
 `iter_incr()` as well.
 
+Note that the value in the `bootdev` column above is not actually stored - it is
+just for illustration. In practice, `iter_incr()` uses the flags to determine
+whether to move to the next bootdev in the uclass, the next child of the media
+device, the next label, or the next priority level, depending on the flag
+settings (see `BOOTFLOW_METHF_SINGLE_DEV`, etc. above).
+
 There is no expectation that iteration will actually finish. Quite often a
 valid bootflow is found early on. With `bootflow scan -b`, that causes the
 bootflow to be immediately booted. Assuming it is successful, the iteration never
@@ -567,9 +656,9 @@ global bootmeth). Each one can adopt its own approach.
 
 Going down a level, what does the bootdev do in its `get_bootflow()` method?
 Let us consider the MMC bootdev. In that case the call to
-`bootdev_get_bootflow()` ends up in `mmc_get_bootflow()`. It locates the parent
-device of the bootdev, i.e. the `UCLASS_MMC` device itself, then finds the block
-device associated with it. It then calls the helper function
+`bootdev_get_bootflow()` ends up in `default_get_bootflow()`. It locates the
+parent device of the bootdev, i.e. the `UCLASS_MMC` device itself, then finds
+the block device associated with it. It then calls the helper function
 `bootdev_find_in_blk()` to do all the work. This is common with just about any
 bootdev that is based on a media device.
 
@@ -586,7 +675,9 @@ calls the bootmeth device once more, this time to read the bootflow.
 
 Note: At present a filesystem is needed for the bootmeth to be called on block
 devices, simply because we don't have any examples where this is not the case.
-This feature can be added as needed.
+This feature can be added as needed. Note that sandbox is a special case, since
+in that case the host filesystem can be accessed even though the block device
+is NULL.
 
 If we take the example of the `bootmeth_distro` driver, this call ends up at
 `distro_read_bootflow()`. It has the filesystem ready, so tries various
@@ -594,9 +685,9 @@ filenames to try to find the `extlinux.conf` file, reading it if possible. If
 all goes well the bootflow ends up in the `BOOTFLOWST_READY` state.
 
 At this point, we fall back from the bootmeth driver, to
-`bootdev_find_in_blk()`, then back to `mmc_get_bootflow()`, then to
+`bootdev_find_in_blk()`, then back to `default_get_bootflow()`, then to
 `bootdev_get_bootflow()`, then to `bootflow_check()` and finally to its caller,
-either `bootflow_scan_bootdev()` or `bootflow_scan_next()`. In either case,
+either `bootflow_scan_first()` or `bootflow_scan_next()`. In either case,
 the bootflow is returned as the result of this iteration, assuming it made it to
 the  `BOOTFLOWST_READY` state.
 
@@ -625,9 +716,9 @@ Tests are located in `test/boot` and cover the core functionality as well as
 the commands. All tests use sandbox so can be run on a standard Linux computer
 and in U-Boot's CI.
 
-For testing, a DOS-formatted disk image is used with a single FAT partition on
-it. This is created in `setup_bootflow_image()`, with a canned one from the
-source tree used if it cannot be created (e.g. in CI).
+For testing, a DOS-formatted disk image is used with a FAT partition on it and
+a second unused partition. This is created in `setup_bootflow_image()`, with a
+canned one from the source tree used if it cannot be created (e.g. in CI).
 
 
 Bootflow internals

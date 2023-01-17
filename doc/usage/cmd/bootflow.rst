@@ -8,7 +8,7 @@ Synopis
 
 ::
 
-    bootflow scan [-abel] [bootdev]
+    bootflow scan [-abelGH] [bootdev]
     bootflow list [-e]
     bootflow select [<num|name>]
     bootflow info [-d]
@@ -56,6 +56,16 @@ Flags are:
     List bootflows while scanning. This is helpful when you want to see what
     is happening during scanning. Use it with the `-b` flag to see which
     bootdev and bootflows are being tried.
+
+-G
+    Skip global bootmeths when scanning. By default these are tried first, but
+    this flag disables them.
+
+-H
+    Don't use bootdev hunters. By default these are used before each boot
+    priority or label is tried, to see if more bootdevs can be discovered, but
+    this flag disables that process.
+
 
 The optional argument specifies a particular bootdev to scan. This can either be
 the name of a bootdev or its sequence number (both shown with `bootdev list`).
@@ -145,6 +155,7 @@ Subdir     (none)
 Filename   /extlinux/extlinux.conf
 Buffer     3db7ad48
 Size       232 (562 bytes)
+FDT:       <NULL>
 Error      0
 =========  ===============================
 
@@ -168,6 +179,10 @@ Buffer
 
 Size
     Size of the bootflow file
+
+FDT:
+    Filename of the device tree, if supported. The EFI bootmeth uses this to
+    remember the filename to load. If `<NULL>` then there is none.
 
 Error
     Error number returned from scanning for the bootflow. This is 0 if the
