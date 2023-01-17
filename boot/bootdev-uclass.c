@@ -355,6 +355,37 @@ int bootdev_unbind_dev(struct udevice *parent)
 }
 
 /**
+ * label_to_uclass() - Convert a label to a uclass and sequence number
+ *
+ * @label: Label to look up (e.g. "mmc1" or "mmc0")
+ * @seqp: Returns the sequence number, or -1 if none
+ * Returns: sequence number on success, else -ve error code
+ */
+static int label_to_uclass(const char *label, int *seqp)
+{
+	enum uclass_id id;
+	const char *end;
+	int seq, len;
+
+	seq = trailing_strtoln_end(label, NULL, &end);
+	len = end - label;
+	if (!len)
+		return -EINVAL;
+	id = uclass_get_by_namelen(label, len);
+	log_debug("find %s: seq=%d, id=%d/%s\n", label, seq, id,
+		  uclass_get_name(id));
+	if (id == UCLASS_INVALID) {
+		log_warning("Unknown uclass '%s' in label\n", label);
+		return -EINVAL;
+	}
+	if (id == UCLASS_USB)
+		id = UCLASS_MASS_STORAGE;
+	*seqp = seq;
+
+	return id;
+}
+
+/**
  * bootdev_find_by_label() - Convert a label string to a bootdev device
  *
  * Looks up a label name to find the associated bootdev. For example, if the
@@ -372,19 +403,12 @@ int bootdev_find_by_label(const char *label, struct udevice **devp)
 	struct udevice *media;
 	struct uclass *uc;
 	enum uclass_id id;
-	const char *end;
-	int seq;
+	int seq, ret;
 
-	seq = trailing_strtoln_end(label, NULL, &end);
-	id = uclass_get_by_namelen(label, end - label);
-	log_debug("find %s: seq=%d, id=%d/%s\n", label, seq, id,
-		  uclass_get_name(id));
-	if (id == UCLASS_INVALID) {
-		log_warning("Unknown uclass '%s' in label\n", label);
-		return -EINVAL;
-	}
-	if (id == UCLASS_USB)
-		id = UCLASS_MASS_STORAGE;
+	ret = label_to_uclass(label, &seq);
+	if (ret < 0)
+		return log_msg_ret("uc", ret);
+	id = ret;
 
 	/* Iterate through devices in the media uclass (e.g. UCLASS_MMC) */
 	uclass_id_foreach_dev(id, media, uc) {
