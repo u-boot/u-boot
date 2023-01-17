@@ -544,8 +544,8 @@ static int build_order(struct udevice *bootstd, struct udevice **order,
 int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp)
 {
 	struct udevice *bootstd, *dev = *devp, **order;
-	int upto, i;
-	int count;
+	struct uclass *uc;
+	int count, upto;
 	int ret;
 
 	ret = uclass_first_device_err(UCLASS_BOOTSTD, &bootstd);
@@ -568,15 +568,9 @@ int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp)
 	if (!order)
 		return log_msg_ret("order", -ENOMEM);
 
-	/*
-	 * Get a list of bootdevs, in seq order (i.e. using aliases). There may
-	 * be gaps so try to count up high enough to find them all.
-	 */
-	for (i = 0, upto = 0; upto < count && i < 20 + count * 2; i++) {
-		ret = uclass_find_device_by_seq(UCLASS_BOOTDEV, i, &dev);
-		if (!ret)
-			order[upto++] = dev;
-	}
+	/* Get the list of bootdevs */
+	uclass_id_foreach_dev(UCLASS_BOOTDEV, dev, uc)
+		order[upto++] = dev;
 	log_debug("Found %d bootdevs\n", count);
 	if (upto != count)
 		log_debug("Expected %d bootdevs, found %d using aliases\n",
