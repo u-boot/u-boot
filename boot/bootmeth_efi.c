@@ -19,6 +19,7 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <mmc.h>
+#include <net.h>
 #include <pxe_utils.h>
 
 #define EFI_DIRNAME	"efi/boot/"
@@ -55,6 +56,40 @@ static int get_efi_leafname(char *str, int max_len)
 
 	strcpy(str, base);
 	strcat(str, ".efi");
+
+	return 0;
+}
+
+static int get_efi_pxe_arch(void)
+{
+	/* http://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xml */
+	if (IS_ENABLED(CONFIG_ARM64))
+		return 0xb;
+	else if (IS_ENABLED(CONFIG_ARM))
+		return 0xa;
+	else if (IS_ENABLED(CONFIG_X86_64))
+		return 0x6;
+	else if (IS_ENABLED(CONFIG_X86))
+		return 0x7;
+	else if (IS_ENABLED(CONFIG_ARCH_RV32I))
+		return 0x19;
+	else if (IS_ENABLED(CONFIG_ARCH_RV64I))
+		return 0x1b;
+	else if (IS_ENABLED(CONFIG_SANDBOX))
+		return 0;	/* not used */
+
+	return -EINVAL;
+}
+
+static int get_efi_pxe_vci(char *str, int max_len)
+{
+	int ret;
+
+	ret = get_efi_pxe_arch();
+	if (ret < 0)
+		return ret;
+
+	snprintf(str, max_len, "PXEClient:Arch:%05x:UNDI:003000", ret);
 
 	return 0;
 }
@@ -101,20 +136,18 @@ static int efiload_read_file(struct blk_desc *desc, struct bootflow *bflow)
 
 static int distro_efi_check(struct udevice *dev, struct bootflow_iter *iter)
 {
-	int ret;
-
-	/* This only works on block devices */
-	ret = bootflow_iter_check_blk(iter);
-	if (ret)
-		return log_msg_ret("blk", ret);
+	/* This only works on block and network devices */
+	if (bootflow_iter_check_blk(iter) && bootflow_iter_check_net(iter))
+		return log_msg_ret("blk", -ENOTSUPP);
 
 	return 0;
 }
 
-static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
+static int distro_efi_read_bootflow_file(struct udevice *dev,
+					 struct bootflow *bflow)
 {
 	struct blk_desc *desc = NULL;
-	char fname[sizeof(EFI_DIRNAME) + 16];
+	char fname[256];
 	int ret;
 
 	/* We require a partition table */
@@ -136,6 +169,74 @@ static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	ret = efiload_read_file(desc, bflow);
 	if (ret)
 		return log_msg_ret("read", -EINVAL);
+
+	return 0;
+}
+
+static int distro_efi_read_bootflow_net(struct bootflow *bflow)
+{
+	const char *addr_str;
+	int ret, arch, size;
+	char str[36];
+	ulong addr;
+
+	ret = get_efi_pxe_vci(str, sizeof(str));
+	if (ret)
+		return log_msg_ret("vci", ret);
+	ret = get_efi_pxe_arch();
+	if (ret < 0)
+		return log_msg_ret("arc", ret);
+	arch = ret;
+
+	ret = env_set("bootp_vci", str);
+	if (ret)
+		return log_msg_ret("vcs", ret);
+	ret = env_set_ulong("bootp_arch", arch);
+	if (ret)
+		return log_msg_ret("ars", ret);
+
+	/* figure out the load address */
+	addr_str = env_get("kernel_addr_r");
+	addr = addr_str ? hextoul(addr_str, NULL) : image_load_addr;
+
+	/* clear any previous bootfile */
+	env_set("bootfile", NULL);
+
+	/* read the kernel */
+	ret = dhcp_run(addr, NULL, true);
+	if (ret)
+		return log_msg_ret("dhc", ret);
+
+	size = env_get_hex("filesize", -1);
+	if (size <= 0)
+		return log_msg_ret("sz", -EINVAL);
+	bflow->size = size;
+
+	/* do the hideous EFI hack */
+	efi_set_bootdev("Net", "", bflow->fname, map_sysmem(addr, 0),
+			bflow->size);
+
+	bflow->state = BOOTFLOWST_READY;
+
+	return 0;
+}
+
+static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
+{
+	const struct udevice *media = dev_get_parent(bflow->dev);
+	int ret;
+
+	if (IS_ENABLED(CONFIG_CMD_DHCP) &&
+	    device_get_uclass_id(media) == UCLASS_ETH) {
+		/* we only support reading from one device, so ignore 'dev' */
+		ret = distro_efi_read_bootflow_net(bflow);
+		if (ret)
+			return log_msg_ret("net", ret);
+	} else {
+		ret = distro_efi_read_bootflow_file(dev, bflow);
+		if (ret)
+			return log_msg_ret("blk", ret);
+	}
 
 	return 0;
 }
