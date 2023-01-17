@@ -9,6 +9,7 @@
 #include <common.h>
 #include <ata.h>
 #include <blk.h>
+#include <bootdev.h>
 #include <dm.h>
 #include <ide.h>
 #include <log.h>
@@ -1055,6 +1056,45 @@ U_BOOT_DRIVER(ide_blk) = {
 	.probe		= ide_blk_probe,
 };
 
+static int ide_bootdev_bind(struct udevice *dev)
+{
+	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
+
+	ucp->prio = BOOTDEVP_3_SCAN_SLOW;
+
+	return 0;
+}
+
+static int ide_bootdev_hunt(struct bootdev_hunter *info, bool show)
+{
+	ide_init();
+
+	return 0;
+}
+
+struct bootdev_ops ide_bootdev_ops = {
+};
+
+static const struct udevice_id ide_bootdev_ids[] = {
+	{ .compatible = "u-boot,bootdev-ide" },
+	{ }
+};
+
+U_BOOT_DRIVER(ide_bootdev) = {
+	.name		= "ide_bootdev",
+	.id		= UCLASS_BOOTDEV,
+	.ops		= &ide_bootdev_ops,
+	.bind		= ide_bootdev_bind,
+	.of_match	= ide_bootdev_ids,
+};
+
+BOOTDEV_HUNTER(ide_bootdev_hunter) = {
+	.prio		= BOOTDEVP_3_SCAN_SLOW,
+	.uclass		= UCLASS_IDE,
+	.hunt		= ide_bootdev_hunt,
+	.drv		= DM_DRIVER_REF(ide_bootdev),
+};
+
 static int ide_probe(struct udevice *udev)
 {
 	struct udevice *blk_dev;
@@ -1086,6 +1126,10 @@ static int ide_probe(struct udevice *udev)
 			ret = blk_probe_or_unbind(blk_dev);
 			if (ret)
 				return ret;
+
+			ret = bootdev_setup_for_dev(udev, "ide_bootdev");
+			if (ret)
+				return log_msg_ret("bootdev", ret);
 		}
 	}
 
