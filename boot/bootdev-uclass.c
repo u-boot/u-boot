@@ -649,10 +649,10 @@ int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp)
 	return 0;
 }
 
-int bootdev_setup_iter(struct bootflow_iter *iter, struct udevice **devp,
-		       int *method_flagsp)
+int bootdev_setup_iter(struct bootflow_iter *iter, const char *label,
+		       struct udevice **devp, int *method_flagsp)
 {
-	struct udevice *bootstd, *dev = *devp;
+	struct udevice *bootstd, *dev = NULL;
 	bool show = iter->flags & BOOTFLOWF_SHOW;
 	int method_flags;
 	int ret;
@@ -671,10 +671,24 @@ int bootdev_setup_iter(struct bootflow_iter *iter, struct udevice **devp,
 	}
 
 	/* Handle scanning a single device */
-	if (dev) {
-		iter->flags |= BOOTFLOWF_SINGLE_DEV;
-		log_debug("Selected boodev: %s\n", dev->name);
-		method_flags = 0;
+	if (IS_ENABLED(CONFIG_BOOTSTD_FULL) && label) {
+		if (iter->flags & BOOTFLOWF_HUNT) {
+			ret = bootdev_hunt(label, show);
+			if (ret)
+				return log_msg_ret("hun", ret);
+		}
+		ret = bootdev_find_by_any(label, &dev, &method_flags);
+		if (ret)
+			return log_msg_ret("lab", ret);
+
+		log_debug("method_flags: %x\n", method_flags);
+		if (method_flags & BOOTFLOW_METHF_SINGLE_UCLASS)
+			iter->flags |= BOOTFLOWF_SINGLE_UCLASS;
+		else if (method_flags & BOOTFLOW_METHF_SINGLE_DEV)
+			iter->flags |= BOOTFLOWF_SINGLE_DEV;
+		else
+			iter->flags |= BOOTFLOWF_SINGLE_MEDIA;
+		log_debug("Selected label: %s, flags %x\n", label, iter->flags);
 	} else {
 		bool ok;
 

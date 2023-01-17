@@ -626,7 +626,7 @@ static int bootdev_test_next_prio(struct unit_test_state *uts)
 	struct udevice *dev;
 	int ret;
 
-	sandbox_set_eth_enable(false);
+	test_set_eth_enable(false);
 	test_set_skip_delays(true);
 
 	/* get access to the used hunters */

@@ -215,7 +215,37 @@ static int iter_incr(struct bootflow_iter *iter)
 		dev = iter->dev;
 		log_debug("inc_dev=%d\n", inc_dev);
 		if (!inc_dev) {
-			ret = bootdev_setup_iter(iter, &dev, &method_flags);
+			ret = bootdev_setup_iter(iter, NULL, &dev,
+						 &method_flags);
+		} else if (IS_ENABLED(CONFIG_BOOTSTD_FULL) &&
+			   (iter->flags & BOOTFLOWF_SINGLE_UCLASS)) {
+			/* Move to the next bootdev in this uclass */
+			uclass_find_next_device(&dev);
+			if (!dev) {
+				log_debug("finished uclass %s\n",
+					  dev_get_uclass_name(dev));
+				ret = -ENODEV;
+			}
+		} else if (IS_ENABLED(CONFIG_BOOTSTD_FULL) &&
+			   iter->flags & BOOTFLOWF_SINGLE_MEDIA) {
+			log_debug("next in single\n");
+			method_flags = 0;
+			do {
+				/*
+				 * Move to the next bootdev child of this media
+				 * device. This ensures that we cover all the
+				 * available SCSI IDs and LUNs.
+				 */
+				device_find_next_child(&dev);
+				log_debug("- next %s\n",
+					dev ? dev->name : "(none)");
+			} while (dev && device_get_uclass_id(dev) !=
+				UCLASS_BOOTDEV);
+			if (!dev) {
+				log_debug("finished uclass %s\n",
+					  dev_get_uclass_name(dev));
+				ret = -ENODEV;
+			}
 		} else {
 			log_debug("labels %p\n", iter->labels);
 			if (iter->labels) {
@@ -294,12 +324,13 @@ static int bootflow_check(struct bootflow_iter *iter, struct bootflow *bflow)
 	return 0;
 }
 
-int bootflow_scan_bootdev(struct udevice *dev, struct bootflow_iter *iter,
-			  int flags, struct bootflow *bflow)
+int bootflow_scan_bootdev(struct udevice *dev, const char *label,
+			  struct bootflow_iter *iter, int flags,
+			  struct bootflow *bflow)
 {
 	int ret;
 
-	if (dev)
+	if (dev || label)
 		flags |= BOOTFLOWF_SKIP_GLOBAL;
 	bootflow_iter_init(iter, flags);
 
@@ -318,7 +349,7 @@ int bootflow_scan_bootdev(struct udevice *dev, struct bootflow_iter *iter,
 		struct udevice *dev = NULL;
 		int method_flags;
 
-		ret = bootdev_setup_iter(iter, &dev, &method_flags);
+		ret = bootdev_setup_iter(iter, label, &dev, &method_flags);
 		if (ret)
 			return log_msg_ret("obdev", -ENODEV);
 
@@ -345,7 +376,7 @@ int bootflow_scan_first(struct bootflow_iter *iter, int flags,
 {
 	int ret;
 
-	ret = bootflow_scan_bootdev(NULL, iter, flags, bflow);
+	ret = bootflow_scan_bootdev(NULL, NULL, iter, flags, bflow);
 	if (ret)
 		return log_msg_ret("start", ret);
 

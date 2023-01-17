@@ -93,11 +93,12 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	struct bootstd_priv *std;
 	struct bootflow_iter iter;
-	struct udevice *dev;
+	struct udevice *dev = NULL;
 	struct bootflow bflow;
 	bool all = false, boot = false, errors = false, no_global = false;
 	bool list = false, no_hunter = false;
 	int num_valid = 0;
+	const char *label = NULL;
 	bool has_args;
 	int ret, i;
 	int flags;
@@ -105,7 +106,6 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 	ret = bootstd_get_priv(&std);
 	if (ret)
 		return CMD_RET_FAILURE;
-	dev = std->cur_bootdev;
 
 	has_args = argc > 1 && *argv[1] == '-';
 	if (IS_ENABLED(CONFIG_CMD_BOOTFLOW_FULL)) {
@@ -119,12 +119,10 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 			argc--;
 			argv++;
 		}
-		if (argc > 1) {
-			const char *label = argv[1];
-
-			if (bootdev_find_by_any(label, &dev, NULL))
-				return CMD_RET_FAILURE;
-		}
+		if (argc > 1)
+			label = argv[1];
+		if (!label)
+			dev = std->cur_bootdev;
 	} else {
 		if (has_args) {
 			printf("Flags not supported: enable CONFIG_BOOTFLOW_FULL\n");
@@ -148,54 +146,36 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 	/*
 	 * If we have a device, just scan for bootflows attached to that device
 	 */
-	if (IS_ENABLED(CONFIG_CMD_BOOTFLOW_FULL) && dev) {
-		if (list) {
-			printf("Scanning for bootflows in bootdev '%s'\n",
-			       dev->name);
-			show_header();
-		}
+	if (list) {
+		printf("Scanning for bootflows ");
+		if (dev)
+			printf("in bootdev '%s'\n", dev->name);
+		else if (label)
+			printf("with label '%s'\n", label);
+		else
+			printf("in all bootdevs\n");
+		show_header();
+	}
+	if (dev)
 		bootdev_clear_bootflows(dev);
-		for (i = 0,
-		     ret = bootflow_scan_bootdev(dev, &iter, flags, &bflow);
-		     i < 1000 && ret != -ENODEV;
-		     i++, ret = bootflow_scan_next(&iter, &bflow)) {
-			bflow.err = ret;
-			if (!ret)
-				num_valid++;
-			ret = bootdev_add_bootflow(&bflow);
-			if (ret) {
-				printf("Out of memory\n");
-				return CMD_RET_FAILURE;
-			}
-			if (list)
-				show_bootflow(i, &bflow, errors);
-			if (boot && !bflow.err)
-				bootflow_run_boot(&iter, &bflow);
-		}
-	} else {
-		if (list) {
-			printf("Scanning for bootflows in all bootdevs\n");
-			show_header();
-		}
+	else
 		bootstd_clear_glob();
-
-		for (i = 0,
-		     ret = bootflow_scan_first(&iter, flags, &bflow);
-		     i < 1000 && ret != -ENODEV;
-		     i++, ret = bootflow_scan_next(&iter, &bflow)) {
-			bflow.err = ret;
-			if (!ret)
-				num_valid++;
-			ret = bootdev_add_bootflow(&bflow);
-			if (ret) {
-				printf("Out of memory\n");
-				return CMD_RET_FAILURE;
-			}
-			if (list)
-				show_bootflow(i, &bflow, errors);
-			if (boot && !bflow.err)
-				bootflow_run_boot(&iter, &bflow);
+	for (i = 0,
+	     ret = bootflow_scan_bootdev(dev, label, &iter, flags, &bflow);
+	     i < 1000 && ret != -ENODEV;
+	     i++, ret = bootflow_scan_next(&iter, &bflow)) {
+		bflow.err = ret;
+		if (!ret)
+			num_valid++;
+		ret = bootdev_add_bootflow(&bflow);
+		if (ret) {
+			printf("Out of memory\n");
+			return CMD_RET_FAILURE;
 		}
+		if (list)
+			show_bootflow(i, &bflow, errors);
+		if (boot && !bflow.err)
+			bootflow_run_boot(&iter, &bflow);
 	}
 	bootflow_iter_uninit(&iter);
 	if (list)

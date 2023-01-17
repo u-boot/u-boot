@@ -267,10 +267,13 @@ int bootdev_find_by_any(const char *name, struct udevice **devp,
 /**
  * bootdev_setup_iter() - Set up iteration through bootdevs
  *
- * This sets up the an interation, based on the priority of each bootdev, the
- * bootdev-order property in the bootstd node (or the boot_targets env var).
+ * This sets up the an interation, based on the provided device or label. If
+ * neither is provided, the iteration is based on the priority of each bootdev,
+ * the * bootdev-order property in the bootstd node (or the boot_targets env
+ * var).
  *
  * @iter: Iterator to update with the order
+ * @label: label to scan, or NULL to scan all
  * @devp: On entry, *devp is NULL to scan all, otherwise this is the (single)
  *	device to scan. Returns the first device to use, which is the passed-in
  *	@devp if it was non-NULL
@@ -279,8 +282,8 @@ int bootdev_find_by_any(const char *name, struct udevice **devp,
  * Return: 0 if OK, -ENOENT if no bootdevs, -ENOMEM if out of memory, other -ve
  *	on other error
  */
-int bootdev_setup_iter(struct bootflow_iter *iter, struct udevice **devp,
-		       int *method_flagsp);
+int bootdev_setup_iter(struct bootflow_iter *iter, const char *label,
+		       struct udevice **devp, int *method_flagsp);
 
 /**
  * bootdev_list_hunters() - List the available bootdev hunters

@@ -76,7 +76,6 @@ static int bootflow_cmd(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootflow_cmd, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 
-#if 0 /* disable for now */
 /* Check 'bootflow scan' with a label / seq */
 static int bootflow_cmd_label(struct unit_test_state *uts)
 {
@@ -124,7 +123,6 @@ static int bootflow_cmd_label(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootflow_cmd_label, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
 	     UT_TESTF_ETH_BOOTDEV);
-#endif
 
 /* Check 'bootflow scan/list' commands using all bootdevs */
 static int bootflow_cmd_glob(struct unit_test_state *uts)
@@ -563,6 +561,66 @@ static int bootflow_cmd_menu(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootflow_cmd_menu, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/* Check searching for a single bootdev using the hunters */
+static int bootflow_cmd_hunt_single(struct unit_test_state *uts)
+{
+	struct bootstd_priv *std;
+
+	/* get access to the used hunters */
+	ut_assertok(bootstd_get_priv(&std));
+
+	ut_assertok(bootstd_test_drop_bootdev_order(uts));
+
+	console_record_reset_enable();
+	ut_assertok(run_command("bootflow scan -l mmc1", 0));
+	ut_assert_nextline("Scanning for bootflows with label 'mmc1'");
+	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
+	ut_assert_console_end();
+
+	/* check that the hunter was used */
+	ut_asserteq(BIT(MMC_HUNTER) | BIT(1), std->hunters_used);
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_cmd_hunt_single, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/* Check searching for a uclass label using the hunters */
+static int bootflow_cmd_hunt_label(struct unit_test_state *uts)
+{
+	struct bootstd_priv *std;
+
+	/* get access to the used hunters */
+	ut_assertok(bootstd_get_priv(&std));
+
+	test_set_skip_delays(true);
+	test_set_eth_enable(false);
+	ut_assertok(bootstd_test_drop_bootdev_order(uts));
+
+	console_record_reset_enable();
+	ut_assertok(run_command("bootflow scan -l mmc", 0));
+
+	/* check that the hunter was used */
+	ut_asserteq(BIT(MMC_HUNTER) | BIT(1), std->hunters_used);
+
+	/* check that we got the mmc1 bootflow */
+	ut_assert_nextline("Scanning for bootflows with label 'mmc'");
+	ut_assert_nextlinen("Seq");
+	ut_assert_nextlinen("---");
+	ut_assert_nextline("Hunting with: simple_bus");
+	ut_assert_nextline("Found 2 extension board(s).");
+	ut_assert_nextline("Hunting with: mmc");
+	ut_assert_nextline("Scanning bootdev 'mmc2.bootdev':");
+	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
+	ut_assert_nextline(
+		"  0  syslinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	ut_assert_nextline("Scanning bootdev 'mmc0.bootdev':");
+	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_cmd_hunt_label, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 
 /**
  * check_font() - Check that the font size for an item matches expectations

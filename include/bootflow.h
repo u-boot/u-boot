@@ -255,14 +255,18 @@ int bootflow_iter_drop_bootmeth(struct bootflow_iter *iter,
  *
  * @dev:	Boot device to scan, NULL to work through all of them until it
  *	finds one that can supply a bootflow
+ * @label:	Label to control the scan, NULL to work through all devices
+ *	until it finds one that can supply a bootflow
  * @iter:	Place to store private info (inited by this call)
- * @flags:	Flags for iterator (enum bootflow_flags_t)
+ * @flags:	Flags for iterator (enum bootflow_flags_t). Note that if @dev
+ * is NULL, then BOOTFLOWF_SKIP_GLOBAL is set automatically by this function
  * @bflow:	Place to put the bootflow if found
  * Return: 0 if found,  -ENODEV if no device, other -ve on other error
  *	(iteration can continue)
  */
-int bootflow_scan_bootdev(struct udevice *dev, struct bootflow_iter *iter,
-			  int flags, struct bootflow *bflow);
+int bootflow_scan_bootdev(struct udevice *dev, const char *label,
+			  struct bootflow_iter *iter, int flags,
+			  struct bootflow *bflow);
 
 /**
  * bootflow_scan_first() - find the first bootflow
