@@ -106,6 +106,7 @@
 #endif
 #include <watchdog.h>
 #include <linux/compiler.h>
+#include <test/test.h>
 #include "arp.h"
 #include "bootp.h"
 #include "cdp.h"
@@ -464,6 +465,9 @@ restart:
 	 */
 	debug_cond(DEBUG_INT_STATE, "--- net_loop Init\n");
 	net_init_loop();
+
+	if (!test_eth_enabled())
+		return 0;
 
 	switch (net_check_prereq(protocol)) {
 	case 1:

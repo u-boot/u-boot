@@ -12,6 +12,7 @@
 #include <os.h>
 #include <asm/malloc.h>
 #include <asm/state.h>
+#include <asm/test.h>
 
 /* Main state record for the sandbox */
 static struct sandbox_state main_state;
@@ -366,6 +367,7 @@ void state_reset_for_test(struct sandbox_state *state)
 	state->sysreset_allowed[SYSRESET_POWER_OFF] = true;
 	state->sysreset_allowed[SYSRESET_COLD] = true;
 	state->allow_memio = false;
+	sandbox_set_eth_enable(true);
 
 	memset(&state->wdt, '\0', sizeof(state->wdt));
 	memset(state->spi, '\0', sizeof(state->spi));
@@ -442,6 +444,20 @@ int state_load_other_fdt(const char **bufp, int *sizep)
 	*sizep = state->other_size;
 
 	return 0;
+}
+
+void sandbox_set_eth_enable(bool enable)
+{
+	struct sandbox_state *state = state_get_current();
+
+	state->disable_eth = !enable;
+}
+
+bool sandbox_eth_enabled(void)
+{
+	struct sandbox_state *state = state_get_current();
+
+	return !state->disable_eth;
 }
 
 int state_init(void)

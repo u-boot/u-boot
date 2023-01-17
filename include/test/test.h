@@ -169,4 +169,29 @@ static inline int test_load_other_fdt(struct unit_test_state *uts)
 	return ret;
 }
 
+/**
+ * test_set_eth_enable() - Enable / disable Ethernet
+ *
+ * Allows control of whether Ethernet packets are actually send/received
+ *
+ * @enable: true to enable Ethernet, false to disable
+ */
+static inline void test_set_eth_enable(bool enable)
+{
+#ifdef CONFIG_SANDBOX
+	sandbox_set_eth_enable(enable);
+#endif
+}
+
+/* Allow ethernet to be disabled for testing purposes */
+static inline bool test_eth_enabled(void)
+{
+	bool enabled = true;
+
+#ifdef CONFIG_SANDBOX
+	enabled = sandbox_eth_enabled();
+#endif
+	return enabled;
+}
+
 #endif /* __TEST_TEST_H */
