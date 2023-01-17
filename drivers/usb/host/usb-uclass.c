@@ -563,6 +563,8 @@ static int usb_find_and_bind_driver(struct udevice *parent,
 	if (!str)
 		return -ENOMEM;
 	ret = device_bind_driver(parent, "usb_dev_generic_drv", str, devp);
+	if (!ret)
+		device_set_name_alloced(*devp);
 
 error:
 	debug("%s: No match found: %d\n", __func__, ret);
