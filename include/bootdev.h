@@ -316,6 +316,23 @@ int bootdev_hunt(const char *spec, bool show);
  */
 int bootdev_hunt_prio(enum bootdev_prio_t prio, bool show);
 
+/**
+ * bootdev_hunt_and_find_by_label() - Hunt for bootdevs by label
+ *
+ * Runs the hunter for the label, then tries to find the bootdev, possible
+ * created by the hunter
+ *
+ * @label: Label to look up (e.g. "mmc1" or "mmc0")
+ * @devp: Returns the bootdev device found, or NULL if none (note it does not
+ *	return the media device, but its bootdev child)
+ * @method_flagsp: If non-NULL, returns any flags implied by the label
+ * (enum bootflow_meth_flags_t), 0 if none. Unset if function fails
+ * Return: 0 if OK, -EINVAL if the uclass is not supported by this board,
+ * -ENOENT if there is no device with that number
+ */
+int bootdev_hunt_and_find_by_label(const char *label, struct udevice **devp,
+				   int *method_flagsp);
+
 #if CONFIG_IS_ENABLED(BOOTSTD)
 /**
  * bootdev_setup_for_dev() - Bind a new bootdev device (deprecated)

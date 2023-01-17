@@ -442,6 +442,13 @@ int bootdev_find_by_label(const char *label, struct udevice **devp,
 		if (!ret) {
 			log_debug("- found %s\n", bdev->name);
 			*devp = bdev;
+
+			/*
+			 * if no sequence number was provided, we must scan all
+			 * bootdevs for this media uclass
+			 */
+			if (IS_ENABLED(CONFIG_BOOTSTD_FULL) && seq == -1)
+				method_flags |= BOOTFLOW_METHF_SINGLE_UCLASS;
 			if (method_flagsp)
 				*method_flagsp = method_flags;
 			return 0;
@@ -458,7 +465,7 @@ int bootdev_find_by_any(const char *name, struct udevice **devp,
 {
 	struct udevice *dev;
 	int method_flags = 0;
-	int ret, seq;
+	int ret = -ENODEV, seq;
 	char *endp;
 
 	seq = simple_strtol(name, &endp, 16);
@@ -480,8 +487,9 @@ int bootdev_find_by_any(const char *name, struct udevice **devp,
 			       ret);
 			return log_msg_ret("pro", ret);
 		}
-	} else {
+	} else if (IS_ENABLED(CONFIG_BOOTSTD_FULL)) {
 		ret = uclass_get_device_by_seq(UCLASS_BOOTDEV, seq, &dev);
+		method_flags |= BOOTFLOW_METHF_SINGLE_DEV;
 	}
 	if (ret) {
 		printf("Cannot find '%s' (err=%d)\n", name, ret);
@@ -491,6 +499,21 @@ int bootdev_find_by_any(const char *name, struct udevice **devp,
 	*devp = dev;
 	if (method_flagsp)
 		*method_flagsp = method_flags;
+
+	return 0;
+}
+
+int bootdev_hunt_and_find_by_label(const char *label, struct udevice **devp,
+				   int *method_flagsp)
+{
+	int ret;
+
+	ret = bootdev_hunt(label, false);
+	if (ret)
+		return log_msg_ret("scn", ret);
+	ret = bootdev_find_by_label(label, devp, method_flagsp);
+	if (ret)
+		return log_msg_ret("fnd", ret);
 
 	return 0;
 }

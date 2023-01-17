@@ -40,4 +40,12 @@ int bootstd_test_drop_bootdev_order(struct unit_test_state *uts);
  */
 int bootstd_setup_for_tests(void);
 
+/**
+ * bootstd_test_check_mmc_hunter() - Check that the mmc bootdev hunter was used
+ *
+ * @uts: Unit test state to use for ut_assert...() functions
+ * Returns: 0 if OK (used), other value on error (not used)
+ */
+int bootstd_test_check_mmc_hunter(struct unit_test_state *uts);
+
 #endif

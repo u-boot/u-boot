@@ -99,7 +99,10 @@ struct bootflow {
  * Internal flags:
  * @BOOTFLOWF_SINGLE_DEV: (internal) Just scan one bootdev
  * @BOOTFLOWF_SKIP_GLOBAL: (internal) Don't scan global bootmeths
- * this uclass
+ * @BOOTFLOWF_SINGLE_UCLASS: (internal) Keep scanning through all devices in
+ * this uclass (used with things like "mmc")
+ * @BOOTFLOWF_SINGLE_MEDIA: (internal) Scan one media device in the uclass (used
+ * with things like "mmc1")
  */
 enum bootflow_flags_t {
 	BOOTFLOWF_FIXED		= 1 << 0,
@@ -113,6 +116,8 @@ enum bootflow_flags_t {
 	 */
 	BOOTFLOWF_SINGLE_DEV	= 1 << 16,
 	BOOTFLOWF_SKIP_GLOBAL	= 1 << 17,
+	BOOTFLOWF_SINGLE_UCLASS	= 1 << 18,
+	BOOTFLOWF_SINGLE_MEDIA	= 1 << 19,
 };
 
 /**
@@ -124,10 +129,17 @@ enum bootflow_flags_t {
  *
  * @BOOTFLOW_METHF_DHCP_ONLY: Only use dhcp (scripts and EFI)
  * @BOOTFLOW_METHF_PXE_ONLY: Only use pxe (PXE boot)
+ * @BOOTFLOW_METHF_SINGLE_DEV: Scan only a single bootdev (used for labels like
+ * "3"). This is used if a sequence number is provided instead of a label
+ * @BOOTFLOW_METHF_SINGLE_UCLASS: Scan all bootdevs in this one uclass (used
+ * with things like "mmc"). If this is not set, then the bootdev has an integer
+ * value in the label (like "mmc2")
  */
 enum bootflow_meth_flags_t {
 	BOOTFLOW_METHF_DHCP_ONLY	= 1 << 0,
 	BOOTFLOW_METHF_PXE_ONLY		= 1 << 1,
+	BOOTFLOW_METHF_SINGLE_DEV	= 1 << 2,
+	BOOTFLOW_METHF_SINGLE_UCLASS	= 1 << 3,
 };
 
 /**

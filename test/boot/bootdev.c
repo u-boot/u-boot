@@ -113,9 +113,11 @@ static int bootdev_test_labels(struct unit_test_state *uts)
 
 	/* Check method flags */
 	ut_assertok(bootdev_find_by_label("pxe", &dev, &mflags));
-	ut_asserteq(BOOTFLOW_METHF_PXE_ONLY, mflags);
+	ut_asserteq(BOOTFLOW_METHF_SINGLE_UCLASS | BOOTFLOW_METHF_PXE_ONLY,
+		    mflags);
 	ut_assertok(bootdev_find_by_label("dhcp", &dev, &mflags));
-	ut_asserteq(BOOTFLOW_METHF_DHCP_ONLY, mflags);
+	ut_asserteq(BOOTFLOW_METHF_SINGLE_UCLASS | BOOTFLOW_METHF_DHCP_ONLY,
+		    mflags);
 
 	/* Check invalid uclass */
 	ut_asserteq(-EINVAL, bootdev_find_by_label("fred0", &dev, &mflags));
@@ -126,6 +128,62 @@ static int bootdev_test_labels(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootdev_test_labels, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
+	     UT_TESTF_ETH_BOOTDEV);
+
+/* Check bootdev_find_by_any() */
+static int bootdev_test_any(struct unit_test_state *uts)
+{
+	struct udevice *dev, *media;
+	int mflags;
+
+	/*
+	 * with ethernet enabled we have 8 devices ahead of the mmc ones:
+	 *
+	 * ut_assertok(run_command("bootdev list", 0));
+	 * Seq  Probed  Status  Uclass    Name
+	 * ---  ------  ------  --------  ------------------
+	 * 0   [ + ]      OK  ethernet  eth@10002000.bootdev
+	 * 1   [   ]      OK  ethernet  eth@10003000.bootdev
+	 * 2   [   ]      OK  ethernet  sbe5.bootdev
+	 * 3   [   ]      OK  ethernet  eth@10004000.bootdev
+	 * 4   [   ]      OK  ethernet  phy-test-eth.bootdev
+	 * 5   [   ]      OK  ethernet  dsa-test-eth.bootdev
+	 * 6   [   ]      OK  ethernet  dsa-test@0.bootdev
+	 * 7   [   ]      OK  ethernet  dsa-test@1.bootdev
+	 * 8   [   ]      OK  mmc       mmc2.bootdev
+	 * 9   [ + ]      OK  mmc       mmc1.bootdev
+	 * a   [   ]      OK  mmc       mmc0.bootdev
+	 */
+	console_record_reset_enable();
+	ut_assertok(bootdev_find_by_any("8", &dev, &mflags));
+	ut_asserteq(UCLASS_BOOTDEV, device_get_uclass_id(dev));
+	ut_asserteq(BOOTFLOW_METHF_SINGLE_DEV, mflags);
+	media = dev_get_parent(dev);
+	ut_asserteq(UCLASS_MMC, device_get_uclass_id(media));
+	ut_asserteq_str("mmc2", media->name);
+	ut_assert_console_end();
+
+	/* there should not be this many bootdevs */
+	ut_asserteq(-ENODEV, bootdev_find_by_any("50", &dev, &mflags));
+	ut_assert_nextline("Cannot find '50' (err=-19)");
+	ut_assert_console_end();
+
+	/* Check method flags */
+	ut_assertok(bootdev_find_by_any("pxe", &dev, &mflags));
+	ut_asserteq(BOOTFLOW_METHF_SINGLE_UCLASS | BOOTFLOW_METHF_PXE_ONLY,
+		    mflags);
+
+	/* Check invalid uclass */
+	mflags = 123;
+	ut_asserteq(-EINVAL, bootdev_find_by_any("fred0", &dev, &mflags));
+	ut_assert_nextline("Unknown uclass 'fred0' in label");
+	ut_assert_nextline("Cannot find bootdev 'fred0' (err=-22)");
+	ut_asserteq(123, mflags);
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootdev_test_any, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
 	     UT_TESTF_ETH_BOOTDEV);
 
 /* Check bootdev ordering with the bootdev-order property */
@@ -399,3 +457,56 @@ static int bootdev_test_hunt_prio(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootdev_test_hunt_prio, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/* Check hunting for bootdevs with a particular label */
+static int bootdev_test_hunt_label(struct unit_test_state *uts)
+{
+	struct udevice *dev, *old;
+	struct bootstd_priv *std;
+	int mflags;
+
+	/* get access to the used hunters */
+	ut_assertok(bootstd_get_priv(&std));
+
+	/* scan an unknown uclass */
+	console_record_reset_enable();
+	old = (void *)&mflags;   /* arbitrary pointer to check against dev */
+	dev = old;
+	mflags = 123;
+	ut_asserteq(-EINVAL,
+		    bootdev_hunt_and_find_by_label("fred", &dev, &mflags));
+	ut_assert_nextline("Unknown uclass 'fred' in label");
+	ut_asserteq_ptr(old, dev);
+	ut_asserteq(123, mflags);
+	ut_assert_console_end();
+	ut_asserteq(0, std->hunters_used);
+
+	/* scan an invalid mmc controllers */
+	ut_asserteq(-ENOENT,
+		    bootdev_hunt_and_find_by_label("mmc4", &dev, &mflags));
+	ut_asserteq_ptr(old, dev);
+	ut_asserteq(123, mflags);
+	ut_assert_nextline("Unknown seq 4 for label 'mmc4'");
+	ut_assert_console_end();
+
+	ut_assertok(bootstd_test_check_mmc_hunter(uts));
+
+	/* scan for a particular mmc controller */
+	ut_assertok(bootdev_hunt_and_find_by_label("mmc1", &dev, &mflags));
+	ut_assertnonnull(dev);
+	ut_asserteq_str("mmc1.bootdev", dev->name);
+	ut_asserteq(0, mflags);
+	ut_assert_console_end();
+
+	/* scan all of usb */
+	test_set_skip_delays(true);
+	ut_assertok(bootdev_hunt_and_find_by_label("usb", &dev, &mflags));
+	ut_assertnonnull(dev);
+	ut_asserteq_str("usb_mass_storage.lun0.bootdev", dev->name);
+	ut_asserteq(BOOTFLOW_METHF_SINGLE_UCLASS, mflags);
+	ut_assert_nextlinen("Bus usb@1: scanning bus usb@1");
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootdev_test_hunt_label, UT_TESTF_DM | UT_TESTF_SCAN_FDT);

@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <bootdev.h>
 #include <bootstd.h>
 #include <dm.h>
 #include <memalign.h>
@@ -63,6 +64,24 @@ int bootstd_test_drop_bootdev_order(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
 	priv = dev_get_priv(bootstd);
 	priv->bootdev_order = NULL;
+
+	return 0;
+}
+
+int bootstd_test_check_mmc_hunter(struct unit_test_state *uts)
+{
+	struct bootdev_hunter *start, *mmc;
+	struct bootstd_priv *std;
+	uint seq;
+
+	/* get access to the used hunters */
+	ut_assertok(bootstd_get_priv(&std));
+
+	/* check that the hunter was used */
+	start = ll_entry_start(struct bootdev_hunter, bootdev_hunter);
+	mmc = BOOTDEV_HUNTER_GET(mmc_bootdev_hunter);
+	seq = mmc - start;
+	ut_asserteq(BIT(seq), std->hunters_used);
 
 	return 0;
 }
