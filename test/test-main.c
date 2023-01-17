@@ -296,10 +296,8 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 
 	uts->start = mallinfo();
 
-	if (test->flags & UT_TESTF_SCAN_PDATA) {
+	if (test->flags & UT_TESTF_SCAN_PDATA)
 		ut_assertok(dm_scan_plat(false));
-		ut_assertok(dm_scan_other(false));
-	}
 
 	if (test->flags & UT_TESTF_PROBE_TEST)
 		ut_assertok(do_autoprobe(uts));
@@ -307,6 +305,13 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
 	    (test->flags & UT_TESTF_SCAN_FDT))
 		ut_assertok(dm_extended_scan(false));
+
+	/*
+	 * Do this after FDT scan since dm_scan_other() in bootstd-uclass.c
+	 * checks for the existence of bootstd
+	 */
+	if (test->flags & UT_TESTF_SCAN_PDATA)
+		ut_assertok(dm_scan_other(false));
 
 	if (IS_ENABLED(CONFIG_SANDBOX) && (test->flags & UT_TESTF_OTHER_FDT)) {
 		/* make sure the other FDT is available */
