@@ -163,7 +163,7 @@ int virtio_finalize_features(struct udevice *vdev)
 		return ret;
 	if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
 		debug("(%s): device refuses features %x\n", vdev->name, status);
-		return -ENODEV;
+		return -EINVAL;
 	}
 
 	return 0;
