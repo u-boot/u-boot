@@ -10,6 +10,7 @@
 #include <bootflow.h>
 #include <bootstd.h>
 #include <dm.h>
+#include <env.h>
 #include <log.h>
 #include <malloc.h>
 #include <dm/device-internal.h>
@@ -72,9 +73,23 @@ static int bootstd_remove(struct udevice *dev)
 	return 0;
 }
 
-const char *const *const bootstd_get_bootdev_order(struct udevice *dev)
+const char *const *const bootstd_get_bootdev_order(struct udevice *dev,
+						   bool *okp)
 {
 	struct bootstd_priv *std = dev_get_priv(dev);
+	const char *targets = env_get("boot_targets");
+
+	*okp = true;
+	log_debug("- targets %s %p\n", targets, std->bootdev_order);
+	if (targets && *targets) {
+		str_free_list(std->env_order);
+		std->env_order = str_to_list(targets);
+		if (!std->env_order) {
+			*okp = false;
+			return NULL;
+		}
+		return std->env_order;
+	}
 
 	return std->bootdev_order;
 }

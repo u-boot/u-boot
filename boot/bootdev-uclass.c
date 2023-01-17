@@ -12,7 +12,6 @@
 #include <bootflow.h>
 #include <bootmeth.h>
 #include <bootstd.h>
-#include <env.h>
 #include <fs.h>
 #include <log.h>
 #include <malloc.h>
@@ -504,34 +503,13 @@ static int build_order(struct udevice *bootstd, struct udevice **order,
 	const char *overflow_target = NULL;
 	const char *const *labels;
 	struct udevice *dev;
-	const char *targets;
 	int i, ret, count;
+	bool ok;
 
-	targets = env_get("boot_targets");
-	labels = IS_ENABLED(CONFIG_BOOTSTD_FULL) ?
-		bootstd_get_bootdev_order(bootstd) : NULL;
-	if (targets) {
-		char str[BOOT_TARGETS_MAX_LEN];
-		char *target;
-
-		if (strlen(targets) >= BOOT_TARGETS_MAX_LEN)
-			return log_msg_ret("len", -E2BIG);
-
-		/* make a copy of the string, since strok() will change it */
-		strcpy(str, targets);
-		for (i = 0, target = strtok(str, " "); target;
-		     target = strtok(NULL, " ")) {
-			ret = bootdev_find_by_label(target, &dev);
-			if (!ret) {
-				if (i == max_count) {
-					overflow_target = target;
-					break;
-				}
-				order[i++] = dev;
-			}
-		}
-		count = i;
-	} else if (labels) {
+	labels = bootstd_get_bootdev_order(bootstd, &ok);
+	if (!ok)
+		return log_msg_ret("ord", -ENOMEM);
+	if (labels) {
 		int upto;
 
 		upto = 0;
