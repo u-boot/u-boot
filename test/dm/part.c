@@ -11,8 +11,8 @@
 #include <dm/test.h>
 #include <test/ut.h>
 
-static inline int do_test(struct unit_test_state *uts, int expected,
-			  const char *part_str, bool whole)
+static int do_test(struct unit_test_state *uts, int expected,
+		   const char *part_str, bool whole)
 {
 	struct blk_desc *mmc_dev_desc;
 	struct disk_partition part_info;
@@ -54,11 +54,8 @@ static int dm_test_part(struct unit_test_state *uts)
 
 	oldbootdevice = env_get("bootdevice");
 
-#define test(expected, part_str, whole) do { \
-	ret = do_test(uts, expected, part_str, whole); \
-	if (ret) \
-		goto out; \
-} while (0)
+#define test(expected, part_str, whole) \
+	ut_assertok(do_test(uts, expected, part_str, whole))
 
 	env_set("bootdevice", NULL);
 	test(-ENODEV, NULL, true);
@@ -92,7 +89,6 @@ static int dm_test_part(struct unit_test_state *uts)
 	test(2, "1#test2", false);
 	ret = 0;
 
-out:
 	env_set("bootdevice", oldbootdevice);
 	return ret;
 }
