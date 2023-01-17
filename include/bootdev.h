@@ -263,6 +263,20 @@ int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp);
  */
 void bootdev_list_hunters(struct bootstd_priv *std);
 
+/**
+ * bootdev_hunt() - Hunt for bootdevs matching a particular spec
+ *
+ * This runs the selected hunter (or all if @spec is NULL) to try to find new
+ * bootdevs.
+ *
+ * @spec: Spec to match, e.g. "mmc0", or NULL for any. If provided, this must
+ * match a uclass name so that the hunter can be determined. Any trailing number
+ * is ignored
+ * @show: true to show each hunter before using it
+ * Returns: 0 if OK, -ve on error
+ */
+int bootdev_hunt(const char *spec, bool show);
+
 #if CONFIG_IS_ENABLED(BOOTSTD)
 /**
  * bootdev_setup_for_dev() - Bind a new bootdev device (deprecated)

@@ -636,6 +636,67 @@ int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp)
 	return 0;
 }
 
+static int bootdev_hunt_drv(struct bootdev_hunter *info, uint seq, bool show)
+{
+	const char *name = uclass_get_name(info->uclass);
+	struct bootstd_priv *std;
+	int ret;
+
+	ret = bootstd_get_priv(&std);
+	if (ret)
+		return log_msg_ret("std", ret);
+
+	if (!(std->hunters_used & BIT(seq))) {
+		if (show)
+			printf("Hunting with: %s\n",
+			       uclass_get_name(info->uclass));
+		log_debug("Hunting with: %s\n", name);
+		if (info->hunt) {
+			ret = info->hunt(info, show);
+			if (ret)
+				return ret;
+		}
+		std->hunters_used |= BIT(seq);
+	}
+
+	return 0;
+}
+
+int bootdev_hunt(const char *spec, bool show)
+{
+	struct bootdev_hunter *start;
+	const char *end;
+	int n_ent, i;
+	int result;
+	size_t len;
+
+	start = ll_entry_start(struct bootdev_hunter, bootdev_hunter);
+	n_ent = ll_entry_count(struct bootdev_hunter, bootdev_hunter);
+	result = 0;
+
+	len = SIZE_MAX;
+	if (spec) {
+		trailing_strtoln_end(spec, NULL, &end);
+		len = end - spec;
+	}
+
+	for (i = 0; i < n_ent; i++) {
+		struct bootdev_hunter *info = start + i;
+		const char *name = uclass_get_name(info->uclass);
+		int ret;
+
+		log_debug("looking at %.*s for %s\n",
+			  (int)max(strlen(name), len), spec, name);
+		if (spec && strncmp(spec, name, max(strlen(name), len)))
+			continue;
+		ret = bootdev_hunt_drv(info, i, show);
+		if (ret)
+			result = ret;
+	}
+
+	return result;
+}
+
 void bootdev_list_hunters(struct bootstd_priv *std)
 {
 	struct bootdev_hunter *orig, *start;

@@ -237,6 +237,9 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 	ut_assert_nextline("(total hunters: 0)");
 	ut_assert_console_end();
 
+	ut_assertok(bootdev_hunt("mmc1", false));
+	ut_assert_console_end();
+
 	return 0;
 }
 BOOTSTD_TEST(bootdev_test_hunter, UT_TESTF_DM | UT_TESTF_SCAN_FDT);

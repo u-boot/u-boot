@@ -128,7 +128,12 @@ static int do_bootdev_hunt(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (list) {
 		bootdev_list_hunters(priv);
 	} else {
-		/* TODO: implement hunting */
+		ret = bootdev_hunt(spec, true);
+		if (ret) {
+			printf("Failed (err=%dE)\n", ret);
+
+			return CMD_RET_FAILURE;
+		}
 	}
 
 	return 0;
