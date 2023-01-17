@@ -60,6 +60,9 @@ enum bootflow_state_t {
  * @err: Error number received (0 if OK)
  * @os_name: Name of the OS / distro being booted, or NULL if not known
  *	(allocated)
+ * @fdt_fname: Filename of FDT file
+ * @fdt_size: Size of FDT file
+ * @fdt_addr: Address of loaded fdt
  */
 struct bootflow {
 	struct list_head bm_node;
@@ -79,6 +82,9 @@ struct bootflow {
 	int size;
 	int err;
 	char *os_name;
+	char *fdt_fname;
+	int fdt_size;
+	ulong fdt_addr;
 };
 
 /**

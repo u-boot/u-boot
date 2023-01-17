@@ -355,6 +355,7 @@ void bootflow_free(struct bootflow *bflow)
 	free(bflow->fname);
 	free(bflow->buf);
 	free(bflow->os_name);
+	free(bflow->fdt_fname);
 }
 
 void bootflow_remove(struct bootflow *bflow)
