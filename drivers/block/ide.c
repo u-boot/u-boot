@@ -443,9 +443,6 @@ static void atapi_inquiry(struct blk_desc *dev_desc)
 
 	device = dev_desc->devnum;
 	dev_desc->type = DEV_TYPE_UNKNOWN;	/* not yet valid */
-#ifndef CONFIG_BLK
-	dev_desc->block_read = atapi_read;
-#endif
 
 	memset(ccb, 0, sizeof(ccb));
 	memset(iobuf, 0, sizeof(iobuf));
@@ -692,6 +689,7 @@ __weak unsigned char ide_inb(int dev, int port)
 
 void ide_init(void)
 {
+	struct udevice *dev;
 	unsigned char c;
 	int i, bus;
 
@@ -759,29 +757,14 @@ void ide_init(void)
 		ide_dev_desc[i].log2blksz =
 			LOG2_INVALID(typeof(ide_dev_desc[i].log2blksz));
 		ide_dev_desc[i].lba = 0;
-#ifndef CONFIG_BLK
-		ide_dev_desc[i].block_read = ide_read;
-		ide_dev_desc[i].block_write = ide_write;
-#endif
 		if (!ide_bus_ok[IDE_BUS(i)])
 			continue;
 		ide_ident(&ide_dev_desc[i]);
 		dev_print(&ide_dev_desc[i]);
-
-#ifndef CONFIG_BLK
-		if ((ide_dev_desc[i].lba > 0) && (ide_dev_desc[i].blksz > 0)) {
-			/* initialize partition type */
-			part_init(&ide_dev_desc[i]);
-		}
-#endif
 	}
 	schedule();
 
-#ifdef CONFIG_BLK
-	struct udevice *dev;
-
 	uclass_first_device(UCLASS_IDE, &dev);
-#endif
 }
 
 __weak void ide_input_swap_data(int dev, ulong *sect_buf, int words)
@@ -830,17 +813,10 @@ __weak void ide_input_data(int dev, ulong *sect_buf, int words)
 	}
 }
 
-#ifdef CONFIG_BLK
 ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	       void *buffer)
-#else
-ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
-	       void *buffer)
-#endif
 {
-#ifdef CONFIG_BLK
 	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
-#endif
 	int device = block_dev->devnum;
 	ulong n = 0;
 	unsigned char c;
@@ -957,17 +933,10 @@ IDE_READ_E:
 	return n;
 }
 
-#ifdef CONFIG_BLK
 ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer)
-#else
-ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
-		const void *buffer)
-#endif
 {
-#ifdef CONFIG_BLK
 	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
-#endif
 	int device = block_dev->devnum;
 	ulong n = 0;
 	unsigned char c;
@@ -1056,7 +1025,6 @@ int ide_device_present(int dev)
 }
 #endif
 
-#ifdef CONFIG_BLK
 static int ide_blk_probe(struct udevice *udev)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(udev);
@@ -1141,11 +1109,3 @@ UCLASS_DRIVER(ide) = {
 	.name		= "ide",
 	.id		= UCLASS_IDE,
 };
-#else
-U_BOOT_LEGACY_BLK(ide) = {
-	.uclass_idname	= "ide",
-	.uclass_id	= UCLASS_IDE,
-	.max_devs	= CONFIG_SYS_IDE_MAXDEVICE,
-	.desc		= ide_dev_desc,
-};
-#endif
