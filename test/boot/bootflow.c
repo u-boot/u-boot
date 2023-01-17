@@ -315,15 +315,15 @@ static int bootflow_iter(struct unit_test_state *uts)
 	ut_asserteq(BOOTFLOWST_FS, bflow.state);
 	bootflow_free(&bflow);
 
-	/* Then more to partition 2 which doesn't exist */
-	ut_asserteq(-ENOENT, bootflow_scan_next(&iter, &bflow));
+	/* Then more to partition 2 which exists but is not bootable */
+	ut_asserteq(-EPERM, bootflow_scan_next(&iter, &bflow));
 	ut_asserteq(2, iter.num_methods);
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(2, iter.part);
 	ut_asserteq(0x1e, iter.max_part);
 	ut_asserteq_str("syslinux", iter.method->name);
 	ut_asserteq(0, bflow.err);
-	ut_asserteq(BOOTFLOWST_MEDIA, bflow.state);
+	ut_asserteq(BOOTFLOWST_PART, bflow.state);
 	bootflow_free(&bflow);
 
 	bootflow_iter_uninit(&iter);

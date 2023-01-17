@@ -19,13 +19,14 @@ def mkdir_cond(dirname):
     if not os.path.exists(dirname):
         os.mkdir(dirname)
 
-def setup_image(cons, mmc_dev, part_type):
+def setup_image(cons, mmc_dev, part_type, second_part=False):
     """Create a 20MB disk image with a single partition
 
     Args:
         cons (ConsoleBase): Console to use
         mmc_dev (int): MMC device number to use, e.g. 1
         part_type (int): Partition type, e.g. 0xc for FAT32
+        second_part (bool): True to contain a small second partition
 
     Returns:
         tuple:
@@ -36,9 +37,13 @@ def setup_image(cons, mmc_dev, part_type):
     mnt = os.path.join(cons.config.persistent_data_dir, 'mnt')
     mkdir_cond(mnt)
 
+    spec = f'type={part_type:x}, size=18M, bootable'
+    if second_part:
+        spec += '\ntype=c'
+
     u_boot_utils.run_and_log(cons, 'qemu-img create %s 20M' % fname)
     u_boot_utils.run_and_log(cons, 'sudo sfdisk %s' % fname,
-                             stdin=f'type={part_type:x}'.encode('utf-8'))
+                             stdin=spec.encode('utf-8'))
     return fname, mnt
 
 def mount_image(cons, fname, mnt, fstype):
@@ -59,7 +64,7 @@ def mount_image(cons, fname, mnt, fstype):
     u_boot_utils.run_and_log(cons, f'sudo mkfs.{fstype} {part}')
     opts = ''
     if fstype == 'vfat':
-         opts += ' -o uid={os.getuid()},gid={os.getgid()}'
+         opts += f' -o uid={os.getuid()},gid={os.getgid()}'
     u_boot_utils.run_and_log(cons, f'sudo mount -o loop {part} {mnt}{opts}')
     u_boot_utils.run_and_log(cons, f'sudo chown {getpass.getuser()} {mnt}')
     return loop
@@ -218,7 +223,7 @@ booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
 def setup_bootflow_image(cons):
     """Create a 20MB disk image with a single FAT partition"""
     mmc_dev = 1
-    fname, mnt = setup_image(cons, mmc_dev, 0xc)
+    fname, mnt = setup_image(cons, mmc_dev, 0xc, second_part=True)
 
     loop = None
     mounted = False

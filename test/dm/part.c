@@ -93,3 +93,16 @@ static int dm_test_part(struct unit_test_state *uts)
 	return ret;
 }
 DM_TEST(dm_test_part, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_part_bootable(struct unit_test_state *uts)
+{
+	struct blk_desc *desc;
+	struct udevice *dev;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_BLK, "mmc1.blk", &dev));
+	desc = dev_get_uclass_plat(dev);
+	ut_asserteq(1, part_get_bootable(desc));
+
+	return 0;
+}
+DM_TEST(dm_test_part_bootable, UT_TESTF_SCAN_FDT);
