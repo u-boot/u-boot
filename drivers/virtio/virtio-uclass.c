@@ -18,6 +18,7 @@
 #define LOG_CATEGORY UCLASS_VIRTIO
 
 #include <common.h>
+#include <bootdev.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
@@ -246,6 +247,12 @@ static int virtio_uclass_post_probe(struct udevice *udev)
 	}
 	device_set_name_alloced(vdev);
 
+	if (uc_priv->device == VIRTIO_ID_BLOCK) {
+		ret = bootdev_setup_for_dev(udev, name);
+		if (ret)
+			return log_msg_ret("bootdev", ret);
+	}
+
 	INIT_LIST_HEAD(&uc_priv->vqs);
 
 	return 0;
@@ -349,6 +356,26 @@ static int virtio_uclass_child_post_probe(struct udevice *vdev)
 	return 0;
 }
 
+static int virtio_bootdev_bind(struct udevice *dev)
+{
+	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
+
+	ucp->prio = BOOTDEVP_2_SCAN_FAST;
+
+	return 0;
+}
+
+static int virtio_bootdev_hunt(struct bootdev_hunter *info, bool show)
+{
+	int ret;
+
+	ret = uclass_probe_all(UCLASS_VIRTIO);
+	if (ret && ret != -ENOENT)
+		return log_msg_ret("vir", ret);
+
+	return 0;
+}
+
 UCLASS_DRIVER(virtio) = {
 	.name	= "virtio",
 	.id	= UCLASS_VIRTIO,
@@ -359,4 +386,27 @@ UCLASS_DRIVER(virtio) = {
 	.child_pre_probe = virtio_uclass_child_pre_probe,
 	.child_post_probe = virtio_uclass_child_post_probe,
 	.per_device_auto	= sizeof(struct virtio_dev_priv),
+};
+
+struct bootdev_ops virtio_bootdev_ops = {
+};
+
+static const struct udevice_id virtio_bootdev_ids[] = {
+	{ .compatible = "u-boot,bootdev-virtio" },
+	{ }
+};
+
+U_BOOT_DRIVER(virtio_bootdev) = {
+	.name		= "virtio_bootdev",
+	.id		= UCLASS_BOOTDEV,
+	.ops		= &virtio_bootdev_ops,
+	.bind		= virtio_bootdev_bind,
+	.of_match	= virtio_bootdev_ids,
+};
+
+BOOTDEV_HUNTER(virtio_bootdev_hunter) = {
+	.prio		= BOOTDEVP_2_SCAN_FAST,
+	.uclass		= UCLASS_VIRTIO,
+	.hunt		= virtio_bootdev_hunt,
+	.drv		= DM_DRIVER_REF(virtio_bootdev),
 };
