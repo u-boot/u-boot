@@ -4,6 +4,8 @@
  * Denis Peter, MPL AG Switzerland
  */
 
+#define LOG_CATEGORY	UCLASS_SCSI
+
 #include <common.h>
 #include <blk.h>
 #include <bootstage.h>
@@ -558,7 +560,7 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 	struct udevice *bdev;
 	struct blk_desc bd;
 	struct blk_desc *bdesc;
-	char str[10];
+	char str[10], *name;
 
 	/*
 	 * detect the scsi driver to get information about its geometry (block
@@ -574,12 +576,16 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 	* block devices created
 	*/
 	snprintf(str, sizeof(str), "id%dlun%d", id, lun);
-	ret = blk_create_devicef(dev, "scsi_blk", str, UCLASS_SCSI, -1,
+	name = strdup(str);
+	if (!name)
+		return log_msg_ret("nam", -ENOMEM);
+	ret = blk_create_devicef(dev, "scsi_blk", name, UCLASS_SCSI, -1,
 				 bd.blksz, bd.lba, &bdev);
 	if (ret) {
 		debug("Can't create device\n");
 		return ret;
 	}
+	device_set_name_alloced(bdev);
 
 	bdesc = dev_get_uclass_plat(bdev);
 	bdesc->target = id;
