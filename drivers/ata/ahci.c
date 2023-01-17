@@ -675,6 +675,12 @@ static int ata_scsiop_inquiry(struct ahci_uc_priv *uc_priv,
 	/* Read id from sata */
 	port = pccb->target;
 
+	/* If this port number is not valid, give up */
+	if (!(uc_priv->port_map & (1 << port))) {
+		debug("Port %x not valid in map %x\n", port, uc_priv->port_map);
+		return -ENODEV;
+	}
+
 	if (ahci_device_data_io(uc_priv, port, (u8 *)&fis, sizeof(fis),
 				(u8 *)tmpid, ATA_ID_WORDS * 2, 0)) {
 		debug("scsi_ahci: SCSI inquiry command failure.\n");
