@@ -324,9 +324,9 @@ static int bootflow_check(struct bootflow_iter *iter, struct bootflow *bflow)
 	return 0;
 }
 
-int bootflow_scan_bootdev(struct udevice *dev, const char *label,
-			  struct bootflow_iter *iter, int flags,
-			  struct bootflow *bflow)
+int bootflow_scan_first(struct udevice *dev, const char *label,
+			struct bootflow_iter *iter, int flags,
+			struct bootflow *bflow)
 {
 	int ret;
 
@@ -367,18 +367,6 @@ int bootflow_scan_bootdev(struct udevice *dev, const char *label,
 		if (ret)
 			return log_msg_ret("get", ret);
 	}
-
-	return 0;
-}
-
-int bootflow_scan_first(struct bootflow_iter *iter, int flags,
-			struct bootflow *bflow)
-{
-	int ret;
-
-	ret = bootflow_scan_bootdev(NULL, NULL, iter, flags, bflow);
-	if (ret)
-		return log_msg_ret("start", ret);
 
 	return 0;
 }

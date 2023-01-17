@@ -161,7 +161,7 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 	else
 		bootstd_clear_glob();
 	for (i = 0,
-	     ret = bootflow_scan_bootdev(dev, label, &iter, flags, &bflow);
+	     ret = bootflow_scan_first(dev, label, &iter, flags, &bflow);
 	     i < 1000 && ret != -ENODEV;
 	     i++, ret = bootflow_scan_next(&iter, &bflow)) {
 		bflow.err = ret;

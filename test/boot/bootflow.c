@@ -276,7 +276,8 @@ static int bootflow_iter(struct unit_test_state *uts)
 
 	/* The first device is mmc2.bootdev which has no media */
 	ut_asserteq(-EPROTONOSUPPORT,
-		    bootflow_scan_first(&iter, BOOTFLOWF_ALL | BOOTFLOWF_SKIP_GLOBAL, &bflow));
+		    bootflow_scan_first(NULL, NULL, &iter,
+					BOOTFLOWF_ALL | BOOTFLOWF_SKIP_GLOBAL, &bflow));
 	ut_asserteq(2, iter.num_methods);
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(0, iter.part);
@@ -415,7 +416,7 @@ static int bootflow_iter_disable(struct unit_test_state *uts)
 
 	/* Try to boot the bootmgr flow, which will fail */
 	console_record_reset_enable();
-	ut_assertok(bootflow_scan_first(&iter, 0, &bflow));
+	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
 	ut_asserteq(3, iter.num_methods);
 	ut_asserteq_str("sandbox", iter.method->name);
 	ut_assertok(inject_response(uts));

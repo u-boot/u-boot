@@ -203,7 +203,7 @@ static int bootdev_test_order(struct unit_test_state *uts)
 	 * mmc2 - nothing connected
 	 */
 	ut_assertok(env_set("boot_targets", NULL));
-	ut_assertok(bootflow_scan_first(&iter, 0, &bflow));
+	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
 	ut_asserteq(2, iter.num_devs);
 	ut_asserteq_str("mmc2.bootdev", iter.dev_order[0]->name);
 	ut_asserteq_str("mmc1.bootdev", iter.dev_order[1]->name);
@@ -211,7 +211,7 @@ static int bootdev_test_order(struct unit_test_state *uts)
 
 	/* Use the environment variable to override it */
 	ut_assertok(env_set("boot_targets", "mmc1 mmc2"));
-	ut_assertok(bootflow_scan_first(&iter, 0, &bflow));
+	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
 	ut_asserteq(2, iter.num_devs);
 	ut_asserteq_str("mmc1.bootdev", iter.dev_order[0]->name);
 	ut_asserteq_str("mmc2.bootdev", iter.dev_order[1]->name);
@@ -224,7 +224,7 @@ static int bootdev_test_order(struct unit_test_state *uts)
 	ut_assertok(env_set("boot_targets", NULL));
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 
-	ut_assertok(bootflow_scan_first(&iter, 0, &bflow));
+	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
 	ut_asserteq(3, iter.num_devs);
 	ut_asserteq_str("mmc2.bootdev", iter.dev_order[0]->name);
 	ut_asserteq_str("mmc1.bootdev", iter.dev_order[1]->name);
@@ -239,7 +239,7 @@ static int bootdev_test_order(struct unit_test_state *uts)
 	iter.dev_order[2]->seq_ = 2;
 	bootflow_iter_uninit(&iter);
 
-	ut_assertok(bootflow_scan_first(&iter, 0, &bflow));
+	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
 	ut_asserteq(3, iter.num_devs);
 	ut_asserteq_str("mmc2.bootdev", iter.dev_order[0]->name);
 	ut_asserteq_str("mmc0.bootdev", iter.dev_order[1]->name);
@@ -268,7 +268,7 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 
 	/* 3 MMC and 3 USB bootdevs: MMC should come before USB */
 	console_record_reset_enable();
-	ut_assertok(bootflow_scan_first(&iter, 0, &bflow));
+	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
 	ut_asserteq(6, iter.num_devs);
 	ut_asserteq_str("mmc2.bootdev", iter.dev_order[0]->name);
 	ut_asserteq_str("usb_mass_storage.lun0.bootdev",
@@ -282,7 +282,8 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 	ucp->prio = 1;
 
 	bootflow_iter_uninit(&iter);
-	ut_assertok(bootflow_scan_first(&iter, 0, &bflow));
+	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, BOOTFLOWF_HUNT,
+					&bflow));
 	ut_asserteq(6, iter.num_devs);
 	ut_asserteq_str("usb_mass_storage.lun0.bootdev",
 			iter.dev_order[0]->name);
@@ -415,7 +416,8 @@ static int bootdev_test_hunt_scan(struct unit_test_state *uts)
 	ut_assertok(bootstd_get_priv(&std));
 
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
-	ut_assertok(bootflow_scan_first(&iter, BOOTFLOWF_SHOW | BOOTFLOWF_HUNT |
+	ut_assertok(bootflow_scan_first(NULL, NULL, &iter,
+					BOOTFLOWF_SHOW | BOOTFLOWF_HUNT |
 					BOOTFLOWF_SKIP_GLOBAL, &bflow));
 	ut_asserteq(BIT(MMC_HUNTER) | BIT(1), std->hunters_used);
 

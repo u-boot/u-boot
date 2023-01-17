@@ -249,7 +249,7 @@ int bootflow_iter_drop_bootmeth(struct bootflow_iter *iter,
 				const struct udevice *bmeth);
 
 /**
- * bootflow_scan_bootdev() - find the first bootflow in a bootdev
+ * bootflow_scan_first() - find the first bootflow for a device or label
  *
  * If @flags includes BOOTFLOWF_ALL then bootflows with errors are returned too
  *
@@ -264,25 +264,8 @@ int bootflow_iter_drop_bootmeth(struct bootflow_iter *iter,
  * Return: 0 if found,  -ENODEV if no device, other -ve on other error
  *	(iteration can continue)
  */
-int bootflow_scan_bootdev(struct udevice *dev, const char *label,
-			  struct bootflow_iter *iter, int flags,
-			  struct bootflow *bflow);
-
-/**
- * bootflow_scan_first() - find the first bootflow
- *
- * This works through the available bootdev devices until it finds one that
- * can supply a bootflow. It then returns that
- *
- * If @flags includes BOOTFLOWF_ALL then bootflows with errors are returned too
- *
- * @iter:	Place to store private info (inited by this call), with
- * @flags:	Flags for bootdev (enum bootflow_flags_t)
- * @bflow:	Place to put the bootflow if found
- * Return: 0 if found, -ENODEV if no device, other -ve on other error (iteration
- *	can continue)
- */
-int bootflow_scan_first(struct bootflow_iter *iter, int flags,
+int bootflow_scan_first(struct udevice *dev, const char *label,
+			struct bootflow_iter *iter, int flags,
 			struct bootflow *bflow);
 
 /**
