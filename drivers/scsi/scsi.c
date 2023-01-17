@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <blk.h>
+#include <bootdev.h>
 #include <bootstage.h>
 #include <dm.h>
 #include <env.h>
@@ -604,7 +605,11 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 	ret = blk_probe_or_unbind(bdev);
 	if (ret < 0)
 		/* TODO: undo create */
-		return ret;
+		return log_msg_ret("pro", ret);
+
+	ret = bootdev_setup_sibling_blk(bdev, "scsi_bootdev");
+	if (ret)
+		return log_msg_ret("bd", ret);
 
 	if (verbose) {
 		printf("  Device %d: ", bdesc->devnum);
