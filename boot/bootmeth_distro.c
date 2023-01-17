@@ -59,7 +59,7 @@ static int distro_check(struct udevice *dev, struct bootflow_iter *iter)
 	int ret;
 
 	/* This only works on block devices */
-	ret = bootflow_iter_uses_blk_dev(iter);
+	ret = bootflow_iter_check_blk(iter);
 	if (ret)
 		return log_msg_ret("blk", ret);
 

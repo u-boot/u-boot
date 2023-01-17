@@ -36,7 +36,7 @@ static int efi_mgr_check(struct udevice *dev, struct bootflow_iter *iter)
 	int ret;
 
 	/* Must be an bootstd device */
-	ret = bootflow_iter_uses_system(iter);
+	ret = bootflow_iter_check_system(iter);
 	if (ret)
 		return log_msg_ret("net", ret);
 

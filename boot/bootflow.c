@@ -427,7 +427,7 @@ int bootflow_run_boot(struct bootflow_iter *iter, struct bootflow *bflow)
 	return ret;
 }
 
-int bootflow_iter_uses_blk_dev(const struct bootflow_iter *iter)
+int bootflow_iter_check_blk(const struct bootflow_iter *iter)
 {
 	const struct udevice *media = dev_get_parent(iter->dev);
 	enum uclass_id id = device_get_uclass_id(media);
@@ -439,7 +439,7 @@ int bootflow_iter_uses_blk_dev(const struct bootflow_iter *iter)
 	return -ENOTSUPP;
 }
 
-int bootflow_iter_uses_network(const struct bootflow_iter *iter)
+int bootflow_iter_check_net(const struct bootflow_iter *iter)
 {
 	const struct udevice *media = dev_get_parent(iter->dev);
 	enum uclass_id id = device_get_uclass_id(media);
@@ -451,7 +451,7 @@ int bootflow_iter_uses_network(const struct bootflow_iter *iter)
 	return -ENOTSUPP;
 }
 
-int bootflow_iter_uses_system(const struct bootflow_iter *iter)
+int bootflow_iter_check_system(const struct bootflow_iter *iter)
 {
 	const struct udevice *media = dev_get_parent(iter->dev);
 	enum uclass_id id = device_get_uclass_id(media);

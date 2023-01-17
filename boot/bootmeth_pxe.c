@@ -44,7 +44,7 @@ static int distro_pxe_check(struct udevice *dev, struct bootflow_iter *iter)
 	int ret;
 
 	/* This only works on network devices */
-	ret = bootflow_iter_uses_network(iter);
+	ret = bootflow_iter_check_net(iter);
 	if (ret)
 		return log_msg_ret("net", ret);
 

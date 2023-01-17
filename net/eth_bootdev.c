@@ -27,7 +27,7 @@ static int eth_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
 	int ret;
 
 	/* Must be an Ethernet device */
-	ret = bootflow_iter_uses_network(iter);
+	ret = bootflow_iter_check_net(iter);
 	if (ret)
 		return log_msg_ret("net", ret);
 

@@ -314,33 +314,33 @@ const char *bootflow_state_get_name(enum bootflow_state_t state);
 void bootflow_remove(struct bootflow *bflow);
 
 /**
- * bootflow_iter_uses_blk_dev() - Check that a bootflow uses a block device
+ * bootflow_iter_check_blk() - Check that a bootflow uses a block device
  *
  * This checks the bootdev in the bootflow to make sure it uses a block device
  *
  * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. ethernet)
  */
-int bootflow_iter_uses_blk_dev(const struct bootflow_iter *iter);
+int bootflow_iter_check_blk(const struct bootflow_iter *iter);
 
 /**
- * bootflow_iter_uses_network() - Check that a bootflow uses a network device
+ * bootflow_iter_check_net() - Check that a bootflow uses a network device
  *
  * This checks the bootdev in the bootflow to make sure it uses a network
  * device
  *
  * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. MMC)
  */
-int bootflow_iter_uses_network(const struct bootflow_iter *iter);
+int bootflow_iter_check_net(const struct bootflow_iter *iter);
 
 /**
- * bootflow_iter_uses_system() - Check that a bootflow uses the bootstd device
+ * bootflow_iter_check_system() - Check that a bootflow uses the bootstd device
  *
  * This checks the bootdev in the bootflow to make sure it uses the bootstd
  * device
  *
  * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. MMC)
  */
-int bootflow_iter_uses_system(const struct bootflow_iter *iter);
+int bootflow_iter_check_system(const struct bootflow_iter *iter);
 
 /**
  * bootflow_menu_new() - Create a new bootflow menu
