@@ -60,7 +60,7 @@ static int eth_bootdev_bind(struct udevice *dev)
 {
 	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
 
-	ucp->prio = BOOTDEVP_4_NET_BASE;
+	ucp->prio = BOOTDEVP_6_NET_BASE;
 
 	return 0;
 }
@@ -112,7 +112,7 @@ U_BOOT_DRIVER(eth_bootdev) = {
 };
 
 BOOTDEV_HUNTER(eth_bootdev_hunt) = {
-	.prio		= BOOTDEVP_4_NET_BASE,
+	.prio		= BOOTDEVP_6_NET_BASE,
 	.uclass		= UCLASS_ETH,
 	.hunt		= eth_bootdev_hunt,
 	.drv		= DM_DRIVER_REF(eth_bootdev),

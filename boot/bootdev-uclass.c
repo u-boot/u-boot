@@ -630,6 +630,7 @@ static int build_order(struct udevice *bootstd, struct udevice **order,
 int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp)
 {
 	struct udevice *bootstd, *dev = *devp, **order;
+	bool show = iter->flags & BOOTFLOWF_SHOW;
 	struct uclass *uc;
 	int count, upto;
 	int ret;
@@ -638,6 +639,13 @@ int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp)
 	if (ret) {
 		log_err("Missing bootstd device\n");
 		return log_msg_ret("std", ret);
+	}
+
+	/* hunt for any pre-scan devices */
+	if (iter->flags & BOOTFLOWF_HUNT) {
+		ret = bootdev_hunt_prio(BOOTDEVP_1_PRE_SCAN, show);
+		if (ret)
+			return log_msg_ret("pre", ret);
 	}
 
 	/* Handle scanning a single device */

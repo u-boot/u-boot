@@ -21,15 +21,36 @@ struct udevice;
  *
  * Smallest value is the highest priority. By default, bootdevs are scanned from
  * highest to lowest priority
+ *
+ * BOOTDEVP_0_NONE: Invalid value, do not use
+ * @BOOTDEVP_6_PRE_SCAN: Scan bootdevs with this priority always, before
+ * starting any bootflow scan
+ * @BOOTDEVP_2_INTERNAL_FAST: Internal devices which don't need scanning and
+ * generally very quick to access, e.g. less than 100ms
+ * @BOOTDEVP_3_INTERNAL_SLOW: Internal devices which don't need scanning but
+ * take a significant fraction of a second to access
+ * @BOOTDEVP_4_SCAN_FAST: Extenal devices which need scanning or bus
+ * enumeration to find, but this enumeration happens quickly, typically under
+ * 100ms
+ * @BOOTDEVP_5_SCAN_SLOW: Extenal devices which need scanning or bus
+ * enumeration to find. The enumeration takes significant fraction of a second
+ * to complete
+ * @BOOTDEVP_6_NET_BASE: Basic network devices which are quickly and easily
+ * available. Typically used for an internal Ethernet device
+ * @BOOTDEVP_7_NET_FALLBACK: Secondary network devices which require extra time
+ * to start up, or are less desirable. Typically used for secondary Ethernet
+ * devices. Note that USB ethernet devices are found during USB enumeration,
+ * so do not use this priority
  */
 enum bootdev_prio_t {
-	BOOTDEVP_0_INTERNAL_FAST	= 10,
-	BOOTDEVP_1_INTERNAL_SLOW	= 20,
-	BOOTDEVP_2_SCAN_FAST		= 30,
-	BOOTDEVP_3_SCAN_SLOW		= 40,
-	BOOTDEVP_4_NET_BASE		= 50,
-	BOOTDEVP_5_NET_FALLBACK		= 60,
-	BOOTDEVP_6_SYSTEM		= 70,
+	BOOTDEVP_0_NONE,
+	BOOTDEVP_1_PRE_SCAN,
+	BOOTDEVP_2_INTERNAL_FAST,
+	BOOTDEVP_3_INTERNAL_SLOW,
+	BOOTDEVP_4_SCAN_FAST,
+	BOOTDEVP_5_SCAN_SLOW,
+	BOOTDEVP_6_NET_BASE,
+	BOOTDEVP_7_NET_FALLBACK,
 
 	BOOTDEVP_COUNT,
 };

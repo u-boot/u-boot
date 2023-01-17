@@ -15,7 +15,7 @@ static int mmc_bootdev_bind(struct udevice *dev)
 {
 	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
 
-	ucp->prio = BOOTDEVP_0_INTERNAL_FAST;
+	ucp->prio = BOOTDEVP_2_INTERNAL_FAST;
 
 	return 0;
 }
@@ -37,7 +37,7 @@ U_BOOT_DRIVER(mmc_bootdev) = {
 };
 
 BOOTDEV_HUNTER(mmc_bootdev_hunter) = {
-	.prio		= BOOTDEVP_0_INTERNAL_FAST,
+	.prio		= BOOTDEVP_2_INTERNAL_FAST,
 	.uclass		= UCLASS_MMC,
 	.drv		= DM_DRIVER_REF(mmc_bootdev),
 };

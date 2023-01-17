@@ -360,7 +360,7 @@ static int virtio_bootdev_bind(struct udevice *dev)
 {
 	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
 
-	ucp->prio = BOOTDEVP_2_SCAN_FAST;
+	ucp->prio = BOOTDEVP_4_SCAN_FAST;
 
 	return 0;
 }
@@ -405,7 +405,7 @@ U_BOOT_DRIVER(virtio_bootdev) = {
 };
 
 BOOTDEV_HUNTER(virtio_bootdev_hunter) = {
-	.prio		= BOOTDEVP_2_SCAN_FAST,
+	.prio		= BOOTDEVP_4_SCAN_FAST,
 	.uclass		= UCLASS_VIRTIO,
 	.hunt		= virtio_bootdev_hunt,
 	.drv		= DM_DRIVER_REF(virtio_bootdev),

@@ -15,7 +15,7 @@ static int usb_bootdev_bind(struct udevice *dev)
 {
 	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
 
-	ucp->prio = BOOTDEVP_3_SCAN_SLOW;
+	ucp->prio = BOOTDEVP_5_SCAN_SLOW;
 
 	return 0;
 }
@@ -42,7 +42,7 @@ U_BOOT_DRIVER(usb_bootdev) = {
 };
 
 BOOTDEV_HUNTER(usb_bootdev_hunter) = {
-	.prio		= BOOTDEVP_3_SCAN_SLOW,
+	.prio		= BOOTDEVP_5_SCAN_SLOW,
 	.uclass		= UCLASS_USB,
 	.hunt		= usb_bootdev_hunt,
 	.drv		= DM_DRIVER_REF(usb_bootdev),

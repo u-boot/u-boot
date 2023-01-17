@@ -211,7 +211,7 @@ A bootdev driver is typically fairly simple. Here is one for mmc::
     {
         struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
 
-        ucp->prio = BOOTDEVP_0_INTERNAL_FAST;
+        ucp->prio = BOOTDEVP_2_INTERNAL_FAST;
 
         return 0;
     }
