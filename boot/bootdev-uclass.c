@@ -234,13 +234,27 @@ int bootdev_setup_for_dev(struct udevice *parent, const char *drv_name)
 	return 0;
 }
 
+static int bootdev_get_suffix_start(struct udevice *dev, const char *suffix)
+{
+	int len, slen;
+
+	len = strlen(dev->name);
+	slen = strlen(suffix);
+	if (len > slen && !strcmp(suffix, dev->name + len - slen))
+		return len - slen;
+
+	return len;
+}
+
 int bootdev_setup_sibling_blk(struct udevice *blk, const char *drv_name)
 {
 	struct udevice *parent, *dev;
 	char dev_name[50];
-	int ret;
+	int ret, len;
 
-	snprintf(dev_name, sizeof(dev_name), "%s.%s", blk->name, "bootdev");
+	len = bootdev_get_suffix_start(blk, ".blk");
+	snprintf(dev_name, sizeof(dev_name), "%.*s.%s", len, blk->name,
+		 "bootdev");
 
 	parent = dev_get_parent(blk);
 	ret = device_find_child_by_name(parent, dev_name, &dev);
@@ -271,20 +285,22 @@ int bootdev_get_sibling_blk(struct udevice *dev, struct udevice **blkp)
 	struct udevice *parent = dev_get_parent(dev);
 	struct udevice *blk;
 	int ret, len;
-	char *p;
 
 	if (device_get_uclass_id(dev) != UCLASS_BOOTDEV)
 		return -EINVAL;
 
 	/* This should always work if bootdev_setup_sibling_blk() was used */
-	p = strstr(dev->name, ".bootdev");
-	if (!p)
-		return log_msg_ret("str", -EINVAL);
-
-	len = p - dev->name;
+	len = bootdev_get_suffix_start(dev, ".bootdev");
 	ret = device_find_child_by_namelen(parent, dev->name, len, &blk);
-	if (ret)
-		return log_msg_ret("find", ret);
+	if (ret) {
+		char dev_name[50];
+
+		snprintf(dev_name, sizeof(dev_name), "%.*s.blk", len,
+			 dev->name);
+		ret = device_find_child_by_name(parent, dev_name, &blk);
+		if (ret)
+			return log_msg_ret("find", ret);
+	}
 	*blkp = blk;
 
 	return 0;
@@ -295,13 +311,15 @@ static int bootdev_get_from_blk(struct udevice *blk, struct udevice **bootdevp)
 	struct udevice *parent = dev_get_parent(blk);
 	struct udevice *bootdev;
 	char dev_name[50];
-	int ret;
+	int ret, len;
 
 	if (device_get_uclass_id(blk) != UCLASS_BLK)
 		return -EINVAL;
 
 	/* This should always work if bootdev_setup_sibling_blk() was used */
-	snprintf(dev_name, sizeof(dev_name), "%s.%s", blk->name, "bootdev");
+	len = bootdev_get_suffix_start(blk, ".blk");
+	snprintf(dev_name, sizeof(dev_name), "%.*s.%s", len, blk->name,
+		 "bootdev");
 	ret = device_find_child_by_name(parent, dev_name, &bootdev);
 	if (ret)
 		return log_msg_ret("find", ret);

@@ -204,7 +204,10 @@ int bootdev_setup_iter_order(struct bootflow_iter *iter, struct udevice **devp);
 
 #if CONFIG_IS_ENABLED(BOOTSTD)
 /**
- * bootdev_setup_for_dev() - Bind a new bootdev device
+ * bootdev_setup_for_dev() - Bind a new bootdev device (deprecated)
+ *
+ * Please use bootdev_setup_sibling_blk() instead since it supports multiple
+ * (child) block devices for each media device.
  *
  * Creates a bootdev device as a child of @parent. This should be called from
  * the driver's bind() method or its uclass' post_bind() method.
