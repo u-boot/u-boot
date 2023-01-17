@@ -214,6 +214,7 @@ static int virtio_uclass_post_probe(struct udevice *udev)
 	struct virtio_dev_priv *uc_priv = dev_get_uclass_priv(udev);
 	char dev_name[30], *str;
 	struct udevice *vdev;
+	const char *name;
 	int ret;
 
 	if (uc_priv->device >= VIRTIO_ID_MAX_NUM) {
@@ -222,20 +223,19 @@ static int virtio_uclass_post_probe(struct udevice *udev)
 		return 0;
 	}
 
-	if (!virtio_drv_name[uc_priv->device]) {
+	name = virtio_drv_name[uc_priv->device];
+	if (!name) {
 		debug("(%s): underlying virtio device driver unavailable\n",
 		      udev->name);
 		return 0;
 	}
 
-	snprintf(dev_name, sizeof(dev_name), "%s#%d",
-		 virtio_drv_name[uc_priv->device], dev_seq(udev));
+	snprintf(dev_name, sizeof(dev_name), "%s#%d", name, dev_seq(udev));
 	str = strdup(dev_name);
 	if (!str)
 		return -ENOMEM;
 
-	ret = device_bind_driver(udev, virtio_drv_name[uc_priv->device],
-				 str, &vdev);
+	ret = device_bind_driver(udev, name, str, &vdev);
 	if (ret == -ENOENT) {
 		debug("(%s): no driver configured\n", udev->name);
 		return 0;
