@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <malloc.h>
 #include <linux/ctype.h>
 
 /* from lib/kstrtox.c */
@@ -221,4 +222,44 @@ void str_to_upper(const char *in, char *out, size_t len)
 		*out++ = toupper(*in++);
 	if (len)
 		*out = '\0';
+}
+
+const char **str_to_list(const char *instr)
+{
+	const char **ptr;
+	char *str, *p;
+	int count, i;
+
+	/* don't allocate if the string is empty */
+	str = *instr ? strdup(instr) : (char *)instr;
+	if (!str)
+		return NULL;
+
+	/* count the number of space-separated strings */
+	for (count = *str != '\0', p = str; *p; p++) {
+		if (*p == ' ') {
+			count++;
+			*p = '\0';
+		}
+	}
+
+	/* allocate the pointer array, allowing for a NULL terminator */
+	ptr = calloc(count + 1, sizeof(char *));
+	if (!ptr) {
+		if (*str)
+			free(str);
+		return NULL;
+	}
+
+	for (i = 0, p = str; i < count; p += strlen(p) + 1, i++)
+		ptr[i] = p;
+
+	return ptr;
+}
+
+void str_free_list(const char **ptr)
+{
+	if (ptr)
+		free((char *)ptr[0]);
+	free(ptr);
 }
