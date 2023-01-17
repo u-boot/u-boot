@@ -79,10 +79,13 @@ static int do_vbe_info(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_vbe_state(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
-	struct vbe_handoff *handoff;
+	struct vbe_handoff *handoff = NULL;
 	int i;
 
-	handoff = bloblist_find(BLOBLISTT_VBE, sizeof(struct vbe_handoff));
+	if (IS_ENABLED(CONFIG_BLOBLIST)) {
+		handoff = bloblist_find(BLOBLISTT_VBE,
+					sizeof(struct vbe_handoff));
+	}
 	if (!handoff) {
 		printf("No VBE state\n");
 		return CMD_RET_FAILURE;
