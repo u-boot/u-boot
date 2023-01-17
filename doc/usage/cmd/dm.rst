@@ -12,7 +12,7 @@ Synopis
     dm devres
     dm drivers
     dm static
-    dm tree
+    dm tree [-s]
     dm uclass
 
 Description
@@ -123,6 +123,9 @@ Name
     Shows the device name as well as the tree structure, since child devices are
     shown attached to their parent.
 
+If -s is given, the top-level devices (those which are children of the root
+device) are shown sorted in order of uclass ID, so it is easier to find a
+particular device type.
 
 dm uclass
 ~~~~~~~~~

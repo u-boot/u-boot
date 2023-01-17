@@ -59,7 +59,11 @@ static int do_dm_dump_static_driver_info(struct cmd_tbl *cmdtp, int flag,
 static int do_dm_dump_tree(struct cmd_tbl *cmdtp, int flag, int argc,
 			   char *const argv[])
 {
-	dm_dump_tree();
+	bool sort;
+
+	sort = argc > 1 && !strcmp(argv[1], "-s");
+
+	dm_dump_tree(sort);
 
 	return 0;
 }
@@ -87,7 +91,7 @@ static char dm_help_text[] =
 	"dm drivers       Dump list of drivers with uclass and instances\n"
 	DM_MEM_HELP
 	"dm static        Dump list of drivers with static platform data\n"
-	"dm tree          Dump tree of driver model devices ('*' = activated)\n"
+	"dm tree [-s]     Dump tree of driver model devices (-s=sort)\n"
 	"dm uclass        Dump list of instances for each uclass"
 	;
 #endif
@@ -98,5 +102,5 @@ U_BOOT_CMD_WITH_SUBCMDS(dm, "Driver model low level access", dm_help_text,
 	U_BOOT_SUBCMD_MKENT(drivers, 1, 1, do_dm_dump_drivers),
 	DM_MEM
 	U_BOOT_SUBCMD_MKENT(static, 1, 1, do_dm_dump_static_driver_info),
-	U_BOOT_SUBCMD_MKENT(tree, 1, 1, do_dm_dump_tree),
+	U_BOOT_SUBCMD_MKENT(tree, 2, 1, do_dm_dump_tree),
 	U_BOOT_SUBCMD_MKENT(uclass, 1, 1, do_dm_dump_uclass));

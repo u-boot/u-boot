@@ -26,8 +26,12 @@ struct list_head;
  */
 int list_count_items(struct list_head *head);
 
-/* Dump out a tree of all devices */
-void dm_dump_tree(void);
+/**
+ * Dump out a tree of all devices
+ *
+ * @sort: Sort by uclass name
+ */
+void dm_dump_tree(bool sort);
 
 /* Dump out a list of uclasses and their devices */
 void dm_dump_uclass(void);
