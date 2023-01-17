@@ -20,6 +20,11 @@
 #define TEST_VERSION		"U-Boot v2022.04-local2"
 #define TEST_VERNUM		0x00010002
 
+enum {
+	MAX_HUNTER	= 8,
+	MMC_HUNTER	= 3,	/* ID of MMC hunter */
+};
+
 struct unit_test_state;
 
 /**

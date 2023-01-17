@@ -306,6 +306,7 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 	ut_assert_nextline("Prio  Used  Uclass           Hunter");
 	ut_assert_nextlinen("----");
 	ut_assert_nextline("   6        ethernet         eth_bootdev");
+	ut_assert_nextline("   1        simple_bus       (none)");
 	ut_assert_nextline("   5        ide              ide_bootdev");
 	ut_assert_nextline("   2        mmc              mmc_bootdev");
 	ut_assert_nextline("   4        nvme             nvme_bootdev");
@@ -313,7 +314,7 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 	ut_assert_nextline("   4        spi_flash        sf_bootdev");
 	ut_assert_nextline("   5        usb              usb_bootdev");
 	ut_assert_nextline("   4        virtio           virtio_bootdev");
-	ut_assert_nextline("(total hunters: 8)");
+	ut_assert_nextline("(total hunters: 9)");
 	ut_assert_console_end();
 
 	ut_assertok(bootdev_hunt("usb1", false));
@@ -321,8 +322,8 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 		"Bus usb@1: scanning bus usb@1 for devices... 5 USB Device(s) found");
 	ut_assert_console_end();
 
-	/* USB is fifth in the list, so bit 6 */
-	ut_asserteq(BIT(6), std->hunters_used);
+	/* USB is sixth in the list, so bit 7 */
+	ut_asserteq(BIT(7), std->hunters_used);
 
 	return 0;
 }
@@ -343,7 +344,7 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	ut_assert_nextline("Prio  Used  Uclass           Hunter");
 	ut_assert_nextlinen("----");
 	ut_assert_nextline("   6        ethernet         eth_bootdev");
-	ut_assert_skip_to_line("(total hunters: 8)");
+	ut_assert_skip_to_line("(total hunters: 9)");
 	ut_assert_console_end();
 
 	/* Use the MMC hunter and see that it updates */
@@ -351,7 +352,7 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	ut_assertok(run_command("bootdev hunt -l", 0));
 	ut_assert_skip_to_line("   5        ide              ide_bootdev");
 	ut_assert_nextline("   2     *  mmc              mmc_bootdev");
-	ut_assert_skip_to_line("(total hunters: 8)");
+	ut_assert_skip_to_line("(total hunters: 9)");
 	ut_assert_console_end();
 
 	/* Scan all hunters */
@@ -359,6 +360,10 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	test_set_skip_delays(true);
 	ut_assertok(run_command("bootdev hunt", 0));
 	ut_assert_nextline("Hunting with: ethernet");
+
+	/* This is the extension feature which has no uclass at present */
+	ut_assert_nextline("Hunting with: simple_bus");
+	ut_assert_nextline("Found 2 extension board(s).");
 	ut_assert_nextline("Hunting with: ide");
 	ut_assert_nextline("Bus 0: not available  ");
 
@@ -379,6 +384,7 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	ut_assert_nextlinen("Prio");
 	ut_assert_nextlinen("----");
 	ut_assert_nextline("   6     *  ethernet         eth_bootdev");
+	ut_assert_nextline("   1     *  simple_bus       (none)");
 	ut_assert_nextline("   5     *  ide              ide_bootdev");
 	ut_assert_nextline("   2     *  mmc              mmc_bootdev");
 	ut_assert_nextline("   4     *  nvme             nvme_bootdev");
@@ -386,10 +392,10 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	ut_assert_nextline("   4     *  spi_flash        sf_bootdev");
 	ut_assert_nextline("   5     *  usb              usb_bootdev");
 	ut_assert_nextline("   4     *  virtio           virtio_bootdev");
-	ut_assert_nextline("(total hunters: 8)");
+	ut_assert_nextline("(total hunters: 9)");
 	ut_assert_console_end();
 
-	ut_asserteq(GENMASK(7, 0), std->hunters_used);
+	ut_asserteq(GENMASK(MAX_HUNTER, 0), std->hunters_used);
 
 	return 0;
 }
@@ -553,8 +559,8 @@ static int bootdev_test_next_label(struct unit_test_state *uts)
 	ut_asserteq_str("scsi.id0lun0.bootdev", dev->name);
 	ut_asserteq(BOOTFLOW_METHF_SINGLE_UCLASS, mflags);
 
-	/* SCSI is fifth in the list, so bit 4 */
-	ut_asserteq(BIT(2) | BIT(4), std->hunters_used);
+	/* SCSI is sixth in the list, so bit 5 */
+	ut_asserteq(BIT(MMC_HUNTER) | BIT(5), std->hunters_used);
 
 	ut_assertok(bootdev_next_label(&iter, &dev, &mflags));
 	ut_assert_console_end();
@@ -564,7 +570,7 @@ static int bootdev_test_next_label(struct unit_test_state *uts)
 		    mflags);
 
 	/* dhcp: Ethernet is first so bit 0 */
-	ut_asserteq(BIT(2) | BIT(4) | BIT(0), std->hunters_used);
+	ut_asserteq(BIT(MMC_HUNTER) | BIT(5) | BIT(0), std->hunters_used);
 
 	ut_assertok(bootdev_next_label(&iter, &dev, &mflags));
 	ut_assert_console_end();
@@ -574,7 +580,7 @@ static int bootdev_test_next_label(struct unit_test_state *uts)
 		    mflags);
 
 	/* pxe: Ethernet is first so bit 0 */
-	ut_asserteq(BIT(2) | BIT(4) | BIT(0), std->hunters_used);
+	ut_asserteq(BIT(MMC_HUNTER) | BIT(5) | BIT(0), std->hunters_used);
 
 	mflags = 123;
 	ut_asserteq(-ENODEV, bootdev_next_label(&iter, &dev, &mflags));
@@ -582,7 +588,7 @@ static int bootdev_test_next_label(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* no change */
-	ut_asserteq(BIT(2) | BIT(4) | BIT(0), std->hunters_used);
+	ut_asserteq(BIT(MMC_HUNTER) | BIT(5) | BIT(0), std->hunters_used);
 
 	return 0;
 }
@@ -629,10 +635,13 @@ static int bootdev_test_next_prio(struct unit_test_state *uts)
 
 	ut_assertok(bootdev_next_prio(&iter, &dev));
 	ut_asserteq_str("mmc2.bootdev", dev->name);
+	ut_assert_nextline("Hunting with: simple_bus");
+	ut_assert_nextline("Found 2 extension board(s).");
 	ut_assert_nextline("Hunting with: mmc");
 	ut_assert_console_end();
 
-	ut_assertok(bootstd_test_check_mmc_hunter(uts));
+	/* extension in second in the list , so bit 1 */
+	ut_asserteq(BIT(MMC_HUNTER) | BIT(1), std->hunters_used);
 
 	ut_assertok(bootdev_next_prio(&iter, &dev));
 	ut_asserteq_str("mmc1.bootdev", dev->name);
@@ -663,7 +672,7 @@ static int bootdev_test_next_prio(struct unit_test_state *uts)
 	} while (!ret);
 	ut_asserteq(-ENODEV, ret);
 	ut_assertnull(dev);
-	ut_asserteq(GENMASK(7, 0), std->hunters_used);
+	ut_asserteq(GENMASK(MAX_HUNTER, 0), std->hunters_used);
 
 	ut_assert_skip_to_line("Hunting with: ethernet");
 	ut_assert_console_end();

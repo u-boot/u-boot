@@ -5,7 +5,9 @@
  */
 
 #include <common.h>
+#include <bootdev.h>
 #include <command.h>
+#include <dm.h>
 #include <malloc.h>
 #include <extension_board.h>
 #include <mapmem.h>
@@ -176,3 +178,26 @@ U_BOOT_CMD(extension, 3, 1, do_extensionops,
 	"extension list - lists available extension(s) board(s)\n"
 	"extension apply <extension number|all> - applies DT overlays corresponding to extension boards\n"
 );
+
+static int extension_bootdev_hunt(struct bootdev_hunter *info, bool show)
+{
+	int ret;
+
+	ret = env_set_hex("extension_overlay_addr",
+			  env_get_hex("fdtoverlay_addr_r", 0));
+	if (ret)
+		return log_msg_ret("env", ret);
+
+	ret = extension_scan(show);
+	if (ret < 0)
+		return log_msg_ret("ext", ret);
+
+	return 0;
+}
+
+/* extensions should have a uclass - for now we use UCLASS_SIMPLE_BUS uclass */
+BOOTDEV_HUNTER(extension_bootdev_hunter) = {
+	.prio		= BOOTDEVP_1_PRE_SCAN,
+	.uclass		= UCLASS_SIMPLE_BUS,
+	.hunt		= extension_bootdev_hunt,
+};

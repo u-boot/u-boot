@@ -51,7 +51,7 @@ static int bootflow_cmd(struct unit_test_state *uts)
 	console_record_reset_enable();
 	ut_assertok(run_command("bootdev select 1", 0));
 	ut_assert_console_end();
-	ut_assertok(run_command("bootflow scan -l", 0));
+	ut_assertok(run_command("bootflow scan -lH", 0));
 	ut_assert_nextline("Scanning for bootflows in bootdev 'mmc1.bootdev'");
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
@@ -77,17 +77,17 @@ BOOTSTD_TEST(bootflow_cmd, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 static int bootflow_cmd_label(struct unit_test_state *uts)
 {
 	console_record_reset_enable();
-	ut_assertok(run_command("bootflow scan -l mmc1", 0));
+	ut_assertok(run_command("bootflow scan -lH mmc1", 0));
 	ut_assert_nextline("Scanning for bootflows in bootdev 'mmc1.bootdev'");
 	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
 	ut_assert_console_end();
 
-	ut_assertok(run_command("bootflow scan -l mmc0.bootdev", 0));
+	ut_assertok(run_command("bootflow scan -lH mmc0.bootdev", 0));
 	ut_assert_nextline("Scanning for bootflows in bootdev 'mmc0.bootdev'");
 	ut_assert_skip_to_line("(0 bootflows, 0 valid)");
 	ut_assert_console_end();
 
-	ut_assertok(run_command("bootflow scan -l 0", 0));
+	ut_assertok(run_command("bootflow scan -lH 0", 0));
 	ut_assert_nextline("Scanning for bootflows in bootdev 'mmc2.bootdev'");
 	ut_assert_skip_to_line("(0 bootflows, 0 valid)");
 	ut_assert_console_end();
@@ -102,7 +102,7 @@ static int bootflow_cmd_glob(struct unit_test_state *uts)
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 
 	console_record_reset_enable();
-	ut_assertok(run_command("bootflow scan -lG", 0));
+	ut_assertok(run_command("bootflow scan -lGH", 0));
 	ut_assert_nextline("Scanning for bootflows in all bootdevs");
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
@@ -134,7 +134,7 @@ static int bootflow_cmd_scan_e(struct unit_test_state *uts)
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 
 	console_record_reset_enable();
-	ut_assertok(run_command("bootflow scan -aleG", 0));
+	ut_assertok(run_command("bootflow scan -aleGH", 0));
 	ut_assert_nextline("Scanning for bootflows in all bootdevs");
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
@@ -352,7 +352,7 @@ static int bootflow_system(struct unit_test_state *uts)
 	/* We should get a single 'bootmgr' method right at the end */
 	bootstd_clear_glob();
 	console_record_reset_enable();
-	ut_assertok(run_command("bootflow scan -l", 0));
+	ut_assertok(run_command("bootflow scan -lH", 0));
 	ut_assert_skip_to_line(
 		"  0  efi_mgr      ready   (none)       0  <NULL>                    <NULL>");
 	ut_assert_skip_to_line("No more bootdevs");
@@ -383,7 +383,7 @@ static int bootflow_iter_disable(struct unit_test_state *uts)
 	bootstd_clear_glob();
 	console_record_reset_enable();
 	ut_assertok(inject_response(uts));
-	ut_assertok(run_command("bootflow scan -lb", 0));
+	ut_assertok(run_command("bootflow scan -lbH", 0));
 
 	/* Try to boot the bootmgr flow, which will fail */
 	console_record_reset_enable();
@@ -419,7 +419,7 @@ static int bootflow_scan_glob_bootmeth(struct unit_test_state *uts)
 	 */
 	console_record_reset_enable();
 	ut_assertok(bootmeth_set_order("efi firmware0"));
-	ut_assertok(run_command("bootflow scan -lG", 0));
+	ut_assertok(run_command("bootflow scan -lGH", 0));
 	ut_assert_nextline("Scanning for bootflows in all bootdevs");
 	ut_assert_nextline(
 		"Seq  Method       State   Uclass    Part  Name                      Filename");
@@ -428,7 +428,7 @@ static int bootflow_scan_glob_bootmeth(struct unit_test_state *uts)
 	ut_assert_nextline("(0 bootflows, 0 valid)");
 	ut_assert_console_end();
 
-	ut_assertok(run_command("bootflow scan -l", 0));
+	ut_assertok(run_command("bootflow scan -lH", 0));
 	ut_assert_nextline("Scanning for bootflows in all bootdevs");
 	ut_assert_nextline(
 		"Seq  Method       State   Uclass    Part  Name                      Filename");
