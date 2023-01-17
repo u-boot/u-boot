@@ -88,6 +88,22 @@ struct bootmeth_ops {
 	int (*read_bootflow)(struct udevice *dev, struct bootflow *bflow);
 
 	/**
+	 * set_bootflow() - set the bootflow for a device
+	 *
+	 * This provides a bootflow file to the bootmeth, to see if it is valid.
+	 * If it is, the bootflow is set up accordingly.
+	 *
+	 * @dev:	Bootmethod device to use
+	 * @bflow:	On entry, provides bootdev.
+	 *	Returns updated bootflow if found
+	 * @buf:	Buffer containing the possible bootflow file
+	 * @size:	Size of file
+	 * Return: 0 if OK, -ve on error
+	 */
+	int (*set_bootflow)(struct udevice *dev, struct bootflow *bflow,
+			    char *buf, int size);
+
+	/**
 	 * read_file() - read a file needed for a bootflow
 	 *
 	 * Read a file from the same place as the bootflow came from
@@ -172,6 +188,23 @@ int bootmeth_check(struct udevice *dev, struct bootflow_iter *iter);
  * Return: 0 if OK, -ve on error
  */
 int bootmeth_read_bootflow(struct udevice *dev, struct bootflow *bflow);
+
+/**
+ * bootmeth_set_bootflow() - set the bootflow for a device
+ *
+ * This provides a bootflow file to the bootmeth, to see if it is valid.
+ * If it is, the bootflow is set up accordingly.
+ *
+ * @dev:	Bootmethod device to use
+ * @bflow:	On entry, provides bootdev.
+ *	Returns updated bootflow if found
+ * @buf:	Buffer containing the possible bootflow file (must be allocated
+ * by caller to @size + 1 bytes)
+ * @size:	Size of file
+ * Return: 0 if OK, -ve on error
+ */
+int bootmeth_set_bootflow(struct udevice *dev, struct bootflow *bflow,
+			  char *buf, int size);
 
 /**
  * bootmeth_read_file() - read a file needed for a bootflow
