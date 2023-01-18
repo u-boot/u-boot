@@ -18,6 +18,7 @@
 &{/} {
 	compatible = "xlnx,zynqmp-sk-kr260-revB",
 		     "xlnx,zynqmp-sk-kr260", "xlnx,zynqmp";
+	model = "ZynqMP KR260 revB";
 
 	ina260-u14 {
 		compatible = "iio-hwmon";
