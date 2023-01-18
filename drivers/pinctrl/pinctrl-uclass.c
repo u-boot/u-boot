@@ -71,13 +71,13 @@ static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
 		 */
 		state = dectoul(statename, &end);
 		if (*end)
-			return -EINVAL;
+			return -ENOSYS;
 	}
 
 	snprintf(propname, sizeof(propname), "pinctrl-%d", state);
 	list = dev_read_prop(dev, propname, &size);
 	if (!list)
-		return -EINVAL;
+		return -ENOSYS;
 
 	size /= sizeof(*list);
 	for (i = 0; i < size; i++) {
@@ -162,11 +162,6 @@ U_BOOT_DRIVER(pinconfig_generic) = {
 };
 
 #else
-static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
-{
-	return -ENODEV;
-}
-
 static int pinconfig_post_bind(struct udevice *dev)
 {
 	return 0;
@@ -317,10 +312,10 @@ int pinctrl_select_state(struct udevice *dev, const char *statename)
 	 * Try full-implemented pinctrl first.
 	 * If it fails or is not implemented, try simple one.
 	 */
-	if (pinctrl_select_state_full(dev, statename))
-		return pinctrl_select_state_simple(dev);
+	if (CONFIG_IS_ENABLED(PINCTRL_FULL))
+		return pinctrl_select_state_full(dev, statename);
 
-	return 0;
+	return pinctrl_select_state_simple(dev);
 }
 
 int pinctrl_request(struct udevice *dev, int func, int flags)
