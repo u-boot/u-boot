@@ -215,6 +215,7 @@ in_flash:
 	 * gt-regs BAT can be reused after board_init_f calls
 	 * board_early_init_f (EVB only).
 	 */
+#ifdef CONFIG_SYS_INIT_RAM_LOCK
 	/* enable address translation */
 	bl	enable_addr_trans
 	sync
@@ -222,7 +223,6 @@ in_flash:
 	/* enable the data cache */
 	bl	dcache_enable
 	sync
-#ifdef CONFIG_SYS_INIT_RAM_LOCK
 	bl	lock_ram_in_cache
 	sync
 #endif
