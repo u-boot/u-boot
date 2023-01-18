@@ -382,7 +382,7 @@ int pinctrl_get_pin_muxing(struct udevice *dev, int selector, char *buf,
 }
 
 /**
- * pinconfig_post_bind() - post binding for PINCTRL uclass
+ * pinctrl_post_bind() - post binding for PINCTRL uclass
  * Recursively bind child nodes as pinconfig devices in case of full pinctrl.
  *
  * @dev: pinctrl device
