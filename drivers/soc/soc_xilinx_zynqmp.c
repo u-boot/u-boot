@@ -186,7 +186,7 @@ static const struct zynqmp_device zynqmp_devices[] = {
 		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
-		.id = 0x04714093,
+		.id = 0x04712093,
 		.device = 24,
 		.variants = 0,
 	},
