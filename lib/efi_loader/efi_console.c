@@ -489,6 +489,12 @@ static efi_status_t EFIAPI efi_cout_clear_screen(
 {
 	EFI_ENTRY("%p", this);
 
+	/* Set default colors if not done yet */
+	if (efi_con_mode.attribute == 0) {
+		efi_con_mode.attribute = 0x07;
+		printf(ESC "[0;37;40m");
+	}
+
 	efi_clear_screen();
 
 	return EFI_EXIT(EFI_SUCCESS);
