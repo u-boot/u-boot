@@ -20,7 +20,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if CONFIG_IS_ENABLED(PINCTRL_FULL)
 /**
  * pinctrl_config_one() - apply pinctrl settings for a single node
  *
@@ -148,6 +147,7 @@ static int pinconfig_post_bind(struct udevice *dev)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(PINCTRL_FULL)
 UCLASS_DRIVER(pinconfig) = {
 	.id = UCLASS_PINCONFIG,
 #if CONFIG_IS_ENABLED(PINCONF_RECURSIVE)
@@ -160,12 +160,6 @@ U_BOOT_DRIVER(pinconfig_generic) = {
 	.name = "pinconfig",
 	.id = UCLASS_PINCONFIG,
 };
-
-#else
-static int pinconfig_post_bind(struct udevice *dev)
-{
-	return 0;
-}
 #endif
 
 static int
@@ -404,12 +398,11 @@ static int __maybe_unused pinctrl_post_bind(struct udevice *dev)
 	}
 
 	/*
-	 * If set_state callback is set, we assume this pinctrl driver is the
-	 * full implementation.  In this case, its child nodes should be bound
-	 * so that peripheral devices can easily search in parent devices
-	 * during later DT-parsing.
+	 * If the pinctrl driver has the full implementation, its child nodes
+	 * should be bound so that peripheral devices can easily search in
+	 * parent devices during later DT-parsing.
 	 */
-	if (ops->set_state)
+	if (CONFIG_IS_ENABLED(PINCTRL_FULL))
 		return pinconfig_post_bind(dev);
 
 	return 0;
