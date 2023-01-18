@@ -461,10 +461,21 @@ static efi_status_t EFIAPI efi_cout_set_attribute(
 }
 
 /**
- * efi_cout_clear_screen() - clear screen
+ * efi_clear_screen() - clear screen
  */
 static void efi_clear_screen(void)
 {
+	if (CONFIG_IS_ENABLED(EFI_SCROLL_ON_CLEAR_SCREEN)) {
+		unsigned int row, screen_rows, screen_columns;
+
+		/* Avoid overwriting previous outputs on streaming consoles */
+		screen_rows = efi_cout_modes[efi_con_mode.mode].rows;
+		screen_columns = efi_cout_modes[efi_con_mode.mode].columns;
+		printf(ESC "[%u;%uH", screen_rows, screen_columns);
+		for (row = 1; row < screen_rows; row++)
+			printf("\n");
+	}
+
 	/*
 	 * The Linux console wants both a clear and a home command. The video
 	 * uclass does not support <ESC>[H without coordinates, yet.
