@@ -927,6 +927,71 @@ done:
 	return ret;
 }
 
+static int image_fill_xip_header(void *image, struct image_tool_params *params)
+{
+	struct main_hdr_v1 *main_hdr = image; /* kwbimage v0 and v1 have same XIP members */
+	int version = kwbimage_version(image);
+	uint32_t srcaddr = le32_to_cpu(main_hdr->srcaddr);
+	uint32_t startaddr = 0;
+
+	if (main_hdr->blockid != IBR_HDR_SPI_ID) {
+		fprintf(stderr, "XIP is supported only for SPI images\n");
+		return 0;
+	}
+
+	if (version == 0 &&
+		   params->addr >= 0xE8000000 && params->addr < 0xEFFFFFFF &&
+		   params->ep >= 0xE8000000 && params->ep < 0xEFFFFFFF) {
+		/* Load and Execute address is in SPI address space (kwbimage v0) */
+		startaddr = 0xE8000000;
+	} else if (version != 0 &&
+		   params->addr >= 0xD4000000 && params->addr < 0xD7FFFFFF &&
+		   params->ep >= 0xD4000000 && params->ep < 0xD7FFFFFF) {
+		/* Load and Execute address is in SPI address space (kwbimage v1) */
+		startaddr = 0xD4000000;
+	} else if (version != 0 &&
+		   params->addr >= 0xD8000000 && params->addr < 0xDFFFFFFF &&
+		   params->ep >= 0xD8000000 && params->ep < 0xDFFFFFFF) {
+		/* Load and Execute address is in Device bus space (kwbimage v1) */
+		startaddr = 0xD8000000;
+	} else if (params->addr != 0x0) {
+		/* Load address is non-zero */
+		if (version == 0)
+			fprintf(stderr, "XIP Load Address or XIP Entry Point is not in SPI address space\n");
+		else
+			fprintf(stderr, "XIP Load Address or XIP Entry Point is not in SPI nor in Device bus address space\n");
+		return 0;
+	}
+
+	/*
+	 * For XIP destaddr must be set to 0xFFFFFFFF and
+	 * execaddr relative to the start of XIP memory address space.
+	 */
+	main_hdr->destaddr = cpu_to_le32(0xFFFFFFFF);
+
+	if (startaddr == 0) {
+		/*
+		 * mkimage's --load-address 0x0 means that binary is Position
+		 * Independent and in this case mkimage's --entry-point address
+		 * is relative offset from beginning of the data part of image.
+		 */
+		main_hdr->execaddr = cpu_to_le32(srcaddr + params->ep);
+	} else {
+		/* The lowest possible load address is after the header at srcaddr. */
+		if (params->addr - startaddr < srcaddr) {
+			fprintf(stderr,
+				"Invalid XIP Load Address 0x%08x.\n"
+				"The lowest address for this configuration is 0x%08x.\n",
+				params->addr, (unsigned)(startaddr + srcaddr));
+			return 0;
+		}
+		main_hdr->srcaddr = cpu_to_le32(params->addr - startaddr);
+		main_hdr->execaddr = cpu_to_le32(params->ep - startaddr);
+	}
+
+	return 1;
+}
+
 static size_t image_headersz_align(size_t headersz, uint8_t blockid)
 {
 	/*
@@ -1021,6 +1086,14 @@ static void *image_create_v0(size_t *dataoff, struct image_tool_params *params,
 	/* For PCIe srcaddr is not used and must be set to 0xFFFFFFFF. */
 	if (main_hdr->blockid == IBR_HDR_PEX_ID)
 		main_hdr->srcaddr = cpu_to_le32(0xFFFFFFFF);
+
+	if (params->xflag) {
+		if (!image_fill_xip_header(main_hdr, params)) {
+			free(image);
+			return NULL;
+		}
+		*dataoff = le32_to_cpu(main_hdr->srcaddr);
+	}
 
 	/* Generate the ext header */
 	if (has_ext) {
@@ -1460,6 +1533,14 @@ static void *image_create_v1(size_t *dataoff, struct image_tool_params *params,
 	/* For PCIe srcaddr is not used and must be set to 0xFFFFFFFF. */
 	if (main_hdr->blockid == IBR_HDR_PEX_ID)
 		main_hdr->srcaddr = cpu_to_le32(0xFFFFFFFF);
+
+	if (params->xflag) {
+		if (!image_fill_xip_header(main_hdr, params)) {
+			free(image);
+			return NULL;
+		}
+		*dataoff = le32_to_cpu(main_hdr->srcaddr);
+	}
 
 	if (image_get_csk_index() >= 0) {
 		/*
@@ -1915,8 +1996,13 @@ static void kwbimage_print_header(const void *ptr)
 		       le32_to_cpu(mhdr->srcaddr) != 1 ? "s" : "");
 	else
 		genimg_print_size(le32_to_cpu(mhdr->srcaddr));
-	printf("Load Address: %08x\n", le32_to_cpu(mhdr->destaddr));
-	printf("Entry Point:  %08x\n", le32_to_cpu(mhdr->execaddr));
+	if (mhdr->blockid == IBR_HDR_SPI_ID && le32_to_cpu(mhdr->destaddr) == 0xFFFFFFFF) {
+		printf("Load Address: XIP\n");
+		printf("Execute Offs: %08x\n", le32_to_cpu(mhdr->execaddr));
+	} else {
+		printf("Load Address: %08x\n", le32_to_cpu(mhdr->destaddr));
+		printf("Entry Point:  %08x\n", le32_to_cpu(mhdr->execaddr));
+	}
 }
 
 static int kwbimage_check_image_types(uint8_t type)
@@ -2414,9 +2500,6 @@ static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params
 	return imagetool_save_subimage(params->outfile, image, size);
 }
 
-/*
- * Report Error if xflag is set in addition to default
- */
 static int kwbimage_check_params(struct image_tool_params *params)
 {
 	if (!params->lflag && !params->iflag && !params->pflag &&
@@ -2429,8 +2512,7 @@ static int kwbimage_check_params(struct image_tool_params *params)
 
 	return (params->dflag && (params->fflag || params->lflag)) ||
 		(params->fflag) ||
-		(params->lflag && (params->dflag || params->fflag)) ||
-		(params->xflag);
+		(params->lflag && (params->dflag || params->fflag));
 }
 
 /*
