@@ -1243,8 +1243,8 @@ out_free_itr:
 	return ret;
 }
 
-int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
-		     loff_t maxsize, loff_t *actread)
+int fat_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
+		  loff_t *actread)
 {
 	fsdata fsdata;
 	fat_itr *itr;
@@ -1261,12 +1261,12 @@ int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
 	if (ret)
 		goto out_free_both;
 
-	debug("reading %s at pos %llu\n", filename, pos);
+	debug("reading %s at pos %llu\n", filename, offset);
 
 	/* For saving default max clustersize memory allocated to malloc pool */
 	dir_entry *dentptr = itr->dent;
 
-	ret = get_contents(&fsdata, dentptr, pos, buffer, maxsize, actread);
+	ret = get_contents(&fsdata, dentptr, offset, buf, len, actread);
 
 out_free_both:
 	free(fsdata.fatbuf);
@@ -1280,23 +1280,11 @@ int file_fat_read(const char *filename, void *buffer, int maxsize)
 	loff_t actread;
 	int ret;
 
-	ret =  file_fat_read_at(filename, 0, buffer, maxsize, &actread);
+	ret =  fat_read_file(filename, buffer, 0, maxsize, &actread);
 	if (ret)
 		return ret;
 	else
 		return actread;
-}
-
-int fat_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
-		  loff_t *actread)
-{
-	int ret;
-
-	ret = file_fat_read_at(filename, offset, buf, len, actread);
-	if (ret)
-		printf("** Unable to read file %s **\n", filename);
-
-	return ret;
 }
 
 typedef struct {
