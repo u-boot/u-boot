@@ -29,21 +29,28 @@ Quick Start
 Get and Build the Trusted Firmware-A (TF-A)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Note: builddir is U-Boot build directory (source directory for in-tree builds)
-
 There are two sources for the TF-A. Mainline and NXP. Get the one you prefer
 (support and features might differ).
 
+.. note::
+
+   If you are using GCC 12 and you get compiler/linker errors, try to add the
+   following arguments to your make command as workaround:
+   ``CFLAGS="-Wno-array-bounds" LDFLAGS="--no-warn-rwx-segments"``
+
 **NXP's imx-atf**
 
-1. Get TF-A from: https://source.codeaurora.org/external/imx/imx-atf, branch: imx_5.4.70_2.3.0
-2. Apply the patch to select the correct UART for the console, otherwise the TF-A will lock up during boot.
-3. Build
+1. Get TF-A from: https://github.com/nxp-imx/imx-atf, branch: lf_v2.6
+2. Build
 
   .. code-block:: bash
 
-     $ make PLAT=imx8mm bl31
+     $ make PLAT=imx8mm CROSS_COMPILE=aarch64-linux-gnu- IMX_BOOT_UART_BASE="0x30880000" bl31
      $ cp build/imx8mm/release/bl31.bin $(builddir)
+
+.. note::
+
+    *builddir* is U-Boot's build directory (source directory for in-tree builds)
 
 **Mainline TF-A**
 
