@@ -552,6 +552,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
         image.SetAllowMissing(allow_missing)
         image.SetAllowFakeBlob(allow_fake_blobs)
         image.GetEntryContents()
+        image.drop_absent()
     image.GetEntryOffsets()
 
     # We need to pack the entries to figure out where everything
@@ -593,12 +594,14 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     image.BuildImage()
     if write_map:
         image.WriteMap()
+
     missing_list = []
     image.CheckMissing(missing_list)
     if missing_list:
         tout.warning("Image '%s' is missing external blobs and is non-functional: %s" %
                      (image.name, ' '.join([e.name for e in missing_list])))
         _ShowHelpForMissingBlobs(missing_list)
+
     faked_list = []
     image.CheckFakedBlobs(faked_list)
     if faked_list:
@@ -606,6 +609,15 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
             "Image '%s' has faked external blobs and is non-functional: %s" %
             (image.name, ' '.join([os.path.basename(e.GetDefaultFilename())
                                    for e in faked_list])))
+
+    optional_list = []
+    image.CheckOptional(optional_list)
+    if optional_list:
+        tout.warning(
+            "Image '%s' is missing external blobs but is still functional: %s" %
+            (image.name, ' '.join([e.name for e in optional_list])))
+        _ShowHelpForMissingBlobs(optional_list)
+
     missing_bintool_list = []
     image.check_missing_bintools(missing_bintool_list)
     if missing_bintool_list:

@@ -57,24 +57,24 @@ class Entry_mkimage(Entry):
     Note that binman places the contents (here SPL and TPL) into a single file
     and passes that to mkimage using the -d option.
 
-	To pass all datafiles untouched to mkimage::
+    To pass all datafiles untouched to mkimage::
 
-		mkimage {
-			args = "-n rk3399 -T rkspi";
-			multiple-data-files;
+        mkimage {
+                args = "-n rk3399 -T rkspi";
+                multiple-data-files;
 
-			u-boot-tpl {
-			};
+                u-boot-tpl {
+                };
 
-			u-boot-spl {
-			};
-		};
+                u-boot-spl {
+                };
+        };
 
-	This calls mkimage to create a Rockchip RK3399-specific first stage
-	bootloader, made of TPL+SPL. Since this first stage bootloader requires to
-	align the TPL and SPL but also some weird hacks that is handled by mkimage
-	directly, binman is told to not perform the concatenation of datafiles prior
-	to passing the data to mkimage.
+    This calls mkimage to create a Rockchip RK3399-specific first stage
+    bootloader, made of TPL+SPL. Since this first stage bootloader requires to
+    align the TPL and SPL but also some weird hacks that is handled by mkimage
+    directly, binman is told to not perform the concatenation of datafiles prior
+    to passing the data to mkimage.
 
     To use CONFIG options in the arguments, use a string list instead, as in
     this example which also produces four arguments::

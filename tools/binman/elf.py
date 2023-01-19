@@ -210,7 +210,31 @@ def GetPackString(sym, msg):
         raise ValueError('%s has size %d: only 4 and 8 are supported' %
                          (msg, sym.size))
 
-def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False):
+def GetSymbolOffset(elf_fname, sym_name, base_sym=None):
+    """Read the offset of a symbol compared to base symbol
+
+    This is useful for obtaining the value of a single symbol relative to the
+    base of a binary blob.
+
+    Args:
+        elf_fname: Filename of the ELF file to read
+        sym_name (str): Name of symbol to read
+        base_sym (str): Base symbol to sue to calculate the offset (or None to
+            use '__image_copy_start'
+
+    Returns:
+        int: Offset of the symbol relative to the base symbol
+    """
+    if not base_sym:
+        base_sym = '__image_copy_start'
+    fname = tools.get_input_filename(elf_fname)
+    syms = GetSymbols(fname, [base_sym, sym_name])
+    base = syms[base_sym].address
+    val = syms[sym_name].address
+    return val - base
+
+def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False,
+                          base_sym=None):
     """Replace all symbols in an entry with their correct values
 
     The entry contents is updated so that values for referenced symbols will be
@@ -223,7 +247,10 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False):
             entry
         entry: Entry to process
         section: Section which can be used to lookup symbol values
+        base_sym: Base symbol marking the start of the image
     """
+    if not base_sym:
+        base_sym = '__image_copy_start'
     fname = tools.get_input_filename(elf_fname)
     syms = GetSymbols(fname, ['image', 'binman'])
     if is_elf:
@@ -243,7 +270,7 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False):
     if not syms:
         tout.debug('LookupAndWriteSymbols: no syms')
         return
-    base = syms.get('__image_copy_start')
+    base = syms.get(base_sym)
     if not base and not is_elf:
         tout.debug('LookupAndWriteSymbols: no base')
         return
@@ -518,3 +545,18 @@ def read_loadable_segments(data):
             rend = start + segment['p_filesz']
             segments.append((i, segment['p_paddr'], data[start:rend]))
     return segments, entry
+
+def is_valid(data):
+    """Check if some binary data is a valid ELF file
+
+    Args:
+        data (bytes): Bytes to check
+
+    Returns:
+        bool: True if a valid Elf file, False if not
+    """
+    try:
+        DecodeElf(data, 0)
+        return True
+    except ELFError:
+        return False

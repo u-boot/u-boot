@@ -21,9 +21,7 @@ class Entry_u_boot_spl(Entry_blob):
     to run from the correct address if direct flash execution is possible (e.g.
     on x86 devices).
 
-    SPL can access binman symbols at runtime. See:
-
-        'Access to binman entry offsets at run time (symbols)'
+    SPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
     in the binman README for more information.
 
@@ -36,7 +34,6 @@ class Entry_u_boot_spl(Entry_blob):
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node, auto_write_symbols=True)
         self.elf_fname = 'spl/u-boot-spl'
-        self.auto_write_symbols = True
 
     def GetDefaultFilename(self):
         return 'spl/u-boot-spl.bin'

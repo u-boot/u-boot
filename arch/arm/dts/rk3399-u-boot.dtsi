@@ -62,6 +62,7 @@
 
 #if defined(CONFIG_ROCKCHIP_SPI_IMAGE) && defined(CONFIG_HAS_ROM)
 &binman {
+	multiple-images;
 	rom {
 		filename = "u-boot.rom";
 		size = <0x400000>;
@@ -82,7 +83,7 @@
 		};
 	};
 };
-#endif
+#endif /* CONFIG_ROCKCHIP_SPI_IMAGE && CONFIG_HAS_ROM */
 
 &cru {
 	u-boot,dm-pre-reloc;

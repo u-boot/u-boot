@@ -487,6 +487,14 @@ For x86 devices (with the end-at-4gb property) this base address is not added
 since it is assumed that images are XIP and the offsets already include the
 address.
 
+While U-Boot's symbol updating is handled automatically by the u-boot-spl
+entry type (and others), it is possible to use this feature with any blob. To
+do this, add a `write-symbols` (boolean) property to the node, set the ELF
+filename using `elf-filename` and set 'elf-base-sym' to the base symbol for the
+start of the binary image (this defaults to `__image_copy_start` which is what
+U-Boot uses). See `testBlobSymbol()` for an example.
+
+.. _binman_fdt:
 
 Access to binman entry offsets at run time (fdt)
 ------------------------------------------------
@@ -689,6 +697,15 @@ no-expanded:
     `no-expanded` property disables this just for a single entry. Put the
     `no-expanded` boolean property in the node to select this behaviour.
 
+optional:
+    External blobs are normally required to be present for the image to be
+    built (but see `External blobs`_). This properly allows an entry to be
+    optional, so that when it is cannot be found, this problem is ignored and
+    an empty file is used for this blob. This should be used only when the blob
+    is entirely optional and is not needed for correct operation of the image.
+    Note that missing, optional blobs do not produce a non-zero exit code from
+    binman, although it does show a warning about the missing external blob.
+
 The attributes supported for images and sections are described below. Several
 are similar to those for entries.
 
@@ -782,6 +799,37 @@ align-default:
 symlink:
     Adds a symlink to the image with string given in the symlink property.
 
+overlap:
+    Indicates that this entry overlaps with others in the same section. These
+    entries should appear at the end of the section. Overlapping entries are not
+    packed with other entries, but their contents are written over other entries
+    in the section. Overlapping entries must have an explicit offset and size.
+
+write-symbols:
+    Indicates that the blob should be updated with symbol values calculated by
+    binman. This is automatic for certain entry types, e.g. `u-boot-spl`. See
+    binman_syms_ for more information.
+
+elf-filename:
+    Sets the file name of a blob's associated ELF file. For example, if the
+    blob is `zephyr.bin` then the ELF file may be `zephyr.elf`. This allows
+    binman to locate symbols and understand the structure of the blob. See
+    binman_syms_ for more information.
+
+elf-base-sym:
+    Sets the name of the ELF symbol that points to the start of a blob. For
+    U-Boot this is `__image_copy_start` and that is the default used by binman
+    if this property is missing. For other projects, a difference symbol may be
+    needed. Add this symbol to the properties for the blob so that symbols can
+    be read correctly. See binman_syms_ for more information.
+
+offset-from-elf:
+    Sets the offset of an entry based on a symbol value in an another entry.
+    The format is <&phandle>, "sym_name", <offset> where phandle is the entry
+    containing the blob (with associated ELF file providing symbols), <sym_name>
+    is the symbol to lookup (relative to elf-base-sym) and <offset> is an offset
+    to add to that value.
+
 Examples of the above options can be found in the tests. See the
 tools/binman/test directory.
 
@@ -836,6 +884,11 @@ name-prefix:
     renamed to 'ro-u-boot' and 'rw-u-boot'. This can be useful to
     distinguish binaries with otherwise identical names.
 
+filename:
+    This allows the contents of the section to be written to a file in the
+    output directory. This can sometimes be useful to use the data in one
+    section in different image, since there is currently no way to share data
+    beteen images other than through files.
 
 Image Properties
 ----------------
@@ -1005,6 +1058,28 @@ the 'spl-dtb' entry arg, which is 'y' or '1' if SPL has a devicetree.
 
 For the BSS case, a 'spl-bss-pad' entry arg controls whether it is present. All
 entry args are provided by the U-Boot Makefile.
+
+
+Optional entries
+----------------
+
+Some entries need to exist only if certain conditions are met. For example, an
+entry may want to appear in the image only if a file has a particular format.
+Obviously the entry must exist in the image description for it to be processed
+at all, so a way needs to be found to have the entry remove itself.
+
+To handle this, when entry.ObtainContents() is called, the entry can call
+entry.mark_absent() to mark itself as absent, passing a suitable message as the
+reason.
+
+Any absent entries are dropped immediately after ObtainContents() has been
+called on all entries.
+
+It is not possible for an entry to mark itself absent at any other point in the
+processing. It must happen in the ObtainContents() method.
+
+The effect is as if the entry had never been present at all, since the image
+is packed without it and it disappears from the list of entries.
 
 
 Compression
@@ -1683,7 +1758,8 @@ implementation of Pack() is usually sufficient.
 
 Note: for sections, this also checks that the entries do not overlap, nor extend
 outside the section. If the section does not have a defined size, the size is
-set large enough to hold all the entries.
+set large enough to hold all the entries. For entries that are explicitly marked
+as overlapping, this check is skipped.
 
 6. SetImagePos() - sets the image position of every entry. This is the absolute
 position 'image-pos', as opposed to 'offset' which is relative to the containing

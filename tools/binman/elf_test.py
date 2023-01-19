@@ -348,6 +348,16 @@ class TestElf(unittest.TestCase):
         finally:
             elf.ELF_TOOLS = old_val
 
+    def test_is_valid(self):
+        """Test is_valid()"""
+        self.assertEqual(False, elf.is_valid(b''))
+        self.assertEqual(False, elf.is_valid(b'1234'))
+
+        fname = self.ElfTestFile('elf_sections')
+        data = tools.read_file(fname)
+        self.assertEqual(True, elf.is_valid(data))
+        self.assertEqual(False, elf.is_valid(data[4:]))
+
 
 if __name__ == '__main__':
     unittest.main()

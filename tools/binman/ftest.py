@@ -112,6 +112,8 @@ REPACK_DTB_PROPS = ['orig-offset', 'orig-size']
 # Supported compression bintools
 COMP_BINTOOLS = ['bzip2', 'gzip', 'lz4', 'lzma_alone', 'lzop', 'xz', 'zstd']
 
+TEE_ADDR = 0x5678
+
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
 
@@ -218,6 +220,9 @@ class TestFunctional(unittest.TestCase):
             tools.read_file(cls.ElfTestFile('elf_sections')))
         TestFunctional._MakeInputFile('tee.elf',
             tools.read_file(cls.ElfTestFile('elf_sections')))
+
+        # Newer OP_TEE file in v1 binary format
+        cls.make_tee_bin('tee.bin')
 
         cls.comp_bintools = {}
         for name in COMP_BINTOOLS:
@@ -643,6 +648,14 @@ class TestFunctional(unittest.TestCase):
     @classmethod
     def ElfTestFile(cls, fname):
         return os.path.join(cls._elf_testdir, fname)
+
+    @classmethod
+    def make_tee_bin(cls, fname, paged_sz=0, extra_data=b''):
+        init_sz, start_hi, start_lo, dummy = (len(U_BOOT_DATA), 0, TEE_ADDR, 0)
+        data = b'OPTE\x01xxx' + struct.pack('<5I', init_sz, start_hi, start_lo,
+                                            dummy, paged_sz) + U_BOOT_DATA
+        data += extra_data
+        TestFunctional._MakeInputFile(fname, data)
 
     def AssertInList(self, grep_list, target):
         """Assert that at least one of a list of things is in a target
@@ -6076,6 +6089,226 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             "Section '/binman': entry '/binman/u-boot-spl-elf': "
             'Cannot write symbols to an ELF file without Python elftools',
             str(exc.exception))
+
+    def testSectionFilename(self):
+        """Check writing of section contents to a file"""
+        data = self._DoReadFile('261_section_fname.dts')
+        expected = (b'&&' + U_BOOT_DATA + b'&&&' +
+                    tools.get_bytes(ord('!'), 7) +
+                    U_BOOT_DATA + tools.get_bytes(ord('&'), 12))
+        self.assertEqual(expected, data)
+
+        sect_fname = tools.get_output_filename('outfile.bin')
+        self.assertTrue(os.path.exists(sect_fname))
+        sect_data = tools.read_file(sect_fname)
+        self.assertEqual(U_BOOT_DATA, sect_data)
+
+    def testAbsent(self):
+        """Check handling of absent entries"""
+        data = self._DoReadFile('262_absent.dts')
+        self.assertEqual(U_BOOT_DATA + U_BOOT_IMG_DATA, data)
+
+    def testPackTeeOsOptional(self):
+        """Test that an image with an optional TEE binary can be created"""
+        entry_args = {
+            'tee-os-path': 'tee.elf',
+        }
+        data = self._DoReadFileDtb('263_tee_os_opt.dts',
+                                   entry_args=entry_args)[0]
+        self.assertEqual(U_BOOT_DATA + U_BOOT_IMG_DATA, data)
+
+    def checkFitTee(self, dts, tee_fname):
+        """Check that a tee-os entry works and returns data
+
+        Args:
+            dts (str): Device tree filename to use
+            tee_fname (str): filename containing tee-os
+
+        Returns:
+            bytes: Image contents
+        """
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        entry_args = {
+            'of-list': 'test-fdt1 test-fdt2',
+            'default-dt': 'test-fdt2',
+            'tee-os-path': tee_fname,
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        data = self._DoReadFileDtb(dts, entry_args=entry_args,
+                                   extra_indirs=[test_subdir])[0]
+        return data
+
+    def testFitTeeOsOptionalFit(self):
+        """Test an image with a FIT with an optional OP-TEE binary"""
+        data = self.checkFitTee('264_tee_os_opt_fit.dts', 'tee.bin')
+
+        # There should be only one node, holding the data set up in SetUpClass()
+        # for tee.bin
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+        node = dtb.GetNode('/images/tee-1')
+        self.assertEqual(TEE_ADDR,
+                         fdt_util.fdt32_to_cpu(node.props['load'].value))
+        self.assertEqual(TEE_ADDR,
+                         fdt_util.fdt32_to_cpu(node.props['entry'].value))
+        self.assertEqual(U_BOOT_DATA, node.props['data'].bytes)
+
+    def testFitTeeOsOptionalFitBad(self):
+        """Test an image with a FIT with an optional OP-TEE binary"""
+        with self.assertRaises(ValueError) as exc:
+            self.checkFitTee('265_tee_os_opt_fit_bad.dts', 'tee.bin')
+        self.assertIn(
+            "Node '/binman/fit': subnode 'images/@tee-SEQ': Failed to read ELF file: Magic number does not match",
+            str(exc.exception))
+
+    def testFitTeeOsBad(self):
+        """Test an OP-TEE binary with wrong formats"""
+        self.make_tee_bin('tee.bad1', 123)
+        with self.assertRaises(ValueError) as exc:
+            self.checkFitTee('264_tee_os_opt_fit.dts', 'tee.bad1')
+        self.assertIn(
+            "Node '/binman/fit/images/@tee-SEQ/tee-os': OP-TEE paged mode not supported",
+            str(exc.exception))
+
+        self.make_tee_bin('tee.bad2', 0, b'extra data')
+        with self.assertRaises(ValueError) as exc:
+            self.checkFitTee('264_tee_os_opt_fit.dts', 'tee.bad2')
+        self.assertIn(
+            "Node '/binman/fit/images/@tee-SEQ/tee-os': Invalid OP-TEE file: size mismatch (expected 0x4, have 0xe)",
+            str(exc.exception))
+
+    def testExtblobOptional(self):
+        """Test an image with an external blob that is optional"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            data = self._DoReadFile('266_blob_ext_opt.dts')
+        self.assertEqual(REFCODE_DATA, data)
+        err = stderr.getvalue()
+        self.assertRegex(
+            err,
+            "Image '.*' is missing external blobs but is still functional: missing")
+
+    def testSectionInner(self):
+        """Test an inner section with a size"""
+        data = self._DoReadFile('267_section_inner.dts')
+        expected = U_BOOT_DATA + tools.get_bytes(0, 12)
+        self.assertEqual(expected, data)
+
+    def testNull(self):
+        """Test an image with a null entry"""
+        data = self._DoReadFile('268_null.dts')
+        self.assertEqual(U_BOOT_DATA + b'\xff\xff\xff\xff' + U_BOOT_IMG_DATA, data)
+
+    def testOverlap(self):
+        """Test an image with a overlapping entry"""
+        data = self._DoReadFile('269_overlap.dts')
+        self.assertEqual(U_BOOT_DATA[:1] + b'aa' + U_BOOT_DATA[3:], data)
+
+        image = control.images['image']
+        entries = image.GetEntries()
+
+        self.assertIn('inset', entries)
+        inset = entries['inset']
+        self.assertEqual(1, inset.offset);
+        self.assertEqual(1, inset.image_pos);
+        self.assertEqual(2, inset.size);
+
+    def testOverlapNull(self):
+        """Test an image with a null overlap"""
+        data = self._DoReadFile('270_overlap_null.dts')
+        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
+
+        # Check the FMAP
+        fhdr, fentries = fmap_util.DecodeFmap(data[len(U_BOOT_DATA):])
+        self.assertEqual(4, fhdr.nareas)
+        fiter = iter(fentries)
+
+        fentry = next(fiter)
+        self.assertEqual(b'SECTION', fentry.name)
+        self.assertEqual(0, fentry.offset)
+        self.assertEqual(len(U_BOOT_DATA), fentry.size)
+        self.assertEqual(0, fentry.flags)
+
+        fentry = next(fiter)
+        self.assertEqual(b'U_BOOT', fentry.name)
+        self.assertEqual(0, fentry.offset)
+        self.assertEqual(len(U_BOOT_DATA), fentry.size)
+        self.assertEqual(0, fentry.flags)
+
+        # Make sure that the NULL entry appears in the FMAP
+        fentry = next(fiter)
+        self.assertEqual(b'NULL', fentry.name)
+        self.assertEqual(1, fentry.offset)
+        self.assertEqual(2, fentry.size)
+        self.assertEqual(0, fentry.flags)
+
+        fentry = next(fiter)
+        self.assertEqual(b'FMAP', fentry.name)
+        self.assertEqual(len(U_BOOT_DATA), fentry.offset)
+
+    def testOverlapBad(self):
+        """Test an image with a bad overlapping entry"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('271_overlap_bad.dts')
+        self.assertIn(
+            "Node '/binman/inset': Offset 0x10 (16) ending at 0x12 (18) must overlap with existing entries",
+            str(exc.exception))
+
+    def testOverlapNoOffset(self):
+        """Test an image with a bad overlapping entry"""
+        with self.assertRaises(ValueError) as exc:
+            self._DoReadFile('272_overlap_no_size.dts')
+        self.assertIn(
+            "Node '/binman/inset': 'fill' entry is missing properties: size",
+            str(exc.exception))
+
+    def testBlobSymbol(self):
+        """Test a blob with symbols read from an ELF file"""
+        elf_fname = self.ElfTestFile('blob_syms')
+        TestFunctional._MakeInputFile('blob_syms', tools.read_file(elf_fname))
+        TestFunctional._MakeInputFile('blob_syms.bin',
+            tools.read_file(self.ElfTestFile('blob_syms.bin')))
+
+        data = self._DoReadFile('273_blob_symbol.dts')
+
+        syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
+        addr = elf.GetSymbolAddress(elf_fname, '__my_start_sym')
+        self.assertEqual(syms['_binman_sym_magic'].address, addr)
+        self.assertEqual(syms['_binman_inset_prop_offset'].address, addr + 4)
+        self.assertEqual(syms['_binman_inset_prop_size'].address, addr + 8)
+
+        sym_values = struct.pack('<LLL', elf.BINMAN_SYM_MAGIC_VALUE, 4, 8)
+        expected = sym_values
+        self.assertEqual(expected, data[:len(expected)])
+
+    def testOffsetFromElf(self):
+        """Test a blob with symbols read from an ELF file"""
+        elf_fname = self.ElfTestFile('blob_syms')
+        TestFunctional._MakeInputFile('blob_syms', tools.read_file(elf_fname))
+        TestFunctional._MakeInputFile('blob_syms.bin',
+            tools.read_file(self.ElfTestFile('blob_syms.bin')))
+
+        data = self._DoReadFile('274_offset_from_elf.dts')
+
+        syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
+        base = elf.GetSymbolAddress(elf_fname, '__my_start_sym')
+
+        image = control.images['image']
+        entries = image.GetEntries()
+
+        self.assertIn('inset', entries)
+        inset = entries['inset']
+
+        self.assertEqual(base + 4, inset.offset);
+        self.assertEqual(base + 4, inset.image_pos);
+        self.assertEqual(4, inset.size);
+
+        self.assertIn('inset2', entries)
+        inset = entries['inset2']
+        self.assertEqual(base + 8, inset.offset);
+        self.assertEqual(base + 8, inset.image_pos);
+        self.assertEqual(4, inset.size);
+
 
 if __name__ == "__main__":
     unittest.main()

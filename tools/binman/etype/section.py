@@ -144,6 +144,10 @@ class Entry_section(Entry):
         be written at offset 4 in the image file, since the first 16 bytes are
         skipped when writing.
 
+    filename
+        filename to write the unpadded section contents to within the output
+        directory (None to skip this).
+
     Since a section is also an entry, it inherits all the properies of entries
     too.
 
@@ -163,6 +167,18 @@ class Entry_section(Entry):
         self._skip_at_start = None
         self._end_4gb = False
         self._ignore_missing = False
+        self._filename = None
+
+    def IsSpecialSubnode(self, node):
+        """Check if a node is a special one used by the section itself
+
+        Some notes are used for hashing / signatures and do not add entries to
+        the actual section.
+
+        Returns:
+            bool: True if the node is a special one, else False
+        """
+        return node.name.startswith('hash') or node.name.startswith('signature')
 
     def ReadNode(self):
         """Read properties from the section node"""
@@ -183,12 +199,14 @@ class Entry_section(Entry):
                 self._skip_at_start = 0
         self._name_prefix = fdt_util.GetString(self._node, 'name-prefix')
         self.align_default = fdt_util.GetInt(self._node, 'align-default', 0)
+        self._filename = fdt_util.GetString(self._node, 'filename',
+                                            self._filename)
 
         self.ReadEntries()
 
     def ReadEntries(self):
         for node in self._node.subnodes:
-            if node.name.startswith('hash') or node.name.startswith('signature'):
+            if self.IsSpecialSubnode(node):
                 continue
             entry = Entry.Create(self, node,
                                  expanded=self.GetImage().use_expanded,
@@ -258,6 +276,7 @@ class Entry_section(Entry):
 
         Args:
             entry: Entry to check
+            entry_data: Data for the entry, False if is null
 
         Returns:
             Contents of the entry along with any pad bytes before and
@@ -312,14 +331,32 @@ class Entry_section(Entry):
             # earlier in the image description. See testCollectionSection().
             if not required and entry_data is None:
                 return None
-            data = self.GetPaddedDataForEntry(entry, entry_data)
+
+            entry_data_final = entry_data
+            if entry_data is None:
+                pad_byte = (entry._pad_byte if isinstance(entry, Entry_section)
+                            else self._pad_byte)
+                entry_data_final = tools.get_bytes(self._pad_byte, entry.size)
+
+            data = self.GetPaddedDataForEntry(entry, entry_data_final)
             # Handle empty space before the entry
             pad = (entry.offset or 0) - self._skip_at_start - len(section_data)
             if pad > 0:
                 section_data += tools.get_bytes(self._pad_byte, pad)
 
             # Add in the actual entry data
-            section_data += data
+            if entry.overlap:
+                end_offset = entry.offset + entry.size
+                if end_offset > len(section_data):
+                    entry.Raise("Offset %#x (%d) ending at %#x (%d) must overlap with existing entries" %
+                                (entry.offset, entry.offset, end_offset,
+                                 end_offset))
+                # Don't write anything for null entries'
+                if entry_data is not None:
+                    section_data = (section_data[:entry.offset] + data +
+                                    section_data[entry.offset + entry.size:])
+            else:
+                section_data += data
 
         self.Detail('GetData: %d entries, total size %#x' %
                     (len(self._entries), len(section_data)))
@@ -348,7 +385,8 @@ class Entry_section(Entry):
         """Get the contents of an entry
 
         This builds the contents of the section, stores this as the contents of
-        the section and returns it
+        the section and returns it. If the section has a filename, the data is
+        written there also.
 
         Args:
             required: True if the data must be present, False if it is OK to
@@ -363,6 +401,8 @@ class Entry_section(Entry):
         if data is None:
             return None
         self.SetContents(data)
+        if self._filename:
+            tools.write_file(tools.get_output_filename(self._filename), data)
         return data
 
     def GetOffsets(self):
@@ -439,12 +479,13 @@ class Entry_section(Entry):
                             (entry.offset, entry.offset, entry.size, entry.size,
                              self._node.path, self._skip_at_start,
                              self._skip_at_start, max_size, max_size))
-            if entry.offset < offset and entry.size:
-                entry.Raise("Offset %#x (%d) overlaps with previous entry '%s' "
-                            "ending at %#x (%d)" %
-                            (entry.offset, entry.offset, prev_name, offset, offset))
-            offset = entry.offset + entry.size
-            prev_name = entry.GetPath()
+            if not entry.overlap:
+                if entry.offset < offset and entry.size:
+                    entry.Raise("Offset %#x (%d) overlaps with previous entry '%s' ending at %#x (%d)" %
+                                (entry.offset, entry.offset, prev_name, offset,
+                                 offset))
+                offset = entry.offset + entry.size
+                prev_name = entry.GetPath()
 
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time"""
@@ -662,10 +703,13 @@ class Entry_section(Entry):
 
     def GetEntryContents(self, skip_entry=None):
         """Call ObtainContents() for each entry in the section
+
+        Note that this may set entry.absent to True if the entry is not
+        actually needed
         """
         def _CheckDone(entry):
             if entry != skip_entry:
-                if not entry.ObtainContents():
+                if entry.ObtainContents() is False:
                     next_todo.append(entry)
             return entry
 
@@ -705,6 +749,10 @@ class Entry_section(Entry):
             self.Raise('Internal error: Could not complete processing of contents: remaining %s' %
                        todo)
         return True
+
+    def drop_absent(self):
+        """Drop entries which are absent"""
+        self._entries = {n: e for n, e in self._entries.items() if not e.absent}
 
     def _SetEntryOffsetSize(self, name, offset, size):
         """Set the offset and size of an entry
@@ -846,7 +894,8 @@ class Entry_section(Entry):
     def CheckMissing(self, missing_list):
         """Check if any entries in this section have missing external blobs
 
-        If there are missing blobs, the entries are added to the list
+        If there are missing (non-optional) blobs, the entries are added to the
+        list
 
         Args:
             missing_list: List of Entry objects to be added to
@@ -864,6 +913,17 @@ class Entry_section(Entry):
         """
         for entry in self._entries.values():
             entry.CheckFakedBlobs(faked_blobs_list)
+
+    def CheckOptional(self, optional_list):
+        """Check the section for missing but optional external blobs
+
+        If there are missing (optional) blobs, the entries are added to the list
+
+        Args:
+            optional_list (list): List of Entry objects to be added to
+        """
+        for entry in self._entries.values():
+            entry.CheckOptional(optional_list)
 
     def check_missing_bintools(self, missing_list):
         """Check if any entries in this section have missing bintools
@@ -931,3 +991,12 @@ class Entry_section(Entry):
         super().AddBintools(btools)
         for entry in self._entries.values():
             entry.AddBintools(btools)
+
+    def read_elf_segments(self):
+        entries = self.GetEntries()
+
+        # If the section only has one entry, see if it can provide ELF segments
+        if len(entries) == 1:
+            for entry in entries.values():
+                return entry.read_elf_segments()
+        return None

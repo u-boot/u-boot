@@ -63,6 +63,7 @@ class Entry__testing(Entry):
                                                     'bad-update-contents-twice')
         self.return_contents_later = fdt_util.GetBool(self._node,
                                                      'return-contents-later')
+        self.set_to_absent = fdt_util.GetBool(self._node, 'set-to-absent')
 
         # Set to True when the entry is ready to process the FDT.
         self.process_fdt_ready = False
@@ -119,6 +120,8 @@ class Entry__testing(Entry):
         if self.require_bintool_for_contents:
             if self.bintool_for_contents is None:
                 self.Raise("Required bintool unusable in ObtainContents()")
+        if self.set_to_absent:
+            self.mark_absent('for testing purposes')
         return True
 
     def GetOffsets(self):

@@ -35,11 +35,17 @@ class Entry_blob(Entry):
         super().__init__(section, etype, node,
                          auto_write_symbols=auto_write_symbols)
         self._filename = fdt_util.GetString(self._node, 'filename', self.etype)
+        self.elf_fname = fdt_util.GetString(self._node, 'elf-filename',
+                                            self.elf_fname)
+        self.elf_base_sym = fdt_util.GetString(self._node, 'elf-base-sym')
+        if not self.auto_write_symbols:
+            if fdt_util.GetBool(self._node, 'write-symbols'):
+                self.auto_write_symbols = True
 
     def ObtainContents(self, fake_size=0):
         self._filename = self.GetDefaultFilename()
         self._pathname = tools.get_input_filename(self._filename,
-            self.external and self.section.GetAllowMissing())
+            self.external and (self.optional or self.section.GetAllowMissing()))
         # Allow the file to be missing
         if not self._pathname:
             self._pathname, faked = self.check_fake_fname(self._filename,

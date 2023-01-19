@@ -108,7 +108,7 @@ void	board_init_f_r(void) __attribute__ ((noreturn));
 int arch_misc_init(void);
 
 /* Read the time stamp counter */
-static inline __attribute__((no_instrument_function)) uint64_t rdtsc(void)
+static inline notrace uint64_t rdtsc(void)
 {
 	uint32_t high, low;
 	__asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high));

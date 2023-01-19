@@ -555,15 +555,6 @@ uint64_t fdtdec_get_uint64(const void *blob, int node, const char *prop_name,
 int fdtdec_get_is_enabled(const void *blob, int node);
 
 /**
- * Make sure we have a valid fdt available to control U-Boot.
- *
- * If not, a message is printed to the console if the console is ready.
- *
- * Return: 0 if all ok, -1 if not
- */
-int fdtdec_prepare_fdt(void);
-
-/**
  * Checks that we have a valid fdt available to control U-Boot.
 
  * However, if not then for the moment nothing is done, since this function

@@ -36,8 +36,10 @@ static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
 
 	tfd = mmap_fdt(params->cmdname, tmpfile, size_inc, &ptr, &sbuf, true,
 		       false);
-	if (tfd < 0)
+	if (tfd < 0) {
+		fprintf(stderr, "Cannot map FDT file '%s'\n", tmpfile);
 		return -EIO;
+	}
 
 	if (params->keydest) {
 		struct stat dest_sbuf;

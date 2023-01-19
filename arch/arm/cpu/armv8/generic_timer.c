@@ -17,7 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * Generic timer implementation of get_tbclk()
  */
-unsigned long get_tbclk(void)
+unsigned long notrace get_tbclk(void)
 {
 	unsigned long cntfrq;
 	asm volatile("mrs %0, cntfrq_el0" : "=r" (cntfrq));
@@ -78,7 +78,7 @@ unsigned long timer_read_counter(void)
 /*
  * timer_read_counter() using the Arm Generic Timer (aka arch timer).
  */
-unsigned long timer_read_counter(void)
+unsigned long notrace timer_read_counter(void)
 {
 	unsigned long cntpct;
 
@@ -89,7 +89,7 @@ unsigned long timer_read_counter(void)
 }
 #endif
 
-uint64_t get_ticks(void)
+uint64_t notrace get_ticks(void)
 {
 	unsigned long ticks = timer_read_counter();
 

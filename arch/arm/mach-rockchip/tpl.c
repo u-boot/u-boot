@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <bootstage.h>
 #include <debug_uart.h>
 #include <dm.h>
 #include <hang.h>
@@ -70,14 +71,14 @@ void board_init_f(ulong dummy)
 				U_BOOT_TIME ")\n");
 #endif
 #endif
+	/* Init secure timer */
+	rockchip_stimer_init();
+
 	ret = spl_early_init();
 	if (ret) {
 		debug("spl_early_init() failed: %d\n", ret);
 		hang();
 	}
-
-	/* Init secure timer */
-	rockchip_stimer_init();
 
 	/* Init ARM arch timer */
 	if (IS_ENABLED(CONFIG_SYS_ARCH_TIMER))
@@ -93,6 +94,15 @@ void board_init_f(ulong dummy)
 int board_return_to_bootrom(struct spl_image_info *spl_image,
 			    struct spl_boot_device *bootdev)
 {
+#ifdef CONFIG_BOOTSTAGE_STASH
+	int ret;
+
+	bootstage_mark_name(BOOTSTAGE_ID_END_TPL, "end tpl");
+	ret = bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
+			      CONFIG_BOOTSTAGE_STASH_SIZE);
+	if (ret)
+		debug("Failed to stash bootstage: err=%d\n", ret);
+#endif
 	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
 
 	return 0;

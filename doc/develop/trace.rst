@@ -185,7 +185,7 @@ this produces sensible results for your board. Suitable sources for
 this timer include high resolution timers, PWMs or profile timers if
 available. Most modern SOCs have a suitable timer for this. Make sure
 that you mark this timer (and anything it calls) with
-__attribute__((no_instrument_function)) so that the trace library can
+notrace so that the trace library can
 use it without causing an infinite loop.
 
 

@@ -13,6 +13,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <net.h>
+#include <spl.h>
 #include <env.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -518,8 +519,11 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 		 * Adding an extra check to distinguish DT nodes with
 		 * same name
 		 */
-		if (offset != fdt_path_offset(blob, prop))
-			continue;
+		if (IS_ENABLED(CONFIG_PHANDLE_CHECK_SEQ)) {
+			if (fdt_get_phandle(blob, offset) !=
+			    fdt_get_phandle(blob, fdt_path_offset(blob, prop)))
+				continue;
+		}
 
 		val = trailing_strtol(name);
 		if (val != -1) {
@@ -586,6 +590,34 @@ int fdtdec_get_chosen_node(const void *blob, const char *name)
 	return fdt_path_offset(blob, prop);
 }
 
+/**
+ * fdtdec_prepare_fdt() - Check we have a valid fdt available to control U-Boot
+ *
+ * @blob: Blob to check
+ *
+ * If not, a message is printed to the console if the console is ready.
+ *
+ * Return: 0 if all ok, -ENOENT if not
+ */
+static int fdtdec_prepare_fdt(const void *blob)
+{
+	if (!blob || ((uintptr_t)blob & 3) || fdt_check_header(blob)) {
+		if (spl_phase() <= PHASE_SPL) {
+			puts("Missing DTB\n");
+		} else {
+			printf("No valid device tree binary found at %p\n",
+			       blob);
+			if (_DEBUG && blob) {
+				printf("fdt_blob=%p\n", blob);
+				print_buffer((ulong)blob, blob, 4, 32, 0);
+			}
+		}
+		return -ENOENT;
+	}
+
+	return 0;
+}
+
 int fdtdec_check_fdt(void)
 {
 	/*
@@ -594,34 +626,7 @@ int fdtdec_check_fdt(void)
 	 * FDT (prior to console ready) will need to make their own
 	 * arrangements and do their own checks.
 	 */
-	assert(!fdtdec_prepare_fdt());
-	return 0;
-}
-
-/*
- * This function is a little odd in that it accesses global data. At some
- * point if the architecture board.c files merge this will make more sense.
- * Even now, it is common code.
- */
-int fdtdec_prepare_fdt(void)
-{
-	if (!gd->fdt_blob || ((uintptr_t)gd->fdt_blob & 3) ||
-	    fdt_check_header(gd->fdt_blob)) {
-#ifdef CONFIG_SPL_BUILD
-		puts("Missing DTB\n");
-#else
-		printf("No valid device tree binary found at %p\n",
-		       gd->fdt_blob);
-# ifdef DEBUG
-		if (gd->fdt_blob) {
-			printf("fdt_blob=%p\n", gd->fdt_blob);
-			print_buffer((ulong)gd->fdt_blob, gd->fdt_blob, 4,
-				     32, 0);
-		}
-# endif
-#endif
-		return -1;
-	}
+	assert(!fdtdec_prepare_fdt(gd->fdt_blob));
 	return 0;
 }
 
@@ -1229,6 +1234,29 @@ static void *fdt_find_separate(void)
 #else
 	/* FDT is at end of image */
 	fdt_blob = (ulong *)&_end;
+
+	if (_DEBUG && !fdtdec_prepare_fdt(fdt_blob)) {
+		int stack_ptr;
+		const void *top = fdt_blob + fdt_totalsize(fdt_blob);
+
+		/*
+		 * Perform a sanity check on the memory layout. If this fails,
+		 * it indicates that the device tree is positioned above the
+		 * global data pointer or the stack pointer. This should not
+		 * happen.
+		 *
+		 * If this fails, check that SYS_INIT_SP_ADDR has enough space
+		 * below it for SYS_MALLOC_F_LEN and global_data, as well as the
+		 * stack, without overwriting the device tree or U-Boot itself.
+		 * Since the device tree is sitting at _end (the start of the
+		 * BSS region), we need the top of the device tree to be below
+		 * any memory allocated by board_init_f_alloc_reserve().
+		 */
+		if (top > (void *)gd || top > (void *)&stack_ptr) {
+			printf("FDT %p gd %p\n", fdt_blob, gd);
+			panic("FDT overlap");
+		}
+	}
 #endif
 
 	return fdt_blob;
@@ -1666,7 +1694,7 @@ int fdtdec_setup(void)
 	if (CONFIG_IS_ENABLED(MULTI_DTB_FIT))
 		setup_multi_dtb_fit();
 
-	ret = fdtdec_prepare_fdt();
+	ret = fdtdec_prepare_fdt(gd->fdt_blob);
 	if (!ret)
 		ret = fdtdec_board_setup(gd->fdt_blob);
 	oftree_reset();
@@ -1698,7 +1726,7 @@ int fdtdec_resetup(int *rescan)
 
 		*rescan = 1;
 		gd->fdt_blob = fdt_blob;
-		return fdtdec_prepare_fdt();
+		return fdtdec_prepare_fdt(fdt_blob);
 	}
 
 	/*

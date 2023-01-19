@@ -1292,8 +1292,12 @@ int fit_add_verification_data(const char *keydir, const char *keyfile,
 		ret = fit_image_add_verification_data(keydir, keyfile, keydest,
 				fit, noffset, comment, require_keys, engine_id,
 				cmdname, algo_name);
-		if (ret)
+		if (ret) {
+			printf("Can't add verification data for node '%s' (%s)\n",
+			       fdt_get_name(fit, noffset, NULL),
+			       fdt_strerror(ret));
 			return ret;
+		}
 	}
 
 	/* If there are no keys, we can't sign configurations */

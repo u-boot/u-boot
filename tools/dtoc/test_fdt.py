@@ -795,6 +795,17 @@ class TestFdtUtil(unittest.TestCase):
         finally:
             tools.outdir= old_outdir
 
+    def test_get_phandle_name_offset(self):
+        val = fdt_util.GetPhandleNameOffset(self.node, 'missing')
+        self.assertIsNone(val)
+
+        dtb = fdt.FdtScan(find_dtb_file('dtoc_test_phandle.dts'))
+        node = dtb.GetNode('/phandle-source')
+        node, name, offset = fdt_util.GetPhandleNameOffset(node,
+                                                           'phandle-name-offset')
+        self.assertEqual('phandle3-target', node.name)
+        self.assertEqual('fred', name)
+        self.assertEqual(123, offset)
 
 def run_test_coverage(build_dir):
     """Run the tests and check that we get 100% coverage
