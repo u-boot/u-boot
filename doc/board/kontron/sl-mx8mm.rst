@@ -20,6 +20,12 @@ Quick Start
 - Build U-Boot
 - Boot
 
+.. note::
+
+   To build on a x86-64 host machine, you need a GNU cross toolchain for the
+   target architecture (aarch64). Check your distros package manager or
+   download and install the necessary tools (``aarch64-linux-gnu-*``) manually.
+
 Get and Build the Trusted Firmware-A (TF-A)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
