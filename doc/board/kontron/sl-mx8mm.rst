@@ -9,7 +9,7 @@ with an i.MX8M-Mini SoC, 1/2/4 GB LPDDR4 RAM, SPI NOR, eMMC and PMIC.
 The matching evaluation boards (Board-Line, BL) have two Ethernet ports,
 USB 2.0, HDMI/LVDS, SD card, CAN, RS485, RS232 and much more.
 
-The OSM-S i.MX8MM is compliant to the Open Standard Module (OSM) 1.0
+The OSM-S i.MX8MM is compliant to the Open Standard Module (OSM) 1.1
 specification, size S (https://sget.org/standards/osm).
 
 Quick Start
