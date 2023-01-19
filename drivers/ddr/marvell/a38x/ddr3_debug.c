@@ -30,6 +30,12 @@ u8 debug_training_hw_alg = DEBUG_LEVEL_ERROR;
 u8 debug_training_access = DEBUG_LEVEL_ERROR;
 u8 debug_training_device = DEBUG_LEVEL_ERROR;
 
+#if defined(CONFIG_DDR4)
+u8 debug_tap_tuning = DEBUG_LEVEL_ERROR;
+u8 debug_calibration = DEBUG_LEVEL_ERROR;
+u8 debug_ddr4_centralization = DEBUG_LEVEL_ERROR;
+u8 debug_dm_tuning = DEBUG_LEVEL_ERROR;
+#endif /* CONFIG_DDR4 */
 
 void mv_ddr_user_log_level_set(enum ddr_lib_debug_block block)
 {
@@ -70,6 +76,17 @@ void ddr3_hws_set_log_level(enum ddr_lib_debug_block block, u8 level)
 		else
 			is_reg_dump = 0;
 		break;
+#if defined(CONFIG_DDR4)
+	case DEBUG_TAP_TUNING_ENGINE:
+		debug_tap_tuning = level;
+		break;
+	case DEBUG_BLOCK_CALIBRATION:
+		debug_calibration = level;
+		break;
+	case DEBUG_BLOCK_DDR4_CENTRALIZATION:
+		debug_ddr4_centralization = level;
+		break;
+#endif /* CONFIG_DDR4 */
 	case DEBUG_BLOCK_ALL:
 	default:
 		debug_training_static = level;
@@ -80,6 +97,11 @@ void ddr3_hws_set_log_level(enum ddr_lib_debug_block block, u8 level)
 		debug_training_hw_alg = level;
 		debug_training_access = level;
 		debug_training_device = level;
+#if defined(CONFIG_DDR4)
+		debug_tap_tuning = level;
+		debug_calibration = level;
+		debug_ddr4_centralization = level;
+#endif /* CONFIG_DDR4 */
 	}
 }
 #endif /* SILENT_LIB */
@@ -209,11 +231,13 @@ static char *convert_freq(enum mv_ddr_freq freq)
 	case MV_DDR_FREQ_LOW_FREQ:
 		return "MV_DDR_FREQ_LOW_FREQ";
 
+#if !defined(CONFIG_DDR4)
 	case MV_DDR_FREQ_400:
 		return "400";
 
 	case MV_DDR_FREQ_533:
 		return "533";
+#endif /* CONFIG_DDR4 */
 
 	case MV_DDR_FREQ_667:
 		return "667";
@@ -227,6 +251,7 @@ static char *convert_freq(enum mv_ddr_freq freq)
 	case MV_DDR_FREQ_1066:
 		return "1066";
 
+#if !defined(CONFIG_DDR4)
 	case MV_DDR_FREQ_311:
 		return "311";
 
@@ -247,6 +272,7 @@ static char *convert_freq(enum mv_ddr_freq freq)
 
 	case MV_DDR_FREQ_1000:
 		return "MV_DDR_FREQ_1000";
+#endif /* CONFIG_DDR4 */
 
 	default:
 		return "Unknown Frequency";
@@ -463,6 +489,7 @@ int ddr3_tip_print_log(u32 dev_num, u32 mem_addr)
 					   (training_result[WRITE_LEVELING_TF]
 					    [if_id])));
 		}
+#if !defined(CONFIG_DDR4)
 		if (mask_tune_func & READ_LEVELING_TF_MASK_BIT) {
 			DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
 					  ("\tRL TF: %s\n",
@@ -470,6 +497,7 @@ int ddr3_tip_print_log(u32 dev_num, u32 mem_addr)
 					   (training_result[READ_LEVELING_TF]
 					    [if_id])));
 		}
+#endif /* CONFIG_DDR4 */
 		if (mask_tune_func & WRITE_LEVELING_SUPP_TF_MASK_BIT) {
 			DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
 					  ("\tWL TF Supp: %s\n",
@@ -499,6 +527,43 @@ int ddr3_tip_print_log(u32 dev_num, u32 mem_addr)
 					   (training_result[CENTRALIZATION_TX]
 					    [if_id])));
 		}
+#if defined(CONFIG_DDR4)
+		if (mask_tune_func & SW_READ_LEVELING_MASK_BIT) {
+			DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
+					  ("\tSW RL TF: %s\n",
+					   ddr3_tip_convert_tune_result
+					   (training_result[SW_READ_LEVELING]
+					    [if_id])));
+		}
+		if (mask_tune_func & RECEIVER_CALIBRATION_MASK_BIT) {
+			DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
+					  ("\tRX CAL: %s\n",
+					   ddr3_tip_convert_tune_result
+					   (training_result[RECEIVER_CALIBRATION]
+					    [if_id])));
+		}
+		if (mask_tune_func & WL_PHASE_CORRECTION_MASK_BIT) {
+			DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
+					  ("\tWL PHASE CORRECT: %s\n",
+					   ddr3_tip_convert_tune_result
+					   (training_result[WL_PHASE_CORRECTION]
+					    [if_id])));
+		}
+		if (mask_tune_func & DQ_VREF_CALIBRATION_MASK_BIT) {
+			DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
+					  ("\tDQ VREF CAL: %s\n",
+					   ddr3_tip_convert_tune_result
+					   (training_result[DQ_VREF_CALIBRATION]
+					    [if_id])));
+		}
+		if (mask_tune_func & DQ_MAPPING_MASK_BIT) {
+			DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
+					  ("\tDQ MAP: %s\n",
+					   ddr3_tip_convert_tune_result
+					   (training_result[DQ_MAPPING]
+					    [if_id])));
+		}
+#endif /* CONFIG_DDR4 */
 	}
 
 	return MV_OK;
@@ -512,6 +577,9 @@ int ddr3_tip_print_stability_log(u32 dev_num)
 {
 	u8 if_id = 0, csindex = 0, bus_id = 0, idx = 0;
 	u32 reg_data;
+#if defined(CONFIG_DDR4)
+	u32 reg_data1;
+#endif /* CONFIG_DDR4 */
 	u32 read_data[MAX_INTERFACE_NUM];
 	unsigned int max_cs = mv_ddr_cs_num_get();
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
@@ -524,7 +592,13 @@ int ddr3_tip_print_stability_log(u32 dev_num)
 			printf("CS%d , ", csindex);
 			printf("\n");
 			VALIDATE_BUS_ACTIVE(tm->bus_act_mask, bus_id);
+#if defined(CONFIG_DDR4)
+			printf("DminTx, AreaTx, DminRx, AreaRx, WL_tot, WL_ADLL, WL_PH, RL_Tot, RL_ADLL, RL_PH, RL_Smp, CenTx, CenRx, Vref, DQVref,");
+			for (idx = 0; idx < 11; idx++)
+				printf("DC-Pad%d,", idx);
+#else /* CONFIG_DDR4 */
 			printf("VWTx, VWRx, WL_tot, WL_ADLL, WL_PH, RL_Tot, RL_ADLL, RL_PH, RL_Smp, Cen_tx, Cen_rx, Vref, DQVref,");
+#endif /* CONFIG_DDR4 */
 			printf("\t\t");
 			for (idx = 0; idx < 11; idx++)
 				printf("PBSTx-Pad%d,", idx);
@@ -565,6 +639,40 @@ int ddr3_tip_print_stability_log(u32 dev_num)
 			for (bus_id = 0; bus_id < MAX_BUS_NUM; bus_id++) {
 				printf("\n");
 				VALIDATE_BUS_ACTIVE(tm->bus_act_mask, bus_id);
+#if defined(CONFIG_DDR4)
+				/* DminTx, areaTX */
+				ddr3_tip_bus_read(dev_num, if_id,
+						  ACCESS_TYPE_UNICAST,
+						  bus_id, DDR_PHY_DATA,
+						  RESULT_PHY_REG +
+						  csindex, &reg_data);
+				ddr3_tip_bus_read(dev_num, if_id,
+						  ACCESS_TYPE_UNICAST,
+						  dmin_phy_reg_table
+						  [csindex * 5 + bus_id][0],
+						  DDR_PHY_CONTROL,
+						  dmin_phy_reg_table
+						  [csindex * 5 + bus_id][1],
+						  &reg_data1);
+				printf("%d,%d,", 2 * (reg_data1 & 0xFF),
+				       reg_data);
+				/* DminRx, areaRX */
+				ddr3_tip_bus_read(dev_num, if_id,
+						  ACCESS_TYPE_UNICAST,
+						  bus_id, DDR_PHY_DATA,
+						  RESULT_PHY_REG +
+						  csindex + 4, &reg_data);
+				ddr3_tip_bus_read(dev_num, if_id,
+						  ACCESS_TYPE_UNICAST,
+						  dmin_phy_reg_table
+						  [csindex * 5 + bus_id][0],
+						  DDR_PHY_CONTROL,
+						  dmin_phy_reg_table
+						  [csindex * 5 + bus_id][1],
+						  &reg_data1);
+				printf("%d,%d,", 2 * (reg_data1 >> 8),
+				       reg_data);
+#else /* CONFIG_DDR4 */
 				ddr3_tip_bus_read(dev_num, if_id,
 						  ACCESS_TYPE_UNICAST,
 						  bus_id, DDR_PHY_DATA,
@@ -572,6 +680,7 @@ int ddr3_tip_print_stability_log(u32 dev_num)
 						  csindex, &reg_data);
 				printf("%d,%d,", (reg_data & 0x1f),
 				       ((reg_data & 0x3e0) >> 5));
+#endif /* CONFIG_DDR4 */
 				/* WL */
 				ddr3_tip_bus_read(dev_num, if_id,
 						  ACCESS_TYPE_UNICAST,
@@ -628,6 +737,17 @@ int ddr3_tip_print_stability_log(u32 dev_num)
 				/* DQVref */
 				/* Need to add the Read Function from device */
 				printf("%d,", 0);
+#if defined(CONFIG_DDR4)
+				printf("\t\t");
+				for (idx = 0; idx < 11; idx++) {
+					ddr3_tip_bus_read(dev_num, if_id,
+							  ACCESS_TYPE_UNICAST,
+							  bus_id, DDR_PHY_DATA,
+							  0xd0 + 12 * csindex +
+							  idx, &reg_data);
+					printf("%d,", (reg_data & 0x3f));
+				}
+#endif /* CONFIG_DDR4 */
 				printf("\t\t");
 				for (idx = 0; idx < 11; idx++) {
 					ddr3_tip_bus_read(dev_num, if_id,

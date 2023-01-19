@@ -17,3 +17,11 @@ obj-$(CONFIG_SPL_BUILD) += mv_ddr_common.o
 obj-$(CONFIG_SPL_BUILD) += mv_ddr_spd.o
 obj-$(CONFIG_SPL_BUILD) += mv_ddr_topology.o
 obj-$(CONFIG_SPL_BUILD) += xor.o
+
+ifdef CONFIG_DDR4
+	obj-$(CONFIG_SPL_BUILD) += mv_ddr4_mpr_pda_if.o
+	obj-$(CONFIG_SPL_BUILD) += mv_ddr4_training.o
+	obj-$(CONFIG_SPL_BUILD) += mv_ddr4_training_calibration.o
+	obj-$(CONFIG_SPL_BUILD) += mv_ddr4_training_db.o
+	obj-$(CONFIG_SPL_BUILD) += mv_ddr4_training_leveling.o
+endif

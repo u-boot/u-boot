@@ -46,6 +46,11 @@ enum mr_number {
 	MR_CMD1,
 	MR_CMD2,
 	MR_CMD3,
+#if defined(CONFIG_DDR4)
+	MR_CMD4,
+	MR_CMD5,
+	MR_CMD6,
+#endif
 	MR_LAST
 };
 

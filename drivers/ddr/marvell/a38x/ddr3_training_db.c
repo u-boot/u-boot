@@ -25,6 +25,98 @@ static inline u32 pattern_table_get_sso_xtalk_free_word16(u8 bit, u8 index);
 static inline u32 pattern_table_get_isi_word(u8 index);
 static inline u32 pattern_table_get_isi_word16(u8 index);
 
+#if defined(CONFIG_DDR4)
+u8 pattern_killer_map[KILLER_PATTERN_LENGTH * 2] = {
+	0x01,
+	0x00,
+	0x01,
+	0xff,
+	0xfe,
+	0xfe,
+	0x01,
+	0xfe,
+	0x01,
+	0xfe,
+	0x01,
+	0x01,
+	0xfe,
+	0x01,
+	0xfe,
+	0x00,
+	0xff,
+	0x00,
+	0xff,
+	0x00,
+	0xff,
+	0x00,
+	0xff,
+	0x01,
+	0x00,
+	0xff,
+	0x00,
+	0xff,
+	0x00,
+	0x00,
+	0x00,
+	0xfe,
+	0xfe,
+	0xff,
+	0x00,
+	0x00,
+	0xff,
+	0xff,
+	0x00,
+	0xff,
+	0x00,
+	0xff,
+	0xff,
+	0x00,
+	0x00,
+	0xff,
+	0x00,
+	0xff,
+	0xfe,
+	0x00,
+	0xfe,
+	0xfe,
+	0x00,
+	0xff,
+	0xff,
+	0x01,
+	0x01,
+	0xff,
+	0xff,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0xff
+};
+static inline u32 pattern_table_get_killer_word_4(u8 dqs, u8 index)
+{
+	u8 byte;
+
+	if (index >= (KILLER_PATTERN_LENGTH * 2)) {
+		printf("error: %s: invalid index [%u] found\n", __func__, index);
+		return 0;
+	}
+
+	byte = pattern_killer_map[index];
+
+	switch (byte) {
+	case 0x01:
+	    byte = 1 << dqs;
+	    break;
+	case 0xfe:
+	    byte = 0xff & ~(1 << dqs);
+	    break;
+	default:
+	    break;
+	}
+
+	return byte | (byte << 8) | (byte << 16) | (byte << 24);
+}
+#else /* !CONFIG_DDR4 */
 /* List of allowed frequency listed in order of enum mv_ddr_freq */
 static unsigned int freq_val[MV_DDR_FREQ_LAST] = {
 	0,			/*MV_DDR_FREQ_LOW_FREQ */
@@ -302,6 +394,7 @@ u32 speed_bin_table_t_rcd_t_rp[] = {
 	12155,
 	13090,
 };
+#endif /* CONFIG_DDR4 */
 
 enum {
 	PATTERN_KILLER_PATTERN_TABLE_MAP_ROLE_AGGRESSOR = 0,
@@ -388,6 +481,7 @@ static u8 pattern_vref_pattern_table_map[] = {
 	0xfe
 };
 
+#if !defined(CONFIG_DDR4)
 static struct mv_ddr_page_element page_tbl[] = {
 	/* 8-bit, 16-bit page size */
 	{MV_DDR_PAGE_SIZE_1K, MV_DDR_PAGE_SIZE_2K}, /* 512M */
@@ -521,6 +615,7 @@ static inline u32 pattern_table_get_killer_word(u8 dqs, u8 index)
 
 	return byte | (byte << 8) | (byte << 16) | (byte << 24);
 }
+#endif /* !CONFIG_DDR4 */
 
 static inline u32 pattern_table_get_killer_word16(u8 dqs, u8 index)
 {
@@ -651,6 +746,7 @@ static inline u32 pattern_table_get_vref_word16(u8 index)
 		return 0xffffffff;
 }
 
+#if !defined(CONFIG_DDR4)
 static inline u32 pattern_table_get_static_pbs_word(u8 index)
 {
 	u16 temp;
@@ -659,6 +755,7 @@ static inline u32 pattern_table_get_static_pbs_word(u8 index)
 
 	return temp | (temp << 8) | (temp << 16) | (temp << 24);
 }
+#endif /* !CONFIG_DDR4 */
 
 u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 {
@@ -670,26 +767,36 @@ u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 		switch (type) {
 		case PATTERN_PBS1:
 		case PATTERN_PBS2:
+#if !defined(CONFIG_DDR4)
 			if (index == 0 || index == 2 || index == 5 ||
 			    index == 7)
 				pattern = PATTERN_55;
 			else
 				pattern = PATTERN_AA;
 			break;
+#endif /* !CONFIG_DDR4 */
 		case PATTERN_PBS3:
+#if !defined(CONFIG_DDR4)
 			if (0 == (index & 1))
 				pattern = PATTERN_55;
 			else
 				pattern = PATTERN_AA;
+#endif /* !CONFIG_DDR4 */
 			break;
 		case PATTERN_RL:
+#if !defined(CONFIG_DDR4)
 			if (index < 6)
 				pattern = PATTERN_00;
 			else
 				pattern = PATTERN_80;
+#else /* CONFIG_DDR4 */
+			pattern = PATTERN_00;
+#endif /* !CONFIG_DDR4 */
 			break;
 		case PATTERN_STATIC_PBS:
+#if !defined(CONFIG_DDR4)
 			pattern = pattern_table_get_static_pbs_word(index);
+#endif /* !CONFIG_DDR4 */
 			break;
 		case PATTERN_KILLER_DQ0:
 		case PATTERN_KILLER_DQ1:
@@ -699,14 +806,22 @@ u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 		case PATTERN_KILLER_DQ5:
 		case PATTERN_KILLER_DQ6:
 		case PATTERN_KILLER_DQ7:
+#if !defined(CONFIG_DDR4)
 			pattern = pattern_table_get_killer_word(
+#else /* CONFIG_DDR4 */
+			pattern = pattern_table_get_killer_word_4(
+#endif /* !CONFIG_DDR4 */
 				(u8)(type - PATTERN_KILLER_DQ0), index);
 			break;
 		case PATTERN_RL2:
+#if !defined(CONFIG_DDR4)
 			if (index < 6)
 				pattern = PATTERN_00;
 			else
 				pattern = PATTERN_01;
+#else /* !CONFIG_DDR4 */
+			pattern = PATTERN_FF;
+#endif /* CONFIG_DDR4 */
 			break;
 		case PATTERN_TEST:
 			if (index > 1 && index < 6)
@@ -749,6 +864,46 @@ u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 		case PATTERN_ISI_XTALK_FREE:
 			pattern = pattern_table_get_isi_word(index);
 			break;
+#if defined(CONFIG_DDR4)
+		case PATTERN_KILLER_DQ0_INV:
+		case PATTERN_KILLER_DQ1_INV:
+		case PATTERN_KILLER_DQ2_INV:
+		case PATTERN_KILLER_DQ3_INV:
+		case PATTERN_KILLER_DQ4_INV:
+		case PATTERN_KILLER_DQ5_INV:
+		case PATTERN_KILLER_DQ6_INV:
+		case PATTERN_KILLER_DQ7_INV:
+			pattern = ~pattern_table_get_killer_word_4(
+				(u8)(type - PATTERN_KILLER_DQ0_INV), index);
+			break;
+		case PATTERN_RESONANCE_1T:
+		case PATTERN_RESONANCE_2T:
+		case PATTERN_RESONANCE_3T:
+		case PATTERN_RESONANCE_4T:
+		case PATTERN_RESONANCE_5T:
+		case PATTERN_RESONANCE_6T:
+		case PATTERN_RESONANCE_7T:
+		case PATTERN_RESONANCE_8T:
+		case PATTERN_RESONANCE_9T:
+			{
+				u8 t_num = (u8)(type - PATTERN_RESONANCE_1T);
+				u8 t_end = (59 / t_num) * t_num;
+				if (index < t_end)
+					pattern = ((index % (t_num * 2)) >= t_num) ? 0xffffffff : 0x00000000;
+				else
+					pattern = ((index % 2) == 0) ? 0xffffffff : 0x00000000;
+			}
+			break;
+		case PATTERN_ZERO:
+			pattern = PATTERN_00;
+			break;
+		case PATTERN_ONE:
+			pattern = PATTERN_FF;
+			break;
+		case PATTERN_VREF_INV:
+			pattern = ~pattern_table_get_vref_word(index);
+			break;
+#endif /* CONFIG_DDR4 */
 		default:
 			printf("error: %s: unsupported pattern type [%d] found\n",
 			       __func__, (int)type);
@@ -761,16 +916,24 @@ u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 		case PATTERN_PBS1:
 		case PATTERN_PBS2:
 		case PATTERN_PBS3:
+#if !defined(CONFIG_DDR4)
 			pattern = PATTERN_55AA;
+#endif /* !CONFIG_DDR4 */
 			break;
 		case PATTERN_RL:
+#if !defined(CONFIG_DDR4)
 			if (index < 3)
 				pattern = PATTERN_00;
 			else
 				pattern = PATTERN_80;
+#else /* CONFIG_DDR4 */
+			pattern = PATTERN_00;
+#endif /* !CONFIG_DDR4 */
 			break;
 		case PATTERN_STATIC_PBS:
+#if !defined(CONFIG_DDR4)
 			pattern = PATTERN_00FF;
+#endif /* !CONFIG_DDR4 */
 			break;
 		case PATTERN_KILLER_DQ0:
 		case PATTERN_KILLER_DQ1:
@@ -784,25 +947,40 @@ u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 				(u8)(type - PATTERN_KILLER_DQ0), index);
 			break;
 		case PATTERN_RL2:
+#if !defined(CONFIG_DDR4)
 			if (index < 3)
 				pattern = PATTERN_00;
 			else
 				pattern = PATTERN_01;
+#endif /* !CONFIG_DDR4 */
 			break;
 		case PATTERN_TEST:
+#if !defined(CONFIG_DDR4)
 			if ((index == 0) || (index == 3))
 				pattern = 0x00000000;
 			else
 				pattern = 0xFFFFFFFF;
+#else /* CONFIG_DDR4 */
+			if ((index > 1) && (index < 6))
+				pattern = PATTERN_20;
+			else
+				pattern = PATTERN_00;
+#endif /* !CONFIG_DDR4 */
 			break;
 		case PATTERN_FULL_SSO0:
+#if !defined(CONFIG_DDR4)
 			pattern = 0x0000ffff;
 			break;
+#endif /* !CONFIG_DDR4 */
 		case PATTERN_FULL_SSO1:
 		case PATTERN_FULL_SSO2:
 		case PATTERN_FULL_SSO3:
 			pattern = pattern_table_get_sso_word(
+#if !defined(CONFIG_DDR4)
 				(u8)(type - PATTERN_FULL_SSO1), index);
+#else /* CONFIG_DDR4 */
+				(u8)(type - PATTERN_FULL_SSO0), index);
+#endif /* !CONFIG_DDR4 */
 			break;
 		case PATTERN_VREF:
 			pattern = pattern_table_get_vref_word16(index);
@@ -832,6 +1010,40 @@ u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 		case PATTERN_ISI_XTALK_FREE:
 			pattern = pattern_table_get_isi_word16(index);
 			break;
+#if defined(CONFIG_DDR4)
+		case PATTERN_KILLER_DQ0_INV:
+		case PATTERN_KILLER_DQ1_INV:
+		case PATTERN_KILLER_DQ2_INV:
+		case PATTERN_KILLER_DQ3_INV:
+		case PATTERN_KILLER_DQ4_INV:
+		case PATTERN_KILLER_DQ5_INV:
+		case PATTERN_KILLER_DQ6_INV:
+		case PATTERN_KILLER_DQ7_INV:
+			pattern = ~pattern_table_get_killer_word16(
+				(u8)(type - PATTERN_KILLER_DQ0_INV), index);
+			break;
+		case PATTERN_RESONANCE_1T:
+		case PATTERN_RESONANCE_2T:
+		case PATTERN_RESONANCE_3T:
+		case PATTERN_RESONANCE_4T:
+		case PATTERN_RESONANCE_5T:
+		case PATTERN_RESONANCE_6T:
+		case PATTERN_RESONANCE_7T:
+		case PATTERN_RESONANCE_8T:
+		case PATTERN_RESONANCE_9T:
+			{
+				u8 t_num = (u8)(type - PATTERN_RESONANCE_1T);
+				u8 t_end = (59 / t_num) * t_num;
+				if (index < t_end)
+					pattern = ((index % (t_num * 2)) >= t_num) ? 0xffffffff : 0x00000000;
+				else
+					pattern = ((index % 2) == 0) ? 0xffffffff : 0x00000000;
+			}
+			break;
+		case PATTERN_VREF_INV:
+			pattern = ~pattern_table_get_vref_word16(index);
+			break;
+#endif /* CONFIG_DDR4 */
 		default:
 			if (((int)type == 29) || ((int)type == 30))
 				break;

@@ -38,6 +38,24 @@
 #define TSEN_STATUS_TEMP_OUT_OFFSET	0
 #define TSEN_STATUS_TEMP_OUT_MASK	(0x3ff << TSEN_STATUS_TEMP_OUT_OFFSET)
 
+#if defined(CONFIG_DDR4)
+static struct dlb_config ddr3_dlb_config_table[] = {
+	{DLB_CTRL_REG, 0x2000005f},
+	{DLB_BUS_OPT_WT_REG, 0x00880000},
+	{DLB_AGING_REG, 0x3f7f007f},
+	{DLB_EVICTION_CTRL_REG, 0x0000129f},
+	{DLB_EVICTION_TIMERS_REG, 0x00ff0000},
+	{DLB_WTS_DIFF_CS_REG, 0x04030803},
+	{DLB_WTS_DIFF_BG_REG, 0x00000A02},
+	{DLB_WTS_SAME_BG_REG, 0x08000901},
+	{DLB_WTS_CMDS_REG,  0x00020005},
+	{DLB_WTS_ATTR_PRIO_REG, 0x00060f10},
+	{DLB_QUEUE_MAP_REG, 0x00000543},
+	{DLB_SPLIT_REG, 0x0000000f},
+	{DLB_USER_CMD_REG, 0x00000000},
+	{0x0, 0x0}
+};
+#else /* !CONFIG_DDR4 */
 static struct dlb_config ddr3_dlb_config_table[] = {
 	{DLB_CTRL_REG, 0x2000005c},
 	{DLB_BUS_OPT_WT_REG, 0x00880000},
@@ -54,6 +72,7 @@ static struct dlb_config ddr3_dlb_config_table[] = {
 	{DLB_USER_CMD_REG, 0x00000000},
 	{0x0, 0x0}
 };
+#endif /* CONFIG_DDR4 */
 
 static struct dlb_config *sys_env_dlb_config_ptr_get(void)
 {
@@ -62,12 +81,18 @@ static struct dlb_config *sys_env_dlb_config_ptr_get(void)
 
 static u8 a38x_bw_per_freq[MV_DDR_FREQ_LAST] = {
 	0x3,			/* MV_DDR_FREQ_100 */
+#if !defined(CONFIG_DDR4)
 	0x4,			/* MV_DDR_FREQ_400 */
 	0x4,			/* MV_DDR_FREQ_533 */
+#endif /* CONFIG_DDR4 */
 	0x5,			/* MV_DDR_FREQ_667 */
 	0x5,			/* MV_DDR_FREQ_800 */
 	0x5,			/* MV_DDR_FREQ_933 */
 	0x5,			/* MV_DDR_FREQ_1066 */
+#if defined(CONFIG_DDR4)
+	0x5,			/*MV_DDR_FREQ_900*/
+	0x5,			/*MV_DDR_FREQ_1000*/
+#else /* CONFIG_DDR4 */
 	0x3,			/* MV_DDR_FREQ_311 */
 	0x3,			/* MV_DDR_FREQ_333 */
 	0x4,			/* MV_DDR_FREQ_467 */
@@ -77,16 +102,23 @@ static u8 a38x_bw_per_freq[MV_DDR_FREQ_LAST] = {
 	0x5,			/* MV_DDR_FREQ_900 */
 	0x3,			/* MV_DDR_FREQ_360 */
 	0x5			/* MV_DDR_FREQ_1000 */
+#endif /* CONFIG_DDR4 */
 };
 
 static u8 a38x_rate_per_freq[MV_DDR_FREQ_LAST] = {
 	0x1,			/* MV_DDR_FREQ_100 */
+#if !defined(CONFIG_DDR4)
 	0x2,			/* MV_DDR_FREQ_400 */
 	0x2,			/* MV_DDR_FREQ_533 */
+#endif /* CONFIG_DDR4 */
 	0x2,			/* MV_DDR_FREQ_667 */
 	0x2,			/* MV_DDR_FREQ_800 */
 	0x3,			/* MV_DDR_FREQ_933 */
 	0x3,			/* MV_DDR_FREQ_1066 */
+#ifdef CONFIG_DDR4
+	0x2,			/*MV_DDR_FREQ_900*/
+	0x2,			/*MV_DDR_FREQ_1000*/
+#else /* CONFIG_DDR4 */
 	0x1,			/* MV_DDR_FREQ_311 */
 	0x1,			/* MV_DDR_FREQ_333 */
 	0x2,			/* MV_DDR_FREQ_467 */
@@ -96,6 +128,7 @@ static u8 a38x_rate_per_freq[MV_DDR_FREQ_LAST] = {
 	0x2,			/* MV_DDR_FREQ_900 */
 	0x1,			/* MV_DDR_FREQ_360 */
 	0x2			/* MV_DDR_FREQ_1000 */
+#endif /* CONFIG_DDR4 */
 };
 
 static u16 a38x_vco_freq_per_sar_ref_clk_25_mhz[] = {
@@ -166,6 +199,54 @@ static u16 a38x_vco_freq_per_sar_ref_clk_40_mhz[] = {
 	1800			/* 30 - 0x1E */
 };
 
+#if defined(CONFIG_DDR4)
+u16 odt_slope[] = {
+	21443,
+	1452,
+	482,
+	240,
+	141,
+	90,
+	67,
+	52
+};
+
+u16 odt_intercept[] = {
+	1517,
+	328,
+	186,
+	131,
+	100,
+	80,
+	69,
+	61
+};
+
+/* Map of scratch PHY registers used to store stability value */
+u32 dmin_phy_reg_table[MAX_BUS_NUM * MAX_CS_NUM][2] = {
+	/* subphy, addr */
+	{0, 0xc0},	/* cs 0, subphy 0 */
+	{0, 0xc1},	/* cs 0, subphy 1 */
+	{0, 0xc2},	/* cs 0, subphy 2 */
+	{0, 0xc3},	/* cs 0, subphy 3 */
+	{0, 0xc4},	/* cs 0, subphy 4 */
+	{1, 0xc0},	/* cs 1, subphy 0 */
+	{1, 0xc1},	/* cs 1, subphy 1 */
+	{1, 0xc2},	/* cs 1, subphy 2 */
+	{1, 0xc3},	/* cs 1, subphy 3 */
+	{1, 0xc4},	/* cs 1, subphy 4 */
+	{2, 0xc0},	/* cs 2, subphy 0 */
+	{2, 0xc1},	/* cs 2, subphy 1 */
+	{2, 0xc2},	/* cs 2, subphy 2 */
+	{2, 0xc3},	/* cs 2, subphy 3 */
+	{2, 0xc4},	/* cs 2, subphy 4 */
+	{0, 0xc5},	/* cs 3, subphy 0 */
+	{1, 0xc5},	/* cs 3, subphy 1 */
+	{2, 0xc5},	/* cs 3, subphy 2 */
+	{0, 0xc6},	/* cs 3, subphy 3 */
+	{1, 0xc6}	/* cs 3, subphy 4 */
+};
+#endif /* CONFIG_DDR4 */
 
 static u32 dq_bit_map_2_phy_pin[] = {
 	1, 0, 2, 6, 9, 8, 3, 7,	/* 0 */
@@ -397,6 +478,7 @@ static int mv_ddr_sar_freq_get(int dev_num, enum mv_ddr_freq *freq)
 	if (((ref_clk_satr >> DEVICE_SAMPLE_AT_RESET2_REG_REFCLK_OFFSET) & 0x1) ==
 	    DEVICE_SAMPLE_AT_RESET2_REG_REFCLK_25MHZ) {
 		switch (reg) {
+#if !defined(CONFIG_DDR4)
 		case 0x1:
 			DEBUG_TRAINING_ACCESS(DEBUG_LEVEL_ERROR,
 					      ("Warning: Unsupported freq mode for 333Mhz configured(%d)\n",
@@ -424,6 +506,7 @@ static int mv_ddr_sar_freq_get(int dev_num, enum mv_ddr_freq *freq)
 		case 0x6:
 			*freq = MV_DDR_FREQ_600;
 			break;
+#endif /* CONFIG_DDR4 */
 		case 0x11:
 		case 0x14:
 			DEBUG_TRAINING_ACCESS(DEBUG_LEVEL_ERROR,
@@ -448,21 +531,32 @@ static int mv_ddr_sar_freq_get(int dev_num, enum mv_ddr_freq *freq)
 		case 0x12:
 			*freq = MV_DDR_FREQ_900;
 			break;
+#if defined(CONFIG_DDR4)
+		case 0x13:
+			*freq = MV_DDR_FREQ_1000;
+			DEBUG_TRAINING_ACCESS(DEBUG_LEVEL_ERROR,
+					      ("Warning: Unsupported freq mode for 1000Mhz configured(%d)\n",
+					      reg));
+			break;
+#else /* CONFIG_DDR4 */
 		case 0x13:
 			*freq = MV_DDR_FREQ_933;
 			break;
+#endif /* CONFIG_DDR4 */
 		default:
 			*freq = 0;
 			return MV_NOT_SUPPORTED;
 		}
 	} else { /* REFCLK 40MHz case */
 		switch (reg) {
+#if !defined(CONFIG_DDR4)
 		case 0x3:
 			*freq = MV_DDR_FREQ_400;
 			break;
 		case 0x5:
 			*freq = MV_DDR_FREQ_533;
 			break;
+#endif /* CONFIG_DDR4 */
 		case 0xb:
 			*freq = MV_DDR_FREQ_800;
 			break;
@@ -478,6 +572,7 @@ static int mv_ddr_sar_freq_get(int dev_num, enum mv_ddr_freq *freq)
 	return MV_OK;
 }
 
+#if !defined(CONFIG_DDR4)
 static int ddr3_tip_a38x_get_medium_freq(int dev_num, enum mv_ddr_freq *freq)
 {
 	u32 reg, ref_clk_satr;
@@ -554,6 +649,7 @@ static int ddr3_tip_a38x_get_medium_freq(int dev_num, enum mv_ddr_freq *freq)
 
 	return MV_OK;
 }
+#endif /* CONFIG_DDR4 */
 
 static int ddr3_tip_a38x_get_device_info(u8 dev_num, struct ddr3_device_info *info_ptr)
 {
@@ -667,7 +763,9 @@ static int mv_ddr_sw_db_init(u32 dev_num, u32 board_id)
 	dfs_low_freq = DFS_LOW_FREQ_VALUE;
 	calibration_update_control = 1;
 
+#if !defined(CONFIG_DDR4)
 	ddr3_tip_a38x_get_medium_freq(dev_num, &medium_freq);
+#endif /* CONFIG_DDR4 */
 
 	return MV_OK;
 }
@@ -675,6 +773,29 @@ static int mv_ddr_sw_db_init(u32 dev_num, u32 board_id)
 static int mv_ddr_training_mask_set(void)
 {
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
+#if defined(CONFIG_DDR4)
+	mask_tune_func = (SET_LOW_FREQ_MASK_BIT |
+			  LOAD_PATTERN_MASK_BIT |
+			  SET_TARGET_FREQ_MASK_BIT |
+			  WRITE_LEVELING_TF_MASK_BIT |
+			  READ_LEVELING_TF_MASK_BIT |
+			  RECEIVER_CALIBRATION_MASK_BIT |
+			  WL_PHASE_CORRECTION_MASK_BIT |
+			  DQ_VREF_CALIBRATION_MASK_BIT);
+	/* Temporarily disable the DQ_MAPPING stage */
+	/*		  DQ_MAPPING_MASK_BIT */
+	rl_mid_freq_wa = 0;
+
+	/* In case A382, Vref calibration workaround isn't required */
+	if (((reg_read(DEV_ID_REG) & 0xFFFF0000) >> 16) == 0x6811) {
+		printf("vref_calibration_wa is disabled\n");
+		vref_calibration_wa = 0;
+	}
+
+	if (DDR3_IS_16BIT_DRAM_MODE(tm->bus_act_mask) == 1)
+		mask_tune_func &= ~WL_PHASE_CORRECTION_MASK_BIT;
+
+#else /* CONFIG_DDR4 */
 	enum mv_ddr_freq ddr_freq = tm->interface_params[0].memory_freq;
 
 	mask_tune_func = (SET_LOW_FREQ_MASK_BIT |
@@ -711,6 +832,7 @@ static int mv_ddr_training_mask_set(void)
 		mask_tune_func &= ~PBS_TX_MASK_BIT;
 		mask_tune_func &= ~PBS_RX_MASK_BIT;
 	}
+#endif /* CONFIG_DDR4 */
 
 	return MV_OK;
 }
@@ -767,6 +889,7 @@ static int ddr3_tip_a38x_set_divider(u8 dev_num, u32 if_id,
 
 		/* Set KNL values */
 		switch (frequency) {
+#ifndef CONFIG_DDR4 /* CONFIG_DDR3 */
 		case MV_DDR_FREQ_467:
 			async_val = 0x806f012;
 			break;
@@ -776,15 +899,18 @@ static int ddr3_tip_a38x_set_divider(u8 dev_num, u32 if_id,
 		case MV_DDR_FREQ_600:
 			async_val = 0x805f00a;
 			break;
+#endif
 		case MV_DDR_FREQ_667:
 			async_val = 0x809f012;
 			break;
 		case MV_DDR_FREQ_800:
 			async_val = 0x807f00a;
 			break;
+#ifndef CONFIG_DDR4 /* CONFIG_DDR3 */
 		case MV_DDR_FREQ_850:
 			async_val = 0x80cb012;
 			break;
+#endif
 		case MV_DDR_FREQ_900:
 			async_val = 0x80d7012;
 			break;
@@ -1293,6 +1419,12 @@ static int ddr3_new_tip_dlb_config(void)
 		i++;
 	}
 
+#if defined(CONFIG_DDR4)
+	reg = reg_read(DUNIT_CTRL_HIGH_REG);
+	reg &= ~(CPU_INTERJECTION_ENA_MASK << CPU_INTERJECTION_ENA_OFFS);
+	reg |= CPU_INTERJECTION_ENA_SPLIT_DIS << CPU_INTERJECTION_ENA_OFFS;
+	reg_write(DUNIT_CTRL_HIGH_REG, reg);
+#endif /* CONFIG_DDR4 */
 
 	/* Enable DLB */
 	reg = reg_read(DLB_CTRL_REG);
@@ -1432,10 +1564,122 @@ int ddr3_tip_configure_phy(u32 dev_num)
 		ACCESS_TYPE_MULTICAST, PARAM_NOT_CARE,
 		DDR_PHY_DATA, 0x90, 0x6002));
 
+#if defined(CONFIG_DDR4)
+	mv_ddr4_phy_config(dev_num);
+#endif /* CONFIG_DDR4 */
 
 	return MV_OK;
 }
 
+#if defined(CONFIG_DDR4)
+/* function: ddr4TipCalibrationValidate
+ * this function validates the calibration values
+ * the function is per soc due to the different processes the calibration values are different
+ */
+int mv_ddr4_calibration_validate(u32 dev_num)
+{
+	int status = MV_OK;
+	u8 if_id = 0;
+	u32 read_data[MAX_INTERFACE_NUM];
+	u32 cal_n = 0, cal_p = 0;
+
+	/*
+	 * Pad calibration control enable: during training set the calibration to be internal
+	 * at the end of the training it should be fixed to external to be configured by the mc6
+	 * FIXME: set the calibration to external in the end of the training
+	 */
+
+	/* pad calibration control enable */
+	CHECK_STATUS(ddr3_tip_if_write
+			(0, ACCESS_TYPE_MULTICAST, PARAM_NOT_CARE, MAIN_PADS_CAL_MACH_CTRL_REG,
+			DYN_PADS_CAL_ENABLE_ENA << DYN_PADS_CAL_ENABLE_OFFS |
+			CAL_UPDATE_CTRL_INT << CAL_UPDATE_CTRL_OFFS,
+			DYN_PADS_CAL_ENABLE_MASK << DYN_PADS_CAL_ENABLE_OFFS |
+			CAL_UPDATE_CTRL_MASK << CAL_UPDATE_CTRL_OFFS));
+
+	/* Polling initial calibration is done*/
+	if (ddr3_tip_if_polling(dev_num, ACCESS_TYPE_UNICAST, if_id,
+				CAL_MACH_RDY << CAL_MACH_STATUS_OFFS,
+				CAL_MACH_STATUS_MASK << CAL_MACH_STATUS_OFFS,
+				MAIN_PADS_CAL_MACH_CTRL_REG, MAX_POLLING_ITERATIONS) != MV_OK)
+		DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR, ("ddr4TipCalibrationAdjust: DDR4 calibration poll failed(0)\n"));
+
+	/* Polling that calibration propagate to io */
+	if (ddr3_tip_if_polling(dev_num, ACCESS_TYPE_UNICAST, if_id, 0x3FFFFFF, 0x3FFFFFF, PHY_LOCK_STATUS_REG,
+				MAX_POLLING_ITERATIONS) != MV_OK)
+		DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR, ("ddr4TipCalibrationAdjust: DDR4 calibration poll failed(1)\n"));
+
+	/* TODO - debug why polling not enough*/
+	mdelay(10);
+
+	/* pad calibration control disable */
+	CHECK_STATUS(ddr3_tip_if_write
+			(0, ACCESS_TYPE_MULTICAST, PARAM_NOT_CARE, MAIN_PADS_CAL_MACH_CTRL_REG,
+			DYN_PADS_CAL_ENABLE_DIS << DYN_PADS_CAL_ENABLE_OFFS |
+			CAL_UPDATE_CTRL_INT << CAL_UPDATE_CTRL_OFFS,
+			DYN_PADS_CAL_ENABLE_MASK << DYN_PADS_CAL_ENABLE_OFFS |
+			CAL_UPDATE_CTRL_MASK << CAL_UPDATE_CTRL_OFFS));
+
+	/* Polling initial calibration is done */
+	if (ddr3_tip_if_polling(dev_num, ACCESS_TYPE_UNICAST, if_id,
+				CAL_MACH_RDY << CAL_MACH_STATUS_OFFS,
+				CAL_MACH_STATUS_MASK << CAL_MACH_STATUS_OFFS,
+				MAIN_PADS_CAL_MACH_CTRL_REG, MAX_POLLING_ITERATIONS) != MV_OK)
+		DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR, ("ddr4TipCalibrationAdjust: DDR4 calibration poll failed(0)\n"));
+
+	/* Polling that calibration propagate to io */
+	if (ddr3_tip_if_polling(dev_num, ACCESS_TYPE_UNICAST, if_id, 0x3FFFFFF, 0x3FFFFFF, PHY_LOCK_STATUS_REG,
+				MAX_POLLING_ITERATIONS) != MV_OK)
+		DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR, ("ddr4TipCalibrationAdjust: DDR4 calibration poll failed(1)\n"));
+
+	/* TODO - debug why polling not enough */
+	mdelay(10);
+
+	/* Read Cal value and set to manual val */
+	CHECK_STATUS(ddr3_tip_if_read(dev_num, ACCESS_TYPE_UNICAST, if_id, 0x1DC8, read_data, MASK_ALL_BITS));
+	cal_n = (read_data[if_id] & ((0x3F) << 10)) >> 10;
+	cal_p = (read_data[if_id] & ((0x3F) << 4)) >> 4;
+	DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
+			  ("ddr4TipCalibrationValidate::DDR4 SSTL calib val - Pcal = 0x%x , Ncal = 0x%x\n",
+			   cal_p, cal_n));
+	if ((cal_n >= 56) || (cal_n <= 6) || (cal_p >= 59) || (cal_p <= 7)) {
+		DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR,
+				  ("%s: Error:DDR4 SSTL calib val - Pcal = 0x%x, Ncal = 0x%x are out of range\n",
+				  __func__, cal_p, cal_n));
+		status = MV_FAIL;
+	}
+
+	/* 14C8 - Vertical */
+	CHECK_STATUS(ddr3_tip_if_read(dev_num, ACCESS_TYPE_UNICAST, if_id, 0x14C8, read_data, MASK_ALL_BITS));
+	cal_n = (read_data[if_id] & ((0x3F) << 10)) >> 10;
+	cal_p = (read_data[if_id] & ((0x3F) << 4)) >> 4;
+	DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
+			  ("ddr4TipCalibrationValidate::DDR4 POD-V calib val - Pcal = 0x%x , Ncal = 0x%x\n",
+			  cal_p, cal_n));
+	if ((cal_n >= 56) || (cal_n <= 6) || (cal_p >= 59) || (cal_p <= 7)) {
+		DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR,
+				  ("%s: Error:DDR4 POD-V calib val - Pcal = 0x%x , Ncal= 0x%x are out of range\n",
+				  __func__, cal_p, cal_n));
+		status = MV_FAIL;
+	}
+
+	/* 17C8 - Horizontal */
+	CHECK_STATUS(ddr3_tip_if_read(dev_num, ACCESS_TYPE_UNICAST, if_id, 0x17C8, read_data, MASK_ALL_BITS));
+	cal_n = (read_data[if_id] & ((0x3F) << 10)) >> 10;
+	cal_p = (read_data[if_id] & ((0x3F) << 4)) >> 4;
+	DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
+			  ("ddr4TipCalibrationValidate::DDR4 POD-H calib val - Pcal = 0x%x , Ncal = 0x%x\n",
+			  cal_p, cal_n));
+	if ((cal_n >= 56) || (cal_n <= 6) || (cal_p >= 59) || (cal_p <= 7)) {
+		DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR,
+				  ("%s: Error:DDR4 POD-H calib val - Pcal = 0x%x, Ncal = 0x%x are out of range\n",
+				  __func__, cal_p, cal_n));
+		status = MV_FAIL;
+	}
+
+	return status;
+}
+#endif /* CONFIG_DDR4 */
 
 int mv_ddr_manual_cal_do(void)
 {

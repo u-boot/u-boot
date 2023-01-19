@@ -137,6 +137,10 @@ extern u32 dfs_low_freq;
 extern u32 nominal_avs;
 extern u32 extension_avs;
 
+#if defined(CONFIG_DDR4)
+/* if 1, SSTL & POD have same Vref and workaround is required */
+extern u8 vref_calibration_wa;
+#endif /* CONFIG_DDR4 */
 
 /* Prototypes */
 int ddr3_init(void);
@@ -152,6 +156,13 @@ void ddr3_new_tip_ecc_scrub(void);
 int ddr3_tip_reg_write(u32 dev_num, u32 reg_addr, u32 data);
 int ddr3_tip_reg_read(u32 dev_num, u32 reg_addr, u32 *data, u32 reg_mask);
 int ddr3_silicon_get_ddr_target_freq(u32 *ddr_freq);
+#if defined(CONFIG_DDR4)
+int mv_ddr4_mode_regs_init(u8 dev_num);
+int mv_ddr4_sdram_config(u32 dev_num);
+int mv_ddr4_phy_config(u32 dev_num);
+int mv_ddr4_calibration_adjust(u32 dev_num, u8 vref_en, u8 pod_only);
+int mv_ddr4_training_main_flow(u32 dev_num);
+#endif /* CONFIG_DDR4 */
 
 int print_adll(u32 dev_num, u32 adll[MAX_INTERFACE_NUM * MAX_BUS_NUM]);
 int print_ph(u32 dev_num, u32 adll[MAX_INTERFACE_NUM * MAX_BUS_NUM]);
@@ -188,5 +199,8 @@ unsigned int mv_ddr_misl_phy_drv_ctrl_p_get(void);
 unsigned int mv_ddr_misl_phy_drv_ctrl_n_get(void);
 unsigned int mv_ddr_misl_phy_odt_p_get(void);
 unsigned int mv_ddr_misl_phy_odt_n_get(void);
+#if defined(CONFIG_DDR4)
+void refresh(void);
+#endif
 
 #endif /* _DDR3_INIT_H */

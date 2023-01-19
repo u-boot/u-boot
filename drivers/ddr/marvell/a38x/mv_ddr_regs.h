@@ -373,6 +373,65 @@ enum {
 #define MRS2_CMD				0x8
 #define MRS3_CMD				0x9
 
+#if defined(CONFIG_DDR4)
+/* DDR4 MRS */
+#define MRS4_CMD				0x10
+#define MRS5_CMD				0x11
+#define MRS6_CMD				0x12
+
+/* DDR4 Registers */
+#define DDR4_MR0_REG				0x1900
+#define DDR4_MR1_REG				0x1904
+#define DDR4_MR2_REG				0x1908
+#define DDR4_MR3_REG				0x190c
+#define DDR4_MPR_PS_OFFS			0
+#define DDR4_MPR_PS_MASK			0x3
+enum mv_ddr_mpr_ps { /* DDR4 MPR Page Selection */
+	DDR4_MPR_PAGE0,
+	DDR4_MPR_PAGE1,
+	DDR4_MPR_PAGE2,
+	DDR4_MPR_PAGE3
+};
+#define DDR4_MPR_OP_OFFS			2
+#define DDR4_MPR_OP_MASK			0x1
+enum mv_ddr_mpr_op { /* DDR4 MPR Operation */
+	DDR4_MPR_OP_DIS, /* normal operation */
+	DDR4_MPR_OP_ENA  /* dataflow from mpr */
+};
+#define DDR4_MPR_RF_OFFS			11
+#define DDR4_MPR_RF_MASK			0x3
+enum mv_ddr_mpr_rd_frmt { /* DDR4 MPR Read Format */
+	DDR4_MPR_RF_SERIAL,
+	DDR4_MPR_RF_PARALLEL,
+	DDR4_MPR_RF_STAGGERED,
+	DDR4_MPR_RF_RSVD_TEMP
+
+};
+
+#define DDR4_MR4_REG				0x1910
+#define DDR4_RPT_OFFS				10
+#define DDR4_RPT_MASK				0x1
+enum { /* read preamble training mode */
+	DDR4_RPT_DIS,
+	DDR4_RPT_ENA
+};
+
+#define DDR4_MR5_REG				0x1914
+#define DDR4_MR6_REG				0x1918
+#define DDR4_MPR_WR_REG				0x19d0
+#define DDR4_MPR_LOC_OFFS			8
+#define DDR4_MPR_LOC_MASK			0x3
+/*
+ * MPR Location for MPR write and read accesses
+ * MPR Location 0..3 within the selected page (page selection in MR3 [1:0] bits)
+ */
+enum {
+	DDR4_MPR_LOC0,
+	DDR4_MPR_LOC1,
+	DDR4_MPR_LOC2,
+	DDR4_MPR_LOC3
+};
+#endif /* CONFIG_DDR4 */
 
 #define DRAM_PINS_MUX_REG			0x19d4
 #define CTRL_PINS_MUX_OFFS			0

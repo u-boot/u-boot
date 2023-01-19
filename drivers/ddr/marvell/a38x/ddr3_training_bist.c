@@ -459,7 +459,11 @@ static int mv_ddr_odpg_bist_prepare(enum hws_pattern pattern, enum hws_access_ty
 					       (ODPG_WRBUF_RD_CTRL_DIS << ODPG_WRBUF_RD_CTRL_OFFS),
 			  (ODPG_WRBUF_RD_CTRL_MASK << ODPG_WRBUF_RD_CTRL_OFFS));
 
+#if defined(CONFIG_DDR4)
+	if (pattern == PATTERN_ZERO || pattern == PATTERN_ONE)
+#else
 	if (pattern == PATTERN_00 || pattern == PATTERN_FF)
+#endif
 		ddr3_tip_load_pattern_to_odpg(0, access_type, 0, pattern, offset);
 	else
 		mv_ddr_load_dm_pattern_to_odpg(access_type, pattern, dm_dir);
@@ -507,7 +511,11 @@ int mv_ddr_dm_vw_get(enum hws_pattern pattern, u32 cs, u8 *vw_vector)
 	ddr3_tip_if_write(0, ACCESS_TYPE_UNICAST, 0, ODPG_DATA_CTRL_REG, 0, MASK_ALL_BITS);
 	mv_ddr_odpg_bist_prepare(pattern, ACCESS_TYPE_UNICAST, OPER_WRITE, STRESS_NONE, DURATION_SINGLE,
 				 bist_offset, cs, pattern_table[pattern].num_of_phases_tx,
+#if defined(CONFIG_DDR4)
+				 (pattern == PATTERN_ZERO) ? DM_DIR_DIRECT : DM_DIR_INVERSE);
+#else
 				 (pattern == PATTERN_00) ? DM_DIR_DIRECT : DM_DIR_INVERSE);
+#endif
 
 	for (adll_tap = 0; adll_tap < ADLL_TAPS_PER_PERIOD; adll_tap++) {
 		/* change target odpg address */
@@ -539,7 +547,11 @@ int mv_ddr_dm_vw_get(enum hws_pattern pattern, u32 cs, u8 *vw_vector)
 	/* fill memory with vref pattern to increment addr using odpg bist */
 	mv_ddr_odpg_bist_prepare(PATTERN_VREF, ACCESS_TYPE_UNICAST, OPER_WRITE, STRESS_NONE, DURATION_SINGLE,
 				 bist_offset, cs, pattern_table[pattern].num_of_phases_tx,
+#if defined(CONFIG_DDR4)
+				 (pattern == PATTERN_ZERO) ? DM_DIR_DIRECT : DM_DIR_INVERSE);
+#else
 				 (pattern == PATTERN_00) ? DM_DIR_DIRECT : DM_DIR_INVERSE);
+#endif
 
 	for (adll_tap = 0; adll_tap < ADLL_TAPS_PER_PERIOD; adll_tap++) {
 		ddr3_tip_bus_write(0, ACCESS_TYPE_UNICAST, 0, ACCESS_TYPE_MULTICAST, 0,
