@@ -19,7 +19,8 @@ This matrix concerns the actual source code version.
 |                               | Nanopi-K2 | Khadas-VIM      | Libretech-PC | JetHub J100 | SEI510     | Khadas-VIM3 | Khadas-VIM3L |
 |                               | P200      | LibreTech-CC v1 | WeTek Core2  |             | Radxa Zero | GT-King/Pro | Odroid-C4    |
 |                               | P201      | LibreTech-AC v2 |              |             |            | GSKing-X    | Odroid-HC4   |
-|                               |           | JetHub J80      |              |             |            |             | BananaPi-M5  |
+|                               |           | JetHub J80      |              |             |            | Odroid-Go-  | BananaPi-M5  |
+|                               |           |                 |              |             |            | Ultra       |              |
 +-------------------------------+-----------+-----------------+--------------+-------------+------------+-------------+--------------+
 | UART                          | **Yes**   | **Yes**         | **Yes**      | **Yes**     | **Yes**    | **Yes**     | **Yes**      |
 +-------------------------------+-----------+-----------------+--------------+-------------+------------+-------------+--------------+
@@ -105,6 +106,7 @@ Board Documentation
    odroid-c2
    odroid-c4
    odroid-n2
+   odroid-go-ultra
    p200
    p201
    p212
