@@ -198,6 +198,7 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-g12b-gtking.dtb \
 	meson-g12b-gtking-pro.dtb \
 	meson-g12b-gsking-x.dtb \
+	meson-g12b-odroid-go-ultra.dtb \
 	meson-g12b-odroid-n2.dtb \
 	meson-g12b-odroid-n2-plus.dtb \
 	meson-sm1-bananapi-m5.dtb \
