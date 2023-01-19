@@ -115,23 +115,19 @@ Below is the pictorial representation of boot flow:
 
 Sources:
 --------
-1. SYSFW:
-	Tree: git://git.ti.com/k3-image-gen/k3-image-gen.git
-	Branch: master
-
-2. ATF:
+1. ATF:
 	Tree: https://github.com/ARM-software/arm-trusted-firmware.git
 	Branch: master
 
-3. OPTEE:
+2. OPTEE:
 	Tree: https://github.com/OP-TEE/optee_os.git
 	Branch: master
 
-4. U-Boot:
+3. U-Boot:
 	Tree: https://source.denx.de/u-boot/u-boot
 	Branch: master
 
-5. TI Linux Firmware:
+4. TI Linux Firmware:
 	Tree: git://git.ti.com/processor-firmware/ti-linux-firmware.git
 	Branch: ti-linux-firmware
 
@@ -156,18 +152,14 @@ Build procedure:
 .. code-block:: text
 
  $ make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabihf- am62x_evm_r5_defconfig O=/tmp/r5
- $ make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabihf- O=/tmp/r5
- $ cd <k3-image-gen>
- $ make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabihf- SOC=am62x SBL=/tmp/r5/spl/u-boot-spl.bin SYSFW_PATH=<path to ti-linux-firmware>/ti-sysfw/ti-fs-firmware-am62x-gp.bin
-
-Use the tiboot3.bin generated from last command
+ $ make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabihf- O=/tmp/r5 BINMAN_INDIRS=<path/to/ti-linux-firmware>
 
 * 3.2 A53:
 
 .. code-block:: text
 
  $ make ARCH=arm CROSS_COMPILE=aarch64-none-linux-gnu- am62x_evm_a53_defconfig O=/tmp/a53
- $ make ARCH=arm CROSS_COMPILE=aarch64-none-linux-gnu- ATF=<path to ATF dir>/build/k3/lite/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager_v2.bin DM=<path to ti-linux-firmware>/ti-dm/am62xx/ipc_echo_testb_mcu1_0_release_strip.xer5f O=/tmp/a53
+ $ make ARCH=arm CROSS_COMPILE=aarch64-none-linux-gnu- BL31=<path to ATF dir>/build/k3/lite/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager_v2.bin BINMAN_INDIRS=<path/to/ti-linux-firmware>
 
 Target Images
 --------------
