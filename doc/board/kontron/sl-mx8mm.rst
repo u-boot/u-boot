@@ -67,10 +67,13 @@ Get the DDR firmware
 
 .. code-block:: bash
 
-   $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.9.bin
-   $ chmod +x firmware-imx-8.9.bin
-   $ ./firmware-imx-8.9.bin
-   $ cp firmware-imx-8.9/firmware/ddr/synopsys/lpddr4*.bin $(builddir)
+   $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.18.bin
+   $ chmod +x firmware-imx-8.18.bin
+   $ ./firmware-imx-8.18.bin
+   $ cp firmware-imx-8.18/firmware/ddr/synopsys/lpddr4_pmu_train_1d_imem.bin $(builddir)
+   $ cp firmware-imx-8.18/firmware/ddr/synopsys/lpddr4_pmu_train_1d_dmem.bin $(builddir)
+   $ cp firmware-imx-8.18/firmware/ddr/synopsys/lpddr4_pmu_train_2d_imem.bin $(builddir)
+   $ cp firmware-imx-8.18/firmware/ddr/synopsys/lpddr4_pmu_train_2d_dmem.bin $(builddir)
 
 Build U-Boot
 ^^^^^^^^^^^^
