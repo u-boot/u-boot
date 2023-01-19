@@ -81,9 +81,9 @@ Build U-Boot
 .. code-block:: bash
 
    $ make kontron-sl-mx8mm_defconfig
-   $ make
+   $ make CROSS_COMPILE=aarch64-linux-gnu-
 
-Burn the flash.bin to SD card at an offset of 33 KiB:
+Copy the flash.bin to SD card at an offset of 33 KiB:
 
 .. code-block:: bash
 
