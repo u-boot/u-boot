@@ -334,9 +334,11 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 	else
 		ret = EFI_SUCCESS;
 
-	/* Write non-volatile EFI variables to file */
-	if (attributes & EFI_VARIABLE_NON_VOLATILE &&
-	    ret == EFI_SUCCESS && efi_obj_list_initialized == EFI_SUCCESS)
+	/*
+	 * Write non-volatile EFI variables to file
+	 * TODO: check if a value change has occured to avoid superfluous writes
+	 */
+	if (attributes & EFI_VARIABLE_NON_VOLATILE)
 		efi_var_to_file();
 
 	return EFI_SUCCESS;
