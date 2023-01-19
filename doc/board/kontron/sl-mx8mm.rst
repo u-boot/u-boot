@@ -92,7 +92,39 @@ Burn the flash.bin to SD card at an offset of 33 KiB:
 Boot
 ^^^^
 
-Put the SD card in the slot on the board and apply power.
+Put the SD card in the slot on the board and apply power. Check the serial
+console for output.
+
+Flash the Bootloader to SPI NOR
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. Determine and note the exact size of the ``flash.bin`` image in bytes (e.g.
+   by running ``ls -l flash.bin``)
+
+2. On the U-Boot CLI copy the bootloader from SD card to RAM:
+
+   .. code-block::
+
+      mmc dev 1
+      mmc read $loadaddr 0x42 0x1000
+
+3. Erase the SPI NOR flash:
+
+   .. code-block::
+
+      sf probe
+      sf erase 0x0 0x200000
+
+4. Copy the bootloader from RAM to SPI NOR. For the last parameter of the
+   command, use the size determined in step 1 in **hexadecimal notation**:
+
+   .. code-block::
+
+      sf write $loadaddr 0x400 0x13B6F0
+
+.. note::
+
+   To be able to boot from SPI NOR the OTP fuses need to be set accordingly.
 
 Further Information
 -------------------
