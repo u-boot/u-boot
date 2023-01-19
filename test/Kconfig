@@ -69,7 +69,7 @@ endif
 config UT_COMPRESSION
 	bool "Unit test for compression"
 	depends on UNIT_TEST
-	depends on CMDLINE && GZIP_COMPRESSED && BZIP2 && LZMA && LZO && LZ4
+	depends on CMDLINE && GZIP_COMPRESSED && BZIP2 && LZMA && LZO && LZ4 && ZSTD
 	default y
 	help
 	  Enables tests for compression and decompression routines for simple

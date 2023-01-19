@@ -778,7 +778,6 @@ config ARCH_OMAP2PLUS
 	select SUPPORT_SPL
 	imply TI_SYSC if DM && OF_CONTROL
 	imply FIT
-	imply DM_EVENT
 	imply SPL_SEPARATE_BSS
 
 config ARCH_MESON
@@ -823,11 +822,11 @@ config ARCH_IMX8
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_FSL_SEC_LE
 	select DM
+	select DM_EVENT
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
 	select OF_CONTROL
 	select ENABLE_ARM_SOC_BOOT0_HOOK
-	imply DM_EVENT
 
 config ARCH_IMX8M
 	bool "NXP i.MX8M platform"
@@ -839,14 +838,15 @@ config ARCH_IMX8M
 	select SYS_FSL_SEC_LE
 	select SYS_I2C_MXC
 	select DM
+	select DM_EVENT if CLK
 	select SUPPORT_SPL
 	imply CMD_DM
-	imply DM_EVENT
 
 config ARCH_IMX8ULP
 	bool "NXP i.MX8ULP platform"
 	select ARM64
 	select DM
+	select DM_EVENT
 	select MACH_IMX
 	select OF_CONTROL
 	select SUPPORT_SPL
@@ -854,19 +854,18 @@ config ARCH_IMX8ULP
 	select MISC
 	select IMX_SENTINEL
 	imply CMD_DM
-	imply DM_EVENT
 
 config ARCH_IMX9
 	bool "NXP i.MX9 platform"
 	select ARM64
 	select DM
+	select DM_EVENT
 	select MACH_IMX
 	select SUPPORT_SPL
 	select GPIO_EXTRA_HEADER
 	select MISC
 	select IMX_SENTINEL
 	imply CMD_DM
-	imply DM_EVENT
 
 config ARCH_IMXRT
 	bool "NXP i.MXRT platform"

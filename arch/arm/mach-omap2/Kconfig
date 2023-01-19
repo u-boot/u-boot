@@ -31,6 +31,7 @@ config OMAP34XX
 
 config OMAP44XX
 	bool "OMAP44XX SoC"
+	select DM_EVENT
 	select SPL_USE_TINY_PRINTF
 	select SPL_SYS_NO_VECTOR_TABLE if SPL
 	imply NAND_OMAP_ELM
@@ -55,6 +56,7 @@ config OMAP54XX
 	bool "OMAP54XX SoC"
 	select ARM_CORTEX_A15_CVE_2017_5715
 	select ARM_ERRATA_798870
+	select DM_EVENT
 	select SYS_THUMB_BUILD
 	imply NAND_OMAP_ELM
 	imply NAND_OMAP_GPMC
@@ -111,6 +113,7 @@ config AM43XX
 config AM33XX
 	bool "AM33XX SoC"
 	select ARM_CORTEX_A8_CVE_2017_5715
+	select DM_EVENT
 	select SPECIFY_CONSOLE_INDEX
 	imply NAND_OMAP_ELM
 	imply NAND_OMAP_GPMC

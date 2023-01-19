@@ -92,7 +92,7 @@ static int x86_spl_init(void)
 #ifndef CONFIG_TPL
 	ret = fsp_setup_pinctrl(NULL, NULL);
 	if (ret) {
-		debug("%s: arch_cpu_init_dm() failed\n", __func__);
+		debug("%s: fsp_setup_pinctrl() failed\n", __func__);
 		return ret;
 	}
 #endif

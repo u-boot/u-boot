@@ -6,6 +6,7 @@
 config INTEL_BROADWELL
 	bool
 	select CACHE_MRC_BIN
+	select DM_EVENT
 	select ARCH_EARLY_INIT_R
 	imply HAVE_INTEL_ME
 	imply ENABLE_MRC_CACHE

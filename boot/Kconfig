@@ -474,6 +474,7 @@ config BOOTMETH_VBE
 	depends on FIT
 	default y
 	select BOOTMETH_GLOBAL
+	select EVENT
 	help
 	  Enables support for VBE boot. This is a standard boot method which
 	  supports selection of various firmware components, seleciton of an OS to
@@ -482,6 +483,7 @@ config BOOTMETH_VBE
 config SPL_BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded (SPL)"
 	depends on SPL && FIT
+	select EVENT
 	default y if VPL
 	help
 	  Enables support for VBE boot. This is a standard boot method which
@@ -491,6 +493,7 @@ config SPL_BOOTMETH_VBE
 config VPL_BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded (VPL)"
 	depends on VPL && FIT
+	select EVENT
 	default y
 	help
 	  Enables support for VBE boot. This is a standard boot method which

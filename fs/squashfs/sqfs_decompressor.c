@@ -40,7 +40,7 @@ int sqfs_decompressor_init(struct squashfs_ctxt *ctxt)
 #endif
 #if IS_ENABLED(CONFIG_ZSTD)
 	case SQFS_COMP_ZSTD:
-		ctxt->zstd_workspace = malloc(ZSTD_DCtxWorkspaceBound());
+		ctxt->zstd_workspace = malloc(zstd_dctx_workspace_bound());
 		if (!ctxt->zstd_workspace)
 			return -ENOMEM;
 		break;
@@ -99,11 +99,14 @@ static int sqfs_zstd_decompress(struct squashfs_ctxt *ctxt, void *dest,
 	size_t wsize;
 	int ret;
 
-	wsize = ZSTD_DCtxWorkspaceBound();
-	ctx = ZSTD_initDCtx(ctxt->zstd_workspace, wsize);
-	ret = ZSTD_decompressDCtx(ctx, dest, dest_len, source, src_len);
+	wsize = zstd_dctx_workspace_bound();
 
-	return ZSTD_isError(ret);
+	ctx = zstd_init_dctx(ctxt->zstd_workspace, wsize);
+	if (!ctx)
+		return -EINVAL;
+	ret = zstd_decompress_dctx(ctx, dest, dest_len, source, src_len);
+
+	return zstd_is_error(ret);
 }
 #endif /* CONFIG_ZSTD */
 
@@ -140,7 +143,7 @@ int sqfs_decompress(struct squashfs_ctxt *ctxt, void *dest,
 	case SQFS_COMP_ZSTD:
 		ret = sqfs_zstd_decompress(ctxt, dest, *dest_len, source, src_len);
 		if (ret) {
-			printf("ZSTD Error code: %d\n", ZSTD_getErrorCode(ret));
+			printf("ZSTD Error code: %d\n", zstd_get_error_code(ret));
 			return -EINVAL;
 		}
 

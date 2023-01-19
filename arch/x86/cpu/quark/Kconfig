@@ -7,6 +7,7 @@ config INTEL_QUARK
 	select HAVE_RMU
 	select ARCH_EARLY_INIT_R
 	select ARCH_MISC_INIT
+	select DM_EVENT
 	imply ENABLE_MRC_CACHE
 	imply ETH_DESIGNWARE
 	imply ICH_SPI

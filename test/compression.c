@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <abuf.h>
 #include <bootm.h>
 #include <command.h>
 #include <gzip.h>
@@ -22,6 +23,7 @@
 #include <lzma/LzmaTools.h>
 
 #include <linux/lzo.h>
+#include <linux/zstd.h>
 #include <test/compression.h>
 #include <test/suites.h>
 #include <test/ut.h>
@@ -53,7 +55,7 @@ static const char bzip2_compressed[] =
 	"\xe1\xf0\x9d\xa4\x15\x8b\xb8\xc6\x93\xdc\x3d\xd9\x3c\x22\x55\xef"
 	"\xfb\xbb\x2a\xd3\x87\xa2\x8b\x04\xd9\x19\xf8\xe2\xfd\x4f\xdb\x1a"
 	"\x07\xc8\x60\xa3\x3f\xf8\xbb\x92\x29\xc2\x84\x87\x2b\x1e\xe8\x48";
-static const unsigned long bzip2_compressed_size = 240;
+static const unsigned long bzip2_compressed_size = sizeof(bzip2_compressed) - 1;
 
 /* lzma -z -c /tmp/plain.txt > /tmp/plain.lzma */
 static const char lzma_compressed[] =
@@ -72,7 +74,7 @@ static const char lzma_compressed[] =
 	"\x6b\x85\x40\x08\x1f\xdf\x26\x25\x3b\x72\x44\xb0\xb8\x21\x2f\xb3"
 	"\xd7\x9b\x24\x30\x78\x26\x44\x07\xc3\x33\xd1\x4d\x03\x1b\xe1\xff"
 	"\xfd\xf5\x50\x8d\xca";
-static const unsigned long lzma_compressed_size = 229;
+static const unsigned long lzma_compressed_size = sizeof(lzma_compressed) - 1;
 
 /* lzop -c /tmp/plain.txt > /tmp/plain.lzo */
 static const char lzo_compressed[] =
@@ -97,7 +99,7 @@ static const char lzo_compressed[] =
 	"\x6c\x79\x20\x69\x6e\x20\x74\x68\x65\x20\x66\x61\x63\x65\x20\x6f"
 	"\x66\x20\x73\x68\x6f\x72\x74\x20\x74\x65\x78\x74\x0a\x6d\x65\x73"
 	"\x73\x61\x67\x65\x73\x2e\x0a\x11\x00\x00\x00\x00\x00\x00";
-static const unsigned long lzo_compressed_size = 334;
+static const unsigned long lzo_compressed_size = sizeof(lzo_compressed) - 1;
 
 /* lz4 -z /tmp/plain.txt > /tmp/plain.lz4 */
 static const char lz4_compressed[] =
@@ -119,7 +121,24 @@ static const char lz4_compressed[] =
 	"\x6c\x79\x4e\x00\x30\x61\x63\x65\x27\x01\x01\x95\x00\x01\x2d\x01"
 	"\xb0\x0a\x6d\x65\x73\x73\x61\x67\x65\x73\x2e\x0a\x00\x00\x00\x00"
 	"\x9d\x12\x8c\x9d";
-static const unsigned long lz4_compressed_size = 276;
+static const unsigned long lz4_compressed_size = sizeof(lz4_compressed) - 1;
+
+/* zstd -19 -c /tmp/plain.txt > /tmp/plain.zst */
+static const char zstd_compressed[] =
+	"\x28\xb5\x2f\xfd\x64\x5e\x00\xbd\x05\x00\x02\x0e\x26\x1a\x70\x17"
+	"\xb8\x0d\x0c\x53\x5c\x9d\x97\xee\xa0\x5d\x84\x89\x3f\x5c\x7a\x78"
+	"\x00\x80\x80\x0f\xe8\xdf\xaf\x06\x66\xd0\x23\xa6\x7a\x64\x8e\xf4"
+	"\x0d\x5b\x47\x65\x26\x7e\x81\xdd\x0b\xe7\x5a\x95\x3d\x49\xcc\x67"
+	"\xe0\x2d\x46\x58\xb6\xac\x64\x16\xf2\xe0\xf8\x16\x17\xaf\xda\x8f"
+	"\x37\xc0\xc3\x0d\x3b\x89\x57\x15\x1e\x46\x46\x12\x9a\x84\xbe\xa6"
+	"\xab\xcf\x50\x90\x5f\x78\x01\xd2\xc0\x51\x72\x59\x0b\xea\xab\xf2"
+	"\xd4\x2b\x2d\x26\x7c\x10\x66\x78\x42\x64\x45\x3f\xa5\x15\x6f\xbd"
+	"\x4a\x61\xe1\xc8\x27\xc0\xe3\x95\x0c\xf9\xca\x7c\xf5\x13\x30\xc3"
+	"\x1a\x7c\x7d\xa4\x17\x0b\xff\x14\xa6\x7a\x95\xa0\x34\xbc\xce\x21"
+	"\x78\x36\x23\x33\x11\x09\x00\x60\x13\x00\x63\xa3\x8e\x28\x94\x55"
+	"\x15\xb6\x26\x68\x05\x4f\x23\x12\xee\x53\x55\x2d\x44\x2f\x54\x95"
+	"\x01\xe4\xf4\x6e\xfa";
+static const unsigned long zstd_compressed_size = sizeof(zstd_compressed) - 1;
 
 
 #define TEST_BUFFER_SIZE	512
@@ -296,6 +315,45 @@ static int uncompress_using_lz4(struct unit_test_state *uts,
 	return (ret != 0);
 }
 
+static int compress_using_zstd(struct unit_test_state *uts,
+			       void *in, unsigned long in_size,
+			       void *out, unsigned long out_max,
+			       unsigned long *out_size)
+{
+	/* There is no zstd compression in u-boot, so fake it. */
+	ut_asserteq(in_size, strlen(plain));
+	ut_asserteq_mem(plain, in, in_size);
+
+	if (zstd_compressed_size > out_max)
+		return -1;
+
+	memcpy(out, zstd_compressed, zstd_compressed_size);
+	if (out_size)
+		*out_size = zstd_compressed_size;
+
+	return 0;
+}
+
+static int uncompress_using_zstd(struct unit_test_state *uts,
+				 void *in, unsigned long in_size,
+				 void *out, unsigned long out_max,
+				 unsigned long *out_size)
+{
+	struct abuf in_buf, out_buf;
+	int ret;
+
+	abuf_init_set(&in_buf, in, in_size);
+	abuf_init_set(&out_buf, out, out_max);
+
+	ret = zstd_decompress(&in_buf, &out_buf);
+	if (ret >= 0) {
+		*out_size = ret;
+		ret = 0;
+	}
+
+	return ret;
+}
+
 #define errcheck(statement) if (!(statement)) { \
 	fprintf(stderr, "\tFailed: %s\n", #statement); \
 	ret = 1; \
@@ -443,6 +501,13 @@ static int compression_test_lz4(struct unit_test_state *uts)
 }
 COMPRESSION_TEST(compression_test_lz4, 0);
 
+static int compression_test_zstd(struct unit_test_state *uts)
+{
+	return run_test(uts, "zstd", compress_using_zstd,
+			uncompress_using_zstd);
+}
+COMPRESSION_TEST(compression_test_zstd, 0);
+
 static int compress_using_none(struct unit_test_state *uts,
 			       void *in, unsigned long in_size,
 			       void *out, unsigned long out_max,
@@ -532,6 +597,12 @@ static int compression_test_bootm_lz4(struct unit_test_state *uts)
 	return run_bootm_test(uts, IH_COMP_LZ4, compress_using_lz4);
 }
 COMPRESSION_TEST(compression_test_bootm_lz4, 0);
+
+static int compression_test_bootm_zstd(struct unit_test_state *uts)
+{
+	return run_bootm_test(uts, IH_COMP_ZSTD, compress_using_zstd);
+}
+COMPRESSION_TEST(compression_test_bootm_zstd, 0);
 
 static int compression_test_bootm_none(struct unit_test_state *uts)
 {

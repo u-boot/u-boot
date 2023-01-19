@@ -18,6 +18,7 @@ choice
 config TARGET_CHROMEBOOK_CORAL
 	bool "Chromebook coral"
 	select BIOSEMU
+	select EVENT
 	help
 	  This is a range of Intel-based laptops released in 2018. They use an
 	  Intel Apollo Lake SoC. The design supports WiFi, 4GB to 16GB of

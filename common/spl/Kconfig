@@ -385,6 +385,7 @@ config SPL_STACK_R_ADDR
 config SPL_STACK_R_MALLOC_SIMPLE_LEN
 	depends on SPL_STACK_R && SPL_SYS_MALLOC_SIMPLE
 	hex "Size of malloc_simple heap after switching to DRAM SPL stack"
+	default 0x400000 if ARCH_K3 && ARM64
 	default 0x100000
 	help
 	  Specify the amount of the stack to use as memory pool for

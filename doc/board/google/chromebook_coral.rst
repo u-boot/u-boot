@@ -259,7 +259,7 @@ Boot flow - U-Boot pre-relocation
 
 U-Boot (running from start_from_spl.S) starts running in RAM and uses the same
 stack as SPL. It does various init activities before relocation. Notably
-arch_cpu_init_dm() sets up the pin muxing for the chip using a very large table
+fsp_setup_pinctrl() sets up the pin muxing for the chip using a very large table
 in the device tree.
 
 PCI auto-config is not used before relocation, but CONFIG_PCI of course is
