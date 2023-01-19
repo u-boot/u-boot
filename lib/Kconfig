@@ -1038,7 +1038,7 @@ config LMB_USE_MAX_REGIONS
 config LMB_MAX_REGIONS
 	int "Number of memory and reserved regions in lmb lib"
 	depends on LMB && LMB_USE_MAX_REGIONS
-	default 8
+	default 16
 	help
 	  Define the number of supported regions, memory and reserved, in the
 	  library logical memory blocks.
