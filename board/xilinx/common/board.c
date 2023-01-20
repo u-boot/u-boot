@@ -11,6 +11,7 @@
 #include <efi_loader.h>
 #include <env.h>
 #include <image.h>
+#include <init.h>
 #include <lmb.h>
 #include <log.h>
 #include <asm/global_data.h>
