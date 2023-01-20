@@ -118,7 +118,7 @@ static int wait_until_ep0_ready(struct usb_device *dev, u32 bit_mask)
 {
 	u16 csr;
 	int result = 1;
-	int timeout = CONFIG_USB_MUSB_TIMEOUT;
+	int timeout = MUSB_TIMEOUT;
 
 	while (result > 0) {
 		csr = readw(&musbr->txcsr);
@@ -180,7 +180,7 @@ static int wait_until_ep0_ready(struct usb_device *dev, u32 bit_mask)
 static int wait_until_txep_ready(struct usb_device *dev, u8 ep)
 {
 	u16 csr;
-	int timeout = CONFIG_USB_MUSB_TIMEOUT;
+	int timeout = MUSB_TIMEOUT;
 
 	do {
 		if (check_stall(ep, 1)) {
@@ -212,7 +212,7 @@ static int wait_until_txep_ready(struct usb_device *dev, u8 ep)
 static int wait_until_rxep_ready(struct usb_device *dev, u8 ep)
 {
 	u16 csr;
-	int timeout = CONFIG_USB_MUSB_TIMEOUT;
+	int timeout = MUSB_TIMEOUT;
 
 	do {
 		if (check_stall(ep, 0)) {

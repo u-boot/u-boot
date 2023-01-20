@@ -9,11 +9,11 @@
 #include <status_led.h>
 #include <asm/gpio.h>
 
-#ifndef CONFIG_GPIO_LED_INVERTED_TABLE
-#define CONFIG_GPIO_LED_INVERTED_TABLE {}
+#ifndef CFG_GPIO_LED_INVERTED_TABLE
+#define CFG_GPIO_LED_INVERTED_TABLE {}
 #endif
 
-static led_id_t gpio_led_inv[] = CONFIG_GPIO_LED_INVERTED_TABLE;
+static led_id_t gpio_led_inv[] = CFG_GPIO_LED_INVERTED_TABLE;
 
 static int gpio_led_gpio_value(led_id_t mask, int state)
 {

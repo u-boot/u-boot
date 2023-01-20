@@ -139,14 +139,14 @@ int board_eth_init(struct bd_info *bis)
 	initialize_lane_to_slot();
 
 	dtsec_mdio_info.regs =
-		(struct tsec_mii_mng *)CONFIG_SYS_FM1_DTSEC1_MDIO_ADDR;
+		(struct tsec_mii_mng *)CFG_SYS_FM1_DTSEC1_MDIO_ADDR;
 	dtsec_mdio_info.name = DEFAULT_FM_MDIO_NAME;
 
 	/* Register the real 1G MDIO bus */
 	fsl_pq_mdio_init(bis, &dtsec_mdio_info);
 
 	tgec_mdio_info.regs =
-		(struct tgec_mdio_controller *)CONFIG_SYS_FM1_TGEC_MDIO_ADDR;
+		(struct tgec_mdio_controller *)CFG_SYS_FM1_TGEC_MDIO_ADDR;
 	tgec_mdio_info.name = DEFAULT_FM_TGEC_MDIO_NAME;
 
 	/* Register the real 10G MDIO bus */

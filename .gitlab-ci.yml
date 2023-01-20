@@ -131,7 +131,8 @@ check for new CONFIG symbols outside Kconfig:
     # If grep succeeds and finds a match the test fails as we should
     # have no matches.
     - git grep -E '^#[[:blank:]]*(define|undef)[[:blank:]]*CONFIG_'
-        include/configs `find arch -name config.h` && exit 1 || exit 0
+        :^doc/ :^arch/arm/dts/ :^scripts/kconfig/lkc.h
+        :^include/linux/kconfig.h :^tools/ && exit 1 || exit 0
 
 # QA jobs for code analytics
 # static code analysis with cppcheck (we can add --enable=all later)

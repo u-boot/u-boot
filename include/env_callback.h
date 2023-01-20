@@ -14,8 +14,8 @@
 #define ENV_CALLBACK_VAR ".callbacks"
 
 /* Board configs can define additional static callback bindings */
-#ifndef CONFIG_ENV_CALLBACK_LIST_STATIC
-#define CONFIG_ENV_CALLBACK_LIST_STATIC
+#ifndef CFG_ENV_CALLBACK_LIST_STATIC
+#define CFG_ENV_CALLBACK_LIST_STATIC
 #endif
 
 #ifdef CONFIG_SILENT_CONSOLE
@@ -80,7 +80,7 @@
 	SILENT_CALLBACK \
 	"stdin:console,stdout:console,stderr:console," \
 	"serial#:serialno," \
-	CONFIG_ENV_CALLBACK_LIST_STATIC
+	CFG_ENV_CALLBACK_LIST_STATIC
 
 #ifndef CONFIG_SPL_BUILD
 void env_callback_init(struct env_entry *var_entry);

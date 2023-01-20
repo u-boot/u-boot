@@ -59,7 +59,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * sending and after receiving.
  */
 #ifdef CONFIG_MX28
-#define CONFIG_FEC_MXC_SWAP_PACKET
+#define CFG_FEC_MXC_SWAP_PACKET
 #endif
 
 #define RXDESC_PER_CACHELINE (ARCH_DMA_MINALIGN/sizeof(struct fec_bd))
@@ -76,7 +76,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #undef DEBUG
 
-#ifdef CONFIG_FEC_MXC_SWAP_PACKET
+#ifdef CFG_FEC_MXC_SWAP_PACKET
 static void swap_packet(uint32_t *packet, int length)
 {
 	int i;
@@ -685,7 +685,7 @@ static int fecmxc_send(struct udevice *dev, void *packet, int length)
 	 * transmission, the second will be empty and only used to stop the DMA
 	 * engine. We also flush the packet to RAM here to avoid cache trouble.
 	 */
-#ifdef CONFIG_FEC_MXC_SWAP_PACKET
+#ifdef CFG_FEC_MXC_SWAP_PACKET
 	swap_packet((uint32_t *)packet, length);
 #endif
 
@@ -875,7 +875,7 @@ static int fecmxc_recv(struct udevice *dev, int flags, uchar **packetp)
 			invalidate_dcache_range(addr, end);
 
 			/* Fill the buffer and pass it to upper layers */
-#ifdef CONFIG_FEC_MXC_SWAP_PACKET
+#ifdef CFG_FEC_MXC_SWAP_PACKET
 			swap_packet((uint32_t *)addr, frame_length);
 #endif
 

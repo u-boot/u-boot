@@ -45,8 +45,8 @@
 #define GSERIAL_RX_ENDPOINT 1
 #define NUM_ACM_INTERFACES 2
 #define NUM_GSERIAL_INTERFACES 1
-#define CONFIG_USBD_DATA_INTERFACE_STR "Bulk Data Interface"
-#define CONFIG_USBD_CTRL_INTERFACE_STR "Control Interface"
+#define CFG_USBD_DATA_INTERFACE_STR "Bulk Data Interface"
+#define CFG_USBD_CTRL_INTERFACE_STR "Control Interface"
 
 /*
  * Buffers to hold input and output data
@@ -97,9 +97,9 @@ static u8 wstrLang[4] = {4,USB_DT_STRING,0x9,0x4};
 static u8 wstrManufacturer[2 + 2*(sizeof(CONFIG_USBD_MANUFACTURER)-1)];
 static u8 wstrProduct[2 + 2*(sizeof(CONFIG_USBD_PRODUCT_NAME)-1)];
 static u8 wstrSerial[2 + 2*(sizeof(serial_number) - 1)];
-static u8 wstrConfiguration[2 + 2*(sizeof(CONFIG_USBD_CONFIGURATION_STR)-1)];
-static u8 wstrDataInterface[2 + 2*(sizeof(CONFIG_USBD_DATA_INTERFACE_STR)-1)];
-static u8 wstrCtrlInterface[2 + 2*(sizeof(CONFIG_USBD_DATA_INTERFACE_STR)-1)];
+static u8 wstrConfiguration[2 + 2*(sizeof(CFG_USBD_CONFIGURATION_STR)-1)];
+static u8 wstrDataInterface[2 + 2*(sizeof(CFG_USBD_DATA_INTERFACE_STR)-1)];
+static u8 wstrCtrlInterface[2 + 2*(sizeof(CFG_USBD_DATA_INTERFACE_STR)-1)];
 
 /* Standard USB Data Structures */
 static struct usb_interface_descriptor interface_descriptors[MAX_INTERFACES];
@@ -206,7 +206,7 @@ static struct acm_config_desc acm_configuration_descriptors[NUM_CONFIGS] = {
 			.bEndpointAddress	= UDC_INT_ENDPOINT | USB_DIR_IN,
 			.bmAttributes		= USB_ENDPOINT_XFER_INT,
 			.wMaxPacketSize
-				= cpu_to_le16(CONFIG_USBD_SERIAL_INT_PKTSIZE),
+				= cpu_to_le16(CFG_USBD_SERIAL_INT_PKTSIZE),
 			.bInterval		= 0xFF,
 		},
 
@@ -233,7 +233,7 @@ static struct acm_config_desc acm_configuration_descriptors[NUM_CONFIGS] = {
 				.bmAttributes		=
 					USB_ENDPOINT_XFER_BULK,
 				.wMaxPacketSize		=
-					cpu_to_le16(CONFIG_USBD_SERIAL_BULK_PKTSIZE),
+					cpu_to_le16(CFG_USBD_SERIAL_BULK_PKTSIZE),
 				.bInterval		= 0xFF,
 			},
 			{
@@ -244,7 +244,7 @@ static struct acm_config_desc acm_configuration_descriptors[NUM_CONFIGS] = {
 				.bmAttributes		=
 					USB_ENDPOINT_XFER_BULK,
 				.wMaxPacketSize		=
-					cpu_to_le16(CONFIG_USBD_SERIAL_BULK_PKTSIZE),
+					cpu_to_le16(CFG_USBD_SERIAL_BULK_PKTSIZE),
 				.bInterval		= 0xFF,
 			},
 		},
@@ -312,7 +312,7 @@ gserial_configuration_descriptors[NUM_CONFIGS] ={
 				.bEndpointAddress =	UDC_OUT_ENDPOINT | USB_DIR_OUT,
 				.bmAttributes =		USB_ENDPOINT_XFER_BULK,
 				.wMaxPacketSize =
-					cpu_to_le16(CONFIG_USBD_SERIAL_OUT_PKTSIZE),
+					cpu_to_le16(CFG_USBD_SERIAL_OUT_PKTSIZE),
 				.bInterval=		0xFF,
 			},
 			{
@@ -322,7 +322,7 @@ gserial_configuration_descriptors[NUM_CONFIGS] ={
 				.bEndpointAddress =	UDC_IN_ENDPOINT | USB_DIR_IN,
 				.bmAttributes =		USB_ENDPOINT_XFER_BULK,
 				.wMaxPacketSize =
-					cpu_to_le16(CONFIG_USBD_SERIAL_IN_PKTSIZE),
+					cpu_to_le16(CFG_USBD_SERIAL_IN_PKTSIZE),
 				.bInterval =		0xFF,
 			},
 			{
@@ -332,7 +332,7 @@ gserial_configuration_descriptors[NUM_CONFIGS] ={
 				.bEndpointAddress =	UDC_INT_ENDPOINT | USB_DIR_IN,
 				.bmAttributes =		USB_ENDPOINT_XFER_INT,
 				.wMaxPacketSize =
-					cpu_to_le16(CONFIG_USBD_SERIAL_INT_PKTSIZE),
+					cpu_to_le16(CFG_USBD_SERIAL_INT_PKTSIZE),
 				.bInterval =		0xFF,
 			},
 		},
@@ -594,20 +594,20 @@ static void usbtty_init_strings (void)
 	string = (struct usb_string_descriptor *) wstrConfiguration;
 	string->bLength = sizeof(wstrConfiguration);
 	string->bDescriptorType = USB_DT_STRING;
-	str2wide (CONFIG_USBD_CONFIGURATION_STR, string->wData);
+	str2wide (CFG_USBD_CONFIGURATION_STR, string->wData);
 	usbtty_string_table[STR_CONFIG]=string;
 
 
 	string = (struct usb_string_descriptor *) wstrDataInterface;
 	string->bLength = sizeof(wstrDataInterface);
 	string->bDescriptorType = USB_DT_STRING;
-	str2wide (CONFIG_USBD_DATA_INTERFACE_STR, string->wData);
+	str2wide (CFG_USBD_DATA_INTERFACE_STR, string->wData);
 	usbtty_string_table[STR_DATA_INTERFACE]=string;
 
 	string = (struct usb_string_descriptor *) wstrCtrlInterface;
 	string->bLength = sizeof(wstrCtrlInterface);
 	string->bDescriptorType = USB_DT_STRING;
-	str2wide (CONFIG_USBD_CTRL_INTERFACE_STR, string->wData);
+	str2wide (CFG_USBD_CTRL_INTERFACE_STR, string->wData);
 	usbtty_string_table[STR_CTRL_INTERFACE]=string;
 
 	/* Now, initialize the string table for ep0 handling */

@@ -327,7 +327,7 @@ int board_eth_init(struct bd_info *bis)
 	struct eth_device *dev;
 	uchar eth_addr[6];
 
-	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+	rc = smc911x_initialize(0, CFG_SMC911X_BASE);
 
 	if (!eth_env_get_enetaddr("ethaddr", eth_addr)) {
 		dev = eth_get_dev_by_index(0);

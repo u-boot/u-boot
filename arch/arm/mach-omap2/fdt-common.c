@@ -17,8 +17,8 @@
 #ifndef TI_OMAP5_SECURE_BOOT_RESV_SRAM_SZ
 #define TI_OMAP5_SECURE_BOOT_RESV_SRAM_SZ (0)
 #endif
-#ifndef CONFIG_SECURE_RUNTIME_RESV_SRAM_SZ
-#define CONFIG_SECURE_RUNTIME_RESV_SRAM_SZ (0)
+#ifndef CFG_SECURE_RUNTIME_RESV_SRAM_SZ
+#define CFG_SECURE_RUNTIME_RESV_SRAM_SZ (0)
 #endif
 
 int ft_hs_disable_rng(void *fdt, struct bd_info *bd)

@@ -73,11 +73,11 @@ void usb_single_source_clk_configure(struct ccsr_usb_phy *usb_phy)
 	get_sys_info(&sysinfo);
 	if (sysinfo.diff_sysclk == 1) {
 		clrbits_be32(&usb_phy->pllprg[1],
-			     CONFIG_SYS_FSL_USB_PLLPRG2_MFI);
+			     CFG_SYS_FSL_USB_PLLPRG2_MFI);
 		setbits_be32(&usb_phy->pllprg[1],
-			     CONFIG_SYS_FSL_USB_PLLPRG2_REF_DIV_INTERNAL_CLK |
-			     CONFIG_SYS_FSL_USB_PLLPRG2_MFI_INTERNAL_CLK |
-			     CONFIG_SYS_FSL_USB_INTERNAL_SOC_CLK_EN);
+			     CFG_SYS_FSL_USB_PLLPRG2_REF_DIV_INTERNAL_CLK |
+			     CFG_SYS_FSL_USB_PLLPRG2_MFI_INTERNAL_CLK |
+			     CFG_SYS_FSL_USB_INTERNAL_SOC_CLK_EN);
 		}
 }
 #endif
@@ -89,18 +89,18 @@ void fsl_erratum_a006261_workaround(struct ccsr_usb_phy __iomem *usb_phy)
 	u32 xcvrprg = in_be32(&usb_phy->port1.xcvrprg);
 
 	/* Increase Disconnect Threshold by 50mV */
-	xcvrprg &= ~CONFIG_SYS_FSL_USB_XCVRPRG_HS_DCNT_PROG_MASK |
+	xcvrprg &= ~CFG_SYS_FSL_USB_XCVRPRG_HS_DCNT_PROG_MASK |
 						INC_DCNT_THRESHOLD_50MV;
 	/* Enable programming of USB High speed Disconnect threshold */
-	xcvrprg |= CONFIG_SYS_FSL_USB_XCVRPRG_HS_DCNT_PROG_EN;
+	xcvrprg |= CFG_SYS_FSL_USB_XCVRPRG_HS_DCNT_PROG_EN;
 	out_be32(&usb_phy->port1.xcvrprg, xcvrprg);
 
 	xcvrprg = in_be32(&usb_phy->port2.xcvrprg);
 	/* Increase Disconnect Threshold by 50mV */
-	xcvrprg &= ~CONFIG_SYS_FSL_USB_XCVRPRG_HS_DCNT_PROG_MASK |
+	xcvrprg &= ~CFG_SYS_FSL_USB_XCVRPRG_HS_DCNT_PROG_MASK |
 						INC_DCNT_THRESHOLD_50MV;
 	/* Enable programming of USB High speed Disconnect threshold */
-	xcvrprg |= CONFIG_SYS_FSL_USB_XCVRPRG_HS_DCNT_PROG_EN;
+	xcvrprg |= CFG_SYS_FSL_USB_XCVRPRG_HS_DCNT_PROG_EN;
 	out_be32(&usb_phy->port2.xcvrprg, xcvrprg);
 #else
 
@@ -108,22 +108,22 @@ void fsl_erratum_a006261_workaround(struct ccsr_usb_phy __iomem *usb_phy)
 	u32 status = in_be32(&usb_phy->status1);
 
 	u32 squelch_prog_rd_0_2 =
-		(status >> CONFIG_SYS_FSL_USB_SQUELCH_PROG_RD_0)
-			& CONFIG_SYS_FSL_USB_SQUELCH_PROG_MASK;
+		(status >> CFG_SYS_FSL_USB_SQUELCH_PROG_RD_0)
+			& CFG_SYS_FSL_USB_SQUELCH_PROG_MASK;
 
 	u32 squelch_prog_rd_3_5 =
-		(status >> CONFIG_SYS_FSL_USB_SQUELCH_PROG_RD_3)
-			& CONFIG_SYS_FSL_USB_SQUELCH_PROG_MASK;
+		(status >> CFG_SYS_FSL_USB_SQUELCH_PROG_RD_3)
+			& CFG_SYS_FSL_USB_SQUELCH_PROG_MASK;
 
 	setbits_be32(&usb_phy->config1,
-		     CONFIG_SYS_FSL_USB_HS_DISCNCT_INC);
+		     CFG_SYS_FSL_USB_HS_DISCNCT_INC);
 	setbits_be32(&usb_phy->config2,
-		     CONFIG_SYS_FSL_USB_RX_AUTO_CAL_RD_WR_SEL);
+		     CFG_SYS_FSL_USB_RX_AUTO_CAL_RD_WR_SEL);
 
-	temp = squelch_prog_rd_0_2 << CONFIG_SYS_FSL_USB_SQUELCH_PROG_WR_3;
+	temp = squelch_prog_rd_0_2 << CFG_SYS_FSL_USB_SQUELCH_PROG_WR_3;
 	out_be32(&usb_phy->config2, in_be32(&usb_phy->config2) | temp);
 
-	temp = squelch_prog_rd_3_5 << CONFIG_SYS_FSL_USB_SQUELCH_PROG_WR_0;
+	temp = squelch_prog_rd_3_5 << CFG_SYS_FSL_USB_SQUELCH_PROG_WR_0;
 	out_be32(&usb_phy->config2, in_be32(&usb_phy->config2) | temp);
 #endif
 }
@@ -827,7 +827,7 @@ int cpu_init_r(void)
 			fsl_erratum_a006261_workaround(usb_phy1);
 #endif
 		out_be32(&usb_phy1->usb_enable_override,
-				CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE);
+				CFG_SYS_FSL_USB_ENABLE_OVERRIDE);
 	}
 #endif
 #ifdef CONFIG_SYS_FSL_USB2_PHY_ENABLE
@@ -839,7 +839,7 @@ int cpu_init_r(void)
 			fsl_erratum_a006261_workaround(usb_phy2);
 #endif
 		out_be32(&usb_phy2->usb_enable_override,
-				CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE);
+				CFG_SYS_FSL_USB_ENABLE_OVERRIDE);
 	}
 #endif
 
@@ -861,25 +861,25 @@ int cpu_init_r(void)
 		struct ccsr_usb_phy __iomem *usb_phy =
 			(void *)CFG_SYS_MPC85xx_USB1_PHY_ADDR;
 		setbits_be32(&usb_phy->pllprg[1],
-			     CONFIG_SYS_FSL_USB_PLLPRG2_PHY2_CLK_EN |
-			     CONFIG_SYS_FSL_USB_PLLPRG2_PHY1_CLK_EN |
-			     CONFIG_SYS_FSL_USB_PLLPRG2_MFI |
-			     CONFIG_SYS_FSL_USB_PLLPRG2_PLL_EN);
+			     CFG_SYS_FSL_USB_PLLPRG2_PHY2_CLK_EN |
+			     CFG_SYS_FSL_USB_PLLPRG2_PHY1_CLK_EN |
+			     CFG_SYS_FSL_USB_PLLPRG2_MFI |
+			     CFG_SYS_FSL_USB_PLLPRG2_PLL_EN);
 #ifdef CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
 		usb_single_source_clk_configure(usb_phy);
 #endif
 		setbits_be32(&usb_phy->port1.ctrl,
-			     CONFIG_SYS_FSL_USB_CTRL_PHY_EN);
+			     CFG_SYS_FSL_USB_CTRL_PHY_EN);
 		setbits_be32(&usb_phy->port1.drvvbuscfg,
-			     CONFIG_SYS_FSL_USB_DRVVBUS_CR_EN);
+			     CFG_SYS_FSL_USB_DRVVBUS_CR_EN);
 		setbits_be32(&usb_phy->port1.pwrfltcfg,
-			     CONFIG_SYS_FSL_USB_PWRFLT_CR_EN);
+			     CFG_SYS_FSL_USB_PWRFLT_CR_EN);
 		setbits_be32(&usb_phy->port2.ctrl,
-			     CONFIG_SYS_FSL_USB_CTRL_PHY_EN);
+			     CFG_SYS_FSL_USB_CTRL_PHY_EN);
 		setbits_be32(&usb_phy->port2.drvvbuscfg,
-			     CONFIG_SYS_FSL_USB_DRVVBUS_CR_EN);
+			     CFG_SYS_FSL_USB_DRVVBUS_CR_EN);
 		setbits_be32(&usb_phy->port2.pwrfltcfg,
-			     CONFIG_SYS_FSL_USB_PWRFLT_CR_EN);
+			     CFG_SYS_FSL_USB_PWRFLT_CR_EN);
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A006261
 		if (has_erratum_a006261())

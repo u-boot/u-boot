@@ -363,7 +363,7 @@ int fm_init_common(int index, struct ccsr_fman *reg, const char *firmware_name)
 
 	if (src == BOOT_SOURCE_IFC_NOR) {
 		addr = (void *)(CONFIG_SYS_FMAN_FW_ADDR +
-				CONFIG_SYS_FSL_IFC_BASE);
+				CFG_SYS_FSL_IFC_BASE);
 #ifdef CONFIG_CMD_NAND
 	} else if (src == BOOT_SOURCE_IFC_NAND) {
 		size_t fw_length = CONFIG_SYS_QE_FMAN_FW_LENGTH;

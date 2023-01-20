@@ -168,14 +168,12 @@ struct descriptor {		/* A generic descriptor. */
 	unsigned char params[0];
 };
 
-#define CONFIG_SYS_CMD_EL		0x8000
-#define CONFIG_SYS_CMD_SUSPEND		0x4000
-#define CONFIG_SYS_CMD_INT		0x2000
-#define CONFIG_SYS_CMD_IAS		0x0001	/* individual address setup */
-#define CONFIG_SYS_CMD_CONFIGURE	0x0002	/* configure */
+#define CFG_SYS_CMD_SUSPEND		0x4000
+#define CFG_SYS_CMD_IAS		0x0001	/* individual address setup */
+#define CFG_SYS_CMD_CONFIGURE	0x0002	/* configure */
 
-#define CONFIG_SYS_STATUS_C		0x8000
-#define CONFIG_SYS_STATUS_OK		0x2000
+#define CFG_SYS_STATUS_C		0x8000
+#define CFG_SYS_STATUS_OK		0x2000
 
 /* Misc. */
 #define NUM_RX_DESC		PKTBUFSRX
@@ -413,7 +411,7 @@ static int eepro100_txcmd_send(struct eepro100_priv *priv,
 		invalidate_dcache_range((unsigned long)desc,
 					(unsigned long)desc + sizeof(*desc));
 		rstat = le16_to_cpu(desc->status);
-		if (rstat & CONFIG_SYS_STATUS_C)
+		if (rstat & CFG_SYS_STATUS_C)
 			break;
 
 		if (i++ >= TOUT_LOOP) {
@@ -426,7 +424,7 @@ static int eepro100_txcmd_send(struct eepro100_priv *priv,
 				(unsigned long)desc + sizeof(*desc));
 	rstat = le16_to_cpu(desc->status);
 
-	if (!(rstat & CONFIG_SYS_STATUS_OK)) {
+	if (!(rstat & CFG_SYS_STATUS_OK)) {
 		printf("TX error status = 0x%08X\n", rstat);
 		return -EIO;
 	}
@@ -579,8 +577,8 @@ static int eepro100_init_common(struct eepro100_priv *priv)
 	priv->tx_next = ((priv->tx_next + 1) % NUM_TX_DESC);
 
 	cfg_cmd = &tx_ring[tx_cur];
-	cfg_cmd->command = cpu_to_le16(CONFIG_SYS_CMD_SUSPEND |
-				       CONFIG_SYS_CMD_CONFIGURE);
+	cfg_cmd->command = cpu_to_le16(CFG_SYS_CMD_SUSPEND |
+				       CFG_SYS_CMD_CONFIGURE);
 	cfg_cmd->status = 0;
 	cfg_cmd->link = cpu_to_le32(phys_to_bus(priv->devno,
 						(u32)&tx_ring[priv->tx_next]));
@@ -591,7 +589,7 @@ static int eepro100_init_common(struct eepro100_priv *priv)
 	ret = eepro100_txcmd_send(priv, cfg_cmd);
 	if (ret) {
 		if (ret == -ETIMEDOUT)
-			printf("Error---CONFIG_SYS_CMD_CONFIGURE: Can not reset ethernet controller.\n");
+			printf("Error---CFG_SYS_CMD_CONFIGURE: Can not reset ethernet controller.\n");
 		goto done;
 	}
 
@@ -600,8 +598,8 @@ static int eepro100_init_common(struct eepro100_priv *priv)
 	priv->tx_next = ((priv->tx_next + 1) % NUM_TX_DESC);
 
 	ias_cmd = &tx_ring[tx_cur];
-	ias_cmd->command = cpu_to_le16(CONFIG_SYS_CMD_SUSPEND |
-				       CONFIG_SYS_CMD_IAS);
+	ias_cmd->command = cpu_to_le16(CFG_SYS_CMD_SUSPEND |
+				       CFG_SYS_CMD_IAS);
 	ias_cmd->status = 0;
 	ias_cmd->link = cpu_to_le32(phys_to_bus(priv->devno,
 						(u32)&tx_ring[priv->tx_next]));

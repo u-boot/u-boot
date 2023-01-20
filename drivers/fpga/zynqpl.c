@@ -40,8 +40,8 @@
 #define CFG_SYS_FPGA_WAIT CONFIG_SYS_HZ/100	/* 10 ms */
 #endif
 
-#ifndef CONFIG_SYS_FPGA_PROG_TIME
-#define CONFIG_SYS_FPGA_PROG_TIME	(CONFIG_SYS_HZ * 4) /* 4 s */
+#ifndef CFG_SYS_FPGA_PROG_TIME
+#define CFG_SYS_FPGA_PROG_TIME	(CONFIG_SYS_HZ * 4) /* 4 s */
 #endif
 
 #define DUMMY_WORD	0xffffffff
@@ -181,7 +181,7 @@ static int zynq_dma_transfer(u32 srcbuf, u32 srclen, u32 dstbuf, u32 dstlen)
 
 			return FPGA_FAIL;
 		}
-		if (get_timer(ts) > CONFIG_SYS_FPGA_PROG_TIME) {
+		if (get_timer(ts) > CFG_SYS_FPGA_PROG_TIME) {
 			printf("%s: Timeout wait for DMA to complete\n",
 			       __func__);
 			return FPGA_FAIL;

@@ -17,10 +17,6 @@
 #include <config.h>
 #include <linux/linkage.h>
 
-#ifndef CONFIG_SYS_PHY_UBOOT_BASE
-#define CONFIG_SYS_PHY_UBOOT_BASE	CFG_SYS_UBOOT_BASE
-#endif
-
 /*
  *************************************************************************
  *
@@ -88,7 +84,7 @@ cpu_init_crit:
 
 	/* Prepare to disable the MMU */
 	adr	r2, mmu_disable_phys
-	sub	r2, r2, #(CONFIG_SYS_PHY_UBOOT_BASE - CONFIG_TEXT_BASE)
+	sub	r2, r2, #(CFG_SYS_UBOOT_BASE - CONFIG_TEXT_BASE)
 	b	mmu_disable
 
 	.align 5

@@ -33,7 +33,7 @@
 #define OMAP3EVM_GPIO_ETH_RST_GEN1 64
 #define OMAP3EVM_GPIO_ETH_RST_GEN2 7
 
-#define CONFIG_SMC911X_BASE 0x2C000000
+#define CFG_SMC911X_BASE 0x2C000000
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -54,7 +54,7 @@ static void omap3_evm_get_revision(void)
 	unsigned int smsc_id;
 
 	/* Ethernet PHY ID is stored at ID_REV register */
-	smsc_id = readl(CONFIG_SMC911X_BASE + 0x50) & 0xFFFF0000;
+	smsc_id = readl(CFG_SMC911X_BASE + 0x50) & 0xFFFF0000;
 	printf("Read back SMSC id 0x%x\n", smsc_id);
 
 	switch (smsc_id) {

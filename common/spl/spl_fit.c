@@ -20,14 +20,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_SPL_LOAD_FIT_APPLY_OVERLAY_BUF_SZ
-#define CONFIG_SPL_LOAD_FIT_APPLY_OVERLAY_BUF_SZ (64 * 1024)
-#endif
-
-#ifndef CONFIG_SYS_BOOTM_LEN
-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)
-#endif
-
 struct spl_fit_info {
 	const void *fit;	/* Pointer to a valid FIT blob */
 	size_t ext_data_offset;	/* Offset to FIT external data (end of FIT) */
@@ -408,7 +400,7 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 	if (CONFIG_IS_ENABLED(FIT_IMAGE_TINY))
 		return 0;
 
-	if (CONFIG_IS_ENABLED(LOAD_FIT_APPLY_OVERLAY)) {
+#if CONFIG_IS_ENABLED(LOAD_FIT_APPLY_OVERLAY)
 		void *tmpbuffer = NULL;
 
 		for (; ; index++) {
@@ -462,7 +454,7 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 		free(tmpbuffer);
 		if (ret)
 			return ret;
-	}
+#endif
 	/* Try to make space, so we can inject details on the loadables */
 	ret = fdt_shrink_to_minimum(spl_image->fdt_addr, 8192);
 	if (ret < 0)

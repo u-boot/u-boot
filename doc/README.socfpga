@@ -6,16 +6,6 @@ This README is about U-Boot and SPL support for Altera's ARM Cortex-A9MPCore
 based SOCFPGA. To know more about the hardware itself, please refer to
 www.altera.com.
 
-
-socfpga_dw_mmc
---------------
-
-Here are macro and detailed configuration required to enable DesignWare SDMMC
-controller support within SOCFPGA
-
-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	256
--> Using smaller max blk cnt to avoid flooding the limited stack in OCRAM
-
 ---------------------------------------------------------------------
 Cyclone 5 / Arria 5 generating the handoff header files for U-Boot SPL
 ---------------------------------------------------------------------

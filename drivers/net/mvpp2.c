@@ -66,8 +66,6 @@ do {									\
 
 #define NET_SKB_PAD	max(32, MVPP2_CPU_D_CACHE_LINE_SIZE)
 
-#define CONFIG_NR_CPUS		1
-
 /* 2(HW hdr) 14(MAC hdr) 4(CRC) 32(extra for cache prefetch) */
 #define WRAP			(2 + ETH_HLEN + 4 + 32)
 #define MTU			1500
@@ -589,7 +587,7 @@ enum mv_netc_lanes {
 
 /* Default number of RXQs in use */
 #define MVPP2_DEFAULT_RXQ		1
-#define CONFIG_MV_ETH_RXQ		8	/* increment by 8 */
+#define CFG_MV_ETH_RXQ		8	/* increment by 8 */
 
 /* Max number of Rx descriptors */
 #define MVPP2_MAX_RXD			16

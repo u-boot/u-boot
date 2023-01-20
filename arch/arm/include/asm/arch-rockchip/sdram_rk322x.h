@@ -415,7 +415,7 @@ struct rk322x_base_params {
 #define PCTL_STAT_MASK			7
 #define INIT_MEM			0
 #define CONFIG				1
-#define CONFIG_REQ			2
+#define CFG_REQ			2
 #define ACCESS				3
 #define ACCESS_REQ			4
 #define LOW_POWER			5

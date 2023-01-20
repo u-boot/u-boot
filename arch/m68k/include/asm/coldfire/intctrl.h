@@ -12,7 +12,7 @@
 #if defined(CONFIG_M5235) || defined(CONFIG_M5271) || \
     defined(CONFIG_M5275) || defined(CONFIG_M5282) || \
     defined(CONFIG_M547x)
-#	define	CONFIG_SYS_CF_INTC_REG1
+#	define	CFG_SYS_CF_INTC_REG1
 #endif
 
 typedef struct int0_ctrl {
@@ -23,7 +23,7 @@ typedef struct int0_ctrl {
 	u32 imrl0;		/* 0x0C Mask Low */
 	u32 frch0;		/* 0x10 Force High */
 	u32 frcl0;		/* 0x14 Force Low */
-#if defined(CONFIG_SYS_CF_INTC_REG1)
+#if defined(CFG_SYS_CF_INTC_REG1)
 	u8 irlr;		/* 0x18 */
 	u8 iacklpr;		/* 0x19 */
 	u16 res1[19];		/* 0x1a - 0x3c */
@@ -64,7 +64,7 @@ typedef struct int1_ctrl {
 	u32 imrl1;		/* 0x0C Mask Low */
 	u32 frch1;		/* 0x10 Force High */
 	u32 frcl1;		/* 0x14 Force Low */
-#if defined(CONFIG_SYS_CF_INTC_REG1)
+#if defined(CFG_SYS_CF_INTC_REG1)
 	u8 irlr;		/* 0x18 */
 	u8 iacklpr;		/* 0x19 */
 	u16 res1[19];		/* 0x1a - 0x3c */
@@ -192,7 +192,7 @@ typedef struct intgack_ctrl1 {
 #define INTC_IACKLPR_PRI(x)		((x) & 0x0F)
 #define INTC_IACKLPR_PRI_MASK		(0xF0)
 
-#if defined(CONFIG_SYS_CF_INTC_REG1)
+#if defined(CFG_SYS_CF_INTC_REG1)
 #define INTC_ICR_IL(x)			(((x) & 0x07) << 3)
 #define INTC_ICR_IL_MASK		(0xC7)
 #define INTC_ICR_IP(x)			((x) & 0x07)

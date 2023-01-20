@@ -62,6 +62,10 @@ config MV88E61XX_PHY_PORTS
 
 config MV88E61XX_FIXED_PORTS
 	hex "Bitmask of PHYless serdes Ports"
+	default 0x0
+	help
+	  These are ports without PHYs that may be wired directly to other
+	  serdes interfaces
 
 endif # MV88E61XX_SWITCH
 

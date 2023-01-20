@@ -6,7 +6,7 @@
 #ifndef __PAMU_H
 #define __PAMU_H
 
-#define CONFIG_NUM_PAMU		16
+#define CFG_NUM_PAMU		16
 #define NUM_PPAACT_ENTRIES	512
 #define NUM_SPAACT_ENTRIES	256
 

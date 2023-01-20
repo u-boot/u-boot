@@ -127,9 +127,9 @@ struct fe_tx_dma {
 
 #define MTK_QDMA_PAGE_SIZE	2048
 
-#define CONFIG_MDIO_TIMEOUT	100
-#define CONFIG_DMA_STOP_TIMEOUT	100
-#define CONFIG_TX_DMA_TIMEOUT	100
+#define CFG_MDIO_TIMEOUT	100
+#define CFG_DMA_STOP_TIMEOUT	100
+#define CFG_TX_DMA_TIMEOUT	100
 
 struct mt7628_eth_dev {
 	void __iomem *base;		/* frame engine base address */
@@ -162,7 +162,7 @@ static int mdio_wait_read(struct mt7628_eth_dev *priv, u32 mask, bool mask_set)
 	int ret;
 
 	ret = wait_for_bit_le32(base + MT7628_SWITCH_PCR1, mask, mask_set,
-				CONFIG_MDIO_TIMEOUT, false);
+				CFG_MDIO_TIMEOUT, false);
 	if (ret) {
 		printf("MDIO operation timeout!\n");
 		return -ETIMEDOUT;
@@ -352,7 +352,7 @@ static void eth_dma_stop(struct mt7628_eth_dev *priv)
 	/* Wait for DMA to stop */
 	ret = wait_for_bit_le32(base + PDMA_GLO_CFG,
 				RX_DMA_BUSY | TX_DMA_BUSY, false,
-				CONFIG_DMA_STOP_TIMEOUT, false);
+				CFG_DMA_STOP_TIMEOUT, false);
 	if (ret)
 		printf("DMA stop timeout error!\n");
 }
@@ -399,7 +399,7 @@ static int mt7628_eth_send(struct udevice *dev, void *packet, int length)
 
 	/* Check if buffer is ready for next TX DMA */
 	ret = wait_for_bit_le32(&priv->tx_ring[idx].txd2, TX_DMA_DONE, true,
-				CONFIG_TX_DMA_TIMEOUT, false);
+				CFG_TX_DMA_TIMEOUT, false);
 	if (ret) {
 		printf("TX: DMA still busy on buffer %d\n", idx);
 		return ret;

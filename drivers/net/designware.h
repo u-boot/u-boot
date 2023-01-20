@@ -14,14 +14,14 @@
 #include <asm-generic/gpio.h>
 #endif
 
-#define CONFIG_TX_DESCR_NUM	16
-#define CONFIG_RX_DESCR_NUM	16
-#define CONFIG_ETH_BUFSIZE	2048
-#define TX_TOTAL_BUFSIZE	(CONFIG_ETH_BUFSIZE * CONFIG_TX_DESCR_NUM)
-#define RX_TOTAL_BUFSIZE	(CONFIG_ETH_BUFSIZE * CONFIG_RX_DESCR_NUM)
+#define CFG_TX_DESCR_NUM	16
+#define CFG_RX_DESCR_NUM	16
+#define CFG_ETH_BUFSIZE	2048
+#define TX_TOTAL_BUFSIZE	(CFG_ETH_BUFSIZE * CFG_TX_DESCR_NUM)
+#define RX_TOTAL_BUFSIZE	(CFG_ETH_BUFSIZE * CFG_RX_DESCR_NUM)
 
-#define CONFIG_MACRESET_TIMEOUT	(3 * CONFIG_SYS_HZ)
-#define CONFIG_MDIO_TIMEOUT	(3 * CONFIG_SYS_HZ)
+#define CFG_MACRESET_TIMEOUT	(3 * CONFIG_SYS_HZ)
+#define CFG_MDIO_TIMEOUT	(3 * CONFIG_SYS_HZ)
 
 struct eth_mac_regs {
 	u32 conf;		/* 0x00 */
@@ -221,8 +221,8 @@ struct dmamacdescr {
 #endif
 
 struct dw_eth_dev {
-	struct dmamacdescr tx_mac_descrtable[CONFIG_TX_DESCR_NUM];
-	struct dmamacdescr rx_mac_descrtable[CONFIG_RX_DESCR_NUM];
+	struct dmamacdescr tx_mac_descrtable[CFG_TX_DESCR_NUM];
+	struct dmamacdescr rx_mac_descrtable[CFG_RX_DESCR_NUM];
 	char txbuffs[TX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
 	char rxbuffs[RX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
 

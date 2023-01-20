@@ -32,11 +32,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define mk_mii_write(ADDR, REG, VAL)	(0x50020000 | ((ADDR << 23) | \
 					 (REG & 0x1f) << 18) | (VAL & 0xffff))
 
-#ifndef CONFIG_SYS_UNSPEC_PHYID
-#	define CONFIG_SYS_UNSPEC_PHYID		0
+#ifndef CFG_SYS_UNSPEC_PHYID
+#	define CFG_SYS_UNSPEC_PHYID		0
 #endif
-#ifndef CONFIG_SYS_UNSPEC_STRID
-#	define CONFIG_SYS_UNSPEC_STRID		0
+#ifndef CFG_SYS_UNSPEC_STRID
+#	define CFG_SYS_UNSPEC_STRID		0
 #endif
 
 typedef struct phy_info_struct {
@@ -58,8 +58,8 @@ phy_info_t phyinfo[] = {
 	{0x20005C90, "N83848"},		/* National 83848 */
 	{0x20005CA2, "N83849"},		/* National 83849 */
 	{0x01814400, "QS6612"},		/* QS6612 */
-#if defined(CONFIG_SYS_UNSPEC_PHYID) && defined(CONFIG_SYS_UNSPEC_STRID)
-	{CONFIG_SYS_UNSPEC_PHYID, CONFIG_SYS_UNSPEC_STRID},
+#if defined(CFG_SYS_UNSPEC_PHYID) && defined(CFG_SYS_UNSPEC_STRID)
+	{CFG_SYS_UNSPEC_PHYID, CFG_SYS_UNSPEC_STRID},
 #endif
 	{0, 0}
 };

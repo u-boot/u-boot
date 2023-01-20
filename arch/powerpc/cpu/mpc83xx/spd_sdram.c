@@ -66,8 +66,8 @@ void board_add_ram_info(int use_default)
 }
 
 #ifdef CONFIG_SPD_EEPROM
-#ifndef	CONFIG_SYS_READ_SPD
-#define CONFIG_SYS_READ_SPD	i2c_read
+#ifndef	CFG_SYS_READ_SPD
+#define CFG_SYS_READ_SPD	i2c_read
 #endif
 #ifndef SPD_EEPROM_OFFSET
 #define SPD_EEPROM_OFFSET	0
@@ -167,7 +167,7 @@ long int spd_sdram()
 	isync();
 
 	/* Read SPD parameters with I2C */
-	CONFIG_SYS_READ_SPD(SPD_EEPROM_ADDRESS, SPD_EEPROM_OFFSET,
+	CFG_SYS_READ_SPD(SPD_EEPROM_ADDRESS, SPD_EEPROM_OFFSET,
 		SPD_EEPROM_ADDR_LEN, (uchar *) &spd, sizeof(spd));
 #ifdef SPD_DEBUG
 	spd_debug(&spd);

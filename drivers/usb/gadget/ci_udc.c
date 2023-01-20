@@ -322,7 +322,7 @@ static void ep_enable(int num, int in, int maxpacket)
 	if (num != 0) {
 		struct ept_queue_head *head = ci_get_qh(num, in);
 
-		head->config = CONFIG_MAX_PKT(maxpacket) | CONFIG_ZLT;
+		head->config = CFG_MAX_PKT(maxpacket) | CFG_ZLT;
 		ci_flush_qh(num);
 	}
 	writel(n, &udc->epctrl[num]);
@@ -959,11 +959,11 @@ static int ci_udc_probe(void)
 		 */
 		head = controller.epts + i;
 		if (i < 2)
-			head->config = CONFIG_MAX_PKT(EP0_MAX_PACKET_SIZE)
-				| CONFIG_ZLT | CONFIG_IOS;
+			head->config = CFG_MAX_PKT(EP0_MAX_PACKET_SIZE)
+				| CFG_ZLT | CFG_IOS;
 		else
-			head->config = CONFIG_MAX_PKT(EP_MAX_PACKET_SIZE)
-				| CONFIG_ZLT;
+			head->config = CFG_MAX_PKT(EP_MAX_PACKET_SIZE)
+				| CFG_ZLT;
 		head->next = TERMINATE;
 		head->info = 0;
 

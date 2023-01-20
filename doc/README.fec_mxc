@@ -7,7 +7,7 @@ CONFIG_FEC_MXC
 CONFIG_MII
 	Must be defined if CONFIG_FEC_MXC is defined.
 
-CONFIG_FEC_MXC_SWAP_PACKET
+CFG_FEC_MXC_SWAP_PACKET
 	Forced on iff MX28.
 	Swaps the bytes order of all words(4 byte units) in the packet.
 	This should not be specified by a board file. It is cpu specific.

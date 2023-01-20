@@ -22,7 +22,7 @@
  */
 static int ulpi_wait(struct ulpi_viewport *ulpi_vp, u32 mask)
 {
-	int timeout = CONFIG_USB_ULPI_TIMEOUT;
+	int timeout = CFG_USB_ULPI_TIMEOUT;
 
 	while (--timeout) {
 		if (!(readl(ulpi_vp->viewport_addr) & mask))

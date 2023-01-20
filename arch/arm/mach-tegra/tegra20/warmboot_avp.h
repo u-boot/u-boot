@@ -19,8 +19,8 @@
 
 #define USEC_CFG_DIVISOR_MASK		0xffff
 
-#define CONFIG_CTL_TBE			(1 << 7)
-#define CONFIG_CTL_JTAG			(1 << 6)
+#define CFG_CTL_TBE			(1 << 7)
+#define CFG_CTL_JTAG			(1 << 6)
 
 #define CPU_RST				(1 << 0)
 #define CLK_ENB_CPU			(1 << 0)

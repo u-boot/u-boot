@@ -208,24 +208,24 @@ void cpu_init_f (volatile immap_t * im)
 	init_early_memctl_regs();
 
 	/* Local Access window setup */
-#if defined(CONFIG_SYS_LBLAWBAR0_PRELIM) && defined(CONFIG_SYS_LBLAWAR0_PRELIM)
-	im->sysconf.lblaw[0].bar = CONFIG_SYS_LBLAWBAR0_PRELIM;
-	im->sysconf.lblaw[0].ar = CONFIG_SYS_LBLAWAR0_PRELIM;
+#if defined(CFG_SYS_LBLAWBAR0_PRELIM) && defined(CFG_SYS_LBLAWAR0_PRELIM)
+	im->sysconf.lblaw[0].bar = CFG_SYS_LBLAWBAR0_PRELIM;
+	im->sysconf.lblaw[0].ar = CFG_SYS_LBLAWAR0_PRELIM;
 #else
-#error	CONFIG_SYS_LBLAWBAR0_PRELIM & CONFIG_SYS_LBLAWAR0_PRELIM must be defined
+#error	CFG_SYS_LBLAWBAR0_PRELIM & CFG_SYS_LBLAWAR0_PRELIM must be defined
 #endif
 
-#if defined(CONFIG_SYS_LBLAWBAR1_PRELIM) && defined(CONFIG_SYS_LBLAWAR1_PRELIM)
-	im->sysconf.lblaw[1].bar = CONFIG_SYS_LBLAWBAR1_PRELIM;
-	im->sysconf.lblaw[1].ar = CONFIG_SYS_LBLAWAR1_PRELIM;
+#if defined(CFG_SYS_LBLAWBAR1_PRELIM) && defined(CFG_SYS_LBLAWAR1_PRELIM)
+	im->sysconf.lblaw[1].bar = CFG_SYS_LBLAWBAR1_PRELIM;
+	im->sysconf.lblaw[1].ar = CFG_SYS_LBLAWAR1_PRELIM;
 #endif
-#if defined(CONFIG_SYS_LBLAWBAR2_PRELIM) && defined(CONFIG_SYS_LBLAWAR2_PRELIM)
-	im->sysconf.lblaw[2].bar = CONFIG_SYS_LBLAWBAR2_PRELIM;
-	im->sysconf.lblaw[2].ar = CONFIG_SYS_LBLAWAR2_PRELIM;
+#if defined(CFG_SYS_LBLAWBAR2_PRELIM) && defined(CFG_SYS_LBLAWAR2_PRELIM)
+	im->sysconf.lblaw[2].bar = CFG_SYS_LBLAWBAR2_PRELIM;
+	im->sysconf.lblaw[2].ar = CFG_SYS_LBLAWAR2_PRELIM;
 #endif
-#if defined(CONFIG_SYS_LBLAWBAR3_PRELIM) && defined(CONFIG_SYS_LBLAWAR3_PRELIM)
-	im->sysconf.lblaw[3].bar = CONFIG_SYS_LBLAWBAR3_PRELIM;
-	im->sysconf.lblaw[3].ar = CONFIG_SYS_LBLAWAR3_PRELIM;
+#if defined(CFG_SYS_LBLAWBAR3_PRELIM) && defined(CFG_SYS_LBLAWAR3_PRELIM)
+	im->sysconf.lblaw[3].bar = CFG_SYS_LBLAWBAR3_PRELIM;
+	im->sysconf.lblaw[3].ar = CFG_SYS_LBLAWAR3_PRELIM;
 #endif
 #if defined(CONFIG_SYS_LBLAWBAR4_PRELIM) && defined(CONFIG_SYS_LBLAWAR4_PRELIM)
 	im->sysconf.lblaw[4].bar = CONFIG_SYS_LBLAWBAR4_PRELIM;

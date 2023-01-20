@@ -38,7 +38,7 @@ static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
 	ulong start;
 	u16 miiaddr;
-	int timeout = CONFIG_MDIO_TIMEOUT;
+	int timeout = CFG_MDIO_TIMEOUT;
 
 	miiaddr = ((addr << MIIADDRSHIFT) & MII_ADDRMSK) |
 		  ((reg << MIIREGSHIFT) & MII_REGMSK);
@@ -62,7 +62,7 @@ static int dw_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
 	ulong start;
 	u16 miiaddr;
-	int ret = -ETIMEDOUT, timeout = CONFIG_MDIO_TIMEOUT;
+	int ret = -ETIMEDOUT, timeout = CFG_MDIO_TIMEOUT;
 
 	writel(val, &mac_p->miidata);
 	miiaddr = ((addr << MIIADDRSHIFT) & MII_ADDRMSK) |
@@ -229,9 +229,9 @@ static void tx_descs_init(struct dw_eth_dev *priv)
 	struct dmamacdescr *desc_p;
 	u32 idx;
 
-	for (idx = 0; idx < CONFIG_TX_DESCR_NUM; idx++) {
+	for (idx = 0; idx < CFG_TX_DESCR_NUM; idx++) {
 		desc_p = &desc_table_p[idx];
-		desc_p->dmamac_addr = (ulong)&txbuffs[idx * CONFIG_ETH_BUFSIZE];
+		desc_p->dmamac_addr = (ulong)&txbuffs[idx * CFG_ETH_BUFSIZE];
 		desc_p->dmamac_next = (ulong)&desc_table_p[idx + 1];
 
 #if defined(CONFIG_DW_ALTDESCRIPTOR)
@@ -277,9 +277,9 @@ static void rx_descs_init(struct dw_eth_dev *priv)
 	 * GMAC data will be corrupted. */
 	flush_dcache_range((ulong)rxbuffs, (ulong)rxbuffs + RX_TOTAL_BUFSIZE);
 
-	for (idx = 0; idx < CONFIG_RX_DESCR_NUM; idx++) {
+	for (idx = 0; idx < CFG_RX_DESCR_NUM; idx++) {
 		desc_p = &desc_table_p[idx];
-		desc_p->dmamac_addr = (ulong)&rxbuffs[idx * CONFIG_ETH_BUFSIZE];
+		desc_p->dmamac_addr = (ulong)&rxbuffs[idx * CFG_ETH_BUFSIZE];
 		desc_p->dmamac_next = (ulong)&desc_table_p[idx + 1];
 
 		desc_p->dmamac_cntl =
@@ -377,7 +377,7 @@ int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 
 	start = get_timer(0);
 	while (readl(&dma_p->busmode) & DMAMAC_SRST) {
-		if (get_timer(start) >= CONFIG_MACRESET_TIMEOUT) {
+		if (get_timer(start) >= CFG_MACRESET_TIMEOUT) {
 			printf("DMA reset timeout\n");
 			return -ETIMEDOUT;
 		}
@@ -495,7 +495,7 @@ static int _dw_eth_send(struct dw_eth_dev *priv, void *packet, int length)
 	flush_dcache_range(desc_start, desc_end);
 
 	/* Test the wrap-around condition. */
-	if (++desc_num >= CONFIG_TX_DESCR_NUM)
+	if (++desc_num >= CFG_TX_DESCR_NUM)
 		desc_num = 0;
 
 	priv->tx_currdescnum = desc_num;
@@ -555,7 +555,7 @@ static int _dw_free_pkt(struct dw_eth_dev *priv)
 	flush_dcache_range(desc_start, desc_end);
 
 	/* Test the wrap-around condition. */
-	if (++desc_num >= CONFIG_RX_DESCR_NUM)
+	if (++desc_num >= CFG_RX_DESCR_NUM)
 		desc_num = 0;
 	priv->rx_currdescnum = desc_num;
 

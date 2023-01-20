@@ -149,8 +149,8 @@ static int set_px_corepll(unsigned long corepll)
 	return 1;
 }
 
-#ifndef CONFIG_SYS_PIXIS_VCFGEN0_ENABLE
-#define CONFIG_SYS_PIXIS_VCFGEN0_ENABLE		0x1C
+#ifndef CFG_SYS_PIXIS_VCFGEN0_ENABLE
+#define CFG_SYS_PIXIS_VCFGEN0_ENABLE		0x1C
 #endif
 
 /* Tell the PIXIS where to find the COREPLL, MPXPLL, SYSCLK values
@@ -159,7 +159,7 @@ static int set_px_corepll(unsigned long corepll)
  * or various other PIXIS registers to determine the values for COREPLL,
  * MPXPLL, and SYSCLK.
  *
- * CONFIG_SYS_PIXIS_VCFGEN0_ENABLE is the value to write to the PIXIS_VCFGEN0
+ * CFG_SYS_PIXIS_VCFGEN0_ENABLE is the value to write to the PIXIS_VCFGEN0
  * register that tells the pixis to use the various PIXIS register.
  */
 static void read_from_px_regs(int set)
@@ -167,18 +167,18 @@ static void read_from_px_regs(int set)
 	u8 tmp = in_8(pixis_base + PIXIS_VCFGEN0);
 
 	if (set)
-		tmp = tmp | CONFIG_SYS_PIXIS_VCFGEN0_ENABLE;
+		tmp = tmp | CFG_SYS_PIXIS_VCFGEN0_ENABLE;
 	else
-		tmp = tmp & ~CONFIG_SYS_PIXIS_VCFGEN0_ENABLE;
+		tmp = tmp & ~CFG_SYS_PIXIS_VCFGEN0_ENABLE;
 
 	out_8(pixis_base + PIXIS_VCFGEN0, tmp);
 }
 
-/* CONFIG_SYS_PIXIS_VBOOT_ENABLE is the value to write to the PX_VCFGEN1
+/* CFG_SYS_PIXIS_VBOOT_ENABLE is the value to write to the PX_VCFGEN1
  * register that tells the pixis to use the PX_VBOOT[LBMAP] register.
  */
-#ifndef CONFIG_SYS_PIXIS_VBOOT_ENABLE
-#define CONFIG_SYS_PIXIS_VBOOT_ENABLE	0x04
+#ifndef CFG_SYS_PIXIS_VBOOT_ENABLE
+#define CFG_SYS_PIXIS_VBOOT_ENABLE	0x04
 #endif
 
 /* Configure the source of the boot location
@@ -194,14 +194,14 @@ static void read_from_px_regs_altbank(int set)
 	u8 tmp = in_8(pixis_base + PIXIS_VCFGEN1);
 
 	if (set)
-		tmp = tmp | CONFIG_SYS_PIXIS_VBOOT_ENABLE;
+		tmp = tmp | CFG_SYS_PIXIS_VBOOT_ENABLE;
 	else
-		tmp = tmp & ~CONFIG_SYS_PIXIS_VBOOT_ENABLE;
+		tmp = tmp & ~CFG_SYS_PIXIS_VBOOT_ENABLE;
 
 	out_8(pixis_base + PIXIS_VCFGEN1, tmp);
 }
 
-/* CONFIG_SYS_PIXIS_VBOOT_MASK contains the bits to set in VBOOT register that
+/* CFG_SYS_PIXIS_VBOOT_MASK contains the bits to set in VBOOT register that
  * tells the PIXIS what the alternate flash bank is.
  *
  * Note that it's not really a mask.  It contains the actual LBMAP bits that
@@ -209,8 +209,8 @@ static void read_from_px_regs_altbank(int set)
  * primary bank has these bits set to 0, and the alternate bank has these
  * bits set to 1.
  */
-#ifndef CONFIG_SYS_PIXIS_VBOOT_MASK
-#define CONFIG_SYS_PIXIS_VBOOT_MASK	(0x40)
+#ifndef CFG_SYS_PIXIS_VBOOT_MASK
+#define CFG_SYS_PIXIS_VBOOT_MASK	(0x40)
 #endif
 
 /* Tell the PIXIS to boot from the default flash bank
@@ -220,7 +220,7 @@ static void read_from_px_regs_altbank(int set)
  */
 static void clear_altbank(void)
 {
-	clrbits_8(pixis_base + PIXIS_VBOOT, CONFIG_SYS_PIXIS_VBOOT_MASK);
+	clrbits_8(pixis_base + PIXIS_VBOOT, CFG_SYS_PIXIS_VBOOT_MASK);
 }
 
 /* Tell the PIXIS to boot from the alternate flash bank
@@ -230,7 +230,7 @@ static void clear_altbank(void)
  */
 static void set_altbank(void)
 {
-	setbits_8(pixis_base + PIXIS_VBOOT, CONFIG_SYS_PIXIS_VBOOT_MASK);
+	setbits_8(pixis_base + PIXIS_VBOOT, CFG_SYS_PIXIS_VBOOT_MASK);
 }
 
 /* Reset the board with watchdog disabled.

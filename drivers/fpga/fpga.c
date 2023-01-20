@@ -13,11 +13,6 @@
 #include <lattice.h>
 #include <dm/device_compat.h>
 
-/* Local definitions */
-#ifndef CONFIG_MAX_FPGA_DEVICES
-#define CONFIG_MAX_FPGA_DEVICES		5
-#endif
-
 /* Local static data */
 static int next_desc = FPGA_INVALID_DEVICE;
 static fpga_desc desc_table[CONFIG_MAX_FPGA_DEVICES];

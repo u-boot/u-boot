@@ -102,6 +102,13 @@ config ARC_MMU_V4
 
 endchoice
 
+config ARC_MMU_VER
+	int
+	default 0 if ARC_MMU_ABSENT
+	default 2 if ARC_MMU_V2
+	default 3 if ARC_MMU_V3
+	default 4 if ARC_MMU_V4
+
 config CPU_BIG_ENDIAN
 	bool "Enable Big Endian Mode"
 	help

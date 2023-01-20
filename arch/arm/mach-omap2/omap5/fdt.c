@@ -19,8 +19,8 @@
 #ifndef TI_OMAP5_SECURE_BOOT_RESV_SRAM_SZ
 #define TI_OMAP5_SECURE_BOOT_RESV_SRAM_SZ (0)
 #endif
-#ifndef CONFIG_SECURE_RUNTIME_RESV_SRAM_SZ
-#define CONFIG_SECURE_RUNTIME_RESV_SRAM_SZ (0)
+#ifndef CFG_SECURE_RUNTIME_RESV_SRAM_SZ
+#define CFG_SECURE_RUNTIME_RESV_SRAM_SZ (0)
 #endif
 
 static u32 hs_irq_skip[] = {
@@ -92,7 +92,7 @@ static int ft_hs_fixup_crossbar(void *fdt, struct bd_info *bd)
 }
 
 #if ((TI_OMAP5_SECURE_BOOT_RESV_SRAM_SZ != 0) || \
-    (CONFIG_SECURE_RUNTIME_RESV_SRAM_SZ != 0))
+    (CFG_SECURE_RUNTIME_RESV_SRAM_SZ != 0))
 static int ft_hs_fixup_sram(void *fdt, struct bd_info *bd)
 {
 	const char *path;
@@ -116,7 +116,7 @@ static int ft_hs_fixup_sram(void *fdt, struct bd_info *bd)
 	temp[0] = cpu_to_fdt32(0);
 	/* reservation size */
 	temp[1] = cpu_to_fdt32(max(TI_OMAP5_SECURE_BOOT_RESV_SRAM_SZ,
-				   CONFIG_SECURE_RUNTIME_RESV_SRAM_SZ));
+				   CFG_SECURE_RUNTIME_RESV_SRAM_SZ));
 	fdt_delprop(fdt, offs, "reg");
 	ret = fdt_setprop(fdt, offs, "reg", temp, 2 * sizeof(u32));
 	if (ret < 0) {

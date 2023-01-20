@@ -93,19 +93,6 @@ config SYS_FSL_ERRATUM_A010315
 config SYS_FSL_HAS_CCI400
 	bool
 
-config SYS_FSL_SRDS_1
-	bool
-
-config SYS_FSL_SRDS_2
-	bool
-
-config SYS_HAS_SERDES
-	bool
-
-config SYS_FSL_IFC_BANK_COUNT
-	int "Maximum banks of Integrated flash controller"
-	default 8
-
 config SYS_FSL_ERRATUM_A008407
 	bool
 

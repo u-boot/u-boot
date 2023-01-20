@@ -52,9 +52,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 #endif
 
-#ifndef CONFIG_SYS_NS16550_IER
-#define CONFIG_SYS_NS16550_IER  0x00
-#endif /* CONFIG_SYS_NS16550_IER */
+#ifndef CFG_SYS_NS16550_IER
+#define CFG_SYS_NS16550_IER  0x00
+#endif /* CFG_SYS_NS16550_IER */
 
 static inline void serial_out_shift(void *addr, int shift, int value)
 {
@@ -251,7 +251,7 @@ void ns16550_init(struct ns16550 *com_port, int baud_divisor)
 	while (!(serial_in(&com_port->lsr) & UART_LSR_TEMT))
 		;
 
-	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
+	serial_out(CFG_SYS_NS16550_IER, &com_port->ier);
 #if defined(CONFIG_ARCH_OMAP2PLUS) || defined(CONFIG_OMAP_SERIAL)
 	serial_out(0x7, &com_port->mdr1);	/* mode select reset TL16C750*/
 #endif
@@ -275,7 +275,7 @@ void ns16550_init(struct ns16550 *com_port, int baud_divisor)
 #if !CONFIG_IS_ENABLED(NS16550_MIN_FUNCTIONS)
 void ns16550_reinit(struct ns16550 *com_port, int baud_divisor)
 {
-	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
+	serial_out(CFG_SYS_NS16550_IER, &com_port->ier);
 	ns16550_setbrg(com_port, 0);
 	serial_out(UART_MCRVAL, &com_port->mcr);
 	serial_out(ns16550_getfcr(com_port), &com_port->fcr);
@@ -340,7 +340,7 @@ static inline void _debug_uart_init(void)
 	 */
 	baud_divisor = ns16550_calc_divisor(com_port, CONFIG_DEBUG_UART_CLOCK,
 					    CONFIG_BAUDRATE);
-	serial_dout(&com_port->ier, CONFIG_SYS_NS16550_IER);
+	serial_dout(&com_port->ier, CFG_SYS_NS16550_IER);
 	serial_dout(&com_port->mcr, UART_MCRVAL);
 	serial_dout(&com_port->fcr, UART_FCR_DEFVAL);
 

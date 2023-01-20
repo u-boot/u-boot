@@ -226,8 +226,8 @@ const struct lpsc_resource lpsc[] = {
 
 const int lpsc_size = ARRAY_SIZE(lpsc);
 
-#ifndef CONFIG_DA850_EVM_MAX_CPU_CLK
-#define CONFIG_DA850_EVM_MAX_CPU_CLK	300000000
+#ifndef CFG_DA850_EVM_MAX_CPU_CLK
+#define CFG_DA850_EVM_MAX_CPU_CLK	300000000
 #endif
 
 #define REV_AM18X_EVM		0x100
@@ -245,7 +245,7 @@ const int lpsc_size = ARRAY_SIZE(lpsc);
 u32 get_board_rev(void)
 {
 	char *s;
-	u32 maxcpuclk = CONFIG_DA850_EVM_MAX_CPU_CLK;
+	u32 maxcpuclk = CFG_DA850_EVM_MAX_CPU_CLK;
 	u32 rev = 0;
 
 	s = env_get("maxcpuclk");

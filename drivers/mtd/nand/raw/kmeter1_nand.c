@@ -10,13 +10,13 @@
 #include <linux/delay.h>
 #include <linux/mtd/rawnand.h>
 
-#define CONFIG_NAND_MODE_REG	(void *)(CFG_SYS_NAND_BASE + 0x20000)
-#define CONFIG_NAND_DATA_REG	(void *)(CFG_SYS_NAND_BASE + 0x30000)
+#define CFG_NAND_MODE_REG	(void *)(CFG_SYS_NAND_BASE + 0x20000)
+#define CFG_NAND_DATA_REG	(void *)(CFG_SYS_NAND_BASE + 0x30000)
 
-#define read_mode()	in_8(CONFIG_NAND_MODE_REG)
-#define write_mode(val)	out_8(CONFIG_NAND_MODE_REG, val)
-#define read_data()	in_8(CONFIG_NAND_DATA_REG)
-#define write_data(val)	out_8(CONFIG_NAND_DATA_REG, val)
+#define read_mode()	in_8(CFG_NAND_MODE_REG)
+#define write_mode(val)	out_8(CFG_NAND_MODE_REG, val)
+#define read_data()	in_8(CFG_NAND_DATA_REG)
+#define write_data(val)	out_8(CFG_NAND_DATA_REG, val)
 
 #define KPN_RDY2	(1 << 7)
 #define KPN_RDY1	(1 << 6)

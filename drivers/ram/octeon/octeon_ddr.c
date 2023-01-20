@@ -17,7 +17,7 @@
 
 #include <mach/octeon_ddr.h>
 
-#define CONFIG_REF_HERTZ	50000000
+#define CFG_REF_HERTZ	50000000
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -152,7 +152,7 @@ static void cvmx_l2c_set_big_size(struct ddr_priv *priv, u64 mem_size, int mode)
 static u32 octeon3_refclock(u32 alt_refclk, u32 ddr_hertz,
 			    struct dimm_config *dimm_config)
 {
-	u32 ddr_ref_hertz = CONFIG_REF_HERTZ;
+	u32 ddr_ref_hertz = CFG_REF_HERTZ;
 	int ddr_type;
 	int spd_dimm_type;
 
@@ -2453,7 +2453,7 @@ try_again:
 		} else {
 			if (ddr_ref_hertz == 100000000) {
 				debug("N0: DRAM init: requested 100 MHz refclk NOT SUPPORTED\n");
-				ddr_ref_hertz = CONFIG_REF_HERTZ;
+				ddr_ref_hertz = CFG_REF_HERTZ;
 			}
 		}
 
@@ -2486,7 +2486,7 @@ try_again:
 				if (hertz_diff > ((int)ddr_hertz * 5 / 100)) {
 					// nope, diff is greater than than 5%
 					debug("N0: DRAM init: requested 100 MHz refclk NOT FOUND\n");
-					ddr_ref_hertz = CONFIG_REF_HERTZ;
+					ddr_ref_hertz = CFG_REF_HERTZ;
 					// clear the flag before trying again!!
 					set_ddr_clock_initialized(priv, 0, 0);
 					goto try_again;

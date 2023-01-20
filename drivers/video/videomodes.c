@@ -7,8 +7,7 @@
 
 /************************************************************************
   Get Parameters for the video mode:
-  The default video mode can be defined in CONFIG_SYS_DEFAULT_VIDEO_MODE.
-  If undefined, default video mode is set to 0x301
+  The default video mode is set to 0x301
   Parameters can be set via the variable "videomode" in the environment.
   2 diferent ways are possible:
   "videomode=301"   - 301 is a hexadecimal number describing the VESA

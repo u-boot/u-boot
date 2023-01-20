@@ -64,7 +64,8 @@ stages:
       # If grep succeeds and finds a match the test fails as we should
       # have no matches.
       - script: git grep -E '^#[[:blank:]]*(define|undef)[[:blank:]]*CONFIG_'
-                  include/configs `find arch -name config.h` && exit 1 || exit 0
+                  :^doc/ :^arch/arm/dts/ :^scripts/kconfig/lkc.h
+                  :^include/linux/kconfig.h :^tools/ && exit 1 || exit 0
 
   - job: cppcheck
     displayName: 'Static code analysis with cppcheck'

@@ -5,7 +5,7 @@
 
 #ifdef CONFIG_CHROMEOS
 
-#define CONFIG_VBOOT_VBNV_OFFSET 0x26
+#define CFG_VBOOT_VBNV_OFFSET 0x26
 
 #include <asm/acpi/vbnv_layout.h>
 
@@ -68,7 +68,7 @@ Device (CRHW)
 		Name(VNBV, Package() {
 			// See src/vendorcode/google/chromeos/Kconfig
 			// for the definition of these:
-			CONFIG_VBOOT_VBNV_OFFSET,
+			CFG_VBOOT_VBNV_OFFSET,
 			VBOOT_VBNV_BLOCK_SIZE
 		})
 		Return(VNBV)

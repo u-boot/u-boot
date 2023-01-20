@@ -11,21 +11,21 @@
 
 #if defined(CONFIG_MCF520x) || defined(CONFIG_MCF523x) || \
     defined(CONFIG_MCF52x2)
-#define CONFIG_CF_V2
+#define CFG_CF_V2
 #endif
 
 #if defined(CONFIG_MCF530x) || defined(CONFIG_MCF532x) || \
     defined(CONFIG_MCF5301x)
-#define CONFIG_CF_V3
+#define CFG_CF_V3
 #endif
 
 #if defined(CONFIG_MCF5441x)
-#define CONFIG_CF_V4E		/* Four Extra ACRn */
+#define CFG_CF_V4E		/* Four Extra ACRn */
 #endif
 
 /* ***** CACR ***** */
 /* V2 Core */
-#ifdef CONFIG_CF_V2
+#ifdef CFG_CF_V2
 
 #define CF_CACR_CENB		(1 << 31)
 #define CF_CACR_CPD		(1 << 28)
@@ -46,10 +46,10 @@
 #define CF_CACR_EUSP		(1 << 4)
 #endif				/* CONFIG_MCF5249 || CONFIG_MCF5253 */
 
-#endif				/* CONFIG_CF_V2 */
+#endif				/* CFG_CF_V2 */
 
 /* V3 Core */
-#ifdef CONFIG_CF_V3
+#ifdef CFG_CF_V3
 
 #define CF_CACR_EC		(1 << 31)
 #define CF_CACR_ESB		(1 << 29)
@@ -65,10 +65,10 @@
 #define CF_CACR_DW		(1 << 5)
 #define CF_CACR_EUSP		(1 << 4)
 
-#endif				/* CONFIG_CF_V3 */
+#endif				/* CFG_CF_V3 */
 
 /* V4 Core */
-#if defined(CONFIG_CF_V4) || defined(CONFIG_CF_V4E)
+#if defined(CONFIG_CF_V4) || defined(CFG_CF_V4E)
 
 #define CF_CACR_DEC		(1 << 31)
 #define CF_CACR_DW		(1 << 30)
@@ -116,7 +116,7 @@
 #define CF_ACR_WP		(1 << 2)
 
 /* V2 Core */
-#ifdef CONFIG_CF_V2
+#ifdef CFG_CF_V2
 #define CF_ACR_CM		(1 << 6)
 #define CF_ACR_BWE		(1 << 5)
 #else
@@ -126,10 +126,10 @@
 #define CF_ACR_CM_CB		(1 << 5)
 #define CF_ACR_CM_P		(2 << 5)
 #define CF_ACR_CM_IP		(3 << 5)
-#endif				/* CONFIG_CF_V2 */
+#endif				/* CFG_CF_V2 */
 
 /* V4 Core */
-#if defined(CONFIG_CF_V4) || defined(CONFIG_CF_V4E)
+#if defined(CONFIG_CF_V4) || defined(CFG_CF_V4E)
 #define CF_ACR_AMM		(1 << 10)
 #define CF_ACR_SP		(1 << 3)
 #endif				/* CONFIG_CF_V4 */
@@ -159,24 +159,24 @@
 #define CFG_SYS_CACHE_ACR2	0
 #endif
 
-#ifndef CONFIG_SYS_CACHE_ACR3
-#define CONFIG_SYS_CACHE_ACR3	0
+#ifndef CFG_SYS_CACHE_ACR3
+#define CFG_SYS_CACHE_ACR3	0
 #endif
 
-#ifndef CONFIG_SYS_CACHE_ACR4
-#define CONFIG_SYS_CACHE_ACR4	0
+#ifndef CFG_SYS_CACHE_ACR4
+#define CFG_SYS_CACHE_ACR4	0
 #endif
 
-#ifndef CONFIG_SYS_CACHE_ACR5
-#define CONFIG_SYS_CACHE_ACR5	0
+#ifndef CFG_SYS_CACHE_ACR5
+#define CFG_SYS_CACHE_ACR5	0
 #endif
 
-#ifndef CONFIG_SYS_CACHE_ACR6
-#define CONFIG_SYS_CACHE_ACR6	0
+#ifndef CFG_SYS_CACHE_ACR6
+#define CFG_SYS_CACHE_ACR6	0
 #endif
 
-#ifndef CONFIG_SYS_CACHE_ACR7
-#define CONFIG_SYS_CACHE_ACR7	0
+#ifndef CFG_SYS_CACHE_ACR7
+#define CFG_SYS_CACHE_ACR7	0
 #endif
 
 #define CF_ADDRMASK(x)		(((x > 0x10) ? ((x >> 4) - 1) : (x)) << 16)

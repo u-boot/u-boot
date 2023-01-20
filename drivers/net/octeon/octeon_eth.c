@@ -58,7 +58,7 @@
 #include <mach/cvmx-mdio.h>
 
 /** Maximum receive packet size (hardware default is 1536) */
-#define CONFIG_OCTEON_NETWORK_MRU 1536
+#define CFG_OCTEON_NETWORK_MRU 1536
 
 #define OCTEON_BOOTLOADER_NAMED_BLOCK_TMP_PREFIX "__tmp"
 
@@ -199,7 +199,7 @@ static void cvm_oct_fill_hw_memory(u64 pool, u64 size, u64 elements)
  */
 static void cvm_oct_configure_common_hw(void)
 {
-	int mru = env_get_ulong("octeon_mru", 0, CONFIG_OCTEON_NETWORK_MRU);
+	int mru = env_get_ulong("octeon_mru", 0, CFG_OCTEON_NETWORK_MRU);
 	int packet_pool_size = CVMX_FPA_PACKET_POOL_SIZE;
 
 	if (mru > packet_pool_size)
@@ -224,7 +224,7 @@ static void cvm_oct_configure_common_hw(void)
 	cvmx_helper_initialize_packet_io_local();
 
 	/* The MRU defaults to 1536 bytes by the hardware.  Setting
-	 * CONFIG_OCTEON_NETWORK_MRU allows this to be overridden.
+	 * CFG_OCTEON_NETWORK_MRU allows this to be overridden.
 	 */
 	if (octeon_has_feature(OCTEON_FEATURE_PKI)) {
 		struct cvmx_pki_global_config gbl_cfg;

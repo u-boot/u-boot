@@ -205,9 +205,9 @@ static struct mvtwsi_registers *twsi_get_base(struct i2c_adapter *adap)
 	case 1:
 		return (struct mvtwsi_registers *)CFG_I2C_MVTWSI_BASE1;
 #endif
-#ifdef CONFIG_I2C_MVTWSI_BASE2
+#ifdef CFG_I2C_MVTWSI_BASE2
 	case 2:
-		return (struct mvtwsi_registers *)CONFIG_I2C_MVTWSI_BASE2;
+		return (struct mvtwsi_registers *)CFG_I2C_MVTWSI_BASE2;
 #endif
 #ifdef CONFIG_I2C_MVTWSI_BASE3
 	case 3:
@@ -750,7 +750,7 @@ U_BOOT_I2C_ADAP_COMPLETE(twsi1, twsi_i2c_init, twsi_i2c_probe,
 			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE, 1)
 
 #endif
-#ifdef CONFIG_I2C_MVTWSI_BASE2
+#ifdef CFG_I2C_MVTWSI_BASE2
 U_BOOT_I2C_ADAP_COMPLETE(twsi2, twsi_i2c_init, twsi_i2c_probe,
 			 twsi_i2c_read, twsi_i2c_write,
 			 twsi_i2c_set_bus_speed,

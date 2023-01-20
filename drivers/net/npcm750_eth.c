@@ -18,15 +18,15 @@
 #include <linux/iopoll.h>
 
 #define MAC_ADDR_SIZE		6
-#define CONFIG_TX_DESCR_NUM	32
-#define CONFIG_RX_DESCR_NUM	32
+#define CFG_TX_DESCR_NUM	32
+#define CFG_RX_DESCR_NUM	32
 
 #define TX_TOTAL_BUFSIZE	\
-		((CONFIG_TX_DESCR_NUM + 1) * PKTSIZE_ALIGN + PKTALIGN)
+		((CFG_TX_DESCR_NUM + 1) * PKTSIZE_ALIGN + PKTALIGN)
 #define RX_TOTAL_BUFSIZE	\
-		((CONFIG_RX_DESCR_NUM + 1) * PKTSIZE_ALIGN + PKTALIGN)
+		((CFG_RX_DESCR_NUM + 1) * PKTSIZE_ALIGN + PKTALIGN)
 
-#define CONFIG_MDIO_TIMEOUT (3 * CONFIG_SYS_HZ)
+#define CFG_MDIO_TIMEOUT (3 * CONFIG_SYS_HZ)
 
 struct npcm750_rxbd {
 	unsigned int sl;
@@ -101,8 +101,8 @@ struct emc_regs {
 };
 
 struct npcm750_eth_dev {
-	struct npcm750_txbd tdesc[CONFIG_TX_DESCR_NUM] __aligned(ARCH_DMA_MINALIGN);
-	struct npcm750_rxbd rdesc[CONFIG_RX_DESCR_NUM] __aligned(ARCH_DMA_MINALIGN);
+	struct npcm750_txbd tdesc[CFG_TX_DESCR_NUM] __aligned(ARCH_DMA_MINALIGN);
+	struct npcm750_rxbd rdesc[CFG_RX_DESCR_NUM] __aligned(ARCH_DMA_MINALIGN);
 	u8 txbuffs[TX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
 	u8 rxbuffs[RX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
 	struct emc_regs *emc_regs_p;
@@ -279,7 +279,7 @@ static int npcm750_mdio_read(struct mii_dev *bus, int addr, int devad, int regs)
 	struct npcm750_eth_dev *priv = (struct npcm750_eth_dev *)bus->priv;
 	struct emc_regs *reg = priv->emc_regs_p;
 	u32 start, val;
-	int timeout = CONFIG_MDIO_TIMEOUT;
+	int timeout = CFG_MDIO_TIMEOUT;
 
 	val = (addr << 0x08) | regs | PHYBUSY | (MIIDA_MDCCR_60 << 20);
 	writel(val, &reg->miida);
@@ -301,7 +301,7 @@ static int npcm750_mdio_write(struct mii_dev *bus, int addr, int devad, int regs
 	struct npcm750_eth_dev *priv = (struct npcm750_eth_dev *)bus->priv;
 	struct emc_regs *reg = priv->emc_regs_p;
 	ulong start;
-	int ret = -ETIMEDOUT, timeout = CONFIG_MDIO_TIMEOUT;
+	int ret = -ETIMEDOUT, timeout = CFG_MDIO_TIMEOUT;
 
 	writel(val, &reg->miid);
 	writel((addr << 0x08) | regs | PHYBUSY | PHYWR | (MIIDA_MDCCR_60 << 20), &reg->miida);
@@ -354,19 +354,19 @@ static void npcm750_tx_descs_init(struct npcm750_eth_dev *priv)
 	writel((u32)desc_table_p, &reg->txdlsa);
 	priv->curr_txd = desc_table_p;
 
-	for (idx = 0; idx < CONFIG_TX_DESCR_NUM; idx++) {
+	for (idx = 0; idx < CFG_TX_DESCR_NUM; idx++) {
 		desc_p = &desc_table_p[idx];
 		desc_p->buffer = (u32)&txbuffs[idx * PKTSIZE_ALIGN];
 		desc_p->sl = 0;
 		desc_p->mode = 0;
 		desc_p->mode = TX_OWEN_CPU | PADDINGMODE | CRCMODE | MACTXINTEN;
-		if (idx < (CONFIG_TX_DESCR_NUM - 1))
+		if (idx < (CFG_TX_DESCR_NUM - 1))
 			desc_p->next = (u32)&desc_table_p[idx + 1];
 		else
 			desc_p->next = (u32)&priv->tdesc[0];
 	}
 	flush_dcache_range((ulong)&desc_table_p[0],
-			   (ulong)&desc_table_p[CONFIG_TX_DESCR_NUM]);
+			   (ulong)&desc_table_p[CFG_TX_DESCR_NUM]);
 }
 
 static void npcm750_rx_descs_init(struct npcm750_eth_dev *priv)
@@ -378,22 +378,22 @@ static void npcm750_rx_descs_init(struct npcm750_eth_dev *priv)
 	u32 idx;
 
 	flush_dcache_range((ulong)priv->rxbuffs[0],
-			   (ulong)priv->rxbuffs[CONFIG_RX_DESCR_NUM]);
+			   (ulong)priv->rxbuffs[CFG_RX_DESCR_NUM]);
 
 	writel((u32)desc_table_p, &reg->rxdlsa);
 	priv->curr_rxd = desc_table_p;
 
-	for (idx = 0; idx < CONFIG_RX_DESCR_NUM; idx++) {
+	for (idx = 0; idx < CFG_RX_DESCR_NUM; idx++) {
 		desc_p = &desc_table_p[idx];
 		desc_p->sl = RX_OWEN_DMA;
 		desc_p->buffer = (u32)&rxbuffs[idx * PKTSIZE_ALIGN];
-		if (idx < (CONFIG_RX_DESCR_NUM - 1))
+		if (idx < (CFG_RX_DESCR_NUM - 1))
 			desc_p->next = (u32)&desc_table_p[idx + 1];
 		else
 			desc_p->next = (u32)&priv->rdesc[0];
 	}
 	flush_dcache_range((ulong)&desc_table_p[0],
-			   (ulong)&desc_table_p[CONFIG_RX_DESCR_NUM]);
+			   (ulong)&desc_table_p[CFG_RX_DESCR_NUM]);
 }
 
 static void npcm750_set_fifo_threshold(struct npcm750_eth_dev *priv)

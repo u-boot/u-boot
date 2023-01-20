@@ -20,12 +20,12 @@
  * Provide default speed and slave if target did not
  */
 
-#if !defined(CONFIG_SYS_I2C_LPC32XX_SPEED)
-#define CONFIG_SYS_I2C_LPC32XX_SPEED 350000
+#if !defined(CFG_SYS_I2C_LPC32XX_SPEED)
+#define CFG_SYS_I2C_LPC32XX_SPEED 350000
 #endif
 
-#if !defined(CONFIG_SYS_I2C_LPC32XX_SLAVE)
-#define CONFIG_SYS_I2C_LPC32XX_SLAVE 0
+#if !defined(CFG_SYS_I2C_LPC32XX_SLAVE)
+#define CFG_SYS_I2C_LPC32XX_SLAVE 0
 #endif
 
 /* TX register fields */
@@ -260,15 +260,15 @@ static unsigned int lpc32xx_i2c_set_bus_speed(struct i2c_adapter *adap,
 U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_0, lpc32xx_i2c_init, lpc32xx_i2c_probe_chip,
 			 lpc32xx_i2c_read, lpc32xx_i2c_write,
 			 lpc32xx_i2c_set_bus_speed,
-			 CONFIG_SYS_I2C_LPC32XX_SPEED,
-			 CONFIG_SYS_I2C_LPC32XX_SLAVE,
+			 CFG_SYS_I2C_LPC32XX_SPEED,
+			 CFG_SYS_I2C_LPC32XX_SLAVE,
 			 0)
 
 U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_1, lpc32xx_i2c_init, lpc32xx_i2c_probe_chip,
 			 lpc32xx_i2c_read, lpc32xx_i2c_write,
 			 lpc32xx_i2c_set_bus_speed,
-			 CONFIG_SYS_I2C_LPC32XX_SPEED,
-			 CONFIG_SYS_I2C_LPC32XX_SLAVE,
+			 CFG_SYS_I2C_LPC32XX_SPEED,
+			 CFG_SYS_I2C_LPC32XX_SLAVE,
 			 1)
 
 U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_2, lpc32xx_i2c_init, NULL,

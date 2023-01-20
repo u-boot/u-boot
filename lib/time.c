@@ -19,8 +19,8 @@
 #include <asm/io.h>
 #include <linux/delay.h>
 
-#ifndef CONFIG_WD_PERIOD
-# define CONFIG_WD_PERIOD	(10 * 1000 * 1000)	/* 10 seconds default */
+#ifndef CFG_WD_PERIOD
+# define CFG_WD_PERIOD	(10 * 1000 * 1000)	/* 10 seconds default */
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -199,7 +199,7 @@ void udelay(unsigned long usec)
 
 	do {
 		schedule();
-		kv = usec > CONFIG_WD_PERIOD ? CONFIG_WD_PERIOD : usec;
+		kv = usec > CFG_WD_PERIOD ? CFG_WD_PERIOD : usec;
 		__udelay(kv);
 		usec -= kv;
 	} while(usec);

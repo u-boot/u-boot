@@ -12,8 +12,7 @@
 
 #ifdef CONFIG_SPL_BUILD
 
-#define CONFIG_SYS_I2C_EEPROM_ADDR_P1	0x51
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
+#define CFG_SYS_I2C_EEPROM_ADDR_P1	0x51
 
 static iomux_v3_cfg_t const eeprom_pads[] = {
 	IMX8MQ_PAD_GPIO1_IO13__GPIO1_IO13 | MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -41,7 +40,7 @@ static int cl_eeprom_read(uint offset, uchar *buf, int len)
 	struct udevice *dev;
 	int ret;
 
-	ret = i2c_get_chip_for_busnum(1, CONFIG_SYS_I2C_EEPROM_ADDR_P1,
+	ret = i2c_get_chip_for_busnum(1, CFG_SYS_I2C_EEPROM_ADDR_P1,
 				      CONFIG_SYS_I2C_EEPROM_ADDR_LEN, &dev);
 	if (ret) {
 		printf("%s: Cannot find EEPROM: %d\n", __func__, ret);
@@ -58,7 +57,7 @@ static int cl_eeprom_write(uint offset, uchar *buf, int len)
 
 	cl_eeprom_we(1);
 
-	ret = i2c_get_chip_for_busnum(1, CONFIG_SYS_I2C_EEPROM_ADDR_P1,
+	ret = i2c_get_chip_for_busnum(1, CFG_SYS_I2C_EEPROM_ADDR_P1,
 				      CONFIG_SYS_I2C_EEPROM_ADDR_LEN, &dev);
 	if (ret) {
 		printf("%s: Cannot find EEPROM: %d\n", __func__, ret);

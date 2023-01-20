@@ -139,8 +139,8 @@ const struct lpsc_resource lpsc[] = {
 
 const int lpsc_size = ARRAY_SIZE(lpsc);
 
-#ifndef CONFIG_DA850_EVM_MAX_CPU_CLK
-#define CONFIG_DA850_EVM_MAX_CPU_CLK	456000000
+#ifndef CFG_DA850_EVM_MAX_CPU_CLK
+#define CFG_DA850_EVM_MAX_CPU_CLK	456000000
 #endif
 
 int board_early_init_f(void)

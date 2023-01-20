@@ -126,6 +126,4 @@
 #define ATMEL_PIO_PORTS		4	/* theese SoCs have 4 PIO */
 #define ATMEL_PMC_UHP		AT91RM9200_PMC_UHP
 
-#define CONFIG_SYS_ATMEL_CPU_NAME	"AT91RM9200"
-
 #endif

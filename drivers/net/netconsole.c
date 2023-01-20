@@ -11,11 +11,11 @@
 #include <stdio_dev.h>
 #include <net.h>
 
-#ifndef CONFIG_NETCONSOLE_BUFFER_SIZE
-#define CONFIG_NETCONSOLE_BUFFER_SIZE 512
+#ifndef CFG_NETCONSOLE_BUFFER_SIZE
+#define CFG_NETCONSOLE_BUFFER_SIZE 512
 #endif
 
-static char input_buffer[CONFIG_NETCONSOLE_BUFFER_SIZE];
+static char input_buffer[CFG_NETCONSOLE_BUFFER_SIZE];
 static int input_size; /* char count in input buffer */
 static int input_offset; /* offset to valid chars in input buffer */
 static int input_recursion;
