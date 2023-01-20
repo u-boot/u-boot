@@ -4,6 +4,7 @@
  * Michal Simek <michal.simek@xilinx.com>
  */
 
+#include <command.h>
 #include <common.h>
 #include <cpu_func.h>
 #include <env.h>
