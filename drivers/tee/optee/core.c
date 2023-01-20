@@ -73,7 +73,7 @@ static struct optee_service *find_service_driver(const struct tee_optee_ta_uuid 
 
 	for (idx = 0; idx < service_cnt; idx++, service++) {
 		tee_optee_ta_uuid_to_octets(loc_uuid, &service->uuid);
-		if (!memcmp(uuid, loc_uuid, sizeof(uuid)))
+		if (!memcmp(uuid, loc_uuid, sizeof(*uuid)))
 			return service;
 	}
 
@@ -850,7 +850,7 @@ static int optee_probe(struct udevice *dev)
 		ret = device_bind_driver_to_node(dev, "optee-rng", "optee-rng",
 						 dev_ofnode(dev), NULL);
 		if (ret)
-			dev_warn(dev, "ftpm_tee failed to bind: %d\n", ret);
+			dev_warn(dev, "optee-rng failed to bind: %d\n", ret);
 	}
 
 	return 0;

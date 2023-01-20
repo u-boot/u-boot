@@ -1452,6 +1452,7 @@ F:	configs/j721s2_hs_evm_r5_defconfig
 TPM DRIVERS
 M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
 S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-tpm.git
 F:	drivers/tpm/
 
 TQ GROUP
@@ -1461,6 +1462,8 @@ T:	git git://git.denx.de/u-boot-tq-group.git
 
 TEE
 M:	Jens Wiklander <jens.wiklander@linaro.org>
+M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
+T:	git https://source.denx.de/u-boot/custodians/u-boot-tpm.git
 S:	Maintained
 F:	drivers/tee/
 F:	include/tee.h

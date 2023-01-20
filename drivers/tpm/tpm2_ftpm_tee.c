@@ -18,9 +18,12 @@
 #include <log.h>
 #include <tpm-v2.h>
 #include <tee.h>
+#include <tee/optee_service.h>
 
 #include "tpm_tis.h"
 #include "tpm2_ftpm_tee.h"
+
+OPTEE_SERVICE_DRIVER(optee_ftpm, TA_FTPM_UUID, "ftpm_tee");
 
 /**
  * ftpm_tee_transceive() - send fTPM commands and retrieve fTPM response.
