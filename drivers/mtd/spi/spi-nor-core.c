@@ -3373,7 +3373,7 @@ static int spi_nor_cypress_octal_dtr_enable(struct spi_nor *nor)
 	if (ret)
 		return ret;
 
-	buf = SPINOR_REG_CYPRESS_CFR2V_MEMLAT_11_24;
+	buf = SPINOR_REG_CYPRESS_CFR2_MEMLAT_11_24;
 	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WR_ANY_REG, 1),
 			SPI_MEM_OP_ADDR(addr_width, SPINOR_REG_CYPRESS_CFR2V, 1),
 			SPI_MEM_OP_NO_DUMMY,
@@ -3396,7 +3396,7 @@ static int spi_nor_cypress_octal_dtr_enable(struct spi_nor *nor)
 	if (ret)
 		return ret;
 
-	buf = SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_EN;
+	buf = SPINOR_REG_CYPRESS_CFR5_OCT_DTR_EN;
 	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WR_ANY_REG, 1),
 			SPI_MEM_OP_ADDR(addr_width, SPINOR_REG_CYPRESS_CFR5V, 1),
 			SPI_MEM_OP_NO_DUMMY,
@@ -3444,7 +3444,7 @@ static int s28hx_t_setup(struct spi_nor *nor, const struct flash_info *info,
 	if (ret)
 		return ret;
 
-	if (!(buf & SPINOR_REG_CYPRESS_CFR3V_UNISECT))
+	if (!(buf & SPINOR_REG_CYPRESS_CFR3_UNISECT))
 		nor->erase = s28hx_t_erase_non_uniform;
 
 	return spi_nor_default_setup(nor, info, params);
@@ -3511,7 +3511,7 @@ static int s28hx_t_post_bfpt_fixup(struct spi_nor *nor,
 	if (ret)
 		return ret;
 
-	if (buf & SPINOR_REG_CYPRESS_CFR3V_PGSZ)
+	if (buf & SPINOR_REG_CYPRESS_CFR3_PGSZ)
 		params->page_size = 512;
 	else
 		params->page_size = 256;
