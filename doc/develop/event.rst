@@ -64,3 +64,26 @@ in an image, use $(CROSS_COMPILE)nm::
 
     nm u-boot |grep evspy |grep list
     00000000002d6300 D _u_boot_list_2_evspy_info_2_EVT_MISC_INIT_F
+
+Logging is also available. Events use category `LOGC_EVENT`, so you can enable
+logging on that, or add `#define LOG_DEBUG` to the top of `common/event.c` to
+see events being sent.
+
+
+Dynamic events
+--------------
+
+Static events provide a way of dealing with events known at build time. In some
+cases we want to attach an event handler at runtime. For example, we may wish
+to be notified when a particular device is probed or removed.
+
+This can be handled by enabling `CONFIG_EVENT_DYNAMIC`. It is then possible to
+call `event_register()` to register a new handler for a particular event.
+
+Dynamic event handlers are called after all the static event spy handlers have
+been processed. Of course, since dynamic event handlers are created at runtime
+it is not possible to use the `event_dump.py` to see them.
+
+At present there is no way to list dynamic event handlers from the command line,
+nor to deregister a dynamic event handler. These features can be added when
+needed.
