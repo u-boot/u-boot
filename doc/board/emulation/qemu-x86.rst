@@ -57,7 +57,8 @@ to instantiate. Note, the maximum supported CPU number in QEMU is 255.
 U-Boot uses 'distro_bootcmd' by default when booting on x86 QEMU. This tries to
 load a boot script, kernel, and ramdisk from several different interfaces. For
 the default boot order, see 'qemu-x86.h'. For more information, see
-'README.distro'. Most Linux distros can be booted by writing a uboot script.
+'doc/develop/distro.rst'. Most Linux distros can be booted by writing a uboot
+script.
 For example, Debian (stretch) can be booted by creating a script file named
 'boot.txt' with the contents::
 

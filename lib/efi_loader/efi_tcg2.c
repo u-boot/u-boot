@@ -2417,7 +2417,7 @@ efi_status_t efi_tcg2_register(void)
 
 	ret = platform_get_tpm2_device(&dev);
 	if (ret != EFI_SUCCESS) {
-		log_warning("Unable to find TPMv2 device\n");
+		log_warning("Missing TPMv2 device for EFI_TCG_PROTOCOL\n");
 		return EFI_SUCCESS;
 	}
 
