@@ -738,14 +738,8 @@ static int check_image_header(void)
 	offset = le32_to_cpu(hdr->srcaddr);
 	size = le32_to_cpu(hdr->blocksize);
 
-	if (hdr->blockid == 0x78) { /* SATA id */
-		if (offset < 1) {
-			printf("Error: Bad A38x image srcaddr.\n");
-			return -ENOEXEC;
-		}
-		offset -= 1;
+	if (hdr->blockid == 0x78) /* SATA id */
 		offset *= 512;
-	}
 
 	if (offset % 4 != 0 || size < 4 || size % 4 != 0) {
 		printf("Error: Bad A38x image blocksize.\n");
