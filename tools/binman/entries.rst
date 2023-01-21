@@ -604,6 +604,11 @@ The top-level 'fit' node supports the following special properties:
         Indicates that the contents of the FIT are external and provides the
         external offset. This is passed to mkimage via the -E and -p flags.
 
+    fit,align
+        Indicates what alignment to use for the FIT and its external data,
+        and provides the alignment to use. This is passed to mkimage via
+        the -B flag.
+
     fit,fdt-list
         Indicates the entry argument which provides the list of device tree
         files for the gen-fdt-nodes operation (as below). This is often

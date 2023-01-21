@@ -70,6 +70,11 @@ class Entry_fit(Entry_section):
             Indicates that the contents of the FIT are external and provides the
             external offset. This is passed to mkimage via the -E and -p flags.
 
+        fit,align
+            Indicates what alignment to use for the FIT and its external data,
+            and provides the alignment to use. This is passed to mkimage via
+            the -B flag.
+
         fit,fdt-list
             Indicates the entry argument which provides the list of device tree
             files for the gen-fdt-nodes operation (as below). This is often
@@ -423,6 +428,9 @@ class Entry_fit(Entry_section):
                 'external': True,
                 'pad': fdt_util.fdt32_to_cpu(ext_offset.value)
                 }
+        align = self._fit_props.get('fit,align')
+        if align is not None:
+            args.update({'align': fdt_util.fdt32_to_cpu(align.value)})
         if self.mkimage.run(reset_timestamp=True, output_fname=output_fname,
                             **args) is None:
             # Bintool is missing; just use empty data as the output

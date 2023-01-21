@@ -6309,6 +6309,22 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual(base + 8, inset.image_pos);
         self.assertEqual(4, inset.size);
 
+    def testFitAlign(self):
+        """Test an image with an FIT with aligned external data"""
+        data = self._DoReadFile('275_fit_align.dts')
+        self.assertEqual(4096, len(data))
+
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+
+        props = self._GetPropTree(dtb, ['data-position'])
+        expected = {
+            'u-boot:data-position': 1024,
+            'fdt-1:data-position': 2048,
+            'fdt-2:data-position': 3072,
+        }
+        self.assertEqual(expected, props)
+
 
 if __name__ == "__main__":
     unittest.main()
