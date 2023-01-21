@@ -37,6 +37,7 @@
 			fit,fdt-list = "of-list";
 			filename = "u-boot.itb";
 			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
+			fit,align = <512>;
 			offset = <CONFIG_SPL_PAD_TO>;
 			images {
 				u-boot {
