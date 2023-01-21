@@ -182,19 +182,10 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 
 	/*
 	 * For SATA srcaddr is specified in number of sectors.
-	 * The main header is must be stored at sector number 1.
-	 * This expects that sector size is 512 bytes and recalculates
-	 * data offset to bytes relative to the main header.
+	 * This expects that sector size is 512 bytes.
 	 */
-	if (IS_ENABLED(CONFIG_SPL_SATA) && mhdr->blockid == IBR_HDR_SATA_ID) {
-		if (spl_image->offset < 1) {
-			printf("ERROR: Wrong srcaddr (0x%08x) in SATA kwbimage\n",
-			       spl_image->offset);
-			return -EINVAL;
-		}
-		spl_image->offset -= 1;
+	if (IS_ENABLED(CONFIG_SPL_SATA) && mhdr->blockid == IBR_HDR_SATA_ID)
 		spl_image->offset *= 512;
-	}
 
 	if (spl_image->offset % 4 != 0) {
 		printf("ERROR: Wrong srcaddr (0x%08x) in kwbimage\n",
