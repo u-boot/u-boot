@@ -7,6 +7,9 @@
 
 #include <common.h>
 #include <dm.h>
+#include <iommu.h>
+#include <phys2bus.h>
+#include <asm/io.h>
 
 #if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA))
 int dev_iommu_enable(struct udevice *dev)
@@ -33,11 +36,36 @@ int dev_iommu_enable(struct udevice *dev)
 			      __func__, ret);
 			return ret;
 		}
+		dev->iommu = dev_iommu;
 	}
 
 	return 0;
 }
 #endif
+
+dma_addr_t dev_iommu_dma_map(struct udevice *dev, void *addr, size_t size)
+{
+	const struct iommu_ops *ops;
+
+	if (dev->iommu) {
+		ops = device_get_ops(dev->iommu);
+		if (ops && ops->map)
+			return ops->map(dev->iommu, addr, size);
+	}
+
+	return dev_phys_to_bus(dev, virt_to_phys(addr));
+}
+
+void dev_iommu_dma_unmap(struct udevice *dev, dma_addr_t addr, size_t size)
+{
+	const struct iommu_ops *ops;
+
+	if (dev->iommu) {
+		ops = device_get_ops(dev->iommu);
+		if (ops && ops->unmap)
+			ops->unmap(dev->iommu, addr, size);
+	}
+}
 
 UCLASS_DRIVER(iommu) = {
 	.id		= UCLASS_IOMMU,

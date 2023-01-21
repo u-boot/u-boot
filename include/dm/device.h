@@ -165,6 +165,7 @@ enum {
  *		automatically when the device is removed / unbound
  * @dma_offset: Offset between the physical address space (CPU's) and the
  *		device's bus address space
+ * @iommu: IOMMU device associated with this device
  */
 struct udevice {
 	const struct driver *driver;
@@ -193,6 +194,9 @@ struct udevice {
 #endif
 #if CONFIG_IS_ENABLED(DM_DMA)
 	ulong dma_offset;
+#endif
+#if CONFIG_IS_ENABLED(IOMMU)
+	struct udevice *iommu;
 #endif
 };
 
