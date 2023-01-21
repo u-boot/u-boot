@@ -6,7 +6,7 @@ The bubt command gets the following parameters: ATF file name, destination devic
 bubt [file-name] [destination [source]]
 	- file-name		Image file name to burn. default = flash-image.bin
 	- destination		Flash to burn to [spi, nand, mmc, sata]. default = active flash
-	- source		Source to load image from [tftp, usb]. default = tftp
+	- source		Source to load image from [tftp, usb, mmc, sata]. default = tftp
 
 Examples:
 	bubt				- Burn flash-image.bin from tftp to active flash

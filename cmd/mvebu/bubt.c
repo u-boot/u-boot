@@ -420,6 +420,36 @@ static int sata_burn_image(size_t image_size)
 #endif
 }
 
+static size_t sata_read_file(const char *file_name)
+{
+	loff_t act_read = 0;
+	struct udevice *dev;
+	int rc;
+
+	/* try to recognize storage devices immediately */
+	scsi_scan(false);
+
+	/* Try to recognize storage devices immediately */
+	blk_first_device(UCLASS_SCSI, &dev);
+	if (!dev) {
+		printf("Error: SATA device not found\n");
+		return 0;
+	}
+
+	/* Always load from scsi 0 */
+	if (fs_set_blk_dev("scsi", "0", FS_TYPE_ANY)) {
+		printf("Error: SATA 0 not found\n");
+		return 0;
+	}
+
+	/* Perfrom file read */
+	rc = fs_read(file_name, get_load_addr(), 0, 0, &act_read);
+	if (rc)
+		return 0;
+
+	return act_read;
+}
+
 static int is_sata_active(void)
 {
 	return 1;
@@ -428,6 +458,11 @@ static int is_sata_active(void)
 static int sata_burn_image(size_t image_size)
 {
 	return -ENODEV;
+}
+
+static size_t sata_read_file(const char *file_name)
+{
+	return 0;
 }
 
 static int is_sata_active(void)
@@ -656,7 +691,7 @@ struct bubt_dev bubt_devs[BUBT_MAX_DEV] = {
 	{"tftp", tftp_read_file, NULL, is_tftp_active},
 	{"usb",  usb_read_file,  NULL, is_usb_active},
 	{"mmc",  mmc_read_file,  mmc_burn_image, is_mmc_active},
-	{"sata",  NULL, sata_burn_image,  is_sata_active},
+	{"sata", sata_read_file, sata_burn_image,  is_sata_active},
 	{"spi",  NULL, spi_burn_image,  is_spi_active},
 	{"nand", NULL, nand_burn_image, is_nand_active},
 };
@@ -1206,7 +1241,7 @@ U_BOOT_CMD(
 	"[file-name] [destination [source]]\n"
 	"\t-file-name     The image file name to burn. Default = " CONFIG_MVEBU_UBOOT_DFLT_NAME "\n"
 	"\t-destination   Flash to burn to [spi, nand, mmc, sata]. Default = " DEFAULT_BUBT_DST "\n"
-	"\t-source        The source to load image from [tftp, usb, mmc]. Default = " DEFAULT_BUBT_SRC "\n"
+	"\t-source        The source to load image from [tftp, usb, mmc, sata]. Default = " DEFAULT_BUBT_SRC "\n"
 	"Examples:\n"
 	"\tbubt - Burn flash-image.bin from tftp to active boot device\n"
 	"\tbubt flash-image-new.bin nand - Burn flash-image-new.bin from tftp to NAND flash\n"
