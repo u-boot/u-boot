@@ -5439,12 +5439,24 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                          fdt_util.fdt32_to_cpu(atf1.props['load'].value))
         self.assertEqual(data, atf1.props['data'].bytes)
 
+        hash_node = atf1.FindNode('hash')
+        self.assertIsNotNone(hash_node)
+        self.assertEqual({'algo', 'value'}, hash_node.props.keys())
+
         atf2 = dtb.GetNode('/images/atf-2')
         self.assertEqual(base_keys, atf2.props.keys())
         _, start, data = segments[1]
         self.assertEqual(start,
                          fdt_util.fdt32_to_cpu(atf2.props['load'].value))
         self.assertEqual(data, atf2.props['data'].bytes)
+
+        hash_node = atf2.FindNode('hash')
+        self.assertIsNotNone(hash_node)
+        self.assertEqual({'algo', 'value'}, hash_node.props.keys())
+
+        hash_node = dtb.GetNode('/images/tee-1/hash-1')
+        self.assertIsNotNone(hash_node)
+        self.assertEqual({'algo', 'value'}, hash_node.props.keys())
 
         conf = dtb.GetNode('/configurations')
         self.assertEqual({'default'}, conf.props.keys())

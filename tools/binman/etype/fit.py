@@ -228,6 +228,9 @@ class Entry_fit(Entry_section):
 
                     atf-bl31 {
                     };
+                    hash {
+                        algo = "sha256";
+                    };
                 };
 
                 @tee-SEQ {
@@ -242,6 +245,9 @@ class Entry_fit(Entry_section):
                     fit,data;
 
                     tee-os {
+                    };
+                    hash {
+                        algo = "sha256";
                     };
                 };
             };
@@ -271,6 +277,10 @@ class Entry_fit(Entry_section):
                 arch = "arm64";
                 type = "firmware";
                 description = "ARM Trusted Firmware";
+                hash {
+                    algo = "sha256";
+                    value = <...hash of first segment...>;
+                };
             };
             atf-2 {
                 data = <...contents of second segment...>;
@@ -280,6 +290,10 @@ class Entry_fit(Entry_section):
                 arch = "arm64";
                 type = "firmware";
                 description = "ARM Trusted Firmware";
+                hash {
+                    algo = "sha256";
+                    value = <...hash of second segment...>;
+                };
             };
         };
 
@@ -548,12 +562,13 @@ class Entry_fit(Entry_section):
                     else:
                         self.Raise("Generator node requires 'fit,fdt-list' property")
 
-        def _gen_split_elf(base_node, node, segments, entry_addr):
+        def _gen_split_elf(base_node, node, depth, segments, entry_addr):
             """Add nodes for the ELF file, one per group of contiguous segments
 
             Args:
                 base_node (Node): Template node from the binman definition
                 node (Node): Node to replace (in the FIT being built)
+                depth: Current node depth (0 is the base 'fit' node)
                 segments (list): list of segments, each:
                     int: Segment number (0 = first)
                     int: Start address of segment in memory
@@ -577,6 +592,10 @@ class Entry_fit(Entry_section):
                         elif pname != 'fit,operation':
                             self._raise_subnode(
                                 node, f"Unknown directive '{pname}'")
+
+                    for subnode in node.subnodes:
+                        with fsw.add_node(subnode.name):
+                            _add_node(node, depth + 1, subnode)
 
         def _gen_node(base_node, node, depth, in_images, entry):
             """Generate nodes from a template
@@ -631,7 +650,7 @@ class Entry_fit(Entry_section):
                             self._raise_subnode(
                                 node, f'Failed to read ELF file: {str(exc)}')
 
-                    _gen_split_elf(base_node, node, segments, entry_addr)
+                    _gen_split_elf(base_node, node, depth, segments, entry_addr)
 
         def _add_node(base_node, depth, node):
             """Add nodes to the output FIT
