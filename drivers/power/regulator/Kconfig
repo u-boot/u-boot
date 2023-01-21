@@ -43,6 +43,20 @@ config REGULATOR_AS3722
 	  but does not yet support change voltages. Currently this must be
 	  done using direct register writes to the PMIC.
 
+config REGULATOR_AXP
+	bool "Enable driver for X-Powers AXP PMIC regulators"
+	depends on DM_REGULATOR && PMIC_AXP
+	help
+	  Enable support for the regulators (DCDCs, LDOs) in the
+	  X-Powers AXP152, AXP2xx, and AXP8xx PMICs.
+
+config SPL_REGULATOR_AXP
+	bool "Enable driver for X-Powers AXP PMIC regulators in SPL"
+	depends on SPL_DM_REGULATOR && SPL_PMIC_AXP
+	help
+	  Enable support in SPL for the regulators (DCDCs, LDOs) in the
+	  X-Powers AXP152, AXP2xx, and AXP8xx PMICs.
+
 config DM_REGULATOR_BD71837
 	bool "Enable Driver Model for ROHM BD71837/BD71847 regulators"
 	depends on DM_REGULATOR && DM_PMIC_BD71837
