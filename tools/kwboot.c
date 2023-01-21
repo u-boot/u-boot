@@ -54,6 +54,68 @@
  *   https://github.com/MarvellEmbeddedProcessors/u-boot-marvell/blob/u-boot-2013.01-armada-18.06/tools/marvell/doimage_mv/hdrparser.c
  * - "Marvell doimage Tool", Marvell U-Boot 2013.01, version 18.06. August 30, 2015.
  *   https://github.com/MarvellEmbeddedProcessors/u-boot-marvell/blob/u-boot-2013.01-armada-18.06/tools/marvell/doimage_mv/doimage.c
+ *
+ * Storage location / offset of different image types:
+ * - IBR_HDR_SPI_ID (0x5A):
+ *   SPI image can be stored at any 2 MB aligned offset in the first 16 MB of
+ *   SPI-NOR or parallel-NOR. Despite the type name it really can be stored on
+ *   parallel-NOR and cannot be stored on other SPI devices, like SPI-NAND.
+ *   So it should have been named NOR image, not SPI image. This image type
+ *   supports XIP - Execute In Place directly from NOR memory.
+ *
+ * - IBR_HDR_NAND_ID (0x8B):
+ *   NAND image can be stored either at any 2 MB aligned offset in the first
+ *   16 MB of SPI-NAND or at any blocksize aligned offset in the first 64 MB
+ *   of parallel-NAND.
+ *
+ * - IBR_HDR_PEX_ID (0x9C):
+ *   PEX image is used for booting from PCI Express device. Source address
+ *   stored in image is ignored by BootROM. It is not the BootROM who parses
+ *   or loads data part of the PEX image. BootROM just configures SoC to the
+ *   PCIe endpoint mode and let the PCIe device on the other end of the PCIe
+ *   link (which must be in Root Complex mode) to load kwbimage into SoC's
+ *   memory and tell BootROM physical address.
+ *
+ * - IBR_HDR_UART_ID (0x69):
+ *   UART image can be transfered via xmodem protocol over first UART.
+ *
+ * - IBR_HDR_I2C_ID (0x4D):
+ *   It is unknown for what kind of storage is used this image. It is not
+ *   specified in any document from References section.
+ *
+ * - IBR_HDR_SATA_ID (0x78):
+ *   SATA image can be stored at sector 1 (after the MBR table), sector 34
+ *   (after the GPT table) or at any next sector which is aligned to 2 MB and
+ *   is in the first 16 MB of SATA disk. Note that source address in SATA image
+ *   is stored in sector unit and not in bytes like for any other images.
+ *   Unfortunately sector size is disk specific, in most cases it is 512 bytes
+ *   but there are also Native 4K SATA disks which have 4096 bytes long sectors.
+ *
+ * - IBR_HDR_SDIO_ID (0xAE):
+ *   SDIO image can be stored on different medias:
+ *   - SD(SC) card
+ *   - SDHC/SDXC card
+ *   - eMMC HW boot partition
+ *   - eMMC user data partition / MMC card
+ *   It cannot be stored on SDIO card despite the image name.
+ *
+ *   For SD(SC)/SDHC/SDXC cards, image can be stored at the same locations as
+ *   the SATA image (sector 1, sector 34 or any 2 MB aligned sector) but within
+ *   the first 64 MB. SDHC and SDXC cards have fixed 512 bytes long sector size.
+ *   Old SD(SC) cards unfortunately can have also different sector sizes, mostly
+ *   1024 bytes long sector sizes and also can be changed at runtime.
+ *
+ *   For MMC-compatible devices, image can be stored at offset 0 or at offset
+ *   2 MB. If MMC device supports HW boot partitions then image must be stored
+ *   on the HW partition as is configured in the EXT_CSC register (it can be
+ *   either boot or user data).
+ *
+ *   Note that source address for SDIO image is stored in byte unit, like for
+ *   any other images (except SATA). Marvell Functional Specifications for
+ *   A38x and A39x SoCs say that source address is in sector units, but this
+ *   is purely incorrect information. A385 BootROM really expects source address
+ *   for SDIO images in bytes and also Marvell tools generate SDIO image with
+ *   source address in byte units.
  */
 
 #include "kwbimage.h"
