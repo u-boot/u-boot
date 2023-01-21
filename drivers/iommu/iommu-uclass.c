@@ -8,10 +8,71 @@
 #include <common.h>
 #include <dm.h>
 #include <iommu.h>
+#include <malloc.h>
 #include <phys2bus.h>
 #include <asm/io.h>
 
 #if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA))
+
+#if CONFIG_IS_ENABLED(PCI)
+static int dev_pci_iommu_enable(struct udevice *dev)
+{
+	struct udevice *parent = dev->parent;
+	struct udevice *dev_iommu;
+	u32 *iommu_map;
+	u32 iommu_map_mask, length, phandle, rid, rid_base;
+	int i, count, len, ret;
+
+	while (parent) {
+		len = dev_read_size(parent, "iommu-map");
+		if (len > 0)
+			break;
+		parent = parent->parent;
+	}
+
+	if (len <= 0)
+		return 0;
+
+	iommu_map = malloc(len);
+	if (!iommu_map)
+		return -ENOMEM;
+
+	count = len / sizeof(u32);
+	ret = dev_read_u32_array(parent, "iommu-map", iommu_map, count);
+	if (ret < 0) {
+		free(iommu_map);
+		return 0;
+	}
+
+	iommu_map_mask = dev_read_u32_default(parent, "iommu-map-mask", ~0);
+	rid = (dm_pci_get_bdf(dev) >> 8) & iommu_map_mask;
+
+	/* Loop over entries until mapping is found. */
+	for (i = 0; i < count; i += 4) {
+		rid_base = iommu_map[i];
+		phandle = iommu_map[i + 1];
+		length = iommu_map[i + 3];
+
+		if (rid < rid_base || rid >= rid_base + length)
+			continue;
+
+		ret = uclass_get_device_by_phandle_id(UCLASS_IOMMU, phandle,
+						      &dev_iommu);
+		if (ret) {
+			debug("%s: uclass_get_device_by_ofnode failed: %d\n",
+			      __func__, ret);
+			free(iommu_map);
+			return ret;
+		}
+		dev->iommu = dev_iommu;
+		break;
+	}
+
+	free(iommu_map);
+	return 0;
+}
+#endif
+
 int dev_iommu_enable(struct udevice *dev)
 {
 	struct ofnode_phandle_args args;
@@ -38,6 +99,10 @@ int dev_iommu_enable(struct udevice *dev)
 		}
 		dev->iommu = dev_iommu;
 	}
+
+	if (CONFIG_IS_ENABLED(PCI) && count < 0 &&
+	    device_is_on_pci_bus(dev))
+		return dev_pci_iommu_enable(dev);
 
 	return 0;
 }
