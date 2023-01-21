@@ -1013,13 +1013,12 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 					     sizeof(struct main_hdr_v0));
 
 	/*
-	 * For SATA srcaddr is specified in number of sectors starting from
-	 * sector 0. The main header is stored at sector number 1.
+	 * For SATA srcaddr is specified in number of sectors.
 	 * This expects the sector size to be 512 bytes.
 	 * Header size is already aligned.
 	 */
 	if (main_hdr->blockid == IBR_HDR_SATA_ID)
-		main_hdr->srcaddr = cpu_to_le32(headersz / 512 + 1);
+		main_hdr->srcaddr = cpu_to_le32(headersz / 512);
 
 	/* For PCIe srcaddr is not used and must be set to 0xFFFFFFFF. */
 	if (main_hdr->blockid == IBR_HDR_PEX_ID)
@@ -1461,13 +1460,12 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		main_hdr->flags = e->debug ? 0x1 : 0;
 
 	/*
-	 * For SATA srcaddr is specified in number of sectors starting from
-	 * sector 0. The main header is stored at sector number 1.
+	 * For SATA srcaddr is specified in number of sectors.
 	 * This expects the sector size to be 512 bytes.
 	 * Header size is already aligned.
 	 */
 	if (main_hdr->blockid == IBR_HDR_SATA_ID)
-		main_hdr->srcaddr = cpu_to_le32(headersz / 512 + 1);
+		main_hdr->srcaddr = cpu_to_le32(headersz / 512);
 
 	/* For PCIe srcaddr is not used and must be set to 0xFFFFFFFF. */
 	if (main_hdr->blockid == IBR_HDR_PEX_ID)
@@ -2010,16 +2008,10 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 
 	/*
 	 * For SATA srcaddr is specified in number of sectors.
-	 * The main header is must be stored at sector number 1.
-	 * This expects that sector size is 512 bytes and recalculates
-	 * data offset to bytes relative to the main header.
+	 * This expects that sector size is 512 bytes.
 	 */
-	if (blockid == IBR_HDR_SATA_ID) {
-		if (offset < 1)
-			return -FDT_ERR_BADSTRUCTURE;
-		offset -= 1;
+	if (blockid == IBR_HDR_SATA_ID)
 		offset *= 512;
-	}
 
 	/*
 	 * For PCIe srcaddr is always set to 0xFFFFFFFF.
@@ -2377,10 +2369,8 @@ static int kwbimage_extract_subimage(void *ptr, struct image_tool_params *params
 		/* Extract data image when -p is not specified or when '-p 0' is specified */
 		offset = le32_to_cpu(mhdr->srcaddr);
 
-		if (mhdr->blockid == IBR_HDR_SATA_ID) {
-			offset -= 1;
+		if (mhdr->blockid == IBR_HDR_SATA_ID)
 			offset *= 512;
-		}
 
 		if (mhdr->blockid == IBR_HDR_PEX_ID && offset == 0xFFFFFFFF)
 			offset = header_size;
