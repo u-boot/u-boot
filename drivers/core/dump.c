@@ -39,7 +39,7 @@ static void show_devices(struct udevice *dev, int depth, int last_flag,
 	u32 flags = dev_get_flags(dev);
 
 	/* print the first 20 characters to not break the tree-format. */
-	printf(IS_ENABLED(CONFIG_SPL_BUILD) ? " %s  %d  [ %c ]   %s  " :
+	printf(CONFIG_IS_ENABLED(USE_TINY_PRINTF) ? " %s  %d  [ %c ]   %s  " :
 	       " %-10.10s  %3d  [ %c ]   %-20.20s  ", dev->uclass->uc_drv->name,
 	       dev_get_uclass_index(dev, NULL),
 	       flags & DM_FLAG_ACTIVATED ? '+' : ' ', dev->driver->name);
