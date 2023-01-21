@@ -64,15 +64,15 @@ static int axp_pmic_bind(struct udevice *dev)
 }
 
 static const struct udevice_id axp_pmic_ids[] = {
-	{ .compatible = "x-powers,axp152" },
-	{ .compatible = "x-powers,axp202" },
-	{ .compatible = "x-powers,axp209" },
-	{ .compatible = "x-powers,axp221" },
-	{ .compatible = "x-powers,axp223" },
-	{ .compatible = "x-powers,axp803" },
-	{ .compatible = "x-powers,axp806" },
-	{ .compatible = "x-powers,axp809" },
-	{ .compatible = "x-powers,axp813" },
+	{ .compatible = "x-powers,axp152", .data = AXP152_ID },
+	{ .compatible = "x-powers,axp202", .data = AXP202_ID },
+	{ .compatible = "x-powers,axp209", .data = AXP209_ID },
+	{ .compatible = "x-powers,axp221", .data = AXP221_ID },
+	{ .compatible = "x-powers,axp223", .data = AXP223_ID },
+	{ .compatible = "x-powers,axp803", .data = AXP803_ID },
+	{ .compatible = "x-powers,axp806", .data = AXP806_ID },
+	{ .compatible = "x-powers,axp809", .data = AXP809_ID },
+	{ .compatible = "x-powers,axp813", .data = AXP813_ID },
 	{ }
 };
 

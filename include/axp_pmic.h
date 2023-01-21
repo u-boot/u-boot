@@ -26,6 +26,18 @@
 #define AXP_PMIC_SEC_DEVICE_ADDR	0x745
 #define AXP_PMIC_SEC_RUNTIME_ADDR	0x3a
 
+enum {
+	AXP152_ID,
+	AXP202_ID,
+	AXP209_ID,
+	AXP221_ID,
+	AXP223_ID,
+	AXP803_ID,
+	AXP806_ID,
+	AXP809_ID,
+	AXP813_ID,
+};
+
 int axp_set_dcdc1(unsigned int mvolt);
 int axp_set_dcdc2(unsigned int mvolt);
 int axp_set_dcdc3(unsigned int mvolt);
