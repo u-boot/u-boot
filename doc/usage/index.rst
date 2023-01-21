@@ -76,6 +76,7 @@ Shell commands
    cmd/scp03
    cmd/setexpr
    cmd/size
+   cmd/sleep
    cmd/sound
    cmd/source
    cmd/temperature
