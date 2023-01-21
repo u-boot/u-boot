@@ -68,3 +68,33 @@ static int dm_test_iommu_noiommu(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_iommu_noiommu, UT_TESTF_SCAN_FDT);
+
+static int dm_test_iommu_pci(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	ut_assertok(uclass_find_device(UCLASS_IOMMU, 0, &dev));
+	ut_assert(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED));
+
+	/* Probing P2SB probes the IOMMU through the "iommu-map" property */
+	ut_assertok(uclass_probe_all(UCLASS_P2SB));
+	ut_assert(dev_get_flags(dev) & DM_FLAG_ACTIVATED);
+
+	return 0;
+}
+DM_TEST(dm_test_iommu_pci, UT_TESTF_SCAN_FDT);
+
+static int dm_test_iommu_pci_noiommu(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	ut_assertok(uclass_find_device(UCLASS_IOMMU, 0, &dev));
+	ut_assert(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED));
+
+	/* Probing PMC should not probe the IOMMU */
+	ut_assertok(uclass_probe_all(UCLASS_ACPI_PMC));
+	ut_assert(!(dev_get_flags(dev) & DM_FLAG_ACTIVATED));
+
+	return 0;
+}
+DM_TEST(dm_test_iommu_pci_noiommu, UT_TESTF_SCAN_FDT);
