@@ -2440,7 +2440,7 @@ static int kwbimage_check_params(struct image_tool_params *params)
 	}
 
 	return (params->dflag && (params->fflag || params->lflag)) ||
-		(params->fflag && (params->dflag || params->lflag)) ||
+		(params->fflag) ||
 		(params->lflag && (params->dflag || params->fflag)) ||
 		(params->xflag);
 }
