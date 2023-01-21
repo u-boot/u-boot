@@ -1888,10 +1888,7 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 	switch (hdr->blockid) {
 	case IBR_HDR_SATA_ID:
-		if (srcaddr < 1)
-			goto err;
-
-		hdr->srcaddr = cpu_to_le32((srcaddr - 1) * 512);
+		hdr->srcaddr = cpu_to_le32(srcaddr * 512);
 		break;
 
 	case IBR_HDR_PEX_ID:
