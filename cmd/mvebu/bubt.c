@@ -189,6 +189,11 @@ static int mmc_burn_image(size_t image_size)
 #ifdef CONFIG_BLK
 	struct blk_desc *blk_desc;
 #endif
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+	u8		part;
+	u8		orig_part;
+#endif
+
 	mmc = find_mmc_device(mmc_dev_num);
 	if (!mmc) {
 		printf("No SD/MMC/eMMC card found\n");
@@ -202,6 +207,38 @@ static int mmc_burn_image(size_t image_size)
 		return err;
 	}
 
+#ifdef CONFIG_BLK
+	blk_desc = mmc_get_blk_desc(mmc);
+	if (!blk_desc) {
+		printf("Error - failed to obtain block descriptor\n");
+		return -ENODEV;
+	}
+#endif
+
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+#ifdef CONFIG_BLK
+	orig_part = blk_desc->hwpart;
+#else
+	orig_part = mmc->block_dev.hwpart;
+#endif
+
+	part = (mmc->part_config >> 3) & PART_ACCESS_MASK;
+
+	if (part == 7)
+		part = 0;
+
+#ifdef CONFIG_BLK
+	err = blk_dselect_hwpart(blk_desc, part);
+#else
+	err = mmc_switch_part(mmc, part);
+#endif
+
+	if (err) {
+		printf("Error - MMC partition switch failed\n");
+		return err;
+	}
+#endif
+
 	/* SD reserves LBA-0 for MBR and boots from LBA-1,
 	 * MMC/eMMC boots from LBA-0
 	 */
@@ -211,11 +248,6 @@ static int mmc_burn_image(size_t image_size)
 	if (image_size % mmc->write_bl_len)
 		blk_count += 1;
 
-	blk_desc = mmc_get_blk_desc(mmc);
-	if (!blk_desc) {
-		printf("Error - failed to obtain block descriptor\n");
-		return -ENODEV;
-	}
 	blk_written = blk_dwrite(blk_desc, start_lba, blk_count,
 				 (void *)get_load_addr());
 #else
@@ -227,6 +259,17 @@ static int mmc_burn_image(size_t image_size)
 						 start_lba, blk_count,
 						 (void *)get_load_addr());
 #endif /* CONFIG_BLK */
+
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+#ifdef CONFIG_BLK
+	err = blk_dselect_hwpart(blk_desc, orig_part);
+#else
+	err = mmc_switch_part(mmc, orig_part);
+#endif
+	if (err)
+		printf("Error - MMC failed to switch back to original partition\n");
+#endif
+
 	if (blk_written != blk_count) {
 		printf("Error - written %#lx blocks\n", blk_written);
 		return -ENOSPC;
