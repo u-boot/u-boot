@@ -272,7 +272,7 @@ int spl_start_uboot(void)
 }
 #endif
 
-#ifdef CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
+#ifdef CONFIG_SYS_MMCSD_FS_BOOT
 static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev,
 			      struct mmc *mmc,
@@ -340,14 +340,6 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image,
 #endif
 
 	return err;
-}
-#else
-static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image,
-			      struct spl_boot_device *bootdev,
-			      struct mmc *mmc,
-			      const char *filename)
-{
-	return -ENOSYS;
 }
 #endif
 
@@ -481,6 +473,7 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 			return err;
 #endif
 		/* If RAW mode fails, try FS mode. */
+#ifdef CONFIG_SYS_MMCSD_FS_BOOT
 	case MMCSD_MODE_FS:
 		debug("spl: mmc boot mode: fs\n");
 
@@ -489,6 +482,7 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 			return err;
 
 		break;
+#endif
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 	default:
 		puts("spl: mmc: wrong boot mode\n");
