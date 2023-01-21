@@ -615,6 +615,14 @@ size:
     this size. If this is not provided, it will be set to the size of the
     contents.
 
+min-size:
+    Sets the minimum size of the entry. This size includes explicit padding
+    ('pad-before' and 'pad-after'), but not padding added to meet alignment
+    requirements. While this does not affect the contents of the entry within
+    binman itself (the padding is performed only when its parent section is
+    assembled), the end result will be that the entry ends with the padding
+    bytes, so may grow. Defaults to 0.
+
 pad-before:
     Padding before the contents of the entry. Normally this is 0, meaning
     that the contents start at the beginning of the entry. This can be used

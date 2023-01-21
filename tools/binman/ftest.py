@@ -883,9 +883,9 @@ class TestFunctional(unittest.TestCase):
         self.assertIn('image', control.images)
         image = control.images['image']
         entries = image.GetEntries()
-        self.assertEqual(5, len(entries))
+        self.assertEqual(6, len(entries))
 
-        # First u-boot with padding before and after
+        # First u-boot with padding before and after (included in minimum size)
         self.assertIn('u-boot', entries)
         entry = entries['u-boot']
         self.assertEqual(0, entry.offset)
@@ -934,8 +934,17 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(U_BOOT_DATA + tools.get_bytes(0, 64 - len(U_BOOT_DATA)),
                          data[pos:pos + entry.size])
 
+        # Sixth u-boot with both minimum size and aligned size
+        self.assertIn('u-boot-min-size', entries)
+        entry = entries['u-boot-min-size']
+        self.assertEqual(128, entry.offset)
+        self.assertEqual(32, entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data[:len(U_BOOT_DATA)])
+        self.assertEqual(U_BOOT_DATA + tools.get_bytes(0, 32 - len(U_BOOT_DATA)),
+                         data[pos:pos + entry.size])
+
         self.CheckNoGaps(entries)
-        self.assertEqual(128, image.size)
+        self.assertEqual(160, image.size)
 
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
@@ -943,7 +952,7 @@ class TestFunctional(unittest.TestCase):
         expected = {
             'image-pos': 0,
             'offset': 0,
-            'size': 128,
+            'size': 160,
 
             'u-boot:image-pos': 0,
             'u-boot:offset': 0,
@@ -964,6 +973,10 @@ class TestFunctional(unittest.TestCase):
             'u-boot-align-both:image-pos': 64,
             'u-boot-align-both:offset': 64,
             'u-boot-align-both:size': 64,
+
+            'u-boot-min-size:image-pos': 128,
+            'u-boot-min-size:offset': 128,
+            'u-boot-min-size:size': 32,
             }
         self.assertEqual(expected, props)
 
