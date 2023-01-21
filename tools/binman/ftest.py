@@ -6337,6 +6337,50 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         }
         self.assertEqual(expected, props)
 
+    def testFitFirmwareLoadables(self):
+        """Test an image with an FIT that use fit,firmware"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        entry_args = {
+            'of-list': 'test-fdt1',
+            'default-dt': 'test-fdt1',
+            'atf-bl31-path': 'bl31.elf',
+            'tee-os-path': 'missing.bin',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        data = self._DoReadFileDtb(
+            '276_fit_firmware_loadables.dts',
+            entry_args=entry_args,
+            extra_indirs=[test_subdir])[0]
+
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+
+        node = dtb.GetNode('/configurations/conf-uboot-1')
+        self.assertEqual('u-boot', node.props['firmware'].value)
+        self.assertEqual(['atf-1', 'atf-2'],
+                         fdt_util.GetStringList(node, 'loadables'))
+
+        node = dtb.GetNode('/configurations/conf-atf-1')
+        self.assertEqual('atf-1', node.props['firmware'].value)
+        self.assertEqual(['u-boot', 'atf-2'],
+                         fdt_util.GetStringList(node, 'loadables'))
+
+        node = dtb.GetNode('/configurations/conf-missing-uboot-1')
+        self.assertEqual('u-boot', node.props['firmware'].value)
+        self.assertEqual(['atf-1', 'atf-2'],
+                         fdt_util.GetStringList(node, 'loadables'))
+
+        node = dtb.GetNode('/configurations/conf-missing-atf-1')
+        self.assertEqual('atf-1', node.props['firmware'].value)
+        self.assertEqual(['u-boot', 'atf-2'],
+                         fdt_util.GetStringList(node, 'loadables'))
+
+        node = dtb.GetNode('/configurations/conf-missing-tee-1')
+        self.assertEqual('atf-1', node.props['firmware'].value)
+        self.assertEqual(['u-boot', 'atf-2'],
+                         fdt_util.GetStringList(node, 'loadables'))
+
 
 if __name__ == "__main__":
     unittest.main()
