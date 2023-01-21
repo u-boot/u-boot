@@ -2022,8 +2022,8 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 	case IBR_HDR_SPI_ID:
 		if (hdr->destaddr == cpu_to_le32(0xFFFFFFFF)) {
 			kwboot_printv("Patching destination and execution addresses from SPI/NOR XIP area to DDR area 0x00800000\n");
-			hdr->destaddr = cpu_to_le32(0x00800000);
-			hdr->execaddr = cpu_to_le32(0x00800000);
+			hdr->destaddr = cpu_to_le32(0x00800000 + le32_to_cpu(hdr->srcaddr));
+			hdr->execaddr = cpu_to_le32(0x00800000 + le32_to_cpu(hdr->execaddr));
 		}
 		break;
 	}
