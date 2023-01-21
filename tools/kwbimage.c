@@ -1887,7 +1887,9 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	 * Do not use sbuf->st_size as it contains size with padding.
 	 * We need original image data size, so stat original file.
 	 */
-	if (stat(params->datafile, &s)) {
+	if (params->skipcpy) {
+		s.st_size = 0;
+	} else if (stat(params->datafile, &s)) {
 		fprintf(stderr, "Could not stat data file %s: %s\n",
 			params->datafile, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -2106,6 +2108,8 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 	return 0;
 }
 
+static int kwbimage_align_size(int bootfrom, int alloc_len, struct stat s);
+
 static int kwbimage_generate(struct image_tool_params *params,
 			     struct image_type_params *tparams)
 {
@@ -2124,7 +2128,9 @@ static int kwbimage_generate(struct image_tool_params *params,
 		exit(EXIT_FAILURE);
 	}
 
-	if (stat(params->datafile, &s)) {
+	if (params->skipcpy) {
+		s.st_size = 0;
+	} else if (stat(params->datafile, &s)) {
 		fprintf(stderr, "Could not stat data file %s: %s\n",
 			params->datafile, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -2195,6 +2201,22 @@ static int kwbimage_generate(struct image_tool_params *params,
 	tparams->header_size = alloc_len;
 	tparams->hdr = hdr;
 
+	/*
+	 * This function should return aligned size of the datafile.
+	 * When skipcpy is set (datafile is skipped) then return value of this
+	 * function is ignored, so we have to put required kwbimage aligning
+	 * into the preallocated header size.
+	 */
+	if (params->skipcpy) {
+		tparams->header_size += kwbimage_align_size(bootfrom, alloc_len, s);
+		return 0;
+	} else {
+		return kwbimage_align_size(bootfrom, alloc_len, s);
+	}
+}
+
+static int kwbimage_align_size(int bootfrom, int alloc_len, struct stat s)
+{
 	/*
 	 * The resulting image needs to be 4-byte aligned. At least
 	 * the Marvell hdrparser tool complains if its unaligned.
@@ -2510,7 +2532,7 @@ static int kwbimage_check_params(struct image_tool_params *params)
 		return 1;
 	}
 
-	return (params->dflag && (params->fflag || params->lflag)) ||
+	return (params->dflag && (params->fflag || params->lflag || params->skipcpy)) ||
 		(params->fflag) ||
 		(params->lflag && (params->dflag || params->fflag));
 }
