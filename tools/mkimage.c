@@ -599,7 +599,7 @@ int main(int argc, char **argv)
 		exit (retval);
 	}
 
-	if ((params.type != IH_TYPE_MULTI) && (params.type != IH_TYPE_SCRIPT)) {
+	if (!params.skipcpy && params.type != IH_TYPE_MULTI && params.type != IH_TYPE_SCRIPT) {
 		if (!params.datafile) {
 			fprintf(stderr, "%s: Option -d with image data file was not specified\n",
 				params.cmdname);
