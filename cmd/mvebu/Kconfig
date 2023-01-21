@@ -3,6 +3,7 @@ depends on ARCH_MVEBU
 
 config CMD_MVEBU_BUBT
 	bool "bubt"
+	default y
 	select SHA256 if ARMADA_3700
 	select SHA512 if ARMADA_3700
 	select DOS_PARTITION if ARMADA_3700
