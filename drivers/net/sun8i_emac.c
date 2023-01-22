@@ -127,12 +127,16 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-enum emac_variant {
+enum emac_variant_id {
 	A83T_EMAC = 1,
 	H3_EMAC,
 	A64_EMAC,
 	R40_GMAC,
 	H6_EMAC,
+};
+
+struct emac_variant {
+	enum emac_variant_id	variant;
 };
 
 struct emac_dma_desc {
@@ -160,7 +164,7 @@ struct emac_eth_dev {
 	u32 tx_slot;
 	bool use_internal_phy;
 
-	enum emac_variant variant;
+	const struct emac_variant *variant;
 	void *mac_reg;
 	phys_addr_t sysctl_reg;
 	struct phy_device *phydev;
@@ -317,7 +321,7 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 {
 	u32 reg;
 
-	if (priv->variant == R40_GMAC) {
+	if (priv->variant->variant == R40_GMAC) {
 		/* Select RGMII for R40 */
 		reg = readl(priv->sysctl_reg + 0x164);
 		reg |= SC_ETCS_INT_GMII |
@@ -333,9 +337,9 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 	reg = sun8i_emac_set_syscon_ephy(priv, reg);
 
 	reg &= ~(SC_ETCS_MASK | SC_EPIT);
-	if (priv->variant == H3_EMAC ||
-	    priv->variant == A64_EMAC ||
-	    priv->variant == H6_EMAC)
+	if (priv->variant->variant == H3_EMAC ||
+	    priv->variant->variant == A64_EMAC ||
+	    priv->variant->variant == H6_EMAC)
 		reg &= ~SC_RMII_EN;
 
 	switch (priv->interface) {
@@ -349,9 +353,9 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 		reg |= SC_EPIT | SC_ETCS_INT_GMII;
 		break;
 	case PHY_INTERFACE_MODE_RMII:
-		if (priv->variant == H3_EMAC ||
-		    priv->variant == A64_EMAC ||
-		    priv->variant == H6_EMAC) {
+		if (priv->variant->variant == H3_EMAC ||
+		    priv->variant->variant == A64_EMAC ||
+		    priv->variant->variant == H6_EMAC) {
 			reg |= SC_RMII_EN | SC_ETCS_EXT_GMII;
 		break;
 		}
@@ -806,7 +810,7 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	priv->variant = dev_get_driver_data(dev);
+	priv->variant = (const void *)dev_get_driver_data(dev);
 
 	if (!priv->variant) {
 		printf("%s: Missing variant\n", __func__);
@@ -860,7 +864,7 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
-	if (priv->variant == H3_EMAC) {
+	if (priv->variant->variant == H3_EMAC) {
 		ret = sun8i_handle_internal_phy(dev, priv);
 		if (ret)
 			return ret;
@@ -900,16 +904,37 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static const struct emac_variant emac_variant_a83t = {
+	.variant		= A83T_EMAC,
+};
+
+static const struct emac_variant emac_variant_h3 = {
+	.variant		= H3_EMAC,
+};
+
+static const struct emac_variant emac_variant_r40 = {
+	.variant		= R40_GMAC,
+};
+
+static const struct emac_variant emac_variant_a64 = {
+	.variant		= A64_EMAC,
+};
+
+static const struct emac_variant emac_variant_h6 = {
+	.variant		= H6_EMAC,
+};
+
 static const struct udevice_id sun8i_emac_eth_ids[] = {
-	{.compatible = "allwinner,sun8i-h3-emac", .data = (uintptr_t)H3_EMAC },
-	{.compatible = "allwinner,sun50i-a64-emac",
-		.data = (uintptr_t)A64_EMAC },
-	{.compatible = "allwinner,sun8i-a83t-emac",
-		.data = (uintptr_t)A83T_EMAC },
-	{.compatible = "allwinner,sun8i-r40-gmac",
-		.data = (uintptr_t)R40_GMAC },
-	{.compatible = "allwinner,sun50i-h6-emac",
-		.data = (uintptr_t)H6_EMAC },
+	{ .compatible = "allwinner,sun8i-a83t-emac",
+	  .data = (ulong)&emac_variant_a83t },
+	{ .compatible = "allwinner,sun8i-h3-emac",
+	  .data = (ulong)&emac_variant_h3 },
+	{ .compatible = "allwinner,sun8i-r40-gmac",
+	  .data = (ulong)&emac_variant_r40 },
+	{ .compatible = "allwinner,sun50i-a64-emac",
+	  .data = (ulong)&emac_variant_a64 },
+	{ .compatible = "allwinner,sun50i-h6-emac",
+	  .data = (ulong)&emac_variant_h6 },
 	{ }
 };
 
