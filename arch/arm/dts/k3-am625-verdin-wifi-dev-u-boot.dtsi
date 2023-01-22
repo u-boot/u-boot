@@ -1,0 +1,201 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * Copyright 2023 Toradex
+ */
+
+#include "k3-am625-verdin-wifi-dev-binman.dtsi"
+
+/ {
+	aliases {
+		eeprom0 = &eeprom_module;
+		eeprom1 = &eeprom_carrier_board;
+		eeprom2 = &eeprom_display_adapter;
+	};
+
+	chosen {
+		tick-timer = &main_timer0;
+	};
+
+	memory@80000000 {
+		bootph-pre-ram;
+	};
+};
+
+&cbass_main {
+	bootph-pre-ram;
+
+	timer@2400000 {
+		clock-frequency = <25000000>;
+		bootph-pre-ram;
+	};
+};
+
+&cbass_mcu {
+	bootph-pre-ram;
+};
+
+&cbass_wakeup {
+	bootph-pre-ram;
+};
+
+&chipid {
+	bootph-pre-ram;
+};
+
+&cpsw3g {
+	bootph-pre-ram;
+};
+
+&cpsw3g_phy0 {
+	bootph-pre-ram;
+};
+
+&cpsw3g_phy1 {
+	bootph-pre-ram;
+};
+
+&cpsw_port1 {
+	bootph-pre-ram;
+};
+
+&cpsw_port2 {
+	bootph-pre-ram;
+};
+
+/* MDIO, shared by Verdin ETH_1 (On-module PHY) and Verdin ETH_2_RGMII */
+&cpsw3g_mdio {
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	/delete-property/ assigned-clock-rates;
+	bootph-pre-ram;
+};
+
+&dmsc {
+	bootph-pre-ram;
+
+	k3_sysreset: sysreset-controller {
+		compatible = "ti,sci-sysreset";
+		bootph-pre-ram;
+	};
+};
+
+&dmss {
+	bootph-pre-ram;
+};
+
+&fss {
+	bootph-pre-ram;
+};
+
+&k3_clks {
+	bootph-pre-ram;
+};
+
+&k3_pds {
+	bootph-pre-ram;
+};
+
+&k3_reset {
+	bootph-pre-ram;
+};
+
+&main_gpio0 {
+	bootph-pre-ram;
+};
+
+/* On-module I2C - PMIC_I2C */
+&main_i2c0 {
+	eeprom_module: eeprom@50 {
+		compatible = "i2c-eeprom";
+		pagesize = <16>;
+		reg = <0x50>;
+	};
+};
+
+/* Verdin I2C_1 */
+&main_i2c1 {
+	/* EEPROM on display adapter (MIPI DSI Display Adapter) */
+	eeprom_display_adapter: eeprom@50 {
+		compatible = "i2c-eeprom";
+		reg = <0x50>;
+		pagesize = <16>;
+	};
+
+	/* EEPROM on carrier board */
+	eeprom_carrier_board: eeprom@57 {
+		compatible = "i2c-eeprom";
+		reg = <0x57>;
+		pagesize = <16>;
+	};
+};
+
+&main_pmx0 {
+	bootph-pre-ram;
+};
+
+/* Verdin UART_3, used as the Linux console */
+&main_uart0 {
+	bootph-pre-ram;
+};
+
+/* Verdin UART_1 */
+&main_uart1 {
+	bootph-pre-ram;
+};
+
+&mcu_pmx0 {
+	bootph-pre-ram;
+};
+
+&pinctrl_ctrl_sleep_moci {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c0 {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c1 {
+	bootph-pre-ram;
+};
+
+&pinctrl_sdhci0 {
+	bootph-pre-ram;
+};
+
+&pinctrl_uart0 {
+	bootph-pre-ram;
+};
+
+&pinctrl_uart1 {
+	bootph-pre-ram;
+};
+
+&pinctrl_wkup_uart0 {
+	bootph-pre-ram;
+};
+
+&sdhci0 {
+	bootph-pre-ram;
+};
+
+&sdhci2 {
+	status = "disabled";
+};
+
+&secure_proxy_main {
+	bootph-pre-ram;
+};
+
+&verdin_ctrl_sleep_moci {
+	bootph-pre-ram;
+};
+
+&wkup_conf {
+	bootph-pre-ram;
+};
+
+/* Verdin UART_2 */
+&wkup_uart0 {
+	bootph-pre-ram;
+};

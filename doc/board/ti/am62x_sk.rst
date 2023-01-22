@@ -54,7 +54,7 @@ Below is the pictorial representation of boot flow:
 Sources:
 --------
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_boot_sources
     :end-before: .. k3_rst_include_end_boot_sources
 
@@ -62,17 +62,17 @@ Build procedure:
 ----------------
 0. Setup the environment variables:
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_common_env_vars_desc
     :end-before: .. k3_rst_include_end_common_env_vars_desc
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_board_env_vars_desc
     :end-before: .. k3_rst_include_end_board_env_vars_desc
 
 Set the variables corresponding to this platform:
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_common_env_vars_defn
     :end-before: .. k3_rst_include_end_common_env_vars_defn
 .. code-block:: bash
@@ -89,14 +89,14 @@ Set the variables corresponding to this platform:
 
 1. Trusted Firmware-A:
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_build_steps_tfa
     :end-before: .. k3_rst_include_end_build_steps_tfa
 
 
 2. OP-TEE:
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_build_steps_optee
     :end-before: .. k3_rst_include_end_build_steps_optee
 
@@ -104,13 +104,13 @@ Set the variables corresponding to this platform:
 
 * 4.1 R5:
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_build_steps_spl_r5
     :end-before: .. k3_rst_include_end_build_steps_spl_r5
 
 * 4.2 A53:
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_build_steps_uboot
     :end-before: .. k3_rst_include_end_build_steps_uboot
 .. am62x_evm_rst_include_end_build_steps
