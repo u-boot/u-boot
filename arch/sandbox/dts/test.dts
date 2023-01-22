@@ -172,11 +172,13 @@
 		btn1 {
 			gpios = <&gpio_a 3 0>;
 			label = "button1";
+			linux,code = <BTN_1>;
 		};
 
 		btn2 {
 			gpios = <&gpio_a 4 0>;
 			label = "button2";
+			linux,code = <BTN_2>;
 		};
 	};
 
