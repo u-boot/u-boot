@@ -1,0 +1,532 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * Copyright 2023 Toradex
+ */
+
+#include "k3-binman.dtsi"
+
+&custmpk_pem {
+	filename = "../../ti/keys/custMpk.pem";
+};
+
+&dkey_pem {
+	filename = "../../ti/keys/ti-degenerate-key.pem";
+};
+
+#ifndef CONFIG_ARM64
+
+&bcfg_yaml {
+	schema = "../../ti/common/schema.yaml";
+};
+
+&pcfg_yaml {
+	schema = "../../ti/common/schema.yaml";
+};
+
+&rcfg_yaml {
+	schema = "../../ti/common/schema.yaml";
+};
+
+&scfg_yaml {
+	schema = "../../ti/common/schema.yaml";
+};
+
+/* combined-tifs-cfg */
+
+&bcfg_yaml_tifs {
+	schema = "../../ti/common/schema.yaml";
+};
+
+&pcfg_yaml_tifs {
+	schema = "../../ti/common/schema.yaml";
+};
+
+&rcfg_yaml_tifs {
+	schema = "../../ti/common/schema.yaml";
+};
+
+&scfg_yaml_tifs {
+	schema = "../../ti/common/schema.yaml";
+};
+
+/* combined-dm-cfg */
+
+&pcfg_yaml_dm {
+	schema = "../../ti/common/schema.yaml";
+};
+
+&rcfg_yaml_dm {
+	schema = "../../ti/common/schema.yaml";
+};
+
+/* combined-sysfw-cfg */
+
+&bcfg_yaml_sysfw {
+	schema = "../../ti/common/schema.yaml";
+};
+
+&pcfg_yaml_sysfw {
+	schema = "../../ti/common/schema.yaml";
+};
+
+&rcfg_yaml_sysfw {
+	schema = "../../ti/common/schema.yaml";
+};
+
+&scfg_yaml_sysfw {
+	schema = "../../ti/common/schema.yaml";
+};
+
+#endif /* CONFIG_ARM64 */
+
+#ifdef CONFIG_TARGET_VERDIN_AM62_R5
+
+&binman {
+	tiboot3-am62x-hs-verdin.bin {
+		filename = "tiboot3-am62x-hs-verdin.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl>, <&ti_fs_enc>, <&combined_tifs_cfg>,
+				<&combined_dm_cfg>, <&sysfw_inner_cert>;
+			combined;
+			dm-data;
+			sysfw-inner-cert;
+			keyfile = "custMpk.pem";
+			sw-rev = <1>;
+			content-sbl = <&u_boot_spl>;
+			content-sysfw = <&ti_fs_enc>;
+			content-sysfw-data = <&combined_tifs_cfg>;
+			content-sysfw-inner-cert = <&sysfw_inner_cert>;
+			content-dm-data = <&combined_dm_cfg>;
+			load = <0x43c00000>;
+			load-sysfw = <0x40000>;
+			load-sysfw-data = <0x67000>;
+			load-dm-data = <0x43c3a800>;
+		};
+		u_boot_spl: u-boot-spl {
+			no-expanded;
+		};
+		ti_fs_enc: ti-fs-enc.bin {
+			filename = "ti-sysfw/ti-fs-firmware-am62x-hs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+		combined_tifs_cfg: combined-tifs-cfg.bin {
+			filename = "combined-tifs-cfg.bin";
+			type = "blob-ext";
+		};
+		sysfw_inner_cert: sysfw-inner-cert {
+			filename = "ti-sysfw/ti-fs-firmware-am62x-hs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+		combined_dm_cfg: combined-dm-cfg.bin {
+			filename = "combined-dm-cfg.bin";
+			type = "blob-ext";
+		};
+	};
+};
+
+&binman {
+	tiboot3-am62x-hs-fs-verdin.bin {
+		filename = "tiboot3-am62x-hs-fs-verdin.bin";
+		symlink = "tiboot3.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl_fs>, <&ti_fs_enc_fs>, <&combined_tifs_cfg_fs>,
+				<&combined_dm_cfg_fs>, <&sysfw_inner_cert_fs>;
+			combined;
+			dm-data;
+			sysfw-inner-cert;
+			keyfile = "custMpk.pem";
+			sw-rev = <1>;
+			content-sbl = <&u_boot_spl_fs>;
+			content-sysfw = <&ti_fs_enc_fs>;
+			content-sysfw-data = <&combined_tifs_cfg_fs>;
+			content-sysfw-inner-cert = <&sysfw_inner_cert_fs>;
+			content-dm-data = <&combined_dm_cfg_fs>;
+			load = <0x43c00000>;
+			load-sysfw = <0x40000>;
+			load-sysfw-data = <0x67000>;
+			load-dm-data = <0x43c3a800>;
+		};
+		u_boot_spl_fs: u-boot-spl {
+			no-expanded;
+		};
+		ti_fs_enc_fs: ti-fs-enc.bin {
+			filename = "ti-sysfw/ti-fs-firmware-am62x-hs-fs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+		combined_tifs_cfg_fs: combined-tifs-cfg.bin {
+			filename = "combined-tifs-cfg.bin";
+			type = "blob-ext";
+		};
+		sysfw_inner_cert_fs: sysfw-inner-cert {
+			filename = "ti-sysfw/ti-fs-firmware-am62x-hs-fs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+		combined_dm_cfg_fs: combined-dm-cfg.bin {
+			filename = "combined-dm-cfg.bin";
+			type = "blob-ext";
+		};
+	};
+};
+
+&binman {
+	tiboot3-am62x-gp-verdin.bin {
+		filename = "tiboot3-am62x-gp-verdin.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl_unsigned>, <&ti_fs_gp>,
+				<&combined_tifs_cfg_gp>, <&combined_dm_cfg_gp>;
+			combined;
+			dm-data;
+			content-sbl = <&u_boot_spl_unsigned>;
+			load = <0x43c00000>;
+			content-sysfw = <&ti_fs_gp>;
+			load-sysfw = <0x40000>;
+			content-sysfw-data = <&combined_tifs_cfg_gp>;
+			load-sysfw-data = <0x67000>;
+			content-dm-data = <&combined_dm_cfg_gp>;
+			load-dm-data = <0x43c3a800>;
+			sw-rev = <1>;
+			keyfile = "ti-degenerate-key.pem";
+		};
+		u_boot_spl_unsigned: u-boot-spl {
+			no-expanded;
+		};
+		ti_fs_gp: ti-fs-gp.bin {
+			filename = "ti-sysfw/ti-fs-firmware-am62x-gp.bin";
+			type = "blob-ext";
+			optional;
+		};
+		combined_tifs_cfg_gp: combined-tifs-cfg-gp.bin {
+			filename = "combined-tifs-cfg.bin";
+			type = "blob-ext";
+		};
+		combined_dm_cfg_gp: combined-dm-cfg-gp.bin {
+			filename = "combined-dm-cfg.bin";
+			type = "blob-ext";
+		};
+	};
+};
+
+#endif /* CONFIG_TARGET_VERDIN_AM62_R5 */
+
+#ifdef CONFIG_TARGET_VERDIN_AM62_A53
+
+#define SPL_NODTB "spl/u-boot-spl-nodtb.bin"
+#define SPL_VERDIN_AM62_DTB "spl/dts/k3-am625-verdin-wifi-dev.dtb"
+
+#define UBOOT_NODTB "u-boot-nodtb.bin"
+#define VERDIN_AM62_DTB "u-boot.dtb"
+
+&binman {
+	ti-dm {
+		filename = "ti-dm.bin";
+		blob-ext {
+			filename = "ti-dm/am62xx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+		};
+	};
+	ti-spl {
+		filename = "tispl.bin";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "Configuration to load ATF and SPL";
+			#address-cells = <1>;
+
+			images {
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					os = "arm-trusted-firmware";
+					load = <CONFIG_K3_ATF_LOAD_ADDR>;
+					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
+					ti-secure {
+						content = <&atf>;
+						keyfile = "custMpk.pem";
+					};
+					atf: atf-bl31 {
+					};
+				};
+
+				tee {
+					description = "OP-TEE";
+					type = "tee";
+					arch = "arm64";
+					compression = "none";
+					os = "tee";
+					load = <0x9e800000>;
+					entry = <0x9e800000>;
+					ti-secure {
+						content = <&tee>;
+						keyfile = "custMpk.pem";
+					};
+					tee: tee-os {
+					};
+				};
+
+				dm {
+					description = "DM binary";
+					type = "firmware";
+					arch = "arm32";
+					compression = "none";
+					os = "DM";
+					load = <0x89000000>;
+					entry = <0x89000000>;
+					ti-secure {
+						content = <&dm>;
+						keyfile = "custMpk.pem";
+					};
+					dm: blob-ext {
+						filename = "ti-dm.bin";
+					};
+				};
+
+				spl {
+					description = "SPL (64-bit)";
+					type = "standalone";
+					os = "U-Boot";
+					arch = "arm64";
+					compression = "none";
+					load = <CONFIG_SPL_TEXT_BASE>;
+					entry = <CONFIG_SPL_TEXT_BASE>;
+					ti-secure {
+						content = <&u_boot_spl_nodtb>;
+						keyfile = "custMpk.pem";
+					};
+					u_boot_spl_nodtb: blob-ext {
+						filename = SPL_NODTB;
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am625-verdin-wifi-dev";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&spl_verdin_am62_dtb>;
+						keyfile = "custMpk.pem";
+					};
+					spl_verdin_am62_dtb: blob-ext {
+						filename = SPL_VERDIN_AM62_DTB;
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am625-verdin-wifi-dev";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot {
+		filename = "u-boot.img";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "FIT image with multiple configurations";
+
+			images {
+				uboot {
+					description = "U-Boot for AM625 board";
+					type = "firmware";
+					os = "u-boot";
+					arch = "arm";
+					compression = "none";
+					load = <CONFIG_TEXT_BASE>;
+					ti-secure {
+						content = <&u_boot_nodtb>;
+						keyfile = "custMpk.pem";
+					};
+					u_boot_nodtb: u-boot-nodtb {
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am625-verdin-wifi-dev";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&verdin_am62_dtb>;
+						keyfile = "custMpk.pem";
+					};
+					verdin_am62_dtb: blob-ext {
+						filename = VERDIN_AM62_DTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am625-verdin-wifi-dev";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	ti-spl_unsigned {
+		filename = "tispl.bin_unsigned";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "Configuration to load ATF and SPL";
+			#address-cells = <1>;
+
+			images {
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					os = "arm-trusted-firmware";
+					load = <CONFIG_K3_ATF_LOAD_ADDR>;
+					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
+					atf-bl31 {
+						filename = "bl31.bin";
+					};
+				};
+
+				tee {
+					description = "OP-TEE";
+					type = "tee";
+					arch = "arm64";
+					compression = "none";
+					os = "tee";
+					load = <0x9e800000>;
+					entry = <0x9e800000>;
+					tee-os {
+						filename = "tee-raw.bin";
+					};
+				};
+
+				dm {
+					description = "DM binary";
+					type = "firmware";
+					arch = "arm32";
+					compression = "none";
+					os = "DM";
+					load = <0x89000000>;
+					entry = <0x89000000>;
+					blob-ext {
+						filename = "ti-dm.bin";
+					};
+				};
+
+				spl {
+					description = "SPL (64-bit)";
+					type = "standalone";
+					os = "U-Boot";
+					arch = "arm64";
+					compression = "none";
+					load = <CONFIG_SPL_TEXT_BASE>;
+					entry = <CONFIG_SPL_TEXT_BASE>;
+					blob {
+						filename = "spl/u-boot-spl-nodtb.bin";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am625-verdin-wifi-dev";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = SPL_VERDIN_AM62_DTB;
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am625-verdin-wifi-dev";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot_unsigned {
+		filename = "u-boot.img_unsigned";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "FIT image with multiple configurations";
+
+			images {
+				uboot {
+					description = "U-Boot for AM625 board";
+					type = "firmware";
+					os = "u-boot";
+					arch = "arm";
+					compression = "none";
+					load = <CONFIG_TEXT_BASE>;
+					blob {
+						filename = UBOOT_NODTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am625-verdin-wifi-dev";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = VERDIN_AM62_DTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am625-verdin-wifi-dev";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+#endif /* CONFIG_TARGET_VERDIN_AM62_A53 */
