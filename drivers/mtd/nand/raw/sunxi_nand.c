@@ -25,11 +25,10 @@
  */
 
 #include <common.h>
-#include <fdtdec.h>
+#include <dm.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <nand.h>
-#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bitops.h>
@@ -44,8 +43,6 @@
 
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define NFC_REG_CTL		0x0000
 #define NFC_REG_ST		0x0004
@@ -1605,19 +1602,18 @@ static int sunxi_nand_ecc_init(struct mtd_info *mtd, struct nand_ecc_ctrl *ecc)
 	return 0;
 }
 
-static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
+static int sunxi_nand_chip_init(ofnode np, struct sunxi_nfc *nfc, int devnum)
 {
 	const struct nand_sdr_timings *timings;
-	const void *blob = gd->fdt_blob;
 	struct sunxi_nand_chip *chip;
 	struct mtd_info *mtd;
 	struct nand_chip *nand;
 	int nsels;
 	int ret;
 	int i;
-	u32 cs[8], rb[8];
+	u32 tmp;
 
-	if (!fdt_getprop(blob, node, "reg", &nsels))
+	if (!ofnode_get_property(np, "reg", &nsels))
 		return -EINVAL;
 
 	nsels /= sizeof(u32);
@@ -1638,25 +1634,12 @@ static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
 	chip->selected = -1;
 
 	for (i = 0; i < nsels; i++) {
-		cs[i] = -1;
-		rb[i] = -1;
-	}
-
-	ret = fdtdec_get_int_array(gd->fdt_blob, node, "reg", cs, nsels);
-	if (ret) {
-		dev_err(nfc->dev, "could not retrieve reg property: %d\n", ret);
-		return ret;
-	}
-
-	ret = fdtdec_get_int_array(gd->fdt_blob, node, "allwinner,rb", rb,
-				   nsels);
-	if (ret) {
-		dev_err(nfc->dev, "could not retrieve reg property: %d\n", ret);
-		return ret;
-	}
-
-	for (i = 0; i < nsels; i++) {
-		int tmp = cs[i];
+		ret = ofnode_read_u32_index(np, "reg", i, &tmp);
+		if (ret) {
+			dev_err(nfc->dev, "could not retrieve reg property: %d\n",
+				ret);
+			return ret;
+		}
 
 		if (tmp > NFC_MAX_CS) {
 			dev_err(nfc->dev,
@@ -1671,15 +1654,14 @@ static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
 
 		chip->sels[i].cs = tmp;
 
-		tmp = rb[i];
-		if (tmp >= 0 && tmp < 2) {
+		if (!ofnode_read_u32_index(np, "allwinner,rb", i, &tmp) &&
+		    tmp < 2) {
 			chip->sels[i].rb.type = RB_NATIVE;
 			chip->sels[i].rb.info.nativeid = tmp;
 		} else {
-			ret = gpio_request_by_name_nodev(offset_to_ofnode(node),
-						"rb-gpios", i,
-						&chip->sels[i].rb.info.gpio,
-						GPIOD_IS_IN);
+			ret = gpio_request_by_name_nodev(np, "rb-gpios", i,
+							 &chip->sels[i].rb.info.gpio,
+							 GPIOD_IS_IN);
 			if (ret)
 				chip->sels[i].rb.type = RB_GPIO;
 			else
@@ -1711,7 +1693,7 @@ static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
 	 * in the DT.
 	 */
 	nand->ecc.mode = NAND_ECC_HW;
-	nand->flash_node = offset_to_ofnode(node);
+	nand->flash_node = np;
 	nand->select_chip = sunxi_nfc_select_chip;
 	nand->cmd_ctrl = sunxi_nfc_cmd_ctrl;
 	nand->read_buf = sunxi_nfc_read_buf;
@@ -1760,15 +1742,13 @@ static int sunxi_nand_chip_init(int node, struct sunxi_nfc *nfc, int devnum)
 	return 0;
 }
 
-static int sunxi_nand_chips_init(int node, struct sunxi_nfc *nfc)
+static int sunxi_nand_chips_init(ofnode node, struct sunxi_nfc *nfc)
 {
-	const void *blob = gd->fdt_blob;
-	int nand_node;
+	ofnode nand_np;
 	int ret, i = 0;
 
-	for (nand_node = fdt_first_subnode(blob, node); nand_node >= 0;
-	     nand_node = fdt_next_subnode(blob, nand_node)) {
-		ret = sunxi_nand_chip_init(nand_node, nfc, i++);
+	ofnode_for_each_subnode(nand_np, node) {
+		ret = sunxi_nand_chip_init(nand_np, nfc, i++);
 		if (ret)
 			return ret;
 	}
@@ -1794,10 +1774,9 @@ static void sunxi_nand_chips_cleanup(struct sunxi_nfc *nfc)
 
 void sunxi_nand_init(void)
 {
-	const void *blob = gd->fdt_blob;
 	struct sunxi_nfc *nfc;
-	fdt_addr_t regs;
-	int node;
+	phys_addr_t regs;
+	ofnode node;
 	int ret;
 
 	nfc = kzalloc(sizeof(*nfc), GFP_KERNEL);
@@ -1808,18 +1787,18 @@ void sunxi_nand_init(void)
 	init_waitqueue_head(&nfc->controller.wq);
 	INIT_LIST_HEAD(&nfc->chips);
 
-	node = fdtdec_next_compatible(blob, 0, COMPAT_SUNXI_NAND);
-	if (node < 0) {
+	node = ofnode_by_compatible(ofnode_null(), "allwinner,sun4i-a10-nand");
+	if (!ofnode_valid(node)) {
 		pr_err("unable to find nfc node in device tree\n");
 		goto err;
 	}
 
-	if (!fdtdec_get_is_enabled(blob, node)) {
+	if (!ofnode_is_enabled(node)) {
 		pr_err("nfc disabled in device tree\n");
 		goto err;
 	}
 
-	regs = fdtdec_get_addr(blob, node, "reg");
+	regs = ofnode_get_addr(node);
 	if (regs == FDT_ADDR_T_NONE) {
 		pr_err("unable to find nfc address in device tree\n");
 		goto err;
