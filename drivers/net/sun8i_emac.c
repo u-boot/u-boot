@@ -137,6 +137,7 @@ enum emac_variant_id {
 
 struct emac_variant {
 	enum emac_variant_id	variant;
+	bool			support_rmii;
 };
 
 struct emac_dma_desc {
@@ -337,9 +338,7 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 	reg = sun8i_emac_set_syscon_ephy(priv, reg);
 
 	reg &= ~(SC_ETCS_MASK | SC_EPIT);
-	if (priv->variant->variant == H3_EMAC ||
-	    priv->variant->variant == A64_EMAC ||
-	    priv->variant->variant == H6_EMAC)
+	if (priv->variant->support_rmii)
 		reg &= ~SC_RMII_EN;
 
 	switch (priv->interface) {
@@ -353,13 +352,10 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 		reg |= SC_EPIT | SC_ETCS_INT_GMII;
 		break;
 	case PHY_INTERFACE_MODE_RMII:
-		if (priv->variant->variant == H3_EMAC ||
-		    priv->variant->variant == A64_EMAC ||
-		    priv->variant->variant == H6_EMAC) {
+		if (priv->variant->support_rmii) {
 			reg |= SC_RMII_EN | SC_ETCS_EXT_GMII;
-		break;
+			break;
 		}
-		/* RMII not supported on A83T */
 	default:
 		debug("%s: Invalid PHY interface\n", __func__);
 		return -EINVAL;
@@ -910,6 +906,7 @@ static const struct emac_variant emac_variant_a83t = {
 
 static const struct emac_variant emac_variant_h3 = {
 	.variant		= H3_EMAC,
+	.support_rmii		= true,
 };
 
 static const struct emac_variant emac_variant_r40 = {
@@ -918,10 +915,12 @@ static const struct emac_variant emac_variant_r40 = {
 
 static const struct emac_variant emac_variant_a64 = {
 	.variant		= A64_EMAC,
+	.support_rmii		= true,
 };
 
 static const struct emac_variant emac_variant_h6 = {
 	.variant		= H6_EMAC,
+	.support_rmii		= true,
 };
 
 static const struct udevice_id sun8i_emac_eth_ids[] = {
