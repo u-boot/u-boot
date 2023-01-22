@@ -303,9 +303,25 @@ static int qcom_pwrkey_get_value(struct udevice *dev, unsigned offset)
 	}
 }
 
+/*
+ * Since pmic buttons modelled as GPIO, we need empty direction functions
+ * to trick u-boot button driver
+ */
+static int qcom_pwrkey_direction_input(struct udevice *dev, unsigned int offset)
+{
+	return 0;
+}
+
+static int qcom_pwrkey_direction_output(struct udevice *dev, unsigned int offset, int value)
+{
+	return -EOPNOTSUPP;
+}
+
 static const struct dm_gpio_ops qcom_pwrkey_ops = {
 	.get_value		= qcom_pwrkey_get_value,
 	.get_function		= qcom_pwrkey_get_function,
+	.direction_input	= qcom_pwrkey_direction_input,
+	.direction_output	= qcom_pwrkey_direction_output,
 };
 
 static int qcom_pwrkey_probe(struct udevice *dev)
