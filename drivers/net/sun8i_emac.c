@@ -137,6 +137,7 @@ enum emac_variant_id {
 
 struct emac_variant {
 	enum emac_variant_id	variant;
+	uint			syscon_offset;
 	bool			soc_has_internal_phy;
 	bool			support_rmii;
 };
@@ -168,7 +169,7 @@ struct emac_eth_dev {
 
 	const struct emac_variant *variant;
 	void *mac_reg;
-	phys_addr_t sysctl_reg;
+	void *sysctl_reg;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 	struct clk tx_clk;
@@ -323,18 +324,7 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 {
 	u32 reg;
 
-	if (priv->variant->variant == R40_GMAC) {
-		/* Select RGMII for R40 */
-		reg = readl(priv->sysctl_reg + 0x164);
-		reg |= SC_ETCS_INT_GMII |
-		       SC_EPIT |
-		       (CONFIG_GMAC_TX_DELAY << SC_ETXDC_OFFSET);
-
-		writel(reg, priv->sysctl_reg + 0x164);
-		return 0;
-	}
-
-	reg = readl(priv->sysctl_reg + 0x30);
+	reg = readl(priv->sysctl_reg);
 
 	reg = sun8i_emac_set_syscon_ephy(priv, reg);
 
@@ -370,7 +360,7 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 		reg |= ((pdata->rx_delay_ps / 100) << SC_ERXDC_OFFSET)
 			 & SC_ERXDC_MASK;
 
-	writel(reg, priv->sysctl_reg + 0x30);
+	writel(reg, priv->sysctl_reg);
 
 	return 0;
 }
@@ -793,6 +783,7 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 	struct sun8i_eth_pdata *sun8i_pdata = dev_get_plat(dev);
 	struct eth_pdata *pdata = &sun8i_pdata->eth_pdata;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
+	phys_addr_t syscon_base;
 	const fdt32_t *reg;
 	int node = dev_of_offset(dev);
 	int offset = 0;
@@ -838,12 +829,14 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 		      __func__);
 		return -EINVAL;
 	}
-	priv->sysctl_reg = fdt_translate_address((void *)gd->fdt_blob,
-						 offset, reg);
-	if (priv->sysctl_reg == FDT_ADDR_T_NONE) {
+
+	syscon_base = fdt_translate_address((void *)gd->fdt_blob, offset, reg);
+	if (syscon_base == FDT_ADDR_T_NONE) {
 		debug("%s: Cannot find syscon base address\n", __func__);
 		return -EINVAL;
 	}
+
+	priv->sysctl_reg = (void *)syscon_base + priv->variant->syscon_offset;
 
 	pdata->phy_interface = -1;
 	priv->phyaddr = -1;
@@ -903,25 +896,30 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 
 static const struct emac_variant emac_variant_a83t = {
 	.variant		= A83T_EMAC,
+	.syscon_offset		= 0x30,
 };
 
 static const struct emac_variant emac_variant_h3 = {
 	.variant		= H3_EMAC,
+	.syscon_offset		= 0x30,
 	.soc_has_internal_phy	= true,
 	.support_rmii		= true,
 };
 
 static const struct emac_variant emac_variant_r40 = {
 	.variant		= R40_GMAC,
+	.syscon_offset		= 0x164,
 };
 
 static const struct emac_variant emac_variant_a64 = {
 	.variant		= A64_EMAC,
+	.syscon_offset		= 0x30,
 	.support_rmii		= true,
 };
 
 static const struct emac_variant emac_variant_h6 = {
 	.variant		= H6_EMAC,
+	.syscon_offset		= 0x30,
 	.support_rmii		= true,
 };
 
