@@ -127,16 +127,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-enum emac_variant_id {
-	A83T_EMAC = 1,
-	H3_EMAC,
-	A64_EMAC,
-	R40_GMAC,
-	H6_EMAC,
-};
-
 struct emac_variant {
-	enum emac_variant_id	variant;
 	uint			syscon_offset;
 	bool			soc_has_internal_phy;
 	bool			support_rmii;
@@ -895,30 +886,25 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 }
 
 static const struct emac_variant emac_variant_a83t = {
-	.variant		= A83T_EMAC,
 	.syscon_offset		= 0x30,
 };
 
 static const struct emac_variant emac_variant_h3 = {
-	.variant		= H3_EMAC,
 	.syscon_offset		= 0x30,
 	.soc_has_internal_phy	= true,
 	.support_rmii		= true,
 };
 
 static const struct emac_variant emac_variant_r40 = {
-	.variant		= R40_GMAC,
 	.syscon_offset		= 0x164,
 };
 
 static const struct emac_variant emac_variant_a64 = {
-	.variant		= A64_EMAC,
 	.syscon_offset		= 0x30,
 	.support_rmii		= true,
 };
 
 static const struct emac_variant emac_variant_h6 = {
-	.variant		= H6_EMAC,
 	.syscon_offset		= 0x30,
 	.support_rmii		= true,
 };
