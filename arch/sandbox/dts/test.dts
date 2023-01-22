@@ -1537,6 +1537,20 @@
 		};
 	};
 
+	ofnode-foreach {
+		compatible = "foreach";
+
+		first {
+			prop1 = <1>;
+			prop2 = <2>;
+		};
+
+		second {
+			prop1 = <1>;
+			prop2 = <2>;
+		};
+	};
+
 	osd {
 		compatible = "sandbox,sandbox_osd";
 	};
