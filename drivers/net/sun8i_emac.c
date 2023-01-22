@@ -137,6 +137,7 @@ enum emac_variant_id {
 
 struct emac_variant {
 	enum emac_variant_id	variant;
+	bool			soc_has_internal_phy;
 	bool			support_rmii;
 };
 
@@ -860,7 +861,7 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
-	if (priv->variant->variant == H3_EMAC) {
+	if (priv->variant->soc_has_internal_phy) {
 		ret = sun8i_handle_internal_phy(dev, priv);
 		if (ret)
 			return ret;
@@ -906,6 +907,7 @@ static const struct emac_variant emac_variant_a83t = {
 
 static const struct emac_variant emac_variant_h3 = {
 	.variant		= H3_EMAC,
+	.soc_has_internal_phy	= true,
 	.support_rmii		= true,
 };
 
