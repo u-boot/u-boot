@@ -535,7 +535,7 @@ const char *spl_board_loader_name(u32 boot_device);
 void __noreturn jump_to_image_linux(struct spl_image_info *spl_image);
 
 /**
- * jump_to_image_linux() - Jump to OP-TEE OS from SPL
+ * jump_to_image_optee() - Jump to OP-TEE OS from SPL
  *
  * This jumps into OP-TEE OS using the information in @spl_image.
  *
