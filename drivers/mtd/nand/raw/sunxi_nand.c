@@ -1767,16 +1767,6 @@ static int sunxi_nand_chips_init(int node, struct sunxi_nfc *nfc)
 	int ret, i = 0;
 
 	for (nand_node = fdt_first_subnode(blob, node); nand_node >= 0;
-	     nand_node = fdt_next_subnode(blob, nand_node))
-		i++;
-
-	if (i > 8) {
-		dev_err(nfc->dev, "too many NAND chips: %d (max = 8)\n", i);
-		return -EINVAL;
-	}
-
-	i = 0;
-	for (nand_node = fdt_first_subnode(blob, node); nand_node >= 0;
 	     nand_node = fdt_next_subnode(blob, nand_node)) {
 		ret = sunxi_nand_chip_init(nand_node, nfc, i++);
 		if (ret)
