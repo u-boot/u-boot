@@ -147,16 +147,18 @@ int reset_get_bulk(struct udevice *dev, struct reset_ctl_bulk *bulk)
 int reset_get_by_name(struct udevice *dev, const char *name,
 		     struct reset_ctl *reset_ctl)
 {
-	int index;
+	int index = 0;
 
 	debug("%s(dev=%p, name=%s, reset_ctl=%p)\n", __func__, dev, name,
 	      reset_ctl);
 	reset_ctl->dev = NULL;
 
-	index = dev_read_stringlist_search(dev, "reset-names", name);
-	if (index < 0) {
-		debug("fdt_stringlist_search() failed: %d\n", index);
-		return index;
+	if (name) {
+		index = dev_read_stringlist_search(dev, "reset-names", name);
+		if (index < 0) {
+			debug("fdt_stringlist_search() failed: %d\n", index);
+			return index;
+		}
 	}
 
 	return reset_get_by_index(dev, index, reset_ctl);
