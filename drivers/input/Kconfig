@@ -46,6 +46,15 @@ config APPLE_SPI_KEYB
 	  laptops based on Apple SoCs. These keyboards use an
 	  Apple-specific HID-over-SPI protocol.
 
+config BUTTON_KEYBOARD
+	bool "Buttons as keyboard"
+	depends on BUTTON_GPIO
+	depends on DM_KEYBOARD
+	help
+	  Enable support for mapping buttons to keycode events. Use linux,code button driver
+	  dt node to define button-event mapping.
+	  For example, an arrows and enter may be implemented to navigate boot menu.
+
 config CROS_EC_KEYB
 	bool "Enable Chrome OS EC keyboard support"
 	depends on INPUT
