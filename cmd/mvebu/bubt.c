@@ -19,6 +19,7 @@
 #include <spi_flash.h>
 #include <spi.h>
 #include <nand.h>
+#include <scsi.h>
 #include <usb.h>
 #include <fs.h>
 #include <mmc.h>
@@ -334,6 +335,108 @@ static int is_mmc_active(void)
 #endif /* CONFIG_DM_MMC */
 
 /********************************************************************
+ *     SATA services
+ ********************************************************************/
+#if defined(CONFIG_SCSI) && defined(CONFIG_BLK)
+static int sata_burn_image(size_t image_size)
+{
+#if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_32BIT)
+	lbaint_t	start_lba;
+	lbaint_t	blk_count;
+	ulong		blk_written;
+	struct blk_desc *blk_desc;
+#ifdef CONFIG_ARMADA_3700
+	struct disk_partition info;
+	int		part;
+#endif
+
+	scsi_scan(false);
+
+	blk_desc = blk_get_devnum_by_uclass_id(UCLASS_SCSI, 0);
+	if (!blk_desc)
+		return -ENODEV;
+
+#ifdef CONFIG_ARMADA_3700
+	/*
+	 * 64-bit Armada 3700 BootROM loads SATA firmware from
+	 * GPT 'Marvell Armada 3700 Boot partition' or from
+	 * MBR 'M' (0x4d) partition.
+	 */
+	switch (blk_desc->part_type) {
+	case PART_TYPE_DOS:
+		for (part = 1; part <= 4; part++) {
+			info.sys_ind = 0;
+			if (part_get_info(blk_desc, part, &info))
+				continue;
+			if (info.sys_ind == 'M')
+				break;
+		}
+		if (part > 4) {
+			printf("Error - cannot find MBR 'M' (0x4d) partition on SATA disk\n");
+			return -ENODEV;
+		}
+		start_lba = info.start;
+		break;
+	case PART_TYPE_EFI:
+		for (part = 1; part <= 64; part++) {
+			info.type_guid[0] = 0;
+			if (part_get_info(blk_desc, part, &info))
+				continue;
+			/* Check for GPT type GUID of 'Marvell Armada 3700 Boot partition' */
+			if (strcmp(info.type_guid, "6828311A-BA55-42A4-BCDE-A89BB5EDECAE") == 0)
+				break;
+		}
+		if (part > 64) {
+			printf("Error - cannot find GPT 'Marvell Armada 3700 Boot partition' on SATA disk\n");
+			return -ENODEV;
+		}
+		start_lba = info.start;
+		break;
+	default:
+		printf("Error - no partitions on SATA disk\n");
+		return -ENODEV;
+	}
+#else
+	/* 32-bit Armada BootROM loads SATA firmware from the sector 1. */
+	start_lba = 1;
+#endif
+
+	blk_count = image_size / blk_desc->blksz;
+	if (image_size % blk_desc->blksz)
+		blk_count += 1;
+
+	blk_written = blk_dwrite(blk_desc, start_lba, blk_count,
+				 (void *)get_load_addr());
+
+	if (blk_written != blk_count) {
+		printf("Error - written %#lx blocks\n", blk_written);
+		return -ENOSPC;
+	}
+
+	printf("Done!\n");
+	return 0;
+#else
+	return -ENODEV;
+#endif
+}
+
+static int is_sata_active(void)
+{
+	return 1;
+}
+#else /* CONFIG_SCSI */
+static int sata_burn_image(size_t image_size)
+{
+	return -ENODEV;
+}
+
+static int is_sata_active(void)
+{
+	return 0;
+}
+#endif /* CONFIG_SCSI */
+
+/********************************************************************
  *     SPI services
  ********************************************************************/
 #ifdef CONFIG_SPI_FLASH
@@ -542,6 +645,7 @@ enum bubt_devices {
 	BUBT_DEV_NET = 0,
 	BUBT_DEV_USB,
 	BUBT_DEV_MMC,
+	BUBT_DEV_SATA,
 	BUBT_DEV_SPI,
 	BUBT_DEV_NAND,
 
@@ -552,6 +656,7 @@ struct bubt_dev bubt_devs[BUBT_MAX_DEV] = {
 	{"tftp", tftp_read_file, NULL, is_tftp_active},
 	{"usb",  usb_read_file,  NULL, is_usb_active},
 	{"mmc",  mmc_read_file,  mmc_burn_image, is_mmc_active},
+	{"sata",  NULL, sata_burn_image,  is_sata_active},
 	{"spi",  NULL, spi_burn_image,  is_spi_active},
 	{"nand", NULL, nand_burn_image, is_nand_active},
 };
@@ -1021,6 +1126,8 @@ struct bubt_dev *find_bubt_dev(char *dev_name)
 #define DEFAULT_BUBT_DST "nand"
 #elif defined(CONFIG_MVEBU_MMC_BOOT)
 #define DEFAULT_BUBT_DST "mmc"
+#elif defined(CONFIG_MVEBU_SATA_BOOT)
+#define DEFAULT_BUBT_DST "sata"
 #else
 #define DEFAULT_BUBT_DST "error"
 #endif
@@ -1098,7 +1205,7 @@ U_BOOT_CMD(
 	"Burn a u-boot image to flash",
 	"[file-name] [destination [source]]\n"
 	"\t-file-name     The image file name to burn. Default = " CONFIG_MVEBU_UBOOT_DFLT_NAME "\n"
-	"\t-destination   Flash to burn to [spi, nand, mmc]. Default = " DEFAULT_BUBT_DST "\n"
+	"\t-destination   Flash to burn to [spi, nand, mmc, sata]. Default = " DEFAULT_BUBT_DST "\n"
 	"\t-source        The source to load image from [tftp, usb, mmc]. Default = " DEFAULT_BUBT_SRC "\n"
 	"Examples:\n"
 	"\tbubt - Burn flash-image.bin from tftp to active boot device\n"
