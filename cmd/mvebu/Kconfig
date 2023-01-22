@@ -5,6 +5,9 @@ config CMD_MVEBU_BUBT
 	bool "bubt"
 	select SHA256 if ARMADA_3700
 	select SHA512 if ARMADA_3700
+	select DOS_PARTITION if ARMADA_3700
+	select EFI_PARTITION if ARMADA_3700
+	select PARTITION_TYPE_GUID if ARMADA_3700
 	select MVEBU_EFUSE if ARMADA_38X || ARMADA_3700
 	help
 	  bubt - Burn a u-boot image to flash
@@ -41,6 +44,15 @@ config MVEBU_MMC_BOOT
 	help
 	  Enable boot from eMMC boot partition
 	  Allow usage of eMMC/SD device as a target for "bubt" command
+	  For details about bubt command please see the documentation
+	  in doc/mvebu/cmd/bubt.txt
+
+config MVEBU_SATA_BOOT
+	bool "SATA flash boot"
+	depends on SCSI
+	help
+	  Enable boot from SATA disk.
+	  Allow usage of SATA disk as a target for "bubt" command
 	  For details about bubt command please see the documentation
 	  in doc/mvebu/cmd/bubt.txt
 
