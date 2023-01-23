@@ -115,7 +115,7 @@ efi_status_t efi_esrt_allocate_install(u32 num_entries)
 	u32 size = efi_esrt_entries_to_size(num_entries);
 	efi_guid_t esrt_guid = efi_esrt_guid;
 
-	/* Reserve num_pages for ESRT */
+	/* Reserve memory for ESRT */
 	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, size,
 				(void **)&new_esrt);
 
