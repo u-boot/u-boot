@@ -242,7 +242,7 @@ class TestElf(unittest.TestCase):
         end = offset['embed_end'].offset
         data = tools.read_file(fname)
         embed_data = data[start:end]
-        expect = struct.pack('<III', 0x1234, 0x5678, 0)
+        expect = struct.pack('<IIIII', 2, 3, 0x1234, 0x5678, 0)
         self.assertEqual(expect, embed_data)
 
     def testEmbedFail(self):
@@ -357,6 +357,17 @@ class TestElf(unittest.TestCase):
         data = tools.read_file(fname)
         self.assertEqual(True, elf.is_valid(data))
         self.assertEqual(False, elf.is_valid(data[4:]))
+
+    def test_get_symbol_offset(self):
+        fname = self.ElfTestFile('embed_data')
+        syms = elf.GetSymbols(fname, ['embed_start', 'embed'])
+        expected = syms['embed'].address - syms['embed_start'].address
+        val = elf.GetSymbolOffset(fname, 'embed', 'embed_start')
+        self.assertEqual(expected, val)
+
+        with self.assertRaises(KeyError) as e:
+            elf.GetSymbolOffset(fname, 'embed')
+        self.assertIn('__image_copy_start', str(e.exception))
 
 
 if __name__ == '__main__':

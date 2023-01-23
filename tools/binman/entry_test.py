@@ -114,6 +114,25 @@ class TestEntry(unittest.TestCase):
         self.assertEquals(tools.get_bytes(0, 1024), base.CompressData(b'abc'))
         self.assertEquals(tools.get_bytes(0, 1024), base.DecompressData(b'abc'))
 
+    def testLookupOffset(self):
+        """Test the lookup_offset() method of the base class"""
+        def MyFindEntryByNode(node):
+            return self.found
+
+        base = entry.Entry.Create(None, self.GetNode(), 'blob-dtb')
+        base.FindEntryByNode = MyFindEntryByNode
+        base.section = base
+        self.found = None
+        base.offset_from_elf = [self.GetNode(), 'start', 0]
+        with self.assertRaises(ValueError) as e:
+            base.lookup_offset()
+        self.assertIn("Cannot find entry for node 'u-boot'", str(e.exception))
+
+        self.found = base
+        with self.assertRaises(ValueError) as e:
+            base.lookup_offset()
+        self.assertIn("Need elf-fname property 'u-boot'", str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
