@@ -18,7 +18,11 @@
 #include "bootstd_common.h"
 
 /* Allow reseting the USB-started flag */
+#if defined(CONFIG_USB_HOST) || defined(CONFIG_USB_GADGET)
 extern char usb_started;
+#else
+char usb_started;
+#endif
 
 /* Check 'bootdev list' command */
 static int bootdev_test_cmd_list(struct unit_test_state *uts)
