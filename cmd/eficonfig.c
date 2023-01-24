@@ -22,6 +22,8 @@
 #include <linux/delay.h>
 
 static struct efi_simple_text_input_protocol *cin;
+const char *eficonfig_menu_desc =
+	"  Press UP/DOWN to move, ENTER to select, ESC/CTRL+C to quit";
 
 #define EFICONFIG_DESCRIPTION_MAX 32
 #define EFICONFIG_OPTIONAL_DATA_MAX 64
@@ -134,10 +136,10 @@ void eficonfig_print_msg(char *msg)
  *
  * @data:	pointer to the data associated with each menu entry
  */
-static void eficonfig_print_entry(void *data)
+void eficonfig_print_entry(void *data)
 {
 	struct eficonfig_entry *entry = data;
-	int reverse = (entry->efi_menu->active == entry->num);
+	bool reverse = (entry->efi_menu->active == entry->num);
 
 	/* TODO: support scroll or page for many entries */
 
@@ -161,7 +163,7 @@ static void eficonfig_print_entry(void *data)
  *
  * @m:	pointer to the menu structure
  */
-static void eficonfig_display_statusline(struct menu *m)
+void eficonfig_display_statusline(struct menu *m)
 {
 	struct eficonfig_entry *entry;
 
@@ -171,10 +173,11 @@ static void eficonfig_display_statusline(struct menu *m)
 	printf(ANSI_CURSOR_POSITION
 	      "\n%s\n"
 	       ANSI_CURSOR_POSITION ANSI_CLEAR_LINE ANSI_CURSOR_POSITION
-	       "  Press UP/DOWN to move, ENTER to select, ESC/CTRL+C to quit"
+	       "%s"
 	       ANSI_CLEAR_LINE_TO_END ANSI_CURSOR_POSITION ANSI_CLEAR_LINE,
 	       1, 1, entry->efi_menu->menu_header, entry->efi_menu->count + 5, 1,
-	       entry->efi_menu->count + 6, 1, entry->efi_menu->count + 7, 1);
+	       entry->efi_menu->count + 6, 1, entry->efi_menu->menu_desc,
+	       entry->efi_menu->count + 7, 1);
 }
 
 /**
@@ -183,7 +186,7 @@ static void eficonfig_display_statusline(struct menu *m)
  * @data:	pointer to the efimenu structure
  * Return:	key string to identify the selected entry
  */
-static char *eficonfig_choice_entry(void *data)
+char *eficonfig_choice_entry(void *data)
 {
 	struct cli_ch_state s_cch, *cch = &s_cch;
 	struct list_head *pos, *n;
@@ -361,9 +364,17 @@ out:
  *
  * @efi_menu:		pointer to the efimenu structure
  * @menu_header:	pointer to the menu header string
+ * @menu_desc:		pointer to the menu description
+ * @display_statusline:	function pointer to draw statusline
+ * @item_data_print:	function pointer to draw the menu item
+ * @item_choice:	function pointer to handle the key press
  * Return:		status code
  */
-efi_status_t eficonfig_process_common(struct efimenu *efi_menu, char *menu_header)
+efi_status_t eficonfig_process_common(struct efimenu *efi_menu,
+				      char *menu_header, const char *menu_desc,
+				      void (*display_statusline)(struct menu *),
+				      void (*item_data_print)(void *),
+				      char *(*item_choice)(void *))
 {
 	struct menu *menu;
 	void *choice = NULL;
@@ -382,10 +393,11 @@ efi_status_t eficonfig_process_common(struct efimenu *efi_menu, char *menu_heade
 		if (!efi_menu->menu_header)
 			return EFI_OUT_OF_RESOURCES;
 	}
+	if (menu_desc)
+		efi_menu->menu_desc = menu_desc;
 
-	menu = menu_create(NULL, 0, 1, eficonfig_display_statusline,
-			   eficonfig_print_entry, eficonfig_choice_entry,
-			   efi_menu);
+	menu = menu_create(NULL, 0, 1, display_statusline, item_data_print,
+			   item_choice, efi_menu);
 	if (!menu)
 		return EFI_INVALID_PARAMETER;
 
@@ -644,7 +656,12 @@ static efi_status_t eficonfig_select_volume(struct eficonfig_select_file_info *f
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	ret = eficonfig_process_common(efi_menu, "  ** Select Volume **");
+	ret = eficonfig_process_common(efi_menu, "  ** Select Volume **",
+				       eficonfig_menu_desc,
+				       eficonfig_display_statusline,
+				       eficonfig_print_entry,
+				       eficonfig_choice_entry);
+
 out:
 	efi_free_pool(volume_handles);
 	list_for_each_safe(pos, n, &efi_menu->list) {
@@ -819,7 +836,11 @@ static efi_status_t eficonfig_show_file_selection(struct eficonfig_select_file_i
 		if (ret != EFI_SUCCESS)
 			goto err;
 
-		ret = eficonfig_process_common(efi_menu, "  ** Select File **");
+		ret = eficonfig_process_common(efi_menu, "  ** Select File **",
+					       eficonfig_menu_desc,
+					       eficonfig_display_statusline,
+					       eficonfig_print_entry,
+					       eficonfig_choice_entry);
 err:
 		EFI_CALL(f->close(f));
 		eficonfig_destroy(efi_menu);
@@ -980,7 +1001,11 @@ efi_status_t eficonfig_process_show_file_option(void *data)
 	if (!efi_menu)
 		return EFI_OUT_OF_RESOURCES;
 
-	ret = eficonfig_process_common(efi_menu, "  ** Update File **");
+	ret = eficonfig_process_common(efi_menu, "  ** Update File **",
+				       eficonfig_menu_desc,
+				       eficonfig_display_statusline,
+				       eficonfig_print_entry,
+				       eficonfig_choice_entry);
 	if (ret != EFI_SUCCESS) /* User selects "Clear" or "Quit" */
 		ret = EFI_NOT_READY;
 
@@ -1326,7 +1351,12 @@ static efi_status_t eficonfig_show_boot_option(struct eficonfig_boot_option *bo,
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	ret = eficonfig_process_common(efi_menu, header_str);
+	ret = eficonfig_process_common(efi_menu, header_str,
+				       eficonfig_menu_desc,
+				       eficonfig_display_statusline,
+				       eficonfig_print_entry,
+				       eficonfig_choice_entry);
+
 out:
 	eficonfig_destroy(efi_menu);
 
@@ -1745,7 +1775,11 @@ static efi_status_t eficonfig_show_boot_selection(unsigned int *selected)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	ret = eficonfig_process_common(efi_menu, "  ** Select Boot Option **");
+	ret = eficonfig_process_common(efi_menu, "  ** Select Boot Option **",
+				       eficonfig_menu_desc,
+				       eficonfig_display_statusline,
+				       eficonfig_print_entry,
+				       eficonfig_choice_entry);
 out:
 	list_for_each_safe(pos, n, &efi_menu->list) {
 		entry = list_entry(pos, struct eficonfig_entry, list);
@@ -2567,7 +2601,12 @@ static int do_eficonfig(struct cmd_tbl *cmdtp, int flag, int argc, char *const a
 		if (!efi_menu)
 			return CMD_RET_FAILURE;
 
-		ret = eficonfig_process_common(efi_menu, "  ** UEFI Maintenance Menu **");
+		ret = eficonfig_process_common(efi_menu,
+					       "  ** UEFI Maintenance Menu **",
+					       eficonfig_menu_desc,
+					       eficonfig_display_statusline,
+					       eficonfig_print_entry,
+					       eficonfig_choice_entry);
 		eficonfig_destroy(efi_menu);
 
 		if (ret == EFI_ABORTED)

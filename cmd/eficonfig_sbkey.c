@@ -410,7 +410,10 @@ static efi_status_t enumerate_and_show_signature_database(void *varname)
 		goto out;
 
 	snprintf(buf, sizeof(buf), "  ** Show Signature Database (%ls) **", (u16 *)varname);
-	ret = eficonfig_process_common(efi_menu, buf);
+	ret = eficonfig_process_common(efi_menu, buf, eficonfig_menu_desc,
+				       eficonfig_display_statusline,
+				       eficonfig_print_entry,
+				       eficonfig_choice_entry);
 out:
 	list_for_each_safe(pos, n, &efi_menu->list) {
 		entry = list_entry(pos, struct eficonfig_entry, list);
@@ -472,7 +475,11 @@ static efi_status_t eficonfig_process_set_secure_boot_key(void *data)
 		efi_menu = eficonfig_create_fixed_menu(key_config_menu_items,
 						       ARRAY_SIZE(key_config_menu_items));
 
-		ret = eficonfig_process_common(efi_menu, header_str);
+		ret = eficonfig_process_common(efi_menu, header_str,
+					       eficonfig_menu_desc,
+					       eficonfig_display_statusline,
+					       eficonfig_print_entry,
+					       eficonfig_choice_entry);
 		eficonfig_destroy(efi_menu);
 
 		if (ret == EFI_ABORTED)
@@ -518,7 +525,12 @@ efi_status_t eficonfig_process_secure_boot_config(void *data)
 			break;
 		}
 
-		ret = eficonfig_process_common(efi_menu, header_str);
+		ret = eficonfig_process_common(efi_menu, header_str,
+					       eficonfig_menu_desc,
+					       eficonfig_display_statusline,
+					       eficonfig_print_entry,
+					       eficonfig_choice_entry);
+
 		eficonfig_destroy(efi_menu);
 
 		if (ret == EFI_ABORTED)
