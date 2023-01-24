@@ -3,20 +3,9 @@
  * Copyright (C) 2019
  * Heiko Schocher, DENX Software Engineering, hs@denx.de
  */
-/ {
-	binman {
-		filename = "u-boot-dtb.bin";
-		pad-byte = <0xff>;
-		// Place dtb one sector before u-boot-nodtb.bin
-		blob {
-			filename = "u-boot.dtb";
-		};
-		u-boot-nodtb {
-			filename = "u-boot-nodtb.bin";
-			offset = <0x20000>;
-		};
-	};
+#include <config.h>
 
+/ {
 	chosen {
 		stdout-path = &serial0;
 	};
@@ -38,3 +27,5 @@
 	u-boot,dm-pre-reloc;
 	clock-frequency = <333333330>;
 };
+
+#include "u-boot.dtsi"

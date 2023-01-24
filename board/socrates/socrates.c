@@ -217,23 +217,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
 
-#if defined(CONFIG_OF_SEPARATE)
-void *board_fdt_blob_setup(int *err)
-{
-	void *fw_dtb;
-
-	*err = 0;
-	fw_dtb = (void *)(CONFIG_TEXT_BASE - CONFIG_ENV_SECT_SIZE);
-	if (fdt_magic(fw_dtb) != FDT_MAGIC) {
-		printf("DTB is not passed via %x\n", (u32)fw_dtb);
-		*err = -ENXIO;
-		return NULL;
-	}
-
-	return fw_dtb;
-}
-#endif
-
 int get_serial_clock(void)
 {
 	return 333333330;
