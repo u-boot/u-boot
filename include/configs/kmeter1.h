@@ -10,7 +10,6 @@
 
 /* include common defines/options for all Keymile boards */
 #include "km/km-mpc83xx.h"
-#include "km/km-mpc8360.h"
 
 #define CFG_SYS_DDR_CS0_CONFIG	(CSCONFIG_EN | CSCONFIG_AP | \
 					 CSCONFIG_ROW_BIT_13 | \

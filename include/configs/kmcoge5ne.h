@@ -13,7 +13,6 @@
 
 /* include common defines/options for all Keymile boards */
 #include "km/km-mpc83xx.h"
-#include "km/km-mpc8360.h"
 
 /**
  * KMCOGE5NE has 512 MB RAM

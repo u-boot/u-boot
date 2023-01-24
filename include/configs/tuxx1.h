@@ -22,6 +22,5 @@
 
 /* include common defines/options for all Keymile boards */
 #include "km/km-mpc83xx.h"
-#include "km/km-mpc832x.h"
 
 #endif /* __CONFIG_H */
