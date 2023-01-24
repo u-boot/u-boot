@@ -591,7 +591,6 @@ static int spl_fit_upload_fpga(struct spl_fit_info *ctx, int node,
 			debug("Ignoring compatible = %s property\n",
 			      compatible);
 	}
-	return 0;
 
 	ret = fpga_load(devnum, (void *)fpga_image->load_addr,
 			fpga_image->size, BIT_FULL, flags);
