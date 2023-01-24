@@ -9,6 +9,8 @@
 
 /dts-v1/;
 
+/include/ "e500v2_power_isa.dtsi"
+
 / {
 	model = "abb,socrates";
 	compatible = "abb,socrates";
@@ -142,26 +144,29 @@
 			phy-handle = <&phy0>;
 			tbi-handle = <&tbi0>;
 			phy-connection-type = "rgmii-id";
+		};
 
-			mdio@520 {
-				#address-cells = <1>;
-				#size-cells = <0>;
-				compatible = "fsl,gianfar-mdio";
-				reg = <0x520 0x20>;
+		mdio@24520 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "fsl,gianfar-mdio";
+			reg = <0x24520 0x20>;
 
-				phy0: ethernet-phy@0 {
-					interrupt-parent = <&mpic>;
-					interrupts = <0 1>;
-					reg = <0>;
-				};
-				phy1: ethernet-phy@1 {
-					interrupt-parent = <&mpic>;
-					interrupts = <0 1>;
-					reg = <1>;
-				};
-				tbi0: tbi-phy@11 {
-					reg = <0x11>;
-				};
+			phy0: ethernet-phy@0 {
+				compatible = "ethernet-phy-ieee802.3-c22";
+				interrupt-parent = <&mpic>;
+				interrupts = <0 1>;
+				reg = <0>;
+			};
+
+			phy1: ethernet-phy@1 {
+				compatible = "ethernet-phy-ieee802.3-c22";
+				interrupt-parent = <&mpic>;
+				interrupts = <0 1>;
+				reg = <1>;
+			};
+			tbi0: tbi-phy@11 {
+				reg = <0x11>;
 			};
 		};
 
@@ -180,16 +185,16 @@
 			phy-handle = <&phy1>;
 			tbi-handle = <&tbi1>;
 			phy-connection-type = "rgmii-id";
+		};
 
-			mdio@520 {
-				#address-cells = <1>;
-				#size-cells = <0>;
-				compatible = "fsl,gianfar-tbi";
-				reg = <0x520 0x20>;
+		mdio@26520 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "fsl,gianfar-tbi";
+			reg = <0x26520 0x20>;
 
-				tbi1: tbi-phy@11 {
-					reg = <0x11>;
-				};
+			tbi1: tbi-phy@11 {
+				reg = <0x11>;
 			};
 		};
 
