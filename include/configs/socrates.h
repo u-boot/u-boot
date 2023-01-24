@@ -118,6 +118,7 @@
 #define	CFG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"consdev=ttyS0\0"						\
+	"initrd_high=0x03000000\0"					\
 	"uboot_file=/home/tftp/syscon3/u-boot.bin\0"			\
 	"bootfile=/home/tftp/syscon3/uImage\0"				\
 	"fdt_file=/home/tftp/syscon3/socrates.dtb\0"			\
