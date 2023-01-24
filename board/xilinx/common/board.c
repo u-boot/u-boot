@@ -102,9 +102,13 @@ static void xilinx_eeprom_legacy_cleanup(char *eeprom, int size)
 	for (i = 0; i < size; i++) {
 		byte = eeprom[i];
 
-		/* Remove all ffs and spaces */
-		if (byte == 0xff || byte == ' ')
+		/* Remove all non printable chars but ignore MAC address */
+		if ((i < offsetof(struct xilinx_legacy_format, eth_mac) ||
+		     i >= offsetof(struct xilinx_legacy_format, unused1)) &&
+		     (byte < '!' || byte > '~')) {
 			eeprom[i] = 0;
+			continue;
+		}
 
 		/* Convert strings to lower case */
 		if (byte >= 'A' && byte <= 'Z')
