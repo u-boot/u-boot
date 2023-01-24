@@ -86,7 +86,7 @@ static struct xilinx_board_description *board_info;
 struct xilinx_legacy_format {
 	char board_sn[18]; /* 0x0 */
 	char unused0[14]; /* 0x12 */
-	char eth_mac[6]; /* 0x20 */
+	char eth_mac[ETH_ALEN]; /* 0x20 */
 	char unused1[170]; /* 0x26 */
 	char board_name[11]; /* 0xd0 */
 	char unused2[5]; /* 0xdc */
