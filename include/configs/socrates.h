@@ -110,6 +110,10 @@
  */
 #define CFG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux	*/
 
+#define SOCRATES_ENV_MTD \
+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
+	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"
 
 #define	CFG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
@@ -118,7 +122,7 @@
 	"bootfile=/home/tftp/syscon3/uImage\0"				\
 	"fdt_file=/home/tftp/syscon3/socrates.dtb\0"			\
 	"initrd_file=/home/tftp/syscon3/uinitrd.gz\0"			\
-	"uboot_addr=FFF60000\0"						\
+	"uboot_addr=FFF40000\0"						\
 	"kernel_addr=FE000000\0"					\
 	"fdt_addr=FE1E0000\0"						\
 	"ramdisk_addr=FE200000\0"					\
@@ -134,16 +138,16 @@
 	"addip=setenv bootargs $bootargs "				\
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask"		\
 		":$hostname:$netdev:off panic=1\0"			\
-	"boot_nor=run ramargs addcons;"					\
+	"boot_nor=run ramargs addcons addmtd;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
 	"net_nfs=tftp ${kernel_addr_r} ${bootfile}; "			\
 		"tftp ${fdt_addr_r} ${fdt_file}; "			\
-		"run nfsargs addip addcons;"				\
+		"run nfsargs addip addcons addmtd;"			\
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	"update_uboot=tftp 100000 ${uboot_file};"			\
-		"protect off fff60000 ffffffff;"			\
-		"era fff60000 ffffffff;"				\
-		"cp.b 100000 fff60000 ${filesize};"			\
+		"protect off ${uboot_addr} ffffffff;"			\
+		"era ${uboot_addr}  ffffffff;"				\
+		"cp.b 100000 ${uboot_addr}  ${filesize};"		\
 		"setenv filesize;saveenv\0"				\
 	"update_kernel=tftp 100000 ${bootfile};"			\
 		"era fe000000 fe1dffff;"				\
@@ -164,6 +168,7 @@
 	"boot_usb=run load_usb usbargs addcons;"			\
 		"bootm ${kernel_addr_r} - ${fdt_addr};"			\
 		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
+	SOCRATES_ENV_MTD \
 	""
 
 /* pass open firmware flat tree */
