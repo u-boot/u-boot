@@ -49,6 +49,8 @@ struct eficonfig_entry {
  * @menu_header:	menu header string
  * @menu_desc:		menu description string
  * @list:		menu entry list structure
+ * @start:		top menu index to draw
+ * @end:		bottom menu index to draw
  */
 struct efimenu {
 	int delay;
@@ -57,6 +59,8 @@ struct efimenu {
 	char *menu_header;
 	const char *menu_desc;
 	struct list_head list;
+	int start;
+	int end;
 };
 
 /**

@@ -328,6 +328,7 @@ extern const efi_guid_t efi_esrt_guid;
 extern const efi_guid_t smbios_guid;
 /*GUID of console */
 extern const efi_guid_t efi_guid_text_input_protocol;
+extern const efi_guid_t efi_guid_text_output_protocol;
 
 extern char __efi_runtime_start[], __efi_runtime_stop[];
 extern char __efi_runtime_rel_start[], __efi_runtime_rel_stop[];

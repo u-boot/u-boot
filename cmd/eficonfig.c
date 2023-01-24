@@ -30,8 +30,13 @@ static const char *eficonfig_change_boot_order_desc =
 	"  Press SPACE to activate or deactivate the entry\n"
 	"  Select [Save] to complete, ESC/CTRL+C to quit";
 
+static struct efi_simple_text_output_protocol *cout;
+static int avail_row;
+
 #define EFICONFIG_DESCRIPTION_MAX 32
 #define EFICONFIG_OPTIONAL_DATA_MAX 64
+#define EFICONFIG_MENU_HEADER_ROW_NUM 3
+#define EFICONFIG_MENU_DESC_ROW_NUM 5
 
 /**
  * struct eficonfig_filepath_info - structure to be used to store file path
@@ -123,6 +128,30 @@ struct eficonfig_save_boot_order_data {
 };
 
 /**
+ * struct eficonfig_menu_adjust - update start and end entry index
+ *
+ * @efi_menu:	pointer to efimenu structure
+ * @add:	flag to add or substract the index
+ */
+static void eficonfig_menu_adjust(struct efimenu *efi_menu, bool add)
+{
+	if (add)
+		++efi_menu->active;
+	else
+		--efi_menu->active;
+
+	if (add && efi_menu->end < efi_menu->active) {
+		efi_menu->start++;
+		efi_menu->end++;
+	} else if (!add && efi_menu->start > efi_menu->active) {
+		efi_menu->start--;
+		efi_menu->end--;
+	}
+}
+#define eficonfig_menu_up(_a) eficonfig_menu_adjust(_a, false)
+#define eficonfig_menu_down(_a) eficonfig_menu_adjust(_a, true)
+
+/**
  * eficonfig_print_msg() - print message
  *
  * display the message to the user, user proceeds the screen
@@ -157,18 +186,16 @@ void eficonfig_print_entry(void *data)
 	struct eficonfig_entry *entry = data;
 	bool reverse = (entry->efi_menu->active == entry->num);
 
-	/* TODO: support scroll or page for many entries */
+	if (entry->efi_menu->start > entry->num || entry->efi_menu->end < entry->num)
+		return;
 
-	/*
-	 * Move cursor to line where the entry will be drawn (entry->num)
-	 * First 3 lines(menu header) + 1 empty line
-	 */
-	printf(ANSI_CURSOR_POSITION, entry->num + 4, 7);
+	printf(ANSI_CURSOR_POSITION, (entry->num - entry->efi_menu->start) +
+	       EFICONFIG_MENU_HEADER_ROW_NUM + 1, 7);
 
 	if (reverse)
 		puts(ANSI_COLOR_REVERSE);
 
-	printf("%s", entry->title);
+	printf(ANSI_CLEAR_LINE "%s", entry->title);
 
 	if (reverse)
 		puts(ANSI_COLOR_RESET);
@@ -191,8 +218,8 @@ void eficonfig_display_statusline(struct menu *m)
 	       ANSI_CURSOR_POSITION ANSI_CLEAR_LINE ANSI_CURSOR_POSITION
 	       "%s"
 	       ANSI_CLEAR_LINE_TO_END,
-	       1, 1, entry->efi_menu->menu_header, entry->efi_menu->count + 5, 1,
-	       entry->efi_menu->count + 6, 1, entry->efi_menu->menu_desc);
+	       1, 1, entry->efi_menu->menu_header, avail_row + 4, 1,
+	       avail_row + 5, 1, entry->efi_menu->menu_desc);
 }
 
 /**
@@ -217,12 +244,14 @@ char *eficonfig_choice_entry(void *data)
 		switch (key) {
 		case BKEY_UP:
 			if (efi_menu->active > 0)
-				--efi_menu->active;
+				eficonfig_menu_up(efi_menu);
+
 			/* no menu key selected, regenerate menu */
 			return NULL;
 		case BKEY_DOWN:
 			if (efi_menu->active < efi_menu->count - 1)
-				++efi_menu->active;
+				eficonfig_menu_down(efi_menu);
+
 			/* no menu key selected, regenerate menu */
 			return NULL;
 		case BKEY_SELECT:
@@ -402,6 +431,8 @@ efi_status_t eficonfig_process_common(struct efimenu *efi_menu,
 
 	efi_menu->delay = -1;
 	efi_menu->active = 0;
+	efi_menu->start = 0;
+	efi_menu->end = avail_row - 1;
 
 	if (menu_header) {
 		efi_menu->menu_header = strdup(menu_header);
@@ -1868,7 +1899,11 @@ static void eficonfig_print_change_boot_order_entry(void *data)
 	struct eficonfig_entry *entry = data;
 	bool reverse = (entry->efi_menu->active == entry->num);
 
-	printf(ANSI_CURSOR_POSITION, entry->num + 4, 7);
+	if (entry->efi_menu->start > entry->num || entry->efi_menu->end < entry->num)
+		return;
+
+	printf(ANSI_CURSOR_POSITION ANSI_CLEAR_LINE,
+	       (entry->num - entry->efi_menu->start) + EFICONFIG_MENU_HEADER_ROW_NUM + 1, 7);
 
 	if (reverse)
 		puts(ANSI_COLOR_REVERSE);
@@ -1906,7 +1941,8 @@ char *eficonfig_choice_change_boot_order(void *data)
 
 		switch (key) {
 		case BKEY_PLUS:
-			if (efi_menu->active > 0) {
+			if (efi_menu->active > 0 &&
+			    efi_menu->active < efi_menu->count - 2) {
 				list_for_each_safe(pos, n, &efi_menu->list) {
 					entry = list_entry(pos, struct eficonfig_entry, list);
 					if (entry->num == efi_menu->active)
@@ -1917,11 +1953,14 @@ char *eficonfig_choice_change_boot_order(void *data)
 				tmp->num++;
 				list_del(&tmp->list);
 				list_add(&tmp->list, &entry->list);
+
+				eficonfig_menu_up(efi_menu);
 			}
-			fallthrough;
+			return NULL;
 		case BKEY_UP:
 			if (efi_menu->active > 0)
-				--efi_menu->active;
+				eficonfig_menu_up(efi_menu);
+
 			return NULL;
 		case BKEY_MINUS:
 			if (efi_menu->active < efi_menu->count - 3) {
@@ -1936,12 +1975,13 @@ char *eficonfig_choice_change_boot_order(void *data)
 				list_del(&entry->list);
 				list_add(&entry->list, &tmp->list);
 
-				++efi_menu->active;
+				eficonfig_menu_down(efi_menu);
 			}
 			return NULL;
 		case BKEY_DOWN:
 			if (efi_menu->active < efi_menu->count - 1)
-				++efi_menu->active;
+				eficonfig_menu_down(efi_menu);
+
 			return NULL;
 		case BKEY_SELECT:
 			/* "Save" */
@@ -2590,6 +2630,7 @@ static efi_status_t eficonfig_init(void)
 	efi_status_t ret = EFI_SUCCESS;
 	static bool init;
 	struct efi_handler *handler;
+	unsigned long columns, rows;
 
 	if (!init) {
 		ret = efi_search_protocol(efi_root, &efi_guid_text_input_protocol, &handler);
@@ -2600,6 +2641,23 @@ static efi_status_t eficonfig_init(void)
 					EFI_OPEN_PROTOCOL_GET_PROTOCOL);
 		if (ret != EFI_SUCCESS)
 			return ret;
+		ret = efi_search_protocol(efi_root, &efi_guid_text_output_protocol, &handler);
+		if (ret != EFI_SUCCESS)
+			return ret;
+
+		ret = efi_protocol_open(handler, (void **)&cout, efi_root, NULL,
+					EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+		if (ret != EFI_SUCCESS)
+			return ret;
+
+		cout->query_mode(cout, cout->mode->mode, &columns, &rows);
+		avail_row = rows - (EFICONFIG_MENU_HEADER_ROW_NUM +
+				    EFICONFIG_MENU_DESC_ROW_NUM);
+		if (avail_row <= 0) {
+			eficonfig_print_msg("Console size is too small!");
+			return EFI_INVALID_PARAMETER;
+		}
+		/* TODO: Should we check the minimum column size? */
 	}
 
 	init = true;
