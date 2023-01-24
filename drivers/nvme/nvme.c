@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <blk.h>
+#include <bootdev.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
@@ -892,6 +893,10 @@ int nvme_init(struct udevice *udev)
 					 -1, 512, 0, &ns_udev);
 		if (ret)
 			goto free_id;
+
+		ret = bootdev_setup_sibling_blk(ns_udev, "nvme_bootdev");
+		if (ret)
+			return log_msg_ret("bootdev", ret);
 
 		ret = blk_probe_or_unbind(ns_udev);
 		if (ret)

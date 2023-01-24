@@ -50,6 +50,17 @@ int bootmeth_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	return ops->read_bootflow(dev, bflow);
 }
 
+int bootmeth_set_bootflow(struct udevice *dev, struct bootflow *bflow,
+			  char *buf, int size)
+{
+	const struct bootmeth_ops *ops = bootmeth_get_ops(dev);
+
+	if (!ops->set_bootflow)
+		return -ENOSYS;
+
+	return ops->set_bootflow(dev, bflow, buf, size);
+}
+
 int bootmeth_boot(struct udevice *dev, struct bootflow *bflow)
 {
 	const struct bootmeth_ops *ops = bootmeth_get_ops(dev);

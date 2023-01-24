@@ -20,6 +20,11 @@
 #define TEST_VERSION		"U-Boot v2022.04-local2"
 #define TEST_VERNUM		0x00010002
 
+enum {
+	MAX_HUNTER	= 8,
+	MMC_HUNTER	= 3,	/* ID of MMC hunter */
+};
+
 struct unit_test_state;
 
 /**
@@ -39,5 +44,13 @@ int bootstd_test_drop_bootdev_order(struct unit_test_state *uts);
  * @return 0 if OK, -ve on error
  */
 int bootstd_setup_for_tests(void);
+
+/**
+ * bootstd_test_check_mmc_hunter() - Check that the mmc bootdev hunter was used
+ *
+ * @uts: Unit test state to use for ut_assert...() functions
+ * Returns: 0 if OK (used), other value on error (not used)
+ */
+int bootstd_test_check_mmc_hunter(struct unit_test_state *uts);
 
 #endif

@@ -19,6 +19,7 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <mmc.h>
+#include <net.h>
 #include <pxe_utils.h>
 
 #define EFI_DIRNAME	"efi/boot/"
@@ -55,6 +56,40 @@ static int get_efi_leafname(char *str, int max_len)
 
 	strcpy(str, base);
 	strcat(str, ".efi");
+
+	return 0;
+}
+
+static int get_efi_pxe_arch(void)
+{
+	/* http://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xml */
+	if (IS_ENABLED(CONFIG_ARM64))
+		return 0xb;
+	else if (IS_ENABLED(CONFIG_ARM))
+		return 0xa;
+	else if (IS_ENABLED(CONFIG_X86_64))
+		return 0x6;
+	else if (IS_ENABLED(CONFIG_X86))
+		return 0x7;
+	else if (IS_ENABLED(CONFIG_ARCH_RV32I))
+		return 0x19;
+	else if (IS_ENABLED(CONFIG_ARCH_RV64I))
+		return 0x1b;
+	else if (IS_ENABLED(CONFIG_SANDBOX))
+		return 0;	/* not used */
+
+	return -EINVAL;
+}
+
+static int get_efi_pxe_vci(char *str, int max_len)
+{
+	int ret;
+
+	ret = get_efi_pxe_arch();
+	if (ret < 0)
+		return ret;
+
+	snprintf(str, max_len, "PXEClient:Arch:%05x:UNDI:003000", ret);
 
 	return 0;
 }
@@ -101,20 +136,44 @@ static int efiload_read_file(struct blk_desc *desc, struct bootflow *bflow)
 
 static int distro_efi_check(struct udevice *dev, struct bootflow_iter *iter)
 {
-	int ret;
+	/* This only works on block and network devices */
+	if (bootflow_iter_check_blk(iter) && bootflow_iter_check_net(iter))
+		return log_msg_ret("blk", -ENOTSUPP);
 
-	/* This only works on block devices */
-	ret = bootflow_iter_uses_blk_dev(iter);
-	if (ret)
-		return log_msg_ret("blk", ret);
+	/* This works on block devices and network devices */
+	if (iter->method_flags & BOOTFLOW_METHF_PXE_ONLY)
+		return log_msg_ret("pxe", -ENOTSUPP);
 
 	return 0;
 }
 
-static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
+static void distro_efi_get_fdt_name(char *fname, int size)
+{
+	const char *fdt_fname;
+
+	fdt_fname = env_get("fdtfile");
+	if (fdt_fname) {
+		snprintf(fname, size, "dtb/%s", fdt_fname);
+		log_debug("Using device tree: %s\n", fname);
+	} else {
+		const char *soc = env_get("soc");
+		const char *board = env_get("board");
+		const char *boardver = env_get("boardver");
+
+		/* cf the code in label_boot() which seems very complex */
+		snprintf(fname, size, "dtb/%s%s%s%s.dtb",
+			 soc ? soc : "", soc ? "-" : "", board ? board : "",
+			 boardver ? boardver : "");
+		log_debug("Using default device tree: %s\n", fname);
+	}
+}
+
+static int distro_efi_read_bootflow_file(struct udevice *dev,
+					 struct bootflow *bflow)
 {
 	struct blk_desc *desc = NULL;
-	char fname[sizeof(EFI_DIRNAME) + 16];
+	ulong fdt_addr, size;
+	char fname[256];
 	int ret;
 
 	/* We require a partition table */
@@ -137,20 +196,159 @@ static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	if (ret)
 		return log_msg_ret("read", -EINVAL);
 
+	distro_efi_get_fdt_name(fname, sizeof(fname));
+	bflow->fdt_fname = strdup(fname);
+	if (!bflow->fdt_fname)
+		return log_msg_ret("fil", -ENOMEM);
+
+	fdt_addr = env_get_hex("fdt_addr_r", 0);
+	ret = bootmeth_common_read_file(dev, bflow, fname, fdt_addr, &size);
+	if (!ret) {
+		bflow->fdt_size = size;
+		bflow->fdt_addr = fdt_addr;
+
+		/*
+		 * TODO: Apply extension overlay
+		 *
+		 * Here we need to load and apply the extension overlay. This is
+		 * not implemented. See do_extension_apply(). The extension
+		 * stuff needs an implementation in boot/extension.c so it is
+		 * separate from the command code. Really the extension stuff
+		 * should use the device tree and a uclass / driver interface
+		 * rather than implementing its own list
+		 */
+	} else {
+		log_debug("No device tree available\n");
+	}
+
+	return 0;
+}
+
+static int distro_efi_read_bootflow_net(struct bootflow *bflow)
+{
+	char file_addr[17], fname[256];
+	char *tftp_argv[] = {"tftp", file_addr, fname, NULL};
+	struct cmd_tbl cmdtp = {};	/* dummy */
+	const char *addr_str, *fdt_addr_str;
+	int ret, arch, size;
+	ulong addr, fdt_addr;
+	char str[36];
+
+	ret = get_efi_pxe_vci(str, sizeof(str));
+	if (ret)
+		return log_msg_ret("vci", ret);
+	ret = get_efi_pxe_arch();
+	if (ret < 0)
+		return log_msg_ret("arc", ret);
+	arch = ret;
+
+	ret = env_set("bootp_vci", str);
+	if (ret)
+		return log_msg_ret("vcs", ret);
+	ret = env_set_ulong("bootp_arch", arch);
+	if (ret)
+		return log_msg_ret("ars", ret);
+
+	/* figure out the load address */
+	addr_str = env_get("kernel_addr_r");
+	addr = addr_str ? hextoul(addr_str, NULL) : image_load_addr;
+
+	/* clear any previous bootfile */
+	env_set("bootfile", NULL);
+
+	/* read the kernel */
+	ret = dhcp_run(addr, NULL, true);
+	if (ret)
+		return log_msg_ret("dhc", ret);
+
+	size = env_get_hex("filesize", -1);
+	if (size <= 0)
+		return log_msg_ret("sz", -EINVAL);
+	bflow->size = size;
+
+	/* do the hideous EFI hack */
+	efi_set_bootdev("Net", "", bflow->fname, map_sysmem(addr, 0),
+			bflow->size);
+
+	/* read the DT file also */
+	fdt_addr_str = env_get("fdt_addr_r");
+	if (!fdt_addr_str)
+		return log_msg_ret("fdt", -EINVAL);
+	fdt_addr = hextoul(fdt_addr_str, NULL);
+	sprintf(file_addr, "%lx", fdt_addr);
+
+	distro_efi_get_fdt_name(fname, sizeof(fname));
+	bflow->fdt_fname = strdup(fname);
+	if (!bflow->fdt_fname)
+		return log_msg_ret("fil", -ENOMEM);
+
+	if (!do_tftpb(&cmdtp, 0, 3, tftp_argv)) {
+		bflow->fdt_size = env_get_hex("filesize", 0);
+		bflow->fdt_addr = fdt_addr;
+	} else {
+		log_debug("No device tree available\n");
+	}
+
+	bflow->state = BOOTFLOWST_READY;
+
+	return 0;
+}
+
+static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
+{
+	const struct udevice *media = dev_get_parent(bflow->dev);
+	int ret;
+
+	if (IS_ENABLED(CONFIG_CMD_DHCP) &&
+	    device_get_uclass_id(media) == UCLASS_ETH) {
+		/* we only support reading from one device, so ignore 'dev' */
+		ret = distro_efi_read_bootflow_net(bflow);
+		if (ret)
+			return log_msg_ret("net", ret);
+	} else {
+		ret = distro_efi_read_bootflow_file(dev, bflow);
+		if (ret)
+			return log_msg_ret("blk", ret);
+	}
+
 	return 0;
 }
 
 int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 {
+	ulong kernel, fdt;
 	char cmd[50];
+
+	/* A non-zero buffer indicates the kernel is there */
+	if (bflow->buf) {
+		kernel = (ulong)map_to_sysmem(bflow->buf);
+
+		/*
+		 * use the provided device tree if available, else fall back to
+		 * the control FDT
+		 */
+		if (bflow->fdt_fname)
+			fdt = bflow->fdt_addr;
+		else
+			fdt = (ulong)map_to_sysmem(gd->fdt_blob);
+	} else {
+		/*
+		 * This doesn't actually work for network devices:
+		 *
+		 * do_bootefi_image() No UEFI binary known at 0x02080000
+		 *
+		 * But this is the same behaviour for distro boot, so it can be
+		 * fixed here.
+		 */
+		kernel = env_get_hex("kernel_addr_r", 0);
+		fdt = env_get_hex("fdt_addr_r", 0);
+	}
 
 	/*
 	 * At some point we can add a real interface to bootefi so we can call
-	 * this directly. For now, go through the CLI like distro boot.
+	 * this directly. For now, go through the CLI, like distro boot.
 	 */
-	snprintf(cmd, sizeof(cmd), "bootefi %lx %lx",
-		 (ulong)map_to_sysmem(bflow->buf),
-		 (ulong)map_to_sysmem(gd->fdt_blob));
+	snprintf(cmd, sizeof(cmd), "bootefi %lx %lx", kernel, fdt);
 	if (run_command(cmd, 0))
 		return log_msg_ret("run", -EINVAL);
 

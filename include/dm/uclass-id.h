@@ -47,9 +47,9 @@ enum uclass_id {
 	UCLASS_CPU,		/* CPU, typically part of an SoC */
 	UCLASS_CROS_EC,		/* Chrome OS EC */
 	UCLASS_DISPLAY,		/* Display (e.g. DisplayPort, HDMI) */
-	UCLASS_DSI_HOST,	/* Display Serial Interface host */
 	UCLASS_DMA,		/* Direct Memory Access */
 	UCLASS_DSA,		/* Distributed (Ethernet) Switch Architecture */
+	UCLASS_DSI_HOST,	/* Display Serial Interface host */
 	UCLASS_ECDSA,		/* Elliptic curve cryptographic device */
 	UCLASS_EFI_LOADER,	/* Devices created by UEFI applications */
 	UCLASS_EFI_MEDIA,	/* Devices provided by UEFI firmware */
@@ -101,6 +101,7 @@ enum uclass_id {
 	UCLASS_PINCTRL,		/* Pinctrl (pin muxing/configuration) device */
 	UCLASS_PMIC,		/* PMIC I/O device */
 	UCLASS_POWER_DOMAIN,	/* (SoC) Power domains */
+	UCLASS_PVBLOCK,		/* Xen virtual block device */
 	UCLASS_PWM,		/* Pulse-width modulator */
 	UCLASS_PWRSEQ,		/* Power sequence device */
 	UCLASS_QFW,		/* QEMU firmware config device */
@@ -142,7 +143,6 @@ enum uclass_id {
 	UCLASS_W1,		/* Dallas 1-Wire bus */
 	UCLASS_W1_EEPROM,	/* one-wire EEPROMs */
 	UCLASS_WDT,		/* Watchdog Timer driver */
-	UCLASS_PVBLOCK,		/* Xen virtual block device */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,

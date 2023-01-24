@@ -424,13 +424,16 @@ static efi_status_t efi_disk_add_dev(
 
 		if (!node) {
 			ret = EFI_OUT_OF_RESOURCES;
+			log_debug("no node\n");
 			goto error;
 		}
 
 		/* Parent must expose EFI_BLOCK_IO_PROTOCOL */
 		ret = efi_search_protocol(parent, &efi_block_io_guid, &handler);
-		if (ret != EFI_SUCCESS)
+		if (ret != EFI_SUCCESS) {
+			log_debug("search failed\n");
 			goto error;
+		}
 
 		/*
 		 * Link the partition (child controller) to the block device
@@ -439,8 +442,10 @@ static efi_status_t efi_disk_add_dev(
 		ret = efi_protocol_open(handler, &protocol_interface, NULL,
 					&diskobj->header,
 					EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER);
-		if (ret != EFI_SUCCESS)
-				goto error;
+		if (ret != EFI_SUCCESS) {
+			log_debug("prot open failed\n");
+			goto error;
+		}
 
 		diskobj->dp = efi_dp_append_node(dp_parent, node);
 		efi_free_pool(node);
@@ -471,8 +476,10 @@ static efi_status_t efi_disk_add_dev(
 					 */
 					esp_guid, NULL,
 					NULL);
-	if (ret != EFI_SUCCESS)
+	if (ret != EFI_SUCCESS) {
+		log_debug("install failed %lx\n", ret);
 		goto error;
+	}
 
 	/*
 	 * On partitions or whole disks without partitions install the
@@ -485,8 +492,10 @@ static efi_status_t efi_disk_add_dev(
 		ret = efi_add_protocol(&diskobj->header,
 				       &efi_simple_file_system_protocol_guid,
 				       diskobj->volume);
-		if (ret != EFI_SUCCESS)
+		if (ret != EFI_SUCCESS) {
+			log_debug("simple FS failed\n");
 			return ret;
+		}
 	}
 	diskobj->ops = block_io_disk_template;
 	diskobj->dev_index = dev_index;
@@ -556,18 +565,21 @@ static int efi_disk_create_raw(struct udevice *dev, efi_handle_t agent_handle)
 	ret = efi_disk_add_dev(NULL, NULL, desc,
 			       diskid, NULL, 0, &disk, agent_handle);
 	if (ret != EFI_SUCCESS) {
-		if (ret == EFI_NOT_READY)
+		if (ret == EFI_NOT_READY) {
 			log_notice("Disk %s not ready\n", dev->name);
-		else
+			ret = -EBUSY;
+		} else {
 			log_err("Adding disk for %s failed (err=%ld/%#lx)\n", dev->name, ret, ret);
+			ret = -ENOENT;
+		}
 
-		return -1;
+		return ret;
 	}
 	if (efi_link_dev(&disk->header, dev)) {
 		efi_free_pool(disk->dp);
 		efi_delete_handle(&disk->header);
 
-		return -1;
+		return -EINVAL;
 	}
 
 	return 0;

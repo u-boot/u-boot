@@ -71,6 +71,8 @@ enum {
 	 * since it cannot access the flags.
 	 */
 	UT_TESTF_MANUAL		= BIT(8),
+	UT_TESTF_ETH_BOOTDEV	= BIT(9),	/* enable Ethernet bootdevs */
+	UT_TESTF_SF_BOOTDEV	= BIT(10),	/* enable SPI flash bootdevs */
 };
 
 /**
@@ -167,6 +169,76 @@ static inline int test_load_other_fdt(struct unit_test_state *uts)
 	ret = sandbox_load_other_fdt(&uts->other_fdt, &uts->other_fdt_size);
 #endif
 	return ret;
+}
+
+/**
+ * Control skipping of time delays
+ *
+ * Some tests have unnecessay time delays (e.g. USB). Allow these to be
+ * skipped to speed up testing
+ *
+ * @param skip_delays	true to skip delays from now on, false to honour delay
+ *			requests
+ */
+static inline void test_set_skip_delays(bool skip_delays)
+{
+#ifdef CONFIG_SANDBOX
+	state_set_skip_delays(skip_delays);
+#endif
+}
+
+/**
+ * test_set_eth_enable() - Enable / disable Ethernet
+ *
+ * Allows control of whether Ethernet packets are actually send/received
+ *
+ * @enable: true to enable Ethernet, false to disable
+ */
+static inline void test_set_eth_enable(bool enable)
+{
+#ifdef CONFIG_SANDBOX
+	sandbox_set_eth_enable(enable);
+#endif
+}
+
+/* Allow ethernet to be disabled for testing purposes */
+static inline bool test_eth_enabled(void)
+{
+	bool enabled = true;
+
+#ifdef CONFIG_SANDBOX
+	enabled = sandbox_eth_enabled();
+#endif
+	return enabled;
+}
+
+/* Allow ethernet bootdev to be ignored for testing purposes */
+static inline bool test_eth_bootdev_enabled(void)
+{
+	bool enabled = true;
+
+#ifdef CONFIG_SANDBOX
+	enabled = sandbox_eth_enabled();
+#endif
+	return enabled;
+}
+
+/* Allow SPI flash bootdev to be ignored for testing purposes */
+static inline bool test_sf_bootdev_enabled(void)
+{
+	bool enabled = true;
+
+#ifdef CONFIG_SANDBOX
+	enabled = sandbox_sf_bootdev_enabled();
+#endif
+	return enabled;
+}
+
+static inline void test_sf_set_enable_bootdevs(bool enable)
+{
+#ifdef CONFIG_SANDBOX
+	sandbox_sf_set_enable_bootdevs(enable);
+#endif
 }
 
 #endif /* __TEST_TEST_H */

@@ -7,11 +7,16 @@
 #ifndef __bootflow_h
 #define __bootflow_h
 
+#include <bootdev.h>
 #include <dm/ofnode_decl.h>
 #include <linux/list.h>
 
 struct bootstd_priv;
 struct expo;
+
+enum {
+	BOOTFLOW_MAX_USED_DEVS	= 16,
+};
 
 /**
  * enum bootflow_state_t - states that a particular bootflow can be in
@@ -43,7 +48,7 @@ enum bootflow_state_t {
  * @glob_node: Points to siblings in the global list (all bootdev)
  * @dev: Bootdevice device which produced this bootflow
  * @blk: Block device which contains this bootflow, NULL if this is a network
- *	device
+ *	device or sandbox 'host' device
  * @part: Partition number (0 for whole device)
  * @fs_type: Filesystem type (FS_TYPE...) if this is fixed by the media, else 0.
  *	For example, the sandbox host-filesystem bootdev sets this to
@@ -60,6 +65,9 @@ enum bootflow_state_t {
  * @err: Error number received (0 if OK)
  * @os_name: Name of the OS / distro being booted, or NULL if not known
  *	(allocated)
+ * @fdt_fname: Filename of FDT file
+ * @fdt_size: Size of FDT file
+ * @fdt_addr: Address of loaded fdt
  */
 struct bootflow {
 	struct list_head bm_node;
@@ -79,23 +87,64 @@ struct bootflow {
 	int size;
 	int err;
 	char *os_name;
+	char *fdt_fname;
+	int fdt_size;
+	ulong fdt_addr;
 };
 
 /**
  * enum bootflow_flags_t - flags for the bootflow iterator
  *
  * @BOOTFLOWF_FIXED: Only used fixed/internal media
- * @BOOTFLOWF_SHOW: Show each bootdev before scanning it
+ * @BOOTFLOWF_SHOW: Show each bootdev before scanning it; show each hunter
+ * before using it
  * @BOOTFLOWF_ALL: Return bootflows with errors as well
- * @BOOTFLOWF_SINGLE_DEV: Just scan one bootmeth
- * @BOOTFLOWF_SKIP_GLOBAL: Don't scan global bootmeths
+ * @BOOTFLOWF_HUNT: Hunt for new bootdevs using the bootdrv hunters
+ *
+ * Internal flags:
+ * @BOOTFLOWF_SINGLE_DEV: (internal) Just scan one bootdev
+ * @BOOTFLOWF_SKIP_GLOBAL: (internal) Don't scan global bootmeths
+ * @BOOTFLOWF_SINGLE_UCLASS: (internal) Keep scanning through all devices in
+ * this uclass (used with things like "mmc")
+ * @BOOTFLOWF_SINGLE_MEDIA: (internal) Scan one media device in the uclass (used
+ * with things like "mmc1")
  */
 enum bootflow_flags_t {
 	BOOTFLOWF_FIXED		= 1 << 0,
 	BOOTFLOWF_SHOW		= 1 << 1,
 	BOOTFLOWF_ALL		= 1 << 2,
-	BOOTFLOWF_SINGLE_DEV	= 1 << 3,
-	BOOTFLOWF_SKIP_GLOBAL	= 1 << 4,
+	BOOTFLOWF_HUNT		= 1 << 3,
+
+	/*
+	 * flags used internally by standard boot - do not set these when
+	 * calling bootflow_scan_bootdev() etc.
+	 */
+	BOOTFLOWF_SINGLE_DEV	= 1 << 16,
+	BOOTFLOWF_SKIP_GLOBAL	= 1 << 17,
+	BOOTFLOWF_SINGLE_UCLASS	= 1 << 18,
+	BOOTFLOWF_SINGLE_MEDIA	= 1 << 19,
+};
+
+/**
+ * enum bootflow_meth_flags_t - flags controlling which bootmeths are used
+ *
+ * Used during iteration, e.g. by bootdev_find_by_label(), to determine which
+ * bootmeths are used for the current bootdev. The flags reset when the bootdev
+ * changes
+ *
+ * @BOOTFLOW_METHF_DHCP_ONLY: Only use dhcp (scripts and EFI)
+ * @BOOTFLOW_METHF_PXE_ONLY: Only use pxe (PXE boot)
+ * @BOOTFLOW_METHF_SINGLE_DEV: Scan only a single bootdev (used for labels like
+ * "3"). This is used if a sequence number is provided instead of a label
+ * @BOOTFLOW_METHF_SINGLE_UCLASS: Scan all bootdevs in this one uclass (used
+ * with things like "mmc"). If this is not set, then the bootdev has an integer
+ * value in the label (like "mmc2")
+ */
+enum bootflow_meth_flags_t {
+	BOOTFLOW_METHF_DHCP_ONLY	= 1 << 0,
+	BOOTFLOW_METHF_PXE_ONLY		= 1 << 1,
+	BOOTFLOW_METHF_SINGLE_DEV	= 1 << 2,
+	BOOTFLOW_METHF_SINGLE_UCLASS	= 1 << 3,
 };
 
 /**
@@ -118,25 +167,31 @@ enum bootflow_flags_t {
  * @flags: Flags to use (see enum bootflow_flags_t). If BOOTFLOWF_GLOBAL_FIRST is
  *	enabled then the global bootmeths are being scanned, otherwise we have
  *	moved onto the bootdevs
- * @dev: Current bootdev, NULL if none
+ * @dev: Current bootdev, NULL if none. This is only ever updated in
+ * bootflow_iter_set_dev()
  * @part: Current partition number (0 for whole device)
  * @method: Current bootmeth
  * @max_part: Maximum hardware partition number in @dev, 0 if there is no
  *	partition table
+ * @first_bootable: First bootable partition, or 0 if none
  * @err: Error obtained from checking the last iteration. This is used to skip
  *	forward (e.g. to skip the current partition because it is not valid)
  *	-ESHUTDOWN: try next bootdev
- * @num_devs: Number of bootdevs in @dev_order
- * @cur_dev: Current bootdev number, an index into @dev_order[]
- * @dev_order: List of bootdevs to scan, in order of priority. The scan starts
- *	with the first one on the list
+ * @num_devs: Number of bootdevs in @dev_used
+ * @max_devs: Maximum number of entries in @dev_used
+ * @dev_used: List of bootdevs used during iteration
+ * @labels: List of labels to scan for bootdevs
+ * @cur_label: Current label being processed
  * @num_methods: Number of bootmeth devices in @method_order
  * @cur_method: Current method number, an index into @method_order
  * @first_glob_method: First global method, if any, else -1
+ * @cur_prio: Current priority being scanned
  * @method_order: List of bootmeth devices to use, in order. The normal methods
  *	appear first, then the global ones, if any
  * @doing_global: true if we are iterating through the global bootmeths (which
  *	happens before the normal ones)
+ * @method_flags: flags controlling which methods should be used for this @dev
+ * (enum bootflow_meth_flags_t)
  */
 struct bootflow_iter {
 	int flags;
@@ -144,15 +199,20 @@ struct bootflow_iter {
 	int part;
 	struct udevice *method;
 	int max_part;
+	int first_bootable;
 	int err;
 	int num_devs;
-	int cur_dev;
-	struct udevice **dev_order;
+	int max_devs;
+	struct udevice *dev_used[BOOTFLOW_MAX_USED_DEVS];
+	const char *const *labels;
+	int cur_label;
 	int num_methods;
 	int cur_method;
 	int first_glob_method;
+	enum bootdev_prio_t cur_prio;
 	struct udevice **method_order;
 	bool doing_global;
+	int method_flags;
 };
 
 /**
@@ -197,36 +257,23 @@ int bootflow_iter_drop_bootmeth(struct bootflow_iter *iter,
 				const struct udevice *bmeth);
 
 /**
- * bootflow_scan_bootdev() - find the first bootflow in a bootdev
+ * bootflow_scan_first() - find the first bootflow for a device or label
  *
  * If @flags includes BOOTFLOWF_ALL then bootflows with errors are returned too
  *
  * @dev:	Boot device to scan, NULL to work through all of them until it
  *	finds one that can supply a bootflow
+ * @label:	Label to control the scan, NULL to work through all devices
+ *	until it finds one that can supply a bootflow
  * @iter:	Place to store private info (inited by this call)
- * @flags:	Flags for iterator (enum bootflow_flags_t)
+ * @flags:	Flags for iterator (enum bootflow_flags_t). Note that if @dev
+ * is NULL, then BOOTFLOWF_SKIP_GLOBAL is set automatically by this function
  * @bflow:	Place to put the bootflow if found
  * Return: 0 if found,  -ENODEV if no device, other -ve on other error
  *	(iteration can continue)
  */
-int bootflow_scan_bootdev(struct udevice *dev, struct bootflow_iter *iter,
-			  int flags, struct bootflow *bflow);
-
-/**
- * bootflow_scan_first() - find the first bootflow
- *
- * This works through the available bootdev devices until it finds one that
- * can supply a bootflow. It then returns that
- *
- * If @flags includes BOOTFLOWF_ALL then bootflows with errors are returned too
- *
- * @iter:	Place to store private info (inited by this call), with
- * @flags:	Flags for bootdev (enum bootflow_flags_t)
- * @bflow:	Place to put the bootflow if found
- * Return: 0 if found, -ENODEV if no device, other -ve on other error (iteration
- *	can continue)
- */
-int bootflow_scan_first(struct bootflow_iter *iter, int flags,
+int bootflow_scan_first(struct udevice *dev, const char *label,
+			struct bootflow_iter *iter, int flags,
 			struct bootflow *bflow);
 
 /**
@@ -312,33 +359,42 @@ const char *bootflow_state_get_name(enum bootflow_state_t state);
 void bootflow_remove(struct bootflow *bflow);
 
 /**
- * bootflow_iter_uses_blk_dev() - Check that a bootflow uses a block device
+ * bootflow_iter_check_blk() - Check that a bootflow uses a block device
  *
  * This checks the bootdev in the bootflow to make sure it uses a block device
  *
  * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. ethernet)
  */
-int bootflow_iter_uses_blk_dev(const struct bootflow_iter *iter);
+int bootflow_iter_check_blk(const struct bootflow_iter *iter);
 
 /**
- * bootflow_iter_uses_network() - Check that a bootflow uses a network device
+ * bootflow_iter_check_sf() - Check that a bootflow uses SPI FLASH
+ *
+ * This checks the bootdev in the bootflow to make sure it uses SPI flash
+ *
+ * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. ethernet)
+ */
+int bootflow_iter_check_sf(const struct bootflow_iter *iter);
+
+/**
+ * bootflow_iter_check_net() - Check that a bootflow uses a network device
  *
  * This checks the bootdev in the bootflow to make sure it uses a network
  * device
  *
  * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. MMC)
  */
-int bootflow_iter_uses_network(const struct bootflow_iter *iter);
+int bootflow_iter_check_net(const struct bootflow_iter *iter);
 
 /**
- * bootflow_iter_uses_system() - Check that a bootflow uses the bootstd device
+ * bootflow_iter_check_system() - Check that a bootflow uses the bootstd device
  *
  * This checks the bootdev in the bootflow to make sure it uses the bootstd
  * device
  *
  * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. MMC)
  */
-int bootflow_iter_uses_system(const struct bootflow_iter *iter);
+int bootflow_iter_check_system(const struct bootflow_iter *iter);
 
 /**
  * bootflow_menu_new() - Create a new bootflow menu

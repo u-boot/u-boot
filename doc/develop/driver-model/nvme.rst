@@ -27,7 +27,7 @@ How it works
 ------------
 There is an NVMe uclass driver (driver name "nvme"), an NVMe host controller
 driver (driver name "nvme") and an NVMe namespace block driver (driver name
-"nvme-blk"). The host controller driver is supposed to probe the hardware and
+"nvme_blk"). The host controller driver is supposed to probe the hardware and
 do necessary initialization to put the controller into a ready state at which
 it is able to scan all available namespaces attached to it. Scanning namespace
 is triggered by the NVMe uclass driver and the actual work is done in the NVMe

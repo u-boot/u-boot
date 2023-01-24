@@ -100,6 +100,7 @@ DM_TEST(dm_test_virtio_all_ops, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 static int dm_test_virtio_remove(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
+	u8 status;
 
 	/* check probe success */
 	ut_assertok(uclass_first_device_err(UCLASS_VIRTIO, &bus));
@@ -117,6 +118,8 @@ static int dm_test_virtio_remove(struct unit_test_state *uts)
 	ut_asserteq(-EKEYREJECTED, device_remove(bus, DM_REMOVE_ACTIVE_ALL));
 
 	ut_asserteq(false, device_active(dev));
+	virtio_get_status(dev, &status);
+	ut_assertok(status);
 
 	return 0;
 }

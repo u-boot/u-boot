@@ -1527,10 +1527,16 @@
 
 	sandbox_virtio1 {
 		compatible = "sandbox,virtio1";
+		virtio-type = <4>;	/* rng */
 	};
 
 	sandbox_virtio2 {
 		compatible = "sandbox,virtio2";
+	};
+
+	sandbox-virtio-blk {
+		compatible = "sandbox,virtio1";
+		virtio-type = <2>;	/* block */
 	};
 
 	sandbox_scmi {

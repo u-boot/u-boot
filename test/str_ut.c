@@ -274,6 +274,88 @@ static int str_trailing(struct unit_test_state *uts)
 }
 STR_TEST(str_trailing, 0);
 
+static int test_str_to_list(struct unit_test_state *uts)
+{
+	const char **ptr;
+	ulong start;
+
+	/* check out of memory */
+	start = ut_check_delta(0);
+	malloc_enable_testing(0);
+	ut_assertnull(str_to_list(""));
+	ut_assertok(ut_check_delta(start));
+
+	ut_assertnull(str_to_list("this is a test"));
+	ut_assertok(ut_check_delta(start));
+
+	malloc_enable_testing(1);
+	ut_assertnull(str_to_list("this is a test"));
+	ut_assertok(ut_check_delta(start));
+
+	/* for an empty string, only one nalloc is needed */
+	malloc_enable_testing(1);
+	ptr = str_to_list("");
+	ut_assertnonnull(ptr);
+	ut_assertnull(ptr[0]);
+	str_free_list(ptr);
+	ut_assertok(ut_check_delta(start));
+
+	malloc_disable_testing();
+
+	/* test the same again, without any nalloc restrictions */
+	ptr = str_to_list("");
+	ut_assertnonnull(ptr);
+	ut_assertnull(ptr[0]);
+	str_free_list(ptr);
+	ut_assertok(ut_check_delta(start));
+
+	/* test a single string */
+	start = ut_check_delta(0);
+	ptr = str_to_list("hi");
+	ut_assertnonnull(ptr);
+	ut_assertnonnull(ptr[0]);
+	ut_asserteq_str("hi", ptr[0]);
+	ut_assertnull(ptr[1]);
+	str_free_list(ptr);
+	ut_assertok(ut_check_delta(start));
+
+	/* test two strings */
+	ptr = str_to_list("hi there");
+	ut_assertnonnull(ptr);
+	ut_assertnonnull(ptr[0]);
+	ut_asserteq_str("hi", ptr[0]);
+	ut_assertnonnull(ptr[1]);
+	ut_asserteq_str("there", ptr[1]);
+	ut_assertnull(ptr[2]);
+	str_free_list(ptr);
+	ut_assertok(ut_check_delta(start));
+
+	/* test leading, trailing and multiple spaces */
+	ptr = str_to_list(" more  space  ");
+	ut_assertnonnull(ptr);
+	ut_assertnonnull(ptr[0]);
+	ut_asserteq_str("", ptr[0]);
+	ut_assertnonnull(ptr[1]);
+	ut_asserteq_str("more", ptr[1]);
+	ut_assertnonnull(ptr[2]);
+	ut_asserteq_str("", ptr[2]);
+	ut_assertnonnull(ptr[3]);
+	ut_asserteq_str("space", ptr[3]);
+	ut_assertnonnull(ptr[4]);
+	ut_asserteq_str("", ptr[4]);
+	ut_assertnonnull(ptr[5]);
+	ut_asserteq_str("", ptr[5]);
+	ut_assertnull(ptr[6]);
+	str_free_list(ptr);
+	ut_assertok(ut_check_delta(start));
+
+	/* test freeing a NULL pointer */
+	str_free_list(NULL);
+
+	return 0;
+}
+STR_TEST(test_str_to_list, 0);
+
 int do_ut_str(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(str_test);

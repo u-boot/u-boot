@@ -66,6 +66,21 @@ struct in_addr {
 int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
+ * dhcp_run() - Run DHCP on the current ethernet device
+ *
+ * This sets the autoload variable, then puts it back to similar to its original
+ * state (y, n or unset).
+ *
+ * @addr: Address to load the file into (0 if @autoload is false)
+ * @fname: Filename of file to load (NULL if @autoload is false or to use the
+ * default filename)
+ * @autoload: true to load the file, false to just get the network IP
+ * @return 0 if OK, -EINVAL if the environment failed, -ENOENT if ant file was
+ * not found
+ */
+int dhcp_run(ulong addr, const char *fname, bool autoload);
+
+/**
  * An incoming packet handler.
  * @param pkt    pointer to the application packet
  * @param dport  destination UDP port
@@ -885,5 +900,21 @@ static inline struct in_addr env_get_ip(char *var)
  * This should be implemented by boards if CONFIG_RESET_PHY_R is enabled
  */
 void reset_phy(void);
+
+#if CONFIG_IS_ENABLED(NET)
+/**
+ * eth_set_enable_bootdevs() - Enable or disable binding of Ethernet bootdevs
+ *
+ * These get in the way of bootstd testing, so are normally disabled by tests.
+ * This provide control of this setting. It only affects binding of Ethernet
+ * devices, so if that has already happened, this flag does nothing.
+ *
+ * @enable: true to enable binding of bootdevs when binding new Ethernet
+ * devices, false to disable it
+ */
+void eth_set_enable_bootdevs(bool enable);
+#else
+static inline void eth_set_enable_bootdevs(bool enable) {}
+#endif
 
 #endif /* __NET_H__ */

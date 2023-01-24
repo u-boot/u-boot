@@ -176,7 +176,7 @@ static int simple_load_from_image(struct spl_image_info *spl_image,
 
 	priv = dev_get_priv(meth);
 	log_debug("simple %s\n", priv->storage);
-	ret = bootdev_find_by_label(priv->storage, &bdev);
+	ret = bootdev_find_by_label(priv->storage, &bdev, NULL);
 	if (ret)
 		return log_msg_ret("bd", ret);
 	log_debug("bootdev %s\n", bdev->name);

@@ -88,11 +88,13 @@ void bootflow_iter_init(struct bootflow_iter *iter, int flags)
 	memset(iter, '\0', sizeof(*iter));
 	iter->first_glob_method = -1;
 	iter->flags = flags;
+
+	/* remember the first bootdevs we see */
+	iter->max_devs = BOOTFLOW_MAX_USED_DEVS;
 }
 
 void bootflow_iter_uninit(struct bootflow_iter *iter)
 {
-	free(iter->dev_order);
 	free(iter->method_order);
 }
 
@@ -113,22 +115,41 @@ int bootflow_iter_drop_bootmeth(struct bootflow_iter *iter,
 	return 0;
 }
 
+/**
+ * bootflow_iter_set_dev() - switch to the next bootdev when iterating
+ *
+ * This sets iter->dev, records the device in the dev_used[] list and shows a
+ * message if required
+ *
+ * @iter: Iterator to update
+ * @dev: Bootdev to use, or NULL if there are no more
+ */
 static void bootflow_iter_set_dev(struct bootflow_iter *iter,
-				  struct udevice *dev)
+				  struct udevice *dev, int method_flags)
 {
 	struct bootmeth_uc_plat *ucp = dev_get_uclass_plat(iter->method);
 
+	log_debug("iter: Setting dev to %s, flags %x\n",
+		  dev ? dev->name : "(none)", method_flags);
 	iter->dev = dev;
-	if ((iter->flags & (BOOTFLOWF_SHOW | BOOTFLOWF_SINGLE_DEV)) ==
-	    BOOTFLOWF_SHOW) {
-		if (dev)
-			printf("Scanning bootdev '%s':\n", dev->name);
-		else if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) &&
-			 ucp->flags & BOOTMETHF_GLOBAL)
-			printf("Scanning global bootmeth '%s':\n",
-			       iter->method->name);
-		else
-			printf("No more bootdevs\n");
+	iter->method_flags = method_flags;
+
+	if (IS_ENABLED(CONFIG_BOOTSTD_FULL)) {
+		/* record the device for later */
+		if (dev && iter->num_devs < iter->max_devs)
+			iter->dev_used[iter->num_devs++] = dev;
+
+		if ((iter->flags & (BOOTFLOWF_SHOW | BOOTFLOWF_SINGLE_DEV)) ==
+		    BOOTFLOWF_SHOW) {
+			if (dev)
+				printf("Scanning bootdev '%s':\n", dev->name);
+			else if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) &&
+				ucp->flags & BOOTMETHF_GLOBAL)
+				printf("Scanning global bootmeth '%s':\n",
+				iter->method->name);
+			else
+				printf("No more bootdevs\n");
+		}
 	}
 }
 
@@ -144,6 +165,7 @@ static int iter_incr(struct bootflow_iter *iter)
 	bool global;
 	int ret;
 
+	log_debug("entry: err=%d\n", iter->err);
 	global = iter->doing_global;
 
 	if (iter->err == BF_NO_MORE_DEVICES)
@@ -182,7 +204,7 @@ static int iter_incr(struct bootflow_iter *iter)
 			return 0;
 	}
 
-	/* No more partitions; start at the first one and...*/
+	/* No more partitions; start at the first one and... */
 	iter->part = 0;
 
 	/*
@@ -196,16 +218,62 @@ static int iter_incr(struct bootflow_iter *iter)
 	if (iter->flags & BOOTFLOWF_SINGLE_DEV) {
 		ret = -ENOENT;
 	} else {
-		if (inc_dev)
-			iter->cur_dev++;
-		if (iter->cur_dev == iter->num_devs) {
-			ret = -ENOENT;
-			bootflow_iter_set_dev(iter, NULL);
+		int method_flags;
+
+		ret = 0;
+		dev = iter->dev;
+		log_debug("inc_dev=%d\n", inc_dev);
+		if (!inc_dev) {
+			ret = bootdev_setup_iter(iter, NULL, &dev,
+						 &method_flags);
+		} else if (IS_ENABLED(CONFIG_BOOTSTD_FULL) &&
+			   (iter->flags & BOOTFLOWF_SINGLE_UCLASS)) {
+			/* Move to the next bootdev in this uclass */
+			uclass_find_next_device(&dev);
+			if (!dev) {
+				log_debug("finished uclass %s\n",
+					  dev_get_uclass_name(dev));
+				ret = -ENODEV;
+			}
+		} else if (IS_ENABLED(CONFIG_BOOTSTD_FULL) &&
+			   iter->flags & BOOTFLOWF_SINGLE_MEDIA) {
+			log_debug("next in single\n");
+			method_flags = 0;
+			do {
+				/*
+				 * Move to the next bootdev child of this media
+				 * device. This ensures that we cover all the
+				 * available SCSI IDs and LUNs.
+				 */
+				device_find_next_child(&dev);
+				log_debug("- next %s\n",
+					dev ? dev->name : "(none)");
+			} while (dev && device_get_uclass_id(dev) !=
+				UCLASS_BOOTDEV);
+			if (!dev) {
+				log_debug("finished uclass %s\n",
+					  dev_get_uclass_name(dev));
+				ret = -ENODEV;
+			}
 		} else {
-			dev = iter->dev_order[iter->cur_dev];
+			log_debug("labels %p\n", iter->labels);
+			if (iter->labels) {
+				ret = bootdev_next_label(iter, &dev,
+							 &method_flags);
+			} else {
+				ret = bootdev_next_prio(iter, &dev);
+				method_flags = 0;
+			}
+		}
+		log_debug("ret=%d, dev=%p %s\n", ret, dev,
+			  dev ? dev->name : "none");
+		if (ret) {
+			bootflow_iter_set_dev(iter, NULL, 0);
+		} else {
 			ret = device_probe(dev);
+			log_debug("probe %s %d\n", dev->name, ret);
 			if (!log_msg_ret("probe", ret))
-				bootflow_iter_set_dev(iter, dev);
+				bootflow_iter_set_dev(iter, dev, method_flags);
 		}
 	}
 
@@ -230,7 +298,7 @@ static int bootflow_check(struct bootflow_iter *iter, struct bootflow *bflow)
 	int ret;
 
 	if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) && iter->doing_global) {
-		bootflow_iter_set_dev(iter, NULL);
+		bootflow_iter_set_dev(iter, NULL, 0);
 		ret = bootmeth_get_bootflow(iter->method, bflow);
 		if (ret)
 			return log_msg_ret("glob", ret);
@@ -265,30 +333,41 @@ static int bootflow_check(struct bootflow_iter *iter, struct bootflow *bflow)
 	return 0;
 }
 
-int bootflow_scan_bootdev(struct udevice *dev, struct bootflow_iter *iter,
-			  int flags, struct bootflow *bflow)
+int bootflow_scan_first(struct udevice *dev, const char *label,
+			struct bootflow_iter *iter, int flags,
+			struct bootflow *bflow)
 {
 	int ret;
 
-	if (dev)
+	if (dev || label)
 		flags |= BOOTFLOWF_SKIP_GLOBAL;
 	bootflow_iter_init(iter, flags);
 
-	ret = bootdev_setup_iter_order(iter, &dev);
-	if (ret)
-		return log_msg_ret("obdev", -ENODEV);
-
+	/*
+	 * Set up the ordering of bootmeths. This sets iter->doing_global and
+	 * iter->first_glob_method if we are starting with the global bootmeths
+	 */
 	ret = bootmeth_setup_iter_order(iter, !(flags & BOOTFLOWF_SKIP_GLOBAL));
 	if (ret)
 		return log_msg_ret("obmeth", -ENODEV);
 
 	/* Find the first bootmeth (there must be at least one!) */
 	iter->method = iter->method_order[iter->cur_method];
-	if (!IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) || !iter->doing_global)
-		bootflow_iter_set_dev(iter, dev);
+
+	if (!IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) || !iter->doing_global) {
+		struct udevice *dev = NULL;
+		int method_flags;
+
+		ret = bootdev_setup_iter(iter, label, &dev, &method_flags);
+		if (ret)
+			return log_msg_ret("obdev", -ENODEV);
+
+		bootflow_iter_set_dev(iter, dev, method_flags);
+	}
 
 	ret = bootflow_check(iter, bflow);
 	if (ret) {
+		log_debug("check - ret=%d\n", ret);
 		if (ret != BF_NO_MORE_PARTS && ret != -ENOSYS) {
 			if (iter->flags & BOOTFLOWF_ALL)
 				return log_msg_ret("all", ret);
@@ -302,29 +381,19 @@ int bootflow_scan_bootdev(struct udevice *dev, struct bootflow_iter *iter,
 	return 0;
 }
 
-int bootflow_scan_first(struct bootflow_iter *iter, int flags,
-			struct bootflow *bflow)
-{
-	int ret;
-
-	ret = bootflow_scan_bootdev(NULL, iter, flags, bflow);
-	if (ret)
-		return log_msg_ret("start", ret);
-
-	return 0;
-}
-
 int bootflow_scan_next(struct bootflow_iter *iter, struct bootflow *bflow)
 {
 	int ret;
 
 	do {
 		ret = iter_incr(iter);
+		log_debug("iter_incr: ret=%d\n", ret);
 		if (ret == BF_NO_MORE_DEVICES)
 			return log_msg_ret("done", ret);
 
 		if (!ret) {
 			ret = bootflow_check(iter, bflow);
+			log_debug("check - ret=%d\n", ret);
 			if (!ret)
 				return 0;
 			iter->err = ret;
@@ -333,6 +402,7 @@ int bootflow_scan_next(struct bootflow_iter *iter, struct bootflow *bflow)
 					return log_msg_ret("all", ret);
 			}
 		} else {
+			log_debug("incr failed, err=%d\n", ret);
 			iter->err = ret;
 		}
 
@@ -355,6 +425,7 @@ void bootflow_free(struct bootflow *bflow)
 	free(bflow->fname);
 	free(bflow->buf);
 	free(bflow->os_name);
+	free(bflow->fdt_fname);
 }
 
 void bootflow_remove(struct bootflow *bflow)
@@ -427,7 +498,7 @@ int bootflow_run_boot(struct bootflow_iter *iter, struct bootflow *bflow)
 	return ret;
 }
 
-int bootflow_iter_uses_blk_dev(const struct bootflow_iter *iter)
+int bootflow_iter_check_blk(const struct bootflow_iter *iter)
 {
 	const struct udevice *media = dev_get_parent(iter->dev);
 	enum uclass_id id = device_get_uclass_id(media);
@@ -439,7 +510,19 @@ int bootflow_iter_uses_blk_dev(const struct bootflow_iter *iter)
 	return -ENOTSUPP;
 }
 
-int bootflow_iter_uses_network(const struct bootflow_iter *iter)
+int bootflow_iter_check_sf(const struct bootflow_iter *iter)
+{
+	const struct udevice *media = dev_get_parent(iter->dev);
+	enum uclass_id id = device_get_uclass_id(media);
+
+	log_debug("uclass %d: %s\n", id, uclass_get_name(id));
+	if (id == UCLASS_SPI_FLASH)
+		return 0;
+
+	return -ENOTSUPP;
+}
+
+int bootflow_iter_check_net(const struct bootflow_iter *iter)
 {
 	const struct udevice *media = dev_get_parent(iter->dev);
 	enum uclass_id id = device_get_uclass_id(media);
@@ -451,7 +534,7 @@ int bootflow_iter_uses_network(const struct bootflow_iter *iter)
 	return -ENOTSUPP;
 }
 
-int bootflow_iter_uses_system(const struct bootflow_iter *iter)
+int bootflow_iter_check_system(const struct bootflow_iter *iter)
 {
 	const struct udevice *media = dev_get_parent(iter->dev);
 	enum uclass_id id = device_get_uclass_id(media);

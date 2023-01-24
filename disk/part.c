@@ -770,3 +770,19 @@ void part_set_generic_name(const struct blk_desc *dev_desc,
 
 	sprintf(name, "%s%c%d", devtype, 'a' + dev_desc->devnum, part_num);
 }
+
+int part_get_bootable(struct blk_desc *desc)
+{
+	struct disk_partition info;
+	int p;
+
+	for (p = 1; p <= MAX_SEARCH_PARTITIONS; p++) {
+		int ret;
+
+		ret = part_get_info(desc, p, &info);
+		if (!ret && info.bootable)
+			return p;
+	}
+
+	return 0;
+}
