@@ -141,21 +141,25 @@ static int xilinx_read_eeprom_legacy(struct udevice *dev, char *name,
 
 	xilinx_eeprom_legacy_cleanup((char *)eeprom_content, size);
 
-	printf("Xilinx I2C Legacy format at %s:\n", name);
-	printf(" Board name:\t%s\n", eeprom_content->board_name);
-	printf(" Board rev:\t%s\n", eeprom_content->board_revision);
-	printf(" Board SN:\t%s\n", eeprom_content->board_sn);
+	/* Terminating \0 chars are the part of desc fields already */
+	strlcpy(desc->name, eeprom_content->board_name,
+		sizeof(eeprom_content->board_name) + 1);
+	strlcpy(desc->revision, eeprom_content->board_revision,
+		sizeof(eeprom_content->board_revision) + 1);
+	strlcpy(desc->serial, eeprom_content->board_sn,
+		sizeof(eeprom_content->board_sn) + 1);
 
 	eth_valid = is_valid_ethaddr((const u8 *)eeprom_content->eth_mac);
 	if (eth_valid)
-		printf(" Ethernet mac:\t%pM\n", eeprom_content->eth_mac);
-
-	/* Terminating \0 chars ensure end of string */
-	strcpy(desc->name, eeprom_content->board_name);
-	strcpy(desc->revision, eeprom_content->board_revision);
-	strcpy(desc->serial, eeprom_content->board_sn);
-	if (eth_valid)
 		memcpy(desc->mac_addr[0], eeprom_content->eth_mac, ETH_ALEN);
+
+	printf("Xilinx I2C Legacy format at %s:\n", name);
+	printf(" Board name:\t%s\n", desc->name);
+	printf(" Board rev:\t%s\n", desc->revision);
+	printf(" Board SN:\t%s\n", desc->serial);
+
+	if (eth_valid)
+		printf(" Ethernet mac:\t%pM\n", desc->mac_addr);
 
 	desc->header = EEPROM_HEADER_MAGIC;
 
