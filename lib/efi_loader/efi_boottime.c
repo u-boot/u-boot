@@ -1949,6 +1949,7 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
 	efi_uintn_t buffer_size;
 	uint64_t addr, pages;
 	const efi_guid_t *guid;
+	struct efi_handler *handler;
 
 	/* In case of failure nothing is returned */
 	*buffer = NULL;
@@ -1970,11 +1971,11 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
 	}
 	if (ret != EFI_SUCCESS)
 		return EFI_NOT_FOUND;
-	ret = EFI_CALL(efi_handle_protocol(device, guid,
-					   (void **)&load_file_protocol));
+	ret = efi_search_protocol(device, guid, &handler);
 	if (ret != EFI_SUCCESS)
 		return EFI_NOT_FOUND;
 	buffer_size = 0;
+	load_file_protocol = handler->protocol_interface;
 	ret = EFI_CALL(load_file_protocol->load_file(
 					load_file_protocol, rem, boot_policy,
 					&buffer_size, NULL));
