@@ -66,10 +66,9 @@
  * Flash on the LocalBus
  */
 #define CFG_SYS_FLASH0		0xFE000000
-#define CFG_SYS_FLASH1		0xFC000000
-#define CFG_SYS_FLASH_BANKS_LIST	{ CFG_SYS_FLASH1, CFG_SYS_FLASH0 }
+#define CFG_SYS_FLASH_BANKS_LIST	{ CFG_SYS_FLASH0 }
 
-#define CFG_SYS_LBC_FLASH_BASE	CFG_SYS_FLASH1	/* Localbus flash start	*/
+#define CFG_SYS_LBC_FLASH_BASE	CFG_SYS_FLASH0	/* Localbus flash start	*/
 #define CFG_SYS_FLASH_BASE		CFG_SYS_LBC_FLASH_BASE /* start of FLASH	*/
 
 #define CFG_SYS_LBC_LCRR		0x00030004    /* LB clock ratio reg	*/
