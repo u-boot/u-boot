@@ -5,11 +5,11 @@
  */
 / {
 	binman {
-		filename = "u-boot-socrates.bin";
+		filename = "u-boot-dtb.bin";
 		pad-byte = <0xff>;
 		// Place dtb one sector before u-boot-nodtb.bin
 		blob {
-			filename = "dts/dt.dtb";
+			filename = "u-boot.dtb";
 		};
 		u-boot-nodtb {
 			filename = "u-boot-nodtb.bin";
