@@ -105,22 +105,6 @@ the string "u_boot" or on "U_BOOT". Example:
 	IH_OS_U_BOOT		u_boot_hush_start
 
 
-Versioning:
-===========
-
-Starting with the release in October 2008, the names of the releases
-were changed from numerical release numbers without deeper meaning
-into a time stamp based numbering. Regular releases are identified by
-names consisting of the calendar year and month of the release date.
-Additional fields (if present) indicate release candidates or bug fix
-releases in "stable" maintenance trees.
-
-Examples:
-	U-Boot v2009.11	    - Release November 2009
-	U-Boot v2009.11.1   - Release 1 in version November 2009 stable tree
-	U-Boot v2010.09-rc1 - Release candidate 1 for September 2010 release
-
-
 Directory Hierarchy:
 ====================
 
