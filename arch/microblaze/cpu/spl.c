@@ -41,17 +41,15 @@ void __noreturn jump_to_image_linux(struct spl_image_info *spl_image)
 
 	image_entry(NULL, 0, (ulong)spl_image->arg);
 }
-#endif /* CONFIG_SPL_OS_BOOT */
 
 int spl_start_uboot(void)
 {
-#ifdef CONFIG_SPL_OS_BOOT
 	if (boot_linux)
 		return 0;
-#endif
 
 	return 1;
 }
+#endif /* CONFIG_SPL_OS_BOOT */
 
 int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
