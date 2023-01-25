@@ -189,7 +189,7 @@ board. This allows feature development which is not board- or architecture-
 specific to be undertaken on a native platform. The sandbox is also used to
 run some of U-Boot's tests.
 
-See doc/arch/sandbox.rst for more details.
+See doc/arch/sandbox/sandbox.rst for more details.
 
 
 Board Initialisation Flow:
