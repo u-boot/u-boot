@@ -35,6 +35,14 @@ u32 tpm_startup(struct udevice *dev, enum tpm_startup_type mode)
 	}
 }
 
+u32 tpm_auto_start(struct udevice *dev)
+{
+	if (tpm_is_v2(dev))
+		return tpm2_auto_start(dev);
+
+	return -ENOSYS;
+}
+
 u32 tpm_resume(struct udevice *dev)
 {
 	if (tpm_is_v1(dev))

@@ -44,6 +44,31 @@ u32 tpm2_self_test(struct udevice *dev, enum tpm2_yes_no full_test)
 	return tpm_sendrecv_command(dev, command_v2, NULL, NULL);
 }
 
+u32 tpm2_auto_start(struct udevice *dev)
+{
+	u32 rc;
+
+	/*
+	 * the tpm_init() will return -EBUSY if the init has already happened
+	 * The selftest and startup code can run multiple times with no side
+	 * effects
+	 */
+	rc = tpm_init(dev);
+	if (rc && rc != -EBUSY)
+		return rc;
+	rc = tpm2_self_test(dev, TPMI_YES);
+
+	if (rc == TPM2_RC_INITIALIZE) {
+		rc = tpm2_startup(dev, TPM2_SU_CLEAR);
+		if (rc)
+			return rc;
+
+		rc = tpm2_self_test(dev, TPMI_YES);
+	}
+
+	return rc;
+}
+
 u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
 	       const ssize_t pw_sz)
 {
