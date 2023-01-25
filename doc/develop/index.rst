@@ -24,6 +24,7 @@ Implementation
 .. toctree::
    :maxdepth: 1
 
+   directories
    bloblist
    bootstd
    ci_testing
