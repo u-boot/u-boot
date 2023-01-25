@@ -21,6 +21,7 @@ obj-$(CONFIG_WDT_APPLE) += apple_wdt.o
 obj-$(CONFIG_WDT_ARMADA_37XX) += armada-37xx-wdt.o
 obj-$(CONFIG_WDT_ASPEED) += ast_wdt.o
 obj-$(CONFIG_WDT_AST2600) += ast2600_wdt.o
+obj-$(CONFIG_WDT_BCM2835) += bcm2835_wdt.o
 obj-$(CONFIG_WDT_BCM6345) += bcm6345_wdt.o
 obj-$(CONFIG_WDT_BOOKE) += booke_wdt.o
 obj-$(CONFIG_WDT_CORTINA) += cortina_wdt.o
