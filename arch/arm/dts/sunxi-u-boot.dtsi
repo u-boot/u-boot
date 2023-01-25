@@ -12,9 +12,7 @@
 
 / {
 	aliases {
-#ifndef CONFIG_MACH_SUNIV
 		mmc0 = &mmc0;
-#endif
 #if CONFIG_MMC_SUNXI_SLOT_EXTRA == 2
 		mmc1 = &mmc2;
 #endif

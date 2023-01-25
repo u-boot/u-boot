@@ -35,7 +35,6 @@ struct fel_stash {
 	uint32_t cpsr;
 	uint32_t sctlr;
 	uint32_t vbar;
-	uint32_t cr;
 };
 
 struct fel_stash fel_stash __section(".data");
@@ -365,6 +364,7 @@ static bool sunxi_valid_emmc_boot(struct mmc *mmc)
 	struct blk_desc *bd = mmc_get_blk_desc(mmc);
 	u32 *buffer = (void *)(uintptr_t)CONFIG_TEXT_BASE;
 	struct boot_file_head *egon_head = (void *)buffer;
+	struct toc0_main_info *toc0_info = (void *)buffer;
 	int bootpart = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
 	uint32_t spl_size, emmc_checksum, chksum = 0;
 	ulong count;
@@ -391,11 +391,17 @@ static bool sunxi_valid_emmc_boot(struct mmc *mmc)
 
 	/* Read the first block to do some sanity checks on the eGON header. */
 	count = blk_dread(bd, 0, 1, buffer);
-	if (count != 1 || !sunxi_egon_valid(egon_head))
+	if (count != 1)
+		return false;
+
+	if (sunxi_egon_valid(egon_head))
+		spl_size = egon_head->length;
+	else if (sunxi_toc0_valid(toc0_info))
+		spl_size = toc0_info->length;
+	else
 		return false;
 
 	/* Read the rest of the SPL now we know it's halfway sane. */
-	spl_size = buffer[4];
 	count = blk_dread(bd, 1, DIV_ROUND_UP(spl_size, bd->blksz) - 1,
 			  buffer + bd->blksz / 4);
 

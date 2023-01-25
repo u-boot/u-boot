@@ -20,8 +20,6 @@ ENTRY(save_boot_params)
 	str	lr, [r0, #12]
 	mrc	p15, 0, lr, c12, c0, 0	@ Read VBAR
 	str	lr, [r0, #16]
-	mrc	p15, 0, lr, c1, c0, 0	@ Read CP15 Control Register
-	str	lr, [r0, #20]
 	b	save_boot_params_ret
 ENDPROC(save_boot_params)
 
@@ -29,8 +27,6 @@ ENTRY(return_to_fel)
 	mov	sp, r0
 	mov	lr, r1
 	ldr	r0, =fel_stash
-	ldr	r1, [r0, #20]
-	mcr	p15, 0, r1, c1, c0, 0	@ Write CP15 Control Register
 	ldr	r1, [r0, #16]
 	mcr	p15, 0, r1, c12, c0, 0	@ Write VBAR
 	ldr	r1, [r0, #12]

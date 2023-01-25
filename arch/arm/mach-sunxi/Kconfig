@@ -652,33 +652,6 @@ config MACPWR
 	  Set the pin used to power the MAC. This takes a string in the format
 	  understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
-config MMC0_CD_PIN
-	string "Card detect pin for mmc0"
-	default "PF6" if MACH_SUN8I_A83T || MACH_SUNXI_H3_H5 || MACH_SUN50I
-	default ""
-	---help---
-	Set the card detect pin for mmc0, leave empty to not use cd. This
-	takes a string in the format understood by sunxi_name_to_gpio, e.g.
-	PH1 for pin 1 of port H.
-
-config MMC1_CD_PIN
-	string "Card detect pin for mmc1"
-	default ""
-	---help---
-	See MMC0_CD_PIN help text.
-
-config MMC2_CD_PIN
-	string "Card detect pin for mmc2"
-	default ""
-	---help---
-	See MMC0_CD_PIN help text.
-
-config MMC3_CD_PIN
-	string "Card detect pin for mmc3"
-	default ""
-	---help---
-	See MMC0_CD_PIN help text.
-
 config MMC1_PINS_PH
 	bool "Pins for mmc1 are on Port H"
 	depends on MACH_SUN4I || MACH_SUN7I || MACH_SUN8I_R40

@@ -45,13 +45,31 @@ static struct dm_pmic_ops axp_pmic_ops = {
 	.write		= dm_i2c_write,
 };
 
+static const struct pmic_child_info axp_pmic_child_info[] = {
+	{ "aldo",	"axp_regulator" },
+	{ "bldo",	"axp_regulator" },
+	{ "cldo",	"axp_regulator" },
+	{ "dc",		"axp_regulator" },
+	{ "dldo",	"axp_regulator" },
+	{ "eldo",	"axp_regulator" },
+	{ "fldo",	"axp_regulator" },
+	{ "ldo",	"axp_regulator" },
+	{ "sw",		"axp_regulator" },
+	{ }
+};
+
 static int axp_pmic_bind(struct udevice *dev)
 {
+	ofnode regulators_node;
 	int ret;
 
 	ret = dm_scan_fdt_dev(dev);
 	if (ret)
 		return ret;
+
+	regulators_node = dev_read_subnode(dev, "regulators");
+	if (ofnode_valid(regulators_node))
+		pmic_bind_children(dev, regulators_node, axp_pmic_child_info);
 
 	if (CONFIG_IS_ENABLED(SYSRESET)) {
 		ret = device_bind_driver_to_node(dev, "axp_sysreset", "axp_sysreset",
@@ -64,15 +82,15 @@ static int axp_pmic_bind(struct udevice *dev)
 }
 
 static const struct udevice_id axp_pmic_ids[] = {
-	{ .compatible = "x-powers,axp152" },
-	{ .compatible = "x-powers,axp202" },
-	{ .compatible = "x-powers,axp209" },
-	{ .compatible = "x-powers,axp221" },
-	{ .compatible = "x-powers,axp223" },
-	{ .compatible = "x-powers,axp803" },
-	{ .compatible = "x-powers,axp806" },
-	{ .compatible = "x-powers,axp809" },
-	{ .compatible = "x-powers,axp813" },
+	{ .compatible = "x-powers,axp152", .data = AXP152_ID },
+	{ .compatible = "x-powers,axp202", .data = AXP202_ID },
+	{ .compatible = "x-powers,axp209", .data = AXP209_ID },
+	{ .compatible = "x-powers,axp221", .data = AXP221_ID },
+	{ .compatible = "x-powers,axp223", .data = AXP223_ID },
+	{ .compatible = "x-powers,axp803", .data = AXP803_ID },
+	{ .compatible = "x-powers,axp806", .data = AXP806_ID },
+	{ .compatible = "x-powers,axp809", .data = AXP809_ID },
+	{ .compatible = "x-powers,axp813", .data = AXP813_ID },
 	{ }
 };
 
