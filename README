@@ -28,20 +28,16 @@ load and run it dynamically.
 Status:
 =======
 
-In general, all boards for which a configuration option exists in the
-Makefile have been tested to some extent and can be considered
+In general, all boards for which a default configuration file exists in the
+configs/ directory have been tested to some extent and can be considered
 "working". In fact, many of them are used in production systems.
 
-In case of problems see the CHANGELOG file to find out who contributed
-the specific port. In addition, there are various MAINTAINERS files
-scattered throughout the U-Boot source identifying the people or
-companies responsible for various boards and subsystems.
+In case of problems you can use
 
-Note: As of August, 2010, there is no longer a CHANGELOG file in the
-actual U-Boot source tree; however, it can be created dynamically
-from the Git log using:
+     scripts/get_maintainer.pl <path>
 
-	make CHANGELOG
+to identify the people or companies responsible for various boards and
+subsystems. Or have a look at the git log.
 
 
 Where to get help:
