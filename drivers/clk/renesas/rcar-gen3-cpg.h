@@ -112,6 +112,9 @@ struct rcar_gen3_cpg_pll_config {
 #define CPG_RST_MODEMR	0x060
 
 #define CPG_RPCCKCR	0x238
+#define CPG_RPCCKCR_DIV_POST_MASK	GENMASK(4, 3)
+#define CPG_RPCCKCR_DIV_PRE_MASK	GENMASK(2, 0)
+
 #define CPG_RCKCR	0x240
 
 struct gen3_clk_priv {
