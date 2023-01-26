@@ -30,13 +30,18 @@ enum rcar_gen3_clk_types {
 	CLK_TYPE_GEN3_RPC,
 	CLK_TYPE_GEN3_RPCD2,
 
-	CLK_TYPE_R8A779A0_MAIN,
-	CLK_TYPE_R8A779A0_PLL1,
-	CLK_TYPE_R8A779A0_PLL2X_3X,	/* PLL[23][01] */
-	CLK_TYPE_R8A779A0_PLL5,
-	CLK_TYPE_R8A779A0_SD,
-	CLK_TYPE_R8A779A0_MDSEL,	/* Select parent/divider using mode pin */
-	CLK_TYPE_R8A779A0_OSC,	/* OSC EXTAL predivider and fixed divider */
+	CLK_TYPE_GEN4_MAIN,
+	CLK_TYPE_GEN4_PLL1,
+	CLK_TYPE_GEN4_PLL2X_3X,	/* PLL[23][01] */
+	CLK_TYPE_GEN4_PLL5,
+	CLK_TYPE_GEN4_SDH,
+	CLK_TYPE_GEN4_SD,
+	CLK_TYPE_GEN4_MDSEL,	/* Select parent/divider using mode pin */
+	CLK_TYPE_GEN4_Z,
+	CLK_TYPE_GEN4_OSC,	/* OSC EXTAL predivider and fixed divider */
+	CLK_TYPE_GEN4_RPCSRC,
+	CLK_TYPE_GEN4_RPC,
+	CLK_TYPE_GEN4_RPCD2,
 
 	/* SoC specific definitions start here */
 	CLK_TYPE_GEN3_SOC_BASE,
@@ -78,6 +83,23 @@ enum rcar_gen3_clk_types {
 #define DEF_FIXED_RPCSRC_E3(_name, _id, _parent0, _parent1)	\
 	DEF_BASE(_name, _id, CLK_TYPE_GEN3_E3_RPCSRC,	\
 		 (_parent0) << 16 | (_parent1), .div = 8)
+
+#define DEF_GEN4_SDH(_name, _id, _parent, _offset)	\
+	DEF_BASE(_name, _id, CLK_TYPE_GEN4_SDH, _parent, .offset = _offset)
+
+#define DEF_GEN4_SD(_name, _id, _parent, _offset)	\
+	DEF_BASE(_name, _id, CLK_TYPE_GEN4_SD, _parent, .offset = _offset)
+
+#define DEF_GEN4_MDSEL(_name, _id, _md, _parent0, _div0, _parent1, _div1) \
+	DEF_BASE(_name, _id, CLK_TYPE_GEN4_MDSEL,	\
+		 (_parent0) << 16 | (_parent1),		\
+		 .div = (_div0) << 16 | (_div1), .offset = _md)
+
+#define DEF_GEN4_OSC(_name, _id, _parent, _div)		\
+	DEF_BASE(_name, _id, CLK_TYPE_GEN4_OSC, _parent, .div = _div)
+
+#define DEF_GEN4_Z(_name, _id, _type, _parent, _div, _offset)	\
+	DEF_BASE(_name, _id, _type, _parent, .div = _div, .offset = _offset)
 
 struct rcar_gen3_cpg_pll_config {
 	u8 extal_div;

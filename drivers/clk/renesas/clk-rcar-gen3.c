@@ -253,23 +253,23 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
 						CPG_PLL4CR, 0, 0, "PLL4");
 
-	case CLK_TYPE_R8A779A0_MAIN:
+	case CLK_TYPE_GEN4_MAIN:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
 						0, 1, pll_config->extal_div,
 						"V3U_MAIN");
 
-	case CLK_TYPE_R8A779A0_PLL1:
+	case CLK_TYPE_GEN4_PLL1:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
 						0, pll_config->pll1_mult,
 						pll_config->pll1_div,
 						"V3U_PLL1");
 
-	case CLK_TYPE_R8A779A0_PLL2X_3X:
+	case CLK_TYPE_GEN4_PLL2X_3X:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
 						core->offset, 0, 0,
 						"V3U_PLL2X_3X");
 
-	case CLK_TYPE_R8A779A0_PLL5:
+	case CLK_TYPE_GEN4_PLL5:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent, core,
 						0, pll_config->pll5_mult,
 						pll_config->pll5_div,
@@ -290,11 +290,13 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		return rate;
 
 	case CLK_TYPE_GEN3_SDH:	/* Fixed factor 1:1 */
+		fallthrough;
+	case CLK_TYPE_GEN4_SDH:	/* Fixed factor 1:1 */
 		return gen3_clk_get_rate64(&parent);
 
 	case CLK_TYPE_GEN3_SD:		/* FIXME */
 		fallthrough;
-	case CLK_TYPE_R8A779A0_SD:
+	case CLK_TYPE_GEN4_SD:
 		value = readl(priv->base + core->offset);
 		value &= CPG_SD_STP_MASK | CPG_SD_FC_MASK;
 
@@ -315,6 +317,8 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 
 	case CLK_TYPE_GEN3_RPC:
 	case CLK_TYPE_GEN3_RPCD2:
+	case CLK_TYPE_GEN4_RPC:
+	case CLK_TYPE_GEN4_RPCD2:
 		rate = gen3_clk_get_rate64(&parent);
 
 		value = readl(priv->base + core->offset);
