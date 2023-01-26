@@ -324,7 +324,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 	case CLK_TYPE_GEN4_RPCD2:
 		rate = gen3_clk_get_rate64(&parent);
 
-		value = readl(priv->base + core->offset);
+		value = readl(priv->base + CPG_RPCCKCR);
 
 		prediv = (value >> CPG_RPC_PREDIV_OFFSET) &
 			 CPG_RPC_PREDIV_MASK;

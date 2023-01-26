@@ -53,9 +53,6 @@ enum rcar_gen3_clk_types {
 #define DEF_GEN3_SD(_name, _id, _parent, _offset)	\
 	DEF_BASE(_name, _id, CLK_TYPE_GEN3_SD, _parent, .offset = _offset)
 
-#define DEF_GEN3_RPCD2(_name, _id, _parent, _offset)	\
-	DEF_BASE(_name, _id, CLK_TYPE_GEN3_RPCD2, _parent, .offset = _offset)
-
 #define DEF_GEN3_MDSEL(_name, _id, _md, _parent0, _div0, _parent1, _div1) \
 	DEF_BASE(_name, _id, CLK_TYPE_GEN3_MDSEL,	\
 		 (_parent0) << 16 | (_parent1),		\
