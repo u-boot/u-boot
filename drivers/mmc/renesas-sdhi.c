@@ -930,6 +930,12 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 		priv->read_poll_flag = TMIO_SD_DMA_INFO1_END_RD;
 	else
 		priv->read_poll_flag = TMIO_SD_DMA_INFO1_END_RD2;
+
+	/* V3M handles SD0H differently than other Gen3 SoCs */
+	if (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77970)
+		priv->needs_clkh_fallback = true;
+	else
+		priv->needs_clkh_fallback = false;
 }
 
 static int renesas_sdhi_probe(struct udevice *dev)
