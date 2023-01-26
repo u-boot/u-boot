@@ -836,6 +836,7 @@ static const struct udevice_id renesas_sdhi_match[] = {
 	{ .compatible = "renesas,sdhi-r8a7794", .data = RENESAS_GEN2_QUIRKS },
 	{ .compatible = "renesas,sdhi-r8a7795", .data = RENESAS_GEN3_QUIRKS },
 	{ .compatible = "renesas,sdhi-r8a7796", .data = RENESAS_GEN3_QUIRKS },
+	{ .compatible = "renesas,sdhi-r8a77961", .data = RENESAS_GEN3_QUIRKS },
 	{ .compatible = "renesas,rcar-gen3-sdhi", .data = RENESAS_GEN3_QUIRKS },
 	{ .compatible = "renesas,sdhi-r8a77965", .data = RENESAS_GEN3_QUIRKS },
 	{ .compatible = "renesas,sdhi-r8a77970", .data = RENESAS_GEN3_QUIRKS },
@@ -904,6 +905,11 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 		priv->adjust_hs400_calib_table =
 			r8a7796_rev13_calib_table[!rmobile_is_gen3_mmc0(priv)];
 	}
+
+	/* M3W+ bad taps */
+	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
+	    (rmobile_get_cpu_rev_integer() == 3))
+		priv->hs400_bad_tap = BIT(1) | BIT(3) | BIT(5) | BIT(7);
 
 	/* M3N can use HS400 with manual adjustment */
 	if (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77965) {
