@@ -289,6 +289,9 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		      div, rate);
 		return rate;
 
+	case CLK_TYPE_GEN3_SDH:	/* Fixed factor 1:1 */
+		return gen3_clk_get_rate64(&parent);
+
 	case CLK_TYPE_GEN3_SD:		/* FIXME */
 		fallthrough;
 	case CLK_TYPE_R8A779A0_SD:
