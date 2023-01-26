@@ -159,7 +159,8 @@ program:
 Instruct BootROM to enter boot Xmodem boot mode, send header of
 \fIu-boot-with-spl.kwb\fP kwbimage file via Xmodem at 115200 Bd, then instruct
 BootROM to change baudrate to 5200000 Bd, send data part of the kwbimage
-file via Xmodem at high speed and finally run terminal program:
+file via Xmodem at high speed, then change baudrate back to 115200 Bd,
+and finally run terminal program:
 .IP
 .B kwboot -b u-boot-with-spl.kwb -B 5200000 -t /dev/ttyUSB0
 
