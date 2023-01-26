@@ -13,12 +13,15 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <errno.h>
 #include <log.h>
 #include <wait_bit.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <reset-uclass.h>
 
 #include <dt-bindings/clock/renesas-cpg-mssr.h>
 
@@ -389,7 +392,7 @@ const struct clk_ops gen3_clk_ops = {
 	.of_xlate	= gen3_clk_of_xlate,
 };
 
-int gen3_clk_probe(struct udevice *dev)
+static int gen3_clk_probe(struct udevice *dev)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(dev);
 	struct cpg_mssr_info *info =
@@ -447,9 +450,84 @@ int gen3_clk_probe(struct udevice *dev)
 	return 0;
 }
 
-int gen3_clk_remove(struct udevice *dev)
+static int gen3_clk_remove(struct udevice *dev)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(dev);
 
 	return renesas_clk_remove(priv->base, priv->info);
+}
+
+U_BOOT_DRIVER(clk_gen3) = {
+	.name		= "clk_gen3",
+	.id		= UCLASS_CLK,
+	.priv_auto	= sizeof(struct gen3_clk_priv),
+	.ops		= &gen3_clk_ops,
+	.probe		= gen3_clk_probe,
+	.remove		= gen3_clk_remove,
+};
+
+static int gen3_reset_assert(struct reset_ctl *reset_ctl)
+{
+	struct udevice *cdev = (struct udevice *)dev_get_driver_data(reset_ctl->dev);
+	struct gen3_clk_priv *priv = dev_get_priv(cdev);
+	unsigned int reg = reset_ctl->id / 32;
+	unsigned int bit = reset_ctl->id % 32;
+	u32 bitmask = BIT(bit);
+
+	writel(bitmask, priv->base + priv->info->reset_regs[reg]);
+
+	return 0;
+}
+
+static int gen3_reset_deassert(struct reset_ctl *reset_ctl)
+{
+	struct udevice *cdev = (struct udevice *)dev_get_driver_data(reset_ctl->dev);
+	struct gen3_clk_priv *priv = dev_get_priv(cdev);
+	unsigned int reg = reset_ctl->id / 32;
+	unsigned int bit = reset_ctl->id % 32;
+	u32 bitmask = BIT(bit);
+
+	writel(bitmask, priv->base + priv->info->reset_clear_regs[reg]);
+
+	return 0;
+}
+
+static const struct reset_ops rst_gen3_ops = {
+	.rst_assert = gen3_reset_assert,
+	.rst_deassert = gen3_reset_deassert,
+};
+
+U_BOOT_DRIVER(rst_gen3) = {
+	.name = "rst_gen3",
+	.id = UCLASS_RESET,
+	.ops = &rst_gen3_ops,
+};
+
+int gen3_cpg_bind(struct udevice *parent)
+{
+	struct cpg_mssr_info *info =
+		(struct cpg_mssr_info *)dev_get_driver_data(parent);
+	struct udevice *cdev, *rdev;
+	struct driver *drv;
+	int ret;
+
+	drv = lists_driver_lookup_name("clk_gen3");
+	if (!drv)
+		return -ENOENT;
+
+	ret = device_bind_with_driver_data(parent, drv, "clk_gen3", (ulong)info,
+					   dev_ofnode(parent), &cdev);
+	if (ret)
+		return ret;
+
+	drv = lists_driver_lookup_name("rst_gen3");
+	if (!drv)
+		return -ENOENT;
+
+	ret = device_bind_with_driver_data(parent, drv, "rst_gen3", (ulong)cdev,
+					   dev_ofnode(parent), &rdev);
+	if (ret)
+		device_unbind(cdev);
+
+	return ret;
 }

@@ -201,4 +201,7 @@ config MULTI_DTB_FIT_USER_DEF_ADDR
 config SYS_MALLOC_F_LEN
 	default 0x8000 if RCAR_GEN3
 
+config DM_RESET
+	default y if RCAR_GEN3
+
 endif

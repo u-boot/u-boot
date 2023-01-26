@@ -301,7 +301,7 @@ static const struct cpg_mssr_info r8a779a0_cpg_mssr_info = {
 	.reg_layout		= CLK_REG_LAYOUT_RCAR_V3U,
 };
 
-static const struct udevice_id r8a779a0_clk_ids[] = {
+static const struct udevice_id r8a779a0_cpg_ids[] = {
 	{
 		.compatible	= "renesas,r8a779a0-cpg-mssr",
 		.data		= (ulong)&r8a779a0_cpg_mssr_info
@@ -309,12 +309,9 @@ static const struct udevice_id r8a779a0_clk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(clk_r8a779a0) = {
-	.name		= "clk_r8a779a0",
-	.id		= UCLASS_CLK,
-	.of_match	= r8a779a0_clk_ids,
-	.priv_auto	= sizeof(struct gen3_clk_priv),
-	.ops		= &gen3_clk_ops,
-	.probe		= gen3_clk_probe,
-	.remove		= gen3_clk_remove,
+U_BOOT_DRIVER(cpg_r8a779a0) = {
+	.name		= "cpg_r8a779a0",
+	.id		= UCLASS_NOP,
+	.of_match	= r8a779a0_cpg_ids,
+	.bind		= gen3_cpg_bind,
 };

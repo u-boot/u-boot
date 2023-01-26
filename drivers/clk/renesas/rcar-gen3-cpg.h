@@ -126,8 +126,7 @@ struct gen3_clk_priv {
 	const struct rcar_gen3_cpg_pll_config *cpg_pll_config;
 };
 
-int gen3_clk_probe(struct udevice *dev);
-int gen3_clk_remove(struct udevice *dev);
+int gen3_cpg_bind(struct udevice *parent);
 
 extern const struct clk_ops gen3_clk_ops;
 
