@@ -835,7 +835,7 @@ static int sh_pfc_pinconf_set(struct sh_pfc_pinctrl *pmx, unsigned _pin,
 		if (!pfc->info->ops || !pfc->info->ops->pin_to_pocctrl)
 			return -ENOTSUPP;
 
-		bit = pfc->info->ops->pin_to_pocctrl(pfc, _pin, &addr);
+		bit = pfc->info->ops->pin_to_pocctrl(_pin, &addr);
 		if (bit < 0) {
 			printf("invalid pin %#x", _pin);
 			return bit;
@@ -972,9 +972,9 @@ static int sh_pfc_pinctrl_probe(struct udevice *dev)
 	if (model == SH_PFC_R8A7794)
 		priv->pfc.info = &r8a7794_pinmux_info;
 #endif
-#ifdef CONFIG_PINCTRL_PFC_R8A7795
+#ifdef CONFIG_PINCTRL_PFC_R8A77951
 	if (model == SH_PFC_R8A7795)
-		priv->pfc.info = &r8a7795_pinmux_info;
+		priv->pfc.info = &r8a77951_pinmux_info;
 #endif
 #ifdef CONFIG_PINCTRL_PFC_R8A7796
 	if (model == SH_PFC_R8A7796)
@@ -1059,7 +1059,7 @@ static const struct udevice_id sh_pfc_pinctrl_ids[] = {
 		.data = SH_PFC_R8A7794,
 	},
 #endif
-#ifdef CONFIG_PINCTRL_PFC_R8A7795
+#ifdef CONFIG_PINCTRL_PFC_R8A77951
 	{
 		.compatible = "renesas,pfc-r8a7795",
 		.data = SH_PFC_R8A7795,
