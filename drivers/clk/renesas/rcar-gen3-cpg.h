@@ -18,7 +18,9 @@ enum rcar_gen3_clk_types {
 	CLK_TYPE_GEN3_PLL3,
 	CLK_TYPE_GEN3_PLL4,
 	CLK_TYPE_GEN3_SDH,
+	CLK_TYPE_R8A77970_SD0H,
 	CLK_TYPE_GEN3_SD,
+	CLK_TYPE_R8A77970_SD0,
 	CLK_TYPE_GEN3_R,
 	CLK_TYPE_GEN3_MDSEL,	/* Select parent/divider using mode pin */
 	CLK_TYPE_GEN3_Z,
@@ -115,6 +117,9 @@ struct rcar_gen3_cpg_pll_config {
 #define CPG_SDCKCR_STPnCK		BIT(8)
 #define CPG_SDCKCR_SRCFC_MASK		GENMASK(4, 2)
 #define CPG_SDCKCR_FC_MASK		GENMASK(1, 0)
+/* V3M specifics */
+#define CPG_SDCKCR_SDHFC_MASK		GENMASK(11, 8)
+#define CPG_SDCKCR_SD0FC_MASK		GENMASK(7, 4)
 
 #define CPG_RPCCKCR	0x238
 #define CPG_RPCCKCR_DIV_POST_MASK	GENMASK(4, 3)

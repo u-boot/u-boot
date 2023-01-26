@@ -22,11 +22,6 @@
 
 #define CPG_SD0CKCR		0x0074
 
-enum r8a77970_clk_types {
-	CLK_TYPE_R8A77970_SD0H = CLK_TYPE_GEN3_SOC_BASE,
-	CLK_TYPE_R8A77970_SD0,
-};
-
 enum clk_ids {
 	/* Core Clock Outputs exported to DT */
 	LAST_DT_CORE_CLK = R8A77970_CLK_OSC,
