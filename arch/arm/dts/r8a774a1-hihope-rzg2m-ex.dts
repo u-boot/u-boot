@@ -3,7 +3,7 @@
  * Device Tree Source for the HiHope RZ/G2M Rev.3.0/4.0 connected to
  * sub board
  *
- * Copyright (C) 2021 Renesas Electronics Corp.
+ * Copyright (C) 2020 Renesas Electronics Corp.
  */
 
 #include "r8a774a1-hihope-rzg2m.dts"

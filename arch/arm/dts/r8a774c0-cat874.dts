@@ -2,7 +2,7 @@
 /*
  * Device Tree Source for the Silicon Linux RZ/G2E 96board platform (CAT874)
  *
- * Copyright (C) 2021 Renesas Electronics Corp.
+ * Copyright (C) 2019 Renesas Electronics Corp.
  */
 
 /dts-v1/;
@@ -17,6 +17,8 @@
 	aliases {
 		serial0 = &scif2;
 		serial1 = &hscif2;
+		mmc0 = &sdhi0;
+		mmc1 = &sdhi3;
 	};
 
 	chosen {
@@ -170,7 +172,7 @@
 
 	ports {
 		port@0 {
-			endpoint {
+			du_out_rgb: endpoint {
 				remote-endpoint = <&tda19988_in>;
 			};
 		};
@@ -351,7 +353,7 @@
 };
 
 &rcar_sound {
-	pinctrl-0 = <&sound_pins &sound_clk_pins>;
+	pinctrl-0 = <&sound_pins>, <&sound_clk_pins>;
 	pinctrl-names = "default";
 
 	/* Single DAI */
@@ -365,7 +367,7 @@
 
 	rcar_sound,dai {
 		dai0 {
-			playback = <&ssi0 &src0 &dvc0>;
+			playback = <&ssi0>, <&src0>, <&dvc0>;
 		};
 	};
 };

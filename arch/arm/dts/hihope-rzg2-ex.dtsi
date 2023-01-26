@@ -2,7 +2,7 @@
 /*
  * Device Tree Source for the RZ/G2[HMN] HiHope sub board common parts
  *
- * Copyright (C) 2021 Renesas Electronics Corp.
+ * Copyright (C) 2019 Renesas Electronics Corp.
  */
 
 / {
@@ -19,10 +19,13 @@
 	pinctrl-0 = <&avb_pins>;
 	pinctrl-names = "default";
 	phy-handle = <&phy0>;
-	phy-mode = "rgmii-txid";
+	tx-internal-delay-ps = <2000>;
+	rx-internal-delay-ps = <1800>;
 	status = "okay";
 
 	phy0: ethernet-phy@0 {
+		compatible = "ethernet-phy-id001c.c915",
+			     "ethernet-phy-ieee802.3-c22";
 		reg = <0>;
 		interrupt-parent = <&gpio2>;
 		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;

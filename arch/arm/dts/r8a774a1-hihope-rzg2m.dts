@@ -2,7 +2,7 @@
 /*
  * Device Tree Source for the HiHope RZ/G2M Rev.3.0/4.0 main board
  *
- * Copyright (C) 2021 Renesas Electronics Corp.
+ * Copyright (C) 2020 Renesas Electronics Corp.
  */
 
 /dts-v1/;
