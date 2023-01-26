@@ -153,7 +153,7 @@ static void mtk_snfi_copy_to_gpram(struct mtk_snfi_priv *priv,
 
 	/*
 	 * The output data will always be copied to the beginning of
-	 * the GPRAM. Uses word write for better performace.
+	 * the GPRAM. Uses word write for better performance.
 	 *
 	 * Trailing bytes in the last word are not cared.
 	 */
@@ -180,7 +180,7 @@ static void mtk_snfi_copy_from_gpram(struct mtk_snfi_priv *priv, u8 *cache,
 
 	/*
 	 * Read aligned data from GPRAM to buffer first.
-	 * Uses word read for better performace.
+	 * Uses word read for better performance.
 	 */
 	i = 0;
 	while (pos < end) {

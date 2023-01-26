@@ -233,7 +233,7 @@ static unsigned char qup_spi_read_byte(struct udevice *dev)
 }
 
 /*
- * Function to check wheather Input or Output FIFO
+ * Function to check whether Input or Output FIFO
  * has data to be serviced
  */
 static int qup_spi_check_fifo_status(struct udevice *dev, u32 reg_addr)

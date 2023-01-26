@@ -142,7 +142,7 @@ static int omap3_spi_read(struct omap3_spi_priv *priv, unsigned int len,
 			}
 		}
 
-		/* Disable the channel to prevent furher receiving */
+		/* Disable the channel to prevent further receiving */
 		if (i == (len - 1))
 			omap3_spi_set_enable(priv, OMAP3_MCSPI_CHCTRL_DIS);
 

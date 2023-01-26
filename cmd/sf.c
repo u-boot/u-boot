@@ -281,33 +281,33 @@ static int do_spi_flash_read_write(int argc, char *const argv[])
 	loff_t offset, len, maxsize;
 
 	if (argc < 3)
-		return -1;
+		return CMD_RET_USAGE;
 
 	addr = hextoul(argv[1], &endp);
 	if (*argv[1] == 0 || *endp != 0)
-		return -1;
+		return CMD_RET_USAGE;
 
 	if (mtd_arg_off_size(argc - 2, &argv[2], &dev, &offset, &len,
 			     &maxsize, MTD_DEV_TYPE_NOR, flash->size))
-		return -1;
+		return CMD_RET_FAILURE;
 
 	/* Consistency checking */
 	if (offset + len > flash->size) {
 		printf("ERROR: attempting %s past flash size (%#x)\n",
 		       argv[0], flash->size);
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	if (strncmp(argv[0], "read", 4) != 0 && flash->flash_is_unlocked &&
 	    !flash->flash_is_unlocked(flash, offset, len)) {
 		printf("ERROR: flash area is locked\n");
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	buf = map_physmem(addr, len, MAP_WRBACK);
 	if (!buf && addr) {
 		puts("Failed to map physical memory\n");
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	if (strcmp(argv[0], "update") == 0) {
@@ -332,7 +332,7 @@ static int do_spi_flash_read_write(int argc, char *const argv[])
 
 	unmap_physmem(buf, len);
 
-	return ret == 0 ? 0 : 1;
+	return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 }
 
 static int do_spi_flash_erase(int argc, char *const argv[])
@@ -343,27 +343,27 @@ static int do_spi_flash_erase(int argc, char *const argv[])
 	ulong size;
 
 	if (argc < 3)
-		return -1;
+		return CMD_RET_USAGE;
 
 	if (mtd_arg_off(argv[1], &dev, &offset, &len, &maxsize,
 			MTD_DEV_TYPE_NOR, flash->size))
-		return -1;
+		return CMD_RET_FAILURE;
 
 	ret = sf_parse_len_arg(argv[2], &size);
 	if (ret != 1)
-		return -1;
+		return CMD_RET_USAGE;
 
 	/* Consistency checking */
 	if (offset + size > flash->size) {
 		printf("ERROR: attempting %s past flash size (%#x)\n",
 		       argv[0], flash->size);
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	if (flash->flash_is_unlocked &&
 	    !flash->flash_is_unlocked(flash, offset, len)) {
 		printf("ERROR: flash area is locked\n");
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	ret = spi_flash_erase(flash, offset, size);
@@ -373,7 +373,7 @@ static int do_spi_flash_erase(int argc, char *const argv[])
 	else
 		printf("OK\n");
 
-	return ret == 0 ? 0 : 1;
+	return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 }
 
 static int do_spi_protect(int argc, char *const argv[])
@@ -579,21 +579,19 @@ static int do_spi_flash(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* need at least two arguments */
 	if (argc < 2)
-		goto usage;
+		return CMD_RET_USAGE;
 
 	cmd = argv[1];
 	--argc;
 	++argv;
 
-	if (strcmp(cmd, "probe") == 0) {
-		ret = do_spi_flash_probe(argc, argv);
-		goto done;
-	}
+	if (strcmp(cmd, "probe") == 0)
+		return do_spi_flash_probe(argc, argv);
 
 	/* The remaining commands require a selected device */
 	if (!flash) {
 		puts("No SPI flash selected. Please run `sf probe'\n");
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	if (strcmp(cmd, "read") == 0 || strcmp(cmd, "write") == 0 ||
@@ -606,14 +604,9 @@ static int do_spi_flash(struct cmd_tbl *cmdtp, int flag, int argc,
 	else if (IS_ENABLED(CONFIG_CMD_SF_TEST) && !strcmp(cmd, "test"))
 		ret = do_spi_flash_test(argc, argv);
 	else
-		ret = -1;
+		ret = CMD_RET_USAGE;
 
-done:
-	if (ret != -1)
-		return ret;
-
-usage:
-	return CMD_RET_USAGE;
+	return ret;
 }
 
 #ifdef CONFIG_SYS_LONGHELP

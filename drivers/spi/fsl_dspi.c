@@ -491,7 +491,7 @@ static int fsl_dspi_probe(struct udevice *bus)
 
 	dm_spi_bus = dev_get_uclass_priv(bus);
 
-	/* cpu speical pin muxing configure */
+	/* cpu special pin muxing configure */
 	cpu_dspi_port_conf();
 
 	/* get input clk frequency */
@@ -600,7 +600,7 @@ static int fsl_dspi_of_to_plat(struct udevice *bus)
 	plat->speed_hz = fdtdec_get_int(blob,
 			node, "spi-max-frequency", FSL_DSPI_DEFAULT_SCK_FREQ);
 
-	debug("DSPI: regs=%pa, max-frequency=%d, endianess=%s, num-cs=%d\n",
+	debug("DSPI: regs=%pa, max-frequency=%d, endianness=%s, num-cs=%d\n",
 	      &plat->regs_addr, plat->speed_hz,
 	      plat->flags & DSPI_FLAG_REGMAP_ENDIAN_BIG ? "be" : "le",
 	      plat->num_chipselect);

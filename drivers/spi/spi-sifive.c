@@ -350,7 +350,7 @@ static int sifive_spi_set_speed(struct udevice *bus, uint speed)
 	if (speed > spi->freq)
 		speed = spi->freq;
 
-	/* Cofigure max speed */
+	/* Configure max speed */
 	scale = (DIV_ROUND_UP(spi->freq >> 1, speed) - 1)
 					& SIFIVE_SPI_SCKDIV_DIV_MASK;
 	writel(scale, spi->regs + SIFIVE_SPI_REG_SCKDIV);

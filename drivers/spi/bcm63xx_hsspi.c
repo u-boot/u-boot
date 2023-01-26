@@ -210,7 +210,7 @@ static void bcm63xx_hsspi_deactivate_cs(struct bcm63xx_hsspi_priv *priv)
  * claimed. This way, the dummy CS is restored to its inactive value when
  * transfers are issued and the desired CS is preserved in its active value
  * all the time. This hack is also used in the upstream linux driver and
- * allows keeping CS active between trasnfers even if the HW doesn't give
+ * allows keeping CS active between transfers even if the HW doesn't give
  * this possibility.
  */
 static int bcm63xx_hsspi_xfer(struct udevice *dev, unsigned int bitlen,

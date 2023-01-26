@@ -84,7 +84,7 @@ static void spi_cs_deactivate(struct mvebu_spi_plat *plat, int cs)
  * The XFER_RDY flag is checked every time before accessing SPI_DOUT
  * and SPI_DIN register.
  *
- * The number of transfers to be triggerred is decided by @bytelen.
+ * The number of transfers to be triggered is decided by @bytelen.
  *
  * Return:	0 - cool
  *		-ETIMEDOUT - XFER_RDY flag timeout
