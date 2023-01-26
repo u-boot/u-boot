@@ -63,6 +63,7 @@ Shell commands
    cmd/mbr
    cmd/md
    cmd/mmc
+   cmd/mtest
    cmd/part
    cmd/pause
    cmd/pinmux
