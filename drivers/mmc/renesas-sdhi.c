@@ -899,7 +899,7 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 	    (rmobile_get_cpu_rev_integer() == 1) &&
 	    (rmobile_get_cpu_rev_fraction() > 2)) {
 		priv->adjust_hs400_enable = true;
-		priv->adjust_hs400_offset = 0;
+		priv->adjust_hs400_offset = 3;
 		priv->hs400_bad_tap = BIT(1) | BIT(3) | BIT(5) | BIT(7);
 		priv->adjust_hs400_calib_table =
 			r8a7796_rev13_calib_table[!rmobile_is_gen3_mmc0(priv)];
