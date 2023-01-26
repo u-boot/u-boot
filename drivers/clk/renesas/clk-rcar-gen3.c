@@ -21,6 +21,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <linux/clk-provider.h>
 #include <reset-uclass.h>
 
 #include <dt-bindings/clock/renesas-cpg-mssr.h>
@@ -55,11 +56,6 @@
 	.div = (sd_div), \
 }
 
-struct sd_div_table {
-	u32 val;
-	unsigned int div;
-};
-
 /* SDn divider
  *                     sd_srcfc   sd_fc   div
  * stp_hck   stp_ck    (div)      (div)     = sd_srcfc x sd_fc
@@ -75,7 +71,7 @@ struct sd_div_table {
  *  1         0         3 (8)      0 (2)     16
  *  1         0         4 (16)     0 (2)     32
  */
-static const struct sd_div_table cpg_sd_div_table[] = {
+static const struct clk_div_table cpg_sd_div_table[] = {
 /*	CPG_SD_DIV_TABLE_DATA(stp_hck,  stp_ck,   sd_srcfc,   sd_fc,  sd_div) */
 	CPG_SD_DIV_TABLE_DATA(0,        0,        0,          1,        4),
 	CPG_SD_DIV_TABLE_DATA(0,        0,        1,          1,        8),
