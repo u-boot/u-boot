@@ -78,14 +78,7 @@ static const u8 r8a7795_calib_table[2][CALIB_TABLE_MAX] = {
 	 16, 16, 17, 17, 17, 17, 17, 18, 18, 18, 18, 19, 20, 21, 22, 22 }
 };
 
-static const u8 r8a7796_rev1_calib_table[2][CALIB_TABLE_MAX] = {
-	{ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  2,  3,  4,  9,
-	 15, 15, 15, 16, 16, 16, 16, 16, 17, 18, 19, 20, 21, 21, 22, 22 },
-	{ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,
-	  2,  9, 16, 17, 17, 17, 18, 18, 18, 18, 19, 20, 21, 22, 23, 24}
-};
-
-static const u8 r8a7796_rev3_calib_table[2][CALIB_TABLE_MAX] = {
+static const u8 r8a7796_rev13_calib_table[2][CALIB_TABLE_MAX] = {
 	{ 0,  0,  0,  0,  2,  3,  4,  4,  5,  6,  7,  7,  8,  9,  9, 10,
 	 11, 12, 13, 15, 16, 17, 17, 18, 19, 19, 20, 21, 21, 22, 23, 23 },
 	{ 1,  2,  2,  3,  4,  4,  5,  6,  6,  7,  8,  9,  9, 10, 11, 12,
@@ -871,12 +864,16 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
     CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 	struct tmio_sd_plat *plat = dev_get_plat(dev);
 
-	/* HS400 is not supported on H3 ES1.x and M3W ES1.0, ES1.1 */
+	/* HS400 is not supported on H3 ES1.x, M3W ES1.[012], V3M, V3H ES1.x, D3 */
 	if (((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
 	    (rmobile_get_cpu_rev_integer() <= 1)) ||
 	    ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
 	    (rmobile_get_cpu_rev_integer() == 1) &&
-	    (rmobile_get_cpu_rev_fraction() < 2)))
+	    (rmobile_get_cpu_rev_fraction() <= 2)) ||
+	    (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77970) ||
+	    ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77980) &&
+	    (rmobile_get_cpu_rev_integer() <= 1)) ||
+	    (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77995))
 		plat->cfg.host_caps &= ~MMC_MODE_HS400;
 
 	/* H3 ES2.0, ES3.0 and M3W ES1.2 and M3N bad taps */
@@ -897,16 +894,6 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 			r8a7795_calib_table[!rmobile_is_gen3_mmc0(priv)];
 	}
 
-	/* M3W ES1.2 can use HS400 with manual adjustment */
-	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
-	    (rmobile_get_cpu_rev_integer() == 1) &&
-	    (rmobile_get_cpu_rev_fraction() == 2)) {
-		priv->adjust_hs400_enable = true;
-		priv->adjust_hs400_offset = 3;
-		priv->adjust_hs400_calib_table =
-			r8a7796_rev1_calib_table[!rmobile_is_gen3_mmc0(priv)];
-	}
-
 	/* M3W ES1.x for x>2 can use HS400 with manual adjustment and taps */
 	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
 	    (rmobile_get_cpu_rev_integer() == 1) &&
@@ -915,7 +902,7 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 		priv->adjust_hs400_offset = 0;
 		priv->hs400_bad_tap = BIT(1) | BIT(3) | BIT(5) | BIT(7);
 		priv->adjust_hs400_calib_table =
-			r8a7796_rev3_calib_table[!rmobile_is_gen3_mmc0(priv)];
+			r8a7796_rev13_calib_table[!rmobile_is_gen3_mmc0(priv)];
 	}
 
 	/* M3N can use HS400 with manual adjustment */
