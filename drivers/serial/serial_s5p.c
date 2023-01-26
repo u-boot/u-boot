@@ -14,7 +14,7 @@
 #include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
-#if !CONFIG_IS_ENABLED(ARCH_APPLE)
+#if !IS_ENABLED(CONFIG_ARCH_APPLE)
 #include <asm/arch/clk.h>
 #endif
 #include <asm/arch/uart.h>
@@ -116,7 +116,7 @@ int s5p_serial_setbrg(struct udevice *dev, int baudrate)
 	struct s5p_uart *const uart = plat->reg;
 	u32 uclk;
 
-#if CONFIG_IS_ENABLED(CLK_EXYNOS) || CONFIG_IS_ENABLED(ARCH_APPLE)
+#if IS_ENABLED(CONFIG_CLK_EXYNOS) || IS_ENABLED(CONFIG_ARCH_APPLE)
 	struct clk clk;
 	u32 ret;
 
@@ -279,7 +279,7 @@ static inline void _debug_uart_init(void)
 	struct s5p_uart *uart = (struct s5p_uart *)CONFIG_VAL(DEBUG_UART_BASE);
 
 	s5p_serial_init(uart);
-#if CONFIG_IS_ENABLED(ARCH_APPLE)
+#if IS_ENABLED(CONFIG_ARCH_APPLE)
 	s5p_serial_baud(uart, 4, CONFIG_DEBUG_UART_CLOCK, CONFIG_BAUDRATE);
 #else
 	s5p_serial_baud(uart, 1, CONFIG_DEBUG_UART_CLOCK, CONFIG_BAUDRATE);
@@ -290,7 +290,7 @@ static inline void _debug_uart_putc(int ch)
 {
 	struct s5p_uart *uart = (struct s5p_uart *)CONFIG_VAL(DEBUG_UART_BASE);
 
-#if CONFIG_IS_ENABLED(ARCH_APPLE)
+#if IS_ENABLED(CONFIG_ARCH_APPLE)
 	while (readl(&uart->ufstat) & S5L_TX_FIFO_FULL);
 	writel(ch, &uart->utxh);
 #else
