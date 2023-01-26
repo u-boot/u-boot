@@ -36,6 +36,7 @@ config R8A7796
 	bool "Renesas SoC R8A7796"
 	select GICV2
 	imply CLK_R8A77960
+	imply CLK_R8A77961
 	imply PINCTRL_PFC_R8A77960
 	imply PINCTRL_PFC_R8A77961
 
