@@ -171,7 +171,7 @@ static void sh_pfc_config_reg_helper(struct sh_pfc *pfc,
 		*maskp = (1 << crp->var_field_width[in_pos]) - 1;
 		*posp = crp->reg_width;
 		for (k = 0; k <= in_pos; k++)
-			*posp -= crp->var_field_width[k];
+			*posp -= abs(crp->var_field_width[k]);
 	}
 }
 
@@ -219,14 +219,17 @@ static int sh_pfc_get_config_reg(struct sh_pfc *pfc, u16 enum_id,
 		if (!r_width)
 			break;
 
-		for (bit_pos = 0; bit_pos < r_width; bit_pos += curr_width) {
+		for (bit_pos = 0; bit_pos < r_width; bit_pos += curr_width, m++) {
 			u32 ncomb;
 			u32 n;
 
-			if (f_width)
+			if (f_width) {
 				curr_width = f_width;
-			else
-				curr_width = config_reg->var_field_width[m];
+			} else {
+				curr_width = abs(config_reg->var_field_width[m]);
+				if (config_reg->var_field_width[m] < 0)
+					continue;
+			}
 
 			ncomb = 1 << curr_width;
 			for (n = 0; n < ncomb; n++) {
@@ -238,7 +241,6 @@ static int sh_pfc_get_config_reg(struct sh_pfc *pfc, u16 enum_id,
 				}
 			}
 			pos += ncomb;
-			m++;
 		}
 		k++;
 	}
@@ -350,16 +352,16 @@ int sh_pfc_config_mux(struct sh_pfc *pfc, unsigned mark, int pinmux_type)
 }
 
 const struct pinmux_bias_reg *
-sh_pfc_pin_to_bias_reg(const struct sh_pfc *pfc, unsigned int pin,
-		       unsigned int *bit)
+rcar_pin_to_bias_reg(const struct sh_pfc_soc_info *info, unsigned int pin,
+		     unsigned int *bit)
 {
 	unsigned int i, j;
 
-	for (i = 0; pfc->info->bias_regs[i].puen; i++) {
-		for (j = 0; j < ARRAY_SIZE(pfc->info->bias_regs[i].pins); j++) {
-			if (pfc->info->bias_regs[i].pins[j] == pin) {
+	for (i = 0; info->bias_regs[i].puen || info->bias_regs[i].pud; i++) {
+		for (j = 0; j < ARRAY_SIZE(info->bias_regs[i].pins); j++) {
+			if (info->bias_regs[i].pins[j] == pin) {
 				*bit = j;
-				return &pfc->info->bias_regs[i];
+				return &info->bias_regs[i];
 			}
 		}
 	}
@@ -367,6 +369,64 @@ sh_pfc_pin_to_bias_reg(const struct sh_pfc *pfc, unsigned int pin,
 	WARN_ONCE(1, "Pin %u is not in bias info list\n", pin);
 
 	return NULL;
+}
+
+unsigned int rcar_pinmux_get_bias(struct sh_pfc *pfc, unsigned int pin)
+{
+	const struct pinmux_bias_reg *reg;
+	unsigned int bit;
+
+	reg = rcar_pin_to_bias_reg(pfc->info, pin, &bit);
+	if (!reg)
+		return PIN_CONFIG_BIAS_DISABLE;
+
+	if (reg->puen) {
+		if (!(sh_pfc_read(pfc, reg->puen) & BIT(bit)))
+			return PIN_CONFIG_BIAS_DISABLE;
+		else if (!reg->pud || (sh_pfc_read(pfc, reg->pud) & BIT(bit)))
+			return PIN_CONFIG_BIAS_PULL_UP;
+		else
+			return PIN_CONFIG_BIAS_PULL_DOWN;
+	} else {
+		if (sh_pfc_read(pfc, reg->pud) & BIT(bit))
+			return PIN_CONFIG_BIAS_PULL_DOWN;
+		else
+			return PIN_CONFIG_BIAS_DISABLE;
+	}
+}
+
+void rcar_pinmux_set_bias(struct sh_pfc *pfc, unsigned int pin,
+			  unsigned int bias)
+{
+	const struct pinmux_bias_reg *reg;
+	u32 enable, updown;
+	unsigned int bit;
+
+	reg = rcar_pin_to_bias_reg(pfc->info, pin, &bit);
+	if (!reg)
+		return;
+
+	if (reg->puen) {
+		enable = sh_pfc_read(pfc, reg->puen) & ~BIT(bit);
+		if (bias != PIN_CONFIG_BIAS_DISABLE) {
+			enable |= BIT(bit);
+
+			if (reg->pud) {
+				updown = sh_pfc_read(pfc, reg->pud) & ~BIT(bit);
+				if (bias == PIN_CONFIG_BIAS_PULL_UP)
+					updown |= BIT(bit);
+
+				sh_pfc_write(pfc, reg->pud, updown);
+			}
+		}
+		sh_pfc_write(pfc, reg->puen, enable);
+	} else {
+		enable = sh_pfc_read(pfc, reg->pud) & ~BIT(bit);
+		if (bias == PIN_CONFIG_BIAS_PULL_DOWN)
+			enable |= BIT(bit);
+
+		sh_pfc_write(pfc, reg->pud, enable);
+	}
 }
 
 static int sh_pfc_init_ranges(struct sh_pfc *pfc)
