@@ -71,13 +71,6 @@
 
 #define CALIB_TABLE_MAX	(RENESAS_SDHI_SCC_TMPPORT_CALIB_CODE_MASK + 1)
 
-static const u8 r8a7795_calib_table[2][CALIB_TABLE_MAX] = {
-	{ 0,  0,  0,  0,  0,  1,  1,  2,  3,  4,  5,  5,  6,  6,  7, 11,
-	 15, 16, 16, 17, 17, 17, 17, 17, 18, 18, 18, 18, 19, 20, 21, 21 },
-	{ 3,  3,  4,  4,  5,  6,  6,  7,  8,  8,  9,  9, 10, 11, 12, 15,
-	 16, 16, 17, 17, 17, 17, 17, 18, 18, 18, 18, 19, 20, 21, 22, 22 }
-};
-
 static const u8 r8a7796_rev13_calib_table[2][CALIB_TABLE_MAX] = {
 	{ 3,  3,  3,  3,  3,  3,  3,  4,  4,  5,  6,  7,  8,  9, 10, 15,
 	 16, 16, 16, 16, 16, 16, 17, 18, 18, 19, 20, 21, 22, 23, 24, 25 },
@@ -885,15 +878,6 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 	    (rmobile_get_cpu_rev_fraction() == 2)) ||
 	    (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77965))
 		priv->hs400_bad_tap = BIT(2) | BIT(3) | BIT(6) | BIT(7);
-
-	/* H3 ES3.0 can use HS400 with manual adjustment */
-	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
-	    (rmobile_get_cpu_rev_integer() >= 3)) {
-		priv->adjust_hs400_enable = true;
-		priv->adjust_hs400_offset = 0;
-		priv->adjust_hs400_calib_table =
-			r8a7795_calib_table[!rmobile_is_gen3_mmc0(priv)];
-	}
 
 	/* M3W ES1.x for x>2 can use HS400 with manual adjustment and taps */
 	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
