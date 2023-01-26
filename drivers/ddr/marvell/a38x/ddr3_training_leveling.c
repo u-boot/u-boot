@@ -1667,6 +1667,59 @@ enum rl_dqs_burst_state {
 	RL_BEHIND
 };
 
+#if defined(CONFIG_DDR4)
+static int mpr_rd_frmt_config(
+	enum mv_ddr_mpr_ps ps,
+	enum mv_ddr_mpr_op op,
+	enum mv_ddr_mpr_rd_frmt rd_frmt,
+	u8 cs_bitmask, u8 dis_auto_refresh)
+{
+	u32 val, mask;
+	u8 cs_bitmask_inv;
+
+
+	if (dis_auto_refresh == 1) {
+		ddr3_tip_if_write(0, ACCESS_TYPE_UNICAST, 0, ODPG_CTRL_CTRL_REG,
+			  ODPG_CTRL_AUTO_REFRESH_DIS << ODPG_CTRL_AUTO_REFRESH_OFFS,
+			  ODPG_CTRL_AUTO_REFRESH_MASK << ODPG_CTRL_AUTO_REFRESH_OFFS);
+	} else {
+		ddr3_tip_if_write(0, ACCESS_TYPE_UNICAST, 0, ODPG_CTRL_CTRL_REG,
+			  ODPG_CTRL_AUTO_REFRESH_ENA << ODPG_CTRL_AUTO_REFRESH_OFFS,
+			  ODPG_CTRL_AUTO_REFRESH_MASK << ODPG_CTRL_AUTO_REFRESH_OFFS);
+	}
+
+	/* configure MPR Location for MPR write and read accesses within the selected page */
+	ddr3_tip_if_write(0, ACCESS_TYPE_UNICAST, 0, DDR4_MPR_WR_REG,
+			  DDR4_MPR_LOC3 << DDR4_MPR_LOC_OFFS,
+			  DDR4_MPR_LOC_MASK << DDR4_MPR_LOC_OFFS);
+
+	/* configure MPR page selection, operation and read format */
+	val = ps << DDR4_MPR_PS_OFFS |
+	      op << DDR4_MPR_OP_OFFS |
+	      rd_frmt << DDR4_MPR_RF_OFFS;
+	mask = DDR4_MPR_PS_MASK << DDR4_MPR_PS_OFFS |
+	       DDR4_MPR_OP_MASK << DDR4_MPR_OP_OFFS |
+	       DDR4_MPR_RF_MASK << DDR4_MPR_RF_OFFS;
+	ddr3_tip_if_write(0, ACCESS_TYPE_UNICAST, 0, DDR4_MR3_REG, val, mask);
+
+	/* prepare cs bitmask in active low format */
+	cs_bitmask_inv = ~cs_bitmask & SDRAM_OP_CMD_ALL_CS_MASK;
+	ddr3_tip_if_write(0, ACCESS_TYPE_UNICAST, 0, SDRAM_OP_REG,
+			  CMD_DDR3_DDR4_MR3 << SDRAM_OP_CMD_OFFS |
+			  cs_bitmask_inv << SDRAM_OP_CMD_CS_OFFS(0),
+			  SDRAM_OP_CMD_MASK << SDRAM_OP_CMD_OFFS |
+			  SDRAM_OP_CMD_ALL_CS_MASK << SDRAM_OP_CMD_CS_OFFS(0));
+
+	if (ddr3_tip_if_polling(0, ACCESS_TYPE_UNICAST, 0,
+				CMD_NORMAL, SDRAM_OP_CMD_MASK, SDRAM_OP_REG,
+				MAX_POLLING_ITERATIONS)) {
+		printf("error: %s failed\n", __func__);
+		return -1;
+	}
+
+	return 0;
+}
+#endif /* CONFIG_DDR4 */
 
 int mv_ddr_rl_dqs_burst(u32 dev_num, u32 if_id, u32 freq)
 {
@@ -1690,6 +1743,19 @@ int mv_ddr_rl_dqs_burst(u32 dev_num, u32 if_id, u32 freq)
 	u32 reg_val, reg_mask;
 	uintptr_t test_addr = TEST_ADDR;
 
+#if defined(CONFIG_DDR4)
+	int status;
+	u8 cs_bitmask = tm->interface_params[0].as_bus_params[0].cs_bitmask;
+	u8 curr_cs_bitmask_inv;
+
+	/* enable MPR for all existing chip-selects */
+	status = mpr_rd_frmt_config(DDR4_MPR_PAGE0,
+				    DDR4_MPR_OP_ENA,
+				    DDR4_MPR_RF_SERIAL,
+				    cs_bitmask, 1);
+	if (status)
+		return status;
+#endif /* CONFIG_DDR4 */
 
 	/* initialization */
 	if (mv_ddr_is_ecc_ena()) {
@@ -1728,6 +1794,48 @@ int mv_ddr_rl_dqs_burst(u32 dev_num, u32 if_id, u32 freq)
 	/* search for dqs edges per subphy */
 	if_id = 0;
 	for (effective_cs = 0; effective_cs < max_cs; effective_cs++) {
+#if defined(CONFIG_DDR4)
+		/* enable read preamble training mode for chip-select under test */
+		ddr3_tip_if_write(0, ACCESS_TYPE_MULTICAST, PARAM_NOT_CARE,
+				  DDR4_MR4_REG,
+				  DDR4_RPT_ENA << DDR4_RPT_OFFS,
+				  DDR4_RPT_MASK << DDR4_RPT_OFFS);
+		/* prepare current cs bitmask in active low format */
+		curr_cs_bitmask_inv = ~(1 << effective_cs) & SDRAM_OP_CMD_ALL_CS_MASK;
+		reg_val = curr_cs_bitmask_inv << SDRAM_OP_CMD_CS_OFFS(0) |
+			  CMD_DDR4_MR4 << SDRAM_OP_CMD_OFFS;
+		reg_mask = SDRAM_OP_CMD_ALL_CS_MASK << SDRAM_OP_CMD_CS_OFFS(0) |
+			   SDRAM_OP_CMD_MASK << SDRAM_OP_CMD_OFFS;
+		ddr3_tip_if_write(0, ACCESS_TYPE_MULTICAST, PARAM_NOT_CARE,
+				  SDRAM_OP_REG, reg_val, reg_mask);
+		if (ddr3_tip_if_polling(0, ACCESS_TYPE_UNICAST, 0,
+					CMD_NORMAL, SDRAM_OP_CMD_MASK, SDRAM_OP_REG,
+					MAX_POLLING_ITERATIONS)) {
+			printf("error: %s failed\n", __func__);
+			return -1;
+		}
+
+		/* disable preamble training mode for existing chip-selects not under test */
+		ddr3_tip_if_write(0, ACCESS_TYPE_MULTICAST, PARAM_NOT_CARE,
+				  DDR4_MR4_REG,
+				  DDR4_RPT_DIS << DDR4_RPT_OFFS,
+				  DDR4_RPT_MASK << DDR4_RPT_OFFS);
+		/* prepare bitmask for existing chip-selects not under test in active low format */
+		reg_val = ((~(curr_cs_bitmask_inv & cs_bitmask) & SDRAM_OP_CMD_ALL_CS_MASK) <<
+			   SDRAM_OP_CMD_CS_OFFS(0)) |
+			  CMD_DDR4_MR4 << SDRAM_OP_CMD_OFFS;
+		reg_mask = SDRAM_OP_CMD_ALL_CS_MASK << SDRAM_OP_CMD_CS_OFFS(0) |
+			   SDRAM_OP_CMD_MASK << SDRAM_OP_CMD_OFFS;
+		ddr3_tip_if_write(0, ACCESS_TYPE_MULTICAST, PARAM_NOT_CARE,
+				  SDRAM_OP_REG, reg_val, reg_mask);
+		if (ddr3_tip_if_polling(0, ACCESS_TYPE_UNICAST, 0,
+					CMD_NORMAL, SDRAM_OP_CMD_MASK, SDRAM_OP_REG,
+					MAX_POLLING_ITERATIONS)) {
+			printf("error: %s failed\n", __func__);
+			return -1;
+		}
+
+#endif /* CONFIG_DDR4 */
 
 		pass_lock_num = init_pass_lock_num;
 		ddr3_tip_if_write(0, ACCESS_TYPE_MULTICAST, PARAM_NOT_CARE, ODPG_DATA_CTRL_REG,
@@ -1948,6 +2056,33 @@ int mv_ddr_rl_dqs_burst(u32 dev_num, u32 if_id, u32 freq)
 			CHECK_STATUS(ddr3_tip_write_additional_odt_setting(dev_num, if_id));
 	}
 
+#if defined(CONFIG_DDR4)
+	/* disable read preamble training mode for all existing chip-selects */
+	ddr3_tip_if_write(0, ACCESS_TYPE_MULTICAST, PARAM_NOT_CARE,
+			  DDR4_MR4_REG,
+			  DDR4_RPT_DIS << DDR4_RPT_OFFS,
+			  DDR4_RPT_MASK << DDR4_RPT_OFFS);
+	reg_val = (~cs_bitmask & SDRAM_OP_CMD_ALL_CS_MASK) << SDRAM_OP_CMD_CS_OFFS(0) |
+		  CMD_DDR4_MR4 << SDRAM_OP_CMD_OFFS;
+	reg_mask = SDRAM_OP_CMD_ALL_CS_MASK << SDRAM_OP_CMD_CS_OFFS(0) |
+		   SDRAM_OP_CMD_MASK << SDRAM_OP_CMD_OFFS;
+	ddr3_tip_if_write(0, ACCESS_TYPE_MULTICAST, PARAM_NOT_CARE,
+			  SDRAM_OP_REG, reg_val, reg_mask);
+	if (ddr3_tip_if_polling(0, ACCESS_TYPE_UNICAST, 0,
+				CMD_NORMAL, SDRAM_OP_CMD_MASK, SDRAM_OP_REG,
+				MAX_POLLING_ITERATIONS)) {
+		printf("error: %s failed\n", __func__);
+		return -1;
+	}
+
+	/* disable MPR for all existing chip-selects */
+	status = mpr_rd_frmt_config(DDR4_MPR_PAGE0,
+				    DDR4_MPR_OP_DIS,
+				    DDR4_MPR_RF_SERIAL,
+				    cs_bitmask, 0);
+	if (status)
+		return status;
+#endif /* CONFIG_DDR4 */
 
 	/* reset read fifo assertion */
 	ddr3_tip_if_write(dev_num, ACCESS_TYPE_MULTICAST, if_id, SDRAM_CFG_REG,

@@ -16,7 +16,11 @@
 #define CENTRAL_RX		1
 #define NUM_OF_CENTRAL_TYPES	2
 
+#if   defined(CONFIG_DDR4) /* DDR4 16/32-bit */
+u32 start_pattern = PATTERN_KILLER_DQ0, end_pattern = PATTERN_KILLER_DQ7_INV;
+#else /* DDR3 16/32-bit */
 u32 start_pattern = PATTERN_KILLER_DQ0, end_pattern = PATTERN_KILLER_DQ7;
+#endif /* CONFIG_64BIT */
 
 u32 start_if = 0, end_if = (MAX_INTERFACE_NUM - 1);
 u8 bus_end_window[NUM_OF_CENTRAL_TYPES][MAX_INTERFACE_NUM][MAX_BUS_NUM];
