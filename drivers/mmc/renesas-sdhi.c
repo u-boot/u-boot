@@ -934,12 +934,12 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 			r8a77990_calib_table[!rmobile_is_gen3_mmc0(priv)];
 	}
 
-	/* H3 ES1.x, ES2.0 and M3W ES1.0, ES1.1, ES1.2 uses 4 tuning taps */
+	/* H3 ES1.x, ES2.0 and M3W ES1.[0123] uses 4 tuning taps */
 	if (((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
 	    (rmobile_get_cpu_rev_integer() <= 2)) ||
 	    ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
 	    (rmobile_get_cpu_rev_integer() == 1) &&
-	    (rmobile_get_cpu_rev_fraction() <= 2)))
+	    (rmobile_get_cpu_rev_fraction() <= 3)))
 		priv->nrtaps = 4;
 	else
 		priv->nrtaps = 8;
