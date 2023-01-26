@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (C) 2020 Renesas Electronics Corp.
+ * Copyright (C) 2018 Renesas Electronics Corp.
  */
 #ifndef __DT_BINDINGS_CLOCK_R8A774C0_CPG_MSSR_H__
 #define __DT_BINDINGS_CLOCK_R8A774C0_CPG_MSSR_H__
