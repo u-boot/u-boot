@@ -21,6 +21,7 @@ This matrix concerns the actual source code version.
 |                               | P201      | LibreTech-AC v2 |              |             |            | GSKing-X    | Odroid-HC4   |
 |                               |           | JetHub J80      |              |             |            | Odroid-Go-  | BananaPi-M5  |
 |                               |           |                 |              |             |            | Ultra       |              |
+|                               |           |                 |              |             |            | Odroid-N2L  |              |
 +-------------------------------+-----------+-----------------+--------------+-------------+------------+-------------+--------------+
 | UART                          | **Yes**   | **Yes**         | **Yes**      | **Yes**     | **Yes**    | **Yes**     | **Yes**      |
 +-------------------------------+-----------+-----------------+--------------+-------------+------------+-------------+--------------+
@@ -106,6 +107,7 @@ Board Documentation
    odroid-c2
    odroid-c4
    odroid-n2
+   odroid-n2l
    odroid-go-ultra
    p200
    p201
