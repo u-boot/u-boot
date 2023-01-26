@@ -31,7 +31,8 @@ enum sh_pfc_model {
 	SH_PFC_R8A7793,
 	SH_PFC_R8A7794,
 	SH_PFC_R8A7795,
-	SH_PFC_R8A7796,
+	SH_PFC_R8A77960,
+	SH_PFC_R8A77961,
 	SH_PFC_R8A774A1,
 	SH_PFC_R8A774B1,
 	SH_PFC_R8A774C0,
@@ -976,9 +977,13 @@ static int sh_pfc_pinctrl_probe(struct udevice *dev)
 	if (model == SH_PFC_R8A7795)
 		priv->pfc.info = &r8a77951_pinmux_info;
 #endif
-#ifdef CONFIG_PINCTRL_PFC_R8A7796
-	if (model == SH_PFC_R8A7796)
-		priv->pfc.info = &r8a7796_pinmux_info;
+#ifdef CONFIG_PINCTRL_PFC_R8A77960
+	if (model == SH_PFC_R8A77960)
+		priv->pfc.info = &r8a77960_pinmux_info;
+#endif
+#ifdef CONFIG_PINCTRL_PFC_R8A77961
+	if (model == SH_PFC_R8A77961)
+		priv->pfc.info = &r8a77961_pinmux_info;
 #endif
 #ifdef CONFIG_PINCTRL_PFC_R8A774A1
 	if (model == SH_PFC_R8A774A1)
@@ -1065,10 +1070,16 @@ static const struct udevice_id sh_pfc_pinctrl_ids[] = {
 		.data = SH_PFC_R8A7795,
 	},
 #endif
-#ifdef CONFIG_PINCTRL_PFC_R8A7796
+#ifdef CONFIG_PINCTRL_PFC_R8A77960
 	{
 		.compatible = "renesas,pfc-r8a7796",
-		.data = SH_PFC_R8A7796,
+		.data = SH_PFC_R8A77960,
+	},
+#endif
+#ifdef CONFIG_PINCTRL_PFC_R8A77961
+	{
+		.compatible = "renesas,pfc-r8a77961",
+		.data = SH_PFC_R8A77961,
 	},
 #endif
 #ifdef CONFIG_PINCTRL_PFC_R8A774A1
