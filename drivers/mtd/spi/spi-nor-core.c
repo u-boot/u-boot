@@ -3894,7 +3894,7 @@ void spi_nor_set_fixups(struct spi_nor *nor)
 		}
 	}
 
-	if (CONFIG_IS_ENABLED(SPI_FLASH_BAR) &&
+	if (IS_ENABLED(CONFIG_SPI_FLASH_BAR) &&
 	    !strcmp(nor->info->name, "s25fl256l"))
 		nor->fixups = &s25fl256l_fixups;
 #endif
