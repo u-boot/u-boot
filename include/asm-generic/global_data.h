@@ -112,7 +112,7 @@ struct global_data {
 	 * not be called.
 	 */
 	unsigned long have_console;
-#if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
+#if IS_ENABLED(CONFIG_PRE_CONSOLE_BUFFER)
 	/**
 	 * @precon_buf_idx: pre-console buffer index
 	 *

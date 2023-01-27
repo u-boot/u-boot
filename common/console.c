@@ -623,7 +623,7 @@ int tstc(void)
 #define PRE_CONSOLE_FLUSHPOINT1_SERIAL			0
 #define PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL	1
 
-#if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
+#if IS_ENABLED(CONFIG_PRE_CONSOLE_BUFFER)
 #define CIRC_BUF_IDX(idx) ((idx) % (unsigned long)CONFIG_VAL(PRE_CON_BUF_SZ))
 
 static void pre_console_putc(const char c)
@@ -987,7 +987,7 @@ static bool console_update_silent(void)
 
 int console_announce_r(void)
 {
-#if !CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
+#if !IS_ENABLED(CONFIG_PRE_CONSOLE_BUFFER)
 	char buf[DISPLAY_OPTIONS_BANNER_LENGTH];
 
 	display_options_get_banner(false, buf, sizeof(buf));
