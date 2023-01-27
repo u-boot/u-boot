@@ -580,7 +580,7 @@ static int probe_usb_keyboard(struct usb_device *dev)
 		return error;
 
 	stdinname = env_get("stdin");
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
+#if IS_ENABLED(CONFIG_CONSOLE_MUX)
 	if (strstr(stdinname, DEVNAME) != NULL) {
 		error = iomux_doenv(stdin, stdinname);
 		if (error)
@@ -644,7 +644,7 @@ int usb_kbd_deregister(int force)
 	if (dev) {
 		usb_kbd_dev = (struct usb_device *)dev->priv;
 		data = usb_kbd_dev->privptr;
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
+#if IS_ENABLED(CONFIG_CONSOLE_MUX)
 		if (iomux_replace_device(stdin, DEVNAME, force ? "nulldev" : ""))
 			return 1;
 #endif
@@ -687,7 +687,7 @@ static int usb_kbd_remove(struct udevice *dev)
 		goto err;
 	}
 	data = udev->privptr;
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
+#if IS_ENABLED(CONFIG_CONSOLE_MUX)
 	if (iomux_replace_device(stdin, DEVNAME, "nulldev")) {
 		ret = -ENOLINK;
 		goto err;

@@ -46,7 +46,7 @@ static int on_console(const char *name, const char *value, enum env_op op,
 	case env_op_create:
 	case env_op_overwrite:
 
-		if (CONFIG_IS_ENABLED(CONSOLE_MUX)) {
+		if (IS_ENABLED(CONFIG_CONSOLE_MUX)) {
 			if (iomux_doenv(console, value))
 				return 1;
 		} else {
@@ -233,7 +233,7 @@ static bool console_dev_is_serial(struct stdio_dev *sdev)
 	return is_serial;
 }
 
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
+#if IS_ENABLED(CONFIG_CONSOLE_MUX)
 /** Console I/O multiplexing *******************************************/
 
 /* tstcdev: save the last stdio device with pending characters, with tstc != 0 */
@@ -503,7 +503,7 @@ int fgetc(int file)
 		 */
 		for (;;) {
 			schedule();
-			if (CONFIG_IS_ENABLED(CONSOLE_MUX)) {
+			if (IS_ENABLED(CONFIG_CONSOLE_MUX)) {
 				/*
 				 * Upper layer may have already called tstc() so
 				 * check for that first.
@@ -1068,7 +1068,7 @@ int console_init_r(void)
 		inputdev  = console_search_dev(DEV_FLAGS_INPUT,  stdinname);
 		outputdev = console_search_dev(DEV_FLAGS_OUTPUT, stdoutname);
 		errdev    = console_search_dev(DEV_FLAGS_OUTPUT, stderrname);
-		if (CONFIG_IS_ENABLED(CONSOLE_MUX)) {
+		if (IS_ENABLED(CONFIG_CONSOLE_MUX)) {
 			iomux_err = iomux_doenv(stdin, stdinname);
 			iomux_err += iomux_doenv(stdout, stdoutname);
 			iomux_err += iomux_doenv(stderr, stderrname);
