@@ -1172,7 +1172,7 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(FASTBOOT) && !CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
+#if IS_ENABLED(CONFIG_FASTBOOT) && !CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
 int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
 	if (reason != FASTBOOT_REBOOT_REASON_BOOTLOADER)

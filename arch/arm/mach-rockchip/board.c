@@ -306,7 +306,7 @@ int board_usb_init(int index, enum usb_init_type init)
 
 #endif /* CONFIG_USB_GADGET */
 
-#if CONFIG_IS_ENABLED(FASTBOOT)
+#if IS_ENABLED(CONFIG_FASTBOOT)
 int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
 	if (reason != FASTBOOT_REBOOT_REASON_BOOTLOADER)
