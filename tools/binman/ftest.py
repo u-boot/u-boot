@@ -883,9 +883,9 @@ class TestFunctional(unittest.TestCase):
         self.assertIn('image', control.images)
         image = control.images['image']
         entries = image.GetEntries()
-        self.assertEqual(5, len(entries))
+        self.assertEqual(6, len(entries))
 
-        # First u-boot with padding before and after
+        # First u-boot with padding before and after (included in minimum size)
         self.assertIn('u-boot', entries)
         entry = entries['u-boot']
         self.assertEqual(0, entry.offset)
@@ -934,8 +934,17 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(U_BOOT_DATA + tools.get_bytes(0, 64 - len(U_BOOT_DATA)),
                          data[pos:pos + entry.size])
 
+        # Sixth u-boot with both minimum size and aligned size
+        self.assertIn('u-boot-min-size', entries)
+        entry = entries['u-boot-min-size']
+        self.assertEqual(128, entry.offset)
+        self.assertEqual(32, entry.size)
+        self.assertEqual(U_BOOT_DATA, entry.data[:len(U_BOOT_DATA)])
+        self.assertEqual(U_BOOT_DATA + tools.get_bytes(0, 32 - len(U_BOOT_DATA)),
+                         data[pos:pos + entry.size])
+
         self.CheckNoGaps(entries)
-        self.assertEqual(128, image.size)
+        self.assertEqual(160, image.size)
 
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
@@ -943,7 +952,7 @@ class TestFunctional(unittest.TestCase):
         expected = {
             'image-pos': 0,
             'offset': 0,
-            'size': 128,
+            'size': 160,
 
             'u-boot:image-pos': 0,
             'u-boot:offset': 0,
@@ -964,6 +973,10 @@ class TestFunctional(unittest.TestCase):
             'u-boot-align-both:image-pos': 64,
             'u-boot-align-both:offset': 64,
             'u-boot-align-both:size': 64,
+
+            'u-boot-min-size:image-pos': 128,
+            'u-boot-min-size:offset': 128,
+            'u-boot-min-size:size': 32,
             }
         self.assertEqual(expected, props)
 
@@ -5439,12 +5452,24 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                          fdt_util.fdt32_to_cpu(atf1.props['load'].value))
         self.assertEqual(data, atf1.props['data'].bytes)
 
+        hash_node = atf1.FindNode('hash')
+        self.assertIsNotNone(hash_node)
+        self.assertEqual({'algo', 'value'}, hash_node.props.keys())
+
         atf2 = dtb.GetNode('/images/atf-2')
         self.assertEqual(base_keys, atf2.props.keys())
         _, start, data = segments[1]
         self.assertEqual(start,
                          fdt_util.fdt32_to_cpu(atf2.props['load'].value))
         self.assertEqual(data, atf2.props['data'].bytes)
+
+        hash_node = atf2.FindNode('hash')
+        self.assertIsNotNone(hash_node)
+        self.assertEqual({'algo', 'value'}, hash_node.props.keys())
+
+        hash_node = dtb.GetNode('/images/tee-1/hash-1')
+        self.assertIsNotNone(hash_node)
+        self.assertEqual({'algo', 'value'}, hash_node.props.keys())
 
         conf = dtb.GetNode('/configurations')
         self.assertEqual({'default'}, conf.props.keys())
@@ -6308,6 +6333,66 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual(base + 8, inset.offset);
         self.assertEqual(base + 8, inset.image_pos);
         self.assertEqual(4, inset.size);
+
+    def testFitAlign(self):
+        """Test an image with an FIT with aligned external data"""
+        data = self._DoReadFile('275_fit_align.dts')
+        self.assertEqual(4096, len(data))
+
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+
+        props = self._GetPropTree(dtb, ['data-position'])
+        expected = {
+            'u-boot:data-position': 1024,
+            'fdt-1:data-position': 2048,
+            'fdt-2:data-position': 3072,
+        }
+        self.assertEqual(expected, props)
+
+    def testFitFirmwareLoadables(self):
+        """Test an image with an FIT that use fit,firmware"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        entry_args = {
+            'of-list': 'test-fdt1',
+            'default-dt': 'test-fdt1',
+            'atf-bl31-path': 'bl31.elf',
+            'tee-os-path': 'missing.bin',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        data = self._DoReadFileDtb(
+            '276_fit_firmware_loadables.dts',
+            entry_args=entry_args,
+            extra_indirs=[test_subdir])[0]
+
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+
+        node = dtb.GetNode('/configurations/conf-uboot-1')
+        self.assertEqual('u-boot', node.props['firmware'].value)
+        self.assertEqual(['atf-1', 'atf-2'],
+                         fdt_util.GetStringList(node, 'loadables'))
+
+        node = dtb.GetNode('/configurations/conf-atf-1')
+        self.assertEqual('atf-1', node.props['firmware'].value)
+        self.assertEqual(['u-boot', 'atf-2'],
+                         fdt_util.GetStringList(node, 'loadables'))
+
+        node = dtb.GetNode('/configurations/conf-missing-uboot-1')
+        self.assertEqual('u-boot', node.props['firmware'].value)
+        self.assertEqual(['atf-1', 'atf-2'],
+                         fdt_util.GetStringList(node, 'loadables'))
+
+        node = dtb.GetNode('/configurations/conf-missing-atf-1')
+        self.assertEqual('atf-1', node.props['firmware'].value)
+        self.assertEqual(['u-boot', 'atf-2'],
+                         fdt_util.GetStringList(node, 'loadables'))
+
+        node = dtb.GetNode('/configurations/conf-missing-tee-1')
+        self.assertEqual('atf-1', node.props['firmware'].value)
+        self.assertEqual(['u-boot', 'atf-2'],
+                         fdt_util.GetStringList(node, 'loadables'))
 
 
 if __name__ == "__main__":

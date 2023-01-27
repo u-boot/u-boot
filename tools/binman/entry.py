@@ -49,6 +49,7 @@ class Entry(object):
         offset: Offset of entry within the section, None if not known yet (in
             which case it will be calculated by Pack())
         size: Entry size in bytes, None if not known
+        min_size: Minimum entry size in bytes
         pre_reset_size: size as it was before ResetForPack(). This allows us to
             keep track of the size we started with and detect size changes
         uncomp_size: Size of uncompressed data in bytes, if the entry is
@@ -114,6 +115,7 @@ class Entry(object):
         self.name = node and (name_prefix + node.name) or 'none'
         self.offset = None
         self.size = None
+        self.min_size = 0
         self.pre_reset_size = None
         self.uncomp_size = None
         self.data = None
@@ -270,6 +272,7 @@ class Entry(object):
             self.Raise("Please use 'extend-size' instead of 'expand-size'")
         self.offset = fdt_util.GetInt(self._node, 'offset')
         self.size = fdt_util.GetInt(self._node, 'size')
+        self.min_size = fdt_util.GetInt(self._node, 'min-size', 0)
         self.orig_offset = fdt_util.GetInt(self._node, 'orig-offset')
         self.orig_size = fdt_util.GetInt(self._node, 'orig-size')
         if self.GetImage().copy_to_orig:
@@ -507,6 +510,7 @@ class Entry(object):
             else:
                 self.offset = tools.align(offset, self.align)
         needed = self.pad_before + self.contents_size + self.pad_after
+        needed = max(needed, self.min_size)
         needed = tools.align(needed, self.align_size)
         size = self.size
         if not size:

@@ -7,6 +7,7 @@
  */
 
 int first[10] = {1};
+int before[2] __attribute__((section(".embed"))) = {2, 3};
 int embed[3] __attribute__((section(".embed"))) = {0x1234, 0x5678};
 int second[10] = {1};
 

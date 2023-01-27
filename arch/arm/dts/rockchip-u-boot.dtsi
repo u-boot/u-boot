@@ -37,6 +37,7 @@
 			fit,fdt-list = "of-list";
 			filename = "u-boot.itb";
 			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
+			fit,align = <512>;
 			offset = <CONFIG_SPL_PAD_TO>;
 			images {
 				u-boot {
@@ -49,6 +50,11 @@
 					entry = <CONFIG_TEXT_BASE>;
 					u-boot-nodtb {
 					};
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+					hash {
+						algo = "sha256";
+					};
+#endif
 				};
 
 				@atf-SEQ {
@@ -64,6 +70,11 @@
 
 					atf-bl31 {
 					};
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+					hash {
+						algo = "sha256";
+					};
+#endif
 				};
 				@tee-SEQ {
 					fit,operation = "split-elf";
@@ -79,12 +90,22 @@
 					tee-os {
 						optional;
 					};
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+					hash {
+						algo = "sha256";
+					};
+#endif
 				};
 
 				@fdt-SEQ {
 					description = "fdt-NAME";
 					compression = "none";
 					type = "flat_dt";
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+					hash {
+						algo = "sha256";
+					};
+#endif
 				};
 			};
 
@@ -93,7 +114,7 @@
 				@config-SEQ {
 					description = "NAME.dtb";
 					fdt = "fdt-SEQ";
-					firmware = "u-boot";
+					fit,firmware = "atf-1", "u-boot";
 					fit,loadables;
 				};
 			};

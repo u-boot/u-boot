@@ -22,7 +22,7 @@ class Bintoolmkimage(bintool.Bintool):
 
     # pylint: disable=R0913
     def run(self, reset_timestamp=False, output_fname=None, external=False,
-            pad=None):
+            pad=None, align=None):
         """Run mkimage
 
         Args:
@@ -33,6 +33,7 @@ class Bintoolmkimage(bintool.Bintool):
             pad: Bytes to use for padding the FIT devicetree output. This allows
                 other things to be easily added later, if required, such as
                 signatures
+            align: Bytes to use for alignment of the FIT and its external data
             version: True to get the mkimage version
         """
         args = []
@@ -40,6 +41,8 @@ class Bintoolmkimage(bintool.Bintool):
             args.append('-E')
         if pad:
             args += ['-p', f'{pad:x}']
+        if align:
+            args += ['-B', f'{align:x}']
         if reset_timestamp:
             args.append('-t')
         if output_fname:
