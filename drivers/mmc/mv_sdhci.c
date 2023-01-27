@@ -64,7 +64,7 @@ int mv_sdh_init(unsigned long regbase, u32 max_clk, u32 min_clk, u32 quirks)
 	host->ops = &mv_ops;
 #endif
 
-	if (CONFIG_IS_ENABLED(ARCH_MVEBU)) {
+	if (IS_ENABLED(CONFIG_ARCH_MVEBU)) {
 		/* Configure SDHCI MBUS mbus bridge windows */
 		sdhci_mvebu_mbus_config((void __iomem *)regbase);
 	}
@@ -103,7 +103,7 @@ static int mv_sdhci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	if (CONFIG_IS_ENABLED(ARCH_MVEBU)) {
+	if (IS_ENABLED(CONFIG_ARCH_MVEBU)) {
 		/* Configure SDHCI MBUS mbus bridge windows */
 		sdhci_mvebu_mbus_config(host->ioaddr);
 	}
