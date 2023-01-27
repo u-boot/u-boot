@@ -308,7 +308,7 @@ static __maybe_unused char *string16(char *buf, char *end, u16 *s,
 	return buf;
 }
 
-#if CONFIG_IS_ENABLED(EFI_DEVICE_PATH_TO_TEXT)
+#if IS_ENABLED(CONFIG_EFI_DEVICE_PATH_TO_TEXT)
 static char *device_path_string(char *buf, char *end, void *dp, int field_width,
 				int precision, int flags)
 {
@@ -469,7 +469,7 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 
 	switch (*fmt) {
 /* Device paths only exist in the EFI context. */
-#if CONFIG_IS_ENABLED(EFI_DEVICE_PATH_TO_TEXT) && !defined(API_BUILD)
+#if IS_ENABLED(CONFIG_EFI_DEVICE_PATH_TO_TEXT) && !defined(API_BUILD)
 	case 'D':
 		return device_path_string(buf, end, ptr, field_width,
 					  precision, flags);
