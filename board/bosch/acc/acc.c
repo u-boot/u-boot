@@ -500,7 +500,7 @@ static void ccgr_init(void)
 }
 
 /* MMC board initialization is needed till adding DM support in SPL */
-#if IS_ENABLED(CONFIG_FSL_ESDHC_IMX) && !IS_ENABLED(CONFIG_DM_MMC)
+#if IS_ENABLED(CONFIG_FSL_ESDHC_IMX) && !CONFIG_IS_ENABLED(DM_MMC)
 #include <mmc.h>
 #include <fsl_esdhc_imx.h>
 
