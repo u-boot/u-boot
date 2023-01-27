@@ -436,7 +436,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 	*dev_desc = NULL;
 	memset(info, 0, sizeof(*info));
 
-#if IS_ENABLED(CONFIG_SANDBOX) || IS_ENABLED(CONFIG_SEMIHOSTING)
+#if IS_ENABLED(CONFIG_SANDBOX) || CONFIG_IS_ENABLED(SEMIHOSTING)
 	/*
 	 * Special-case a pseudo block device "hostfs", to allow access to the
 	 * host's own filesystem.
