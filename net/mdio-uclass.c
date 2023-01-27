@@ -171,7 +171,7 @@ static struct phy_device *dm_eth_connect_phy_handle(struct udevice *ethdev,
 	struct phy_device *phy;
 	ofnode phynode;
 
-	if (CONFIG_IS_ENABLED(PHY_FIXED) &&
+	if (IS_ENABLED(CONFIG_PHY_FIXED) &&
 	    ofnode_phy_is_fixed_link(dev_ofnode(ethdev), &phynode)) {
 		phy = phy_connect(NULL, 0, ethdev, interface);
 		goto out;
