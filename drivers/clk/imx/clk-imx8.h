@@ -9,7 +9,7 @@ struct imx8_clks {
 	const char *name;
 };
 
-#if CONFIG_IS_ENABLED(CMD_CLK)
+#if IS_ENABLED(CONFIG_CMD_CLK)
 extern struct imx8_clks imx8_clk_names[];
 extern int num_clks;
 #endif
