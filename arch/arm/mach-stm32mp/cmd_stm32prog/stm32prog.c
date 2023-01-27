@@ -1748,7 +1748,7 @@ static void stm32prog_end_phase(struct stm32prog_data *data, u64 offset)
 		}
 	}
 
-	if (CONFIG_IS_ENABLED(MTD) &&
+	if (IS_ENABLED(CONFIG_MTD) &&
 	    data->cur_part->bin_nb > 1) {
 		if (stm32prog_copy_fsbl(data->cur_part)) {
 			stm32prog_err("%s (0x%x): copy of fsbl failed",

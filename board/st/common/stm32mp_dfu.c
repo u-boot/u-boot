@@ -123,7 +123,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 			board_get_alt_info_mmc(dev, buf);
 	}
 
-	if (CONFIG_IS_ENABLED(MTD)) {
+	if (IS_ENABLED(CONFIG_MTD)) {
 		/* probe all MTD devices */
 		mtd_probe_devices();
 
