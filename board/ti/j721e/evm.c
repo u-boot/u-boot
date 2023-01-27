@@ -376,7 +376,7 @@ void configure_serdes_torrent(void)
 	struct phy serdes;
 	int ret;
 
-	if (!IS_ENABLED(CONFIG_PHY_CADENCE_TORRENT))
+	if (!CONFIG_IS_ENABLED(PHY_CADENCE_TORRENT))
 		return;
 
 	ret = uclass_get_device_by_driver(UCLASS_PHY,
