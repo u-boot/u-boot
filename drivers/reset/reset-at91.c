@@ -107,7 +107,7 @@ static int at91_reset_bind(struct udevice *dev)
 {
 	struct udevice *at91_sysreset;
 
-	if (CONFIG_IS_ENABLED(SYSRESET_AT91))
+	if (IS_ENABLED(CONFIG_SYSRESET_AT91))
 		return device_bind_driver_to_node(dev, "at91_sysreset",
 						  "at91_sysreset",
 						  dev_ofnode(dev),
