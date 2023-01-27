@@ -104,7 +104,7 @@ static int getvar_get_part_info(const char *part_name, char *response,
 					       response);
 		if (r >= 0 && size)
 			*size = disk_part.size * disk_part.blksz;
-	} else if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)) {
+	} else if (IS_ENABLED(CONFIG_FASTBOOT_FLASH_NAND)) {
 		r = fastboot_nand_get_part_info(part_name, &part_info, response);
 		if (r >= 0 && size)
 			*size = part_info->size;
