@@ -1574,7 +1574,7 @@ enum env_location arch_env_get_location(enum env_operation op, int prio)
 	case MMC3_BOOT:
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC))
 			return ENVL_MMC;
-		else if (IS_ENABLED(CONFIG_ENV_IS_IN_EXT4))
+		else if (CONFIG_IS_ENABLED(ENV_IS_IN_EXT4))
 			return ENVL_EXT4;
 		else if (IS_ENABLED(CONFIG_ENV_IS_IN_FAT))
 			return ENVL_FAT;

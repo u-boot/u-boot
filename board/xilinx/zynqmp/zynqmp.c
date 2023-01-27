@@ -585,7 +585,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	case SD_MODE1:
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_FAT))
 			return ENVL_FAT;
-		if (IS_ENABLED(CONFIG_ENV_IS_IN_EXT4))
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_EXT4))
 			return ENVL_EXT4;
 		return ENVL_NOWHERE;
 	case NAND_MODE:
