@@ -22,7 +22,7 @@
 #include <linux/errno.h>
 #include <linux/list.h>
 #include <div64.h>
-#if IS_ENABLED(CONFIG_DM)
+#if CONFIG_IS_ENABLED(DM)
 #include <dm/device.h>
 #endif
 #include <dm/ofnode.h>
@@ -332,7 +332,7 @@ struct mtd_info {
 	struct list_head partitions;
 };
 
-#if IS_ENABLED(CONFIG_DM)
+#if CONFIG_IS_ENABLED(DM)
 static inline void mtd_set_ofnode(struct mtd_info *mtd, ofnode node)
 {
 	dev_set_ofnode(mtd->dev, node);

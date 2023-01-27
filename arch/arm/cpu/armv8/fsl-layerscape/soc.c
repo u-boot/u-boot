@@ -981,7 +981,7 @@ int board_late_init(void)
 	fspi_ahb_init();
 #endif
 
-	if (IS_ENABLED(CONFIG_DM))
+	if (CONFIG_IS_ENABLED(DM))
 		enable_dwc3_snooping();
 
 	return fsl_board_late_init();
