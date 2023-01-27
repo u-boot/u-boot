@@ -371,7 +371,7 @@ static ssize_t spi_nor_read_data(struct spi_nor *nor, loff_t from, size_t len,
 	while (remaining) {
 		op.data.nbytes = remaining < UINT_MAX ? remaining : UINT_MAX;
 
-		if (CONFIG_IS_ENABLED(SPI_DIRMAP) && nor->dirmap.rdesc) {
+		if (IS_ENABLED(CONFIG_SPI_DIRMAP) && nor->dirmap.rdesc) {
 			/*
 			 * Record current operation information which may be used
 			 * when the address or data length exceeds address mapping.
@@ -417,7 +417,7 @@ static ssize_t spi_nor_write_data(struct spi_nor *nor, loff_t to, size_t len,
 
 	spi_nor_setup_op(nor, &op, nor->write_proto);
 
-	if (CONFIG_IS_ENABLED(SPI_DIRMAP) && nor->dirmap.wdesc) {
+	if (IS_ENABLED(CONFIG_SPI_DIRMAP) && nor->dirmap.wdesc) {
 		memcpy(&nor->dirmap.wdesc->info.op_tmpl, &op,
 		       sizeof(struct spi_mem_op));
 		op.data.nbytes = spi_mem_dirmap_write(nor->dirmap.wdesc, op.addr.val,

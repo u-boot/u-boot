@@ -101,7 +101,7 @@ static int spi_flash_probe_slave(struct spi_flash *flash)
 	if (ret)
 		goto err_read_id;
 
-	if (CONFIG_IS_ENABLED(SPI_DIRMAP)) {
+	if (IS_ENABLED(CONFIG_SPI_DIRMAP)) {
 		ret = spi_nor_create_read_dirmap(flash);
 		if (ret)
 			return ret;
@@ -149,7 +149,7 @@ struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
 
 void spi_flash_free(struct spi_flash *flash)
 {
-	if (CONFIG_IS_ENABLED(SPI_DIRMAP)) {
+	if (IS_ENABLED(CONFIG_SPI_DIRMAP)) {
 		spi_mem_dirmap_destroy(flash->dirmap.wdesc);
 		spi_mem_dirmap_destroy(flash->dirmap.rdesc);
 	}
@@ -224,7 +224,7 @@ static int spi_flash_std_remove(struct udevice *dev)
 	struct spi_flash *flash = dev_get_uclass_priv(dev);
 	int ret;
 
-	if (CONFIG_IS_ENABLED(SPI_DIRMAP)) {
+	if (IS_ENABLED(CONFIG_SPI_DIRMAP)) {
 		spi_mem_dirmap_destroy(flash->dirmap.wdesc);
 		spi_mem_dirmap_destroy(flash->dirmap.rdesc);
 	}
