@@ -173,7 +173,7 @@ void memmove_wd(void *to, void *from, size_t len, ulong chunksz)
 	if (to == from)
 		return;
 
-	if (IS_ENABLED(CONFIG_HW_WATCHDOG) || IS_ENABLED(CONFIG_WATCHDOG)) {
+	if (IS_ENABLED(CONFIG_HW_WATCHDOG) || CONFIG_IS_ENABLED(WATCHDOG)) {
 		if (to > from) {
 			from += len;
 			to += len;

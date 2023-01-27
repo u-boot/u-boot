@@ -520,7 +520,7 @@ int fgetc(int file)
 			 * If the watchdog must be rate-limited then it should
 			 * already be handled in board-specific code.
 			 */
-			if (IS_ENABLED(CONFIG_WATCHDOG))
+			if (CONFIG_IS_ENABLED(WATCHDOG))
 				udelay(1);
 		}
 	}
