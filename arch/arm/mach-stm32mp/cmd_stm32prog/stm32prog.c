@@ -1583,7 +1583,7 @@ int stm32prog_pmic_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 	int result = 0, ret;
 	struct udevice *dev;
 
-	if (!CONFIG_IS_ENABLED(PMIC_STPMIC1)) {
+	if (!IS_ENABLED(CONFIG_PMIC_STPMIC1)) {
 		stm32prog_err("PMIC update not supported");
 
 		return -EOPNOTSUPP;
@@ -1633,7 +1633,7 @@ int stm32prog_pmic_start(struct stm32prog_data *data)
 	int ret;
 	struct udevice *dev;
 
-	if (!CONFIG_IS_ENABLED(PMIC_STPMIC1)) {
+	if (!IS_ENABLED(CONFIG_PMIC_STPMIC1)) {
 		stm32prog_err("PMIC update not supported");
 
 		return -EOPNOTSUPP;
