@@ -98,7 +98,7 @@ void set_board_info_env(void)
 	env_set("fw_version", PLAIN_VERSION);
 	env_set("seboot_version", info->seboot_version);
 
-	if (IS_ENABLED(CONFIG_NET)) {
+	if (CONFIG_IS_ENABLED(NET)) {
 		/* set MAC addresses to ensure forwarding to the OS */
 		for (mac_cnt = 0; mac_cnt < info->mac_addr_cnt; mac_cnt++) {
 			if (is_valid_ethaddr(info->mac_addr[mac_cnt]))

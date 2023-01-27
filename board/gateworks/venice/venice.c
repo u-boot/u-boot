@@ -41,7 +41,7 @@ int board_fit_config_name_match(const char *name)
 	return -1;
 }
 
-#if (IS_ENABLED(CONFIG_NET))
+#if (CONFIG_IS_ENABLED(NET))
 static int setup_fec(void)
 {
 	struct iomuxc_gpr_base_regs *gpr =
@@ -107,7 +107,7 @@ int board_phy_config(struct phy_device *phydev)
 
 	return 0;
 }
-#endif // IS_ENABLED(CONFIG_NET)
+#endif // CONFIG_IS_ENABLED(NET)
 
 int board_init(void)
 {

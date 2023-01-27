@@ -62,7 +62,7 @@ static int setup_eqos(void)
 	return set_clk_eqos(ENET_125MHZ);
 }
 
-#if IS_ENABLED(CONFIG_NET)
+#if CONFIG_IS_ENABLED(NET)
 int board_phy_config(struct phy_device *phydev)
 {
 	if (phydev->drv->config)
