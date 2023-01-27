@@ -226,7 +226,7 @@ static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	if (images.os.type == IH_TYPE_KERNEL_NOLOAD) {
-		if (CONFIG_IS_ENABLED(CMD_BOOTI) &&
+		if (IS_ENABLED(CONFIG_CMD_BOOTI) &&
 		    images.os.arch == IH_ARCH_ARM64) {
 			ulong image_addr;
 			ulong image_size;
