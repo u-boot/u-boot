@@ -151,7 +151,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	case BOOT_DEVICE_NAND:
 		if (prio == 0 && IS_ENABLED(CONFIG_ENV_IS_IN_UBI))
 			return ENVL_UBI;
-		if (IS_ENABLED(CONFIG_ENV_IS_IN_NAND))
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_NAND))
 			return ENVL_NAND;
 		break;
 	case BOOT_DEVICE_SPI:

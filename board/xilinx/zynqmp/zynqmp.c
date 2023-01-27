@@ -589,7 +589,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 			return ENVL_EXT4;
 		return ENVL_NOWHERE;
 	case NAND_MODE:
-		if (IS_ENABLED(CONFIG_ENV_IS_IN_NAND))
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_NAND))
 			return ENVL_NAND;
 		if (IS_ENABLED(CONFIG_ENV_IS_IN_UBI))
 			return ENVL_UBI;
