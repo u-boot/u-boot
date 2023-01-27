@@ -41,7 +41,7 @@ static int dm_test_fastboot_mmc_part(struct unit_test_state *uts)
 	 */
 	ut_asserteq(0, CONFIG_FASTBOOT_FLASH_MMC_DEV);
 	ut_assertok(blk_get_device_by_str("mmc", "0", &mmc_dev_desc));
-	if (CONFIG_IS_ENABLED(RANDOM_UUID)) {
+	if (IS_ENABLED(CONFIG_RANDOM_UUID)) {
 		gen_rand_uuid_str(parts[0].uuid, UUID_STR_FORMAT_STD);
 		gen_rand_uuid_str(parts[1].uuid, UUID_STR_FORMAT_STD);
 		gen_rand_uuid_str(str_disk_guid, UUID_STR_FORMAT_STD);
