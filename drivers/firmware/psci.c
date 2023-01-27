@@ -41,7 +41,7 @@
 #define PSCI_FN_NATIVE(version, name)	PSCI_##version##_FN_##name
 #endif
 
-#if CONFIG_IS_ENABLED(EFI_LOADER)
+#if IS_ENABLED(CONFIG_EFI_LOADER)
 int __efi_runtime_data psci_method;
 #else
 int psci_method __section(".data");

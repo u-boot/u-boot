@@ -32,7 +32,7 @@ static inline void *guidcpy(void *dst, const void *src)
 	return memcpy(dst, src, sizeof(efi_guid_t));
 }
 
-#if CONFIG_IS_ENABLED(EFI_LOADER)
+#if IS_ENABLED(CONFIG_EFI_LOADER)
 
 /**
  * __efi_runtime_data - declares a non-const variable for EFI runtime section
@@ -102,7 +102,7 @@ void efi_print_image_infos(void *pc);
 /* Hook at initialization */
 efi_status_t efi_launch_capsules(void);
 
-#else /* CONFIG_IS_ENABLED(EFI_LOADER) */
+#else /* IS_ENABLED(CONFIG_EFI_LOADER) */
 
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
 #define __efi_runtime_data
@@ -125,7 +125,7 @@ static inline efi_status_t efi_launch_capsules(void)
 	return EFI_SUCCESS;
 }
 
-#endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
+#endif /* IS_ENABLED(CONFIG_EFI_LOADER) */
 
 /* Maximum number of configuration tables */
 #define EFI_MAX_CONFIGURATION_TABLES 16

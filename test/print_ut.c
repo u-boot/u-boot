@@ -62,7 +62,7 @@ static int print_guid(struct unit_test_state *uts)
 PRINT_TEST(print_guid, 0);
 #endif
 
-#if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
+#if IS_ENABLED(CONFIG_EFI_LOADER) && !defined(API_BUILD)
 /* Test efi_loader specific printing */
 static int print_efi_ut(struct unit_test_state *uts)
 {

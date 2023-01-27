@@ -1525,7 +1525,7 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(EFI_LOADER)
+#if IS_ENABLED(CONFIG_EFI_LOADER)
 void efi_add_known_memory(void)
 {
 	int i;

@@ -37,7 +37,7 @@ __weak unsigned int install_e820_map(unsigned int max_entries,
 	return 4;
 }
 
-#if CONFIG_IS_ENABLED(EFI_LOADER)
+#if IS_ENABLED(CONFIG_EFI_LOADER)
 void efi_add_known_memory(void)
 {
 	struct e820_entry e820[E820MAX];
@@ -82,4 +82,4 @@ void efi_add_known_memory(void)
 		}
 	}
 }
-#endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
+#endif /* IS_ENABLED(CONFIG_EFI_LOADER) */

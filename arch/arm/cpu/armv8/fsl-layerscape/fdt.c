@@ -146,7 +146,7 @@ remove_psci_node:
 
 	fdt_add_mem_rsv(blob, (uintptr_t)secondary_boot_code_start,
 			secondary_boot_code_size);
-#if CONFIG_IS_ENABLED(EFI_LOADER)
+#if IS_ENABLED(CONFIG_EFI_LOADER)
 	efi_add_memory_map((uintptr_t)secondary_boot_code_start,
 			   secondary_boot_code_size, EFI_RESERVED_MEMORY_TYPE);
 #endif

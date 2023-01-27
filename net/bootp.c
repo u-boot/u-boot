@@ -1077,7 +1077,7 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			    strlen(CONFIG_SYS_BOOTFILE_PREFIX)) == 0) {
 #endif	/* CONFIG_SYS_BOOTFILE_PREFIX */
 			dhcp_packet_process_options(bp);
-			if (CONFIG_IS_ENABLED(EFI_LOADER) &&
+			if (IS_ENABLED(CONFIG_EFI_LOADER) &&
 			    CONFIG_IS_ENABLED(NETDEVICES))
 				efi_net_set_dhcp_ack(pkt, len);
 
