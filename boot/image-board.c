@@ -666,7 +666,7 @@ int boot_get_fpga(int argc, char *const argv[], struct bootm_headers *images,
 	int err;
 	int devnum = 0; /* TODO support multi fpga platforms */
 
-	if (!IS_ENABLED(CONFIG_FPGA))
+	if (!CONFIG_IS_ENABLED(FPGA))
 		return -ENOSYS;
 
 	/* Check to see if the images struct has a FIT configuration */

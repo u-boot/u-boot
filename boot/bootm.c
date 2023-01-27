@@ -318,7 +318,7 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 #endif
 
 #if CONFIG_IS_ENABLED(FIT)
-	if (IS_ENABLED(CONFIG_FPGA)) {
+	if (CONFIG_IS_ENABLED(FPGA)) {
 		/* find bitstreams */
 		ret = boot_get_fpga(argc, argv, &images, IH_ARCH_DEFAULT,
 				    NULL, NULL);
