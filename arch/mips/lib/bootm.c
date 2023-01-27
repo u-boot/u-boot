@@ -149,7 +149,7 @@ static void linux_env_set(const char *env_name, const char *env_val)
 		strcpy(linux_env_p, env_name);
 		linux_env_p += strlen(env_name);
 
-		if (CONFIG_IS_ENABLED(MALTA)) {
+		if (IS_ENABLED(CONFIG_MALTA)) {
 			linux_env_p++;
 			linux_env[++linux_env_idx] = linux_env_p;
 		} else {
@@ -207,7 +207,7 @@ static void linux_env_legacy(struct bootm_headers *images)
 	if (cp)
 		linux_env_set("eth1addr", cp);
 
-	if (CONFIG_IS_ENABLED(MALTA)) {
+	if (IS_ENABLED(CONFIG_MALTA)) {
 		sprintf(env_buf, "%un8r", gd->baudrate);
 		linux_env_set("modetty0", env_buf);
 	}
@@ -281,7 +281,7 @@ static void boot_jump_linux(struct bootm_headers *images)
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
-	if (CONFIG_IS_ENABLED(MALTA))
+	if (IS_ENABLED(CONFIG_MALTA))
 		linux_extra = gd->ram_size;
 
 #if IS_ENABLED(CONFIG_BOOTSTAGE_FDT)
