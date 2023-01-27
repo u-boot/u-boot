@@ -465,7 +465,7 @@ static efi_status_t EFIAPI efi_cout_set_attribute(
  */
 static void efi_clear_screen(void)
 {
-	if (CONFIG_IS_ENABLED(EFI_SCROLL_ON_CLEAR_SCREEN)) {
+	if (IS_ENABLED(CONFIG_EFI_SCROLL_ON_CLEAR_SCREEN)) {
 		unsigned int row, screen_rows, screen_columns;
 
 		/* Avoid overwriting previous outputs on streaming consoles */
