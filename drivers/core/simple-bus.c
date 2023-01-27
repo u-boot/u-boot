@@ -31,7 +31,7 @@ static int simple_bus_post_bind(struct udevice *dev)
 	struct simple_bus_plat *plat = dev_get_uclass_plat(dev);
 	int ret;
 
-	if (CONFIG_IS_ENABLED(SIMPLE_BUS_CORRECT_RANGE)) {
+	if (IS_ENABLED(CONFIG_SIMPLE_BUS_CORRECT_RANGE)) {
 		uint64_t caddr, paddr, len;
 
 		/* only read range index 0 */
