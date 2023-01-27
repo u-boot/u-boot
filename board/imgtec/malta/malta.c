@@ -124,7 +124,7 @@ int checkboard(void)
 	return 0;
 }
 
-#if !IS_ENABLED(CONFIG_DM_ETH)
+#if !CONFIG_IS_ENABLED(DM_ETH)
 int board_eth_init(struct bd_info *bis)
 {
 	return pci_eth_init(bis);
