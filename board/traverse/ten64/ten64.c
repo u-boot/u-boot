@@ -211,7 +211,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		base[i] = gd->bd->bi_dram[i].start;
 		size[i] = gd->bd->bi_dram[i].size;
 		/* reduce size if reserved memory is within this bank */
-		if (CONFIG_IS_ENABLED(RESV_RAM) && RESV_MEM_IN_BANK(i))
+		if (IS_ENABLED(CONFIG_RESV_RAM) && RESV_MEM_IN_BANK(i))
 			size[i] = gd->arch.resv_ram - base[i];
 	}
 
