@@ -481,7 +481,7 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 	if (soc < 0)
 		return soc;
 
-	if (CONFIG_IS_ENABLED(STM32_ETZPC)) {
+	if (IS_ENABLED(CONFIG_STM32_ETZPC)) {
 		ret = stm32_fdt_fixup_etzpc(blob, soc);
 		if (ret)
 			return ret;
