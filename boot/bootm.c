@@ -607,7 +607,7 @@ int bootm_process_cmdline(char *buf, int maxlen, int flags)
 		if (ret)
 			return log_msg_ret("silent", ret);
 	}
-	if (IS_ENABLED(CONFIG_BOOTARGS_SUBST) && IS_ENABLED(CONFIG_CMDLINE) &&
+	if (IS_ENABLED(CONFIG_BOOTARGS_SUBST) && CONFIG_IS_ENABLED(CMDLINE) &&
 	    (flags & BOOTM_CL_SUBST)) {
 		ret = process_subst(buf, maxlen);
 		if (ret)
