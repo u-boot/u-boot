@@ -48,7 +48,7 @@
 # define BOOT_TARGET_SCSI(func)
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_VIRTIO)
+#if IS_ENABLED(CONFIG_CMD_VIRTIO)
 # define BOOT_TARGET_VIRTIO(func) func(VIRTIO, virtio, 0)
 #else
 # define BOOT_TARGET_VIRTIO(func)
