@@ -410,7 +410,7 @@ void configure_serdes_sierra(void)
 	int ret, count, i;
 	int link_count = 0;
 
-	if (!IS_ENABLED(CONFIG_PHY_CADENCE_SIERRA))
+	if (!CONFIG_IS_ENABLED(PHY_CADENCE_SIERRA))
 		return;
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
