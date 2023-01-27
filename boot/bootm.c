@@ -100,7 +100,7 @@ static int bootm_pre_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	ulong data_addr = bootm_data_addr(argc, argv);
 	int ret = 0;
 
-	if (CONFIG_IS_ENABLED(CMD_BOOTM_PRE_LOAD))
+	if (IS_ENABLED(CONFIG_CMD_BOOTM_PRE_LOAD))
 		ret = image_pre_load(data_addr);
 
 	if (ret)
@@ -893,7 +893,7 @@ static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
 					      &fit_uname_config,
 					      &fit_uname_kernel);
 
-	if (CONFIG_IS_ENABLED(CMD_BOOTM_PRE_LOAD))
+	if (IS_ENABLED(CONFIG_CMD_BOOTM_PRE_LOAD))
 		img_addr += image_load_offset;
 
 	bootstage_mark(BOOTSTAGE_ID_CHECK_MAGIC);
