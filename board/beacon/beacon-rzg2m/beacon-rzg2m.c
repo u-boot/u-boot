@@ -17,7 +17,7 @@ int board_init(void)
 	return 0;
 }
 
-#if IS_ENABLED(CONFIG_MULTI_DTB_FIT)
+#if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 int board_fit_config_name_match(const char *name)
 {
 	if (!strcmp(rzg_get_cpu_name(), "R8A774A1") && !strcmp(name, "r8a774a1-beacon-rzg2m-kit"))

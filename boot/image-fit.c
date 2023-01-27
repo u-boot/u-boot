@@ -1839,7 +1839,7 @@ int fit_conf_get_node(const void *fit, const char *conf_uname)
 	if (conf_uname == NULL) {
 		/* get configuration unit name from the default property */
 		debug("No configuration specified, trying default...\n");
-		if (!tools_build() && IS_ENABLED(CONFIG_MULTI_DTB_FIT)) {
+		if (!tools_build() && CONFIG_IS_ENABLED(MULTI_DTB_FIT)) {
 			noffset = fit_find_config_node(fit);
 			if (noffset < 0)
 				return noffset;
