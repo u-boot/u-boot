@@ -59,7 +59,7 @@ int board_init(void)
 		setup_fec();
 	}
 
-	if (CONFIG_IS_ENABLED(DWC_ETH_QOS)) {
+	if (IS_ENABLED(CONFIG_DWC_ETH_QOS)) {
 		ret = setup_eqos();
 	}
 
