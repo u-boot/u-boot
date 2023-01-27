@@ -104,7 +104,7 @@ static void usage(const char *msg)
 		"          -v ==> verbose\n",
 		params.cmdname);
 	fprintf(stderr,
-		"       %s [-D dtc_options] [-f fit-image.its|-f auto|-F] [-b <dtb> [-b <dtb>]] [-E] [-B size] [-i <ramdisk.cpio.gz>] fit-image\n"
+		"       %s [-D dtc_options] [-f fit-image.its|-f auto|-f auto-conf|-F] [-b <dtb> [-b <dtb>]] [-E] [-B size] [-i <ramdisk.cpio.gz>] fit-image\n"
 		"           <dtb> file is used with -f auto, it may occur multiple times.\n",
 		params.cmdname);
 	fprintf(stderr,
@@ -271,7 +271,10 @@ static void process_args(int argc, char **argv)
 			break;
 		case 'f':
 			datafile = optarg;
-			params.auto_its = !strcmp(datafile, "auto");
+			if (!strcmp(datafile, "auto"))
+				params.auto_fit = AF_HASHED_IMG;
+			else if (!strcmp(datafile, "auto-conf"))
+				params.auto_fit = AF_SIGNED_CONF;
 			/* fallthrough */
 		case 'F':
 			/*
@@ -283,6 +286,7 @@ static void process_args(int argc, char **argv)
 			break;
 		case 'g':
 			params.keyname = optarg;
+			break;
 		case 'G':
 			params.keyfile = optarg;
 			break;
@@ -370,6 +374,15 @@ static void process_args(int argc, char **argv)
 	if (optind < argc)
 		params.imagefile = argv[optind];
 
+	if (params.auto_fit == AF_SIGNED_CONF) {
+		if (!params.keyname || !params.algo_name)
+			usage("Missing key/algo for auto-FIT with signed configs (use -g -o)");
+	} else if (params.auto_fit == AF_HASHED_IMG && params.keyname) {
+		params.auto_fit = AF_SIGNED_IMG;
+		if (!params.algo_name)
+			usage("Missing algorithm for auto-FIT with signed images (use -g)");
+	}
+
 	/*
 	 * For auto-generated FIT images we need to know the image type to put
 	 * in the FIT, which is separate from the file's image type (which
@@ -377,8 +390,8 @@ static void process_args(int argc, char **argv)
 	 */
 	if (params.type == IH_TYPE_FLATDT) {
 		params.fit_image_type = type ? type : IH_TYPE_KERNEL;
-		/* For auto_its, datafile is always 'auto' */
-		if (!params.auto_its)
+		/* For auto-FIT, datafile has to be provided with -d */
+		if (!params.auto_fit)
 			params.datafile = datafile;
 		else if (!params.datafile)
 			usage("Missing data file for auto-FIT (use -d)");

@@ -59,6 +59,68 @@
 			clocks = <&clk_refclk>;
 		};
 
+		gmac0: eth@f0802000 {
+			device_type = "network";
+			compatible = "nuvoton,npcm-dwmac", "st,stm32-dwmac";
+			reg = <0x0 0xf0802000 0x0 0x2000>,
+				<0x0 0xf0780000 0x0 0x200>;
+			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "macirq";
+			clocks	= <&clk NPCM8XX_CLK_AHB>;
+			clock-names = "stmmaceth";
+			pinctrl-names = "default";
+			pinctrl-0 = <&rg1mdio_pins>;
+			resets = <&rstc2 NPCM8XX_RESET_GMAC1>;
+			status = "disabled";
+		};
+
+		gmac1: eth@f0804000 {
+			device_type = "network";
+			compatible = "nuvoton,npcm-dwmac", "st,stm32-dwmac";
+			reg = <0x0 0xf0804000 0x0 0x2000>;
+			interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "macirq";
+			clocks	= <&clk NPCM8XX_CLK_AHB>;
+			clock-names = "stmmaceth";
+			pinctrl-names = "default";
+			pinctrl-0 = <&rg2_pins
+					&rg2mdio_pins>;
+			resets = <&rstc2 NPCM8XX_RESET_GMAC2>;
+			status = "disabled";
+		};
+
+		gmac2: eth@f0806000 {
+			device_type = "network";
+			compatible = "nuvoton,npcm-dwmac", "st,stm32-dwmac";
+			reg = <0x0 0xf0806000 0x0 0x2000>;
+			interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "macirq";
+			clocks	= <&clk NPCM8XX_CLK_AHB>;
+			clock-names = "stmmaceth";
+			pinctrl-names = "default";
+			pinctrl-0 = <&r1_pins
+					&r1err_pins
+					&r1md_pins>;
+			resets = <&rstc1 NPCM8XX_RESET_GMAC3>;
+			status = "disabled";
+		};
+
+		gmac3: eth@f0808000 {
+			device_type = "network";
+			compatible = "nuvoton,npcm-dwmac", "st,stm32-dwmac";
+			reg = <0x0 0xf0808000 0x0 0x2000>;
+			interrupts = <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "macirq";
+			clocks	= <&clk NPCM8XX_CLK_AHB>;
+			clock-names = "stmmaceth";
+			pinctrl-names = "default";
+			pinctrl-0 = <&r2_pins
+					&r2err_pins
+					&r2md_pins>;
+			resets = <&rstc1 NPCM8XX_RESET_GMAC4>;
+			status = "disabled";
+		};
+
 		ehci1: usb@f0828100 {
 			compatible = "nuvoton,npcm845-ehci";
 			reg = <0x0 0xf0828100 0x0 0x1000>;
@@ -236,6 +298,49 @@
 				status = "disabled";
 			};
 
+			serial1: serial@1000 {
+				compatible = "nuvoton,npcm845-uart";
+				reg = <0x1000 0x1000>;
+				clocks = <&clk NPCM8XX_CLK_UART>, <&clk NPCM8XX_CLK_PLL2DIV2>;
+				status = "disabled";
+			};
+
+			serial2: serial@2000 {
+				compatible = "nuvoton,npcm845-uart";
+				reg = <0x2000 0x1000>;
+				clocks = <&clk NPCM8XX_CLK_UART>, <&clk NPCM8XX_CLK_PLL2DIV2>;
+				status = "disabled";
+			};
+
+			serial3: serial@3000 {
+				compatible = "nuvoton,npcm845-uart";
+				reg = <0x3000 0x1000>;
+				clocks = <&clk NPCM8XX_CLK_UART>, <&clk NPCM8XX_CLK_PLL2DIV2>;
+				status = "disabled";
+			};
+
+			serial4: serial@4000 {
+				compatible = "nuvoton,npcm845-uart";
+				reg = <0x4000 0x1000>;
+				clocks = <&clk NPCM8XX_CLK_UART2>, <&clk NPCM8XX_CLK_PLL2DIV2>;
+				status = "disabled";
+			};
+
+			serial5: serial@5000 {
+				compatible = "nuvoton,npcm845-uart";
+				reg = <0x5000 0x1000>;
+				clocks = <&clk NPCM8XX_CLK_UART2>, <&clk NPCM8XX_CLK_PLL2DIV2>;
+				status = "disabled";
+			};
+
+			serial6: serial@6000 {
+				compatible = "nuvoton,npcm845-uart";
+				reg = <0x6000 0x1000>;
+				clocks = <&clk NPCM8XX_CLK_UART2>, <&clk NPCM8XX_CLK_PLL2DIV2>;
+				interrupts = <GIC_SPI 198 IRQ_TYPE_LEVEL_HIGH>;
+				status = "disabled";
+			};
+
 			gpio0: gpio0@10000 {
 				compatible = "nuvoton,npcm-gpio", "nuvoton,npcm845-gpio";
 				reg = <0x10000 0xB0>;
@@ -298,6 +403,35 @@
 				#gpio-cells = <2>;
 				gpio-controller;
 				gpio-bank-name = "gpio7";
+			};
+
+			rng: rng@b000 {
+				compatible = "nuvoton,npcm845-rng";
+				reg = <0xb000 0x8>;
+				status = "disabled";
+			};
+
+			otp: otp@189000 {
+				compatible = "nuvoton,npcm845-otp";
+				reg = <0x189000 0x1000>;
+				status = "disabled";
+			};
+
+			aes: aes@f0858000 {
+				compatible = "nuvoton,npcm845-aes";
+				reg = <0x0 0xf0858000 0x0 0x1000>,
+				<0x0 0xf0851000 0x0 0x1000>;
+				status = "disabled";
+				clocks = <&clk NPCM8XX_CLK_AHB>;
+				clock-names = "clk_ahb";
+			};
+
+			sha:sha@f085a000 {
+				compatible = "nuvoton,npcm845-sha";
+				reg = <0x0 0xf085a000 0x0 0x1000>;
+				status = "disabled";
+				clocks = <&clk NPCM8XX_CLK_AHB>;
+				clock-names = "clk_ahb";
 			};
 		};
 	};

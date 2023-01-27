@@ -22,7 +22,8 @@ mkimage \- generate images for U-Boot
 .SY mkimage
 .RI [ option\~ .\|.\|.\&]
 .BI \-f\~ image-tree-source-file\c
-.RB | auto
+.RB | auto\c
+.RB | auto-conf
 .I image-file-name
 .YS
 .
@@ -296,9 +297,9 @@ FIT. See
 for details on using external data.
 .
 .TP
-\fB\-f \fIimage-tree-source-file\fR | \fBauto
+\fB\-f \fIimage-tree-source-file\fR | \fBauto\fR | \fBauto-conf
 .TQ
-\fB\-\-fit \fIimage-tree-source-file\fR | \fBauto
+\fB\-\-fit \fIimage-tree-source-file\fR | \fBauto\fR | \fBauto-conf
 Image tree source file that describes the structure and contents of the
 FIT image.
 .IP
@@ -317,7 +318,25 @@ and
 options may be used to specify the image to include in the FIT and its
 attributes. No
 .I image-tree-source-file
-is required.
+is required. The
+.BR \-g ,
+.BR \-o ,
+and
+.B \-k
+or
+.B \-G
+options may be used to get \(oqimages\(cq signed subnodes in the generated
+auto FIT. Instead, to get \(oqconfigurations\(cq signed subnodes and
+\(oqimages\(cq hashed subnodes, pass
+.BR "\-f auto-conf".
+In this case
+.BR \-g ,
+.BR \-o ,
+and
+.B \-k
+or
+.B \-G
+are mandatory options.
 .
 .TP
 .B \-F
@@ -348,16 +367,16 @@ for use with signing, and a certificate
 necessary when embedding it into another device tree using
 .BR \-K .
 .I name
-defaults to the value of the signature node's \(oqkey-name-hint\(cq property,
-but may be overridden using
-.BR \-g .
+is the value of the signature node's \(oqkey-name-hint\(cq property.
 .
 .TP
 .BI \-G " key-file"
 .TQ
 .BI \-\-key\-file " key-file"
 Specifies the private key file to use when signing. This option may be used
-instead of \-k.
+instead of \-k. Useful when the private key file basename does not match
+\(oqkey-name-hint\(cq value. But note that it may lead to unexpected results
+when used together with -K and/or -k options.
 .
 .TP
 .BI \-K " key-destination"
@@ -373,24 +392,39 @@ CONFIG_OF_CONTROL in U-Boot.
 .BI \-g " key-name-hint"
 .TQ
 .BI \-\-key\-name\-hint " key-name-hint"
-Overrides the signature node's \(oqkey-name-hint\(cq property. This is
-especially useful when signing an image with
-.BR "\-f auto" .
-This is the
-.I name
-part of the key. The directory part is set by
-.BR \-k .
-This option also indicates that the images included in the FIT should be signed.
-If this option is specified, then
+Specifies the value of signature node \(oqkey-name-hint\(cq property for
+an automatically generated FIT image. It makes sense only when used with
+.B "\-f auto"
+or
+.BR "\-f auto-conf".
+This option also indicates that the images or configurations included in
+the FIT should be signed. If this option is specified, then
 .B \-o
 must be specified as well.
 .
 .TP
-.BI \-o " crypto" , checksum
+.BI \-o " checksum" , crypto
 .TQ
-.BI \-\-algo " crypto" , checksum
-Specifies the algorithm to be used for signing a FIT image. The default is
-taken from the signature node's \(oqalgo\(cq property.
+.BI \-\-algo " checksum" , crypto
+Specifies the algorithm to be used for signing a FIT image, overriding value
+taken from the signature node \(oqalgo\(cq property in the
+.IR image-tree-source-file .
+It is mandatory for automatically generated FIT.
+.IP
+The valid values for
+.I checksum
+are:
+.RS
+.IP
+.TS
+lb.
+sha1
+sha256
+sha384
+sha512
+.TE
+.RE
+.IP
 The valid values for
 .I crypto
 are:
@@ -404,28 +438,18 @@ rsa4096
 ecdsa256
 .TE
 .RE
-.IP
-The valid values for
-.I checksum
-are
-.RS
-.IP
-.TS
-lb.
-sha1
-sha256
-sha384
-sha512
-.TE
-.RE
 .
 .TP
 .B \-r
 .TQ
 .B \-\-key\-required
-Specifies that keys used to sign the FIT are required. This means that they
-must be verified for the image to boot. Without this option, the verification
-will be optional (useful for testing but not for release).
+Specifies that keys used to sign the FIT are required. This means that images
+or configurations signatures must be verified before using them (i.e. to
+boot). Without this option, the verification will be optional (useful for
+testing but not for release). It makes sense only when used with
+.BR \-K.
+When both, images and configurations, are signed, \(oqrequired\(cq property
+value will be "conf".
 .
 .TP
 .BI \-N " engine"
@@ -716,13 +740,23 @@ skipping those for which keys cannot be found. Also add a comment.
 .EE
 .RE
 .P
-Add public keys to u\-boot.dtb without needing a FIT to sign. This will also
+Add public key to u\-boot.dtb without needing a FIT to sign. This will also
 create a FIT containing an images node with no data named unused.itb.
 .RS
 .P
 .EX
 \fBmkimage \-f auto \-d /dev/null \-k /public/signing\-keys \-g dev \\
 	\-o sha256,rsa2048 \-K u\-boot.dtb unused.itb
+.EE
+.RE
+.P
+Add public key with required = "conf" property to u\-boot.dtb without needing
+a FIT to sign. This will also create a useless FIT named unused.itb.
+.RS
+.P
+.EX
+\fBmkimage \-f auto-conf \-d /dev/null \-k /public/signing\-keys \-g dev \\
+	\-o sha256,rsa2048 \-K u\-boot.dtb -r unused.itb
 .EE
 .RE
 .P
@@ -766,6 +800,19 @@ file is required.
 .EX
 \fBmkimage \-f auto \-A arm \-O linux \-T kernel \-C none \-a 43e00000 \-e 0 \\
 	\-d vmlinuz \-k /secret/signing\-keys \-g dev \-o sha256,rsa2048 kernel.itb
+.EE
+.RE
+.P
+Create a FIT image containing a kernel and some device tree files, signing
+each configuration, using automatic mode. Moreover, the public key needed to
+verify signatures is added to u\-boot.dtb with required = "conf" property.
+.RS
+.P
+.EX
+\fBmkimage \-f auto-conf \-A arm \-O linux \-T kernel \-C none \-a 43e00000 \\
+	\-e 0 \-d vmlinuz \-b /path/to/file\-1.dtb \-b /path/to/file\-2.dtb \\
+	\-k /folder/with/signing\-keys \-g dev \-o sha256,rsa2048 \\
+	\-K u\-boot.dtb -r kernel.itb
 .EE
 .RE
 .

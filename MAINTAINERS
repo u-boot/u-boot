@@ -1245,6 +1245,7 @@ M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-pmic.git
 F:	drivers/power/
+F:	include/power/
 
 POWERPC
 M:	Wolfgang Denk <wd@denx.de>
