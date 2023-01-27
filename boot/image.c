@@ -468,7 +468,7 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 			ret = gunzip(load_buf, unc_len, image_buf, &image_len);
 		break;
 	case IH_COMP_BZIP2:
-		if (!tools_build() && CONFIG_IS_ENABLED(BZIP2)) {
+		if (!tools_build() && IS_ENABLED(CONFIG_BZIP2)) {
 			uint size = unc_len;
 
 			/*
