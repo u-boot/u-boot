@@ -78,7 +78,7 @@ int print_cpuinfo(void)
 
 int arch_cpu_init(void)
 {
-	if (!IS_ENABLED(CONFIG_SYS_DCACHE_OFF)) {
+	if (!CONFIG_IS_ENABLED(SYS_DCACHE_OFF)) {
 		/* Enable cache to speed up system running */
 		if (get_sctlr() & CR_M)
 			return 0;
