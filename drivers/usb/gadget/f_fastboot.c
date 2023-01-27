@@ -545,7 +545,7 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 			fastboot_func->in_req->complete = compl_do_reset;
 			break;
 		case FASTBOOT_COMMAND_ACMD:
-			if (CONFIG_IS_ENABLED(FASTBOOT_UUU_SUPPORT))
+			if (IS_ENABLED(CONFIG_FASTBOOT_UUU_SUPPORT))
 				fastboot_func->in_req->complete = do_acmd_complete;
 			break;
 		}
