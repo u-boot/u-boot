@@ -262,7 +262,7 @@ static int initr_dm_devices(void)
 			return ret;
 	}
 
-	if (IS_ENABLED(CONFIG_MULTIPLEXER)) {
+	if (CONFIG_IS_ENABLED(MULTIPLEXER)) {
 		/*
 		 * Initialize the multiplexer controls to their default state.
 		 * This must be done early as other drivers may unknowingly
