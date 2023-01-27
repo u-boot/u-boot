@@ -98,7 +98,7 @@ static struct mm_region g12a_mem_map[] = {
 struct mm_region *mem_map = g12a_mem_map;
 
 #if IS_ENABLED(CONFIG_USB_DWC3_MESON_G12A) && \
-	CONFIG_IS_ENABLED(USB_GADGET_DWC2_OTG)
+	IS_ENABLED(CONFIG_USB_GADGET_DWC2_OTG)
 static struct dwc2_plat_otg_data meson_g12a_dwc2_data;
 
 int board_usb_init(int index, enum usb_init_type init)
