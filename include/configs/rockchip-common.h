@@ -26,7 +26,7 @@
 	#define BOOT_TARGET_NVME(func)
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_SCSI)
+#if IS_ENABLED(CONFIG_CMD_SCSI)
 	#define BOOT_TARGET_SCSI(func) func(SCSI, scsi, 0)
 #else
 	#define BOOT_TARGET_SCSI(func)
