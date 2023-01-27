@@ -33,7 +33,7 @@ int arch_cpu_init(void)
 
 void arch_preboot_os(void)
 {
-#if (IS_ENABLED(CONFIG_ATMEL_PIT_TIMER))
+#if (CONFIG_IS_ENABLED(ATMEL_PIT_TIMER))
 	ulong cpiv;
 	at91_pit_t *pit = (at91_pit_t *)ATMEL_BASE_PIT;
 
