@@ -18,7 +18,7 @@ __weak int psci_update_dt(void *fdt)
 	 * number to support detecting PSCI dynamically and then switching
 	 * the SMP boot method between PSCI and spin-table.
 	 */
-	if (CONFIG_IS_ENABLED(SEC_FIRMWARE_ARMV8_PSCI) &&
+	if (IS_ENABLED(CONFIG_SEC_FIRMWARE_ARMV8_PSCI) &&
 	    sec_firmware_support_psci_version() == PSCI_INVALID_VER)
 		return 0;
 

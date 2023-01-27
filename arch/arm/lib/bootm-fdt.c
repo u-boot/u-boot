@@ -64,7 +64,7 @@ int arch_fixup_fdt(void *blob)
 #endif
 
 #if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV8_PSCI) || \
-	CONFIG_IS_ENABLED(SEC_FIRMWARE_ARMV8_PSCI)
+	IS_ENABLED(CONFIG_SEC_FIRMWARE_ARMV8_PSCI)
 	ret = psci_update_dt(blob);
 	if (ret)
 		return ret;
