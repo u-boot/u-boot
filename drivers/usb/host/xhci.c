@@ -448,7 +448,7 @@ static int xhci_configure_endpoints(struct usb_device *udev, bool ctx_change)
 	in_ctx = virt_dev->in_ctx;
 
 	xhci_flush_cache((uintptr_t)in_ctx->bytes, in_ctx->size);
-	xhci_queue_command(ctrl, in_ctx->bytes, udev->slot_id, 0,
+	xhci_queue_command(ctrl, in_ctx->dma, udev->slot_id, 0,
 			   ctx_change ? TRB_EVAL_CONTEXT : TRB_CONFIG_EP);
 	event = xhci_wait_for_event(ctrl, TRB_COMPLETION);
 	BUG_ON(TRB_TO_SLOT_ID(le32_to_cpu(event->event_cmd.flags))
@@ -585,7 +585,8 @@ static int xhci_set_configuration(struct usb_device *udev)
 			cpu_to_le32(MAX_BURST(max_burst) |
 			ERROR_COUNT(err_count));
 
-		trb_64 = xhci_virt_to_bus(ctrl, virt_dev->eps[ep_index].ring->enqueue);
+		trb_64 = xhci_trb_virt_to_dma(virt_dev->eps[ep_index].ring->enq_seg,
+				virt_dev->eps[ep_index].ring->enqueue);
 		ep_ctx[ep_index]->deq = cpu_to_le64(trb_64 |
 				virt_dev->eps[ep_index].ring->cycle_state);
 
@@ -643,7 +644,8 @@ static int xhci_address_device(struct usb_device *udev, int root_portnr)
 	ctrl_ctx->add_flags = cpu_to_le32(SLOT_FLAG | EP0_FLAG);
 	ctrl_ctx->drop_flags = 0;
 
-	xhci_queue_command(ctrl, (void *)ctrl_ctx, slot_id, 0, TRB_ADDR_DEV);
+	xhci_queue_command(ctrl, virt_dev->in_ctx->dma,
+			   slot_id, 0, TRB_ADDR_DEV);
 	event = xhci_wait_for_event(ctrl, TRB_COMPLETION);
 	BUG_ON(TRB_TO_SLOT_ID(le32_to_cpu(event->event_cmd.flags)) != slot_id);
 
@@ -718,7 +720,7 @@ static int _xhci_alloc_device(struct usb_device *udev)
 		return 0;
 	}
 
-	xhci_queue_command(ctrl, NULL, 0, 0, TRB_ENABLE_SLOT);
+	xhci_queue_command(ctrl, 0, 0, 0, TRB_ENABLE_SLOT);
 	event = xhci_wait_for_event(ctrl, TRB_COMPLETION);
 	BUG_ON(GET_COMP_CODE(le32_to_cpu(event->event_cmd.status))
 		!= COMP_SUCCESS);
@@ -942,7 +944,7 @@ static int xhci_submit_root(struct usb_device *udev, unsigned long pipe,
 		case USB_DT_HUB:
 		case USB_DT_SS_HUB:
 			debug("USB_DT_HUB config\n");
-			srcptr = &descriptor.hub;
+			srcptr = &ctrl->hub_desc;
 			srclen = 0x8;
 			break;
 		default:
@@ -1201,21 +1203,22 @@ static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
 	/* initializing xhci data structures */
 	if (xhci_mem_init(ctrl, hccr, hcor) < 0)
 		return -ENOMEM;
+	ctrl->hub_desc = descriptor.hub;
 
 	reg = xhci_readl(&hccr->cr_hcsparams1);
-	descriptor.hub.bNbrPorts = HCS_MAX_PORTS(reg);
-	printf("Register %x NbrPorts %d\n", reg, descriptor.hub.bNbrPorts);
+	ctrl->hub_desc.bNbrPorts = HCS_MAX_PORTS(reg);
+	printf("Register %x NbrPorts %d\n", reg, ctrl->hub_desc.bNbrPorts);
 
 	/* Port Indicators */
 	reg = xhci_readl(&hccr->cr_hccparams);
 	if (HCS_INDICATOR(reg))
-		put_unaligned(get_unaligned(&descriptor.hub.wHubCharacteristics)
-				| 0x80, &descriptor.hub.wHubCharacteristics);
+		put_unaligned(get_unaligned(&ctrl->hub_desc.wHubCharacteristics)
+				| 0x80, &ctrl->hub_desc.wHubCharacteristics);
 
 	/* Port Power Control */
 	if (HCC_PPC(reg))
-		put_unaligned(get_unaligned(&descriptor.hub.wHubCharacteristics)
-				| 0x01, &descriptor.hub.wHubCharacteristics);
+		put_unaligned(get_unaligned(&ctrl->hub_desc.wHubCharacteristics)
+				| 0x01, &ctrl->hub_desc.wHubCharacteristics);
 
 	if (xhci_start(hcor)) {
 		xhci_reset(hcor);

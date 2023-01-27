@@ -965,6 +965,7 @@ config ARCH_APPLE
 	bool "Apple SoCs"
 	select ARM64
 	select CLK
+	select CMD_PCI
 	select CMD_USB
 	select DM
 	select DM_GPIO
@@ -979,6 +980,7 @@ config ARCH_APPLE
 	select LINUX_KERNEL_IMAGE_HEADER
 	select OF_BOARD_SETUP
 	select OF_CONTROL
+	select PCI
 	select PINCTRL
 	select POSITION_INDEPENDENT
 	select POWER_DOMAIN
