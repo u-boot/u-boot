@@ -170,7 +170,7 @@ static void linux_env_legacy(struct bootm_headers *images)
 	const char *cp;
 	ulong rd_start, rd_size;
 
-	if (CONFIG_IS_ENABLED(MEMSIZE_IN_BYTES)) {
+	if (IS_ENABLED(CONFIG_MEMSIZE_IN_BYTES)) {
 		sprintf(env_buf, "%lu", (ulong)gd->ram_size);
 		debug("## Giving linux memsize in bytes, %lu\n",
 		      (ulong)gd->ram_size);
