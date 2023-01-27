@@ -957,7 +957,7 @@ U_BOOT_DRIVER(dwc_ahsata_blk) = {
 	.ops		= &dwc_ahsata_blk_ops,
 };
 
-#if CONFIG_IS_ENABLED(DWC_AHSATA_AHCI)
+#if IS_ENABLED(CONFIG_DWC_AHSATA_AHCI)
 struct ahci_ops dwc_ahsata_ahci_ops = {
 	.port_status = dwc_ahsata_port_status,
 	.reset       = dwc_ahsata_bus_reset,
