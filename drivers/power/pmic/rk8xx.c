@@ -243,7 +243,7 @@ static int rk8xx_probe(struct udevice *dev)
 		       pmic_reg_read(dev, on_source),
 		       pmic_reg_read(dev, off_source));
 	printf("\n");
-	if (CONFIG_IS_ENABLED(ROCKCHIP_RK8XX_DISABLE_BOOT_ON_POWERON))
+	if (IS_ENABLED(CONFIG_ROCKCHIP_RK8XX_DISABLE_BOOT_ON_POWERON))
 		rk8xx_off_for_plugin(dev);
 
 	return 0;
