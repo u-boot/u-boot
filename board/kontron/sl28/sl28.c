@@ -188,7 +188,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	fdt_fixup_icid(blob);
 
-	if (CONFIG_IS_ENABLED(SL28_SPL_LOADS_OPTEE_BL32)) {
+	if (IS_ENABLED(CONFIG_SL28_SPL_LOADS_OPTEE_BL32)) {
 		node = fdt_node_offset_by_compatible(blob, -1, "linaro,optee-tz");
 		if (node)
 			fdt_set_node_status(blob, node, FDT_STATUS_OKAY);
