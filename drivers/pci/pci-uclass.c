@@ -1140,7 +1140,7 @@ static int pci_uclass_post_probe(struct udevice *bus)
 	if (ret)
 		return log_msg_ret("bind", ret);
 
-	if (CONFIG_IS_ENABLED(PCI_PNP) && ll_boot_init() &&
+	if (IS_ENABLED(CONFIG_PCI_PNP) && ll_boot_init() &&
 	    (!hose->skip_auto_config_until_reloc ||
 	     (gd->flags & GD_FLG_RELOC))) {
 		ret = pci_auto_config_devices(bus);
