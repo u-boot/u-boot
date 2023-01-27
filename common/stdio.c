@@ -41,7 +41,7 @@ int stdio_file_to_flags(const int file)
 	}
 }
 
-#if CONFIG_IS_ENABLED(SYS_DEVICE_NULLDEV)
+#if IS_ENABLED(CONFIG_SYS_DEVICE_NULLDEV)
 static void nulldev_putc(struct stdio_dev *dev, const char c)
 {
 	/* nulldev is empty! */
