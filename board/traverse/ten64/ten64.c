@@ -123,7 +123,7 @@ int board_init(void)
 {
 	init_final_memctl_regs();
 
-	if (CONFIG_IS_ENABLED(FSL_CAAM))
+	if (IS_ENABLED(CONFIG_FSL_CAAM))
 		sec_init();
 
 	return 0;
