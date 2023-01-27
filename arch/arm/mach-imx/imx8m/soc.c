@@ -1554,7 +1554,7 @@ enum env_location arch_env_get_location(enum env_operation op, int prio)
 			return ENVL_NAND;
 		if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC))
 			return ENVL_MMC;
-		if (IS_ENABLED(CONFIG_ENV_IS_NOWHERE))
+		if (CONFIG_IS_ENABLED(ENV_IS_NOWHERE))
 			return ENVL_NOWHERE;
 		return ENVL_UNKNOWN;
 	case QSPI_BOOT:

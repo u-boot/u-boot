@@ -137,7 +137,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		return ENVL_UNKNOWN;
 
 	/* NOWHERE is exclusive, no other option can be defined. */
-	if (IS_ENABLED(CONFIG_ENV_IS_NOWHERE))
+	if (CONFIG_IS_ENABLED(ENV_IS_NOWHERE))
 		return ENVL_NOWHERE;
 
 	switch (sunxi_get_boot_device()) {
