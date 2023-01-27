@@ -249,7 +249,7 @@ int last_stage_init(void)
 
 static int x86_init_cpus(void)
 {
-	if (IS_ENABLED(CONFIG_SMP)) {
+	if (CONFIG_IS_ENABLED(SMP)) {
 		debug("Init additional CPUs\n");
 		x86_mp_init();
 	} else {
