@@ -138,7 +138,7 @@ enum env_location arch_env_get_location(enum env_operation op, int prio)
 
 	debug("%s: booted from %s\n", __func__, boot_device);
 
-	if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC) &&
+	if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC) &&
 	    (!strcmp(boot_device, "/mmc@ff370000") ||
 	     !strcmp(boot_device, "/mmc@ff390000")))
 		return ENVL_MMC;

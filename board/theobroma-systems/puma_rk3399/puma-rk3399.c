@@ -160,7 +160,7 @@ enum env_location arch_env_get_location(enum env_operation op, int prio)
 	    !strcmp(boot_device, "/spi@ff1d0000/flash@0"))
 		return ENVL_SPI_FLASH;
 
-	if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC) &&
+	if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC) &&
 	    (!strcmp(boot_device, "/mmc@fe320000") ||
 	     !strcmp(boot_device, "/mmc@fe330000")))
 		return ENVL_MMC;

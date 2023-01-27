@@ -145,7 +145,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	case BOOT_DEVICE_MMC2:
 		if (prio == 0 && CONFIG_IS_ENABLED(ENV_IS_IN_FAT))
 			return ENVL_FAT;
-		if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC))
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC))
 			return ENVL_MMC;
 		break;
 	case BOOT_DEVICE_NAND:
