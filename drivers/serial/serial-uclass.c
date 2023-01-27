@@ -218,7 +218,7 @@ static void _serial_puts(struct udevice *dev, const char *str)
 {
 	struct dm_serial_ops *ops = serial_get_ops(dev);
 
-	if (!CONFIG_IS_ENABLED(SERIAL_PUTS) || !ops->puts) {
+	if (!IS_ENABLED(CONFIG_SERIAL_PUTS) || !ops->puts) {
 		while (*str)
 			_serial_putc(dev, *str++);
 		return;
