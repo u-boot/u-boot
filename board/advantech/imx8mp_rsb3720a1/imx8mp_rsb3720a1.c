@@ -35,7 +35,7 @@ static void setup_gpmi_nand(void)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 struct efi_fw_image fw_images[] = {
 #if defined(CONFIG_TARGET_IMX8MP_RSB3720A1_4G)
 	{

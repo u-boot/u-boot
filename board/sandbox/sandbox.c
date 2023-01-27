@@ -29,7 +29,7 @@
  */
 gd_t *gd;
 
-#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 /* GUIDs for capsule updatable firmware images */
 #define SANDBOX_UBOOT_IMAGE_GUID \
 	EFI_GUID(0x09d7cf52, 0x0720, 0x4710, 0x91, 0xd1, \

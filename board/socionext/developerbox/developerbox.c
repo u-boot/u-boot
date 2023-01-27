@@ -18,7 +18,7 @@
 
 #include <linux/kernel.h>
 
-#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 struct efi_fw_image fw_images[] = {
 	{
 		.image_type_id = DEVELOPERBOX_UBOOT_IMAGE_GUID,
