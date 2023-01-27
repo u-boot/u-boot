@@ -95,13 +95,13 @@ typedef int (*event_handler_t)(void *ctx, struct event *event);
 struct evspy_info {
 	event_handler_t func;
 	enum event_t type;
-#if CONFIG_IS_ENABLED(EVENT_DEBUG)
+#if IS_ENABLED(CONFIG_EVENT_DEBUG)
 	const char *id;
 #endif
 };
 
 /* Declare a new event spy */
-#if CONFIG_IS_ENABLED(EVENT_DEBUG)
+#if IS_ENABLED(CONFIG_EVENT_DEBUG)
 #define _ESPY_REC(_type, _func)   { _func, _type, #_func, }
 #else
 #define _ESPY_REC(_type, _func)   { _func, _type, }
@@ -109,7 +109,7 @@ struct evspy_info {
 
 static inline const char *event_spy_id(struct evspy_info *spy)
 {
-#if CONFIG_IS_ENABLED(EVENT_DEBUG)
+#if IS_ENABLED(CONFIG_EVENT_DEBUG)
 	return spy->id;
 #else
 	return "?";
