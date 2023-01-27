@@ -313,7 +313,7 @@ static ulong rk3368_ddr_set_clk(struct rk3368_cru *cru, ulong set_rate)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+#if IS_ENABLED(CONFIG_GMAC_ROCKCHIP)
 static ulong rk3368_gmac_set_clk(struct rk3368_cru *cru, ulong set_rate)
 {
 	ulong ret;
@@ -507,7 +507,7 @@ static ulong rk3368_clk_set_rate(struct clk *clk, ulong rate)
 		ret = rk3368_mmc_set_clk(clk, rate);
 		break;
 #endif
-#if CONFIG_IS_ENABLED(GMAC_ROCKCHIP)
+#if IS_ENABLED(CONFIG_GMAC_ROCKCHIP)
 	case SCLK_MAC:
 		/* select the external clock */
 		ret = rk3368_gmac_set_clk(priv->cru, rate);
