@@ -629,7 +629,7 @@ static fdt_addr_t __ofnode_get_addr_size_index(ofnode node, int index,
 
 		ns = of_n_size_cells(ofnode_to_np(node));
 
-		if (translate && IS_ENABLED(CONFIG_OF_TRANSLATE) && ns > 0) {
+		if (translate && CONFIG_IS_ENABLED(OF_TRANSLATE) && ns > 0) {
 			return of_translate_address(ofnode_to_np(node), prop_val);
 		} else {
 			na = of_n_addr_cells(ofnode_to_np(node));
