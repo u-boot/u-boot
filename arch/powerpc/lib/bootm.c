@@ -214,7 +214,7 @@ static int boot_body_linux(struct bootm_headers *images)
 	if (ret)
 		return ret;
 
-	if (CONFIG_IS_ENABLED(LMB)) {
+	if (IS_ENABLED(CONFIG_LMB)) {
 		ret = image_setup_linux(images);
 		if (ret)
 			return ret;

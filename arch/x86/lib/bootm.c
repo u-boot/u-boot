@@ -78,7 +78,7 @@ static int boot_prep_linux(struct bootm_headers *images)
 	size_t len;
 	int ret;
 
-	if (CONFIG_IS_ENABLED(OF_LIBFDT) && CONFIG_IS_ENABLED(LMB) && images->ft_len) {
+	if (CONFIG_IS_ENABLED(OF_LIBFDT) && IS_ENABLED(CONFIG_LMB) && images->ft_len) {
 		debug("using: FDT\n");
 		if (image_setup_linux(images)) {
 			puts("FDT creation failed! hanging...");

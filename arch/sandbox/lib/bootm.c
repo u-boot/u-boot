@@ -55,7 +55,7 @@ static int boot_prep_linux(struct bootm_headers *images)
 {
 	int ret;
 
-	if (CONFIG_IS_ENABLED(LMB)) {
+	if (IS_ENABLED(CONFIG_LMB)) {
 		ret = image_setup_linux(images);
 		if (ret)
 			return ret;
