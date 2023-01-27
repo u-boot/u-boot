@@ -197,7 +197,7 @@ U_BOOT_DRIVER(serial_bcm283x_mu) = {
 	.plat_auto	= sizeof(struct bcm283x_mu_serial_plat),
 	.probe = bcm283x_mu_serial_probe,
 	.ops = &bcm283x_mu_serial_ops,
-#if !CONFIG_IS_ENABLED(OF_CONTROL) || CONFIG_IS_ENABLED(OF_BOARD)
+#if !CONFIG_IS_ENABLED(OF_CONTROL) || IS_ENABLED(CONFIG_OF_BOARD)
 	.flags = DM_FLAG_PRE_RELOC,
 #endif
 	.priv_auto	= sizeof(struct bcm283x_mu_priv),
