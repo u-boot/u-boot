@@ -156,7 +156,7 @@ static int tpm_uclass_post_probe(struct udevice *dev)
 	const char *drv = TPM_RNG_DRV_NAME;
 	struct udevice *child;
 
-	if (CONFIG_IS_ENABLED(TPM_RNG)) {
+	if (IS_ENABLED(CONFIG_TPM_RNG)) {
 		ret = device_find_first_child_by_uclass(dev, UCLASS_RNG,
 							&child);
 
