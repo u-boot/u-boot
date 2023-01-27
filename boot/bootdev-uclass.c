@@ -382,11 +382,11 @@ static int label_to_uclass(const char *label, int *seqp, int *method_flagsp)
 		if (IS_ENABLED(CONFIG_BOOTDEV_SPI_FLASH) &&
 		    !strncmp("spi", label, len)) {
 			id = UCLASS_SPI_FLASH;
-		} else if (IS_ENABLED(CONFIG_BOOTDEV_ETH) &&
+		} else if (CONFIG_IS_ENABLED(BOOTDEV_ETH) &&
 		    !strncmp("pxe", label, len)) {
 			id = UCLASS_ETH;
 			method_flags |= BOOTFLOW_METHF_PXE_ONLY;
-		} else if (IS_ENABLED(CONFIG_BOOTDEV_ETH) &&
+		} else if (CONFIG_IS_ENABLED(BOOTDEV_ETH) &&
 		    !strncmp("dhcp", label, len)) {
 			id = UCLASS_ETH;
 			method_flags |= BOOTFLOW_METHF_DHCP_ONLY;
