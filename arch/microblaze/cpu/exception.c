@@ -64,7 +64,7 @@ void _hw_exception_handler (void)
 	hang();
 }
 
-#if CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_USR_EXCEP)
+#if IS_ENABLED(CONFIG_XILINX_MICROBLAZE0_USR_EXCEP)
 void _exception_handler (void)
 {
 	puts("User vector_exception\n");
