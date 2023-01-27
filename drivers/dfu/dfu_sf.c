@@ -67,7 +67,7 @@ static int dfu_flush_medium_sf(struct dfu_entity *dfu)
 {
 	u64 off, length;
 
-	if (!CONFIG_IS_ENABLED(DFU_SF_PART) || !dfu->data.sf.ubi)
+	if (!IS_ENABLED(CONFIG_DFU_SF_PART) || !dfu->data.sf.ubi)
 		return 0;
 
 	/* in case of ubi partition, erase rest of the partition */
@@ -89,7 +89,7 @@ static unsigned int dfu_polltimeout_sf(struct dfu_entity *dfu)
 	 * ubi partition, as sectors which are not used need
 	 * to be erased
 	 */
-	if (CONFIG_IS_ENABLED(DFU_SF_PART) && dfu->data.sf.ubi)
+	if (IS_ENABLED(CONFIG_DFU_SF_PART) && dfu->data.sf.ubi)
 		return DFU_MANIFEST_POLL_TIMEOUT;
 
 	return DFU_DEFAULT_POLL_TIMEOUT;
@@ -188,7 +188,7 @@ int dfu_fill_entity_sf(struct dfu_entity *dfu, char *devstr, char **argv, int ar
 		dfu->data.sf.size = hextoul(argv[2], &s);
 		if (*s)
 			return -EINVAL;
-	} else if (CONFIG_IS_ENABLED(DFU_SF_PART) &&
+	} else if (IS_ENABLED(CONFIG_DFU_SF_PART) &&
 		   (!strcmp(argv[0], "part") || !strcmp(argv[0], "partubi"))) {
 		char mtd_id[32];
 		struct mtd_device *mtd_dev;
