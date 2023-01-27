@@ -154,7 +154,7 @@ static int console_record_tstc(void)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV)
+#if IS_ENABLED(CONFIG_SYS_CONSOLE_IS_IN_ENV)
 /*
  * if overwrite_console returns 1, the stdin, stderr and stdout
  * are switched to the serial port, else the settings in the
@@ -167,7 +167,7 @@ extern int overwrite_console(void);
 #define OVERWRITE_CONSOLE 0
 #endif /* CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE */
 
-#endif /* CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV) */
+#endif /* IS_ENABLED(CONFIG_SYS_CONSOLE_IS_IN_ENV) */
 
 static int console_setfile(int file, struct stdio_dev * dev)
 {
@@ -378,7 +378,7 @@ static void console_flush(int file)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV)
+#if IS_ENABLED(CONFIG_SYS_CONSOLE_IS_IN_ENV)
 static inline void console_doenv(int file, struct stdio_dev *dev)
 {
 	iomux_doenv(file, dev->name);
@@ -435,7 +435,7 @@ static inline void console_flush(int file)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV)
+#if IS_ENABLED(CONFIG_SYS_CONSOLE_IS_IN_ENV)
 static inline void console_doenv(int file, struct stdio_dev *dev)
 {
 	console_setfile(file, dev);
@@ -1035,7 +1035,7 @@ void stdio_print_current_devices(void)
 	}
 }
 
-#if CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV)
+#if IS_ENABLED(CONFIG_SYS_CONSOLE_IS_IN_ENV)
 /* Called after the relocation - use desired console functions */
 int console_init_r(void)
 {
@@ -1124,7 +1124,7 @@ done:
 	return 0;
 }
 
-#else /* !CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV) */
+#else /* !IS_ENABLED(CONFIG_SYS_CONSOLE_IS_IN_ENV) */
 
 /* Called after the relocation - use desired console functions */
 int console_init_r(void)
@@ -1191,4 +1191,4 @@ int console_init_r(void)
 	return 0;
 }
 
-#endif /* CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV) */
+#endif /* IS_ENABLED(CONFIG_SYS_CONSOLE_IS_IN_ENV) */
