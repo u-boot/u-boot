@@ -467,7 +467,7 @@ struct global_data {
 	 */
 	ulong acpi_start;
 #endif
-#if CONFIG_IS_ENABLED(GENERATE_SMBIOS_TABLE)
+#if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE)
 	/**
 	 * @smbios_version: Points to SMBIOS type 0 version
 	 */
