@@ -21,7 +21,7 @@ void _hw_exception_handler (void)
 	printf("Hardware exception at 0x%x address\n", address);
 	R17(address);
 
-	if (CONFIG_IS_ENABLED(XILINX_MICROBLAZE0_DELAY_SLOT_EXCEP) &&
+	if (IS_ENABLED(CONFIG_XILINX_MICROBLAZE0_DELAY_SLOT_EXCEP) &&
 	    (state & 0x1000)) {
 		/*
 		 * For exceptions in delay slots, the return address is stored
