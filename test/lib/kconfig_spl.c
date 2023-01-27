@@ -33,7 +33,7 @@ static int lib_test_spl_is_enabled(struct unit_test_state *uts)
 	 * This fails if CONFIG_TEST_KCONFIG_ENABLE is not enabled, since the
 	 * value is used.
 	 */
-	if (CONFIG_IS_ENABLED(TEST_KCONFIG)) {
+	if (IS_ENABLED(CONFIG_TEST_KCONFIG)) {
 		val = CONFIG_IF_ENABLED_INT(TEST_KCONFIG_ENABLE,
 					    TEST_KCONFIG_VALUE);
 		printf("value2 %ld\n", val);
