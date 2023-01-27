@@ -14,7 +14,7 @@
 #include <linux/lzo.h>
 #endif
 
-#if IS_ENABLED(CONFIG_ZLIB)
+#if CONFIG_IS_ENABLED(ZLIB)
 #include <u-boot/zlib.h>
 #endif
 
@@ -34,7 +34,7 @@ int sqfs_decompressor_init(struct squashfs_ctxt *ctxt)
 	case SQFS_COMP_LZO:
 		break;
 #endif
-#if IS_ENABLED(CONFIG_ZLIB)
+#if CONFIG_IS_ENABLED(ZLIB)
 	case SQFS_COMP_ZLIB:
 		break;
 #endif
@@ -62,7 +62,7 @@ void sqfs_decompressor_cleanup(struct squashfs_ctxt *ctxt)
 	case SQFS_COMP_LZO:
 		break;
 #endif
-#if IS_ENABLED(CONFIG_ZLIB)
+#if CONFIG_IS_ENABLED(ZLIB)
 	case SQFS_COMP_ZLIB:
 		break;
 #endif
@@ -74,7 +74,7 @@ void sqfs_decompressor_cleanup(struct squashfs_ctxt *ctxt)
 	}
 }
 
-#if IS_ENABLED(CONFIG_ZLIB)
+#if CONFIG_IS_ENABLED(ZLIB)
 static void zlib_decompression_status(int ret)
 {
 	switch (ret) {
@@ -129,7 +129,7 @@ int sqfs_decompress(struct squashfs_ctxt *ctxt, void *dest,
 		break;
 	}
 #endif
-#if IS_ENABLED(CONFIG_ZLIB)
+#if CONFIG_IS_ENABLED(ZLIB)
 	case SQFS_COMP_ZLIB:
 		ret = uncompress(dest, dest_len, source, src_len);
 		if (ret) {
