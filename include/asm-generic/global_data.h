@@ -554,7 +554,7 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #define gd_set_multi_dtb_fit(_dtb)
 #endif
 
-#if CONFIG_IS_ENABLED(EVENT_DYNAMIC)
+#if IS_ENABLED(CONFIG_EVENT_DYNAMIC)
 #define gd_event_state()	((struct event_state *)&gd->event_state)
 #else
 #define gd_event_state()	NULL

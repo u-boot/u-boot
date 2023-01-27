@@ -207,7 +207,7 @@ static inline int event_notify_null(enum event_t type)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(EVENT_DYNAMIC)
+#if IS_ENABLED(CONFIG_EVENT_DYNAMIC)
 /**
  * event_uninit() - Clean up dynamic events
  *
