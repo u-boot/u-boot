@@ -231,7 +231,7 @@ static int omap2430_musb_probe(struct udevice *dev)
 
 	otg_board_data = &plat->otg_board_data;
 
-	if (CONFIG_IS_ENABLED(USB_MUSB_HOST)) {
+	if (IS_ENABLED(CONFIG_USB_MUSB_HOST)) {
 		struct musb_host_data *host = dev_get_priv(dev);
 		struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 
