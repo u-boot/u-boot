@@ -137,7 +137,7 @@
 	#define BOOT_TARGET_USB(func)
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_PXE)
+#if IS_ENABLED(CONFIG_CMD_PXE)
 	#define BOOT_TARGET_PXE(func) func(PXE, pxe, na)
 #else
 	#define BOOT_TARGET_PXE(func)
