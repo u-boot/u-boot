@@ -676,7 +676,7 @@ void board_quiesce_devices(void)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(TARGET_LX2160ARDB)
+#if IS_ENABLED(CONFIG_TARGET_LX2160ARDB)
 int fdt_fixup_add_thermal(void *blob, int mux_node, int channel, int reg)
 {
 	int err;
@@ -798,7 +798,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	u64 mc_memory_size = 0;
 	u16 total_memory_banks;
 	int err;
-#if CONFIG_IS_ENABLED(TARGET_LX2160ARDB)
+#if IS_ENABLED(CONFIG_TARGET_LX2160ARDB)
 	u8 board_rev;
 #endif
 
@@ -862,7 +862,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #endif
 	fdt_fixup_icid(blob);
 
-#if CONFIG_IS_ENABLED(TARGET_LX2160ARDB)
+#if IS_ENABLED(CONFIG_TARGET_LX2160ARDB)
 	board_rev = (QIXIS_READ(arch) & 0xf) - 1 + 'A';
 	if (board_rev == 'C')
 		fdt_fixup_i2c_thermal_node(blob);
