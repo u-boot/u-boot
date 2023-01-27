@@ -53,7 +53,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 
-	if (CONFIG_IS_ENABLED(EFI_EBBR_2_1_CONFORMANCE)) {
+	if (IS_ENABLED(CONFIG_EFI_EBBR_2_1_CONFORMANCE)) {
 		++expected_entries;
 		if (ecpt_find_guid(ecpt, &guid_ebbr_2_1))
 			return EFI_ST_FAILURE;
