@@ -547,7 +547,7 @@ int device_probe(struct udevice *dev)
 				  dev->name, ret, errno_str(ret));
 	}
 
-	if (CONFIG_IS_ENABLED(IOMMU) && dev->parent &&
+	if (IS_ENABLED(CONFIG_IOMMU) && dev->parent &&
 	    (device_get_uclass_id(dev) != UCLASS_IOMMU)) {
 		ret = dev_iommu_enable(dev);
 		if (ret)
