@@ -232,7 +232,7 @@ static int _do_env_set(int flag, int argc, char *const argv[], int env_flag)
 
 	debug("Initial value for argc=%d\n", argc);
 
-#if CONFIG_IS_ENABLED(CMD_NVEDIT_EFI)
+#if IS_ENABLED(CONFIG_CMD_NVEDIT_EFI)
 	if (argc > 1 && argv[1][0] == '-' && argv[1][1] == 'e')
 		return do_env_set_efi(NULL, flag, --argc, ++argv);
 #endif
