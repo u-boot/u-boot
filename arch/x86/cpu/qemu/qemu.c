@@ -17,7 +17,7 @@
 
 static bool i440fx;
 
-#if CONFIG_IS_ENABLED(QFW_PIO)
+#if IS_ENABLED(CONFIG_QFW_PIO)
 U_BOOT_DRVINFO(x86_qfw_pio) = {
 	.name = "qfw_pio",
 };
