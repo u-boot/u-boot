@@ -208,7 +208,7 @@ static inline int splash_init_sata(void)
 
 static int splash_init_virtio(void)
 {
-	if (!IS_ENABLED(CONFIG_VIRTIO)) {
+	if (!CONFIG_IS_ENABLED(VIRTIO)) {
 		printf("Cannot load splash image: no virtio support\n");
 		return -ENOSYS;
 	} else {
