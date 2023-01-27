@@ -84,7 +84,7 @@ static int do_dm_dump_uclass(struct cmd_tbl *cmdtp, int flag, int argc,
 #define DM_MEM
 #endif
 
-#if CONFIG_IS_ENABLED(SYS_LONGHELP)
+#if IS_ENABLED(CONFIG_SYS_LONGHELP)
 static char dm_help_text[] =
 	"compat        Dump list of drivers with compatibility strings\n"
 	"dm devres        Dump list of device resources for each device\n"

@@ -83,7 +83,7 @@ static int do_cpu_detail(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(SYS_LONGHELP)
+#if IS_ENABLED(CONFIG_SYS_LONGHELP)
 static char cpu_help_text[] =
 	"list	- list available CPUs\n"
 	"cpu detail	- show CPU detail"
