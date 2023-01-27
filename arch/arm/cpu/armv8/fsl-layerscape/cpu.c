@@ -760,7 +760,7 @@ enum boot_src __get_boot_src(u32 porsr1)
 	}
 #endif
 
-	if (CONFIG_IS_ENABLED(SYS_FSL_ERRATUM_A010539) && !rcw_src)
+	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_A010539) && !rcw_src)
 		src = BOOT_SOURCE_QSPI_NOR;
 
 	debug("%s: src 0x%x\n", __func__, src);
