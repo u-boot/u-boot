@@ -1047,7 +1047,7 @@ int image_locate_script(void *buf, int size, const char *fit_uname,
 		}
 		break;
 	case IMAGE_FORMAT_FIT:
-		if (IS_ENABLED(CONFIG_FIT)) {
+		if (CONFIG_IS_ENABLED(FIT)) {
 			fit_hdr = buf;
 			if (fit_check_format(fit_hdr, IMAGE_SIZE_INVAL)) {
 				puts("Bad FIT image format\n");
