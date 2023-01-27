@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 #include "decompress.h"
 
-#if IS_ENABLED(CONFIG_LZ4)
+#if CONFIG_IS_ENABLED(LZ4)
 #include <u-boot/lz4.h>
 static int z_erofs_decompress_lz4(struct z_erofs_decompress_req *rq)
 {
@@ -70,7 +70,7 @@ int z_erofs_decompress(struct z_erofs_decompress_req *rq)
 		return 0;
 	}
 
-#if IS_ENABLED(CONFIG_LZ4)
+#if CONFIG_IS_ENABLED(LZ4)
 	if (rq->alg == Z_EROFS_COMPRESSION_LZ4)
 		return z_erofs_decompress_lz4(rq);
 #endif
