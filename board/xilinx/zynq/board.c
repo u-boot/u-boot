@@ -154,7 +154,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		return ENVL_NOWHERE;
 	case ZYNQ_BM_NOR:
 	case ZYNQ_BM_QSPI:
-		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_SPI_FLASH))
 			return ENVL_SPI_FLASH;
 		return ENVL_NOWHERE;
 	case ZYNQ_BM_JTAG:

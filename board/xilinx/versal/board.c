@@ -293,7 +293,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	case OSPI_MODE:
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
-		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_SPI_FLASH))
 			return ENVL_SPI_FLASH;
 		return ENVL_NOWHERE;
 	case JTAG_MODE:
