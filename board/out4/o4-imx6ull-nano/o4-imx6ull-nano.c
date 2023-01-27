@@ -24,7 +24,7 @@ int board_early_init_f(void)
 
 static int setup_fec_clock(void)
 {
-	if (IS_ENABLED(CONFIG_FEC_MXC) && !IS_ENABLED(CONFIG_CLK_IMX6Q)) {
+	if (IS_ENABLED(CONFIG_FEC_MXC) && !CONFIG_IS_ENABLED(CLK_IMX6Q)) {
 		struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 		int ret;
 
