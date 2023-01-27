@@ -3821,7 +3821,7 @@ static int spi_nor_soft_reset(struct spi_nor *nor)
 	ext = nor->cmd_ext_type;
 	if (nor->cmd_ext_type == SPI_NOR_EXT_NONE) {
 		nor->cmd_ext_type = SPI_NOR_EXT_REPEAT;
-#if CONFIG_IS_ENABLED(SPI_NOR_BOOT_SOFT_RESET_EXT_INVERT)
+#if IS_ENABLED(CONFIG_SPI_NOR_BOOT_SOFT_RESET_EXT_INVERT)
 		nor->cmd_ext_type = SPI_NOR_EXT_INVERT;
 #endif /* SPI_NOR_BOOT_SOFT_RESET_EXT_INVERT */
 	}
