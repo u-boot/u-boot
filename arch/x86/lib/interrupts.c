@@ -66,7 +66,7 @@ void irq_install_handler(int irq, interrupt_handler_t *handler, void *arg)
 	irq_handlers[irq].arg = arg;
 	irq_handlers[irq].count = 0;
 
-	if (CONFIG_IS_ENABLED(I8259_PIC))
+	if (IS_ENABLED(CONFIG_I8259_PIC))
 		unmask_irq(irq);
 
 	if (status)
@@ -86,7 +86,7 @@ void irq_free_handler(int irq)
 
 	status = disable_interrupts();
 
-	if (CONFIG_IS_ENABLED(I8259_PIC))
+	if (IS_ENABLED(CONFIG_I8259_PIC))
 		mask_irq(irq);
 
 	irq_handlers[irq].handler = NULL;
@@ -108,13 +108,13 @@ void do_irq(int hw_irq)
 	}
 
 	if (irq_handlers[irq].handler) {
-		if (CONFIG_IS_ENABLED(I8259_PIC))
+		if (IS_ENABLED(CONFIG_I8259_PIC))
 			mask_irq(irq);
 
 		irq_handlers[irq].handler(irq_handlers[irq].arg);
 		irq_handlers[irq].count++;
 
-		if (CONFIG_IS_ENABLED(I8259_PIC)) {
+		if (IS_ENABLED(CONFIG_I8259_PIC)) {
 			unmask_irq(irq);
 			specific_eoi(irq);
 		}
