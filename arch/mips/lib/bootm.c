@@ -291,7 +291,7 @@ static void boot_jump_linux(struct bootm_headers *images)
 	bootstage_report();
 #endif
 
-	if (CONFIG_IS_ENABLED(RESTORE_EXCEPTION_VECTOR_BASE))
+	if (IS_ENABLED(CONFIG_RESTORE_EXCEPTION_VECTOR_BASE))
 		trap_restore();
 
 	if (images->ft_len)
