@@ -29,7 +29,7 @@
 #define CHECK_KEY_LEN(key_len)	(((key_len) == 2 * KEY_SIZE_BYTES / 4) || \
 				 ((key_len) == 2 * KEY_SIZE_BYTES / 2) || \
 				 ((key_len) == 2 * KEY_SIZE_BYTES))
-#if CONFIG_IS_ENABLED(FSL_ISBC_KEY_EXT)
+#if IS_ENABLED(CONFIG_FSL_ISBC_KEY_EXT)
 /* Global data structure */
 static struct fsl_secboot_glb glb;
 #endif
@@ -63,7 +63,7 @@ self:
 	goto self;
 }
 
-#if CONFIG_IS_ENABLED(FSL_ISBC_KEY_EXT)
+#if IS_ENABLED(CONFIG_FSL_ISBC_KEY_EXT)
 static u32 check_ie(struct fsl_secboot_img_priv *img)
 {
 	if (img->hdr.ie_flag & IE_FLAG_MASK)
@@ -188,7 +188,7 @@ static u32 check_srk(struct fsl_secboot_img_priv *img)
 {
 #ifdef CONFIG_ESBC_HDR_LS
 	/* In LS, No SRK Flag as SRK is always present if IE not present*/
-#if CONFIG_IS_ENABLED(FSL_ISBC_KEY_EXT)
+#if IS_ENABLED(CONFIG_FSL_ISBC_KEY_EXT)
 	return !check_ie(img);
 #endif
 	return 1;
@@ -278,7 +278,7 @@ static u32 read_validate_single_key(struct fsl_secboot_img_priv *img)
 }
 #endif /* CONFIG_ESBC_HDR_LS */
 
-#if CONFIG_IS_ENABLED(FSL_ISBC_KEY_EXT)
+#if IS_ENABLED(CONFIG_FSL_ISBC_KEY_EXT)
 
 static void install_ie_tbl(uintptr_t ie_tbl_addr,
 		struct fsl_secboot_img_priv *img)
@@ -434,7 +434,7 @@ void fsl_secboot_handle_error(int error)
 	case ERROR_ESBC_CLIENT_HEADER_INVALID_KEY_NUM:
 	case ERROR_ESBC_CLIENT_HEADER_INV_SRK_ENTRY_KEYLEN:
 #endif
-#if CONFIG_IS_ENABLED(FSL_ISBC_KEY_EXT)
+#if IS_ENABLED(CONFIG_FSL_ISBC_KEY_EXT)
 	/*@fallthrough@*/
 	case ERROR_ESBC_CLIENT_HEADER_IE_KEY_REVOKED:
 	case ERROR_ESBC_CLIENT_HEADER_INVALID_IE_NUM_ENTRY:
@@ -571,7 +571,7 @@ static int calc_esbchdr_esbc_hash(struct fsl_secboot_img_priv *img)
 		key_hash = 1;
 	}
 #endif
-#if CONFIG_IS_ENABLED(FSL_ISBC_KEY_EXT)
+#if IS_ENABLED(CONFIG_FSL_ISBC_KEY_EXT)
 	if (!key_hash && check_ie(img))
 		key_hash = 1;
 #endif
@@ -705,7 +705,7 @@ static int read_validate_esbc_client_header(struct fsl_secboot_img_priv *img)
 	}
 #endif
 
-#if CONFIG_IS_ENABLED(FSL_ISBC_KEY_EXT)
+#if IS_ENABLED(CONFIG_FSL_ISBC_KEY_EXT)
 	if (!key_found && check_ie(img)) {
 		ret = read_validate_ie_tbl(img);
 		if (ret != 0)
@@ -851,7 +851,7 @@ static int secboot_init(struct fsl_secboot_img_priv **img_ptr)
 		return -ENOMEM;
 	memset(img, 0, sizeof(struct fsl_secboot_img_priv));
 
-#if CONFIG_IS_ENABLED(FSL_ISBC_KEY_EXT)
+#if IS_ENABLED(CONFIG_FSL_ISBC_KEY_EXT)
 	if (glb.ie_addr)
 		img->ie_addr = glb.ie_addr;
 #endif
@@ -952,7 +952,7 @@ int fsl_secboot_validate(uintptr_t haddr, char *arg_hash_str,
 	else
 		ret = memcmp(srk_hash, img->img_key_hash, SHA256_BYTES);
 
-#if CONFIG_IS_ENABLED(FSL_ISBC_KEY_EXT)
+#if IS_ENABLED(CONFIG_FSL_ISBC_KEY_EXT)
 	if (!hash_cmd && check_ie(img))
 		ret = 0;
 #endif
