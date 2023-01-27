@@ -431,7 +431,7 @@ static inline void devres_release_all(struct udevice *dev)
 
 static inline int device_notify(const struct udevice *dev, enum event_t type)
 {
-#if CONFIG_IS_ENABLED(DM_EVENT)
+#if CONFIG_IS_ENABLED(EVENT)
 	return event_notify(type, &dev, sizeof(dev));
 #else
 	return 0;
