@@ -458,7 +458,7 @@ static int device_get_dma_constraints(struct udevice *dev)
 	u64 size = 0;
 	int ret;
 
-	if (!CONFIG_IS_ENABLED(DM_DMA) || !parent || !dev_has_ofnode(parent))
+	if (!IS_ENABLED(CONFIG_DM_DMA) || !parent || !dev_has_ofnode(parent))
 		return 0;
 
 	/*

@@ -191,7 +191,7 @@ struct udevice {
 #if CONFIG_IS_ENABLED(DEVRES)
 	struct list_head devres_head;
 #endif
-#if CONFIG_IS_ENABLED(DM_DMA)
+#if IS_ENABLED(CONFIG_DM_DMA)
 	ulong dma_offset;
 #endif
 };
@@ -265,7 +265,7 @@ static inline __attribute_const__ ofnode dev_ofnode(const struct udevice *dev)
 /* Returns non-zero if the device is active (probed and not removed) */
 #define device_active(dev)	(dev_get_flags(dev) & DM_FLAG_ACTIVATED)
 
-#if CONFIG_IS_ENABLED(DM_DMA)
+#if IS_ENABLED(CONFIG_DM_DMA)
 #define dev_set_dma_offset(_dev, _offset)	_dev->dma_offset = _offset
 #define dev_get_dma_offset(_dev)		_dev->dma_offset
 #else
