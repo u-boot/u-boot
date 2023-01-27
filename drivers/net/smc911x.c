@@ -466,7 +466,7 @@ static int smc911x_of_to_plat(struct udevice *dev)
 	if (!ret)
 		priv->use_32_bit_io = (io_width == 4);
 	else
-		priv->use_32_bit_io = CONFIG_IS_ENABLED(SMC911X_32_BIT);
+		priv->use_32_bit_io = IS_ENABLED(CONFIG_SMC911X_32_BIT);
 
 	return 0;
 }
