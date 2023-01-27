@@ -274,7 +274,7 @@ static int __serial_tstc(struct udevice *dev)
 	return 1;
 }
 
-#if CONFIG_IS_ENABLED(SERIAL_RX_BUFFER)
+#if IS_ENABLED(CONFIG_SERIAL_RX_BUFFER)
 static int _serial_tstc(struct udevice *dev)
 {
 	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
@@ -302,7 +302,7 @@ static int _serial_getc(struct udevice *dev)
 	return val;
 }
 
-#else /* CONFIG_IS_ENABLED(SERIAL_RX_BUFFER) */
+#else /* IS_ENABLED(CONFIG_SERIAL_RX_BUFFER) */
 
 static int _serial_getc(struct udevice *dev)
 {
@@ -313,7 +313,7 @@ static int _serial_tstc(struct udevice *dev)
 {
 	return __serial_tstc(dev);
 }
-#endif /* CONFIG_IS_ENABLED(SERIAL_RX_BUFFER) */
+#endif /* IS_ENABLED(CONFIG_SERIAL_RX_BUFFER) */
 
 void serial_putc(char ch)
 {
@@ -554,7 +554,7 @@ static int serial_post_probe(struct udevice *dev)
 	sdev.getc = serial_stub_getc;
 	sdev.tstc = serial_stub_tstc;
 
-#if CONFIG_IS_ENABLED(SERIAL_RX_BUFFER)
+#if IS_ENABLED(CONFIG_SERIAL_RX_BUFFER)
 	/* Allocate the RX buffer */
 	upriv->buf = malloc(CONFIG_SERIAL_RX_BUFFER_SIZE);
 #endif
