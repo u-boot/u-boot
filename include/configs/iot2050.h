@@ -19,7 +19,7 @@
 #define EXTRA_ENV_IOT2050_BOARD_SETTINGS				\
 	"usb_pgood_delay=900\0"
 
-#if CONFIG_IS_ENABLED(CMD_USB)
+#if IS_ENABLED(CONFIG_CMD_USB)
 # define BOOT_TARGET_USB(func) \
 	func(USB, usb, 0) \
 	func(USB, usb, 1) \
