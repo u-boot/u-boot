@@ -57,7 +57,7 @@ static const struct {
 	}, {
 		.variable = "current-slot",
 		.dispatch = getvar_current_slot
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
+#if IS_ENABLED(CONFIG_FASTBOOT_FLASH)
 	}, {
 		.variable = "has-slot",
 		.dispatch = getvar_has_slot
@@ -67,7 +67,7 @@ static const struct {
 		.variable = "partition-type",
 		.dispatch = getvar_partition_type
 #endif
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
+#if IS_ENABLED(CONFIG_FASTBOOT_FLASH)
 	}, {
 		.variable = "partition-size",
 		.dispatch = getvar_partition_size
