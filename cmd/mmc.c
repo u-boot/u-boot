@@ -70,7 +70,7 @@ static void print_mmcinfo(struct mmc *mmc)
 		u8 wp;
 		int ret;
 
-#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
+#if IS_ENABLED(CONFIG_MMC_HW_PARTITIONING)
 		puts("HC WP Group Size: ");
 		print_size(((u64)mmc->hc_wp_grp_size) << 9, "\n");
 #endif
@@ -603,7 +603,7 @@ static int do_mmc_list(struct cmd_tbl *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
-#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
+#if IS_ENABLED(CONFIG_MMC_HW_PARTITIONING)
 static void parse_hwpart_user_enh_size(struct mmc *mmc,
 				       struct mmc_hwpart_conf *pconf,
 				       char *argv)
@@ -1087,7 +1087,7 @@ static struct cmd_tbl cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(part, 1, 1, do_mmc_part, "", ""),
 	U_BOOT_CMD_MKENT(dev, 4, 0, do_mmc_dev, "", ""),
 	U_BOOT_CMD_MKENT(list, 1, 1, do_mmc_list, "", ""),
-#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
+#if IS_ENABLED(CONFIG_MMC_HW_PARTITIONING)
 	U_BOOT_CMD_MKENT(hwpartition, 28, 0, do_mmc_hwpartition, "", ""),
 #endif
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
@@ -1154,7 +1154,7 @@ U_BOOT_CMD(
 	"   PART - [0|1]\n"
 	"       : 0 - first boot partition, 1 - second boot partition\n"
 	"         if not assigned, write protect all boot partitions\n"
-#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
+#if IS_ENABLED(CONFIG_MMC_HW_PARTITIONING)
 	"mmc hwpartition <USER> <GP> <MODE> - does hardware partitioning\n"
 	"  arguments (sizes in 512-byte blocks):\n"
 	"   USER - <user> <enh> <start> <cnt> <wrrel> <{on|off}>\n"

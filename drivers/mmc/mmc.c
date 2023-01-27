@@ -1071,7 +1071,7 @@ int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 	return ret;
 }
 
-#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
+#if IS_ENABLED(CONFIG_MMC_HW_PARTITIONING)
 int mmc_hwpart_config(struct mmc *mmc,
 		      const struct mmc_hwpart_conf *conf,
 		      enum mmc_hwpart_conf_mode mode)
@@ -2424,7 +2424,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 			* (erase_gmul + 1);
 	}
 #endif
-#if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
+#if IS_ENABLED(CONFIG_MMC_HW_PARTITIONING)
 	mmc->hc_wp_grp_size = 1024
 		* ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
 		* ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
