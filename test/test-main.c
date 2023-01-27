@@ -477,7 +477,7 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 	 *    boards)
 	 */
 	if (!(test->flags & UT_TESTF_LIVE_TREE) &&
-	    (CONFIG_IS_ENABLED(OFNODE_MULTI_TREE) ||
+	    (IS_ENABLED(CONFIG_OFNODE_MULTI_TREE) ||
 	     !(test->flags & UT_TESTF_OTHER_FDT)) &&
 	    (!runs || ut_test_run_on_flattree(test)) &&
 	    !(gd->flags & GD_FLG_FDT_CHANGED)) {

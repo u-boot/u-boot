@@ -27,7 +27,7 @@ struct ofnode_phandle_args {
 	uint32_t args[OF_MAX_PHANDLE_ARGS];
 };
 
-#if CONFIG_IS_ENABLED(OFNODE_MULTI_TREE)
+#if IS_ENABLED(CONFIG_OFNODE_MULTI_TREE)
 /**
  * oftree_reset() - reset the state of the oftree list
  *
