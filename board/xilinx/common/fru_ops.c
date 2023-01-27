@@ -241,7 +241,7 @@ static int fru_parse_multirec(unsigned long addr)
 			struct fru_multirec_mac *mac = (void *)addr + hdr_len;
 			u32 type = FRU_DUT_MACID;
 
-			if (CONFIG_IS_ENABLED(FRU_SC))
+			if (IS_ENABLED(CONFIG_FRU_SC))
 				type = FRU_SC_MACID;
 
 			if (mac->ver == type) {
