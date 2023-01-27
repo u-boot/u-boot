@@ -615,7 +615,7 @@ static int ipuv3_video_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 #endif
-	if (CONFIG_IS_ENABLED(PANEL)) {
+	if (IS_ENABLED(CONFIG_PANEL)) {
 		struct udevice *panel_dev;
 
 		ret = uclass_get_device(UCLASS_PANEL, 0, &panel_dev);
