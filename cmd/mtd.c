@@ -126,7 +126,7 @@ static void mtd_show_device(struct mtd_info *mtd)
 		printf("  - driver: %s\n", mtd->dev->driver->name);
 	}
 #endif
-	if (IS_ENABLED(CONFIG_OF_CONTROL) && mtd->dev) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL) && mtd->dev) {
 		char buf[256];
 		int res;
 

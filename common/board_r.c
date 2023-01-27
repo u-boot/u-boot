@@ -429,7 +429,7 @@ static int initr_pvblock(void)
  */
 static int should_load_env(void)
 {
-	if (IS_ENABLED(CONFIG_OF_CONTROL))
+	if (CONFIG_IS_ENABLED(OF_CONTROL))
 		return ofnode_conf_read_int("load-environment", 1);
 
 	if (IS_ENABLED(CONFIG_DELAY_ENVIRONMENT))
@@ -448,7 +448,7 @@ static int initr_env(void)
 
 	env_import_fdt();
 
-	if (IS_ENABLED(CONFIG_OF_CONTROL))
+	if (CONFIG_IS_ENABLED(OF_CONTROL))
 		env_set_hex("fdtcontroladdr",
 			    (unsigned long)map_to_sysmem(gd->fdt_blob));
 

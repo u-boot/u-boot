@@ -23,7 +23,7 @@ int __weak checkboard(void)
  */
 int __weak show_board_info(void)
 {
-	if (IS_ENABLED(CONFIG_OF_CONTROL)) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
 		struct udevice *dev;
 		const char *model;
 		char str[80];

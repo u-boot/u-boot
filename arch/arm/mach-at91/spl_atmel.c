@@ -103,7 +103,7 @@ void board_init_f(ulong dummy)
 {
 	int ret;
 
-	if (IS_ENABLED(CONFIG_OF_CONTROL)) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
 		ret = spl_early_init();
 		if (ret) {
 			debug("spl_early_init() failed: %d\n", ret);

@@ -458,7 +458,7 @@ const char *bootdelay_process(void)
 	 * setting? It is possibly helpful for security since the device tree
 	 * may be signed whereas the environment is often loaded from storage.
 	 */
-	if (IS_ENABLED(CONFIG_OF_CONTROL))
+	if (CONFIG_IS_ENABLED(OF_CONTROL))
 		bootdelay = ofnode_conf_read_int("bootdelay", bootdelay);
 
 	debug("### main_loop entered: bootdelay=%d\n\n", bootdelay);
@@ -477,7 +477,7 @@ const char *bootdelay_process(void)
 	else
 		s = env_get("bootcmd");
 
-	if (IS_ENABLED(CONFIG_OF_CONTROL))
+	if (CONFIG_IS_ENABLED(OF_CONTROL))
 		process_fdt_options();
 	stored_bootdelay = bootdelay;
 

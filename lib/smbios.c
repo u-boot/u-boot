@@ -147,7 +147,7 @@ static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
 		if (!ret)
 			return smbios_add_string(ctx, val);
 	}
-	if (IS_ENABLED(CONFIG_OF_CONTROL)) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
 		const char *str;
 
 		str = ofnode_read_string(ctx->node, prop);
@@ -476,7 +476,7 @@ ulong write_smbios_table(ulong addr)
 	int i;
 
 	ctx.node = ofnode_null();
-	if (IS_ENABLED(CONFIG_OF_CONTROL)) {
+	if (CONFIG_IS_ENABLED(OF_CONTROL)) {
 		uclass_first_device(UCLASS_SYSINFO, &ctx.dev);
 		if (ctx.dev)
 			parent_node = dev_read_subnode(ctx.dev, "smbios");
@@ -500,7 +500,7 @@ ulong write_smbios_table(ulong addr)
 		int tmp;
 
 		method = &smbios_write_funcs[i];
-		if (IS_ENABLED(CONFIG_OF_CONTROL) && method->subnode_name)
+		if (CONFIG_IS_ENABLED(OF_CONTROL) && method->subnode_name)
 			ctx.node = ofnode_find_subnode(parent_node,
 						       method->subnode_name);
 		tmp = method->write((ulong *)&addr, handle++, &ctx);
