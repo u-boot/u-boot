@@ -63,7 +63,7 @@ efi_status_t efi_root_node_register(void)
 		 &efi_guid_device_path_utilities_protocol,
 		 &efi_device_path_utilities,
 #endif
-#if CONFIG_IS_ENABLED(EFI_DT_FIXUP)
+#if IS_ENABLED(CONFIG_EFI_DT_FIXUP)
 		 /* Device-tree fix-up protocol */
 		 &efi_guid_dt_fixup_protocol,
 		 &efi_dt_fixup_prot,
