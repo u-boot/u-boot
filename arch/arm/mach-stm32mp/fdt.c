@@ -505,7 +505,7 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 		 * under CONFIG_STM32MP15x_STM32IMAGE only for compatibility
 		 * when FIP is not used by TF-A
 		 */
-		if (CONFIG_IS_ENABLED(STM32MP15x_STM32IMAGE) &&
+		if (IS_ENABLED(CONFIG_STM32MP15x_STM32IMAGE) &&
 		    !tee_find_device(NULL, NULL, NULL, NULL))
 			stm32_fdt_disable_optee(blob);
 	}
