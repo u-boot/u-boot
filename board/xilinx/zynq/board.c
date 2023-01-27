@@ -55,7 +55,7 @@ int board_late_init(void)
 		return 0;
 	}
 
-	if (!CONFIG_IS_ENABLED(ENV_VARS_UBOOT_RUNTIME_CONFIG))
+	if (!IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG))
 		return 0;
 
 	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
