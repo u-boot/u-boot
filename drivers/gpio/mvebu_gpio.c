@@ -100,7 +100,7 @@ static int mvebu_gpio_probe(struct udevice *dev)
 }
 
 static const struct dm_gpio_ops mvebu_gpio_ops = {
-#if CONFIG_IS_ENABLED(PINCTRL_ARMADA_38X)
+#if IS_ENABLED(CONFIG_PINCTRL_ARMADA_38X)
 	.request		= pinctrl_gpio_request,
 	.rfree			= pinctrl_gpio_free,
 #endif
