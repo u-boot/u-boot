@@ -99,7 +99,7 @@ static int mxs_nand_dt_probe(struct udevice *dev)
 
 	info->use_minimum_ecc = dev_read_bool(dev, "fsl,use-minimum-ecc");
 
-	if (IS_ENABLED(CONFIG_CLK) &&
+	if (CONFIG_IS_ENABLED(CLK) &&
 	    (IS_ENABLED(CONFIG_IMX8) || IS_ENABLED(CONFIG_IMX8M))) {
 		/* Assigned clock already set clock */
 		struct clk gpmi_clk;
