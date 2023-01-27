@@ -3645,7 +3645,7 @@ static struct spi_nor_fixups mt35xu512aba_fixups = {
 };
 #endif /* CONFIG_SPI_FLASH_MT35XU */
 
-#if CONFIG_IS_ENABLED(SPI_FLASH_MACRONIX)
+#if IS_ENABLED(CONFIG_SPI_FLASH_MACRONIX)
 /**
  * spi_nor_macronix_octal_dtr_enable() - Enable octal DTR on Macronix flashes.
  * @nor:	pointer to a 'struct spi_nor'
@@ -3904,7 +3904,7 @@ void spi_nor_set_fixups(struct spi_nor *nor)
 		nor->fixups = &mt35xu512aba_fixups;
 #endif
 
-#if CONFIG_IS_ENABLED(SPI_FLASH_MACRONIX)
+#if IS_ENABLED(CONFIG_SPI_FLASH_MACRONIX)
 	nor->fixups = &macronix_octal_fixups;
 #endif /* SPI_FLASH_MACRONIX */
 }
