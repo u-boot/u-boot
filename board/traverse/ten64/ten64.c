@@ -97,7 +97,7 @@ int checkboard(void)
 		printf("Unknown boot source %d\n", src);
 
 	puts("Controller: ");
-	if (CONFIG_IS_ENABLED(TEN64_CONTROLLER)) {
+	if (IS_ENABLED(CONFIG_TEN64_CONTROLLER)) {
 		/* Driver not compatible with alpha/beta board MCU firmware */
 		if (board_rev <= TEN64_BOARD_REV_C) {
 			if (ten64_read_board_info(&boardinfo)) {
@@ -375,7 +375,7 @@ static void ten64_board_retimer_ds110df410_init(void)
 	/* Retimer power cycle not implemented on early board
 	 * revisions/controller firmwares
 	 */
-	if (CONFIG_IS_ENABLED(TEN64_CONTROLLER) &&
+	if (IS_ENABLED(CONFIG_TEN64_CONTROLLER) &&
 	    board_rev >= TEN64_BOARD_REV_C) {
 		ret = board_cycle_retimer(&retim_dev);
 		if (ret) {
