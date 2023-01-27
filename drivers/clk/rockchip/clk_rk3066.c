@@ -689,7 +689,7 @@ static int rk3066_clk_bind(struct udevice *dev)
 		dev_set_priv(sys_child, priv);
 	}
 
-	if (CONFIG_IS_ENABLED(RESET_ROCKCHIP)) {
+	if (IS_ENABLED(CONFIG_RESET_ROCKCHIP)) {
 		reg_offset = offsetof(struct rk3066_cru, cru_softrst_con[0]);
 		ret = rockchip_reset_bind(dev, reg_offset, 9);
 		if (ret)

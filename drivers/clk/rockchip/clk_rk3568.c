@@ -491,7 +491,7 @@ static int rk3568_pmuclk_ofdata_to_platdata(struct udevice *dev)
 
 static int rk3568_pmuclk_bind(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
+#if IS_ENABLED(CONFIG_RESET_ROCKCHIP)
 	int ret = 0;
 
 	ret = offsetof(struct rk3568_pmucru, pmu_softrst_con[0]);
@@ -2936,7 +2936,7 @@ static int rk3568_clk_bind(struct udevice *dev)
 						    glb_srsr_snd);
 	}
 
-#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
+#if IS_ENABLED(CONFIG_RESET_ROCKCHIP)
 	ret = offsetof(struct rk3568_cru, softrst_con[0]);
 	ret = rockchip_reset_bind(dev, ret, 30);
 	if (ret)

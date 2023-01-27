@@ -702,7 +702,7 @@ static int rv1108_clk_bind(struct udevice *dev)
 		dev_set_priv(sys_child, priv);
 	}
 
-#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
+#if IS_ENABLED(CONFIG_RESET_ROCKCHIP)
 	ret = offsetof(struct rv1108_cru, softrst_con[0]);
 	ret = rockchip_reset_bind(dev, ret, 13);
 	if (ret)

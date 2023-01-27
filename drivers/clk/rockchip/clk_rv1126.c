@@ -499,7 +499,7 @@ static int rv1126_pmuclk_of_to_plat(struct udevice *dev)
 
 static int rv1126_pmuclk_bind(struct udevice *dev)
 {
-#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
+#if IS_ENABLED(CONFIG_RESET_ROCKCHIP)
 	int ret;
 
 	ret = offsetof(struct rv1126_pmucru, pmu_softrst_con[0]);
@@ -1863,7 +1863,7 @@ static int rv1126_clk_bind(struct udevice *dev)
 		dev_set_priv(sys_child, priv);
 	}
 
-#if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
+#if IS_ENABLED(CONFIG_RESET_ROCKCHIP)
 	ret = offsetof(struct rv1126_cru, softrst_con[0]);
 	ret = rockchip_reset_bind(dev, ret, 15);
 	if (ret)
