@@ -600,7 +600,7 @@ int bootm_process_cmdline(char *buf, int maxlen, int flags)
 	int ret;
 
 	/* Check config first to enable compiler to eliminate code */
-	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
+	if (CONFIG_IS_ENABLED(SILENT_CONSOLE) &&
 	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) &&
 	    (flags & BOOTM_CL_SILENT)) {
 		ret = fixup_silent_linux(buf, maxlen);
@@ -626,7 +626,7 @@ int bootm_process_cmdline_env(int flags)
 	int ret;
 
 	/* First check if any action is needed */
-	do_silent = IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
+	do_silent = CONFIG_IS_ENABLED(SILENT_CONSOLE) &&
 	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) && (flags & BOOTM_CL_SILENT);
 	if (!do_silent && !IS_ENABLED(CONFIG_BOOTARGS_SUBST))
 		return 0;

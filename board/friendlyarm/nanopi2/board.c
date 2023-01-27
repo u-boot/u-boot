@@ -425,7 +425,7 @@ int board_init(void)
 	bd_lcd_config_gpio();
 	bd_lcd_init();
 
-	if (IS_ENABLED(CONFIG_SILENT_CONSOLE))
+	if (CONFIG_IS_ENABLED(SILENT_CONSOLE))
 		gd->flags |= GD_FLG_SILENT;
 
 	return 0;
@@ -443,7 +443,7 @@ int board_late_init(void)
 
 	set_ether_addr();
 
-	if (IS_ENABLED(CONFIG_SILENT_CONSOLE))
+	if (CONFIG_IS_ENABLED(SILENT_CONSOLE))
 		gd->flags &= ~GD_FLG_SILENT;
 
 	bd_backlight_on();

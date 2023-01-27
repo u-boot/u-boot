@@ -655,7 +655,7 @@ static void print_pre_console_buffer(int flushpoint)
 	char buf_out[CONFIG_VAL(PRE_CON_BUF_SZ) + 1];
 	char *buf_in;
 
-	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) && (gd->flags & GD_FLG_SILENT))
+	if (CONFIG_IS_ENABLED(SILENT_CONSOLE) && (gd->flags & GD_FLG_SILENT))
 		return;
 
 	buf_in = map_sysmem(CONFIG_VAL(PRE_CON_BUF_ADDR), CONFIG_VAL(PRE_CON_BUF_SZ));
@@ -704,7 +704,7 @@ void putc(const char c)
 		return;
 	}
 
-	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) && (gd->flags & GD_FLG_SILENT)) {
+	if (CONFIG_IS_ENABLED(SILENT_CONSOLE) && (gd->flags & GD_FLG_SILENT)) {
 		if (!(gd->flags & GD_FLG_DEVINIT))
 			pre_console_putc(c);
 		return;
@@ -748,7 +748,7 @@ void puts(const char *s)
 		return;
 	}
 
-	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) && (gd->flags & GD_FLG_SILENT)) {
+	if (CONFIG_IS_ENABLED(SILENT_CONSOLE) && (gd->flags & GD_FLG_SILENT)) {
 		if (!(gd->flags & GD_FLG_DEVINIT))
 			pre_console_puts(s);
 		return;
@@ -785,7 +785,7 @@ void flush(void)
 	if (IS_ENABLED(CONFIG_DEBUG_UART) && !(gd->flags & GD_FLG_SERIAL_READY))
 		return;
 
-	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) && (gd->flags & GD_FLG_SILENT))
+	if (CONFIG_IS_ENABLED(SILENT_CONSOLE) && (gd->flags & GD_FLG_SILENT))
 		return;
 
 	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
@@ -967,7 +967,7 @@ static bool console_update_silent(void)
 {
 	unsigned long flags = gd->flags;
 
-	if (!IS_ENABLED(CONFIG_SILENT_CONSOLE))
+	if (!CONFIG_IS_ENABLED(SILENT_CONSOLE))
 		return false;
 
 	if (IS_ENABLED(CONFIG_SILENT_CONSOLE_UNTIL_ENV) && !(gd->flags & GD_FLG_ENV_READY)) {

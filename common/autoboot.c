@@ -420,7 +420,7 @@ static int abortboot(int bootdelay)
 			abort = abortboot_single_key(bootdelay);
 	}
 
-	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) && abort)
+	if (CONFIG_IS_ENABLED(SILENT_CONSOLE) && abort)
 		gd->flags &= ~GD_FLG_SILENT;
 
 	return abort;
