@@ -618,7 +618,7 @@ int board_init(void)
 
 	/* This should be done in the MMC driver when MX6 has a clock driver */
 #ifdef CONFIG_FSL_ESDHC_IMX
-	if (IS_ENABLED(CONFIG_BLK)) {
+	if (CONFIG_IS_ENABLED(BLK)) {
 		int i;
 
 		cm_fx6_set_usdhc_iomux();
