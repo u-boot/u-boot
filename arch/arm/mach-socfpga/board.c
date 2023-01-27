@@ -102,7 +102,7 @@ __weak int board_fit_config_name_match(const char *name)
 }
 #endif
 
-#if IS_ENABLED(CONFIG_FIT_IMAGE_POST_PROCESS)
+#if CONFIG_IS_ENABLED(FIT_IMAGE_POST_PROCESS)
 void board_fit_image_post_process(const void *fit, int node, void **p_image,
 				  size_t *p_size)
 {
