@@ -818,7 +818,7 @@ int himport_r(struct hsearch_data *htab,
 	if (nvars)
 		memcpy(localvars, vars, sizeof(vars[0]) * nvars);
 
-#if CONFIG_IS_ENABLED(ENV_APPEND)
+#if IS_ENABLED(CONFIG_ENV_APPEND)
 	flag |= H_NOCLEAR;
 #endif
 

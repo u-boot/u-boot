@@ -212,7 +212,7 @@ int env_load(void)
 			printf("OK\n");
 			gd->env_load_prio = prio;
 
-#if !CONFIG_IS_ENABLED(ENV_APPEND)
+#if !IS_ENABLED(CONFIG_ENV_APPEND)
 			return 0;
 #endif
 		} else if (ret == -ENOMSG) {
