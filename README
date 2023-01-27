@@ -28,20 +28,16 @@ load and run it dynamically.
 Status:
 =======
 
-In general, all boards for which a configuration option exists in the
-Makefile have been tested to some extent and can be considered
+In general, all boards for which a default configuration file exists in the
+configs/ directory have been tested to some extent and can be considered
 "working". In fact, many of them are used in production systems.
 
-In case of problems see the CHANGELOG file to find out who contributed
-the specific port. In addition, there are various MAINTAINERS files
-scattered throughout the U-Boot source identifying the people or
-companies responsible for various boards and subsystems.
+In case of problems you can use
 
-Note: As of August, 2010, there is no longer a CHANGELOG file in the
-actual U-Boot source tree; however, it can be created dynamically
-from the Git log using:
+     scripts/get_maintainer.pl <path>
 
-	make CHANGELOG
+to identify the people or companies responsible for various boards and
+subsystems. Or have a look at the git log.
 
 
 Where to get help:
@@ -109,60 +105,6 @@ the string "u_boot" or on "U_BOOT". Example:
 	IH_OS_U_BOOT		u_boot_hush_start
 
 
-Versioning:
-===========
-
-Starting with the release in October 2008, the names of the releases
-were changed from numerical release numbers without deeper meaning
-into a time stamp based numbering. Regular releases are identified by
-names consisting of the calendar year and month of the release date.
-Additional fields (if present) indicate release candidates or bug fix
-releases in "stable" maintenance trees.
-
-Examples:
-	U-Boot v2009.11	    - Release November 2009
-	U-Boot v2009.11.1   - Release 1 in version November 2009 stable tree
-	U-Boot v2010.09-rc1 - Release candidate 1 for September 2010 release
-
-
-Directory Hierarchy:
-====================
-
-/arch			Architecture-specific files
-  /arc			Files generic to ARC architecture
-  /arm			Files generic to ARM architecture
-  /m68k			Files generic to m68k architecture
-  /microblaze		Files generic to microblaze architecture
-  /mips			Files generic to MIPS architecture
-  /nios2		Files generic to Altera NIOS2 architecture
-  /powerpc		Files generic to PowerPC architecture
-  /riscv		Files generic to RISC-V architecture
-  /sandbox		Files generic to HW-independent "sandbox"
-  /sh			Files generic to SH architecture
-  /x86			Files generic to x86 architecture
-  /xtensa		Files generic to Xtensa architecture
-/api			Machine/arch-independent API for external apps
-/board			Board-dependent files
-/boot			Support for images and booting
-/cmd			U-Boot commands functions
-/common			Misc architecture-independent functions
-/configs		Board default configuration files
-/disk			Code for disk drive partition handling
-/doc			Documentation (a mix of ReST and READMEs)
-/drivers		Device drivers
-/dts			Makefile for building internal U-Boot fdt.
-/env			Environment support
-/examples		Example code for standalone applications, etc.
-/fs			Filesystem code (cramfs, ext2, jffs2, etc.)
-/include		Header Files
-/lib			Library routines generic to all architectures
-/Licenses		Various license files
-/net			Networking code
-/post			Power On Self Test
-/scripts		Various build scripts and Makefiles
-/test			Various unit test files
-/tools			Tools to build and sign FIT images, etc.
-
 Software Configuration:
 =======================
 
@@ -189,7 +131,7 @@ board. This allows feature development which is not board- or architecture-
 specific to be undertaken on a native platform. The sandbox is also used to
 run some of U-Boot's tests.
 
-See doc/arch/sandbox.rst for more details.
+See doc/arch/sandbox/sandbox.rst for more details.
 
 
 Board Initialisation Flow:
@@ -1717,17 +1659,6 @@ This firmware often needs to be loaded during U-Boot booting.
 - CONFIG_SYS_MC_RSV_MEM_ALIGN
 	Define alignment of reserved memory MC requires
 
-Reproducible builds
--------------------
-
-In order to achieve reproducible builds, timestamps used in the U-Boot build
-process have to be set to a fixed value.
-
-This is done using the SOURCE_DATE_EPOCH environment variable.
-SOURCE_DATE_EPOCH is to be set on the build host's shell, not as a configuration
-option for U-Boot or an environment variable in U-Boot.
-
-SOURCE_DATE_EPOCH should be set to a number of seconds since the epoch, in UTC.
 
 Building the Software:
 ======================
@@ -2526,35 +2457,6 @@ configuration to your "File transfer protocols" section:
 	Y  kermit  /usr/bin/kermit -i -l %l -r	 N    D	   Y	   N	  N
 
 
-NetBSD Notes:
-=============
-
-Starting at version 0.9.2, U-Boot supports NetBSD both as host
-(build U-Boot) and target system (boots NetBSD/mpc8xx).
-
-Building requires a cross environment; it is known to work on
-NetBSD/i386 with the cross-powerpc-netbsd-1.3 package (you will also
-need gmake since the Makefiles are not compatible with BSD make).
-Note that the cross-powerpc package does not install include files;
-attempting to build U-Boot will fail because <machine/ansi.h> is
-missing.  This file has to be installed and patched manually:
-
-	# cd /usr/pkg/cross/powerpc-netbsd/include
-	# mkdir powerpc
-	# ln -s powerpc machine
-	# cp /usr/src/sys/arch/powerpc/include/ansi.h powerpc/ansi.h
-	# ${EDIT} powerpc/ansi.h	## must remove __va_list, _BSD_VA_LIST
-
-Native builds *don't* work due to incompatibilities between native
-and U-Boot include files.
-
-Booting assumes that (the first part of) the image booted is a
-stage-2 loader which in turn loads and then invokes the kernel
-proper. Loader sources will eventually appear in the NetBSD source
-tree (probably in sys/arc/mpc8xx/stand/u-boot_stage2/); in the
-meantime, see ftp://ftp.denx.de/pub/u-boot/ppcboot_stage2.tar.gz
-
-
 Implementation Internals:
 =========================
 
@@ -2788,182 +2690,10 @@ running from ROM, and because the code will have to be relocated to a
 new address in RAM.
 
 
-U-Boot Porting Guide:
-----------------------
+Contributing
+============
 
-[Based on messages by Jerry Van Baren in the U-Boot-Users mailing
-list, October 2002]
-
-
-int main(int argc, char *argv[])
-{
-	sighandler_t no_more_time;
-
-	signal(SIGALRM, no_more_time);
-	alarm(PROJECT_DEADLINE - toSec (3 * WEEK));
-
-	if (available_money > available_manpower) {
-		Pay consultant to port U-Boot;
-		return 0;
-	}
-
-	Download latest U-Boot source;
-
-	Subscribe to u-boot mailing list;
-
-	if (clueless)
-		email("Hi, I am new to U-Boot, how do I get started?");
-
-	while (learning) {
-		Read the README file in the top level directory;
-		Read https://www.denx.de/wiki/bin/view/DULG/Manual;
-		Read applicable doc/README.*;
-		Read the source, Luke;
-		/* find . -name "*.[chS]" | xargs grep -i <keyword> */
-	}
-
-	if (available_money > toLocalCurrency ($2500))
-		Buy a BDI3000;
-	else
-		Add a lot of aggravation and time;
-
-	if (a similar board exists) {	/* hopefully... */
-		cp -a board/<similar> board/<myboard>
-		cp include/configs/<similar>.h include/configs/<myboard>.h
-	} else {
-		Create your own board support subdirectory;
-		Create your own board include/configs/<myboard>.h file;
-	}
-	Edit new board/<myboard> files
-	Edit new include/configs/<myboard>.h
-
-	while (!accepted) {
-		while (!running) {
-			do {
-				Add / modify source code;
-			} until (compiles);
-			Debug;
-			if (clueless)
-				email("Hi, I am having problems...");
-		}
-		Send patch file to the U-Boot email list;
-		if (reasonable critiques)
-			Incorporate improvements from email list code review;
-		else
-			Defend code as written;
-	}
-
-	return 0;
-}
-
-void no_more_time (int sig)
-{
-      hire_a_guru();
-}
-
-
-Coding Standards:
------------------
-
-All contributions to U-Boot should conform to the Linux kernel
-coding style; see the kernel coding style guide at
-https://www.kernel.org/doc/html/latest/process/coding-style.html, and the
-script "scripts/Lindent" in your Linux kernel source directory.
-
-Source files originating from a different project (for example the
-MTD subsystem) are generally exempt from these guidelines and are not
-reformatted to ease subsequent migration to newer versions of those
-sources.
-
-Please note that U-Boot is implemented in C (and to some small parts in
-Assembler); no C++ is used, so please do not use C++ style comments (//)
-in your code.
-
-Please also stick to the following formatting rules:
-- remove any trailing white space
-- use TAB characters for indentation and vertical alignment, not spaces
-- make sure NOT to use DOS '\r\n' line feeds
-- do not add more than 2 consecutive empty lines to source files
-- do not add trailing empty lines to source files
-
-Submissions which do not conform to the standards may be returned
-with a request to reformat the changes.
-
-
-Submitting Patches:
--------------------
-
-Since the number of patches for U-Boot is growing, we need to
-establish some rules. Submissions which do not conform to these rules
-may be rejected, even when they contain important and valuable stuff.
-
-Please see https://www.denx.de/wiki/U-Boot/Patches for details.
-
-Patches shall be sent to the u-boot mailing list <u-boot@lists.denx.de>;
-see https://lists.denx.de/listinfo/u-boot
-
-When you send a patch, please include the following information with
-it:
-
-* For bug fixes: a description of the bug and how your patch fixes
-  this bug. Please try to include a way of demonstrating that the
-  patch actually fixes something.
-
-* For new features: a description of the feature and your
-  implementation.
-
-* For major contributions, add a MAINTAINERS file with your
-  information and associated file and directory references.
-
-* When you add support for a new board, don't forget to add a
-  maintainer e-mail address to the boards.cfg file, too.
-
-* If your patch adds new configuration options, don't forget to
-  document these in the README file.
-
-* The patch itself. If you are using git (which is *strongly*
-  recommended) you can easily generate the patch using the
-  "git format-patch". If you then use "git send-email" to send it to
-  the U-Boot mailing list, you will avoid most of the common problems
-  with some other mail clients.
-
-  If you cannot use git, use "diff -purN OLD NEW". If your version of
-  diff does not support these options, then get the latest version of
-  GNU diff.
-
-  The current directory when running this command shall be the parent
-  directory of the U-Boot source tree (i. e. please make sure that
-  your patch includes sufficient directory information for the
-  affected files).
-
-  We prefer patches as plain text. MIME attachments are discouraged,
-  and compressed attachments must not be used.
-
-* If one logical set of modifications affects or creates several
-  files, all these changes shall be submitted in a SINGLE patch file.
-
-* Changesets that contain different, unrelated modifications shall be
-  submitted as SEPARATE patches, one patch per changeset.
-
-
-Notes:
-
-* Before sending the patch, run the buildman script on your patched
-  source tree and make sure that no errors or warnings are reported
-  for any of the boards.
-
-* Keep your modifications to the necessary minimum: A patch
-  containing several unrelated changes or arbitrary reformats will be
-  returned with a request to re-formatting / split it.
-
-* If you modify existing code, make sure that your new code does not
-  add to the memory footprint of the code ;-) Small is beautiful!
-  When adding new features, these should compile conditionally only
-  (using #ifdef), and the resulting code with the new feature
-  disabled must not need more memory than the old code without your
-  modification.
-
-* Remember that there is a size limit of 100 kB per message on the
-  u-boot mailing list. Bigger patches will be moderated. If they are
-  reasonable and not too big, they will be acknowledged. But patches
-  bigger than the size limit should be avoided.
+The U-Boot projects depends on contributions from the user community.
+If you want to participate, please, have a look at the 'General'
+section of https://u-boot.readthedocs.io/en/latest/develop/index.html
+where we describe coding standards and the patch submission process.

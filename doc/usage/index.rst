@@ -63,6 +63,7 @@ Shell commands
    cmd/mbr
    cmd/md
    cmd/mmc
+   cmd/mtest
    cmd/part
    cmd/pause
    cmd/pinmux
@@ -76,6 +77,7 @@ Shell commands
    cmd/scp03
    cmd/setexpr
    cmd/size
+   cmd/sleep
    cmd/sound
    cmd/source
    cmd/temperature

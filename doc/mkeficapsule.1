@@ -11,22 +11,23 @@ mkeficapsule \- Generate EFI capsule file for U-Boot
 .RI [ options ] " " [ image-blob ] " " capsule-file
 
 .SH "DESCRIPTION"
+The
 .B mkeficapsule
-command is used to create an EFI capsule file for use with the U-Boot
-EFI capsule update.
-A capsule file may contain various type of firmware blobs which
-are to be applied to the system and must be placed in the specific
-directory on the UEFI system partition.
-An update will be automatically executed at next reboot.
+command is used to create an EFI capsule file to be used by U-Boot for firmware
+updates.
+A capsule file may contain various types of firmware blobs which are to be
+applied to the system.
+If a capsule file is placed in the /EFI/CapusuleUpdate directory of the EFI
+system partition, U-Boot will try to execute the update at the next reboot.
 
 Optionally, a capsule file can be signed with a given private key.
 In this case, the update will be authenticated by verifying the signature
 before applying.
 
-Additionally, an empty capsule file can be generated for acceptance or
-rejection of firmware images by a governing component like an Operating
-System. The empty capsules do not require an image-blob input file.
-
+Additionally, an empty capsule file can be generated to indicate the acceptance
+or rejection of firmware images by a governing component like an operating
+system.
+Empty capsules do not require an image-blob input file.
 
 .B mkeficapsule
 takes any type of image files when generating non empty capsules, including:

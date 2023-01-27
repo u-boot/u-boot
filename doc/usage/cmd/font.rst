@@ -12,32 +12,26 @@ Synopis
     font select <name> [<size>]
     font size <size>
 
-
 Description
 -----------
 
 The *font* command allows selection of the font to use on the video console.
-This is available when the Truetype console is in use. This is the case when
-`CONFIG_CONSOLE_TRUETYPE` is enabled.
-
+This is available when the TrueType console is in use.
 
 font list
 ~~~~~~~~~
 
 This lists the available fonts, using the name of the font file in the build.
 
-
 font select
 ~~~~~~~~~~~
 
 This selects a new font and optionally changes the size.
 
-
 font size
 ~~~~~~~~~
 
 This changes the font size only.
-
 
 Examples
 --------
@@ -50,3 +44,14 @@ Examples
     => font size 40
     => font select cantoraone_regular 20
     =>
+
+Configuration
+-------------
+
+The command is only available if CONFIG_CONSOLE_TRUETYPE=y.
+
+Return value
+------------
+
+The return value $? is 0 (true) if the command completes.
+The return value is 1 (false) if the command fails.

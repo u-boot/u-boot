@@ -9,12 +9,14 @@
 #define _EFI_CONFIG_H
 
 #include <efi_loader.h>
+#include <menu.h>
 
-#define EFICONFIG_ENTRY_NUM_MAX 99
+#define EFICONFIG_ENTRY_NUM_MAX INT_MAX
 #define EFICONFIG_VOLUME_PATH_MAX 512
 #define EFICONFIG_FILE_PATH_MAX 512
 #define EFICONFIG_FILE_PATH_BUF_SIZE (EFICONFIG_FILE_PATH_MAX * sizeof(u16))
 
+extern const char *eficonfig_menu_desc;
 typedef efi_status_t (*eficonfig_entry_func)(void *data);
 
 /**
@@ -45,14 +47,20 @@ struct eficonfig_entry {
  * @active:		active menu entry index
  * @count:		total count of menu entry
  * @menu_header:	menu header string
+ * @menu_desc:		menu description string
  * @list:		menu entry list structure
+ * @start:		top menu index to draw
+ * @end:		bottom menu index to draw
  */
 struct efimenu {
 	int delay;
 	int active;
 	int count;
 	char *menu_header;
+	const char *menu_desc;
 	struct list_head list;
+	int start;
+	int end;
 };
 
 /**
@@ -86,9 +94,16 @@ struct eficonfig_select_file_info {
 };
 
 void eficonfig_print_msg(char *msg);
+void eficonfig_print_entry(void *data);
+void eficonfig_display_statusline(struct menu *m);
+char *eficonfig_choice_entry(void *data);
 void eficonfig_destroy(struct efimenu *efi_menu);
 efi_status_t eficonfig_process_quit(void *data);
-efi_status_t eficonfig_process_common(struct efimenu *efi_menu, char *menu_header);
+efi_status_t eficonfig_process_common(struct efimenu *efi_menu,
+				      char *menu_header, const char *menu_desc,
+				      void (*display_statusline)(struct menu *),
+				      void (*item_data_print)(void *),
+				      char *(*item_choice)(void *));
 efi_status_t eficonfig_process_select_file(void *data);
 efi_status_t eficonfig_get_unused_bootoption(u16 *buf,
 					     efi_uintn_t buf_size, u32 *index);

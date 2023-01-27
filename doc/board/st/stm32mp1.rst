@@ -478,7 +478,8 @@ or:
   +-------+--------+---------+------------------------+------------------------+
 
 And the 4th partition (Rootfs) is marked bootable with a file extlinux.conf
-following the Generic Distribution feature (doc/develop/distro.rst for use).
+following the Generic Distribution feature (see :doc:`../../develop/distro` for
+use).
 
 The size of fip or ssbl partition must be enough for the associated binary file,
 4MB and 2MB are default values.

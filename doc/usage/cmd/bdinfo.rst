@@ -17,7 +17,7 @@ Description
 The *bdinfo* command prints information about the board.
 
 Example
-=======
+-------
 
 ::
 
