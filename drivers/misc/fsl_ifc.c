@@ -371,7 +371,7 @@ void init_early_memctl_regs(void)
 	for (i = 0 ; i < regs_info.cs_size; i++) {
 		if (regs[i].pr && (regs[i].pr & CSPR_V)) {
 			/* skip setting cspr/csor_ext in below condition */
-			if (!(CONFIG_IS_ENABLED(A003399_NOR_WORKAROUND) &&
+			if (!(IS_ENABLED(CONFIG_A003399_NOR_WORKAROUND) &&
 			      i == 0 &&
 			      ((regs[0].pr & CSPR_MSEL) == CSPR_MSEL_NOR))) {
 				if (regs[i].pr_ext)
