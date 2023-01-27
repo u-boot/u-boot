@@ -29,7 +29,7 @@ int __weak show_board_info(void)
 		char str[80];
 		int ret = -ENOSYS;
 
-		if (IS_ENABLED(CONFIG_SYSINFO)) {
+		if (CONFIG_IS_ENABLED(SYSINFO)) {
 			/* This might provide more detail */
 			ret = sysinfo_get(&dev);
 			if (!ret) {
