@@ -55,7 +55,7 @@ int board_init(void)
 {
 	int ret = 0;
 
-	if (CONFIG_IS_ENABLED(FEC_MXC)) {
+	if (IS_ENABLED(CONFIG_FEC_MXC)) {
 		setup_fec();
 	}
 
