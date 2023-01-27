@@ -113,7 +113,7 @@ static void mtd_probe_uclass_mtd_devs(void)
 static void mtd_probe_uclass_mtd_devs(void) { }
 #endif
 
-#if CONFIG_IS_ENABLED(DM_SPI_FLASH) && IS_ENABLED(CONFIG_SPI_FLASH_MTD)
+#if CONFIG_IS_ENABLED(DM_SPI_FLASH) && CONFIG_IS_ENABLED(SPI_FLASH_MTD)
 static void mtd_probe_uclass_spi_nor_devs(void)
 {
 	struct udevice *dev;
