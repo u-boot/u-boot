@@ -482,7 +482,7 @@ static enum bootmenu_ret bootmenu_show(int delay)
 	efi_status_t efi_ret = EFI_SUCCESS;
 	char *option, *sep;
 
-	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR))
+	if (CONFIG_IS_ENABLED(CMD_BOOTEFI_BOOTMGR))
 		handle_uefi_bootnext();
 
 	/* If delay is 0 do not create menu, just run first entry */
@@ -545,7 +545,7 @@ static enum bootmenu_ret bootmenu_show(int delay)
 	 * If the selected entry is UEFI BOOT####, set the BootNext variable.
 	 * Then uefi bootmgr is invoked by the preset command in iter->command.
 	 */
-	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR)) {
+	if (CONFIG_IS_ENABLED(CMD_BOOTEFI_BOOTMGR)) {
 		if (iter->type == BOOTMENU_TYPE_UEFI_BOOT_OPTION) {
 			/*
 			 * UEFI specification requires BootNext variable needs non-volatile
@@ -604,7 +604,7 @@ int menu_show(int bootdelay)
 		if (IS_ENABLED(CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE)) {
 			if (ret == BOOTMENU_RET_QUIT) {
 				/* default boot process */
-				if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR))
+				if (CONFIG_IS_ENABLED(CMD_BOOTEFI_BOOTMGR))
 					run_command("bootefi bootmgr", 0);
 
 				run_command("run bootcmd", 0);

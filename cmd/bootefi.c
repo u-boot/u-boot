@@ -690,7 +690,7 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 	else if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
 
-	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR)) {
+	if (CONFIG_IS_ENABLED(CMD_BOOTEFI_BOOTMGR)) {
 		if (!strcmp(argv[1], "bootmgr"))
 			return do_efibootmgr();
 	}
