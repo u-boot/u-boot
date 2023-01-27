@@ -430,7 +430,7 @@ void bloblist_reloc(void *to, uint to_size, void *from, uint from_size)
 
 int bloblist_init(void)
 {
-	bool fixed = IS_ENABLED(CONFIG_BLOBLIST_FIXED);
+	bool fixed = CONFIG_IS_ENABLED(BLOBLIST_FIXED);
 	int ret = -ENOENT;
 	ulong addr, size;
 	bool expected;
