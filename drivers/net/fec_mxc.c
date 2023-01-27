@@ -1125,7 +1125,7 @@ static int fecmxc_probe(struct udevice *dev)
 	uint32_t start;
 	int ret;
 
-	if (CONFIG_IS_ENABLED(IMX_MODULE_FUSE)) {
+	if (IS_ENABLED(CONFIG_IMX_MODULE_FUSE)) {
 		if (enet_fused((ulong)priv->eth)) {
 			printf("SoC fuse indicates Ethernet@0x%lx is unavailable.\n", (ulong)priv->eth);
 			return -ENODEV;
