@@ -455,7 +455,7 @@ static int video_post_probe(struct udevice *dev)
 	/* Set up colors  */
 	video_set_default_colors(dev, false);
 
-	if (!CONFIG_IS_ENABLED(NO_FB_CLEAR))
+	if (!IS_ENABLED(CONFIG_NO_FB_CLEAR))
 		video_clear(dev);
 
 	/*
