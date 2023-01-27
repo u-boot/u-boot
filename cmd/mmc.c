@@ -187,7 +187,7 @@ static int do_mmcinfo(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-#if CONFIG_IS_ENABLED(CMD_MMC_RPMB)
+#if IS_ENABLED(CONFIG_CMD_MMC_RPMB)
 static int confirm_key_prog(void)
 {
 	puts("Warning: Programming authentication key can be done only once !\n"
@@ -1096,7 +1096,7 @@ static struct cmd_tbl cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(partconf, 5, 0, do_mmc_partconf, "", ""),
 	U_BOOT_CMD_MKENT(rst-function, 3, 0, do_mmc_rst_func, "", ""),
 #endif
-#if CONFIG_IS_ENABLED(CMD_MMC_RPMB)
+#if IS_ENABLED(CONFIG_CMD_MMC_RPMB)
 	U_BOOT_CMD_MKENT(rpmb, CONFIG_SYS_MAXARGS, 1, do_mmcrpmb, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(setdsr, 2, 0, do_mmc_setdsr, "", ""),
@@ -1178,7 +1178,7 @@ U_BOOT_CMD(
 	" - Change the RST_n_FUNCTION field of the specified device\n"
 	"   WARNING: This is a write-once field and 0 / 1 / 2 are the only valid values.\n"
 #endif
-#if CONFIG_IS_ENABLED(CMD_MMC_RPMB)
+#if IS_ENABLED(CONFIG_CMD_MMC_RPMB)
 	"mmc rpmb read addr blk# cnt [address of auth-key] - block size is 256 bytes\n"
 	"mmc rpmb write addr blk# cnt <address of auth-key> - block size is 256 bytes\n"
 	"mmc rpmb key <address of auth-key> - program the RPMB authentication key.\n"
