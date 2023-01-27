@@ -30,7 +30,7 @@
 	EFI_GUID(0x0bf1165c, 0x1831, 0x4864, 0x94, 0x5e, \
 		 0xac, 0x3d, 0x38, 0x48, 0xf4, 0x99)
 
-#if CONFIG_IS_ENABLED(CMD_MMC)
+#if IS_ENABLED(CONFIG_CMD_MMC)
 # define BOOT_TARGET_MMC(func) \
 	func(MMC, mmc, 2)      \
 	func(MMC, mmc, 0)

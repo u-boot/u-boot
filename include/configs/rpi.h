@@ -122,7 +122,7 @@
 	"fdt_addr_r=0x02600000\0" \
 	"ramdisk_addr_r=0x02700000\0"
 
-#if CONFIG_IS_ENABLED(CMD_MMC)
+#if IS_ENABLED(CONFIG_CMD_MMC)
 	#define BOOT_TARGET_MMC(func) \
 		func(MMC, mmc, 0) \
 		func(MMC, mmc, 1) \
