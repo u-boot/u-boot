@@ -541,7 +541,7 @@ static int single_probe(struct udevice *dev)
 	INIT_LIST_HEAD(&priv->gpiofuncs);
 
 	size = pdata->offset + pdata->width / BITS_PER_BYTE;
-	#if (CONFIG_IS_ENABLED(SANDBOX))
+	#if (IS_ENABLED(CONFIG_SANDBOX))
 	priv->sandbox_regs =
 		devm_kzalloc(dev, size * sizeof(*priv->sandbox_regs),
 			     GFP_KERNEL);
