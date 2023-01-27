@@ -47,13 +47,13 @@ out:
 #if defined(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && defined(CONFIG_EFI_PARTITION)
 static bool board_is_rockpi_4b(void)
 {
-	return CONFIG_IS_ENABLED(TARGET_EVB_RK3399) &&
+	return IS_ENABLED(CONFIG_TARGET_EVB_RK3399) &&
 		of_machine_is_compatible("radxa,rockpi4b");
 }
 
 static bool board_is_rockpi_4c(void)
 {
-	return CONFIG_IS_ENABLED(TARGET_EVB_RK3399) &&
+	return IS_ENABLED(CONFIG_TARGET_EVB_RK3399) &&
 		of_machine_is_compatible("radxa,rockpi4c");
 }
 
