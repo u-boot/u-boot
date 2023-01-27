@@ -658,7 +658,7 @@ static int mt7981_ethsys_bind(struct udevice *dev)
 {
 	int ret = 0;
 
-	if (CONFIG_IS_ENABLED(RESET_MEDIATEK)) {
+	if (IS_ENABLED(CONFIG_RESET_MEDIATEK)) {
 		ret = mediatek_reset_bind(dev, ETHSYS_HIFSYS_RST_CTRL_OFS, 1);
 		if (ret)
 			debug("Warning: failed to bind reset controller\n");
