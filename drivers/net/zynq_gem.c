@@ -125,6 +125,10 @@
  */
 #define PHY_DETECT_MASK 0x1808
 
+/* PCS (SGMII) Link Status */
+#define ZYNQ_GEM_PCSSTATUS_LINK		BIT(2)
+#define ZYNQ_GEM_PCSSTATUS_ANEG_COMPL	BIT(5)
+
 /* TX BD status masks */
 #define ZYNQ_GEM_TXBUF_FRMLEN_MASK	0x000007ff
 #define ZYNQ_GEM_TXBUF_EXHAUSTED	0x08000000
@@ -164,7 +168,8 @@ struct zynq_gem_regs {
 	u32 stat[STAT_SIZE]; /* 0x100 - Octects transmitted Low reg */
 	u32 reserved9[20];
 	u32 pcscntrl;
-	u32 rserved12[36];
+	u32 pcsstatus;
+	u32 rserved12[35];
 	u32 dcfg6; /* 0x294 Design config reg6 */
 	u32 reserved7[106];
 	u32 transmit_q1_ptr; /* 0x440 - Transmit priority queue 1 */
@@ -491,12 +496,37 @@ static int zynq_gem_init(struct udevice *dev)
 		 * Must be written after PCS_SEL is set in nwconfig,
 		 * otherwise writes will not take effect.
 		 */
-		if (priv->phydev->phy_id != PHY_FIXED_ID)
+		if (priv->phydev->phy_id != PHY_FIXED_ID) {
 			writel(readl(&regs->pcscntrl) | ZYNQ_GEM_PCS_CTL_ANEG_ENBL,
 			       &regs->pcscntrl);
-		else
+			/*
+			 * When the PHY link is already up, the PCS link needs
+			 * to get re-checked
+			 */
+			if (priv->phydev->link) {
+				u32 pcsstatus;
+
+				pcsstatus = ZYNQ_GEM_PCSSTATUS_LINK |
+					ZYNQ_GEM_PCSSTATUS_ANEG_COMPL;
+				ret = wait_for_bit_le32(&regs->pcsstatus,
+							pcsstatus,
+							true, 5000, true);
+				if (ret) {
+					dev_warn(dev,
+						 "no PCS (SGMII) link\n");
+				} else {
+					/*
+					 * Some additional minimal delay seems
+					 * to be needed so that the first
+					 * packet will be sent correctly
+					 */
+					mdelay(1);
+				}
+			}
+		} else {
 			writel(readl(&regs->pcscntrl) & ~ZYNQ_GEM_PCS_CTL_ANEG_ENBL,
 			       &regs->pcscntrl);
+		}
 	}
 #endif
 
@@ -821,7 +851,8 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII && phy.dev) {
 		if (IS_ENABLED(CONFIG_DM_ETH_PHY)) {
-			if (device_is_compatible(dev, "cdns,zynqmp-gem")) {
+			if (device_is_compatible(dev, "cdns,zynqmp-gem") ||
+			    device_is_compatible(dev, "xlnx,zynqmp-gem")) {
 				ret = gem_zynqmp_set_dynamic_config(dev);
 				if (ret) {
 					dev_err
@@ -922,8 +953,11 @@ static int zynq_gem_of_to_plat(struct udevice *dev)
 }
 
 static const struct udevice_id zynq_gem_ids[] = {
+	{ .compatible = "xlnx,versal-gem", .data = RXCLK_EN },
 	{ .compatible = "cdns,versal-gem", .data = RXCLK_EN },
+	{ .compatible = "xlnx,zynqmp-gem" },
 	{ .compatible = "cdns,zynqmp-gem" },
+	{ .compatible = "xlnx,zynq-gem" },
 	{ .compatible = "cdns,zynq-gem" },
 	{ .compatible = "cdns,gem" },
 	{ }

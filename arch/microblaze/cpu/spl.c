@@ -14,8 +14,6 @@
 #include <asm/u-boot.h>
 #include <linux/stringify.h>
 
-bool boot_linux;
-
 void board_boot_order(u32 *spl_boot_list)
 {
 	spl_boot_list[0] = BOOT_DEVICE_NOR;
@@ -41,17 +39,12 @@ void __noreturn jump_to_image_linux(struct spl_image_info *spl_image)
 
 	image_entry(NULL, 0, (ulong)spl_image->arg);
 }
-#endif /* CONFIG_SPL_OS_BOOT */
 
 int spl_start_uboot(void)
 {
-#ifdef CONFIG_SPL_OS_BOOT
-	if (boot_linux)
-		return 0;
-#endif
-
-	return 1;
+	return 0;
 }
+#endif /* CONFIG_SPL_OS_BOOT */
 
 int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

@@ -657,7 +657,9 @@ static int versal_clk_probe(struct udevice *dev)
 	if (ret < 0)
 		return -EINVAL;
 
-	versal_clock_setup();
+	ret = versal_clock_setup();
+	if (ret < 0)
+		return ret;
 
 	priv->clk = clock;
 

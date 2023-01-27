@@ -19,6 +19,7 @@
 	compatible = "xlnx,zynqmp-sk-kv260-rev1",
 		     "xlnx,zynqmp-sk-kv260-revB",
 		     "xlnx,zynqmp-sk-kv260", "xlnx,zynqmp";
+	model = "ZynqMP KV260 revB";
 };
 
 &i2c1 { /* I2C_SCK C23/C24 - MIO from SOM */
