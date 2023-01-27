@@ -62,7 +62,7 @@ int dram_init_banksize(void)
 	 * DRAM range in MTRR otherwise the boot process goes very slowly,
 	 * which was observed on Chrromebook Coral with FSP2.
 	 */
-	update_mtrr = CONFIG_IS_ENABLED(FSP_VERSION2);
+	update_mtrr = IS_ENABLED(CONFIG_FSP_VERSION2);
 
 	if (!ll_boot_init()) {
 		gd->bd->bi_dram[0].start = 0;
