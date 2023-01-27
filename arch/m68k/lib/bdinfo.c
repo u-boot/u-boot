@@ -21,7 +21,7 @@ int arch_setup_bdinfo(void)
 	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
 	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */
 
-	if (IS_ENABLED(CONFIG_PCI))
+	if (CONFIG_IS_ENABLED(PCI))
 		bd->bi_pcifreq = gd->pci_clk;
 
 #if defined(CONFIG_EXTRA_CLOCK)
@@ -42,7 +42,7 @@ void arch_print_bdinfo(void)
 	bdinfo_print_num_l("mbar", bd->bi_mbar_base);
 #endif
 	bdinfo_print_mhz("cpufreq", bd->bi_intfreq);
-	if (IS_ENABLED(CONFIG_PCI))
+	if (CONFIG_IS_ENABLED(PCI))
 		bdinfo_print_mhz("pcifreq", bd->bi_pcifreq);
 #ifdef CONFIG_EXTRA_CLOCK
 	bdinfo_print_mhz("flbfreq", bd->bi_flbfreq);

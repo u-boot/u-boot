@@ -651,7 +651,7 @@ int designware_eth_write_hwaddr(struct udevice *dev)
 
 static int designware_eth_bind(struct udevice *dev)
 {
-	if (IS_ENABLED(CONFIG_PCI)) {
+	if (CONFIG_IS_ENABLED(PCI)) {
 		static int num_cards;
 		char name[20];
 
@@ -730,7 +730,7 @@ int designware_eth_probe(struct udevice *dev)
 	 * If we are on PCI bus, either directly attached to a PCI root port,
 	 * or via a PCI bridge, fill in plat before we probe the hardware.
 	 */
-	if (IS_ENABLED(CONFIG_PCI) && device_is_on_pci_bus(dev)) {
+	if (CONFIG_IS_ENABLED(PCI) && device_is_on_pci_bus(dev)) {
 		dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &iobase);
 		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
 		iobase = dm_pci_mem_to_phys(dev, iobase);

@@ -109,7 +109,7 @@ int arch_early_init_r(void)
 	uclass_first_device(UCLASS_AHCI, &dev);
 
 	/* Trigger PCIe devices detection */
-	if (IS_ENABLED(CONFIG_PCI))
+	if (CONFIG_IS_ENABLED(PCI))
 		pci_init();
 
 	return 0;

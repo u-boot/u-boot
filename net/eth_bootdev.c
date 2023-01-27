@@ -73,7 +73,7 @@ static int eth_bootdev_hunt(struct bootdev_hunter *info, bool show)
 		return 0;
 
 	/* init PCI first since this is often used to provide Ehternet */
-	if (IS_ENABLED(CONFIG_PCI)) {
+	if (CONFIG_IS_ENABLED(PCI)) {
 		ret = pci_init();
 		if (ret)
 			log_warning("Failed to init PCI (%dE)\n", ret);

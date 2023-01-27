@@ -25,7 +25,7 @@ static int scsi_bootdev_hunt(struct bootdev_hunter *info, bool show)
 {
 	int ret;
 
-	if (IS_ENABLED(CONFIG_PCI)) {
+	if (CONFIG_IS_ENABLED(PCI)) {
 		ret = pci_init();
 		if (ret)
 			return log_msg_ret("pci", ret);
