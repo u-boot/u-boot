@@ -53,7 +53,7 @@ static int simple_panel_of_to_plat(struct udevice *dev)
 	struct simple_panel_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	if (IS_ENABLED(CONFIG_DM_REGULATOR)) {
+	if (CONFIG_IS_ENABLED(DM_REGULATOR)) {
 		ret = uclass_get_device_by_phandle(UCLASS_REGULATOR, dev,
 						   "power-supply", &priv->reg);
 		if (ret) {
@@ -86,7 +86,7 @@ static int simple_panel_probe(struct udevice *dev)
 	struct simple_panel_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	if (IS_ENABLED(CONFIG_DM_REGULATOR) && priv->reg) {
+	if (CONFIG_IS_ENABLED(DM_REGULATOR) && priv->reg) {
 		debug("%s: Enable regulator '%s'\n", __func__, priv->reg->name);
 		ret = regulator_set_enable(priv->reg, true);
 		if (ret)

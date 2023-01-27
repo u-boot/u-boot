@@ -334,7 +334,7 @@ static int usb251xb_probe(struct udevice *dev)
 	struct usb251xb *hub = dev_get_priv(dev);
 	int err;
 
-	if (IS_ENABLED(CONFIG_DM_REGULATOR) && hub->vdd) {
+	if (CONFIG_IS_ENABLED(DM_REGULATOR) && hub->vdd) {
 		err = regulator_set_enable(hub->vdd, true);
 		if (err)
 			return err;
@@ -391,7 +391,7 @@ static int usb251xb_of_to_plat(struct udevice *dev)
 		return err;
 	}
 
-	if (IS_ENABLED(CONFIG_DM_REGULATOR)) {
+	if (CONFIG_IS_ENABLED(DM_REGULATOR)) {
 		err = device_get_supply_regulator(dev, "vdd-supply",
 						  &hub->vdd);
 		if (err && err != -ENOENT) {
