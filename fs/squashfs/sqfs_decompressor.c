@@ -18,7 +18,7 @@
 #include <u-boot/zlib.h>
 #endif
 
-#if IS_ENABLED(CONFIG_ZSTD)
+#if CONFIG_IS_ENABLED(ZSTD)
 #include <linux/zstd.h>
 #endif
 
@@ -38,7 +38,7 @@ int sqfs_decompressor_init(struct squashfs_ctxt *ctxt)
 	case SQFS_COMP_ZLIB:
 		break;
 #endif
-#if IS_ENABLED(CONFIG_ZSTD)
+#if CONFIG_IS_ENABLED(ZSTD)
 	case SQFS_COMP_ZSTD:
 		ctxt->zstd_workspace = malloc(zstd_dctx_workspace_bound());
 		if (!ctxt->zstd_workspace)
@@ -66,7 +66,7 @@ void sqfs_decompressor_cleanup(struct squashfs_ctxt *ctxt)
 	case SQFS_COMP_ZLIB:
 		break;
 #endif
-#if IS_ENABLED(CONFIG_ZSTD)
+#if CONFIG_IS_ENABLED(ZSTD)
 	case SQFS_COMP_ZSTD:
 		free(ctxt->zstd_workspace);
 		break;
@@ -91,7 +91,7 @@ static void zlib_decompression_status(int ret)
 }
 #endif
 
-#if IS_ENABLED(CONFIG_ZSTD)
+#if CONFIG_IS_ENABLED(ZSTD)
 static int sqfs_zstd_decompress(struct squashfs_ctxt *ctxt, void *dest,
 				unsigned long dest_len, void *source, u32 src_len)
 {
@@ -139,7 +139,7 @@ int sqfs_decompress(struct squashfs_ctxt *ctxt, void *dest,
 
 		break;
 #endif
-#if IS_ENABLED(CONFIG_ZSTD)
+#if CONFIG_IS_ENABLED(ZSTD)
 	case SQFS_COMP_ZSTD:
 		ret = sqfs_zstd_decompress(ctxt, dest, *dest_len, source, src_len);
 		if (ret) {
