@@ -68,7 +68,7 @@ U_BOOT_DRVINFO(imx7_thermal) = {
 };
 #endif
 
-#if CONFIG_IS_ENABLED(IMX_RDC)
+#if IS_ENABLED(CONFIG_IMX_RDC)
 /*
  * In current design, if any peripheral was assigned to both A7 and M4,
  * it will receive ipg_stop or ipg_wait when any of the 2 platforms enter
@@ -316,7 +316,7 @@ int arch_cpu_init(void)
 
 	init_cpu_basic();
 
-#if CONFIG_IS_ENABLED(IMX_RDC)
+#if IS_ENABLED(CONFIG_IMX_RDC)
 	isolate_resource();
 #endif
 
