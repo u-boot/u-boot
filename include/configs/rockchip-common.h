@@ -50,7 +50,7 @@
 	#define BOOT_TARGET_DHCP(func)
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_SF)
+#if IS_ENABLED(CONFIG_CMD_SF)
 	#define BOOT_TARGET_SF(func)	func(SF, sf, 0)
 #else
 	#define BOOT_TARGET_SF(func)
