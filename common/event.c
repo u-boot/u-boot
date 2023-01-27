@@ -155,7 +155,7 @@ void event_show_spy_list(void)
 	}
 }
 
-#if CONFIG_IS_ENABLED(NEEDS_MANUAL_RELOC)
+#if IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)
 int event_manual_reloc(void)
 {
 	struct evspy_info *spy, *end;
