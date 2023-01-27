@@ -11,7 +11,7 @@
 
 struct factorysetcontainer {
 	uchar mac[6];
-#if CONFIG_IS_ENABLED(TARGET_GIEDI) || CONFIG_IS_ENABLED(TARGET_DENEB)
+#if CONFIG_IS_ENABLED(TARGET_GIEDI) || IS_ENABLED(CONFIG_TARGET_DENEB)
 	uchar mac_wlan[6];
 #endif
 	int usb_vendor_id;

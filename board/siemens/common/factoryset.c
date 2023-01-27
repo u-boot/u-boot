@@ -14,7 +14,7 @@
 #include <i2c.h>
 #include <log.h>
 #include <asm/io.h>
-#if !CONFIG_IS_ENABLED(TARGET_GIEDI) && !CONFIG_IS_ENABLED(TARGET_DENEB)
+#if !CONFIG_IS_ENABLED(TARGET_GIEDI) && !IS_ENABLED(CONFIG_TARGET_DENEB)
 #include <asm/arch/cpu.h>
 #endif
 #include <asm/arch/sys_proto.h>
@@ -247,7 +247,7 @@ int factoryset_read_eeprom(int i2c_addr)
 		cp1 += 3;
 	}
 
-#if CONFIG_IS_ENABLED(TARGET_GIEDI) || CONFIG_IS_ENABLED(TARGET_DENEB)
+#if CONFIG_IS_ENABLED(TARGET_GIEDI) || IS_ENABLED(CONFIG_TARGET_DENEB)
 	/* get mac address for WLAN */
 	ret = get_factory_record_val(cp, size, (uchar *)"WLAN1", (uchar *)"mac",
 				     buf, MAX_STRING_LENGTH);
@@ -355,7 +355,7 @@ static int factoryset_mac_env_set(void)
 
 	eth_env_set_enetaddr("ethaddr", mac_addr);
 
-#if CONFIG_IS_ENABLED(TARGET_GIEDI) || CONFIG_IS_ENABLED(TARGET_DENEB)
+#if CONFIG_IS_ENABLED(TARGET_GIEDI) || IS_ENABLED(CONFIG_TARGET_DENEB)
 	eth_env_set_enetaddr("eth1addr", mac_addr);
 
 	/* wlan mac */
