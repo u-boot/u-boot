@@ -109,7 +109,7 @@ static void print_cpld_version(void)
 int checkboard(void)
 {
 	printf("EL:    %d\n", current_el());
-	if (CONFIG_IS_ENABLED(SL28CPLD))
+	if (IS_ENABLED(CONFIG_SL28CPLD))
 		print_cpld_version();
 
 	return 0;
