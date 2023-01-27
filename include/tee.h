@@ -328,7 +328,7 @@ bool tee_shm_is_registered(struct tee_shm *shm, struct udevice *dev);
  * Returns a probed TEE device of the first TEE device matched by the
  * match() callback or NULL.
  */
-#if CONFIG_IS_ENABLED(TEE)
+#if IS_ENABLED(CONFIG_TEE)
 struct udevice *tee_find_device(struct udevice *start,
 				int (*match)(struct tee_version_data *vers,
 					     const void *data),
