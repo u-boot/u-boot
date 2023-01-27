@@ -82,7 +82,7 @@ static int do_vbe_state(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct vbe_handoff *handoff = NULL;
 	int i;
 
-	if (IS_ENABLED(CONFIG_BLOBLIST)) {
+	if (CONFIG_IS_ENABLED(BLOBLIST)) {
 		handoff = bloblist_find(BLOBLISTT_VBE,
 					sizeof(struct vbe_handoff));
 	}
