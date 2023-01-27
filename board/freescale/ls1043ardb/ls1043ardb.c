@@ -379,7 +379,7 @@ void nand_fixup(void)
 		else
 			printf("Invalid setting\n");
 	} else {
-		if (IS_ENABLED(CONFIG_NAND_BOOT))
+		if (CONFIG_IS_ENABLED(NAND_BOOT))
 			set_ifc_csor(IFC_CS0, csor);
 		else
 			set_ifc_csor(IFC_CS1, csor);
