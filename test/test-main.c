@@ -96,7 +96,7 @@ static int dm_test_pre_run(struct unit_test_state *uts)
 				       fdt_totalsize(gd->fdt_blob));
 	gd->dm_root = NULL;
 	malloc_disable_testing();
-	if (CONFIG_IS_ENABLED(UT_DM) && !CONFIG_IS_ENABLED(OF_PLATDATA))
+	if (IS_ENABLED(CONFIG_UT_DM) && !CONFIG_IS_ENABLED(OF_PLATDATA))
 		memset(dm_testdrv_op_count, '\0', sizeof(dm_testdrv_op_count));
 	arch_reset_for_test();
 
