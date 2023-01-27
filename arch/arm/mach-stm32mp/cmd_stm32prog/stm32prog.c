@@ -752,7 +752,7 @@ static int init_device(struct stm32prog_data *data,
 
 	switch (dev->target) {
 	case STM32PROG_MMC:
-		if (!IS_ENABLED(CONFIG_MMC)) {
+		if (!CONFIG_IS_ENABLED(MMC)) {
 			stm32prog_err("unknown device type = %d", dev->target);
 			return -ENODEV;
 		}
@@ -1285,7 +1285,7 @@ static int stm32prog_alt_add(struct stm32prog_data *data,
 	ret = -ENODEV;
 	switch (part->target) {
 	case STM32PROG_MMC:
-		if (IS_ENABLED(CONFIG_MMC)) {
+		if (CONFIG_IS_ENABLED(MMC)) {
 			ret = 0;
 			sprintf(dfustr, "mmc");
 			sprintf(devstr, "%d", part->dev_id);
@@ -1818,7 +1818,7 @@ static int part_delete(struct stm32prog_data *data,
 	printf("Erasing %s ", part->name);
 	switch (part->target) {
 	case STM32PROG_MMC:
-		if (!IS_ENABLED(CONFIG_MMC)) {
+		if (!CONFIG_IS_ENABLED(MMC)) {
 			ret = -1;
 			stm32prog_err("%s (0x%x): erase invalid",
 				      part->name, part->id);
@@ -1919,7 +1919,7 @@ static void stm32prog_devices_init(struct stm32prog_data *data)
 			goto error;
 	}
 
-	if (IS_ENABLED(CONFIG_MMC)) {
+	if (CONFIG_IS_ENABLED(MMC)) {
 		ret = create_gpt_partitions(data);
 		if (ret)
 			goto error;
