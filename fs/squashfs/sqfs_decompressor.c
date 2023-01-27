@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if IS_ENABLED(CONFIG_LZO)
+#if CONFIG_IS_ENABLED(LZO)
 #include <linux/lzo.h>
 #endif
 
@@ -30,7 +30,7 @@ int sqfs_decompressor_init(struct squashfs_ctxt *ctxt)
 	u16 comp_type = get_unaligned_le16(&ctxt->sblk->compression);
 
 	switch (comp_type) {
-#if IS_ENABLED(CONFIG_LZO)
+#if CONFIG_IS_ENABLED(LZO)
 	case SQFS_COMP_LZO:
 		break;
 #endif
@@ -58,7 +58,7 @@ void sqfs_decompressor_cleanup(struct squashfs_ctxt *ctxt)
 	u16 comp_type = get_unaligned_le16(&ctxt->sblk->compression);
 
 	switch (comp_type) {
-#if IS_ENABLED(CONFIG_LZO)
+#if CONFIG_IS_ENABLED(LZO)
 	case SQFS_COMP_LZO:
 		break;
 #endif
@@ -117,7 +117,7 @@ int sqfs_decompress(struct squashfs_ctxt *ctxt, void *dest,
 	int ret = 0;
 
 	switch (comp_type) {
-#if IS_ENABLED(CONFIG_LZO)
+#if CONFIG_IS_ENABLED(LZO)
 	case SQFS_COMP_LZO: {
 		size_t lzo_dest_len = *dest_len;
 		ret = lzo1x_decompress_safe(source, src_len, dest, &lzo_dest_len);
