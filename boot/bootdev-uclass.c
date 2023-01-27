@@ -379,7 +379,7 @@ static int label_to_uclass(const char *label, int *seqp, int *method_flagsp)
 		  uclass_get_name(id));
 	if (id == UCLASS_INVALID) {
 		/* try some special cases */
-		if (IS_ENABLED(CONFIG_BOOTDEV_SPI_FLASH) &&
+		if (CONFIG_IS_ENABLED(BOOTDEV_SPI_FLASH) &&
 		    !strncmp("spi", label, len)) {
 			id = UCLASS_SPI_FLASH;
 		} else if (CONFIG_IS_ENABLED(BOOTDEV_ETH) &&
