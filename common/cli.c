@@ -31,7 +31,7 @@
  */
 int run_command(const char *cmd, int flag)
 {
-#if !CONFIG_IS_ENABLED(HUSH_PARSER)
+#if !IS_ENABLED(CONFIG_HUSH_PARSER)
 	/*
 	 * cli_run_command can return 0 or 1 for success, so clean up
 	 * its result.
