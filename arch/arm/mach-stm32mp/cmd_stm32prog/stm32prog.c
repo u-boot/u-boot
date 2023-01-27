@@ -1483,7 +1483,7 @@ int stm32prog_otp_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 
 		/* call the service */
 		result = -EOPNOTSUPP;
-		if (data->tee && CONFIG_IS_ENABLED(OPTEE))
+		if (data->tee && IS_ENABLED(CONFIG_OPTEE))
 			result = optee_ta_invoke(data, TA_NVMEM_READ, NVMEM_OTP,
 						 data->otp_part, OTP_SIZE_TA);
 		else if (IS_ENABLED(CONFIG_ARM_SMCCC))
@@ -1525,7 +1525,7 @@ int stm32prog_otp_start(struct stm32prog_data *data)
 	}
 
 	result = -EOPNOTSUPP;
-	if (data->tee && CONFIG_IS_ENABLED(OPTEE)) {
+	if (data->tee && IS_ENABLED(CONFIG_OPTEE)) {
 		result = optee_ta_invoke(data, TA_NVMEM_WRITE, NVMEM_OTP,
 					 data->otp_part, OTP_SIZE_TA);
 	} else if (IS_ENABLED(CONFIG_ARM_SMCCC)) {
@@ -1977,7 +1977,7 @@ void stm32prog_clean(struct stm32prog_data *data)
 	free(data->otp_part);
 	free(data->buffer);
 
-	if (CONFIG_IS_ENABLED(OPTEE) && data->tee) {
+	if (IS_ENABLED(CONFIG_OPTEE) && data->tee) {
 		tee_close_session(data->tee, data->tee_session);
 		data->tee = NULL;
 		data->tee_session = 0x0;
