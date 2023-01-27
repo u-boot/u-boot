@@ -67,7 +67,7 @@ static int get_efi_pxe_arch(void)
 		return 0xb;
 	else if (IS_ENABLED(CONFIG_ARM))
 		return 0xa;
-	else if (IS_ENABLED(CONFIG_X86_64))
+	else if (CONFIG_IS_ENABLED(X86_64))
 		return 0x6;
 	else if (IS_ENABLED(CONFIG_X86))
 		return 0x7;
