@@ -76,7 +76,7 @@ static int on_silent(const char *name, const char *value, enum env_op op,
 		if (flags & H_INTERACTIVE)
 			return 0;
 
-	if (!CONFIG_IS_ENABLED(SILENT_CONSOLE_UPDATE_ON_RELOC))
+	if (!IS_ENABLED(CONFIG_SILENT_CONSOLE_UPDATE_ON_RELOC))
 		if ((flags & H_INTERACTIVE) == 0)
 			return 0;
 
