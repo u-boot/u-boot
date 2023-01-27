@@ -39,7 +39,7 @@ void bootm_announce_and_cleanup(void)
 	timestamp_add_now(TS_START_KERNEL);
 #endif
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
-#if CONFIG_IS_ENABLED(BOOTSTAGE_REPORT)
+#if IS_ENABLED(CONFIG_BOOTSTAGE_REPORT)
 	bootstage_report();
 #endif
 

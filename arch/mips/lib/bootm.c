@@ -287,7 +287,7 @@ static void boot_jump_linux(struct bootm_headers *images)
 #if IS_ENABLED(CONFIG_BOOTSTAGE_FDT)
 	bootstage_fdt_add_report();
 #endif
-#if CONFIG_IS_ENABLED(BOOTSTAGE_REPORT)
+#if IS_ENABLED(CONFIG_BOOTSTAGE_REPORT)
 	bootstage_report();
 #endif
 
