@@ -217,7 +217,7 @@ static int create_pirq_routing_table(struct udevice *dev)
 	priv->irq_mask = fdtdec_get_int(blob, node,
 					"intel,pirq-mask", PIRQ_BITMAP);
 
-	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE)) {
+	if (CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)) {
 		/* Reserve IRQ9 for SCI */
 		priv->irq_mask &= ~(1 << 9);
 	}
@@ -347,7 +347,7 @@ int irq_router_probe(struct udevice *dev)
 	pirq_route_irqs(dev, gd->arch.pirq_routing_table->slots,
 			get_irq_slot_count(gd->arch.pirq_routing_table));
 
-	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE))
+	if (CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE))
 		irq_enable_sci(dev);
 
 	return 0;

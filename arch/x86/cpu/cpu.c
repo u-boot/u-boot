@@ -222,7 +222,7 @@ int last_stage_init(void)
 		return log_msg_ret("table", ret);
 	}
 
-	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE)) {
+	if (CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)) {
 		fadt = acpi_find_fadt();
 
 		/* Don't touch ACPI hardware on HW reduced platforms */

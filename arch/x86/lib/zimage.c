@@ -382,7 +382,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	if (IS_ENABLED(CONFIG_INTEL_MID) && bootproto >= 0x0207)
 		hdr->hardware_subarch = X86_SUBARCH_INTEL_MID;
 
-	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE))
+	if (CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE))
 		setup_base->acpi_rsdp_addr = acpi_get_rsdp_addr();
 
 	log_debug("Setup devicetree\n");
