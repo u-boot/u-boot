@@ -260,13 +260,13 @@ static void boot_prep_linux(struct bootm_headers *images)
 		if (IS_ENABLED(CONFIG_MIPS_BOOT_CMDLINE_LEGACY)) {
 			linux_cmdline_legacy(images);
 
-			if (!CONFIG_IS_ENABLED(MIPS_BOOT_ENV_LEGACY))
+			if (!IS_ENABLED(CONFIG_MIPS_BOOT_ENV_LEGACY))
 				linux_cmdline_append(images);
 
 			linux_cmdline_dump();
 		}
 
-		if (CONFIG_IS_ENABLED(MIPS_BOOT_ENV_LEGACY))
+		if (IS_ENABLED(CONFIG_MIPS_BOOT_ENV_LEGACY))
 			linux_env_legacy(images);
 	}
 }
