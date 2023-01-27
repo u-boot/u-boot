@@ -106,7 +106,7 @@ int arch_auxiliary_core_up(u32 core_id, ulong addr)
 		if (!pc)
 			return CMD_RET_FAILURE;
 
-		if (!CONFIG_IS_ENABLED(ARM64))
+		if (!IS_ENABLED(CONFIG_ARM64))
 			stack = 0x0;
 	} else {
 		/*
