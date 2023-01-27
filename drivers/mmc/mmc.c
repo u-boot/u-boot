@@ -135,7 +135,7 @@ void mmc_trace_state(struct mmc *mmc, struct mmc_cmd *cmd)
 }
 #endif
 
-#if CONFIG_IS_ENABLED(MMC_VERBOSE) || defined(DEBUG) || CONFIG_VAL(LOGLEVEL) >= LOGL_DEBUG
+#if IS_ENABLED(CONFIG_MMC_VERBOSE) || defined(DEBUG) || CONFIG_VAL(LOGLEVEL) >= LOGL_DEBUG
 const char *mmc_mode_name(enum bus_mode mode)
 {
 	static const char *const names[] = {
@@ -1649,7 +1649,7 @@ static int mmc_set_bus_width(struct mmc *mmc, uint width)
 	return mmc_set_ios(mmc);
 }
 
-#if CONFIG_IS_ENABLED(MMC_VERBOSE) || defined(DEBUG)
+#if IS_ENABLED(CONFIG_MMC_VERBOSE) || defined(DEBUG)
 /*
  * helper function to display the capabilities in a human
  * friendly manner. The capabilities include bus width and

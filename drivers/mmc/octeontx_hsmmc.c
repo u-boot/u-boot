@@ -2541,7 +2541,7 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 		slot->last_clock = mmc->clock;
 	}
 
-	if (CONFIG_IS_ENABLED(MMC_VERBOSE)) {
+	if (IS_ENABLED(CONFIG_MMC_VERBOSE)) {
 		debug("%s(%s): Setting bus mode to %s\n", __func__, dev->name,
 		      mmc_mode_name(mmc->selected_mode));
 	} else {
