@@ -147,7 +147,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 			board_get_alt_info_mtd(mtd, buf);
 	}
 
-	if (IS_ENABLED(CONFIG_DFU_VIRT) &&
+	if (CONFIG_IS_ENABLED(DFU_VIRT) &&
 	    IS_ENABLED(CMD_STM32PROG_USB)) {
 		strncat(buf, "&virt 0=OTP", DFU_ALT_BUF_LEN);
 
