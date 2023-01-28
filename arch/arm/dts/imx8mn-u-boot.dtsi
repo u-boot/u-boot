@@ -105,10 +105,11 @@
 			align-end = <4>;
 		};
 
+#if defined(CONFIG_IMX8M_LPDDR4) || defined(CONFIG_IMX8M_DDR4)
 		ddr-2d-imem-fw {
 #ifdef CONFIG_IMX8M_LPDDR4
 			filename = "lpddr4_pmu_train_2d_imem.bin";
-#elif CONFIG_IMX8M_DDR4
+#else
 			filename = "ddr4_imem_2d.bin";
 #endif
 			type = "blob-ext";
@@ -118,12 +119,13 @@
 		ddr-2d-dmem-fw {
 #ifdef CONFIG_IMX8M_LPDDR4
 			filename = "lpddr4_pmu_train_2d_dmem.bin";
-#elif CONFIG_IMX8M_DDR4
+#else
 			filename = "ddr4_dmem_2d.bin";
 #endif
 			type = "blob-ext";
 			align-end = <4>;
 		};
+#endif
 	};
 
 	spl {
