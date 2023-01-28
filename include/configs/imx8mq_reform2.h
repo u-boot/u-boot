@@ -48,7 +48,9 @@
 	"bootm_size=0x10000000\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk1p2 rootwait rw\0" \
-	"stdin=serial,usbkbd\0"
+	"stdin=serial,usbkbd\0" \
+	"stdout=serial,vidconsole\0" \
+	"stderr=serial,vidconsole\0"
 
 /* Link Definitions */
 

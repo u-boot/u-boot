@@ -157,6 +157,8 @@ static const char *const imx8mq_pcie2_phy_sels[] = {"clock-osc-25m", "sys_pll2_1
 static const char *const imx8mq_pcie2_aux_sels[] = {"clock-osc-25m", "sys_pll2_200m", "sys_pll2_50m", "sys3_pll_out",
 						    "sys_pll2_100m", "sys_pll1_80m", "sys_pll1_160m", "sys_pll1_200m", };
 
+static const char * const imx8mq_lcdif_pixel_sels[] = {"clock-osc-25m", "video_pll1_out", "audio_pll2_out", "audio_pll1_out", "sys_pll1_800m", "sys_pll2_1000m", "sys3_pll_out", "clk_ext4", };
+
 static const char *const imx8mq_dram_core_sels[] = {"dram_pll_out", "dram_alt_root", };
 
 static const char *const pllout_monitor_sels[] = {"clock-osc-25m", "clock-osc-27m", "clock-phy-27m",
@@ -538,6 +540,10 @@ static int imx8mq_clk_probe(struct udevice *dev)
 				   base + 0xc100));
 	clk_dm(IMX8MQ_CLK_PCIE2_ROOT,
 	       imx_clk_gate4("pcie2_root_clk", "pcie2_ctrl", base + 0x4640, 0));
+
+	clk_dm(IMX8MQ_CLK_LCDIF_PIXEL,
+	       imx8m_clk_composite("lcdif_pixel", imx8mq_lcdif_pixel_sels,
+				   base + 0xa500));
 
 	return 0;
 }

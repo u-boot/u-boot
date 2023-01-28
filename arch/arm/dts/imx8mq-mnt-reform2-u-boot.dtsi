@@ -9,3 +9,7 @@
 &uart1 { /* console */
 	bootph-pre-ram;
 };
+
+&lcdif {
+	u-boot,dm-pre-reloc;
+};
