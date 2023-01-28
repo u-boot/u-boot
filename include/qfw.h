@@ -316,4 +316,17 @@ bool qfw_file_iter_end(struct fw_cfg_file_iter *iter);
  */
 int qemu_cpu_fixup(void);
 
+/*
+ * qemu_fwcfg_setup_kernel() - Prepare the kernel for zboot
+ *
+ * Loads kernel data to 'load_addr', initrd to 'initrd_addr' and kernel command
+ * line using qemu fw_cfg interface
+ *
+ * @load_addr: Load address for kernel
+ * @initrd_addr: Load address for ramdisk
+ * @return 0 if OK, -ENOENT if no kernel
+ */
+int qemu_fwcfg_setup_kernel(struct udevice *qfw_dev, ulong load_addr,
+			    ulong initrd_addr);
+
 #endif

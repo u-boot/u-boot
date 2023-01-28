@@ -7,77 +7,10 @@
 #include <command.h>
 #include <env.h>
 #include <errno.h>
-#include <mapmem.h>
 #include <qfw.h>
 #include <dm.h>
 
 static struct udevice *qfw_dev;
-
-/*
- * This function prepares kernel for zboot. It loads kernel data
- * to 'load_addr', initrd to 'initrd_addr' and kernel command
- * line using qemu fw_cfg interface.
- */
-int qemu_fwcfg_cmd_setup_kernel(ulong load_addr, ulong initrd_addr)
-{
-	char *data_addr;
-	uint32_t setup_size, kernel_size, cmdline_size, initrd_size;
-
-	qfw_read_entry(qfw_dev, FW_CFG_SETUP_SIZE, 4, &setup_size);
-	qfw_read_entry(qfw_dev, FW_CFG_KERNEL_SIZE, 4, &kernel_size);
-
-	if (!kernel_size) {
-		printf("fatal: no kernel available\n");
-		return -ENOENT;
-	}
-
-	data_addr = map_sysmem(load_addr, 0);
-	if (setup_size) {
-		qfw_read_entry(qfw_dev, FW_CFG_SETUP_DATA,
-			       le32_to_cpu(setup_size), data_addr);
-		data_addr += le32_to_cpu(setup_size);
-	}
-
-	qfw_read_entry(qfw_dev, FW_CFG_KERNEL_DATA,
-		       le32_to_cpu(kernel_size), data_addr);
-	data_addr += le32_to_cpu(kernel_size);
-	env_set_hex("filesize", le32_to_cpu(kernel_size));
-
-	data_addr = map_sysmem(initrd_addr, 0);
-	qfw_read_entry(qfw_dev, FW_CFG_INITRD_SIZE, 4, &initrd_size);
-	if (!initrd_size) {
-		printf("warning: no initrd available\n");
-	} else {
-		qfw_read_entry(qfw_dev, FW_CFG_INITRD_DATA,
-			       le32_to_cpu(initrd_size), data_addr);
-		data_addr += le32_to_cpu(initrd_size);
-		env_set_hex("filesize", le32_to_cpu(initrd_size));
-	}
-
-	qfw_read_entry(qfw_dev, FW_CFG_CMDLINE_SIZE, 4, &cmdline_size);
-	if (cmdline_size) {
-		qfw_read_entry(qfw_dev, FW_CFG_CMDLINE_DATA,
-			       le32_to_cpu(cmdline_size), data_addr);
-		/*
-		 * if kernel cmdline only contains '\0', (e.g. no -append
-		 * when invoking qemu), do not update bootargs
-		 */
-		if (*data_addr) {
-			if (env_set("bootargs", data_addr) < 0)
-				printf("warning: unable to change bootargs\n");
-		}
-	}
-
-	printf("loading kernel to address %lx size %x", load_addr,
-	       le32_to_cpu(kernel_size));
-	if (initrd_size)
-		printf(" initrd %lx size %x\n", initrd_addr,
-		       le32_to_cpu(initrd_size));
-	else
-		printf("\n");
-
-	return 0;
-}
 
 static int qemu_fwcfg_cmd_list_firmware(void)
 {
@@ -148,7 +81,7 @@ static int qemu_fwcfg_do_load(struct cmd_tbl *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
-	return qemu_fwcfg_cmd_setup_kernel(load_addr, initrd_addr);
+	return qemu_fwcfg_setup_kernel(qfw_dev, load_addr, initrd_addr);
 }
 
 static struct cmd_tbl fwcfg_commands[] = {
