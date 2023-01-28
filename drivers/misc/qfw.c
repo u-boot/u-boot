@@ -7,6 +7,9 @@
 #define LOG_CATEGORY UCLASS_QFW
 
 #include <common.h>
+#include <bootdev.h>
+#include <bootflow.h>
+#include <bootmeth.h>
 #include <command.h>
 #include <errno.h>
 #include <log.h>
@@ -310,8 +313,92 @@ int qfw_register(struct udevice *dev)
 	return 0;
 }
 
+static int qfw_post_bind(struct udevice *dev)
+{
+	int ret;
+
+	ret = bootdev_setup_for_dev(dev, "qfw_bootdev");
+	if (ret)
+		return log_msg_ret("dev", ret);
+
+	return 0;
+}
+
+static int qfw_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
+			    struct bootflow *bflow)
+{
+	const struct udevice *media = dev_get_parent(dev);
+	int ret;
+
+	if (!CONFIG_IS_ENABLED(BOOTSTD))
+		return -ENOSYS;
+
+	log_debug("media=%s\n", media->name);
+	ret = bootmeth_check(bflow->method, iter);
+	if (ret)
+		return log_msg_ret("check", ret);
+
+	log_debug("iter->part=%d\n", iter->part);
+
+	/* We only support the whole device, not partitions */
+	if (iter->part)
+		return log_msg_ret("max", -ESHUTDOWN);
+
+	log_debug("reading bootflow with method: %s\n", bflow->method->name);
+	ret = bootmeth_read_bootflow(bflow->method, bflow);
+	if (ret)
+		return log_msg_ret("method", ret);
+
+	return 0;
+}
+
+static int qfw_bootdev_bind(struct udevice *dev)
+{
+	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
+
+	ucp->prio = BOOTDEVP_4_SCAN_FAST;
+
+	return 0;
+}
+
+static int qfw_bootdev_hunt(struct bootdev_hunter *info, bool show)
+{
+	int ret;
+
+	ret = uclass_probe_all(UCLASS_QFW);
+	if (ret && ret != -ENOENT)
+		return log_msg_ret("vir", ret);
+
+	return 0;
+}
+
 UCLASS_DRIVER(qfw) = {
 	.id		= UCLASS_QFW,
 	.name		= "qfw",
+	.post_bind	= qfw_post_bind,
 	.per_device_auto	= sizeof(struct qfw_dev),
+};
+
+struct bootdev_ops qfw_bootdev_ops = {
+	.get_bootflow	= qfw_get_bootflow,
+};
+
+static const struct udevice_id qfw_bootdev_ids[] = {
+	{ .compatible = "u-boot,bootdev-qfw" },
+	{ }
+};
+
+U_BOOT_DRIVER(qfw_bootdev) = {
+	.name		= "qfw_bootdev",
+	.id		= UCLASS_BOOTDEV,
+	.ops		= &qfw_bootdev_ops,
+	.bind		= qfw_bootdev_bind,
+	.of_match	= qfw_bootdev_ids,
+};
+
+BOOTDEV_HUNTER(qfw_bootdev_hunter) = {
+	.prio		= BOOTDEVP_4_SCAN_FAST,
+	.uclass		= UCLASS_QFW,
+	.hunt		= qfw_bootdev_hunt,
+	.drv		= DM_DRIVER_REF(qfw_bootdev),
 };
