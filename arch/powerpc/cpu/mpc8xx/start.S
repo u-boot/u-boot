@@ -171,6 +171,7 @@ in_flash:
 	lis	r3, CONFIG_SYS_IMMR@h
 	bl	cpu_init_f	/* run low-level CPU init code     (from Flash)	*/
 
+	li	r3, 0		/* clear boot_flag for calling board_init_f */
 	bl	board_init_f	/* run 1st part of board init code (from Flash) */
 
 	/* NOTREACHED - board_init_f() does not return */
