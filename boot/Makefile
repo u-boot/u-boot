@@ -26,6 +26,7 @@ obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += bootstd-uclass.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_DISTRO) += bootmeth_distro.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_DISTRO_PXE) += bootmeth_pxe.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_EFILOADER) += bootmeth_efi.o
+obj-$(CONFIG_$(SPL_TPL_)QFW) += bootmeth_qfw.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_SANDBOX) += bootmeth_sandbox.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTMETH_SCRIPT) += bootmeth_script.o
 ifdef CONFIG_$(SPL_TPL_)BOOTSTD_FULL

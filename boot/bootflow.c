@@ -508,7 +508,7 @@ int bootflow_iter_check_blk(const struct bootflow_iter *iter)
 	enum uclass_id id = device_get_uclass_id(media);
 
 	log_debug("uclass %d: %s\n", id, uclass_get_name(id));
-	if (id != UCLASS_ETH && id != UCLASS_BOOTSTD)
+	if (id != UCLASS_ETH && id != UCLASS_BOOTSTD && id != UCLASS_QFW)
 		return 0;
 
 	return -ENOTSUPP;
