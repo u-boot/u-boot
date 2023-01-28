@@ -330,6 +330,9 @@ static int imx8m_power_domain_on(struct power_domain *power_domain)
 	u32 pgc;
 	int ret;
 
+	if (pdata->has_pd)
+		power_domain_on(&pdata->pd);
+
 	if (pdata->clk.count) {
 		ret = clk_enable_bulk(&pdata->clk);
 		if (ret) {
