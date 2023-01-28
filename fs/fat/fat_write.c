@@ -5,6 +5,8 @@
  * R/W (V)FAT 12/16/32 filesystem implementation by Donggeun Kim
  */
 
+#define LOG_CATEGORY LOGC_FS
+
 #include <common.h>
 #include <command.h>
 #include <config.h>
