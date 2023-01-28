@@ -247,8 +247,8 @@ static int virtio_uclass_post_probe(struct udevice *udev)
 	}
 	device_set_name_alloced(vdev);
 
-	if (uc_priv->device == VIRTIO_ID_BLOCK) {
-		ret = bootdev_setup_for_dev(udev, name);
+	if (uc_priv->device == VIRTIO_ID_BLOCK && !IS_ENABLED(CONFIG_SANDBOX)) {
+		ret = bootdev_setup_sibling_blk(vdev, "virtio_bootdev");
 		if (ret)
 			return log_msg_ret("bootdev", ret);
 	}
@@ -274,6 +274,10 @@ static int virtio_uclass_child_pre_probe(struct udevice *vdev)
 	u64 driver_features_legacy;
 	int i;
 	int ret;
+
+	/* bootdevs are not virtio devices */
+	if (device_get_uclass_id(vdev) == UCLASS_BOOTDEV)
+		return 0;
 
 	/*
 	 * Save the real virtio device (eg: virtio-net, virtio-blk) to
