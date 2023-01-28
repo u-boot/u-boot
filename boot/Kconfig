@@ -406,6 +406,33 @@ config VPL_BOOTSTD
 
 if BOOTSTD
 
+config BOOTSTD_DEFAULTS
+	bool "Select some common defaults for standard boot"
+	depends on BOOTSTD
+	imply USE_BOOTCOMMAND
+	# Bring in some defaults which are generally needed. Boards can drop
+	# these as needed to save code space. Bootstd does not generally require
+	# the commands themselves to be enabled, but this is how some of the
+	# functionality is controlled at present
+	imply CMD_EXT2
+	imply CMD_EXT4
+	imply CMD_FAT
+	imply CMD_FS_GENERIC
+	imply CMD_PART
+	imply CMD_DHCP if NET
+	imply CMD_MII if NET
+	imply CMD_PING if NET
+	imply CMD_PXE if NET
+	imply USB_STORAGE
+	imply SUPPORT_RAW_INITRD
+	imply ENV_VARS_UBOOT_CONFIG
+	imply EFI_PARTITION
+	imply ISO_PARTITION
+	help
+	  These are not required but are commonly needed to support a good
+	  selection of booting methods. Enable this to improve the capability
+	  of U-Boot to boot various images.
+
 config BOOTSTD_BOOTCOMMAND
 	bool "Use bootstd to boot"
 	default y if !DISTRO_DEFAULTS
