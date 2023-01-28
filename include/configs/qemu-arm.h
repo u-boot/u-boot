@@ -23,17 +23,4 @@
 
 /* For timer, QEMU emulates an ARMv7/ARMv8 architected timer */
 
-/* Environment options */
-#define BOOT_TARGETS	"qfw usb scsi virtio nvme dhcp"
-
-#define CFG_EXTRA_ENV_SETTINGS \
-	"fdt_high=0xffffffff\0" \
-	"initrd_high=0xffffffff\0" \
-	"fdt_addr=0x40000000\0" \
-	"scriptaddr=0x40200000\0" \
-	"pxefile_addr_r=0x40300000\0" \
-	"kernel_addr_r=0x40400000\0" \
-	"ramdisk_addr_r=0x44000000\0" \
-	"boot_targets=" BOOT_TARGETS "\0"
-
 #endif /* __CONFIG_H */
