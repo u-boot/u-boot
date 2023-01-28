@@ -561,6 +561,7 @@ endif # BOOTMETH_VBE
 
 config EXPO
 	bool "Support for expos - groups of scenes displaying a UI"
+	depends on VIDEO
 	default y if BOOTMETH_VBE
 	help
 	  An expo is a way of presenting and collecting information from the
