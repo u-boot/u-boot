@@ -270,6 +270,10 @@ static int iter_incr(struct bootflow_iter *iter)
 		if (ret) {
 			bootflow_iter_set_dev(iter, NULL, 0);
 		} else {
+			/*
+			 * Probe the bootdev. This does not probe any attached
+			 * block device, since they are siblings
+			 */
 			ret = device_probe(dev);
 			log_debug("probe %s %d\n", dev->name, ret);
 			if (!log_msg_ret("probe", ret))

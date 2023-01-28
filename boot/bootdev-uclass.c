@@ -309,6 +309,9 @@ int bootdev_get_sibling_blk(struct udevice *dev, struct udevice **blkp)
 		if (ret)
 			return log_msg_ret("find", ret);
 	}
+	ret = device_probe(blk);
+	if (ret)
+		return log_msg_ret("act", ret);
 	*blkp = blk;
 
 	return 0;
