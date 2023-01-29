@@ -145,10 +145,6 @@ u32 sys_env_id_index_get(u32 ctrl_model)
 		return MV_6811_INDEX;
 	case MV_6828_DEV_ID:
 		return MV_6828_INDEX;
-	case MV_6920_DEV_ID:
-		return MV_6920_INDEX;
-	case MV_6928_DEV_ID:
-		return MV_6928_INDEX;
 	default:
 		return MV_6820_INDEX;
 	}
@@ -183,11 +179,9 @@ u16 sys_env_model_get(void)
 	case MV_6810_DEV_ID:
 	case MV_6811_DEV_ID:
 	case MV_6828_DEV_ID:
-	case MV_6920_DEV_ID:
-	case MV_6928_DEV_ID:
 		return ctrl_id;
 	default:
-		/* Device ID Default for A38x: 6820 , for A39x: 6920 */
+		/* Device ID Default for A38x: 6820 */
 		default_ctrl_id =  MV_6820_DEV_ID;
 		printf("%s: Error retrieving device ID (%x), using default ID = %x\n",
 		       __func__, ctrl_id, default_ctrl_id);
@@ -201,8 +195,8 @@ u16 sys_env_model_get(void)
  */
 u32 sys_env_device_id_get(void)
 {
-	char *device_id_str[7] = {
-		"6810", "6820", "6811", "6828", "NONE", "6920", "6928"
+	char *device_id_str[4] = {
+		"6810", "6820", "6811", "6828",
 	};
 
 	if (g_dev_id != -1)
@@ -210,7 +204,7 @@ u32 sys_env_device_id_get(void)
 
 	g_dev_id = reg_read(DEVICE_SAMPLE_AT_RESET1_REG);
 	g_dev_id = g_dev_id >> SAR_DEV_ID_OFFS & SAR_DEV_ID_MASK;
-	printf("Detected Device ID %s\n", device_id_str[g_dev_id]);
+	printf("Detected Device ID %s\n", g_dev_id < 4 ? device_id_str[g_dev_id] : "NONE");
 
 	return g_dev_id;
 }
