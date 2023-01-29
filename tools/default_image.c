@@ -50,6 +50,12 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 	struct legacy_img_hdr header;
 	struct legacy_img_hdr *hdr = &header;
 
+	if (image_size < sizeof(struct legacy_img_hdr)) {
+		debug("%s: Bad image size: \"%s\" is no valid image\n",
+		      params->cmdname, params->imagefile);
+		return -FDT_ERR_BADSTRUCTURE;
+	}
+
 	/*
 	 * create copy of header so that we can blank out the
 	 * checksum field for checking - this can't be done
