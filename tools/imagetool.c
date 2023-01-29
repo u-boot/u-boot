@@ -49,6 +49,12 @@ int imagetool_verify_print_header(
 		return imagetool_verify_print_header_by_type(ptr, sbuf, tparams, params);
 
 	for (curr = start; curr != end; curr++) {
+		/*
+		 * Basically every data file can be guessed / verified as gpimage,
+		 * so skip autodetection of data file as gpimage as it does not work.
+		 */
+		if ((*curr)->check_image_type && (*curr)->check_image_type(IH_TYPE_GPIMAGE) == 0)
+			continue;
 		if ((*curr)->verify_header) {
 			retval = (*curr)->verify_header((unsigned char *)ptr,
 						     sbuf->st_size, params);
