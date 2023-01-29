@@ -105,7 +105,7 @@ static int imagetool_verify_print_header_by_type(
 		}
 
 	} else {
-		fprintf(stderr, "%s: print_header undefined for %s\n",
+		fprintf(stderr, "%s: verify_header undefined for %s\n",
 			params->cmdname, tparams->name);
 	}
 
