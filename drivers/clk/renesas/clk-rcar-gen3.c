@@ -34,55 +34,11 @@
 #define CPG_PLL2CR		0x002c
 #define CPG_PLL4CR		0x01f4
 
-/* Non-constant mask variant of FIELD_GET */
+#define SDnSRCFC_SHIFT		2
+#define STPnHCK_TABLE		(CPG_SDCKCR_STPnHCK >> SDnSRCFC_SHIFT)
+
+/* Non-constant mask variant of FIELD_GET/FIELD_PREP */
 #define field_get(_mask, _reg) (((_reg) & (_mask)) >> (ffs(_mask) - 1))
-
-/*
- * SDn Clock
- */
-#define CPG_SD_STP_HCK		BIT(9)
-#define CPG_SD_STP_CK		BIT(8)
-
-#define CPG_SD_STP_MASK		(CPG_SD_STP_HCK | CPG_SD_STP_CK)
-#define CPG_SD_FC_MASK		(0x7 << 2 | 0x3 << 0)
-
-#define CPG_SD_DIV_TABLE_DATA(stp_hck, stp_ck, sd_srcfc, sd_fc, sd_div) \
-{ \
-	.val = ((stp_hck) ? CPG_SD_STP_HCK : 0) | \
-	       ((stp_ck) ? CPG_SD_STP_CK : 0) | \
-	       ((sd_srcfc) << 2) | \
-	       ((sd_fc) << 0), \
-	.div = (sd_div), \
-}
-
-/* SDn divider
- *                     sd_srcfc   sd_fc   div
- * stp_hck   stp_ck    (div)      (div)     = sd_srcfc x sd_fc
- *-------------------------------------------------------------------
- *  0         0         0 (1)      1 (4)      4
- *  0         0         1 (2)      1 (4)      8
- *  1         0         2 (4)      1 (4)     16
- *  1         0         3 (8)      1 (4)     32
- *  1         0         4 (16)     1 (4)     64
- *  0         0         0 (1)      0 (2)      2
- *  0         0         1 (2)      0 (2)      4
- *  1         0         2 (4)      0 (2)      8
- *  1         0         3 (8)      0 (2)     16
- *  1         0         4 (16)     0 (2)     32
- */
-static const struct clk_div_table cpg_sd_div_table[] = {
-/*	CPG_SD_DIV_TABLE_DATA(stp_hck,  stp_ck,   sd_srcfc,   sd_fc,  sd_div) */
-	CPG_SD_DIV_TABLE_DATA(0,        0,        0,          1,        4),
-	CPG_SD_DIV_TABLE_DATA(0,        0,        1,          1,        8),
-	CPG_SD_DIV_TABLE_DATA(1,        0,        2,          1,       16),
-	CPG_SD_DIV_TABLE_DATA(1,        0,        3,          1,       32),
-	CPG_SD_DIV_TABLE_DATA(1,        0,        4,          1,       64),
-	CPG_SD_DIV_TABLE_DATA(0,        0,        0,          0,        2),
-	CPG_SD_DIV_TABLE_DATA(0,        0,        1,          0,        4),
-	CPG_SD_DIV_TABLE_DATA(1,        0,        2,          0,        8),
-	CPG_SD_DIV_TABLE_DATA(1,        0,        3,          0,       16),
-	CPG_SD_DIV_TABLE_DATA(1,        0,        4,          0,       32),
-};
 
 static const struct clk_div_table cpg_rpcsrc_div_table[] = {
 	{ 2, 5 }, { 3, 6 }, { 0, 0 },
@@ -90,6 +46,15 @@ static const struct clk_div_table cpg_rpcsrc_div_table[] = {
 
 static const struct clk_div_table cpg_rpc_div_table[] = {
 	{ 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 }, { 0, 0 },
+};
+
+static const struct clk_div_table cpg_sdh_div_table[] = {
+	{ 0, 1 }, { 1, 2 }, { STPnHCK_TABLE | 2, 4 }, { STPnHCK_TABLE | 3, 8 },
+	{ STPnHCK_TABLE | 4, 16 }, { 0, 0 },
+};
+
+static const struct clk_div_table cpg_sd_div_table[] = {
+	{ 0, 2 }, { 1, 4 }, { 0, 0 },
 };
 
 static unsigned int rcar_clk_get_table_div(const struct clk_div_table *table,
@@ -101,6 +66,17 @@ static unsigned int rcar_clk_get_table_div(const struct clk_div_table *table,
 		if (clkt->val == value)
 			return clkt->div;
 	return 0;
+}
+
+static int rcar_clk_get_table_val(const struct clk_div_table *table,
+				  unsigned int div)
+{
+	const struct clk_div_table *clkt;
+
+	for (clkt = table; clkt->div; clkt++)
+		if (clkt->div == div)
+			return clkt->val;
+	return -EINVAL;
 }
 
 static __always_inline s64
@@ -145,37 +121,6 @@ static int gen3_clk_get_parent(struct gen3_clk_priv *priv, struct clk *clk,
 	return renesas_clk_get_parent(clk, info, parent);
 }
 
-static int gen3_clk_setup_sdif_div(struct clk *clk, ulong rate)
-{
-	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
-	struct cpg_mssr_info *info = priv->info;
-	const struct cpg_core_clk *core;
-	struct clk parent;
-	int ret;
-
-	ret = gen3_clk_get_parent(priv, clk, info, &parent);
-	if (ret) {
-		printf("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
-		return ret;
-	}
-
-	if (renesas_clk_is_mod(&parent))
-		return 0;
-
-	ret = renesas_clk_get_core(&parent, info, &core);
-	if (ret)
-		return ret;
-
-	if (core->type != CLK_TYPE_GEN3_SD)
-		return 0;
-
-	debug("%s[%i] SDIF offset=%x\n", __func__, __LINE__, core->offset);
-
-	writel((rate == 400000000) ? 0x4 : 0x1, priv->base + core->offset);
-
-	return 0;
-}
-
 static int gen3_clk_enable(struct clk *clk)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
@@ -191,6 +136,79 @@ static int gen3_clk_disable(struct clk *clk)
 }
 
 static u64 gen3_clk_get_rate64(struct clk *clk);
+
+static int gen3_clk_setup_sdif_div(struct clk *clk, ulong rate)
+{
+	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
+	struct cpg_mssr_info *info = priv->info;
+	const struct cpg_core_clk *core;
+	struct clk parent, grandparent;
+	int ret;
+	u32 value = 0, div = 0;
+
+	/*
+	 * The clk may be either CPG_MOD or core clock, in case this is MOD
+	 * clock, use core clock one level up, otherwise use the clock as-is.
+	 * Note that parent clock here always represents core clock. Also note
+	 * that grandparent clock are the parent clock of the core clock here.
+	 */
+	if (renesas_clk_is_mod(clk)) {
+		ret = gen3_clk_get_parent(priv, clk, info, &parent);
+		if (ret) {
+			printf("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
+			return ret;
+		}
+	} else {
+		parent = *clk;
+	}
+
+	if (renesas_clk_is_mod(&parent))
+		return 0;
+
+	ret = renesas_clk_get_core(&parent, info, &core);
+	if (ret)
+		return ret;
+
+	ret = renesas_clk_get_parent(&parent, info, &grandparent);
+	if (ret) {
+		printf("%s[%i] grandparent fail, ret=%i\n", __func__, __LINE__, ret);
+		return ret;
+	}
+
+	switch (core->type) {
+	case CLK_TYPE_GEN3_SDH:
+		fallthrough;
+	case CLK_TYPE_GEN4_SDH:
+		div = DIV_ROUND_CLOSEST(gen3_clk_get_rate64(&grandparent), rate);
+		value = rcar_clk_get_table_val(cpg_sdh_div_table, div);
+		if (value < 0)
+			return value;
+
+		clrsetbits_le32(priv->base + core->offset,
+				GENMASK(9, 2), value << 2);
+
+		debug("%s[%i] SDH clk: parent=%i offset=%x div=%u rate=%lu => val=%u\n",
+		      __func__, __LINE__, core->parent, core->offset, div, rate, value);
+		break;
+
+	case CLK_TYPE_GEN3_SD:
+		fallthrough;
+	case CLK_TYPE_GEN4_SD:
+		div = DIV_ROUND_CLOSEST(gen3_clk_get_rate64(&grandparent), rate);
+		value = rcar_clk_get_table_val(cpg_sd_div_table, div);
+		if (value < 0)
+			return value;
+
+		clrsetbits_le32(priv->base + core->offset,
+				GENMASK(1, 0), value);
+
+		debug("%s[%i] SD clk: parent=%i offset=%x div=%u rate=%lu => val=%u\n",
+		      __func__, __LINE__, core->parent, core->offset, div, rate, value);
+		break;
+	}
+
+	return 0;
+}
 
 static u64 gen3_clk_get_rate64_pll_mul_reg(struct gen3_clk_priv *priv,
 					   struct clk *parent,
@@ -223,7 +241,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 					priv->cpg_pll_config;
 	u32 value, div;
 	u64 rate = 0;
-	int i, ret;
+	int ret;
 
 	debug("%s[%i] Clock: id=%lu\n", __func__, __LINE__, clk->id);
 
@@ -328,28 +346,26 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 	case CLK_TYPE_GEN3_SDH:	/* Fixed factor 1:1 */
 		fallthrough;
 	case CLK_TYPE_GEN4_SDH:	/* Fixed factor 1:1 */
-		return gen3_clk_get_rate64(&parent);
+		/*
+		 * This takes STPnHCK and STPnCK bits into consideration
+		 * in the table look up too, hence the inobvious GENMASK
+		 * below. Bits [7:5] always read zero, so this is OKish.
+		 */
+		return rcar_clk_get_rate64_div_table(core->parent,
+						     gen3_clk_get_rate64(&parent),
+						     priv->base + core->offset,
+						     CPG_SDCKCR_SRCFC_MASK |
+						     GENMASK(9, 5),
+						     cpg_sdh_div_table, "SDH");
 
-	case CLK_TYPE_GEN3_SD:		/* FIXME */
+	case CLK_TYPE_GEN3_SD:
 		fallthrough;
 	case CLK_TYPE_GEN4_SD:
-		value = readl(priv->base + core->offset);
-		value &= CPG_SD_STP_MASK | CPG_SD_FC_MASK;
-
-		for (i = 0; i < ARRAY_SIZE(cpg_sd_div_table); i++) {
-			if (cpg_sd_div_table[i].val != value)
-				continue;
-
-			rate = gen3_clk_get_rate64(&parent) /
-			       cpg_sd_div_table[i].div;
-			debug("%s[%i] SD clk: parent=%i div=%i => rate=%llu\n",
-			      __func__, __LINE__,
-			      core->parent, cpg_sd_div_table[i].div, rate);
-
-			return rate;
-		}
-
-		return -EINVAL;
+		return rcar_clk_get_rate64_div_table(core->parent,
+						     gen3_clk_get_rate64(&parent),
+						     priv->base + core->offset,
+						     CPG_SDCKCR_FC_MASK,
+						     cpg_sd_div_table, "SD");
 
 	case CLK_TYPE_GEN3_RPCSRC:
 		return rcar_clk_get_rate64_div_table(core->parent,

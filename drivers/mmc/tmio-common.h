@@ -138,6 +138,7 @@ struct tmio_sd_priv {
 #endif
 #if CONFIG_IS_ENABLED(CLK)
 	struct clk			clk;
+	struct clk			clkh;
 #endif
 #if CONFIG_IS_ENABLED(RENESAS_SDHI)
 	unsigned int			smpcmp;
