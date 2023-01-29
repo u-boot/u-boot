@@ -739,18 +739,14 @@ static int check_image_header(void)
 		return -ENOEXEC;
 	}
 
-	/* The checksum value is discarded from checksum calculation */
-	hdr->prolog_checksum = 0;
-
 	checksum = do_checksum32((u32 *)hdr, header_len);
+	checksum -= hdr->prolog_checksum;
 	if (checksum != checksum_ref) {
 		printf("Error: Bad Image checksum. 0x%x != 0x%x\n",
 		       checksum, checksum_ref);
 		return -ENOEXEC;
 	}
 
-	/* Restore the checksum before writing */
-	hdr->prolog_checksum = checksum_ref;
 	printf("Image checksum...OK!\n");
 
 	return 0;
