@@ -962,7 +962,7 @@ static size_t image_headersz_v0(int *hasext)
 	return image_headersz_align(headersz, image_get_bootfrom());
 }
 
-static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
+static void *image_create_v0(size_t *dataoff, struct image_tool_params *params,
 			     int payloadsz)
 {
 	struct image_cfg_element *e;
@@ -1050,7 +1050,7 @@ static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
 	main_hdr->checksum = image_checksum8(image,
 					     sizeof(struct main_hdr_v0));
 
-	*imagesz = headersz;
+	*dataoff = headersz;
 	return image;
 }
 
@@ -1385,7 +1385,7 @@ static void finish_register_set_header_v1(uint8_t **cur, uint8_t **next_ext,
 	*datai = 0;
 }
 
-static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
+static void *image_create_v1(size_t *dataoff, struct image_tool_params *params,
 			     uint8_t *ptr, int payloadsz)
 {
 	struct image_cfg_element *e;
@@ -1532,7 +1532,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 					       image, headersz, secure_hdr))
 		return NULL;
 
-	*imagesz = headersz;
+	*dataoff = headersz;
 
 	/* Fill the real header size without padding into the main header */
 	headersz = sizeof(*main_hdr);
@@ -1811,7 +1811,7 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	FILE *fcfg;
 	void *image = NULL;
 	int version;
-	size_t headersz = 0;
+	size_t dataoff = 0;
 	size_t datasz;
 	uint32_t checksum;
 	struct stat s;
@@ -1862,11 +1862,11 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 		 */
 	case -1:
 	case 0:
-		image = image_create_v0(&headersz, params, datasz + 4);
+		image = image_create_v0(&dataoff, params, datasz + 4);
 		break;
 
 	case 1:
-		image = image_create_v1(&headersz, params, ptr, datasz + 4);
+		image = image_create_v1(&dataoff, params, ptr, datasz + 4);
 		break;
 
 	default:
@@ -1884,12 +1884,12 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	free(image_cfg);
 
 	/* Build and add image data checksum */
-	checksum = cpu_to_le32(image_checksum32((uint8_t *)ptr + headersz,
+	checksum = cpu_to_le32(image_checksum32((uint8_t *)ptr + dataoff,
 						datasz));
-	memcpy((uint8_t *)ptr + headersz + datasz, &checksum, sizeof(uint32_t));
+	memcpy((uint8_t *)ptr + dataoff + datasz, &checksum, sizeof(uint32_t));
 
 	/* Finally copy the header into the image area */
-	memcpy(ptr, image, headersz);
+	memcpy(ptr, image, dataoff);
 
 	free(image);
 }
