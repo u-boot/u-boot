@@ -9,7 +9,6 @@
 #include <log.h>
 #include <pci.h>
 #include <generic-phy.h>
-#include <power-domain.h>
 #include <regmap.h>
 #include <reset.h>
 #include <syscon.h>
@@ -80,9 +79,6 @@ struct pcie_dw_imx {
 	/* regmap */
 	struct regmap *anatop;
 	struct regmap *gpr;
-
-	/* power */
-	struct power_domain power;
 };
 
 /**
@@ -152,8 +148,6 @@ static void pcie_dw_imx_init_phy(struct pcie_dw_imx *pci)
 	u32 val;
 
 	if (device_is_compatible(dev, "fsl,imx8mq-pcie")) {
-		power_domain_on(&pci->power);
-
 		if (pci->ctrl_id == 0)
 			val = IOMUXC_GPR14;
 		else
@@ -360,12 +354,6 @@ static int pcie_dw_imx_parse_dt(struct udevice *dev)
 	priv->internal_refclk = dev_read_bool(dev, "internal-refclk");
 	if (dev_read_u32(dev, "fsl,max-link-speed", &priv->link_gen) < 0)
 		priv->link_gen = 1;
-
-	ret = power_domain_get(dev, &priv->power);
-	if (ret) {
-		dev_err(dev, "failed to get power domain\n");
-		return ret;
-	}
 
 	ret = reset_get_by_name(dev, "pciephy", &priv->pciephy_ctl);
 	if (ret) {
