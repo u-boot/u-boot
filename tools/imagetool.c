@@ -71,6 +71,11 @@ int imagetool_verify_print_header(
 		}
 	}
 
+	if (retval != 0) {
+		fprintf(stderr, "%s: cannot detect image type\n",
+			params->cmdname);
+	}
+
 	return retval;
 }
 
