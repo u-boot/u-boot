@@ -1355,7 +1355,7 @@ static int add_secure_header_v1(struct image_tool_params *params, uint8_t *image
 	if (kwb_sign_csk_with_kak(params, secure_hdr, csk))
 		return 1;
 
-	if (kwb_sign_and_verify(csk, image_ptr, image_size,
+	if (kwb_sign_and_verify(csk, image_ptr, image_size - 4,
 				&secure_hdr->imgsig, "image") < 0)
 		return 1;
 
