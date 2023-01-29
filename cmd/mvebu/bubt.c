@@ -725,9 +725,8 @@ static int check_image_header(void)
 {
 	struct mvebu_image_header *hdr =
 			(struct mvebu_image_header *)get_load_addr();
-	u32 header_len = hdr->prolog_size;
 	u32 checksum;
-	u32 checksum_ref = hdr->prolog_checksum;
+	u32 checksum_ref;
 
 	/*
 	 * For now compare checksum, and magic. Later we can
@@ -739,8 +738,17 @@ static int check_image_header(void)
 		return -ENOEXEC;
 	}
 
-	checksum = do_checksum32((u32 *)hdr, header_len);
+	checksum_ref = hdr->prolog_checksum;
+	checksum = do_checksum32((u32 *)hdr, hdr->prolog_size);
 	checksum -= hdr->prolog_checksum;
+	if (checksum != checksum_ref) {
+		printf("Error: Bad Prolog checksum. 0x%x != 0x%x\n",
+		       checksum, checksum_ref);
+		return -ENOEXEC;
+	}
+
+	checksum_ref = hdr->boot_image_checksum;
+	checksum = do_checksum32((u32 *)((u8 *)hdr + hdr->prolog_size), hdr->boot_image_size);
 	if (checksum != checksum_ref) {
 		printf("Error: Bad Image checksum. 0x%x != 0x%x\n",
 		       checksum, checksum_ref);
