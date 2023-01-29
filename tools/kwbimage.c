@@ -1322,16 +1322,14 @@ static int kwb_sign_csk_with_kak(struct image_tool_params *params,
 	return 0;
 }
 
-static int add_secure_header_v1(struct image_tool_params *params, uint8_t *ptr,
-				int payloadsz, size_t headersz, uint8_t *image,
+static int add_secure_header_v1(struct image_tool_params *params, uint8_t *image_ptr,
+				size_t image_size, uint8_t *header_ptr, size_t headersz,
 				struct secure_hdr_v1 *secure_hdr)
 {
 	struct image_cfg_element *e_jtagdelay;
 	struct image_cfg_element *e_boxid;
 	struct image_cfg_element *e_flashid;
 	RSA *csk = NULL;
-	unsigned char *image_ptr;
-	size_t image_size;
 	struct sig_v1 tmp_sig;
 	bool specialized_img = image_get_spezialized_img();
 
@@ -1357,14 +1355,11 @@ static int add_secure_header_v1(struct image_tool_params *params, uint8_t *ptr,
 	if (kwb_sign_csk_with_kak(params, secure_hdr, csk))
 		return 1;
 
-	image_ptr = ptr + headersz;
-	image_size = payloadsz - headersz;
-
 	if (kwb_sign_and_verify(csk, image_ptr, image_size,
 				&secure_hdr->imgsig, "image") < 0)
 		return 1;
 
-	if (kwb_sign_and_verify(csk, image, headersz, &tmp_sig, "header") < 0)
+	if (kwb_sign_and_verify(csk, header_ptr, headersz, &tmp_sig, "header") < 0)
 		return 1;
 
 	secure_hdr->hdrsig = tmp_sig;
@@ -1533,8 +1528,8 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 					      &datai, delay);
 	}
 
-	if (secure_hdr && add_secure_header_v1(params, ptr, payloadsz + headersz,
-					       headersz, image, secure_hdr))
+	if (secure_hdr && add_secure_header_v1(params, ptr + headersz, payloadsz,
+					       image, headersz, secure_hdr))
 		return NULL;
 
 	*imagesz = headersz;
