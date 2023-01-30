@@ -4,5 +4,5 @@
 # Christophe Leroy <christophe.leroy@c-s.fr>
 #
 
-obj-y += MCR3000.o
+obj-y += mcr3000.o
 obj-$(CONFIG_CMD_NAND) += nand.o

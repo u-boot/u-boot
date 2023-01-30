@@ -84,6 +84,6 @@ config SYS_DER
 	help
 	  Debug Event Register (37-47)
 
-source "board/cssi/MCR3000/Kconfig"
+source "board/cssi/mcr3000/Kconfig"
 
 endmenu
