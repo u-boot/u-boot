@@ -844,7 +844,7 @@ F:	drivers/clk/imx/
 
 COLDFIRE
 M:	Huan Wang <alison.wang@nxp.com>
-M:	Angelo Dureghello <angelo@sysam.it>
+M:	Angelo Dureghello <angelo@kernel-space.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-coldfire.git
 F:	arch/m68k/
