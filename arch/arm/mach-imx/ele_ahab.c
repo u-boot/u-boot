@@ -429,9 +429,6 @@ static void display_life_cycle(u32 lc)
 	case 0x8:
 		printf("OEM Open\n\n");
 		break;
-	case 0x10:
-		printf("OEM Secure World Closed\n\n");
-		break;
 	case 0x20:
 		printf("OEM closed\n\n");
 		break;
