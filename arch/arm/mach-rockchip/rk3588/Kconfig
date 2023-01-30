@@ -1,0 +1,15 @@
+if ROCKCHIP_RK3588
+
+config ROCKCHIP_BOOT_MODE_REG
+	default 0xfd588080
+
+config ROCKCHIP_STIMER_BASE
+	default 0xfd8c8000
+
+config SYS_SOC
+	default "rk3588"
+
+config SYS_MALLOC_F_LEN
+	default 0x80000
+
+endif
