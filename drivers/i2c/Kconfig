@@ -221,6 +221,16 @@ config SYS_I2C_DW
 	  controller is used in various SoCs, e.g. the ST SPEAr, Altera
 	  SoCFPGA, Synopsys ARC700 and some Intel x86 SoCs.
 
+config SYS_I2C_AST2600
+    bool "AST2600 I2C Controller"
+    depends on DM_I2C && ARCH_ASPEED
+    help
+      Say yes here to select AST2600 I2C Host Controller. The driver
+      support AST2600 I2C new mode register. This I2C controller supports:
+      _Standard-mode (up to 100 kHz)
+      _Fast-mode (up to 400 kHz)
+      _Fast-mode Plus (up to 1 MHz)
+
 config SYS_I2C_ASPEED
 	bool "Aspeed I2C Controller"
 	depends on DM_I2C && ARCH_ASPEED
