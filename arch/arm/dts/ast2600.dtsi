@@ -681,6 +681,7 @@
 
 			i2c: bus@1e78a000 {
 				compatible = "simple-bus";
+				reg = <0x1e78a000 0x1000>;
 				#address-cells = <1>;
 				#size-cells = <1>;
 				ranges = <0 0x1e78a000 0x1000>;
