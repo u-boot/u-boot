@@ -86,8 +86,13 @@ List of mainline supported Rockchip boards:
      - Radxa ROCK Pi 4 (rock-pi-4-rk3399)
      - Rockchip Evb-RK3399 (evb_rk3399)
      - Theobroma Systems RK3399-Q7 SoM - Puma (puma_rk3399)
+
 * rk3568
      - Rockchip Evb-RK3568 (evb-rk3568)
+
+* rk3588
+     - Edgeble Neural Compute Module 6 SoM - Neu6a (neu6a-io-rk3588)
+
 * rv1108
      - Rockchip Evb-rv1108 (evb-rv1108)
      - Elgin-R1 (elgin-rv1108)

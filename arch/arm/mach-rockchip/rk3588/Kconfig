@@ -1,5 +1,18 @@
 if ROCKCHIP_RK3588
 
+config TARGET_RK3588_NEU6
+	bool "Edgeble Neural Compute Module 6(Neu6) SoM"
+	select BOARD_LATE_INIT
+	help
+	  Neu6:
+	  Neural Compute Module 6A(Neu6a) is a 96boards SoM-CB compute module
+	  based on Rockchip RK3588 from Edgeble AI.
+
+	  Neu6-IO:
+	  Neural Compute Module 6(Neu6) IO board is an industrial form factor
+	  IO board and Neu6a needs to mount on top of this IO board in order to
+	  create complete Edgeble Neural Compute Module 6(Neu6) IO platform.
+
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xfd588080
 
@@ -11,5 +24,7 @@ config SYS_SOC
 
 config SYS_MALLOC_F_LEN
 	default 0x80000
+
+source board/edgeble/neural-compute-module-6/Kconfig
 
 endif
