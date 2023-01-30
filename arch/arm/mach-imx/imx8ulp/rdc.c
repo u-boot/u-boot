@@ -210,7 +210,7 @@ int release_rdc(enum rdc_type type)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 2;
-	msg.command = AHAB_RELEASE_RDC_REQ_CID;
+	msg.command = ELE_RELEASE_RDC_REQ;
 	msg.data[0] = (rdc_id << 8) | 0x2; /* A35 XRDC */
 
 	mu_hal_init(s_mu_base);
