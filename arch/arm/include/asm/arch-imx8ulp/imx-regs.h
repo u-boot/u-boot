@@ -63,6 +63,8 @@
 
 #define FEC_QUIRK_ENET_MAC
 
+#define IMG_CONTAINER_BASE             (0x22010000UL)
+
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
 
