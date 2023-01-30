@@ -29,8 +29,16 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define BOARD_CMPC885		"cmpc885"
 #define BOARD_MCR3000_2G	"mcr3k_2g"
+#define BOARD_VGOIP		"vgoip"
+#define BOARD_MIAE		"miae"
 
 #define TYPE_MCR	0x22
+#define TYPE_MIAE	0x23
+
+#define FAR_CASRSA     2
+#define FAR_VGOIP      4
+#define FAV_CLA        7
+#define FAV_SRSA       8
 
 #define ADDR_CPLD_R_RESET		((unsigned short __iomem *)CONFIG_CPLD_BASE)
 #define ADDR_CPLD_R_ETAT		((unsigned short __iomem *)(CONFIG_CPLD_BASE + 2))
@@ -38,6 +46,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ADDR_FPGA_R_BASE		((unsigned char  __iomem *)CONFIG_FPGA_BASE)
 #define ADDR_FPGA_R_ALARMES_IN		((unsigned char  __iomem *)CONFIG_FPGA_BASE + 0x31)
+#define ADDR_FPGA_R_FAV			((unsigned char  __iomem *)CONFIG_FPGA_BASE + 0x44)
+
+#define PATH_PHY2			"/soc@ff000000/mdio@e00/ethernet-phy@2"
+#define PATH_PHY3			"/soc@ff000000/mdio@e00/ethernet-phy@3"
+#define PATH_ETH1			"/soc@ff000000/ethernet@1e00"
+#define FIBER_PHY PATH_PHY2
 
 #define FPGA_R_ACQ_AL_FAV	0x04
 #define R_ETAT_PRES_BASE	0x0040
@@ -45,15 +59,68 @@ DECLARE_GLOBAL_DATA_PTR;
 #define R_RESET_STATUS		0x0400
 #define R_RST_STATUS		0x0004
 
+static int fdt_set_node_and_value(void *blob, char *node, const char *prop,
+				  void *var, int size)
+{
+	int ret, off;
+
+	off = fdt_path_offset(blob, node);
+
+	if (off < 0) {
+		printf("Cannot find %s node err:%s\n", node, fdt_strerror(off));
+
+		return off;
+	}
+
+	ret = fdt_setprop(blob, off, prop, var, size);
+
+	if (ret < 0)
+		printf("Cannot set %s/%s prop err: %s\n", node, prop, fdt_strerror(ret));
+
+	return ret;
+}
+
+/* Checks front/rear id and remove unneeded nodes from the blob */
+static void ft_cleanup(void *blob, uint32_t id, const char *prop, const char *compatible)
+{
+	int off;
+
+	off = fdt_node_offset_by_compatible(blob, -1, compatible);
+
+	while (off != -FDT_ERR_NOTFOUND) {
+		const struct fdt_property *ids;
+		int nb_ids, idx;
+		int tmp = -1;
+
+		ids = fdt_get_property(blob, off, prop, &nb_ids);
+
+		for (idx = 0; idx < nb_ids; idx += 4) {
+			if (*((uint32_t *)&ids->data[idx]) == id)
+				break;
+		}
+
+		if (idx >= nb_ids)
+			fdt_del_node(blob, off);
+		else
+			tmp = off;
+
+		off = fdt_node_offset_by_compatible(blob, tmp, compatible);
+	}
+
+	fdt_set_node_and_value(blob, "/", prop, &id, sizeof(uint32_t));
+}
+
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+	u8 fav_id, far_id;
+
 	const char *sync = "receive";
 
 	ft_cpu_setup(blob, bd);
 
 	/* BRG */
-	do_fixup_by_path_u32(blob, "/soc/cpm", "brg-frequency",
-			     bd->bi_busfreq, 1);
+	do_fixup_by_path_u32(blob, "/soc/cpm", "brg-frequency", bd->bi_busfreq, 1);
+
 	/* MAC addr */
 	fdt_fixup_ethernet(blob);
 
@@ -67,8 +134,33 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	do_fixup_by_path_u32(blob, "/localbus/e1", "channel-phase", 0, 1);
 
 	/* E1 interface - rising edge sync pulse transmit */
-	do_fixup_by_path(blob, "/localbus/e1", "rising-edge-sync-pulse",
-			 sync, strlen(sync), 1);
+	do_fixup_by_path(blob, "/localbus/e1", "rising-edge-sync-pulse", sync, strlen(sync), 1);
+
+	/* MIAE only */
+	if (!(in_be16(ADDR_CPLD_R_ETAT) & R_ETAT_PRES_BASE) || in_8(ADDR_FPGA_R_BASE) != TYPE_MIAE)
+		return 0;
+
+	far_id = in_8(ADDR_FPGA_R_BASE + 0x43) >> 5;
+	ft_cleanup(blob, (u32)far_id, "far-id", "cs,mia-far");
+
+	/*
+	 * special case, with CASRSA (far_id: 2)
+	 * FAV-SRSA register itself as FAV-CLA
+	 */
+	fav_id = in_8(ADDR_FPGA_R_BASE + 0x44) >> 5;
+
+	if (far_id == FAR_CASRSA && fav_id == FAV_CLA)
+		fav_id = FAV_SRSA;
+
+	ft_cleanup(blob, (u32)fav_id, "fav-id", "cs,mia-fav");
+
+	if (far_id == FAR_CASRSA) {
+		/* switch to phy3 with gpio, we'll only use phy3 */
+		immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
+		cpm8xx_t __iomem *cp = (cpm8xx_t __iomem *)&immr->im_cpm;
+
+		setbits_be32(&cp->cp_pedat, 0x00002000);
+	}
 
 	return 0;
 }
@@ -80,8 +172,18 @@ int checkboard(void)
 	/* Is a motherboard present ? */
 	if (in_be16(ADDR_CPLD_R_ETAT) & R_ETAT_PRES_BASE) {
 		switch (in_8(ADDR_FPGA_R_BASE)) {
+			int far_id;
 		case TYPE_MCR:
 			printf("MCR3000_2G (CS GROUP)\n");
+			break;
+		case TYPE_MIAE:
+			far_id = in_8(ADDR_FPGA_R_BASE + 0x43) >> 5;
+
+			if (far_id == FAR_VGOIP)
+				printf("VGoIP (CS GROUP)\n");
+			else
+				printf("MIAE (CS GROUP)\n");
+
 			break;
 		default:
 			printf("Unknown\n");
@@ -149,7 +251,8 @@ static int setup_mac(void)
 
 int misc_init_r(void)
 {
-	u8 val;
+	u8 val, tmp, far_id;
+	int count = 3;
 
 	val = in_8(ADDR_FPGA_R_BASE);
 
@@ -165,6 +268,31 @@ int misc_init_r(void)
 			env_set("config", BOARD_MCR3000_2G);
 			env_set("hostname", BOARD_MCR3000_2G);
 			break;
+
+		case TYPE_MIAE:
+			do {
+				tmp = in_8(ADDR_FPGA_R_BASE + 0x41);
+				count--;
+				mdelay(10); /* 10msec wait */
+			} while (count && tmp != in_8(ADDR_FPGA_R_BASE + 0x41));
+
+			if (!count) {
+				printf("Cannot read the reset factory switch position\n");
+				hang();
+			}
+
+			if (tmp & 0x1)
+				env_set_default("Factory settings switch ON", 0);
+
+			env_set("config", BOARD_MIAE);
+			far_id = in_8(ADDR_FPGA_R_BASE + 0x43) >> 5;
+
+			if (far_id == FAR_VGOIP)
+				env_set("hostname", BOARD_VGOIP);
+			else
+				env_set("hostname", BOARD_MIAE);
+			break;
+
 		default:
 			env_set("config", BOARD_CMPC885);
 			env_set("hostname", BOARD_CMPC885);
@@ -486,6 +614,150 @@ static void iop_setup_cmpc885(void)
 	 * PESO[14] = 0 [0x00020000] -> GPIO: ()
 	 */
 	clrbits_be32(&cp->cp_peso, 0x00031980);
+}
+
+static void iop_setup_miae(void)
+{
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	iop8xx_t __iomem *iop = &immr->im_ioport;
+	cpm8xx_t __iomem *cp = &immr->im_cpm;
+
+	/* Wait reset on FPGA_F */
+	udelay(100);
+
+	/* Set the front panel LED color to red */
+	clrbits_8(ADDR_FPGA_R_FAV, 0x02);
+
+	/* We must initialize data before changing direction */
+	setbits_be16(&iop->iop_pcdat, 0x0888);
+	setbits_be16(&iop->iop_pddat, 0x0201);
+	setbits_be32(&cp->cp_pbdat, 0x00021510);
+	setbits_be32(&cp->cp_pedat, 0x00000002);
+
+	/*
+	 * PAPAR[13] = 1 [0x0004] -> GPIO: (RXD2)
+	 * PAPAR[12] = 1 [0x0008] -> GPIO: (TXD2)
+	 * PAPAR[9]  = 1 [0x0040] -> GPIO: (TDM1O)
+	 * PAPAR[8]  = 1 [0x0080] -> GPIO: (TDM1I)
+	 * PAPAR[7]  = 1 [0x0100] -> GPIO: (TDM_BCLK_MPC)
+	 * PAPAR[6]  = 1 [0x0200] -> GPIO: (CLK2)
+	 */
+	setbits_be16(&iop->iop_papar, 0x03CC);
+
+	/*
+	 * PBODR[16] = 0 [0x00008000] -> GPIO: (L1ST4)
+	 */
+	clrbits_be16(&cp->cp_pbodr, 0x00008000);
+
+	/*
+	 * PBDIR[27] = 1 [0x00000010] -> GPIO: (WR_TEMP2)
+	 * PBDIR[26] = 1 [0x00000020] -> GPIO: (BRG02)
+	 * PBDIR[23] = 1 [0x00000100] -> GPIO: (CS_TEMP2)
+	 * PBDIR[18] = 1 [0x00002000] -> GPIO: (RTS2)
+	 * PBDIR[16] = 0 [0x00008000] -> GPIO: (L1ST4)
+	 * PBDIR[15] = 1 [0x00010000] -> GPIO: (BRG03)
+	 * PBDIR[14] = 1 [0x00020000] -> GPIO: (CS_TEMP)
+	 */
+	clrsetbits_be32(&cp->cp_pbdir, 0x0003A130, 0x00032130);
+
+	/*
+	 * PBPAR[20] = 1 [0x00000800] -> GPIO: (SMRXD2)
+	 * PBPAR[17] = 1 [0x00004000] -> GPIO: (L1ST3)
+	 * PBPAR[16] = 1 [0x00008000] -> GPIO: (L1ST4)
+	 */
+	setbits_be32(&cp->cp_pbpar, 0x0000C800);
+
+	/*
+	 * PCPAR[14] = 1 [0x0002] -> GPIO: (L1ST2)
+	 */
+	setbits_be16(&iop->iop_pcpar, 0x0002);
+
+	/*
+	 * PDPAR[14] = 1 [0x0002] -> GPIO: (TDM_FS_MPC)
+	 * PDPAR[11] = 1 [0x0010] -> GPIO: (RXD3)
+	 * PDPAR[10] = 1 [0x0020] -> GPIO: (TXD3)
+	 * PDPAR[9]  = 1 [0x0040] -> GPIO: (TXD4)
+	 * PDPAR[7]  = 1 [0x0100] -> GPIO: (RTS3)
+	 * PDPAR[5]  = 1 [0x0400] -> GPIO: (CLK8)
+	 * PDPAR[3]  = 1 [0x1000] -> GPIO: (CLK7)
+	 */
+	setbits_be16(&iop->iop_pdpar, 0x1572);
+
+	/*
+	 * PEPAR[27] = 1 [0x00000010] -> GPIO: (R2_RXER)
+	 * PEPAR[26] = 1 [0x00000020] -> GPIO: (R2_CRS_DV)
+	 * PEPAR[25] = 1 [0x00000040] -> GPIO: (RXD4)
+	 * PEPAR[24] = 1 [0x00000080] -> GPIO: (BRG01)
+	 * PEPAR[23] = 1 [0x00000100] -> GPIO: (L1ST1)
+	 * PEPAR[22] = 1 [0x00000200] -> GPIO: (R2_RXD1)
+	 * PEPAR[21] = 1 [0x00000400] -> GPIO: (R2_RXD0)
+	 * PEPAR[20] = 1 [0x00000800] -> GPIO: (SMTXD2)
+	 * PEPAR[19] = 1 [0x00001000] -> GPIO: (R2_TXEN)
+	 * PEPAR[17] = 1 [0x00004000] -> GPIO: (CLK5)
+	 * PEPAR[16] = 1 [0x00008000] -> GPIO: (R2_REF_CLK)
+	 * PEPAR[15] = 1 [0x00010000] -> GPIO: (R2_TXD1)
+	 * PEPAR[14] = 1 [0x00020000] -> GPIO: (R2_TXD0)
+	 */
+	setbits_be32(&cp->cp_pepar, 0x0003DFF0);
+
+	/*
+	 * PADIR[9]  = 1 [0x0040] -> GPIO: (TDM1O)
+	 * PADIR[8]  = 1 [0x0080] -> GPIO: (TDM1I)
+	 * PADIR[5]  = 0 [0x0400] -> GPIO: ()
+	 */
+	clrsetbits_be16(&iop->iop_padir, 0x04C0, 0x00C0);
+
+	/*
+	 * PCDIR[15] = 1 [0x0001] -> GPIO: (WP_EEPROM2)
+	 * PCDIR[14] = 1 [0x0002] -> GPIO: (L1ST2)
+	 * PCDIR[13] = 0 [0x0004] -> GPIO: ()
+	 * PCDIR[12] = 1 [0x0008] -> GPIO: (CS_EEPROM2)
+	 * PCDIR[8]  = 1 [0x0080] -> GPIO: (CS_CODEC_2)
+	 * PCDIR[4]  = 1 [0x0800] -> GPIO: (CS_CODEC_1)
+	 */
+	clrsetbits_be16(&iop->iop_pcdir, 0x088F, 0x088B);
+
+	/*
+	 * PDDIR[9]  = 1 [0x0040] -> GPIO: (TXD4)
+	 * PDDIR[6]  = 1 [0x0200] -> GPIO: (CS_CODEC_3)
+	 */
+	setbits_be16(&iop->iop_pddir, 0x0240);
+
+	/*
+	 * PEDIR[30] = 1 [0x00000002] -> GPIO: (FPGA_FIRMWARE)
+	 * PEDIR[27] = 1 [0x00000010] -> GPIO: (R2_RXER)
+	 * PEDIR[26] = 1 [0x00000020] -> GPIO: (R2_CRS_DV)
+	 * PEDIR[23] = 1 [0x00000100] -> GPIO: (L1ST1)
+	 * PEDIR[22] = 1 [0x00000200] -> GPIO: (R2_RXD1)
+	 * PEDIR[21] = 1 [0x00000400] -> GPIO: (R2_RXD0)
+	 * PEDIR[19] = 1 [0x00001000] -> GPIO: (R2_TXEN)
+	 * PEDIR[18] = 1 [0x00002000] -> GPIO: (PE18)
+	 * PEDIR[16] = 1 [0x00008000] -> GPIO: (R2_REF_CLK)
+	 * PEDIR[15] = 1 [0x00010000] -> GPIO: (R2_TXD1)
+	 * PEDIR[14] = 1 [0x00020000] -> GPIO: (R2_TXD0)
+	 */
+	setbits_be32(&cp->cp_pedir, 0x0003B732);
+
+	/*
+	 * PAODR[10] = 1 [0x0020] -> GPIO: (INIT_FPGA_F)
+	 */
+	setbits_be16(&iop->iop_paodr, 0x0020);
+
+	/*
+	 * PEODR[30] = 1 [0x00000002] -> GPIO: (FPGA_FIRMWARE)
+	 * PEODR[18] = 0 [0x00002000] -> GPIO: (PE18)
+	 */
+	clrsetbits_be32(&cp->cp_peodr, 0x00002002, 0x00000002);
+
+	/*
+	 * PESO[24] = 1 [0x00000080] -> GPIO: (BRG01)
+	 * PESO[23] = 1 [0x00000100] -> GPIO: (L1ST1)
+	 * PESO[20] = 1 [0x00000800] -> GPIO: (SMTXD2)
+	 * PESO[19] = 1 [0x00001000] -> GPIO: (R2_TXEN)
+	 * PESO[15] = 1 [0x00010000] -> GPIO: (R2_TXD1)
+	 * PESO[14] = 1 [0x00020000] -> GPIO: (R2_TXD0)
+	 */
+	setbits_be32(&cp->cp_peso, 0x00031980);
 }
 
 int board_early_init_f(void)
@@ -816,6 +1088,10 @@ int board_early_init_r(void)
 		switch (in_8(ADDR_FPGA_R_BASE)) {
 		case TYPE_MCR:
 			iop_setup_mcr();
+			break;
+
+		case TYPE_MIAE:
+			iop_setup_miae();
 			break;
 
 		default:
