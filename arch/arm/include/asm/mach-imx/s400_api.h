@@ -18,6 +18,7 @@
 #define AHAB_FWD_LIFECYCLE_UP_REQ_CID   0x95
 #define AHAB_READ_FUSE_REQ_CID	0x97
 #define AHAB_GET_FW_VERSION_CID	0x9D
+#define AHAB_GET_EVENTS_REQ_CID 0xA2
 #define AHAB_RELEASE_RDC_REQ_CID   0xC4
 #define AHAB_GET_FW_STATUS_CID   0xC5
 #define AHAB_WRITE_FUSE_REQ_CID	0xD6
@@ -58,5 +59,6 @@ int ahab_dump_buffer(u32 *buffer, u32 buffer_length);
 int ahab_get_info(struct sentinel_get_info_data *info, u32 *response);
 int ahab_get_fw_status(u32 *status, u32 *response);
 int ahab_release_m33_trout(void);
+int ahab_get_events(u32 *events, u32 *events_cnt, u32 *response);
 
 #endif

@@ -445,3 +445,48 @@ int ahab_release_m33_trout(void)
 
 	return ret;
 }
+
+int ahab_get_events(u32 *events, u32 *events_cnt, u32 *response)
+{
+	struct udevice *dev = gd->arch.s400_dev;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
+	int ret, i = 0;
+	u32 actual_events;
+
+	if (!dev) {
+		printf("s400 dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	if (!events || !events_cnt || *events_cnt == 0) {
+		printf("Invalid parameters for %s\n", __func__);
+		return -EINVAL;
+	}
+
+	msg.version = AHAB_VERSION;
+	msg.tag = AHAB_CMD_TAG;
+	msg.size = 1;
+	msg.command = AHAB_GET_EVENTS_REQ_CID;
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, response 0x%x\n",
+		       __func__, ret, msg.data[0]);
+
+	if (response)
+		*response = msg.data[0];
+
+	if (!ret) {
+		actual_events = msg.data[1] & 0xffff;
+		if (*events_cnt < actual_events)
+			actual_events = *events_cnt;
+
+		for (; i < actual_events; i++)
+			events[i] = msg.data[i + 2];
+
+		*events_cnt = actual_events;
+	}
+
+	return ret;
+}
