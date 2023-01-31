@@ -137,6 +137,11 @@ check for new CONFIG symbols outside Kconfig:
         :^doc/ :^arch/arm/dts/ :^scripts/kconfig/lkc.h
         :^include/linux/kconfig.h :^tools/ && exit 1 || exit 0
 
+check usage of CONFIG_IS_ENABLED vs IS_ENABLED:
+  stage: testsuites
+  script:
+    - ./test/usage_of_is_enabled_check.sh
+
 # QA jobs for code analytics
 # static code analysis with cppcheck (we can add --enable=all later)
 cppcheck:
