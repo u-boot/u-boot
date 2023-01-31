@@ -556,33 +556,65 @@ static void set_core0_reset_vector(u32 entry)
 	setbits_le32(SIM1_BASE_ADDR + 0x8, (0x1 << 26));
 }
 
-static int trdc_set_access(void)
+/* Not used now */
+int trdc_set_access(void)
 {
 	/*
 	 * TRDC mgr + 4 MBC + 2 MRC.
-	 * S400 should already configure when release RDC
-	 * A35 only map non-secure region for pbridge0 and 1, set sec_access to false
 	 */
-	trdc_mbc_set_access(2, 7, 0, 49, false);
-	trdc_mbc_set_access(2, 7, 0, 50, false);
-	trdc_mbc_set_access(2, 7, 0, 51, false);
-	trdc_mbc_set_access(2, 7, 0, 52, false);
-	trdc_mbc_set_access(2, 7, 0, 53, false);
-	trdc_mbc_set_access(2, 7, 0, 54, false);
+	trdc_mbc_set_access(2, 7, 0, 49, true);
+	trdc_mbc_set_access(2, 7, 0, 50, true);
+	trdc_mbc_set_access(2, 7, 0, 51, true);
+	trdc_mbc_set_access(2, 7, 0, 52, true);
+	trdc_mbc_set_access(2, 7, 0, 53, true);
+	trdc_mbc_set_access(2, 7, 0, 54, true);
 
-	/* CGC0: PBridge0 slot 47 */
+	/* 0x1fff8000 used for resource table by remoteproc */
+	trdc_mbc_set_access(0, 7, 2, 31, false);
+
+	/* CGC0: PBridge0 slot 47 and PCC0 slot 48 */
 	trdc_mbc_set_access(2, 7, 0, 47, false);
+	trdc_mbc_set_access(2, 7, 0, 48, false);
+
+	/* PCC1 */
+	trdc_mbc_set_access(2, 7, 1, 17, false);
+	trdc_mbc_set_access(2, 7, 1, 34, false);
 
 	/* Iomuxc0: : PBridge1 slot 33 */
 	trdc_mbc_set_access(2, 7, 1, 33, false);
 
 	/* flexspi0 */
+	trdc_mbc_set_access(2, 7, 0, 57, false);
 	trdc_mrc_region_set_access(0, 7, 0x04000000, 0x0c000000, false);
 
 	/* tpm0: PBridge1 slot 21 */
 	trdc_mbc_set_access(2, 7, 1, 21, false);
 	/* lpi2c0: PBridge1 slot 24 */
 	trdc_mbc_set_access(2, 7, 1, 24, false);
+
+	/* Allow M33 to access TRDC MGR */
+	trdc_mbc_set_access(2, 6, 0, 49, true);
+	trdc_mbc_set_access(2, 6, 0, 50, true);
+	trdc_mbc_set_access(2, 6, 0, 51, true);
+	trdc_mbc_set_access(2, 6, 0, 52, true);
+	trdc_mbc_set_access(2, 6, 0, 53, true);
+	trdc_mbc_set_access(2, 6, 0, 54, true);
+
+	/* Set SAI0 for eDMA 0, NS */
+	trdc_mbc_set_access(2, 0, 1, 28, false);
+
+	/* Set SSRAM for eDMA0 access */
+	trdc_mbc_set_access(0, 0, 2, 0, false);
+	trdc_mbc_set_access(0, 0, 2, 1, false);
+	trdc_mbc_set_access(0, 0, 2, 2, false);
+	trdc_mbc_set_access(0, 0, 2, 3, false);
+	trdc_mbc_set_access(0, 0, 2, 4, false);
+	trdc_mbc_set_access(0, 0, 2, 5, false);
+	trdc_mbc_set_access(0, 0, 2, 6, false);
+	trdc_mbc_set_access(0, 0, 2, 7, false);
+
+	writel(0x800000a0, 0x28031840);
+
 	return 0;
 }
 
@@ -654,15 +686,10 @@ int arch_cpu_init(void)
 		if (!ret)
 			rdc_en = !!(val & 0x4000);
 
-		if (get_boot_mode() == SINGLE_BOOT) {
-			if (rdc_en)
-				release_rdc(RDC_TRDC);
-
-			trdc_set_access();
+		if (get_boot_mode() == SINGLE_BOOT)
 			lpav_configure(false);
-		} else {
+		else
 			lpav_configure(true);
-		}
 
 		/* Release xrdc, then allow A35 to write SRAM2 */
 		if (rdc_en)
