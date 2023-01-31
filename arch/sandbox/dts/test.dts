@@ -342,6 +342,24 @@
 				vsync-len = <13>;
 			};
 		};
+		panel-timings {
+			clock-frequency = <6500000>;
+			hactive = <240>;
+			vactive = <320>;
+			hfront-porch = <6>;
+			hback-porch = <7>;
+			hsync-len = <1>;
+			vback-porch = <5>;
+			vfront-porch = <8>;
+			vsync-len = <2>;
+			hsync-active = <1>;
+			vsync-active = <0>;
+			de-active = <1>;
+			pixelclk-active = <1>;
+			interlaced;
+			doublescan;
+			doubleclk;
+		};
 	};
 
 	junk {
