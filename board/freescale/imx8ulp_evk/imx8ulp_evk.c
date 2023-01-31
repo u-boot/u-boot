@@ -101,18 +101,12 @@ void mipi_dsi_panel_backlight(void)
 
 int board_init(void)
 {
-	int sync = -ENODEV;
 
 	if (IS_ENABLED(CONFIG_FEC_MXC))
 		setup_fec();
 
-	if (m33_image_booted()) {
-		sync = m33_image_handshake(1000);
-		printf("M33 Sync: %s\n", sync ? "Timeout" : "OK");
-	}
-
 	/* When sync with M33 is failed, use local driver to set for video */
-	if (sync != 0 && IS_ENABLED(CONFIG_VIDEO)) {
+	if (!is_m33_handshake_necessary() && IS_ENABLED(CONFIG_VIDEO)) {
 		mipi_dsi_mux_panel();
 		mipi_dsi_panel_backlight();
 	}

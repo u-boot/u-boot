@@ -104,14 +104,70 @@ enum bt_mode get_boot_mode(void)
 
 bool m33_image_booted(void)
 {
-	u32 gp6;
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		u32 gp6 = 0;
 
-	/* DGO_GP6 */
-	gp6 = readl(SIM_SEC_BASE_ADDR + 0x28);
-	if (gp6 & BIT(5))
-		return true;
+		/* DGO_GP6 */
+		gp6 = readl(SIM_SEC_BASE_ADDR + 0x28);
+		if (gp6 & BIT(5))
+			return true;
 
-	return false;
+		return false;
+	} else {
+		u32 gpr0 = readl(SIM1_BASE_ADDR);
+		if (gpr0 & BIT(0))
+			return true;
+
+		return false;
+	}
+}
+
+bool rdc_enabled_in_boot(void)
+{
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		u32 val = 0;
+		int ret;
+		bool rdc_en = true; /* Default assume DBD_EN is set */
+
+		/* Read DBD_EN fuse */
+		ret = fuse_read(8, 1, &val);
+		if (!ret)
+			rdc_en = !!(val & 0x200); /* only A1 part uses DBD_EN, so check DBD_EN new place*/
+
+		return rdc_en;
+	} else {
+		u32 gpr0 = readl(SIM1_BASE_ADDR);
+		if (gpr0 & 0x2)
+			return true;
+
+		return false;
+	}
+}
+
+static void spl_pass_boot_info(void)
+{
+	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+		bool m33_booted = m33_image_booted();
+		bool rdc_en = rdc_enabled_in_boot();
+		u32 val = 0;
+
+		if (m33_booted)
+			val |= 0x1;
+
+		if (rdc_en)
+			val |= 0x2;
+
+		writel(val, SIM1_BASE_ADDR);
+	}
+}
+
+bool is_m33_handshake_necessary(void)
+{
+	/* Only need handshake in u-boot */
+	if (!IS_ENABLED(CONFIG_SPL_BUILD))
+		return (m33_image_booted() || rdc_enabled_in_boot());
+	else
+		return false;
 }
 
 int m33_image_handshake(ulong timeout_ms)
@@ -661,10 +717,6 @@ void set_lpav_qos(void)
 int arch_cpu_init(void)
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
-		u32 val = 0;
-		int ret;
-		bool rdc_en = true; /* Default assume DBD_EN is set */
-
 		/* Enable System Reset Interrupt using WDOG_AD */
 		setbits_le32(CMC1_BASE_ADDR + 0x8C, BIT(13));
 		/* Clear AD_PERIPH Power switch domain out of reset interrupt flag */
@@ -681,28 +733,48 @@ int arch_cpu_init(void)
 		/* Disable wdog */
 		init_wdog();
 
-		/* Read DBD_EN fuse */
-		ret = fuse_read(8, 1, &val);
-		if (!ret)
-			rdc_en = !!(val & 0x4000);
-
 		if (get_boot_mode() == SINGLE_BOOT)
 			lpav_configure(false);
 		else
 			lpav_configure(true);
 
 		/* Release xrdc, then allow A35 to write SRAM2 */
-		if (rdc_en)
+		if (rdc_enabled_in_boot())
 			release_rdc(RDC_XRDC);
 
 		xrdc_mrc_region_set_access(2, CONFIG_SPL_TEXT_BASE, 0xE00);
 
 		clock_init_early();
+
+		spl_pass_boot_info();
 	} else {
+		int ret;
 		/* reconfigure core0 reset vector to ROM */
 		set_core0_reset_vector(0x1000);
+
+		if (is_m33_handshake_necessary()) {
+			/* Start handshake with M33 to ensure TRDC configuration completed */
+			ret = m33_image_handshake(1000);
+			if (!ret)
+				gd->arch.m33_handshake_done = true;
+			else /* Skip and go through to panic in checkcpu as console is ready then */
+				gd->arch.m33_handshake_done = false;
+		}
 	}
 
+	return 0;
+}
+
+int checkcpu(void)
+{
+	if (is_m33_handshake_necessary()) {
+		if (!gd->arch.m33_handshake_done) {
+			puts("M33 Sync: Timeout, Boot Stop!\n");
+			hang();
+		} else {
+			puts("M33 Sync: OK\n");
+		}
+	}
 	return 0;
 }
 
