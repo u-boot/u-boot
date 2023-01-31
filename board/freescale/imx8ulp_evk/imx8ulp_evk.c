@@ -121,8 +121,16 @@ int board_early_init_f(void)
 
 int board_late_init(void)
 {
+	ulong addr;
+
 #if CONFIG_IS_ENABLED(ENV_IS_IN_MMC)
 	board_late_mmc_env_init();
 #endif
+
+	/* clear fdtaddr to avoid obsolete data */
+	addr = env_get_hex("fdt_addr_r", 0);
+	if (addr)
+		memset((void *)addr, 0, 0x400);
+
 	return 0;
 }
