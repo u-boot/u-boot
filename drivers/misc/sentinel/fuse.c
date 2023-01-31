@@ -60,6 +60,11 @@ struct fsb_map_entry fsb_mapping_table[] = {
 	{ 46, 8 },
 };
 
+/* None ECC banks such like Redundancy or Bit protect */
+u32 nonecc_fuse_banks[] = {
+	0, 1, 8, 12, 16, 22, 24, 25, 26, 27, 36, 41, 51, 56
+};
+
 struct s400_map_entry s400_api_mapping_table[] = {
 	{ 1, 8 },	/* LOCK */
 	{ 2, 8 },	/* ECID */
@@ -280,11 +285,26 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 {
 	u32 res;
 	int ret;
+	bool lock = false;
 
 	if (bank >= FUSE_BANKS || word >= WORDS_PER_BANKS || !val)
 		return -EINVAL;
 
-	ret = ahab_write_fuse((bank * 8 + word), val, false, &res);
+	/* Lock 8ULP ECC fuse word, so second programming will return failure.
+	 * iMX9 OTP can protect ECC fuse, so not need it
+	 */
+#if defined(CONFIG_IMX8ULP)
+	u32 i;
+	for (i = 0; i < ARRAY_SIZE(nonecc_fuse_banks); i++) {
+		if (nonecc_fuse_banks[i] == bank)
+			break;
+	}
+
+	if (i == ARRAY_SIZE(nonecc_fuse_banks))
+		lock = true;
+#endif
+
+	ret = ahab_write_fuse((bank * 8 + word), val, lock, &res);
 	if (ret) {
 		printf("ahab write fuse failed %d, 0x%x\n", ret, res);
 		return ret;
