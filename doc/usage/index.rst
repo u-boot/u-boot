@@ -80,6 +80,7 @@ Shell commands
    cmd/sleep
    cmd/sound
    cmd/source
+   cmd/sm
    cmd/temperature
    cmd/tftpput
    cmd/true

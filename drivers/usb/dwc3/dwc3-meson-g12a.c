@@ -455,6 +455,22 @@ static int dwc3_meson_g12a_remove(struct udevice *dev)
 	return dm_scan_fdt_dev(dev);
 }
 
+static int dwc3_meson_g12a_child_pre_probe(struct udevice *dev)
+{
+	if (ofnode_device_is_compatible(dev_ofnode(dev), "amlogic,meson-g12a-usb"))
+		return dwc3_meson_g12a_force_mode(dev->parent, USB_DR_MODE_PERIPHERAL);
+
+	return 0;
+}
+
+static int dwc3_meson_g12a_child_post_remove(struct udevice *dev)
+{
+	if (ofnode_device_is_compatible(dev_ofnode(dev), "amlogic,meson-g12a-usb"))
+		return dwc3_meson_g12a_force_mode(dev->parent, USB_DR_MODE_HOST);
+
+	return 0;
+}
+
 static const struct udevice_id dwc3_meson_g12a_ids[] = {
 	{ .compatible = "amlogic,meson-g12a-usb-ctrl" },
 	{ }
@@ -466,6 +482,8 @@ U_BOOT_DRIVER(dwc3_generic_wrapper) = {
 	.of_match = dwc3_meson_g12a_ids,
 	.probe = dwc3_meson_g12a_probe,
 	.remove = dwc3_meson_g12a_remove,
+	.child_pre_probe = dwc3_meson_g12a_child_pre_probe,
+	.child_post_remove = dwc3_meson_g12a_child_post_remove,
 	.plat_auto	= sizeof(struct dwc3_meson_g12a),
 
 };

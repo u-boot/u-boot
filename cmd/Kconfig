@@ -2733,4 +2733,11 @@ config MMC_SPEED_MODE_SET
 	  and is indicated using the index from enum bus_mode in
 	  include/mmc.h. A speed mode can be set only if it has already
 	  been enabled in the device tree.
+
+config CMD_MESON
+	bool "Amlogic Meson commands"
+	depends on ARCH_MESON
+	default y
+	help
+	  Enable useful commands for the Meson Soc family developed by Amlogic Inc.
 endmenu
