@@ -77,16 +77,12 @@ void display_ele_fw_version(void)
 
 void spl_board_init(void)
 {
-	struct udevice *dev;
 	u32 res;
 	int ret;
 
-	uclass_find_first_device(UCLASS_MISC, &dev);
-
-	for (; dev; uclass_find_next_device(&dev)) {
-		if (device_probe(dev))
-			continue;
-	}
+	ret = imx8ulp_dm_post_init();
+	if (ret)
+		return;
 
 	board_early_init_f();
 

@@ -10,6 +10,7 @@
 #include <linux/bitops.h>
 #include <linux/sizes.h>
 
+#define SRAM0_BASE          0x22010000
 #define PBRIDGE0_BASE		0x28000000
 
 #define CMC0_RBASE		0x28025000
