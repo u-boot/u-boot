@@ -276,6 +276,21 @@ void xrdc_init_mda(void)
 
 void xrdc_init_mrc(void)
 {
+	/* Re-config MRC3 for SRAM0 in case protected by S400 */
+	xrdc_config_mrc_w0_w1(3, 0, 0x22010000, 0x10000);
+	xrdc_config_mrc_dx_perm(3, 0, 0, 1);
+	xrdc_config_mrc_dx_perm(3, 0, 1, 1);
+	xrdc_config_mrc_dx_perm(3, 0, 4, 1);
+	xrdc_config_mrc_dx_perm(3, 0, 5, 1);
+	xrdc_config_mrc_dx_perm(3, 0, 6, 1);
+	xrdc_config_mrc_dx_perm(3, 0, 7, 1);
+	xrdc_config_mrc_w3_w4(3, 0, 0x0, 0x80000FFF);
+
+	/* Clear other 3 regions of MRC3 to invalid */
+	xrdc_config_mrc_w3_w4(3, 1, 0x0, 0x0);
+	xrdc_config_mrc_w3_w4(3, 2, 0x0, 0x0);
+	xrdc_config_mrc_w3_w4(3, 3, 0x0, 0x0);
+
 	/* Set MRC4 and MRC5 for DDR access from A35 and AP NIC PER masters */
 	xrdc_config_mrc_w0_w1(4, 0, CFG_SYS_SDRAM_BASE, PHYS_SDRAM_SIZE);
 	xrdc_config_mrc_dx_perm(4, 0, 1, 1);
