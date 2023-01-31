@@ -63,12 +63,15 @@ static int simple_panel_of_to_plat(struct udevice *dev)
 				return ret;
 		}
 	}
+
 	ret = uclass_get_device_by_phandle(UCLASS_PANEL_BACKLIGHT, dev,
-					   "backlight", &priv->backlight);
+						   "backlight", &priv->backlight);
 	if (ret) {
 		debug("%s: Cannot get backlight: ret=%d\n", __func__, ret);
-		return log_ret(ret);
+		if (ret != -ENOENT)
+			return log_ret(ret);
 	}
+
 	ret = gpio_request_by_name(dev, "enable-gpios", 0, &priv->enable,
 				   GPIOD_IS_OUT);
 	if (ret) {
