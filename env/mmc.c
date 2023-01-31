@@ -273,11 +273,11 @@ static int env_mmc_save(void)
 			if (ret)
 				goto fini;
 		}
+	}
 
-		if (mmc_get_env_addr(mmc, copy, &offset)) {
-			ret = 1;
-			goto fini;
-		}
+	if (mmc_get_env_addr(mmc, copy, &offset)) {
+		ret = 1;
+		goto fini;
 	}
 
 	printf("Writing to %sMMC(%d)... ", copy ? "redundant " : "", dev);
