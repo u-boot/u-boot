@@ -104,15 +104,17 @@ void spl_board_init(void)
 
 	clock_init_late();
 
-	/* DDR initialization */
-	spl_dram_init();
-
 	/* This must place after upower init, so access to MDA and MRC are valid */
 	/* Init XRDC MDA  */
 	xrdc_init_mda();
 
 	/* Init XRDC MRC for VIDEO, DSP domains */
 	xrdc_init_mrc();
+
+	xrdc_init_pdac_msc();
+
+	/* DDR initialization */
+	spl_dram_init();
 
 	/* Call it after PS16 power up */
 	set_lpav_qos();
