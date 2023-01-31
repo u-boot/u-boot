@@ -7,16 +7,35 @@
  *
  */
 
-#include <asm/io.h>
+#include <env.h>
 #include <spl.h>
-#include <dm/uclass.h>
+#include <video.h>
+#include <splash.h>
 #include <k3-ddrss.h>
 #include <fdt_support.h>
+#include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
-#include <env.h>
+#include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_SPLASH_SCREEN
+static struct splash_location default_splash_locations[] = {
+	{
+		.name		= "mmc",
+		.storage	= SPLASH_STORAGE_MMC,
+		.flags		= SPLASH_STORAGE_FS,
+		.devpart	= "1:1",
+	},
+};
+
+int splash_screen_prepare(void)
+{
+	return splash_source_load(default_splash_locations,
+				ARRAY_SIZE(default_splash_locations));
+}
+#endif
 
 int board_init(void)
 {
