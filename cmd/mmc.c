@@ -1020,16 +1020,12 @@ static int do_mmc_setdsr(struct cmd_tbl *cmdtp, int flag,
 }
 
 #ifdef CONFIG_CMD_BKOPS_ENABLE
-static int do_mmc_bkops_enable(struct cmd_tbl *cmdtp, int flag,
-			       int argc, char *const argv[])
+static int mmc_bkops_common(char *device, bool autobkops, bool enable)
 {
-	int dev;
 	struct mmc *mmc;
+	int dev;
 
-	if (argc != 2)
-		return CMD_RET_USAGE;
-
-	dev = dectoul(argv[1], NULL);
+	dev = dectoul(device, NULL);
 
 	mmc = init_mmc_device(dev, false);
 	if (!mmc)
@@ -1040,7 +1036,41 @@ static int do_mmc_bkops_enable(struct cmd_tbl *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
-	return mmc_set_bkops_enable(mmc);
+	return mmc_set_bkops_enable(mmc, autobkops, enable);
+}
+
+static int do_mmc_bkops(struct cmd_tbl *cmdtp, int flag,
+			int argc, char * const argv[])
+{
+	bool autobkops, enable;
+
+	if (argc != 4)
+		return CMD_RET_USAGE;
+
+	if (!strcmp(argv[2], "manual"))
+		autobkops = false;
+	else if (!strcmp(argv[2], "auto"))
+		autobkops = true;
+	else
+		return CMD_RET_FAILURE;
+
+	if (!strcmp(argv[3], "disable"))
+		enable = false;
+	else if (!strcmp(argv[3], "enable"))
+		enable = true;
+	else
+		return CMD_RET_FAILURE;
+
+	return mmc_bkops_common(argv[1], autobkops, enable);
+}
+
+static int do_mmc_bkops_enable(struct cmd_tbl *cmdtp, int flag,
+			       int argc, char * const argv[])
+{
+	if (argc != 2)
+		return CMD_RET_USAGE;
+
+	return mmc_bkops_common(argv[1], false, true);
 }
 #endif
 
@@ -1102,6 +1132,7 @@ static struct cmd_tbl cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(setdsr, 2, 0, do_mmc_setdsr, "", ""),
 #ifdef CONFIG_CMD_BKOPS_ENABLE
 	U_BOOT_CMD_MKENT(bkops-enable, 2, 0, do_mmc_bkops_enable, "", ""),
+	U_BOOT_CMD_MKENT(bkops, 4, 0, do_mmc_bkops, "", ""),
 #endif
 };
 
@@ -1188,6 +1219,8 @@ U_BOOT_CMD(
 #ifdef CONFIG_CMD_BKOPS_ENABLE
 	"mmc bkops-enable <dev> - enable background operations handshake on device\n"
 	"   WARNING: This is a write-once setting.\n"
+	"mmc bkops <dev> [auto|manual] [enable|disable]\n"
+	" - configure background operations handshake on device\n"
 #endif
 	);
 

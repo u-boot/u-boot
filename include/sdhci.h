@@ -189,6 +189,7 @@
 #define  SDHCI_SUPPORT_SDR50	0x00000001
 #define  SDHCI_SUPPORT_SDR104	0x00000002
 #define  SDHCI_SUPPORT_DDR50	0x00000004
+#define  SDHCI_SUPPORT_HS400	BIT(31)
 #define  SDHCI_USE_SDR50_TUNING	0x00002000
 
 #define  SDHCI_CLOCK_MUL_MASK	0x00FF0000
@@ -248,6 +249,8 @@
 #define SDHCI_QUIRK_USE_WIDE8		(1 << 8)
 #define SDHCI_QUIRK_NO_1_8_V		(1 << 9)
 #define SDHCI_QUIRK_SUPPORT_SINGLE	(1 << 10)
+/* Capability register bit-63 indicates HS400 support */
+#define SDHCI_QUIRK_CAPS_BIT63_FOR_HS400	BIT(11)
 
 /* to make gcc happy */
 struct sdhci_host;
@@ -272,6 +275,8 @@ struct sdhci_ops {
 	void	(*set_clock)(struct sdhci_host *host, u32 div);
 	int (*platform_execute_tuning)(struct mmc *host, u8 opcode);
 	int (*set_delay)(struct sdhci_host *host);
+	/* Callback function to set DLL clock configuration */
+	int (*config_dll)(struct sdhci_host *host, u32 clock, bool enable);
 	int	(*deferred_probe)(struct sdhci_host *host);
 
 	/**

@@ -396,6 +396,14 @@ int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		}
 	}
 
+	if (host->ops && host->ops->config_dll) {
+		ret = host->ops->config_dll(host, clock, false);
+		if (ret) {
+			printf("%s: Error while configuring dll\n", __func__);
+			return ret;
+		}
+	}
+
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		/*
 		 * Check if the Host Controller supports Programmable Clock
@@ -438,6 +446,14 @@ int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 
 	if (host->ops && host->ops->set_clock)
 		host->ops->set_clock(host, div);
+
+	if (host->ops && host->ops->config_dll) {
+		ret = host->ops->config_dll(host, clock, true);
+		if (ret) {
+			printf("%s: Error while configuring dll\n", __func__);
+			return ret;
+		}
+	}
 
 	clk |= (div & SDHCI_DIV_MASK) << SDHCI_DIVIDER_SHIFT;
 	clk |= ((div & SDHCI_DIV_HI_MASK) >> SDHCI_DIV_MASK_LEN)
@@ -978,6 +994,10 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 	} else if (caps_1 & SDHCI_SUPPORT_SDR50) {
 		cfg->host_caps |= MMC_CAP(UHS_SDR50);
 	}
+
+	if ((host->quirks & SDHCI_QUIRK_CAPS_BIT63_FOR_HS400) &&
+	    (caps_1 & SDHCI_SUPPORT_HS400))
+		cfg->host_caps |= MMC_CAP(MMC_HS_400);
 
 	if (caps_1 & SDHCI_SUPPORT_DDR50)
 		cfg->host_caps |= MMC_CAP(UHS_DDR50);

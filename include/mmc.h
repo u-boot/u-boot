@@ -892,9 +892,17 @@ int mmc_rpmb_write(struct mmc *mmc, void *addr, unsigned short blk,
 int mmc_rpmb_route_frames(struct mmc *mmc, void *req, unsigned long reqlen,
 			  void *rsp, unsigned long rsplen);
 
-#ifdef CONFIG_CMD_BKOPS_ENABLE
-int mmc_set_bkops_enable(struct mmc *mmc);
-#endif
+/**
+ * mmc_set_bkops_enable() - enable background operations
+ * @param mmc		Pointer to a MMC device struct
+ * @param autobkops	Enable automatic bkops, not manual bkops
+ * @param enable	Enable bkops, not disable
+ *
+ * Enable or disable automatic or manual background operation of the eMMC.
+ *
+ * Return: 0 on success, <0 on error.
+ */
+int mmc_set_bkops_enable(struct mmc *mmc, bool autobkops, bool enable);
 
 /**
  * Start device initialization and return immediately; it does not block on

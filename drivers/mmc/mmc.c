@@ -3127,9 +3127,10 @@ int mmc_init_device(int num)
 #endif
 
 #ifdef CONFIG_CMD_BKOPS_ENABLE
-int mmc_set_bkops_enable(struct mmc *mmc)
+int mmc_set_bkops_enable(struct mmc *mmc, bool autobkops, bool enable)
 {
 	int err;
+	u32 bit = autobkops ? BIT(1) : BIT(0);
 	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
 
 	err = mmc_send_ext_csd(mmc, ext_csd);
@@ -3143,18 +3144,21 @@ int mmc_set_bkops_enable(struct mmc *mmc)
 		return -EMEDIUMTYPE;
 	}
 
-	if (ext_csd[EXT_CSD_BKOPS_EN] & 0x1) {
+	if (enable && (ext_csd[EXT_CSD_BKOPS_EN] & bit)) {
 		puts("Background operations already enabled\n");
 		return 0;
 	}
 
-	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BKOPS_EN, 1);
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BKOPS_EN,
+			 enable ? bit : 0);
 	if (err) {
-		puts("Failed to enable manual background operations\n");
+		printf("Failed to %sable manual background operations\n",
+		       enable ? "en" : "dis");
 		return err;
 	}
 
-	puts("Enabled manual background operations\n");
+	printf("%sabled %s background operations\n",
+	       enable ? "En" : "Dis", autobkops ? "auto" : "manual");
 
 	return 0;
 }
