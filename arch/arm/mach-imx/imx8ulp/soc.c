@@ -761,7 +761,8 @@ int (*card_emmc_is_boot_part_en)(void) = (void *)0x67cc;
 u32 spl_arch_boot_image_offset(u32 image_offset, u32 rom_bt_dev)
 {
 	/* Hard code for eMMC image_offset on 8ULP ROM, need fix by ROM, temp workaround */
-	if (((rom_bt_dev >> 16) & 0xff) == BT_DEV_TYPE_MMC && card_emmc_is_boot_part_en())
+	if (is_soc_rev(CHIP_REV_1_0) && ((rom_bt_dev >> 16) & 0xff) == BT_DEV_TYPE_MMC &&
+		card_emmc_is_boot_part_en())
 		image_offset = 0;
 
 	return image_offset;
