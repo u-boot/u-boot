@@ -337,6 +337,12 @@ config BOOTM_RTEMS
 	help
 	  Support booting RTEMS images via the bootm command.
 
+config CMD_SEAMA
+	bool "Support read SEAMA NAND images"
+	depends on MTD_RAW_NAND
+	help
+	  Support reading NAND Seattle Image (SEAMA) images.
+
 config CMD_VBE
 	bool "vbe - Verified Boot for Embedded"
 	depends on BOOTMETH_VBE

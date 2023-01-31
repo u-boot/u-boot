@@ -1331,6 +1331,13 @@ F:	arch/sandbox/
 F:	doc/arch/sandbox.rst
 F:	include/dt-bindings/*/sandbox*.h
 
+SEAMA
+M:	Linus Walleij <linus.walleij@linaro.org>
+S:	Maintained
+F:	cmd/seama.c
+F:	doc/usage/cmd/seama.rst
+F:	test/cmd/seama.c
+
 SEMIHOSTING
 R:	Sean Anderson <sean.anderson@seco.com>
 S:	Orphaned

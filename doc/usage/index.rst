@@ -75,6 +75,7 @@ Shell commands
    cmd/sbi
    cmd/sf
    cmd/scp03
+   cmd/seama
    cmd/setexpr
    cmd/size
    cmd/sleep

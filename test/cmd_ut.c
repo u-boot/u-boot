@@ -110,6 +110,9 @@ static struct cmd_tbl cmd_ut_sub[] = {
 #ifdef CONFIG_CMD_LOADM
 	U_BOOT_CMD_MKENT(loadm, CONFIG_SYS_MAXARGS, 1, do_ut_loadm, "", ""),
 #endif
+#ifdef CONFIG_CMD_SEAMA
+	U_BOOT_CMD_MKENT(seama, CONFIG_SYS_MAXARGS, 1, do_ut_seama, "", ""),
+#endif
 };
 
 static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -211,6 +214,9 @@ static char ut_help_text[] =
 	"\nsetexpr - setexpr command"
 #ifdef CONFIG_SANDBOX
 	"\nstr - basic test of string functions"
+#endif
+#ifdef CONFIG_CMD_SEAMA
+	"\nseama - seama command parameters loading and decoding"
 #endif
 #ifdef CONFIG_UT_TIME
 	"\ntime - very basic test of time functions"
