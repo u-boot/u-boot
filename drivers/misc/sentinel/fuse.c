@@ -67,6 +67,16 @@ struct s400_map_entry s400_api_mapping_table[] = {
 	{ 15, 8 }, /* OEM SRK HASH */
 	{ 23, 1, 4, 2 }, /* OTFAD */
 	{ 25, 8 }, /* Test config2 */
+	{ 26, 8 }, /* PMU */
+	{ 27, 8 }, /* Test flow/USB */
+	{ 32, 8 }, /* GP1 */
+	{ 33, 8 }, /* GP2 */
+	{ 34, 8 }, /* GP3 */
+	{ 35, 8 }, /* GP4 */
+	{ 36, 8 }, /* GP5 */
+	{ 49, 8 }, /* GP8 */
+	{ 50, 8 }, /* GP9 */
+	{ 51, 8 }, /* GP10 */
 };
 #elif defined(CONFIG_ARCH_IMX9)
 #define FSB_OTP_SHADOW	0x8000
