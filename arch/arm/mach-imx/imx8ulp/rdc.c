@@ -286,6 +286,11 @@ void xrdc_init_mrc(void)
 	xrdc_config_mrc_dx_perm(5, 0, 1, 1);
 	xrdc_config_mrc_w3_w4(5, 0, 0x0, 0x80000FFF);
 
+	/* Set MRC6 for DDR access from Sentinel */
+	xrdc_config_mrc_w0_w1(6, 0, CFG_SYS_SDRAM_BASE, PHYS_SDRAM_SIZE);
+	xrdc_config_mrc_dx_perm(6, 0, 4, 1);
+	xrdc_config_mrc_w3_w4(6, 0, 0x0, 0x80000FFF);
+
 	/* The MRC8 is for SRAM1 */
 	xrdc_config_mrc_w0_w1(8, 0, 0x21000000, 0x10000);
 	/* Allow for all domains: So domain 2/3 (HIFI DSP/LPAV) is ok to access */
