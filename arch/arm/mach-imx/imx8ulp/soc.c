@@ -673,11 +673,9 @@ int arch_cpu_init(void)
 static int imx8ulp_check_mu(void *ctx, struct event *event)
 {
 	struct udevice *devp;
-	int node, ret;
+	int ret;
 
-	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "fsl,imx8ulp-mu");
-
-	ret = uclass_get_device_by_of_offset(UCLASS_MISC, node, &devp);
+	ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(imx8ulp_mu), &devp);
 	if (ret) {
 		printf("could not get S400 mu %d\n", ret);
 		return ret;
