@@ -13,6 +13,6 @@ config SAVED_DRAM_TIMING_BASE
 	help
 	  The DRAM config timing data need to be saved into sram
 	  for low power use.
-	default 0x2006c000
+	default 0x20055000
 
 endmenu
