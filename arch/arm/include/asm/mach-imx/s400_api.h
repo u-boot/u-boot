@@ -41,6 +41,8 @@ struct sentinel_get_info_data {
 	u32 uid[4];
 	u32 sha256_rom_patch[8];
 	u32 sha_fw[8];
+	u32 oem_srkh[16];
+	u32 state;
 };
 
 int ahab_release_rdc(u8 core_id, u8 xrdc, u32 *response);
