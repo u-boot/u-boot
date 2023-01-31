@@ -420,6 +420,12 @@ int dev_decode_display_timing(const struct udevice *dev, int index,
 	return ofnode_decode_display_timing(dev_ofnode(dev), index, config);
 }
 
+int dev_decode_panel_timing(const struct udevice *dev,
+			    struct display_timing *config)
+{
+	return ofnode_decode_panel_timing(dev_ofnode(dev), config);
+}
+
 ofnode dev_get_phy_node(const struct udevice *dev)
 {
 	return ofnode_get_phy_node(dev_ofnode(dev));

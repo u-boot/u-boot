@@ -785,6 +785,20 @@ int dev_decode_display_timing(const struct udevice *dev, int index,
 			      struct display_timing *config);
 
 /**
+ * dev_decode_panel_timing() - decode panel timings
+ *
+ * Decode display timings from the supplied 'panel-timings' node.
+ *
+ * @dev: device to read DT display timings from. The node linked to the device
+ *       contains a child node called 'display-timings' which in turn contains
+ *       one or more display timing nodes.
+ * @config: place to put timings
+ * Return: 0 if OK, -FDT_ERR_NOTFOUND if not found
+ */
+int dev_decode_panel_timing(const struct udevice *dev,
+			    struct display_timing *config);
+
+/**
  * dev_get_phy_node() - Get PHY node for a MAC (if not fixed-link)
  *
  * This function parses PHY handle from the Ethernet controller's ofnode
@@ -1181,6 +1195,12 @@ static inline int dev_decode_display_timing(const struct udevice *dev,
 					    struct display_timing *config)
 {
 	return ofnode_decode_display_timing(dev_ofnode(dev), index, config);
+}
+
+static inline int dev_decode_panel_timing(const struct udevice *dev,
+					  struct display_timing *config)
+{
+	return ofnode_decode_panel_timing(dev_ofnode(dev), config);
 }
 
 static inline ofnode dev_get_phy_node(const struct udevice *dev)
