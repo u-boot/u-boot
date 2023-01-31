@@ -169,6 +169,9 @@ void cgc1_pll3_init(ulong freq)
 	while (!(readl(&cgc1_regs->pll3pfdcfg) & BIT(30)))
 		;
 
+	clrbits_le32(&cgc1_regs->pll3div_pfd0, 0x3f3f3f3f);
+	clrbits_le32(&cgc1_regs->pll3div_pfd1, 0x3f3f3f3f);
+
 	clrbits_le32(&cgc1_regs->pll3div_pfd0, BIT(7));
 	clrbits_le32(&cgc1_regs->pll3div_pfd0, BIT(15));
 	clrbits_le32(&cgc1_regs->pll3div_pfd0, BIT(23));
