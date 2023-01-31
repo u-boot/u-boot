@@ -646,6 +646,7 @@ F:	drivers/soc/ti/
 F:	drivers/sysreset/sysreset-ti-sci.c
 F:	drivers/thermal/ti-bandgap.c
 F:	drivers/timer/omap-timer.c
+F:	drivers/video/tidss/
 F:	drivers/watchdog/omap_wdt.c
 F:	include/linux/pruss_driver.h
 F:	include/linux/soc/ti/

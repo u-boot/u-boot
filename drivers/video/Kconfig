@@ -636,6 +636,8 @@ config VIDEO_SANDBOX_SDL
 
 source "drivers/video/stm32/Kconfig"
 
+source "drivers/video/tidss/Kconfig"
+
 config VIDEO_TEGRA20
 	bool "Enable LCD support on Tegra20"
 	depends on OF_CONTROL
