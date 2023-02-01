@@ -19,7 +19,19 @@ static struct mm_region qcs404_mem_map[] = {
 	}, {
 		.virt = 0x80000000UL, /* DDR */
 		.phys = 0x80000000UL, /* DDR */
-		.size = 0x40000000UL,
+		.size = 0x05900000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0x89600000UL, /* DDR */
+		.phys = 0x89600000UL, /* DDR */
+		.size = 0x162000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0xa0000000UL, /* DDR */
+		.phys = 0xa0000000UL, /* DDR */
+		.size = 0x20000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
