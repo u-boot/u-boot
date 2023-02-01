@@ -852,12 +852,19 @@ static int eqos_start(struct udevice *dev)
 	rx_fifo_sz = (val >> EQOS_MAC_HW_FEATURE1_RXFIFOSIZE_SHIFT) &
 		EQOS_MAC_HW_FEATURE1_RXFIFOSIZE_MASK;
 
-	/*
-	 * r/tx_fifo_sz is encoded as log2(n / 128). Undo that by shifting.
-	 * r/tqs is encoded as (n / 256) - 1.
-	 */
-	tqs = (128 << tx_fifo_sz) / 256 - 1;
-	rqs = (128 << rx_fifo_sz) / 256 - 1;
+	/* r/tx_fifo_sz is encoded as log2(n / 128). Undo that by shifting */
+	tx_fifo_sz = 128 << tx_fifo_sz;
+	rx_fifo_sz = 128 << rx_fifo_sz;
+
+	/* Allow platform to override TX/RX fifo size */
+	if (eqos->tx_fifo_sz)
+		tx_fifo_sz = eqos->tx_fifo_sz;
+	if (eqos->rx_fifo_sz)
+		rx_fifo_sz = eqos->rx_fifo_sz;
+
+	/* r/tqs is encoded as (n / 256) - 1 */
+	tqs = tx_fifo_sz / 256 - 1;
+	rqs = rx_fifo_sz / 256 - 1;
 
 	clrsetbits_le32(&eqos->mtl_regs->txq0_operation_mode,
 			EQOS_MTL_TXQ0_OPERATION_MODE_TQS_MASK <<

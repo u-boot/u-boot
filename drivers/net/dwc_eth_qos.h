@@ -276,6 +276,7 @@ struct eqos_priv {
 	bool started;
 	bool reg_access_ok;
 	bool clk_ck_enabled;
+	unsigned int tx_fifo_sz, rx_fifo_sz;
 };
 
 void eqos_inval_desc_generic(void *desc);
