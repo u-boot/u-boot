@@ -229,7 +229,7 @@ static int ls2_sfp_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ret = device_get_supply_regulator(dev, "ta-sfp-prog", &priv->supply);
+	ret = device_get_supply_regulator(dev, "ta-sfp-prog-supply", &priv->supply);
 	if (ret && ret != -ENODEV && ret != -ENOSYS) {
 		dev_dbg(dev, "problem getting supply (err %d)\n", ret);
 		return ret;
