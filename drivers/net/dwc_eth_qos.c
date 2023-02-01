@@ -1712,6 +1712,13 @@ static const struct udevice_id eqos_ids[] = {
 	},
 #endif
 
+#if IS_ENABLED(CONFIG_DWC_ETH_QOS_QCOM)
+	{
+		.compatible = "qcom,qcs404-ethqos",
+		.data = (ulong)&eqos_qcom_config
+	},
+#endif
+
 	{ }
 };
 

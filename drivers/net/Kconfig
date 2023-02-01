@@ -242,6 +242,13 @@ config DWC_ETH_QOS_TEGRA186
 	  The Synopsys Designware Ethernet QOS IP block with specific
 	  configuration used in NVIDIA's Tegra186 chip.
 
+config DWC_ETH_QOS_QCOM
+	bool "Synopsys DWC Ethernet QOS device support for Qcom SoCs"
+	depends on DWC_ETH_QOS
+	help
+	  The Synopsys Designware Ethernet QOS IP block with specific
+	  configuration used in Qcom QCS404 SoC.
+
 config E1000
 	bool "Intel PRO/1000 Gigabit Ethernet support"
 	depends on PCI
