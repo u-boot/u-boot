@@ -1531,8 +1531,7 @@ MKIMAGEFLAGS_u-boot.ubl = -n $(UBL_CONFIG) -T ublimage -e $(CONFIG_TEXT_BASE)
 u-boot.ubl: u-boot-with-spl.bin FORCE
 	$(call if_changed,mkimage)
 
-MKIMAGEFLAGS_u-boot-spl.ais = -s -n $(if $(CONFIG_AIS_CONFIG_FILE), \
-	$(srctree)/$(CONFIG_AIS_CONFIG_FILE:"%"=%),"/dev/null") \
+MKIMAGEFLAGS_u-boot-spl.ais = -s -n "/dev/null" \
 	-T aisimage -e $(CONFIG_SPL_TEXT_BASE)
 spl/u-boot-spl.ais: spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
