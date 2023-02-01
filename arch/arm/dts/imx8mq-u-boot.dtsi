@@ -114,6 +114,7 @@
 					};
 				};
 
+#ifndef CONFIG_ARMV8_PSCI
 				atf {
 					arch = "arm64";
 					compression = "none";
@@ -127,6 +128,7 @@
 						type = "blob-ext";
 					};
 				};
+#endif
 
 				fdt {
 					compression = "none";
@@ -147,7 +149,9 @@
 					description = "NAME";
 					fdt = "fdt";
 					firmware = "uboot";
+#ifndef CONFIG_ARMV8_PSCI
 					loadables = "atf";
+#endif
 				};
 			};
 		};

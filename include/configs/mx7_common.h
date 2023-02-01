@@ -16,16 +16,4 @@
 /* Timer settings */
 #define CFG_SC_TIMER_CLK 8000000 /* 8Mhz */
 
-/* Miscellaneous configurable options */
-
-/* UART */
-
-/* MMC */
-
-/*
- * If we have defined the OPTEE ram size and not OPTEE it means that we were
- * launched by OPTEE, because of that we shall skip all the low level
- * initialization since it was already done by ATF or OPTEE
- */
-
 #endif

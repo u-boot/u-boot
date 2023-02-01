@@ -12,6 +12,9 @@ config SYS_CONFIG_NAME
 config TDX_CFG_BLOCK
 	default y
 
+config TDX_CFG_BLOCK_2ND_ETHADDR
+	default y
+
 config TDX_HAVE_MMC
 	default y
 

@@ -2,6 +2,7 @@ if ARCH_IMX8M
 
 config IMX8M
 	bool
+	select GICV3 if ARMV8_PSCI
 	select HAS_CAAM
 	select ROM_UNIFIED_SECTIONS
 	select ARMV8_CRYPTO
@@ -25,6 +26,14 @@ config IMX8MP
 
 config SYS_SOC
 	default "imx8m"
+
+config SYS_HAS_ARMV8_SECURE_BASE
+	bool "Enable secure address for PSCI image"
+	depends on ARMV8_PSCI
+	help
+	  PSCI image can be re-located to secure RAM.
+	  If enabled, please also define the value for ARMV8_SECURE_BASE,
+	  for i.MX8M, it could be some address in OCRAM.
 
 choice
 	prompt "NXP i.MX8M board select"
@@ -89,6 +98,13 @@ config TARGET_IMX8MM_ICORE_MX8MM
 
 config TARGET_IMX8MM_MX8MENLO
 	bool "Support i.MX8M Mini MX8Menlo board based on Toradex Verdin SoM"
+	select BINMAN
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
+config TARGET_IMX8MM_PHG
+	bool "i.MX8MM PHG board"
 	select BINMAN
 	select IMX8MM
 	select SUPPORT_SPL
@@ -233,6 +249,9 @@ config TARGET_IMX8MM_BEACON
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
 
 config TARGET_IMX8MN_BEACON
 	bool "imx8mn Beacon Embedded devkit"
@@ -240,6 +259,9 @@ config TARGET_IMX8MN_BEACON
 	select IMX8MN
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
 
 config TARGET_PHYCORE_IMX8MM
 	bool "PHYTEC PHYCORE i.MX8MM"
@@ -305,6 +327,7 @@ source "board/advantech/imx8mp_rsb3720a1/Kconfig"
 source "board/beacon/imx8mm/Kconfig"
 source "board/beacon/imx8mn/Kconfig"
 source "board/bsh/imx8mn_smm_s2/Kconfig"
+source "board/cloos/imx8mm_phg/Kconfig"
 source "board/compulab/imx8mm-cl-iot-gate/Kconfig"
 source "board/data_modul/imx8mm_edm_sbc/Kconfig"
 source "board/dhelectronics/dh_imx8mp/Kconfig"

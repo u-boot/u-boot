@@ -85,7 +85,7 @@
 #ifdef CONFIG_IMX8M_LPDDR4
 			filename = "lpddr4_pmu_train_1d_imem.bin";
 #elif CONFIG_IMX8M_DDR4
-			filename = "ddr4_imem_1d.bin";
+			filename = "ddr4_imem_1d_201810.bin";
 #else
 			filename = "ddr3_imem_1d.bin";
 #endif
@@ -97,7 +97,7 @@
 #ifdef CONFIG_IMX8M_LPDDR4
 			filename = "lpddr4_pmu_train_1d_dmem.bin";
 #elif CONFIG_IMX8M_DDR4
-			filename = "ddr4_dmem_1d.bin";
+			filename = "ddr4_dmem_1d_201810.bin";
 #else
 			filename = "ddr3_dmem_1d.bin";
 #endif
@@ -105,11 +105,12 @@
 			align-end = <4>;
 		};
 
+#if defined(CONFIG_IMX8M_LPDDR4) || defined(CONFIG_IMX8M_DDR4)
 		ddr-2d-imem-fw {
 #ifdef CONFIG_IMX8M_LPDDR4
 			filename = "lpddr4_pmu_train_2d_imem.bin";
-#elif CONFIG_IMX8M_DDR4
-			filename = "ddr4_imem_2d.bin";
+#else
+			filename = "ddr4_imem_2d_201810.bin";
 #endif
 			type = "blob-ext";
 			align-end = <4>;
@@ -118,12 +119,13 @@
 		ddr-2d-dmem-fw {
 #ifdef CONFIG_IMX8M_LPDDR4
 			filename = "lpddr4_pmu_train_2d_dmem.bin";
-#elif CONFIG_IMX8M_DDR4
-			filename = "ddr4_dmem_2d.bin";
+#else
+			filename = "ddr4_dmem_2d_201810.bin";
 #endif
 			type = "blob-ext";
 			align-end = <4>;
 		};
+#endif
 	};
 
 	spl {
@@ -161,6 +163,7 @@
 					};
 				};
 
+#ifndef CONFIG_ARMV8_PSCI
 				atf {
 					arch = "arm64";
 					compression = "none";
@@ -174,6 +177,7 @@
 						type = "atf-bl31";
 					};
 				};
+#endif
 
 				binman_fip: fip {
 					arch = "arm64";
@@ -202,7 +206,9 @@
 					description = "NAME";
 					fdt = "fdt-SEQ";
 					firmware = "uboot";
+#ifndef CONFIG_ARMV8_PSCI
 					loadables = "atf";
+#endif
 				};
 			};
 		};

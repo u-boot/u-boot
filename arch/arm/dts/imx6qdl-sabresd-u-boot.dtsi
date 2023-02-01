@@ -5,6 +5,12 @@
 
 #include "imx6qdl-u-boot.dtsi"
 
+/ {
+	aliases {
+		mmc1 = &usdhc3;
+	};
+};
+
 &usdhc3 {
 	u-boot,dm-spl;
 };

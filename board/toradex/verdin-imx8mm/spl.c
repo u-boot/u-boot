@@ -92,9 +92,6 @@ int power_init_board(void)
 		/* increase VDD_DRAM to 0.975v for 1.5Ghz DDR */
 		pmic_reg_write(dev, PCA9450_BUCK3OUT_DVS0, 0x1c);
 
-		/* set WDOG_B_CFG to cold reset */
-		pmic_reg_write(dev, PCA9450_RESET_CTRL, 0xA1);
-
 		pmic_reg_write(dev, PCA9450_CONFIG2, 0x1);
 
 		return 0;

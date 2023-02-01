@@ -99,9 +99,6 @@ static int power_init_board(void)
 	/* set VDD_SNVS_0V8 from default 0.85V */
 	pmic_reg_write(dev, PCA9450_LDO2CTRL, 0xC0);
 
-	/* set WDOG_B_CFG to cold reset */
-	pmic_reg_write(dev, PCA9450_RESET_CTRL, 0xA1);
-
 	return 0;
 }
 

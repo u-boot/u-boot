@@ -88,9 +88,6 @@ static int dh_imx8mp_board_power_init(void)
 	/* To avoid timing risk from SoC to ARM, increase VDD_ARM to OD voltage 0.95V */
 	pmic_reg_write(dev, PCA9450_BUCK2OUT_DVS0, 0x1c);
 
-	/* Set WDOG_B_CFG to cold reset. */
-	pmic_reg_write(dev, PCA9450_RESET_CTRL, 0xA1);
-
 	/* Set LDO4 and CONFIG2 to enable the I2C level translator. */
 	pmic_reg_write(dev, PCA9450_LDO4CTRL, 0x59);
 	pmic_reg_write(dev, PCA9450_CONFIG2, 0x1);

@@ -74,9 +74,6 @@ int power_init_board(void)
 
 	/* I2C_LT_EN*/
 	pmic_reg_write(dev, 0xa, 0x3);
-
-	/* set WDOG_B_CFG to cold reset */
-	pmic_reg_write(dev, PCA9450_RESET_CTRL, 0xA1);
 	return 0;
 }
 #endif

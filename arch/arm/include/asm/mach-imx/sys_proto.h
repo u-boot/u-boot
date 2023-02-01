@@ -149,6 +149,8 @@ struct rproc_att {
 	u32 size; /* size of reg range */
 };
 
+const struct rproc_att *imx_bootaux_get_hostmap(void);
+
 struct rom_api {
 	u16 ver;
 	u16 tag;

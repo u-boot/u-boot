@@ -26,6 +26,7 @@
 
 &iomuxc1 {
 	u-boot,dm-spl;
+	fsl,mux_mask = <0xf00>;
 };
 
 &pinctrl_lpuart5 {

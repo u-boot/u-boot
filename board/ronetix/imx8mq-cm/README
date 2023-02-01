@@ -9,7 +9,7 @@ Quick Start
 
 Get and Build the ARM Trusted firmware
 ======================================
-$ git clone https://source.codeaurora.org/external/imx/imx-atf
+$ git clone https://github.com/nxp-imx/imx-atf
 $ cd imx-atf
 $ git checkout imx_4.19.35_1.0.0
 $ make PLAT=imx8mq bl31

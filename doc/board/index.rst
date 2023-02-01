@@ -16,6 +16,7 @@ Board-specific doc
    atmel/index
    broadcom/index
    bsh/index
+   cloos/index
    congatec/index
    coreboot/index
    emulation/index

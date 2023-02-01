@@ -224,6 +224,11 @@ const struct rproc_att hostmap[] = {
 	{ 0x80000000, 0x80000000, 0x60000000 }, /* DDRC */
 	{ /* sentinel */ }
 };
+
+const struct rproc_att *imx_bootaux_get_hostmap(void)
+{
+	return hostmap;
+}
 #endif
 
 #if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)

@@ -15,17 +15,20 @@
 #include <cpu_func.h>
 
 /* Just to avoid build error */
-#if CONFIG_IS_ENABLED(IMX8M)
+#if IS_ENABLED(CONFIG_IMX8M)
 #define SRC_M4C_NON_SCLR_RST_MASK	BIT(0)
 #define SRC_M4_ENABLE_MASK		BIT(0)
 #define SRC_M4_REG_OFFSET		0
 #endif
 
-const __weak struct rproc_att hostmap[] = { };
+__weak const struct rproc_att *imx_bootaux_get_hostmap(void)
+{
+	return NULL;
+}
 
 static const struct rproc_att *get_host_mapping(unsigned long auxcore)
 {
-	const struct rproc_att *mmap = hostmap;
+	const struct rproc_att *mmap = imx_bootaux_get_hostmap();
 
 	while (mmap && mmap->size) {
 		if (mmap->da <= auxcore &&
@@ -106,7 +109,7 @@ int arch_auxiliary_core_up(u32 core_id, ulong addr)
 		if (!pc)
 			return CMD_RET_FAILURE;
 
-		if (!CONFIG_IS_ENABLED(ARM64))
+		if (!IS_ENABLED(CONFIG_ARM64))
 			stack = 0x0;
 	} else {
 		/*
@@ -128,7 +131,7 @@ int arch_auxiliary_core_up(u32 core_id, ulong addr)
 	flush_dcache_all();
 
 	/* Enable M4 */
-	if (CONFIG_IS_ENABLED(IMX8M)) {
+	if (IS_ENABLED(CONFIG_IMX8M)) {
 		arm_smccc_smc(IMX_SIP_SRC, IMX_SIP_SRC_M4_START, 0, 0, 0, 0, 0, 0, NULL);
 	} else {
 		clrsetbits_le32(SRC_BASE_ADDR + SRC_M4_REG_OFFSET,
@@ -143,7 +146,7 @@ int arch_auxiliary_core_check_up(u32 core_id)
 	struct arm_smccc_res res;
 	unsigned int val;
 
-	if (CONFIG_IS_ENABLED(IMX8M)) {
+	if (IS_ENABLED(CONFIG_IMX8M)) {
 		arm_smccc_smc(IMX_SIP_SRC, IMX_SIP_SRC_M4_STARTED, 0, 0, 0, 0, 0, 0, &res);
 		return res.a0;
 	}

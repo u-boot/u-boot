@@ -6,7 +6,6 @@
 / {
 	aliases {
 		u-boot,dm-pre-reloc;
-		mmc0 = &usdhc1;
 		usb0 = &usbotg1; /* required for ums */
 		display0 = &lcdif;
 	};

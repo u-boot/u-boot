@@ -16,10 +16,12 @@
 #include <asm/arch/imx8mp_pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/arch/ddr.h>
 #include <asm-generic/gpio.h>
 #include <dm/uclass.h>
 #include <dm/device.h>
+#include <dm/pinctrl.h>
 #include <linux/delay.h>
 #include <power/bd71837.h>
 #include <power/mp5416.h>
@@ -165,9 +167,6 @@ static int power_init_board(void)
 		/* Kernel uses OD/OD freq for SOC */
 		/* To avoid timing risk from SOC to ARM, increase VDD_ARM to OD voltage 0.95v */
 		dm_i2c_reg_write(dev, PCA9450_BUCK2OUT_DVS0, 0x1C);
-
-		/* set WDOG_B_CFG to cold reset */
-		dm_i2c_reg_write(dev, PCA9450_RESET_CTRL, 0xA1);
 	}
 
 	else if ((!strncmp(model, "GW7901", 6)) ||
@@ -218,8 +217,8 @@ static int power_init_board(void)
 
 void board_init_f(ulong dummy)
 {
-	struct udevice *dev;
-	int ret;
+	struct udevice *bus, *dev;
+	int i, ret;
 	int dram_sz;
 
 	arch_cpu_init();
@@ -250,19 +249,28 @@ void board_init_f(ulong dummy)
 	 *
 	 * On a board with a missing/depleted backup battery for GSC, the
 	 * board may be ready to probe the GSC before its firmware is
-	 * running. We will wait here indefinately for the GSC EEPROM.
+	 * running. Wait here for 50ms for the GSC firmware to let go of
+	 * the SCL/SDA lines to avoid the i2c driver spamming
+	 * 'Arbitration lost' I2C errors
 	 */
-#ifdef CONFIG_IMX8MN
-	/*
-	 * IMX8MN boots quicker than IMX8MM and exposes issue
-	 * where because GSC I2C state machine isn't running and its
-	 * SCL/SDA are driven low the I2C driver spams 'Arbitration lost'
-	 * I2C errors.
-	 *
-	 * TODO: Put a loop here that somehow waits for I2C CLK/DAT to be high
-	 */
-	mdelay(50);
-#endif
+	if (!uclass_get_device_by_seq(UCLASS_I2C, 0, &bus)) {
+		if (!pinctrl_select_state(bus, "gpio")) {
+			struct mxc_i2c_bus *i2c_bus = dev_get_priv(bus);
+			struct gpio_desc *scl_gpio = &i2c_bus->scl_gpio;
+			struct gpio_desc *sda_gpio = &i2c_bus->sda_gpio;
+
+			dm_gpio_set_dir_flags(scl_gpio, GPIOD_IS_IN);
+			dm_gpio_set_dir_flags(sda_gpio, GPIOD_IS_IN);
+			for (i = 0; i < 5; i++) {
+				if (dm_gpio_get_value(scl_gpio) &&
+				    dm_gpio_get_value(sda_gpio))
+					break;
+				mdelay(10);
+			}
+			pinctrl_select_state(bus, "default");
+		}
+	}
+	/* Wait indefiniately until the GSC probes */
 	while (1) {
 		if (!uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(gsc), &dev))
 			break;

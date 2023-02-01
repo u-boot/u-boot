@@ -26,24 +26,11 @@
 
 #include "lpddr4_timing.h"
 
+#include "../common/common.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
-#define WDOG_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_ODE | PAD_CTL_PUE | PAD_CTL_PE)
-
-static const iomux_v3_cfg_t wdog_pads[] = {
-	IMX8MM_PAD_GPIO1_IO02_WDOG1_WDOG_B  | MUX_PAD_CTRL(WDOG_PAD_CTRL),
-};
-
-static void data_modul_imx8mm_edm_sbc_early_init_f(void)
-{
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
-
-	imx_iomux_v3_setup_multiple_pads(wdog_pads, ARRAY_SIZE(wdog_pads));
-
-	set_wdog_reset(wdog);
-}
-
-static int data_modul_imx8mm_edm_sbc_board_power_init(void)
+int data_modul_imx_edm_sbc_board_power_init(void)
 {
 	struct udevice *dev;
 	int ret;
@@ -105,67 +92,7 @@ static struct dram_timing_info *dram_timing_info[8] = {
 	NULL,					/* INVALID */
 };
 
-static void spl_dram_init(void)
-{
-	u8 memcfg = dmo_get_memcfg();
-	int i;
-
-	printf("DDR:   %d GiB x%d [0x%x]\n",
-	       /* 0..4 GiB, 1..2 GiB, 0..1 GiB */
-	       4 >> ((memcfg >> 1) & 0x3),
-	       /* 0..x32, 1..x16 */
-	       32 >> (memcfg & BIT(0)),
-	       memcfg);
-
-	if (!dram_timing_info[memcfg]) {
-		printf("Unsupported DRAM strapping, trying lowest supported. MEMCFG=0x%x\n",
-		       memcfg);
-		for (i = ARRAY_SIZE(dram_timing_info) - 1; i >= 0; i--)
-			if (dram_timing_info[i])	/* Configuration found */
-				break;
-	}
-
-	ddr_init(dram_timing_info[memcfg]);
-}
-
 void board_init_f(ulong dummy)
 {
-	struct udevice *dev;
-	int ret;
-
-	icache_enable();
-
-	arch_cpu_init();
-
-	init_uart_clk(2);
-
-	data_modul_imx8mm_edm_sbc_early_init_f();
-
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	ret = spl_early_init();
-	if (ret) {
-		debug("spl_early_init() failed: %d\n", ret);
-		hang();
-	}
-
-	preloader_console_init();
-
-	ret = uclass_get_device_by_name(UCLASS_CLK,
-					"clock-controller@30380000",
-					&dev);
-	if (ret < 0) {
-		printf("Failed to find clock node. Check device tree\n");
-		hang();
-	}
-
-	enable_tzc380();
-
-	data_modul_imx8mm_edm_sbc_board_power_init();
-
-	/* DDR initialization */
-	spl_dram_init();
-
-	board_init_r(NULL, 0);
+	dmo_board_init_f(IMX8MM_PAD_GPIO1_IO02_WDOG1_WDOG_B, dram_timing_info);
 }

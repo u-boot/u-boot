@@ -788,7 +788,7 @@ sc_bool_t sc_rm_is_pad_owned(sc_ipc_t ipc, sc_pad_t pad)
 	RPC_VER(&msg) = SC_RPC_VERSION;
 	RPC_SVC(&msg) = (u8)SC_RPC_SVC_RM;
 	RPC_FUNC(&msg) = (u8)RM_FUNC_IS_PAD_OWNED;
-	RPC_U8(&msg, 0U) = (u8)pad;
+	RPC_U16(&msg, 0U) = (u16)pad;
 	RPC_SIZE(&msg) = 2U;
 
 	ret = misc_call(dev, SC_FALSE, &msg, size, &msg, size);

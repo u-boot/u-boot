@@ -11,7 +11,7 @@ Get and Build the ARM Trusted firmware
 ======================================
 Note: $(srctree) is U-Boot source directory
 
-$ git clone https://source.codeaurora.org/external/imx/imx-atf
+$ git clone https://github.com/nxp-imx/imx-atf
 $ git lf-5.10.72-2.2.0
 $ make PLAT=imx8mm bl31 CROSS_COMPILE=aarch64-linux-gnu-
 $ cp build/imx8mm/release/bl31.bin $(srctree)

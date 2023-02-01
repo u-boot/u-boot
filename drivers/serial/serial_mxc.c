@@ -13,6 +13,7 @@
 #include <dm/platform_data/serial_mxc.h>
 #include <serial.h>
 #include <linux/compiler.h>
+#include <linux/delay.h>
 
 /* UART Control Register Bit Fields.*/
 #define URXD_CHARRDY	(1<<15)
@@ -144,8 +145,22 @@ struct mxc_uart {
 	u32 ts;
 };
 
+static void _mxc_serial_flush(struct mxc_uart *base)
+{
+	unsigned int timeout = 4000;
+
+	if (!(readl(&base->cr1) & UCR1_UARTEN) ||
+	    !(readl(&base->cr2) & UCR2_TXEN))
+		return;
+
+	while (!(readl(&base->sr2) & USR2_TXDC) && --timeout)
+		udelay(1);
+}
+
 static void _mxc_serial_init(struct mxc_uart *base, int use_dte)
 {
+	_mxc_serial_flush(base);
+
 	writel(0, &base->cr1);
 	writel(0, &base->cr2);
 
@@ -168,6 +183,8 @@ static void _mxc_serial_setbrg(struct mxc_uart *base, unsigned long clk,
 			       unsigned long baudrate, bool use_dte)
 {
 	u32 tmp;
+
+	_mxc_serial_flush(base);
 
 	tmp = RFDIV << UFCR_RFDIV_SHF;
 	if (use_dte)
@@ -223,11 +240,11 @@ static void mxc_serial_putc(const char c)
 	if (c == '\n')
 		serial_putc('\r');
 
-	writel(c, &mxc_base->txd);
-
 	/* wait for transmitter to be ready */
-	while (!(readl(&mxc_base->ts) & UTS_TXEMPTY))
+	while (readl(&mxc_base->ts) & UTS_TXFULL)
 		schedule();
+
+	writel(c, &mxc_base->txd);
 }
 
 /* Test whether a character is in the RX buffer */
@@ -252,10 +269,17 @@ static int mxc_serial_init(void)
 	return 0;
 }
 
+static int mxc_serial_stop(void)
+{
+	_mxc_serial_flush(mxc_base);
+
+	return 0;
+}
+
 static struct serial_device mxc_serial_drv = {
 	.name	= "mxc_serial",
 	.start	= mxc_serial_init,
-	.stop	= NULL,
+	.stop	= mxc_serial_stop,
 	.setbrg	= mxc_serial_setbrg,
 	.putc	= mxc_serial_putc,
 	.puts	= default_serial_puts,
@@ -311,7 +335,7 @@ static int mxc_serial_putc(struct udevice *dev, const char ch)
 	struct mxc_serial_plat *plat = dev_get_plat(dev);
 	struct mxc_uart *const uart = plat->reg;
 
-	if (!(readl(&uart->ts) & UTS_TXEMPTY))
+	if (readl(&uart->ts) & UTS_TXFULL)
 		return -EAGAIN;
 
 	writel(ch, &uart->txd);

@@ -100,6 +100,12 @@ void set_wdog_reset(struct wdog_regs *wdog)
 	setbits_le16(&wdog->wcr, WDOG_WDT_MASK | WDOG_WDZST_MASK);
 }
 
+#ifdef CONFIG_ARMV8_PSCI
+#define PTE_MAP_NS	PTE_BLOCK_NS
+#else
+#define PTE_MAP_NS	0
+#endif
+
 static struct mm_region imx8m_mem_map[] = {
 	{
 		/* ROM */
@@ -122,7 +128,7 @@ static struct mm_region imx8m_mem_map[] = {
 		.phys = 0x180000UL,
 		.size = 0x8000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_OUTER_SHARE
+			 PTE_BLOCK_OUTER_SHARE | PTE_MAP_NS
 	}, {
 		/* TCM */
 		.virt = 0x7C0000UL,
@@ -130,14 +136,14 @@ static struct mm_region imx8m_mem_map[] = {
 		.size = 0x80000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN | PTE_MAP_NS
 	}, {
 		/* OCRAM */
 		.virt = 0x900000UL,
 		.phys = 0x900000UL,
 		.size = 0x200000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_OUTER_SHARE
+			 PTE_BLOCK_OUTER_SHARE | PTE_MAP_NS
 	}, {
 		/* AIPS */
 		.virt = 0xB00000UL,
@@ -152,7 +158,7 @@ static struct mm_region imx8m_mem_map[] = {
 		.phys = 0x40000000UL,
 		.size = PHYS_SDRAM_SIZE,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_OUTER_SHARE
+			 PTE_BLOCK_OUTER_SHARE | PTE_MAP_NS
 #ifdef PHYS_SDRAM_2_SIZE
 	}, {
 		/* DRAM2 */
@@ -160,7 +166,7 @@ static struct mm_region imx8m_mem_map[] = {
 		.phys = 0x100000000UL,
 		.size = PHYS_SDRAM_2_SIZE,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_OUTER_SHARE
+			 PTE_BLOCK_OUTER_SHARE | PTE_MAP_NS
 #endif
 	}, {
 		/* empty entrie to split table entry 5 if needed when TEEs are used */
@@ -238,7 +244,7 @@ int dram_init(void)
 		return ret;
 
 	/* rom_pointer[1] contains the size of TEE occupies */
-	if (rom_pointer[1])
+	if (!IS_ENABLED(CONFIG_ARMV8_PSCI) && rom_pointer[1])
 		gd->ram_size = sdram_size - rom_pointer[1];
 	else
 		gd->ram_size = sdram_size;
@@ -267,7 +273,7 @@ int dram_init_banksize(void)
 	}
 
 	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
-	if (rom_pointer[1]) {
+	if (!IS_ENABLED(CONFIG_ARMV8_PSCI) && rom_pointer[1]) {
 		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
 		phys_size_t optee_size = (size_t)rom_pointer[1];
 
@@ -312,7 +318,7 @@ phys_size_t get_effective_memsize(void)
 			sdram_b1_size = sdram_size;
 		}
 
-		if (rom_pointer[1]) {
+		if (!IS_ENABLED(CONFIG_ARMV8_PSCI) && rom_pointer[1]) {
 			/* We will relocate u-boot to Top of dram1. Tee position has two cases:
 			 * 1. At the top of dram1,  Then return the size removed optee size.
 			 * 2. In the middle of dram1, return the size of dram1.
@@ -344,7 +350,8 @@ phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 	 * rom_pointer[1] stores the size TEE uses.
 	 * We need to reserve the memory region for TEE.
 	 */
-	if (rom_pointer[0] && rom_pointer[1] && top_addr > rom_pointer[0])
+	if (!IS_ENABLED(CONFIG_ARMV8_PSCI) && rom_pointer[0] &&
+	    rom_pointer[1] && top_addr > rom_pointer[0])
 		top_addr = rom_pointer[0];
 
 	return top_addr;
@@ -554,6 +561,29 @@ static void imx8m_setup_snvs(void)
 	writel(0xffffffff, SNVS_BASE_ADDR + SNVS_LPSR);
 }
 
+static void imx8m_setup_csu_tzasc(void)
+{
+	const uintptr_t tzasc_base[4] = {
+		0x301f0000, 0x301f0000, 0x301f0000, 0x301f0000
+	};
+	int i, j;
+
+	if (!IS_ENABLED(CONFIG_ARMV8_PSCI))
+		return;
+
+	/* CSU */
+	for (i = 0; i < 64; i++)
+		writel(0x00ff00ff, (void *)CSU_BASE_ADDR + (4 * i));
+
+	/* TZASC */
+	for (j = 0; j < 4; j++) {
+		writel(0x77777777, (void *)(tzasc_base[j]));
+		writel(0x77777777, (void *)(tzasc_base[j]) + 0x4);
+		for (i = 0; i <= 0x10; i += 4)
+			writel(0, (void *)(tzasc_base[j]) + 0x40 + i);
+	}
+}
+
 int arch_cpu_init(void)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
@@ -605,6 +635,8 @@ int arch_cpu_init(void)
 	}
 
 	imx8m_setup_snvs();
+
+	imx8m_setup_csu_tzasc();
 
 	return 0;
 }
@@ -1610,4 +1642,9 @@ const struct rproc_att hostmap[] = {
 	{ 0x40000000, 0x40000000, 0x80000000 },
 	{ /* sentinel */ }
 };
+
+const struct rproc_att *imx_bootaux_get_hostmap(void)
+{
+	return hostmap;
+}
 #endif

@@ -10,4 +10,4 @@ else
 obj-y += imx8mm_data_modul_edm_sbc.o
 endif
 
-obj-y += common.o
+obj-y += ../common/common.o

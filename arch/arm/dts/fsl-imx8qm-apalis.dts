@@ -589,8 +589,10 @@
 
 /* eMMC */
 &usdhc1 {
-	pinctrl-names = "default";
+	pinctrl-names = "default", "state_100mhz", "state_200mhz";
 	pinctrl-0 = <&pinctrl_usdhc1>;
+	pinctrl-1 = <&pinctrl_usdhc1>;
+	pinctrl-2 = <&pinctrl_usdhc1>;
 	bus-width = <8>;
 	non-removable;
 	status = "okay";
@@ -598,8 +600,10 @@
 
 /* Apalis MMC1 */
 &usdhc2 {
-	pinctrl-names = "default";
+	pinctrl-names = "default", "state_100mhz", "state_200mhz";
 	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_mmc1_cd>;
+	pinctrl-1 = <&pinctrl_usdhc2>, <&pinctrl_mmc1_cd>;
+	pinctrl-2 = <&pinctrl_usdhc2>, <&pinctrl_mmc1_cd>;
 	bus-width = <8>;
 	cd-gpios = <&gpio2 9 GPIO_ACTIVE_LOW>; /* Apalis MMC1_CD# */
 	status = "okay";
