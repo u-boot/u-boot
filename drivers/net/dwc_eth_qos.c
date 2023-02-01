@@ -774,10 +774,13 @@ static int eqos_start(struct udevice *dev)
 		pr_err("eqos_calibrate_pads() failed: %d", ret);
 		goto err_stop_resets;
 	}
-	rate = eqos->config->ops->eqos_get_tick_clk_rate(dev);
 
-	val = (rate / 1000000) - 1;
-	writel(val, &eqos->mac_regs->us_tic_counter);
+	if (eqos->config->ops->eqos_get_tick_clk_rate) {
+		rate = eqos->config->ops->eqos_get_tick_clk_rate(dev);
+
+		val = (rate / 1000000) - 1;
+		writel(val, &eqos->mac_regs->us_tic_counter);
+	}
 
 	/*
 	 * if PHY was already connected and configured,
