@@ -54,7 +54,6 @@ obj-$(CONFIG_TARGET_MPC8548CDS)	+= cds_pci_ft.o
 obj-$(CONFIG_TARGET_P3041DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P4080DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P5040DS)		+= ics307_clk.o
-obj-$(CONFIG_ZM7300)		+= zm7300.o
 ifeq ($(CONFIG_$(SPL_)POWER_LEGACY),y)
 obj-$(CONFIG_POWER_PFUZE100)	+= pfuze.o
 endif
