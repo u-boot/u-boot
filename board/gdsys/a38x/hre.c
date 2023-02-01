@@ -15,7 +15,6 @@
 #include <u-boot/sha1.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
-#include <pca9698.h>
 
 #include "hre.h"
 
