@@ -23,6 +23,11 @@
 
 	aliases {
 		serial0 = &debug_uart;
+		i2c0 = &blsp1_i2c0;
+		i2c1 = &blsp1_i2c1;
+		i2c2 = &blsp1_i2c2;
+		i2c3 = &blsp1_i2c3;
+		i2c4 = &blsp1_i2c4;
 	};
 
 	memory {
@@ -47,6 +52,38 @@
 			blsp1_uart2: uart {
 				pins = "GPIO_17", "GPIO_18";
 				function = "blsp_uart2";
+			};
+
+			blsp1_i2c0_default: blsp1-i2c0-default {
+				pins = "GPIO_32", "GPIO_33";
+				function = "blsp_i2c0";
+			};
+
+			blsp1_i2c1_default: blsp1-i2c1-default {
+				pins = "GPIO_24", "GPIO_25";
+				function = "blsp_i2c1";
+			};
+
+			blsp1_i2c2_default: blsp1-i2c2-default {
+				sda {
+					pins = "GPIO_19";
+					function = "blsp_i2c_sda_a2";
+				};
+
+				scl {
+					pins = "GPIO_20";
+					function = "blsp_i2c_scl_a2";
+				};
+			};
+
+			blsp1_i2c3_default: blsp1-i2c3-default {
+				pins = "GPIO_84", "GPIO_85";
+				function = "blsp_i2c3";
+			};
+
+			blsp1_i2c4_default: blsp1-i2c4-default {
+				pins = "GPIO_117", "GPIO_118";
+				function = "blsp_i2c4";
 			};
 
 			ethernet_defaults: ethernet-defaults {
@@ -103,6 +140,66 @@
 					drive-strength = <2>;
 				};
 			};
+		};
+
+		blsp1_i2c0: i2c@78b5000 {
+			compatible = "qcom,i2c-qup-v2.2.1";
+			reg = <0x078b5000 0x600>;
+			clocks = <&gcc GCC_BLSP1_AHB_CLK>,
+				 <&gcc GCC_BLSP1_QUP0_I2C_APPS_CLK>;
+			clock-names = "iface", "core";
+			pinctrl-names = "default";
+			pinctrl-0 = <&blsp1_i2c0_default>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		blsp1_i2c1: i2c@78b6000 {
+			compatible = "qcom,i2c-qup-v2.2.1";
+			reg = <0x078b6000 0x600>;
+			clocks = <&gcc GCC_BLSP1_AHB_CLK>,
+				 <&gcc GCC_BLSP1_QUP1_I2C_APPS_CLK>;
+			clock-names = "iface", "core";
+			pinctrl-names = "default";
+			pinctrl-0 = <&blsp1_i2c1_default>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		blsp1_i2c2: i2c@78b7000 {
+			compatible = "qcom,i2c-qup-v2.2.1";
+			reg = <0x078b7000 0x600>;
+			clocks = <&gcc GCC_BLSP1_AHB_CLK>,
+				 <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>;
+			clock-names = "iface", "core";
+			pinctrl-names = "default";
+			pinctrl-0 = <&blsp1_i2c2_default>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		blsp1_i2c3: i2c@78b8000 {
+			compatible = "qcom,i2c-qup-v2.2.1";
+			reg = <0x078b8000 0x600>;
+			clocks = <&gcc GCC_BLSP1_AHB_CLK>,
+				 <&gcc GCC_BLSP1_QUP3_I2C_APPS_CLK>;
+			clock-names = "iface", "core";
+			pinctrl-names = "default";
+			pinctrl-0 = <&blsp1_i2c3_default>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		blsp1_i2c4: i2c@78b9000 {
+			compatible = "qcom,i2c-qup-v2.2.1";
+			reg = <0x078b9000 0x600>;
+			clocks = <&gcc GCC_BLSP1_AHB_CLK>,
+				 <&gcc GCC_BLSP1_QUP4_I2C_APPS_CLK>;
+			clock-names = "iface", "core";
+			pinctrl-names = "default";
+			pinctrl-0 = <&blsp1_i2c4_default>;
+			#address-cells = <1>;
+			#size-cells = <0>;
 		};
 
 		gcc: clock-controller@1800000 {
