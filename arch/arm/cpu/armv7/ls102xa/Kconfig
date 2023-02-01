@@ -96,4 +96,13 @@ config SYS_FSL_HAS_CCI400
 config SYS_FSL_ERRATUM_A008407
 	bool
 
+config SYS_FSL_QSPI_SKIP_CLKSEL
+	bool "Skip setting QSPI clock during SoC init"
+	default 0
+	help
+	   To improve startup times when booting from QSPI flash, the QSPI
+	   frequency can be set very early in the boot process. If this option
+	   is enabled, the QSPI frequency will not be changed by U-Boot during
+	   SoC initialization.
+
 endmenu
