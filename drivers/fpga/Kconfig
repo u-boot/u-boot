@@ -54,6 +54,12 @@ config FPGA_INTEL_SDM_MAILBOX
 	  Enable FPGA driver for writing full bitstream into Intel FPGA
 	  devices through SDM (Secure Device Manager) Mailbox.
 
+config FPGA_LATTICE
+	bool "Enable Lattice FPGA driver"
+	help
+	  This is used for the lattice FPGAs. Please check the source code as
+	  there is no documentation for this at present.
+
 config FPGA_XILINX
 	bool "Enable Xilinx FPGA drivers"
 	select FPGA
