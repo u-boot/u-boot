@@ -22,6 +22,13 @@ static const char * const msm_pinctrl_pins[] = {
 
 static const struct pinctrl_function msm_pinctrl_functions[] = {
 	{"blsp_uart2", 1},
+	{"rgmii_int", 1},
+	{"rgmii_ck", 1},
+	{"rgmii_tx", 1},
+	{"rgmii_ctl", 1},
+	{"rgmii_rx", 1},
+	{"rgmii_mdio", 1},
+	{"rgmii_mdc", 1},
 };
 
 static const char *qcs404_get_function_name(struct udevice *dev,
