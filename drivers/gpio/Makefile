@@ -38,7 +38,6 @@ obj-$(CONFIG_SANDBOX_GPIO)	+= sandbox.o sandbox_test.o
 obj-$(CONFIG_TEGRA_GPIO)	+= tegra_gpio.o
 obj-$(CONFIG_TEGRA186_GPIO)	+= tegra186_gpio.o
 obj-$(CONFIG_DA8XX_GPIO)	+= da8xx_gpio.o
-obj-$(CONFIG_DM644X_GPIO)	+= da8xx_gpio.o
 obj-$(CONFIG_ALTERA_PIO)	+= altera_pio.o
 obj-$(CONFIG_MPC83XX_GPIO)	+= mpc83xx_gpio.o
 obj-$(CONFIG_MPC8XXX_GPIO)	+= mpc8xxx_gpio.o
