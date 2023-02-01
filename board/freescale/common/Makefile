@@ -54,7 +54,6 @@ obj-$(CONFIG_TARGET_MPC8548CDS)	+= cds_pci_ft.o
 
 obj-$(CONFIG_TARGET_MPC8536DS)	+= ics307_clk.o
 obj-$(CONFIG_TARGET_P1022DS)		+= ics307_clk.o
-obj-$(CONFIG_P2020DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P3041DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P4080DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P5040DS)		+= ics307_clk.o
