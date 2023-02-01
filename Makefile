@@ -1652,17 +1652,6 @@ OBJCOPYFLAGS_u-boot-with-spl-pbl.bin = -I binary -O binary --pad-to=$(CONFIG_SPL
 u-boot-with-spl-pbl.bin: spl/u-boot-spl.pbl $(UBOOT_BINLOAD) FORCE
 	$(call if_changed,pad_cat)
 
-# PPC4xx needs the SPL at the end of the image, since the reset vector
-# is located at 0xfffffffc. So we can't use the "u-boot-img.bin" target
-# and need to introduce a new build target with the full blown U-Boot
-# at the start padded up to the start of the SPL image. And then concat
-# the SPL image to the end.
-
-OBJCOPYFLAGS_u-boot-img-spl-at-end.bin := -I binary -O binary \
-	--pad-to=$(CONFIG_UBOOT_PAD_TO) --gap-fill=0xff
-u-boot-img-spl-at-end.bin: u-boot.img spl/u-boot-spl.bin FORCE
-	$(call if_changed,pad_cat)
-
 quiet_cmd_u-boot-elf ?= LD      $@
 	cmd_u-boot-elf ?= $(LD) u-boot-elf.o -o $@ \
 	$(if $(CONFIG_SYS_BIG_ENDIAN),-EB,-EL) \
