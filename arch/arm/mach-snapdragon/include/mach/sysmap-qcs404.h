@@ -12,6 +12,7 @@
 
 /* Clocks: (from CLK_CTL_BASE)  */
 #define GPLL0_STATUS			(0x21000)
+#define GPLL1_STATUS			(0x20000)
 #define APCS_GPLL_ENA_VOTE		(0x45000)
 #define APCS_CLOCK_BRANCH_ENA_VOTE	(0x45004)
 
@@ -53,5 +54,18 @@
 #define USB30_MASTER_D			(0x39038)
 #define USB2A_PHY_SLEEP_CBCR		(0x4102C)
 #define USB_HS_PHY_CFG_AHB_CBCR		(0x41030)
+
+/* ETH controller clock control registers */
+#define ETH_PTP_CBCR			(0x4e004)
+#define ETH_RGMII_CBCR			(0x4e008)
+#define ETH_SLAVE_AHB_CBCR		(0x4e00c)
+#define ETH_AXI_CBCR			(0x4e010)
+#define EMAC_PTP_CMD_RCGR		(0x4e014)
+#define EMAC_PTP_CFG_RCGR		(0x4e018)
+#define EMAC_CMD_RCGR			(0x4e01c)
+#define EMAC_CFG_RCGR			(0x4e020)
+#define EMAC_M				(0x4e024)
+#define EMAC_N				(0x4e028)
+#define EMAC_D				(0x4e02c)
 
 #endif
