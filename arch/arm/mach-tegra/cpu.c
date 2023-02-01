@@ -55,11 +55,18 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 	 */
 	{
 		{ .n = 1000, .m = 13, .p = 0, .cpcon = 12 }, /* OSC: 13.0 MHz */
+		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
+		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
+		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
 		{ .n =  625, .m = 12, .p = 0, .cpcon =  8 }, /* OSC: 19.2 MHz */
+		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
+		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
+		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
 		{ .n = 1000, .m = 12, .p = 0, .cpcon = 12 }, /* OSC: 12.0 MHz */
+		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
+		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
+		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
 		{ .n = 1000, .m = 26, .p = 0, .cpcon = 12 }, /* OSC: 26.0 MHz */
-		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* OSC: 38.4 MHz (N/A) */
-		{ .n =    0, .m =  0, .p = 0, .cpcon =  0 }, /* OSC: 48.0 MHz (N/A) */
 	},
 	/*
 	 * T25: 1.2 GHz
@@ -73,11 +80,18 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 	 */
 	{
 		{ .n = 923, .m = 10, .p = 0, .cpcon = 12 }, /* OSC: 13.0 MHz */
+		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
+		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
+		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
 		{ .n = 750, .m = 12, .p = 0, .cpcon =  8 }, /* OSC: 19.2 MHz */
+		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
+		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
+		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
 		{ .n = 600, .m =  6, .p = 0, .cpcon = 12 }, /* OSC: 12.0 MHz */
+		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
+		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
+		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* N/A */
 		{ .n = 600, .m = 13, .p = 0, .cpcon = 12 }, /* OSC: 26.0 MHz */
-		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* OSC: 38.4 MHz (N/A) */
-		{ .n =   0, .m =  0, .p = 0, .cpcon =  0 }, /* OSC: 48.0 MHz (N/A) */
 	},
 	/*
 	 * T30: 600 MHz
@@ -91,11 +105,18 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 	 */
 	{
 		{ .n = 600, .m = 13, .p = 0, .cpcon = 8 }, /* OSC: 13.0 MHz */
+		{ .n = 600, .m = 13, .p = 0, .cpcon = 8 }, /* OSC: 16.8 MHz */
+		{ .n =   0, .m =  0, .p = 0, .cpcon = 0 }, /* N/A */
+		{ .n =   0, .m =  0, .p = 0, .cpcon = 0 }, /* N/A */
 		{ .n = 500, .m = 16, .p = 0, .cpcon = 8 }, /* OSC: 19.2 MHz */
+		{ .n = 500, .m = 16, .p = 0, .cpcon = 8 }, /* OSC: 38.4 MHz */
+		{ .n =   0, .m =  0, .p = 0, .cpcon = 0 }, /* N/A */
+		{ .n =   0, .m =  0, .p = 0, .cpcon = 0 }, /* N/A */
 		{ .n = 600, .m = 12, .p = 0, .cpcon = 8 }, /* OSC: 12.0 MHz */
+		{ .n = 600, .m = 12, .p = 0, .cpcon = 8 }, /* OSC: 48.0 MHz */
+		{ .n =   0, .m =  0, .p = 0, .cpcon = 0 }, /* N/A */
+		{ .n =   0, .m =  0, .p = 0, .cpcon = 0 }, /* N/A */
 		{ .n = 600, .m = 26, .p = 0, .cpcon = 8 }, /* OSC: 26.0 MHz */
-		{ .n =   0, .m =  0, .p = 0, .cpcon = 0 }, /* OSC: 38.4 MHz (N/A) */
-		{ .n =   0, .m =  0, .p = 0, .cpcon = 0 }, /* OSC: 48.0 MHz (N/A) */
 	},
 	/*
 	 * T114: 700 MHz
@@ -108,11 +129,18 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 	 */
 	{
 		{ .n = 108, .m = 1, .p = 1 }, /* OSC: 13.0 MHz */
+		{ .n = 108, .m = 1, .p = 1 }, /* OSC: 16.8 MHz */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
 		{ .n =  73, .m = 1, .p = 1 }, /* OSC: 19.2 MHz */
+		{ .n =  73, .m = 1, .p = 1 }, /* OSC: 38.4 MHz */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
 		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 12.0 MHz */
+		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 48.0 MHz */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
 		{ .n = 108, .m = 2, .p = 1 }, /* OSC: 26.0 MHz */
-		{ .n =   0, .m = 0, .p = 0 }, /* OSC: 38.4 MHz (N/A) */
-		{ .n =   0, .m = 0, .p = 0 }, /* OSC: 48.0 MHz (N/A) */
 	},
 
 	/*
@@ -126,11 +154,18 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 	 */
 	{
 		{ .n = 108, .m = 1, .p = 1 }, /* OSC: 13.0 MHz */
+		{ .n = 108, .m = 1, .p = 1 }, /* OSC: 16.8 MHz */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
 		{ .n =  73, .m = 1, .p = 1 }, /* OSC: 19.2 MHz */
+		{ .n =  73, .m = 1, .p = 1 }, /* OSC: 38.4 MHz */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
 		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 12.0 MHz */
+		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 48.0 MHz */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
 		{ .n = 108, .m = 2, .p = 1 }, /* OSC: 26.0 MHz */
-		{ .n =   0, .m = 0, .p = 0 }, /* OSC: 38.4 MHz (N/A) */
-		{ .n =   0, .m = 0, .p = 0 }, /* OSC: 48.0 MHz (N/A) */
 	},
 
 	/*
@@ -143,12 +178,19 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 	 * PLLX_BASE  m       7: 0    8
 	 */
 	{
-		{ .n = 108, .m = 1, .p = 1 }, /* OSC: 13.0 MHz = 702   MHz*/
-		{ .n =  73, .m = 1, .p = 1 }, /* OSC: 19.2 MHz = 700.8 MHz*/
-		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 12.0 MHz = 696   MHz*/
-		{ .n = 108, .m = 2, .p = 1 }, /* OSC: 26.0 MHz = 702   MHz*/
+		{ .n = 108, .m = 1, .p = 1 }, /* OSC: 13.0 MHz = 702   MHz */
+		{ .n = 108, .m = 1, .p = 1 }, /* OSC: 16.0 MHz = 702   MHz */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
+		{ .n =  73, .m = 1, .p = 1 }, /* OSC: 19.2 MHz = 700.8 MHz */
 		{ .n =  36, .m = 1, .p = 1 }, /* OSC: 38.4 MHz = 691.2 MHz */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
+		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 12.0 MHz = 696   MHz */
 		{ .n =  58, .m = 2, .p = 1 }, /* OSC: 48.0 MHz = 696   MHz */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
+		{ .n =   0, .m = 0, .p = 0 }, /* (N/A) */
+		{ .n = 108, .m = 2, .p = 1 }, /* OSC: 26.0 MHz = 702   MHz */
 	},
 };
 
