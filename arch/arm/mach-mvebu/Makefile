@@ -35,7 +35,7 @@ endif
 
 extra-y += kwbimage.cfg
 
-ifneq ($(CONFIG_ARMADA_370)$(CONFIG_ARMADA_XP),)
+ifneq ($(CONFIG_ARMADA_XP),)
 	KWB_REPLACE += CPU
 	KWB_CFG_CPU = SHEEVA
 else ifneq ($(CONFIG_ARMADA_375)$(CONFIG_ARMADA_38X)$(CONFIG_ARMADA_39X),)
