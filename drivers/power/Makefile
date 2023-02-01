@@ -4,7 +4,6 @@
 # Tom Rix <Tom.Rix at windriver.com>
 
 obj-$(CONFIG_$(SPL_TPL_)ACPI_PMC) += acpi_pmc/
-obj-y += battery/
 obj-$(CONFIG_$(SPL_TPL_)POWER_DOMAIN) += domain/
 obj-y += fuel_gauge/
 obj-y += mfd/
