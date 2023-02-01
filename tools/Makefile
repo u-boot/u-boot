@@ -27,7 +27,6 @@ ifneq ($(HOST_TOOLS_ALL),)
 CONFIG_ARCH_KIRKWOOD = y
 CONFIG_CMD_LOADS = y
 CONFIG_CMD_NET = y
-CONFIG_XWAY_SWAP_BYTES = y
 CONFIG_NETCONSOLE = y
 CONFIG_ARCH_SUNXI = y
 endif
@@ -60,9 +59,6 @@ HOSTCFLAGS_gen_ethaddr_crc.o := -pedantic
 
 hostprogs-$(CONFIG_CMD_LOADS) += img2srec
 HOSTCFLAGS_img2srec.o := -pedantic
-
-hostprogs-$(CONFIG_XWAY_SWAP_BYTES) += xway-swap-bytes
-HOSTCFLAGS_xway-swap-bytes.o := -pedantic
 
 hostprogs-y += mkenvimage
 mkenvimage-objs := mkenvimage.o os_support.o lib/crc32.o
