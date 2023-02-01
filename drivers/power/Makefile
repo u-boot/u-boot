@@ -5,7 +5,6 @@
 
 obj-$(CONFIG_$(SPL_TPL_)ACPI_PMC) += acpi_pmc/
 obj-$(CONFIG_$(SPL_TPL_)POWER_DOMAIN) += domain/
-obj-y += mfd/
 obj-y += pmic/
 obj-y += regulator/
 
