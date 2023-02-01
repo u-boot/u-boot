@@ -26,7 +26,6 @@ obj-$(CONFIG_ARMV7_NONSEC)	+= nonsec_virt.o virt-v7.o virt-dt.o
 obj-$(CONFIG_ARMV7_PSCI)	+= psci.o psci-common.o
 
 obj-$(CONFIG_IPROC) += iproc-common/
-obj-$(CONFIG_KONA) += kona-common/
 obj-$(CONFIG_SYS_ARCH_TIMER) += arch_timer.o
 
 ifneq (,$(filter s5pc1xx exynos,$(SOC)))
