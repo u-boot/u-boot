@@ -39,7 +39,6 @@ obj-$(CONFIG_SPL_RECOVER_DATA_SECTION) += spl_data.o
 endif
 
 obj-$(CONFIG_FSL_LAYERSCAPE) += fsl-layerscape/
-obj-$(CONFIG_S32V234) += s32v234/
 obj-$(CONFIG_TARGET_HIKEY) += hisilicon/
 obj-$(CONFIG_ARMV8_PSCI) += psci.o
 obj-$(CONFIG_TARGET_BCMNS3) += bcmns3/
