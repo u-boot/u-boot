@@ -111,6 +111,30 @@ void clk_rcg_set_rate_mnd(phys_addr_t base, const struct bcr_regs *regs,
 	clk_bcr_update(base + regs->cmd_rcgr);
 }
 
+/* root set rate for clocks with half integer and mnd_width=0 */
+void clk_rcg_set_rate(phys_addr_t base, const struct bcr_regs *regs, int div,
+		      int source)
+{
+	u32 cfg;
+
+	/* setup src select and divider */
+	cfg  = readl(base + regs->cfg_rcgr);
+	cfg &= ~CFG_MASK;
+	cfg |= source & CFG_CLK_SRC_MASK; /* Select clock source */
+
+	/*
+	 * Set the divider; HW permits fraction dividers (+0.5), but
+	 * for simplicity, we will support integers only
+	 */
+	if (div)
+		cfg |= (2 * div - 1) & CFG_DIVIDER_MASK;
+
+	writel(cfg, base + regs->cfg_rcgr); /* Write new clock configuration */
+
+	/* Inform h/w to start using the new config. */
+	clk_bcr_update(base + regs->cmd_rcgr);
+}
+
 static int msm_clk_probe(struct udevice *dev)
 {
 	struct msm_clk_priv *priv = dev_get_priv(dev);

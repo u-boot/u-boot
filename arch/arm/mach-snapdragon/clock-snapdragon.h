@@ -42,5 +42,7 @@ void clk_enable_cbc(phys_addr_t cbcr);
 void clk_enable_vote_clk(phys_addr_t base, const struct vote_clk *vclk);
 void clk_rcg_set_rate_mnd(phys_addr_t base, const struct bcr_regs *regs,
 			  int div, int m, int n, int source);
+void clk_rcg_set_rate(phys_addr_t base, const struct bcr_regs *regs, int div,
+		      int source);
 
 #endif
