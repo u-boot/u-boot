@@ -62,7 +62,6 @@ static const struct {
 	u16 cpu_type;
 	u8 cpu_name[10];
 } rmobile_cpuinfo[] = {
-	{ RMOBILE_CPU_TYPE_SH73A0, "SH73A0" },
 	{ RMOBILE_CPU_TYPE_R8A7740, "R8A7740" },
 	{ RMOBILE_CPU_TYPE_R8A7790, "R8A7790" },
 	{ RMOBILE_CPU_TYPE_R8A7791, "R8A7791" },
