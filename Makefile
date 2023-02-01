@@ -1082,7 +1082,7 @@ expect = $(foreach cfg,$(1),y)
 
 # Show a deprecation message
 # Args:
-# 1: List of CONFIG_DM_... to migrate to (e.g. "CONFIG_DM_MMC CONFIG_BLK")
+# 1: List of options to migrate to (e.g. "CONFIG_DM_MMC CONFIG_BLK")
 # 2: Name of component (e.g . "Ethernet drivers")
 # 3: Release deadline (e.g. "v202.07")
 # 4: Condition to require before checking (e.g. "$(CONFIG_NET)")
