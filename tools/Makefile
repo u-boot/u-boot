@@ -158,9 +158,9 @@ fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 file2include-objs := file2include.o
 
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_TOOLS_LIBCRYPTO),)
-# Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
+# Add CFG_MXS into host CFLAGS, so we can check whether or not register
 # the mxsimage support within tools/mxsimage.c .
-HOSTCFLAGS_mxsimage.o += -DCONFIG_MXS
+HOSTCFLAGS_mxsimage.o += -DCFG_MXS
 endif
 
 ifdef CONFIG_TOOLS_LIBCRYPTO
