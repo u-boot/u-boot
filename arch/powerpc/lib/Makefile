@@ -34,7 +34,6 @@ obj-y	+= ticks.o
 endif
 obj-y	+= reloc.o
 
-obj-$(CONFIG_BAT_RW) += bat_rw.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y	+= cache.o
 obj-y	+= extable.o
