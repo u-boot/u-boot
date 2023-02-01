@@ -51,8 +51,6 @@ endif
 
 obj-$(CONFIG_TARGET_MPC8548CDS)	+= cds_pci_ft.o
 
-obj-$(CONFIG_TARGET_MPC8536DS)	+= ics307_clk.o
-obj-$(CONFIG_TARGET_P1022DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P3041DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P4080DS)		+= ics307_clk.o
 obj-$(CONFIG_TARGET_P5040DS)		+= ics307_clk.o
@@ -75,7 +73,6 @@ obj-$(CONFIG_EMC2305)              += emc2305.o
 obj-$(CONFIG_TARGET_P2041RDB)	+= p_corenet/
 obj-$(CONFIG_TARGET_P3041DS)	+= p_corenet/
 obj-$(CONFIG_TARGET_P4080DS)	+= p_corenet/
-obj-$(CONFIG_TARGET_P5020DS)	+= p_corenet/
 obj-$(CONFIG_TARGET_P5040DS)	+= p_corenet/
 
 obj-$(CONFIG_LAYERSCAPE_NS_ACCESS)	+= ns_access.o
