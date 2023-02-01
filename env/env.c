@@ -78,9 +78,6 @@ static enum env_location env_locations[] = {
 #ifdef CONFIG_ENV_IS_IN_REMOTE
 	ENVL_REMOTE,
 #endif
-#ifdef CONFIG_ENV_IS_IN_SATA
-	ENVL_ESATA,
-#endif
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 	ENVL_SPI_FLASH,
 #endif
