@@ -71,7 +71,6 @@ int skge_initialize(struct bd_info *bis);
 int smc91111_initialize(u8 dev_num, phys_addr_t base_addr);
 int smc911x_initialize(u8 dev_num, phys_addr_t base_addr);
 int uli526x_initialize(struct bd_info *bis);
-int armada100_fec_register(unsigned long base_addr);
 
 /* Boards with PCI network controllers can call this from their board_eth_init()
  * function to initialize whatever's on board.

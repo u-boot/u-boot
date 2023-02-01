@@ -25,7 +25,6 @@ obj-$(CONFIG_USB_OHCI_NPCM) += ohci-npcm.o
 
 # echi
 obj-$(CONFIG_USB_EHCI_HCD) += ehci-hcd.o
-obj-$(CONFIG_USB_EHCI_ARMADA100) += ehci-armada100.o utmi-armada100.o
 obj-$(CONFIG_USB_EHCI_ATMEL) += ehci-atmel.o
 obj-$(CONFIG_USB_EHCI_FSL) += ehci-fsl.o
 obj-$(CONFIG_USB_EHCI_FARADAY) += ehci-faraday.o
