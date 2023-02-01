@@ -9,7 +9,6 @@
 
 #include "skeleton.dtsi"
 #include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/pinctrl/pinctrl-snapdragon.h>
 #include <dt-bindings/clock/qcom,ipq4019-gcc.h>
 #include <dt-bindings/reset/qcom,ipq4019-reset.h>
 

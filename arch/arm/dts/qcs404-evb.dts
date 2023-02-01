@@ -9,7 +9,6 @@
 
 #include "skeleton64.dtsi"
 #include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/pinctrl/pinctrl-snapdragon.h>
 #include <dt-bindings/clock/qcom,gcc-qcs404.h>
 
 / {

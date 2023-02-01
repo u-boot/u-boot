@@ -28,8 +28,9 @@ struct msm_pinctrl_priv {
 #define TLMM_GPIO_DISABLE BIT(9)
 
 static const struct pinconf_param msm_conf_params[] = {
-	{ "drive-strength", PIN_CONFIG_DRIVE_STRENGTH, 3 },
+	{ "drive-strength", PIN_CONFIG_DRIVE_STRENGTH, 2 },
 	{ "bias-disable", PIN_CONFIG_BIAS_DISABLE, 0 },
+	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, 3 },
 };
 
 static int msm_get_functions_count(struct udevice *dev)
@@ -89,12 +90,17 @@ static int msm_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 
 	switch (param) {
 	case PIN_CONFIG_DRIVE_STRENGTH:
+		argument = (argument / 2) - 1;
 		clrsetbits_le32(priv->base + GPIO_CONFIG_OFFSET(pin_selector),
 				TLMM_DRV_STRENGTH_MASK, argument << 6);
 		break;
 	case PIN_CONFIG_BIAS_DISABLE:
 		clrbits_le32(priv->base + GPIO_CONFIG_OFFSET(pin_selector),
 			     TLMM_GPIO_PULL_MASK);
+		break;
+	case PIN_CONFIG_BIAS_PULL_UP:
+		clrsetbits_le32(priv->base + GPIO_CONFIG_OFFSET(pin_selector),
+				TLMM_GPIO_PULL_MASK, argument);
 		break;
 	default:
 		return 0;
