@@ -1454,9 +1454,6 @@ u-boot-with-spl.kwb: u-boot.bin spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 	$(BOARD_SIZE_CHECK)
 
-u-boot.sha1:	u-boot.bin
-		tools/ubsha1 u-boot.bin
-
 u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
 
