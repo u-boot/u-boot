@@ -76,13 +76,8 @@
 .endm
 
 .macro SAVE_EXCEPTION_SOURCE
-#ifdef CONFIG_MMU
-	/* If MMU exists exception faulting address is loaded in EFA reg */
-	lr	%r0, [%efa]
-#else
 	/* Otherwise in ERET (exception return) reg */
 	lr	%r0, [%eret]
-#endif
 .endm
 
 ENTRY(memory_error)

@@ -12,10 +12,6 @@ KBUILD_LDFLAGS += -EB
 PLATFORM_CPPFLAGS += -mbig-endian
 endif
 
-ifdef CONFIG_ARC_MMU_VER
-CONFIG_MMU = 1
-endif
-
 PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -gdwarf-2 -mno-sdata
 PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections -fno-common
 
