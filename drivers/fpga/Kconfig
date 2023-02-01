@@ -21,6 +21,12 @@ config FPGA_SOCFPGA
 
 	  This provides common functionality for Gen5 and Arria10 devices.
 
+config FPGA_STRATIX_II
+	bool "Enable Stratix II FPGA drivers"
+	depends on FPGA_ALTERA
+	help
+	  Say Y here to enable the Altera Stratix II FPGA-specific driver.
+
 config FPGA_STRATIX_V
 	bool "Enable Stratix V FPGA drivers"
 	depends on FPGA_ALTERA
