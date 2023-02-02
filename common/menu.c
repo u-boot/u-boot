@@ -503,6 +503,9 @@ enum bootmenu_key bootmenu_conv_key(int ichar)
 	case CTL_CH('n'):
 		key = BKEY_DOWN;
 		break;
+	case CTL_CH('s'):
+		key = BKEY_SAVE;
+		break;
 	case '+':
 		key = BKEY_PLUS;
 		break;

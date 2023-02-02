@@ -28,7 +28,7 @@ const char *eficonfig_menu_desc =
 static const char *eficonfig_change_boot_order_desc =
 	"  Press UP/DOWN to move, +/- to change orde\n"
 	"  Press SPACE to activate or deactivate the entry\n"
-	"  Select [Save] to complete, ESC to quit";
+	"  CTRL+S to save, ESC to quit";
 
 static struct efi_simple_text_output_protocol *cout;
 static int avail_row;
@@ -1983,6 +1983,10 @@ char *eficonfig_choice_change_boot_order(void *data)
 				eficonfig_menu_down(efi_menu);
 
 			return NULL;
+		case BKEY_SAVE:
+			/* force to select "Save" entry */
+			efi_menu->active = efi_menu->count - 2;
+			fallthrough;
 		case BKEY_SELECT:
 			/* "Save" */
 			if (efi_menu->active == efi_menu->count - 2) {
