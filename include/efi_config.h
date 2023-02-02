@@ -11,7 +11,7 @@
 #include <efi_loader.h>
 #include <menu.h>
 
-#define EFICONFIG_ENTRY_NUM_MAX INT_MAX
+#define EFICONFIG_ENTRY_NUM_MAX (INT_MAX - 1)
 #define EFICONFIG_VOLUME_PATH_MAX 512
 #define EFICONFIG_FILE_PATH_MAX 512
 #define EFICONFIG_FILE_PATH_BUF_SIZE (EFICONFIG_FILE_PATH_MAX * sizeof(u16))
