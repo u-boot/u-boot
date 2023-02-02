@@ -459,8 +459,7 @@ struct clk_pll_info tegra_pll_info_table[CLOCK_ID_PLL_COUNT] = {
 
 /*
  * Get the oscillator frequency, from the corresponding hardware configuration
- * field. Note that T30/T114 support 3 new higher freqs, but we map back
- * to the old T20 freqs. Support for the higher oscillators is TBD.
+ * field. Note that T30+ supports 3 new higher freqs.
  */
 enum clock_osc_freq clock_get_osc_freq(void)
 {
@@ -469,12 +468,7 @@ enum clock_osc_freq clock_get_osc_freq(void)
 	u32 reg;
 
 	reg = readl(&clkrst->crc_osc_ctrl);
-	reg = (reg & OSC_FREQ_MASK) >> OSC_FREQ_SHIFT;
-
-	if (reg & 1)				/* one of the newer freqs */
-		printf("Warning: OSC_FREQ is unsupported! (%d)\n", reg);
-
-	return reg >> 2;	/* Map to most common (T20) freqs */
+	return (reg & OSC_FREQ_MASK) >> OSC_FREQ_SHIFT;
 }
 
 /* Returns a pointer to the clock source register for a peripheral */
@@ -674,6 +668,7 @@ void clock_early_init(void)
 	 */
 	switch (clock_get_osc_freq()) {
 	case CLOCK_OSC_FREQ_12_0: /* OSC is 12Mhz */
+	case CLOCK_OSC_FREQ_48_0: /* OSC is 48Mhz */
 		clock_set_rate(CLOCK_ID_CGENERAL, 600, 12, 0, 8);
 		clock_set_rate(CLOCK_ID_DISPLAY, 925, 12, 0, 12);
 		break;
@@ -684,10 +679,12 @@ void clock_early_init(void)
 		break;
 
 	case CLOCK_OSC_FREQ_13_0: /* OSC is 13Mhz */
+	case CLOCK_OSC_FREQ_16_8: /* OSC is 16.8Mhz */
 		clock_set_rate(CLOCK_ID_CGENERAL, 600, 13, 0, 8);
 		clock_set_rate(CLOCK_ID_DISPLAY, 925, 13, 0, 12);
 		break;
 	case CLOCK_OSC_FREQ_19_2:
+	case CLOCK_OSC_FREQ_38_4:
 	default:
 		/*
 		 * These are not supported. It is too early to print a

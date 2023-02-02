@@ -672,8 +672,7 @@ struct clk_pll_info tegra_pll_info_table[CLOCK_ID_PLL_COUNT] = {
 
 /*
  * Get the oscillator frequency, from the corresponding hardware configuration
- * field. Note that Tegra30+ support 3 new higher freqs, but we map back
- * to the old T20 freqs. Support for the higher oscillators is TBD.
+ * field. Note that T30+ supports 3 new higher freqs.
  */
 enum clock_osc_freq clock_get_osc_freq(void)
 {
@@ -682,22 +681,7 @@ enum clock_osc_freq clock_get_osc_freq(void)
 	u32 reg;
 
 	reg = readl(&clkrst->crc_osc_ctrl);
-	reg = (reg & OSC_FREQ_MASK) >> OSC_FREQ_SHIFT;
-	/*
-	 * 0 = 13MHz, 1 = 16.8MHz, 4 = 19.2MHz, 5 = 38.4MHz,
-	 * 8 = 12MHz, 9 = 48MHz,  12 = 26MHz
-	 */
-	if (reg == 5) {
-		debug("OSC_FREQ is 38.4MHz (%d) ...\n", reg);
-		/* Map it to the 5th CLOCK_OSC_ enum, i.e. 4 */
-		return 4;
-	}
-
-	/*
-	 * Map to most common (T20) freqs (except 38.4, handled above):
-	 *  13/16.8 = 0, 19.2 = 1, 12/48 = 2, 26 = 3
-	 */
-	return reg >> 2;
+	return (reg & OSC_FREQ_MASK) >> OSC_FREQ_SHIFT;
 }
 
 /* Returns a pointer to the clock source register for a peripheral */
@@ -986,6 +970,7 @@ void clock_early_init(void)
 	 */
 	switch (clock_get_osc_freq()) {
 	case CLOCK_OSC_FREQ_12_0: /* OSC is 12Mhz */
+	case CLOCK_OSC_FREQ_48_0: /* OSC is 48Mhz */
 		clock_set_rate(CLOCK_ID_CGENERAL, 600, 12, 0, 8);
 		clock_set_rate(CLOCK_ID_DISPLAY, 925, 12, 0, 12);
 		break;
@@ -996,6 +981,7 @@ void clock_early_init(void)
 		break;
 
 	case CLOCK_OSC_FREQ_13_0: /* OSC is 13Mhz */
+	case CLOCK_OSC_FREQ_16_8: /* OSC is 16.8Mhz */
 		clock_set_rate(CLOCK_ID_CGENERAL, 600, 13, 0, 8);
 		clock_set_rate(CLOCK_ID_DISPLAY, 925, 13, 0, 12);
 		break;

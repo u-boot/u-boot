@@ -439,8 +439,7 @@ struct clk_pll_info tegra_pll_info_table[CLOCK_ID_PLL_COUNT] = {
 
 /*
  * Get the oscillator frequency, from the corresponding hardware configuration
- * field. Note that T30 supports 3 new higher freqs, but we map back
- * to the old T20 freqs. Support for the higher oscillators is TBD.
+ * field. Note that T30+ supports 3 new higher freqs.
  */
 enum clock_osc_freq clock_get_osc_freq(void)
 {
@@ -449,12 +448,7 @@ enum clock_osc_freq clock_get_osc_freq(void)
 	u32 reg;
 
 	reg = readl(&clkrst->crc_osc_ctrl);
-	reg = (reg & OSC_FREQ_MASK) >> OSC_FREQ_SHIFT;
-
-	if (reg & 1)			/* one of the newer freqs */
-		printf("Warning: OSC_FREQ is unsupported! (%d)\n", reg);
-
-	return reg >> 2;	/* Map to most common (T20) freqs */
+	return (reg & OSC_FREQ_MASK) >> OSC_FREQ_SHIFT;
 }
 
 /* Returns a pointer to the clock source register for a peripheral */

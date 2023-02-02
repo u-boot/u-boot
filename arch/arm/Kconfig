@@ -1286,6 +1286,7 @@ config ARCH_TEGRA
 	select GPIO_EXTRA_HEADER
 	imply DISTRO_DEFAULTS
 	imply FAT_WRITE
+	imply SPL_TIMER if SPL
 
 config ARCH_VEXPRESS64
 	bool "Support ARMv8 Arm Ltd. VExpress based boards and models"

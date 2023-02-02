@@ -13,12 +13,13 @@ struct udevice;
 /* Set of oscillator frequencies supported in the internal API. */
 enum clock_osc_freq {
 	/* All in MHz, so 13_0 is 13.0MHz */
-	CLOCK_OSC_FREQ_13_0,
-	CLOCK_OSC_FREQ_19_2,
-	CLOCK_OSC_FREQ_12_0,
-	CLOCK_OSC_FREQ_26_0,
+	CLOCK_OSC_FREQ_13_0 = 0,
+	CLOCK_OSC_FREQ_16_8,
+	CLOCK_OSC_FREQ_19_2 = 4,
 	CLOCK_OSC_FREQ_38_4,
+	CLOCK_OSC_FREQ_12_0 = 8,
 	CLOCK_OSC_FREQ_48_0,
+	CLOCK_OSC_FREQ_26_0 = 12,
 
 	CLOCK_OSC_FREQ_COUNT,
 };

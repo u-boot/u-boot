@@ -252,6 +252,14 @@ config STM32_TIMER
 	  Select this to enable support for the timer found on
 	  STM32 devices.
 
+config TEGRA_TIMER
+	bool "Tegra timer support"
+	depends on TIMER
+	select TIMER_EARLY
+	help
+	  Select this to enable support for the timer found on
+	  Tegra devices.
+
 config X86_TSC_TIMER
 	bool "x86 Time-Stamp Counter (TSC) timer support"
 	depends on TIMER && X86

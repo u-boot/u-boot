@@ -28,16 +28,23 @@
 static unsigned pll_rate[CLOCK_ID_COUNT];
 
 /*
- * The oscillator frequency is fixed to one of four set values. Based on this
+ * The oscillator frequency is fixed to one of seven set values. Based on this
  * the other clocks are set up appropriately.
  */
 static unsigned osc_freq[CLOCK_OSC_FREQ_COUNT] = {
 	13000000,
+	16800000,
+	       0,
+	       0,
 	19200000,
-	12000000,
-	26000000,
 	38400000,
+	       0,
+	       0,
+	12000000,
 	48000000,
+	       0,
+	       0,
+	26000000,
 };
 
 /* return 1 if a peripheral ID is in range */
@@ -766,6 +773,7 @@ void tegra30_set_up_pllp(void)
 	 */
 	switch (clock_get_osc_freq()) {
 	case CLOCK_OSC_FREQ_12_0: /* OSC is 12Mhz */
+	case CLOCK_OSC_FREQ_48_0: /* OSC is 48Mhz */
 		clock_set_rate(CLOCK_ID_PERIPH, 408, 12, 0, 8);
 		clock_set_rate(CLOCK_ID_CGENERAL, 456, 12, 1, 8);
 		break;
@@ -776,10 +784,13 @@ void tegra30_set_up_pllp(void)
 		break;
 
 	case CLOCK_OSC_FREQ_13_0: /* OSC is 13Mhz */
+	case CLOCK_OSC_FREQ_16_8: /* OSC is 16.8Mhz */
 		clock_set_rate(CLOCK_ID_PERIPH, 408, 13, 0, 8);
 		clock_set_rate(CLOCK_ID_CGENERAL, 600, 13, 0, 8);
 		break;
+
 	case CLOCK_OSC_FREQ_19_2:
+	case CLOCK_OSC_FREQ_38_4:
 	default:
 		/*
 		 * These are not supported. It is too early to print a

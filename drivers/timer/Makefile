@@ -27,6 +27,7 @@ obj-$(CONFIG_SP804_TIMER)	+= sp804_timer.o
 obj-$(CONFIG_$(SPL_)SIFIVE_CLINT) += sifive_clint_timer.o
 obj-$(CONFIG_ARM_GLOBAL_TIMER)	+= arm_global_timer.o
 obj-$(CONFIG_STM32_TIMER)	+= stm32_timer.o
+obj-$(CONFIG_TEGRA_TIMER)	+= tegra-timer.o
 obj-$(CONFIG_X86_TSC_TIMER)	+= tsc_timer.o
 obj-$(CONFIG_MTK_TIMER)		+= mtk_timer.o
 obj-$(CONFIG_MCHP_PIT64B_TIMER)	+= mchp-pit64b-timer.o

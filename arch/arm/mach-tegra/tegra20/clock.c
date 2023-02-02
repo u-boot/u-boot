@@ -399,7 +399,9 @@ enum clock_osc_freq clock_get_osc_freq(void)
 	u32 reg;
 
 	reg = readl(&clkrst->crc_osc_ctrl);
-	return (reg & OSC_FREQ_MASK) >> OSC_FREQ_SHIFT;
+	reg = (reg & OSC_FREQ_MASK) >> OSC_FREQ_SHIFT;
+
+	return reg << 2;
 }
 
 /* Returns a pointer to the clock source register for a peripheral */
