@@ -2,7 +2,7 @@
 /*
  * Device Tree Source for the Silicon Linux RZ/G2E evaluation kit (EK874)
  *
- * Copyright (C) 2021 Renesas Electronics Corp.
+ * Copyright (C) 2019 Renesas Electronics Corp.
  */
 
 #include "r8a774c0-cat874.dts"

@@ -35,7 +35,6 @@
 /delete-node/ &rcar_sound;
 /delete-node/ &audma0;
 /delete-node/ &sdhi1;
-/delete-node/ &sdhi3;
 /delete-node/ &vspb0;
 /delete-node/ &vspd0;
 /delete-node/ &vspd1;

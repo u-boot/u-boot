@@ -4,6 +4,9 @@ config CLK_RENESAS
 	help
 	  Enable support for clock present on Renesas RCar SoCs.
 
+config CLK_RCAR_CPG_LIB
+	bool "CPG/MSSR library functions"
+
 config CLK_RCAR_GEN2
 	bool "Renesas RCar Gen2 clock driver"
 	def_bool y if RCAR_32
@@ -45,6 +48,7 @@ config CLK_RCAR_GEN3
 	bool "Renesas RCar Gen3 clock driver"
 	def_bool y if RCAR_GEN3
 	depends on CLK_RENESAS
+	select CLK_RCAR_CPG_LIB
 	help
 	  Enable this to support the clocks on Renesas RCar Gen3 SoC.
 
@@ -79,11 +83,17 @@ config CLK_R8A7795
 	help
 	  Enable this to support the clocks on Renesas R8A7795 SoC.
 
-config CLK_R8A7796
-	bool "Renesas R8A7796 clock driver"
+config CLK_R8A77960
+	bool "Renesas R8A77960 clock driver"
 	depends on CLK_RCAR_GEN3
 	help
-	  Enable this to support the clocks on Renesas R8A7796 SoC.
+	  Enable this to support the clocks on Renesas R8A77960 SoC.
+
+config CLK_R8A77961
+	bool "Renesas R8A77961 clock driver"
+	depends on CLK_RCAR_GEN3
+	help
+	  Enable this to support the clocks on Renesas R8A77961 SoC.
 
 config CLK_R8A77965
 	bool "Renesas R8A77965 clock driver"

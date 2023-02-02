@@ -22,11 +22,6 @@
 
 #define CPG_SD0CKCR		0x0074
 
-enum r8a77970_clk_types {
-	CLK_TYPE_R8A77970_SD0H = CLK_TYPE_GEN3_SOC_BASE,
-	CLK_TYPE_R8A77970_SD0,
-};
-
 enum clk_ids {
 	/* Core Clock Outputs exported to DT */
 	LAST_DT_CORE_CLK = R8A77970_CLK_OSC,
@@ -219,7 +214,7 @@ static const struct cpg_mssr_info r8a77970_cpg_mssr_info = {
 	.get_pll_config		= r8a77970_get_pll_config,
 };
 
-static const struct udevice_id r8a77970_clk_ids[] = {
+static const struct udevice_id r8a77970_cpg_ids[] = {
 	{
 		.compatible	= "renesas,r8a77970-cpg-mssr",
 		.data		= (ulong)&r8a77970_cpg_mssr_info
@@ -227,12 +222,9 @@ static const struct udevice_id r8a77970_clk_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(clk_r8a77970) = {
-	.name		= "clk_r8a77970",
-	.id		= UCLASS_CLK,
-	.of_match	= r8a77970_clk_ids,
-	.priv_auto	= sizeof(struct gen3_clk_priv),
-	.ops		= &gen3_clk_ops,
-	.probe		= gen3_clk_probe,
-	.remove		= gen3_clk_remove,
+U_BOOT_DRIVER(cpg_r8a77970) = {
+	.name		= "cpg_r8a77970",
+	.id		= UCLASS_NOP,
+	.of_match	= r8a77970_cpg_ids,
+	.bind		= gen3_cpg_bind,
 };

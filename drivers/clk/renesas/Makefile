@@ -1,4 +1,5 @@
 obj-$(CONFIG_CLK_RENESAS) += renesas-cpg-mssr.o
+obj-$(CONFIG_CLK_RCAR_CPG_LIB) += rcar-cpg-lib.o
 obj-$(CONFIG_CLK_RCAR_GEN2) += clk-rcar-gen2.o
 obj-$(CONFIG_CLK_R8A774A1) += r8a774a1-cpg-mssr.o
 obj-$(CONFIG_CLK_R8A774B1) += r8a774b1-cpg-mssr.o
@@ -11,7 +12,8 @@ obj-$(CONFIG_CLK_R8A7793) += r8a7791-cpg-mssr.o
 obj-$(CONFIG_CLK_R8A7794) += r8a7794-cpg-mssr.o
 obj-$(CONFIG_CLK_RCAR_GEN3) += clk-rcar-gen3.o
 obj-$(CONFIG_CLK_R8A7795) += r8a7795-cpg-mssr.o
-obj-$(CONFIG_CLK_R8A7796) += r8a7796-cpg-mssr.o
+obj-$(CONFIG_CLK_R8A77960) += r8a7796-cpg-mssr.o
+obj-$(CONFIG_CLK_R8A77961) += r8a7796-cpg-mssr.o
 obj-$(CONFIG_CLK_R8A77965) += r8a77965-cpg-mssr.o
 obj-$(CONFIG_CLK_R8A77970) += r8a77970-cpg-mssr.o
 obj-$(CONFIG_CLK_R8A77980) += r8a77980-cpg-mssr.o

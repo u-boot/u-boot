@@ -17,7 +17,7 @@
 #include <linux/kernel.h>
 #include <linux/math64.h>
 
-#include <dt-bindings/clk/versaclock.h>
+#include <dt-bindings/clock/versaclock.h>
 
 /* VersaClock5 registers */
 #define VC5_OTP_CONTROL				0x00
