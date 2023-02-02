@@ -9,8 +9,17 @@
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
 
+#define UBOOT_ITB_OFFSET			0x57C00
+#define FSPI_CONF_BLOCK_SIZE		0x1000
+#define UBOOT_ITB_OFFSET_FSPI  \
+	(UBOOT_ITB_OFFSET + FSPI_CONF_BLOCK_SIZE)
+#ifdef CONFIG_FSPI_CONF_HEADER
+#define CFG_SYS_UBOOT_BASE  \
+	(QSPI0_AMBA_BASE + UBOOT_ITB_OFFSET_FSPI)
+#else
 #define CFG_SYS_UBOOT_BASE	\
 	(QSPI0_AMBA_BASE + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
+#endif
 
 #ifdef CONFIG_SPL_BUILD
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
