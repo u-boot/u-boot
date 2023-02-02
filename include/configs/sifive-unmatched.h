@@ -17,6 +17,7 @@
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(NVME, nvme, 0) \
+	func(NVME, nvme, 1) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 0) \
 	func(SCSI, scsi, 0) \
