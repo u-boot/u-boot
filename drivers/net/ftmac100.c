@@ -348,7 +348,7 @@ static const struct udevice_id ftmac100_ids[] = {
 };
 
 U_BOOT_DRIVER(ftmac100) = {
-	.name	= "nds32_mac",
+	.name	= "ftmac100",
 	.id	= UCLASS_ETH,
 	.of_match = ftmac100_ids,
 	.bind	= ftmac100_bind,
