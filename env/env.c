@@ -192,6 +192,14 @@ int env_load(void)
 	int best_prio = -1;
 	int prio;
 
+	if (CONFIG_IS_ENABLED(ENV_WRITEABLE_LIST)) {
+		/*
+		 * When using a list of writeable variables, the baseline comes
+		 * from the built-in default env. So load this first.
+		 */
+		env_set_default(NULL, 0);
+	}
+
 	for (prio = 0; (drv = env_driver_lookup(ENVOP_LOAD, prio)); prio++) {
 		int ret;
 
