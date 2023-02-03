@@ -356,8 +356,7 @@ static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
 	if (noff < 0) {
 		err = fdt_increase_size(blob, 200);
 		if (err) {
-			printf("fdt_increase_size: err=%s\n",
-				fdt_strerror(err));
+			printf("fdt_increase_size: err=%s\n", fdt_strerror(err));
 			return err;
 		}
 
@@ -373,7 +372,7 @@ static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
 					    "link_type", link_type_mode);
 		if (err) {
 			printf("fdt_appendprop_string: err=%s\n",
-				fdt_strerror(err));
+			       fdt_strerror(err));
 			return err;
 		}
 	}
@@ -526,7 +525,6 @@ static int load_mc_dpc(u64 mc_ram_addr, size_t mc_ram_size, u64 mc_dpc_addr)
 	dump_ram_words("DPC", (void *)(mc_ram_addr + mc_dpc_offset));
 	return 0;
 }
-
 
 static int mc_fixup_dpl(u64 dpl_addr)
 {
@@ -699,7 +697,6 @@ static int wait_for_mc(bool booting_mc, u32 *final_reg_gsr)
 		printf("SUCCESS\n");
 	}
 
-
 	*final_reg_gsr = reg_gsr;
 	return 0;
 }
@@ -812,7 +809,7 @@ int mc_init(u64 mc_fw_addr, u64 mc_dpc_addr)
 	 * Initialize the global default MC portal
 	 * And check that the MC firmware is responding portal commands:
 	 */
-	root_mc_io = (struct fsl_mc_io *)calloc(sizeof(struct fsl_mc_io), 1);
+	root_mc_io = calloc(sizeof(struct fsl_mc_io), 1);
 	if (!root_mc_io) {
 		printf(" No memory: calloc() failed\n");
 		return -ENOMEM;
@@ -979,8 +976,7 @@ static int dpio_init(void)
 	int err = 0;
 	uint16_t major_ver, minor_ver;
 
-	dflt_dpio = (struct fsl_dpio_obj *)calloc(
-					sizeof(struct fsl_dpio_obj), 1);
+	dflt_dpio = calloc(sizeof(struct fsl_dpio_obj), 1);
 	if (!dflt_dpio) {
 		printf("No memory: calloc() failed\n");
 		err = -ENOMEM;
@@ -1038,7 +1034,7 @@ static int dpio_init(void)
 	}
 
 #ifdef DEBUG
-	printf("Init: DPIO id=0x%d\n", dflt_dpio->dpio_id);
+	printf("Init: DPIO.%d\n", dflt_dpio->dpio_id);
 #endif
 	err = dpio_enable(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio->dpio_handle);
 	if (err < 0) {
@@ -1107,7 +1103,7 @@ static int dpio_exit(void)
 	}
 
 #ifdef DEBUG
-	printf("Exit: DPIO id=0x%d\n", dflt_dpio->dpio_id);
+	printf("Exit: DPIO.%d\n", dflt_dpio->dpio_id);
 #endif
 
 	if (dflt_dpio)
@@ -1159,16 +1155,15 @@ static int dprc_init(void)
 	cfg.icid = DPRC_GET_ICID_FROM_POOL;
 	cfg.portal_id = DPRC_GET_PORTAL_ID_FROM_POOL;
 	err = dprc_create_container(root_mc_io, MC_CMD_NO_FLAGS,
-			root_dprc_handle,
-			&cfg,
-			&child_dprc_id,
-			&mc_portal_offset);
+				    root_dprc_handle, &cfg,
+				    &child_dprc_id,
+				    &mc_portal_offset);
 	if (err < 0) {
 		printf("dprc_create_container() failed: %d\n", err);
 		goto err_create;
 	}
 
-	dflt_mc_io = (struct fsl_mc_io *)calloc(sizeof(struct fsl_mc_io), 1);
+	dflt_mc_io = calloc(sizeof(struct fsl_mc_io), 1);
 	if (!dflt_mc_io) {
 		err  = -ENOMEM;
 		printf(" No memory: calloc() failed\n");
@@ -1250,8 +1245,7 @@ static int dpbp_init(void)
 	struct dpbp_cfg dpbp_cfg;
 	uint16_t major_ver, minor_ver;
 
-	dflt_dpbp = (struct fsl_dpbp_obj *)calloc(
-					sizeof(struct fsl_dpbp_obj), 1);
+	dflt_dpbp = calloc(sizeof(struct fsl_dpbp_obj), 1);
 	if (!dflt_dpbp) {
 		printf("No memory: calloc() failed\n");
 		err = -ENOMEM;
@@ -1312,7 +1306,7 @@ static int dpbp_init(void)
 	}
 
 #ifdef DEBUG
-	printf("Init: DPBP id=0x%x\n", dflt_dpbp->dpbp_attr.id);
+	printf("Init: DPBP.%d\n", dflt_dpbp->dpbp_attr.id);
 #endif
 
 	err = dpbp_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpbp->dpbp_handle);
@@ -1351,7 +1345,7 @@ static int dpbp_exit(void)
 	}
 
 #ifdef DEBUG
-	printf("Exit: DPBP id=0x%d\n", dflt_dpbp->dpbp_attr.id);
+	printf("Exit: DPBP.%d\n", dflt_dpbp->dpbp_attr.id);
 #endif
 
 	if (dflt_dpbp)
@@ -1369,8 +1363,7 @@ static int dpni_init(void)
 	struct dpni_cfg dpni_cfg;
 	uint16_t major_ver, minor_ver;
 
-	dflt_dpni = (struct fsl_dpni_obj *)calloc(
-					sizeof(struct fsl_dpni_obj), 1);
+	dflt_dpni = calloc(sizeof(struct fsl_dpni_obj), 1);
 	if (!dflt_dpni) {
 		printf("No memory: calloc() failed\n");
 		err = -ENOMEM;
@@ -1422,7 +1415,7 @@ static int dpni_init(void)
 	}
 
 #ifdef DEBUG
-	printf("Init: DPNI id=0x%d\n", dflt_dpni->dpni_id);
+	printf("Init: DPNI.%d\n", dflt_dpni->dpni_id);
 #endif
 	err = dpni_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpni->dpni_handle);
 	if (err < 0) {
@@ -1459,7 +1452,7 @@ static int dpni_exit(void)
 	}
 
 #ifdef DEBUG
-	printf("Exit: DPNI id=0x%d\n", dflt_dpni->dpni_id);
+	printf("Exit: DPNI.%d\n", dflt_dpni->dpni_id);
 #endif
 
 	if (dflt_dpni)
@@ -1796,7 +1789,6 @@ static void mc_dump_log(void)
 	if (size > bytes_end) {
 		print_k_bytes(cur_ptr, &bytes_end);
 
-		cur_ptr = buf;
 		size -= bytes_end;
 	}
 
@@ -1962,7 +1954,6 @@ static int do_fsl_mc(struct cmd_tbl *cmdtp, int flag, int argc,
 	default:
 		printf("Invalid option: %s\n", argv[1]);
 		goto usage;
-		break;
 	}
 	return err;
  usage:

@@ -62,7 +62,6 @@
 
 struct ksz_dsa_priv {
 	struct udevice *dev;
-	int active_port;
 };
 
 static inline int ksz_read8(struct udevice *dev, u32 reg, u8 *val)
@@ -382,9 +381,6 @@ static int ksz_port_enable(struct udevice *dev, int port, struct phy_device *phy
 	data8 |= SW_START;
 	ksz_write8(priv->dev, REG_SW_OPERATION, data8);
 
-	/* keep track of current enabled non-cpu port */
-	priv->active_port = port;
-
 	return 0;
 }
 
@@ -413,28 +409,9 @@ static void ksz_port_disable(struct udevice *dev, int port, struct phy_device *p
 	 */
 }
 
-static int ksz_xmit(struct udevice *dev, int port, void *packet, int length)
-{
-	dev_dbg(dev, "%s P%d %d\n", __func__, port + 1, length);
-
-	return 0;
-}
-
-static int ksz_recv(struct udevice *dev, int *port, void *packet, int length)
-{
-	struct ksz_dsa_priv *priv = dev_get_priv(dev);
-
-	dev_dbg(dev, "%s P%d %d\n", __func__, priv->active_port + 1, length);
-	*port = priv->active_port;
-
-	return 0;
-};
-
 static const struct dsa_ops ksz_dsa_ops = {
 	.port_enable = ksz_port_enable,
 	.port_disable = ksz_port_disable,
-	.xmit = ksz_xmit,
-	.rcv = ksz_recv,
 };
 
 static int ksz_probe_mdio(struct udevice *dev)

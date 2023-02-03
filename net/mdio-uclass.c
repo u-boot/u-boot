@@ -49,7 +49,11 @@ static int dm_mdio_post_bind(struct udevice *dev)
 		return -EINVAL;
 	}
 
+#if CONFIG_IS_ENABLED(OF_REAL)
+	return dm_scan_fdt_dev(dev);
+#else
 	return 0;
+#endif
 }
 
 int dm_mdio_read(struct udevice *mdio_dev, int addr, int devad, int reg)

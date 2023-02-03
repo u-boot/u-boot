@@ -83,43 +83,29 @@ int board_phy_config(struct phy_device *phydev)
 		break;
 	}
 
+	/* Fixed PHY: for GW5904/GW5909 this is Marvell 88E6176 GbE Switch */
+	if (phydev->phy_id == PHY_FIXED_ID &&
+	    (board_type == GW5904 || board_type == GW5909)) {
+		struct mii_dev *bus = miiphy_get_dev_by_name("mdio");
+
+		puts("MV88E61XX ");
+		/* GPIO[0] output CLK125 for RGMII_REFCLK */
+		bus->write(bus, 0x1c, 0, 0x1a, (1 << 15) | (0x62 << 8) | 0xfe);
+		bus->write(bus, 0x1c, 0, 0x1a, (1 << 15) | (0x68 << 8) | 7);
+
+		/* Port 0-3 LED configuration: Table 80/82 */
+		/* LED configuration: 7:4-green (8=Activity)  3:0 amber (8=Link) */
+		bus->write(bus, 0x10, 0, 0x16, 0x8088);
+		bus->write(bus, 0x11, 0, 0x16, 0x8088);
+		bus->write(bus, 0x12, 0, 0x16, 0x8088);
+		bus->write(bus, 0x13, 0, 0x16, 0x8088);
+	}
+
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
 
 	return 0;
 }
-
-#ifdef CONFIG_MV88E61XX_SWITCH
-int mv88e61xx_hw_reset(struct phy_device *phydev)
-{
-	struct mii_dev *bus = phydev->bus;
-
-	/* GPIO[0] output, CLK125 */
-	debug("enabling RGMII_REFCLK\n");
-	bus->write(bus, 0x1c /*MV_GLOBAL2*/, 0,
-		   0x1a /*MV_SCRATCH_MISC*/,
-		   (1 << 15) | (0x62 /*MV_GPIO_DIR*/ << 8) | 0xfe);
-	bus->write(bus, 0x1c /*MV_GLOBAL2*/, 0,
-		   0x1a /*MV_SCRATCH_MISC*/,
-		   (1 << 15) | (0x68 /*MV_GPIO01_CNTL*/ << 8) | 7);
-
-	/* RGMII delay - Physical Control register bit[15:14] */
-	debug("setting port%d RGMII rx/tx delay\n", CONFIG_MV88E61XX_CPU_PORT);
-	/* forced 1000mbps full-duplex link */
-	bus->write(bus, 0x10 + CONFIG_MV88E61XX_CPU_PORT, 0, 1, 0xc0fe);
-	phydev->autoneg = AUTONEG_DISABLE;
-	phydev->speed = SPEED_1000;
-	phydev->duplex = DUPLEX_FULL;
-
-	/* LED configuration: 7:4-green (8=Activity)  3:0 amber (8=Link) */
-	bus->write(bus, 0x10, 0, 0x16, 0x8088);
-	bus->write(bus, 0x11, 0, 0x16, 0x8088);
-	bus->write(bus, 0x12, 0, 0x16, 0x8088);
-	bus->write(bus, 0x13, 0, 0x16, 0x8088);
-
-	return 0;
-}
-#endif // CONFIG_MV88E61XX_SWITCH
 
 #if defined(CONFIG_VIDEO_IPUV3)
 static void enable_hdmi(struct display_info_t const *dev)

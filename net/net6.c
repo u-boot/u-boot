@@ -47,10 +47,13 @@ static int on_ip6addr(const char *name, const char *value, enum env_op op,
 	}
 
 	mask = strchr(value, '/');
-	len = strlen(value);
 
-	if (mask)
-		net_prefix_length = simple_strtoul(value + len, NULL, 10);
+	if (mask) {
+		net_prefix_length = simple_strtoul(mask + 1, NULL, 10);
+		len = mask - value;
+	} else {
+		len = strlen(value);
+	}
 
 	return string_to_ip6(value, len, &net_ip6);
 }

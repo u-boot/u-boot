@@ -24,7 +24,7 @@ struct in6_addr {
 #define s6_addr		in6_u.u6_addr8
 #define s6_addr16	in6_u.u6_addr16
 #define s6_addr32	in6_u.u6_addr32
-};
+} __packed;
 
 #define IN6ADDRSZ	sizeof(struct in6_addr)
 #define INETHADDRSZ	sizeof(net_ethaddr)
@@ -62,7 +62,7 @@ struct ip6_hdr {
 	u8		hop_limit;
 	struct in6_addr	saddr;
 	struct in6_addr	daddr;
-};
+} __packed;
 #define IP6_HDR_SIZE (sizeof(struct ip6_hdr))
 
 /* struct udp_hdr - User Datagram Protocol header */
@@ -164,7 +164,7 @@ struct icmp6hdr {
 #define icmp6_addrconf_managed	icmp6_dataun.u_nd_ra.managed
 #define icmp6_addrconf_other	icmp6_dataun.u_nd_ra.other
 #define icmp6_rt_lifetime	icmp6_dataun.u_nd_ra.rt_lifetime
-};
+} __packed;
 
 extern struct in6_addr const net_null_addr_ip6;	/* NULL IPv6 address */
 extern struct in6_addr net_gateway6;	/* Our gateways IPv6 address */

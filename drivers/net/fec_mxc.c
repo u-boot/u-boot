@@ -30,6 +30,8 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/sys_proto.h>
 #include <asm-generic/gpio.h>
+#include <dm/device_compat.h>
+#include <dm/lists.h>
 
 #include "fec_mxc.h"
 #include <eth_phy.h>
@@ -1019,6 +1021,81 @@ struct mii_dev *fec_get_miibus(ulong base_addr, int dev_id)
 	return bus;
 }
 
+#ifdef CONFIG_DM_MDIO
+struct dm_fec_mdio_priv {
+	struct ethernet_regs *regs;
+};
+
+static int dm_fec_mdio_read(struct udevice *dev, int addr, int devad, int reg)
+{
+	struct dm_fec_mdio_priv *priv = dev_get_priv(dev);
+
+	return fec_mdio_read(priv->regs, addr, reg);
+}
+
+static int dm_fec_mdio_write(struct udevice *dev, int addr, int devad, int reg, u16 data)
+{
+	struct dm_fec_mdio_priv *priv = dev_get_priv(dev);
+
+	return fec_mdio_write(priv->regs, addr, reg, data);
+}
+
+static const struct mdio_ops dm_fec_mdio_ops = {
+	.read = dm_fec_mdio_read,
+	.write = dm_fec_mdio_write,
+};
+
+static int dm_fec_mdio_probe(struct udevice *dev)
+{
+	struct dm_fec_mdio_priv *priv = dev_get_priv(dev);
+
+	priv->regs = (struct ethernet_regs *)ofnode_get_addr(dev_ofnode(dev->parent));
+
+	return 0;
+}
+
+U_BOOT_DRIVER(fec_mdio) = {
+	.name		= "fec_mdio",
+	.id		= UCLASS_MDIO,
+	.probe		= dm_fec_mdio_probe,
+	.ops		= &dm_fec_mdio_ops,
+	.priv_auto	= sizeof(struct dm_fec_mdio_priv),
+};
+
+static int dm_fec_bind_mdio(struct udevice *dev)
+{
+	struct udevice *mdiodev;
+	const char *name;
+	ofnode mdio;
+	int ret = -ENODEV;
+
+	/* for a UCLASS_MDIO driver we need to bind and probe manually
+	 * for an internal MDIO bus that has no dt compatible of its own
+	 */
+	ofnode_for_each_subnode(mdio, dev_ofnode(dev)) {
+		name = ofnode_get_name(mdio);
+
+		if (strcmp(name, "mdio"))
+			continue;
+
+		ret = device_bind_driver_to_node(dev, "fec_mdio",
+						 name, mdio, &mdiodev);
+		if (ret) {
+			printf("%s bind %s failed: %d\n", __func__, name, ret);
+			break;
+		}
+
+		/* need to probe it as there is no compatible to do so */
+		ret = uclass_get_device_by_ofnode(UCLASS_MDIO, mdio, &mdiodev);
+		if (!ret)
+			return 0;
+		printf("%s probe %s failed: %d\n", __func__, name, ret);
+	}
+
+	return ret;
+}
+#endif
+
 static int fecmxc_read_rom_hwaddr(struct udevice *dev)
 {
 	struct fec_priv *priv = dev_get_priv(dev);
@@ -1082,7 +1159,7 @@ static int device_get_phy_addr(struct fec_priv *priv, struct udevice *dev)
 
 static int fec_phy_init(struct fec_priv *priv, struct udevice *dev)
 {
-	struct phy_device *phydev;
+	struct phy_device *phydev = NULL;
 	int addr;
 
 	addr = device_get_phy_addr(priv, dev);
@@ -1090,7 +1167,10 @@ static int fec_phy_init(struct fec_priv *priv, struct udevice *dev)
 	addr = CFG_FEC_MXC_PHYADDR;
 #endif
 
-	phydev = phy_connect(priv->bus, addr, dev, priv->interface);
+	if (IS_ENABLED(CONFIG_DM_MDIO))
+		phydev = dm_eth_phy_connect(dev);
+	if (!phydev)
+		phydev = phy_connect(priv->bus, addr, dev, priv->interface);
 	if (!phydev)
 		return -ENODEV;
 
@@ -1220,6 +1300,12 @@ static int fecmxc_probe(struct udevice *dev)
 	fec_reg_setup(priv);
 
 	priv->dev_id = dev_seq(dev);
+
+#ifdef CONFIG_DM_MDIO
+	ret = dm_fec_bind_mdio(dev);
+	if (ret && ret != -ENODEV)
+		return ret;
+#endif
 
 #ifdef CONFIG_DM_ETH_PHY
 	bus = eth_phy_get_mdio_bus(dev);
