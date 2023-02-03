@@ -162,8 +162,10 @@ ifdef CONFIG_TOOLS_LIBCRYPTO
 # This affects include/image.h, but including the board config file
 # is tricky, so manually define this options here.
 HOST_EXTRACFLAGS	+= -DCONFIG_FIT_SIGNATURE
+HOST_EXTRACFLAGS	+= -DCONFIG_TOOLS_FIT_SIGNATURE=1
 HOST_EXTRACFLAGS	+= -DCONFIG_FIT_SIGNATURE_MAX_SIZE=0xffffffff
 HOST_EXTRACFLAGS	+= -DCONFIG_FIT_CIPHER
+HOST_EXTRACFLAGS	+= -DCONFIG_TOOLS_FIT_CIPHER=1
 endif
 
 # MXSImage needs LibSSL
