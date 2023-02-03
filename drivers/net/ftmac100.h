@@ -93,6 +93,15 @@ struct ftmac100 {
 #define FTMAC100_MACCR_RX_BROADPKT	(1 << 17)
 
 /*
+ * PHY control register
+ */
+#define FTMAC100_PHYCR_MIIRDATA		0xffff
+#define FTMAC100_PHYCR_PHYAD(x)		(((x) & 0x1f) << 16)
+#define FTMAC100_PHYCR_REGAD(x)		(((x) & 0x1f) << 21)
+#define FTMAC100_PHYCR_MIIWR		BIT(27)
+#define FTMAC100_PHYCR_MIIRD		BIT(26)
+
+/*
  * Transmit descriptor, aligned to 16 bytes
  */
 struct ftmac100_txdes {

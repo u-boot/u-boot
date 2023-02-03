@@ -413,6 +413,7 @@ config FSL_FM_10GEC_REGULAR_NOTATION
 
 config FTMAC100
 	bool "Ftmac100 Ethernet Support"
+	select MII
 	help
 	  This MAC is present in Andestech SoCs.
 

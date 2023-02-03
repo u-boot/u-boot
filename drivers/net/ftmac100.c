@@ -12,9 +12,13 @@
 #include <env.h>
 #include <malloc.h>
 #include <net.h>
+#include <phy.h>
+#include <miiphy.h>
+#include <dm/device_compat.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/io.h>
+#include <linux/iopoll.h>
 
 #include "ftmac100.h"
 #include <dm.h>
@@ -23,12 +27,16 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ETH_ZLEN	60
 
+/* Timeout for a mdio read/write operation */
+#define FTMAC100_MDIO_TIMEOUT_USEC     10000
+
 struct ftmac100_data {
 	struct ftmac100_txdes txdes[1];
 	struct ftmac100_rxdes rxdes[PKTBUFSRX];
 	int rx_index;
 	const char *name;
 	struct ftmac100 *ftmac100;
+	struct mii_dev *bus;
 };
 
 /*
@@ -322,10 +330,104 @@ static int ftmac100_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+/*
+ * struct mii_bus functions
+ */
+static int ftmac100_mdio_read(struct mii_dev *bus, int addr, int devad,
+			      int reg)
+{
+	struct ftmac100_data *priv = bus->priv;
+	struct ftmac100 *ftmac100 = priv->ftmac100;
+	int phycr = FTMAC100_PHYCR_PHYAD(addr) |
+		    FTMAC100_PHYCR_REGAD(reg) |
+		    FTMAC100_PHYCR_MIIRD;
+	int ret;
+
+	writel(phycr, &ftmac100->phycr);
+
+	ret = readl_poll_timeout(&ftmac100->phycr, phycr,
+				 !(phycr & FTMAC100_PHYCR_MIIRD),
+				 FTMAC100_MDIO_TIMEOUT_USEC);
+	if (ret)
+		pr_err("%s: mdio read failed (addr=0x%x reg=0x%x)\n",
+		       bus->name, addr, reg);
+	else
+		ret = phycr & FTMAC100_PHYCR_MIIRDATA;
+
+	return ret;
+}
+
+static int ftmac100_mdio_write(struct mii_dev *bus, int addr, int devad,
+			       int reg, u16 value)
+{
+	struct ftmac100_data *priv = bus->priv;
+	struct ftmac100 *ftmac100 = priv->ftmac100;
+	int phycr = FTMAC100_PHYCR_PHYAD(addr) |
+		    FTMAC100_PHYCR_REGAD(reg) |
+		    FTMAC100_PHYCR_MIIWR;
+	int ret;
+
+	writel(value, &ftmac100->phywdata);
+	writel(phycr, &ftmac100->phycr);
+
+	ret = readl_poll_timeout(&ftmac100->phycr, phycr,
+				 !(phycr & FTMAC100_PHYCR_MIIWR),
+				 FTMAC100_MDIO_TIMEOUT_USEC);
+	if (ret)
+		pr_err("%s: mdio write failed (addr=0x%x reg=0x%x)\n",
+		       bus->name, addr, reg);
+
+	return ret;
+}
+
+static int ftmac100_mdio_init(struct udevice *dev)
+{
+	struct ftmac100_data *priv = dev_get_priv(dev);
+	struct mii_dev *bus;
+	int ret;
+
+	bus = mdio_alloc();
+	if (!bus)
+		return -ENOMEM;
+
+	bus->read  = ftmac100_mdio_read;
+	bus->write = ftmac100_mdio_write;
+	bus->priv  = priv;
+
+	ret = mdio_register_seq(bus, dev_seq(dev));
+	if (ret) {
+		mdio_free(bus);
+		return ret;
+	}
+
+	priv->bus = bus;
+
+	return 0;
+}
+
 static int ftmac100_probe(struct udevice *dev)
 {
 	struct ftmac100_data *priv = dev_get_priv(dev);
 	priv->name = dev->name;
+	int ret = 0;
+
+	ret = ftmac100_mdio_init(dev);
+	if (ret) {
+		dev_err(dev, "Failed to initialize mdiobus: %d\n", ret);
+		goto out;
+	}
+
+out:
+	return ret;
+}
+
+static int ftmac100_remove(struct udevice *dev)
+{
+	struct ftmac100_data *priv = dev_get_priv(dev);
+
+	mdio_unregister(priv->bus);
+	mdio_free(priv->bus);
+
 	return 0;
 }
 
@@ -354,6 +456,7 @@ U_BOOT_DRIVER(ftmac100) = {
 	.bind	= ftmac100_bind,
 	.of_to_plat = ftmac100_of_to_plat,
 	.probe	= ftmac100_probe,
+	.remove = ftmac100_remove,
 	.ops	= &ftmac100_ops,
 	.priv_auto	= sizeof(struct ftmac100_data),
 	.plat_auto	= sizeof(struct eth_pdata),
