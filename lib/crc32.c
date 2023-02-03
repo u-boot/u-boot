@@ -14,11 +14,14 @@
 #else
 #include <common.h>
 #include <efi_loader.h>
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#define PET_WDG
+#endif
 #endif
 #include <compiler.h>
 #include <u-boot/crc.h>
 
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#ifdef PET_WDG
 #include <watchdog.h>
 #endif
 #include "u-boot/zlib.h"
@@ -84,7 +87,7 @@ static void __efi_runtime make_crc_table(void)
   }
   crc_table_empty = 0;
 }
-#elif !defined(CONFIG_ARM64_CRC32)
+#elif !defined(CONFIG_ARM64_CRC32) || defined(USE_HOSTCC)
 /* ========================================================================
  * Table of CRC-32's of all single-byte values (made by make_crc_table)
  */
@@ -184,7 +187,7 @@ const uint32_t * ZEXPORT get_crc_table()
  */
 uint32_t __efi_runtime crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
 {
-#ifdef CONFIG_ARM64_CRC32
+#if defined(CONFIG_ARM64_CRC32) && !defined(USE_HOSTCC)
     crc = cpu_to_le32(crc);
     while (len--)
         crc = __builtin_aarch64_crc32b(crc, *buf++);
@@ -243,7 +246,7 @@ uint32_t __efi_runtime crc32(uint32_t crc, const Bytef *p, uInt len)
 uint32_t crc32_wd(uint32_t crc, const unsigned char *buf, uInt len,
 		  uInt chunk_sz)
 {
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#ifdef PET_WDG
 	const unsigned char *end, *curr;
 	int chunk;
 
