@@ -298,6 +298,7 @@ endif # !LOGO_BMP
 # Define _GNU_SOURCE to obtain the getline prototype from stdio.h
 #
 HOST_EXTRACFLAGS += -include $(srctree)/include/compiler.h \
+		-include $(srctree)/include/linux/kconfig.h \
 		$(patsubst -I%,-idirafter%, $(filter -I%, $(UBOOTINCLUDE))) \
 		-I$(srctree)/scripts/dtc/libfdt \
 		-I$(srctree)/tools \
