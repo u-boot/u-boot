@@ -975,6 +975,18 @@ int ofnode_decode_display_timing(ofnode node, int index,
 				 struct display_timing *config);
 
 /**
+ * ofnode_decode_panel_timing() - decode display timings
+ *
+ * Decode panel timings from the supplied 'panel-timings' node.
+ *
+ * @node:	'display-timing' node containing the timing subnodes
+ * @config:	Place to put timings
+ * Return: 0 if OK, -FDT_ERR_NOTFOUND if not found
+ */
+int ofnode_decode_panel_timing(ofnode node,
+			       struct display_timing *config);
+
+/**
  * ofnode_get_property() - get a pointer to the value of a node property
  *
  * @node: node to read
