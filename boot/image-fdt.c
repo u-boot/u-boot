@@ -638,7 +638,7 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 
 	/* Update ethernet nodes */
 	fdt_fixup_ethernet(blob);
-#if CONFIG_IS_ENABLED(CMD_PSTORE)
+#if IS_ENABLED(CONFIG_CMD_PSTORE)
 	/* Append PStore configuration */
 	fdt_fixup_pstore(blob);
 #endif
