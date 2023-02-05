@@ -370,6 +370,14 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
 		return -1;
 	}
 
+	/* Check if boot image header version is 2 or less */
+	if (hdr->header_version > 2) {
+		pr_err("zImage flashing supported only for boot images v2 and less\n");
+		fastboot_fail("zImage flashing supported only for boot images v2 and less",
+			      response);
+		return -EOPNOTSUPP;
+	}
+
 	/* Check if boot image has second stage in it (we don't support it) */
 	if (hdr->second_size > 0) {
 		pr_err("moving second stage is not supported yet\n");
