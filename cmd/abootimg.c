@@ -15,6 +15,7 @@
 
 /* Please use abootimg_addr() macro to obtain the boot image address */
 static ulong _abootimg_addr = -1;
+static ulong _avendor_bootimg_addr = -1;
 
 static int abootimg_get_ver(int argc, char *const argv[])
 {
@@ -158,7 +159,7 @@ static int do_abootimg_addr(struct cmd_tbl *cmdtp, int flag, int argc,
 	char *endp;
 	ulong img_addr;
 
-	if (argc != 2)
+	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
 
 	img_addr = hextoul(argv[1], &endp);
@@ -168,6 +169,17 @@ static int do_abootimg_addr(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	_abootimg_addr = img_addr;
+
+	if (argc == 3) {
+		img_addr = simple_strtoul(argv[2], &endp, 16);
+		if (*endp != '\0') {
+			printf("Error: Wrong vendor image address\n");
+			return CMD_RET_FAILURE;
+		}
+
+		_avendor_bootimg_addr = img_addr;
+	}
+
 	return CMD_RET_SUCCESS;
 }
 
@@ -211,7 +223,7 @@ static int do_abootimg_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 static struct cmd_tbl cmd_abootimg_sub[] = {
-	U_BOOT_CMD_MKENT(addr, 2, 1, do_abootimg_addr, "", ""),
+	U_BOOT_CMD_MKENT(addr, 3, 1, do_abootimg_addr, "", ""),
 	U_BOOT_CMD_MKENT(dump, 2, 1, do_abootimg_dump, "", ""),
 	U_BOOT_CMD_MKENT(get, 5, 1, do_abootimg_get, "", ""),
 };
@@ -239,7 +251,7 @@ static int do_abootimg(struct cmd_tbl *cmdtp, int flag, int argc,
 U_BOOT_CMD(
 	abootimg, CONFIG_SYS_MAXARGS, 0, do_abootimg,
 	"manipulate Android Boot Image",
-	"addr <addr>\n"
+	"addr <boot_img_addr> [<vendor_boot_img_addr>]>\n"
 	"    - set the address in RAM where boot image is located\n"
 	"      ($loadaddr is used by default)\n"
 	"abootimg dump dtb\n"
