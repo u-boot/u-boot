@@ -736,7 +736,7 @@ U_BOOT_DRVINFO(cm_fx6_serial) = {
 	.plat = &cm_fx6_mxc_serial_plat,
 };
 
-#if CONFIG_IS_ENABLED(AHCI)
+#if IS_ENABLED(CONFIG_AHCI)
 static int sata_imx_probe(struct udevice *dev)
 {
 	int i, err;
