@@ -7,7 +7,7 @@
 #include <common.h>
 #include <asm/armv8/mmu.h>
 
-#if CONFIG_IS_ENABLED(EXYNOS7420)
+#if IS_ENABLED(CONFIG_EXYNOS7420)
 
 static struct mm_region exynos7420_mem_map[] = {
 	{
