@@ -1782,8 +1782,8 @@ int android_image_get_kernel(const struct andr_boot_img_hdr_v0 *hdr,
  * @rd_len:	Pointer to a ulong variable, will hold ramdisk length
  * Return: 0 if succeeded, -1 if ramdisk size is 0
  */
-int android_image_get_ramdisk(const struct andr_boot_img_hdr_v0 *hdr,
-			      const void *vendor_boot_img, ulong *rd_data, ulong *rd_len);
+int android_image_get_ramdisk(const void *hdr, const void *vendor_boot_img,
+			      ulong *rd_data, ulong *rd_len);
 
 /**
  * android_image_get_second() - Extracts the secondary bootloader address
