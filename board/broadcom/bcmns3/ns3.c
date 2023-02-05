@@ -150,7 +150,7 @@ int board_init(void)
 
 	if (bl33_info->version != BL33_INFO_VERSION)
 		printf("*** warning: ATF BL31 and U-Boot not in sync! ***\n");
-#if CONFIG_IS_ENABLED(BNXT_ETH)
+#if IS_ENABLED(CONFIG_BNXT_ETH)
 	if (chimp_fastboot_optee() != 0)
 		printf("*** warning: secure chimp fastboot failed! ***\n");
 #endif
