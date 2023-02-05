@@ -477,6 +477,10 @@ bool android_image_get_dtb_by_index(ulong hdr_addr, u32 index, ulong *addr,
  */
 void android_print_contents(const struct andr_boot_img_hdr_v0 *hdr)
 {
+	if (hdr->header_version >= 3) {
+		printf("Content print is not supported for boot image header version > 2");
+		return;
+	}
 	const char * const p = IMAGE_INDENT_STRING;
 	/* os_version = ver << 11 | lvl */
 	u32 os_ver = hdr->os_version >> 11;
@@ -509,7 +513,7 @@ void android_print_contents(const struct andr_boot_img_hdr_v0 *hdr)
 		       hdr->header_size);
 	}
 
-	if (hdr->header_version >= 2) {
+	if (hdr->header_version == 2) {
 		printf("%sdtb size:             %x\n", p, hdr->dtb_size);
 		printf("%sdtb addr:             %llx\n", p, hdr->dtb_addr);
 	}
