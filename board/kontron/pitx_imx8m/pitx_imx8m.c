@@ -32,7 +32,7 @@ static iomux_v3_cfg_t const uart_pads[] = {
 	IMX8MQ_PAD_ECSPI1_MISO__UART3_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 struct efi_fw_image fw_images[] = {
 	{
 		.image_type_id = KONTRON_PITX_IMX8M_FIT_IMAGE_GUID,

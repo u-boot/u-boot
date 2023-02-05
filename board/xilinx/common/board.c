@@ -33,7 +33,7 @@
 
 #include "fru.h"
 
-#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 struct efi_fw_image fw_images[] = {
 #if defined(XILINX_BOOT_IMAGE_GUID)
 	{
