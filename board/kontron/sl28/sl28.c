@@ -157,7 +157,7 @@ int fsl_board_late_init(void)
 	 * If the watchdog isn't enabled at reset (which is a configuration
 	 * option) disabling it doesn't hurt either.
 	 */
-	if (!CONFIG_IS_ENABLED(WATCHDOG_AUTOSTART))
+	if (!IS_ENABLED(CONFIG_WATCHDOG_AUTOSTART))
 		stop_recovery_watchdog();
 
 	return 0;
