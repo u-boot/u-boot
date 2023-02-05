@@ -208,7 +208,7 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 	}
 
 	fru_capture((unsigned long)fru_content);
-	if (gd->flags & GD_FLG_RELOC || (_DEBUG && CONFIG_IS_ENABLED(DTB_RESELECT))) {
+	if (gd->flags & GD_FLG_RELOC || (_DEBUG && IS_ENABLED(CONFIG_DTB_RESELECT))) {
 		printf("Xilinx I2C FRU format at %s:\n", name);
 		ret = fru_display(0);
 		if (ret) {
@@ -501,7 +501,7 @@ int __maybe_unused board_fit_config_name_match(const char *name)
 	return -1;
 }
 
-#if CONFIG_IS_ENABLED(DTB_RESELECT)
+#if IS_ENABLED(CONFIG_DTB_RESELECT)
 #define MAX_NAME_LENGTH	50
 
 char * __maybe_unused __weak board_name_decode(void)
