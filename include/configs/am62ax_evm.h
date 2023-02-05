@@ -71,12 +71,12 @@
 #define BOOTENV_DEV_NAME_TI_MMC(devtyeu, devtypel, instance)		\
 	"ti_mmc "
 
-#if CONFIG_IS_ENABLED(CMD_MMC)
+#if IS_ENABLED(CONFIG_CMD_MMC)
 	#define BOOT_TARGET_MMC(func)					\
 		func(TI_MMC, ti_mmc, na)
 #else
 	#define BOOT_TARGET_MMC(func)
-#endif /* CONFIG_IS_ENABLED(CMD_MMC) */
+#endif /* IS_ENABLED(CONFIG_CMD_MMC) */
 
 #define BOOT_TARGET_DEVICES(func)					\
 	BOOT_TARGET_MMC(func)
