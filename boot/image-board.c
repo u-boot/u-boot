@@ -428,8 +428,7 @@ static int select_ramdisk(struct bootm_headers *images, const char *select, u8 a
 		if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
 			void *ptr = map_sysmem(images->os.start, 0);
 			int ret;
-
-			ret = android_image_get_ramdisk(ptr, rd_datap, rd_lenp);
+			ret = android_image_get_ramdisk(ptr, NULL, rd_datap, rd_lenp);
 			unmap_sysmem(ptr);
 			if (ret)
 				return ret;

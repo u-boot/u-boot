@@ -72,7 +72,7 @@ static int abootimg_get_dtb_load_addr(int argc, char *const argv[])
 	const struct andr_boot_img_hdr_v0 *hdr;
 
 	hdr = map_sysmem(abootimg_addr(), sizeof(*hdr));
-	if (!android_image_get_data(hdr, &img_data)) {
+	if (!android_image_get_data(hdr, NULL, &img_data)) {
 		unmap_sysmem(hdr);
 		return CMD_RET_FAILURE;
 	}
@@ -119,7 +119,7 @@ static int abootimg_get_dtb_by_index(int argc, char *const argv[])
 		return CMD_RET_FAILURE;
 	}
 
-	if (!android_image_get_dtb_by_index(abootimg_addr(), num,
+	if (!android_image_get_dtb_by_index(abootimg_addr(), 0, num,
 					    &addr, &size)) {
 		return CMD_RET_FAILURE;
 	}

@@ -1736,16 +1736,19 @@ struct cipher_algo *image_get_cipher_algo(const char *full_name);
 struct andr_image_data;
 
 /**
- * android_image_get_data() - Parse Android boot image
+ * android_image_get_data() - Parse Android boot images
  *
- * This is used to parse boot image header into andr_image_data
- * generic structure.
+ * This is used to parse boot and vendor-boot header into
+ * andr_image_data generic structure.
  *
  * @boot_hdr: Pointer to boot image header
+ * @vendor_boot_hdr: Pointer to vendor boot image header
  * @data: Pointer to generic boot format structure
  * Return: true if succeeded, false otherwise
  */
-bool android_image_get_data(const void *boot_hdr, struct andr_image_data *data);
+bool android_image_get_data(const void *boot_hdr, const void *vendor_boot_hdr,
+			    struct andr_image_data *data);
+
 struct andr_boot_img_hdr_v0;
 
 /**
@@ -1756,6 +1759,7 @@ struct andr_boot_img_hdr_v0;
  *
  * @hdr:	Pointer to image header, which is at the start
  *			of the image.
+ * @vendor_boot_img : Pointer to vendor boot image header
  * @verify:	Checksum verification flag. Currently unimplemented.
  * @os_data:	Pointer to a ulong variable, will hold os data start
  *			address.
@@ -1763,7 +1767,8 @@ struct andr_boot_img_hdr_v0;
  * Return: Zero, os start address and length on success,
  *		otherwise on failure.
  */
-int android_image_get_kernel(const struct andr_boot_img_hdr_v0 *hdr, int verify,
+int android_image_get_kernel(const struct andr_boot_img_hdr_v0 *hdr,
+			     const void *vendor_boot_img, int verify,
 			     ulong *os_data, ulong *os_len);
 
 /**
@@ -1772,12 +1777,13 @@ int android_image_get_kernel(const struct andr_boot_img_hdr_v0 *hdr, int verify,
  * This extracts the load address of the ramdisk and its size
  *
  * @hdr:	Pointer to image header
+ * @vendor_boot_img : Pointer to vendor boot image header
  * @rd_data:	Pointer to a ulong variable, will hold ramdisk address
  * @rd_len:	Pointer to a ulong variable, will hold ramdisk length
  * Return: 0 if succeeded, -1 if ramdisk size is 0
  */
 int android_image_get_ramdisk(const struct andr_boot_img_hdr_v0 *hdr,
-			      ulong *rd_data, ulong *rd_len);
+			      const void *vendor_boot_img, ulong *rd_data, ulong *rd_len);
 
 /**
  * android_image_get_second() - Extracts the secondary bootloader address
@@ -1793,8 +1799,22 @@ int android_image_get_ramdisk(const struct andr_boot_img_hdr_v0 *hdr,
 int android_image_get_second(const struct andr_boot_img_hdr_v0 *hdr,
 			     ulong *second_data, ulong *second_len);
 bool android_image_get_dtbo(ulong hdr_addr, ulong *addr, u32 *size);
-bool android_image_get_dtb_by_index(ulong hdr_addr, u32 index, ulong *addr,
-				    u32 *size);
+
+/**
+ * android_image_get_dtb_by_index() - Get address and size of blob in DTB area.
+ * @hdr_addr: Boot image header address
+ * @vendor_boot_img: Pointer to vendor boot image header, which is at the start of the image.
+ * @index: Index of desired DTB in DTB area (starting from 0)
+ * @addr: If not NULL, will contain address to specified DTB
+ * @size: If not NULL, will contain size of specified DTB
+ *
+ * Get the address and size of DTB blob by its index in DTB area of Android
+ * Boot Image in RAM.
+ *
+ * Return: true on success or false on error.
+ */
+bool android_image_get_dtb_by_index(ulong hdr_addr, ulong vendor_boot_img,
+				    u32 index, ulong *addr, u32 *size);
 
 /**
  * android_image_get_end() - Get the end of Android boot image
@@ -1802,9 +1822,11 @@ bool android_image_get_dtb_by_index(ulong hdr_addr, u32 index, ulong *addr,
  * This returns the end address of Android boot image address
  *
  * @hdr: Pointer to image header
+ * @vendor_boot_img : Pointer to vendor boot image header
  * Return: The end address of Android boot image
  */
-ulong android_image_get_end(const struct andr_boot_img_hdr_v0 *hdr);
+ulong android_image_get_end(const struct andr_boot_img_hdr_v0 *hdr,
+			    const void *vendor_boot_img);
 
 /**
  * android_image_get_kload() - Get the kernel load address
@@ -1813,9 +1835,11 @@ ulong android_image_get_end(const struct andr_boot_img_hdr_v0 *hdr);
  * from the boot image header or the "kernel_addr_r" environment variable
  *
  * @hdr: Pointer to image header
+ * @vendor_boot_img : Pointer to vendor boot image header
  * Return: The kernel load address
  */
-ulong android_image_get_kload(const struct andr_boot_img_hdr_v0 *hdr);
+ulong android_image_get_kload(const struct andr_boot_img_hdr_v0 *hdr,
+			      const void *vendor_boot_img);
 
 /**
  * android_image_get_kcomp() - Get kernel compression type
@@ -1823,9 +1847,11 @@ ulong android_image_get_kload(const struct andr_boot_img_hdr_v0 *hdr);
  * This gets the kernel compression type from the boot image header
  *
  * @hdr: Pointer to image header
+ * @vendor_boot_img : Pointer to vendor boot image header
  * Return: Kernel compression type
  */
-ulong android_image_get_kcomp(const struct andr_boot_img_hdr_v0 *hdr);
+ulong android_image_get_kcomp(const struct andr_boot_img_hdr_v0 *hdr,
+			      const void *vendor_boot_img);
 
 /**
  * android_print_contents() - Prints out the contents of the Android format image

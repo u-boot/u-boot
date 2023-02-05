@@ -182,11 +182,11 @@ static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
 		images.os.type = IH_TYPE_KERNEL;
-		images.os.comp = android_image_get_kcomp(os_hdr);
+		images.os.comp = android_image_get_kcomp(os_hdr, NULL);
 		images.os.os = IH_OS_LINUX;
 
-		images.os.end = android_image_get_end(os_hdr);
-		images.os.load = android_image_get_kload(os_hdr);
+		images.os.end = android_image_get_end(os_hdr, NULL);
+		images.os.load = android_image_get_kload(os_hdr, NULL);
 		images.ep = images.os.load;
 		ep_found = true;
 		break;
@@ -965,7 +965,7 @@ static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
 		printf("## Booting Android Image at 0x%08lx ...\n", img_addr);
-		if (android_image_get_kernel(buf, images->verify,
+		if (android_image_get_kernel(buf, NULL, images->verify,
 					     os_data, os_len))
 			return NULL;
 		break;
