@@ -242,7 +242,7 @@ void part_print_efi(struct blk_desc *dev_desc)
 			print_efiname(&gpt_pte[i]));
 		printf("\tattrs:\t0x%016llx\n", gpt_pte[i].attributes.raw);
 		uuid = (unsigned char *)gpt_pte[i].partition_type_guid.b;
-		if (CONFIG_IS_ENABLED(PARTITION_TYPE_GUID))
+		if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID))
 			printf("\ttype:\t%pUl\n\t\t(%pUs)\n", uuid, uuid);
 		else
 			printf("\ttype:\t%pUl\n", uuid);
