@@ -155,7 +155,7 @@ static int initr_reloc_global_data(void)
 	 * The fdt_blob needs to be moved to new relocation address
 	 * incase of FDT blob is embedded with in image
 	 */
-	if (CONFIG_IS_ENABLED(OF_EMBED) && CONFIG_IS_ENABLED(NEEDS_MANUAL_RELOC))
+	if (CONFIG_IS_ENABLED(OF_EMBED) && IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC))
 		gd->fdt_blob += gd->reloc_off;
 
 #ifdef CONFIG_EFI_LOADER
@@ -609,7 +609,7 @@ static init_fnc_t init_sequence_r[] = {
 	 */
 #endif
 	initr_reloc_global_data,
-#if CONFIG_IS_ENABLED(NEEDS_MANUAL_RELOC) && CONFIG_IS_ENABLED(EVENT)
+#if IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC) && CONFIG_IS_ENABLED(EVENT)
 	event_manual_reloc,
 #endif
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
