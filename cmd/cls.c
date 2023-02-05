@@ -19,7 +19,7 @@ static int do_video_clear(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/*  Send clear screen and home */
 	printf(CSI "2J" CSI "1;1H");
-	if (CONFIG_IS_ENABLED(VIDEO) && !CONFIG_IS_ENABLED(VIDEO_ANSI)) {
+	if (IS_ENABLED(CONFIG_VIDEO) && !CONFIG_IS_ENABLED(VIDEO_ANSI)) {
 		if (uclass_first_device_err(UCLASS_VIDEO, &dev))
 			return CMD_RET_FAILURE;
 		if (video_clear(dev))
