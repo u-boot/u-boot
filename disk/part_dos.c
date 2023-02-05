@@ -318,7 +318,7 @@ int is_valid_dos_buf(void *buf)
 	return test_block_type(buf) == DOS_MBR ? 0 : -1;
 }
 
-#if CONFIG_IS_ENABLED(CMD_MBR)
+#if IS_ENABLED(CONFIG_CMD_MBR)
 static void lba_to_chs(lbaint_t lba, unsigned char *rc, unsigned char *rh,
 		       unsigned char *rs)
 {
