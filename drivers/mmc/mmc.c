@@ -247,7 +247,7 @@ static int mmc_send_cmd_retry(struct mmc *mmc, struct mmc_cmd *cmd,
 static int mmc_send_cmd_quirks(struct mmc *mmc, struct mmc_cmd *cmd,
 			       struct mmc_data *data, u32 quirk, uint retries)
 {
-	if (CONFIG_IS_ENABLED(MMC_QUIRKS) && mmc->quirks & quirk)
+	if (IS_ENABLED(CONFIG_MMC_QUIRKS) && mmc->quirks & quirk)
 		return mmc_send_cmd_retry(mmc, cmd, data, retries);
 	else
 		return mmc_send_cmd(mmc, cmd, data);
