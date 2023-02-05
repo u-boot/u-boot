@@ -55,6 +55,7 @@ static void android_vendor_boot_image_v3_v4_parse_hdr(const struct andr_vnd_boot
 	 * The header takes a full page, the remaining components are aligned
 	 * on page boundary.
 	 */
+	data->kcmdline_extra = hdr->cmdline;
 	data->tags_addr = hdr->tags_addr;
 	data->image_name = hdr->name;
 	data->kernel_addr = hdr->kernel_addr;
@@ -233,6 +234,11 @@ int android_image_get_kernel(const struct andr_boot_img_hdr_v0 *hdr,
 		len += strlen(img_data.kcmdline);
 	}
 
+	if (img_data.kcmdline_extra) {
+		printf("Kernel extra command line: %s\n", img_data.kcmdline_extra);
+		len += strlen(img_data.kcmdline_extra);
+	}
+
 	char *bootargs = env_get("bootargs");
 	if (bootargs)
 		len += strlen(bootargs);
@@ -251,6 +257,11 @@ int android_image_get_kernel(const struct andr_boot_img_hdr_v0 *hdr,
 
 	if (*img_data.kcmdline)
 		strcat(newbootargs, img_data.kcmdline);
+
+	if (img_data.kcmdline_extra) {
+		strcat(newbootargs, " ");
+		strcat(newbootargs, img_data.kcmdline_extra);
+	}
 
 	env_set("bootargs", newbootargs);
 
