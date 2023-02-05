@@ -71,7 +71,7 @@ int board_early_init_f(void)
 	/* QRIO Configuration */
 	qrio_uprstreq(UPREQ_CORE_RST);
 
-#if CONFIG_IS_ENABLED(TARGET_PG_WCOM_SELI8)
+#if IS_ENABLED(CONFIG_TARGET_PG_WCOM_SELI8)
 	qrio_prstcfg(KM_LIU_RST, PRSTCFG_POWUP_UNIT_RST);
 	qrio_wdmask(KM_LIU_RST, true);
 
