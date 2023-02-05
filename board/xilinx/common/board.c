@@ -481,7 +481,7 @@ int __maybe_unused board_fit_config_name_match(const char *name)
 	debug("%s: Check %s, default %s\n", __func__, name, board_name);
 
 #if !defined(CONFIG_SPL_BUILD)
-	if (CONFIG_IS_ENABLED(REGEX)) {
+	if (IS_ENABLED(CONFIG_REGEX)) {
 		struct slre slre;
 		int ret;
 
