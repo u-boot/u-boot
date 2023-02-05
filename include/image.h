@@ -1767,7 +1767,7 @@ struct andr_boot_img_hdr_v0;
  * Return: Zero, os start address and length on success,
  *		otherwise on failure.
  */
-int android_image_get_kernel(const struct andr_boot_img_hdr_v0 *hdr,
+int android_image_get_kernel(const void *hdr,
 			     const void *vendor_boot_img, int verify,
 			     ulong *os_data, ulong *os_len);
 
@@ -1796,8 +1796,7 @@ int android_image_get_ramdisk(const void *hdr, const void *vendor_boot_img,
  * @second_len : Pointer to a ulong variable, will hold secondary bootloader length
  * Return: 0 if succeeded, -1 if secondary bootloader size is 0
  */
-int android_image_get_second(const struct andr_boot_img_hdr_v0 *hdr,
-			     ulong *second_data, ulong *second_len);
+int android_image_get_second(const void *hdr, ulong *second_data, ulong *second_len);
 bool android_image_get_dtbo(ulong hdr_addr, ulong *addr, u32 *size);
 
 /**
@@ -1838,7 +1837,7 @@ ulong android_image_get_end(const struct andr_boot_img_hdr_v0 *hdr,
  * @vendor_boot_img : Pointer to vendor boot image header
  * Return: The kernel load address
  */
-ulong android_image_get_kload(const struct andr_boot_img_hdr_v0 *hdr,
+ulong android_image_get_kload(const void *hdr,
 			      const void *vendor_boot_img);
 
 /**
@@ -1850,7 +1849,7 @@ ulong android_image_get_kload(const struct andr_boot_img_hdr_v0 *hdr,
  * @vendor_boot_img : Pointer to vendor boot image header
  * Return: Kernel compression type
  */
-ulong android_image_get_kcomp(const struct andr_boot_img_hdr_v0 *hdr,
+ulong android_image_get_kcomp(const void *hdr,
 			      const void *vendor_boot_img);
 
 /**
@@ -1874,7 +1873,7 @@ bool android_image_print_dtb_contents(ulong hdr_addr);
  * @hdr: Pointer to boot image
  * Return: non-zero if the magic is correct, zero otherwise
  */
-bool is_android_boot_image_header(const struct andr_boot_img_hdr_v0 *hdr);
+bool is_android_boot_image_header(const void *hdr);
 
 /**
  * is_android_vendor_boot_image_header() - Check the magic of vendor boot image
@@ -1886,6 +1885,20 @@ bool is_android_boot_image_header(const struct andr_boot_img_hdr_v0 *hdr);
  * Return: non-zero if the magic is correct, zero otherwise
  */
 bool is_android_vendor_boot_image_header(const void *vendor_boot_img);
+
+/**
+ * get_abootimg_addr() - Get Android boot image address
+ *
+ * Return: Android boot image address
+ */
+ulong get_abootimg_addr(void);
+
+/**
+ * get_avendor_bootimg_addr() - Get Android vendor boot image address
+ *
+ * Return: Android vendor boot image address
+ */
+ulong get_avendor_bootimg_addr(void);
 
 /**
  * board_fit_config_name_match() - Check for a matching board name

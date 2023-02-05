@@ -201,7 +201,7 @@ static ulong android_image_get_kernel_addr(struct andr_image_data *img_data)
  * Return: Zero, os start address and length on success,
  *		otherwise on failure.
  */
-int android_image_get_kernel(const struct andr_boot_img_hdr_v0 *hdr,
+int android_image_get_kernel(const void *hdr,
 			     const void *vendor_boot_img, int verify,
 			     ulong *os_data, ulong *os_len)
 {
@@ -286,7 +286,7 @@ bool is_android_vendor_boot_image_header(const void *vendor_boot_img)
 	return !memcmp(VENDOR_BOOT_MAGIC, vendor_boot_img, ANDR_VENDOR_BOOT_MAGIC_SIZE);
 }
 
-bool is_android_boot_image_header(const struct andr_boot_img_hdr_v0 *hdr)
+bool is_android_boot_image_header(const void *hdr)
 {
 	return !memcmp(ANDR_BOOT_MAGIC, hdr, ANDR_BOOT_MAGIC_SIZE);
 }
@@ -305,7 +305,7 @@ ulong android_image_get_end(const struct andr_boot_img_hdr_v0 *hdr,
 	return img_data.boot_img_total_size;
 }
 
-ulong android_image_get_kload(const struct andr_boot_img_hdr_v0 *hdr,
+ulong android_image_get_kload(const void *hdr,
 			      const void *vendor_boot_img)
 {
 	struct andr_image_data img_data;
@@ -316,7 +316,7 @@ ulong android_image_get_kload(const struct andr_boot_img_hdr_v0 *hdr,
 	return android_image_get_kernel_addr(&img_data);
 }
 
-ulong android_image_get_kcomp(const struct andr_boot_img_hdr_v0 *hdr,
+ulong android_image_get_kcomp(const void *hdr,
 			      const void *vendor_boot_img)
 {
 	struct andr_image_data img_data;
@@ -364,13 +364,17 @@ int android_image_get_ramdisk(const void *hdr, const void *vendor_boot_img,
 	return 0;
 }
 
-int android_image_get_second(const struct andr_boot_img_hdr_v0 *hdr,
-			     ulong *second_data, ulong *second_len)
+int android_image_get_second(const void *hdr, ulong *second_data, ulong *second_len)
 {
 	struct andr_image_data img_data;
 
 	if (!android_image_get_data(hdr, NULL, &img_data))
 		return -EINVAL;
+
+	if (img_data.header_version > 2) {
+		printf("Second stage bootloader is only supported for boot image version <= 2\n");
+		return -EOPNOTSUPP;
+	}
 
 	if (!img_data.second_size) {
 		*second_data = *second_len = 0;
