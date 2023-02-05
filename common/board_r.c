@@ -453,7 +453,7 @@ static int initr_env(void)
 			    (unsigned long)map_to_sysmem(gd->fdt_blob));
 
 	#if (CONFIG_IS_ENABLED(SAVE_PREV_BL_INITRAMFS_START_ADDR) || \
-						CONFIG_IS_ENABLED(SAVE_PREV_BL_FDT_ADDR))
+						IS_ENABLED(CONFIG_SAVE_PREV_BL_FDT_ADDR))
 		save_prev_bl_data();
 	#endif
 
