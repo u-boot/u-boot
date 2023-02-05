@@ -23,7 +23,7 @@
 
 int rockchip_setup_macaddr(void)
 {
-#if CONFIG_IS_ENABLED(CMD_NET)
+#if IS_ENABLED(CONFIG_CMD_NET)
 	int ret;
 	const char *cpuid = env_get("cpuid#");
 	u8 hash[SHA256_SUM_LEN];
