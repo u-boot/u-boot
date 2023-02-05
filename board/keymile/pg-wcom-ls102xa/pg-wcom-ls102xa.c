@@ -79,7 +79,7 @@ int board_early_init_f(void)
 	qrio_wdmask(KM_PAXK_RST, true);
 #endif
 
-#if CONFIG_IS_ENABLED(TARGET_PG_WCOM_EXPU1)
+#if IS_ENABLED(CONFIG_TARGET_PG_WCOM_EXPU1)
 	qrio_prstcfg(WCOM_TMG_RST, PRSTCFG_POWUP_UNIT_RST);
 	qrio_wdmask(WCOM_TMG_RST, true);
 
