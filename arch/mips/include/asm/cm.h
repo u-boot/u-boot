@@ -108,7 +108,7 @@
 #include <asm/io.h>
 #include <linux/bitops.h>
 
-#if CONFIG_IS_ENABLED(MIPS_CM)
+#if IS_ENABLED(CONFIG_MIPS_CM)
 static inline void *mips_cm_base(void)
 {
 	return (void *)CKSEG1ADDR(CONFIG_MIPS_CM_BASE);
