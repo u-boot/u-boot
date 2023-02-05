@@ -313,8 +313,7 @@ static lbaint_t fb_mmc_get_boot_header(struct blk_desc *dev_desc,
 	}
 
 	/* Check boot header magic string */
-	res = android_image_check_header(hdr);
-	if (res != 0) {
+	if (!is_android_boot_image_header(hdr)) {
 		pr_err("bad boot image magic\n");
 		fastboot_fail("boot partition not initialized", response);
 		return 0;

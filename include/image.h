@@ -1737,17 +1737,6 @@ struct cipher_algo *image_get_cipher_algo(const char *full_name);
 struct andr_boot_img_hdr_v0;
 
 /**
- * android_image_check_header() - Check the magic of boot image
- *
- * This checks the header of Android boot image and verifies the
- * magic is "ANDROID!"
- *
- * @hdr: Pointer to image header
- * Return: 0 if the magic is correct, non-zero if there is a magic mismatch
- */
-int android_image_check_header(const struct andr_boot_img_hdr_v0 *hdr);
-
-/**
  * android_image_get_kernel() - Processes kernel part of Android boot images
  *
  * This function returns the os image's start address and length. Also,
@@ -1837,6 +1826,17 @@ ulong android_image_get_kcomp(const struct andr_boot_img_hdr_v0 *hdr);
  */
 void android_print_contents(const struct andr_boot_img_hdr_v0 *hdr);
 bool android_image_print_dtb_contents(ulong hdr_addr);
+
+/**
+ * is_android_boot_image_header() - Check the magic of boot image
+ *
+ * This checks the header of Android boot image and verifies the
+ * magic is "ANDROID!"
+ *
+ * @hdr: Pointer to boot image
+ * Return: non-zero if the magic is correct, zero otherwise
+ */
+bool is_android_boot_image_header(const struct andr_boot_img_hdr_v0 *hdr);
 
 /**
  * board_fit_config_name_match() - Check for a matching board name

@@ -26,7 +26,7 @@ static int abootimg_get_ver(int argc, char *const argv[])
 		return CMD_RET_USAGE;
 
 	hdr = map_sysmem(abootimg_addr(), sizeof(*hdr));
-	if (android_image_check_header(hdr)) {
+	if (!is_android_boot_image_header(hdr)) {
 		printf("Error: Boot Image header is incorrect\n");
 		res = CMD_RET_FAILURE;
 		goto exit;
@@ -73,7 +73,7 @@ static int abootimg_get_dtb_load_addr(int argc, char *const argv[])
 		return CMD_RET_USAGE;
 
 	hdr = map_sysmem(abootimg_addr(), sizeof(*hdr));
-	if (android_image_check_header(hdr)) {
+	if (!is_android_boot_image_header(hdr)) {
 		printf("Error: Boot Image header is incorrect\n");
 		res = CMD_RET_FAILURE;
 		goto exit;

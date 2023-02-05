@@ -122,18 +122,9 @@ int android_image_get_kernel(const struct andr_boot_img_hdr_v0 *hdr, int verify,
 	return 0;
 }
 
-/**
- * android_image_check_header() - Check the magic of boot image
- *
- * This checks the header of Android boot image and verifies the
- * magic is "ANDROID!"
- *
- * @hdr: Pointer to boot image
- * Return: 0 if the magic is correct, non-zero if there is a magic mismatch
- */
-int android_image_check_header(const struct andr_boot_img_hdr_v0 *hdr)
+bool is_android_boot_image_header(const struct andr_boot_img_hdr_v0 *hdr)
 {
-	return memcmp(ANDR_BOOT_MAGIC, hdr->magic, ANDR_BOOT_MAGIC_SIZE);
+	return !memcmp(ANDR_BOOT_MAGIC, hdr, ANDR_BOOT_MAGIC_SIZE);
 }
 
 ulong android_image_get_end(const struct andr_boot_img_hdr_v0 *hdr)
@@ -240,7 +231,7 @@ bool android_image_get_dtbo(ulong hdr_addr, ulong *addr, u32 *size)
 	bool ret = true;
 
 	hdr = map_sysmem(hdr_addr, sizeof(*hdr));
-	if (android_image_check_header(hdr)) {
+	if (!is_android_boot_image_header(hdr)) {
 		printf("Error: Boot Image header is incorrect\n");
 		ret = false;
 		goto exit;
@@ -289,7 +280,7 @@ static bool android_image_get_dtb_img_addr(ulong hdr_addr, ulong *addr)
 	bool ret = true;
 
 	hdr = map_sysmem(hdr_addr, sizeof(*hdr));
-	if (android_image_check_header(hdr)) {
+	if (!is_android_boot_image_header(hdr)) {
 		printf("Error: Boot Image header is incorrect\n");
 		ret = false;
 		goto exit;
