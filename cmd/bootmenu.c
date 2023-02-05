@@ -223,7 +223,7 @@ static int prepare_bootmenu_entry(struct bootmenu_data *menu,
 	return 1;
 }
 
-#if (CONFIG_IS_ENABLED(CMD_BOOTEFI_BOOTMGR)) && (CONFIG_IS_ENABLED(CMD_EFICONFIG))
+#if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR)) && (IS_ENABLED(CONFIG_CMD_EFICONFIG))
 /**
  * prepare_uefi_bootorder_entry() - generate the uefi bootmenu entries
  *
@@ -343,7 +343,7 @@ static struct bootmenu_data *bootmenu_create(int delay)
 	if (ret < 0)
 		goto cleanup;
 
-#if (CONFIG_IS_ENABLED(CMD_BOOTEFI_BOOTMGR)) && (CONFIG_IS_ENABLED(CMD_EFICONFIG))
+#if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR)) && (IS_ENABLED(CONFIG_CMD_EFICONFIG))
 	if (i < MAX_COUNT - 1) {
 		efi_status_t efi_ret;
 
