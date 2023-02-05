@@ -8,7 +8,7 @@
 #ifndef __DISTRO_SF_CONFIG_H
 #define __DISTRO_SF_CONFIG_H
 
-#if CONFIG_IS_ENABLED(CMD_SF)
+#if IS_ENABLED(CONFIG_CMD_SF)
 #define BOOTENV_SHARED_SF(devtypel)				\
 	#devtypel "_boot="					\
 	"if " #devtypel " probe ${busnum}; then "		\
