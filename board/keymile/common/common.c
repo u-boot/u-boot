@@ -80,9 +80,9 @@ int set_km_env(void)
 
 #if CONFIG_IS_ENABLED(PG_WCOM_UBOOT_UPDATE_SUPPORTED)
 #if   ((!IS_ENABLED(CONFIG_PG_WCOM_UBOOT_BOOTPACKAGE) && \
-	!CONFIG_IS_ENABLED(PG_WCOM_UBOOT_UPDATE)) ||     \
+	!IS_ENABLED(CONFIG_PG_WCOM_UBOOT_UPDATE)) ||     \
 	(IS_ENABLED(CONFIG_PG_WCOM_UBOOT_BOOTPACKAGE) && \
-	CONFIG_IS_ENABLED(PG_WCOM_UBOOT_UPDATE)))
+	IS_ENABLED(CONFIG_PG_WCOM_UBOOT_UPDATE)))
 #error "It has to be either bootpackage or update u-boot image!"
 #endif
 void check_for_uboot_update(void)
