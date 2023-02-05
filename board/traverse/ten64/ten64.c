@@ -229,7 +229,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	fdt_fsl_mc_fixup_iommu_map_entry(blob);
 
-	if (CONFIG_IS_ENABLED(FSL_MC_ENET))
+	if (IS_ENABLED(CONFIG_FSL_MC_ENET))
 		fdt_fixup_board_enet(blob);
 
 	fdt_fixup_icid(blob);
