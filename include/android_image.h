@@ -317,4 +317,31 @@ struct andr_boot_img_hdr_v0 {
  *    contained outside boot and vendor boot partitions), otherwise
  *    jump to kernel_addr
  */
+
+/* Private struct */
+struct andr_image_data {
+	ulong kernel_ptr;  /* kernel address */
+	u32 kernel_size;  /* size in bytes */
+	u32 ramdisk_size;  /* size in bytes */
+	u32 boot_ramdisk_size;  /* size in bytes */
+	ulong second_ptr;  /* secondary bootloader address */
+	u32 second_size;  /* secondary bootloader size */
+	ulong dtb_ptr;  /* address of dtb image */
+	u32 dtb_size;  /* size of dtb image */
+	ulong recovery_dtbo_ptr;  /* size in bytes for recovery DTBO/ACPIO image */
+	u32 recovery_dtbo_size;  /* offset to recovery dtbo/acpio in boot image */
+
+	const char *kcmdline;  /* boot kernel cmdline */
+	const char *kcmdline_extra;  /* vendor-boot extra kernel cmdline */
+	const char *image_name;  /* asciiz product name */
+
+	u32 kernel_addr;  /* physical load addr */
+	ulong ramdisk_addr;  /* physical load addr */
+	ulong ramdisk_ptr;  /* ramdisk address */
+	ulong dtb_load_addr;  /* physical load address for DTB image */
+	ulong tags_addr;  /* physical addr for kernel tags */
+	u32 header_version;  /* version of the boot image header */
+	u32 boot_img_total_size;  /* boot image size */
+};
+
 #endif

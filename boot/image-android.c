@@ -18,6 +18,74 @@
 
 static char andr_tmp_str[ANDR_BOOT_ARGS_SIZE + 1];
 
+static void android_boot_image_v0_v1_v2_parse_hdr(const struct andr_boot_img_hdr_v0 *hdr,
+						  struct andr_image_data *data)
+{
+	ulong end;
+
+	data->image_name = hdr->name;
+	data->kcmdline = hdr->cmdline;
+	data->kernel_addr = hdr->kernel_addr;
+	data->ramdisk_addr = hdr->ramdisk_addr;
+	data->header_version = hdr->header_version;
+	data->dtb_load_addr = hdr->dtb_addr;
+
+	end = (ulong)hdr;
+
+	/*
+	 * The header takes a full page, the remaining components are aligned
+	 * on page boundary
+	 */
+
+	end += hdr->page_size;
+
+	data->kernel_ptr = end;
+	data->kernel_size = hdr->kernel_size;
+	end += ALIGN(hdr->kernel_size, hdr->page_size);
+
+	data->ramdisk_ptr = end;
+	data->ramdisk_size = hdr->ramdisk_size;
+	end += ALIGN(hdr->ramdisk_size, hdr->page_size);
+
+	data->second_ptr = end;
+	data->second_size = hdr->second_size;
+	end += ALIGN(hdr->second_size, hdr->page_size);
+
+	if (hdr->header_version >= 1) {
+		data->recovery_dtbo_ptr = end;
+		data->recovery_dtbo_size = hdr->recovery_dtbo_size;
+		end += ALIGN(hdr->recovery_dtbo_size, hdr->page_size);
+	}
+
+	if (hdr->header_version >= 2) {
+		data->dtb_ptr = end;
+		data->dtb_size = hdr->dtb_size;
+		end += ALIGN(hdr->dtb_size, hdr->page_size);
+	}
+
+	data->boot_img_total_size = end - (ulong)hdr;
+}
+
+bool android_image_get_data(const void *boot_hdr, struct andr_image_data *data)
+{
+	if (!boot_hdr || !data) {
+		printf("boot_hdr or data params can't be NULL\n");
+		return false;
+	}
+
+	if (!is_android_boot_image_header(boot_hdr)) {
+		printf("Incorrect boot image header\n");
+		return false;
+	}
+
+	if (((struct andr_boot_img_hdr_v0 *)boot_hdr)->header_version > 2)
+		printf("Only boot image header version 2 and below are supported\n");
+	else
+		android_boot_image_v0_v1_v2_parse_hdr(boot_hdr, data);
+
+	return true;
+}
+
 static ulong android_image_get_kernel_addr(const struct andr_boot_img_hdr_v0 *hdr)
 {
 	/*
@@ -157,8 +225,13 @@ ulong android_image_get_kload(const struct andr_boot_img_hdr_v0 *hdr)
 
 ulong android_image_get_kcomp(const struct andr_boot_img_hdr_v0 *hdr)
 {
-	const void *p = (void *)((uintptr_t)hdr + hdr->page_size);
+	struct andr_image_data img_data;
+	const void *p;
 
+	if (!android_image_get_data(hdr, &img_data))
+		return -EINVAL;
+
+	p = (const void *)img_data.kernel_ptr;
 	if (image_get_magic((struct legacy_img_hdr *)p) == IH_MAGIC)
 		return image_get_comp((struct legacy_img_hdr *)p);
 	else if (get_unaligned_le32(p) == LZ4F_MAGIC)

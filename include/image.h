@@ -1733,7 +1733,19 @@ struct cipher_algo {
 int fit_image_cipher_get_algo(const void *fit, int noffset, char **algo);
 
 struct cipher_algo *image_get_cipher_algo(const char *full_name);
+struct andr_image_data;
 
+/**
+ * android_image_get_data() - Parse Android boot image
+ *
+ * This is used to parse boot image header into andr_image_data
+ * generic structure.
+ *
+ * @boot_hdr: Pointer to boot image header
+ * @data: Pointer to generic boot format structure
+ * Return: true if succeeded, false otherwise
+ */
+bool android_image_get_data(const void *boot_hdr, struct andr_image_data *data);
 struct andr_boot_img_hdr_v0;
 
 /**
