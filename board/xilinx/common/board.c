@@ -306,7 +306,7 @@ static int xilinx_read_eeprom_single(char *name,
 
 	debug("%s: i2c memory detected: %s\n", __func__, name);
 
-	if (CONFIG_IS_ENABLED(CMD_FRU) && xilinx_detect_fru(buffer))
+	if (IS_ENABLED(CONFIG_CMD_FRU) && xilinx_detect_fru(buffer))
 		return xilinx_read_eeprom_fru(dev, name, desc);
 
 	if (xilinx_detect_legacy(buffer))
