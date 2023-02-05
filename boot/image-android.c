@@ -457,6 +457,7 @@ exit:
 static bool android_image_get_dtb_img_addr(ulong hdr_addr, ulong vhdr_addr, ulong *addr)
 {
 	const struct andr_boot_img_hdr_v0 *hdr;
+	const struct andr_vnd_boot_img_hdr *v_hdr;
 	ulong dtb_img_addr;
 	bool ret = true;
 
@@ -473,22 +474,40 @@ static bool android_image_get_dtb_img_addr(ulong hdr_addr, ulong vhdr_addr, ulon
 		goto exit;
 	}
 
-	if (hdr->dtb_size == 0) {
-		printf("Error: dtb_size is 0\n");
-		ret = false;
-		goto exit;
+	if (hdr->header_version == 2) {
+		if (!hdr->dtb_size) {
+			printf("Error: dtb_size is 0\n");
+			ret = false;
+			goto exit;
+		}
+		/* Calculate the address of DTB area in boot image */
+		dtb_img_addr = hdr_addr;
+		dtb_img_addr += hdr->page_size;
+		dtb_img_addr += ALIGN(hdr->kernel_size, hdr->page_size);
+		dtb_img_addr += ALIGN(hdr->ramdisk_size, hdr->page_size);
+		dtb_img_addr += ALIGN(hdr->second_size, hdr->page_size);
+		dtb_img_addr += ALIGN(hdr->recovery_dtbo_size, hdr->page_size);
+
+		*addr = dtb_img_addr;
 	}
 
-	/* Calculate the address of DTB area in boot image */
-	dtb_img_addr = hdr_addr;
-	dtb_img_addr += hdr->page_size;
-	dtb_img_addr += ALIGN(hdr->kernel_size, hdr->page_size);
-	dtb_img_addr += ALIGN(hdr->ramdisk_size, hdr->page_size);
-	dtb_img_addr += ALIGN(hdr->second_size, hdr->page_size);
-	dtb_img_addr += ALIGN(hdr->recovery_dtbo_size, hdr->page_size);
-
-	*addr = dtb_img_addr;
-
+	if (hdr->header_version > 2) {
+		v_hdr = map_sysmem(vhdr_addr, sizeof(*v_hdr));
+		if (!v_hdr->dtb_size) {
+			printf("Error: dtb_size is 0\n");
+			ret = false;
+			unmap_sysmem(v_hdr);
+			goto exit;
+		}
+		/* Calculate the address of DTB area in boot image */
+		dtb_img_addr = vhdr_addr;
+		dtb_img_addr += v_hdr->page_size;
+		if (v_hdr->vendor_ramdisk_size)
+			dtb_img_addr += ALIGN(v_hdr->vendor_ramdisk_size, v_hdr->page_size);
+		*addr = dtb_img_addr;
+		unmap_sysmem(v_hdr);
+		goto exit;
+	}
 exit:
 	unmap_sysmem(hdr);
 	return ret;
