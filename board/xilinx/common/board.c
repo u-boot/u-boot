@@ -419,7 +419,7 @@ int board_late_init_xilinx(void)
 		ret |= env_set_hex("scriptaddr", gd->ram_base + scriptaddr);
 	}
 
-	if (CONFIG_IS_ENABLED(ARCH_ZYNQ) || CONFIG_IS_ENABLED(MICROBLAZE))
+	if (IS_ENABLED(CONFIG_ARCH_ZYNQ) || CONFIG_IS_ENABLED(MICROBLAZE))
 		bootm_size = min(bootm_size, (phys_size_t)(SZ_512M + SZ_256M));
 
 	ret |= env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
