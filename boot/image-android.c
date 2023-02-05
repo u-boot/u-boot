@@ -18,6 +18,45 @@
 
 static char andr_tmp_str[ANDR_BOOT_ARGS_SIZE + 1];
 
+static ulong checksum(const unsigned char *buffer, ulong size)
+{
+	ulong sum = 0;
+
+	for (ulong i = 0; i < size; i++)
+		sum += buffer[i];
+	return sum;
+}
+
+static bool is_trailer_present(ulong bootconfig_end_addr)
+{
+	return !strncmp((char *)(bootconfig_end_addr - BOOTCONFIG_MAGIC_SIZE),
+			BOOTCONFIG_MAGIC, BOOTCONFIG_MAGIC_SIZE);
+}
+
+static ulong add_trailer(ulong bootconfig_start_addr, ulong bootconfig_size)
+{
+	ulong end;
+	ulong sum;
+
+	if (!bootconfig_start_addr)
+		return -1;
+	if (!bootconfig_size)
+		return 0;
+
+	end = bootconfig_start_addr + bootconfig_size;
+	if (is_trailer_present(end))
+		return 0;
+
+	memcpy((void *)(end), &bootconfig_size, BOOTCONFIG_SIZE_SIZE);
+	sum = checksum((unsigned char *)bootconfig_start_addr, bootconfig_size);
+	memcpy((void *)(end + BOOTCONFIG_SIZE_SIZE), &sum,
+	       BOOTCONFIG_CHECKSUM_SIZE);
+	memcpy((void *)(end + BOOTCONFIG_SIZE_SIZE + BOOTCONFIG_CHECKSUM_SIZE),
+	       BOOTCONFIG_MAGIC, BOOTCONFIG_MAGIC_SIZE);
+
+	return BOOTCONFIG_TRAILER_SIZE;
+}
+
 static void android_boot_image_v3_v4_parse_hdr(const struct andr_boot_img_hdr_v3 *hdr,
 					       struct andr_image_data *data)
 {
@@ -61,6 +100,7 @@ static void android_vendor_boot_image_v3_v4_parse_hdr(const struct andr_vnd_boot
 	data->kernel_addr = hdr->kernel_addr;
 	data->ramdisk_addr = hdr->ramdisk_addr;
 	data->dtb_load_addr = hdr->dtb_addr;
+	data->bootconfig_size = hdr->bootconfig_size;
 	end = (ulong)hdr;
 	end += hdr->page_size;
 	if (hdr->vendor_ramdisk_size) {
@@ -75,7 +115,13 @@ static void android_vendor_boot_image_v3_v4_parse_hdr(const struct andr_vnd_boot
 
 	end += ALIGN(hdr->dtb_size, hdr->page_size);
 	end += ALIGN(hdr->vendor_ramdisk_table_size, hdr->page_size);
-	end += ALIGN(hdr->bootconfig_size, hdr->page_size);
+	data->bootconfig_addr = end;
+	if (hdr->bootconfig_size) {
+		data->bootconfig_size += add_trailer(data->bootconfig_addr,
+						     data->bootconfig_size);
+		data->ramdisk_size += data->bootconfig_size;
+	}
+	end += ALIGN(data->bootconfig_size, hdr->page_size);
 	data->vendor_boot_img_total_size = end - (ulong)hdr;
 }
 
@@ -352,7 +398,15 @@ int android_image_get_ramdisk(const void *hdr, const void *vendor_boot_img,
 		memcpy((void *)(ramdisk_ptr), (void *)img_data.vendor_ramdisk_ptr,
 		       img_data.vendor_ramdisk_size);
 		memcpy((void *)(ramdisk_ptr + img_data.vendor_ramdisk_size),
-		       (void *)img_data.ramdisk_ptr, img_data.boot_ramdisk_size);
+		       (void *)img_data.ramdisk_ptr,
+		       img_data.boot_ramdisk_size);
+		if (img_data.bootconfig_size) {
+			memcpy((void *)
+			       (ramdisk_ptr + img_data.vendor_ramdisk_size +
+			       img_data.boot_ramdisk_size),
+			       (void *)img_data.bootconfig_addr,
+			       img_data.bootconfig_size);
+		}
 	}
 
 	printf("RAM disk load addr 0x%08lx size %u KiB\n",

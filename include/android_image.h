@@ -25,6 +25,14 @@
 #define ANDR_VENDOR_BOOT_ARGS_SIZE 2048
 #define ANDR_VENDOR_BOOT_NAME_SIZE 16
 
+#define BOOTCONFIG_MAGIC "#BOOTCONFIG\n"
+#define BOOTCONFIG_MAGIC_SIZE 12
+#define BOOTCONFIG_SIZE_SIZE 4
+#define BOOTCONFIG_CHECKSUM_SIZE 4
+#define BOOTCONFIG_TRAILER_SIZE BOOTCONFIG_MAGIC_SIZE + \
+				BOOTCONFIG_SIZE_SIZE + \
+				BOOTCONFIG_CHECKSUM_SIZE
+
 struct andr_boot_img_hdr_v3 {
 	u8 magic[ANDR_BOOT_MAGIC_SIZE];
 
@@ -336,6 +344,9 @@ struct andr_image_data {
 	const char *kcmdline;  /* boot kernel cmdline */
 	const char *kcmdline_extra;  /* vendor-boot extra kernel cmdline */
 	const char *image_name;  /* asciiz product name */
+
+	ulong bootconfig_addr;  /* bootconfig image address */
+	ulong bootconfig_size;  /* bootconfig image size */
 
 	u32 kernel_addr;  /* physical load addr */
 	ulong ramdisk_addr;  /* physical load addr */
