@@ -938,7 +938,7 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
 		goto err;
 	}
 
-#if CONFIG_IS_ENABLED(EFI_TCG2_PROTOCOL)
+#if IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)
 	/* Measure an PE/COFF image */
 	ret = tcg2_measure_pe_image(efi, efi_size, handle, loaded_image_info);
 	if (ret == EFI_SECURITY_VIOLATION) {
