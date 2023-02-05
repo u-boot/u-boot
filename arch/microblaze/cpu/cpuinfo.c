@@ -8,7 +8,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if CONFIG_IS_ENABLED(CPU_MICROBLAZE)
+#if IS_ENABLED(CONFIG_CPU_MICROBLAZE)
 /* These key value are as per MBV field in PVR0 */
 static const struct microblaze_version_map cpu_ver_lookup[] = {
 	{"5.00.a", 0x01},
