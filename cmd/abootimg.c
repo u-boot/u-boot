@@ -66,33 +66,34 @@ static int abootimg_get_recovery_dtbo(int argc, char *const argv[])
 
 static int abootimg_get_dtb_load_addr(int argc, char *const argv[])
 {
-	const struct andr_boot_img_hdr_v0 *hdr;
-	int res = CMD_RET_SUCCESS;
-
 	if (argc > 1)
 		return CMD_RET_USAGE;
+	struct andr_image_data img_data = {0};
+	const struct andr_boot_img_hdr_v0 *hdr;
 
 	hdr = map_sysmem(abootimg_addr(), sizeof(*hdr));
-	if (!is_android_boot_image_header(hdr)) {
-		printf("Error: Boot Image header is incorrect\n");
-		res = CMD_RET_FAILURE;
-		goto exit;
+	if (!android_image_get_data(hdr, &img_data)) {
+		unmap_sysmem(hdr);
+		return CMD_RET_FAILURE;
+	}
+	unmap_sysmem(hdr);
+
+	if (img_data.header_version < 2) {
+		printf("Error: header_version must be >= 2 for this\n");
+		return CMD_RET_FAILURE;
 	}
 
-	if (hdr->header_version < 2) {
-		printf("Error: header_version must be >= 2 for this\n");
-		res = CMD_RET_FAILURE;
-		goto exit;
+	if (!img_data.dtb_load_addr) {
+		printf("Error: failed to read dtb_load_addr\n");
+		return CMD_RET_FAILURE;
 	}
 
 	if (argc == 0)
-		printf("%lx\n", (ulong)hdr->dtb_addr);
+		printf("%lx\n", (ulong)img_data.dtb_load_addr);
 	else
-		env_set_hex(argv[0], (ulong)hdr->dtb_addr);
+		env_set_hex(argv[0], (ulong)img_data.dtb_load_addr);
 
-exit:
-	unmap_sysmem(hdr);
-	return res;
+	return CMD_RET_SUCCESS;
 }
 
 static int abootimg_get_dtb_by_index(int argc, char *const argv[])
