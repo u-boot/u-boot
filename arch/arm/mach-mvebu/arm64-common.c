@@ -53,7 +53,7 @@ __weak int dram_init_banksize(void)
 		return a8k_dram_init_banksize();
 	else if (CONFIG_IS_ENABLED(ARMADA_3700))
 		return a3700_dram_init_banksize();
-	else if (CONFIG_IS_ENABLED(ALLEYCAT_5))
+	else if (IS_ENABLED(CONFIG_ALLEYCAT_5))
 		return alleycat5_dram_init_banksize();
 	else
 		return fdtdec_setup_memory_banksize();
@@ -70,7 +70,7 @@ __weak int dram_init(void)
 	if (CONFIG_IS_ENABLED(ARMADA_3700))
 		return a3700_dram_init();
 
-	if (CONFIG_IS_ENABLED(ALLEYCAT_5))
+	if (IS_ENABLED(CONFIG_ALLEYCAT_5))
 		return alleycat5_dram_init();
 
 	if (fdtdec_setup_mem_size_base() != 0)
