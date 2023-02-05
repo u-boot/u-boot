@@ -195,7 +195,7 @@ int dram_init(void)
 {
 	int ret;
 
-	if (CONFIG_IS_ENABLED(SYS_MEM_RSVD_FOR_MMU))
+	if (IS_ENABLED(CONFIG_SYS_MEM_RSVD_FOR_MMU))
 		ret = fdtdec_setup_mem_size_base();
 	else
 		ret = fdtdec_setup_mem_size_base_lowest();
