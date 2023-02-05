@@ -1877,6 +1877,17 @@ bool android_image_print_dtb_contents(ulong hdr_addr);
 bool is_android_boot_image_header(const struct andr_boot_img_hdr_v0 *hdr);
 
 /**
+ * is_android_vendor_boot_image_header() - Check the magic of vendor boot image
+ *
+ * This checks the header of Android vendor boot image and verifies the magic
+ * is "VNDRBOOT"
+ *
+ * @vendor_boot_img: Pointer to boot image
+ * Return: non-zero if the magic is correct, zero otherwise
+ */
+bool is_android_vendor_boot_image_header(const void *vendor_boot_img);
+
+/**
  * board_fit_config_name_match() - Check for a matching board name
  *
  * This is used when SPL loads a FIT containing multiple device tree files

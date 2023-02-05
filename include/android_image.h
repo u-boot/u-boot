@@ -323,6 +323,8 @@ struct andr_image_data {
 	ulong kernel_ptr;  /* kernel address */
 	u32 kernel_size;  /* size in bytes */
 	u32 ramdisk_size;  /* size in bytes */
+	ulong vendor_ramdisk_ptr;  /* vendor ramdisk address */
+	u32 vendor_ramdisk_size;  /* vendor ramdisk size*/
 	u32 boot_ramdisk_size;  /* size in bytes */
 	ulong second_ptr;  /* secondary bootloader address */
 	u32 second_size;  /* secondary bootloader size */
@@ -342,6 +344,7 @@ struct andr_image_data {
 	ulong tags_addr;  /* physical addr for kernel tags */
 	u32 header_version;  /* version of the boot image header */
 	u32 boot_img_total_size;  /* boot image size */
+	u32 vendor_boot_img_total_size;  /* vendor boot image size */
 };
 
 #endif
