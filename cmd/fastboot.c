@@ -21,7 +21,7 @@ static int do_fastboot_udp(int argc, char *const argv[],
 {
 	int err;
 
-	if (!CONFIG_IS_ENABLED(UDP_FUNCTION_FASTBOOT)) {
+	if (!IS_ENABLED(CONFIG_UDP_FUNCTION_FASTBOOT)) {
 		pr_err("Fastboot UDP not enabled\n");
 		return CMD_RET_FAILURE;
 	}
