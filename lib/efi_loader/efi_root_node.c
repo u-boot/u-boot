@@ -72,7 +72,7 @@ efi_status_t efi_root_node_register(void)
 		 &efi_guid_unicode_collation_protocol2,
 		 &efi_unicode_collation_protocol2,
 #endif
-#if CONFIG_IS_ENABLED(EFI_LOADER_HII)
+#if IS_ENABLED(CONFIG_EFI_LOADER_HII)
 		 /* HII string protocol */
 		 &efi_guid_hii_string_protocol,
 		 &efi_hii_string,
