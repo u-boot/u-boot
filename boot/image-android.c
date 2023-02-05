@@ -316,8 +316,8 @@ bool android_image_get_dtbo(ulong hdr_addr, ulong *addr, u32 *size)
 		goto exit;
 	}
 
-	if (hdr->header_version < 1) {
-		printf("Error: header_version must be >= 1 to get dtbo\n");
+	if (hdr->header_version != 1 && hdr->header_version != 2) {
+		printf("Error: header version must be >= 1 and <= 2 to get dtbo\n");
 		ret = false;
 		goto exit;
 	}
