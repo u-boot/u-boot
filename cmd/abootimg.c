@@ -18,7 +18,7 @@ static ulong _abootimg_addr = -1;
 
 static int abootimg_get_ver(int argc, char *const argv[])
 {
-	const struct andr_img_hdr *hdr;
+	const struct andr_boot_img_hdr_v0 *hdr;
 	int res = CMD_RET_SUCCESS;
 
 	if (argc > 1)
@@ -65,7 +65,7 @@ static int abootimg_get_recovery_dtbo(int argc, char *const argv[])
 
 static int abootimg_get_dtb_load_addr(int argc, char *const argv[])
 {
-	const struct andr_img_hdr *hdr;
+	const struct andr_boot_img_hdr_v0 *hdr;
 	int res = CMD_RET_SUCCESS;
 
 	if (argc > 1)

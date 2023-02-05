@@ -1734,21 +1734,108 @@ int fit_image_cipher_get_algo(const void *fit, int noffset, char **algo);
 
 struct cipher_algo *image_get_cipher_algo(const char *full_name);
 
-struct andr_img_hdr;
-int android_image_check_header(const struct andr_img_hdr *hdr);
-int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
+struct andr_boot_img_hdr_v0;
+
+/**
+ * android_image_check_header() - Check the magic of boot image
+ *
+ * This checks the header of Android boot image and verifies the
+ * magic is "ANDROID!"
+ *
+ * @hdr: Pointer to image header
+ * Return: 0 if the magic is correct, non-zero if there is a magic mismatch
+ */
+int android_image_check_header(const struct andr_boot_img_hdr_v0 *hdr);
+
+/**
+ * android_image_get_kernel() - Processes kernel part of Android boot images
+ *
+ * This function returns the os image's start address and length. Also,
+ * it appends the kernel command line to the bootargs env variable.
+ *
+ * @hdr:	Pointer to image header, which is at the start
+ *			of the image.
+ * @verify:	Checksum verification flag. Currently unimplemented.
+ * @os_data:	Pointer to a ulong variable, will hold os data start
+ *			address.
+ * @os_len:	Pointer to a ulong variable, will hold os data length.
+ * Return: Zero, os start address and length on success,
+ *		otherwise on failure.
+ */
+int android_image_get_kernel(const struct andr_boot_img_hdr_v0 *hdr, int verify,
 			     ulong *os_data, ulong *os_len);
-int android_image_get_ramdisk(const struct andr_img_hdr *hdr,
+
+/**
+ * android_image_get_ramdisk() - Extracts the ramdisk load address and its size
+ *
+ * This extracts the load address of the ramdisk and its size
+ *
+ * @hdr:	Pointer to image header
+ * @rd_data:	Pointer to a ulong variable, will hold ramdisk address
+ * @rd_len:	Pointer to a ulong variable, will hold ramdisk length
+ * Return: 0 if succeeded, -1 if ramdisk size is 0
+ */
+int android_image_get_ramdisk(const struct andr_boot_img_hdr_v0 *hdr,
 			      ulong *rd_data, ulong *rd_len);
-int android_image_get_second(const struct andr_img_hdr *hdr,
-			      ulong *second_data, ulong *second_len);
+
+/**
+ * android_image_get_second() - Extracts the secondary bootloader address
+ * and its size
+ *
+ * This extracts the address of the secondary bootloader and its size
+ *
+ * @hdr:	 Pointer to image header
+ * @second_data: Pointer to a ulong variable, will hold secondary bootloader address
+ * @second_len : Pointer to a ulong variable, will hold secondary bootloader length
+ * Return: 0 if succeeded, -1 if secondary bootloader size is 0
+ */
+int android_image_get_second(const struct andr_boot_img_hdr_v0 *hdr,
+			     ulong *second_data, ulong *second_len);
 bool android_image_get_dtbo(ulong hdr_addr, ulong *addr, u32 *size);
 bool android_image_get_dtb_by_index(ulong hdr_addr, u32 index, ulong *addr,
 				    u32 *size);
-ulong android_image_get_end(const struct andr_img_hdr *hdr);
-ulong android_image_get_kload(const struct andr_img_hdr *hdr);
-ulong android_image_get_kcomp(const struct andr_img_hdr *hdr);
-void android_print_contents(const struct andr_img_hdr *hdr);
+
+/**
+ * android_image_get_end() - Get the end of Android boot image
+ *
+ * This returns the end address of Android boot image address
+ *
+ * @hdr: Pointer to image header
+ * Return: The end address of Android boot image
+ */
+ulong android_image_get_end(const struct andr_boot_img_hdr_v0 *hdr);
+
+/**
+ * android_image_get_kload() - Get the kernel load address
+ *
+ * This returns the kernel load address. The load address is extracted
+ * from the boot image header or the "kernel_addr_r" environment variable
+ *
+ * @hdr: Pointer to image header
+ * Return: The kernel load address
+ */
+ulong android_image_get_kload(const struct andr_boot_img_hdr_v0 *hdr);
+
+/**
+ * android_image_get_kcomp() - Get kernel compression type
+ *
+ * This gets the kernel compression type from the boot image header
+ *
+ * @hdr: Pointer to image header
+ * Return: Kernel compression type
+ */
+ulong android_image_get_kcomp(const struct andr_boot_img_hdr_v0 *hdr);
+
+/**
+ * android_print_contents() - Prints out the contents of the Android format image
+ *
+ * This formats a multi line Android image contents description.
+ * The routine prints out Android image properties
+ *
+ * @hdr: Pointer to the Android format image header
+ * Return: no returned results
+ */
+void android_print_contents(const struct andr_boot_img_hdr_v0 *hdr);
 bool android_image_print_dtb_contents(ulong hdr_addr);
 
 /**
