@@ -58,7 +58,7 @@ efi_status_t efi_root_node_register(void)
 		 &efi_guid_device_path_to_text_protocol,
 		 &efi_device_path_to_text,
 #endif
-#if CONFIG_IS_ENABLED(EFI_DEVICE_PATH_UTIL)
+#if IS_ENABLED(CONFIG_EFI_DEVICE_PATH_UTIL)
 		 /* Device path utilities protocol */
 		 &efi_guid_device_path_utilities_protocol,
 		 &efi_device_path_utilities,
