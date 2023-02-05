@@ -16,7 +16,7 @@
 
 #include "clk-imx8.h"
 
-#if CONFIG_IS_ENABLED(CMD_CLK)
+#if IS_ENABLED(CONFIG_CMD_CLK)
 struct imx8_clks imx8_clk_names[] = {
 	{ IMX8QM_A53_DIV, "A53_DIV" },
 	{ IMX8QM_UART0_CLK, "UART0" },
