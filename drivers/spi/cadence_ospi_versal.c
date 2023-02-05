@@ -216,7 +216,7 @@ int cadence_qspi_versal_flash_reset(struct udevice *dev)
 
 void cadence_qspi_apb_enable_linear_mode(bool enable)
 {
-	if (CONFIG_IS_ENABLED(ZYNQMP_FIRMWARE)) {
+	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE)) {
 		if (enable)
 			/* ahb read mode */
 			xilinx_pm_request(PM_IOCTL, PM_DEV_OSPI,
