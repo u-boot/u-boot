@@ -412,14 +412,14 @@ int board_late_init_xilinx(void)
 	struct xilinx_board_description *desc;
 	phys_size_t bootm_size = gd->ram_top - gd->ram_base;
 
-	if (!CONFIG_IS_ENABLED(MICROBLAZE)) {
+	if (!IS_ENABLED(CONFIG_MICROBLAZE)) {
 		ulong scriptaddr;
 
 		scriptaddr = env_get_hex("scriptaddr", 0);
 		ret |= env_set_hex("scriptaddr", gd->ram_base + scriptaddr);
 	}
 
-	if (IS_ENABLED(CONFIG_ARCH_ZYNQ) || CONFIG_IS_ENABLED(MICROBLAZE))
+	if (IS_ENABLED(CONFIG_ARCH_ZYNQ) || IS_ENABLED(CONFIG_MICROBLAZE))
 		bootm_size = min(bootm_size, (phys_size_t)(SZ_512M + SZ_256M));
 
 	ret |= env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
