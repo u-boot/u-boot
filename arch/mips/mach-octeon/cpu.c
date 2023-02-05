@@ -448,7 +448,7 @@ int arch_misc_init(void)
 	if (ret)
 		return ret;
 
-	if (CONFIG_IS_ENABLED(OCTEON_SERIAL_PCIE_CONSOLE))
+	if (IS_ENABLED(CONFIG_OCTEON_SERIAL_PCIE_CONSOLE))
 		init_pcie_console();
 
 	if (IS_ENABLED(CONFIG_OCTEON_SERIAL_BOOTCMD))
