@@ -184,7 +184,7 @@ static int v5l2_probe(struct udevice *dev)
 }
 
 static const struct udevice_id v5l2_cache_ids[] = {
-	{ .compatible = "v5l2cache" },
+	{ .compatible = "cache" },
 	{}
 };
 

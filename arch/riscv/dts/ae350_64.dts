@@ -112,7 +112,7 @@
 	};
 
 	L2: l2-cache@e0500000 {
-		compatible = "v5l2cache";
+		compatible = "cache";
 		cache-level = <2>;
 		cache-size = <0x40000>;
 		reg = <0x0 0xe0500000 0x0 0x40000>;
