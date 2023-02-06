@@ -2670,7 +2670,7 @@ static const struct eficonfig_item maintenance_menu_items[] = {
 	{"Edit Boot Option", eficonfig_process_edit_boot_option},
 	{"Change Boot Order", eficonfig_process_change_boot_order},
 	{"Delete Boot Option", eficonfig_process_delete_boot_option},
-#if (CONFIG_IS_ENABLED(EFI_SECURE_BOOT) && CONFIG_IS_ENABLED(EFI_MM_COMM_TEE))
+#if (CONFIG_IS_ENABLED(EFI_SECURE_BOOT) && IS_ENABLED(CONFIG_EFI_MM_COMM_TEE))
 	{"Secure Boot Configuration", eficonfig_process_secure_boot_config},
 #endif
 	{"Quit", eficonfig_process_quit},
