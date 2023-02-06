@@ -299,7 +299,7 @@ static void __maybe_unused flash(char *cmd_parameter, char *response)
 		fastboot_mmc_flash_write(cmd_parameter, fastboot_buf_addr,
 					 image_size, response);
 
-	if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND))
+	if (IS_ENABLED(CONFIG_FASTBOOT_FLASH_NAND))
 		fastboot_nand_flash_write(cmd_parameter, fastboot_buf_addr,
 					  image_size, response);
 }
@@ -318,7 +318,7 @@ static void __maybe_unused erase(char *cmd_parameter, char *response)
 	if (IS_ENABLED(CONFIG_FASTBOOT_FLASH_MMC))
 		fastboot_mmc_erase(cmd_parameter, response);
 
-	if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND))
+	if (IS_ENABLED(CONFIG_FASTBOOT_FLASH_NAND))
 		fastboot_nand_erase(cmd_parameter, response);
 }
 
