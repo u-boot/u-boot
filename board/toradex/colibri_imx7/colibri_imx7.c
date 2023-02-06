@@ -303,16 +303,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 			fdt_status_disabled(blob, off);
 	}
 #endif
-#if defined(CONFIG_FDT_FIXUP_PARTITIONS)
-	static const struct node_info nodes[] = {
-		{ "fsl,imx7d-gpmi-nand", MTD_DEV_TYPE_NAND, }, /* NAND flash */
-		{ "fsl,imx6q-gpmi-nand", MTD_DEV_TYPE_NAND, },
-	};
-
-	/* Update partition nodes using info from mtdparts env var */
-	puts("   Updating MTD partitions...\n");
-	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
-#endif
 
 	return ft_common_board_setup(blob, bd);
 }
