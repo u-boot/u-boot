@@ -22,7 +22,7 @@ struct arch_global_data {
 	void __iomem *clint;	/* clint base address */
 #endif
 #ifdef CONFIG_ANDES_PLICSW
-	void __iomem *plicsw;	/* plic base address */
+	void __iomem *plicsw;	/* andes plicsw base address */
 #endif
 #if CONFIG_IS_ENABLED(SMP)
 	struct ipi_data ipi[CONFIG_NR_CPUS];
