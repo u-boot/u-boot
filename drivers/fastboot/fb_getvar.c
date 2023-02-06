@@ -62,7 +62,7 @@ static const struct {
 		.variable = "has-slot",
 		.dispatch = getvar_has_slot
 #endif
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
+#if IS_ENABLED(CONFIG_FASTBOOT_FLASH_MMC)
 	}, {
 		.variable = "partition-type",
 		.dispatch = getvar_partition_type
@@ -99,7 +99,7 @@ static int getvar_get_part_info(const char *part_name, char *response,
 	struct disk_partition disk_part;
 	struct part_info *part_info;
 
-	if (CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)) {
+	if (IS_ENABLED(CONFIG_FASTBOOT_FLASH_MMC)) {
 		r = fastboot_mmc_get_part_info(part_name, &dev_desc, &disk_part,
 					       response);
 		if (r >= 0 && size)
