@@ -120,7 +120,7 @@ static int print_83xx_arb_event(bool force, char *buf, int size)
 			       "Master ID", mstr_id, master[mstr_id],
 			       "Transfer Size", tsize_val, tsize_bytes,
 			       "Transfer Type", ttype, transfer[ttype]);
-	} else if (CONFIG_IS_ENABLED(DISPLAY_AER_BRIEF)) {
+	} else if (IS_ENABLED(CONFIG_DISPLAY_AER_BRIEF)) {
 		res = snprintf(buf, size,
 			       "Arbiter Event Status: AEATR=0x%08lX, AEADR=0x%08lX\n",
 			       gd->arch.arbiter_event_attributes,
@@ -185,7 +185,7 @@ static int mpc83xx_sysreset_get_status(struct udevice *dev, char *buf, int size)
 	 *			     arbiter driver
 	 */
 	if (CONFIG_IS_ENABLED(DISPLAY_AER_FULL) ||
-	    CONFIG_IS_ENABLED(DISPLAY_AER_BRIEF)) {
+	    IS_ENABLED(CONFIG_DISPLAY_AER_BRIEF)) {
 		/*
 		 * If there was a bus monitor reset event, we force the arbiter
 		 * event to be printed
