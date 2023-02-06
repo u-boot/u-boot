@@ -23,10 +23,10 @@
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 32 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define	CFG_SYS_BOOTMAPSZ		(8 << 20)
+#define	CFG_SYS_BOOTMAPSZ		(32 << 20)
 
 /* Environment Configuration */
 
