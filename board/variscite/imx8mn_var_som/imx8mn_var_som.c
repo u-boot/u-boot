@@ -18,7 +18,7 @@ static void setup_fec(void)
 
 int board_init(void)
 {
-	if (CONFIG_IS_ENABLED(FEC_MXC))
+	if (IS_ENABLED(CONFIG_FEC_MXC))
 		setup_fec();
 
 	return 0;
