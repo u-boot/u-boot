@@ -9,49 +9,6 @@
 
 /* High Level Configuration Options */
 
-#define CFG_EXTRA_ENV_SETTINGS					\
-	"sdram_type=SDRAM\0"						\
-	"flash_type=AM29LV160DB\0"					\
-	"loadaddr=0x400000\0"						\
-	"filename=uImage.lzma\0"					\
-	"nfsroot=/opt/ofs\0"						\
-	"dhcp_ip=ip=:::::eth0:dhcp\0"					\
-	"console_args=console=ttyCPM0,115200N8\0"			\
-	"flashboot=setenv bootargs "					\
-		"${console_args} "					\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:"	\
-		"mcr3k:eth0:off;"					\
-		"${ofl_args}; "						\
-		"bootm 0x04060000 - 0x04050000\0"			\
-	"tftpboot=setenv bootargs "					\
-		"${console_args} "					\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:"	\
-		"mcr3k:eth0:off "					\
-		"${ofl_args}; "						\
-		"tftp ${loadaddr} ${filename};"				\
-		"tftp 0xf00000 mcr3000.dtb;"				\
-		"bootm ${loadaddr} - 0xf00000\0"			\
-	"netboot=dhcp ${loadaddr} ${filename};"				\
-		"tftp 0xf00000 mcr3000.dtb;"				\
-		"setenv bootargs "					\
-		"root=/dev/nfs rw "					\
-		"${console_args} "					\
-		"${dhcp_ip};"						\
-		"bootm ${loadaddr} - 0xf00000\0"			\
-	"nfsboot=setenv bootargs "					\
-		"root=/dev/nfs rw nfsroot=${serverip}:${nfsroot} "	\
-		"${console_args} "					\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:"	\
-		"mcr3k:eth0:off;"					\
-		"bootm 0x04060000 - 0x04050000\0"			\
-	"dhcpboot=dhcp ${loadaddr} ${filename};"			\
-		"tftp 0xf00000 mcr3000.dtb;"				\
-		"setenv bootargs "					\
-		"${console_args} "					\
-		"${dhcp_ip} "						\
-		"${ofl_args}; "						\
-		"bootm ${loadaddr} - 0xf00000\0"
-
 /* Miscellaneous configurable options */
 
 /* Definitions for initial stack pointer and data area (in DPRAM) */
