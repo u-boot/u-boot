@@ -12,13 +12,3 @@ config RISCV_NDS
 	help
 	  Run U-Boot on AndeStar V5 platforms and use some specific features
 	  which are provided by Andes Technology AndeStar V5 families.
-
-if RISCV_NDS
-
-config RISCV_NDS_CACHE
-	bool "AndeStar V5 families specific cache support"
-	depends on RISCV_MMODE || SPL_RISCV_MMODE
-	help
-	  Provide Andes Technology AndeStar V5 families specific cache support.
-
-endif

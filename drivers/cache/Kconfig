@@ -25,7 +25,6 @@ config L2X0_CACHE
 config V5L2_CACHE
 	bool "Andes V5L2 cache driver"
 	select CACHE
-	depends on RISCV_NDS_CACHE
 	help
 	  Support Andes V5L2 cache controller in AE350 platform.
 	  It will configure tag and data ram timing control from the
