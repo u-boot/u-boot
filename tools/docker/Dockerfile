@@ -173,7 +173,7 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 	true && \
 	rm -rf /tmp/grub
 
-RUN git clone git://git.qemu.org/qemu.git /tmp/qemu && \
+RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 	cd /tmp/qemu && \
 	git submodule update --init dtc && \
 	git checkout v6.1.0 && \
