@@ -51,7 +51,7 @@ struct cpsw_mdio_regs {
 #define USERACCESS_PHY_REG_SHIFT	(21)
 #define USERACCESS_PHY_ADDR_SHIFT	(16)
 #define USERACCESS_DATA		GENMASK(15, 0)
-	} user[0];
+	} user[2];
 };
 
 #define CPSW_MDIO_DIV_DEF	0xff
@@ -366,8 +366,8 @@ u32 cpsw_mdio_get_alive(struct mii_dev *bus)
 	struct cpsw_mdio *mdio = bus->priv;
 	u32 val;
 
-	val = readl(&mdio->regs->control);
-	return val & GENMASK(15, 0);
+	val = readl(&mdio->regs->alive);
+	return val & GENMASK(7, 0);
 }
 
 struct mii_dev *cpsw_mdio_init(const char *name, phys_addr_t mdio_base,
