@@ -69,7 +69,7 @@ config SYS_VENDOR
 	default "keymile"
 
 config SYS_CONFIG_NAME
-	default "tuxx1"
+	default "km832x"
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
@@ -88,7 +88,7 @@ config SYS_VENDOR
 	default "keymile"
 
 config SYS_CONFIG_NAME
-	default "kmsupx5"
+	default "km832x"
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
@@ -107,7 +107,7 @@ config SYS_VENDOR
 	default "keymile"
 
 config SYS_CONFIG_NAME
-	default "tuge1"
+	default "km832x"
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
@@ -126,7 +126,7 @@ config SYS_VENDOR
 	default "keymile"
 
 config SYS_CONFIG_NAME
-	default "kmopti2"
+	default "km832x"
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
@@ -145,7 +145,7 @@ config SYS_VENDOR
 	default "keymile"
 
 config SYS_CONFIG_NAME
-	default "kmtepr2"
+	default "km832x"
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y

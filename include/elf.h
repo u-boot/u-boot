@@ -360,6 +360,15 @@ typedef struct {
 	Elf32_Half	st_shndx;	/* section header index */
 } Elf32_Sym;
 
+typedef struct {
+	Elf64_Word	st_name;	/* name - index into string table */
+	unsigned char	st_info;	/* type and binding */
+	unsigned char	st_other;	/* 0 - no defined meaning */
+	Elf64_Half	st_shndx;	/* section header index */
+	Elf64_Addr	st_value;	/* symbol value */
+	Elf64_Xword	st_size;	/* symbol size */
+} Elf64_Sym;
+
 /* Symbol table index */
 #define STN_UNDEF	0		/* undefined */
 

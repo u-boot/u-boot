@@ -5,9 +5,11 @@
  */
 
 #include <dm.h>
-#include <dm/uclass.h>
+#include <env.h>
+#include <mapmem.h>
 #include <qfw.h>
 #include <stdlib.h>
+#include <dm/uclass.h>
 
 int qfw_get_dev(struct udevice **devp)
 {
@@ -101,4 +103,66 @@ struct fw_file *qfw_file_iter_next(struct fw_cfg_file_iter *iter)
 bool qfw_file_iter_end(struct fw_cfg_file_iter *iter)
 {
 	return iter->entry == iter->end;
+}
+
+int qemu_fwcfg_setup_kernel(struct udevice *qfw_dev, ulong load_addr,
+			    ulong initrd_addr)
+{
+	char *data_addr;
+	u32 setup_size, kernel_size, cmdline_size, initrd_size;
+
+	qfw_read_entry(qfw_dev, FW_CFG_SETUP_SIZE, 4, &setup_size);
+	qfw_read_entry(qfw_dev, FW_CFG_KERNEL_SIZE, 4, &kernel_size);
+
+	if (!kernel_size) {
+		printf("fatal: no kernel available\n");
+		return -ENOENT;
+	}
+
+	data_addr = map_sysmem(load_addr, 0);
+	if (setup_size) {
+		qfw_read_entry(qfw_dev, FW_CFG_SETUP_DATA,
+			       le32_to_cpu(setup_size), data_addr);
+		data_addr += le32_to_cpu(setup_size);
+	}
+
+	qfw_read_entry(qfw_dev, FW_CFG_KERNEL_DATA,
+		       le32_to_cpu(kernel_size), data_addr);
+	data_addr += le32_to_cpu(kernel_size);
+	env_set_hex("filesize", le32_to_cpu(kernel_size));
+
+	data_addr = map_sysmem(initrd_addr, 0);
+	qfw_read_entry(qfw_dev, FW_CFG_INITRD_SIZE, 4, &initrd_size);
+	if (!initrd_size) {
+		printf("warning: no initrd available\n");
+	} else {
+		qfw_read_entry(qfw_dev, FW_CFG_INITRD_DATA,
+			       le32_to_cpu(initrd_size), data_addr);
+		data_addr += le32_to_cpu(initrd_size);
+		env_set_hex("filesize", le32_to_cpu(initrd_size));
+	}
+
+	qfw_read_entry(qfw_dev, FW_CFG_CMDLINE_SIZE, 4, &cmdline_size);
+	if (cmdline_size) {
+		qfw_read_entry(qfw_dev, FW_CFG_CMDLINE_DATA,
+			       le32_to_cpu(cmdline_size), data_addr);
+		/*
+		 * if kernel cmdline only contains '\0', (e.g. no -append
+		 * when invoking qemu), do not update bootargs
+		 */
+		if (*data_addr) {
+			if (env_set("bootargs", data_addr) < 0)
+				printf("warning: unable to change bootargs\n");
+		}
+	}
+
+	printf("loading kernel to address %lx size %x", load_addr,
+	       le32_to_cpu(kernel_size));
+	if (initrd_size)
+		printf(" initrd %lx size %x\n", initrd_addr,
+		       le32_to_cpu(initrd_size));
+	else
+		printf("\n");
+
+	return 0;
 }

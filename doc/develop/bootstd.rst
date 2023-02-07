@@ -396,6 +396,10 @@ To enable all feature sof standard boot, use `CONFIG_BOOTSTD_FULL`. This
 includes the full set of commands, more error messages when things go wrong and
 bootmeth ordering with the bootmeths environment variable.
 
+You should probably also enable `CONFIG_BOOTSTD_DEFAULTS`, which provides
+several filesystem and network features (if `CONFIG_NET` is enabled) so that
+a good selection of boot options is available.
+
 
 Available bootmeth drivers
 --------------------------

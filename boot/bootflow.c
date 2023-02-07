@@ -270,6 +270,10 @@ static int iter_incr(struct bootflow_iter *iter)
 		if (ret) {
 			bootflow_iter_set_dev(iter, NULL, 0);
 		} else {
+			/*
+			 * Probe the bootdev. This does not probe any attached
+			 * block device, since they are siblings
+			 */
 			ret = device_probe(dev);
 			log_debug("probe %s %d\n", dev->name, ret);
 			if (!log_msg_ret("probe", ret))
@@ -504,7 +508,7 @@ int bootflow_iter_check_blk(const struct bootflow_iter *iter)
 	enum uclass_id id = device_get_uclass_id(media);
 
 	log_debug("uclass %d: %s\n", id, uclass_get_name(id));
-	if (id != UCLASS_ETH && id != UCLASS_BOOTSTD)
+	if (id != UCLASS_ETH && id != UCLASS_BOOTSTD && id != UCLASS_QFW)
 		return 0;
 
 	return -ENOTSUPP;

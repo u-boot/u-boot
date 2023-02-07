@@ -50,6 +50,12 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 	struct legacy_img_hdr header;
 	struct legacy_img_hdr *hdr = &header;
 
+	if (image_size < sizeof(struct legacy_img_hdr)) {
+		debug("%s: Bad image size: \"%s\" is no valid image\n",
+		      params->cmdname, params->imagefile);
+		return -FDT_ERR_BADSTRUCTURE;
+	}
+
 	/*
 	 * create copy of header so that we can blank out the
 	 * checksum field for checking - this can't be done
@@ -76,7 +82,17 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 	}
 
 	data = (const unsigned char *)ptr + sizeof(struct legacy_img_hdr);
-	len  = image_size - sizeof(struct legacy_img_hdr);
+	len = image_get_data_size(hdr);
+
+	if (image_get_type(hdr) == IH_TYPE_FIRMWARE_IVT)
+		/* Add size of CSF minus IVT */
+		len -= 0x2060 - sizeof(flash_header_v2_t);
+
+	if (image_size - sizeof(struct legacy_img_hdr) < len) {
+		debug("%s: Bad image size: \"%s\" is no valid image\n",
+		      params->cmdname, params->imagefile);
+		return -FDT_ERR_BADSTRUCTURE;
+	}
 
 	checksum = be32_to_cpu(hdr->ih_dcrc);
 	if (crc32(0, data, len) != checksum) {

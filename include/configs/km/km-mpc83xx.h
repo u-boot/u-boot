@@ -1,23 +1,10 @@
 /*
- * Internal Definitions
- */
-#include <linux/stringify.h>
-#define BOOTFLASH_START	0xF0000000
-
-/*
  * DDR Setup
  */
 #define CFG_SYS_SDRAM_BASE		0x00000000 /* DDR is system memory */
 
 #define CFG_SYS_DDR_SDRAM_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_SS_EN | \
 					DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05)
-
-#define CFG_83XX_DDR_USES_CS0
-
-/*
- * Manually set up DDR parameters
- */
-#define CFG_SYS_SDRAM_SIZE		0x80000000 /* 2048 MiB */
 
 /*
  * The reserved memory
@@ -48,8 +35,32 @@
 
 #define CFG_SYS_FLASH_BANKS_LIST { CFG_SYS_FLASH_BASE }
 
+#define CFG_SYS_KMBEC_FPGA_BASE   0xE8000000
+
 #if defined(CONFIG_CMD_NAND)
 #define CFG_SYS_NAND_BASE		CFG_SYS_KMBEC_FPGA_BASE
+#endif
+
+#if defined(CONFIG_TARGET_KMCOGE5NE) || defined(CONFIG_TARGET_KMETER1)
+/*
+ * System IO Setup
+ */
+#define CFG_SYS_SICRH		(SICRH_UC1EOBI | SICRH_UC2E1OBI)
+
+#define CFG_SYS_DDRCDR (\
+	DDRCDR_EN | \
+	DDRCDR_Q_DRN)
+#else
+/*
+ * System IO Config
+ */
+#define CFG_SYS_SICRL	SICRL_IRQ_CKS
+
+#define CFG_SYS_DDRCDR (\
+	DDRCDR_EN | \
+	DDRCDR_PZ_MAXZ | \
+	DDRCDR_NZ_MAXZ | \
+	DDRCDR_M_ODR)
 #endif
 
 /*

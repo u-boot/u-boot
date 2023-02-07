@@ -3,18 +3,11 @@
  * Copyright (C) 2019
  * Heiko Schocher, DENX Software Engineering, hs@denx.de
  */
+#include <config.h>
+
 / {
-	binman {
-		filename = "u-boot-socrates.bin";
-		pad-byte = <0xff>;
-		// Place dtb one sector before u-boot-nodtb.bin
-		blob {
-			filename = "dts/dt.dtb";
-		};
-		u-boot-nodtb {
-			filename = "u-boot-nodtb.bin";
-			offset = <0x20000>;
-		};
+	aliases {
+		eeprom0 = &i2c_eeprom0;
 	};
 
 	chosen {
@@ -24,6 +17,12 @@
 	soc8544@e0000000 {
 		i2c@3000 {
 			u-boot,dm-pre-reloc;
+
+			i2c_eeprom0: eeprom@51{
+				compatible = "atmel,24c64";
+				reg = <0x51>;
+				pagesize = <32>;
+			};
 		};
 	};
 };
@@ -38,3 +37,5 @@
 	u-boot,dm-pre-reloc;
 	clock-frequency = <333333330>;
 };
+
+#include "u-boot.dtsi"

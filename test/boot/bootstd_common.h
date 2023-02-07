@@ -21,7 +21,7 @@
 #define TEST_VERNUM		0x00010002
 
 enum {
-	MAX_HUNTER	= 8,
+	MAX_HUNTER	= 9,
 	MMC_HUNTER	= 3,	/* ID of MMC hunter */
 };
 

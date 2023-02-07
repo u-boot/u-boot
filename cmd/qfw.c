@@ -12,73 +12,6 @@
 
 static struct udevice *qfw_dev;
 
-/*
- * This function prepares kernel for zboot. It loads kernel data
- * to 'load_addr', initrd to 'initrd_addr' and kernel command
- * line using qemu fw_cfg interface.
- */
-static int qemu_fwcfg_cmd_setup_kernel(void *load_addr, void *initrd_addr)
-{
-	char *data_addr;
-	uint32_t setup_size, kernel_size, cmdline_size, initrd_size;
-
-	qfw_read_entry(qfw_dev, FW_CFG_SETUP_SIZE, 4, &setup_size);
-	qfw_read_entry(qfw_dev, FW_CFG_KERNEL_SIZE, 4, &kernel_size);
-
-	if (kernel_size == 0) {
-		printf("fatal: no kernel available\n");
-		return CMD_RET_FAILURE;
-	}
-
-	data_addr = load_addr;
-	if (setup_size != 0) {
-		qfw_read_entry(qfw_dev, FW_CFG_SETUP_DATA,
-			       le32_to_cpu(setup_size), data_addr);
-		data_addr += le32_to_cpu(setup_size);
-	}
-
-	qfw_read_entry(qfw_dev, FW_CFG_KERNEL_DATA,
-		       le32_to_cpu(kernel_size), data_addr);
-	data_addr += le32_to_cpu(kernel_size);
-	env_set_hex("filesize", le32_to_cpu(kernel_size));
-
-	data_addr = initrd_addr;
-	qfw_read_entry(qfw_dev, FW_CFG_INITRD_SIZE, 4, &initrd_size);
-	if (initrd_size == 0) {
-		printf("warning: no initrd available\n");
-	} else {
-		qfw_read_entry(qfw_dev, FW_CFG_INITRD_DATA,
-			       le32_to_cpu(initrd_size), data_addr);
-		data_addr += le32_to_cpu(initrd_size);
-		env_set_hex("filesize", le32_to_cpu(initrd_size));
-	}
-
-	qfw_read_entry(qfw_dev, FW_CFG_CMDLINE_SIZE, 4, &cmdline_size);
-	if (cmdline_size) {
-		qfw_read_entry(qfw_dev, FW_CFG_CMDLINE_DATA,
-			       le32_to_cpu(cmdline_size), data_addr);
-		/*
-		 * if kernel cmdline only contains '\0', (e.g. no -append
-		 * when invoking qemu), do not update bootargs
-		 */
-		if (*data_addr != '\0') {
-			if (env_set("bootargs", data_addr) < 0)
-				printf("warning: unable to change bootargs\n");
-		}
-	}
-
-	printf("loading kernel to address %p size %x", load_addr,
-	       le32_to_cpu(kernel_size));
-	if (initrd_size)
-		printf(" initrd %p size %x\n",
-		       initrd_addr,
-		       le32_to_cpu(initrd_size));
-	else
-		printf("\n");
-
-	return 0;
-}
-
 static int qemu_fwcfg_cmd_list_firmware(void)
 {
 	int ret;
@@ -119,28 +52,28 @@ static int qemu_fwcfg_do_load(struct cmd_tbl *cmdtp, int flag,
 			      int argc, char *const argv[])
 {
 	char *env;
-	void *load_addr;
-	void *initrd_addr;
+	ulong load_addr;
+	ulong initrd_addr;
 
 	env = env_get("loadaddr");
 	load_addr = env ?
-		(void *)hextoul(env, NULL) :
-		(void *)CONFIG_SYS_LOAD_ADDR;
+		hextoul(env, NULL) :
+		CONFIG_SYS_LOAD_ADDR;
 
 	env = env_get("ramdiskaddr");
 	initrd_addr = env ?
-		(void *)hextoul(env, NULL) :
+		hextoul(env, NULL) :
 #ifdef CFG_RAMDISK_ADDR
-		(void *)CFG_RAMDISK_ADDR;
+		CFG_RAMDISK_ADDR;
 #else
-		NULL;
+		0;
 #endif
 
 	if (argc == 2) {
-		load_addr = (void *)hextoul(argv[0], NULL);
-		initrd_addr = (void *)hextoul(argv[1], NULL);
+		load_addr = hextoul(argv[0], NULL);
+		initrd_addr = hextoul(argv[1], NULL);
 	} else if (argc == 1) {
-		load_addr = (void *)hextoul(argv[0], NULL);
+		load_addr = hextoul(argv[0], NULL);
 	}
 
 	if (!load_addr || !initrd_addr) {
@@ -148,7 +81,7 @@ static int qemu_fwcfg_do_load(struct cmd_tbl *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
-	return qemu_fwcfg_cmd_setup_kernel(load_addr, initrd_addr);
+	return qemu_fwcfg_setup_kernel(qfw_dev, load_addr, initrd_addr);
 }
 
 static struct cmd_tbl fwcfg_commands[] = {

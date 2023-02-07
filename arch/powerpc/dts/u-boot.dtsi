@@ -9,7 +9,7 @@
 
 / {
 	binman {
-		filename = "u-boot.bin";
+		filename = "u-boot-dtb.bin";
 		skip-at-start = <CONFIG_TEXT_BASE>;
 		sort-by-offset;
 		pad-byte = <0xff>;
