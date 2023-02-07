@@ -1941,6 +1941,17 @@ endif
 
 menu "Misc commands"
 
+config CMD_2048
+	bool "Play 2048"
+	help
+	  This is a simple sliding block puzzle game designed by Italian web
+	  developer Gabriele Cirulli. The game's objective is to slide numbered
+	  tiles on a grid to combine them to create a tile with the number
+	  2048.
+
+	  This needs ANSI support on your terminal to work. It is not fully
+	  functional on a video device.
+
 config CMD_BMP
 	bool "Enable 'bmp' command"
 	depends on VIDEO
