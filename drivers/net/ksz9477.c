@@ -501,8 +501,6 @@ static int ksz_i2c_probe(struct udevice *dev)
 		ksz_pwrite8(priv->dev, i, REG_PORT_MSTP_STATE, data8);
 	}
 
-	dsa_set_tagging(dev, 0, 0);
-
 	return 0;
 };
 
