@@ -77,7 +77,7 @@ class Image(section.Entry_section):
                  generate=True):
         super().__init__(None, 'section', node, test=test)
         self.copy_to_orig = copy_to_orig
-        self.name = 'main-section'
+        self.name = name
         self.image_name = name
         self._filename = '%s.bin' % self.image_name
         self.fdtmap_dtb = None
