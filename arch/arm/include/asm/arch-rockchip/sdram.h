@@ -8,10 +8,13 @@
 
 enum {
 	DDR4 = 0,
-	DDR3 = 0x3,
-	LPDDR2 = 0x5,
-	LPDDR3 = 0x6,
-	LPDDR4 = 0x7,
+	DDR3 = 3,
+	LPDDR2 = 5,
+	LPDDR3 = 6,
+	LPDDR4 = 7,
+	LPDDR4X = 8,
+	LPDDR5 = 9,
+	DDR5 = 10,
 	UNUSED = 0xFF
 };
 
@@ -21,16 +24,16 @@ enum {
  * [30]		row_3_4_ch0
  * [29:28]	chinfo
  * [27]		rank_ch1
- * [26:25]	col_ch1
+ * [26:25]	cs0_col_ch1
  * [24]		bk_ch1
  * [23:22]	low bits of cs0_row_ch1
  * [21:20]	low bits of cs1_row_ch1
  * [19:18]	bw_ch1
- * [17:16]	dbw_ch1;
- * [15:13]	ddrtype
+ * [17:16]	dbw_ch1
+ * [15:13]	low bits of ddrtype
  * [12]		channelnum
- * [11]		rank_ch0
- * [10:9]	col_ch0,
+ * [11]		low bit of rank_ch0
+ * [10:9]	cs0_col_ch0
  * [8]		bk_ch0
  * [7:6]	low bits of cs0_row_ch0
  * [5:4]	low bits of cs1_row_ch0
@@ -61,6 +64,11 @@ enum {
 
 /*
  * sys_reg3 bitfield struct
+ * [31:28]	version
+ * [16]		cs3_delta_row
+ * [15]		cs2_delta_row
+ * [14]		high bit of rank_ch0
+ * [13:12]	high bits of ddrtype
  * [7]		high bit of cs0_row_ch1
  * [6]		high bit of cs1_row_ch1
  * [5]		high bit of cs0_row_ch0
@@ -70,6 +78,8 @@ enum {
  */
 #define SYS_REG_VERSION_SHIFT			28
 #define SYS_REG_VERSION_MASK			0xf
+#define SYS_REG_EXTEND_DDRTYPE_SHIFT		12
+#define SYS_REG_EXTEND_DDRTYPE_MASK		3
 #define SYS_REG_EXTEND_CS0_ROW_SHIFT(ch)	(5 + (ch) * 2)
 #define SYS_REG_EXTEND_CS0_ROW_MASK		1
 #define SYS_REG_EXTEND_CS1_ROW_SHIFT(ch)	(4 + (ch) * 2)

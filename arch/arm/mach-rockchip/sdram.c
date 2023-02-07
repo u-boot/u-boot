@@ -88,9 +88,15 @@ size_t rockchip_sdram_size(phys_addr_t reg)
 	u32 sys_reg3 = readl(reg + 4);
 	u32 ch_num = 1 + ((sys_reg2 >> SYS_REG_NUM_CH_SHIFT)
 		       & SYS_REG_NUM_CH_MASK);
+	u32 version = (sys_reg3 >> SYS_REG_VERSION_SHIFT) &
+		      SYS_REG_VERSION_MASK;
 
 	dram_type = (sys_reg2 >> SYS_REG_DDRTYPE_SHIFT) & SYS_REG_DDRTYPE_MASK;
+	if (version >= 3)
+		dram_type |= ((sys_reg3 >> SYS_REG_EXTEND_DDRTYPE_SHIFT) &
+			      SYS_REG_EXTEND_DDRTYPE_MASK) << 3;
 	debug("%s %x %x\n", __func__, (u32)reg, sys_reg2);
+	debug("%s %x %x\n", __func__, (u32)reg + 4, sys_reg3);
 	for (ch = 0; ch < ch_num; ch++) {
 		rank = 1 + (sys_reg2 >> SYS_REG_RANK_SHIFT(ch) &
 			SYS_REG_RANK_MASK);
@@ -98,8 +104,7 @@ size_t rockchip_sdram_size(phys_addr_t reg)
 			  SYS_REG_COL_MASK);
 		cs1_col = cs0_col;
 		bk = 3 - ((sys_reg2 >> SYS_REG_BK_SHIFT(ch)) & SYS_REG_BK_MASK);
-		if ((sys_reg3 >> SYS_REG_VERSION_SHIFT &
-		     SYS_REG_VERSION_MASK) == 0x2) {
+		if (version >= 2) {
 			cs1_col = 9 + (sys_reg3 >> SYS_REG_CS1_COL_SHIFT(ch) &
 				  SYS_REG_CS1_COL_MASK);
 			if (((sys_reg3 >> SYS_REG_EXTEND_CS0_ROW_SHIFT(ch) &
