@@ -443,15 +443,10 @@ static int ksz_i2c_probe(struct udevice *dev)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
 	struct ksz_dsa_priv *priv = dev_get_priv(dev);
-	struct udevice *master = dsa_get_master(dev);
 	int i, ret;
 	u8 data8;
 	u32 id;
 
-	if (!master)
-		return -ENODEV;
-
-	dev_dbg(dev, "%s %s master:%s\n", __func__, dev->name, master->name);
 	dev_set_parent_priv(dev, priv);
 
 	ret = i2c_set_chip_offset_len(dev, 2);
