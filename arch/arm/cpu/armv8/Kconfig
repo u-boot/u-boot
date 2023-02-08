@@ -1,5 +1,9 @@
 if ARM64
 
+config CMO_BY_VA_ONLY
+	bool "Force cache maintenance to be exclusively by VA"
+	depends on !SYS_DISABLE_DCACHE_OPS
+
 config ARMV8_SPL_EXCEPTION_VECTORS
 	bool "Install crash dump exception vectors"
 	depends on SPL

@@ -48,18 +48,26 @@ int cleanup_before_linux(void)
 
 	disable_interrupts();
 
-	/*
-	 * Turn off I-cache and invalidate it
-	 */
-	icache_disable();
-	invalidate_icache_all();
+	if (IS_ENABLED(CONFIG_CMO_BY_VA_ONLY)) {
+		/*
+		 * Disable D-cache.
+		 */
+		dcache_disable();
+	} else {
+		/*
+		 * Turn off I-cache and invalidate it
+		 */
+		icache_disable();
+		invalidate_icache_all();
 
-	/*
-	 * turn off D-cache
-	 * dcache_disable() in turn flushes the d-cache and disables MMU
-	 */
-	dcache_disable();
-	invalidate_dcache_all();
+		/*
+		 * turn off D-cache
+		 * dcache_disable() in turn flushes the d-cache and disables
+		 * MMU
+		 */
+		dcache_disable();
+		invalidate_dcache_all();
+	}
 
 	return 0;
 }

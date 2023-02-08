@@ -163,6 +163,83 @@ static u64 *find_pte(u64 addr, int level)
 	return NULL;
 }
 
+#ifdef CONFIG_CMO_BY_VA_ONLY
+static void __cmo_on_leaves(void (*cmo_fn)(unsigned long, unsigned long),
+			    u64 pte, int level, u64 base)
+{
+	u64 *ptep;
+	int i;
+
+	ptep = (u64 *)(pte & GENMASK_ULL(47, PAGE_SHIFT));
+	for (i = 0; i < PAGE_SIZE / sizeof(u64); i++) {
+		u64 end, va = base + i * BIT(level2shift(level));
+		u64 type, attrs;
+
+		pte = ptep[i];
+		type = pte & PTE_TYPE_MASK;
+		attrs = pte & PMD_ATTRINDX_MASK;
+		debug("PTE %llx at level %d VA %llx\n", pte, level, va);
+
+		/* Not valid? next! */
+		if (!(type & PTE_TYPE_VALID))
+			continue;
+
+		/* Not a leaf? Recurse on the next level */
+		if (!(type == PTE_TYPE_BLOCK ||
+		      (level == 3 && type == PTE_TYPE_PAGE))) {
+			__cmo_on_leaves(cmo_fn, pte, level + 1, va);
+			continue;
+		}
+
+		/*
+		 * From this point, this must be a leaf.
+		 *
+		 * Start excluding non memory mappings
+		 */
+		if (attrs != PTE_BLOCK_MEMTYPE(MT_NORMAL) &&
+		    attrs != PTE_BLOCK_MEMTYPE(MT_NORMAL_NC))
+			continue;
+
+		end = va + BIT(level2shift(level)) - 1;
+
+		/* No intersection with RAM? */
+		if (end < gd->ram_base ||
+		    va >= (gd->ram_base + gd->ram_size))
+			continue;
+
+		/*
+		 * OK, we have a partial RAM mapping. However, this
+		 * can cover *more* than the RAM. Yes, u-boot is
+		 * *that* braindead. Compute the intersection we care
+		 * about, and not a byte more.
+		 */
+		va = max(va, (u64)gd->ram_base);
+		end = min(end, gd->ram_base + gd->ram_size);
+
+		debug("Flush PTE %llx at level %d: %llx-%llx\n",
+		      pte, level, va, end);
+		cmo_fn(va, end);
+	}
+}
+
+static void apply_cmo_to_mappings(void (*cmo_fn)(unsigned long, unsigned long))
+{
+	u64 va_bits;
+	int sl = 0;
+
+	if (!gd->arch.tlb_addr)
+		return;
+
+	get_tcr(NULL, &va_bits);
+	if (va_bits < 39)
+		sl = 1;
+
+	__cmo_on_leaves(cmo_fn, gd->arch.tlb_addr, sl, 0);
+}
+#else
+static inline void apply_cmo_to_mappings(void *dummy) {}
+#endif
+
 /* Returns and creates a new full table (512 entries) */
 static u64 *create_table(void)
 {
@@ -447,8 +524,12 @@ __weak void mmu_setup(void)
  */
 void invalidate_dcache_all(void)
 {
+#ifndef CONFIG_CMO_BY_VA_ONLY
 	__asm_invalidate_dcache_all();
 	__asm_invalidate_l3_dcache();
+#else
+	apply_cmo_to_mappings(invalidate_dcache_range);
+#endif
 }
 
 /*
@@ -458,6 +539,7 @@ void invalidate_dcache_all(void)
  */
 inline void flush_dcache_all(void)
 {
+#ifndef CONFIG_CMO_BY_VA_ONLY
 	int ret;
 
 	__asm_flush_dcache_all();
@@ -466,6 +548,9 @@ inline void flush_dcache_all(void)
 		debug("flushing dcache returns 0x%x\n", ret);
 	else
 		debug("flushing dcache successfully.\n");
+#else
+	apply_cmo_to_mappings(flush_dcache_range);
+#endif
 }
 
 #ifndef CONFIG_SYS_DISABLE_DCACHE_OPS
@@ -520,9 +605,19 @@ void dcache_disable(void)
 	if (!(sctlr & CR_C))
 		return;
 
+	if (IS_ENABLED(CONFIG_CMO_BY_VA_ONLY)) {
+		/*
+		 * When invalidating by VA, do it *before* turning the MMU
+		 * off, so that at least our stack is coherent.
+		 */
+		flush_dcache_all();
+	}
+
 	set_sctlr(sctlr & ~(CR_C|CR_M));
 
-	flush_dcache_all();
+	if (!IS_ENABLED(CONFIG_CMO_BY_VA_ONLY))
+		flush_dcache_all();
+
 	__asm_invalidate_tlb_all();
 }
 
