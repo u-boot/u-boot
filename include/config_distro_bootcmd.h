@@ -35,10 +35,14 @@
 	#devtypel "_boot=" \
 	BOOTENV_SHARED_BLKDEV_BODY(devtypel)
 
+#define BOOTENV_DEV_BLKDEV_NONE(devtypeu, devtypel, instance)
+
 #define BOOTENV_DEV_BLKDEV(devtypeu, devtypel, instance) \
 	"bootcmd_" #devtypel #instance "=" \
 		"devnum=" #instance "; " \
 		"run " #devtypel "_boot\0"
+
+#define BOOTENV_DEV_NAME_BLKDEV_NONE(devtypeu, devtypel, instance)
 
 #define BOOTENV_DEV_NAME_BLKDEV(devtypeu, devtypel, instance) \
 	#devtypel #instance " "
@@ -59,6 +63,10 @@
 #define BOOTENV_SHARED_MMC	BOOTENV_SHARED_BLKDEV(mmc)
 #define BOOTENV_DEV_MMC		BOOTENV_DEV_BLKDEV
 #define BOOTENV_DEV_NAME_MMC	BOOTENV_DEV_NAME_BLKDEV
+#elif defined(CONFIG_SPL_BUILD)
+#define BOOTENV_SHARED_MMC
+#define BOOTENV_DEV_MMC		BOOTENV_DEV_BLKDEV_NONE
+#define BOOTENV_DEV_NAME_MMC	BOOTENV_DEV_NAME_BLKDEV_NONE
 #else
 #define BOOTENV_SHARED_MMC
 #define BOOTENV_DEV_MMC \
@@ -190,6 +198,10 @@
 #define BOOTENV_SHARED_SATA	BOOTENV_SHARED_BLKDEV(sata)
 #define BOOTENV_DEV_SATA	BOOTENV_DEV_BLKDEV
 #define BOOTENV_DEV_NAME_SATA	BOOTENV_DEV_NAME_BLKDEV
+#elif defined(CONFIG_SPL_BUILD)
+#define BOOTENV_SHARED_SATA
+#define BOOTENV_DEV_SATA	BOOTENV_DEV_BLKDEV_NONE
+#define BOOTENV_DEV_NAME_SATA	BOOTENV_DEV_NAME_BLKDEV_NONE
 #else
 #define BOOTENV_SHARED_SATA
 #define BOOTENV_DEV_SATA \
@@ -293,6 +305,11 @@
 		BOOTENV_SHARED_BLKDEV_BODY(usb)
 #define BOOTENV_DEV_USB		BOOTENV_DEV_BLKDEV
 #define BOOTENV_DEV_NAME_USB	BOOTENV_DEV_NAME_BLKDEV
+#elif defined(CONFIG_SPL_BUILD)
+#define BOOTENV_RUN_NET_USB_START
+#define BOOTENV_SHARED_USB
+#define BOOTENV_DEV_USB		BOOTENV_DEV_BLKDEV_NONE
+#define BOOTENV_DEV_NAME_USB	BOOTENV_DEV_NAME_BLKDEV_NONE
 #else
 #define BOOTENV_RUN_NET_USB_START
 #define BOOTENV_SHARED_USB
@@ -395,6 +412,9 @@
 		"\0"
 #define BOOTENV_DEV_NAME_DHCP(devtypeu, devtypel, instance) \
 	"dhcp "
+#elif defined(CONFIG_SPL_BUILD)
+#define BOOTENV_DEV_DHCP	BOOTENV_DEV_BLKDEV_NONE
+#define BOOTENV_DEV_NAME_DHCP	BOOTENV_DEV_NAME_BLKDEV_NONE
 #else
 #define BOOTENV_DEV_DHCP \
 	BOOT_TARGET_DEVICES_references_DHCP_without_CONFIG_CMD_DHCP
@@ -413,6 +433,9 @@
 		"fi\0"
 #define BOOTENV_DEV_NAME_PXE(devtypeu, devtypel, instance) \
 	"pxe "
+#elif defined(CONFIG_SPL_BUILD)
+#define BOOTENV_DEV_PXE		BOOTENV_DEV_BLKDEV_NONE
+#define BOOTENV_DEV_NAME_PXE	BOOTENV_DEV_NAME_BLKDEV_NONE
 #else
 #define BOOTENV_DEV_PXE \
 	BOOT_TARGET_DEVICES_references_PXE_without_CONFIG_CMD_DHCP_or_PXE
