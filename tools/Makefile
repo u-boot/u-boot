@@ -27,9 +27,7 @@ ifneq ($(HOST_TOOLS_ALL),)
 CONFIG_ARCH_KIRKWOOD = y
 CONFIG_CMD_LOADS = y
 CONFIG_CMD_NET = y
-CONFIG_XWAY_SWAP_BYTES = y
 CONFIG_NETCONSOLE = y
-CONFIG_SHA1_CHECK_UB_IMG = y
 CONFIG_ARCH_SUNXI = y
 endif
 
@@ -61,9 +59,6 @@ HOSTCFLAGS_gen_ethaddr_crc.o := -pedantic
 
 hostprogs-$(CONFIG_CMD_LOADS) += img2srec
 HOSTCFLAGS_img2srec.o := -pedantic
-
-hostprogs-$(CONFIG_XWAY_SWAP_BYTES) += xway-swap-bytes
-HOSTCFLAGS_xway-swap-bytes.o := -pedantic
 
 hostprogs-y += mkenvimage
 mkenvimage-objs := mkenvimage.o os_support.o lib/crc32.o
@@ -158,9 +153,9 @@ fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 file2include-objs := file2include.o
 
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_TOOLS_LIBCRYPTO),)
-# Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
+# Add CFG_MXS into host CFLAGS, so we can check whether or not register
 # the mxsimage support within tools/mxsimage.c .
-HOSTCFLAGS_mxsimage.o += -DCONFIG_MXS
+HOSTCFLAGS_mxsimage.o += -DCFG_MXS
 endif
 
 ifdef CONFIG_TOOLS_LIBCRYPTO
@@ -217,11 +212,6 @@ hostprogs-$(CONFIG_ARCH_SUNXI) += sunxi-spl-image-builder
 sunxi-spl-image-builder-objs := sunxi-spl-image-builder.o lib/bch.o
 
 hostprogs-$(CONFIG_NETCONSOLE) += ncb
-hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1
-
-ubsha1-objs := os_support.o ubsha1.o lib/sha1.o
-
-HOSTCFLAGS_ubsha1.o := -pedantic
 
 hostprogs-$(CONFIG_ARCH_KIRKWOOD) += kwboot
 hostprogs-$(CONFIG_ARCH_MVEBU) += kwboot

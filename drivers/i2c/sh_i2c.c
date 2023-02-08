@@ -172,14 +172,9 @@ static int sh_i2c_raw_read(struct sh_i2c *dev, u8 chip, u8 addr)
 {
 	int ret = -1;
 
-#if defined(CONFIG_SH73A0)
-	if (sh_i2c_set_addr(dev, chip, addr, 0) != 0)
-		goto exit0;
-#else
 	if (sh_i2c_set_addr(dev, chip, addr, 1) != 0)
 		goto exit0;
 	udelay(100);
-#endif
 
 	writeb((SH_I2C_ICCR_ICE|SH_I2C_ICCR_RTS|SH_I2C_ICCR_BUSY), &dev->iccr);
 	sh_irq_dte(dev);

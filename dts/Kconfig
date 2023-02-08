@@ -21,8 +21,8 @@ menu "Device Tree Control"
 
 config OF_CONTROL
 	bool "Run-time configuration via Device Tree"
-	select OF_LIBFDT if !OF_PLATDATA
-	select OF_REAL if !OF_PLATDATA
+	select OF_LIBFDT
+	select OF_REAL
 	help
 	  This feature provides for run-time configuration of U-Boot
 	  via a flattened device tree.

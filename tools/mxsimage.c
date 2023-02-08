@@ -5,7 +5,7 @@
  * Copyright (C) 2012-2013 Marek Vasut <marex@denx.de>
  */
 
-#ifdef CONFIG_MXS
+#ifdef CFG_MXS
 
 #include <errno.h>
 #include <fcntl.h>

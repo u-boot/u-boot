@@ -2021,6 +2021,13 @@ config CMD_LED
 	  with led on/off/togle/blink. Any LED drivers can be controlled with
 	  this command, e.g. led_gpio.
 
+config CMD_INI
+	bool "ini"
+	help
+	  Enable the 'ini' command which allows a .ini file to be parsed and
+	  placed into environment variables. Please check the source code for
+	  this as there is no documentation.
+
 config CMD_DATE
 	bool "date"
 	default y if DM_RTC

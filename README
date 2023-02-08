@@ -286,13 +286,6 @@ The following options need to be configured:
 		same as CFG_SYS_DDR_SDRAM_BASE for  all Power SoCs. But
 		it could be different for ARM SoCs.
 
-- MIPS CPU options:
-		CONFIG_XWAY_SWAP_BYTES
-
-		Enable compilation of tools/xway-swap-bytes needed for Lantiq
-		XWAY SoCs for booting from NOR flash. The U-Boot image needs to
-		be swapped if a flash programmer is used.
-
 - ARM options:
 		CFG_SYS_EXCEPTION_VECTORS_HIGH
 
