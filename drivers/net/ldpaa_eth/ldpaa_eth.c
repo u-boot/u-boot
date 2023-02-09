@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014-2016 Freescale Semiconductor, Inc.
- * Copyright 2017 NXP
+ * Copyright 2017, 2023 NXP
  */
 
 #include <common.h>
@@ -21,6 +21,7 @@
 #include <linux/compat.h>
 #include <linux/delay.h>
 #include <asm/global_data.h>
+#include <net/ldpaa_eth.h>
 #include "ldpaa_eth.h"
 
 #ifdef CONFIG_PHYLIB
@@ -995,7 +996,7 @@ static int ldpaa_eth_probe(struct udevice *dev)
 	return 0;
 }
 
-static uint32_t ldpaa_eth_get_dpmac_id(struct udevice *dev)
+uint32_t ldpaa_eth_get_dpmac_id(struct udevice *dev)
 {
 	int port_node = dev_of_offset(dev);
 
@@ -1049,7 +1050,7 @@ static const struct udevice_id ldpaa_eth_of_ids[] = {
 };
 
 U_BOOT_DRIVER(ldpaa_eth) = {
-	.name = "ldpaa_eth",
+	.name = LDPAA_ETH_DRIVER_NAME,
 	.id = UCLASS_ETH,
 	.of_match = ldpaa_eth_of_ids,
 	.of_to_plat = ldpaa_eth_of_to_plat,
