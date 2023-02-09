@@ -94,7 +94,7 @@ static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
 	return 0;
 }
 
-static inline s64 mmc_offset(int copy)
+static inline s64 mmc_offset(struct mmc *mmc, int copy)
 {
 	const struct {
 		const char *offset_redund;
@@ -108,7 +108,11 @@ static inline s64 mmc_offset(int copy)
 	s64 val = 0, defvalue;
 	const char *propname;
 	const char *str;
+	int hwpart = 0;
 	int err;
+
+	if (IS_ENABLED(CONFIG_SYS_MMC_ENV_PART))
+		hwpart = mmc_get_env_part(mmc);
 
 	/* look for the partition in mmc CONFIG_SYS_MMC_ENV_DEV */
 	str = ofnode_conf_read_str(dt_prop.partition);
@@ -121,7 +125,7 @@ static inline s64 mmc_offset(int copy)
 	}
 
 	/* try the GPT partition with "U-Boot ENV" TYPE GUID */
-	if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID)) {
+	if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID) && hwpart == 0) {
 		err = mmc_offset_try_partition(NULL, copy, &val);
 		if (!err)
 			return val;
@@ -138,7 +142,7 @@ static inline s64 mmc_offset(int copy)
 	return ofnode_conf_read_int(propname, defvalue);
 }
 #else
-static inline s64 mmc_offset(int copy)
+static inline s64 mmc_offset(struct mmc *mmc, int copy)
 {
 	s64 offset = ENV_MMC_OFFSET;
 
@@ -151,7 +155,7 @@ static inline s64 mmc_offset(int copy)
 
 __weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
 {
-	s64 offset = mmc_offset(copy);
+	s64 offset = mmc_offset(mmc, copy);
 
 	if (offset == ENV_MMC_INVALID_OFFSET) {
 		printf("Invalid ENV offset in MMC, copy=%d\n", copy);
