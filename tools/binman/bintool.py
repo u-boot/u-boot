@@ -43,7 +43,7 @@ FETCH_NAMES = {
 # Status of tool fetching
 FETCHED, FAIL, PRESENT, STATUS_COUNT = range(4)
 
-DOWNLOAD_DESTDIR = os.path.join(os.getenv('HOME'), 'bin')
+DOWNLOAD_DESTDIR = os.path.expanduser('~/bin')
 
 class Bintool:
     """Tool which operates on binaries to help produce entry contents
