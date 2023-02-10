@@ -580,6 +580,18 @@ config SYS_I2C_OCTEON
 	  chips have several I2C ports and all are provided, controlled by
 	  the device tree.
 
+config SYS_I2C_QUP
+	bool "Qualcomm QUP I2C controller"
+	depends on ARCH_SNAPDRAGON
+	help
+	  Support for Qualcomm QUP I2C controller based on Qualcomm Universal
+	  Peripherals (QUP) engine. The QUP engine is an advanced high
+	  performance slave port that provides a common data path (an output
+	  FIFO and an input FIFO) for I2C and SPI interfaces. The I2C/SPI QUP
+	  controller is publicly documented in the Snapdragon 410E (APQ8016E)
+	  Technical Reference Manual, chapter "6.1 Qualcomm Universal
+	  Peripherals Engine (QUP)".
+
 config SYS_I2C_S3C24X0
 	bool "Samsung I2C driver"
 	depends on (ARCH_EXYNOS4 || ARCH_EXYNOS5) && DM_I2C

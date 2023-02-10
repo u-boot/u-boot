@@ -18,6 +18,9 @@
 /* GPLL0 clock control registers */
 #define GPLL0_STATUS_ACTIVE BIT(31)
 
+#define CFG_CLK_SRC_GPLL1	BIT(8)
+#define GPLL1_STATUS_ACTIVE	BIT(31)
+
 static struct vote_clk gcc_blsp1_ahb_clk = {
 	.cbcr_reg = BLSP1_AHB_CBCR,
 	.ena_vote = APCS_CLOCK_BRANCH_ENA_VOTE,
@@ -47,12 +50,35 @@ static struct pll_vote_clk gpll0_vote_clk = {
 	.vote_bit = BIT(0),
 };
 
+static struct pll_vote_clk gpll1_vote_clk = {
+	.status = GPLL1_STATUS,
+	.status_bit = GPLL1_STATUS_ACTIVE,
+	.ena_vote = APCS_GPLL_ENA_VOTE,
+	.vote_bit = BIT(1),
+};
+
 static const struct bcr_regs usb30_master_regs = {
 	.cfg_rcgr = USB30_MASTER_CFG_RCGR,
 	.cmd_rcgr = USB30_MASTER_CMD_RCGR,
 	.M = USB30_MASTER_M,
 	.N = USB30_MASTER_N,
 	.D = USB30_MASTER_D,
+};
+
+static const struct bcr_regs emac_regs = {
+	.cfg_rcgr = EMAC_CFG_RCGR,
+	.cmd_rcgr = EMAC_CMD_RCGR,
+	.M = EMAC_M,
+	.N = EMAC_N,
+	.D = EMAC_D,
+};
+
+static const struct bcr_regs emac_ptp_regs = {
+	.cfg_rcgr = EMAC_PTP_CFG_RCGR,
+	.cmd_rcgr = EMAC_PTP_CMD_RCGR,
+	.M = EMAC_M,
+	.N = EMAC_N,
+	.D = EMAC_D,
 };
 
 ulong msm_set_rate(struct clk *clk, ulong rate)
@@ -78,6 +104,20 @@ ulong msm_set_rate(struct clk *clk, ulong rate)
 		break;
 	case GCC_SDCC1_AHB_CLK:
 		clk_enable_cbc(priv->base + SDCC_AHB_CBCR(1));
+		break;
+	case GCC_ETH_RGMII_CLK:
+		if (rate == 250000000)
+			clk_rcg_set_rate_mnd(priv->base, &emac_regs, 2, 0, 0,
+					     CFG_CLK_SRC_GPLL1);
+		else if (rate == 125000000)
+			clk_rcg_set_rate_mnd(priv->base, &emac_regs, 4, 0, 0,
+					     CFG_CLK_SRC_GPLL1);
+		else if (rate == 50000000)
+			clk_rcg_set_rate_mnd(priv->base, &emac_regs, 10, 0, 0,
+					     CFG_CLK_SRC_GPLL1);
+		else if (rate == 5000000)
+			clk_rcg_set_rate_mnd(priv->base, &emac_regs, 2, 1, 50,
+					     CFG_CLK_SRC_GPLL1);
 		break;
 	default:
 		return 0;
@@ -110,6 +150,26 @@ int msm_enable(struct clk *clk)
 		break;
 	case GCC_USB2A_PHY_SLEEP_CLK:
 		clk_enable_cbc(priv->base + USB_HS_PHY_CFG_AHB_CBCR);
+		break;
+	case GCC_ETH_PTP_CLK:
+		/* SPEED_1000: freq -> 250MHz */
+		clk_enable_cbc(priv->base + ETH_PTP_CBCR);
+		clk_enable_gpll0(priv->base, &gpll1_vote_clk);
+		clk_rcg_set_rate_mnd(priv->base, &emac_ptp_regs, 2, 0, 0,
+				     CFG_CLK_SRC_GPLL1);
+		break;
+	case GCC_ETH_RGMII_CLK:
+		/* SPEED_1000: freq -> 250MHz */
+		clk_enable_cbc(priv->base + ETH_RGMII_CBCR);
+		clk_enable_gpll0(priv->base, &gpll1_vote_clk);
+		clk_rcg_set_rate_mnd(priv->base, &emac_regs, 2, 0, 0,
+				     CFG_CLK_SRC_GPLL1);
+		break;
+	case GCC_ETH_SLAVE_AHB_CLK:
+		clk_enable_cbc(priv->base + ETH_SLAVE_AHB_CBCR);
+		break;
+	case GCC_ETH_AXI_CLK:
+		clk_enable_cbc(priv->base + ETH_AXI_CBCR);
 		break;
 	default:
 		return 0;

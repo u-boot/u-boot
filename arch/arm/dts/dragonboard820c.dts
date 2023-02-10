@@ -8,7 +8,6 @@
 /dts-v1/;
 
 #include "skeleton64.dtsi"
-#include <dt-bindings/pinctrl/pinctrl-snapdragon.h>
 
 / {
 	model = "Qualcomm Technologies, Inc. DB820c";
@@ -71,7 +70,7 @@
 			blsp8_uart: uart {
 				function = "blsp_uart8";
 				pins = "GPIO_4", "GPIO_5";
-				drive-strength = <DRIVE_STRENGTH_8MA>;
+				drive-strength = <8>;
 				bias-disable;
 			};
 		};

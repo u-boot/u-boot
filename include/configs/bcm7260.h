@@ -10,8 +10,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CFG_SYS_NS16550_COM1	0xf040c000
-
 #define CFG_SYS_INIT_RAM_ADDR	0x10200000
 
 #include "bcmstb.h"

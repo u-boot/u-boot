@@ -253,6 +253,7 @@ struct eqos_priv {
 	struct eqos_mtl_regs *mtl_regs;
 	struct eqos_dma_regs *dma_regs;
 	struct eqos_tegra186_regs *tegra186_regs;
+	void *eqos_qcom_rgmii_regs;
 	struct reset_ctl reset_ctl;
 	struct gpio_desc phy_reset_gpio;
 	struct clk clk_master_bus;
@@ -276,6 +277,8 @@ struct eqos_priv {
 	bool started;
 	bool reg_access_ok;
 	bool clk_ck_enabled;
+	unsigned int tx_fifo_sz, rx_fifo_sz;
+	u32 reset_delays[3];
 };
 
 void eqos_inval_desc_generic(void *desc);
@@ -285,3 +288,4 @@ void eqos_flush_buffer_generic(void *buf, size_t size);
 int eqos_null_ops(struct udevice *dev);
 
 extern struct eqos_config eqos_imx_config;
+extern struct eqos_config eqos_qcom_config;

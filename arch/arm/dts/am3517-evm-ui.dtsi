@@ -72,7 +72,7 @@
 
 		record {
 			label = "Record";
-			/* linux,code = <BTN_0>; */
+			linux,code = <KEY_RECORD>;
 			gpios = <&tca6416_2 15 GPIO_ACTIVE_LOW>;
 		};
 

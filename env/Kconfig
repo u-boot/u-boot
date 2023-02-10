@@ -733,6 +733,7 @@ config ENV_APPEND
 
 config ENV_WRITEABLE_LIST
 	bool "Permit write access only to listed variables"
+	select ENV_APPEND
 	help
 	  If defined, only environment variables which explicitly set the 'w'
 	  writeable flag can be written and modified at runtime. No variables

@@ -22,7 +22,7 @@
 #include <env_internal.h>
 #endif
 
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 #define ENV_FLAGS_NET_VARTYPE_REPS "im"
 #else
 #define ENV_FLAGS_NET_VARTYPE_REPS ""
@@ -57,7 +57,7 @@ static const char * const env_flags_vartype_names[] = {
 	"decimal",
 	"hexadecimal",
 	"boolean",
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 	"IP address",
 	"MAC address",
 #endif
@@ -211,7 +211,7 @@ static void skip_num(int hex, const char *value, const char **end,
 		*end = value;
 }
 
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 int eth_validate_ethaddr_str(const char *addr)
 {
 	const char *end;
@@ -244,7 +244,7 @@ static int _env_flags_validate_type(const char *value,
 	enum env_flags_vartype type)
 {
 	const char *end;
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 	const char *cur;
 	int i;
 #endif
@@ -273,7 +273,7 @@ static int _env_flags_validate_type(const char *value,
 		if (value[1] != '\0')
 			return -1;
 		break;
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 	case env_flags_vartype_ipaddr:
 		cur = value;
 		for (i = 0; i < 4; i++) {

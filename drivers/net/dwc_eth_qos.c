@@ -774,10 +774,13 @@ static int eqos_start(struct udevice *dev)
 		pr_err("eqos_calibrate_pads() failed: %d", ret);
 		goto err_stop_resets;
 	}
-	rate = eqos->config->ops->eqos_get_tick_clk_rate(dev);
 
-	val = (rate / 1000000) - 1;
-	writel(val, &eqos->mac_regs->us_tic_counter);
+	if (eqos->config->ops->eqos_get_tick_clk_rate) {
+		rate = eqos->config->ops->eqos_get_tick_clk_rate(dev);
+
+		val = (rate / 1000000) - 1;
+		writel(val, &eqos->mac_regs->us_tic_counter);
+	}
 
 	/*
 	 * if PHY was already connected and configured,
@@ -849,12 +852,19 @@ static int eqos_start(struct udevice *dev)
 	rx_fifo_sz = (val >> EQOS_MAC_HW_FEATURE1_RXFIFOSIZE_SHIFT) &
 		EQOS_MAC_HW_FEATURE1_RXFIFOSIZE_MASK;
 
-	/*
-	 * r/tx_fifo_sz is encoded as log2(n / 128). Undo that by shifting.
-	 * r/tqs is encoded as (n / 256) - 1.
-	 */
-	tqs = (128 << tx_fifo_sz) / 256 - 1;
-	rqs = (128 << rx_fifo_sz) / 256 - 1;
+	/* r/tx_fifo_sz is encoded as log2(n / 128). Undo that by shifting */
+	tx_fifo_sz = 128 << tx_fifo_sz;
+	rx_fifo_sz = 128 << rx_fifo_sz;
+
+	/* Allow platform to override TX/RX fifo size */
+	if (eqos->tx_fifo_sz)
+		tx_fifo_sz = eqos->tx_fifo_sz;
+	if (eqos->rx_fifo_sz)
+		rx_fifo_sz = eqos->rx_fifo_sz;
+
+	/* r/tqs is encoded as (n / 256) - 1 */
+	tqs = tx_fifo_sz / 256 - 1;
+	rqs = rx_fifo_sz / 256 - 1;
 
 	clrsetbits_le32(&eqos->mtl_regs->txq0_operation_mode,
 			EQOS_MTL_TXQ0_OPERATION_MODE_TQS_MASK <<
@@ -1699,6 +1709,13 @@ static const struct udevice_id eqos_ids[] = {
 	{
 		.compatible = "nxp,imx8mp-dwmac-eqos",
 		.data = (ulong)&eqos_imx_config
+	},
+#endif
+
+#if IS_ENABLED(CONFIG_DWC_ETH_QOS_QCOM)
+	{
+		.compatible = "qcom,qcs404-ethqos",
+		.data = (ulong)&eqos_qcom_config
 	},
 #endif
 

@@ -12,7 +12,7 @@ enum env_flags_vartype {
 	env_flags_vartype_decimal,
 	env_flags_vartype_hex,
 	env_flags_vartype_bool,
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 	env_flags_vartype_ipaddr,
 	env_flags_vartype_macaddr,
 #endif
@@ -121,7 +121,7 @@ enum env_flags_varaccess env_flags_parse_varaccess(const char *flags);
  */
 enum env_flags_varaccess env_flags_parse_varaccess_from_binflags(int binflags);
 
-#ifdef CONFIG_CMD_NET
+#ifdef CONFIG_NET
 /*
  * Check if a string has the format of an Ethernet MAC address
  */

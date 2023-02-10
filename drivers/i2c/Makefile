@@ -37,6 +37,7 @@ obj-$(CONFIG_SYS_I2C_NPCM) += npcm_i2c.o
 obj-$(CONFIG_SYS_I2C_OCORES) += ocores_i2c.o
 obj-$(CONFIG_SYS_I2C_OCTEON) += octeon_i2c.o
 obj-$(CONFIG_SYS_I2C_OMAP24XX) += omap24xx_i2c.o
+obj-$(CONFIG_SYS_I2C_QUP) += qup_i2c.o
 obj-$(CONFIG_SYS_I2C_RCAR_I2C) += rcar_i2c.o
 obj-$(CONFIG_SYS_I2C_RCAR_IIC) += rcar_iic.o
 obj-$(CONFIG_SYS_I2C_ROCKCHIP) += rk_i2c.o

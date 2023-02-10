@@ -1046,7 +1046,7 @@ static int dm_test_ofnode_for_each_prop(struct unit_test_state *uts)
 	struct ofprop prop;
 	int count;
 
-	node = ofnode_path("/buttons");
+	node = ofnode_path("/ofnode-foreach");
 	count = 0;
 
 	/* we expect "compatible" for each node */

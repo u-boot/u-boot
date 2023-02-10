@@ -172,11 +172,13 @@
 		btn1 {
 			gpios = <&gpio_a 3 0>;
 			label = "button1";
+			linux,code = <BTN_1>;
 		};
 
 		btn2 {
 			gpios = <&gpio_a 4 0>;
 			label = "button2";
+			linux,code = <BTN_2>;
 		};
 	};
 
@@ -1534,6 +1536,20 @@
 				compatible = "denx,u-boot-fdt-dummy";
 				reg = <0x42>;
 			};
+		};
+	};
+
+	ofnode-foreach {
+		compatible = "foreach";
+
+		first {
+			prop1 = <1>;
+			prop2 = <2>;
+		};
+
+		second {
+			prop1 = <1>;
+			prop2 = <2>;
 		};
 	};
 

@@ -37,6 +37,14 @@ struct button_ops {
 	 * @return button state button_state_t, or -ve on error
 	 */
 	enum button_state_t (*get_state)(struct udevice *dev);
+
+	/**
+	 * get_code() - get linux event code of a button
+	 *
+	 * @dev:	button device to change
+	 * @return button code, or -ENODATA on error
+	 */
+	int (*get_code)(struct udevice *dev);
 };
 
 #define button_get_ops(dev)	((struct button_ops *)(dev)->driver->ops)
@@ -57,5 +65,13 @@ int button_get_by_label(const char *label, struct udevice **devp);
  * Return: button state button_state_t, or -ve on error
  */
 enum button_state_t button_get_state(struct udevice *dev);
+
+/**
+ * button_get_code() - get linux event code of a button
+ *
+ * @dev:	button device to change
+ * @return button code, or -ve on error
+ */
+int button_get_code(struct udevice *dev);
 
 #endif

@@ -31,6 +31,12 @@ ${CROSS_COMPILE}strip u-boot
 Run
 ===
 
+To tell U-Boot which serial port to use for its console, set the
+"stdout-path" property in the "/chosen" node of the BOLT-generated
+device tree.  For example:
+
+BOLT> dt add prop chosen stdout-path s serial0:115200n8
+
 Flash the u-boot binary into board storage, then invoke it from BOLT.
 For example:
 
