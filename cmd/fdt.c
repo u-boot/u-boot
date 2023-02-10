@@ -231,11 +231,11 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		/*
 		 * Set the address and length of the fdt.
 		 */
-		working_fdt = (struct fdt_header *)hextoul(argv[2], NULL);
+		working_fdt = map_sysmem(hextoul(argv[2], NULL), 0);
 		if (!fdt_valid(&working_fdt))
 			return 1;
 
-		newaddr = (struct fdt_header *)hextoul(argv[3], NULL);
+		newaddr = map_sysmem(hextoul(argv[3], NULL), 0);
 
 		/*
 		 * If the user specifies a length, use that.  Otherwise use the
@@ -262,7 +262,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 				fdt_strerror(err));
 			return 1;
 		}
-		set_working_fdt_addr((ulong)newaddr);
+		set_working_fdt_addr(map_to_sysmem(newaddr));
 #ifdef CONFIG_OF_SYSTEM_SETUP
 	/* Call the board-specific fixup routine */
 	} else if (strncmp(argv[1], "sys", 3) == 0) {
