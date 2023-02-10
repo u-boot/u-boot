@@ -11,6 +11,7 @@
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <log.h>
+#include <asm-generic/unaligned.h>
 
 #define OBJ_LIST_NOT_INITIALIZED 1
 
