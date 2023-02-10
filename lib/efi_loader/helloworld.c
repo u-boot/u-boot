@@ -125,7 +125,7 @@ static void print_config_tables(void)
  * @systable:	system table
  * @con_out:	simple text output protocol
  */
-void print_load_options(struct efi_loaded_image *loaded_image)
+static void print_load_options(struct efi_loaded_image *loaded_image)
 {
 	/* Output the load options */
 	con_out->output_string(con_out, u"Load options: ");
@@ -143,6 +143,7 @@ void print_load_options(struct efi_loaded_image *loaded_image)
  * @device_path:	device path to print
  * @dp2txt:		device path to text protocol
  */
+static
 efi_status_t print_device_path(struct efi_device_path *device_path,
 			       struct efi_device_path_to_text_protocol *dp2txt)
 {
