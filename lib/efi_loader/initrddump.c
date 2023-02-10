@@ -439,7 +439,7 @@ out:
  *
  * Return:	load options or NULL
  */
-u16 *get_load_options(void)
+static u16 *get_load_options(void)
 {
 	efi_status_t ret;
 	struct efi_loaded_image *loaded_image;
