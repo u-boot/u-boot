@@ -349,6 +349,29 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
 					 u64 *remaining_variable_storage_size,
 					 u64 *maximum_variable_size)
 {
+	if (attributes == 0)
+		return EFI_INVALID_PARAMETER;
+
+	/* EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS is deprecated */
+	if ((attributes & EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS) ||
+	    ((attributes & EFI_VARIABLE_MASK) == 0))
+		return EFI_UNSUPPORTED;
+
+	if ((attributes & EFI_VARIABLE_MASK) == EFI_VARIABLE_NON_VOLATILE)
+		return EFI_INVALID_PARAMETER;
+
+	/* Make sure if runtime bit is set, boot service bit is set also. */
+	if ((attributes &
+	     (EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_BOOTSERVICE_ACCESS)) ==
+	    EFI_VARIABLE_RUNTIME_ACCESS)
+		return EFI_INVALID_PARAMETER;
+
+	if (attributes & EFI_VARIABLE_HARDWARE_ERROR_RECORD)
+		return EFI_UNSUPPORTED;
+
+	if (attributes & ~(u32)EFI_VARIABLE_MASK)
+		return EFI_INVALID_PARAMETER;
+
 	*maximum_variable_storage_size = EFI_VAR_BUF_SIZE -
 					 sizeof(struct efi_var_file);
 	*remaining_variable_storage_size = efi_var_mem_free();
@@ -372,7 +395,7 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
  *					selected type
  * Returns:				status code
  */
-efi_status_t __efi_runtime EFIAPI efi_query_variable_info_runtime(
+static efi_status_t __efi_runtime EFIAPI efi_query_variable_info_runtime(
 			u32 attributes,
 			u64 *maximum_variable_storage_size,
 			u64 *remaining_variable_storage_size,

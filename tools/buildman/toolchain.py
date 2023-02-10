@@ -265,7 +265,7 @@ class Toolchains:
             print(("Warning: No tool chains. Please run 'buildman "
                    "--fetch-arch all' to download all available toolchains, or "
                    "add a [toolchain] section to your buildman config file "
-                   "%s. See README for details" %
+                   "%s. See buildman.rst for details" %
                    bsettings.config_fname))
 
         paths = []

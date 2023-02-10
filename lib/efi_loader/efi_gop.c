@@ -400,11 +400,12 @@ out:
  * @delta:	length in bytes of a line in the pixel buffer (optional)
  * Return:	status code
  */
-efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
-			    u32 operation, efi_uintn_t sx,
-			    efi_uintn_t sy, efi_uintn_t dx,
-			    efi_uintn_t dy, efi_uintn_t width,
-			    efi_uintn_t height, efi_uintn_t delta)
+static efi_status_t EFIAPI gop_blt(struct efi_gop *this,
+				   struct efi_gop_pixel *buffer,
+				   u32 operation, efi_uintn_t sx,
+				   efi_uintn_t sy, efi_uintn_t dx,
+				   efi_uintn_t dy, efi_uintn_t width,
+				   efi_uintn_t height, efi_uintn_t delta)
 {
 	efi_status_t ret = EFI_INVALID_PARAMETER;
 	efi_uintn_t vid_bpp;

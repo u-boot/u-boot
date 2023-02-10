@@ -2000,7 +2000,9 @@ config CMD_EFIDEBUG
 
 config CMD_EFICONFIG
 	bool "eficonfig - provide menu-driven uefi variables maintenance interface"
+	default y if !HAS_BOARD_SIZE_LIMIT
 	depends on CMD_BOOTEFI_BOOTMGR
+	select MENU
 	help
 	  Enable the 'eficonfig' command which provides the menu-driven UEFI
 	  variable maintenance interface.

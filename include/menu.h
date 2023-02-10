@@ -53,6 +53,7 @@ enum bootmenu_key {
 	BKEY_PLUS,
 	BKEY_MINUS,
 	BKEY_SPACE,
+	BKEY_SAVE,
 
 	BKEY_COUNT,
 };

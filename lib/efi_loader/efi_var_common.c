@@ -165,16 +165,8 @@ efi_status_t EFIAPI efi_query_variable_info(
 
 	if (!maximum_variable_storage_size ||
 	    !remaining_variable_storage_size ||
-	    !maximum_variable_size ||
-	    !(attributes & EFI_VARIABLE_BOOTSERVICE_ACCESS))
+	    !maximum_variable_size)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
-
-	if ((attributes & ~(u32)EFI_VARIABLE_MASK) ||
-	    (attributes & EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS) ||
-	    (attributes & EFI_VARIABLE_HARDWARE_ERROR_RECORD) ||
-	    (!IS_ENABLED(CONFIG_EFI_SECURE_BOOT) &&
-	     (attributes & EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)))
-		return EFI_EXIT(EFI_UNSUPPORTED);
 
 	ret = efi_query_variable_info_int(attributes,
 					  maximum_variable_storage_size,

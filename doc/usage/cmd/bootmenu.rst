@@ -122,7 +122,7 @@ Example bootmenu is as below::
 Default behavior when user exits from the bootmenu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 User can exit from bootmenu by selecting the last entry
-"U-Boot console"/"Quit" or ESC/CTRL+C key.
+"U-Boot console"/"Quit" or ESC key.
 
 When the CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE is disabled,
 user exits from the bootmenu and returns to the U-Boot console.

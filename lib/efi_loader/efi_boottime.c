@@ -264,7 +264,7 @@ static void efi_queue_event(struct efi_event *event)
  * @tpl:		TPL level to check
  * Return:		status code
  */
-efi_status_t is_valid_tpl(efi_uintn_t tpl)
+static efi_status_t is_valid_tpl(efi_uintn_t tpl)
 {
 	switch (tpl) {
 	case TPL_APPLICATION:
@@ -592,7 +592,7 @@ efi_status_t efi_remove_protocol(const efi_handle_t handle,
  *
  * Return: status code
  */
-efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
+static efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
 {
 	struct efi_object *efiobj;
 	struct efi_handler *protocol;
@@ -728,6 +728,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 
 /*
  * efi_create_event_ex() - create an event in a group
+ *
  * @type:            type of the event to create
  * @notify_tpl:      task priority level of the event
  * @notify_function: notification function of the event
@@ -742,6 +743,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
  *
  * Return: status code
  */
+static
 efi_status_t EFIAPI efi_create_event_ex(uint32_t type, efi_uintn_t notify_tpl,
 					void (EFIAPI *notify_function) (
 							struct efi_event *event,

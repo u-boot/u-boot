@@ -54,9 +54,18 @@
 
 struct efi_device_path;
 
+/*
+ * The EFI spec defines the EFI_GUID as
+ * "128-bit buffer containing a unique identifier value. Unless otherwise specified,
+ * aligned on a 64-bit boundary".
+ * Page 163 of the UEFI specification v2.10 and
+ * EDK2 reference implementation both define EFI_GUID as
+ * struct { u32 a; u16; b; u16 c; u8 d[8]; }; which is 4-byte
+ * aligned.
+ */
 typedef struct {
 	u8 b[16];
-} efi_guid_t __attribute__((aligned(8)));
+} efi_guid_t __attribute__((aligned(4)));
 
 #define EFI_BITS_PER_LONG	(sizeof(long) * 8)
 
