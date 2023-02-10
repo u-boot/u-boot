@@ -326,8 +326,8 @@ static struct hash_algo hash_algo[] = {
 };
 
 /* Try to minimize code size for boards that don't want much hashing */
-#if CONFIG_IS_ENABLED(SHA256) || CONFIG_IS_ENABLED(CMD_SHA1SUM) || \
-	CONFIG_IS_ENABLED(CRC32_VERIFY) || CONFIG_IS_ENABLED(CMD_HASH) || \
+#if CONFIG_IS_ENABLED(SHA256) || IS_ENABLED(CONFIG_CMD_SHA1SUM) || \
+	CONFIG_IS_ENABLED(CRC32_VERIFY) || IS_ENABLED(CONFIG_CMD_HASH) || \
 	CONFIG_IS_ENABLED(SHA384) || CONFIG_IS_ENABLED(SHA512)
 #define multi_hash()	1
 #else

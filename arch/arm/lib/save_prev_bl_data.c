@@ -60,9 +60,9 @@ int save_prev_bl_data(void)
 		return -ENODATA;
 	}
 
-	if (CONFIG_IS_ENABLED(SAVE_PREV_BL_FDT_ADDR))
+	if (IS_ENABLED(CONFIG_SAVE_PREV_BL_FDT_ADDR))
 		env_set_addr("prevbl_fdt_addr", (void *)reg0);
-	if (!CONFIG_IS_ENABLED(SAVE_PREV_BL_INITRAMFS_START_ADDR))
+	if (!IS_ENABLED(CONFIG_SAVE_PREV_BL_INITRAMFS_START_ADDR))
 		return 0;
 
 	node = fdt_path_offset(fdt_blob, "/chosen");

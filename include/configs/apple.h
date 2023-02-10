@@ -9,13 +9,13 @@
 	"stdout=serial,vidconsole\0" \
 	"stderr=serial,vidconsole\0"
 
-#if CONFIG_IS_ENABLED(CMD_NVME)
+#if IS_ENABLED(CONFIG_CMD_NVME)
 	#define BOOT_TARGET_NVME(func) func(NVME, nvme, 0)
 #else
 	#define BOOT_TARGET_NVME(func)
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_USB)
+#if IS_ENABLED(CONFIG_CMD_USB)
 	#define BOOT_TARGET_USB(func) func(USB, usb, 0)
 #else
 	#define BOOT_TARGET_USB(func)

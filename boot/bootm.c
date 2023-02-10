@@ -100,7 +100,7 @@ static int bootm_pre_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	ulong data_addr = bootm_data_addr(argc, argv);
 	int ret = 0;
 
-	if (CONFIG_IS_ENABLED(CMD_BOOTM_PRE_LOAD))
+	if (IS_ENABLED(CONFIG_CMD_BOOTM_PRE_LOAD))
 		ret = image_pre_load(data_addr);
 
 	if (ret)
@@ -226,7 +226,7 @@ static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	if (images.os.type == IH_TYPE_KERNEL_NOLOAD) {
-		if (CONFIG_IS_ENABLED(CMD_BOOTI) &&
+		if (IS_ENABLED(CONFIG_CMD_BOOTI) &&
 		    images.os.arch == IH_ARCH_ARM64) {
 			ulong image_addr;
 			ulong image_size;
@@ -313,7 +313,7 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 		return 1;
 	}
 
-	if (CONFIG_IS_ENABLED(CMD_FDT))
+	if (IS_ENABLED(CONFIG_CMD_FDT))
 		set_working_fdt_addr(map_to_sysmem(images.ft_addr));
 #endif
 
@@ -893,7 +893,7 @@ static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
 					      &fit_uname_config,
 					      &fit_uname_kernel);
 
-	if (CONFIG_IS_ENABLED(CMD_BOOTM_PRE_LOAD))
+	if (IS_ENABLED(CONFIG_CMD_BOOTM_PRE_LOAD))
 		img_addr += image_load_offset;
 
 	bootstage_mark(BOOTSTAGE_ID_CHECK_MAGIC);

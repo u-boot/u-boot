@@ -196,14 +196,14 @@ u32 video_index_to_colour(struct video_priv *priv, unsigned int idx)
 {
 	switch (priv->bpix) {
 	case VIDEO_BPP16:
-		if (CONFIG_IS_ENABLED(VIDEO_BPP16)) {
+		if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
 			return ((colours[idx].r >> 3) << 11) |
 			       ((colours[idx].g >> 2) <<  5) |
 			       ((colours[idx].b >> 3) <<  0);
 		}
 		break;
 	case VIDEO_BPP32:
-		if (CONFIG_IS_ENABLED(VIDEO_BPP32)) {
+		if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
 			if (priv->format == VIDEO_X2R10G10B10)
 				return (colours[idx].r << 22) |
 				       (colours[idx].g << 12) |

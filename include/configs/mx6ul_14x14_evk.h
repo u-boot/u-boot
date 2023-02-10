@@ -13,7 +13,7 @@
 #include "mx6_common.h"
 #include <asm/mach-imx/gpio.h>
 
-#define is_mx6ul_9x9_evk()	CONFIG_IS_ENABLED(TARGET_MX6UL_9X9_EVK)
+#define is_mx6ul_9x9_evk()	IS_ENABLED(CONFIG_TARGET_MX6UL_9X9_EVK)
 
 #define CFG_MXC_UART_BASE		UART1_BASE
 

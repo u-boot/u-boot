@@ -153,7 +153,7 @@ U_BOOT_DRIVER(pinctrl_bcm283x) = {
 	.priv_auto	= sizeof(struct bcm283x_pinctrl_priv),
 	.ops		= &bcm283x_pinctrl_ops,
 	.probe		= bcm283x_pinctl_probe,
-#if CONFIG_IS_ENABLED(OF_BOARD)
+#if IS_ENABLED(CONFIG_OF_BOARD)
 	.flags		= DM_FLAG_PRE_RELOC,
 #endif
 };

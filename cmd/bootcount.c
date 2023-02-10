@@ -46,7 +46,7 @@ static int do_bootcount(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_USAGE;
 }
 
-#if CONFIG_IS_ENABLED(SYS_LONGHELP)
+#if IS_ENABLED(CONFIG_SYS_LONGHELP)
 static char bootcount_help_text[] =
 	"print - print current bootcounter\n"
 	"reset - reset the bootcounter"
@@ -55,7 +55,7 @@ static char bootcount_help_text[] =
 
 U_BOOT_CMD(bootcount, 2, 1, do_bootcount,
 	   "bootcount",
-#if CONFIG_IS_ENABLED(SYS_LONGHELP)
+#if IS_ENABLED(CONFIG_SYS_LONGHELP)
 	   bootcount_help_text
 #endif
 );

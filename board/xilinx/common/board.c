@@ -33,7 +33,7 @@
 
 #include "fru.h"
 
-#if CONFIG_IS_ENABLED(EFI_HAVE_CAPSULE_SUPPORT)
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 struct efi_fw_image fw_images[] = {
 #if defined(XILINX_BOOT_IMAGE_GUID)
 	{
@@ -208,7 +208,7 @@ static int xilinx_read_eeprom_fru(struct udevice *dev, char *name,
 	}
 
 	fru_capture((unsigned long)fru_content);
-	if (gd->flags & GD_FLG_RELOC || (_DEBUG && CONFIG_IS_ENABLED(DTB_RESELECT))) {
+	if (gd->flags & GD_FLG_RELOC || (_DEBUG && IS_ENABLED(CONFIG_DTB_RESELECT))) {
 		printf("Xilinx I2C FRU format at %s:\n", name);
 		ret = fru_display(0);
 		if (ret) {
@@ -306,7 +306,7 @@ static int xilinx_read_eeprom_single(char *name,
 
 	debug("%s: i2c memory detected: %s\n", __func__, name);
 
-	if (CONFIG_IS_ENABLED(CMD_FRU) && xilinx_detect_fru(buffer))
+	if (IS_ENABLED(CONFIG_CMD_FRU) && xilinx_detect_fru(buffer))
 		return xilinx_read_eeprom_fru(dev, name, desc);
 
 	if (xilinx_detect_legacy(buffer))
@@ -412,14 +412,14 @@ int board_late_init_xilinx(void)
 	struct xilinx_board_description *desc;
 	phys_size_t bootm_size = gd->ram_top - gd->ram_base;
 
-	if (!CONFIG_IS_ENABLED(MICROBLAZE)) {
+	if (!IS_ENABLED(CONFIG_MICROBLAZE)) {
 		ulong scriptaddr;
 
 		scriptaddr = env_get_hex("scriptaddr", 0);
 		ret |= env_set_hex("scriptaddr", gd->ram_base + scriptaddr);
 	}
 
-	if (CONFIG_IS_ENABLED(ARCH_ZYNQ) || CONFIG_IS_ENABLED(MICROBLAZE))
+	if (IS_ENABLED(CONFIG_ARCH_ZYNQ) || IS_ENABLED(CONFIG_MICROBLAZE))
 		bootm_size = min(bootm_size, (phys_size_t)(SZ_512M + SZ_256M));
 
 	ret |= env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
@@ -481,7 +481,7 @@ int __maybe_unused board_fit_config_name_match(const char *name)
 	debug("%s: Check %s, default %s\n", __func__, name, board_name);
 
 #if !defined(CONFIG_SPL_BUILD)
-	if (CONFIG_IS_ENABLED(REGEX)) {
+	if (IS_ENABLED(CONFIG_REGEX)) {
 		struct slre slre;
 		int ret;
 
@@ -501,7 +501,7 @@ int __maybe_unused board_fit_config_name_match(const char *name)
 	return -1;
 }
 
-#if CONFIG_IS_ENABLED(DTB_RESELECT)
+#if IS_ENABLED(CONFIG_DTB_RESELECT)
 #define MAX_NAME_LENGTH	50
 
 char * __maybe_unused __weak board_name_decode(void)

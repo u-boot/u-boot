@@ -177,7 +177,7 @@ static int ti_do_pd(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv
 
 U_BOOT_CMD(pd, 4, 1, ti_do_pd,
 	   "TI power domain control",
-#if CONFIG_IS_ENABLED(SYS_LONGHELP)
+#if IS_ENABLED(CONFIG_SYS_LONGHELP)
 	   "dump                 - show power domain status\n"
 	   "enable [psc] [lpsc]  - enable power domain\n"
 	   "disable [psc] [lpsc] - disable power domain\n"

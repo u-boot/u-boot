@@ -26,7 +26,7 @@ struct microblaze_cpuinfo {
 	u32 dcache_size;
 	u32 dcache_line_length;
 
-#if CONFIG_IS_ENABLED(CPU_MICROBLAZE)
+#if IS_ENABLED(CONFIG_CPU_MICROBLAZE)
 	u32 use_mmu;
 	u32 cpu_freq;
 	u32 addr_size;

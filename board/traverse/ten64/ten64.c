@@ -97,7 +97,7 @@ int checkboard(void)
 		printf("Unknown boot source %d\n", src);
 
 	puts("Controller: ");
-	if (CONFIG_IS_ENABLED(TEN64_CONTROLLER)) {
+	if (IS_ENABLED(CONFIG_TEN64_CONTROLLER)) {
 		/* Driver not compatible with alpha/beta board MCU firmware */
 		if (board_rev <= TEN64_BOARD_REV_C) {
 			if (ten64_read_board_info(&boardinfo)) {
@@ -123,7 +123,7 @@ int board_init(void)
 {
 	init_final_memctl_regs();
 
-	if (CONFIG_IS_ENABLED(FSL_CAAM))
+	if (IS_ENABLED(CONFIG_FSL_CAAM))
 		sec_init();
 
 	return 0;
@@ -211,7 +211,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		base[i] = gd->bd->bi_dram[i].start;
 		size[i] = gd->bd->bi_dram[i].size;
 		/* reduce size if reserved memory is within this bank */
-		if (CONFIG_IS_ENABLED(RESV_RAM) && RESV_MEM_IN_BANK(i))
+		if (IS_ENABLED(CONFIG_RESV_RAM) && RESV_MEM_IN_BANK(i))
 			size[i] = gd->arch.resv_ram - base[i];
 	}
 
@@ -229,7 +229,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	fdt_fsl_mc_fixup_iommu_map_entry(blob);
 
-	if (CONFIG_IS_ENABLED(FSL_MC_ENET))
+	if (IS_ENABLED(CONFIG_FSL_MC_ENET))
 		fdt_fixup_board_enet(blob);
 
 	fdt_fixup_icid(blob);
@@ -375,7 +375,7 @@ static void ten64_board_retimer_ds110df410_init(void)
 	/* Retimer power cycle not implemented on early board
 	 * revisions/controller firmwares
 	 */
-	if (CONFIG_IS_ENABLED(TEN64_CONTROLLER) &&
+	if (IS_ENABLED(CONFIG_TEN64_CONTROLLER) &&
 	    board_rev >= TEN64_BOARD_REV_C) {
 		ret = board_cycle_retimer(&retim_dev);
 		if (ret) {

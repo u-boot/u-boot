@@ -744,7 +744,7 @@ void bus_i2c_init(int index, int speed, int unused,
 		return;
 	}
 
-	if (CONFIG_IS_ENABLED(IMX_MODULE_FUSE)) {
+	if (IS_ENABLED(CONFIG_IMX_MODULE_FUSE)) {
 		if (i2c_fused((ulong)mxc_i2c_buses[index].base)) {
 			printf("SoC fuse indicates I2C@0x%lx is unavailable.\n",
 			       (ulong)mxc_i2c_buses[index].base);
@@ -878,7 +878,7 @@ static int mxc_i2c_probe(struct udevice *bus)
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	if (CONFIG_IS_ENABLED(IMX_MODULE_FUSE)) {
+	if (IS_ENABLED(CONFIG_IMX_MODULE_FUSE)) {
 		if (i2c_fused((ulong)addr)) {
 			printf("SoC fuse indicates I2C@0x%lx is unavailable.\n",
 			       (ulong)addr);

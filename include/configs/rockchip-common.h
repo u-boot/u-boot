@@ -12,7 +12,7 @@
 #ifndef CONFIG_SPL_BUILD
 
 /* First try to boot from SD (index 1), then eMMC (index 0) */
-#if CONFIG_IS_ENABLED(CMD_MMC)
+#if IS_ENABLED(CONFIG_CMD_MMC)
 	#define BOOT_TARGET_MMC(func) \
 		func(MMC, mmc, 1) \
 		func(MMC, mmc, 0)
@@ -20,19 +20,19 @@
 	#define BOOT_TARGET_MMC(func)
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_NVME)
+#if IS_ENABLED(CONFIG_CMD_NVME)
 	#define BOOT_TARGET_NVME(func) func(NVME, nvme, 0)
 #else
 	#define BOOT_TARGET_NVME(func)
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_SCSI)
+#if IS_ENABLED(CONFIG_CMD_SCSI)
 	#define BOOT_TARGET_SCSI(func) func(SCSI, scsi, 0)
 #else
 	#define BOOT_TARGET_SCSI(func)
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_USB)
+#if IS_ENABLED(CONFIG_CMD_USB)
 	#define BOOT_TARGET_USB(func) func(USB, usb, 0)
 #else
 	#define BOOT_TARGET_USB(func)
@@ -50,7 +50,7 @@
 	#define BOOT_TARGET_DHCP(func)
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_SF)
+#if IS_ENABLED(CONFIG_CMD_SF)
 	#define BOOT_TARGET_SF(func)	func(SF, sf, 0)
 #else
 	#define BOOT_TARGET_SF(func)

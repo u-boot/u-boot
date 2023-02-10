@@ -82,7 +82,7 @@ int fdt_simplefb_enable_existing_node(void *blob)
 	return fdt_simplefb_configure_node(blob, off);
 }
 
-#if CONFIG_IS_ENABLED(VIDEO)
+#if IS_ENABLED(CONFIG_VIDEO)
 int fdt_simplefb_enable_and_mem_rsv(void *blob)
 {
 	struct fdt_memory mem;

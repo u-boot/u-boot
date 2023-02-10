@@ -74,7 +74,7 @@ struct fuse_entry_desc {
 	u32 status;
 };
 
-#if !CONFIG_IS_ENABLED(IMX_MODULE_FUSE)
+#if !IS_ENABLED(CONFIG_IMX_MODULE_FUSE)
 static inline u32 check_module_fused(enum fuse_module_type module)
 {
 	return 0;

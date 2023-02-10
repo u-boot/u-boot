@@ -271,7 +271,7 @@ static int atmel_pinctrl_bind(struct udevice *dev)
 	ofnode node = dev_ofnode(dev);
 	struct atmel_pinctrl_data *priv = (struct atmel_pinctrl_data *)dev_get_driver_data(dev);
 
-	if (!CONFIG_IS_ENABLED(ATMEL_PIO4))
+	if (!IS_ENABLED(CONFIG_ATMEL_PIO4))
 		return 0;
 
 	/* Obtain a handle to the GPIO driver */

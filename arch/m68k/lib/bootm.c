@@ -60,7 +60,7 @@ int do_bootm_linux(int flag, int argc, char *const argv[],
 	}
 	set_clocks_in_mhz(kbd);
 
-	if (CONFIG_IS_ENABLED(LMB)) {
+	if (IS_ENABLED(CONFIG_LMB)) {
 		ret = image_setup_linux(images);
 		if (ret)
 			goto error;

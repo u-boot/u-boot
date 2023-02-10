@@ -629,7 +629,7 @@ repeat:
 
 		case 's':
 /* U-Boot uses UTF-16 strings in the EFI context only. */
-#if (CONFIG_IS_ENABLED(EFI_LOADER) || CONFIG_IS_ENABLED(EFI_APP)) && \
+#if (CONFIG_IS_ENABLED(EFI_LOADER) || IS_ENABLED(CONFIG_EFI_APP)) && \
 	!defined(API_BUILD)
 			if (qualifier == 'l') {
 				str = string16(str, end, va_arg(args, u16 *),

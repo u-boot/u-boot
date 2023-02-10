@@ -588,7 +588,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
 	}
 #endif
 
-#if CONFIG_IS_ENABLED(FASTBOOT_MMC_USER_SUPPORT)
+#if IS_ENABLED(CONFIG_FASTBOOT_MMC_USER_SUPPORT)
 	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_USER_NAME) == 0) {
 		dev_desc = fastboot_mmc_get_dev(response);
 		if (!dev_desc)

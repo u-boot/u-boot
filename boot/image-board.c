@@ -927,7 +927,7 @@ int image_setup_linux(struct bootm_headers *images)
 	int ret;
 
 	/* This function cannot be called without lmb support */
-	if (!CONFIG_IS_ENABLED(LMB))
+	if (!IS_ENABLED(CONFIG_LMB))
 		return -EFAULT;
 	if (CONFIG_IS_ENABLED(OF_LIBFDT))
 		boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);

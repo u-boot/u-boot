@@ -62,7 +62,7 @@ static void clk_gate_endisable(struct clk *clk, int enable)
 		if (set)
 			reg |= BIT(gate->bit_idx);
 	} else {
-#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+#if IS_ENABLED(CONFIG_SANDBOX_CLK_CCF)
 		reg = gate->io_gate_val;
 #else
 		reg = readl(gate->reg);
@@ -96,7 +96,7 @@ int clk_gate_is_enabled(struct clk *clk)
 	struct clk_gate *gate = to_clk_gate(clk);
 	u32 reg;
 
-#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+#if IS_ENABLED(CONFIG_SANDBOX_CLK_CCF)
 	reg = gate->io_gate_val;
 #else
 	reg = readl(gate->reg);
@@ -142,7 +142,7 @@ struct clk *clk_register_gate(struct device *dev, const char *name,
 	gate->reg = reg;
 	gate->bit_idx = bit_idx;
 	gate->flags = clk_gate_flags;
-#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+#if IS_ENABLED(CONFIG_SANDBOX_CLK_CCF)
 	gate->io_gate_val = *(u32 *)reg;
 #endif
 

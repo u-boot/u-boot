@@ -60,7 +60,7 @@ int dram_init_banksize(void)
 	 *
 	 * However it seems FSP2's behavior is different. We need to add the
 	 * DRAM range in MTRR otherwise the boot process goes very slowly,
-	 * which was observed on Chrromebook Coral with FSP2.
+	 * which was observed on Chromebook Coral with FSP2.
 	 */
 	update_mtrr = CONFIG_IS_ENABLED(FSP_VERSION2);
 

@@ -39,7 +39,7 @@
 
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_MMC)
+#if IS_ENABLED(CONFIG_CMD_MMC)
 # define BOOT_TARGET_MMC(func) \
 	func(MMC, mmc, 2)      \
 	func(MMC, mmc, 1)

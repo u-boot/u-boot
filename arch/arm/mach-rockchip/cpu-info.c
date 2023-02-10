@@ -44,7 +44,7 @@ char *get_reset_cause(void)
 	return cause;
 }
 
-#if CONFIG_IS_ENABLED(DISPLAY_CPUINFO)
+#if IS_ENABLED(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
 	char *cause = get_reset_cause();

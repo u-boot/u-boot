@@ -308,7 +308,7 @@ enum k210_clk_flags {
  * @gate: An &enum k210_gate_id of this clock's gate
  */
 struct k210_clk_params {
-#if CONFIG_IS_ENABLED(CMD_CLK)
+#if IS_ENABLED(CONFIG_CMD_CLK)
 	const char *name;
 #endif
 	u8 flags;
@@ -326,7 +326,7 @@ struct k210_clk_params {
 };
 
 static const struct k210_clk_params k210_clks[] = {
-#if CONFIG_IS_ENABLED(CMD_CLK)
+#if IS_ENABLED(CONFIG_CMD_CLK)
 #define NAME(_name) .name = (_name),
 #else
 #define NAME(name)
@@ -1284,7 +1284,7 @@ U_BOOT_DRIVER(k210_clk) = {
 	.priv_auto = sizeof(struct k210_clk_priv),
 };
 
-#if CONFIG_IS_ENABLED(CMD_CLK)
+#if IS_ENABLED(CONFIG_CMD_CLK)
 static char show_enabled(struct k210_clk_priv *priv, int id)
 {
 	bool enabled;

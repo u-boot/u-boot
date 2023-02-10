@@ -96,7 +96,7 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	case BOOT_SERIAL_UART:
 	case BOOT_SERIAL_USB:
 		serial = true;
-		if (CONFIG_IS_ENABLED(CMD_STM32PROG)) {
+		if (IS_ENABLED(CONFIG_CMD_STM32PROG)) {
 #ifdef CONFIG_STM32MP15x_STM32IMAGE
 			tee = stm32prog_get_tee_partitions();
 #endif

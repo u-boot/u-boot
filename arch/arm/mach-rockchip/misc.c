@@ -23,7 +23,7 @@
 
 int rockchip_setup_macaddr(void)
 {
-#if CONFIG_IS_ENABLED(CMD_NET)
+#if IS_ENABLED(CONFIG_CMD_NET)
 	int ret;
 	const char *cpuid = env_get("cpuid#");
 	u8 hash[SHA256_SUM_LEN];
@@ -60,15 +60,15 @@ int rockchip_cpuid_from_efuse(const u32 cpuid_offset,
 			      const u32 cpuid_length,
 			      u8 *cpuid)
 {
-#if CONFIG_IS_ENABLED(ROCKCHIP_EFUSE) || CONFIG_IS_ENABLED(ROCKCHIP_OTP)
+#if IS_ENABLED(CONFIG_ROCKCHIP_EFUSE) || IS_ENABLED(CONFIG_ROCKCHIP_OTP)
 	struct udevice *dev;
 	int ret;
 
 	/* retrieve the device */
-#if CONFIG_IS_ENABLED(ROCKCHIP_EFUSE)
+#if IS_ENABLED(CONFIG_ROCKCHIP_EFUSE)
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
 					  DM_DRIVER_GET(rockchip_efuse), &dev);
-#elif CONFIG_IS_ENABLED(ROCKCHIP_OTP)
+#elif IS_ENABLED(CONFIG_ROCKCHIP_OTP)
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
 					  DM_DRIVER_GET(rockchip_otp), &dev);
 #endif

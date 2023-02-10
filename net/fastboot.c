@@ -307,7 +307,7 @@ void fastboot_start_server(void)
 
 	fastboot_our_port = CONFIG_UDP_FUNCTION_FASTBOOT_PORT;
 
-	if (CONFIG_IS_ENABLED(FASTBOOT_FLASH))
+	if (IS_ENABLED(CONFIG_FASTBOOT_FLASH))
 		fastboot_set_progress_callback(fastboot_timed_send_info);
 
 	net_set_udp_handler(fastboot_handler);

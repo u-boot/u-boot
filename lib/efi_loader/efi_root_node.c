@@ -58,7 +58,7 @@ efi_status_t efi_root_node_register(void)
 		 &efi_guid_device_path_to_text_protocol,
 		 &efi_device_path_to_text,
 #endif
-#if CONFIG_IS_ENABLED(EFI_DEVICE_PATH_UTIL)
+#if IS_ENABLED(CONFIG_EFI_DEVICE_PATH_UTIL)
 		 /* Device path utilities protocol */
 		 &efi_guid_device_path_utilities_protocol,
 		 &efi_device_path_utilities,
@@ -68,11 +68,11 @@ efi_status_t efi_root_node_register(void)
 		 &efi_guid_dt_fixup_protocol,
 		 &efi_dt_fixup_prot,
 #endif
-#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL2)
+#if IS_ENABLED(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2)
 		 &efi_guid_unicode_collation_protocol2,
 		 &efi_unicode_collation_protocol2,
 #endif
-#if CONFIG_IS_ENABLED(EFI_LOADER_HII)
+#if IS_ENABLED(CONFIG_EFI_LOADER_HII)
 		 /* HII string protocol */
 		 &efi_guid_hii_string_protocol,
 		 &efi_hii_string,
