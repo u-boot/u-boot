@@ -817,7 +817,7 @@ struct efi_simple_text_output_protocol {
 
 struct efi_input_key {
 	u16 scan_code;
-	s16 unicode_char;
+	u16 unicode_char;
 };
 
 #define EFI_SHIFT_STATE_INVALID		0x00000000
