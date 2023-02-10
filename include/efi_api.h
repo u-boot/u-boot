@@ -513,6 +513,16 @@ struct efi_system_table {
 	struct efi_configuration_table *tables;
 };
 
+/**
+ * efi_main() - entry point of EFI applications
+ *
+ * @image_handle:	handle with the Loaded Image Protocol
+ * @systab:		pointer to the system table
+ * Return:		status code
+ */
+efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
+			     struct efi_system_table *systab);
+
 #define EFI_LOADED_IMAGE_PROTOCOL_GUID \
 	EFI_GUID(0x5b1b31a1, 0x9562, 0x11d2, \
 		 0x8e, 0x3f, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
