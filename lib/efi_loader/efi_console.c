@@ -669,7 +669,7 @@ static LIST_HEAD(cin_notify_functions);
  * @mod:	Xterm shift mask
  * @key_state:  receives the state of the shift, alt, control, and logo keys
  */
-void set_shift_mask(int mod, struct efi_key_state *key_state)
+static void set_shift_mask(int mod, struct efi_key_state *key_state)
 {
 	key_state->key_shift_state = EFI_SHIFT_STATE_VALID;
 	if (mod) {
