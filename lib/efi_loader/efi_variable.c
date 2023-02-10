@@ -395,7 +395,7 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
  *					selected type
  * Returns:				status code
  */
-efi_status_t __efi_runtime EFIAPI efi_query_variable_info_runtime(
+static efi_status_t __efi_runtime EFIAPI efi_query_variable_info_runtime(
 			u32 attributes,
 			u64 *maximum_variable_storage_size,
 			u64 *remaining_variable_storage_size,
