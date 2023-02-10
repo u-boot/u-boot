@@ -42,10 +42,6 @@ static void sdhci_mvebu_mbus_config(void __iomem *base)
 
 #ifndef CONFIG_DM_MMC
 
-#ifdef CONFIG_MMC_SDHCI_IO_ACCESSORS
-static struct sdhci_ops mv_ops;
-#endif /* CONFIG_MMC_SDHCI_IO_ACCESSORS */
-
 int mv_sdh_init(unsigned long regbase, u32 max_clk, u32 min_clk, u32 quirks)
 {
 	struct sdhci_host *host = NULL;
@@ -59,10 +55,6 @@ int mv_sdh_init(unsigned long regbase, u32 max_clk, u32 min_clk, u32 quirks)
 	host->ioaddr = (void *)regbase;
 	host->quirks = quirks;
 	host->max_clk = max_clk;
-#ifdef CONFIG_MMC_SDHCI_IO_ACCESSORS
-	memset(&mv_ops, 0, sizeof(struct sdhci_ops));
-	host->ops = &mv_ops;
-#endif
 
 	/* Configure SDHCI MBUS mbus bridge windows */
 	sdhci_mvebu_mbus_config((void __iomem *)regbase);
