@@ -2515,6 +2515,12 @@ static int brcmnand_init_cs(struct brcmnand_host *host, ofnode dn)
 	ret = nand_register(0, mtd);
 #endif /* __UBOOT__ */
 
+	/* If OOB is written with ECC enabled it will cause ECC errors */
+	if (is_hamming_ecc(host->ctrl, &host->hwcfg)) {
+		chip->ecc.write_oob = brcmnand_write_oob_raw;
+		chip->ecc.read_oob = brcmnand_read_oob_raw;
+	}
+
 	return ret;
 }
 
