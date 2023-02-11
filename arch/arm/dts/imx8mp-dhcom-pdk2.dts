@@ -117,7 +117,9 @@
 /delete-node/ &ethphy1f;
 
 &fec {	/* Second ethernet */
+	pinctrl-0 = <&pinctrl_fec_rgmii>;
 	phy-handle = <&ethphypdk>;
+	phy-mode = "rgmii";
 
 	mdio {
 		ethphypdk: ethernet-phy@7 { /* KSZ 9021 */
