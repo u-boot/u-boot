@@ -247,8 +247,10 @@ static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 		phys_addr_t rgnbase = rgn->region[i].base;
 		phys_size_t rgnsize = rgn->region[i].size;
 		phys_size_t rgnflags = rgn->region[i].flags;
+		phys_addr_t end = base + size - 1;
+		phys_addr_t rgnend = rgnbase + rgnsize - 1;
 
-		if (rgnbase == base && rgnsize == size) {
+		if (rgnbase <= base && end <= rgnend) {
 			if (flags == rgnflags)
 				/* Already have this region, so we're done */
 				return 0;
