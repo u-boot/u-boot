@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2019
   ubuntu_vm: ubuntu-22.04
   macos_vm: macOS-12
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20221130-11Jan2023
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20230126-10Feb2023
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -240,6 +240,11 @@ stages:
           TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
         sandbox_flattree:
           TEST_PY_BD: "sandbox_flattree"
+        sandbox_trace:
+          TEST_PY_BD: "sandbox"
+          BUILD_ENV: "FTRACE=1 NO_LTO=1"
+          TEST_PY_TEST_SPEC: "trace"
+          OVERRIDE: "-a CONFIG_TRACE=y -a CONFIG_TRACE_EARLY=y -a CONFIG_TRACE_EARLY_SIZE=0x01000000"
         coreboot:
           TEST_PY_BD: "coreboot"
           TEST_PY_ID: "--id qemu"
@@ -362,6 +367,9 @@ stages:
           # the below corresponds to .gitlab-ci.yml "script"
           cd ${WORK_DIR}
           export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD};
+          if [ -n "${BUILD_ENV}" ]; then
+              export ${BUILD_ENV};
+          fi
           tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e --board ${TEST_PY_BD} ${OVERRIDE}
           cp ~/grub_x86.efi ${UBOOT_TRAVIS_BUILD_DIR}/
           cp ~/grub_x64.efi ${UBOOT_TRAVIS_BUILD_DIR}/

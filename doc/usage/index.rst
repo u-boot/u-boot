@@ -84,6 +84,7 @@ Shell commands
    cmd/sm
    cmd/temperature
    cmd/tftpput
+   cmd/trace
    cmd/true
    cmd/ums
    cmd/ut

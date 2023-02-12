@@ -368,7 +368,7 @@ config TRACE_EARLY_SIZE
 config TRACE_EARLY_CALL_DEPTH_LIMIT
 	int "Early trace call depth limit"
 	depends on TRACE_EARLY
-	default 200
+	default 15
 	help
 	  Sets the maximum call depth up to which function calls are recorded
 	  during early tracing.

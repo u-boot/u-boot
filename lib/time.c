@@ -70,15 +70,14 @@ extern unsigned long timer_read_counter(void);
 ulong notrace get_tbclk(void)
 {
 	if (!gd->timer) {
-#ifdef CONFIG_TIMER_EARLY
-		return timer_early_get_rate();
-#else
 		int ret;
+
+		if (IS_ENABLED(CONFIG_TIMER_EARLY))
+			return timer_early_get_rate();
 
 		ret = dm_timer_init();
 		if (ret)
 			return ret;
-#endif
 	}
 
 	return timer_get_rate(gd->timer);
@@ -90,15 +89,14 @@ uint64_t notrace get_ticks(void)
 	int ret;
 
 	if (!gd->timer) {
-#ifdef CONFIG_TIMER_EARLY
-		return timer_early_get_count();
-#else
 		int ret;
+
+		if (IS_ENABLED(CONFIG_TIMER_EARLY))
+			return timer_early_get_count();
 
 		ret = dm_timer_init();
 		if (ret)
 			panic("Could not initialize timer (err %d)\n", ret);
-#endif
 	}
 
 	ret = timer_get_count(gd->timer, &count);

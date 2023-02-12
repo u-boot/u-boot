@@ -2,7 +2,7 @@
 # This Dockerfile is used to build an image containing basic stuff to be used
 # to build U-Boot and run our test suites.
 
-FROM ubuntu:jammy-20221130
+FROM ubuntu:jammy-20230126
 MAINTAINER Tom Rini <trini@konsulko.com>
 LABEL Description=" This image is for building U-Boot inside a container"
 
@@ -173,7 +173,7 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 	true && \
 	rm -rf /tmp/grub
 
-RUN git clone git://git.qemu.org/qemu.git /tmp/qemu && \
+RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 	cd /tmp/qemu && \
 	git submodule update --init dtc && \
 	git checkout v6.1.0 && \
@@ -212,6 +212,22 @@ RUN git clone https://github.com/stefanberger/swtpm /tmp/swtpm && \
 	make -j$(nproc) && \
 	make install && \
 	rm -rf /tmp/swtpm
+
+# Build trace-cmd
+RUN mkdir /tmp/trace && \
+    git clone https://git.kernel.org/pub/scm/libs/libtrace/libtraceevent.git /tmp/trace/libtraceevent && \
+    cd /tmp/trace/libtraceevent && \
+    make -j$(nproc) && \
+    sudo make install && \
+    git clone https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git /tmp/trace/libtracefs && \
+    cd /tmp/trace/libtracefs && \
+    make -j$(nproc) && \
+    sudo make install && \
+    git clone https://github.com/rostedt/trace-cmd.git /tmp/trace/trace-cmd && \
+    cd /tmp/trace/trace-cmd && \
+    make -j$(nproc) && \
+    sudo make install && \
+    rm -rf /tmp/trace
 
 # Create our user/group
 RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot

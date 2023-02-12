@@ -6,6 +6,8 @@
 #ifndef __TRACE_H
 #define __TRACE_H
 
+/* this file is included from a tool so uses uint32_t instead of u32, etc. */
+
 enum {
 	/*
 	 * This affects the granularity of our trace. We can bin function
@@ -15,14 +17,18 @@ enum {
 	 *
 	 * The value here assumes a minimum instruction size of 4 bytes,
 	 * or that instructions are 2 bytes but there are at least 2 of
-	 * them in every function.
+	 * them in every function. Given that each function needs a call to
+	 * __cyg_profile_func_enter() and __cyg_profile_func_exit() as well,
+	 * we cannot have functions smaller that 16 bytes.
 	 *
 	 * Increasing this value reduces the number of functions we can
 	 * resolve, but reduces the size of the uintptr_t array used for
 	 * our function list, which is the length of the code divided by
 	 * this value.
 	 */
-	FUNC_SITE_SIZE	= 4,	/* distance between function sites */
+	FUNC_SITE_SIZE	= 16,	/* distance between function sites */
+
+	TRACE_VERSION	= 1,
 };
 
 enum trace_chunk_type {
@@ -39,7 +45,11 @@ struct trace_output_func {
 /* A header at the start of the trace output buffer */
 struct trace_output_hdr {
 	enum trace_chunk_type type;	/* Record type */
-	size_t rec_count;		/* Number of records */
+	uint32_t version;		/* Version (TRACE_VERSION) */
+	uint32_t rec_count;		/* Number of records */
+	uint32_t spare;			/* 0 */
+	uint64_t text_base;		/* Value of CONFIG_TEXT_BASE */
+	uint64_t spare2;		/* 0 */
 };
 
 /* Print statistics about traced function calls */
@@ -63,7 +73,7 @@ int trace_list_functions(void *buff, size_t buff_size, size_t *needed);
 enum ftrace_flags {
 	FUNCF_EXIT		= 0UL << 30,
 	FUNCF_ENTRY		= 1UL << 30,
-	FUNCF_TEXTBASE		= 2UL << 30,
+	/* two more values are available */
 
 	FUNCF_TIMESTAMP_MASK	= 0x3fffffff,
 };

@@ -136,7 +136,7 @@ u64 timer_conv_64(u32 count)
 	return ((u64)gd->timebase_h << 32) | gd->timebase_l;
 }
 
-int notrace dm_timer_init(void)
+int dm_timer_init(void)
 {
 	struct udevice *dev = NULL;
 	__maybe_unused ofnode node;

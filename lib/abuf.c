@@ -6,11 +6,14 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#ifndef USE_HOSTCC
 #include <common.h>
-#include <abuf.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <string.h>
+#endif
+
+#include <abuf.h>
 
 void abuf_set(struct abuf *abuf, void *data, size_t size)
 {
@@ -19,10 +22,26 @@ void abuf_set(struct abuf *abuf, void *data, size_t size)
 	abuf->size = size;
 }
 
+#ifndef USE_HOSTCC
 void abuf_map_sysmem(struct abuf *abuf, ulong addr, size_t size)
 {
 	abuf_set(abuf, map_sysmem(addr, size), size);
 }
+#else
+/* copied from lib/string.c for convenience */
+static char *memdup(const void *src, size_t len)
+{
+	char *p;
+
+	p = malloc(len);
+	if (!p)
+		return NULL;
+
+	memcpy(p, src, len);
+
+	return p;
+}
+#endif
 
 bool abuf_realloc(struct abuf *abuf, size_t new_size)
 {

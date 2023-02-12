@@ -797,6 +797,15 @@ static init_fnc_t init_sequence_r[] = {
 void board_init_r(gd_t *new_gd, ulong dest_addr)
 {
 	/*
+	 * The pre-relocation drivers may be using memory that has now gone
+	 * away. Mark serial as unavailable - this will fall back to the debug
+	 * UART if available.
+	 *
+	 * Do the same with log drivers since the memory may not be available.
+	 */
+	gd->flags &= ~(GD_FLG_SERIAL_READY | GD_FLG_LOG_READY);
+
+	/*
 	 * Set up the new global data pointer. So far only x86 does this
 	 * here.
 	 * TODO(sjg@chromium.org): Consider doing this for all archs, or
