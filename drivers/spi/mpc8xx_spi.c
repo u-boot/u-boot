@@ -24,11 +24,28 @@
 
 #include <asm/cpm_8xx.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 
 #define CPM_SPI_BASE_RX	CPM_SPI_BASE
 #define CPM_SPI_BASE_TX	(CPM_SPI_BASE + sizeof(cbd_t))
 
 #define MAX_BUFFER	0x104
+
+struct mpc8xx_priv {
+	spi_t __iomem *spi;
+	struct gpio_desc gpios[16];
+	int max_cs;
+};
+
+static int mpc8xx_spi_set_mode(struct udevice *dev, uint mod)
+{
+	return 0;
+}
+
+static int mpc8xx_spi_set_speed(struct udevice *dev, uint speed)
+{
+	return 0;
+}
 
 static int mpc8xx_spi_probe(struct udevice *dev)
 {
@@ -38,42 +55,9 @@ static int mpc8xx_spi_probe(struct udevice *dev)
 	cbd_t __iomem *tbdf, *rbdf;
 
 	/* Disable relocation */
-	out_be16(&spi->spi_rpbase, 0);
+	out_be16(&spi->spi_rpbase, 0x1d80);
 
 /* 1 */
-	/* ------------------------------------------------
-	 * Initialize Port B SPI pins -> page 34-8 MPC860UM
-	 * (we are only in Master Mode !)
-	 * ------------------------------------------------ */
-
-	/* --------------------------------------------
-	 * GPIO or per. Function
-	 * PBPAR[28] = 1 [0x00000008] -> PERI: (SPIMISO)
-	 * PBPAR[29] = 1 [0x00000004] -> PERI: (SPIMOSI)
-	 * PBPAR[30] = 1 [0x00000002] -> PERI: (SPICLK)
-	 * PBPAR[31] = 0 [0x00000001] -> GPIO: (CS for PCUE/CCM-EEPROM)
-	 * -------------------------------------------- */
-	clrsetbits_be32(&cp->cp_pbpar, 0x00000001, 0x0000000E);	/* set  bits */
-
-	/* ----------------------------------------------
-	 * In/Out or per. Function 0/1
-	 * PBDIR[28] = 1 [0x00000008] -> PERI1: SPIMISO
-	 * PBDIR[29] = 1 [0x00000004] -> PERI1: SPIMOSI
-	 * PBDIR[30] = 1 [0x00000002] -> PERI1: SPICLK
-	 * PBDIR[31] = 1 [0x00000001] -> GPIO OUT: CS for PCUE/CCM-EEPROM
-	 * ---------------------------------------------- */
-	setbits_be32(&cp->cp_pbdir, 0x0000000F);
-
-	/* ----------------------------------------------
-	 * open drain or active output
-	 * PBODR[28] = 1 [0x00000008] -> open drain: SPIMISO
-	 * PBODR[29] = 0 [0x00000004] -> active output SPIMOSI
-	 * PBODR[30] = 0 [0x00000002] -> active output: SPICLK
-	 * PBODR[31] = 0 [0x00000001] -> active output GPIO OUT: CS for PCUE/CCM
-	 * ---------------------------------------------- */
-
-	clrsetbits_be16(&cp->cp_pbodr, 0x00000007, 0x00000008);
-
 	/* Initialize the parameter ram.
 	 * We need to make sure many things are initialized to zero
 	 */
@@ -143,6 +127,22 @@ static int mpc8xx_spi_probe(struct udevice *dev)
 	return 0;
 }
 
+static void mpc8xx_spi_cs_activate(struct udevice *dev)
+{
+	struct mpc8xx_priv *priv = dev_get_priv(dev->parent);
+	struct dm_spi_slave_plat *platdata = dev_get_parent_plat(dev);
+
+	dm_gpio_set_value(&priv->gpios[platdata->cs], 1);
+}
+
+static void mpc8xx_spi_cs_deactivate(struct udevice *dev)
+{
+	struct mpc8xx_priv *priv = dev_get_priv(dev->parent);
+	struct dm_spi_slave_plat *platdata = dev_get_parent_plat(dev);
+
+	dm_gpio_set_value(&priv->gpios[platdata->cs], 0);
+}
+
 static int mpc8xx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			    const void *dout, void *din, unsigned long flags)
 {
@@ -159,7 +159,8 @@ static int mpc8xx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	rbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_RX];
 
 	/* Set CS for device */
-	clrbits_be32(&cp->cp_pbdat, 0x0001);
+	if (flags & SPI_XFER_BEGIN)
+		mpc8xx_spi_cs_activate(dev);
 
 	/* Setting tx bd status and data length */
 	out_be32(&tbdf->cbd_bufaddr, (ulong)dout);
@@ -186,21 +187,40 @@ static int mpc8xx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	for (tm = 0; tm < 1000; ++tm) {
 		if (in_8(&cp->cp_spie) & SPI_TXB)	/* Tx Buffer Empty */
 			break;
+
 		if ((in_be16(&tbdf->cbd_sc) & BD_SC_READY) == 0)
 			break;
 		udelay(1000);
 	}
+
 	if (tm >= 1000)
 		printf("*** spi_xfer: Time out while xferring to/from SPI!\n");
 
 	/* Clear CS for device */
-	setbits_be32(&cp->cp_pbdat, 0x0001);
+	if (flags & SPI_XFER_END)
+		mpc8xx_spi_cs_deactivate(dev);
 
-	return count;
+	return 0;
 }
 
+static int mpc8xx_spi_ofdata_to_platdata(struct udevice *dev)
+{
+	struct mpc8xx_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = gpio_request_list_by_name(dev, "gpios", priv->gpios,
+					ARRAY_SIZE(priv->gpios), GPIOD_IS_OUT);
+	if (ret < 0)
+		return ret;
+
+	priv->max_cs = ret;
+
+	return 0;
+}
 static const struct dm_spi_ops mpc8xx_spi_ops = {
 	.xfer		= mpc8xx_spi_xfer,
+	.set_speed	= mpc8xx_spi_set_speed,
+	.set_mode	= mpc8xx_spi_set_mode,
 };
 
 static const struct udevice_id mpc8xx_spi_ids[] = {
@@ -212,6 +232,8 @@ U_BOOT_DRIVER(mpc8xx_spi) = {
 	.name	= "mpc8xx_spi",
 	.id	= UCLASS_SPI,
 	.of_match = mpc8xx_spi_ids,
+	.of_to_plat = mpc8xx_spi_ofdata_to_platdata,
 	.ops	= &mpc8xx_spi_ops,
 	.probe	= mpc8xx_spi_probe,
+	.priv_auto = sizeof(struct mpc8xx_priv),
 };

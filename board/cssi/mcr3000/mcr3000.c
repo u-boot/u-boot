@@ -58,8 +58,6 @@ static const uint cs1_dram_table_66[] = {
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	const char *sync = "receive";
-
 	ft_cpu_setup(blob, bd);
 
 	/* BRG */
@@ -71,16 +69,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	/* Bus Frequency for CPM */
 	do_fixup_by_path_u32(blob, "/soc", "bus-frequency", bd->bi_busfreq, 1);
-
-	/* E1 interface - Set data rate */
-	do_fixup_by_path_u32(blob, "/localbus/e1-wan", "data-rate", 2, 1);
-
-	/* E1 interface - Set channel phase to 0 */
-	do_fixup_by_path_u32(blob, "/localbus/e1-wan", "channel-phase", 0, 1);
-
-	/* E1 interface - rising edge sync pulse transmit */
-	do_fixup_by_path(blob, "/localbus/e1-wan", "rising-edge-sync-pulse",
-			 sync, strlen(sync), 1);
 
 	return 0;
 }
