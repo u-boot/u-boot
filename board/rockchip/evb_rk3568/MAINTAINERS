@@ -4,6 +4,8 @@ S:      Maintained
 F:      board/rockchip/evb_rk3568
 F:      include/configs/evb_rk3568.h
 F:      configs/evb-rk3568_defconfig
+F:	arch/arm/dts/rk3568-evb-boot.dtsi
+F:	arch/arm/dts/rk3568-evb.dts
 
 RADXA-CM3
 M:	Jagan Teki <jagan@amarulasolutions.com>
