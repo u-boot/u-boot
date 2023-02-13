@@ -235,6 +235,15 @@ Run pylint:
     - export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt"
     - make pylint_err
 
+# Check for pre-schema driver model tags
+Check for pre-schema tags:
+  stage: testsuites
+  script:
+    - git config --global --add safe.directory "${CI_PROJECT_DIR}";
+    # If grep succeeds and finds a match the test fails as we should
+    # have no matches.
+    - git grep u-boot,dm- -- '*.dts*' && exit 1 || exit 0
+
 # Test sandbox with test.py
 sandbox test.py:
   variables:
