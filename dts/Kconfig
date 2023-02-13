@@ -362,7 +362,7 @@ config OF_SPL_REMOVE_PROPS
 	help
 	  Since SPL normally runs in a reduced memory space, the device tree
 	  is cut down to only what is needed to load and start U-Boot. Only
-	  nodes marked with the property "u-boot,dm-pre-reloc" will be
+	  nodes marked with the property "bootph-all" will be
 	  included. In addition, some properties are not used by U-Boot and
 	  can be discarded. This option defines the list of properties to
 	  discard.

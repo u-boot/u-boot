@@ -1312,22 +1312,22 @@ bool ofnode_pre_reloc(ofnode node)
 {
 #if defined(CONFIG_SPL_BUILD) || defined(CONFIG_TPL_BUILD)
 	/* for SPL and TPL the remaining nodes after the fdtgrep 1st pass
-	 * had property dm-pre-reloc or u-boot,dm-spl/tpl.
+	 * had property bootph-all or bootph-pre-sram/bootph-pre-ram.
 	 * They are removed in final dtb (fdtgrep 2nd pass)
 	 */
 	return true;
 #else
-	if (ofnode_read_bool(node, "u-boot,dm-pre-reloc"))
+	if (ofnode_read_bool(node, "bootph-all"))
 		return true;
-	if (ofnode_read_bool(node, "u-boot,dm-pre-proper"))
+	if (ofnode_read_bool(node, "bootph-some-ram"))
 		return true;
 
 	/*
 	 * In regular builds individual spl and tpl handling both
 	 * count as handled pre-relocation for later second init.
 	 */
-	if (ofnode_read_bool(node, "u-boot,dm-spl") ||
-	    ofnode_read_bool(node, "u-boot,dm-tpl"))
+	if (ofnode_read_bool(node, "bootph-pre-ram") ||
+	    ofnode_read_bool(node, "bootph-pre-sram"))
 		return true;
 
 	if (IS_ENABLED(CONFIG_OF_TAG_MIGRATE)) {
