@@ -24,6 +24,16 @@
 #define SGRF_SOC_CON4			0x10
 #define EMMC_HPROT_SECURE_CTRL		0x03
 #define SDMMC0_HPROT_SECURE_CTRL	0x01
+
+#define PMU_BASE_ADDR		0xfdd90000
+#define PMU_NOC_AUTO_CON0	(0x70)
+#define PMU_NOC_AUTO_CON1	(0x74)
+#define EDP_PHY_GRF_BASE	0xfdcb0000
+#define EDP_PHY_GRF_CON0	(EDP_PHY_GRF_BASE + 0x00)
+#define EDP_PHY_GRF_CON10	(EDP_PHY_GRF_BASE + 0x28)
+#define CPU_GRF_BASE		0xfdc30000
+#define GRF_CORE_PVTPLL_CON0	(0x10)
+
 /* PMU_GRF_GPIO0D_IOMUX_L */
 enum {
 	GPIO0D1_SHIFT		= 4,
@@ -98,6 +108,20 @@ void board_debug_uart_init(void)
 int arch_cpu_init(void)
 {
 #ifdef CONFIG_SPL_BUILD
+	/*
+	 * When perform idle operation, corresponding clock can
+	 * be opened or gated automatically.
+	 */
+	writel(0xffffffff, PMU_BASE_ADDR + PMU_NOC_AUTO_CON0);
+	writel(0x000f000f, PMU_BASE_ADDR + PMU_NOC_AUTO_CON1);
+
+	/* Disable eDP phy by default */
+	writel(0x00070007, EDP_PHY_GRF_CON10);
+	writel(0x0ff10ff1, EDP_PHY_GRF_CON0);
+
+	/* Set core pvtpll ring length */
+	writel(0x00ff002b, CPU_GRF_BASE + GRF_CORE_PVTPLL_CON0);
+
 	/* Set the emmc sdmmc0 to secure */
 	rk_clrreg(SGRF_BASE + SGRF_SOC_CON4, (EMMC_HPROT_SECURE_CTRL << 11
 		| SDMMC0_HPROT_SECURE_CTRL << 4));
