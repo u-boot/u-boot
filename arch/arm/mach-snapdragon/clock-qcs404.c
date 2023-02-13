@@ -81,6 +81,36 @@ static const struct bcr_regs emac_ptp_regs = {
 	.D = EMAC_D,
 };
 
+static const struct bcr_regs blsp1_qup0_i2c_apps_regs = {
+	.cmd_rcgr = BLSP1_QUP0_I2C_APPS_CMD_RCGR,
+	.cfg_rcgr = BLSP1_QUP0_I2C_APPS_CFG_RCGR,
+	/* mnd_width = 0 */
+};
+
+static const struct bcr_regs blsp1_qup1_i2c_apps_regs = {
+	.cmd_rcgr = BLSP1_QUP1_I2C_APPS_CMD_RCGR,
+	.cfg_rcgr = BLSP1_QUP1_I2C_APPS_CFG_RCGR,
+	/* mnd_width = 0 */
+};
+
+static const struct bcr_regs blsp1_qup2_i2c_apps_regs = {
+	.cmd_rcgr = BLSP1_QUP2_I2C_APPS_CMD_RCGR,
+	.cfg_rcgr = BLSP1_QUP2_I2C_APPS_CFG_RCGR,
+	/* mnd_width = 0 */
+};
+
+static const struct bcr_regs blsp1_qup3_i2c_apps_regs = {
+	.cmd_rcgr = BLSP1_QUP3_I2C_APPS_CMD_RCGR,
+	.cfg_rcgr = BLSP1_QUP3_I2C_APPS_CFG_RCGR,
+	/* mnd_width = 0 */
+};
+
+static const struct bcr_regs blsp1_qup4_i2c_apps_regs = {
+	.cmd_rcgr = BLSP1_QUP4_I2C_APPS_CMD_RCGR,
+	.cfg_rcgr = BLSP1_QUP4_I2C_APPS_CFG_RCGR,
+	/* mnd_width = 0 */
+};
+
 ulong msm_set_rate(struct clk *clk, ulong rate)
 {
 	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
@@ -170,6 +200,34 @@ int msm_enable(struct clk *clk)
 		break;
 	case GCC_ETH_AXI_CLK:
 		clk_enable_cbc(priv->base + ETH_AXI_CBCR);
+		break;
+	case GCC_BLSP1_AHB_CLK:
+		clk_enable_vote_clk(priv->base, &gcc_blsp1_ahb_clk);
+		break;
+	case GCC_BLSP1_QUP0_I2C_APPS_CLK:
+		clk_enable_cbc(priv->base + BLSP1_QUP0_I2C_APPS_CBCR);
+		clk_rcg_set_rate(priv->base, &blsp1_qup0_i2c_apps_regs, 0,
+				 CFG_CLK_SRC_CXO);
+		break;
+	case GCC_BLSP1_QUP1_I2C_APPS_CLK:
+		clk_enable_cbc(priv->base + BLSP1_QUP1_I2C_APPS_CBCR);
+		clk_rcg_set_rate(priv->base, &blsp1_qup1_i2c_apps_regs, 0,
+				 CFG_CLK_SRC_CXO);
+		break;
+	case GCC_BLSP1_QUP2_I2C_APPS_CLK:
+		clk_enable_cbc(priv->base + BLSP1_QUP2_I2C_APPS_CBCR);
+		clk_rcg_set_rate(priv->base, &blsp1_qup2_i2c_apps_regs, 0,
+				 CFG_CLK_SRC_CXO);
+		break;
+	case GCC_BLSP1_QUP3_I2C_APPS_CLK:
+		clk_enable_cbc(priv->base + BLSP1_QUP3_I2C_APPS_CBCR);
+		clk_rcg_set_rate(priv->base, &blsp1_qup3_i2c_apps_regs, 0,
+				 CFG_CLK_SRC_CXO);
+		break;
+	case GCC_BLSP1_QUP4_I2C_APPS_CLK:
+		clk_enable_cbc(priv->base + BLSP1_QUP4_I2C_APPS_CBCR);
+		clk_rcg_set_rate(priv->base, &blsp1_qup4_i2c_apps_regs, 0,
+				 CFG_CLK_SRC_CXO);
 		break;
 	default:
 		return 0;
