@@ -1503,7 +1503,7 @@ class TestFunctional(unittest.TestCase):
         """Tests outputting a map of the images"""
         _, _, map_data, _ = self._DoReadFileDtb('055_sections.dts', map=True)
         self.assertEqual('''ImagePos    Offset      Size  Name
-00000000  00000000  00000028  main-section
+00000000  00000000  00000028  image
 00000000   00000000  00000010  section@0
 00000000    00000000  00000004  u-boot
 00000010   00000010  00000010  section@1
@@ -1516,7 +1516,7 @@ class TestFunctional(unittest.TestCase):
         """Tests that name prefixes are used"""
         _, _, map_data, _ = self._DoReadFileDtb('056_name_prefix.dts', map=True)
         self.assertEqual('''ImagePos    Offset      Size  Name
-00000000  00000000  00000028  main-section
+00000000  00000000  00000028  image
 00000000   00000000  00000010  section@0
 00000000    00000000  00000004  ro-u-boot
 00000010   00000010  00000010  section@1
@@ -1795,8 +1795,7 @@ class TestFunctional(unittest.TestCase):
             self._DoTestFile('071_gbb.dts', force_missing_bintools='futility',
                              entry_args=entry_args)
         err = stderr.getvalue()
-        self.assertRegex(err,
-                         "Image 'main-section'.*missing bintools.*: futility")
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: futility")
 
     def _HandleVblockCommand(self, pipe_list):
         """Fake calls to the futility utility
@@ -1893,8 +1892,7 @@ class TestFunctional(unittest.TestCase):
                              force_missing_bintools='futility',
                              entry_args=entry_args)
         err = stderr.getvalue()
-        self.assertRegex(err,
-                         "Image 'main-section'.*missing bintools.*: futility")
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: futility")
 
     def testTpl(self):
         """Test that an image with TPL and its device tree can be created"""
@@ -2106,7 +2104,7 @@ class TestFunctional(unittest.TestCase):
                   tools.get_bytes(ord('d'), 8))
         self.assertEqual(expect, data)
         self.assertEqual('''ImagePos    Offset      Size  Name
-00000000  00000000  00000028  main-section
+00000000  00000000  00000028  image
 00000000   00000000  00000008  fill
 00000008   00000008  00000004  u-boot
 0000000c   0000000c  00000004  section
@@ -2259,7 +2257,7 @@ class TestFunctional(unittest.TestCase):
         self.assertTrue(os.path.exists(map_fname))
         map_data = tools.read_file(map_fname, binary=False)
         self.assertEqual('''ImagePos    Offset      Size  Name
-<none>    00000000  00000008  main-section
+<none>    00000000  00000008  image
 <none>     00000000  00000004  u-boot
 <none>     00000003  00000004  u-boot-align
 ''', map_data)
@@ -2274,7 +2272,7 @@ class TestFunctional(unittest.TestCase):
         data, _, map_data, _ = self._DoReadFileDtb('101_sections_offset.dts',
                                                    map=True)
         self.assertEqual('''ImagePos    Offset      Size  Name
-00000000  00000000  00000038  main-section
+00000000  00000000  00000038  image
 00000004   00000004  00000010  section@0
 00000004    00000000  00000004  u-boot
 00000018   00000018  00000010  section@1
@@ -2446,7 +2444,7 @@ class TestFunctional(unittest.TestCase):
                              force_missing_bintools='ifwitool')
         err = stderr.getvalue()
         self.assertRegex(err,
-                         "Image 'main-section'.*missing bintools.*: ifwitool")
+                         "Image 'image'.*missing bintools.*: ifwitool")
 
     def testCbfsOffset(self):
         """Test a CBFS with files at particular offsets
@@ -2633,7 +2631,7 @@ class TestFunctional(unittest.TestCase):
 
         ent = entries[0]
         self.assertEqual(0, ent.indent)
-        self.assertEqual('main-section', ent.name)
+        self.assertEqual('image', ent.name)
         self.assertEqual('section', ent.etype)
         self.assertEqual(len(data), ent.size)
         self.assertEqual(0, ent.image_pos)
@@ -2792,7 +2790,7 @@ class TestFunctional(unittest.TestCase):
         expected = [
 'Name              Image-pos  Size  Entry-type    Offset  Uncomp-size',
 '----------------------------------------------------------------------',
-'main-section              0   c00  section            0',
+'image                     0   c00  section            0',
 '  u-boot                  0     4  u-boot             0',
 '  section               100   %x  section          100' % section_size,
 '    cbfs                100   400  cbfs               0',
@@ -3735,8 +3733,7 @@ class TestFunctional(unittest.TestCase):
             self._DoTestFile('156_mkimage.dts',
                              force_missing_bintools='mkimage')
         err = stderr.getvalue()
-        self.assertRegex(err,
-                         "Image 'main-section'.*missing bintools.*: mkimage")
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: mkimage")
 
     def testExtblob(self):
         """Test an image with an external blob"""
@@ -3757,7 +3754,7 @@ class TestFunctional(unittest.TestCase):
                                    allow_missing=True)
         self.assertEqual(103, ret)
         err = stderr.getvalue()
-        self.assertRegex(err, "Image 'main-section'.*missing.*: blob-ext")
+        self.assertRegex(err, "Image 'image'.*missing.*: blob-ext")
         self.assertIn('Some images are invalid', err)
 
     def testExtblobMissingOkFlag(self):
@@ -3767,7 +3764,7 @@ class TestFunctional(unittest.TestCase):
                                    allow_missing=True, ignore_missing=True)
         self.assertEqual(0, ret)
         err = stderr.getvalue()
-        self.assertRegex(err, "Image 'main-section'.*missing.*: blob-ext")
+        self.assertRegex(err, "Image 'image'.*missing.*: blob-ext")
         self.assertIn('Some images are invalid', err)
 
     def testExtblobMissingOkSect(self):
@@ -3776,16 +3773,14 @@ class TestFunctional(unittest.TestCase):
             self._DoTestFile('159_blob_ext_missing_sect.dts',
                              allow_missing=True)
         err = stderr.getvalue()
-        self.assertRegex(err, "Image 'main-section'.*missing.*: "
-                         "blob-ext blob-ext2")
+        self.assertRegex(err, "Image 'image'.*missing.*: blob-ext blob-ext2")
 
     def testPackX86RomMeMissingDesc(self):
         """Test that an missing Intel descriptor entry is allowed"""
         with test_util.capture_sys_output() as (stdout, stderr):
             self._DoTestFile('164_x86_rom_me_missing.dts', allow_missing=True)
         err = stderr.getvalue()
-        self.assertRegex(err,
-                         "Image 'main-section'.*missing.*: intel-descriptor")
+        self.assertRegex(err, "Image 'image'.*missing.*: intel-descriptor")
 
     def testPackX86RomMissingIfwi(self):
         """Test that an x86 ROM with Integrated Firmware Image can be created"""
@@ -3795,7 +3790,7 @@ class TestFunctional(unittest.TestCase):
         with test_util.capture_sys_output() as (stdout, stderr):
             self._DoTestFile('111_x86_rom_ifwi.dts', allow_missing=True)
         err = stderr.getvalue()
-        self.assertRegex(err, "Image 'main-section'.*missing.*: intel-ifwi")
+        self.assertRegex(err, "Image 'image'.*missing.*: intel-ifwi")
 
     def testPackOverlapZero(self):
         """Test that zero-size overlapping regions are ignored"""
@@ -4009,8 +4004,7 @@ class TestFunctional(unittest.TestCase):
             self._DoTestFile('162_fit_external.dts',
                              force_missing_bintools='mkimage')
         err = stderr.getvalue()
-        self.assertRegex(err,
-                         "Image 'main-section'.*missing bintools.*: mkimage")
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: mkimage")
 
     def testSectionIgnoreHashSignature(self):
         """Test that sections ignore hash, signature nodes for its data"""
@@ -4084,7 +4078,7 @@ class TestFunctional(unittest.TestCase):
             self._DoTestFile('168_fit_missing_blob.dts',
                              allow_missing=True)
         err = stderr.getvalue()
-        self.assertRegex(err, "Image 'main-section'.*missing.*: atf-bl31")
+        self.assertRegex(err, "Image 'image'.*missing.*: atf-bl31")
 
     def testBlobNamedByArgMissing(self):
         """Test handling of a missing entry arg"""
@@ -4490,8 +4484,7 @@ class TestFunctional(unittest.TestCase):
             self._DoTestFile('185_compress_section.dts',
                              force_missing_bintools='lz4')
         err = stderr.getvalue()
-        self.assertRegex(err,
-                         "Image 'main-section'.*missing bintools.*: lz4")
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: lz4")
 
     def testCompressExtra(self):
         """Test compression of a section with no fixed size"""
@@ -5045,7 +5038,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             self._DoTestFile('216_blob_ext_list_missing.dts',
                              allow_missing=True)
         err = stderr.getvalue()
-        self.assertRegex(err, "Image 'main-section'.*missing.*: blob-ext")
+        self.assertRegex(err, "Image 'image'.*missing.*: blob-ext")
 
     def testFip(self):
         """Basic test of generation of an ARM Firmware Image Package (FIP)"""
@@ -5123,13 +5116,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             shutil.rmtree(tmpdir)
         lines = stdout.getvalue().splitlines()
         expected = [
-'Name          Image-pos  Size  Entry-type  Offset  Uncomp-size',
-'----------------------------------------------------------------',
-'main-section          0   2d3  section          0',
-'  atf-fip             0    90  atf-fip          0',
-'    soc-fw           88     4  blob-ext        88',
-'    u-boot           8c     4  u-boot          8c',
-'  fdtmap             90   243  fdtmap          90',
+'Name        Image-pos  Size  Entry-type  Offset  Uncomp-size',
+'--------------------------------------------------------------',
+'image               0   2d3  section          0',
+'  atf-fip           0    90  atf-fip          0',
+'    soc-fw         88     4  blob-ext        88',
+'    u-boot         8c     4  u-boot          8c',
+'  fdtmap           90   243  fdtmap          90',
 ]
         self.assertEqual(expected, lines)
 
@@ -5202,7 +5195,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         with test_util.capture_sys_output() as (stdout, stderr):
             self._DoTestFile('209_fip_missing.dts', allow_missing=True)
         err = stderr.getvalue()
-        self.assertRegex(err, "Image 'main-section'.*missing.*: rmm-fw")
+        self.assertRegex(err, "Image 'image'.*missing.*: rmm-fw")
 
     def testFipSize(self):
         """Test a FIP with a size property"""
@@ -5267,7 +5260,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             self._DoTestFile('216_blob_ext_list_missing.dts',
                              allow_fake_blobs=True)
         err = stderr.getvalue()
-        self.assertRegex(err, "Image 'main-section'.*faked.*: blob-ext-list")
+        self.assertRegex(err, "Image 'image'.*faked.*: blob-ext-list")
 
     def testListBintools(self):
         args = ['tool', '--list']
@@ -5355,8 +5348,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             self._DoTestFile('220_fit_subentry_bintool.dts',
                     force_missing_bintools='futility', entry_args=entry_args)
         err = stderr.getvalue()
-        self.assertRegex(err,
-                         "Image 'main-section'.*missing bintools.*: futility")
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: futility")
 
     def testFitSubentryHashSubnode(self):
         """Test an image with a FIT inside"""
