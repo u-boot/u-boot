@@ -142,6 +142,7 @@ static int rockchip_gpio_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct rockchip_gpio_priv *priv = dev_get_priv(dev);
+	struct ofnode_phandle_args args;
 	char *end;
 	int ret;
 
@@ -150,9 +151,22 @@ static int rockchip_gpio_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	uc_priv->gpio_count = ROCKCHIP_GPIOS_PER_BANK;
-	end = strrchr(dev->name, '@');
-	priv->bank = trailing_strtoln(dev->name, end);
+	/*
+	 * If "gpio-ranges" is present in the devicetree use it to parse
+	 * the GPIO bank ID, otherwise use the legacy method.
+	 */
+	ret = ofnode_parse_phandle_with_args(dev_ofnode(dev),
+					     "gpio-ranges", NULL, 3,
+					     0, &args);
+	if (!ret || ret != -ENOENT) {
+		uc_priv->gpio_count = args.args[2];
+		priv->bank = args.args[1] / args.args[2];
+	} else {
+		uc_priv->gpio_count = ROCKCHIP_GPIOS_PER_BANK;
+		end = strrchr(dev->name, '@');
+		priv->bank = trailing_strtoln(dev->name, end);
+	}
+
 	priv->name[0] = 'A' + priv->bank;
 	uc_priv->bank_name = priv->name;
 
