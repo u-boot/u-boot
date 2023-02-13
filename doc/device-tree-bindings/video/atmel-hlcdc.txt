@@ -15,7 +15,7 @@ Required properties:
 
 Example:
 hlcdc: hlcdc@f0000000 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	compatible = "atmel,sama5d2-hlcdc";
 	reg = <0xf0000000 0x2000>;
 	clocks = <&lcdc_clk>;
