@@ -1181,13 +1181,6 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mmc.git
 F:	drivers/mmc/
 
-NAND FLASH
-M:	Dario Binacchi <dario.binacchi@amarulasolutions.com>
-M:	Michael Trimarchi <michael@amarulasolutions.com>
-S:	Maintained
-T:	git https://source.denx.de/u-boot/custodians/u-boot-nand-flash.git
-F:	drivers/mtd/nand/raw/
-
 NETWORK
 M:	Joe Hershberger <joe.hershberger@ni.com>
 M:	Ramon Fried <rfried.dev@gmail.com>
@@ -1305,6 +1298,13 @@ M:	Marek Behún <kabel@kernel.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc85xx.git
 F:	arch/powerpc/cpu/mpc85xx/
+
+RAW NAND
+M:	Dario Binacchi <dario.binacchi@amarulasolutions.com>
+M:	Michael Trimarchi <michael@amarulasolutions.com>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-nand-flash.git
+F:	drivers/mtd/nand/raw/
 
 RISC-V
 M:	Rick Chen <rick@andestech.com>
