@@ -887,6 +887,11 @@ before its contents, so that it is possible to reconstruct the hierarchy
 from the FMAP by using the offset information. This convention does not
 seem to be documented, but is used in Chromium OS.
 
+To mark an area as preserved, use the normal 'preserved' flag in the entry.
+This will result in the corresponding FMAP area having the
+FMAP_AREA_PRESERVE flag. This flag does not automatically propagate down to
+child entries.
+
 CBFS entries appear as a single entry, i.e. the sub-entries are ignored.
 
 

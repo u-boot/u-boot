@@ -45,6 +45,9 @@ FMAP_AREA_NAMES = (
     'flags',
 )
 
+# Flags supported by areas (bits 2:0 are unused so not included here)
+FMAP_AREA_PRESERVE = 1 << 3  # Preserved by any firmware updates
+
 # These are the two data structures supported by flashrom, a header (which
 # appears once at the start) and an area (which is repeated until the end of
 # the list of areas)

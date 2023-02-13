@@ -1702,7 +1702,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(b'SECTION0', fentry.name)
         self.assertEqual(0, fentry.offset)
         self.assertEqual(16, fentry.size)
-        self.assertEqual(0, fentry.flags)
+        self.assertEqual(fmap_util.FMAP_AREA_PRESERVE, fentry.flags)
 
         fentry = next(fiter)
         self.assertEqual(b'RO_U_BOOT', fentry.name)

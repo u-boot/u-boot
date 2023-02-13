@@ -100,6 +100,10 @@ class Entry(object):
             appear in the map
         optional (bool): True if this entry contains an optional external blob
         overlap (bool): True if this entry overlaps with others
+        preserve (bool): True if this entry should be preserved when updating
+            firmware. This means that it will not be changed by the update.
+            This is just a signal: enforcement of this is up to the updater.
+            This flag does not automatically propagate down to child entries.
     """
     fake_dir = None
 
@@ -148,6 +152,7 @@ class Entry(object):
         self.overlap = False
         self.elf_base_sym = None
         self.offset_from_elf = None
+        self.preserve = False
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -309,6 +314,8 @@ class Entry(object):
         self.compress = fdt_util.GetString(self._node, 'compress', 'none')
         self.offset_from_elf = fdt_util.GetPhandleNameOffset(self._node,
                                                              'offset-from-elf')
+
+        self.preserve = fdt_util.GetBool(self._node, 'preserve')
 
     def GetDefaultFilename(self):
         return None

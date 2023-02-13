@@ -838,6 +838,14 @@ offset-from-elf:
     is the symbol to lookup (relative to elf-base-sym) and <offset> is an offset
     to add to that value.
 
+preserve:
+    Indicates that this entry should be preserved by any firmware updates. This
+    flag should be checked by the updater when it is deciding which entries to
+    update. This flag is normally attached to sections but can be attached to
+    a single entry in a section if the updater supports it. Not that binman
+    itself has no control over the updater's behaviour, so this is just a
+    signal. It is not enforced by binman.
+
 Examples of the above options can be found in the tests. See the
 tools/binman/test directory.
 
