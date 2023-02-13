@@ -97,6 +97,9 @@ config 88F6820
 config CUSTOMER_BOARD_SUPPORT
 	bool
 
+config DDR4
+	bool "Support Marvell DDR4 Training driver"
+
 choice
 	prompt "Armada XP/375/38x/3700/7K/8K/Alleycat-5 board select"
 	optional
@@ -166,6 +169,10 @@ config TARGET_DB_MV784MP_GP
 	select BOARD_ECC_SUPPORT
 	select MV78460
 
+config TARGET_DS116
+	bool "Support Synology DS116"
+	select 88F6820
+
 config TARGET_DS414
 	bool "Support Synology DS414"
 	select MV78230
@@ -174,6 +181,11 @@ config TARGET_MAXBCM
 	bool "Support maxbcm"
 	select BOARD_ECC_SUPPORT
 	select MV78460
+
+config TARGET_N2350
+	bool "Support Thecus N2350"
+	select 88F6820
+	select DDR4
 
 config TARGET_THEADORABLE
 	bool "Support theadorable Armada XP"
@@ -255,8 +267,10 @@ config SYS_BOARD
 	default "mvebu_armada-8k" if TARGET_MVEBU_ARMADA_8K
 	default "octeontx2_cn913x" if TARGET_OCTEONTX2_CN913x
 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
+	default "ds116" if TARGET_DS116
 	default "ds414" if TARGET_DS414
 	default "maxbcm" if TARGET_MAXBCM
+	default "n2350" if TARGET_N2350
 	default "theadorable" if TARGET_THEADORABLE
 	default "a38x" if TARGET_CONTROLCENTERDC
 	default "x530" if TARGET_X530
@@ -274,8 +288,10 @@ config SYS_CONFIG_NAME
 	default "mvebu_armada-8k" if TARGET_MVEBU_ARMADA_8K
 	default "mvebu_armada-8k" if TARGET_OCTEONTX2_CN913x
 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
+	default "ds116" if TARGET_DS116
 	default "ds414" if TARGET_DS414
 	default "maxbcm" if TARGET_MAXBCM
+	default "n2350" if TARGET_N2350
 	default "theadorable" if TARGET_THEADORABLE
 	default "turris_omnia" if TARGET_TURRIS_OMNIA
 	default "turris_mox" if TARGET_TURRIS_MOX
@@ -297,7 +313,9 @@ config SYS_VENDOR
 	default "Marvell" if TARGET_MVEBU_DB_88F7040
 	default "solidrun" if TARGET_CLEARFOG
 	default "kobol" if TARGET_HELIOS4
+	default "Synology" if TARGET_DS116
 	default "Synology" if TARGET_DS414
+	default "thecus" if TARGET_N2350
 	default "CZ.NIC" if TARGET_TURRIS_OMNIA
 	default "CZ.NIC" if TARGET_TURRIS_MOX
 	default "gdsys" if TARGET_CONTROLCENTERDC

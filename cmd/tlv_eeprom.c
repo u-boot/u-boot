@@ -479,17 +479,14 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			show_tlv_devices();
 			break;
 		default:
-			cmd_usage(cmdtp);
-			break;
+			return CMD_RET_USAGE;
 		}
 		return 0;
 	}
 
 	// The set command takes one or two args.
-	if (argc > 4) {
-		cmd_usage(cmdtp);
-		return 0;
-	}
+	if (argc > 4)
+		return CMD_RET_USAGE;
 
 	// Set command. If the TLV exists in the EEPROM, delete it. Then if
 	// data was supplied for this TLV add the TLV with the new contents at
@@ -512,7 +509,7 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		current_dev = devnum;
 		has_been_read = 0;
 	} else {
-		cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 	}
 
 	return 0;
