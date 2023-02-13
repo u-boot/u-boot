@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
+#include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/grf_rk3568.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <dt-bindings/clock/rk3568-cru.h>
@@ -68,6 +69,12 @@ static struct mm_region rk3568_mem_map[] = {
 		/* List terminator */
 		0,
 	}
+};
+
+const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_EMMC] = "/sdhci@fe310000",
+	[BROM_BOOTSOURCE_SPINOR] = "/spi@fe300000/flash@0",
+	[BROM_BOOTSOURCE_SD] = "/mmc@fe2b0000",
 };
 
 struct mm_region *mem_map = rk3568_mem_map;
