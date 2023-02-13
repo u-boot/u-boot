@@ -342,6 +342,16 @@ config SPL_MULTI_DTB_FIT_USER_DEF_ADDR
 	   at compilation time. This is the address of this area. It must be
 	   aligned on 2-byte boundary.
 
+config OF_TAG_MIGRATE
+	bool "Ease migration from old device trees with u-boot,dm- tags"
+	default y
+	help
+	  U-Boot moved over to use new tags to mark device tree nodes which need
+	  to be processed in SPL, before relocation, etc. Enable this option to
+	  detect old tags and handle them.
+
+	  Note: This option will be removed after the 2023.07 release.
+
 config OF_SPL_REMOVE_PROPS
 	string "List of device tree properties to drop for SPL"
 	depends on SPL_OF_CONTROL
