@@ -78,7 +78,7 @@ struct cdns_i2c_regs {
 					CDNS_I2C_INTERRUPT_RXUNF | \
 					CDNS_I2C_INTERRUPT_ARBLOST)
 
-#define CDNS_I2C_FIFO_DEPTH		16
+#define CDNS_I2C_FIFO_DEPTH_DEFAULT	16
 #define CDNS_I2C_TRANSFER_SIZE_MAX	255 /* Controller transfer limit */
 #define CDNS_I2C_TRANSFER_SIZE		(CDNS_I2C_TRANSFER_SIZE_MAX - 3)
 
@@ -135,6 +135,7 @@ struct i2c_cdns_bus {
 
 	int hold_flag;
 	u32 quirks;
+	u32 fifo_depth;
 };
 
 struct cdns_i2c_platform_data {
@@ -277,7 +278,7 @@ static int cdns_i2c_write_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 			writel(addr, &regs->address);
 			start = 0;
 		}
-		if (len && readl(&regs->transfer_size) == CDNS_I2C_FIFO_DEPTH) {
+		if (len && readl(&regs->transfer_size) == i2c_bus->fifo_depth) {
 			ret = cdns_i2c_wait(regs, CDNS_I2C_INTERRUPT_COMP |
 					    CDNS_I2C_INTERRUPT_ARBLOST);
 			if (ret & CDNS_I2C_INTERRUPT_ARBLOST)
@@ -310,9 +311,10 @@ static int cdns_i2c_write_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 	return 0;
 }
 
-static inline bool cdns_is_hold_quirk(int hold_quirk, int curr_recv_count)
+static inline bool cdns_is_hold_quirk(struct i2c_cdns_bus *i2c_bus, int hold_quirk,
+				      int curr_recv_count)
 {
-	return hold_quirk && (curr_recv_count == CDNS_I2C_FIFO_DEPTH + 1);
+	return hold_quirk && (curr_recv_count == i2c_bus->fifo_depth + 1);
 }
 
 static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
@@ -327,7 +329,7 @@ static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 	curr_recv_count = recv_count;
 
 	/* Check for the message size against the FIFO depth */
-	if (recv_count > CDNS_I2C_FIFO_DEPTH)
+	if (recv_count > i2c_bus->fifo_depth)
 		setbits_le32(&regs->control, CDNS_I2C_CONTROL_HOLD);
 
 	setbits_le32(&regs->control, CDNS_I2C_CONTROL_CLR_FIFO |
@@ -349,7 +351,7 @@ static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 
 	while (recv_count && !is_arbitration_lost(regs)) {
 		while (readl(&regs->status) & CDNS_I2C_STATUS_RXDV) {
-			if (recv_count < CDNS_I2C_FIFO_DEPTH &&
+			if (recv_count < i2c_bus->fifo_depth &&
 			    !i2c_bus->hold_flag) {
 				clrbits_le32(&regs->control,
 					     CDNS_I2C_CONTROL_HOLD);
@@ -358,27 +360,27 @@ static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 			recv_count--;
 			curr_recv_count--;
 
-			if (cdns_is_hold_quirk(hold_quirk, curr_recv_count))
+			if (cdns_is_hold_quirk(i2c_bus, hold_quirk, curr_recv_count))
 				break;
 		}
 
-		if (cdns_is_hold_quirk(hold_quirk, curr_recv_count)) {
+		if (cdns_is_hold_quirk(i2c_bus, hold_quirk, curr_recv_count)) {
 			/* wait while fifo is full */
 			while (readl(&regs->transfer_size) !=
-				     (curr_recv_count - CDNS_I2C_FIFO_DEPTH))
+				     (curr_recv_count - i2c_bus->fifo_depth))
 				;
 			/*
 			 * Check number of bytes to be received against maximum
 			 * transfer size and update register accordingly.
 			 */
-			if ((recv_count - CDNS_I2C_FIFO_DEPTH) >
+			if ((recv_count - i2c_bus->fifo_depth) >
 			    CDNS_I2C_TRANSFER_SIZE) {
 				writel(CDNS_I2C_TRANSFER_SIZE,
 				       &regs->transfer_size);
 				curr_recv_count = CDNS_I2C_TRANSFER_SIZE +
-					CDNS_I2C_FIFO_DEPTH;
+					i2c_bus->fifo_depth;
 			} else {
-				writel(recv_count - CDNS_I2C_FIFO_DEPTH,
+				writel(recv_count - i2c_bus->fifo_depth,
 				       &regs->transfer_size);
 				curr_recv_count = recv_count;
 			}
@@ -495,6 +497,10 @@ static int cdns_i2c_of_to_plat(struct udevice *dev)
 		dev_err(dev, "failed to enable clock\n");
 		return ret;
 	}
+
+	/* Update FIFO depth based on device tree entry */
+	i2c_bus->fifo_depth = dev_read_u32_default(dev, "fifo-depth",
+						   CDNS_I2C_FIFO_DEPTH_DEFAULT);
 
 	return 0;
 }
