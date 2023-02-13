@@ -9,14 +9,14 @@
 
 / {
 	phandle: phandle-target {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "target";
 		intval = <0>;
 		#clock-cells = <0>;
 	};
 
 	phandle-source2 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "source";
 		clocks = <&phandle>;
 	};

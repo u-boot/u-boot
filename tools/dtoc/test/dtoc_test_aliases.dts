@@ -9,13 +9,13 @@
 
 / {
 	spl-test {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "compat1", "compat2.1-fred", "compat3";
 		intval = <1>;
 	};
 
 	spl-test2 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "compat1", "simple_bus";
 		intval = <1>;
 	};

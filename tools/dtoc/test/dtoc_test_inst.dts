@@ -18,20 +18,20 @@
 	};
 
 	spl-test {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "sandbox,spl-test";
 		boolval;
 		intval = <1>;
 	};
 
 	i2c: i2c {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "sandbox,i2c";
 		intval = <3>;
 	};
 
 	spl-test3 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "sandbox,spl-test";
 		stringarray = "one";
 		longbytearray = [09 0a 0b 0c 0d 0e 0f 10];
