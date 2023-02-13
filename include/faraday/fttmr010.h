@@ -26,6 +26,7 @@ struct fttmr010 {
 	unsigned int	cr;			/* 0x30 */
 	unsigned int	interrupt_state;	/* 0x34 */
 	unsigned int	interrupt_mask;		/* 0x38 */
+	unsigned int	revision;		/* 0x3c */
 };
 
 /*

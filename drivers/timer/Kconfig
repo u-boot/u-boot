@@ -145,6 +145,13 @@ config DESIGNWARE_APB_TIMER
 	  Enables support for the Designware APB Timer driver. This timer is
 	  present on Altera SoCFPGA SoCs.
 
+config FTTMR010_TIMER
+	bool "Faraday Technology timer support"
+	depends on TIMER
+	help
+	  Select this to enable support for the timer found on
+	  devices using Faraday Technology's IP.
+
 config GXP_TIMER
 	bool "HPE GXP Timer"
 	depends on TIMER
