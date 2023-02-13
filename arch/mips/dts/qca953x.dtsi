@@ -35,7 +35,7 @@
 	};
 
 	pinctrl {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "qca,qca953x-pinctrl";
 		ranges;
 		#address-cells = <1>;

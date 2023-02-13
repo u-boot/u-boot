@@ -58,7 +58,7 @@
 			reg-names = "syscfg0", "clkcfg";
 			compatible = "mediatek,mt7628-clk";
 			#clock-cells = <1>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		rstctrl: rstctrl@0x34 {

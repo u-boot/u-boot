@@ -4,31 +4,31 @@
 
 / {
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		internal-regs {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 };
 
 &uart0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 #ifdef CONFIG_ARMADA_375
 /* Armada 375 has multiple timers, use timer1 here */
 &timer1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 #else
 &timer {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 #endif
 
 #ifdef CONFIG_SPL_SPI
 &spi0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 #endif
 

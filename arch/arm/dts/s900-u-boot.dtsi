@@ -4,14 +4,14 @@
 
 /{
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &uart5 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &cmu {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

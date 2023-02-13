@@ -146,7 +146,7 @@
 
 &i2c0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	pca9547@75 {
 		compatible = "nxp,pca9547";

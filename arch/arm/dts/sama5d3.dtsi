@@ -89,14 +89,14 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		apb {
 			compatible = "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			mmc0: mmc@f0000000 {
 				compatible = "atmel,hsmci";
@@ -479,7 +479,7 @@
 			};
 
 			pinctrl@fffff200 {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				#address-cells = <1>;
 				#size-cells = <1>;
 				compatible = "atmel,sama5d3-pinctrl", "atmel,at91sam9x5-pinctrl", "simple-bus";
@@ -556,9 +556,9 @@
 				};
 
 				dbgu {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					pinctrl_dbgu: dbgu-0 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						atmel,pins =
 							<AT91_PIOB 30 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB30 periph A */
 							 AT91_PIOB 31 AT91_PERIPH_A AT91_PINCTRL_PULL_UP>;	/* PB31 periph A with pullup */
@@ -619,23 +619,23 @@
 				};
 
 				mmc0 {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					pinctrl_mmc0_clk_cmd_dat0: mmc0_clk_cmd_dat0 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						atmel,pins =
 							<AT91_PIOD 9 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PD9 periph A MCI0_CK */
 							 AT91_PIOD 0 AT91_PERIPH_A AT91_PINCTRL_PULL_UP	/* PD0 periph A MCI0_CDA with pullup */
 							 AT91_PIOD 1 AT91_PERIPH_A AT91_PINCTRL_PULL_UP>;	/* PD1 periph A MCI0_DA0 with pullup */
 					};
 					pinctrl_mmc0_dat1_3: mmc0_dat1_3 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						atmel,pins =
 							<AT91_PIOD 2 AT91_PERIPH_A AT91_PINCTRL_PULL_UP	/* PD2 periph A MCI0_DA1 with pullup */
 							 AT91_PIOD 3 AT91_PERIPH_A AT91_PINCTRL_PULL_UP	/* PD3 periph A MCI0_DA2 with pullup */
 							 AT91_PIOD 4 AT91_PERIPH_A AT91_PINCTRL_PULL_UP>;	/* PD4 periph A MCI0_DA3 with pullup */
 					};
 					pinctrl_mmc0_dat4_7: mmc0_dat4_7 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						atmel,pins =
 							<AT91_PIOD 5 AT91_PERIPH_A AT91_PINCTRL_PULL_UP	/* PD5 periph A MCI0_DA4 with pullup, conflicts with TIOA0, PWMH2 */
 							 AT91_PIOD 6 AT91_PERIPH_A AT91_PINCTRL_PULL_UP	/* PD6 periph A MCI0_DA5 with pullup, conflicts with TIOB0, PWML2 */
@@ -645,16 +645,16 @@
 				};
 
 				mmc1 {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					pinctrl_mmc1_clk_cmd_dat0: mmc1_clk_cmd_dat0 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						atmel,pins =
 							<AT91_PIOB 24 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB24 periph A MCI1_CK, conflicts with GRX5 */
 							 AT91_PIOB 19 AT91_PERIPH_A AT91_PINCTRL_PULL_UP	/* PB19 periph A MCI1_CDA with pullup, conflicts with GTX4 */
 							 AT91_PIOB 20 AT91_PERIPH_A AT91_PINCTRL_PULL_UP>;	/* PB20 periph A MCI1_DA0 with pullup, conflicts with GTX5 */
 					};
 					pinctrl_mmc1_dat1_3: mmc1_dat1_3 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						atmel,pins =
 							<AT91_PIOB 21 AT91_PERIPH_A AT91_PINCTRL_PULL_UP	/* PB21 periph A MCI1_DA1 with pullup, conflicts with GTX6 */
 							 AT91_PIOB 22 AT91_PERIPH_A AT91_PINCTRL_PULL_UP	/* PB22 periph A MCI1_DA2 with pullup, conflicts with GTX7 */
@@ -749,9 +749,9 @@
 				};
 
 				spi0 {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					pinctrl_spi0: spi0-0 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						atmel,pins =
 							<AT91_PIOD 10 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PD10 periph A SPI0_MISO pin */
 							 AT91_PIOD 11 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PD11 periph A SPI0_MOSI pin */
@@ -760,9 +760,9 @@
 				};
 
 				spi1 {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					pinctrl_spi1: spi1-0 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						atmel,pins =
 							<AT91_PIOC 22 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PC22 periph A SPI1_MISO pin */
 							 AT91_PIOC 23 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PC23 periph A SPI1_MOSI pin */
@@ -884,7 +884,7 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				clocks = <&pioA_clk>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			pioB: gpio@fffff400 {
@@ -896,7 +896,7 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				clocks = <&pioB_clk>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			pioC: gpio@fffff600 {
@@ -908,7 +908,7 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				clocks = <&pioC_clk>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			pioD: gpio@fffff800 {
@@ -920,7 +920,7 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				clocks = <&pioD_clk>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			pioE: gpio@fffffa00 {
@@ -932,7 +932,7 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				clocks = <&pioE_clk>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			pmc: pmc@fffffc00 {
@@ -943,7 +943,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				#interrupt-cells = <1>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				main_rc_osc: main_rc_osc {
 					compatible = "atmel,at91sam9x5-clk-main-rc-osc";
@@ -995,7 +995,7 @@
 					interrupts = <AT91_PMC_LOCKU>;
 					clocks = <&main>;
 					regmap-sfr = <&sfr>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				mck: masterck {
@@ -1006,7 +1006,7 @@
 					clocks = <&clk32k>, <&main>, <&plladiv>, <&utmi>;
 					atmel,clk-output-range = <0 166000000>;
 					atmel,clk-divisors = <1 2 4 3>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				usb: usbck {
@@ -1100,10 +1100,10 @@
 					#address-cells = <1>;
 					#size-cells = <0>;
 					clocks = <&mck>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 
 					dbgu_clk: dbgu_clk@2 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						#clock-cells = <0>;
 						reg = <2>;
 					};
@@ -1114,31 +1114,31 @@
 					};
 
 					pioA_clk: pioA_clk@6 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						#clock-cells = <0>;
 						reg = <6>;
 					};
 
 					pioB_clk: pioB_clk@7 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						#clock-cells = <0>;
 						reg = <7>;
 					};
 
 					pioC_clk: pioC_clk@8 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						#clock-cells = <0>;
 						reg = <8>;
 					};
 
 					pioD_clk: pioD_clk@9 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						#clock-cells = <0>;
 						reg = <9>;
 					};
 
 					pioE_clk: pioE_clk@10 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						#clock-cells = <0>;
 						reg = <10>;
 					};
@@ -1192,26 +1192,26 @@
 					};
 
 					mci0_clk: mci0_clk@21 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						#clock-cells = <0>;
 						reg = <21>;
 					};
 
 					mci1_clk: mci1_clk@22 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						#clock-cells = <0>;
 						reg = <22>;
 					};
 
 					spi0_clk: spi0_clk@24 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						#clock-cells = <0>;
 						reg = <24>;
 						atmel,clk-output-range = <0 133000000>;
 					};
 
 					spi1_clk: spi1_clk@25 {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						#clock-cells = <0>;
 						reg = <25>;
 						atmel,clk-output-range = <0 133000000>;
@@ -1320,7 +1320,7 @@
 				reg = <0xfffffe30 0xf>;
 				interrupts = <3 IRQ_TYPE_LEVEL_HIGH 5>;
 				clocks = <&mck>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			watchdog@fffffe40 {

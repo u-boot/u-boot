@@ -143,7 +143,7 @@
 
 &i2c0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	fpga@66 {
 		#address-cells = <1>;

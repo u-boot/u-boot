@@ -15,7 +15,7 @@
 	pinctrl-0 = <&pinctrl_lcdif_dat
 		     &pinctrl_lcdif_ctrl>;
 	display = <&display0>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	display0: display0 {
 		bits-per-pixel = <18>;

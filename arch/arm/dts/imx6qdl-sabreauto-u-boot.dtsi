@@ -13,9 +13,9 @@
 
 &usdhc3 {
 	no-1-8-v;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

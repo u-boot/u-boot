@@ -6,5 +6,5 @@
 #include "rockchip-u-boot.dtsi"
 
 &grf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

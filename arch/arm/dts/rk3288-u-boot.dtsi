@@ -46,13 +46,13 @@
 		rockchip,pmu = <&pmu>;
 		rockchip,sgrf = <&sgrf>;
 		rockchip,sram = <&ddr_sram>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	noc: syscon@ffac0000 {
 		compatible = "rockchip,rk3288-noc", "syscon";
 		reg = <0xffac0000 0x2000>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
@@ -88,23 +88,23 @@
 };
 
 &cru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio7 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &grf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pmu {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sgrf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart0 {
@@ -124,9 +124,9 @@
 };
 
 &vopb {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &vopl {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

@@ -19,7 +19,7 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 
-		u-boot,dm-spl;
+		bootph-pre-ram;
 
 		memorycontroller0: memorycontroller@2990000 {
 			compatible = "ti,j721s2-ddrss";
@@ -35,7 +35,7 @@
 			ti,ddr-fhs-cnt = <DDRSS_PLL_FHS_CNT>;
 			instance = <0>;
 
-			u-boot,dm-spl;
+			bootph-pre-ram;
 
 			ti,ctl-data = <
 				DDRSS0_CTL_00_DATA
@@ -2243,7 +2243,7 @@
 			ti,ddr-fhs-cnt = <DDRSS_PLL_FHS_CNT>;
 			instance = <1>;
 
-			u-boot,dm-spl;
+			bootph-pre-ram;
 
 			ti,ctl-data = <
 				DDRSS1_CTL_00_DATA

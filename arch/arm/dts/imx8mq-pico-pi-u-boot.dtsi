@@ -3,9 +3,9 @@
 #include "imx8mq-u-boot.dtsi"
 
 &pinctrl_uart1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &uart1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

@@ -91,7 +91,7 @@
 			 <&sysclk K210_CLK_SRAM1>,
 			 <&sysclk K210_CLK_AI>;
 		clock-names = "sram0", "sram1", "aisram";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	clocks {
@@ -99,7 +99,7 @@
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <26000000>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
@@ -521,7 +521,7 @@
 				clocks = <&sysclk K210_CLK_APB1>;
 				clock-names = "pclk";
 				reg-io-width = <4>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				sysclk: clock-controller {
 					#clock-cells = <1>;
@@ -529,7 +529,7 @@
 					clocks = <&in0>;
 					assigned-clocks = <&sysclk K210_CLK_PLL1>;
 					assigned-clock-rates = <390000000>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				sysrst: reset-controller {

@@ -22,16 +22,16 @@
 
 &sdhci {
 	max-frequency = <25000000>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc {
 	max-frequency = <20000000>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &spiflash {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &vdd_log {

@@ -21,13 +21,13 @@
 		reg = <0x10000000 0x4>;
 		#address-cells = <1>;
 		#size-cells = <0>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		cpu@0 {
 			compatible = "brcm,bcm6318-cpu", "mips,mips4Kc";
 			device_type = "cpu";
 			reg = <0>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
@@ -35,7 +35,7 @@
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		hsspi_pll: hsspi-pll {
 			compatible = "fixed-clock";
@@ -47,7 +47,7 @@
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <50000000>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		periph_clk: periph-clk {
@@ -67,7 +67,7 @@
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		periph_rst: reset-controller@10000010 {
 			compatible = "brcm,bcm6345-reset";
@@ -157,7 +157,7 @@
 		memory-controller@10004000 {
 			compatible = "brcm,bcm6318-mc";
 			reg = <0x10004000 0x38>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		ehci: usb-controller@10005000 {

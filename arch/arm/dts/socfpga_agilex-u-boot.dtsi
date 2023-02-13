@@ -11,22 +11,22 @@
 	memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		ccu: cache-controller@f7000000 {
 			compatible = "arteris,ncore-ccu";
 			reg = <0xf7000000 0x100900>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 };
 
 &clkmgr {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gmac1 {
@@ -66,13 +66,13 @@
 };
 
 &qspi {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &rst {
 	compatible = "altr,rst-mgr";
 	altr,modrst-offset = <0x20>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdr {
@@ -81,18 +81,18 @@
 	      <0xf8010000 0x190>,
 	      <0xf8011000 0x500>;
 	resets = <&rst DDRSCH_RESET>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sysmgr {
 	compatible = "altr,sys-mgr", "syscon";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &watchdog0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

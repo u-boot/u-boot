@@ -5,9 +5,9 @@
 
 / {
 	host1x@50000000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		dc@54200000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 };

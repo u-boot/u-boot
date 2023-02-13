@@ -31,6 +31,6 @@
 	dcc: dcc {
 		compatible = "arm,dcc";
 		status = "okay";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };

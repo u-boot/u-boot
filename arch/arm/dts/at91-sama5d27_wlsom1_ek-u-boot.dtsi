@@ -9,42 +9,42 @@
 
 / {
 	chosen {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &hlcdc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &qspi1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &qspi1_flash {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sfr {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_sdmmc0_default {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_uart0_default {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_qspi1_default {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

@@ -23,35 +23,35 @@
 };
 
 &wkup_i2c0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &cbass_main {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_navss {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &cbass_mcu_wakeup {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 
 	timer1: timer@40400000 {
 		compatible = "ti,omap5430-timer";
 		reg = <0x0 0x40400000 0x0 0x80>;
 		ti,timer-alwon;
 		clock-frequency = <250000000>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	chipid@43000014 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &mcu_navss {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &mcu_ringacc {
@@ -61,7 +61,7 @@
 		<0x0 0x2a500000 0x0 0x40000>,
 		<0x0 0x28440000 0x0 0x40000>;
 	reg-names = "rt", "fifos", "proxy_gcfg", "proxy_target", "cfg";
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &mcu_udmap {
@@ -73,59 +73,59 @@
 		<0x0 0x28400000 0x0 0x2000>;
 	reg-names = "gcfg", "rchan", "rchanrt", "tchan",
 		    "tchanrt", "rflow";
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &secure_proxy_main {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sms {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	k3_sysreset: sysreset-controller {
 		compatible = "ti,sci-sysreset";
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &main_pmx0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_uart8_pins_default {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_mmc1_pins_default {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &wkup_pmx0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &k3_pds {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &k3_clks {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &k3_reset {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_uart8 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &mcu_uart0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &wkup_uart0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &mcu_cpsw {
@@ -146,5 +146,5 @@
 };
 
 &main_sdhci1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

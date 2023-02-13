@@ -17,37 +17,37 @@
 
 	dmc: dmc {
 		compatible = "rockchip,rk3568-dmc";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		status = "okay";
 	};
 };
 
 &cru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &pmucru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &grf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &pmugrf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &sdhci {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };
 
 &sdmmc0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };

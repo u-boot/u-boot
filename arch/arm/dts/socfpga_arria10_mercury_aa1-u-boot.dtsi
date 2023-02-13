@@ -10,45 +10,45 @@
 	};
 
 	fs_loader0: fs-loader {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "u-boot,fs-loader";
 		phandlepart = <&mmc 1>;
 	};
 };
 
 &atsha204a {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &fpga_mgr {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	altr,bitstream = "fpga.itb";
 };
 
 &i2c1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &main_sdmmc_clk {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &mmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &peri_sdmmc_clk {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc_clk {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc_free_clk {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

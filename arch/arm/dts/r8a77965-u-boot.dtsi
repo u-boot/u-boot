@@ -8,7 +8,7 @@
 #include "r8a779x-u-boot.dtsi"
 
 &extalr_clk {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 / {

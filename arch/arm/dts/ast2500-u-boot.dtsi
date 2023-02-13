@@ -8,19 +8,19 @@
 	scu: clock-controller@1e6e2000 {
 		compatible = "aspeed,ast2500-scu";
 		reg = <0x1e6e2000 0x1000>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		#clock-cells = <1>;
 		#reset-cells = <1>;
 	};
 
 	rst: reset-controller {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "aspeed,ast2500-reset";
 		#reset-cells = <1>;
 	};
 
 	sdrammc: sdrammc@1e6e0000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "aspeed,ast2500-sdrammc";
 		reg = <0x1e6e0000 0x174
 			0x1e6e0200 0x1d4 >;
@@ -51,7 +51,7 @@
 };
 
 &timer {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &mac0 {

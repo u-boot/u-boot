@@ -7,18 +7,18 @@
 
 / {
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &cpg {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &extal_clk {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &prr {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

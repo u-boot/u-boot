@@ -15,7 +15,7 @@
 	fin_pll: xxti {
 		compatible = "fixed-clock";
 		clock-output-names = "fin_pll";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		#clock-cells = <0>;
 	};
 
@@ -24,14 +24,14 @@
 		compatible = "fixed-clock";
 		clock-output-names = "fin_uart";
 		clock-frequency = <132710400>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		#clock-cells = <0>;
 	};
 
 	uart2: serial@13820000 {
 		compatible = "samsung,exynos4210-uart";
 		reg = <0x13820000 0x100>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		clocks = <&fin_uart>, <&fin_uart>; // driver uses 1st clock
 		clock-names = "uart", "clk_uart_baud0";
 		pinctrl-names = "default";

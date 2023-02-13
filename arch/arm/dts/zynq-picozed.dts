@@ -24,16 +24,16 @@
 };
 
 &uart1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &qspi {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &sdhci1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };

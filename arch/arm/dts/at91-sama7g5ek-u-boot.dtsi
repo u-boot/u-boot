@@ -16,7 +16,7 @@
 
 / {
 	chosen {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	utmi {
@@ -68,7 +68,7 @@
 	};
 
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		usb2: usb@400000 {
 			compatible = "microchip,sama7g5-ohci", "usb-ohci";
@@ -96,23 +96,23 @@
 };
 
 &main_rc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &main_xtal {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pioA {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_flx3_default {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pioA {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	pinctrl_usb_default: usb_default {
 		pinmux = <PIN_PC6__GPIO>;
@@ -121,23 +121,23 @@
 };
 
 &pit64b0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &slow_rc_osc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &slow_xtal {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart3 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &usb2 {

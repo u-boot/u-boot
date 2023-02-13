@@ -113,17 +113,17 @@
 	clk: clock {
 		compatible = "intel,apl-clk";
 		#clock-cells = <1>;
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 	};
 
 	cpus {
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
 		cpu_0: cpu@0 {
-			u-boot,dm-pre-proper;
-			u-boot,dm-spl;
+			bootph-some-ram;
+			bootph-pre-ram;
 			device_type = "cpu";
 			compatible = "intel,apl-cpu";
 			reg = <0>;
@@ -154,7 +154,7 @@
 	};
 
 	acpi_gpe: general-purpose-events {
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 		reg = <IOMAP_ACPI_BASE IOMAP_ACPI_SIZE>;
 		compatible = "intel,acpi-gpe";
 		interrupt-controller;
@@ -174,14 +174,14 @@
 		compatible = "pci-x86";
 		#address-cells = <3>;
 		#size-cells = <2>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		ranges = <0x02000000 0x0 0xc0000000 0xc0000000 0 0x10000000
 			0x42000000 0x0 0xb0000000 0xb0000000 0 0x10000000
 			0x01000000 0x0 0x1000 0x1000 0 0xefff>;
 		u-boot,skip-auto-config-until-reloc;
 
 		host_bridge: host-bridge@0,0 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			reg = <0x00000000 0 0 0 0>;
 			compatible = "intel,apl-hostbridge";
 			pciex-region-size = <0x10000000>;
@@ -197,7 +197,7 @@
 			fsp_s: fsp-s {
 			};
 			fsp_m: fsp-m {
-				u-boot,dm-spl;
+				bootph-pre-ram;
 			};
 
 			nhlt {
@@ -206,20 +206,20 @@
 		};
 
 		punit@0,1 {
-			u-boot,dm-pre-proper;
-			u-boot,dm-spl;
+			bootph-some-ram;
+			bootph-pre-ram;
 			reg = <0x00000800 0 0 0 0>;
 			compatible = "intel,apl-punit";
 		};
 
 		gma@2,0 {
-			u-boot,dm-pre-proper;
+			bootph-some-ram;
 			reg = <0x00001000 0 0 0 0>;
 			compatible = "fsp-fb";
 		};
 
 		p2sb: p2sb@d,0 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			reg = <0x02006810 0 0 0 0>;
 			compatible = "intel,p2sb";
 			early-regs = <IOMAP_P2SB_BAR 0x100000>;
@@ -227,12 +227,12 @@
 
 			n {
 				compatible = "intel,apl-pinctrl";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				intel,p2sb-port-id = <PID_GPIO_N>;
 				acpi,path = "\\_SB.GPO0";
 				gpio_n: gpio-n {
 					compatible = "intel,gpio";
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					gpio-controller;
 					#gpio-cells = <2>;
 					linux-name = "INT3452:00";
@@ -240,14 +240,14 @@
 			};
 
 			nw {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				compatible = "intel,apl-pinctrl";
 				intel,p2sb-port-id = <PID_GPIO_NW>;
 				#gpio-cells = <2>;
 				acpi,path = "\\_SB.GPO1";
 				gpio_nw: gpio-nw {
 					compatible = "intel,gpio";
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					gpio-controller;
 					#gpio-cells = <2>;
 					linux-name = "INT3452:01";
@@ -255,14 +255,14 @@
 			};
 
 			w {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				compatible = "intel,apl-pinctrl";
 				intel,p2sb-port-id = <PID_GPIO_W>;
 				#gpio-cells = <2>;
 				acpi,path = "\\_SB.GPO2";
 				gpio_w: gpio-w {
 					compatible = "intel,gpio";
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					gpio-controller;
 					#gpio-cells = <2>;
 					linux-name = "INT3452:02";
@@ -270,14 +270,14 @@
 			};
 
 			sw {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				compatible = "intel,apl-pinctrl";
 				intel,p2sb-port-id = <PID_GPIO_SW>;
 				#gpio-cells = <2>;
 				acpi,path = "\\_SB.GPO3";
 				gpio_sw: gpio-sw {
 					compatible = "intel,gpio";
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					gpio-controller;
 					#gpio-cells = <2>;
 					linux-name = "INT3452:03";
@@ -285,7 +285,7 @@
 			};
 
 			itss {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				compatible = "intel,itss";
 				intel,p2sb-port-id = <PID_ITSS>;
 				intel,pmc-routes = <
@@ -301,7 +301,7 @@
 		};
 
 		pmc@d,1 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			reg = <0x6900 0 0 0 0>;
 
 			/*
@@ -348,8 +348,8 @@
 		};
 
 		spi: fast-spi@d,2 {
-			u-boot,dm-pre-proper;
-			u-boot,dm-spl;
+			bootph-some-ram;
+			bootph-pre-ram;
 			reg = <0x02006a10 0 0 0 0>;
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -360,8 +360,8 @@
 			fwstore_spi: spi-flash@0 {
 				#size-cells = <1>;
 				#address-cells = <1>;
-				u-boot,dm-pre-proper;
-				u-boot,dm-spl;
+				bootph-some-ram;
+				bootph-pre-ram;
 				reg = <0>;
 				m25p,fast-read;
 				compatible = "winbond,w25q128fw",
@@ -369,12 +369,12 @@
 				rw-mrc-cache {
 					label = "rw-mrc-cache";
 					reg = <0x008e0000 0x00010000>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 				rw-var-mrc-cache {
 					label = "rw-mrc-cache";
 					reg = <0x008f0000 0x0001000>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 			};
 		};
@@ -442,7 +442,7 @@
 			compatible = "intel,apl-i2c", "snps,designware-i2c-pci";
 			reg = <0x0200b210 0 0 0 0>;
 			early-regs = <IOMAP_I2C2_BASE 0x1000>;
-			u-boot,dm-pre-proper;
+			bootph-some-ram;
 			#address-cells = <1>;
 			#size-cells = <0>;
 			clock-frequency = <400000>;
@@ -453,7 +453,7 @@
 			tpm: tpm@50 {
 				reg = <0x50>;
 				compatible = "google,cr50";
-				u-boot,dm-pre-proper;
+				bootph-some-ram;
 				u-boot,i2c-offset-len = <0>;
 				ready-gpios = <&gpio_n 28 GPIO_ACTIVE_LOW>;
 				interrupts-extended = <&acpi_gpe GPIO_28_IRQ
@@ -577,7 +577,7 @@
 
 		serial: serial@18,2 {
 			reg = <0x0200c210 0 0 0 0>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			compatible = "intel,apl-ns16550";
 			early-regs = <0xde000000 0x20>;
 			reg-shift = <2>;
@@ -603,7 +603,7 @@
 		pch: pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
 			compatible = "intel,apl-pch";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			#address-cells = <1>;
 			#size-cells = <1>;
 
@@ -611,10 +611,10 @@
 				compatible = "intel,apl-lpc";
 				#address-cells = <1>;
 				#size-cells = <0>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				cros_ec: cros-ec {
-					u-boot,dm-pre-proper;
-					u-boot,dm-vpl;
+					bootph-some-ram;
+					bootph-verify;
 					compatible = "google,cros-ec-lpc";
 					reg = <0x204 1 0x200 1 0x880 0x80>;
 
@@ -785,7 +785,7 @@
 };
 
 &fsp_s {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 
 	fsps,ish-enable = <0>;
 	fsps,enable-sata = <0>;
@@ -1253,5 +1253,5 @@
 &rtc {
 	#address-cells = <1>;
 	#size-cells = <0>;
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };

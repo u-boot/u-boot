@@ -9,7 +9,7 @@
 #include "r8a7793-u-boot.dtsi"
 
 &scif0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &qspi {

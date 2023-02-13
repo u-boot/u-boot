@@ -44,11 +44,11 @@
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <100000000>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	amba {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -63,7 +63,7 @@
 		};
 
 		uart1: serial@ff010000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
 			reg = <0xff010000 0x1000>;
 			clock-names = "uart_clk", "pclk";

@@ -36,7 +36,7 @@
 		compatible = "fixed-clock";
 		clock-frequency = <13000000>;
 		#clock-cells = <0>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	hwver: hwver {
@@ -61,7 +61,7 @@
 		interrupts = <GIC_SPI 130 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&gpt_clk>;
 		clock-names = "gpt-clk";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	watchdog: watchdog@1001c000 {
@@ -87,7 +87,7 @@
 		compatible = "mediatek,mt7981-fixed-plls";
 		reg = <0x1001e000 0x1000>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	topckgen: topckgen@1001b000 {
@@ -95,7 +95,7 @@
 		reg = <0x1001b000 0x1000>;
 		clock-parent = <&fixed_plls>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	infracfg_ao: infracfg_ao@10001000 {
@@ -103,7 +103,7 @@
 		reg = <0x10001000 0x80>;
 		clock-parent = <&infracfg>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	infracfg: infracfg@10001000 {
@@ -111,7 +111,7 @@
 		reg = <0x10001000 0x30>;
 		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	pinctrl: pinctrl@11d00000 {
@@ -163,7 +163,7 @@
 					 <&infracfg CK_INFRA_UART>;
 		mediatek,force-highspeed;
 		status = "disabled";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	uart1: serial@11003000 {

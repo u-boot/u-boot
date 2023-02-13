@@ -122,7 +122,7 @@
 };
 
 &uart0 {		/* console uart */
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };
 
@@ -139,12 +139,12 @@
 };
 
 &i2c0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 	clock-frequency = <100000>;
 
 	tps: tps@24 {		/* PMIC controller */
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		reg = <0x24>;
 		compatible = "ti,tps65217";
 	};
@@ -176,12 +176,12 @@
 };
 
 &i2c1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };
 
 &spi0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 
 	cs-gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>,
@@ -192,8 +192,8 @@
 	spi-max-frequency = <24000000>;
 
 	spi_flash: spiflash@0 {
-		u-boot,dm-spl;
-		u-boot,dm-pre-reloc;
+		bootph-pre-ram;
+		bootph-all;
 		compatible = "spidev", "spi-flash";
 		spi-max-frequency = <24000000>;
 		reg = <0>;
@@ -201,7 +201,7 @@
 };
 
 &spi1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 	cs-gpios = <&gpio3 17 GPIO_ACTIVE_HIGH>,
 		   <&gpio0 19 GPIO_ACTIVE_HIGH>,
@@ -302,10 +302,10 @@
 	segment@300000 {
 
 		target-module@e000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			lcdc: lcdc@0 {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				status = "okay";
 				ti,no-reset-on-init;
 				ti,no-idle-on-init;
@@ -327,22 +327,22 @@
 };
 
 &gpio0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	ti,no-reset-on-init;
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	ti,no-reset-on-init;
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	ti,no-reset-on-init;
 };
 
 &gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	ti,no-reset-on-init;
 };
 
