@@ -774,6 +774,12 @@ S:	Maintained
 F:	drivers/pci/pcie_phytium.c
 F:	arch/arm/dts/phytium-durian.dts
 
+ASPEED AST2600 I2C DRIVER
+M:	Ryan Chen <ryan_chen@aspeedtech.com>
+R:	Aspeed BMC SW team <BMC-SW@aspeedtech.com>
+S:	Maintained
+F:	drivers/i2c/ast2600_i2c.c
+
 ASPEED FMC SPI DRIVER
 M:	Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>
 M:	Cédric Le Goater <clg@kaod.org>
