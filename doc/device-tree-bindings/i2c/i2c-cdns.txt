@@ -9,6 +9,9 @@ Required properties:
 - interrupt-parent	: Must be core interrupt controller
 - clocks		: Clock phandles (see clock bindings for details).
 
+Optional properties:
+- fifo-depth		: To specify the FIFO depth of the controller.
+
 Example:
 	i2c0: i2c@e0004000 {
 		compatible = "cdns,i2c-r1p10";
@@ -16,5 +19,6 @@ Example:
 		clocks = <&clkc 38>;
 		interrupts = <0 25 4>;
 		interrupt-parent = <&intc>;
+		fifo-depth = <32>;
 		status = "disabled";
 	};
