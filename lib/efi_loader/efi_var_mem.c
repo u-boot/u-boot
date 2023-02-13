@@ -41,11 +41,13 @@ efi_var_mem_compare(struct efi_var_entry *var, const efi_guid_t *guid,
 	     i < sizeof(efi_guid_t) && match; ++i)
 		match = (guid1[i] == guid2[i]);
 
-	for (data = var->name, var_name = name;; ++data, ++var_name) {
+	for (data = var->name, var_name = name;; ++data) {
 		if (match)
 			match = (*data == *var_name);
 		if (!*data)
 			break;
+		if (*var_name)
+			++var_name;
 	}
 
 	++data;
