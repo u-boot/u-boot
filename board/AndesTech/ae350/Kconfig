@@ -1,10 +1,10 @@
-if TARGET_AX25_AE350
+if TARGET_AE350
 
 config SYS_CPU
-	default "ax25"
+	default "andesv5"
 
 config SYS_BOARD
-	default "ax25-ae350"
+	default "ae350"
 
 config SYS_VENDOR
 	default "AndesTech"
@@ -13,7 +13,7 @@ config SYS_SOC
 	default "ae350"
 
 config SYS_CONFIG_NAME
-	default "ax25-ae350"
+	default "ae350"
 
 config ENV_SIZE
 	default 0x2000 if ENV_IS_IN_SPI_FLASH
