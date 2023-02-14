@@ -40,6 +40,7 @@ if USB_GADGET
 
 config USB_GADGET_MANUFACTURER
 	string "Vendor name of the USB device"
+	default "NVIDIA" if ARCH_TEGRA
 	default "Allwinner Technology" if ARCH_SUNXI
 	default "Rockchip" if ARCH_ROCKCHIP
 	default "U-Boot"
@@ -49,6 +50,7 @@ config USB_GADGET_MANUFACTURER
 
 config USB_GADGET_VENDOR_NUM
 	hex "Vendor ID of the USB device"
+	default 0x0955 if ARCH_TEGRA
 	default 0x1f3a if ARCH_SUNXI
 	default 0x2207 if ARCH_ROCKCHIP
 	default 0x0
@@ -59,6 +61,7 @@ config USB_GADGET_VENDOR_NUM
 
 config USB_GADGET_PRODUCT_NUM
 	hex "Product ID of the USB device"
+	default 0x701a if ARCH_TEGRA
 	default 0x1010 if ARCH_SUNXI
 	default 0x310a if ROCKCHIP_RK3036
 	default 0x300a if ROCKCHIP_RK3066
