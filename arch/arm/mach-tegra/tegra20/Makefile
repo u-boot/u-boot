@@ -13,6 +13,6 @@ CFLAGS_warmboot_avp.o = -march=armv4t -U__LINUX_ARM_ARCH__ \
 CFLAGS_REMOVE_warmboot_avp.o := $(LTO_CFLAGS)
 
 obj-y	+= clock.o funcmux.o pinmux.o
-obj-$(CONFIG_TEGRA_LP0) += warmboot.o crypto.o warmboot_avp.o
+obj-$(CONFIG_TEGRA_LP0) += warmboot.o warmboot_avp.o
 obj-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
 obj-$(CONFIG_TEGRA_PMU) += pmu.o

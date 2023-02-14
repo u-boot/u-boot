@@ -15,6 +15,11 @@ config SPL_SERIAL
 config TEGRA_CLKRST
 	bool
 
+config TEGRA_CRYPTO
+	bool "Tegra AES128 crypto module"
+	select AES
+	default n
+
 config TEGRA_GP_PADCTRL
 	bool
 
