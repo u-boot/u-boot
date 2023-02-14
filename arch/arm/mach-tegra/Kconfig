@@ -229,4 +229,13 @@ config CMD_ENTERRCM
 	  for mechanical button actuators, or hooking up relays/... to the
 	  button.
 
+config CMD_EBTUPDATE
+	bool "Enable 'ebtupdate' command"
+	depends on TEGRA30
+	select TEGRA_CRYPTO
+	help
+	  Updating u-boot from within u-boot in rather complex or even
+	  impossible on production devices. To make it easier procedure of
+	  re-cryption was created. If your device was re-crypted choose Y.
+
 endif
