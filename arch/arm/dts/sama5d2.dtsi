@@ -32,7 +32,7 @@
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		usb1: ohci@400000 {
 			compatible = "atmel,at91rm9200-ohci", "usb-ohci";
@@ -70,7 +70,7 @@
 			compatible = "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			hlcdc: hlcdc@f0000000 {
 				compatible = "atmel,at91sam9x5-hlcdc";
@@ -84,12 +84,12 @@
 				reg = <0xf0014000 0x160>;
 				#address-cells = <1>;
 				#size-cells = <0>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				main: mainck {
 					compatible = "atmel,at91sam9x5-clk-main";
 					#clock-cells = <0>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				plla: pllack@0 {
@@ -100,7 +100,7 @@
 					atmel,clk-input-range = <12000000 12000000>;
 					#atmel,pll-clk-output-range-cells = <4>;
 					atmel,pll-clk-output-ranges = <600000000 1200000000 0 0>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				plladiv: plladivck {
@@ -132,7 +132,7 @@
 					#clock-cells = <0>;
 					clocks = <&main>;
 					regmap-sfr = <&sfr>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				mck: masterck {
@@ -141,14 +141,14 @@
 					clocks = <&main>, <&plladiv>, <&utmi>;
 					atmel,clk-output-range = <124000000 166000000>;
 					atmel,clk-divisors = <1 2 4 3>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				h32ck: h32mxck {
 					#clock-cells = <0>;
 					compatible = "atmel,sama5d4-clk-h32mx";
 					clocks = <&mck>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				usb: usbck {
@@ -239,7 +239,7 @@
 					#address-cells = <1>;
 					#size-cells = <0>;
 					clocks = <&h32ck>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 
 					macb0_clk: macb0_clk@5 {
 						#clock-cells = <0>;
@@ -267,7 +267,7 @@
 						#clock-cells = <0>;
 						reg = <18>;
 						atmel,clk-output-range = <0 83000000>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					flx0_clk: flx0_clk@19 {
@@ -304,21 +304,21 @@
 						#clock-cells = <0>;
 						reg = <24>;
 						atmel,clk-output-range = <0 83000000>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					uart1_clk: uart1_clk@25 {
 						#clock-cells = <0>;
 						reg = <25>;
 						atmel,clk-output-range = <0 83000000>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					uart2_clk: uart2_clk@26 {
 						#clock-cells = <0>;
 						reg = <26>;
 						atmel,clk-output-range = <0 83000000>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					uart3_clk: uart3_clk@27 {
@@ -349,7 +349,7 @@
 						#clock-cells = <0>;
 						reg = <33>;
 						atmel,clk-output-range = <0 83000000>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					spi1_clk: spi1_clk@34 {
@@ -362,7 +362,7 @@
 						#clock-cells = <0>;
 						reg = <35>;
 						atmel,clk-output-range = <0 83000000>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					tcb1_clk: tcb1_clk@36 {
@@ -455,7 +455,7 @@
 					#address-cells = <1>;
 					#size-cells = <0>;
 					clocks = <&mck>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 
 					dma0_clk: dma0_clk@6 {
 						#clock-cells = <0>;
@@ -495,13 +495,13 @@
 					sdmmc0_hclk: sdmmc0_hclk@31 {
 						#clock-cells = <0>;
 						reg = <31>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					sdmmc1_hclk: sdmmc1_hclk@32 {
 						#clock-cells = <0>;
 						reg = <32>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					lcdc_clk: lcdc_clk@45 {
@@ -517,13 +517,13 @@
 					qspi0_clk: qspi0_clk@52 {
 						#clock-cells = <0>;
 						reg = <52>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					qspi1_clk: qspi1_clk@53 {
 						#clock-cells = <0>;
 						reg = <53>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 				};
 
@@ -533,18 +533,18 @@
 					#size-cells = <0>;
 					interrupt-parent = <&pmc>;
 					clocks = <&main>, <&plla>, <&utmi>, <&mck>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 
 					sdmmc0_gclk: sdmmc0_gclk@31 {
 						#clock-cells = <0>;
 						reg = <31>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					sdmmc1_gclk: sdmmc1_gclk@32 {
 						#clock-cells = <0>;
 						reg = <32>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					tcb0_gclk: tcb0_gclk@35 {
@@ -648,12 +648,12 @@
 				clock-names = "t0_clk", "gclk", "slow_clk";
 				#address-cells = <1>;
 				#size-cells = <0>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				timer0: timer@0 {
 					compatible = "atmel,tcb-timer";
 					reg = <0>, <1>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 			};
 
@@ -804,7 +804,7 @@
 				clocks = <&pioA_clk>;
 				gpio-controller;
 				#gpio-cells = <2>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 		};
 	};

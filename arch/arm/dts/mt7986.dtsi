@@ -55,7 +55,7 @@
 		clock-frequency = <12000000>;
 		#clock-cells = <0>;
 		/* must need this line, or uart uanable to get dummy_clk */
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	hwver: hwver {
@@ -80,7 +80,7 @@
 		interrupts = <GIC_SPI 130 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&infracfg CK_INFRA_CK_F26M>;
 		clock-names = "gpt-clk";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	watchdog: watchdog@1001c000 {
@@ -168,7 +168,7 @@
 					 <&infracfg CK_INFRA_PWM>;
 		clock-names = "top", "main", "pwm1", "pwm2";
 		status = "disabled";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	uart0: serial@11002000 {
@@ -182,7 +182,7 @@
 					 <&infracfg CK_INFRA_UART>;
 		mediatek,force-highspeed;
 		status = "disabled";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	uart1: serial@11003000 {

@@ -13,7 +13,7 @@
 	};
 
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
@@ -22,7 +22,7 @@
 	      <0x0 0xc883c000 0x0 0x1000>,
 	      <0x0 0xc8838000 0x0 0x1000>;
 	reg-names = "vpu", "hhi", "dmc";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &hdmi_tx {

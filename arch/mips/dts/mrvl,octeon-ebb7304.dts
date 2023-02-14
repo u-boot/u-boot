@@ -113,7 +113,7 @@
 };
 
 &i2c0 {
-	u-boot,dm-pre-reloc;	/* Needed early for DDR SPD EEPROM */
+	bootph-all;	/* Needed early for DDR SPD EEPROM */
 	clock-frequency = <100000>;
 
 	rtc@68 {
@@ -129,7 +129,7 @@
 };
 
 &i2c1 {
-	u-boot,dm-pre-reloc;	/* Needed early for DDR SPD EEPROM */
+	bootph-all;	/* Needed early for DDR SPD EEPROM */
 	clock-frequency = <100000>;
 };
 

@@ -129,7 +129,7 @@ Example
 	};
 
 	fs_loader0: fs-loader@0 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "u-boot,fs-loader";
 		phandlepart = <&mmc 1>;
 	};

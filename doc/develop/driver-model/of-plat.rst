@@ -67,7 +67,7 @@ device. As an example, consider this MMC node:
             pinctrl-0 = <&sdmmc_clk>, <&sdmmc_cmd>, <&sdmmc_cd>, <&sdmmc_bus4>;
                 vmmc-supply = <&vcc_sd>;
                 status = "okay";
-                u-boot,dm-pre-reloc;
+                bootph-all;
         };
 
 
@@ -632,7 +632,7 @@ the devicetree. For example, if the devicetree has::
    grf: grf@20008000 {
       compatible = "rockchip,rk3188-grf", "syscon";
       reg = <0x20008000 0x200>;
-      u-boot,dm-spl;
+      bootph-pre-ram;
    };
 
 then dtoc looks at the first compatible string ("rockchip,rk3188-grf"),
@@ -685,21 +685,22 @@ indicates that the two nodes have different phase settings. Looking at the
 source .dts::
 
    i2c_emul: emul {
-      u-boot,dm-spl;
+      bootph-pre-ram;
       reg = <0xff>;
       compatible = "sandbox,i2c-emul-parent";
       emul0: emul0 {
-         u-boot,dm-pre-reloc;
+         bootph-all;
          compatible = "sandbox,i2c-rtc-emul";
          #emul-cells = <0>;
       };
    };
 
-you can see that the child node 'emul0' usees 'u-boot,dm-pre-reloc', indicating
-that the node is present in all SPL builds, but its parent uses 'u-boot,dm-spl'
-indicating it is only present in SPL, not TPL. For a TPL build, this will fail
-with the above message. The fix is to change 'emul0' to use the same
-'u-boot,dm-spl' condition, so that it is not present in TPL, like its parent.
+you can see that the child node 'emul0' usees 'bootph-all', indicating
+that the node is present in all SPL builds, but its parent uses
+'bootph-pre-ram' indicating it is only present in SPL, not TPL. For a TPL
+build, this will fail with the above message. The fix is to change 'emul0' to
+use the same 'bootph-pre-ram' condition, so that it is not present in TPL,
+like its parent.
 
 Link errors / undefined reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -715,16 +716,16 @@ you get a link error, e.g.::
 The first one indicates that the device cannot find its driver. This means that
 there is a driver 'sandbox_spl_test' but it is not compiled into the build.
 Check your Kconfig settings to make sure it is. If you don't want that in the
-build, adjust your phase settings, e.g. by using 'u-boot,dm-spl' in the node
+build, adjust your phase settings, e.g. by using 'bootph-pre-ram' in the node
 to exclude it from the TPL build::
 
 	spl-test5 {
-		u-boot,dm-tpl;
+		bootph-pre-sram;
 		compatible = "sandbox,spl-test";
 		stringarray = "tpl";
 	};
 
-We can drop the 'u-boot,dm-tpl' line so this node won't appear in the TPL
+We can drop the 'bootph-pre-sram' line so this node won't appear in the TPL
 devicetree and thus the driver won't be needed.
 
 The second error above indicates that the MISC uclass is needed by the driver

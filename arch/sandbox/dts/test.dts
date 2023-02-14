@@ -80,7 +80,7 @@
 	};
 
 	bootstd {
-		u-boot,dm-vpl;
+		bootph-verify;
 		compatible = "u-boot,boot-std";
 
 		filename-prefixes = "/", "/boot/";
@@ -104,7 +104,7 @@
 		 * before the parititon starts
 		 */
 		firmware0 {
-			u-boot,dm-vpl;
+			bootph-verify;
 			compatible = "fwupd,vbe-simple";
 			storage = "mmc1";
 			skip-offset = <0x200>;
@@ -125,7 +125,7 @@
 		 * running U-Boot
 		 */
 		firmware1 {
-			u-boot,dm-vpl;
+			bootph-verify;
 			status = "disabled";
 			compatible = "fwupd,vbe-simple";
 			storage = "mmc3";
@@ -260,7 +260,7 @@
 		compatible = "denx,u-boot-fdt-test";
 		ping-expect = <0>;
 		ping-add = <0>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		test-gpios = <&gpio_a 1>, <&gpio_a 4>,
 			<&gpio_b 5 GPIO_ACTIVE_HIGH 3 2 1>,
 			<0>, <&gpio_a 12>;
@@ -889,7 +889,7 @@
 	};
 
 	lcd {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "sandbox,lcd-sdl";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinmux_lcd_pins>;
@@ -959,21 +959,21 @@
 			reg = <0x1>;
 			timebase-frequency = <3000000>;
 			compatible = "sandbox,cpu_sandbox";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		cpu2: cpu@2 {
 			device_type = "cpu";
 			reg = <0x2>;
 			compatible = "sandbox,cpu_sandbox";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		cpu3: cpu@3 {
 			device_type = "cpu";
 			reg = <0x3>;
 			compatible = "sandbox,cpu_sandbox";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
@@ -1213,12 +1213,12 @@
 
 	reset@0 {
 		compatible = "sandbox,warm-reset";
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 	};
 
 	reset@1 {
 		compatible = "sandbox,reset";
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 	};
 
 	resetc: reset-ctl {
@@ -1369,7 +1369,7 @@
 
 	uart0: serial {
 		compatible = "sandbox,serial";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinmux_uart0_pins>;
 	};

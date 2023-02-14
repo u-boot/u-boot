@@ -15,7 +15,7 @@
 
 	wdt-reboot {
 		compatible = "wdt-reboot";
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		wdt = <&wdog1>;
 	};
 };
@@ -27,8 +27,8 @@
 };
 
 &clk {
-	u-boot,dm-pre-reloc;
-	u-boot,dm-spl;
+	bootph-all;
+	bootph-pre-ram;
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
 	/delete-property/ assigned-clock-rates;
@@ -36,7 +36,7 @@
 };
 
 &crypto {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &eqos {
@@ -46,11 +46,11 @@
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 
 	regulator-ethphy {
 		gpio-hog;
@@ -63,19 +63,19 @@
 };
 
 &gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio5 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 
 	eeprom_module: eeprom@50 {
 		compatible = "i2c-eeprom";
@@ -85,11 +85,11 @@
 };
 
 &i2c2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c4 {
@@ -109,56 +109,56 @@
 };
 
 &pca9450 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_i2c1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2_pwr_en {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	u-boot,off-on-delay-us = <20000>;
 };
 
 &pinctrl_uart3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2_cd {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_wdog {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &reg_usdhc2_vmmc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sec_jr0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sec_jr1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sec_jr2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &uart3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc1 {
@@ -171,7 +171,7 @@
 	assigned-clocks = <&clk IMX8MP_CLK_USDHC2>;
 	sd-uhs-ddr50;
 	sd-uhs-sdr104;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc3 {
@@ -180,9 +180,9 @@
 	assigned-clocks = <&clk IMX8MP_CLK_USDHC3>;
 	mmc-hs400-1_8v;
 	mmc-hs400-enhanced-strobe;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &wdog1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

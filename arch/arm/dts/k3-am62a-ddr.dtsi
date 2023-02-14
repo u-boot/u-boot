@@ -17,7 +17,7 @@
 			<&k3_pds 55 TI_SCI_PD_SHARED>;
 		clocks = <&k3_clks 170 1>, <&k3_clks 16 4>;
 
-		u-boot,dm-spl;
+		bootph-pre-ram;
 
 		ti,ctl-data = <
 			DDRSS_CTL_0_DATA

@@ -1,43 +1,43 @@
 / {
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		timer@60000200 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		serial@54006800 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		serial@54006900 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		serial@54006a00 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		soc-glue@5f800000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			pinctrl {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				emmc {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				uart0 {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				uart1 {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				uart2 {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 			};
 		};
@@ -45,5 +45,5 @@
 };
 
 &emmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

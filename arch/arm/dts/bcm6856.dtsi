@@ -55,7 +55,7 @@
 	};
 
 	clocks: clocks {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		periph_clk:periph-clk {
 			compatible = "fixed-clock";
@@ -109,7 +109,7 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges = <0x0 0x0 0xff800000 0x800000>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		uart0: serial@640 {
 			compatible = "brcm,bcm6345-uart";

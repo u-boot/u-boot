@@ -7,26 +7,26 @@
 
 / {
 	smem {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		pinctrl@1010000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			uart {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 		};
 
 		clock-controller@300000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		serial@75b0000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 };

@@ -33,7 +33,7 @@
 
 	pci {
 		compatible = "pci-x86";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	efi-fb {

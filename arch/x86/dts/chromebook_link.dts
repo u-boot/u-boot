@@ -71,7 +71,7 @@
 
 	pch_pinctrl {
 		compatible = "intel,x86-pinctrl";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		reg = <0 0>;
 
 		gpio_a0 {
@@ -127,7 +127,7 @@
 		};
 
 		gpio_a10 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			gpio-offset = <0 10>;
 			mode-gpio;
 			direction = <PIN_INPUT>;
@@ -187,21 +187,21 @@
 		};
 
 		gpio_b9 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			gpio-offset = <0x30 9>;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 		};
 
 		gpio_b10 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			gpio-offset = <0x30 10>;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 		};
 
 		gpio_b11 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			gpio-offset = <0x30 11>;
 			mode-gpio;
 			direction = <PIN_INPUT>;
@@ -226,23 +226,23 @@
 		compatible = "pci-x86";
 		#address-cells = <3>;
 		#size-cells = <2>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		ranges = <0x02000000 0x0 0xe0000000 0xe0000000 0 0x10000000
 			0x42000000 0x0 0xd0000000 0xd0000000 0 0x10000000
 			0x01000000 0x0 0x1000 0x1000 0 0xefff>;
 
 		northbridge@0,0 {
 			reg = <0x00000000 0 0 0 0>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			compatible = "intel,bd82x6x-northbridge";
 			board-id-gpios = <&gpio_b 9 0>, <&gpio_b 10 0>,
 					<&gpio_b 11 0>, <&gpio_a 10 0>;
 			spd {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				#address-cells = <1>;
 				#size-cells = <0>;
 				elpida_4Gb_1600_x16 {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					reg = <0>;
 					data = [92 10 0b 03 04 19 02 02
 						03 52 01 08 0a 00 fe 00
@@ -278,7 +278,7 @@
 						00 00 00 00 00 00 00 00];
 				};
 				samsung_4Gb_1600_1.35v_x16 {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					reg = <1>;
 					data = [92 11 0b 03 04 19 02 02
 						03 11 01 08 0a 00 fe 00
@@ -368,7 +368,7 @@
 		me@16,0 {
 			reg = <0x0000b000 0 0 0 0>;
 			compatible = "intel,me";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		usb_1: usb@1a,0 {
@@ -410,7 +410,7 @@
 		pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
 			compatible = "intel,bd82x6x", "intel,pch9";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			#address-cells = <1>;
 			#size-cells = <1>;
 			intel,pirq-routing = <0x8b 0x8a 0x8b 0x8b
@@ -424,11 +424,11 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "intel,ich9-spi";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				spi-flash@0 {
 					#size-cells = <1>;
 					#address-cells = <1>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					reg = <0>;
 					m25p,fast-read;
 					compatible = "winbond,w25q64",
@@ -437,14 +437,14 @@
 					rw-mrc-cache {
 						label = "rw-mrc-cache";
 						reg = <0x003e0000 0x00010000>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 				};
 			};
 
 			gpio_a: gpioa {
 				compatible = "intel,ich6-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				#gpio-cells = <2>;
 				gpio-controller;
 				reg = <0 0x10>;
@@ -453,7 +453,7 @@
 
 			gpio_b: gpiob {
 				compatible = "intel,ich6-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				#gpio-cells = <2>;
 				gpio-controller;
 				reg = <0x30 0x10>;
@@ -462,7 +462,7 @@
 
 			gpio_c: gpioc {
 				compatible = "intel,ich6-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				#gpio-cells = <2>;
 				gpio-controller;
 				reg = <0x40 0x10>;
@@ -473,7 +473,7 @@
 				compatible = "intel,bd82x6x-lpc";
 				#address-cells = <1>;
 				#size-cells = <0>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				intel,gen-dec = <0x800 0xfc 0x900 0xfc>;
 				cros-ec@200 {
 					compatible = "google,cros-ec";
@@ -496,7 +496,7 @@
 		sata@1f,2 {
 			compatible = "intel,pantherpoint-ahci";
 			reg = <0x0000fa00 0 0 0 0>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			intel,sata-mode = "ahci";
 			intel,sata-port-map = <1>;
 			intel,sata-port0-gen3-tx = <0x00880a7f>;
@@ -505,7 +505,7 @@
 		smbus: smbus@1f,3 {
 			compatible = "intel,ich-i2c";
 			reg = <0x0000fb00 0 0 0 0>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
@@ -515,9 +515,9 @@
 	};
 
 	microcode {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		update@0 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 #include "microcode/m12306a9_0000001b.dtsi"
 		};
 	};

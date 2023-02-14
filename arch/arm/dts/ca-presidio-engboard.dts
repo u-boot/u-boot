@@ -40,7 +40,7 @@
 	};
 
 	uart0: serial@0xf4329148  {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "cortina,ca-uart";
 		reg = <0x0 0xf4329148 0x30>;
 		status = "okay";

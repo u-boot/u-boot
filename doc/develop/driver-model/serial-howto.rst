@@ -62,7 +62,7 @@ what you need. U-Boot automatically includes these files: see :ref:`dttweaks`.
 Here are some things you might need to consider:
 
 1. The serial driver itself needs to be present before relocation, so that the
-   U-Boot banner appears. Make sure it has a u-boot,dm-pre-reloc tag in the device
+   U-Boot banner appears. Make sure it has a bootph-all tag in the device
    tree, so that the serial driver is bound when U-Boot starts.
 
    For example, on iMX8::
@@ -75,11 +75,11 @@ Here are some things you might need to consider:
    put this in your xxx-u-boot.dtsi file::
 
        &lpuart3 {
-           u-boot,dm-pre-proper;
+           bootph-some-ram;
        };
 
 2. If your serial port requires a particular pinmux configuration, you may need
-   a pinctrl driver. This needs to have a u-boot,dm-pre-reloc tag also. Take care
+   a pinctrl driver. This needs to have a bootph-all tag also. Take care
    that any subnodes have the same tag, if they are needed to make the correct
    pinctrl available.
 
@@ -107,15 +107,15 @@ Here are some things you might need to consider:
    parents, so put this in your xxx-u-boot.dtsi file::
 
        &pinctrl {
-           u-boot,dm-pre-reloc;
+           bootph-all;
        };
 
        &uart2 {
-           u-boot,dm-pre-reloc;
+           bootph-all;
        };
 
        &uart2_xfer {
-           u-boot,dm-pre-reloc;
+           bootph-all;
        };
 
 3. The same applies to power domains. For example, if a particular power domain
@@ -125,11 +125,11 @@ Here are some things you might need to consider:
    For example, on iMX8, put this in your xxx-u-boot.dtsi file::
 
        &pd_dma {
-           u-boot,dm-pre-proper;
+           bootph-some-ram;
        };
 
        &pd_dma_lpuart3 {
-           u-boot,dm-pre-proper;
+           bootph-some-ram;
        };
 
 4. The same applies to clocks, in the same way. Make sure that when your driver
@@ -168,10 +168,10 @@ some customisation.
 Serial in SPL
 -------------
 
-A similar process is needed in SPL, but in this case the u-boot,dm-spl or
-u-boot,dm-tpl tags are used. Add these in the same way as above, to ensure that
-the SPL device tree contains the required nodes (see spl/u-boot-spl.dtb for
-what it actually contains).
+A similar process is needed in SPL, but in this case the bootph-pre-ram or
+bootph-pre-sram tags are used. Add these in the same way as above, to ensure
+that the SPL device tree contains the required nodes (see spl/u-boot-spl.dtb
+for what it actually contains).
 
 Removing old code
 -----------------

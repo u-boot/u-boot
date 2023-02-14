@@ -15,7 +15,7 @@
 				<&k3_pds 244 TI_SCI_PD_SHARED>;
 		assigned-clocks = <&k3_clks 20 1>;
 		assigned-clock-rates = <DDR_PLL_FREQUENCY>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 
 		ti,ss-reg = <
 			DDRSS_V2H_CTL_REG

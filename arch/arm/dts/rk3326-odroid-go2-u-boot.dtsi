@@ -20,7 +20,7 @@
 	};
 
 	dmc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "rockchip,px30-dmc", "syscon";
 		reg = <0x0 0xff2a0000 0x0 0x1000>;
 	};
@@ -34,7 +34,7 @@
 
 /* U-Boot clk driver for px30 cannot set GPU_CLK */
 &cru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	assigned-clocks = <&cru PLL_NPLL>,
 		<&cru ACLK_BUS_PRE>, <&cru ACLK_PERI_PRE>,
 		<&cru HCLK_BUS_PRE>, <&cru HCLK_PERI_PRE>,
@@ -47,63 +47,63 @@
 };
 
 &gpio0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio3 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &grf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pmucru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pmugrf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &saradc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &sdmmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
 	u-boot,spl-fifo-mode;
 };
 
 &sfc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &{/spi@ff3a0000/flash@0} {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart1 {
 	clock-frequency = <24000000>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart2 {
 	clock-frequency = <24000000>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &xin24m {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

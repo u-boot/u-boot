@@ -26,7 +26,7 @@
 	memory@80000000 {
 		device_type = "memory";
 		reg = <0x00000000 0x80000000 0x00000000 0x80000000>; /* 2G RAM */
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	reserved-memory {
@@ -54,7 +54,7 @@
 		ti,sci = <&dmsc>;
 		ti,sci-proc-id = <32>;
 		ti,sci-host-id = <10>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	dm_tifs: dm-tifs {
@@ -64,7 +64,7 @@
 		mbox-names = "rx", "tx";
 		mboxes= <&secure_proxy_main 22>,
 			<&secure_proxy_main 23>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -85,7 +85,7 @@
 		      <0x0 0x44860000 0x0 0x20000>,
 		      <0x0 0x43600000 0x0 0x10000>;
 		reg-names = "rt", "scfg", "target_data";
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	sysctrler: sysctrler {
@@ -94,13 +94,13 @@
 			<&secure_proxy_main 0>,
 			<&sa3_secproxy 0>;
 		mbox-names = "tx", "rx", "boot_notify";
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &mcu_pmx0 {
 	status = "okay";
-	u-boot,dm-spl;
+	bootph-pre-ram;
 
 	wkup_uart0_pins_default: wkup-uart0-pins-default {
 		pinctrl-single,pins = <
@@ -109,12 +109,12 @@
 			AM62X_MCU_IOPAD(0x024, PIN_INPUT, 0)	/* (B4) WKUP_UART0_RXD */
 			AM62X_MCU_IOPAD(0x028, PIN_OUTPUT, 0)	/* (C5) WKUP_UART0_TXD */
 		>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &main_pmx0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	main_uart1_pins_default: main-uart1-pins-default {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x194, PIN_INPUT, 2)	/* (B19) MCASP0_AXR3.UART1_CTSn */
@@ -122,7 +122,7 @@
 			AM62X_IOPAD(0x1ac, PIN_INPUT, 2)	/* (E19) MCASP0_AFSR.UART1_RXD */
 			AM62X_IOPAD(0x1b0, PIN_OUTPUT, 2)	/* (A20) MCASP0_ACLKR.UART1_TXD */
 		>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -131,7 +131,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&wkup_uart0_pins_default>;
 	status = "okay";
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 /* Main UART1 is used for TIFS firmware logs */
@@ -139,5 +139,5 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_uart1_pins_default>;
 	status = "okay";
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

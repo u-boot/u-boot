@@ -585,24 +585,35 @@ cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
 # ---------------------------------------------------------------------------
 # Pass the original device tree file through fdtgrep twice. The first pass
 # removes any unwanted nodes (i.e. those which don't have the
-# 'u-boot,dm-pre-reloc' property and thus are not needed by SPL. The second
+# 'bootph-all' property and thus are not needed by SPL. The second
 # pass removes various unused properties from the remaining nodes.
 # The output is typically a much smaller device tree file.
+
+ifdef CONFIG_OF_TAG_MIGRATE
+# Support the old tags for a migration period
+migrate_tpl := -b u-boot,dm-pre-reloc -b u-boot,dm-tpl
+migrate_vpl := -b u-boot,dm-pre-reloc -b u-boot,dm-vpl
+migrate_spl := -b u-boot,dm-pre-reloc -b u-boot,dm-spl
+migrate_all := -P u-boot,dm-pre-reloc \
+	-P u-boot,dm-spl -P u-boot,dm-tpl -P u-boot,dm-vpl
+endif
+
 ifeq ($(CONFIG_VPL_BUILD),y)
-fdtgrep_props := -b u-boot,dm-pre-reloc -b u-boot,dm-vpl
+fdtgrep_props := -b bootph-all -b bootph-verify $(migrate_vpl)
 else
 ifeq ($(CONFIG_TPL_BUILD),y)
-fdtgrep_props := -b u-boot,dm-pre-reloc -b u-boot,dm-tpl
+fdtgrep_props := -b bootph-all -b bootph-pre-sram $(migrate_tpl)
 else
-fdtgrep_props := -b u-boot,dm-pre-reloc -b u-boot,dm-spl
+fdtgrep_props := -b bootph-all -b bootph-pre-ram $(migrate_spl)
 endif
 endif
 quiet_cmd_fdtgrep = FDTGREP $@
       cmd_fdtgrep = $(objtree)/tools/fdtgrep $(fdtgrep_props) -RT $< \
 		-n /chosen -n /config -O dtb | \
 	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
-		-P u-boot,dm-pre-reloc -P u-boot,dm-spl -P u-boot,dm-tpl \
-		 -P u-boot,dm-vpl \
+		-P bootph-all -P bootph-pre-ram -P bootph-pre-sram \
+		-P bootph-verify \
+		$(migrate_all) \
 		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))
 
 # fdt_rm_props

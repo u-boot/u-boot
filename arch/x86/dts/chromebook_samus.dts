@@ -77,12 +77,12 @@
 
 	pch_pinctrl {
 		compatible = "intel,x86-broadwell-pinctrl";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		reg = <0 0>;
 
 		/* Put this first: it is the default */
 		gpio_unused: gpio-unused {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 			owner = <OWNER_GPIO>;
@@ -90,7 +90,7 @@
 		};
 
 		gpio_acpi_sci: acpi-sci {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 			invert;
@@ -98,7 +98,7 @@
 		};
 
 		gpio_acpi_smi: acpi-smi {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 			invert;
@@ -106,14 +106,14 @@
 		};
 
 		gpio_input: gpio-input {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 			owner = <OWNER_GPIO>;
 		};
 
 		gpio_input_invert: gpio-input-invert {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 			owner = <OWNER_GPIO>;
@@ -121,11 +121,11 @@
 		};
 
 		gpio_native: gpio-native {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		gpio_out_high: gpio-out-high {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			mode-gpio;
 			direction = <PIN_OUTPUT>;
 			output-value = <1>;
@@ -134,7 +134,7 @@
 		};
 
 		gpio_out_low: gpio-out-low {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			mode-gpio;
 			direction = <PIN_OUTPUT>;
 			output-value = <0>;
@@ -143,7 +143,7 @@
 		};
 
 		gpio_pirq: gpio-pirq {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 			owner = <OWNER_GPIO>;
@@ -151,7 +151,7 @@
 		};
 
 		soc_gpio@0 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			config =
 				<0 &gpio_unused 0>,	/* unused */
 				<1 &gpio_unused 0>,	/* unused */
@@ -255,7 +255,7 @@
 		compatible = "pci-x86";
 		#address-cells = <3>;
 		#size-cells = <2>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		ranges = <0x02000000 0x0 0xe0000000 0xe0000000 0 0x10000000
 			0x42000000 0x0 0xd0000000 0xd0000000 0 0x10000000
 			0x01000000 0x0 0x1000 0x1000 0 0xefff>;
@@ -265,14 +265,14 @@
 			compatible = "intel,broadwell-northbridge";
 			board-id-gpios = <&gpio_c 5 0>, <&gpio_c 4 0>,
 					<&gpio_c 3 0>, <&gpio_c 1 0>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			spd {
 				#address-cells = <1>;
 				#size-cells = <0>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				samsung_4 {
 					reg = <6>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					data = [91 20 f1 03 04 11 05 0b
 						03 11 01 08 0a 00 50 01
 						78 78 90 50 90 11 50 e0
@@ -312,7 +312,7 @@
 					 * columns 10, density 4096 mb, x32
 					 */
 					reg = <8>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					data = [91 20 f1 03 04 11 05 0b
 						03 11 01 08 0a 00 50 01
 						78 78 90 50 90 11 50 e0
@@ -348,7 +348,7 @@
 					};
 				samsung_8 {
 					reg = <10>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					data = [91 20 f1 03 04 12 05 0a
 						03 11 01 08 0a 00 50 01
 						78 78 90 50 90 11 50 e0
@@ -388,7 +388,7 @@
 					 * columns 11, density 4096 mb, x16
 					 */
 					reg = <12>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					data = [91 20 f1 03 04 12 05 0a
 						03 11 01 08 0a 00 50 01
 						78 78 90 50 90 11 50 e0
@@ -428,7 +428,7 @@
 					 * columns 11, density 8192 mb, x16
 					 */
 					reg = <13>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					data = [91 20 f1 03 05 1a 05 0a
 						03 11 01 08 0a 00 50 01
 						78 78 90 50 90 11 50 e0
@@ -468,7 +468,7 @@
 					 * columns 11, density 8192 mb, x16
 					 */
 					reg = <15>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					data = [91 20 f1 03 05 1a 05 0a
 						03 11 01 08 0a 00 50 01
 						78 78 90 50 90 11 50 e0
@@ -557,7 +557,7 @@
 		me@16,0 {
 			reg = <0x0000b000 0 0 0 0>;
 			compatible = "intel,me";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		usb_0: usb@1d,0 {
@@ -569,7 +569,7 @@
 		pch: pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
 			compatible = "intel,broadwell-pch";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			#address-cells = <1>;
 			#size-cells = <1>;
 			intel,pirq-routing = <0x8b 0x8a 0x8b 0x8b
@@ -585,12 +585,12 @@
 			power-enable-gpio = <&gpio_a 23 0>;
 
 			spi: spi {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "intel,ich9-spi";
 				fwstore_spi: spi-flash@0 {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					#size-cells = <1>;
 					#address-cells = <1>;
 					reg = <0>;
@@ -599,7 +599,7 @@
 							"jedec,spi-nor";
 					memory-map = <0xff800000 0x00800000>;
 					rw-mrc-cache {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						label = "rw-mrc-cache";
 						reg = <0x003e0000 0x00010000>;
 					};
@@ -608,7 +608,7 @@
 
 			gpio_a: gpioa {
 				compatible = "intel,broadwell-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				#gpio-cells = <2>;
 				gpio-controller;
 				reg = <0 0>;
@@ -617,7 +617,7 @@
 
 			gpio_b: gpiob {
 				compatible = "intel,broadwell-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				#gpio-cells = <2>;
 				gpio-controller;
 				reg = <1 0>;
@@ -626,7 +626,7 @@
 
 			gpio_c: gpioc {
 				compatible = "intel,broadwell-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				#gpio-cells = <2>;
 				gpio-controller;
 				reg = <2 0>;
@@ -637,10 +637,10 @@
 				compatible = "intel,broadwell-lpc";
 				#address-cells = <1>;
 				#size-cells = <0>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				intel,gen-dec = <0x800 0xfc 0x900 0xfc>;
 				cros_ec: cros-ec {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					compatible = "google,cros-ec-lpc";
 					reg = <0x204 1 0x200 1 0x880 0x80>;
 
@@ -661,7 +661,7 @@
 		sata@1f,2 {
 			compatible = "intel,wildcatpoint-ahci";
 			reg = <0x0000fa00 0 0 0 0>;
-			u-boot,dm-pre-proper;
+			bootph-some-ram;
 			intel,sata-mode = "ahci";
 			intel,sata-port-map = <1>;
 			intel,sata-port0-gen3-tx = <0x72>;
@@ -671,24 +671,24 @@
 		smbus: smbus@1f,3 {
 			compatible = "intel,ich-i2c";
 			reg = <0x0000fb00 0 0 0 0>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
 	tpm {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		reg = <0xfed40000 0x5000>;
 		compatible = "infineon,slb9635lpc";
 		secdata {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			compatible = "google,tpm-secdata";
 		};
 	};
 
 	microcode {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		update@0 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 #include "microcode/mc0306d4_00000018.dtsi"
 		};
 	};
@@ -711,7 +711,7 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 	nvdata {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "google,cmos-nvdata";
 		reg = <0x26>;
 	};

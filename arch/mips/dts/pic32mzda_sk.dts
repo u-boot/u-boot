@@ -26,17 +26,17 @@
 	microchip,refo4-frequency = <25000000>;
 	microchip,refo5-frequency = <40000000>;
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl {
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart2 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdhci {

@@ -80,7 +80,7 @@
 
 &uart0 { /* uart0 MIO38-39 */
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gem0 {
@@ -196,10 +196,10 @@
 	status = "okay";
 	is-decoded-cs = <0>;
 	num-cs = <1>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	displayspi@0 {
 		compatible = "syncoam,seps525";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		reg = <0>;
 		status = "okay";
 		spi-max-frequency = <10000000>;

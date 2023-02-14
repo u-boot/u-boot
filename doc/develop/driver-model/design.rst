@@ -1114,12 +1114,12 @@ Pre-Relocation Support
 ----------------------
 
 For pre-relocation we simply call the driver model init function. Only
-drivers marked with DM_FLAG_PRE_RELOC or the device tree 'u-boot,dm-pre-reloc'
+drivers marked with DM_FLAG_PRE_RELOC or the device tree 'bootph-all'
 property are initialised prior to relocation. This helps to reduce the driver
 model overhead. This flag applies to SPL and TPL as well, if device tree is
 enabled (CONFIG_OF_CONTROL) there.
 
-Note when device tree is enabled, the device tree 'u-boot,dm-pre-reloc'
+Note when device tree is enabled, the device tree 'bootph-all'
 property can provide better control granularity on which device is bound
 before relocation. While with DM_FLAG_PRE_RELOC flag of the driver all
 devices with the same driver are bound, which requires allocation a large
@@ -1128,14 +1128,15 @@ only way for statically declared devices via U_BOOT_DRVINFO() to be bound
 prior to relocation.
 
 It is possible to limit this to specific relocation steps, by using
-the more specialized 'u-boot,dm-spl' and 'u-boot,dm-tpl' flags
-in the device tree node. For U-Boot proper you can use 'u-boot,dm-pre-proper'
+the more specialized 'bootph-pre-ram' and 'bootph-pre-sram' flags
+in the device tree node. For U-Boot proper you can use 'bootph-some-ram'
 which means that it will be processed (and a driver bound) in U-Boot proper
 prior to relocation, but will not be available in SPL or TPL.
 
-To reduce the size of SPL and TPL, only the nodes with pre-relocation properties
-('u-boot,dm-pre-reloc', 'u-boot,dm-spl' or 'u-boot,dm-tpl') are keept in their
-device trees (see README.SPL for details); the remaining nodes are always bound.
+To reduce the size of SPL and TPL, only the nodes with pre-relocation
+properties ('bootph-all', 'bootph-pre-ram' or 'bootph-pre-sram') are kept in
+their device trees (see README.SPL for details); the remaining nodes are
+always bound.
 
 Then post relocation we throw that away and re-init driver model again.
 For drivers which require some sort of continuity between pre- and

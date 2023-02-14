@@ -3,5 +3,5 @@
 #include "rk3128-u-boot.dtsi"
 
 &emmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

@@ -13,11 +13,11 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges = <0x00000000 0xe0000000 0x10000000>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		clocks {
 			compatible = "simple-bus";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			apbclk: apbclk {
 				compatible = "fixed-clock";
@@ -29,7 +29,7 @@
 				compatible = "fixed-clock";
 				clock-frequency = <33333333>;
 				#clock-cells = <0>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			mmcclk_ciu: mmcclk-ciu {

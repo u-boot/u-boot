@@ -54,7 +54,7 @@ Example (for DDR3-1600K and 800MHz)
 	#include <dt-bindings/memory/rk3368-dmc.h>
 
 	dmc: dmc@ff610000 {
-	        u-boot,dm-pre-reloc;
+	        bootph-all;
 		compatible = "rockchip,rk3368-dmc";
 		reg = <0 0xff610000 0 0x400
 		       0 0xff620000 0 0x400>;

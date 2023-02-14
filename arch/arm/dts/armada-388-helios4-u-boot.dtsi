@@ -5,41 +5,41 @@
 };
 
 &spi1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	spi-flash@0 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &w25q32 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &ahci0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &ahci1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdhci {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 
 	eeprom@52 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	eeprom@53 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 

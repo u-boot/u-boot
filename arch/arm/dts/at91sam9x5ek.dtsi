@@ -15,7 +15,7 @@
 	chosen {
 		bootargs = "root=/dev/mtdblock1 rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs";
 		stdout-path = "serial0:115200n8";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	ahb {
@@ -47,7 +47,7 @@
 			};
 
 			dbgu: serial@fffff200 {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				status = "okay";
 			};
 

@@ -23,12 +23,12 @@
 };
 
 &clkmgr {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &qspi {
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &flash0 {
@@ -36,14 +36,14 @@
 	spi-max-frequency = <100000000>;
 	spi-tx-bus-width = <4>;
 	spi-rx-bus-width = <4>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sysmgr {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &watchdog0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

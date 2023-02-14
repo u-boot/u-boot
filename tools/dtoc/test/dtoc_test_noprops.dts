@@ -13,7 +13,7 @@
 	i2c@0 {
 		pmic@9 {
 			compatible = "sandbox,pmic";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			reg = <9>;
 			low-power;
 		};

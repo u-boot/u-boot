@@ -22,7 +22,7 @@
 				status = "okay";
 			};
 			hlcdc: hlcdc@f8038000 {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				status = "okay";
 			};
 		};

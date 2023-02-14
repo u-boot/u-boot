@@ -18,7 +18,7 @@
 };
 
 &aips4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c4 {
@@ -26,17 +26,17 @@
 };
 
 &reg_usb_otg1_vbus {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbmisc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbphynop1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbotg1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

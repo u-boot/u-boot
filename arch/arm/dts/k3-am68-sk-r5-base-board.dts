@@ -23,7 +23,7 @@
 
 	fs_loader0: fs_loader@0 {
 		compatible = "u-boot,fs-loader";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	a72_0: a72@0 {
@@ -39,27 +39,27 @@
 		ti,sci = <&sms>;
 		ti,sci-proc-id = <32>;
 		ti,sci-host-id = <10>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	clk_200mhz: dummy_clock_200mhz {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <200000000>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	clk_19_2mhz: dummy_clock_19_2mhz {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <19200000>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &cbass_mcu_wakeup {
 	sa3_secproxy: secproxy@44880000 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		compatible = "ti,am654-secure-proxy";
 		reg = <0x0 0x44880000 0x0 0x20000>,
 		      <0x0 0x44860000 0x0 0x20000>,
@@ -75,14 +75,14 @@
 		      <0x0 0x2a480000 0x0 0x80000>;
 		reg-names = "rt", "scfg", "target_data";
 		#mbox-cells = <1>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	sysctrler: sysctrler {
 		compatible = "ti,am654-system-controller";
 		mboxes= <&mcu_secproxy 4>, <&mcu_secproxy 5>, <&sa3_secproxy 5>;
 		mbox-names = "tx", "rx", "boot_notify";
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	dm_tifs: dm-tifs {
@@ -92,7 +92,7 @@
 		mbox-names = "rx", "tx";
 		mboxes= <&mcu_secproxy 21>,
 			<&mcu_secproxy 23>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -126,7 +126,7 @@
 
 &wkup_pmx0 {
 	mcu_uart0_pins_default: mcu-uart0-pins-default {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		pinctrl-single,pins = <
 			J721S2_WKUP_IOPAD(0x0f4, PIN_INPUT, 0) /*(C24) WKUP_GPIO0_13.MCU_UART0_RXD*/
 			J721S2_WKUP_IOPAD(0x0f0, PIN_OUTPUT, 0) /*(C25) WKUP_GPIO0_12.MCU_UART0_TXD*/
@@ -134,7 +134,7 @@
 	};
 
 	wkup_uart0_pins_default: wkup-uart0-pins-default {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		pinctrl-single,pins = <
 			J721S2_WKUP_IOPAD(0x0d8, PIN_INPUT, 0) /*(E25) WKUP_GPIO0_6.WKUP_UART0_CTSn*/
 			J721S2_WKUP_IOPAD(0x0dc, PIN_OUTPUT, 0) /*(F28) WKUP_GPIO0_7.WKUP_UART0_RTSn*/
@@ -150,7 +150,7 @@
 	mbox-names = "tx", "rx", "notify";
 	ti,host-id = <4>;
 	ti,secure-host;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &wkup_uart0 {

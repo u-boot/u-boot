@@ -78,7 +78,7 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		fb0: fb@00500000 {
 			compatible = "atmel,at91sam9rl-lcdc";
@@ -113,7 +113,7 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			tcb0: timer@fffa0000 {
 				compatible = "atmel,at91rm9200-tcb";
@@ -398,7 +398,7 @@
 					<0xffffffff 0x0000c780>,  /* pioB */
 					<0xffffffff 0xe3ffff0e>,  /* pioC */
 					<0x003fffff 0x0001ff3c>;  /* pioD */
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				/* shared pinctrl settings */
 				adc0 {
@@ -440,7 +440,7 @@
 				};
 
 				dbgu {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					pinctrl_dbgu: dbgu-0 {
 						atmel,pins =
 							<AT91_PIOA 21 AT91_PERIPH_A AT91_PINCTRL_PULL_UP>,
@@ -779,7 +779,7 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				clocks = <&pioA_clk>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			pioB: gpio@fffff600 {
@@ -791,7 +791,7 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				clocks = <&pioB_clk>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			pioC: gpio@fffff800 {
@@ -803,7 +803,7 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				clocks = <&pioC_clk>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			pioD: gpio@fffffa00 {
@@ -815,7 +815,7 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				clocks = <&pioD_clk>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			pmc: pmc@fffffc00 {
@@ -826,7 +826,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				#interrupt-cells = <1>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				main: mainck {
 					compatible = "atmel,at91rm9200-clk-main";
@@ -862,7 +862,7 @@
 					clocks = <&clk32k>, <&main>, <&plla>, <&utmi>;
 					atmel,clk-output-range = <0 94000000>;
 					atmel,clk-divisors = <1 2 4 0>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				prog: progck {
@@ -909,30 +909,30 @@
 					#address-cells = <1>;
 					#size-cells = <0>;
 					clocks = <&mck>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 
 					pioA_clk: pioA_clk@2 {
 						#clock-cells = <0>;
 						reg = <2>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					pioB_clk: pioB_clk@3 {
 						#clock-cells = <0>;
 						reg = <3>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					pioC_clk: pioC_clk@4 {
 						#clock-cells = <0>;
 						reg = <4>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					pioD_clk: pioD_clk@5 {
 						#clock-cells = <0>;
 						reg = <5>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					usart0_clk: usart0_clk@6 {

@@ -9,7 +9,7 @@
 };
 
 &cru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &dmc {
@@ -27,7 +27,7 @@
 &mmc0 {
 	fifo-mode;
 	max-frequency = <4000000>;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	u-boot,spl-fifo-mode;
 };
 
@@ -41,9 +41,9 @@
 
 &timer2 {
 	clock-frequency = <24000000>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

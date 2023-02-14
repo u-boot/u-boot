@@ -32,41 +32,41 @@
 };
 
 &gpio3 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio7 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio8 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &i2c0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &rk808 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &spi2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &spi_flash {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

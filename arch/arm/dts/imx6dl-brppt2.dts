@@ -109,7 +109,7 @@
 	};
 
 	vbus1_regulator: regulator@1 {
-		u-boot,dm-preloc;
+		bootph-all;
 		compatible = "regulator-fixed";
 		regulator-name = "vbus1_regulator";
 		regulator-min-microvolt = <5000000>;
@@ -155,8 +155,8 @@
 };
 
 &uart1 {
-	u-boot,dm-spl;
-	u-boot,dm-preloc;
+	bootph-pre-ram;
+	bootph-all;
 	status = "okay";
 };
 
@@ -239,22 +239,22 @@
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };
 
 &gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };
 
 &gpio4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };
 
@@ -263,13 +263,13 @@
 };
 
 &ecspi1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	cs-gpios = <&gpio3 19 GPIO_ACTIVE_LOW>, <&gpio3 19 GPIO_ACTIVE_LOW>;
 	status = "okay";
 	spi-max-frequency = <25000000>;
 
 	m25p32@1 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "st,m25p", "jedec,spi-nor";

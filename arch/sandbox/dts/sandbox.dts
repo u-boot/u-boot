@@ -49,7 +49,7 @@
 
 	cros_ec: cros-ec {
 		reg = <0 0>;
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 		compatible = "google,cros-ec-sandbox";
 	};
 
@@ -76,7 +76,7 @@
 		clock-frequency = <400000>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_i2c0>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	pcic: pci@0 {
@@ -90,7 +90,7 @@
 	};
 
 	spi: spi@0 {
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0 0>;

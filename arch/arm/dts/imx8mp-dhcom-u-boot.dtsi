@@ -21,16 +21,16 @@
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &buck4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &buck5 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &eqos {
@@ -40,87 +40,87 @@
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio5 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_i2c3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_i2c3_gpio {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_pmic {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_uart1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2_100mhz {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2_200mhz {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2_vmmc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3_100mhz {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3_100mhz {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pmic {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 
 	regulators {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &reg_usdhc2_vmmc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &uart1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 /* SDIO WiFi */
@@ -129,13 +129,13 @@
 };
 
 &usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &wdog1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

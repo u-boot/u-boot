@@ -7,19 +7,19 @@
 
 / {
 	config {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		u-boot,boot-led = "firefly:green:power";
 	};
 
 	leds {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		work {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		power {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 };
@@ -37,45 +37,45 @@
 };
 
 &pinctrl {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &emmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio3 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio8 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pcfg_pull_up_drv_12ma {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc_bus4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc_clk {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc_cmd {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc_pwr {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

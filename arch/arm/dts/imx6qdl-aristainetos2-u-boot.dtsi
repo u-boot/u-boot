@@ -5,7 +5,7 @@
 
 / {
 	chosen {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		stdout-path = &uart2;
 	};
 
@@ -16,19 +16,19 @@
 };
 
 &uart2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_gpio {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_uart2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &aips2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &backlight {
@@ -41,7 +41,7 @@
  * because "pinctrl-assert-gpios" from &ecspi1 isn't handled by u-boot
  */
 &gpio2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	wp_spi_nor {
 		gpio-hog;
@@ -59,21 +59,21 @@
 };
 
 &gpio3 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio5 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &ecspi4 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &flash {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_ecspi4 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

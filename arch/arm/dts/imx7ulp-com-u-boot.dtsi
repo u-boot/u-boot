@@ -4,34 +4,34 @@
  */
 
 &iomuxc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &ahbbridge0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &ahbbridge1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &lpuart4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbotg1 {
 	extcon = <&usbphy1>;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbphy1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio_ptc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

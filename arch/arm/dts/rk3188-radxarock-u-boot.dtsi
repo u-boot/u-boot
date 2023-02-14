@@ -13,12 +13,12 @@
 
 	config {
 		u-boot,boot-led = "rock:red:power";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &cru {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &dmc {
@@ -48,15 +48,15 @@
 };
 
 &pinctrl {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &timer3 {
 	compatible = "rockchip,rk3368-timer", "rockchip,rk3288-timer";
 	clock-frequency = <24000000>;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &uart2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

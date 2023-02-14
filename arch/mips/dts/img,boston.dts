@@ -178,14 +178,14 @@
 	plat_regs: system-controller@17ffd000 {
 		compatible = "img,boston-platform-regs", "syscon";
 		reg = <0x17ffd000 0x1000>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	clk_boston: clock {
 		compatible = "img,boston-clock";
 		#clock-cells = <1>;
 		regmap = <&plat_regs>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	reboot: syscon-reboot {
@@ -206,7 +206,7 @@
 
 		clocks = <&clk_boston BOSTON_CLK_SYS>;
 
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	lcd: lcd@17fff000 {

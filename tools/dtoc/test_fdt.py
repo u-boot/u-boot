@@ -132,10 +132,10 @@ class TestFdt(unittest.TestCase):
         """Tests obtaining a list of properties"""
         node = self.dtb.GetNode('/spl-test')
         props = self.dtb.GetProps(node)
-        self.assertEqual(['boolval', 'bytearray', 'byteval', 'compatible',
-                          'int64val', 'intarray', 'intval', 'longbytearray',
-                          'maybe-empty-int', 'notstring', 'stringarray',
-                          'stringval', 'u-boot,dm-pre-reloc'],
+        self.assertEqual(['boolval', 'bootph-all', 'bytearray', 'byteval',
+                          'compatible', 'int64val', 'intarray', 'intval',
+                          'longbytearray', 'maybe-empty-int', 'notstring',
+                          'stringarray', 'stringval', ],
                          sorted(props.keys()))
 
     def test_check_error(self):

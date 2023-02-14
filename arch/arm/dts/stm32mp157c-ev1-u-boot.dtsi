@@ -22,37 +22,37 @@
 };
 
 &flash0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &qspi {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &qspi_clk_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pins {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &qspi_bk1_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pins1 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 	pins2 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &qspi_bk2_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pins1 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 	pins2 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 

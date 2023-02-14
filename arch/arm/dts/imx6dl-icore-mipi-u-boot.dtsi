@@ -6,5 +6,5 @@
 #include "imx6qdl-icore-u-boot.dtsi"
 
 &usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

@@ -1188,12 +1188,12 @@ int ofnode_read_simple_size_cells(ofnode node);
  * determine if a node was bound in one of SPL/TPL stages.
  *
  * There are 4 settings currently in use
- * - u-boot,dm-pre-proper: U-Boot proper pre-relocation only
- * - u-boot,dm-pre-reloc: legacy and indicates any of TPL or SPL
+ * - bootph-some-ram: U-Boot proper pre-relocation only
+ * - bootph-all: all phases
  * Existing platforms only use it to indicate nodes needed in
- * SPL. Should probably be replaced by u-boot,dm-spl for new platforms.
- * - u-boot,dm-spl: SPL and U-Boot pre-relocation
- * - u-boot,dm-tpl: TPL and U-Boot pre-relocation
+ * SPL. Should probably be replaced by bootph-pre-ram for new platforms.
+ * - bootph-pre-ram: SPL and U-Boot pre-relocation
+ * - bootph-pre-sram: TPL and U-Boot pre-relocation
  *
  * @node: node to check
  * Return: true if node is needed in SPL/TL, false otherwise

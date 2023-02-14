@@ -7,156 +7,156 @@
 
 &{/imx8qm-pm} {
 
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &mu {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &clk {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &iomuxc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_lsio {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_lsio_gpio0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_lsio_gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_lsio_gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_lsio_gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_lsio_gpio4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_lsio_gpio5 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_lsio_gpio6 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_lsio_gpio7 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_conn {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_conn_sdch0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_conn_sdch1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_conn_sdch2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_dma {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_dma_lpuart0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_caam {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_caam_jr1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_caam_jr2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pd_caam_jr3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio5 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio6 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio7 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &lpuart0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	mmc-hs400-1_8v;
 };
 
 &usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	sd-uhs-sdr104;
 	sd-uhs-ddr50;
 };
 
 &crypto {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sec_jr1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sec_jr2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sec_jr3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

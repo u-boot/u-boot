@@ -7,7 +7,7 @@
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog3>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	aliases {
@@ -38,91 +38,91 @@
 };
 
 &{/soc@0} {
-	u-boot,dm-pre-reloc;
-	u-boot,dm-spl;
+	bootph-all;
+	bootph-pre-ram;
 };
 
 &aips1 {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
+	bootph-pre-ram;
+	bootph-all;
 };
 
 &aips2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &aips3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &iomuxc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &reg_usdhc2_vmmc {
 	u-boot,off-on-delay-us = <20000>;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_reg_usdhc2_vmmc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_uart1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2_gpio {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &lpuart1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	fsl,signal-voltage-switch-extra-delay-ms = <8>;
 };
 
 &lpi2c2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &{/soc@0/bus@44000000/i2c@44350000/pmic@25} {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &{/soc@0/bus@44000000/i2c@44350000/pmic@25/regulators} {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_lpi2c2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &fec {
@@ -152,6 +152,6 @@
 };
 
 &s4muap {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };

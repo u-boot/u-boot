@@ -9,74 +9,74 @@
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio5 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &uart2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_uart2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_i2c1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_i2c1_gpio {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gsc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_i2c2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &wdog1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_wdog {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

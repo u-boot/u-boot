@@ -17,10 +17,10 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_pwm &pinctrl_lcd_rgb888_alt>;
 				status = "okay";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				display-timings {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					800x480 {
 						clock-frequency = <24000000>;
 						hactive = <800>;
@@ -31,7 +31,7 @@
 						vfront-porch = <22>;
 						vback-porch = <21>;
 						vsync-len = <5>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 				};
 			};

@@ -15,13 +15,13 @@
 	};
 
 	cic: syscon@ff620000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "rockchip,rk3399-cic", "syscon";
 		reg = <0x0 0xff620000 0x0 0x100>;
 	};
 
 	dfi: dfi@ff630000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		reg = <0x00 0xff630000 0x00 0x4000>;
 		compatible = "rockchip,rk3399-dfi";
 		rockchip,pmu = <&pmugrf>;
@@ -36,7 +36,7 @@
 	};
 
 	dmc: dmc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "rockchip,rk3399-dmc";
 		devfreq-events = <&dfi>;
 		interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH 0>;
@@ -53,7 +53,7 @@
 	};
 
 	pmusgrf: syscon@ff330000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "rockchip,rk3399-pmusgrf", "syscon";
 		reg = <0x0 0xff330000 0x0 0xe3d4>;
 	};
@@ -86,65 +86,65 @@
 #endif /* CONFIG_ROCKCHIP_SPI_IMAGE && CONFIG_HAS_ROM */
 
 &cru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &emmc_phy {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &grf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pmu {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pmugrf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pmu {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pmucru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdhci {
 	max-frequency = <200000000>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
 	u-boot,spl-fifo-mode;
 };
 
 &spi1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &vopb {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &vopl {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

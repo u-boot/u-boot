@@ -10,7 +10,7 @@
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	firmware {
@@ -22,110 +22,110 @@
 };
 
 &iomuxc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &reg_usdhc2_vmmc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_uart2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_uart3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2_gpio {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio5 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &uart2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &uart3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &wdog1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_wdog {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_i2c1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_i2c1_gpio {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_pmic {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &{/soc@0/bus@30800000/i2c@30a20000/pca9450@25} {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &{/soc@0/bus@30800000/i2c@30a20000/pca9450@25/regulators} {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	assigned-clocks = <&clk IMX8MP_CLK_USDHC1>;
 	assigned-clock-rates = <400000000>;
 	assigned-clock-parents = <&clk IMX8MP_SYS_PLL1_400M>;
 };
 
 &usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	sd-uhs-sdr104;
 	sd-uhs-ddr50;
 	assigned-clocks = <&clk IMX8MP_CLK_USDHC2>;
@@ -134,7 +134,7 @@
 };
 
 &usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	mmc-hs400-1_8v;
 	mmc-hs400-enhanced-strobe;
 	assigned-clocks = <&clk IMX8MP_CLK_USDHC3>;

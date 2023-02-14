@@ -8,13 +8,13 @@
 #include "r8a779x-u-boot.dtsi"
 
 &usb_extal_clk {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pfc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &rst {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

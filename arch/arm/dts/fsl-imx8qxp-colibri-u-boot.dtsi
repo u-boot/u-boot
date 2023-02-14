@@ -7,125 +7,125 @@
 
 &{/imx8qx-pm} {
 
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &mu {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &clk {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &iomuxc {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_lsio {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_lsio_gpio0 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_lsio_gpio1 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_lsio_gpio2 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_lsio_gpio3 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_lsio_gpio4 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_lsio_gpio5 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_lsio_gpio6 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_lsio_gpio7 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_dma {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_dma_lpuart0 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_dma_lpuart3 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_conn {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_conn_sdch0 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_conn_sdch1 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &pd_conn_sdch2 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &gpio0 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &gpio1 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &gpio2 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &gpio3 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &gpio4 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &gpio5 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &gpio6 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &gpio7 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &lpuart3 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &usdhc1 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 &usdhc2 {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };

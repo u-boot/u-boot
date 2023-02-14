@@ -11,43 +11,43 @@
 };
 
 &soc {
-	u-boot,dm-pre-reloc;
-	u-boot,dm-spl;
+	bootph-all;
+	bootph-pre-ram;
 };
 
 &clk {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
+	bootph-pre-ram;
+	bootph-all;
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
 	/delete-property/ assigned-clock-rates;
 };
 
 &osc_32k {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
+	bootph-pre-ram;
+	bootph-all;
 };
 
 &osc_24m {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
+	bootph-pre-ram;
+	bootph-all;
 };
 
 &aips1 {
-	u-boot,dm-spl;
-	u-boot,dm-pre-reloc;
+	bootph-pre-ram;
+	bootph-all;
 };
 
 &aips2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &aips3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &iomuxc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &binman {

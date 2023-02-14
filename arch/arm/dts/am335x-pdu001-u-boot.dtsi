@@ -6,65 +6,65 @@
 #include "am33xx-u-boot.dtsi"
 
 &l4_wkup {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	segment@200000 {
 
 		target-module@10000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 };
 
 &l4_per {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	segment@100000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		target-module@a6000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
 	segment@300000 {
 
 		target-module@e000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			lcdc: lcdc@0 {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 		};
 	};
 };
 
 &scm {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &am33xx_pinmux {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart3_pins {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart3 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &mmc1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &mmc1_pins {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &mmc2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &mmc2_pins {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

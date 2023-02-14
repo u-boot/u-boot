@@ -40,14 +40,14 @@
 
 &i2c0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	clock-frequency = <400000>;
 	i2c-mux@74 { /* this cover MGT board */
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x74>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		/* FIXME reset connected to SYSCTRL_IIC_MUX0_RESET */
 		i2c@0 {
 			#address-cells = <1>;
@@ -56,7 +56,7 @@
 			/* Use for storing information about SC board */
 			eeprom0: eeprom@50 { /* u96 - 24LC32A - 256B */
 				compatible = "atmel,24c32";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				reg = <0x50>;
 			};
 		};
@@ -65,14 +65,14 @@
 
 &i2c1 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	clock-frequency = <400000>;
 	i2c-mux@74 { /* This cover processor board */
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x74>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		/* FIXME reset connected to SYSCTRL_IIC_MUX0_RESET */
 		i2c@0 {
 			#address-cells = <1>;
@@ -81,7 +81,7 @@
 			/* Use for storing information about SC board */
 			eeprom1: eeprom@50 { /* u96 - 24LC32A - 256B */
 				compatible = "atmel,24c32";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				reg = <0x50>;
 			};
 		};

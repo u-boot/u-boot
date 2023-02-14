@@ -20,28 +20,28 @@ ubi in device tree source as shown in below:
 	sata and ubi as shown in below:
 	Example for mmc:
 	fs_loader0: fs-loader@0 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "u-boot,fs-loader";
 		phandlepart = <&mmc_0 1>;
 	};
 
 	Example for usb:
 	fs_loader1: fs-loader@1 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "u-boot,fs-loader";
 		phandlepart = <&usb0 1>;
 	};
 
 	Example for sata:
 	fs_loader2: fs-loader@2 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "u-boot,fs-loader";
 		phandlepart = <&sata0 1>;
 	};
 
 	Example for ubi:
 	fs_loader3: fs-loader@3 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "u-boot,fs-loader";
 		mtdpart = "UBI",
 		ubivol = "ubi0";

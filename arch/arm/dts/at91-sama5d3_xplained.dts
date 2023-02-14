@@ -14,7 +14,7 @@
 	compatible = "atmel,sama5d3-xplained", "atmel,sama5d3", "atmel,sama5";
 
 	chosen {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		stdout-path = &dbgu;
 	};
 
@@ -51,7 +51,7 @@
 	ahb {
 		apb {
 			mmc0: mmc@f0000000 {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				pinctrl-0 = <&pinctrl_mmc0_clk_cmd_dat0 &pinctrl_mmc0_dat1_3 &pinctrl_mmc0_dat4_7 &pinctrl_mmc0_cd>;
 				vmmc-supply = <&vcc_mmc0_reg>;
 				vqmmc-supply = <&vcc_3v3_reg>;
@@ -64,7 +64,7 @@
 			};
 
 			mmc1: mmc@f8000000 {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				vmmc-supply = <&vcc_3v3_reg>;
 				vqmmc-supply = <&vcc_3v3_reg>;
 				status = "disabled";
@@ -215,13 +215,13 @@
 			};
 
 			dbgu: serial@ffffee00 {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				status = "okay";
 			};
 
 			pinctrl@fffff200 {
 				board {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					pinctrl_i2c0_pu: i2c0_pu {
 						atmel,pins =
 							<AT91_PIOA 30 AT91_PERIPH_A AT91_PINCTRL_PULL_UP>,
@@ -240,13 +240,13 @@
 					};
 
 					pinctrl_mmc0_cd: mmc0_cd {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						atmel,pins =
 							<AT91_PIOE 0 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;
 					};
 
 					pinctrl_mmc1_cd: mmc1_cd {
-						u-boot,dm-pre-reloc;
+						bootph-all;
 						atmel,pins =
 							<AT91_PIOE 1 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;
 					};

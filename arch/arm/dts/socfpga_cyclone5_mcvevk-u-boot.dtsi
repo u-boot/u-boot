@@ -13,12 +13,12 @@
 };
 
 &mmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart0 {
 	clock-frequency = <100000000>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &porta {

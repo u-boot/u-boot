@@ -29,18 +29,18 @@
 		rockchip,grf = <&grf>;
 		rockchip,msch = <&service_msch>;
 		rockchip,sram = <&ddr_sram>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	service_msch: syscon@31090000 {
 		compatible = "rockchip,rk3228-msch", "syscon";
 		reg = <0x31090000 0x2000>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &cru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &emmc {
@@ -48,7 +48,7 @@
 };
 
 &grf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc {

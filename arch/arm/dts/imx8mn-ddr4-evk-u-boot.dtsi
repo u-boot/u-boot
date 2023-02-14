@@ -6,7 +6,7 @@
 #include "imx8mn-u-boot.dtsi"
 
 &pinctrl_reg_usdhc2_vmmc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &reg_usdhc2_vmmc {
@@ -14,77 +14,77 @@
 };
 
 &pinctrl_uart2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2_gpio {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_wdog {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio5 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &uart2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &crypto {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sec_jr0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sec_jr1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sec_jr2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	sd-uhs-sdr104;
 	sd-uhs-ddr50;
 };
 
 &usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	mmc-hs400-1_8v;
 	mmc-hs400-enhanced-strobe;
 };

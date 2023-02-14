@@ -1122,8 +1122,7 @@ It is sometimes inconvenient to add a 'binman' node to the .dts file for each
 board. This can be done by using #include to bring in a common file. Another
 approach supported by the U-Boot build system is to automatically include
 a common header. You can then put the binman node (and anything else that is
-specific to U-Boot, such as u-boot,dm-pre-reloc properies) in that header
-file.
+specific to U-Boot, such as bootph-all properies) in that header file.
 
 Binman will search for the following files in arch/<arch>/dts::
 
