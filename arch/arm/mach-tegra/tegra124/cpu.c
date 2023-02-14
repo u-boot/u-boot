@@ -14,9 +14,13 @@
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
+#include <asm/arch-tegra/tegra_i2c.h>
 #include <asm/arch-tegra/ap.h>
 #include <linux/delay.h>
 #include "../cpu.h"
+
+/* In case this function is not defined */
+__weak void pmic_enable_cpu_vdd(void) {}
 
 /* Tegra124-specific CPU init code */
 

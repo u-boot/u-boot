@@ -15,23 +15,6 @@
 #include <linux/delay.h>
 #include "../cpu.h"
 
-/* Tegra30-specific CPU init code */
-void tegra_i2c_ll_write_addr(uint addr, uint config)
-{
-	struct i2c_ctlr *reg = (struct i2c_ctlr *)TEGRA_DVC_BASE;
-
-	writel(addr, &reg->cmd_addr0);
-	writel(config, &reg->cnfg);
-}
-
-void tegra_i2c_ll_write_data(uint data, uint config)
-{
-	struct i2c_ctlr *reg = (struct i2c_ctlr *)TEGRA_DVC_BASE;
-
-	writel(data, &reg->cmd_data1);
-	writel(config, &reg->cnfg);
-}
-
 #define TPS62366A_I2C_ADDR		0xC0
 #define TPS62366A_SET1_REG		0x01
 #define TPS62366A_SET1_DATA		(0x4600 | TPS62366A_SET1_REG)
@@ -45,7 +28,9 @@ void tegra_i2c_ll_write_data(uint data, uint config)
 #define TPS65911_VDDCTRL_SR_REG		0x27
 #define TPS65911_VDDCTRL_OP_DATA	(0x2400 | TPS65911_VDDCTRL_OP_REG)
 #define TPS65911_VDDCTRL_SR_DATA	(0x0100 | TPS65911_VDDCTRL_SR_REG)
-#define I2C_SEND_2_BYTES		0x0A02
+
+/* In case this function is not defined */
+__weak void pmic_enable_cpu_vdd(void) {}
 
 static void enable_cpu_power_rail(void)
 {
@@ -59,12 +44,12 @@ static void enable_cpu_power_rail(void)
 
 	/* Set VDD_CORE to 1.200V. */
 #ifdef CONFIG_TEGRA_VDD_CORE_TPS62366A_SET1
-	tegra_i2c_ll_write_addr(TPS62366A_I2C_ADDR, 2);
-	tegra_i2c_ll_write_data(TPS62366A_SET1_DATA, I2C_SEND_2_BYTES);
+	tegra_i2c_ll_write(TPS62366A_I2C_ADDR,
+			   TPS62366A_SET1_DATA);
 #endif
 #ifdef CONFIG_TEGRA_VDD_CORE_TPS62361B_SET3
-	tegra_i2c_ll_write_addr(TPS62361B_I2C_ADDR, 2);
-	tegra_i2c_ll_write_data(TPS62361B_SET3_DATA, I2C_SEND_2_BYTES);
+	tegra_i2c_ll_write(TPS62361B_I2C_ADDR,
+			   TPS62361B_SET3_DATA);
 #endif
 	udelay(1000);
 
@@ -72,10 +57,11 @@ static void enable_cpu_power_rail(void)
 	 * Bring up CPU VDD via the TPS65911x PMIC on the DVC I2C bus.
 	 * First set VDD to 1.0125V, then enable the VDD regulator.
 	 */
-	tegra_i2c_ll_write_addr(TPS65911_I2C_ADDR, 2);
-	tegra_i2c_ll_write_data(TPS65911_VDDCTRL_OP_DATA, I2C_SEND_2_BYTES);
+	tegra_i2c_ll_write(TPS65911_I2C_ADDR,
+			   TPS65911_VDDCTRL_OP_DATA);
 	udelay(1000);
-	tegra_i2c_ll_write_data(TPS65911_VDDCTRL_SR_DATA, I2C_SEND_2_BYTES);
+	tegra_i2c_ll_write(TPS65911_I2C_ADDR,
+			   TPS65911_VDDCTRL_SR_DATA);
 	udelay(10 * 1000);
 }
 
@@ -142,6 +128,7 @@ void start_cpu(u32 reset_vector)
 
 	/* Enable VDD_CPU */
 	enable_cpu_power_rail();
+	pmic_enable_cpu_vdd();
 
 	set_cpu_running(0);
 
