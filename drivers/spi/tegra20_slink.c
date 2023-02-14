@@ -208,16 +208,14 @@ static int tegra30_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	u32 reg, tmpdout, tmpdin = 0;
 	const u8 *dout = data_out;
 	u8 *din = data_in;
-	int num_bytes;
-	int ret;
+	int num_bytes, overflow;
+	int ret = 0;
 
 	debug("%s: slave %u:%u dout %p din %p bitlen %u\n",
 	      __func__, dev_seq(bus), spi_chip_select(dev), dout, din, bitlen);
-	if (bitlen % 8)
-		return -1;
-	num_bytes = bitlen / 8;
 
-	ret = 0;
+	num_bytes = DIV_ROUND_UP(bitlen, 8);
+	overflow = bitlen % 8;
 
 	reg = readl(&regs->status);
 	writel(reg, &regs->status);	/* Clear all SPI events via R/W */
@@ -254,8 +252,13 @@ static int tegra30_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 		num_bytes -= bytes;
 
-		clrsetbits_le32(&regs->command, SLINK_CMD_BIT_LENGTH_MASK,
-				bytes * 8 - 1);
+		if (overflow && !num_bytes)
+			clrsetbits_le32(&regs->command, SLINK_CMD_BIT_LENGTH_MASK,
+					(bytes - 1) * 8 + overflow - 1);
+		else
+			clrsetbits_le32(&regs->command, SLINK_CMD_BIT_LENGTH_MASK,
+					bytes * 8 - 1);
+
 		writel(tmpdout, &regs->tx_fifo);
 		setbits_le32(&regs->command, SLINK_CMD_GO);
 
