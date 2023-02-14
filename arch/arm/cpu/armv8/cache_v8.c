@@ -299,59 +299,57 @@ static void split_block(u64 *pte, int level)
 	set_pte_table(pte, new_table);
 }
 
-/* Add one mm_region map entry to the page tables */
+static void map_range(u64 virt, u64 phys, u64 size, int level,
+		      u64 *table, u64 attrs)
+{
+	u64 map_size = BIT_ULL(level2shift(level));
+	int i, idx;
+
+	idx = (virt >> level2shift(level)) & (MAX_PTE_ENTRIES - 1);
+	for (i = idx; size; i++) {
+		u64 next_size, *next_table;
+
+		if (level >= 1 &&
+		    size >= map_size && !(virt & (map_size - 1))) {
+			if (level == 3)
+				table[i] = phys | attrs | PTE_TYPE_PAGE;
+			else
+				table[i] = phys | attrs;
+
+			virt += map_size;
+			phys += map_size;
+			size -= map_size;
+
+			continue;
+		}
+
+		/* Going one level down */
+		if (pte_type(&table[i]) == PTE_TYPE_FAULT)
+			set_pte_table(&table[i], create_table());
+
+		next_table = (u64 *)(table[i] & GENMASK_ULL(47, PAGE_SHIFT));
+		next_size = min(map_size - (virt & (map_size - 1)), size);
+
+		map_range(virt, phys, next_size, level + 1, next_table, attrs);
+
+		virt += next_size;
+		phys += next_size;
+		size -= next_size;
+	}
+}
+
 static void add_map(struct mm_region *map)
 {
-	u64 *pte;
-	u64 virt = map->virt;
-	u64 phys = map->phys;
-	u64 size = map->size;
 	u64 attrs = map->attrs | PTE_TYPE_BLOCK | PTE_BLOCK_AF;
-	u64 blocksize;
-	int level;
-	u64 *new_table;
+	u64 va_bits;
+	int level = 0;
 
-	while (size) {
-		pte = find_pte(virt, 0);
-		if (pte && (pte_type(pte) == PTE_TYPE_FAULT)) {
-			debug("Creating table for virt 0x%llx\n", virt);
-			new_table = create_table();
-			set_pte_table(pte, new_table);
-		}
+	get_tcr(NULL, &va_bits);
+	if (va_bits < 39)
+		level = 1;
 
-		for (level = 1; level < 4; level++) {
-			pte = find_pte(virt, level);
-			if (!pte)
-				panic("pte not found\n");
-
-			blocksize = 1ULL << level2shift(level);
-			debug("Checking if pte fits for virt=%llx size=%llx blocksize=%llx\n",
-			      virt, size, blocksize);
-			if (size >= blocksize && !(virt & (blocksize - 1))) {
-				/* Page fits, create block PTE */
-				debug("Setting PTE %p to block virt=%llx\n",
-				      pte, virt);
-				if (level == 3)
-					*pte = phys | attrs | PTE_TYPE_PAGE;
-				else
-					*pte = phys | attrs;
-				virt += blocksize;
-				phys += blocksize;
-				size -= blocksize;
-				break;
-			} else if (pte_type(pte) == PTE_TYPE_FAULT) {
-				/* Page doesn't fit, create subpages */
-				debug("Creating subtable for virt 0x%llx blksize=%llx\n",
-				      virt, blocksize);
-				new_table = create_table();
-				set_pte_table(pte, new_table);
-			} else if (pte_type(pte) == PTE_TYPE_BLOCK) {
-				debug("Split block into subtable for virt 0x%llx blksize=0x%llx\n",
-				      virt, blocksize);
-				split_block(pte, level);
-			}
-		}
-	}
+	map_range(map->virt, map->phys, map->size, level,
+		  (u64 *)gd->arch.tlb_addr, attrs);
 }
 
 enum pte_type {
