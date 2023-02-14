@@ -7,7 +7,7 @@
 #include <common.h>
 #include <log.h>
 #include <linux/errno.h>
-#include "crypto.h"
+#include <asm/arch-tegra/crypto.h>
 #include "uboot_aes.h"
 
 static u8 zero_key[16];
@@ -17,6 +17,7 @@ static u8 zero_key[16];
 enum security_op {
 	SECURITY_SIGN		= 1 << 0,	/* Sign the data */
 	SECURITY_ENCRYPT	= 1 << 1,	/* Encrypt the data */
+	SECURITY_DECRYPT	= 1 << 2,	/* Dectypt the data */
 };
 
 /**
@@ -54,7 +55,7 @@ static void sign_object(u8 *key, u8 *key_schedule, u8 *src, u8 *dst,
 	u8 left[AES128_KEY_LENGTH];
 	u8 k1[AES128_KEY_LENGTH];
 	u8 *cbc_chain_data;
-	unsigned i;
+	unsigned int i;
 
 	cbc_chain_data = zero_key;	/* Convenient array of 0's for IV */
 
@@ -92,7 +93,7 @@ static void sign_object(u8 *key, u8 *key_schedule, u8 *src, u8 *dst,
 }
 
 /**
- * Encrypt and sign a block of data (depending on security mode).
+ * Decrypt, encrypt or sign a block of data (depending on security mode).
  *
  * \param key		Input AES key, length AES128_KEY_LENGTH
  * \param oper		Security operations mask to perform (enum security_op)
@@ -100,44 +101,68 @@ static void sign_object(u8 *key, u8 *key_schedule, u8 *src, u8 *dst,
  * \param length	Size of source data
  * \param sig_dst	Destination address for signature, AES128_KEY_LENGTH bytes
  */
-static int encrypt_and_sign(u8 *key, enum security_op oper, u8 *src,
-			    u32 length, u8 *sig_dst)
+static int tegra_crypto_core(u8 *key, enum security_op oper, u8 *src,
+			     u32 length, u8 *sig_dst)
 {
 	u32 num_aes_blocks;
 	u8 key_schedule[AES128_EXPAND_KEY_LENGTH];
 	u8 iv[AES128_KEY_LENGTH] = {0};
 
-	debug("encrypt_and_sign: length = %d\n", length);
+	debug("%s: length = %d\n", __func__, length);
 
-	/*
-	 * The only need for a key is for signing/checksum purposes, so
-	 * if not encrypting, expand a key of 0s.
-	 */
-	aes_expand_key(oper & SECURITY_ENCRYPT ? key : zero_key,
-		       AES128_KEY_LENGTH, key_schedule);
+	aes_expand_key(key, AES128_KEY_LENGTH, key_schedule);
 
 	num_aes_blocks = (length + AES128_KEY_LENGTH - 1) / AES128_KEY_LENGTH;
 
+	if (oper & SECURITY_DECRYPT) {
+		/* Perform this in place, resulting in src being decrypted. */
+		debug("%s: begin decryption\n", __func__);
+		aes_cbc_decrypt_blocks(AES128_KEY_LENGTH, key_schedule, iv, src,
+				       src, num_aes_blocks);
+		debug("%s: end decryption\n", __func__);
+	}
+
 	if (oper & SECURITY_ENCRYPT) {
 		/* Perform this in place, resulting in src being encrypted. */
-		debug("encrypt_and_sign: begin encryption\n");
+		debug("%s: begin encryption\n", __func__);
 		aes_cbc_encrypt_blocks(AES128_KEY_LENGTH, key_schedule, iv, src,
 				       src, num_aes_blocks);
-		debug("encrypt_and_sign: end encryption\n");
+		debug("%s: end encryption\n", __func__);
 	}
 
 	if (oper & SECURITY_SIGN) {
 		/* encrypt the data, overwriting the result in signature. */
-		debug("encrypt_and_sign: begin signing\n");
+		debug("%s: begin signing\n", __func__);
 		sign_object(key, key_schedule, src, sig_dst, num_aes_blocks);
-		debug("encrypt_and_sign: end signing\n");
+		debug("%s: end signing\n", __func__);
 	}
 
 	return 0;
 }
 
-int sign_data_block(u8 *source, unsigned length, u8 *signature)
+/**
+ * Tegra crypto group
+ */
+int sign_data_block(u8 *source, unsigned int length, u8 *signature)
 {
-	return encrypt_and_sign(zero_key, SECURITY_SIGN, source,
-				length, signature);
+	return tegra_crypto_core(zero_key, SECURITY_SIGN, source,
+				 length, signature);
+}
+
+int sign_enc_data_block(u8 *source, unsigned int length, u8 *signature, u8 *key)
+{
+	return tegra_crypto_core(key, SECURITY_SIGN, source,
+				 length, signature);
+}
+
+int encrypt_data_block(u8 *source, unsigned int length, u8 *key)
+{
+	return tegra_crypto_core(key, SECURITY_ENCRYPT, source,
+				 length, NULL);
+}
+
+int decrypt_data_block(u8 *source, unsigned int length, u8 *key)
+{
+	return tegra_crypto_core(key, SECURITY_DECRYPT, source,
+				 length, NULL);
 }
