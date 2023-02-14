@@ -352,98 +352,57 @@ static void add_map(struct mm_region *map)
 		  (u64 *)gd->arch.tlb_addr, attrs);
 }
 
-enum pte_type {
-	PTE_INVAL,
-	PTE_BLOCK,
-	PTE_LEVEL,
-};
-
-/*
- * This is a recursively called function to count the number of
- * page tables we need to cover a particular PTE range. If you
- * call this with level = -1 you basically get the full 48 bit
- * coverage.
- */
-static int count_required_pts(u64 addr, int level, u64 maxaddr)
+static void count_range(u64 virt, u64 size, int level, int *cntp)
 {
-	int levelshift = level2shift(level);
-	u64 levelsize = 1ULL << levelshift;
-	u64 levelmask = levelsize - 1;
-	u64 levelend = addr + levelsize;
-	int r = 0;
-	int i;
-	enum pte_type pte_type = PTE_INVAL;
+	u64 map_size = BIT_ULL(level2shift(level));
+	int i, idx;
 
-	for (i = 0; mem_map[i].size || mem_map[i].attrs; i++) {
-		struct mm_region *map = &mem_map[i];
-		u64 start = map->virt;
-		u64 end = start + map->size;
+	idx = (virt >> level2shift(level)) & (MAX_PTE_ENTRIES - 1);
+	for (i = idx; size; i++) {
+		u64 next_size;
 
-		/* Check if the PTE would overlap with the map */
-		if (max(addr, start) <= min(levelend, end)) {
-			start = max(addr, start);
-			end = min(levelend, end);
+		if (level >= 1 &&
+		    size >= map_size && !(virt & (map_size - 1))) {
+			virt += map_size;
+			size -= map_size;
 
-			/* We need a sub-pt for this level */
-			if ((start & levelmask) || (end & levelmask)) {
-				pte_type = PTE_LEVEL;
-				break;
-			}
-
-			/* Lv0 can not do block PTEs, so do levels here too */
-			if (level <= 0) {
-				pte_type = PTE_LEVEL;
-				break;
-			}
-
-			/* PTE is active, but fits into a block */
-			pte_type = PTE_BLOCK;
+			continue;
 		}
+
+		/* Going one level down */
+		(*cntp)++;
+		next_size = min(map_size - (virt & (map_size - 1)), size);
+
+		count_range(virt, next_size, level + 1, cntp);
+
+		virt += next_size;
+		size -= next_size;
 	}
+}
 
-	/*
-	 * Block PTEs at this level are already covered by the parent page
-	 * table, so we only need to count sub page tables.
-	 */
-	if (pte_type == PTE_LEVEL) {
-		int sublevel = level + 1;
-		u64 sublevelsize = 1ULL << level2shift(sublevel);
+static int count_ranges(void)
+{
+	int i, count = 0, level = 0;
+	u64 va_bits;
 
-		/* Account for the new sub page table ... */
-		r = 1;
+	get_tcr(NULL, &va_bits);
+	if (va_bits < 39)
+		level = 1;
 
-		/* ... and for all child page tables that one might have */
-		for (i = 0; i < MAX_PTE_ENTRIES; i++) {
-			r += count_required_pts(addr, sublevel, maxaddr);
-			addr += sublevelsize;
+	for (i = 0; mem_map[i].size || mem_map[i].attrs; i++)
+		count_range(mem_map[i].virt, mem_map[i].size, level, &count);
 
-			if (addr >= maxaddr) {
-				/*
-				 * We reached the end of address space, no need
-				 * to look any further.
-				 */
-				break;
-			}
-		}
-	}
-
-	return r;
+	return count;
 }
 
 /* Returns the estimated required size of all page tables */
 __weak u64 get_page_table_size(void)
 {
 	u64 one_pt = MAX_PTE_ENTRIES * sizeof(u64);
-	u64 size = 0;
-	u64 va_bits;
-	int start_level = 0;
-
-	get_tcr(NULL, &va_bits);
-	if (va_bits < 39)
-		start_level = 1;
+	u64 size;
 
 	/* Account for all page tables we would need to cover our memory map */
-	size = one_pt * count_required_pts(0, start_level - 1, 1ULL << va_bits);
+	size = one_pt * count_ranges();
 
 	/*
 	 * We need to duplicate our page table once to have an emergency pt to
