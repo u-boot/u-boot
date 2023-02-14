@@ -669,7 +669,48 @@ enum clock_id clk_id_to_pll_id(int clk_id)
 
 void clock_early_init(void)
 {
+	struct clk_rst_ctlr *clkrst =
+		(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	struct clk_pll_info *pllinfo;
+	u32 data;
+
 	tegra30_set_up_pllp();
+
+	/*
+	 * PLLD output frequency set to 925Mhz
+	 */
+	switch (clock_get_osc_freq()) {
+	case CLOCK_OSC_FREQ_12_0: /* OSC is 12Mhz */
+	case CLOCK_OSC_FREQ_48_0: /* OSC is 48Mhz */
+		clock_set_rate(CLOCK_ID_DISPLAY, 925, 12, 0, 12);
+		break;
+
+	case CLOCK_OSC_FREQ_26_0: /* OSC is 26Mhz */
+		clock_set_rate(CLOCK_ID_DISPLAY, 925, 26, 0, 12);
+		break;
+
+	case CLOCK_OSC_FREQ_13_0: /* OSC is 13Mhz */
+	case CLOCK_OSC_FREQ_16_8: /* OSC is 16.8Mhz */
+		clock_set_rate(CLOCK_ID_DISPLAY, 925, 13, 0, 12);
+		break;
+
+	case CLOCK_OSC_FREQ_19_2:
+	case CLOCK_OSC_FREQ_38_4:
+	default:
+		/*
+		 * These are not supported. It is too early to print a
+		 * message and the UART likely won't work anyway due to the
+		 * oscillator being wrong.
+		 */
+		break;
+	}
+
+	/* PLLD_MISC: Set CLKENABLE, CPCON 12, LFCON 1, and enable lock */
+	pllinfo = &tegra_pll_info_table[CLOCK_ID_DISPLAY];
+	data = (12 << pllinfo->kcp_shift) | (1 << pllinfo->kvco_shift);
+	data |= (1 << PLLD_CLKENABLE) | (1 << pllinfo->lock_ena);
+	writel(data, &clkrst->crc_pll[CLOCK_ID_DISPLAY].pll_misc);
+	udelay(2);
 }
 
 void arch_timer_init(void)
