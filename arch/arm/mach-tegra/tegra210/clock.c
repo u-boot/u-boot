@@ -22,6 +22,8 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 
+#include <dt-bindings/clock/tegra210-car.h>
+
 /*
  * Clock types that we can use as a source. The Tegra210 has muxes for the
  * peripheral clocks, and in most cases there are four options for the clock
@@ -912,6 +914,41 @@ enum periph_id clk_id_to_periph_id(int clk_id)
 		return PERIPH_ID_NONE;
 	default:
 		return clk_id;
+	}
+}
+
+/*
+ * Convert a device tree clock ID to our PLL ID.
+ *
+ * @param clk_id	Clock ID according to tegra210 device tree binding
+ * Return: clock ID, or CLOCK_ID_NONE if the clock ID is invalid
+ */
+enum clock_id clk_id_to_pll_id(int clk_id)
+{
+	switch (clk_id) {
+	case TEGRA210_CLK_PLL_C:
+		return CLOCK_ID_CGENERAL;
+	case TEGRA210_CLK_PLL_M:
+		return CLOCK_ID_MEMORY;
+	case TEGRA210_CLK_PLL_P:
+		return CLOCK_ID_PERIPH;
+	case TEGRA210_CLK_PLL_A:
+		return CLOCK_ID_AUDIO;
+	case TEGRA210_CLK_PLL_U:
+		return CLOCK_ID_USB;
+	case TEGRA210_CLK_PLL_D:
+	case TEGRA210_CLK_PLL_D_OUT0:
+		return CLOCK_ID_DISPLAY;
+	case TEGRA210_CLK_PLL_X:
+		return CLOCK_ID_XCPU;
+	case TEGRA210_CLK_PLL_E:
+		return CLOCK_ID_EPCI;
+	case TEGRA210_CLK_CLK_32K:
+		return CLOCK_ID_32KHZ;
+	case TEGRA210_CLK_CLK_M:
+		return CLOCK_ID_CLK_M;
+	default:
+		return CLOCK_ID_NONE;
 	}
 }
 #endif /* CONFIG_OF_CONTROL */

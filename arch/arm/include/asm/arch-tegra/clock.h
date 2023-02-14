@@ -354,6 +354,14 @@ int get_periph_clock_source(enum periph_id periph_id,
  */
 enum periph_id clk_id_to_periph_id(int clk_id);
 
+/*
+ * Convert a device tree clock ID to our PLL ID.
+ *
+ * @param clk_id	Clock ID according to tegra device tree binding
+ * Return: clock ID, or CLOCK_ID_NONE if the clock ID is invalid
+ */
+enum clock_id clk_id_to_pll_id(int clk_id);
+
 /**
  * Set the output frequency you want for each PLL clock.
  * PLL output frequencies are programmed by setting their N, M and P values.
