@@ -9,6 +9,8 @@
 #include <command.h>
 #include <env.h>
 #include <log.h>
+#include <string.h>
+#include <linux/errno.h>
 
 static const char test_cmd[] = "setenv list 1\n setenv list ${list}2; "
 		"setenv list ${list}3\0"
@@ -17,6 +19,8 @@ static const char test_cmd[] = "setenv list 1\n setenv list ${list}2; "
 static int do_ut_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
+	char long_str[CONFIG_SYS_CBSIZE + 42];
+
 	printf("%s: Testing commands\n", __func__);
 	run_command("env default -f -a", 0);
 
@@ -59,6 +63,36 @@ static int do_ut_cmd(struct cmd_tbl *cmdtp, int flag, int argc,
 	assert(run_command(" ", 0) == 0);
 
 	assert(run_command("'", 0) == 1);
+
+	/* Variadic function test-cases */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-zero-length"
+	assert(run_commandf("") == 0);
+#pragma GCC diagnostic pop
+	assert(run_commandf(" ") == 0);
+	assert(run_commandf("'") == 1);
+
+	assert(run_commandf("env %s %s", "delete -f", "list") == 0);
+	/* Expected: "Error: "list" not defined" */
+	assert(run_commandf("printenv list") == 1);
+
+	memset(long_str, 'x', sizeof(long_str));
+	assert(run_commandf("Truncation case: %s", long_str) == -ENOSPC);
+
+	if (IS_ENABLED(CONFIG_HUSH_PARSER)) {
+		assert(run_commandf("env %s %s %s %s", "delete -f", "adder",
+				    "black", "foo") == 0);
+		assert(run_commandf("setenv foo 'setenv %s 1\nsetenv %s 2'",
+				    "black", "adder") == 0);
+		run_command("run foo", 0);
+		assert(env_get("black"));
+		assert(!strcmp("1", env_get("black")));
+		assert(env_get("adder"));
+		assert(!strcmp("2", env_get("adder")));
+	}
+
+	/* Clean up before exit */
+	run_command("env default -f -a", 0);
 
 	printf("%s: Everything went swimmingly\n", __func__);
 	return 0;
