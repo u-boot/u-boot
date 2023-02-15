@@ -36,35 +36,3 @@ void reset_phy(void)
 #endif
 }
 #endif /* CONFIG_RESET_PHY_R */
-
-int fdt_fixup_board_phy(void *fdt)
-{
-	int mdio_offset;
-	int ret;
-	struct mii_dev *dev;
-
-	ret = 0;
-
-	dev = miiphy_get_dev_by_name(DEFAULT_WRIOP_MDIO2_NAME);
-	if (!get_inphi_phy_id(dev, INPHI_PHY_ADDR1, MDIO_MMD_VEND1)) {
-		mdio_offset = fdt_path_offset(fdt, "/soc/mdio@0x8B97000");
-
-		if (mdio_offset < 0)
-			mdio_offset = fdt_path_offset(fdt, "/mdio@0x8B97000");
-
-		if (mdio_offset < 0) {
-			printf("mdio@0x8B9700 node not found in dts\n");
-			return mdio_offset;
-		}
-
-		ret = fdt_setprop_string(fdt, mdio_offset, "status",
-					 "disabled");
-		if (ret) {
-			printf("Could not set disable mdio@0x8B97000 %s\n",
-			       fdt_strerror(ret));
-			return ret;
-		}
-	}
-
-	return ret;
-}
