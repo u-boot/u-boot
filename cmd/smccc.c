@@ -43,7 +43,7 @@ static int do_call(struct cmd_tbl *cmdtp, int flag, int argc,
 	else
 		arm_smccc_hvc(fid, a1, a2, a3, a4, a5, a6, a7, &res);
 
-	printf("Res:  %ld %ld %ld %ld\n", res.a0, res.a1, res.a2, res.a3);
+	printf("Res:  0x%lx 0x%lx 0x%lx 0x%lx\n", res.a0, res.a1, res.a2, res.a3);
 
 	return 0;
 }
