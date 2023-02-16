@@ -4,6 +4,7 @@ Use U-Boot
 .. toctree::
    :maxdepth: 1
 
+   blkmap
    dfu
    environment
    fdt_overlays
