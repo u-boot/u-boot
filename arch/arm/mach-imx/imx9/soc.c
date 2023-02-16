@@ -208,11 +208,6 @@ int print_cpuinfo(void)
 	return 0;
 }
 
-int arch_misc_init(void)
-{
-	return 0;
-}
-
 int ft_system_setup(void *blob, struct bd_info *bd)
 {
 	return 0;
