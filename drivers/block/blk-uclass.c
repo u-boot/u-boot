@@ -32,6 +32,7 @@ static struct {
 	{ UCLASS_EFI_LOADER, "efiloader" },
 	{ UCLASS_VIRTIO, "virtio" },
 	{ UCLASS_PVBLOCK, "pvblock" },
+	{ UCLASS_BLKMAP, "blkmap" },
 };
 
 static enum uclass_id uclass_name_to_iftype(const char *uclass_idname)
