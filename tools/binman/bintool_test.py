@@ -258,6 +258,28 @@ class TestBintool(unittest.TestCase):
         fname = os.path.join(self._indir, '_testing')
         return fname if write_file else self.fname, stdout.getvalue()
 
+    def check_fetch_source_method(self, write_file):
+        """Check output from fetching using SOURCE method
+
+        Args:
+            write_file (bool): True to write to output directory
+
+        Returns:
+            tuple:
+                str: Filename of written file (or missing 'make' output)
+                str: Contents of stdout
+        """
+
+        btest = Bintool.create('_testing')
+        col = terminal.Color()
+        self.fname = None
+        with unittest.mock.patch.object(bintool, 'DOWNLOAD_DESTDIR',
+                                        self._indir):
+            with test_util.capture_sys_output() as (stdout, _):
+                btest.fetch_tool(bintool.FETCH_SOURCE, col, False)
+        fname = os.path.join(self._indir, '_testing')
+        return fname if write_file else self.fname, stdout.getvalue()
+
     def test_build_method(self):
         """Test fetching using the build method"""
         fname, stdout = self.check_build_method(write_file=True)

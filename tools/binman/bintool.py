@@ -32,12 +32,13 @@ FORMAT = '%-16.16s %-12.12s %-26.26s %s'
 modules = {}
 
 # Possible ways of fetching a tool (FETCH_COUNT is number of ways)
-FETCH_ANY, FETCH_BIN, FETCH_BUILD, FETCH_COUNT = range(4)
+FETCH_ANY, FETCH_BIN, FETCH_BUILD, FETCH_SOURCE, FETCH_COUNT = range(5)
 
 FETCH_NAMES = {
     FETCH_ANY: 'any method',
     FETCH_BIN: 'binary download',
-    FETCH_BUILD: 'build from source'
+    FETCH_BUILD: 'build from source',
+    FETCH_SOURCE: 'download source without building'
     }
 
 # Status of tool fetching
@@ -201,12 +202,13 @@ class Bintool:
                 print(f'- trying method: {FETCH_NAMES[try_method]}')
                 result = try_fetch(try_method)
                 if result:
+                    method = try_method
                     break
         else:
             result = try_fetch(method)
         if not result:
             return FAIL
-        if result is not True:
+        if result is not True and method != FETCH_SOURCE:
             fname, tmpdir = result
             dest = os.path.join(DOWNLOAD_DESTDIR, self.name)
             print(f"- writing to '{dest}'")
@@ -261,7 +263,7 @@ class Bintool:
                 show_status(col.RED, 'Failures', status[FAIL])
         return not status[FAIL]
 
-    def run_cmd_result(self, *args, binary=False, raise_on_error=True):
+    def run_cmd_result(self, *args, binary=False, raise_on_error=True, add_name=True):
         """Run the bintool using command-line arguments
 
         Args:
@@ -278,7 +280,10 @@ class Bintool:
         if self.name in self.missing_list:
             return None
         name = os.path.expanduser(self.name)  # Expand paths containing ~
-        all_args = (name,) + args
+        if add_name:
+            all_args = (name,) + args
+        else:
+            all_args = args
         env = tools.get_env_with_path()
         tout.detail(f"bintool: {' '.join(all_args)}")
         result = command.run_pipe(
@@ -304,7 +309,7 @@ class Bintool:
             tout.debug(result.stderr)
         return result
 
-    def run_cmd(self, *args, binary=False):
+    def run_cmd(self, *args, binary=False, add_name=True):
         """Run the bintool using command-line arguments
 
         Args:
@@ -315,7 +320,7 @@ class Bintool:
         Returns:
             str or bytes: Resulting stdout from the bintool
         """
-        result = self.run_cmd_result(*args, binary=binary)
+        result = self.run_cmd_result(*args, binary=binary, add_name=add_name)
         if result:
             return result.stdout
 
@@ -353,6 +358,32 @@ class Bintool:
             print(f"- File '{fname}' was not produced")
             return None
         return fname, tmpdir
+
+    @classmethod
+    def fetch_from_git(cls, git_repo, name, toolpath=DOWNLOAD_DESTDIR):
+        """Fetch a bintool git repo
+
+        This clones the repo and returns
+
+        Args:
+            git_repo (str): URL of git repo
+            name (str): Bintool name assigned as tool directory name
+
+        Returns:
+            str: Directory of fetched repo
+            or None on error
+        """
+        dir = os.path.join(toolpath, name)
+        if os.path.exists(dir):
+            print(f"- Repo {dir} already exists")
+            return None
+        os.mkdir(dir)
+        print(f"- clone git repo '{git_repo}' to '{dir}'")
+        tools.run('git', 'clone', '--depth', '1', git_repo, dir)
+        if not os.path.exists(dir):
+            print(f"- Repo '{dir}' was not produced")
+            return None
+        return dir
 
     @classmethod
     def fetch_from_url(cls, url):
