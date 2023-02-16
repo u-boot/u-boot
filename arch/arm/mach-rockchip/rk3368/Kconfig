@@ -5,6 +5,7 @@ choice
 
 config TARGET_LION_RK3368
         bool "Theobroma Systems RK3368-uQ7 (Lion) module"
+	select ARCH_EARLY_INIT_R
 	help
 	  The RK3368-uQ7 is a micro-Qseven form-factor (40mm x 70mm,
 	  MXM-230 connector) system-on-module designed by Theobroma
@@ -34,6 +35,7 @@ config TARGET_GEEKBOX
 
 config TARGET_EVB_PX5
         bool "Evb-PX5"
+	select ARCH_EARLY_INIT_R
         help
 	 PX5 EVB is designed by Rockchip for automotive field
          with integrated CVBS (TP2825) / MIPI DSI / CSI / LVDS
