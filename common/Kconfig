@@ -551,12 +551,11 @@ endmenu
 menu "Init options"
 
 config BOARD_TYPES
-	bool "Call get_board_type() to get and display the board type"
+	bool "Enable board_type entry in global data struct"
 	help
-	  If this option is enabled, checkboard() will call get_board_type()
-	  to get a string containing the board type and this will be
-	  displayed immediately after the model is shown on the console
-	  early in boot.
+	  If this option is enabled, a field will be added to the global
+	  data struct to store an unsigned long value for the type of
+	  platform that we have determined we are on, at run-time.
 
 config DISPLAY_CPUINFO
 	bool "Display information about the CPU during start up"
