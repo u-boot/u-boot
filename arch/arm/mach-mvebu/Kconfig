@@ -5,7 +5,6 @@ config HAVE_MVEBU_EFUSE
 
 config ARMADA_32BIT
 	bool
-	select ARCH_MISC_INIT
 	select BOARD_EARLY_INIT_F
 	select CPU_V7A
 	select SPL_DM if SPL
