@@ -633,7 +633,7 @@ config EVENT_DEBUG
 endif # EVENT
 
 config ARCH_EARLY_INIT_R
-	bool "Call arch-specific init soon after relocation"
+	bool
 	help
 	  With this option U-Boot will call arch_early_init_r() soon after
 	  relocation. Driver model is running by this point, and the cache
