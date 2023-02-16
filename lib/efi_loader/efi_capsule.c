@@ -45,17 +45,7 @@ const efi_guid_t fwu_guid_os_request_fw_accept =
 static struct efi_file_handle *bootdev_root;
 #endif
 
-/**
- * get_last_capsule - get the last capsule index
- *
- * Retrieve the index of the capsule invoked last time from "CapsuleLast"
- * variable.
- *
- * Return:
- * * > 0	- the last capsule index invoked
- * * 0xffff	- on error, or no capsule invoked yet
- */
-static __maybe_unused unsigned int get_last_capsule(void)
+static __maybe_unused unsigned int get_capsule_index(const u16 *variable_name)
 {
 	u16 value16[11]; /* "CapsuleXXXX": non-null-terminated */
 	char value[5];
@@ -65,7 +55,7 @@ static __maybe_unused unsigned int get_last_capsule(void)
 	int i;
 
 	size = sizeof(value16);
-	ret = efi_get_variable_int(u"CapsuleLast", &efi_guid_capsule_report,
+	ret = efi_get_variable_int(variable_name, &efi_guid_capsule_report,
 				   NULL, &size, value16, NULL);
 	if (ret != EFI_SUCCESS || size != 22 ||
 	    u16_strncmp(value16, u"Capsule", 7))
@@ -82,6 +72,35 @@ static __maybe_unused unsigned int get_last_capsule(void)
 		index = 0xffff;
 err:
 	return index;
+}
+
+/**
+ * get_last_capsule - get the last capsule index
+ *
+ * Retrieve the index of the capsule invoked last time from "CapsuleLast"
+ * variable.
+ *
+ * Return:
+ * * > 0	- the last capsule index invoked
+ * * 0xffff	- on error, or no capsule invoked yet
+ */
+static __maybe_unused unsigned int get_last_capsule(void)
+{
+	return get_capsule_index(u"CapsuleLast");
+}
+
+/**
+ * get_max_capsule - get the max capsule index
+ *
+ * Retrieve the max capsule index value from "CapsuleMax" variable.
+ *
+ * Return:
+ * * > 0	- the max capsule index
+ * * 0xffff	- on error, or "CapsuleMax" variable does not exist
+ */
+static __maybe_unused unsigned int get_max_capsule(void)
+{
+	return get_capsule_index(u"CapsuleMax");
 }
 
 /**
@@ -1290,7 +1309,7 @@ efi_status_t efi_launch_capsules(void)
 {
 	struct efi_capsule_header *capsule = NULL;
 	u16 **files;
-	unsigned int nfiles, index, i;
+	unsigned int nfiles, index, index_max, i;
 	efi_status_t ret;
 	bool capsule_update = true;
 	bool update_status = true;
@@ -1299,6 +1318,7 @@ efi_status_t efi_launch_capsules(void)
 	if (check_run_capsules() != EFI_SUCCESS)
 		return EFI_SUCCESS;
 
+	index_max = get_max_capsule();
 	index = get_last_capsule();
 
 	/*
@@ -1317,7 +1337,7 @@ efi_status_t efi_launch_capsules(void)
 	/* Launch capsules */
 	for (i = 0, ++index; i < nfiles; i++, index++) {
 		log_debug("Applying %ls\n", files[i]);
-		if (index > 0xffff)
+		if (index > index_max)
 			index = 0;
 		ret = efi_capsule_read_file(files[i], &capsule);
 		if (ret == EFI_SUCCESS) {
