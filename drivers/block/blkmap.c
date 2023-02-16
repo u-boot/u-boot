@@ -130,6 +130,111 @@ static int blkmap_slice_add(struct blkmap *bm, struct blkmap_slice *new)
 	return 0;
 }
 
+/**
+ * struct blkmap_mem - Memory mapping
+ *
+ * @slice: Common map data
+ * @addr: Target memory region of this mapping
+ * @remapped: True if @addr is backed by a physical to virtual memory
+ * mapping that must be torn down at the end of this mapping's
+ * lifetime.
+ */
+struct blkmap_mem {
+	struct blkmap_slice slice;
+	void *addr;
+	bool remapped;
+};
+
+static ulong blkmap_mem_read(struct blkmap *bm, struct blkmap_slice *bms,
+			     lbaint_t blknr, lbaint_t blkcnt, void *buffer)
+{
+	struct blkmap_mem *bmm = container_of(bms, struct blkmap_mem, slice);
+	struct blk_desc *bd = dev_get_uclass_plat(bm->blk);
+	char *src;
+
+	src = bmm->addr + (blknr << bd->log2blksz);
+	memcpy(buffer, src, blkcnt << bd->log2blksz);
+	return blkcnt;
+}
+
+static ulong blkmap_mem_write(struct blkmap *bm, struct blkmap_slice *bms,
+			      lbaint_t blknr, lbaint_t blkcnt,
+			      const void *buffer)
+{
+	struct blkmap_mem *bmm = container_of(bms, struct blkmap_mem, slice);
+	struct blk_desc *bd = dev_get_uclass_plat(bm->blk);
+	char *dst;
+
+	dst = bmm->addr + (blknr << bd->log2blksz);
+	memcpy(dst, buffer, blkcnt << bd->log2blksz);
+	return blkcnt;
+}
+
+static void blkmap_mem_destroy(struct blkmap *bm, struct blkmap_slice *bms)
+{
+	struct blkmap_mem *bmm = container_of(bms, struct blkmap_mem, slice);
+
+	if (bmm->remapped)
+		unmap_sysmem(bmm->addr);
+}
+
+int __blkmap_map_mem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		     void *addr, bool remapped)
+{
+	struct blkmap *bm = dev_get_plat(dev);
+	struct blkmap_mem *bmm;
+	int err;
+
+	bmm = malloc(sizeof(*bmm));
+	if (!bmm)
+		return -ENOMEM;
+
+	*bmm = (struct blkmap_mem) {
+		.slice = {
+			.blknr = blknr,
+			.blkcnt = blkcnt,
+
+			.read = blkmap_mem_read,
+			.write = blkmap_mem_write,
+			.destroy = blkmap_mem_destroy,
+		},
+
+		.addr = addr,
+		.remapped = remapped,
+	};
+
+	err = blkmap_slice_add(bm, &bmm->slice);
+	if (err)
+		free(bmm);
+
+	return err;
+}
+
+int blkmap_map_mem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		   void *addr)
+{
+	return __blkmap_map_mem(dev, blknr, blkcnt, addr, false);
+}
+
+int blkmap_map_pmem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		    phys_addr_t paddr)
+{
+	struct blkmap *bm = dev_get_plat(dev);
+	struct blk_desc *bd = dev_get_uclass_plat(bm->blk);
+	void *addr;
+	int err;
+
+	addr = map_sysmem(paddr, blkcnt << bd->log2blksz);
+	if (!addr)
+		return -ENOMEM;
+
+	err = __blkmap_map_mem(dev, blknr, blkcnt, addr, true);
+	if (err)
+		unmap_sysmem(addr);
+
+	return err;
+}
+
 static ulong blkmap_blk_read_slice(struct blkmap *bm, struct blkmap_slice *bms,
 				   lbaint_t blknr, lbaint_t blkcnt,
 				   void *buffer)

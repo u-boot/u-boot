@@ -8,6 +8,35 @@
 #define _BLKMAP_H
 
 /**
+ * blkmap_map_mem() - Map region of memory
+ *
+ * @dev: Blkmap to create the mapping on
+ * @blknr: Start block number of the mapping
+ * @blkcnt: Number of blocks to map
+ * @addr: The target memory address of the mapping
+ * Returns: 0 on success, negative error code on failure
+ */
+int blkmap_map_mem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		   void *addr);
+
+/**
+ * blkmap_map_pmem() - Map region of physical memory
+ *
+ * Ensures that a valid physical to virtual memory mapping for the
+ * requested region is valid for the lifetime of the mapping, on
+ * architectures that require it (sandbox).
+ *
+ * @dev: Blkmap to create the mapping on
+ * @blknr: Start block number of the mapping
+ * @blkcnt: Number of blocks to map
+ * @paddr: The target physical memory address of the mapping
+ * Returns: 0 on success, negative error code on failure
+ */
+int blkmap_map_pmem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		    phys_addr_t paddr);
+
+
+/**
  * blkmap_from_label() - Find blkmap from label
  *
  * @label: Label of the requested blkmap
