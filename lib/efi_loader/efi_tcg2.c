@@ -2175,6 +2175,79 @@ out1:
 	return ret;
 }
 
+/* Return the byte size of reserved map area in DTB or -1 upon error */
+static ssize_t size_of_rsvmap(void *dtb)
+{
+	struct fdt_reserve_entry e;
+	ssize_t size_max;
+	ssize_t size;
+	u8 *rsvmap_base;
+
+	rsvmap_base = (u8 *)dtb + fdt_off_mem_rsvmap(dtb);
+	size_max = fdt_totalsize(dtb) - fdt_off_mem_rsvmap(dtb);
+	size = 0;
+
+	do {
+		memcpy(&e, rsvmap_base + size, sizeof(e));
+		size += sizeof(e);
+		if (size > size_max)
+			return -1;
+	} while (e.size);
+
+	return size;
+}
+
+/**
+ * efi_tcg2_measure_dtb() - measure DTB passed to the OS
+ *
+ * @dtb: pointer to the device tree blob
+ *
+ * Return:	status code
+ */
+efi_status_t efi_tcg2_measure_dtb(void *dtb)
+{
+	struct uefi_platform_firmware_blob2 *blob;
+	struct fdt_header *header;
+	sha256_context hash_ctx;
+	struct udevice *dev;
+	ssize_t rsvmap_size;
+	efi_status_t ret;
+	u32 event_size;
+
+	if (!is_tcg2_protocol_installed())
+		return EFI_SUCCESS;
+
+	ret = platform_get_tpm2_device(&dev);
+	if (ret != EFI_SUCCESS)
+		return EFI_SECURITY_VIOLATION;
+
+	rsvmap_size = size_of_rsvmap(dtb);
+	if (rsvmap_size < 0)
+		return EFI_SECURITY_VIOLATION;
+
+	event_size = sizeof(*blob) + sizeof(EFI_DTB_EVENT_STRING) + SHA256_SUM_LEN;
+	blob = calloc(1, event_size);
+	if (!blob)
+		return EFI_OUT_OF_RESOURCES;
+
+	blob->blob_description_size = sizeof(EFI_DTB_EVENT_STRING);
+	memcpy(blob->data, EFI_DTB_EVENT_STRING, blob->blob_description_size);
+
+	/* Measure populated areas of the DTB */
+	header = dtb;
+	sha256_starts(&hash_ctx);
+	sha256_update(&hash_ctx, (u8 *)header, sizeof(struct fdt_header));
+	sha256_update(&hash_ctx, (u8 *)dtb + fdt_off_dt_struct(dtb), fdt_size_dt_strings(dtb));
+	sha256_update(&hash_ctx, (u8 *)dtb + fdt_off_dt_strings(dtb), fdt_size_dt_struct(dtb));
+	sha256_update(&hash_ctx, (u8 *)dtb + fdt_off_mem_rsvmap(dtb), rsvmap_size);
+	sha256_finish(&hash_ctx, blob->data + blob->blob_description_size);
+
+	ret = tcg2_measure_event(dev, 0, EV_POST_CODE, event_size, (u8 *)blob);
+
+	free(blob);
+	return ret;
+}
+
 /**
  * efi_tcg2_measure_efi_app_invocation() - measure efi app invocation
  *

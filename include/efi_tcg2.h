@@ -233,6 +233,16 @@ struct efi_gpt_data {
 	gpt_entry partitions[];
 } __packed;
 
+/**
+ * struct tdUEFI_PLATFORM_FIRMWARE_BLOB2
+ * @blob_description_size:	Byte size of @data
+ * @data:			Description data
+ */
+struct uefi_platform_firmware_blob2 {
+	u8 blob_description_size;
+	u8 data[];
+} __packed;
+
 struct efi_tcg2_protocol {
 	efi_status_t (EFIAPI * get_capability)(struct efi_tcg2_protocol *this,
 					       struct efi_tcg2_boot_service_capability *capability);

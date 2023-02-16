@@ -531,6 +531,8 @@ efi_status_t efi_tcg2_notify_exit_boot_services_failed(void);
 efi_status_t efi_tcg2_measure_efi_app_invocation(struct efi_loaded_image_obj *handle);
 /* Measure efi application exit */
 efi_status_t efi_tcg2_measure_efi_app_exit(void);
+/* Measure DTB */
+efi_status_t efi_tcg2_measure_dtb(void *dtb);
 /* Called by bootefi to initialize root node */
 efi_status_t efi_root_node_register(void);
 /* Called by bootefi to initialize runtime */
