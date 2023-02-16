@@ -1209,6 +1209,7 @@ config ARCH_VF610
 config ARCH_ZYNQ
 	bool "Xilinx Zynq based platform"
 	select ARM_TWD_TIMER
+	select ARCH_EARLY_INIT_R if FPGA || (SPL && SPL_FPGA)
 	select CLK
 	select CLK_ZYNQ
 	select CPU_V7A
@@ -1230,7 +1231,6 @@ config ARCH_ZYNQ
 	select SPL_TIMER if SPL
 	select SUPPORT_SPL
 	select TIMER
-	imply ARCH_EARLY_INIT_R
 	imply BOARD_LATE_INIT
 	imply CMD_CLK
 	imply CMD_DM
