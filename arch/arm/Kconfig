@@ -588,6 +588,7 @@ config ARCH_KIRKWOOD
 
 config ARCH_MVEBU
 	bool "Marvell MVEBU family (Armada XP/375/38x/3700/7K/8K)"
+	select ARCH_EARLY_INIT_R if ARM64
 	select DM
 	select DM_SERIAL
 	select DM_SPI
