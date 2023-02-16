@@ -131,6 +131,77 @@ static int blkmap_slice_add(struct blkmap *bm, struct blkmap_slice *new)
 }
 
 /**
+ * struct blkmap_linear - Linear mapping to other block device
+ *
+ * @slice: Common map data
+ * @blk: Target block device of this mapping
+ * @blknr: Start block number of the target device
+ */
+struct blkmap_linear {
+	struct blkmap_slice slice;
+
+	struct udevice *blk;
+	lbaint_t blknr;
+};
+
+static ulong blkmap_linear_read(struct blkmap *bm, struct blkmap_slice *bms,
+				lbaint_t blknr, lbaint_t blkcnt, void *buffer)
+{
+	struct blkmap_linear *bml = container_of(bms, struct blkmap_linear, slice);
+
+	return blk_read(bml->blk, bml->blknr + blknr, blkcnt, buffer);
+}
+
+static ulong blkmap_linear_write(struct blkmap *bm, struct blkmap_slice *bms,
+				 lbaint_t blknr, lbaint_t blkcnt,
+				 const void *buffer)
+{
+	struct blkmap_linear *bml = container_of(bms, struct blkmap_linear, slice);
+
+	return blk_write(bml->blk, bml->blknr + blknr, blkcnt, buffer);
+}
+
+int blkmap_map_linear(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		      struct udevice *lblk, lbaint_t lblknr)
+{
+	struct blkmap *bm = dev_get_plat(dev);
+	struct blkmap_linear *linear;
+	struct blk_desc *bd, *lbd;
+	int err;
+
+	bd = dev_get_uclass_plat(bm->blk);
+	lbd = dev_get_uclass_plat(lblk);
+	if (lbd->blksz != bd->blksz)
+		/* We could support block size translation, but we
+		 * don't yet.
+		 */
+		return -EINVAL;
+
+	linear = malloc(sizeof(*linear));
+	if (!linear)
+		return -ENOMEM;
+
+	*linear = (struct blkmap_linear) {
+		.slice = {
+			.blknr = blknr,
+			.blkcnt = blkcnt,
+
+			.read = blkmap_linear_read,
+			.write = blkmap_linear_write,
+		},
+
+		.blk = lblk,
+		.blknr = lblknr,
+	};
+
+	err = blkmap_slice_add(bm, &linear->slice);
+	if (err)
+		free(linear);
+
+	return err;
+}
+
+/**
  * struct blkmap_mem - Memory mapping
  *
  * @slice: Common map data

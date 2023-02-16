@@ -8,6 +8,19 @@
 #define _BLKMAP_H
 
 /**
+ * blkmap_map_linear() - Map region of other block device
+ *
+ * @dev: Blkmap to create the mapping on
+ * @blknr: Start block number of the mapping
+ * @blkcnt: Number of blocks to map
+ * @lblk: The target block device of the mapping
+ * @lblknr: The start block number of the target device
+ * Returns: 0 on success, negative error code on failure
+ */
+int blkmap_map_linear(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		      struct udevice *lblk, lbaint_t lblknr);
+
+/**
  * blkmap_map_mem() - Map region of memory
  *
  * @dev: Blkmap to create the mapping on
