@@ -8,6 +8,7 @@ Required properties (controller (parent) node):
  - compatible	: should be one of
 		  "mediatek,generic-tphy-v1"
 		  "mediatek,generic-tphy-v2"
+		  "mediatek,mt8195-tphy"
 
 - #address-cells:	the number of cells used to represent physical
 		base addresses.
