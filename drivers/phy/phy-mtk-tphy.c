@@ -44,7 +44,11 @@
 
 #define U3P_USBPHYACR0			0x000
 #define PA0_RG_U2PLL_FORCE_ON		BIT(15)
+#define PA0_USB20_PLL_PREDIV		GENMASK(7, 6)
 #define PA0_RG_USB20_INTR_EN		BIT(5)
+
+#define U3P_USBPHYACR2			0x008
+#define PA2_RG_U2PLL_BW			GENMASK(21, 19)
 
 #define U3P_USBPHYACR5			0x014
 #define PA5_RG_U2_HSTX_SRCAL_EN		BIT(15)
@@ -61,6 +65,14 @@
 #define P2C_USB20_GPIO_MODE		BIT(8)
 #define P2C_U2_GPIO_CTR_MSK	\
 		(P2C_RG_USB20_GPIO_CTL | P2C_USB20_GPIO_MODE)
+
+#define U3P_U2PHYA_RESV			0x030
+#define P2R_RG_U2PLL_FBDIV_26M		0x1bb13b
+#define P2R_RG_U2PLL_FBDIV_48M		0x3c0000
+
+#define U3P_U2PHYA_RESV1		0x044
+#define P2R_RG_U2PLL_REFCLK_SEL		BIT(5)
+#define P2R_RG_U2PLL_FRA_EN		BIT(3)
 
 #define U3P_U2PHYDTM0			0x068
 #define P2C_FORCE_UART_EN		BIT(26)
@@ -202,6 +214,17 @@ enum mtk_phy_version {
 	MTK_TPHY_V2,
 };
 
+struct tphy_pdata {
+	enum mtk_phy_version version;
+
+	/*
+	 * workaround only for mt8195:
+	 * u2phy should use integer mode instead of fractional mode of
+	 * 48M PLL, fix it by switching PLL to 26M from default 48M
+	 */
+	bool sw_pll_48m_to_26m;
+};
+
 struct u2phy_banks {
 	void __iomem *misc;
 	void __iomem *fmreg;
@@ -232,10 +255,31 @@ struct mtk_phy_instance {
 struct mtk_tphy {
 	struct udevice *dev;
 	void __iomem *sif_base;
-	enum mtk_phy_version version;
+	const struct tphy_pdata *pdata;
 	struct mtk_phy_instance **phys;
 	int nphys;
 };
+
+/* workaround only for mt8195 */
+static void u2_phy_pll_26m_set(struct mtk_tphy *tphy,
+			       struct mtk_phy_instance *instance)
+{
+	struct u2phy_banks *u2_banks = &instance->u2_banks;
+
+	if (!tphy->pdata->sw_pll_48m_to_26m)
+		return;
+
+	clrsetbits_le32(u2_banks->com + U3P_USBPHYACR0, PA0_USB20_PLL_PREDIV,
+			FIELD_PREP(PA0_USB20_PLL_PREDIV, 0));
+
+	clrsetbits_le32(u2_banks->com + U3P_USBPHYACR2, PA2_RG_U2PLL_BW,
+			FIELD_PREP(PA2_RG_U2PLL_BW, 3));
+
+	writel(P2R_RG_U2PLL_FBDIV_26M, u2_banks->com + U3P_U2PHYA_RESV);
+
+	setbits_le32(u2_banks->com + U3P_U2PHYA_RESV1,
+		     P2R_RG_U2PLL_FRA_EN | P2R_RG_U2PLL_REFCLK_SEL);
+}
 
 static void u2_phy_instance_init(struct mtk_tphy *tphy,
 				 struct mtk_phy_instance *instance)
@@ -265,6 +309,8 @@ static void u2_phy_instance_init(struct mtk_tphy *tphy,
 	clrsetbits_le32(u2_banks->com + U3P_USBPHYACR5,
 			PA5_RG_U2_HSTX_SRCTRL,
 			FIELD_PREP(PA5_RG_U2_HSTX_SRCTRL, 4));
+
+	u2_phy_pll_26m_set(tphy, instance);
 
 	dev_dbg(tphy->dev, "%s(%d)\n", __func__, instance->index);
 }
@@ -350,7 +396,7 @@ static void pcie_phy_instance_init(struct mtk_tphy *tphy,
 {
 	struct u3phy_banks *u3_banks = &instance->u3_banks;
 
-	if (tphy->version != MTK_TPHY_V1)
+	if (tphy->pdata->version != MTK_TPHY_V1)
 		return;
 
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_DA_REG0,
@@ -634,11 +680,14 @@ static int mtk_phy_xlate(struct phy *phy,
 		return -EINVAL;
 	}
 
-	if (tphy->version == MTK_TPHY_V1) {
+	switch (tphy->pdata->version) {
+	case MTK_TPHY_V1:
 		phy_v1_banks_init(tphy, instance);
-	} else if (tphy->version == MTK_TPHY_V2) {
+		break;
+	case MTK_TPHY_V2:
 		phy_v2_banks_init(tphy, instance);
-	} else {
+		break;
+	default:
 		dev_err(phy->dev, "phy version is not supported\n");
 		return -EINVAL;
 	}
@@ -668,13 +717,12 @@ static int mtk_tphy_probe(struct udevice *dev)
 		return -ENOMEM;
 
 	tphy->dev = dev;
-	tphy->version = dev_get_driver_data(dev);
+	tphy->pdata = (void *)dev_get_driver_data(dev);
 
 	/* v1 has shared banks for usb/pcie mode, */
 	/* but not for sata mode */
-	if (tphy->version == MTK_TPHY_V1) {
+	if (tphy->pdata->version == MTK_TPHY_V1)
 		tphy->sif_base = dev_read_addr_ptr(dev);
-	}
 
 	dev_for_each_subnode(subnode, dev) {
 		struct mtk_phy_instance *instance;
@@ -709,9 +757,32 @@ static int mtk_tphy_probe(struct udevice *dev)
 	return 0;
 }
 
+static struct tphy_pdata tphy_v1_pdata = {
+	.version = MTK_TPHY_V1,
+};
+
+static struct tphy_pdata tphy_v2_pdata = {
+	.version = MTK_TPHY_V2,
+};
+
+static struct tphy_pdata mt8195_pdata = {
+	.version = MTK_TPHY_V2,
+	.sw_pll_48m_to_26m = true,
+};
+
 static const struct udevice_id mtk_tphy_id_table[] = {
-	{ .compatible = "mediatek,generic-tphy-v1", .data = MTK_TPHY_V1, },
-	{ .compatible = "mediatek,generic-tphy-v2", .data = MTK_TPHY_V2, },
+	{
+		.compatible = "mediatek,generic-tphy-v1",
+		.data = (ulong)&tphy_v1_pdata,
+	},
+	{
+		.compatible = "mediatek,generic-tphy-v2",
+		.data = (ulong)&tphy_v2_pdata,
+	},
+	{
+		.compatible = "mediatek,mt8195-tphy",
+		.data = (ulong)&mt8195_pdata,
+	},
 	{ }
 };
 
