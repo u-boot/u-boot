@@ -37,3 +37,9 @@ https://github.com/siemens/k3-rti-wdt.
 tee-os:
 See the documentation for your board. You may need to build Open Portable
 Trusted Execution Environment (OP-TEE) with TEE=/path/to/tee.bin
+
+opensbi:
+See the documentation for your board. The OpenSBI git repo is at
+https://github.com/riscv/opensbi.git
+You may need to build fw_dynamic.bin first and re-build u-boot with
+OPENSBI=/path/to/fw_dynamic.bin
