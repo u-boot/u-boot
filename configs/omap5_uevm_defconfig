@@ -1,6 +1,8 @@
 CONFIG_ARM=y
 CONFIG_ARCH_OMAP2PLUS=y
 CONFIG_SYS_MALLOC_F_LEN=0x4000
+CONFIG_HAS_CUSTOM_SYS_INIT_SP_ADDR=y
+CONFIG_CUSTOM_SYS_INIT_SP_ADDR=0x4031ff00
 CONFIG_DEFAULT_DEVICE_TREE="omap5-uevm"
 CONFIG_SPL_TEXT_BASE=0x40300000
 CONFIG_OMAP54XX=y
@@ -11,8 +13,6 @@ CONFIG_ENV_OFFSET_REDUND=0x280000
 CONFIG_ARMV7_LPAE=y
 CONFIG_AHCI=y
 CONFIG_DISTRO_DEFAULTS=y
-CONFIG_HAS_CUSTOM_SYS_INIT_SP_ADDR=y
-CONFIG_CUSTOM_SYS_INIT_SP_ADDR=0x4031ff00
 CONFIG_BOOTCOMMAND="if test ${dofastboot} -eq 1; then echo Boot fastboot requested, resetting dofastboot ...;setenv dofastboot 0; saveenv;echo Booting into fastboot ...; fastboot 1;fi;if test ${boot_fit} -eq 1; then run update_to_fit;fi;run findfdt; run finduuid; run distro_bootcmd;run emmc_android_boot; "
 CONFIG_DEFAULT_FDT_FILE="omap5-uevm.dtb"
 CONFIG_SYS_CONSOLE_INFO_QUIET=y
