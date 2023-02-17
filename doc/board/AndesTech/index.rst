@@ -7,4 +7,4 @@ Andes Tech
    :maxdepth: 2
 
    adp-ag101p
-   ax25-ae350
+   ae350

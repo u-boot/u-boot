@@ -34,6 +34,14 @@ struct l2cache {
 	volatile u64	cctl_status;
 };
 
+/* Configuration register */
+#define MEM_MAP_OFF	20
+#define MEM_MAP_MSK	BIT(MEM_MAP_OFF)
+/* offset of v0 memory map (Gen1) */
+static u32 cmd_stride = 0x10;
+static u32 status_stride = 0x0;
+static u32 status_bit_offset = 0x4;
+
 /* Control Register */
 #define L2_ENABLE	0x1
 /* prefetch */
@@ -53,14 +61,15 @@ struct l2cache {
 #define DRAMICTL_MSK	BIT(DRAMICTL_OFF)
 
 /* CCTL Command Register */
-#define CCTL_CMD_REG(base, hart)	((ulong)(base) + 0x40 + (hart) * 0x10)
+#define CCTL_CMD_REG(base, hart)	((ulong)(base) + 0x40 + (hart) * (cmd_stride))
 #define L2_WBINVAL_ALL	0x12
 
 /* CCTL Status Register */
-#define CCTL_STATUS_MSK(hart)		(0xf << ((hart) * 4))
-#define CCTL_STATUS_IDLE(hart)		(0 << ((hart) * 4))
-#define CCTL_STATUS_PROCESS(hart)	(1 << ((hart) * 4))
-#define CCTL_STATUS_ILLEGAL(hart)	(2 << ((hart) * 4))
+#define CCTL_STATUS_REG(base, hart)	((ulong)(base) + 0x80 + (hart) * (status_stride))
+#define CCTL_STATUS_MSK(hart)		(0xf << ((hart) * (status_bit_offset)))
+#define CCTL_STATUS_IDLE(hart)		(0 << ((hart) * (status_bit_offset)))
+#define CCTL_STATUS_PROCESS(hart)	(1 << ((hart) * (status_bit_offset)))
+#define CCTL_STATUS_ILLEGAL(hart)	(2 << ((hart) * (status_bit_offset)))
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -110,7 +119,7 @@ static int v5l2_of_to_plat(struct udevice *dev)
 	struct v5l2_plat *plat = dev_get_plat(dev);
 	struct l2cache *regs;
 
-	regs = (struct l2cache *)dev_read_addr(dev);
+	regs = (struct l2cache *)(uintptr_t)dev_read_addr(dev);
 	plat->regs = regs;
 
 	plat->iprefetch = -EINVAL;
@@ -133,12 +142,19 @@ static int v5l2_probe(struct udevice *dev)
 {
 	struct v5l2_plat *plat = dev_get_plat(dev);
 	struct l2cache *regs = plat->regs;
-	u32 ctl_val;
+	u32 cfg_val, ctl_val;
 
+	cfg_val = readl(&regs->configure);
 	ctl_val = readl(&regs->control);
 
-	if (!(ctl_val & L2_ENABLE))
-		ctl_val |= L2_ENABLE;
+	/* If true, v1 memory map (Gen2) */
+	if (cfg_val & MEM_MAP_MSK) {
+		cmd_stride = 0x1000;
+		status_stride = 0x1000;
+		status_bit_offset = 0x0;
+	}
+
+	ctl_val |= L2_ENABLE;
 
 	if (plat->iprefetch != -EINVAL) {
 		ctl_val &= ~(IPREPETCH_MSK);
@@ -168,7 +184,7 @@ static int v5l2_probe(struct udevice *dev)
 }
 
 static const struct udevice_id v5l2_cache_ids[] = {
-	{ .compatible = "v5l2cache" },
+	{ .compatible = "cache" },
 	{}
 };
 
