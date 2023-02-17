@@ -5,6 +5,11 @@ F:      board/rockchip/evb_rk3568
 F:      include/configs/evb_rk3568.h
 F:      configs/evb-rk3568_defconfig
 
+RADXA-CM3
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/radxa-cm3-io-rk3566_defconfig
+
 ROCK-3A
 M:      Akash Gajjar <gajjar04akash@gmail.com>
 S:      Maintained
