@@ -179,10 +179,19 @@ static int rockchip_usb2phy_probe(struct udevice *dev)
 	if (IS_ERR(priv->reg_base))
 		return PTR_ERR(priv->reg_base);
 
-	ret = ofnode_read_u32(dev_ofnode(dev), "reg", &reg);
+	ret = ofnode_read_u32_index(dev_ofnode(dev), "reg", 0, &reg);
 	if (ret) {
 		dev_err(dev, "failed to read reg property (ret = %d)\n", ret);
 		return ret;
+	}
+
+	/* support address_cells=2 */
+	if (reg == 0) {
+		if (ofnode_read_u32_index(dev_ofnode(dev), "reg", 1, &reg)) {
+			dev_err(dev, "%s must have reg[1]\n",
+				ofnode_get_name(dev_ofnode(dev)));
+			return -EINVAL;
+		}
 	}
 
 	phy_cfgs = (const struct rockchip_usb2phy_cfg *)
