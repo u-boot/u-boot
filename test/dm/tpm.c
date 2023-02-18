@@ -25,6 +25,11 @@ static int dm_test_tpm(struct unit_test_state *uts)
 	ut_asserteq_str("init_done=0", buf);
 
 	ut_assertok(tpm_init(dev));
+	 /*
+	  * tpm auto start will rerun tpm_init, but handles the
+	  * -EBUSY return code internally.
+	  */
+	ut_assertok(tpm_auto_start(dev));
 
 	ut_assert(tpm_report_state(dev, buf, sizeof(buf)));
 	ut_asserteq_str("init_done=1", buf);
