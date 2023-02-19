@@ -29,7 +29,10 @@
 
 #ifndef USE_HOSTCC
 #include <common.h>
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 #include <watchdog.h>
+#define PET_WDG
+#endif
 #endif /* USE_HOSTCC */
 #include <u-boot/md5.h>
 
@@ -288,14 +291,14 @@ md5_wd(const unsigned char *input, unsigned int len, unsigned char output[16],
 	unsigned int chunk_sz)
 {
 	struct MD5Context context;
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#ifdef PET_WDG
 	const unsigned char *end, *curr;
 	int chunk;
 #endif
 
 	MD5Init(&context);
 
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#ifdef PET_WDG
 	curr = input;
 	end = input + len;
 	while (curr < end) {
