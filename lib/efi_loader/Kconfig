@@ -226,6 +226,14 @@ config EFI_CAPSULE_AUTHENTICATE
 	  Select this option if you want to enable capsule
 	  authentication
 
+config EFI_CAPSULE_MAX
+	int "Max value for capsule index"
+	default 15
+	range 0 65535
+	help
+	  Select the max capsule index value used for capsule report
+	  variables. This value is used to create CapsuleMax variable.
+
 config EFI_DEVICE_PATH_TO_TEXT
 	bool "Device path to text protocol"
 	default y
@@ -345,6 +353,17 @@ config EFI_TCG2_PROTOCOL_EVENTLOG_SIZE
 		Define the size of the EventLog for EFI_TCG2_PROTOCOL. Note that
 		this is going to be allocated twice. One for the eventlog it self
 		and one for the configuration table that is required from the spec
+
+config EFI_TCG2_PROTOCOL_MEASURE_DTB
+	bool "Measure DTB with EFI_TCG2_PROTOCOL"
+	depends on EFI_TCG2_PROTOCOL
+	help
+	  When enabled, the DTB image passed to the booted EFI image is
+	  measured using the EFI TCG2 protocol. Do not enable this feature if
+	  the passed DTB contains data that change across platform reboots
+	  and cannot be used has a predictable measurement. Otherwise
+	  this feature allows better measurement of the system boot
+	  sequence.
 
 config EFI_LOAD_FILE2_INITRD
 	bool "EFI_FILE_LOAD2_PROTOCOL for Linux initial ramdisk"

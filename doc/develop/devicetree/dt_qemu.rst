@@ -13,7 +13,7 @@ When `CONFIG_OF_BOARD` is enabled
 Obtaining the QEMU devicetree
 -----------------------------
 
-Where QEMU generates its own devicetree to pass to U-Boot tou can use
+Where QEMU generates its own devicetree to pass to U-Boot you can use
 `-dtb u-boot.dtb` to force QEMU to use U-Boot's in-tree version.
 
 To obtain the devicetree that qemu generates, add `-machine dumpdtb=qemu.dtb`,
@@ -38,7 +38,7 @@ to produce a text file. It drops the duplicate header on the qemu one. Then it
 joins them up and runs them through dtc to compile the output::
 
     qemu-system-arm -machine virt -machine dumpdtb=qemu.dtb
-    cat  <(dtc -I dtb qemu.dtb) <(dtc -I dtb  u-boot.dtb |grep -v /dts-v1/) |dtc - -o merged.dtb
+    cat  <(dtc -I dtb qemu.dtb) <(dtc -I dtb u-boot.dtb | grep -v /dts-v1/) | dtc - -o merged.dtb
 
 You can then run qemu with the merged devicetree, e.g.::
 

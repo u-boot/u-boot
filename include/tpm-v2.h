@@ -105,6 +105,8 @@ struct udevice;
 	"Exit Boot Services Returned with Failure"
 #define EFI_EXIT_BOOT_SERVICES_SUCCEEDED    \
 	"Exit Boot Services Returned with Success"
+#define EFI_DTB_EVENT_STRING \
+	"DTB DATA"
 
 /* TPMS_TAGGED_PROPERTY Structure */
 struct tpms_tagged_property {
