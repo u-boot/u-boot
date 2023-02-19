@@ -19,6 +19,9 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <linux/string.h>
+#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#define PET_WDG
+#endif
 #else
 #include <string.h>
 #endif /* USE_HOSTCC */
@@ -328,14 +331,14 @@ void sha1_csum_wd(const unsigned char *input, unsigned int ilen,
 		  unsigned char *output, unsigned int chunk_sz)
 {
 	sha1_context ctx;
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#ifdef PET_WDG
 	const unsigned char *end, *curr;
 	int chunk;
 #endif
 
 	sha1_starts (&ctx);
 
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#ifdef PET_WDG
 	curr = input;
 	end = input + ilen;
 	while (curr < end) {
