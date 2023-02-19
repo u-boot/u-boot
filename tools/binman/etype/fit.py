@@ -823,7 +823,7 @@ class Entry_fit(Entry_section):
         self.mkimage = self.AddBintool(btools, 'mkimage')
 
     def CheckMissing(self, missing_list):
-        # We must use our private entry list for this since generator notes
+        # We must use our private entry list for this since generator nodes
         # which are removed from self._entries will otherwise not show up as
         # missing
         for entry in self._priv_entries.values():

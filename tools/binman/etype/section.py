@@ -172,7 +172,7 @@ class Entry_section(Entry):
     def IsSpecialSubnode(self, node):
         """Check if a node is a special one used by the section itself
 
-        Some notes are used for hashing / signatures and do not add entries to
+        Some nodes are used for hashing / signatures and do not add entries to
         the actual section.
 
         Returns:
