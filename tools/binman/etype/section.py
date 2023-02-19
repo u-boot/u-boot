@@ -885,7 +885,7 @@ class Entry_section(Entry):
         """Set whether a section allows to create a fake blob
 
         Args:
-            allow_fake_blob: True if allowed, False if not allowed
+            allow_fake: True if allowed, False if not allowed
         """
         super().SetAllowFakeBlob(allow_fake)
         for entry in self._entries.values():
@@ -909,7 +909,7 @@ class Entry_section(Entry):
         If there are faked blobs, the entries are added to the list
 
         Args:
-            fake_blobs_list: List of Entry objects to be added to
+            faked_blobs_list: List of Entry objects to be added to
         """
         for entry in self._entries.values():
             entry.CheckFakedBlobs(faked_blobs_list)

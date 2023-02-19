@@ -102,7 +102,7 @@ class Entry_blob(Entry):
         If there are faked blobs, the entries are added to the list
 
         Args:
-            fake_blobs_list: List of Entry objects to be added to
+            faked_blobs_list: List of Entry objects to be added to
         """
         if self.faked:
             faked_blobs_list.append(self)

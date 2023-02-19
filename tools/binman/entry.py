@@ -1111,7 +1111,7 @@ features to produce new behaviours.
         If there are faked blobs, the entries are added to the list
 
         Args:
-            fake_blobs_list: List of Entry objects to be added to
+            faked_blobs_list: List of Entry objects to be added to
         """
         # This is meaningless for anything other than blobs
         pass
