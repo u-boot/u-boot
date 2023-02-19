@@ -245,16 +245,6 @@ int fdt_increase_size(void *fdt, int add_len);
 int fdt_delete_disabled_nodes(void *blob);
 
 struct node_info;
-#if defined(CONFIG_FDT_FIXUP_PARTITIONS)
-void fdt_fixup_mtdparts(void *fdt, const struct node_info *node_info,
-			int node_info_size);
-#else
-static inline void fdt_fixup_mtdparts(void *fdt,
-				      const struct node_info *node_info,
-				      int node_info_size)
-{
-}
-#endif
 
 void fdt_del_node_and_alias(void *blob, const char *alias);
 
@@ -411,6 +401,19 @@ int fdt_valid(struct fdt_header **blobp);
 int fdt_get_cells_len(const void *blob, char *nr_cells_name);
 
 #endif /* ifdef CONFIG_OF_LIBFDT */
+
+#if CONFIG_IS_ENABLED(OF_LIBFDT) && defined(CONFIG_FDT_FIXUP_PARTITIONS)
+struct node_info;
+void fdt_fixup_mtdparts(void *fdt, const struct node_info *node_info,
+			int node_info_size);
+#else
+struct node_info;
+static inline void fdt_fixup_mtdparts(void *fdt,
+				      const struct node_info *node_info,
+				      int node_info_size)
+{
+}
+#endif
 
 #ifdef USE_HOSTCC
 int fdtdec_get_int(const void *blob, int node, const char *prop_name,
