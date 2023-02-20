@@ -17,6 +17,7 @@ struct dwc3_glue_data {
 	struct clk_bulk		clks;
 	struct reset_ctl_bulk	resets;
 	fdt_addr_t regs;
+	fdt_size_t size;
 };
 
 struct dwc3_glue_ops {

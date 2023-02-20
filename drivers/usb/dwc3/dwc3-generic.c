@@ -542,7 +542,7 @@ int dwc3_glue_probe(struct udevice *dev)
 		phy.dev = NULL;
 	}
 
-	glue->regs = dev_read_addr(dev);
+	glue->regs = dev_read_addr_size_index(dev, 0, &glue->size);
 
 	ret = dwc3_glue_clk_init(dev, glue);
 	if (ret)
