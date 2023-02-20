@@ -68,10 +68,27 @@ static int dwc3_generic_probe(struct udevice *dev,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	dwc3_of_parse(dwc3);
 
+	/*
+	 * There are currently four disparate placement possibilities of DWC3
+	 * reference clock phandle in SoC DTs:
+	 * - in top level glue node, with generic subnode without clock (ZynqMP)
+	 * - in top level generic node, with no subnode (i.MX8MQ)
+	 * - in generic subnode, with other clock in top level node (i.MX8MP)
+	 * - in both top level node and generic subnode (Rockchip)
+	 * Cover all the possibilities here by looking into both nodes, start
+	 * with the top level node as that seems to be used in majority of DTs
+	 * to reference the clock.
+	 */
 	node = dev_ofnode(dev->parent);
 	index = ofnode_stringlist_search(node, "clock-names", "ref");
 	if (index < 0)
 		index = ofnode_stringlist_search(node, "clock-names", "ref_clk");
+	if (index < 0) {
+		node = dev_ofnode(dev);
+		index = ofnode_stringlist_search(node, "clock-names", "ref");
+		if (index < 0)
+			index = ofnode_stringlist_search(node, "clock-names", "ref_clk");
+	}
 	if (index >= 0)
 		dwc3->ref_clk = &glue->clks.clks[index];
 #endif
