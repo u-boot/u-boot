@@ -794,9 +794,21 @@ static int eqos_start(struct udevice *dev)
 	 */
 	if (!eqos->phy) {
 		int addr = -1;
-		addr = eqos_get_phy_addr(eqos, dev);
-		eqos->phy = phy_connect(eqos->mii, addr, dev,
-					eqos->config->interface(dev));
+		ofnode fixed_node;
+
+		if (IS_ENABLED(CONFIG_PHY_FIXED)) {
+			fixed_node = ofnode_find_subnode(dev_ofnode(dev),
+							 "fixed-link");
+			if (ofnode_valid(fixed_node))
+				eqos->phy = fixed_phy_create(dev_ofnode(dev));
+		}
+
+		if (!eqos->phy) {
+			addr = eqos_get_phy_addr(eqos, dev);
+			eqos->phy = phy_connect(eqos->mii, addr, dev,
+						eqos->config->interface(dev));
+		}
+
 		if (!eqos->phy) {
 			pr_err("phy_connect() failed");
 			goto err_stop_resets;
