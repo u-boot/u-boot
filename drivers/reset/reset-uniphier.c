@@ -2,6 +2,7 @@
 /*
  * Copyright (C) 2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ *   Author: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
  */
 
 #include <common.h>
@@ -9,6 +10,8 @@
 #include <log.h>
 #include <malloc.h>
 #include <reset-uclass.h>
+#include <clk.h>
+#include <reset.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
@@ -178,10 +181,17 @@ static const struct uniphier_reset_data uniphier_pro4_peri_reset_data[] = {
 	UNIPHIER_RESET_END,
 };
 
+/* Glue reset data */
+static const struct uniphier_reset_data uniphier_pro4_usb3_reset_data[] = {
+	UNIPHIER_RESETX(15, 0, 15)
+};
+
 /* core implementaton */
 struct uniphier_reset_priv {
 	void __iomem *base;
 	const struct uniphier_reset_data *data;
+	struct clk_bulk		clks;
+	struct reset_ctl_bulk	rsts;
 };
 
 static int uniphier_reset_update(struct reset_ctl *reset_ctl, int assert)
@@ -233,10 +243,47 @@ static const struct reset_ops uniphier_reset_ops = {
 	.rst_deassert = uniphier_reset_deassert,
 };
 
+static int uniphier_reset_rst_init(struct udevice *dev)
+{
+	struct uniphier_reset_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = reset_get_bulk(dev, &priv->rsts);
+	if (ret == -ENOSYS || ret == -ENOENT)
+		return 0;
+	else if (ret)
+		return ret;
+
+	ret = reset_deassert_bulk(&priv->rsts);
+	if (ret)
+		reset_release_bulk(&priv->rsts);
+
+	return ret;
+}
+
+static int uniphier_reset_clk_init(struct udevice *dev)
+{
+	struct uniphier_reset_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = clk_get_bulk(dev, &priv->clks);
+	if (ret == -ENOSYS || ret == -ENOENT)
+		return 0;
+	if (ret)
+		return ret;
+
+	ret = clk_enable_bulk(&priv->clks);
+	if (ret)
+		clk_release_bulk(&priv->clks);
+
+	return ret;
+}
+
 static int uniphier_reset_probe(struct udevice *dev)
 {
 	struct uniphier_reset_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
+	int ret;
 
 	addr = dev_read_addr(dev->parent);
 	if (addr == FDT_ADDR_T_NONE)
@@ -248,7 +295,11 @@ static int uniphier_reset_probe(struct udevice *dev)
 
 	priv->data = (void *)dev_get_driver_data(dev);
 
-	return 0;
+	ret = uniphier_reset_clk_init(dev);
+	if (ret)
+		return ret;
+
+	return uniphier_reset_rst_init(dev);
 }
 
 static const struct udevice_id uniphier_reset_match[] = {
@@ -354,6 +405,31 @@ static const struct udevice_id uniphier_reset_match[] = {
 	{
 		.compatible = "socionext,uniphier-pxs3-peri-reset",
 		.data = (ulong)uniphier_pro4_peri_reset_data,
+	},
+	/* USB glue reset */
+	{
+		.compatible = "socionext,uniphier-pro4-usb3-reset",
+		.data = (ulong)uniphier_pro4_usb3_reset_data,
+	},
+	{
+		.compatible = "socionext,uniphier-pro5-usb3-reset",
+		.data = (ulong)uniphier_pro4_usb3_reset_data,
+	},
+	{
+		.compatible = "socionext,uniphier-pxs2-usb3-reset",
+		.data = (ulong)uniphier_pro4_usb3_reset_data,
+	},
+	{
+		.compatible = "socionext,uniphier-ld20-usb3-reset",
+		.data = (ulong)uniphier_pro4_usb3_reset_data,
+	},
+	{
+		.compatible = "socionext,uniphier-pxs3-usb3-reset",
+		.data = (ulong)uniphier_pro4_usb3_reset_data,
+	},
+	{
+		.compatible = "socionext,uniphier-nx1-usb3-reset",
+		.data = (ulong)uniphier_pro4_usb3_reset_data,
 	},
 	{ /* sentinel */ }
 };
