@@ -984,7 +984,7 @@ static int check_image_header(void)
 }
 #endif
 
-#if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_32BIT)
+#if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_38X)
 static u64 fuse_read_u64(u32 bank)
 {
 	u32 val[2];
@@ -1013,7 +1013,10 @@ static inline u8 maj3(u8 val)
 static int bubt_check_boot_mode(const struct bubt_dev *dst)
 {
 #if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_32BIT)
-	int mode, secure_mode;
+	int mode;
+#if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_38X)
+	int secure_mode;
+#endif
 #if defined(CONFIG_ARMADA_3700)
 	const struct tim_boot_flash_sign *boot_modes = tim_boot_flash_signs;
 	const struct common_tim_data *hdr =
