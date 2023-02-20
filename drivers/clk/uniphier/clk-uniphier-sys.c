@@ -28,7 +28,10 @@ const struct uniphier_clk_data uniphier_pxs2_sys_clk_data[] = {
 	UNIPHIER_CLK_GATE_SIMPLE(14, 0x2104, 16),	/* usb30 (Pro4, Pro5, PXs2) */
 	UNIPHIER_CLK_GATE_SIMPLE(15, 0x2104, 17),	/* usb31 (Pro4, Pro5, PXs2) */
 	UNIPHIER_CLK_GATE_SIMPLE(16, 0x2104, 19),	/* usb30-phy (PXs2) */
+	UNIPHIER_CLK_RATE(17, 25000000),		/* usb30-phy2 (PXs2) */
+	UNIPHIER_CLK_RATE(18, 25000000),		/* usb30-phy3 (PXs2) */
 	UNIPHIER_CLK_GATE_SIMPLE(20, 0x2104, 20),	/* usb31-phy (PXs2) */
+	UNIPHIER_CLK_RATE(21, 25000000),		/* usb31-phy2 (PXs2) */
 	UNIPHIER_CLK_GATE_SIMPLE(24, 0x2108, 2),	/* pcie (Pro5) */
 	{ /* sentinel */ }
 #endif
@@ -44,6 +47,8 @@ const struct uniphier_clk_data uniphier_ld20_sys_clk_data[] = {
 	UNIPHIER_CLK_GATE_SIMPLE(14, 0x210c, 14),	/* usb30 (LD20) */
 	UNIPHIER_CLK_GATE_SIMPLE(16, 0x210c, 12),	/* usb30-phy0 (LD20) */
 	UNIPHIER_CLK_GATE_SIMPLE(17, 0x210c, 13),	/* usb30-phy1 (LD20) */
+	UNIPHIER_CLK_RATE(18, 25000000),		/* usb30-phy2 (LD20) */
+	UNIPHIER_CLK_RATE(19, 25000000),		/* usb30-phy3 (LD20) */
 	UNIPHIER_CLK_GATE_SIMPLE(24, 0x210c, 4),	/* pcie */
 	{ /* sentinel */ }
 #endif
