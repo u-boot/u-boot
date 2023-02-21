@@ -37,10 +37,23 @@ u32 tpm_startup(struct udevice *dev, enum tpm_startup_type mode)
 
 u32 tpm_auto_start(struct udevice *dev)
 {
-	if (tpm_is_v2(dev))
-		return tpm2_auto_start(dev);
+	u32 rc;
 
-	return -ENOSYS;
+	/*
+	 * the tpm_init() will return -EBUSY if the init has already happened
+	 * The selftest and startup code can run multiple times with no side
+	 * effects
+	 */
+	rc = tpm_init(dev);
+	if (rc && rc != -EBUSY)
+		return rc;
+
+	if (tpm_is_v1(dev))
+		return tpm1_auto_start(dev);
+	else if (tpm_is_v2(dev))
+		return tpm2_auto_start(dev);
+	else
+		return -ENOSYS;
 }
 
 u32 tpm_resume(struct udevice *dev)

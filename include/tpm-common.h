@@ -94,7 +94,7 @@ struct tpm_ops {
 	 * close().
 	 *
 	 * @dev:	Device to open
-	 * @return 0 ok OK, -ve on error
+	 * @return 0 ok OK, -EBUSY if already opened, other -ve on other error
 	 */
 	int (*open)(struct udevice *dev);
 

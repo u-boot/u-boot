@@ -79,3 +79,48 @@ static int dm_test_tpm_report_state(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_tpm_report_state, UT_TESTF_SCAN_FDT);
+
+/**
+ * test_tpm_autostart() - check the tpm_auto_start() call
+ *
+ * @uts: Unit test state
+ * @version: TPM version to use
+ * @reinit: true to call tpm_init() first
+ * Returns 0 if OK, non-zero on failure
+ */
+static int test_tpm_autostart(struct unit_test_state *uts,
+			      enum tpm_version version, bool reinit)
+{
+	struct udevice *dev;
+
+	/* check probe success */
+	ut_assertok(get_tpm_version(version, &dev));
+
+	if (reinit)
+		ut_assertok(tpm_init(dev));
+	 /*
+	  * tpm_auto_start will rerun tpm_init() if reinit, but handles the
+	  * -EBUSY return code internally.
+	  */
+	ut_assertok(tpm_auto_start(dev));
+
+	return 0;
+}
+
+static int dm_test_tpm_autostart(struct unit_test_state *uts)
+{
+	ut_assertok(test_tpm_autostart(uts, TPM_V1, false));
+	ut_assertok(test_tpm_autostart(uts, TPM_V2, false));
+
+	return 0;
+}
+DM_TEST(dm_test_tpm_autostart, UT_TESTF_SCAN_FDT);
+
+static int dm_test_tpm_autostart_reinit(struct unit_test_state *uts)
+{
+	ut_assertok(test_tpm_autostart(uts, TPM_V1, true));
+	ut_assertok(test_tpm_autostart(uts, TPM_V2, true));
+
+	return 0;
+}
+DM_TEST(dm_test_tpm_autostart_reinit, UT_TESTF_SCAN_FDT);

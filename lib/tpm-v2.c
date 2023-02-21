@@ -48,14 +48,6 @@ u32 tpm2_auto_start(struct udevice *dev)
 {
 	u32 rc;
 
-	/*
-	 * the tpm_init() will return -EBUSY if the init has already happened
-	 * The selftest and startup code can run multiple times with no side
-	 * effects
-	 */
-	rc = tpm_init(dev);
-	if (rc && rc != -EBUSY)
-		return rc;
 	rc = tpm2_self_test(dev, TPMI_YES);
 
 	if (rc == TPM2_RC_INITIALIZE) {
