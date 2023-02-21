@@ -273,14 +273,19 @@ class BuilderThread(threading.Thread):
 
                 # If we need to reconfigure, do that now
                 cfg_file = os.path.join(out_dir, '.config')
+                cmd_list = []
                 if do_config or adjust_cfg:
                     config_out = ''
                     if self.mrproper:
                         result = self.Make(commit, brd, 'mrproper', cwd,
                                 'mrproper', *args, env=env)
                         config_out += result.combined
+                        cmd_list.append([self.builder.gnu_make, 'mrproper',
+                                         *args])
                     result = self.Make(commit, brd, 'config', cwd,
                             *(args + config_args), env=env)
+                    cmd_list.append([self.builder.gnu_make] + args +
+                                    config_args)
                     config_out += result.combined
                     do_config = False   # No need to configure next time
                     if adjust_cfg:
@@ -290,6 +295,7 @@ class BuilderThread(threading.Thread):
                         args.append('cfg')
                     result = self.Make(commit, brd, 'build', cwd, *args,
                             env=env)
+                    cmd_list.append([self.builder.gnu_make] + args)
                     if (result.return_code == 2 and
                         ('Some images are invalid' in result.stderr)):
                         # This is handled later by the check for output in
@@ -303,6 +309,7 @@ class BuilderThread(threading.Thread):
                 result.stderr = result.stderr.replace(src_dir + '/', '')
                 if self.builder.verbose_build:
                     result.stdout = config_out + result.stdout
+                result.cmd_list = cmd_list
             else:
                 result.return_code = 1
                 result.stderr = 'No tool chain for %s\n' % brd.arch
@@ -378,6 +385,12 @@ class BuilderThread(threading.Thread):
             with open(os.path.join(build_dir, 'out-env'), 'wb') as fd:
                 for var in sorted(env.keys()):
                     fd.write(b'%s="%s"' % (var, env[var]))
+
+            with open(os.path.join(build_dir, 'out-cmd'), 'w',
+                      encoding='utf-8') as fd:
+                for cmd in result.cmd_list:
+                    print(' '.join(cmd), file=fd)
+
             lines = []
             for fname in BASE_ELF_FILENAMES:
                 cmd = ['%snm' % self.toolchain.cross, '--size-sort', fname]

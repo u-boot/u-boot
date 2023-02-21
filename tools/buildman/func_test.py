@@ -723,3 +723,16 @@ Some images are invalid'''
                          control.get_allow_missing(False, False, 2, True))
         self.assertEqual(False,
                          control.get_allow_missing(False, True, 2, True))
+
+    def testCmdFile(self):
+        """Test that the -cmd-out file is produced"""
+        self._RunControl('-o', self._output_dir)
+        board0_dir = os.path.join(self._output_dir, 'current', 'board0')
+        self.assertTrue(os.path.exists(os.path.join(board0_dir, 'done')))
+        cmd_fname = os.path.join(board0_dir, 'out-cmd')
+        self.assertTrue(os.path.exists(cmd_fname))
+        data = tools.read_file(cmd_fname)
+        lines = data.splitlines()
+        self.assertEqual(2, len(lines))
+        self.assertRegex(lines[0], b'make O=/.*board0_defconfig')
+        self.assertRegex(lines[0], b'make O=/.*-s.*')

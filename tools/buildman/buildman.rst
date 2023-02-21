@@ -1300,6 +1300,14 @@ You should use 'buildman -nv <criteria>' instead of greoing the boards.cfg file,
 since it may be dropped altogether in future.
 
 
+Checking the command
+--------------------
+
+Buildman writes out the toolchain information to a `toolchain` file within the
+output directory. It also writes the commands used to build U-Boot in an
+`out-cmd` file. You can check these if you suspect something strange is
+happening.
+
 TODO
 ----
 
