@@ -1108,6 +1108,8 @@ and 'brppt1_spi', removing a trailing semicolon. 'brppt1_nand' gained an a
 value for 'altbootcmd', but lost one for ' altbootcmd'.
 
 The -U option uses the u-boot.env files which are produced by a build.
+Internally, buildman writes out an out-env file into the build directory for
+later comparison.
 
 
 Building with clang
