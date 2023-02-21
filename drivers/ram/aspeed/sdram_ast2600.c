@@ -1089,13 +1089,13 @@ static int ast2600_sdrammc_probe(struct udevice *dev)
 	}
 
 	reg = readl(&priv->scu->mpll);
-	reg &= ~(SCU_PLL_BYPASS | SCU_PLL_DIV_MASK |
+	reg &= ~(SCU_PLL_BYPASS | SCU_PLL_OFF | SCU_PLL_DIV_MASK |
 		 SCU_PLL_DENUM_MASK | SCU_PLL_NUM_MASK);
-	reg |= (SCU_PLL_RST | SCU_PLL_OFF | SCU_MPLL_FREQ_CFG);
+	reg |= (SCU_PLL_RST | SCU_MPLL_FREQ_CFG);
 	writel(reg, &priv->scu->mpll);
 	writel(SCU_MPLL_EXT_CFG, &priv->scu->mpll_ext);
 	udelay(100);
-	reg &= ~(SCU_PLL_RST | SCU_PLL_OFF);
+	reg &= ~SCU_PLL_RST;
 	writel(reg, &priv->scu->mpll);
 
 	while ((readl(&priv->scu->mpll_ext) & BIT(31)) == 0)
