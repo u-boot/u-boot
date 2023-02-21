@@ -724,15 +724,32 @@ Some images are invalid'''
         self.assertEqual(False,
                          control.get_allow_missing(False, True, 2, True))
 
-    def testCmdFile(self):
-        """Test that the -cmd-out file is produced"""
-        self._RunControl('-o', self._output_dir)
+    def check_command(self, *extra_args):
+        """Run a command with the extra arguments and return the commands used
+
+        Args:
+            extra_args (list of str): List of extra arguments
+
+        Returns:
+            list of str: Lines returned in the out-cmd file
+        """
+        self._RunControl('-o', self._output_dir, *extra_args)
         board0_dir = os.path.join(self._output_dir, 'current', 'board0')
         self.assertTrue(os.path.exists(os.path.join(board0_dir, 'done')))
         cmd_fname = os.path.join(board0_dir, 'out-cmd')
         self.assertTrue(os.path.exists(cmd_fname))
         data = tools.read_file(cmd_fname)
-        lines = data.splitlines()
+        return data.splitlines()
+
+    def testCmdFile(self):
+        """Test that the -cmd-out file is produced"""
+        lines = self.check_command()
         self.assertEqual(2, len(lines))
         self.assertRegex(lines[0], b'make O=/.*board0_defconfig')
         self.assertRegex(lines[0], b'make O=/.*-s.*')
+
+    def testNoLto(self):
+        """Test that the --no-lto flag works"""
+        lines = self.check_command('-L')
+        self.assertIn(b'NO_LTO=1', lines[0])
+

@@ -71,6 +71,8 @@ def ParseArgs():
           default=False, help="Don't convert y to 1 in configs")
     parser.add_option('-l', '--list-error-boards', action='store_true',
           default=False, help='Show a list of boards next to each error/warning')
+    parser.add_option('-L', '--no-lto', action='store_true',
+          default=False, help='Disable Link-time Optimisation (LTO) for builds')
     parser.add_option('--list-tool-chains', action='store_true', default=False,
           help='List available tool chains (use -v to see probing detail)')
     parser.add_option('-m', '--mrproper', action='store_true',

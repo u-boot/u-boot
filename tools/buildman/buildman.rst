@@ -1123,6 +1123,20 @@ toolchain. For example:
    buildman -O clang-7 --board sandbox
 
 
+Building without LTO
+--------------------
+
+Link-time optimisation (LTO) is designed to reduce code size by globally
+optimising the U-Boot build. Unfortunately this can dramatically slow down
+builds. This is particularly noticeable when running a lot of builds.
+
+Use the -L (--no-lto) flag to disable LTO.
+
+.. code-block:: bash
+
+   buildman -L --board sandbox
+
+
 Doing a simple build
 --------------------
 

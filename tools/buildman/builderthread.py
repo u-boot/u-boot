@@ -255,6 +255,8 @@ class BuilderThread(threading.Thread):
                     args.append('KCFLAGS=-Werror')
                 if self.builder.allow_missing:
                     args.append('BINMAN_ALLOW_MISSING=1')
+                if self.builder.no_lto:
+                    args.append('NO_LTO=1')
                 config_args = ['%s_defconfig' % brd.target]
                 config_out = ''
                 args.extend(self.builder.toolchains.GetMakeArguments(brd))
