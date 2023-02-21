@@ -2,4 +2,4 @@
 /*
  * Copyright 2022 Google LLC
  */
-#include "socfpga_arria10_chameleonv3.dts"
+#include "socfpga_arria10_chameleonv3.dtsi"
