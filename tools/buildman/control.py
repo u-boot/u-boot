@@ -338,6 +338,14 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
             shutil.rmtree(output_dir)
     adjust_cfg = cfgutil.convert_list_to_dict(options.adjust_cfg)
 
+    # Drop LOCALVERSION_AUTO since it changes the version string on every commit
+    if options.reproducible_builds:
+        # If these are mentioned, leave the local version alone
+        if 'LOCALVERSION' in adjust_cfg or 'LOCALVERSION_AUTO' in adjust_cfg:
+            print('Not dropping LOCALVERSION_AUTO for reproducible build')
+        else:
+            adjust_cfg['LOCALVERSION_AUTO'] = '~'
+
     builder = Builder(toolchains, output_dir, options.git_dir,
             options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
             show_unknown=options.show_unknown, step=options.step,
@@ -351,7 +359,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
             work_in_output=options.work_in_output,
             test_thread_exceptions=test_thread_exceptions,
             adjust_cfg=adjust_cfg,
-            allow_missing=allow_missing, no_lto=options.no_lto)
+            allow_missing=allow_missing, no_lto=options.no_lto,
+            reproducible_builds=options.reproducible_builds)
     builder.force_config_on_failure = not options.quick
     if make_func:
         builder.do_make = make_func

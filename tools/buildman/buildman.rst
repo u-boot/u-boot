@@ -1023,14 +1023,15 @@ U-Boot's build system embeds information such as a build timestamp into the
 final binary. This information varies each time U-Boot is built. This causes
 various files to be rebuilt even if no source changes are made, which in turn
 requires that the final U-Boot binary be re-linked. This unnecessary work can
-be avoided by turning off the timestamp feature. This can be achieved by
-setting the SOURCE_DATE_EPOCH environment variable to 0.
+be avoided by turning off the timestamp feature. This can be achieved using
+the `-r` flag, which enables reproducible builds by setting
+`SOURCE_DATE_EPOCH=0` when building.
 
 Combining all of these options together yields the command-line shown below.
 This will provide the quickest possible feedback regarding the current content
 of the source tree, thus allowing rapid tested evolution of the code::
 
-    SOURCE_DATE_EPOCH=0 ./tools/buildman/buildman -P tegra
+    ./tools/buildman/buildman -Pr tegra
 
 
 Checking configuration

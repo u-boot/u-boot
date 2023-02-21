@@ -415,17 +415,19 @@ class TestFunctional(unittest.TestCase):
             kwargs: Arguments to pass to command.run_pipe()
         """
         self._make_calls += 1
+        out_dir = ''
+        for arg in args:
+            if arg.startswith('O='):
+                out_dir = arg[2:]
         if stage == 'mrproper':
             return command.CommandResult(return_code=0)
         elif stage == 'config':
+            fname = os.path.join(cwd or '', out_dir, '.config')
+            tools.write_file(fname, b'CONFIG_SOMETHING=1')
             return command.CommandResult(return_code=0,
                     combined='Test configuration complete')
         elif stage == 'build':
             stderr = ''
-            out_dir = ''
-            for arg in args:
-                if arg.startswith('O='):
-                    out_dir = arg[2:]
             fname = os.path.join(cwd or '', out_dir, 'u-boot')
             tools.write_file(fname, b'U-Boot')
 
@@ -739,17 +741,41 @@ Some images are invalid'''
         cmd_fname = os.path.join(board0_dir, 'out-cmd')
         self.assertTrue(os.path.exists(cmd_fname))
         data = tools.read_file(cmd_fname)
-        return data.splitlines()
+
+        config_fname = os.path.join(board0_dir, '.config')
+        self.assertTrue(os.path.exists(config_fname))
+        cfg_data = tools.read_file(config_fname)
+
+        return data.splitlines(), cfg_data
 
     def testCmdFile(self):
         """Test that the -cmd-out file is produced"""
-        lines = self.check_command()
+        lines = self.check_command()[0]
         self.assertEqual(2, len(lines))
         self.assertRegex(lines[0], b'make O=/.*board0_defconfig')
         self.assertRegex(lines[0], b'make O=/.*-s.*')
 
     def testNoLto(self):
         """Test that the --no-lto flag works"""
-        lines = self.check_command('-L')
+        lines = self.check_command('-L')[0]
         self.assertIn(b'NO_LTO=1', lines[0])
 
+    def testReproducible(self):
+        """Test that the -r flag works"""
+        lines, cfg_data = self.check_command('-r')
+        self.assertIn(b'SOURCE_DATE_EPOCH=0', lines[0])
+
+        # We should see CONFIG_LOCALVERSION_AUTO unset
+        self.assertEqual(b'''CONFIG_SOMETHING=1
+# CONFIG_LOCALVERSION_AUTO is not set
+''', cfg_data)
+
+        with test_util.capture_sys_output() as (stdout, stderr):
+            lines, cfg_data = self.check_command('-r', '-a', 'LOCALVERSION')
+        self.assertIn(b'SOURCE_DATE_EPOCH=0', lines[0])
+
+        # We should see CONFIG_LOCALVERSION_AUTO unset
+        self.assertEqual(b'''CONFIG_SOMETHING=1
+CONFIG_LOCALVERSION=y
+''', cfg_data)
+        self.assertIn('Not dropping LOCALVERSION_AUTO', stdout.getvalue())

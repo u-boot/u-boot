@@ -257,6 +257,8 @@ class BuilderThread(threading.Thread):
                     args.append('BINMAN_ALLOW_MISSING=1')
                 if self.builder.no_lto:
                     args.append('NO_LTO=1')
+                if self.builder.reproducible_builds:
+                    args.append('SOURCE_DATE_EPOCH=0')
                 config_args = ['%s_defconfig' % brd.target]
                 config_out = ''
                 args.extend(self.builder.toolchains.GetMakeArguments(brd))
