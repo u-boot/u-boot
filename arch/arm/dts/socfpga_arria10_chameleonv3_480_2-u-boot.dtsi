@@ -6,3 +6,7 @@
 #include "socfpga_arria10-handoff.dtsi"
 #include "socfpga_arria10_handoff_u-boot.dtsi"
 #include "socfpga_arria10_mercury_aa1-u-boot.dtsi"
+
+&fpga_mgr {
+	altr,bitstream = "fpga-480-2.itb";
+};
