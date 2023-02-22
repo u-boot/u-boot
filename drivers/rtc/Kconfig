@@ -231,6 +231,24 @@ config RTC_M41T62
 	  Enable driver for ST's M41T62 compatible RTC devices (like RV-4162).
 	  It is a serial (I2C) real-time clock (RTC) with alarm.
 
+config RTC_SANDBOX
+	bool "Enable sandbox RTC driver"
+	depends on SANDBOX && DM_RTC
+	default y
+	help
+	  Enable the sandbox RTC driver. This driver connects to the RTC
+	  emulator and is used to test the RTC uclasses and associated code,
+	  as well as the I2C subsystem.
+
+config SPL_RTC_SANDBOX
+	bool "Enable sandbox RTC driver (SPL)"
+	depends on SANDBOX && SPL_DM_RTC
+	default y
+	help
+	  Enable the sandbox RTC driver. This driver connects to the RTC
+	  emulator and is used to test the RTC uclasses and associated code,
+	  as well as the I2C subsystem.
+
 config RTC_STM32
 	bool "Enable STM32 RTC driver"
 	depends on DM_RTC

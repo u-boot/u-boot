@@ -76,7 +76,7 @@
 		clock-frequency = <400000>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_i2c0>;
-		bootph-all;
+		bootph-pre-ram;
 	};
 
 	pcic: pci@0 {
