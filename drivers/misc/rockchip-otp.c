@@ -5,10 +5,10 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <command.h>
 #include <dm.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
+#include <linux/iopoll.h>
 #include <misc.h>
 
 /* OTP Register Offsets */
@@ -49,35 +49,31 @@
 
 struct rockchip_otp_plat {
 	void __iomem *base;
-	unsigned long secure_conf_base;
-	unsigned long otp_mask_base;
 };
 
-static int rockchip_otp_wait_status(struct rockchip_otp_plat *otp,
-				    u32 flag)
+struct rockchip_otp_data {
+	int (*read)(struct udevice *dev, int offset, void *buf, int size);
+	int size;
+};
+
+static int rockchip_otp_poll_timeout(struct rockchip_otp_plat *otp, u32 flag)
 {
-	int delay = OTPC_TIMEOUT;
+	u32 status;
+	int ret;
 
-	while (!(readl(otp->base + OTPC_INT_STATUS) & flag)) {
-		udelay(1);
-		delay--;
-		if (delay <= 0) {
-			printf("%s: wait init status timeout\n", __func__);
-			return -ETIMEDOUT;
-		}
-	}
+	ret = readl_poll_sleep_timeout(otp->base + OTPC_INT_STATUS, status,
+				       (status & flag), 1, OTPC_TIMEOUT);
+	if (ret)
+		return ret;
 
-	/* clean int status */
+	/* Clear int flag */
 	writel(flag, otp->base + OTPC_INT_STATUS);
 
 	return 0;
 }
 
-static int rockchip_otp_ecc_enable(struct rockchip_otp_plat *otp,
-				   bool enable)
+static int rockchip_otp_ecc_enable(struct rockchip_otp_plat *otp, bool enable)
 {
-	int ret = 0;
-
 	writel(SBPI_DAP_ADDR_MASK | (SBPI_DAP_ADDR << SBPI_DAP_ADDR_SHIFT),
 	       otp->base + OTPC_SBPI_CTRL);
 
@@ -92,11 +88,7 @@ static int rockchip_otp_ecc_enable(struct rockchip_otp_plat *otp,
 
 	writel(SBPI_ENABLE_MASK | SBPI_ENABLE, otp->base + OTPC_SBPI_CTRL);
 
-	ret = rockchip_otp_wait_status(otp, OTPC_SBPI_DONE);
-	if (ret < 0)
-		printf("%s timeout during ecc_enable\n", __func__);
-
-	return ret;
+	return rockchip_otp_poll_timeout(otp, OTPC_SBPI_DONE);
 }
 
 static int rockchip_px30_otp_read(struct udevice *dev, int offset,
@@ -104,29 +96,26 @@ static int rockchip_px30_otp_read(struct udevice *dev, int offset,
 {
 	struct rockchip_otp_plat *otp = dev_get_plat(dev);
 	u8 *buffer = buf;
-	int ret = 0;
+	int ret;
 
 	ret = rockchip_otp_ecc_enable(otp, false);
-	if (ret < 0) {
-		printf("%s rockchip_otp_ecc_enable err\n", __func__);
+	if (ret)
 		return ret;
-	}
 
 	writel(OTPC_USE_USER | OTPC_USE_USER_MASK, otp->base + OTPC_USER_CTRL);
 	udelay(5);
+
 	while (size--) {
 		writel(offset++ | OTPC_USER_ADDR_MASK,
 		       otp->base + OTPC_USER_ADDR);
 		writel(OTPC_USER_FSM_ENABLE | OTPC_USER_FSM_ENABLE_MASK,
 		       otp->base + OTPC_USER_ENABLE);
 
-		ret = rockchip_otp_wait_status(otp, OTPC_USER_DONE);
-		if (ret < 0) {
-			printf("%s timeout during read setup\n", __func__);
+		ret = rockchip_otp_poll_timeout(otp, OTPC_USER_DONE);
+		if (ret)
 			goto read_end;
-		}
 
-		*buffer++ = readb(otp->base + OTPC_USER_Q);
+		*buffer++ = (u8)(readl(otp->base + OTPC_USER_Q) & 0xFF);
 	}
 
 read_end:
@@ -138,7 +127,16 @@ read_end:
 static int rockchip_otp_read(struct udevice *dev, int offset,
 			     void *buf, int size)
 {
-	return rockchip_px30_otp_read(dev, offset, buf, size);
+	const struct rockchip_otp_data *data =
+		(void *)dev_get_driver_data(dev);
+
+	if (offset < 0 || !buf || size <= 0 || offset + size > data->size)
+		return -EINVAL;
+
+	if (!data->read)
+		return -ENOSYS;
+
+	return data->read(dev, offset, buf, size);
 }
 
 static const struct misc_ops rockchip_otp_ops = {
@@ -147,21 +145,26 @@ static const struct misc_ops rockchip_otp_ops = {
 
 static int rockchip_otp_of_to_plat(struct udevice *dev)
 {
-	struct rockchip_otp_plat *otp = dev_get_plat(dev);
+	struct rockchip_otp_plat *plat = dev_get_plat(dev);
 
-	otp->base = dev_read_addr_ptr(dev);
+	plat->base = dev_read_addr_ptr(dev);
 
 	return 0;
 }
 
+static const struct rockchip_otp_data px30_data = {
+	.read = rockchip_px30_otp_read,
+	.size = 0x40,
+};
+
 static const struct udevice_id rockchip_otp_ids[] = {
 	{
 		.compatible = "rockchip,px30-otp",
-		.data = (ulong)&rockchip_px30_otp_read,
+		.data = (ulong)&px30_data,
 	},
 	{
 		.compatible = "rockchip,rk3308-otp",
-		.data = (ulong)&rockchip_px30_otp_read,
+		.data = (ulong)&px30_data,
 	},
 	{}
 };
@@ -170,7 +173,7 @@ U_BOOT_DRIVER(rockchip_otp) = {
 	.name = "rockchip_otp",
 	.id = UCLASS_MISC,
 	.of_match = rockchip_otp_ids,
-	.ops = &rockchip_otp_ops,
 	.of_to_plat = rockchip_otp_of_to_plat,
-	.plat_auto	= sizeof(struct rockchip_otp_plat),
+	.plat_auto = sizeof(struct rockchip_otp_plat),
+	.ops = &rockchip_otp_ops,
 };
