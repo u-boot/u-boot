@@ -139,7 +139,7 @@ class TestBintool(unittest.TestCase):
         dest_fname = os.path.join(destdir, '_testing')
         self.seq = 0
 
-        with unittest.mock.patch.object(bintool, 'DOWNLOAD_DESTDIR', destdir):
+        with unittest.mock.patch.object(bintool.Bintool, 'tooldir', destdir):
             with unittest.mock.patch.object(tools, 'download',
                                             side_effect=handle_download):
                 with test_util.capture_sys_output() as (stdout, _):
@@ -250,7 +250,7 @@ class TestBintool(unittest.TestCase):
         btest = Bintool.create('_testing')
         col = terminal.Color()
         self.fname = None
-        with unittest.mock.patch.object(bintool, 'DOWNLOAD_DESTDIR',
+        with unittest.mock.patch.object(bintool.Bintool, 'tooldir',
                                         self._indir):
             with unittest.mock.patch.object(tools, 'run', side_effect=fake_run):
                 with test_util.capture_sys_output() as (stdout, _):

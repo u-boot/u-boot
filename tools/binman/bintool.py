@@ -43,8 +43,6 @@ FETCH_NAMES = {
 # Status of tool fetching
 FETCHED, FAIL, PRESENT, STATUS_COUNT = range(4)
 
-DOWNLOAD_DESTDIR = os.path.expanduser('~/bin')
-
 class Bintool:
     """Tool which operates on binaries to help produce entry contents
 
@@ -52,6 +50,9 @@ class Bintool:
     """
     # List of bintools to regard as missing
     missing_list = []
+
+    # Directory to store tools
+    tooldir = os.path.join(os.getenv('HOME'), 'bin')
 
     def __init__(self, name, desc, version_regex=None, version_args='-V'):
         self.name = name
@@ -208,7 +209,7 @@ class Bintool:
             return FAIL
         if result is not True:
             fname, tmpdir = result
-            dest = os.path.join(DOWNLOAD_DESTDIR, self.name)
+            dest = os.path.join(self.tooldir, self.name)
             print(f"- writing to '{dest}'")
             shutil.move(fname, dest)
             if tmpdir:
