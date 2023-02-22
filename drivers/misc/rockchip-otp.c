@@ -9,6 +9,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/iopoll.h>
+#include <malloc.h>
 #include <misc.h>
 
 /* OTP Register Offsets */
@@ -54,6 +55,7 @@ struct rockchip_otp_plat {
 struct rockchip_otp_data {
 	int (*read)(struct udevice *dev, int offset, void *buf, int size);
 	int size;
+	int block_size;
 };
 
 static int rockchip_otp_poll_timeout(struct rockchip_otp_plat *otp, u32 flag)
@@ -124,11 +126,47 @@ read_end:
 	return ret;
 }
 
+static int rockchip_rk3568_otp_read(struct udevice *dev, int offset,
+				    void *buf, int size)
+{
+	struct rockchip_otp_plat *otp = dev_get_plat(dev);
+	u16 *buffer = buf;
+	int ret;
+
+	ret = rockchip_otp_ecc_enable(otp, false);
+	if (ret)
+		return ret;
+
+	writel(OTPC_USE_USER | OTPC_USE_USER_MASK, otp->base + OTPC_USER_CTRL);
+	udelay(5);
+
+	while (size--) {
+		writel(offset++ | OTPC_USER_ADDR_MASK,
+		       otp->base + OTPC_USER_ADDR);
+		writel(OTPC_USER_FSM_ENABLE | OTPC_USER_FSM_ENABLE_MASK,
+		       otp->base + OTPC_USER_ENABLE);
+
+		ret = rockchip_otp_poll_timeout(otp, OTPC_USER_DONE);
+		if (ret)
+			goto read_end;
+
+		*buffer++ = (u16)(readl(otp->base + OTPC_USER_Q) & 0xFFFF);
+	}
+
+read_end:
+	writel(0x0 | OTPC_USE_USER_MASK, otp->base + OTPC_USER_CTRL);
+
+	return ret;
+}
+
 static int rockchip_otp_read(struct udevice *dev, int offset,
 			     void *buf, int size)
 {
 	const struct rockchip_otp_data *data =
 		(void *)dev_get_driver_data(dev);
+	u32 block_start, block_end, block_offset, blocks;
+	u8 *buffer;
+	int ret;
 
 	if (offset < 0 || !buf || size <= 0 || offset + size > data->size)
 		return -EINVAL;
@@ -136,7 +174,24 @@ static int rockchip_otp_read(struct udevice *dev, int offset,
 	if (!data->read)
 		return -ENOSYS;
 
-	return data->read(dev, offset, buf, size);
+	if (data->block_size <= 1)
+		return data->read(dev, offset, buf, size);
+
+	block_start = offset / data->block_size;
+	block_offset = offset % data->block_size;
+	block_end = DIV_ROUND_UP(offset + size, data->block_size);
+	blocks = block_end - block_start;
+
+	buffer = calloc(blocks, data->block_size);
+	if (!buffer)
+		return -ENOMEM;
+
+	ret = data->read(dev, block_start, buffer, blocks);
+	if (!ret)
+		memcpy(buf, buffer + block_offset, size);
+
+	free(buffer);
+	return ret;
 }
 
 static const struct misc_ops rockchip_otp_ops = {
@@ -157,6 +212,12 @@ static const struct rockchip_otp_data px30_data = {
 	.size = 0x40,
 };
 
+static const struct rockchip_otp_data rk3568_data = {
+	.read = rockchip_rk3568_otp_read,
+	.size = 0x80,
+	.block_size = 2,
+};
+
 static const struct udevice_id rockchip_otp_ids[] = {
 	{
 		.compatible = "rockchip,px30-otp",
@@ -165,6 +226,10 @@ static const struct udevice_id rockchip_otp_ids[] = {
 	{
 		.compatible = "rockchip,rk3308-otp",
 		.data = (ulong)&px30_data,
+	},
+	{
+		.compatible = "rockchip,rk3568-otp",
+		.data = (ulong)&rk3568_data,
 	},
 	{}
 };
