@@ -385,7 +385,7 @@ config BOOTSTD_FULL
 	    as well as the "boot_targets" environment variable
 
 config SPL_BOOTSTD
-	bool "Standard boot support in VPL"
+	bool "Standard boot support in SPL"
 	depends on SPL && SPL_DM && SPL_OF_CONTROL && SPL_BLK
 	default y if VPL
 	help
