@@ -31,6 +31,18 @@
 		pinctrl-0 = <&sdmmc_clk &sdmmc_cmd &sdmmc_det &sdmmc_bus4>;
 		status = "disabled";
 	};
+
+	otp: nvmem@fecc0000 {
+		compatible = "rockchip,rk3588-otp";
+		reg = <0x0 0xfecc0000 0x0 0x400>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		status = "okay";
+
+		cpu_id: id@7 {
+			reg = <0x07 0x10>;
+		};
+	};
 };
 
 &xin24m {

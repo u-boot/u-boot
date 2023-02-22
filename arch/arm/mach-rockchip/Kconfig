@@ -310,6 +310,8 @@ config ROCKCHIP_RK3588
 	select SYSCON
 	select BOARD_LATE_INIT
 	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_OTP
+	imply MISC_INIT_R
 	help
 	  The Rockchip RK3588 is a ARM-based SoC with quad-core Cortex-A76 and
 	  quad-core Cortex-A55 including NEON and GPU, 6TOPS NPU, Mali-G610 MP4,
