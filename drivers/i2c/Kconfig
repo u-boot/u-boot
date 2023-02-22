@@ -47,6 +47,16 @@ config SPL_DM_I2C
 	  device (bus child) info is kept as parent platdata. The interface
 	  is defined in include/i2c.h.
 
+config TPL_DM_I2C
+	bool "Enable Driver Model for I2C drivers in TPL"
+	depends on TPL_DM && DM_I2C
+	help
+	  Enable driver model for I2C. The I2C uclass interface: probe, read,
+	  write and speed, is implemented with the bus drivers operations,
+	  which provide methods for bus setting and data transfer. Each chip
+	  device (bus child) info is kept as parent platdata. The interface
+	  is defined in include/i2c.h.
+
 config VPL_DM_I2C
 	bool "Enable Driver Model for I2C drivers in VPL"
 	depends on VPL_DM && DM_I2C
@@ -508,6 +518,16 @@ config SYS_I2C_ROCKCHIP
 config SYS_I2C_SANDBOX
 	bool "Sandbox I2C driver"
 	depends on SANDBOX && DM_I2C
+	default y
+	help
+	  Enable I2C support for sandbox. This is an emulation of a real I2C
+	  bus. Devices can be attached to the bus using the device tree
+	  which specifies the driver to use.  See sandbox.dts as an example.
+
+config SPL_SYS_I2C_SANDBOX
+	bool "Sandbox I2C driver (SPL)"
+	depends on SPL && SANDBOX && DM_I2C
+	default y
 	help
 	  Enable I2C support for sandbox. This is an emulation of a real I2C
 	  bus. Devices can be attached to the bus using the device tree
