@@ -389,7 +389,7 @@ class Bintool:
 
     @classmethod
     def apt_install(cls, package):
-        """Install a bintool using the 'aot' tool
+        """Install a bintool using the 'apt' tool
 
         This requires use of servo so may request a password
 
