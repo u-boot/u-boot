@@ -1415,6 +1415,8 @@ You can also use `--fetch all` to fetch all tools or `--fetch <tool>` to fetch
 a particular tool. Some tools are built from source code, in which case you will
 need to have at least the `build-essential` and `git` packages installed.
 
+Tools are fetched into the `~/.binman-tools` directory.
+
 Bintool Documentation
 =====================
 

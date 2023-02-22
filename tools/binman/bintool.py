@@ -52,7 +52,7 @@ class Bintool:
     missing_list = []
 
     # Directory to store tools
-    tooldir = os.path.join(os.getenv('HOME'), 'bin')
+    tooldir = os.path.join(os.getenv('HOME'), '.binman-tools')
 
     def __init__(self, name, desc, version_regex=None, version_args='-V'):
         self.name = name
