@@ -727,6 +727,12 @@ config ZSTD_LIB_MINIFY
 
 endif
 
+config SPL_BZIP2
+	bool "Enable bzip2 decompression support for SPL build"
+	depends on SPL
+	help
+	  This enables support for bzip2 compression algorithm for SPL boot.
+
 config SPL_LZ4
 	bool "Enable LZ4 decompression support in SPL"
 	depends on SPL
