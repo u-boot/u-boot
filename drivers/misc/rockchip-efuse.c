@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
+#include <linux/iopoll.h>
 #include <malloc.h>
 #include <misc.h>
 
@@ -31,6 +32,12 @@
 #define EFUSE_STROBE		BIT(1)
 #define EFUSE_CSB		BIT(0)
 #define EFUSE_DOUT		0x0004
+#define RK3328_INT_STATUS	0x0018
+#define RK3328_INT_FINISH	BIT(0)
+#define RK3328_DOUT		0x0020
+#define RK3328_AUTO_CTRL	0x0024
+#define RK3328_AUTO_RD		BIT(1)
+#define RK3328_AUTO_ENB		BIT(0)
 
 struct rockchip_efuse_plat {
 	void __iomem *base;
@@ -38,6 +45,7 @@ struct rockchip_efuse_plat {
 
 struct rockchip_efuse_data {
 	int (*read)(struct udevice *dev, int offset, void *buf, int size);
+	int offset;
 	int size;
 	int block_size;
 };
@@ -103,6 +111,30 @@ static int rockchip_rk3288_efuse_read(struct udevice *dev, int offset,
 	return 0;
 }
 
+static int rockchip_rk3328_efuse_read(struct udevice *dev, int offset,
+				      void *buf, int size)
+{
+	struct rockchip_efuse_plat *efuse = dev_get_plat(dev);
+	u32 status, *buffer = buf;
+	int ret;
+
+	while (size--) {
+		writel(RK3328_AUTO_RD | RK3328_AUTO_ENB | RK3399_ADDR(offset++),
+		       efuse->base + RK3328_AUTO_CTRL);
+		udelay(1);
+
+		ret = readl_poll_sleep_timeout(efuse->base + RK3328_INT_STATUS,
+			status, (status & RK3328_INT_FINISH), 1, 50);
+		if (ret)
+			return ret;
+
+		*buffer++ = readl(efuse->base + RK3328_DOUT);
+		writel(RK3328_INT_FINISH, efuse->base + RK3328_INT_STATUS);
+	}
+
+	return 0;
+}
+
 static int rockchip_rk3399_efuse_read(struct udevice *dev, int offset,
 				      void *buf, int size)
 {
@@ -144,6 +176,8 @@ static int rockchip_efuse_read(struct udevice *dev, int offset,
 	if (!data->read)
 		return -ENOSYS;
 
+	offset += data->offset;
+
 	if (data->block_size <= 1)
 		return data->read(dev, offset, buf, size);
 
@@ -182,6 +216,13 @@ static const struct rockchip_efuse_data rk3288_data = {
 	.size = 0x20,
 };
 
+static const struct rockchip_efuse_data rk3328_data = {
+	.read = rockchip_rk3328_efuse_read,
+	.offset = 0x60,
+	.size = 0x20,
+	.block_size = 4,
+};
+
 static const struct rockchip_efuse_data rk3399_data = {
 	.read = rockchip_rk3399_efuse_read,
 	.size = 0x80,
@@ -204,6 +245,10 @@ static const struct udevice_id rockchip_efuse_ids[] = {
 	{
 		.compatible = "rockchip,rk3288-efuse",
 		.data = (ulong)&rk3288_data,
+	},
+	{
+		.compatible = "rockchip,rk3328-efuse",
+		.data = (ulong)&rk3328_data,
 	},
 	{
 		.compatible = "rockchip,rk3399-efuse",
