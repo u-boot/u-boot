@@ -376,7 +376,7 @@ int cmd_source_script(ulong addr, const char *fit_uname, const char *confname);
 	U_BOOT_SUBCMDS_DO_CMD(_cmdname)					\
 	U_BOOT_SUBCMDS_COMPLETE(_cmdname)
 
-#ifdef CONFIG_CMDLINE
+#if CONFIG_IS_ENABLED(CMDLINE)
 #define U_BOOT_CMDREP_MKENT_COMPLETE(_name, _maxargs, _cmd_rep,		\
 				     _usage, _help, _comp)		\
 		{ #_name, _maxargs, _cmd_rep, cmd_discard_repeatable,	\
