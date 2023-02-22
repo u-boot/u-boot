@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <command.h>
+#include <display_options.h>
 #include <dm.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -69,6 +71,39 @@ struct rockchip_otp_data {
 	int size;
 	int block_size;
 };
+
+#if defined(DEBUG)
+static int dump_otp(struct cmd_tbl *cmdtp, int flag,
+		    int argc, char *const argv[])
+{
+	struct udevice *dev;
+	u8 data[4];
+	int ret, i;
+
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_DRIVER_GET(rockchip_otp), &dev);
+	if (ret) {
+		printf("%s: no misc-device found\n", __func__);
+		return 0;
+	}
+
+	for (i = 0; true; i += sizeof(data)) {
+		ret = misc_read(dev, i, &data, sizeof(data));
+		if (ret < 0)
+			return 0;
+
+		print_buffer(i, data, 1, sizeof(data), sizeof(data));
+	}
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	dump_otp, 1, 1, dump_otp,
+	"Dump the content of the otp",
+	""
+);
+#endif
 
 static int rockchip_otp_poll_timeout(struct rockchip_otp_plat *otp,
 				     u32 flag, u32 reg)
