@@ -301,6 +301,13 @@ config SPL_SIMPLE_BUS
 	  Supports the 'simple-bus' driver, which is used on some systems
 	  in SPL.
 
+config TPL_SIMPLE_BUS
+	bool "Support simple-bus driver in TPL"
+	depends on TPL_DM && TPL_OF_CONTROL
+	help
+	  Supports the 'simple-bus' driver, which is used on some systems
+	  in TPL.
+
 config SIMPLE_BUS_CORRECT_RANGE
 	bool "Decode the 'simple-bus' <range> by honoring the #address-cells and #size-cells"
 	depends on SIMPLE_BUS
