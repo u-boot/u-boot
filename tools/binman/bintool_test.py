@@ -134,8 +134,10 @@ class TestBintool(unittest.TestCase):
         dirname = os.path.join(self._indir, 'download_dir')
         os.mkdir(dirname)
         fname = os.path.join(dirname, 'downloaded')
+
+        # Rely on bintool to create this directory
         destdir = os.path.join(self._indir, 'dest_dir')
-        os.mkdir(destdir)
+
         dest_fname = os.path.join(destdir, '_testing')
         self.seq = 0
 
@@ -344,8 +346,11 @@ class TestBintool(unittest.TestCase):
 
     def test_failed_command(self):
         """Check that running a command that does not exist returns None"""
-        btool = Bintool.create('_testing')
-        result = btool.run_cmd_result('fred')
+        destdir = os.path.join(self._indir, 'dest_dir')
+        os.mkdir(destdir)
+        with unittest.mock.patch.object(bintool.Bintool, 'tooldir', destdir):
+            btool = Bintool.create('_testing')
+            result = btool.run_cmd_result('fred')
         self.assertIsNone(result)
 
 

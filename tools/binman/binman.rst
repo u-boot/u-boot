@@ -1415,7 +1415,15 @@ You can also use `--fetch all` to fetch all tools or `--fetch <tool>` to fetch
 a particular tool. Some tools are built from source code, in which case you will
 need to have at least the `build-essential` and `git` packages installed.
 
-Tools are fetched into the `~/.binman-tools` directory.
+Tools are fetched into the `~/.binman-tools` directory. This directory is
+automatically added to the toolpath so there is no need to use `--toolpath` to
+specify it. If you want to use these tools outside binman, you may want to
+add this directory to your `PATH`. For example, if you use bash, add this to
+the end of `.bashrc`::
+
+   PATH="$HOME/.binman-tools:$PATH"
+
+To select a custom directory, use the `--tooldir` option.
 
 Bintool Documentation
 =====================
@@ -1435,8 +1443,9 @@ Binman commands and arguments
 
 Usage::
 
-    binman [-h] [-B BUILD_DIR] [-D] [-H] [--toolpath TOOLPATH] [-T THREADS]
-        [--test-section-timeout] [-v VERBOSITY] [-V]
+    binman [-h] [-B BUILD_DIR] [-D] [--tooldir TOOLDIR] [-H]
+        [--toolpath TOOLPATH] [-T THREADS] [--test-section-timeout]
+        [-v VERBOSITY] [-V]
         {build,bintool-docs,entry-docs,ls,extract,replace,test,tool} ...
 
 Binman provides the following commands:
@@ -1461,11 +1470,13 @@ Options:
 -D, --debug
     Enabling debugging (provides a full traceback on error)
 
+--tooldir TOOLDIR     Set the directory to store tools
+
 -H, --full-help
     Display the README file
 
 --toolpath TOOLPATH
-    Add a path to the directories containing tools
+    Add a path to the list of directories containing tools
 
 -T THREADS, --threads THREADS
     Number of threads to use (0=single-thread). Note that -T0 is useful for

@@ -650,6 +650,14 @@ def Binman(args):
     from binman.image import Image
     from binman import state
 
+    tool_paths = []
+    if args.toolpath:
+        tool_paths += args.toolpath
+    if args.tooldir:
+        tool_paths.append(args.tooldir)
+    tools.set_tool_paths(tool_paths or None)
+    bintool.Bintool.set_tool_dir(args.tooldir)
+
     if args.cmd in ['ls', 'extract', 'replace', 'tool']:
         try:
             tout.init(args.verbosity)
@@ -667,7 +675,6 @@ def Binman(args):
                                allow_resize=not args.fix_size, write_map=args.map)
 
             if args.cmd == 'tool':
-                tools.set_tool_paths(args.toolpath)
                 if args.list:
                     bintool.Bintool.list_all()
                 elif args.fetch:
@@ -719,7 +726,6 @@ def Binman(args):
         try:
             tools.set_input_dirs(args.indir)
             tools.prepare_output_dir(args.outdir, args.preserve)
-            tools.set_tool_paths(args.toolpath)
             state.SetEntryArgs(args.entry_arg)
             state.SetThreads(args.threads)
 

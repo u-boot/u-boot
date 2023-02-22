@@ -51,8 +51,9 @@ class Bintool:
     # List of bintools to regard as missing
     missing_list = []
 
-    # Directory to store tools
-    tooldir = os.path.join(os.getenv('HOME'), '.binman-tools')
+    # Directory to store tools. Note that this set up by set_tool_dir() which
+    # must be called before this class is used.
+    tooldir = ''
 
     def __init__(self, name, desc, version_regex=None, version_args='-V'):
         self.name = name
@@ -112,6 +113,11 @@ class Bintool:
         # Call its constructor to get the object we want.
         obj = cls(name)
         return obj
+
+    @classmethod
+    def set_tool_dir(cls, pathname):
+        """Set the path to use to store and find tools"""
+        cls.tooldir = pathname
 
     def show(self):
         """Show a line of information about a bintool"""
@@ -210,6 +216,7 @@ class Bintool:
         if result is not True:
             fname, tmpdir = result
             dest = os.path.join(self.tooldir, self.name)
+            os.makedirs(self.tooldir, exist_ok=True)
             print(f"- writing to '{dest}'")
             shutil.move(fname, dest)
             if tmpdir:

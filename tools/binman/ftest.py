@@ -1750,7 +1750,7 @@ class TestFunctional(unittest.TestCase):
 
     def _HandleGbbCommand(self, pipe_list):
         """Fake calls to the futility utility"""
-        if pipe_list[0][0] == 'futility':
+        if 'futility' in pipe_list[0][0]:
             fname = pipe_list[0][-1]
             # Append our GBB data to the file, which will happen every time the
             # futility command is called.
@@ -1812,7 +1812,7 @@ class TestFunctional(unittest.TestCase):
         self._hash_data is False, it writes VBLOCK_DATA, else it writes a hash
         of the input data (here, 'input.vblock').
         """
-        if pipe_list[0][0] == 'futility':
+        if 'futility' in pipe_list[0][0]:
             fname = pipe_list[0][3]
             with open(fname, 'wb') as fd:
                 if self._hash_data:
@@ -6385,6 +6385,23 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual('atf-1', node.props['firmware'].value)
         self.assertEqual(['u-boot', 'atf-2'],
                          fdt_util.GetStringList(node, 'loadables'))
+
+    def testTooldir(self):
+        """Test that we can specify the tooldir"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self.assertEqual(0, self._DoBinman('--tooldir', 'fred',
+                                               'tool', '-l'))
+        self.assertEqual('fred', bintool.Bintool.tooldir)
+
+        # Check that the toolpath is updated correctly
+        self.assertEqual(['fred'], tools.tool_search_paths)
+
+        # Try with a few toolpaths; the tooldir should be at the end
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self.assertEqual(0, self._DoBinman(
+                '--toolpath', 'mary', '--toolpath', 'anna', '--tooldir', 'fred',
+                'tool', '-l'))
+        self.assertEqual(['mary', 'anna', 'fred'], tools.tool_search_paths)
 
 
 if __name__ == "__main__":
