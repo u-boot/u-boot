@@ -10,6 +10,20 @@ binaries. It is fairly easy to create new bintools. Just add a new file to the
 
 
 
+Bintool: bzip2: Compression/decompression using the bzip2 algorithm
+-------------------------------------------------------------------
+
+This bintool supports running `bzip2` to compress and decompress data, as
+used by binman.
+
+It is also possible to fetch the tool, which uses `apt` to install it.
+
+Documentation is available via::
+
+    man bzip2
+
+
+
 Bintool: cbfstool: Coreboot filesystem (CBFS) tool
 --------------------------------------------------
 
@@ -58,6 +72,20 @@ See `Chromium OS vboot documentation`_ for more information.
 
 
 
+Bintool: gzip: Compression/decompression using the gzip algorithm
+-----------------------------------------------------------------
+
+This bintool supports running `gzip` to compress and decompress data, as
+used by binman.
+
+It is also possible to fetch the tool, which uses `apt` to install it.
+
+Documentation is available via::
+
+    man gzip
+
+
+
 Bintool: ifwitool: Handles the 'ifwitool' tool
 ----------------------------------------------
 
@@ -101,6 +129,20 @@ Documentation is available via::
 
 
 
+Bintool: lzop: Compression/decompression using the lzop algorithm
+-----------------------------------------------------------------
+
+This bintool supports running `lzop` to compress and decompress data, as
+used by binman.
+
+It is also possible to fetch the tool, which uses `apt` to install it.
+
+Documentation is available via::
+
+    man lzop
+
+
+
 Bintool: mkimage: Image generation for U-Boot
 ---------------------------------------------
 
@@ -110,6 +152,34 @@ neeed by binman.
 Normally binman uses the mkimage built by U-Boot. But when run outside the
 U-Boot build system, binman can use the version installed in your system.
 Support is provided for fetching this on Debian-like systems, using apt.
+
+
+
+Bintool: xz: Compression/decompression using the xz algorithm
+-------------------------------------------------------------
+
+This bintool supports running `xz` to compress and decompress data, as
+used by binman.
+
+It is also possible to fetch the tool, which uses `apt` to install it.
+
+Documentation is available via::
+
+    man xz
+
+
+
+Bintool: zstd: Compression/decompression using the zstd algorithm
+-----------------------------------------------------------------
+
+This bintool supports running `zstd` to compress and decompress data, as
+used by binman.
+
+It is also possible to fetch the tool, which uses `apt` to install it.
+
+Documentation is available via::
+
+    man zstd
 
 
 
