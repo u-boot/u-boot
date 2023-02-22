@@ -1062,7 +1062,7 @@ choice
 	prompt "Bloblist location in TPL"
 	help
 	  Select the location of the bloblist, via various means. Typically
-	  you should use the same value for SPL as for U-Boot, since they need
+	  you should use the same value for TPL as for U-Boot, since they need
 	  to look in the same place. But if BLOBLIST_ALLOC is used, then a
 	  fresh bloblist will be created each time, since there is no shared
 	  address (between phases) for the bloblist.
@@ -1084,6 +1084,35 @@ config TPL_BLOBLIST_ALLOC
 endchoice
 
 endif # TPL_BLOBLIST
+
+if VPL_BLOBLIST
+
+choice
+	prompt "Bloblist location in VPL"
+	help
+	  Select the location of the bloblist, via various means. Typically
+	  you should use the same value for VPL as for U-Boot, since they need
+	  to look in the same place. But if BLOBLIST_ALLOC is used, then a
+	  fresh bloblist will be created each time, since there is no shared
+	  address (between phases) for the bloblist.
+
+config VPL_BLOBLIST_FIXED
+	bool "Place bloblist at a fixed address in memory"
+	help
+	  Select this to used a fixed memory address for the bloblist. If the
+	  bloblist exists at this address from a previous phase, it used as is.
+	  If not it is created at this address in VPL.
+
+config VPL_BLOBLIST_ALLOC
+	bool "Allocate bloblist"
+	help
+	  Allocate the bloblist using malloc(). This avoids the need to
+	  specify a fixed address on systems where this is unknown or can
+	  change at runtime.
+
+endchoice
+
+endif # VPL_BLOBLIST
 
 endmenu
 
