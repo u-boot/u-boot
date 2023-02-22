@@ -149,10 +149,18 @@ config SPL_PARTITION_UUIDS
 	bool "Enable support of UUID for partition in SPL"
 	depends on SPL_PARTITIONS
 	default y if SPL_EFI_PARTITION
+	select SPL_LIB_UUID
 
 config PARTITION_TYPE_GUID
 	bool "Enable support of GUID for partition type"
 	depends on EFI_PARTITION
+	help
+	  Activate the configuration of GUID type
+	  for EFI partition
+
+config SPL_PARTITION_TYPE_GUID
+	bool "Enable support of GUID for partition type (SPL)"
+	depends on SPL_EFI_PARTITION
 	help
 	  Activate the configuration of GUID type
 	  for EFI partition
