@@ -467,6 +467,9 @@ int bootflow_run_boot(struct bootflow_iter *iter, struct bootflow *bflow)
 
 	printf("** Booting bootflow '%s' with %s\n", bflow->name,
 	       bflow->method->name);
+	if (IS_ENABLED(CONFIG_OF_HAS_PRIOR_STAGE) &&
+	    (bflow->flags & BOOTFLOWF_USE_PRIOR_FDT))
+		printf("Using prior-stage device tree\n");
 	ret = bootflow_boot(bflow);
 	if (!IS_ENABLED(CONFIG_BOOTSTD_FULL)) {
 		printf("Boot failed (err=%d)\n", ret);

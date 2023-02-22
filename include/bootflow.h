@@ -37,6 +37,18 @@ enum bootflow_state_t {
 };
 
 /**
+ * enum bootflow_flags_t - flags for bootflows
+ *
+ * @BOOTFLOWF_USE_PRIOR_FDT: Indicates that an FDT was not found by the bootmeth
+ *	and it is using the prior-stage FDT, which is the U-Boot control FDT.
+ *	This is only possible with the EFI bootmeth (distro-efi) and only when
+ *	CONFIG_OF_HAS_PRIOR_STAGE is enabled
+ */
+enum bootflow_flags_t {
+	BOOTFLOWF_USE_PRIOR_FDT	= 1 << 0,
+};
+
+/**
  * struct bootflow - information about a bootflow
  *
  * This is connected into two separate linked lists:
@@ -68,6 +80,7 @@ enum bootflow_state_t {
  * @fdt_fname: Filename of FDT file
  * @fdt_size: Size of FDT file
  * @fdt_addr: Address of loaded fdt
+ * @flags: Flags for the bootflow (see enum bootflow_flags_t)
  */
 struct bootflow {
 	struct list_head bm_node;
@@ -90,6 +103,7 @@ struct bootflow {
 	char *fdt_fname;
 	int fdt_size;
 	ulong fdt_addr;
+	int flags;
 };
 
 /**
