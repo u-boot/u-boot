@@ -289,6 +289,8 @@ config ROCKCHIP_RK3568
 	select DM_REGULATOR_FIXED
 	select DM_RESET
 	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_OTP
+	imply MISC_INIT_R
 	help
 	  The Rockchip RK3568 is a ARM-based SoC with quad-core Cortex-A55,
 	  including NEON and GPU, 512K L3 cache, Mali-G52 based graphics,
