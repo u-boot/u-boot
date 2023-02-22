@@ -17,8 +17,8 @@
 		 * provide plenty of space for ELF files with debug info so that
 		 * gdb can be used
 		 */
-		offset = <0x400000>;
-		size = <0xdffc00>;
+		offset = <0x800000>;
+		size = <0x2000000>;
 
 		fit {
 			fit,external-offset = <0>;
