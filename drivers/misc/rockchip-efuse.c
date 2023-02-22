@@ -18,6 +18,9 @@
 #include <misc.h>
 
 #define EFUSE_CTRL		0x0000
+#define RK3128_A_SHIFT		7
+#define RK3128_A_MASK		GENMASK(15, 7)
+#define RK3128_ADDR(n)		((n) << RK3128_A_SHIFT)
 #define RK3288_A_SHIFT		6
 #define RK3288_A_MASK		GENMASK(15, 6)
 #define RK3288_ADDR(n)		((n) << RK3288_A_SHIFT)
@@ -82,6 +85,33 @@ U_BOOT_CMD(
 	""
 );
 #endif
+
+static int rockchip_rk3128_efuse_read(struct udevice *dev, int offset,
+				      void *buf, int size)
+{
+	struct rockchip_efuse_plat *efuse = dev_get_plat(dev);
+	u8 *buffer = buf;
+
+	/* Switch to read mode */
+	writel(EFUSE_LOAD, efuse->base + EFUSE_CTRL);
+	udelay(2);
+
+	while (size--) {
+		clrsetbits_le32(efuse->base + EFUSE_CTRL, RK3128_A_MASK,
+				RK3128_ADDR(offset++));
+		udelay(2);
+		setbits_le32(efuse->base + EFUSE_CTRL, EFUSE_STROBE);
+		udelay(2);
+		*buffer++ = (u8)(readl(efuse->base + EFUSE_DOUT) & 0xFF);
+		clrbits_le32(efuse->base + EFUSE_CTRL, EFUSE_STROBE);
+		udelay(2);
+	}
+
+	/* Switch to inactive mode */
+	writel(0x0, efuse->base + EFUSE_CTRL);
+
+	return 0;
+}
 
 static int rockchip_rk3288_efuse_read(struct udevice *dev, int offset,
 				      void *buf, int size)
@@ -211,6 +241,11 @@ static int rockchip_efuse_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static const struct rockchip_efuse_data rk3128_data = {
+	.read = rockchip_rk3128_efuse_read,
+	.size = 0x40,
+};
+
 static const struct rockchip_efuse_data rk3288_data = {
 	.read = rockchip_rk3288_efuse_read,
 	.size = 0x20,
@@ -233,6 +268,10 @@ static const struct udevice_id rockchip_efuse_ids[] = {
 	{
 		.compatible = "rockchip,rk3066a-efuse",
 		.data = (ulong)&rk3288_data,
+	},
+	{
+		.compatible = "rockchip,rk3128-efuse",
+		.data = (ulong)&rk3128_data,
 	},
 	{
 		.compatible = "rockchip,rk3188-efuse",
