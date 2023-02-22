@@ -92,10 +92,6 @@ config ROCKCHIP_EFUSE
 	  or through child-nodes that are generated based on the e-fuse map
 	  retrieved from the DTS.
 
-	  This driver currently supports the RK3399 only, but can easily be
-	  extended (by porting the read function from the Linux kernel sources)
-	  to support other recent Rockchip devices.
-
 config ROCKCHIP_OTP
 	bool "Rockchip OTP Support"
 	depends on MISC

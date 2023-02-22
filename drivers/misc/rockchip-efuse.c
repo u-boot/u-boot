@@ -17,16 +17,19 @@
 #include <misc.h>
 
 #define EFUSE_CTRL		0x0000
+#define RK3288_A_SHIFT		6
+#define RK3288_A_MASK		GENMASK(15, 6)
+#define RK3288_ADDR(n)		((n) << RK3288_A_SHIFT)
 #define RK3399_A_SHIFT		16
 #define RK3399_A_MASK		GENMASK(25, 16)
 #define RK3399_ADDR(n)		((n) << RK3399_A_SHIFT)
 #define RK3399_STROBSFTSEL	BIT(9)
 #define RK3399_RSB		BIT(7)
 #define RK3399_PD		BIT(5)
-#define RK3399_PGENB		BIT(3)
-#define RK3399_LOAD		BIT(2)
-#define RK3399_STROBE		BIT(1)
-#define RK3399_CSB		BIT(0)
+#define EFUSE_PGENB		BIT(3)
+#define EFUSE_LOAD		BIT(2)
+#define EFUSE_STROBE		BIT(1)
+#define EFUSE_CSB		BIT(0)
 #define EFUSE_DOUT		0x0004
 
 struct rockchip_efuse_plat {
@@ -72,6 +75,34 @@ U_BOOT_CMD(
 );
 #endif
 
+static int rockchip_rk3288_efuse_read(struct udevice *dev, int offset,
+				      void *buf, int size)
+{
+	struct rockchip_efuse_plat *efuse = dev_get_plat(dev);
+	u8 *buffer = buf;
+
+	/* Switch to read mode */
+	writel(EFUSE_CSB, efuse->base + EFUSE_CTRL);
+	writel(EFUSE_LOAD | EFUSE_PGENB, efuse->base + EFUSE_CTRL);
+	udelay(2);
+
+	while (size--) {
+		clrsetbits_le32(efuse->base + EFUSE_CTRL, RK3288_A_MASK,
+				RK3288_ADDR(offset++));
+		udelay(2);
+		setbits_le32(efuse->base + EFUSE_CTRL, EFUSE_STROBE);
+		udelay(2);
+		*buffer++ = (u8)(readl(efuse->base + EFUSE_DOUT) & 0xFF);
+		clrbits_le32(efuse->base + EFUSE_CTRL, EFUSE_STROBE);
+		udelay(2);
+	}
+
+	/* Switch to standby mode */
+	writel(EFUSE_CSB | EFUSE_PGENB, efuse->base + EFUSE_CTRL);
+
+	return 0;
+}
+
 static int rockchip_rk3399_efuse_read(struct udevice *dev, int offset,
 				      void *buf, int size)
 {
@@ -79,21 +110,21 @@ static int rockchip_rk3399_efuse_read(struct udevice *dev, int offset,
 	u32 *buffer = buf;
 
 	/* Switch to array read mode */
-	writel(RK3399_LOAD | RK3399_PGENB | RK3399_STROBSFTSEL | RK3399_RSB,
+	writel(EFUSE_LOAD | EFUSE_PGENB | RK3399_STROBSFTSEL | RK3399_RSB,
 	       efuse->base + EFUSE_CTRL);
 	udelay(1);
 
 	while (size--) {
 		setbits_le32(efuse->base + EFUSE_CTRL,
-			     RK3399_STROBE | RK3399_ADDR(offset++));
+			     EFUSE_STROBE | RK3399_ADDR(offset++));
 		udelay(1);
 		*buffer++ = readl(efuse->base + EFUSE_DOUT);
-		clrbits_le32(efuse->base + EFUSE_CTRL, RK3399_STROBE);
+		clrbits_le32(efuse->base + EFUSE_CTRL, EFUSE_STROBE);
 		udelay(1);
 	}
 
 	/* Switch to power-down mode */
-	writel(RK3399_PD | RK3399_CSB, efuse->base + EFUSE_CTRL);
+	writel(RK3399_PD | EFUSE_CSB, efuse->base + EFUSE_CTRL);
 
 	return 0;
 }
@@ -146,6 +177,11 @@ static int rockchip_efuse_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static const struct rockchip_efuse_data rk3288_data = {
+	.read = rockchip_rk3288_efuse_read,
+	.size = 0x20,
+};
+
 static const struct rockchip_efuse_data rk3399_data = {
 	.read = rockchip_rk3399_efuse_read,
 	.size = 0x80,
@@ -153,6 +189,22 @@ static const struct rockchip_efuse_data rk3399_data = {
 };
 
 static const struct udevice_id rockchip_efuse_ids[] = {
+	{
+		.compatible = "rockchip,rk3066a-efuse",
+		.data = (ulong)&rk3288_data,
+	},
+	{
+		.compatible = "rockchip,rk3188-efuse",
+		.data = (ulong)&rk3288_data,
+	},
+	{
+		.compatible = "rockchip,rk3228-efuse",
+		.data = (ulong)&rk3288_data,
+	},
+	{
+		.compatible = "rockchip,rk3288-efuse",
+		.data = (ulong)&rk3288_data,
+	},
 	{
 		.compatible = "rockchip,rk3399-efuse",
 		.data = (ulong)&rk3399_data,
