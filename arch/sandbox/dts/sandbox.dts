@@ -103,6 +103,6 @@
 #include "cros-ec-keyboard.dtsi"
 #include "sandbox_pmic.dtsi"
 
-#ifdef CONFIG_SANDBOX_VPL
+#if IS_ENABLED(CONFIG_SUPPORT_VPL)
 #include "sandbox_vpl.dtsi"
 #endif
