@@ -41,8 +41,7 @@ int board_fit_config_name_match(const char *name)
 	return -1;
 }
 
-#if (IS_ENABLED(CONFIG_NET))
-static int setup_fec(void)
+static int __maybe_unused setup_fec(void)
 {
 	struct iomuxc_gpr_base_regs *gpr =
 		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
@@ -58,7 +57,7 @@ static int setup_fec(void)
 	return 0;
 }
 
-static int setup_eqos(void)
+static int __maybe_unused setup_eqos(void)
 {
 	struct iomuxc_gpr_base_regs *gpr =
 		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
@@ -71,6 +70,7 @@ static int setup_eqos(void)
 	return set_clk_eqos(ENET_125MHZ);
 }
 
+#if (IS_ENABLED(CONFIG_NET))
 int board_phy_config(struct phy_device *phydev)
 {
 	unsigned short val;
