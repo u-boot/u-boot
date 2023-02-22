@@ -528,6 +528,26 @@ config VPL_BOOTMETH_VBE
 
 if BOOTMETH_VBE
 
+config BOOTMETH_VBE_REQUEST
+	bool "Support for serving VBE OS requests"
+	default y
+	help
+	  Enables support for looking that the requests made by the
+	  Operating System being booted. These requests result in additions to
+	  the device tree /chosen node, added during the device tree fixup
+	  phase.
+
+config SPL_BOOTMETH_VBE_REQUEST
+	bool "Support for serving VBE OS requests (SPL)"
+	depends on SPL
+	help
+	  Enables support for looking that the requests made by the
+	  Operating System being booted. These requests result in additions to
+	  the device tree /chosen node, added during the device tree fixup
+	  phase.
+
+	  This is only useful if you are booting an OS direct from SPL.
+
 config BOOTMETH_VBE_SIMPLE
 	bool "Bootdev support for VBE 'simple' method"
 	default y
