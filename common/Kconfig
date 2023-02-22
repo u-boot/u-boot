@@ -630,6 +630,26 @@ config EVENT_DEBUG
 	  events, such as event-type names. This adds to the code size of
 	  U-Boot so can be turned off for production builds.
 
+config SPL_EVENT
+	bool  # General-purpose event-handling mechanism in SPL
+	depends on SPL
+	help
+	  This adds a framework for general purpose sending and processing of
+	  events, to allow interested parties to be alerted when something
+	  happens. This is an attempt to stem the flow of weak functions,
+	  hooks, functions in board_f.c and board_r.c and the Kconfig options
+	  below.
+
+	  See doc/develop/event.rst for more information.
+
+config SPL_EVENT_DYNAMIC
+	bool
+	depends on SPL_EVENT && EVENT_DYNAMIC
+	help
+	  Enable this to support adding an event spy at runtime, without adding
+	  it to the EVENT_SPY() linker list. This increases code size slightly
+	  but provides more flexibility for boards and subsystems that need it.
+
 endif # EVENT
 
 config ARCH_EARLY_INIT_R
