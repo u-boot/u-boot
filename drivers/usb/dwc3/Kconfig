@@ -55,7 +55,9 @@ config USB_DWC3_MESON_GXL
 
 config USB_DWC3_UNIPHIER
 	bool "DesignWare USB3 Host Support on UniPhier Platforms"
-	depends on ARCH_UNIPHIER && USB_XHCI_DWC3
+	depends on ARCH_UNIPHIER && USB_DWC3
+	select USB_DWC3_GENERIC
+	select PHY_UNIPHIER_USB3
 	help
 	  Support of USB2/3 functionality in Socionext UniPhier platforms.
 	  Say 'Y' here if you have one such device.
