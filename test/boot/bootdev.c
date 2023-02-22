@@ -289,7 +289,7 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 
 	/* try again but enable hunting, which brings in SCSI */
 	bootflow_iter_uninit(&iter);
-	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, BOOTFLOWF_HUNT,
+	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, BOOTFLOWIF_HUNT,
 					&bflow));
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
 	ut_asserteq(7, iter.num_devs);
@@ -427,8 +427,8 @@ static int bootdev_test_hunt_scan(struct unit_test_state *uts)
 
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 	ut_assertok(bootflow_scan_first(NULL, NULL, &iter,
-					BOOTFLOWF_SHOW | BOOTFLOWF_HUNT |
-					BOOTFLOWF_SKIP_GLOBAL, &bflow));
+					BOOTFLOWIF_SHOW | BOOTFLOWIF_HUNT |
+					BOOTFLOWIF_SKIP_GLOBAL, &bflow));
 	ut_asserteq(BIT(MMC_HUNTER) | BIT(1), std->hunters_used);
 
 	return 0;
@@ -649,7 +649,7 @@ static int bootdev_test_next_prio(struct unit_test_state *uts)
 	iter.part = 0;
 	uclass_first_device(UCLASS_BOOTMETH, &bflow.method);
 	iter.cur_prio = 0;
-	iter.flags = BOOTFLOWF_SHOW;
+	iter.flags = BOOTFLOWIF_SHOW;
 
 	dev = NULL;
 	console_record_reset_enable();
@@ -662,7 +662,7 @@ static int bootdev_test_next_prio(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* now try again with hunting enabled */
-	iter.flags = BOOTFLOWF_SHOW | BOOTFLOWF_HUNT;
+	iter.flags = BOOTFLOWIF_SHOW | BOOTFLOWIF_HUNT;
 	iter.cur_prio = 0;
 	iter.part = 0;
 

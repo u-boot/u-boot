@@ -93,36 +93,36 @@ struct bootflow {
 };
 
 /**
- * enum bootflow_flags_t - flags for the bootflow iterator
+ * enum bootflow_iter_flags_t - flags for the bootflow iterator
  *
- * @BOOTFLOWF_FIXED: Only used fixed/internal media
- * @BOOTFLOWF_SHOW: Show each bootdev before scanning it; show each hunter
+ * @BOOTFLOWIF_FIXED: Only used fixed/internal media
+ * @BOOTFLOWIF_SHOW: Show each bootdev before scanning it; show each hunter
  * before using it
- * @BOOTFLOWF_ALL: Return bootflows with errors as well
- * @BOOTFLOWF_HUNT: Hunt for new bootdevs using the bootdrv hunters
+ * @BOOTFLOWIF_ALL: Return bootflows with errors as well
+ * @BOOTFLOWIF_HUNT: Hunt for new bootdevs using the bootdrv hunters
  *
  * Internal flags:
- * @BOOTFLOWF_SINGLE_DEV: (internal) Just scan one bootdev
- * @BOOTFLOWF_SKIP_GLOBAL: (internal) Don't scan global bootmeths
- * @BOOTFLOWF_SINGLE_UCLASS: (internal) Keep scanning through all devices in
+ * @BOOTFLOWIF_SINGLE_DEV: (internal) Just scan one bootdev
+ * @BOOTFLOWIF_SKIP_GLOBAL: (internal) Don't scan global bootmeths
+ * @BOOTFLOWIF_SINGLE_UCLASS: (internal) Keep scanning through all devices in
  * this uclass (used with things like "mmc")
- * @BOOTFLOWF_SINGLE_MEDIA: (internal) Scan one media device in the uclass (used
+ * @BOOTFLOWIF_SINGLE_MEDIA: (internal) Scan one media device in the uclass (used
  * with things like "mmc1")
  */
-enum bootflow_flags_t {
-	BOOTFLOWF_FIXED		= 1 << 0,
-	BOOTFLOWF_SHOW		= 1 << 1,
-	BOOTFLOWF_ALL		= 1 << 2,
-	BOOTFLOWF_HUNT		= 1 << 3,
+enum bootflow_iter_flags_t {
+	BOOTFLOWIF_FIXED		= 1 << 0,
+	BOOTFLOWIF_SHOW			= 1 << 1,
+	BOOTFLOWIF_ALL			= 1 << 2,
+	BOOTFLOWIF_HUNT			= 1 << 3,
 
 	/*
 	 * flags used internally by standard boot - do not set these when
 	 * calling bootflow_scan_bootdev() etc.
 	 */
-	BOOTFLOWF_SINGLE_DEV	= 1 << 16,
-	BOOTFLOWF_SKIP_GLOBAL	= 1 << 17,
-	BOOTFLOWF_SINGLE_UCLASS	= 1 << 18,
-	BOOTFLOWF_SINGLE_MEDIA	= 1 << 19,
+	BOOTFLOWIF_SINGLE_DEV		= 1 << 16,
+	BOOTFLOWIF_SKIP_GLOBAL		= 1 << 17,
+	BOOTFLOWIF_SINGLE_UCLASS	= 1 << 18,
+	BOOTFLOWIF_SINGLE_MEDIA		= 1 << 19,
 };
 
 /**
@@ -164,9 +164,9 @@ enum bootflow_meth_flags_t {
  * updated to a larger value, no less than the number of available partitions.
  * This ensures that iteration works through all partitions on the bootdev.
  *
- * @flags: Flags to use (see enum bootflow_flags_t). If BOOTFLOWF_GLOBAL_FIRST is
- *	enabled then the global bootmeths are being scanned, otherwise we have
- *	moved onto the bootdevs
+ * @flags: Flags to use (see enum bootflow_iter_flags_t). If
+ *	BOOTFLOWIF_GLOBAL_FIRST is enabled then the global bootmeths are being
+ *	scanned, otherwise we have moved onto the bootdevs
  * @dev: Current bootdev, NULL if none. This is only ever updated in
  * bootflow_iter_set_dev()
  * @part: Current partition number (0 for whole device)
@@ -233,7 +233,7 @@ void bootflow_init(struct bootflow *bflow, struct udevice *bootdev,
  * This sets everything to the starting point, ready for use.
  *
  * @iter: Place to store private info (inited by this call)
- * @flags: Flags to use (see enum bootflow_flags_t)
+ * @flags: Flags to use (see enum bootflow_iter_flags_t)
  */
 void bootflow_iter_init(struct bootflow_iter *iter, int flags);
 
@@ -259,15 +259,16 @@ int bootflow_iter_drop_bootmeth(struct bootflow_iter *iter,
 /**
  * bootflow_scan_first() - find the first bootflow for a device or label
  *
- * If @flags includes BOOTFLOWF_ALL then bootflows with errors are returned too
+ * If @flags includes BOOTFLOWIF_ALL then bootflows with errors are returned too
  *
  * @dev:	Boot device to scan, NULL to work through all of them until it
  *	finds one that can supply a bootflow
  * @label:	Label to control the scan, NULL to work through all devices
  *	until it finds one that can supply a bootflow
  * @iter:	Place to store private info (inited by this call)
- * @flags:	Flags for iterator (enum bootflow_flags_t). Note that if @dev
- * is NULL, then BOOTFLOWF_SKIP_GLOBAL is set automatically by this function
+ * @flags:	Flags for iterator (enum bootflow_iter_flags_t). Note that if
+ *	@dev is NULL, then BOOTFLOWIF_SKIP_GLOBAL is set automatically by this
+ *	function
  * @bflow:	Place to put the bootflow if found
  * Return: 0 if found,  -ENODEV if no device, other -ve on other error
  *	(iteration can continue)

@@ -139,8 +139,8 @@ static void bootflow_iter_set_dev(struct bootflow_iter *iter,
 		if (dev && iter->num_devs < iter->max_devs)
 			iter->dev_used[iter->num_devs++] = dev;
 
-		if ((iter->flags & (BOOTFLOWF_SHOW | BOOTFLOWF_SINGLE_DEV)) ==
-		    BOOTFLOWF_SHOW) {
+		if ((iter->flags & (BOOTFLOWIF_SHOW | BOOTFLOWIF_SINGLE_DEV)) ==
+		    BOOTFLOWIF_SHOW) {
 			if (dev)
 				printf("Scanning bootdev '%s':\n", dev->name);
 			else if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL) &&
@@ -215,7 +215,7 @@ static int iter_incr(struct bootflow_iter *iter)
 	iter->max_part = 0;
 
 	/* ...select next bootdev */
-	if (iter->flags & BOOTFLOWF_SINGLE_DEV) {
+	if (iter->flags & BOOTFLOWIF_SINGLE_DEV) {
 		ret = -ENOENT;
 	} else {
 		int method_flags;
@@ -227,7 +227,7 @@ static int iter_incr(struct bootflow_iter *iter)
 			ret = bootdev_setup_iter(iter, NULL, &dev,
 						 &method_flags);
 		} else if (IS_ENABLED(CONFIG_BOOTSTD_FULL) &&
-			   (iter->flags & BOOTFLOWF_SINGLE_UCLASS)) {
+			   (iter->flags & BOOTFLOWIF_SINGLE_UCLASS)) {
 			/* Move to the next bootdev in this uclass */
 			uclass_find_next_device(&dev);
 			if (!dev) {
@@ -236,7 +236,7 @@ static int iter_incr(struct bootflow_iter *iter)
 				ret = -ENODEV;
 			}
 		} else if (IS_ENABLED(CONFIG_BOOTSTD_FULL) &&
-			   iter->flags & BOOTFLOWF_SINGLE_MEDIA) {
+			   iter->flags & BOOTFLOWIF_SINGLE_MEDIA) {
 			log_debug("next in single\n");
 			method_flags = 0;
 			do {
@@ -328,7 +328,7 @@ static int bootflow_check(struct bootflow_iter *iter, struct bootflow *bflow)
 		 * For 'all' we return all bootflows, even
 		 * those with errors
 		 */
-		if (iter->flags & BOOTFLOWF_ALL)
+		if (iter->flags & BOOTFLOWIF_ALL)
 			return log_msg_ret("all", ret);
 	}
 	if (ret)
@@ -344,14 +344,14 @@ int bootflow_scan_first(struct udevice *dev, const char *label,
 	int ret;
 
 	if (dev || label)
-		flags |= BOOTFLOWF_SKIP_GLOBAL;
+		flags |= BOOTFLOWIF_SKIP_GLOBAL;
 	bootflow_iter_init(iter, flags);
 
 	/*
 	 * Set up the ordering of bootmeths. This sets iter->doing_global and
 	 * iter->first_glob_method if we are starting with the global bootmeths
 	 */
-	ret = bootmeth_setup_iter_order(iter, !(flags & BOOTFLOWF_SKIP_GLOBAL));
+	ret = bootmeth_setup_iter_order(iter, !(flags & BOOTFLOWIF_SKIP_GLOBAL));
 	if (ret)
 		return log_msg_ret("obmeth", -ENODEV);
 
@@ -373,7 +373,7 @@ int bootflow_scan_first(struct udevice *dev, const char *label,
 	if (ret) {
 		log_debug("check - ret=%d\n", ret);
 		if (ret != BF_NO_MORE_PARTS && ret != -ENOSYS) {
-			if (iter->flags & BOOTFLOWF_ALL)
+			if (iter->flags & BOOTFLOWIF_ALL)
 				return log_msg_ret("all", ret);
 		}
 		iter->err = ret;
@@ -402,7 +402,7 @@ int bootflow_scan_next(struct bootflow_iter *iter, struct bootflow *bflow)
 				return 0;
 			iter->err = ret;
 			if (ret != BF_NO_MORE_PARTS && ret != -ENOSYS) {
-				if (iter->flags & BOOTFLOWF_ALL)
+				if (iter->flags & BOOTFLOWIF_ALL)
 					return log_msg_ret("all", ret);
 			}
 		} else {
