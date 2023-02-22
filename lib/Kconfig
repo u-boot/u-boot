@@ -579,6 +579,26 @@ config SPL_SHA_PROG_HW_ACCEL
 
 endif
 
+config VPL_SHA1
+	bool "Enable SHA1 support in VPL"
+	depends on VPL
+	default y if SHA1
+	help
+	  This option enables support of hashing using SHA1 algorithm.
+	  The hash is calculated in software.
+	  The SHA1 algorithm produces a 160-bit (20-byte) hash value
+	  (digest).
+
+config VPL_SHA256
+	bool "Enable SHA256 support in VPL"
+	depends on VPL
+	default y if SHA256
+	help
+	  This option enables support of hashing using SHA256 algorithm.
+	  The hash is calculated in software.
+	  The SHA256 algorithm produces a 256-bit (32-byte) hash value
+	  (digest).
+
 if SHA_HW_ACCEL
 
 config SHA512_HW_ACCEL
