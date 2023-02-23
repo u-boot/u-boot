@@ -74,7 +74,7 @@ struct ns16550_plat {
 	int clock;
 	u32 fcr;
 	int flags;
-#if defined(CONFIG_PCI) && defined(CONFIG_SPL)
+#if IS_ENABLED_NOCHECK(CONFIG_PCI) && defined(CONFIG_SPL_BUILD)
 	int bdf;
 #endif
 };

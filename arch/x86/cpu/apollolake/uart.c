@@ -79,10 +79,12 @@ void apl_uart_init(pci_dev_t bdf, ulong base)
 
 static int apl_ns16550_probe(struct udevice *dev)
 {
+#if IS_ENABLED_NOCHECK(CONFIG_PCI) && defined(CONFIG_SPL_BUILD)
 	struct apl_ns16550_plat *plat = dev_get_plat(dev);
 
 	if (!CONFIG_IS_ENABLED(PCI))
 		apl_uart_init(plat->ns16550.bdf, plat->ns16550.base);
+#endif
 
 	return ns16550_serial_probe(dev);
 }
@@ -110,7 +112,9 @@ static int apl_ns16550_of_to_plat(struct udevice *dev)
 	ns.reg_offset = 0;
 	ns.clock = dtplat->clock_frequency;
 	ns.fcr = UART_FCR_DEFVAL;
+#if IS_ENABLED_NOCHECK(CONFIG_PCI) && defined(CONFIG_SPL_BUILD)
 	ns.bdf = pci_ofplat_get_devfn(dtplat->reg[0]);
+#endif
 	memcpy(plat, &ns, sizeof(ns));
 #else
 	int ret;
