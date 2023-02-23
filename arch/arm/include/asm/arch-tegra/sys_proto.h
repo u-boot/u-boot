@@ -31,4 +31,10 @@ int tegra_lcd_pmic_init(int board_id);
  */
 int nvidia_board_init(void);
 
+/**
+ * nvidia_board_late_init() - perform any board-specific
+ *			      init on late stages
+ */
+void nvidia_board_late_init(void);
+
 #endif

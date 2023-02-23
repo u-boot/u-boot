@@ -41,6 +41,7 @@ Shell commands
    cmd/conitrace
    cmd/cyclic
    cmd/dm
+   cmd/ebtupdate
    cmd/echo
    cmd/eficonfig
    cmd/env

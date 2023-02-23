@@ -678,6 +678,29 @@ int clock_decode_periph_id(struct udevice *dev)
 	assert(clock_periph_id_isvalid(id));
 	return id;
 }
+
+/*
+ * Get periph clock id and its parent from device tree.
+ *
+ * @param dev		udevice associated with FDT node
+ * @param clk_id	pointer to u32 array of 2 values
+ *			first is periph clock, second is
+ *			its PLL parent according to FDT.
+ */
+int clock_decode_pair(struct udevice *dev, int *clk_id)
+{
+	u32 cell[4];
+	int err;
+
+	err = dev_read_u32_array(dev, "clocks", cell, ARRAY_SIZE(cell));
+	if (err)
+		return -EINVAL;
+
+	clk_id[0] = clk_id_to_periph_id(cell[1]);
+	clk_id[1] = clk_id_to_pll_id(cell[3]);
+
+	return 0;
+}
 #endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
 int clock_verify(void)

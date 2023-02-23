@@ -20,6 +20,8 @@
 #include <fdtdec.h>
 #include <linux/delay.h>
 
+#include <dt-bindings/clock/tegra20-car.h>
+
 /*
  * Clock types that we can use as a source. The Tegra20 has muxes for the
  * peripheral clocks, and in most cases there are four options for the clock
@@ -578,6 +580,41 @@ enum periph_id clk_id_to_periph_id(int clk_id)
 		return clk_id;
 	}
 }
+
+/*
+ * Convert a device tree clock ID to our PLL ID.
+ *
+ * @param clk_id	Clock ID according to tegra20 device tree binding
+ * Return: clock ID, or CLOCK_ID_NONE if the clock ID is invalid
+ */
+enum clock_id clk_id_to_pll_id(int clk_id)
+{
+	switch (clk_id) {
+	case TEGRA20_CLK_PLL_C:
+		return CLOCK_ID_CGENERAL;
+	case TEGRA20_CLK_PLL_M:
+		return CLOCK_ID_MEMORY;
+	case TEGRA20_CLK_PLL_P:
+		return CLOCK_ID_PERIPH;
+	case TEGRA20_CLK_PLL_A:
+		return CLOCK_ID_AUDIO;
+	case TEGRA20_CLK_PLL_U:
+		return CLOCK_ID_USB;
+	case TEGRA20_CLK_PLL_D:
+	case TEGRA20_CLK_PLL_D_OUT0:
+		return CLOCK_ID_DISPLAY;
+	case TEGRA20_CLK_PLL_X:
+		return CLOCK_ID_XCPU;
+	case TEGRA20_CLK_PLL_E:
+		return CLOCK_ID_EPCI;
+	case TEGRA20_CLK_CLK_32K:
+		return CLOCK_ID_32KHZ;
+	case TEGRA20_CLK_CLK_M:
+		return CLOCK_ID_CLK_M;
+	default:
+		return CLOCK_ID_NONE;
+	}
+}
 #endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
 void clock_early_init(void)
@@ -760,14 +797,14 @@ struct periph_clk_init periph_clk_init_table[] = {
 	{ PERIPH_ID_SBC2, CLOCK_ID_PERIPH },
 	{ PERIPH_ID_SBC3, CLOCK_ID_PERIPH },
 	{ PERIPH_ID_SBC4, CLOCK_ID_PERIPH },
-	{ PERIPH_ID_HOST1X, CLOCK_ID_PERIPH },
-	{ PERIPH_ID_DISP1, CLOCK_ID_CGENERAL },
+	{ PERIPH_ID_HOST1X, CLOCK_ID_CGENERAL },
+	{ PERIPH_ID_DISP1, CLOCK_ID_PERIPH },
 	{ PERIPH_ID_NDFLASH, CLOCK_ID_PERIPH },
 	{ PERIPH_ID_SDMMC1, CLOCK_ID_PERIPH },
 	{ PERIPH_ID_SDMMC2, CLOCK_ID_PERIPH },
 	{ PERIPH_ID_SDMMC3, CLOCK_ID_PERIPH },
 	{ PERIPH_ID_SDMMC4, CLOCK_ID_PERIPH },
-	{ PERIPH_ID_PWM, CLOCK_ID_SFROM32KHZ },
+	{ PERIPH_ID_PWM, CLOCK_ID_PERIPH },
 	{ PERIPH_ID_DVC_I2C, CLOCK_ID_PERIPH },
 	{ PERIPH_ID_I2C1, CLOCK_ID_PERIPH },
 	{ PERIPH_ID_I2C2, CLOCK_ID_PERIPH },

@@ -8,6 +8,7 @@
 #ifndef _TEGRA_I2C_H_
 #define _TEGRA_I2C_H_
 
+#include <asm/io.h>
 #include <asm/types.h>
 
 struct udevice;
@@ -153,5 +154,21 @@ struct i2c_ctlr {
  * Return: number of bus, or -1 if there is no DVC active
  */
 int tegra_i2c_get_dvc_bus(struct udevice **busp);
+
+/* Pre-dm section used for initial setup of PMIC */
+#define I2C_SEND_2_BYTES		0x0A02
+
+static inline void tegra_i2c_ll_write(uint addr, uint data)
+{
+	struct i2c_ctlr *reg = (struct i2c_ctlr *)TEGRA_DVC_BASE;
+
+	writel(addr, &reg->cmd_addr0);
+	writel(0x2, &reg->cnfg);
+
+	writel(data, &reg->cmd_data1);
+	writel(I2C_SEND_2_BYTES, &reg->cnfg);
+}
+
+void pmic_enable_cpu_vdd(void);
 
 #endif	/* _TEGRA_I2C_H_ */
