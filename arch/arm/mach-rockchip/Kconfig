@@ -119,7 +119,7 @@ config ROCKCHIP_RK322X
 config ROCKCHIP_RK3288
 	bool "Support Rockchip RK3288"
 	select CPU_V7A
-	select OF_BOARD_SETUP
+	select OF_SYSTEM_SETUP
 	select SKIP_LOWLEVEL_INIT_ONLY
 	select SUPPORT_SPL
 	select SPL
