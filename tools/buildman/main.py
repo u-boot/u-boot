@@ -46,17 +46,22 @@ def RunTests(skip_net_tests, verboose, args):
 
     return (0 if result.wasSuccessful() else 1)
 
-options, args = cmdline.ParseArgs()
+def run_buildman():
+    options, args = cmdline.ParseArgs()
 
-if not options.debug:
-    sys.tracebacklimit = 0
+    if not options.debug:
+        sys.tracebacklimit = 0
 
-# Run our meagre tests
-if options.test:
-    RunTests(options.skip_net_tests, options.verbose, args)
+    # Run our meagre tests
+    if cmdline.HAS_TESTS and options.test:
+        RunTests(options.skip_net_tests, options.verbose, args)
 
-# Build selected commits for selected boards
-else:
-    bsettings.Setup(options.config_file)
-    ret_code = control.DoBuildman(options, args)
-    sys.exit(ret_code)
+    # Build selected commits for selected boards
+    else:
+        bsettings.Setup(options.config_file)
+        ret_code = control.DoBuildman(options, args)
+        sys.exit(ret_code)
+
+
+if __name__ == "__main__":
+    run_buildman()
