@@ -522,7 +522,7 @@ env_h := include/generated/environment.h
 no-dot-config-targets := clean clobber mrproper distclean \
 			 help %docs check% coccicheck \
 			 ubootversion backup tests check pcheck qcheck tcheck \
-			 pylint pylint_err
+			 pylint pylint_err _pip pip pip_test pip_release
 
 config-targets := 0
 mixed-targets  := 0
@@ -2272,6 +2272,17 @@ backup:
 	F=`basename $(srctree)` ; cd .. ; \
 	gtar --force-local -zcvf `LC_ALL=C date "+$$F-%Y-%m-%d-%T.tar.gz"` $$F
 
+PHONY += _pip pip pip_release
+
+pip_release: PIP_ARGS="--real"
+pip_test: PIP_ARGS=""
+pip: PIP_ARGS="-n"
+
+pip pip_test pip_release: _pip
+
+_pip:
+	scripts/make_pip.sh u_boot_pylib ${PIP_ARGS}
+
 help:
 	@echo  'Cleaning targets:'
 	@echo  '  clean		  - Remove most generated files but keep the config'
@@ -2304,6 +2315,11 @@ help:
 	@echo  '  ubootversion	  - Output the version stored in Makefile (use with make -s)'
 	@echo  "  cfg		  - Don't build, just create the .cfg files"
 	@echo  "  envtools	  - Build only the target-side environment tools"
+	@echo  ''
+	@echo  'PyPi / pip targets:'
+	@echo  '  pip             - Check building of PyPi packages'
+	@echo  '  pip_test        - Build PyPi pakages and upload to test server'
+	@echo  '  pip_release     - Build PyPi pakages and upload to release server'
 	@echo  ''
 	@echo  'Static analysers'
 	@echo  '  checkstack      - Generate a list of stack hogs'
