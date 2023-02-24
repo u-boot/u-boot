@@ -132,7 +132,8 @@ _start:
 	 * then (and always) gd struct space will be reserved
 	 */
 	move.l	%sp, -(%sp)
-	bsr	board_init_f_alloc_reserve
+	move.l	#board_init_f_alloc_reserve, %a1
+	jsr	(%a1)
 
 	/* update stack and frame-pointers */
 	move.l	%d0, %sp
@@ -140,14 +141,17 @@ _start:
 
 	/* initialize reserved area */
 	move.l	%d0, -(%sp)
-	bsr	board_init_f_init_reserve
+	move.l	#board_init_f_init_reserve, %a1
+	jsr	(%a1)
 
 	/* run low-level CPU init code (from flash) */
-	bsr	cpu_init_f
+	move.l	#cpu_init_f, %a1
+	jsr	(%a1)
 
 	/* run low-level board init code (from flash) */
 	clr.l	%sp@-
-	bsr	board_init_f
+	move.l	#board_init_f, %a1
+	jsr	(%a1)
 
 	/* board_init_f() does not return */
 
@@ -239,7 +243,8 @@ _fault:
 _exc_handler:
 	SAVE_ALL
 	movel	%sp,%sp@-
-	bsr	exc_handler
+	move.l	#exc_handler, %a1
+	jsr	(%a1)
 	addql	#4,%sp
 	RESTORE_ALL
 
@@ -247,7 +252,8 @@ _exc_handler:
 _int_handler:
 	SAVE_ALL
 	movel	%sp,%sp@-
-	bsr	int_handler
+	move.l	#int_handler, %a1
+	jsr	(%a1)
 	addql	#4,%sp
 	RESTORE_ALL
 
