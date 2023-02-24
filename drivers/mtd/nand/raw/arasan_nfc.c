@@ -1248,7 +1248,6 @@ static int arasan_probe(struct udevice *dev)
 	/* Buffer read/write routines */
 	nand_chip->read_buf = arasan_nand_read_buf;
 	nand_chip->write_buf = arasan_nand_write_buf;
-	nand_chip->bbt_options = NAND_BBT_USE_FLASH;
 
 	writel(0x0, &info->reg->cmd_reg);
 	writel(0x0, &info->reg->pgm_reg);
