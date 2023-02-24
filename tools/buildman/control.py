@@ -3,6 +3,7 @@
 #
 
 import multiprocessing
+import importlib.resources
 import os
 import shutil
 import subprocess
@@ -152,9 +153,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
     global builder
 
     if options.full_help:
-        tools.print_full_help(
-            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                         'README.rst'))
+        with importlib.resources.path('buildman', 'README.rst') as readme:
+            tools.print_full_help(str(readme))
         return 0
 
     gitutil.setup()
