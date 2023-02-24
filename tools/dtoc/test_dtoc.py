@@ -13,6 +13,7 @@ import collections
 import copy
 import glob
 import os
+import pathlib
 import struct
 import unittest
 
@@ -28,7 +29,8 @@ from dtoc.src_scan import get_compat_name
 from u_boot_pylib import test_util
 from u_boot_pylib import tools
 
-OUR_PATH = os.path.dirname(os.path.realpath(__file__))
+DTOC_DIR = pathlib.Path(__file__).parent
+TEST_DATA_DIR = DTOC_DIR / 'test/'
 
 
 HEADER = '''/*
@@ -91,7 +93,7 @@ def get_dtb_file(dts_fname, capture_stderr=False):
     Returns:
         str: Filename of compiled file in output directory
     """
-    return fdt_util.EnsureCompiled(os.path.join(OUR_PATH, 'test', dts_fname),
+    return fdt_util.EnsureCompiled(str(TEST_DATA_DIR / dts_fname),
                                    capture_stderr=capture_stderr)
 
 
