@@ -17,8 +17,8 @@ from io import StringIO
 
 use_concurrent = True
 try:
-    from concurrencytest.concurrencytest import ConcurrentTestSuite
-    from concurrencytest.concurrencytest import fork_for_tests
+    from concurrencytest import ConcurrentTestSuite
+    from concurrencytest import fork_for_tests
 except:
     use_concurrent = False
 
