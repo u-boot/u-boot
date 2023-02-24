@@ -23,6 +23,7 @@ see doc/driver-model/of-plat.rst
 
 from argparse import ArgumentParser
 import os
+import pathlib
 import sys
 
 # Bring in the patman libraries
@@ -36,6 +37,9 @@ sys.path.insert(0, os.path.join(our_path,
 
 from dtoc import dtb_platdata
 from u_boot_pylib import test_util
+
+DTOC_DIR = pathlib.Path(__file__).parent
+HAVE_TESTS = (DTOC_DIR / 'test_dtoc.py').exists()
 
 def run_tests(processes, args):
     """Run all the test we have for dtoc
@@ -93,19 +97,22 @@ parser.add_argument('-p', '--phase', type=str,
                   help='set phase of U-Boot this invocation is for (spl/tpl)')
 parser.add_argument('-P', '--processes', type=int,
                   help='set number of processes to use for running tests')
-parser.add_argument('-t', '--test', action='store_true', dest='test',
-                  default=False, help='run tests')
-parser.add_argument('-T', '--test-coverage', action='store_true',
-                default=False, help='run tests and check for 100%% coverage')
+if HAVE_TESTS:
+    parser.add_argument('-t', '--test', action='store_true', dest='test',
+                        default=False, help='run tests')
+    parser.add_argument(
+        '-T', '--test-coverage', action='store_true',
+        default=False, help='run tests and check for 100%% coverage')
+
 parser.add_argument('files', nargs='*')
 args = parser.parse_args()
 
 # Run our meagre tests
-if args.test:
+if HAVE_TESTS and args.test:
     ret_code = run_tests(args.processes, args)
     sys.exit(ret_code)
 
-elif args.test_coverage:
+elif HAVE_TESTS and args.test_coverage:
     RunTestCoverage()
 
 else:
