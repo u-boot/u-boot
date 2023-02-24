@@ -261,9 +261,9 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
             count += 1   # Build upstream commit also
 
     if not count:
-        str = ("No commits found to process in branch '%s': "
+        msg = ("No commits found to process in branch '%s': "
                "set branch's upstream or use -c flag" % options.branch)
-        sys.exit(col.build(col.RED, str))
+        sys.exit(col.build(col.RED, msg))
     if options.work_in_output:
         if len(selected) != 1:
             sys.exit(col.build(col.RED,
