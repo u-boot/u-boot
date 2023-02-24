@@ -232,6 +232,16 @@ stages:
       # have no matches.
       - script: git grep u-boot,dm- -- '*.dts*' && exit 1 || exit 0
 
+  - job: check_packing_of_python_tools
+    displayName: 'Check we can package the Python tools'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: make pip
+
 - stage: test_py
   jobs:
   - job: test_py

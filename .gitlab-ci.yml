@@ -251,6 +251,12 @@ Check for pre-schema tags:
     # have no matches.
     - git grep u-boot,dm- -- '*.dts*' && exit 1 || exit 0
 
+# Check we can package the Python tools
+Check packing of Python tools:
+  stage: testsuites
+  script:
+    - make pip
+
 # Test sandbox with test.py
 sandbox test.py:
   variables:
