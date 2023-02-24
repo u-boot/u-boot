@@ -1230,11 +1230,15 @@ static int arasan_probe(struct udevice *dev)
 	struct nand_drv *info = &arasan->nand_ctrl;
 	struct nand_config *nand = &info->config;
 	struct mtd_info *mtd;
+	ofnode child;
 	int err = -1;
 
 	info->reg = (struct nand_regs *)dev_read_addr(dev);
 	mtd = nand_to_mtd(nand_chip);
 	nand_set_controller_data(nand_chip, &arasan->nand_ctrl);
+
+	ofnode_for_each_subnode(child, dev_ofnode(dev))
+		nand_set_flash_node(nand_chip, child);
 
 #ifdef CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
 	nand_chip->options |= NAND_NO_SUBPAGE_WRITE;
