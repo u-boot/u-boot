@@ -6353,10 +6353,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'tee-os-path': 'missing.bin',
         }
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
-        data = self._DoReadFileDtb(
-            '276_fit_firmware_loadables.dts',
-            entry_args=entry_args,
-            extra_indirs=[test_subdir])[0]
+        with test_util.capture_sys_output() as (stdout, stderr):
+            data = self._DoReadFileDtb(
+                '276_fit_firmware_loadables.dts',
+                entry_args=entry_args,
+                extra_indirs=[test_subdir])[0]
 
         dtb = fdt.Fdt.FromData(data)
         dtb.Scan()
