@@ -9,6 +9,11 @@ import argparse
 from argparse import ArgumentParser
 import os
 from binman import state
+import os
+import pathlib
+
+BINMAN_DIR = pathlib.Path(__file__).parent
+HAS_TESTS = (BINMAN_DIR / "ftest.py").exists()
 
 def make_extract_parser(subparsers):
     """make_extract_parser: Make a subparser for the 'extract' command
@@ -167,23 +172,26 @@ controlled by a description in the board device tree.'''
     replace_parser.add_argument('paths', type=str, nargs='*',
                                 help='Paths within file to replace (wildcard)')
 
-    test_parser = subparsers.add_parser('test', help='Run tests')
-    test_parser.add_argument('-P', '--processes', type=int,
-        help='set number of processes to use for running tests')
-    test_parser.add_argument('-T', '--test-coverage', action='store_true',
-        default=False, help='run tests and check for 100%% coverage')
-    test_parser.add_argument('-X', '--test-preserve-dirs', action='store_true',
-        help='Preserve and display test-created input directories; also '
-             'preserve the output directory if a single test is run (pass test '
-             'name at the end of the command line')
-    test_parser.add_argument('tests', nargs='*',
-                             help='Test names to run (omit for all)')
+    if HAS_TESTS:
+        test_parser = subparsers.add_parser('test', help='Run tests')
+        test_parser.add_argument('-P', '--processes', type=int,
+            help='set number of processes to use for running tests')
+        test_parser.add_argument('-T', '--test-coverage', action='store_true',
+            default=False, help='run tests and check for 100%% coverage')
+        test_parser.add_argument(
+            '-X', '--test-preserve-dirs', action='store_true',
+            help='Preserve and display test-created input directories; also '
+                 'preserve the output directory if a single test is run (pass '
+                 'test name at the end of the command line')
+        test_parser.add_argument('tests', nargs='*',
+                                 help='Test names to run (omit for all)')
 
     tool_parser = subparsers.add_parser('tool', help='Check bintools')
     tool_parser.add_argument('-l', '--list', action='store_true',
                              help='List all known bintools')
-    tool_parser.add_argument('-f', '--fetch', action='store_true',
-                             help='fetch a bintool from a known location (or: all/missing)')
+    tool_parser.add_argument(
+        '-f', '--fetch', action='store_true',
+        help='fetch a bintool from a known location (or: all/missing)')
     tool_parser.add_argument('bintools', type=str, nargs='*')
 
     return parser.parse_args(argv)
