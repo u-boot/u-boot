@@ -7,6 +7,7 @@
 
 from collections import OrderedDict
 import glob
+import importlib.resources
 import os
 import pkg_resources
 import re
@@ -641,9 +642,8 @@ def Binman(args):
     global state
 
     if args.full_help:
-        tools.print_full_help(
-            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README.rst')
-        )
+        with importlib.resources.path('binman', 'README.rst') as readme:
+            tools.print_full_help(str(readme))
         return 0
 
     # Put these here so that we can import this module without libfdt
