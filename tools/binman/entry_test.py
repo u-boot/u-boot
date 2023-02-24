@@ -14,7 +14,7 @@ from binman import entry
 from binman.etype.blob import Entry_blob
 from dtoc import fdt
 from dtoc import fdt_util
-from patman import tools
+from u_boot_pylib import tools
 
 class TestEntry(unittest.TestCase):
     def setUp(self):

@@ -18,10 +18,10 @@ import shutil
 import tempfile
 import urllib.error
 
-from patman import command
-from patman import terminal
-from patman import tools
-from patman import tout
+from u_boot_pylib import command
+from u_boot_pylib import terminal
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 BINMAN_DIR = os.path.dirname(os.path.realpath(__file__))
 

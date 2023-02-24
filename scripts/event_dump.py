@@ -15,7 +15,7 @@ src_path = os.path.dirname(our_path)
 sys.path.insert(1, os.path.join(our_path, '../tools'))
 
 from binman import elf
-from patman import tools
+from u_boot_pylib import tools
 
 # A typical symbol looks like this:
 #   _u_boot_list_2_evspy_info_2_EVT_MISC_INIT_F_3_sandbox_misc_init_f

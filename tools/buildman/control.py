@@ -13,12 +13,12 @@ from buildman import bsettings
 from buildman import cfgutil
 from buildman import toolchain
 from buildman.builder import Builder
-from patman import command
 from patman import gitutil
 from patman import patchstream
-from patman import terminal
-from patman import tools
-from patman.terminal import tprint
+from u_boot_pylib import command
+from u_boot_pylib import terminal
+from u_boot_pylib import tools
+from u_boot_pylib.terminal import tprint
 
 def GetPlural(count):
     """Returns a plural 's' if count is not 1"""

@@ -16,10 +16,10 @@ import urllib.error
 from binman import bintool
 from binman.bintool import Bintool
 
-from patman import command
-from patman import terminal
-from patman import test_util
-from patman import tools
+from u_boot_pylib import command
+from u_boot_pylib import terminal
+from u_boot_pylib import test_util
+from u_boot_pylib import tools
 
 # pylint: disable=R0904
 class TestBintool(unittest.TestCase):

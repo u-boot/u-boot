@@ -11,7 +11,7 @@ import os
 import sys
 import unittest
 
-from patman import command
+from u_boot_pylib import command
 
 from io import StringIO
 

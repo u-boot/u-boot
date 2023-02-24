@@ -20,8 +20,8 @@ from binman import bintool
 from binman import cbfs_util
 from binman.cbfs_util import CbfsWriter
 from binman import elf
-from patman import test_util
-from patman import tools
+from u_boot_pylib import test_util
+from u_boot_pylib import tools
 
 U_BOOT_DATA           = b'1234'
 U_BOOT_DTB_DATA       = b'udtb'

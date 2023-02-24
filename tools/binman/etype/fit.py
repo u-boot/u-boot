@@ -12,7 +12,7 @@ from binman.etype.section import Entry_section
 from binman import elf
 from dtoc import fdt_util
 from dtoc.fdt import Fdt
-from patman import tools
+from u_boot_pylib import tools
 
 # Supported operations, with the fit,operation property
 OP_GEN_FDT_NODES, OP_SPLIT_ELF = range(2)

@@ -14,7 +14,7 @@ import sys
 from patman import checkpatch
 from patman import gitutil
 from patman import patchstream
-from patman import terminal
+from u_boot_pylib import terminal
 
 def setup():
     """Do required setup before doing anything"""

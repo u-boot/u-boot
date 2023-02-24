@@ -7,9 +7,9 @@ import os
 import re
 import sys
 
-from patman import command
 from patman import gitutil
-from patman import terminal
+from u_boot_pylib import command
+from u_boot_pylib import terminal
 
 EMACS_PREFIX = r'(?:[0-9]{4}.*\.patch:[0-9]+: )?'
 TYPE_NAME = r'([A-Z_]+:)?'

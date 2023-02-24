@@ -11,8 +11,8 @@ import sys
 import tempfile
 import urllib.request
 
-from patman import command
-from patman import tout
+from u_boot_pylib import command
+from u_boot_pylib import tout
 
 # Output directly (generally this is temporary)
 outdir = None

@@ -35,7 +35,7 @@ sys.path.insert(0, os.path.join(our_path,
                 '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
 
 from dtoc import dtb_platdata
-from patman import test_util
+from u_boot_pylib import test_util
 
 def run_tests(processes, args):
     """Run all the test we have for dtoc
@@ -65,7 +65,8 @@ def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""
     sys.argv = [sys.argv[0]]
     test_util.run_test_coverage('tools/dtoc/dtoc', '/main.py',
-            ['tools/patman/*.py', '*/fdt*', '*test*'], args.build_dir)
+            ['tools/patman/*.py', 'tools/u_boot_pylib/*','*/fdt*', '*test*'],
+            args.build_dir)
 
 
 if __name__ != '__main__':

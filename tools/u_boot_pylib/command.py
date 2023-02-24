@@ -4,7 +4,7 @@
 
 import os
 
-from patman import cros_subprocess
+from u_boot_pylib import cros_subprocess
 
 """Shell command ease-ups for Python."""
 

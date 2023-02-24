@@ -8,8 +8,8 @@
 from binman.entry import Entry
 from binman import state
 from dtoc import fdt_util
-from patman import tools
-from patman import tout
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 class Entry_blob(Entry):
     """Arbitrary binary blob

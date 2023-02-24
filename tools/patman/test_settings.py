@@ -10,7 +10,7 @@ import sys
 import tempfile
 
 from patman import settings
-from patman import tools
+from u_boot_pylib import tools
 
 
 @contextlib.contextmanager

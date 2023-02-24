@@ -10,8 +10,8 @@ import sys
 import threading
 
 from buildman import cfgutil
-from patman import command
 from patman import gitutil
+from u_boot_pylib import command
 
 RETURN_CODE_RETRY = -1
 BASE_ELF_FILENAMES = ['u-boot', 'spl/u-boot-spl', 'tpl/u-boot-tpl']

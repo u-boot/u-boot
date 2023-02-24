@@ -12,14 +12,14 @@ import pkg_resources
 import re
 
 import sys
-from patman import tools
 
 from binman import bintool
 from binman import cbfs_util
-from patman import command
 from binman import elf
 from binman import entry
-from patman import tout
+from u_boot_pylib import command
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 # These are imported if needed since they import libfdt
 state = None

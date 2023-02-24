@@ -6,7 +6,7 @@
 
 import sys
 
-from patman import terminal
+from u_boot_pylib import terminal
 
 # Output verbosity levels that we support
 ERROR, WARNING, NOTICE, INFO, DETAIL, DEBUG = range(6)

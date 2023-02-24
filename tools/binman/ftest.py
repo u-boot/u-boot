@@ -34,10 +34,10 @@ from dtoc import fdt_util
 from binman.etype import fdtmap
 from binman.etype import image_header
 from binman.image import Image
-from patman import command
-from patman import test_util
-from patman import tools
-from patman import tout
+from u_boot_pylib import command
+from u_boot_pylib import test_util
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 # Contents of test files, corresponding to different entry types
 U_BOOT_DATA           = b'1234'

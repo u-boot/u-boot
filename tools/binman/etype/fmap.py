@@ -7,9 +7,9 @@
 
 from binman.entry import Entry
 from binman import fmap_util
-from patman import tools
-from patman.tools import to_hex_size
-from patman import tout
+from u_boot_pylib import tools
+from u_boot_pylib.tools import to_hex_size
+from u_boot_pylib import tout
 
 
 class Entry_fmap(Entry):

@@ -25,8 +25,8 @@ from dtoc.dtb_platdata import get_value
 from dtoc.dtb_platdata import tab_to
 from dtoc.src_scan import conv_name_to_c
 from dtoc.src_scan import get_compat_name
-from patman import test_util
-from patman import tools
+from u_boot_pylib import test_util
+from u_boot_pylib import tools
 
 OUR_PATH = os.path.dirname(os.path.realpath(__file__))
 

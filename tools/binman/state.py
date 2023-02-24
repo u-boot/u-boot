@@ -13,8 +13,8 @@ import threading
 
 from dtoc import fdt
 import os
-from patman import tools
-from patman import tout
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 OUR_PATH = os.path.dirname(os.path.realpath(__file__))
 

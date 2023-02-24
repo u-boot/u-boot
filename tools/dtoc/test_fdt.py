@@ -30,8 +30,8 @@ from dtoc import fdt_util
 from dtoc.fdt_util import fdt32_to_cpu, fdt64_to_cpu
 from dtoc.fdt import Type, BytesToValue
 import libfdt
-from patman import test_util
-from patman import tools
+from u_boot_pylib import test_util
+from u_boot_pylib import tools
 
 #pylint: disable=protected-access
 
@@ -814,7 +814,8 @@ def run_test_coverage(build_dir):
         build_dir (str): Directory containing the build output
     """
     test_util.run_test_coverage('tools/dtoc/test_fdt.py', None,
-            ['tools/patman/*.py', '*test_fdt.py'], build_dir)
+            ['tools/patman/*.py', 'tools/u_boot_pylib/*', '*test_fdt.py'],
+            build_dir)
 
 
 def run_tests(names, processes):

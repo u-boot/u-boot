@@ -19,10 +19,10 @@ import time
 
 from buildman import builderthread
 from buildman import toolchain
-from patman import command
 from patman import gitutil
-from patman import terminal
-from patman.terminal import tprint
+from u_boot_pylib import command
+from u_boot_pylib import terminal
+from u_boot_pylib.terminal import tprint
 
 # This indicates an new int or hex Kconfig property with no default
 # It hangs the build since the 'conf' tool cannot proceed without valid input.

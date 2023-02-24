@@ -25,8 +25,8 @@ from buildman import control
 from buildman import toolchain
 from patman import patchstream
 from patman import gitutil
-from patman import terminal
-from patman import test_util
+from u_boot_pylib import terminal
+from u_boot_pylib import test_util
 
 def RunTests(skip_net_tests, verboose, args):
     from buildman import func_test

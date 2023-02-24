@@ -14,11 +14,11 @@ from buildman import bsettings
 from buildman import cmdline
 from buildman import control
 from buildman import toolchain
-from patman import command
 from patman import gitutil
-from patman import terminal
-from patman import test_util
-from patman import tools
+from u_boot_pylib import command
+from u_boot_pylib import terminal
+from u_boot_pylib import test_util
+from u_boot_pylib import tools
 
 settings_data = '''
 # Buildman settings file

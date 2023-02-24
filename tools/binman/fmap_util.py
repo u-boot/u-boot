@@ -10,7 +10,7 @@ import collections
 import struct
 import sys
 
-from patman import tools
+from u_boot_pylib import tools
 
 # constants imported from lib/fmap.h
 FMAP_SIGNATURE = b'__FMAP__'

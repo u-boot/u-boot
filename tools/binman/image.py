@@ -18,8 +18,8 @@ from binman.etype import image_header
 from binman.etype import section
 from dtoc import fdt
 from dtoc import fdt_util
-from patman import tools
-from patman import tout
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 class Image(section.Entry_section):
     """A Image, representing an output from binman

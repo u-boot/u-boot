@@ -24,10 +24,10 @@ from patman import func_test
 from patman import gitutil
 from patman import project
 from patman import settings
-from patman import terminal
-from patman import test_util
 from patman import test_checkpatch
-from patman import tools
+from u_boot_pylib import terminal
+from u_boot_pylib import test_util
+from u_boot_pylib import tools
 
 epilog = '''Create patches from commits in a branch, check them and email them
 as specified by tags you place in the commits. Use -n to do a dry run first.'''
@@ -150,7 +150,7 @@ if args.cmd == 'test':
     result = test_util.run_test_suites(
         'patman', False, False, False, None, None, None,
         [test_checkpatch.TestPatch, func_test.TestFunctional,
-         'gitutil', 'settings', 'terminal'])
+         'gitutil', 'settings'])
 
     sys.exit(0 if result.wasSuccessful() else 1)
 
