@@ -24,7 +24,6 @@ from patman import func_test
 from patman import gitutil
 from patman import project
 from patman import settings
-from patman import test_checkpatch
 from u_boot_pylib import terminal
 from u_boot_pylib import test_util
 from u_boot_pylib import tools
@@ -146,6 +145,7 @@ if not args.debug:
 # Run our meagre tests
 if args.cmd == 'test':
     from patman import func_test
+    from patman import test_checkpatch
 
     result = test_util.run_test_suites(
         'patman', False, False, False, None, None, None,
