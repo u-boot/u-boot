@@ -11,12 +11,10 @@
 #define CFG_SYS_UART_PORT		0
 
 #define CFG_MCFTMR
-#define CONFIG_MCFUART
-#define CONFIG_SYS_UART_PORT		0
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
+#define CFG_SYS_UART_PORT		0
+#define CFG_SYS_BAUDRATE_TABLE		{ 9600, 19200, 38400, 57600, 115200 }
 
-#define CONFIG_BOOTCOMMAND		"bootm ffc30000"
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"upgrade_uboot=loady; "					\
 		"protect off 0xffc00000 0xffc2ffff; "		\
 		"erase 0xffc00000 0xffc2ffff; "			\
@@ -43,11 +41,6 @@
 
 /* amcore design has flash data bytes wired swapped */
 #define CFG_SYS_WRITE_SWAPPED_DATA
-/* reserve 128-4KB */
-#define CONFIG_SYS_MONITOR_BASE		(CONFIG_SYS_FLASH_BASE + 0x400)
-#define CONFIG_SYS_MONITOR_LEN          ((192 - 4) * 1024)
-#define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
-#define CONFIG_SYS_BOOTPARAMS_LEN	(64 * 1024)
 
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \
