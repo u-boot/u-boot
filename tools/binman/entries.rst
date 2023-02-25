@@ -1386,6 +1386,20 @@ For example, this creates an image with a pre-load header and a binary::
 
 
 
+.. _etype_rockchip_tpl:
+
+Entry: rockchip-tpl: Rockchip TPL binary
+----------------------------------------
+
+Properties / Entry arguments:
+    - rockchip-tpl-path: Filename of file to read into the entry,
+                         typically <soc>_ddr_<version>.bin
+
+This entry holds an external TPL binary used by some Rockchip SoCs
+instead of normal U-Boot TPL, typically to initialize DRAM.
+
+
+
 .. _etype_scp:
 
 Entry: scp: System Control Processor (SCP) firmware blob
