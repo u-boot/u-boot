@@ -6393,6 +6393,17 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFile('277_rockchip_tpl.dts')
         self.assertEqual(ROCKCHIP_TPL_DATA, data[:len(ROCKCHIP_TPL_DATA)])
 
+    def testMkimageMissingBlobMultiple(self):
+        """Test missing blob with mkimage entry and multiple-data-files"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('278_mkimage_missing_multiple.dts', allow_missing=True)
+        err = stderr.getvalue()
+        self.assertIn("is missing external blobs and is non-functional", err)
+
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('278_mkimage_missing_multiple.dts', allow_missing=False)
+        self.assertIn("not found in input path", str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
