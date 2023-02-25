@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2019
   ubuntu_vm: ubuntu-22.04
   macos_vm: macOS-12
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20230126-10Feb2023
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20230126-17Feb2023
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -187,6 +187,13 @@ stages:
       options: $(container_option)
     steps:
       - script: |
+          mkdir nokia_rx51_tmp
+          ln -s /opt/nokia/u-boot-gen-combined nokia_rx51_tmp/
+          ln -s /opt/nokia/qemu-n900.tar.gz nokia_rx51_tmp/
+          ln -s /opt/nokia/kernel_2.6.28-20103103+0m5_armel.deb nokia_rx51_tmp/
+          ln -s /opt/nokia/libc6_2.5.1-1eglibc27+0m5_armel.deb nokia_rx51_tmp/
+          ln -s /opt/nokia/busybox_1.10.2.legal-1osso30+0m5_armel.deb nokia_rx51_tmp/
+          ln -s /opt/nokia/qemu-system-arm nokia_rx51_tmp/
           export PATH=/opt/gcc-12.2.0-nolibc/arm-linux-gnueabi/bin:$PATH
           test/nokia_rx51_test.sh
 
