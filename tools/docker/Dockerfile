@@ -254,6 +254,7 @@ RUN mkdir /tmp/trace && \
 RUN mkdir -p /opt/nokia && \
 	cd /opt/nokia && \
 	wget https://raw.githubusercontent.com/pali/u-boot-maemo/master/debian/u-boot-gen-combined && \
+	chmod 0755 u-boot-gen-combined && \
 	wget http://repository.maemo.org/qemu-n900/qemu-n900.tar.gz && \
 	wget http://repository.maemo.org/pool/maemo5.0/free/k/kernel/kernel_2.6.28-20103103+0m5_armel.deb && \
 	wget http://repository.maemo.org/pool/maemo5.0/free/g/glibc/libc6_2.5.1-1eglibc27+0m5_armel.deb && \
