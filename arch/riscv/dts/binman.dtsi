@@ -45,6 +45,7 @@
 
 					opensbi_blob: opensbi {
 						filename = "fw_dynamic.bin";
+						missing-msg = "opensbi";
 					};
 				};
 

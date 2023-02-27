@@ -3,4 +3,6 @@
 #  (C) Copyright 2010-2012
 #  NVIDIA Corporation <www.nvidia.com>
 
-obj-y	:= cardhu.o
+obj-$(CONFIG_SPL_BUILD) += cardhu-spl.o
+
+obj-y	+= cardhu.o

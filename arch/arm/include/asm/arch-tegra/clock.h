@@ -271,6 +271,19 @@ void clock_ll_start_uart(enum periph_id periph_id);
 int clock_decode_periph_id(struct udevice *dev);
 
 /**
+ * Get periph clock id and its parent from device tree.
+ *
+ * This works by looking up the peripheral's 'clocks' node and reading out
+ * the second and fourth cells, which are the peripheral and PLL clock numbers.
+ *
+ * @param dev          udevice associated with FDT node
+ * @param clk_id       pointer to int array of 2 values
+ *                     first is periph clock, second is
+ *                     its PLL parent according to FDT.
+ */
+int clock_decode_pair(struct udevice *dev, int *clk_id);
+
+/**
  * Checks if the oscillator bypass is enabled (XOBP bit)
  *
  * Return: 1 if bypass is enabled, 0 if not
@@ -353,6 +366,14 @@ int get_periph_clock_source(enum periph_id periph_id,
  * Return: peripheral ID, or PERIPH_ID_NONE if the clock ID is invalid
  */
 enum periph_id clk_id_to_periph_id(int clk_id);
+
+/*
+ * Convert a device tree clock ID to our PLL ID.
+ *
+ * @param clk_id	Clock ID according to tegra device tree binding
+ * Return: clock ID, or CLOCK_ID_NONE if the clock ID is invalid
+ */
+enum clock_id clk_id_to_pll_id(int clk_id);
 
 /**
  * Set the output frequency you want for each PLL clock.

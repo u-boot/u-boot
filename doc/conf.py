@@ -47,10 +47,6 @@ extensions = ['kerneldoc', 'rstFlatTable', 'kernel_include',
 # the process to proceed; hopefully somebody will fix this properly soon.
 #
 if major >= 3:
-    sys.stderr.write('''WARNING: The kernel documentation build process
-        support for Sphinx v3.0 and above is brand new. Be prepared for
-        possible issues in the generated output.
-        ''')
     if (major > 3) or (minor > 0 or patch >= 2):
         # Sphinx c function parser is more pedantic with regards to type
         # checking. Due to that, having macros at c:function cause problems.

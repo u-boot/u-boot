@@ -366,9 +366,6 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
 	    EFI_VARIABLE_RUNTIME_ACCESS)
 		return EFI_INVALID_PARAMETER;
 
-	if (attributes & EFI_VARIABLE_HARDWARE_ERROR_RECORD)
-		return EFI_UNSUPPORTED;
-
 	if (attributes & ~(u32)EFI_VARIABLE_MASK)
 		return EFI_INVALID_PARAMETER;
 

@@ -3,6 +3,7 @@ if TEGRA20
 config TEGRA_LP0
 	bool
 	select TEGRA_CLOCK_SCALING
+	select TEGRA_CRYPTO
 
 config TEGRA_PMU
 	bool
