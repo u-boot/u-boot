@@ -38,6 +38,13 @@ config VIDEO_FONT_SUN12X22
 	  Provides character bitmap data in header file.
 	  When selecting multiple fonts, you may want to enable CMD_SELECT_FONT too.
 
+config VIDEO_FONT_16X32
+	bool "16 x 32 font size"
+	help
+	  Font for video console driver, 16 x 32 pixels
+	  Provides character bitmap data in header file.
+	  When selecting multiple fonts, you may want to enable CMD_SELECT_FONT too.
+
 config VIDEO_LOGO
 	bool "Show the U-Boot logo on the display"
 	default y if !SPLASH_SCREEN
