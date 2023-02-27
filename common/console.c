@@ -842,7 +842,7 @@ int console_record_readline(char *str, int maxlen)
 		return -ENOSPC;
 
 	return membuff_readline((struct membuff *)&gd->console_out, str,
-				maxlen, ' ');
+				maxlen, '\0');
 }
 
 int console_record_avail(void)
