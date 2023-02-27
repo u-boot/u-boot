@@ -16,12 +16,12 @@
 #define BOARD_SALVATOR_X	0x0
 #define BOARD_KRIEK		0x1
 #define BOARD_STARTER_KIT	0x2
+#define BOARD_EAGLE		0x3
 #define BOARD_SALVATOR_XS	0x4
+#define BOARD_DRAAK		0x7
 #define BOARD_EBISU		0x8
 #define BOARD_STARTER_KIT_PRE	0xB
 #define BOARD_EBISU_4D		0xD
-#define BOARD_DRAAK		0xE
-#define BOARD_EAGLE		0xF
 
 /**
  * struct sysinfo_rcar_priv - sysinfo private data
