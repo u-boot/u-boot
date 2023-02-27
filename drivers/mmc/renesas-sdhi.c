@@ -977,8 +977,16 @@ static int renesas_sdhi_probe(struct udevice *dev)
 
 	/* optional SDnH clock */
 	ret = clk_get_by_name(dev, "clkh", &priv->clkh);
-	if (ret < 0)
+	if (ret < 0) {
 		dev_dbg(dev, "failed to get clkh\n");
+	} else {
+		ret = clk_set_rate(&priv->clkh, 800000000);
+		if (ret < 0) {
+			dev_err(dev, "failed to set rate for SDnH clock\n");
+			clk_free(&priv->clk);
+			return ret;
+		}
+	}
 
 	/* set to max rate */
 	ret = clk_set_rate(&priv->clk, 200000000);
