@@ -14,6 +14,7 @@
 #include <asm/mach-types.h>
 #include <asm/processor.h>
 #include <linux/errno.h>
+#include <asm/system.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -69,7 +70,8 @@ static void init_gic_v3(void)
 
 void s_init(void)
 {
-	init_generic_timer();
+	if (current_el() == 3)
+		init_generic_timer();
 }
 
 int board_early_init_f(void)
@@ -86,7 +88,8 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_TEXT_BASE + 0x50000;
 
-	init_gic_v3();
+	if (current_el() == 3)
+		init_gic_v3();
 
 	return 0;
 }
