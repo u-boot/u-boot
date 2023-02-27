@@ -982,37 +982,45 @@ static int renesas_sdhi_probe(struct udevice *dev)
 	} else {
 		ret = clk_set_rate(&priv->clkh, 800000000);
 		if (ret < 0) {
-			dev_err(dev, "failed to set rate for SDnH clock\n");
-			clk_free(&priv->clk);
-			return ret;
+			dev_err(dev, "failed to set rate for SDnH clock (%d)\n", ret);
+			goto err_clk;
 		}
 	}
 
 	/* set to max rate */
 	ret = clk_set_rate(&priv->clk, 200000000);
 	if (ret < 0) {
-		dev_err(dev, "failed to set rate for host clock\n");
-		clk_free(&priv->clk);
-		return ret;
+		dev_err(dev, "failed to set rate for SDn clock (%d)\n", ret);
+		goto err_clkh;
 	}
 
 	ret = clk_enable(&priv->clk);
 	if (ret) {
-		dev_err(dev, "failed to enable host clock\n");
-		return ret;
+		dev_err(dev, "failed to enable SDn clock (%d)\n", ret);
+		goto err_clkh;
 	}
 
 	priv->quirks = quirks;
 	ret = tmio_sd_probe(dev, quirks);
+	if (ret)
+		goto err_tmio_probe;
 
 	renesas_sdhi_filter_caps(dev);
 
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
-	if (!ret && (priv->caps & TMIO_SD_CAP_RCAR_UHS))
+	if (priv->caps & TMIO_SD_CAP_RCAR_UHS)
 		renesas_sdhi_reset_tuning(priv);
 #endif
+	return 0;
+
+err_tmio_probe:
+	clk_disable(&priv->clk);
+err_clkh:
+	clk_free(&priv->clkh);
+err_clk:
+	clk_free(&priv->clk);
 	return ret;
 }
 
