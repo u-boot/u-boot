@@ -373,7 +373,7 @@ static bool tmio_sd_addr_is_dmaable(struct mmc_data *data)
 	if (!(data->flags & MMC_DATA_READ) && !IS_ALIGNED(addr, 128))
 		return false;
 	/* Gen3 DMA has 32bit limit */
-	if (addr >> 32)
+	if (sizeof(addr) > 4 && addr >> 32)
 		return false;
 #endif
 
