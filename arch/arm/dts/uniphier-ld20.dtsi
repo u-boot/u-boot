@@ -744,7 +744,7 @@
 			};
 		};
 
-		_usb: usb@65a00000 {
+		usb: usb@65a00000 {
 			compatible = "socionext,uniphier-dwc3", "snps,dwc3";
 			status = "disabled";
 			reg = <0x65a00000 0xcd00>;
@@ -891,25 +891,6 @@
 				reset-names = "link", "phy";
 				resets = <&sys_rst 14>, <&sys_rst 19>;
 				vbus-supply = <&usb_vbus1>;
-			};
-		};
-
-		/* FIXME: U-Boot own node */
-		usb: usb@65b00000 {
-			compatible = "socionext,uniphier-ld20-dwc3";
-			reg = <0x65b00000 0x1000>;
-			#address-cells = <1>;
-			#size-cells = <1>;
-			ranges;
-			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_usb0>, <&pinctrl_usb1>,
-				    <&pinctrl_usb2>, <&pinctrl_usb3>;
-			dwc3@65a00000 {
-				compatible = "snps,dwc3";
-				reg = <0x65a00000 0x10000>;
-				interrupts = <0 134 4>;
-				dr_mode = "host";
-				tx-fifo-resize;
 			};
 		};
 

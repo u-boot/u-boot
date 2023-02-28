@@ -593,7 +593,7 @@
 			};
 		};
 
-		_usb0: usb@65a00000 {
+		usb0: usb@65a00000 {
 			compatible = "socionext,uniphier-dwc3", "snps,dwc3";
 			status = "disabled";
 			reg = <0x65a00000 0xcd00>;
@@ -689,26 +689,7 @@
 			};
 		};
 
-		/* FIXME: U-Boot own node */
-		usb0: usb@65b00000 {
-			compatible = "socionext,uniphier-pxs2-dwc3";
-			status = "disabled";
-			reg = <0x65b00000 0x1000>;
-			#address-cells = <1>;
-			#size-cells = <1>;
-			ranges;
-			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_usb0>, <&pinctrl_usb2>;
-			dwc3@65a00000 {
-				compatible = "snps,dwc3";
-				reg = <0x65a00000 0x10000>;
-				interrupts = <0 134 4>;
-				dr_mode = "host";
-				tx-fifo-resize;
-			};
-		};
-
-		_usb1: usb@65c00000 {
+		usb1: usb@65c00000 {
 			compatible = "socionext,uniphier-dwc3", "snps,dwc3";
 			status = "disabled";
 			reg = <0x65c00000 0xcd00>;
@@ -789,25 +770,6 @@
 				reset-names = "link", "phy";
 				resets = <&sys_rst 15>, <&sys_rst 21>;
 				vbus-supply = <&usb1_vbus0>;
-			};
-		};
-
-		/* FIXME: U-Boot own node */
-		usb1: usb@65d00000 {
-			compatible = "socionext,uniphier-pxs2-dwc3";
-			status = "disabled";
-			reg = <0x65d00000 0x1000>;
-			#address-cells = <1>;
-			#size-cells = <1>;
-			ranges;
-			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_usb1>, <&pinctrl_usb3>;
-			dwc3@65c00000 {
-				compatible = "snps,dwc3";
-				reg = <0x65c00000 0x10000>;
-				interrupts = <0 137 4>;
-				dr_mode = "host";
-				tx-fifo-resize;
 			};
 		};
 
