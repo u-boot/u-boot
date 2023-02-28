@@ -69,6 +69,7 @@
 			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
 					    QORIQ_CLK_PLL_DIV(4)>;
 			interrupts = <0 32 0x4>; /* Level high type */
+			bootph-all;
 		};
 
 		serial1: serial@21c0600 {
@@ -77,6 +78,7 @@
 			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
 					    QORIQ_CLK_PLL_DIV(4)>;
 			interrupts = <0 32 0x4>; /* Level high type */
+			bootph-all;
 		};
 	};
 
