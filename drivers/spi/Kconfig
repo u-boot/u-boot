@@ -381,7 +381,7 @@ config SPI_QUP
 
 config RENESAS_RPC_SPI
 	bool "Renesas RPC SPI driver"
-	depends on RCAR_GEN3 || RZA1
+	depends on RCAR_64 || RZA1
 	imply SPI_FLASH_BAR
 	help
 	  Enable the Renesas RPC SPI driver, used to access SPI NOR flash
