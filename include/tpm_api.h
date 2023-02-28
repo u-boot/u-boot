@@ -331,4 +331,12 @@ static inline bool tpm_is_v2(struct udevice *dev)
 	return IS_ENABLED(CONFIG_TPM_V2) && tpm_get_version(dev) == TPM_V2;
 }
 
+/**
+ * tpm_auto_start() - start up the TPM and perform selftests
+ *
+ * @param dev		TPM device
+ * Return: return code of the operation (0 = success)
+ */
+u32 tpm_auto_start(struct udevice *dev);
+
 #endif /* __TPM_API_H */

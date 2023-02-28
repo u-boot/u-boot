@@ -591,4 +591,15 @@ u32 tpm_set_global_lock(struct udevice *dev);
  */
 u32 tpm1_resume(struct udevice *dev);
 
+/**
+ * tpm1_auto_start() - start up the TPM
+ *
+ * This does not do a self test.
+ *
+ * @dev		TPM device
+ * Return: TPM2_RC_SUCCESS, on success, or when the TPM returns
+ * TPM_INVALID_POSTINIT; TPM_FAILEDSELFTEST, if the TPM is in failure state
+ */
+u32 tpm1_auto_start(struct udevice *dev);
+
 #endif /* __TPM_V1_H */

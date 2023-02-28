@@ -1367,6 +1367,10 @@
 		compatible = "sandbox,tpm2";
 	};
 
+	tpm {
+		compatible = "google,sandbox-tpm";
+	};
+
 	uart0: serial {
 		compatible = "sandbox,serial";
 		bootph-all;

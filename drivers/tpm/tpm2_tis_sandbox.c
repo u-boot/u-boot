@@ -810,7 +810,7 @@ static int sandbox_tpm2_open(struct udevice *dev)
 	struct sandbox_tpm2 *tpm = dev_get_priv(dev);
 
 	if (tpm->init_done)
-		return -EIO;
+		return -EBUSY;
 
 	tpm->init_done = true;
 
