@@ -35,6 +35,15 @@
 			     <1 10 0x8>; /* Hypervisor PPI, active-low */
 	};
 
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		dma-ranges = <0x0 0x0 0x0 0x0 0x10000 0x00000000>;
+
+	};
+
 	serial0: serial@21c0500 {
 		device_type = "serial";
 		compatible = "fsl,ns16550", "ns16550a";
