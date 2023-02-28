@@ -41,6 +41,9 @@ config RZA1
 
 endchoice
 
+config SYS_SOC
+	default "rmobile" if ARCH_RMOBILE
+
 source "arch/arm/mach-rmobile/Kconfig.32"
 source "arch/arm/mach-rmobile/Kconfig.64"
 source "arch/arm/mach-rmobile/Kconfig.rza1"

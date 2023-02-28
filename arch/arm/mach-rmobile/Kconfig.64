@@ -172,9 +172,6 @@ config TARGET_ULCB
 
 endchoice
 
-config SYS_SOC
-	default "rmobile"
-
 source "board/renesas/condor/Kconfig"
 source "board/renesas/draak/Kconfig"
 source "board/renesas/eagle/Kconfig"
