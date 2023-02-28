@@ -183,7 +183,7 @@ static bool user_button_pressed(void)
 
 	memset(&gpio, 0, sizeof(gpio));
 
-	if (dm_gpio_lookup_name("25", &gpio) < 0 ||
+	if (dm_gpio_lookup_name("gpio@42110000_25", &gpio) < 0 ||
 	    dm_gpio_request(&gpio, "USER button") < 0 ||
 	    dm_gpio_set_dir_flags(&gpio, GPIOD_IS_IN) < 0)
 		return false;
