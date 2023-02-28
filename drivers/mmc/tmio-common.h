@@ -133,9 +133,7 @@ struct tmio_sd_priv {
 #define TMIO_SD_CAP_RCAR_UHS		BIT(7)	/* Renesas RCar UHS/SDR modes */
 #define TMIO_SD_CAP_RCAR		\
 	(TMIO_SD_CAP_RCAR_GEN2 | TMIO_SD_CAP_RCAR_GEN3)
-#ifdef CONFIG_DM_REGULATOR
 	struct udevice *vqmmc_dev;
-#endif
 #if CONFIG_IS_ENABLED(CLK)
 	struct clk			clk;
 	struct clk			clkh;
