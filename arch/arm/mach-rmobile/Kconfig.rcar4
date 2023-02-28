@@ -1,8 +1,27 @@
 if RCAR_GEN4
 
+menu "Select Target SoC"
+
+config R8A779A0
+	bool "Renesas SoC R8A779A0"
+	select GICV3
+	imply CLK_R8A779A0
+	imply PINCTRL_PFC_R8A779A0
+
+endmenu
+
 choice
 	prompt "Renesas ARM64 SoCs board select"
 	optional
+
+config TARGET_FALCON
+	bool "Falcon board"
+	imply R8A779A0
+	help
+          Support for Renesas R-Car Gen3 Falcon platform
+
 endchoice
+
+source "board/renesas/falcon/Kconfig"
 
 endif
