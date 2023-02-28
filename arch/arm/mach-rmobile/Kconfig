@@ -1,5 +1,22 @@
 if ARCH_RMOBILE
 
+# Renesas ARM SoCs R-Car Gen3/Gen4 (64bit)
+config RCAR_64
+	bool
+	select ARM64
+	select CMD_CACHE
+	select OF_BOARD_SETUP
+	select PHY
+	select PINCONF
+	select PINCTRL
+	select PINCTRL_PFC
+	select POSITION_INDEPENDENT
+	imply CMD_FS_UUID
+	imply CMD_GPT
+	imply CMD_MMC_SWRITE if MMC
+	imply CMD_UUID
+	imply SUPPORT_EMMC_RPMB if MMC
+
 choice
 	prompt "Target Renesas SoC select"
 	default RCAR_32
@@ -10,19 +27,8 @@ config RCAR_32
 
 config RCAR_GEN3
 	bool "Renesas ARM SoCs R-Car Gen3 (64bit)"
-	select ARM64
-	select CMD_CACHE
-	select OF_BOARD_SETUP
-	select PHY
-	select PINCONF
-	select PINCTRL
-	select PINCTRL_PFC
-	select POSITION_INDEPENDENT
+	select RCAR_64
 	select SUPPORT_SPL
-	imply CMD_FS_UUID
-	imply CMD_GPT
-	imply CMD_MMC_SWRITE if MMC
-	imply CMD_UUID
 	imply SPL
 	imply SPL_BOARD_INIT
 	imply SPL_GZIP
@@ -33,7 +39,6 @@ config RCAR_GEN3
 	imply SPL_TINY_MEMSET
 	imply SPL_USE_TINY_PRINTF
 	imply SPL_YMODEM_SUPPORT
-	imply SUPPORT_EMMC_RPMB if MMC
 
 config RZA1
 	prompt "Renesas ARM SoCs RZ/A1 (32bit)"
