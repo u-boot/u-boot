@@ -21,13 +21,7 @@ Please read the section on SCP firmware in board/sunxi/README.sunxi64
 iot2050-seboot:
 See the documentation for IOT2050 board. Your image is missing SEBoot
 which is mandatory for board startup. Prebuilt SEBoot located at
-meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild/tiboot3.bin.
-
-iot2050-sysfw:
-See the documentation for IOT2050 board. Your image is missing system
-firmware which is mandatory for board startup. Prebuilt system firmware
-located at meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild/
-with sysfw prefix.
+meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild/seboot_pg*.bin.
 
 k3-rti-wdt-firmware:
 If CONFIG_WDT_K3_RTI_LOAD_FW is enabled, a firmware image is needed for

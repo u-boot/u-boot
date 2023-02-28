@@ -25,11 +25,7 @@ https://github.com/siemens/meta-iot2050/tree/master/recipes-bsp/u-boot/files/pre
 The following binaries from that source need to be present in the build folder:
 
  - seboot_pg1.bin
- - sysfw_sr1.itb
- - sysfw_sr1.itb_HS
  - seboot_pg2.bin
- - sysfw_sr2.itb
- - sysfw_sr2.itb_HS
 
 Building
 --------

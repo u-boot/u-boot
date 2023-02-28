@@ -25,15 +25,15 @@
 			missing-msg = "iot2050-seboot";
 		};
 
-		blob@0x080000 {
-			offset = <0x080000>;
+		blob@0x180000 {
+			offset = <0x180000>;
 			filename = "tispl.bin";
 		};
 
-		fit@0x280000 {
+		fit@0x380000 {
 			description = "U-Boot for IOT2050";
 			fit,fdt-list = "of-list";
-			offset = <0x280000>;
+			offset = <0x380000>;
 			images {
 				u-boot {
 					description = "U-Boot";
@@ -94,25 +94,11 @@
 			fill-byte = [00];
 		};
 
-		/* sysfw, basic variant */
-		blob-ext@0x6c0000 {
+		/* OTP update command block */
+		fill@0x6c0000 {
 			offset = <0x6c0000>;
-#ifdef CONFIG_TARGET_IOT2050_A53_PG1
-			filename = "sysfw_sr1.itb";
-#else
-			filename = "sysfw_sr2.itb";
-#endif
-			missing-msg = "iot2050-sysfw";
-		};
-		/* sysfw, advanced variant */
-		blob-ext@0x740000 {
-			offset = <0x740000>;
-#ifdef CONFIG_TARGET_IOT2050_A53_PG1
-			filename = "sysfw_sr1.itb_HS";
-#else
-			filename = "sysfw_sr2.itb_HS";
-#endif
-			missing-msg = "iot2050-sysfw";
+			size   = <0x010000>;
+			fill-byte = [ff];
 		};
 	};
 };
