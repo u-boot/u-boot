@@ -79,3 +79,55 @@ Via external programmer Dediprog SF100 or SF600:
 .. code-block:: text
 
  $ dpcmd --vcc 2 -v -u flash.bin
+
+Signing (optional)
+------------------
+
+To enable verified boot for the firmware artifacts after the Siemens-managed
+first-stage loader (seboot_pg*.bin), the following steps need to be taken
+before and after the build:
+
+Generate dtsi holding the public key
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+ tools/key2dtsi.py -c -s key.pem public-key.dtsi
+
+This will be used to embed the public key into U-Boot SPL and main so that each
+step can validate signatures of the succeeding one.
+
+Adjust U-Boot configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Enabled at least the following options in U-Boot:
+
+.. code-block:: text
+
+ CONFIG_SPL_FIT_SIGNATURE=y
+ CONFIG_DEVICE_TREE_INCLUDES="/path/to/public-key.dtsi"
+ CONFIG_RSA=y
+
+Note that there are more configuration changes needed in order to lock-down
+the command line and the boot process of U-Boot for secure scenarios. These are
+not in scope here.
+
+Build U-Boot
+^^^^^^^^^^^^
+
+See related section above.
+
+Sign flash.bin
+^^^^^^^^^^^^^^
+
+In the build folder still containing artifacts from step 3, invoke:
+
+.. code-block:: text
+
+ tools/iot2050-sign-fw.sh /path/to/key.pem
+
+Flash signed flash.bin
+^^^^^^^^^^^^^^^^^^^^^^
+
+The signing has happen in-place in flash.bin, thus the flashing procedure
+described above.
