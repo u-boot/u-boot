@@ -111,10 +111,19 @@
 		};
 
 		/* OTP update command block */
+#if CONFIG_IOT2050_EMBED_OTPCMD
+		blob-ext@0x6c0000 {
+			offset = <0x6c0000>;
+			size   = <0x010000>;
+			filename = "otpcmd.bin";
+			missing-msg = "iot2050-otpcmd";
+		};
+#else
 		fill@0x6c0000 {
 			offset = <0x6c0000>;
 			size   = <0x010000>;
 			fill-byte = [ff];
 		};
+#endif
 	};
 };

@@ -49,4 +49,11 @@ config IOT2050_BOOT_SWITCH
 	bool "Disable eMMC boot via USER button (Advanced version only)"
 	default y
 
+config IOT2050_EMBED_OTPCMD
+	bool "Embed OTP programming data"
+	help
+	  Embed signed OTP programming data 'otpcmd.bin' into the firmware
+	  image. This data will be evaluated and executed on first boot of the
+	  device.
+
 endif

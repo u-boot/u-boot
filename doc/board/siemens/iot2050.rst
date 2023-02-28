@@ -27,6 +27,14 @@ The following binaries from that source need to be present in the build folder:
  - seboot_pg1.bin
  - seboot_pg2.bin
 
+For building an image containing the OTP key provisioning data, below binary
+needs to be present in the build folder:
+
+ - otpcmd.bin
+
+Regarding how to generating this otpcmd.bin, please refer to:
+https://github.com/siemens/meta-iot2050/tree/master/recipes-bsp/secure-boot-otp-provisioning/files/make-otpcmd.sh
+
 Building
 --------
 
