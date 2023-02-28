@@ -1047,7 +1047,8 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	r8a77995-draak-u-boot.dtb
 
 dtb-$(CONFIG_RCAR_GEN4) += \
-	r8a779a0-falcon-u-boot.dtb
+	r8a779a0-falcon-u-boot.dtb \
+	r8a779f0-spider-u-boot.dtb
 
 ifdef CONFIG_RCAR_64
 DTC_FLAGS += -R 4 -p 0x1000

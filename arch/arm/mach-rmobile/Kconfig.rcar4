@@ -26,8 +26,15 @@ config TARGET_FALCON
 	help
           Support for Renesas R-Car Gen3 Falcon platform
 
+config TARGET_SPIDER
+	bool "Spider board"
+	imply R8A779F0
+	help
+	  Support for Renesas R-Car Gen4 Spider platform
+
 endchoice
 
 source "board/renesas/falcon/Kconfig"
+source "board/renesas/spider/Kconfig"
 
 endif
