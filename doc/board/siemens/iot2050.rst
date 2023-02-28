@@ -145,3 +145,21 @@ Flash signed flash.bin
 
 The signing has happen in-place in flash.bin, thus the flashing procedure
 described above.
+
+M.2 slot configuration
+----------------------
+
+The M.2 variant of the IOT2050 comes with one B-keyed and one E-keyed slot.
+These are configured by U-Boot depending on the detected usage (auto
+configuration). The device tree loaded later on for the OS will be fixed up
+by U-Boot according to this configuration.
+
+For the case auto configuration does not work reliably, it is possible to set
+the U-Boot environment variable "m2_manual_config" to select the mode manually:
+
+"0"  -  B-key: PCIe x2, USB 2.0
+        E-key: USB 2.0
+"1"  -  B-key: PCIe, USB 2.0
+        E-key: PCIe, USB 2.0
+"2"  -  B-key: USB 3.0,
+        E-key: PCIe, USB 2.0
