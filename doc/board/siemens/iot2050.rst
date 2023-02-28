@@ -24,9 +24,10 @@ Binary dependencies can be found in
 https://github.com/siemens/meta-iot2050/tree/master/recipes-bsp/u-boot/files/prebuild.
 The following binaries from that source need to be present in the build folder:
 
- - tiboot3.bin
- - sysfw.itb
- - sysfw.itb_HS
+ - seboot_pg1.bin
+ - sysfw_sr1.itb
+ - sysfw_sr1.itb_HS
+ - seboot_pg2.bin
  - sysfw_sr2.itb
  - sysfw_sr2.itb_HS
 
@@ -57,7 +58,13 @@ U-Boot:
 
  $ export ATF=/path/to/bl31.bin
  $ export TEE=/path/to/tee-pager_v2.bin
- $ make iot2050_defconfig
+
+ # configure for PG1
+ $ make iot2050_pg1_defconfig
+
+ # or configure for PG2
+ $ make iot2050_pg2_defconfig
+
  $ make
 
 Flashing

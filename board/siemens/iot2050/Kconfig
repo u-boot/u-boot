@@ -1,20 +1,40 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
-# Copyright (c) Siemens AG, 2018-2021
+# Copyright (c) Siemens AG, 2018-2022
 #
 # Authors:
 #   Le Jin <le.jin@siemens.com>
 #   Jan Kiszka <jan.kiszka@siemens.com>
 
-config TARGET_IOT2050_A53
-	bool "IOT2050 running on A53"
+choice
+        prompt "Siemens SIMATIC IOT2050 boards"
+        optional
+
+config TARGET_IOT2050_A53_PG1
+	bool "IOT2050 PG1 running on A53"
+	select IOT2050_A53_COMMON
+	help
+	  This builds U-Boot for the Product Generation 1 (PG1) of the IOT2050
+	  devices.
+
+config TARGET_IOT2050_A53_PG2
+	bool "IOT2050 PG2 running on A53"
+	select IOT2050_A53_COMMON
+	help
+	  This builds U-Boot for the Product Generation 2 (PG2) of the IOT2050
+	  devices.
+
+endchoice
+
+config IOT2050_A53_COMMON
+	bool
 	select ARM64
 	select SOC_K3_AM654
 	select BOARD_LATE_INIT
 	select SYS_DISABLE_DCACHE_OPS
 	select BINMAN
 
-if TARGET_IOT2050_A53
+if IOT2050_A53_COMMON
 
 config SYS_BOARD
 	default "iot2050"
