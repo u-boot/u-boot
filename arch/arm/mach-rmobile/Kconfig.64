@@ -7,5 +7,6 @@ config OF_LIBFDT_OVERLAY
 	default y if RCAR_64
 
 source "arch/arm/mach-rmobile/Kconfig.rcar3"
+source "arch/arm/mach-rmobile/Kconfig.rcar4"
 
 endif

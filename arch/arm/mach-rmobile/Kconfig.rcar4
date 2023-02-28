@@ -1,0 +1,8 @@
+if RCAR_GEN4
+
+choice
+	prompt "Renesas ARM64 SoCs board select"
+	optional
+endchoice
+
+endif

@@ -427,7 +427,7 @@ config REMAKE_ELF
 
 config BUILD_TARGET
 	string "Build target special images"
-	default "u-boot-elf.srec" if RCAR_GEN3
+	default "u-boot-elf.srec" if RCAR_64
 	default "u-boot-with-spl.bin" if ARCH_AT91 && SPL_NAND_SUPPORT
 	default "u-boot-with-spl.bin" if MPC85xx && !E500MC && !E5500 && !E6500 && SPL
 	default "u-boot-with-spl.imx" if ARCH_MX6 && SPL
@@ -446,14 +446,14 @@ config BUILD_TARGET
 
 config HAS_BOARD_SIZE_LIMIT
 	bool "Define a maximum size for the U-Boot image"
-	default y if RCAR_GEN3
+	default y if RCAR_64
 	help
 	  In some cases, we need to enforce a hard limit on how big the U-Boot
 	  image itself can be.
 
 config BOARD_SIZE_LIMIT
 	int "Maximum size of the U-Boot image in bytes"
-	default 1048576 if RCAR_GEN3
+	default 1048576 if RCAR_64
 	depends on HAS_BOARD_SIZE_LIMIT
 	help
 	  Maximum size of the U-Boot image. When defined, the build system
