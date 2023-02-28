@@ -36,7 +36,7 @@ static int npcm_sdhci_probe(struct udevice *dev)
 			return ret;
 	}
 
-	if (IS_ENABLED(CONFIG_DM_REGULATOR)) {
+	if (CONFIG_IS_ENABLED(DM_REGULATOR)) {
 		device_get_supply_regulator(dev, "vqmmc-supply", &vqmmc_supply);
 		vqmmc_uv = dev_read_u32_default(dev, "vqmmc-microvolt", 0);
 		/* Set IO voltage */
