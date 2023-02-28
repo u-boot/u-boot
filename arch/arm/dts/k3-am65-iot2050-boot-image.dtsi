@@ -32,6 +32,7 @@
 
 		fit@0x280000 {
 			description = "U-Boot for IOT2050";
+			fit,fdt-list = "of-list";
 			offset = <0x280000>;
 			images {
 				u-boot {
@@ -46,32 +47,11 @@
 					};
 				};
 
-				fdt-iot2050-basic {
-					description = "k3-am6528-iot2050-basic*.dtb";
+				@fdt-SEQ {
+					description = "fdt-NAME";
 					type = "flat_dt";
 					arch = "arm64";
 					compression = "none";
-					blob {
-#ifdef CONFIG_TARGET_IOT2050_A53_PG1
-						filename = "arch/arm/dts/k3-am6528-iot2050-basic.dtb";
-#else
-						filename = "arch/arm/dts/k3-am6528-iot2050-basic-pg2.dtb";
-#endif
-					};
-				};
-
-				fdt-iot2050-advanced {
-					description = "k3-am6548-iot2050-advanced*.dtb";
-					type = "flat_dt";
-					arch = "arm64";
-					compression = "none";
-					blob {
-#ifdef CONFIG_TARGET_IOT2050_A53_PG1
-						filename = "arch/arm/dts/k3-am6548-iot2050-advanced.dtb";
-#else
-						filename = "arch/arm/dts/k3-am6548-iot2050-advanced-pg2.dtb";
-#endif
-					};
 				};
 
 #ifdef CONFIG_WDT_K3_RTI_FW_FILE
@@ -89,21 +69,11 @@
 			};
 
 			configurations {
-				default = "conf-iot2050-basic";
-
-				conf-iot2050-basic {
-					description = "iot2050-basic";
+				default = "@config-DEFAULT-SEQ";
+				@config-SEQ {
+					description = "NAME";
 					firmware = "u-boot";
-					fdt = "fdt-iot2050-basic";
-#ifdef CONFIG_WDT_K3_RTI_FW_FILE
-					loadables = "k3-rti-wdt-firmware";
-#endif
-				};
-
-				conf-iot2050-advanced {
-					description = "iot2050-advanced";
-					firmware = "u-boot";
-					fdt = "fdt-iot2050-advanced";
+					fdt = "fdt-SEQ";
 #ifdef CONFIG_WDT_K3_RTI_FW_FILE
 					loadables = "k3-rti-wdt-firmware";
 #endif
