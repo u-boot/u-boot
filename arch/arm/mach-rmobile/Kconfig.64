@@ -87,17 +87,17 @@ choice
 
 config TARGET_BEACON_RZG2M
 	bool "Beacon EmbeddedWorks RZ/G2 Dev Kit"
+	select PINCTRL_PFC_R8A774A1
+	select PINCTRL_PFC_R8A774B1
+	select PINCTRL_PFC_R8A774E1
 	select R8A774A1
 	select R8A774B1
 	select R8A774E1
 	select RZ_G2
-	select PINCTRL_PFC_R8A774A1
-	select PINCTRL_PFC_R8A774B1
-	select PINCTRL_PFC_R8A774E1
+	imply CLK_CCF
+	imply CLK_VERSACLOCK
 	imply MULTI_DTB_FIT
 	imply MULTI_DTB_FIT_USER_DEFINED_AREA
-	imply CLK_VERSACLOCK
-	imply CLK_CCF
 
 config TARGET_CONDOR
 	bool "Condor board"
@@ -131,13 +131,13 @@ config TARGET_FALCON
 
 config TARGET_HIHOPE_RZG2
 	bool "HiHope RZ/G2 board"
+	imply MULTI_DTB_FIT
+	imply MULTI_DTB_FIT_USER_DEFINED_AREA
 	imply R8A774A1
 	imply R8A774B1
 	imply R8A774E1
 	imply RZ_G2
 	imply SYS_MALLOC_F
-	imply MULTI_DTB_FIT
-	imply MULTI_DTB_FIT_USER_DEFINED_AREA
 	help
           Support for RZG2 HiHope platform
 
@@ -150,23 +150,23 @@ config TARGET_SILINUX_EK874
 
 config TARGET_SALVATOR_X
 	bool "Salvator-X board"
+	imply MULTI_DTB_FIT
+	imply MULTI_DTB_FIT_USER_DEFINED_AREA
 	imply R8A7795
 	imply R8A7796
 	imply R8A77965
 	imply SYS_MALLOC_F
-	imply MULTI_DTB_FIT
-	imply MULTI_DTB_FIT_USER_DEFINED_AREA
 	help
           Support for Renesas R-Car Gen3 platform
 
 config TARGET_ULCB
 	bool "ULCB board"
+	imply MULTI_DTB_FIT
+	imply MULTI_DTB_FIT_USER_DEFINED_AREA
 	imply R8A7795
 	imply R8A7796
 	imply R8A77965
 	imply SYS_MALLOC_F
-	imply MULTI_DTB_FIT
-	imply MULTI_DTB_FIT_USER_DEFINED_AREA
 	help
           Support for Renesas R-Car Gen3 ULCB platform
 
