@@ -249,9 +249,40 @@ U_BOOT_DRIVER(serial_sh) = {
 #endif
 	.priv_auto	= sizeof(struct uart_port),
 };
+#endif
 
-#else /* CONFIG_DM_SERIAL */
+#if !CONFIG_IS_ENABLED(DM_SERIAL) || IS_ENABLED(CONFIG_DEBUG_UART_SCIF)
 
+#if defined(CFG_SCIF_A)
+	#define SCIF_BASE_PORT	PORT_SCIFA
+#elif defined(CFG_SCI)
+	#define SCIF_BASE_PORT  PORT_SCI
+#else
+	#define SCIF_BASE_PORT	PORT_SCIF
+#endif
+
+static void sh_serial_init_nodm(struct uart_port *port)
+{
+	sh_serial_init_generic(port);
+	serial_setbrg();
+}
+
+static void sh_serial_putc_nondm(struct uart_port *port, const char c)
+{
+	if (c == '\n') {
+		while (1) {
+			if  (serial_raw_putc(port, '\r') != -EAGAIN)
+				break;
+		}
+	}
+	while (1) {
+		if  (serial_raw_putc(port, c) != -EAGAIN)
+			break;
+	}
+}
+#endif
+
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 #if defined(CONFIG_CONS_SCIF0)
 # define SCIF_BASE	SCIF0_BASE
 #elif defined(CONFIG_CONS_SCIF1)
@@ -274,14 +305,6 @@ U_BOOT_DRIVER(serial_sh) = {
 # error "Default SCIF doesn't set....."
 #endif
 
-#if defined(CFG_SCIF_A)
-	#define SCIF_BASE_PORT	PORT_SCIFA
-#elif defined(CFG_SCI)
-	#define SCIF_BASE_PORT  PORT_SCI
-#else
-	#define SCIF_BASE_PORT	PORT_SCIF
-#endif
-
 static struct uart_port sh_sci = {
 	.membase	= (unsigned char *)SCIF_BASE,
 	.mapbase	= SCIF_BASE,
@@ -301,28 +324,14 @@ static void sh_serial_setbrg(void)
 
 static int sh_serial_init(void)
 {
-	struct uart_port *port = &sh_sci;
-
-	sh_serial_init_generic(port);
-	serial_setbrg();
+	sh_serial_init_nodm(&sh_sci);
 
 	return 0;
 }
 
 static void sh_serial_putc(const char c)
 {
-	struct uart_port *port = &sh_sci;
-
-	if (c == '\n') {
-		while (1) {
-			if  (serial_raw_putc(port, '\r') != -EAGAIN)
-				break;
-		}
-	}
-	while (1) {
-		if  (serial_raw_putc(port, c) != -EAGAIN)
-			break;
-	}
+	sh_serial_putc_nondm(&sh_sci, c);
 }
 
 static int sh_serial_tstc(void)
@@ -367,3 +376,29 @@ __weak struct serial_device *default_serial_console(void)
 	return &sh_serial_drv;
 }
 #endif /* CONFIG_DM_SERIAL */
+
+#ifdef CONFIG_DEBUG_UART_SCIF
+#include <debug_uart.h>
+
+static struct uart_port debug_uart_sci = {
+	.membase	= (unsigned char *)CONFIG_DEBUG_UART_BASE,
+	.mapbase	= CONFIG_DEBUG_UART_BASE,
+	.type		= SCIF_BASE_PORT,
+#ifdef CFG_SCIF_USE_EXT_CLK
+	.clk_mode =	EXT_CLK,
+#endif
+};
+
+static inline void _debug_uart_init(void)
+{
+	sh_serial_init_nodm(&debug_uart_sci);
+}
+
+static inline void _debug_uart_putc(int c)
+{
+	sh_serial_putc_nondm(&debug_uart_sci, c);
+}
+
+DEBUG_UART_FUNCS
+
+#endif
