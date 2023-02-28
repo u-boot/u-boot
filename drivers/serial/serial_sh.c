@@ -276,7 +276,7 @@ U_BOOT_DRIVER(serial_sh) = {
 
 #if defined(CFG_SCIF_A)
 	#define SCIF_BASE_PORT	PORT_SCIFA
-#elif defined(CONFIG_SCI)
+#elif defined(CFG_SCI)
 	#define SCIF_BASE_PORT  PORT_SCI
 #else
 	#define SCIF_BASE_PORT	PORT_SCIF
@@ -286,7 +286,7 @@ static struct uart_port sh_sci = {
 	.membase	= (unsigned char *)SCIF_BASE,
 	.mapbase	= SCIF_BASE,
 	.type		= SCIF_BASE_PORT,
-#ifdef CONFIG_SCIF_USE_EXT_CLK
+#ifdef CFG_SCIF_USE_EXT_CLK
 	.clk_mode =	EXT_CLK,
 #endif
 };
