@@ -38,9 +38,16 @@ config TARGET_SPIDER
 	help
 	  Support for Renesas R-Car Gen4 Spider platform
 
+config TARGET_WHITEHAWK
+	bool "White Hawk board"
+	imply R8A779G0
+	help
+	  Support for Renesas R-Car Gen4 White Hawk platform
+
 endchoice
 
 source "board/renesas/falcon/Kconfig"
 source "board/renesas/spider/Kconfig"
+source "board/renesas/whitehawk/Kconfig"
 
 endif
