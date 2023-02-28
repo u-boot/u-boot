@@ -14,6 +14,7 @@
 		filename = "flash.bin";
 		pad-byte = <0xff>;
 		size = <0x8c0000>;
+		allow-repack;
 
 		blob-ext@0x000000 {
 			offset = <0x000000>;
@@ -45,6 +46,9 @@
 					entry = <0x80800000>;
 					u-boot-nodtb {
 					};
+					hash {
+						algo = "sha256";
+					};
 				};
 
 				@fdt-SEQ {
@@ -52,6 +56,9 @@
 					type = "flat_dt";
 					arch = "arm64";
 					compression = "none";
+					hash {
+						algo = "sha256";
+					};
 				};
 
 #ifdef CONFIG_WDT_K3_RTI_FW_FILE
@@ -63,6 +70,9 @@
 					blob-ext {
 						filename = CONFIG_WDT_K3_RTI_FW_FILE;
 						missing-msg = "k3-rti-wdt-firmware";
+					};
+					hash {
+						algo = "sha256";
 					};
 				};
 #endif
@@ -77,8 +87,14 @@
 #ifdef CONFIG_WDT_K3_RTI_FW_FILE
 					loadables = "k3-rti-wdt-firmware";
 #endif
+					signature {
+						sign-images = "firmware", "fdt", "loadables";
+					};
 				};
 			};
+		};
+
+		fdtmap {
 		};
 
 		/* primary env */
