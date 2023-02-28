@@ -44,6 +44,7 @@ enum sh_pfc_model {
 	SH_PFC_R8A77995,
 	SH_PFC_R8A779A0,
 	SH_PFC_R8A779F0,
+	SH_PFC_R8A779G0,
 };
 
 struct sh_pfc_pin_config {
@@ -811,6 +812,8 @@ static int sh_pfc_pinconf_set(struct sh_pfc_pinctrl *pmx, unsigned _pin,
 	void __iomem *pocctrl;
 	u32 addr, val;
 	int bit, ret;
+	int idx = sh_pfc_get_pin_index(pfc, _pin);
+	const struct sh_pfc_pin *pin = &pfc->info->pins[idx];
 
 	if (!sh_pfc_pinconf_validate(pfc, _pin, param))
 		return -ENOTSUPP;
@@ -843,13 +846,13 @@ static int sh_pfc_pinconf_set(struct sh_pfc_pinctrl *pmx, unsigned _pin,
 			return bit;
 		}
 
-		if (arg != 1800 && arg != 3300)
+		if (arg != 1800 && arg != 2500 && arg != 3300)
 			return -EINVAL;
 
 		pocctrl = (void __iomem *)(uintptr_t)addr;
 
 		val = sh_pfc_read_raw_reg(pocctrl, 32);
-		if (arg == 3300)
+		if (arg == ((pin->configs & SH_PFC_PIN_VOLTAGE_18_25) ? 2500 : 3300))
 			val |= BIT(bit);
 		else
 			val &= ~BIT(bit);
@@ -1030,6 +1033,10 @@ static int sh_pfc_pinctrl_probe(struct udevice *dev)
 	if (model == SH_PFC_R8A779F0)
 		priv->pfc.info = &r8a779f0_pinmux_info;
 #endif
+#ifdef CONFIG_PINCTRL_PFC_R8A779G0
+	if (model == SH_PFC_R8A779G0)
+		priv->pfc.info = &r8a779g0_pinmux_info;
+#endif
 
 	priv->pmx.pfc = &priv->pfc;
 	sh_pfc_init_ranges(&priv->pfc);
@@ -1151,6 +1158,12 @@ static const struct udevice_id sh_pfc_pinctrl_ids[] = {
 	{
 		.compatible = "renesas,pfc-r8a779f0",
 		.data = SH_PFC_R8A779F0,
+	},
+#endif
+#ifdef CONFIG_PINCTRL_PFC_R8A779G0
+	{
+		.compatible = "renesas,pfc-r8a779g0",
+		.data = SH_PFC_R8A779G0,
 	},
 #endif
 
