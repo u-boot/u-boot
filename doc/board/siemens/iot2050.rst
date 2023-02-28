@@ -6,7 +6,9 @@ SIMATIC IOT2050 BASIC and ADVANCED
 
 The SIMATIC IOT2050 is an open industrial IoT gateway that is using the TI
 AM6528 GP (Basic variant) or the AM6548 HS (Advanced variant). The Advanced
-variant is prepared for secure boot.
+variant is prepared for secure boot. M.2 Variant also uses the AM6548 HS.
+Instead of a MiniPCI connector, it comes with two M.2 connectors and can
+support 5G/WIFI/BT applications or connect an SSD.
 
 The IOT2050 starts only from OSPI. It loads a Siemens-provided bootloader
 called SE-Boot for the MCU domain (R5F cores), then hands over to ATF and
@@ -70,7 +72,7 @@ U-Boot:
  # configure for PG1
  $ make iot2050_pg1_defconfig
 
- # or configure for PG2
+ # or configure for PG2 or the M.2 variant
  $ make iot2050_pg2_defconfig
 
  $ make
