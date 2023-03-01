@@ -25,7 +25,7 @@ static const struct mbus_win windows[] = {
 	{ MBUS_SPI_BASE, MBUS_SPI_SIZE,
 	  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_SPIFLASH },
 
-	/* NOR */
+	/* BootROM */
 	{ MBUS_BOOTROM_BASE, MBUS_BOOTROM_SIZE,
 	  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_BOOTROM },
 
@@ -34,6 +34,15 @@ static const struct mbus_win windows[] = {
 	{ MBUS_DFX_BASE, MBUS_DFX_SIZE, CPU_TARGET_DFX, 0 },
 #endif
 };
+
+/* SPI0 CS0 Flash of size MBUS_SPI_SIZE is mapped to address MBUS_SPI_BASE */
+#if CONFIG_ENV_SPI_BUS == 0 && CONFIG_ENV_SPI_CS == 0 && \
+    CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE <= MBUS_SPI_SIZE
+void *env_sf_get_env_addr(void)
+{
+	return (void *)MBUS_SPI_BASE + CONFIG_ENV_OFFSET;
+}
+#endif
 
 void lowlevel_init(void)
 {
