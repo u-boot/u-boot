@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2023 Collabora Ltd.
+ */
+
+#include "rk3588-u-boot.dtsi"
+
+/ {
+	aliases {
+		mmc0 = &sdmmc;
+	};
+
+	chosen {
+		u-boot,spl-boot-order = &sdmmc;
+	};
+};
+
+&sdmmc {
+	bus-width = <4>;
+	u-boot,dm-spl;
+	status = "okay";
+};

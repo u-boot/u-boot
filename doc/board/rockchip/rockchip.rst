@@ -86,6 +86,14 @@ List of mainline supported Rockchip boards:
      - Radxa ROCK Pi 4 (rock-pi-4-rk3399)
      - Rockchip Evb-RK3399 (evb_rk3399)
      - Theobroma Systems RK3399-Q7 SoM - Puma (puma_rk3399)
+
+* rk3568
+     - Rockchip Evb-RK3568 (evb-rk3568)
+
+* rk3588
+     - Edgeble Neural Compute Module 6 SoM - Neu6a (neu6a-io-rk3588)
+     - Radxa ROCK 5B (rock5b-rk3588)
+
 * rv1108
      - Rockchip Evb-rv1108 (evb-rv1108)
      - Elgin-R1 (elgin-rv1108)
@@ -165,6 +173,16 @@ To build rk3399 boards:
 
         export BL31=../arm-trusted-firmware/build/rk3399/release/bl31/bl31.elf
         make evb-rk3399_defconfig
+        make CROSS_COMPILE=aarch64-linux-gnu-
+
+To build rk3568 boards:
+
+.. code-block:: bash
+
+        export BL31=../arm-trusted-firmware/build/rk3568/release/bl31/bl31.elf
+        [or]export BL31=../rkbin/bin/rk35/rk3568_bl31_v1.34.elf
+        export ROCKCHIP_TPL=../rkbin/bin/rk35/rk3568_ddr_1560MHz_v1.13.bin
+        make evb-rk3568_defconfig
         make CROSS_COMPILE=aarch64-linux-gnu-
 
 Flashing

@@ -323,7 +323,7 @@ int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 #ifdef CONFIG_MISC_INIT_R
 __weak int misc_init_r(void)
 {
-	const u32 cpuid_offset = 0x7;
+	const u32 cpuid_offset = CFG_CPUID_OFFSET;
 	const u32 cpuid_length = 0x10;
 	u8 cpuid[cpuid_length];
 	int ret;

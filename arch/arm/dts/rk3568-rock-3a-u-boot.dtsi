@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * (C) Copyright 2021 Rockchip Electronics Co., Ltd
+ * (C) Copyright 2023 Akash Gajjar <gajjar04akash@gmail.com>
+ */
+
+#include "rk356x-u-boot.dtsi"
+
+/ {
+	chosen {
+		stdout-path = &uart2;
+		u-boot,spl-boot-order = "same-as-spl", &sdmmc0;
+	};
+};
+
+&sdmmc0 {
+	status = "okay";
+};
+
+&uart2 {
+	clock-frequency = <24000000>;
+	bootph-all;
+	status = "okay";
+};

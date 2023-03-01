@@ -23,7 +23,7 @@
 
 int rockchip_setup_macaddr(void)
 {
-#if IS_ENABLED(CONFIG_CMD_NET)
+#if CONFIG_IS_ENABLED(HASH) && CONFIG_IS_ENABLED(SHA256)
 	int ret;
 	const char *cpuid = env_get("cpuid#");
 	u8 hash[SHA256_SUM_LEN];
@@ -52,6 +52,10 @@ int rockchip_setup_macaddr(void)
 	mac_addr[0] &= 0xfe;  /* clear multicast bit */
 	mac_addr[0] |= 0x02;  /* set local assignment bit (IEEE802) */
 	eth_env_set_enetaddr("ethaddr", mac_addr);
+
+	/* Make a valid MAC address for ethernet1 */
+	mac_addr[5] ^= 0x01;
+	eth_env_set_enetaddr("eth1addr", mac_addr);
 #endif
 	return 0;
 }

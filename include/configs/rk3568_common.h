@@ -6,6 +6,8 @@
 #ifndef __CONFIG_RK3568_COMMON_H
 #define __CONFIG_RK3568_COMMON_H
 
+#define CFG_CPUID_OFFSET	0xa
+
 #include "rockchip-common.h"
 
 #define CFG_IRAM_BASE		0xfdcc0000

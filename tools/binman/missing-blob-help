@@ -34,6 +34,11 @@ If CONFIG_WDT_K3_RTI_LOAD_FW is enabled, a firmware image is needed for
 the R5F core(s) to trigger the system reset. One possible source is
 https://github.com/siemens/k3-rti-wdt.
 
+rockchip-tpl:
+An external TPL is required to initialize DRAM. Get the external TPL
+binary and build with ROCKCHIP_TPL=/path/to/ddr.bin. One possible source
+for the external TPL binary is https://github.com/rockchip-linux/rkbin.
+
 tee-os:
 See the documentation for your board. You may need to build Open Portable
 Trusted Execution Environment (OP-TEE) with TEE=/path/to/tee.bin

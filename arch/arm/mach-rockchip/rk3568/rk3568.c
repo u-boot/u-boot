@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
+#include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/grf_rk3568.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <dt-bindings/clock/rk3568-cru.h>
@@ -23,6 +24,16 @@
 #define SGRF_SOC_CON4			0x10
 #define EMMC_HPROT_SECURE_CTRL		0x03
 #define SDMMC0_HPROT_SECURE_CTRL	0x01
+
+#define PMU_BASE_ADDR		0xfdd90000
+#define PMU_NOC_AUTO_CON0	(0x70)
+#define PMU_NOC_AUTO_CON1	(0x74)
+#define EDP_PHY_GRF_BASE	0xfdcb0000
+#define EDP_PHY_GRF_CON0	(EDP_PHY_GRF_BASE + 0x00)
+#define EDP_PHY_GRF_CON10	(EDP_PHY_GRF_BASE + 0x28)
+#define CPU_GRF_BASE		0xfdc30000
+#define GRF_CORE_PVTPLL_CON0	(0x10)
+
 /* PMU_GRF_GPIO0D_IOMUX_L */
 enum {
 	GPIO0D1_SHIFT		= 4,
@@ -70,6 +81,12 @@ static struct mm_region rk3568_mem_map[] = {
 	}
 };
 
+const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_EMMC] = "/sdhci@fe310000",
+	[BROM_BOOTSOURCE_SPINOR] = "/spi@fe300000/flash@0",
+	[BROM_BOOTSOURCE_SD] = "/mmc@fe2b0000",
+};
+
 struct mm_region *mem_map = rk3568_mem_map;
 
 void board_debug_uart_init(void)
@@ -91,6 +108,20 @@ void board_debug_uart_init(void)
 int arch_cpu_init(void)
 {
 #ifdef CONFIG_SPL_BUILD
+	/*
+	 * When perform idle operation, corresponding clock can
+	 * be opened or gated automatically.
+	 */
+	writel(0xffffffff, PMU_BASE_ADDR + PMU_NOC_AUTO_CON0);
+	writel(0x000f000f, PMU_BASE_ADDR + PMU_NOC_AUTO_CON1);
+
+	/* Disable eDP phy by default */
+	writel(0x00070007, EDP_PHY_GRF_CON10);
+	writel(0x0ff10ff1, EDP_PHY_GRF_CON0);
+
+	/* Set core pvtpll ring length */
+	writel(0x00ff002b, CPU_GRF_BASE + GRF_CORE_PVTPLL_CON0);
+
 	/* Set the emmc sdmmc0 to secure */
 	rk_clrreg(SGRF_BASE + SGRF_SOC_CON4, (EMMC_HPROT_SECURE_CTRL << 11
 		| SDMMC0_HPROT_SECURE_CTRL << 4));

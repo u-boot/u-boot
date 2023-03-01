@@ -1,0 +1,6 @@
+ROCK5B-RK3588
+M:	Eugen Hristev <eugen.hristev@collabora.com>
+S:	Maintained
+F:	board/radxa/rock5b-rk3588
+F:	include/configs/rock5b-rk3588
+F:	configs/rock5b-rk3588_defconfig
