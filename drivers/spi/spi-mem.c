@@ -185,7 +185,7 @@ bool spi_mem_dtr_supports_op(struct spi_slave *slave,
 	 * Transactions of odd length do not make sense for 8D-8D-8D mode
 	 * because a byte is transferred in just half a cycle.
 	 */
-	if (op->data.dir != SPI_MEM_NO_DATA &&
+	if (op->data.dir != SPI_MEM_NO_DATA && op->data.dir != SPI_MEM_DATA_IN &&
 	    op->data.buswidth == 8 && op->data.nbytes % 2)
 		return false;
 
