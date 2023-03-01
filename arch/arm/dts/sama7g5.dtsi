@@ -151,7 +151,7 @@
 				  0x1 0x0 0x48000000 0x8000000
 				  0x2 0x0 0x50000000 0x8000000
 				  0x3 0x0 0x58000000 0x8000000>;
-			clocks = <&pmc PMC_TYPE_CORE 13>; /* PMC_MCK1 */
+			clocks = <&pmc PMC_TYPE_CORE 23>; /* PMC_MCK1 */
 			status = "disabled";
 
 			nand_controller: nand-controller {
