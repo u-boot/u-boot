@@ -393,9 +393,9 @@ system-library directory, replace the last line with:
 Running binman
 --------------
 
-Type::
+Type:
 
-.. code-block: bash
+.. code-block:: bash
 
    make NO_PYTHON=1 PREFIX=/ install
     binman build -b <board_name>
