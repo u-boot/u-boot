@@ -402,6 +402,85 @@ static int fdt_test_get_value(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_get_value, UT_TESTF_CONSOLE_REC);
 
+static int fdt_test_get_name(struct unit_test_state *uts)
+{
+	char fdt[4096];
+	ulong addr;
+
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test getting name of node 0 in /, which is /aliases node */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_command("fdt get name nzero / 0", 0));
+	ut_asserteq_str("aliases", env_get("nzero"));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting name of node 1 in /, which is /test-node@1234 node */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_command("fdt get name none / 1", 0));
+	ut_asserteq_str("test-node@1234", env_get("none"));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting name of node -1 in /, which is /aliases node, same as 0 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_command("fdt get name nmone / -1", 0));
+	ut_asserteq_str("aliases", env_get("nmone"));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting name of node 2 in /, which does not exist */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get name ntwo / 2", 1));
+	ut_assert_nextline("libfdt node not found");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting name of node 0 in /test-node@1234, which is /subnode node */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_command("fdt get name snzero /test-node@1234 0", 0));
+	ut_asserteq_str("subnode", env_get("snzero"));
+	ut_assertok(run_command("fdt get name asnzero testnodealias 0", 0));
+	ut_asserteq_str("subnode", env_get("asnzero"));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting name of node 1 in /test-node@1234, which does not exist */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get name snone /test-node@1234 1", 1));
+	ut_assert_nextline("libfdt node not found");
+	ut_asserteq(1, run_command("fdt get name asnone testnodealias 1", 1));
+	ut_assert_nextline("libfdt node not found");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting name of node -1 in /test-node@1234, which is /subnode node, same as 0 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_command("fdt get name snmone /test-node@1234 -1", 0));
+	ut_asserteq_str("subnode", env_get("snmone"));
+	ut_assertok(run_command("fdt get name asnmone testnodealias -1", 0));
+	ut_asserteq_str("subnode", env_get("asnmone"));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting name of nonexistent node */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get name nonode /nonexistent 0", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting name of bad alias */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get name vbadalias badalias 0", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting name of nonexistent alias */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get name vnoalias noalias 0", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_BADPATH");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+FDT_TEST(fdt_test_get_name, UT_TESTF_CONSOLE_REC);
+
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_test);
