@@ -77,7 +77,17 @@ static int fdt_value_env_set(const void *nodep, int len,
 
 		sprintf(buf, "0x%08X", fdt32_to_cpu(*(fdt32_t *)nodep));
 		env_set(var, buf);
-	} else if (len%4 == 0 && len <= 20) {
+	} else if (len % 4 == 0 && index >= 0) {
+		/* Needed to print integer arrays. */
+		const unsigned int *nodec = (const unsigned int *)nodep;
+		char buf[11];
+
+		if (index * 4 >= len)
+			return 1;
+
+		sprintf(buf, "0x%08X", fdt32_to_cpu(*(nodec + index)));
+		env_set(var, buf);
+	} else if (len % 4 == 0 && len <= 20) {
 		/* Needed to print things like sha1 hashes. */
 		char buf[41];
 		int i;
@@ -448,7 +458,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 				working_fdt, nodeoffset, prop, &len);
 			if (nodep && len >= 0) {
 				if (subcmd[0] == 'v') {
-					int index = 0;
+					int index = -1;
 					int ret;
 
 					if (len == 0) {
