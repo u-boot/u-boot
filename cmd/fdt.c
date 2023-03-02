@@ -597,7 +597,12 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	 * Set boot cpu id
 	 */
 	} else if (strncmp(argv[1], "boo", 3) == 0) {
-		unsigned long tmp = hextoul(argv[2], NULL);
+		unsigned long tmp;
+
+		if (argc != 3)
+			return CMD_RET_USAGE;
+
+		tmp = hextoul(argv[2], NULL);
 		fdt_set_boot_cpuid_phys(working_fdt, tmp);
 
 	/*
