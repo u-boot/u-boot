@@ -548,6 +548,93 @@ static int fdt_test_get_addr(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_get_addr, UT_TESTF_CONSOLE_REC);
 
+static int fdt_test_get_size_common(struct unit_test_state *uts,
+				     const char *path, const char *prop,
+				     const unsigned int val)
+{
+	ut_assertok(console_record_reset_enable());
+	if (prop) {
+		ut_assertok(run_commandf("fdt get size sstr %s %s", path, prop));
+	} else {
+		ut_assertok(run_commandf("fdt get size sstr %s", path));
+	}
+	ut_asserteq(val, env_get_hex("sstr", 0x1234));
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+static int fdt_test_get_size(struct unit_test_state *uts)
+{
+	char fdt[4096];
+	ulong addr;
+
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test getting size of root node / string property "compatible" */
+	fdt_test_get_size_common(uts, "/", "compatible", 16);
+
+	/* Test getting size of node /test-node@1234 stringlist property "clock-names" */
+	fdt_test_get_size_common(uts, "/test-node@1234", "clock-names", 26);
+	fdt_test_get_size_common(uts, "testnodealias", "clock-names", 26);
+
+	/* Test getting size of node /test-node@1234 u32 property "clock-frequency" */
+	fdt_test_get_size_common(uts, "/test-node@1234", "clock-frequency", 4);
+	fdt_test_get_size_common(uts, "testnodealias", "clock-frequency", 4);
+
+	/* Test getting size of node /test-node@1234 empty property "u-boot,empty-property" */
+	fdt_test_get_size_common(uts, "/test-node@1234", "u-boot,empty-property", 0);
+	fdt_test_get_size_common(uts, "testnodealias", "u-boot,empty-property", 0);
+
+	/* Test getting size of node /test-node@1234 array property "regs" */
+	fdt_test_get_size_common(uts, "/test-node@1234", "regs", 8);
+	fdt_test_get_size_common(uts, "testnodealias", "regs", 8);
+
+	/* Test getting node count of node / */
+	fdt_test_get_size_common(uts, "/", NULL, 2);
+
+	/* Test getting node count of node /test-node@1234/subnode */
+	fdt_test_get_size_common(uts, "/test-node@1234/subnode", NULL, 0);
+	fdt_test_get_size_common(uts, "subnodealias", NULL, 0);
+
+	/* Test getting size of node /test-node@1234/subnode non-existent property "noprop" */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get size pnoprop /test-node@1234/subnode noprop", 1));
+	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
+	ut_asserteq(1, run_command("fdt get size pnoprop subnodealias noprop", 1));
+	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting size of non-existent node /test-node@1234/nonode@1 property "noprop" */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get size pnonode /test-node@1234/nonode@1 noprop", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting node count of non-existent node /test-node@1234/nonode@1 */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get size pnonode /test-node@1234/nonode@1", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting node count of bad alias badalias */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get size pnonode badalias noprop", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting node count of non-existent alias noalias */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get size pnonode noalias", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_BADPATH");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+FDT_TEST(fdt_test_get_size, UT_TESTF_CONSOLE_REC);
+
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_test);
