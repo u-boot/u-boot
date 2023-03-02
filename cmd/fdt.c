@@ -644,18 +644,18 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			err = fdt_add_mem_rsv(working_fdt, addr, size);
 
 			if (err < 0) {
-				printf("libfdt fdt_add_mem_rsv():  %s\n",
+				printf("libfdt fdt_add_mem_rsv(): %s\n",
 					fdt_strerror(err));
-				return err;
+				return CMD_RET_FAILURE;
 			}
 		} else if (argv[2][0] == 'd') {
 			unsigned long idx = hextoul(argv[3], NULL);
 			int err = fdt_del_mem_rsv(working_fdt, idx);
 
 			if (err < 0) {
-				printf("libfdt fdt_del_mem_rsv():  %s\n",
+				printf("libfdt fdt_del_mem_rsv(): %s\n",
 					fdt_strerror(err));
-				return err;
+				return CMD_RET_FAILURE;
 			}
 		} else {
 			/* Unrecognized command */
