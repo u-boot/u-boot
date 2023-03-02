@@ -108,7 +108,7 @@ static int fdt_test_addr(struct unit_test_state *uts)
 FDT_TEST(fdt_test_addr, UT_TESTF_CONSOLE_REC);
 
 /* Test 'fdt addr' resizing an fdt */
-static int fdt_test_resize(struct unit_test_state *uts)
+static int fdt_test_addr_resize(struct unit_test_state *uts)
 {
 	char fdt[256];
 	const int newsize = sizeof(fdt) / 2;
@@ -140,7 +140,7 @@ static int fdt_test_resize(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_resize, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_addr_resize, UT_TESTF_CONSOLE_REC);
 
 /* Test 'fdt get' reading an fdt */
 static int fdt_test_get(struct unit_test_state *uts)
