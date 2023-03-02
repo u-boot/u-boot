@@ -903,6 +903,30 @@ static int read_bar(struct spi_nor *nor, const struct flash_info *info)
 }
 #endif
 
+/**
+ * spi_nor_erase_chip() - Erase the entire flash memory.
+ * @nor:	pointer to 'struct spi_nor'.
+ *
+ * Return: 0 on success, -errno otherwise.
+ */
+static int spi_nor_erase_chip(struct spi_nor *nor)
+{
+	struct spi_mem_op op =
+		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_CHIP_ERASE, 0),
+			   SPI_MEM_OP_NO_ADDR,
+			   SPI_MEM_OP_NO_DUMMY,
+			   SPI_MEM_OP_NO_DATA);
+	int ret;
+
+	spi_nor_setup_op(nor, &op, nor->write_proto);
+
+	ret = spi_mem_exec_op(nor->spi, &op);
+	if (ret)
+		return ret;
+
+	return nor->mtd.size;
+}
+
 /*
  * Initiate the erasure of a single sector. Returns the number of bytes erased
  * on success, a negative error code on error.
@@ -974,7 +998,12 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 		if (ret < 0)
 			goto erase_err;
 
-		ret = spi_nor_erase_sector(nor, addr);
+		if (len == mtd->size &&
+		    !(nor->flags & SNOR_F_NO_OP_CHIP_ERASE)) {
+			ret = spi_nor_erase_chip(nor);
+		} else {
+			ret = spi_nor_erase_sector(nor, addr);
+		}
 		if (ret < 0)
 			goto erase_err;
 
