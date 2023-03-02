@@ -272,6 +272,30 @@ static int fdt_test_move(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_move, UT_TESTF_CONSOLE_REC);
 
+static int fdt_test_resize(struct unit_test_state *uts)
+{
+	char fdt[256];
+	const unsigned int newsize = 0x2000;
+	uint32_t ts;
+	ulong addr;
+
+	/* Original source DT */
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
+	fdt_shrink_to_minimum(fdt, 0);	/* Resize with 0 extra bytes */
+	ts = fdt_totalsize(fdt);
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test resizing the working FDT and verify the new space was added */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt resize %x", newsize));
+	ut_asserteq(ts + newsize, fdt_totalsize(fdt));
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+FDT_TEST(fdt_test_resize, UT_TESTF_CONSOLE_REC);
+
 /* Test 'fdt get value' reading an fdt */
 static int fdt_test_get_value_string(struct unit_test_state *uts,
 				     const char *node, const char *prop,
