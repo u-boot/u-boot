@@ -611,6 +611,10 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	} else if (strncmp(argv[1], "me", 2) == 0) {
 		uint64_t addr, size;
 		int err;
+
+		if (argc != 4)
+			return CMD_RET_USAGE;
+
 		addr = simple_strtoull(argv[2], NULL, 16);
 		size = simple_strtoull(argv[3], NULL, 16);
 		err = fdt_fixup_memory(working_fdt, addr, size);
