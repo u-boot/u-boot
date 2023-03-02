@@ -1254,6 +1254,69 @@ static int fdt_test_memory(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_memory, UT_TESTF_CONSOLE_REC);
 
+static int fdt_test_rsvmem(struct unit_test_state *uts)
+{
+	char fdt[8192];
+	ulong addr;
+
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
+	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
+	fdt_add_mem_rsv(fdt, 0x42, 0x1701);
+	fdt_add_mem_rsv(fdt, 0x74656, 0x9);
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test default reserved memory node presence */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt rsvmem print"));
+	ut_assert_nextline("index\t\t   start\t\t    size");
+	ut_assert_nextline("------------------------------------------------");
+	ut_assert_nextline("    %x\t%016x\t%016x", 0, 0x42, 0x1701);
+	ut_assert_nextline("    %x\t%016x\t%016x", 1, 0x74656, 0x9);
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test add new reserved memory node */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt rsvmem add 0x1234 0x5678"));
+	ut_assertok(run_commandf("fdt rsvmem print"));
+	ut_assert_nextline("index\t\t   start\t\t    size");
+	ut_assert_nextline("------------------------------------------------");
+	ut_assert_nextline("    %x\t%016x\t%016x", 0, 0x42, 0x1701);
+	ut_assert_nextline("    %x\t%016x\t%016x", 1, 0x74656, 0x9);
+	ut_assert_nextline("    %x\t%016x\t%016x", 2, 0x1234, 0x5678);
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test delete reserved memory node */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt rsvmem delete 0"));
+	ut_assertok(run_commandf("fdt rsvmem print"));
+	ut_assert_nextline("index\t\t   start\t\t    size");
+	ut_assert_nextline("------------------------------------------------");
+	ut_assert_nextline("    %x\t%016x\t%016x", 0, 0x74656, 0x9);
+	ut_assert_nextline("    %x\t%016x\t%016x", 1, 0x1234, 0x5678);
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test re-add new reserved memory node */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt rsvmem add 0x42 0x1701"));
+	ut_assertok(run_commandf("fdt rsvmem print"));
+	ut_assert_nextline("index\t\t   start\t\t    size");
+	ut_assert_nextline("------------------------------------------------");
+	ut_assert_nextline("    %x\t%016x\t%016x", 0, 0x74656, 0x9);
+	ut_assert_nextline("    %x\t%016x\t%016x", 1, 0x1234, 0x5678);
+	ut_assert_nextline("    %x\t%016x\t%016x", 2, 0x42, 0x1701);
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test delete nonexistent reserved memory node */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_commandf("fdt rsvmem delete 10"));
+	ut_assert_nextline("libfdt fdt_del_mem_rsv(): FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+FDT_TEST(fdt_test_rsvmem, UT_TESTF_CONSOLE_REC);
+
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_test);
