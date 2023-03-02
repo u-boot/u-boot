@@ -931,6 +931,39 @@ static int fdt_test_rm(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_rm, UT_TESTF_CONSOLE_REC);
 
+static int fdt_test_bootcpu(struct unit_test_state *uts)
+{
+	char fdt[256];
+	ulong addr;
+	int i;
+
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test getting default bootcpu entry */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt header get bootcpu boot_cpuid_phys"));
+	ut_asserteq(0, env_get_ulong("bootcpu", 10, 0x1234));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test setting and getting new bootcpu entry, twice, to test overwrite */
+	for (i = 42; i <= 43; i++) {
+		ut_assertok(console_record_reset_enable());
+		ut_assertok(run_commandf("fdt bootcpu %d", i));
+		ut_assertok(ut_check_console_end(uts));
+
+		/* Test getting new bootcpu entry */
+		ut_assertok(console_record_reset_enable());
+		ut_assertok(run_commandf("fdt header get bootcpu boot_cpuid_phys"));
+		ut_asserteq(i, env_get_ulong("bootcpu", 10, 0x1234));
+		ut_assertok(ut_check_console_end(uts));
+	}
+
+	return 0;
+}
+FDT_TEST(fdt_test_bootcpu, UT_TESTF_CONSOLE_REC);
+
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_test);
