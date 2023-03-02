@@ -239,54 +239,79 @@ static int fdt_test_addr_resize(struct unit_test_state *uts)
 FDT_TEST(fdt_test_addr_resize, UT_TESTF_CONSOLE_REC);
 
 /* Test 'fdt get value' reading an fdt */
+static int fdt_test_get_value_common(struct unit_test_state *uts,
+				     const char *node)
+{
+	/* Test getting default element of $node node clock-names property */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt get value fdflt %s clock-names", node));
+	ut_asserteq_str("fixed", env_get("fdflt"));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting 0th element of $node node clock-names property */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt get value fzero %s clock-names 0", node));
+	ut_asserteq_str("fixed", env_get("fzero"));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting 1st element of $node node clock-names property */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt get value fone %s clock-names 1", node));
+	ut_asserteq_str("i2c", env_get("fone"));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting 2nd element of $node node clock-names property */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt get value ftwo %s clock-names 2", node));
+	ut_asserteq_str("spi", env_get("ftwo"));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test missing 10th element of $node node clock-names property */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_commandf("fdt get value ften %s clock-names 10", node));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting default element of $node node nonexistent property */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_commandf("fdt get value fnone %s nonexistent", node));
+	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
 static int fdt_test_get_value(struct unit_test_state *uts)
 {
 	char fdt[4096];
 	ulong addr;
+	int ret;
 
 	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
 	addr = map_to_sysmem(fdt);
 	set_working_fdt_addr(addr);
 
-	/* Test getting default element of /test-node@1234 node clock-names property */
-	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_command("fdt get value fdflt /test-node@1234 clock-names", 0));
-	ut_asserteq_str("fixed", env_get("fdflt"));
-	ut_assertok(ut_check_console_end(uts));
-
-	/* Test getting 0th element of /test-node@1234 node clock-names property */
-	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_command("fdt get value fzero /test-node@1234 clock-names 0", 0));
-	ut_asserteq_str("fixed", env_get("fzero"));
-	ut_assertok(ut_check_console_end(uts));
-
-	/* Test getting 1st element of /test-node@1234 node clock-names property */
-	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_command("fdt get value fone /test-node@1234 clock-names 1", 0));
-	ut_asserteq_str("i2c", env_get("fone"));
-	ut_assertok(ut_check_console_end(uts));
-
-	/* Test getting 2nd element of /test-node@1234 node clock-names property */
-	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_command("fdt get value ftwo /test-node@1234 clock-names 2", 0));
-	ut_asserteq_str("spi", env_get("ftwo"));
-	ut_assertok(ut_check_console_end(uts));
-
-	/* Test missing 10th element of /test-node@1234 node clock-names property */
-	ut_assertok(console_record_reset_enable());
-	ut_asserteq(1, run_command("fdt get value ften /test-node@1234 clock-names 10", 0));
-	ut_assertok(ut_check_console_end(uts));
-
-	/* Test getting default element of /test-node@1234 node nonexistent property */
-	ut_assertok(console_record_reset_enable());
-	ut_asserteq(1, run_command("fdt get value fnone /test-node@1234 nonexistent", 1));
-	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ret = fdt_test_get_value_common(uts, "/test-node@1234");
+	if (!ret)
+		ret = fdt_test_get_value_common(uts, "testnodealias");
+	if (ret)
+		return ret;
 
 	/* Test getting default element of /nonexistent node */
 	ut_assertok(console_record_reset_enable());
 	ut_asserteq(1, run_command("fdt get value fnode /nonexistent nonexistent", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting default element of bad alias */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get value vbadalias badalias nonexistent", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting default element of nonexistent alias */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get value vnoalias noalias nonexistent", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_BADPATH");
 	ut_assertok(ut_check_console_end(uts));
 
 	return 0;
