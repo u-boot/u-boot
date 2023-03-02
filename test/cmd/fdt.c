@@ -1112,6 +1112,65 @@ static int fdt_test_bootcpu(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_bootcpu, UT_TESTF_CONSOLE_REC);
 
+static int fdt_test_header_get(struct unit_test_state *uts,
+			       const char *field, const unsigned long val)
+{
+	/* Test getting valid header entry */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt header get fvar %s", field));
+	ut_asserteq(val, env_get_hex("fvar", 0x1234));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting malformed header entry */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_commandf("fdt header get fvar typo%stypo", field));
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+static int fdt_test_header(struct unit_test_state *uts)
+{
+	char fdt[256];
+	ulong addr;
+
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test header print */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt header"));
+	ut_assert_nextline("magic:\t\t\t0x%x", fdt_magic(fdt));
+	ut_assert_nextline("totalsize:\t\t0x%x (%d)", fdt_totalsize(fdt), fdt_totalsize(fdt));
+	ut_assert_nextline("off_dt_struct:\t\t0x%x", fdt_off_dt_struct(fdt));
+	ut_assert_nextline("off_dt_strings:\t\t0x%x", fdt_off_dt_strings(fdt));
+	ut_assert_nextline("off_mem_rsvmap:\t\t0x%x", fdt_off_mem_rsvmap(fdt));
+	ut_assert_nextline("version:\t\t%d", fdt_version(fdt));
+	ut_assert_nextline("last_comp_version:\t%d", fdt_last_comp_version(fdt));
+	ut_assert_nextline("boot_cpuid_phys:\t0x%x", fdt_boot_cpuid_phys(fdt));
+	ut_assert_nextline("size_dt_strings:\t0x%x", fdt_size_dt_strings(fdt));
+	ut_assert_nextline("size_dt_struct:\t\t0x%x", fdt_size_dt_struct(fdt));
+	ut_assert_nextline("number mem_rsv:\t\t0x%x", fdt_num_mem_rsv(fdt));
+	ut_assert_nextline_empty();
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test header get */
+	fdt_test_header_get(uts, "magic", fdt_magic(fdt));
+	fdt_test_header_get(uts, "totalsize", fdt_totalsize(fdt));
+	fdt_test_header_get(uts, "off_dt_struct", fdt_off_dt_struct(fdt));
+	fdt_test_header_get(uts, "off_dt_strings", fdt_off_dt_strings(fdt));
+	fdt_test_header_get(uts, "off_mem_rsvmap", fdt_off_mem_rsvmap(fdt));
+	fdt_test_header_get(uts, "version", fdt_version(fdt));
+	fdt_test_header_get(uts, "last_comp_version", fdt_last_comp_version(fdt));
+	fdt_test_header_get(uts, "boot_cpuid_phys", fdt_boot_cpuid_phys(fdt));
+	fdt_test_header_get(uts, "size_dt_strings", fdt_size_dt_strings(fdt));
+	fdt_test_header_get(uts, "size_dt_struct", fdt_size_dt_struct(fdt));
+
+	return 0;
+}
+FDT_TEST(fdt_test_header, UT_TESTF_CONSOLE_REC);
+
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_test);
