@@ -15,50 +15,34 @@
 
 int do_read(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	char *ep;
 	struct blk_desc *dev_desc = NULL;
-	int dev;
-	int part = 0;
 	struct disk_partition part_info;
-	ulong offset = 0u;
-	ulong limit = 0u;
+	ulong offset, limit;
 	void *addr;
 	uint blk;
 	uint cnt;
+	int part;
 
 	if (argc != 6) {
 		cmd_usage(cmdtp);
 		return 1;
 	}
 
-	dev = (int)hextoul(argv[2], &ep);
-	if (*ep) {
-		if (*ep != ':') {
-			printf("Invalid block device %s\n", argv[2]);
-			return 1;
-		}
-		part = (int)hextoul(++ep, NULL);
-	}
-
-	dev_desc = blk_get_dev(argv[1], dev);
-	if (dev_desc == NULL) {
-		printf("Block device %s %d not supported\n", argv[1], dev);
+	part = part_get_info_by_dev_and_name_or_num(argv[1], argv[2],
+						    &dev_desc, &part_info, 1);
+	if (part < 0)
 		return 1;
-	}
 
 	addr = map_sysmem(hextoul(argv[3], NULL), 0);
 	blk = hextoul(argv[4], NULL);
 	cnt = hextoul(argv[5], NULL);
 
-	if (part != 0) {
-		if (part_get_info(dev_desc, part, &part_info)) {
-			printf("Cannot find partition %d\n", part);
-			return 1;
-		}
+	if (part > 0) {
 		offset = part_info.start;
 		limit = part_info.size;
 	} else {
 		/* Largest address not available in struct blk_desc. */
+		offset = 0;
 		limit = ~0;
 	}
 
@@ -78,5 +62,5 @@ int do_read(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 U_BOOT_CMD(
 	read,	6,	0,	do_read,
 	"Load binary data from a partition",
-	"<interface> <dev[:part]> addr blk# cnt"
+	"<interface> <dev[:part|#partname]> addr blk# cnt"
 );
