@@ -481,6 +481,73 @@ static int fdt_test_get_name(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_get_name, UT_TESTF_CONSOLE_REC);
 
+static int fdt_test_get_addr_common(struct unit_test_state *uts, char *fdt,
+				    const char *path, const char *prop)
+{
+	unsigned int offset;
+	int path_offset;
+	void *prop_ptr;
+	int len = 0;
+
+	path_offset = fdt_path_offset(fdt, path);
+	ut_assert(path_offset >= 0);
+	prop_ptr = (void *)fdt_getprop(fdt, path_offset, prop, &len);
+	ut_assertnonnull(prop_ptr);
+	offset = (char *)prop_ptr - fdt;
+
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt get addr pstr %s %s", path, prop));
+	ut_asserteq((ulong)map_sysmem(env_get_hex("fdtaddr", 0x1234), 0),
+		    (ulong)(map_sysmem(env_get_hex("pstr", 0x1234), 0) - offset));
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+static int fdt_test_get_addr(struct unit_test_state *uts)
+{
+	char fdt[4096];
+	ulong addr;
+
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test getting address of root node / string property "compatible" */
+	fdt_test_get_addr_common(uts, fdt, "/", "compatible");
+
+	/* Test getting address of node /test-node@1234 stringlist property "clock-names" */
+	fdt_test_get_addr_common(uts, fdt, "/test-node@1234", "clock-names");
+	fdt_test_get_addr_common(uts, fdt, "testnodealias", "clock-names");
+
+	/* Test getting address of node /test-node@1234 u32 property "clock-frequency" */
+	fdt_test_get_addr_common(uts, fdt, "/test-node@1234", "clock-frequency");
+	fdt_test_get_addr_common(uts, fdt, "testnodealias", "clock-frequency");
+
+	/* Test getting address of node /test-node@1234 empty property "u-boot,empty-property" */
+	fdt_test_get_addr_common(uts, fdt, "/test-node@1234", "u-boot,empty-property");
+	fdt_test_get_addr_common(uts, fdt, "testnodealias", "u-boot,empty-property");
+
+	/* Test getting address of node /test-node@1234 array property "regs" */
+	fdt_test_get_addr_common(uts, fdt, "/test-node@1234", "regs");
+	fdt_test_get_addr_common(uts, fdt, "testnodealias", "regs");
+
+	/* Test getting address of node /test-node@1234/subnode non-existent property "noprop" */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get addr pnoprop /test-node@1234/subnode noprop", 1));
+	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting address of non-existent node /test-node@1234/nonode@1 property "noprop" */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt get addr pnonode /test-node@1234/nonode@1 noprop", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+FDT_TEST(fdt_test_get_addr, UT_TESTF_CONSOLE_REC);
+
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_test);
