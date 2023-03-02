@@ -878,40 +878,32 @@ static int fdt_parse_prop(char * const *newval, int count, char *data, int *len)
 static int is_printable_string(const void *data, int len)
 {
 	const char *s = data;
+	const char *ss, *se;
 
 	/* zero length is not */
 	if (len == 0)
 		return 0;
 
-	/* must terminate with zero or '\n' */
-	if (s[len - 1] != '\0' && s[len - 1] != '\n')
+	/* must terminate with zero */
+	if (s[len - 1] != '\0')
 		return 0;
 
-	/* printable or a null byte (concatenated strings) */
-	while (((*s == '\0') || isprint(*s) || isspace(*s)) && (len > 0)) {
-		/*
-		 * If we see a null, there are three possibilities:
-		 * 1) If len == 1, it is the end of the string, printable
-		 * 2) Next character also a null, not printable.
-		 * 3) Next character not a null, continue to check.
-		 */
-		if (s[0] == '\0') {
-			if (len == 1)
-				return 1;
-			if (s[1] == '\0')
-				return 0;
-		}
+	se = s + len;
+
+	while (s < se) {
+		ss = s;
+		while (s < se && *s && isprint((unsigned char)*s))
+			s++;
+
+		/* not zero, or not done yet */
+		if (*s != '\0' || s == ss)
+			return 0;
+
 		s++;
-		len--;
 	}
-
-	/* Not the null termination, or not done yet: not printable */
-	if (*s != '\0' || (len != 0))
-		return 0;
 
 	return 1;
 }
-
 
 /*
  * Print the property in the best format, a heuristic guess.  Print as
