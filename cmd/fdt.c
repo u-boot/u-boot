@@ -1138,8 +1138,8 @@ static char fdt_help_text[] =
 	"                                        <start>/<size> - initrd start addr/size\n"
 #if defined(CONFIG_FIT_SIGNATURE)
 	"fdt checksign [<addr>]              - check FIT signature\n"
-	"                                        <start> - addr of key blob\n"
-	"                                                  default gd->fdt_blob\n"
+	"                                      <addr> - address of key blob\n"
+	"                                               default gd->fdt_blob\n"
 #endif
 	"NOTE: Dereference aliases by omitting the leading '/', "
 		"e.g. fdt print ethernet0.";
