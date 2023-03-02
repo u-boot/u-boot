@@ -72,6 +72,7 @@ Shell commands
    cmd/printenv
    cmd/pstore
    cmd/qfw
+   cmd/read
    cmd/reset
    cmd/rng
    cmd/sbi
@@ -92,6 +93,7 @@ Shell commands
    cmd/ut
    cmd/wdt
    cmd/wget
+   cmd/write
    cmd/xxd
 
 Booting OS
