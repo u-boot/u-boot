@@ -547,16 +547,16 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		if (argc > 3) {
 			err = fdt_delprop(working_fdt, nodeoffset, argv[3]);
 			if (err < 0) {
-				printf("libfdt fdt_delprop():  %s\n",
+				printf("libfdt fdt_delprop(): %s\n",
 					fdt_strerror(err));
-				return err;
+				return CMD_RET_FAILURE;
 			}
 		} else {
 			err = fdt_del_node(working_fdt, nodeoffset);
 			if (err < 0) {
-				printf("libfdt fdt_del_node():  %s\n",
+				printf("libfdt fdt_del_node(): %s\n",
 					fdt_strerror(err));
-				return err;
+				return CMD_RET_FAILURE;
 			}
 		}
 
