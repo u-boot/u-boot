@@ -1365,6 +1365,158 @@ static int fdt_test_chosen(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_chosen, UT_TESTF_CONSOLE_REC);
 
+static int fdt_test_apply(struct unit_test_state *uts)
+{
+	char fdt[8192], fdto[8192];
+	ulong addr, addro;
+
+	/* Create base DT with __symbols__ node */
+	ut_assertok(fdt_create(fdt, sizeof(fdt)));
+	ut_assertok(fdt_finish_reservemap(fdt));
+	ut_assert(fdt_begin_node(fdt, "") >= 0);
+	ut_assert(fdt_begin_node(fdt, "__symbols__") >= 0);
+	ut_assertok(fdt_end_node(fdt));
+	ut_assertok(fdt_end_node(fdt));
+	ut_assertok(fdt_finish(fdt));
+	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Create DTO which adds single property to root node / */
+	ut_assertok(fdt_create(fdto, sizeof(fdto)));
+	ut_assertok(fdt_finish_reservemap(fdto));
+	ut_assert(fdt_begin_node(fdto, "") >= 0);
+	ut_assert(fdt_begin_node(fdto, "fragment") >= 0);
+	ut_assertok(fdt_property_string(fdto, "target-path", "/"));
+	ut_assert(fdt_begin_node(fdto, "__overlay__") >= 0);
+	ut_assertok(fdt_property_string(fdto, "newstring", "newvalue"));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_finish(fdto));
+	addro = map_to_sysmem(fdto);
+
+	/* Test default DT print */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt print /"));
+	ut_assert_nextline("/ {");
+	ut_assert_nextline("\t__symbols__ {");
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test simple DTO application */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt apply 0x%08x", addro));
+	ut_assertok(run_commandf("fdt print /"));
+	ut_assert_nextline("/ {");
+	ut_assert_nextline("\tnewstring = \"newvalue\";");
+	ut_assert_nextline("\t__symbols__ {");
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Create complex DTO which:
+	 * - modifies newstring property in root node /
+	 * - adds new properties to root node /
+	 * - adds new subnode with properties to root node /
+	 * - adds phandle to the subnode and therefore __symbols__ node
+	 */
+	ut_assertok(fdt_create(fdto, sizeof(fdto)));
+	ut_assertok(fdt_finish_reservemap(fdto));
+	ut_assert(fdt_begin_node(fdto, "") >= 0);
+	ut_assertok(fdt_property_cell(fdto, "#address-cells", 1));
+	ut_assertok(fdt_property_cell(fdto, "#size-cells", 0));
+
+	ut_assert(fdt_begin_node(fdto, "fragment@0") >= 0);
+	ut_assertok(fdt_property_string(fdto, "target-path", "/"));
+	ut_assert(fdt_begin_node(fdto, "__overlay__") >= 0);
+	ut_assertok(fdt_property_string(fdto, "newstring", "newervalue"));
+	ut_assertok(fdt_property_u32(fdto, "newu32", 0x12345678));
+	ut_assertok(fdt_property(fdto, "empty-property", NULL, 0));
+	ut_assert(fdt_begin_node(fdto, "subnode") >= 0);
+	ut_assertok(fdt_property_string(fdto, "subnewstring", "newervalue"));
+	ut_assertok(fdt_property_u32(fdto, "subnewu32", 0x12345678));
+	ut_assertok(fdt_property(fdto, "subempty-property", NULL, 0));
+	ut_assertok(fdt_property_u32(fdto, "phandle", 0x01));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_end_node(fdto));
+
+	ut_assert(fdt_begin_node(fdto, "__symbols__") >= 0);
+	ut_assertok(fdt_property_string(fdto, "subnodephandle", "/fragment@0/__overlay__/subnode"));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_finish(fdto));
+	addro = map_to_sysmem(fdto);
+
+	/* Test complex DTO application */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt apply 0x%08x", addro));
+	ut_assertok(run_commandf("fdt print /"));
+	ut_assert_nextline("/ {");
+	ut_assert_nextline("\tempty-property;");
+	ut_assert_nextline("\tnewu32 = <0x12345678>;");
+	ut_assert_nextline("\tnewstring = \"newervalue\";");
+	ut_assert_nextline("\tsubnode {");
+	ut_assert_nextline("\t\tphandle = <0x00000001>;");
+	ut_assert_nextline("\t\tsubempty-property;");
+	ut_assert_nextline("\t\tsubnewu32 = <0x12345678>;");
+	ut_assert_nextline("\t\tsubnewstring = \"newervalue\";");
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("\t__symbols__ {");
+	ut_assert_nextline("\t\tsubnodephandle = \"/subnode\";");
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Create complex DTO which:
+	 * - modifies subnewu32 property in subnode via phandle and uses __fixups__ node
+	 */
+	ut_assertok(fdt_create(fdto, sizeof(fdto)));
+	ut_assertok(fdt_finish_reservemap(fdto));
+	ut_assert(fdt_begin_node(fdto, "") >= 0);
+	ut_assertok(fdt_property_cell(fdto, "#address-cells", 1));
+	ut_assertok(fdt_property_cell(fdto, "#size-cells", 0));
+
+	ut_assert(fdt_begin_node(fdto, "fragment@0") >= 0);
+	ut_assertok(fdt_property_u32(fdto, "target", 0xffffffff));
+	ut_assert(fdt_begin_node(fdto, "__overlay__") >= 0);
+	ut_assertok(fdt_property_u32(fdto, "subnewu32", 0xabcdef01));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_end_node(fdto));
+
+	ut_assert(fdt_begin_node(fdto, "__fixups__") >= 0);
+	ut_assertok(fdt_property_string(fdto, "subnodephandle", "/fragment@0:target:0"));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_finish(fdto));
+	addro = map_to_sysmem(fdto);
+
+	/* Test complex DTO application */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt apply 0x%08x", addro));
+	ut_assertok(run_commandf("fdt print /"));
+	ut_assert_nextline("/ {");
+	ut_assert_nextline("\tempty-property;");
+	ut_assert_nextline("\tnewu32 = <0x12345678>;");
+	ut_assert_nextline("\tnewstring = \"newervalue\";");
+	ut_assert_nextline("\tsubnode {");
+	ut_assert_nextline("\t\tphandle = <0x00000001>;");
+	ut_assert_nextline("\t\tsubempty-property;");
+	ut_assert_nextline("\t\tsubnewu32 = <0xabcdef01>;");
+	ut_assert_nextline("\t\tsubnewstring = \"newervalue\";");
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("\t__symbols__ {");
+	ut_assert_nextline("\t\tsubnodephandle = \"/subnode\";");
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+FDT_TEST(fdt_test_apply, UT_TESTF_CONSOLE_REC);
+
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_test);
