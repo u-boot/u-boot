@@ -446,14 +446,16 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		} else {
 			nodep = fdt_getprop(
 				working_fdt, nodeoffset, prop, &len);
-			if (len == 0) {
-				/* no property value */
-				env_set(var, "");
-				return 0;
-			} else if (nodep && len > 0) {
+			if (nodep && len >= 0) {
 				if (subcmd[0] == 'v') {
 					int index = 0;
 					int ret;
+
+					if (len == 0) {
+						/* no property value */
+						env_set(var, "");
+						return 0;
+					}
 
 					if (argc == 7)
 						index = simple_strtoul(argv[6], NULL, 10);
