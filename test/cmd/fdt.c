@@ -239,36 +239,62 @@ static int fdt_test_addr_resize(struct unit_test_state *uts)
 FDT_TEST(fdt_test_addr_resize, UT_TESTF_CONSOLE_REC);
 
 /* Test 'fdt get value' reading an fdt */
+static int fdt_test_get_value_string(struct unit_test_state *uts,
+				     const char *node, const char *prop,
+				     const char *idx,  const char *strres,
+				     const int intres)
+{
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt get value var %s %s %s",
+				 node, prop, idx ? : ""));
+	if (strres) {
+		ut_asserteq_str(strres, env_get("var"));
+	} else {
+		ut_asserteq(intres, env_get_hex("var", 0x1234));
+	}
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
 static int fdt_test_get_value_common(struct unit_test_state *uts,
 				     const char *node)
 {
 	/* Test getting default element of $node node clock-names property */
-	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("fdt get value fdflt %s clock-names", node));
-	ut_asserteq_str("fixed", env_get("fdflt"));
-	ut_assertok(ut_check_console_end(uts));
+	fdt_test_get_value_string(uts, node, "clock-names", NULL, "fixed", 0);
 
 	/* Test getting 0th element of $node node clock-names property */
-	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("fdt get value fzero %s clock-names 0", node));
-	ut_asserteq_str("fixed", env_get("fzero"));
-	ut_assertok(ut_check_console_end(uts));
+	fdt_test_get_value_string(uts, node, "clock-names", "0", "fixed", 0);
 
 	/* Test getting 1st element of $node node clock-names property */
-	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("fdt get value fone %s clock-names 1", node));
-	ut_asserteq_str("i2c", env_get("fone"));
-	ut_assertok(ut_check_console_end(uts));
+	fdt_test_get_value_string(uts, node, "clock-names", "1", "i2c", 0);
 
 	/* Test getting 2nd element of $node node clock-names property */
-	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("fdt get value ftwo %s clock-names 2", node));
-	ut_asserteq_str("spi", env_get("ftwo"));
-	ut_assertok(ut_check_console_end(uts));
+	fdt_test_get_value_string(uts, node, "clock-names", "2", "spi", 0);
+
+	/*
+	 * Test getting default element of $node node regs property.
+	 * The result here is highly unusual, the non-index value read from
+	 * integer array is a string of concatenated values from the array,
+	 * but only if the array is shorter than 40 characters. Anything
+	 * longer is an error. This is a special case for handling hashes.
+	 */
+	fdt_test_get_value_string(uts, node, "regs", NULL, "3412000000100000", 0);
+
+	/* Test getting 0th element of $node node regs property */
+	fdt_test_get_value_string(uts, node, "regs", "0", NULL, 0x1234);
+
+	/* Test getting 1st element of $node node regs property */
+	fdt_test_get_value_string(uts, node, "regs", "1", NULL, 0x1000);
 
 	/* Test missing 10th element of $node node clock-names property */
 	ut_assertok(console_record_reset_enable());
 	ut_asserteq(1, run_commandf("fdt get value ften %s clock-names 10", node));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test missing 10th element of $node node regs property */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_commandf("fdt get value ften %s regs 10", node));
 	ut_assertok(ut_check_console_end(uts));
 
 	/* Test getting default element of $node node nonexistent property */
