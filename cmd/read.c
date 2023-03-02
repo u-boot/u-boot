@@ -13,14 +13,14 @@
 #include <mapmem.h>
 #include <part.h>
 
-int do_read(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+static int
+do_rw(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct blk_desc *dev_desc = NULL;
 	struct disk_partition part_info;
 	ulong offset, limit;
+	uint blk, cnt, res;
 	void *addr;
-	uint blk;
-	uint cnt;
 	int part;
 
 	if (argc != 6) {
@@ -47,20 +47,35 @@ int do_read(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	if (cnt + blk > limit) {
-		printf("Read out of range\n");
+		printf("%s out of range\n", cmdtp->name);
 		return 1;
 	}
 
-	if (blk_dread(dev_desc, offset + blk, cnt, addr) != cnt) {
-		printf("Error reading blocks\n");
+	if (IS_ENABLED(CONFIG_CMD_WRITE) && !strcmp(cmdtp->name, "write"))
+		res = blk_dwrite(dev_desc, offset + blk, cnt, addr);
+	else
+		res = blk_dread(dev_desc, offset + blk, cnt, addr);
+
+	if (res != cnt) {
+		printf("%s error\n", cmdtp->name);
 		return 1;
 	}
 
 	return 0;
 }
 
+#ifdef CONFIG_CMD_READ
 U_BOOT_CMD(
-	read,	6,	0,	do_read,
+	read,	6,	0,	do_rw,
 	"Load binary data from a partition",
 	"<interface> <dev[:part|#partname]> addr blk# cnt"
 );
+#endif
+
+#ifdef CONFIG_CMD_WRITE
+U_BOOT_CMD(
+	write,	6,	0,	do_rw,
+	"Store binary data to a partition",
+	"<interface> <dev[:part|#partname]> addr blk# cnt"
+);
+#endif
