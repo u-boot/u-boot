@@ -635,6 +635,150 @@ static int fdt_test_get_size(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_get_size, UT_TESTF_CONSOLE_REC);
 
+static int fdt_test_set_single(struct unit_test_state *uts,
+			       const char *path, const char *prop,
+			       const char *sval, int ival, bool integer)
+{
+	/*
+	 * Set single element string/integer/<empty> property into DT, that is:
+	 * => fdt set /path property string
+	 * => fdt set /path property integer
+	 * => fdt set /path property
+	 */
+	ut_assertok(console_record_reset_enable());
+	if (sval) {
+		ut_assertok(run_commandf("fdt set %s %s %s", path, prop, sval));
+	} else if (integer) {
+		ut_assertok(run_commandf("fdt set %s %s <%d>", path, prop, ival));
+	} else {
+		ut_assertok(run_commandf("fdt set %s %s", path, prop));
+	}
+
+	/* Validate the property is present and has correct value. */
+	ut_assertok(run_commandf("fdt get value svar %s %s", path, prop));
+	if (sval) {
+		ut_asserteq_str(sval, env_get("svar"));
+	} else if (integer) {
+		ut_asserteq(ival, env_get_hex("svar", 0x1234));
+	} else {
+		ut_assertnull(env_get("svar"));
+	}
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+static int fdt_test_set_multi(struct unit_test_state *uts,
+			      const char *path, const char *prop,
+			      const char *sval1, const char *sval2,
+			      int ival1, int ival2)
+{
+	/*
+	 * Set multi element string/integer array property in DT, that is:
+	 * => fdt set /path property <string1 string2>
+	 * => fdt set /path property <integer1 integer2>
+	 *
+	 * The set is done twice in here deliberately, The first set adds
+	 * the property with an extra trailing element in its array to make
+	 * the array longer, the second set is the expected final content of
+	 * the array property. The longer array is used to verify that the
+	 * new array is correctly sized and read past the new array length
+	 * triggers failure.
+	 */
+	ut_assertok(console_record_reset_enable());
+	if (sval1 && sval2) {
+		ut_assertok(run_commandf("fdt set %s %s %s %s end", path, prop, sval1, sval2));
+		ut_assertok(run_commandf("fdt set %s %s %s %s", path, prop, sval1, sval2));
+	} else {
+		ut_assertok(run_commandf("fdt set %s %s <%d %d 10>", path, prop, ival1, ival2));
+		ut_assertok(run_commandf("fdt set %s %s <%d %d>", path, prop, ival1, ival2));
+	}
+
+	/*
+	 * Validate the property is present and has correct value.
+	 *
+	 * The "end/10" above and "svarn" below is used to validate that
+	 * previous 'fdt set' to longer array does not polute newly set
+	 * shorter array.
+	 */
+	ut_assertok(run_commandf("fdt get value svar1 %s %s 0", path, prop));
+	ut_assertok(run_commandf("fdt get value svar2 %s %s 1", path, prop));
+	ut_asserteq(1, run_commandf("fdt get value svarn %s %s 2", path, prop));
+	if (sval1 && sval2) {
+		ut_asserteq_str(sval1, env_get("svar1"));
+		ut_asserteq_str(sval2, env_get("svar2"));
+		ut_assertnull(env_get("svarn"));
+	} else {
+		ut_asserteq(ival1, env_get_hex("svar1", 0x1234));
+		ut_asserteq(ival2, env_get_hex("svar2", 0x1234));
+		ut_assertnull(env_get("svarn"));
+	}
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+static int fdt_test_set_node(struct unit_test_state *uts,
+			     const char *path, const char *prop)
+{
+	fdt_test_set_single(uts, path, prop, "new", 0, false);
+	fdt_test_set_single(uts, path, prop, "rewrite", 0, false);
+	fdt_test_set_single(uts, path, prop, NULL, 42, true);
+	fdt_test_set_single(uts, path, prop, NULL, 0, false);
+	fdt_test_set_multi(uts, path, prop, NULL, NULL, 42, 1701);
+	fdt_test_set_multi(uts, path, prop, NULL, NULL, 74656, 9);
+	fdt_test_set_multi(uts, path, prop, "42", "1701", 0, 0);
+	fdt_test_set_multi(uts, path, prop, "74656", "9", 0, 0);
+
+	return 0;
+}
+
+static int fdt_test_set(struct unit_test_state *uts)
+{
+	char fdt[8192];
+	ulong addr;
+
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
+	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test setting of root node / existing property "compatible" */
+	fdt_test_set_node(uts, "/", "compatible");
+
+	/* Test setting of root node / new property "newproperty" */
+	fdt_test_set_node(uts, "/", "newproperty");
+
+	/* Test setting of subnode existing property "compatible" */
+	fdt_test_set_node(uts, "/test-node@1234/subnode", "compatible");
+	fdt_test_set_node(uts, "subnodealias", "compatible");
+
+	/* Test setting of subnode new property "newproperty" */
+	fdt_test_set_node(uts, "/test-node@1234/subnode", "newproperty");
+	fdt_test_set_node(uts, "subnodealias", "newproperty");
+
+	/* Test setting property of non-existent node */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt set /no-node noprop", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test setting property of non-existent alias */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt set noalias noprop", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_BADPATH");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test setting property of bad alias */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_command("fdt set badalias noprop", 1));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+FDT_TEST(fdt_test_set, UT_TESTF_CONSOLE_REC);
+
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_test);
