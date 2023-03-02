@@ -142,8 +142,8 @@ static int fdt_test_addr_resize(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_addr_resize, UT_TESTF_CONSOLE_REC);
 
-/* Test 'fdt get' reading an fdt */
-static int fdt_test_get(struct unit_test_state *uts)
+/* Test 'fdt get value' reading an fdt */
+static int fdt_test_get_value(struct unit_test_state *uts)
 {
 	ulong addr;
 
@@ -193,7 +193,7 @@ static int fdt_test_get(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_get, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_get_value, UT_TESTF_CONSOLE_REC);
 
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
