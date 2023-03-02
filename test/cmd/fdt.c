@@ -15,6 +15,13 @@
 #include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+/*
+ * Missing tests:
+ * fdt boardsetup         - Do board-specific set up
+ * fdt checksign [<addr>] - check FIT signature
+ *                          <addr> - address of key blob
+ *                                   default gd->fdt_blob
+ */
 
 /* Declare a new fdt test */
 #define FDT_TEST(_name, _flags)	UNIT_TEST(_name, _flags, fdt_test)
