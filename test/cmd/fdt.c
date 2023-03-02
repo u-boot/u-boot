@@ -39,6 +39,102 @@ static int make_test_fdt(struct unit_test_state *uts, void *fdt, int size)
 	return 0;
 }
 
+/**
+ * make_fuller_fdt() - Create an FDT with root node and properties
+ *
+ * The size is set to the minimum needed
+ *
+ * @uts: Test state
+ * @fdt: Place to write FDT
+ * @size: Maximum size of space for fdt
+ */
+static int make_fuller_fdt(struct unit_test_state *uts, void *fdt, int size)
+{
+	fdt32_t regs[2] = { cpu_to_fdt32(0x1234), cpu_to_fdt32(0x1000) };
+
+	/*
+	 * Assemble the following DT for test purposes:
+	 *
+	 * / {
+	 * 	#address-cells = <0x00000001>;
+	 * 	#size-cells = <0x00000001>;
+	 * 	compatible = "u-boot,fdt-test";
+	 * 	model = "U-Boot FDT test";
+	 *
+	 *	aliases {
+	 *		badalias = "/bad/alias";
+	 *		subnodealias = "/test-node@1234/subnode";
+	 *		testnodealias = "/test-node@1234";
+	 *	};
+	 *
+	 * 	test-node@1234 {
+	 * 		#address-cells = <0x00000000>;
+	 * 		#size-cells = <0x00000000>;
+	 * 		compatible = "u-boot,fdt-test-device1";
+	 * 		clock-names = "fixed", "i2c", "spi", "uart2", "uart1";
+	 * 		u-boot,empty-property;
+	 * 		clock-frequency = <0x00fde800>;
+	 * 		regs = <0x00001234 0x00001000>;
+	 *
+	 * 		subnode {
+	 * 			#address-cells = <0x00000000>;
+	 * 			#size-cells = <0x00000000>;
+	 * 			compatible = "u-boot,fdt-subnode-test-device";
+	 * 		};
+	 * 	};
+	 * };
+	 */
+
+	ut_assertok(fdt_create(fdt, size));
+	ut_assertok(fdt_finish_reservemap(fdt));
+	ut_assert(fdt_begin_node(fdt, "") >= 0);
+
+	ut_assertok(fdt_property_u32(fdt, "#address-cells", 1));
+	ut_assertok(fdt_property_u32(fdt, "#size-cells", 1));
+	/* <string> */
+	ut_assertok(fdt_property_string(fdt, "compatible", "u-boot,fdt-test"));
+	/* <string> */
+	ut_assertok(fdt_property_string(fdt, "model", "U-Boot FDT test"));
+
+	ut_assert(fdt_begin_node(fdt, "aliases") >= 0);
+	/* <string> */
+	ut_assertok(fdt_property_string(fdt, "badalias", "/bad/alias"));
+	/* <string> */
+	ut_assertok(fdt_property_string(fdt, "subnodealias", "/test-node@1234/subnode"));
+	/* <string> */
+	ut_assertok(fdt_property_string(fdt, "testnodealias", "/test-node@1234"));
+	ut_assertok(fdt_end_node(fdt));
+
+	ut_assert(fdt_begin_node(fdt, "test-node@1234") >= 0);
+	ut_assertok(fdt_property_cell(fdt, "#address-cells", 0));
+	ut_assertok(fdt_property_cell(fdt, "#size-cells", 0));
+	/* <string> */
+	ut_assertok(fdt_property_string(fdt, "compatible", "u-boot,fdt-test-device1"));
+	/* <stringlist> */
+	ut_assertok(fdt_property(fdt, "clock-names", "fixed\0i2c\0spi\0uart2\0uart1\0", 26));
+	/* <empty> */
+	ut_assertok(fdt_property(fdt, "u-boot,empty-property", NULL, 0));
+	/*
+	 * <u32>
+	 * This value is deliberate as it used to break cmd/fdt.c
+	 * is_printable_string() implementation.
+	 */
+	ut_assertok(fdt_property_u32(fdt, "clock-frequency", 16640000));
+	/* <prop-encoded-array> */
+	ut_assertok(fdt_property(fdt, "regs", &regs, sizeof(regs)));
+	ut_assert(fdt_begin_node(fdt, "subnode") >= 0);
+	ut_assertok(fdt_property_cell(fdt, "#address-cells", 0));
+	ut_assertok(fdt_property_cell(fdt, "#size-cells", 0));
+	ut_assertok(fdt_property_string(fdt, "compatible", "u-boot,fdt-subnode-test-device"));
+	ut_assertok(fdt_end_node(fdt));
+	ut_assertok(fdt_end_node(fdt));
+
+	ut_assertok(fdt_end_node(fdt));
+	ut_assertok(fdt_finish(fdt));
+
+	return 0;
+}
+
 /* Test 'fdt addr' getting/setting address */
 static int fdt_test_addr(struct unit_test_state *uts)
 {
@@ -145,43 +241,45 @@ FDT_TEST(fdt_test_addr_resize, UT_TESTF_CONSOLE_REC);
 /* Test 'fdt get value' reading an fdt */
 static int fdt_test_get_value(struct unit_test_state *uts)
 {
+	char fdt[4096];
 	ulong addr;
 
-	addr = map_to_sysmem(gd->fdt_blob);
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
+	addr = map_to_sysmem(fdt);
 	set_working_fdt_addr(addr);
 
-	/* Test getting default element of /clk-test node clock-names property */
+	/* Test getting default element of /test-node@1234 node clock-names property */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_command("fdt get value fdflt /clk-test clock-names", 0));
+	ut_assertok(run_command("fdt get value fdflt /test-node@1234 clock-names", 0));
 	ut_asserteq_str("fixed", env_get("fdflt"));
 	ut_assertok(ut_check_console_end(uts));
 
-	/* Test getting 0th element of /clk-test node clock-names property */
+	/* Test getting 0th element of /test-node@1234 node clock-names property */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_command("fdt get value fzero /clk-test clock-names 0", 0));
+	ut_assertok(run_command("fdt get value fzero /test-node@1234 clock-names 0", 0));
 	ut_asserteq_str("fixed", env_get("fzero"));
 	ut_assertok(ut_check_console_end(uts));
 
-	/* Test getting 1st element of /clk-test node clock-names property */
+	/* Test getting 1st element of /test-node@1234 node clock-names property */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_command("fdt get value fone /clk-test clock-names 1", 0));
+	ut_assertok(run_command("fdt get value fone /test-node@1234 clock-names 1", 0));
 	ut_asserteq_str("i2c", env_get("fone"));
 	ut_assertok(ut_check_console_end(uts));
 
-	/* Test getting 2nd element of /clk-test node clock-names property */
+	/* Test getting 2nd element of /test-node@1234 node clock-names property */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_command("fdt get value ftwo /clk-test clock-names 2", 0));
+	ut_assertok(run_command("fdt get value ftwo /test-node@1234 clock-names 2", 0));
 	ut_asserteq_str("spi", env_get("ftwo"));
 	ut_assertok(ut_check_console_end(uts));
 
-	/* Test missing 10th element of /clk-test node clock-names property */
+	/* Test missing 10th element of /test-node@1234 node clock-names property */
 	ut_assertok(console_record_reset_enable());
-	ut_asserteq(1, run_command("fdt get value ftwo /clk-test clock-names 10", 0));
+	ut_asserteq(1, run_command("fdt get value ften /test-node@1234 clock-names 10", 0));
 	ut_assertok(ut_check_console_end(uts));
 
-	/* Test getting default element of /clk-test node nonexistent property */
+	/* Test getting default element of /test-node@1234 node nonexistent property */
 	ut_assertok(console_record_reset_enable());
-	ut_asserteq(1, run_command("fdt get value fnone /clk-test nonexistent", 1));
+	ut_asserteq(1, run_command("fdt get value fnone /test-node@1234 nonexistent", 1));
 	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
 	ut_assertok(ut_check_console_end(uts));
 
