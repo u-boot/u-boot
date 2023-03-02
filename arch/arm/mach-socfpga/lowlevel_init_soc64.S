@@ -64,6 +64,14 @@ skipwarmreset:
 	 * and latest status in next reset.
 	 */
 
+	/* Check if it is a master core off/on from kernel using boot scratch
+	 * cold register 8 bit 19. This bit is set by ATF.
+	 */
+	ldr	x4, =BOOT_SCRATCH_COLD8
+	ldr	x5, [x4]
+	and	x6, x5, #0x80000
+	cbnz	x6, wait_for_atf_master
+
 	/* Retrieve mpurststat register in reset manager */
 	ldr	x4, =SOCFPGA_RSTMGR_ADDRESS
 	ldr	w5, [x4, #0x04]
@@ -103,6 +111,14 @@ wait_for_atf:
 	br	x5
 slave_wait_atf:
 	branch_if_slave x0, wait_for_atf
+
+wait_for_atf_master:
+	ldr	x4, =CPU_RELEASE_ADDR
+	ldr	x5, [x4]
+	cbz	x5, master_wait_atf
+	br	x5
+master_wait_atf:
+	branch_if_master x0, wait_for_atf_master
 
 master_cpu:
 #else
