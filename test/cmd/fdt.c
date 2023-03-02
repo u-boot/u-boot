@@ -1317,6 +1317,54 @@ static int fdt_test_rsvmem(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_rsvmem, UT_TESTF_CONSOLE_REC);
 
+static int fdt_test_chosen(struct unit_test_state *uts)
+{
+	const char *env_bootargs = env_get("bootargs");
+	char fdt[8192];
+	ulong addr;
+
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
+	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test default chosen node presence, fail as there is no /chosen node */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_commandf("fdt print /chosen"));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test add new chosen node without initrd */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt chosen"));
+	ut_assertok(run_commandf("fdt print /chosen"));
+	ut_assert_nextline("chosen {");
+	ut_assert_nextlinen("\tu-boot,version = "); /* Ignore the version string */
+	if (env_bootargs)
+		ut_assert_nextline("\tbootargs = \"%s\";", env_bootargs);
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test add new chosen node with initrd */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt chosen 0x1234 0x5678"));
+	ut_assertok(run_commandf("fdt print /chosen"));
+	ut_assert_nextline("chosen {");
+	ut_assert_nextline("\tlinux,initrd-end = <0x%08x 0x%08x>;",
+			   upper_32_bits(0x1234 + 0x5678 - 1),
+			   lower_32_bits(0x1234 + 0x5678 - 1));
+	ut_assert_nextline("\tlinux,initrd-start = <0x%08x 0x%08x>;",
+			   upper_32_bits(0x1234), lower_32_bits(0x1234));
+	ut_assert_nextlinen("\tu-boot,version = "); /* Ignore the version string */
+	if (env_bootargs)
+		ut_assert_nextline("\tbootargs = \"%s\";", env_bootargs);
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+FDT_TEST(fdt_test_chosen, UT_TESTF_CONSOLE_REC);
+
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_test);
