@@ -303,6 +303,149 @@ static int fdt_test_resize(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_resize, UT_TESTF_CONSOLE_REC);
 
+static int fdt_test_print_list_common(struct unit_test_state *uts,
+				      const char *opc, const char *node)
+{
+	/*
+	 * Test printing/listing the working FDT
+	 * subnode $node/subnode
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s %s/subnode", opc, node));
+	ut_assert_nextline("subnode {");
+	ut_assert_nextline("\t#address-cells = <0x00000000>;");
+	ut_assert_nextline("\t#size-cells = <0x00000000>;");
+	ut_assert_nextline("\tcompatible = \"u-boot,fdt-subnode-test-device\";");
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Test printing/listing the working FDT
+	 * path / string property model
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s / model", opc));
+	ut_assert_nextline("model = \"U-Boot FDT test\"");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Test printing/listing the working FDT
+	 * path $node string property compatible
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s %s compatible", opc, node));
+	ut_assert_nextline("compatible = \"u-boot,fdt-test-device1\"");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Test printing/listing the working FDT
+	 * path $node stringlist property clock-names
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s %s clock-names", opc, node));
+	ut_assert_nextline("clock-names = \"fixed\", \"i2c\", \"spi\", \"uart2\", \"uart1\"");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Test printing/listing the working FDT
+	 * path $node u32 property clock-frequency
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s %s clock-frequency", opc, node));
+	ut_assert_nextline("clock-frequency = <0x00fde800>");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Test printing/listing the working FDT
+	 * path $node empty property u-boot,empty-property
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s %s u-boot,empty-property", opc, node));
+	/*
+	 * This is the only 'fdt print' / 'fdt list' incantation which
+	 * prefixes the property with node path. This has been in U-Boot
+	 * since the beginning of the command 'fdt', keep it.
+	 */
+	ut_assert_nextline("%s u-boot,empty-property", node);
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Test printing/listing the working FDT
+	 * path $node prop-encoded array property regs
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s %s regs", opc, node));
+	ut_assert_nextline("regs = <0x00001234 0x00001000>");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+static int fdt_test_print_list(struct unit_test_state *uts, bool print)
+{
+	const char *opc = print ? "print" : "list";
+	char fdt[4096];
+	ulong addr;
+	int ret;
+
+	/* Original source DT */
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test printing/listing the working FDT -- node / */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s", opc));
+	ut_assert_nextline("/ {");
+	ut_assert_nextline("\t#address-cells = <0x00000001>;");
+	ut_assert_nextline("\t#size-cells = <0x00000001>;");
+	ut_assert_nextline("\tcompatible = \"u-boot,fdt-test\";");
+	ut_assert_nextline("\tmodel = \"U-Boot FDT test\";");
+	ut_assert_nextline("\taliases {");
+	if (print) {
+		ut_assert_nextline("\t\tbadalias = \"/bad/alias\";");
+		ut_assert_nextline("\t\tsubnodealias = \"/test-node@1234/subnode\";");
+		ut_assert_nextline("\t\ttestnodealias = \"/test-node@1234\";");
+	}
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("\ttest-node@1234 {");
+	if (print) {
+		ut_assert_nextline("\t\t#address-cells = <0x00000000>;");
+		ut_assert_nextline("\t\t#size-cells = <0x00000000>;");
+		ut_assert_nextline("\t\tcompatible = \"u-boot,fdt-test-device1\";");
+		ut_assert_nextline("\t\tclock-names = \"fixed\", \"i2c\", \"spi\", \"uart2\", \"uart1\";");
+		ut_assert_nextline("\t\tu-boot,empty-property;");
+		ut_assert_nextline("\t\tclock-frequency = <0x00fde800>;");
+		ut_assert_nextline("\t\tregs = <0x00001234 0x00001000>;");
+		ut_assert_nextline("\t\tsubnode {");
+		ut_assert_nextline("\t\t\t#address-cells = <0x00000000>;");
+		ut_assert_nextline("\t\t\t#size-cells = <0x00000000>;");
+		ut_assert_nextline("\t\t\tcompatible = \"u-boot,fdt-subnode-test-device\";");
+		ut_assert_nextline("\t\t};");
+	}
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	ret = fdt_test_print_list_common(uts, opc, "/test-node@1234");
+	if (!ret)
+		ret = fdt_test_print_list_common(uts, opc, "testnodealias");
+
+	return 0;
+}
+
+static int fdt_test_print(struct unit_test_state *uts)
+{
+	return fdt_test_print_list(uts, true);
+}
+FDT_TEST(fdt_test_print, UT_TESTF_CONSOLE_REC);
+
+static int fdt_test_list(struct unit_test_state *uts)
+{
+	return fdt_test_print_list(uts, false);
+}
+FDT_TEST(fdt_test_list, UT_TESTF_CONSOLE_REC);
+
 /* Test 'fdt get value' reading an fdt */
 static int fdt_test_get_value_string(struct unit_test_state *uts,
 				     const char *node, const char *prop,
