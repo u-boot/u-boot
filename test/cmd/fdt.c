@@ -1171,6 +1171,89 @@ static int fdt_test_header(struct unit_test_state *uts)
 }
 FDT_TEST(fdt_test_header, UT_TESTF_CONSOLE_REC);
 
+static int fdt_test_memory_cells(struct unit_test_state *uts,
+				 const unsigned int cells)
+{
+	unsigned char *pada, *pads;
+	unsigned char *seta, *sets;
+	char fdt[8192];
+	const int size = sizeof(fdt);
+	fdt32_t *regs;
+	ulong addr;
+	char *spc;
+	int i;
+
+	/* Create DT with node /memory { regs = <0x100 0x200>; } and #*cells */
+	ut_assertnonnull(regs = calloc(2 * cells, sizeof(*regs)));
+	ut_assertnonnull(pada = calloc(12, cells));
+	ut_assertnonnull(pads = calloc(12, cells));
+	ut_assertnonnull(seta = calloc(12, cells));
+	ut_assertnonnull(sets = calloc(12, cells));
+	for (i = cells; i >= 1; i--) {
+		regs[cells - 1] = cpu_to_fdt32(i * 0x10000);
+		regs[(cells * 2) - 1] = cpu_to_fdt32(~i);
+		snprintf(seta + (8 * (cells - i)), 9, "%08x", i * 0x10000);
+		snprintf(sets + (8 * (cells - i)), 9, "%08x", ~i);
+		spc = (i != 1) ? " " : "";
+		snprintf(pada + (11 * (cells - i)), 12, "0x%08x%s", i * 0x10000, spc);
+		snprintf(pads + (11 * (cells - i)), 12, "0x%08x%s", ~i, spc);
+	}
+
+	ut_assertok(fdt_create(fdt, size));
+	ut_assertok(fdt_finish_reservemap(fdt));
+	ut_assert(fdt_begin_node(fdt, "") >= 0);
+	ut_assertok(fdt_property_u32(fdt, "#address-cells", cells));
+	ut_assertok(fdt_property_u32(fdt, "#size-cells", cells));
+	ut_assert(fdt_begin_node(fdt, "memory") >= 0);
+	ut_assertok(fdt_property_string(fdt, "device_type", "memory"));
+	ut_assertok(fdt_property(fdt, "reg", &regs, cells * 2));
+	ut_assertok(fdt_end_node(fdt));
+	ut_assertok(fdt_end_node(fdt));
+	ut_assertok(fdt_finish(fdt));
+	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test updating the memory node */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt memory 0x%s 0x%s", seta, sets));
+	ut_assertok(run_commandf("fdt print /memory"));
+	ut_assert_nextline("memory {");
+	ut_assert_nextline("\tdevice_type = \"memory\";");
+	ut_assert_nextline("\treg = <%s %s>;", pada, pads);
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	free(sets);
+	free(seta);
+	free(pads);
+	free(pada);
+	free(regs);
+
+	return 0;
+}
+
+static int fdt_test_memory(struct unit_test_state *uts)
+{
+	/*
+	 * Test memory fixup for 32 and 64 bit systems, anything bigger is
+	 * so far unsupported and fails because of simple_stroull() being
+	 * 64bit tops in the 'fdt memory' command implementation.
+	 */
+	fdt_test_memory_cells(uts, 1);
+	fdt_test_memory_cells(uts, 2);
+
+	/*
+	 * The 'fdt memory' command is limited to /memory node, it does
+	 * not support any other valid DT memory node format, which is
+	 * either one or multiple /memory@adresss nodes. Therefore, this
+	 * DT variant is not tested here.
+	 */
+
+	return 0;
+}
+FDT_TEST(fdt_test_memory, UT_TESTF_CONSOLE_REC);
+
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_test);
