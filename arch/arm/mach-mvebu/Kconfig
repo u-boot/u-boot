@@ -423,6 +423,16 @@ config SECURED_MODE_CSK_INDEX
 	default 0
 	depends on SECURED_MODE_IMAGE
 
+config SF_DEFAULT_SPEED
+	int "Default speed for SPI flash in Hz"
+	default 10000000
+	depends on MVEBU_SPL_BOOT_DEVICE_SPI
+
+config SF_DEFAULT_MODE
+	hex "Default mode for SPI flash"
+	default 0x0
+	depends on MVEBU_SPL_BOOT_DEVICE_SPI
+
 source "board/solidrun/clearfog/Kconfig"
 source "board/kobol/helios4/Kconfig"
 
