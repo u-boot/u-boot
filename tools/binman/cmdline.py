@@ -73,6 +73,14 @@ def ParseArgs(argv):
             options provides access to the options (e.g. option.debug)
             args is a list of string arguments
     """
+    def _AddPreserve(pars):
+        pars.add_argument('-O', '--outdir', type=str,
+            action='store', help='Path to directory to use for intermediate '
+            'and output files')
+        pars.add_argument('-p', '--preserve', action='store_true',\
+            help='Preserve temporary output directory even if option -O is not '
+                 'given')
+
     if '-H' in argv:
         argv.append('build')
 
@@ -127,12 +135,7 @@ controlled by a description in the board device tree.'''
     build_parser.add_argument('-n', '--no-expanded', action='store_true',
             help="Don't use 'expanded' versions of entries where available; "
                  "normally 'u-boot' becomes 'u-boot-expanded', for example")
-    build_parser.add_argument('-O', '--outdir', type=str,
-        action='store', help='Path to directory to use for intermediate and '
-        'output files')
-    build_parser.add_argument('-p', '--preserve', action='store_true',\
-        help='Preserve temporary output directory even if option -O is not '
-             'given')
+    _AddPreserve(build_parser)
     build_parser.add_argument('-u', '--update-fdt', action='store_true',
         default=False, help='Update the binman node with offset/size info')
     build_parser.add_argument('--update-fdt-in-elf', type=str,
@@ -169,6 +172,7 @@ controlled by a description in the board device tree.'''
         help='Path to directory to use for input files')
     replace_parser.add_argument('-m', '--map', action='store_true',
         default=False, help='Output a map file for the updated image')
+    _AddPreserve(replace_parser)
     replace_parser.add_argument('paths', type=str, nargs='*',
                                 help='Paths within file to replace (wildcard)')
 

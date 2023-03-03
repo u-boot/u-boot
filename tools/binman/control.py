@@ -661,7 +661,10 @@ def Binman(args):
     if args.cmd in ['ls', 'extract', 'replace', 'tool']:
         try:
             tout.init(args.verbosity)
-            tools.prepare_output_dir(None)
+            if args.cmd == 'replace':
+                tools.prepare_output_dir(args.outdir, args.preserve)
+            else:
+                tools.prepare_output_dir(None)
             if args.cmd == 'ls':
                 ListEntries(args.image, args.paths)
 

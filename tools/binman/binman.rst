@@ -1697,6 +1697,12 @@ Options:
 -m, --map
     Output a map file for the updated image
 
+-O OUTDIR, --outdir OUTDIR
+    Path to directory to use for intermediate and output files
+
+-p, --preserve
+    Preserve temporary output directory even if option -O is not given
+
 This replaces one or more entries in an existing image. See
 `Replacing files in an image`_.
 
