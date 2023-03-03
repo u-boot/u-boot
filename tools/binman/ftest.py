@@ -3999,9 +3999,17 @@ class TestFunctional(unittest.TestCase):
             self.assertEqual(expected, data[image_pos:image_pos+size])
 
     def testFitMissing(self):
+        """Test that binman complains if mkimage is missing"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('162_fit_external.dts',
+                             force_missing_bintools='mkimage')
+        self.assertIn("Node '/binman/fit': Missing tool: 'mkimage'",
+                      str(e.exception))
+
+    def testFitMissingOK(self):
         """Test that binman still produces a FIT image if mkimage is missing"""
         with test_util.capture_sys_output() as (_, stderr):
-            self._DoTestFile('162_fit_external.dts',
+            self._DoTestFile('162_fit_external.dts', allow_missing=True,
                              force_missing_bintools='mkimage')
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing bintools.*: mkimage")

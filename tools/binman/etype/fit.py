@@ -453,6 +453,8 @@ class Entry_fit(Entry_section):
             args.update({'align': fdt_util.fdt32_to_cpu(align.value)})
         if self.mkimage.run(reset_timestamp=True, output_fname=output_fname,
                             **args) is None:
+            if not self.GetAllowMissing():
+                self.Raise("Missing tool: 'mkimage'")
             # Bintool is missing; just use empty data as the output
             self.record_missing_bintool(self.mkimage)
             return tools.get_bytes(0, 1024)
