@@ -40,21 +40,25 @@ static void setup_iomux_uart(void)
 	imx8_iomux_setup_multiple_pads(uart3_pads, ARRAY_SIZE(uart3_pads));
 }
 
+static int is_imx8dx(void)
+{
+	u32 val = 0;
+	sc_err_t sc_err = sc_misc_otp_fuse_read(-1, 6, &val);
+
+	if (sc_err == SC_ERR_NONE) {
+		/* DX has two A35 cores disabled */
+		return (val & 0xf) != 0x0;
+	}
+	return false;
+}
+
 void board_mem_get_layout(u64 *phys_sdram_1_start,
 			  u64 *phys_sdram_1_size,
 			  u64 *phys_sdram_2_start,
 			  u64 *phys_sdram_2_size)
 {
-	u32 is_dualx = 0, val = 0;
-	sc_err_t scierr = sc_misc_otp_fuse_read(-1, 6, &val);
-
-	if (scierr == SC_ERR_NONE) {
-		/* DX has two A35 cores disabled */
-		is_dualx = (val & 0xf) != 0x0;
-	}
-
 	*phys_sdram_1_start = PHYS_SDRAM_1;
-	if (is_dualx)
+	if (is_imx8dx())
 		/* Our DX based SKUs only have 1 GB RAM */
 		*phys_sdram_1_size = SZ_1G;
 	else
