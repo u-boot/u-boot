@@ -8,19 +8,12 @@
 
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
-#include <linux/stringify.h>
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"fdt_addr_r=0x83000000\0" \
 	"kernel_addr_r=0x81000000\0" \
 	"ramdisk_addr_r=0x83800000\0" \
 	"scriptaddr=0x80800000\0"
-
-#ifdef CONFIG_AHAB_BOOT
-#define AHAB_ENV "sec_boot=yes\0"
-#else
-#define AHAB_ENV "sec_boot=no\0"
-#endif
 
 /* Boot M4 */
 #define M4_BOOT_ENV \
@@ -29,8 +22,6 @@
 		"${m4_0_image}\0" \
 	"m4boot_0=run loadm4image_0; dcache flush; bootaux ${loadaddr} 0\0" \
 
-#define MFG_NAND_PARTITION ""
-
 /* Enable Distro Boot */
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
@@ -38,47 +29,23 @@
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 
-#define CFG_MFG_ENV_SETTINGS \
-	"mfgtool_args=setenv bootargs ${consoleargs} " \
-		"rdinit=/linuxrc g_mass_storage.stall=0 " \
-		"g_mass_storage.removable=1 g_mass_storage.idVendor=0x066F " \
-		"g_mass_storage.idProduct=0x37FF " \
-		"g_mass_storage.iSerialNumber=\"\" " MFG_NAND_PARTITION \
-		"${vidargs} clk_ignore_unused\0" \
-	"initrd_addr=0x83800000\0" \
-	"initrd_high=0xffffffff\0" \
-	"bootcmd_mfg=run mfgtool_args;booti ${loadaddr} ${initrd_addr} " \
-		"${fdt_addr};\0" \
-
 /* Initial environment variables */
 #define CFG_EXTRA_ENV_SETTINGS \
-	AHAB_ENV \
 	BOOTENV \
-	CFG_MFG_ENV_SETTINGS \
 	M4_BOOT_ENV \
 	MEM_LAYOUT_ENV_SETTINGS \
-	"boot_file=Image\0" \
 	"boot_script_dhcp=boot.scr\0" \
 	"console=ttyLP3\0" \
-	"fdt_addr=0x83000000\0"	\
 	"fdt_board=eval-v3\0" \
-	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \
-	"image=Image\0" \
 	"initrd_addr=0x83800000\0" \
 	"initrd_high=0xffffffffffffffff\0" \
-	"mmcargs=setenv bootargs ${consoleargs} " \
-		"root=PARTUUID=${uuid} rootwait " \
-	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
-	"mmcpart=1\0" \
-	"panel=NULL\0" \
 	"setup=setenv setupargs console=tty1 console=${console},${baudrate} " \
 		"consoleblank=0 earlycon\0" \
 	"update_uboot=askenv confirm Did you load flash.bin resp. u-boot-dtb.imx (y/N)?; " \
 		"if test \"$confirm\" = \"y\"; then " \
 		"setexpr blkcnt ${filesize} + 0x1ff && setexpr blkcnt " \
 		"${blkcnt} / 0x200; mmc dev 0 1; mmc write ${loadaddr} 0x0 " \
-		"${blkcnt}; fi\0" \
-	"vidargs=video=imxdpufb5:off video=imxdpufb6:off video=imxdpufb7:off\0"
+		"${blkcnt}; fi\0"
 
 #define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
