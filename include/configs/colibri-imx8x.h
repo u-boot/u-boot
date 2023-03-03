@@ -18,9 +18,8 @@
 /* Boot M4 */
 #define M4_BOOT_ENV \
 	"m4_0_image=m4_0.bin\0" \
-	"loadm4image_0=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} " \
-		"${m4_0_image}\0" \
-	"m4boot_0=run loadm4image_0; dcache flush; bootaux ${loadaddr} 0\0" \
+	"loadm4image_0=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${m4_0_image}\0" \
+	"m4boot_0=run loadm4image_0; dcache flush; bootaux ${loadaddr} 0\0"
 
 /* Enable Distro Boot */
 #define BOOT_TARGET_DEVICES(func) \
