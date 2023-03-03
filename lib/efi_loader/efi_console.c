@@ -77,6 +77,14 @@ static struct simple_text_output_mode efi_con_mode = {
 	.cursor_visible = 1,
 };
 
+/**
+ * term_get_char() - read a character from the console
+ *
+ * Wait for up to 100 ms to read a character from the console.
+ *
+ * @c:		pointer to the buffer to receive the character
+ * Return:	0 on success, 1 otherwise
+ */
 static int term_get_char(s32 *c)
 {
 	u64 timeout;
