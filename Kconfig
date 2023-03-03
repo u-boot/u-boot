@@ -575,14 +575,6 @@ config MP
 	  This provides an option to bringup different processors
 	  in multiprocessor cases.
 
-config EXAMPLES
-	bool "Compile API examples"
-	depends on !SANDBOX
-	default y if ARCH_QEMU
-	help
-	  U-Boot provides an API for standalone applications. Examples are
-	  provided in directory examples/.
-
 endmenu		# General setup
 
 source "api/Kconfig"
