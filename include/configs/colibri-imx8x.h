@@ -10,10 +10,6 @@
 #include <linux/sizes.h>
 #include <linux/stringify.h>
 
-#define CFG_SYS_FSL_ESDHC_ADDR	0
-#define USDHC1_BASE_ADDR		0x5b010000
-#define USDHC2_BASE_ADDR		0x5b020000
-
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"fdt_addr_r=0x83000000\0" \
 	"kernel_addr_r=0x81000000\0" \
@@ -84,13 +80,6 @@
 		"${blkcnt} / 0x200; mmc dev 0 1; mmc write ${loadaddr} 0x0 " \
 		"${blkcnt}; fi\0" \
 	"vidargs=video=imxdpufb5:off video=imxdpufb6:off video=imxdpufb7:off\0"
-
-/* Link Definitions */
-
-/* Environment in eMMC, before config block at the end of 1st "boot sector" */
-
-/* On Colibri iMX8X USDHC1 is eMMC, USDHC2 is 4-bit SD */
-#define CFG_SYS_FSL_USDHC_NUM	2
 
 #define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
