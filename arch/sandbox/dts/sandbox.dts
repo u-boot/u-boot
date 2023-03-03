@@ -76,7 +76,7 @@
 		clock-frequency = <400000>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_i2c0>;
-		bootph-all;
+		bootph-pre-ram;
 	};
 
 	pcic: pci@0 {
@@ -103,6 +103,6 @@
 #include "cros-ec-keyboard.dtsi"
 #include "sandbox_pmic.dtsi"
 
-#ifdef CONFIG_SANDBOX_VPL
+#if IS_ENABLED(CONFIG_SUPPORT_VPL)
 #include "sandbox_vpl.dtsi"
 #endif

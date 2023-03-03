@@ -40,7 +40,7 @@ enum {
  * @reg:		Register values
  */
 struct sandbox_i2c_rtc_plat_data {
-#if CONFIG_IS_ENABLED(OF_PLATDATA)
+#if CONFIG_IS_ENABLED(OF_PLATDATA) && IS_ENABLED(CONFIG_RTC_SANDBOX)
 	struct dtd_sandbox_i2c_rtc_emul dtplat;
 #endif
 	long base_time;

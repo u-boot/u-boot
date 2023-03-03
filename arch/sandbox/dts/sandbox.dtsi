@@ -115,7 +115,7 @@
 			reg = <0x43>;
 			compatible = "sandbox-rtc";
 			sandbox,emul = <&emul0>;
-			bootph-all;
+			bootph-pre-ram;
 		};
 		sandbox_pmic: sandbox_pmic {
 			reg = <0x40>;
@@ -126,7 +126,7 @@
 		};
 
 		i2c_emul: emul {
-			bootph-all;
+			bootph-pre-ram;
 			reg = <0xff>;
 			compatible = "sandbox,i2c-emul-parent";
 			emul_eeprom: emul-eeprom {
@@ -136,7 +136,7 @@
 				#emul-cells = <0>;
 			};
 			emul0: emul0 {
-				bootph-all;
+				bootph-pre-ram;
 				compatible = "sandbox,i2c-rtc-emul";
 				#emul-cells = <0>;
 			};

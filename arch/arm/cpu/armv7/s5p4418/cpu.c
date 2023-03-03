@@ -84,10 +84,3 @@ void enable_caches(void)
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
 }
-
-#if defined(CONFIG_ARCH_MISC_INIT)
-int arch_misc_init(void)
-{
-	return 0;
-}
-#endif	/* CONFIG_ARCH_MISC_INIT */

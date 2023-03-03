@@ -523,17 +523,6 @@ u32 mvebu_get_nand_clock(void)
 		  NAND_ECC_DIVCKL_RATIO_MASK) >> NAND_ECC_DIVCKL_RATIO_OFFS);
 }
 
-/*
- * SOC specific misc init
- */
-#if defined(CONFIG_ARCH_MISC_INIT)
-int arch_misc_init(void)
-{
-	/* Nothing yet, perhaps we need something here later */
-	return 0;
-}
-#endif /* CONFIG_ARCH_MISC_INIT */
-
 #if defined(CONFIG_MMC_SDHCI_MV) && !defined(CONFIG_DM_MMC)
 int board_mmc_init(struct bd_info *bis)
 {
