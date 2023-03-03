@@ -35,13 +35,12 @@
 
 #define MFG_NAND_PARTITION ""
 
+/* Enable Distro Boot */
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
-#undef BOOTENV_RUN_NET_USB_START
-#define BOOTENV_RUN_NET_USB_START ""
 
 #define CFG_MFG_ENV_SETTINGS \
 	"mfgtool_args=setenv bootargs ${consoleargs} " \
