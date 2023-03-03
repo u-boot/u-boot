@@ -61,8 +61,7 @@
 	"boot_script_dhcp=boot.scr\0" \
 	"console=ttyLP3\0" \
 	"fdt_addr=0x83000000\0"	\
-	"fdt_file=fsl-imx8qxp-colibri-dsihdmi-eval-v3.dtb\0" \
-	"fdtfile=fsl-imx8qxp-colibri-dsihdmi-eval-v3.dtb\0" \
+	"fdt_board=eval-v3\0" \
 	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \
 	"image=Image\0" \
 	"initrd_addr=0x83800000\0" \

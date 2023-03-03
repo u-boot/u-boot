@@ -123,6 +123,18 @@ int checkboard(void)
 	return 0;
 }
 
+static void select_dt_from_module_version(void)
+{
+	/*
+	 * The dtb filename is constructed from ${soc}-colibri-${fdt_board}.dtb.
+	 * Set soc depending on the used SoC.
+	 */
+	if (is_imx8dx())
+		env_set("soc", "imx8dx");
+	else
+		env_set("soc", "imx8qxp");
+}
+
 int board_init(void)
 {
 	board_gpio_init();
@@ -157,6 +169,8 @@ int board_late_init(void)
 	env_set("board_name", "Colibri iMX8QXP");
 	env_set("board_rev", "v1.0");
 #endif
+
+	select_dt_from_module_version();
 
 	return 0;
 }
