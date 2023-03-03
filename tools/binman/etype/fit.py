@@ -777,6 +777,8 @@ class Entry_fit(Entry_section):
         Args:
             image_pos (int): Position of this entry in the image
         """
+        if self.build_done:
+            return
         super().SetImagePos(image_pos)
 
         # If mkimage is missing we'll have empty data,
@@ -830,3 +832,6 @@ class Entry_fit(Entry_section):
         # missing
         for entry in self._priv_entries.values():
             entry.CheckMissing(missing_list)
+
+    def CheckEntries(self):
+        pass

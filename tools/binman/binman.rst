@@ -1347,6 +1347,22 @@ You can also replace just a selection of entries::
 
     $ binman replace -i image.bin "*u-boot*" -I indir
 
+It is possible to replace whole sections as well, but in that case any
+information about entries within the section may become outdated. This is
+because Binman cannot know whether things have moved around or resized within
+the section, once you have updated its data.
+
+Technical note: With 'allow-repack', Binman writes information about the
+original offset and size properties of each entry, if any were specified, in
+the 'orig-offset' and 'orig-size' properties. This allows Binman to distinguish
+between an entry which ended up being packed at an offset (or assigned a size)
+and an entry which had a particular offset / size requested in the Binman
+configuration. Where are particular offset / size was requested, this is treated
+as set in stone, so Binman will ensure it doesn't change. Without this feature,
+repacking an entry might cause it to disobey the original constraints provided
+when it was created.
+
+ Repacking an image involves
 
 .. _`BinmanLogging`:
 

@@ -397,10 +397,13 @@ class Entry_section(Entry):
             This excludes any padding. If the section is compressed, the
             compressed data is returned
         """
-        data = self.BuildSectionData(required)
-        if data is None:
-            return None
-        self.SetContents(data)
+        if not self.build_done:
+            data = self.BuildSectionData(required)
+            if data is None:
+                return None
+            self.SetContents(data)
+        else:
+            data = self.data
         if self._filename:
             tools.write_file(tools.get_output_filename(self._filename), data)
         return data
@@ -427,8 +430,11 @@ class Entry_section(Entry):
             self._SortEntries()
         self._extend_entries()
 
-        data = self.BuildSectionData(True)
-        self.SetContents(data)
+        if self.build_done:
+            self.size = None
+        else:
+            data = self.BuildSectionData(True)
+            self.SetContents(data)
 
         self.CheckSize()
 
@@ -810,6 +816,9 @@ class Entry_section(Entry):
     def LoadData(self, decomp=True):
         for entry in self._entries.values():
             entry.LoadData(decomp)
+        data = self.ReadData(decomp)
+        self.contents_size = len(data)
+        self.ProcessContentsUpdate(data)
         self.Detail('Loaded data')
 
     def GetImage(self):
@@ -866,10 +875,15 @@ class Entry_section(Entry):
         return data
 
     def WriteData(self, data, decomp=True):
-        self.Raise("Replacing sections is not implemented yet")
+        ok = super().WriteData(data, decomp)
+
+        # The section contents are now fixed and cannot be rebuilt from the
+        # containing entries.
+        self.mark_build_done()
+        return ok
 
     def WriteChildData(self, child):
-        return True
+        return super().WriteChildData(child)
 
     def SetAllowMissing(self, allow_missing):
         """Set whether a section allows missing external blobs

@@ -104,6 +104,10 @@ class Entry(object):
             firmware. This means that it will not be changed by the update.
             This is just a signal: enforcement of this is up to the updater.
             This flag does not automatically propagate down to child entries.
+        build_done (bool): Indicates that the entry data has been built and does
+            not need to be done again. This is only used with 'binman replace',
+            to stop sections from being rebuilt if their entries have not been
+            replaced
     """
     fake_dir = None
 
@@ -153,6 +157,7 @@ class Entry(object):
         self.elf_base_sym = None
         self.offset_from_elf = None
         self.preserve = False
+        self.build_done = False
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -1013,6 +1018,7 @@ features to produce new behaviours.
         else:
             self.contents_size = self.pre_reset_size
         ok = self.ProcessContentsUpdate(data)
+        self.build_done = False
         self.Detail('WriteData: size=%x, ok=%s' % (len(data), ok))
         section_ok = self.section.WriteChildData(self)
         return ok and section_ok
@@ -1034,6 +1040,14 @@ features to produce new behaviours.
             True if the section could be updated successfully, False if the
                 data is such that the section could not update
         """
+        self.build_done = False
+        entry = self.section
+
+        # Now we must rebuild all sections above this one
+        while entry and entry != entry.section:
+            self.build_done = False
+            entry = entry.section
+
         return True
 
     def GetSiblingOrder(self):
@@ -1356,3 +1370,11 @@ features to produce new behaviours.
         val = elf.GetSymbolOffset(entry.elf_fname, sym_name,
                                   entry.elf_base_sym)
         return val + offset
+
+    def mark_build_done(self):
+        """Mark an entry as already built"""
+        self.build_done = True
+        entries = self.GetEntries()
+        if entries:
+            for entry in entries.values():
+                entry.mark_build_done()

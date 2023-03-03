@@ -5819,13 +5819,61 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual(expected_fdtmap, fdtmap)
 
     def testReplaceSectionSimple(self):
-        """Test replacing a simple section with arbitrary data"""
+        """Test replacing a simple section with same-sized data"""
         new_data = b'w' * len(COMPRESS_DATA + U_BOOT_DATA)
-        with self.assertRaises(ValueError) as exc:
-            self._RunReplaceCmd('section', new_data,
-                                dts='241_replace_section_simple.dts')
+        data, expected_fdtmap, image = self._RunReplaceCmd('section',
+            new_data, dts='241_replace_section_simple.dts')
+        self.assertEqual(new_data, data)
+
+        entries = image.GetEntries()
+        self.assertIn('section', entries)
+        entry = entries['section']
+        self.assertEqual(len(new_data), entry.size)
+
+    def testReplaceSectionLarger(self):
+        """Test replacing a simple section with larger data"""
+        new_data = b'w' * (len(COMPRESS_DATA + U_BOOT_DATA) + 1)
+        data, expected_fdtmap, image = self._RunReplaceCmd('section',
+            new_data, dts='241_replace_section_simple.dts')
+        self.assertEqual(new_data, data)
+
+        entries = image.GetEntries()
+        self.assertIn('section', entries)
+        entry = entries['section']
+        self.assertEqual(len(new_data), entry.size)
+        fentry = entries['fdtmap']
+        self.assertEqual(entry.offset + entry.size, fentry.offset)
+
+    def testReplaceSectionSmaller(self):
+        """Test replacing a simple section with smaller data"""
+        new_data = b'w' * (len(COMPRESS_DATA + U_BOOT_DATA) - 1) + b'\0'
+        data, expected_fdtmap, image = self._RunReplaceCmd('section',
+            new_data, dts='241_replace_section_simple.dts')
+        self.assertEqual(new_data, data)
+
+        # The new size is the same as the old, just with a pad byte at the end
+        entries = image.GetEntries()
+        self.assertIn('section', entries)
+        entry = entries['section']
+        self.assertEqual(len(new_data), entry.size)
+
+    def testReplaceSectionSmallerAllow(self):
+        """Test failing to replace a simple section with smaller data"""
+        new_data = b'w' * (len(COMPRESS_DATA + U_BOOT_DATA) - 1)
+        try:
+            state.SetAllowEntryContraction(True)
+            with self.assertRaises(ValueError) as exc:
+                self._RunReplaceCmd('section', new_data,
+                                    dts='241_replace_section_simple.dts')
+        finally:
+            state.SetAllowEntryContraction(False)
+
+        # Since we have no information about the position of things within the
+        # section, we cannot adjust the position of /section-u-boot so it ends
+        # up outside the section
         self.assertIn(
-            "Node '/section': Replacing sections is not implemented yet",
+            "Node '/section/u-boot': Offset 0x24 (36) size 0x4 (4) is outside "
+            "the section '/section' starting at 0x0 (0) of size 0x27 (39)",
             str(exc.exception))
 
     def testMkimageImagename(self):
@@ -6411,6 +6459,85 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                 '--toolpath', 'mary', '--toolpath', 'anna', '--tooldir', 'fred',
                 'tool', '-l'))
         self.assertEqual(['mary', 'anna', 'fred'], tools.tool_search_paths)
+
+    def testReplaceSectionEntry(self):
+        """Test replacing an entry in a section"""
+        expect_data = b'w' * len(U_BOOT_DATA + COMPRESS_DATA)
+        entry_data, expected_fdtmap, image = self._RunReplaceCmd('section/blob',
+            expect_data, dts='241_replace_section_simple.dts')
+        self.assertEqual(expect_data, entry_data)
+
+        entries = image.GetEntries()
+        self.assertIn('section', entries)
+        section = entries['section']
+
+        sect_entries = section.GetEntries()
+        self.assertIn('blob', sect_entries)
+        entry = sect_entries['blob']
+        self.assertEqual(len(expect_data), entry.size)
+
+        fname = tools.get_output_filename('image-updated.bin')
+        data = tools.read_file(fname)
+
+        new_blob_data = data[entry.image_pos:entry.image_pos + len(expect_data)]
+        self.assertEqual(expect_data, new_blob_data)
+
+        self.assertEqual(U_BOOT_DATA,
+                         data[entry.image_pos + len(expect_data):]
+                         [:len(U_BOOT_DATA)])
+
+    def testReplaceSectionDeep(self):
+        """Test replacing an entry in two levels of sections"""
+        expect_data = b'w' * len(U_BOOT_DATA + COMPRESS_DATA)
+        entry_data, expected_fdtmap, image = self._RunReplaceCmd(
+            'section/section/blob', expect_data,
+            dts='278_replace_section_deep.dts')
+        self.assertEqual(expect_data, entry_data)
+
+        entries = image.GetEntries()
+        self.assertIn('section', entries)
+        section = entries['section']
+
+        subentries = section.GetEntries()
+        self.assertIn('section', subentries)
+        section = subentries['section']
+
+        sect_entries = section.GetEntries()
+        self.assertIn('blob', sect_entries)
+        entry = sect_entries['blob']
+        self.assertEqual(len(expect_data), entry.size)
+
+        fname = tools.get_output_filename('image-updated.bin')
+        data = tools.read_file(fname)
+
+        new_blob_data = data[entry.image_pos:entry.image_pos + len(expect_data)]
+        self.assertEqual(expect_data, new_blob_data)
+
+        self.assertEqual(U_BOOT_DATA,
+                         data[entry.image_pos + len(expect_data):]
+                         [:len(U_BOOT_DATA)])
+
+    def testReplaceFitSibling(self):
+        """Test an image with a FIT inside where we replace its sibling"""
+        fname = TestFunctional._MakeInputFile('once', b'available once')
+        self._DoReadFileRealDtb('277_replace_fit_sibling.dts')
+        os.remove(fname)
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+
+            fname = os.path.join(tmpdir, 'update-blob')
+            expected = b'w' * (len(COMPRESS_DATA + U_BOOT_DATA) + 1)
+            tools.write_file(fname, expected)
+
+            self._DoBinman('replace', '-i', updated_fname, 'blob', '-f', fname)
+            data = tools.read_file(updated_fname)
+            start = len(U_BOOT_DTB_DATA)
+            self.assertEqual(expected, data[start:start + len(expected)])
+            map_fname = os.path.join(tmpdir, 'image-updated.map')
+            self.assertFalse(os.path.exists(map_fname))
+        finally:
+            shutil.rmtree(tmpdir)
 
 
 if __name__ == "__main__":

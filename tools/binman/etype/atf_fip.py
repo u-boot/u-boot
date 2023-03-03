@@ -270,4 +270,4 @@ class Entry_atf_fip(Entry_section):
         # Recreate the data structure, leaving the data for this child alone,
         # so that child.data is used to pack into the FIP.
         self.ObtainContents(skip_entry=child)
-        return True
+        return super().WriteChildData(child)
