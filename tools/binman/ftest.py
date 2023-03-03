@@ -6539,6 +6539,32 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         finally:
             shutil.rmtree(tmpdir)
 
+    def testX509Cert(self):
+        """Test creating an X509 certificate"""
+        keyfile = self.TestFile('key.key')
+        entry_args = {
+            'keyfile': keyfile,
+        }
+        data = self._DoReadFileDtb('279_x509_cert.dts',
+                                   entry_args=entry_args)[0]
+        cert = data[:-4]
+        self.assertEqual(U_BOOT_DATA, data[-4:])
+
+        # TODO: verify the signature
+
+    def testX509CertMissing(self):
+        """Test that binman still produces an image if openssl is missing"""
+        keyfile = self.TestFile('key.key')
+        entry_args = {
+            'keyfile': 'keyfile',
+        }
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('279_x509_cert.dts',
+                             force_missing_bintools='openssl',
+                             entry_args=entry_args)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: openssl")
+
 
 if __name__ == "__main__":
     unittest.main()
