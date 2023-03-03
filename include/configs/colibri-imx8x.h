@@ -54,9 +54,4 @@
 #define PHYS_SDRAM_1_SIZE		SZ_2G		/* 2 GB */
 #define PHYS_SDRAM_2_SIZE		0x00000000	/* 0 GB */
 
-/* Generic Timer Definitions */
-
-#define BOOTAUX_RESERVED_MEM_BASE 0x88000000
-#define BOOTAUX_RESERVED_MEM_SIZE SZ_128M /* Reserve from second 128MB */
-
 #endif /* __COLIBRI_IMX8X_H */
