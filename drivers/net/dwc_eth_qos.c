@@ -1493,7 +1493,7 @@ static int eqos_remove_resources_tegra186(struct udevice *dev)
 
 static int eqos_remove_resources_stm32(struct udevice *dev)
 {
-	struct eqos_priv *eqos = dev_get_priv(dev);
+	struct eqos_priv * __maybe_unused eqos = dev_get_priv(dev);
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
@@ -1504,9 +1504,6 @@ static int eqos_remove_resources_stm32(struct udevice *dev)
 	if (clk_valid(&eqos->clk_ck))
 		clk_free(&eqos->clk_ck);
 #endif
-
-	if (dm_gpio_is_valid(&eqos->phy_reset_gpio))
-		dm_gpio_free(dev, &eqos->phy_reset_gpio);
 
 	debug("%s: OK\n", __func__);
 	return 0;
