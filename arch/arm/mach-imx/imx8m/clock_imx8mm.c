@@ -15,6 +15,7 @@
 #include <errno.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
+#include <phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -825,7 +826,7 @@ u32 mxc_get_clock(enum mxc_clock clk)
 	return 0;
 }
 
-#ifdef CONFIG_DWC_ETH_QOS
+#if defined(CONFIG_IMX8MP) && defined(CONFIG_DWC_ETH_QOS)
 int set_clk_eqos(enum enet_freq type)
 {
 	u32 target;
@@ -870,6 +871,52 @@ int set_clk_eqos(enum enet_freq type)
 	clock_enable(CCGR_QOS_ETHENET, 1);
 	clock_enable(CCGR_SDMA2, 1);
 
+	return 0;
+}
+
+static int imx8mp_eqos_interface_init(struct udevice *dev,
+				      phy_interface_t interface_type)
+{
+	struct iomuxc_gpr_base_regs *gpr =
+		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
+
+	clrbits_le32(&gpr->gpr[1],
+		     IOMUXC_GPR_GPR1_GPR_ENET_QOS_INTF_SEL_MASK |
+		     IOMUXC_GPR_GPR1_GPR_ENET_QOS_RGMII_EN |
+		     IOMUXC_GPR_GPR1_GPR_ENET_QOS_CLK_TX_CLK_SEL |
+		     IOMUXC_GPR_GPR1_GPR_ENET_QOS_CLK_GEN_EN);
+
+	switch (interface_type) {
+	case PHY_INTERFACE_MODE_MII:
+		setbits_le32(&gpr->gpr[1],
+			     IOMUXC_GPR_GPR1_GPR_ENET_QOS_CLK_GEN_EN |
+			     IOMUXC_GPR_GPR1_GPR_ENET_QOS_INTF_SEL_MII);
+		break;
+	case PHY_INTERFACE_MODE_RMII:
+		setbits_le32(&gpr->gpr[1],
+			     IOMUXC_GPR_GPR1_GPR_ENET_QOS_CLK_TX_CLK_SEL |
+			     IOMUXC_GPR_GPR1_GPR_ENET_QOS_CLK_GEN_EN |
+			     IOMUXC_GPR_GPR1_GPR_ENET_QOS_INTF_SEL_RMII);
+		break;
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		setbits_le32(&gpr->gpr[1],
+			     IOMUXC_GPR_GPR1_GPR_ENET_QOS_RGMII_EN |
+			     IOMUXC_GPR_GPR1_GPR_ENET_QOS_CLK_GEN_EN |
+			     IOMUXC_GPR_GPR1_GPR_ENET_QOS_INTF_SEL_RGMII);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+#else
+static int imx8mp_eqos_interface_init(struct udevice *dev,
+				      phy_interface_t interface_type)
+{
 	return 0;
 }
 #endif
@@ -922,3 +969,13 @@ int set_clk_enet(enum enet_freq type)
 	return 0;
 }
 #endif
+
+int board_interface_eth_init(struct udevice *dev, phy_interface_t interface_type)
+{
+	if (IS_ENABLED(CONFIG_IMX8MP) &&
+	    IS_ENABLED(CONFIG_DWC_ETH_QOS) &&
+	    device_is_compatible(dev, "nxp,imx8mp-dwmac-eqos"))
+		return imx8mp_eqos_interface_init(dev, interface_type);
+
+	return -EINVAL;
+}
