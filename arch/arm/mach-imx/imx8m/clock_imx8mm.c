@@ -872,47 +872,6 @@ int set_clk_eqos(enum enet_freq type)
 
 	return 0;
 }
-
-int imx_eqos_txclk_set_rate(ulong rate)
-{
-	u32 val;
-	u32 eqos_post_div;
-
-	/* disable the clock first */
-	clock_enable(CCGR_QOS_ETHENET, 0);
-	clock_enable(CCGR_SDMA2, 0);
-
-	switch (rate) {
-	case 125000000:
-		eqos_post_div = 1;
-		break;
-	case 25000000:
-		eqos_post_div = 125000000 / 25000000;
-		break;
-	case 2500000:
-		eqos_post_div = 125000000 / 2500000;
-		break;
-	default:
-		return -EINVAL;
-	}
-
-	clock_get_target_val(ENET_QOS_CLK_ROOT, &val);
-	val &= ~(CLK_ROOT_PRE_DIV_MASK | CLK_ROOT_POST_DIV_MASK);
-	val |= CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV1) |
-	       CLK_ROOT_POST_DIV(eqos_post_div - 1);
-	clock_set_target_val(ENET_QOS_CLK_ROOT, val);
-
-	/* enable clock */
-	clock_enable(CCGR_QOS_ETHENET, 1);
-	clock_enable(CCGR_SDMA2, 1);
-
-	return 0;
-}
-
-u32 imx_get_eqos_csr_clk(void)
-{
-	return get_root_clk(ENET_AXI_CLK_ROOT);
-}
 #endif
 
 #ifdef CONFIG_FEC_MXC
