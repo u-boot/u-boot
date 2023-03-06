@@ -25,6 +25,26 @@ struct fwu_mdata_gpt_blk_priv {
  */
 struct fwu_mdata_ops {
 	/**
+	 * read_mdata() - Populate the asked FWU metadata copy
+	 * @dev: FWU metadata device
+	 * @mdata: Output FWU mdata read
+	 * @primary: If primary or secondary copy of metadata is to be read
+	 *
+	 * Return: 0 if OK, -ve on error
+	 */
+	int (*read_mdata)(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
+
+	/**
+	 * write_mdata() - Write the given FWU metadata copy
+	 * @dev: FWU metadata device
+	 * @mdata: Copy of the FWU metadata to write
+	 * @primary: If primary or secondary copy of metadata is to be written
+	 *
+	 * Return: 0 if OK, -ve on error
+	 */
+	int (*write_mdata)(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
+
+	/**
 	 * check_mdata() - Check if the FWU metadata is valid
 	 * @dev:	FWU device
 	 *
@@ -125,6 +145,27 @@ struct fwu_mdata_ops {
 #define FWU_OS_REQUEST_FW_ACCEPT_GUID \
 	EFI_GUID(0x0c996046, 0xbcc0, 0x4d04, 0x85, 0xec, \
 		 0xe1, 0xfc, 0xed, 0xf1, 0xc6, 0xf8)
+
+/**
+ * fwu_read_mdata() - Wrapper around fwu_mdata_ops.read_mdata()
+ */
+int fwu_read_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
+
+/**
+ * fwu_write_mdata() - Wrapper around fwu_mdata_ops.write_mdata()
+ */
+int fwu_write_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
+
+/**
+ * fwu_get_verified_mdata() - Read, verify and return the FWU metadata
+ *
+ * Read both the metadata copies from the storage media, verify their checksum,
+ * and ascertain that both copies match. If one of the copies has gone bad,
+ * restore it from the good copy.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_get_verified_mdata(struct fwu_mdata *mdata);
 
 /**
  * fwu_check_mdata_validity() - Check for validity of the FWU metadata copies

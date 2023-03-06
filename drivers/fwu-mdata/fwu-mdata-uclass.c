@@ -17,6 +17,40 @@
 #include <u-boot/crc.h>
 
 /**
+ * fwu_read_mdata() - Wrapper around fwu_mdata_ops.read_mdata()
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_read_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary)
+{
+	const struct fwu_mdata_ops *ops = device_get_ops(dev);
+
+	if (!ops->read_mdata) {
+		log_debug("read_mdata() method not defined\n");
+		return -ENOSYS;
+	}
+
+	return ops->read_mdata(dev, mdata, primary);
+}
+
+/**
+ * fwu_write_mdata() - Wrapper around fwu_mdata_ops.write_mdata()
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_write_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary)
+{
+	const struct fwu_mdata_ops *ops = device_get_ops(dev);
+
+	if (!ops->write_mdata) {
+		log_debug("write_mdata() method not defined\n");
+		return -ENOSYS;
+	}
+
+	return ops->write_mdata(dev, mdata, primary);
+}
+
+/**
  * fwu_get_mdata_part_num() - Get the FWU metadata partition numbers
  * @dev: FWU metadata device
  * @mdata_parts: array for storing the metadata partition numbers

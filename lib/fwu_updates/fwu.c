@@ -15,12 +15,12 @@
 #include <linux/errno.h>
 #include <linux/types.h>
 
+#include <u-boot/crc.h>
+
+static struct fwu_mdata g_mdata; /* = {0} makes uninit crc32 always invalid */
+static struct udevice *g_dev;
 static u8 in_trial;
 static u8 boottime_check;
-
-#include <linux/errno.h>
-#include <linux/types.h>
-#include <u-boot/crc.h>
 
 enum {
 	IMAGE_ACCEPT_SET = 1,
@@ -159,6 +159,127 @@ static int fwu_get_image_type_id(u8 *image_index, efi_guid_t *image_type_id)
 	}
 
 	return -ENOENT;
+}
+
+/**
+ * fwu_sync_mdata() - Update given meta-data partition(s) with the copy provided
+ * @mdata: FWU metadata structure
+ * @part: Bitmask of FWU metadata partitions to be written to
+ *
+ * Return: 0 if OK, -ve on error
+ */
+static int fwu_sync_mdata(struct fwu_mdata *mdata, int part)
+{
+	void *buf = &mdata->version;
+	int err;
+
+	if (part == BOTH_PARTS) {
+		err = fwu_sync_mdata(mdata, SECONDARY_PART);
+		if (err)
+			return err;
+		part = PRIMARY_PART;
+	}
+
+	/*
+	 * Calculate the crc32 for the updated FWU metadata
+	 * and put the updated value in the FWU metadata crc32
+	 * field
+	 */
+	mdata->crc32 = crc32(0, buf, sizeof(*mdata) - sizeof(u32));
+
+	err = fwu_write_mdata(g_dev, mdata, part == PRIMARY_PART);
+	if (err) {
+		log_err("Unable to write %s mdata\n",
+			part == PRIMARY_PART ?  "primary" : "secondary");
+		return err;
+	}
+
+	/* update the cached copy of meta-data */
+	memcpy(&g_mdata, mdata, sizeof(struct fwu_mdata));
+
+	return 0;
+}
+
+static inline int mdata_crc_check(struct fwu_mdata *mdata)
+{
+	void *buf = &mdata->version;
+	u32 calc_crc32 = crc32(0, buf, sizeof(*mdata) - sizeof(u32));
+
+	return calc_crc32 == mdata->crc32 ? 0 : -EINVAL;
+}
+
+/**
+ * fwu_get_verified_mdata() - Read, verify and return the FWU metadata
+ * @mdata: Output FWU metadata read or NULL
+ *
+ * Read both the metadata copies from the storage media, verify their checksum,
+ * and ascertain that both copies match. If one of the copies has gone bad,
+ * restore it from the good copy.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_get_verified_mdata(struct fwu_mdata *mdata)
+{
+	int err;
+	bool parts_ok[2] = { false };
+	struct fwu_mdata s, *parts_mdata[2];
+
+	parts_mdata[0] = &g_mdata;
+	parts_mdata[1] = &s;
+
+	/* if mdata already read and ready */
+	err = mdata_crc_check(parts_mdata[0]);
+	if (!err)
+		goto ret_mdata;
+	/* else read, verify and, if needed, fix mdata */
+
+	for (int i = 0; i < 2; i++) {
+		parts_ok[i] = false;
+		err = fwu_read_mdata(g_dev, parts_mdata[i], !i);
+		if (!err) {
+			err = mdata_crc_check(parts_mdata[i]);
+			if (!err)
+				parts_ok[i] = true;
+			else
+				log_debug("mdata : %s crc32 failed\n", i ? "secondary" : "primary");
+		}
+	}
+
+	if (parts_ok[0] && parts_ok[1]) {
+		/*
+		 * Before returning, check that both the
+		 * FWU metadata copies are the same.
+		 */
+		err = memcmp(parts_mdata[0], parts_mdata[1], sizeof(struct fwu_mdata));
+		if (!err)
+			goto ret_mdata;
+
+		/*
+		 * If not, populate the secondary partition from the
+		 * primary partition copy.
+		 */
+		log_info("Both FWU metadata copies are valid but do not match.");
+		log_info(" Restoring the secondary partition from the primary\n");
+		parts_ok[1] = false;
+	}
+
+	for (int i = 0; i < 2; i++) {
+		if (parts_ok[i])
+			continue;
+
+		memcpy(parts_mdata[i], parts_mdata[1 - i], sizeof(struct fwu_mdata));
+		err = fwu_sync_mdata(parts_mdata[i], i ? SECONDARY_PART : PRIMARY_PART);
+		if (err) {
+			log_debug("mdata : %s write failed\n", i ? "secondary" : "primary");
+			return err;
+		}
+	}
+
+ret_mdata:
+	if (!err && mdata)
+		memcpy(mdata, parts_mdata[0], sizeof(struct fwu_mdata));
+
+	return err;
 }
 
 /**
@@ -436,8 +557,8 @@ int fwu_get_image_index(u8 *image_index)
 		}
 	}
 
-	log_debug("Partition with the image type %pUs not found\n",
-		  &image_type_id);
+	log_err("Partition with the image type %pUs not found\n",
+		&image_type_id);
 
 out:
 	return ret;
