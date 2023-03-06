@@ -1412,13 +1412,6 @@ err_free_reset_eqos:
 	return ret;
 }
 
-/* board-specific Ethernet Interface initializations. */
-__weak int board_interface_eth_init(struct udevice *dev,
-				    phy_interface_t interface_type)
-{
-	return 0;
-}
-
 static int eqos_probe_resources_stm32(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
