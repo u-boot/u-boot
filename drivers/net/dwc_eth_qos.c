@@ -761,6 +761,12 @@ static int eqos_start(struct udevice *dev)
 
 	eqos->reg_access_ok = true;
 
+	/*
+	 * Assert the SWR first, the actually reset the MAC and to latch in
+	 * e.g. i.MX8M Plus GPR[1] content, which selects interface mode.
+	 */
+	setbits_le32(&eqos->dma_regs->mode, EQOS_DMA_MODE_SWR);
+
 	ret = wait_for_bit_le32(&eqos->dma_regs->mode,
 				EQOS_DMA_MODE_SWR, false,
 				eqos->config->swr_wait, false);
