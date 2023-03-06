@@ -968,10 +968,56 @@ int set_clk_enet(enum enet_freq type)
 
 	return 0;
 }
+
+static int imx8mp_fec_interface_init(struct udevice *dev,
+				     phy_interface_t interface_type,
+				     bool mx8mp)
+{
+	/* i.MX8MP has extra RGMII_EN bit in IOMUXC GPR1 register */
+	const u32 rgmii_en = mx8mp ? IOMUXC_GPR_GPR1_GPR_ENET1_RGMII_EN : 0;
+	struct iomuxc_gpr_base_regs *gpr =
+		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
+
+	clrbits_le32(&gpr->gpr[1],
+		     rgmii_en |
+		     IOMUXC_GPR_GPR1_GPR_ENET1_TX_CLK_SEL);
+
+	switch (interface_type) {
+	case PHY_INTERFACE_MODE_MII:
+	case PHY_INTERFACE_MODE_RMII:
+		setbits_le32(&gpr->gpr[1], IOMUXC_GPR_GPR1_GPR_ENET1_TX_CLK_SEL);
+		break;
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		setbits_le32(&gpr->gpr[1], rgmii_en);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
 #endif
 
 int board_interface_eth_init(struct udevice *dev, phy_interface_t interface_type)
 {
+	if (IS_ENABLED(CONFIG_IMX8MM) &&
+	    IS_ENABLED(CONFIG_FEC_MXC) &&
+	    device_is_compatible(dev, "fsl,imx8mm-fec"))
+		return imx8mp_fec_interface_init(dev, interface_type, false);
+
+	if (IS_ENABLED(CONFIG_IMX8MN) &&
+	    IS_ENABLED(CONFIG_FEC_MXC) &&
+	    device_is_compatible(dev, "fsl,imx8mn-fec"))
+		return imx8mp_fec_interface_init(dev, interface_type, false);
+
+	if (IS_ENABLED(CONFIG_IMX8MP) &&
+	    IS_ENABLED(CONFIG_FEC_MXC) &&
+	    device_is_compatible(dev, "fsl,imx8mp-fec"))
+		return imx8mp_fec_interface_init(dev, interface_type, true);
+
 	if (IS_ENABLED(CONFIG_IMX8MP) &&
 	    IS_ENABLED(CONFIG_DWC_ETH_QOS) &&
 	    device_is_compatible(dev, "nxp,imx8mp-dwmac-eqos"))
