@@ -179,20 +179,27 @@ static int eqos_set_tx_clk_speed_imx(struct udevice *dev)
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
-	switch (eqos->phy->speed) {
-	case SPEED_1000:
-		rate = 125 * 1000 * 1000;
-		break;
-	case SPEED_100:
-		rate = 25 * 1000 * 1000;
-		break;
-	case SPEED_10:
-		rate = 2.5 * 1000 * 1000;
-		break;
-	default:
+	if (eqos->phy->interface == PHY_INTERFACE_MODE_RMII)
+		rate = 5000;	/* 5000 kHz = 5 MHz */
+	else
+		rate = 2500;	/* 2500 kHz = 2.5 MHz */
+
+	if (eqos->phy->speed == SPEED_1000 &&
+	    (eqos->phy->interface == PHY_INTERFACE_MODE_RGMII ||
+	     eqos->phy->interface == PHY_INTERFACE_MODE_RGMII_ID ||
+	     eqos->phy->interface == PHY_INTERFACE_MODE_RGMII_RXID ||
+	     eqos->phy->interface == PHY_INTERFACE_MODE_RGMII_TXID)) {
+		rate *= 50;	/* Use 50x base rate i.e. 125 MHz */
+	} else if (eqos->phy->speed == SPEED_100) {
+		rate *= 10;	/* Use 10x base rate */
+	} else if (eqos->phy->speed == SPEED_10) {
+		rate *= 1;	/* Use base rate */
+	} else {
 		pr_err("invalid speed %d", eqos->phy->speed);
 		return -EINVAL;
 	}
+
+	rate *= 1000;	/* clk_set_rate() operates in Hz */
 
 	ret = clk_set_rate(&eqos->clk_tx, rate);
 	if (ret < 0) {
