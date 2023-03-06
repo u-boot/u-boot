@@ -1383,7 +1383,6 @@ static int eqos_probe_resources_tegra186(struct udevice *dev)
 	if (ret) {
 		pr_err("clk_get_by_name(ptp_ref) failed: %d", ret);
 		goto err_free_clk_rx;
-		return ret;
 	}
 
 	ret = clk_get_by_name(dev, "tx", &eqos->clk_tx);
