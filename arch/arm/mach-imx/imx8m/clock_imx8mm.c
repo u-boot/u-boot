@@ -827,53 +827,6 @@ u32 mxc_get_clock(enum mxc_clock clk)
 }
 
 #if defined(CONFIG_IMX8MP) && defined(CONFIG_DWC_ETH_QOS)
-int set_clk_eqos(enum enet_freq type)
-{
-	u32 target;
-	u32 enet1_ref;
-
-	switch (type) {
-	case ENET_125MHZ:
-		enet1_ref = ENET1_REF_CLK_ROOT_FROM_PLL_ENET_MAIN_125M_CLK;
-		break;
-	case ENET_50MHZ:
-		enet1_ref = ENET1_REF_CLK_ROOT_FROM_PLL_ENET_MAIN_50M_CLK;
-		break;
-	case ENET_25MHZ:
-		enet1_ref = ENET1_REF_CLK_ROOT_FROM_PLL_ENET_MAIN_25M_CLK;
-		break;
-	default:
-		return -EINVAL;
-	}
-
-	/* disable the clock first */
-	clock_enable(CCGR_QOS_ETHENET, 0);
-	clock_enable(CCGR_SDMA2, 0);
-
-	/* set enet axi clock 266Mhz */
-	target = CLK_ROOT_ON | ENET_AXI_CLK_ROOT_FROM_SYS1_PLL_266M |
-		 CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV1) |
-		 CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV1);
-	clock_set_target_val(ENET_AXI_CLK_ROOT, target);
-
-	target = CLK_ROOT_ON | enet1_ref |
-		 CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV1) |
-		 CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV1);
-	clock_set_target_val(ENET_QOS_CLK_ROOT, target);
-
-	target = CLK_ROOT_ON |
-		ENET1_TIME_CLK_ROOT_FROM_PLL_ENET_MAIN_100M_CLK |
-		CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV1) |
-		CLK_ROOT_POST_DIV(CLK_ROOT_POST_DIV4);
-	clock_set_target_val(ENET_QOS_TIMER_CLK_ROOT, target);
-
-	/* enable clock */
-	clock_enable(CCGR_QOS_ETHENET, 1);
-	clock_enable(CCGR_SDMA2, 1);
-
-	return 0;
-}
-
 static int imx8mp_eqos_interface_init(struct udevice *dev,
 				      phy_interface_t interface_type)
 {

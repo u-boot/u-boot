@@ -41,19 +41,6 @@ int board_phys_sdram_size(phys_size_t *size)
 	return 0;
 }
 
-static void setup_eqos(void)
-{
-	struct iomuxc_gpr_base_regs *gpr =
-		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
-
-	/* Set INTF as RGMII, enable RGMII TXC clock. */
-	clrsetbits_le32(&gpr->gpr[1],
-			IOMUXC_GPR_GPR1_GPR_ENET_QOS_INTF_SEL_MASK, BIT(16));
-	setbits_le32(&gpr->gpr[1], BIT(19) | BIT(21));
-
-	set_clk_eqos(ENET_125MHZ);
-}
-
 static void setup_fec(void)
 {
 	struct iomuxc_gpr_base_regs *gpr =
@@ -131,7 +118,6 @@ int dh_setup_mac_address(void)
 
 int board_init(void)
 {
-	setup_eqos();
 	setup_fec();
 	return 0;
 }
