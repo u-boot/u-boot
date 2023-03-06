@@ -272,7 +272,43 @@ static int fwu_mdata_gpt_blk_probe(struct udevice *dev)
 	return 0;
 }
 
+static int fwu_gpt_read_mdata(struct udevice *dev, struct fwu_mdata *mdata,
+			      bool primary)
+{
+	struct fwu_mdata_gpt_blk_priv *priv = dev_get_priv(dev);
+	struct blk_desc *desc = dev_get_uclass_plat(priv->blk_dev);
+	int ret;
+
+	ret = gpt_get_mdata_partitions(desc);
+	if (ret < 0) {
+		log_debug("Error getting the FWU metadata partitions\n");
+		return -ENOENT;
+	}
+
+	return gpt_read_write_mdata(desc, mdata, MDATA_READ,
+				    primary ? g_mdata_part[0] : g_mdata_part[1]);
+}
+
+static int fwu_gpt_write_mdata(struct udevice *dev, struct fwu_mdata *mdata,
+			       bool primary)
+{
+	struct fwu_mdata_gpt_blk_priv *priv = dev_get_priv(dev);
+	struct blk_desc *desc = dev_get_uclass_plat(priv->blk_dev);
+	int ret;
+
+	ret = gpt_get_mdata_partitions(desc);
+	if (ret < 0) {
+		log_debug("Error getting the FWU metadata partitions\n");
+		return -ENOENT;
+	}
+
+	return gpt_read_write_mdata(desc, mdata, MDATA_WRITE,
+				    primary ? g_mdata_part[0] : g_mdata_part[1]);
+}
+
 static const struct fwu_mdata_ops fwu_gpt_blk_ops = {
+	.read_mdata = fwu_gpt_read_mdata,
+	.write_mdata = fwu_gpt_write_mdata,
 	.get_mdata = fwu_gpt_get_mdata,
 	.update_mdata = fwu_gpt_update_mdata,
 	.get_mdata_part_num = fwu_gpt_get_mdata_partitions,
