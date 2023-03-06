@@ -108,7 +108,7 @@ void eqos_flush_desc_generic(void *desc)
 	flush_dcache_range(start, end);
 }
 
-void eqos_inval_buffer_tegra186(void *buf, size_t size)
+static void eqos_inval_buffer_tegra186(void *buf, size_t size)
 {
 	unsigned long start = (unsigned long)buf & ~(ARCH_DMA_MINALIGN - 1);
 	unsigned long end = ALIGN(start + size, ARCH_DMA_MINALIGN);
