@@ -41,17 +41,6 @@ int board_phys_sdram_size(phys_size_t *size)
 	return 0;
 }
 
-static void setup_fec(void)
-{
-	struct iomuxc_gpr_base_regs *gpr =
-		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
-
-	/* Enable RGMII TX clk output. */
-	setbits_le32(&gpr->gpr[1], BIT(22));
-
-	set_clk_enet(ENET_125MHZ);
-}
-
 static int dh_imx8_setup_ethaddr(void)
 {
 	unsigned char enetaddr[6];
@@ -118,7 +107,6 @@ int dh_setup_mac_address(void)
 
 int board_init(void)
 {
-	setup_fec();
 	return 0;
 }
 
