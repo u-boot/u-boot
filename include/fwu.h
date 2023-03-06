@@ -80,7 +80,7 @@ int fwu_read_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
 int fwu_write_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
 
 /**
- * fwu_get_verified_mdata() - Read, verify and return the FWU metadata
+ * fwu_get_mdata() - Read, verify and return the FWU metadata
  *
  * Read both the metadata copies from the storage media, verify their checksum,
  * and ascertain that both copies match. If one of the copies has gone bad,
@@ -88,7 +88,7 @@ int fwu_write_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
  *
  * Return: 0 if OK, -ve on error
  */
-int fwu_get_verified_mdata(struct fwu_mdata *mdata);
+int fwu_get_mdata(struct fwu_mdata *mdata);
 
 /**
  * fwu_get_active_index() - Get active_index from the FWU metadata

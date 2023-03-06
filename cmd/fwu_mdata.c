@@ -46,7 +46,7 @@ int do_fwu_mdata_read(struct cmd_tbl *cmdtp, int flag,
 	int ret = CMD_RET_SUCCESS, res;
 	struct fwu_mdata mdata;
 
-	res = fwu_get_verified_mdata(&mdata);
+	res = fwu_get_mdata(&mdata);
 	if (res < 0) {
 		log_err("Unable to get valid FWU metadata\n");
 		ret = CMD_RET_FAILURE;

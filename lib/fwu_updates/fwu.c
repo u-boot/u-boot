@@ -189,7 +189,7 @@ static inline int mdata_crc_check(struct fwu_mdata *mdata)
 }
 
 /**
- * fwu_get_verified_mdata() - Read, verify and return the FWU metadata
+ * fwu_get_mdata() - Read, verify and return the FWU metadata
  * @mdata: Output FWU metadata read or NULL
  *
  * Read both the metadata copies from the storage media, verify their checksum,
@@ -198,7 +198,7 @@ static inline int mdata_crc_check(struct fwu_mdata *mdata)
  *
  * Return: 0 if OK, -ve on error
  */
-int fwu_get_verified_mdata(struct fwu_mdata *mdata)
+int fwu_get_mdata(struct fwu_mdata *mdata)
 {
 	int err;
 	bool parts_ok[2] = { false };
@@ -615,7 +615,7 @@ static int fwu_boottime_checks(void *ctx, struct event *event)
 		return ret;
 	}
 
-	ret = fwu_get_verified_mdata(NULL);
+	ret = fwu_get_mdata(NULL);
 	if (ret) {
 		log_debug("Unable to read meta-data\n");
 		return ret;
