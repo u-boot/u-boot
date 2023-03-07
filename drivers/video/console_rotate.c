@@ -262,18 +262,27 @@ struct vidconsole_ops console_ops_1 = {
 	.putc_xy	= console_putc_xy_1,
 	.move_rows	= console_move_rows_1,
 	.set_row	= console_set_row_1,
+	.get_font_size	= console_simple_get_font_size,
+	.get_font	= console_simple_get_font,
+	.select_font	= console_simple_select_font,
 };
 
 struct vidconsole_ops console_ops_2 = {
 	.putc_xy	= console_putc_xy_2,
 	.move_rows	= console_move_rows_2,
 	.set_row	= console_set_row_2,
+	.get_font_size	= console_simple_get_font_size,
+	.get_font	= console_simple_get_font,
+	.select_font	= console_simple_select_font,
 };
 
 struct vidconsole_ops console_ops_3 = {
 	.putc_xy	= console_putc_xy_3,
 	.move_rows	= console_move_rows_3,
 	.set_row	= console_set_row_3,
+	.get_font_size	= console_simple_get_font_size,
+	.get_font	= console_simple_get_font,
+	.select_font	= console_simple_select_font,
 };
 
 U_BOOT_DRIVER(vidconsole_1) = {

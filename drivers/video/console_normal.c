@@ -101,6 +101,9 @@ struct vidconsole_ops console_ops = {
 	.putc_xy	= console_putc_xy,
 	.move_rows	= console_move_rows,
 	.set_row	= console_set_row,
+	.get_font_size	= console_simple_get_font_size,
+	.get_font	= console_simple_get_font,
+	.select_font	= console_simple_select_font,
 };
 
 U_BOOT_DRIVER(vidconsole_normal) = {

@@ -100,3 +100,21 @@ int fill_char_horizontally(uchar *pfont, void **line, struct video_priv *vid_pri
  * @returns 0, if success, or else error code.
  */
 int console_probe(struct udevice *dev);
+
+/**
+ * Internal function to be used in as ops.
+ * See details in video_console.h get_font_size function
+ **/
+const char *console_simple_get_font_size(struct udevice *dev, uint *sizep);
+
+/**
+ * Internal function to be used in as ops.
+ * See details in video_console.h get_font function
+ **/
+int console_simple_get_font(struct udevice *dev, int seq, struct vidfont_info *info);
+
+/**
+ * Internal function to be used in as ops.
+ * See details in video_console.h select_font function
+ **/
+int console_simple_select_font(struct udevice *dev, const char *name, uint size);

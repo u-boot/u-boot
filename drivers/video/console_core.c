@@ -180,3 +180,33 @@ int console_probe(struct udevice *dev)
 {
 	return console_set_font(dev, fonts);
 }
+
+const char *console_simple_get_font_size(struct udevice *dev, uint *sizep)
+{
+	struct console_simple_priv *priv = dev_get_priv(dev);
+
+	*sizep = priv->fontdata->width;
+
+	return priv->fontdata->name;
+}
+
+int console_simple_get_font(struct udevice *dev, int seq, struct vidfont_info *info)
+{
+	info->name = fonts[seq].name;
+
+	return 0;
+}
+
+int console_simple_select_font(struct udevice *dev, const char *name, uint size)
+{
+	struct video_fontdata *font;
+
+	for (font = fonts; font->name; font++) {
+		if (!strcmp(name, font->name)) {
+			console_set_font(dev, font);
+			return 0;
+		}
+	};
+	printf("no such font: %s, make sure it's name has <width>x<height> format\n", name);
+	return -ENOENT;
+}

@@ -2226,6 +2226,14 @@ config CMD_VIDCONSOLE
 	  The name 'lcdputs' is a bit of a misnomer, but so named because the
 	  video device is often an LCD.
 
+config CMD_SELECT_FONT
+	bool "select font size"
+	depends on VIDEO
+	default n
+	help
+	  Enabling this will provide 'font' command.
+	  Allows font selection at runtime.
+
 endmenu
 
 source "cmd/ti/Kconfig"
