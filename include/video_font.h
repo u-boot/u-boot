@@ -10,7 +10,7 @@
 #ifdef CONFIG_VIDEO_FONT_4X6
 #include <video_font_4x6.h>
 #else
-#include <video_font_data.h>
+#include <video_font_8x16.h>
 #endif
 
 #endif /* _VIDEO_FONT_ */

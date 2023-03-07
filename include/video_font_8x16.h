@@ -6,8 +6,8 @@
  * This file contains an 8x16 bitmap font for code page 437.
  */
 
-#ifndef _VIDEO_FONT_DATA_
-#define _VIDEO_FONT_DATA_
+#ifndef _VIDEO_FONT_8X16
+#define _VIDEO_FONT_8X16
 
 #define VIDEO_FONT_CHARS	256
 #define VIDEO_FONT_WIDTH	8
@@ -4623,7 +4623,6 @@ static unsigned char __maybe_unused video_fontdata[VIDEO_FONT_SIZE] = {
 	0x00, /* 00000000 */
 	0x00, /* 00000000 */
 	0x00, /* 00000000 */
-
 };
 
 #endif
