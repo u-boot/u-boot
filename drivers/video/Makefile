@@ -9,6 +9,12 @@ obj-$(CONFIG_BACKLIGHT_GPIO) += backlight_gpio.o
 obj-$(CONFIG_BACKLIGHT_PWM) += pwm_backlight.o
 obj-$(CONFIG_CONSOLE_NORMAL) += console_normal.o
 obj-$(CONFIG_CONSOLE_ROTATION) += console_rotate.o
+ifdef CONFIG_CONSOLE_NORMAL
+obj-y += console_core.o
+else ifdef CONFIG_CONSOLE_ROTATION
+obj-y += console_core.o
+endif
+obj-$(CONFIG_CONSOLE_ROTATION) += console_core.o
 obj-$(CONFIG_CONSOLE_TRUETYPE) += console_truetype.o fonts/
 obj-$(CONFIG_DISPLAY) += display-uclass.o
 obj-$(CONFIG_VIDEO_MIPI_DSI) += dsi-host-uclass.o
