@@ -34,11 +34,6 @@
 	};
 };
 
-&combphy1 {
-	/delete-property/ assigned-clocks;
-	/delete-property/ assigned-clock-rates;
-};
-
 &cru {
 	u-boot,dm-pre-reloc;
 	status = "okay";
