@@ -401,11 +401,11 @@ static int rk3568_sdhci_set_enhanced_strobe(struct sdhci_host *host)
 static int rk3568_sdhci_set_ios_post(struct sdhci_host *host)
 {
 	struct mmc *mmc = host->mmc;
-	uint clock = mmc->tran_speed;
+	uint clock = mmc->clock;
 	u32 reg, vendor_reg;
 
-	if (!clock)
-		clock = mmc->clock;
+	if (mmc->tran_speed && mmc->clock > mmc->tran_speed)
+		clock = mmc->tran_speed;
 
 	rk3568_sdhci_emmc_set_clock(host, clock);
 
