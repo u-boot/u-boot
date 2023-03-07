@@ -45,7 +45,7 @@ inline void fill_pixel_and_goto_next(void **dstp, u32 value, int pbytes, int ste
 int fill_char_vertically(uchar *pfont, void **line, struct video_priv *vid_priv,
 			 bool direction)
 {
-	int step, line_step, pbytes, ret;
+	int step, line_step, pbytes, bitcount, width_remainder, ret;
 	void *dst;
 
 	ret = check_bpix_support(vid_priv->bpix);
@@ -61,23 +61,36 @@ int fill_char_vertically(uchar *pfont, void **line, struct video_priv *vid_priv,
 		line_step = vid_priv->line_length;
 	}
 
+	width_remainder = VIDEO_FONT_WIDTH % 8;
 	for (int row = 0; row < VIDEO_FONT_HEIGHT; row++) {
+		uchar bits;
+
+		bitcount = 8;
 		dst = *line;
-		uchar bits = pfont[row];
+		for (int col = 0; col < VIDEO_FONT_BYTE_WIDTH; col++) {
+			if (width_remainder) {
+				bool is_last_iteration = (VIDEO_FONT_BYTE_WIDTH - col == 1);
 
-		for (int i = 0; i < VIDEO_FONT_WIDTH; i++) {
-			u32 value = (bits & 0x80) ?
-				vid_priv->colour_fg :
-				vid_priv->colour_bg;
+				if (is_last_iteration)
+					bitcount = width_remainder;
+			}
+			bits = pfont[col];
 
-			fill_pixel_and_goto_next(&dst,
-						 value,
-						 pbytes,
-						 step
-			);
-			bits <<= 1;
+			for (int bit = 0; bit < bitcount; bit++) {
+				u32 value = (bits & 0x80) ?
+					vid_priv->colour_fg :
+					vid_priv->colour_bg;
+
+				fill_pixel_and_goto_next(&dst,
+							 value,
+							 pbytes,
+							 step
+				);
+				bits <<= 1;
+			}
 		}
 		*line += line_step;
+		pfont += VIDEO_FONT_BYTE_WIDTH;
 	}
 	return ret;
 }
@@ -85,9 +98,9 @@ int fill_char_vertically(uchar *pfont, void **line, struct video_priv *vid_priv,
 int fill_char_horizontally(uchar *pfont, void **line, struct video_priv *vid_priv,
 			   bool direction)
 {
-	int step, line_step, pbytes, ret;
+	int step, line_step, pbytes, bitcount = 8, width_remainder, ret;
 	void *dst;
-	u8 mask = 0x80;
+	u8 mask;
 
 	ret = check_bpix_support(vid_priv->bpix);
 	if (ret)
@@ -101,21 +114,32 @@ int fill_char_horizontally(uchar *pfont, void **line, struct video_priv *vid_pri
 		step = pbytes;
 		line_step = -vid_priv->line_length;
 	}
-	for (int col = 0; col < VIDEO_FONT_WIDTH; col++) {
-		dst = *line;
-		for (int row = 0; row < VIDEO_FONT_HEIGHT; row++) {
-			u32 value = (pfont[row * VIDEO_FONT_BYTE_WIDTH] & mask) ?
-						vid_priv->colour_fg :
-						vid_priv->colour_bg;
 
-			fill_pixel_and_goto_next(&dst,
-						 value,
-						 pbytes,
-						 step
-			);
+	width_remainder = VIDEO_FONT_WIDTH % 8;
+	for (int col = 0; col < VIDEO_FONT_BYTE_WIDTH; col++) {
+		mask = 0x80;
+		if (width_remainder) {
+			bool is_last_iteration = (VIDEO_FONT_BYTE_WIDTH - col == 1);
+
+			if (is_last_iteration)
+				bitcount = width_remainder;
 		}
-		*line += line_step;
-		mask >>= 1;
+		for (int bit = 0; bit < bitcount; bit++) {
+			dst = *line;
+			for (int row = 0; row < VIDEO_FONT_HEIGHT; row++) {
+				u32 value = (pfont[row * VIDEO_FONT_BYTE_WIDTH] & mask) ?
+							vid_priv->colour_fg :
+							vid_priv->colour_bg;
+
+				fill_pixel_and_goto_next(&dst,
+							 value,
+							 pbytes,
+							 step
+				);
+			}
+			*line += line_step;
+			mask >>= 1;
+		}
 	}
 	return ret;
 }

@@ -9,6 +9,7 @@
 #include <video_font.h>		/* Get font data, width and height */
 
 #define VIDEO_FONT_BYTE_WIDTH	((VIDEO_FONT_WIDTH / 8) + (VIDEO_FONT_WIDTH % 8 > 0))
+#define VIDEO_FONT_CHAR_PIXEL_BYTES	(VIDEO_FONT_HEIGHT * VIDEO_FONT_BYTE_WIDTH)
 
 #define FLIPPED_DIRECTION 1
 #define NORMAL_DIRECTION 0
