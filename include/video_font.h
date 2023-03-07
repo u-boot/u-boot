@@ -7,10 +7,23 @@
 #ifndef _VIDEO_FONT_
 #define _VIDEO_FONT_
 
-#ifdef CONFIG_VIDEO_FONT_4X6
+#include <video_font_data.h>
+
+#if defined(CONFIG_VIDEO_FONT_4X6)
 #include <video_font_4x6.h>
-#else
+#endif
+#if defined(CONFIG_VIDEO_FONT_8X16)
 #include <video_font_8x16.h>
 #endif
+
+static struct video_fontdata __maybe_unused fonts[] = {
+#if defined(CONFIG_VIDEO_FONT_8X16)
+	FONT_ENTRY(8, 16, 8x16),
+#endif
+#if defined(CONFIG_VIDEO_FONT_4X6)
+	FONT_ENTRY(4, 6, 4x6),
+#endif
+	{/* list terminator */}
+};
 
 #endif /* _VIDEO_FONT_ */

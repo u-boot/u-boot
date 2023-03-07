@@ -9,7 +9,40 @@
 #include <video.h>
 #include <video_console.h>
 #include <dm.h>
+#include <video_font.h>
 #include "vidconsole_internal.h"
+
+/**
+ * console_set_font() - prepare vidconsole for chosen font.
+ *
+ * @dev		vidconsole device
+ * @fontdata	pointer to font data struct
+ */
+static int console_set_font(struct udevice *dev, struct video_fontdata *fontdata)
+{
+	struct console_simple_priv *priv = dev_get_priv(dev);
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
+	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
+
+	debug("console_simple: setting %s font\n", fontdata->name);
+	debug("width: %d\n", fontdata->width);
+	debug("byte width: %d\n", fontdata->byte_width);
+	debug("height: %d\n", fontdata->height);
+
+	priv->fontdata = fontdata;
+	vc_priv->x_charsize = fontdata->width;
+	vc_priv->y_charsize = fontdata->height;
+	if (vid_priv->rot % 2) {
+		vc_priv->cols = vid_priv->ysize / fontdata->width;
+		vc_priv->rows = vid_priv->xsize / fontdata->height;
+		vc_priv->xsize_frac = VID_TO_POS(vid_priv->ysize);
+	} else {
+		vc_priv->cols = vid_priv->xsize / fontdata->width;
+		vc_priv->rows = vid_priv->ysize / fontdata->height;
+	}
+
+	return 0;
+}
 
 int check_bpix_support(int bpix)
 {
@@ -43,7 +76,7 @@ inline void fill_pixel_and_goto_next(void **dstp, u32 value, int pbytes, int ste
 }
 
 int fill_char_vertically(uchar *pfont, void **line, struct video_priv *vid_priv,
-			 bool direction)
+			 struct video_fontdata *fontdata, bool direction)
 {
 	int step, line_step, pbytes, bitcount, width_remainder, ret;
 	void *dst;
@@ -61,17 +94,17 @@ int fill_char_vertically(uchar *pfont, void **line, struct video_priv *vid_priv,
 		line_step = vid_priv->line_length;
 	}
 
-	width_remainder = VIDEO_FONT_WIDTH % 8;
-	for (int row = 0; row < VIDEO_FONT_HEIGHT; row++) {
+	width_remainder = fontdata->width % 8;
+	for (int row = 0; row < fontdata->height; row++) {
 		uchar bits;
 
 		bitcount = 8;
 		dst = *line;
-		for (int col = 0; col < VIDEO_FONT_BYTE_WIDTH; col++) {
+		for (int col = 0; col < fontdata->byte_width; col++) {
 			if (width_remainder) {
-				bool is_last_iteration = (VIDEO_FONT_BYTE_WIDTH - col == 1);
+				bool is_last_col = (fontdata->byte_width - col == 1);
 
-				if (is_last_iteration)
+				if (is_last_col)
 					bitcount = width_remainder;
 			}
 			bits = pfont[col];
@@ -90,13 +123,13 @@ int fill_char_vertically(uchar *pfont, void **line, struct video_priv *vid_priv,
 			}
 		}
 		*line += line_step;
-		pfont += VIDEO_FONT_BYTE_WIDTH;
+		pfont += fontdata->byte_width;
 	}
 	return ret;
 }
 
 int fill_char_horizontally(uchar *pfont, void **line, struct video_priv *vid_priv,
-			   bool direction)
+			   struct video_fontdata *fontdata, bool direction)
 {
 	int step, line_step, pbytes, bitcount = 8, width_remainder, ret;
 	void *dst;
@@ -115,21 +148,20 @@ int fill_char_horizontally(uchar *pfont, void **line, struct video_priv *vid_pri
 		line_step = -vid_priv->line_length;
 	}
 
-	width_remainder = VIDEO_FONT_WIDTH % 8;
-	for (int col = 0; col < VIDEO_FONT_BYTE_WIDTH; col++) {
+	width_remainder = fontdata->width % 8;
+	for (int col = 0; col < fontdata->byte_width; col++) {
 		mask = 0x80;
 		if (width_remainder) {
-			bool is_last_iteration = (VIDEO_FONT_BYTE_WIDTH - col == 1);
+			bool is_last_col = (fontdata->byte_width - col == 1);
 
-			if (is_last_iteration)
+			if (is_last_col)
 				bitcount = width_remainder;
 		}
 		for (int bit = 0; bit < bitcount; bit++) {
 			dst = *line;
-			for (int row = 0; row < VIDEO_FONT_HEIGHT; row++) {
-				u32 value = (pfont[row * VIDEO_FONT_BYTE_WIDTH] & mask) ?
-							vid_priv->colour_fg :
-							vid_priv->colour_bg;
+			for (int row = 0; row < fontdata->height; row++) {
+				u32 value = (pfont[row * fontdata->byte_width + col]
+					     & mask) ? vid_priv->colour_fg : vid_priv->colour_bg;
 
 				fill_pixel_and_goto_next(&dst,
 							 value,
@@ -146,20 +178,5 @@ int fill_char_horizontally(uchar *pfont, void **line, struct video_priv *vid_pri
 
 int console_probe(struct udevice *dev)
 {
-	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
-	struct udevice *vid_dev = dev->parent;
-	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
-
-	vc_priv->x_charsize = VIDEO_FONT_WIDTH;
-	vc_priv->y_charsize = VIDEO_FONT_HEIGHT;
-	if (vid_priv->rot % 2) {
-		vc_priv->cols = vid_priv->ysize / VIDEO_FONT_WIDTH;
-		vc_priv->rows = vid_priv->xsize / VIDEO_FONT_HEIGHT;
-		vc_priv->xsize_frac = VID_TO_POS(vid_priv->ysize);
-	} else {
-		vc_priv->cols = vid_priv->xsize / VIDEO_FONT_WIDTH;
-		vc_priv->rows = vid_priv->ysize / VIDEO_FONT_HEIGHT;
-	}
-
-	return 0;
+	return console_set_font(dev, fonts);
 }

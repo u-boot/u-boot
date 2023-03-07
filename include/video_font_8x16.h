@@ -9,13 +9,9 @@
 #ifndef _VIDEO_FONT_8X16
 #define _VIDEO_FONT_8X16
 
-#define VIDEO_FONT_CHARS	256
-#define VIDEO_FONT_WIDTH	8
-#define VIDEO_FONT_HEIGHT	16
-#define VIDEO_FONT_SIZE		(VIDEO_FONT_CHARS * VIDEO_FONT_HEIGHT)
+#include <video_font_data.h>
 
-static unsigned char __maybe_unused video_fontdata[VIDEO_FONT_SIZE] = {
-
+static unsigned char video_fontdata_8x16[VIDEO_FONT_SIZE(256, 8, 16)] = {
 	/* 0 0x00 '^@' */
 	0x00, /* 00000000 */
 	0x00, /* 00000000 */

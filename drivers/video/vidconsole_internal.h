@@ -6,13 +6,17 @@
  * (C) Copyright 2023 Dzmitry Sankouski <dsankouski@gmail.com>
  */
 
-#include <video_font.h>		/* Get font data, width and height */
-
-#define VIDEO_FONT_BYTE_WIDTH	((VIDEO_FONT_WIDTH / 8) + (VIDEO_FONT_WIDTH % 8 > 0))
-#define VIDEO_FONT_CHAR_PIXEL_BYTES	(VIDEO_FONT_HEIGHT * VIDEO_FONT_BYTE_WIDTH)
-
 #define FLIPPED_DIRECTION 1
 #define NORMAL_DIRECTION 0
+
+/**
+ * struct console_simple_priv - Private data for this driver
+ *
+ * @video_fontdata	font graphical representation data
+ */
+struct console_simple_priv {
+	struct video_fontdata *fontdata;
+};
 
 /**
  * Checks if bits per pixel supported.
@@ -41,6 +45,7 @@ void fill_pixel_and_goto_next(void **dstp, u32 value, int pbytes, int step);
  * @param pfont		a pointer to character font data.
  * @param line		a pointer to pointer to framebuffer. It's a point for upper left char corner
  * @param vid_priv	driver private data.
+ * @fontdata		font graphical representation data
  * @param direction	controls character orientation. Can be normal or flipped.
  * When normal:               When flipped:
  *|-----------------------------------------------|
@@ -59,7 +64,7 @@ void fill_pixel_and_goto_next(void **dstp, u32 value, int pbytes, int step);
  * @returns 0, if success, or else error code.
  */
 int fill_char_vertically(uchar *pfont, void **line, struct video_priv *vid_priv,
-			 bool direction);
+			 struct video_fontdata *fontdata, bool direction);
 
 /**
  * Fills 1 character in framebuffer horizontally.
@@ -68,6 +73,7 @@ int fill_char_vertically(uchar *pfont, void **line, struct video_priv *vid_priv,
  * @param pfont		a pointer to character font data.
  * @param line		a pointer to pointer to framebuffer. It's a point for upper left char corner
  * @param vid_priv	driver private data.
+ * @fontdata		font graphical representation data
  * @param direction	controls character orientation. Can be normal or flipped.
  * When normal:               When flipped:
  *|-----------------------------------------------|
@@ -84,7 +90,7 @@ int fill_char_vertically(uchar *pfont, void **line, struct video_priv *vid_priv,
  * @returns 0, if success, or else error code.
  */
 int fill_char_horizontally(uchar *pfont, void **line, struct video_priv *vid_priv,
-			   bool direction);
+			   struct video_fontdata *fontdata, bool direction);
 
 /**
  * console probe function.
