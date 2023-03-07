@@ -340,6 +340,9 @@ int vidconsole_sync_copy(struct udevice *dev, void *from, void *to);
 int vidconsole_memmove(struct udevice *dev, void *dst, const void *src,
 		       int size);
 #else
+
+#include <string.h>
+
 static inline int vidconsole_sync_copy(struct udevice *dev, void *from,
 				       void *to)
 {
