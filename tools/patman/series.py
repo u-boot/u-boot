@@ -234,6 +234,49 @@ class Series(dict):
             str = 'Change log exists, but no version is set'
             print(col.build(col.RED, str))
 
+    def GetCcForCommit(self, commit, process_tags, warn_on_error,
+                       add_maintainers, limit, get_maintainer_script,
+                       all_skips):
+        """Get the email CCs to use with a particular commit
+
+        Uses subject tags and get_maintainers.pl script to find people to cc
+        on a patch
+
+        Args:
+            commit (Commit): Commit to process
+            process_tags (bool): Process tags as if they were aliases
+            warn_on_error (bool): True to print a warning when an alias fails to
+                match, False to ignore it.
+            add_maintainers (bool or list of str): Either:
+                True/False to call the get_maintainers to CC maintainers
+                List of maintainers to include (for testing)
+            limit (int): Limit the length of the Cc list (None if no limit)
+            get_maintainer_script (str): The file name of the get_maintainer.pl
+                script (or compatible).
+            all_skips (set of str): Updated to include the set of bouncing email
+                addresses that were dropped from the output. This is essentially
+                a return value from this function.
+
+        Returns:
+            list of str: List of email addresses to cc
+        """
+        cc = []
+        if process_tags:
+            cc += gitutil.build_email_list(commit.tags,
+                                           warn_on_error=warn_on_error)
+        cc += gitutil.build_email_list(commit.cc_list,
+                                       warn_on_error=warn_on_error)
+        if type(add_maintainers) == type(cc):
+            cc += add_maintainers
+        elif add_maintainers:
+            cc += get_maintainer.get_maintainer(get_maintainer_script,
+                                                commit.patch)
+        all_skips |= set(cc) & set(settings.bounces)
+        cc = list(set(cc) - set(settings.bounces))
+        if limit is not None:
+            cc = cc[:limit]
+        return cc
+
     def MakeCcFile(self, process_tags, cover_fname, warn_on_error,
                    add_maintainers, limit, get_maintainer_script):
         """Make a cc file for us to use for per-commit Cc automation
@@ -241,15 +284,15 @@ class Series(dict):
         Also stores in self._generated_cc to make ShowActions() faster.
 
         Args:
-            process_tags: Process tags as if they were aliases
-            cover_fname: If non-None the name of the cover letter.
-            warn_on_error: True to print a warning when an alias fails to match,
-                False to ignore it.
-            add_maintainers: Either:
+            process_tags (bool): Process tags as if they were aliases
+            cover_fname (str): If non-None the name of the cover letter.
+            warn_on_error (bool): True to print a warning when an alias fails to
+                match, False to ignore it.
+            add_maintainers (bool or list of str): Either:
                 True/False to call the get_maintainers to CC maintainers
                 List of maintainers to include (for testing)
-            limit: Limit the length of the Cc list (None if no limit)
-            get_maintainer_script: The file name of the get_maintainer.pl
+            limit (int): Limit the length of the Cc list (None if no limit)
+            get_maintainer_script (str): The file name of the get_maintainer.pl
                 script (or compatible).
         Return:
             Filename of temp file created
@@ -259,27 +302,17 @@ class Series(dict):
         fname = '/tmp/patman.%d' % os.getpid()
         fd = open(fname, 'w', encoding='utf-8')
         all_ccs = []
+        all_skips = set()
         for commit in self.commits:
-            cc = []
-            if process_tags:
-                cc += gitutil.build_email_list(commit.tags,
-                                               warn_on_error=warn_on_error)
-            cc += gitutil.build_email_list(commit.cc_list,
-                                           warn_on_error=warn_on_error)
-            if type(add_maintainers) == type(cc):
-                cc += add_maintainers
-            elif add_maintainers:
-
-                cc += get_maintainer.get_maintainer(get_maintainer_script,
-                                                    commit.patch)
-            for x in set(cc) & set(settings.bounces):
-                print(col.build(col.YELLOW, 'Skipping "%s"' % x))
-            cc = list(set(cc) - set(settings.bounces))
-            if limit is not None:
-                cc = cc[:limit]
+            cc = self.GetCcForCommit(commit, process_tags, warn_on_error,
+                                     add_maintainers, limit,
+                                     get_maintainer_script, all_skips)
             all_ccs += cc
             print(commit.patch, '\0'.join(sorted(set(cc))), file=fd)
             self._generated_cc[commit.patch] = cc
+
+        for x in sorted(all_skips):
+            print(col.build(col.YELLOW, f'Skipping "{x}"'))
 
         if cover_fname:
             cover_cc = gitutil.build_email_list(self.get('cover_cc', ''))
