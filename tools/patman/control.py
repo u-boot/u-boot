@@ -85,7 +85,7 @@ def check_patches(series, patch_files, run_checkpatch, verbose, use_tree):
     # Do a few checks on the series
     series.DoChecks()
 
-    # Check the patches, and run them through 'git am' just to be sure
+    # Check the patches
     if run_checkpatch:
         ok = checkpatch.check_patches(verbose, patch_files, use_tree)
     else:
