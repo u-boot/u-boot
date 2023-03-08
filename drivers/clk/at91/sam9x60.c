@@ -378,6 +378,31 @@ static const struct {
 	{ .n = "dbgu_gclk",   .id = 47, },
 };
 
+/**
+ * Clock setup description
+ * @cid:	clock id corresponding to clock subsystem
+ * @pid:	parent clock id corresponding to clock subsystem
+ * @rate:	clock rate
+ * @prate:	parent rate
+ */
+static const struct pmc_clk_setup sam9x60_clk_setup[] = {
+	{
+		.cid = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_PLL_U_FRAC),
+		.rate = 960000000,
+	},
+
+	{
+		.cid = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_PLL_U_DIV),
+		.rate = 480000000,
+	},
+
+	{
+		.cid = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_USBCK),
+		.pid = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_PLL_U_DIV),
+		.rate = 48000000,
+	},
+};
+
 #define prepare_mux_table(_allocs, _index, _dst, _src, _num, _label)	\
 	do {								\
 		int _i;							\
@@ -667,6 +692,11 @@ static int sam9x60_clk_probe(struct udevice *dev)
 		}
 		clk_dm(AT91_TO_CLK_ID(PMC_TYPE_GCK, sam9x60_gck[i].id), c);
 	}
+
+	/* Setup clocks. */
+	ret = at91_clk_setup(sam9x60_clk_setup, ARRAY_SIZE(sam9x60_clk_setup));
+	if (ret)
+		goto fail;
 
 	return 0;
 
