@@ -448,6 +448,29 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
     AfterReplace(image, allow_resize=allow_resize, write_map=write_map)
     return image
 
+def SignEntries(image_fname, input_fname, privatekey_fname, algo, entry_paths,
+                write_map=False):
+    """Sign and replace the data from one or more entries from input files
+
+    Args:
+        image_fname: Image filename to process
+        input_fname: Single input filename to use if replacing one file, None
+            otherwise
+        algo: Hashing algorithm
+        entry_paths: List of entry paths to sign
+        privatekey_fname: Private key filename
+        write_map (bool): True to write the map file
+    """
+    image_fname = os.path.abspath(image_fname)
+    image = Image.FromFile(image_fname)
+
+    BeforeReplace(image, allow_resize=True)
+
+    for entry_path in entry_paths:
+        entry = image.FindEntryPath(entry_path)
+        entry.UpdateSignatures(privatekey_fname, algo, input_fname)
+
+    AfterReplace(image, allow_resize=True, write_map=write_map)
 
 def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     """Prepare the images to be processed and select the device tree
@@ -660,7 +683,7 @@ def Binman(args):
     tools.set_tool_paths(tool_paths or None)
     bintool.Bintool.set_tool_dir(args.tooldir)
 
-    if args.cmd in ['ls', 'extract', 'replace', 'tool']:
+    if args.cmd in ['ls', 'extract', 'replace', 'tool', 'sign']:
         try:
             tout.init(args.verbosity)
             if args.cmd == 'replace':
@@ -678,6 +701,9 @@ def Binman(args):
                 ReplaceEntries(args.image, args.filename, args.indir, args.paths,
                                do_compress=not args.compressed,
                                allow_resize=not args.fix_size, write_map=args.map)
+
+            if args.cmd == 'sign':
+                SignEntries(args.image, args.file, args.key, args.algo, args.paths)
 
             if args.cmd == 'tool':
                 if args.list:

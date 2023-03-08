@@ -176,6 +176,19 @@ controlled by a description in the board device tree.'''
     replace_parser.add_argument('paths', type=str, nargs='*',
                                 help='Paths within file to replace (wildcard)')
 
+    sign_parser = subparsers.add_parser('sign',
+                                           help='Sign entries in image')
+    sign_parser.add_argument('-a', '--algo', type=str, required=True,
+                                help='Hash algorithm e.g. sha256,rsa4096')
+    sign_parser.add_argument('-f', '--file', type=str, required=False,
+                                help='Input filename to sign')
+    sign_parser.add_argument('-i', '--image', type=str, required=True,
+                                help='Image filename to update')
+    sign_parser.add_argument('-k', '--key', type=str, required=True,
+                                help='Private key file for signing')
+    sign_parser.add_argument('paths', type=str, nargs='*',
+                                help='Paths within file to sign (wildcard)')
+
     if HAS_TESTS:
         test_parser = subparsers.add_parser('test', help='Run tests')
         test_parser.add_argument('-P', '--processes', type=int,

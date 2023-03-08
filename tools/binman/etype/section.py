@@ -1014,3 +1014,6 @@ class Entry_section(Entry):
             for entry in entries.values():
                 return entry.read_elf_segments()
         return None
+
+    def UpdateSignatures(self, privatekey_fname, algo, input_fname):
+        self.Raise('Updating signatures is not supported with this entry type')
