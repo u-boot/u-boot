@@ -1070,19 +1070,8 @@ static const struct {
 	},
 };
 
-/**
- * Clock setup description
- * @cid:	clock id corresponding to clock subsystem
- * @pid:	parent clock id corresponding to clock subsystem
- * @rate:	clock rate
- * @prate:	parent rate
- */
-static const struct pmc_clk_setup {
-	unsigned int cid;
-	unsigned int pid;
-	unsigned long rate;
-	unsigned long prate;
-} sama7g5_clk_setup[] = {
+/* Clock setup description */
+static const struct pmc_clk_setup sama7g5_clk_setup[] = {
 	{
 		.cid = AT91_TO_CLK_ID(PMC_TYPE_CORE, ID_PLL_ETH_FRAC),
 		.rate = 625000000,
@@ -1119,7 +1108,7 @@ static int sama7g5_clk_probe(struct udevice *dev)
 	unsigned int *muxallocs[SAMA7G5_MAX_MUX_ALLOCS];
 	const char *p[10];
 	unsigned int cm[10], m[10], *tmpclkmux, *tmpmux;
-	struct clk clk, *c, *parent;
+	struct clk clk, *c;
 	bool main_osc_bypass;
 	int ret, muxallocindex = 0, clkmuxallocindex = 0, i, j;
 
@@ -1353,34 +1342,9 @@ static int sama7g5_clk_probe(struct udevice *dev)
 	}
 
 	/* Setup clocks. */
-	for (i = 0; i < ARRAY_SIZE(sama7g5_clk_setup); i++) {
-		ret = clk_get_by_id(sama7g5_clk_setup[i].cid, &c);
-		if (ret)
-			goto fail;
-
-		if (sama7g5_clk_setup[i].pid) {
-			ret = clk_get_by_id(sama7g5_clk_setup[i].pid, &parent);
-			if (ret)
-				goto fail;
-
-			ret = clk_set_parent(c, parent);
-			if (ret)
-				goto fail;
-
-			if (sama7g5_clk_setup[i].prate) {
-				ret = clk_set_rate(parent,
-					sama7g5_clk_setup[i].prate);
-				if (ret < 0)
-					goto fail;
-			}
-		}
-
-		if (sama7g5_clk_setup[i].rate) {
-			ret = clk_set_rate(c, sama7g5_clk_setup[i].rate);
-			if (ret < 0)
-				goto fail;
-		}
-	}
+	ret = at91_clk_setup(sama7g5_clk_setup, ARRAY_SIZE(sama7g5_clk_setup));
+	if (ret)
+		goto fail;
 
 	return 0;
 

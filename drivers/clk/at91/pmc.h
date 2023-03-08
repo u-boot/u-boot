@@ -77,6 +77,20 @@ struct clk_usbck_layout {
 	u32 usbdiv_mask;
 };
 
+/**
+ * Clock setup description
+ * @cid:	clock id corresponding to clock subsystem
+ * @pid:	parent clock id corresponding to clock subsystem
+ * @rate:	clock rate
+ * @prate:	parent rate
+ */
+struct pmc_clk_setup {
+	unsigned int cid;
+	unsigned int pid;
+	unsigned long rate;
+	unsigned long prate;
+};
+
 extern const struct clk_programmable_layout at91rm9200_programmable_layout;
 extern const struct clk_programmable_layout at91sam9g45_programmable_layout;
 extern const struct clk_programmable_layout at91sam9x5_programmable_layout;
@@ -159,5 +173,7 @@ void pmc_read(void __iomem *base, unsigned int off, unsigned int *val);
 void pmc_write(void __iomem *base, unsigned int off, unsigned int val);
 void pmc_update_bits(void __iomem *base, unsigned int off, unsigned int mask,
 			unsigned int bits);
+
+int at91_clk_setup(const struct pmc_clk_setup *setup, int size);
 
 #endif
