@@ -1366,6 +1366,24 @@ when it was created.
 
 .. _`BinmanLogging`:
 
+Signing FIT container with private key in an image
+--------------------------------------------------
+
+You can sign FIT container with private key in your image.
+For example::
+
+    $ binman sign -i image.bin -k privatekey -a sha256,rsa4096 fit
+
+binman will extract FIT container, sign and replace it immediately.
+
+If you want to sign and replace FIT container in place::
+
+    $ binman sign -i image.bin -k privatekey -a sha256,rsa4096 -f fit.fit fit
+
+which will sign FIT container with private key and replace it immediately
+inside your image.
+
+
 Logging
 -------
 
@@ -1750,6 +1768,35 @@ Options:
     Preserve and display test-created input directories; also preserve the
     output directory if a single test is run (pass test name at the end of the
     command line
+
+binman sign
+-----------
+
+Usage::
+
+    binman sign [-h] -a ALGO [-f FILE] -i IMAGE -k KEY [paths ...]
+
+positional arguments:
+
+paths
+    Paths within file to sign (wildcard)
+
+options:
+
+-h, --help
+    show this help message and exit
+
+-a ALGO, --algo ALGO
+    Hash algorithm e.g. sha256,rsa4096
+
+-f FILE, --file FILE
+    Input filename to sign
+
+-i IMAGE, --image IMAGE
+    Image filename to update
+
+-k KEY, --key KEY
+    Private key file for signing
 
 binman tool
 -----------
