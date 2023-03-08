@@ -240,6 +240,8 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual('Change log missing for v3', next(lines))
         self.assertEqual('Change log for unknown version v4', next(lines))
         self.assertEqual("Alias 'pci' not found", next(lines))
+        while next(lines) != 'Cc processing complete':
+            pass
         self.assertIn('Dry run', next(lines))
         self.assertEqual('', next(lines))
         self.assertIn('Send a total of %d patches' % count, next(lines))

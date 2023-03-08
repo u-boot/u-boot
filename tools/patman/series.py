@@ -5,8 +5,11 @@
 from __future__ import print_function
 
 import collections
+import concurrent.futures
 import itertools
 import os
+import sys
+import time
 
 from patman import get_maintainer
 from patman import gitutil
@@ -303,10 +306,34 @@ class Series(dict):
         fd = open(fname, 'w', encoding='utf-8')
         all_ccs = []
         all_skips = set()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+            for i, commit in enumerate(self.commits):
+                commit.seq = i
+                commit.future = executor.submit(
+                    self.GetCcForCommit, commit, process_tags, warn_on_error,
+                    add_maintainers, limit, get_maintainer_script, all_skips)
+
+            # Show progress any commits that are taking forever
+            lastlen = 0
+            while True:
+                left = [commit for commit in self.commits
+                        if not commit.future.done()]
+                if not left:
+                    break
+                names = ', '.join(f'{c.seq + 1}:{c.subject}'
+                                  for c in left[:2])
+                out = f'\r{len(left)} remaining: {names}'[:79]
+                spaces = ' ' * (lastlen - len(out))
+                if lastlen:  # Don't print anything the first time
+                    print(out, spaces, end='')
+                    sys.stdout.flush()
+                lastlen = len(out)
+                time.sleep(.25)
+            print(f'\rdone{" " * lastlen}\r', end='')
+            print('Cc processing complete')
+
         for commit in self.commits:
-            cc = self.GetCcForCommit(commit, process_tags, warn_on_error,
-                                     add_maintainers, limit,
-                                     get_maintainer_script, all_skips)
+            cc = commit.future.result()
             all_ccs += cc
             print(commit.patch, '\0'.join(sorted(set(cc))), file=fd)
             self._generated_cc[commit.patch] = cc
