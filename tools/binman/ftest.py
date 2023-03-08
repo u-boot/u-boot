@@ -707,6 +707,14 @@ class TestFunctional(unittest.TestCase):
         AddNode(dtb.GetRoot(), '')
         return tree
 
+    def _CheckSign(self, fit, key):
+        try:
+            tools.run('fit_check_sign', '-k', key, '-f', fit)
+        except:
+            self.fail('Expected signed FIT container')
+            return False
+        return True
+
     def testRun(self):
         """Test a basic run with valid args"""
         result = self._RunBinman('-h')
@@ -6564,6 +6572,91 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                              entry_args=entry_args)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing bintools.*: openssl")
+
+    def _PrepareSignEnv(self, dts='280_fit_sign.dts'):
+        """Prepare sign environment
+
+        Create private and public keys, add pubkey into dtb.
+
+        Returns:
+            Tuple:
+                FIT container
+                Image name
+                Private key
+                DTB
+        """
+
+        data = self._DoReadFileRealDtb(dts)
+        updated_fname = tools.get_output_filename('image-updated.bin')
+        tools.write_file(updated_fname, data)
+        dtb = tools.get_output_filename('source.dtb')
+        private_key = tools.get_output_filename('test_key.key')
+        public_key = tools.get_output_filename('test_key.crt')
+        fit = tools.get_output_filename('fit.fit')
+        key_dir = tools.get_output_dir()
+
+        tools.run('openssl', 'req', '-batch' , '-newkey', 'rsa:4096',
+                  '-sha256', '-new',  '-nodes',  '-x509', '-keyout',
+                  private_key, '-out', public_key)
+        tools.run('fdt_add_pubkey', '-a', 'sha256,rsa4096', '-k', key_dir,
+                  '-n', 'test_key', '-r', 'conf', dtb)
+
+        return fit, updated_fname, private_key, dtb
+
+    def testSignSimple(self):
+        """Test that a FIT container can be signed in image"""
+        is_signed = False
+        fit, fname, private_key, dtb = self._PrepareSignEnv()
+
+        # do sign with private key
+        control.SignEntries(fname, None, private_key, 'sha256,rsa4096',
+                            ['fit'])
+        is_signed = self._CheckSign(fit, dtb)
+
+        self.assertEqual(is_signed, True)
+
+    def testSignExactFIT(self):
+        """Test that a FIT container can be signed and replaced in image"""
+        is_signed = False
+        fit, fname, private_key, dtb = self._PrepareSignEnv()
+
+        # Make sure we propagate the toolpath, since mkimage may not be on PATH
+        args = []
+        if self.toolpath:
+            for path in self.toolpath:
+                args += ['--toolpath', path]
+
+        # do sign with private key
+        self._DoBinman(*args, 'sign', '-i', fname, '-k', private_key, '-a',
+                       'sha256,rsa4096', '-f', fit, 'fit')
+        is_signed = self._CheckSign(fit, dtb)
+
+        self.assertEqual(is_signed, True)
+
+    def testSignNonFit(self):
+        """Test a non-FIT entry cannot be signed"""
+        is_signed = False
+        fit, fname, private_key, _ = self._PrepareSignEnv(
+            '281_sign_non_fit.dts')
+
+        # do sign with private key
+        with self.assertRaises(ValueError) as e:
+            self._DoBinman('sign', '-i', fname, '-k', private_key, '-a',
+                       'sha256,rsa4096', '-f', fit, 'u-boot')
+        self.assertIn(
+            "Node '/u-boot': Updating signatures is not supported with this entry type",
+            str(e.exception))
+
+    def testSignMissingMkimage(self):
+        """Test that FIT signing handles a missing mkimage tool"""
+        fit, fname, private_key, _ = self._PrepareSignEnv()
+
+        # try to sign with a missing mkimage tool
+        bintool.Bintool.set_missing_list(['mkimage'])
+        with self.assertRaises(ValueError) as e:
+            control.SignEntries(fname, None, private_key, 'sha256,rsa4096',
+                                ['fit'])
+        self.assertIn("Node '/fit': Missing tool: 'mkimage'", str(e.exception))
 
 
 if __name__ == "__main__":

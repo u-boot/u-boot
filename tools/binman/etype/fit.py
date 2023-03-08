@@ -847,9 +847,7 @@ class Entry_fit(Entry_section):
         args.append(fname)
 
         if self.mkimage.run_cmd(*args) is None:
-            # Bintool is missing; just use empty data as the output
-            self.record_missing_bintool(self.mkimage)
-            return
+            self.Raise("Missing tool: 'mkimage'")
 
         data = tools.read_file(fname)
         self.WriteData(data)

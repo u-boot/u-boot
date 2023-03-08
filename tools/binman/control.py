@@ -464,6 +464,8 @@ def SignEntries(image_fname, input_fname, privatekey_fname, algo, entry_paths,
     image_fname = os.path.abspath(image_fname)
     image = Image.FromFile(image_fname)
 
+    image.mark_build_done()
+
     BeforeReplace(image, allow_resize=True)
 
     for entry_path in entry_paths:
