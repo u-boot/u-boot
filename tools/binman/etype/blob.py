@@ -8,8 +8,8 @@
 from binman.entry import Entry
 from binman import state
 from dtoc import fdt_util
-from patman import tools
-from patman import tout
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 class Entry_blob(Entry):
     """Arbitrary binary blob
@@ -102,7 +102,7 @@ class Entry_blob(Entry):
         If there are faked blobs, the entries are added to the list
 
         Args:
-            fake_blobs_list: List of Entry objects to be added to
+            faked_blobs_list: List of Entry objects to be added to
         """
         if self.faked:
             faked_blobs_list.append(self)

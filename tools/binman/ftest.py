@@ -34,10 +34,10 @@ from dtoc import fdt_util
 from binman.etype import fdtmap
 from binman.etype import image_header
 from binman.image import Image
-from patman import command
-from patman import test_util
-from patman import tools
-from patman import tout
+from u_boot_pylib import command
+from u_boot_pylib import test_util
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 # Contents of test files, corresponding to different entry types
 U_BOOT_DATA           = b'1234'
@@ -1702,7 +1702,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(b'SECTION0', fentry.name)
         self.assertEqual(0, fentry.offset)
         self.assertEqual(16, fentry.size)
-        self.assertEqual(0, fentry.flags)
+        self.assertEqual(fmap_util.FMAP_AREA_PRESERVE, fentry.flags)
 
         fentry = next(fiter)
         self.assertEqual(b'RO_U_BOOT', fentry.name)
@@ -1750,7 +1750,7 @@ class TestFunctional(unittest.TestCase):
 
     def _HandleGbbCommand(self, pipe_list):
         """Fake calls to the futility utility"""
-        if pipe_list[0][0] == 'futility':
+        if 'futility' in pipe_list[0][0]:
             fname = pipe_list[0][-1]
             # Append our GBB data to the file, which will happen every time the
             # futility command is called.
@@ -1812,7 +1812,7 @@ class TestFunctional(unittest.TestCase):
         self._hash_data is False, it writes VBLOCK_DATA, else it writes a hash
         of the input data (here, 'input.vblock').
         """
-        if pipe_list[0][0] == 'futility':
+        if 'futility' in pipe_list[0][0]:
             fname = pipe_list[0][3]
             with open(fname, 'wb') as fd:
                 if self._hash_data:
@@ -3999,9 +3999,17 @@ class TestFunctional(unittest.TestCase):
             self.assertEqual(expected, data[image_pos:image_pos+size])
 
     def testFitMissing(self):
+        """Test that binman complains if mkimage is missing"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('162_fit_external.dts',
+                             force_missing_bintools='mkimage')
+        self.assertIn("Node '/binman/fit': Missing tool: 'mkimage'",
+                      str(e.exception))
+
+    def testFitMissingOK(self):
         """Test that binman still produces a FIT image if mkimage is missing"""
         with test_util.capture_sys_output() as (_, stderr):
-            self._DoTestFile('162_fit_external.dts',
+            self._DoTestFile('162_fit_external.dts', allow_missing=True,
                              force_missing_bintools='mkimage')
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing bintools.*: mkimage")
@@ -5811,13 +5819,61 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual(expected_fdtmap, fdtmap)
 
     def testReplaceSectionSimple(self):
-        """Test replacing a simple section with arbitrary data"""
+        """Test replacing a simple section with same-sized data"""
         new_data = b'w' * len(COMPRESS_DATA + U_BOOT_DATA)
-        with self.assertRaises(ValueError) as exc:
-            self._RunReplaceCmd('section', new_data,
-                                dts='241_replace_section_simple.dts')
+        data, expected_fdtmap, image = self._RunReplaceCmd('section',
+            new_data, dts='241_replace_section_simple.dts')
+        self.assertEqual(new_data, data)
+
+        entries = image.GetEntries()
+        self.assertIn('section', entries)
+        entry = entries['section']
+        self.assertEqual(len(new_data), entry.size)
+
+    def testReplaceSectionLarger(self):
+        """Test replacing a simple section with larger data"""
+        new_data = b'w' * (len(COMPRESS_DATA + U_BOOT_DATA) + 1)
+        data, expected_fdtmap, image = self._RunReplaceCmd('section',
+            new_data, dts='241_replace_section_simple.dts')
+        self.assertEqual(new_data, data)
+
+        entries = image.GetEntries()
+        self.assertIn('section', entries)
+        entry = entries['section']
+        self.assertEqual(len(new_data), entry.size)
+        fentry = entries['fdtmap']
+        self.assertEqual(entry.offset + entry.size, fentry.offset)
+
+    def testReplaceSectionSmaller(self):
+        """Test replacing a simple section with smaller data"""
+        new_data = b'w' * (len(COMPRESS_DATA + U_BOOT_DATA) - 1) + b'\0'
+        data, expected_fdtmap, image = self._RunReplaceCmd('section',
+            new_data, dts='241_replace_section_simple.dts')
+        self.assertEqual(new_data, data)
+
+        # The new size is the same as the old, just with a pad byte at the end
+        entries = image.GetEntries()
+        self.assertIn('section', entries)
+        entry = entries['section']
+        self.assertEqual(len(new_data), entry.size)
+
+    def testReplaceSectionSmallerAllow(self):
+        """Test failing to replace a simple section with smaller data"""
+        new_data = b'w' * (len(COMPRESS_DATA + U_BOOT_DATA) - 1)
+        try:
+            state.SetAllowEntryContraction(True)
+            with self.assertRaises(ValueError) as exc:
+                self._RunReplaceCmd('section', new_data,
+                                    dts='241_replace_section_simple.dts')
+        finally:
+            state.SetAllowEntryContraction(False)
+
+        # Since we have no information about the position of things within the
+        # section, we cannot adjust the position of /section-u-boot so it ends
+        # up outside the section
         self.assertIn(
-            "Node '/section': Replacing sections is not implemented yet",
+            "Node '/section/u-boot': Offset 0x24 (36) size 0x4 (4) is outside "
+            "the section '/section' starting at 0x0 (0) of size 0x27 (39)",
             str(exc.exception))
 
     def testMkimageImagename(self):
@@ -6353,10 +6409,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'tee-os-path': 'missing.bin',
         }
         test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
-        data = self._DoReadFileDtb(
-            '276_fit_firmware_loadables.dts',
-            entry_args=entry_args,
-            extra_indirs=[test_subdir])[0]
+        with test_util.capture_sys_output() as (stdout, stderr):
+            data = self._DoReadFileDtb(
+                '276_fit_firmware_loadables.dts',
+                entry_args=entry_args,
+                extra_indirs=[test_subdir])[0]
 
         dtb = fdt.Fdt.FromData(data)
         dtb.Scan()
@@ -6385,6 +6442,128 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual('atf-1', node.props['firmware'].value)
         self.assertEqual(['u-boot', 'atf-2'],
                          fdt_util.GetStringList(node, 'loadables'))
+
+    def testTooldir(self):
+        """Test that we can specify the tooldir"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self.assertEqual(0, self._DoBinman('--tooldir', 'fred',
+                                               'tool', '-l'))
+        self.assertEqual('fred', bintool.Bintool.tooldir)
+
+        # Check that the toolpath is updated correctly
+        self.assertEqual(['fred'], tools.tool_search_paths)
+
+        # Try with a few toolpaths; the tooldir should be at the end
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self.assertEqual(0, self._DoBinman(
+                '--toolpath', 'mary', '--toolpath', 'anna', '--tooldir', 'fred',
+                'tool', '-l'))
+        self.assertEqual(['mary', 'anna', 'fred'], tools.tool_search_paths)
+
+    def testReplaceSectionEntry(self):
+        """Test replacing an entry in a section"""
+        expect_data = b'w' * len(U_BOOT_DATA + COMPRESS_DATA)
+        entry_data, expected_fdtmap, image = self._RunReplaceCmd('section/blob',
+            expect_data, dts='241_replace_section_simple.dts')
+        self.assertEqual(expect_data, entry_data)
+
+        entries = image.GetEntries()
+        self.assertIn('section', entries)
+        section = entries['section']
+
+        sect_entries = section.GetEntries()
+        self.assertIn('blob', sect_entries)
+        entry = sect_entries['blob']
+        self.assertEqual(len(expect_data), entry.size)
+
+        fname = tools.get_output_filename('image-updated.bin')
+        data = tools.read_file(fname)
+
+        new_blob_data = data[entry.image_pos:entry.image_pos + len(expect_data)]
+        self.assertEqual(expect_data, new_blob_data)
+
+        self.assertEqual(U_BOOT_DATA,
+                         data[entry.image_pos + len(expect_data):]
+                         [:len(U_BOOT_DATA)])
+
+    def testReplaceSectionDeep(self):
+        """Test replacing an entry in two levels of sections"""
+        expect_data = b'w' * len(U_BOOT_DATA + COMPRESS_DATA)
+        entry_data, expected_fdtmap, image = self._RunReplaceCmd(
+            'section/section/blob', expect_data,
+            dts='278_replace_section_deep.dts')
+        self.assertEqual(expect_data, entry_data)
+
+        entries = image.GetEntries()
+        self.assertIn('section', entries)
+        section = entries['section']
+
+        subentries = section.GetEntries()
+        self.assertIn('section', subentries)
+        section = subentries['section']
+
+        sect_entries = section.GetEntries()
+        self.assertIn('blob', sect_entries)
+        entry = sect_entries['blob']
+        self.assertEqual(len(expect_data), entry.size)
+
+        fname = tools.get_output_filename('image-updated.bin')
+        data = tools.read_file(fname)
+
+        new_blob_data = data[entry.image_pos:entry.image_pos + len(expect_data)]
+        self.assertEqual(expect_data, new_blob_data)
+
+        self.assertEqual(U_BOOT_DATA,
+                         data[entry.image_pos + len(expect_data):]
+                         [:len(U_BOOT_DATA)])
+
+    def testReplaceFitSibling(self):
+        """Test an image with a FIT inside where we replace its sibling"""
+        fname = TestFunctional._MakeInputFile('once', b'available once')
+        self._DoReadFileRealDtb('277_replace_fit_sibling.dts')
+        os.remove(fname)
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+
+            fname = os.path.join(tmpdir, 'update-blob')
+            expected = b'w' * (len(COMPRESS_DATA + U_BOOT_DATA) + 1)
+            tools.write_file(fname, expected)
+
+            self._DoBinman('replace', '-i', updated_fname, 'blob', '-f', fname)
+            data = tools.read_file(updated_fname)
+            start = len(U_BOOT_DTB_DATA)
+            self.assertEqual(expected, data[start:start + len(expected)])
+            map_fname = os.path.join(tmpdir, 'image-updated.map')
+            self.assertFalse(os.path.exists(map_fname))
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def testX509Cert(self):
+        """Test creating an X509 certificate"""
+        keyfile = self.TestFile('key.key')
+        entry_args = {
+            'keyfile': keyfile,
+        }
+        data = self._DoReadFileDtb('279_x509_cert.dts',
+                                   entry_args=entry_args)[0]
+        cert = data[:-4]
+        self.assertEqual(U_BOOT_DATA, data[-4:])
+
+        # TODO: verify the signature
+
+    def testX509CertMissing(self):
+        """Test that binman still produces an image if openssl is missing"""
+        keyfile = self.TestFile('key.key')
+        entry_args = {
+            'keyfile': 'keyfile',
+        }
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('279_x509_cert.dts',
+                             force_missing_bintools='openssl',
+                             entry_args=entry_args)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: openssl")
 
 
 if __name__ == "__main__":

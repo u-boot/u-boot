@@ -489,22 +489,22 @@ in a valid bootflow, whether to iterate through just a single bootdev, etc.
 Then the iterator is set up to according to the parameters given:
 
 - When `dev` is provided, then a single bootdev is scanned. In this case,
-  `BOOTFLOWF_SKIP_GLOBAL` and `BOOTFLOWF_SINGLE_DEV` are set. No hunters are
+  `BOOTFLOWIF_SKIP_GLOBAL` and `BOOTFLOWIF_SINGLE_DEV` are set. No hunters are
   used in this case
 
 - Otherwise, when `label` is provided, then a single label or named bootdev is
-  scanned. In this case `BOOTFLOWF_SKIP_GLOBAL` is set and there are three
+  scanned. In this case `BOOTFLOWIF_SKIP_GLOBAL` is set and there are three
   options (with an effect on the `iter_incr()` function described later):
 
   - If `label` indicates a numeric bootdev number (e.g. "2") then
     `BOOTFLOW_METHF_SINGLE_DEV` is set. In this case, moving to the next bootdev
     simple stops, since there is only one. No hunters are used.
   - If `label` indicates a particular media device (e.g. "mmc1") then
-    `BOOTFLOWF_SINGLE_MEDIA` is set. In this case, moving to the next bootdev
+    `BOOTFLOWIF_SINGLE_MEDIA` is set. In this case, moving to the next bootdev
     processes just the children of the media device. Hunters are used, in this
     example just the "mmc" hunter.
   - If `label` indicates a media uclass (e.g. "mmc") then
-    `BOOTFLOWF_SINGLE_UCLASS` is set. In this case, all bootdevs in that uclass
+    `BOOTFLOWIF_SINGLE_UCLASS` is set. In this case, all bootdevs in that uclass
     are used. Hunters are used, in this example just the "mmc" hunter
 
 - Otherwise, none of the above flags is set and iteration is set up to work
@@ -543,7 +543,7 @@ bootdev.
 With the iterator ready, `bootflow_scan_first()` checks whether the current
 settings produce a valid bootflow. This is handled by `bootflow_check()`, which
 either returns 0 (if it got something) or an error if not (more on that later).
-If the `BOOTFLOWF_ALL` iterator flag is set, even errors are returned as
+If the `BOOTFLOWIF_ALL` iterator flag is set, even errors are returned as
 incomplete bootflows, but normally an error results in moving onto the next
 iteration.
 
@@ -651,7 +651,7 @@ e.g. updating the state, depending on what it finds. For global bootmeths the
 Based on what the bootdev or bootmeth responds with, `bootflow_check()` either
 returns a valid bootflow, or a partial one with an error. A partial bootflow
 is one that has some fields set up, but did not reach the `BOOTFLOWST_READY`
-state. As noted before, if the `BOOTFLOWF_ALL` iterator flag is set, then all
+state. As noted before, if the `BOOTFLOWIF_ALL` iterator flag is set, then all
 bootflows are returned, even partial ones. This can help with debugging.
 
 So at this point you can see that total control over whether a bootflow can

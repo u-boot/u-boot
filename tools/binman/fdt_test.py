@@ -12,7 +12,7 @@ import unittest
 from dtoc import fdt
 from dtoc import fdt_util
 from dtoc.fdt import FdtScan
-from patman import tools
+from u_boot_pylib import tools
 
 class TestFdt(unittest.TestCase):
     @classmethod

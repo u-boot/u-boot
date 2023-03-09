@@ -12,10 +12,10 @@ import tempfile
 import unittest
 
 from binman import elf
-from patman import command
-from patman import test_util
-from patman import tools
-from patman import tout
+from u_boot_pylib import command
+from u_boot_pylib import test_util
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 

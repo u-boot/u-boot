@@ -7,19 +7,20 @@
 
 from collections import OrderedDict
 import glob
+import importlib.resources
 import os
 import pkg_resources
 import re
 
 import sys
-from patman import tools
 
 from binman import bintool
 from binman import cbfs_util
-from patman import command
 from binman import elf
 from binman import entry
-from patman import tout
+from u_boot_pylib import command
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 # These are imported if needed since they import libfdt
 state = None
@@ -402,6 +403,8 @@ def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
     image_fname = os.path.abspath(image_fname)
     image = Image.FromFile(image_fname)
 
+    image.mark_build_done()
+
     # Replace an entry from a single file, as a special case
     if input_fname:
         if not entry_paths:
@@ -641,19 +644,29 @@ def Binman(args):
     global state
 
     if args.full_help:
-        tools.print_full_help(
-            os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'README.rst')
-        )
+        with importlib.resources.path('binman', 'README.rst') as readme:
+            tools.print_full_help(str(readme))
         return 0
 
     # Put these here so that we can import this module without libfdt
     from binman.image import Image
     from binman import state
 
+    tool_paths = []
+    if args.toolpath:
+        tool_paths += args.toolpath
+    if args.tooldir:
+        tool_paths.append(args.tooldir)
+    tools.set_tool_paths(tool_paths or None)
+    bintool.Bintool.set_tool_dir(args.tooldir)
+
     if args.cmd in ['ls', 'extract', 'replace', 'tool']:
         try:
             tout.init(args.verbosity)
-            tools.prepare_output_dir(None)
+            if args.cmd == 'replace':
+                tools.prepare_output_dir(args.outdir, args.preserve)
+            else:
+                tools.prepare_output_dir(None)
             if args.cmd == 'ls':
                 ListEntries(args.image, args.paths)
 
@@ -667,7 +680,6 @@ def Binman(args):
                                allow_resize=not args.fix_size, write_map=args.map)
 
             if args.cmd == 'tool':
-                tools.set_tool_paths(args.toolpath)
                 if args.list:
                     bintool.Bintool.list_all()
                 elif args.fetch:
@@ -719,7 +731,6 @@ def Binman(args):
         try:
             tools.set_input_dirs(args.indir)
             tools.prepare_output_dir(args.outdir, args.preserve)
-            tools.set_tool_paths(args.toolpath)
             state.SetEntryArgs(args.entry_arg)
             state.SetThreads(args.threads)
 

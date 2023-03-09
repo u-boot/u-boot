@@ -9,8 +9,8 @@ import os
 
 from binman.etype.blob import Entry_blob
 from dtoc import fdt_util
-from patman import tools
-from patman import tout
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 class Entry_blob_ext(Entry_blob):
     """Externally built binary blob
@@ -26,11 +26,3 @@ class Entry_blob_ext(Entry_blob):
     def __init__(self, section, etype, node):
         Entry_blob.__init__(self, section, etype, node)
         self.external = True
-
-    def SetAllowFakeBlob(self, allow_fake):
-        """Set whether the entry allows to create a fake blob
-
-        Args:
-            allow_fake_blob: True if allowed, False if not allowed
-        """
-        self.allow_fake = allow_fake

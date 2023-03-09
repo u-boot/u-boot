@@ -334,6 +334,10 @@ int ut_check_console_dump(struct unit_test_state *uts, int total_bytes);
 		return CMD_RET_FAILURE;					\
 	}								\
 
+/* Assert that the next console output line is empty */
+#define ut_assert_nextline_empty()					\
+	ut_assert_nextline("%s", "")
+
 /**
  * ut_check_free() - Return the number of bytes free in the malloc() pool
  *
