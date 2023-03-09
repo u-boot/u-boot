@@ -7,6 +7,7 @@
  * Author: Jean-Marie Verdun <verdun@hpe.com>
  */
 
+#include <cpu_func.h>
 #include <asm/io.h>
 
 #define GXP_CCR	0xc0000000
@@ -16,7 +17,7 @@ void lowlevel_init(void)
 {
 }
 
-void reset_cpu(ulong ignored)
+void reset_cpu(void)
 {
 	writel(1, GXP_CCR);
 

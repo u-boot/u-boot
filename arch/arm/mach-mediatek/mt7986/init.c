@@ -4,6 +4,7 @@
  * Author: Sam Shih <sam.shih@mediatek.com>
  */
 
+#include <cpu_func.h>
 #include <init.h>
 #include <asm/armv8/mmu.h>
 #include <asm/system.h>
@@ -19,7 +20,7 @@ int dram_init(void)
 	return 0;
 }
 
-void reset_cpu(ulong addr)
+void reset_cpu(void)
 {
 	psci_system_reset();
 }
