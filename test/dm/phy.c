@@ -28,22 +28,22 @@ static int dm_test_phy_base(struct unit_test_state *uts)
 	/*
 	 * Get the same phy port in 2 different ways and compare.
 	 */
-	ut_assertok(generic_phy_get_by_name(parent, "phy1", &phy1_method1))
-	ut_assertok(generic_phy_get_by_index(parent, 0, &phy1_method2))
+	ut_assertok(generic_phy_get_by_name(parent, "phy1", &phy1_method1));
+	ut_assertok(generic_phy_get_by_index(parent, 0, &phy1_method2));
 	ut_asserteq(phy1_method1.id, phy1_method2.id);
 
 	/*
 	 * Get the second phy port. Check that the same phy provider (device)
 	 * provides this 2nd phy port, but that the IDs are different
 	 */
-	ut_assertok(generic_phy_get_by_name(parent, "phy2", &phy2))
+	ut_assertok(generic_phy_get_by_name(parent, "phy2", &phy2));
 	ut_asserteq_ptr(phy1_method2.dev, phy2.dev);
 	ut_assert(phy1_method1.id != phy2.id);
 
 	/*
 	 * Get the third phy port. Check that the phy provider is different
 	 */
-	ut_assertok(generic_phy_get_by_name(parent, "phy3", &phy3))
+	ut_assertok(generic_phy_get_by_name(parent, "phy3", &phy3));
 	ut_assert(phy2.dev != phy3.dev);
 
 	/* Try to get a non-existing phy */
