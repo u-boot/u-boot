@@ -26,6 +26,11 @@ void bdinfo_print_size(const char *name, uint64_t size)
 	print_size(size, "\n");
 }
 
+void bdinfo_print_str(const char *name, const char *str)
+{
+	printf("%-12s= %s\n", name, str);
+}
+
 void bdinfo_print_num_l(const char *name, ulong value)
 {
 	printf("%-12s= 0x%0*lx\n", name, 2 * (int)sizeof(value), value);
