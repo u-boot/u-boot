@@ -24,6 +24,7 @@ struct udevice;
  * @base: Base address of frame buffer, 0 if not yet known
  * @copy_base: Base address of a hardware copy of the frame buffer. See
  *	CONFIG_VIDEO_COPY.
+ * @copy_size: Size of copy framebuffer, used if @size is 0
  * @hide_logo: Hide the logo (used for testing)
  */
 struct video_uc_plat {
@@ -31,6 +32,7 @@ struct video_uc_plat {
 	uint size;
 	ulong base;
 	ulong copy_base;
+	ulong copy_size;
 	bool hide_logo;
 };
 
