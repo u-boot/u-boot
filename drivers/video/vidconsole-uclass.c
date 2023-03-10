@@ -126,26 +126,14 @@ void vidconsole_set_cursor_pos(struct udevice *dev, int x, int y)
 	priv->ycur = y;
 }
 
-/**
- * set_cursor_position() - set cursor position
- *
- * @priv:	private data of the video console
- * @row:	new row
- * @col:	new column
- */
-static void set_cursor_position(struct vidconsole_priv *priv, int row, int col)
+void vidconsole_position_cursor(struct udevice *dev, uint col, uint row)
 {
-	/*
-	 * Ensure we stay in the bounds of the screen.
-	 */
-	if (row >= priv->rows)
-		row = priv->rows - 1;
-	if (col >= priv->cols)
-		col = priv->cols - 1;
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+	short x, y;
 
-	priv->ycur = row * priv->y_charsize;
-	priv->xcur_frac = priv->xstart_frac +
-			  VID_TO_POS(col * priv->x_charsize);
+	x = min_t(short, col, priv->cols - 1) * priv->x_charsize;
+	y = min_t(short, row, priv->rows - 1) * priv->y_charsize;
+	vidconsole_set_cursor_pos(dev, x, y);
 }
 
 /**
@@ -192,7 +180,7 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 			int row = priv->row_saved;
 			int col = priv->col_saved;
 
-			set_cursor_position(priv, row, col);
+			vidconsole_position_cursor(dev, col, row);
 			priv->escape = 0;
 			return;
 		}
@@ -254,7 +242,7 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 		if (row < 0)
 			row = 0;
 		/* Right and bottom overflows are handled in the callee. */
-		set_cursor_position(priv, row, col);
+		vidconsole_position_cursor(dev, col, row);
 		break;
 	}
 	case 'H':
@@ -278,7 +266,7 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 		if (col)
 			--col;
 
-		set_cursor_position(priv, row, col);
+		vidconsole_position_cursor(dev, col, row);
 
 		break;
 	}
@@ -655,15 +643,3 @@ int vidconsole_memmove(struct udevice *dev, void *dst, const void *src,
 	return vidconsole_sync_copy(dev, dst, dst + size);
 }
 #endif
-
-void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
-{
-	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
-	struct udevice *vid_dev = dev->parent;
-	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
-	short x, y;
-
-	x = min_t(short, col * priv->x_charsize, vid_priv->xsize - 1);
-	y = min_t(short, row * priv->y_charsize, vid_priv->ysize - 1);
-	vidconsole_set_cursor_pos(dev, x, y);
-}
