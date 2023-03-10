@@ -56,10 +56,12 @@ static void efi_find_pixel_bits(u32 mask, u8 *pos, u8 *size)
  * Gets info from the graphics-output protocol
  *
  * @vesa: Place to put the mode information
+ * @infop: Returns a pointer to the mode info
  * Returns: 0 if OK, -ENOSYS if boot services are not available, -ENOTSUPP if
  * the protocol is not supported by EFI
  */
-static int get_mode_info(struct vesa_mode_info *vesa)
+static int get_mode_info(struct vesa_mode_info *vesa,
+			 struct efi_gop_mode_info **infop)
 {
 	efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
 	struct efi_boot_services *boot = efi_get_boot();
@@ -77,6 +79,7 @@ static int get_mode_info(struct vesa_mode_info *vesa)
 	vesa->phys_base_ptr = mode->fb_base;
 	vesa->x_resolution = mode->info->width;
 	vesa->y_resolution = mode->info->height;
+	*infop = mode->info;
 
 	return 0;
 }
@@ -118,7 +121,7 @@ static int save_vesa_mode(struct vesa_mode_info *vesa)
 	int ret;
 
 	if (IS_ENABLED(CONFIG_EFI_APP))
-		ret = get_mode_info(vesa);
+		ret = get_mode_info(vesa, &info);
 	else
 		ret = get_mode_from_entry(vesa, &info);
 	if (ret) {
