@@ -129,7 +129,6 @@ static int save_vesa_mode(struct vesa_mode_info *vesa, u64 *fbp)
 	struct efi_gop_mode_info *info;
 	int ret;
 
-	printf("start\n");
 	if (IS_ENABLED(CONFIG_EFI_APP))
 		ret = get_mode_info(vesa, fbp, &info);
 	else
@@ -207,6 +206,30 @@ err:
 	return ret;
 }
 
+static int efi_video_bind(struct udevice *dev)
+{
+	if (IS_ENABLED(CONFIG_VIDEO_COPY)) {
+		struct video_uc_plat *plat = dev_get_uclass_plat(dev);
+		struct vesa_mode_info vesa;
+		int ret;
+		u64 fb;
+
+		/*
+		 * Initialise vesa_mode_info structure so we can figure out the
+		 * required framebuffer size. If something goes wrong, just do
+		 * without a copy framebuffer
+		 */
+		ret = save_vesa_mode(&vesa, &fb);
+		if (!ret) {
+			/* this is not reached if the EFI call failed */
+			plat->copy_size = vesa.bytes_per_scanline *
+				vesa.y_resolution;
+		}
+	}
+
+	return 0;
+}
+
 static const struct udevice_id efi_video_ids[] = {
 	{ .compatible = "efi-fb" },
 	{ }
@@ -216,5 +239,6 @@ U_BOOT_DRIVER(efi_video) = {
 	.name	= "efi_video",
 	.id	= UCLASS_VIDEO,
 	.of_match = efi_video_ids,
+	.bind	= efi_video_bind,
 	.probe	= efi_video_probe,
 };

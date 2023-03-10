@@ -27,6 +27,7 @@
 	};
 	efi-fb {
 		compatible = "efi-fb";
+		bootph-some-ram;
 	};
 
 };
