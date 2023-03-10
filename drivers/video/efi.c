@@ -50,6 +50,15 @@ static void efi_find_pixel_bits(u32 mask, u8 *pos, u8 *size)
 	*size = len;
 }
 
+/**
+ * get_mode_info() - Ask EFI for the mode information
+ *
+ * Gets info from the graphics-output protocol
+ *
+ * @vesa: Place to put the mode information
+ * Returns: 0 if OK, -ENOSYS if boot services are not available, -ENOTSUPP if
+ * the protocol is not supported by EFI
+ */
 static int get_mode_info(struct vesa_mode_info *vesa)
 {
 	efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
@@ -72,32 +81,54 @@ static int get_mode_info(struct vesa_mode_info *vesa)
 	return 0;
 }
 
-static int save_vesa_mode(struct vesa_mode_info *vesa)
+/**
+ * get_mode_from_entry() - Obtain fb info from the EFIET_GOP_MODE payload entry
+ *
+ * This gets the mode information provided by the stub to the payload and puts
+ * it into a vesa structure. It also returns the mode information.
+ *
+ * @vesa: Place to put the mode information
+ * @infop: Returns a pointer to the mode info
+ * Returns: 0 if OK, -ve on error
+ */
+static int get_mode_from_entry(struct vesa_mode_info *vesa,
+			       struct efi_gop_mode_info **infop)
 {
-	struct efi_entry_gopmode *mode;
-	const struct efi_framebuffer *fbinfo;
+	struct efi_gop_mode *mode;
 	int size;
 	int ret;
 
-	if (IS_ENABLED(CONFIG_EFI_APP)) {
+	ret = efi_info_get(EFIET_GOP_MODE, (void **)&mode, &size);
+	if (ret) {
+		printf("EFI graphics output entry not found\n");
+		return ret;
+	}
+	vesa->phys_base_ptr = mode->fb_base;
+	vesa->x_resolution = mode->info->width;
+	vesa->y_resolution = mode->info->height;
+	*infop = mode->info;
+
+	return 0;
+}
+
+static int save_vesa_mode(struct vesa_mode_info *vesa)
+{
+	const struct efi_framebuffer *fbinfo;
+	struct efi_gop_mode_info *info;
+	int ret;
+
+	if (IS_ENABLED(CONFIG_EFI_APP))
 		ret = get_mode_info(vesa);
-		if (ret) {
-			printf("EFI graphics output protocol not found\n");
-			return -ENXIO;
-		}
-	} else {
-		ret = efi_info_get(EFIET_GOP_MODE, (void **)&mode, &size);
-		if (ret == -ENOENT) {
-			printf("EFI graphics output protocol mode not found\n");
-			return -ENXIO;
-		}
-		vesa->phys_base_ptr = mode->fb_base;
-		vesa->x_resolution = mode->info->width;
-		vesa->y_resolution = mode->info->height;
+	else
+		ret = get_mode_from_entry(vesa, &info);
+	if (ret) {
+		printf("EFI graphics output protocol not found (err=%dE)\n",
+		       ret);
+		return ret;
 	}
 
-	if (mode->info->pixel_format < EFI_GOT_BITMASK) {
-		fbinfo = &efi_framebuffer_format_map[mode->info->pixel_format];
+	if (info->pixel_format < EFI_GOT_BITMASK) {
+		fbinfo = &efi_framebuffer_format_map[info->pixel_format];
 		vesa->red_mask_size = fbinfo->red.size;
 		vesa->red_mask_pos = fbinfo->red.pos;
 		vesa->green_mask_size = fbinfo->green.size;
@@ -108,29 +139,29 @@ static int save_vesa_mode(struct vesa_mode_info *vesa)
 		vesa->reserved_mask_pos = fbinfo->rsvd.pos;
 
 		vesa->bits_per_pixel = 32;
-		vesa->bytes_per_scanline = mode->info->pixels_per_scanline * 4;
-	} else if (mode->info->pixel_format == EFI_GOT_BITMASK) {
-		efi_find_pixel_bits(mode->info->pixel_bitmask[0],
+		vesa->bytes_per_scanline = info->pixels_per_scanline * 4;
+	} else if (info->pixel_format == EFI_GOT_BITMASK) {
+		efi_find_pixel_bits(info->pixel_bitmask[0],
 				    &vesa->red_mask_pos,
 				    &vesa->red_mask_size);
-		efi_find_pixel_bits(mode->info->pixel_bitmask[1],
+		efi_find_pixel_bits(info->pixel_bitmask[1],
 				    &vesa->green_mask_pos,
 				    &vesa->green_mask_size);
-		efi_find_pixel_bits(mode->info->pixel_bitmask[2],
+		efi_find_pixel_bits(info->pixel_bitmask[2],
 				    &vesa->blue_mask_pos,
 				    &vesa->blue_mask_size);
-		efi_find_pixel_bits(mode->info->pixel_bitmask[3],
+		efi_find_pixel_bits(info->pixel_bitmask[3],
 				    &vesa->reserved_mask_pos,
 				    &vesa->reserved_mask_size);
 		vesa->bits_per_pixel = vesa->red_mask_size +
 				       vesa->green_mask_size +
 				       vesa->blue_mask_size +
 				       vesa->reserved_mask_size;
-		vesa->bytes_per_scanline = (mode->info->pixels_per_scanline *
+		vesa->bytes_per_scanline = (info->pixels_per_scanline *
 					    vesa->bits_per_pixel) / 8;
 	} else {
 		debug("efi set unknown framebuffer format: %d\n",
-		      mode->info->pixel_format);
+		      info->pixel_format);
 		return -EINVAL;
 	}
 
