@@ -20,7 +20,7 @@
  */
 int init_func_watchdog_reset(void);
 
-#if defined(CONFIG_WATCHDOG) || defined(CONFIG_HW_WATCHDOG)
+#if CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING)
 #define INIT_FUNC_WATCHDOG_INIT	init_func_watchdog_init,
 #define INIT_FUNC_WATCHDOG_RESET	init_func_watchdog_reset,
 #else
@@ -35,10 +35,7 @@ int init_func_watchdog_reset(void);
 /*
  * Prototypes from $(CPU)/cpu.c.
  */
-
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	void hw_watchdog_init(void);
-#endif
+void hw_watchdog_init(void);
 
 #if defined(CONFIG_MPC85xx)
 	void init_85xx_watchdog(void);

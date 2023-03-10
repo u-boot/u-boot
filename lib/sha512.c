@@ -13,7 +13,7 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <linux/string.h>
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+#if CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING)
 #define PET_WDG
 #endif
 #else

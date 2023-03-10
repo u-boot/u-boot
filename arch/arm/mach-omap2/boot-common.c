@@ -302,9 +302,8 @@ void spl_board_init(void)
 #if defined(CONFIG_AM33XX) && defined(CONFIG_SPL_MUSB_NEW)
 	arch_misc_init();
 #endif
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	hw_watchdog_init();
-#endif
+	if (CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING))
+		hw_watchdog_init();
 #ifdef CONFIG_AM33XX
 	am33xx_spl_board_init();
 #endif

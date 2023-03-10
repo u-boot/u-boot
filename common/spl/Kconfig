@@ -1435,6 +1435,9 @@ config SPL_WATCHDOG
 	  detects no activity for a while (such as a software crash). This
 	  enables the drivers in drivers/watchdog as part of an SPL build.
 
+config SPL_HAS_WATCHDOG_RUNNING
+	def_bool y if SPL_WATCHDOG || HW_WATCHDOG
+
 config SPL_YMODEM_SUPPORT
 	bool "Support loading using Ymodem"
 	depends on SPL_SERIAL

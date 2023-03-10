@@ -843,9 +843,8 @@ int BZ_API(BZ2_bzDecompress) ( bz_stream *strm )
    if (s->strm != strm) return BZ_PARAM_ERROR;
 
    while (True) {
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	schedule();
-#endif
+      if (CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING))
+	 schedule();
       if (s->state == BZ_X_IDLE) return BZ_SEQUENCE_ERROR;
       if (s->state == BZ_X_OUTPUT) {
 	 if (s->smallDecompress)

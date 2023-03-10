@@ -41,7 +41,7 @@ wait_ticks:
 	addc    r14, r4, r14	/* Compute end time lower */
 	addze	r15, r3		/*     and end time upper */
 
-#if defined(CONFIG_WATCHDOG) || defined(CONFIG_HW_WATCHDOG)
+#if CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING)
 	bl	schedule	/* Trigger watchdog, if needed */
 #endif
 1:	bl	get_ticks	/* Get current time */

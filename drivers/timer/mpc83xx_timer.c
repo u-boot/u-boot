@@ -174,10 +174,9 @@ void timer_interrupt(struct pt_regs *regs)
 
 	priv->timestamp++;
 
-#if defined(CONFIG_WATCHDOG) || defined(CONFIG_HW_WATCHDOG)
-	if (CFG_SYS_WATCHDOG_FREQ && (priv->timestamp % (CFG_SYS_WATCHDOG_FREQ)) == 0)
+	if (CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING) &&
+	    CFG_SYS_WATCHDOG_FREQ && !(priv->timestamp % CFG_SYS_WATCHDOG_FREQ))
 		schedule();
-#endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
 
 #ifdef CONFIG_LED_STATUS
 	status_led_tick(priv->timestamp);
