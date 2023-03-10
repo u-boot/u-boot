@@ -26,6 +26,10 @@
  * NFSv2 is still used by default. But if server does not support NFSv2, then
  * NFSv3 is used, if available on NFS server. */
 
+/* NOTE 5: NFSv1 support added by Christian Gmeiner, Thomas Rienoessl,
+ * September 27, 2018. As of now, NFSv3 is the default choice. If the server
+ * does not support NFSv3, we fall back to versions 2 or 1. */
+
 #include <common.h>
 #include <command.h>
 #include <display_options.h>
@@ -78,6 +82,7 @@ static char nfs_path_buff[2048];
 
 enum nfs_version {
 	NFS_UNKOWN = 0,
+	NFS_V1 = 1,
 	NFS_V2 = 2,
 	NFS_V3 = 3,
 };
@@ -192,6 +197,26 @@ static void rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 	switch (rpc_prog) {
 	case PROG_NFS:
 		switch (choosen_nfs_version) {
+		case NFS_V1:
+		case NFS_V2:
+			rpc_pkt.u.call.vers = htonl(2);
+			break;
+
+		case NFS_V3:
+			rpc_pkt.u.call.vers = htonl(3);
+			break;
+
+		case NFS_UNKOWN:
+			/* nothing to do */
+			break;
+		}
+		break;
+	case PROG_MOUNT:
+		switch (choosen_nfs_version) {
+		case NFS_V1:
+			rpc_pkt.u.call.vers = htonl(1);
+			break;
+
 		case NFS_V2:
 			rpc_pkt.u.call.vers = htonl(2);
 			break;
@@ -206,7 +231,6 @@ static void rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 		}
 		break;
 	case PROG_PORTMAP:
-	case PROG_MOUNT:
 	default:
 		rpc_pkt.u.call.vers = htonl(2);	/* portmapper is version 2 */
 	}
@@ -311,7 +335,7 @@ static void nfs_readlink_req(void)
 	p = &(data[0]);
 	p = rpc_add_credentials(p);
 
-	if (choosen_nfs_version == NFS_V2) {
+	if (choosen_nfs_version != NFS_V3) {
 		memcpy(p, filefh, NFS_FHSIZE);
 		p += (NFS_FHSIZE / 4);
 	} else { /* NFS_V3 */
@@ -340,7 +364,7 @@ static void nfs_lookup_req(char *fname)
 	p = &(data[0]);
 	p = rpc_add_credentials(p);
 
-	if (choosen_nfs_version == NFS_V2) {
+	if (choosen_nfs_version != NFS_V3) {
 		memcpy(p, dirfh, NFS_FHSIZE);
 		p += (NFS_FHSIZE / 4);
 		*p++ = htonl(fnamelen);
@@ -380,7 +404,7 @@ static void nfs_read_req(int offset, int readlen)
 	p = &(data[0]);
 	p = rpc_add_credentials(p);
 
-	if (choosen_nfs_version == NFS_V2) {
+	if (choosen_nfs_version != NFS_V3) {
 		memcpy(p, filefh, NFS_FHSIZE);
 		p += (NFS_FHSIZE / 4);
 		*p++ = htonl(offset);
@@ -410,13 +434,13 @@ static void nfs_send(void)
 
 	switch (nfs_state) {
 	case STATE_PRCLOOKUP_PROG_MOUNT_REQ:
-		if (choosen_nfs_version == NFS_V2)
+		if (choosen_nfs_version != NFS_V3)
 			rpc_lookup_req(PROG_MOUNT, 1);
 		else  /* NFS_V3 */
 			rpc_lookup_req(PROG_MOUNT, 3);
 		break;
 	case STATE_PRCLOOKUP_PROG_NFS_REQ:
-		if (choosen_nfs_version == NFS_V2)
+		if (choosen_nfs_version != NFS_V3)
 			rpc_lookup_req(PROG_NFS, 2);
 		else  /* NFS_V3 */
 			rpc_lookup_req(PROG_NFS, 3);
@@ -457,7 +481,7 @@ static int rpc_handle_error(struct rpc_t *rpc_pkt)
 			const int min = ntohl(rpc_pkt->u.reply.data[0]);
 			const int max = ntohl(rpc_pkt->u.reply.data[1]);
 
-			if (max < NFS_V2 || max > NFS_V3 || min > NFS_V3) {
+			if (max < NFS_V1 || max > NFS_V3 || min > NFS_V3) {
 				puts("*** ERROR: NFS version not supported");
 				debug(": Requested: V%d, accepted: min V%d - max V%d\n",
 				      choosen_nfs_version,
@@ -588,7 +612,7 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 	if (ret)
 		return ret;
 
-	if (choosen_nfs_version == NFS_V2) {
+	if (choosen_nfs_version != NFS_V3) {
 		if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + NFS_FHSIZE) > len)
 			return -NFS_RPC_DROP;
 		memcpy(filefh, rpc_pkt.u.reply.data + 1, NFS_FHSIZE);
@@ -712,7 +736,7 @@ static int nfs_read_reply(uchar *pkt, unsigned len)
 	if (!(nfs_offset % ((NFS_READ_SIZE / 2) * 10)))
 		putc('#');
 
-	if (choosen_nfs_version == NFS_V2) {
+	if (choosen_nfs_version != NFS_V3) {
 		rlen = ntohl(rpc_pkt.u.reply.data[18]);
 		data_ptr = (uchar *)&(rpc_pkt.u.reply.data[19]);
 	} else {  /* NFS_V3 */
