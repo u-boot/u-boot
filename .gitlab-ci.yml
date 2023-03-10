@@ -1,5 +1,12 @@
 # SPDX-License-Identifier: GPL-2.0+
 
+variables:
+  DEFAULT_TAG: ""
+
+default:
+  tags:
+    - ${DEFAULT_TAG}
+
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
 image: trini/u-boot-gitlab-ci-runner:jammy-20230308-21Mar2023
