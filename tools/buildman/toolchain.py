@@ -156,9 +156,10 @@ class Toolchain:
         Returns:
             Value of that environment variable or arguments
         """
-        wrapper = self.GetWrapper()
         if which == VAR_CROSS_COMPILE:
-            return wrapper + os.path.join(self.path, self.cross)
+            wrapper = self.GetWrapper()
+            base = '' if self.arch == 'sandbox' else self.path
+            return wrapper + os.path.join(base, self.cross)
         elif which == VAR_PATH:
             return self.path
         elif which == VAR_ARCH:
