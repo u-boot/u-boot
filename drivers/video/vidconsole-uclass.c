@@ -643,3 +643,15 @@ int vidconsole_memmove(struct udevice *dev, void *dst, const void *src,
 	return vidconsole_sync_copy(dev, dst, dst + size);
 }
 #endif
+
+int vidconsole_clear_and_reset(struct udevice *dev)
+{
+	int ret;
+
+	ret = video_clear(dev_get_parent(dev));
+	if (ret)
+		return ret;
+	vidconsole_position_cursor(dev, 0, 0);
+
+	return 0;
+}
