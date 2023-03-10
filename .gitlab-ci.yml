@@ -2,6 +2,7 @@
 
 variables:
   DEFAULT_TAG: ""
+  MIRROR_DOCKER: docker.io
 
 default:
   tags:
@@ -9,7 +10,7 @@ default:
 
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: trini/u-boot-gitlab-ci-runner:jammy-20230308-21Mar2023
+image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20230308-21Mar2023
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
