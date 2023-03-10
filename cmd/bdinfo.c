@@ -88,11 +88,15 @@ static void show_video_info(void)
 		       device_active(dev) ? "" : "in");
 		if (device_active(dev)) {
 			struct video_priv *upriv = dev_get_uclass_priv(dev);
+			struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 
 			bdinfo_print_num_ll("FB base", (ulong)upriv->fb);
-			if (upriv->copy_fb)
+			if (upriv->copy_fb) {
 				bdinfo_print_num_ll("FB copy",
 						    (ulong)upriv->copy_fb);
+				bdinfo_print_num_l(" copy size",
+						   plat->copy_size);
+			}
 			printf("%-12s= %dx%dx%d\n", "FB size", upriv->xsize,
 			       upriv->ysize, 1 << upriv->bpix);
 		}
