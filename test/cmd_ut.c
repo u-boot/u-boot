@@ -110,6 +110,9 @@ static struct cmd_tbl cmd_ut_sub[] = {
 #ifdef CONFIG_CMD_LOADM
 	U_BOOT_CMD_MKENT(loadm, CONFIG_SYS_MAXARGS, 1, do_ut_loadm, "", ""),
 #endif
+#ifdef CONFIG_CMD_PCI_MPS
+	U_BOOT_CMD_MKENT(pci_mps, CONFIG_SYS_MAXARGS, 1, do_ut_pci_mps, "", ""),
+#endif
 #ifdef CONFIG_CMD_SEAMA
 	U_BOOT_CMD_MKENT(seama, CONFIG_SYS_MAXARGS, 1, do_ut_seama, "", ""),
 #endif
@@ -209,6 +212,9 @@ static char ut_help_text[] =
 #endif
 #ifdef CONFIG_UT_OVERLAY
 	"\noverlay - device tree overlays"
+#endif
+#ifdef CONFIG_CMD_PCI_MPS
+	"\npci_mps - PCI Express Maximum Payload Size"
 #endif
 	"\nprint  - printing things to the console"
 	"\nsetexpr - setexpr command"
