@@ -17,7 +17,13 @@ static int do_video_clear(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	__maybe_unused struct udevice *dev;
 
-	/*  Send clear screen and home */
+	/*
+	 * Send clear screen and home
+	 *
+	 * FIXME(Heinrich Schuchardt <xypron.glpk@gmx.de>): This should go
+	 * through an API and only be written to serial terminals, not video
+	 * displays
+	 */
 	printf(CSI "2J" CSI "1;1H");
 	if (IS_ENABLED(CONFIG_VIDEO_ANSI))
 		return 0;
