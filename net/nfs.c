@@ -524,6 +524,7 @@ static int rpc_lookup_reply(int prog, uchar *pkt, unsigned len)
 static int nfs_mount_reply(uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
+	int ret;
 
 	debug("%s\n", __func__);
 
@@ -534,11 +535,9 @@ static int nfs_mount_reply(uchar *pkt, unsigned len)
 	else if (ntohl(rpc_pkt.u.reply.id) < rpc_id)
 		return -NFS_RPC_DROP;
 
-	if (rpc_pkt.u.reply.rstatus  ||
-	    rpc_pkt.u.reply.verifier ||
-	    rpc_pkt.u.reply.astatus  ||
-	    rpc_pkt.u.reply.data[0])
-		return -1;
+	ret = rpc_handle_error(&rpc_pkt);
+	if (ret)
+		return ret;
 
 	fs_mounted = 1;
 	/*  NFSv2 and NFSv3 use same structure */
@@ -793,6 +792,10 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			puts("*** ERROR: Cannot mount\n");
 			/* just to be sure... */
 			nfs_state = STATE_UMOUNT_REQ;
+			nfs_send();
+		} else if (reply == -NFS_RPC_PROG_MISMATCH &&
+			   choosen_nfs_version != NFS_UNKOWN) {
+			nfs_state = STATE_MOUNT_REQ;
 			nfs_send();
 		} else {
 			nfs_state = STATE_LOOKUP_REQ;
