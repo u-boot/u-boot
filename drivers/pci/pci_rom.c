@@ -325,7 +325,7 @@ err:
 	return ret;
 }
 
-int vesa_setup_video_priv(struct vesa_mode_info *vesa,
+int vesa_setup_video_priv(struct vesa_mode_info *vesa, u64 fb,
 			  struct video_priv *uc_priv,
 			  struct video_uc_plat *plat)
 {
@@ -348,9 +348,9 @@ int vesa_setup_video_priv(struct vesa_mode_info *vesa,
 
 	/* Use double buffering if enabled */
 	if (IS_ENABLED(CONFIG_VIDEO_COPY) && plat->base)
-		plat->copy_base = vesa->phys_base_ptr;
+		plat->copy_base = fb;
 	else
-		plat->base = vesa->phys_base_ptr;
+		plat->base = fb;
 	log_debug("base = %lx, copy_base = %lx\n", plat->base, plat->copy_base);
 	plat->size = vesa->bytes_per_scanline * vesa->y_resolution;
 
@@ -377,7 +377,9 @@ int vesa_setup_video(struct udevice *dev, int (*int15_handler)(void))
 		return ret;
 	}
 
-	ret = vesa_setup_video_priv(&mode_info.vesa, uc_priv, plat);
+	ret = vesa_setup_video_priv(&mode_info.vesa,
+				    mode_info.vesa.phys_base_ptr, uc_priv,
+				    plat);
 	if (ret) {
 		if (ret == -ENFILE) {
 			/*
