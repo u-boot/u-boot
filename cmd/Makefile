@@ -131,6 +131,7 @@ obj-$(CONFIG_CMD_PART) += part.o
 obj-$(CONFIG_CMD_PCAP) += pcap.o
 ifdef CONFIG_PCI
 obj-$(CONFIG_CMD_PCI) += pci.o
+obj-$(CONFIG_CMD_PCI_MPS) += pci_mps.o
 endif
 obj-$(CONFIG_CMD_PINMUX) += pinmux.o
 obj-$(CONFIG_CMD_PMC) += pmc.o
