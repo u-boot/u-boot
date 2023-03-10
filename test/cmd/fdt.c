@@ -653,23 +653,21 @@ static int fdt_test_set_single(struct unit_test_state *uts,
 	 * => fdt set /path property
 	 */
 	ut_assertok(console_record_reset_enable());
-	if (sval) {
+	if (sval)
 		ut_assertok(run_commandf("fdt set %s %s %s", path, prop, sval));
-	} else if (integer) {
+	else if (integer)
 		ut_assertok(run_commandf("fdt set %s %s <%d>", path, prop, ival));
-	} else {
+	else
 		ut_assertok(run_commandf("fdt set %s %s", path, prop));
-	}
 
 	/* Validate the property is present and has correct value. */
 	ut_assertok(run_commandf("fdt get value svar %s %s", path, prop));
-	if (sval) {
+	if (sval)
 		ut_asserteq_str(sval, env_get("svar"));
-	} else if (integer) {
+	else if (integer)
 		ut_asserteq(ival, env_get_hex("svar", 0x1234));
-	} else {
+	else
 		ut_assertnull(env_get("svar"));
-	}
 	ut_assertok(ut_check_console_end(uts));
 
 	return 0;
