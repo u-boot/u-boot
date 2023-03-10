@@ -443,6 +443,54 @@ static void nfs_send(void)
 Handlers for the reply from server
 **************************************************************************/
 
+static int rpc_handle_error(struct rpc_t *rpc_pkt)
+{
+	if (rpc_pkt->u.reply.rstatus  ||
+	    rpc_pkt->u.reply.verifier ||
+	    rpc_pkt->u.reply.astatus  ||
+	    rpc_pkt->u.reply.data[0]) {
+		switch (ntohl(rpc_pkt->u.reply.astatus)) {
+		case NFS_RPC_SUCCESS: /* Not an error */
+			break;
+		case NFS_RPC_PROG_MISMATCH: {
+			/* Remote can't support NFS version */
+			const int min = ntohl(rpc_pkt->u.reply.data[0]);
+			const int max = ntohl(rpc_pkt->u.reply.data[1]);
+
+			if (max < NFS_V2 || max > NFS_V3 || min > NFS_V3) {
+				puts("*** ERROR: NFS version not supported");
+				debug(": Requested: V%d, accepted: min V%d - max V%d\n",
+				      choosen_nfs_version,
+				      ntohl(rpc_pkt->u.reply.data[0]),
+				      ntohl(rpc_pkt->u.reply.data[1]));
+				puts("\n");
+				choosen_nfs_version = NFS_UNKOWN;
+				break;
+			}
+
+			debug("*** Warning: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
+			      choosen_nfs_version,
+			      ntohl(rpc_pkt->u.reply.data[0]),
+			      ntohl(rpc_pkt->u.reply.data[1]));
+			debug("Will retry with NFSv%d\n", min);
+			choosen_nfs_version = min;
+			return -NFS_RPC_PROG_MISMATCH;
+		}
+		case NFS_RPC_PROG_UNAVAIL:
+		case NFS_RPC_PROC_UNAVAIL:
+		case NFS_RPC_GARBAGE_ARGS:
+		case NFS_RPC_SYSTEM_ERR:
+		default: /* Unknown error on 'accept state' flag */
+			debug("*** ERROR: accept state error (%d)\n",
+			      ntohl(rpc_pkt->u.reply.astatus));
+			break;
+		}
+		return -1;
+	}
+
+	return 0;
+}
+
 static int rpc_lookup_reply(int prog, uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
@@ -526,6 +574,7 @@ static int nfs_umountall_reply(uchar *pkt, unsigned len)
 static int nfs_lookup_reply(uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
+	int ret;
 
 	debug("%s\n", __func__);
 
@@ -536,48 +585,9 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 	else if (ntohl(rpc_pkt.u.reply.id) < rpc_id)
 		return -NFS_RPC_DROP;
 
-	if (rpc_pkt.u.reply.rstatus  ||
-	    rpc_pkt.u.reply.verifier ||
-	    rpc_pkt.u.reply.astatus  ||
-	    rpc_pkt.u.reply.data[0]) {
-		switch (ntohl(rpc_pkt.u.reply.astatus)) {
-		case NFS_RPC_SUCCESS: /* Not an error */
-			break;
-		case NFS_RPC_PROG_MISMATCH: {
-			/* Remote can't support NFS version */
-			const int min = ntohl(rpc_pkt.u.reply.data[0]);
-			const int max = ntohl(rpc_pkt.u.reply.data[1]);
-
-			if (max < NFS_V2 || max > NFS_V3 || min > NFS_V3) {
-				puts("*** ERROR: NFS version not supported");
-				debug(": Requested: V%d, accepted: min V%d - max V%d\n",
-				      choosen_nfs_version,
-				      ntohl(rpc_pkt.u.reply.data[0]),
-				      ntohl(rpc_pkt.u.reply.data[1]));
-				puts("\n");
-				choosen_nfs_version = NFS_UNKOWN;
-				break;
-			}
-
-			debug("*** Warning: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
-			      choosen_nfs_version,
-			      ntohl(rpc_pkt.u.reply.data[0]),
-			      ntohl(rpc_pkt.u.reply.data[1]));
-			debug("Will retry with NFSv%d\n", min);
-			choosen_nfs_version = min;
-			return -NFS_RPC_PROG_MISMATCH;
-		}
-		case NFS_RPC_PROG_UNAVAIL:
-		case NFS_RPC_PROC_UNAVAIL:
-		case NFS_RPC_GARBAGE_ARGS:
-		case NFS_RPC_SYSTEM_ERR:
-		default: /* Unknown error on 'accept state' flag */
-			debug("*** ERROR: accept state error (%d)\n",
-			      ntohl(rpc_pkt.u.reply.astatus));
-			break;
-		}
-		return -1;
-	}
+	ret = rpc_handle_error(&rpc_pkt);
+	if (ret)
+		return ret;
 
 	if (choosen_nfs_version == NFS_V2) {
 		if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + NFS_FHSIZE) > len)
