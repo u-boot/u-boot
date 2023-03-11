@@ -475,18 +475,9 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 					if (ret != 0)
 						return ret;
 				} else if (subcmd[0] == 'a') {
-					/* Get address */
-					char buf[19];
-
-					snprintf(buf, sizeof(buf), "%lx",
-						 (ulong)map_to_sysmem(nodep));
-					env_set(var, buf);
+					env_set_hex(var, (ulong)map_to_sysmem(nodep));
 				} else if (subcmd[0] == 's') {
-					/* Get size */
-					char buf[11];
-
-					sprintf(buf, "0x%08X", len);
-					env_set(var, buf);
+					env_set_hex(var, len);
 				} else
 					return CMD_RET_USAGE;
 				return 0;
