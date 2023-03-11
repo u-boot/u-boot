@@ -251,7 +251,7 @@ static int decode_elf32(FILE *felf, char **argv)
 		return 25;
 	}
 
-	machine = le16_to_cpu(header.e_machine);
+	machine = elf16_to_cpu(header.e_machine);
 	debug("Machine %d\n", machine);
 
 	if (machine != EM_MICROBLAZE) {
@@ -259,10 +259,10 @@ static int decode_elf32(FILE *felf, char **argv)
 		return 30;
 	}
 
-	text_base = le32_to_cpu(header.e_entry);
-	section_header_base = le32_to_cpu(header.e_shoff);
-	section_header_size = le16_to_cpu(header.e_shentsize) *
-			      le16_to_cpu(header.e_shnum);
+	text_base = elf32_to_cpu(header.e_entry);
+	section_header_base = elf32_to_cpu(header.e_shoff);
+	section_header_size = elf16_to_cpu(header.e_shentsize) *
+			      elf16_to_cpu(header.e_shnum);
 
 	sh_table = malloc(section_header_size);
 	if (!sh_table) {
@@ -290,8 +290,8 @@ static int decode_elf32(FILE *felf, char **argv)
 		return 27;
 	}
 
-	sh_index = le16_to_cpu(header.e_shstrndx);
-	sh_size = le32_to_cpu(sh_table[sh_index].sh_size);
+	sh_index = elf16_to_cpu(header.e_shstrndx);
+	sh_size = elf32_to_cpu(sh_table[sh_index].sh_size);
 	debug("e_shstrndx %x, sh_size %lx\n", sh_index, sh_size);
 
 	sh_str = malloc(sh_size);
@@ -306,8 +306,8 @@ static int decode_elf32(FILE *felf, char **argv)
 	 * Specifies the byte offset from the beginning of the file
 	 * to the first byte in the section.
 	 */
-	sh_offset = le32_to_cpu(sh_table[sh_index].sh_offset);
-	sh_num = le16_to_cpu(header.e_shnum);
+	sh_offset = elf32_to_cpu(sh_table[sh_index].sh_offset);
+	sh_num = elf16_to_cpu(header.e_shnum);
 
 	ret = fseek(felf, sh_offset, SEEK_SET);
 	if (ret) {
@@ -329,13 +329,13 @@ static int decode_elf32(FILE *felf, char **argv)
 	}
 
 	for (i = 0; i < sh_num; i++) {
-		char *sh_name = sh_str + le32_to_cpu(sh_table[i].sh_name);
+		char *sh_name = sh_str + elf32_to_cpu(sh_table[i].sh_name);
 
 		debug("%s\n", sh_name);
 
-		sh_addr = le32_to_cpu(sh_table[i].sh_addr);
-		sh_offset = le32_to_cpu(sh_table[i].sh_offset);
-		sh_size = le32_to_cpu(sh_table[i].sh_size);
+		sh_addr = elf32_to_cpu(sh_table[i].sh_addr);
+		sh_offset = elf32_to_cpu(sh_table[i].sh_offset);
+		sh_size = elf32_to_cpu(sh_table[i].sh_size);
 
 		if (!strcmp(".rela.dyn", sh_name)) {
 			debug("Found section\t\".rela_dyn\"\n");
@@ -540,9 +540,9 @@ static int rela_elf32(char **argv, FILE *f)
 		      PRIu32 " r_addend:\t%" PRIx32 "\n",
 		      rela.r_offset, rela.r_info, rela.r_addend);
 
-		swrela.r_offset = le32_to_cpu(rela.r_offset);
-		swrela.r_info = le32_to_cpu(rela.r_info);
-		swrela.r_addend = le32_to_cpu(rela.r_addend);
+		swrela.r_offset = elf32_to_cpu(rela.r_offset);
+		swrela.r_info = elf32_to_cpu(rela.r_info);
+		swrela.r_addend = elf32_to_cpu(rela.r_addend);
 
 		debug("SWRela:\toffset:\t%" PRIx32 " r_info:\t%"
 		      PRIu32 " r_addend:\t%" PRIx32 "\n",
