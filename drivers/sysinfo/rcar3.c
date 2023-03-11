@@ -16,12 +16,14 @@
 #define BOARD_SALVATOR_X	0x0
 #define BOARD_KRIEK		0x1
 #define BOARD_STARTER_KIT	0x2
+#define BOARD_EAGLE		0x3
 #define BOARD_SALVATOR_XS	0x4
+#define BOARD_CONDOR		0x6
+#define BOARD_DRAAK		0x7
 #define BOARD_EBISU		0x8
 #define BOARD_STARTER_KIT_PRE	0xB
 #define BOARD_EBISU_4D		0xD
-#define BOARD_DRAAK		0xE
-#define BOARD_EAGLE		0xF
+#define BOARD_CONDOR_I		0x10
 
 /**
  * struct sysinfo_rcar_priv - sysinfo private data
@@ -65,6 +67,7 @@ static void sysinfo_rcar_parse(struct sysinfo_rcar_priv *priv)
 	const u8 board_rev = priv->val & BOARD_REV_MASK;
 	bool salvator_xs = false;
 	bool ebisu_4d = false;
+	bool condor_i = false;
 	char rev_major = '?';
 	char rev_minor = '?';
 
@@ -137,6 +140,18 @@ static void sysinfo_rcar_parse(struct sysinfo_rcar_priv *priv)
 		snprintf(priv->boardmodel, sizeof(priv->boardmodel),
 			 "Renesas Kriek board rev %c.%c",
 			 rev_major, rev_minor);
+		return;
+	case BOARD_CONDOR_I:
+		condor_i = true;
+		fallthrough;
+	case BOARD_CONDOR:
+		if (!board_rev) { /* Only rev 0 is valid */
+			rev_major = '1';
+			rev_minor = '0';
+		}
+		snprintf(priv->boardmodel, sizeof(priv->boardmodel),
+			"Renesas Condor%s board rev %c.%c",
+			condor_i ? "-I" : "", rev_major, rev_minor);
 		return;
 	default:
 		snprintf(priv->boardmodel, sizeof(priv->boardmodel),
