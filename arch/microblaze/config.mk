@@ -13,10 +13,6 @@ LDFLAGS_FINAL += --gc-sections
 
 ifeq ($(CONFIG_SPL_BUILD),)
 PLATFORM_CPPFLAGS += -fPIC
-endif
-
-ifeq ($(CONFIG_STATIC_RELA),y)
-PLATFORM_CPPFLAGS += -fPIC
 LDFLAGS_u-boot += -pic
 endif
 
