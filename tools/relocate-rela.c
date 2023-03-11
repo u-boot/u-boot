@@ -316,9 +316,9 @@ static int decode_elf32(FILE *felf, char **argv)
 
 		debug("%s\n", sh_name);
 
-		sh_addr = le64_to_cpu(sh_table[i].sh_addr);
-		sh_offset = le64_to_cpu(sh_table[i].sh_offset);
-		sh_size = le64_to_cpu(sh_table[i].sh_size);
+		sh_addr = le32_to_cpu(sh_table[i].sh_addr);
+		sh_offset = le32_to_cpu(sh_table[i].sh_offset);
+		sh_size = le32_to_cpu(sh_table[i].sh_size);
 
 		if (!strcmp(".rela.dyn", sh_name)) {
 			debug("Found section\t\".rela_dyn\"\n");
