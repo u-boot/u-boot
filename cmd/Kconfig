@@ -582,7 +582,6 @@ config CMD_GREPENV
 
 config CMD_SAVEENV
 	bool "saveenv"
-	depends on !ENV_IS_DEFAULT
 	default y
 	help
 	  Save all environment variables into the compiled-in persistent
