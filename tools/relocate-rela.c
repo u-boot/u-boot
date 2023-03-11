@@ -45,6 +45,7 @@
 #endif
 
 static int ei_class;
+static int ei_data;
 
 static uint64_t rela_start, rela_end, text_base, dyn_start;
 
@@ -59,6 +60,22 @@ static void debug(const char *fmt, ...)
 		vprintf(fmt, args);
 		va_end(args);
 	}
+}
+
+static uint16_t elf16_to_cpu(uint16_t data)
+{
+	if (ei_data == ELFDATA2LSB)
+		return le16_to_cpu(data);
+
+	return be16_to_cpu(data);
+}
+
+static uint32_t elf32_to_cpu(uint32_t data)
+{
+	if (ei_data == ELFDATA2LSB)
+		return le32_to_cpu(data);
+
+	return be32_to_cpu(data);
 }
 
 static bool supported_rela(Elf64_Rela *rela)
@@ -383,6 +400,9 @@ static int decode_elf(char **argv)
 
 	ei_class = e_ident[4];
 	debug("EI_CLASS(1=32bit, 2=64bit) %d\n", ei_class);
+
+	ei_data = e_ident[5];
+	debug("EI_DATA(1=little endian, 2=big endian) %d\n", ei_data);
 
 	if (ei_class == 2)
 		return decode_elf64(felf, argv);
