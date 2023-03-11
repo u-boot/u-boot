@@ -223,8 +223,7 @@ static int mmc_burn_image(size_t image_size)
 	orig_part = mmc->block_dev.hwpart;
 #endif
 
-	part = (mmc->part_config >> 3) & PART_ACCESS_MASK;
-
+	part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
 	if (part == 7)
 		part = 0;
 
