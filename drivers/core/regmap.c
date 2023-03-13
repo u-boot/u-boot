@@ -79,7 +79,7 @@ static struct regmap *regmap_alloc(int count)
 }
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
-int regmap_init_mem_plat(struct udevice *dev, fdt_val_t *reg, int count,
+int regmap_init_mem_plat(struct udevice *dev, void *reg, int size, int count,
 			 struct regmap **mapp)
 {
 	struct regmap_range *range;
@@ -89,9 +89,24 @@ int regmap_init_mem_plat(struct udevice *dev, fdt_val_t *reg, int count,
 	if (!map)
 		return -ENOMEM;
 
-	for (range = map->ranges; count > 0; reg += 2, range++, count--) {
-		range->start = *reg;
-		range->size = reg[1];
+	if (size == sizeof(fdt32_t)) {
+		fdt32_t *ptr = (fdt32_t *)reg;
+
+		for (range = map->ranges; count > 0;
+		     ptr += 2, range++, count--) {
+			range->start = *ptr;
+			range->size = ptr[1];
+		}
+	} else if (size == sizeof(fdt64_t)) {
+		fdt64_t *ptr = (fdt64_t *)reg;
+
+		for (range = map->ranges; count > 0;
+		     ptr += 2, range++, count--) {
+			range->start = *ptr;
+			range->size = ptr[1];
+		}
+	} else {
+		return -EINVAL;
 	}
 
 	*mapp = map;
