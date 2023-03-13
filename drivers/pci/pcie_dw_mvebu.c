@@ -569,9 +569,9 @@ static int pcie_dw_mvebu_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 
 	/* Get the config space base address and size */
-	pcie->cfg_base = (void *)devfdt_get_addr_size_index(dev, 1,
-							 &pcie->cfg_size);
-	if ((fdt_addr_t)pcie->cfg_base == FDT_ADDR_T_NONE)
+	pcie->cfg_base = devfdt_get_addr_size_index_ptr(dev, 1,
+							&pcie->cfg_size);
+	if (!pcie->cfg_base)
 		return -EINVAL;
 
 	return 0;
