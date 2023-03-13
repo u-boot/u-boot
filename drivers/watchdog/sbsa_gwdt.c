@@ -98,13 +98,13 @@ static int sbsa_gwdt_of_to_plat(struct udevice *dev)
 {
 	struct sbsa_gwdt_priv *priv = dev_get_priv(dev);
 
-	priv->reg_control = (void __iomem *)dev_read_addr_index(dev, 0);
-	if (IS_ERR(priv->reg_control))
-		return PTR_ERR(priv->reg_control);
+	priv->reg_control = dev_read_addr_index_ptr(dev, 0);
+	if (!priv->reg_control)
+		return -EINVAL;
 
-	priv->reg_refresh = (void __iomem *)dev_read_addr_index(dev, 1);
-	if (IS_ERR(priv->reg_refresh))
-		return PTR_ERR(priv->reg_refresh);
+	priv->reg_refresh = dev_read_addr_index_ptr(dev, 1);
+	if (!priv->reg_refresh)
+		return -EINVAL;
 
 	return 0;
 }
