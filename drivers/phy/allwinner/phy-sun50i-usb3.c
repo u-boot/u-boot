@@ -149,9 +149,9 @@ static int sun50i_usb3_phy_probe(struct udevice *dev)
 		return ret;
 	}
 
-	priv->regs = (void __iomem *)dev_read_addr(dev);
-	if (IS_ERR(priv->regs))
-		return PTR_ERR(priv->regs);
+	priv->regs = dev_read_addr_ptr(dev);
+	if (!priv->regs)
+		return -EINVAL;
 
 	return 0;
 }

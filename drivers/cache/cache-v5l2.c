@@ -119,7 +119,7 @@ static int v5l2_of_to_plat(struct udevice *dev)
 	struct v5l2_plat *plat = dev_get_plat(dev);
 	struct l2cache *regs;
 
-	regs = (struct l2cache *)(uintptr_t)dev_read_addr(dev);
+	regs = dev_read_addr_ptr(dev);
 	plat->regs = regs;
 
 	plat->iprefetch = -EINVAL;

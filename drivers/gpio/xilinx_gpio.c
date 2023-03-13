@@ -268,7 +268,7 @@ static int xilinx_gpio_of_to_plat(struct udevice *dev)
 	struct xilinx_gpio_plat *plat = dev_get_plat(dev);
 	int is_dual;
 
-	plat->regs = (struct gpio_regs *)dev_read_addr(dev);
+	plat->regs = dev_read_addr_ptr(dev);
 
 	plat->bank_max[0] = dev_read_u32_default(dev, "xlnx,gpio-width", 0);
 	plat->bank_input[0] = dev_read_u32_default(dev, "xlnx,all-inputs", 0);

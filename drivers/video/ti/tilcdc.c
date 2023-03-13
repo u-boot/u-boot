@@ -387,8 +387,8 @@ static int tilcdc_of_to_plat(struct udevice *dev)
 {
 	struct tilcdc_priv *priv = dev_get_priv(dev);
 
-	priv->regs = (struct tilcdc_regs *)dev_read_addr(dev);
-	if ((fdt_addr_t)priv->regs == FDT_ADDR_T_NONE) {
+	priv->regs = dev_read_addr_ptr(dev);
+	if (!priv->regs) {
 		dev_err(dev, "failed to get base address\n");
 		return -EINVAL;
 	}

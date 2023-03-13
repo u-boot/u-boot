@@ -74,7 +74,7 @@ static int piton_mmc_ofdata_to_platdata(struct udevice *dev)
 	struct mmc *mmc;
 	struct blk_desc *bdesc;
 
-	priv->base_addr = (void *)dev_read_addr(dev);
+	priv->base_addr = dev_read_addr_ptr(dev);
 	cfg = &plat->cfg;
 	cfg->name = "PITON MMC";
 	cfg->host_caps = MMC_MODE_8BIT;

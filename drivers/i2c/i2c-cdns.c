@@ -479,9 +479,9 @@ static int cdns_i2c_of_to_plat(struct udevice *dev)
 	struct clk clk;
 	int ret;
 
-	i2c_bus->regs = (struct cdns_i2c_regs *)dev_read_addr(dev);
+	i2c_bus->regs = dev_read_addr_ptr(dev);
 	if (!i2c_bus->regs)
-		return -ENOMEM;
+		return -EINVAL;
 
 	if (pdata)
 		i2c_bus->quirks = pdata->quirks;

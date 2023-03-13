@@ -912,7 +912,7 @@ int dwc_ahsata_probe(struct udevice *dev)
 #endif
 	uc_priv->host_flags = ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
 			ATA_FLAG_MMIO | ATA_FLAG_PIO_DMA | ATA_FLAG_NO_ATAPI;
-	uc_priv->mmio_base = (void __iomem *)dev_read_addr(dev);
+	uc_priv->mmio_base = dev_read_addr_ptr(dev);
 
 	/* initialize adapter */
 	ret = ahci_host_init(uc_priv);

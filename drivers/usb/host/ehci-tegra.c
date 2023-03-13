@@ -723,7 +723,7 @@ static int fdt_decode_usb(struct udevice *dev, struct fdt_usb *config)
 {
 	const char *phy, *mode;
 
-	config->reg = (struct usb_ctlr *)dev_read_addr(dev);
+	config->reg = dev_read_addr_ptr(dev);
 	debug("reg=%p\n", config->reg);
 	mode = dev_read_string(dev, "dr_mode");
 	if (mode) {

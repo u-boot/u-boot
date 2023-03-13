@@ -271,9 +271,9 @@ static int cdns_wdt_of_to_plat(struct udevice *dev)
 {
 	struct cdns_wdt_priv *priv = dev_get_priv(dev);
 
-	priv->regs = (struct cdns_regs *)dev_read_addr(dev);
-	if (IS_ERR(priv->regs))
-		return PTR_ERR(priv->regs);
+	priv->regs = dev_read_addr_ptr(dev);
+	if (!priv->regs)
+		return -EINVAL;
 
 	priv->rst = dev_read_bool(dev, "reset-on-timeout");
 

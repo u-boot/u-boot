@@ -507,8 +507,8 @@ static int stm32_ltdc_probe(struct udevice *dev)
 	ulong rate;
 	int ret;
 
-	priv->regs = (void *)dev_read_addr(dev);
-	if ((fdt_addr_t)priv->regs == FDT_ADDR_T_NONE) {
+	priv->regs = dev_read_addr_ptr(dev);
+	if (!priv->regs) {
 		dev_err(dev, "ltdc dt register address error\n");
 		return -EINVAL;
 	}

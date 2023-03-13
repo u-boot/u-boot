@@ -116,9 +116,9 @@ static int sp805_wdt_of_to_plat(struct udevice *dev)
 	struct sp805_wdt_priv *priv = dev_get_priv(dev);
 	struct clk clk;
 
-	priv->reg = (void __iomem *)dev_read_addr(dev);
-	if (IS_ERR(priv->reg))
-		return PTR_ERR(priv->reg);
+	priv->reg = dev_read_addr_ptr(dev);
+	if (!priv->reg)
+		return -EINVAL;
 
 	if (!clk_get_by_index(dev, 0, &clk))
 		priv->clk_rate = clk_get_rate(&clk);

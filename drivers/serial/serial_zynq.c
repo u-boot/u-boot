@@ -259,9 +259,9 @@ static int zynq_serial_of_to_plat(struct udevice *dev)
 {
 	struct zynq_uart_plat *plat = dev_get_plat(dev);
 
-	plat->regs = (struct uart_zynq *)dev_read_addr(dev);
-	if (IS_ERR(plat->regs))
-		return PTR_ERR(plat->regs);
+	plat->regs = dev_read_addr_ptr(dev);
+	if (!plat->regs)
+		return -EINVAL;
 
 	return 0;
 }

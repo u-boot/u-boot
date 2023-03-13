@@ -427,8 +427,8 @@ static int stm32_dsi_probe(struct udevice *dev)
 
 	device->dev = dev;
 
-	priv->base = (void *)dev_read_addr(dev);
-	if ((fdt_addr_t)priv->base == FDT_ADDR_T_NONE) {
+	priv->base = dev_read_addr_ptr(dev);
+	if (!priv->base) {
 		dev_err(dev, "dsi dt register address error\n");
 		return -EINVAL;
 	}

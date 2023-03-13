@@ -339,8 +339,8 @@ static int gpio_tegra_bind(struct udevice *parent)
 	if (len < 0)
 		return len;
 	bank_count = len / 3 / sizeof(u32);
-	ctlr = (struct gpio_ctlr *)dev_read_addr(parent);
-	if ((ulong)ctlr == FDT_ADDR_T_NONE)
+	ctlr = dev_read_addr_ptr(parent);
+	if (!ctlr)
 		return -EINVAL;
 	}
 #endif

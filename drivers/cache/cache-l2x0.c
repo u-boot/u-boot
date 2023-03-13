@@ -13,7 +13,7 @@ static void l2c310_of_parse_and_init(struct udevice *dev)
 {
 	u32 tag[3] = { 0, 0, 0 };
 	u32 saved_reg, prefetch;
-	struct pl310_regs *regs = (struct pl310_regs *)dev_read_addr(dev);
+	struct pl310_regs *regs = dev_read_addr_ptr(dev);
 
 	/* Disable the L2 Cache */
 	clrbits_le32(&regs->pl310_ctrl, L2X0_CTRL_EN);
