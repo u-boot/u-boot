@@ -1180,9 +1180,9 @@ static int rk_nfc_probe(struct udevice *dev)
 	nfc->cfg = (void *)dev_get_driver_data(dev);
 	nfc->dev = dev;
 
-	nfc->regs = (void *)dev_read_addr(dev);
-	if (IS_ERR(nfc->regs)) {
-		ret = PTR_ERR(nfc->regs);
+	nfc->regs = dev_read_addr_ptr(dev);
+	if (!nfc->regs) {
+		ret = -EINVAL;
 		goto release_nfc;
 	}
 
