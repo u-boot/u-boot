@@ -2,7 +2,7 @@
 /*
  * Configuration for Total Compute platform. Parts were derived from other ARM
  * configurations.
- * (C) Copyright 2020 Arm Limited
+ * (C) Copyright 2020-2023 Arm Limited
  * Usama Arif <usama.arif@arm.com>
  */
 
@@ -11,7 +11,8 @@
 
 /* Link Definitions */
 
-#define UART0_BASE		0x7ff80000
+/* AP non-secure UART base address */
+#define UART0_BASE		0x2A400000
 
 /* PL011 Serial Configuration */
 #define CFG_PL011_CLOCK	7372800
