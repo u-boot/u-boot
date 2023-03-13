@@ -1165,10 +1165,6 @@ static const struct udevice_id rk_nfc_id_table[] = {
 		.compatible = "rockchip,rv1108-nfc",
 		.data = (unsigned long)&nfc_v8_cfg
 	},
-	{
-		.compatible = "rockchip,rk3308-nfc",
-		.data = (unsigned long)&nfc_v8_cfg
-	},
 	{ /* sentinel */ }
 };
 
