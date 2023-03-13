@@ -487,10 +487,10 @@ static int rk_nfc_write_page_raw(struct mtd_info *mtd,
 		 *
 		 *    BBM  OOB1 OOB2 OOB3 |......|  PA0  PA1  PA2  PA3
 		 *
-		 * The rk_nfc_ooblayout_free() function already has reserved
-		 * these 4 bytes with:
+		 * The oobfree structure already has reserved these 4 bytes
+		 * together with 2 bytes for BBM by reducing it's length:
 		 *
-		 * oob_region->offset = NFC_SYS_DATA_SIZE + 2;
+		 * oobfree[0].length = rknand->metadata_size - NFC_SYS_DATA_SIZE - 2;
 		 */
 		if (!i)
 			memcpy(rk_nfc_oob_ptr(chip, i),
@@ -867,7 +867,7 @@ static int rk_nfc_ecc_init(struct rk_nfc *nfc, struct nand_chip *chip)
 		ecc->layout->eccpos[i] = rknand->metadata_size + i;
 
 	ecc->layout->oobfree[0].length = rknand->metadata_size - NFC_SYS_DATA_SIZE - 2;
-	ecc->layout->oobfree[0].offset = NFC_SYS_DATA_SIZE + 2;
+	ecc->layout->oobfree[0].offset = 2;
 
 	return 0;
 }
