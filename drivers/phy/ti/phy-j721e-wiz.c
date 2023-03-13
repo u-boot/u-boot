@@ -329,6 +329,7 @@ struct wiz {
 	u32			num_lanes;
 	struct gpio_desc	*gpio_typec_dir;
 	u32			lane_phy_type[WIZ_MAX_LANES];
+	u32			master_lane_num[WIZ_MAX_LANES];
 	struct clk		*input_clks[WIZ_MAX_INPUT_CLOCKS];
 	unsigned int		id;
 	const struct wiz_data	*data;
@@ -586,14 +587,31 @@ static int wiz_reset_deassert(struct reset_ctl *reset_ctl)
 		return ret;
 
 	/* if typec-dir gpio was specified, set LN10 SWAP bit based on that */
-	if (id == 0 && wiz->gpio_typec_dir) {
-		if (dm_gpio_get_value(wiz->gpio_typec_dir)) {
-			regmap_update_bits(wiz->regmap, WIZ_SERDES_TYPEC,
-					   WIZ_SERDES_TYPEC_LN10_SWAP,
-					   WIZ_SERDES_TYPEC_LN10_SWAP);
-		} else {
-			regmap_update_bits(wiz->regmap, WIZ_SERDES_TYPEC,
-					   WIZ_SERDES_TYPEC_LN10_SWAP, 0);
+	if (id == 0) {
+		if (wiz->gpio_typec_dir) {
+			if (dm_gpio_get_value(wiz->gpio_typec_dir)) {
+				regmap_update_bits(wiz->regmap, WIZ_SERDES_TYPEC,
+						WIZ_SERDES_TYPEC_LN10_SWAP,
+						WIZ_SERDES_TYPEC_LN10_SWAP);
+			} else {
+				regmap_update_bits(wiz->regmap, WIZ_SERDES_TYPEC,
+						WIZ_SERDES_TYPEC_LN10_SWAP, 0);
+			}
+		}
+	} else {
+		/* if no typec-dir gpio was specified and PHY type is
+		 * USB3 with master lane number is '0', set LN10 SWAP
+		 * bit to '1'
+		 */
+		u32 num_lanes = wiz->num_lanes;
+		int i;
+
+		for (i = 0; i < num_lanes; i++) {
+			if (wiz->lane_phy_type[i] == PHY_TYPE_USB3)
+				if (wiz->master_lane_num[i] == 0)
+					regmap_update_bits(wiz->regmap, WIZ_SERDES_TYPEC,
+							WIZ_SERDES_TYPEC_LN10_SWAP,
+							WIZ_SERDES_TYPEC_LN10_SWAP);
 		}
 	}
 
@@ -1100,8 +1118,10 @@ static int wiz_get_lane_phy_types(struct udevice *dev, struct wiz *wiz)
 		dev_dbg(dev, "%s: Lanes %u-%u have phy-type %u\n", __func__,
 			reg, reg + num_lanes - 1, phy_type);
 
-		for (i = reg; i < reg + num_lanes; i++)
+		for (i = reg; i < reg + num_lanes; i++) {
 			wiz->lane_phy_type[i] = phy_type;
+			wiz->master_lane_num[i] = reg;
+		}
 	}
 
 	return 0;
