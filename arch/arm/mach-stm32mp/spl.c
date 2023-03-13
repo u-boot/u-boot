@@ -112,7 +112,7 @@ uint32_t stm32mp_get_dram_size(void)
 
 static int optee_get_reserved_memory(uint32_t *start, uint32_t *size)
 {
-	phys_size_t fdt_mem_size;
+	fdt_addr_t fdt_mem_size;
 	fdt_addr_t fdt_start;
 	ofnode node;
 
