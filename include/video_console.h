@@ -286,6 +286,15 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col,
 				unsigned row);
 
 /**
+ * vidconsole_clear_and_reset() - Clear the console and reset the cursor
+ *
+ * The cursor is placed at the start of the console
+ *
+ * @dev:	vidconsole device to adjust
+ */
+int vidconsole_clear_and_reset(struct udevice *dev);
+
+/**
  * vidconsole_set_cursor_pos() - set cursor position
  *
  * The cursor is set to the new position and the start-of-line information is

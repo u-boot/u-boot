@@ -108,7 +108,21 @@ extern struct vesa_state mode_info;
 
 struct video_priv;
 struct video_uc_plat;
-int vesa_setup_video_priv(struct vesa_mode_info *vesa,
+
+/**
+ * vesa_setup_video_priv() - Set up a video device using VESA information
+ *
+ * The vesa struct is used by various x86 drivers, so this is a common function
+ * to use it to set up the video.
+ *
+ * @vesa: Vesa information to use (vesa->phys_base_ptr is ignored)
+ * @fb: Frame buffer address (since vesa->phys_base_ptr is only 32 bits)
+ * @uc_priv: Video device's uclass-private information
+ * @plat: Video devices's uclass-private platform data
+ * Returns: 0 if OK, -ENXIO if the x resolution is 0, -EEPROTONOSUPPORT if the
+ * pixel format is not supported
+ */
+int vesa_setup_video_priv(struct vesa_mode_info *vesa, u64 fb,
 			  struct video_priv *uc_priv,
 			  struct video_uc_plat *plat);
 int vesa_setup_video(struct udevice *dev, int (*int15_handler)(void));

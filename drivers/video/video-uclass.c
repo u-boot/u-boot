@@ -78,24 +78,40 @@ void video_set_flush_dcache(struct udevice *dev, bool flush)
 	priv->flush_dcache = flush;
 }
 
+static ulong alloc_fb_(ulong align, ulong size, ulong *addrp)
+{
+	ulong base;
+
+	align = align ? align : 1 << 20;
+	base = *addrp - size;
+	base &= ~(align - 1);
+	size = *addrp - base;
+	*addrp = base;
+
+	return size;
+}
+
 static ulong alloc_fb(struct udevice *dev, ulong *addrp)
 {
 	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
-	ulong base, align, size;
+	ulong size;
 
-	if (!plat->size)
+	if (!plat->size) {
+		if (IS_ENABLED(CONFIG_VIDEO_COPY) && plat->copy_size) {
+			size = alloc_fb_(plat->align, plat->copy_size, addrp);
+			plat->copy_base = *addrp;
+			return size;
+		}
+
 		return 0;
+	}
 
 	/* Allow drivers to allocate the frame buffer themselves */
 	if (plat->base)
 		return 0;
 
-	align = plat->align ? plat->align : 1 << 20;
-	base = *addrp - plat->size;
-	base &= ~(align - 1);
-	plat->base = base;
-	size = *addrp - base;
-	*addrp = base;
+	size = alloc_fb_(plat->align, plat->size, addrp);
+	plat->base = *addrp;
 
 	return size;
 }

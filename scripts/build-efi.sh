@@ -96,6 +96,8 @@ run_qemu() {
 	fi
 	if [[ -n "${serial}" ]]; then
 		extra="-display none -serial mon:stdio"
+	else
+		extra="-serial mon:stdio"
 	fi
 	echo "Running ${qemu}"
 	# Use 512MB since U-Boot EFI likes to have 256MB to play with
