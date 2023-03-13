@@ -1437,6 +1437,7 @@ config SPL_WATCHDOG
 
 config SPL_HAS_WATCHDOG_RUNNING
 	def_bool y if SPL_WATCHDOG || HW_WATCHDOG
+	depends on HAS_WATCHDOG_RUNNING
 
 config SPL_YMODEM_SUPPORT
 	bool "Support loading using Ymodem"
