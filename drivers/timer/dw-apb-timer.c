@@ -23,7 +23,7 @@
 #define DW_APB_CTRL		0x8
 
 struct dw_apb_timer_priv {
-	fdt_addr_t regs;
+	uintptr_t regs;
 	struct reset_ctl_bulk resets;
 };
 
