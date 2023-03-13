@@ -934,6 +934,7 @@ static int rk_nfc_nand_chip_init(ofnode node, struct rk_nfc *nfc, int devnum)
 
 	nand_set_controller_data(chip, nfc);
 
+	chip->flash_node = node;
 	chip->chip_delay = NFC_RB_DELAY_US;
 	chip->select_chip = rk_nfc_select_chip;
 	chip->cmd_ctrl = rk_nfc_cmd;
