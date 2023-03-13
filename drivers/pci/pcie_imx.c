@@ -751,8 +751,8 @@ static int imx_pcie_of_to_plat(struct udevice *dev)
 {
 	struct imx_pcie_priv *priv = dev_get_priv(dev);
 
-	priv->dbi_base = (void __iomem *)devfdt_get_addr_index(dev, 0);
-	priv->cfg_base = (void __iomem *)devfdt_get_addr_index(dev, 1);
+	priv->dbi_base = devfdt_get_addr_index_ptr(dev, 0);
+	priv->cfg_base = devfdt_get_addr_index_ptr(dev, 1);
 	if (!priv->dbi_base || !priv->cfg_base)
 		return -EINVAL;
 
