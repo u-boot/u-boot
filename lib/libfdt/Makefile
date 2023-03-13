@@ -3,17 +3,12 @@
 # (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-y += \
-	fdt.o \
-	fdt_ro.o \
-	fdt_wip.o \
-	fdt_strerror.o \
-	fdt_sw.o \
-	fdt_rw.o \
-	fdt_empty_tree.o \
-	fdt_addresses.o
+include $(srctree)/scripts/dtc/libfdt/Makefile.libfdt
+ifneq ($(CONFIG_OF_LIBFDT_OVERLAY),y)
+LIBFDT_OBJS := $(filter-out fdt_overlay.o,$(LIBFDT_OBJS))
+endif
 
-obj-$(CONFIG_OF_LIBFDT_OVERLAY) += fdt_overlay.o
+obj-y += $(LIBFDT_OBJS)
 
 ccflags-y := -I$(srctree)/scripts/dtc/libfdt \
 	-DFDT_ASSUME_MASK=$(CONFIG_$(SPL_TPL_)OF_LIBFDT_ASSUME_MASK)

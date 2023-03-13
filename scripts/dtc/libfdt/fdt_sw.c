@@ -12,7 +12,7 @@
 
 static int fdt_sw_probe_(void *fdt)
 {
-	if (fdt_chk_basic()) {
+	if (!can_assume(VALID_INPUT)) {
 		if (fdt_magic(fdt) == FDT_MAGIC)
 			return -FDT_ERR_BADSTATE;
 		else if (fdt_magic(fdt) != FDT_SW_MAGIC)
@@ -25,14 +25,14 @@ static int fdt_sw_probe_(void *fdt)
 #define FDT_SW_PROBE(fdt) \
 	{ \
 		int err; \
-		if (fdt_chk_basic() && (err = fdt_sw_probe_(fdt)) != 0) \
+		if ((err = fdt_sw_probe_(fdt)) != 0) \
 			return err; \
 	}
 
 /* 'memrsv' state:	Initial state after fdt_create()
  *
  * Allowed functions:
- *	fdt_add_reservmap_entry()
+ *	fdt_add_reservemap_entry()
  *	fdt_finish_reservemap()		[moves to 'struct' state]
  */
 static int fdt_sw_probe_memrsv_(void *fdt)
@@ -41,7 +41,7 @@ static int fdt_sw_probe_memrsv_(void *fdt)
 	if (err)
 		return err;
 
-	if (fdt_chk_extra() && fdt_off_dt_strings(fdt) != 0)
+	if (!can_assume(VALID_INPUT) && fdt_off_dt_strings(fdt) != 0)
 		return -FDT_ERR_BADSTATE;
 	return 0;
 }
@@ -49,7 +49,7 @@ static int fdt_sw_probe_memrsv_(void *fdt)
 #define FDT_SW_PROBE_MEMRSV(fdt) \
 	{ \
 		int err; \
-		if (fdt_chk_extra() && (err = fdt_sw_probe_memrsv_(fdt)) != 0) \
+		if ((err = fdt_sw_probe_memrsv_(fdt)) != 0) \
 			return err; \
 	}
 
@@ -63,15 +63,12 @@ static int fdt_sw_probe_memrsv_(void *fdt)
  */
 static int fdt_sw_probe_struct_(void *fdt)
 {
-	int err;
-
-	if (!fdt_chk_extra())
-		return 0;
-	err = fdt_sw_probe_(fdt);
+	int err = fdt_sw_probe_(fdt);
 	if (err)
 		return err;
 
-	if (fdt_off_dt_strings(fdt) != fdt_totalsize(fdt))
+	if (!can_assume(VALID_INPUT) &&
+	    fdt_off_dt_strings(fdt) != fdt_totalsize(fdt))
 		return -FDT_ERR_BADSTATE;
 	return 0;
 }
@@ -79,7 +76,7 @@ static int fdt_sw_probe_struct_(void *fdt)
 #define FDT_SW_PROBE_STRUCT(fdt) \
 	{ \
 		int err; \
-		if (fdt_chk_extra() && (err = fdt_sw_probe_struct_(fdt)) != 0) \
+		if ((err = fdt_sw_probe_struct_(fdt)) != 0) \
 			return err; \
 	}
 
@@ -161,7 +158,8 @@ int fdt_resize(void *fdt, void *buf, int bufsize)
 	headsize = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
 	tailsize = fdt_size_dt_strings(fdt);
 
-	if (fdt_chk_extra() && (headsize + tailsize) > fdt_totalsize(fdt))
+	if (!can_assume(VALID_DTB) &&
+	    headsize + tailsize > fdt_totalsize(fdt))
 		return -FDT_ERR_INTERNAL;
 
 	if ((headsize + tailsize) > (unsigned)bufsize)
@@ -379,7 +377,7 @@ int fdt_finish(void *fdt)
 	fdt_set_totalsize(fdt, newstroffset + fdt_size_dt_strings(fdt));
 
 	/* And fix up fields that were keeping intermediate state. */
-	fdt_set_last_comp_version(fdt, FDT_FIRST_SUPPORTED_VERSION);
+	fdt_set_last_comp_version(fdt, FDT_LAST_COMPATIBLE_VERSION);
 	fdt_set_magic(fdt, FDT_MAGIC);
 
 	return 0;

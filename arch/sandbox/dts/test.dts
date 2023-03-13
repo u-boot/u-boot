@@ -818,8 +818,8 @@
 			sandbox,emul = <&emul1>;
 		};
 
-		i2c_emul: emul {
-			reg = <0xff>;
+		i2c_emul: emul@ff {
+			reg = <((1 << 31) + 0xff)>;
 			compatible = "sandbox,i2c-emul-parent";
 			emul_eeprom: emul-eeprom {
 				compatible = "sandbox,i2c-eeprom";
@@ -834,7 +834,7 @@
 			};
 		};
 
-		sandbox_pmic: sandbox_pmic {
+		sandbox_pmic: sandbox_pmic@40 {
 			reg = <0x40>;
 			sandbox,emul = <&emul_pmic0>;
 		};
@@ -1615,12 +1615,16 @@
 		};
 
 		pinctrl_i2c: i2c {
-			groups {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			groups@0 {
+				reg = <0>; // dummy value
 				groups = "I2C_UART";
 				function = "I2C";
 			};
 
-			pins {
+			pins@1 {
+				reg = <1>; // dummy value
 				pins = "P0", "P1";
 				drive-open-drain;
 			};
@@ -1632,10 +1636,13 @@
 		};
 
 		pinctrl_spi: spi {
+			#address-cells = <1>;
+			#size-cells = <0>;
 			groups = "SPI_I2S";
 			function = "SPI";
 
-			cs {
+			cs@0 {
+				reg = <0>; // dummy value
 				pinmux = <SANDBOX_PINMUX(5, SANDBOX_PINMUX_CS)>,
 					 <SANDBOX_PINMUX(6, SANDBOX_PINMUX_CS)>;
 			};
