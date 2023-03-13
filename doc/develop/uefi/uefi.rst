@@ -386,8 +386,8 @@ is because the FWU feature supports multiple partitions(banks) of
 updatable images, and the actual dfu alt number to which the image is
 to be written to is determined at runtime, based on the value of the
 update bank to which the image is to be written. For more information
-on the FWU Multi Bank Update feature, please refer `doc
-<doc/develop/uefi/fwu_updates.rst>`__.
+on the FWU Multi Bank Update feature, please refer to
+:doc:`/develop/uefi/fwu_updates`.
 
 When using the FMP for FIT images, the image index value needs to be
 set to 1.
