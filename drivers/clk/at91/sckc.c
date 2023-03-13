@@ -123,7 +123,7 @@ U_BOOT_DRIVER(at91_sam9x60_td_slck) = {
 static int at91_sam9x60_sckc_probe(struct udevice *dev)
 {
 	struct sam9x60_sckc *sckc = dev_get_priv(dev);
-	void __iomem *base = (void *)devfdt_get_addr(dev);
+	void __iomem *base = devfdt_get_addr_ptr(dev);
 	const char *slow_rc_osc, *slow_osc;
 	const char *parents[2];
 	struct clk *clk, c;
