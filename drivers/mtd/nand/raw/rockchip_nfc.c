@@ -814,47 +814,9 @@ static void rk_nfc_disable_clks(struct rk_nfc *nfc)
 	clk_disable_unprepare(nfc->ahb_clk);
 }
 
-static int rk_nfc_ooblayout_free(struct mtd_info *mtd, int section,
-				 struct mtd_oob_region *oob_region)
-{
-	struct nand_chip *chip = mtd_to_nand(mtd);
-	struct rk_nfc_nand_chip *rknand = rk_nfc_to_rknand(chip);
-
-	if (section)
-		return -ERANGE;
-
-	/*
-	 * The beginning of the OOB area stores the reserved data for the NFC,
-	 * the size of the reserved data is NFC_SYS_DATA_SIZE bytes.
-	 */
-	oob_region->length = rknand->metadata_size - NFC_SYS_DATA_SIZE - 2;
-	oob_region->offset = NFC_SYS_DATA_SIZE + 2;
-
-	return 0;
-}
-
-static int rk_nfc_ooblayout_ecc(struct mtd_info *mtd, int section,
-				struct mtd_oob_region *oob_region)
-{
-	struct nand_chip *chip = mtd_to_nand(mtd);
-	struct rk_nfc_nand_chip *rknand = rk_nfc_to_rknand(chip);
-
-	if (section)
-		return -ERANGE;
-
-	oob_region->length = mtd->oobsize - rknand->metadata_size;
-	oob_region->offset = rknand->metadata_size;
-
-	return 0;
-}
-
-static const struct mtd_ooblayout_ops rk_nfc_ooblayout_ops = {
-	.rfree = rk_nfc_ooblayout_free,
-	.ecc = rk_nfc_ooblayout_ecc,
-};
-
 static int rk_nfc_ecc_init(struct rk_nfc *nfc, struct nand_chip *chip)
 {
+	struct rk_nfc_nand_chip *rknand = rk_nfc_to_rknand(chip);
 	const u8 *strengths = nfc->cfg->ecc_strengths;
 	struct mtd_info *mtd = nand_to_mtd(chip);
 	struct nand_ecc_ctrl *ecc = &chip->ecc;
@@ -891,6 +853,21 @@ static int rk_nfc_ecc_init(struct rk_nfc *nfc, struct nand_chip *chip)
 	}
 	ecc->steps = mtd->writesize / ecc->size;
 	ecc->bytes = DIV_ROUND_UP(ecc->strength * fls(8 * chip->ecc.size), 8);
+
+	if (ecc->bytes * ecc->steps > mtd->oobsize - rknand->metadata_size)
+		return -EINVAL;
+
+	ecc->layout = kzalloc(sizeof(*ecc->layout), GFP_KERNEL);
+	if (!ecc->layout)
+		return -ENOMEM;
+
+	ecc->layout->eccbytes = ecc->bytes * ecc->steps;
+
+	for (i = 0; i < ecc->layout->eccbytes; i++)
+		ecc->layout->eccpos[i] = rknand->metadata_size + i;
+
+	ecc->layout->oobfree[0].length = rknand->metadata_size - NFC_SYS_DATA_SIZE - 2;
+	ecc->layout->oobfree[0].offset = NFC_SYS_DATA_SIZE + 2;
 
 	return 0;
 }
@@ -969,7 +946,6 @@ static int rk_nfc_nand_chip_init(ofnode node, struct rk_nfc *nfc, int devnum)
 	chip->bbt_options = NAND_BBT_USE_FLASH | NAND_BBT_NO_OOB;
 	chip->options |= NAND_NO_SUBPAGE_WRITE | NAND_USE_BOUNCE_BUFFER;
 
-	mtd_set_ooblayout(mtd, &rk_nfc_ooblayout_ops);
 	rk_nfc_hw_init(nfc);
 	ret = nand_scan_ident(mtd, nsels, NULL);
 	if (ret)
@@ -998,13 +974,16 @@ static int rk_nfc_nand_chip_init(ofnode node, struct rk_nfc *nfc, int devnum)
 
 	if (!nfc->page_buf) {
 		nfc->page_buf = kzalloc(NFC_MAX_PAGE_SIZE, GFP_KERNEL);
-		if (!nfc->page_buf)
+		if (!nfc->page_buf) {
+			kfree(ecc->layout);
 			return -ENOMEM;
+		}
 	}
 
 	if (!nfc->oob_buf) {
 		nfc->oob_buf = kzalloc(NFC_MAX_OOB_SIZE, GFP_KERNEL);
 		if (!nfc->oob_buf) {
+			kfree(ecc->layout);
 			kfree(nfc->page_buf);
 			nfc->page_buf = NULL;
 			return -ENOMEM;
