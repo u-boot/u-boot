@@ -20,10 +20,4 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 
-#ifndef CONFIG_TPL_BUILD
-/* Falcon Mode */
-
-/* Falcon Mode - MMC support: args@16MB kernel@17MB */
-#endif
-
 #endif
