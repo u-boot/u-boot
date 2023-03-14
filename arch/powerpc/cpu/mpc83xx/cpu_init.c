@@ -227,14 +227,6 @@ void cpu_init_f (volatile immap_t * im)
 	im->sysconf.lblaw[3].bar = CFG_SYS_LBLAWBAR3_PRELIM;
 	im->sysconf.lblaw[3].ar = CFG_SYS_LBLAWAR3_PRELIM;
 #endif
-#ifdef CONFIG_SYS_GPIO1_PRELIM
-	im->gpio[0].dat = CONFIG_SYS_GPIO1_DAT;
-	im->gpio[0].dir = CONFIG_SYS_GPIO1_DIR;
-#endif
-#ifdef CONFIG_SYS_GPIO2_PRELIM
-	im->gpio[1].dat = CONFIG_SYS_GPIO2_DAT;
-	im->gpio[1].dir = CONFIG_SYS_GPIO2_DIR;
-#endif
 }
 
 int cpu_init_r (void)
