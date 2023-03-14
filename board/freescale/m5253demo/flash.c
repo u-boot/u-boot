@@ -96,24 +96,8 @@ void flash_print_info(flash_info_t * info)
 		return;
 	}
 
-	if (info->size > 0x100000) {
-		int remainder;
-
-		printf("  Size: %ld", info->size >> 20);
-
-		remainder = (info->size % 0x100000);
-		if (remainder) {
-			remainder >>= 10;
-			remainder = (int)((float)
-					  (((float)remainder / (float)1024) *
-					   10000));
-			printf(".%d ", remainder);
-		}
-
-		printf("MB in %d Sectors\n", info->sector_count);
-	} else
-		printf("  Size: %ld KB in %d Sectors\n",
-		       info->size >> 10, info->sector_count);
+	printf("  Size: %ld KB in %d Sectors\n",
+	       info->size >> 10, info->sector_count);
 
 	printf("  Sector Start Addresses:");
 	for (i = 0; i < info->sector_count; ++i) {
