@@ -41,6 +41,14 @@ static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
 	struct rockchip_dwmmc_priv *priv = dev_get_priv(dev);
 	int ret;
 
+	/*
+	 * The clock frequency chosen here affects CLKDIV in the dw_mmc core.
+	 * That can be either 0 or 1, but it must be set to 1 for eMMC DDR52
+	 * 8-bit mode.  It will be set to 0 for all other modes.
+	 */
+	if (host->mmc->selected_mode == MMC_DDR_52 && host->mmc->bus_width == 8)
+		freq *= 2;
+
 	ret = clk_set_rate(&priv->clk, freq);
 	if (ret < 0) {
 		debug("%s: err=%d\n", __func__, ret);

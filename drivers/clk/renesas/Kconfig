@@ -49,6 +49,7 @@ config CLK_RCAR_GEN3
 	def_bool y if RCAR_GEN3
 	depends on CLK_RENESAS
 	select CLK_RCAR_CPG_LIB
+	select DM_RESET
 	help
 	  Enable this to support the clocks on Renesas RCar Gen3 SoC.
 

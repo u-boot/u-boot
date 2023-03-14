@@ -37,13 +37,19 @@ struct tos_parameter_t {
 
 int dram_init_banksize(void)
 {
-	size_t top = min((unsigned long)(gd->ram_size + CFG_SYS_SDRAM_BASE),
-			 (unsigned long)(gd->ram_top));
+	size_t ram_top = (unsigned long)(gd->ram_size + CFG_SYS_SDRAM_BASE);
+	size_t top = min((unsigned long)ram_top, (unsigned long)(gd->ram_top));
 
 #ifdef CONFIG_ARM64
 	/* Reserve 0x200000 for ATF bl31 */
 	gd->bd->bi_dram[0].start = 0x200000;
 	gd->bd->bi_dram[0].size = top - gd->bd->bi_dram[0].start;
+
+	/* Add usable memory beyond the blob of space for peripheral near 4GB */
+	if (ram_top > SZ_4G && top < SZ_4G) {
+		gd->bd->bi_dram[1].start = SZ_4G;
+		gd->bd->bi_dram[1].size = ram_top - gd->bd->bi_dram[1].start;
+	}
 #else
 #ifdef CONFIG_SPL_OPTEE_IMAGE
 	struct tos_parameter_t *tos_parameter;
@@ -88,9 +94,15 @@ size_t rockchip_sdram_size(phys_addr_t reg)
 	u32 sys_reg3 = readl(reg + 4);
 	u32 ch_num = 1 + ((sys_reg2 >> SYS_REG_NUM_CH_SHIFT)
 		       & SYS_REG_NUM_CH_MASK);
+	u32 version = (sys_reg3 >> SYS_REG_VERSION_SHIFT) &
+		      SYS_REG_VERSION_MASK;
 
 	dram_type = (sys_reg2 >> SYS_REG_DDRTYPE_SHIFT) & SYS_REG_DDRTYPE_MASK;
+	if (version >= 3)
+		dram_type |= ((sys_reg3 >> SYS_REG_EXTEND_DDRTYPE_SHIFT) &
+			      SYS_REG_EXTEND_DDRTYPE_MASK) << 3;
 	debug("%s %x %x\n", __func__, (u32)reg, sys_reg2);
+	debug("%s %x %x\n", __func__, (u32)reg + 4, sys_reg3);
 	for (ch = 0; ch < ch_num; ch++) {
 		rank = 1 + (sys_reg2 >> SYS_REG_RANK_SHIFT(ch) &
 			SYS_REG_RANK_MASK);
@@ -98,8 +110,7 @@ size_t rockchip_sdram_size(phys_addr_t reg)
 			  SYS_REG_COL_MASK);
 		cs1_col = cs0_col;
 		bk = 3 - ((sys_reg2 >> SYS_REG_BK_SHIFT(ch)) & SYS_REG_BK_MASK);
-		if ((sys_reg3 >> SYS_REG_VERSION_SHIFT &
-		     SYS_REG_VERSION_MASK) == 0x2) {
+		if (version >= 2) {
 			cs1_col = 9 + (sys_reg3 >> SYS_REG_CS1_COL_SHIFT(ch) &
 				  SYS_REG_CS1_COL_MASK);
 			if (((sys_reg3 >> SYS_REG_EXTEND_CS0_ROW_SHIFT(ch) &
@@ -176,7 +187,7 @@ size_t rockchip_sdram_size(phys_addr_t reg)
 	 *   2. update board_get_usable_ram_top() and dram_init_banksize()
 	 *   to reserve memory for peripheral space after previous update.
 	 */
-	if (size_mb > (SDRAM_MAX_SIZE >> 20))
+	if (!IS_ENABLED(CONFIG_ARM64) && size_mb > (SDRAM_MAX_SIZE >> 20))
 		size_mb = (SDRAM_MAX_SIZE >> 20);
 
 	return (size_t)size_mb << 20;

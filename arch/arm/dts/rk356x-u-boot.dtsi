@@ -20,6 +20,23 @@
 		bootph-all;
 		status = "okay";
 	};
+
+	otp: nvmem@fe38c000 {
+		compatible = "rockchip,rk3568-otp";
+		reg = <0x0 0xfe38c000 0x0 0x4000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		status = "okay";
+
+		cpu_id: id@a {
+			reg = <0x0a 0x10>;
+		};
+	};
+};
+
+&combphy1 {
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-rates;
 };
 
 &cru {

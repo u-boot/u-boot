@@ -90,6 +90,7 @@ TEE_OS_DATA           = b'this is some tee OS data'
 ATF_BL2U_DATA         = b'bl2u'
 OPENSBI_DATA          = b'opensbi'
 SCP_DATA              = b'scp'
+ROCKCHIP_TPL_DATA     = b'rockchip-tpl'
 TEST_FDT1_DATA        = b'fdt1'
 TEST_FDT2_DATA        = b'test-fdt2'
 ENV_DATA              = b'var1=1\nvar2="2"'
@@ -205,6 +206,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('bl2u.bin', ATF_BL2U_DATA)
         TestFunctional._MakeInputFile('fw_dynamic.bin', OPENSBI_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
+        TestFunctional._MakeInputFile('rockchip-tpl.bin', ROCKCHIP_TPL_DATA)
 
         # Add a few .dtb files for testing
         TestFunctional._MakeInputFile('%s/test-fdt1.dtb' % TEST_FDT_SUBDIR,
@@ -6564,6 +6566,22 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                              entry_args=entry_args)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing bintools.*: openssl")
+
+    def testPackRockchipTpl(self):
+        """Test that an image with a Rockchip TPL binary can be created"""
+        data = self._DoReadFile('277_rockchip_tpl.dts')
+        self.assertEqual(ROCKCHIP_TPL_DATA, data[:len(ROCKCHIP_TPL_DATA)])
+
+    def testMkimageMissingBlobMultiple(self):
+        """Test missing blob with mkimage entry and multiple-data-files"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('278_mkimage_missing_multiple.dts', allow_missing=True)
+        err = stderr.getvalue()
+        self.assertIn("is missing external blobs and is non-functional", err)
+
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('278_mkimage_missing_multiple.dts', allow_missing=False)
+        self.assertIn("not found in input path", str(e.exception))
 
 
 if __name__ == "__main__":

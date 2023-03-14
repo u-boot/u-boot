@@ -65,6 +65,7 @@ Shell commands
    cmd/md
    cmd/mmc
    cmd/mtest
+   cmd/panic
    cmd/part
    cmd/pause
    cmd/pinmux

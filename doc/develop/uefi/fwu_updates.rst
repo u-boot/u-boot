@@ -27,7 +27,8 @@ metadata. Individual drivers can be added based on the type of storage
 media, and its partitioning method. Details of the storage device
 containing the FWU metadata partitions are specified through a U-Boot
 specific device tree property `fwu-mdata-store`. Please refer to
-U-Boot `doc <doc/device-tree-bindings/firmware/fwu-mdata-gpt.yaml>`__
+U-Boot :download:`fwu-mdata-gpt.yaml
+</device-tree-bindings/firmware/fwu-mdata-gpt.yaml>`
 for the device tree bindings.
 
 Enabling the FWU Multi Bank Update feature

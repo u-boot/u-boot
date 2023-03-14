@@ -3,7 +3,7 @@
 VERSION = 2023
 PATCHLEVEL = 04
 SUBLEVEL =
-EXTRAVERSION = -rc3
+EXTRAVERSION = -rc4
 NAME =
 
 # *DOCUMENTATION*
@@ -1335,6 +1335,7 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		-a opensbi-path=${OPENSBI} \
 		-a default-dt=$(default_dt) \
 		-a scp-path=$(SCP) \
+		-a rockchip-tpl-path=$(ROCKCHIP_TPL) \
 		-a spl-bss-pad=$(if $(CONFIG_SPL_SEPARATE_BSS),,1) \
 		-a tpl-bss-pad=$(if $(CONFIG_TPL_SEPARATE_BSS),,1) \
 		-a spl-dtb=$(CONFIG_SPL_OF_REAL) \

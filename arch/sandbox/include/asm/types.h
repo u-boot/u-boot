@@ -18,11 +18,7 @@ typedef unsigned short umode_t;
 /*
  * Number of bits in a C 'long' on this architecture.
  */
-#ifdef	CONFIG_PHYS_64BIT
-#define BITS_PER_LONG 64
-#else	/* CONFIG_PHYS_64BIT */
-#define BITS_PER_LONG 32
-#endif	/* CONFIG_PHYS_64BIT */
+#define BITS_PER_LONG CONFIG_SANDBOX_BITS_PER_LONG
 
 #ifdef	CONFIG_PHYS_64BIT
 typedef unsigned long long dma_addr_t;

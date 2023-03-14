@@ -1,0 +1,56 @@
+if ROCKCHIP_RK3588
+
+config TARGET_RK3588_NEU6
+	bool "Edgeble Neural Compute Module 6(Neu6) SoM"
+	select BOARD_LATE_INIT
+	help
+	  Neu6:
+	  Neural Compute Module 6A(Neu6a) is a 96boards SoM-CB compute module
+	  based on Rockchip RK3588 from Edgeble AI.
+
+	  Neu6-IO:
+	  Neural Compute Module 6(Neu6) IO board is an industrial form factor
+	  IO board and Neu6a needs to mount on top of this IO board in order to
+	  create complete Edgeble Neural Compute Module 6(Neu6) IO platform.
+
+config TARGET_ROCK5B_RK3588
+	bool "Radxa ROCK5B RK3588 board"
+	select BOARD_LATE_INIT
+	help
+	  Radxa ROCK5B is a Rockchip RK3588 based SBC (Single Board Computer)
+	  by Radxa.
+
+	  There are tree variants depending on the DRAM size : 4G, 8G and 16G.
+
+	  Specification:
+
+	  Rockchip Rk3588 SoC
+	  4x ARM Cortex-A76, 4x ARM Cortex-A55
+	  4/8/16GB memory LPDDR4x
+	  Mali G610MC4 GPU
+	  MIPI CSI 2 multiple lanes connector
+	  eMMC module connector
+	  uSD slot (up to 128GB)
+	  2x USB 2.0, 2x USB 3.0
+	  2x HDMI output, 1x HDMI input
+	  Ethernet port
+	  40-pin IO header including UART, SPI, I2C and 5V DC power in
+	  USB PD over USB Type-C
+	  Size: 85mm x 54mm
+
+config ROCKCHIP_BOOT_MODE_REG
+	default 0xfd588080
+
+config ROCKCHIP_STIMER_BASE
+	default 0xfd8c8000
+
+config SYS_SOC
+	default "rk3588"
+
+config SYS_MALLOC_F_LEN
+	default 0x80000
+
+source board/edgeble/neural-compute-module-6/Kconfig
+source board/radxa/rock5b-rk3588/Kconfig
+
+endif
