@@ -40,6 +40,7 @@
 			interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
 			current-speed = <115200>;
 			status = "disabled";
+			bootph-all;
 		};
 
 		uart1: serial@21d0000 {
@@ -48,6 +49,7 @@
 			interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
 			current-speed = <115200>;
 			status = "disabled";
+			bootph-all;
 		};
 
 		uart2: serial@21e0000 {
@@ -56,6 +58,7 @@
 			interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>;
 			current-speed = <115200>;
 			status = "disabled";
+			bootph-all;
 		};
 
 		uart3: serial@21f0000 {
@@ -64,6 +67,7 @@
 			interrupts = <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>;
 			current-speed = <115200>;
 			status = "disabled";
+			bootph-all;
 		};
 	};
 
