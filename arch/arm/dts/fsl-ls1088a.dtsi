@@ -42,6 +42,21 @@
 		ranges;
 		dma-ranges = <0x0 0x0 0x0 0x0 0x10000 0x00000000>;
 
+		serial0: serial@21c0500 {
+			device_type = "serial";
+			compatible = "fsl,ns16550", "ns16550a";
+			reg = <0x0 0x21c0500 0x0 0x100>;
+			clock-frequency = <0>; /* Updated by bootloader */
+			interrupts = <0 32 0x1>; /* edge triggered */
+		};
+
+		serial1: serial@21c0600 {
+			device_type = "serial";
+			compatible = "fsl,ns16550", "ns16550a";
+			reg = <0x0 0x21c0600 0x0 0x100>;
+			clock-frequency = <0>; /* Updated by bootloader */
+			interrupts = <0 32 0x1>; /* edge triggered */
+		};
 	};
 
 	i2c0: i2c@2000000 {
@@ -74,22 +89,6 @@
 		#size-cells = <0>;
 		reg = <0x0 0x2030000 0x0 0x10000>;
 		interrupts = <0 35 4>;
-	};
-
-	serial0: serial@21c0500 {
-		device_type = "serial";
-		compatible = "fsl,ns16550", "ns16550a";
-		reg = <0x0 0x21c0500 0x0 0x100>;
-		clock-frequency = <0>;	/* Updated by bootloader */
-		interrupts = <0 32 0x1>; /* edge triggered */
-	};
-
-	serial1: serial@21c0600 {
-		device_type = "serial";
-		compatible = "fsl,ns16550", "ns16550a";
-		reg = <0x0 0x21c0600 0x0 0x100>;
-		clock-frequency = <0>; 	/* Updated by bootloader */
-		interrupts = <0 32 0x1>; /* edge triggered */
 	};
 
 	dspi: dspi@2100000 {
