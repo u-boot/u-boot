@@ -675,9 +675,7 @@
 		#pwm-cells = <3>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm0_pin>;
-		clocks = <&cru PCLK_PWM>;
-		clock-names = "pwm";
-		rockchip,grf = <&grf>;
+		clocks = <&cru PCLK_RKPWM>;
 		status = "disabled";
 	};
 
@@ -687,9 +685,7 @@
 		#pwm-cells = <3>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm1_pin>;
-		clocks = <&cru PCLK_PWM>;
-		clock-names = "pwm";
-		rockchip,grf = <&grf>;
+		clocks = <&cru PCLK_RKPWM>;
 		status = "disabled";
 	};
 
@@ -699,21 +695,17 @@
 		#pwm-cells = <3>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm2_pin>;
-		clocks = <&cru PCLK_PWM>;
-		clock-names = "pwm";
-		rockchip,grf = <&grf>;
+		clocks = <&cru PCLK_RKPWM>;
 		status = "disabled";
 	};
 
 	pwm3: pwm@ff680030 {
 		compatible = "rockchip,rk3288-pwm";
 		reg = <0xff680030 0x10>;
-		#pwm-cells = <2>;
+		#pwm-cells = <3>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm3_pin>;
-		clocks = <&cru PCLK_PWM>;
-		clock-names = "pwm";
-		rockchip,grf = <&grf>;
+		clocks = <&cru PCLK_RKPWM>;
 		status = "disabled";
 	};
 
