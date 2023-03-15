@@ -762,6 +762,11 @@
 	grf: syscon@ff770000 {
 		compatible = "rockchip,rk3288-grf", "syscon";
 		reg = <0xff770000 0x1000>;
+
+		io_domains: io-domains {
+			compatible = "rockchip,rk3288-io-voltage-domain";
+			status = "disabled";
+		};
 	};
 
 	wdt: watchdog@ff800000 {
