@@ -307,7 +307,8 @@ static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 		      __func__, dev_read_name(dev));
 		return -EINVAL;
 	}
-	if (strstr(compat, "edp")) {
+	if (strstr(compat, "edp") ||
+	    strstr(compat, "rk3288-dp")) {
 		vop_id = VOP_MODE_EDP;
 	} else if (strstr(compat, "mipi")) {
 		vop_id = VOP_MODE_MIPI;
