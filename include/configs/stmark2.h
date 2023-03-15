@@ -95,4 +95,6 @@
 #define CACR_STATUS			(CFG_SYS_INIT_RAM_ADDR + \
 					CFG_SYS_INIT_RAM_SIZE - 12)
 
+#define CFG_MCFTMR
+
 #endif /* __STMARK2_CONFIG_H */

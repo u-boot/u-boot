@@ -16,7 +16,7 @@
 #define CFG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x4000))
 
 /* Timer */
-#ifdef CONFIG_MCFTMR
+#ifdef CFG_MCFTMR
 #define CFG_SYS_UDELAY_BASE		(MMAP_DTMR0)
 #define CFG_SYS_TMR_BASE		(MMAP_DTMR1)
 #define CFG_SYS_TMRPND_REG		(((volatile int0_t *)(CFG_SYS_INTR_BASE))->iprh0)
@@ -38,7 +38,7 @@
 #define CFG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x40))
 
 /* Timer */
-#ifdef CONFIG_MCFTMR
+#ifdef CFG_MCFTMR
 #define CFG_SYS_UDELAY_BASE		(MMAP_DTMR0)
 #define CFG_SYS_TMR_BASE		(MMAP_DTMR3)
 #define CFG_SYS_TMRPND_REG		(((volatile int0_t *)(CFG_SYS_INTR_BASE))->iprl0)
@@ -63,7 +63,7 @@
 #define CFG_SYS_NUM_IRQS		(64)
 
 /* Timer */
-#ifdef CONFIG_MCFTMR
+#ifdef CFG_MCFTMR
 #define CFG_SYS_UDELAY_BASE		(MMAP_DTMR0)
 #define CFG_SYS_TMR_BASE		(MMAP_DTMR1)
 #define CFG_SYS_TMRPND_REG		(mbar_readLong(MCFSIM_IPR))
@@ -86,7 +86,7 @@
 #define CFG_SYS_NUM_IRQS		(64)
 
 /* Timer */
-#ifdef CONFIG_MCFTMR
+#ifdef CFG_MCFTMR
 #define CFG_SYS_UDELAY_BASE		(MMAP_DTMR0)
 #define CFG_SYS_TMR_BASE		(MMAP_DTMR1)
 #define CFG_SYS_TMRPND_REG		(mbar_readLong(MCFSIM_IPR))
@@ -105,7 +105,7 @@
 #define CFG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x40))
 
 /* Timer */
-#ifdef CONFIG_MCFTMR
+#ifdef CFG_MCFTMR
 #define CFG_SYS_UDELAY_BASE		(MMAP_DTMR0)
 #define CFG_SYS_TMR_BASE		(MMAP_DTMR3)
 #define CFG_SYS_TMRPND_REG		(((volatile int0_t *)(CFG_SYS_INTR_BASE))->iprl0)
@@ -130,7 +130,7 @@
 #define CFG_SYS_NUM_IRQS		(64)
 
 /* Timer */
-#ifdef CONFIG_MCFTMR
+#ifdef CFG_MCFTMR
 #define CFG_SYS_UDELAY_BASE		(MMAP_TMR0)
 #define CFG_SYS_TMR_BASE		(MMAP_TMR3)
 #define CFG_SYS_TMRPND_REG		(((volatile intctrl_t *)(CFG_SYS_INTR_BASE))->int_isr)
@@ -152,7 +152,7 @@
 #define CFG_SYS_NUM_IRQS		(192)
 
 /* Timer */
-#ifdef CONFIG_MCFTMR
+#ifdef CFG_MCFTMR
 #define CFG_SYS_UDELAY_BASE		(MMAP_DTMR0)
 #define CFG_SYS_TMR_BASE		(MMAP_DTMR3)
 #define CFG_SYS_TMRPND_REG		(((volatile int0_t *)(CFG_SYS_INTR_BASE))->iprl0)
@@ -174,7 +174,7 @@
 #define CFG_SYS_NUM_IRQS		(128)
 
 /* Timer */
-#ifdef CONFIG_MCFTMR
+#ifdef CFG_MCFTMR
 #define CFG_SYS_UDELAY_BASE		(MMAP_DTMR0)
 #define CFG_SYS_TMR_BASE		(MMAP_DTMR3)
 #define CFG_SYS_TMRPND_REG		(((volatile int0_t *)(CFG_SYS_INTR_BASE))->iprl0)
@@ -196,7 +196,7 @@
 #define CFG_SYS_NUM_IRQS             (64)
 
 /* Timer */
-#ifdef CONFIG_MCFTMR
+#ifdef CFG_MCFTMR
 #define CFG_SYS_UDELAY_BASE          (MMAP_DTMR0)
 #define CFG_SYS_TMR_BASE             (MMAP_DTMR1)
 #define CFG_SYS_TMRPND_REG		(((volatile intctrl_t *) \
@@ -217,7 +217,7 @@
 #define CFG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x4000))
 
 /* Timer */
-#ifdef CONFIG_MCFTMR
+#ifdef CFG_MCFTMR
 #define CFG_SYS_UDELAY_BASE		(MMAP_DTMR0)
 #define CFG_SYS_TMR_BASE		(MMAP_DTMR1)
 #define CFG_SYS_TMRPND_REG		(((volatile int0_t *)(CFG_SYS_INTR_BASE))->iprh0)
@@ -239,7 +239,7 @@
 #define CFG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x4000))
 
 /* Timer */
-#ifdef CONFIG_MCFTMR
+#ifdef CFG_MCFTMR
 #define CFG_SYS_UDELAY_BASE		(MMAP_DTMR0)
 #define CFG_SYS_TMR_BASE		(MMAP_DTMR1)
 #define CFG_SYS_TMRPND_REG		(((volatile int0_t *)(CFG_SYS_INTR_BASE))->iprh0)
@@ -269,7 +269,7 @@
 #define MMAP_DSPI			MMAP_DSPI0
 
 /* Timer */
-#ifdef CONFIG_MCFTMR
+#ifdef CFG_MCFTMR
 #define CFG_SYS_UDELAY_BASE		(MMAP_DTMR0)
 #define CFG_SYS_TMR_BASE		(MMAP_DTMR1)
 #define CFG_SYS_TMRPND_REG	(((int0_t *)(CFG_SYS_INTR_BASE))->iprh0)

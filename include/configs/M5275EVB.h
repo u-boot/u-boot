@@ -116,4 +116,6 @@
 #define CFG_SYS_CS1_CTRL		0x00001900
 #define CFG_SYS_CS1_MASK		0x00070001
 
+#define CFG_MCFTMR
+
 #endif	/* _M5275EVB_H */
