@@ -1177,19 +1177,24 @@
 	};
 
 	edp: dp@ff970000 {
-		compatible = "rockchip,rk3288-edp";
+		compatible = "rockchip,rk3288-dp";
 		reg = <0xff970000 0x4000>;
 		interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&cru SCLK_EDP>, <&cru SCLK_EDP_24M>, <&cru PCLK_EDP_CTRL>;
-		clock-names = "clk_edp", "clk_edp_24m", "pclk_edp";
-		resets = <&cru SRST_EDP>;
-		reset-names = "edp";
-		rockchip,grf = <&grf>;
+		clocks = <&cru SCLK_EDP>, <&cru PCLK_EDP_CTRL>;
+		clock-names = "dp", "pclk";
+		phys = <&edp_phy>;
+		phy-names = "dp";
 		power-domains = <&power RK3288_PD_VIO>;
+		resets = <&cru SRST_EDP>;
+		reset-names = "dp";
+		rockchip,grf = <&grf>;
 		status = "disabled";
 
 		ports {
-			edp_in: port {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			edp_in: port@0 {
+				reg = <0>;
 				#address-cells = <1>;
 				#size-cells = <0>;
 				edp_in_vopb: endpoint@0 {
