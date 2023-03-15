@@ -55,45 +55,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct pl01x_serial_plat serial0 = {
-#if CONFIG_CONS_INDEX == 0
-	.base = CFG_SYS_SERIAL0,
-#elif CONFIG_CONS_INDEX == 1
-	.base = CFG_SYS_SERIAL1,
-#else
-#error "Unsupported console index value."
-#endif
-	.type = TYPE_PL011,
-};
-
-U_BOOT_DRVINFO(nxp_serial0) = {
-	.name = "serial_pl01x",
-	.plat = &serial0,
-};
-
-static struct pl01x_serial_plat serial1 = {
-	.base = CFG_SYS_SERIAL1,
-	.type = TYPE_PL011,
-};
-
-U_BOOT_DRVINFO(nxp_serial1) = {
-	.name = "serial_pl01x",
-	.plat = &serial1,
-};
-
-static void uart_get_clock(void)
-{
-	serial0.clock = get_serial_clock();
-	serial1.clock = get_serial_clock();
-}
-
 int board_early_init_f(void)
 {
 #if defined(CONFIG_SYS_I2C_EARLY_INIT) && defined(CONFIG_SPL_BUILD)
 	i2c_early_init_f();
 #endif
-	/* get required clock for UART IP */
-	uart_get_clock();
 
 #ifdef CONFIG_EMC2305
 	select_i2c_ch_pca9547(I2C_MUX_CH_EMC2305, 0);
