@@ -1021,7 +1021,7 @@
 
 	vopb: vop@ff930000 {
 		compatible = "rockchip,rk3288-vop";
-		reg = <0xff930000 0x19c>;
+		reg = <0xff930000 0x19c>, <0xff931000 0x1000>;
 		interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&cru ACLK_VOP0>, <&cru DCLK_VOP0>, <&cru HCLK_VOP0>;
 		clock-names = "aclk_vop", "dclk_vop", "hclk_vop";
@@ -1035,24 +1035,24 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 
-			vopb_out_edp: endpoint@0 {
+			vopb_out_hdmi: endpoint@0 {
 				reg = <0>;
-				remote-endpoint = <&edp_in_vopb>;
-			};
-
-			vopb_out_hdmi: endpoint@1 {
-				reg = <1>;
 				remote-endpoint = <&hdmi_in_vopb>;
 			};
 
-			vopb_out_lvds: endpoint@2 {
-				reg = <2>;
-				remote-endpoint = <&lvds_in_vopb>;
+			vopb_out_edp: endpoint@1 {
+				reg = <1>;
+				remote-endpoint = <&edp_in_vopb>;
 			};
 
-			vopb_out_mipi: endpoint@3 {
-				reg = <3>;
+			vopb_out_mipi: endpoint@2 {
+				reg = <2>;
 				remote-endpoint = <&mipi_in_vopb>;
+			};
+
+			vopb_out_lvds: endpoint@3 {
+				reg = <3>;
+				remote-endpoint = <&lvds_in_vopb>;
 			};
 		};
 	};
@@ -1070,7 +1070,7 @@
 
 	vopl: vop@ff940000 {
 		compatible = "rockchip,rk3288-vop";
-		reg = <0xff940000 0x19c>;
+		reg = <0xff940000 0x19c>, <0xff941000 0x1000>;
 		interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&cru ACLK_VOP1>, <&cru DCLK_VOP1>, <&cru HCLK_VOP1>;
 		clock-names = "aclk_vop", "dclk_vop", "hclk_vop";
@@ -1084,24 +1084,24 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 
-			vopl_out_edp: endpoint@0 {
+			vopl_out_hdmi: endpoint@0 {
 				reg = <0>;
-				remote-endpoint = <&edp_in_vopl>;
-			};
-
-			vopl_out_hdmi: endpoint@1 {
-				reg = <1>;
 				remote-endpoint = <&hdmi_in_vopl>;
 			};
 
-			vopl_out_lvds: endpoint@2 {
-				reg = <2>;
-				remote-endpoint = <&lvds_in_vopl>;
+			vopl_out_edp: endpoint@1 {
+				reg = <1>;
+				remote-endpoint = <&edp_in_vopl>;
 			};
 
-			vopl_out_mipi: endpoint@3 {
-				reg = <3>;
+			vopl_out_mipi: endpoint@2 {
+				reg = <2>;
 				remote-endpoint = <&mipi_in_vopl>;
+			};
+
+			vopl_out_lvds: endpoint@3 {
+				reg = <3>;
+				remote-endpoint = <&lvds_in_vopl>;
 			};
 		};
 	};
@@ -1118,11 +1118,11 @@
 	};
 
 	mipi_dsi: mipi@ff960000 {
-		compatible = "rockchip,rk3288_mipi_dsi";
+		compatible = "rockchip,rk3288-mipi-dsi", "snps,dw-mipi-dsi";
 		reg = <0xff960000 0x4000>;
 		interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&cru PCLK_MIPI_DSI0>;
-		clock-names = "pclk_mipi";
+		clocks = <&cru SCLK_MIPIDSI_24M>, <&cru PCLK_MIPI_DSI0>;
+		clock-names = "ref", "pclk";
 		power-domains = <&power RK3288_PD_VIO>;
 		rockchip,grf = <&grf>;
 		status = "disabled";
@@ -1148,7 +1148,7 @@
 		reg = <0xff96c000 0x4000>;
 		clocks = <&cru PCLK_LVDS_PHY>;
 		clock-names = "pclk_lvds";
-		pinctrl-names = "default";
+		pinctrl-names = "lcdc";
 		pinctrl-0 = <&lcdc_ctl>;
 		power-domains = <&power RK3288_PD_VIO>;
 		rockchip,grf = <&grf>;
@@ -1216,8 +1216,8 @@
 		#sound-dai-cells = <0>;
 		rockchip,grf = <&grf>;
 		interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&cru  PCLK_HDMI_CTRL>, <&cru SCLK_HDMI_HDCP>;
-		clock-names = "iahb", "isfr";
+		clocks = <&cru  PCLK_HDMI_CTRL>, <&cru SCLK_HDMI_HDCP>, <&cru SCLK_HDMI_CEC>;
+		clock-names = "iahb", "isfr", "cec";
 		power-domains = <&power RK3288_PD_VIO>;
 		status = "disabled";
 
