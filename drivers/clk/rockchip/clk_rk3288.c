@@ -778,6 +778,7 @@ static ulong rk3288_clk_get_rate(struct clk *clk)
 	case PCLK_I2C5:
 		return gclk_rate;
 	case PCLK_PWM:
+	case PCLK_RKPWM:
 		return PD_BUS_PCLK_HZ;
 	case SCLK_SARADC:
 		new_rate = rockchip_saradc_get_clk(priv->cru);
