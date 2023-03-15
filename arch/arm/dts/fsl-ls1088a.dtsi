@@ -64,6 +64,7 @@
 					    QORIQ_CLK_PLL_DIV(4)>;
 			interrupts = <0 32 IRQ_TYPE_LEVEL_HIGH>;
 			status = "disabled";
+			bootph-all;
 		};
 
 		duart1: serial@21c0600 {
@@ -73,6 +74,7 @@
 					    QORIQ_CLK_PLL_DIV(4)>;
 			interrupts = <0 32 IRQ_TYPE_LEVEL_HIGH>;
 			status = "disabled";
+			bootph-all;
 		};
 	};
 
