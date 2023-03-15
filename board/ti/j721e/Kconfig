@@ -56,6 +56,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
        default "j721e_evm"
 
+config ENV_SOURCE_FILE
+       default "j721e"
+
 source "board/ti/common/Kconfig"
 
 endif
@@ -70,6 +73,9 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
        default "j721e_evm"
+
+config ENV_SOURCE_FILE
+       default "j721e"
 
 source "board/ti/common/Kconfig"
 
@@ -86,6 +92,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
        default "j721e_evm"
 
+config ENV_SOURCE_FILE
+       default "j721e"
+
 source "board/ti/common/Kconfig"
 
 endif
@@ -100,6 +109,9 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
        default "j721e_evm"
+
+config ENV_SOURCE_FILE
+       default "j721e"
 
 source "board/ti/common/Kconfig"
 
