@@ -478,7 +478,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 					/* Get address */
 					char buf[19];
 
-					snprintf(buf, sizeof(buf), "0x%lx",
+					snprintf(buf, sizeof(buf), "%lx",
 						 (ulong)map_to_sysmem(nodep));
 					env_set(var, buf);
 				} else if (subcmd[0] == 's') {

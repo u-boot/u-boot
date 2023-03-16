@@ -835,3 +835,19 @@ class Entry_fit(Entry_section):
 
     def CheckEntries(self):
         pass
+
+    def UpdateSignatures(self, privatekey_fname, algo, input_fname):
+        uniq = self.GetUniqueName()
+        args = [ '-G', privatekey_fname, '-r', '-o', algo, '-F' ]
+        if input_fname:
+            fname = input_fname
+        else:
+            fname = tools.get_output_filename('%s.fit' % uniq)
+            tools.write_file(fname, self.GetData())
+        args.append(fname)
+
+        if self.mkimage.run_cmd(*args) is None:
+            self.Raise("Missing tool: 'mkimage'")
+
+        data = tools.read_file(fname)
+        self.WriteData(data)

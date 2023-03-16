@@ -15,12 +15,12 @@ static int lib_test_is_enabled(struct unit_test_state *uts)
 {
 	ulong val;
 
-	ut_asserteq(1, IS_ENABLED(CONFIG_CMDLINE))
-	ut_asserteq(0, IS_ENABLED(CONFIG__UNDEFINED))
+	ut_asserteq(1, IS_ENABLED(CONFIG_CMDLINE));
+	ut_asserteq(0, IS_ENABLED(CONFIG__UNDEFINED));
 
-	ut_asserteq(1, CONFIG_IS_ENABLED(CMDLINE))
-	ut_asserteq(0, CONFIG_IS_ENABLED(OF_PLATDATA))
-	ut_asserteq(0, CONFIG_IS_ENABLED(_UNDEFINED))
+	ut_asserteq(1, CONFIG_IS_ENABLED(CMDLINE));
+	ut_asserteq(0, CONFIG_IS_ENABLED(OF_PLATDATA));
+	ut_asserteq(0, CONFIG_IS_ENABLED(_UNDEFINED));
 
 	ut_asserteq(0xc000,
 		    IF_ENABLED_INT(CONFIG_BLOBLIST_FIXED, CONFIG_BLOBLIST_ADDR));

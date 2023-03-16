@@ -6,6 +6,7 @@
 /dumpimage
 /easylogo/easylogo
 /envcrc
+/fdt_add_pubkey
 /fdtgrep
 /file2include
 /fit_check_sign

@@ -192,7 +192,7 @@ static int unicode_test_utf8_get(struct unit_test_state *uts)
 		if (!code)
 			break;
 	}
-	ut_asserteq_ptr(s, d2 + 9)
+	ut_asserteq_ptr(s, d2 + 9);
 
 	/* Check characters less than 0x10000 */
 	s = d3;
@@ -203,7 +203,7 @@ static int unicode_test_utf8_get(struct unit_test_state *uts)
 		if (!code)
 			break;
 	}
-	ut_asserteq_ptr(s, d3 + 9)
+	ut_asserteq_ptr(s, d3 + 9);
 
 	/* Check character greater 0xffff */
 	s = d4;
@@ -228,7 +228,7 @@ static int unicode_test_utf8_put(struct unit_test_state *uts)
 
 	/* Commercial at, translates to one character */
 	pos = buffer;
-	ut_assert(!utf8_put('@', &pos))
+	ut_assert(!utf8_put('@', &pos));
 	ut_asserteq(1, pos - buffer);
 	ut_asserteq('@', buffer[0]);
 	ut_assert(!buffer[1]);

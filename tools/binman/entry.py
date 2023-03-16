@@ -1378,3 +1378,6 @@ features to produce new behaviours.
         if entries:
             for entry in entries.values():
                 entry.mark_build_done()
+
+    def UpdateSignatures(self, privatekey_fname, algo, input_fname):
+        self.Raise('Updating signatures is not supported with this entry type')

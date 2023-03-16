@@ -187,10 +187,10 @@ static int dm_test_scmi_resets(struct unit_test_state *uts)
 	ut_assertnonnull(agent);
 
 	/* Test SCMI resect controller manipulation */
-	ut_assert(!agent->reset[0].asserted)
+	ut_assert(!agent->reset[0].asserted);
 
 	ut_assertok(reset_assert(&scmi_devices->reset[0]));
-	ut_assert(agent->reset[0].asserted)
+	ut_assert(agent->reset[0].asserted);
 
 	ut_assertok(reset_deassert(&scmi_devices->reset[0]));
 	ut_assert(!agent->reset[0].asserted);
