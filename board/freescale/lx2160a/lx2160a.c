@@ -572,7 +572,7 @@ int board_init(void)
 	out_le32(irq_ccsr + IRQCR_OFFSET / 4, AQR107_IRQ_MASK);
 #endif
 
-#if !defined(CONFIG_SYS_EARLY_PCI_INIT) && defined(CONFIG_DM_ETH)
+#if !defined(CONFIG_SYS_EARLY_PCI_INIT)
 	pci_init();
 #endif
 	return 0;
@@ -642,7 +642,6 @@ u16 soc_get_fuse_vid(int vid_index)
 #endif
 
 #ifdef CONFIG_FSL_MC_ENET
-extern int fdt_fixup_board_phy(void *fdt);
 
 void fdt_fixup_board_enet(void *fdt)
 {
@@ -662,9 +661,6 @@ void fdt_fixup_board_enet(void *fdt)
 	if (get_mc_boot_status() == 0 &&
 	    (is_lazy_dpl_addr_valid() || get_dpl_apply_status() == 0)) {
 		fdt_status_okay(fdt, offset);
-#ifndef CONFIG_DM_ETH
-		fdt_fixup_board_phy(fdt);
-#endif
 	} else {
 		fdt_status_fail(fdt, offset);
 	}
