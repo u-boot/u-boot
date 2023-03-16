@@ -185,7 +185,7 @@ config CLK_VERSACLOCK
 config CLK_VERSAL
 	bool "Enable clock driver support for Versal"
 	depends on (ARCH_VERSAL || ARCH_VERSAL_NET)
-	select ZYNQMP_FIRMWARE
+	imply ZYNQMP_FIRMWARE
 	help
 	  This clock driver adds support for clock realted settings for
 	  Versal platform.
@@ -219,7 +219,7 @@ config CLK_ZYNQ
 config CLK_ZYNQMP
 	bool "Enable clock driver support for ZynqMP"
 	depends on ARCH_ZYNQMP
-	select ZYNQMP_FIRMWARE
+	imply ZYNQMP_FIRMWARE
 	help
 	  This clock driver adds support for clock realted settings for
 	  ZynqMP platform.
