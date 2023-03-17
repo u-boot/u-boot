@@ -5,4 +5,14 @@
  * Author: Markus Niebel
  */
 
-#include "imx6qdl-tqma6-u-boot.dtsi"
+/* SOC specific U-Boot DT adjustments */
+
+#include "imx6qdl-u-boot.dtsi"
+
+/ {
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		bootph-pre-ram;
+	};
+};
