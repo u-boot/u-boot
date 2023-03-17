@@ -283,6 +283,16 @@ static int m41t62_rtc_reset(struct udevice *dev)
 	return m41t62_sqw_enable(dev, true);
 }
 
+static int m41t62_rtc_read8(struct udevice *dev, unsigned int reg)
+{
+	return dm_i2c_reg_read(dev, reg);
+}
+
+static int m41t62_rtc_write8(struct udevice *dev, unsigned int reg, int val)
+{
+	return dm_i2c_reg_write(dev, reg, val);
+}
+
 /*
  * Make sure HT bit is cleared. This bit is set on entering battery backup
  * mode, so do this before the first read access.
@@ -296,6 +306,8 @@ static const struct rtc_ops m41t62_rtc_ops = {
 	.get = m41t62_rtc_get,
 	.set = m41t62_rtc_set,
 	.reset = m41t62_rtc_reset,
+	.read8 = m41t62_rtc_read8,
+	.write8 = m41t62_rtc_write8,
 };
 
 static const struct udevice_id m41t62_rtc_ids[] = {
