@@ -94,11 +94,15 @@ u64 get_tcr(u64 *pips, u64 *pva_bits)
 	if (el == 1) {
 		tcr = TCR_EL1_RSVD | (ips << 32) | TCR_EPD1_DISABLE;
 		if (gd->arch.has_hafdbs)
-			tcr |= TCR_HA | TCR_HD;
+			tcr |= TCR_EL1_HA | TCR_EL1_HD;
 	} else if (el == 2) {
 		tcr = TCR_EL2_RSVD | (ips << 16);
+		if (gd->arch.has_hafdbs)
+			tcr |= TCR_EL2_HA | TCR_EL2_HD;
 	} else {
 		tcr = TCR_EL3_RSVD | (ips << 16);
+		if (gd->arch.has_hafdbs)
+			tcr |= TCR_EL3_HA | TCR_EL3_HD;
 	}
 
 	/* PTWs cacheable, inner/outer WBWA and inner shareable */

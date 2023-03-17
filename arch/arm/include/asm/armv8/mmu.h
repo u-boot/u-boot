@@ -102,8 +102,14 @@
 #define TCR_TG0_16K		(2 << 14)
 #define TCR_EPD1_DISABLE	(1 << 23)
 
-#define TCR_HA			BIT(39)
-#define TCR_HD			BIT(40)
+#define TCR_EL1_HA		BIT(39)
+#define TCR_EL1_HD		BIT(40)
+
+#define TCR_EL2_HA		BIT(21)
+#define TCR_EL2_HD		BIT(22)
+
+#define TCR_EL3_HA		BIT(21)
+#define TCR_EL3_HD		BIT(22)
 
 #define TCR_EL1_RSVD		(1U << 31)
 #define TCR_EL2_RSVD		(1U << 31 | 1 << 23)
