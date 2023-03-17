@@ -52,6 +52,7 @@ struct arch_global_data {
 #if defined(CONFIG_ARM64)
 	unsigned long tlb_fillptr;
 	unsigned long tlb_emerg;
+	unsigned int first_block_level;
 	bool has_hafdbs;
 #endif
 #endif
