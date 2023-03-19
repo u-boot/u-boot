@@ -517,9 +517,6 @@ int phy_init(void)
 #ifdef CONFIG_MV88E61XX_SWITCH
 	phy_mv88e61xx_init();
 #endif
-#ifdef CONFIG_PHY_DAVICOM
-	phy_davicom_init();
-#endif
 #ifdef CONFIG_PHY_ET1011C
 	phy_et1011c_init();
 #endif
