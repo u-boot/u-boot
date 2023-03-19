@@ -160,7 +160,7 @@ static int rockchip_gpio_probe(struct udevice *dev)
 					     0, &args);
 	if (!ret || ret != -ENOENT) {
 		uc_priv->gpio_count = args.args[2];
-		priv->bank = args.args[1] / args.args[2];
+		priv->bank = args.args[1] / ROCKCHIP_GPIOS_PER_BANK;
 	} else {
 		uc_priv->gpio_count = ROCKCHIP_GPIOS_PER_BANK;
 		end = strrchr(dev->name, '@');
