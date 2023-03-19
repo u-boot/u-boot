@@ -514,9 +514,6 @@ int phy_init(void)
 		phy_drv_reloc(drv);
 #endif
 
-#ifdef CONFIG_PHY_FIXED
-	phy_fixed_init();
-#endif
 #ifdef CONFIG_PHY_NCSI
 	phy_ncsi_init();
 #endif
