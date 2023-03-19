@@ -514,9 +514,6 @@ int phy_init(void)
 		phy_drv_reloc(drv);
 #endif
 
-#ifdef CONFIG_PHY_XILINX_GMII2RGMII
-	phy_xilinx_gmii2rgmii_init();
-#endif
 	genphy_init();
 
 	return 0;
