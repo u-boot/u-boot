@@ -173,10 +173,6 @@ struct fixed_link {
 	int asym_pause;
 };
 
-#ifdef CONFIG_PHYLIB_10G
-extern struct phy_driver gen10g_driver;
-#endif
-
 /**
  * phy_init() - Initializes the PHY drivers
  * This function registers all available PHY drivers

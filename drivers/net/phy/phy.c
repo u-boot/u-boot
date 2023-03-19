@@ -566,7 +566,7 @@ static struct phy_driver *generic_for_phy(struct phy_device *phydev)
 {
 #ifdef CONFIG_PHYLIB_10G
 	if (phydev->is_c45)
-		return &gen10g_driver;
+		return ll_entry_get(struct phy_driver, gen10g, phy_driver);
 #endif
 
 	return ll_entry_get(struct phy_driver, genphy, phy_driver);
