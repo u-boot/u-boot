@@ -463,8 +463,6 @@ U_BOOT_PHY_DRIVER(genphy) = {
 	.shutdown	= genphy_shutdown,
 };
 
-static LIST_HEAD(phy_drivers);
-
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 static void phy_drv_reloc(struct phy_driver *drv)
 {
@@ -493,16 +491,6 @@ int phy_init(void)
 	const int ll_n_ents = ll_entry_count(struct phy_driver, phy_driver);
 	struct phy_driver *drv, *ll_entry;
 
-	/*
-	 * The pointers inside phy_drivers also needs to be updated incase of
-	 * manual reloc, without which these points to some invalid
-	 * pre reloc address and leads to invalid accesses, hangs.
-	 */
-	struct list_head *head = &phy_drivers;
-
-	head->next = (void *)head->next + gd->reloc_off;
-	head->prev = (void *)head->prev + gd->reloc_off;
-
 	/* Perform manual relocation on linker list based PHY drivers */
 	ll_entry = ll_entry_start(struct phy_driver, phy_driver);
 	for (drv = ll_entry; drv != ll_entry + ll_n_ents; drv++)
@@ -514,9 +502,6 @@ int phy_init(void)
 
 int phy_register(struct phy_driver *drv)
 {
-	INIT_LIST_HEAD(&drv->list);
-	list_add_tail(&drv->list, &phy_drivers);
-
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	phy_drv_reloc(drv);
 #endif
@@ -575,16 +560,9 @@ static struct phy_driver *generic_for_phy(struct phy_device *phydev)
 static struct phy_driver *get_phy_driver(struct phy_device *phydev)
 {
 	const int ll_n_ents = ll_entry_count(struct phy_driver, phy_driver);
-	struct phy_driver *ll_entry;
-	struct list_head *entry;
 	int phy_id = phydev->phy_id;
-	struct phy_driver *drv = NULL;
-
-	list_for_each(entry, &phy_drivers) {
-		drv = list_entry(entry, struct phy_driver, list);
-		if ((drv->uid & drv->mask) == (phy_id & drv->mask))
-			return drv;
-	}
+	struct phy_driver *ll_entry;
+	struct phy_driver *drv;
 
 	ll_entry = ll_entry_start(struct phy_driver, phy_driver);
 	for (drv = ll_entry; drv != ll_entry + ll_n_ents; drv++)

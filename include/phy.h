@@ -125,8 +125,6 @@ struct phy_driver {
 	int (*write_mmd)(struct phy_device *phydev, int devad, int reg,
 			 u16 val);
 
-	struct list_head list;
-
 	/* driver private data */
 	ulong data;
 };
