@@ -12,6 +12,19 @@
 
 &gpio0 {
 	compatible = "rockchip,gpio-bank";
+	gpio-ranges = <&pinctrl 0 0 32>;
+};
+
+&gpio1 {
+	gpio-ranges = <&pinctrl 0 32 32>;
+};
+
+&gpio2 {
+	gpio-ranges = <&pinctrl 0 64 32>;
+};
+
+&gpio3 {
+	gpio-ranges = <&pinctrl 0 96 32>;
 };
 
 &pmu {
