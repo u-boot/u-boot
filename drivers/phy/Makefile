@@ -41,3 +41,4 @@ obj-$(CONFIG_PHY_XILINX_ZYNQMP) += phy-zynqmp.o
 obj-y += cadence/
 obj-y += ti/
 obj-y += qcom/
+obj-y += renesas/
