@@ -19,6 +19,7 @@ obj-$(CONFIG_RTC_HT1380) += ht1380.o
 obj-$(CONFIG_$(SPL_TPL_)RTC_SANDBOX) += i2c_rtc_emul.o
 obj-$(CONFIG_RTC_ISL1208) += isl1208.o
 obj-$(CONFIG_RTC_M41T62) += m41t62.o
+obj-$(CONFIG_RTC_MAX313XX) += max313xx.o
 obj-$(CONFIG_RTC_MC13XXX) += mc13xxx-rtc.o
 obj-$(CONFIG_RTC_MC146818) += mc146818.o
 obj-$(CONFIG_MCFRTC) += mcfrtc.o
