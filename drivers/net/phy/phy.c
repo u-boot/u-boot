@@ -495,6 +495,9 @@ static void phy_drv_reloc(struct phy_driver *drv)
 int phy_init(void)
 {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
+	const int ll_n_ents = ll_entry_count(struct phy_driver, phy_driver);
+	struct phy_driver *drv, *ll_entry;
+
 	/*
 	 * The pointers inside phy_drivers also needs to be updated incase of
 	 * manual reloc, without which these points to some invalid
@@ -504,6 +507,11 @@ int phy_init(void)
 
 	head->next = (void *)head->next + gd->reloc_off;
 	head->prev = (void *)head->prev + gd->reloc_off;
+
+	/* Perform manual relocation on linker list based PHY drivers */
+	ll_entry = ll_entry_start(struct phy_driver, phy_driver);
+	for (drv = ll_entry; drv != ll_entry + ll_n_ents; drv++)
+		phy_drv_reloc(drv);
 #endif
 
 #ifdef CONFIG_B53_SWITCH
@@ -660,6 +668,8 @@ static struct phy_driver *generic_for_phy(struct phy_device *phydev)
 
 static struct phy_driver *get_phy_driver(struct phy_device *phydev)
 {
+	const int ll_n_ents = ll_entry_count(struct phy_driver, phy_driver);
+	struct phy_driver *ll_entry;
 	struct list_head *entry;
 	int phy_id = phydev->phy_id;
 	struct phy_driver *drv = NULL;
@@ -669,6 +679,11 @@ static struct phy_driver *get_phy_driver(struct phy_device *phydev)
 		if ((drv->uid & drv->mask) == (phy_id & drv->mask))
 			return drv;
 	}
+
+	ll_entry = ll_entry_start(struct phy_driver, phy_driver);
+	for (drv = ll_entry; drv != ll_entry + ll_n_ents; drv++)
+		if ((drv->uid & drv->mask) == (phy_id & drv->mask))
+			return drv;
 
 	/* If we made it here, there's no driver for this PHY */
 	return generic_for_phy(phydev);

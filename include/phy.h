@@ -345,6 +345,13 @@ int phy_fixed_init(void);
 int phy_ncsi_init(void);
 int phy_xilinx_gmii2rgmii_init(void);
 
+/**
+ * U_BOOT_PHY_DRIVER() - Declare a new U-Boot driver
+ * @__name: name of the driver
+ */
+#define U_BOOT_PHY_DRIVER(__name)					\
+	ll_entry_declare(struct phy_driver, __name, phy_driver)
+
 int board_phy_config(struct phy_device *phydev);
 int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id);
 
