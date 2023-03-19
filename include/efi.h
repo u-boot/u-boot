@@ -648,4 +648,13 @@ int efi_call_exit_boot_services(void);
 int efi_get_mmap(struct efi_mem_desc **descp, int *sizep, uint *keyp,
 		 int *desc_sizep, uint *versionp);
 
+/**
+ * efi_show_tables() - Show a list of available tables
+ *
+ * Shows the address, GUID (and name where known) for each table
+ *
+ * @systab: System table containing the list of tables
+ */
+void efi_show_tables(struct efi_system_table *systab);
+
 #endif /* _LINUX_EFI_H */

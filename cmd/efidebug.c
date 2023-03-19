@@ -649,11 +649,7 @@ static int do_efi_show_memmap(struct cmd_tbl *cmdtp, int flag,
 static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
 			      int argc, char *const argv[])
 {
-	efi_uintn_t i;
-
-	for (i = 0; i < systab.nr_tables; ++i)
-		printf("%pUl (%pUs)\n",
-		       &systab.tables[i].guid, &systab.tables[i].guid);
+	efi_show_tables(&systab);
 
 	return CMD_RET_SUCCESS;
 }
