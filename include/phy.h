@@ -282,6 +282,37 @@ static inline ofnode phy_get_ofnode(struct phy_device *phydev)
 		return dev_ofnode(phydev->dev);
 }
 
+/**
+ * phy_read_mmd_poll_timeout - Periodically poll a PHY register until a
+ *                             condition is met or a timeout occurs
+ *
+ * @phydev: The phy_device struct
+ * @devaddr: The MMD to read from
+ * @regnum: The register on the MMD to read
+ * @val: Variable to read the register into
+ * @cond: Break condition (usually involving @val)
+ * @sleep_us: Maximum time to sleep between reads in us (0
+ *            tight-loops).  Should be less than ~20ms since usleep_range
+ *            is used (see Documentation/timers/timers-howto.rst).
+ * @timeout_us: Timeout in us, 0 means never timeout
+ * @sleep_before_read: if it is true, sleep @sleep_us before read.
+ * Returns 0 on success and -ETIMEDOUT upon a timeout. In either
+ * case, the last read value at @args is stored in @val. Must not
+ * be called from atomic context if sleep_us or timeout_us are used.
+ */
+#define phy_read_mmd_poll_timeout(phydev, devaddr, regnum, val, cond, \
+				  sleep_us, timeout_us, sleep_before_read) \
+({ \
+	int __ret = read_poll_timeout(phy_read_mmd, val, (cond) || val < 0, \
+				  sleep_us, timeout_us, \
+				  phydev, devaddr, regnum); \
+	if (val <  0) \
+		__ret = val; \
+	if (__ret) \
+		dev_err(phydev->dev, "%s failed: %d\n", __func__, __ret); \
+	__ret; \
+})
+
 int phy_read(struct phy_device *phydev, int devad, int regnum);
 int phy_write(struct phy_device *phydev, int devad, int regnum, u16 val);
 void phy_mmd_start_indirect(struct phy_device *phydev, int devad, int regnum);
