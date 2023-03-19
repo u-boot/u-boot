@@ -500,14 +500,6 @@ int phy_init(void)
 	return 0;
 }
 
-int phy_register(struct phy_driver *drv)
-{
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	phy_drv_reloc(drv);
-#endif
-	return 0;
-}
-
 int phy_set_supported(struct phy_device *phydev, u32 max_speed)
 {
 	/* The default values for phydev->supported are provided by the PHY

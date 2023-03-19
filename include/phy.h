@@ -293,7 +293,6 @@ int phy_clear_bits_mmd(struct phy_device *phydev, int devad, u32 regnum, u16 val
 int phy_startup(struct phy_device *phydev);
 int phy_config(struct phy_device *phydev);
 int phy_shutdown(struct phy_device *phydev);
-int phy_register(struct phy_driver *drv);
 int phy_set_supported(struct phy_device *phydev, u32 max_speed);
 int phy_modify(struct phy_device *phydev, int devad, int regnum, u16 mask,
 	       u16 set);
