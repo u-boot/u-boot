@@ -323,7 +323,7 @@ static int bcm5482_startup(struct phy_device *phydev)
 	return bcm54xx_parse_status(phydev);
 }
 
-static struct phy_driver BCM5461S_driver = {
+U_BOOT_PHY_DRIVER(bcm5461s) = {
 	.name = "Broadcom BCM5461S",
 	.uid = 0x2060c0,
 	.mask = 0xfffff0,
@@ -333,7 +333,7 @@ static struct phy_driver BCM5461S_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-static struct phy_driver BCM5464S_driver = {
+U_BOOT_PHY_DRIVER(bcm5464s) = {
 	.name = "Broadcom BCM5464S",
 	.uid = 0x2060b0,
 	.mask = 0xfffff0,
@@ -343,7 +343,7 @@ static struct phy_driver BCM5464S_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-static struct phy_driver BCM5482S_driver = {
+U_BOOT_PHY_DRIVER(bcm5482s) = {
 	.name = "Broadcom BCM5482S",
 	.uid = 0x143bcb0,
 	.mask = 0xffffff0,
@@ -353,7 +353,7 @@ static struct phy_driver BCM5482S_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-static struct phy_driver BCM_CYGNUS_driver = {
+U_BOOT_PHY_DRIVER(bcm_cygnus) = {
 	.name = "Broadcom CYGNUS GPHY",
 	.uid = 0xae025200,
 	.mask = 0xfffff0,
@@ -362,13 +362,3 @@ static struct phy_driver BCM_CYGNUS_driver = {
 	.startup = &bcm_cygnus_startup,
 	.shutdown = &genphy_shutdown,
 };
-
-int phy_broadcom_init(void)
-{
-	phy_register(&BCM5482S_driver);
-	phy_register(&BCM5464S_driver);
-	phy_register(&BCM5461S_driver);
-	phy_register(&BCM_CYGNUS_driver);
-
-	return 0;
-}

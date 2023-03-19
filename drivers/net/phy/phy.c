@@ -517,9 +517,6 @@ int phy_init(void)
 #ifdef CONFIG_MV88E61XX_SWITCH
 	phy_mv88e61xx_init();
 #endif
-#ifdef CONFIG_PHY_BROADCOM
-	phy_broadcom_init();
-#endif
 #ifdef CONFIG_PHY_CORTINA
 	phy_cortina_init();
 #endif

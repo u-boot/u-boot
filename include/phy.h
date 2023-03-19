@@ -316,7 +316,6 @@ int gen10g_shutdown(struct phy_device *phydev);
 int gen10g_discover_mmds(struct phy_device *phydev);
 
 int phy_mv88e61xx_init(void);
-int phy_broadcom_init(void);
 int phy_cortina_init(void);
 int phy_cortina_access_init(void);
 int phy_davicom_init(void);
