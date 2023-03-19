@@ -317,7 +317,6 @@ int gen10g_discover_mmds(struct phy_device *phydev);
 
 int phy_b53_init(void);
 int phy_mv88e61xx_init(void);
-int phy_adin_init(void);
 int phy_aquantia_init(void);
 int phy_atheros_init(void);
 int phy_broadcom_init(void);

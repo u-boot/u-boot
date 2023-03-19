@@ -520,9 +520,6 @@ int phy_init(void)
 #ifdef CONFIG_MV88E61XX_SWITCH
 	phy_mv88e61xx_init();
 #endif
-#ifdef CONFIG_PHY_ADIN
-	phy_adin_init();
-#endif
 #ifdef CONFIG_PHY_AQUANTIA
 	phy_aquantia_init();
 #endif

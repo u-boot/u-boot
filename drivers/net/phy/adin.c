@@ -252,7 +252,7 @@ static int adin1300_config(struct phy_device *phydev)
 	return genphy_config(phydev);
 }
 
-static struct phy_driver ADIN1300_driver =  {
+U_BOOT_PHY_DRIVER(ADIN1300) = {
 	.name = "ADIN1300",
 	.uid = PHY_ID_ADIN1300,
 	.mask = 0xffffffff,
@@ -261,10 +261,3 @@ static struct phy_driver ADIN1300_driver =  {
 	.startup = genphy_startup,
 	.shutdown = genphy_shutdown,
 };
-
-int phy_adin_init(void)
-{
-	phy_register(&ADIN1300_driver);
-
-	return 0;
-}
