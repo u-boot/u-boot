@@ -514,9 +514,6 @@ int phy_init(void)
 		phy_drv_reloc(drv);
 #endif
 
-#ifdef CONFIG_PHY_ET1011C
-	phy_et1011c_init();
-#endif
 #ifdef CONFIG_PHY_LXT
 	phy_lxt_init();
 #endif
