@@ -20,6 +20,7 @@ obj-$(CONFIG_PHY_DAVICOM) += davicom.o
 obj-$(CONFIG_PHY_ET1011C) += et1011c.o
 obj-$(CONFIG_PHY_LXT) += lxt.o
 obj-$(CONFIG_PHY_MARVELL) += marvell.o
+obj-$(CONFIG_PHY_MARVELL_10G) += marvell10g.o
 obj-$(CONFIG_PHY_MICREL_KSZ8XXX) += micrel_ksz8xxx.o
 obj-$(CONFIG_PHY_MICREL_KSZ90X1) += micrel_ksz90x1.o
 obj-$(CONFIG_PHY_MESON_GXL) += meson-gxl.o
