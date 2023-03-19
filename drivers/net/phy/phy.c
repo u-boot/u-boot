@@ -514,9 +514,6 @@ int phy_init(void)
 		phy_drv_reloc(drv);
 #endif
 
-#ifdef CONFIG_PHY_XWAY
-	phy_xway_init();
-#endif
 #ifdef CONFIG_PHY_MSCC
 	phy_mscc_init();
 #endif
