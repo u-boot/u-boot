@@ -514,9 +514,6 @@ int phy_init(void)
 		phy_drv_reloc(drv);
 #endif
 
-#ifdef CONFIG_PHY_VITESSE
-	phy_vitesse_init();
-#endif
 #ifdef CONFIG_PHY_XILINX
 	phy_xilinx_init();
 #endif
