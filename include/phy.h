@@ -315,7 +315,6 @@ int gen10g_startup(struct phy_device *phydev);
 int gen10g_shutdown(struct phy_device *phydev);
 int gen10g_discover_mmds(struct phy_device *phydev);
 
-int phy_ncsi_init(void);
 int phy_xilinx_gmii2rgmii_init(void);
 
 /**
