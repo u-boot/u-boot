@@ -32,11 +32,10 @@ static u16 *efi_str_to_u16(char *str)
 {
 	efi_uintn_t len;
 	u16 *out, *dst;
-	efi_status_t ret;
 
 	len = sizeof(u16) * (utf8_utf16_strlen(str) + 1);
-	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, len, (void **)&out);
-	if (ret != EFI_SUCCESS)
+	out = efi_alloc(len);
+	if (!out)
 		return NULL;
 	dst = out;
 	utf8_utf16_strcpy(&dst, str);
