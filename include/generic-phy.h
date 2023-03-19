@@ -69,72 +69,72 @@ struct phy_ops {
 	int	(*init)(struct phy *phy);
 
 	/**
-	* exit - de-initialize the PHY device
-	*
-	* Hardware de-intialization should be done here. Every step done in
-	* init() should be undone here.
-	* This could be used to suspend the phy to reduce power consumption or
-	* to put the phy in a known condition before booting the OS (though it
-	* is NOT called automatically before booting the OS)
-	* If power_off() is not implemented, it must power down the phy.
-	*
-	* @phy:	PHY port to be de-initialized
-	* Return: 0 if OK, or a negative error code
-	*/
+	 * exit - de-initialize the PHY device
+	 *
+	 * Hardware de-intialization should be done here. Every step done in
+	 * init() should be undone here.
+	 * This could be used to suspend the phy to reduce power consumption or
+	 * to put the phy in a known condition before booting the OS (though it
+	 * is NOT called automatically before booting the OS)
+	 * If power_off() is not implemented, it must power down the phy.
+	 *
+	 * @phy:	PHY port to be de-initialized
+	 * Return: 0 if OK, or a negative error code
+	 */
 	int	(*exit)(struct phy *phy);
 
 	/**
-	* reset - resets a PHY device without shutting down
-	*
-	* @phy:	PHY port to be reset
-	*
-	* During runtime, the PHY may need to be reset in order to
-	* re-establish connection etc without being shut down or exit.
-	*
-	* Return: 0 if OK, or a negative error code
-	*/
+	 * reset - resets a PHY device without shutting down
+	 *
+	 * @phy:	PHY port to be reset
+	 *
+	 * During runtime, the PHY may need to be reset in order to
+	 * re-establish connection etc without being shut down or exit.
+	 *
+	 * Return: 0 if OK, or a negative error code
+	 */
 	int	(*reset)(struct phy *phy);
 
 	/**
-	* power_on - power on a PHY device
-	*
-	* @phy:	PHY port to be powered on
-	*
-	* During runtime, the PHY may need to be powered on or off several
-	* times. This function is used to power on the PHY. It relies on the
-	* setup done in init(). If init() is not implemented, it must take care
-	* of setting up the context (PLLs, ...)
-	*
-	* Return: 0 if OK, or a negative error code
-	*/
+	 * power_on - power on a PHY device
+	 *
+	 * @phy:	PHY port to be powered on
+	 *
+	 * During runtime, the PHY may need to be powered on or off several
+	 * times. This function is used to power on the PHY. It relies on the
+	 * setup done in init(). If init() is not implemented, it must take care
+	 * of setting up the context (PLLs, ...)
+	 *
+	 * Return: 0 if OK, or a negative error code
+	 */
 	int	(*power_on)(struct phy *phy);
 
 	/**
-	* power_off - power off a PHY device
-	*
-	* @phy:	PHY port to be powered off
-	*
-	* During runtime, the PHY may need to be powered on or off several
-	* times. This function is used to power off the PHY. Except if
-	* init()/deinit() are not implemented, it must not de-initialize
-	* everything.
-	*
-	* Return: 0 if OK, or a negative error code
-	*/
+	 * power_off - power off a PHY device
+	 *
+	 * @phy:	PHY port to be powered off
+	 *
+	 * During runtime, the PHY may need to be powered on or off several
+	 * times. This function is used to power off the PHY. Except if
+	 * init()/deinit() are not implemented, it must not de-initialize
+	 * everything.
+	 *
+	 * Return: 0 if OK, or a negative error code
+	 */
 	int	(*power_off)(struct phy *phy);
 
 	/**
-	* configure - configure a PHY device
-	*
-	* @phy:	PHY port to be configured
-	* @params: PHY Parameters, underlying data is specific to the PHY function
-	*
-	* During runtime, the PHY may need to be configured for it's main function.
-	* This function configures the PHY for it's main function following
-	* power_on/off() after beeing initialized.
-	*
-	* Return: 0 if OK, or a negative error code
-	*/
+	 * configure - configure a PHY device
+	 *
+	 * @phy:	PHY port to be configured
+	 * @params: PHY Parameters, underlying data is specific to the PHY function
+	 *
+	 * During runtime, the PHY may need to be configured for it's main function.
+	 * This function configures the PHY for it's main function following
+	 * power_on/off() after being initialized.
+	 *
+	 * Return: 0 if OK, or a negative error code
+	 */
 	int	(*configure)(struct phy *phy, void *params);
 };
 
