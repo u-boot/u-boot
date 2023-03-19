@@ -147,7 +147,7 @@ struct efi_device_path *efi_dp_shorten(struct efi_device_path *dp)
 		 * in practice fallback.efi just uses MEDIA:HARD_DRIVE
 		 * so not sure when we would see these other cases.
 		 */
-		if (EFI_DP_TYPE(dp, MESSAGING_DEVICE, MSG_USB_CLASS) ||
+		if (EFI_DP_TYPE(dp, MESSAGING_DEVICE, MSG_USB) ||
 		    EFI_DP_TYPE(dp, MEDIA_DEVICE, HARD_DRIVE_PATH) ||
 		    EFI_DP_TYPE(dp, MEDIA_DEVICE, FILE_PATH))
 			return dp;
@@ -564,6 +564,11 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
 			return dp_size(dev->parent)
 				+ sizeof(struct efi_device_path_vendor) + 1;
 #endif
+#ifdef CONFIG_USB
+		case UCLASS_MASS_STORAGE:
+			return dp_size(dev->parent)
+				+ sizeof(struct efi_device_path_controller);
+#endif
 #ifdef CONFIG_VIRTIO_BLK
 		case UCLASS_VIRTIO:
 			 /*
@@ -585,7 +590,7 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
 	case UCLASS_MASS_STORAGE:
 	case UCLASS_USB_HUB:
 		return dp_size(dev->parent) +
-			sizeof(struct efi_device_path_usb_class);
+			sizeof(struct efi_device_path_usb);
 	default:
 		/* just skip over unknown classes: */
 		return dp_size(dev->parent);
@@ -742,6 +747,19 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 			return &dp[1];
 			}
 #endif
+#if defined(CONFIG_USB)
+		case UCLASS_MASS_STORAGE: {
+			struct blk_desc *desc = desc = dev_get_uclass_plat(dev);
+			struct efi_device_path_controller *dp =
+				dp_fill(buf, dev->parent);
+
+			dp->dp.type	= DEVICE_PATH_TYPE_HARDWARE_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_CONTROLLER;
+			dp->dp.length	= sizeof(*dp);
+			dp->controller_number = desc->lun;
+			return &dp[1];
+		}
+#endif
 		default:
 			debug("%s(%u) %s: unhandled parent class: %s (%u)\n",
 			      __FILE__, __LINE__, __func__,
@@ -767,19 +785,22 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #endif
 	case UCLASS_MASS_STORAGE:
 	case UCLASS_USB_HUB: {
-		struct efi_device_path_usb_class *udp =
-			dp_fill(buf, dev->parent);
-		struct usb_device *udev = dev_get_parent_priv(dev);
-		struct usb_device_descriptor *desc = &udev->descriptor;
+		struct efi_device_path_usb *udp = dp_fill(buf, dev->parent);
 
+		switch (device_get_uclass_id(dev->parent)) {
+		case UCLASS_USB_HUB: {
+			struct usb_device *udev = dev_get_parent_priv(dev);
+
+			udp->parent_port_number = udev->portnr;
+			break;
+		}
+		default:
+			udp->parent_port_number = 0;
+		}
 		udp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
-		udp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS;
+		udp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_USB;
 		udp->dp.length   = sizeof(*udp);
-		udp->vendor_id   = desc->idVendor;
-		udp->product_id  = desc->idProduct;
-		udp->device_class    = desc->bDeviceClass;
-		udp->device_subclass = desc->bDeviceSubClass;
-		udp->device_protocol = desc->bDeviceProtocol;
+		udp->usb_interface = 0;
 
 		return &udp[1];
 	}
