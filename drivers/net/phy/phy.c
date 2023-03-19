@@ -470,6 +470,28 @@ static int genphy_init(void)
 
 static LIST_HEAD(phy_drivers);
 
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+static void phy_drv_reloc(struct phy_driver *drv)
+{
+	if (drv->probe)
+		drv->probe += gd->reloc_off;
+	if (drv->config)
+		drv->config += gd->reloc_off;
+	if (drv->startup)
+		drv->startup += gd->reloc_off;
+	if (drv->shutdown)
+		drv->shutdown += gd->reloc_off;
+	if (drv->readext)
+		drv->readext += gd->reloc_off;
+	if (drv->writeext)
+		drv->writeext += gd->reloc_off;
+	if (drv->read_mmd)
+		drv->read_mmd += gd->reloc_off;
+	if (drv->write_mmd)
+		drv->write_mmd += gd->reloc_off;
+}
+#endif
+
 int phy_init(void)
 {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
@@ -582,22 +604,7 @@ int phy_register(struct phy_driver *drv)
 	list_add_tail(&drv->list, &phy_drivers);
 
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
-	if (drv->probe)
-		drv->probe += gd->reloc_off;
-	if (drv->config)
-		drv->config += gd->reloc_off;
-	if (drv->startup)
-		drv->startup += gd->reloc_off;
-	if (drv->shutdown)
-		drv->shutdown += gd->reloc_off;
-	if (drv->readext)
-		drv->readext += gd->reloc_off;
-	if (drv->writeext)
-		drv->writeext += gd->reloc_off;
-	if (drv->read_mmd)
-		drv->read_mmd += gd->reloc_off;
-	if (drv->write_mmd)
-		drv->write_mmd += gd->reloc_off;
+	phy_drv_reloc(drv);
 #endif
 	return 0;
 }
