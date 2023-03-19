@@ -390,9 +390,8 @@ Program with commands in a bash script ./flash.sh:
 
         #!/bin/sh
 
-        printf "RK30" > tplspl.bin
-        dd if=u-boot-tpl.bin >> tplspl.bin
-        truncate -s %2048 tplspl.bin
+        printf "RK30" | dd conv=notrunc bs=4 count=1 of=u-boot-tpl.bin
+        truncate -s %2048 u-boot-tpl.bin
         truncate -s %2048 u-boot-spl.bin
         ../tools/boot_merger --verbose config-flash.ini
         ../tools/upgrade_tool ul ./RK30xxLoader_uboot.bin
@@ -416,7 +415,7 @@ config-flash.ini:
         NUM=2
         LOADER1=FlashData
         LOADER2=FlashBoot
-        FlashData=tplspl.bin
+        FlashData=u-boot-tpl.bin
         FlashBoot=u-boot-spl.bin
         [OUTPUT]
         PATH=RK30xxLoader_uboot.bin
