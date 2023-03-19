@@ -127,7 +127,7 @@ static int xilinxphy_config(struct phy_device *phydev)
 	return 0;
 }
 
-static struct phy_driver xilinxphy_driver = {
+U_BOOT_PHY_DRIVER(xilinxphy) = {
 	.uid = XILINX_PHY_ID,
 	.mask = XILINX_PHY_ID_MASK,
 	.name = "Xilinx PCS/PMA PHY",
@@ -136,11 +136,3 @@ static struct phy_driver xilinxphy_driver = {
 	.startup = &xilinxphy_startup,
 	.shutdown = &genphy_shutdown,
 };
-
-int phy_xilinx_init(void)
-{
-	debug("%s\n", __func__);
-	phy_register(&xilinxphy_driver);
-
-	return 0;
-}
