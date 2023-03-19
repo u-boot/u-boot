@@ -382,7 +382,7 @@ int cs4223_startup(struct phy_device *phydev)
 	return 0;
 }
 
-struct phy_driver cs4340_driver = {
+static struct phy_driver cs4340_driver = {
 	.name = "Cortina CS4315/CS4340",
 	.uid = PHY_UID_CS4340,
 	.mask = 0xfffffff0,
@@ -396,7 +396,7 @@ struct phy_driver cs4340_driver = {
 	.shutdown = &gen10g_shutdown,
 };
 
-struct phy_driver cs4223_driver = {
+static struct phy_driver cs4223_driver = {
 	.name = "Cortina CS4223",
 	.uid = PHY_UID_CS4223,
 	.mask = 0x0ffff00f,
