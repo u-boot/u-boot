@@ -463,9 +463,9 @@ U_BOOT_PHY_DRIVER(genphy) = {
 	.shutdown	= genphy_shutdown,
 };
 
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 int phy_init(void)
 {
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
 	const int ll_n_ents = ll_entry_count(struct phy_driver, phy_driver);
 	struct phy_driver *drv, *ll_entry;
 
@@ -489,10 +489,10 @@ int phy_init(void)
 		if (drv->write_mmd)
 			drv->write_mmd += gd->reloc_off;
 	}
-#endif
 
 	return 0;
 }
+#endif
 
 int phy_set_supported(struct phy_device *phydev, u32 max_speed)
 {

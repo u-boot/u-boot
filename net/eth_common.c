@@ -37,7 +37,7 @@ void eth_common_init(void)
 	miiphy_init();
 #endif
 
-#ifdef CONFIG_PHYLIB
+#if defined(CONFIG_NEEDS_MANUAL_RELOC) && defined(CONFIG_PHYLIB)
 	phy_init();
 #endif
 #endif
