@@ -451,7 +451,7 @@ int genphy_shutdown(struct phy_device *phydev)
 	return 0;
 }
 
-static struct phy_driver genphy_driver = {
+U_BOOT_PHY_DRIVER(genphy) = {
 	.uid		= 0xffffffff,
 	.mask		= 0xffffffff,
 	.name		= "Generic PHY",
@@ -462,11 +462,6 @@ static struct phy_driver genphy_driver = {
 	.startup	= genphy_startup,
 	.shutdown	= genphy_shutdown,
 };
-
-static int genphy_init(void)
-{
-	return phy_register(&genphy_driver);
-}
 
 static LIST_HEAD(phy_drivers);
 
@@ -513,8 +508,6 @@ int phy_init(void)
 	for (drv = ll_entry; drv != ll_entry + ll_n_ents; drv++)
 		phy_drv_reloc(drv);
 #endif
-
-	genphy_init();
 
 	return 0;
 }
@@ -576,7 +569,7 @@ static struct phy_driver *generic_for_phy(struct phy_device *phydev)
 		return &gen10g_driver;
 #endif
 
-	return &genphy_driver;
+	return ll_entry_get(struct phy_driver, genphy, phy_driver);
 }
 
 static struct phy_driver *get_phy_driver(struct phy_device *phydev)
