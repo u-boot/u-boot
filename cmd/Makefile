@@ -62,7 +62,7 @@ obj-$(CONFIG_CMD_EXTENSION) += extension_board.o
 obj-$(CONFIG_CMD_ECHO) += echo.o
 obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
 obj-$(CONFIG_CMD_EEPROM) += eeprom.o
-obj-$(CONFIG_EFI) += efi.o
+obj-$(CONFIG_EFI) += efi.o efi_common.o
 obj-$(CONFIG_CMD_EFIDEBUG) += efidebug.o efi_common.o
 obj-$(CONFIG_CMD_EFICONFIG) += eficonfig.o
 ifdef CONFIG_CMD_EFICONFIG

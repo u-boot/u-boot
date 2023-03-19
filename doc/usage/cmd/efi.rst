@@ -10,6 +10,7 @@ Synopsis
 ::
 
     efi mem [all]
+    efi tables
 
 Description
 -----------
@@ -53,6 +54,14 @@ Size
 Attributes
     Shows a code for memory attributes. The key for this is shown below the
     table.
+
+efi tables
+~~~~~~~~~~
+
+This shows a list of the EFI tables provided in the system table. These use
+GUIDs so it is not possible in general to show the name of a table. But some
+effort is made to provide a useful table, where the GUID is known by U-Boot.
+
 
 Example
 -------
@@ -195,3 +204,16 @@ Example
      f: uncached, write-coalescing, write-through, write-back
     rf: uncached, write-coalescing, write-through, write-back, needs runtime mapping
      1: uncached
+
+
+    => efi tables
+    000000001f8edf98  ee4e5898-3914-4259-9d6e-dc7bd79403cf  EFI_LZMA_COMPRESSED
+    000000001ff2ace0  05ad34ba-6f02-4214-952e-4da0398e2bb9  EFI_DXE_SERVICES
+    000000001f8ea018  7739f24c-93d7-11d4-9a3a-0090273fc14d  EFI_HOB_LIST
+    000000001ff2bac0  4c19049f-4137-4dd3-9c10-8b97a83ffdfa  EFI_MEMORY_TYPE
+    000000001ff2cb10  49152e77-1ada-4764-b7a2-7afefed95e8b  (unknown)
+    000000001f9ac018  060cc026-4c0d-4dda-8f41-595fef00a502  EFI_MEM_STATUS_CODE_REC
+    000000001f9ab000  eb9d2d31-2d88-11d3-9a16-0090273fc14d  SMBIOS table
+    000000001fb7e000  eb9d2d30-2d88-11d3-9a16-0090273fc14d  EFI_GUID_EFI_ACPI1
+    000000001fb7e014  8868e871-e4f1-11d3-bc22-0080c73c8881  ACPI table
+    000000001e654018  dcfa911d-26eb-469f-a220-38b7dc461220  (unknown)
