@@ -557,12 +557,6 @@ struct efi_loaded_image {
 #  define DEVICE_PATH_SUB_TYPE_INSTANCE_END	0x01
 #  define DEVICE_PATH_SUB_TYPE_END		0xff
 
-struct efi_device_path {
-	u8 type;
-	u8 sub_type;
-	u16 length;
-} __packed;
-
 struct efi_mac_addr {
 	u8 addr[32];
 } __packed;

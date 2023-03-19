@@ -52,7 +52,18 @@
 #define EFI32_LOADER_SIGNATURE	"EL32"
 #define EFI64_LOADER_SIGNATURE	"EL64"
 
-struct efi_device_path;
+/**
+ * struct efi_device_path - device path protocol
+ *
+ * @type:	device path type
+ * @sub_type:	device path sub-type
+ * @length:	length of the device path node including the header
+ */
+struct efi_device_path {
+	u8 type;
+	u8 sub_type;
+	u16 length;
+} __packed;
 
 /*
  * The EFI spec defines the EFI_GUID as
