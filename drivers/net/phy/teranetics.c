@@ -90,7 +90,7 @@ int tn2020_startup(struct phy_device *phydev)
 	return 0;
 }
 
-struct phy_driver tn2020_driver = {
+static struct phy_driver tn2020_driver = {
 	.name = "Teranetics TN2020",
 	.uid = PHY_UID_TN2020,
 	.mask = 0xfffffff0,
