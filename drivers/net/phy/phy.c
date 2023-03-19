@@ -514,9 +514,6 @@ int phy_init(void)
 		phy_drv_reloc(drv);
 #endif
 
-#ifdef CONFIG_PHY_TERANETICS
-	phy_teranetics_init();
-#endif
 #ifdef CONFIG_PHY_TI
 	phy_ti_init();
 #endif
