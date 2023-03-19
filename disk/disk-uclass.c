@@ -65,25 +65,37 @@ int part_create_block_devices(struct udevice *blk_dev)
 	return 0;
 }
 
+static int blk_part_setup(struct udevice *dev, lbaint_t *startp,
+			  lbaint_t blkcnt)
+{
+	struct disk_part *part;
+
+	part = dev_get_uclass_plat(dev);
+	if (*startp >= part->gpt_part_info.size)
+		return -E2BIG;
+
+	if (*startp + blkcnt > part->gpt_part_info.size)
+		blkcnt = part->gpt_part_info.size - *startp;
+	*startp += part->gpt_part_info.start;
+
+	return 0;
+}
+
 static ulong part_blk_read(struct udevice *dev, lbaint_t start,
 			   lbaint_t blkcnt, void *buffer)
 {
 	struct udevice *parent;
-	struct disk_part *part;
 	const struct blk_ops *ops;
+	int ret;
 
 	parent = dev_get_parent(dev);
 	ops = blk_get_ops(parent);
 	if (!ops->read)
 		return -ENOSYS;
 
-	part = dev_get_uclass_plat(dev);
-	if (start >= part->gpt_part_info.size)
+	ret = blk_part_setup(dev, &start, blkcnt);
+	if (ret)
 		return 0;
-
-	if ((start + blkcnt) > part->gpt_part_info.size)
-		blkcnt = part->gpt_part_info.size - start;
-	start += part->gpt_part_info.start;
 
 	return ops->read(parent, start, blkcnt, buffer);
 }
@@ -92,21 +104,17 @@ static ulong part_blk_write(struct udevice *dev, lbaint_t start,
 			    lbaint_t blkcnt, const void *buffer)
 {
 	struct udevice *parent;
-	struct disk_part *part;
 	const struct blk_ops *ops;
+	int ret;
 
 	parent = dev_get_parent(dev);
 	ops = blk_get_ops(parent);
 	if (!ops->write)
 		return -ENOSYS;
 
-	part = dev_get_uclass_plat(dev);
-	if (start >= part->gpt_part_info.size)
+	ret = blk_part_setup(dev, &start, blkcnt);
+	if (ret)
 		return 0;
-
-	if ((start + blkcnt) > part->gpt_part_info.size)
-		blkcnt = part->gpt_part_info.size - start;
-	start += part->gpt_part_info.start;
 
 	return ops->write(parent, start, blkcnt, buffer);
 }
@@ -115,21 +123,17 @@ static ulong part_blk_erase(struct udevice *dev, lbaint_t start,
 			    lbaint_t blkcnt)
 {
 	struct udevice *parent;
-	struct disk_part *part;
 	const struct blk_ops *ops;
+	int ret;
 
 	parent = dev_get_parent(dev);
 	ops = blk_get_ops(parent);
 	if (!ops->erase)
 		return -ENOSYS;
 
-	part = dev_get_uclass_plat(dev);
-	if (start >= part->gpt_part_info.size)
+	ret = blk_part_setup(dev, &start, blkcnt);
+	if (ret)
 		return 0;
-
-	if ((start + blkcnt) > part->gpt_part_info.size)
-		blkcnt = part->gpt_part_info.size - start;
-	start += part->gpt_part_info.start;
 
 	return ops->erase(parent, start, blkcnt);
 }
