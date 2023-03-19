@@ -10,6 +10,7 @@
 #include <common.h>
 #include <bootstage.h>
 #include <command.h>
+#include <efi.h>
 #include <hang.h>
 #include <log.h>
 #include <asm/global_data.h>
@@ -156,6 +157,23 @@ int boot_linux_kernel(ulong setup_base, ulong entry, bool image_64bit)
 #ifdef CONFIG_SYS_COREBOOT
 	timestamp_add_now(TS_U_BOOT_START_KERNEL);
 #endif
+
+	/*
+	 * Exit EFI boot services just before jumping, after all console
+	 * output, since the console won't be available afterwards.
+	 */
+	if (IS_ENABLED(CONFIG_EFI_APP)) {
+		int ret;
+
+		ret = efi_store_memory_map(efi_get_priv());
+		if (ret)
+			return ret;
+		printf("Exiting EFI boot services\n");
+		ret = efi_call_exit_boot_services();
+		if (ret)
+			return ret;
+	}
+
 	if (image_64bit) {
 		if (!cpu_has_64bit()) {
 			puts("Cannot boot 64-bit kernel on 32-bit machine\n");
