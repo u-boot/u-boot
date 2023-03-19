@@ -102,7 +102,7 @@ static const struct {
 	{"lvm",		PARTITION_LINUX_LVM_GUID},
 	{"u-boot-env",	PARTITION_U_BOOT_ENVIRONMENT},
 #endif
-#ifdef CONFIG_CMD_EFIDEBUG
+#if defined(CONFIG_CMD_EFIDEBUG) || defined(CONFIG_EFI)
 	{
 		"Device Path",
 		EFI_DEVICE_PATH_PROTOCOL_GUID,
