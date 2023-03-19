@@ -389,6 +389,11 @@ static inline int generic_phy_power_off(struct phy *phy)
 	return 0;
 }
 
+static inline int generic_phy_configure(struct phy *phy, void *params)
+{
+	return 0;
+}
+
 static inline int generic_phy_get_by_index(struct udevice *user, int index,
 			     struct phy *phy)
 {
