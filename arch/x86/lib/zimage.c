@@ -655,7 +655,7 @@ void zimage_dump(struct boot_params *base_ptr)
 		printf("%-20s  %s\n", "", "Ancient kernel, using version 100");
 	print_num("Version", hdr->version);
 	print_num("Real mode switch", hdr->realmode_swtch);
-	print_num("Start sys", hdr->start_sys);
+	print_num("Start sys seg", hdr->start_sys_seg);
 	print_num("Kernel version", hdr->kernel_version);
 	version = get_kernel_version(base_ptr, (void *)state.bzimage_addr);
 	if (version)
