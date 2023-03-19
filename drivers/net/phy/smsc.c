@@ -43,7 +43,7 @@ static int smsc_startup(struct phy_device *phydev)
 	return smsc_parse_status(phydev);
 }
 
-static struct phy_driver lan8700_driver = {
+U_BOOT_PHY_DRIVER(lan8700) = {
 	.name = "SMSC LAN8700",
 	.uid = 0x0007c0c0,
 	.mask = 0xffff0,
@@ -53,7 +53,7 @@ static struct phy_driver lan8700_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-static struct phy_driver lan911x_driver = {
+U_BOOT_PHY_DRIVER(lan911x) = {
 	.name = "SMSC LAN911x Internal PHY",
 	.uid = 0x0007c0d0,
 	.mask = 0xffff0,
@@ -63,7 +63,7 @@ static struct phy_driver lan911x_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-static struct phy_driver lan8710_driver = {
+U_BOOT_PHY_DRIVER(lan8710) = {
 	.name = "SMSC LAN8710/LAN8720",
 	.uid = 0x0007c0f0,
 	.mask = 0xffff0,
@@ -73,7 +73,7 @@ static struct phy_driver lan8710_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-static struct phy_driver lan8740_driver = {
+U_BOOT_PHY_DRIVER(lan8740) = {
 	.name = "SMSC LAN8740",
 	.uid = 0x0007c110,
 	.mask = 0xffff0,
@@ -83,7 +83,7 @@ static struct phy_driver lan8740_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-static struct phy_driver lan8741_driver = {
+U_BOOT_PHY_DRIVER(lan8741) = {
 	.name = "SMSC LAN8741",
 	.uid = 0x0007c120,
 	.mask = 0xffff0,
@@ -93,7 +93,7 @@ static struct phy_driver lan8741_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-static struct phy_driver lan8742_driver = {
+U_BOOT_PHY_DRIVER(lan8742) = {
 	.name = "SMSC LAN8742",
 	.uid = 0x0007c130,
 	.mask = 0xffff0,
@@ -102,15 +102,3 @@ static struct phy_driver lan8742_driver = {
 	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
 };
-
-int phy_smsc_init(void)
-{
-	phy_register(&lan8710_driver);
-	phy_register(&lan911x_driver);
-	phy_register(&lan8700_driver);
-	phy_register(&lan8740_driver);
-	phy_register(&lan8741_driver);
-	phy_register(&lan8742_driver);
-
-	return 0;
-}
