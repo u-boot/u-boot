@@ -86,6 +86,7 @@ Board Documentation
    :maxdepth: 1
 
    bananapi-cm4io
+   bananapi-m5
    beelink-gtking
    beelink-gtkingpro
    jethub-j80
