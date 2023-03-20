@@ -17,8 +17,6 @@
 
 #define CFG_SYS_SDRAM_BASE		0x60000000
 
-/* rockchip ohci host driver */
-
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x60000000\0" \
 	"fdt_addr_r=0x61f00000\0" \

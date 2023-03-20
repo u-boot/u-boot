@@ -9,16 +9,20 @@
 / {
 	chosen {
 		stdout-path = &uart2;
-		u-boot,spl-boot-order = "same-as-spl", &sdmmc0;
+		u-boot,spl-boot-order = "same-as-spl", &sdmmc0, &sdhci;
 	};
 };
 
-&sdmmc0 {
-	status = "okay";
+&sdmmc2 {
+	status = "disabled";
+};
+
+&uart1 {
+	status = "disabled";
 };
 
 &uart2 {
 	clock-frequency = <24000000>;
-	bootph-all;
+	u-boot,dm-pre-reloc;
 	status = "okay";
 };

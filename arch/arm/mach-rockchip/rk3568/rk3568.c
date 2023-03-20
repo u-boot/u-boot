@@ -82,7 +82,7 @@ static struct mm_region rk3568_mem_map[] = {
 };
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
-	[BROM_BOOTSOURCE_EMMC] = "/sdhci@fe310000",
+	[BROM_BOOTSOURCE_EMMC] = "/mmc@fe310000",
 	[BROM_BOOTSOURCE_SPINOR] = "/spi@fe300000/flash@0",
 	[BROM_BOOTSOURCE_SD] = "/mmc@fe2b0000",
 };

@@ -20,7 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 struct rockchip_timer_plat {
-	struct dtd_rockchip_rk3368_timer dtd;
+	struct dtd_rockchip_rk3288_timer dtd;
 };
 #endif
 
@@ -152,14 +152,12 @@ static const struct timer_ops rockchip_timer_ops = {
 };
 
 static const struct udevice_id rockchip_timer_ids[] = {
-	{ .compatible = "rockchip,rk3188-timer" },
 	{ .compatible = "rockchip,rk3288-timer" },
-	{ .compatible = "rockchip,rk3368-timer" },
 	{}
 };
 
-U_BOOT_DRIVER(rockchip_rk3368_timer) = {
-	.name	= "rockchip_rk3368_timer",
+U_BOOT_DRIVER(rockchip_rk3288_timer) = {
+	.name	= "rockchip_rk3288_timer",
 	.id	= UCLASS_TIMER,
 	.of_match = rockchip_timer_ids,
 	.probe = rockchip_timer_probe,

@@ -18,7 +18,7 @@
 
 &sdmmc {
 	bus-width = <4>;
-	bootph-all;
+	u-boot,dm-pre-reloc;
 	u-boot,spl-fifo-mode;
 	status = "okay";
 };

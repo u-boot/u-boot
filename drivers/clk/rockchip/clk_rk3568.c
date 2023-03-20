@@ -14,6 +14,7 @@
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/io.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3568-cru.h>
 
@@ -424,6 +425,9 @@ static ulong rk3568_pmuclk_set_rate(struct clk *clk, ulong rate)
 	case PCLK_PMU:
 		ret = rk3568_pmu_set_pmuclk(priv, rate);
 		break;
+	case CLK_PCIEPHY0_REF:
+	case CLK_PCIEPHY1_REF:
+		return 0;
 	default:
 		return -ENOENT;
 	}
@@ -2937,6 +2941,7 @@ static int rk3568_clk_bind(struct udevice *dev)
 						    glb_srst_fst);
 		priv->glb_srst_snd_value = offsetof(struct rk3568_cru,
 						    glb_srsr_snd);
+		dev_set_priv(sys_child, priv);
 	}
 
 #if CONFIG_IS_ENABLED(RESET_ROCKCHIP)

@@ -12,7 +12,7 @@
 	};
 
 	chosen {
-		u-boot,spl-boot-order = &sdhci, &sdmmc0;
+		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc0;
 	};
 
 	dmc: dmc {
@@ -32,11 +32,6 @@
 			reg = <0x0a 0x10>;
 		};
 	};
-};
-
-&combphy1 {
-	/delete-property/ assigned-clocks;
-	/delete-property/ assigned-clock-rates;
 };
 
 &cru {

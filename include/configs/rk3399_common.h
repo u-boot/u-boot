@@ -10,7 +10,6 @@
 
 #define CFG_IRAM_BASE		0xff8c0000
 
-/* FAT sd card locations. */
 #define CFG_SYS_SDRAM_BASE		0
 #define SDRAM_MAX_SIZE			0xf8000000
 

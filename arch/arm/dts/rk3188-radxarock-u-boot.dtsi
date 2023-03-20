@@ -52,7 +52,6 @@
 };
 
 &timer3 {
-	compatible = "rockchip,rk3368-timer", "rockchip,rk3288-timer";
 	clock-frequency = <24000000>;
 	u-boot,dm-spl;
 };
