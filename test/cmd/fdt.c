@@ -175,7 +175,7 @@ static int fdt_test_addr(struct unit_test_state *uts)
 	/* Set the working FDT */
 	set_working_fdt_addr(0);
 	ut_assert_nextline("Working FDT set to 0");
-	ut_assertok(run_commandf("fdt addr %08x", addr));
+	ut_assertok(run_commandf("fdt addr %08lx", addr));
 	ut_assert_nextline("Working FDT set to %lx", addr);
 	ut_asserteq(addr, map_to_sysmem(working_fdt));
 	ut_assertok(ut_check_console_end(uts));
@@ -185,7 +185,7 @@ static int fdt_test_addr(struct unit_test_state *uts)
 	/* Set the control FDT */
 	fdt_blob = gd->fdt_blob;
 	gd->fdt_blob = NULL;
-	ret = run_commandf("fdt addr -c %08x", addr);
+	ret = run_commandf("fdt addr -c %08lx", addr);
 	new_fdt = gd->fdt_blob;
 	gd->fdt_blob = fdt_blob;
 	ut_assertok(ret);
@@ -194,7 +194,7 @@ static int fdt_test_addr(struct unit_test_state *uts)
 
 	/* Test setting an invalid FDT */
 	fdt[0] = 123;
-	ut_asserteq(1, run_commandf("fdt addr %08x", addr));
+	ut_asserteq(1, run_commandf("fdt addr %08lx", addr));
 	ut_assert_nextline("libfdt fdt_check_header(): FDT_ERR_BADMAGIC");
 	ut_assertok(ut_check_console_end(uts));
 
@@ -223,19 +223,19 @@ static int fdt_test_addr_resize(struct unit_test_state *uts)
 
 	/* Test setting and resizing the working FDT to a larger size */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("fdt addr %08x %x", addr, newsize));
+	ut_assertok(run_commandf("fdt addr %08lx %x", addr, newsize));
 	ut_assert_nextline("Working FDT set to %lx", addr);
 	ut_assertok(ut_check_console_end(uts));
 
 	/* Try shrinking it */
-	ut_assertok(run_commandf("fdt addr %08x %x", addr, sizeof(fdt) / 4));
+	ut_assertok(run_commandf("fdt addr %08lx %zx", addr, sizeof(fdt) / 4));
 	ut_assert_nextline("Working FDT set to %lx", addr);
 	ut_assert_nextline("New length %d < existing length %d, ignoring",
 			   (int)sizeof(fdt) / 4, newsize);
 	ut_assertok(ut_check_console_end(uts));
 
 	/* ...quietly */
-	ut_assertok(run_commandf("fdt addr -q %08x %x", addr, sizeof(fdt) / 4));
+	ut_assertok(run_commandf("fdt addr -q %08lx %zx", addr, sizeof(fdt) / 4));
 	ut_assert_nextline("Working FDT set to %lx", addr);
 	ut_assertok(ut_check_console_end(uts));
 
@@ -265,13 +265,13 @@ static int fdt_test_move(struct unit_test_state *uts)
 
 	/* Test moving the working FDT to a new location */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("fdt move %08x %08x %x", addr, newaddr, ts));
+	ut_assertok(run_commandf("fdt move %08lx %08lx %x", addr, newaddr, ts));
 	ut_assert_nextline("Working FDT set to %lx", newaddr);
 	ut_assertok(ut_check_console_end(uts));
 
 	/* Compare the source and destination DTs */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("cmp.b %08x %08x %x", addr, newaddr, ts));
+	ut_assertok(run_commandf("cmp.b %08lx %08lx %x", addr, newaddr, ts));
 	ut_assert_nextline("Total of %d byte(s) were the same", ts);
 	ut_assertok(ut_check_console_end(uts));
 
@@ -1406,7 +1406,7 @@ static int fdt_test_apply(struct unit_test_state *uts)
 
 	/* Test simple DTO application */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("fdt apply 0x%08x", addro));
+	ut_assertok(run_commandf("fdt apply 0x%08lx", addro));
 	ut_assertok(run_commandf("fdt print /"));
 	ut_assert_nextline("/ {");
 	ut_assert_nextline("\tnewstring = \"newvalue\";");
@@ -1451,7 +1451,7 @@ static int fdt_test_apply(struct unit_test_state *uts)
 
 	/* Test complex DTO application */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("fdt apply 0x%08x", addro));
+	ut_assertok(run_commandf("fdt apply 0x%08lx", addro));
 	ut_assertok(run_commandf("fdt print /"));
 	ut_assert_nextline("/ {");
 	ut_assert_nextline("\tempty-property;");
@@ -1495,7 +1495,7 @@ static int fdt_test_apply(struct unit_test_state *uts)
 
 	/* Test complex DTO application */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("fdt apply 0x%08x", addro));
+	ut_assertok(run_commandf("fdt apply 0x%08lx", addro));
 	ut_assertok(run_commandf("fdt print /"));
 	ut_assert_nextline("/ {");
 	ut_assert_nextline("\tempty-property;");
