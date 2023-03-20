@@ -1,14 +1,13 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-U-Boot for Radxa Zero
-=====================
+U-Boot for Radxa Zero (S905Y2)
+==============================
 
-Radxa Zero is a small form factor SBC based on the Amlogic S905Y2
-chipset that ships in a number of RAM/eMMC configurations:
+Radxa Zero is a small form factor SBC based on the Amlogic S905Y2 chipset that ships in
+a number of RAM/eMMC configurations:
 
-Boards with 512MB/1GB LPDDR4 RAM have no eMMC storage and BCM43436
-wireless (2.4GHz b/g/n) while 2GB/4GB boards have 8/16/32/64/128GB
-eMMC storage and BCM4345 wireless (2.4/5GHz a/b/g/n/ac).
+512MB/1GB LPDDR4 RAM boards have no eMMC and BCM43436 wireless (2.4GHz b/g/n) while the
+2GB/4GB boards have 8/16/32/64/128GB eMMC and BCM4345 wireless (2.4/5GHz a/b/g/n/ac).
 
 - Amlogic S905Y2 quad-core Cortex-A53
 - Mali G31-MP2 GPU
@@ -18,11 +17,9 @@ eMMC storage and BCM4345 wireless (2.4/5GHz a/b/g/n/ac).
 - 1x micro SD Card slot
 - 40 Pin GPIO header
 
-Schematics are available on the manufacturer website:
+Schematics are available on the manufacturer website: https://dl.radxa.com/zero/docs/hw
 
-https://dl.radxa.com/zero/docs/hw/RADAX_ZERO_V13_SCH_20210309.pdf
-
-U-Boot compilation
+U-Boot Compilation
 ------------------
 
 .. code-block:: bash
@@ -31,14 +28,21 @@ U-Boot compilation
     $ make radxa-zero_defconfig
     $ make
 
-Image creation
---------------
+U-Boot Signing with Pre-Built FIP repo
+--------------------------------------
 
-For simplified usage, pleaser refer to :doc:`pre-generated-fip` with codename `radxa-zero`
+.. code-block:: bash
 
-Amlogic does not provide sources for the firmware and for tools needed
-to create the bootloader image, so it is necessary to obtain them from
-git trees published by the board vendor:
+    $ git clone https://github.com/LibreELEC/amlogic-boot-fip --depth=1
+    $ cd amlogic-boot-fip
+    $ mkdir my-output-dir
+    $ ./build-fip.sh radxa-zero /path/to/u-boot/u-boot.bin my-output-dir
+
+U-Boot Manual Signing
+---------------------
+
+Amlogic does not provide sources for the firmware and tools needed to create a bootloader
+image so it is necessary to obtain binaries from sources published by the board vendor:
 
 .. code-block:: bash
 
@@ -61,16 +65,16 @@ git trees published by the board vendor:
     $ cd ../fip/radxa-zero
     $ make
 
-This will generate:
+This will generate the signed U-Boot binaries:
 
 .. code-block:: bash
 
     $ u-boot.bin u-boot.bin.sd.bin u-boot.bin.usb.bl2 u-boot.bin.usb.tpl
 
-Then write the image to SD with:
+Then write U-Boot to SD or eMMC with:
 
 .. code-block:: bash
 
-    $ DEV=/dev/your_sd_device
+    $ DEV=/dev/boot_device
     $ dd if=fip/u-boot.bin.sd.bin of=$DEV conv=fsync,notrunc bs=512 skip=1 seek=1
-    $ dd if=fip/u-boot.bin.sd.bin of=$DEV conv=fsync,notrunc bs=1 count=444
+    $ dd if=fip/u-boot.bin.sd.bin of=$DEV conv=fsync,notrunc bs=1 count=440
