@@ -48,8 +48,8 @@ config APPLE_SPI_KEYB
 
 config BUTTON_KEYBOARD
 	bool "Buttons as keyboard"
-	depends on BUTTON_GPIO
 	depends on DM_KEYBOARD
+	select BUTTON_GPIO
 	help
 	  Enable support for mapping buttons to keycode events. Use linux,code button driver
 	  dt node to define button-event mapping.
