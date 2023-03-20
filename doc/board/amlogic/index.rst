@@ -85,6 +85,7 @@ Board Documentation
 .. toctree::
    :maxdepth: 1
 
+   bananapi-cm4io
    beelink-gtking
    beelink-gtkingpro
    jethub-j80
