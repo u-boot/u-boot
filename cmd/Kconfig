@@ -1562,6 +1562,11 @@ config CMD_WDT
 	help
 	  This provides commands to control the watchdog timer devices.
 
+config CMD_WRITE
+	bool "write - Write binary data to a partition"
+	help
+	  Provides low-level write access to a partition.
+
 config CMD_AXI
 	bool "axi"
 	depends on AXI
