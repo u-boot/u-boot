@@ -101,6 +101,7 @@ Board Documentation
    nanopi-k2
    odroid-c2
    odroid-c4
+   odroid-hc4
    odroid-n2
    odroid-n2l
    odroid-go-ultra
