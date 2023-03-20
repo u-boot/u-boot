@@ -1552,6 +1552,12 @@ config CMD_USB_MASS_STORAGE
 	  export a block device: U-Boot, the USB device, acts as a simple
 	  external hard drive plugged on the host USB port.
 
+config CMD_UMS_ABORT_KEYED
+	bool "UMS abort with any key"
+	depends on CMD_USB_MASS_STORAGE
+	help
+	  Allow interruption of usb mass storage run with any key pressed.
+
 config CMD_PVBLOCK
 	bool "Xen para-virtualized block device"
 	depends on XEN
