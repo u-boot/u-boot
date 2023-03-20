@@ -87,6 +87,7 @@ Board Documentation
 
    bananapi-cm4io
    bananapi-m5
+   beelink-gskingx
    beelink-gtking
    beelink-gtkingpro
    jethub-j80
