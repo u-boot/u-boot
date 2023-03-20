@@ -406,13 +406,13 @@ SCIF_FNS(SCSPTR,			0,  0, 0x24, 16)
 SCIF_FNS(SCLSR,				0,  0, 0x28, 16)
 #else
 
-SCIF_FNS(SCFDR,                      0x0e, 16, 0x1C, 16)
+SCIF_FNS(SCFDR,			     0x0e, 16, 0x1C, 16)
 #if defined(CONFIG_CPU_SH7722)
-SCIF_FNS(SCSPTR,                        0,  0, 0, 0)
+SCIF_FNS(SCSPTR,			0,  0, 0, 0)
 #else
-SCIF_FNS(SCSPTR,                        0,  0, 0x20, 16)
+SCIF_FNS(SCSPTR,			0,  0, 0x20, 16)
 #endif
-SCIF_FNS(SCLSR,                         0,  0, 0x24, 16)
+SCIF_FNS(SCLSR,				0,  0, 0x24, 16)
 #endif
 SCIF_FNS(DL,				0,  0, 0x0,  0) /* dummy */
 #endif

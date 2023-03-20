@@ -132,7 +132,7 @@ struct gen3_clk_priv {
 	struct cpg_mssr_info	*info;
 	struct clk		clk_extal;
 	struct clk		clk_extalr;
-	bool			sscg;
+	u32			cpg_mode;
 	const struct rcar_gen3_cpg_pll_config *cpg_pll_config;
 };
 

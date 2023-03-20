@@ -415,6 +415,14 @@ config DEBUG_UART_SEMIHOSTING
 	  start up driver model. The driver will be available until the real
 	  driver model serial is running.
 
+config DEBUG_UART_SCIF
+	bool "Renesas SCIF UART"
+	depends on SH || ARCH_RMOBILE
+	help
+	  Select this to enable a debug UART using the serial_sh driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver-model serial is running.
+
 config DEBUG_UART_SIFIVE
 	bool "SiFive UART"
 	depends on SIFIVE_SERIAL
