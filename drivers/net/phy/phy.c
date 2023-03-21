@@ -1160,7 +1160,11 @@ int phy_clear_bits_mmd(struct phy_device *phydev, int devad, u32 regnum, u16 val
 
 bool phy_interface_is_ncsi(void)
 {
+#ifdef CONFIG_PHY_NCSI
 	struct eth_pdata *pdata = dev_get_plat(eth_get_dev());
 
 	return pdata->phy_interface == PHY_INTERFACE_MODE_NCSI;
+#else
+	return 0;
+#endif
 }
