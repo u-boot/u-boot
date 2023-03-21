@@ -3391,7 +3391,9 @@ static int gop_port_init(struct mvpp2_port *port)
 		gop_gmac_reset(port, 0);
 		break;
 
-	case PHY_INTERFACE_MODE_SFI:
+	case PHY_INTERFACE_MODE_10GBASER:
+	case PHY_INTERFACE_MODE_5GBASER:
+	case PHY_INTERFACE_MODE_XAUI:
 		num_of_act_lanes = 2;
 		mac_num = 0;
 		/* configure PCS */
@@ -3442,7 +3444,9 @@ static void gop_port_enable(struct mvpp2_port *port, int enable)
 			mvpp2_port_disable(port);
 		break;
 
-	case PHY_INTERFACE_MODE_SFI:
+	case PHY_INTERFACE_MODE_10GBASER:
+	case PHY_INTERFACE_MODE_5GBASER:
+	case PHY_INTERFACE_MODE_XAUI:
 		gop_xlg_mac_port_enable(port, enable);
 
 		break;
