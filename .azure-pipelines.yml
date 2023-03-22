@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2019
   ubuntu_vm: ubuntu-22.04
   macos_vm: macOS-12
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20230126-17Feb2023
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20230308-21Mar2023
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -426,10 +426,11 @@ stages:
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r test/py/requirements.txt
+          pip install pytest-azurepipelines
           export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
           export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
           # "${var:+"-k $var"}" expands to "" if $var is empty, "-k $var" if not
-          ./test/py/test.py -ra --bd ${TEST_PY_BD} ${TEST_PY_ID} ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"} --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
+          ./test/py/test.py -ra -o cache_dir="$UBOOT_TRAVIS_BUILD_DIR"/.pytest_cache --bd ${TEST_PY_BD} ${TEST_PY_ID} ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"} --build-dir "$UBOOT_TRAVIS_BUILD_DIR" --report-dir "$UBOOT_TRAVIS_BUILD_DIR";
           # the below corresponds to .gitlab-ci.yml "after_script"
           rm -rf /tmp/uboot-test-hooks /tmp/venv
           EOF

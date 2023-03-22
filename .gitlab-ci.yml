@@ -1,8 +1,16 @@
 # SPDX-License-Identifier: GPL-2.0+
 
+variables:
+  DEFAULT_TAG: ""
+  MIRROR_DOCKER: docker.io
+
+default:
+  tags:
+    - ${DEFAULT_TAG}
+
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: trini/u-boot-gitlab-ci-runner:jammy-20230126-17Feb2023
+image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20230308-21Mar2023
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -30,6 +38,7 @@ stages:
       fi
 
   after_script:
+    - cp -v /tmp/${TEST_PY_BD}/*.{html,css} .
     - rm -rf /tmp/uboot-test-hooks /tmp/venv
   script:
     # If we've been asked to use clang only do one configuration.
@@ -76,10 +85,12 @@ stages:
       ./test/py/test.py -ra --bd ${TEST_PY_BD} ${TEST_PY_ID}
         ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
         --build-dir "$UBOOT_TRAVIS_BUILD_DIR"
-    # It seems that the files in /tmp go away, so copy out what we need
-    - if [[ "${TEST_PY_BD}" == "coreboot" ]]; then
-        cp -v /tmp/coreboot/*.{html,css} .;
-      fi
+  artifacts:
+    when: always
+    paths:
+      - "*.html"
+      - "*.css"
+    expire_in: 1 week
 
 build all 32bit ARM platforms:
   stage: world build
@@ -476,9 +487,4 @@ coreboot test.py:
     TEST_PY_BD: "coreboot"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
-  artifacts:
-    paths:
-      - "*.html"
-      - "*.css"
-    expire_in: 1 week
   <<: *buildman_and_testpy_dfn
