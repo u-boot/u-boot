@@ -175,7 +175,7 @@ static int do_mmcinfo(struct cmd_tbl *cmdtp, int flag, int argc,
 			curr_device = 0;
 		else {
 			puts("No MMC device available\n");
-			return 1;
+			return CMD_RET_FAILURE;
 		}
 	}
 
@@ -927,7 +927,7 @@ static int mmc_partconf_print(struct mmc *mmc, const char *varname)
 static int do_mmc_partconf(struct cmd_tbl *cmdtp, int flag,
 			   int argc, char *const argv[])
 {
-	int dev;
+	int ret, dev;
 	struct mmc *mmc;
 	u8 ack, part_num, access;
 
@@ -953,13 +953,17 @@ static int do_mmc_partconf(struct cmd_tbl *cmdtp, int flag,
 	access = dectoul(argv[4], NULL);
 
 	/* acknowledge to be sent during boot operation */
-	return mmc_set_part_conf(mmc, ack, part_num, access);
+	ret = mmc_set_part_conf(mmc, ack, part_num, access);
+	if (ret != 0)
+		return CMD_RET_FAILURE;
+
+	return CMD_RET_SUCCESS;
 }
 
 static int do_mmc_rst_func(struct cmd_tbl *cmdtp, int flag,
 			   int argc, char *const argv[])
 {
-	int dev;
+	int ret, dev;
 	struct mmc *mmc;
 	u8 enable;
 
@@ -988,7 +992,11 @@ static int do_mmc_rst_func(struct cmd_tbl *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
-	return mmc_set_rst_n_function(mmc, enable);
+	ret = mmc_set_rst_n_function(mmc, enable);
+	if (ret != 0)
+		return CMD_RET_FAILURE;
+
+	return CMD_RET_SUCCESS;
 }
 #endif
 static int do_mmc_setdsr(struct cmd_tbl *cmdtp, int flag,
