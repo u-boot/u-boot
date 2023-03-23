@@ -61,7 +61,9 @@
  *   SPI-NOR or parallel-NOR. Despite the type name it really can be stored on
  *   parallel-NOR and cannot be stored on other SPI devices, like SPI-NAND.
  *   So it should have been named NOR image, not SPI image. This image type
- *   supports XIP - Execute In Place directly from NOR memory.
+ *   supports XIP - Execute In Place directly from NOR memory. Destination
+ *   address of the XIP image is set to 0xFFFFFFFF and execute address to the
+ *   absolute offset in bytes from the beginning of NOR memory.
  *
  * - IBR_HDR_NAND_ID (0x8B):
  *   NAND image can be stored either at any 2 MB aligned offset in the first
