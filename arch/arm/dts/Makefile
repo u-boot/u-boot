@@ -204,6 +204,7 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-g12a-radxa-zero.dtb \
 	meson-g12a-sei510.dtb \
 	meson-g12a-u200.dtb \
+	meson-g12b-a311d-bananapi-m2s.dtb \
 	meson-g12b-a311d-khadas-vim3.dtb \
 	meson-g12b-bananapi-cm4-cm4io.dtb \
 	meson-g12b-gsking-x.dtb \
