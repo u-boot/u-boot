@@ -29,6 +29,10 @@ targets += $(patsubst $(obj)/%,%,$(LIB)) $(COBJS) $(LIBOBJS-y)
 LIBOBJS	:= $(addprefix $(obj)/,$(LIBOBJS-y))
 ELF	:= $(addprefix $(obj)/,$(ELF))
 
+# Disable LTO for these builds
+CFLAGS_REMOVE_hello_world.o := $(LTO_CFLAGS)
+CFLAGS_REMOVE_stubs.o := $(LTO_CFLAGS)
+
 # For PowerPC there's no need to compile standalone applications as a
 # relocatable executable.  The relocation data is not needed, and
 # also causes the entry point of the standalone application to be

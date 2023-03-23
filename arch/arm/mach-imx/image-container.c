@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <mmc.h>
 #include <spi_flash.h>
+#include <spl.h>
 #include <nand.h>
 #include <asm/mach-imx/image.h>
 #include <asm/arch/sys_proto.h>

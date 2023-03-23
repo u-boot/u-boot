@@ -208,7 +208,8 @@ int board_late_init(void)
 
 #ifdef CONFIG_SPL_MMC
 #define UBOOT_RAW_SECTOR_OFFSET 0x40
-unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
+unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+					   unsigned long raw_sector)
 {
 	u32 boot_dev = spl_boot_device();
 
