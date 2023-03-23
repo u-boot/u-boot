@@ -78,6 +78,17 @@
  *
  * - IBR_HDR_UART_ID (0x69):
  *   UART image can be transfered via xmodem protocol over first UART.
+ *   Unlike all other image types, header size stored in the image must be
+ *   multiply of the 128 bytes (for all other image types it can be any size)
+ *   and data part of the image does not have to contain 32-bit checksum
+ *   (all other image types must have valid 32-bit checksum in its data part).
+ *   And data size stored in the image is ignored. A38x BootROM determinates
+ *   size of the data part implicitly by the end of the xmodem transfer.
+ *   A38x BootROM has a bug which cause that BootROM loads data part of UART
+ *   image into RAM target address increased by one byte when source address
+ *   and header size stored in the image header are not same. So UART image
+ *   should be constructed in a way that there is no gap between header and
+ *   data part.
  *
  * - IBR_HDR_I2C_ID (0x4D):
  *   It is unknown for what kind of storage is used this image. It is not
@@ -2183,6 +2194,18 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 			hdr->headersz_msb = hdrsz >> 16;
 			hdr->headersz_lsb = cpu_to_le16(hdrsz & 0xffff);
 		}
+	}
+
+	/* Header size and source address must be same for UART type due to A38x BootROM bug */
+	if (hdrsz != le32_to_cpu(hdr->srcaddr)) {
+		if (is_secure) {
+			fprintf(stderr, "Cannot align image with secure header\n");
+			goto err;
+		}
+
+		kwboot_printv("Removing gap between image header and data\n");
+		memmove(img + hdrsz, img + le32_to_cpu(hdr->srcaddr), le32_to_cpu(hdr->blocksize));
+		hdr->srcaddr = cpu_to_le32(hdrsz);
 	}
 
 	hdr->checksum = kwboot_hdr_csum8(hdr) - csum;
