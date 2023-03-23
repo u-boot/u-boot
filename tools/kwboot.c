@@ -2079,6 +2079,8 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 			goto err;
 		}
 		kwboot_img_grow_data_right(img, size, sizeof(uint32_t));
+		/* Update the 32-bit data checksum */
+		*kwboot_img_csum32_ptr(img) = kwboot_img_csum32(img);
 	}
 
 	if (!kwboot_img_has_ddr_init(img) &&
