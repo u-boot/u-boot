@@ -1231,6 +1231,16 @@ static size_t image_headersz_v1(int *hasext)
 	if (count > 0)
 		headersz += sizeof(struct register_set_hdr_v1) + 8 * count + 4;
 
+	/*
+	 * For all images except UART, headersz stored in header itself should
+	 * contains header size without padding. For UART image BootROM rounds
+	 * down headersz to multiply of 128 bytes. Therefore align UART headersz
+	 * to multiply of 128 bytes to ensure that remaining UART header bytes
+	 * are not ignored by BootROM.
+	 */
+	if (image_get_bootfrom() == IBR_HDR_UART_ID)
+		headersz = ALIGN(headersz, 128);
+
 	return headersz;
 }
 
