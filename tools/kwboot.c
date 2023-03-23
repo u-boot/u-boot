@@ -2168,6 +2168,17 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 		kwboot_printv("Aligning image header to Xmodem block size\n");
 		kwboot_img_grow_hdr(img, size, grow);
+		hdrsz += grow;
+
+		/*
+		 * kwbimage v1 contains header size field and for UART type it
+		 * must be set to the aligned xmodem header size because BootROM
+		 * rounds header size down to xmodem block size.
+		 */
+		if (kwbimage_version(img) == 1) {
+			hdr->headersz_msb = hdrsz >> 16;
+			hdr->headersz_lsb = cpu_to_le16(hdrsz & 0xffff);
+		}
 	}
 
 	hdr->checksum = kwboot_hdr_csum8(hdr) - csum;
