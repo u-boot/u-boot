@@ -112,6 +112,7 @@ Board Documentation
    p212
    q200
    radxa-zero
+   radxa-zero2
    sei510
    sei610
    s400
