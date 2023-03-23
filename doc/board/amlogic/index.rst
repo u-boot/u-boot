@@ -118,4 +118,6 @@ Board Documentation
    s400
    u200
    wetek-core2
+   wetek-hub
+   wetek-play2
    w400
