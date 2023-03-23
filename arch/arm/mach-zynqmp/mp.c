@@ -247,8 +247,10 @@ void initialize_tcm(bool mode)
 		release_r5_reset(ZYNQMP_CORE_RPU0, LOCK);
 	} else {
 		set_r5_tcm_mode(SPLIT);
+		set_r5_halt_mode(ZYNQMP_CORE_RPU0, HALT, SPLIT);
 		set_r5_halt_mode(ZYNQMP_CORE_RPU1, HALT, SPLIT);
 		enable_clock_r5();
+		release_r5_reset(ZYNQMP_CORE_RPU0, SPLIT);
 		release_r5_reset(ZYNQMP_CORE_RPU1, SPLIT);
 	}
 }
