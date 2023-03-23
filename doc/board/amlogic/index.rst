@@ -87,6 +87,7 @@ Board Documentation
 
    bananapi-cm4io
    bananapi-m2pro
+   bananapi-m2s
    bananapi-m5
    beelink-gskingx
    beelink-gtking
