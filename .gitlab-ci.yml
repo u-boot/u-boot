@@ -355,6 +355,14 @@ qemu_arm64 test.py:
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
+qemu_m68k test.py:
+  variables:
+    TEST_PY_BD: "M5208EVBE"
+    TEST_PY_ID: "--id qemu"
+    TEST_PY_TEST_SPEC: "not sleep and not efi"
+    OVERRIDE: "-a CONFIG_M68K_QEMU=y -a ~CONFIG_MCFTMR"
+  <<: *buildman_and_testpy_dfn
+
 qemu_malta test.py:
   variables:
     TEST_PY_BD: "malta"
