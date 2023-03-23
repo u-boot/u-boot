@@ -200,5 +200,6 @@ source "board/sysam/stmark2/Kconfig"
 
 config MCFTMR
 	bool "Use DMA timer"
+	default y
 
 endmenu

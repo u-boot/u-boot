@@ -25,7 +25,7 @@ static volatile ulong timestamp = 0;
 #define CFG_SYS_WATCHDOG_FREQ (CONFIG_SYS_HZ / 2)
 #endif
 
-#if defined(CFG_MCFTMR)
+#if CONFIG_IS_ENABLED(MCFTMR)
 #ifndef CFG_SYS_UDELAY_BASE
 #	error	"uDelay base not defined!"
 #endif
@@ -111,7 +111,7 @@ ulong get_timer(ulong base)
 	return (timestamp - base);
 }
 
-#endif				/* CFG_MCFTMR */
+#endif				/* CONFIG_MCFTMR */
 
 /*
  * This function is derived from PowerPC code (read timebase as long long).
