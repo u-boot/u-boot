@@ -1455,6 +1455,8 @@ kwboot_xmodem(int tty, const void *_img, size_t size, int baudrate)
 	 * followed by the header. So align header size to xmodem block size.
 	 */
 	hdrsz += (KWBOOT_XM_BLKSZ - hdrsz % KWBOOT_XM_BLKSZ) % KWBOOT_XM_BLKSZ;
+	if (hdrsz > size)
+		hdrsz = size;
 
 	pnum = 1;
 
