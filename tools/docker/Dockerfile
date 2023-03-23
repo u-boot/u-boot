@@ -265,6 +265,17 @@ RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot
 RUN useradd -m -U uboot
 USER uboot:uboot
 
+# Populate the cache for pip to use. Get these via wget as the
+# COPY / ADD directives don't work as we need them to.
+RUN wget -O /tmp/pytest-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/test/py/requirements.txt
+RUN wget -O /tmp/sphinx-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/doc/sphinx/requirements.txt
+RUN virtualenv -p /usr/bin/python3 /tmp/venv && \
+	. /tmp/venv/bin/activate && \
+	pip install -r /tmp/pytest-requirements.txt \
+		-r /tmp/sphinx-requirements.txt && \
+	deactivate && \
+	rm -rf /tmp/venv /tmp/pytest-requirements.txt /tmp/sphinx-requirements.txt
+
 # Create the buildman config file
 RUN /bin/echo -e "[toolchain]\nroot = /usr" > ~/.buildman
 RUN /bin/echo -e "kernelorg = /opt/gcc-12.2.0-nolibc/*" >> ~/.buildman
