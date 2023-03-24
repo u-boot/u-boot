@@ -806,6 +806,15 @@ static int dw_mipi_dsi_init(struct udevice *dev,
 		return -EINVAL;
 	}
 
+	/*
+	 * The Rockchip based devices don't have px_clk, so simply move
+	 * on.
+	 */
+	if (IS_ENABLED(CONFIG_DISPLAY_ROCKCHIP_DW_MIPI)) {
+		dw_mipi_dsi_bridge_set(dsi, timings);
+		return 0;
+	}
+
 	ret = clk_get_by_name(device->dev, "px_clk", &clk);
 	if (ret) {
 		dev_err(device->dev, "peripheral clock get error %d\n", ret);

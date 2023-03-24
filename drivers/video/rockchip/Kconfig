@@ -69,4 +69,12 @@ config DISPLAY_ROCKCHIP_MIPI
 	  support. The mipi controller and dphy on rk3288& rk3399 support
 	  16,18, 24 bits per pixel with up to 2k resolution ratio.
 
+config DISPLAY_ROCKCHIP_DW_MIPI
+	bool "Rockchip Designware MIPI"
+	depends on VIDEO_ROCKCHIP
+	select VIDEO_DW_MIPI_DSI
+	help
+	  Select the Designware MIPI DSI controller in use on some Rockchip
+	  SOCs.
+
 endif
