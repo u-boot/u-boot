@@ -4,6 +4,14 @@
 
 menu "Rockchip PHY driver"
 
+config PHY_ROCKCHIP_INNO_DSIDPHY
+	bool "Rockchip INNO DSIDPHY Driver"
+	depends on ARCH_ROCKCHIP
+	select PHY
+	select MIPI_DPHY_HELPERS
+	help
+	  Support for Rockchip MIPI DPHY with Innosilicon IP block.
+
 config PHY_ROCKCHIP_INNO_USB2
 	bool "Rockchip INNO USB2PHY Driver"
 	depends on ARCH_ROCKCHIP
