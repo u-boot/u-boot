@@ -23,6 +23,16 @@ int bcm2835_power_on_module(u32 module);
 int bcm2835_get_mmc_clock(u32 clock_id);
 
 /**
+ * bcm2835_set_sdhost_clock() - determine if firmware controls sdhost cdiv
+ *
+ * @rate_hz: Input clock frequency
+ * @rate_1: Returns a clock frequency
+ * @rate_2: Returns a clock frequency
+ * @return 0 of OK, -EIO on error
+ */
+int bcm2835_set_sdhost_clock(u32 rate_hz, u32 *rate_1, u32 *rate_2);
+
+/**
  * bcm2835_get_video_size() - get the current display size
  *
  * @widthp: Returns the width in pixels

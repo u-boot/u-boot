@@ -158,7 +158,7 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 	},
 	[0x12] = {
 		"Zero 2 W",
-		DTB_DIR "bcm2837-rpi-zero-2.dtb",
+		DTB_DIR "bcm2837-rpi-zero-2-w.dtb",
 		false,
 	},
 	[0x13] = {
@@ -503,9 +503,60 @@ void *board_fdt_blob_setup(int *err)
 	return (void *)fw_dtb_pointer;
 }
 
+int copy_property(void *dst, void *src, char *path, char *property)
+{
+	int dst_offset, src_offset;
+	const fdt32_t *prop;
+	int len;
+
+	src_offset = fdt_path_offset(src, path);
+	dst_offset = fdt_path_offset(dst, path);
+
+	if (src_offset < 0 || dst_offset < 0)
+		return -1;
+
+	prop = fdt_getprop(src, src_offset, property, &len);
+	if (!prop)
+		return -1;
+
+	return fdt_setprop(dst, dst_offset, property, prop, len);
+}
+
+/* Copy tweaks from the firmware dtb to the loaded dtb */
+void  update_fdt_from_fw(void *fdt, void *fw_fdt)
+{
+	/* Using dtb from firmware directly; leave it alone */
+	if (fdt == fw_fdt)
+		return;
+
+	/* The firmware provides a more precie model; so copy that */
+	copy_property(fdt, fw_fdt, "/", "model");
+
+	/* memory reserve as suggested by the firmware */
+	copy_property(fdt, fw_fdt, "/", "memreserve");
+
+	/* Adjust dma-ranges for the SD card and PCI bus as they can depend on
+	 * the SoC revision
+	 */
+	copy_property(fdt, fw_fdt, "emmc2bus", "dma-ranges");
+	copy_property(fdt, fw_fdt, "pcie0", "dma-ranges");
+
+	/* Bootloader configuration template exposes as nvmem */
+	if (copy_property(fdt, fw_fdt, "blconfig", "reg") == 0)
+		copy_property(fdt, fw_fdt, "blconfig", "status");
+
+	/* kernel address randomisation seed as provided by the firmware */
+	copy_property(fdt, fw_fdt, "/chosen", "kaslr-seed");
+
+	/* address of the PHY device as provided by the firmware  */
+	copy_property(fdt, fw_fdt, "ethernet0/mdio@e14/ethernet-phy@1", "reg");
+}
+
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	int node;
+
+	update_fdt_from_fw(blob, (void *)fw_dtb_pointer);
 
 	node = fdt_node_offset_by_compatible(blob, -1, "simple-framebuffer");
 	if (node < 0)

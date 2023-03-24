@@ -224,6 +224,8 @@ struct bcm2835_mbox_tag_set_power_state {
 };
 
 #define BCM2835_MBOX_TAG_GET_CLOCK_RATE	0x00030002
+#define BCM2835_MBOX_TAG_GET_MAX_CLOCK_RATE	0x00030004
+#define BCM2835_MBOX_TAG_GET_MIN_CLOCK_RATE	0x00030007
 
 #define BCM2835_MBOX_CLOCK_ID_EMMC	1
 #define BCM2835_MBOX_CLOCK_ID_UART	2
@@ -246,6 +248,22 @@ struct bcm2835_mbox_tag_get_clock_rate {
 		struct {
 			u32 clock_id;
 			u32 rate_hz;
+		} resp;
+	} body;
+};
+
+#define BCM2835_MBOX_TAG_SET_SDHOST_CLOCK	0x00038042
+
+struct bcm2835_mbox_tag_set_sdhost_clock {
+	struct bcm2835_mbox_tag_hdr tag_hdr;
+	union {
+		struct {
+			u32 rate_hz;
+		} req;
+		struct {
+			u32 rate_hz;
+			u32 rate_1;
+			u32 rate_2;
 		} resp;
 	} body;
 };
