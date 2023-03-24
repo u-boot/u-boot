@@ -177,6 +177,16 @@ config TARGET_IMX8MP_DATA_MODUL_EDM_SBC
 	select IMX8M_LPDDR4
 	select SUPPORT_SPL
 
+config TARGET_IMX8MP_BEACON
+	bool "imx8mm Beacon Embedded devkit"
+	select BINMAN
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
+
 config TARGET_IMX8MP_DH_DHCOM_PDK2
 	bool "DH electronics DHCOM Premium Developer Kit (2) i.MX8M Plus"
 	select BINMAN
@@ -333,6 +343,7 @@ endchoice
 source "board/advantech/imx8mp_rsb3720a1/Kconfig"
 source "board/beacon/imx8mm/Kconfig"
 source "board/beacon/imx8mn/Kconfig"
+source "board/beacon/imx8mp/Kconfig"
 source "board/bsh/imx8mn_smm_s2/Kconfig"
 source "board/cloos/imx8mm_phg/Kconfig"
 source "board/compulab/imx8mm-cl-iot-gate/Kconfig"
