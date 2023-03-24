@@ -388,7 +388,7 @@ The device can be marked removeable with 'host bind -r'.
 A disk image can be created using the following commands::
 
    $> truncate -s 1200M ./disk.raw
-   $> echo -e "label: gpt\n,64M,U\n,,L" | /usr/sbin/sgdisk  ./disk.raw
+   $> /usr/sbin/sgdisk --new=1:0:+64M --typecode=1:EF00 --new=2:0:0 --typecode=2:8300 disk.raw
    $> lodev=`sudo losetup -P -f --show ./disk.raw`
    $> sudo mkfs.vfat -n EFI -v ${lodev}p1
    $> sudo mkfs.ext4 -L ROOT -v ${lodev}p2
