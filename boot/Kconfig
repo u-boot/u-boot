@@ -814,6 +814,7 @@ config SYS_BOOT_RAMDISK_HIGH
 	depends on CMD_BOOTM || CMD_BOOTI || CMD_BOOTZ
 	depends on !(NIOS2 || SANDBOX || SH || XTENSA)
 	def_bool y
+	select LMB
 	help
 	  Enable initrd_high functionality.  If defined then the initrd_high
 	  feature is enabled and the boot* ramdisk subcommand is enabled.
