@@ -52,10 +52,7 @@
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"partitions=" PARTS_DEFAULT \
 	ROCKCHIP_DEVICE_SETTINGS \
-	"boot_targets=" BOOT_TARGETS "\0" \
-	"altbootcmd=" \
-		"setenv boot_syslinux_conf extlinux/extlinux-rollback.conf;" \
-		"run distro_bootcmd\0"
+	"boot_targets=" BOOT_TARGETS "\0"
 
 #endif
 
