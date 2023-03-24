@@ -350,6 +350,32 @@ config PXE_UTILS
 	help
 	  Utilities for parsing PXE file formats.
 
+config BOOT_DEFAULTS
+	bool  # Common defaults for standard boot and distroboot
+	imply USE_BOOTCOMMAND
+	select CMD_ENV_EXISTS
+	select CMD_EXT2
+	select CMD_EXT4
+	select CMD_FAT
+	select CMD_FS_GENERIC
+	select CMD_PART if PARTITIONS
+	select CMD_DHCP if CMD_NET
+	select CMD_PING if CMD_NET
+	select CMD_PXE if CMD_NET
+	select SUPPORT_RAW_INITRD
+	select ENV_VARS_UBOOT_CONFIG
+	select CMD_BOOTI if ARM64
+	select CMD_BOOTZ if ARM && !ARM64
+	imply CMD_MII if NET
+	imply USB_STORAGE
+	imply EFI_PARTITION
+	imply ISO_PARTITION
+	help
+	  These are not required but are commonly needed to support a good
+	  selection of booting methods. Enable this to improve the capability
+	  of U-Boot to boot various images. Currently much functionality is
+	  tied to enabling the command that exercises it.
+
 config BOOTSTD
 	bool "Standard boot support"
 	default y
@@ -410,24 +436,7 @@ config BOOTSTD_DEFAULTS
 	bool "Select some common defaults for standard boot"
 	depends on BOOTSTD
 	imply USE_BOOTCOMMAND
-	# Bring in some defaults which are generally needed. Boards can drop
-	# these as needed to save code space. Bootstd does not generally require
-	# the commands themselves to be enabled, but this is how some of the
-	# functionality is controlled at present
-	imply CMD_EXT2
-	imply CMD_EXT4
-	imply CMD_FAT
-	imply CMD_FS_GENERIC
-	imply CMD_PART
-	imply CMD_DHCP if NET
-	imply CMD_MII if NET
-	imply CMD_PING if NET
-	imply CMD_PXE if NET
-	imply USB_STORAGE
-	imply SUPPORT_RAW_INITRD
-	imply ENV_VARS_UBOOT_CONFIG
-	imply EFI_PARTITION
-	imply ISO_PARTITION
+	select BOOT_DEFAULTS
 	help
 	  These are not required but are commonly needed to support a good
 	  selection of booting methods. Enable this to improve the capability
@@ -823,27 +832,12 @@ endmenu		# Boot images
 
 config DISTRO_DEFAULTS
 	bool "Select defaults suitable for booting general purpose Linux distributions"
+	select BOOT_DEFAULTS
 	select AUTO_COMPLETE
 	select CMDLINE_EDITING
-	select CMD_BOOTI if ARM64
-	select CMD_BOOTZ if ARM && !ARM64
-	select CMD_DHCP if CMD_NET
-	select CMD_ENV_EXISTS
-	select CMD_EXT2
-	select CMD_EXT4
-	select CMD_FAT
-	select CMD_FS_GENERIC
-	select CMD_PART if PARTITIONS
-	select CMD_PING if CMD_NET
-	select CMD_PXE if NET
 	select CMD_SYSBOOT
-	select ENV_VARS_UBOOT_CONFIG
 	select HUSH_PARSER
-	select SUPPORT_RAW_INITRD
 	select SYS_LONGHELP
-	imply CMD_MII if NET
-	imply USB_STORAGE
-	imply USE_BOOTCOMMAND
 	help
 	  Select this to enable various options and commands which are suitable
 	  for building u-boot for booting general purpose Linux distributions.
