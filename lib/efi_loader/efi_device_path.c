@@ -63,20 +63,6 @@ static bool is_sd(struct blk_desc *desc)
 }
 #endif
 
-static void *dp_alloc(size_t sz)
-{
-	void *buf;
-
-	if (efi_allocate_pool(EFI_BOOT_SERVICES_DATA, sz, &buf) !=
-	    EFI_SUCCESS) {
-		debug("EFI: ERROR: out of memory in %s\n", __func__);
-		return NULL;
-	}
-
-	memset(buf, 0, sz);
-	return buf;
-}
-
 /*
  * Iterate to next block in device-path, terminating (returning NULL)
  * at /End* node.
@@ -147,7 +133,7 @@ struct efi_device_path *efi_dp_shorten(struct efi_device_path *dp)
 		 * in practice fallback.efi just uses MEDIA:HARD_DRIVE
 		 * so not sure when we would see these other cases.
 		 */
-		if (EFI_DP_TYPE(dp, MESSAGING_DEVICE, MSG_USB_CLASS) ||
+		if (EFI_DP_TYPE(dp, MESSAGING_DEVICE, MSG_USB) ||
 		    EFI_DP_TYPE(dp, MEDIA_DEVICE, HARD_DRIVE_PATH) ||
 		    EFI_DP_TYPE(dp, MEDIA_DEVICE, FILE_PATH))
 			return dp;
@@ -302,7 +288,7 @@ struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
 	if (!dp)
 		return NULL;
 
-	ndp = dp_alloc(sz);
+	ndp = efi_alloc(sz);
 	if (!ndp)
 		return NULL;
 	memcpy(ndp, dp, sz);
@@ -346,7 +332,7 @@ efi_device_path *efi_dp_append_or_concatenate(const struct efi_device_path *dp1,
 		/* both dp1 and dp2 are non-null */
 		unsigned sz1 = efi_dp_size(dp1);
 		unsigned sz2 = efi_dp_size(dp2);
-		void *p = dp_alloc(sz1 + sz2 + end_size);
+		void *p = efi_alloc(sz1 + sz2 + end_size);
 		if (!p)
 			return NULL;
 		ret = p;
@@ -409,7 +395,7 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 		ret = efi_dp_dup(dp);
 	} else if (!dp) {
 		size_t sz = node->length;
-		void *p = dp_alloc(sz + sizeof(END));
+		void *p = efi_alloc(sz + sizeof(END));
 		if (!p)
 			return NULL;
 		memcpy(p, node, sz);
@@ -418,7 +404,7 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 	} else {
 		/* both dp and node are non-null */
 		size_t sz = efi_dp_size(dp);
-		void *p = dp_alloc(sz + node->length + sizeof(END));
+		void *p = efi_alloc(sz + node->length + sizeof(END));
 		if (!p)
 			return NULL;
 		memcpy(p, dp, sz);
@@ -439,7 +425,7 @@ struct efi_device_path *efi_dp_create_device_node(const u8 type,
 	if (length < sizeof(struct efi_device_path))
 		return NULL;
 
-	ret = dp_alloc(length);
+	ret = efi_alloc(length);
 	if (!ret)
 		return ret;
 	ret->type = type;
@@ -461,7 +447,7 @@ struct efi_device_path *efi_dp_append_instance(
 		return efi_dp_dup(dpi);
 	sz = efi_dp_size(dp);
 	szi = efi_dp_instance_size(dpi);
-	p = dp_alloc(sz + szi + 2 * sizeof(END));
+	p = efi_alloc(sz + szi + 2 * sizeof(END));
 	if (!p)
 		return NULL;
 	ret = p;
@@ -486,7 +472,7 @@ struct efi_device_path *efi_dp_get_next_instance(struct efi_device_path **dp,
 	if (!dp || !*dp)
 		return NULL;
 	sz = efi_dp_instance_size(*dp);
-	p = dp_alloc(sz + sizeof(END));
+	p = efi_alloc(sz + sizeof(END));
 	if (!p)
 		return NULL;
 	memcpy(p, *dp, sz + sizeof(END));
@@ -564,6 +550,11 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
 			return dp_size(dev->parent)
 				+ sizeof(struct efi_device_path_vendor) + 1;
 #endif
+#ifdef CONFIG_USB
+		case UCLASS_MASS_STORAGE:
+			return dp_size(dev->parent)
+				+ sizeof(struct efi_device_path_controller);
+#endif
 #ifdef CONFIG_VIRTIO_BLK
 		case UCLASS_VIRTIO:
 			 /*
@@ -585,7 +576,7 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
 	case UCLASS_MASS_STORAGE:
 	case UCLASS_USB_HUB:
 		return dp_size(dev->parent) +
-			sizeof(struct efi_device_path_usb_class);
+			sizeof(struct efi_device_path_usb);
 	default:
 		/* just skip over unknown classes: */
 		return dp_size(dev->parent);
@@ -742,6 +733,19 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 			return &dp[1];
 			}
 #endif
+#if defined(CONFIG_USB)
+		case UCLASS_MASS_STORAGE: {
+			struct blk_desc *desc = desc = dev_get_uclass_plat(dev);
+			struct efi_device_path_controller *dp =
+				dp_fill(buf, dev->parent);
+
+			dp->dp.type	= DEVICE_PATH_TYPE_HARDWARE_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_CONTROLLER;
+			dp->dp.length	= sizeof(*dp);
+			dp->controller_number = desc->lun;
+			return &dp[1];
+		}
+#endif
 		default:
 			debug("%s(%u) %s: unhandled parent class: %s (%u)\n",
 			      __FILE__, __LINE__, __func__,
@@ -767,19 +771,22 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #endif
 	case UCLASS_MASS_STORAGE:
 	case UCLASS_USB_HUB: {
-		struct efi_device_path_usb_class *udp =
-			dp_fill(buf, dev->parent);
-		struct usb_device *udev = dev_get_parent_priv(dev);
-		struct usb_device_descriptor *desc = &udev->descriptor;
+		struct efi_device_path_usb *udp = dp_fill(buf, dev->parent);
 
+		switch (device_get_uclass_id(dev->parent)) {
+		case UCLASS_USB_HUB: {
+			struct usb_device *udev = dev_get_parent_priv(dev);
+
+			udp->parent_port_number = udev->portnr;
+			break;
+		}
+		default:
+			udp->parent_port_number = 0;
+		}
 		udp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
-		udp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS;
+		udp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_USB;
 		udp->dp.length   = sizeof(*udp);
-		udp->vendor_id   = desc->idVendor;
-		udp->product_id  = desc->idProduct;
-		udp->device_class    = desc->bDeviceClass;
-		udp->device_subclass = desc->bDeviceSubClass;
-		udp->device_protocol = desc->bDeviceProtocol;
+		udp->usb_interface = 0;
 
 		return &udp[1];
 	}
@@ -906,7 +913,7 @@ struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part)
 {
 	void *buf, *start;
 
-	start = buf = dp_alloc(dp_part_size(desc, part) + sizeof(END));
+	start = buf = efi_alloc(dp_part_size(desc, part) + sizeof(END));
 	if (!buf)
 		return NULL;
 
@@ -933,7 +940,7 @@ struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part)
 		dpsize = sizeof(struct efi_device_path_cdrom_path);
 	else
 		dpsize = sizeof(struct efi_device_path_hard_drive_path);
-	buf = dp_alloc(dpsize);
+	buf = efi_alloc(dpsize);
 
 	if (buf)
 		dp_part_node(buf, desc, part);
@@ -1007,7 +1014,7 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 
 	dpsize += fpsize;
 
-	start = buf = dp_alloc(dpsize + sizeof(END));
+	start = buf = efi_alloc(dpsize + sizeof(END));
 	if (!buf)
 		return NULL;
 
@@ -1035,7 +1042,7 @@ struct efi_device_path *efi_dp_from_uart(void)
 	struct efi_device_path_uart *uart;
 	size_t dpsize = sizeof(ROOT) + sizeof(*uart) + sizeof(END);
 
-	buf = dp_alloc(dpsize);
+	buf = efi_alloc(dpsize);
 	if (!buf)
 		return NULL;
 	pos = buf;
@@ -1061,7 +1068,7 @@ struct efi_device_path *efi_dp_from_eth(void)
 
 	dpsize += dp_size(eth_get_dev());
 
-	start = buf = dp_alloc(dpsize + sizeof(END));
+	start = buf = efi_alloc(dpsize + sizeof(END));
 	if (!buf)
 		return NULL;
 
@@ -1081,7 +1088,7 @@ struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
 	struct efi_device_path_memory *mdp;
 	void *buf, *start;
 
-	start = buf = dp_alloc(sizeof(*mdp) + sizeof(END));
+	start = buf = efi_alloc(sizeof(*mdp) + sizeof(END));
 	if (!buf)
 		return NULL;
 

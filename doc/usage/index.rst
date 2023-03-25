@@ -43,6 +43,7 @@ Shell commands
    cmd/dm
    cmd/ebtupdate
    cmd/echo
+   cmd/efi
    cmd/eficonfig
    cmd/env
    cmd/event
