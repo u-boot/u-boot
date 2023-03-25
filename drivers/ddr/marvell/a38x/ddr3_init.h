@@ -9,7 +9,6 @@
 #include "ddr_ml_wrapper.h"
 #include "mv_ddr_plat.h"
 
-#include "seq_exec.h"
 #include "ddr3_logging_def.h"
 #include "ddr3_training_hw_algo.h"
 #include "ddr3_training_ip.h"

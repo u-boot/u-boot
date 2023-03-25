@@ -61,7 +61,9 @@
  *   SPI-NOR or parallel-NOR. Despite the type name it really can be stored on
  *   parallel-NOR and cannot be stored on other SPI devices, like SPI-NAND.
  *   So it should have been named NOR image, not SPI image. This image type
- *   supports XIP - Execute In Place directly from NOR memory.
+ *   supports XIP - Execute In Place directly from NOR memory. Destination
+ *   address of the XIP image is set to 0xFFFFFFFF and execute address to the
+ *   absolute offset in bytes from the beginning of NOR memory.
  *
  * - IBR_HDR_NAND_ID (0x8B):
  *   NAND image can be stored either at any 2 MB aligned offset in the first
@@ -78,6 +80,17 @@
  *
  * - IBR_HDR_UART_ID (0x69):
  *   UART image can be transfered via xmodem protocol over first UART.
+ *   Unlike all other image types, header size stored in the image must be
+ *   multiply of the 128 bytes (for all other image types it can be any size)
+ *   and data part of the image does not have to contain 32-bit checksum
+ *   (all other image types must have valid 32-bit checksum in its data part).
+ *   And data size stored in the image is ignored. A38x BootROM determinates
+ *   size of the data part implicitly by the end of the xmodem transfer.
+ *   A38x BootROM has a bug which cause that BootROM loads data part of UART
+ *   image into RAM target address increased by one byte when source address
+ *   and header size stored in the image header are not same. So UART image
+ *   should be constructed in a way that there is no gap between header and
+ *   data part.
  *
  * - IBR_HDR_I2C_ID (0x4D):
  *   It is unknown for what kind of storage is used this image. It is not
@@ -1455,6 +1468,8 @@ kwboot_xmodem(int tty, const void *_img, size_t size, int baudrate)
 	 * followed by the header. So align header size to xmodem block size.
 	 */
 	hdrsz += (KWBOOT_XM_BLKSZ - hdrsz % KWBOOT_XM_BLKSZ) % KWBOOT_XM_BLKSZ;
+	if (hdrsz > size)
+		hdrsz = size;
 
 	pnum = 1;
 
@@ -2079,6 +2094,8 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 			goto err;
 		}
 		kwboot_img_grow_data_right(img, size, sizeof(uint32_t));
+		/* Update the 32-bit data checksum */
+		*kwboot_img_csum32_ptr(img) = kwboot_img_csum32(img);
 	}
 
 	if (!kwboot_img_has_ddr_init(img) &&
@@ -2168,6 +2185,29 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 		kwboot_printv("Aligning image header to Xmodem block size\n");
 		kwboot_img_grow_hdr(img, size, grow);
+		hdrsz += grow;
+
+		/*
+		 * kwbimage v1 contains header size field and for UART type it
+		 * must be set to the aligned xmodem header size because BootROM
+		 * rounds header size down to xmodem block size.
+		 */
+		if (kwbimage_version(img) == 1) {
+			hdr->headersz_msb = hdrsz >> 16;
+			hdr->headersz_lsb = cpu_to_le16(hdrsz & 0xffff);
+		}
+	}
+
+	/* Header size and source address must be same for UART type due to A38x BootROM bug */
+	if (hdrsz != le32_to_cpu(hdr->srcaddr)) {
+		if (is_secure) {
+			fprintf(stderr, "Cannot align image with secure header\n");
+			goto err;
+		}
+
+		kwboot_printv("Removing gap between image header and data\n");
+		memmove(img + hdrsz, img + le32_to_cpu(hdr->srcaddr), le32_to_cpu(hdr->blocksize));
+		hdr->srcaddr = cpu_to_le32(hdrsz);
 	}
 
 	hdr->checksum = kwboot_hdr_csum8(hdr) - csum;
