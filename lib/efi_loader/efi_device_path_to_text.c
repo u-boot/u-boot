@@ -77,6 +77,13 @@ static char *dp_hardware(char *s, struct efi_device_path *dp)
 		s += sprintf(s, ")");
 		break;
 	}
+	case DEVICE_PATH_SUB_TYPE_CONTROLLER: {
+		struct efi_device_path_controller *cdp =
+			(struct efi_device_path_controller *)dp;
+
+		s += sprintf(s, "Ctrl(0x%0x)", cdp->controller_number);
+		break;
+	}
 	default:
 		s = dp_unknown(s, dp);
 		break;
