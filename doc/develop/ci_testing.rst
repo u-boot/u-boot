@@ -50,6 +50,12 @@ runners you are able to provide.  While it is intended to be able to run this
 pipeline on the free public instances provided at https://gitlab.com/ a problem
 with our squashfs tests currently prevents this.
 
+To push to Gitlab without triggering a pipeline use:
+
+.. code-block:: bash
+
+    git push -o ci.skip
+
 Docker container
 ----------------
 
