@@ -37,6 +37,7 @@ config AHCI_PCI
 	bool "Support for PCI-based AHCI controller"
 	depends on PCI
 	depends on DM_SCSI
+	depends on SCSI_AHCI
 	help
 	  Enables support for the PCI-based AHCI controller.
 
