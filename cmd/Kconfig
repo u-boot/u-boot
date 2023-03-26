@@ -1446,7 +1446,8 @@ config CMD_SATA
 
 config CMD_SCSI
 	bool "scsi - Access to SCSI devices"
-	default y if SCSI
+	depends on SCSI
+	default y
 	help
 	  This provides a 'scsi' command which provides access to SCSI (Small
 	  Computer System Interface) devices. The command provides a way to
