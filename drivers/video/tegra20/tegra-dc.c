@@ -380,18 +380,6 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ret = fdtdec_decode_display_timing(blob, rgb, 0, &priv->timing);
-	if (ret) {
-		debug("%s: Cannot read display timing for '%s' (ret=%d)\n",
-		      __func__, dev->name, ret);
-		return -EINVAL;
-	}
-	timing = &priv->timing;
-	priv->width = timing->hactive.typ;
-	priv->height = timing->vactive.typ;
-	priv->pixel_clock = timing->pixelclock.typ;
-	priv->log2_bpp = VIDEO_BPP16;
-
 	/*
 	 * Sadly the panel phandle is in an rgb subnode so we cannot use
 	 * uclass_get_device_by_phandle().
@@ -401,6 +389,7 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 		debug("%s: Cannot find panel information\n", __func__);
 		return -EINVAL;
 	}
+
 	ret = uclass_get_device_by_of_offset(UCLASS_PANEL, panel_node,
 					     &priv->panel);
 	if (ret) {
@@ -408,6 +397,22 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 		      dev->name, ret);
 		return ret;
 	}
+
+	ret = panel_get_display_timing(priv->panel, &priv->timing);
+	if (ret) {
+		ret = fdtdec_decode_display_timing(blob, rgb, 0, &priv->timing);
+		if (ret) {
+			debug("%s: Cannot read display timing for '%s' (ret=%d)\n",
+			      __func__, dev->name, ret);
+			return -EINVAL;
+		}
+	}
+
+	timing = &priv->timing;
+	priv->width = timing->hactive.typ;
+	priv->height = timing->vactive.typ;
+	priv->pixel_clock = timing->pixelclock.typ;
+	priv->log2_bpp = VIDEO_BPP16;
 
 	return 0;
 }
