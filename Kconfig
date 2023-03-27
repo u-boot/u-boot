@@ -191,33 +191,6 @@ config XEN
 
 	  [1] - https://xenproject.org/
 
-config DISTRO_DEFAULTS
-	bool "Select defaults suitable for booting general purpose Linux distributions"
-	select AUTO_COMPLETE
-	select CMDLINE_EDITING
-	select CMD_BOOTI if ARM64
-	select CMD_BOOTZ if ARM && !ARM64
-	select CMD_DHCP if CMD_NET
-	select CMD_ENV_EXISTS
-	select CMD_EXT2
-	select CMD_EXT4
-	select CMD_FAT
-	select CMD_FS_GENERIC
-	select CMD_PART if PARTITIONS
-	select CMD_PING if CMD_NET
-	select CMD_PXE if NET
-	select CMD_SYSBOOT
-	select ENV_VARS_UBOOT_CONFIG
-	select HUSH_PARSER
-	select SUPPORT_RAW_INITRD
-	select SYS_LONGHELP
-	imply CMD_MII if NET
-	imply USB_STORAGE
-	imply USE_BOOTCOMMAND
-	help
-	  Select this to enable various options and commands which are suitable
-	  for building u-boot for booting general purpose Linux distributions.
-
 config ENV_VARS_UBOOT_CONFIG
 	bool "Add arch, board, vendor and soc variables to default environment"
 	help
