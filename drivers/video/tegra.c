@@ -40,8 +40,8 @@ struct tegra_lcd_priv {
 
 enum {
 	/* Maximum LCD size we support */
-	LCD_MAX_WIDTH		= 1366,
-	LCD_MAX_HEIGHT		= 768,
+	LCD_MAX_WIDTH		= 1920,
+	LCD_MAX_HEIGHT		= 1200,
 	LCD_MAX_LOG2_BPP	= VIDEO_BPP16,
 };
 
@@ -307,14 +307,19 @@ static int tegra_lcd_probe(struct udevice *dev)
 	int ret;
 
 	/* Initialize the Tegra display controller */
+#ifdef CONFIG_TEGRA20
 	funcmux_select(PERIPH_ID_DISP1, FUNCMUX_DEFAULT);
+#endif
+
 	if (tegra_display_probe(blob, priv, (void *)plat->base)) {
 		printf("%s: Failed to probe display driver\n", __func__);
 		return -1;
 	}
 
+#ifdef CONFIG_TEGRA20
 	pinmux_set_func(PMUX_PINGRP_GPU, PMUX_FUNC_PWM);
 	pinmux_tristate_disable(PMUX_PINGRP_GPU);
+#endif
 
 	ret = panel_enable_backlight(priv->panel);
 	if (ret) {
@@ -414,6 +419,7 @@ static const struct video_ops tegra_lcd_ops = {
 
 static const struct udevice_id tegra_lcd_ids[] = {
 	{ .compatible = "nvidia,tegra20-dc" },
+	{ .compatible = "nvidia,tegra30-dc" },
 	{ }
 };
 
