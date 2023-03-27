@@ -417,6 +417,14 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 		return ret;
 	}
 
+	if (!strcmp(priv->panel->name, TEGRA_DSI_A) ||
+	    !strcmp(priv->panel->name, TEGRA_DSI_B)) {
+		struct tegra_dc_plat *dc_plat = dev_get_plat(priv->panel);
+
+		dc_plat->dev = dev;
+		dc_plat->dc = priv->dc;
+	}
+
 	ret = panel_get_display_timing(priv->panel, &priv->timing);
 	if (ret) {
 		ret = fdtdec_decode_display_timing(blob, rgb, 0, &priv->timing);
