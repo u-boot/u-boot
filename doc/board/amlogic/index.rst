@@ -90,6 +90,7 @@ Board Documentation
    bananapi-m2s
    bananapi-m5
    beelink-gskingx
+   beelink-gt1-ultimate
    beelink-gtking
    beelink-gtkingpro
    jethub-j80
