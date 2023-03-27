@@ -54,9 +54,9 @@ Offset   Description         Controlling config
 000000   descriptor.bin      Hard-coded to 0 in ifdtool
 001000   me.bin              Set by the descriptor
 500000   <spare>
+5f0000   MRC cache           CONFIG_ENABLE_MRC_CACHE
+600000   u-boot-dtb.bin      CONFIG_TEXT_BASE
 6ef000   Environment         CONFIG_ENV_OFFSET
-6f0000   MRC cache           CONFIG_ENABLE_MRC_CACHE
-700000   u-boot-dtb.bin      CONFIG_TEXT_BASE
 7b0000   vga.bin             CONFIG_VGA_BIOS_ADDR
 7c0000   fsp.bin             CONFIG_FSP_ADDR
 7f8000   <spare>             (depends on size of fsp.bin)
@@ -68,3 +68,14 @@ Overall ROM image size is controlled by CONFIG_ROM_SIZE.
 Note that the debug version of the FSP is bigger in size. If this version
 is used, CONFIG_FSP_ADDR needs to be configured to 0xfffb0000 instead of
 the default value 0xfffc0000.
+
+If you want to change CONFIG_TEXT_BASE from the current value of ffe00000
+you need to check a few other things. CONFIG_SYS_MONITOR_BASE should
+automatically update to be the same as CONFIG_TEXT_BASE but
+CONFIG_SYS_MONITOR_LEN may need to be adjusted too. It must cover the space
+from the start of U-Boot to the end of the RAM, since the 16-bit boot needs to
+be able to jump to U-Boot. See the end of arch/x86/lib/fsp1/fsp_car.S which
+has these values.
+
+Also check the MRC cache address in the devicetree ("rw-mrc-cache"). It must
+not overlap with U-Boot.
