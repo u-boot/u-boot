@@ -2196,6 +2196,12 @@ ulong flash_get_size(phys_addr_t base, int banknum)
 		/* multiply the size by the number of chips */
 		info->size *= size_ratio;
 		max_size = cfi_flash_bank_size(banknum);
+#ifdef CONFIG_CFI_FLASH
+		if (max_size)
+			max_size = min((unsigned long)info->addr_size, max_size);
+		else
+			max_size = info->addr_size;
+#endif
 		if (max_size && info->size > max_size) {
 			debug("[truncated from %ldMiB]", info->size >> 20);
 			info->size = max_size;
@@ -2492,15 +2498,17 @@ unsigned long flash_init(void)
 static int cfi_flash_probe(struct udevice *dev)
 {
 	fdt_addr_t addr;
+	fdt_size_t size;
 	int idx;
 
 	for (idx = 0; idx < CFI_MAX_FLASH_BANKS; idx++) {
-		addr = dev_read_addr_index(dev, idx);
+		addr = dev_read_addr_size_index(dev, idx, &size);
 		if (addr == FDT_ADDR_T_NONE)
 			break;
 
 		flash_info[cfi_flash_num_flash_banks].dev = dev;
 		flash_info[cfi_flash_num_flash_banks].base = addr;
+		flash_info[cfi_flash_num_flash_banks].addr_size = size;
 		cfi_flash_num_flash_banks++;
 	}
 	gd->bd->bi_flashstart = flash_info[0].base;
