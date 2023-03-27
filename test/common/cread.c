@@ -46,3 +46,48 @@ static int cli_ch_test(struct unit_test_state *uts)
 	return 0;
 }
 COMMON_TEST(cli_ch_test, 0);
+
+static int cread_test(struct unit_test_state *uts)
+{
+	int duration;
+	ulong start;
+	char buf[10];
+
+	/*
+	 * useful for debugging
+	 *
+	 * gd->flags &= ~GD_FLG_RECORD;
+	 * print_buffer(0, buf, 1, 7, 0);
+	 */
+
+	console_record_reset_enable();
+
+	/* simple input */
+	*buf = '\0';
+	ut_asserteq(4, console_in_puts("abc\n"));
+	ut_asserteq(3, cli_readline_into_buffer("-> ", buf, 1));
+	ut_asserteq_str("abc", buf);
+
+	/* try an escape sequence (cursor left after the 'c') */
+	*buf = '\0';
+	ut_asserteq(8, console_in_puts("abc\e[Dx\n"));
+	ut_asserteq(4, cli_readline_into_buffer("-> ", buf, 1));
+	ut_asserteq_str("abxc", buf);
+
+	/* invalid escape sequence */
+	*buf = '\0';
+	ut_asserteq(8, console_in_puts("abc\e[Xx\n"));
+	ut_asserteq(7, cli_readline_into_buffer("-> ", buf, 1));
+	ut_asserteq_str("abc\e[Xx", buf);
+
+	/* check timeout, should be between 1000 and 1050ms */
+	start = get_timer(0);
+	*buf = '\0';
+	ut_asserteq(-2, cli_readline_into_buffer("-> ", buf, 1));
+	duration = get_timer(start) - 1000;
+	ut_assert(duration >= 0);
+	ut_assert(duration < 50);
+
+	return 0;
+}
+COMMON_TEST(cread_test, 0);
