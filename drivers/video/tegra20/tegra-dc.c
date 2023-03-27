@@ -37,6 +37,7 @@ struct tegra_lcd_priv {
 	fdt_addr_t frame_buffer;	/* Address of frame buffer */
 	unsigned pixel_clock;		/* Pixel clock in Hz */
 	int dc_clk[2];			/* Contains clk and its parent */
+	bool rotation;			/* 180 degree panel turn */
 };
 
 enum {
@@ -46,8 +47,10 @@ enum {
 	LCD_MAX_LOG2_BPP	= VIDEO_BPP16,
 };
 
-static void update_window(struct dc_ctlr *dc, struct disp_ctl_win *win)
+static void update_window(struct tegra_lcd_priv *priv,
+			  struct disp_ctl_win *win)
 {
+	struct dc_ctlr *dc = priv->dc;
 	unsigned h_dda, v_dda;
 	unsigned long val;
 
@@ -88,6 +91,10 @@ static void update_window(struct dc_ctlr *dc, struct disp_ctl_win *win)
 	val = WIN_ENABLE;
 	if (win->bpp < 24)
 		val |= COLOR_EXPAND;
+
+	if (priv->rotation)
+		val |= H_DIRECTION | V_DIRECTION;
+
 	writel(val, &dc->win.win_opt);
 
 	writel((unsigned long)win->phys_addr, &dc->winbuf.start_addr);
@@ -224,8 +231,14 @@ static void rgb_enable(struct dc_com_reg *com)
 static int setup_window(struct disp_ctl_win *win,
 			struct tegra_lcd_priv *priv)
 {
-	win->x = 0;
-	win->y = 0;
+	if (priv->rotation) {
+		win->x = priv->width * 2;
+		win->y = priv->height;
+	} else {
+		win->x = 0;
+		win->y = 0;
+	}
+
 	win->w = priv->width;
 	win->h = priv->height;
 	win->out_x = 0;
@@ -298,7 +311,7 @@ static int tegra_display_probe(const void *blob, struct tegra_lcd_priv *priv,
 	if (setup_window(&window, priv))
 		return -1;
 
-	update_window(priv->dc, &window);
+	update_window(priv, &window);
 
 	return 0;
 }
@@ -369,6 +382,8 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 		      __func__, dev->name, ret);
 		return -EINVAL;
 	}
+
+	priv->rotation = dev_read_bool(dev, "nvidia,180-rotation");
 
 	rgb = fdt_subnode_offset(blob, node, "rgb");
 	if (rgb < 0) {
