@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <backlight.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <log.h>
@@ -342,6 +343,12 @@ static int tegra_lcd_probe(struct udevice *dev)
 	ret = panel_enable_backlight(priv->panel);
 	if (ret) {
 		debug("%s: Cannot enable backlight, ret=%d\n", __func__, ret);
+		return ret;
+	}
+
+	ret = panel_set_backlight(priv->panel, BACKLIGHT_DEFAULT);
+	if (ret) {
+		debug("%s: Cannot set backlight to default, ret=%d\n", __func__, ret);
 		return ret;
 	}
 
