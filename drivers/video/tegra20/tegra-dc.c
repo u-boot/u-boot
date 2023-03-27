@@ -33,7 +33,7 @@ struct tegra_lcd_priv {
 	enum video_log2_bpp log2_bpp;	/* colour depth */
 	struct display_timing timing;
 	struct udevice *panel;
-	struct disp_ctlr *disp;		/* Display controller to use */
+	struct dc_ctlr *dc;		/* Display controller regmap */
 	fdt_addr_t frame_buffer;	/* Address of frame buffer */
 	unsigned pixel_clock;		/* Pixel clock in Hz */
 	int dc_clk[2];			/* Contains clk and its parent */
@@ -269,12 +269,9 @@ static int tegra_display_probe(const void *blob, struct tegra_lcd_priv *priv,
 			       void *default_lcd_base)
 {
 	struct disp_ctl_win window;
-	struct dc_ctlr *dc;
 	unsigned long rate = clock_get_rate(priv->dc_clk[1]);
 
 	priv->frame_buffer = (u32)default_lcd_base;
-
-	dc = (struct dc_ctlr *)priv->disp;
 
 	/*
 	 * We halve the rate if DISP1 paret is PLLD, since actual parent
@@ -291,17 +288,17 @@ static int tegra_display_probe(const void *blob, struct tegra_lcd_priv *priv,
 	clock_start_periph_pll(priv->dc_clk[0], priv->dc_clk[1],
 			       rate);
 
-	basic_init(&dc->cmd);
-	basic_init_timer(&dc->disp);
-	rgb_enable(&dc->com);
+	basic_init(&priv->dc->cmd);
+	basic_init_timer(&priv->dc->disp);
+	rgb_enable(&priv->dc->com);
 
 	if (priv->pixel_clock)
-		update_display_mode(&dc->disp, priv);
+		update_display_mode(&priv->dc->disp, priv);
 
 	if (setup_window(&window, priv))
 		return -1;
 
-	update_window(dc, &window);
+	update_window(priv->dc, &window);
 
 	return 0;
 }
@@ -360,8 +357,8 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 	int rgb;
 	int ret;
 
-	priv->disp = dev_read_addr_ptr(dev);
-	if (!priv->disp) {
+	priv->dc = (struct dc_ctlr *)dev_read_addr_ptr(dev);
+	if (!priv->dc) {
 		debug("%s: No display controller address\n", __func__);
 		return -EINVAL;
 	}
