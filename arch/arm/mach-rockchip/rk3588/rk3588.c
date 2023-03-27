@@ -8,6 +8,7 @@
 #include <spl.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
+#include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/ioc_rk3588.h>
 
@@ -35,6 +36,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BUS_IOC_GPIO2D_IOMUX_SEL_L	0x58
 #define BUS_IOC_GPIO2D_IOMUX_SEL_H	0x5c
 #define BUS_IOC_GPIO3A_IOMUX_SEL_L	0x60
+
+const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_EMMC] = "/mmc@fe2e0000",
+	[BROM_BOOTSOURCE_SPINOR] = "/spi@fe2b0000/flash@0",
+	[BROM_BOOTSOURCE_SD] = "/mmc@fe2c0000",
+};
 
 static struct mm_region rk3588_mem_map[] = {
 	{

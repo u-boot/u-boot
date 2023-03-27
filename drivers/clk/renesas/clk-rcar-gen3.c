@@ -479,8 +479,9 @@ static int gen3_reset_assert(struct reset_ctl *reset_ctl)
 {
 	struct udevice *cdev = (struct udevice *)dev_get_driver_data(reset_ctl->dev);
 	struct gen3_clk_priv *priv = dev_get_priv(cdev);
-	unsigned int reg = reset_ctl->id / 32;
-	unsigned int bit = reset_ctl->id % 32;
+	unsigned int packed_id = MOD_CLK_PACK(reset_ctl->id);
+	unsigned int reg = packed_id / 32;
+	unsigned int bit = packed_id % 32;
 	u32 bitmask = BIT(bit);
 
 	writel(bitmask, priv->base + priv->info->reset_regs[reg]);
@@ -492,8 +493,9 @@ static int gen3_reset_deassert(struct reset_ctl *reset_ctl)
 {
 	struct udevice *cdev = (struct udevice *)dev_get_driver_data(reset_ctl->dev);
 	struct gen3_clk_priv *priv = dev_get_priv(cdev);
-	unsigned int reg = reset_ctl->id / 32;
-	unsigned int bit = reset_ctl->id % 32;
+	unsigned int packed_id = MOD_CLK_PACK(reset_ctl->id);
+	unsigned int reg = packed_id / 32;
+	unsigned int bit = packed_id % 32;
 	u32 bitmask = BIT(bit);
 
 	writel(bitmask, priv->base + priv->info->reset_clear_regs[reg]);

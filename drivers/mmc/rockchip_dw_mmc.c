@@ -52,7 +52,7 @@ static uint rockchip_dwmmc_get_mmc_clk(struct dwmci_host *host, uint freq)
 	ret = clk_set_rate(&priv->clk, freq);
 	if (ret < 0) {
 		debug("%s: err=%d\n", __func__, ret);
-		return ret;
+		return 0;
 	}
 
 	return freq;

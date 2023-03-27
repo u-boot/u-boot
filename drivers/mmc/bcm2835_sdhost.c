@@ -181,6 +181,7 @@ struct bcm2835_host {
 	struct udevice		*dev;
 	struct mmc		*mmc;
 	struct bcm2835_plat	*plat;
+	unsigned int		firmware_sets_cdiv:1;
 };
 
 static void bcm2835_dumpregs(struct bcm2835_host *host)
@@ -233,7 +234,7 @@ static void bcm2835_reset_internal(struct bcm2835_host *host)
 	msleep(20);
 	host->clock = 0;
 	writel(host->hcfg, host->ioaddr + SDHCFG);
-	writel(host->cdiv, host->ioaddr + SDCDIV);
+	writel(SDCDIV_MAX_CDIV, host->ioaddr + SDCDIV);
 }
 
 static int bcm2835_wait_transfer_complete(struct bcm2835_host *host)
@@ -598,6 +599,7 @@ static int bcm2835_transmit(struct bcm2835_host *host)
 static void bcm2835_set_clock(struct bcm2835_host *host, unsigned int clock)
 {
 	int div;
+	u32 clock_rate[2] = { 0 };
 
 	/* The SDCDIV register has 11 bits, and holds (div - 2).  But
 	 * in data mode the max is 50MHz wihout a minimum, and only
@@ -620,35 +622,40 @@ static void bcm2835_set_clock(struct bcm2835_host *host, unsigned int clock)
 	 * clock divisor at all times.
 	 */
 
-	if (clock < 100000) {
-		/* Can't stop the clock, but make it as slow as possible
-		 * to show willing
-		 */
-		host->cdiv = SDCDIV_MAX_CDIV;
+	if (host->firmware_sets_cdiv) {
+		bcm2835_set_sdhost_clock(clock, &clock_rate[0], &clock_rate[1]);
+		clock = max(clock_rate[0], clock_rate[1]);
+	} else {
+		if (clock < 100000) {
+			/* Can't stop the clock, but make it as slow as possible
+			* to show willing
+			*/
+			host->cdiv = SDCDIV_MAX_CDIV;
+			writel(host->cdiv, host->ioaddr + SDCDIV);
+			return;
+		}
+
+		div = host->max_clk / clock;
+		if (div < 2)
+			div = 2;
+		if ((host->max_clk / div) > clock)
+			div++;
+		div -= 2;
+
+		if (div > SDCDIV_MAX_CDIV)
+			div = SDCDIV_MAX_CDIV;
+
+		clock = host->max_clk / (div + 2);
+		host->cdiv = div;
 		writel(host->cdiv, host->ioaddr + SDCDIV);
-		return;
 	}
 
-	div = host->max_clk / clock;
-	if (div < 2)
-		div = 2;
-	if ((host->max_clk / div) > clock)
-		div++;
-	div -= 2;
-
-	if (div > SDCDIV_MAX_CDIV)
-		div = SDCDIV_MAX_CDIV;
-
-	clock = host->max_clk / (div + 2);
 	host->mmc->clock = clock;
 
 	/* Calibrate some delays */
 
 	host->ns_per_fifo_word = (1000000000 / clock) *
 		((host->mmc->card_caps & MMC_MODE_4BIT) ? 8 : 32);
-
-	host->cdiv = div;
-	writel(host->cdiv, host->ioaddr + SDCDIV);
 
 	/* Set the timeout to 500ms */
 	writel(host->mmc->clock / 2, host->ioaddr + SDTOUT);
@@ -759,6 +766,7 @@ static int bcm2835_probe(struct udevice *dev)
 	struct bcm2835_host *host = dev_get_priv(dev);
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	u32 clock_rate[2] = { ~0 };
 
 	host->dev = dev;
 	host->mmc = mmc;
@@ -775,6 +783,9 @@ static int bcm2835_probe(struct udevice *dev)
 		return -ENOMEM;
 
 	host->max_clk = bcm2835_get_mmc_clock(BCM2835_MBOX_CLOCK_ID_CORE);
+
+	bcm2835_set_sdhost_clock(0, &clock_rate[0], &clock_rate[1]);
+	host->firmware_sets_cdiv = (clock_rate[0] != ~0);
 
 	bcm2835_add_host(host);
 

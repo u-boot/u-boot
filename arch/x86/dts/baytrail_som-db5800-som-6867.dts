@@ -206,7 +206,7 @@
 					memory-map = <0xff800000 0x00800000>;
 					rw-mrc-cache {
 						label = "rw-mrc-cache";
-						reg = <0x006f0000 0x00010000>;
+						reg = <0x005f0000 0x00010000>;
 					};
 				};
 			};

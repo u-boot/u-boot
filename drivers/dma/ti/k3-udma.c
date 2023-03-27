@@ -2150,7 +2150,7 @@ static int pktdma_tisci_rx_channel_config(struct udma_chan *uc)
 		flow_req.rx_psinfo_present = 1;
 	else
 		flow_req.rx_psinfo_present = 0;
-	flow_req.rx_error_handling = 1;
+	flow_req.rx_error_handling = 0;
 
 	ret = tisci_ops->rx_flow_cfg(tisci_rm->tisci, &flow_req);
 

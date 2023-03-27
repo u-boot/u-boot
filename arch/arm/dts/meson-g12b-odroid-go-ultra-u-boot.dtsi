@@ -14,3 +14,11 @@
 &usb3_pcie_phy {
 	/delete-property/ phy-supply;
 };
+
+&vcc_2v3 {
+	regulator-init-microvolt = <2400000>;
+};
+
+&vdd_ee {
+	regulator-init-microvolt = <875000>;
+};
