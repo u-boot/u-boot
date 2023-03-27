@@ -48,6 +48,15 @@ static int simple_panel_set_backlight(struct udevice *dev, int percent)
 	return 0;
 }
 
+static int simple_panel_get_display_timing(struct udevice *dev,
+					   struct display_timing *timings)
+{
+	const void *blob = gd->fdt_blob;
+
+	return fdtdec_decode_display_timing(blob, dev_of_offset(dev),
+					    0, timings);
+}
+
 static int simple_panel_of_to_plat(struct udevice *dev)
 {
 	struct simple_panel_priv *priv = dev_get_priv(dev);
@@ -102,6 +111,7 @@ static int simple_panel_probe(struct udevice *dev)
 static const struct panel_ops simple_panel_ops = {
 	.enable_backlight	= simple_panel_enable_backlight,
 	.set_backlight		= simple_panel_set_backlight,
+	.get_display_timing	= simple_panel_get_display_timing,
 };
 
 static const struct udevice_id simple_panel_ids[] = {
