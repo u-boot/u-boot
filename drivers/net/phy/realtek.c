@@ -384,17 +384,6 @@ static int rtl8211x_startup(struct phy_device *phydev)
 	return rtl8211x_parse_status(phydev);
 }
 
-static int rtl8211e_startup(struct phy_device *phydev)
-{
-	int ret;
-
-	ret = genphy_update_link(phydev);
-	if (ret)
-		return ret;
-
-	return genphy_parse_link(phydev);
-}
-
 static int rtl8211f_startup(struct phy_device *phydev)
 {
 	int ret;
@@ -428,7 +417,7 @@ U_BOOT_PHY_DRIVER(rtl8211e) = {
 	.features = PHY_GBIT_FEATURES,
 	.probe = &rtl8211e_probe,
 	.config = &rtl8211e_config,
-	.startup = &rtl8211e_startup,
+	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
 };
 
@@ -465,6 +454,6 @@ U_BOOT_PHY_DRIVER(rtl8201f) = {
 	.features = PHY_BASIC_FEATURES,
 	.probe = &rtl8210f_probe,
 	.config = &rtl8201f_config,
-	.startup = &rtl8211e_startup,
+	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
 };
