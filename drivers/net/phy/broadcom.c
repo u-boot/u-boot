@@ -162,18 +162,6 @@ static int bcm5482_config(struct phy_device *phydev)
 	return 0;
 }
 
-static int bcm_cygnus_startup(struct phy_device *phydev)
-{
-	int ret;
-
-	/* Read the Status (2x to make sure link is right) */
-	ret = genphy_update_link(phydev);
-	if (ret)
-		return ret;
-
-	return genphy_parse_link(phydev);
-}
-
 static void bcm_cygnus_afe(struct phy_device *phydev)
 {
 	/* ensures smdspclk is enabled */
@@ -359,6 +347,6 @@ U_BOOT_PHY_DRIVER(bcm_cygnus) = {
 	.mask = 0xfffff0,
 	.features = PHY_GBIT_FEATURES,
 	.config = &bcm_cygnus_config,
-	.startup = &bcm_cygnus_startup,
+	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
 };
