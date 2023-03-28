@@ -22,6 +22,51 @@
 #include <mmc.h>
 #include <remoteproc.h>
 
+struct fwl_data cbass_hc_cfg0_fwls[] = {
+	{ "PCIE0_CFG", 2577, 7 },
+	{ "EMMC8SS0_CFG", 2579, 4 },
+	{ "USB3SS0_CORE", 2580, 4 },
+	{ "USB3SS1_CORE", 2581, 1 },
+}, cbass_hc2_fwls[] = {
+	{ "PCIE0", 2547, 24 },
+	{ "HC2_WIZ16B8M4CT2", 2552, 1 },
+}, cbass_rc_cfg0_fwls[] = {
+	{ "EMMCSD4SS0_CFG", 2400, 4 },
+}, infra_cbass0_fwls[] = {
+	{ "PSC0", 5, 1 },
+	{ "PLL_CTRL0", 6, 1 },
+	{ "PLL_MMR0", 8, 26 },
+	{ "CTRL_MMR0", 9, 16 },
+	{ "GPIO0", 16, 1 },
+}, mcu_cbass0_fwls[] = {
+	{ "MCU_R5FSS0_CORE0", 1024, 4 },
+	{ "MCU_R5FSS0_CORE0_CFG", 1025, 3 },
+	{ "MCU_R5FSS0_CORE1", 1028, 4 },
+	{ "MCU_R5FSS0_CORE1_CFG", 1029, 1 },
+	{ "MCU_FSS0_CFG", 1032, 12 },
+	{ "MCU_FSS0_S1", 1033, 8 },
+	{ "MCU_FSS0_S0", 1036, 8 },
+	{ "MCU_PSROM49152X32", 1048, 1 },
+	{ "MCU_MSRAM128KX64", 1050, 8 },
+	{ "MCU_MSRAM128KX64_CFG", 1051, 1 },
+	{ "MCU_TIMER0", 1056, 1 },
+	{ "MCU_TIMER9", 1065, 1 },
+	{ "MCU_USART0", 1120, 1 },
+	{ "MCU_I2C0", 1152, 1 },
+	{ "MCU_CTRL_MMR0", 1200, 8 },
+	{ "MCU_PLL_MMR0", 1201, 3 },
+	{ "MCU_CPSW0", 1220, 2 },
+}, wkup_cbass0_fwls[] = {
+	{ "WKUP_PSC0", 129, 1 },
+	{ "WKUP_PLL_CTRL0", 130, 1 },
+	{ "WKUP_CTRL_MMR0", 131, 16 },
+	{ "WKUP_GPIO0", 132, 1 },
+	{ "WKUP_I2C0", 144, 1 },
+	{ "WKUP_USART0", 160, 1 },
+}, navss_cbass0_fwls[] = {
+	{ "NACSS_VIRT0", 6253, 1 },
+};
+
 static void ctrl_mmr_unlock(void)
 {
 	/* Unlock all WKUP_CTRL_MMR0 module registers */
@@ -150,6 +195,14 @@ void k3_spl_init(void)
 			if (ret)
 				panic("Failed to initialize clk-k3!\n");
 		}
+
+		remove_fwl_configs(cbass_hc_cfg0_fwls, ARRAY_SIZE(cbass_hc_cfg0_fwls));
+		remove_fwl_configs(cbass_hc2_fwls, ARRAY_SIZE(cbass_hc2_fwls));
+		remove_fwl_configs(cbass_rc_cfg0_fwls, ARRAY_SIZE(cbass_rc_cfg0_fwls));
+		remove_fwl_configs(infra_cbass0_fwls, ARRAY_SIZE(infra_cbass0_fwls));
+		remove_fwl_configs(mcu_cbass0_fwls, ARRAY_SIZE(mcu_cbass0_fwls));
+		remove_fwl_configs(wkup_cbass0_fwls, ARRAY_SIZE(wkup_cbass0_fwls));
+		remove_fwl_configs(navss_cbass0_fwls, ARRAY_SIZE(navss_cbass0_fwls));
 	}
 
 	/* Output System Firmware version info */
