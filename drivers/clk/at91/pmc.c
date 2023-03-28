@@ -120,3 +120,45 @@ int at91_clk_mux_index_to_val(const u32 *table, u32 num_parents, u32 index)
 
 	return table[index];
 }
+
+int at91_clk_setup(const struct pmc_clk_setup *setup, int size)
+{
+	struct clk *c, *parent;
+	int i, ret;
+
+	if (!size)
+		return 0;
+
+	if (!setup)
+		return -EINVAL;
+
+	for (i = 0; i < size; i++) {
+		ret = clk_get_by_id(setup[i].cid, &c);
+		if (ret)
+			return ret;
+
+		if (setup[i].pid) {
+			ret = clk_get_by_id(setup[i].pid, &parent);
+			if (ret)
+				return ret;
+
+			ret = clk_set_parent(c, parent);
+			if (ret)
+				return ret;
+
+			if (setup[i].prate) {
+				ret = clk_set_rate(parent, setup[i].prate);
+				if (ret < 0)
+					return ret;
+			}
+		}
+
+		if (setup[i].rate) {
+			ret = clk_set_rate(c, setup[i].rate);
+			if (ret < 0)
+				return ret;
+		}
+	}
+
+	return 0;
+}
