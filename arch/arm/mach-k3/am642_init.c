@@ -183,8 +183,6 @@ void board_init_f(ulong dummy)
 
 	preloader_console_init();
 
-	do_dt_magic();
-
 #if defined(CONFIG_K3_LOAD_SYSFW)
 	/*
 	 * Process pinctrl for serial3 a.k.a. MAIN UART1 module and continue
@@ -210,6 +208,8 @@ void board_init_f(ulong dummy)
 
 	/* Output System Firmware version info */
 	k3_sysfw_print_ver();
+
+	do_dt_magic();
 
 #if defined(CONFIG_ESM_K3)
 	/* Probe/configure ESM0 */
