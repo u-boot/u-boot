@@ -100,27 +100,27 @@ u32 get_boot_device(void)
 	val = readl(CFG_SAR_REG);	/* SAR - Sample At Reset */
 	boot_device = (val & BOOT_DEV_SEL_MASK) >> BOOT_DEV_SEL_OFFS;
 	debug("SAR_REG=0x%08x boot_device=0x%x\n", val, boot_device);
-	switch (boot_device) {
 #ifdef BOOT_FROM_NAND
-	case BOOT_FROM_NAND:
+	if (BOOT_FROM_NAND(boot_device))
 		return BOOT_DEVICE_NAND;
 #endif
 #ifdef BOOT_FROM_MMC
-	case BOOT_FROM_MMC:
-	case BOOT_FROM_MMC_ALT:
+	if (BOOT_FROM_MMC(boot_device))
 		return BOOT_DEVICE_MMC1;
 #endif
-	case BOOT_FROM_UART:
+#ifdef BOOT_FROM_UART
+	if (BOOT_FROM_UART(boot_device))
 		return BOOT_DEVICE_UART;
+#endif
 #ifdef BOOT_FROM_SATA
-	case BOOT_FROM_SATA:
+	if (BOOT_FROM_SATA(boot_device))
 		return BOOT_DEVICE_SATA;
 #endif
-	case BOOT_FROM_SPI:
+#ifdef BOOT_FROM_SPI
+	if (BOOT_FROM_SPI(boot_device))
 		return BOOT_DEVICE_SPI;
-	default:
-		return BOOT_DEVICE_BOOTROM;
-	};
+#endif
+	return BOOT_DEVICE_BOOTROM;
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)

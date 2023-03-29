@@ -143,8 +143,8 @@
 #define BOOT_DEV_SEL_OFFS	3
 #define BOOT_DEV_SEL_MASK	(0x3f << BOOT_DEV_SEL_OFFS)
 
-#define BOOT_FROM_UART		0x30
-#define BOOT_FROM_SPI		0x38
+#define BOOT_FROM_UART(x)	(x == 0x30)
+#define BOOT_FROM_SPI(x)	(x == 0x38)
 
 #define CFG_SYS_TCLK		((readl(CFG_SAR_REG) & BIT(20)) ? \
 				 200000000 : 166000000)
@@ -160,12 +160,11 @@
 #define BOOT_DEV_SEL_OFFS	4
 #define BOOT_DEV_SEL_MASK	(0x3f << BOOT_DEV_SEL_OFFS)
 
-#define BOOT_FROM_NAND		0x0A
-#define BOOT_FROM_SATA		0x2A
-#define BOOT_FROM_UART		0x28
-#define BOOT_FROM_SPI		0x32
-#define BOOT_FROM_MMC		0x30
-#define BOOT_FROM_MMC_ALT	0x31
+#define BOOT_FROM_NAND(x)	(x == 0x0A)
+#define BOOT_FROM_SATA(x)	(x == 0x2A)
+#define BOOT_FROM_UART(x)	(x == 0x28)
+#define BOOT_FROM_SPI(x)	(x == 0x32)
+#define BOOT_FROM_MMC(x)	(x == 0x30 || x == 0x31)
 
 #define CFG_SYS_TCLK		((readl(CFG_SAR_REG) & BIT(15)) ? \
 				 200000000 : 250000000)
@@ -182,9 +181,9 @@
 #define BOOT_DEV_SEL_OFFS	11
 #define BOOT_DEV_SEL_MASK	(0x7 << BOOT_DEV_SEL_OFFS)
 
-#define BOOT_FROM_NAND		0x1
-#define BOOT_FROM_UART		0x2
-#define BOOT_FROM_SPI		0x3
+#define BOOT_FROM_NAND(x)	(x == 0x1)
+#define BOOT_FROM_UART(x)	(x == 0x2)
+#define BOOT_FROM_SPI(x)	(x == 0x3)
 
 #define CFG_SYS_TCLK		200000000	/* 200MHz */
 #elif defined(CONFIG_ARMADA_XP)
@@ -204,8 +203,8 @@
 #define BOOT_DEV_SEL_OFFS	5
 #define BOOT_DEV_SEL_MASK	(0xf << BOOT_DEV_SEL_OFFS)
 
-#define BOOT_FROM_UART		0x2
-#define BOOT_FROM_SPI		0x3
+#define BOOT_FROM_UART(x)	(x == 0x2)
+#define BOOT_FROM_SPI(x)	(x == 0x3)
 
 #define CFG_SYS_TCLK		250000000	/* 250MHz */
 #endif
