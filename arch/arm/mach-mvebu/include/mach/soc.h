@@ -213,8 +213,12 @@
 #define BOOT_DEV_SEL_OFFS	5
 #define BOOT_DEV_SEL_MASK	(0xf << BOOT_DEV_SEL_OFFS)
 
+#define BOOT_FROM_NOR(x)	(x == 0x0)
+#define BOOT_FROM_NAND(x)	(x == 0x1)
 #define BOOT_FROM_UART(x)	(x == 0x2)
 #define BOOT_FROM_SPI(x)	(x == 0x3)
+#define BOOT_FROM_PEX(x)	(x == 0x4)
+#define BOOT_FROM_SATA(x)	(x == 0x5)
 
 #define CFG_SYS_TCLK		250000000	/* 250MHz */
 #endif
