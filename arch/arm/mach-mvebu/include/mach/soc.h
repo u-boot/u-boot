@@ -160,11 +160,14 @@
 #define BOOT_DEV_SEL_OFFS	4
 #define BOOT_DEV_SEL_MASK	(0x3f << BOOT_DEV_SEL_OFFS)
 
-#define BOOT_FROM_NAND(x)	(x == 0x0A)
-#define BOOT_FROM_SATA(x)	(x == 0x2A)
-#define BOOT_FROM_UART(x)	(x == 0x28)
-#define BOOT_FROM_SPI(x)	(x == 0x32)
+#define BOOT_FROM_NOR(x)	((x >= 0x00 && x <= 0x07) || x == 0x16 || x == 0x17 || x == 0x2E || x == 0x2F || (x >= 0x3A && x <= 0x3C))
+#define BOOT_FROM_NAND(x)	((x >= 0x08 && x <= 0x15) || (x >= 0x18 && x <= 0x25))
+#define BOOT_FROM_SPINAND(x)	(x == 0x26 || x == 0x27)
+#define BOOT_FROM_UART(x)	(x == 0x28 || x == 0x29)
+#define BOOT_FROM_SATA(x)	(x == 0x2A || x == 0x2B)
+#define BOOT_FROM_PEX(x)	(x == 0x2C || x == 0x2D)
 #define BOOT_FROM_MMC(x)	(x == 0x30 || x == 0x31)
+#define BOOT_FROM_SPI(x)	(x >= 0x32 && x <= 0x39)
 
 #define CFG_SYS_TCLK		((readl(CFG_SAR_REG) & BIT(15)) ? \
 				 200000000 : 250000000)
