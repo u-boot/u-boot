@@ -1991,6 +1991,39 @@ _inject_baudrate_change_code(void *img, size_t *size, int for_data,
 	}
 }
 
+static int
+kwboot_img_guess_sata_blksz(void *img, uint32_t blkoff, uint32_t data_size, size_t total_size)
+{
+	uint32_t sum, *ptr, *end;
+	int blksz;
+
+	/*
+	 * Try all possible sector sizes which are power of two,
+	 * at least 512 bytes and up to the 32 kB.
+	 */
+	for (blksz = 512; blksz < 0x10000; blksz *= 2) {
+		if (blkoff * blksz > total_size ||
+		    blkoff * blksz + data_size > total_size ||
+		    data_size % 4)
+			break;
+
+		/*
+		 * Calculate data checksum and if it matches
+		 * then tried blksz should be correct.
+		 */
+		ptr = img + blkoff * blksz;
+		end = (void *)ptr + data_size - 4;
+		for (sum = 0; ptr < end; ptr++)
+			sum += *ptr;
+
+		if (sum == *end)
+			return blksz;
+	}
+
+	/* Fallback to 512 bytes */
+	return 512;
+}
+
 static const char *
 kwboot_img_type(uint8_t blockid)
 {
@@ -2049,7 +2082,7 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 	switch (hdr->blockid) {
 	case IBR_HDR_SATA_ID:
-		hdr->srcaddr = cpu_to_le32(srcaddr * 512);
+		hdr->srcaddr = cpu_to_le32(srcaddr * kwboot_img_guess_sata_blksz(img, srcaddr, le32_to_cpu(hdr->blocksize), *size));
 		break;
 
 	case IBR_HDR_PEX_ID:
