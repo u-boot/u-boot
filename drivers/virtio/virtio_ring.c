@@ -15,6 +15,17 @@
 #include <virtio_ring.h>
 #include <linux/bug.h>
 #include <linux/compat.h>
+#include <linux/kernel.h>
+
+static void *virtio_alloc_pages(struct udevice *vdev, u32 npages)
+{
+	return memalign(PAGE_SIZE, npages * PAGE_SIZE);
+}
+
+static void virtio_free_pages(struct udevice *vdev, void *ptr, u32 npages)
+{
+	free(ptr);
+}
 
 static unsigned int virtqueue_attach_desc(struct virtqueue *vq, unsigned int i,
 					  struct virtio_sg *sg, u16 flags)
@@ -271,6 +282,8 @@ struct virtqueue *vring_create_virtqueue(unsigned int index, unsigned int num,
 					 unsigned int vring_align,
 					 struct udevice *udev)
 {
+	struct virtio_dev_priv *uc_priv = dev_get_uclass_priv(udev);
+	struct udevice *vdev = uc_priv->vdev;
 	struct virtqueue *vq;
 	void *queue = NULL;
 	struct vring vring;
@@ -283,7 +296,9 @@ struct virtqueue *vring_create_virtqueue(unsigned int index, unsigned int num,
 
 	/* TODO: allocate each queue chunk individually */
 	for (; num && vring_size(num, vring_align) > PAGE_SIZE; num /= 2) {
-		queue = memalign(PAGE_SIZE, vring_size(num, vring_align));
+		size_t sz = vring_size(num, vring_align);
+
+		queue = virtio_alloc_pages(vdev, DIV_ROUND_UP(sz, PAGE_SIZE));
 		if (queue)
 			break;
 	}
@@ -293,7 +308,7 @@ struct virtqueue *vring_create_virtqueue(unsigned int index, unsigned int num,
 
 	if (!queue) {
 		/* Try to get a single page. You are my only hope! */
-		queue = memalign(PAGE_SIZE, vring_size(num, vring_align));
+		queue = virtio_alloc_pages(vdev, 1);
 	}
 	if (!queue)
 		return NULL;
@@ -303,7 +318,7 @@ struct virtqueue *vring_create_virtqueue(unsigned int index, unsigned int num,
 
 	vq = __vring_new_virtqueue(index, vring, udev);
 	if (!vq) {
-		free(queue);
+		virtio_free_pages(vdev, queue, DIV_ROUND_UP(vring.size, PAGE_SIZE));
 		return NULL;
 	}
 	debug("(%s): created vring @ %p for vq @ %p with num %u\n", udev->name,
@@ -314,7 +329,8 @@ struct virtqueue *vring_create_virtqueue(unsigned int index, unsigned int num,
 
 void vring_del_virtqueue(struct virtqueue *vq)
 {
-	free(vq->vring.desc);
+	virtio_free_pages(vq->vdev, vq->vring.desc,
+			  DIV_ROUND_UP(vq->vring.size, PAGE_SIZE));
 	free(vq->vring_desc_shadow);
 	list_del(&vq->list);
 	free(vq);
