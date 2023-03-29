@@ -336,7 +336,7 @@ static int virtio_uclass_child_pre_probe(struct udevice *vdev)
 	/* Transport features always preserved to pass to finalize_features */
 	for (i = VIRTIO_TRANSPORT_F_START; i < VIRTIO_TRANSPORT_F_END; i++)
 		if ((device_features & (1ULL << i)) &&
-		    (i == VIRTIO_F_VERSION_1))
+		    (i == VIRTIO_F_VERSION_1 || i == VIRTIO_F_IOMMU_PLATFORM))
 			__virtio_set_bit(vdev->parent, i);
 
 	debug("(%s) final negotiated features supported %016llx\n",
