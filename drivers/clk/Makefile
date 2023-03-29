@@ -13,6 +13,7 @@ obj-$(CONFIG_$(SPL_TPL_)CLK_COMPOSITE_CCF) += clk-composite.o
 
 obj-y += analogbits/
 obj-y += imx/
+obj-$(CONFIG_CLK_JH7110) += starfive/
 obj-y += tegra/
 obj-y += ti/
 obj-$(CONFIG_$(SPL_TPL_)CLK_INTEL) += intel/
