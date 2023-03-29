@@ -6,6 +6,7 @@
  * virtio ring implementation
  */
 
+#include <bouncebuf.h>
 #include <common.h>
 #include <dm.h>
 #include <log.h>
@@ -292,6 +293,7 @@ struct virtqueue *vring_create_virtqueue(unsigned int index, unsigned int num,
 	struct udevice *vdev = uc_priv->vdev;
 	struct virtqueue *vq;
 	void *queue = NULL;
+	struct bounce_buffer *bbs = NULL;
 	struct vring vring;
 
 	/* We assume num is a power of 2 */
@@ -320,17 +322,29 @@ struct virtqueue *vring_create_virtqueue(unsigned int index, unsigned int num,
 		return NULL;
 
 	memset(queue, 0, vring_size(num, vring_align));
-	vring_init(&vring, num, queue, vring_align);
+
+	if (virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM)) {
+		bbs = calloc(num, sizeof(*bbs));
+		if (!bbs)
+			goto err_free_queue;
+	}
+
+	vring_init(&vring, num, queue, vring_align, bbs);
 
 	vq = __vring_new_virtqueue(index, vring, udev);
-	if (!vq) {
-		virtio_free_pages(vdev, queue, DIV_ROUND_UP(vring.size, PAGE_SIZE));
-		return NULL;
-	}
+	if (!vq)
+		goto err_free_bbs;
+
 	debug("(%s): created vring @ %p for vq @ %p with num %u\n", udev->name,
 	      queue, vq, num);
 
 	return vq;
+
+err_free_bbs:
+	free(bbs);
+err_free_queue:
+	virtio_free_pages(vdev, queue, DIV_ROUND_UP(vring.size, PAGE_SIZE));
+	return NULL;
 }
 
 void vring_del_virtqueue(struct virtqueue *vq)
@@ -339,6 +353,7 @@ void vring_del_virtqueue(struct virtqueue *vq)
 			  DIV_ROUND_UP(vq->vring.size, PAGE_SIZE));
 	free(vq->vring_desc_shadow);
 	list_del(&vq->list);
+	free(vq->vring.bouncebufs);
 	free(vq);
 }
 

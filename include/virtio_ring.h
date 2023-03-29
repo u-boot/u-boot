@@ -87,6 +87,7 @@ struct vring_used {
 struct vring {
 	unsigned int num;
 	size_t size;
+	struct bounce_buffer *bouncebufs;
 	struct vring_desc *desc;
 	struct vring_avail *avail;
 	struct vring_used *used;
@@ -146,10 +147,12 @@ static inline unsigned int vring_size(unsigned int num, unsigned long align)
 }
 
 static inline void vring_init(struct vring *vr, unsigned int num, void *p,
-			      unsigned long align)
+			      unsigned long align,
+			      struct bounce_buffer *bouncebufs)
 {
 	vr->num = num;
 	vr->size = vring_size(num, align);
+	vr->bouncebufs = bouncebufs;
 	vr->desc = p;
 	vr->avail = p + num * sizeof(struct vring_desc);
 	vr->used = (void *)(((uintptr_t)&vr->avail->ring[num] +
