@@ -208,10 +208,15 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 
 	/*
 	 * For SATA srcaddr is specified in number of sectors.
-	 * This expects that sector size is 512 bytes.
+	 * Retrieve block size of the first SCSI device (same
+	 * code used by the spl_sata_load_image_raw() function)
+	 * or fallback to default sector size of 512 bytes.
 	 */
-	if (IS_ENABLED(CONFIG_SPL_SATA) && mhdr->blockid == IBR_HDR_SATA_ID)
-		spl_image->offset *= 512;
+	if (IS_ENABLED(CONFIG_SPL_SATA) && mhdr->blockid == IBR_HDR_SATA_ID) {
+		struct blk_desc *blk_dev = blk_get_devnum_by_uclass_id(UCLASS_SCSI, 0);
+		unsigned long blksz = blk_dev ? blk_dev->blksz : 512;
+		spl_image->offset *= blksz;
+	}
 
 	if (spl_image->offset % 4 != 0) {
 		printf("ERROR: Wrong srcaddr (0x%08x) in kwbimage\n",
