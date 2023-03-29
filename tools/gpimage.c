@@ -41,7 +41,7 @@ static int gpimage_verify_header(unsigned char *ptr, int image_size,
 	return gph_verify_header(gph, 1);
 }
 
-static void gpimage_print_header(const void *ptr)
+static void gpimage_print_header(const void *ptr, struct image_tool_params *params)
 {
 	const struct gp_header *gph = (struct gp_header *)ptr;
 

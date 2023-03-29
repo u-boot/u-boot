@@ -163,7 +163,7 @@ static int zynqimage_verify_header(unsigned char *ptr, int image_size,
 	return 0;
 }
 
-static void zynqimage_print_header(const void *ptr)
+static void zynqimage_print_header(const void *ptr, struct image_tool_params *params)
 {
 	struct zynq_header *zynqhdr = (struct zynq_header *)ptr;
 	int i;

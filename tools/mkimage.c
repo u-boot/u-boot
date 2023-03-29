@@ -790,7 +790,7 @@ int main(int argc, char **argv)
 
 	/* Print the image information by processing image header */
 	if (tparams->print_header)
-		tparams->print_header (ptr);
+		tparams->print_header (ptr, &params);
 	else {
 		fprintf (stderr, "%s: Can't print header for %s\n",
 			params.cmdname, tparams->name);

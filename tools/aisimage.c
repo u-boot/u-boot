@@ -113,7 +113,7 @@ static int get_ais_table_id(uint32_t *ptr)
 	return -1;
 }
 
-static void aisimage_print_header(const void *hdr)
+static void aisimage_print_header(const void *hdr, struct image_tool_params *params)
 {
 	struct ais_header *ais_hdr = (struct ais_header *)hdr;
 	uint32_t *ptr;

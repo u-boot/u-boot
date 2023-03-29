@@ -944,7 +944,7 @@ U_BOOT_IMAGE_TYPE(
 	(void *)&header,
 	fit_check_params,
 	fit_verify_header,
-	fit_print_contents,
+	fit_print_header,
 	NULL,
 	fit_extract_contents,
 	fit_check_image_types,

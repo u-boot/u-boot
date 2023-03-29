@@ -60,7 +60,7 @@ static void imx8mimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 {
 }
 
-static void imx8mimage_print_header(const void *ptr)
+static void imx8mimage_print_header(const void *ptr, struct image_tool_params *params)
 {
 }
 

@@ -23,6 +23,11 @@
 #include <image.h>
 #include <u-boot/crc.h>
 
+void fit_print_header(const void *fit, struct image_tool_params *params)
+{
+	fit_print_contents(fit);
+}
+
 int fit_verify_header(unsigned char *ptr, int image_size,
 			struct image_tool_params *params)
 {

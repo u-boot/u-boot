@@ -99,7 +99,7 @@ static int stm32image_verify_header(unsigned char *ptr, int image_size,
 	return 0;
 }
 
-static void stm32image_print_header(const void *ptr)
+static void stm32image_print_header(const void *ptr, struct image_tool_params *params)
 {
 	struct stm32_header *stm32hdr = (struct stm32_header *)ptr;
 

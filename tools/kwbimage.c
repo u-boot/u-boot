@@ -1972,7 +1972,7 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	free(image);
 }
 
-static void kwbimage_print_header(const void *ptr)
+static void kwbimage_print_header(const void *ptr, struct image_tool_params *params)
 {
 	struct main_hdr_v0 *mhdr = (struct main_hdr_v0 *)ptr;
 	struct bin_hdr_v0 *bhdr;
