@@ -97,6 +97,8 @@ const char *tqma6_get_fdt_configuration(void)
 
 	if (is_mx6dq())
 		return !tqma6_has_enet_workaround() ? "imx6q-mba6b" : "imx6q-mba6a";
+	if (is_mx6dqp())
+		return "imx6qp-mba6b";
 	if (is_mx6sdl())
 		return !tqma6_has_enet_workaround() ? "imx6dl-mba6b" : "imx6dl-mba6a";
 
@@ -144,8 +146,12 @@ static const char *tqma6_get_boardname(void)
 		return "TQMa6DL";
 	case MXC_CPU_MX6D:
 		return "TQMa6D";
+	case MXC_CPU_MX6DP:
+		return "TQMa6DP";
 	case MXC_CPU_MX6Q:
 		return "TQMa6Q";
+	case MXC_CPU_MX6QP:
+		return "TQMa6QP";
 	default:
 		return "??";
 	};

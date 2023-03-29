@@ -26,6 +26,13 @@ config TQMA6Q
 	  select TQMa6Q / TQMa6D variant with i.MX6Q resp. i.MX6D
 	  with 1GiB or 2GiB DRAM
 
+config TQMA6QP
+	bool "TQMaQP / TQMaDP"
+	depends on MX6Q
+	help
+	  select TQMa6QP / TQMa6DP with i.MX6QP/DP
+	  with 1GiB DRAM
+
 config TQMA6DL
 	bool "TQMa6DL"
 	depends on MX6DL
@@ -82,7 +89,7 @@ endchoice
 
 config TEXT_BASE
 	default 0x2fc00000 if TQMA6S
-	default 0x4fc00000 if TQMA6Q || TQMA6DL
+	default 0x4fc00000 if TQMA6Q || TQMA6QP || TQMA6DL
 
 config SPL_TEXT_BASE
 	default 0x00908000
