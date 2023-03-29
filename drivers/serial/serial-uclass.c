@@ -31,7 +31,7 @@ static const unsigned long baudrate_table[] = CFG_SYS_BAUDRATE_TABLE;
 static int serial_check_stdout(const void *blob, struct udevice **devp)
 {
 	int node = -1;
-	const char *str, *p, *name;
+	const char *str, *p;
 	int namelen;
 
 	/* Check for a chosen console */
@@ -39,20 +39,16 @@ static int serial_check_stdout(const void *blob, struct udevice **devp)
 	if (str) {
 		p = strchr(str, ':');
 		namelen = p ? p - str : strlen(str);
+		/*
+		 * This also deals with things like
+		 *
+		 *	stdout-path = "serial0:115200n8";
+		 *
+		 * since fdt_path_offset_namelen() treats a str not
+		 * beginning with '/' as an alias and thus applies
+		 * fdt_get_alias_namelen() to it.
+		 */
 		node = fdt_path_offset_namelen(blob, str, namelen);
-
-		if (node < 0) {
-			/*
-			 * Deal with things like
-			 *	stdout-path = "serial0:115200n8";
-			 *
-			 * We need to look up the alias and then follow it to
-			 * the correct node.
-			 */
-			name = fdt_get_alias_namelen(blob, str, namelen);
-			if (name)
-				node = fdt_path_offset(blob, name);
-		}
 	}
 
 	if (node < 0)
