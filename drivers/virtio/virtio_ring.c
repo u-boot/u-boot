@@ -47,6 +47,10 @@ static unsigned int virtqueue_attach_desc(struct virtqueue *vq, unsigned int i,
 	return desc_shadow->next;
 }
 
+static void virtqueue_detach_desc(struct virtqueue *vq, unsigned int idx)
+{
+}
+
 int virtqueue_add(struct virtqueue *vq, struct virtio_sg *sgs[],
 		  unsigned int out_sgs, unsigned int in_sgs)
 {
@@ -165,10 +169,12 @@ static void detach_buf(struct virtqueue *vq, unsigned int head)
 	i = head;
 
 	while (vq->vring_desc_shadow[i].flags & VRING_DESC_F_NEXT) {
+		virtqueue_detach_desc(vq, i);
 		i = vq->vring_desc_shadow[i].next;
 		vq->num_free++;
 	}
 
+	virtqueue_detach_desc(vq, i);
 	vq->vring_desc_shadow[i].next = vq->free_head;
 	vq->free_head = head;
 
