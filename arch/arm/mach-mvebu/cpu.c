@@ -114,7 +114,6 @@ u32 get_boot_device(void)
 		return BOOT_DEVICE_UART;
 #ifdef BOOT_FROM_SATA
 	case BOOT_FROM_SATA:
-	case BOOT_FROM_SATA_ALT:
 		return BOOT_DEVICE_SATA;
 #endif
 	case BOOT_FROM_SPI:
