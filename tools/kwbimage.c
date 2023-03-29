@@ -2118,8 +2118,6 @@ static int kwbimage_verify_header(unsigned char *ptr, int image_size,
 	return 0;
 }
 
-static int kwbimage_align_size(int bootfrom, int alloc_len, struct stat s);
-
 static int kwbimage_generate(struct image_tool_params *params,
 			     struct image_type_params *tparams)
 {
@@ -2130,6 +2128,7 @@ static int kwbimage_generate(struct image_tool_params *params,
 	int version;
 	void *hdr;
 	int ret;
+	int align, size;
 
 	fcfg = fopen(params->imagename, "r");
 	if (!fcfg) {
@@ -2212,37 +2211,38 @@ static int kwbimage_generate(struct image_tool_params *params,
 	tparams->hdr = hdr;
 
 	/*
+	 * Final SATA and SDIO images must be aligned to 512 bytes.
+	 * Final SPI and NAND images must be aligned to 256 bytes.
+	 * Final UART image must be aligned to 128 bytes.
+	 */
+	if (bootfrom == IBR_HDR_SATA_ID || bootfrom == IBR_HDR_SDIO_ID)
+		align = 512;
+	else if (bootfrom == IBR_HDR_SPI_ID || bootfrom == IBR_HDR_NAND_ID)
+		align = 256;
+	else if (bootfrom == IBR_HDR_UART_ID)
+		align = 128;
+	else
+		align = 4;
+
+	/*
+	 * The resulting image needs to be 4-byte aligned. At least
+	 * the Marvell hdrparser tool complains if its unaligned.
+	 * After the image data is stored 4-byte checksum.
+	 */
+	size = 4 + (align - (alloc_len + s.st_size + 4) % align) % align;
+
+	/*
 	 * This function should return aligned size of the datafile.
 	 * When skipcpy is set (datafile is skipped) then return value of this
 	 * function is ignored, so we have to put required kwbimage aligning
 	 * into the preallocated header size.
 	 */
 	if (params->skipcpy) {
-		tparams->header_size += kwbimage_align_size(bootfrom, alloc_len, s);
+		tparams->header_size += size;
 		return 0;
 	} else {
-		return kwbimage_align_size(bootfrom, alloc_len, s);
+		return size;
 	}
-}
-
-static int kwbimage_align_size(int bootfrom, int alloc_len, struct stat s)
-{
-	/*
-	 * The resulting image needs to be 4-byte aligned. At least
-	 * the Marvell hdrparser tool complains if its unaligned.
-	 * After the image data is stored 4-byte checksum.
-	 * Final UART image must be aligned to 128 bytes.
-	 * Final SPI and NAND images must be aligned to 256 bytes.
-	 * Final SATA and SDIO images must be aligned to 512 bytes.
-	 */
-	if (bootfrom == IBR_HDR_SPI_ID || bootfrom == IBR_HDR_NAND_ID)
-		return 4 + (256 - (alloc_len + s.st_size + 4) % 256) % 256;
-	else if (bootfrom == IBR_HDR_SATA_ID || bootfrom == IBR_HDR_SDIO_ID)
-		return 4 + (512 - (alloc_len + s.st_size + 4) % 512) % 512;
-	else if (bootfrom == IBR_HDR_UART_ID)
-		return 4 + (128 - (alloc_len + s.st_size + 4) % 128) % 128;
-	else
-		return 4 + (4 - s.st_size % 4) % 4;
 }
 
 static int kwbimage_generate_config(void *ptr, struct image_tool_params *params)
