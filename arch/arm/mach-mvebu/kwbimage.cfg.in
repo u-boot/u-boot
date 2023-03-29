@@ -16,6 +16,9 @@ VERSION		1
 #@NAND_BLKSZ
 #@NAND_BADBLK_LOCATION
 
+# SATA configuration
+#@SATA_BLKSZ
+
 # Enable BootROM output via DEBUG flag on SoCs which require it
 #@DEBUG
 
