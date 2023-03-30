@@ -10,6 +10,7 @@
 
 &sdhci {
 	bootph-pre-ram;
+	non-removable; /* assume that the card is always present, required for eMMC variant */
 };
 
 &gpio0 {
