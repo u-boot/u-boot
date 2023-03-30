@@ -10,7 +10,6 @@ choice
 config TARGET_J721S2_A72_EVM
 	bool "TI K3 based J721S2 EVM running on A72"
 	select ARM64
-	select SOC_K3_J721S2
 	select BOARD_LATE_INIT
 	imply TI_I2C_BOARD_DETECT
 	select SYS_DISABLE_DCACHE_OPS
@@ -19,7 +18,6 @@ config TARGET_J721S2_R5_EVM
 	bool "TI K3 based J721S2 EVM running on R5"
 	select CPU_V7R
 	select SYS_THUMB_BUILD
-	select SOC_K3_J721S2
 	select K3_LOAD_SYSFW
 	select RAM
 	select SPL_RAM
@@ -40,6 +38,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
        default "j721s2_evm"
 
+config ENV_SOURCE_FILE
+       default "j721s2"
+
 source "board/ti/common/Kconfig"
 
 endif
@@ -54,6 +55,9 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
        default "j721s2_evm"
+
+config ENV_SOURCE_FILE
+       default "j721s2"
 
 source "board/ti/common/Kconfig"
 

@@ -9,7 +9,6 @@ choice
 config TARGET_AM642_A53_EVM
 	bool "TI K3 based AM642 EVM running on A53"
 	select ARM64
-	select SOC_K3_AM642
 	imply BOARD
 	imply SPL_BOARD
 	imply TI_I2C_BOARD_DETECT
@@ -19,7 +18,6 @@ config TARGET_AM642_R5_EVM
 	select CPU_V7R
 	select SYS_THUMB_BUILD
 	select K3_LOAD_SYSFW
-	select SOC_K3_AM642
 	select RAM
 	select SPL_RAM
 	select K3_DDRSS
