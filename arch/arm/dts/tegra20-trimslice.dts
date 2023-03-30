@@ -27,7 +27,13 @@
 
 	spi@7000c380 {
 		status = "okay";
-		spi-max-frequency = <25000000>;
+		spi-max-frequency = <48000000>;
+
+		flash@0 {
+			compatible = "winbond,w25q80bl", "jedec,spi-nor";
+			reg = <0>;
+			spi-max-frequency = <48000000>;
+		};
 	};
 
 	pcie@80003000 {
