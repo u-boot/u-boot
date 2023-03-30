@@ -186,8 +186,7 @@ do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc > 3) {
 		switch (comp) {
 		case IH_COMP_NONE:
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-			{
+			if (CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING)) {
 				size_t l = len;
 				size_t tail;
 				void *to = (void *) dest;
@@ -203,11 +202,10 @@ do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 					from += tail;
 					l -= tail;
 				}
+			} else {
+				printf("   Loading part %d ... ", part);
+				memmove((char *) dest, (char *)data, len);
 			}
-#else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
-			printf("   Loading part %d ... ", part);
-			memmove((char *) dest, (char *)data, len);
-#endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
 			break;
 #ifdef CONFIG_GZIP
 		case IH_COMP_GZIP:

@@ -91,7 +91,7 @@ struct pmic *pfuze_common_init(unsigned char i2cbus)
 
 	return p;
 }
-#else
+#elif defined(CONFIG_DM_PMIC)
 int pfuze_mode_init(struct udevice *dev, u32 mode)
 {
 	unsigned char offset, i, switch_num;

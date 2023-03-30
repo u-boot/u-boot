@@ -560,6 +560,12 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #define gd_event_state()	NULL
 #endif
 
+#if CONFIG_IS_ENABLED(PCI)
+#define gd_set_pci_ram_top(val)	gd->pci_ram_top = val
+#else
+#define gd_set_pci_ram_top(val)
+#endif
+
 /**
  * enum gd_flags - global data flags
  *

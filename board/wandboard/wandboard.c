@@ -352,9 +352,8 @@ static void setup_display(void)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-#ifdef CONFIG_SATA
-	setup_sata();
-#endif
+	if (CONFIG_IS_ENABLED(SATA))
+		setup_sata();
 
 	return 0;
 }

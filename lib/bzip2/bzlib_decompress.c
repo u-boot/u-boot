@@ -417,9 +417,8 @@ Int32 BZ2_decompress ( DState* s )
 
       while (True) {
 
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	schedule();
-#endif
+	 if (CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING))
+	    schedule();
 	 if (nextSym == EOB) break;
 
 	 if (nextSym == BZ_RUNA || nextSym == BZ_RUNB) {
@@ -502,9 +501,8 @@ Int32 BZ2_decompress ( DState* s )
 		  if (s->mtfbase[0] == 0) {
 		     kk = MTFA_SIZE-1;
 		     for (ii = 256 / MTFL_SIZE-1; ii >= 0; ii--) {
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-			schedule();
-#endif
+			if (CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING))
+			   schedule();
 			for (jj = MTFL_SIZE-1; jj >= 0; jj--) {
 			   s->mtfa[kk] = s->mtfa[s->mtfbase[ii] + jj];
 			   kk--;
@@ -567,9 +565,8 @@ Int32 BZ2_decompress ( DState* s )
 	 }
 	    while (i != s->origPtr);
 
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	schedule();
-#endif
+	 if (CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING))
+	    schedule();
 	 s->tPos = s->origPtr;
 	 s->nblock_used = 0;
 	 if (s->blockRandomised) {
@@ -582,9 +579,8 @@ Int32 BZ2_decompress ( DState* s )
 
       } else {
 
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	schedule();
-#endif
+	 if (CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING))
+	    schedule();
 	 /*-- compute the T^(-1) vector --*/
 	 for (i = 0; i < nblock; i++) {
 	    uc = (UChar)(s->tt[i] & 0xff);

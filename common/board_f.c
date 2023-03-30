@@ -84,7 +84,7 @@ __weak void blue_led_off(void) {}
  * a structure...
  */
 
-#if defined(CONFIG_WATCHDOG) || defined(CONFIG_HW_WATCHDOG)
+#if CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING)
 static int init_func_watchdog_init(void)
 {
 # if defined(CONFIG_HW_WATCHDOG) && \
@@ -106,7 +106,7 @@ int init_func_watchdog_reset(void)
 
 	return 0;
 }
-#endif /* CONFIG_WATCHDOG */
+#endif /* HAS_WATCHDOG_RUNNING */
 
 __weak void board_add_ram_info(int use_default)
 {

@@ -27,6 +27,11 @@
  * 0 otherwise.
  */
 #define IS_ENABLED(option)	config_enabled(option, 0)
+/*
+ * Using IS_ENABLED_NOCHECK instead of IS_ENABLED prevents
+ * complaints from test/usage_of_is_enabled_check.sh
+ */
+#define IS_ENABLED_NOCHECK(option) config_enabled(option, 0)
 
 /*
  * U-Boot add-on: Helper macros to reference to different macros (prefixed by

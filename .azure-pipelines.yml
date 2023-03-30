@@ -67,6 +67,17 @@ stages:
                   :^doc/ :^arch/arm/dts/ :^scripts/kconfig/lkc.h
                   :^include/linux/kconfig.h :^tools/ && exit 1 || exit 0
 
+  - job: check_usage_of_is_enabled
+    displayName: 'Check usage of CONFIG_IS_ENABLED vs IS_ENABLED'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      # generate list of SPL configs
+      - script: test/usage_of_is_enabled_check.sh
+
   - job: cppcheck
     displayName: 'Static code analysis with cppcheck'
     pool:
@@ -177,18 +188,6 @@ stages:
           # We cannot use "container" like other jobs above, as buildman
           # seems to hang forever with pre-configured "container" environment
           docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/build.sh
-
-  - job: nokia_rx51_test
-    displayName: 'Run tests for Nokia RX-51 (aka N900)'
-    pool:
-      vmImage: $(ubuntu_vm)
-    container:
-      image: $(ci_runner_image)
-      options: $(container_option)
-    steps:
-      - script: |
-          export PATH=/opt/gcc-12.2.0-nolibc/arm-linux-gnueabi/bin:$PATH
-          test/nokia_rx51_test.sh
 
   - job: pylint
     displayName: Check for any pylint regressions

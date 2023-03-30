@@ -70,11 +70,10 @@ void dtimer_interrupt(void *not_used)
 		timerp->ter = (DTIM_DTER_CAP | DTIM_DTER_REF);
 		timestamp++;
 
-		#if defined(CONFIG_WATCHDOG) || defined (CONFIG_HW_WATCHDOG)
-		if (CFG_SYS_WATCHDOG_FREQ && (timestamp % (CFG_SYS_WATCHDOG_FREQ)) == 0) {
+		if (CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING) &&
+		    CFG_SYS_WATCHDOG_FREQ &&
+		    !(timestamp % CFG_SYS_WATCHDOG_FREQ))
 			schedule();
-		}
-		#endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
 		return;
 	}
 }

@@ -122,9 +122,8 @@ int altera_write_fn(const void *buf, size_t len, int flush, int cookie)
 		} while (i > 0);
 
 		if (bytecount % len_40 == 0) {
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-			schedule();
-#endif
+			if (CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING))
+				schedule();
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			putc('.');	/* let them know we are alive */
 #endif
@@ -342,9 +341,8 @@ int xilinx_fastwr_config_fn(void *buf, size_t len, int flush, int cookie)
 			val <<= 1;
 		}
 		if (bytecount % len_40 == 0) {
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-			schedule();
-#endif
+			if (CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING))
+				schedule();
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			putc('.');	/* let them know we are alive */
 #endif

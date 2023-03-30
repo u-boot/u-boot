@@ -62,11 +62,10 @@ int cramfs_uncompress_init (void)
 	stream.next_in = 0;
 	stream.avail_in = 0;
 
-#if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	stream.outcb = (cb_func)cyclic_run;
-#else
-	stream.outcb = Z_NULL;
-#endif /* CONFIG_HW_WATCHDOG */
+	if (CONFIG_IS_ENABLED(HAS_WATCHDOG_RUNNING))
+		stream.outcb = (cb_func)cyclic_run;
+	else
+		stream.outcb = Z_NULL;
 
 	err = inflateInit (&stream);
 	if (err != Z_OK) {

@@ -35,6 +35,9 @@ config WATCHDOG_TIMEOUT_MSECS
 	help
 	  Watchdog timeout in msec
 
+config HAS_WATCHDOG_RUNNING
+	def_bool y if WATCHDOG || HW_WATCHDOG
+
 config HW_WATCHDOG
 	bool
 
