@@ -20,6 +20,7 @@ config TARGET_IMX8ULP_EVK
 	bool "imx8ulp_evk"
 	select IMX8ULP
 	select SUPPORT_SPL
+	select IMX8ULP_DRAM
 
 endchoice
 

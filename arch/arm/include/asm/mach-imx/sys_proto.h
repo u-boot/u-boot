@@ -172,6 +172,13 @@ enum boot_dev_type_e {
 	BT_DEV_TYPE_INVALID = 0xFF
 };
 
+enum boot_stage_type {
+	BT_STAGE_PRIMARY = 0x6,
+	BT_STAGE_SECONDARY = 0x9,
+	BT_STAGE_RECOVERY = 0xa,
+	BT_STAGE_USB = 0x5,
+};
+
 #define QUERY_ROM_VER		1
 #define QUERY_BT_DEV		2
 #define QUERY_PAGE_SZ		3

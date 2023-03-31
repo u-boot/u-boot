@@ -181,6 +181,25 @@ int xrdc_config_pdac(u32 bridge, u32 index, u32 dom, u32 perm)
 	return 0;
 }
 
+int xrdc_config_msc(u32 msc, u32 index, u32 dom, u32 perm)
+{
+	ulong w0_addr;
+	u32 val;
+
+	if (msc > 2)
+		return -EINVAL;
+
+	w0_addr = XRDC_ADDR + 0x4000 + 0x400 * msc + 0x8 * index;
+
+	val = readl(w0_addr);
+	writel((val & ~(0x7 << (dom * 3))) | (perm << (dom * 3)), w0_addr);
+
+	val = readl(w0_addr + 4);
+	writel(val | BIT(31), w0_addr + 4);
+
+	return 0;
+}
+
 int release_rdc(enum rdc_type type)
 {
 	ulong s_mu_base = 0x27020000UL;
@@ -191,7 +210,7 @@ int release_rdc(enum rdc_type type)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 2;
-	msg.command = AHAB_RELEASE_RDC_REQ_CID;
+	msg.command = ELE_RELEASE_RDC_REQ;
 	msg.data[0] = (rdc_id << 8) | 0x2; /* A35 XRDC */
 
 	mu_hal_init(s_mu_base);
@@ -276,6 +295,36 @@ void xrdc_init_mda(void)
 
 void xrdc_init_mrc(void)
 {
+	/* Re-config MRC3 for SRAM0 in case protected by S400 */
+	xrdc_config_mrc_w0_w1(3, 0, 0x22010000, 0x10000);
+	xrdc_config_mrc_dx_perm(3, 0, 0, 1);
+	xrdc_config_mrc_dx_perm(3, 0, 1, 1);
+	xrdc_config_mrc_dx_perm(3, 0, 4, 1);
+	xrdc_config_mrc_dx_perm(3, 0, 5, 1);
+	xrdc_config_mrc_dx_perm(3, 0, 6, 1);
+	xrdc_config_mrc_dx_perm(3, 0, 7, 1);
+	xrdc_config_mrc_w3_w4(3, 0, 0x0, 0x80000FFF);
+
+	/* Clear other 3 regions of MRC3 to invalid */
+	xrdc_config_mrc_w3_w4(3, 1, 0x0, 0x0);
+	xrdc_config_mrc_w3_w4(3, 2, 0x0, 0x0);
+	xrdc_config_mrc_w3_w4(3, 3, 0x0, 0x0);
+
+	/* Set MRC4 and MRC5 for DDR access from A35 and AP NIC PER masters */
+	xrdc_config_mrc_w0_w1(4, 0, CFG_SYS_SDRAM_BASE, PHYS_SDRAM_SIZE);
+	xrdc_config_mrc_dx_perm(4, 0, 1, 1);
+	xrdc_config_mrc_dx_perm(4, 0, 7, 1);
+	xrdc_config_mrc_w3_w4(4, 0, 0x0, 0x80000FFF);
+
+	xrdc_config_mrc_w0_w1(5, 0, CFG_SYS_SDRAM_BASE, PHYS_SDRAM_SIZE);
+	xrdc_config_mrc_dx_perm(5, 0, 1, 1);
+	xrdc_config_mrc_w3_w4(5, 0, 0x0, 0x80000FFF);
+
+	/* Set MRC6 for DDR access from Sentinel */
+	xrdc_config_mrc_w0_w1(6, 0, CFG_SYS_SDRAM_BASE, PHYS_SDRAM_SIZE);
+	xrdc_config_mrc_dx_perm(6, 0, 4, 1);
+	xrdc_config_mrc_w3_w4(6, 0, 0x0, 0x80000FFF);
+
 	/* The MRC8 is for SRAM1 */
 	xrdc_config_mrc_w0_w1(8, 0, 0x21000000, 0x10000);
 	/* Allow for all domains: So domain 2/3 (HIFI DSP/LPAV) is ok to access */
@@ -293,6 +342,28 @@ void xrdc_init_mrc(void)
 	xrdc_config_mrc_w0_w1(6, 0, 0x80000000, 0x80000000);
 	xrdc_config_mrc_dx_perm(6, 0, 3, 1); /* allow for domain 3 video */
 	xrdc_config_mrc_w3_w4(6, 0, 0x0, 0x80000FFF);
+}
+
+void xrdc_init_pdac_msc(void)
+{
+	/* Init LPAV PDAC and MSC for DDR init */
+	xrdc_config_pdac(5, 36, 6, 0x7); /* CMC2*/
+	xrdc_config_pdac(5, 36, 7, 0x7);
+	xrdc_config_pdac(5, 37, 6, 0x7); /* SIM2 */
+	xrdc_config_pdac(5, 37, 7, 0x7);
+	xrdc_config_pdac(5, 38, 6, 0x7); /* CGC2 */
+	xrdc_config_pdac(5, 38, 7, 0x7);
+	xrdc_config_pdac(5, 39, 6, 0x7); /* PCC5 */
+	xrdc_config_pdac(5, 39, 7, 0x7);
+
+	xrdc_config_msc(0, 0, 6, 0x7); /* GPIOE */
+	xrdc_config_msc(0, 0, 7, 0x7);
+	xrdc_config_msc(0, 1, 6, 0x7); /* GPIOF */
+	xrdc_config_msc(0, 1, 7, 0x7);
+	xrdc_config_msc(1, 0, 6, 0x7); /* GPIOD */
+	xrdc_config_msc(1, 0, 7, 0x7);
+	xrdc_config_msc(2, 6, 6, 0x7); /* DDR controller */
+	xrdc_config_msc(2, 6, 7, 0x7);
 }
 
 int trdc_mbc_set_access(u32 mbc_x, u32 dom_x, u32 mem_x, u32 blk_x, bool sec_access)

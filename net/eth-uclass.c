@@ -49,6 +49,13 @@ struct eth_uclass_priv {
 /* eth_errno - This stores the most recent failure code from DM functions */
 static int eth_errno;
 
+/* board-specific Ethernet Interface initializations. */
+__weak int board_interface_eth_init(struct udevice *dev,
+				    phy_interface_t interface_type)
+{
+	return 0;
+}
+
 static struct eth_uclass_priv *eth_get_uclass_priv(void)
 {
 	struct uclass *uc;
