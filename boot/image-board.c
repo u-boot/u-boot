@@ -1004,7 +1004,9 @@ int image_locate_script(void *buf, int size, const char *fit_uname,
 
 	switch (genimg_get_format(buf)) {
 	case IMAGE_FORMAT_LEGACY:
-		if (IS_ENABLED(CONFIG_LEGACY_IMAGE_FORMAT)) {
+		if (!IS_ENABLED(CONFIG_LEGACY_IMAGE_FORMAT)) {
+			goto exit_image_format;
+		} else {
 			hdr = buf;
 
 			if (!image_check_magic(hdr)) {
@@ -1047,7 +1049,9 @@ int image_locate_script(void *buf, int size, const char *fit_uname,
 		}
 		break;
 	case IMAGE_FORMAT_FIT:
-		if (IS_ENABLED(CONFIG_FIT)) {
+		if (!IS_ENABLED(CONFIG_FIT)) {
+			goto exit_image_format;
+		} else {
 			fit_hdr = buf;
 			if (fit_check_format(fit_hdr, IMAGE_SIZE_INVAL)) {
 				puts("Bad FIT image format\n");
@@ -1121,12 +1125,15 @@ fallback:
 		}
 		break;
 	default:
-		puts("Wrong image format for \"source\" command\n");
-		return -EPERM;
+		goto exit_image_format;
 	}
 
 	*datap = (char *)data;
 	*lenp = len;
 
 	return 0;
+
+exit_image_format:
+	puts("Wrong image format for \"source\" command\n");
+	return -EPERM;
 }

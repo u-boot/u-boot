@@ -13,6 +13,8 @@
 #include <env.h>
 #include <linker_lists.h>
 
+#include <linux/compiler_attributes.h>
+
 #ifndef NULL
 #define NULL	0
 #endif
@@ -260,12 +262,17 @@ int run_command_repeatable(const char *cmd, int flag);
 /**
  * run_commandf() - Run a command created by a format string
  *
- * The command cannot be larger than 127 characters
- *
  * @fmt: printf() format string
  * @...: Arguments to use (flag is always 0)
+ *
+ * The command cannot be larger than (CONFIG_SYS_CBSIZE - 1) characters.
+ *
+ * Return:
+ * Returns 0 on success, -EIO if internal output error occurred, -ENOSPC in
+ *	case of 'fmt' string truncation, or != 0 on error, specific for
+ *	run_command().
  */
-int run_commandf(const char *fmt, ...);
+int run_commandf(const char *fmt, ...) __printf(1, 2);
 
 /**
  * Run a list of commands separated by ; or even \0

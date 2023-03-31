@@ -57,7 +57,7 @@ static int sysinfo_gpio_get_str(struct udevice *dev, int id, size_t size, char *
 		int i, ret;
 		u32 revision;
 
-		for (i = 0; i < priv->gpio_num; i++) {
+		for (i = 0; ; i++) {
 			ret = dev_read_u32_index(dev, "revisions", i,
 						 &revision);
 			if (ret) {
@@ -80,7 +80,8 @@ static int sysinfo_gpio_get_str(struct udevice *dev, int id, size_t size, char *
 		strncpy(val, name, size);
 		val[size - 1] = '\0';
 		return 0;
-	} default:
+	}
+	default:
 		return -EINVAL;
 	};
 }

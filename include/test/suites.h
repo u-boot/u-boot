@@ -48,6 +48,8 @@ int do_ut_mem(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_optee(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_overlay(struct cmd_tbl *cmdtp, int flag, int argc,
 		  char *const argv[]);
+int do_ut_pci_mps(struct cmd_tbl *cmdtp, int flag, int argc,
+		  char *const argv[]);
 int do_ut_print(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_seama(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,

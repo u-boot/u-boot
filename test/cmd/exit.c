@@ -60,20 +60,20 @@ static int cmd_exit_test(struct unit_test_state *uts)
 
 	/* Validate that 'exit' behaves the same way as 'exit 0' */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("setenv foo 'echo bar ; exit ; echo baz' ; run foo ; echo $?", i));
+	ut_assertok(run_commandf("setenv foo 'echo bar ; exit ; echo baz' ; run foo ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("0");
 	ut_assertok(ut_check_console_end(uts));
 
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("setenv foo 'echo bar ; exit ; echo baz' ; run foo && echo quux ; echo $?", i));
+	ut_assertok(run_commandf("setenv foo 'echo bar ; exit ; echo baz' ; run foo && echo quux ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("quux");
 	ut_assert_nextline("0");
 	ut_assertok(ut_check_console_end(uts));
 
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("setenv foo 'echo bar ; exit ; echo baz' ; run foo || echo quux ; echo $?", i));
+	ut_assertok(run_commandf("setenv foo 'echo bar ; exit ; echo baz' ; run foo || echo quux ; echo $?"));
 	ut_assert_nextline("bar");
 	/* Either 'exit' returns 0, or 'echo quux' returns 0 */
 	ut_assert_nextline("0");
@@ -81,39 +81,39 @@ static int cmd_exit_test(struct unit_test_state *uts)
 
 	/* Validate that return value still propagates from 'run' command */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("setenv foo 'echo bar ; true' ; run foo ; echo $?", i));
+	ut_assertok(run_commandf("setenv foo 'echo bar ; true' ; run foo ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("0");
 	ut_assertok(ut_check_console_end(uts));
 
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("setenv foo 'echo bar ; true' ; run foo && echo quux ; echo $?", i));
+	ut_assertok(run_commandf("setenv foo 'echo bar ; true' ; run foo && echo quux ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("quux");
 	ut_assert_nextline("0");
 	ut_assertok(ut_check_console_end(uts));
 
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("setenv foo 'echo bar ; true' ; run foo || echo quux ; echo $?", i));
+	ut_assertok(run_commandf("setenv foo 'echo bar ; true' ; run foo || echo quux ; echo $?"));
 	ut_assert_nextline("bar");
 	/* The 'true' returns 0 */
 	ut_assert_nextline("0");
 	ut_assertok(ut_check_console_end(uts));
 
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("setenv foo 'echo bar ; false' ; run foo ; echo $?", i));
+	ut_assertok(run_commandf("setenv foo 'echo bar ; false' ; run foo ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("1");
 	ut_assertok(ut_check_console_end(uts));
 
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("setenv foo 'echo bar ; false' ; run foo && echo quux ; echo $?", i));
+	ut_assertok(run_commandf("setenv foo 'echo bar ; false' ; run foo && echo quux ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("1");
 	ut_assertok(ut_check_console_end(uts));
 
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("setenv foo 'echo bar ; false' ; run foo || echo quux ; echo $?", i));
+	ut_assertok(run_commandf("setenv foo 'echo bar ; false' ; run foo || echo quux ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("quux");
 	/* The 'echo quux' returns 0 */

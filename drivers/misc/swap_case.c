@@ -165,6 +165,9 @@ static int sandbox_swap_case_read_config(const struct udevice *emul,
 	case PCI_CAP_ID_EXP_OFFSET + PCI_CAP_LIST_NEXT:
 		*valuep = PCI_CAP_ID_MSIX_OFFSET;
 		break;
+	case PCI_CAP_ID_EXP_OFFSET + PCI_EXP_DEVCAP:
+		*valuep = PCI_EXP_DEVCAP_PAYLOAD_256B;
+		break;
 	case PCI_CAP_ID_MSIX_OFFSET:
 		if (sandbox_swap_case_use_ea(emul))
 			*valuep = (PCI_CAP_ID_EA_OFFSET << 8) | PCI_CAP_ID_MSIX;
