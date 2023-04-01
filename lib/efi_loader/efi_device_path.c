@@ -124,17 +124,13 @@ int efi_dp_match(const struct efi_device_path *a,
 /**
  * efi_dp_shorten() - shorten device-path
  *
- * We can have device paths that start with a USB WWID or a USB Class node,
- * and a few other cases which don't encode the full device path with bus
- * hierarchy:
+ * When creating a short boot option we want to use a device-path that is
+ * independent of the location where the block device is plugged in.
  *
- * * MESSAGING:USB_WWID
- * * MESSAGING:USB_CLASS
- * * MEDIA:FILE_PATH
- * * MEDIA:HARD_DRIVE
- * * MESSAGING:URI
+ * UsbWwi() nodes contain a serial number, hard drive paths a partition
+ * UUID. Both should be unique.
  *
- * See UEFI spec (section 3.1.2, about short-form device-paths)
+ * See UEFI spec, section 3.1.2 for "short-form device path".
  *
  * @dp:		original device-path
  * @Return:	shortened device-path or NULL
@@ -142,12 +138,7 @@ int efi_dp_match(const struct efi_device_path *a,
 struct efi_device_path *efi_dp_shorten(struct efi_device_path *dp)
 {
 	while (dp) {
-		/*
-		 * TODO: Add MESSAGING:USB_WWID and MESSAGING:URI..
-		 * in practice fallback.efi just uses MEDIA:HARD_DRIVE
-		 * so not sure when we would see these other cases.
-		 */
-		if (EFI_DP_TYPE(dp, MESSAGING_DEVICE, MSG_USB) ||
+		if (EFI_DP_TYPE(dp, MESSAGING_DEVICE, MSG_USB_WWI) ||
 		    EFI_DP_TYPE(dp, MEDIA_DEVICE, HARD_DRIVE_PATH) ||
 		    EFI_DP_TYPE(dp, MEDIA_DEVICE, FILE_PATH))
 			return dp;
@@ -749,7 +740,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #endif
 #if defined(CONFIG_USB)
 		case UCLASS_MASS_STORAGE: {
-			struct blk_desc *desc = desc = dev_get_uclass_plat(dev);
+			struct blk_desc *desc = dev_get_uclass_plat(dev);
 			struct efi_device_path_controller *dp =
 				dp_fill(buf, dev->parent);
 
