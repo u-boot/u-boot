@@ -9,6 +9,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <iomux.h>
 #include <stdio_dev.h>
 
 extern void _do_coninfo (void);
@@ -33,9 +34,15 @@ static int do_coninfo(struct cmd_tbl *cmd, int flag, int argc,
 		       (dev->flags & DEV_FLAGS_OUTPUT) ? "O" : "");
 
 		for (l = 0; l < MAX_FILES; l++) {
-			if (stdio_devices[l] == dev) {
-				printf("|   |-- %s\n", stdio_names[l]);
+			if (CONFIG_IS_ENABLED(CONSOLE_MUX)) {
+				if (iomux_match_device(console_devices[l],
+						       cd_count[l], dev) >= 0)
+					printf("|   |-- %s\n", stdio_names[l]);
+			} else {
+				if (stdio_devices[l] == dev)
+					printf("|   |-- %s\n", stdio_names[l]);
 			}
+
 		}
 	}
 	return 0;
