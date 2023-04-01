@@ -578,6 +578,16 @@ config ARCH_DAVINCI
 	help
 	  Support for TI's DaVinci platform.
 
+config ARCH_HISTB
+	bool "Hisilicon HiSTB SoCs"
+	select DM
+	select DM_SERIAL
+	select OF_CONTROL
+	select PL01X_SERIAL
+	imply CMD_DM
+	help
+	  Support for HiSTB SoCs.
+
 config ARCH_KIRKWOOD
 	bool "Marvell Kirkwood"
 	select ARCH_MISC_INIT
@@ -2173,6 +2183,8 @@ source "arch/arm/mach-exynos/Kconfig"
 source "arch/arm/mach-hpe/gxp/Kconfig"
 
 source "arch/arm/mach-highbank/Kconfig"
+
+source "arch/arm/mach-histb/Kconfig"
 
 source "arch/arm/mach-integrator/Kconfig"
 

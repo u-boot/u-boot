@@ -1,0 +1,14 @@
+if ARCH_HISTB
+
+choice
+	prompt "Select a HiSTB SoC"
+
+config ARCH_HI3798MV2X
+	bool "Hi3798M V2XX series SoC"
+	select ARM64
+	help
+	  Support for Hi3798MV2XX series SoCs.
+
+endchoice
+
+endif

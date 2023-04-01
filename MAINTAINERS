@@ -291,6 +291,7 @@ S:	Maintained
 F:	arch/arm/cpu/armv8/hisilicon
 F:	arch/arm/include/asm/arch-hi6220/
 F:	arch/arm/include/asm/arch-hi3660/
+F:	arch/arm/mach-histb
 
 ARM HPE GXP ARCHITECTURE
 M:	Jean-Marie Verdun <verdun@hpe.com>
