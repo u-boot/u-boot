@@ -37,6 +37,7 @@ static int do_dev(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			printf("Can't get the regulator: %s!\n", name);
 			return failure(ret);
 		}
+		fallthrough;
 	case 1:
 		if (!currdev) {
 			printf("Regulator device is not set!\n\n");
