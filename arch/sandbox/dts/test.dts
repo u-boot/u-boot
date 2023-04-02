@@ -129,7 +129,7 @@
 			status = "disabled";
 			compatible = "fwupd,vbe-simple";
 			storage = "mmc3";
-			skip-offset = <0x400000>;
+			skip-offset = <0x800000>;
 			area-start = <0>;
 			area-size = <0xe00000>;
 			state-offset = <0xdffc00>;
