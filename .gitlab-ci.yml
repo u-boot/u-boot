@@ -301,7 +301,7 @@ sandbox_noinst_test.py:
 sandbox_vpl test.py:
   variables:
     TEST_PY_BD: "sandbox_vpl"
-    TEST_PY_TEST_SPEC: "test_vpl_help or test_spl"
+    TEST_PY_TEST_SPEC: "vpl or test_spl"
   <<: *buildman_and_testpy_dfn
 
 # Enable tracing and disable LTO, to ensure functions are not elided
