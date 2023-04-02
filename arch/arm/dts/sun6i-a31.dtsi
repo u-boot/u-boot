@@ -820,7 +820,7 @@
 			clocks = <&ccu CLK_APB2_UART0>;
 			resets = <&ccu RST_APB2_UART0>;
 			dmas = <&dma 6>, <&dma 6>;
-			dma-names = "rx", "tx";
+			dma-names = "tx", "rx";
 			status = "disabled";
 		};
 
@@ -833,7 +833,7 @@
 			clocks = <&ccu CLK_APB2_UART1>;
 			resets = <&ccu RST_APB2_UART1>;
 			dmas = <&dma 7>, <&dma 7>;
-			dma-names = "rx", "tx";
+			dma-names = "tx", "rx";
 			status = "disabled";
 		};
 
@@ -846,7 +846,7 @@
 			clocks = <&ccu CLK_APB2_UART2>;
 			resets = <&ccu RST_APB2_UART2>;
 			dmas = <&dma 8>, <&dma 8>;
-			dma-names = "rx", "tx";
+			dma-names = "tx", "rx";
 			status = "disabled";
 		};
 
@@ -859,7 +859,7 @@
 			clocks = <&ccu CLK_APB2_UART3>;
 			resets = <&ccu RST_APB2_UART3>;
 			dmas = <&dma 9>, <&dma 9>;
-			dma-names = "rx", "tx";
+			dma-names = "tx", "rx";
 			status = "disabled";
 		};
 
@@ -872,7 +872,7 @@
 			clocks = <&ccu CLK_APB2_UART4>;
 			resets = <&ccu RST_APB2_UART4>;
 			dmas = <&dma 10>, <&dma 10>;
-			dma-names = "rx", "tx";
+			dma-names = "tx", "rx";
 			status = "disabled";
 		};
 
@@ -885,7 +885,7 @@
 			clocks = <&ccu CLK_APB2_UART5>;
 			resets = <&ccu RST_APB2_UART5>;
 			dmas = <&dma 22>, <&dma 22>;
-			dma-names = "rx", "tx";
+			dma-names = "tx", "rx";
 			status = "disabled";
 		};
 
