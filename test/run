@@ -56,6 +56,11 @@ echo "${prompt}"
 run_test "sandbox_noinst" ./test/py/test.py --bd sandbox_noinst --build ${para} \
 		-k 'test_ofplatdata or test_handoff or test_spl'
 
+# Run tests which require sandbox_vpl
+echo "${prompt}"
+run_test "sandbox_vpl" ./test/py/test.py --bd sandbox_vpl --build ${para} \
+		-k 'vpl or test_spl'
+
 if [ -z "$tools_only" ]; then
 	# Run tests for the flat-device-tree version of sandbox. This is a special
 	# build which does not enable CONFIG_OF_LIVE for the live device tree, so we can
