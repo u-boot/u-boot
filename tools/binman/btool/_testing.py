@@ -5,6 +5,8 @@
 
 This is not a real bintool, just one used for testing"""
 
+import tempfile
+
 from binman import bintool
 
 # pylint: disable=C0103
@@ -33,4 +35,7 @@ class Bintool_testing(bintool.Bintool):
             return self.fetch_from_drive('junk')
         if method == bintool.FETCH_BUILD:
             return self.build_from_git('url', 'target', 'pathname')
+        tmpdir = tempfile.mkdtemp(prefix='binmanf.')
+        if method == bintool.FETCH_SOURCE:
+            return self.fetch_from_git('giturl', 'mygit', tmpdir)
         return None

@@ -397,7 +397,7 @@ def tool_find(name):
         paths += tool_search_paths
     for path in paths:
         fname = os.path.join(path, name)
-        if os.path.isfile(fname) and os.access(fname, os.X_OK):
+        if (os.path.isfile(fname) or os.path.isdir(fname)) and os.access(fname, os.X_OK):
             return fname
 
 def run(name, *args, **kwargs):
