@@ -1504,7 +1504,9 @@ TPM DRIVERS
 M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-tpm.git
+F:	cmd/tpm*
 F:	drivers/tpm/
+F:	include/tpm*
 
 TQ GROUP
 #M:	Martin Krause <martin.krause@tq-systems.de>
