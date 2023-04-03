@@ -35,11 +35,17 @@ void spl_dram_init(void)
 	/*
 	 * Try configuring for dual rank memory falling back to single rank
 	 */
-	if (ddr_init(&dram_timing)) {
-		printf("Dual rank failed, attempting single rank configuration.\n");
-		lpddr4_single_rank_training_patch();
-		ddr_init(&dram_timing);
+	if (!ddr_init(&dram_timing)) {
+		puts("DDR configured as dual rank\n");
+		return;
 	}
+
+	lpddr4_single_rank_training_patch();
+	if (!ddr_init(&dram_timing)) {
+		puts("DDR configured as single rank\n");
+		return;
+	}
+	puts("DDR configuration failed\n");
 }
 
 void spl_board_init(void)
