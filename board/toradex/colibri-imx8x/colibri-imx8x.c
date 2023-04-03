@@ -170,6 +170,8 @@ int board_late_init(void)
 	env_set("board_rev", "v1.0");
 #endif
 
+	build_info();
+
 	select_dt_from_module_version();
 
 	return 0;
