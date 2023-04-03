@@ -1363,13 +1363,6 @@ int mv_ddr_pre_training_soc_config(const char *ddr_type)
 			    DRAM_RESET_MASK_MASKED << DRAM_RESET_MASK_OFFS);
 	}
 
-	/* Check if DRAM is already initialized  */
-	if (reg_read(REG_BOOTROM_ROUTINE_ADDR) &
-	    (1 << REG_BOOTROM_ROUTINE_DRAM_INIT_OFFS)) {
-		printf("%s Training Sequence - 2nd boot - Skip\n", ddr_type);
-		return MV_OK;
-	}
-
 	/* Fix read ready phases for all SOC in reg 0x15c8 */
 	reg_val = reg_read(TRAINING_DBG_3_REG);
 
