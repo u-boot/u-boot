@@ -8,11 +8,11 @@
 
 from collections import OrderedDict
 
-from patman import command
+from u_boot_pylib import command
 from binman.entry import Entry, EntryArg
 
 from dtoc import fdt_util
-from patman import tools
+from u_boot_pylib import tools
 
 # Build GBB flags.
 # (src/platform/vboot_reference/firmware/include/gbb_header.h)

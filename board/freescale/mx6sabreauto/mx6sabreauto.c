@@ -19,14 +19,12 @@
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/spi.h>
 #include <mmc.h>
 #include <fsl_esdhc_imx.h>
 #include <miiphy.h>
 #include <asm/arch/sys_proto.h>
-#include <i2c.h>
 #include <input.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/mach-imx/video.h>
@@ -49,22 +47,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
 
-#define I2C_PAD_CTRL	(PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
-	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
-
 #define GPMI_PAD_CTRL0 (PAD_CTL_PKE | PAD_CTL_PUE | PAD_CTL_PUS_100K_UP)
 #define GPMI_PAD_CTRL1 (PAD_CTL_DSE_40ohm | PAD_CTL_SPEED_MED | \
 			PAD_CTL_SRE_FAST)
 #define GPMI_PAD_CTRL2 (GPMI_PAD_CTRL0 | GPMI_PAD_CTRL1)
 
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-
 #define WEIM_NOR_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |          \
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
 	PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST)
-
-#define I2C_PMIC	1
 
 int dram_init(void)
 {
@@ -76,70 +66,6 @@ int dram_init(void)
 static iomux_v3_cfg_t const uart4_pads[] = {
 	IOMUX_PADS(PAD_KEY_COL0__UART4_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 	IOMUX_PADS(PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
-};
-
-
-/* I2C2 PMIC, iPod, Tuner, Codec, Touch, HDMI EDID, MIPI CSI2 card */
-static struct i2c_pads_info mx6q_i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX6Q_PAD_EIM_EB2__I2C2_SCL | PC,
-		.gpio_mode = MX6Q_PAD_EIM_EB2__GPIO2_IO30 | PC,
-		.gp = IMX_GPIO_NR(2, 30)
-	},
-	.sda = {
-		.i2c_mode = MX6Q_PAD_KEY_ROW3__I2C2_SDA | PC,
-		.gpio_mode = MX6Q_PAD_KEY_ROW3__GPIO4_IO13 | PC,
-		.gp = IMX_GPIO_NR(4, 13)
-	}
-};
-
-static struct i2c_pads_info mx6dl_i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX6DL_PAD_EIM_EB2__I2C2_SCL | PC,
-		.gpio_mode = MX6DL_PAD_EIM_EB2__GPIO2_IO30 | PC,
-		.gp = IMX_GPIO_NR(2, 30)
-	},
-	.sda = {
-		.i2c_mode = MX6DL_PAD_KEY_ROW3__I2C2_SDA | PC,
-		.gpio_mode = MX6DL_PAD_KEY_ROW3__GPIO4_IO13 | PC,
-		.gp = IMX_GPIO_NR(4, 13)
-	}
-};
-
-#ifndef CONFIG_SYS_FLASH_CFI
-/*
- * I2C3 MLB, Port Expanders (A, B, C), Video ADC, Light Sensor,
- * Compass Sensor, Accelerometer, Res Touch
- */
-static struct i2c_pads_info mx6q_i2c_pad_info2 = {
-	.scl = {
-		.i2c_mode = MX6Q_PAD_GPIO_3__I2C3_SCL | PC,
-		.gpio_mode = MX6Q_PAD_GPIO_3__GPIO1_IO03 | PC,
-		.gp = IMX_GPIO_NR(1, 3)
-	},
-	.sda = {
-		.i2c_mode = MX6Q_PAD_EIM_D18__I2C3_SDA | PC,
-		.gpio_mode = MX6Q_PAD_EIM_D18__GPIO3_IO18 | PC,
-		.gp = IMX_GPIO_NR(3, 18)
-	}
-};
-
-static struct i2c_pads_info mx6dl_i2c_pad_info2 = {
-	.scl = {
-		.i2c_mode = MX6DL_PAD_GPIO_3__I2C3_SCL | PC,
-		.gpio_mode = MX6DL_PAD_GPIO_3__GPIO1_IO03 | PC,
-		.gp = IMX_GPIO_NR(1, 3)
-	},
-	.sda = {
-		.i2c_mode = MX6DL_PAD_EIM_D18__I2C3_SDA | PC,
-		.gpio_mode = MX6DL_PAD_EIM_D18__GPIO3_IO18 | PC,
-		.gp = IMX_GPIO_NR(3, 18)
-	}
-};
-#endif
-
-static iomux_v3_cfg_t const i2c3_pads[] = {
-	IOMUX_PADS(PAD_EIM_A24__GPIO5_IO04	| MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t const port_exp[] = {
@@ -516,21 +442,10 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	/* I2C 2 and 3 setup - I2C 3 hw mux with EIM */
-	if (is_mx6dq() || is_mx6dqp())
-		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c_pad_info1);
-	else
-		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info1);
 	/* I2C 3 Steer */
 	gpio_request(IMX_GPIO_NR(5, 4), "steer logic");
 	gpio_direction_output(IMX_GPIO_NR(5, 4), 1);
-	SETUP_IOMUX_PADS(i2c3_pads);
-#ifndef CONFIG_SYS_FLASH_CFI
-	if (is_mx6dq() || is_mx6dqp())
-		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c_pad_info2);
-	else
-		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info2);
-#endif
+
 	gpio_request(IMX_GPIO_NR(1, 15), "expander en");
 	gpio_direction_output(IMX_GPIO_NR(1, 15), 1);
 	SETUP_IOMUX_PADS(port_exp);
@@ -554,22 +469,27 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 
 int power_init_board(void)
 {
-	struct pmic *p;
+	struct udevice *dev;
 	unsigned int value;
+	int ret;
 
-	p = pfuze_common_init(I2C_PMIC);
-	if (!p)
-		return -ENODEV;
+	ret = pmic_get("pfuze100@8", &dev);
+	if (ret == -ENODEV)
+		return 0;
+
+	if (ret != 0)
+		return ret;
+
 
 	if (is_mx6dqp()) {
 		/* set SW2 staby volatage 0.975V*/
-		pmic_reg_read(p, PFUZE100_SW2STBY, &value);
+		value = pmic_reg_read(dev, PFUZE100_SW2STBY);
 		value &= ~0x3f;
 		value |= 0x17;
-		pmic_reg_write(p, PFUZE100_SW2STBY, value);
+		pmic_reg_write(dev, PFUZE100_SW2STBY, value);
 	}
 
-	return pfuze_mode_init(p, APS_PFM);
+	return pfuze_mode_init(dev, APS_PFM);
 }
 
 #ifdef CONFIG_CMD_BMODE
@@ -979,7 +899,6 @@ void board_init_f(ulong dummy)
 	ccgr_init();
 	gpr_init();
 
-	/* iomux and setup of i2c */
 	board_early_init_f();
 
 	/* setup GP timer */

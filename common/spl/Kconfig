@@ -816,8 +816,17 @@ config SPL_MMC
 	  this option to build the drivers in drivers/mmc as part of an SPL
 	  build.
 
+config SYS_MMCSD_FS_BOOT
+	bool "MMC FS Boot mode"
+	depends on SPL_MMC
+	default y if !ARCH_MVEBU
+	help
+	  Enable MMC FS Boot mode. Partition is selected by option
+	  SYS_MMCSD_FS_BOOT_PARTITION.
+
 config SYS_MMCSD_FS_BOOT_PARTITION
 	int "MMC Boot Partition"
+	depends on SYS_MMCSD_FS_BOOT
 	default 1
 	help
 	  Partition on the MMC to load U-Boot from when the MMC is being

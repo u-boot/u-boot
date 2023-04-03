@@ -1396,6 +1396,16 @@ config CMD_PCI
 	  peripherals. Sub-commands allow bus enumeration, displaying and
 	  changing configuration space and a few other features.
 
+config CMD_PCI_MPS
+	bool "pci_mps - Configure PCI device MPS"
+	depends on PCI
+	help
+	  Enables PCI Express Maximum Packet Size (MPS) tuning. This
+	  command configures the PCI Express MPS of each endpoint to the
+	  largest value supported by all devices below the root complex.
+	  The Maximum Read Request Size will not be altered. This method is
+	  the same algorithm as used by Linux pci=pcie_bus_safe.
+
 config CMD_PINMUX
 	bool "pinmux - show pins muxing"
 	depends on PINCTRL
@@ -1542,6 +1552,12 @@ config CMD_USB_MASS_STORAGE
 	  export a block device: U-Boot, the USB device, acts as a simple
 	  external hard drive plugged on the host USB port.
 
+config CMD_UMS_ABORT_KEYED
+	bool "UMS abort with any key"
+	depends on CMD_USB_MASS_STORAGE
+	help
+	  Allow interruption of usb mass storage run with any key pressed.
+
 config CMD_PVBLOCK
 	bool "Xen para-virtualized block device"
 	depends on XEN
@@ -1561,6 +1577,11 @@ config CMD_WDT
 	depends on WDT
 	help
 	  This provides commands to control the watchdog timer devices.
+
+config CMD_WRITE
+	bool "write - Write binary data to a partition"
+	help
+	  Provides low-level write access to a partition.
 
 config CMD_AXI
 	bool "axi"
@@ -2225,6 +2246,14 @@ config CMD_VIDCONSOLE
 
 	  The name 'lcdputs' is a bit of a misnomer, but so named because the
 	  video device is often an LCD.
+
+config CMD_SELECT_FONT
+	bool "select font size"
+	depends on VIDEO
+	default n
+	help
+	  Enabling this will provide 'font' command.
+	  Allows font selection at runtime.
 
 endmenu
 

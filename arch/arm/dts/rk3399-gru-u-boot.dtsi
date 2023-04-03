@@ -61,5 +61,5 @@
 };
 
 &spi_flash {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

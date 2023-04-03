@@ -7,9 +7,9 @@
 };
 
 &uart1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_uart1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

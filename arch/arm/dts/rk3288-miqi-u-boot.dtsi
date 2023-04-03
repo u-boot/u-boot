@@ -6,10 +6,10 @@
 #include "rk3288-u-boot.dtsi"
 / {
 	leds {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		work {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 };
@@ -26,33 +26,33 @@
 };
 
 &pinctrl {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &emmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc_bus4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc_clk {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc_cmd {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc_pwr {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

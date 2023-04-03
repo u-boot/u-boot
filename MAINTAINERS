@@ -1249,6 +1249,12 @@ M:	Heiko Schocher <hs@denx.de>
 S:	Maintained
 F:	drivers/pci/pci_mpc85xx.c
 
+PCI MPS
+M:	Stephen Carlson <stcarlso@linux.microsoft.com>
+S:	Maintained
+F:	cmd/pci_mps.c
+F:	test/cmd/pci_mps.c
+
 POWER
 M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained

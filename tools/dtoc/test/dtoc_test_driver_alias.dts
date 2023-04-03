@@ -9,7 +9,7 @@
 
 / {
 	gpio_a: gpios@0 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		gpio-controller;
 		compatible = "sandbox_gpio_alias";
 		#gpio-cells = <1>;

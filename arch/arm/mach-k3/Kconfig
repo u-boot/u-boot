@@ -187,6 +187,11 @@ config K3_X509_SWRV
 	help
 	  SWRV for X509 certificate used for boot images
 
+config K3_BOARD_DETECT
+	bool "Support for Board detection"
+	help
+	   Support for board detection.
+
 source "board/ti/am65x/Kconfig"
 source "board/ti/am64x/Kconfig"
 source "board/ti/am62x/Kconfig"

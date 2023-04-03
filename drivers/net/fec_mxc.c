@@ -1196,6 +1196,33 @@ static void fec_gpio_reset(struct fec_priv *priv)
 }
 #endif
 
+static int fecmxc_set_ref_clk(struct clk *clk_ref, phy_interface_t interface)
+{
+	unsigned int freq;
+	int ret;
+
+	if (!CONFIG_IS_ENABLED(CLK_CCF))
+		return 0;
+
+	if (interface == PHY_INTERFACE_MODE_MII)
+		freq = 25000000;
+	else if (interface == PHY_INTERFACE_MODE_RMII)
+		freq = 50000000;
+	else if (interface == PHY_INTERFACE_MODE_RGMII ||
+		 interface == PHY_INTERFACE_MODE_RGMII_ID ||
+		 interface == PHY_INTERFACE_MODE_RGMII_RXID ||
+		 interface == PHY_INTERFACE_MODE_RGMII_TXID)
+		freq = 125000000;
+	else
+		return -EINVAL;
+
+	ret = clk_set_rate(clk_ref, freq);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
 static int fecmxc_probe(struct udevice *dev)
 {
 	bool dm_mii_bus = true;
@@ -1204,6 +1231,10 @@ static int fecmxc_probe(struct udevice *dev)
 	struct mii_dev *bus = NULL;
 	uint32_t start;
 	int ret;
+
+	ret = board_interface_eth_init(dev, pdata->phy_interface);
+	if (ret)
+		return ret;
 
 	if (IS_ENABLED(CONFIG_IMX_MODULE_FUSE)) {
 		if (enet_fused((ulong)priv->eth)) {
@@ -1253,6 +1284,11 @@ static int fecmxc_probe(struct udevice *dev)
 
 		ret = clk_get_by_name(dev, "enet_clk_ref", &priv->clk_ref);
 		if (!ret) {
+			ret = fecmxc_set_ref_clk(&priv->clk_ref,
+						 pdata->phy_interface);
+			if (ret)
+				return ret;
+
 			ret = clk_enable(&priv->clk_ref);
 			if (ret)
 				return ret;

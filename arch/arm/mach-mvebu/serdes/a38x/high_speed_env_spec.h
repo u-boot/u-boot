@@ -15,12 +15,12 @@
 #define SET_BIT(data, bit)		((data) | (0x1 << (bit)))
 #define CLEAR_BIT(data, bit)		((data) & (~(0x1 << (bit))))
 
-#define MAX_SERDES_LANES		7	/* as in a39x */
+#define MAX_SERDES_LANES		7
 
 /* Serdes revision */
 /* Serdes revision 1.2 (for A38x-Z1) */
 #define MV_SERDES_REV_1_2		0x0
-/* Serdes revision 2.1 (for A39x-Z1, A38x-A0) */
+/* Serdes revision 2.1 (for A38x-A0) */
 #define MV_SERDES_REV_2_1		0x1
 #define MV_SERDES_REV_NA		0xff
 

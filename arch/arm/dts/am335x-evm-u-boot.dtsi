@@ -6,14 +6,14 @@
 #include "am33xx-u-boot.dtsi"
 
 &l4_per {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	segment@300000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		target-module@e000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			lcdc: lcdc@0 {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 		};
 	};
@@ -28,27 +28,27 @@
 };
 
 &i2c0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &l4_wkup {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	segment@200000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		target-module@9000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 };
 
 &uart0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &mmc1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &mmc2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

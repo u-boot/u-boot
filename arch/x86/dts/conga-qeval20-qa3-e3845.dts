@@ -103,7 +103,7 @@
 		compatible = "intel,pci-baytrail", "pci-x86";
 		#address-cells = <3>;
 		#size-cells = <2>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		ranges = <0x02000000 0x0 0x80000000 0x80000000 0 0x40000000
 			  0x42000000 0x0 0xc0000000 0xc0000000 0 0x20000000
 			  0x01000000 0x0 0x2000 0x2000 0 0xe000>;
@@ -200,7 +200,7 @@
 
 			gpioa {
 				compatible = "intel,ich6-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				reg = <0 0x20>;
 				bank-name = "A";
 				use-lvl-write-cache;
@@ -208,7 +208,7 @@
 
 			gpiob {
 				compatible = "intel,ich6-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				reg = <0x20 0x20>;
 				bank-name = "B";
 				use-lvl-write-cache;
@@ -216,7 +216,7 @@
 
 			gpioc {
 				compatible = "intel,ich6-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				reg = <0x40 0x20>;
 				bank-name = "C";
 				use-lvl-write-cache;
@@ -224,7 +224,7 @@
 
 			gpiod {
 				compatible = "intel,ich6-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				reg = <0x60 0x20>;
 				bank-name = "D";
 				use-lvl-write-cache;
@@ -232,7 +232,7 @@
 
 			gpioe {
 				compatible = "intel,ich6-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				reg = <0x80 0x20>;
 				bank-name = "E";
 				use-lvl-write-cache;
@@ -240,7 +240,7 @@
 
 			gpiof {
 				compatible = "intel,ich6-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				reg = <0xA0 0x20>;
 				bank-name = "F";
 				use-lvl-write-cache;

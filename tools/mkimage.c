@@ -599,7 +599,12 @@ int main(int argc, char **argv)
 		exit (retval);
 	}
 
-	if ((params.type != IH_TYPE_MULTI) && (params.type != IH_TYPE_SCRIPT)) {
+	if (!params.skipcpy && params.type != IH_TYPE_MULTI && params.type != IH_TYPE_SCRIPT) {
+		if (!params.datafile) {
+			fprintf(stderr, "%s: Option -d with image data file was not specified\n",
+				params.cmdname);
+			exit(EXIT_FAILURE);
+		}
 		dfd = open(params.datafile, O_RDONLY | O_BINARY);
 		if (dfd < 0) {
 			fprintf(stderr, "%s: Can't open %s: %s\n",
@@ -860,7 +865,9 @@ copy_file (int ifd, const char *datafile, int pad)
 		exit (EXIT_FAILURE);
 	}
 
-	if (params.xflag) {
+	if (params.xflag &&
+	    (((params.type > IH_TYPE_INVALID) && (params.type < IH_TYPE_FLATDT)) ||
+	     (params.type == IH_TYPE_KERNEL_NOLOAD) || (params.type == IH_TYPE_FIRMWARE_IVT))) {
 		unsigned char *p = NULL;
 		/*
 		 * XIP: do not append the struct legacy_img_hdr at the

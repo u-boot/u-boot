@@ -12,32 +12,32 @@
 		reg = <0x14e00000 0x4>;
 		#address-cells = <1>;
 		#size-cells = <0>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		cpu@0 {
 			compatible = "brcm,bcm6838-cpu", "mips,mips4Kc";
 			device_type = "cpu";
 			reg = <0>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		cpu@1 {
 			compatible = "brcm,bcm6838-cpu", "mips,mips4Kc";
 			device_type = "cpu";
 			reg = <1>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
 	clocks {
 		compatible = "simple-bus";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		periph_osc: periph-osc {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <50000000>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
@@ -45,12 +45,12 @@
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		memory: memory-controller@12000000 {
 			compatible = "brcm,bcm6328-mc";
 			reg = <0x12000000 0x1000>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		gpio_test_port: syscon@14e00294 {

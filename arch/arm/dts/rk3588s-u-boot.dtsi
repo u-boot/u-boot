@@ -8,12 +8,12 @@
 / {
 	dmc {
 		compatible = "rockchip,rk3588-dmc";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		status = "okay";
 	};
 
 	pmu1_grf: syscon@fd58a000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "rockchip,rk3588-pmu1-grf", "syscon";
 		reg = <0x0 0xfd58a000 0x0 0x2000>;
 	};
@@ -46,26 +46,26 @@
 };
 
 &xin24m {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &cru {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };
 
 &sys_grf {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };
 
 &uart2 {
 	clock-frequency = <24000000>;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };
 
 &ioc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

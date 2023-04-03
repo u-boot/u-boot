@@ -24,7 +24,7 @@
 	};
 
 	soc@ffe000000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		spi@110000 {
 			/* This documents where km_fpgacfg should be appear */
 			fpga@0 {
@@ -39,7 +39,7 @@
 		};
 
 		i2c@118000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			mux@70 {
 				i2c@1 { /* IVM bus */
 					reg = <1>;
@@ -50,7 +50,7 @@
 		};
 
 		serial@11c500 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			clock-frequency = <200000000>;
 		};
 

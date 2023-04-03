@@ -85,9 +85,6 @@
 
 /* Incorporate settings into the U-Boot environment */
 #define CFG_EXTRA_ENV_SETTINGS					\
-	DEFAULT_LINUX_BOOT_ENV						\
-	DEFAULT_FIT_TI_ARGS						\
-	EXTRA_ENV_AM62A7_BOARD_SETTINGS					\
 	BOOTENV
 
 /* Now for the remaining common defines */

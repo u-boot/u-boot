@@ -80,7 +80,7 @@ GmListElement* makeGmListElement (void* bas)
 	return this;
 }
 
-void gcleanup ()
+void gcleanup (void)
 {
 	BOOL rval;
 	assert ( (head == NULL) || (head->base == (void*)gAddressBase));
@@ -2340,7 +2340,7 @@ size_t malloc_usable_size(mem) Void_t* mem;
 /* Utility to update current_mallinfo for malloc_stats and mallinfo() */
 
 #ifdef DEBUG
-static void malloc_update_mallinfo()
+static void malloc_update_mallinfo(void)
 {
   int i;
   mbinptr b;
@@ -2397,7 +2397,7 @@ static void malloc_update_mallinfo()
 */
 
 #ifdef DEBUG
-void malloc_stats()
+void malloc_stats(void)
 {
   malloc_update_mallinfo();
   printf("max system bytes = %10u\n",
@@ -2418,7 +2418,7 @@ void malloc_stats()
 */
 
 #ifdef DEBUG
-struct mallinfo mALLINFo()
+struct mallinfo mALLINFo(void)
 {
   malloc_update_mallinfo();
   return current_mallinfo;

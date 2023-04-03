@@ -6,17 +6,17 @@
 #include "imx6qdl-u-boot.dtsi"
 
 &usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

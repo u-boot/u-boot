@@ -10,30 +10,30 @@
 	};
 
 	soc {
-		u-boot,dm-spl;
-		u-boot,dm-pre-reloc;
+		bootph-pre-ram;
+		bootph-all;
 
 		bus@2000000 {
-			u-boot,dm-spl;
+			bootph-pre-ram;
 			spba-bus@2000000 {
-				u-boot,dm-spl;
+				bootph-pre-ram;
 			};
 		};
 
 		bus@2100000 {
-			u-boot,dm-spl;
+			bootph-pre-ram;
 		};
 	};
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &iomuxc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &ipu1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

@@ -287,12 +287,3 @@ int mach_cpu_init(void)
 
 	return 0;
 }
-
-int arch_misc_init(void)
-{
-	u32 type, rev;
-
-	get_soc_type_rev(&type, &rev);
-
-	return 0;
-}

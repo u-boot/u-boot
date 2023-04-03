@@ -11,130 +11,130 @@
 	};
 
 	memory@80000000 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &cbass_main{
-	u-boot,dm-spl;
+	bootph-pre-ram;
 
 	timer1: timer@2400000 {
 		compatible = "ti,omap5430-timer";
 		reg = <0x00 0x2400000 0x00 0x80>;
 		ti,timer-alwon;
 		clock-frequency = <25000000>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &dmss {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &secure_proxy_main {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &dmsc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &k3_pds {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &k3_clks {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &k3_reset {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &wkup_conf {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &chipid {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_pmx0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_uart0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_uart0_pins_default {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_uart1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &cbass_mcu {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &cbass_wakeup {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &mcu_pmx0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &wkup_uart0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_gpio0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_i2c0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_i2c0_pins_default {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_i2c1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_i2c1_pins_default {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &exp1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdhci1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_mmc1_pins_default {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &k3_reset {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &dmsc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	k3_sysreset: sysreset-controller {
 		compatible = "ti,sci-sysreset";
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &vdd_mmc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

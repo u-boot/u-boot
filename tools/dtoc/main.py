@@ -23,6 +23,7 @@ see doc/driver-model/of-plat.rst
 
 from argparse import ArgumentParser
 import os
+import pathlib
 import sys
 
 # Bring in the patman libraries
@@ -35,7 +36,10 @@ sys.path.insert(0, os.path.join(our_path,
                 '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
 
 from dtoc import dtb_platdata
-from patman import test_util
+from u_boot_pylib import test_util
+
+DTOC_DIR = pathlib.Path(__file__).parent
+HAVE_TESTS = (DTOC_DIR / 'test_dtoc.py').exists()
 
 def run_tests(processes, args):
     """Run all the test we have for dtoc
@@ -61,54 +65,62 @@ def run_tests(processes, args):
     return (0 if result.wasSuccessful() else 1)
 
 
-def RunTestCoverage():
+def RunTestCoverage(build_dir):
     """Run the tests and check that we get 100% coverage"""
     sys.argv = [sys.argv[0]]
     test_util.run_test_coverage('tools/dtoc/dtoc', '/main.py',
-            ['tools/patman/*.py', '*/fdt*', '*test*'], args.build_dir)
+            ['tools/patman/*.py', 'tools/u_boot_pylib/*','*/fdt*', '*test*'],
+            build_dir)
 
 
-if __name__ != '__main__':
-    sys.exit(1)
+def run_dtoc():
+    epilog = 'Generate C code from devicetree files. See of-plat.rst for details'
 
-epilog = '''Generate C code from devicetree files. See of-plat.rst for details'''
+    parser = ArgumentParser(epilog=epilog)
+    parser.add_argument('-B', '--build-dir', type=str, default='b',
+            help='Directory containing the build output')
+    parser.add_argument('-c', '--c-output-dir', action='store',
+                      help='Select output directory for C files')
+    parser.add_argument(
+        '-C', '--h-output-dir', action='store',
+        help='Select output directory for H files (defaults to --c-output-di)')
+    parser.add_argument('-d', '--dtb-file', action='store',
+                      help='Specify the .dtb input file')
+    parser.add_argument(
+        '-i', '--instantiate', action='store_true', default=False,
+        help='Instantiate devices to avoid needing device_bind()')
+    parser.add_argument('--include-disabled', action='store_true',
+                      help='Include disabled nodes')
+    parser.add_argument('-o', '--output', action='store',
+                      help='Select output filename')
+    parser.add_argument(
+        '-p', '--phase', type=str,
+        help='set phase of U-Boot this invocation is for (spl/tpl)')
+    parser.add_argument('-P', '--processes', type=int,
+                      help='set number of processes to use for running tests')
+    if HAVE_TESTS:
+        parser.add_argument('-t', '--test', action='store_true', dest='test',
+                            default=False, help='run tests')
+        parser.add_argument(
+            '-T', '--test-coverage', action='store_true',
+            default=False, help='run tests and check for 100%% coverage')
+    parser.add_argument('files', nargs='*')
+    args = parser.parse_args()
 
-parser = ArgumentParser(epilog=epilog)
-parser.add_argument('-B', '--build-dir', type=str, default='b',
-        help='Directory containing the build output')
-parser.add_argument('-c', '--c-output-dir', action='store',
-                  help='Select output directory for C files')
-parser.add_argument('-C', '--h-output-dir', action='store',
-                  help='Select output directory for H files (defaults to --c-output-di)')
-parser.add_argument('-d', '--dtb-file', action='store',
-                  help='Specify the .dtb input file')
-parser.add_argument('-i', '--instantiate', action='store_true', default=False,
-                  help='Instantiate devices to avoid needing device_bind()')
-parser.add_argument('--include-disabled', action='store_true',
-                  help='Include disabled nodes')
-parser.add_argument('-o', '--output', action='store',
-                  help='Select output filename')
-parser.add_argument('-p', '--phase', type=str,
-                  help='set phase of U-Boot this invocation is for (spl/tpl)')
-parser.add_argument('-P', '--processes', type=int,
-                  help='set number of processes to use for running tests')
-parser.add_argument('-t', '--test', action='store_true', dest='test',
-                  default=False, help='run tests')
-parser.add_argument('-T', '--test-coverage', action='store_true',
-                default=False, help='run tests and check for 100%% coverage')
-parser.add_argument('files', nargs='*')
-args = parser.parse_args()
+    # Run our meagre tests
+    if HAVE_TESTS and args.test:
+        ret_code = run_tests(args.processes, args)
+        sys.exit(ret_code)
 
-# Run our meagre tests
-if args.test:
-    ret_code = run_tests(args.processes, args)
-    sys.exit(ret_code)
+    elif HAVE_TESTS and args.test_coverage:
+        RunTestCoverage(args.build_dir)
 
-elif args.test_coverage:
-    RunTestCoverage()
+    else:
+        dtb_platdata.run_steps(args.files, args.dtb_file, args.include_disabled,
+                               args.output,
+                               [args.c_output_dir, args.h_output_dir],
+                               args.phase, instantiate=args.instantiate)
 
-else:
-    dtb_platdata.run_steps(args.files, args.dtb_file, args.include_disabled,
-                           args.output,
-                           [args.c_output_dir, args.h_output_dir],
-                           args.phase, instantiate=args.instantiate)
+
+if __name__ == '__main__':
+    run_dtoc()

@@ -59,6 +59,7 @@ int power_pca9450_init(unsigned char bus, unsigned char addr);
 enum {
 	NXP_CHIP_TYPE_PCA9450A = 0,
 	NXP_CHIP_TYPE_PCA9450BC,
+	NXP_CHIP_TYPE_PCA9451A,
 	NXP_CHIP_TYPE_AMOUNT
 };
 

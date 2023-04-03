@@ -13,7 +13,7 @@
 	};
 
 	memory@80000000 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	config {
@@ -21,11 +21,11 @@
 	};
 
 	hfclk {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	rtcclk {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 };
@@ -35,18 +35,18 @@
 };
 
 &qspi0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	flash@0 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &spi0 {
 	mmc@0 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &gpio {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

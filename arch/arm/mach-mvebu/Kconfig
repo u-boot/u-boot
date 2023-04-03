@@ -5,7 +5,6 @@ config HAVE_MVEBU_EFUSE
 
 config ARMADA_32BIT
 	bool
-	select ARCH_MISC_INIT
 	select BOARD_EARLY_INIT_F
 	select CPU_V7A
 	select SPL_DM if SPL
@@ -108,6 +107,7 @@ config TARGET_CLEARFOG
 	bool "Support ClearFog"
 	select 88F6820
 	select BOARD_LATE_INIT
+	select OF_BOARD_SETUP
 
 config TARGET_HELIOS4
 	bool "Support Helios4"
@@ -331,7 +331,7 @@ choice
 	depends on SPL
 
 config MVEBU_SPL_BOOT_DEVICE_SPI
-	bool "SPI NOR flash"
+	bool "NOR flash (SPI or parallel)"
 	imply ENV_IS_IN_SPI_FLASH
 	imply SPL_DM_SPI
 	imply SPL_SPI_FLASH_SUPPORT
@@ -339,8 +339,13 @@ config MVEBU_SPL_BOOT_DEVICE_SPI
 	imply SPL_SPI
 	select SPL_BOOTROM_SUPPORT
 
+config MVEBU_SPL_BOOT_DEVICE_NAND
+	bool "NAND flash (SPI or parallel)"
+	select MTD_RAW_NAND
+	select SPL_BOOTROM_SUPPORT
+
 config MVEBU_SPL_BOOT_DEVICE_MMC
-	bool "SDIO/MMC card"
+	bool "eMMC or SD card"
 	imply ENV_IS_IN_MMC
 	# GPIO needed for eMMC/SD card presence detection
 	imply SPL_DM_GPIO
@@ -348,6 +353,8 @@ config MVEBU_SPL_BOOT_DEVICE_MMC
 	imply SPL_GPIO
 	imply SPL_LIBDISK_SUPPORT
 	imply SPL_MMC
+	select SUPPORT_EMMC_BOOT if SPL_MMC
+	select SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR if SPL_MMC
 	select SPL_BOOTROM_SUPPORT
 
 config MVEBU_SPL_BOOT_DEVICE_SATA
@@ -356,11 +363,23 @@ config MVEBU_SPL_BOOT_DEVICE_SATA
 	imply SPL_LIBDISK_SUPPORT
 	select SPL_BOOTROM_SUPPORT
 
+config MVEBU_SPL_BOOT_DEVICE_PEX
+	bool "PCI Express"
+	select SPL_BOOTROM_SUPPORT
+
 config MVEBU_SPL_BOOT_DEVICE_UART
 	bool "UART"
 	select SPL_BOOTROM_SUPPORT
 
 endchoice
+
+config MVEBU_SPL_NAND_BADBLK_LOCATION
+	hex "NAND Bad block indicator location"
+	depends on MVEBU_SPL_BOOT_DEVICE_NAND
+	range 0x0 0x1
+	help
+	  Value 0x0 = SLC flash = BBI at page 0 or page 1
+	  Value 0x1 = MLC flash = BBI at last page in the block
 
 config MVEBU_EFUSE
 	bool "Enable eFuse support"
@@ -404,6 +423,16 @@ config SECURED_MODE_CSK_INDEX
 	int "Index of active CSK"
 	default 0
 	depends on SECURED_MODE_IMAGE
+
+config SF_DEFAULT_SPEED
+	int "Default speed for SPI flash in Hz"
+	default 10000000
+	depends on MVEBU_SPL_BOOT_DEVICE_SPI
+
+config SF_DEFAULT_MODE
+	hex "Default mode for SPI flash"
+	default 0x0
+	depends on MVEBU_SPL_BOOT_DEVICE_SPI
 
 source "board/solidrun/clearfog/Kconfig"
 source "board/kobol/helios4/Kconfig"

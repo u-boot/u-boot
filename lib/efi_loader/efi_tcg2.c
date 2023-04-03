@@ -2495,7 +2495,7 @@ efi_status_t efi_tcg2_register(void)
 	}
 
 	/* initialize the TPM as early as possible. */
-	err = tpm_startup(dev, TPM_ST_CLEAR);
+	err = tpm_auto_start(dev);
 	if (err) {
 		log_err("TPM startup failed\n");
 		goto fail;

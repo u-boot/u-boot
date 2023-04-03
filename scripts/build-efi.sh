@@ -18,12 +18,15 @@
 # OVMF-pure-efi.x64.fd at
 # https://drive.google.com/file/d/1c39YI9QtpByGQ4V0UNNQtGqttEzS-eFV/view?usp=sharing
 
+bzimage_fname=/tmp/kernel/arch/x86/boot/bzImage
+
 set -e
 
 usage() {
 	echo "Usage: $0 [-a | -p] [other opts]" 1>&2
 	echo 1>&2
 	echo "   -a   - Package up the app" 1>&2
+	echo "   -k   - Add a kernel" 1>&2
 	echo "   -o   - Use old EFI app build (before 32/64 split)" 1>&2
 	echo "   -p   - Package up the payload" 1>&2
 	echo "   -P   - Create a partition table" 1>&2
@@ -52,17 +55,23 @@ serial=
 # before the 32/64 split of the app
 old=
 
+# package up a kernel as well
+kernel=
+
 # Set ubdir to the build directory where you build U-Boot out-of-tree
 # We avoid in-tree build because it gets confusing trying different builds
 ubdir=/tmp/b/
 
-while getopts "aopPrsw" opt; do
+while getopts "akopPrsw" opt; do
 	case "${opt}" in
 	a)
 		type=app
 		;;
 	p)
 		type=payload
+		;;
+	k)
+		kernel=1
 		;;
 	r)
 		run=1
@@ -96,6 +105,8 @@ run_qemu() {
 	fi
 	if [[ -n "${serial}" ]]; then
 		extra="-display none -serial mon:stdio"
+	else
+		extra="-serial mon:stdio"
 	fi
 	echo "Running ${qemu}"
 	# Use 512MB since U-Boot EFI likes to have 256MB to play with
@@ -122,6 +133,9 @@ EOF
 # Copy files into the filesystem
 copy_files() {
 	sudo cp $TMP/* $MNT
+	if [[ -n "${kernel}" ]]; then
+		sudo cp ${bzimage_fname} $MNT/vmlinuz
+	fi
 }
 
 # Create a filesystem on a raw device and copy in the files

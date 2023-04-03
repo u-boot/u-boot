@@ -106,6 +106,9 @@ config PHY_AQUANTIA_FW_NAME
 config PHY_ATHEROS
 	bool "Atheros Ethernet PHYs support"
 
+config SPL_PHY_ATHEROS
+	bool "Atheros Ethernet PHYs support (SPL)"
+
 config PHY_BROADCOM
 	bool "Broadcom Ethernet PHYs support"
 

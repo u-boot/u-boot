@@ -9,21 +9,21 @@
 /
 {
 	framebuffer@9D400000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		serial@a84000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 		clock-controller@100000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 		gpio_north@3900000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 		pinctrl_north@3900000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 };

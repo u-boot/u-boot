@@ -62,8 +62,8 @@ obj-$(CONFIG_CMD_EXTENSION) += extension_board.o
 obj-$(CONFIG_CMD_ECHO) += echo.o
 obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
 obj-$(CONFIG_CMD_EEPROM) += eeprom.o
-obj-$(CONFIG_EFI) += efi.o
-obj-$(CONFIG_CMD_EFIDEBUG) += efidebug.o
+obj-$(CONFIG_EFI) += efi.o efi_common.o
+obj-$(CONFIG_CMD_EFIDEBUG) += efidebug.o efi_common.o
 obj-$(CONFIG_CMD_EFICONFIG) += eficonfig.o
 ifdef CONFIG_CMD_EFICONFIG
 ifdef CONFIG_EFI_MM_COMM_TEE
@@ -78,7 +78,7 @@ obj-$(CONFIG_CMD_EXT2) += ext2.o
 obj-$(CONFIG_CMD_FAT) += fat.o
 obj-$(CONFIG_CMD_FDT) += fdt.o
 obj-$(CONFIG_CMD_SQUASHFS) += sqfs.o
-obj-$(CONFIG_CONSOLE_TRUETYPE) += font.o
+obj-$(CONFIG_CMD_SELECT_FONT) += font.o
 obj-$(CONFIG_CMD_FLASH) += flash.o
 obj-$(CONFIG_CMD_FPGA) += fpga.o
 obj-$(CONFIG_CMD_FPGAD) += fpgad.o
@@ -131,6 +131,7 @@ obj-$(CONFIG_CMD_PART) += part.o
 obj-$(CONFIG_CMD_PCAP) += pcap.o
 ifdef CONFIG_PCI
 obj-$(CONFIG_CMD_PCI) += pci.o
+obj-$(CONFIG_CMD_PCI_MPS) += pci_mps.o
 endif
 obj-$(CONFIG_CMD_PINMUX) += pinmux.o
 obj-$(CONFIG_CMD_PMC) += pmc.o
@@ -140,6 +141,7 @@ obj-$(CONFIG_CMD_PXE) += pxe.o
 obj-$(CONFIG_CMD_WOL) += wol.o
 obj-$(CONFIG_CMD_QFW) += qfw.o
 obj-$(CONFIG_CMD_READ) += read.o
+obj-$(CONFIG_CMD_WRITE) += read.o
 obj-$(CONFIG_CMD_REGINFO) += reginfo.o
 obj-$(CONFIG_CMD_REISER) += reiser.o
 obj-$(CONFIG_CMD_REMOTEPROC) += remoteproc.o

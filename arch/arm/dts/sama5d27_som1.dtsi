@@ -63,7 +63,7 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_qspi1_sck_cs_default &pinctrl_qspi1_dat_default>;
 				status = "okay";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				spi_flash@0 {
 					compatible = "jedec,spi-nor";
@@ -71,7 +71,7 @@
 					spi-max-frequency = <50000000>;
 					spi-rx-bus-width = <4>;
 					spi-tx-bus-width = <4>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 			};
 
@@ -139,7 +139,7 @@
 					pinmux = <PIN_PB5__QSPI1_SCK>,
 						 <PIN_PB6__QSPI1_CS>;
 					bias-disable;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				pinctrl_qspi1_dat_default: qspi1_dat_default {
@@ -148,7 +148,7 @@
 						 <PIN_PB9__QSPI1_IO2>,
 						 <PIN_PB10__QSPI1_IO3>;
 					bias-pull-up;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 			};
 		};

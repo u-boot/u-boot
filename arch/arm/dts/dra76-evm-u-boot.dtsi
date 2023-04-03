@@ -15,30 +15,30 @@
 };
 
 &mmc2_pins_default {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &mmc2_pins_hs200 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &mmc2_iodelay_hs200_conf {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &omap_dwc3_1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usb1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	dr_mode = "peripheral";
 };
 
 &usb2_phy1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usb3_phy1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

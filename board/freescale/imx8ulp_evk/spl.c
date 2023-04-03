@@ -77,16 +77,12 @@ void display_ele_fw_version(void)
 
 void spl_board_init(void)
 {
-	struct udevice *dev;
 	u32 res;
 	int ret;
 
-	uclass_find_first_device(UCLASS_MISC, &dev);
-
-	for (; dev; uclass_find_next_device(&dev)) {
-		if (device_probe(dev))
-			continue;
-	}
+	ret = imx8ulp_dm_post_init();
+	if (ret)
+		return;
 
 	board_early_init_f();
 
@@ -108,15 +104,17 @@ void spl_board_init(void)
 
 	clock_init_late();
 
-	/* DDR initialization */
-	spl_dram_init();
-
 	/* This must place after upower init, so access to MDA and MRC are valid */
 	/* Init XRDC MDA  */
 	xrdc_init_mda();
 
 	/* Init XRDC MRC for VIDEO, DSP domains */
 	xrdc_init_mrc();
+
+	xrdc_init_pdac_msc();
+
+	/* DDR initialization */
+	spl_dram_init();
 
 	/* Call it after PS16 power up */
 	set_lpav_qos();

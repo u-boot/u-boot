@@ -569,6 +569,13 @@ static int dm_announce(void)
 			printf("Warning: Unexpected devicetree source (not from a prior stage)");
 			printf("Warning: U-Boot may not function properly\n");
 		}
+		if (IS_ENABLED(CONFIG_OF_TAG_MIGRATE) &&
+		    (gd->flags & GD_FLG_OF_TAG_MIGRATE))
+			/*
+			 * U-Boot will silently fail to work after 2023.07 if
+			 * there are old tags present
+			 */
+			printf("Warning: Device tree includes old 'u-boot,dm-' tags: please fix by 2023.07!\n");
 	}
 
 	return 0;

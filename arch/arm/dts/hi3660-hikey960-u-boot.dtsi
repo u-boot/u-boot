@@ -6,5 +6,5 @@
  */
 
 &dwmmc1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

@@ -18,7 +18,7 @@
 	};
 
 	fs_loader0: fs_loader@0 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "u-boot,fs-loader";
 	};
 };
@@ -26,6 +26,6 @@
 &tps659412 {
 	esm: esm {
 		compatible = "ti,tps659413-esm";
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };

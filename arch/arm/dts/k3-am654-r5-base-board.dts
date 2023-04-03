@@ -41,7 +41,7 @@
 		ti,sci = <&dmsc>;
 		ti,sci-proc-id = <32>;
 		ti,sci-host-id = <10>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	vtt_supply: vtt_supply {
@@ -51,7 +51,7 @@
 		regulator-max-microvolt = <3300000>;
 		gpios = <&wkup_gpio0 28 GPIO_ACTIVE_HIGH>;
 		states = <0 0x0 3300000 0x1>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -61,7 +61,7 @@
 		reg = <0x0 0x40400000 0x0 0x80>;
 		ti,timer-alwon;
 		clock-frequency = <25000000>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
@@ -73,12 +73,12 @@
 		      <0x0 0x2a480000 0x0 0x80000>;
 		reg-names = "rt", "scfg", "target_data";
 		#mbox-cells = <1>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &wkup_gpio0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &cbass_wakeup {
@@ -86,14 +86,14 @@
 		compatible = "ti,am654-system-controller";
 		mboxes= <&mcu_secproxy 4>, <&mcu_secproxy 5>;
 		mbox-names = "tx", "rx";
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	clk_200mhz: dummy_clock {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <200000000>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -105,14 +105,14 @@
 };
 
 &wkup_uart0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pinctrl-names = "default";
 	pinctrl-0 = <&wkup_uart0_pins_default>;
 	status = "okay";
 };
 
 &mcu_uart0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcu_uart0_pins_default>;
 	clock-frequency = <48000000>;
@@ -131,11 +131,11 @@
 	compatible = "ti,am654-vtm", "ti,am654-avs";
 	vdd-supply-3 = <&vdd_mpu>;
 	vdd-supply-4 = <&vdd_mpu>;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &wkup_pmx0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	wkup_uart0_pins_default: wkup_uart0_pins_default {
 		pinctrl-single,pins = <
 			AM65X_WKUP_IOPAD(0x00a0, PIN_INPUT, 0)	/* (AB1) WKUP_UART0_RXD */
@@ -143,14 +143,14 @@
 			AM65X_WKUP_IOPAD(0x00c8, PIN_INPUT, 1)	/* (AC2) WKUP_GPIO0_6.WKUP_UART0_CTSn */
 			AM65X_WKUP_IOPAD(0x00cc, PIN_OUTPUT, 1)	/* (AC1) WKUP_GPIO0_7.WKUP_UART0_RTSn */
 		>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	wkup_vtt_pins_default: wkup_vtt_pins_default {
 		pinctrl-single,pins = <
 			AM65X_WKUP_IOPAD(0x0040, PIN_OUTPUT_PULLUP, 7)	/* WKUP_GPIO0_28 */
 		>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	mcu_uart0_pins_default: mcu_uart0_pins_default {
@@ -160,7 +160,7 @@
 			AM65X_WKUP_IOPAD(0x004C, PIN_INPUT, 4)	/* (P1) MCU_OSPI1_D3.MCU_UART0_CTSn */
 			AM65X_WKUP_IOPAD(0x0054, PIN_OUTPUT, 4)	/* (N3) MCU_OSPI1_CSn1.MCU_UART0_RTSn */
 		>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	wkup_i2c0_pins_default: wkup-i2c0-pins-default {
@@ -188,7 +188,7 @@
 };
 
 &main_pmx0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	main_uart0_pins_default: main-uart0-pins-default {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x01e4, PIN_INPUT, 0)	/* (AF11) UART0_RXD */
@@ -196,7 +196,7 @@
 			AM65X_IOPAD(0x01ec, PIN_INPUT, 0)	/* (AG11) UART0_CTSn */
 			AM65X_IOPAD(0x01f0, PIN_OUTPUT, 0)	/* (AD11) UART0_RTSn */
 		>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	main_mmc0_pins_default: main_mmc0_pins_default {
@@ -213,7 +213,7 @@
 			AM65X_IOPAD(0x0188, PIN_INPUT_PULLUP, 0)	/* (D25) MMC0_DAT7 */
 			AM65X_IOPAD(0x01b0, PIN_INPUT, 0)		/* (C25) MMC0_DS */
 		>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	main_mmc1_pins_default: main_mmc1_pins_default {
@@ -227,7 +227,7 @@
 			AM65X_IOPAD(0x02dc, PIN_INPUT_PULLUP, 0)	/* (B24) MMC1_SDCD */
 			AM65X_IOPAD(0x02e0, PIN_INPUT, 0)		/* (C24) MMC1_SDWP */
 		>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -257,7 +257,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&wkup_i2c0_pins_default>;
 	clock-frequency = <400000>;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 
 	vdd_mpu: tps62363@60 {
 		compatible = "ti,tps62363";
@@ -269,7 +269,7 @@
 		regulator-boot-on;
 		ti,vsel0-state-high;
 		ti,vsel1-state-high;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -297,18 +297,18 @@
 };
 
 &main_pmx0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	usb0_pins_default: usb0_pins_default {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x02bc, PIN_OUTPUT, 0) /* (AD9) USB0_DRVVBUS */
 		>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &dwc3_0 {
 	status = "okay";
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	/delete-property/ clocks;
 	/delete-property/ power-domains;
 	/delete-property/ assigned-clocks;
@@ -317,7 +317,7 @@
 
 &usb0_phy {
 	status = "okay";
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	/delete-property/ clocks;
 };
 
@@ -325,9 +325,9 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&usb0_pins_default>;
 	dr_mode = "peripheral";
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &scm_conf {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

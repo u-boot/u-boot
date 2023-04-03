@@ -52,7 +52,7 @@
 	compatible = "atmel,sama5d2-ptc_ek", "atmel,sama5d2", "atmel,sama5";
 
 	chosen {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		stdout-path = &uart0;
 	};
 
@@ -96,7 +96,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_sdmmc0_default>;
 			status = "okay";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		sdmmc1: sdio-host@b0000000 {
@@ -104,7 +104,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_sdmmc1_default>;
 			status = "disabled"; /* conflicts with nand and qspi0*/
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		apb {
@@ -123,7 +123,7 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_uart0_default>;
 				status = "okay";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			i2c1: i2c@fc028000 {
@@ -175,7 +175,7 @@
 							 <PIN_PA8__SDMMC0_DAT6>,
 							 <PIN_PA9__SDMMC0_DAT7>;
 						bias-pull-up;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					ck_cd {
@@ -184,7 +184,7 @@
 							 <PIN_PA11__SDMMC0_VDDSEL>,
 							 <PIN_PA13__SDMMC0_CD>;
 						bias-disable;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 				};
 
@@ -196,14 +196,14 @@
 							 <PIN_PA20__SDMMC1_DAT2>,
 							 <PIN_PA21__SDMMC1_DAT3>;
 						bias-pull-up;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					ck_cd {
 						pinmux = <PIN_PA22__SDMMC1_CK>,
 							 <PIN_PA30__SDMMC1_CD>;
 						bias-disable;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 				};
 
@@ -211,7 +211,7 @@
 					pinmux = <PIN_PB26__URXD0>,
 						 <PIN_PB27__UTXD0>;
 					bias-disable;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				pinctrl_usb_default: usb_default {

@@ -23,7 +23,7 @@
 struct udevice;
 struct mux_control;
 
-#if CONFIG_IS_ENABLED(MULTIPLEXER)
+#if IS_ENABLED(CONFIG_MULTIPLEXER)
 /**
  * mux_control_states() - Query the number of multiplexer states.
  * @mux: The mux-control to query.

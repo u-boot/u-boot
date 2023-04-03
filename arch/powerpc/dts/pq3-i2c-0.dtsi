@@ -9,7 +9,7 @@ i2c@3000 {
 	#size-cells = <0>;
 	cell-index = <0>;
 	compatible = "fsl-i2c";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	reg = <0x3000 0x100>;
 	interrupts = <43 2 0 0>;
 	dfsrr;

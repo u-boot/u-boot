@@ -7,7 +7,7 @@
 
 import re
 
-from patman import tools
+from u_boot_pylib import tools
 
 RE_LINE = re.compile(r'(# )?CONFIG_([A-Z0-9_]+)(=(.*)| is not set)')
 RE_CFG = re.compile(r'(~?)(CONFIG_)?([A-Z0-9_]+)(=.*)?')

@@ -32,7 +32,7 @@
 
 		CPU0: cpu@0 {
 			clocks = <&clk0>;
-			u-boot,dm-spl;
+			bootph-pre-ram;
 			device_type = "cpu";
 			reg = <0>;
 			compatible = "openhwgroup,cva6", "riscv";
@@ -74,7 +74,7 @@
 	};
 
 	memory@80000000 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		device_type = "memory";
 		reg = < 0x00000000 0x80000000 0x00000000 0x40000000 >;
 	};
@@ -121,7 +121,7 @@
 		};
 
 		sdhci_0: sdhci@f000000000 {
-			u-boot,dm-spl;
+			bootph-pre-ram;
 			compatible = "openpiton,piton-mmc", "openpiton,mmc";
 			reg = < 0x000000f0 0x00000000 0x00000000 0x00300000 >;
 		};
@@ -137,7 +137,7 @@
 		};
 
 		PLIC0: plic@fff1100000 {
-			u-boot,dm-spl;
+			bootph-pre-ram;
 			#interrupt-cells = <1>;
 			compatible = "sifive,plic-1.0.0", "openpiton,plic";
 			interrupt-controller;

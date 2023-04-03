@@ -23,5 +23,6 @@ int trdc_mrc_region_set_access(u32 mrc_x, u32 dom_x, u32 addr_start, u32 addr_en
 
 void xrdc_init_mda(void);
 void xrdc_init_mrc(void);
+void xrdc_init_pdac_msc(void);
 
 #endif

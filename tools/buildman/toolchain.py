@@ -11,9 +11,9 @@ import tempfile
 import urllib.request, urllib.error, urllib.parse
 
 from buildman import bsettings
-from patman import command
-from patman import terminal
-from patman import tools
+from u_boot_pylib import command
+from u_boot_pylib import terminal
+from u_boot_pylib import tools
 
 (PRIORITY_FULL_PREFIX, PRIORITY_PREFIX_GCC, PRIORITY_PREFIX_GCC_PATH,
     PRIORITY_CALC) = list(range(4))
@@ -156,9 +156,10 @@ class Toolchain:
         Returns:
             Value of that environment variable or arguments
         """
-        wrapper = self.GetWrapper()
         if which == VAR_CROSS_COMPILE:
-            return wrapper + os.path.join(self.path, self.cross)
+            wrapper = self.GetWrapper()
+            base = '' if self.arch == 'sandbox' else self.path
+            return wrapper + os.path.join(base, self.cross)
         elif which == VAR_PATH:
             return self.path
         elif which == VAR_ARCH:

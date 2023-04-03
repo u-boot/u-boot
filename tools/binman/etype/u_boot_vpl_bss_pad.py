@@ -10,7 +10,7 @@
 from binman import elf
 from binman.entry import Entry
 from binman.etype.blob import Entry_blob
-from patman import tools
+from u_boot_pylib import tools
 
 class Entry_u_boot_vpl_bss_pad(Entry_blob):
     """U-Boot VPL binary padded with a BSS region

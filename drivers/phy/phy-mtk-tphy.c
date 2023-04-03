@@ -14,6 +14,7 @@
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
+#include <linux/bitfield.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 
@@ -43,25 +44,35 @@
 
 #define U3P_USBPHYACR0			0x000
 #define PA0_RG_U2PLL_FORCE_ON		BIT(15)
+#define PA0_USB20_PLL_PREDIV		GENMASK(7, 6)
 #define PA0_RG_USB20_INTR_EN		BIT(5)
+
+#define U3P_USBPHYACR2			0x008
+#define PA2_RG_U2PLL_BW			GENMASK(21, 19)
 
 #define U3P_USBPHYACR5			0x014
 #define PA5_RG_U2_HSTX_SRCAL_EN		BIT(15)
 #define PA5_RG_U2_HSTX_SRCTRL		GENMASK(14, 12)
-#define PA5_RG_U2_HSTX_SRCTRL_VAL(x)	((0x7 & (x)) << 12)
 #define PA5_RG_U2_HS_100U_U3_EN		BIT(11)
 
 #define U3P_USBPHYACR6			0x018
 #define PA6_RG_U2_BC11_SW_EN		BIT(23)
 #define PA6_RG_U2_OTG_VBUSCMP_EN	BIT(20)
 #define PA6_RG_U2_SQTH			GENMASK(3, 0)
-#define PA6_RG_U2_SQTH_VAL(x)		(0xf & (x))
 
 #define U3P_U2PHYACR4			0x020
 #define P2C_RG_USB20_GPIO_CTL		BIT(9)
 #define P2C_USB20_GPIO_MODE		BIT(8)
 #define P2C_U2_GPIO_CTR_MSK	\
 		(P2C_RG_USB20_GPIO_CTL | P2C_USB20_GPIO_MODE)
+
+#define U3P_U2PHYA_RESV			0x030
+#define P2R_RG_U2PLL_FBDIV_26M		0x1bb13b
+#define P2R_RG_U2PLL_FBDIV_48M		0x3c0000
+
+#define U3P_U2PHYA_RESV1		0x044
+#define P2R_RG_U2PLL_REFCLK_SEL		BIT(5)
+#define P2R_RG_U2PLL_FRA_EN		BIT(3)
 
 #define U3P_U2PHYDTM0			0x068
 #define P2C_FORCE_UART_EN		BIT(26)
@@ -72,11 +83,9 @@
 #define P2C_FORCE_SUSPENDM		BIT(18)
 #define P2C_FORCE_TERMSEL		BIT(17)
 #define P2C_RG_DATAIN			GENMASK(13, 10)
-#define P2C_RG_DATAIN_VAL(x)		((0xf & (x)) << 10)
 #define P2C_RG_DMPULLDOWN		BIT(7)
 #define P2C_RG_DPPULLDOWN		BIT(6)
 #define P2C_RG_XCVRSEL			GENMASK(5, 4)
-#define P2C_RG_XCVRSEL_VAL(x)		((0x3 & (x)) << 4)
 #define P2C_RG_SUSPENDM			BIT(3)
 #define P2C_RG_TERMSEL			BIT(2)
 #define P2C_DTM0_PART_MASK	\
@@ -104,72 +113,53 @@
 
 #define U3P_U3_PHYA_REG0		0x000
 #define P3A_RG_CLKDRV_OFF		GENMASK(3, 2)
-#define P3A_RG_CLKDRV_OFF_VAL(x)	((0x3 & (x)) << 2)
 
 #define U3P_U3_PHYA_REG1		0x004
 #define P3A_RG_CLKDRV_AMP		GENMASK(31, 29)
-#define P3A_RG_CLKDRV_AMP_VAL(x)	((0x7 & (x)) << 29)
 
 #define U3P_U3_PHYA_REG6		0x018
 #define P3A_RG_TX_EIDLE_CM		GENMASK(31, 28)
-#define P3A_RG_TX_EIDLE_CM_VAL(x)	((0xf & (x)) << 28)
 
 #define U3P_U3_PHYA_REG9		0x024
 #define P3A_RG_RX_DAC_MUX		GENMASK(5, 1)
-#define P3A_RG_RX_DAC_MUX_VAL(x)	((0x1f & (x)) << 1)
 
 #define U3P_U3_PHYA_DA_REG0		0x100
 #define P3A_RG_XTAL_EXT_PE2H		GENMASK(17, 16)
-#define P3A_RG_XTAL_EXT_PE2H_VAL(x)	((0x3 & (x)) << 16)
 #define P3A_RG_XTAL_EXT_PE1H		GENMASK(13, 12)
-#define P3A_RG_XTAL_EXT_PE1H_VAL(x)	((0x3 & (x)) << 12)
 #define P3A_RG_XTAL_EXT_EN_U3		GENMASK(11, 10)
-#define P3A_RG_XTAL_EXT_EN_U3_VAL(x)	((0x3 & (x)) << 10)
 
 #define U3P_U3_PHYA_DA_REG4		0x108
 #define P3A_RG_PLL_DIVEN_PE2H		GENMASK(21, 19)
 #define P3A_RG_PLL_BC_PE2H		GENMASK(7, 6)
-#define P3A_RG_PLL_BC_PE2H_VAL(x)	((0x3 & (x)) << 6)
 
 #define U3P_U3_PHYA_DA_REG5		0x10c
 #define P3A_RG_PLL_BR_PE2H		GENMASK(29, 28)
-#define P3A_RG_PLL_BR_PE2H_VAL(x)	((0x3 & (x)) << 28)
 #define P3A_RG_PLL_IC_PE2H		GENMASK(15, 12)
-#define P3A_RG_PLL_IC_PE2H_VAL(x)	((0xf & (x)) << 12)
 
 #define U3P_U3_PHYA_DA_REG6		0x110
 #define P3A_RG_PLL_IR_PE2H		GENMASK(19, 16)
-#define P3A_RG_PLL_IR_PE2H_VAL(x)	((0xf & (x)) << 16)
 
 #define U3P_U3_PHYA_DA_REG7		0x114
 #define P3A_RG_PLL_BP_PE2H		GENMASK(19, 16)
-#define P3A_RG_PLL_BP_PE2H_VAL(x)	((0xf & (x)) << 16)
 
 #define U3P_U3_PHYA_DA_REG20		0x13c
 #define P3A_RG_PLL_DELTA1_PE2H		GENMASK(31, 16)
-#define P3A_RG_PLL_DELTA1_PE2H_VAL(x)	((0xffff & (x)) << 16)
 
 #define U3P_U3_PHYA_DA_REG25		0x148
 #define P3A_RG_PLL_DELTA_PE2H		GENMASK(15, 0)
-#define P3A_RG_PLL_DELTA_PE2H_VAL(x)	(0xffff & (x))
 
 #define U3P_U3_PHYD_LFPS1		0x00c
 #define P3D_RG_FWAKE_TH			GENMASK(21, 16)
-#define P3D_RG_FWAKE_TH_VAL(x)		((0x3f & (x)) << 16)
 
 #define U3P_U3_PHYD_CDR1		0x05c
 #define P3D_RG_CDR_BIR_LTD1		GENMASK(28, 24)
-#define P3D_RG_CDR_BIR_LTD1_VAL(x)	((0x1f & (x)) << 24)
 #define P3D_RG_CDR_BIR_LTD0		GENMASK(12, 8)
-#define P3D_RG_CDR_BIR_LTD0_VAL(x)	((0x1f & (x)) << 8)
 
 #define U3P_U3_PHYD_RXDET1		0x128
 #define P3D_RG_RXDET_STB2_SET		GENMASK(17, 9)
-#define P3D_RG_RXDET_STB2_SET_VAL(x)	((0x1ff & (x)) << 9)
 
 #define U3P_U3_PHYD_RXDET2		0x12c
 #define P3D_RG_RXDET_STB2_SET_P3	GENMASK(8, 0)
-#define P3D_RG_RXDET_STB2_SET_P3_VAL(x)	(0x1ff & (x))
 
 #define U3P_SPLLC_XTALCTL3		0x018
 #define XC3_RG_U3_XTAL_RX_PWD		BIT(9)
@@ -179,64 +169,60 @@
 #define PHYD_CTRL_SIGNAL_MODE4		0x1c
 /* CDR Charge Pump P-path current adjustment */
 #define RG_CDR_BICLTD1_GEN1_MSK		GENMASK(23, 20)
-#define RG_CDR_BICLTD1_GEN1_VAL(x)	((0xf & (x)) << 20)
 #define RG_CDR_BICLTD0_GEN1_MSK		GENMASK(11, 8)
-#define RG_CDR_BICLTD0_GEN1_VAL(x)	((0xf & (x)) << 8)
 
 #define PHYD_DESIGN_OPTION2		0x24
 /* Symbol lock count selection */
 #define RG_LOCK_CNT_SEL_MSK		GENMASK(5, 4)
-#define RG_LOCK_CNT_SEL_VAL(x)		((0x3 & (x)) << 4)
 
 #define PHYD_DESIGN_OPTION9		0x40
 /* COMWAK GAP width window */
 #define RG_TG_MAX_MSK			GENMASK(20, 16)
-#define RG_TG_MAX_VAL(x)		((0x1f & (x)) << 16)
 /* COMINIT GAP width window */
 #define RG_T2_MAX_MSK			GENMASK(13, 8)
-#define RG_T2_MAX_VAL(x)		((0x3f & (x)) << 8)
 /* COMWAK GAP width window */
 #define RG_TG_MIN_MSK			GENMASK(7, 5)
-#define RG_TG_MIN_VAL(x)		((0x7 & (x)) << 5)
 /* COMINIT GAP width window */
 #define RG_T2_MIN_MSK			GENMASK(4, 0)
-#define RG_T2_MIN_VAL(x)		(0x1f & (x))
 
 #define ANA_RG_CTRL_SIGNAL1		0x4c
 /* TX driver tail current control for 0dB de-empahsis mdoe for Gen1 speed */
 #define RG_IDRV_0DB_GEN1_MSK		GENMASK(13, 8)
-#define RG_IDRV_0DB_GEN1_VAL(x)		((0x3f & (x)) << 8)
 
 #define ANA_RG_CTRL_SIGNAL4		0x58
 #define RG_CDR_BICLTR_GEN1_MSK		GENMASK(23, 20)
-#define RG_CDR_BICLTR_GEN1_VAL(x)	((0xf & (x)) << 20)
 /* Loop filter R1 resistance adjustment for Gen1 speed */
 #define RG_CDR_BR_GEN2_MSK		GENMASK(10, 8)
-#define RG_CDR_BR_GEN2_VAL(x)		((0x7 & (x)) << 8)
 
 #define ANA_RG_CTRL_SIGNAL6		0x60
 /* I-path capacitance adjustment for Gen1 */
 #define RG_CDR_BC_GEN1_MSK		GENMASK(28, 24)
-#define RG_CDR_BC_GEN1_VAL(x)		((0x1f & (x)) << 24)
 #define RG_CDR_BIRLTR_GEN1_MSK		GENMASK(4, 0)
-#define RG_CDR_BIRLTR_GEN1_VAL(x)	(0x1f & (x))
 
 #define ANA_EQ_EYE_CTRL_SIGNAL1		0x6c
 /* RX Gen1 LEQ tuning step */
 #define RG_EQ_DLEQ_LFI_GEN1_MSK		GENMASK(11, 8)
-#define RG_EQ_DLEQ_LFI_GEN1_VAL(x)	((0xf & (x)) << 8)
 
 #define ANA_EQ_EYE_CTRL_SIGNAL4		0xd8
 #define RG_CDR_BIRLTD0_GEN1_MSK		GENMASK(20, 16)
-#define RG_CDR_BIRLTD0_GEN1_VAL(x)	((0x1f & (x)) << 16)
 
 #define ANA_EQ_EYE_CTRL_SIGNAL5		0xdc
 #define RG_CDR_BIRLTD0_GEN3_MSK		GENMASK(4, 0)
-#define RG_CDR_BIRLTD0_GEN3_VAL(x)	(0x1f & (x))
 
 enum mtk_phy_version {
 	MTK_TPHY_V1 = 1,
 	MTK_TPHY_V2,
+};
+
+struct tphy_pdata {
+	enum mtk_phy_version version;
+
+	/*
+	 * workaround only for mt8195:
+	 * u2phy should use integer mode instead of fractional mode of
+	 * 48M PLL, fix it by switching PLL to 26M from default 48M
+	 */
+	bool sw_pll_48m_to_26m;
 };
 
 struct u2phy_banks {
@@ -269,10 +255,31 @@ struct mtk_phy_instance {
 struct mtk_tphy {
 	struct udevice *dev;
 	void __iomem *sif_base;
-	enum mtk_phy_version version;
+	const struct tphy_pdata *pdata;
 	struct mtk_phy_instance **phys;
 	int nphys;
 };
+
+/* workaround only for mt8195 */
+static void u2_phy_pll_26m_set(struct mtk_tphy *tphy,
+			       struct mtk_phy_instance *instance)
+{
+	struct u2phy_banks *u2_banks = &instance->u2_banks;
+
+	if (!tphy->pdata->sw_pll_48m_to_26m)
+		return;
+
+	clrsetbits_le32(u2_banks->com + U3P_USBPHYACR0, PA0_USB20_PLL_PREDIV,
+			FIELD_PREP(PA0_USB20_PLL_PREDIV, 0));
+
+	clrsetbits_le32(u2_banks->com + U3P_USBPHYACR2, PA2_RG_U2PLL_BW,
+			FIELD_PREP(PA2_RG_U2PLL_BW, 3));
+
+	writel(P2R_RG_U2PLL_FBDIV_26M, u2_banks->com + U3P_U2PHYA_RESV);
+
+	setbits_le32(u2_banks->com + U3P_U2PHYA_RESV1,
+		     P2R_RG_U2PLL_FRA_EN | P2R_RG_U2PLL_REFCLK_SEL);
+}
 
 static void u2_phy_instance_init(struct mtk_tphy *tphy,
 				 struct mtk_phy_instance *instance)
@@ -282,7 +289,8 @@ static void u2_phy_instance_init(struct mtk_tphy *tphy,
 	/* switch to USB function, and enable usb pll */
 	clrsetbits_le32(u2_banks->com + U3P_U2PHYDTM0,
 			P2C_FORCE_UART_EN | P2C_FORCE_SUSPENDM,
-			P2C_RG_XCVRSEL_VAL(1) | P2C_RG_DATAIN_VAL(0));
+			FIELD_PREP(P2C_RG_XCVRSEL, 1) |
+			FIELD_PREP(P2C_RG_DATAIN, 0));
 
 	clrbits_le32(u2_banks->com + U3P_U2PHYDTM1, P2C_RG_UART_EN);
 	setbits_le32(u2_banks->com + U3P_USBPHYACR0, PA0_RG_USB20_INTR_EN);
@@ -295,11 +303,14 @@ static void u2_phy_instance_init(struct mtk_tphy *tphy,
 	/* DP/DM BC1.1 path Disable */
 	clrsetbits_le32(u2_banks->com + U3P_USBPHYACR6,
 			PA6_RG_U2_BC11_SW_EN | PA6_RG_U2_SQTH,
-			PA6_RG_U2_SQTH_VAL(2));
+			FIELD_PREP(PA6_RG_U2_SQTH, 2));
 
 	/* set HS slew rate */
 	clrsetbits_le32(u2_banks->com + U3P_USBPHYACR5,
-			PA5_RG_U2_HSTX_SRCTRL, PA5_RG_U2_HSTX_SRCTRL_VAL(4));
+			PA5_RG_U2_HSTX_SRCTRL,
+			FIELD_PREP(PA5_RG_U2_HSTX_SRCTRL, 4));
+
+	u2_phy_pll_26m_set(tphy, instance);
 
 	dev_dbg(tphy->dev, "%s(%d)\n", __func__, instance->index);
 }
@@ -351,28 +362,31 @@ static void u3_phy_instance_init(struct mtk_tphy *tphy,
 
 	/* gating XSQ */
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_DA_REG0,
-			P3A_RG_XTAL_EXT_EN_U3, P3A_RG_XTAL_EXT_EN_U3_VAL(2));
+			P3A_RG_XTAL_EXT_EN_U3,
+			FIELD_PREP(P3A_RG_XTAL_EXT_EN_U3, 2));
 
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_REG9,
-			P3A_RG_RX_DAC_MUX, P3A_RG_RX_DAC_MUX_VAL(4));
+			P3A_RG_RX_DAC_MUX, FIELD_PREP(P3A_RG_RX_DAC_MUX, 4));
 
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_REG6,
-			P3A_RG_TX_EIDLE_CM, P3A_RG_TX_EIDLE_CM_VAL(0xe));
+			P3A_RG_TX_EIDLE_CM,
+			FIELD_PREP(P3A_RG_TX_EIDLE_CM, 0xe));
 
 	clrsetbits_le32(u3_banks->phyd + U3P_U3_PHYD_CDR1,
 			P3D_RG_CDR_BIR_LTD0 | P3D_RG_CDR_BIR_LTD1,
-			P3D_RG_CDR_BIR_LTD0_VAL(0xc) |
-			P3D_RG_CDR_BIR_LTD1_VAL(0x3));
+			FIELD_PREP(P3D_RG_CDR_BIR_LTD0, 0xc) |
+			FIELD_PREP(P3D_RG_CDR_BIR_LTD1, 0x3));
 
 	clrsetbits_le32(u3_banks->phyd + U3P_U3_PHYD_LFPS1,
-			P3D_RG_FWAKE_TH, P3D_RG_FWAKE_TH_VAL(0x34));
+			P3D_RG_FWAKE_TH, FIELD_PREP(P3D_RG_FWAKE_TH, 0x34));
 
 	clrsetbits_le32(u3_banks->phyd + U3P_U3_PHYD_RXDET1,
-			P3D_RG_RXDET_STB2_SET, P3D_RG_RXDET_STB2_SET_VAL(0x10));
+			P3D_RG_RXDET_STB2_SET,
+			FIELD_PREP(P3D_RG_RXDET_STB2_SET, 0x10));
 
 	clrsetbits_le32(u3_banks->phyd + U3P_U3_PHYD_RXDET2,
 			P3D_RG_RXDET_STB2_SET_P3,
-			P3D_RG_RXDET_STB2_SET_P3_VAL(0x10));
+			FIELD_PREP(P3D_RG_RXDET_STB2_SET_P3, 0x10));
 
 	dev_dbg(tphy->dev, "%s(%d)\n", __func__, instance->index);
 }
@@ -382,50 +396,52 @@ static void pcie_phy_instance_init(struct mtk_tphy *tphy,
 {
 	struct u3phy_banks *u3_banks = &instance->u3_banks;
 
-	if (tphy->version != MTK_TPHY_V1)
+	if (tphy->pdata->version != MTK_TPHY_V1)
 		return;
 
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_DA_REG0,
 			P3A_RG_XTAL_EXT_PE1H | P3A_RG_XTAL_EXT_PE2H,
-			P3A_RG_XTAL_EXT_PE1H_VAL(0x2) |
-			P3A_RG_XTAL_EXT_PE2H_VAL(0x2));
+			FIELD_PREP(P3A_RG_XTAL_EXT_PE1H, 0x2) |
+			FIELD_PREP(P3A_RG_XTAL_EXT_PE2H, 0x2));
 
 	/* ref clk drive */
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_REG1, P3A_RG_CLKDRV_AMP,
-			P3A_RG_CLKDRV_AMP_VAL(0x4));
+			FIELD_PREP(P3A_RG_CLKDRV_AMP, 0x4));
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_REG0, P3A_RG_CLKDRV_OFF,
-			P3A_RG_CLKDRV_OFF_VAL(0x1));
+			FIELD_PREP(P3A_RG_CLKDRV_OFF, 0x1));
 
 	/* SSC delta -5000ppm */
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_DA_REG20,
 			P3A_RG_PLL_DELTA1_PE2H,
-			P3A_RG_PLL_DELTA1_PE2H_VAL(0x3c));
+			FIELD_PREP(P3A_RG_PLL_DELTA1_PE2H, 0x3c));
 
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_DA_REG25,
 			P3A_RG_PLL_DELTA_PE2H,
-			P3A_RG_PLL_DELTA_PE2H_VAL(0x36));
+			FIELD_PREP(P3A_RG_PLL_DELTA_PE2H, 0x36));
 
 	/* change pll BW 0.6M */
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_DA_REG5,
 			P3A_RG_PLL_BR_PE2H | P3A_RG_PLL_IC_PE2H,
-			P3A_RG_PLL_BR_PE2H_VAL(0x1) |
-			P3A_RG_PLL_IC_PE2H_VAL(0x1));
+			FIELD_PREP(P3A_RG_PLL_BR_PE2H, 0x1) |
+			FIELD_PREP(P3A_RG_PLL_IC_PE2H, 0x1));
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_DA_REG4,
 			P3A_RG_PLL_DIVEN_PE2H | P3A_RG_PLL_BC_PE2H,
-			P3A_RG_PLL_BC_PE2H_VAL(0x3));
+			FIELD_PREP(P3A_RG_PLL_BC_PE2H, 0x3));
 
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_DA_REG6,
-			P3A_RG_PLL_IR_PE2H, P3A_RG_PLL_IR_PE2H_VAL(0x2));
+			P3A_RG_PLL_IR_PE2H,
+			FIELD_PREP(P3A_RG_PLL_IR_PE2H, 0x2));
 	clrsetbits_le32(u3_banks->phya + U3P_U3_PHYA_DA_REG7,
-			P3A_RG_PLL_BP_PE2H, P3A_RG_PLL_BP_PE2H_VAL(0xa));
+			P3A_RG_PLL_BP_PE2H,
+			FIELD_PREP(P3A_RG_PLL_BP_PE2H, 0xa));
 
 	/* Tx Detect Rx Timing: 10us -> 5us */
 	clrsetbits_le32(u3_banks->phyd + U3P_U3_PHYD_RXDET1,
 			P3D_RG_RXDET_STB2_SET,
-			P3D_RG_RXDET_STB2_SET_VAL(0x10));
+			FIELD_PREP(P3D_RG_RXDET_STB2_SET, 0x10));
 	clrsetbits_le32(u3_banks->phyd + U3P_U3_PHYD_RXDET2,
 			P3D_RG_RXDET_STB2_SET_P3,
-			P3D_RG_RXDET_STB2_SET_P3_VAL(0x10));
+			FIELD_PREP(P3D_RG_RXDET_STB2_SET_P3, 0x10));
 
 	/* wait for PCIe subsys register to active */
 	udelay(3000);
@@ -438,36 +454,38 @@ static void sata_phy_instance_init(struct mtk_tphy *tphy,
 
 	clrsetbits_le32(u3_banks->phyd + ANA_RG_CTRL_SIGNAL6,
 			RG_CDR_BIRLTR_GEN1_MSK | RG_CDR_BC_GEN1_MSK,
-			RG_CDR_BIRLTR_GEN1_VAL(0x6) |
-			RG_CDR_BC_GEN1_VAL(0x1a));
+			FIELD_PREP(RG_CDR_BIRLTR_GEN1_MSK, 0x6) |
+			FIELD_PREP(RG_CDR_BC_GEN1_MSK, 0x1a));
 	clrsetbits_le32(u3_banks->phyd + ANA_EQ_EYE_CTRL_SIGNAL4,
 			RG_CDR_BIRLTD0_GEN1_MSK,
-			RG_CDR_BIRLTD0_GEN1_VAL(0x18));
+			FIELD_PREP(RG_CDR_BIRLTD0_GEN1_MSK, 0x18));
 	clrsetbits_le32(u3_banks->phyd + ANA_EQ_EYE_CTRL_SIGNAL5,
 			RG_CDR_BIRLTD0_GEN3_MSK,
-			RG_CDR_BIRLTD0_GEN3_VAL(0x06));
+			FIELD_PREP(RG_CDR_BIRLTD0_GEN3_MSK, 0x06));
 	clrsetbits_le32(u3_banks->phyd + ANA_RG_CTRL_SIGNAL4,
 			RG_CDR_BICLTR_GEN1_MSK | RG_CDR_BR_GEN2_MSK,
-			RG_CDR_BICLTR_GEN1_VAL(0x0c) |
-			RG_CDR_BR_GEN2_VAL(0x07));
+			FIELD_PREP(RG_CDR_BICLTR_GEN1_MSK, 0x0c) |
+			FIELD_PREP(RG_CDR_BR_GEN2_MSK, 0x07));
 	clrsetbits_le32(u3_banks->phyd + PHYD_CTRL_SIGNAL_MODE4,
 			RG_CDR_BICLTD0_GEN1_MSK | RG_CDR_BICLTD1_GEN1_MSK,
-			RG_CDR_BICLTD0_GEN1_VAL(0x08) |
-			RG_CDR_BICLTD1_GEN1_VAL(0x02));
+			FIELD_PREP(RG_CDR_BICLTD0_GEN1_MSK, 0x08) |
+			FIELD_PREP(RG_CDR_BICLTD1_GEN1_MSK, 0x02));
 	clrsetbits_le32(u3_banks->phyd + PHYD_DESIGN_OPTION2,
 			RG_LOCK_CNT_SEL_MSK,
-			RG_LOCK_CNT_SEL_VAL(0x02));
+			FIELD_PREP(RG_LOCK_CNT_SEL_MSK, 0x02));
 	clrsetbits_le32(u3_banks->phyd + PHYD_DESIGN_OPTION9,
 			RG_T2_MIN_MSK | RG_TG_MIN_MSK |
 			RG_T2_MAX_MSK | RG_TG_MAX_MSK,
-			RG_T2_MIN_VAL(0x12) | RG_TG_MIN_VAL(0x04) |
-			RG_T2_MAX_VAL(0x31) | RG_TG_MAX_VAL(0x0e));
+			FIELD_PREP(RG_T2_MIN_MSK, 0x12) |
+			FIELD_PREP(RG_TG_MIN_MSK, 0x04) |
+			FIELD_PREP(RG_T2_MAX_MSK, 0x31) |
+			FIELD_PREP(RG_TG_MAX_MSK, 0x0e));
 	clrsetbits_le32(u3_banks->phyd + ANA_RG_CTRL_SIGNAL1,
 			RG_IDRV_0DB_GEN1_MSK,
-			RG_IDRV_0DB_GEN1_VAL(0x20));
+			FIELD_PREP(RG_IDRV_0DB_GEN1_MSK, 0x20));
 	clrsetbits_le32(u3_banks->phyd + ANA_EQ_EYE_CTRL_SIGNAL1,
 			RG_EQ_DLEQ_LFI_GEN1_MSK,
-			RG_EQ_DLEQ_LFI_GEN1_VAL(0x03));
+			FIELD_PREP(RG_EQ_DLEQ_LFI_GEN1_MSK, 0x03));
 }
 
 static void pcie_phy_instance_power_on(struct mtk_tphy *tphy,
@@ -662,11 +680,14 @@ static int mtk_phy_xlate(struct phy *phy,
 		return -EINVAL;
 	}
 
-	if (tphy->version == MTK_TPHY_V1) {
+	switch (tphy->pdata->version) {
+	case MTK_TPHY_V1:
 		phy_v1_banks_init(tphy, instance);
-	} else if (tphy->version == MTK_TPHY_V2) {
+		break;
+	case MTK_TPHY_V2:
 		phy_v2_banks_init(tphy, instance);
-	} else {
+		break;
+	default:
 		dev_err(phy->dev, "phy version is not supported\n");
 		return -EINVAL;
 	}
@@ -696,13 +717,12 @@ static int mtk_tphy_probe(struct udevice *dev)
 		return -ENOMEM;
 
 	tphy->dev = dev;
-	tphy->version = dev_get_driver_data(dev);
+	tphy->pdata = (void *)dev_get_driver_data(dev);
 
 	/* v1 has shared banks for usb/pcie mode, */
 	/* but not for sata mode */
-	if (tphy->version == MTK_TPHY_V1) {
+	if (tphy->pdata->version == MTK_TPHY_V1)
 		tphy->sif_base = dev_read_addr_ptr(dev);
-	}
 
 	dev_for_each_subnode(subnode, dev) {
 		struct mtk_phy_instance *instance;
@@ -737,9 +757,32 @@ static int mtk_tphy_probe(struct udevice *dev)
 	return 0;
 }
 
+static struct tphy_pdata tphy_v1_pdata = {
+	.version = MTK_TPHY_V1,
+};
+
+static struct tphy_pdata tphy_v2_pdata = {
+	.version = MTK_TPHY_V2,
+};
+
+static struct tphy_pdata mt8195_pdata = {
+	.version = MTK_TPHY_V2,
+	.sw_pll_48m_to_26m = true,
+};
+
 static const struct udevice_id mtk_tphy_id_table[] = {
-	{ .compatible = "mediatek,generic-tphy-v1", .data = MTK_TPHY_V1, },
-	{ .compatible = "mediatek,generic-tphy-v2", .data = MTK_TPHY_V2, },
+	{
+		.compatible = "mediatek,generic-tphy-v1",
+		.data = (ulong)&tphy_v1_pdata,
+	},
+	{
+		.compatible = "mediatek,generic-tphy-v2",
+		.data = (ulong)&tphy_v2_pdata,
+	},
+	{
+		.compatible = "mediatek,mt8195-tphy",
+		.data = (ulong)&mt8195_pdata,
+	},
 	{ }
 };
 

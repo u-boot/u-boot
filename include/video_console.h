@@ -161,6 +161,15 @@ struct vidconsole_ops {
 			struct vidfont_info *info);
 
 	/**
+	 * get_font_size() - get the current font name and size
+	 *
+	 * @dev: vidconsole device
+	 * @sizep: Place to put the font size (nominal height in pixels)
+	 * Returns: Current font name
+	 */
+	const char *(*get_font_size)(struct udevice *dev, uint *sizep);
+
+	/**
 	 * select_font() - Select a particular font by name / size
 	 *
 	 * @dev:	Device to adjust
@@ -277,6 +286,15 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col,
 				unsigned row);
 
 /**
+ * vidconsole_clear_and_reset() - Clear the console and reset the cursor
+ *
+ * The cursor is placed at the start of the console
+ *
+ * @dev:	vidconsole device to adjust
+ */
+int vidconsole_clear_and_reset(struct udevice *dev);
+
+/**
  * vidconsole_set_cursor_pos() - set cursor position
  *
  * The cursor is set to the new position and the start-of-line information is
@@ -303,9 +321,10 @@ void vidconsole_list_fonts(struct udevice *dev);
  *
  * @dev: vidconsole device
  * @sizep: Place to put the font size (nominal height in pixels)
- * Returns: Current font name
+ * @name: pointer to font name, a placeholder for result
+ * Return: 0 if OK, -ENOSYS if not implemented in driver
  */
-const char *vidconsole_get_font_size(struct udevice *dev, uint *sizep);
+int vidconsole_get_font_size(struct udevice *dev, const char **name, uint *sizep);
 
 #ifdef CONFIG_VIDEO_COPY
 /**
@@ -340,6 +359,9 @@ int vidconsole_sync_copy(struct udevice *dev, void *from, void *to);
 int vidconsole_memmove(struct udevice *dev, void *dst, const void *src,
 		       int size);
 #else
+
+#include <string.h>
+
 static inline int vidconsole_sync_copy(struct udevice *dev, void *from,
 				       void *to)
 {

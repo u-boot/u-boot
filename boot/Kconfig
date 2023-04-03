@@ -411,7 +411,7 @@ config BOOTSTD_FULL
 	    as well as the "boot_targets" environment variable
 
 config SPL_BOOTSTD
-	bool "Standard boot support in VPL"
+	bool "Standard boot support in SPL"
 	depends on SPL && SPL_DM && SPL_OF_CONTROL && SPL_BLK
 	default y if VPL
 	help
@@ -536,6 +536,26 @@ config VPL_BOOTMETH_VBE
 	  boot as well as updating these using fwupd.
 
 if BOOTMETH_VBE
+
+config BOOTMETH_VBE_REQUEST
+	bool "Support for serving VBE OS requests"
+	default y
+	help
+	  Enables support for looking that the requests made by the
+	  Operating System being booted. These requests result in additions to
+	  the device tree /chosen node, added during the device tree fixup
+	  phase.
+
+config SPL_BOOTMETH_VBE_REQUEST
+	bool "Support for serving VBE OS requests (SPL)"
+	depends on SPL
+	help
+	  Enables support for looking that the requests made by the
+	  Operating System being booted. These requests result in additions to
+	  the device tree /chosen node, added during the device tree fixup
+	  phase.
+
+	  This is only useful if you are booting an OS direct from SPL.
 
 config BOOTMETH_VBE_SIMPLE
 	bool "Bootdev support for VBE 'simple' method"

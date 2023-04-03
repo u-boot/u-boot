@@ -6,6 +6,7 @@ if ARCH_ZYNQMP
 
 config CMD_ZYNQMP
 	bool "Enable ZynqMP specific commands"
+	depends on ZYNQMP_FIRMWARE
 	default y
 	help
 	  Enable ZynqMP specific commands like "zynqmp secure"

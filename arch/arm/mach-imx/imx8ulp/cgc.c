@@ -136,39 +136,34 @@ void cgc1_pll3_init(ulong freq)
 	clrbits_le32(&cgc1_regs->pll3div_vco, BIT(7));
 
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, 0x3F);
-
-	if (IS_ENABLED(CONFIG_IMX8ULP_LD_MODE)) {
-		setbits_le32(&cgc1_regs->pll3pfdcfg, 25 << 0);
-		clrsetbits_le32(&cgc1_regs->nicclk, GENMASK(26, 21), 3 << 21); /* 195M */
-	} else if (IS_ENABLED(CONFIG_IMX8ULP_ND_MODE)) {
-		setbits_le32(&cgc1_regs->pll3pfdcfg, 21 << 0);
-		clrsetbits_le32(&cgc1_regs->nicclk, GENMASK(26, 21), 1 << 21); /* 231M */
-	} else {
-		setbits_le32(&cgc1_regs->pll3pfdcfg, 30 << 0); /* 324M */
-	}
-
+	setbits_le32(&cgc1_regs->pll3pfdcfg, 30 << 0); /* PFD0 324M */
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, BIT(7));
 	while (!(readl(&cgc1_regs->pll3pfdcfg) & BIT(6)))
 		;
 
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, 0x3F << 8);
-	setbits_le32(&cgc1_regs->pll3pfdcfg, 25 << 8);
+	setbits_le32(&cgc1_regs->pll3pfdcfg, 25 << 8);	/* PFD1 389M */
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, BIT(15));
 	while (!(readl(&cgc1_regs->pll3pfdcfg) & BIT(14)))
 		;
 
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, 0x3F << 16);
-	setbits_le32(&cgc1_regs->pll3pfdcfg, 25 << 16);
+	setbits_le32(&cgc1_regs->pll3pfdcfg, 30 << 16);	/* PFD2 324M */
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, BIT(23));
 	while (!(readl(&cgc1_regs->pll3pfdcfg) & BIT(22)))
 		;
 
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, 0x3F << 24);
-	setbits_le32(&cgc1_regs->pll3pfdcfg, 29 << 24);
+	setbits_le32(&cgc1_regs->pll3pfdcfg, 25 << 24);	/* PFD3 389M */
 	clrbits_le32(&cgc1_regs->pll3pfdcfg, BIT(31));
 	while (!(readl(&cgc1_regs->pll3pfdcfg) & BIT(30)))
 		;
 
+	clrbits_le32(&cgc1_regs->pll3div_pfd0, 0x3f3f3f3f);
+	if (IS_ENABLED(CONFIG_IMX8ULP_LD_MODE) || IS_ENABLED(CONFIG_IMX8ULP_ND_MODE))
+		clrsetbits_le32(&cgc1_regs->pll3div_pfd1, 0x3f3f3f3f, 0x03010000); /* Set PFD3 DIV1 to 194M, PFD3 DIV2 to 97M */
+	else
+		clrsetbits_le32(&cgc1_regs->pll3div_pfd1, 0x3f3f3f3f, 0x01000000); /* Set PFD3 DIV1 to 389M, PFD3 DIV2 to 194M */
 	clrbits_le32(&cgc1_regs->pll3div_pfd0, BIT(7));
 	clrbits_le32(&cgc1_regs->pll3div_pfd0, BIT(15));
 	clrbits_le32(&cgc1_regs->pll3div_pfd0, BIT(23));
@@ -178,6 +173,17 @@ void cgc1_pll3_init(ulong freq)
 	clrbits_le32(&cgc1_regs->pll3div_pfd1, BIT(15));
 	clrbits_le32(&cgc1_regs->pll3div_pfd1, BIT(23));
 	clrbits_le32(&cgc1_regs->pll3div_pfd1, BIT(31));
+
+	/* NIC_AP:
+	 * OD source PLL3 PFD0, 324M
+	 * ND source FRO192, 192M
+	 * LD source FRO192, 96M
+	*/
+	if (IS_ENABLED(CONFIG_IMX8ULP_LD_MODE)) {
+		clrsetbits_le32(&cgc1_regs->nicclk, GENMASK(26, 21), 1 << 21);
+	} else {
+		clrbits_le32(&cgc1_regs->nicclk, GENMASK(26, 21));
+	}
 
 	if (!IS_ENABLED(CONFIG_IMX8ULP_LD_MODE) && !IS_ENABLED(CONFIG_IMX8ULP_ND_MODE)) {
 		/* nicclk select pll3 pfd0 */
@@ -219,20 +225,9 @@ void cgc2_pll4_init(bool pll4_reset)
 
 	/* Enable all 4 PFDs */
 	setbits_le32(&cgc2_regs->pll4pfdcfg, 18 << 0); /* 528 */
-	if (IS_ENABLED(CONFIG_IMX8ULP_LD_MODE)) {
-		setbits_le32(&cgc2_regs->pll4pfdcfg, 24 << 8);
-		/* 99Mhz for NIC_LPAV */
-		clrsetbits_le32(&cgc2_regs->niclpavclk, GENMASK(26, 21), 3 << 21);
-	} else if (IS_ENABLED(CONFIG_IMX8ULP_ND_MODE)) {
-		setbits_le32(&cgc2_regs->pll4pfdcfg, 24 << 8);
-		/* 198Mhz for NIC_LPAV */
-		clrsetbits_le32(&cgc2_regs->niclpavclk, GENMASK(26, 21), 1 << 21);
-	} else {
-		setbits_le32(&cgc2_regs->pll4pfdcfg, 30 << 8); /* 316.8Mhz for NIC_LPAV */
-		clrbits_le32(&cgc2_regs->niclpavclk, GENMASK(26, 21));
-	}
-	setbits_le32(&cgc2_regs->pll4pfdcfg, 12 << 16); /* 792 */
-	setbits_le32(&cgc2_regs->pll4pfdcfg, 24 << 24); /* 396 */
+	setbits_le32(&cgc2_regs->pll4pfdcfg, 30 << 8); /* 316.8Mhz for NIC_LPAV */
+	setbits_le32(&cgc2_regs->pll4pfdcfg, 30 << 16); /* 316.8Mhz */
+	setbits_le32(&cgc2_regs->pll4pfdcfg, 24 << 24); /* 396Mhz */
 
 	clrbits_le32(&cgc2_regs->pll4pfdcfg, BIT(7) | BIT(15) | BIT(23) | BIT(31));
 
@@ -244,9 +239,22 @@ void cgc2_pll4_init(bool pll4_reset)
 	clrbits_le32(&cgc2_regs->pll4div_pfd0, BIT(7) | BIT(15) | BIT(23) | BIT(31));
 	clrbits_le32(&cgc2_regs->pll4div_pfd1, BIT(7) | BIT(15) | BIT(23) | BIT(31));
 
-	clrsetbits_le32(&cgc2_regs->niclpavclk, GENMASK(29, 28), BIT(28));
-	while (!(readl(&cgc2_regs->niclpavclk) & BIT(27)))
-		;
+	/* NIC_LPAV:
+	 * OD source PLL4 PFD1, 316.8M
+	 * ND source FRO192, 192M
+	 * LD source FRO192, 96M
+	*/
+	if (IS_ENABLED(CONFIG_IMX8ULP_LD_MODE)) {
+		clrsetbits_le32(&cgc2_regs->niclpavclk, GENMASK(26, 21), 1 << 21);
+	} else {
+		clrbits_le32(&cgc2_regs->niclpavclk, GENMASK(26, 21));
+	}
+
+	if (!IS_ENABLED(CONFIG_IMX8ULP_LD_MODE) && !IS_ENABLED(CONFIG_IMX8ULP_ND_MODE)) {
+		clrsetbits_le32(&cgc2_regs->niclpavclk, GENMASK(29, 28), BIT(28));
+		while (!(readl(&cgc2_regs->niclpavclk) & BIT(27)))
+			;
+	}
 }
 
 void cgc2_pll4_pfd_config(enum cgc_clk pllpfd, u32 pfd)

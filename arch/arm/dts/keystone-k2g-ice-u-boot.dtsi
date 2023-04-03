@@ -5,14 +5,14 @@
 
 /{
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &i2c0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &i2c1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

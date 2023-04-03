@@ -5,7 +5,7 @@
 # Entry-type module for expanded U-Boot SPL binary
 #
 
-from patman import tout
+from u_boot_pylib import tout
 
 from binman import state
 from binman.etype.blob_phase import Entry_blob_phase

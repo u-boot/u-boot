@@ -113,7 +113,7 @@
 };
 
 &uart0 {		/* console uart */
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };
 
@@ -130,12 +130,12 @@
 };
 
 &i2c0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 	clock-frequency = <100000>;
 
 	tps: tps@24 {		/* PMIC controller */
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		reg = <0x24>;
 		compatible = "ti,tps65217";
 
@@ -233,7 +233,7 @@
 };
 
 &mmc1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	vmmc-supply = <&vmmcsd_fixed>;
 	bus-width = <0x4>;
 	ti,non-removable;
@@ -243,7 +243,7 @@
 };
 
 &mmc2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	vmmc-supply = <&vmmcsd_fixed>;
 	bus-width = <0x8>;
 	ti,non-removable;
@@ -257,10 +257,10 @@
 	segment@300000 {
 
 		target-module@e000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			lcdc: lcdc@0 {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				status = "okay";
 				ti,no-reset-on-init;
 				ti,no-idle-on-init;
@@ -282,22 +282,22 @@
 };
 
 &gpio0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	ti,no-reset-on-init;
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	ti,no-reset-on-init;
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	ti,no-reset-on-init;
 };
 
 &gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	ti,no-reset-on-init;
 };
 

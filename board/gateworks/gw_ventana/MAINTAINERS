@@ -5,7 +5,6 @@ F:	board/gateworks/gw_ventana/
 F:	include/configs/gw_ventana.h
 F:	configs/gwventana_nand_defconfig
 F:	configs/gwventana_emmc_defconfig
-F:	configs/gwventana_gw5904_defconfig
 F:	arch/arm/dts/imx6dl-gw51xx.dts
 F:	arch/arm/dts/imx6dl-gw52xx.dts
 F:	arch/arm/dts/imx6dl-gw53xx.dts

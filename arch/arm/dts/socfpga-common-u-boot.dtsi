@@ -6,22 +6,22 @@
  */
 /{
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &clkmgr {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &rst {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdr {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sysmgr {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

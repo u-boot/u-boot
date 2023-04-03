@@ -19,7 +19,7 @@
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
 			clock-frequency = <144000000>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 

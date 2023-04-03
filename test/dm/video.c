@@ -151,6 +151,8 @@ static int dm_test_video_text(struct unit_test_state *uts)
 
 	ut_assertok(select_vidconsole(uts, "vidconsole0"));
 	ut_assertok(video_get_nologo(uts, &dev));
+	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+	ut_assertok(vidconsole_select_font(con, "8x16", 0));
 	ut_asserteq(46, compress_frame_buffer(uts, dev));
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
@@ -175,6 +177,42 @@ static int dm_test_video_text(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_video_text, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+static int dm_test_video_text_12x22(struct unit_test_state *uts)
+{
+	struct udevice *dev, *con;
+	int i;
+
+#define WHITE		0xffff
+#define SCROLL_LINES	100
+
+	ut_assertok(select_vidconsole(uts, "vidconsole0"));
+	ut_assertok(video_get_nologo(uts, &dev));
+	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+	ut_assertok(vidconsole_select_font(con, "12x22", 0));
+	ut_asserteq(46, compress_frame_buffer(uts, dev));
+
+	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+	vidconsole_putc_xy(con, 0, 0, 'a');
+	ut_asserteq(89, compress_frame_buffer(uts, dev));
+
+	vidconsole_putc_xy(con, 0, 0, ' ');
+	ut_asserteq(46, compress_frame_buffer(uts, dev));
+
+	for (i = 0; i < 20; i++)
+		vidconsole_putc_xy(con, VID_TO_POS(i * 8), 0, ' ' + i);
+	ut_asserteq(363, compress_frame_buffer(uts, dev));
+
+	vidconsole_set_row(con, 0, WHITE);
+	ut_asserteq(46, compress_frame_buffer(uts, dev));
+
+	for (i = 0; i < 20; i++)
+		vidconsole_putc_xy(con, VID_TO_POS(i * 8), 0, ' ' + i);
+	ut_asserteq(363, compress_frame_buffer(uts, dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_text_12x22, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
 /* Test handling of special characters in the console */
 static int dm_test_video_chars(struct unit_test_state *uts)
 {
@@ -184,6 +222,7 @@ static int dm_test_video_chars(struct unit_test_state *uts)
 	ut_assertok(select_vidconsole(uts, "vidconsole0"));
 	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+	ut_assertok(vidconsole_select_font(con, "8x16", 0));
 	vidconsole_put_string(con, test_string);
 	ut_asserteq(466, compress_frame_buffer(uts, dev));
 
@@ -201,6 +240,7 @@ static int dm_test_video_ansi(struct unit_test_state *uts)
 	ut_assertok(select_vidconsole(uts, "vidconsole0"));
 	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+	ut_assertok(vidconsole_select_font(con, "8x16", 0));
 
 	/* reference clear: */
 	video_clear(con->parent);
@@ -249,6 +289,7 @@ static int check_vidconsole_output(struct unit_test_state *uts, int rot,
 
 	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+	ut_assertok(vidconsole_select_font(con, "8x16", 0));
 	ut_asserteq(46, compress_frame_buffer(uts, dev));
 
 	/* Check display wrap */

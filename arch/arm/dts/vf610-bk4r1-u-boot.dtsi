@@ -6,22 +6,22 @@
 
 / {
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &aips0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_ddr {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_uart1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

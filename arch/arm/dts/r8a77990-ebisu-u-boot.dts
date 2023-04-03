@@ -12,7 +12,7 @@
 	sysinfo {
 		compatible = "renesas,rcar-sysinfo";
 		i2c-eeprom = <&sysinfo_eeprom>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
@@ -20,13 +20,13 @@
 	compatible = "renesas,iic-r8a77990",
 		     "renesas,rcar-gen3-iic",
 		     "renesas,rmobile-iic";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	sysinfo_eeprom: eeprom@50 {
 		compatible = "rohm,br24t01", "atmel,24c01";
 		reg = <0x50>;
 		pagesize = <8>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		status = "okay";
 	};
 };

@@ -71,6 +71,26 @@ struct clk_pcr_layout {
 	u32 pid_mask;
 };
 
+struct clk_usbck_layout {
+	u32 offset;
+	u32 usbs_mask;
+	u32 usbdiv_mask;
+};
+
+/**
+ * Clock setup description
+ * @cid:	clock id corresponding to clock subsystem
+ * @pid:	parent clock id corresponding to clock subsystem
+ * @rate:	clock rate
+ * @prate:	parent rate
+ */
+struct pmc_clk_setup {
+	unsigned int cid;
+	unsigned int pid;
+	unsigned long rate;
+	unsigned long prate;
+};
+
 extern const struct clk_programmable_layout at91rm9200_programmable_layout;
 extern const struct clk_programmable_layout at91sam9g45_programmable_layout;
 extern const struct clk_programmable_layout at91sam9x5_programmable_layout;
@@ -86,6 +106,11 @@ struct clk *at91_clk_rm9200_main(void __iomem *reg, const char *name,
 struct clk *at91_clk_sam9x5_main(void __iomem *reg, const char *name,
 			const char * const *parent_names, int num_parents,
 			const u32 *mux_table, int type);
+struct clk *
+sam9x60_clk_register_usb(void __iomem *base,  const char *name,
+			 const char * const *parent_names, u8 num_parents,
+			 const struct clk_usbck_layout *usbck_layout,
+			 const u32 *clk_mux_table, const u32 *mux_table, u8 id);
 struct clk *
 sam9x60_clk_register_div_pll(void __iomem *base, const char *name,
 			const char *parent_name, u8 id,
@@ -148,5 +173,7 @@ void pmc_read(void __iomem *base, unsigned int off, unsigned int *val);
 void pmc_write(void __iomem *base, unsigned int off, unsigned int val);
 void pmc_update_bits(void __iomem *base, unsigned int off, unsigned int mask,
 			unsigned int bits);
+
+int at91_clk_setup(const struct pmc_clk_setup *setup, int size);
 
 #endif

@@ -15,6 +15,13 @@
 #include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+/*
+ * Missing tests:
+ * fdt boardsetup         - Do board-specific set up
+ * fdt checksign [<addr>] - check FIT signature
+ *                          <addr> - address of key blob
+ *                                   default gd->fdt_blob
+ */
 
 /* Declare a new fdt test */
 #define FDT_TEST(_name, _flags)	UNIT_TEST(_name, _flags, fdt_test)
@@ -168,7 +175,7 @@ static int fdt_test_addr(struct unit_test_state *uts)
 	/* Set the working FDT */
 	set_working_fdt_addr(0);
 	ut_assert_nextline("Working FDT set to 0");
-	ut_assertok(run_commandf("fdt addr %08x", addr));
+	ut_assertok(run_commandf("fdt addr %08lx", addr));
 	ut_assert_nextline("Working FDT set to %lx", addr);
 	ut_asserteq(addr, map_to_sysmem(working_fdt));
 	ut_assertok(ut_check_console_end(uts));
@@ -178,7 +185,7 @@ static int fdt_test_addr(struct unit_test_state *uts)
 	/* Set the control FDT */
 	fdt_blob = gd->fdt_blob;
 	gd->fdt_blob = NULL;
-	ret = run_commandf("fdt addr -c %08x", addr);
+	ret = run_commandf("fdt addr -c %08lx", addr);
 	new_fdt = gd->fdt_blob;
 	gd->fdt_blob = fdt_blob;
 	ut_assertok(ret);
@@ -187,7 +194,7 @@ static int fdt_test_addr(struct unit_test_state *uts)
 
 	/* Test setting an invalid FDT */
 	fdt[0] = 123;
-	ut_asserteq(1, run_commandf("fdt addr %08x", addr));
+	ut_asserteq(1, run_commandf("fdt addr %08lx", addr));
 	ut_assert_nextline("libfdt fdt_check_header(): FDT_ERR_BADMAGIC");
 	ut_assertok(ut_check_console_end(uts));
 
@@ -216,20 +223,19 @@ static int fdt_test_addr_resize(struct unit_test_state *uts)
 
 	/* Test setting and resizing the working FDT to a larger size */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("fdt addr %08x %x", addr, newsize));
+	ut_assertok(run_commandf("fdt addr %08lx %x", addr, newsize));
 	ut_assert_nextline("Working FDT set to %lx", addr);
 	ut_assertok(ut_check_console_end(uts));
 
 	/* Try shrinking it */
-	ut_assertok(run_commandf("fdt addr %08x %x", addr, sizeof(fdt) / 4));
+	ut_assertok(run_commandf("fdt addr %08lx %zx", addr, sizeof(fdt) / 4));
 	ut_assert_nextline("Working FDT set to %lx", addr);
 	ut_assert_nextline("New length %d < existing length %d, ignoring",
 			   (int)sizeof(fdt) / 4, newsize);
 	ut_assertok(ut_check_console_end(uts));
 
 	/* ...quietly */
-	ut_assertok(run_commandf("fdt addr -q %08x %x", addr, sizeof(fdt) / 4));
-	ut_assert_nextline("Working FDT set to %lx", addr);
+	ut_assertok(run_commandf("fdt addr -q %08lx %zx", addr, sizeof(fdt) / 4));
 	ut_assertok(ut_check_console_end(uts));
 
 	/* We cannot easily provoke errors in fdt_open_into(), so ignore that */
@@ -258,13 +264,13 @@ static int fdt_test_move(struct unit_test_state *uts)
 
 	/* Test moving the working FDT to a new location */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("fdt move %08x %08x %x", addr, newaddr, ts));
+	ut_assertok(run_commandf("fdt move %08lx %08lx %x", addr, newaddr, ts));
 	ut_assert_nextline("Working FDT set to %lx", newaddr);
 	ut_assertok(ut_check_console_end(uts));
 
 	/* Compare the source and destination DTs */
 	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("cmp.b %08x %08x %x", addr, newaddr, ts));
+	ut_assertok(run_commandf("cmp.b %08lx %08lx %x", addr, newaddr, ts));
 	ut_assert_nextline("Total of %d byte(s) were the same", ts);
 	ut_assertok(ut_check_console_end(uts));
 
@@ -295,6 +301,149 @@ static int fdt_test_resize(struct unit_test_state *uts)
 	return 0;
 }
 FDT_TEST(fdt_test_resize, UT_TESTF_CONSOLE_REC);
+
+static int fdt_test_print_list_common(struct unit_test_state *uts,
+				      const char *opc, const char *node)
+{
+	/*
+	 * Test printing/listing the working FDT
+	 * subnode $node/subnode
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s %s/subnode", opc, node));
+	ut_assert_nextline("subnode {");
+	ut_assert_nextline("\t#address-cells = <0x00000000>;");
+	ut_assert_nextline("\t#size-cells = <0x00000000>;");
+	ut_assert_nextline("\tcompatible = \"u-boot,fdt-subnode-test-device\";");
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Test printing/listing the working FDT
+	 * path / string property model
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s / model", opc));
+	ut_assert_nextline("model = \"U-Boot FDT test\"");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Test printing/listing the working FDT
+	 * path $node string property compatible
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s %s compatible", opc, node));
+	ut_assert_nextline("compatible = \"u-boot,fdt-test-device1\"");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Test printing/listing the working FDT
+	 * path $node stringlist property clock-names
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s %s clock-names", opc, node));
+	ut_assert_nextline("clock-names = \"fixed\", \"i2c\", \"spi\", \"uart2\", \"uart1\"");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Test printing/listing the working FDT
+	 * path $node u32 property clock-frequency
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s %s clock-frequency", opc, node));
+	ut_assert_nextline("clock-frequency = <0x00fde800>");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Test printing/listing the working FDT
+	 * path $node empty property u-boot,empty-property
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s %s u-boot,empty-property", opc, node));
+	/*
+	 * This is the only 'fdt print' / 'fdt list' incantation which
+	 * prefixes the property with node path. This has been in U-Boot
+	 * since the beginning of the command 'fdt', keep it.
+	 */
+	ut_assert_nextline("%s u-boot,empty-property", node);
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Test printing/listing the working FDT
+	 * path $node prop-encoded array property regs
+	 */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s %s regs", opc, node));
+	ut_assert_nextline("regs = <0x00001234 0x00001000>");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+static int fdt_test_print_list(struct unit_test_state *uts, bool print)
+{
+	const char *opc = print ? "print" : "list";
+	char fdt[4096];
+	ulong addr;
+	int ret;
+
+	/* Original source DT */
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test printing/listing the working FDT -- node / */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt %s", opc));
+	ut_assert_nextline("/ {");
+	ut_assert_nextline("\t#address-cells = <0x00000001>;");
+	ut_assert_nextline("\t#size-cells = <0x00000001>;");
+	ut_assert_nextline("\tcompatible = \"u-boot,fdt-test\";");
+	ut_assert_nextline("\tmodel = \"U-Boot FDT test\";");
+	ut_assert_nextline("\taliases {");
+	if (print) {
+		ut_assert_nextline("\t\tbadalias = \"/bad/alias\";");
+		ut_assert_nextline("\t\tsubnodealias = \"/test-node@1234/subnode\";");
+		ut_assert_nextline("\t\ttestnodealias = \"/test-node@1234\";");
+	}
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("\ttest-node@1234 {");
+	if (print) {
+		ut_assert_nextline("\t\t#address-cells = <0x00000000>;");
+		ut_assert_nextline("\t\t#size-cells = <0x00000000>;");
+		ut_assert_nextline("\t\tcompatible = \"u-boot,fdt-test-device1\";");
+		ut_assert_nextline("\t\tclock-names = \"fixed\", \"i2c\", \"spi\", \"uart2\", \"uart1\";");
+		ut_assert_nextline("\t\tu-boot,empty-property;");
+		ut_assert_nextline("\t\tclock-frequency = <0x00fde800>;");
+		ut_assert_nextline("\t\tregs = <0x00001234 0x00001000>;");
+		ut_assert_nextline("\t\tsubnode {");
+		ut_assert_nextline("\t\t\t#address-cells = <0x00000000>;");
+		ut_assert_nextline("\t\t\t#size-cells = <0x00000000>;");
+		ut_assert_nextline("\t\t\tcompatible = \"u-boot,fdt-subnode-test-device\";");
+		ut_assert_nextline("\t\t};");
+	}
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	ret = fdt_test_print_list_common(uts, opc, "/test-node@1234");
+	if (!ret)
+		ret = fdt_test_print_list_common(uts, opc, "testnodealias");
+
+	return 0;
+}
+
+static int fdt_test_print(struct unit_test_state *uts)
+{
+	return fdt_test_print_list(uts, true);
+}
+FDT_TEST(fdt_test_print, UT_TESTF_CONSOLE_REC);
+
+static int fdt_test_list(struct unit_test_state *uts)
+{
+	return fdt_test_print_list(uts, false);
+}
+FDT_TEST(fdt_test_list, UT_TESTF_CONSOLE_REC);
 
 /* Test 'fdt get value' reading an fdt */
 static int fdt_test_get_value_string(struct unit_test_state *uts,
@@ -646,23 +795,21 @@ static int fdt_test_set_single(struct unit_test_state *uts,
 	 * => fdt set /path property
 	 */
 	ut_assertok(console_record_reset_enable());
-	if (sval) {
+	if (sval)
 		ut_assertok(run_commandf("fdt set %s %s %s", path, prop, sval));
-	} else if (integer) {
+	else if (integer)
 		ut_assertok(run_commandf("fdt set %s %s <%d>", path, prop, ival));
-	} else {
+	else
 		ut_assertok(run_commandf("fdt set %s %s", path, prop));
-	}
 
 	/* Validate the property is present and has correct value. */
 	ut_assertok(run_commandf("fdt get value svar %s %s", path, prop));
-	if (sval) {
+	if (sval)
 		ut_asserteq_str(sval, env_get("svar"));
-	} else if (integer) {
+	else if (integer)
 		ut_asserteq(ival, env_get_hex("svar", 0x1234));
-	} else {
+	else
 		ut_assertnull(env_get("svar"));
-	}
 	ut_assertok(ut_check_console_end(uts));
 
 	return 0;
@@ -963,6 +1110,411 @@ static int fdt_test_bootcpu(struct unit_test_state *uts)
 	return 0;
 }
 FDT_TEST(fdt_test_bootcpu, UT_TESTF_CONSOLE_REC);
+
+static int fdt_test_header_get(struct unit_test_state *uts,
+			       const char *field, const unsigned long val)
+{
+	/* Test getting valid header entry */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt header get fvar %s", field));
+	ut_asserteq(val, env_get_hex("fvar", 0x1234));
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test getting malformed header entry */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_commandf("fdt header get fvar typo%stypo", field));
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+static int fdt_test_header(struct unit_test_state *uts)
+{
+	char fdt[256];
+	ulong addr;
+
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test header print */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt header"));
+	ut_assert_nextline("magic:\t\t\t0x%x", fdt_magic(fdt));
+	ut_assert_nextline("totalsize:\t\t0x%x (%d)", fdt_totalsize(fdt), fdt_totalsize(fdt));
+	ut_assert_nextline("off_dt_struct:\t\t0x%x", fdt_off_dt_struct(fdt));
+	ut_assert_nextline("off_dt_strings:\t\t0x%x", fdt_off_dt_strings(fdt));
+	ut_assert_nextline("off_mem_rsvmap:\t\t0x%x", fdt_off_mem_rsvmap(fdt));
+	ut_assert_nextline("version:\t\t%d", fdt_version(fdt));
+	ut_assert_nextline("last_comp_version:\t%d", fdt_last_comp_version(fdt));
+	ut_assert_nextline("boot_cpuid_phys:\t0x%x", fdt_boot_cpuid_phys(fdt));
+	ut_assert_nextline("size_dt_strings:\t0x%x", fdt_size_dt_strings(fdt));
+	ut_assert_nextline("size_dt_struct:\t\t0x%x", fdt_size_dt_struct(fdt));
+	ut_assert_nextline("number mem_rsv:\t\t0x%x", fdt_num_mem_rsv(fdt));
+	ut_assert_nextline_empty();
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test header get */
+	fdt_test_header_get(uts, "magic", fdt_magic(fdt));
+	fdt_test_header_get(uts, "totalsize", fdt_totalsize(fdt));
+	fdt_test_header_get(uts, "off_dt_struct", fdt_off_dt_struct(fdt));
+	fdt_test_header_get(uts, "off_dt_strings", fdt_off_dt_strings(fdt));
+	fdt_test_header_get(uts, "off_mem_rsvmap", fdt_off_mem_rsvmap(fdt));
+	fdt_test_header_get(uts, "version", fdt_version(fdt));
+	fdt_test_header_get(uts, "last_comp_version", fdt_last_comp_version(fdt));
+	fdt_test_header_get(uts, "boot_cpuid_phys", fdt_boot_cpuid_phys(fdt));
+	fdt_test_header_get(uts, "size_dt_strings", fdt_size_dt_strings(fdt));
+	fdt_test_header_get(uts, "size_dt_struct", fdt_size_dt_struct(fdt));
+
+	return 0;
+}
+FDT_TEST(fdt_test_header, UT_TESTF_CONSOLE_REC);
+
+static int fdt_test_memory_cells(struct unit_test_state *uts,
+				 const unsigned int cells)
+{
+	unsigned char *pada, *pads;
+	unsigned char *seta, *sets;
+	char fdt[8192];
+	const int size = sizeof(fdt);
+	fdt32_t *regs;
+	ulong addr;
+	char *spc;
+	int i;
+
+	/* Create DT with node /memory { regs = <0x100 0x200>; } and #*cells */
+	ut_assertnonnull(regs = calloc(2 * cells, sizeof(*regs)));
+	ut_assertnonnull(pada = calloc(12, cells));
+	ut_assertnonnull(pads = calloc(12, cells));
+	ut_assertnonnull(seta = calloc(12, cells));
+	ut_assertnonnull(sets = calloc(12, cells));
+	for (i = cells; i >= 1; i--) {
+		regs[cells - 1] = cpu_to_fdt32(i * 0x10000);
+		regs[(cells * 2) - 1] = cpu_to_fdt32(~i);
+		snprintf(seta + (8 * (cells - i)), 9, "%08x", i * 0x10000);
+		snprintf(sets + (8 * (cells - i)), 9, "%08x", ~i);
+		spc = (i != 1) ? " " : "";
+		snprintf(pada + (11 * (cells - i)), 12, "0x%08x%s", i * 0x10000, spc);
+		snprintf(pads + (11 * (cells - i)), 12, "0x%08x%s", ~i, spc);
+	}
+
+	ut_assertok(fdt_create(fdt, size));
+	ut_assertok(fdt_finish_reservemap(fdt));
+	ut_assert(fdt_begin_node(fdt, "") >= 0);
+	ut_assertok(fdt_property_u32(fdt, "#address-cells", cells));
+	ut_assertok(fdt_property_u32(fdt, "#size-cells", cells));
+	ut_assert(fdt_begin_node(fdt, "memory") >= 0);
+	ut_assertok(fdt_property_string(fdt, "device_type", "memory"));
+	ut_assertok(fdt_property(fdt, "reg", &regs, cells * 2));
+	ut_assertok(fdt_end_node(fdt));
+	ut_assertok(fdt_end_node(fdt));
+	ut_assertok(fdt_finish(fdt));
+	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test updating the memory node */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt memory 0x%s 0x%s", seta, sets));
+	ut_assertok(run_commandf("fdt print /memory"));
+	ut_assert_nextline("memory {");
+	ut_assert_nextline("\tdevice_type = \"memory\";");
+	ut_assert_nextline("\treg = <%s %s>;", pada, pads);
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	free(sets);
+	free(seta);
+	free(pads);
+	free(pada);
+	free(regs);
+
+	return 0;
+}
+
+static int fdt_test_memory(struct unit_test_state *uts)
+{
+	/*
+	 * Test memory fixup for 32 and 64 bit systems, anything bigger is
+	 * so far unsupported and fails because of simple_stroull() being
+	 * 64bit tops in the 'fdt memory' command implementation.
+	 */
+	fdt_test_memory_cells(uts, 1);
+	fdt_test_memory_cells(uts, 2);
+
+	/*
+	 * The 'fdt memory' command is limited to /memory node, it does
+	 * not support any other valid DT memory node format, which is
+	 * either one or multiple /memory@adresss nodes. Therefore, this
+	 * DT variant is not tested here.
+	 */
+
+	return 0;
+}
+FDT_TEST(fdt_test_memory, UT_TESTF_CONSOLE_REC);
+
+static int fdt_test_rsvmem(struct unit_test_state *uts)
+{
+	char fdt[8192];
+	ulong addr;
+
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
+	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
+	fdt_add_mem_rsv(fdt, 0x42, 0x1701);
+	fdt_add_mem_rsv(fdt, 0x74656, 0x9);
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test default reserved memory node presence */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt rsvmem print"));
+	ut_assert_nextline("index\t\t   start\t\t    size");
+	ut_assert_nextline("------------------------------------------------");
+	ut_assert_nextline("    %x\t%016x\t%016x", 0, 0x42, 0x1701);
+	ut_assert_nextline("    %x\t%016x\t%016x", 1, 0x74656, 0x9);
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test add new reserved memory node */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt rsvmem add 0x1234 0x5678"));
+	ut_assertok(run_commandf("fdt rsvmem print"));
+	ut_assert_nextline("index\t\t   start\t\t    size");
+	ut_assert_nextline("------------------------------------------------");
+	ut_assert_nextline("    %x\t%016x\t%016x", 0, 0x42, 0x1701);
+	ut_assert_nextline("    %x\t%016x\t%016x", 1, 0x74656, 0x9);
+	ut_assert_nextline("    %x\t%016x\t%016x", 2, 0x1234, 0x5678);
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test delete reserved memory node */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt rsvmem delete 0"));
+	ut_assertok(run_commandf("fdt rsvmem print"));
+	ut_assert_nextline("index\t\t   start\t\t    size");
+	ut_assert_nextline("------------------------------------------------");
+	ut_assert_nextline("    %x\t%016x\t%016x", 0, 0x74656, 0x9);
+	ut_assert_nextline("    %x\t%016x\t%016x", 1, 0x1234, 0x5678);
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test re-add new reserved memory node */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt rsvmem add 0x42 0x1701"));
+	ut_assertok(run_commandf("fdt rsvmem print"));
+	ut_assert_nextline("index\t\t   start\t\t    size");
+	ut_assert_nextline("------------------------------------------------");
+	ut_assert_nextline("    %x\t%016x\t%016x", 0, 0x74656, 0x9);
+	ut_assert_nextline("    %x\t%016x\t%016x", 1, 0x1234, 0x5678);
+	ut_assert_nextline("    %x\t%016x\t%016x", 2, 0x42, 0x1701);
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test delete nonexistent reserved memory node */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_commandf("fdt rsvmem delete 10"));
+	ut_assert_nextline("libfdt fdt_del_mem_rsv(): FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+FDT_TEST(fdt_test_rsvmem, UT_TESTF_CONSOLE_REC);
+
+static int fdt_test_chosen(struct unit_test_state *uts)
+{
+	const char *env_bootargs = env_get("bootargs");
+	char fdt[8192];
+	ulong addr;
+
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
+	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Test default chosen node presence, fail as there is no /chosen node */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_commandf("fdt print /chosen"));
+	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test add new chosen node without initrd */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt chosen"));
+	ut_assertok(run_commandf("fdt print /chosen"));
+	ut_assert_nextline("chosen {");
+	ut_assert_nextlinen("\tu-boot,version = "); /* Ignore the version string */
+	if (env_bootargs)
+		ut_assert_nextline("\tbootargs = \"%s\";", env_bootargs);
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test add new chosen node with initrd */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt chosen 0x1234 0x5678"));
+	ut_assertok(run_commandf("fdt print /chosen"));
+	ut_assert_nextline("chosen {");
+	ut_assert_nextline("\tlinux,initrd-end = <0x%08x 0x%08x>;",
+			   upper_32_bits(0x1234 + 0x5678 - 1),
+			   lower_32_bits(0x1234 + 0x5678 - 1));
+	ut_assert_nextline("\tlinux,initrd-start = <0x%08x 0x%08x>;",
+			   upper_32_bits(0x1234), lower_32_bits(0x1234));
+	ut_assert_nextlinen("\tu-boot,version = "); /* Ignore the version string */
+	if (env_bootargs)
+		ut_assert_nextline("\tbootargs = \"%s\";", env_bootargs);
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+FDT_TEST(fdt_test_chosen, UT_TESTF_CONSOLE_REC);
+
+static int fdt_test_apply(struct unit_test_state *uts)
+{
+	char fdt[8192], fdto[8192];
+	ulong addr, addro;
+
+	/* Create base DT with __symbols__ node */
+	ut_assertok(fdt_create(fdt, sizeof(fdt)));
+	ut_assertok(fdt_finish_reservemap(fdt));
+	ut_assert(fdt_begin_node(fdt, "") >= 0);
+	ut_assert(fdt_begin_node(fdt, "__symbols__") >= 0);
+	ut_assertok(fdt_end_node(fdt));
+	ut_assertok(fdt_end_node(fdt));
+	ut_assertok(fdt_finish(fdt));
+	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+
+	/* Create DTO which adds single property to root node / */
+	ut_assertok(fdt_create(fdto, sizeof(fdto)));
+	ut_assertok(fdt_finish_reservemap(fdto));
+	ut_assert(fdt_begin_node(fdto, "") >= 0);
+	ut_assert(fdt_begin_node(fdto, "fragment") >= 0);
+	ut_assertok(fdt_property_string(fdto, "target-path", "/"));
+	ut_assert(fdt_begin_node(fdto, "__overlay__") >= 0);
+	ut_assertok(fdt_property_string(fdto, "newstring", "newvalue"));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_finish(fdto));
+	addro = map_to_sysmem(fdto);
+
+	/* Test default DT print */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt print /"));
+	ut_assert_nextline("/ {");
+	ut_assert_nextline("\t__symbols__ {");
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	/* Test simple DTO application */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt apply 0x%08lx", addro));
+	ut_assertok(run_commandf("fdt print /"));
+	ut_assert_nextline("/ {");
+	ut_assert_nextline("\tnewstring = \"newvalue\";");
+	ut_assert_nextline("\t__symbols__ {");
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Create complex DTO which:
+	 * - modifies newstring property in root node /
+	 * - adds new properties to root node /
+	 * - adds new subnode with properties to root node /
+	 * - adds phandle to the subnode and therefore __symbols__ node
+	 */
+	ut_assertok(fdt_create(fdto, sizeof(fdto)));
+	ut_assertok(fdt_finish_reservemap(fdto));
+	ut_assert(fdt_begin_node(fdto, "") >= 0);
+	ut_assertok(fdt_property_cell(fdto, "#address-cells", 1));
+	ut_assertok(fdt_property_cell(fdto, "#size-cells", 0));
+
+	ut_assert(fdt_begin_node(fdto, "fragment@0") >= 0);
+	ut_assertok(fdt_property_string(fdto, "target-path", "/"));
+	ut_assert(fdt_begin_node(fdto, "__overlay__") >= 0);
+	ut_assertok(fdt_property_string(fdto, "newstring", "newervalue"));
+	ut_assertok(fdt_property_u32(fdto, "newu32", 0x12345678));
+	ut_assertok(fdt_property(fdto, "empty-property", NULL, 0));
+	ut_assert(fdt_begin_node(fdto, "subnode") >= 0);
+	ut_assertok(fdt_property_string(fdto, "subnewstring", "newervalue"));
+	ut_assertok(fdt_property_u32(fdto, "subnewu32", 0x12345678));
+	ut_assertok(fdt_property(fdto, "subempty-property", NULL, 0));
+	ut_assertok(fdt_property_u32(fdto, "phandle", 0x01));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_end_node(fdto));
+
+	ut_assert(fdt_begin_node(fdto, "__symbols__") >= 0);
+	ut_assertok(fdt_property_string(fdto, "subnodephandle", "/fragment@0/__overlay__/subnode"));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_finish(fdto));
+	addro = map_to_sysmem(fdto);
+
+	/* Test complex DTO application */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt apply 0x%08lx", addro));
+	ut_assertok(run_commandf("fdt print /"));
+	ut_assert_nextline("/ {");
+	ut_assert_nextline("\tempty-property;");
+	ut_assert_nextline("\tnewu32 = <0x12345678>;");
+	ut_assert_nextline("\tnewstring = \"newervalue\";");
+	ut_assert_nextline("\tsubnode {");
+	ut_assert_nextline("\t\tphandle = <0x00000001>;");
+	ut_assert_nextline("\t\tsubempty-property;");
+	ut_assert_nextline("\t\tsubnewu32 = <0x12345678>;");
+	ut_assert_nextline("\t\tsubnewstring = \"newervalue\";");
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("\t__symbols__ {");
+	ut_assert_nextline("\t\tsubnodephandle = \"/subnode\";");
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	/*
+	 * Create complex DTO which:
+	 * - modifies subnewu32 property in subnode via phandle and uses __fixups__ node
+	 */
+	ut_assertok(fdt_create(fdto, sizeof(fdto)));
+	ut_assertok(fdt_finish_reservemap(fdto));
+	ut_assert(fdt_begin_node(fdto, "") >= 0);
+	ut_assertok(fdt_property_cell(fdto, "#address-cells", 1));
+	ut_assertok(fdt_property_cell(fdto, "#size-cells", 0));
+
+	ut_assert(fdt_begin_node(fdto, "fragment@0") >= 0);
+	ut_assertok(fdt_property_u32(fdto, "target", 0xffffffff));
+	ut_assert(fdt_begin_node(fdto, "__overlay__") >= 0);
+	ut_assertok(fdt_property_u32(fdto, "subnewu32", 0xabcdef01));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_end_node(fdto));
+
+	ut_assert(fdt_begin_node(fdto, "__fixups__") >= 0);
+	ut_assertok(fdt_property_string(fdto, "subnodephandle", "/fragment@0:target:0"));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_end_node(fdto));
+	ut_assertok(fdt_finish(fdto));
+	addro = map_to_sysmem(fdto);
+
+	/* Test complex DTO application */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("fdt apply 0x%08lx", addro));
+	ut_assertok(run_commandf("fdt print /"));
+	ut_assert_nextline("/ {");
+	ut_assert_nextline("\tempty-property;");
+	ut_assert_nextline("\tnewu32 = <0x12345678>;");
+	ut_assert_nextline("\tnewstring = \"newervalue\";");
+	ut_assert_nextline("\tsubnode {");
+	ut_assert_nextline("\t\tphandle = <0x00000001>;");
+	ut_assert_nextline("\t\tsubempty-property;");
+	ut_assert_nextline("\t\tsubnewu32 = <0xabcdef01>;");
+	ut_assert_nextline("\t\tsubnewstring = \"newervalue\";");
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("\t__symbols__ {");
+	ut_assert_nextline("\t\tsubnodephandle = \"/subnode\";");
+	ut_assert_nextline("\t};");
+	ut_assert_nextline("};");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+FDT_TEST(fdt_test_apply, UT_TESTF_CONSOLE_REC);
 
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

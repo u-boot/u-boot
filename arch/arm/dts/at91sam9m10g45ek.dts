@@ -17,7 +17,7 @@
 	chosen {
 		bootargs = "mem=64M root=/dev/mtdblock1 rw rootfstype=jffs2";
 		stdout-path = "serial0:115200n8";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	memory {
@@ -38,7 +38,7 @@
 		apb {
 			dbgu: serial@ffffee00 {
 				status = "okay";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			usart1: serial@fff90000 {

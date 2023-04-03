@@ -690,4 +690,20 @@ u32 tpm2_report_state(struct udevice *dev, uint vendor_cmd, uint vendor_subcmd,
 u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
 			  uint vendor_subcmd);
 
+/**
+ * tpm2_auto_start() - start up the TPM and perform selftests.
+ *                     If a testable function has not been tested and is
+ *                     requested the TPM2  will return TPM_RC_NEEDS_TEST.
+ *
+ * @param dev		TPM device
+ * Return: TPM2_RC_TESTING, if TPM2 self-test is in progress.
+ *         TPM2_RC_SUCCESS, if testing of all functions is complete without
+ *         functional failures.
+ *         TPM2_RC_FAILURE, if any test failed.
+ *         TPM2_RC_INITIALIZE, if the TPM has not gone through the Startup
+ *         sequence
+
+ */
+u32 tpm2_auto_start(struct udevice *dev);
+
 #endif /* __TPM_V2_H */

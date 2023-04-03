@@ -30,8 +30,8 @@ from dtoc import fdt_util
 from dtoc.fdt_util import fdt32_to_cpu, fdt64_to_cpu
 from dtoc.fdt import Type, BytesToValue
 import libfdt
-from patman import test_util
-from patman import tools
+from u_boot_pylib import test_util
+from u_boot_pylib import tools
 
 #pylint: disable=protected-access
 
@@ -132,10 +132,10 @@ class TestFdt(unittest.TestCase):
         """Tests obtaining a list of properties"""
         node = self.dtb.GetNode('/spl-test')
         props = self.dtb.GetProps(node)
-        self.assertEqual(['boolval', 'bytearray', 'byteval', 'compatible',
-                          'int64val', 'intarray', 'intval', 'longbytearray',
-                          'maybe-empty-int', 'notstring', 'stringarray',
-                          'stringval', 'u-boot,dm-pre-reloc'],
+        self.assertEqual(['boolval', 'bootph-all', 'bytearray', 'byteval',
+                          'compatible', 'int64val', 'intarray', 'intval',
+                          'longbytearray', 'maybe-empty-int', 'notstring',
+                          'stringarray', 'stringval', ],
                          sorted(props.keys()))
 
     def test_check_error(self):
@@ -814,7 +814,8 @@ def run_test_coverage(build_dir):
         build_dir (str): Directory containing the build output
     """
     test_util.run_test_coverage('tools/dtoc/test_fdt.py', None,
-            ['tools/patman/*.py', '*test_fdt.py'], build_dir)
+            ['tools/patman/*.py', 'tools/u_boot_pylib/*', '*test_fdt.py'],
+            build_dir)
 
 
 def run_tests(names, processes):

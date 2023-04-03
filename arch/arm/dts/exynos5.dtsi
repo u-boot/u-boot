@@ -137,7 +137,7 @@
 	};
 
 	fimd@14400000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "samsung,exynos-fimd";
 		reg = <0x14400000 0x10000>;
 		#address-cells = <1>;
@@ -218,7 +218,7 @@
 		compatible = "samsung,exynos4210-uart";
 		reg = <0x12C30000 0x100>;
 		interrupts = <0 54 0>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		id = <3>;
 	};
 };

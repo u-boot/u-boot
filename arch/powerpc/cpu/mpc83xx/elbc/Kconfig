@@ -23,10 +23,4 @@ config ELBC_BR_OR_NAND_PRELIM_4
 
 endchoice
 
-source "arch/powerpc/cpu/mpc83xx/elbc/Kconfig.elbc0"
-source "arch/powerpc/cpu/mpc83xx/elbc/Kconfig.elbc1"
-source "arch/powerpc/cpu/mpc83xx/elbc/Kconfig.elbc2"
-source "arch/powerpc/cpu/mpc83xx/elbc/Kconfig.elbc3"
-source "arch/powerpc/cpu/mpc83xx/elbc/Kconfig.elbc4"
-
 endmenu

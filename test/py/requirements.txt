@@ -1,5 +1,6 @@
 atomicwrites==1.4.1
 attrs==19.3.0
+concurrencytest==0.1.2
 coverage==4.5.4
 extras==1.0.0
 filelock==3.0.12

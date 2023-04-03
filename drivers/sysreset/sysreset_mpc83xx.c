@@ -107,7 +107,7 @@ static int print_83xx_arb_event(bool force, char *buf, int size)
 	if (!force && !gd->arch.arbiter_event_address)
 		return 0;
 
-	if (CONFIG_IS_ENABLED(DISPLAY_AER_FULL)) {
+	if (IS_ENABLED(CONFIG_DISPLAY_AER_FULL)) {
 		res = snprintf(buf, size,
 			       "Arbiter Event Status:\n"
 			       "    %s: 0x%08lX\n"
@@ -184,7 +184,7 @@ static int mpc83xx_sysreset_get_status(struct udevice *dev, char *buf, int size)
 	 * TODO(mario.six@gdsys.cc): Move this into a dedicated
 	 *			     arbiter driver
 	 */
-	if (CONFIG_IS_ENABLED(DISPLAY_AER_FULL) ||
+	if (IS_ENABLED(CONFIG_DISPLAY_AER_FULL) ||
 	    IS_ENABLED(CONFIG_DISPLAY_AER_BRIEF)) {
 		/*
 		 * If there was a bus monitor reset event, we force the arbiter

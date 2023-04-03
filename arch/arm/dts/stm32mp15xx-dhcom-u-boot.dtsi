@@ -46,17 +46,17 @@
 };
 
 &i2c4 {
-	u-boot,dm-pre-reloc;
-	u-boot,dm-spl;
+	bootph-all;
+	bootph-pre-ram;
 
 	eeprom0: eeprom@50 {
 	};
 };
 
 &i2c4_pins_a {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	pins {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
@@ -82,46 +82,46 @@
 };
 
 &pmic {
-	u-boot,dm-pre-reloc;
-	u-boot,dm-spl;
+	bootph-all;
+	bootph-pre-ram;
 
 	regulators {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &flash0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &qspi {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &qspi_clk_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pins {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &qspi_bk1_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pins1 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 	pins2 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &qspi_bk2_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pins1 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 	pins2 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -211,7 +211,7 @@
 		reg = <1>;
 		cfg = < 2 65 1 0 0 PQR(1,1,1) >;
 		frac = < 0x1400 >;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	/* VCO = 417.8 MHz => P = 209, Q = 24, R = 11 */
@@ -220,7 +220,7 @@
 		reg = <2>;
 		cfg = < 1 33 1 16 36 PQR(1,1,1) >;
 		frac = < 0x1a04 >;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	/* VCO = 600.0 MHz => P = 100, Q = 50, R = 50 */
@@ -228,12 +228,12 @@
 		compatible = "st,stm32mp1-pll";
 		reg = <3>;
 		cfg = < 1 49 5 11 11 PQR(1,1,1) >;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &sdmmc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	st,use-ckin;
 	st,cmd-gpios = <&gpiod 2 0>;
 	st,ck-gpios = <&gpioc 12 0>;
@@ -241,91 +241,91 @@
 };
 
 &sdmmc1_b4_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pins1 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 	pins2 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &sdmmc1_dir_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pins1 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 	pins2 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &sdmmc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc2_b4_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pins {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &sdmmc2_d47_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pins {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &uart4 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart4_pins_a {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	pins1 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 	pins2 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		/* pull-up on rx to avoid floating level */
 		bias-pull-up;
 	};
 };
 
 &reg11 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &reg18 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usb33 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbotg_hs_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbotg_hs {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbphyc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbphyc_port0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbphyc_port1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &vdd_usb {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

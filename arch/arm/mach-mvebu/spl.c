@@ -33,21 +33,44 @@
 #endif
 
 /*
- * When loading U-Boot via SPL from eMMC (in Marvell terminology SDIO), the
- * kwbimage main header is stored at sector 0. U-Boot SPL needs to parse this
- * header and figure out at which sector the U-Boot proper binary is stored.
- * Partition booting is therefore not supported and CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
- * and CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET need to point to the
- * kwbimage main header.
+ * When loading U-Boot via SPL from eMMC, the kwbimage main header is stored at
+ * sector 0 and either on HW boot partition or on data partition. Choice of HW
+ * partition depends on what is configured in eMMC EXT_CSC register.
+ * When loading U-Boot via SPL from SD card, the kwbimage main header is stored
+ * at sector 1.
+ * Therefore MBR/GPT partition booting, fixed sector number and fixed eMMC HW
+ * partition number are unsupported due to limitation of Marvell BootROM.
+ * Correct sector number must be determined as runtime in mvebu SPL code based
+ * on the detected boot source. Otherwise U-Boot SPL would not be able to load
+ * U-Boot proper.
+ * Runtime mvebu SPL sector calculation code expects:
+ * - CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET=0
+ * - CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR=0
  */
 #ifdef CONFIG_SPL_MMC
+#ifdef CONFIG_SYS_MMCSD_FS_BOOT
+#error CONFIG_SYS_MMCSD_FS_BOOT is unsupported
+#endif
+#ifdef CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
+#error CONFIG_SYS_MMCSD_FS_BOOT_PARTITION is unsupported
+#endif
+#ifdef CONFIG_SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG
+#error CONFIG_SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG is unsupported
+#endif
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+#error CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION is unsupported
+#endif
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 #error CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION is unsupported
 #endif
-#if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR) && CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR != 0
+#ifndef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+#error CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR must be enabled for SD/eMMC boot support
+#endif
+#if !defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR) || \
+    CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR != 0
 #error CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR must be set to 0
 #endif
-#if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET) && \
+#if !defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET) || \
     CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET != 0
 #error CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET must be set to 0
 #endif
@@ -98,7 +121,12 @@ struct kwbimage_main_hdr_v1 {
 #ifdef CONFIG_SPL_MMC
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 {
-	return MMCSD_MODE_RAW;
+	return IS_SD(mmc) ? MMCSD_MODE_RAW : MMCSD_MODE_EMMCBOOT;
+}
+unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+					   unsigned long raw_sect)
+{
+	return IS_SD(mmc) ? 1 : 0;
 }
 #endif
 
@@ -169,9 +197,7 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 	}
 
 	if (IS_ENABLED(CONFIG_SPL_MMC) &&
-	    (bootdev->boot_device == BOOT_DEVICE_MMC1 ||
-	     bootdev->boot_device == BOOT_DEVICE_MMC2 ||
-	     bootdev->boot_device == BOOT_DEVICE_MMC2_2) &&
+	    (bootdev->boot_device == BOOT_DEVICE_MMC1) &&
 	    mhdr->blockid != IBR_HDR_SDIO_ID) {
 		printf("ERROR: Wrong blockid (0x%x) in SDIO kwbimage\n",
 		       mhdr->blockid);
@@ -182,26 +208,9 @@ int spl_parse_board_header(struct spl_image_info *spl_image,
 
 	/*
 	 * For SATA srcaddr is specified in number of sectors.
-	 * The main header is must be stored at sector number 1.
-	 * This expects that sector size is 512 bytes and recalculates
-	 * data offset to bytes relative to the main header.
+	 * This expects that sector size is 512 bytes.
 	 */
-	if (IS_ENABLED(CONFIG_SPL_SATA) && mhdr->blockid == IBR_HDR_SATA_ID) {
-		if (spl_image->offset < 1) {
-			printf("ERROR: Wrong srcaddr (0x%08x) in SATA kwbimage\n",
-			       spl_image->offset);
-			return -EINVAL;
-		}
-		spl_image->offset -= 1;
-		spl_image->offset *= 512;
-	}
-
-	/*
-	 * For SDIO (eMMC) srcaddr is specified in number of sectors.
-	 * This expects that sector size is 512 bytes and recalculates
-	 * data offset to bytes.
-	 */
-	if (IS_ENABLED(CONFIG_SPL_MMC) && mhdr->blockid == IBR_HDR_SDIO_ID)
+	if (IS_ENABLED(CONFIG_SPL_SATA) && mhdr->blockid == IBR_HDR_SATA_ID)
 		spl_image->offset *= 512;
 
 	if (spl_image->offset % 4 != 0) {
@@ -298,19 +307,6 @@ int board_return_to_bootrom(struct spl_image_info *spl_image,
 	/* NOTREACHED - return_to_bootrom() does not return */
 	hang();
 }
-
-/*
- * SPI0 CS0 Flash is mapped to address range 0xD4000000 - 0xD7FFFFFF by BootROM.
- * Proper U-Boot removes this direct mapping. So it is available only in SPL.
- */
-#if defined(CONFIG_SPL_ENV_IS_IN_SPI_FLASH) && \
-    CONFIG_ENV_SPI_BUS == 0 && CONFIG_ENV_SPI_CS == 0 && \
-    CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE <= 64*1024*1024
-void *env_sf_get_env_addr(void)
-{
-	return (void *)0xD4000000 + CONFIG_ENV_OFFSET;
-}
-#endif
 
 void board_init_f(ulong dummy)
 {

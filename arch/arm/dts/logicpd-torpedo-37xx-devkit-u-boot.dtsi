@@ -27,7 +27,7 @@
 
 &i2c1 {
 	clock-frequency = <400000>;
-	/delete-property/ u-boot,dm-spl;
+	/delete-property/ bootph-pre-ram;
 };
 
 &i2c2 {
@@ -35,27 +35,27 @@
 };
 
 &gpio1 {
-	/delete-property/ u-boot,dm-spl;
+	/delete-property/ bootph-pre-ram;
 };
 
 &gpio2 {
-	/delete-property/ u-boot,dm-spl;
+	/delete-property/ bootph-pre-ram;
 };
 
 &gpio3 {
-	/delete-property/ u-boot,dm-spl;
+	/delete-property/ bootph-pre-ram;
 };
 
 &gpio4 {
-	/delete-property/ u-boot,dm-spl;
+	/delete-property/ bootph-pre-ram;
 };
 
 &gpio5 {
-	/delete-property/ u-boot,dm-spl;
+	/delete-property/ bootph-pre-ram;
 };
 
 &gpio6 {
-	/delete-property/ u-boot,dm-spl;
+	/delete-property/ bootph-pre-ram;
 };
 
 /delete-node/ &bandgap;

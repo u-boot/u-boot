@@ -12,6 +12,7 @@
 #include <asm/system.h>
 #include <linux/linkage.h>
 
+#ifndef CONFIG_CMO_BY_VA_ONLY
 /*
  * void __asm_dcache_level(level)
  *
@@ -116,6 +117,41 @@ ENTRY(__asm_invalidate_dcache_all)
 ENDPROC(__asm_invalidate_dcache_all)
 .popsection
 
+.pushsection .text.__asm_flush_l3_dcache, "ax"
+WEAK(__asm_flush_l3_dcache)
+	mov	x0, #0			/* return status as success */
+	ret
+ENDPROC(__asm_flush_l3_dcache)
+.popsection
+
+.pushsection .text.__asm_invalidate_l3_icache, "ax"
+WEAK(__asm_invalidate_l3_icache)
+	mov	x0, #0			/* return status as success */
+	ret
+ENDPROC(__asm_invalidate_l3_icache)
+.popsection
+
+#else	/* CONFIG_CMO_BY_VA */
+
+/*
+ * Define these so that they actively clash with in implementation
+ * accidentally selecting CONFIG_CMO_BY_VA
+ */
+
+.pushsection .text.__asm_invalidate_l3_icache, "ax"
+ENTRY(__asm_invalidate_l3_icache)
+	mov	x0, xzr
+	ret
+ENDPROC(__asm_invalidate_l3_icache)
+.popsection
+.pushsection .text.__asm_flush_l3_dcache, "ax"
+ENTRY(__asm_flush_l3_dcache)
+	mov	x0, xzr
+	ret
+ENDPROC(__asm_flush_l3_dcache)
+.popsection
+#endif	/* CONFIG_CMO_BY_VA */
+
 /*
  * void __asm_flush_dcache_range(start, end)
  *
@@ -187,20 +223,6 @@ WEAK(__asm_invalidate_l3_dcache)
 	mov	x0, #0			/* return status as success */
 	ret
 ENDPROC(__asm_invalidate_l3_dcache)
-.popsection
-
-.pushsection .text.__asm_flush_l3_dcache, "ax"
-WEAK(__asm_flush_l3_dcache)
-	mov	x0, #0			/* return status as success */
-	ret
-ENDPROC(__asm_flush_l3_dcache)
-.popsection
-
-.pushsection .text.__asm_invalidate_l3_icache, "ax"
-WEAK(__asm_invalidate_l3_icache)
-	mov	x0, #0			/* return status as success */
-	ret
-ENDPROC(__asm_invalidate_l3_icache)
 .popsection
 
 /*

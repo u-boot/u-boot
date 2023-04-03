@@ -467,6 +467,19 @@ int spl_mmc_emmc_boot_partition(struct mmc *mmc);
 void spl_set_bd(void);
 
 /**
+ * spl_mmc_get_uboot_raw_sector() - Provide raw sector of the start of U-Boot
+ *
+ * This is a weak function which by default will provide the raw sector that is
+ * where the start of the U-Boot image has been written to.
+ *
+ * @mmc: struct mmc that describes the devie where U-Boot resides
+ * @raw_sect: The raw sector number where U-Boot is by default.
+ * Return: The raw sector location that U-Boot resides at
+ */
+unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+					   unsigned long raw_sect);
+
+/**
  * spl_set_header_raw_uboot() - Set up a standard SPL image structure
  *
  * This sets up the given spl_image which the standard values obtained from
@@ -884,5 +897,6 @@ void spl_perform_fixups(struct spl_image_info *spl_image);
  */
 struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size);
 
+void board_boot_order(u32 *spl_boot_list);
 void spl_save_restore_data(void);
 #endif

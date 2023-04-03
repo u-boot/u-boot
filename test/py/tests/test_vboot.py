@@ -30,6 +30,12 @@ For pre-load header verification:
 - Check that image verification fails
 
 Tests run with both SHA1 and SHA256 hashing.
+
+This also tests fdt_add_pubkey utility in the simple way:
+- Create DTB and FIT files
+- Add keys with fdt_add_pubkey to DTB
+- Sign FIT image
+- Check with fit_check_sign that keys properly added to DTB file
 """
 
 import os
@@ -39,6 +45,41 @@ import pytest
 import u_boot_utils as util
 import vboot_forge
 import vboot_evil
+
+# Common helper functions
+def dtc(dts, cons, dtc_args, datadir, tmpdir, dtb):
+    """Run the device tree compiler to compile a .dts file
+
+    The output file will be the same as the input file but with a .dtb
+    extension.
+
+    Args:
+        dts: Device tree file to compile.
+        cons: U-Boot console.
+        dtc_args: DTC arguments.
+        datadir: Path to data directory.
+        tmpdir: Path to temp directory.
+        dtb: Resulting DTB file.
+    """
+    dtb = dts.replace('.dts', '.dtb')
+    util.run_and_log(cons, 'dtc %s %s%s -O dtb '
+                     '-o %s%s' % (dtc_args, datadir, dts, tmpdir, dtb))
+
+def make_fit(its, cons, mkimage, dtc_args, datadir, fit):
+    """Make a new FIT from the .its source file.
+
+    This runs 'mkimage -f' to create a new FIT.
+
+    Args:
+        its: Filename containing .its source.
+        cons: U-Boot console.
+        mkimage: Path to mkimage utility.
+        dtc_args: DTC arguments.
+        datadir: Path to data directory.
+        fit: Resulting FIT file.
+    """
+    util.run_and_log(cons, [mkimage, '-D', dtc_args, '-f',
+                            '%s%s' % (datadir, its), fit])
 
 # Only run the full suite on a few combinations, since it doesn't add any more
 # test coverage.
@@ -82,19 +123,6 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
     The SHA1 and SHA256 tests are combined into a single test since the
     key-generation process is quite slow and we want to avoid doing it twice.
     """
-    def dtc(dts):
-        """Run the device tree compiler to compile a .dts file
-
-        The output file will be the same as the input file but with a .dtb
-        extension.
-
-        Args:
-            dts: Device tree file to compile.
-        """
-        dtb = dts.replace('.dts', '.dtb')
-        util.run_and_log(cons, 'dtc %s %s%s -O dtb '
-                         '-o %s%s' % (dtc_args, datadir, dts, tmpdir, dtb))
-
     def dtc_options(dts, options):
         """Run the device tree compiler to compile a .dts file
 
@@ -151,17 +179,6 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         else:
             assert('sandbox: continuing, as we cannot run'
                    not in ''.join(output))
-
-    def make_fit(its):
-        """Make a new FIT from the .its source file.
-
-        This runs 'mkimage -f' to create a new FIT.
-
-        Args:
-            its: Filename containing .its source.
-        """
-        util.run_and_log(cons, [mkimage, '-D', dtc_args, '-f',
-                                '%s%s' % (datadir, its), fit])
 
     def sign_fit(sha_algo, options):
         """Sign the FIT
@@ -286,12 +303,12 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         # Compile our device tree files for kernel and U-Boot. These are
         # regenerated here since mkimage will modify them (by adding a
         # public key) below.
-        dtc('sandbox-kernel.dts')
-        dtc('sandbox-u-boot.dts')
+        dtc('sandbox-kernel.dts', cons, dtc_args, datadir, tmpdir, dtb)
+        dtc('sandbox-u-boot.dts', cons, dtc_args, datadir, tmpdir, dtb)
 
         # Build the FIT, but don't sign anything yet
         cons.log.action('%s: Test FIT with signed images' % sha_algo)
-        make_fit('sign-images-%s%s.its' % (sha_algo, padding))
+        make_fit('sign-images-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
         run_bootm(sha_algo, 'unsigned images', ' - OK' if algo_arg else 'dev-', True)
 
         # Sign images with our dev keys
@@ -299,10 +316,10 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         run_bootm(sha_algo, 'signed images', 'dev+', True)
 
         # Create a fresh .dtb without the public keys
-        dtc('sandbox-u-boot.dts')
+        dtc('sandbox-u-boot.dts', cons, dtc_args, datadir, tmpdir, dtb)
 
         cons.log.action('%s: Test FIT with signed configuration' % sha_algo)
-        make_fit('sign-configs-%s%s.its' % (sha_algo, padding))
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
         run_bootm(sha_algo, 'unsigned config', '%s+ OK' % ('sha256' if algo_arg else sha_algo), True)
 
         # Sign images with our dev keys
@@ -352,7 +369,7 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
             run_bootm(sha_algo, 'evil kernel@', msg, False, efit)
 
         # Create a new properly signed fit and replace header bytes
-        make_fit('sign-configs-%s%s.its' % (sha_algo, padding))
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
         sign_fit(sha_algo, sign_options)
         bcfg = u_boot_console.config.buildconfig
         max_size = int(bcfg.get('config_fit_signature_max_size', 0x10000000), 0)
@@ -399,19 +416,19 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         # Compile our device tree files for kernel and U-Boot. These are
         # regenerated here since mkimage will modify them (by adding a
         # public key) below.
-        dtc('sandbox-kernel.dts')
-        dtc('sandbox-u-boot.dts')
+        dtc('sandbox-kernel.dts', cons, dtc_args, datadir, tmpdir, dtb)
+        dtc('sandbox-u-boot.dts', cons, dtc_args, datadir, tmpdir, dtb)
 
         cons.log.action('%s: Test FIT with configs images' % sha_algo)
 
         # Build the FIT with prod key (keys required) and sign it. This puts the
         # signature into sandbox-u-boot.dtb, marked 'required'
-        make_fit('sign-configs-%s%s-prod.its' % (sha_algo, padding))
+        make_fit('sign-configs-%s%s-prod.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
         sign_fit(sha_algo, sign_options)
 
         # Build the FIT with dev key (keys NOT required). This adds the
         # signature into sandbox-u-boot.dtb, NOT marked 'required'.
-        make_fit('sign-configs-%s%s.its' % (sha_algo, padding))
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
         sign_fit_norequire(sha_algo, sign_options)
 
         # So now sandbox-u-boot.dtb two signatures, for the prod and dev keys.
@@ -423,7 +440,7 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
 
         # Build the FIT with dev key (keys required) and sign it. This puts the
         # signature into sandbox-u-boot.dtb, marked 'required'.
-        make_fit('sign-configs-%s%s.its' % (sha_algo, padding))
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
         sign_fit(sha_algo, sign_options)
 
         # Set the required-mode policy to "any".
@@ -461,17 +478,17 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         # Compile our device tree files for kernel and U-Boot. These are
         # regenerated here since mkimage will modify them (by adding a
         # public key) below.
-        dtc('sandbox-kernel.dts')
+        dtc('sandbox-kernel.dts', cons, dtc_args, datadir, tmpdir, dtb)
         dtc_options('sandbox-u-boot-global%s.dts' % padding, '-p 1024')
 
         # Build the FIT with dev key (keys NOT required). This adds the
         # signature into sandbox-u-boot.dtb, NOT marked 'required'.
-        make_fit('simple-images.its')
+        make_fit('simple-images.its', cons, mkimage, dtc_args, datadir, fit)
         sign_fit_dtb(sha_algo, '', dtb)
 
         # Build the dtb for binman that define the pre-load header
         # with the global sigature.
-        dtc('sandbox-binman%s.dts' % padding)
+        dtc('sandbox-binman%s.dts' % padding, cons, dtc_args, datadir, tmpdir, dtb)
 
         # Run binman to create the final image with the not signed fit
         # and the pre-load header that contains the global signature.
@@ -531,3 +548,96 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         # Go back to the original U-Boot with the correct dtb.
         cons.config.dtb = old_dtb
         cons.restart_uboot()
+
+
+TESTDATA_IN = [
+    ['sha1-basic', 'sha1', '', None, False],
+    ['sha1-pad', 'sha1', '', '-E -p 0x10000', False],
+    ['sha1-pss', 'sha1', '-pss', None, False],
+    ['sha1-pss-pad', 'sha1', '-pss', '-E -p 0x10000', False],
+    ['sha256-basic', 'sha256', '', None, False],
+    ['sha256-pad', 'sha256', '', '-E -p 0x10000', False],
+    ['sha256-pss', 'sha256', '-pss', None, False],
+    ['sha256-pss-pad', 'sha256', '-pss', '-E -p 0x10000', False],
+    ['sha256-pss-required', 'sha256', '-pss', None, False],
+    ['sha256-pss-pad-required', 'sha256', '-pss', '-E -p 0x10000', False],
+    ['sha384-basic', 'sha384', '', None, False],
+    ['sha384-pad', 'sha384', '', '-E -p 0x10000', False],
+    ['algo-arg', 'algo-arg', '', '-o sha256,rsa2048', True],
+    ['sha256-global-sign', 'sha256', '', '', False],
+    ['sha256-global-sign-pss', 'sha256', '-pss', '', False],
+]
+
+# Mark all but the first test as slow, so they are not run with '-k not slow'
+TESTDATA = [TESTDATA_IN[0]]
+TESTDATA += [pytest.param(*v, marks=pytest.mark.slow) for v in TESTDATA_IN[1:]]
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('fit_signature')
+@pytest.mark.requiredtool('dtc')
+@pytest.mark.requiredtool('openssl')
+@pytest.mark.parametrize("name,sha_algo,padding,sign_options,algo_arg", TESTDATA)
+def test_fdt_add_pubkey(u_boot_console, name, sha_algo, padding, sign_options, algo_arg):
+    """Test fdt_add_pubkey utility with bunch of different algo options."""
+
+    def sign_fit(sha_algo, options):
+        """Sign the FIT
+
+        Signs the FIT and writes the signature into it.
+
+        Args:
+            sha_algo: Either 'sha1' or 'sha256', to select the algorithm to
+                    use.
+            options: Options to provide to mkimage.
+        """
+        args = [mkimage, '-F', '-k', tmpdir, fit]
+        if options:
+            args += options.split(' ')
+        cons.log.action('%s: Sign images' % sha_algo)
+        util.run_and_log(cons, args)
+
+    def test_add_pubkey(sha_algo, padding, sign_options):
+        """Test fdt_add_pubkey utility with given hash algorithm and padding.
+
+        This function tests if fdt_add_pubkey utility may add public keys into dtb.
+
+        Args:
+            sha_algo: Either 'sha1' or 'sha256', to select the algorithm to use
+            padding: Either '' or '-pss', to select the padding to use for the
+                    rsa signature algorithm.
+            sign_options: Options to mkimage when signing a fit image.
+        """
+
+        # Create a fresh .dtb without the public keys
+        dtc('sandbox-u-boot.dts', cons, dtc_args, datadir, tmpdir, dtb)
+
+        cons.log.action('%s: Test fdt_add_pubkey with signed configuration' % sha_algo)
+        # Then add the dev key via the fdt_add_pubkey tool
+        util.run_and_log(cons, [fdt_add_pubkey, '-a', '%s,%s' % ('sha256' if algo_arg else sha_algo, \
+                                'rsa3072' if sha_algo == 'sha384' else 'rsa2048'),
+                                '-k', tmpdir, '-n', 'dev', '-r', 'conf', dtb])
+
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
+
+        # Sign images with our dev keys
+        sign_fit(sha_algo, sign_options)
+
+        # Check with fit_check_sign that FIT is signed with key
+        util.run_and_log(cons, [fit_check_sign, '-f', fit, '-k', dtb])
+
+    cons = u_boot_console
+    tmpdir = os.path.join(cons.config.result_dir, name) + '/'
+    if not os.path.exists(tmpdir):
+        os.mkdir(tmpdir)
+    datadir = cons.config.source_dir + '/test/py/tests/vboot/'
+    fit = '%stest.fit' % tmpdir
+    mkimage = cons.config.build_dir + '/tools/mkimage'
+    binman = cons.config.source_dir + '/tools/binman/binman'
+    fit_check_sign = cons.config.build_dir + '/tools/fit_check_sign'
+    fdt_add_pubkey = cons.config.build_dir + '/tools/fdt_add_pubkey'
+    dtc_args = '-I dts -O dtb -i %s' % tmpdir
+    dtb = '%ssandbox-u-boot.dtb' % tmpdir
+
+    # keys created in test_vboot test
+
+    test_add_pubkey(sha_algo, padding, sign_options)

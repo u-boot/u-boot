@@ -73,9 +73,9 @@ static int is_mem_overlap(void *blob, int first_mem_node, int curr_mem_node)
 			if (curr_mem_res.start >= first_mem_res.end)
 				continue;
 
-			printf("Overlap found: 0x%llx..0x%llx / 0x%llx..0x%llx\n",
-				first_mem_res.start, first_mem_res.end,
-				curr_mem_res.start, curr_mem_res.end);
+			log_debug("Overlap found: 0x%llx..0x%llx / 0x%llx..0x%llx\n",
+				  first_mem_res.start, first_mem_res.end,
+				  curr_mem_res.start, curr_mem_res.end);
 
 			return 1;
 		}

@@ -249,7 +249,7 @@ memory@2000 {
 	compatible = "fsl,mpc83xx-mem-controller";
 	reg = <0x2000 0x1000>;
 	device_type = "memory";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	driver_software_override = <DSO_ENABLE>;
 	p_impedance_override = <DSO_P_IMPEDANCE_NOMINAL>;

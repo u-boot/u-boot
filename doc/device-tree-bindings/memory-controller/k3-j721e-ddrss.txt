@@ -57,7 +57,7 @@ memorycontroller: memorycontroller@0298e000 {
 	ti,ddr-freq2 = <DDRSS_PLL_FREQUENCY_2>;
 	ti,ddr-fhs-cnt = <DDRSS_PLL_FHS_CNT>;
 
-	u-boot,dm-spl;
+	bootph-pre-ram;
 
 	ti,ctl-data = <
 		DDRSS_CTL_00_DATA

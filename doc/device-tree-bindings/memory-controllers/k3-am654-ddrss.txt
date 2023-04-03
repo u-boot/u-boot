@@ -42,5 +42,5 @@ Example (AM65x):
 			reg-names = "ss", "ctl", "phy";
 			clocks = <&k3_clks 20 0>;
 			power-domains = <&k3_pds 20>;
-			u-boot,dm-spl;
+			bootph-pre-ram;
 		};

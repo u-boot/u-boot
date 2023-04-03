@@ -15,6 +15,12 @@
  *   Processor, and High-Definition Video Decoder: Functional Specifications"
  *   August 3, 2011. Chapter 5 "BootROM Firmware"
  *   https://web.archive.org/web/20120130172443/https://www.marvell.com/application-processors/armada-500/assets/Armada-510-Functional-Spec.pdf
+ * - "88F6665, 88F6660, 88F6658, 88F6655, 88F6655F, 88F6650, 88F6650F, 88F6610,
+ *   and 88F6610F Avanta LP Family Integrated Single/Dual CPU Ecosystem for
+ *   Gateway (GW), Home Gateway Unit (HGU), and Single Family Unit (SFU)
+ *   Functional Specifications" Doc. No. MV-S108952-00, Rev. A. November 7, 2013.
+ *   Chapter 7 "Boot Flow"
+ *   CONFIDENTIAL, no public documentation available
  * - "88F6710, 88F6707, and 88F6W11: ARMADA(R) 370 SoC: Functional Specifications"
  *   May 26, 2014. Chapter 6 "BootROM Firmware".
  *   https://web.archive.org/web/20140617183701/https://www.marvell.com/embedded-processors/armada-300/assets/ARMADA370-FunctionalSpec-datasheet.pdf
@@ -22,6 +28,15 @@
  *   Multi-Core ARMv7 Based SoC Processors: Functional Specifications"
  *   May 29, 2014. Chapter 6 "BootROM Firmware".
  *   https://web.archive.org/web/20180829171131/https://www.marvell.com/embedded-processors/armada-xp/assets/ARMADA-XP-Functional-SpecDatasheet.pdf
+ * - "BobCat2 Control and Management Subsystem Functional Specifications"
+ *   Doc. No. MV-S109400-00, Rev. A. December 4, 2014.
+ *   Chapter 1.6 BootROM Firmware
+ *   CONFIDENTIAL, no public documentation available
+ * - "AlleyCat3 and PONCat3 Highly Integrated 1/10 Gigabit Ethernet Switch
+ *   Control and Management Subsystem: Functional Specifications"
+ *   Doc. No. MV-S109693-00, Rev. A. May 20, 2014.
+ *   Chapter 1.6 BootROM Firmware
+ *   CONFIDENTIAL, no public documentation available
  * - "ARMADA(R) 375 Value-Performance Dual Core CPU System on Chip: Functional
  *   Specifications" Doc. No. MV-S109377-00, Rev. A. September 18, 2013.
  *   Chapter 7 "Boot Sequence"
@@ -35,6 +50,85 @@
  *   System on Chip Functional Specifications" Doc. No. MV-S109896-00, Rev. B.
  *   December 22, 2015. Chapter 7 "Boot Flow"
  *   CONFIDENTIAL, no public documentation available
+ * - "Marvell boot image parser", Marvell U-Boot 2013.01, version 18.06. September 17, 2015.
+ *   https://github.com/MarvellEmbeddedProcessors/u-boot-marvell/blob/u-boot-2013.01-armada-18.06/tools/marvell/doimage_mv/hdrparser.c
+ * - "Marvell doimage Tool", Marvell U-Boot 2013.01, version 18.06. August 30, 2015.
+ *   https://github.com/MarvellEmbeddedProcessors/u-boot-marvell/blob/u-boot-2013.01-armada-18.06/tools/marvell/doimage_mv/doimage.c
+ *
+ * Storage location / offset of different image types:
+ * - IBR_HDR_SPI_ID (0x5A):
+ *   SPI image can be stored at any 2 MB aligned offset in the first 16 MB of
+ *   SPI-NOR or parallel-NOR. Despite the type name it really can be stored on
+ *   parallel-NOR and cannot be stored on other SPI devices, like SPI-NAND.
+ *   So it should have been named NOR image, not SPI image. This image type
+ *   supports XIP - Execute In Place directly from NOR memory. Destination
+ *   address of the XIP image is set to 0xFFFFFFFF and execute address to the
+ *   absolute offset in bytes from the beginning of NOR memory.
+ *
+ * - IBR_HDR_NAND_ID (0x8B):
+ *   NAND image can be stored either at any 2 MB aligned offset in the first
+ *   16 MB of SPI-NAND or at any blocksize aligned offset in the first 64 MB
+ *   of parallel-NAND.
+ *
+ * - IBR_HDR_PEX_ID (0x9C):
+ *   PEX image is used for booting from PCI Express device. Source address
+ *   stored in image is ignored by BootROM. It is not the BootROM who parses
+ *   or loads data part of the PEX image. BootROM just configures SoC to the
+ *   PCIe endpoint mode and let the PCIe device on the other end of the PCIe
+ *   link (which must be in Root Complex mode) to load kwbimage into SoC's
+ *   memory and tell BootROM physical address.
+ *
+ * - IBR_HDR_UART_ID (0x69):
+ *   UART image can be transfered via xmodem protocol over first UART.
+ *   Unlike all other image types, header size stored in the image must be
+ *   multiply of the 128 bytes (for all other image types it can be any size)
+ *   and data part of the image does not have to contain 32-bit checksum
+ *   (all other image types must have valid 32-bit checksum in its data part).
+ *   And data size stored in the image is ignored. A38x BootROM determinates
+ *   size of the data part implicitly by the end of the xmodem transfer.
+ *   A38x BootROM has a bug which cause that BootROM loads data part of UART
+ *   image into RAM target address increased by one byte when source address
+ *   and header size stored in the image header are not same. So UART image
+ *   should be constructed in a way that there is no gap between header and
+ *   data part.
+ *
+ * - IBR_HDR_I2C_ID (0x4D):
+ *   It is unknown for what kind of storage is used this image. It is not
+ *   specified in any document from References section.
+ *
+ * - IBR_HDR_SATA_ID (0x78):
+ *   SATA image can be stored at sector 1 (after the MBR table), sector 34
+ *   (after the GPT table) or at any next sector which is aligned to 2 MB and
+ *   is in the first 16 MB of SATA disk. Note that source address in SATA image
+ *   is stored in sector unit and not in bytes like for any other images.
+ *   Unfortunately sector size is disk specific, in most cases it is 512 bytes
+ *   but there are also Native 4K SATA disks which have 4096 bytes long sectors.
+ *
+ * - IBR_HDR_SDIO_ID (0xAE):
+ *   SDIO image can be stored on different medias:
+ *   - SD(SC) card
+ *   - SDHC/SDXC card
+ *   - eMMC HW boot partition
+ *   - eMMC user data partition / MMC card
+ *   It cannot be stored on SDIO card despite the image name.
+ *
+ *   For SD(SC)/SDHC/SDXC cards, image can be stored at the same locations as
+ *   the SATA image (sector 1, sector 34 or any 2 MB aligned sector) but within
+ *   the first 64 MB. SDHC and SDXC cards have fixed 512 bytes long sector size.
+ *   Old SD(SC) cards unfortunately can have also different sector sizes, mostly
+ *   1024 bytes long sector sizes and also can be changed at runtime.
+ *
+ *   For MMC-compatible devices, image can be stored at offset 0 or at offset
+ *   2 MB. If MMC device supports HW boot partitions then image must be stored
+ *   on the HW partition as is configured in the EXT_CSC register (it can be
+ *   either boot or user data).
+ *
+ *   Note that source address for SDIO image is stored in byte unit, like for
+ *   any other images (except SATA). Marvell Functional Specifications for
+ *   A38x and A39x SoCs say that source address is in sector units, but this
+ *   is purely incorrect information. A385 BootROM really expects source address
+ *   for SDIO images in bytes and also Marvell tools generate SDIO image with
+ *   source address in byte units.
  */
 
 #include "kwbimage.h"
@@ -1374,6 +1468,8 @@ kwboot_xmodem(int tty, const void *_img, size_t size, int baudrate)
 	 * followed by the header. So align header size to xmodem block size.
 	 */
 	hdrsz += (KWBOOT_XM_BLKSZ - hdrsz % KWBOOT_XM_BLKSZ) % KWBOOT_XM_BLKSZ;
+	if (hdrsz > size)
+		hdrsz = size;
 
 	pnum = 1;
 
@@ -1699,6 +1795,47 @@ kwboot_img_is_secure(void *img)
 	return 0;
 }
 
+static int
+kwboot_img_has_ddr_init(void *img)
+{
+	const struct register_set_hdr_v1 *rhdr;
+	const struct main_hdr_v0 *hdr0;
+	struct opt_hdr_v1 *ohdr;
+	u32 ohdrsz;
+	int last;
+
+	/*
+	 * kwbimage v0 image headers contain DDR init code either in
+	 * extension header or in binary code header.
+	 */
+	if (kwbimage_version(img) == 0) {
+		hdr0 = img;
+		return hdr0->ext || hdr0->bin;
+	}
+
+	/*
+	 * kwbimage v1 image headers contain DDR init code either in binary
+	 * code header or in a register set list header with SDRAM_SETUP.
+	 */
+	for_each_opt_hdr_v1 (ohdr, img) {
+		if (ohdr->headertype == OPT_HDR_V1_BINARY_TYPE)
+			return 1;
+		if (ohdr->headertype == OPT_HDR_V1_REGISTER_TYPE) {
+			rhdr = (const struct register_set_hdr_v1 *)ohdr;
+			ohdrsz = opt_hdr_v1_size(ohdr);
+			if (ohdrsz >= sizeof(*ohdr) + sizeof(rhdr->data[0].last_entry)) {
+				ohdrsz -= sizeof(*ohdr) + sizeof(rhdr->data[0].last_entry);
+				last = ohdrsz / sizeof(rhdr->data[0].entry);
+				if (rhdr->data[last].last_entry.delay ==
+				    REGISTER_SET_HDR_OPT_DELAY_SDRAM_SETUP)
+					return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
 static void *
 kwboot_img_grow_data_right(void *img, size_t *size, size_t grow)
 {
@@ -1854,10 +1991,26 @@ _inject_baudrate_change_code(void *img, size_t *size, int for_data,
 	}
 }
 
+static const char *
+kwboot_img_type(uint8_t blockid)
+{
+	switch (blockid) {
+	case IBR_HDR_I2C_ID: return "I2C";
+	case IBR_HDR_SPI_ID: return "SPI";
+	case IBR_HDR_NAND_ID: return "NAND";
+	case IBR_HDR_SATA_ID: return "SATA";
+	case IBR_HDR_PEX_ID: return "PEX";
+	case IBR_HDR_UART_ID: return "UART";
+	case IBR_HDR_SDIO_ID: return "SDIO";
+	default: return "unknown";
+	}
+}
+
 static int
 kwboot_img_patch(void *img, size_t *size, int baudrate)
 {
 	struct main_hdr_v1 *hdr;
+	struct opt_hdr_v1 *ohdr;
 	uint32_t srcaddr;
 	uint8_t csum;
 	size_t hdrsz;
@@ -1866,8 +2019,10 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 	hdr = img;
 
-	if (*size < sizeof(struct main_hdr_v1))
+	if (*size < sizeof(struct main_hdr_v1)) {
+		fprintf(stderr, "Invalid image header size\n");
 		goto err;
+	}
 
 	image_ver = kwbimage_version(img);
 	if (image_ver != 0 && image_ver != 1) {
@@ -1877,24 +2032,23 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 	hdrsz = kwbheader_size(hdr);
 
-	if (*size < hdrsz)
+	if (*size < hdrsz) {
+		fprintf(stderr, "Invalid image header size\n");
 		goto err;
+	}
+
+	kwboot_printv("Detected kwbimage v%d with %s boot signature\n", image_ver, kwboot_img_type(hdr->blockid));
 
 	csum = kwboot_hdr_csum8(hdr) - hdr->checksum;
-	if (csum != hdr->checksum)
+	if (csum != hdr->checksum) {
+		fprintf(stderr, "Image has invalid header checksum stored in image header\n");
 		goto err;
+	}
 
 	srcaddr = le32_to_cpu(hdr->srcaddr);
 
 	switch (hdr->blockid) {
 	case IBR_HDR_SATA_ID:
-		if (srcaddr < 1)
-			goto err;
-
-		hdr->srcaddr = cpu_to_le32((srcaddr - 1) * 512);
-		break;
-
-	case IBR_HDR_SDIO_ID:
 		hdr->srcaddr = cpu_to_le32(srcaddr * 512);
 		break;
 
@@ -1906,18 +2060,50 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 	case IBR_HDR_SPI_ID:
 		if (hdr->destaddr == cpu_to_le32(0xFFFFFFFF)) {
 			kwboot_printv("Patching destination and execution addresses from SPI/NOR XIP area to DDR area 0x00800000\n");
-			hdr->destaddr = cpu_to_le32(0x00800000);
-			hdr->execaddr = cpu_to_le32(0x00800000);
+			hdr->destaddr = cpu_to_le32(0x00800000 + le32_to_cpu(hdr->srcaddr));
+			hdr->execaddr = cpu_to_le32(0x00800000 + le32_to_cpu(hdr->execaddr));
 		}
 		break;
 	}
 
-	if (hdrsz > le32_to_cpu(hdr->srcaddr) ||
-	    *size < le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize))
+	if (hdrsz > le32_to_cpu(hdr->srcaddr)) {
+		fprintf(stderr, "Image has invalid data offset stored in image header\n");
 		goto err;
+	}
 
-	if (kwboot_img_csum32(img) != *kwboot_img_csum32_ptr(img))
+	if (*size < le32_to_cpu(hdr->srcaddr) + le32_to_cpu(hdr->blocksize)) {
+		fprintf(stderr, "Image has invalid data size stored in image header\n");
 		goto err;
+	}
+
+	for_each_opt_hdr_v1 (ohdr, hdr) {
+		if (!opt_hdr_v1_valid_size(ohdr, (const uint8_t *)hdr + hdrsz)) {
+			fprintf(stderr, "Invalid optional image header\n");
+			goto err;
+		}
+	}
+
+	/*
+	 * The 32-bit data checksum is optional for UART image. If it is not
+	 * present (checksum detected as invalid) then grow data part of the
+	 * image for the checksum, so it can be inserted there.
+	 */
+	if (kwboot_img_csum32(img) != *kwboot_img_csum32_ptr(img)) {
+		if (hdr->blockid != IBR_HDR_UART_ID) {
+			fprintf(stderr, "Image has invalid data checksum\n");
+			goto err;
+		}
+		kwboot_img_grow_data_right(img, size, sizeof(uint32_t));
+		/* Update the 32-bit data checksum */
+		*kwboot_img_csum32_ptr(img) = kwboot_img_csum32(img);
+	}
+
+	if (!kwboot_img_has_ddr_init(img) &&
+	    (le32_to_cpu(hdr->destaddr) < 0x40000000 ||
+	     le32_to_cpu(hdr->destaddr) + le32_to_cpu(hdr->blocksize) > 0x40034000)) {
+		fprintf(stderr, "Image does not contain DDR init code needed for UART booting\n");
+		goto err;
+	}
 
 	is_secure = kwboot_img_is_secure(img);
 
@@ -1999,6 +2185,29 @@ kwboot_img_patch(void *img, size_t *size, int baudrate)
 
 		kwboot_printv("Aligning image header to Xmodem block size\n");
 		kwboot_img_grow_hdr(img, size, grow);
+		hdrsz += grow;
+
+		/*
+		 * kwbimage v1 contains header size field and for UART type it
+		 * must be set to the aligned xmodem header size because BootROM
+		 * rounds header size down to xmodem block size.
+		 */
+		if (kwbimage_version(img) == 1) {
+			hdr->headersz_msb = hdrsz >> 16;
+			hdr->headersz_lsb = cpu_to_le16(hdrsz & 0xffff);
+		}
+	}
+
+	/* Header size and source address must be same for UART type due to A38x BootROM bug */
+	if (hdrsz != le32_to_cpu(hdr->srcaddr)) {
+		if (is_secure) {
+			fprintf(stderr, "Cannot align image with secure header\n");
+			goto err;
+		}
+
+		kwboot_printv("Removing gap between image header and data\n");
+		memmove(img + hdrsz, img + le32_to_cpu(hdr->srcaddr), le32_to_cpu(hdr->blocksize));
+		hdr->srcaddr = cpu_to_le32(hdrsz);
 	}
 
 	hdr->checksum = kwboot_hdr_csum8(hdr) - csum;
@@ -2182,6 +2391,7 @@ main(int argc, char **argv)
 				 KWBOOT_XM_BLKSZ +
 				 sizeof(kwboot_baud_code) +
 				 sizeof(kwboot_baud_code_data_jump) +
+				 sizeof(uint32_t) +
 				 KWBOOT_XM_BLKSZ;
 
 	if (imgpath) {

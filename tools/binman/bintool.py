@@ -18,10 +18,10 @@ import shutil
 import tempfile
 import urllib.error
 
-from patman import command
-from patman import terminal
-from patman import tools
-from patman import tout
+from u_boot_pylib import command
+from u_boot_pylib import terminal
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 BINMAN_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -43,8 +43,6 @@ FETCH_NAMES = {
 # Status of tool fetching
 FETCHED, FAIL, PRESENT, STATUS_COUNT = range(4)
 
-DOWNLOAD_DESTDIR = os.path.join(os.getenv('HOME'), 'bin')
-
 class Bintool:
     """Tool which operates on binaries to help produce entry contents
 
@@ -52,6 +50,10 @@ class Bintool:
     """
     # List of bintools to regard as missing
     missing_list = []
+
+    # Directory to store tools. Note that this set up by set_tool_dir() which
+    # must be called before this class is used.
+    tooldir = ''
 
     def __init__(self, name, desc, version_regex=None, version_args='-V'):
         self.name = name
@@ -111,6 +113,11 @@ class Bintool:
         # Call its constructor to get the object we want.
         obj = cls(name)
         return obj
+
+    @classmethod
+    def set_tool_dir(cls, pathname):
+        """Set the path to use to store and find tools"""
+        cls.tooldir = pathname
 
     def show(self):
         """Show a line of information about a bintool"""
@@ -208,7 +215,8 @@ class Bintool:
             return FAIL
         if result is not True:
             fname, tmpdir = result
-            dest = os.path.join(DOWNLOAD_DESTDIR, self.name)
+            dest = os.path.join(self.tooldir, self.name)
+            os.makedirs(self.tooldir, exist_ok=True)
             print(f"- writing to '{dest}'")
             shutil.move(fname, dest)
             if tmpdir:
@@ -389,7 +397,7 @@ class Bintool:
 
     @classmethod
     def apt_install(cls, package):
-        """Install a bintool using the 'aot' tool
+        """Install a bintool using the 'apt' tool
 
         This requires use of servo so may request a password
 

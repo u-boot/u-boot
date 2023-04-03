@@ -6,29 +6,29 @@
 #include "imx6qdl-u-boot.dtsi"
 
 &soc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &aips1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_uart4 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart4 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &usdhc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

@@ -31,6 +31,7 @@
 #define DENALI_CTL_25		(DDR_CTL_BASE_ADDR + 4 * 25)
 
 #define DENALI_PHY_1624		(DDR_PHY_BASE_ADDR + 4 * 1624)
+#define DENALI_PHY_1625  	(DDR_PHY_BASE_ADDR + 4 * 1625)
 #define DENALI_PHY_1537		(DDR_PHY_BASE_ADDR + 4 * 1537)
 #define PHY_FREQ_SEL_MULTICAST_EN(X)	((X) << 8)
 #define PHY_FREQ_SEL_INDEX(X)		((X) << 16)
@@ -82,25 +83,39 @@ int ddr_calibration(unsigned int fsp_table[3])
 	u32 int_status_init, phy_freq_req, phy_freq_type;
 	u32 lock_0, lock_1, lock_2;
 	u32 freq_chg_pt, freq_chg_cnt;
+	u32 is_lpddr4 = 0;
 
 	if (IS_ENABLED(CONFIG_IMX8ULP_DRAM_PHY_PLL_BYPASS)) {
 		ddr_enable_pll_bypass();
 		freq_chg_cnt = 0;
 		freq_chg_pt = 0;
 	} else {
-		reg_val = readl(DENALI_CTL_250);
-		if (((reg_val >> 16) & 0x3) == 1)
-			freq_chg_cnt = 2;
-		else
-			freq_chg_cnt = 3;
+		reg_val = (readl(DENALI_CTL_00)>>8)&0xf;
+		if(reg_val == 0x7) {
+			/* LPDDR3 type */
+			set_ddr_clk(fsp_table[1] >> 1);
+			freq_chg_cnt = 0;
+			freq_chg_pt = 0;
+		} else if(reg_val == 0xb) {
+			/* LPDDR4/4x type */
+			is_lpddr4 = 1;
+			reg_val = readl(DENALI_CTL_250);
+			if (((reg_val >> 16) & 0x3) == 1)
+				freq_chg_cnt = 2;
+			else
+				freq_chg_cnt = 3;
 
-		reg_val = readl(DENALI_PI_12);
-		if (reg_val == 0x3) {
-			freq_chg_pt = 1;
-		} else if (reg_val == 0x7) {
-			freq_chg_pt = 2;
+			reg_val = readl(DENALI_PI_12);
+			if(reg_val == 0x3)
+				freq_chg_pt = 1;
+			else if(reg_val == 0x7)
+				freq_chg_pt = 2;
+			else {
+				printf("frequency map(0x%x) is wrong, please check!\r\n", reg_val);
+				return -1;
+			}
 		} else {
-			printf("frequency map(0x%x) is wrong, please check!\r\n", reg_val);
+			printf("Incorrect DDR type configured!\r\n");
 			return -1;
 		}
 	}
@@ -179,6 +194,22 @@ int ddr_calibration(unsigned int fsp_table[3])
 	}
 
 	debug("De-Skew PLL is locked and ready\n");
+
+	/* Change LPDDR4 FREQ1 to bypass mode if it is lower than 200MHz */
+	if(is_lpddr4 && fsp_table[1] < 400) {
+		/* Set FREQ1 to bypass mode */
+		reg_val = PHY_FREQ_SEL_MULTICAST_EN(0) | PHY_FREQ_SEL_INDEX(0);
+		writel(reg_val, DENALI_PHY_1537);
+
+		/* PHY_PLL_BYPASS=0x1 (DENALI_PHY_1624) */
+		reg_val =readl(DENALI_PHY_1624) | 0x1;
+		writel(reg_val, DENALI_PHY_1624);
+
+		/* DENALI_PHY_1625: bypass mode in PHY PLL */
+		reg_val =readl(DENALI_PHY_1625) & ~0xf;
+		writel(reg_val, DENALI_PHY_1625);
+	}
+
 	return 0;
 }
 

@@ -215,7 +215,7 @@ static int dm_test_fdt_pre_reloc(struct unit_test_state *uts)
 
 	/*
 	 * These are 2 pre-reloc devices:
-	 * one with "u-boot,dm-pre-reloc" property (a-test node), and the other
+	 * one with "bootph-all" property (a-test node), and the other
 	 * one whose driver marked with DM_FLAG_PRE_RELOC flag (h-test node).
 	 */
 	ut_asserteq(2, list_count_items(&uc->dev_head));

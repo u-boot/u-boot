@@ -6,16 +6,30 @@
  * Copyright 2013-2015 Freescale Semiconductor, Inc.
  */
 
+#include <dt-bindings/clock/fsl,qoriq-clockgen.h>
+
 / {
 	compatible = "fsl,ls2080a";
 	interrupt-parent = <&gic>;
 	#address-cells = <2>;
 	#size-cells = <2>;
 
+	aliases {
+		serial0 = &serial0;
+		serial1 = &serial1;
+	};
+
 	memory@80000000 {
 		device_type = "memory";
 		reg = <0x00000000 0x80000000 0 0x80000000>;
 		      /* DRAM space - 1, size : 2 GB DRAM */
+	};
+
+	sysclk: sysclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+		clock-output-names = "sysclk";
 	};
 
 	gic: interrupt-controller@6000000 {
@@ -35,20 +49,37 @@
 			     <1 10 0x8>; /* Hypervisor PPI, active-low */
 	};
 
-	serial0: serial@21c0500 {
-		device_type = "serial";
-		compatible = "fsl,ns16550", "ns16550a";
-		reg = <0x0 0x21c0500 0x0 0x100>;
-		clock-frequency = <0>;	/* Updated by bootloader */
-		interrupts = <0 32 0x1>; /* edge triggered */
-	};
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		dma-ranges = <0x0 0x0 0x0 0x0 0x10000 0x00000000>;
 
-	serial1: serial@21c0600 {
-		device_type = "serial";
-		compatible = "fsl,ns16550", "ns16550a";
-		reg = <0x0 0x21c0600 0x0 0x100>;
-		clock-frequency = <0>; 	/* Updated by bootloader */
-		interrupts = <0 32 0x1>; /* edge triggered */
+		clockgen: clocking@1300000 {
+			compatible = "fsl,ls2080a-clockgen";
+			reg = <0 0x1300000 0 0xa0000>;
+			#clock-cells = <2>;
+			clocks = <&sysclk>;
+		};
+
+		serial0: serial@21c0500 {
+			compatible = "fsl,ns16550", "ns16550a";
+			reg = <0x0 0x21c0500 0x0 0x100>;
+			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
+					    QORIQ_CLK_PLL_DIV(4)>;
+			interrupts = <0 32 0x4>; /* Level high type */
+			bootph-all;
+		};
+
+		serial1: serial@21c0600 {
+			compatible = "fsl,ns16550", "ns16550a";
+			reg = <0x0 0x21c0600 0x0 0x100>;
+			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
+					    QORIQ_CLK_PLL_DIV(4)>;
+			interrupts = <0 32 0x4>; /* Level high type */
+			bootph-all;
+		};
 	};
 
 	i2c0: i2c@2000000 {

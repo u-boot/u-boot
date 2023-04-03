@@ -52,7 +52,7 @@ their drivers accordingly. A working example like below::
 		#address-cells = <3>;
 		#size-cells = <2>;
 		compatible = "pci-x86";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		ranges = <0x02000000 0x0 0x40000000 0x40000000 0 0x80000000
 			  0x42000000 0x0 0xc0000000 0xc0000000 0 0x20000000
 			  0x01000000 0x0 0x2000 0x2000 0 0xe000>;
@@ -61,14 +61,14 @@ their drivers accordingly. A working example like below::
 			#address-cells = <3>;
 			#size-cells = <2>;
 			compatible = "pci-bridge";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			reg = <0x0000b800 0x0 0x0 0x0 0x0>;
 
 			topcliff@0,0 {
 				#address-cells = <3>;
 				#size-cells = <2>;
 				compatible = "pci-bridge";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				reg = <0x00010000 0x0 0x0 0x0 0x0>;
 
 				pciuart0: uart@a,1 {
@@ -77,7 +77,7 @@ their drivers accordingly. A working example like below::
 							"pciclass,070002",
 							"pciclass,0700",
 							"x86-uart";
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					reg = <0x00025100 0x0 0x0 0x0 0x0
 					       0x01025110 0x0 0x0 0x0 0x0>;
 					......
@@ -98,7 +98,7 @@ bus hierarchy: on the root PCI bus, there is a PCIe root port which connects
 to a downstream device Topcliff chipset. Inside Topcliff chipset, it has a
 PCIe-to-PCI bridge and all the chipset integrated devices like the PCI UART
 device are on the PCI bus. Like other devices in the device tree, if we want
-to bind PCI devices before relocation, "u-boot,dm-pre-reloc" must be declared
+to bind PCI devices before relocation, "bootph-all" must be declared
 in each of these nodes.
 
 If PCI devices are not listed in the device tree, U_BOOT_PCI_DEVICE can be used

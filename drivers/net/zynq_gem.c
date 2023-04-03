@@ -738,7 +738,7 @@ static int gem_zynqmp_set_dynamic_config(struct udevice *dev)
 	u32 pm_info[2];
 	int ret;
 
-	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP)) {
+	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP) && IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE)) {
 		if (!zynqmp_pm_is_function_supported(PM_IOCTL,
 						     IOCTL_SET_GEM_CONFIG)) {
 			ret = ofnode_read_u32_array(dev_ofnode(dev),

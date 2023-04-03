@@ -19,7 +19,7 @@
 };
 
 &uart5 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
@@ -28,17 +28,17 @@
 };
 
 &wdt1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &wdt2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &wdt3 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 

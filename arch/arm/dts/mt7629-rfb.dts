@@ -37,12 +37,12 @@
 
 &pinctrl {
 	state_default: pinmux_conf {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		mux {
 			function = "jtag";
 			groups = "ephy_leds_jtag";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
@@ -84,7 +84,7 @@
 	spi-flash@0{
 		compatible = "jedec,spi-nor";
 		reg = <0>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
@@ -98,7 +98,7 @@
 		reg = <0>;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 

@@ -7,9 +7,9 @@
 
 from binman.entry import Entry
 from binman import fmap_util
-from patman import tools
-from patman.tools import to_hex_size
-from patman import tout
+from u_boot_pylib import tools
+from u_boot_pylib.tools import to_hex_size
+from u_boot_pylib import tout
 
 
 class Entry_fmap(Entry):
@@ -33,6 +33,11 @@ class Entry_fmap(Entry):
     from the FMAP by using the offset information. This convention does not
     seem to be documented, but is used in Chromium OS.
 
+    To mark an area as preserved, use the normal 'preserved' flag in the entry.
+    This will result in the corresponding FMAP area having the
+    FMAP_AREA_PRESERVE flag. This flag does not automatically propagate down to
+    child entries.
+
     CBFS entries appear as a single entry, i.e. the sub-entries are ignored.
     """
     def __init__(self, section, etype, node):
@@ -48,6 +53,12 @@ class Entry_fmap(Entry):
             entries = entry.GetEntries()
             tout.debug("fmap: Add entry '%s' type '%s' (%s subentries)" %
                        (entry.GetPath(), entry.etype, to_hex_size(entries)))
+
+            # Collect any flag (separate lines to ensure code coverage)
+            flags = 0
+            if entry.preserve:
+                flags = fmap_util.FMAP_AREA_PRESERVE
+
             if entries and entry.etype != 'cbfs':
                 # Create an area for the section, which encompasses all entries
                 # within it
@@ -59,7 +70,7 @@ class Entry_fmap(Entry):
                 # Drop @ symbols in name
                 name = entry.name.replace('@', '')
                 areas.append(
-                    fmap_util.FmapArea(pos, entry.size or 0, name, 0))
+                    fmap_util.FmapArea(pos, entry.size or 0, name, flags))
                 for subentry in entries.values():
                     _AddEntries(areas, subentry)
             else:
@@ -67,7 +78,7 @@ class Entry_fmap(Entry):
                 if pos is not None:
                     pos -= entry.section.GetRootSkipAtStart()
                 areas.append(fmap_util.FmapArea(pos or 0, entry.size or 0,
-                                                entry.name, 0))
+                                                entry.name, flags))
 
         entries = self.GetImage().GetEntries()
         areas = []

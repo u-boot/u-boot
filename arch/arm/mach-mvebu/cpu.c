@@ -25,7 +25,7 @@ static const struct mbus_win windows[] = {
 	{ MBUS_SPI_BASE, MBUS_SPI_SIZE,
 	  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_SPIFLASH },
 
-	/* NOR */
+	/* BootROM */
 	{ MBUS_BOOTROM_BASE, MBUS_BOOTROM_SIZE,
 	  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_BOOTROM },
 
@@ -34,6 +34,15 @@ static const struct mbus_win windows[] = {
 	{ MBUS_DFX_BASE, MBUS_DFX_SIZE, CPU_TARGET_DFX, 0 },
 #endif
 };
+
+/* SPI0 CS0 Flash of size MBUS_SPI_SIZE is mapped to address MBUS_SPI_BASE */
+#if CONFIG_ENV_SPI_BUS == 0 && CONFIG_ENV_SPI_CS == 0 && \
+    CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE <= MBUS_SPI_SIZE
+void *env_sf_get_env_addr(void)
+{
+	return (void *)MBUS_SPI_BASE + CONFIG_ENV_OFFSET;
+}
+#endif
 
 void lowlevel_init(void)
 {
@@ -58,6 +67,10 @@ u32 get_boot_device(void)
 {
 	u32 val;
 	u32 boot_device;
+	u32 boot_err_mode;
+#ifdef CONFIG_ARMADA_38X
+	u32 boot_err_code;
+#endif
 
 	/*
 	 * First check, if UART boot-mode is active. This can only
@@ -65,9 +78,9 @@ u32 get_boot_device(void)
 	 * MSB marks if the UART mode is active.
 	 */
 	val = readl(BOOTROM_ERR_REG);
-	boot_device = (val & BOOTROM_ERR_MODE_MASK) >> BOOTROM_ERR_MODE_OFFS;
-	debug("BOOTROM_REG=0x%08x boot_device=0x%x\n", val, boot_device);
-	if (boot_device == BOOTROM_ERR_MODE_UART)
+	boot_err_mode = (val & BOOTROM_ERR_MODE_MASK) >> BOOTROM_ERR_MODE_OFFS;
+	debug("BOOTROM_ERR_REG=0x%08x boot_err_mode=0x%x\n", val, boot_err_mode);
+	if (boot_err_mode == BOOTROM_ERR_MODE_UART)
 		return BOOT_DEVICE_UART;
 
 #ifdef CONFIG_ARMADA_38X
@@ -75,8 +88,9 @@ u32 get_boot_device(void)
 	 * If the bootrom error code contains any other than zeros it's an
 	 * error condition and the bootROM has fallen back to UART boot
 	 */
-	boot_device = (val & BOOTROM_ERR_CODE_MASK) >> BOOTROM_ERR_CODE_OFFS;
-	if (boot_device)
+	boot_err_code = (val & BOOTROM_ERR_CODE_MASK) >> BOOTROM_ERR_CODE_OFFS;
+	debug("boot_err_code=0x%x\n", boot_err_code);
+	if (boot_err_code)
 		return BOOT_DEVICE_UART;
 #endif
 
@@ -86,31 +100,27 @@ u32 get_boot_device(void)
 	val = readl(CFG_SAR_REG);	/* SAR - Sample At Reset */
 	boot_device = (val & BOOT_DEV_SEL_MASK) >> BOOT_DEV_SEL_OFFS;
 	debug("SAR_REG=0x%08x boot_device=0x%x\n", val, boot_device);
-	switch (boot_device) {
 #ifdef BOOT_FROM_NAND
-	case BOOT_FROM_NAND:
+	if (BOOT_FROM_NAND(boot_device))
 		return BOOT_DEVICE_NAND;
 #endif
 #ifdef BOOT_FROM_MMC
-	case BOOT_FROM_MMC:
-	case BOOT_FROM_MMC_ALT:
+	if (BOOT_FROM_MMC(boot_device))
 		return BOOT_DEVICE_MMC1;
 #endif
-	case BOOT_FROM_UART:
-#ifdef BOOT_FROM_UART_ALT
-	case BOOT_FROM_UART_ALT:
-#endif
+#ifdef BOOT_FROM_UART
+	if (BOOT_FROM_UART(boot_device))
 		return BOOT_DEVICE_UART;
+#endif
 #ifdef BOOT_FROM_SATA
-	case BOOT_FROM_SATA:
-	case BOOT_FROM_SATA_ALT:
+	if (BOOT_FROM_SATA(boot_device))
 		return BOOT_DEVICE_SATA;
 #endif
-	case BOOT_FROM_SPI:
+#ifdef BOOT_FROM_SPI
+	if (BOOT_FROM_SPI(boot_device))
 		return BOOT_DEVICE_SPI;
-	default:
-		return BOOT_DEVICE_BOOTROM;
-	};
+#endif
+	return BOOT_DEVICE_BOOTROM;
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
@@ -513,17 +523,6 @@ u32 mvebu_get_nand_clock(void)
 		((readl(reg) &
 		  NAND_ECC_DIVCKL_RATIO_MASK) >> NAND_ECC_DIVCKL_RATIO_OFFS);
 }
-
-/*
- * SOC specific misc init
- */
-#if defined(CONFIG_ARCH_MISC_INIT)
-int arch_misc_init(void)
-{
-	/* Nothing yet, perhaps we need something here later */
-	return 0;
-}
-#endif /* CONFIG_ARCH_MISC_INIT */
 
 #if defined(CONFIG_MMC_SDHCI_MV) && !defined(CONFIG_DM_MMC)
 int board_mmc_init(struct bd_info *bis)

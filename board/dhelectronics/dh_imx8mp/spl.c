@@ -99,7 +99,7 @@ static struct dram_timing_info *dram_timing_info[8] = {
 	NULL,					/* 512 MiB */
 	NULL,					/* 1024 MiB */
 	NULL,					/* 1536 MiB */
-	NULL,					/* 2048 MiB */
+	&dh_imx8mp_dhcom_dram_timing_16g_x32,	/* 2048 MiB */
 	NULL,					/* 3072 MiB */
 	&dh_imx8mp_dhcom_dram_timing_32g_x32,	/* 4096 MiB */
 	NULL,					/* 6144 MiB */

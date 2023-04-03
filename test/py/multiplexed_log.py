@@ -111,7 +111,7 @@ class RunAndLog(object):
         """Clean up any resources managed by this object."""
         pass
 
-    def run(self, cmd, cwd=None, ignore_errors=False, stdin=None):
+    def run(self, cmd, cwd=None, ignore_errors=False, stdin=None, env=None):
         """Run a command as a sub-process, and log the results.
 
         The output is available at self.output which can be useful if there is
@@ -126,6 +126,7 @@ class RunAndLog(object):
                 or exits with an error code, otherwise an exception will be
                 raised if such problems occur.
             stdin: Input string to pass to the command as stdin (or None)
+            env: Environment to use, or None to use the current one
 
         Returns:
             The output as a string.
@@ -139,7 +140,7 @@ class RunAndLog(object):
         try:
             p = subprocess.Popen(cmd, cwd=cwd,
                 stdin=subprocess.PIPE if stdin else None,
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
             (stdout, stderr) = p.communicate(input=stdin)
             if stdout is not None:
                 stdout = stdout.decode('utf-8')

@@ -16,7 +16,7 @@
 	};
 
 	dmc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "rockchip,px30-dmc", "syscon";
 		reg = <0x0 0xff2a0000 0x0 0x1000>;
 	};
@@ -30,69 +30,69 @@
 
 &uart2 {
 	clock-frequency = <24000000>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart5 {
 	clock-frequency = <24000000>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
 	u-boot,spl-fifo-mode;
 };
 
 &emmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
 	u-boot,spl-fifo-mode;
 };
 
 &grf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pmugrf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &xin24m {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &cru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-rates;
 };
 
 &pmucru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-rates;
 };
 
 &saradc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &gpio0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio3 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

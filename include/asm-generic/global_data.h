@@ -650,6 +650,10 @@ enum gd_flags {
 	 * @GD_FLG_FDT_CHANGED: Device tree change has been detected by tests
 	 */
 	GD_FLG_FDT_CHANGED = 0x100000,
+	/**
+	 * @GD_FLG_OF_TAG_MIGRATE: Device tree has old u-boot,dm- tags
+	 */
+	GD_FLG_OF_TAG_MIGRATE = 0x200000,
 };
 
 #endif /* __ASSEMBLY__ */

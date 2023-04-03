@@ -116,7 +116,7 @@
 };
 
 &i2c0 {
-	u-boot,dm-pre-reloc;	/* Needed early for DDR SPD EEPROM */
+	bootph-all;	/* Needed early for DDR SPD EEPROM */
 	clock-frequency = <100000>;
 
 	sfp0eeprom: eeprom@50 {
@@ -131,7 +131,7 @@
 };
 
 &i2c1 {
-	u-boot,dm-pre-reloc;	/* Needed early for DDR SPD EEPROM */
+	bootph-all;	/* Needed early for DDR SPD EEPROM */
 	clock-frequency = <100000>;
 
 	vitesse@10 {

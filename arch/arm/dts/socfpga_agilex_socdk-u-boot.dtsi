@@ -33,7 +33,7 @@
 	compatible = "jedec,spi-nor";
 	spi-tx-bus-width = <4>;
 	spi-rx-bus-width = <4>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &i2c1 {
@@ -43,7 +43,7 @@
 &mmc {
 	drvsel = <3>;
 	smplsel = <0>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &qspi {
@@ -51,5 +51,5 @@
 };
 
 &watchdog0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

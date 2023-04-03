@@ -29,7 +29,7 @@ int ahab_release_rdc(u8 core_id, u8 xrdc, u32 *response)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 2;
-	msg.command = AHAB_RELEASE_RDC_REQ_CID;
+	msg.command = ELE_RELEASE_RDC_REQ;
 	switch (xrdc) {
 	case 0:
 		msg.data[0] = (0x74 << 8) | core_id;
@@ -74,7 +74,7 @@ int ahab_auth_oem_ctnr(ulong ctnr_addr, u32 *response)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 3;
-	msg.command = AHAB_AUTH_OEM_CTNR_CID;
+	msg.command = ELE_OEM_CNTN_AUTH_REQ;
 	msg.data[0] = upper_32_bits(ctnr_addr);
 	msg.data[1] = lower_32_bits(ctnr_addr);
 
@@ -104,7 +104,7 @@ int ahab_release_container(u32 *response)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 1;
-	msg.command = AHAB_RELEASE_CTNR_CID;
+	msg.command = ELE_RELEASE_CONTAINER_REQ;
 
 	ret = misc_call(dev, false, &msg, size, &msg, size);
 	if (ret)
@@ -132,7 +132,7 @@ int ahab_verify_image(u32 img_id, u32 *response)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 2;
-	msg.command = AHAB_VERIFY_IMG_CID;
+	msg.command = ELE_VERIFY_IMAGE_REQ;
 	msg.data[0] = 1 << img_id;
 
 	ret = misc_call(dev, false, &msg, size, &msg, size);
@@ -161,7 +161,7 @@ int ahab_forward_lifecycle(u16 life_cycle, u32 *response)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 2;
-	msg.command = AHAB_FWD_LIFECYCLE_UP_REQ_CID;
+	msg.command = ELE_FWD_LIFECYCLE_UP_REQ;
 	msg.data[0] = life_cycle;
 
 	ret = misc_call(dev, false, &msg, size, &msg, size);
@@ -201,7 +201,7 @@ int ahab_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *respo
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 2;
-	msg.command = AHAB_READ_FUSE_REQ_CID;
+	msg.command = ELE_READ_FUSE_REQ;
 	msg.data[0] = fuse_id;
 
 	ret = misc_call(dev, false, &msg, size, &msg, size);
@@ -238,7 +238,7 @@ int ahab_write_fuse(u16 fuse_id, u32 fuse_val, bool lock, u32 *response)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 3;
-	msg.command = AHAB_WRITE_FUSE_REQ_CID;
+	msg.command = ELE_WRITE_FUSE_REQ;
 	msg.data[0] = (32 << 16) | (fuse_id << 5);
 	if (lock)
 		msg.data[0] |= (1 << 31);
@@ -271,7 +271,7 @@ int ahab_release_caam(u32 core_did, u32 *response)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 2;
-	msg.command = AHAB_CAAM_RELEASE_CID;
+	msg.command = ELE_RELEASE_CAAM_REQ;
 	msg.data[0] = core_did;
 
 	ret = misc_call(dev, false, &msg, size, &msg, size);
@@ -310,7 +310,7 @@ int ahab_get_fw_version(u32 *fw_version, u32 *sha1, u32 *response)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 1;
-	msg.command = AHAB_GET_FW_VERSION_CID;
+	msg.command = ELE_GET_FW_VERSION_REQ;
 
 	ret = misc_call(dev, false, &msg, size, &msg, size);
 	if (ret)
@@ -341,7 +341,7 @@ int ahab_dump_buffer(u32 *buffer, u32 buffer_length)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 1;
-	msg.command = AHAB_LOG_CID;
+	msg.command = ELE_DUMP_DEBUG_BUFFER_REQ;
 
 	ret = misc_call(dev, false, &msg, size, &msg, size);
 	if (ret) {
@@ -375,7 +375,7 @@ int ahab_get_info(struct sentinel_get_info_data *info, u32 *response)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 4;
-	msg.command = AHAB_GET_INFO_CID;
+	msg.command = ELE_GET_INFO_REQ;
 	msg.data[0] = upper_32_bits((ulong)info);
 	msg.data[1] = lower_32_bits((ulong)info);
 	msg.data[2] = sizeof(struct sentinel_get_info_data);
@@ -406,7 +406,7 @@ int ahab_get_fw_status(u32 *status, u32 *response)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 1;
-	msg.command = AHAB_GET_FW_STATUS_CID;
+	msg.command = ELE_GET_FW_STATUS_REQ;
 
 	ret = misc_call(dev, false, &msg, size, &msg, size);
 	if (ret)
@@ -436,12 +436,57 @@ int ahab_release_m33_trout(void)
 	msg.version = AHAB_VERSION;
 	msg.tag = AHAB_CMD_TAG;
 	msg.size = 1;
-	msg.command = 0xd3;
+	msg.command = ELE_ENABLE_RTC_REQ;
 
 	ret = misc_call(dev, false, &msg, size, &msg, size);
 	if (ret)
 		printf("Error: %s: ret %d, response 0x%x\n",
 		       __func__, ret, msg.data[0]);
+
+	return ret;
+}
+
+int ahab_get_events(u32 *events, u32 *events_cnt, u32 *response)
+{
+	struct udevice *dev = gd->arch.s400_dev;
+	int size = sizeof(struct sentinel_msg);
+	struct sentinel_msg msg;
+	int ret, i = 0;
+	u32 actual_events;
+
+	if (!dev) {
+		printf("s400 dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	if (!events || !events_cnt || *events_cnt == 0) {
+		printf("Invalid parameters for %s\n", __func__);
+		return -EINVAL;
+	}
+
+	msg.version = AHAB_VERSION;
+	msg.tag = AHAB_CMD_TAG;
+	msg.size = 1;
+	msg.command = ELE_GET_EVENTS_REQ;
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, response 0x%x\n",
+		       __func__, ret, msg.data[0]);
+
+	if (response)
+		*response = msg.data[0];
+
+	if (!ret) {
+		actual_events = msg.data[1] & 0xffff;
+		if (*events_cnt < actual_events)
+			actual_events = *events_cnt;
+
+		for (; i < actual_events; i++)
+			events[i] = msg.data[i + 2];
+
+		*events_cnt = actual_events;
+	}
 
 	return ret;
 }

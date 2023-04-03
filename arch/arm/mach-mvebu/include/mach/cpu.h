@@ -66,17 +66,38 @@ enum cpu_attrib {
 /*
  * Default Device Address MAP BAR values
  */
+#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_ARMADA_38X
+#define MBUS_PCI_MEM_BASE	0x88000000
+#define MBUS_PCI_MEM_SIZE	((3 * 128) << 20)
+#else
+#define MBUS_PCI_MEM_BASE	0x80000000
+#define MBUS_PCI_MEM_SIZE	((4 * 128) << 20)
+#endif
+#else
 #define MBUS_PCI_MAX_PORTS	6
 #define MBUS_PCI_MEM_BASE	MVEBU_SDRAM_SIZE_MAX
 #define MBUS_PCI_MEM_SIZE	((MBUS_PCI_MAX_PORTS * 128) << 20)
 #define MBUS_PCI_IO_BASE	0xF1100000
 #define MBUS_PCI_IO_SIZE	((MBUS_PCI_MAX_PORTS * 64) << 10)
+#endif
+#ifdef CONFIG_SPL_BUILD
+#define MBUS_SPI_BASE		0xD4000000
+#define MBUS_SPI_SIZE		(64 << 20)
+#else
 #define MBUS_SPI_BASE		0xF4000000
 #define MBUS_SPI_SIZE		(8 << 20)
+#endif
+#ifndef CONFIG_SPL_BUILD
 #define MBUS_DFX_BASE		0xF6000000
 #define MBUS_DFX_SIZE		(1 << 20)
+#endif
 #define MBUS_BOOTROM_BASE	0xF8000000
+#ifdef CONFIG_SPL_BUILD
+#define MBUS_BOOTROM_SIZE	(128 << 20)
+#else
 #define MBUS_BOOTROM_SIZE	(8 << 20)
+#endif
 
 struct mbus_win {
 	u32 base;

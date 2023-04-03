@@ -575,6 +575,17 @@ int vidconsole_get_font(struct udevice *dev, int seq,
 	return ops->get_font(dev, seq, info);
 }
 
+int vidconsole_get_font_size(struct udevice *dev, const char **name, uint *sizep)
+{
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+
+	if (!ops->get_font_size)
+		return -ENOSYS;
+
+	*name = ops->get_font_size(dev, sizep);
+	return 0;
+}
+
 int vidconsole_select_font(struct udevice *dev, const char *name, uint size)
 {
 	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
@@ -644,6 +655,18 @@ int vidconsole_memmove(struct udevice *dev, void *dst, const void *src,
 	return vidconsole_sync_copy(dev, dst, dst + size);
 }
 #endif
+
+int vidconsole_clear_and_reset(struct udevice *dev)
+{
+	int ret;
+
+	ret = video_clear(dev_get_parent(dev));
+	if (ret)
+		return ret;
+	vidconsole_position_cursor(dev, 0, 0);
+
+	return 0;
+}
 
 void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
 {

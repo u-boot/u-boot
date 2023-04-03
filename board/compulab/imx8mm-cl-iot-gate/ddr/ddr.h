@@ -25,7 +25,7 @@ struct lpddr4_tcm_desc {
 
 u32 cl_eeprom_get_ddrinfo(void);
 u32 cl_eeprom_set_ddrinfo(u32 ddrinfo);
-u32 cl_eeprom_get_subind(void);
-u32 cl_eeprom_set_subind(u32 subind);
+u8 cl_eeprom_get_subind(void);
+u8 cl_eeprom_set_subind(u8 subind);
 u32 cl_eeprom_get_osize(void);
 #endif

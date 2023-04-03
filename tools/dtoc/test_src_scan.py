@@ -15,8 +15,8 @@ import unittest
 from unittest import mock
 
 from dtoc import src_scan
-from patman import test_util
-from patman import tools
+from u_boot_pylib import test_util
+from u_boot_pylib import tools
 
 OUR_PATH = os.path.dirname(os.path.realpath(__file__))
 

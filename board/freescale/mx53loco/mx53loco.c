@@ -27,6 +27,8 @@
 #include <fsl_pmic.h>
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
+#include <dm/uclass.h>
+#include <dm/device.h>
 
 #define MX53LOCO_LCD_POWER		IMX_GPIO_NR(3, 24)
 
@@ -39,10 +41,16 @@ u32 get_board_rev(void)
 	struct fuse_bank *bank = &iim->bank[0];
 	struct fuse_bank0_regs *fuse =
 		(struct fuse_bank0_regs *)bank->fuse_regs;
+	struct udevice *bus;
+	struct udevice *dev;
 
 	int rev = readl(&fuse->gp[6]);
 
-	if (!i2c_probe(CFG_SYS_DIALOG_PMIC_I2C_ADDR))
+	ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &bus);
+	if (ret)
+		return ret;
+
+	if (!dm_i2c_probe(bus, CFG_SYS_DIALOG_PMIC_I2C_ADDR, 0, &dev))
 		rev = 0;
 
 	return (get_cpu_rev() & ~(0xF << 8)) | (rev & 0xF) << 8;
@@ -62,26 +70,19 @@ static void setup_iomux_uart(void)
 	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
 }
 
-#define I2C_PAD_CTRL	(PAD_CTL_SRE_FAST | PAD_CTL_DSE_HIGH | \
-			 PAD_CTL_PUS_100K_UP | PAD_CTL_ODE)
-
-static void setup_iomux_i2c(void)
-{
-	static const iomux_v3_cfg_t i2c1_pads[] = {
-		NEW_PAD_CTRL(MX53_PAD_CSI0_DAT8__I2C1_SDA, I2C_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_CSI0_DAT9__I2C1_SCL, I2C_PAD_CTRL),
-	};
-
-	imx_iomux_v3_setup_multiple_pads(i2c1_pads, ARRAY_SIZE(i2c1_pads));
-}
-
 static int power_init(void)
 {
 	unsigned int val;
 	int ret;
 	struct pmic *p;
+	struct udevice *bus;
+	struct udevice *dev;
 
-	if (!i2c_probe(CFG_SYS_DIALOG_PMIC_I2C_ADDR)) {
+	ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &bus);
+	if (ret)
+		return ret;
+
+	if (!dm_i2c_probe(bus, CFG_SYS_DIALOG_PMIC_I2C_ADDR, 0, &dev)) {
 		ret = pmic_dialog_init(I2C_PMIC);
 		if (ret)
 			return ret;
@@ -124,8 +125,8 @@ static int power_init(void)
 		return ret;
 	}
 
-	if (!i2c_probe(CFG_SYS_FSL_PMIC_I2C_ADDR)) {
-		ret = pmic_init(I2C_0);
+	if (!dm_i2c_probe(bus, CFG_SYS_FSL_PMIC_I2C_ADDR, 0, &dev)) {
+		ret = pmic_init(0);
 		if (ret)
 			return ret;
 
@@ -225,7 +226,6 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	mxc_set_sata_internal_clock();
-	setup_iomux_i2c();
 
 	return 0;
 }

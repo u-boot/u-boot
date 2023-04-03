@@ -10,32 +10,32 @@
 	};
 
 	memory@80000000 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &cbass_main{
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	timer1: timer@2400000 {
 		compatible = "ti,omap5430-timer";
 		reg = <0x0 0x2400000 0x0 0x80>;
 		ti,timer-alwon;
 		clock-frequency = <200000000>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &main_conf {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	chipid@14 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &main_pmx0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	main_i2c0_pins_default: main-i2c0-pins-default {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		pinctrl-single,pins = <
 			AM64X_IOPAD(0x0260, PIN_INPUT_PULLUP, 0) /* (A18) I2C0_SCL */
 			AM64X_IOPAD(0x0264, PIN_INPUT_PULLUP, 0) /* (B18) I2C0_SDA */
@@ -45,67 +45,67 @@
 
 &main_i2c0 {
 	status = "okay";
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c0_pins_default>;
 	clock-frequency = <400000>;
 };
 
 &main_uart0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usb0 {
 	dr_mode="peripheral";
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbss0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_mmc1_pins_default {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &main_usb0_pins_default {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &dmss {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &secure_proxy_main {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &dmsc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	k3_sysreset: sysreset-controller {
 		compatible = "ti,sci-sysreset";
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &k3_pds {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &k3_clks {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &k3_reset {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdhci0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdhci1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &cpsw3g {

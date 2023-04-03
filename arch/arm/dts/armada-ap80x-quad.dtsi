@@ -18,7 +18,7 @@
 
 		cpu@000 {
 			clocks;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			device_type = "cpu";
 			compatible = "arm,cortex-a72", "arm,armv8";
 			reg = <0x000>;
@@ -26,7 +26,7 @@
 		};
 		cpu@001 {
 			clocks;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			device_type = "cpu";
 			compatible = "arm,cortex-a72", "arm,armv8";
 			reg = <0x001>;
@@ -34,7 +34,7 @@
 		};
 		cpu@100 {
 			clocks;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			device_type = "cpu";
 			compatible = "arm,cortex-a72", "arm,armv8";
 			reg = <0x100>;
@@ -42,7 +42,7 @@
 		};
 		cpu@101 {
 			clocks;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			device_type = "cpu";
 			compatible = "arm,cortex-a72", "arm,armv8";
 			reg = <0x101>;

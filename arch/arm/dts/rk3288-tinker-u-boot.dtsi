@@ -6,7 +6,7 @@
 #include "rk3288-u-boot.dtsi"
 
 &dmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	rockchip,pctl-timing = <0x215 0xc8 0x0 0x35 0x26 0x2 0x70 0x2000d
 		0x6 0x0 0x8 0x4 0x17 0x24 0xd 0x6
 		0x4 0x8 0x4 0x76 0x4 0x0 0x30 0x0
@@ -25,61 +25,61 @@
 };
 
 &pinctrl {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart2_xfer {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio7 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &vcc_sd {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pcfg_pull_none_drv_8ma {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pcfg_pull_up_drv_8ma {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pcfg_pull_none {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pcfg_pull_up {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc_bus4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc_cd {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc_clk {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc_cmd {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc_pwr {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

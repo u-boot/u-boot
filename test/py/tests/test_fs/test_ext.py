@@ -8,10 +8,23 @@
 This test verifies extended write operation on file system.
 """
 
+import os.path
 import pytest
 import re
+from subprocess import check_output
 from fstest_defs import *
 from fstest_helpers import assert_fs_integrity
+
+PLAIN_FILE='abcdefgh.txt'
+MANGLE_FILE='abcdefghi.txt'
+
+def str2fat(long_filename):
+    splitext = os.path.splitext(long_filename.upper())
+    name = splitext[0]
+    ext = splitext[1][1:]
+    if len(name) > 8:
+        name = '%s~1' % name[:6]
+    return '%-8s %s' % (name, ext)
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.slow
@@ -315,5 +328,28 @@ class TestFsExt(object):
             output = u_boot_console.run_command('%sls host 0:0 /dir1' % fs_type)
             assert('FILE0123456789_40' in output)
             assert('FILE0123456789_79' in output)
+
+            assert_fs_integrity(fs_type, fs_img)
+
+    def test_fs_ext12(self, u_boot_console, fs_obj_ext):
+        """
+        Test Case 12 - write plain and mangle file
+        """
+        fs_type,fs_img,md5val = fs_obj_ext
+        with u_boot_console.log.section('Test Case 12 - write plain and mangle file'):
+            # Test Case 12a - Check if command successfully returned
+            output = u_boot_console.run_command_list([
+                'host bind 0 %s' % fs_img,
+                '%swrite host 0:0 %x /%s 0'
+                    % (fs_type, ADDR, PLAIN_FILE),
+                '%swrite host 0:0 %x /%s 0'
+                    % (fs_type, ADDR, MANGLE_FILE)])
+            assert('0 bytes written' in ''.join(output))
+            # Test Case 12b - Read file system content
+            output = check_output('mdir -i %s' % fs_img, shell=True).decode()
+            # Test Case 12c - Check if short filename is not mangled
+            assert(str2fat(PLAIN_FILE) in ''.join(output))
+            # Test Case 12d - Check if long filename is mangled
+            assert(str2fat(MANGLE_FILE) in ''.join(output))
 
             assert_fs_integrity(fs_type, fs_img)

@@ -40,7 +40,7 @@ There are two sources for the TF-A. Mainline and NXP. Get the one you prefer
 
 **NXP's imx-atf**
 
-1. Get TF-A from: https://github.com/nxp-imx/imx-atf, branch: imx_5.4.70_2.3.0
+1. Get TF-A from: https://github.com/nxp-imx/imx-atf, branch: lf_v2.6
 2. Build
 
   .. code-block:: bash

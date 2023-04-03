@@ -3,8 +3,12 @@ depends on ARCH_MVEBU
 
 config CMD_MVEBU_BUBT
 	bool "bubt"
+	default y
 	select SHA256 if ARMADA_3700
 	select SHA512 if ARMADA_3700
+	select DOS_PARTITION if ARMADA_3700
+	select EFI_PARTITION if ARMADA_3700
+	select PARTITION_TYPE_GUID if ARMADA_3700
 	select MVEBU_EFUSE if ARMADA_38X || ARMADA_3700
 	help
 	  bubt - Burn a u-boot image to flash
@@ -15,6 +19,10 @@ if CMD_MVEBU_BUBT
 
 choice
 	prompt "Flash for image"
+	default MVEBU_SPI_BOOT if MVEBU_SPL_BOOT_DEVICE_SPI
+	default MVEBU_NAND_BOOT if MVEBU_SPL_BOOT_DEVICE_NAND
+	default MVEBU_MMC_BOOT if MVEBU_SPL_BOOT_DEVICE_MMC
+	default MVEBU_SATA_BOOT if MVEBU_SPL_BOOT_DEVICE_SATA
 	default MVEBU_SPI_BOOT
 
 config MVEBU_NAND_BOOT
@@ -44,10 +52,20 @@ config MVEBU_MMC_BOOT
 	  For details about bubt command please see the documentation
 	  in doc/mvebu/cmd/bubt.txt
 
+config MVEBU_SATA_BOOT
+	bool "SATA flash boot"
+	depends on SCSI
+	help
+	  Enable boot from SATA disk.
+	  Allow usage of SATA disk as a target for "bubt" command
+	  For details about bubt command please see the documentation
+	  in doc/mvebu/cmd/bubt.txt
+
 endchoice
 
 config MVEBU_UBOOT_DFLT_NAME
 	string "Default image name for bubt command"
+	default BUILD_TARGET if ARMADA_32BIT && BUILD_TARGET != ""
 	default "flash-image.bin"
 	help
 	  This option should contain a default file name to be used with

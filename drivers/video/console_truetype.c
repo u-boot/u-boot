@@ -724,7 +724,7 @@ static int truetype_select_font(struct udevice *dev, const char *name,
 	return 0;
 }
 
-const char *vidconsole_get_font_size(struct udevice *dev, uint *sizep)
+const char *console_truetype_get_font_size(struct udevice *dev, uint *sizep)
 {
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_metrics *met = priv->cur_met;
@@ -773,6 +773,7 @@ struct vidconsole_ops console_truetype_ops = {
 	.backspace	= console_truetype_backspace,
 	.entry_start	= console_truetype_entry_start,
 	.get_font	= console_truetype_get_font,
+	.get_font_size	= console_truetype_get_font_size,
 	.select_font	= truetype_select_font,
 };
 

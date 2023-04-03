@@ -26,6 +26,7 @@
 #include <usb.h>
 #include <dwc3-uboot.h>
 #include <linux/delay.h>
+#include <linux/usb/gadget.h>
 #include "librem5.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -417,7 +418,7 @@ out:
 	return rv;
 }
 
-int usb_gadget_handle_interrupts(void)
+int usb_gadget_handle_interrupts(int index)
 {
 	dwc3_uboot_handle_interrupt(0);
 	return 0;

@@ -27,22 +27,22 @@
 
 &uart0 {
 	skip-init;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart1 {
 	skip-init;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpio {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart0_gpio14 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart1_gpio14 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
