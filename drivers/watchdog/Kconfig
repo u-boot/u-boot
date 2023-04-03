@@ -184,12 +184,12 @@ config WDT_MESON_GXBB
 	  Select this to enable Meson watchdog timer,
 	  which can be found on some Amlogic platforms.
 
-config WDT_MPC8xx
-	bool "MPC8xx watchdog timer support"
+config WDT_MPC8xxx
+	bool "MPC8xxx watchdog timer support"
 	depends on WDT && MPC8xx
 	select HW_WATCHDOG
 	help
-	  Select this to enable mpc8xx watchdog timer
+	  Select this to enable mpc8xxx watchdog timer
 
 config WDT_MT7620
 	bool "MediaTek MT7620 watchdog timer support"

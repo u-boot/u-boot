@@ -19,7 +19,7 @@ void hw_watchdog_reset(void)
 	out_be16(&immap->im_siu_conf.sc_swsr, 0xaa39);	/* write magic2 */
 }
 
-static int mpc8xx_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
+static int mpc8xxx_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	u32 val = CONFIG_SYS_SYPCR;
@@ -38,7 +38,7 @@ static int mpc8xx_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 
 }
 
-static int mpc8xx_wdt_stop(struct udevice *dev)
+static int mpc8xxx_wdt_stop(struct udevice *dev)
 {
 	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 
@@ -49,27 +49,27 @@ static int mpc8xx_wdt_stop(struct udevice *dev)
 	return 0;
 }
 
-static int mpc8xx_wdt_reset(struct udevice *dev)
+static int mpc8xxx_wdt_reset(struct udevice *dev)
 {
 	hw_watchdog_reset();
 
 	return 0;
 }
 
-static const struct wdt_ops mpc8xx_wdt_ops = {
-	.start = mpc8xx_wdt_start,
-	.reset = mpc8xx_wdt_reset,
-	.stop = mpc8xx_wdt_stop,
+static const struct wdt_ops mpc8xxx_wdt_ops = {
+	.start = mpc8xxx_wdt_start,
+	.reset = mpc8xxx_wdt_reset,
+	.stop = mpc8xxx_wdt_stop,
 };
 
-static const struct udevice_id mpc8xx_wdt_ids[] = {
+static const struct udevice_id mpc8xxx_wdt_ids[] = {
 	{ .compatible = "fsl,pq1-wdt" },
 	{}
 };
 
-U_BOOT_DRIVER(wdt_mpc8xx) = {
-	.name = "wdt_mpc8xx",
+U_BOOT_DRIVER(wdt_mpc8xxx) = {
+	.name = "wdt_mpc8xxx",
 	.id = UCLASS_WDT,
-	.of_match = mpc8xx_wdt_ids,
-	.ops = &mpc8xx_wdt_ops,
+	.of_match = mpc8xxx_wdt_ids,
+	.ops = &mpc8xxx_wdt_ops,
 };
