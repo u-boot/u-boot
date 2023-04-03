@@ -1,0 +1,130 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2022 Marek Vasut <marex@denx.de>
+ */
+
+#include "imx8mp-u-boot.dtsi"
+
+/ {
+	aliases {
+		eeprom0 = &eeprom;
+		mmc0 = &usdhc3;	/* eMMC */
+		mmc1 = &usdhc2;	/* MicroSD */
+		spi0 = &ecspi1;
+	};
+
+	config {
+		dmo,ram-coding-gpios = <&gpio3 20 0>, <&gpio4 3 0>, <&gpio4 1 0>;
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		bootph-pre-ram;
+	};
+};
+
+&buck4 {
+	bootph-pre-ram;
+};
+
+&buck5 {
+	bootph-pre-ram;
+};
+
+&ecspi1 {
+	bootph-pre-ram;
+	flash@0 {
+		bootph-pre-ram;
+	};
+};
+
+&eqos {
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	/delete-property/ assigned-clock-rates;
+};
+
+&gpio1 {
+	bootph-pre-ram;
+};
+
+&gpio2 {
+	bootph-pre-ram;
+};
+
+&gpio3 {
+	bootph-pre-ram;
+};
+
+&gpio4 {
+	bootph-pre-ram;
+};
+
+&gpio5 {
+	bootph-pre-ram;
+};
+
+&i2c3 {
+	bootph-pre-ram;
+};
+
+&pinctrl_ecspi1 {
+	bootph-pre-ram;
+};
+
+&pinctrl_hog_sbc {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c3 {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c3_gpio {
+	bootph-pre-ram;
+};
+
+&pinctrl_pmic {
+	bootph-pre-ram;
+};
+
+&pinctrl_uart3 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc2 {
+	bootph-pre-ram;
+};
+
+&pinctrl_usdhc3 {
+	bootph-pre-ram;
+};
+
+&pmic {
+	bootph-pre-ram;
+
+	regulators {
+		bootph-pre-ram;
+	};
+};
+
+&uart3 {
+	bootph-pre-ram;
+};
+
+&usdhc2 {
+	bootph-pre-ram;
+	sd-uhs-sdr104;
+	sd-uhs-ddr50;
+};
+
+&usdhc3 {
+	bootph-pre-ram;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+};
+
+&wdog1 {
+	bootph-pre-ram;
+};
