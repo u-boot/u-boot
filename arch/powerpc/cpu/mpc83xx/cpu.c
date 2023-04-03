@@ -165,7 +165,7 @@ unsigned long get_tbclk(void)
 }
 #endif
 
-#if defined(CONFIG_WATCHDOG)
+#if defined(CONFIG_WATCHDOG) && !defined(CONFIG_WDT)
 void watchdog_reset (void)
 {
 	int re_enable = disable_interrupts();

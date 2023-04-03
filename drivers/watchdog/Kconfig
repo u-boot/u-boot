@@ -186,7 +186,7 @@ config WDT_MESON_GXBB
 
 config WDT_MPC8xxx
 	bool "MPC8xxx watchdog timer support"
-	depends on WDT && MPC8xx
+	depends on WDT && (MPC8xx || MPC83xx)
 	help
 	  Select this to enable mpc8xxx watchdog timer
 

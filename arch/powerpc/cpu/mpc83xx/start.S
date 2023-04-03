@@ -483,6 +483,7 @@ init_e300_core: /* time t 10 */
 
 
 	lis	r3, CONFIG_SYS_IMMR@h
+#ifndef CONFIG_WDT_MPC8xxx
 #if defined(CONFIG_WATCHDOG)
 	/* Initialise the Watchdog values and reset it (if req) */
 	/*------------------------------------------------------*/
@@ -508,6 +509,7 @@ init_e300_core: /* time t 10 */
 	stw r4, SWCRR(r3)
 1:
 #endif /* CONFIG_WATCHDOG */
+#endif
 
 #if defined(CONFIG_MASK_AER_AO)
 	/* Write the Arbiter Event Enable to mask Address Only traps. */
