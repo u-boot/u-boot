@@ -71,7 +71,13 @@ int fdt_simplefb_add_node(void *blob)
 	return fdt_simplefb_configure_node(blob, off);
 }
 
-int fdt_simplefb_enable_existing_node(void *blob)
+/**
+ * fdt_simplefb_enable_existing_node() - enable simple-framebuffer DT node
+ *
+ * @blob:	device-tree
+ * Return:	0 on success, non-zero otherwise
+ */
+static int fdt_simplefb_enable_existing_node(void *blob)
 {
 	int off;
 
