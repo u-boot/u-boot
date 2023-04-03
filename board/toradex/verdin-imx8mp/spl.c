@@ -34,11 +34,10 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 void spl_dram_init(void)
 {
 	/*
-	 * try configuring for quad die, dual rank aka 8 GB falling back to
-	 * dual die, single rank aka 1 GB (untested), 2 GB or 4 GB if it fails
+	 * Try configuring for dual rank memory falling back to single rank
 	 */
 	if (ddr_init(&dram_timing)) {
-		printf("Quad die, dual rank failed, attempting dual die, single rank configuration.\n");
+		printf("Dual rank failed, attempting single rank configuration.\n");
 		ddr_init(&dram_timing2);
 	}
 }
