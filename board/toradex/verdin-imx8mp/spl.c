@@ -21,8 +21,7 @@
 #include <dm/uclass.h>
 #include <power/pmic.h>
 #include <power/pca9450.h>
-
-extern struct dram_timing_info dram_timing2;
+#include "lpddr4_timing.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,7 +37,8 @@ void spl_dram_init(void)
 	 */
 	if (ddr_init(&dram_timing)) {
 		printf("Dual rank failed, attempting single rank configuration.\n");
-		ddr_init(&dram_timing2);
+		lpddr4_single_rank_training_patch();
+		ddr_init(&dram_timing);
 	}
 }
 
