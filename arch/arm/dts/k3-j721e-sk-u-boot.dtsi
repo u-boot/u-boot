@@ -33,7 +33,7 @@
 &cbass_main{
 	u-boot,dm-spl;
 
-	main_navss {
+	main_navss: bus@30000000 {
 		u-boot,dm-spl;
 	};
 };
@@ -49,7 +49,7 @@
 		u-boot,dm-spl;
 	};
 
-	mcu-navss {
+	mcu_navss: bus@28380000 {
 		u-boot,dm-spl;
 
 		ringacc@2b800000 {
@@ -235,6 +235,10 @@
 
 &fss {
 	u-boot,dm-spl;
+};
+
+&hbmc {
+	status = "disabled";
 };
 
 &ospi0 {
