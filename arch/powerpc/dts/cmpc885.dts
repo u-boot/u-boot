@@ -18,11 +18,6 @@
 		stdout-path = &SERIAL;
 	};
 
-	WDT: watchdog@0 {
-		device_type = "watchdog";
-		compatible = "fsl,pq1-wdt";
-	};
-
 	SERIAL: serial {
 		compatible = "fsl,pq1-smc";
 	};
@@ -42,6 +37,13 @@
 		compatible = "simple-bus";
 		ranges = <0 0xff000000 0x4000>;
 		reg = <0xff000000 0x00000200>;
+
+		WDT: watchdog@0 {
+			compatible = "fsl,pq1-wdt";
+			reg = <0x0 0x10>;
+			timeout-sec = <2>;
+			hw_margin_ms = <1000>;
+		};
 
 		CPM1_PIO_B: gpio-controller@ab8 {
 			#gpio-cells = <2>;
