@@ -263,7 +263,7 @@ stages:
           TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
         sandbox_vpl:
           TEST_PY_BD: "sandbox_vpl"
-          TEST_PY_TEST_SPEC: "test_vpl_help or test_spl"
+          TEST_PY_TEST_SPEC: "vpl or test_spl"
         sandbox_noinst:
           TEST_PY_BD: "sandbox_noinst"
           TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"

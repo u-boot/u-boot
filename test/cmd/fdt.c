@@ -236,7 +236,6 @@ static int fdt_test_addr_resize(struct unit_test_state *uts)
 
 	/* ...quietly */
 	ut_assertok(run_commandf("fdt addr -q %08lx %zx", addr, sizeof(fdt) / 4));
-	ut_assert_nextline("Working FDT set to %lx", addr);
 	ut_assertok(ut_check_console_end(uts));
 
 	/* We cannot easily provoke errors in fdt_open_into(), so ignore that */
