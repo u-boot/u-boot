@@ -10,7 +10,7 @@ default:
 
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20230308-21Mar2023
+image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20230308-04Apr2023
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -277,7 +277,7 @@ sandbox test.py:
 sandbox with clang test.py:
   variables:
     TEST_PY_BD: "sandbox"
-    OVERRIDE: "-O clang-14"
+    OVERRIDE: "-O clang-16"
   <<: *buildman_and_testpy_dfn
 
 sandbox without LTO test.py:

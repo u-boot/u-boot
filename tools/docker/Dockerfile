@@ -12,7 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Add LLVM repository
 RUN apt-get update && apt-get install -y gnupg2 wget xz-utils && rm -rf /var/lib/apt/lists/*
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-RUN echo deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-14 main | tee /etc/apt/sources.list.d/llvm.list
+RUN echo deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main | tee /etc/apt/sources.list.d/llvm.list
 
 # Manually install the kernel.org "Crosstool" based toolchains for gcc-12.2.0
 RUN wget -O - https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/12.2.0/x86_64-gcc-12.2.0-nolibc-aarch64-linux.tar.xz | tar -C /opt -xJ
@@ -39,7 +39,7 @@ RUN apt-get update && apt-get install -y \
 	binutils-dev \
 	bison \
 	build-essential \
-	clang-14 \
+	clang-16 \
 	coreutils \
 	cpio \
 	cppcheck \
@@ -264,6 +264,17 @@ RUN mkdir -p /opt/nokia && \
 RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot
 RUN useradd -m -U uboot
 USER uboot:uboot
+
+# Populate the cache for pip to use. Get these via wget as the
+# COPY / ADD directives don't work as we need them to.
+RUN wget -O /tmp/pytest-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/test/py/requirements.txt
+RUN wget -O /tmp/sphinx-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/doc/sphinx/requirements.txt
+RUN virtualenv -p /usr/bin/python3 /tmp/venv && \
+	. /tmp/venv/bin/activate && \
+	pip install -r /tmp/pytest-requirements.txt \
+		-r /tmp/sphinx-requirements.txt && \
+	deactivate && \
+	rm -rf /tmp/venv /tmp/pytest-requirements.txt /tmp/sphinx-requirements.txt
 
 # Create the buildman config file
 RUN /bin/echo -e "[toolchain]\nroot = /usr" > ~/.buildman
