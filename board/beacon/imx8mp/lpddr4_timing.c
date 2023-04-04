@@ -1,55 +1,22 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-/*
- * Copyright 2019 NXP
- * Copyright 2022 Toradex
- *
- * Generated code from MX8M_DDR_tool
- *
- * Align with uboot version:
- * imx_v2019.04_5.4.x and above version
- * For imx_v2018.03_4.14.78_1.0.0_ga ~ imx_v2018.04_4.19.35_1.1.0_ga:
- * please replace #include <asm/arch/ddr.h> with #include <asm/arch/imx8m_ddr.h>
- */
+// SPDX-License-Identifier: GPL-2.0+
+/* Copyright 2022 Logic PD, Inc dba Beacon EmbeddedWorks */
 
 #include <linux/kernel.h>
 #include <asm/arch/ddr.h>
-#include "lpddr4_timing.h"
-
-struct dram_cfg_param ddr_ddrc_cfg_single_rank_patch[] = {
-	{ 0x3d400000, 0xa1080020},
-	{ 0x3d400200, 0x1f},
-	{ 0x3d40021c, 0xf07}
-};
-
-struct dram_cfg_param ddr_fsp0_cfg_single_rank_patch[] = {
-	{ 0x54012, 0x110},
-	{ 0x5402c, 0x1}
-};
-
-struct dram_cfg_param ddr_fsp1_cfg_single_rank_patch[] = {
-	{ 0x54012, 0x110},
-	{ 0x5402c, 0x1}
-};
-
-struct dram_cfg_param ddr_fsp2_cfg_single_rank_patch[] = {
-	{ 0x54012, 0x110},
-	{ 0x5402c, 0x1}
-};
-
-struct dram_cfg_param ddr_fsp0_2d_cfg_single_rank_patch[] = {
-	{ 0x54012, 0x110},
-	{ 0x5402c, 0x1}
-};
 
 struct dram_cfg_param ddr_ddrc_cfg[] = {
 	/** Initialize DDRC registers **/
 	{ 0x3d400304, 0x1 },
 	{ 0x3d400030, 0x1 },
 	{ 0x3d400000, 0xa3080020 },
-	{ 0x3d400020, 0x1303 },
+	{ 0x3d400020, 0x1322 },
 	{ 0x3d400024, 0x1e84800 },
-	{ 0x3d400064, 0x7a017c },
+	{ 0x3d400064, 0x3d017c },
+#if IS_ENABLED(CONFIG_IMX8M_DRAM_INLINE_ECC)
+	{ 0x3d400070, 0x1027f54 },
+#else
 	{ 0x3d400070, 0x7027f90 },
+#endif
 	{ 0x3d400074, 0x790 },
 	{ 0x3d4000d0, 0xc00307a3 },
 	{ 0x3d4000d4, 0xc50000 },
@@ -57,13 +24,13 @@ struct dram_cfg_param ddr_ddrc_cfg[] = {
 	{ 0x3d4000e0, 0x330000 },
 	{ 0x3d4000e8, 0x660048 },
 	{ 0x3d4000ec, 0x160048 },
-	{ 0x3d400100, 0x2028222a },
+	{ 0x3d400100, 0x2028112a },
 	{ 0x3d400104, 0x8083f },
 	{ 0x3d40010c, 0xe0e000 },
 	{ 0x3d400110, 0x12040a12 },
 	{ 0x3d400114, 0x2050f0f },
 	{ 0x3d400118, 0x1010009 },
-	{ 0x3d40011c, 0x502 },
+	{ 0x3d40011c, 0x501 },
 	{ 0x3d400130, 0x20800 },
 	{ 0x3d400134, 0xe100002 },
 	{ 0x3d400138, 0x184 },
@@ -80,15 +47,23 @@ struct dram_cfg_param ddr_ddrc_cfg[] = {
 	{ 0x3d4001b0, 0x11 },
 	{ 0x3d4001c0, 0x1 },
 	{ 0x3d4001c4, 0x1 },
-	{ 0x3d4000f4, 0x799 },
-	{ 0x3d400108, 0x9121b1c },
-	{ 0x3d400200, 0x17 },
-	{ 0x3d400208, 0x0 },
+	{ 0x3d4000f4, 0xc99 },
+	{ 0x3d400108, 0x9121c1c },
+#if IS_ENABLED(CONFIG_IMX8M_DRAM_INLINE_ECC)
+	{ 0x3d400200, 0x13 },
+	{ 0x3d40020c, 0x13131300 },
+	{ 0x3d400210, 0x1f1f },
+	{ 0x3d400204, 0x50505 },
+	{ 0x3d400214, 0x4040404 },
+	{ 0x3d400218, 0x68040404 },
+#else
+	{ 0x3d400200, 0x16 },
 	{ 0x3d40020c, 0x0 },
 	{ 0x3d400210, 0x1f1f },
 	{ 0x3d400204, 0x80808 },
 	{ 0x3d400214, 0x7070707 },
-	{ 0x3d400218, 0x7070707 },
+	{ 0x3d400218, 0x68070707 },
+#endif
 	{ 0x3d40021c, 0xf08 },
 	{ 0x3d400250, 0x1705 },
 	{ 0x3d400254, 0x2c },
@@ -102,22 +77,22 @@ struct dram_cfg_param ddr_ddrc_cfg[] = {
 	{ 0x3d400498, 0x620096 },
 	{ 0x3d40049c, 0x1100e07 },
 	{ 0x3d4004a0, 0xc8012c },
-	{ 0x3d402020, 0x1001 },
+	{ 0x3d402020, 0x1020 },
 	{ 0x3d402024, 0x30d400 },
 	{ 0x3d402050, 0x20d000 },
-	{ 0x3d402064, 0xc0026 },
+	{ 0x3d402064, 0x60026 },
 	{ 0x3d4020dc, 0x840000 },
 	{ 0x3d4020e0, 0x330000 },
 	{ 0x3d4020e8, 0x660048 },
 	{ 0x3d4020ec, 0x160048 },
-	{ 0x3d402100, 0xa040305 },
+	{ 0x3d402100, 0xa040105 },
 	{ 0x3d402104, 0x30407 },
 	{ 0x3d402108, 0x203060b },
 	{ 0x3d40210c, 0x505000 },
 	{ 0x3d402110, 0x2040202 },
 	{ 0x3d402114, 0x2030202 },
 	{ 0x3d402118, 0x1010004 },
-	{ 0x3d40211c, 0x302 },
+	{ 0x3d40211c, 0x301 },
 	{ 0x3d402130, 0x20300 },
 	{ 0x3d402134, 0xa100002 },
 	{ 0x3d402138, 0x27 },
@@ -126,8 +101,8 @@ struct dram_cfg_param ddr_ddrc_cfg[] = {
 	{ 0x3d402190, 0x3818200 },
 	{ 0x3d402194, 0x80303 },
 	{ 0x3d4021b4, 0x100 },
-	{ 0x3d4020f4, 0x599 },
-	{ 0x3d403020, 0x1001 },
+	{ 0x3d4020f4, 0xc99 },
+	{ 0x3d403020, 0x1020 },
 	{ 0x3d403024, 0xc3500 },
 	{ 0x3d403050, 0x20d000 },
 	{ 0x3d403064, 0x3000a },
@@ -142,7 +117,7 @@ struct dram_cfg_param ddr_ddrc_cfg[] = {
 	{ 0x3d403110, 0x2040202 },
 	{ 0x3d403114, 0x2030202 },
 	{ 0x3d403118, 0x1010004 },
-	{ 0x3d40311c, 0x302 },
+	{ 0x3d40311c, 0x301 },
 	{ 0x3d403130, 0x20300 },
 	{ 0x3d403134, 0xa100002 },
 	{ 0x3d403138, 0xa },
@@ -151,43 +126,43 @@ struct dram_cfg_param ddr_ddrc_cfg[] = {
 	{ 0x3d403190, 0x3818200 },
 	{ 0x3d403194, 0x80303 },
 	{ 0x3d4031b4, 0x100 },
-	{ 0x3d4030f4, 0x599 },
+	{ 0x3d4030f4, 0xc99 },
 	{ 0x3d400028, 0x0 },
 };
 
 /* PHY Initialize Configuration */
 struct dram_cfg_param ddr_ddrphy_cfg[] = {
-	{ 0x100a0, 0x1 },
-	{ 0x100a1, 0x6 },
-	{ 0x100a2, 0x4 },
+	{ 0x100a0, 0x0 },
+	{ 0x100a1, 0x1 },
+	{ 0x100a2, 0x2 },
 	{ 0x100a3, 0x3 },
-	{ 0x100a4, 0x2 },
-	{ 0x100a5, 0x7 },
-	{ 0x100a6, 0x5 },
-	{ 0x100a7, 0x0 },
+	{ 0x100a4, 0x4 },
+	{ 0x100a5, 0x5 },
+	{ 0x100a6, 0x6 },
+	{ 0x100a7, 0x7 },
 	{ 0x110a0, 0x0 },
 	{ 0x110a1, 0x1 },
 	{ 0x110a2, 0x3 },
 	{ 0x110a3, 0x4 },
 	{ 0x110a4, 0x5 },
 	{ 0x110a5, 0x2 },
-	{ 0x110a6, 0x6 },
-	{ 0x110a7, 0x7 },
+	{ 0x110a6, 0x7 },
+	{ 0x110a7, 0x6 },
 	{ 0x120a0, 0x0 },
 	{ 0x120a1, 0x1 },
 	{ 0x120a2, 0x3 },
 	{ 0x120a3, 0x2 },
 	{ 0x120a4, 0x5 },
 	{ 0x120a5, 0x4 },
-	{ 0x120a6, 0x6 },
-	{ 0x120a7, 0x7 },
+	{ 0x120a6, 0x7 },
+	{ 0x120a7, 0x6 },
 	{ 0x130a0, 0x0 },
 	{ 0x130a1, 0x1 },
-	{ 0x130a2, 0x4 },
+	{ 0x130a2, 0x2 },
 	{ 0x130a3, 0x3 },
-	{ 0x130a4, 0x2 },
-	{ 0x130a5, 0x6 },
-	{ 0x130a6, 0x5 },
+	{ 0x130a4, 0x4 },
+	{ 0x130a5, 0x5 },
+	{ 0x130a6, 0x6 },
 	{ 0x130a7, 0x7 },
 	{ 0x1005f, 0x1ff },
 	{ 0x1015f, 0x1ff },
@@ -1087,7 +1062,7 @@ struct dram_cfg_param ddr_ddrphy_trained_csr[] = {
 	{ 0x13830, 0x0 },
 };
 
-/* P0 message block parameter for training firmware */
+/* P0 message block paremeter for training firmware */
 struct dram_cfg_param ddr_fsp0_cfg[] = {
 	{ 0xd0000, 0x0 },
 	{ 0x54003, 0xfa0 },
@@ -1126,7 +1101,7 @@ struct dram_cfg_param ddr_fsp0_cfg[] = {
 	{ 0xd0000, 0x1 },
 };
 
-/* P1 message block parameter for training firmware */
+/* P1 message block paremeter for training firmware */
 struct dram_cfg_param ddr_fsp1_cfg[] = {
 	{ 0xd0000, 0x0 },
 	{ 0x54002, 0x101 },
@@ -1166,7 +1141,7 @@ struct dram_cfg_param ddr_fsp1_cfg[] = {
 	{ 0xd0000, 0x1 },
 };
 
-/* P2 message block parameter for training firmware */
+/* P2 message block paremeter for training firmware */
 struct dram_cfg_param ddr_fsp2_cfg[] = {
 	{ 0xd0000, 0x0 },
 	{ 0x54002, 0x102 },
@@ -1206,7 +1181,7 @@ struct dram_cfg_param ddr_fsp2_cfg[] = {
 	{ 0xd0000, 0x1 },
 };
 
-/* P0 2D message block parameter for training firmware */
+/* P0 2D message block paremeter for training firmware */
 struct dram_cfg_param ddr_fsp0_2d_cfg[] = {
 	{ 0xd0000, 0x0 },
 	{ 0x54003, 0xfa0 },
@@ -1877,36 +1852,30 @@ struct dram_timing_info dram_timing = {
 	.fsp_table = { 4000, 400, 100, },
 };
 
-static void apply_cfg_patch(struct dram_cfg_param *cfg, int cfg_sz,
-			    struct dram_cfg_param *patch, int patch_sz)
+#if IS_ENABLED(CONFIG_IMX8M_DRAM_INLINE_ECC)
+void board_dram_ecc_scrub(void)
 {
-	int i, j;
-
-	for (i = 0; i < cfg_sz; i++)
-		for (j = 0; j < patch_sz; j++)
-			if (cfg[i].reg == patch[j].reg)
-				cfg[i].val = patch[j].val;
+	ddrc_inline_ecc_scrub(0x0, 0x3ffffff);
+	ddrc_inline_ecc_scrub(0x20000000, 0x23ffffff);
+	ddrc_inline_ecc_scrub(0x40000000, 0x43ffffff);
+	ddrc_inline_ecc_scrub(0x4000000, 0x7ffffff);
+	ddrc_inline_ecc_scrub(0x24000000, 0x27ffffff);
+	ddrc_inline_ecc_scrub(0x44000000, 0x47ffffff);
+	ddrc_inline_ecc_scrub(0x8000000, 0xbffffff);
+	ddrc_inline_ecc_scrub(0x28000000, 0x2bffffff);
+	ddrc_inline_ecc_scrub(0x48000000, 0x4bffffff);
+	ddrc_inline_ecc_scrub(0xc000000, 0xfffffff);
+	ddrc_inline_ecc_scrub(0x2c000000, 0x2fffffff);
+	ddrc_inline_ecc_scrub(0x4c000000, 0x4fffffff);
+	ddrc_inline_ecc_scrub(0x10000000, 0x13ffffff);
+	ddrc_inline_ecc_scrub(0x30000000, 0x33ffffff);
+	ddrc_inline_ecc_scrub(0x50000000, 0x53ffffff);
+	ddrc_inline_ecc_scrub(0x14000000, 0x17ffffff);
+	ddrc_inline_ecc_scrub(0x34000000, 0x37ffffff);
+	ddrc_inline_ecc_scrub(0x54000000, 0x57ffffff);
+	ddrc_inline_ecc_scrub(0x18000000, 0x1bffffff);
+	ddrc_inline_ecc_scrub(0x38000000, 0x3bffffff);
+	ddrc_inline_ecc_scrub(0x58000000, 0x5bffffff);
+	ddrc_inline_ecc_scrub_end(0x0, 0x5fffffff);
 }
-
-void lpddr4_single_rank_training_patch(void)
-{
-	apply_cfg_patch(ddr_ddrc_cfg, ARRAY_SIZE(ddr_ddrc_cfg),
-			ddr_ddrc_cfg_single_rank_patch,
-			ARRAY_SIZE(ddr_ddrc_cfg_single_rank_patch));
-
-	apply_cfg_patch(ddr_fsp0_cfg, ARRAY_SIZE(ddr_fsp0_cfg),
-			ddr_fsp0_cfg_single_rank_patch,
-			ARRAY_SIZE(ddr_fsp0_cfg_single_rank_patch));
-
-	apply_cfg_patch(ddr_fsp1_cfg, ARRAY_SIZE(ddr_fsp1_cfg),
-			ddr_fsp1_cfg_single_rank_patch,
-			ARRAY_SIZE(ddr_fsp1_cfg_single_rank_patch));
-
-	apply_cfg_patch(ddr_fsp2_cfg, ARRAY_SIZE(ddr_fsp2_cfg),
-			ddr_fsp2_cfg_single_rank_patch,
-			ARRAY_SIZE(ddr_fsp2_cfg_single_rank_patch));
-
-	apply_cfg_patch(ddr_fsp0_2d_cfg, ARRAY_SIZE(ddr_fsp0_2d_cfg),
-			ddr_fsp0_2d_cfg_single_rank_patch,
-			ARRAY_SIZE(ddr_fsp0_2d_cfg_single_rank_patch));
-}
+#endif

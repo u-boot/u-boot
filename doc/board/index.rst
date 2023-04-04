@@ -14,6 +14,7 @@ Board-specific doc
    apple/index
    armltd/index
    atmel/index
+   beacon/index
    broadcom/index
    bsh/index
    cloos/index

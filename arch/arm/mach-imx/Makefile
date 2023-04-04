@@ -136,6 +136,12 @@ u-boot.imx: MKIMAGEOUTPUT = u-boot.imx.log
 u-boot.imx: u-boot.bin u-boot.cfgout $(PLUGIN).bin FORCE
 	$(call if_changed,mkimage)
 
+quiet_cmd_u-boot-nand_imx = GEN     $@
+cmd_u-boot-nand_imx = (dd bs=1024 count=1 if=/dev/zero 2>/dev/null) | cat - $< > $@
+
+u-boot-nand.imx: u-boot.imx FORCE
+	$(call if_changed,u-boot-nand_imx)
+
 ifeq ($(CONFIG_MULTI_DTB_FIT),y)
 MKIMAGEFLAGS_u-boot-dtb.imx = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) \
 	-T $(IMAGE_TYPE) -e $(CONFIG_TEXT_BASE)
