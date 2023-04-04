@@ -5,6 +5,6 @@
 # Christophe Leroy <christophe.leroy@c-s.fr>
 #
 
-obj-y += cmpc885.o
+obj-y += cmpc885.o ../common/common.o
 obj-y += sdram.o
 obj-$(CONFIG_CMD_NAND) += nand.o
