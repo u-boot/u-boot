@@ -865,6 +865,7 @@ static int sdp_handle_in_ep(struct spl_image_info *spl_image,
 			struct spl_image_info spl_image = {};
 			struct spl_boot_device bootdev = {};
 			spl_parse_image_header(&spl_image, &bootdev, header);
+			spl_board_prepare_for_boot();
 			jump_to_image_no_args(&spl_image);
 #else
 			/* In U-Boot, allow jumps to scripts */
