@@ -33,6 +33,34 @@
 				reg = <0x200 0x40>;
 				status = "disabled";
 			};
+
+			i2c0: i2c@280 {
+				compatible = "fsl-i2c";
+				#address-cells=<1>;
+				#size-cells=<0>;
+				cell-index = <0>;
+				reg = <0x280 0x14>;
+				clock-frequency = <100000>;
+				status = "disabled";
+			};
+		};
+
+		mbar2: mbar2@80000000 {
+			compatible = "simple-bus";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0x00000000 0x80000000 0x10000>;
+			reg = <0x80000000 0x10000>;
+
+			i2c1: i2c@440 {
+				compatible = "fsl-i2c";
+				#address-cells=<1>;
+				#size-cells=<0>;
+				cell-index = <0>;
+				reg = <0x440 0x14>;
+				clock-frequency = <100000>;
+				status = "disabled";
+			};
 		};
 	};
 };

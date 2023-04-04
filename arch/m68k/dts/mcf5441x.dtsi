@@ -103,5 +103,65 @@
 			timeout-loop = <50000>;
 			status = "disabled";
 		};
+
+		i2c0: i2c@0xfc058000 {
+			compatible = "fsl-i2c";
+			#address-cells=<1>;
+			#size-cells=<0>;
+			cell-index = <0>;
+			reg = <0xfc058000 0x100>;
+			clock-frequency = <100000>;
+			status = "disabled";
+		};
+
+		i2c1: i2c@0xfc038000 {
+			compatible = "fsl-i2c";
+			#address-cells=<1>;
+			#size-cells=<0>;
+			cell-index = <1>;
+			reg = <0xfc038000 0x100>;
+			clock-frequency = <100000>;
+			status = "disabled";
+		};
+
+		i2c2: i2c@0xfc010000 {
+			compatible = "fsl-i2c";
+			#address-cells=<1>;
+			#size-cells=<0>;
+			cell-index = <2>;
+			reg = <0xfc010000 0x100>;
+			clock-frequency = <100000>;
+			status = "disabled";
+		};
+
+		i2c3: i2c@0xfc014000 {
+			compatible = "fsl-i2c";
+			#address-cells=<1>;
+			#size-cells=<0>;
+			cell-index = <3>;
+			reg = <0xfc014000 0x100>;
+			clock-frequency = <100000>;
+			status = "disabled";
+		};
+
+		i2c4: i2c@0xfc018000 {
+			compatible = "fsl-i2c";
+			#address-cells=<1>;
+			#size-cells=<0>;
+			cell-index = <4>;
+			reg = <0xfc018000 0x100>;
+			clock-frequency = <100000>;
+			status = "disabled";
+		};
+
+		i2c5: i2c@0xfc01c000 {
+			compatible = "fsl-i2c";
+			#address-cells=<1>;
+			#size-cells=<0>;
+			cell-index = <5>;
+			reg = <0xfc01c000 0x100>;
+			clock-frequency = <100000>;
+			status = "disabled";
+		};
 	};
 };
