@@ -11,6 +11,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/device.h>
 #include <errno.h>
@@ -185,8 +186,8 @@ int imx_tmu_get_temp(struct udevice *dev, int *temp)
 		return ret;
 
 	while (cpu_tmp >= pdata->alert) {
-		printf("CPU Temperature (%dC) has beyond alert (%dC), close to critical (%dC)", cpu_tmp, pdata->alert, pdata->critical);
-		puts(" waiting...\n");
+		dev_info(dev, "CPU Temperature (%dC) has beyond alert (%dC), close to critical (%dC) waiting...\n",
+			 cpu_tmp, pdata->alert, pdata->critical);
 		mdelay(pdata->polling_delay);
 		ret = read_temperature(dev, &cpu_tmp);
 		if (ret)
@@ -210,14 +211,14 @@ static int imx_tmu_calibration(struct udevice *dev)
 	struct imx_tmu_plat *pdata = dev_get_plat(dev);
 	ulong drv_data = dev_get_driver_data(dev);
 
-	debug("%s\n", __func__);
+	dev_dbg(dev, "%s\n", __func__);
 
 	if (drv_data & (FLAGS_VER2 | FLAGS_VER3))
 		return 0;
 
 	ret = dev_read_u32_array(dev, "fsl,tmu-range", range, 4);
 	if (ret) {
-		printf("TMU: missing calibration range, ret = %d.\n", ret);
+		dev_err(dev, "TMU: missing calibration range, ret = %d.\n", ret);
 		return ret;
 	}
 
@@ -229,7 +230,7 @@ static int imx_tmu_calibration(struct udevice *dev)
 
 	calibration = dev_read_prop(dev, "fsl,tmu-calibration", &len);
 	if (!calibration || len % 8) {
-		printf("TMU: invalid calibration data.\n");
+		dev_err(dev, "TMU: invalid calibration data.\n");
 		return -ENODEV;
 	}
 
@@ -252,7 +253,7 @@ static void imx_tmu_init(struct udevice *dev)
 	struct imx_tmu_plat *pdata = dev_get_plat(dev);
 	ulong drv_data = dev_get_driver_data(dev);
 
-	debug("%s\n", __func__);
+	dev_dbg(dev, "%s\n", __func__);
 
 	if (drv_data & FLAGS_VER3) {
 		/* Disable monitoring */
@@ -287,7 +288,7 @@ static int imx_tmu_enable_msite(struct udevice *dev)
 	ulong drv_data = dev_get_driver_data(dev);
 	u32 reg;
 
-	debug("%s\n", __func__);
+	dev_dbg(dev, "%s\n", __func__);
 
 	if (!pdata->regs)
 		return -EIO;
@@ -346,7 +347,7 @@ static int imx_tmu_bind(struct udevice *dev)
 	const void *prop;
 	int minc, maxc;
 
-	debug("%s dev name %s\n", __func__, dev->name);
+	dev_dbg(dev, "%s\n", __func__);
 
 	prop = dev_read_prop(dev, "compatible", NULL);
 	if (!prop)
@@ -367,8 +368,7 @@ static int imx_tmu_bind(struct udevice *dev)
 						   dev->driver_data, offset,
 						   NULL);
 		if (ret)
-			printf("Error binding driver '%s': %d\n",
-			       dev->driver->name, ret);
+			dev_err(dev, "Error binding driver: %d\n", ret);
 	}
 
 	return 0;
@@ -381,7 +381,7 @@ static int imx_tmu_parse_fdt(struct udevice *dev)
 	ofnode trips_np;
 	int ret;
 
-	debug("%s dev name %s\n", __func__, dev->name);
+	dev_dbg(dev, "%s\n", __func__);
 
 	if (pdata->zone_node) {
 		pdata->regs = (union tmu_regs *)dev_read_addr_ptr(dev);
@@ -409,7 +409,7 @@ static int imx_tmu_parse_fdt(struct udevice *dev)
 	else
 		pdata->id = 0;
 
-	debug("args.args_count %d, id %d\n", args.args_count, pdata->id);
+	dev_dbg(dev, "args.args_count %d, id %d\n", args.args_count, pdata->id);
 
 	pdata->polling_delay = dev_read_u32_default(dev, "polling-delay", 1000);
 
@@ -428,8 +428,8 @@ static int imx_tmu_parse_fdt(struct udevice *dev)
 			continue;
 	}
 
-	debug("id %d polling_delay %d, critical %d, alert %d\n",
-	      pdata->id, pdata->polling_delay, pdata->critical, pdata->alert);
+	dev_dbg(dev, "id %d polling_delay %d, critical %d, alert %d\n",
+		pdata->id, pdata->polling_delay, pdata->critical, pdata->alert);
 
 	return 0;
 }
@@ -441,7 +441,7 @@ static int imx_tmu_probe(struct udevice *dev)
 
 	ret = imx_tmu_parse_fdt(dev);
 	if (ret) {
-		printf("Error in parsing TMU FDT %d\n", ret);
+		dev_err(dev, "Error in parsing TMU FDT %d\n", ret);
 		return ret;
 	}
 
