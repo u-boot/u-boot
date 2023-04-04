@@ -370,13 +370,49 @@ unsigned long __weak spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
 int default_spl_mmc_emmc_boot_partition(struct mmc *mmc)
 {
 	int part;
+	/*
+	 * This function returns the eMMC partition from which
+	 * would be loaded next payload (e.g. U-Boot proper).
+	 * This partition will be set into eMMC partition access
+	 * register and therefore return value of this function
+	 * has same meaning as EXT_CSD_EXTRACT_PARTITION_ACCESS.
+	 *
+	 * Meaning of EXT_CSD_EXTRACT_PARTITION_ACCESS (3-bit) is:
+	 * 0 - User area
+	 * 1 - Boot partition 1
+	 * 2 - Boot partition 2
+	 * 3 - Replay Protected Memory Block (RPMB)
+	 * 4 - General Purpose partition 1
+	 * 5 - General Purpose partition 2
+	 * 6 - General Purpose partition 3
+	 * 7 - General Purpose partition 4
+	 */
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
 	part = CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION;
 #else
 	/*
-	 * We need to check what the partition is configured to.
-	 * 1 and 2 match up to boot0 / boot1 and 7 is user data
-	 * which is the first physical partition (0).
+	 * When explicit CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+	 * config option was not chosen during build time we choose
+	 * the boot partition based on the eMMC boot partition enable
+	 * register (EXT_CSD_EXTRACT_BOOT_PART).
+	 *
+	 * Meaning of EXT_CSD_EXTRACT_BOOT_PART (3-bit) value is:
+	 * 0 - Booting from this eMMC device is disabled
+	 * 1 - Boot partition 1 is used for booting
+	 * 2 - Boot partition 2 is used for booting
+	 * 3 - Reserved
+	 * 4 - Reserved
+	 * 5 - Reserved
+	 * 6 - Reserved
+	 * 7 - User area is used for booting
+	 *
+	 * Note: See difference between EXT_CSD_EXTRACT_PARTITION_ACCESS
+	 * and EXT_CSD_EXTRACT_BOOT_PART, specially about User area value.
+	 *
+	 * FIXME: When booting from this eMMC device is explicitly
+	 * disabled then we use User area for booting. This is incorrect.
+	 * Probably we should skip this eMMC device and select the next
+	 * one for booting. Or at least throw warning about this fallback.
 	 */
 	part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
 	if (part == 7)
