@@ -30,9 +30,6 @@ config MPC885
 
 endchoice
 
-config 8xx_GCLK_FREQ
-	int "CPU GCLK Frequency"
-
 comment "Specific commands"
 
 config CMD_IMMAP
