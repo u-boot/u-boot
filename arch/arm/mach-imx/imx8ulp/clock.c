@@ -286,14 +286,10 @@ void enable_usboh3_clk(unsigned char enable)
 		pcc_reset_peripheral(4, USB0_PCC4_SLOT, false);
 		pcc_reset_peripheral(4, USBPHY_PCC4_SLOT, false);
 
-#ifdef CONFIG_USB_MAX_CONTROLLER_COUNT
-		if (CONFIG_USB_MAX_CONTROLLER_COUNT > 1) {
-			pcc_clock_enable(4, USB1_PCC4_SLOT, true);
-			pcc_clock_enable(4, USB1PHY_PCC4_SLOT, true);
-			pcc_reset_peripheral(4, USB1_PCC4_SLOT, false);
-			pcc_reset_peripheral(4, USB1PHY_PCC4_SLOT, false);
-		}
-#endif
+		pcc_clock_enable(4, USB1_PCC4_SLOT, true);
+		pcc_clock_enable(4, USB1PHY_PCC4_SLOT, true);
+		pcc_reset_peripheral(4, USB1_PCC4_SLOT, false);
+		pcc_reset_peripheral(4, USB1PHY_PCC4_SLOT, false);
 
 		pcc_clock_enable(4, USB_XBAR_PCC4_SLOT, true);
 	} else {
