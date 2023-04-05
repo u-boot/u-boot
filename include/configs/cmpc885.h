@@ -26,4 +26,10 @@
 /* NAND configuration part */
 #define CFG_SYS_NAND_BASE		0xC0000000
 
+/* Board names */
+#define CFG_BOARD_CMPCXXX		"cmpc885"
+#define CFG_BOARD_MCR3000_2G		"mcr3k_2g"
+#define CFG_BOARD_VGOIP			"vgoip"
+#define CFG_BOARD_MIAE			"miae"
+
 #endif /* __CONFIG_H */
