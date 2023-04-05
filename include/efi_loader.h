@@ -513,9 +513,6 @@ struct efi_register_notify_event {
 	struct list_head handles;
 };
 
-/* List of all events registered by RegisterProtocolNotify() */
-extern struct list_head efi_register_notify_events;
-
 /* called at pre-initialization */
 int efi_init_early(void);
 /* Initialize efi execution environment */
