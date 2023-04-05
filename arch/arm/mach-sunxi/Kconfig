@@ -141,6 +141,20 @@ config SUNXI_RVBAR_ADDRESS
 	entry point when switching to AArch64. This store is on different
 	addresses, depending on the SoC.
 
+config SUNXI_RVBAR_ALTERNATIVE
+	hex
+	depends on ARM64
+	default 0x08100040 if MACH_SUN50I_H616
+	default SUNXI_RVBAR_ADDRESS
+	---help---
+	The H616 die exists in at least two variants, with one having the
+	RVBAR registers at a different address. If the SoC variant ID
+	(stored in SRAM_VER_REG[7:0]) is not 0, we need to use the
+	other address.
+	Set this alternative address to the same as the normal address
+	for all other SoCs, so the content of the SRAM_VER_REG becomes
+	irrelevant there, and we can use the same code.
+
 config SUNXI_A64_TIMER_ERRATUM
 	bool
 
