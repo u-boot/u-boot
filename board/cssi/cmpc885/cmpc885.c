@@ -147,54 +147,27 @@ int checkboard(void)
 	return 0;
 }
 
-#define SPI_EEPROM_READ	0x03
 #define MAX_SPI_BYTES	0x20
 
-#define EE_OFF_MAC1	0x13
-#define EE_OFF_MAC2	0x19
+#define EE_OFF_MAC1	0x10
+#define EE_OFF_MAC2	0x16
 
 /* Reads MAC addresses from SPI EEPROM */
 static int setup_mac(void)
 {
-	struct udevice *eeprom;
-	struct spi_slave *slave;
-	char name[30], *str;
 	uchar din[MAX_SPI_BYTES];
-	uchar dout[MAX_SPI_BYTES] = {SPI_EEPROM_READ, 0, 0};
-	int bitlen = 256, cs = 0, mode = 0, bus = 0, ret;
+	int ret;
 	unsigned long ident = 0x08005120;
 
-	snprintf(name, sizeof(name), "generic_%d:%d", bus, cs);
-
-	str = strdup(name);
-	if (!str)
-		return -1;
-
-	ret = uclass_get_device(UCLASS_SPI, 0, &eeprom);
-	if (ret) {
-		printf("Could not enable Serial Peripheral Interface (SPI).\n");
-		return -1;
-	}
-
-	ret = _spi_get_bus_and_cs(bus, cs, 1000000, mode, "spi_generic_drv", str, &eeprom, &slave);
+	ret = read_eeprom(din, sizeof(din));
 	if (ret)
 		return ret;
-
-	ret = spi_claim_bus(slave);
-
-	ret = spi_xfer(slave, bitlen, dout, din, SPI_XFER_BEGIN | SPI_XFER_END);
-	if (ret) {
-		printf("Error %d during SPI transaction\n", ret);
-		return ret;
-	}
 
 	if (memcmp(din + EE_OFF_MAC1, &ident, sizeof(ident)) == 0)
 		eth_env_set_enetaddr("ethaddr", din + EE_OFF_MAC1);
 
 	if (memcmp(din + EE_OFF_MAC2, &ident, sizeof(ident)) == 0)
 		eth_env_set_enetaddr("eth1addr", din + EE_OFF_MAC2);
-
-	spi_release_bus(slave);
 
 	return 0;
 }

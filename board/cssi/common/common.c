@@ -8,7 +8,11 @@
  * Common specific routines for the CS Group boards
  */
 
+#include <dm.h>
 #include <fdt_support.h>
+#include <spi.h>
+
+#define SPI_EEPROM_READ	0x03
 
 static int fdt_set_node_and_value(void *blob, char *node, const char *prop,
 				  void *var, int size)
@@ -59,4 +63,35 @@ void ft_cleanup(void *blob, unsigned long id, const char *prop, const char *comp
 	}
 
 	fdt_set_node_and_value(blob, "/", prop, &id, sizeof(uint32_t));
+}
+
+int read_eeprom(u8 *din, int len)
+{
+	struct udevice *eeprom;
+	struct spi_slave *slave;
+	uchar dout[3] = {SPI_EEPROM_READ, 0, 0};
+	int ret;
+
+	ret = uclass_get_device(UCLASS_SPI, 0, &eeprom);
+	if (ret)
+		return ret;
+
+	ret = _spi_get_bus_and_cs(0, 0, 1000000, 0, "spi_generic_drv",
+				  "generic_0:0", &eeprom, &slave);
+	if (ret)
+		return ret;
+
+	ret = spi_claim_bus(slave);
+
+	ret = spi_xfer(slave, sizeof(dout) << 3, dout, NULL, SPI_XFER_BEGIN);
+	if (ret)
+		return ret;
+
+	ret = spi_xfer(slave, len << 3, NULL, din, SPI_XFER_END);
+	if (ret)
+		return ret;
+
+	spi_release_bus(slave);
+
+	return 0;
 }
