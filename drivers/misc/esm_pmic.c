@@ -26,6 +26,9 @@
 #define ESM_MCU_EN		BIT(6)
 #define ESM_MCU_ENDRV		BIT(5)
 
+#define ESM_MCU_MASK_REG	0x59
+#define ESM_MCU_MASK		0x7
+
 /**
  * pmic_esm_probe: configures and enables PMIC ESM functionality
  *
@@ -45,6 +48,12 @@ static int pmic_esm_probe(struct udevice *dev)
 			     ESM_MCU_EN | ESM_MCU_ENDRV);
 	if (ret) {
 		dev_err(dev, "setting ESM mode failed: %d\n", ret);
+		return ret;
+	}
+
+	ret = pmic_reg_write(dev->parent, ESM_MCU_MASK_REG, ESM_MCU_MASK);
+	if (ret) {
+		dev_err(dev, "clearing ESM masks failed: %d\n", ret);
 		return ret;
 	}
 
