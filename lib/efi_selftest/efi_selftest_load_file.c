@@ -206,11 +206,11 @@ static efi_status_t decompress(u8 **image)
  * @buffer_size:	(required) buffer size
  * @buffer:		buffer to which the file is to be loaded
  */
-efi_status_t EFIAPI load_file(struct efi_load_file_protocol *this,
-			      struct efi_device_path *file_path,
-			      bool boot_policy,
-			      efi_uintn_t *buffer_size,
-			      void *buffer)
+static efi_status_t EFIAPI load_file(struct efi_load_file_protocol *this,
+				     struct efi_device_path *file_path,
+				     bool boot_policy,
+				     efi_uintn_t *buffer_size,
+				     void *buffer)
 {
 	++load_file_call_count;
 	if (memcmp(file_path, dp_lf_file_remainder,
@@ -243,11 +243,11 @@ efi_status_t EFIAPI load_file(struct efi_load_file_protocol *this,
  * @buffer_size:	(required) buffer size
  * @buffer:		buffer to which the file is to be loaded
  */
-efi_status_t EFIAPI load_file2(struct efi_load_file_protocol *this,
-			       struct efi_device_path *file_path,
-			       bool boot_policy,
-			       efi_uintn_t *buffer_size,
-			       void *buffer)
+static efi_status_t EFIAPI load_file2(struct efi_load_file_protocol *this,
+				      struct efi_device_path *file_path,
+				      bool boot_policy,
+				      efi_uintn_t *buffer_size,
+				      void *buffer)
 {
 	++load_file2_call_count;
 	if (memcmp(file_path, dp_lf2_file_remainder,
