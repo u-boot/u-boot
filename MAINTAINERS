@@ -793,6 +793,15 @@ M:	Alper Nebi Yasak <alpernebiyasak@gmail.com>
 S:	Maintained
 F:	tools/binman/
 
+BLKMAP
+M:	Tobias Waldekranz <tobias@waldekranz.com>
+S:	Maintained
+F:	cmd/blkmap.c
+F:	doc/usage/blkmap.rst
+F:	drivers/block/blkmap.c
+F:	include/blkmap.h
+F:	test/dm/blkmap.c
+
 BOOTDEVICE
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained

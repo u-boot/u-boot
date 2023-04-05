@@ -21,6 +21,9 @@
 #include <asm-generic/unaligned.h>
 #include <linux/compat.h> /* U16_MAX */
 
+#ifdef CONFIG_BLKMAP
+const efi_guid_t efi_guid_blkmap_dev = U_BOOT_BLKMAP_DEV_GUID;
+#endif
 #ifdef CONFIG_SANDBOX
 const efi_guid_t efi_guid_host_dev = U_BOOT_HOST_DEV_GUID;
 #endif
@@ -556,6 +559,16 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
 			return dp_size(dev->parent)
 				+ sizeof(struct efi_device_path_vendor) + 1;
 #endif
+#ifdef CONFIG_BLKMAP
+		case UCLASS_BLKMAP:
+			 /*
+			  * blkmap devices will be represented as a vendor
+			  * device node with an extra byte for the device
+			  * number.
+			  */
+			return dp_size(dev->parent)
+				+ sizeof(struct efi_device_path_vendor) + 1;
+#endif
 		default:
 			return dp_size(dev->parent);
 		}
@@ -613,6 +626,23 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #endif
 	case UCLASS_BLK:
 		switch (dev->parent->uclass->uc_drv->id) {
+#ifdef CONFIG_BLKMAP
+		case UCLASS_BLKMAP: {
+			struct efi_device_path_vendor *dp;
+			struct blk_desc *desc = dev_get_uclass_plat(dev);
+
+			dp_fill(buf, dev->parent);
+			dp = buf;
+			++dp;
+			dp->dp.type = DEVICE_PATH_TYPE_HARDWARE_DEVICE;
+			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_VENDOR;
+			dp->dp.length = sizeof(*dp) + 1;
+			memcpy(&dp->guid, &efi_guid_blkmap_dev,
+			       sizeof(efi_guid_t));
+			dp->vendor_data[0] = desc->devnum;
+			return &dp->vendor_data[1];
+			}
+#endif
 #ifdef CONFIG_SANDBOX
 		case UCLASS_HOST: {
 			/* stop traversing parents at this point: */

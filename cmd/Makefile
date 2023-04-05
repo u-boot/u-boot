@@ -27,6 +27,7 @@ obj-$(CONFIG_CMD_BCB) += bcb.o
 obj-$(CONFIG_CMD_BDI) += bdinfo.o
 obj-$(CONFIG_CMD_BIND) += bind.o
 obj-$(CONFIG_CMD_BINOP) += binop.o
+obj-$(CONFIG_CMD_BLKMAP) += blkmap.o
 obj-$(CONFIG_CMD_BLOBLIST) += bloblist.o
 obj-$(CONFIG_CMD_BLOCK_CACHE) += blkcache.o
 obj-$(CONFIG_CMD_BMP) += bmp.o

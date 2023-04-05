@@ -1980,6 +1980,25 @@ config CMD_BLOCK_CACHE
 	  during development, but also allows the cache to be disabled when
 	  it might hurt performance (e.g. when using the ums command).
 
+config CMD_BLKMAP
+	bool "blkmap - Composable virtual block devices"
+	depends on BLKMAP
+	default y if BLKMAP
+	help
+ 	  Create virtual block devices that are backed by various sources,
+ 	  e.g. RAM, or parts of an existing block device. Though much more
+ 	  rudimentary, it borrows a lot of ideas from Linux's device mapper
+ 	  subsystem.
+
+	  Example use-cases:
+	  - Treat a region of RAM as a block device, i.e. a RAM disk. This let's
+            you extract files from filesystem images stored in RAM (perhaps as a
+            result of a TFTP transfer).
+	  - Create a virtual partition on an existing device. This let's you
+            access filesystems that aren't stored at an exact partition
+            boundary. A common example is a filesystem image embedded in an FIT
+            image.
+
 config CMD_BUTTON
 	bool "button"
 	depends on BUTTON
