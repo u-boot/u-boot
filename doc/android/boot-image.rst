@@ -27,11 +27,21 @@ next image headers:
 * v2: used in devices launched with Android 10; adds ``dtb`` field, which
   references payload containing DTB blobs (either concatenated one after the
   other, or in Android DTBO image format)
+* v3: used in devices launched with Android 11; adds ``vendor_boot`` partition
+  and removes the second-stage bootloader and recovery image support. The new
+  ``vendor_boot`` partition holds the device tree blob (DTB) and a vendor ramdisk.
+  The generic ramdisk in ``boot`` partition is loaded immediately following
+  the vendor ramdisk.
+* v4: used in devices launched with Android 12; provides a boot signature in boot
+  image header, supports multiple vendor ramdisk fragments in ``vendor_boot``
+  partition. This version also adds a bootconfig section at the end of the vendor
+  boot image, this section contains boot configuration parameters known at build time
+  (see [9]_ for details).
 
 v2, v1 and v0 formats are backward compatible.
 
 The Android Boot Image format is represented by
-:c:type:`struct andr_img_hdr <andr_img_hdr>` in U-Boot, and can be seen in
+:c:type:`struct andr_image_data <andr_image_data>` in U-Boot, and can be seen in
 ``include/android_image.h``. U-Boot supports booting Android Boot Image and also
 has associated command
 
@@ -153,3 +163,4 @@ References
 .. [6] :doc:`avb2`
 .. [7] https://source.android.com/devices/bootloader
 .. [8] https://connect.linaro.org/resources/san19/san19-217/
+.. [9] https://source.android.com/docs/core/architecture/bootloader/implementing-bootconfig

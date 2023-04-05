@@ -284,7 +284,7 @@ int genimg_get_format(const void *img_addr)
 			return IMAGE_FORMAT_FIT;
 	}
 	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE) &&
-	    !android_image_check_header(img_addr))
+	    is_android_boot_image_header(img_addr))
 		return IMAGE_FORMAT_ANDROID;
 
 	return IMAGE_FORMAT_INVALID;
@@ -426,11 +426,22 @@ static int select_ramdisk(struct bootm_headers *images, const char *select, u8 a
 		break;
 	case IMAGE_FORMAT_ANDROID:
 		if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
-			void *ptr = map_sysmem(images->os.start, 0);
 			int ret;
+			if (IS_ENABLED(CONFIG_CMD_ABOOTIMG)) {
+				void *boot_img = map_sysmem(get_abootimg_addr(), 0);
+				void *vendor_boot_img = map_sysmem(get_avendor_bootimg_addr(), 0);
 
-			ret = android_image_get_ramdisk(ptr, rd_datap, rd_lenp);
-			unmap_sysmem(ptr);
+				ret = android_image_get_ramdisk(boot_img, vendor_boot_img,
+								rd_datap, rd_lenp);
+				unmap_sysmem(vendor_boot_img);
+				unmap_sysmem(boot_img);
+			} else {
+				void *ptr = map_sysmem(images->os.start, 0);
+
+				ret = android_image_get_ramdisk(ptr, NULL, rd_datap, rd_lenp);
+				unmap_sysmem(ptr);
+			}
+
 			if (ret)
 				return ret;
 			done = true;
