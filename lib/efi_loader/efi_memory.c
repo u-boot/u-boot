@@ -36,7 +36,7 @@ struct efi_mem_list {
 #define EFI_CARVE_OVERLAPS_NONRAM	-3
 
 /* This list contains all memory map items */
-LIST_HEAD(efi_mem);
+static LIST_HEAD(efi_mem);
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 void *efi_bounce_buffer;
