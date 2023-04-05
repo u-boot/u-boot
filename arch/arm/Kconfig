@@ -12,7 +12,7 @@ config ARM64
 
 config ARM64_CRC32
 	bool "Enable support for CRC32 instruction"
-	depends on ARM64
+	depends on ARM64 && CC_IS_GCC
 	default y
 	help
 	  ARMv8 implements dedicated crc32 instruction for crc32 calculation.
