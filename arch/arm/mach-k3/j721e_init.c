@@ -12,7 +12,7 @@
 #include <asm/io.h>
 #include <asm/armv7_mpu.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/sysfw-loader.h>
+#include "sysfw-loader.h"
 #include "common.h"
 #include <asm/arch/sys_proto.h>
 #include <linux/soc/ti/ti_sci_protocol.h>

@@ -12,7 +12,7 @@
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/sysfw-loader.h>
+#include "sysfw-loader.h"
 #include <asm/arch/sys_proto.h>
 #include "common.h"
 #include <asm/arch/sys_proto.h>
