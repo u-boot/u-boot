@@ -636,3 +636,13 @@ int misc_init_r(void)
 
 	return 0;
 }
+
+/**
+ * do_board_detect() - Detect board description
+ *
+ * Function to detect board description. This is expected to be
+ * overridden in the SoC family board file where desired.
+ */
+void __weak do_board_detect(void)
+{
+}

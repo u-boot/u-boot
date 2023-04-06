@@ -100,8 +100,8 @@ void do_dt_magic(void)
 {
 	int ret, rescan;
 
-	if (IS_ENABLED(CONFIG_K3_BOARD_DETECT))
-		do_board_detect();
+	/* Perform board detection */
+	do_board_detect();
 
 	/*
 	 * Board detection has been done.

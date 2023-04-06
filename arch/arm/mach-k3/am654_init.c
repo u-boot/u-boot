@@ -245,8 +245,8 @@ void board_init_f(ulong dummy)
 	/* Output System Firmware version info */
 	k3_sysfw_print_ver();
 
-	if (IS_ENABLED(CONFIG_K3_BOARD_DETECT))
-		do_board_detect();
+	/* Perform board detection */
+	do_board_detect();
 
 #if defined(CONFIG_CPU_V7R) && defined(CONFIG_K3_AVS0)
 	ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(k3_avs),
