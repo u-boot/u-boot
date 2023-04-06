@@ -395,25 +395,6 @@ int fdt_fixup_msmc_ram(void *blob, char *parent_path, char *node_name)
 	return 0;
 }
 
-int fdt_disable_node(void *blob, char *node_path)
-{
-	int offs;
-	int ret;
-
-	offs = fdt_path_offset(blob, node_path);
-	if (offs < 0) {
-		printf("Node %s not found.\n", node_path);
-		return offs;
-	}
-	ret = fdt_setprop_string(blob, offs, "status", "disabled");
-	if (ret < 0) {
-		printf("Could not add status property to node %s: %s\n",
-		       node_path, fdt_strerror(ret));
-		return ret;
-	}
-	return 0;
-}
-
 #if defined(CONFIG_OF_SYSTEM_SETUP)
 int ft_system_setup(void *blob, struct bd_info *bd)
 {

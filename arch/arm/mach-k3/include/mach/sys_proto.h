@@ -10,7 +10,6 @@
 void sdelay(unsigned long loops);
 u32 wait_on_value(u32 read_bit_mask, u32 match_value, void *read_addr,
 		  u32 bound);
-int fdt_disable_node(void *blob, char *node_path);
 
 void k3_spl_init(void);
 void k3_mem_init(void);
