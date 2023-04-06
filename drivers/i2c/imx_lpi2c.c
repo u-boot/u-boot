@@ -282,7 +282,7 @@ static int bus_i2c_set_bus_speed(struct udevice *bus, int speed)
 	bool mode;
 	int i;
 
-	if (IS_ENABLED(CONFIG_CLK)) {
+	if (CONFIG_IS_ENABLED(CLK)) {
 		clock_rate = clk_get_rate(&i2c_bus->per_clk);
 		if (clock_rate <= 0) {
 			dev_err(bus, "Failed to get i2c clk: %d\n", clock_rate);
@@ -462,7 +462,7 @@ static int imx_lpi2c_probe(struct udevice *bus)
 		return ret;
 	}
 
-	if (IS_ENABLED(CONFIG_CLK)) {
+	if (CONFIG_IS_ENABLED(CLK)) {
 		ret = clk_get_by_name(bus, "per", &i2c_bus->per_clk);
 		if (ret) {
 			dev_err(bus, "Failed to get per clk\n");
