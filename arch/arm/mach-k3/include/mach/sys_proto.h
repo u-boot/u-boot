@@ -15,9 +15,6 @@ int do_board_detect(void);
 void release_resources_for_core_shutdown(void);
 int fdt_disable_node(void *blob, char *node_path);
 
-bool soc_is_j721e(void);
-bool soc_is_j7200(void);
-
 void k3_spl_init(void);
 void k3_mem_init(void);
 bool check_rom_loaded_sysfw(void);
