@@ -18,6 +18,10 @@
 #include <power/regulator.h>
 #include "k3-am654-ddrss.h"
 
+void sdelay(unsigned long loops);
+u32 wait_on_value(u32 read_bit_mask, u32 match_value, void *read_addr,
+		  u32 bound);
+
 #define LDELAY 10000
 
 /* DDRSS PHY configuration register fixed values */
