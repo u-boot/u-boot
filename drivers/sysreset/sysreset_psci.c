@@ -34,4 +34,5 @@ U_BOOT_DRIVER(psci_sysreset) = {
 	.name = "psci-sysreset",
 	.id = UCLASS_SYSRESET,
 	.ops = &psci_sysreset_ops,
+	.flags = DM_FLAG_PRE_RELOC,
 };
