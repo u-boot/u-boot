@@ -13,9 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include "sysfw-loader.h"
-#include <asm/arch/sys_proto.h>
 #include "common.h"
-#include <asm/arch/sys_proto.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>

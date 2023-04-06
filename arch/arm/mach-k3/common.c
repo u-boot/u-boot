@@ -19,7 +19,6 @@
 #include <asm/cache.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <fdt_support.h>
-#include <asm/arch/sys_proto.h>
 #include <asm/hardware.h>
 #include <asm/io.h>
 #include <fs_loader.h>

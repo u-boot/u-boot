@@ -21,7 +21,6 @@
 #include <spl.h>
 #include <version.h>
 #include <linux/delay.h>
-#include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

@@ -14,7 +14,6 @@
 #include <spl.h>
 #include <asm/arch/hardware.h>
 #include "sysfw-loader.h"
-#include <asm/arch/sys_proto.h>
 #include "common.h"
 #include <dm.h>
 #include <dm/uclass-internal.h>
