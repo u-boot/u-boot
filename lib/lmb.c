@@ -27,7 +27,7 @@ static void lmb_dump_region(struct lmb_region *rgn, char *name)
 	enum lmb_flags flags;
 	int i;
 
-	printf(" %s.cnt  = 0x%lx\n", name, rgn->cnt);
+	printf(" %s.cnt = 0x%lx / max = 0x%lx\n", name, rgn->cnt, rgn->max);
 
 	for (i = 0; i < rgn->cnt; i++) {
 		base = rgn->region[i].base;
@@ -110,7 +110,7 @@ void lmb_init(struct lmb *lmb)
 #if IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
 	lmb->memory.max = CONFIG_LMB_MAX_REGIONS;
 	lmb->reserved.max = CONFIG_LMB_MAX_REGIONS;
-#elif defined(CONFIG_LMB_MEMORY_REGIONS)
+#else
 	lmb->memory.max = CONFIG_LMB_MEMORY_REGIONS;
 	lmb->reserved.max = CONFIG_LMB_RESERVED_REGIONS;
 	lmb->memory.region = lmb->memory_regions;

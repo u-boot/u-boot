@@ -10,7 +10,7 @@ static const char *keyname = "key"; /* -n <keyname> */
 static const char *require_keys; /* -r <conf|image> */
 static const char *keydest; /* argv[n] */
 
-static void print_usage(const char *msg)
+static void __attribute__((__noreturn__)) print_usage(const char *msg)
 {
 	fprintf(stderr, "Error: %s\n", msg);
 	fprintf(stderr, "Usage: %s [-a <algo>] [-k <keydir>] [-n <keyname>] [-r <conf|image>]"
@@ -19,7 +19,7 @@ static void print_usage(const char *msg)
 	exit(EXIT_FAILURE);
 }
 
-static void print_help(void)
+static void __attribute__((__noreturn__)) print_help(void)
 {
 	fprintf(stderr, "Options:\n"
 		"\t-a <algo>       Cryptographic algorithm. Optional parameter, default value: sha1,rsa2048\n"

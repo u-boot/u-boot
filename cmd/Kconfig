@@ -1446,7 +1446,8 @@ config CMD_SATA
 
 config CMD_SCSI
 	bool "scsi - Access to SCSI devices"
-	default y if SCSI
+	depends on SCSI
+	default y
 	help
 	  This provides a 'scsi' command which provides access to SCSI (Small
 	  Computer System Interface) devices. The command provides a way to
@@ -1939,6 +1940,17 @@ config CMD_WOL
 endif
 
 menu "Misc commands"
+
+config CMD_2048
+	bool "Play 2048"
+	help
+	  This is a simple sliding block puzzle game designed by Italian web
+	  developer Gabriele Cirulli. The game's objective is to slide numbered
+	  tiles on a grid to combine them to create a tile with the number
+	  2048.
+
+	  This needs ANSI support on your terminal to work. It is not fully
+	  functional on a video device.
 
 config CMD_BMP
 	bool "Enable 'bmp' command"
