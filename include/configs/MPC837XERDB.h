@@ -140,7 +140,9 @@
 /*
  * Serial Port
  */
+#if !CONFIG_IS_ENABLED(DM_SERIAL) && !CONFIG_IS_ENABLED(DM_CLK)
 #define CFG_SYS_NS16550_CLK		get_bus_freq(0)
+#endif
 
 #define CFG_SYS_BAUDRATE_TABLE \
 		{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
