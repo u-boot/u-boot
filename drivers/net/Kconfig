@@ -754,7 +754,7 @@ config GMAC_ROCKCHIP
 
 config RENESAS_RAVB
 	bool "Renesas Ethernet AVB MAC"
-	depends on RCAR_GEN3
+	depends on RCAR_64
 	select PHYLIB
 	help
 	  This driver implements support for the Ethernet AVB block in
