@@ -742,7 +742,7 @@ config SYS_MALLOC_BOOTPARAMS
 config SYS_BOOTPARAMS_LEN
 	hex "Size of the bootparam buffer to malloc in bytes"
 	depends on SYS_MALLOC_BOOTPARAMS
-	default 0x20000 if MIPS || RCAR_GEN3
+	default 0x20000 if MIPS || RCAR_64
 	default 0x10000
 
 config ID_EEPROM

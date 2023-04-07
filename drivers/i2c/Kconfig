@@ -496,7 +496,7 @@ config SYS_I2C_OMAP24XX
 
 config SYS_I2C_RCAR_I2C
 	bool "Renesas RCar I2C driver"
-	depends on (RCAR_GEN2 || RCAR_GEN3) && DM_I2C
+	depends on (RCAR_GEN2 || RCAR_64) && DM_I2C
 	help
 	  Support for Renesas RCar I2C controller.
 

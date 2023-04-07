@@ -14,7 +14,7 @@
 
 static u32 rmobile_get_prr(void)
 {
-	if (IS_ENABLED(CONFIG_RCAR_GEN3))
+	if (IS_ENABLED(CONFIG_RCAR_64))
 		return readl(0xFFF00044);
 
 	return readl(0xFF000044);

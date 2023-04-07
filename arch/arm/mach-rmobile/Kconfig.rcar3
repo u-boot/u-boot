@@ -70,12 +70,6 @@ config R8A77995
 	imply CLK_R8A77995
 	imply PINCTRL_PFC_R8A77995
 
-config R8A779A0
-	bool "Renesas SoC R8A779A0"
-	select GICV3
-	imply CLK_R8A779A0
-	imply PINCTRL_PFC_R8A779A0
-
 config RZ_G2
 	bool "Renesas ARM SoCs RZ/G2 (64bit)"
 
@@ -122,12 +116,6 @@ config TARGET_EBISU
 	imply R8A77990
 	help
           Support for Renesas R-Car Gen3 Ebisu platform
-
-config TARGET_FALCON
-	bool "Falcon board"
-	imply R8A779A0
-	help
-          Support for Renesas R-Car Gen3 Falcon platform
 
 config TARGET_HIHOPE_RZG2
 	bool "HiHope RZ/G2 board"
@@ -176,7 +164,6 @@ source "board/renesas/condor/Kconfig"
 source "board/renesas/draak/Kconfig"
 source "board/renesas/eagle/Kconfig"
 source "board/renesas/ebisu/Kconfig"
-source "board/renesas/falcon/Kconfig"
 source "board/renesas/salvator-x/Kconfig"
 source "board/renesas/ulcb/Kconfig"
 source "board/beacon/beacon-rzg2m/Kconfig"

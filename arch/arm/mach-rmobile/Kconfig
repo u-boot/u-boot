@@ -40,6 +40,10 @@ config RCAR_GEN3
 	imply SPL_USE_TINY_PRINTF
 	imply SPL_YMODEM_SUPPORT
 
+config RCAR_GEN4
+	bool "Renesas ARM SoCs R-Car Gen4 (64bit)"
+	select RCAR_64
+
 config RZA1
 	prompt "Renesas ARM SoCs RZ/A1 (32bit)"
 	select CPU_V7A

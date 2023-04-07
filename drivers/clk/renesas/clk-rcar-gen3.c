@@ -35,8 +35,14 @@
 #define CPG_PLL2CR		0x002c
 #define CPG_PLL4CR		0x01f4
 
-static const struct clk_div_table cpg_rpcsrc_div_table[] = {
+#define SD0CKCR1		0x08a4
+
+static const struct clk_div_table gen3_cpg_rpcsrc_div_table[] = {
 	{ 2, 5 }, { 3, 6 }, { 0, 0 },
+};
+
+static const struct clk_div_table gen4_cpg_rpcsrc_div_table[] = {
+	{ 0, 4 }, { 1, 6 }, { 2, 5 }, { 3, 6 }, { 0, 0 },
 };
 
 static const struct clk_div_table r8a77970_cpg_sd0h_div_table[] = {
@@ -181,8 +187,10 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 	struct cpg_mssr_info *info = priv->info;
 	struct clk parent;
 	const struct cpg_core_clk *core;
-	const struct rcar_gen3_cpg_pll_config *pll_config =
-					priv->cpg_pll_config;
+	const struct rcar_gen3_cpg_pll_config *gen3_pll_config =
+					priv->gen3_cpg_pll_config;
+	const struct rcar_gen4_cpg_pll_config *gen4_pll_config =
+					priv->gen4_cpg_pll_config;
 	u32 value, div;
 	u64 rate = 0;
 	u8 shift;
@@ -227,7 +235,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 
 	case CLK_TYPE_GEN3_MAIN:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
-						0, 1, pll_config->extal_div,
+						0, 1, gen3_pll_config->extal_div,
 						"MAIN");
 
 	case CLK_TYPE_GEN3_PLL0:
@@ -236,8 +244,9 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 
 	case CLK_TYPE_GEN3_PLL1:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
-						0, pll_config->pll1_mult,
-						pll_config->pll1_div, "PLL1");
+						0, gen3_pll_config->pll1_mult,
+						gen3_pll_config->pll1_div,
+						"PLL1");
 
 	case CLK_TYPE_GEN3_PLL2:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
@@ -245,8 +254,9 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 
 	case CLK_TYPE_GEN3_PLL3:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
-						0, pll_config->pll3_mult,
-						pll_config->pll3_div, "PLL3");
+						0, gen3_pll_config->pll3_mult,
+						gen3_pll_config->pll3_div,
+						"PLL3");
 
 	case CLK_TYPE_GEN3_PLL4:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
@@ -254,25 +264,48 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 
 	case CLK_TYPE_GEN4_MAIN:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
-						0, 1, pll_config->extal_div,
-						"V3U_MAIN");
+						0, 1, gen4_pll_config->extal_div,
+						"MAIN");
 
 	case CLK_TYPE_GEN4_PLL1:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
-						0, pll_config->pll1_mult,
-						pll_config->pll1_div,
-						"V3U_PLL1");
+						0, gen4_pll_config->pll1_mult,
+						gen4_pll_config->pll1_div,
+						"PLL1");
+
+	case CLK_TYPE_GEN4_PLL2:
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
+						0, gen4_pll_config->pll2_mult,
+						gen4_pll_config->pll2_div,
+						"PLL2");
 
 	case CLK_TYPE_GEN4_PLL2X_3X:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
-						core->offset, 0, 0,
-						"V3U_PLL2X_3X");
+						core->offset, 0, 0, "PLL2X_3X");
+
+	case CLK_TYPE_GEN4_PLL3:
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
+						0, gen4_pll_config->pll3_mult,
+						gen4_pll_config->pll3_div,
+						"PLL3");
+
+	case CLK_TYPE_GEN4_PLL4:
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
+						0, gen4_pll_config->pll4_mult,
+						gen4_pll_config->pll4_div,
+						"PLL4");
 
 	case CLK_TYPE_GEN4_PLL5:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
-						0, pll_config->pll5_mult,
-						pll_config->pll5_div,
-						"V3U_PLL5");
+						0, gen4_pll_config->pll5_mult,
+						gen4_pll_config->pll5_div,
+						"PLL5");
+
+	case CLK_TYPE_GEN4_PLL6:
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
+						0, gen4_pll_config->pll6_mult,
+						gen4_pll_config->pll6_div,
+						"PLL6");
 
 	case CLK_TYPE_FF:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
@@ -286,6 +319,13 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 		debug("%s[%i] PE clk: parent=%i div=%u => rate=%llu\n",
 		      __func__, __LINE__, (core->parent >> shift) & 0xffff,
 		      div, rate);
+		return rate;
+
+	case CLK_TYPE_GEN4_SDSRC:
+		div = ((readl(priv->base + SD0CKCR1) >> 29) & 0x03) + 4;
+		rate = gen3_clk_get_rate64(&parent) / div;
+		debug("%s[%i] SDSRC clk: parent=%i div=%u => rate=%llu\n",
+		      __func__, __LINE__, core->parent, div, rate);
 		return rate;
 
 	case CLK_TYPE_GEN3_SDH:	/* Fixed factor 1:1 */
@@ -321,7 +361,16 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 						     gen3_clk_get_rate64(&parent),
 						     priv->base + CPG_RPCCKCR,
 						     CPG_RPCCKCR_DIV_POST_MASK,
-						     cpg_rpcsrc_div_table, "RPCSRC");
+						     gen3_cpg_rpcsrc_div_table,
+						     "RPCSRC");
+
+	case CLK_TYPE_GEN4_RPCSRC:
+		return rcar_clk_get_rate64_div_table(core->parent,
+						     gen3_clk_get_rate64(&parent),
+						     priv->base + CPG_RPCCKCR,
+						     CPG_RPCCKCR_DIV_POST_MASK,
+						     gen4_cpg_rpcsrc_div_table,
+						     "RPCSRC");
 
 	case CLK_TYPE_GEN3_D3_RPCSRC:
 	case CLK_TYPE_GEN3_E3_RPCSRC:
@@ -409,6 +458,7 @@ static int gen3_clk_probe(struct udevice *dev)
 	struct gen3_clk_priv *priv = dev_get_priv(dev);
 	struct cpg_mssr_info *info =
 		(struct cpg_mssr_info *)dev_get_driver_data(dev);
+	const void *pll_config;
 	fdt_addr_t rst_base;
 	int ret;
 
@@ -427,21 +477,24 @@ static int gen3_clk_probe(struct udevice *dev)
 
 	priv->cpg_mode = readl(rst_base + info->reset_modemr_offset);
 
-	priv->cpg_pll_config =
-		(struct rcar_gen3_cpg_pll_config *)info->get_pll_config(priv->cpg_mode);
-	if (!priv->cpg_pll_config->extal_div)
-		return -EINVAL;
+	pll_config = info->get_pll_config(priv->cpg_mode);
 
 	if (info->reg_layout == CLK_REG_LAYOUT_RCAR_GEN2_AND_GEN3) {
 		priv->info->status_regs = mstpsr;
 		priv->info->control_regs = smstpcr;
 		priv->info->reset_regs = srcr;
 		priv->info->reset_clear_regs = srstclr;
-	} else if (info->reg_layout == CLK_REG_LAYOUT_RCAR_V3U) {
-		priv->info->status_regs = mstpsr_for_v3u;
-		priv->info->control_regs = mstpcr_for_v3u;
-		priv->info->reset_regs = srcr_for_v3u;
-		priv->info->reset_clear_regs = srstclr_for_v3u;
+		priv->gen3_cpg_pll_config = pll_config;
+		if (!priv->gen3_cpg_pll_config->extal_div)
+			return -EINVAL;
+	} else if (info->reg_layout == CLK_REG_LAYOUT_RCAR_GEN4) {
+		priv->info->status_regs = mstpsr_for_gen4;
+		priv->info->control_regs = mstpcr_for_gen4;
+		priv->info->reset_regs = srcr_for_gen4;
+		priv->info->reset_clear_regs = srstclr_for_gen4;
+		priv->gen4_cpg_pll_config = pll_config;
+		if (!priv->gen4_cpg_pll_config->extal_div)
+			return -EINVAL;
 	} else {
 		return -EINVAL;
 	}
