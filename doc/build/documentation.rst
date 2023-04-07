@@ -26,6 +26,9 @@ The *htmldocs* target is used to build the HTML documentation. It uses the
     # Display the documentation in a graphical web browser
     x-www-browser doc/output/index.html
 
+The HTML documentation is published at https://u-boot.readthedocs.io. The build
+process for that site is controlled by the file *.readthedocs.yml*.
+
 Infodoc documentation
 ---------------------
 
