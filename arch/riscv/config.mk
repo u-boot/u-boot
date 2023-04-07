@@ -24,8 +24,7 @@ EFI_LDS			:= elf_riscv64_efi.lds
 endif
 
 PLATFORM_CPPFLAGS	+= -ffixed-gp -fpic
-PLATFORM_RELFLAGS	+= -fno-common -gdwarf-2 -ffunction-sections \
-			   -fdata-sections
+PLATFORM_RELFLAGS	+= -fno-common -ffunction-sections -fdata-sections
 LDFLAGS_u-boot		+= --gc-sections -static -pie
 
 EFI_CRT0		:= crt0_riscv_efi.o
