@@ -124,7 +124,7 @@ static int xilinxgmiitorgmii_probe(struct phy_device *phydev)
 	return 0;
 }
 
-static struct phy_driver gmii2rgmii_driver = {
+U_BOOT_PHY_DRIVER(gmii2rgmii) = {
 	.name = "XILINX GMII2RGMII",
 	.uid = PHY_GMII2RGMII_ID,
 	.mask = 0xffffffff,
@@ -135,10 +135,3 @@ static struct phy_driver gmii2rgmii_driver = {
 	.writeext = xilinxgmiitorgmii_extwrite,
 	.readext = xilinxgmiitorgmii_extread,
 };
-
-int phy_xilinx_gmii2rgmii_init(void)
-{
-	phy_register(&gmii2rgmii_driver);
-
-	return 0;
-}

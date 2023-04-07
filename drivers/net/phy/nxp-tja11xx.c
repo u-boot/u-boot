@@ -248,7 +248,7 @@ static int tja11xx_startup(struct phy_device *phydev)
 	return 0;
 }
 
-static struct phy_driver TJA1100_driver = {
+U_BOOT_PHY_DRIVER(tja1100) = {
 	.name = "NXP TJA1100",
 	.uid = PHY_ID_TJA1100,
 	.mask = PHY_ID_MASK,
@@ -258,7 +258,7 @@ static struct phy_driver TJA1100_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-static struct phy_driver TJA1101_driver = {
+U_BOOT_PHY_DRIVER(tja1101) = {
 	.name = "NXP TJA1101",
 	.uid = PHY_ID_TJA1101,
 	.mask = PHY_ID_MASK,
@@ -267,11 +267,3 @@ static struct phy_driver TJA1101_driver = {
 	.startup = &tja11xx_startup,
 	.shutdown = &genphy_shutdown,
 };
-
-int phy_nxp_tja11xx_init(void)
-{
-	phy_register(&TJA1100_driver);
-	phy_register(&TJA1101_driver);
-
-	return 0;
-}

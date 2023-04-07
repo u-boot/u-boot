@@ -80,7 +80,7 @@ int gen10g_config(struct phy_device *phydev)
 	return gen10g_discover_mmds(phydev);
 }
 
-struct phy_driver gen10g_driver = {
+U_BOOT_PHY_DRIVER(gen10g) = {
 	.uid		= 0xffffffff,
 	.mask		= 0xffffffff,
 	.name		= "Generic 10G PHY",
