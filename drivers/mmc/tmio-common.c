@@ -378,7 +378,7 @@ static bool tmio_sd_addr_is_dmaable(struct mmc_data *data)
 	}
 
 #ifdef CONFIG_SPL_BUILD
-	if (IS_ENABLED(CONFIG_ARCH_UNIPHIER) && !CONFIG_IS_ENABLED(CONFIG_ARM64)) {
+	if (IS_ENABLED(CONFIG_ARCH_UNIPHIER) && !IS_ENABLED(CONFIG_ARM64)) {
 		/*
 		 * For UniPhier ARMv7 SoCs, the stack is allocated in locked
 		 * ways of L2, which is unreachable from the DMA engine.
