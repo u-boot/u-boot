@@ -67,10 +67,10 @@ obj-$(CONFIG_VIDEO_OMAP3) += omap3_dss.o
 obj-$(CONFIG_VIDEO_DSI_HOST_SANDBOX) += sandbox_dsi_host.o
 obj-$(CONFIG_VIDEO_SANDBOX_SDL) += sandbox_sdl.o
 obj-$(CONFIG_VIDEO_SIMPLE) += simplefb.o
-obj-$(CONFIG_VIDEO_TEGRA20) += tegra.o
 obj-$(CONFIG_VIDEO_VESA) += vesa.o
 obj-$(CONFIG_VIDEO_SEPS525) += seps525.o
 obj-$(CONFIG_VIDEO_ZYNQMP_DPSUB) += zynqmp_dpsub.o
 
 obj-y += bridge/
 obj-y += sunxi/
+obj-y += tegra20/

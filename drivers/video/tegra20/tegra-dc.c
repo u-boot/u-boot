@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <backlight.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <log.h>
@@ -33,20 +34,24 @@ struct tegra_lcd_priv {
 	enum video_log2_bpp log2_bpp;	/* colour depth */
 	struct display_timing timing;
 	struct udevice *panel;
-	struct disp_ctlr *disp;		/* Display controller to use */
+	struct dc_ctlr *dc;		/* Display controller regmap */
 	fdt_addr_t frame_buffer;	/* Address of frame buffer */
 	unsigned pixel_clock;		/* Pixel clock in Hz */
+	int dc_clk[2];			/* Contains clk and its parent */
+	bool rotation;			/* 180 degree panel turn */
 };
 
 enum {
 	/* Maximum LCD size we support */
-	LCD_MAX_WIDTH		= 1366,
-	LCD_MAX_HEIGHT		= 768,
+	LCD_MAX_WIDTH		= 1920,
+	LCD_MAX_HEIGHT		= 1200,
 	LCD_MAX_LOG2_BPP	= VIDEO_BPP16,
 };
 
-static void update_window(struct dc_ctlr *dc, struct disp_ctl_win *win)
+static void update_window(struct tegra_lcd_priv *priv,
+			  struct disp_ctl_win *win)
 {
+	struct dc_ctlr *dc = priv->dc;
 	unsigned h_dda, v_dda;
 	unsigned long val;
 
@@ -87,6 +92,10 @@ static void update_window(struct dc_ctlr *dc, struct disp_ctl_win *win)
 	val = WIN_ENABLE;
 	if (win->bpp < 24)
 		val |= COLOR_EXPAND;
+
+	if (priv->rotation)
+		val |= H_DIRECTION | V_DIRECTION;
+
 	writel(val, &dc->win.win_opt);
 
 	writel((unsigned long)win->phys_addr, &dc->winbuf.start_addr);
@@ -134,7 +143,7 @@ static int update_display_mode(struct dc_disp_reg *disp,
 	 * the display clock (typically 600MHz) to the pixel clock. We round
 	 * up or down as requried.
 	 */
-	rate = clock_get_periph_rate(PERIPH_ID_DISP1, CLOCK_ID_CGENERAL);
+	rate = clock_get_periph_rate(priv->dc_clk[0], priv->dc_clk[1]);
 	div = ((rate * 2 + priv->pixel_clock / 2) / priv->pixel_clock) - 2;
 	debug("Display clock %lu, divider %lu\n", rate, div);
 
@@ -223,8 +232,14 @@ static void rgb_enable(struct dc_com_reg *com)
 static int setup_window(struct disp_ctl_win *win,
 			struct tegra_lcd_priv *priv)
 {
-	win->x = 0;
-	win->y = 0;
+	if (priv->rotation) {
+		win->x = priv->width * 2;
+		win->y = priv->height;
+	} else {
+		win->x = 0;
+		win->y = 0;
+	}
+
 	win->w = priv->width;
 	win->h = priv->height;
 	win->out_x = 0;
@@ -268,32 +283,36 @@ static int tegra_display_probe(const void *blob, struct tegra_lcd_priv *priv,
 			       void *default_lcd_base)
 {
 	struct disp_ctl_win window;
-	struct dc_ctlr *dc;
+	unsigned long rate = clock_get_rate(priv->dc_clk[1]);
 
 	priv->frame_buffer = (u32)default_lcd_base;
 
-	dc = (struct dc_ctlr *)priv->disp;
+	/*
+	 * We halve the rate if DISP1 paret is PLLD, since actual parent
+	 * is plld_out0 which is PLLD divided by 2.
+	 */
+	if (priv->dc_clk[1] == CLOCK_ID_DISPLAY)
+		rate /= 2;
 
 	/*
-	 * A header file for clock constants was NAKed upstream.
-	 * TODO: Put this into the FDT and fdt_lcd struct when we have clock
-	 * support there
+	 * HOST1X is init by default at 150MHz with PLLC as parent
 	 */
-	clock_start_periph_pll(PERIPH_ID_HOST1X, CLOCK_ID_PERIPH,
-			       144 * 1000000);
-	clock_start_periph_pll(PERIPH_ID_DISP1, CLOCK_ID_CGENERAL,
-			       600 * 1000000);
-	basic_init(&dc->cmd);
-	basic_init_timer(&dc->disp);
-	rgb_enable(&dc->com);
+	clock_start_periph_pll(PERIPH_ID_HOST1X, CLOCK_ID_CGENERAL,
+			       150 * 1000000);
+	clock_start_periph_pll(priv->dc_clk[0], priv->dc_clk[1],
+			       rate);
+
+	basic_init(&priv->dc->cmd);
+	basic_init_timer(&priv->dc->disp);
+	rgb_enable(&priv->dc->com);
 
 	if (priv->pixel_clock)
-		update_display_mode(&dc->disp, priv);
+		update_display_mode(&priv->dc->disp, priv);
 
 	if (setup_window(&window, priv))
 		return -1;
 
-	update_window(dc, &window);
+	update_window(priv, &window);
 
 	return 0;
 }
@@ -307,18 +326,29 @@ static int tegra_lcd_probe(struct udevice *dev)
 	int ret;
 
 	/* Initialize the Tegra display controller */
+#ifdef CONFIG_TEGRA20
 	funcmux_select(PERIPH_ID_DISP1, FUNCMUX_DEFAULT);
+#endif
+
 	if (tegra_display_probe(blob, priv, (void *)plat->base)) {
 		printf("%s: Failed to probe display driver\n", __func__);
 		return -1;
 	}
 
+#ifdef CONFIG_TEGRA20
 	pinmux_set_func(PMUX_PINGRP_GPU, PMUX_FUNC_PWM);
 	pinmux_tristate_disable(PMUX_PINGRP_GPU);
+#endif
 
 	ret = panel_enable_backlight(priv->panel);
 	if (ret) {
 		debug("%s: Cannot enable backlight, ret=%d\n", __func__, ret);
+		return ret;
+	}
+
+	ret = panel_set_backlight(priv->panel, BACKLIGHT_DEFAULT);
+	if (ret) {
+		debug("%s: Cannot set backlight to default, ret=%d\n", __func__, ret);
 		return ret;
 	}
 
@@ -347,11 +377,20 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 	int rgb;
 	int ret;
 
-	priv->disp = dev_read_addr_ptr(dev);
-	if (!priv->disp) {
+	priv->dc = (struct dc_ctlr *)dev_read_addr_ptr(dev);
+	if (!priv->dc) {
 		debug("%s: No display controller address\n", __func__);
 		return -EINVAL;
 	}
+
+	ret = clock_decode_pair(dev, priv->dc_clk);
+	if (ret < 0) {
+		debug("%s: Cannot decode clocks for '%s' (ret = %d)\n",
+		      __func__, dev->name, ret);
+		return -EINVAL;
+	}
+
+	priv->rotation = dev_read_bool(dev, "nvidia,180-rotation");
 
 	rgb = fdt_subnode_offset(blob, node, "rgb");
 	if (rgb < 0) {
@@ -359,18 +398,6 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 		      __func__, dev->name, rgb);
 		return -EINVAL;
 	}
-
-	ret = fdtdec_decode_display_timing(blob, rgb, 0, &priv->timing);
-	if (ret) {
-		debug("%s: Cannot read display timing for '%s' (ret=%d)\n",
-		      __func__, dev->name, ret);
-		return -EINVAL;
-	}
-	timing = &priv->timing;
-	priv->width = timing->hactive.typ;
-	priv->height = timing->vactive.typ;
-	priv->pixel_clock = timing->pixelclock.typ;
-	priv->log2_bpp = VIDEO_BPP16;
 
 	/*
 	 * Sadly the panel phandle is in an rgb subnode so we cannot use
@@ -381,6 +408,7 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 		debug("%s: Cannot find panel information\n", __func__);
 		return -EINVAL;
 	}
+
 	ret = uclass_get_device_by_of_offset(UCLASS_PANEL, panel_node,
 					     &priv->panel);
 	if (ret) {
@@ -388,6 +416,30 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 		      dev->name, ret);
 		return ret;
 	}
+
+	if (!strcmp(priv->panel->name, TEGRA_DSI_A) ||
+	    !strcmp(priv->panel->name, TEGRA_DSI_B)) {
+		struct tegra_dc_plat *dc_plat = dev_get_plat(priv->panel);
+
+		dc_plat->dev = dev;
+		dc_plat->dc = priv->dc;
+	}
+
+	ret = panel_get_display_timing(priv->panel, &priv->timing);
+	if (ret) {
+		ret = fdtdec_decode_display_timing(blob, rgb, 0, &priv->timing);
+		if (ret) {
+			debug("%s: Cannot read display timing for '%s' (ret=%d)\n",
+			      __func__, dev->name, ret);
+			return -EINVAL;
+		}
+	}
+
+	timing = &priv->timing;
+	priv->width = timing->hactive.typ;
+	priv->height = timing->vactive.typ;
+	priv->pixel_clock = timing->pixelclock.typ;
+	priv->log2_bpp = VIDEO_BPP16;
 
 	return 0;
 }
@@ -414,6 +466,7 @@ static const struct video_ops tegra_lcd_ops = {
 
 static const struct udevice_id tegra_lcd_ids[] = {
 	{ .compatible = "nvidia,tegra20-dc" },
+	{ .compatible = "nvidia,tegra30-dc" },
 	{ }
 };
 
