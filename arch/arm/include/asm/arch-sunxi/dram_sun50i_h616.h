@@ -157,6 +157,7 @@ struct dram_para {
 	u32 ca_dri;
 	u32 odt_en;
 	u32 tpr0;
+	u32 tpr2;
 	u32 tpr10;
 	u32 tpr11;
 	u32 tpr12;

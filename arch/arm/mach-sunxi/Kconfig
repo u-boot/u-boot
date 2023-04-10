@@ -79,6 +79,12 @@ config DRAM_SUN50I_H616_TPR0
 	help
 	  TPR0 value from vendor DRAM settings.
 
+config DRAM_SUN50I_H616_TPR2
+	hex "H616 DRAM TPR2 parameter"
+	default 0x0
+	help
+	  TPR2 value from vendor DRAM settings.
+
 config DRAM_SUN50I_H616_TPR10
 	hex "H616 DRAM TPR10 parameter"
 	help

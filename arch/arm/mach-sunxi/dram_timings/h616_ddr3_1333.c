@@ -50,9 +50,20 @@ void mctl_set_timing_params(struct dram_para *para)
 	u8 t_rdata_en	= 9;			/* ? */
 	u8 t_wr_lat	= 5;			/* ? */
 
-	u8 twtp		= tcl + 2 + tcwl;	/* (WL + BL / 2 + tWR) / 2 */
-	u8 twr2rd	= trtp + 2 + tcwl;	/* (WL + BL / 2 + tWTR) / 2 */
-	u8 trd2wr	= tcl + 3 - tcwl;	/* (RL + BL / 2 + 2 - WL) / 2 */
+	u8 twtp;				/* (WL + BL / 2 + tWR) / 2 */
+	u8 twr2rd;				/* (WL + BL / 2 + tWTR) / 2 */
+	u8 trd2wr;				/* (RL + BL / 2 + 2 - WL) / 2 */
+
+	if (para->tpr2 & 0x100) {
+		tcl = 5;
+		tcwl = 4;
+		t_rdata_en = 5;
+		t_wr_lat = 3;
+	}
+
+	twtp   = tcl + 2 + tcwl;
+	twr2rd = trtp + 2 + tcwl;
+	trd2wr = tcl + 3 - tcwl;
 
 	/* set DRAM timing */
 	writel((twtp << 24) | (tfaw << 16) | (trasmax << 8) | tras,
