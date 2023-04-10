@@ -41,7 +41,7 @@ int board_early_init_f(void)
 #if IS_ENABLED(CONFIG_LOAD_ENV_FROM_MMC_BOOT_PARTITION)
 uint board_mmc_get_env_part(struct mmc *mmc)
 {
-	uint part = (mmc->part_config >> 3) & PART_ACCESS_MASK;
+	uint part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
 
 	if (part == 7)
 		part = 0;
