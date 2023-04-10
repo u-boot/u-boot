@@ -488,12 +488,12 @@ config DRAM_ZQ
 
 config DRAM_ODT_EN
 	bool "sunxi dram odt enable"
+	depends on !MACH_SUN50I_H616
 	default y if MACH_SUN8I_A23
 	default y if MACH_SUNXI_H3_H5
 	default y if MACH_SUN8I_R40
 	default y if MACH_SUN50I
 	default y if MACH_SUN50I_H6
-	default y if MACH_SUN50I_H616
 	---help---
 	Select this to enable dram odt (on die termination).
 
