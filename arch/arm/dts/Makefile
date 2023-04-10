@@ -995,7 +995,10 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mn-beacon-kit.dtb \
 	imx8mq-mnt-reform2.dtb \
 	imx8mq-phanbell.dtb \
+	imx8mp-beacon-kit.dtb \
+	imx8mp-data-modul-edm-sbc.dtb \
 	imx8mp-dhcom-pdk2.dtb \
+	imx8mp-dhcom-pdk3.dtb \
 	imx8mp-evk.dtb \
 	imx8mp-icore-mx8mp-edimm2.2.dtb \
 	imx8mp-msc-sm2s.dtb \
@@ -1041,10 +1044,14 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	r8a77970-eagle-u-boot.dtb \
 	r8a77980-condor-u-boot.dtb \
 	r8a77990-ebisu-u-boot.dtb \
-	r8a77995-draak-u-boot.dtb \
-	r8a779a0-falcon-u-boot.dtb
+	r8a77995-draak-u-boot.dtb
 
-ifdef CONFIG_RCAR_GEN3
+dtb-$(CONFIG_RCAR_GEN4) += \
+	r8a779a0-falcon-u-boot.dtb \
+	r8a779f0-spider-u-boot.dtb \
+	r8a779g0-white-hawk-u-boot.dtb
+
+ifdef CONFIG_RCAR_64
 DTC_FLAGS += -R 4 -p 0x1000
 endif
 
@@ -1259,7 +1266,10 @@ dtb-$(CONFIG_SOC_K3_AM654) += \
 	k3-am6528-iot2050-basic.dtb \
 	k3-am6528-iot2050-basic-pg2.dtb \
 	k3-am6548-iot2050-advanced.dtb \
-	k3-am6548-iot2050-advanced-pg2.dtb
+	k3-am6548-iot2050-advanced-pg2.dtb \
+	k3-am6548-iot2050-advanced-m2.dtb \
+	k3-am6548-iot2050-advanced-m2-bkey-usb3-overlay.dtbo \
+	k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie-overlay.dtbo
 dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-common-proc-board.dtb \
 			      k3-j721e-r5-common-proc-board.dtb \
 			      k3-j7200-common-proc-board.dtb \

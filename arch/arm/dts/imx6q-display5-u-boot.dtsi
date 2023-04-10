@@ -21,10 +21,10 @@
 	};
 
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		bus@2100000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
@@ -45,5 +45,5 @@
 };
 
 &uart5 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

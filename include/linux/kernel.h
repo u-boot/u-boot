@@ -284,4 +284,28 @@
 	offsetof(struct structure, member) == (offset), \
 	"`struct " #structure "` offset for `" #member "` is not " #offset)
 
+#define __find_closest(x, a, as, op)					\
+({									\
+	typeof(as) __fc_i, __fc_as = (as) - 1;				\
+	typeof(x) __fc_x = (x);						\
+	typeof(*a) const *__fc_a = (a);					\
+	for (__fc_i = 0; __fc_i < __fc_as; __fc_i++) {			\
+		if (__fc_x op DIV_ROUND_CLOSEST(__fc_a[__fc_i] +	\
+						__fc_a[__fc_i + 1], 2))	\
+			break;						\
+	}								\
+	(__fc_i);							\
+})
+
+/**
+ * find_closest - locate the closest element in a sorted array
+ * @x: The reference value.
+ * @a: The array in which to look for the closest element. Must be sorted
+ *  in ascending order.
+ * @as: Size of 'a'.
+ *
+ * Returns the index of the element closest to 'x'.
+ */
+#define find_closest(x, a, as) __find_closest(x, a, as, <=)
+
 #endif

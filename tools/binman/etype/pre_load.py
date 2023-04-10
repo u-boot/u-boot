@@ -8,7 +8,7 @@
 import os
 import struct
 from dtoc import fdt_util
-from patman import tools
+from u_boot_pylib import tools
 
 from binman.entry import Entry
 from binman.etype.collection import Entry_collection

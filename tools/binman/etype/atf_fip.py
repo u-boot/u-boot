@@ -11,7 +11,7 @@ from binman.entry import Entry
 from binman.etype.section import Entry_section
 from binman.fip_util import FIP_TYPES, FipReader, FipWriter, UUID_LEN
 from dtoc import fdt_util
-from patman import tools
+from u_boot_pylib import tools
 
 class Entry_atf_fip(Entry_section):
     """ARM Trusted Firmware's Firmware Image Package (FIP)
@@ -270,4 +270,4 @@ class Entry_atf_fip(Entry_section):
         # Recreate the data structure, leaving the data for this child alone,
         # so that child.data is used to pack into the FIP.
         self.ObtainContents(skip_entry=child)
-        return True
+        return super().WriteChildData(child)

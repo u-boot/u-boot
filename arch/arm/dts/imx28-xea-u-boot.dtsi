@@ -13,36 +13,36 @@
 #include "imx28-u-boot.dtsi"
 / {
 	apb@80000000 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 
 		apbh@80000000 {
-			u-boot,dm-spl;
+			bootph-pre-ram;
 		};
 
 		apbx@80040000 {
-			u-boot,dm-spl;
+			bootph-pre-ram;
 		};
 	};
 };
 
 &clks {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &ssp0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &ssp3 {
 	num-cs = <2>;
 	spi-max-frequency = <40000000>;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

@@ -5,16 +5,16 @@
 
 / {
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &aips0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &dcu0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &iomuxc {
@@ -78,13 +78,13 @@
 };
 
 &pinctrl_ddr {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_uart0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

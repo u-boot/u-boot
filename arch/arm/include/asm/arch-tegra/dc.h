@@ -569,4 +569,12 @@ enum {
 #define DC_N_WINDOWS			5
 #define DC_REG_SAVE_SPACE		(DC_N_WINDOWS + 5)
 
+#define TEGRA_DSI_A		"dsi@54300000"
+#define TEGRA_DSI_B		"dsi@54400000"
+
+struct tegra_dc_plat {
+	struct udevice *dev;		/* Display controller device */
+	struct dc_ctlr *dc;		/* Display controller regmap */
+};
+
 #endif /* __ASM_ARCH_TEGRA_DC_H */

@@ -360,6 +360,13 @@
 #define   PCI_EXP_TYPE_PCIE_BRIDGE 0x8	/* PCI/PCI-X to PCIe Bridge */
 #define PCI_EXP_DEVCAP		4	/* Device capabilities */
 #define  PCI_EXP_DEVCAP_FLR	0x10000000 /* Function Level Reset */
+#define  PCI_EXP_DEVCAP_PAYLOAD 0x0007	/* Max payload size supported */
+#define  PCI_EXP_DEVCAP_PAYLOAD_128B 0x0000 /* 128 Bytes */
+#define  PCI_EXP_DEVCAP_PAYLOAD_256B 0x0001 /* 256 Bytes */
+#define  PCI_EXP_DEVCAP_PAYLOAD_512B 0x0002 /* 512 Bytes */
+#define  PCI_EXP_DEVCAP_PAYLOAD_1024B 0x0003 /* 1024 Bytes */
+#define  PCI_EXP_DEVCAP_PAYLOAD_2048B 0x0004 /* 2048 Bytes */
+#define  PCI_EXP_DEVCAP_PAYLOAD_4096B 0x0005 /* 4096 Bytes */
 #define PCI_EXP_DEVCTL		8	/* Device Control */
 #define  PCI_EXP_DEVCTL_PAYLOAD	0x00e0	/* Max_Payload_Size */
 #define  PCI_EXP_DEVCTL_PAYLOAD_128B 0x0000 /* 128 Bytes */

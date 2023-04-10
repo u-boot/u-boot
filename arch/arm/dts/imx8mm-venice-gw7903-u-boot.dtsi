@@ -109,17 +109,17 @@
 };
 
 &pinctrl_fec1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &{/soc@0/bus@30800000/i2c@30a30000/pmic@4b} {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &{/soc@0/bus@30800000/i2c@30a30000/pmic@4b/regulators} {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_pmic {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

@@ -95,6 +95,19 @@ Binman uses the following terms:
 - binary - an input binary that goes into the image
 
 
+Installation
+------------
+
+You can install binman using::
+
+   pip install binary-manager
+
+The name is chosen since binman conflicts with an existing package.
+
+If you are using binman within the U-Boot tree, it may be easiest to add a
+symlink from your local `~/.bin` directory to `/path/to/tools/binman/binman`.
+
+
 Relationship to FIT
 -------------------
 
@@ -838,6 +851,14 @@ offset-from-elf:
     is the symbol to lookup (relative to elf-base-sym) and <offset> is an offset
     to add to that value.
 
+preserve:
+    Indicates that this entry should be preserved by any firmware updates. This
+    flag should be checked by the updater when it is deciding which entries to
+    update. This flag is normally attached to sections but can be attached to
+    a single entry in a section if the updater supports it. Not that binman
+    itself has no control over the updater's behaviour, so this is just a
+    signal. It is not enforced by binman.
+
 Examples of the above options can be found in the tests. See the
 tools/binman/test directory.
 
@@ -1122,8 +1143,7 @@ It is sometimes inconvenient to add a 'binman' node to the .dts file for each
 board. This can be done by using #include to bring in a common file. Another
 approach supported by the U-Boot build system is to automatically include
 a common header. You can then put the binman node (and anything else that is
-specific to U-Boot, such as u-boot,dm-pre-reloc properies) in that header
-file.
+specific to U-Boot, such as bootph-all properies) in that header file.
 
 Binman will search for the following files in arch/<arch>/dts::
 
@@ -1327,8 +1347,42 @@ You can also replace just a selection of entries::
 
     $ binman replace -i image.bin "*u-boot*" -I indir
 
+It is possible to replace whole sections as well, but in that case any
+information about entries within the section may become outdated. This is
+because Binman cannot know whether things have moved around or resized within
+the section, once you have updated its data.
+
+Technical note: With 'allow-repack', Binman writes information about the
+original offset and size properties of each entry, if any were specified, in
+the 'orig-offset' and 'orig-size' properties. This allows Binman to distinguish
+between an entry which ended up being packed at an offset (or assigned a size)
+and an entry which had a particular offset / size requested in the Binman
+configuration. Where are particular offset / size was requested, this is treated
+as set in stone, so Binman will ensure it doesn't change. Without this feature,
+repacking an entry might cause it to disobey the original constraints provided
+when it was created.
+
+ Repacking an image involves
 
 .. _`BinmanLogging`:
+
+Signing FIT container with private key in an image
+--------------------------------------------------
+
+You can sign FIT container with private key in your image.
+For example::
+
+    $ binman sign -i image.bin -k privatekey -a sha256,rsa4096 fit
+
+binman will extract FIT container, sign and replace it immediately.
+
+If you want to sign and replace FIT container in place::
+
+    $ binman sign -i image.bin -k privatekey -a sha256,rsa4096 -f fit.fit fit
+
+which will sign FIT container with private key and replace it immediately
+inside your image.
+
 
 Logging
 -------
@@ -1408,6 +1462,16 @@ You can also use `--fetch all` to fetch all tools or `--fetch <tool>` to fetch
 a particular tool. Some tools are built from source code, in which case you will
 need to have at least the `build-essential` and `git` packages installed.
 
+Tools are fetched into the `~/.binman-tools` directory. This directory is
+automatically added to the toolpath so there is no need to use `--toolpath` to
+specify it. If you want to use these tools outside binman, you may want to
+add this directory to your `PATH`. For example, if you use bash, add this to
+the end of `.bashrc`::
+
+   PATH="$HOME/.binman-tools:$PATH"
+
+To select a custom directory, use the `--tooldir` option.
+
 Bintool Documentation
 =====================
 
@@ -1426,8 +1490,9 @@ Binman commands and arguments
 
 Usage::
 
-    binman [-h] [-B BUILD_DIR] [-D] [-H] [--toolpath TOOLPATH] [-T THREADS]
-        [--test-section-timeout] [-v VERBOSITY] [-V]
+    binman [-h] [-B BUILD_DIR] [-D] [--tooldir TOOLDIR] [-H]
+        [--toolpath TOOLPATH] [-T THREADS] [--test-section-timeout]
+        [-v VERBOSITY] [-V]
         {build,bintool-docs,entry-docs,ls,extract,replace,test,tool} ...
 
 Binman provides the following commands:
@@ -1452,11 +1517,13 @@ Options:
 -D, --debug
     Enabling debugging (provides a full traceback on error)
 
+--tooldir TOOLDIR     Set the directory to store tools
+
 -H, --full-help
     Display the README file
 
 --toolpath TOOLPATH
-    Add a path to the directories containing tools
+    Add a path to the list of directories containing tools
 
 -T THREADS, --threads THREADS
     Number of threads to use (0=single-thread). Note that -T0 is useful for
@@ -1664,6 +1731,12 @@ Options:
 -m, --map
     Output a map file for the updated image
 
+-O OUTDIR, --outdir OUTDIR
+    Path to directory to use for intermediate and output files
+
+-p, --preserve
+    Preserve temporary output directory even if option -O is not given
+
 This replaces one or more entries in an existing image. See
 `Replacing files in an image`_.
 
@@ -1695,6 +1768,35 @@ Options:
     Preserve and display test-created input directories; also preserve the
     output directory if a single test is run (pass test name at the end of the
     command line
+
+binman sign
+-----------
+
+Usage::
+
+    binman sign [-h] -a ALGO [-f FILE] -i IMAGE -k KEY [paths ...]
+
+positional arguments:
+
+paths
+    Paths within file to sign (wildcard)
+
+options:
+
+-h, --help
+    show this help message and exit
+
+-a ALGO, --algo ALGO
+    Hash algorithm e.g. sha256,rsa4096
+
+-f FILE, --file FILE
+    Input filename to sign
+
+-i IMAGE, --image IMAGE
+    Image filename to update
+
+-k KEY, --key KEY
+    Private key file for signing
 
 binman tool
 -----------

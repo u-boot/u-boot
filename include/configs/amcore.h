@@ -10,14 +10,18 @@
 
 #define CFG_SYS_UART_PORT		0
 
-#define CFG_EXTRA_ENV_SETTINGS				\
+#define CFG_MCFTMR
+#define CFG_SYS_UART_PORT		0
+#define CFG_SYS_BAUDRATE_TABLE		{ 9600, 19200, 38400, 57600, 115200 }
+
+#define CFG_EXTRA_ENV_SETTINGS					\
 	"upgrade_uboot=loady; "					\
-		"protect off 0xffc00000 0xffc1ffff; "		\
-		"erase 0xffc00000 0xffc1ffff; "			\
+		"protect off 0xffc00000 0xffc2ffff; "		\
+		"erase 0xffc00000 0xffc2ffff; "			\
 		"cp.b 0x20000 0xffc00000 ${filesize}\0"		\
 	"upgrade_kernel=loady; "				\
-		"erase 0xffc20000 0xffefffff; "			\
-		"cp.b 0x20000 0xffc20000 ${filesize}\0"		\
+		"erase 0xffc30000 0xffefffff; "			\
+		"cp.b 0x20000 0xffc30000 ${filesize}\0"		\
 	"upgrade_jffs2=loady; "					\
 		"erase 0xfff00000 0xffffffff; "			\
 		"cp.b 0x20000 0xfff00000 ${filesize}\0"
@@ -37,7 +41,6 @@
 
 /* amcore design has flash data bytes wired swapped */
 #define CFG_SYS_WRITE_SWAPPED_DATA
-/* reserve 128-4KB */
 
 #define LDS_BOARD_TEXT \
 	. = DEFINED(env_offset) ? env_offset : .; \

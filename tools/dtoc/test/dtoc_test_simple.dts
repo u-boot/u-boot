@@ -11,7 +11,7 @@
 	#address-cells = <1>;
 	#size-cells = <1>;
 	spl-test {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "sandbox,spl-test";
 		boolval;
 		maybe-empty-int = <>;
@@ -27,7 +27,7 @@
 	};
 
 	spl-test2 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "sandbox,spl-test";
 		intval = <3>;
 		intarray = <5>;
@@ -40,7 +40,7 @@
 	};
 
 	spl-test3 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "sandbox,spl-test";
 		stringarray = "one";
 		longbytearray = [09 0a 0b 0c 0d 0e 0f 10];
@@ -49,12 +49,12 @@
 
 	i2c@0 {
 		compatible = "sandbox,i2c";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		#address-cells = <1>;
 		#size-cells = <0>;
 		pmic@9 {
 			compatible = "sandbox,pmic";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			reg = <9>;
 			low-power;
 		};

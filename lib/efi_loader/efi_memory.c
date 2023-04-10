@@ -5,9 +5,12 @@
  *  Copyright (c) 2016 Alexander Graf
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <common.h>
 #include <efi_loader.h>
 #include <init.h>
+#include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <watchdog.h>
@@ -33,7 +36,7 @@ struct efi_mem_list {
 #define EFI_CARVE_OVERLAPS_NONRAM	-3
 
 /* This list contains all memory map items */
-LIST_HEAD(efi_mem);
+static LIST_HEAD(efi_mem);
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 void *efi_bounce_buffer;
@@ -534,27 +537,6 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 }
 
 /**
- * efi_alloc() - allocate memory pages
- *
- * @len:		size of the memory to be allocated
- * @memory_type:	usage type of the allocated memory
- * Return:		pointer to the allocated memory area or NULL
- */
-void *efi_alloc(uint64_t len, int memory_type)
-{
-	uint64_t ret = 0;
-	uint64_t pages = efi_size_in_pages(len);
-	efi_status_t r;
-
-	r = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, memory_type, pages,
-			       &ret);
-	if (r == EFI_SUCCESS)
-		return (void*)(uintptr_t)ret;
-
-	return NULL;
-}
-
-/**
  * efi_free_pages() - free memory pages
  *
  * @memory:	start of the memory area to be freed
@@ -670,6 +652,28 @@ efi_status_t efi_allocate_pool(enum efi_memory_type pool_type, efi_uintn_t size,
 	}
 
 	return r;
+}
+
+/**
+ * efi_alloc() - allocate boot services data pool memory
+ *
+ * Allocate memory from pool and zero it out.
+ *
+ * @size:	number of bytes to allocate
+ * Return:	pointer to allocated memory or NULL
+ */
+void *efi_alloc(size_t size)
+{
+	void *buf;
+
+	if (efi_allocate_pool(EFI_BOOT_SERVICES_DATA, size, &buf) !=
+	    EFI_SUCCESS) {
+		log_err("out of memory");
+		return NULL;
+	}
+	memset(buf, 0, size);
+
+	return buf;
 }
 
 /**

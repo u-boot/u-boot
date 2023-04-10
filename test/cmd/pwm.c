@@ -27,11 +27,11 @@ static int dm_test_pwm_cmd(struct unit_test_state *uts)
 	/* pwm <invert> <pwm_dev_num> <channel> <polarity> */
 	/* cros-ec-pwm doesn't support invert */
 	ut_asserteq(1, run_command("pwm invert 0 0 1", 0));
-	ut_assert_nextline("error(-38)")
+	ut_assert_nextline("error(-38)");
 	ut_assert_console_end();
 
 	ut_asserteq(1, run_command("pwm invert 0 0 0", 0));
-	ut_assert_nextline("error(-38)")
+	ut_assert_nextline("error(-38)");
 	ut_assert_console_end();
 
 	/* pwm <config> <pwm_dev_num> <channel> <period_ns> <duty_ns> */

@@ -277,7 +277,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 	/* The first device is mmc2.bootdev which has no media */
 	ut_asserteq(-EPROTONOSUPPORT,
 		    bootflow_scan_first(NULL, NULL, &iter,
-					BOOTFLOWF_ALL | BOOTFLOWF_SKIP_GLOBAL, &bflow));
+					BOOTFLOWIF_ALL | BOOTFLOWIF_SKIP_GLOBAL, &bflow));
 	ut_asserteq(2, iter.num_methods);
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(0, iter.part);

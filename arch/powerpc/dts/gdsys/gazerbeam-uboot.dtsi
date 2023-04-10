@@ -21,13 +21,13 @@
 
 	cpus {
 		compatible = "cpu_bus";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		PowerPC,8308@0 {
 			compatible = "fsl,mpc8308";
 			clocks = <&socclocks MPC83XX_CLK_CORE
 			          &socclocks MPC83XX_CLK_CSB>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
@@ -66,7 +66,7 @@
 	socclocks: clocks {
 		compatible = "fsl,mpc8308-clk";
 		#clock-cells = <1>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	timer {
@@ -178,11 +178,11 @@
 };
 
 &board_soc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	clocks = <&socclocks MPC83XX_CLK_CSB>;
 
 	memory@2000 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	sdhc@2e000 {
@@ -228,21 +228,21 @@
 };
 
 &board_soc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &GPIO_VB0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &serial0 {
 	clocks = <&socclocks MPC83XX_CLK_CSB>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &serial1 {
 	clocks = <&socclocks MPC83XX_CLK_CSB>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pci0 {

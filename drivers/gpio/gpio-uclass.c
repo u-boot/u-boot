@@ -1171,6 +1171,13 @@ int gpio_request_by_line_name(struct udevice *dev, const char *line_name,
 {
 	int ret;
 
+	if (!dev) {
+		uclass_foreach_dev_probe(UCLASS_GPIO, dev)
+			if (!gpio_request_by_line_name(dev, line_name, desc, flags))
+				return 0;
+		return -ENOENT;
+	}
+
 	ret = dev_read_stringlist_search(dev, "gpio-line-names", line_name);
 	if (ret < 0)
 		return ret;

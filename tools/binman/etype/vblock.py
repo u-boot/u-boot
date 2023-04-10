@@ -13,7 +13,7 @@ from binman.entry import EntryArg
 from binman.etype.collection import Entry_collection
 
 from dtoc import fdt_util
-from patman import tools
+from u_boot_pylib import tools
 
 class Entry_vblock(Entry_collection):
     """An entry which contains a Chromium OS verified boot block

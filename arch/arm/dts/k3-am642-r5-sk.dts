@@ -27,7 +27,7 @@
 		device_type = "memory";
 		/* 2G RAM */
 		reg = <0x00000000 0x80000000 0x00000000 0x80000000>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	a53_0: a53@0 {
@@ -43,7 +43,7 @@
 		ti,sci = <&dmsc>;
 		ti,sci-proc-id = <32>;
 		ti,sci-host-id = <10>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	reserved-memory {
@@ -62,7 +62,7 @@
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <200000000>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -71,7 +71,7 @@
 		compatible = "ti,am654-system-controller";
 		mboxes= <&secure_proxy_main 1>, <&secure_proxy_main 0>;
 		mbox-names = "tx", "rx";
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -80,24 +80,24 @@
 		compatible = "ti,j721e-esm";
 		reg = <0x0 0x420000 0x0 0x1000>;
 		ti,esm-pins = <160>, <161>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &cbass_mcu {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	mcu_esm: esm@4100000 {
 		compatible = "ti,j721e-esm";
 		reg = <0x0 0x4100000 0x0 0x1000>;
 		ti,esm-pins = <0>, <1>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &main_pmx0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	main_uart0_pins_default: main-uart0-pins-default {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		pinctrl-single,pins = <
 			AM64X_IOPAD(0x0238, PIN_INPUT, 0)		/* (B16) UART0_CTSn */
 			AM64X_IOPAD(0x023c, PIN_OUTPUT, 0)		/* (A16) UART0_RTSn */
@@ -107,7 +107,7 @@
 	};
 
 	main_uart1_pins_default: main-uart1-pins-default {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		pinctrl-single,pins = <
 			AM64X_IOPAD(0x0248, PIN_INPUT, 0)		/* (D16) UART1_CTSn */
 			AM64X_IOPAD(0x024c, PIN_OUTPUT, 0)		/* (E16) UART1_RTSn */
@@ -117,7 +117,7 @@
 	};
 
 	main_mmc1_pins_default: main-mmc1-pins-default {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		pinctrl-single,pins = <
 			AM64X_IOPAD(0x0294, PIN_INPUT_PULLUP, 0)	/* (J19) MMC1_CMD */
 			AM64X_IOPAD(0x028c, PIN_INPUT_PULLDOWN, 0)	/* (L20) MMC1_CLK */
@@ -131,7 +131,7 @@
 	};
 
 	main_usb0_pins_default: main-usb0-pins-default {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		pinctrl-single,pins = <
 			AM64X_IOPAD(0x02a8, PIN_OUTPUT, 0) /* (E19) USB0_DRVVBUS */
 		>;
@@ -198,7 +198,7 @@
 };
 
 &main_uart1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_uart1_pins_default>;
 };

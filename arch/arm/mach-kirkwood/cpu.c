@@ -189,9 +189,6 @@ int arch_cpu_init(void)
 	struct kwcpu_registers *cpureg =
 		(struct kwcpu_registers *)KW_CPU_REG_BASE;
 
-	/* Linux expects the internal registers to be at 0xf1000000 */
-	writel(KW_REGS_PHY_BASE, KW_OFFSET_REG);
-
 	/* Enable and invalidate L2 cache in write through mode */
 	writel(readl(&cpureg->l2_cfg) | 0x18, &cpureg->l2_cfg);
 	invalidate_l2_cache();

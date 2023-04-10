@@ -14,14 +14,14 @@ void bootm_announce_and_cleanup(void);
  * This boots a kernel image, either 32-bit or 64-bit. It will also work with
  * a self-extracting kernel, if you set @image_64bit to false.
  *
- * @setup_base:		Pointer to the setup.bin information for the kernel
- * @load_address:	Pointer to the start of the kernel image
- * @image_64bit:	true if the image is a raw 64-bit kernel, false if it
- *			is raw 32-bit or any type of self-extracting kernel
- *			such as a bzImage.
+ * @setup_base:		Address of the setup.bin information for the kernel
+ * @entry:		Address of the kernel entry point
+ * @image_64bit:	true if the image is a raw 64-bit kernel, or a kernel
+ * which supports booting in 64-bit mode; false if it is raw 32-bit or any type
+ * of self-extracting kernel such as a bzImage.
  * Return: -ve error code. This function does not return if the kernel was
  * booted successfully.
  */
-int boot_linux_kernel(ulong setup_base, ulong load_address, bool image_64bit);
+int boot_linux_kernel(ulong setup_base, ulong entry, bool image_64bit);
 
 #endif

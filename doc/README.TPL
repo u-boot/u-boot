@@ -35,8 +35,8 @@ is set. Source files can be compiled for TPL with options chosen in the
 board config file.
 
 TPL use a small device tree (u-boot-tpl.dtb), containing only the nodes with
-the pre-relocation properties: 'u-boot,dm-pre-reloc' and 'u-boot,dm-tpl'
-(see README.SPL for details).
+the pre-relocation properties: 'bootph-all' and 'bootph-pre-sram'
+(see doc/develop/spl.rst for details).
 
 For example:
 

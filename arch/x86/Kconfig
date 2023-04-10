@@ -32,8 +32,8 @@ config X86_RUN_32BIT
 config X86_RUN_64BIT
 	bool "64-bit"
 	select X86_64
-	select SPL
-	select SPL_SEPARATE_BSS
+	select SPL if !EFI_APP
+	select SPL_SEPARATE_BSS if !EFI_APP
 	help
 	  Build U-Boot as a 64-bit binary with a 32-bit SPL. This is
 	  experimental and many features are missing. U-Boot SPL starts up,

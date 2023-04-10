@@ -39,7 +39,7 @@
 	 * Memory configuration from sdram datasheet IS42S32800G-6BLI
 	 */
 	bank1: bank@0 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		st,sdram-control = /bits/ 8 <NO_COL_9
 					     NO_ROW_12
 					     MWIDTH_32
@@ -166,12 +166,12 @@
 	};
 
 	usart1_pins_a: usart1-0	{
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		pins1 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 		pins2 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 };

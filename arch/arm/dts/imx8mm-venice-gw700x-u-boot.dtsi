@@ -12,13 +12,13 @@
 };
 
 &pinctrl_fec1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &{/soc@0/bus@30800000/i2c@30a20000/pmic@69} {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &{/soc@0/bus@30800000/i2c@30a20000/pmic@69/regulators} {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

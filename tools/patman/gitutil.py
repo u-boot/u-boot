@@ -5,9 +5,9 @@
 import os
 import sys
 
-from patman import command
 from patman import settings
-from patman import terminal
+from u_boot_pylib import command
+from u_boot_pylib import terminal
 
 # True to use --no-decorate - we check this in setup()
 use_no_decorate = True

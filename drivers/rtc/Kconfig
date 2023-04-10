@@ -134,6 +134,19 @@ config RTC_ISL1208
 	  This driver supports reading and writing the RTC/calendar and detects
 	  total power failures.
 
+config RTC_MAX313XX
+	bool "Analog Devices MAX313XX RTC driver"
+	depends on DM_RTC
+	depends on DM_I2C
+	help
+	  If you say yes here you will get support for the
+	  Analog Devices MAX313XX series RTC family.
+
+	  Chip features not currently supported:
+	  - Timestamp registers as SRAM
+	  - Temperature sensor
+	  - CLKOUT generation
+
 config RTC_PCF8563
 	tristate "Philips PCF8563"
 	help
@@ -230,6 +243,24 @@ config RTC_M41T62
 	help
 	  Enable driver for ST's M41T62 compatible RTC devices (like RV-4162).
 	  It is a serial (I2C) real-time clock (RTC) with alarm.
+
+config RTC_SANDBOX
+	bool "Enable sandbox RTC driver"
+	depends on SANDBOX && DM_RTC
+	default y
+	help
+	  Enable the sandbox RTC driver. This driver connects to the RTC
+	  emulator and is used to test the RTC uclasses and associated code,
+	  as well as the I2C subsystem.
+
+config SPL_RTC_SANDBOX
+	bool "Enable sandbox RTC driver (SPL)"
+	depends on SANDBOX && SPL_DM_RTC
+	default y
+	help
+	  Enable the sandbox RTC driver. This driver connects to the RTC
+	  emulator and is used to test the RTC uclasses and associated code,
+	  as well as the I2C subsystem.
 
 config RTC_STM32
 	bool "Enable STM32 RTC driver"

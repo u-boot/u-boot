@@ -3,7 +3,7 @@
 VERSION = 2023
 PATCHLEVEL = 04
 SUBLEVEL =
-EXTRAVERSION = -rc3
+EXTRAVERSION =
 NAME =
 
 # *DOCUMENTATION*
@@ -522,7 +522,7 @@ env_h := include/generated/environment.h
 no-dot-config-targets := clean clobber mrproper distclean \
 			 help %docs check% coccicheck \
 			 ubootversion backup tests check pcheck qcheck tcheck \
-			 pylint pylint_err
+			 pylint pylint_err _pip pip pip_test pip_release
 
 config-targets := 0
 mixed-targets  := 0
@@ -790,6 +790,7 @@ KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
 # See modpost pattern 2
 KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
 KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
+KBUILD_CFLAGS += $(call cc-disable-warning, deprecated-non-prototype)
 endif
 
 # These warnings generated too much noise in a regular build.
@@ -957,7 +958,6 @@ endif
 # Always append INPUTS so that arch config.mk's can add custom ones
 INPUTS-y += u-boot.srec u-boot.bin u-boot.sym System.map binary_size_check
 
-INPUTS-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
 INPUTS-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
 else
@@ -1520,6 +1520,9 @@ endif
 #endif
 
 u-boot.uim: u-boot.bin FORCE
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
+
+u-boot-nand.imx: u-boot.imx FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
 u-boot-with-spl.imx u-boot-with-nand-spl.imx: SPL $(if $(CONFIG_OF_SEPARATE),u-boot.img,u-boot.uim) FORCE
@@ -2274,6 +2277,21 @@ backup:
 	F=`basename $(srctree)` ; cd .. ; \
 	gtar --force-local -zcvf `LC_ALL=C date "+$$F-%Y-%m-%d-%T.tar.gz"` $$F
 
+PHONY += _pip pip pip_release
+
+pip_release: PIP_ARGS="--real"
+pip_test: PIP_ARGS=""
+pip: PIP_ARGS="-n"
+
+pip pip_test pip_release: _pip
+
+_pip:
+	scripts/make_pip.sh u_boot_pylib ${PIP_ARGS}
+	scripts/make_pip.sh patman ${PIP_ARGS}
+	scripts/make_pip.sh buildman ${PIP_ARGS}
+	scripts/make_pip.sh dtoc ${PIP_ARGS}
+	scripts/make_pip.sh binman ${PIP_ARGS}
+
 help:
 	@echo  'Cleaning targets:'
 	@echo  '  clean		  - Remove most generated files but keep the config'
@@ -2306,6 +2324,11 @@ help:
 	@echo  '  ubootversion	  - Output the version stored in Makefile (use with make -s)'
 	@echo  "  cfg		  - Don't build, just create the .cfg files"
 	@echo  "  envtools	  - Build only the target-side environment tools"
+	@echo  ''
+	@echo  'PyPi / pip targets:'
+	@echo  '  pip             - Check building of PyPi packages'
+	@echo  '  pip_test        - Build PyPi pakages and upload to test server'
+	@echo  '  pip_release     - Build PyPi pakages and upload to release server'
 	@echo  ''
 	@echo  'Static analysers'
 	@echo  '  checkstack      - Generate a list of stack hogs'

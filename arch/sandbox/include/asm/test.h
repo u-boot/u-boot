@@ -300,6 +300,7 @@ void sandbox_cros_ec_set_test_flags(struct udevice *dev, uint flags);
  */
 int sandbox_cros_ec_get_pwm_duty(struct udevice *dev, uint index, uint *duty);
 
+#if IS_ENABLED(CONFIG_SANDBOX_SDL)
 /**
  * sandbox_sdl_set_bpp() - Set the depth of the sandbox display
  *
@@ -315,6 +316,13 @@ int sandbox_cros_ec_get_pwm_duty(struct udevice *dev, uint index, uint *duty);
  * after the change
  */
 int sandbox_sdl_set_bpp(struct udevice *dev, enum video_log2_bpp l2bpp);
+#else
+static inline int sandbox_sdl_set_bpp(struct udevice *dev,
+				      enum video_log2_bpp l2bpp)
+{
+	return -ENOSYS;
+}
+#endif
 
 /**
  * sandbox_set_fake_efi_mgr_dev() - Control EFI bootmgr producing valid bootflow

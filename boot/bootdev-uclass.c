@@ -629,11 +629,11 @@ int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp)
 			if (++iter->cur_prio == BOOTDEVP_COUNT)
 				return log_msg_ret("fin", -ENODEV);
 
-			if (iter->flags & BOOTFLOWF_HUNT) {
+			if (iter->flags & BOOTFLOWIF_HUNT) {
 				/* hunt to find new bootdevs */
 				ret = bootdev_hunt_prio(iter->cur_prio,
 							iter->flags &
-							BOOTFLOWF_SHOW);
+							BOOTFLOWIF_SHOW);
 				log_debug("- hunt ret %d\n", ret);
 				if (ret)
 					return log_msg_ret("hun", ret);
@@ -657,7 +657,7 @@ int bootdev_setup_iter(struct bootflow_iter *iter, const char *label,
 		       struct udevice **devp, int *method_flagsp)
 {
 	struct udevice *bootstd, *dev = NULL;
-	bool show = iter->flags & BOOTFLOWF_SHOW;
+	bool show = iter->flags & BOOTFLOWIF_SHOW;
 	int method_flags;
 	int ret;
 
@@ -668,7 +668,7 @@ int bootdev_setup_iter(struct bootflow_iter *iter, const char *label,
 	}
 
 	/* hunt for any pre-scan devices */
-	if (iter->flags & BOOTFLOWF_HUNT) {
+	if (iter->flags & BOOTFLOWIF_HUNT) {
 		ret = bootdev_hunt_prio(BOOTDEVP_1_PRE_SCAN, show);
 		if (ret)
 			return log_msg_ret("pre", ret);
@@ -676,7 +676,7 @@ int bootdev_setup_iter(struct bootflow_iter *iter, const char *label,
 
 	/* Handle scanning a single device */
 	if (IS_ENABLED(CONFIG_BOOTSTD_FULL) && label) {
-		if (iter->flags & BOOTFLOWF_HUNT) {
+		if (iter->flags & BOOTFLOWIF_HUNT) {
 			ret = bootdev_hunt(label, show);
 			if (ret)
 				return log_msg_ret("hun", ret);
@@ -687,11 +687,11 @@ int bootdev_setup_iter(struct bootflow_iter *iter, const char *label,
 
 		log_debug("method_flags: %x\n", method_flags);
 		if (method_flags & BOOTFLOW_METHF_SINGLE_UCLASS)
-			iter->flags |= BOOTFLOWF_SINGLE_UCLASS;
+			iter->flags |= BOOTFLOWIF_SINGLE_UCLASS;
 		else if (method_flags & BOOTFLOW_METHF_SINGLE_DEV)
-			iter->flags |= BOOTFLOWF_SINGLE_DEV;
+			iter->flags |= BOOTFLOWIF_SINGLE_DEV;
 		else
-			iter->flags |= BOOTFLOWF_SINGLE_MEDIA;
+			iter->flags |= BOOTFLOWIF_SINGLE_MEDIA;
 		log_debug("Selected label: %s, flags %x\n", label, iter->flags);
 	} else {
 		bool ok;

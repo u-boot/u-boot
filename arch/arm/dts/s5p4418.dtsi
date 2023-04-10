@@ -95,7 +95,7 @@
 		compatible = "nexell,nexell-display";
 		reg = <0xc0102800 0x100>;
 		index = <0>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		status = "disabled";
 	};
 
@@ -165,7 +165,7 @@
 	pinctrl@C0010000 {
 		compatible = "nexell,s5pxx18-pinctrl";
 		reg = <0xc0010000 0xf000>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	uart0:uart@c00a1000 {

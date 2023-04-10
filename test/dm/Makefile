@@ -29,6 +29,7 @@ obj-$(CONFIG_ADC) += adc.o
 obj-$(CONFIG_SOUND) += audio.o
 obj-$(CONFIG_AXI) += axi.o
 obj-$(CONFIG_BLK) += blk.o
+obj-$(CONFIG_BLKMAP) += blkmap.o
 obj-$(CONFIG_BUTTON) += button.o
 obj-$(CONFIG_DM_BOOTCOUNT) += bootcount.o
 obj-$(CONFIG_DM_REBOOT_MODE) += reboot-mode.o

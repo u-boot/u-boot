@@ -1023,14 +1023,15 @@ U-Boot's build system embeds information such as a build timestamp into the
 final binary. This information varies each time U-Boot is built. This causes
 various files to be rebuilt even if no source changes are made, which in turn
 requires that the final U-Boot binary be re-linked. This unnecessary work can
-be avoided by turning off the timestamp feature. This can be achieved by
-setting the SOURCE_DATE_EPOCH environment variable to 0.
+be avoided by turning off the timestamp feature. This can be achieved using
+the `-r` flag, which enables reproducible builds by setting
+`SOURCE_DATE_EPOCH=0` when building.
 
 Combining all of these options together yields the command-line shown below.
 This will provide the quickest possible feedback regarding the current content
 of the source tree, thus allowing rapid tested evolution of the code::
 
-    SOURCE_DATE_EPOCH=0 ./tools/buildman/buildman -P tegra
+    ./tools/buildman/buildman -Pr tegra
 
 
 Checking configuration
@@ -1108,6 +1109,8 @@ and 'brppt1_spi', removing a trailing semicolon. 'brppt1_nand' gained an a
 value for 'altbootcmd', but lost one for ' altbootcmd'.
 
 The -U option uses the u-boot.env files which are produced by a build.
+Internally, buildman writes out an out-env file into the build directory for
+later comparison.
 
 
 Building with clang
@@ -1119,6 +1122,20 @@ toolchain. For example:
 .. code-block:: bash
 
    buildman -O clang-7 --board sandbox
+
+
+Building without LTO
+--------------------
+
+Link-time optimisation (LTO) is designed to reduce code size by globally
+optimising the U-Boot build. Unfortunately this can dramatically slow down
+builds. This is particularly noticeable when running a lot of builds.
+
+Use the -L (--no-lto) flag to disable LTO.
+
+.. code-block:: bash
+
+   buildman -L --board sandbox
 
 
 Doing a simple build
@@ -1297,6 +1314,14 @@ of the file - in that case buildman exits after writing the file. with exit code
 You should use 'buildman -nv <criteria>' instead of greoing the boards.cfg file,
 since it may be dropped altogether in future.
 
+
+Checking the command
+--------------------
+
+Buildman writes out the toolchain information to a `toolchain` file within the
+output directory. It also writes the commands used to build U-Boot in an
+`out-cmd` file. You can check these if you suspect something strange is
+happening.
 
 TODO
 ----

@@ -13,9 +13,9 @@ import shutil
 import struct
 import tempfile
 
-from patman import command
-from patman import tools
-from patman import tout
+from u_boot_pylib import command
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 ELF_TOOLS = True
 try:

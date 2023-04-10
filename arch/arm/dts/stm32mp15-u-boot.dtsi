@@ -26,16 +26,16 @@
 	};
 
 	clocks {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	/* need PSCI for sysreset during board_f */
 	psci {
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 	};
 
 	reboot {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "syscon-reboot";
 		regmap = <&rcc>;
 		offset = <0x404>;
@@ -43,10 +43,10 @@
 	};
 
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		ddr: ddr@5a003000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			compatible = "st,stm32mp1-ddr";
 
@@ -59,94 +59,94 @@
 };
 
 &bsec {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &clk_csi {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &clk_hsi {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &clk_hse {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &clk_lsi {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &clk_lse {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &cpu0_opp_table {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	opp-650000000 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 	opp-800000000 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &gpioa {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpiob {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpioc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpiod {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpioe {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpiof {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpiog {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpioh {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpioi {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpioj {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpiok {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpioz {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &iwdg2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 /* pre-reloc probe = reserve video frame buffer in video_reserve() */
 &ltdc {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 };
 
 /* temp = waiting kernel update */
@@ -157,19 +157,19 @@
 };
 
 &pinctrl {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_z {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pwr_regulators {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &rcc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	#address-cells = <1>;
 	#size-cells = <0>;
 };

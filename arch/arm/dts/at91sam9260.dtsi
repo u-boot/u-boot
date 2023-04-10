@@ -77,14 +77,14 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		apb {
 			compatible = "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			aic: interrupt-controller@fffff000 {
 				#interrupt-cells = <3>;
@@ -107,7 +107,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				#interrupt-cells = <1>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				main_osc: main_osc {
 					compatible = "atmel,at91rm9200-clk-main-osc";
@@ -165,7 +165,7 @@
 					clocks = <&clk32k>, <&main>, <&plla>, <&pllb>;
 					atmel,clk-output-range = <0 105000000>;
 					atmel,clk-divisors = <1 2 4 0>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				usb: usbck {
@@ -230,24 +230,24 @@
 					#address-cells = <1>;
 					#size-cells = <0>;
 					clocks = <&mck>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 
 					pioA_clk: pioA_clk@2 {
 						#clock-cells = <0>;
 						reg = <2>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					pioB_clk: pioB_clk@3 {
 						#clock-cells = <0>;
 						reg = <3>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					pioC_clk: pioC_clk@4 {
 						#clock-cells = <0>;
 						reg = <4>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					adc_clk: adc_clk@5 {
@@ -410,7 +410,7 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				clocks = <&pioA_clk>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			pioB: gpio@fffff600 {
@@ -422,7 +422,7 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				clocks = <&pioB_clk>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			pioC: gpio@fffff800 {
@@ -434,7 +434,7 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				clocks = <&pioC_clk>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			pinctrl: pinctrl@fffff400 {
@@ -453,11 +453,11 @@
 				       0xffffffff 0x7fff3ccf  /* pioB */
 				       0xffffffff 0x007fffff  /* pioC */
 				      >;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				/* shared pinctrl settings */
 				dbgu {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					pinctrl_dbgu: dbgu-0 {
 						atmel,pins =
 							<AT91_PIOB 14 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB14 periph A */

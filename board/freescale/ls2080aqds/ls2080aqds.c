@@ -227,7 +227,7 @@ int board_init(void)
 	ppa_init();
 #endif
 
-#if !defined(CONFIG_SYS_EARLY_PCI_INIT) && defined(CONFIG_DM_ETH)
+#if !defined(CONFIG_SYS_EARLY_PCI_INIT)
 	pci_init();
 #endif
 

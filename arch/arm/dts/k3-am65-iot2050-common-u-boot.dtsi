@@ -15,18 +15,18 @@
 	};
 
 	leds {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		status-led-red {
-			u-boot,dm-spl;
+			bootph-pre-ram;
 		};
 		status-led-green {
-			u-boot,dm-spl;
+			bootph-pre-ram;
 		};
 	};
 };
 
 &cbass_mcu {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 
 	mcu_navss: bus@28380000 {
 		ringacc@2b800000 {
@@ -53,70 +53,70 @@
 };
 
 &cbass_wakeup {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &cbass_main {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	main_navss: bus@30800000 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &wkup_pmx0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	mcu-fss0-ospi0-pins-default {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &main_pmx0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	main-uart1-pins-default {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &main_uart1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	current-speed = <115200>;
 };
 
 &wkup_gpio0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &ospi0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	flash@0 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &secure_proxy_main {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &dmsc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	k3_sysreset: sysreset-controller {
 		compatible = "ti,sci-sysreset";
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &k3_pds {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &k3_clks {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &k3_reset {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &fss {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

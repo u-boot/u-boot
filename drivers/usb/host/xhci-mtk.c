@@ -14,8 +14,9 @@
 #include <power/regulator.h>
 #include <usb.h>
 #include <usb/xhci.h>
-#include <linux/errno.h>
+#include <linux/bitfield.h>
 #include <linux/compat.h>
+#include <linux/errno.h>
 #include <linux/iopoll.h>
 
 /* IPPC (IP Port Control) registers */
@@ -50,6 +51,25 @@
 #define IPPC_U3_CTRL(p)	(IPPC_U3_CTRL_0P + ((p) * 0x08))
 #define IPPC_U2_CTRL(p)	(IPPC_U2_CTRL_0P + ((p) * 0x08))
 
+/* xHCI CSR */
+#define LS_EOF_CFG		0x930
+#define LSEOF_OFFSET		0x89
+
+#define FS_EOF_CFG		0x934
+#define FSEOF_OFFSET		0x2e
+
+#define SS_GEN1_EOF_CFG		0x93c
+#define SSG1EOF_OFFSET		0x78
+
+#define HFCNTR_CFG		0x944
+#define ITP_DELTA_CLK_MASK	GENMASK(5, 1)
+#define FRMCNT_LEV1_RANG_MASK	GENMASK(19, 8)
+
+#define SS_GEN2_EOF_CFG		0x990
+#define SSG2EOF_OFFSET		0x3c
+
+#define XSEOF_OFFSET_MASK	GENMASK(11, 0)
+
 struct mtk_xhci {
 	struct xhci_ctrl ctrl;	/* Needs to come first in this struct! */
 	struct xhci_hccr *hcd;
@@ -64,6 +84,30 @@ struct mtk_xhci {
 	u32 u3p_dis_msk;
 	u32 u2p_dis_msk;
 };
+
+/*
+ * workaround for mt8195:
+ * MT8195 has 4 controllers, the controller1~3's default SOF/ITP interval
+ * is calculated from the frame counter clock 24M, but in fact, the clock
+ * is 48M.
+ */
+static void xhci_mtk_set_frame_interval(struct mtk_xhci *mtk)
+{
+	void __iomem *mac = (void __iomem *)mtk->hcd;
+
+	if (!ofnode_device_is_compatible(dev_ofnode(mtk->dev), "mediatek,mt8195-xhci"))
+		return;
+
+	clrsetbits_le32(mac + HFCNTR_CFG,
+			ITP_DELTA_CLK_MASK | FRMCNT_LEV1_RANG_MASK,
+			FIELD_PREP(ITP_DELTA_CLK_MASK, 0xa) |
+			FIELD_PREP(FRMCNT_LEV1_RANG_MASK, 0x12b));
+
+	clrsetbits_le32(mac + LS_EOF_CFG, XSEOF_OFFSET_MASK, LSEOF_OFFSET);
+	clrsetbits_le32(mac + FS_EOF_CFG, XSEOF_OFFSET_MASK, FSEOF_OFFSET);
+	clrsetbits_le32(mac + SS_GEN1_EOF_CFG, XSEOF_OFFSET_MASK, SSG1EOF_OFFSET);
+	clrsetbits_le32(mac + SS_GEN2_EOF_CFG, XSEOF_OFFSET_MASK, SSG2EOF_OFFSET);
+}
 
 static int xhci_mtk_host_enable(struct mtk_xhci *mtk)
 {
@@ -278,6 +322,8 @@ static int xhci_mtk_probe(struct udevice *dev)
 	if (ret)
 		goto ssusb_init_err;
 
+	xhci_mtk_set_frame_interval(mtk);
+
 	mtk->ctrl.quirks = XHCI_MTK_HOST;
 	hcor = (struct xhci_hcor *)((uintptr_t)mtk->hcd +
 			HC_LENGTH(xhci_readl(&mtk->hcd->cr_capbase)));
@@ -308,6 +354,7 @@ static int xhci_mtk_remove(struct udevice *dev)
 
 static const struct udevice_id xhci_mtk_ids[] = {
 	{ .compatible = "mediatek,mtk-xhci" },
+	{ .compatible = "mediatek,mt8195-xhci" },
 	{ }
 };
 

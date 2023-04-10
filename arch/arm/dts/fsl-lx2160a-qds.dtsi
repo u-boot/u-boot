@@ -2,7 +2,7 @@
 /*
  * NXP LX2160AQDS common device tree source
  *
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2020, 2023 NXP
  *
  */
 
@@ -11,6 +11,7 @@
 / {
 	aliases {
 		spi0 = &fspi;
+		serial0 = &uart0;
 	};
 };
 
@@ -143,7 +144,7 @@
 
 &i2c0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	fpga@66 {
 		#address-cells = <1>;
@@ -284,5 +285,13 @@
 };
 
 &sata3 {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&uart1 {
 	status = "okay";
 };

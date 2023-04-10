@@ -13,12 +13,6 @@
 
 #include <linux/sizes.h>
 
-/* SPL Loader Configuration */
-
-/* U-Boot general configuration */
-#define EXTRA_ENV_IOT2050_BOARD_SETTINGS				\
-	"usb_pgood_delay=900\0"
-
 #if IS_ENABLED(CONFIG_CMD_USB)
 # define BOOT_TARGET_USB(func) \
 	func(USB, usb, 0) \
@@ -40,11 +34,18 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CFG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS						\
 	DEFAULT_LINUX_BOOT_ENV						\
-	BOOTENV								\
-	EXTRA_ENV_IOT2050_BOARD_SETTINGS
+	BOOTENV
 
 #include <configs/ti_armv7_common.h>
+
+#ifdef CONFIG_ENV_WRITEABLE_LIST
+#define CFG_ENV_FLAGS_LIST_STATIC					\
+	"board_uuid:sw,board_name:sw,board_serial:sw,board_a5e:sw,"	\
+	"mlfb:sw,fw_version:sw,seboot_version:sw,"			\
+	"m2_manuel_config:sw,"						\
+	"eth1addr:mw,eth2addr:mw,watchdog_timeout_ms:dw,boot_targets:sw"
+#endif
 
 #endif /* __CONFIG_IOT2050_H */

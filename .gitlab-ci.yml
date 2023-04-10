@@ -1,8 +1,16 @@
 # SPDX-License-Identifier: GPL-2.0+
 
+variables:
+  DEFAULT_TAG: ""
+  MIRROR_DOCKER: docker.io
+
+default:
+  tags:
+    - ${DEFAULT_TAG}
+
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: trini/u-boot-gitlab-ci-runner:jammy-20230126-10Feb2023
+image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20230308-04Apr2023
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -30,6 +38,7 @@ stages:
       fi
 
   after_script:
+    - cp -v /tmp/${TEST_PY_BD}/*.{html,css} .
     - rm -rf /tmp/uboot-test-hooks /tmp/venv
   script:
     # If we've been asked to use clang only do one configuration.
@@ -76,10 +85,12 @@ stages:
       ./test/py/test.py -ra --bd ${TEST_PY_BD} ${TEST_PY_ID}
         ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
         --build-dir "$UBOOT_TRAVIS_BUILD_DIR"
-    # It seems that the files in /tmp go away, so copy out what we need
-    - if [[ "${TEST_PY_BD}" == "coreboot" ]]; then
-        cp -v /tmp/coreboot/*.{html,css} .;
-      fi
+  artifacts:
+    when: always
+    paths:
+      - "*.html"
+      - "*.css"
+    expire_in: 1 week
 
 build all 32bit ARM platforms:
   stage: world build
@@ -213,7 +224,14 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
 Run tests for Nokia RX-51 (aka N900):
   stage: testsuites
   script:
-    - export PATH=/opt/gcc-12.2.0-nolibc/arm-linux-gnueabi/bin:$PATH;
+    - mkdir nokia_rx51_tmp;
+      ln -s /opt/nokia/u-boot-gen-combined nokia_rx51_tmp/;
+      ln -s /opt/nokia/qemu-n900.tar.gz nokia_rx51_tmp/;
+      ln -s /opt/nokia/kernel_2.6.28-20103103+0m5_armel.deb nokia_rx51_tmp/;
+      ln -s /opt/nokia/libc6_2.5.1-1eglibc27+0m5_armel.deb nokia_rx51_tmp/;
+      ln -s /opt/nokia/busybox_1.10.2.legal-1osso30+0m5_armel.deb nokia_rx51_tmp/;
+      ln -s /opt/nokia/qemu-system-arm nokia_rx51_tmp/;
+      export PATH=/opt/gcc-12.2.0-nolibc/arm-linux-gnueabi/bin:$PATH;
       test/nokia_rx51_test.sh
 
 # Check for any pylint regressions
@@ -235,6 +253,21 @@ Run pylint:
     - export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt"
     - make pylint_err
 
+# Check for pre-schema driver model tags
+Check for pre-schema tags:
+  stage: testsuites
+  script:
+    - git config --global --add safe.directory "${CI_PROJECT_DIR}";
+    # If grep succeeds and finds a match the test fails as we should
+    # have no matches.
+    - git grep u-boot,dm- -- '*.dts*' && exit 1 || exit 0
+
+# Check we can package the Python tools
+Check packing of Python tools:
+  stage: testsuites
+  script:
+    - make pip
+
 # Test sandbox with test.py
 sandbox test.py:
   variables:
@@ -244,7 +277,7 @@ sandbox test.py:
 sandbox with clang test.py:
   variables:
     TEST_PY_BD: "sandbox"
-    OVERRIDE: "-O clang-14"
+    OVERRIDE: "-O clang-16"
   <<: *buildman_and_testpy_dfn
 
 sandbox without LTO test.py:
@@ -268,7 +301,7 @@ sandbox_noinst_test.py:
 sandbox_vpl test.py:
   variables:
     TEST_PY_BD: "sandbox_vpl"
-    TEST_PY_TEST_SPEC: "test_vpl_help or test_spl"
+    TEST_PY_TEST_SPEC: "vpl or test_spl"
   <<: *buildman_and_testpy_dfn
 
 # Enable tracing and disable LTO, to ensure functions are not elided
@@ -454,9 +487,4 @@ coreboot test.py:
     TEST_PY_BD: "coreboot"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
-  artifacts:
-    paths:
-      - "*.html"
-      - "*.css"
-    expire_in: 1 week
   <<: *buildman_and_testpy_dfn

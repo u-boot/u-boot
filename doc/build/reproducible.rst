@@ -23,3 +23,5 @@ This date is shown when we launch U-Boot:
 
     ./u-boot -T
     U-Boot 2023.01 (Jan 01 2023 - 00:00:00 +0000)
+
+The same effect can be obtained with buildman using the `-r` flag.

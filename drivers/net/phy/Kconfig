@@ -106,6 +106,9 @@ config PHY_AQUANTIA_FW_NAME
 config PHY_ATHEROS
 	bool "Atheros Ethernet PHYs support"
 
+config SPL_PHY_ATHEROS
+	bool "Atheros Ethernet PHYs support (SPL)"
+
 config PHY_BROADCOM
 	bool "Broadcom Ethernet PHYs support"
 
@@ -170,6 +173,11 @@ config PHY_LXT
 
 config PHY_MARVELL
 	bool "Marvell Ethernet PHYs support"
+
+config PHY_MARVELL_10G
+	bool "Marvell Alaska 10Gbit PHYs"
+	help
+	  Support for the Marvell Alaska MV88X3310 and compatible PHYs.
 
 config PHY_MESON_GXL
 	bool "Amlogic Meson GXL Internal PHY support"

@@ -4,6 +4,7 @@ Use U-Boot
 .. toctree::
    :maxdepth: 1
 
+   blkmap
    dfu
    environment
    fdt_overlays
@@ -38,11 +39,13 @@ Shell commands
    cmd/cbsysinfo
    cmd/cls
    cmd/cmp
+   cmd/coninfo
    cmd/conitrace
    cmd/cyclic
    cmd/dm
    cmd/ebtupdate
    cmd/echo
+   cmd/efi
    cmd/eficonfig
    cmd/env
    cmd/event
@@ -65,12 +68,14 @@ Shell commands
    cmd/md
    cmd/mmc
    cmd/mtest
+   cmd/panic
    cmd/part
    cmd/pause
    cmd/pinmux
    cmd/printenv
    cmd/pstore
    cmd/qfw
+   cmd/read
    cmd/reset
    cmd/rng
    cmd/sbi
@@ -91,6 +96,7 @@ Shell commands
    cmd/ut
    cmd/wdt
    cmd/wget
+   cmd/write
    cmd/xxd
 
 Booting OS

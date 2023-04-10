@@ -64,15 +64,15 @@
 	status = "okay";
 };
 
-&emmc {
-	status = "okay";
-};
-
 &usb2 {
 	status = "okay";
 };
 
 &usb3 {
+	status = "okay";
+};
+
+&emmc {
 	status = "okay";
 };
 

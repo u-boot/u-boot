@@ -504,13 +504,24 @@ static int do_zboot_info(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_zboot_go(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
+	struct boot_params *params = state.base_ptr;
+	struct setup_header *hdr = &params->hdr;
+	bool image_64bit;
+	ulong entry;
 	int ret;
 
 	disable_interrupts();
 
+	entry = state.load_address;
+	image_64bit = false;
+	if (IS_ENABLED(CONFIG_X86_RUN_64BIT) &&
+	    (hdr->xloadflags & XLF_KERNEL_64)) {
+		entry += 0x200;
+		image_64bit = true;
+	}
+
 	/* we assume that the kernel is in place */
-	ret = boot_linux_kernel((ulong)state.base_ptr, state.load_address,
-				false);
+	ret = boot_linux_kernel((ulong)state.base_ptr, entry, image_64bit);
 	printf("Kernel returned! (err=%d)\n", ret);
 
 	return CMD_RET_FAILURE;
@@ -655,7 +666,7 @@ void zimage_dump(struct boot_params *base_ptr)
 		printf("%-20s  %s\n", "", "Ancient kernel, using version 100");
 	print_num("Version", hdr->version);
 	print_num("Real mode switch", hdr->realmode_swtch);
-	print_num("Start sys", hdr->start_sys);
+	print_num("Start sys seg", hdr->start_sys_seg);
 	print_num("Kernel version", hdr->kernel_version);
 	version = get_kernel_version(base_ptr, (void *)state.bzimage_addr);
 	if (version)

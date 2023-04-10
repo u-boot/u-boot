@@ -98,8 +98,8 @@ int cli_readline(const char *const prompt);
  *
  * @prompt:	Prompt to display
  * @buffer:	Place to put the line that is entered
- * @timeout:	Timeout in milliseconds, 0 if none
- * Return: command line length excluding terminator, or -ve on error: of the
+ * @timeout:	Timeout in seconds, 0 if none
+ * Return: command line length excluding terminator, or -ve on error: if the
  * timeout is exceeded (either CONFIG_BOOT_RETRY_TIME or the timeout
  * parameter), then -2 is returned. If a break is detected (Ctrl-C) then
  * -1 is returned.

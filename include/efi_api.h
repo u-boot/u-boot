@@ -557,12 +557,6 @@ struct efi_loaded_image {
 #  define DEVICE_PATH_SUB_TYPE_INSTANCE_END	0x01
 #  define DEVICE_PATH_SUB_TYPE_END		0xff
 
-struct efi_device_path {
-	u8 type;
-	u8 sub_type;
-	u16 length;
-} __packed;
-
 struct efi_mac_addr {
 	u8 addr[32];
 } __packed;
@@ -570,6 +564,7 @@ struct efi_mac_addr {
 #define DEVICE_PATH_TYPE_HARDWARE_DEVICE	0x01
 #  define DEVICE_PATH_SUB_TYPE_MEMORY		0x03
 #  define DEVICE_PATH_SUB_TYPE_VENDOR		0x04
+#  define DEVICE_PATH_SUB_TYPE_CONTROLLER	0x05
 
 struct efi_device_path_memory {
 	struct efi_device_path dp;
@@ -582,6 +577,11 @@ struct efi_device_path_vendor {
 	struct efi_device_path dp;
 	efi_guid_t guid;
 	u8 vendor_data[];
+} __packed;
+
+struct efi_device_path_controller {
+	struct efi_device_path dp;
+	u32 controller_number;
 } __packed;
 
 #define DEVICE_PATH_TYPE_ACPI_DEVICE		0x02
@@ -604,6 +604,7 @@ struct efi_device_path_acpi_path {
 #  define DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR	0x0b
 #  define DEVICE_PATH_SUB_TYPE_MSG_UART		0x0e
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS	0x0f
+#  define DEVICE_PATH_SUB_TYPE_MSG_USB_WWI	0x10
 #  define DEVICE_PATH_SUB_TYPE_MSG_SATA		0x12
 #  define DEVICE_PATH_SUB_TYPE_MSG_NVME		0x17
 #  define DEVICE_PATH_SUB_TYPE_MSG_URI		0x18
@@ -1908,6 +1909,25 @@ struct efi_system_resource_table {
 #define EFI_CERT_TYPE_PKCS7_GUID \
 	EFI_GUID(0x4aafd29d, 0x68df, 0x49ee, 0x8a, 0xa9, \
 		 0x34, 0x7d, 0x37, 0x56, 0x65, 0xa7)
+
+#define EFI_LZMA_COMPRESSED \
+	EFI_GUID(0xee4e5898, 0x3914, 0x4259, 0x9d, 0x6e, \
+		 0xdc, 0x7b, 0xd7, 0x94, 0x03, 0xcf)
+#define EFI_DXE_SERVICES \
+	EFI_GUID(0x05ad34ba, 0x6f02, 0x4214, 0x95, 0x2e, \
+		 0x4d, 0xa0, 0x39, 0x8e, 0x2b, 0xb9)
+#define EFI_HOB_LIST \
+	EFI_GUID(0x7739f24c, 0x93d7, 0x11d4, 0x9a, 0x3a,  \
+		 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
+#define EFI_MEMORY_TYPE \
+	EFI_GUID(0x4c19049f, 0x4137, 0x4dd3, 0x9c, 0x10, \
+		 0x8b, 0x97, 0xa8, 0x3f, 0xfd, 0xfa)
+#define EFI_MEM_STATUS_CODE_REC \
+	EFI_GUID(0x060cc026, 0x4c0d, 0x4dda, 0x8f, 0x41, \
+		 0x59, 0x5f, 0xef, 0x00, 0xa5, 0x02)
+#define EFI_GUID_EFI_ACPI1 \
+	EFI_GUID(0xeb9d2d30, 0x2d88, 0x11d3,  0x9a, 0x16, \
+		 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
 
 /**
  * struct win_certificate_uefi_guid - A certificate that encapsulates

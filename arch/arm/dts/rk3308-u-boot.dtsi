@@ -13,24 +13,24 @@
 };
 
 &cru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &dmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &emmc {
 	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
 	u-boot,spl-fifo-mode;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &grf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &saradc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };

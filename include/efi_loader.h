@@ -134,6 +134,10 @@ static inline efi_status_t efi_launch_capsules(void)
 #define U_BOOT_GUID \
 	EFI_GUID(0xe61d73b9, 0xa384, 0x4acc, \
 		 0xae, 0xab, 0x82, 0xe8, 0x28, 0xf3, 0x62, 0x8b)
+/* GUID used as root for blkmap devices */
+#define U_BOOT_BLKMAP_DEV_GUID \
+	EFI_GUID(0x4cad859d, 0xd644, 0x42ff,	\
+		 0x87, 0x0b, 0xc0, 0x2e, 0xac, 0x05, 0x58, 0x63)
 /* GUID used as host device on sandbox */
 #define U_BOOT_HOST_DEV_GUID \
 	EFI_GUID(0xbbe4e671, 0x5773, 0x4ea1, \
@@ -509,9 +513,6 @@ struct efi_register_notify_event {
 	struct list_head handles;
 };
 
-/* List of all events registered by RegisterProtocolNotify() */
-extern struct list_head efi_register_notify_events;
-
 /* called at pre-initialization */
 int efi_init_early(void);
 /* Initialize efi execution environment */
@@ -724,8 +725,8 @@ efi_status_t efi_next_variable_name(efi_uintn_t *size, u16 **buf,
  * Return:	size in pages
  */
 #define efi_size_in_pages(size) (((size) + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT)
-/* Generic EFI memory allocator, call this to get memory */
-void *efi_alloc(uint64_t len, int memory_type);
+/* Allocate boot service data pool memory */
+void *efi_alloc(size_t len);
 /* Allocate pages on the specified alignment */
 void *efi_alloc_aligned_pages(u64 len, int memory_type, size_t align);
 /* More specific EFI memory allocator, called by EFI payloads */

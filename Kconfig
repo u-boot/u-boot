@@ -191,33 +191,6 @@ config XEN
 
 	  [1] - https://xenproject.org/
 
-config DISTRO_DEFAULTS
-	bool "Select defaults suitable for booting general purpose Linux distributions"
-	select AUTO_COMPLETE
-	select CMDLINE_EDITING
-	select CMD_BOOTI if ARM64
-	select CMD_BOOTZ if ARM && !ARM64
-	select CMD_DHCP if CMD_NET
-	select CMD_ENV_EXISTS
-	select CMD_EXT2
-	select CMD_EXT4
-	select CMD_FAT
-	select CMD_FS_GENERIC
-	select CMD_PART if PARTITIONS
-	select CMD_PING if CMD_NET
-	select CMD_PXE if NET
-	select CMD_SYSBOOT
-	select ENV_VARS_UBOOT_CONFIG
-	select HUSH_PARSER
-	select SUPPORT_RAW_INITRD
-	select SYS_LONGHELP
-	imply CMD_MII if NET
-	imply USB_STORAGE
-	imply USE_BOOTCOMMAND
-	help
-	  Select this to enable various options and commands which are suitable
-	  for building u-boot for booting general purpose Linux distributions.
-
 config ENV_VARS_UBOOT_CONFIG
 	bool "Add arch, board, vendor and soc variables to default environment"
 	help
@@ -454,16 +427,16 @@ config REMAKE_ELF
 
 config BUILD_TARGET
 	string "Build target special images"
+	default "u-boot-elf.srec" if RCAR_64
+	default "u-boot-with-spl.bin" if ARCH_AT91 && SPL_NAND_SUPPORT
+	default "u-boot-with-spl.bin" if MPC85xx && !E500MC && !E5500 && !E6500 && SPL
+	default "u-boot-with-spl.imx" if ARCH_MX6 && SPL
+	default "u-boot-with-spl.kwb" if ARMADA_32BIT && SPL
 	default "u-boot-with-spl.sfp" if TARGET_SOCFPGA_ARRIA10
 	default "u-boot-with-spl.sfp" if TARGET_SOCFPGA_GEN5
-	default "u-boot-with-spl.kwb" if ARMADA_32BIT && SPL
-	default "u-boot-elf.srec" if RCAR_GEN3
 	default "u-boot.itb" if !BINMAN && SPL_LOAD_FIT && (ARCH_ROCKCHIP || \
 				ARCH_SUNXI || RISCV || ARCH_ZYNQMP)
 	default "u-boot.kwb" if (ARCH_KIRKWOOD || ARMADA_32BIT) && !SPL
-	default "u-boot-with-spl.bin" if MPC85xx && !E500MC && !E5500 && !E6500 && SPL
-	default "u-boot-with-spl.bin" if ARCH_AT91 && SPL_NAND_SUPPORT
-	default "u-boot-with-spl.imx" if ARCH_MX6 && SPL
 	help
 	  Some SoCs need special image types (e.g. U-Boot binary
 	  with a special header) as build targets. By defining
@@ -473,14 +446,14 @@ config BUILD_TARGET
 
 config HAS_BOARD_SIZE_LIMIT
 	bool "Define a maximum size for the U-Boot image"
-	default y if RCAR_GEN3
+	default y if RCAR_64
 	help
 	  In some cases, we need to enforce a hard limit on how big the U-Boot
 	  image itself can be.
 
 config BOARD_SIZE_LIMIT
 	int "Maximum size of the U-Boot image in bytes"
-	default 1048576 if RCAR_GEN3
+	default 1048576 if RCAR_64
 	depends on HAS_BOARD_SIZE_LIMIT
 	help
 	  Maximum size of the U-Boot image. When defined, the build system
@@ -601,14 +574,6 @@ config MP
 	help
 	  This provides an option to bringup different processors
 	  in multiprocessor cases.
-
-config EXAMPLES
-	bool "Compile API examples"
-	depends on !SANDBOX
-	default y if ARCH_QEMU
-	help
-	  U-Boot provides an API for standalone applications. Examples are
-	  provided in directory examples/.
 
 endmenu		# General setup
 

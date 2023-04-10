@@ -262,6 +262,7 @@ void cpu_call32(ulong code_seg32, ulong target, ulong table);
  *
  * @setup_base:	Pointer to the setup.bin information for the kernel
  * @target:	Pointer to the start of the kernel image
+ * Return: -EFAULT if the kernel returned; otherwise does not return
  */
 int cpu_jump_to_64bit(ulong setup_base, ulong target);
 

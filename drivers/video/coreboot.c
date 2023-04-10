@@ -57,7 +57,7 @@ static int coreboot_video_probe(struct udevice *dev)
 		goto err;
 	}
 
-	ret = vesa_setup_video_priv(vesa, uc_priv, plat);
+	ret = vesa_setup_video_priv(vesa, vesa->phys_base_ptr, uc_priv, plat);
 	if (ret) {
 		ret = log_msg_ret("setup", ret);
 		goto err;

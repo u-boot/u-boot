@@ -2,7 +2,7 @@
 # This Dockerfile is used to build an image containing basic stuff to be used
 # to build U-Boot and run our test suites.
 
-FROM ubuntu:jammy-20230126
+FROM ubuntu:jammy-20230308
 MAINTAINER Tom Rini <trini@konsulko.com>
 LABEL Description=" This image is for building U-Boot inside a container"
 
@@ -12,7 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Add LLVM repository
 RUN apt-get update && apt-get install -y gnupg2 wget xz-utils && rm -rf /var/lib/apt/lists/*
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-RUN echo deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-14 main | tee /etc/apt/sources.list.d/llvm.list
+RUN echo deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main | tee /etc/apt/sources.list.d/llvm.list
 
 # Manually install the kernel.org "Crosstool" based toolchains for gcc-12.2.0
 RUN wget -O - https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/12.2.0/x86_64-gcc-12.2.0-nolibc-aarch64-linux.tar.xz | tar -C /opt -xJ
@@ -39,7 +39,7 @@ RUN apt-get update && apt-get install -y \
 	binutils-dev \
 	bison \
 	build-essential \
-	clang-14 \
+	clang-16 \
 	coreutils \
 	cpio \
 	cppcheck \
@@ -182,9 +182,30 @@ RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 	git config user.email u-boot@denx.de && \
 	# manually apply the bug fix for QEMU 6.1.0 Xilinx Zynq UART emulation codes
 	wget -O - http://patchwork.ozlabs.org/project/qemu-devel/patch/20210823020813.25192-2-bmeng.cn@gmail.com/mbox/ | git am && \
-	./configure --prefix=/opt/qemu --target-list="aarch64-softmmu,arm-softmmu,i386-softmmu,mips-softmmu,mips64-softmmu,mips64el-softmmu,mipsel-softmmu,ppc-softmmu,riscv32-softmmu,riscv64-softmmu,sh4-softmmu,x86_64-softmmu,xtensa-softmmu" && \
+	./configure --prefix=/opt/qemu --target-list="aarch64-softmmu,arm-softmmu,i386-softmmu,m68k-softmmu,mips-softmmu,mips64-softmmu,mips64el-softmmu,mipsel-softmmu,ppc-softmmu,riscv32-softmmu,riscv64-softmmu,sh4-softmmu,x86_64-softmmu,xtensa-softmmu" && \
 	make -j$(nproc) all install && \
 	rm -rf /tmp/qemu
+
+# Build QEMU supporting Nokia n900 emulation
+RUN mkdir -p /opt/nokia && \
+	cd /tmp && \
+	git clone https://git.linaro.org/qemu/qemu-linaro.git && \
+	cd /tmp/qemu-linaro && \
+	git checkout 8f8d8e0796efe1a6f34cdd83fb798f3c41217ec1 && \
+	./configure --enable-system --target-list=arm-softmmu \
+	--python=/usr/bin/python2.7 --disable-sdl --disable-gtk \
+	--disable-curses --audio-drv-list= --audio-card-list= \
+	--disable-werror --disable-xen --disable-xen-pci-passthrough \
+	--disable-brlapi --disable-vnc --disable-curl --disable-slirp \
+	--disable-kvm --disable-user --disable-linux-user --disable-bsd-user \
+	--disable-guest-base --disable-uuid --disable-vde --disable-linux-aio \
+	--disable-cap-ng --disable-attr --disable-blobs --disable-docs \
+	--disable-spice --disable-libiscsi --disable-smartcard-nss \
+	--disable-usb-redir --disable-guest-agent --disable-seccomp \
+	--disable-glusterfs --disable-nptl --disable-fdt && \
+	make -j$(nproc) && \
+	cp /tmp/qemu-linaro/arm-softmmu/qemu-system-arm /opt/nokia && \
+	rm -rf /tmp/qemu-linaro
 
 # Build genimage (required by some targets to generate disk images)
 RUN wget -O - https://github.com/pengutronix/genimage/releases/download/v14/genimage-14.tar.xz | tar -C /tmp -xJ && \
@@ -229,10 +250,31 @@ RUN mkdir /tmp/trace && \
     sudo make install && \
     rm -rf /tmp/trace
 
+# Files to run Nokia RX-51 (aka N900) tests
+RUN mkdir -p /opt/nokia && \
+	cd /opt/nokia && \
+	wget https://raw.githubusercontent.com/pali/u-boot-maemo/master/debian/u-boot-gen-combined && \
+	chmod 0755 u-boot-gen-combined && \
+	wget http://repository.maemo.org/qemu-n900/qemu-n900.tar.gz && \
+	wget http://repository.maemo.org/pool/maemo5.0/free/k/kernel/kernel_2.6.28-20103103+0m5_armel.deb && \
+	wget http://repository.maemo.org/pool/maemo5.0/free/g/glibc/libc6_2.5.1-1eglibc27+0m5_armel.deb && \
+	wget http://repository.maemo.org/pool/maemo5.0/free/b/busybox/busybox_1.10.2.legal-1osso30+0m5_armel.deb
+
 # Create our user/group
 RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot
 RUN useradd -m -U uboot
 USER uboot:uboot
+
+# Populate the cache for pip to use. Get these via wget as the
+# COPY / ADD directives don't work as we need them to.
+RUN wget -O /tmp/pytest-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/test/py/requirements.txt
+RUN wget -O /tmp/sphinx-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/doc/sphinx/requirements.txt
+RUN virtualenv -p /usr/bin/python3 /tmp/venv && \
+	. /tmp/venv/bin/activate && \
+	pip install -r /tmp/pytest-requirements.txt \
+		-r /tmp/sphinx-requirements.txt && \
+	deactivate && \
+	rm -rf /tmp/venv /tmp/pytest-requirements.txt /tmp/sphinx-requirements.txt
 
 # Create the buildman config file
 RUN /bin/echo -e "[toolchain]\nroot = /usr" > ~/.buildman
@@ -242,3 +284,7 @@ RUN /bin/echo -e "\n[toolchain-prefix]\nxtensa = /opt/2020.07/xtensa-dc233c-elf/
 RUN /bin/echo -e "\n[toolchain-alias]\nsh = sh2" >> ~/.buildman
 RUN /bin/echo -e "\nsandbox = x86_64" >> ~/.buildman
 RUN /bin/echo -e "\nx86 = i386" >> ~/.buildman;
+
+# Add mkbootimg tool
+RUN git clone https://android.googlesource.com/platform/system/tools/mkbootimg /home/uboot/mkbootimg
+ENV PYTHONPATH "${PYTHONPATH}:/home/uboot/mkbootimg"

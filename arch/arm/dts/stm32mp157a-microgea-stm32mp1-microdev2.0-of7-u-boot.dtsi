@@ -18,34 +18,34 @@
 };
 
 &sdmmc1 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc1_b4_pins_a {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	pins1 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	pins2 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &uart4 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart4_pins_a {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	pins1 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	pins2 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		bias-pull-up;
 	};
 };

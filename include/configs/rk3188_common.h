@@ -11,15 +11,9 @@
 
 #define CFG_IRAM_BASE	0x10080000
 
-/* spl size 32kb sram - 2kb bootrom */
-
 #define CFG_SYS_SDRAM_BASE		0x60000000
-#define SDRAM_BANK_SIZE			(2UL << 30)
 #define SDRAM_MAX_SIZE			0x80000000
 
-/* usb otg */
-
-/* usb host support */
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x60000000\0" \
 	"pxefile_addr_r=0x60100000\0" \

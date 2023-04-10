@@ -14,6 +14,7 @@
 #include "mmc_private.h"
 #include <log.h>
 #include <reset.h>
+#include <asm/arch/sys_proto.h>
 #include <dm/device_compat.h>
 #include <linux/err.h>
 #include <linux/libfdt.h>
@@ -988,7 +989,7 @@ static const struct sdhci_ops arasan_ops = {
 };
 #endif
 
-#if defined(CONFIG_ARCH_ZYNQMP)
+#if defined(CONFIG_ARCH_ZYNQMP) && defined(CONFIG_ZYNQMP_FIRMWARE)
 static int sdhci_zynqmp_set_dynamic_config(struct arasan_sdhci_priv *priv,
 					   struct udevice *dev)
 {
@@ -1090,7 +1091,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 
 	host = priv->host;
 
-#if defined(CONFIG_ARCH_ZYNQMP)
+#if defined(CONFIG_ARCH_ZYNQMP) && defined(CONFIG_ZYNQMP_FIRMWARE)
 	if (device_is_compatible(dev, "xlnx,zynqmp-8.9a")) {
 		ret = zynqmp_pm_is_function_supported(PM_IOCTL,
 						      IOCTL_SET_SD_CONFIG);

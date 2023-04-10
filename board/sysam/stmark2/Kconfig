@@ -11,7 +11,7 @@ config SERIAL_BOOT
 	depends on CF_SBF
 
 config SYS_INPUT_CLKSRC
-	hex
+	int "External crystal clock"
 	default 30000000
 
 config SYS_CPU

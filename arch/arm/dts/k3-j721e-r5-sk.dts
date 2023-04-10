@@ -167,27 +167,27 @@
 		ti,sci = <&dmsc>;
 		ti,sci-proc-id = <32>;
 		ti,sci-host-id = <10>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	clk_200mhz: dummy_clock_200mhz {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <200000000>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	clk_19_2mhz: dummy_clock_19_2mhz {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <19200000>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &cbass_mcu_wakeup {
 	mcu_secproxy: secproxy@28380000 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		compatible = "ti,am654-secure-proxy";
 		reg = <0x0 0x2a380000 0x0 0x80000>,
 		      <0x0 0x2a400000 0x0 0x80000>,
@@ -197,7 +197,7 @@
 	};
 
 	sysctrler: sysctrler {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		compatible = "ti,am654-system-controller";
 		mboxes= <&mcu_secproxy 4>, <&mcu_secproxy 5>;
 		mbox-names = "tx", "rx";
@@ -217,7 +217,7 @@
 		mbox-names = "rx", "tx";
 		mboxes= <&mcu_secproxy 21>,
 				<&mcu_secproxy 23>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -226,7 +226,7 @@
 		compatible = "ti,j721e-esm";
 		reg = <0x0 0x700000 0x0 0x1000>;
 		ti,esm-pins = <344>, <345>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -239,7 +239,7 @@
 
 &wkup_pmx0 {
 	wkup_uart0_pins_default: wkup_uart0_pins_default {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		pinctrl-single,pins = <
 			J721E_WKUP_IOPAD(0xa0, PIN_INPUT, 0) /* (J29) WKUP_UART0_RXD */
 			J721E_WKUP_IOPAD(0xa4, PIN_OUTPUT, 0) /* (J28) WKUP_UART0_TXD */
@@ -247,7 +247,7 @@
 	};
 
 	mcu_uart0_pins_default: mcu_uart0_pins_default {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		pinctrl-single,pins = <
 			J721E_WKUP_IOPAD(0xf0, PIN_INPUT, 2) /* (D26) MCU_I3C0_SCL.MCU_UART0_CTSn */
 			J721E_WKUP_IOPAD(0xf4, PIN_OUTPUT, 2)/* (D25) MCU_I3C0_SDA.MCU_UART0_RTSn */
@@ -289,7 +289,7 @@
 
 &main_pmx0 {
 	main_uart0_pins_default: main_uart0_pins_default {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		pinctrl-single,pins = <
 			J721E_IOPAD(0x1f0, PIN_INPUT, 0) /* (AC2) UART0_CTSn */
 			J721E_IOPAD(0x1f4, PIN_OUTPUT, 0) /* (AB1) UART0_RTSn */
@@ -361,7 +361,7 @@
 };
 
 &wkup_uart0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pinctrl-names = "default";
 	pinctrl-0 = <&wkup_uart0_pins_default>;
 	status = "okay";
@@ -400,17 +400,17 @@
 };
 
 &wkup_i2c0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	tps659412: tps659412@48 {
 		reg = <0x48>;
 		compatible = "ti,tps659412";
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		pinctrl-names = "default";
 		pinctrl-0 = <&wkup_i2c0_pins_default>;
 		clock-frequency = <400000>;
 
 		regulators: regulators {
-			u-boot,dm-spl;
+			bootph-pre-ram;
 			/* 3 Phase Buck */
 			buck123_reg: buck123 {
 				/* VDD_CPU */
@@ -419,7 +419,7 @@
 				regulator-max-microvolt = <1250000>;
 				regulator-always-on;
 				regulator-boot-on;
-				u-boot,dm-spl;
+				bootph-pre-ram;
 			};
 		};
 	};
@@ -427,7 +427,7 @@
 
 &wkup_vtm0 {
 	vdd-supply-2 = <&buck123_reg>;
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbss0 {

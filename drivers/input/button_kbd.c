@@ -111,16 +111,14 @@ static int button_kbd_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct udevice_id button_kbd_ids[] = {
-	{ .compatible = "button-kbd" },
-	{ }
-};
-
 U_BOOT_DRIVER(button_kbd) = {
 	.name		= "button_kbd",
 	.id		= UCLASS_KEYBOARD,
-	.of_match	= button_kbd_ids,
 	.ops		= &button_kbd_ops,
 	.priv_auto	= sizeof(struct button_kbd_priv),
 	.probe		= button_kbd_probe,
+};
+
+U_BOOT_DRVINFO(button_kbd) = {
+	.name = "button_kbd"
 };

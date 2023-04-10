@@ -10,16 +10,11 @@
 #include <asm-offsets.h>
 #include <config.h>
 
-#if defined(CONFIG_STATIC_RELA)
 #define SYM_ADDR(reg, reg_add, symbol)	\
 	mfs	r20, rpc; \
 	addik	r20, r20, _GLOBAL_OFFSET_TABLE_ + 8; \
 	lwi	reg, r20, symbol@GOT; \
 	addk	reg, reg reg_add;
-#else
-#define SYM_ADDR(reg, reg_add, symbol)	\
-	addi	reg, reg_add, symbol
-#endif
 
 	.text
 	.global _start
@@ -35,7 +30,6 @@ _start:
 	addi	r1, r0, CONFIG_SPL_STACK
 #else
 	add	r1, r0, r20
-#if defined(CONFIG_STATIC_RELA)
 	bri	1f
 
 	/* Force alignment for easier ASM code below */
@@ -67,7 +61,6 @@ uboot_sym_start:
 
 	brlid	r15, mb_fix_rela
 	nop
-#endif
 #endif
 
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
@@ -310,7 +303,6 @@ relocate_code:
 	brlid	r15, __setup_exceptions
 	nop
 
-#if defined(CONFIG_STATIC_RELA)
 	/* reloc_offset is current location */
 	SYM_ADDR(r10, r0, _start)
 
@@ -331,27 +323,7 @@ relocate_code:
 	add	r9, r9, r5
 	brlid	r15, mb_fix_rela
 	nop
-
 	/* end of code which does relocation */
-#else
-	/* Check if GOT exist */
-	addik	r21, r23, _got_start
-	addik	r22, r23, _got_end
-	cmpu	r12, r21, r22
-	beqi	r12, 2f /* No GOT table - jump over */
-
-	/* Skip last 3 entries plus 1 because of loop boundary below */
-	addik	r22, r22, -0x10
-
-        /* Relocate the GOT. */
-3:	lw	r12, r21, r0 /* Load entry */
-	addk	r12, r12, r23 /* Add reloc offset */
-	sw	r12, r21, r0 /* Save entry back */
-
-	cmpu	r12, r21, r22 /* Check if this cross boundary */
-	bneid	r12, 3b
-	addik	r21. r21, 4
-#endif
 
 	/* Flush caches to ensure consistency */
 	brlid	r15, flush_cache_all

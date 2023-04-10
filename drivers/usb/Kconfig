@@ -115,6 +115,17 @@ config USB_ONBOARD_HUB
 	  power regulator. An example for such a hub is the Microchip
 	  USB2514B.
 
+config USB_HUB_DEBOUNCE_TIMEOUT
+	int "Timeout in milliseconds for USB HUB connection"
+	default 1000
+	help
+	  Value in milliseconds of the USB connection timeout, the max delay to
+	  wait the hub port status to be connected steadily after being powered
+	  off and powered on in the usb hub driver.
+	  This define allows to increase the HUB_DEBOUNCE_TIMEOUT default
+	  value = 1s because some usb device needs around 1.5s to be initialized
+	  and a 2s value should solve detection issue on problematic USB keys.
+
 if USB_KEYBOARD
 
 config USB_KEYBOARD_FN_KEYS

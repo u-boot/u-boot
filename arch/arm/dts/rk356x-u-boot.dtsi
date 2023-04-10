@@ -12,12 +12,12 @@
 	};
 
 	chosen {
-		u-boot,spl-boot-order = &sdhci, &sdmmc0;
+		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc0;
 	};
 
 	dmc: dmc {
 		compatible = "rockchip,rk3568-dmc";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		status = "okay";
 	};
 
@@ -34,37 +34,32 @@
 	};
 };
 
-&combphy1 {
-	/delete-property/ assigned-clocks;
-	/delete-property/ assigned-clock-rates;
-};
-
 &cru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &pmucru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &grf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &pmugrf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	status = "okay";
 };
 
 &sdhci {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };
 
 &sdmmc0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	status = "okay";
 };

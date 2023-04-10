@@ -12,7 +12,7 @@ import sys
 from dtoc import fdt_util
 import libfdt
 from libfdt import QUIET_NOTFOUND
-from patman import tools
+from u_boot_pylib import tools
 
 # This deals with a device tree, presenting it as an assortment of Node and
 # Prop objects, representing nodes and properties, respectively. This file

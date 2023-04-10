@@ -6,14 +6,14 @@
 	dmc: dmc@20004000 {
 		compatible = "rockchip,rk3128-dmc", "syscon";
 		reg = <0x0 0x20004000 0x0 0x1000>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &cru {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &grf {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

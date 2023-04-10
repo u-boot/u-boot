@@ -19,20 +19,20 @@
 
 	firmware {
 		optee {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
 	/* need PSCI for sysreset during board_f */
 	psci {
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 	};
 
 	soc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		ddr: ddr@5a003000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			compatible = "st,stm32mp13-ddr";
 
@@ -45,77 +45,77 @@
 };
 
 &bsec {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpioa {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpiob {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpioc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpiod {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpioe {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpiof {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpiog {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpioh {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &gpioi {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &iwdg2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &rcc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &scmi {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &scmi_clk {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &scmi_reset {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &scmi_shm {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &scmi_sram {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &syscfg {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

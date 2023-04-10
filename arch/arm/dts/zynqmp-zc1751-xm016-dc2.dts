@@ -142,6 +142,7 @@
 		label = "main-storage-0";
 		nand-ecc-step-size = <1024>;
 		nand-ecc-strength = <24>;
+		nand-on-flash-bbt;
 
 		partition@0 {	/* for testing purpose */
 			label = "nand-fsbl-uboot";
@@ -178,6 +179,7 @@
 		label = "main-storage-1";
 		nand-ecc-step-size = <1024>;
 		nand-ecc-strength = <24>;
+		nand-on-flash-bbt;
 
 		partition@0 {	/* for testing purpose */
 			label = "nand1-fsbl-uboot";

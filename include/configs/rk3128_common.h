@@ -12,12 +12,8 @@
 
 #define CFG_IRAM_BASE		0x10080000
 
-/* RAW SD card / eMMC locations. */
-
 #define CFG_SYS_SDRAM_BASE		0x60000000
 #define SDRAM_MAX_SIZE			0x80000000
-
-/* usb mass storage */
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x60500000\0" \

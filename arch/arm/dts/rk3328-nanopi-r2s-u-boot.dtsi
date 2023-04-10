@@ -13,24 +13,24 @@
 };
 
 &gpio0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &sdmmc0m1_pin {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pcfg_pull_up_4ma {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 /* Need this and all the pinctrl/gpio stuff above to set pinmux */
 &vcc_sd {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gmac2io {

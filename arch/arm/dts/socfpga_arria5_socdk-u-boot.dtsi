@@ -20,21 +20,21 @@
 };
 
 &mmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &qspi {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &flash {
 	compatible = "n25q00", "jedec,spi-nor";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart0 {
 	clock-frequency = <100000000>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart1 {

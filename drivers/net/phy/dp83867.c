@@ -409,7 +409,7 @@ static int dp83867_probe(struct phy_device *phydev)
 	return 0;
 }
 
-static struct phy_driver DP83867_driver = {
+U_BOOT_PHY_DRIVER(dp83867) = {
 	.name = "TI DP83867",
 	.uid = 0x2000a231,
 	.mask = 0xfffffff0,
@@ -419,9 +419,3 @@ static struct phy_driver DP83867_driver = {
 	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
 };
-
-int phy_dp83867_init(void)
-{
-	phy_register(&DP83867_driver);
-	return 0;
-}

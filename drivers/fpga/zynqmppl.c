@@ -332,10 +332,16 @@ static int zynqmp_loads(xilinx_desc *desc, const void *buf, size_t bsize,
 	buf_lo = lower_32_bits((ulong)buf);
 	buf_hi = upper_32_bits((ulong)buf);
 
-	ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
+	if ((u32)(uintptr_t)fpga_sec_info->userkey_addr)
+		ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
 				buf_hi,
-			 (u32)(uintptr_t)fpga_sec_info->userkey_addr,
-			 flag, ret_payload);
+				(u32)(uintptr_t)fpga_sec_info->userkey_addr,
+				flag, ret_payload);
+	else
+		ret = xilinx_pm_request(PM_FPGA_LOAD, buf_lo,
+					buf_hi, (u32)bsize,
+					flag, ret_payload);
+
 	if (ret)
 		puts("PL FPGA LOAD fail\n");
 	else

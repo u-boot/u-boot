@@ -183,6 +183,11 @@ struct zynqmp_qspi_priv {
 	const struct spi_mem_op *op;
 };
 
+__weak int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value)
+{
+	return 0;
+}
+
 static int zynqmp_qspi_of_to_plat(struct udevice *bus)
 {
 	struct zynqmp_qspi_plat *plat = dev_get_plat(bus);

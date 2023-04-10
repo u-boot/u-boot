@@ -14,10 +14,10 @@ import queue
 import shutil
 import tempfile
 
-from patman import command
 from patman import commit
 from patman import gitutil
 from patman.series import Series
+from u_boot_pylib import command
 
 # Tags that we detect and remove
 RE_REMOVE = re.compile(r'^BUG=|^TEST=|^BRANCH=|^Review URL:'

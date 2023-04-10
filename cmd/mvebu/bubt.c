@@ -19,6 +19,7 @@
 #include <spi_flash.h>
 #include <spi.h>
 #include <nand.h>
+#include <scsi.h>
 #include <usb.h>
 #include <fs.h>
 #include <mmc.h>
@@ -189,6 +190,11 @@ static int mmc_burn_image(size_t image_size)
 #ifdef CONFIG_BLK
 	struct blk_desc *blk_desc;
 #endif
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+	u8		part;
+	u8		orig_part;
+#endif
+
 	mmc = find_mmc_device(mmc_dev_num);
 	if (!mmc) {
 		printf("No SD/MMC/eMMC card found\n");
@@ -202,6 +208,38 @@ static int mmc_burn_image(size_t image_size)
 		return err;
 	}
 
+#ifdef CONFIG_BLK
+	blk_desc = mmc_get_blk_desc(mmc);
+	if (!blk_desc) {
+		printf("Error - failed to obtain block descriptor\n");
+		return -ENODEV;
+	}
+#endif
+
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+#ifdef CONFIG_BLK
+	orig_part = blk_desc->hwpart;
+#else
+	orig_part = mmc->block_dev.hwpart;
+#endif
+
+	part = (mmc->part_config >> 3) & PART_ACCESS_MASK;
+
+	if (part == 7)
+		part = 0;
+
+#ifdef CONFIG_BLK
+	err = blk_dselect_hwpart(blk_desc, part);
+#else
+	err = mmc_switch_part(mmc, part);
+#endif
+
+	if (err) {
+		printf("Error - MMC partition switch failed\n");
+		return err;
+	}
+#endif
+
 	/* SD reserves LBA-0 for MBR and boots from LBA-1,
 	 * MMC/eMMC boots from LBA-0
 	 */
@@ -211,11 +249,6 @@ static int mmc_burn_image(size_t image_size)
 	if (image_size % mmc->write_bl_len)
 		blk_count += 1;
 
-	blk_desc = mmc_get_blk_desc(mmc);
-	if (!blk_desc) {
-		printf("Error - failed to obtain block descriptor\n");
-		return -ENODEV;
-	}
 	blk_written = blk_dwrite(blk_desc, start_lba, blk_count,
 				 (void *)get_load_addr());
 #else
@@ -227,6 +260,17 @@ static int mmc_burn_image(size_t image_size)
 						 start_lba, blk_count,
 						 (void *)get_load_addr());
 #endif /* CONFIG_BLK */
+
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+#ifdef CONFIG_BLK
+	err = blk_dselect_hwpart(blk_desc, orig_part);
+#else
+	err = mmc_switch_part(mmc, orig_part);
+#endif
+	if (err)
+		printf("Error - MMC failed to switch back to original partition\n");
+#endif
+
 	if (blk_written != blk_count) {
 		printf("Error - written %#lx blocks\n", blk_written);
 		return -ENOSPC;
@@ -289,6 +333,143 @@ static int is_mmc_active(void)
 	return 0;
 }
 #endif /* CONFIG_DM_MMC */
+
+/********************************************************************
+ *     SATA services
+ ********************************************************************/
+#if defined(CONFIG_SCSI) && defined(CONFIG_BLK)
+static int sata_burn_image(size_t image_size)
+{
+#if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_32BIT)
+	lbaint_t	start_lba;
+	lbaint_t	blk_count;
+	ulong		blk_written;
+	struct blk_desc *blk_desc;
+#ifdef CONFIG_ARMADA_3700
+	struct disk_partition info;
+	int		part;
+#endif
+
+	scsi_scan(false);
+
+	blk_desc = blk_get_devnum_by_uclass_id(UCLASS_SCSI, 0);
+	if (!blk_desc)
+		return -ENODEV;
+
+#ifdef CONFIG_ARMADA_3700
+	/*
+	 * 64-bit Armada 3700 BootROM loads SATA firmware from
+	 * GPT 'Marvell Armada 3700 Boot partition' or from
+	 * MBR 'M' (0x4d) partition.
+	 */
+	switch (blk_desc->part_type) {
+	case PART_TYPE_DOS:
+		for (part = 1; part <= 4; part++) {
+			info.sys_ind = 0;
+			if (part_get_info(blk_desc, part, &info))
+				continue;
+			if (info.sys_ind == 'M')
+				break;
+		}
+		if (part > 4) {
+			printf("Error - cannot find MBR 'M' (0x4d) partition on SATA disk\n");
+			return -ENODEV;
+		}
+		start_lba = info.start;
+		break;
+	case PART_TYPE_EFI:
+		for (part = 1; part <= 64; part++) {
+			info.type_guid[0] = 0;
+			if (part_get_info(blk_desc, part, &info))
+				continue;
+			/* Check for GPT type GUID of 'Marvell Armada 3700 Boot partition' */
+			if (strcmp(info.type_guid, "6828311A-BA55-42A4-BCDE-A89BB5EDECAE") == 0)
+				break;
+		}
+		if (part > 64) {
+			printf("Error - cannot find GPT 'Marvell Armada 3700 Boot partition' on SATA disk\n");
+			return -ENODEV;
+		}
+		start_lba = info.start;
+		break;
+	default:
+		printf("Error - no partitions on SATA disk\n");
+		return -ENODEV;
+	}
+#else
+	/* 32-bit Armada BootROM loads SATA firmware from the sector 1. */
+	start_lba = 1;
+#endif
+
+	blk_count = image_size / blk_desc->blksz;
+	if (image_size % blk_desc->blksz)
+		blk_count += 1;
+
+	blk_written = blk_dwrite(blk_desc, start_lba, blk_count,
+				 (void *)get_load_addr());
+
+	if (blk_written != blk_count) {
+		printf("Error - written %#lx blocks\n", blk_written);
+		return -ENOSPC;
+	}
+
+	printf("Done!\n");
+	return 0;
+#else
+	return -ENODEV;
+#endif
+}
+
+static size_t sata_read_file(const char *file_name)
+{
+	loff_t act_read = 0;
+	struct udevice *dev;
+	int rc;
+
+	/* try to recognize storage devices immediately */
+	scsi_scan(false);
+
+	/* Try to recognize storage devices immediately */
+	blk_first_device(UCLASS_SCSI, &dev);
+	if (!dev) {
+		printf("Error: SATA device not found\n");
+		return 0;
+	}
+
+	/* Always load from scsi 0 */
+	if (fs_set_blk_dev("scsi", "0", FS_TYPE_ANY)) {
+		printf("Error: SATA 0 not found\n");
+		return 0;
+	}
+
+	/* Perfrom file read */
+	rc = fs_read(file_name, get_load_addr(), 0, 0, &act_read);
+	if (rc)
+		return 0;
+
+	return act_read;
+}
+
+static int is_sata_active(void)
+{
+	return 1;
+}
+#else /* CONFIG_SCSI */
+static int sata_burn_image(size_t image_size)
+{
+	return -ENODEV;
+}
+
+static size_t sata_read_file(const char *file_name)
+{
+	return 0;
+}
+
+static int is_sata_active(void)
+{
+	return 0;
+}
+#endif /* CONFIG_SCSI */
 
 /********************************************************************
  *     SPI services
@@ -499,16 +680,18 @@ enum bubt_devices {
 	BUBT_DEV_NET = 0,
 	BUBT_DEV_USB,
 	BUBT_DEV_MMC,
+	BUBT_DEV_SATA,
 	BUBT_DEV_SPI,
 	BUBT_DEV_NAND,
 
 	BUBT_MAX_DEV
 };
 
-struct bubt_dev bubt_devs[BUBT_MAX_DEV] = {
+static struct bubt_dev bubt_devs[BUBT_MAX_DEV] = {
 	{"tftp", tftp_read_file, NULL, is_tftp_active},
 	{"usb",  usb_read_file,  NULL, is_usb_active},
 	{"mmc",  mmc_read_file,  mmc_burn_image, is_mmc_active},
+	{"sata", sata_read_file, sata_burn_image,  is_sata_active},
 	{"spi",  NULL, spi_burn_image,  is_spi_active},
 	{"nand", NULL, nand_burn_image, is_nand_active},
 };
@@ -524,7 +707,7 @@ static int bubt_write_file(struct bubt_dev *dst, size_t image_size)
 }
 
 #if defined(CONFIG_ARMADA_8K)
-u32 do_checksum32(u32 *start, int32_t len)
+static u32 do_checksum32(u32 *start, int32_t len)
 {
 	u32 sum = 0;
 	u32 *startp = start;
@@ -542,9 +725,8 @@ static int check_image_header(void)
 {
 	struct mvebu_image_header *hdr =
 			(struct mvebu_image_header *)get_load_addr();
-	u32 header_len = hdr->prolog_size;
 	u32 checksum;
-	u32 checksum_ref = hdr->prolog_checksum;
+	u32 checksum_ref;
 
 	/*
 	 * For now compare checksum, and magic. Later we can
@@ -556,18 +738,23 @@ static int check_image_header(void)
 		return -ENOEXEC;
 	}
 
-	/* The checksum value is discarded from checksum calculation */
-	hdr->prolog_checksum = 0;
+	checksum_ref = hdr->prolog_checksum;
+	checksum = do_checksum32((u32 *)hdr, hdr->prolog_size);
+	checksum -= hdr->prolog_checksum;
+	if (checksum != checksum_ref) {
+		printf("Error: Bad Prolog checksum. 0x%x != 0x%x\n",
+		       checksum, checksum_ref);
+		return -ENOEXEC;
+	}
 
-	checksum = do_checksum32((u32 *)hdr, header_len);
+	checksum_ref = hdr->boot_image_checksum;
+	checksum = do_checksum32((u32 *)((u8 *)hdr + hdr->prolog_size), hdr->boot_image_size);
 	if (checksum != checksum_ref) {
 		printf("Error: Bad Image checksum. 0x%x != 0x%x\n",
 		       checksum, checksum_ref);
 		return -ENOEXEC;
 	}
 
-	/* Restore the checksum before writing */
-	hdr->prolog_checksum = checksum_ref;
 	printf("Image checksum...OK!\n");
 
 	return 0;
@@ -722,12 +909,12 @@ static int check_image_header(void)
 	u32 offset, size;
 	const struct a38x_main_hdr_v1 *hdr =
 		(struct a38x_main_hdr_v1 *)get_load_addr();
-	const size_t image_size = a38x_header_size(hdr);
+	const size_t hdr_size = a38x_header_size(hdr);
 
-	if (!image_size)
+	if (!hdr_size)
 		return -ENOEXEC;
 
-	checksum = image_checksum8(hdr, image_size);
+	checksum = image_checksum8(hdr, hdr_size);
 	checksum -= hdr->checksum;
 	if (checksum != hdr->checksum) {
 		printf("Error: Bad A38x image header checksum. 0x%x != 0x%x\n",
@@ -738,16 +925,7 @@ static int check_image_header(void)
 	offset = le32_to_cpu(hdr->srcaddr);
 	size = le32_to_cpu(hdr->blocksize);
 
-	if (hdr->blockid == 0x78) { /* SATA id */
-		if (offset < 1) {
-			printf("Error: Bad A38x image srcaddr.\n");
-			return -ENOEXEC;
-		}
-		offset -= 1;
-		offset *= 512;
-	}
-
-	if (hdr->blockid == 0xAE) /* SDIO id */
+	if (hdr->blockid == 0x78) /* SATA id */
 		offset *= 512;
 
 	if (offset % 4 != 0 || size < 4 || size % 4 != 0) {
@@ -770,7 +948,7 @@ static int check_image_header(void)
 #if defined(CONFIG_ARMADA_38X)
 static int a38x_image_is_secure(const struct a38x_main_hdr_v1 *hdr)
 {
-	u32 image_size = a38x_header_size(hdr);
+	const size_t hdr_size = a38x_header_size(hdr);
 	struct a38x_opt_hdr_v1 *ohdr;
 	u32 ohdr_size;
 
@@ -791,7 +969,7 @@ static int a38x_image_is_secure(const struct a38x_main_hdr_v1 *hdr)
 			break;
 
 		ohdr = (struct a38x_opt_hdr_v1 *)((u8 *)ohdr + ohdr_size);
-		if ((u8 *)ohdr >= (u8 *)hdr + image_size)
+		if ((u8 *)ohdr >= (u8 *)hdr + hdr_size)
 			break;
 	} while (1);
 
@@ -806,7 +984,7 @@ static int check_image_header(void)
 }
 #endif
 
-#if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_32BIT)
+#if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_38X)
 static u64 fuse_read_u64(u32 bank)
 {
 	u32 val[2];
@@ -835,7 +1013,10 @@ static inline u8 maj3(u8 val)
 static int bubt_check_boot_mode(const struct bubt_dev *dst)
 {
 #if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_32BIT)
-	int mode, secure_mode;
+	int mode;
+#if defined(CONFIG_ARMADA_3700) || defined(CONFIG_ARMADA_38X)
+	int secure_mode;
+#endif
 #if defined(CONFIG_ARMADA_3700)
 	const struct tim_boot_flash_sign *boot_modes = tim_boot_flash_signs;
 	const struct common_tim_data *hdr =
@@ -966,7 +1147,7 @@ static int bubt_is_dev_active(struct bubt_dev *dev)
 	return 1;
 }
 
-struct bubt_dev *find_bubt_dev(char *dev_name)
+static struct bubt_dev *find_bubt_dev(char *dev_name)
 {
 	int dev;
 
@@ -987,12 +1168,14 @@ struct bubt_dev *find_bubt_dev(char *dev_name)
 #define DEFAULT_BUBT_DST "nand"
 #elif defined(CONFIG_MVEBU_MMC_BOOT)
 #define DEFAULT_BUBT_DST "mmc"
+#elif defined(CONFIG_MVEBU_SATA_BOOT)
+#define DEFAULT_BUBT_DST "sata"
 #else
 #define DEFAULT_BUBT_DST "error"
 #endif
 #endif /* DEFAULT_BUBT_DST */
 
-int do_bubt_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+static int do_bubt_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct bubt_dev *src, *dst;
 	size_t image_size;
@@ -1064,8 +1247,8 @@ U_BOOT_CMD(
 	"Burn a u-boot image to flash",
 	"[file-name] [destination [source]]\n"
 	"\t-file-name     The image file name to burn. Default = " CONFIG_MVEBU_UBOOT_DFLT_NAME "\n"
-	"\t-destination   Flash to burn to [spi, nand, mmc]. Default = " DEFAULT_BUBT_DST "\n"
-	"\t-source        The source to load image from [tftp, usb, mmc]. Default = " DEFAULT_BUBT_SRC "\n"
+	"\t-destination   Flash to burn to [spi, nand, mmc, sata]. Default = " DEFAULT_BUBT_DST "\n"
+	"\t-source        The source to load image from [tftp, usb, mmc, sata]. Default = " DEFAULT_BUBT_SRC "\n"
 	"Examples:\n"
 	"\tbubt - Burn flash-image.bin from tftp to active boot device\n"
 	"\tbubt flash-image-new.bin nand - Burn flash-image-new.bin from tftp to NAND flash\n"

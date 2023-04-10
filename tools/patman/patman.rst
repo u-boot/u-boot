@@ -41,6 +41,18 @@ In Linux and U-Boot this will also call get_maintainer.pl on each of your
 patches automatically (unless you use -m to disable this).
 
 
+Installation
+------------
+
+You can install patman using::
+
+   pip install patch-manager
+
+The name is chosen since patman conflicts with an existing package.
+
+If you are using patman within the U-Boot tree, it may be easiest to add a
+symlink from your local `~/.bin` directory to `/path/to/tools/patman/patman`.
+
 How to use this tool
 --------------------
 

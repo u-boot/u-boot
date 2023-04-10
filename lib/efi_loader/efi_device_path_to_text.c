@@ -32,11 +32,10 @@ static u16 *efi_str_to_u16(char *str)
 {
 	efi_uintn_t len;
 	u16 *out, *dst;
-	efi_status_t ret;
 
 	len = sizeof(u16) * (utf8_utf16_strlen(str) + 1);
-	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, len, (void **)&out);
-	if (ret != EFI_SUCCESS)
+	out = efi_alloc(len);
+	if (!out)
 		return NULL;
 	dst = out;
 	utf8_utf16_strcpy(&dst, str);
@@ -75,6 +74,13 @@ static char *dp_hardware(char *s, struct efi_device_path *dp)
 				s += sprintf(s, "%02x", vdp->vendor_data[i]);
 		}
 		s += sprintf(s, ")");
+		break;
+	}
+	case DEVICE_PATH_SUB_TYPE_CONTROLLER: {
+		struct efi_device_path_controller *cdp =
+			(struct efi_device_path_controller *)dp;
+
+		s += sprintf(s, "Ctrl(0x%0x)", cdp->controller_number);
 		break;
 	}
 	default:

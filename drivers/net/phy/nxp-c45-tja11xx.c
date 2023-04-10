@@ -330,7 +330,7 @@ static int nxp_c45_probe(struct phy_device *phydev)
 	return 0;
 }
 
-static struct phy_driver nxp_c45_tja11xx = {
+U_BOOT_PHY_DRIVER(nxp_c45_tja11xx) = {
 	.name = "NXP C45 TJA1103",
 	.uid  = PHY_ID_TJA_1103,
 	.mask = 0xfffff0,
@@ -340,9 +340,3 @@ static struct phy_driver nxp_c45_tja11xx = {
 	.startup = &nxp_c45_startup,
 	.shutdown = &genphy_shutdown,
 };
-
-int phy_nxp_c45_tja11xx_init(void)
-{
-	phy_register(&nxp_c45_tja11xx);
-	return 0;
-}

@@ -275,7 +275,7 @@ int board_early_init_f(void)
 {
 	setup_iomux_uart();
 
-#ifdef CONFIG_CMD_SATA
+#ifdef CONFIG_SATA
 	setup_sata();
 #endif
 	setup_fec();

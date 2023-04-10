@@ -28,25 +28,25 @@
 	dcc: dcc {
 		compatible = "arm,dcc";
 		status = "disabled";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	amba: amba {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
 
 		slcr: slcr@f8000000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			#address-cells = <1>;
 			#size-cells = <1>;
 			compatible = "xlnx,zynq-slcr", "syscon", "simple-bus";
 			reg = <0xF8000000 0x1000>;
 			ranges;
 			clkc: clkc@100 {
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				#clock-cells = <1>;
 				compatible = "xlnx,ps7-clkc";
 				clock-output-names = "armpll", "ddrpll",
@@ -79,7 +79,7 @@
 		 * why place cfi-flash directly here.
 		 */
 		flash@e2000000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			compatible = "cfi-flash";
 			reg = <0xe2000000 0x2000000>;
 			#address-cells = <1>;
@@ -87,7 +87,7 @@
 		};
 
 		scutimer: timer@f8f00600 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			compatible = "arm,cortex-a9-twd-timer";
 			reg = <0xf8f00600 0x20>;
 			clock-frequency = <333333333>;

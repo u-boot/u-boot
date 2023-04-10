@@ -31,7 +31,7 @@ pci {
 	compatible = "pci-x86";
 	#address-cells = <3>;
 	#size-cells = <2>;
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	ranges = <0x02000000 0x0 0xc0000000 0xc0000000 0 0x10000000
 		0x42000000 0x0 0xb0000000 0xb0000000 0 0x10000000
 		0x01000000 0x0 0x1000 0x1000 0 0xefff>;
@@ -41,7 +41,7 @@ pci {
 
 	serial: serial@18,2 {
 		reg = <0x0200c210 0 0 0 0>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "intel,apl-ns16550";
 		early-regs = <0xde000000 0x20>;
 		reg-shift = <2>;

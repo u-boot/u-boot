@@ -14,7 +14,7 @@
 #include "stm32mp15-ddr3-dhsom-2x4Gb-1066-binG.dtsi"
 
 / {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	aliases {
 		eeprom0 = &eeprom0;
@@ -27,55 +27,55 @@
 };
 
 &flash0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c4 {
-	u-boot,dm-pre-reloc;
-	u-boot,dm-spl;
+	bootph-all;
+	bootph-pre-ram;
 
 	eeprom0: eeprom@53 {
 	};
 };
 
 &i2c4_pins_a {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 	pins {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &pmic {
-	u-boot,dm-pre-reloc;
-	u-boot,dm-spl;
+	bootph-all;
+	bootph-pre-ram;
 
 	regulators {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &pwr_regulators {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &qspi {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &qspi_clk_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pins {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &qspi_bk1_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	pins1 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 	pins2 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
@@ -165,7 +165,7 @@
 		reg = <1>;
 		cfg = < 2 65 1 0 0 PQR(1,1,1) >;
 		frac = < 0x1400 >;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	/* VCO = 417.8 MHz => P = 209, Q = 24, R = 11 */
@@ -174,7 +174,7 @@
 		reg = <2>;
 		cfg = < 1 33 1 16 36 PQR(1,1,1) >;
 		frac = < 0x1a04 >;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	/* VCO = 594.0 MHz => P = 99, Q = 74, R = 99 */
@@ -182,42 +182,42 @@
 		compatible = "st,stm32mp1-pll";
 		reg = <3>;
 		cfg = < 3 98 5 7 5 PQR(1,1,1) >;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &reg11 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &reg18 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usb33 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbotg_hs_pins_a {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbotg_hs {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbphyc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbphyc_port0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbphyc_port1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &vdd_usb {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

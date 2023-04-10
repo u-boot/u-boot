@@ -19,10 +19,10 @@ import time
 
 from buildman import builderthread
 from buildman import toolchain
-from patman import command
 from patman import gitutil
-from patman import terminal
-from patman.terminal import tprint
+from u_boot_pylib import command
+from u_boot_pylib import terminal
+from u_boot_pylib.terminal import tprint
 
 # This indicates an new int or hex Kconfig property with no default
 # It hangs the build since the 'conf' tool cannot proceed without valid input.
@@ -194,6 +194,8 @@ class Builder:
         work_in_output: Use the output directory as the work directory and
             don't write to a separate output directory.
         thread_exceptions: List of exceptions raised by thread jobs
+        no_lto (bool): True to set the NO_LTO flag when building
+        reproducible_builds (bool): True to set SOURCE_DATE_EPOCH=0 for builds
 
     Private members:
         _base_board_dict: Last-summarised Dict of boards
@@ -253,7 +255,7 @@ class Builder:
                  config_only=False, squash_config_y=False,
                  warnings_as_errors=False, work_in_output=False,
                  test_thread_exceptions=False, adjust_cfg=None,
-                 allow_missing=False):
+                 allow_missing=False, no_lto=False, reproducible_builds=False):
         """Create a new Builder object
 
         Args:
@@ -292,6 +294,7 @@ class Builder:
                     C=val to set the value of C (val must have quotes if C is
                         a string Kconfig
             allow_missing: Run build with BINMAN_ALLOW_MISSING=1
+            no_lto (bool): True to set the NO_LTO flag when building
 
         """
         self.toolchains = toolchains
@@ -331,6 +334,8 @@ class Builder:
         self.adjust_cfg = adjust_cfg
         self.allow_missing = allow_missing
         self._ide = False
+        self.no_lto = no_lto
+        self.reproducible_builds = reproducible_builds
 
         if not self.squash_config_y:
             self.config_filenames += EXTRA_CONFIG_FILENAMES

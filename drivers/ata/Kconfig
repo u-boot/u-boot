@@ -20,6 +20,14 @@ config SATA
 
 	  See also CMD_SATA which provides command-line support.
 
+config SYS_SATA_MAX_PORTS
+	int "Maximum supported SATA ports"
+	depends on SCSI_AHCI && !DM_SCSI
+	default 1
+	help
+	  Sets the maximum number of ports to scan when looking for devices.
+	  Ports from 0 to (this value - 1) are scanned.
+
 config LIBATA
 	bool
 	help
@@ -37,6 +45,7 @@ config AHCI_PCI
 	bool "Support for PCI-based AHCI controller"
 	depends on PCI
 	depends on DM_SCSI
+	depends on SCSI_AHCI
 	help
 	  Enables support for the PCI-based AHCI controller.
 

@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2019
   ubuntu_vm: ubuntu-22.04
   macos_vm: macOS-12
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20230126-10Feb2023
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20230308-04Apr2023
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -187,6 +187,13 @@ stages:
       options: $(container_option)
     steps:
       - script: |
+          mkdir nokia_rx51_tmp
+          ln -s /opt/nokia/u-boot-gen-combined nokia_rx51_tmp/
+          ln -s /opt/nokia/qemu-n900.tar.gz nokia_rx51_tmp/
+          ln -s /opt/nokia/kernel_2.6.28-20103103+0m5_armel.deb nokia_rx51_tmp/
+          ln -s /opt/nokia/libc6_2.5.1-1eglibc27+0m5_armel.deb nokia_rx51_tmp/
+          ln -s /opt/nokia/busybox_1.10.2.legal-1osso30+0m5_armel.deb nokia_rx51_tmp/
+          ln -s /opt/nokia/qemu-system-arm nokia_rx51_tmp/
           export PATH=/opt/gcc-12.2.0-nolibc/arm-linux-gnueabi/bin:$PATH
           test/nokia_rx51_test.sh
 
@@ -213,6 +220,28 @@ stages:
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           make pylint_err
 
+  - job: check_for_pre_schema_tags
+    displayName: 'Check for pre-schema driver model tags'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      # If grep succeeds and finds a match the test fails as we should
+      # have no matches.
+      - script: git grep u-boot,dm- -- '*.dts*' && exit 1 || exit 0
+
+  - job: check_packing_of_python_tools
+    displayName: 'Check we can package the Python tools'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: make pip
+
 - stage: test_py
   jobs:
   - job: test_py
@@ -225,7 +254,7 @@ stages:
           TEST_PY_BD: "sandbox"
         sandbox_clang:
           TEST_PY_BD: "sandbox"
-          OVERRIDE: "-O clang-14"
+          OVERRIDE: "-O clang-16"
         sandbox_nolto:
           TEST_PY_BD: "sandbox"
           BUILD_ENV: "NO_LTO=1"
@@ -234,7 +263,7 @@ stages:
           TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
         sandbox_vpl:
           TEST_PY_BD: "sandbox_vpl"
-          TEST_PY_TEST_SPEC: "test_vpl_help or test_spl"
+          TEST_PY_TEST_SPEC: "vpl or test_spl"
         sandbox_noinst:
           TEST_PY_BD: "sandbox_noinst"
           TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
@@ -397,10 +426,11 @@ stages:
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r test/py/requirements.txt
+          pip install pytest-azurepipelines
           export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
           export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
           # "${var:+"-k $var"}" expands to "" if $var is empty, "-k $var" if not
-          ./test/py/test.py -ra --bd ${TEST_PY_BD} ${TEST_PY_ID} ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"} --build-dir "$UBOOT_TRAVIS_BUILD_DIR";
+          ./test/py/test.py -ra -o cache_dir="$UBOOT_TRAVIS_BUILD_DIR"/.pytest_cache --bd ${TEST_PY_BD} ${TEST_PY_ID} ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"} --build-dir "$UBOOT_TRAVIS_BUILD_DIR" --report-dir "$UBOOT_TRAVIS_BUILD_DIR";
           # the below corresponds to .gitlab-ci.yml "after_script"
           rm -rf /tmp/uboot-test-hooks /tmp/venv
           EOF
@@ -479,7 +509,7 @@ stages:
           OVERRIDE: "-a ASAN"
         sandbox_clang_asan:
           BUILDMAN: "sandbox"
-          OVERRIDE: "-O clang-14 -a ASAN"
+          OVERRIDE: "-O clang-16 -a ASAN"
         samsung_socfpga:
           BUILDMAN: "samsung socfpga"
         sun4i:

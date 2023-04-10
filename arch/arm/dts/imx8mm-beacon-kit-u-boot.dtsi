@@ -9,12 +9,12 @@
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &aips4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &reg_usdhc2_vmmc {
@@ -26,23 +26,23 @@
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio5 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pca6416_0 {
@@ -54,31 +54,31 @@
 };
 
 &pinctrl_i2c1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_pmic {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_uart2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2_gpio {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_wdog {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &reg_usbotg1 {
@@ -86,41 +86,41 @@
 };
 
 &uart2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbmisc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbotg1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usbphynop1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &{/soc@0/bus@30800000/i2c@30a20000/pmic@4b} {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &{/soc@0/bus@30800000/i2c@30a20000/pmic@4b/regulators} {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &wdog1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

@@ -1713,17 +1713,10 @@ static int make_flame_tree(enum out_format_t out_format,
 	struct flame_state state;
 	struct flame_node *tree;
 	struct trace_call *call;
-	int missing_count = 0;
-	int i, depth;
+	int i;
 
 	/* maintain a stack of start times, etc. for 'calling' functions */
 	state.stack_ptr = 0;
-
-	/*
-	 * The first thing in the trace may not be the top-level function, so
-	 * set the initial depth so that no function goes below depth 0
-	 */
-	depth = -calc_min_depth();
 
 	tree = create_node("tree");
 	if (!tree)
@@ -1736,16 +1729,10 @@ static int make_flame_tree(enum out_format_t out_format,
 		ulong timestamp = call->flags & FUNCF_TIMESTAMP_MASK;
 		struct func_info *func;
 
-		if (entry)
-			depth++;
-		else
-			depth--;
-
 		func = find_func_by_offset(call->func);
 		if (!func) {
 			warn("Cannot find function at %lx\n",
 			     text_offset + call->func);
-			missing_count++;
 			continue;
 		}
 

@@ -2680,6 +2680,12 @@ sub u_boot_line {
 		"DEVICE_PRIV_AUTO", $herecurr);
 	u_boot_struct_name($line, "per_device_plat_auto", "_plat",
 		"DEVICE_PLAT_AUTO", $herecurr);
+
+	# Avoid using the pre-schema driver model tags
+	if ($line =~ /^\+.*u-boot,dm-.*/) {
+		ERROR("PRE_SCHEMA",
+		      "Driver model schema uses 'bootph-...' tags now\n" . $herecurr);
+	}
 }
 
 sub exclude_global_initialisers {

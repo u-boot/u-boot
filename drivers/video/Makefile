@@ -9,6 +9,12 @@ obj-$(CONFIG_BACKLIGHT_GPIO) += backlight_gpio.o
 obj-$(CONFIG_BACKLIGHT_PWM) += pwm_backlight.o
 obj-$(CONFIG_CONSOLE_NORMAL) += console_normal.o
 obj-$(CONFIG_CONSOLE_ROTATION) += console_rotate.o
+ifdef CONFIG_CONSOLE_NORMAL
+obj-y += console_core.o
+else ifdef CONFIG_CONSOLE_ROTATION
+obj-y += console_core.o
+endif
+obj-$(CONFIG_CONSOLE_ROTATION) += console_core.o
 obj-$(CONFIG_CONSOLE_TRUETYPE) += console_truetype.o fonts/
 obj-$(CONFIG_DISPLAY) += display-uclass.o
 obj-$(CONFIG_VIDEO_MIPI_DSI) += dsi-host-uclass.o
@@ -61,10 +67,10 @@ obj-$(CONFIG_VIDEO_OMAP3) += omap3_dss.o
 obj-$(CONFIG_VIDEO_DSI_HOST_SANDBOX) += sandbox_dsi_host.o
 obj-$(CONFIG_VIDEO_SANDBOX_SDL) += sandbox_sdl.o
 obj-$(CONFIG_VIDEO_SIMPLE) += simplefb.o
-obj-$(CONFIG_VIDEO_TEGRA20) += tegra.o
 obj-$(CONFIG_VIDEO_VESA) += vesa.o
 obj-$(CONFIG_VIDEO_SEPS525) += seps525.o
 obj-$(CONFIG_VIDEO_ZYNQMP_DPSUB) += zynqmp_dpsub.o
 
 obj-y += bridge/
 obj-y += sunxi/
+obj-y += tegra20/

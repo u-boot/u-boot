@@ -29,7 +29,7 @@ static iomux_v3_cfg_t const fec1_rst_pads[] = {
 	IMX8MM_PAD_NAND_DATA01_GPIO3_IO7 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
-static void setup_iomux_fec(void)
+static void setup_fec(void)
 {
 	imx_iomux_v3_setup_multiple_pads(fec1_rst_pads,
 					 ARRAY_SIZE(fec1_rst_pads));
@@ -38,19 +38,6 @@ static void setup_iomux_fec(void)
 	gpio_direction_output(FEC_RST_PAD, 0);
 	udelay(500);
 	gpio_direction_output(FEC_RST_PAD, 1);
-}
-
-static int setup_fec(void)
-{
-	struct iomuxc_gpr_base_regs *gpr =
-		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
-
-	setup_iomux_fec();
-
-	/* Use 125M anatop REF_CLK1 for ENET1, not from external */
-	clrsetbits_le32(&gpr->gpr[1], 13, 0);
-
-	return set_clk_enet(ENET_125MHZ);
 }
 
 int board_phy_config(struct phy_device *phydev)

@@ -19,13 +19,13 @@
 
 &dpmac1 {
 	status = "okay";
-	phy-connection-type = "xgmii";
+	phy-connection-type = "10gbase-r";
 };
 
 &dpmac2 {
 	status = "okay";
 	phy-handle = <&mdio2_phy1>;
-	phy-connection-type = "xgmii";
+	phy-connection-type = "10gbase-r";
 };
 
 &dpmac3 {
@@ -121,7 +121,7 @@
 
 &i2c0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	i2c-mux@77 {
 		compatible = "nxp,pca9547";
@@ -140,6 +140,14 @@
 			};
 		};
 	};
+};
+
+&duart0 {
+	status = "okay";
+};
+
+&duart1 {
+	status = "okay";
 };
 
 &qspi {

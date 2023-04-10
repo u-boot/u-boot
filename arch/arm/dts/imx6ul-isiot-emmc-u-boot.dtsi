@@ -6,5 +6,5 @@
 #include "imx6ul-isiot-u-boot.dtsi"
 
 &usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

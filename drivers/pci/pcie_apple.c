@@ -315,6 +315,8 @@ static int apple_pcie_probe(struct udevice *dev)
 	for (of_port = ofnode_first_subnode(dev_ofnode(dev));
 	     ofnode_valid(of_port);
 	     of_port = ofnode_next_subnode(of_port)) {
+		if (!ofnode_is_enabled(of_port))
+			continue;
 		ret = apple_pcie_setup_port(pcie, of_port);
 		if (ret) {
 			dev_err(pcie->dev, "Port %d setup fail: %d\n", i, ret);

@@ -27,41 +27,41 @@
 };
 
 &dwc3_1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usb1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usb2_phy1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &am43xx_control_usb2phy1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &ocp2scp0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &dwc3_2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usb2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usb2_phy2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &am43xx_control_usb2phy2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &ocp2scp1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

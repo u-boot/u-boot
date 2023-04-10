@@ -24,7 +24,7 @@
 
 &i2c0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	fpga@66 {
 		#address-cells = <1>;
@@ -130,6 +130,14 @@
 		device-width = <1>;
 		ranges = <0 2 0 0x100>;
 	};
+};
+
+&duart0 {
+	status = "okay";
+};
+
+&duart1 {
+	status = "okay";
 };
 
 &dspi {

@@ -230,8 +230,30 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 	u64 time = 0;
 	enum efi_auth_var_type var_type;
 
-	if (!variable_name || !*variable_name || !vendor ||
-	    ((attributes & EFI_VARIABLE_RUNTIME_ACCESS) &&
+	if (!variable_name || !*variable_name || !vendor)
+		return EFI_INVALID_PARAMETER;
+
+	if (data_size && !data)
+		return EFI_INVALID_PARAMETER;
+
+	/* EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS is deprecated */
+	if (attributes & EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS)
+		return EFI_UNSUPPORTED;
+
+	/* Make sure if runtime bit is set, boot service bit is set also */
+	if ((attributes &
+	     (EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_BOOTSERVICE_ACCESS)) ==
+	    EFI_VARIABLE_RUNTIME_ACCESS)
+		return EFI_INVALID_PARAMETER;
+
+	/* only EFI_VARIABLE_NON_VOLATILE attribute is invalid */
+	if ((attributes & EFI_VARIABLE_MASK) == EFI_VARIABLE_NON_VOLATILE)
+		return EFI_INVALID_PARAMETER;
+
+	/* Make sure HR is set with NV, BS and RT */
+	if (attributes & EFI_VARIABLE_HARDWARE_ERROR_RECORD &&
+	    (!(attributes & EFI_VARIABLE_NON_VOLATILE) ||
+	     !(attributes & EFI_VARIABLE_RUNTIME_ACCESS) ||
 	     !(attributes & EFI_VARIABLE_BOOTSERVICE_ACCESS)))
 		return EFI_INVALID_PARAMETER;
 
@@ -281,8 +303,6 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 
 	/* authenticate a variable */
 	if (IS_ENABLED(CONFIG_EFI_SECURE_BOOT)) {
-		if (attributes & EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS)
-			return EFI_INVALID_PARAMETER;
 		if (attributes &
 		    EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS) {
 			u32 env_attr;
@@ -300,8 +320,7 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 		}
 	} else {
 		if (attributes &
-		    (EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS |
-		     EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)) {
+		    EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS) {
 			EFI_PRINT("Secure boot is not configured\n");
 			return EFI_INVALID_PARAMETER;
 		}

@@ -538,7 +538,7 @@ static uint32_t ast2600_configure_pll(struct ast2600_scu *scu,
 	}
 
 	p_cfg->reg.b.bypass = 0;
-	p_cfg->reg.b.off = 1;
+	p_cfg->reg.b.off = 0;
 	p_cfg->reg.b.reset = 1;
 
 	reg = readl(addr);
@@ -549,7 +549,6 @@ static uint32_t ast2600_configure_pll(struct ast2600_scu *scu,
 	/* write extend parameter */
 	writel(p_cfg->ext_reg, addr_ext);
 	udelay(100);
-	p_cfg->reg.b.off = 0;
 	p_cfg->reg.b.reset = 0;
 	reg &= ~GENMASK(25, 0);
 	reg |= p_cfg->reg.w;

@@ -1083,7 +1083,7 @@ static int dm_test_acpi_write_name(struct unit_test_state *uts)
 	ut_asserteq(NAME_OP, *ptr++);
 	ptr += 10;
 	ut_asserteq(STRING_PREFIX, *ptr++);
-	ut_asserteq_str("baldrick", (char *)ptr)
+	ut_asserteq_str("baldrick", (char *)ptr);
 	ptr += 9;
 
 	ut_asserteq(NAME_OP, *ptr++);

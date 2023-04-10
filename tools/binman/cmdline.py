@@ -7,7 +7,13 @@
 
 import argparse
 from argparse import ArgumentParser
+import os
 from binman import state
+import os
+import pathlib
+
+BINMAN_DIR = pathlib.Path(__file__).parent
+HAS_TESTS = (BINMAN_DIR / "ftest.py").exists()
 
 def make_extract_parser(subparsers):
     """make_extract_parser: Make a subparser for the 'extract' command
@@ -67,6 +73,14 @@ def ParseArgs(argv):
             options provides access to the options (e.g. option.debug)
             args is a list of string arguments
     """
+    def _AddPreserve(pars):
+        pars.add_argument('-O', '--outdir', type=str,
+            action='store', help='Path to directory to use for intermediate '
+            'and output files')
+        pars.add_argument('-p', '--preserve', action='store_true',\
+            help='Preserve temporary output directory even if option -O is not '
+                 'given')
+
     if '-H' in argv:
         argv.append('build')
 
@@ -80,8 +94,11 @@ controlled by a description in the board device tree.'''
         help='Enabling debugging (provides a full traceback on error)')
     parser.add_argument('-H', '--full-help', action='store_true',
         default=False, help='Display the README file')
+    parser.add_argument('--tooldir', type=str,
+        default=os.path.join(os.getenv('HOME'), '.binman-tools'),
+        help='Set the directory to store tools')
     parser.add_argument('--toolpath', type=str, action='append',
-        help='Add a path to the directories containing tools')
+        help='Add a path to the list of directories containing tools')
     parser.add_argument('-T', '--threads', type=int,
           default=None, help='Number of threads to use (0=single-thread)')
     parser.add_argument('--test-section-timeout', action='store_true',
@@ -118,12 +135,7 @@ controlled by a description in the board device tree.'''
     build_parser.add_argument('-n', '--no-expanded', action='store_true',
             help="Don't use 'expanded' versions of entries where available; "
                  "normally 'u-boot' becomes 'u-boot-expanded', for example")
-    build_parser.add_argument('-O', '--outdir', type=str,
-        action='store', help='Path to directory to use for intermediate and '
-        'output files')
-    build_parser.add_argument('-p', '--preserve', action='store_true',\
-        help='Preserve temporary output directory even if option -O is not '
-             'given')
+    _AddPreserve(build_parser)
     build_parser.add_argument('-u', '--update-fdt', action='store_true',
         default=False, help='Update the binman node with offset/size info')
     build_parser.add_argument('--update-fdt-in-elf', type=str,
@@ -160,26 +172,43 @@ controlled by a description in the board device tree.'''
         help='Path to directory to use for input files')
     replace_parser.add_argument('-m', '--map', action='store_true',
         default=False, help='Output a map file for the updated image')
+    _AddPreserve(replace_parser)
     replace_parser.add_argument('paths', type=str, nargs='*',
                                 help='Paths within file to replace (wildcard)')
 
-    test_parser = subparsers.add_parser('test', help='Run tests')
-    test_parser.add_argument('-P', '--processes', type=int,
-        help='set number of processes to use for running tests')
-    test_parser.add_argument('-T', '--test-coverage', action='store_true',
-        default=False, help='run tests and check for 100%% coverage')
-    test_parser.add_argument('-X', '--test-preserve-dirs', action='store_true',
-        help='Preserve and display test-created input directories; also '
-             'preserve the output directory if a single test is run (pass test '
-             'name at the end of the command line')
-    test_parser.add_argument('tests', nargs='*',
-                             help='Test names to run (omit for all)')
+    sign_parser = subparsers.add_parser('sign',
+                                           help='Sign entries in image')
+    sign_parser.add_argument('-a', '--algo', type=str, required=True,
+                                help='Hash algorithm e.g. sha256,rsa4096')
+    sign_parser.add_argument('-f', '--file', type=str, required=False,
+                                help='Input filename to sign')
+    sign_parser.add_argument('-i', '--image', type=str, required=True,
+                                help='Image filename to update')
+    sign_parser.add_argument('-k', '--key', type=str, required=True,
+                                help='Private key file for signing')
+    sign_parser.add_argument('paths', type=str, nargs='*',
+                                help='Paths within file to sign (wildcard)')
+
+    if HAS_TESTS:
+        test_parser = subparsers.add_parser('test', help='Run tests')
+        test_parser.add_argument('-P', '--processes', type=int,
+            help='set number of processes to use for running tests')
+        test_parser.add_argument('-T', '--test-coverage', action='store_true',
+            default=False, help='run tests and check for 100%% coverage')
+        test_parser.add_argument(
+            '-X', '--test-preserve-dirs', action='store_true',
+            help='Preserve and display test-created input directories; also '
+                 'preserve the output directory if a single test is run (pass '
+                 'test name at the end of the command line')
+        test_parser.add_argument('tests', nargs='*',
+                                 help='Test names to run (omit for all)')
 
     tool_parser = subparsers.add_parser('tool', help='Check bintools')
     tool_parser.add_argument('-l', '--list', action='store_true',
                              help='List all known bintools')
-    tool_parser.add_argument('-f', '--fetch', action='store_true',
-                             help='fetch a bintool from a known location (or: all/missing)')
+    tool_parser.add_argument(
+        '-f', '--fetch', action='store_true',
+        help='fetch a bintool from a known location (or: all/missing)')
     tool_parser.add_argument('bintools', type=str, nargs='*')
 
     return parser.parse_args(argv)

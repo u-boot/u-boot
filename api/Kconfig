@@ -10,9 +10,16 @@ config SYS_MMC_MAX_DEVICE
 	depends on API
 	default 1
 
-endmenu
+config EXAMPLES
+	bool "Compile API examples"
+	depends on !SANDBOX
+	default y if ARCH_QEMU
+	help
+	  U-Boot provides an API for standalone applications. Examples are
+	  provided in directory examples/.
 
 config STANDALONE_LOAD_ADDR
+	depends on EXAMPLES
 	hex "Address in memory to link standalone applications to"
 	default 0xffffffff80200000 if MIPS && 64BIT
 	default 0x8c000000 if SH
@@ -30,3 +37,5 @@ config STANDALONE_LOAD_ADDR
 	  This option defines a board specific value for the address where
 	  standalone program gets loaded, thus overwriting the architecture
 	  dependent default settings.
+
+endmenu

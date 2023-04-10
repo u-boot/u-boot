@@ -1025,6 +1025,7 @@ static int do_env_indirect(struct cmd_tbl *cmdtp, int flag,
 	char *from = argv[2];
 	char *default_value = NULL;
 	int ret = 0;
+	char *val;
 
 	if (argc < 3 || argc > 4) {
 		return CMD_RET_USAGE;
@@ -1034,18 +1035,14 @@ static int do_env_indirect(struct cmd_tbl *cmdtp, int flag,
 		default_value = argv[3];
 	}
 
-	if (env_get(from) == NULL && default_value == NULL) {
+	val = env_get(from) ?: default_value;
+	if (!val) {
 		printf("## env indirect: Environment variable for <from> (%s) does not exist.\n", from);
 
 		return CMD_RET_FAILURE;
 	}
 
-	if (env_get(from) == NULL) {
-		ret = env_set(to, default_value);
-	}
-	else {
-		ret = env_set(to, env_get(from));
-	}
+	ret = env_set(to, val);
 
 	if (ret == 0) {
 		return CMD_RET_SUCCESS;

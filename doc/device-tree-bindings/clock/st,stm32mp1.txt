@@ -251,9 +251,9 @@ Example of clock tree initialization
 
 / {
 	clocks {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		clk_hse: clk-hse {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
 			clock-frequency = <24000000>;
@@ -261,28 +261,28 @@ Example of clock tree initialization
 		};
 
 		clk_hsi: clk-hsi {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
 			clock-frequency = <64000000>;
 		};
 
 		clk_lse: clk-lse {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
 			clock-frequency = <32768>;
 		};
 
 		clk_lsi: clk-lsi {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
 			clock-frequency = <32000>;
 		};
 
 		clk_csi: clk-csi {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
 			clock-frequency = <4000000>;
@@ -292,7 +292,7 @@ Example of clock tree initialization
 	soc {
 
 		rcc: rcc@50000000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			compatible = "st,stm32mp1-rcc", "syscon";
 			reg = <0x50000000 0x1000>;
 			#address-cells = <1>;
@@ -371,7 +371,7 @@ Example of clock tree initialization
 				reg = <0>;
 				cfg = < 2 80 0 0 0 PQR(1,0,0) >;
 				frac = < 0x800 >;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			/* VCO = 1066.0 MHz => P = 266 (AXI), Q = 533 (GPU),
@@ -381,7 +381,7 @@ Example of clock tree initialization
 				reg = <1>;
 				cfg = < 2 65 1 0 0 PQR(1,1,1) >;
 				frac = < 0x1400 >;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			/* VCO = 417.8 MHz => P = 209, Q = 24, R = 11 */
@@ -390,7 +390,7 @@ Example of clock tree initialization
 				reg = <2>;
 				cfg = < 1 33 1 16 36 PQR(1,1,1) >;
 				frac = < 0x1a04 >;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			/* VCO = 594.0 MHz => P = 99, Q = 74, R = 74 */
@@ -398,7 +398,7 @@ Example of clock tree initialization
 				compatible = "st,stm32mp1-pll";
 				reg = <3>;
 				cfg = < 3 98 5 7 7 PQR(1,1,1) >;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 		};
 	};

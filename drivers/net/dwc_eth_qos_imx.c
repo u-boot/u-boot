@@ -7,6 +7,7 @@
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <errno.h>
 #include <eth_phy.h>
 #include <log.h>
@@ -32,20 +33,18 @@ __weak u32 imx_get_eqos_csr_clk(void)
 	return 100 * 1000000;
 }
 
-__weak int imx_eqos_txclk_set_rate(unsigned long rate)
-{
-	return 0;
-}
-
 static ulong eqos_get_tick_clk_rate_imx(struct udevice *dev)
 {
-	return imx_get_eqos_csr_clk();
+	struct eqos_priv *eqos = dev_get_priv(dev);
+
+	return clk_get_rate(&eqos->clk_master_bus);
 }
 
 static int eqos_probe_resources_imx(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	phy_interface_t interface;
+	int ret;
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
@@ -55,6 +54,122 @@ static int eqos_probe_resources_imx(struct udevice *dev)
 		pr_err("Invalid PHY interface\n");
 		return -EINVAL;
 	}
+
+	ret = board_interface_eth_init(dev, interface);
+	if (ret)
+		return -EINVAL;
+
+	eqos->max_speed = dev_read_u32_default(dev, "max-speed", 0);
+
+	ret = clk_get_by_name(dev, "stmmaceth", &eqos->clk_master_bus);
+	if (ret) {
+		dev_dbg(dev, "clk_get_by_name(master_bus) failed: %d", ret);
+		goto err_probe;
+	}
+
+	ret = clk_get_by_name(dev, "ptp_ref", &eqos->clk_ptp_ref);
+	if (ret) {
+		dev_dbg(dev, "clk_get_by_name(ptp_ref) failed: %d", ret);
+		goto err_free_clk_master_bus;
+	}
+
+	ret = clk_get_by_name(dev, "tx", &eqos->clk_tx);
+	if (ret) {
+		dev_dbg(dev, "clk_get_by_name(tx) failed: %d", ret);
+		goto err_free_clk_ptp_ref;
+	}
+
+	ret = clk_get_by_name(dev, "pclk", &eqos->clk_ck);
+	if (ret) {
+		dev_dbg(dev, "clk_get_by_name(pclk) failed: %d", ret);
+		goto err_free_clk_tx;
+	}
+
+	debug("%s: OK\n", __func__);
+	return 0;
+
+err_free_clk_tx:
+	clk_free(&eqos->clk_tx);
+err_free_clk_ptp_ref:
+	clk_free(&eqos->clk_ptp_ref);
+err_free_clk_master_bus:
+	clk_free(&eqos->clk_master_bus);
+err_probe:
+
+	debug("%s: returns %d\n", __func__, ret);
+	return ret;
+}
+
+static int eqos_remove_resources_imx(struct udevice *dev)
+{
+	struct eqos_priv *eqos = dev_get_priv(dev);
+
+	debug("%s(dev=%p):\n", __func__, dev);
+
+	clk_free(&eqos->clk_ck);
+	clk_free(&eqos->clk_tx);
+	clk_free(&eqos->clk_ptp_ref);
+	clk_free(&eqos->clk_master_bus);
+
+	debug("%s: OK\n", __func__);
+	return 0;
+}
+
+static int eqos_start_clks_imx(struct udevice *dev)
+{
+	struct eqos_priv *eqos = dev_get_priv(dev);
+	int ret;
+
+	debug("%s(dev=%p):\n", __func__, dev);
+
+	ret = clk_enable(&eqos->clk_master_bus);
+	if (ret < 0) {
+		dev_dbg(dev, "clk_enable(clk_master_bus) failed: %d", ret);
+		goto err;
+	}
+
+	ret = clk_enable(&eqos->clk_ptp_ref);
+	if (ret < 0) {
+		dev_dbg(dev, "clk_enable(clk_ptp_ref) failed: %d", ret);
+		goto err_disable_clk_master_bus;
+	}
+
+	ret = clk_enable(&eqos->clk_tx);
+	if (ret < 0) {
+		dev_dbg(dev, "clk_enable(clk_tx) failed: %d", ret);
+		goto err_disable_clk_ptp_ref;
+	}
+
+	ret = clk_enable(&eqos->clk_ck);
+	if (ret < 0) {
+		dev_dbg(dev, "clk_enable(clk_ck) failed: %d", ret);
+		goto err_disable_clk_tx;
+	}
+
+	debug("%s: OK\n", __func__);
+	return 0;
+
+err_disable_clk_tx:
+	clk_disable(&eqos->clk_tx);
+err_disable_clk_ptp_ref:
+	clk_disable(&eqos->clk_ptp_ref);
+err_disable_clk_master_bus:
+	clk_disable(&eqos->clk_master_bus);
+err:
+	debug("%s: FAILED: %d\n", __func__, ret);
+	return ret;
+}
+
+static int eqos_stop_clks_imx(struct udevice *dev)
+{
+	struct eqos_priv *eqos = dev_get_priv(dev);
+
+	debug("%s(dev=%p):\n", __func__, dev);
+
+	clk_disable(&eqos->clk_ck);
+	clk_disable(&eqos->clk_tx);
+	clk_disable(&eqos->clk_ptp_ref);
+	clk_disable(&eqos->clk_master_bus);
 
 	debug("%s: OK\n", __func__);
 	return 0;
@@ -68,22 +183,29 @@ static int eqos_set_tx_clk_speed_imx(struct udevice *dev)
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
-	switch (eqos->phy->speed) {
-	case SPEED_1000:
-		rate = 125 * 1000 * 1000;
-		break;
-	case SPEED_100:
-		rate = 25 * 1000 * 1000;
-		break;
-	case SPEED_10:
-		rate = 2.5 * 1000 * 1000;
-		break;
-	default:
+	if (eqos->phy->interface == PHY_INTERFACE_MODE_RMII)
+		rate = 5000;	/* 5000 kHz = 5 MHz */
+	else
+		rate = 2500;	/* 2500 kHz = 2.5 MHz */
+
+	if (eqos->phy->speed == SPEED_1000 &&
+	    (eqos->phy->interface == PHY_INTERFACE_MODE_RGMII ||
+	     eqos->phy->interface == PHY_INTERFACE_MODE_RGMII_ID ||
+	     eqos->phy->interface == PHY_INTERFACE_MODE_RGMII_RXID ||
+	     eqos->phy->interface == PHY_INTERFACE_MODE_RGMII_TXID)) {
+		rate *= 50;	/* Use 50x base rate i.e. 125 MHz */
+	} else if (eqos->phy->speed == SPEED_100) {
+		rate *= 10;	/* Use 10x base rate */
+	} else if (eqos->phy->speed == SPEED_10) {
+		rate *= 1;	/* Use base rate */
+	} else {
 		pr_err("invalid speed %d", eqos->phy->speed);
 		return -EINVAL;
 	}
 
-	ret = imx_eqos_txclk_set_rate(rate);
+	rate *= 1000;	/* clk_set_rate() operates in Hz */
+
+	ret = clk_set_rate(&eqos->clk_tx, rate);
 	if (ret < 0) {
 		pr_err("imx (tx_clk, %lu) failed: %d", rate, ret);
 		return ret;
@@ -107,11 +229,11 @@ static struct eqos_ops eqos_imx_ops = {
 	.eqos_inval_buffer = eqos_inval_buffer_generic,
 	.eqos_flush_buffer = eqos_flush_buffer_generic,
 	.eqos_probe_resources = eqos_probe_resources_imx,
-	.eqos_remove_resources = eqos_null_ops,
+	.eqos_remove_resources = eqos_remove_resources_imx,
 	.eqos_stop_resets = eqos_null_ops,
 	.eqos_start_resets = eqos_null_ops,
-	.eqos_stop_clks = eqos_null_ops,
-	.eqos_start_clks = eqos_null_ops,
+	.eqos_stop_clks = eqos_stop_clks_imx,
+	.eqos_start_clks = eqos_start_clks_imx,
 	.eqos_calibrate_pads = eqos_null_ops,
 	.eqos_disable_calibration = eqos_null_ops,
 	.eqos_set_tx_clk_speed = eqos_set_tx_clk_speed_imx,

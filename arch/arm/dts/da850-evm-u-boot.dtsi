@@ -8,7 +8,7 @@
 
 / {
 	soc@1c00000 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 
 	nand {
@@ -16,7 +16,7 @@
 	};
 
 	panel {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
@@ -29,17 +29,17 @@
 };
 
 &mmc0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &serial2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &spi1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

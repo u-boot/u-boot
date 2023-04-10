@@ -229,7 +229,7 @@
 
 /* gem2/gem3 via PL with phys u79@2 and u80@3 */
 
-&pinctrl0 { /* required by spec */
+&pinctrl0 {
 	status = "okay";
 
 	pinctrl_uart1_default: uart1-default {

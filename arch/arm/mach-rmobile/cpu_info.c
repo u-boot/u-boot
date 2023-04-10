@@ -19,8 +19,8 @@ int arch_cpu_init(void)
 }
 #endif
 
-/* R-Car Gen3 D-cache is enabled in memmap-gen3.c */
-#ifndef CONFIG_RCAR_GEN3
+/* R-Car Gen3 and Gen4 D-cache is enabled in memmap-gen3.c */
+#ifndef CONFIG_RCAR_64
 #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 void enable_caches(void)
 {
@@ -76,6 +76,8 @@ static const struct {
 	{ RMOBILE_CPU_TYPE_R8A77990, "R8A77990" },
 	{ RMOBILE_CPU_TYPE_R8A77995, "R8A77995" },
 	{ RMOBILE_CPU_TYPE_R8A779A0, "R8A779A0" },
+	{ RMOBILE_CPU_TYPE_R8A779F0, "R8A779F0" },
+	{ RMOBILE_CPU_TYPE_R8A779G0, "R8A779G0" },
 	{ 0x0, "CPU" },
 };
 

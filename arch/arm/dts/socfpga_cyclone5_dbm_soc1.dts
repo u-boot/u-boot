@@ -58,7 +58,7 @@
 
 &mmc0 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &usb1 {
@@ -67,7 +67,7 @@
 };
 
 &uart0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &watchdog0 {

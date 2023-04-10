@@ -11,6 +11,25 @@
 #include "upower_api.h"
 
 #define UPOWER_AP_MU1_ADDR	0x29280000
+
+#define PS_RTD		BIT(0)
+#define PS_DSP		BIT(1)
+#define PS_A35_0	BIT(2)
+#define PS_A35_1	BIT(3)
+#define PS_L2		BIT(4)
+#define PS_FAST_NIC	BIT(5)
+#define PS_APD_PERIPH	BIT(6)
+#define PS_GPU3D	BIT(7)
+#define PS_HIFI4	BIT(8)
+#define PS_DDR		GENMASK(12, 9)
+#define PS_PXP_EPDC	BIT(13)
+#define PS_MIPI_DSI	BIT(14)
+#define PS_MIPI_CSI	BIT(15)
+#define PS_NIC_LPAV	BIT(16)
+#define PS_FUSION_AO	BIT(17)
+#define PS_FUSE		BIT(18)
+#define PS_UPOWER	BIT(19)
+
 static struct mu_type *muptr = (struct mu_type *)UPOWER_AP_MU1_ADDR;
 
 void upower_wait_resp(void)
@@ -110,6 +129,7 @@ int upower_init(void)
 	u32 fw_major, fw_minor, fw_vfixes;
 	u32 soc_id;
 	int status;
+	enum upwr_resp err_code;
 
 	u32 swton;
 	u64 memon;
@@ -140,27 +160,92 @@ int upower_init(void)
 		}
 	} while (0);
 
-	swton = 0xfff80;
+	swton = PS_UPOWER | PS_FUSE | PS_FUSION_AO | PS_NIC_LPAV | PS_PXP_EPDC | PS_DDR |
+		PS_HIFI4 | PS_GPU3D | PS_MIPI_DSI;
 	ret = upwr_pwm_power_on(&swton, NULL, NULL);
 	if (ret)
 		printf("Turn on switches fail %d\n", ret);
 	else
-		printf("Turn on switches ok\n");
-	upower_wait_resp();
-	ret = upwr_poll_req_status(UPWR_SG_PWRMGMT, NULL, NULL, &ret_val, 1000);
-	if (ret != UPWR_REQ_OK)
-		printf("Failure %d\n", ret);
+		printf("Turning on switches...\n");
 
-	memon = 0x3FFFFFFFFFFFFCUL;
-	ret = upwr_pwm_power_on(NULL, (const u32 *)&memon, NULL);
+	upower_wait_resp();
+	ret = upwr_poll_req_status(UPWR_SG_PWRMGMT, NULL, &err_code, &ret_val, 1000);
+	if (ret != UPWR_REQ_OK)
+		printf("Turn on switches faliure %d, err_code %d, ret_val 0x%x\n", ret, err_code, ret_val);
+	else
+		printf("Turn on switches ok\n");
+
+	/*
+	 * Ascending Order -> bit [0:54)
+	 * CA35 Core 0 L1 cache
+	 * CA35 Core 1 L1 cache
+	 * L2 Cache 0
+	 * L2 Cache 1
+	 * L2 Cache victim/tag
+	 * CAAM Secure RAM
+	 * DMA1 RAM
+	 * FlexSPI2 FIFO, Buffer
+	 * SRAM0
+	 * AD ROM
+	 * USB0 TX/RX RAM
+	 * uSDHC0 FIFO RAM
+	 * uSDHC1 FIFO RAM
+	 * uSDHC2 FIFO and USB1 TX/RX RAM
+	 * GIC RAM
+	 * ENET TX FIXO
+	 * Reserved(Brainshift)
+	 * DCNano Tile2Linear and RGB Correction
+	 * DCNano Cursor and FIFO
+	 * EPDC LUT
+	 * EPDC FIFO
+	 * DMA2 RAM
+	 * GPU2D RAM Group 1
+	 * GPU2D RAM Group 2
+	 * GPU3D RAM Group 1
+	 * GPU3D RAM Group 2
+	 * HIFI4 Caches, IRAM, DRAM
+	 * ISI Buffers
+	 * MIPI-CSI FIFO
+	 * MIPI-DSI FIFO
+	 * PXP Caches, Buffers
+	 * SRAM1
+	 * Casper RAM
+	 * DMA0 RAM
+	 * FlexCAN RAM
+	 * FlexSPI0 FIFO, Buffer
+	 * FlexSPI1 FIFO, Buffer
+	 * CM33 Cache
+	 * PowerQuad RAM
+	 * ETF RAM
+	 * Sentinel PKC, Data RAM1, Inst RAM0/1
+	 * Sentinel ROM
+	 * uPower IRAM/DRAM
+	 * uPower ROM
+	 * CM33 ROM
+	 * SSRAM Partition 0
+	 * SSRAM Partition 1
+	 * SSRAM Partition 2,3,4
+	 * SSRAM Partition 5
+	 * SSRAM Partition 6
+	 * SSRAM Partition 7_a(128KB)
+	 * SSRAM Partition 7_b(64KB)
+	 * SSRAM Partition 7_c(64KB)
+	 * Sentinel Data RAM0, Inst RAM2
+	 */
+	/* MIPI-CSI FIFO BIT28 not set */
+	memon = 0x3FFFFFEFFFFFFCUL;
+	ret = upwr_pwm_power_on(NULL, (const uint32_t *)&memon, NULL);
 	if (ret)
 		printf("Turn on memories fail %d\n", ret);
 	else
-		printf("Turn on memories ok\n");
+		printf("Turning on memories...\n");
+
 	upower_wait_resp();
-	ret = upwr_poll_req_status(UPWR_SG_PWRMGMT, NULL, NULL, &ret_val, 1000);
+	ret = upwr_poll_req_status(UPWR_SG_PWRMGMT, NULL, &err_code, &ret_val, 1000);
 	if (ret != UPWR_REQ_OK)
-		printf("Failure %d\n", ret);
+		printf("Turn on memories faliure %d, err_code %d, ret_val 0x%x\n", ret, err_code, ret_val);
+	else
+		printf("Turn on memories ok\n");
 
 	mdelay(1);
 
@@ -168,13 +253,14 @@ int upower_init(void)
 	if (ret)
 		printf("Clear DDR retention fail %d\n", ret);
 	else
-		printf("Clear DDR retention ok\n");
+		printf("Clearing DDR retention...\n");
 
 	upower_wait_resp();
-
-	ret = upwr_poll_req_status(UPWR_SG_EXCEPT, NULL, NULL, &ret_val, 1000);
+	ret = upwr_poll_req_status(UPWR_SG_EXCEPT, NULL, &err_code, &ret_val, 1000);
 	if (ret != UPWR_REQ_OK)
-		printf("Failure %d\n", ret);
+		printf("Clear DDR retention fail %d, err_code %d, ret_val 0x%x\n", ret, err_code, ret_val);
+	else
+		printf("Clear DDR retention ok\n");
 
 	return 0;
 }

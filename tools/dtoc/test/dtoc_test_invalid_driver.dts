@@ -9,7 +9,7 @@
 
 / {
 	spl-test {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "invalid";
 	};
 };

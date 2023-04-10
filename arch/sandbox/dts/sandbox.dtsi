@@ -49,14 +49,14 @@
 	};
 
 	clk_fixed: clk-fixed {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "sandbox,fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <1234>;
 	};
 
 	clk_sandbox: clk-sbox {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "sandbox,clk";
 		#clock-cells = <1>;
 		assigned-clocks = <&clk_sandbox 3>;
@@ -64,7 +64,7 @@
 	};
 
 	clk-test {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "sandbox,clk-test";
 		clocks = <&clk_fixed>,
 			 <&clk_sandbox 1>,
@@ -75,7 +75,7 @@
 	};
 
 	gpio_a: gpios@0 {
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 		gpio-controller;
 		compatible = "sandbox,gpio";
 		#gpio-cells = <1>;
@@ -84,7 +84,7 @@
 	};
 
 	gpio_b: gpios@1 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		gpio-controller;
 		compatible = "sandbox,gpio";
 		#gpio-cells = <2>;
@@ -93,7 +93,7 @@
 	};
 
 	gpio-test {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		compatible = "sandbox,gpio-test";
 		test-gpios = <&gpio_b 3 0>;
 	};
@@ -115,7 +115,7 @@
 			reg = <0x43>;
 			compatible = "sandbox-rtc";
 			sandbox,emul = <&emul0>;
-			u-boot,dm-pre-reloc;
+			bootph-pre-ram;
 		};
 		sandbox_pmic: sandbox_pmic {
 			reg = <0x40>;
@@ -126,7 +126,7 @@
 		};
 
 		i2c_emul: emul {
-			u-boot,dm-pre-reloc;
+			bootph-pre-ram;
 			reg = <0xff>;
 			compatible = "sandbox,i2c-emul-parent";
 			emul_eeprom: emul-eeprom {
@@ -136,7 +136,7 @@
 				#emul-cells = <0>;
 			};
 			emul0: emul0 {
-				u-boot,dm-pre-reloc;
+				bootph-pre-ram;
 				compatible = "sandbox,i2c-rtc-emul";
 				#emul-cells = <0>;
 			};
@@ -149,20 +149,20 @@
 	};
 
 	irq_sandbox: irq-sbox {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		compatible = "sandbox,irq";
 		interrupt-controller;
 		#interrupt-cells = <2>;
 	};
 
 	irq-test {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		compatible = "sandbox,irq-test";
 		interrupts-extended = <&irq_sandbox 3 0>;
 	};
 
 	lcd {
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 		compatible = "sandbox,lcd-sdl";
 		xres = <1366>;
 		yres = <768>;
@@ -236,7 +236,7 @@
 
 	reset@1 {
 		compatible = "sandbox,reset";
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 	};
 
 	rng {
@@ -260,7 +260,7 @@
 
 	spi@0 {
 		firmware_storage_spi: flash@0 {
-			u-boot,dm-pre-proper;
+			bootph-some-ram;
 			reg = <0>;
 			compatible = "spansion,m25p16", "jedec,spi-nor";
 			spi-max-frequency = <40000000>;
@@ -269,7 +269,7 @@
 	};
 
 	spl-test {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		compatible = "sandbox,spl-test";
 		boolval;
 		intval = <1>;
@@ -283,7 +283,7 @@
 	};
 
 	spl-test2 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		compatible = "sandbox,spl-test";
 		intval = <3>;
 		intarray = <5>;
@@ -295,26 +295,26 @@
 	};
 
 	spl-test3 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		compatible = "sandbox,spl-test";
 		stringarray = "one";
 		maybe-empty-int = <1>;
 	};
 
 	spl-test5 {
-		u-boot,dm-vpl;
+		bootph-verify;
 		compatible = "sandbox,spl-test";
 		stringarray = "tpl";
 	};
 
 	spl-test6 {
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 		compatible = "sandbox,spl-test";
 		stringarray = "pre-proper";
 	};
 
 	spl-test7 {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 		compatible = "sandbox,spl-test";
 		stringarray = "spl";
 	};
@@ -348,9 +348,9 @@
 
 	/* Needs to be available prior to relocation */
 	uart0: serial {
-		u-boot,dm-spl;
-		u-boot,dm-tpl;
-		u-boot,dm-vpl;
+		bootph-pre-ram;
+		bootph-pre-sram;
+		bootph-verify;
 		compatible = "sandbox,serial";
 		sandbox,text-colour = "cyan";
 		pinctrl-names = "default";
@@ -473,6 +473,6 @@
 	};
 
 	keyboard-controller {
-		u-boot,dm-pre-proper;
+		bootph-some-ram;
 	};
 };

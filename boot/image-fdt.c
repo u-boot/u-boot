@@ -529,14 +529,15 @@ int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
 		}
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	} else if (genimg_get_format(buf) == IMAGE_FORMAT_ANDROID) {
-		struct andr_img_hdr *hdr = buf;
+		void *hdr = buf;
 		ulong		fdt_data, fdt_len;
 		u32			fdt_size, dtb_idx;
 		/*
 		 * Firstly check if this android boot image has dtb field.
 		 */
 		dtb_idx = (u32)env_get_ulong("adtb_idx", 10, 0);
-		if (android_image_get_dtb_by_index((ulong)hdr, dtb_idx, &fdt_addr, &fdt_size)) {
+		if (android_image_get_dtb_by_index((ulong)hdr, 0,
+						   dtb_idx, &fdt_addr, &fdt_size)) {
 			fdt_blob = (char *)map_sysmem(fdt_addr, 0);
 			if (fdt_check_header(fdt_blob))
 				goto no_fdt;

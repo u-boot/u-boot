@@ -31,11 +31,14 @@ enum {
 
 #define SH_PFC_PIN_VOLTAGE_18_33	(0 << 6)
 #define SH_PFC_PIN_VOLTAGE_25_33	(1 << 6)
+#define SH_PFC_PIN_VOLTAGE_18_25	(2 << 6)
 
 #define SH_PFC_PIN_CFG_IO_VOLTAGE_18_33	(SH_PFC_PIN_CFG_IO_VOLTAGE | \
 					 SH_PFC_PIN_VOLTAGE_18_33)
 #define SH_PFC_PIN_CFG_IO_VOLTAGE_25_33	(SH_PFC_PIN_CFG_IO_VOLTAGE | \
 					 SH_PFC_PIN_VOLTAGE_25_33)
+#define SH_PFC_PIN_CFG_IO_VOLTAGE_18_25	(SH_PFC_PIN_CFG_IO_VOLTAGE | \
+					 SH_PFC_PIN_VOLTAGE_18_25)
 
 #define SH_PFC_PIN_CFG_NO_GPIO		(1 << 31)
 
@@ -311,19 +314,6 @@ extern const struct sh_pfc_soc_info r8a77995_pinmux_info;
 extern const struct sh_pfc_soc_info r8a779a0_pinmux_info;
 extern const struct sh_pfc_soc_info r8a779f0_pinmux_info;
 extern const struct sh_pfc_soc_info r8a779g0_pinmux_info;
-extern const struct sh_pfc_soc_info sh7203_pinmux_info;
-extern const struct sh_pfc_soc_info sh7264_pinmux_info;
-extern const struct sh_pfc_soc_info sh7269_pinmux_info;
-extern const struct sh_pfc_soc_info sh73a0_pinmux_info;
-extern const struct sh_pfc_soc_info sh7720_pinmux_info;
-extern const struct sh_pfc_soc_info sh7722_pinmux_info;
-extern const struct sh_pfc_soc_info sh7723_pinmux_info;
-extern const struct sh_pfc_soc_info sh7724_pinmux_info;
-extern const struct sh_pfc_soc_info sh7734_pinmux_info;
-extern const struct sh_pfc_soc_info sh7757_pinmux_info;
-extern const struct sh_pfc_soc_info sh7785_pinmux_info;
-extern const struct sh_pfc_soc_info sh7786_pinmux_info;
-extern const struct sh_pfc_soc_info shx3_pinmux_info;
 
 /* -----------------------------------------------------------------------------
  * Helper macros to create pin and port lists

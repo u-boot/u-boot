@@ -11,50 +11,50 @@
 
 /{
 	ocp {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &uart0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &mmc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &mac {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &davinci_mdio {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &cpsw_emac0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &phy_sel {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &i2c0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &l4_wkup {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &scm {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &scm_conf {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &ethphy0 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

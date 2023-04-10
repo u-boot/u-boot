@@ -473,7 +473,7 @@ static int ext4fs_delete_file(int inodeno)
 	 * special case for symlinks whose target are small enough that
 	 *it fits in struct ext2_inode.b.symlink: no block had been allocated
 	 */
-	if ((le16_to_cpu(inode.mode) & S_IFLNK) &&
+	if (S_ISLNK(le16_to_cpu(inode.mode)) &&
 	    le32_to_cpu(inode.size) <= sizeof(inode.b.symlink)) {
 		no_blocks = 0;
 	}

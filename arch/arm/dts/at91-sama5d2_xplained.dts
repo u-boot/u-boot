@@ -8,7 +8,7 @@
 	compatible = "atmel,sama5d2-xplained", "atmel,sama5d2", "atmel,sama5";
 
 	chosen {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		stdout-path = &uart1;
 	};
 
@@ -46,7 +46,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_sdmmc0_default>;
 			status = "okay";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		sdmmc1: sdio-host@b0000000 {
@@ -54,7 +54,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_sdmmc1_default>;
 			status = "okay"; /* conflict with qspi0 */
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		apb {
@@ -64,10 +64,10 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_lcd_base &pinctrl_lcd_pwm &pinctrl_lcd_rgb666>;
 				status = "okay";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				display-timings {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					480x272 {
 						clock-frequency = <9000000>;
 						hactive = <480>;
@@ -78,7 +78,7 @@
 						vfront-porch = <2>;
 						vback-porch = <2>;
 						vsync-len = <11>;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 				};
 			};
@@ -87,7 +87,7 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_qspi0_sck_cs_default &pinctrl_qspi0_dat_default>;
 				status = "okay";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				flash@0 {
 					compatible = "jedec,spi-nor";
@@ -95,7 +95,7 @@
 					spi-max-frequency = <83000000>;
 					spi-rx-bus-width = <4>;
 					spi-tx-bus-width = <4>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 			};
 
@@ -104,13 +104,13 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_spi0_default>;
 				status = "okay";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				spi_flash@0 {
 					compatible = "jedec,spi-nor";
 					reg = <0>;
 					spi-max-frequency = <50000000>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 			};
 
@@ -129,7 +129,7 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&pinctrl_uart1_default>;
 				status = "okay";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 			};
 
 			i2c1: i2c@fc028000 {
@@ -208,7 +208,7 @@
 					pinmux = <PIN_PA22__QSPI0_SCK>,
 						 <PIN_PA23__QSPI0_CS>;
 					bias-disable;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				pinctrl_qspi0_dat_default: qspi0_dat_default {
@@ -217,7 +217,7 @@
 						 <PIN_PA26__QSPI0_IO2>,
 						 <PIN_PA27__QSPI0_IO3>;
 					bias-pull-up;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				pinctrl_sdmmc0_default: sdmmc0_default {
@@ -232,7 +232,7 @@
 							 <PIN_PA8__SDMMC0_DAT6>,
 							 <PIN_PA9__SDMMC0_DAT7>;
 						bias-pull-up;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					ck_cd_default {
@@ -241,7 +241,7 @@
 							 <PIN_PA11__SDMMC0_VDDSEL>,
 							 <PIN_PA13__SDMMC0_CD>;
 						bias-disable;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 				};
 
@@ -253,14 +253,14 @@
 							 <PIN_PA20__SDMMC1_DAT2>,
 							 <PIN_PA21__SDMMC1_DAT3>;
 						bias-pull-up;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 
 					ck_cd {
 						pinmux = <PIN_PA22__SDMMC1_CK>,
 							 <PIN_PA30__SDMMC1_CD>;
 						bias-disable;
-						u-boot,dm-pre-reloc;
+						bootph-all;
 					};
 				};
 
@@ -269,14 +269,14 @@
 						 <PIN_PA15__SPI0_MOSI>,
 						 <PIN_PA16__SPI0_MISO>;
 					bias-disable;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				pinctrl_uart1_default: uart1_default {
 					pinmux = <PIN_PD2__URXD1>,
 						 <PIN_PD3__UTXD1>;
 					bias-disable;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 				};
 
 				pinctrl_usb_default: usb_default {

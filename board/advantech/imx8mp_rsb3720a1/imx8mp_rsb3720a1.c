@@ -113,7 +113,7 @@ static const iomux_v3_cfg_t eqos_rst_pads[] = {
 	MX8MP_PAD_SAI2_RXC__GPIO4_IO22 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
-static void setup_iomux_eqos(void)
+static void setup_eqos(void)
 {
 	imx_iomux_v3_setup_multiple_pads(eqos_rst_pads,
 					 ARRAY_SIZE(eqos_rst_pads));
@@ -123,21 +123,6 @@ static void setup_iomux_eqos(void)
 	mdelay(15);
 	gpio_direction_output(EQOS_RST_PAD, 1);
 	mdelay(100);
-}
-
-static int setup_eqos(void)
-{
-	struct iomuxc_gpr_base_regs *gpr =
-		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
-
-	setup_iomux_eqos();
-
-	/* set INTF as RGMII, enable RGMII TXC clock */
-	clrsetbits_le32(&gpr->gpr[1],
-			IOMUXC_GPR_GPR1_GPR_ENET_QOS_INTF_SEL_MASK, BIT(16));
-	setbits_le32(&gpr->gpr[1], BIT(19) | BIT(21));
-
-	return set_clk_eqos(ENET_125MHZ);
 }
 #endif /* CONFIG_DWC_ETH_QOS */
 
@@ -208,7 +193,8 @@ int board_late_init(void)
 
 #ifdef CONFIG_SPL_MMC
 #define UBOOT_RAW_SECTOR_OFFSET 0x40
-unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
+unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+					   unsigned long raw_sector)
 {
 	u32 boot_dev = spl_boot_device();
 

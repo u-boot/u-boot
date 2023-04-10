@@ -28,7 +28,7 @@ defined in fs-loader node as shown in below:
 Example for block device::
 
 	fs_loader0: fs-loader {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "u-boot,fs-loader";
 		phandlepart = <&mmc 1>;
 	};
@@ -41,7 +41,7 @@ device, it can be described in FDT as shown in below:
 Example for ubi::
 
 	fs_loader1: fs-loader {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "u-boot,fs-loader";
 		mtdpart = "UBI",
 		ubivol = "ubi0";

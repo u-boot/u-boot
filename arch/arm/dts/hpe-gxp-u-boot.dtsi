@@ -8,10 +8,10 @@
 / {
 
 	axi {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		ahb@c0000000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			spi0: spi@200 {
 				compatible = "hpe,gxp-spi";

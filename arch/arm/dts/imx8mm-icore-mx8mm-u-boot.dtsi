@@ -7,21 +7,21 @@
 #include "imx8mm-u-boot.dtsi"
 
 &iomuxc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3_100mhz {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &pinctrl_usdhc3_200mhz {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

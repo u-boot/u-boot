@@ -1558,7 +1558,7 @@ static ulong rk3588_clk_get_rate(struct clk *clk)
 #ifndef CONFIG_SPL_BUILD
 	case CLK_AUX16M_0:
 	case CLK_AUX16M_1:
-		rk3588_aux16m_get_clk(priv, clk->id);
+		rate = rk3588_aux16m_get_clk(priv, clk->id);
 		break;
 	case ACLK_VOP_ROOT:
 	case ACLK_VOP:
@@ -1707,7 +1707,7 @@ static ulong rk3588_clk_set_rate(struct clk *clk, ulong rate)
 #ifndef CONFIG_SPL_BUILD
 	case CLK_AUX16M_0:
 	case CLK_AUX16M_1:
-		rk3588_aux16m_set_clk(priv, clk->id, rate);
+		ret = rk3588_aux16m_set_clk(priv, clk->id, rate);
 		break;
 	case ACLK_VOP_ROOT:
 	case ACLK_VOP:

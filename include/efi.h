@@ -52,7 +52,18 @@
 #define EFI32_LOADER_SIGNATURE	"EL32"
 #define EFI64_LOADER_SIGNATURE	"EL64"
 
-struct efi_device_path;
+/**
+ * struct efi_device_path - device path protocol
+ *
+ * @type:	device path type
+ * @sub_type:	device path sub-type
+ * @length:	length of the device path node including the header
+ */
+struct efi_device_path {
+	u8 type;
+	u8 sub_type;
+	u16 length;
+} __packed;
 
 /*
  * The EFI spec defines the EFI_GUID as
@@ -636,5 +647,14 @@ int efi_call_exit_boot_services(void);
  */
 int efi_get_mmap(struct efi_mem_desc **descp, int *sizep, uint *keyp,
 		 int *desc_sizep, uint *versionp);
+
+/**
+ * efi_show_tables() - Show a list of available tables
+ *
+ * Shows the address, GUID (and name where known) for each table
+ *
+ * @systab: System table containing the list of tables
+ */
+void efi_show_tables(struct efi_system_table *systab);
 
 #endif /* _LINUX_EFI_H */

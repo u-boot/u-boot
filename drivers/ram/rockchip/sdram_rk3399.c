@@ -2954,7 +2954,7 @@ static int sdram_init(struct dram_info *dram,
 		params->ch[ch].cap_info.rank = rank;
 	}
 
-#if defined(CONFIG_RAM_RK3399_LPDDR4)
+#if defined(CONFIG_RAM_ROCKCHIP_LPDDR4)
 	/* LPDDR4 needs to be trained at 400MHz */
 	lpddr4_set_rate(dram, params, 0);
 	params->base.ddr_freq = dfs_cfgs_lpddr4[0].base.ddr_freq / MHz;

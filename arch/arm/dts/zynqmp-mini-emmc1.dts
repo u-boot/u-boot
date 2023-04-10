@@ -32,7 +32,7 @@
 	dcc: dcc {
 		compatible = "arm,dcc";
 		status = "disabled";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	clk_xin: clk_xin {
@@ -48,7 +48,7 @@
 		ranges;
 
 		sdhci1: sdhci@ff170000 {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			compatible = "xlnx,zynqmp-8.9a", "arasan,sdhci-8.9a";
 			status = "disabled";
 			non-removable;

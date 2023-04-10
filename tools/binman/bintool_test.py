@@ -16,10 +16,10 @@ import urllib.error
 from binman import bintool
 from binman.bintool import Bintool
 
-from patman import command
-from patman import terminal
-from patman import test_util
-from patman import tools
+from u_boot_pylib import command
+from u_boot_pylib import terminal
+from u_boot_pylib import test_util
+from u_boot_pylib import tools
 
 # pylint: disable=R0904
 class TestBintool(unittest.TestCase):
@@ -134,12 +134,14 @@ class TestBintool(unittest.TestCase):
         dirname = os.path.join(self._indir, 'download_dir')
         os.mkdir(dirname)
         fname = os.path.join(dirname, 'downloaded')
+
+        # Rely on bintool to create this directory
         destdir = os.path.join(self._indir, 'dest_dir')
-        os.mkdir(destdir)
+
         dest_fname = os.path.join(destdir, '_testing')
         self.seq = 0
 
-        with unittest.mock.patch.object(bintool, 'DOWNLOAD_DESTDIR', destdir):
+        with unittest.mock.patch.object(bintool.Bintool, 'tooldir', destdir):
             with unittest.mock.patch.object(tools, 'download',
                                             side_effect=handle_download):
                 with test_util.capture_sys_output() as (stdout, _):
@@ -250,7 +252,7 @@ class TestBintool(unittest.TestCase):
         btest = Bintool.create('_testing')
         col = terminal.Color()
         self.fname = None
-        with unittest.mock.patch.object(bintool, 'DOWNLOAD_DESTDIR',
+        with unittest.mock.patch.object(bintool.Bintool, 'tooldir',
                                         self._indir):
             with unittest.mock.patch.object(tools, 'run', side_effect=fake_run):
                 with test_util.capture_sys_output() as (stdout, _):
@@ -344,8 +346,11 @@ class TestBintool(unittest.TestCase):
 
     def test_failed_command(self):
         """Check that running a command that does not exist returns None"""
-        btool = Bintool.create('_testing')
-        result = btool.run_cmd_result('fred')
+        destdir = os.path.join(self._indir, 'dest_dir')
+        os.mkdir(destdir)
+        with unittest.mock.patch.object(bintool.Bintool, 'tooldir', destdir):
+            btool = Bintool.create('_testing')
+            result = btool.run_cmd_result('fred')
         self.assertIsNone(result)
 
 

@@ -16,29 +16,29 @@
 };
 
 &emmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &i2c0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	rk818: pmic@1c {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		regulators {
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 };
 
 &pinctrl {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &sdmmc {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &uart2 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };

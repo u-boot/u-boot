@@ -211,8 +211,8 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 	      uc_priv->cap, uc_priv->port_map, uc_priv->n_ports);
 
 #if !defined(CONFIG_DM_SCSI)
-	if (uc_priv->n_ports > CONFIG_SYS_SCSI_MAX_SCSI_ID)
-		uc_priv->n_ports = CONFIG_SYS_SCSI_MAX_SCSI_ID;
+	if (uc_priv->n_ports > CONFIG_SYS_SATA_MAX_PORTS)
+		uc_priv->n_ports = CONFIG_SYS_SATA_MAX_PORTS;
 #endif
 
 	for (i = 0; i < uc_priv->n_ports; i++) {

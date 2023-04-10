@@ -53,7 +53,7 @@ u8 serdes_lane_in_use_count[MAX_UNITS_ID][MAX_UNIT_NUMB] = {
  */
 u8 serdes_unit_count[MAX_UNITS_ID] = { 0 };
 
-/* Selector mapping for A380-A0 and A390-Z1 */
+/* Selector mapping for A380-A0 */
 u8 selectors_serdes_rev2_map[LAST_SERDES_TYPE][MAX_SERDES_LANES] = {
 	/* 0      1      2       3       4       5       6 */
 	{ 0x1,   0x1,    NA,	 NA,	 NA,	 NA,     NA  }, /* PEX0 */
@@ -812,7 +812,7 @@ u8 hws_ctrl_serdes_rev_get(void)
 	if (sys_env_device_rev_get() == MV_88F68XX_Z1_ID)
 		return MV_SERDES_REV_1_2;
 
-	/* for A39x-Z1, A38x-A0 */
+	/* for A38x-A0 */
 	return MV_SERDES_REV_2_1;
 }
 

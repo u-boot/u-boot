@@ -21,15 +21,15 @@
 };
 
 &spi0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 
 	spi-flash@0 {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 };
 
 &sdhci0 {
-	u-boot,dm-pre-reloc;
+	bootph-all;
 };
 
 &pinctrl_sb {

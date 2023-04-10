@@ -24,8 +24,8 @@ CONFIG_SPL_FS_FAT=y
 CONFIG_SPL_LIBDISK_SUPPORT=y
 CONFIG_SPL_SPI_FLASH_SUPPORT=y
 CONFIG_SPL_SPI=y
-CONFIG_DISTRO_DEFAULTS=y
 CONFIG_SYS_MONITOR_LEN=524288
+CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTCOMMAND="mmc dev 0; if mmc rescan; then if run loadbootscript; then run bootscript; fi; fi; mmc dev 1; if mmc rescan; then run emmcboot; fi;"
 CONFIG_SYS_CONSOLE_INFO_QUIET=y
 # CONFIG_DISPLAY_CPUINFO is not set

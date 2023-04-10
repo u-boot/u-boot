@@ -10,18 +10,18 @@
 	};
 
 	soc {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 
 		bus@2000000 {
-			u-boot,dm-spl;
+			bootph-pre-ram;
 
 			spba-bus@2000000 {
-				u-boot,dm-spl;
+				bootph-pre-ram;
 			};
 		};
 
 		bus@2100000 {
-			u-boot,dm-spl;
+			bootph-pre-ram;
 		};
 	};
 
@@ -32,49 +32,49 @@
 };
 
 &uart1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &uart2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio5 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio6 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio7 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &wdog1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

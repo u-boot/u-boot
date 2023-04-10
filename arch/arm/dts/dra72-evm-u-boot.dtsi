@@ -6,18 +6,18 @@
 #include "omap5-u-boot.dtsi"
 
 &omap_dwc3_1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usb1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 	dr_mode = "peripheral";
 };
 
 &usb2_phy1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usb3_phy1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

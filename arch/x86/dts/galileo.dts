@@ -69,7 +69,7 @@
 		#address-cells = <3>;
 		#size-cells = <2>;
 		compatible = "pci-x86";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		ranges = <0x02000000 0x0 0x90000000 0x90000000 0 0x20000000
 			  0x42000000 0x0 0xb0000000 0xb0000000 0 0x20000000
 			  0x01000000 0x0 0x2000 0x2000 0 0xe000>;
@@ -80,7 +80,7 @@
 					"pciclass,070002",
 					"pciclass,0700",
 					"ns16550";
-			u-boot,dm-pre-reloc;
+			bootph-all;
 			reg = <0x0000a500 0x0 0x0 0x0 0x0
 			       0x0200a510 0x0 0x0 0x0 0x0>;
 			reg-shift = <2>;
@@ -147,14 +147,14 @@
 
 			gpioa {
 				compatible = "intel,ich6-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				reg = <0 0x20>;
 				bank-name = "A";
 			};
 
 			gpiob {
 				compatible = "intel,ich6-gpio";
-				u-boot,dm-pre-reloc;
+				bootph-all;
 				reg = <0x20 0x20>;
 				bank-name = "B";
 			};

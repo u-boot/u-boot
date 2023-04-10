@@ -55,45 +55,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct pl01x_serial_plat serial0 = {
-#if CONFIG_CONS_INDEX == 0
-	.base = CFG_SYS_SERIAL0,
-#elif CONFIG_CONS_INDEX == 1
-	.base = CFG_SYS_SERIAL1,
-#else
-#error "Unsupported console index value."
-#endif
-	.type = TYPE_PL011,
-};
-
-U_BOOT_DRVINFO(nxp_serial0) = {
-	.name = "serial_pl01x",
-	.plat = &serial0,
-};
-
-static struct pl01x_serial_plat serial1 = {
-	.base = CFG_SYS_SERIAL1,
-	.type = TYPE_PL011,
-};
-
-U_BOOT_DRVINFO(nxp_serial1) = {
-	.name = "serial_pl01x",
-	.plat = &serial1,
-};
-
-static void uart_get_clock(void)
-{
-	serial0.clock = get_serial_clock();
-	serial1.clock = get_serial_clock();
-}
-
 int board_early_init_f(void)
 {
 #if defined(CONFIG_SYS_I2C_EARLY_INIT) && defined(CONFIG_SPL_BUILD)
 	i2c_early_init_f();
 #endif
-	/* get required clock for UART IP */
-	uart_get_clock();
 
 #ifdef CONFIG_EMC2305
 	select_i2c_ch_pca9547(I2C_MUX_CH_EMC2305, 0);
@@ -572,7 +538,7 @@ int board_init(void)
 	out_le32(irq_ccsr + IRQCR_OFFSET / 4, AQR107_IRQ_MASK);
 #endif
 
-#if !defined(CONFIG_SYS_EARLY_PCI_INIT) && defined(CONFIG_DM_ETH)
+#if !defined(CONFIG_SYS_EARLY_PCI_INIT)
 	pci_init();
 #endif
 	return 0;
@@ -642,7 +608,6 @@ u16 soc_get_fuse_vid(int vid_index)
 #endif
 
 #ifdef CONFIG_FSL_MC_ENET
-extern int fdt_fixup_board_phy(void *fdt);
 
 void fdt_fixup_board_enet(void *fdt)
 {
@@ -662,9 +627,6 @@ void fdt_fixup_board_enet(void *fdt)
 	if (get_mc_boot_status() == 0 &&
 	    (is_lazy_dpl_addr_valid() || get_dpl_apply_status() == 0)) {
 		fdt_status_okay(fdt, offset);
-#ifndef CONFIG_DM_ETH
-		fdt_fixup_board_phy(fdt);
-#endif
 	} else {
 		fdt_status_fail(fdt, offset);
 	}

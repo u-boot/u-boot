@@ -16,7 +16,7 @@ Required properties:
 
 Example:
 	dmc: dmc {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "rockchip,rk3399-dmc";
 		devfreq-events = <&dfi>;
 		interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH 0>;

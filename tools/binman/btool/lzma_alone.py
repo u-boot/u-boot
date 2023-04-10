@@ -37,7 +37,7 @@ import re
 import tempfile
 
 from binman import bintool
-from patman import tools
+from u_boot_pylib import tools
 
 # pylint: disable=C0103
 class Bintoollzma_alone(bintool.Bintool):

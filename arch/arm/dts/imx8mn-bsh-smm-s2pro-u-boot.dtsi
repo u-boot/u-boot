@@ -7,9 +7,9 @@
 #include "imx8mn-bsh-smm-s2-u-boot-common.dtsi"
 
 &pinctrl_usdhc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &usdhc1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

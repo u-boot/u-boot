@@ -5,7 +5,7 @@ M68K / ColdFire
 
 History
 -------
-* November 02, 2017	Angelo Dureghello <angelo@sysam.it>
+* November 02, 2017	Angelo Dureghello <angelo@kernel-space.org>
 * August   08, 2005	Jens Scharsig <esw@bus-elektronik.de>
   MCF5282 implementation without preloader
 * January  12, 2004	<josef.baumgartner@telex.de>

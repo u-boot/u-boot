@@ -113,16 +113,21 @@ with:
 
 - the mandatory nodes (/alias, /chosen, /config)
 - the nodes with one pre-relocation property:
-  'u-boot,dm-pre-reloc' or 'u-boot,dm-spl'
+  'bootph-all' or 'bootph-pre-ram'
 
 fdtgrep is also used to remove:
 
 - the properties defined in CONFIG_OF_SPL_REMOVE_PROPS
 - all the pre-relocation properties
-  ('u-boot,dm-pre-reloc', 'u-boot,dm-spl' and 'u-boot,dm-tpl')
+  ('bootph-all', 'bootph-pre-ram' (SPL), 'bootph-pre-sram' (TPL) and
+  'bootph-verify' (TPL))
 
 All the nodes remaining in the SPL devicetree are bound
 (see doc/driver-model/design.rst).
+
+NOTE: U-Boot migrated to a new schema for the u-boot,dm-* tags in 2023. Please
+update to use the new bootph-* tags as described in the
+doc/device-tree-bindings/bootph.yaml binding file.
 
 Debugging
 ---------

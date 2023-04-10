@@ -13,10 +13,7 @@
 
 #define CFG_IRAM_BASE		0xff700000
 
-/* RAW SD card / eMMC locations. */
-
 #define CFG_SYS_SDRAM_BASE		0
-#define SDRAM_BANK_SIZE			(2UL << 30)
 #define SDRAM_MAX_SIZE			0xfe000000
 
 #define ENV_MEM_LAYOUT_SETTINGS \

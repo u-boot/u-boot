@@ -25,11 +25,11 @@
 	dcc: dcc {
 		compatible = "arm,dcc";
 		status = "okay";
-		u-boot,dm-pre-reloc;
+		bootph-all;
 	};
 
 	amba: amba {
-		u-boot,dm-pre-reloc;
+		bootph-all;
 		compatible = "simple-bus";
 		#address-cells = <0x2>;
 		#size-cells = <0x2>;

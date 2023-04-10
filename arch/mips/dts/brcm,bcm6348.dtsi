@@ -20,13 +20,13 @@
 		reg = <0xfffe0000 0x4>;
 		#address-cells = <1>;
 		#size-cells = <0>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		cpu@0 {
 			compatible = "brcm,bcm6348-cpu", "mips,mips4Kc";
 			device_type = "cpu";
 			reg = <0>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 	};
 
@@ -34,13 +34,13 @@
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		periph_osc: periph-osc {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <50000000>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		periph_clk: periph-clk {
@@ -64,7 +64,7 @@
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		pll_cntl: syscon@fffe0008 {
 			compatible = "syscon";
@@ -158,7 +158,7 @@
 		memory-controller@fffe2300 {
 			compatible = "brcm,bcm6338-mc";
 			reg = <0xfffe2300 0x38>;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 		};
 
 		enet0: ethernet@fffe6000 {

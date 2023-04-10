@@ -860,6 +860,16 @@ config TPL_ENV_IS_IN_FLASH
 
 endif
 
+if VPL_ENV_SUPPORT
+
+config VPL_ENV_IS_NOWHERE
+	bool "VPL Environment is not stored"
+	default y if ENV_IS_NOWHERE
+	help
+	  Similar to ENV_IS_NOWHERE, used for VPL environment.
+
+endif  # VPL_ENV_SUPPORT
+
 config USE_BOOTFILE
 	bool "Add a 'bootfile' environment variable"
 	help

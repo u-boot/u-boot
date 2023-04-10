@@ -75,7 +75,7 @@ config FPGA_XILINX
 
 config FPGA_ZYNQMPPL
 	bool "Enable Xilinx FPGA driver for ZynqMP"
-	depends on FPGA_XILINX
+	depends on FPGA_XILINX && ZYNQMP_FIRMWARE
 	help
 	  Enable FPGA driver for loading bitstream in BIT and BIN format
 	  on Xilinx Zynq UltraScale+ (ZynqMP) device.

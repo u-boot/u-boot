@@ -348,7 +348,7 @@ config NPCM_HOST
 
 config SPL_MXC_OCOTP
 	bool "Enable MXC OCOTP driver in SPL"
-	depends on SPL_MISC && (ARCH_IMX8M || ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP || ARCH_VF610)
+	depends on SPL_DRIVERS_MISC && (ARCH_IMX8M || ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP || ARCH_VF610)
 	default y
 	help
 	  If you say Y here, you will get support for the One Time

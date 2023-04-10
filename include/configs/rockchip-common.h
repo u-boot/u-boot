@@ -11,8 +11,6 @@
 #define CFG_CPUID_OFFSET	0x7
 #endif
 
-/* ((CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR - 64) * 512) */
-
 #ifndef CONFIG_SPL_BUILD
 
 /* First try to boot from SD (index 1), then eMMC (index 0) */

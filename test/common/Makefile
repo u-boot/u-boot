@@ -3,3 +3,4 @@ obj-y += cmd_ut_common.o
 obj-$(CONFIG_AUTOBOOT) += test_autoboot.o
 obj-$(CONFIG_CYCLIC) += cyclic.o
 obj-$(CONFIG_EVENT) += event.o
+obj-y += cread.o

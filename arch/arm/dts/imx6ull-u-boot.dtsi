@@ -5,30 +5,30 @@
 
 / {
 	soc {
-		u-boot,dm-spl;
+		bootph-pre-ram;
 	};
 };
 
 &aips1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &aips2 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &aips3 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio1 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &gpio4 {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };
 
 &iomuxc {
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

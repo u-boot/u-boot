@@ -16,5 +16,5 @@
 
 &wdog1 {
 	status = "okay";
-	u-boot,dm-spl;
+	bootph-pre-ram;
 };

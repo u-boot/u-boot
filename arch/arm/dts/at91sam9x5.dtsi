@@ -81,14 +81,14 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
-		u-boot,dm-pre-reloc;
+		bootph-all;
 
 		apb {
 			compatible = "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
 			ranges;
-			u-boot,dm-pre-reloc;
+			bootph-all;
 
 			aic: interrupt-controller@fffff000 {
 				#interrupt-cells = <3>;
@@ -113,7 +113,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				#interrupt-cells = <1>;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 				main_rc_osc: main_rc_osc {
 					compatible = "atmel,at91sam9x5-clk-main-rc-osc";
@@ -176,7 +176,7 @@
 					atmel,clk-output-range = <0 133333333>;
 					atmel,clk-divisors = <1 2 4 3>;
 					atmel,master-clk-have-div3-pres;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 
 				};
 
@@ -259,7 +259,7 @@
 					#address-cells = <1>;
 					#size-cells = <0>;
 					clocks = <&mck>;
-					u-boot,dm-pre-reloc;
+					bootph-all;
 
 
 					pioAB_clk: pioAB_clk@2 {
@@ -466,12 +466,12 @@
 				       0xfffff800 0x200		/* pioC */
 				       0xfffffa00 0x200		/* pioD */
 				       >;
-				u-boot,dm-pre-reloc;
+				bootph-all;
 
 
 				/* shared pinctrl settings */
 				dbgu {
-					u-boot,dm-pre-reloc;
+					bootph-all;
 					pinctrl_dbgu: dbgu-0 {
 						atmel,pins =
 							<AT91_PIOA 9 AT91_PERIPH_A AT91_PINCTRL_PULL_UP

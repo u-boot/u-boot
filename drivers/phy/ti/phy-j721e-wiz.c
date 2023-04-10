@@ -39,6 +39,7 @@
 #define WIZ_DIV_NUM_CLOCKS_10G	1
 
 #define WIZ_SERDES_TYPEC_LN10_SWAP	BIT(30)
+#define WIZ_SERDES_TYPEC_LN23_SWAP	BIT(31)
 
 enum wiz_lane_standard_mode {
 	LANE_MODE_GEN1,
@@ -63,6 +64,14 @@ enum wiz_clock_input {
 	WIZ_EXT_REFCLK,
 	WIZ_CORE_REFCLK1,
 	WIZ_EXT_REFCLK1,
+};
+
+/*
+ * List of master lanes used for lane swapping
+ */
+enum wiz_typec_master_lane {
+	LANE0 = 0,
+	LANE2 = 2,
 };
 
 static const struct reg_field por_en = REG_FIELD(WIZ_SERDES_CTRL, 31, 31);
@@ -329,6 +338,7 @@ struct wiz {
 	u32			num_lanes;
 	struct gpio_desc	*gpio_typec_dir;
 	u32			lane_phy_type[WIZ_MAX_LANES];
+	u32			master_lane_num[WIZ_MAX_LANES];
 	struct clk		*input_clks[WIZ_MAX_INPUT_CLOCKS];
 	unsigned int		id;
 	const struct wiz_data	*data;
@@ -586,14 +596,42 @@ static int wiz_reset_deassert(struct reset_ctl *reset_ctl)
 		return ret;
 
 	/* if typec-dir gpio was specified, set LN10 SWAP bit based on that */
-	if (id == 0 && wiz->gpio_typec_dir) {
-		if (dm_gpio_get_value(wiz->gpio_typec_dir)) {
-			regmap_update_bits(wiz->regmap, WIZ_SERDES_TYPEC,
-					   WIZ_SERDES_TYPEC_LN10_SWAP,
-					   WIZ_SERDES_TYPEC_LN10_SWAP);
-		} else {
-			regmap_update_bits(wiz->regmap, WIZ_SERDES_TYPEC,
-					   WIZ_SERDES_TYPEC_LN10_SWAP, 0);
+	if (id == 0) {
+		if (wiz->gpio_typec_dir) {
+			if (dm_gpio_get_value(wiz->gpio_typec_dir)) {
+				regmap_update_bits(wiz->regmap, WIZ_SERDES_TYPEC,
+						WIZ_SERDES_TYPEC_LN10_SWAP,
+						WIZ_SERDES_TYPEC_LN10_SWAP);
+			} else {
+				regmap_update_bits(wiz->regmap, WIZ_SERDES_TYPEC,
+						WIZ_SERDES_TYPEC_LN10_SWAP, 0);
+			}
+		}
+	} else {
+		/* if no typec-dir gpio was specified and PHY type is
+		 * USB3 with master lane number is '0', set LN10 SWAP
+		 * bit to '1'
+		 */
+		u32 num_lanes = wiz->num_lanes;
+		int i;
+
+		for (i = 0; i < num_lanes; i++) {
+			if (wiz->lane_phy_type[i] == PHY_TYPE_USB3) {
+				switch (wiz->master_lane_num[i]) {
+				case LANE0:
+					regmap_update_bits(wiz->regmap, WIZ_SERDES_TYPEC,
+							WIZ_SERDES_TYPEC_LN10_SWAP,
+							WIZ_SERDES_TYPEC_LN10_SWAP);
+					break;
+				case LANE2:
+					 regmap_update_bits(wiz->regmap, WIZ_SERDES_TYPEC,
+							WIZ_SERDES_TYPEC_LN23_SWAP,
+							WIZ_SERDES_TYPEC_LN23_SWAP);
+					break;
+				default:
+					break;
+				}
+			}
 		}
 	}
 
@@ -1100,8 +1138,10 @@ static int wiz_get_lane_phy_types(struct udevice *dev, struct wiz *wiz)
 		dev_dbg(dev, "%s: Lanes %u-%u have phy-type %u\n", __func__,
 			reg, reg + num_lanes - 1, phy_type);
 
-		for (i = reg; i < reg + num_lanes; i++)
+		for (i = reg; i < reg + num_lanes; i++) {
 			wiz->lane_phy_type[i] = phy_type;
+			wiz->master_lane_num[i] = reg;
+		}
 	}
 
 	return 0;

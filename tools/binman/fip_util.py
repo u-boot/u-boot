@@ -37,8 +37,8 @@ OUR_PATH = os.path.dirname(OUR_FILE)
 sys.path.insert(2, os.path.join(OUR_PATH, '..'))
 
 # pylint: disable=C0413
-from patman import command
-from patman import tools
+from u_boot_pylib import command
+from u_boot_pylib import tools
 
 # The TOC header, at the start of the FIP
 HEADER_FORMAT = '<IIQ'

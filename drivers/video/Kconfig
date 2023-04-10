@@ -16,6 +16,35 @@ config VIDEO
 
 if VIDEO
 
+config VIDEO_FONT_4X6
+	bool "4 x 6 font size"
+	help
+	  Font for video console driver, 4 x 6 pixels.
+	  Provides character bitmap data in header file.
+	  When selecting multiple fonts, you may want to enable CMD_SELECT_FONT too.
+
+config VIDEO_FONT_8X16
+	bool "8 x 16 font size"
+	default y
+	help
+	  Font for video console driver, 8 x 16 pixels
+	  Provides character bitmap data in header file.
+	  When selecting multiple fonts, you may want to enable CMD_SELECT_FONT too.
+
+config VIDEO_FONT_SUN12X22
+	bool "12 x 22 font size"
+	help
+	  Font for video console driver, 12 x 22 pixels
+	  Provides character bitmap data in header file.
+	  When selecting multiple fonts, you may want to enable CMD_SELECT_FONT too.
+
+config VIDEO_FONT_16X32
+	bool "16 x 32 font size"
+	help
+	  Font for video console driver, 16 x 32 pixels
+	  Provides character bitmap data in header file.
+	  When selecting multiple fonts, you may want to enable CMD_SELECT_FONT too.
+
 config VIDEO_LOGO
 	bool "Show the U-Boot logo on the display"
 	default y if !SPLASH_SCREEN
@@ -150,6 +179,7 @@ config CONSOLE_ROTATION
 
 config CONSOLE_TRUETYPE
 	bool "Support a console that uses TrueType fonts"
+	select CMD_SELECT_FONT
 	help
 	  TrueTrype fonts can provide outline-drawing capability rather than
 	  needing to provide a bitmap for each font and size that is needed.
@@ -638,15 +668,6 @@ source "drivers/video/stm32/Kconfig"
 
 source "drivers/video/tidss/Kconfig"
 
-config VIDEO_TEGRA20
-	bool "Enable LCD support on Tegra20"
-	depends on OF_CONTROL
-	help
-	   Tegra20 supports video output to an attached LCD panel as well as
-	   other options such as HDMI. Only the LCD is supported in U-Boot.
-	   This option enables this support which can be used on devices which
-	   have an LCD display connected.
-
 config VIDEO_TEGRA124
 	bool "Enable video support on Tegra124"
 	help
@@ -656,6 +677,8 @@ config VIDEO_TEGRA124
 	   have an eDP display connected.
 
 source "drivers/video/bridge/Kconfig"
+
+source "drivers/video/tegra20/Kconfig"
 
 source "drivers/video/imx/Kconfig"
 

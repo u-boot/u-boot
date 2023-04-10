@@ -297,7 +297,7 @@ int board_init(void)
 	out_le32(irq_ccsr + IRQCR_OFFSET / 4, AQR405_IRQ_MASK);
 #endif
 
-#if !defined(CONFIG_SYS_EARLY_PCI_INIT) && defined(CONFIG_DM_ETH)
+#if !defined(CONFIG_SYS_EARLY_PCI_INIT)
 	pci_init();
 #endif
 

@@ -474,7 +474,7 @@ Optional properties:
 Example:
 
 &fsp_s {
-	u-boot,dm-pre-proper;
+	bootph-some-ram;
 
 	fsps,ish-enable = <0>;
 	fsps,enable-sata = <0>;
