@@ -52,38 +52,6 @@ config DRAM_SUN50I_H616
 	  like H616.
 
 if DRAM_SUN50I_H616
-config DRAM_SUN50I_H616_WRITE_LEVELING
-	bool "H616 DRAM write leveling"
-	---help---
-	  Select this when DRAM on your H616 board needs write leveling.
-
-config DRAM_SUN50I_H616_READ_CALIBRATION
-	bool "H616 DRAM read calibration"
-	---help---
-	  Select this when DRAM on your H616 board needs read calibration.
-
-config DRAM_SUN50I_H616_READ_TRAINING
-	bool "H616 DRAM read training"
-	---help---
-	  Select this when DRAM on your H616 board needs read training.
-
-config DRAM_SUN50I_H616_WRITE_TRAINING
-	bool "H616 DRAM write training"
-	---help---
-	  Select this when DRAM on your H616 board needs write training.
-
-config DRAM_SUN50I_H616_BIT_DELAY_COMPENSATION
-	bool "H616 DRAM bit delay compensation"
-	---help---
-	  Select this when DRAM on your H616 board needs bit delay
-	  compensation.
-
-config DRAM_SUN50I_H616_UNKNOWN_FEATURE
-	bool "H616 DRAM unknown feature"
-	---help---
-	  Select this when DRAM on your H616 board needs this unknown
-	  feature.
-
 config DRAM_SUN50I_H616_DX_ODT
 	hex "H616 DRAM DX ODT parameter"
 	help
@@ -98,6 +66,12 @@ config DRAM_SUN50I_H616_CA_DRI
 	hex "H616 DRAM CA DRI parameter"
 	help
 	  CA DRI value from vendor DRAM settings.
+
+config DRAM_SUN50I_H616_TPR10
+	hex "H616 DRAM TPR10 parameter"
+	help
+	  TPR10 value from vendor DRAM settings. It tells which features
+	  should be configured, like write leveling, read calibration, etc.
 endif
 
 config SUN6I_PRCM
