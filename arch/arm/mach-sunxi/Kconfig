@@ -67,11 +67,29 @@ config DRAM_SUN50I_H616_CA_DRI
 	help
 	  CA DRI value from vendor DRAM settings.
 
+config DRAM_SUN50I_H616_ODT_EN
+	hex "H616 DRAM ODT EN parameter"
+	default 0x1
+	help
+	  ODT EN value from vendor DRAM settings.
+
 config DRAM_SUN50I_H616_TPR10
 	hex "H616 DRAM TPR10 parameter"
 	help
 	  TPR10 value from vendor DRAM settings. It tells which features
 	  should be configured, like write leveling, read calibration, etc.
+
+config DRAM_SUN50I_H616_TPR11
+	hex "H616 DRAM TPR11 parameter"
+	default 0x0
+	help
+	  TPR11 value from vendor DRAM settings.
+
+config DRAM_SUN50I_H616_TPR12
+	hex "H616 DRAM TPR12 parameter"
+	default 0x0
+	help
+	  TPR12 value from vendor DRAM settings.
 endif
 
 config SUN6I_PRCM
