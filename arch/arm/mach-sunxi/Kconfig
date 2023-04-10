@@ -73,6 +73,12 @@ config DRAM_SUN50I_H616_ODT_EN
 	help
 	  ODT EN value from vendor DRAM settings.
 
+config DRAM_SUN50I_H616_TPR0
+	hex "H616 DRAM TPR0 parameter"
+	default 0x0
+	help
+	  TPR0 value from vendor DRAM settings.
+
 config DRAM_SUN50I_H616_TPR10
 	hex "H616 DRAM TPR10 parameter"
 	help
