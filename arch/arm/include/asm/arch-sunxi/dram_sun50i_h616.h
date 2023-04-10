@@ -144,6 +144,9 @@ struct dram_para {
 	u8 rows;
 	u8 ranks;
 	u8 bus_full_width;
+	u32 dx_odt;
+	u32 dx_dri;
+	u32 ca_dri;
 };
 
 

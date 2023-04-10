@@ -83,6 +83,21 @@ config DRAM_SUN50I_H616_UNKNOWN_FEATURE
 	---help---
 	  Select this when DRAM on your H616 board needs this unknown
 	  feature.
+
+config DRAM_SUN50I_H616_DX_ODT
+	hex "H616 DRAM DX ODT parameter"
+	help
+	  DX ODT value from vendor DRAM settings.
+
+config DRAM_SUN50I_H616_DX_DRI
+	hex "H616 DRAM DX DRI parameter"
+	help
+	  DX DRI value from vendor DRAM settings.
+
+config DRAM_SUN50I_H616_CA_DRI
+	hex "H616 DRAM CA DRI parameter"
+	help
+	  CA DRI value from vendor DRAM settings.
 endif
 
 config SUN6I_PRCM

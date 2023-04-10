@@ -234,37 +234,49 @@ static const u8 phy_init[] = {
 	0x09, 0x05, 0x18
 };
 
-static void mctl_phy_configure_odt(void)
+static void mctl_phy_configure_odt(struct dram_para *para)
 {
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x388);
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x38c);
+	unsigned int val;
 
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x3c8);
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x3cc);
+	val = para->dx_dri & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x388);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x38c);
 
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x408);
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x40c);
+	val = (para->dx_dri >> 8) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x3c8);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x3cc);
 
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x448);
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x44c);
+	val = (para->dx_dri >> 16) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x408);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x40c);
 
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x340);
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x344);
+	val = (para->dx_dri >> 24) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x448);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x44c);
 
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x348);
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x34c);
+	val = para->ca_dri & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x340);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x344);
 
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x380);
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x384);
+	val = (para->ca_dri >> 8) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x348);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x34c);
 
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x3c0);
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x3c4);
+	val = para->dx_odt & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x380);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x384);
 
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x400);
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x404);
+	val = (para->dx_odt >> 8) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x3c0);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x3c4);
 
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x440);
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x444);
+	val = (para->dx_odt >> 16) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x400);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x404);
+
+	val = (para->dx_odt >> 24) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x440);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x444);
 
 	dmb();
 }
@@ -722,7 +734,7 @@ static bool mctl_phy_init(struct dram_para *para)
 	writel(0x80, SUNXI_DRAM_PHY0_BASE + 0x45c);
 
 	if (IS_ENABLED(CONFIG_DRAM_ODT_EN))
-		mctl_phy_configure_odt();
+		mctl_phy_configure_odt(para);
 
 	clrsetbits_le32(SUNXI_DRAM_PHY0_BASE + 4, 7, 0xa);
 
@@ -1007,6 +1019,9 @@ unsigned long sunxi_dram_init(void)
 	struct dram_para para = {
 		.clk = CONFIG_DRAM_CLK,
 		.type = SUNXI_DRAM_TYPE_DDR3,
+		.dx_odt = CONFIG_DRAM_SUN50I_H616_DX_ODT,
+		.dx_dri = CONFIG_DRAM_SUN50I_H616_DX_DRI,
+		.ca_dri = CONFIG_DRAM_SUN50I_H616_CA_DRI,
 	};
 	unsigned long size;
 
