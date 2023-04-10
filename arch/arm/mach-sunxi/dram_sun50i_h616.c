@@ -572,7 +572,7 @@ static bool mctl_phy_write_training(struct dram_para *para)
 	return result;
 }
 
-static bool mctl_phy_bit_delay_compensation(struct dram_para *para)
+static void mctl_phy_bit_delay_compensation(struct dram_para *para)
 {
 	u32 *ptr;
 	int i;
@@ -683,8 +683,6 @@ static bool mctl_phy_bit_delay_compensation(struct dram_para *para)
 
 		setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x54, 0x80);
 	}
-
-	return true;
 }
 
 static bool mctl_phy_init(struct dram_para *para)
