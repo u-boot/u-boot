@@ -873,7 +873,7 @@ static bool mctl_ctrl_init(struct dram_para *para)
 	writel(0x06000400, &mctl_ctl->unk_0x3240);
 	writel(0x06000400, &mctl_ctl->unk_0x4240);
 
-	setbits_le32(&mctl_com->cr, BIT(31));
+	writel(BIT(31), &mctl_com->cr);
 
 	mctl_set_addrmap(para);
 
