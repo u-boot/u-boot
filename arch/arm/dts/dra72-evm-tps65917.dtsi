@@ -5,7 +5,7 @@
 
 /*
  * Integrated Power Management Chip
- * http://www.ti.com/lit/ds/symlink/tps65917-q1.pdf
+ * https://www.ti.com/lit/ds/symlink/tps65917-q1.pdf
  */
 
 &tps65917 {
