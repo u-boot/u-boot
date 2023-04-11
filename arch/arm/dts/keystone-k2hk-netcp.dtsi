@@ -12,9 +12,9 @@ qmss: qmss@2a40000 {
 	#size-cells = <1>;
 	clocks = <&chipclk13>;
 	ranges;
-	queue-range	= <0 0x4000>;
-	linkram0	= <0x100000 0x8000>;
-	linkram1	= <0x0 0x10000>;
+	queue-range = <0 0x4000>;
+	linkram0 = <0x100000 0x8000>;
+	linkram1 = <0x0 0x10000>;
 
 	qmgrs {
 		#address-cells = <1>;
@@ -44,6 +44,7 @@ qmss: qmss@2a40000 {
 				    "region", "push", "pop";
 		};
 	};
+
 	queue-pools {
 		qpend {
 			qpend-0 {
@@ -86,6 +87,7 @@ qmss: qmss@2a40000 {
 			};
 		};
 	};
+
 	descriptor-regions {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -126,7 +128,7 @@ netcp: netcp@2000000 {
 	#size-cells = <1>;
 
 	/* NetCP address range */
-	ranges  = <0 0x2000000 0x100000>;
+	ranges = <0 0x2000000 0x100000>;
 
 	clocks = <&papllclk>, <&clkcpgmac>, <&chipclk12>;
 	dma-coherent;
@@ -166,11 +168,11 @@ netcp: netcp@2000000 {
 			secondary-slave-ports {
 				port-2 {
 					slave-port = <2>;
-					link-interface	= <2>;
+					link-interface = <2>;
 				};
 				port-3 {
 					slave-port = <3>;
-					link-interface	= <2>;
+					link-interface = <2>;
 				};
 			};
 		};

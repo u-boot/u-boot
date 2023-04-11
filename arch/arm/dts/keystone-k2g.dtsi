@@ -40,7 +40,7 @@
 		};
 	};
 
-	gic: interrupt-controller {
+	gic: interrupt-controller@2561000 {
 		compatible = "arm,cortex-a15-gic";
 		#interrupt-cells = <3>;
 		interrupt-controller;

@@ -10,7 +10,7 @@
 #include "keystone-k2e.dtsi"
 
 / {
-	compatible =  "ti,k2e-evm","ti,keystone";
+	compatible = "ti,k2e-evm", "ti,k2e", "ti,keystone";
 	model = "Texas Instruments Keystone 2 Edison EVM";
 
 	soc {
@@ -117,7 +117,7 @@
 
 &spi0 {
 	status = "okay";
-	nor_flash: n25q128a11@0 {
+	nor_flash: flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "Micron,n25q128a11", "jedec,spi-nor";

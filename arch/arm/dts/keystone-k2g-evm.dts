@@ -90,8 +90,8 @@
 &qspi {
 	status = "okay";
 
-	flash0: m25p80@0 {
-		compatible = "s25fl512s","jedec,spi-nor";
+	flash0: flash@0 {
+		compatible = "s25fl512s", "jedec,spi-nor";
 		reg = <0>;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;
