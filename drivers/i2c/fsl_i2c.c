@@ -278,7 +278,8 @@ static void __i2c_init(const struct fsl_i2c_base *base, int speed, int
 	set_i2c_bus_speed(base, i2c_clk, speed);
 	writeb(slaveadd << 1, &base->adr);/* write slave address */
 	writeb(0x0, &base->sr);		/* clear status register */
-	writeb(I2C_CR_MEN, &base->cr);	/* start I2C controller */
+	/* start I2C controller */
+	writeb(I2C_CR_MEN | I2C_CR_MIEN, &base->cr);
 
 	timeval = get_ticks();
 	while (readb(&base->sr) & I2C_SR_MBB) {
@@ -346,7 +347,7 @@ static int i2c_wait(const struct fsl_i2c_base *base, int write)
 static int i2c_write_addr(const struct fsl_i2c_base *base, u8 dev,
 			  u8 dir, int rsta)
 {
-	writeb(I2C_CR_MEN | I2C_CR_MSTA | I2C_CR_MTX
+	writeb(I2C_CR_MEN | I2C_CR_MIEN | I2C_CR_MSTA | I2C_CR_MTX
 	       | (rsta ? I2C_CR_RSTA : 0),
 	       &base->cr);
 
@@ -378,7 +379,8 @@ static int __i2c_read_data(const struct fsl_i2c_base *base, u8 *data,
 {
 	int i;
 
-	writeb(I2C_CR_MEN | I2C_CR_MSTA | ((length == 1) ? I2C_CR_TXAK : 0),
+	writeb(I2C_CR_MEN | I2C_CR_MIEN |
+	       I2C_CR_MSTA | ((length == 1) ? I2C_CR_TXAK : 0),
 	       &base->cr);
 
 	/* dummy read */
@@ -390,13 +392,13 @@ static int __i2c_read_data(const struct fsl_i2c_base *base, u8 *data,
 
 		/* Generate ack on last next to last byte */
 		if (i == length - 2)
-			writeb(I2C_CR_MEN | I2C_CR_MSTA | I2C_CR_TXAK,
-			       &base->cr);
+			writeb(I2C_CR_MEN | I2C_CR_MIEN | I2C_CR_MSTA |
+			       I2C_CR_TXAK, &base->cr);
 
 		/* Do not generate stop on last byte */
 		if (i == length - 1)
-			writeb(I2C_CR_MEN | I2C_CR_MSTA | I2C_CR_MTX,
-			       &base->cr);
+			writeb(I2C_CR_MEN | I2C_CR_MIEN | I2C_CR_MSTA |
+			       I2C_CR_MTX, &base->cr);
 
 		data[i] = readb(&base->dr);
 	}

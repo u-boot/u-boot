@@ -508,13 +508,13 @@ static void i2c_gpio_set_pin(struct gpio_desc *pin, int bit)
 		dm_gpio_set_dir_flags(pin, GPIOD_IS_IN);
 	else
 		dm_gpio_set_dir_flags(pin, GPIOD_IS_OUT |
-					   GPIOD_ACTIVE_LOW |
 					   GPIOD_IS_OUT_ACTIVE);
 }
 
 static int i2c_gpio_get_pin(struct gpio_desc *pin)
 {
-	return dm_gpio_get_value(pin);
+	/* DTS need config GPIO_ACTIVE_LOW */
+	return !dm_gpio_get_value(pin);
 }
 
 int i2c_deblock_gpio_loop(struct gpio_desc *sda_pin,

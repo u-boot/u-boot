@@ -159,14 +159,14 @@ void cpu_init_f(void)
 	/* NAND */
 	out_8(&pm->pmcr0, 63);
 
-#ifdef CONFIG_SYS_I2C_0
+#ifdef CFG_SYS_I2C_0
 	out_8(&gpio->par_cani2c, 0xF0);
 	/* I2C0 pull up */
 	out_be16(&gpio->pcr_b, 0x003C);
 	/* I2C0 max speed */
 	out_8(&gpio->srcr_cani2c, 0x03);
 #endif
-#ifdef CONFIG_SYS_I2C_2
+#ifdef CFG_SYS_I2C_2
 	/* I2C2 */
 	out_8(&gpio->par_ssi0h, 0xA0);
 	/* I2C2, UART7 */
@@ -184,7 +184,7 @@ void cpu_init_f(void)
 	/* I2C2 pull up */
 	out_be16(&gpio->pcr_h, 0xF000);
 #endif
-#ifdef CONFIG_SYS_I2C_5
+#ifdef CFG_SYS_I2C_5
 	/* I2C5 */
 	out_8(&gpio->par_uart1, 0x0A);
 	/* I2C5 pull up */

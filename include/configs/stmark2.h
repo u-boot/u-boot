@@ -97,4 +97,6 @@
 
 #define CFG_MCFTMR
 
+#define CFG_SYS_I2C_0
+
 #endif /* __STMARK2_CONFIG_H */

@@ -147,9 +147,7 @@ static int dw_i2c_acpi_fill_ssdt(const struct udevice *dev,
 {
 	struct dw_i2c_speed_config config;
 	char path[ACPI_PATH_MAX];
-	u32 speeds[4];
 	uint speed;
-	int size;
 	int ret;
 
 	/* If no device-tree node, ignore this since we assume it isn't used */
@@ -159,18 +157,6 @@ static int dw_i2c_acpi_fill_ssdt(const struct udevice *dev,
 	ret = acpi_device_path(dev, path, sizeof(path));
 	if (ret)
 		return log_msg_ret("path", ret);
-
-	size = dev_read_size(dev, "i2c,speeds");
-	if (size < 0)
-		return log_msg_ret("i2c,speeds", -EINVAL);
-
-	size /= sizeof(u32);
-	if (size > ARRAY_SIZE(speeds))
-		return log_msg_ret("array", -E2BIG);
-
-	ret = dev_read_u32_array(dev, "i2c,speeds", speeds, size);
-	if (ret)
-		return log_msg_ret("read", -E2BIG);
 
 	speed = dev_read_u32_default(dev, "clock-frequency", 100000);
 	acpigen_write_scope(ctx, path);
