@@ -107,6 +107,8 @@
 #include <watchdog.h>
 #include <linux/compiler.h>
 #include <test/test.h>
+#include <net/tcp.h>
+#include <net/wget.h>
 #include "arp.h"
 #include "bootp.h"
 #include "cdp.h"
@@ -120,8 +122,7 @@
 #if defined(CONFIG_CMD_WOL)
 #include "wol.h"
 #endif
-#include <net/tcp.h>
-#include <net/wget.h>
+#include "dhcpv6.h"
 
 /** BOOTP EXTENTIONS **/
 
@@ -135,6 +136,8 @@ struct in_addr net_dns_server;
 /* Our 2nd DNS IP address */
 struct in_addr net_dns_server2;
 #endif
+/* Indicates whether the pxe path prefix / config file was specified in dhcp option */
+char *pxelinux_configfile;
 
 /** END OF BOOTP EXTENTIONS **/
 
@@ -510,6 +513,10 @@ restart:
 			dhcp_request();		/* Basically same as BOOTP */
 			break;
 #endif
+		case DHCP6:
+			if (IS_ENABLED(CONFIG_CMD_DHCP6))
+				dhcp6_start();
+			break;
 #if defined(CONFIG_CMD_BOOTP)
 		case BOOTP:
 			bootp_reset();
