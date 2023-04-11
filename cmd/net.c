@@ -111,6 +111,29 @@ U_BOOT_CMD(
 );
 #endif
 
+#if defined(CONFIG_CMD_DHCP6)
+static int do_dhcp6(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
+{
+	int i;
+	int dhcp_argc;
+	char *dhcp_argv[] = {NULL, NULL, NULL, NULL};
+
+	/* Add -ipv6 flag for autoload */
+	for (i = 0; i < argc; i++)
+		dhcp_argv[i] = argv[i];
+	dhcp_argc = argc + 1;
+	dhcp_argv[dhcp_argc - 1] =  USE_IP6_CMD_PARAM;
+
+	return netboot_common(DHCP6, cmdtp, dhcp_argc, dhcp_argv);
+}
+
+U_BOOT_CMD(dhcp6,	3,	1,	do_dhcp6,
+	   "boot image via network using DHCPv6/TFTP protocol.\n"
+	   "Use IPv6 hostIPaddr framed with [] brackets",
+	   "[loadAddress] [[hostIPaddr:]bootfilename]");
+#endif
+
 #if defined(CONFIG_CMD_DHCP)
 static int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
