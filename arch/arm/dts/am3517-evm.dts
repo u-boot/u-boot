@@ -26,66 +26,66 @@
 		reg = <0x80000000 0x10000000>; /* 256 MB */
 	};
 
-        vmmc_fixed: vmmc {
-                compatible = "regulator-fixed";
-                regulator-name = "vmmc_fixed";
-                regulator-min-microvolt = <3300000>;
-                regulator-max-microvolt = <3300000>;
-        };
+	vmmc_fixed: vmmc {
+		compatible = "regulator-fixed";
+		regulator-name = "vmmc_fixed";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
 
 	gpio-keys {
 		compatible = "gpio-keys-polled";
 		poll-interval = <100>;
 
-		user_pb {
+		button-user {
 			label = "User Push Button";
 			linux,code = <BTN_0>;
 			gpios = <&tca6416 5 GPIO_ACTIVE_LOW>;
 		};
 
-		user_sw_1 {
+		switch-1 {
 			label = "User Switch 1";
 			linux,code = <BTN_1>;
 			gpios = <&tca6416 8 GPIO_ACTIVE_LOW>;
 		};
 
-		user_sw_2 {
+		switch-2 {
 			label = "User Switch 2";
 			linux,code = <BTN_2>;
 			gpios = <&tca6416 9 GPIO_ACTIVE_LOW>;
 		};
 
-		user_sw_3 {
+		switch-3 {
 			label = "User Switch 3";
 			linux,code = <BTN_3>;
 			gpios = <&tca6416 10 GPIO_ACTIVE_LOW>;
 		};
 
-		user_sw_4 {
+		switch-4 {
 			label = "User Switch 4";
 			linux,code = <BTN_4>;
 			gpios = <&tca6416 11 GPIO_ACTIVE_LOW>;
 		};
 
-		user_sw_5 {
+		switch-5 {
 			label = "User Switch 5";
 			linux,code = <BTN_5>;
 			gpios = <&tca6416 12 GPIO_ACTIVE_LOW>;
 		};
 
-		user_sw_6 {
+		switch-6 {
 			label = "User Switch 6";
 			linux,code = <BTN_6>;
 			gpios = <&tca6416 13 GPIO_ACTIVE_LOW>;
 		};
 
-		user_sw_7 {
+		switch-7 {
 			label = "User Switch 7";
 			linux,code = <BTN_7>;
 			gpios = <&tca6416 14 GPIO_ACTIVE_LOW>;
 		};
 
-		user_sw_8 {
+		switch-8 {
 			label = "User Switch 8";
 			linux,code = <BTN_8>;
 			gpios = <&tca6416 15 GPIO_ACTIVE_LOW>;
@@ -150,7 +150,7 @@
 		enable-gpios = <&gpio6 22 GPIO_ACTIVE_HIGH>; /* gpio_182 */
 	};
 
-	pwm11: dmtimer-pwm@11 {
+	pwm11: pwm-11 {
 		compatible = "ti,omap-dmtimer-pwm";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm_pins>;
@@ -176,7 +176,7 @@
 };
 
 &davinci_mdio {
-	     status = "okay";
+	status = "okay";
 };
 
 &dss {
@@ -223,7 +223,7 @@
 };
 
 &mmc3 {
-      status = "disabled";
+	status = "disabled";
 };
 
 &usbhshost {

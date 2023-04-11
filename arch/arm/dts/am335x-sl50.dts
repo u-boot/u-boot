@@ -31,25 +31,25 @@
 		pinctrl-0 = <&led_pins>;
 
 		led0 {
-			label = "sl50:green:usr0";
+			label = "sl50:red:usr0";
 			gpios = <&gpio1 21 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 		};
 
 		led1 {
-			label = "sl50:red:usr1";
+			label = "sl50:green:usr1";
 			gpios = <&gpio1 22 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 		};
 
 		led2 {
-			label = "sl50:green:usr2";
+			label = "sl50:red:usr2";
 			gpios = <&gpio1 23 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 		};
 
 		led3 {
-			label = "sl50:red:usr3";
+			label = "sl50:green:usr3";
 			gpios = <&gpio1 24 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 		};
@@ -75,7 +75,7 @@
 		#size-cells = <0>;
 
 		/* audio external oscillator */
-		tlv320aic3x_mclk: oscillator@0 {
+		audio_mclk_fixed: oscillator@0 {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency  = <24576000>;	/* 24.576MHz */
@@ -88,7 +88,7 @@
 		ti,audio-codec = <&audio_codec>;
 		ti,mcasp-controller = <&mcasp0>;
 
-		clocks = <&tlv320aic3x_mclk>;
+		clocks = <&audio_mclk_fixed>;
 		clock-names = "mclk";
 
 		ti,audio-routing =
@@ -430,7 +430,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi0_pins>;
 
-	flash: n25q032@1 {
+	flash: flash@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "micron,n25q032";

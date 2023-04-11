@@ -27,17 +27,13 @@
 		reg = <0x80000000 0x10000000>; /* 256 MB */
 	};
 
-	regulators {
-		compatible = "simple-bus";
-
-		vcc5v: fixedregulator0 {
-			compatible = "regulator-fixed";
-			regulator-name = "vcc5v";
-			regulator-min-microvolt = <5000000>;
-			regulator-max-microvolt = <5000000>;
-			regulator-boot-on;
-			regulator-always-on;
-		};
+	vcc5v: fixedregulator0 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc5v";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		regulator-boot-on;
+		regulator-always-on;
 	};
 };
 
@@ -306,7 +302,7 @@
 	pinctrl-0 = <&spi0_pins>;
 	status = "okay";
 
-	serial_flash: m25p80@0 {
+	serial_flash: flash@0 {
 		compatible = "jedec,spi-nor";
 		spi-max-frequency = <48000000>;
 		reg = <0x0>;
