@@ -120,7 +120,16 @@ static int cadence_qspi_set_protocol(struct cadence_spi_priv *priv,
 {
 	int ret;
 
-	priv->dtr = op->data.dtr && op->cmd.dtr && op->addr.dtr;
+	/*
+	 * For an op to be DTR, cmd phase along with every other non-empty
+	 * phase should have dtr field set to 1. If an op phase has zero
+	 * nbytes, ignore its dtr field; otherwise, check its dtr field.
+	 * Also, dummy checks not performed here Since supports_op()
+	 * already checks that all or none of the fields are DTR.
+	 */
+	priv->dtr = op->cmd.dtr &&
+		    (!op->addr.nbytes || op->addr.dtr) &&
+		    (!op->data.nbytes || op->data.dtr);
 
 	ret = cadence_qspi_buswidth_to_inst_type(op->cmd.buswidth);
 	if (ret < 0)
