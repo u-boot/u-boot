@@ -28,6 +28,9 @@ enum sbi_ext_id {
 	SBI_EXT_HSM = 0x48534D,
 	SBI_EXT_SRST = 0x53525354,
 	SBI_EXT_PMU = 0x504D55,
+	SBI_EXT_DBCN = 0x4442434E,
+	SBI_EXT_SUSP = 0x53555350,
+	SBI_EXT_CPPC = 0x43505043,
 };
 
 enum sbi_ext_base_fid {
@@ -87,6 +90,12 @@ enum sbi_srst_reset_type {
 enum sbi_srst_reset_reason {
 	SBI_SRST_RESET_REASON_NONE = 0,
 	SBI_SRST_RESET_REASON_SYS_FAILURE,
+};
+
+enum sbi_ext_dbcn_fid {
+	SBI_EXT_DBCN_CONSOLE_WRITE = 0,
+	SBI_EXT_DBCN_CONSOLE_READ,
+	SBI_EXT_DBCN_CONSOLE_WRITE_BYTE,
 };
 
 #ifdef CONFIG_SBI_V01
