@@ -13,6 +13,93 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		/* We have 2 clusters having 4 Cortex-A53 cores each */
+		cpu0: cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <0x0>;
+			clocks = <&clockgen QORIQ_CLK_CMUX 0>;
+			cpu-idle-states = <&CPU_PH20>;
+			#cooling-cells = <2>;
+		};
+
+		cpu1: cpu@1 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <0x1>;
+			clocks = <&clockgen QORIQ_CLK_CMUX 0>;
+			cpu-idle-states = <&CPU_PH20>;
+			#cooling-cells = <2>;
+		};
+
+		cpu2: cpu@2 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <0x2>;
+			clocks = <&clockgen QORIQ_CLK_CMUX 0>;
+			cpu-idle-states = <&CPU_PH20>;
+			#cooling-cells = <2>;
+		};
+
+		cpu3: cpu@3 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <0x3>;
+			clocks = <&clockgen QORIQ_CLK_CMUX 0>;
+			cpu-idle-states = <&CPU_PH20>;
+			#cooling-cells = <2>;
+		};
+
+		cpu4: cpu@100 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <0x100>;
+			clocks = <&clockgen QORIQ_CLK_CMUX 1>;
+			cpu-idle-states = <&CPU_PH20>;
+			#cooling-cells = <2>;
+		};
+
+		cpu5: cpu@101 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <0x101>;
+			clocks = <&clockgen QORIQ_CLK_CMUX 1>;
+			cpu-idle-states = <&CPU_PH20>;
+			#cooling-cells = <2>;
+		};
+
+		cpu6: cpu@102 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <0x102>;
+			clocks = <&clockgen QORIQ_CLK_CMUX 1>;
+			cpu-idle-states = <&CPU_PH20>;
+			#cooling-cells = <2>;
+		};
+
+		cpu7: cpu@103 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <0x103>;
+			clocks = <&clockgen QORIQ_CLK_CMUX 1>;
+			cpu-idle-states = <&CPU_PH20>;
+			#cooling-cells = <2>;
+		};
+
+		CPU_PH20: cpu-ph20 {
+			compatible = "arm,idle-state";
+			idle-state-name = "PH20";
+			arm,psci-suspend-param = <0x0>;
+			entry-latency-us = <1000>;
+			exit-latency-us = <1000>;
+			min-residency-us = <3000>;
+		};
+	};
+
 	gic: interrupt-controller@6000000 {
 		compatible = "arm,gic-v3";
 		#interrupt-cells = <3>;
