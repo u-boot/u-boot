@@ -93,7 +93,8 @@
 #include <net.h>
 #include <net6.h>
 #include <ndisc.h>
-#include <net/fastboot.h>
+#include <net/fastboot_udp.h>
+#include <net/fastboot_tcp.h>
 #include <net/tftp.h>
 #include <net/ncsi.h>
 #if defined(CONFIG_CMD_PCAP)
@@ -501,9 +502,14 @@ restart:
 			tftp_start_server();
 			break;
 #endif
-#ifdef CONFIG_UDP_FUNCTION_FASTBOOT
-		case FASTBOOT:
-			fastboot_start_server();
+#if defined(CONFIG_UDP_FUNCTION_FASTBOOT)
+		case FASTBOOT_UDP:
+			fastboot_udp_start_server();
+			break;
+#endif
+#if defined(CONFIG_TCP_FUNCTION_FASTBOOT)
+		case FASTBOOT_TCP:
+			fastboot_tcp_start_server();
 			break;
 #endif
 #if defined(CONFIG_CMD_DHCP)
@@ -1498,7 +1504,8 @@ common:
 		/* Fall through */
 
 	case NETCONS:
-	case FASTBOOT:
+	case FASTBOOT_UDP:
+	case FASTBOOT_TCP:
 	case TFTPSRV:
 		if (IS_ENABLED(CONFIG_IPV6) && use_ip6) {
 			if (!memcmp(&net_link_local_ip6, &net_null_addr_ip6,

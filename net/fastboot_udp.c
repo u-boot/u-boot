@@ -7,7 +7,7 @@
 #include <command.h>
 #include <fastboot.h>
 #include <net.h>
-#include <net/fastboot.h>
+#include <net/fastboot_udp.h>
 
 enum {
 	FASTBOOT_ERROR = 0,
@@ -300,7 +300,7 @@ static void fastboot_handler(uchar *packet, unsigned int dport,
 	}
 }
 
-void fastboot_start_server(void)
+void fastboot_udp_start_server(void)
 {
 	printf("Using %s device\n", eth_get_name());
 	printf("Listening for fastboot command on %pI4\n", &net_ip);
