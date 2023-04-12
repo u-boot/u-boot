@@ -40,8 +40,6 @@ static int fastboot_remote_port;
 /* The UDP port at our end */
 static int fastboot_our_port;
 
-static void boot_downloaded_image(void);
-
 /**
  * fastboot_udp_send_info() - Send an INFO packet during long commands.
  *
@@ -209,37 +207,10 @@ static void fastboot_send(struct fastboot_header header, char *fastboot_data,
 	net_send_udp_packet(net_server_ethaddr, fastboot_remote_ip,
 			    fastboot_remote_port, fastboot_our_port, len);
 
-	/* Continue boot process after sending response */
-	if (!strncmp("OKAY", response, 4)) {
-		switch (cmd) {
-		case FASTBOOT_COMMAND_BOOT:
-			boot_downloaded_image();
-			break;
-
-		case FASTBOOT_COMMAND_CONTINUE:
-			net_set_state(NETLOOP_SUCCESS);
-			break;
-
-		case FASTBOOT_COMMAND_REBOOT:
-		case FASTBOOT_COMMAND_REBOOT_BOOTLOADER:
-		case FASTBOOT_COMMAND_REBOOT_FASTBOOTD:
-		case FASTBOOT_COMMAND_REBOOT_RECOVERY:
-			do_reset(NULL, 0, 0, NULL);
-			break;
-		}
-	}
+	fastboot_handle_boot(cmd, strncmp("OKAY", response, 4) == 0);
 
 	if (!strncmp("OKAY", response, 4) || !strncmp("FAIL", response, 4))
 		cmd = -1;
-}
-
-/**
- * boot_downloaded_image() - Boots into downloaded image.
- */
-static void boot_downloaded_image(void)
-{
-	fastboot_boot();
-	net_set_state(NETLOOP_SUCCESS);
 }
 
 /**

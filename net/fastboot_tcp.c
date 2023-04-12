@@ -73,6 +73,7 @@ static void fastboot_tcp_handler_ipv4(uchar *pkt, u16 dport,
 				      u32 tcp_seq_num, u32 tcp_ack_num,
 				      u8 action, unsigned int len)
 {
+	int fastboot_command_id;
 	u64 command_size;
 	u8 tcp_fin = action & TCP_FIN;
 	u8 tcp_push = action & TCP_PUSH;
@@ -115,8 +116,10 @@ static void fastboot_tcp_handler_ipv4(uchar *pkt, u16 dport,
 				break;
 			}
 			strlcpy(command, pkt, len + 1);
-			fastboot_handle_command(command, response);
+			fastboot_command_id = fastboot_handle_command(command, response);
 			fastboot_tcp_send_message(response, strlen(response));
+			fastboot_handle_boot(fastboot_command_id,
+					     strncmp("OKAY", response, 4) == 0);
 		}
 		break;
 	case FASTBOOT_DISCONNECTING:
