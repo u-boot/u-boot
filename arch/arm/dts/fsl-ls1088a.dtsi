@@ -477,6 +477,106 @@
 				     <GIC_SPI 208 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 209 IRQ_TYPE_LEVEL_HIGH>;
 		};
+
+		emdio1: mdio@8b96000 {
+			compatible = "fsl,fman-memac-mdio";
+			reg = <0x0 0x8b96000 0x0 0x1000>;
+			little-endian;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clock-frequency = <2500000>;
+			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
+					    QORIQ_CLK_PLL_DIV(1)>;
+			status = "disabled";
+		};
+
+		emdio2: mdio@8b97000 {
+			compatible = "fsl,fman-memac-mdio";
+			reg = <0x0 0x8b97000 0x0 0x1000>;
+			little-endian;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clock-frequency = <2500000>;
+			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
+					    QORIQ_CLK_PLL_DIV(1)>;
+			status = "disabled";
+		};
+
+		pcs_mdio1: mdio@8c07000 {
+			compatible = "fsl,fman-memac-mdio";
+			reg = <0x0 0x8c07000 0x0 0x1000>;
+			little-endian;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+
+			pcs1: ethernet-phy@0 {
+				reg = <0>;
+			};
+		};
+
+		pcs_mdio2: mdio@8c0b000 {
+			compatible = "fsl,fman-memac-mdio";
+			reg = <0x0 0x8c0b000 0x0 0x1000>;
+			little-endian;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+
+			pcs2: ethernet-phy@0 {
+				reg = <0>;
+			};
+		};
+
+		pcs_mdio3: mdio@8c0f000 {
+			compatible = "fsl,fman-memac-mdio";
+			reg = <0x0 0x8c0f000 0x0 0x1000>;
+			little-endian;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+
+			pcs3_0: ethernet-phy@0 {
+				reg = <0>;
+			};
+
+			pcs3_1: ethernet-phy@1 {
+				reg = <1>;
+			};
+
+			pcs3_2: ethernet-phy@2 {
+				reg = <2>;
+			};
+
+			pcs3_3: ethernet-phy@3 {
+				reg = <3>;
+			};
+		};
+
+		pcs_mdio7: mdio@8c1f000 {
+			compatible = "fsl,fman-memac-mdio";
+			reg = <0x0 0x8c1f000 0x0 0x1000>;
+			little-endian;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+
+			pcs7_0: ethernet-phy@0 {
+				reg = <0>;
+			};
+
+			pcs7_1: ethernet-phy@1 {
+				reg = <1>;
+			};
+
+			pcs7_2: ethernet-phy@2 {
+				reg = <2>;
+			};
+
+			pcs7_3: ethernet-phy@3 {
+				reg = <3>;
+			};
+		};
 	};
 
 	dspi: dspi@2100000 {
@@ -644,21 +744,5 @@
 				status = "disabled";
 			};
 		};
-	};
-
-	emdio1: mdio@8B96000 {
-		compatible = "fsl,ls-mdio";
-		reg = <0x0 0x8B96000 0x0 0x1000>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-		status = "disabled";
-	};
-
-	emdio2: mdio@8B97000 {
-		compatible = "fsl,ls-mdio";
-		reg = <0x0 0x8B97000 0x0 0x1000>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-		status = "disabled";
 	};
 };
