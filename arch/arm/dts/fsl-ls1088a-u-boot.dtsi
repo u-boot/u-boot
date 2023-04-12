@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
+#include <config.h>
+
+&duart0 {
+	bootph-all;
+};
+
+&duart1 {
+	bootph-all;
+};
