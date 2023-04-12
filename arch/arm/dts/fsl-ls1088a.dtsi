@@ -13,12 +13,6 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
-	memory@80000000 {
-		device_type = "memory";
-		reg = <0x00000000 0x80000000 0 0x80000000>;
-		      /* DRAM space - 1, size : 2 GB DRAM */
-	};
-
 	gic: interrupt-controller@6000000 {
 		compatible = "arm,gic-v3";
 		reg = <0x0 0x06000000 0 0x10000>, /* GIC Dist */

@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0+
 #include <config.h>
 
+/{
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x00000000 0x80000000 0 0x80000000>;
+		      /* DRAM space - 1, size : 2 GB DRAM */
+	};
+};
+
 &duart0 {
 	bootph-all;
 };
