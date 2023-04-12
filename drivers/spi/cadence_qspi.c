@@ -312,13 +312,12 @@ static int cadence_spi_mem_exec_op(struct spi_slave *spi,
 		 * which is unsupported on some flash devices during register
 		 * reads, prefer STIG mode for such small reads.
 		 */
-		if (!op->addr.nbytes ||
-		    op->data.nbytes <= CQSPI_STIG_DATA_LEN_MAX)
+		if (op->data.nbytes <= CQSPI_STIG_DATA_LEN_MAX)
 			mode = CQSPI_STIG_READ;
 		else
 			mode = CQSPI_READ;
 	} else {
-		if (!op->addr.nbytes || !op->data.buf.out)
+		if (op->data.nbytes <= CQSPI_STIG_DATA_LEN_MAX)
 			mode = CQSPI_STIG_WRITE;
 		else
 			mode = CQSPI_WRITE;
