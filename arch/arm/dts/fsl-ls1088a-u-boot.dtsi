@@ -29,3 +29,11 @@
 	status = "okay";
 };
 
+&usb0 {
+	compatible = "fsl,layerscape-dwc3", "snps,dwc3";
+};
+
+&usb1 {
+	compatible = "fsl,layerscape-dwc3", "snps,dwc3";
+};
+

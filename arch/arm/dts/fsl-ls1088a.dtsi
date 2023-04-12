@@ -256,6 +256,28 @@
 			status = "disabled";
 		};
 
+		usb0: usb@3100000 {
+			compatible = "snps,dwc3";
+			reg = <0x0 0x3100000 0x0 0x10000>;
+			interrupts = <0 80 IRQ_TYPE_LEVEL_HIGH>;
+			dr_mode = "host";
+			snps,quirk-frame-length-adjustment = <0x20>;
+			snps,dis_rxdet_inp3_quirk;
+			snps,incr-burst-type-adjustment = <1>, <4>, <8>, <16>;
+			status = "disabled";
+		};
+
+		usb1: usb@3110000 {
+			compatible = "snps,dwc3";
+			reg = <0x0 0x3110000 0x0 0x10000>;
+			interrupts = <0 81 IRQ_TYPE_LEVEL_HIGH>;
+			dr_mode = "host";
+			snps,quirk-frame-length-adjustment = <0x20>;
+			snps,dis_rxdet_inp3_quirk;
+			snps,incr-burst-type-adjustment = <1>, <4>, <8>, <16>;
+			status = "disabled";
+		};
+
 		pcie1: pcie@3400000 {
 			compatible = "fsl,ls1088a-pcie";
 			reg = <0x00 0x03400000 0x0 0x00100000>, /* controller registers */
@@ -488,20 +510,6 @@
 		compatible = "fsl,ifc", "simple-bus";
 		reg = <0x0 0x2240000 0x0 0x20000>;
 		interrupts = <0 21 0x4>; /* Level high type */
-	};
-
-	usb0: usb3@3100000 {
-		compatible = "fsl,layerscape-dwc3";
-		reg = <0x0 0x3100000 0x0 0x10000>;
-		interrupts = <0 80 0x4>; /* Level high type */
-		dr_mode = "host";
-	};
-
-	usb1: usb3@3110000 {
-		compatible = "fsl,layerscape-dwc3";
-		reg = <0x0 0x3110000 0x0 0x10000>;
-		interrupts = <0 81 0x4>; /* Level high type */
-		dr_mode = "host";
 	};
 
 	crypto: crypto@8000000 {
