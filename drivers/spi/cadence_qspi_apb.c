@@ -376,6 +376,9 @@ int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg)
 	if (!cadence_qspi_wait_idle(reg_base))
 		return -EIO;
 
+	/* Flush the CMDCTRL reg after the execution */
+	writel(0, reg_base + CQSPI_REG_CMDCTRL);
+
 	return 0;
 }
 
