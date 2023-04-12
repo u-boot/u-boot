@@ -231,6 +231,7 @@ int board_usb_init(int index, enum usb_init_type init)
 	while (ofnode_valid(node)) {
 		switch (usb_get_dr_mode(node)) {
 		case USB_DR_MODE_OTG:
+		case USB_DR_MODE_PERIPHERAL:
 			matched = true;
 			break;
 
