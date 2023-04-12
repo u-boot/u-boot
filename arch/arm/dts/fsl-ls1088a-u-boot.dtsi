@@ -29,6 +29,18 @@
 	compatible = "fsl,ls-mdio", "fsl,fman-memac-mdio";
 };
 
+/* DPAA2 Management Complex (MC)
+ * "simple-mfd" compatible used by U-Boot only,
+ * to allow driver model functionality.
+ */
+&fsl_mc {
+	compatible = "fsl,qoriq-mc", "simple-mfd";
+
+	dpmacs {
+		compatible = "simple-mfd";
+	};
+};
+
 &pcie1 {
 	status = "okay";
 };
