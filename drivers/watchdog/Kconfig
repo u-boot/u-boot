@@ -368,4 +368,11 @@ config SPL_WDT
 	  Enable driver model for watchdog timer in SPL.
 	  This is similar to CONFIG_WDT in U-Boot.
 
+config WDT_FTWDT010
+	bool "Faraday Technology ftwdt010 watchdog timer support"
+	depends on WDT
+	imply WATCHDOG
+	help
+	  Faraday Technology ftwdt010 watchdog is an architecture independent
+	  watchdog. It is usually used in SoC chip design.
 endmenu
