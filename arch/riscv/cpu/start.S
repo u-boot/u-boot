@@ -323,7 +323,6 @@ fix_rela_dyn:
 	add	t4, t4, t6
 
 9:
-	LREG	t5, -(REGBYTES*2)(t1)	/* t5 <-- relocation info:type */
 	srli	t0, t5, SYM_INDEX	/* t0 <--- sym table index */
 	andi	t5, t5, 0xFF		/* t5 <--- relocation type */
 	li	t3, RELOC_TYPE
