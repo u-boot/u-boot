@@ -283,9 +283,7 @@ stack_setup:
 	beq	t0, s4, clear_bss	/* skip relocation */
 
 	mv	t1, s4			/* t1 <- scratch for copy_loop */
-	la	t3, __bss_start
-	sub	t3, t3, t0		/* t3 <- __bss_start_ofs */
-	add	t2, t0, t3		/* t2 <- source end address */
+	la	t2, __bss_start		/* t2 <- source end address */
 
 copy_loop:
 	LREG	t5, 0(t0)
