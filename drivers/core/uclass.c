@@ -545,6 +545,12 @@ int uclass_get_device_by_ofnode(enum uclass_id id, ofnode node,
 }
 
 #if CONFIG_IS_ENABLED(OF_REAL)
+int uclass_get_device_by_of_path(enum uclass_id id, const char *path,
+				 struct udevice **devp)
+{
+	return uclass_get_device_by_ofnode(id, ofnode_path(path), devp);
+}
+
 int uclass_get_device_by_phandle_id(enum uclass_id id, uint phandle_id,
 				    struct udevice **devp)
 {
