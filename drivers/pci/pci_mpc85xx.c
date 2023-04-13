@@ -22,7 +22,12 @@ static int mpc85xx_pci_dm_read_config(const struct udevice *dev, pci_dev_t bdf,
 	struct mpc85xx_pci_priv *priv = dev_get_priv(dev);
 	u32 addr;
 
-	addr = PCI_CONF1_EXT_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), offset);
+	if (offset > 0xff) {
+		*value = pci_get_ff(size);
+		return 0;
+	}
+
+	addr = PCI_CONF1_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 	out_be32(priv->cfg_addr, addr);
 	sync();
 
@@ -48,7 +53,10 @@ static int mpc85xx_pci_dm_write_config(struct udevice *dev, pci_dev_t bdf,
 	struct mpc85xx_pci_priv *priv = dev_get_priv(dev);
 	u32 addr;
 
-	addr = PCI_CONF1_EXT_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), offset);
+	if (offset > 0xff)
+		return 0;
+
+	addr = PCI_CONF1_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 	out_be32(priv->cfg_addr, addr);
 	sync();
 
