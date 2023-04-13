@@ -1557,6 +1557,21 @@ static ulong rk3588_clk_get_rate(struct clk *clk)
 	case TCLK_WDT0:
 		rate = OSC_HZ;
 		break;
+	case PCLK_PMU0_ROOT:
+		rate = 100000000;
+		break;
+	case HCLK_PMU_CM0_ROOT:
+		rate = 200000000;
+		break;
+	case ACLK_BUS_ROOT:
+		rate = 375000000;
+		break;
+	case CLK_150M_SRC:
+		rate = 150000000;
+		break;
+	case CLK_GPU:
+		rate = 200000000;
+		break;
 #ifndef CONFIG_SPL_BUILD
 	case CLK_AUX16M_0:
 	case CLK_AUX16M_1:
@@ -1706,6 +1721,13 @@ static ulong rk3588_clk_set_rate(struct clk *clk, ulong rate)
 	case TMCLK_EMMC:
 	case TCLK_WDT0:
 		ret = OSC_HZ;
+		break;
+	case PCLK_PMU0_ROOT:
+	case CLK_GPU:
+	case HCLK_PMU_CM0_ROOT:
+	case ACLK_BUS_ROOT:
+	case CLK_150M_SRC:
+		ret = 0;
 		break;
 #ifndef CONFIG_SPL_BUILD
 	case CLK_AUX16M_0:
