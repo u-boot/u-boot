@@ -41,6 +41,7 @@ static int mpc85xx_pci_dm_write_config(struct udevice *dev, pci_dev_t bdf,
 	out_be32(priv->cfg_addr, addr);
 	sync();
 	out_le32(priv->cfg_data, pci_conv_size_to_32(0, value, offset, size));
+	sync();
 
 	return 0;
 }
