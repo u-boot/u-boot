@@ -25,7 +25,18 @@ static int mpc85xx_pci_dm_read_config(const struct udevice *dev, pci_dev_t bdf,
 	addr = PCI_CONF1_EXT_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 	out_be32(priv->cfg_addr, addr);
 	sync();
-	*value = pci_conv_32_to_size(in_le32(priv->cfg_data), offset, size);
+
+	switch (size) {
+	case PCI_SIZE_8:
+		*value = in_8(priv->cfg_data + (offset & 3));
+		break;
+	case PCI_SIZE_16:
+		*value = in_le16(priv->cfg_data + (offset & 2));
+		break;
+	case PCI_SIZE_32:
+		*value = in_le32(priv->cfg_data);
+		break;
+	}
 
 	return 0;
 }
@@ -40,7 +51,18 @@ static int mpc85xx_pci_dm_write_config(struct udevice *dev, pci_dev_t bdf,
 	addr = PCI_CONF1_EXT_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 	out_be32(priv->cfg_addr, addr);
 	sync();
-	out_le32(priv->cfg_data, pci_conv_size_to_32(0, value, offset, size));
+
+	switch (size) {
+	case PCI_SIZE_8:
+		out_8(priv->cfg_data + (offset & 3), value);
+		break;
+	case PCI_SIZE_16:
+		out_le16(priv->cfg_data + (offset & 2), value);
+		break;
+	case PCI_SIZE_32:
+		out_le32(priv->cfg_data, value);
+		break;
+	}
 	sync();
 
 	return 0;
