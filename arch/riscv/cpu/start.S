@@ -302,17 +302,12 @@ fix_rela_dyn:
 	add	t1, t1, t6		/* t1 <- rela_dyn_start in RAM */
 	add	t2, t2, t6		/* t2 <- rela_dyn_end in RAM */
 
-/*
- * skip first reserved entry: address, type, addend
- */
-	j	10f
-
 6:
-	LREG	t5, -(REGBYTES*2)(t1)	/* t5 <-- relocation info:type */
+	LREG	t5, REGBYTES(t1)	/* t5 <-- relocation info:type */
 	li	t3, R_RISCV_RELATIVE	/* reloc type R_RISCV_RELATIVE */
 	bne	t5, t3, 8f		/* skip non-RISCV_RELOC entries */
-	LREG	t3, -(REGBYTES*3)(t1)
-	LREG	t5, -(REGBYTES)(t1)	/* t5 <-- addend */
+	LREG	t3, 0(t1)
+	LREG	t5, (REGBYTES * 2)(t1)	/* t5 <-- addend */
 	add	t5, t5, t6		/* t5 <-- location to fix up in RAM */
 	add	t3, t3, t6		/* t3 <-- location to fix up in RAM */
 	SREG	t5, 0(t3)
@@ -328,19 +323,19 @@ fix_rela_dyn:
 	li	t3, RELOC_TYPE
 	bne	t5, t3, 10f		/* skip non-addned entries */
 
-	LREG	t3, -(REGBYTES*3)(t1)
+	LREG	t3, 0(t1)
 	li	t5, SYM_SIZE
 	mul	t0, t0, t5
 	add	s5, t4, t0
-	LREG	t0, -(REGBYTES)(t1)	/* t0 <-- addend */
+	LREG	t0, (REGBYTES * 2)(t1)	/* t0 <-- addend */
 	LREG	t5, REGBYTES(s5)
 	add	t5, t5, t0
 	add	t5, t5, t6		/* t5 <-- location to fix up in RAM */
 	add	t3, t3, t6		/* t3 <-- location to fix up in RAM */
 	SREG	t5, 0(t3)
 10:
-	addi	t1, t1, (REGBYTES*3)
-	ble	t1, t2, 6b
+	addi	t1, t1, (REGBYTES * 3)
+	blt	t1, t2, 6b
 
 /*
  * trap update
