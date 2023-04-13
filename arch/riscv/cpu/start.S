@@ -250,7 +250,7 @@ spl_secondary_hart_stack_gd_setup:
 spl_call_board_init_r:
 	mv	a0, zero
 	mv	a1, zero
-	jal	board_init_r
+	j	board_init_r
 #endif
 
 /*
