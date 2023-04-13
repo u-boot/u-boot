@@ -253,6 +253,7 @@ spl_call_board_init_r:
 	j	board_init_r
 #endif
 
+#if !defined(CONFIG_SPL_BUILD)
 /*
  * void relocate_code(addr_sp, gd, addr_moni)
  *
@@ -400,6 +401,7 @@ call_board_init_r:
  * jump to it ...
  */
 	jr	t4			/* jump to board_init_r() */
+#endif /* !defined(CONFIG_SPL_BUILD) */
 
 #if CONFIG_IS_ENABLED(SMP)
 hart_out_of_bounds_loop:
