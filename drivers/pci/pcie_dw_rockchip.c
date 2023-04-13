@@ -375,29 +375,39 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 	ret = reset_get_bulk(dev, &priv->rsts);
 	if (ret) {
 		dev_err(dev, "Can't get reset: %d\n", ret);
-		return ret;
+		goto rockchip_pcie_parse_dt_err_reset_get_bulk;
 	}
 
 	ret = clk_get_bulk(dev, &priv->clks);
 	if (ret) {
 		dev_err(dev, "Can't get clock: %d\n", ret);
-		return ret;
+		goto rockchip_pcie_parse_dt_err_clk_get_bulk;
 	}
 
 	ret = device_get_supply_regulator(dev, "vpcie3v3-supply",
 					  &priv->vpcie3v3);
 	if (ret && ret != -ENOENT) {
 		dev_err(dev, "failed to get vpcie3v3 supply (ret=%d)\n", ret);
-		return ret;
+		goto rockchip_pcie_parse_dt_err_supply_regulator;
 	}
 
 	ret = generic_phy_get_by_index(dev, 0, &priv->phy);
 	if (ret) {
 		dev_err(dev, "failed to get pcie phy (ret=%d)\n", ret);
-		return ret;
+		goto rockchip_pcie_parse_dt_err_phy_get_by_index;
 	}
 
 	return 0;
+
+rockchip_pcie_parse_dt_err_phy_get_by_index:
+	/* regulators don't need release */
+rockchip_pcie_parse_dt_err_supply_regulator:
+	clk_release_bulk(&priv->clks);
+rockchip_pcie_parse_dt_err_clk_get_bulk:
+	reset_release_bulk(&priv->rsts);
+rockchip_pcie_parse_dt_err_reset_get_bulk:
+	dm_gpio_free(dev, &priv->rst_gpio);
+	return ret;
 }
 
 /**
@@ -426,7 +436,7 @@ static int rockchip_pcie_probe(struct udevice *dev)
 
 	ret = rockchip_pcie_init_port(dev);
 	if (ret)
-		return ret;
+		goto rockchip_pcie_probe_err_init_port;
 
 	dev_info(dev, "PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n",
 		 dev_seq(dev), pcie_dw_get_link_speed(&priv->dw),
@@ -434,12 +444,21 @@ static int rockchip_pcie_probe(struct udevice *dev)
 		 hose->first_busno);
 
 
-	return pcie_dw_prog_outbound_atu_unroll(&priv->dw,
-						PCIE_ATU_REGION_INDEX0,
-						PCIE_ATU_TYPE_MEM,
-						priv->dw.mem.phys_start,
-						priv->dw.mem.bus_start,
-						priv->dw.mem.size);
+	ret = pcie_dw_prog_outbound_atu_unroll(&priv->dw,
+					       PCIE_ATU_REGION_INDEX0,
+					       PCIE_ATU_TYPE_MEM,
+					       priv->dw.mem.phys_start,
+					       priv->dw.mem.bus_start,
+					       priv->dw.mem.size);
+	if (!ret)
+		return ret;
+
+rockchip_pcie_probe_err_init_port:
+	clk_release_bulk(&priv->clks);
+	reset_release_bulk(&priv->rsts);
+	dm_gpio_free(dev, &priv->rst_gpio);
+
+	return ret;
 }
 
 static const struct dm_pci_ops rockchip_pcie_ops = {
