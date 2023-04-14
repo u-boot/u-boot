@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+
+/dts-v1/;
+
+/ {
+	binman {
+		ti-board-config {
+			config = "tools/binman/test/yaml/config.yaml";
+			schema = "tools/binman/test/yaml/schema_notype.yaml";
+		};
+	};
+};
