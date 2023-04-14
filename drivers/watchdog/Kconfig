@@ -361,6 +361,14 @@ config WDT_TANGIER
 	  Intel Tangier SoC. If you're using a board with Intel Tangier
 	  SoC, say Y here.
 
+config WDT_ARM_SMC
+	bool "ARM SMC watchdog timer support"
+	depends on WDT && ARM_SMCCC
+	imply WATCHDOG
+	help
+	  Select this to enable Arm SMC watchdog timer. This watchdog will manage
+	  a watchdog based on ARM SMCCC communication.
+
 config SPL_WDT
 	bool "Enable driver model for watchdog timer drivers in SPL"
 	depends on SPL_DM
