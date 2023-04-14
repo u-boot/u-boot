@@ -330,7 +330,7 @@ static int dp83867_config(struct phy_device *phydev)
 			      DP83867_RGMIIDCTL, delay);
 	}
 
-	if (phy_interface_is_sgmii(phydev)) {
+	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
 		if (dp83867->sgmii_ref_clk_en)
 			phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_SGMIICTL,
 				      DP83867_SGMII_TYPE);
