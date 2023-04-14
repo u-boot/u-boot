@@ -254,6 +254,31 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	if (ret)
 		panic("%s: ATF failed to load on rproc (%d)\n", __func__, ret);
 
+#if (CONFIG_IS_ENABLED(FIT_IMAGE_POST_PROCESS) && IS_ENABLED(CONFIG_SYS_K3_SPL_ATF))
+	/* Authenticate ATF */
+	void *image_addr = (void *)fit_image_info[IMAGE_ID_ATF].image_start;
+
+	debug("%s: Authenticating image: addr=%lx, size=%ld, os=%s\n", __func__,
+	      fit_image_info[IMAGE_ID_ATF].image_start,
+	      fit_image_info[IMAGE_ID_ATF].image_len,
+	      image_os_match[IMAGE_ID_ATF]);
+
+	ti_secure_image_post_process(&image_addr,
+				     (size_t *)&fit_image_info[IMAGE_ID_ATF].image_len);
+
+	/* Authenticate OPTEE */
+	image_addr = (void *)fit_image_info[IMAGE_ID_OPTEE].image_start;
+
+	debug("%s: Authenticating image: addr=%lx, size=%ld, os=%s\n", __func__,
+	      fit_image_info[IMAGE_ID_OPTEE].image_start,
+	      fit_image_info[IMAGE_ID_OPTEE].image_len,
+	      image_os_match[IMAGE_ID_OPTEE]);
+
+	ti_secure_image_post_process(&image_addr,
+				     (size_t *)&fit_image_info[IMAGE_ID_OPTEE].image_len);
+
+#endif
+
 	if (!fit_image_info[IMAGE_ID_DM_FW].image_len &&
 	    !(size > 0 && valid_elf_image(loadaddr))) {
 		shut_cpu = 1;
@@ -315,9 +340,15 @@ void board_fit_image_post_process(const void *fit, int node, void **p_image,
 			break;
 		}
 	}
+	/*
+	 * Only DM and the DTBs are being authenticated here,
+	 * rest will be authenticated when A72 cluster is up
+	 */
+	if ((i != IMAGE_ID_ATF) && (i != IMAGE_ID_OPTEE))
 #endif
-
-	ti_secure_image_post_process(p_image, p_size);
+	{
+		ti_secure_image_post_process(p_image, p_size);
+	}
 }
 #endif
 
