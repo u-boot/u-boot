@@ -47,7 +47,8 @@
 		compatible = "ti,am654-rproc";
 		reg = <0x00 0x00a90000 0x00 0x10>;
 		power-domains = <&k3_pds 61 TI_SCI_PD_EXCLUSIVE>,
-				<&k3_pds 135 TI_SCI_PD_EXCLUSIVE>;
+				<&k3_pds 135 TI_SCI_PD_EXCLUSIVE>,
+				<&k3_pds 166 TI_SCI_PD_EXCLUSIVE>;
 		resets = <&k3_reset 135 0>;
 		clocks = <&k3_clks 61 0>;
 		assigned-clocks = <&k3_clks 61 0>, <&k3_clks 135 0>;
