@@ -5,21 +5,27 @@
  * (C) Copyright 2017 Jernej Skrabec <jernej.skrabec@siol.net>
  */
 
+#include <clk.h>
 #include <common.h>
 #include <display.h>
 #include <dm.h>
 #include <dw_hdmi.h>
 #include <edid.h>
 #include <log.h>
+#include <reset.h>
 #include <time.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/lcdc.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
+#include <power/regulator.h>
 
 struct sunxi_dw_hdmi_priv {
 	struct dw_hdmi hdmi;
+	struct reset_ctl_bulk resets;
+	struct clk_bulk clocks;
+	struct udevice *hvcc;
 };
 
 struct sunxi_hdmi_phy {
@@ -329,6 +335,9 @@ static int sunxi_dw_hdmi_probe(struct udevice *dev)
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	int ret;
 
+	if (priv->hvcc)
+		regulator_set_enable(priv->hvcc, true);
+
 	/* Set pll3 to 297 MHz */
 	clock_set_pll3(297000000);
 
@@ -336,14 +345,16 @@ static int sunxi_dw_hdmi_probe(struct udevice *dev)
 	clrsetbits_le32(&ccm->hdmi_clk_cfg, CCM_HDMI_CTRL_PLL_MASK,
 			CCM_HDMI_CTRL_PLL3);
 
-	/* Set ahb gating to pass */
-	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_HDMI);
+	/* This reset is referenced from the PHY devicetree node. */
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_HDMI2);
-	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_HDMI);
-	setbits_le32(&ccm->hdmi_slow_clk_cfg, CCM_HDMI_SLOW_CTRL_DDC_GATE);
 
-	/* Clock on */
-	setbits_le32(&ccm->hdmi_clk_cfg, CCM_HDMI_CTRL_GATE);
+	ret = reset_deassert_bulk(&priv->resets);
+	if (ret)
+		return ret;
+
+	ret = clk_enable_bulk(&priv->clocks);
+	if (ret)
+		return ret;
 
 	sunxi_dw_hdmi_phy_init(&priv->hdmi);
 
@@ -362,12 +373,25 @@ static int sunxi_dw_hdmi_of_to_plat(struct udevice *dev)
 {
 	struct sunxi_dw_hdmi_priv *priv = dev_get_priv(dev);
 	struct dw_hdmi *hdmi = &priv->hdmi;
+	int ret;
 
 	hdmi->ioaddr = (ulong)dev_read_addr(dev);
 	hdmi->i2c_clk_high = 0xd8;
 	hdmi->i2c_clk_low = 0xfe;
 	hdmi->reg_io_width = 1;
 	hdmi->phy_set = sunxi_dw_hdmi_phy_cfg;
+
+	ret = reset_get_bulk(dev, &priv->resets);
+	if (ret)
+		return ret;
+
+	ret = clk_get_bulk(dev, &priv->clocks);
+	if (ret)
+		return ret;
+
+	ret = device_get_supply_regulator(dev, "hvcc-supply", &priv->hvcc);
+	if (ret)
+		priv->hvcc = NULL;
 
 	return 0;
 }

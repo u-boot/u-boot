@@ -48,10 +48,22 @@ void mctl_set_timing_params(struct dram_para *para)
 	u8 tcl		= 7;			/* JEDEC: CL / 2 => 6 */
 	u8 tcwl		= 5;			/* JEDEC: 8 */
 	u8 t_rdata_en	= 9;			/* ? */
+	u8 t_wr_lat	= 5;			/* ? */
 
-	u8 twtp		= 14;			/* (WL + BL / 2 + tWR) / 2 */
-	u8 twr2rd	= trtp + 7;		/* (WL + BL / 2 + tWTR) / 2 */
-	u8 trd2wr	= 5;			/* (RL + BL / 2 + 2 - WL) / 2 */
+	u8 twtp;				/* (WL + BL / 2 + tWR) / 2 */
+	u8 twr2rd;				/* (WL + BL / 2 + tWTR) / 2 */
+	u8 trd2wr;				/* (RL + BL / 2 + 2 - WL) / 2 */
+
+	if (para->tpr2 & 0x100) {
+		tcl = 5;
+		tcwl = 4;
+		t_rdata_en = 5;
+		t_wr_lat = 3;
+	}
+
+	twtp   = tcl + 2 + tcwl;
+	twr2rd = trtp + 2 + tcwl;
+	trd2wr = tcl + 3 - tcwl;
 
 	/* set DRAM timing */
 	writel((twtp << 24) | (tfaw << 16) | (trasmax << 8) | tras,
@@ -85,7 +97,7 @@ void mctl_set_timing_params(struct dram_para *para)
 	clrsetbits_le32(&mctl_ctl->rankctl, 0xff0, 0x660);
 
 	/* Configure DFI timing */
-	writel((tcl - 2) | 0x2000000 | (t_rdata_en << 16) | 0x808000,
+	writel(t_wr_lat | 0x2000000 | (t_rdata_en << 16) | 0x808000,
 	       &mctl_ctl->dfitmg0);
 	writel(0x100202, &mctl_ctl->dfitmg1);
 
