@@ -10,6 +10,8 @@
 #include "mkimage.h"
 #include <image.h>
 
+void fit_print_header(const void *fit, struct image_tool_params *params);
+
 /**
  * Verify the format of FIT header pointed to by ptr
  *

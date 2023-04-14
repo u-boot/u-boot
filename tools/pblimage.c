@@ -254,7 +254,7 @@ static int pblimage_verify_header(unsigned char *ptr, int image_size,
 	return 0;
 }
 
-static void pblimage_print_header(const void *ptr)
+static void pblimage_print_header(const void *ptr, struct image_tool_params *params)
 {
 	printf("Image Type:   Freescale PBL Boot Image\n");
 }

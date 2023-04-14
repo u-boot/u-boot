@@ -313,7 +313,7 @@ static void socfpgaimage_print_header_v1(struct socfpga_header_v1 *header)
 	       le16_to_cpu(header->checksum));
 }
 
-static void socfpgaimage_print_header(const void *ptr)
+static void socfpgaimage_print_header(const void *ptr, struct image_tool_params *params)
 {
 	const void *header = ptr + HEADER_OFFSET;
 	struct socfpga_header_v0 *header_v0;
