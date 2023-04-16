@@ -184,6 +184,5 @@
 #define CFG_SYS_CACHE_ICACR		(CF_CACR_EC | CF_CACR_CINVA | \
 					 CF_CACR_DCM_P)
 
-#define CFG_MCFTMR
 
 #endif	/* _CONFIG_ASTRO_MCF5373L_H */
