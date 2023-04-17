@@ -1204,6 +1204,12 @@ F:	cmd/nvme.c
 F:	include/nvme.h
 F:	doc/develop/driver-model/nvme.rst
 
+NVMXIP
+M:	Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
+S:	Maintained
+F:	doc/develop/driver-model/nvmxip.rst
+F:	drivers/mtd/nvmxip/
+
 NVMEM
 M:	Sean Anderson <seanga2@gmail.com>
 S:	Maintained

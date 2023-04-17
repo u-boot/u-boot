@@ -25,6 +25,7 @@ obj-y += nand/
 obj-y += onenand/
 obj-y += spi/
 obj-$(CONFIG_MTD_UBI) += ubi/
+obj-$(CONFIG_NVMXIP) += nvmxip/
 
 #SPL/TPL build
 else
