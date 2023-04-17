@@ -9,6 +9,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
+#include <scmi_protocols.h>
 #include <syscon.h>
 #include <asm/arch-rockchip/cru_rk3588.h>
 #include <asm/arch-rockchip/clock.h>
@@ -1994,3 +1995,127 @@ U_BOOT_DRIVER(rockchip_rk3588_cru) = {
 	.bind		= rk3588_clk_bind,
 	.probe		= rk3588_clk_probe,
 };
+
+#ifdef CONFIG_SPL_BUILD
+#define SCRU_BASE			0xfd7d0000
+
+static ulong rk3588_scru_clk_get_rate(struct clk *clk)
+{
+	u32 con, div, sel, parent;
+
+	switch (clk->id) {
+	case SCMI_CCLK_SD:
+		con = readl(SCRU_BASE + RK3588_CLKSEL_CON(3));
+		sel = (con & SCMI_CCLK_SD_SEL_MASK) >> SCMI_CCLK_SD_SEL_SHIFT;
+		div = (con & SCMI_CCLK_SD_DIV_MASK) >> SCMI_CCLK_SD_DIV_SHIFT;
+		if (sel == SCMI_CCLK_SD_SEL_GPLL)
+			parent = GPLL_HZ;
+		else if (sel == SCMI_CCLK_SD_SEL_SPLL)
+			parent = SPLL_HZ;
+		else
+			parent = OSC_HZ;
+		return DIV_TO_RATE(parent, div);
+	case SCMI_HCLK_SD:
+		con = readl(SCRU_BASE + RK3588_CLKSEL_CON(1));
+		sel = (con & SCMI_HCLK_SD_SEL_MASK) >> SCMI_HCLK_SD_SEL_SHIFT;
+		if (sel == SCMI_HCLK_SD_SEL_150M)
+			return 150 * MHz;
+		else if (sel == SCMI_HCLK_SD_SEL_100M)
+			return 100 * MHz;
+		else if (sel == SCMI_HCLK_SD_SEL_50M)
+			return 50 * MHz;
+		else
+			return OSC_HZ;
+	default:
+		return -ENOENT;
+	}
+}
+
+static ulong rk3588_scru_clk_set_rate(struct clk *clk, ulong rate)
+{
+	u32 div, sel;
+
+	switch (clk->id) {
+	case SCMI_CCLK_SD:
+		if ((OSC_HZ % rate) == 0) {
+			sel = SCMI_CCLK_SD_SEL_24M;
+			div = DIV_ROUND_UP(OSC_HZ, rate);
+		} else if ((SPLL_HZ % rate) == 0) {
+			sel = SCMI_CCLK_SD_SEL_SPLL;
+			div = DIV_ROUND_UP(SPLL_HZ, rate);
+		} else {
+			sel = SCMI_CCLK_SD_SEL_GPLL;
+			div = DIV_ROUND_UP(GPLL_HZ, rate);
+		}
+		rk_clrsetreg(SCRU_BASE + RK3588_CLKSEL_CON(3),
+			     SCMI_CCLK_SD_SEL_MASK | SCMI_CCLK_SD_DIV_MASK,
+			     sel << SCMI_CCLK_SD_SEL_SHIFT |
+			     (div - 1) << SCMI_CCLK_SD_DIV_SHIFT);
+		break;
+	case SCMI_HCLK_SD:
+		if (rate >= 150 * MHz)
+			sel = SCMI_HCLK_SD_SEL_150M;
+		else if (rate >= 100 * MHz)
+			sel = SCMI_HCLK_SD_SEL_100M;
+		else if (rate >= 50 * MHz)
+			sel = SCMI_HCLK_SD_SEL_50M;
+		else
+			sel = SCMI_HCLK_SD_SEL_24M;
+		rk_clrsetreg(SCRU_BASE + RK3588_CLKSEL_CON(1),
+			     SCMI_HCLK_SD_SEL_MASK,
+			     sel << SCMI_HCLK_SD_SEL_SHIFT);
+		break;
+	default:
+		return -ENOENT;
+	}
+
+	return rk3588_scru_clk_get_rate(clk);
+}
+
+static const struct clk_ops rk3588_scru_clk_ops = {
+	.get_rate = rk3588_scru_clk_get_rate,
+	.set_rate = rk3588_scru_clk_set_rate,
+};
+
+U_BOOT_DRIVER(rockchip_rk3588_scru) = {
+	.name = "rockchip_rk3588_scru",
+	.id = UCLASS_CLK,
+	.ops = &rk3588_scru_clk_ops,
+};
+
+static int rk3588_scmi_spl_glue_bind(struct udevice *dev)
+{
+	ofnode node;
+	u32 protocol_id;
+	const char *name;
+
+	dev_for_each_subnode(node, dev) {
+		if (!ofnode_is_enabled(node))
+			continue;
+
+		if (ofnode_read_u32(node, "reg", &protocol_id))
+			continue;
+
+		if (protocol_id != SCMI_PROTOCOL_ID_CLOCK)
+			continue;
+
+		name = ofnode_get_name(node);
+		return device_bind_driver_to_node(dev, "rockchip_rk3588_scru",
+						  name, node, NULL);
+	}
+
+	return -ENOENT;
+}
+
+static const struct udevice_id rk3588_scmi_spl_glue_ids[] = {
+	{ .compatible = "arm,scmi-smc" },
+	{ }
+};
+
+U_BOOT_DRIVER(rk3588_scmi_spl_glue) = {
+	.name		= "rk3588_scmi_spl_glue",
+	.id		= UCLASS_NOP,
+	.of_match	= rk3588_scmi_spl_glue_ids,
+	.bind		= rk3588_scmi_spl_glue_bind,
+};
+#endif
