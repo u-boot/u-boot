@@ -2838,6 +2838,8 @@ static int rk3568_clk_set_parent(struct clk *clk, struct clk *parent)
 	case ACLK_RKVDEC_PRE:
 	case CLK_RKVDEC_CORE:
 		return rk3568_rkvdec_set_parent(clk, parent);
+	case I2S1_MCLKOUT_TX:
+		break;
 	default:
 		return -ENOENT;
 	}
