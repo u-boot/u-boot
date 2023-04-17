@@ -56,7 +56,7 @@ The implementation is generic and can be used by different platforms.
 Supported hardware
 --------------------------------
 
-Any 64-bit plaform.
+Any plaform supporting readq().
 
 Configuration
 ----------------------

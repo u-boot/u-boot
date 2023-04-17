@@ -16,7 +16,7 @@ If a platform has its own driver, please provide your own compatible
 string.
 
 2)
-		reg = <0x0 0x08000000 0x0 0x00200000>;
+		reg = /bits/ 64 <0x08000000 0x00200000>;
 
 The start address and size of the flash device. The values give here are an
 example (when the cell size is 2).
@@ -43,14 +43,14 @@ Example of multiple flash devices
 
 	nvmxip-qspi1@08000000 {
 		compatible = "nvmxip,qspi";
-		reg = <0x0 0x08000000 0x0 0x00200000>;
+		reg = /bits/ 64 <0x08000000 0x00200000>;
 		lba_shift = <9>;
 		lba = <4096>;
 	};
 
 	nvmxip-qspi2@08200000 {
 		compatible = "nvmxip,qspi";
-		reg = <0x0 0x08200000 0x0 0x00100000>;
+		reg = /bits/ 64 <0x08200000 0x00100000>;
 		lba_shift = <9>;
 		lba = <2048>;
 	};
