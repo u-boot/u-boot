@@ -914,6 +914,8 @@ static int low_drive_gpu_freq(void *blob)
 
 	if (cnt != 7)
 		printf("Warning: %s, assigned-clock-rates count %d\n", nodes_path_8mn[0], cnt);
+	if (cnt < 2)
+		return -1;
 
 	assignedclks[cnt - 1] = 200000000;
 	assignedclks[cnt - 2] = 200000000;
