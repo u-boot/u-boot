@@ -11,12 +11,13 @@
 	};
 
 	chosen {
-		u-boot,spl-boot-order = &sdmmc;
+		u-boot,spl-boot-order = "same-as-spl", &sdmmc;
 	};
 };
 
 &sdmmc {
 	bus-width = <4>;
 	bootph-pre-ram;
+	u-boot,spl-fifo-mode;
 	status = "okay";
 };
