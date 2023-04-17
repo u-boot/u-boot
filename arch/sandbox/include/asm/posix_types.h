@@ -1,5 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
- *  linux/include/asm-arm/posix_types.h
+ * Based on linux/include/asm-arm/posix_types.h
  *
  *  Copyright (C) 1996-1998 Russell King.
  *
@@ -10,8 +11,8 @@
  *  Changelog:
  *   27-06-1996	RMK	Created
  */
-#ifndef __ARCH_ARM_POSIX_TYPES_H
-#define __ARCH_ARM_POSIX_TYPES_H
+#ifndef __ARCH_SANDBOX_POSIX_TYPES_H
+#define __ARCH_SANDBOX_POSIX_TYPES_H
 
 /*
  * This file is generally used by user-level software, so you need to
