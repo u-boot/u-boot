@@ -1181,13 +1181,6 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mmc.git
 F:	drivers/mmc/
 
-NAND FLASH
-M:	Dario Binacchi <dario.binacchi@amarulasolutions.com>
-M:	Michael Trimarchi <michael@amarulasolutions.com>
-S:	Maintained
-T:	git https://source.denx.de/u-boot/custodians/u-boot-nand-flash.git
-F:	drivers/mtd/nand/raw/
-
 NETWORK
 M:	Joe Hershberger <joe.hershberger@ni.com>
 M:	Ramon Fried <rfried.dev@gmail.com>
@@ -1306,6 +1299,13 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc85xx.git
 F:	arch/powerpc/cpu/mpc85xx/
 
+RAW NAND
+M:	Dario Binacchi <dario.binacchi@amarulasolutions.com>
+M:	Michael Trimarchi <michael@amarulasolutions.com>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-nand-flash.git
+F:	drivers/mtd/nand/raw/
+
 RISC-V
 M:	Rick Chen <rick@andestech.com>
 M:	Leo <ycliang@andestech.com>
@@ -1397,6 +1397,14 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-spi.git
 F:	drivers/spi/
 F:	include/spi*
+
+SPI NAND
+M:	Dario Binacchi <dario.binacchi@amarulasolutions.com>
+M:	Michael Trimarchi <michael@amarulasolutions.com>
+R:	Frieder Schrempf <frieder.schrempf@kontron.de>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-nand-flash.git
+F:	drivers/mtd/nand/spi/
 
 SPI-NOR
 M:	Jagan Teki <jagan@amarulasolutions.com>

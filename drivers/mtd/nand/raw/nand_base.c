@@ -4487,6 +4487,7 @@ EXPORT_SYMBOL(nand_detect);
 static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, ofnode node)
 {
 	int ret, ecc_mode = -1, ecc_strength, ecc_step;
+	int ecc_algo = NAND_ECC_UNKNOWN;
 	const char *str;
 
 	ret = ofnode_read_s32_default(node, "nand-bus-width", -1);
@@ -4512,10 +4513,13 @@ static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, ofnode nod
 			ecc_mode = NAND_ECC_SOFT_BCH;
 	}
 
-	if (ecc_mode == NAND_ECC_SOFT) {
-		str = ofnode_read_string(node, "nand-ecc-algo");
-		if (str && !strcmp(str, "bch"))
+	str = ofnode_read_string(node, "nand-ecc-algo");
+	if (str && !strcmp(str, "bch")) {
+		ecc_algo = NAND_ECC_BCH;
+		if (ecc_mode == NAND_ECC_SOFT)
 			ecc_mode = NAND_ECC_SOFT_BCH;
+	} else if (!strcmp(str, "hamming")) {
+		ecc_algo = NAND_ECC_HAMMING;
 	}
 
 	ecc_strength = ofnode_read_s32_default(node,
@@ -4528,6 +4532,8 @@ static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, ofnode nod
 		pr_err("must set both strength and step size in DT\n");
 		return -EINVAL;
 	}
+
+	chip->ecc.algo = ecc_algo;
 
 	if (ecc_mode >= 0)
 		chip->ecc.mode = ecc_mode;
