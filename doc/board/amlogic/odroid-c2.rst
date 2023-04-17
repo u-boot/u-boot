@@ -1,12 +1,12 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-U-Boot for ODROID-C2
-====================
+U-Boot for ODROID-C2 (S905)
+===========================
 
-ODROID-C2 is a single board computer manufactured by Hardkernel
-Co. Ltd with the following specifications:
+ODROID-C2 is a single board computer manufactured by Hardkernel with the following
+specifications:
 
- - Amlogic S905 ARM Cortex-A53 quad-core SoC @ 2GHz
+ - Amlogic S905 ARM Cortex-A53 quad-core SoC @ 1.5GHz
  - ARM Mali 450 GPU
  - 2GB DDR3 SDRAM
  - Gigabit Ethernet
@@ -16,9 +16,9 @@ Co. Ltd with the following specifications:
  - eMMC, microSD
  - Infrared receiver
 
-Schematics are available on the manufacturer website.
+Schematics are available on the manufacturer website: https://wiki.odroid.com
 
-U-Boot compilation
+U-Boot Compilation
 ------------------
 
 .. code-block:: bash
@@ -27,38 +27,45 @@ U-Boot compilation
     $ make odroid-c2_defconfig
     $ make
 
-Image creation
---------------
+U-Boot Signing with Pre-Built FIP repo
+--------------------------------------
 
-For simplified usage, pleaser refer to :doc:`pre-generated-fip` with codename `odroid-c2`
+.. code-block:: bash
 
-Amlogic doesn't provide sources for the firmware and for tools needed
-to create the bootloader image, so it is necessary to obtain them from
-the git tree published by the board vendor:
+    $ git clone https://github.com/LibreELEC/amlogic-boot-fip --depth=1
+    $ cd amlogic-boot-fip
+    $ mkdir my-output-dir
+    $ ./build-fip.sh odroid-c2 /path/to/u-boot/u-boot.bin my-output-dir
+
+U-Boot Manual Signing
+---------------------
+
+Amlogic does not provide sources for the firmware and tools needed to create a bootloader
+image so it is necessary to obtain binaries from sources published by the board vendor:
 
 .. code-block:: bash
 
     $ DIR=odroid-c2
-    $ git clone --depth 1 \
-       https://github.com/hardkernel/u-boot.git -b odroidc2-v2015.01 \
-       $DIR
+    $ git clone --depth 1 https://github.com/hardkernel/u-boot.git -b odroidc2-v2015.01 $DIR
+
     $ $DIR/fip/fip_create --bl30  $DIR/fip/gxb/bl30.bin \
-                       --bl301 $DIR/fip/gxb/bl301.bin \
-                       --bl31  $DIR/fip/gxb/bl31.bin \
-                       --bl33  u-boot.bin \
-                       $DIR/fip.bin
+                          --bl301 $DIR/fip/gxb/bl301.bin \
+                          --bl31  $DIR/fip/gxb/bl31.bin \
+                          --bl33  u-boot.bin \
+                          $DIR/fip.bin
+
     $ $DIR/fip/fip_create --dump $DIR/fip.bin
     $ cat $DIR/fip/gxb/bl2.package $DIR/fip.bin > $DIR/boot_new.bin
     $ $DIR/fip/gxb/aml_encrypt_gxb --bootsig \
-                                --input $DIR/boot_new.bin \
-                                --output $DIR/u-boot.img
+                                   --input $DIR/boot_new.bin \
+                                   --output $DIR/u-boot.img
     $ dd if=$DIR/u-boot.img of=$DIR/u-boot.gxbb bs=512 skip=96
 
-and then write the image to SD with:
+Then write U-Boot to SD or eMMC with:
 
 .. code-block:: bash
 
-    $ DEV=/dev/your_sd_device
+    $ DEV=/dev/your_boot_device
     $ BL1=$DIR/sd_fuse/bl1.bin.hardkernel
     $ dd if=$BL1 of=$DEV conv=fsync bs=1 count=442
     $ dd if=$BL1 of=$DEV conv=fsync bs=512 skip=1 seek=1
