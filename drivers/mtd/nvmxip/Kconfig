@@ -11,3 +11,9 @@ config NVMXIP
 	  This option allows the emulation of a block storage device
 	  on top of a direct access non volatile memory XIP flash devices.
 	  This support provides the read operation.
+
+config NVMXIP_QSPI
+	bool "QSPI XIP  support"
+	select NVMXIP
+	help
+	  This option allows the emulation of a block storage device on top of a QSPI XIP flash

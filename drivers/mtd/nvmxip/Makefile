@@ -5,3 +5,4 @@
 #   Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
 
 obj-y += nvmxip-uclass.o nvmxip.o
+obj-$(CONFIG_NVMXIP_QSPI) += nvmxip_qspi.o

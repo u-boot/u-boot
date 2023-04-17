@@ -1208,6 +1208,7 @@ NVMXIP
 M:	Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
 S:	Maintained
 F:	doc/develop/driver-model/nvmxip.rst
+F:	doc/device-tree-bindings/nvmxip/nvmxip_qspi.txt
 F:	drivers/mtd/nvmxip/
 
 NVMEM
