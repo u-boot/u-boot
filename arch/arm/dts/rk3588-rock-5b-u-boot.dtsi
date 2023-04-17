@@ -17,7 +17,5 @@
 
 &sdmmc {
 	bus-width = <4>;
-	bootph-pre-ram;
-	u-boot,spl-fifo-mode;
 	status = "okay";
 };
