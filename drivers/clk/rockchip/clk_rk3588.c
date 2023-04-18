@@ -1553,6 +1553,7 @@ static ulong rk3588_clk_get_rate(struct clk *clk)
 	case DCLK_DECOM:
 		rate = rk3588_mmc_get_clk(priv, clk->id);
 		break;
+	case TMCLK_EMMC:
 	case TCLK_WDT0:
 		rate = OSC_HZ;
 		break;
@@ -1702,6 +1703,7 @@ static ulong rk3588_clk_set_rate(struct clk *clk, ulong rate)
 	case DCLK_DECOM:
 		ret = rk3588_mmc_set_clk(priv, clk->id, rate);
 		break;
+	case TMCLK_EMMC:
 	case TCLK_WDT0:
 		ret = OSC_HZ;
 		break;
