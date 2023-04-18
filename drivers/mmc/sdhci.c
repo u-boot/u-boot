@@ -70,7 +70,7 @@ static void sdhci_transfer_pio(struct sdhci_host *host, struct mmc_data *data)
 	}
 }
 
-#if (defined(CONFIG_MMC_SDHCI_SDMA) || CONFIG_IS_ENABLED(MMC_SDHCI_ADMA))
+#if (CONFIG_IS_ENABLED(MMC_SDHCI_SDMA) || CONFIG_IS_ENABLED(MMC_SDHCI_ADMA))
 static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 			      int *is_aligned, int trans_bytes)
 {
@@ -177,7 +177,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data)
 		}
 	} while (!(stat & SDHCI_INT_DATA_END));
 
-#if (defined(CONFIG_MMC_SDHCI_SDMA) || CONFIG_IS_ENABLED(MMC_SDHCI_ADMA))
+#if (CONFIG_IS_ENABLED(MMC_SDHCI_SDMA) || CONFIG_IS_ENABLED(MMC_SDHCI_ADMA))
 	dma_unmap_single(host->start_addr, data->blocks * data->blocksize,
 			 mmc_get_dma_dir(data));
 #endif
@@ -877,7 +877,7 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 #endif
 	debug("%s, caps: 0x%x\n", __func__, caps);
 
-#ifdef CONFIG_MMC_SDHCI_SDMA
+#if CONFIG_IS_ENABLED(MMC_SDHCI_SDMA)
 	if ((caps & SDHCI_CAN_DO_SDMA)) {
 		host->flags |= USE_SDMA;
 	} else {
@@ -887,7 +887,7 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 #endif
 #if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
 	if (!(caps & SDHCI_CAN_DO_ADMA2)) {
-		printf("%s: Your controller doesn't support SDMA!!\n",
+		printf("%s: Your controller doesn't support ADMA!!\n",
 		       __func__);
 		return -EINVAL;
 	}
