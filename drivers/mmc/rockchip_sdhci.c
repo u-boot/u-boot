@@ -47,46 +47,36 @@
 #define ARASAN_VENDOR_REGISTER		0x78
 #define ARASAN_VENDOR_ENHANCED_STROBE	BIT(0)
 
-/* DWC IP vendor area 1 pointer */
-#define DWCMSHC_P_VENDOR_AREA1		0xe8
-#define DWCMSHC_AREA1_MASK		GENMASK(11, 0)
-/* Offset inside the vendor area 1 */
-#define DWCMSHC_EMMC_CONTROL		0x2c
+/* Rockchip specific Registers */
+#define DWCMSHC_EMMC_EMMC_CTRL		0x52c
 #define DWCMSHC_CARD_IS_EMMC		BIT(0)
 #define DWCMSHC_ENHANCED_STROBE		BIT(8)
-
-/* Rockchip specific Registers */
 #define DWCMSHC_EMMC_DLL_CTRL		0x800
 #define DWCMSHC_EMMC_DLL_CTRL_RESET	BIT(1)
 #define DWCMSHC_EMMC_DLL_RXCLK		0x804
 #define DWCMSHC_EMMC_DLL_TXCLK		0x808
 #define DWCMSHC_EMMC_DLL_STRBIN		0x80c
-#define DECMSHC_EMMC_DLL_CMDOUT		0x810
 #define DWCMSHC_EMMC_DLL_STATUS0	0x840
 #define DWCMSHC_EMMC_DLL_STATUS1	0x844
 #define DWCMSHC_EMMC_DLL_START		BIT(0)
-#define DWCMSHC_EMMC_DLL_RXCLK_SRCSEL	29
+#define DWCMSHC_EMMC_DLL_LOCKED		BIT(8)
+#define DWCMSHC_EMMC_DLL_TIMEOUT	BIT(9)
 #define DWCMSHC_EMMC_DLL_START_POINT	16
 #define DWCMSHC_EMMC_DLL_START_DEFAULT	5
 #define DWCMSHC_EMMC_DLL_INC_VALUE	2
 #define DWCMSHC_EMMC_DLL_INC		8
 #define DWCMSHC_EMMC_DLL_BYPASS		BIT(24)
 #define DWCMSHC_EMMC_DLL_DLYENA		BIT(27)
+#define DLL_RXCLK_NO_INVERTER		BIT(29)
+#define DLL_RXCLK_ORI_GATE		BIT(31)
 #define DLL_TXCLK_TAPNUM_DEFAULT	0xA
-
+#define DLL_TXCLK_TAPNUM_FROM_SW	BIT(24)
 #define DLL_STRBIN_TAPNUM_DEFAULT	0x8
 #define DLL_STRBIN_TAPNUM_FROM_SW	BIT(24)
 #define DLL_STRBIN_DELAY_NUM_SEL	BIT(26)
 #define DLL_STRBIN_DELAY_NUM_OFFSET	16
 #define DLL_STRBIN_DELAY_NUM_DEFAULT	0x16
 
-#define DLL_TXCLK_TAPNUM_FROM_SW	BIT(24)
-#define DWCMSHC_EMMC_DLL_LOCKED		BIT(8)
-#define DWCMSHC_EMMC_DLL_TIMEOUT	BIT(9)
-#define DLL_RXCLK_NO_INVERTER		1
-#define DLL_RXCLK_INVERTER		0
-#define DLL_RXCLK_ORI_GATE		BIT(31)
-#define DWCMSHC_ENHANCED_STROBE		BIT(8)
 #define DLL_LOCK_WO_TMOUT(x) \
 	((((x) & DWCMSHC_EMMC_DLL_LOCKED) == DWCMSHC_EMMC_DLL_LOCKED) && \
 	(((x) & DWCMSHC_EMMC_DLL_TIMEOUT) == 0))
@@ -328,8 +318,7 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 		if (ret)
 			return ret;
 
-		extra = DWCMSHC_EMMC_DLL_DLYENA |
-			DLL_RXCLK_NO_INVERTER << DWCMSHC_EMMC_DLL_RXCLK_SRCSEL;
+		extra = DWCMSHC_EMMC_DLL_DLYENA | DLL_RXCLK_NO_INVERTER;
 		sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_RXCLK);
 
 		extra = DWCMSHC_EMMC_DLL_DLYENA |
@@ -346,10 +335,9 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 		 * Disable DLL and reset both of sample and drive clock.
 		 * The bypass bit and start bit need to be set if DLL is not locked.
 		 */
-		sdhci_writel(host, DWCMSHC_EMMC_DLL_BYPASS | DWCMSHC_EMMC_DLL_START,
-			     DWCMSHC_EMMC_DLL_CTRL);
+		extra = DWCMSHC_EMMC_DLL_BYPASS | DWCMSHC_EMMC_DLL_START;
+		sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_CTRL);
 		sdhci_writel(host, DLL_RXCLK_ORI_GATE, DWCMSHC_EMMC_DLL_RXCLK);
-		sdhci_writel(host, 0, DECMSHC_EMMC_DLL_CMDOUT);
 		sdhci_writel(host, 0, DWCMSHC_EMMC_DLL_TXCLK);
 		/*
 		 * Before switching to hs400es mode, the driver will enable
@@ -368,7 +356,7 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 static int rk3568_sdhci_set_ios_post(struct sdhci_host *host)
 {
 	struct mmc *mmc = host->mmc;
-	u32 reg, vendor_reg;
+	u32 reg;
 
 	reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 	reg &= ~SDHCI_CTRL_UHS_MASK;
@@ -400,9 +388,7 @@ static int rk3568_sdhci_set_ios_post(struct sdhci_host *host)
 
 	sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
 
-	vendor_reg = (sdhci_readl(host, DWCMSHC_P_VENDOR_AREA1) & DWCMSHC_AREA1_MASK)
-		     + DWCMSHC_EMMC_CONTROL;
-	reg = sdhci_readw(host, vendor_reg);
+	reg = sdhci_readw(host, DWCMSHC_EMMC_EMMC_CTRL);
 
 	if (IS_MMC(mmc))
 		reg |= DWCMSHC_CARD_IS_EMMC;
@@ -414,7 +400,7 @@ static int rk3568_sdhci_set_ios_post(struct sdhci_host *host)
 	else
 		reg &= ~DWCMSHC_ENHANCED_STROBE;
 
-	sdhci_writew(host, reg, vendor_reg);
+	sdhci_writew(host, reg, DWCMSHC_EMMC_EMMC_CTRL);
 
 	return 0;
 }
