@@ -112,7 +112,6 @@ struct rockchip_sdhc {
 };
 
 struct sdhci_data {
-	int (*emmc_phy_init)(struct udevice *dev);
 	int (*get_phy)(struct udevice *dev);
 
 	/**
@@ -153,11 +152,6 @@ struct sdhci_data {
 	 */
 	int (*set_enhanced_strobe)(struct sdhci_host *host);
 };
-
-static int rk3399_emmc_phy_init(struct udevice *dev)
-{
-	return 0;
-}
 
 static void rk3399_emmc_phy_power_on(struct rockchip_emmc_phy *phy, u32 clock)
 {
@@ -290,18 +284,6 @@ static int rk3399_sdhci_set_ios_post(struct sdhci_host *host)
 
 	if (cycle_phy)
 		rk3399_emmc_phy_power_on(priv->phy, clock);
-
-	return 0;
-}
-
-static int rk3568_emmc_phy_init(struct udevice *dev)
-{
-	struct rockchip_sdhc *prv = dev_get_priv(dev);
-	struct sdhci_host *host = &prv->host;
-	u32 extra;
-
-	extra = DLL_RXCLK_NO_INVERTER << DWCMSHC_EMMC_DLL_RXCLK_SRCSEL;
-	sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_RXCLK);
 
 	return 0;
 }
@@ -557,12 +539,6 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 			return ret;
 	}
 
-	if (data->emmc_phy_init) {
-		ret = data->emmc_phy_init(dev);
-		if (ret)
-			return ret;
-	}
-
 	host->ops = &rockchip_sdhci_ops;
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD;
 
@@ -605,7 +581,6 @@ static int rockchip_sdhci_bind(struct udevice *dev)
 
 static const struct sdhci_data rk3399_data = {
 	.get_phy = rk3399_emmc_get_phy,
-	.emmc_phy_init = rk3399_emmc_phy_init,
 	.set_control_reg = rk3399_sdhci_set_control_reg,
 	.set_ios_post = rk3399_sdhci_set_ios_post,
 	.set_enhanced_strobe = rk3399_sdhci_set_enhanced_strobe,
@@ -613,7 +588,6 @@ static const struct sdhci_data rk3399_data = {
 
 static const struct sdhci_data rk3568_data = {
 	.get_phy = rk3568_emmc_get_phy,
-	.emmc_phy_init = rk3568_emmc_phy_init,
 	.set_ios_post = rk3568_sdhci_set_ios_post,
 	.set_enhanced_strobe = rk3568_sdhci_set_enhanced_strobe,
 };
