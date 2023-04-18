@@ -175,6 +175,7 @@ config CC_HAS_ASM_INLINE
 
 config XEN
 	bool "Select U-Boot be run as a bootloader for XEN Virtual Machine"
+	depends on ARM64
 	select SSCANF
 	help
 	  Enabling this option will make U-Boot be run as a bootloader
