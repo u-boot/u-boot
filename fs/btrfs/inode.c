@@ -511,7 +511,9 @@ int btrfs_read_extent_reg(struct btrfs_path *path,
 	if (ret < dsize)
 		memset(dbuf + ret, 0, dsize - ret);
 	/* Then copy the needed part */
-	memcpy(dest, dbuf + btrfs_file_extent_offset(leaf, fi), len);
+	memcpy(dest,
+	       dbuf + btrfs_file_extent_offset(leaf, fi) + offset - key.offset,
+	       len);
 	ret = len;
 out:
 	free(cbuf);
