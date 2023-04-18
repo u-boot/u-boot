@@ -139,6 +139,9 @@ struct sdhci_data {
 	 */
 	int (*set_ios_post)(struct sdhci_host *host);
 
+	void (*set_clock)(struct sdhci_host *host, u32 div);
+	int (*config_dll)(struct sdhci_host *host, u32 clock, bool enable);
+
 	/**
 	 * set_enhanced_strobe() - Set HS400 Enhanced Strobe config
 	 *
@@ -430,6 +433,15 @@ static int rockchip_sdhci_set_ios_post(struct sdhci_host *host)
 	return 0;
 }
 
+static void rockchip_sdhci_set_clock(struct sdhci_host *host, u32 div)
+{
+	struct rockchip_sdhc *priv = container_of(host, struct rockchip_sdhc, host);
+	struct sdhci_data *data = (struct sdhci_data *)dev_get_driver_data(priv->dev);
+
+	if (data->set_clock)
+		data->set_clock(host, div);
+}
+
 static int rockchip_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 {
 	struct rockchip_sdhc *priv = dev_get_priv(mmc->dev);
@@ -491,6 +503,17 @@ static int rockchip_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	return ret;
 }
 
+static int rockchip_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enable)
+{
+	struct rockchip_sdhc *priv = container_of(host, struct rockchip_sdhc, host);
+	struct sdhci_data *data = (struct sdhci_data *)dev_get_driver_data(priv->dev);
+
+	if (data->config_dll)
+		return data->config_dll(host, clock, enable);
+
+	return 0;
+}
+
 static int rockchip_sdhci_set_enhanced_strobe(struct sdhci_host *host)
 {
 	struct rockchip_sdhc *priv = container_of(host, struct rockchip_sdhc, host);
@@ -503,9 +526,11 @@ static int rockchip_sdhci_set_enhanced_strobe(struct sdhci_host *host)
 }
 
 static struct sdhci_ops rockchip_sdhci_ops = {
-	.set_ios_post	= rockchip_sdhci_set_ios_post,
-	.platform_execute_tuning = &rockchip_sdhci_execute_tuning,
 	.set_control_reg = rockchip_sdhci_set_control_reg,
+	.set_ios_post = rockchip_sdhci_set_ios_post,
+	.set_clock = rockchip_sdhci_set_clock,
+	.platform_execute_tuning = rockchip_sdhci_execute_tuning,
+	.config_dll = rockchip_sdhci_config_dll,
 	.set_enhanced_strobe = rockchip_sdhci_set_enhanced_strobe,
 };
 
