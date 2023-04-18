@@ -518,6 +518,10 @@ void sdhci_set_uhs_timing(struct sdhci_host *host)
 	reg &= ~SDHCI_CTRL_UHS_MASK;
 
 	switch (mmc->selected_mode) {
+	case UHS_SDR25:
+	case MMC_HS:
+		reg |= SDHCI_CTRL_UHS_SDR25;
+		break;
 	case UHS_SDR50:
 	case MMC_HS_52:
 		reg |= SDHCI_CTRL_UHS_SDR50;
