@@ -13,6 +13,14 @@
 	};
 };
 
+&sdhci {
+	cap-mmc-highspeed;
+	mmc-ddr-1_8v;
+	mmc-hs200-1_8v;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+};
+
 &sdmmc2 {
 	status = "disabled";
 };
