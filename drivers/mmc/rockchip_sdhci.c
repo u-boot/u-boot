@@ -450,7 +450,8 @@ static int rockchip_sdhci_set_ios_post(struct sdhci_host *host)
 
 static int rockchip_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 {
-	struct sdhci_host *host = dev_get_priv(mmc->dev);
+	struct rockchip_sdhc *priv = dev_get_priv(mmc->dev);
+	struct sdhci_host *host = &priv->host;
 	char tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
 	struct mmc_cmd cmd;
 	u32 ctrl, blk_size;
@@ -531,9 +532,9 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 	struct sdhci_data *data = (struct sdhci_data *)dev_get_driver_data(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct rockchip_sdhc_plat *plat = dev_get_plat(dev);
-	struct rockchip_sdhc *prv = dev_get_priv(dev);
+	struct rockchip_sdhc *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
-	struct sdhci_host *host = &prv->host;
+	struct sdhci_host *host = &priv->host;
 	struct clk clk;
 	int ret;
 
@@ -547,8 +548,8 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 		printf("%s fail to get clk\n", __func__);
 	}
 
-	prv->emmc_clk = clk;
-	prv->dev = dev;
+	priv->emmc_clk = clk;
+	priv->dev = dev;
 
 	if (data->get_phy) {
 		ret = data->get_phy(dev);
@@ -566,7 +567,7 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD;
 
 	host->mmc = &plat->mmc;
-	host->mmc->priv = &prv->host;
+	host->mmc->priv = &priv->host;
 	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
 
@@ -580,8 +581,9 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 static int rockchip_sdhci_of_to_plat(struct udevice *dev)
 {
 	struct rockchip_sdhc_plat *plat = dev_get_plat(dev);
-	struct sdhci_host *host = dev_get_priv(dev);
+	struct rockchip_sdhc *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
+	struct sdhci_host *host = &priv->host;
 	int ret;
 
 	host->name = dev->name;
