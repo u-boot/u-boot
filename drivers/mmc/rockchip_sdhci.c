@@ -589,6 +589,14 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	/*
+	 * Reading more than 4 blocks with a single CMD18 command in PIO mode
+	 * triggers Data End Bit Error on RK3568 and RK3588. Limit to reading
+	 * max 4 blocks in one command when using PIO mode.
+	 */
+	if (!(host->flags & USE_DMA))
+		cfg->b_max = 4;
+
 	return sdhci_probe(dev);
 }
 
