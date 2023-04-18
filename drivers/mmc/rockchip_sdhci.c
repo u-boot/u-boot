@@ -365,16 +365,6 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 	return 0;
 }
 
-static int rk3568_emmc_get_phy(struct udevice *dev)
-{
-	return 0;
-}
-
-static int rk3568_sdhci_set_enhanced_strobe(struct sdhci_host *host)
-{
-	return 0;
-}
-
 static int rk3568_sdhci_set_ios_post(struct sdhci_host *host)
 {
 	struct mmc *mmc = host->mmc;
@@ -525,7 +515,7 @@ static int rockchip_sdhci_set_enhanced_strobe(struct sdhci_host *host)
 	if (data->set_enhanced_strobe)
 		return data->set_enhanced_strobe(host);
 
-	return -ENOTSUPP;
+	return 0;
 }
 
 static struct sdhci_ops rockchip_sdhci_ops = {
@@ -615,11 +605,9 @@ static const struct sdhci_data rk3399_data = {
 };
 
 static const struct sdhci_data rk3568_data = {
-	.get_phy = rk3568_emmc_get_phy,
 	.set_ios_post = rk3568_sdhci_set_ios_post,
 	.set_clock = rk3568_sdhci_set_clock,
 	.config_dll = rk3568_sdhci_config_dll,
-	.set_enhanced_strobe = rk3568_sdhci_set_enhanced_strobe,
 };
 
 static const struct udevice_id sdhci_ids[] = {
