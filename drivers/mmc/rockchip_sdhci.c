@@ -449,17 +449,16 @@ static int rockchip_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	char tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
 	struct mmc_cmd cmd;
 	u32 ctrl, blk_size;
-	int ret = 0;
+	int ret;
 
 	ctrl = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 	ctrl |= SDHCI_CTRL_EXEC_TUNING;
 	sdhci_writew(host, ctrl, SDHCI_HOST_CONTROL2);
 
 	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_INT_ENABLE);
-	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_SIGNAL_ENABLE);
 
 	blk_size = SDHCI_MAKE_BLKSZ(SDHCI_DEFAULT_BOUNDARY_ARG, 64);
-	if (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200 && host->mmc->bus_width == 8)
+	if (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200 && mmc->bus_width == 8)
 		blk_size = SDHCI_MAKE_BLKSZ(SDHCI_DEFAULT_BOUNDARY_ARG, 128);
 	sdhci_writew(host, blk_size, SDHCI_BLOCK_SIZE);
 	sdhci_writew(host, SDHCI_TRNS_READ, SDHCI_TRANSFER_MODE);
@@ -469,36 +468,24 @@ static int rockchip_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	cmd.cmdarg = 0;
 
 	do {
-		if (tuning_loop_counter-- == 0)
-			break;
-
-		mmc_send_cmd(mmc, &cmd, NULL);
-
-		if (opcode == MMC_CMD_SEND_TUNING_BLOCK)
-			/*
-			 * For tuning command, do not do busy loop. As tuning
-			 * is happening (CLK-DATA latching for setup/hold time
-			 * requirements), give time to complete
-			 */
-			udelay(1);
-
+		ret = mmc_send_cmd(mmc, &cmd, NULL);
 		ctrl = sdhci_readw(host, SDHCI_HOST_CONTROL2);
+		if (ret || tuning_loop_counter-- == 0)
+			break;
 	} while (ctrl & SDHCI_CTRL_EXEC_TUNING);
 
-	if (!(ctrl & SDHCI_CTRL_TUNED_CLK)) {
-		printf("%s:Tuning failed\n", __func__);
-		ret = -EIO;
-	}
+	if (ret || tuning_loop_counter < 0 || !(ctrl & SDHCI_CTRL_TUNED_CLK)) {
+		if (!ret)
+			ret = -EIO;
+		printf("%s: Tuning failed: %d\n", __func__, ret);
 
-	if (tuning_loop_counter < 0) {
 		ctrl &= ~SDHCI_CTRL_TUNED_CLK;
-		sdhci_writel(host, ctrl, SDHCI_HOST_CONTROL2);
+		ctrl &= ~SDHCI_CTRL_EXEC_TUNING;
+		sdhci_writew(host, ctrl, SDHCI_HOST_CONTROL2);
 	}
 
 	/* Enable only interrupts served by the SD controller */
 	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK, SDHCI_INT_ENABLE);
-	/* Mask all sdhci interrupt sources */
-	sdhci_writel(host, 0x0, SDHCI_SIGNAL_ENABLE);
 
 	return ret;
 }
