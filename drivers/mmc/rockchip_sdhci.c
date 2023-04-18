@@ -372,20 +372,6 @@ static int rk3568_emmc_get_phy(struct udevice *dev)
 
 static int rk3568_sdhci_set_enhanced_strobe(struct sdhci_host *host)
 {
-	struct mmc *mmc = host->mmc;
-	u32 vendor;
-	int reg;
-
-	reg = (sdhci_readl(host, DWCMSHC_P_VENDOR_AREA1) & DWCMSHC_AREA1_MASK)
-	      + DWCMSHC_EMMC_CONTROL;
-
-	vendor = sdhci_readl(host, reg);
-	if (mmc->selected_mode == MMC_HS_400_ES)
-		vendor |= DWCMSHC_ENHANCED_STROBE;
-	else
-		vendor &= ~DWCMSHC_ENHANCED_STROBE;
-	sdhci_writel(host, vendor, reg);
-
 	return 0;
 }
 
@@ -394,21 +380,51 @@ static int rk3568_sdhci_set_ios_post(struct sdhci_host *host)
 	struct mmc *mmc = host->mmc;
 	u32 reg, vendor_reg;
 
-	if (mmc->selected_mode == MMC_HS_400 || mmc->selected_mode == MMC_HS_400_ES) {
-		reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
-		reg &= ~SDHCI_CTRL_UHS_MASK;
-		reg |= DWCMSHC_CTRL_HS400;
-		sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
+	reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
+	reg &= ~SDHCI_CTRL_UHS_MASK;
 
-		vendor_reg = (sdhci_readl(host, DWCMSHC_P_VENDOR_AREA1) & DWCMSHC_AREA1_MASK)
-			     + DWCMSHC_EMMC_CONTROL;
-		/* set CARD_IS_EMMC bit to enable Data Strobe for HS400 */
-		reg = sdhci_readw(host, vendor_reg);
-		reg |= DWCMSHC_CARD_IS_EMMC;
-		sdhci_writew(host, reg, vendor_reg);
-	} else {
-		sdhci_set_uhs_timing(host);
+	switch (mmc->selected_mode) {
+	case UHS_SDR25:
+	case MMC_HS:
+	case MMC_HS_52:
+		reg |= SDHCI_CTRL_UHS_SDR25;
+		break;
+	case UHS_SDR50:
+		reg |= SDHCI_CTRL_UHS_SDR50;
+		break;
+	case UHS_DDR50:
+	case MMC_DDR_52:
+		reg |= SDHCI_CTRL_UHS_DDR50;
+		break;
+	case UHS_SDR104:
+	case MMC_HS_200:
+		reg |= SDHCI_CTRL_UHS_SDR104;
+		break;
+	case MMC_HS_400:
+	case MMC_HS_400_ES:
+		reg |= DWCMSHC_CTRL_HS400;
+		break;
+	default:
+		reg |= SDHCI_CTRL_UHS_SDR12;
 	}
+
+	sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
+
+	vendor_reg = (sdhci_readl(host, DWCMSHC_P_VENDOR_AREA1) & DWCMSHC_AREA1_MASK)
+		     + DWCMSHC_EMMC_CONTROL;
+	reg = sdhci_readw(host, vendor_reg);
+
+	if (IS_MMC(mmc))
+		reg |= DWCMSHC_CARD_IS_EMMC;
+	else
+		reg &= ~DWCMSHC_CARD_IS_EMMC;
+
+	if (mmc->selected_mode == MMC_HS_400_ES)
+		reg |= DWCMSHC_ENHANCED_STROBE;
+	else
+		reg &= ~DWCMSHC_ENHANCED_STROBE;
+
+	sdhci_writew(host, reg, vendor_reg);
 
 	return 0;
 }
