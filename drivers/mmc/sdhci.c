@@ -682,6 +682,7 @@ static int sdhci_set_ios(struct mmc *mmc)
 	if (!no_hispd_bit) {
 		if (mmc->selected_mode == MMC_HS ||
 		    mmc->selected_mode == SD_HS ||
+		    mmc->selected_mode == MMC_HS_52 ||
 		    mmc->selected_mode == MMC_DDR_52 ||
 		    mmc->selected_mode == MMC_HS_200 ||
 		    mmc->selected_mode == MMC_HS_400 ||
