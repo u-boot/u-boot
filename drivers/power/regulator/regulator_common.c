@@ -73,6 +73,23 @@ int regulator_common_set_enable(const struct udevice *dev,
 		return 0;
 	}
 
+	/* If previously enabled, increase count */
+	if (enable && dev_pdata->enable_count > 0) {
+		dev_pdata->enable_count++;
+		return -EALREADY;
+	}
+
+	if (!enable) {
+		if (dev_pdata->enable_count > 1) {
+			/* If enabled multiple times, decrease count */
+			dev_pdata->enable_count--;
+			return -EBUSY;
+		} else if (!dev_pdata->enable_count) {
+			/* If already disabled, do nothing */
+			return -EALREADY;
+		}
+	}
+
 	ret = dm_gpio_set_value(&dev_pdata->gpio, enable);
 	if (ret) {
 		pr_err("Can't set regulator : %s gpio to: %d\n", dev->name,
@@ -86,6 +103,11 @@ int regulator_common_set_enable(const struct udevice *dev,
 
 	if (!enable && dev_pdata->off_on_delay_us)
 		udelay(dev_pdata->off_on_delay_us);
+
+	if (enable)
+		dev_pdata->enable_count++;
+	else
+		dev_pdata->enable_count--;
 
 	return 0;
 }
