@@ -17,10 +17,10 @@ struct regulator_common_plat {
 };
 
 int regulator_common_of_to_plat(struct udevice *dev,
-				struct regulator_common_plat *dev_pdata, const
+				struct regulator_common_plat *plat, const
 				char *enable_gpio_name);
 int regulator_common_get_enable(const struct udevice *dev,
-	struct regulator_common_plat *dev_pdata);
+	struct regulator_common_plat *plat);
 /*
  * Enable or Disable a regulator
  *
@@ -30,7 +30,7 @@ int regulator_common_get_enable(const struct udevice *dev,
  * and disabled when it reaches 0 coming from 1.
  *
  * @dev: regulator device
- * @dev_pdata: Platform data
+ * @plat: Platform data
  * @enable: bool indicating whether to enable or disable the regulator
  * @return:
  * 0 on Success
@@ -42,6 +42,6 @@ int regulator_common_get_enable(const struct udevice *dev,
  * -ve on different error situation
  */
 int regulator_common_set_enable(const struct udevice *dev,
-	struct regulator_common_plat *dev_pdata, bool enable);
+	struct regulator_common_plat *plat, bool enable);
 
 #endif /* _REGULATOR_COMMON_H */
