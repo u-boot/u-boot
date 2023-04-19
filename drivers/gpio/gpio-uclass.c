@@ -1219,7 +1219,7 @@ int gpio_request_list_by_name_nodev(ofnode node, const char *list_name,
 	return count;
 
 err:
-	gpio_free_list_nodev(desc, count - 1);
+	gpio_free_list_nodev(desc, count);
 
 	return ret;
 }
