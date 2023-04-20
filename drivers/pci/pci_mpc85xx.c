@@ -27,6 +27,13 @@ static int mpc85xx_pci_dm_read_config(const struct udevice *dev, pci_dev_t bdf,
 		return 0;
 	}
 
+	/* Skip mpc85xx PCI controller's ATMU inbound registers */
+	if (PCI_BUS(bdf) == 0 && PCI_DEV(bdf) == 0 && PCI_FUNC(bdf) == 0 &&
+	    (offset & ~3) >= PCI_BASE_ADDRESS_0 && (offset & ~3) <= PCI_BASE_ADDRESS_5) {
+		*value = 0;
+		return 0;
+	}
+
 	addr = PCI_CONF1_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 	out_be32(priv->cfg_addr, addr);
 	sync();
@@ -54,6 +61,11 @@ static int mpc85xx_pci_dm_write_config(struct udevice *dev, pci_dev_t bdf,
 	u32 addr;
 
 	if (offset > 0xff)
+		return 0;
+
+	/* Skip mpc85xx PCI controller's ATMU inbound registers */
+	if (PCI_BUS(bdf) == 0 && PCI_DEV(bdf) == 0 && PCI_FUNC(bdf) == 0 &&
+	    (offset & ~3) >= PCI_BASE_ADDRESS_0 && (offset & ~3) <= PCI_BASE_ADDRESS_5)
 		return 0;
 
 	addr = PCI_CONF1_ADDRESS(PCI_BUS(bdf), PCI_DEV(bdf), PCI_FUNC(bdf), offset);
