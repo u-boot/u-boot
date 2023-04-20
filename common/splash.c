@@ -89,14 +89,14 @@ static inline int splash_video_logo_load(void) { return -ENOSYS; }
 
 __weak int splash_screen_prepare(void)
 {
-	if (IS_ENABLED(CONFIG_SPLASH_SOURCE))
+	if (CONFIG_IS_ENABLED(SPLASH_SOURCE))
 		return splash_source_load(default_splash_locations,
 					  ARRAY_SIZE(default_splash_locations));
 
 	return splash_video_logo_load();
 }
 
-#ifdef CONFIG_SPLASH_SCREEN_ALIGN
+#if CONFIG_IS_ENABLED(SPLASH_SCREEN_ALIGN)
 void splash_get_pos(int *x, int *y)
 {
 	char *s = env_get("splashpos");
@@ -119,7 +119,7 @@ void splash_get_pos(int *x, int *y)
 }
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
-#if defined(CONFIG_VIDEO) && !defined(CONFIG_HIDE_LOGO_VERSION)
+#if CONFIG_IS_ENABLED(VIDEO) && !CONFIG_IS_ENABLED(HIDE_LOGO_VERSION)
 
 #ifdef CONFIG_VIDEO_LOGO
 #include <bmp_logo.h>
@@ -159,7 +159,7 @@ void splash_display_banner(void)
  * Common function to show a splash image if env("splashimage") is set.
  * For additional details please refer to doc/README.splashprepare.
  */
-#if defined(CONFIG_SPLASH_SCREEN) && defined(CONFIG_CMD_BMP)
+#if CONFIG_IS_ENABLED(SPLASH_SCREEN) && CONFIG_IS_ENABLED(BMP)
 int splash_display(void)
 {
 	ulong addr;
@@ -183,7 +183,7 @@ int splash_display(void)
 	if (x || y)
 		goto end;
 
-#if defined(CONFIG_VIDEO) && !defined(CONFIG_HIDE_LOGO_VERSION)
+#if CONFIG_IS_ENABLED(VIDEO) && !CONFIG_IS_ENABLED(HIDE_LOGO_VERSION)
 	splash_display_banner();
 #endif
 end:
