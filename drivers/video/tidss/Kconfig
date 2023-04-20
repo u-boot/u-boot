@@ -16,3 +16,9 @@ menuconfig VIDEO_TIDSS
 	  DPI . This option enables these supports which can be used on
 	  devices which have OLDI or HDMI display connected.
 
+config SPL_VIDEO_TIDSS
+	bool "Enable TIDSS video support in SPL Stage"
+	depends on SPL_VIDEO
+	help
+	  This options enables tidss driver in SPL stage. If
+	  you need to use tidss at SPL stage use this config.
