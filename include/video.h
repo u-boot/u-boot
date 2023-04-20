@@ -357,4 +357,12 @@ void *video_get_u_boot_logo(void);
  */
 int bmp_display(ulong addr, int x, int y);
 
+/*
+ * bmp_info() - Show information about bmp file
+ *
+ * @addr: address of bmp file
+ * Returns: 0 if OK, else 1 if bmp image not found
+ */
+int bmp_info(ulong addr);
+
 #endif
