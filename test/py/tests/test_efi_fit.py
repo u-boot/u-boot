@@ -433,11 +433,13 @@ def test_efi_fit_launch(u_boot_console):
     sys_arch = cons.config.buildconfig.get('config_sys_arch', '"sandbox"')[1:-1]
     is_sandbox = sys_arch == 'sandbox'
 
+    if is_sandbox:
+        old_dtb = cons.config.dtb
+
     try:
         if is_sandbox:
             # Use our own device tree file, will be restored afterwards.
             control_dtb = make_dtb('internal', False)
-            old_dtb = cons.config.dtb
             cons.config.dtb = control_dtb
 
         # Run tests
