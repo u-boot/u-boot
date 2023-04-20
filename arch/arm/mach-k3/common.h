@@ -9,6 +9,10 @@
 #include <asm/armv7_mpu.h>
 #include <asm/hardware.h>
 
+#define J721E  0xbb64
+#define J7200  0xbb6d
+#define K3_BACKGROUND_FIREWALL_BIT BIT(8)
+
 struct fwl_data {
 	const char *name;
 	u16 fwl_id;
