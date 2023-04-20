@@ -49,7 +49,7 @@ struct splash_location {
 	char *ubivol;	/* UBI volume-name for ubifsmount */
 };
 
-#ifdef CONFIG_SPLASH_SOURCE
+#if CONFIG_IS_ENABLED(SPLASH_SOURCE)
 int splash_source_load(struct splash_location *locations, uint size);
 #else
 static inline int splash_source_load(struct splash_location *locations,
@@ -61,13 +61,13 @@ static inline int splash_source_load(struct splash_location *locations,
 
 int splash_screen_prepare(void);
 
-#ifdef CONFIG_SPLASH_SCREEN_ALIGN
+#if CONFIG_IS_ENABLED(SPLASH_SCREEN_ALIGN)
 void splash_get_pos(int *x, int *y);
 #else
 static inline void splash_get_pos(int *x, int *y) { }
 #endif
 
-#if defined(CONFIG_SPLASH_SCREEN) && defined(CONFIG_CMD_BMP)
+#if CONFIG_IS_ENABLED(SPLASH_SCREEN) && CONFIG_IS_ENABLED(BMP)
 int splash_display(void);
 #else
 static inline int splash_display(void)
