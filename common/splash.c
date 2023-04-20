@@ -96,12 +96,11 @@ __weak int splash_screen_prepare(void)
 	return splash_video_logo_load();
 }
 
-#if CONFIG_IS_ENABLED(SPLASH_SCREEN_ALIGN)
 void splash_get_pos(int *x, int *y)
 {
 	char *s = env_get("splashpos");
 
-	if (!s)
+	if (!CONFIG_IS_ENABLED(SPLASH_SCREEN_ALIGN) || !s)
 		return;
 
 	if (s[0] == 'm')
@@ -117,7 +116,6 @@ void splash_get_pos(int *x, int *y)
 			*y = simple_strtol(s + 1, NULL, 0);
 	}
 }
-#endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
 #if CONFIG_IS_ENABLED(VIDEO) && !CONFIG_IS_ENABLED(HIDE_LOGO_VERSION)
 
@@ -159,13 +157,13 @@ void splash_display_banner(void)
  * Common function to show a splash image if env("splashimage") is set.
  * For additional details please refer to doc/README.splashprepare.
  */
-#if CONFIG_IS_ENABLED(SPLASH_SCREEN) && CONFIG_IS_ENABLED(BMP)
 int splash_display(void)
 {
 	ulong addr;
 	char *s;
 	int x = 0, y = 0, ret;
-
+	if (!CONFIG_IS_ENABLED(SPLASH_SCREEN))
+		return -ENOSYS;
 	s = env_get("splashimage");
 	if (!s)
 		return -EINVAL;
@@ -177,7 +175,10 @@ int splash_display(void)
 
 	splash_get_pos(&x, &y);
 
-	ret = bmp_display(addr, x, y);
+	if (CONFIG_IS_ENABLED(BMP))
+		ret = bmp_display(addr, x, y);
+	else
+		return -ENOSYS;
 
 	/* Skip banner output on video console if the logo is not at 0,0 */
 	if (x || y)
@@ -189,4 +190,3 @@ int splash_display(void)
 end:
 	return ret;
 }
-#endif

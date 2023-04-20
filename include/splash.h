@@ -60,21 +60,8 @@ static inline int splash_source_load(struct splash_location *locations,
 #endif
 
 int splash_screen_prepare(void);
-
-#if CONFIG_IS_ENABLED(SPLASH_SCREEN_ALIGN)
 void splash_get_pos(int *x, int *y);
-#else
-static inline void splash_get_pos(int *x, int *y) { }
-#endif
-
-#if CONFIG_IS_ENABLED(SPLASH_SCREEN) && CONFIG_IS_ENABLED(BMP)
 int splash_display(void);
-#else
-static inline int splash_display(void)
-{
-	return -ENOSYS;
-}
-#endif
 
 #define BMP_ALIGN_CENTER	0x7FFF
 
