@@ -20,8 +20,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SPLASH_SCREEN
+#if CONFIG_IS_ENABLED(SPLASH_SCREEN)
 static struct splash_location default_splash_locations[] = {
+	{
+		.name = "sf",
+		.storage = SPLASH_STORAGE_SF,
+		.flags = SPLASH_STORAGE_RAW,
+		.offset = 0x700000,
+	},
 	{
 		.name		= "mmc",
 		.storage	= SPLASH_STORAGE_MMC,
