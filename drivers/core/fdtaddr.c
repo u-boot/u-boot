@@ -126,6 +126,14 @@ fdt_addr_t devfdt_get_addr_size_index(const struct udevice *dev, int index,
 #endif
 }
 
+void *devfdt_get_addr_size_index_ptr(const struct udevice *dev, int index,
+				     fdt_size_t *size)
+{
+	fdt_addr_t addr = devfdt_get_addr_size_index(dev, index, size);
+
+	return (addr == FDT_ADDR_T_NONE) ? NULL : (void *)(uintptr_t)addr;
+}
+
 fdt_addr_t devfdt_get_addr_name(const struct udevice *dev, const char *name)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)

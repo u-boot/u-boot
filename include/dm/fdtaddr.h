@@ -111,13 +111,28 @@ void *devfdt_get_addr_index_ptr(const struct udevice *dev, int index);
  * @dev: Pointer to a device
  * @index: the 'reg' property can hold a list of <addr, size> pairs
  *	   and @index is used to select which one is required
- * @size: Pointer to size varible - this function returns the size
+ * @size: Pointer to size variable - this function returns the size
  *        specified in the 'reg' property here
  *
  * Return: addr
  */
 fdt_addr_t devfdt_get_addr_size_index(const struct udevice *dev, int index,
 				      fdt_size_t *size);
+
+/**
+ * devfdt_get_addr_size_index_ptr() - Return indexed pointer to the address of the
+ *                                    reg property of a device
+ *
+ * @dev: Pointer to a device
+ * @index: the 'reg' property can hold a list of <addr, size> pairs
+ *	   and @index is used to select which one is required
+ * @size: Pointer to size variable - this function returns the size
+ *        specified in the 'reg' property here
+ *
+ * Return: Pointer to addr, or NULL if there is no such property
+ */
+void *devfdt_get_addr_size_index_ptr(const struct udevice *dev, int index,
+				     fdt_size_t *size);
 
 /**
  * devfdt_get_addr_name() - Get the reg property of a device, indexed by name
