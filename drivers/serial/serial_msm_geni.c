@@ -238,13 +238,13 @@ static inline void geni_serial_baud(phys_addr_t base_address, u32 clk_div,
 	writel(s_clk_cfg, base_address + GENI_SER_S_CLK_CFG);
 }
 
-int msm_serial_setbrg(struct udevice *dev, int baud)
+static int msm_serial_setbrg(struct udevice *dev, int baud)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
+	u64 clk_rate;
+	u32 clk_div;
 
 	priv->baud = baud;
-	u32 clk_div;
-	u64 clk_rate;
 
 	clk_rate = get_clk_div_rate(baud, UART_OVERSAMPLING, &clk_div);
 	geni_serial_set_clock_rate(dev, clk_rate);
