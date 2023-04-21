@@ -21,7 +21,7 @@
 	};
 
 	aliases {
-		serial0 = &debug_uart;
+		serial0 = &uart9;
 	};
 
 	memory {
