@@ -11,15 +11,9 @@
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
-#include <dm/pinctrl.h>
 #include <errno.h>
-#include <linux/compiler.h>
-#include <log.h>
 #include <linux/delay.h>
-#include <malloc.h>
 #include <serial.h>
-#include <watchdog.h>
-#include <linux/bug.h>
 
 #define UART_OVERSAMPLING	32
 #define STALE_TIMEOUT	160
