@@ -87,6 +87,9 @@ List of mainline supported Rockchip boards:
      - Rockchip Evb-RK3399 (evb_rk3399)
      - Theobroma Systems RK3399-Q7 SoM - Puma (puma_rk3399)
 
+* rk3566
+     - Anbernic RGxx3 (rgxx3-rk3566)
+
 * rk3568
      - Rockchip Evb-RK3568 (evb-rk3568)
 
