@@ -130,8 +130,8 @@ struct msm_serial_data {
 };
 
 unsigned long root_freq[] = {7372800,  14745600, 19200000, 29491200,
-					 32000000, 48000000, 64000000, 80000000,
-					 96000000, 100000000};
+			     32000000, 48000000, 64000000, 80000000,
+			     96000000, 100000000};
 
 /**
  * get_clk_cfg() - Get clock rate to apply on clock supplier.
@@ -160,8 +160,7 @@ static int get_clk_cfg(unsigned long clk_freq)
  *
  * Return: frequency, supported by clock supplier, multiple of clk_freq.
  */
-static int get_clk_div_rate(u32 baud,
-							u64 sampling_rate, u32 *clk_div)
+static int get_clk_div_rate(u32 baud, u64 sampling_rate, u32 *clk_div)
 {
 	unsigned long ser_clk;
 	unsigned long desired_clk;
@@ -228,7 +227,7 @@ static inline u32 geni_se_get_tx_fifo_width(long base)
 }
 
 static inline void geni_serial_baud(phys_addr_t base_address, u32 clk_div,
-									int baud)
+				    int baud)
 {
 	u32 s_clk_cfg = 0;
 
@@ -268,7 +267,7 @@ int msm_serial_setbrg(struct udevice *dev, int baud)
  * reached.
  */
 static bool qcom_geni_serial_poll_bit(const struct udevice *dev, int offset,
-					  int field, bool set)
+				      int field, bool set)
 {
 	u32 reg;
 	struct msm_serial_data *priv = dev_get_priv(dev);
