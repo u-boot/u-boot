@@ -52,10 +52,10 @@
 		};
 
 		debug_uart: serial@a84000 {
-			compatible = "qcom,msm-geni-uart";
+			compatible = "qcom,geni-debug-uart";
 			reg = <0xa84000 0x4000>;
 			reg-names = "se_phys";
-			clock-names = "se-clk";
+			clock-names = "se";
 			clocks = <&gcc GCC_QUPV3_WRAP1_S1_CLK>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&qup_uart9>;

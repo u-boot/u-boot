@@ -547,7 +547,9 @@ static int msm_serial_ofdata_to_platdata(struct udevice *dev)
 }
 
 static const struct udevice_id msm_serial_ids[] = {
-	{.compatible = "qcom,msm-geni-uart"}, {}};
+	{ .compatible = "qcom,geni-debug-uart" },
+	{ }
+};
 
 U_BOOT_DRIVER(serial_msm_geni) = {
 	.name = "serial_msm_geni",
