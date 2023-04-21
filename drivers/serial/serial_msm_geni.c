@@ -13,6 +13,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <linux/delay.h>
+#include <misc.h>
 #include <serial.h>
 
 #define UART_OVERSAMPLING	32
@@ -110,6 +111,10 @@
 #define TX_FIFO_DEPTH_MSK	(GENMASK(21, 16))
 #define TX_FIFO_DEPTH_SHFT	16
 
+/* GENI SE QUP Registers */
+#define QUP_HW_VER_REG		0x4
+#define  QUP_SE_VERSION_2_5	0x20050000
+
 /*
  * Predefined packing configuration of the serial engine (CFG0, CFG1 regs)
  * for uart mode.
@@ -127,6 +132,7 @@ DECLARE_GLOBAL_DATA_PTR;
 struct msm_serial_data {
 	phys_addr_t base;
 	u32 baud;
+	u32 oversampling;
 };
 
 unsigned long root_freq[] = {7372800,  14745600, 19200000, 29491200,
@@ -246,7 +252,7 @@ static int msm_serial_setbrg(struct udevice *dev, int baud)
 
 	priv->baud = baud;
 
-	clk_rate = get_clk_div_rate(baud, UART_OVERSAMPLING, &clk_div);
+	clk_rate = get_clk_div_rate(baud, priv->oversampling, &clk_div);
 	geni_serial_set_clock_rate(dev, clk_rate);
 	geni_serial_baud(priv->base, clk_div, baud);
 
@@ -480,6 +486,31 @@ static const struct dm_serial_ops msm_serial_ops = {
 	.setbrg = msm_serial_setbrg,
 };
 
+static void geni_set_oversampling(struct udevice *dev)
+{
+	struct msm_serial_data *priv = dev_get_priv(dev);
+	struct udevice *parent_dev = dev_get_parent(dev);
+	u32 geni_se_version;
+	int ret;
+
+	priv->oversampling = UART_OVERSAMPLING;
+
+	/*
+	 * It could happen that GENI SE IP is missing in the board's device
+	 * tree or GENI UART node is a direct child of SoC device tree node.
+	 */
+	if (device_get_uclass_id(parent_dev) != UCLASS_MISC)
+		return;
+
+	ret = misc_read(parent_dev, QUP_HW_VER_REG,
+			&geni_se_version, sizeof(geni_se_version));
+	if (ret != sizeof(geni_se_version))
+		return;
+
+	if (geni_se_version >= QUP_SE_VERSION_2_5)
+		priv->oversampling /= 2;
+}
+
 static inline void geni_serial_init(struct udevice *dev)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
@@ -522,6 +553,8 @@ static inline void geni_serial_init(struct udevice *dev)
 static int msm_serial_probe(struct udevice *dev)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
+
+	geni_set_oversampling(dev);
 
 	/* No need to reinitialize the UART after relocation */
 	if (gd->flags & GD_FLG_RELOC)
