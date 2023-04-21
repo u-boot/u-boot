@@ -183,7 +183,7 @@ static int geni_serial_set_clock_rate(struct udevice *dev, u64 rate)
 	struct clk *clk;
 	int ret;
 
-	clk = devm_clk_get(dev, "se-clk");
+	clk = devm_clk_get(dev, NULL);
 	if (!clk)
 		return -EINVAL;
 
