@@ -7,7 +7,11 @@
 """See README for more information"""
 
 from argparse import ArgumentParser
-import importlib.resources
+try:
+    import importlib.resources
+except ImportError:
+    # for Python 3.6
+    import importlib_resources
 import os
 import re
 import sys
