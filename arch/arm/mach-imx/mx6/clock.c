@@ -802,6 +802,7 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 		}
 
 		enable_lcdif_clock(base_addr, 1);
+		debug("pixel clock = %u\n", mxc_get_clock(MXC_LCDIF1_CLK));
 	} else if (is_mx6sx()) {
 		/* Setting LCDIF2 for i.MX6SX */
 		if (enable_pll_video(pll_div, pll_num, pll_denom, post_div))
@@ -823,6 +824,7 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 				 MXC_CCM_CSCMR1_LCDIF2_PODF_OFFSET));
 
 		enable_lcdif_clock(base_addr, 1);
+		debug("pixel clock = %u\n", mxc_get_clock(MXC_LCDIF2_CLK));
 	}
 }
 
