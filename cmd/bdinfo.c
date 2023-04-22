@@ -52,7 +52,10 @@ static void print_eth(int idx)
 	val = env_get(name);
 	if (!val)
 		val = "(not set)";
+
+	printf("current eth = %s\n", eth_get_name());
 	printf("%-12s= %s\n", name, val);
+	printf("IP addr     = %s\n", env_get("ipaddr"));
 }
 
 void bdinfo_print_mhz(const char *name, unsigned long hz)
@@ -124,11 +127,8 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	bdinfo_print_num_l("relocaddr", gd->relocaddr);
 	bdinfo_print_num_l("reloc off", gd->reloc_off);
 	printf("%-12s= %u-bit\n", "Build", (uint)sizeof(void *) * 8);
-	if (IS_ENABLED(CONFIG_CMD_NET)) {
-		printf("current eth = %s\n", eth_get_name());
+	if (IS_ENABLED(CONFIG_CMD_NET))
 		print_eth(0);
-		printf("IP addr     = %s\n", env_get("ipaddr"));
-	}
 	bdinfo_print_num_l("fdt_blob", (ulong)map_to_sysmem(gd->fdt_blob));
 	bdinfo_print_num_l("new_fdt", (ulong)map_to_sysmem(gd->new_fdt));
 	bdinfo_print_num_l("fdt_size", (ulong)gd->fdt_size);
