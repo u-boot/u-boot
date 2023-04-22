@@ -1,10 +1,8 @@
 # SPDX-License-Identifier:      GPL-2.0+
 # Copyright (c) 2021, Linaro Limited
 # Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
-#
-# U-Boot UEFI: Firmware Update (Signed capsule with raw images) Test
 
-"""
+"""U-Boot UEFI: Firmware Update (Signed capsule with raw images) Test
 This test verifies capsule-on-disk firmware update
 with signed capsule files containing raw images
 """
@@ -23,15 +21,17 @@ from capsule_defs import CAPSULE_DATA_DIR, CAPSULE_INSTALL_DIR
 @pytest.mark.buildconfigspec('cmd_nvedit_efi')
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.slow
-class TestEfiCapsuleFirmwareSignedRaw(object):
+class TestEfiCapsuleFirmwareSignedRaw():
+    """Firmware Update (Signed capsule with raw images) Test
+    """
+
     def test_efi_capsule_auth1(
             self, u_boot_config, u_boot_console, efi_capsule_data):
-        """
-        Test Case 1 - Update U-Boot on SPI Flash, raw image format
-                      0x100000-0x150000: U-Boot binary (but dummy)
+        """Test Case 1 - Update U-Boot on SPI Flash, raw image format
+        0x100000-0x150000: U-Boot binary (but dummy)
 
-                      If the capsule is properly signed, the authentication
-                      should pass and the firmware be updated.
+        If the capsule is properly signed, the authentication
+        should pass and the firmware be updated.
         """
         disk_img = efi_capsule_data
         with u_boot_console.log.section('Test Case 1-a, before reboot'):
@@ -100,13 +100,12 @@ class TestEfiCapsuleFirmwareSignedRaw(object):
 
     def test_efi_capsule_auth2(
             self, u_boot_config, u_boot_console, efi_capsule_data):
-        """
-        Test Case 2 - Update U-Boot on SPI Flash, raw image format
-                      0x100000-0x150000: U-Boot binary (but dummy)
+        """Test Case 2 - Update U-Boot on SPI Flash, raw image format
+        0x100000-0x150000: U-Boot binary (but dummy)
 
-                      If the capsule is signed but with an invalid key,
-                      the authentication should fail and the firmware
-                      not be updated.
+        If the capsule is signed but with an invalid key,
+        the authentication should fail and the firmware
+        not be updated.
         """
         disk_img = efi_capsule_data
         with u_boot_console.log.section('Test Case 2-a, before reboot'):
@@ -179,12 +178,11 @@ class TestEfiCapsuleFirmwareSignedRaw(object):
 
     def test_efi_capsule_auth3(
             self, u_boot_config, u_boot_console, efi_capsule_data):
-        """
-        Test Case 3 - Update U-Boot on SPI Flash, raw image format
-                      0x100000-0x150000: U-Boot binary (but dummy)
+        """Test Case 3 - Update U-Boot on SPI Flash, raw image format
+        0x100000-0x150000: U-Boot binary (but dummy)
 
-                      If the capsule is not signed, the authentication
-                      should fail and the firmware not be updated.
+        If the capsule is not signed, the authentication
+        should fail and the firmware not be updated.
         """
         disk_img = efi_capsule_data
         with u_boot_console.log.section('Test Case 3-a, before reboot'):

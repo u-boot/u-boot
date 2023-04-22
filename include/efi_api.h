@@ -1173,7 +1173,7 @@ struct efi_hii_keyboard_layout {
 	efi_guid_t guid;
 	u32 layout_descriptor_string_offset;
 	u8 descriptor_count;
-	struct efi_key_descriptor descriptors[];
+	/* struct efi_key_descriptor descriptors[]; follows here */
 } __packed;
 
 struct efi_hii_keyboard_package {
