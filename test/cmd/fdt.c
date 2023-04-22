@@ -2,7 +2,7 @@
 /*
  * Tests for fdt command
  *
- * Copyright 2022 Google LLCmap_to_sysmem(fdt));
+ * Copyright 2022 Google LLC
  */
 
 #include <common.h>
