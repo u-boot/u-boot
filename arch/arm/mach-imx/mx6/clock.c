@@ -213,6 +213,7 @@ int enable_spi_clk(unsigned char enable, unsigned spi_num)
 static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 {
 	u32 div, test_div, pll_num, pll_denom;
+	u64 temp64;
 
 	switch (pll) {
 	case PLL_SYS:
@@ -272,7 +273,10 @@ static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 		}
 		test_div = 1 << (2 - test_div);
 
-		return infreq * (div + pll_num / pll_denom) / test_div;
+		temp64 = (u64)infreq;
+		temp64 *= pll_num;
+		do_div(temp64, pll_denom);
+		return infreq * div + (unsigned long)temp64;
 	default:
 		return 0;
 	}
