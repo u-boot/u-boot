@@ -81,8 +81,17 @@ struct udp_hdr {
 			  0x00, 0x00, 0x00, 0x00, \
 			  0x00, 0x00, 0x00, 0x00, \
 			  0x00, 0x00, 0x00, 0x00 } } }
+/*
+ * All-routers multicast address is the link-local scope address to reach all
+ * routers.
+ */
+#define ALL_ROUTERS_MULT_ADDR { { { 0xFF, 0x02, 0x00, 0x00, \
+				  0x00, 0x00, 0x00, 0x00, \
+				  0x00, 0x00, 0x00, 0x00, \
+				  0x00, 0x00, 0x00, 0x02 } } }
 
 #define IPV6_LINK_LOCAL_PREFIX	0xfe80
+#define IPV6_LINK_LOCAL_MASK	0xffb0 /* The first 10-bit of address mask. */
 
 /* hop limit for neighbour discovery packets */
 #define IPV6_NDISC_HOPLIMIT             255
@@ -165,6 +174,37 @@ struct icmp6hdr {
 #define icmp6_addrconf_other	icmp6_dataun.u_nd_ra.other
 #define icmp6_rt_lifetime	icmp6_dataun.u_nd_ra.rt_lifetime
 } __packed;
+
+/*
+ * struct icmp6_ra_prefix_info - Prefix Information option of the ICMPv6 message
+ * The Prefix Information option provides hosts with on-link prefixes and
+ * prefixes for Address Autoconfiguration. Refer to RFC 4861 for more info.
+ */
+struct icmp6_ra_prefix_info {
+	u8	type;		/* Type is 3 for Prefix Information. */
+	u8	len;		/* Len is 4 for Prefix Information. */
+	/* The number of leading bits in the Prefix that are valid. */
+	u8	prefix_len;
+	u8	reserved1:6,	/* MUST be ignored by the receiver. */
+		aac:1,		/* autonomous address-configuration flag */
+	/* Indicates that this prefix can be used for on-link determination. */
+		on_link:1;
+	/*
+	 * The length of time in seconds that the prefix is valid for the
+	 * purpose of on-link determination.
+	 */
+	__be32	valid_lifetime;
+	/* The length of time addresses remain preferred. */
+	__be32	preferred_lifetime;
+	__be32	reserved2;	/* MUST be ignored by the receiver. */
+	/*
+	 * Prefix is an IP address or a prefix of an IP address. The Prefix
+	 * Length field contains the number of valid leading bits in the prefix.
+	 * The bits in the prefix after the prefix length are reserved and MUST
+	 * be initialized to zero by the sender and ignored by the receiver.
+	 */
+	struct in6_addr prefix;
+};
 
 extern struct in6_addr const net_null_addr_ip6;	/* NULL IPv6 address */
 extern struct in6_addr net_gateway6;	/* Our gateways IPv6 address */

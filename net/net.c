@@ -24,7 +24,7 @@
  *			- name of bootfile
  *	Next step:	ARP
  *
- * LINK_LOCAL:
+ * LINKLOCAL:
  *
  *	Prerequisites:	- own ethernet address
  *	We want:	- own IP address
@@ -124,6 +124,7 @@
 #include "wol.h"
 #endif
 #include "dhcpv6.h"
+#include "net_rand.h"
 
 /** BOOTP EXTENTIONS **/
 
@@ -350,6 +351,8 @@ void net_auto_load(void)
 
 static int net_init_loop(void)
 {
+	static bool first_call = true;
+
 	if (eth_get_dev()) {
 		memcpy(net_ethaddr, eth_get_ethaddr(), 6);
 
@@ -369,6 +372,12 @@ static int net_init_loop(void)
 		 */
 		return -ENONET;
 
+	if (IS_ENABLED(CONFIG_IPV6_ROUTER_DISCOVERY))
+		if (first_call && use_ip6) {
+			first_call = false;
+			srand_mac(); /* This is for rand used in ip6_send_rs. */
+			net_loop(RS);
+		}
 	return 0;
 }
 
@@ -587,6 +596,10 @@ restart:
 			ncsi_probe_packages();
 			break;
 #endif
+		case RS:
+			if (IS_ENABLED(CONFIG_IPV6_ROUTER_DISCOVERY))
+				ip6_send_rs();
+			break;
 		default:
 			break;
 		}
@@ -684,7 +697,13 @@ restart:
 			x = time_handler;
 			time_handler = (thand_f *)0;
 			(*x)();
-		}
+		} else if (IS_ENABLED(CONFIG_IPV6_ROUTER_DISCOVERY))
+			if (time_handler && protocol == RS)
+				if (!ip6_is_unspecified_addr(&net_gateway6) &&
+				    net_prefix_length != 0) {
+					net_set_state(NETLOOP_SUCCESS);
+					net_set_timeout_handler(0, NULL);
+				}
 
 		if (net_state == NETLOOP_FAIL)
 			ret = net_start_again();

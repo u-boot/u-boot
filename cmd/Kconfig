@@ -1942,6 +1942,12 @@ config CMD_NCSI
 	  Normally this happens automatically before other network
 	  operations.
 
+config IPV6_ROUTER_DISCOVERY
+	bool "Do IPv6 router discovery"
+	depends on IPV6
+	help
+	  Will automatically perform router solicitation on first IPv6
+	  network operation
 endif
 
 config CMD_ETHSW
