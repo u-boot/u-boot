@@ -3229,6 +3229,87 @@ static int spi_nor_setup(struct spi_nor *nor, const struct flash_info *info,
 /* Use ID byte 4 to distinguish S25FS256T and S25Hx-T */
 #define S25FS256T_ID4	(0x08)
 
+/* Number of dummy cycle for Read Any Register (RDAR) op. */
+#define S25FS_S_RDAR_DUMMY	8
+
+static int s25fs_s_quad_enable(struct spi_nor *nor)
+{
+	return spansion_quad_enable_volatile(nor, 0, S25FS_S_RDAR_DUMMY);
+}
+
+static int s25fs_s_erase_non_uniform(struct spi_nor *nor, loff_t addr)
+{
+	/* Support 8 x 4KB sectors at bottom */
+	return spansion_erase_non_uniform(nor, addr, SPINOR_OP_BE_4K_4B, 0, SZ_32K);
+}
+
+static int s25fs_s_setup(struct spi_nor *nor, const struct flash_info *info,
+			 const struct spi_nor_flash_parameter *params)
+{
+	int ret;
+	u8 cfr3v;
+
+	/* Bank Address Register is not supported */
+	if (CONFIG_IS_ENABLED(SPI_FLASH_BAR))
+		return -EOPNOTSUPP;
+
+	/*
+	 * Read CR3V to check if uniform sector is selected. If not, assign an
+	 * erase hook that supports non-uniform erase.
+	 */
+	ret = spansion_read_any_reg(nor, SPINOR_REG_ADDR_CFR3V,
+				    S25FS_S_RDAR_DUMMY, &cfr3v);
+	if (ret)
+		return ret;
+	if (!(cfr3v & CFR3V_UNHYSA))
+		nor->erase = s25fs_s_erase_non_uniform;
+
+	return spi_nor_default_setup(nor, info, params);
+}
+
+static void s25fs_s_default_init(struct spi_nor *nor)
+{
+	nor->setup = s25fs_s_setup;
+}
+
+static int s25fs_s_post_bfpt_fixup(struct spi_nor *nor,
+				   const struct sfdp_parameter_header *header,
+				   const struct sfdp_bfpt *bfpt,
+				   struct spi_nor_flash_parameter *params)
+{
+	/* The erase size is set to 4K from BFPT, but it's wrong. Fix it. */
+	nor->erase_opcode = SPINOR_OP_SE;
+	nor->mtd.erasesize = nor->info->sector_size;
+
+	/* The S25FS-S chip family reports 512-byte pages in BFPT but
+	 * in reality the write buffer still wraps at the safe default
+	 * of 256 bytes.  Overwrite the page size advertised by BFPT
+	 * to get the writes working.
+	 */
+	params->page_size = 256;
+
+	return 0;
+}
+
+static void s25fs_s_post_sfdp_fixup(struct spi_nor *nor,
+				    struct spi_nor_flash_parameter *params)
+{
+	/* READ_1_1_2 is not supported */
+	params->hwcaps.mask &= ~SNOR_HWCAPS_READ_1_1_2;
+	/* READ_1_1_4 is not supported */
+	params->hwcaps.mask &= ~SNOR_HWCAPS_READ_1_1_4;
+	/* PP_1_1_4 is not supported */
+	params->hwcaps.mask &= ~SNOR_HWCAPS_PP_1_1_4;
+	/* Use volatile register to enable quad */
+	params->quad_enable = s25fs_s_quad_enable;
+}
+
+static struct spi_nor_fixups s25fs_s_fixups = {
+	.default_init = s25fs_s_default_init,
+	.post_bfpt = s25fs_s_post_bfpt_fixup,
+	.post_sfdp = s25fs_s_post_sfdp_fixup,
+};
+
 static int s25_mdp_ready(struct spi_nor *nor)
 {
 	u32 addr;
@@ -3927,6 +4008,10 @@ void spi_nor_set_fixups(struct spi_nor *nor)
 	if (CONFIG_IS_ENABLED(SPI_FLASH_BAR) &&
 	    !strcmp(nor->info->name, "s25fl256l"))
 		nor->fixups = &s25fl256l_fixups;
+
+	/* For FS-S (family ID = 0x81)  */
+	if (JEDEC_MFR(nor->info) == SNOR_MFR_SPANSION && nor->info->id[5] == 0x81)
+		nor->fixups = &s25fs_s_fixups;
 #endif
 
 #ifdef CONFIG_SPI_FLASH_MT35XU
