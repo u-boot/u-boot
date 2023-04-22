@@ -4514,12 +4514,21 @@ static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, ofnode nod
 	}
 
 	str = ofnode_read_string(node, "nand-ecc-algo");
-	if (str && !strcmp(str, "bch")) {
-		ecc_algo = NAND_ECC_BCH;
-		if (ecc_mode == NAND_ECC_SOFT)
-			ecc_mode = NAND_ECC_SOFT_BCH;
-	} else if (!strcmp(str, "hamming")) {
-		ecc_algo = NAND_ECC_HAMMING;
+	if (str) {
+		/*
+		 * If we are in NAND_ECC_SOFT mode, just alter the
+		 * soft mode to BCH here. No change of algorithm.
+		 */
+		if (ecc_mode == NAND_ECC_SOFT) {
+			if (!strcmp(str, "bch"))
+				ecc_mode = NAND_ECC_SOFT_BCH;
+		} else {
+			if (!strcmp(str, "bch")) {
+				ecc_algo = NAND_ECC_BCH;
+			} else if (!strcmp(str, "hamming")) {
+				ecc_algo = NAND_ECC_HAMMING;
+			}
+		}
 	}
 
 	ecc_strength = ofnode_read_s32_default(node,
@@ -4533,7 +4542,13 @@ static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, ofnode nod
 		return -EINVAL;
 	}
 
-	chip->ecc.algo = ecc_algo;
+	/*
+	 * Chip drivers may have assigned default algorithms here,
+	 * onlt override it if we have found something explicitly
+	 * specified in the device tree.
+	 */
+	if (ecc_algo != NAND_ECC_UNKNOWN)
+		chip->ecc.algo = ecc_algo;
 
 	if (ecc_mode >= 0)
 		chip->ecc.mode = ecc_mode;
