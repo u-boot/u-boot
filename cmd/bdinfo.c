@@ -42,19 +42,25 @@ void bdinfo_print_num_ll(const char *name, unsigned long long value)
 	printf("%-12s= 0x%.*llx\n", name, 2 * (int)sizeof(ulong), value);
 }
 
-static void print_eth(int idx)
+static void print_eth(void)
 {
-	char name[10], *val;
+	const int idx = eth_get_dev_index();
+	uchar enetaddr[6];
+	char name[10];
+	int ret;
+
 	if (idx)
 		sprintf(name, "eth%iaddr", idx);
 	else
 		strcpy(name, "ethaddr");
-	val = env_get(name);
-	if (!val)
-		val = "(not set)";
+
+	ret = eth_env_get_enetaddr_by_index("eth", idx, enetaddr);
 
 	printf("current eth = %s\n", eth_get_name());
-	printf("%-12s= %s\n", name, val);
+	if (!ret)
+		printf("%-12s= (not set)\n", name);
+	else
+		printf("%-12s= %pM\n", name, enetaddr);
 	printf("IP addr     = %s\n", env_get("ipaddr"));
 }
 
@@ -128,7 +134,7 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	bdinfo_print_num_l("reloc off", gd->reloc_off);
 	printf("%-12s= %u-bit\n", "Build", (uint)sizeof(void *) * 8);
 	if (IS_ENABLED(CONFIG_CMD_NET))
-		print_eth(0);
+		print_eth();
 	bdinfo_print_num_l("fdt_blob", (ulong)map_to_sysmem(gd->fdt_blob));
 	bdinfo_print_num_l("new_fdt", (ulong)map_to_sysmem(gd->new_fdt));
 	bdinfo_print_num_l("fdt_size", (ulong)gd->fdt_size);
