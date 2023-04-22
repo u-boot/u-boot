@@ -9,7 +9,7 @@ import u_boot_utils
 
 """
 Note: This test relies on boardenv_* containing configuration values to define
-which the network environment available for testing. Without this, this test
+which network environment is available for testing. Without this, this test
 will be automatically skipped.
 
 For example:
@@ -60,6 +60,11 @@ env__net_nfs_readable_file = {
     'size': 5058624,
     'crc32': 'c2244b26',
 }
+
+# True if a router advertisement service is connected to the network, and should
+# be tested. If router advertisement testing is not possible or desired, this
+variable may be omitted or set to False.
+env__router_on_net = True
 """
 
 net_set_up = False
@@ -150,6 +155,30 @@ def test_net_ping(u_boot_console):
 
     output = u_boot_console.run_command('ping $serverip')
     assert 'is alive' in output
+
+@pytest.mark.buildconfigspec('IPV6_ROUTER_DISCOVERY')
+def test_net_network_discovery(u_boot_console):
+    """Test the network discovery feature of IPv6.
+
+    An IPv6 network command (ping6 in this case) is run to make U-Boot send a
+    router solicitation packet, receive a router advertisement message, and
+    parse it.
+    A router advertisement service needs to be running for this test to succeed.
+    U-Boot receives the RA, processes it, and if successful, assigns the gateway
+    IP and prefix length.
+    The configuration is provided by the boardenv_* file; see the comment at
+    the beginning of this file.
+    """
+
+    router_on_net = u_boot_console.config.env.get('env__router_on_net', False)
+    if not router_on_net:
+        pytest.skip('No router on network')
+
+    fake_host_ip = 'fe80::215:5dff:fef6:2ec6'
+    output = u_boot_console.run_command('ping6 ' + fake_host_ip)
+    assert 'ROUTER SOLICITATION 1' in output
+    assert 'Set gatewayip6:' in output
+    assert '0000:0000:0000:0000:0000:0000:0000:0000' not in output
 
 @pytest.mark.buildconfigspec('cmd_net')
 def test_net_tftpboot(u_boot_console):
