@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <env.h>
 #include <lmb.h>
+#include <mapmem.h>
 #include <net.h>
 #include <video.h>
 #include <vsprintf.h>
@@ -128,8 +129,8 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		print_eth(0);
 		printf("IP addr     = %s\n", env_get("ipaddr"));
 	}
-	bdinfo_print_num_l("fdt_blob", (ulong)gd->fdt_blob);
-	bdinfo_print_num_l("new_fdt", (ulong)gd->new_fdt);
+	bdinfo_print_num_l("fdt_blob", (ulong)map_to_sysmem(gd->fdt_blob));
+	bdinfo_print_num_l("new_fdt", (ulong)map_to_sysmem(gd->new_fdt));
 	bdinfo_print_num_l("fdt_size", (ulong)gd->fdt_size);
 	if (IS_ENABLED(CONFIG_VIDEO))
 		show_video_info();
