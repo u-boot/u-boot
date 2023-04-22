@@ -1761,7 +1761,7 @@ ifeq ($(CONFIG_KALLSYMS),y)
 endif
 
 ifeq ($(CONFIG_RISCV),y)
-	@tools/prelink-riscv $@ 0
+	@tools/prelink-riscv $@
 endif
 
 quiet_cmd_sym ?= SYM     $@

@@ -250,9 +250,10 @@ spl_secondary_hart_stack_gd_setup:
 spl_call_board_init_r:
 	mv	a0, zero
 	mv	a1, zero
-	jal	board_init_r
+	j	board_init_r
 #endif
 
+#if !defined(CONFIG_SPL_BUILD)
 /*
  * void relocate_code(addr_sp, gd, addr_moni)
  *
@@ -283,9 +284,7 @@ stack_setup:
 	beq	t0, s4, clear_bss	/* skip relocation */
 
 	mv	t1, s4			/* t1 <- scratch for copy_loop */
-	la	t3, __bss_start
-	sub	t3, t3, t0		/* t3 <- __bss_start_ofs */
-	add	t2, t0, t3		/* t2 <- source end address */
+	la	t2, __bss_start		/* t2 <- source end address */
 
 copy_loop:
 	LREG	t5, 0(t0)
@@ -304,17 +303,12 @@ fix_rela_dyn:
 	add	t1, t1, t6		/* t1 <- rela_dyn_start in RAM */
 	add	t2, t2, t6		/* t2 <- rela_dyn_end in RAM */
 
-/*
- * skip first reserved entry: address, type, addend
- */
-	j	10f
-
 6:
-	LREG	t5, -(REGBYTES*2)(t1)	/* t5 <-- relocation info:type */
+	LREG	t5, REGBYTES(t1)	/* t5 <-- relocation info:type */
 	li	t3, R_RISCV_RELATIVE	/* reloc type R_RISCV_RELATIVE */
 	bne	t5, t3, 8f		/* skip non-RISCV_RELOC entries */
-	LREG	t3, -(REGBYTES*3)(t1)
-	LREG	t5, -(REGBYTES)(t1)	/* t5 <-- addend */
+	LREG	t3, 0(t1)
+	LREG	t5, (REGBYTES * 2)(t1)	/* t5 <-- addend */
 	add	t5, t5, t6		/* t5 <-- location to fix up in RAM */
 	add	t3, t3, t6		/* t3 <-- location to fix up in RAM */
 	SREG	t5, 0(t3)
@@ -325,25 +319,24 @@ fix_rela_dyn:
 	add	t4, t4, t6
 
 9:
-	LREG	t5, -(REGBYTES*2)(t1)	/* t5 <-- relocation info:type */
 	srli	t0, t5, SYM_INDEX	/* t0 <--- sym table index */
 	andi	t5, t5, 0xFF		/* t5 <--- relocation type */
 	li	t3, RELOC_TYPE
 	bne	t5, t3, 10f		/* skip non-addned entries */
 
-	LREG	t3, -(REGBYTES*3)(t1)
+	LREG	t3, 0(t1)
 	li	t5, SYM_SIZE
 	mul	t0, t0, t5
 	add	s5, t4, t0
-	LREG	t0, -(REGBYTES)(t1)	/* t0 <-- addend */
+	LREG	t0, (REGBYTES * 2)(t1)	/* t0 <-- addend */
 	LREG	t5, REGBYTES(s5)
 	add	t5, t5, t0
 	add	t5, t5, t6		/* t5 <-- location to fix up in RAM */
 	add	t3, t3, t6		/* t3 <-- location to fix up in RAM */
 	SREG	t5, 0(t3)
 10:
-	addi	t1, t1, (REGBYTES*3)
-	ble	t1, t2, 6b
+	addi	t1, t1, (REGBYTES * 3)
+	blt	t1, t2, 6b
 
 /*
  * trap update
@@ -408,6 +401,7 @@ call_board_init_r:
  * jump to it ...
  */
 	jr	t4			/* jump to board_init_r() */
+#endif /* !defined(CONFIG_SPL_BUILD) */
 
 #if CONFIG_IS_ENABLED(SMP)
 hart_out_of_bounds_loop:

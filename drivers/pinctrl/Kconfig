@@ -359,5 +359,6 @@ source "drivers/pinctrl/renesas/Kconfig"
 source "drivers/pinctrl/rockchip/Kconfig"
 source "drivers/pinctrl/sunxi/Kconfig"
 source "drivers/pinctrl/uniphier/Kconfig"
+source "drivers/pinctrl/starfive/Kconfig"
 
 endmenu

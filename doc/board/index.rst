@@ -40,6 +40,7 @@ Board-specific doc
    sipeed/index
    socionext/index
    st/index
+   starfive/index
    ste/index
    tbs/index
    ti/index

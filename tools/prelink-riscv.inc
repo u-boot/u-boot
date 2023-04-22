@@ -30,7 +30,7 @@
 #define cpu_to_target32 CONCAT3(cpu_to_, PRELINK_BYTEORDER, 32)
 #define cpu_to_target64 CONCAT3(cpu_to_, PRELINK_BYTEORDER, 64)
 
-static void* get_offset_bonn (void* data, Elf_Phdr* phdrs, size_t phnum, Elf_Addr addr)
+static void *get_offset_bonn(void *data, Elf_Phdr *phdrs, size_t phnum, Elf_Addr addr)
 {
 	Elf_Phdr *p;
 
@@ -67,13 +67,13 @@ static void prelink_bonn(void *data)
 	Elf_Rela *rela_dyn = NULL;
 	size_t rela_count = 0;
 	Elf_Sym *dynsym = NULL;
-	for (dyn = dyns;; ++dyn) {
+	for (dyn = dyns; ; ++dyn) {
 		if (targetnn_to_cpu(dyn->d_tag) == DT_NULL)
 			break;
 		else if (targetnn_to_cpu(dyn->d_tag) == DT_RELA)
 			rela_dyn = get_offset_bonn(data, phdrs, target16_to_cpu(ehdr->e_phnum), + targetnn_to_cpu(dyn->d_un.d_ptr));
 		else if (targetnn_to_cpu(dyn->d_tag) == DT_RELASZ)
-		  rela_count = targetnn_to_cpu(dyn->d_un.d_val) / sizeof(Elf_Rela);
+			rela_count = targetnn_to_cpu(dyn->d_un.d_val) / sizeof(Elf_Rela);
 		else if (targetnn_to_cpu(dyn->d_tag) == DT_SYMTAB)
 			dynsym = get_offset_bonn(data, phdrs, target16_to_cpu(ehdr->e_phnum), + targetnn_to_cpu(dyn->d_un.d_ptr));
 
@@ -92,11 +92,11 @@ static void prelink_bonn(void *data)
 			continue;
 
 		if (ELF_R_TYPE(targetnn_to_cpu(r->r_info)) == R_RISCV_RELATIVE)
-			*((uintnn_t*) buf) = r->r_addend;
+			*((uintnn_t *)buf) = r->r_addend;
 		else if (ELF_R_TYPE(targetnn_to_cpu(r->r_info)) == R_RISCV_32)
-			*((uint32_t*) buf) = cpu_to_target32(targetnn_to_cpu(dynsym[ELF_R_SYM(targetnn_to_cpu(r->r_info))].st_value) + targetnn_to_cpu(r->r_addend));
+			*((uint32_t *)buf) = cpu_to_target32(targetnn_to_cpu(dynsym[ELF_R_SYM(targetnn_to_cpu(r->r_info))].st_value) + targetnn_to_cpu(r->r_addend));
 		else if (ELF_R_TYPE(targetnn_to_cpu(r->r_info)) == R_RISCV_64)
-			*((uint64_t*) buf) = cpu_to_target64(targetnn_to_cpu(dynsym[ELF_R_SYM(targetnn_to_cpu(r->r_info))].st_value) + targetnn_to_cpu(r->r_addend));
+			*((uint64_t *)buf) = cpu_to_target64(targetnn_to_cpu(dynsym[ELF_R_SYM(targetnn_to_cpu(r->r_info))].st_value) + targetnn_to_cpu(r->r_addend));
 	}
 }
 
