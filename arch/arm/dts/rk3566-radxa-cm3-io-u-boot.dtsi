@@ -16,3 +16,7 @@
 	bootph-all;
 	status = "okay";
 };
+
+&vcc5v0_usb30 {
+	regulator-boot-on;
+};

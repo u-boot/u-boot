@@ -119,7 +119,7 @@ config ROCKCHIP_RK322X
 config ROCKCHIP_RK3288
 	bool "Support Rockchip RK3288"
 	select CPU_V7A
-	select OF_BOARD_SETUP
+	select OF_SYSTEM_SETUP
 	select SKIP_LOWLEVEL_INIT_ONLY
 	select SUPPORT_SPL
 	select SPL
@@ -288,7 +288,9 @@ config ROCKCHIP_RK3568
 	select BOARD_LATE_INIT
 	select DM_REGULATOR_FIXED
 	select DM_RESET
+	imply SPL_ATF_NO_PLATFORM_PARAM if SPL_ATF
 	imply ROCKCHIP_COMMON_BOARD
+	imply OF_LIBFDT_OVERLAY
 	imply ROCKCHIP_OTP
 	imply MISC_INIT_R
 	help
@@ -309,9 +311,13 @@ config ROCKCHIP_RK3588
 	select REGMAP
 	select SYSCON
 	select BOARD_LATE_INIT
+	imply SPL_ATF_NO_PLATFORM_PARAM if SPL_ATF
 	imply ROCKCHIP_COMMON_BOARD
+	imply OF_LIBFDT_OVERLAY
 	imply ROCKCHIP_OTP
 	imply MISC_INIT_R
+	imply CLK_SCMI
+	imply SCMI_FIRMWARE
 	help
 	  The Rockchip RK3588 is a ARM-based SoC with quad-core Cortex-A76 and
 	  quad-core Cortex-A55 including NEON and GPU, 6TOPS NPU, Mali-G610 MP4,
@@ -428,7 +434,7 @@ config TPL_ROCKCHIP_COMMON_BOARD
 
 config ROCKCHIP_EXTERNAL_TPL
 	bool "Use external TPL binary"
-	default y if ROCKCHIP_RK3568
+	default y if ROCKCHIP_RK3568 || ROCKCHIP_RK3588
 	help
 	  Some Rockchip SoCs require an external TPL to initialize DRAM.
 	  Enable this option and build with ROCKCHIP_TPL=/path/to/ddr.bin to

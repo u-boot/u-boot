@@ -198,21 +198,6 @@
 		/* Faux input supply.  See bt_regulator description. */
 		vin-supply = <&bt_regulator>;
 	};
-
-	io-domains {
-		compatible = "rockchip,rk3288-io-voltage-domain";
-		rockchip,grf = <&grf>;
-
-		audio-supply = <&vcc18_codec>;
-		bb-supply = <&vcc33_io>;
-		dvp-supply = <&vcc_18>;
-		flash0-supply = <&vcc18_flashio>;
-		gpio1830-supply = <&vcc33_io>;
-		gpio30-supply = <&vcc33_io>;
-		lcdc-supply = <&vcc33_lcd>;
-		sdcard-supply = <&vccio_sd>;
-		wifi-supply = <&vcc18_wl>;
-	};
 };
 
 &cpu0 {
@@ -501,6 +486,19 @@
 	status = "okay";
 	clock-names = "i2s_hclk", "i2s_clk", "i2s_clk_out";
 	clocks = <&cru HCLK_I2S0>, <&cru SCLK_I2S0>, <&cru SCLK_I2S0_OUT>;
+};
+
+&io_domains {
+	audio-supply = <&vcc18_codec>;
+	bb-supply = <&vcc33_io>;
+	dvp-supply = <&vcc_18>;
+	flash0-supply = <&vcc18_flashio>;
+	gpio1830-supply = <&vcc33_io>;
+	gpio30-supply = <&vcc33_io>;
+	lcdc-supply = <&vcc33_lcd>;
+	sdcard-supply = <&vccio_sd>;
+	wifi-supply = <&vcc18_wl>;
+	status = "okay";
 };
 
 &wdt {

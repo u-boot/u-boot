@@ -91,6 +91,7 @@ List of mainline supported Rockchip boards:
      - Rockchip Evb-RK3568 (evb-rk3568)
 
 * rk3588
+     - Rockchip EVB (evb-rk3588)
      - Edgeble Neural Compute Module 6 SoM - Neu6a (neu6a-io-rk3588)
      - Radxa ROCK 5B (rock5b-rk3588)
 
@@ -183,6 +184,15 @@ To build rk3568 boards:
         [or]export BL31=../rkbin/bin/rk35/rk3568_bl31_v1.34.elf
         export ROCKCHIP_TPL=../rkbin/bin/rk35/rk3568_ddr_1560MHz_v1.13.bin
         make evb-rk3568_defconfig
+        make CROSS_COMPILE=aarch64-linux-gnu-
+
+To build rk3588 boards:
+
+.. code-block:: bash
+
+        export BL31=../rkbin/bin/rk35/rk3588_bl31_v1.33.elf
+        export ROCKCHIP_TPL=../rkbin/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.09.bin
+        make evb-rk3588_defconfig
         make CROSS_COMPILE=aarch64-linux-gnu-
 
 Flashing
@@ -380,9 +390,8 @@ Program with commands in a bash script ./flash.sh:
 
         #!/bin/sh
 
-        printf "RK30" > tplspl.bin
-        dd if=u-boot-tpl.bin >> tplspl.bin
-        truncate -s %2048 tplspl.bin
+        printf "RK30" | dd conv=notrunc bs=4 count=1 of=u-boot-tpl.bin
+        truncate -s %2048 u-boot-tpl.bin
         truncate -s %2048 u-boot-spl.bin
         ../tools/boot_merger --verbose config-flash.ini
         ../tools/upgrade_tool ul ./RK30xxLoader_uboot.bin
@@ -406,7 +415,7 @@ config-flash.ini:
         NUM=2
         LOADER1=FlashData
         LOADER2=FlashBoot
-        FlashData=tplspl.bin
+        FlashData=u-boot-tpl.bin
         FlashBoot=u-boot-spl.bin
         [OUTPUT]
         PATH=RK30xxLoader_uboot.bin

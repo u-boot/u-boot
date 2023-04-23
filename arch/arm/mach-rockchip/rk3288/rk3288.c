@@ -138,7 +138,7 @@ static int ft_rk3288w_setup(void *blob)
 	return ret;
 }
 
-int ft_board_setup(void *blob, struct bd_info *bd)
+int ft_system_setup(void *blob, struct bd_info *bd)
 {
 	if (soc_is_rk3288w())
 		return ft_rk3288w_setup(blob);

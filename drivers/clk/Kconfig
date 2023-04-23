@@ -166,6 +166,14 @@ config CLK_SCMI
 	  by a SCMI agent based on SCMI clock protocol communication
 	  with a SCMI server.
 
+config SPL_CLK_SCMI
+	bool "Enable SCMI clock driver in SPL"
+	depends on SCMI_FIRMWARE && SPL_FIRMWARE
+	help
+	  Enable this option if you want to support clock devices exposed
+	  by a SCMI agent based on SCMI clock protocol communication
+	  with a SCMI server in SPL.
+
 config CLK_HSDK
 	bool "Enable cgu clock driver for HSDK boards"
 	depends on CLK && TARGET_HSDK

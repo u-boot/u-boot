@@ -47,50 +47,50 @@
 #define ARASAN_VENDOR_REGISTER		0x78
 #define ARASAN_VENDOR_ENHANCED_STROBE	BIT(0)
 
-/* DWC IP vendor area 1 pointer */
-#define DWCMSHC_P_VENDOR_AREA1		0xe8
-#define DWCMSHC_AREA1_MASK		GENMASK(11, 0)
-/* Offset inside the vendor area 1 */
-#define DWCMSHC_EMMC_CONTROL		0x2c
+/* Rockchip specific Registers */
+#define DWCMSHC_EMMC_EMMC_CTRL		0x52c
 #define DWCMSHC_CARD_IS_EMMC		BIT(0)
 #define DWCMSHC_ENHANCED_STROBE		BIT(8)
-
-/* Rockchip specific Registers */
 #define DWCMSHC_EMMC_DLL_CTRL		0x800
 #define DWCMSHC_EMMC_DLL_CTRL_RESET	BIT(1)
 #define DWCMSHC_EMMC_DLL_RXCLK		0x804
 #define DWCMSHC_EMMC_DLL_TXCLK		0x808
 #define DWCMSHC_EMMC_DLL_STRBIN		0x80c
-#define DECMSHC_EMMC_DLL_CMDOUT		0x810
+#define DWCMSHC_EMMC_DLL_CMDOUT		0x810
 #define DWCMSHC_EMMC_DLL_STATUS0	0x840
 #define DWCMSHC_EMMC_DLL_STATUS1	0x844
 #define DWCMSHC_EMMC_DLL_START		BIT(0)
-#define DWCMSHC_EMMC_DLL_RXCLK_SRCSEL	29
+#define DWCMSHC_EMMC_DLL_LOCKED		BIT(8)
+#define DWCMSHC_EMMC_DLL_TIMEOUT	BIT(9)
 #define DWCMSHC_EMMC_DLL_START_POINT	16
 #define DWCMSHC_EMMC_DLL_START_DEFAULT	5
 #define DWCMSHC_EMMC_DLL_INC_VALUE	2
 #define DWCMSHC_EMMC_DLL_INC		8
 #define DWCMSHC_EMMC_DLL_BYPASS		BIT(24)
 #define DWCMSHC_EMMC_DLL_DLYENA		BIT(27)
-#define DLL_TXCLK_TAPNUM_DEFAULT	0xA
-
-#define DLL_STRBIN_TAPNUM_DEFAULT	0x8
+#define DLL_RXCLK_NO_INVERTER		BIT(29)
+#define DLL_RXCLK_ORI_GATE		BIT(31)
+#define DLL_TXCLK_TAPNUM_DEFAULT	0x10
+#define DLL_TXCLK_TAPNUM_90_DEGREES	0x9
+#define DLL_TXCLK_TAPNUM_FROM_SW	BIT(24)
+#define DLL_TXCLK_NO_INVERTER		BIT(29)
+#define DLL_STRBIN_TAPNUM_DEFAULT	0x4
 #define DLL_STRBIN_TAPNUM_FROM_SW	BIT(24)
 #define DLL_STRBIN_DELAY_NUM_SEL	BIT(26)
 #define DLL_STRBIN_DELAY_NUM_OFFSET	16
-#define DLL_STRBIN_DELAY_NUM_DEFAULT	0x16
+#define DLL_STRBIN_DELAY_NUM_DEFAULT	0x10
+#define DLL_CMDOUT_TAPNUM_90_DEGREES	0x8
+#define DLL_CMDOUT_TAPNUM_FROM_SW	BIT(24)
+#define DLL_CMDOUT_SRC_CLK_NEG		BIT(28)
+#define DLL_CMDOUT_EN_SRC_CLK_NEG	BIT(29)
+#define DLL_CMDOUT_BOTH_CLK_EDGE	BIT(30)
 
-#define DLL_TXCLK_TAPNUM_FROM_SW	BIT(24)
-#define DWCMSHC_EMMC_DLL_LOCKED		BIT(8)
-#define DWCMSHC_EMMC_DLL_TIMEOUT	BIT(9)
-#define DLL_RXCLK_NO_INVERTER		1
-#define DLL_RXCLK_INVERTER		0
-#define DLL_RXCLK_ORI_GATE		BIT(31)
-#define DWCMSHC_ENHANCED_STROBE		BIT(8)
 #define DLL_LOCK_WO_TMOUT(x) \
 	((((x) & DWCMSHC_EMMC_DLL_LOCKED) == DWCMSHC_EMMC_DLL_LOCKED) && \
 	(((x) & DWCMSHC_EMMC_DLL_TIMEOUT) == 0))
 #define ROCKCHIP_MAX_CLKS		3
+
+#define FLAG_INVERTER_FLAG_IN_RXCLK	BIT(0)
 
 struct rockchip_sdhc_plat {
 	struct mmc_config cfg;
@@ -112,7 +112,6 @@ struct rockchip_sdhc {
 };
 
 struct sdhci_data {
-	int (*emmc_phy_init)(struct udevice *dev);
 	int (*get_phy)(struct udevice *dev);
 
 	/**
@@ -140,6 +139,9 @@ struct sdhci_data {
 	 */
 	int (*set_ios_post)(struct sdhci_host *host);
 
+	void (*set_clock)(struct sdhci_host *host, u32 div);
+	int (*config_dll)(struct sdhci_host *host, u32 clock, bool enable);
+
 	/**
 	 * set_enhanced_strobe() - Set HS400 Enhanced Strobe config
 	 *
@@ -152,12 +154,11 @@ struct sdhci_data {
 	 * Return: 0 if successful, -ve on error
 	 */
 	int (*set_enhanced_strobe)(struct sdhci_host *host);
-};
 
-static int rk3399_emmc_phy_init(struct udevice *dev)
-{
-	return 0;
-}
+	u32 flags;
+	u8 hs200_txclk_tapnum;
+	u8 hs400_txclk_tapnum;
+};
 
 static void rk3399_emmc_phy_power_on(struct rockchip_emmc_phy *phy, u32 clock)
 {
@@ -294,30 +295,27 @@ static int rk3399_sdhci_set_ios_post(struct sdhci_host *host)
 	return 0;
 }
 
-static int rk3568_emmc_phy_init(struct udevice *dev)
-{
-	struct rockchip_sdhc *prv = dev_get_priv(dev);
-	struct sdhci_host *host = &prv->host;
-	u32 extra;
-
-	extra = DLL_RXCLK_NO_INVERTER << DWCMSHC_EMMC_DLL_RXCLK_SRCSEL;
-	sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_RXCLK);
-
-	return 0;
-}
-
-static int rk3568_sdhci_emmc_set_clock(struct sdhci_host *host, unsigned int clock)
+static void rk3568_sdhci_set_clock(struct sdhci_host *host, u32 div)
 {
 	struct rockchip_sdhc *priv = container_of(host, struct rockchip_sdhc, host);
+	struct mmc *mmc = host->mmc;
+	ulong rate;
+
+	rate = clk_set_rate(&priv->emmc_clk, mmc->clock);
+	if (IS_ERR_VALUE(rate))
+		printf("%s: Set clock rate failed: %ld\n", __func__, (long)rate);
+}
+
+static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enable)
+{
+	struct rockchip_sdhc *priv = container_of(host, struct rockchip_sdhc, host);
+	struct sdhci_data *data = (struct sdhci_data *)dev_get_driver_data(priv->dev);
+	struct mmc *mmc = host->mmc;
 	int val, ret;
-	u32 extra;
+	u32 extra, txclk_tapnum;
 
-	if (clock > host->max_clk)
-		clock = host->max_clk;
-	if (clock)
-		clk_set_rate(&priv->emmc_clk, clock);
-
-	sdhci_set_clock(host->mmc, clock);
+	if (!enable)
+		return 0;
 
 	if (clock >= 100 * MHz) {
 		/* reset DLL */
@@ -337,13 +335,28 @@ static int rk3568_sdhci_emmc_set_clock(struct sdhci_host *host, unsigned int clo
 		if (ret)
 			return ret;
 
-		extra = DWCMSHC_EMMC_DLL_DLYENA |
-			DLL_RXCLK_NO_INVERTER << DWCMSHC_EMMC_DLL_RXCLK_SRCSEL;
+		extra = DWCMSHC_EMMC_DLL_DLYENA | DLL_RXCLK_ORI_GATE;
+		if (data->flags & FLAG_INVERTER_FLAG_IN_RXCLK)
+			extra |= DLL_RXCLK_NO_INVERTER;
 		sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_RXCLK);
 
+		txclk_tapnum = data->hs200_txclk_tapnum;
+		if (mmc->selected_mode == MMC_HS_400 ||
+		    mmc->selected_mode == MMC_HS_400_ES) {
+			txclk_tapnum = data->hs400_txclk_tapnum;
+
+			extra = DLL_CMDOUT_SRC_CLK_NEG |
+				DLL_CMDOUT_BOTH_CLK_EDGE |
+				DWCMSHC_EMMC_DLL_DLYENA |
+				DLL_CMDOUT_TAPNUM_90_DEGREES |
+				DLL_CMDOUT_TAPNUM_FROM_SW;
+			sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_CMDOUT);
+		}
+
 		extra = DWCMSHC_EMMC_DLL_DLYENA |
-			DLL_TXCLK_TAPNUM_DEFAULT |
-			DLL_TXCLK_TAPNUM_FROM_SW;
+			DLL_TXCLK_TAPNUM_FROM_SW |
+			DLL_TXCLK_NO_INVERTER |
+			txclk_tapnum;
 		sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_TXCLK);
 
 		extra = DWCMSHC_EMMC_DLL_DLYENA |
@@ -355,11 +368,11 @@ static int rk3568_sdhci_emmc_set_clock(struct sdhci_host *host, unsigned int clo
 		 * Disable DLL and reset both of sample and drive clock.
 		 * The bypass bit and start bit need to be set if DLL is not locked.
 		 */
-		sdhci_writel(host, DWCMSHC_EMMC_DLL_BYPASS | DWCMSHC_EMMC_DLL_START,
-			     DWCMSHC_EMMC_DLL_CTRL);
+		extra = DWCMSHC_EMMC_DLL_BYPASS | DWCMSHC_EMMC_DLL_START;
+		sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_CTRL);
 		sdhci_writel(host, DLL_RXCLK_ORI_GATE, DWCMSHC_EMMC_DLL_RXCLK);
-		sdhci_writel(host, 0, DECMSHC_EMMC_DLL_CMDOUT);
 		sdhci_writel(host, 0, DWCMSHC_EMMC_DLL_TXCLK);
+		sdhci_writel(host, 0, DWCMSHC_EMMC_DLL_CMDOUT);
 		/*
 		 * Before switching to hs400es mode, the driver will enable
 		 * enhanced strobe first. PHY needs to configure the parameters
@@ -374,56 +387,54 @@ static int rk3568_sdhci_emmc_set_clock(struct sdhci_host *host, unsigned int clo
 	return 0;
 }
 
-static int rk3568_emmc_get_phy(struct udevice *dev)
-{
-	return 0;
-}
-
-static int rk3568_sdhci_set_enhanced_strobe(struct sdhci_host *host)
-{
-	struct mmc *mmc = host->mmc;
-	u32 vendor;
-	int reg;
-
-	reg = (sdhci_readl(host, DWCMSHC_P_VENDOR_AREA1) & DWCMSHC_AREA1_MASK)
-	      + DWCMSHC_EMMC_CONTROL;
-
-	vendor = sdhci_readl(host, reg);
-	if (mmc->selected_mode == MMC_HS_400_ES)
-		vendor |= DWCMSHC_ENHANCED_STROBE;
-	else
-		vendor &= ~DWCMSHC_ENHANCED_STROBE;
-	sdhci_writel(host, vendor, reg);
-
-	return 0;
-}
-
 static int rk3568_sdhci_set_ios_post(struct sdhci_host *host)
 {
 	struct mmc *mmc = host->mmc;
-	uint clock = mmc->tran_speed;
-	u32 reg, vendor_reg;
+	u32 reg;
 
-	if (!clock)
-		clock = mmc->clock;
+	reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
+	reg &= ~SDHCI_CTRL_UHS_MASK;
 
-	rk3568_sdhci_emmc_set_clock(host, clock);
-
-	if (mmc->selected_mode == MMC_HS_400 || mmc->selected_mode == MMC_HS_400_ES) {
-		reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
-		reg &= ~SDHCI_CTRL_UHS_MASK;
+	switch (mmc->selected_mode) {
+	case UHS_SDR25:
+	case MMC_HS:
+	case MMC_HS_52:
+		reg |= SDHCI_CTRL_UHS_SDR25;
+		break;
+	case UHS_SDR50:
+		reg |= SDHCI_CTRL_UHS_SDR50;
+		break;
+	case UHS_DDR50:
+	case MMC_DDR_52:
+		reg |= SDHCI_CTRL_UHS_DDR50;
+		break;
+	case UHS_SDR104:
+	case MMC_HS_200:
+		reg |= SDHCI_CTRL_UHS_SDR104;
+		break;
+	case MMC_HS_400:
+	case MMC_HS_400_ES:
 		reg |= DWCMSHC_CTRL_HS400;
-		sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
-
-		vendor_reg = (sdhci_readl(host, DWCMSHC_P_VENDOR_AREA1) & DWCMSHC_AREA1_MASK)
-			     + DWCMSHC_EMMC_CONTROL;
-		/* set CARD_IS_EMMC bit to enable Data Strobe for HS400 */
-		reg = sdhci_readw(host, vendor_reg);
-		reg |= DWCMSHC_CARD_IS_EMMC;
-		sdhci_writew(host, reg, vendor_reg);
-	} else {
-		sdhci_set_uhs_timing(host);
+		break;
+	default:
+		reg |= SDHCI_CTRL_UHS_SDR12;
 	}
+
+	sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
+
+	reg = sdhci_readw(host, DWCMSHC_EMMC_EMMC_CTRL);
+
+	if (IS_MMC(mmc))
+		reg |= DWCMSHC_CARD_IS_EMMC;
+	else
+		reg &= ~DWCMSHC_CARD_IS_EMMC;
+
+	if (mmc->selected_mode == MMC_HS_400_ES)
+		reg |= DWCMSHC_ENHANCED_STROBE;
+	else
+		reg &= ~DWCMSHC_ENHANCED_STROBE;
+
+	sdhci_writew(host, reg, DWCMSHC_EMMC_EMMC_CTRL);
 
 	return 0;
 }
@@ -448,23 +459,32 @@ static int rockchip_sdhci_set_ios_post(struct sdhci_host *host)
 	return 0;
 }
 
+static void rockchip_sdhci_set_clock(struct sdhci_host *host, u32 div)
+{
+	struct rockchip_sdhc *priv = container_of(host, struct rockchip_sdhc, host);
+	struct sdhci_data *data = (struct sdhci_data *)dev_get_driver_data(priv->dev);
+
+	if (data->set_clock)
+		data->set_clock(host, div);
+}
+
 static int rockchip_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 {
-	struct sdhci_host *host = dev_get_priv(mmc->dev);
+	struct rockchip_sdhc *priv = dev_get_priv(mmc->dev);
+	struct sdhci_host *host = &priv->host;
 	char tuning_loop_counter = SDHCI_TUNING_LOOP_COUNT;
 	struct mmc_cmd cmd;
 	u32 ctrl, blk_size;
-	int ret = 0;
+	int ret;
 
 	ctrl = sdhci_readw(host, SDHCI_HOST_CONTROL2);
 	ctrl |= SDHCI_CTRL_EXEC_TUNING;
 	sdhci_writew(host, ctrl, SDHCI_HOST_CONTROL2);
 
 	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_INT_ENABLE);
-	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_SIGNAL_ENABLE);
 
 	blk_size = SDHCI_MAKE_BLKSZ(SDHCI_DEFAULT_BOUNDARY_ARG, 64);
-	if (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200 && host->mmc->bus_width == 8)
+	if (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200 && mmc->bus_width == 8)
 		blk_size = SDHCI_MAKE_BLKSZ(SDHCI_DEFAULT_BOUNDARY_ARG, 128);
 	sdhci_writew(host, blk_size, SDHCI_BLOCK_SIZE);
 	sdhci_writew(host, SDHCI_TRNS_READ, SDHCI_TRANSFER_MODE);
@@ -474,38 +494,37 @@ static int rockchip_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	cmd.cmdarg = 0;
 
 	do {
-		if (tuning_loop_counter-- == 0)
-			break;
-
-		mmc_send_cmd(mmc, &cmd, NULL);
-
-		if (opcode == MMC_CMD_SEND_TUNING_BLOCK)
-			/*
-			 * For tuning command, do not do busy loop. As tuning
-			 * is happening (CLK-DATA latching for setup/hold time
-			 * requirements), give time to complete
-			 */
-			udelay(1);
-
+		ret = mmc_send_cmd(mmc, &cmd, NULL);
 		ctrl = sdhci_readw(host, SDHCI_HOST_CONTROL2);
+		if (ret || tuning_loop_counter-- == 0)
+			break;
 	} while (ctrl & SDHCI_CTRL_EXEC_TUNING);
 
-	if (!(ctrl & SDHCI_CTRL_TUNED_CLK)) {
-		printf("%s:Tuning failed\n", __func__);
-		ret = -EIO;
-	}
+	if (ret || tuning_loop_counter < 0 || !(ctrl & SDHCI_CTRL_TUNED_CLK)) {
+		if (!ret)
+			ret = -EIO;
+		printf("%s: Tuning failed: %d\n", __func__, ret);
 
-	if (tuning_loop_counter < 0) {
 		ctrl &= ~SDHCI_CTRL_TUNED_CLK;
-		sdhci_writel(host, ctrl, SDHCI_HOST_CONTROL2);
+		ctrl &= ~SDHCI_CTRL_EXEC_TUNING;
+		sdhci_writew(host, ctrl, SDHCI_HOST_CONTROL2);
 	}
 
 	/* Enable only interrupts served by the SD controller */
 	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK, SDHCI_INT_ENABLE);
-	/* Mask all sdhci interrupt sources */
-	sdhci_writel(host, 0x0, SDHCI_SIGNAL_ENABLE);
 
 	return ret;
+}
+
+static int rockchip_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enable)
+{
+	struct rockchip_sdhc *priv = container_of(host, struct rockchip_sdhc, host);
+	struct sdhci_data *data = (struct sdhci_data *)dev_get_driver_data(priv->dev);
+
+	if (data->config_dll)
+		return data->config_dll(host, clock, enable);
+
+	return 0;
 }
 
 static int rockchip_sdhci_set_enhanced_strobe(struct sdhci_host *host)
@@ -516,13 +535,15 @@ static int rockchip_sdhci_set_enhanced_strobe(struct sdhci_host *host)
 	if (data->set_enhanced_strobe)
 		return data->set_enhanced_strobe(host);
 
-	return -ENOTSUPP;
+	return 0;
 }
 
 static struct sdhci_ops rockchip_sdhci_ops = {
-	.set_ios_post	= rockchip_sdhci_set_ios_post,
-	.platform_execute_tuning = &rockchip_sdhci_execute_tuning,
 	.set_control_reg = rockchip_sdhci_set_control_reg,
+	.set_ios_post = rockchip_sdhci_set_ios_post,
+	.set_clock = rockchip_sdhci_set_clock,
+	.platform_execute_tuning = rockchip_sdhci_execute_tuning,
+	.config_dll = rockchip_sdhci_config_dll,
 	.set_enhanced_strobe = rockchip_sdhci_set_enhanced_strobe,
 };
 
@@ -531,9 +552,9 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 	struct sdhci_data *data = (struct sdhci_data *)dev_get_driver_data(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct rockchip_sdhc_plat *plat = dev_get_plat(dev);
-	struct rockchip_sdhc *prv = dev_get_priv(dev);
+	struct rockchip_sdhc *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
-	struct sdhci_host *host = &prv->host;
+	struct sdhci_host *host = &priv->host;
 	struct clk clk;
 	int ret;
 
@@ -547,17 +568,11 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 		printf("%s fail to get clk\n", __func__);
 	}
 
-	prv->emmc_clk = clk;
-	prv->dev = dev;
+	priv->emmc_clk = clk;
+	priv->dev = dev;
 
 	if (data->get_phy) {
 		ret = data->get_phy(dev);
-		if (ret)
-			return ret;
-	}
-
-	if (data->emmc_phy_init) {
-		ret = data->emmc_phy_init(dev);
 		if (ret)
 			return ret;
 	}
@@ -566,7 +581,7 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD;
 
 	host->mmc = &plat->mmc;
-	host->mmc->priv = &prv->host;
+	host->mmc->priv = &priv->host;
 	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
 
@@ -574,14 +589,23 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	/*
+	 * Reading more than 4 blocks with a single CMD18 command in PIO mode
+	 * triggers Data End Bit Error on RK3568 and RK3588. Limit to reading
+	 * max 4 blocks in one command when using PIO mode.
+	 */
+	if (!(host->flags & USE_DMA))
+		cfg->b_max = 4;
+
 	return sdhci_probe(dev);
 }
 
 static int rockchip_sdhci_of_to_plat(struct udevice *dev)
 {
 	struct rockchip_sdhc_plat *plat = dev_get_plat(dev);
-	struct sdhci_host *host = dev_get_priv(dev);
+	struct rockchip_sdhc *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
+	struct sdhci_host *host = &priv->host;
 	int ret;
 
 	host->name = dev->name;
@@ -603,17 +627,26 @@ static int rockchip_sdhci_bind(struct udevice *dev)
 
 static const struct sdhci_data rk3399_data = {
 	.get_phy = rk3399_emmc_get_phy,
-	.emmc_phy_init = rk3399_emmc_phy_init,
 	.set_control_reg = rk3399_sdhci_set_control_reg,
 	.set_ios_post = rk3399_sdhci_set_ios_post,
 	.set_enhanced_strobe = rk3399_sdhci_set_enhanced_strobe,
 };
 
 static const struct sdhci_data rk3568_data = {
-	.get_phy = rk3568_emmc_get_phy,
-	.emmc_phy_init = rk3568_emmc_phy_init,
 	.set_ios_post = rk3568_sdhci_set_ios_post,
-	.set_enhanced_strobe = rk3568_sdhci_set_enhanced_strobe,
+	.set_clock = rk3568_sdhci_set_clock,
+	.config_dll = rk3568_sdhci_config_dll,
+	.flags = FLAG_INVERTER_FLAG_IN_RXCLK,
+	.hs200_txclk_tapnum = DLL_TXCLK_TAPNUM_DEFAULT,
+	.hs400_txclk_tapnum = DLL_TXCLK_TAPNUM_DEFAULT,
+};
+
+static const struct sdhci_data rk3588_data = {
+	.set_ios_post = rk3568_sdhci_set_ios_post,
+	.set_clock = rk3568_sdhci_set_clock,
+	.config_dll = rk3568_sdhci_config_dll,
+	.hs200_txclk_tapnum = DLL_TXCLK_TAPNUM_DEFAULT,
+	.hs400_txclk_tapnum = DLL_TXCLK_TAPNUM_90_DEGREES,
 };
 
 static const struct udevice_id sdhci_ids[] = {
@@ -624,6 +657,10 @@ static const struct udevice_id sdhci_ids[] = {
 	{
 		.compatible = "rockchip,rk3568-dwcmshc",
 		.data = (ulong)&rk3568_data,
+	},
+	{
+		.compatible = "rockchip,rk3588-dwcmshc",
+		.data = (ulong)&rk3588_data,
 	},
 	{ }
 };
