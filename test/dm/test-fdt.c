@@ -617,6 +617,7 @@ static int dm_test_fdt_get_addr_ptr_flat(struct unit_test_state *uts)
 {
 	struct udevice *gpio, *dev;
 	void *ptr;
+	void *paddr;
 
 	/* Test for missing reg property */
 	ut_assertok(uclass_first_device_err(UCLASS_GPIO, &gpio));
@@ -624,7 +625,9 @@ static int dm_test_fdt_get_addr_ptr_flat(struct unit_test_state *uts)
 
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, &dev));
 	ptr = devfdt_get_addr_ptr(dev);
-	ut_asserteq_ptr((void *)0x8000, ptr);
+
+	paddr = map_sysmem(0x8000, 0);
+	ut_asserteq_ptr(paddr, ptr);
 
 	return 0;
 }
