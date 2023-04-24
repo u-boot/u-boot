@@ -174,6 +174,8 @@ int bootdev_find_in_blk(struct udevice *dev, struct udevice *blk,
 	} else {
 		ret = fs_set_blk_dev_with_part(desc, bflow->part);
 		bflow->state = BOOTFLOWST_PART;
+		if (ret)
+			return log_msg_ret("fs", ret);
 
 		/* Use an #ifdef due to info.sys_ind */
 #ifdef CONFIG_DOS_PARTITION
@@ -181,8 +183,7 @@ int bootdev_find_in_blk(struct udevice *dev, struct udevice *blk,
 			  blk->name, bflow->part, info.sys_ind,
 			  ret ? -1 : fs_get_type());
 #endif
-		if (ret)
-			return log_msg_ret("fs", ret);
+		bflow->blk = blk;
 		bflow->state = BOOTFLOWST_FS;
 	}
 
