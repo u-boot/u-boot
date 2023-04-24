@@ -357,7 +357,7 @@ config SYS_ARM_ARCH
 
 choice
 	prompt "Select the ARM data write cache policy"
-	default SYS_ARM_CACHE_WRITETHROUGH if TARGET_BCMCYGNUS || RZA1
+	default SYS_ARM_CACHE_WRITETHROUGH if TARGET_BCMCYGNUS || TARGET_BCMNS || RZA1
 	default SYS_ARM_CACHE_WRITEBACK
 
 config SYS_ARM_CACHE_WRITEBACK
@@ -670,6 +670,25 @@ config TARGET_BCMCYGNUS
 	imply FAT_WRITE
 	imply HASH_VERIFY
 	imply NETDEVICES
+
+config TARGET_BCMNS
+	bool "Support Broadcom Northstar"
+	select CPU_V7A
+	select DM
+	select DM_GPIO
+	select DM_SERIAL
+	select OF_CONTROL
+	select TIMER
+	select SYS_NS16550
+	select ARM_GLOBAL_TIMER
+	imply SYS_THUMB_BUILD
+	imply MTD_RAW_NAND
+	imply NAND_BRCMNAND
+	imply NAND_BRCMNAND_IPROC
+	help
+	  Support for Broadcom Northstar SoCs. NS is a dual-core 32-bit
+	  ARMv7 Cortex-A9 SoC family including BCM4708, BCM47094,
+	  BCM5301x etc.
 
 config TARGET_BCMNS2
 	bool "Support Broadcom Northstar2"
