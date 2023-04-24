@@ -13,11 +13,7 @@
 
 #ifndef CONFIG_SPL_BUILD
 
-#ifdef CONFIG_ROCKCHIP_RK3399
 #define BOOT_TARGETS	"mmc1 mmc0 nvme scsi usb pxe dhcp spi"
-#else
-#define BOOT_TARGETS	"mmc1 mmc0 usb pxe dhcp"
-#endif
 
 #ifdef CONFIG_ARM64
 #define ROOT_UUID "B921B045-1DF0-41C3-AF44-4C6F280D3FAE;\0"
