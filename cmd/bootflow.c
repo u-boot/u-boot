@@ -181,6 +181,9 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (list)
 		show_footer(i, num_valid);
 
+	if (IS_ENABLED(CONFIG_CMD_BOOTFLOW_FULL) && !num_valid && !list)
+		printf("No bootflows found; try again with -l\n");
+
 	return 0;
 }
 
