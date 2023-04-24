@@ -94,7 +94,7 @@ static int get_efi_pxe_vci(char *str, int max_len)
 	return 0;
 }
 
-static int efiload_read_file(struct blk_desc *desc, struct bootflow *bflow)
+static void set_efi_bootdev(struct blk_desc *desc, struct bootflow *bflow)
 {
 	const struct udevice *media_dev;
 	int size = bflow->size;
@@ -102,11 +102,6 @@ static int efiload_read_file(struct blk_desc *desc, struct bootflow *bflow)
 	char devnum_str[9];
 	char dirname[200];
 	char *last_slash;
-	int ret;
-
-	ret = bootmeth_alloc_file(bflow, 0x2000000, 0x10000);
-	if (ret)
-		return log_msg_ret("read", ret);
 
 	/*
 	 * This is a horrible hack to tell EFI about this boot device. Once we
@@ -117,7 +112,8 @@ static int efiload_read_file(struct blk_desc *desc, struct bootflow *bflow)
 	 * this can go away.
 	 */
 	media_dev = dev_get_parent(bflow->dev);
-	snprintf(devnum_str, sizeof(devnum_str), "%x", dev_seq(media_dev));
+	snprintf(devnum_str, sizeof(devnum_str), "%x:%x", dev_seq(media_dev),
+		 bflow->part);
 
 	strlcpy(dirname, bflow->fname, sizeof(dirname));
 	last_slash = strrchr(dirname, '/');
@@ -130,6 +126,15 @@ static int efiload_read_file(struct blk_desc *desc, struct bootflow *bflow)
 	dev_name = device_get_uclass_id(media_dev) == UCLASS_MASS_STORAGE ?
 		 "usb" : dev_get_uclass_name(media_dev);
 	efi_set_bootdev(dev_name, devnum_str, bflow->fname, bflow->buf, size);
+}
+
+static int efiload_read_file(struct blk_desc *desc, struct bootflow *bflow)
+{
+	int ret;
+
+	ret = bootmeth_alloc_file(bflow, 0x2000000, 0x10000);
+	if (ret)
+		return log_msg_ret("read", ret);
 
 	return 0;
 }
@@ -373,6 +378,13 @@ int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 
 	/* A non-zero buffer indicates the kernel is there */
 	if (bflow->buf) {
+		/* Set the EFI bootdev again, since reading an FDT loses it! */
+		if (bflow->blk) {
+			struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
+
+			set_efi_bootdev(desc, bflow);
+		}
+
 		kernel = (ulong)map_to_sysmem(bflow->buf);
 
 		/*
