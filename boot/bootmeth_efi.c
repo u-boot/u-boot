@@ -235,21 +235,21 @@ static int distro_efi_read_bootflow_file(struct udevice *dev,
 
 	/* try the various available names */
 	ret = -ENOENT;
-	for (seq = 0; ret; seq++) {
+	*fname = '\0';
+	for (seq = 0; ret == -ENOENT; seq++) {
 		ret = distro_efi_get_fdt_name(fname, sizeof(fname), seq);
-		if (ret == -EALREADY) {
+		if (ret == -EALREADY)
 			bflow->flags = BOOTFLOWF_USE_PRIOR_FDT;
-			break;
-		}
-		if (ret)
-			return log_msg_ret("nam", ret);
-		ret = bootmeth_common_read_file(dev, bflow, fname, fdt_addr,
-						&size);
+		if (!ret)
+			ret = bootmeth_common_read_file(dev, bflow, fname,
+							fdt_addr, &size);
 	}
 
-	bflow->fdt_fname = strdup(fname);
-	if (!bflow->fdt_fname)
-		return log_msg_ret("fil", -ENOMEM);
+	if (*fname) {
+		bflow->fdt_fname = strdup(fname);
+		if (!bflow->fdt_fname)
+			return log_msg_ret("fil", -ENOMEM);
+	}
 
 	if (!ret) {
 		bflow->fdt_size = size;
