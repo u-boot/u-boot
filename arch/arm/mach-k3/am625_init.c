@@ -9,7 +9,7 @@
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/sysfw-loader.h>
+#include "sysfw-loader.h"
 #include "common.h"
 #include <dm.h>
 #include <dm/uclass-internal.h>

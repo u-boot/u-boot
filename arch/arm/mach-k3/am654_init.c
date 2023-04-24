@@ -13,8 +13,7 @@
 #include <asm/io.h>
 #include <spl.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/sysfw-loader.h>
-#include <asm/arch/sys_proto.h>
+#include "sysfw-loader.h"
 #include "common.h"
 #include <dm.h>
 #include <dm/uclass-internal.h>
@@ -245,8 +244,8 @@ void board_init_f(ulong dummy)
 	/* Output System Firmware version info */
 	k3_sysfw_print_ver();
 
-	if (IS_ENABLED(CONFIG_K3_BOARD_DETECT))
-		do_board_detect();
+	/* Perform board detection */
+	do_board_detect();
 
 #if defined(CONFIG_CPU_V7R) && defined(CONFIG_K3_AVS0)
 	ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(k3_avs),
@@ -353,54 +352,3 @@ u32 spl_boot_device(void)
 	else
 		return __get_backup_bootmedia(devstat);
 }
-
-#ifdef CONFIG_SYS_K3_SPL_ATF
-
-#define AM6_DEV_MCU_RTI0			134
-#define AM6_DEV_MCU_RTI1			135
-#define AM6_DEV_MCU_ARMSS0_CPU0			159
-#define AM6_DEV_MCU_ARMSS0_CPU1			245
-
-void release_resources_for_core_shutdown(void)
-{
-	struct ti_sci_handle *ti_sci = get_ti_sci_handle();
-	struct ti_sci_dev_ops *dev_ops = &ti_sci->ops.dev_ops;
-	struct ti_sci_proc_ops *proc_ops = &ti_sci->ops.proc_ops;
-	int ret;
-	u32 i;
-
-	const u32 put_device_ids[] = {
-		AM6_DEV_MCU_RTI0,
-		AM6_DEV_MCU_RTI1,
-	};
-
-	/* Iterate through list of devices to put (shutdown) */
-	for (i = 0; i < ARRAY_SIZE(put_device_ids); i++) {
-		u32 id = put_device_ids[i];
-
-		ret = dev_ops->put_device(ti_sci, id);
-		if (ret)
-			panic("Failed to put device %u (%d)\n", id, ret);
-	}
-
-	const u32 put_core_ids[] = {
-		AM6_DEV_MCU_ARMSS0_CPU1,
-		AM6_DEV_MCU_ARMSS0_CPU0,	/* Handle CPU0 after CPU1 */
-	};
-
-	/* Iterate through list of cores to put (shutdown) */
-	for (i = 0; i < ARRAY_SIZE(put_core_ids); i++) {
-		u32 id = put_core_ids[i];
-
-		/*
-		 * Queue up the core shutdown request. Note that this call
-		 * needs to be followed up by an actual invocation of an WFE
-		 * or WFI CPU instruction.
-		 */
-		ret = proc_ops->proc_shutdown_no_wait(ti_sci, id);
-		if (ret)
-			panic("Failed sending core %u shutdown message (%d)\n",
-			      id, ret);
-	}
-}
-#endif

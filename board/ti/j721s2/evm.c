@@ -15,12 +15,10 @@
 #include <init.h>
 #include <log.h>
 #include <net.h>
-#include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <spl.h>
-#include <asm/arch/sys_proto.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <dm/root.h>
@@ -72,22 +70,6 @@ int dram_init_banksize(void)
 
 	return 0;
 }
-
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-int ft_board_setup(void *blob, struct bd_info *bd)
-{
-	int ret;
-
-	ret = fdt_fixup_msmc_ram(blob, "/bus@100000", "sram@70000000");
-	if (ret < 0)
-		ret = fdt_fixup_msmc_ram(blob, "/interconnect@100000",
-					 "sram@70000000");
-	if (ret)
-		printf("%s: fixing up msmc ram failed %d\n", __func__, ret);
-
-	return ret;
-}
-#endif
 
 #ifdef CONFIG_TI_I2C_BOARD_DETECT
 /*
@@ -208,66 +190,3 @@ int board_late_init(void)
 void spl_board_init(void)
 {
 }
-
-/* Support for the various EVM / SK families */
-#if defined(CONFIG_SPL_OF_LIST) && defined(CONFIG_TI_I2C_BOARD_DETECT)
-void do_dt_magic(void)
-{
-	int ret, rescan, mmc_dev = -1;
-	static struct mmc *mmc;
-
-	do_board_detect();
-
-	/*
-	 * Board detection has been done.
-	 * Let us see if another dtb wouldn't be a better match
-	 * for our board
-	 */
-	if (IS_ENABLED(CONFIG_CPU_V7R)) {
-		ret = fdtdec_resetup(&rescan);
-		if (!ret && rescan) {
-			dm_uninit();
-			dm_init_and_scan(true);
-		}
-	}
-
-	/*
-	 * Because of multi DTB configuration, the MMC device has
-	 * to be re-initialized after reconfiguring FDT inorder to
-	 * boot from MMC. Do this when boot mode is MMC and ROM has
-	 * not loaded SYSFW.
-	 */
-	switch (spl_boot_device()) {
-	case BOOT_DEVICE_MMC1:
-		mmc_dev = 0;
-		break;
-	case BOOT_DEVICE_MMC2:
-	case BOOT_DEVICE_MMC2_2:
-		mmc_dev = 1;
-		break;
-	}
-
-	if (mmc_dev > 0 && !check_rom_loaded_sysfw()) {
-		ret = mmc_init_device(mmc_dev);
-		if (!ret) {
-			mmc = find_mmc_device(mmc_dev);
-			if (mmc) {
-				ret = mmc_init(mmc);
-				if (ret)
-					printf("mmc init failed with error: %d\n", ret);
-			}
-		}
-	}
-}
-#endif
-
-#ifdef CONFIG_SPL_BUILD
-void board_init_f(ulong dummy)
-{
-	k3_spl_init();
-#if defined(CONFIG_SPL_OF_LIST) && defined(CONFIG_TI_I2C_BOARD_DETECT)
-	do_dt_magic();
-#endif
-	k3_mem_init();
-}
-#endif

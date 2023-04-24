@@ -1,12 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0-only
 /*
  * Device tree for LEGO MINDSTORMS EV3
  *
  * Copyright (C) 2017 David Lechner <david@lechnology.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
- *
- * This is an absolute minimum device tree instead of using the one from Linux
- * because the bootloader on the EV3 is limited to 256k. This saves us >10k.
  */
 
 /dts-v1/;
@@ -26,7 +22,7 @@
 		stdout-path = &serial1;
 	};
 
-	memory {
+	memory@c0000000 {
 		device_type = "memory";
 		reg = <0xc0000000 0x04000000>;
 	};

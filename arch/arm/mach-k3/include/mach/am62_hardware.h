@@ -57,4 +57,12 @@
 
 #define TI_SRAM_SCRATCH_BOARD_EEPROM_START	0x43c30000
 
+#if defined(CONFIG_SYS_K3_SPL_ATF) && !defined(__ASSEMBLY__)
+
+static const u32 put_device_ids[] = {};
+
+static const u32 put_core_ids[] = {};
+
+#endif
+
 #endif /* __ASM_ARCH_AM62_HARDWARE_H */

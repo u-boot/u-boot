@@ -38,4 +38,23 @@
 /* MCU SCRATCHPAD usage */
 #define TI_SRAM_SCRATCH_BOARD_EEPROM_START	CONFIG_SYS_K3_MCU_SCRATCHPAD_BASE
 
+#if defined(CONFIG_SYS_K3_SPL_ATF) && !defined(__ASSEMBLY__)
+
+#define J721E_DEV_MCU_RTI0			262
+#define J721E_DEV_MCU_RTI1			263
+#define J721E_DEV_MCU_ARMSS0_CPU0		250
+#define J721E_DEV_MCU_ARMSS0_CPU1		251
+
+static const u32 put_device_ids[] = {
+	J721E_DEV_MCU_RTI0,
+	J721E_DEV_MCU_RTI1,
+};
+
+static const u32 put_core_ids[] = {
+	J721E_DEV_MCU_ARMSS0_CPU1,
+	J721E_DEV_MCU_ARMSS0_CPU0,	/* Handle CPU0 after CPU1 */
+};
+
+#endif
+
 #endif /* __ASM_ARCH_J721E_HARDWARE_H */

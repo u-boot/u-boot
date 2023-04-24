@@ -1,9 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com/
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
  * Based on "omap4.dtsi"
  */
 
@@ -134,7 +132,7 @@
 	 * the moment, just use a fake OCP bus entry to represent the whole bus
 	 * hierarchy.
 	 */
-	ocp {
+	ocp: ocp {
 		compatible = "ti,dra7-l3-noc", "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -357,7 +355,13 @@
 			};
 		};
 
-		axi@1 {
+		/*
+		 * Register access seems to have complex dependencies and also
+		 * seems to need an enabled phy. See the TRM chapter for "Table
+		 * 26-678. Main Sequence PCIe Controller Global Initialization"
+		 * and also dra7xx_pcie_probe().
+		 */
+		axi1: target-module@51800000 {
 			compatible = "simple-bus";
 			#size-cells = <1>;
 			#address-cells = <1>;
@@ -372,8 +376,8 @@
 				#address-cells = <3>;
 				#size-cells = <2>;
 				device_type = "pci";
-				ranges = <0x81000000 0 0          0x03000 0 0x00010000
-					  0x82000000 0 0x30013000 0x13000 0 0xffed000>;
+				ranges = <0x81000000 0 0x00000000 0x30003000 0 0x00010000>,
+					 <0x82000000 0 0x30013000 0x30013000 0 0x0ffed000>;
 				bus-range = <0x00 0xff>;
 				#interrupt-cells = <1>;
 				num-lanes = <1>;
@@ -2112,4 +2116,4 @@
 	temperature = <120000>; /* milli Celsius */
 };
 
-/include/ "dra7xx-clocks.dtsi"
+#include "dra7xx-clocks.dtsi"

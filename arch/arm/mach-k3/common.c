@@ -19,7 +19,6 @@
 #include <asm/cache.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <fdt_support.h>
-#include <asm/arch/sys_proto.h>
 #include <asm/hardware.h>
 #include <asm/io.h>
 #include <fs_loader.h>
@@ -189,9 +188,37 @@ int load_firmware(char *name_fw, char *name_loadaddr, u32 *loadaddr)
 	return size;
 }
 
-__weak void release_resources_for_core_shutdown(void)
+void release_resources_for_core_shutdown(void)
 {
-	debug("%s not implemented...\n", __func__);
+	struct ti_sci_handle *ti_sci = get_ti_sci_handle();
+	struct ti_sci_dev_ops *dev_ops = &ti_sci->ops.dev_ops;
+	struct ti_sci_proc_ops *proc_ops = &ti_sci->ops.proc_ops;
+	int ret;
+	u32 i;
+
+	/* Iterate through list of devices to put (shutdown) */
+	for (i = 0; i < ARRAY_SIZE(put_device_ids); i++) {
+		u32 id = put_device_ids[i];
+
+		ret = dev_ops->put_device(ti_sci, id);
+		if (ret)
+			panic("Failed to put device %u (%d)\n", id, ret);
+	}
+
+	/* Iterate through list of cores to put (shutdown) */
+	for (i = 0; i < ARRAY_SIZE(put_core_ids); i++) {
+		u32 id = put_core_ids[i];
+
+		/*
+		 * Queue up the core shutdown request. Note that this call
+		 * needs to be followed up by an actual invocation of an WFE
+		 * or WFI CPU instruction.
+		 */
+		ret = proc_ops->proc_shutdown_no_wait(ti_sci, id);
+		if (ret)
+			panic("Failed sending core %u shutdown message (%d)\n",
+			      id, ret);
+	}
 }
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
@@ -226,6 +253,31 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	ret = rproc_load(1, fit_image_info[IMAGE_ID_ATF].image_start, 0x200);
 	if (ret)
 		panic("%s: ATF failed to load on rproc (%d)\n", __func__, ret);
+
+#if (CONFIG_IS_ENABLED(FIT_IMAGE_POST_PROCESS) && IS_ENABLED(CONFIG_SYS_K3_SPL_ATF))
+	/* Authenticate ATF */
+	void *image_addr = (void *)fit_image_info[IMAGE_ID_ATF].image_start;
+
+	debug("%s: Authenticating image: addr=%lx, size=%ld, os=%s\n", __func__,
+	      fit_image_info[IMAGE_ID_ATF].image_start,
+	      fit_image_info[IMAGE_ID_ATF].image_len,
+	      image_os_match[IMAGE_ID_ATF]);
+
+	ti_secure_image_post_process(&image_addr,
+				     (size_t *)&fit_image_info[IMAGE_ID_ATF].image_len);
+
+	/* Authenticate OPTEE */
+	image_addr = (void *)fit_image_info[IMAGE_ID_OPTEE].image_start;
+
+	debug("%s: Authenticating image: addr=%lx, size=%ld, os=%s\n", __func__,
+	      fit_image_info[IMAGE_ID_OPTEE].image_start,
+	      fit_image_info[IMAGE_ID_OPTEE].image_len,
+	      image_os_match[IMAGE_ID_OPTEE]);
+
+	ti_secure_image_post_process(&image_addr,
+				     (size_t *)&fit_image_info[IMAGE_ID_OPTEE].image_len);
+
+#endif
 
 	if (!fit_image_info[IMAGE_ID_DM_FW].image_len &&
 	    !(size > 0 && valid_elf_image(loadaddr))) {
@@ -288,9 +340,15 @@ void board_fit_image_post_process(const void *fit, int node, void **p_image,
 			break;
 		}
 	}
+	/*
+	 * Only DM and the DTBs are being authenticated here,
+	 * rest will be authenticated when A72 cluster is up
+	 */
+	if ((i != IMAGE_ID_ATF) && (i != IMAGE_ID_OPTEE))
 #endif
-
-	ti_secure_image_post_process(p_image, p_size);
+	{
+		ti_secure_image_post_process(p_image, p_size);
+	}
 }
 #endif
 
@@ -367,24 +425,21 @@ int fdt_fixup_msmc_ram(void *blob, char *parent_path, char *node_name)
 	return 0;
 }
 
-int fdt_disable_node(void *blob, char *node_path)
+#if defined(CONFIG_OF_SYSTEM_SETUP)
+int ft_system_setup(void *blob, struct bd_info *bd)
 {
-	int offs;
 	int ret;
 
-	offs = fdt_path_offset(blob, node_path);
-	if (offs < 0) {
-		printf("Node %s not found.\n", node_path);
-		return offs;
-	}
-	ret = fdt_setprop_string(blob, offs, "status", "disabled");
-	if (ret < 0) {
-		printf("Could not add status property to node %s: %s\n",
-		       node_path, fdt_strerror(ret));
-		return ret;
-	}
-	return 0;
+	ret = fdt_fixup_msmc_ram(blob, "/bus@100000", "sram@70000000");
+	if (ret < 0)
+		ret = fdt_fixup_msmc_ram(blob, "/interconnect@100000",
+					 "sram@70000000");
+	if (ret)
+		printf("%s: fixing up msmc ram failed %d\n", __func__, ret);
+
+	return ret;
 }
+#endif
 
 #endif
 
@@ -471,26 +526,6 @@ int print_cpuinfo(void)
 	return 0;
 }
 #endif
-
-bool soc_is_j721e(void)
-{
-	u32 soc;
-
-	soc = (readl(CTRLMMR_WKUP_JTAG_ID) &
-		JTAG_ID_PARTNO_MASK) >> JTAG_ID_PARTNO_SHIFT;
-
-	return soc == J721E;
-}
-
-bool soc_is_j7200(void)
-{
-	u32 soc;
-
-	soc = (readl(CTRLMMR_WKUP_JTAG_ID) &
-		JTAG_ID_PARTNO_MASK) >> JTAG_ID_PARTNO_SHIFT;
-
-	return soc == J7200;
-}
 
 #ifdef CONFIG_ARM64
 void board_prep_linux(struct bootm_headers *images)
@@ -611,4 +646,14 @@ int misc_init_r(void)
 		env_set("boot_fit", "1");
 
 	return 0;
+}
+
+/**
+ * do_board_detect() - Detect board description
+ *
+ * Function to detect board description. This is expected to be
+ * overridden in the SoC family board file where desired.
+ */
+void __weak do_board_detect(void)
+{
 }

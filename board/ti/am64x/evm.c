@@ -14,7 +14,6 @@
 #include <spl.h>
 #include <fdt_support.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/sys_proto.h>
 #include <env.h>
 
 #include "../common/board_detect.h"

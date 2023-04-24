@@ -36,6 +36,8 @@
  * @gtc_base:		Timer base address.
  */
 struct k3_arm64_privdata {
+	bool has_cluster_node;
+	struct power_domain cluster_pwrdmn;
 	struct power_domain rproc_pwrdmn;
 	struct power_domain gtc_pwrdmn;
 	struct reset_ctl rproc_rst;
@@ -55,6 +57,7 @@ struct k3_arm64_privdata {
 static int k3_arm64_load(struct udevice *dev, ulong addr, ulong size)
 {
 	struct k3_arm64_privdata *rproc = dev_get_priv(dev);
+	ulong gtc_rate;
 	int ret;
 
 	dev_dbg(dev, "%s addr = 0x%lx, size = 0x%lx\n", __func__, addr, size);
@@ -64,26 +67,10 @@ static int k3_arm64_load(struct udevice *dev, ulong addr, ulong size)
 	if (ret)
 		return ret;
 
-	return ti_sci_proc_set_config(&rproc->tsp, addr, 0, 0);
-}
-
-/**
- * k3_arm64_start() - Start the remote processor
- * @dev:	rproc device pointer
- *
- * Return: 0 if all went ok, else return appropriate error
- */
-static int k3_arm64_start(struct udevice *dev)
-{
-	struct k3_arm64_privdata *rproc = dev_get_priv(dev);
-	ulong gtc_rate;
-	int ret;
-
-	dev_dbg(dev, "%s\n", __func__);
-
 	ret = power_domain_on(&rproc->gtc_pwrdmn);
 	if (ret) {
-		dev_err(dev, "power_domain_on() failed: %d\n", ret);
+		dev_err(dev, "power_domain_on(&rproc->gtc_pwrdmn) failed: %d\n",
+			ret);
 		return ret;
 	}
 
@@ -100,9 +87,36 @@ static int k3_arm64_start(struct udevice *dev)
 	 * assigned-clock-rates during the device probe. So no need to
 	 * set the frequency again here.
 	 */
+	if (rproc->has_cluster_node) {
+		ret = power_domain_on(&rproc->cluster_pwrdmn);
+		if (ret) {
+			dev_err(dev,
+				"power_domain_on(&rproc->cluster_pwrdmn) failed: %d\n",
+				ret);
+			return ret;
+		}
+	}
+
+	return ti_sci_proc_set_config(&rproc->tsp, addr, 0, 0);
+}
+
+/**
+ * k3_arm64_start() - Start the remote processor
+ * @dev:	rproc device pointer
+ *
+ * Return: 0 if all went ok, else return appropriate error
+ */
+static int k3_arm64_start(struct udevice *dev)
+{
+	struct k3_arm64_privdata *rproc = dev_get_priv(dev);
+	int ret;
+
+	dev_dbg(dev, "%s\n", __func__);
 	ret = power_domain_on(&rproc->rproc_pwrdmn);
 	if (ret) {
-		dev_err(dev, "power_domain_on() failed: %d\n", ret);
+		dev_err(dev,
+			"power_domain_on(&rproc->rproc_pwrdmn) failed: %d\n",
+			ret);
 		return ret;
 	}
 
@@ -166,9 +180,17 @@ static int k3_arm64_of_to_priv(struct udevice *dev,
 
 	dev_dbg(dev, "%s\n", __func__);
 
+	/* Cluster needs to be powered on if firewalls are being configured */
+	rproc->has_cluster_node = true;
+	ret = power_domain_get_by_index(dev, &rproc->cluster_pwrdmn, 2);
+	if (ret) {
+		dev_dbg(dev, "warning: power_domain_get_cluster() failed: %d\n", ret);
+		rproc->has_cluster_node = false;
+	}
+
 	ret = power_domain_get_by_index(dev, &rproc->rproc_pwrdmn, 1);
 	if (ret) {
-		dev_err(dev, "power_domain_get() failed: %d\n", ret);
+		dev_err(dev, "power_domain_get_rproc() failed: %d\n", ret);
 		return ret;
 	}
 
