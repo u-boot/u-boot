@@ -258,7 +258,7 @@ int bootdev_find_by_label(const char *label, struct udevice **devp,
  * @devp: returns the device found, on success
  * @method_flagsp: If non-NULL, returns any flags implied by the label
  * (enum bootflow_meth_flags_t), 0 if none. Unset if function fails
- * Return: 0 if OK, -EINVAL if the uclass is not supported by this board,
+ * Return: 0 if OK, -EPFNOSUPPORT if the uclass is not supported by this board,
  * -ENOENT if there is no device with that number
  */
 int bootdev_find_by_any(const char *name, struct udevice **devp,

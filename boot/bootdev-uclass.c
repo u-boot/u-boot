@@ -364,7 +364,8 @@ int bootdev_unbind_dev(struct udevice *parent)
  * @seqp: Returns the sequence number, or -1 if none
  * @method_flagsp: If non-NULL, returns any flags implied by the label
  * (enum bootflow_meth_flags_t), 0 if none
- * Returns: sequence number on success, else -ve error code
+ * Returns: sequence number on success, -EPFNOSUPPORT is the uclass is not
+ * known, other -ve error code on other error
  */
 static int label_to_uclass(const char *label, int *seqp, int *method_flagsp)
 {
@@ -394,8 +395,7 @@ static int label_to_uclass(const char *label, int *seqp, int *method_flagsp)
 			id = UCLASS_ETH;
 			method_flags |= BOOTFLOW_METHF_DHCP_ONLY;
 		} else {
-			log_warning("Unknown uclass '%s' in label\n", label);
-			return -EINVAL;
+			return -EPFNOSUPPORT;
 		}
 	}
 	if (id == UCLASS_USB)
@@ -458,7 +458,6 @@ int bootdev_find_by_label(const char *label, struct udevice **devp,
 		}
 		log_debug("- no device in %s\n", media->name);
 	}
-	log_warning("Unknown seq %d for label '%s'\n", seq, label);
 
 	return -ENOENT;
 }
@@ -577,9 +576,28 @@ int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
 
 	log_debug("next\n");
 	for (dev = NULL; !dev && iter->labels[++iter->cur_label];) {
-		log_debug("Scanning: %s\n", iter->labels[iter->cur_label]);
-		bootdev_hunt_and_find_by_label(iter->labels[iter->cur_label],
-					       &dev, method_flagsp);
+		const char *label = iter->labels[iter->cur_label];
+		int ret;
+
+		log_debug("Scanning: %s\n", label);
+		ret = bootdev_hunt_and_find_by_label(label, &dev,
+						     method_flagsp);
+		if (iter->flags & BOOTFLOWIF_SHOW) {
+			if (ret == -EPFNOSUPPORT) {
+				log_warning("Unknown uclass '%s' in label\n",
+					    label);
+			} else if (ret == -ENOENT) {
+				/*
+				 * looking for, e.g. 'scsi0' should find
+				 * something if SCSI is present
+				 */
+				if (!trailing_strtol(label)) {
+					log_warning("No bootdevs for '%s'\n",
+						    label);
+				}
+			}
+		}
+
 	}
 
 	if (!dev)
