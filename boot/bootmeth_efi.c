@@ -112,7 +112,8 @@ static void set_efi_bootdev(struct blk_desc *desc, struct bootflow *bflow)
 	 * this can go away.
 	 */
 	media_dev = dev_get_parent(bflow->dev);
-	snprintf(devnum_str, sizeof(devnum_str), "%x:%x", dev_seq(media_dev),
+	snprintf(devnum_str, sizeof(devnum_str), "%x:%x",
+		 desc ? desc->devnum : dev_seq(media_dev),
 		 bflow->part);
 
 	strlcpy(dirname, bflow->fname, sizeof(dirname));
