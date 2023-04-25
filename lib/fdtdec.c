@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
+ *
+ * NOTE: Please do not add new devicetree-reading functionality into this file.
+ * Add it to the ofnode API instead, since that is compatible with livetree.
  */
 
 #ifndef USE_HOSTCC
