@@ -63,7 +63,7 @@ static void ide_reset(void)
 	}
 }
 
-static void ide_outb(int dev, int port, unsigned char val)
+static void ide_outb(int dev, int port, u8 val)
 {
 	log_debug("(dev= %d, port= %#x, val= 0x%02x) : @ 0x%08lx\n",
 		  dev, port, val, ATA_CURR_BASE(dev) + port);
@@ -71,7 +71,7 @@ static void ide_outb(int dev, int port, unsigned char val)
 	outb(val, ATA_CURR_BASE(dev) + port);
 }
 
-static unsigned char ide_inb(int dev, int port)
+static u8 ide_inb(int dev, int port)
 {
 	uchar val;
 
@@ -119,10 +119,9 @@ static uchar ide_wait(int dev, ulong t)
  * terminate the string
  * "len" is the size of available memory including the terminating '\0'
  */
-static void ident_cpy(unsigned char *dst, unsigned char *src,
-		      unsigned int len)
+static void ident_cpy(u8 *dst, u8 *src, uint len)
 {
-	unsigned char *end, *last;
+	u8 *end, *last;
 
 	last = dst;
 	end = src + len - 1;
@@ -209,10 +208,9 @@ static uchar atapi_wait_mask(int dev, ulong t, uchar mask, uchar res)
 /*
  * issue an atapi command
  */
-static unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
-				 unsigned char *buffer, int buflen)
+static u8 atapi_issue(int device, u8 *ccb, int ccblen, u8 *buffer, int buflen)
 {
-	unsigned char c, err, mask, res;
+	u8 c, err, mask, res;
 	int n;
 
 	/* Select device
@@ -231,8 +229,8 @@ static unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 	ide_outb(device, ATA_ERROR_REG, 0);	/* no DMA, no overlaped */
 	ide_outb(device, ATA_SECT_CNT, 0);
 	ide_outb(device, ATA_SECT_NUM, 0);
-	ide_outb(device, ATA_CYL_LOW, (unsigned char)(buflen & 0xff));
-	ide_outb(device, ATA_CYL_HIGH, (unsigned char)((buflen >> 8) & 0xff));
+	ide_outb(device, ATA_CYL_LOW, (u8)(buflen & 0xff));
+	ide_outb(device, ATA_CYL_HIGH, (u8)((buflen >> 8) & 0xff));
 	ide_outb(device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
 
 	ide_outb(device, ATA_COMMAND, ATA_CMD_PACKET);
@@ -250,7 +248,7 @@ static unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 	}
 
 	/* write command block */
-	ide_output_data_shorts(device, (unsigned short *)ccb, ccblen / 2);
+	ide_output_data_shorts(device, (ushort *)ccb, ccblen / 2);
 
 	/* ATAPI Command written wait for completition */
 	mdelay(5);		/* device must set bsy */
@@ -301,13 +299,11 @@ static unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 		/* ok now decide if it is an in or output */
 		if (!(ide_inb(device, ATA_SECT_CNT) & 0x02)) {
 			log_debug("Write to device\n");
-			ide_output_data_shorts(device, (unsigned short *)buffer,
-					       n);
+			ide_output_data_shorts(device, (ushort *)buffer, n);
 		} else {
 			log_debug("Read from device @ %p shorts %d\n", buffer,
 				  n);
-			ide_input_data_shorts(device, (unsigned short *)buffer,
-					      n);
+			ide_input_data_shorts(device, (ushort *)buffer, n);
 		}
 	}
 	mdelay(5);		/* seems that some CD ROMs need this... */
@@ -332,12 +328,11 @@ AI_OUT:
 #define ATAPI_DRIVE_NOT_READY	100
 #define ATAPI_UNIT_ATTN		10
 
-static unsigned char atapi_issue_autoreq(int device, unsigned char *ccb,
-					 int ccblen,
-					 unsigned char *buffer, int buflen)
+static u8 atapi_issue_autoreq(int device, u8 *ccb, int ccblen, u8 *buffer,
+			      int buflen)
 {
-	unsigned char sense_data[18], sense_ccb[12];
-	unsigned char res, key, asc, ascq;
+	u8 sense_data[18], sense_ccb[12];
+	u8 res, key, asc, ascq;
 	int notready, unitattn;
 
 	unitattn = ATAPI_UNIT_ATTN;
@@ -415,7 +410,7 @@ static ulong atapi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	int device = desc->devnum;
 	ulong n = 0;
-	unsigned char ccb[12];	/* Command descriptor block */
+	u8 ccb[12];	/* Command descriptor block */
 	ulong cnt;
 
 	log_debug("%d start " LBAF " blocks " LBAF " buffer at %lx\n", device,
@@ -429,19 +424,19 @@ static ulong atapi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 
 		ccb[0] = ATAPI_CMD_READ_12;
 		ccb[1] = 0;	/* reserved */
-		ccb[2] = (unsigned char)(blknr >> 24) & 0xff;	/* MSB Block */
-		ccb[3] = (unsigned char)(blknr >> 16) & 0xff;	/*  */
-		ccb[4] = (unsigned char)(blknr >> 8) & 0xff;
-		ccb[5] = (unsigned char)blknr & 0xff;	/* LSB Block */
-		ccb[6] = (unsigned char)(cnt >> 24) & 0xff; /* MSB Block cnt */
-		ccb[7] = (unsigned char)(cnt >> 16) & 0xff;
-		ccb[8] = (unsigned char)(cnt >> 8) & 0xff;
-		ccb[9] = (unsigned char)cnt & 0xff;	/* LSB Block */
+		ccb[2] = (u8)(blknr >> 24) & 0xff;	/* MSB Block */
+		ccb[3] = (u8)(blknr >> 16) & 0xff;	/*  */
+		ccb[4] = (u8)(blknr >> 8) & 0xff;
+		ccb[5] = (u8)blknr & 0xff;	/* LSB Block */
+		ccb[6] = (u8)(cnt >> 24) & 0xff; /* MSB Block cnt */
+		ccb[7] = (u8)(cnt >> 16) & 0xff;
+		ccb[8] = (u8)(cnt >> 8) & 0xff;
+		ccb[9] = (u8)cnt & 0xff;	/* LSB Block */
 		ccb[10] = 0;	/* reserved */
 		ccb[11] = 0;	/* reserved */
 
 		if (atapi_issue_autoreq(device, ccb, 12,
-					(unsigned char *)buffer,
+					(u8 *)buffer,
 					cnt * ATAPI_READ_BLOCK_SIZE) == 0xff)
 			return n;
 		n += cnt;
@@ -454,9 +449,9 @@ static ulong atapi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 
 static void atapi_inquiry(struct blk_desc *desc)
 {
-	unsigned char ccb[12];	/* Command descriptor block */
-	unsigned char iobuf[64];	/* temp buf */
-	unsigned char c;
+	u8 ccb[12];	/* Command descriptor block */
+	u8 iobuf[64];	/* temp buf */
+	u8 c;
 	int device;
 
 	device = desc->devnum;
@@ -467,7 +462,7 @@ static void atapi_inquiry(struct blk_desc *desc)
 
 	ccb[0] = ATAPI_CMD_INQUIRY;
 	ccb[4] = 40;		/* allocation Legnth */
-	c = atapi_issue_autoreq(device, ccb, 12, (unsigned char *)iobuf, 40);
+	c = atapi_issue_autoreq(device, ccb, 12, (u8 *)iobuf, 40);
 
 	log_debug("ATAPI_CMD_INQUIRY returned %x\n", c);
 	if (c)
@@ -494,7 +489,7 @@ static void atapi_inquiry(struct blk_desc *desc)
 	ccb[0] = ATAPI_CMD_START_STOP;
 	ccb[4] = 0x03;		/* start */
 
-	c = atapi_issue_autoreq(device, ccb, 12, (unsigned char *)iobuf, 0);
+	c = atapi_issue_autoreq(device, ccb, 12, (u8 *)iobuf, 0);
 
 	log_debug("ATAPI_CMD_START_STOP returned %x\n", c);
 	if (c)
@@ -502,7 +497,7 @@ static void atapi_inquiry(struct blk_desc *desc)
 
 	memset(ccb, 0, sizeof(ccb));
 	memset(iobuf, 0, sizeof(iobuf));
-	c = atapi_issue_autoreq(device, ccb, 12, (unsigned char *)iobuf, 0);
+	c = atapi_issue_autoreq(device, ccb, 12, (u8 *)iobuf, 0);
 
 	log_debug("ATAPI_CMD_UNIT_TEST_READY returned %x\n", c);
 	if (c)
@@ -511,7 +506,7 @@ static void atapi_inquiry(struct blk_desc *desc)
 	memset(ccb, 0, sizeof(ccb));
 	memset(iobuf, 0, sizeof(iobuf));
 	ccb[0] = ATAPI_CMD_READ_CAP;
-	c = atapi_issue_autoreq(device, ccb, 12, (unsigned char *)iobuf, 8);
+	c = atapi_issue_autoreq(device, ccb, 12, (u8 *)iobuf, 8);
 	log_debug("ATAPI_CMD_READ_CAP returned %x\n", c);
 	if (c)
 		return;
@@ -539,10 +534,10 @@ static void atapi_inquiry(struct blk_desc *desc)
  */
 static int ide_ident(int device, struct blk_desc *desc)
 {
-	unsigned char c;
 	hd_driveid_t iop;
 	bool is_atapi = false;
 	int tries = 1;
+	u8 c;
 
 	memset(desc, '\0', sizeof(*desc));
 	desc->devnum = device;
@@ -753,10 +748,10 @@ static ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 {
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	int device = desc->devnum;
-	ulong n = 0;
-	unsigned char c;
-	unsigned char pwrsave = 0;	/* power save */
 	bool lba48 = false;
+	ulong n = 0;
+	u8 pwrsave = 0;	/* power save */
+	u8 c;
 
 	if (IS_ENABLED(CONFIG_LBA48) && (blknr & 0x0000fffff0000000ULL)) {
 		/* more than 28 bits used, use 48bit mode */
@@ -867,8 +862,8 @@ static ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	int device = desc->devnum;
 	ulong n = 0;
-	unsigned char c;
 	bool lba48 = false;
+	u8 c;
 
 	if (IS_ENABLED(CONFIG_LBA48) && (blknr & 0x0000fffff0000000ULL)) {
 		/* more than 28 bits used, use 48bit mode */
