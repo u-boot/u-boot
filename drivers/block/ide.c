@@ -540,11 +540,9 @@ static void atapi_inquiry(struct blk_desc *dev_desc)
 		((unsigned long) iobuf[5] << 16) +
 		((unsigned long) iobuf[6] << 8) + ((unsigned long) iobuf[7]);
 	dev_desc->log2blksz = LOG2(dev_desc->blksz);
-#ifdef CONFIG_LBA48
+
 	/* ATAPI devices cannot use 48bit addressing (ATA/ATAPI v7) */
-	dev_desc->lba48 = 0;
-#endif
-	return;
+	dev_desc->lba48 = false;
 }
 
 static void ide_ident(struct blk_desc *dev_desc)
@@ -645,9 +643,9 @@ static void ide_ident(struct blk_desc *dev_desc)
 			((unsigned long)iop.lba_capacity[0]) |
 			((unsigned long)iop.lba_capacity[1] << 16);
 
-#ifdef CONFIG_LBA48
-	if (iop.command_set_2 & 0x0400) {	/* LBA 48 support */
-		dev_desc->lba48 = 1;
+	if (IS_ENABLED(CONFIG_LBA48) && (iop.command_set_2 & 0x0400)) {
+		/* LBA 48 support */
+		dev_desc->lba48 = true;
 		for (int i = 0; i < 4; i++)
 			iop.lba48_capacity[i] = be16_to_cpu(iop.lba48_capacity[i]);
 		dev_desc->lba =
@@ -656,9 +654,9 @@ static void ide_ident(struct blk_desc *dev_desc)
 			((unsigned long long)iop.lba48_capacity[2] << 32) |
 			((unsigned long long)iop.lba48_capacity[3] << 48));
 	} else {
-		dev_desc->lba48 = 0;
+		dev_desc->lba48 = false;
 	}
-#endif /* CONFIG_LBA48 */
+
 	/* assuming HD */
 	dev_desc->type = DEV_TYPE_HARDDISK;
 	dev_desc->blksz = ATA_BLOCKSIZE;
@@ -795,15 +793,13 @@ static ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	ulong n = 0;
 	unsigned char c;
 	unsigned char pwrsave = 0;	/* power save */
+	bool lba48 = false;
 
-#ifdef CONFIG_LBA48
-	unsigned char lba48 = 0;
-
-	if (blknr & 0x0000fffff0000000ULL) {
+	if (IS_ENABLED(CONFIG_LBA48) && (blknr & 0x0000fffff0000000ULL)) {
 		/* more than 28 bits used, use 48bit mode */
-		lba48 = 1;
+		lba48 = true;
 	}
-#endif
+
 	debug("ide_read dev %d start " LBAF ", blocks " LBAF " buffer at %lX\n",
 	      device, blknr, blkcnt, (ulong) buffer);
 
@@ -845,8 +841,7 @@ static ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			printf("IDE read: device %d not ready\n", device);
 			break;
 		}
-#ifdef CONFIG_LBA48
-		if (lba48) {
+		if (IS_ENABLED(CONFIG_LBA48) && lba48) {
 			/* write high bits */
 			ide_outb(device, ATA_SECT_CNT, 0);
 			ide_outb(device, ATA_LBA_LOW, (blknr >> 24) & 0xFF);
@@ -858,21 +853,17 @@ static ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			ide_outb(device, ATA_LBA_HIGH, 0);
 #endif
 		}
-#endif
 		ide_outb(device, ATA_SECT_CNT, 1);
 		ide_outb(device, ATA_LBA_LOW, (blknr >> 0) & 0xFF);
 		ide_outb(device, ATA_LBA_MID, (blknr >> 8) & 0xFF);
 		ide_outb(device, ATA_LBA_HIGH, (blknr >> 16) & 0xFF);
 
-#ifdef CONFIG_LBA48
-		if (lba48) {
+		if (IS_ENABLED(CONFIG_LBA48) && lba48) {
 			ide_outb(device, ATA_DEV_HD,
 				 ATA_LBA | ATA_DEVICE(device));
 			ide_outb(device, ATA_COMMAND, ATA_CMD_PIO_READ_EXT);
 
-		} else
-#endif
-		{
+		} else {
 			ide_outb(device, ATA_DEV_HD, ATA_LBA |
 				 ATA_DEVICE(device) | ((blknr >> 24) & 0xF));
 			ide_outb(device, ATA_COMMAND, ATA_CMD_PIO_READ);
@@ -914,15 +905,12 @@ static ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	int device = block_dev->devnum;
 	ulong n = 0;
 	unsigned char c;
+	bool lba48 = false;
 
-#ifdef CONFIG_LBA48
-	unsigned char lba48 = 0;
-
-	if (blknr & 0x0000fffff0000000ULL) {
+	if (IS_ENABLED(CONFIG_LBA48) && (blknr & 0x0000fffff0000000ULL)) {
 		/* more than 28 bits used, use 48bit mode */
-		lba48 = 1;
+		lba48 = true;
 	}
-#endif
 
 	/* Select device
 	 */
@@ -935,8 +923,7 @@ static ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			printf("IDE read: device %d not ready\n", device);
 			goto WR_OUT;
 		}
-#ifdef CONFIG_LBA48
-		if (lba48) {
+		if (IS_ENABLED(CONFIG_LBA48) && lba48) {
 			/* write high bits */
 			ide_outb(device, ATA_SECT_CNT, 0);
 			ide_outb(device, ATA_LBA_LOW, (blknr >> 24) & 0xFF);
@@ -948,21 +935,17 @@ static ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			ide_outb(device, ATA_LBA_HIGH, 0);
 #endif
 		}
-#endif
 		ide_outb(device, ATA_SECT_CNT, 1);
 		ide_outb(device, ATA_LBA_LOW, (blknr >> 0) & 0xFF);
 		ide_outb(device, ATA_LBA_MID, (blknr >> 8) & 0xFF);
 		ide_outb(device, ATA_LBA_HIGH, (blknr >> 16) & 0xFF);
 
-#ifdef CONFIG_LBA48
-		if (lba48) {
+		if (IS_ENABLED(CONFIG_LBA48) && lba48) {
 			ide_outb(device, ATA_DEV_HD,
 				 ATA_LBA | ATA_DEVICE(device));
 			ide_outb(device, ATA_COMMAND, ATA_CMD_PIO_WRITE_EXT);
 
-		} else
-#endif
-		{
+		} else {
 			ide_outb(device, ATA_DEV_HD, ATA_LBA |
 				 ATA_DEVICE(device) | ((blknr >> 24) & 0xF));
 			ide_outb(device, ATA_COMMAND, ATA_CMD_PIO_WRITE);
