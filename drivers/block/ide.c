@@ -987,24 +987,6 @@ ulong ide_or_atapi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	return ide_read(dev, blknr, blkcnt, buffer);
 }
 
-static int ide_blk_probe(struct udevice *udev)
-{
-	struct blk_desc *desc = dev_get_uclass_plat(udev);
-
-	/* fill in device vendor/product/rev strings */
-	strncpy(desc->vendor, ide_dev_desc[desc->devnum].vendor,
-		BLK_VEN_SIZE);
-	desc->vendor[BLK_VEN_SIZE] = '\0';
-	strncpy(desc->product, ide_dev_desc[desc->devnum].product,
-		BLK_PRD_SIZE);
-	desc->product[BLK_PRD_SIZE] = '\0';
-	strncpy(desc->revision, ide_dev_desc[desc->devnum].revision,
-		BLK_REV_SIZE);
-	desc->revision[BLK_REV_SIZE] = '\0';
-
-	return 0;
-}
-
 static const struct blk_ops ide_blk_ops = {
 	.read	= ide_or_atapi_read,
 	.write	= ide_write,
@@ -1014,7 +996,6 @@ U_BOOT_DRIVER(ide_blk) = {
 	.name		= "ide_blk",
 	.id		= UCLASS_BLK,
 	.ops		= &ide_blk_ops,
-	.probe		= ide_blk_probe,
 };
 
 static int ide_bootdev_bind(struct udevice *dev)
@@ -1060,17 +1041,19 @@ BOOTDEV_HUNTER(ide_bootdev_hunter) = {
 
 static int ide_probe(struct udevice *udev)
 {
-	struct udevice *blk_dev;
-	char name[20];
-	int blksz;
-	lbaint_t size;
 	int i;
-	int ret;
 
 	ide_init();
 
 	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; i++) {
 		if (ide_dev_desc[i].type != DEV_TYPE_UNKNOWN) {
+			struct udevice *blk_dev;
+			struct blk_desc *desc;
+			lbaint_t size;
+			char name[20];
+			int blksz;
+			int ret;
+
 			sprintf(name, "blk#%d", i);
 
 			blksz = ide_dev_desc[i].blksz;
@@ -1095,6 +1078,17 @@ static int ide_probe(struct udevice *udev)
 			ret = bootdev_setup_for_dev(udev, "ide_bootdev");
 			if (ret)
 				return log_msg_ret("bootdev", ret);
+
+			/* fill in device vendor/product/rev strings */
+			desc = dev_get_uclass_plat(blk_dev);
+			strlcpy(desc->vendor, ide_dev_desc[desc->devnum].vendor,
+				BLK_VEN_SIZE);
+			strlcpy(desc->product,
+				ide_dev_desc[desc->devnum].product,
+				BLK_PRD_SIZE);
+			strlcpy(desc->revision,
+				ide_dev_desc[desc->devnum].revision,
+				BLK_REV_SIZE);
 		}
 	}
 
