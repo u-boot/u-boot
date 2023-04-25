@@ -3,3 +3,4 @@
 # Copyright (C) 2023 Svyatoslav Ryhel <clamor95@gmail.com>
 
 obj-$(CONFIG_EXTCON) += extcon-uclass.o
+obj-$(CONFIG_EXTCON_SANDBOX) += extcon-sandbox.o

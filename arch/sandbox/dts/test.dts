@@ -1816,6 +1816,10 @@
 		lba_shift = <9>;
 		lba = <2048>;
 	};
+
+	extcon {
+		compatible = "sandbox,extcon";
+	};
 };
 
 #include "sandbox_pmic.dtsi"

@@ -12,4 +12,11 @@ config EXTCON
 	  and to host USB ports. Many of 30-pin connectors including PDMI
 	  are also good examples.
 
+config EXTCON_SANDBOX
+	bool "Sandbox extcon"
+	depends on EXTCON
+	help
+	  Enable extcon support for sandbox. This is an emulation of a real
+	  extcon. Currectly all configuration is done in the probe.
+
 endmenu
