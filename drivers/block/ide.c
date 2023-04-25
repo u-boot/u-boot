@@ -534,15 +534,21 @@ static void atapi_inquiry(struct blk_desc *desc)
 	desc->lba48 = false;
 }
 
-static void ide_ident(struct blk_desc *desc)
+/**
+ * ide_ident() - Identify an IDE device
+ *
+ * @device: Device number to use
+ * @desc: Block descriptor to fill in
+ * Returns: 0 if OK, -ENOENT if no device is found
+ */
+static int ide_ident(int device, struct blk_desc *desc)
 {
 	unsigned char c;
 	hd_driveid_t iop;
 	bool is_atapi = false;
 	int tries = 1;
-	int device;
 
-	device = desc->devnum;
+	desc->devnum = device;
 	printf("  Device %d: ", device);
 
 	/* Select device
@@ -604,7 +610,7 @@ static void ide_ident(struct blk_desc *desc)
 	}
 
 	if (!tries)	/* Not found */
-		return;
+		return -ENOENT;
 
 	ide_input_swap_data(device, (ulong *)&iop, ATA_SECTORWORDS);
 
@@ -620,7 +626,7 @@ static void ide_ident(struct blk_desc *desc)
 	if (IS_ENABLED(CONFIG_ATAPI) && is_atapi) {
 		desc->atapi = true;
 		atapi_inquiry(desc);
-		return;
+		return 0;
 	}
 
 	iop.lba_capacity[0] = be16_to_cpu(iop.lba_capacity[0]);
@@ -661,6 +667,8 @@ static void ide_ident(struct blk_desc *desc)
 	udelay(50);
 	c = ide_wait(device, IDE_TIME_OUT);	/* can't take over 500 ms */
 #endif
+
+	return 0;
 }
 
 /**
@@ -1017,64 +1025,61 @@ static int ide_probe(struct udevice *udev)
 	schedule();
 
 	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; i++) {
+		struct blk_desc *desc;
+		struct udevice *blk;
+		lbaint_t size;
+		char name[20];
+		int blksz;
+		int ret;
+
 		if (!bus_ok[IDE_BUS(i)])
 			continue;
 
 		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
 		ide_dev_desc[i].uclass_id = UCLASS_IDE;
-		ide_dev_desc[i].devnum = i;
 		ide_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
 		ide_dev_desc[i].blksz = 0;
 		ide_dev_desc[i].log2blksz =
 			LOG2_INVALID(typeof(ide_dev_desc[i].log2blksz));
 		ide_dev_desc[i].lba = 0;
-		ide_ident(&ide_dev_desc[i]);
+		ret = ide_ident(i, &ide_dev_desc[i]);
 		dev_print(&ide_dev_desc[i]);
 
-		if (ide_dev_desc[i].type != DEV_TYPE_UNKNOWN) {
-			struct udevice *blk_dev;
-			struct blk_desc *desc;
-			lbaint_t size;
-			char name[20];
-			int blksz;
-			int ret;
+		if (ret)
+			continue;
 
-			sprintf(name, "blk#%d", i);
+		sprintf(name, "blk#%d", i);
 
-			blksz = ide_dev_desc[i].blksz;
-			size = blksz * ide_dev_desc[i].lba;
+		blksz = ide_dev_desc[i].blksz;
+		size = blksz * ide_dev_desc[i].lba;
 
-			/*
-			 * With CDROM, if there is no CD inserted, blksz will
-			 * be zero, don't bother to create IDE block device.
-			 */
-			if (!blksz)
-				continue;
-			ret = blk_create_devicef(udev, "ide_blk", name,
-						 UCLASS_IDE, i,
-						 blksz, size, &blk_dev);
-			if (ret)
-				return ret;
+		/*
+		 * With CDROM, if there is no CD inserted, blksz will
+		 * be zero, don't bother to create IDE block device.
+		 */
+		if (!blksz)
+			continue;
+		ret = blk_create_devicef(udev, "ide_blk", name, UCLASS_IDE, i,
+					 blksz, size, &blk);
+		if (ret)
+			return ret;
 
-			ret = blk_probe_or_unbind(blk_dev);
-			if (ret)
-				return ret;
+		ret = blk_probe_or_unbind(blk);
+		if (ret)
+			return ret;
 
-			/* fill in device vendor/product/rev strings */
-			desc = dev_get_uclass_plat(blk_dev);
-			strlcpy(desc->vendor, ide_dev_desc[desc->devnum].vendor,
-				BLK_VEN_SIZE);
-			strlcpy(desc->product,
-				ide_dev_desc[desc->devnum].product,
-				BLK_PRD_SIZE);
-			strlcpy(desc->revision,
-				ide_dev_desc[desc->devnum].revision,
-				BLK_REV_SIZE);
+		/* fill in device vendor/product/rev strings */
+		desc = dev_get_uclass_plat(blk);
+		strlcpy(desc->vendor, ide_dev_desc[desc->devnum].vendor,
+			BLK_VEN_SIZE);
+		strlcpy(desc->product, ide_dev_desc[desc->devnum].product,
+			BLK_PRD_SIZE);
+		strlcpy(desc->revision, ide_dev_desc[desc->devnum].revision,
+			BLK_REV_SIZE);
 
-			ret = bootdev_setup_for_dev(udev, "ide_bootdev");
-			if (ret)
-				return log_msg_ret("bootdev", ret);
-		}
+		ret = bootdev_setup_for_dev(udev, "ide_bootdev");
+		if (ret)
+			return log_msg_ret("bootdev", ret);
 	}
 
 	return 0;
