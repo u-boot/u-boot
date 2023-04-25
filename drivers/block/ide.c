@@ -1021,7 +1021,12 @@ static int ide_probe(struct udevice *udev)
 
 	putc('\n');
 
-	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; ++i) {
+	schedule();
+
+	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; i++) {
+		if (!bus_ok[IDE_BUS(i)])
+			continue;
+
 		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
 		ide_dev_desc[i].uclass_id = UCLASS_IDE;
 		ide_dev_desc[i].devnum = i;
@@ -1030,14 +1035,9 @@ static int ide_probe(struct udevice *udev)
 		ide_dev_desc[i].log2blksz =
 			LOG2_INVALID(typeof(ide_dev_desc[i].log2blksz));
 		ide_dev_desc[i].lba = 0;
-		if (!bus_ok[IDE_BUS(i)])
-			continue;
 		ide_ident(&ide_dev_desc[i]);
 		dev_print(&ide_dev_desc[i]);
-	}
-	schedule();
 
-	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; i++) {
 		if (ide_dev_desc[i].type != DEV_TYPE_UNKNOWN) {
 			struct udevice *blk_dev;
 			struct blk_desc *desc;
