@@ -1029,9 +1029,7 @@ static int ide_probe(struct udevice *udev)
 	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; i++) {
 		struct blk_desc *desc, pdesc;
 		struct udevice *blk;
-		lbaint_t size;
 		char name[20];
-		int blksz;
 		int ret;
 
 		if (!bus_ok[IDE_BUS(i)])
@@ -1045,17 +1043,14 @@ static int ide_probe(struct udevice *udev)
 
 		sprintf(name, "blk#%d", i);
 
-		blksz = pdesc.blksz;
-		size = blksz * pdesc.lba;
-
 		/*
 		 * With CDROM, if there is no CD inserted, blksz will
 		 * be zero, don't bother to create IDE block device.
 		 */
-		if (!blksz)
+		if (!pdesc.blksz)
 			continue;
 		ret = blk_create_devicef(udev, "ide_blk", name, UCLASS_IDE, i,
-					 blksz, size, &blk);
+					 pdesc.blksz, pdesc.lba, &blk);
 		if (ret)
 			return ret;
 
