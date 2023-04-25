@@ -65,8 +65,8 @@ static void ide_reset(void)
 
 static void ide_outb(int dev, int port, unsigned char val)
 {
-	debug("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
-	      dev, port, val, ATA_CURR_BASE(dev) + port);
+	log_debug("(dev= %d, port= %#x, val= 0x%02x) : @ 0x%08lx\n",
+		  dev, port, val, ATA_CURR_BASE(dev) + port);
 
 	outb(val, ATA_CURR_BASE(dev) + port);
 }
@@ -77,8 +77,8 @@ static unsigned char ide_inb(int dev, int port)
 
 	val = inb(ATA_CURR_BASE(dev) + port);
 
-	debug("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
-	      dev, port, ATA_CURR_BASE(dev) + port, val);
+	log_debug("(dev= %d, port= %#x) : @ 0x%08lx -> 0x%02x\n",
+		  dev, port, ATA_CURR_BASE(dev) + port, val);
 	return val;
 }
 
@@ -87,7 +87,7 @@ static void ide_input_swap_data(int dev, ulong *sect_buf, int words)
 	uintptr_t paddr = (ATA_CURR_BASE(dev) + ATA_DATA_REG);
 	ushort *dbuf = (ushort *)sect_buf;
 
-	debug("in input swap data base for read is %p\n", (void *)paddr);
+	log_debug("in input swap data base for read is %p\n", (void *)paddr);
 
 	while (words--) {
 		EIEIO;
@@ -158,7 +158,7 @@ static void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
 
 	dbuf = (ushort *)sect_buf;
 
-	debug("in output data shorts base for read is %p\n", (void *)paddr);
+	log_debug("in output data shorts base for read is %p\n", (void *)paddr);
 
 	while (shorts--) {
 		EIEIO;
@@ -173,7 +173,7 @@ static void ide_input_data_shorts(int dev, ushort *sect_buf, int shorts)
 
 	dbuf = (ushort *)sect_buf;
 
-	debug("in input data shorts base for read is %p\n", (void *)paddr);
+	log_debug("in input data shorts base for read is %p\n", (void *)paddr);
 
 	while (shorts--) {
 		EIEIO;
@@ -222,7 +222,7 @@ static unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 	ide_outb(device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
 	c = atapi_wait_mask(device, ATAPI_TIME_OUT, mask, res);
 	if ((c & mask) != res) {
-		printf("ATAPI_ISSUE: device %d not ready status %X\n", device,
+		printf("ATAPI_ISSUE: device %d not ready status %x\n", device,
 		       c);
 		err = 0xFF;
 		goto AI_OUT;
@@ -268,8 +268,8 @@ static unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 	if ((c & mask) != res) {
 		if (c & ATA_STAT_ERR) {
 			err = (ide_inb(device, ATA_ERROR_REG)) >> 4;
-			debug("atapi_issue 1 returned sense key %X status %02X\n",
-			      err, c);
+			log_debug("1 returned sense key %x status %02x\n",
+				  err, c);
 		} else {
 			printf("ATAPI_ISSUE: (no DRQ) after sending ccb (%x)  status 0x%02x\n",
 			       ccb[0], c);
@@ -292,20 +292,21 @@ static unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 		goto AI_OUT;
 	}
 	if (n != buflen) {
-		debug("WARNING, transfer bytes %d not equal with requested %d\n",
-		      n, buflen);
+		log_debug("WARNING, transfer bytes %d not equal with requested %d\n",
+			  n, buflen);
 	}
 	if (n != 0) {		/* data transfer */
-		debug("ATAPI_ISSUE: %d Bytes to transfer\n", n);
+		log_debug("ATAPI_ISSUE: %d Bytes to transfer\n", n);
 		/* we transfer shorts */
 		n >>= 1;
 		/* ok now decide if it is an in or output */
 		if ((ide_inb(device, ATA_SECT_CNT) & 0x02) == 0) {
-			debug("Write to device\n");
+			log_debug("Write to device\n");
 			ide_output_data_shorts(device, (unsigned short *)buffer,
 					       n);
 		} else {
-			debug("Read from device @ %p shorts %d\n", buffer, n);
+			log_debug("Read from device @ %p shorts %d\n", buffer,
+				  n);
 			ide_input_data_shorts(device, (unsigned short *)buffer,
 					      n);
 		}
@@ -316,8 +317,7 @@ static unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 	c = atapi_wait_mask(device, ATAPI_TIME_OUT, mask, res);
 	if ((c & ATA_STAT_ERR) == ATA_STAT_ERR) {
 		err = (ide_inb(device, ATA_ERROR_REG) >> 4);
-		debug("atapi_issue 2 returned sense key %X status %X\n", err,
-		      c);
+		log_debug("2 returned sense key %x status %x\n", err, c);
 	} else {
 		err = 0;
 	}
@@ -352,7 +352,7 @@ retry:
 	if (res == 0xFF)
 		return 0xFF;	/* error */
 
-	debug("(auto_req)atapi_issue returned sense key %X\n", res);
+	log_debug("(auto_req)atapi_issue returned sense key %x\n", res);
 
 	memset(sense_ccb, 0, sizeof(sense_ccb));
 	memset(sense_data, 0, sizeof(sense_data));
@@ -364,9 +364,9 @@ retry:
 	asc = (sense_data[12]);
 	ascq = (sense_data[13]);
 
-	debug("ATAPI_CMD_REQ_SENSE returned %x\n", res);
-	debug(" Sense page: %02X key %02X ASC %02X ASCQ %02X\n",
-	      sense_data[0], key, asc, ascq);
+	log_debug("ATAPI_CMD_REQ_SENSE returned %x\n", res);
+	log_debug(" Sense page: %02X key %02X ASC %02X ASCQ %02X\n",
+		  sense_data[0], key, asc, ascq);
 
 	if ((key == 0))
 		return 0;	/* ok device ready */
@@ -390,14 +390,14 @@ retry:
 		goto error;
 	}
 	if (asc == 0x3a) {
-		debug("Media not present\n");
+		log_debug("Media not present\n");
 		goto error;
 	}
 
 	printf("ERROR: Unknown Sense key %02X ASC %02X ASCQ %02X\n", key, asc,
 	       ascq);
 error:
-	debug("ERROR Sense key %02X ASC %02X ASCQ %02X\n", key, asc, ascq);
+	log_debug("ERROR Sense key %02X ASC %02X ASCQ %02X\n", key, asc, ascq);
 	return 0xFF;
 }
 
@@ -419,8 +419,8 @@ static ulong atapi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	unsigned char ccb[12];	/* Command descriptor block */
 	ulong cnt;
 
-	debug("atapi_read dev %d start " LBAF " blocks " LBAF
-	      " buffer at %lX\n", device, blknr, blkcnt, (ulong) buffer);
+	log_debug("%d start " LBAF " blocks " LBAF " buffer at %lx\n", device,
+		  blknr, blkcnt, (ulong)buffer);
 
 	do {
 		if (blkcnt > ATAPI_READ_MAX_BLOCK)
@@ -472,7 +472,7 @@ static void atapi_inquiry(struct blk_desc *desc)
 	ccb[4] = 40;		/* allocation Legnth */
 	c = atapi_issue_autoreq(device, ccb, 12, (unsigned char *)iobuf, 40);
 
-	debug("ATAPI_CMD_INQUIRY returned %x\n", c);
+	log_debug("ATAPI_CMD_INQUIRY returned %x\n", c);
 	if (c != 0)
 		return;
 
@@ -499,7 +499,7 @@ static void atapi_inquiry(struct blk_desc *desc)
 
 	c = atapi_issue_autoreq(device, ccb, 12, (unsigned char *)iobuf, 0);
 
-	debug("ATAPI_CMD_START_STOP returned %x\n", c);
+	log_debug("ATAPI_CMD_START_STOP returned %x\n", c);
 	if (c != 0)
 		return;
 
@@ -507,7 +507,7 @@ static void atapi_inquiry(struct blk_desc *desc)
 	memset(iobuf, 0, sizeof(iobuf));
 	c = atapi_issue_autoreq(device, ccb, 12, (unsigned char *)iobuf, 0);
 
-	debug("ATAPI_CMD_UNIT_TEST_READY returned %x\n", c);
+	log_debug("ATAPI_CMD_UNIT_TEST_READY returned %x\n", c);
 	if (c != 0)
 		return;
 
@@ -515,13 +515,13 @@ static void atapi_inquiry(struct blk_desc *desc)
 	memset(iobuf, 0, sizeof(iobuf));
 	ccb[0] = ATAPI_CMD_READ_CAP;
 	c = atapi_issue_autoreq(device, ccb, 12, (unsigned char *)iobuf, 8);
-	debug("ATAPI_CMD_READ_CAP returned %x\n", c);
+	log_debug("ATAPI_CMD_READ_CAP returned %x\n", c);
 	if (c != 0)
 		return;
 
-	debug("Read Cap: LBA %02X%02X%02X%02X blksize %02X%02X%02X%02X\n",
-	      iobuf[0], iobuf[1], iobuf[2], iobuf[3],
-	      iobuf[4], iobuf[5], iobuf[6], iobuf[7]);
+	log_debug("Read Cap: LBA %02X%02X%02X%02X blksize %02X%02X%02X%02X\n",
+		  iobuf[0], iobuf[1], iobuf[2], iobuf[3],
+		  iobuf[4], iobuf[5], iobuf[6], iobuf[7]);
 
 	desc->lba = (ulong)iobuf[0] << 24 | (ulong)iobuf[1] << 16 |
 		(ulong)iobuf[2] << 8 | (ulong)iobuf[3];
@@ -598,7 +598,7 @@ static int ide_ident(int device, struct blk_desc *desc)
 			 * Need to soft reset the device
 			 * in case it's an ATAPI...
 			 */
-			debug("Retrying...\n");
+			log_debug("Retrying...\n");
 			ide_outb(device, ATA_DEV_HD,
 				 ATA_LBA | ATA_DEVICE(device));
 			mdelay(100);
@@ -707,12 +707,12 @@ static int ide_init_one(int bus)
 
 	if (c & (ATA_STAT_BUSY | ATA_STAT_FAULT)) {
 		puts("not available  ");
-		debug("Status = 0x%02X ", c);
+		log_debug("Status = 0x%02X ", c);
 		return -EIO;
 	} else if (IS_ENABLED(CONFIG_ATAPI) && !(c & ATA_STAT_READY)) {
 		/* ATAPI Devices do not set DRDY */
 		puts("not available  ");
-		debug("Status = 0x%02X ", c);
+		log_debug("Status = 0x%02X ", c);
 		return -EIO;
 	}
 	puts("OK ");
@@ -741,7 +741,7 @@ static void ide_input_data(int dev, ulong *sect_buf, int words)
 
 	dbuf = (ushort *)sect_buf;
 
-	debug("in input data base for read is %p\n", (void *)paddr);
+	log_debug("in input data base for read is %p\n", (void *)paddr);
 
 	while (words--) {
 		EIEIO;
@@ -766,8 +766,8 @@ static ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		lba48 = true;
 	}
 
-	debug("ide_read dev %d start " LBAF ", blocks " LBAF " buffer at %lX\n",
-	      device, blknr, blkcnt, (ulong) buffer);
+	log_debug("dev %d start " LBAF ", blocks " LBAF " buffer at %lx\n",
+		  device, blknr, blkcnt, (ulong)buffer);
 
 	/* Select device
 	 */
@@ -791,10 +791,10 @@ static ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		goto IDE_READ_E;
 	}
 	if ((c & ATA_STAT_ERR) == ATA_STAT_ERR) {
-		printf("No Powersaving mode %X\n", c);
+		printf("No Powersaving mode %x\n", c);
 	} else {
 		c = ide_inb(device, ATA_SECT_CNT);
-		debug("Powersaving %02X\n", c);
+		log_debug("Powersaving %02X\n", c);
 		if (c == 0)
 			pwrsave = 1;
 	}
