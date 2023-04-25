@@ -480,6 +480,15 @@ config VIDEO_LCD_RAYDIUM_RM68200
 	Say Y here if you want to enable support for Raydium RM68200
 	720x1280 DSI video mode panel.
 
+config VIDEO_LCD_RENESAS_R61307
+	tristate "Renesas R61307 DSI video mode panel"
+	depends on PANEL && BACKLIGHT
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for KOE tx13d100vm0eaa
+	  IPS-LCD module with Renesas R69328 IC. The panel has a 1024x768
+	  resolution and uses 24 bit RGB per pixel.
+
 config VIDEO_LCD_SSD2828
 	bool "SSD2828 bridge chip"
 	---help---
