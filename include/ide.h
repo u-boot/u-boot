@@ -22,10 +22,6 @@ ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer);
 
-#if defined(CONFIG_OF_IDE_FIXUP)
-int ide_device_present(int dev);
-#endif
-
 /*
  * I/O function overrides
  */

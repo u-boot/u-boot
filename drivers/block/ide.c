@@ -1012,15 +1012,6 @@ WR_OUT:
 	return n;
 }
 
-#if defined(CONFIG_OF_IDE_FIXUP)
-int ide_device_present(int dev)
-{
-	if (dev >= CONFIG_SYS_IDE_MAXBUS)
-		return 0;
-	return ide_dev_desc[dev].type == DEV_TYPE_UNKNOWN ? 0 : 1;
-}
-#endif
-
 static int ide_blk_probe(struct udevice *udev)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(udev);
