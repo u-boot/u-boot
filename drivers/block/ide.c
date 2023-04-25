@@ -75,6 +75,40 @@ static void ide_reset(void)
 #define ide_reset()	/* dummy */
 #endif /* CONFIG_IDE_RESET */
 
+__weak void ide_outb(int dev, int port, unsigned char val)
+{
+	debug("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
+	      dev, port, val, ATA_CURR_BASE(dev) + port);
+
+	outb(val, ATA_CURR_BASE(dev) + port);
+}
+
+__weak unsigned char ide_inb(int dev, int port)
+{
+	uchar val;
+
+	val = inb(ATA_CURR_BASE(dev) + port);
+
+	debug("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
+	      dev, port, ATA_CURR_BASE(dev) + port, val);
+	return val;
+}
+
+__weak void ide_input_swap_data(int dev, ulong *sect_buf, int words)
+{
+	uintptr_t paddr = (ATA_CURR_BASE(dev) + ATA_DATA_REG);
+	ushort *dbuf = (ushort *)sect_buf;
+
+	debug("in input swap data base for read is %p\n", (void *)paddr);
+
+	while (words--) {
+		EIEIO;
+		*dbuf++ = be16_to_cpu(inw(paddr));
+		EIEIO;
+		*dbuf++ = be16_to_cpu(inw(paddr));
+	}
+}
+
 /*
  * Wait until Busy bit is off, or timeout (in ms)
  * Return last status
@@ -668,25 +702,6 @@ static void ide_ident(struct blk_desc *dev_desc)
 #endif
 }
 
-__weak void ide_outb(int dev, int port, unsigned char val)
-{
-	debug("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
-	      dev, port, val, ATA_CURR_BASE(dev) + port);
-
-	outb(val, ATA_CURR_BASE(dev) + port);
-}
-
-__weak unsigned char ide_inb(int dev, int port)
-{
-	uchar val;
-
-	val = inb(ATA_CURR_BASE(dev) + port);
-
-	debug("ide_inb (dev= %d, port= 0x%x) : @ 0x%08lx -> 0x%02x\n",
-	      dev, port, ATA_CURR_BASE(dev) + port, val);
-	return val;
-}
-
 static void ide_init(void)
 {
 	unsigned char c;
@@ -761,21 +776,6 @@ static void ide_init(void)
 		dev_print(&ide_dev_desc[i]);
 	}
 	schedule();
-}
-
-__weak void ide_input_swap_data(int dev, ulong *sect_buf, int words)
-{
-	uintptr_t paddr = (ATA_CURR_BASE(dev) + ATA_DATA_REG);
-	ushort *dbuf = (ushort *)sect_buf;
-
-	debug("in input swap data base for read is %p\n", (void *)paddr);
-
-	while (words--) {
-		EIEIO;
-		*dbuf++ = be16_to_cpu(inw(paddr));
-		EIEIO;
-		*dbuf++ = be16_to_cpu(inw(paddr));
-	}
 }
 
 __weak void ide_output_data(int dev, const ulong *sect_buf, int words)
