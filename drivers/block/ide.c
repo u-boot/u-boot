@@ -155,7 +155,6 @@ OUT:
 	*last = '\0';
 }
 
-#ifdef CONFIG_ATAPI
 /****************************************************************************
  * ATAPI Support
  */
@@ -422,9 +421,10 @@ error:
 #define ATAPI_READ_BLOCK_SIZE	2048	/* assuming CD part */
 #define ATAPI_READ_MAX_BLOCK	(ATAPI_READ_MAX_BYTES/ATAPI_READ_BLOCK_SIZE)
 
-ulong atapi_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+ulong atapi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		 void *buffer)
 {
+	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 	int device = block_dev->devnum;
 	ulong n = 0;
 	unsigned char ccb[12];	/* Command descriptor block */
@@ -465,6 +465,8 @@ ulong atapi_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
 	} while (blkcnt > 0);
 	return n;
 }
+
+#ifdef CONFIG_ATAPI
 
 static void atapi_inquiry(struct blk_desc *dev_desc)
 {
@@ -653,6 +655,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 
 #ifdef CONFIG_ATAPI
 	if (is_atapi) {
+		dev_desc->atapi = true;
 		atapi_inquiry(dev_desc);
 		return;
 	}
@@ -1010,6 +1013,17 @@ WR_OUT:
 	return n;
 }
 
+ulong ide_or_atapi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+			void *buffer)
+{
+	struct blk_desc *desc = dev_get_uclass_plat(dev);
+
+	if (IS_ENABLED(CONFIG_ATAPI) && desc->atapi)
+		return atapi_read(dev, blknr, blkcnt, buffer);
+
+	return ide_read(dev, blknr, blkcnt, buffer);
+}
+
 static int ide_blk_probe(struct udevice *udev)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(udev);
@@ -1029,7 +1043,7 @@ static int ide_blk_probe(struct udevice *udev)
 }
 
 static const struct blk_ops ide_blk_ops = {
-	.read	= ide_read,
+	.read	= ide_or_atapi_read,
 	.write	= ide_write,
 };
 
