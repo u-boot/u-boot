@@ -599,27 +599,25 @@ static void ide_ident(struct blk_desc *dev_desc)
 			c = ide_wait(device, IDE_TIME_OUT);
 		}
 
-		if (((c & ATA_STAT_DRQ) == 0) ||
-		    ((c & (ATA_STAT_FAULT | ATA_STAT_ERR)) != 0)) {
-			if (IS_ENABLED(CONFIG_ATAPI)) {
-				/*
-				 * Need to soft reset the device
-				 * in case it's an ATAPI...
-				 */
-				debug("Retrying...\n");
-				ide_outb(device, ATA_DEV_HD,
-					 ATA_LBA | ATA_DEVICE(device));
-				mdelay(100);
-				ide_outb(device, ATA_COMMAND, 0x08);
-				mdelay(500);
-				/* Select device */
-				ide_outb(device, ATA_DEV_HD,
-					 ATA_LBA | ATA_DEVICE(device));
-			}
-			tries--;
-		} else {
+		if ((c & ATA_STAT_DRQ) &&
+		    !(c & (ATA_STAT_FAULT | ATA_STAT_ERR))) {
 			break;
+		} else if (IS_ENABLED(CONFIG_ATAPI)) {
+			/*
+			 * Need to soft reset the device
+			 * in case it's an ATAPI...
+			 */
+			debug("Retrying...\n");
+			ide_outb(device, ATA_DEV_HD,
+				 ATA_LBA | ATA_DEVICE(device));
+			mdelay(100);
+			ide_outb(device, ATA_COMMAND, 0x08);
+			mdelay(500);
+			/* Select device */
+			ide_outb(device, ATA_DEV_HD,
+				 ATA_LBA | ATA_DEVICE(device));
 		}
+		tries--;
 	}
 
 	if (!tries)	/* Not found */
