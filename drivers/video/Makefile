@@ -28,6 +28,7 @@ obj-$(CONFIG_VIDEO_LOGO) += u_boot_logo.o
 
 endif
 
+obj-$(CONFIG_BACKLIGHT_LM3533) += lm3533_backlight.o
 obj-${CONFIG_EXYNOS_FB} += exynos/
 obj-${CONFIG_VIDEO_ROCKCHIP} += rockchip/
 obj-${CONFIG_VIDEO_STM32} += stm32/

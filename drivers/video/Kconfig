@@ -606,6 +606,15 @@ config ATMEL_HLCD
 	help
 	   HLCDC supports video output to an attached LCD panel.
 
+config BACKLIGHT_LM3533
+	bool "Backlight Driver for LM3533"
+	depends on BACKLIGHT
+	select DM_I2C
+	help
+	  Say Y to enable the backlight driver for National Semiconductor / TI
+	  LM3533 Lighting Power chip. Only Bank A is supported as for now.
+	  Supported backlight level range is from 2 to 255 with step of 1.
+
 source "drivers/video/ti/Kconfig"
 
 source "drivers/video/exynos/Kconfig"
