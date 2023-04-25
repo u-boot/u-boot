@@ -679,9 +679,55 @@ static void ide_ident(struct blk_desc *dev_desc)
 #endif
 }
 
+/**
+ * ide_init_one() - Init one IDE device
+ *
+ * @bus: Bus to use
+ * Return: 0 iuf OK, -EIO if not available, -ETIMEDOUT if timed out
+ */
+static int ide_init_one(int bus)
+{
+	int dev = bus * CONFIG_SYS_IDE_MAXDEVICE / CONFIG_SYS_IDE_MAXBUS;
+	int i;
+	u8 c;
+
+	printf("Bus %d: ", bus);
+
+	/* Select device */
+	mdelay(100);
+	ide_outb(dev, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(dev));
+	mdelay(100);
+	i = 0;
+	do {
+		mdelay(10);
+
+		c = ide_inb(dev, ATA_STATUS);
+		i++;
+		if (i > (ATA_RESET_TIME * 100)) {
+			puts("** Timeout **\n");
+			return -ETIMEDOUT;
+		}
+		if (i >= 100 && !(i % 100))
+			putc('.');
+	} while (c & ATA_STAT_BUSY);
+
+	if (c & (ATA_STAT_BUSY | ATA_STAT_FAULT)) {
+		puts("not available  ");
+		debug("Status = 0x%02X ", c);
+		return -EIO;
+	} else if (IS_ENABLED(CONFIG_ATAPI) && !(c & ATA_STAT_READY)) {
+		/* ATAPI Devices do not set DRDY */
+		puts("not available  ");
+		debug("Status = 0x%02X ", c);
+		return -EIO;
+	}
+	puts("OK ");
+
+	return 0;
+}
+
 static void ide_init(void)
 {
-	unsigned char c;
 	int i, bus;
 
 	schedule();
@@ -694,44 +740,7 @@ static void ide_init(void)
 	 * According to spec, this can take up to 31 seconds!
 	 */
 	for (bus = 0; bus < CONFIG_SYS_IDE_MAXBUS; ++bus) {
-		int dev =
-			bus * (CONFIG_SYS_IDE_MAXDEVICE /
-			       CONFIG_SYS_IDE_MAXBUS);
-
-		printf("Bus %d: ", bus);
-
-		ide_bus_ok[bus] = 0;
-
-		/* Select device */
-		mdelay(100);
-		ide_outb(dev, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(dev));
-		mdelay(100);
-		i = 0;
-		do {
-			mdelay(10);
-
-			c = ide_inb(dev, ATA_STATUS);
-			i++;
-			if (i > (ATA_RESET_TIME * 100)) {
-				puts("** Timeout **\n");
-				return;
-			}
-			if ((i >= 100) && ((i % 100) == 0))
-				putc('.');
-
-		} while (c & ATA_STAT_BUSY);
-
-		if (c & (ATA_STAT_BUSY | ATA_STAT_FAULT)) {
-			puts("not available  ");
-			debug("Status = 0x%02X ", c);
-		} else if (IS_ENABLED(CONFIG_ATAPI) && !(c & ATA_STAT_READY)) {
-			/* ATAPI Devices do not set DRDY */
-			puts("not available  ");
-			debug("Status = 0x%02X ", c);
-		} else {
-			puts("OK ");
-			ide_bus_ok[bus] = 1;
-		}
+		ide_bus_ok[bus] = !ide_init_one(bus);
 		schedule();
 	}
 
