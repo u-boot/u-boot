@@ -12,7 +12,7 @@ Rather than using weak functions and direct calls across subsystemss, it is
 often easier to use an event.
 
 An event consists of a type (e.g. EVT_DM_POST_INIT) and some optional data,
-in `union event_data`. An event spy can be creasted to watch for events of a
+in `union event_data`. An event spy can be created to watch for events of a
 particular type. When the event is created, it is sent to each spy in turn.
 
 
