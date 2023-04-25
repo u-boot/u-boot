@@ -45,24 +45,23 @@ ulong ide_bus_offset[CONFIG_SYS_IDE_MAXBUS] = {
 
 #define IDE_SPIN_UP_TIME_OUT 5000 /* 5 sec spin-up timeout */
 
-#ifdef CONFIG_IDE_RESET
 static void ide_reset(void)
 {
-	ide_set_reset(1);	/* assert reset */
+	if (IS_ENABLED(CONFIG_IDE_RESET)) {
+		/* assert reset */
+		ide_set_reset(1);
 
-	/* the reset signal shall be asserted for et least 25 us */
-	udelay(25);
+		/* the reset signal shall be asserted for et least 25 us */
+		udelay(25);
 
-	schedule();
+		schedule();
 
-	/* de-assert RESET signal */
-	ide_set_reset(0);
+		/* de-assert RESET signal */
+		ide_set_reset(0);
 
-	mdelay(250);
+		mdelay(250);
+	}
 }
-#else
-#define ide_reset()	/* dummy */
-#endif /* CONFIG_IDE_RESET */
 
 static void ide_outb(int dev, int port, unsigned char val)
 {
