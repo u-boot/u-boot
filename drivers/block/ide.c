@@ -1005,7 +1005,6 @@ BOOTDEV_HUNTER(ide_bootdev_hunter) = {
 
 static int ide_probe(struct udevice *udev)
 {
-	struct blk_desc ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 	bool bus_ok[CONFIG_SYS_IDE_MAXBUS];
 	int i, bus;
 
@@ -1028,7 +1027,7 @@ static int ide_probe(struct udevice *udev)
 	schedule();
 
 	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; i++) {
-		struct blk_desc *desc;
+		struct blk_desc *desc, pdesc;
 		struct udevice *blk;
 		lbaint_t size;
 		char name[20];
@@ -1038,16 +1037,16 @@ static int ide_probe(struct udevice *udev)
 		if (!bus_ok[IDE_BUS(i)])
 			continue;
 
-		ret = ide_ident(i, &ide_dev_desc[i]);
-		dev_print(&ide_dev_desc[i]);
+		ret = ide_ident(i, &pdesc);
+		dev_print(&pdesc);
 
 		if (ret)
 			continue;
 
 		sprintf(name, "blk#%d", i);
 
-		blksz = ide_dev_desc[i].blksz;
-		size = blksz * ide_dev_desc[i].lba;
+		blksz = pdesc.blksz;
+		size = blksz * pdesc.lba;
 
 		/*
 		 * With CDROM, if there is no CD inserted, blksz will
@@ -1066,12 +1065,13 @@ static int ide_probe(struct udevice *udev)
 
 		/* fill in device vendor/product/rev strings */
 		desc = dev_get_uclass_plat(blk);
-		strlcpy(desc->vendor, ide_dev_desc[desc->devnum].vendor,
-			BLK_VEN_SIZE);
-		strlcpy(desc->product, ide_dev_desc[desc->devnum].product,
-			BLK_PRD_SIZE);
-		strlcpy(desc->revision, ide_dev_desc[desc->devnum].revision,
-			BLK_REV_SIZE);
+		strlcpy(desc->vendor, pdesc.vendor, BLK_VEN_SIZE);
+		strlcpy(desc->product, pdesc.product, BLK_PRD_SIZE);
+		strlcpy(desc->revision, pdesc.revision, BLK_REV_SIZE);
+		desc->removable = pdesc.removable;
+		desc->atapi = pdesc.atapi;
+		desc->lba48 = pdesc.lba48;
+		desc->type = pdesc.type;
 
 		ret = bootdev_setup_for_dev(udev, "ide_bootdev");
 		if (ret)
