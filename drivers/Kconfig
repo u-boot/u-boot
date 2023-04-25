@@ -36,6 +36,8 @@ source "drivers/dfu/Kconfig"
 
 source "drivers/dma/Kconfig"
 
+source "drivers/extcon/Kconfig"
+
 source "drivers/fastboot/Kconfig"
 
 source "drivers/firmware/Kconfig"

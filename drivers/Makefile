@@ -9,6 +9,7 @@ obj-$(CONFIG_$(SPL_TPL_)DM) += core/
 obj-$(CONFIG_$(SPL_TPL_)DMA) += dma/
 obj-$(CONFIG_$(SPL_TPL_)DMA_LEGACY) += dma/
 obj-$(CONFIG_$(SPL_TPL_)DFU) += dfu/
+obj-$(CONFIG_$(SPL_TPL_)EXTCON) += extcon/
 obj-$(CONFIG_$(SPL_TPL_)GPIO) += gpio/
 obj-$(CONFIG_$(SPL_TPL_)DRIVERS_MISC) += misc/
 obj-$(CONFIG_$(SPL_TPL_)SYSRESET) += sysreset/
