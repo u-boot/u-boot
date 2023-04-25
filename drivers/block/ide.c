@@ -548,13 +548,16 @@ static int ide_ident(int device, struct blk_desc *desc)
 	bool is_atapi = false;
 	int tries = 1;
 
+	memset(desc, '\0', sizeof(*desc));
 	desc->devnum = device;
+	desc->type = DEV_TYPE_UNKNOWN;
+	desc->uclass_id = UCLASS_IDE;
+	desc->log2blksz = LOG2_INVALID(typeof(desc->log2blksz));
 	printf("  Device %d: ", device);
 
 	/* Select device
 	 */
 	ide_outb(device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
-	desc->uclass_id = UCLASS_IDE;
 	if (IS_ENABLED(CONFIG_ATAPI))
 		tries = 2;
 
@@ -1035,13 +1038,6 @@ static int ide_probe(struct udevice *udev)
 		if (!bus_ok[IDE_BUS(i)])
 			continue;
 
-		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
-		ide_dev_desc[i].uclass_id = UCLASS_IDE;
-		ide_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
-		ide_dev_desc[i].blksz = 0;
-		ide_dev_desc[i].log2blksz =
-			LOG2_INVALID(typeof(ide_dev_desc[i].log2blksz));
-		ide_dev_desc[i].lba = 0;
 		ret = ide_ident(i, &ide_dev_desc[i]);
 		dev_print(&ide_dev_desc[i]);
 
