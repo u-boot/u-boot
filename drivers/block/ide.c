@@ -39,8 +39,6 @@ ulong ide_bus_offset[CONFIG_SYS_IDE_MAXBUS] = {
 #define ATA_CURR_BASE(dev)	(CONFIG_SYS_ATA_BASE_ADDR + \
 		ide_bus_offset[IDE_BUS(dev)])
 
-struct blk_desc ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
-
 #define IDE_TIME_OUT	2000	/* 2 sec timeout */
 
 #define ATAPI_TIME_OUT	7000	/* 7 sec timeout (5 sec seems to work...) */
@@ -719,44 +717,6 @@ static int ide_init_one(int bus)
 	return 0;
 }
 
-static void ide_init(void)
-{
-	bool bus_ok[CONFIG_SYS_IDE_MAXBUS];
-	int i, bus;
-
-	schedule();
-
-	/* ATAPI Drives seems to need a proper IDE Reset */
-	ide_reset();
-
-	/*
-	 * Wait for IDE to get ready.
-	 * According to spec, this can take up to 31 seconds!
-	 */
-	for (bus = 0; bus < CONFIG_SYS_IDE_MAXBUS; ++bus) {
-		bus_ok[bus] = !ide_init_one(bus);
-		schedule();
-	}
-
-	putc('\n');
-
-	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; ++i) {
-		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
-		ide_dev_desc[i].uclass_id = UCLASS_IDE;
-		ide_dev_desc[i].devnum = i;
-		ide_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
-		ide_dev_desc[i].blksz = 0;
-		ide_dev_desc[i].log2blksz =
-			LOG2_INVALID(typeof(ide_dev_desc[i].log2blksz));
-		ide_dev_desc[i].lba = 0;
-		if (!bus_ok[IDE_BUS(i)])
-			continue;
-		ide_ident(&ide_dev_desc[i]);
-		dev_print(&ide_dev_desc[i]);
-	}
-	schedule();
-}
-
 static void ide_output_data(int dev, const ulong *sect_buf, int words)
 {
 	uintptr_t paddr = (ATA_CURR_BASE(dev) + ATA_DATA_REG);
@@ -1041,9 +1001,41 @@ BOOTDEV_HUNTER(ide_bootdev_hunter) = {
 
 static int ide_probe(struct udevice *udev)
 {
-	int i;
+	struct blk_desc ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
+	bool bus_ok[CONFIG_SYS_IDE_MAXBUS];
+	int i, bus;
 
-	ide_init();
+	schedule();
+
+	/* ATAPI Drives seems to need a proper IDE Reset */
+	ide_reset();
+
+	/*
+	 * Wait for IDE to get ready.
+	 * According to spec, this can take up to 31 seconds!
+	 */
+	for (bus = 0; bus < CONFIG_SYS_IDE_MAXBUS; ++bus) {
+		bus_ok[bus] = !ide_init_one(bus);
+		schedule();
+	}
+
+	putc('\n');
+
+	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; ++i) {
+		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
+		ide_dev_desc[i].uclass_id = UCLASS_IDE;
+		ide_dev_desc[i].devnum = i;
+		ide_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
+		ide_dev_desc[i].blksz = 0;
+		ide_dev_desc[i].log2blksz =
+			LOG2_INVALID(typeof(ide_dev_desc[i].log2blksz));
+		ide_dev_desc[i].lba = 0;
+		if (!bus_ok[IDE_BUS(i)])
+			continue;
+		ide_ident(&ide_dev_desc[i]);
+		dev_print(&ide_dev_desc[i]);
+	}
+	schedule();
 
 	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; i++) {
 		if (ide_dev_desc[i].type != DEV_TYPE_UNKNOWN) {
@@ -1075,10 +1067,6 @@ static int ide_probe(struct udevice *udev)
 			if (ret)
 				return ret;
 
-			ret = bootdev_setup_for_dev(udev, "ide_bootdev");
-			if (ret)
-				return log_msg_ret("bootdev", ret);
-
 			/* fill in device vendor/product/rev strings */
 			desc = dev_get_uclass_plat(blk_dev);
 			strlcpy(desc->vendor, ide_dev_desc[desc->devnum].vendor,
@@ -1089,6 +1077,10 @@ static int ide_probe(struct udevice *udev)
 			strlcpy(desc->revision,
 				ide_dev_desc[desc->devnum].revision,
 				BLK_REV_SIZE);
+
+			ret = bootdev_setup_for_dev(udev, "ide_bootdev");
+			if (ret)
+				return log_msg_ret("bootdev", ret);
 		}
 	}
 
