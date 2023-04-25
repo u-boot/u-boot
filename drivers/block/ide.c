@@ -219,8 +219,8 @@ static uchar atapi_wait_mask(int dev, ulong t, uchar mask, uchar res)
 /*
  * issue an atapi command
  */
-unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
-			  unsigned char *buffer, int buflen)
+static unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
+				 unsigned char *buffer, int buflen)
 {
 	unsigned char c, err, mask, res;
 	int n;
@@ -343,10 +343,9 @@ AI_OUT:
 #define ATAPI_DRIVE_NOT_READY	100
 #define ATAPI_UNIT_ATTN		10
 
-unsigned char atapi_issue_autoreq(int device,
-				  unsigned char *ccb,
-				  int ccblen,
-				  unsigned char *buffer, int buflen)
+static unsigned char atapi_issue_autoreq(int device, unsigned char *ccb,
+					 int ccblen,
+					 unsigned char *buffer, int buflen)
 {
 	unsigned char sense_data[18], sense_ccb[12];
 	unsigned char res, key, asc, ascq;
@@ -421,8 +420,8 @@ error:
 #define ATAPI_READ_BLOCK_SIZE	2048	/* assuming CD part */
 #define ATAPI_READ_MAX_BLOCK	(ATAPI_READ_MAX_BYTES/ATAPI_READ_BLOCK_SIZE)
 
-ulong atapi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
-		 void *buffer)
+static ulong atapi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+			void *buffer)
 {
 	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 	int device = block_dev->devnum;
@@ -810,8 +809,8 @@ static void ide_input_data(int dev, ulong *sect_buf, int words)
 	}
 }
 
-ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
-	       void *buffer)
+static ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		      void *buffer)
 {
 	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 	int device = block_dev->devnum;
@@ -930,8 +929,8 @@ IDE_READ_E:
 	return n;
 }
 
-ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
-		const void *buffer)
+static ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+		       const void *buffer)
 {
 	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
 	int device = block_dev->devnum;

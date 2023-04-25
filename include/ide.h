@@ -11,17 +11,6 @@
 
 #define IDE_BUS(dev)	(dev / (CONFIG_SYS_IDE_MAXDEVICE / CONFIG_SYS_IDE_MAXBUS))
 
-/*
- * Function Prototypes
- */
-
-struct blk_desc;
-struct udevice;
-ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
-	       void *buffer);
-ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
-		const void *buffer);
-
 /**
  * ide_set_reset() - Assert or de-assert reset for the IDE device
  *
