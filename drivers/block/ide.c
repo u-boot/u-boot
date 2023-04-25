@@ -557,7 +557,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 	hd_driveid_t iop;
 #ifdef CONFIG_ATAPI
 	bool is_atapi = false;
-	int retries = 0;
+	int tries = 1;
 #endif
 	int device;
 
@@ -570,10 +570,10 @@ static void ide_ident(struct blk_desc *dev_desc)
 	dev_desc->uclass_id = UCLASS_IDE;
 #ifdef CONFIG_ATAPI
 
-	retries = 0;
+	tries = 2;
 
 	/* Warning: This will be tricky to read */
-	while (retries <= 1) {
+	while (tries) {
 		/* check signature */
 		if ((ide_inb(device, ATA_SECT_CNT) == 0x01) &&
 		    (ide_inb(device, ATA_SECT_NUM) == 0x01) &&
@@ -624,7 +624,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 			 */
 			ide_outb(device, ATA_DEV_HD,
 				 ATA_LBA | ATA_DEVICE(device));
-			retries++;
+			tries--;
 #else
 			return;
 #endif
@@ -634,7 +634,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 			break;
 	}			/* see above - ugly to read */
 
-	if (retries == 2)	/* Not found */
+	if (!tries)	/* Not found */
 		return;
 #endif
 
