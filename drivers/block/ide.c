@@ -58,8 +58,6 @@ static void ide_reset(void)
 
 	for (i = 0; i < CONFIG_SYS_IDE_MAXBUS; ++i)
 		ide_bus_ok[i] = 0;
-	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; ++i)
-		ide_dev_desc[i].type = DEV_TYPE_UNKNOWN;
 
 	ide_set_reset(1);	/* assert reset */
 
@@ -689,9 +687,8 @@ __weak unsigned char ide_inb(int dev, int port)
 	return val;
 }
 
-void ide_init(void)
+static void ide_init(void)
 {
-	struct udevice *dev;
 	unsigned char c;
 	int i, bus;
 
@@ -764,8 +761,6 @@ void ide_init(void)
 		dev_print(&ide_dev_desc[i]);
 	}
 	schedule();
-
-	uclass_first_device(UCLASS_IDE, &dev);
 }
 
 __weak void ide_input_swap_data(int dev, ulong *sect_buf, int words)
@@ -1067,7 +1062,9 @@ static int ide_bootdev_bind(struct udevice *dev)
 
 static int ide_bootdev_hunt(struct bootdev_hunter *info, bool show)
 {
-	ide_init();
+	struct udevice *dev;
+
+	uclass_first_device(UCLASS_IDE, &dev);
 
 	return 0;
 }
@@ -1103,6 +1100,8 @@ static int ide_probe(struct udevice *udev)
 	lbaint_t size;
 	int i;
 	int ret;
+
+	ide_init();
 
 	for (i = 0; i < CONFIG_SYS_IDE_MAXDEVICE; i++) {
 		if (ide_dev_desc[i].type != DEV_TYPE_UNKNOWN) {

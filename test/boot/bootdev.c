@@ -376,7 +376,6 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	ut_assert_nextline("Hunting with: simple_bus");
 	ut_assert_nextline("Found 2 extension board(s).");
 	ut_assert_nextline("Hunting with: ide");
-	ut_assert_nextline("Bus 0: not available  ");
 
 	/* mmc hunter has already been used so should not run again */
 
@@ -487,7 +486,6 @@ static int bootdev_test_hunt_prio(struct unit_test_state *uts)
 	/* now try a different priority, verbosely */
 	ut_assertok(bootdev_hunt_prio(BOOTDEVP_5_SCAN_SLOW, true));
 	ut_assert_nextline("Hunting with: ide");
-	ut_assert_nextline("Bus 0: not available  ");
 	ut_assert_nextline("Hunting with: usb");
 	ut_assert_nextline(
 		"Bus usb@1: scanning bus usb@1 for devices... 5 USB Device(s) found");

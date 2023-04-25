@@ -15,7 +15,6 @@
  * Function Prototypes
  */
 
-void ide_init(void);
 struct blk_desc;
 struct udevice;
 ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
