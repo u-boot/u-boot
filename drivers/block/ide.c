@@ -39,8 +39,6 @@ ulong ide_bus_offset[CONFIG_SYS_IDE_MAXBUS] = {
 #define ATA_CURR_BASE(dev)	(CONFIG_SYS_ATA_BASE_ADDR + \
 		ide_bus_offset[IDE_BUS(dev)])
 
-static int ide_bus_ok[CONFIG_SYS_IDE_MAXBUS];
-
 struct blk_desc ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 
 #define IDE_TIME_OUT	2000	/* 2 sec timeout */
@@ -52,11 +50,6 @@ struct blk_desc ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 #ifdef CONFIG_IDE_RESET
 static void ide_reset(void)
 {
-	int i;
-
-	for (i = 0; i < CONFIG_SYS_IDE_MAXBUS; ++i)
-		ide_bus_ok[i] = 0;
-
 	ide_set_reset(1);	/* assert reset */
 
 	/* the reset signal shall be asserted for et least 25 us */
@@ -728,6 +721,7 @@ static int ide_init_one(int bus)
 
 static void ide_init(void)
 {
+	bool bus_ok[CONFIG_SYS_IDE_MAXBUS];
 	int i, bus;
 
 	schedule();
@@ -740,7 +734,7 @@ static void ide_init(void)
 	 * According to spec, this can take up to 31 seconds!
 	 */
 	for (bus = 0; bus < CONFIG_SYS_IDE_MAXBUS; ++bus) {
-		ide_bus_ok[bus] = !ide_init_one(bus);
+		bus_ok[bus] = !ide_init_one(bus);
 		schedule();
 	}
 
@@ -755,7 +749,7 @@ static void ide_init(void)
 		ide_dev_desc[i].log2blksz =
 			LOG2_INVALID(typeof(ide_dev_desc[i].log2blksz));
 		ide_dev_desc[i].lba = 0;
-		if (!ide_bus_ok[IDE_BUS(i)])
+		if (!bus_ok[IDE_BUS(i)])
 			continue;
 		ide_ident(&ide_dev_desc[i]);
 		dev_print(&ide_dev_desc[i]);
