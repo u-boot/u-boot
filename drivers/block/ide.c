@@ -414,8 +414,8 @@ error:
 static ulong atapi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			void *buffer)
 {
-	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
-	int device = block_dev->devnum;
+	struct blk_desc *desc = dev_get_uclass_plat(dev);
+	int device = desc->devnum;
 	ulong n = 0;
 	unsigned char ccb[12];	/* Command descriptor block */
 	ulong cnt;
@@ -456,15 +456,15 @@ static ulong atapi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	return n;
 }
 
-static void atapi_inquiry(struct blk_desc *dev_desc)
+static void atapi_inquiry(struct blk_desc *desc)
 {
 	unsigned char ccb[12];	/* Command descriptor block */
 	unsigned char iobuf[64];	/* temp buf */
 	unsigned char c;
 	int device;
 
-	device = dev_desc->devnum;
-	dev_desc->type = DEV_TYPE_UNKNOWN;	/* not yet valid */
+	device = desc->devnum;
+	desc->type = DEV_TYPE_UNKNOWN;	/* not yet valid */
 
 	memset(ccb, 0, sizeof(ccb));
 	memset(iobuf, 0, sizeof(iobuf));
@@ -478,20 +478,20 @@ static void atapi_inquiry(struct blk_desc *dev_desc)
 		return;
 
 	/* copy device ident strings */
-	ident_cpy((unsigned char *)dev_desc->vendor, &iobuf[8], 8);
-	ident_cpy((unsigned char *)dev_desc->product, &iobuf[16], 16);
-	ident_cpy((unsigned char *)dev_desc->revision, &iobuf[32], 5);
+	ident_cpy((u8 *)desc->vendor, &iobuf[8], 8);
+	ident_cpy((u8 *)desc->product, &iobuf[16], 16);
+	ident_cpy((u8 *)desc->revision, &iobuf[32], 5);
 
-	dev_desc->lun = 0;
-	dev_desc->lba = 0;
-	dev_desc->blksz = 0;
-	dev_desc->log2blksz = LOG2_INVALID(typeof(dev_desc->log2blksz));
-	dev_desc->type = iobuf[0] & 0x1f;
+	desc->lun = 0;
+	desc->lba = 0;
+	desc->blksz = 0;
+	desc->log2blksz = LOG2_INVALID(typeof(desc->log2blksz));
+	desc->type = iobuf[0] & 0x1f;
 
 	if ((iobuf[1] & 0x80) == 0x80)
-		dev_desc->removable = 1;
+		desc->removable = 1;
 	else
-		dev_desc->removable = 0;
+		desc->removable = 0;
 
 	memset(ccb, 0, sizeof(ccb));
 	memset(iobuf, 0, sizeof(iobuf));
@@ -524,19 +524,17 @@ static void atapi_inquiry(struct blk_desc *dev_desc)
 	      iobuf[0], iobuf[1], iobuf[2], iobuf[3],
 	      iobuf[4], iobuf[5], iobuf[6], iobuf[7]);
 
-	dev_desc->lba = ((unsigned long) iobuf[0] << 24) +
-		((unsigned long) iobuf[1] << 16) +
-		((unsigned long) iobuf[2] << 8) + ((unsigned long) iobuf[3]);
-	dev_desc->blksz = ((unsigned long) iobuf[4] << 24) +
-		((unsigned long) iobuf[5] << 16) +
-		((unsigned long) iobuf[6] << 8) + ((unsigned long) iobuf[7]);
-	dev_desc->log2blksz = LOG2(dev_desc->blksz);
+	desc->lba = (ulong)iobuf[0] << 24 | (ulong)iobuf[1] << 16 |
+		(ulong)iobuf[2] << 8 | (ulong)iobuf[3];
+	desc->blksz = (ulong)iobuf[4] << 24 | (ulong)iobuf[5] << 16 |
+		(ulong)iobuf[6] << 8 | (ulong)iobuf[7];
+	desc->log2blksz = LOG2(desc->blksz);
 
 	/* ATAPI devices cannot use 48bit addressing (ATA/ATAPI v7) */
-	dev_desc->lba48 = false;
+	desc->lba48 = false;
 }
 
-static void ide_ident(struct blk_desc *dev_desc)
+static void ide_ident(struct blk_desc *desc)
 {
 	unsigned char c;
 	hd_driveid_t iop;
@@ -544,13 +542,13 @@ static void ide_ident(struct blk_desc *dev_desc)
 	int tries = 1;
 	int device;
 
-	device = dev_desc->devnum;
+	device = desc->devnum;
 	printf("  Device %d: ", device);
 
 	/* Select device
 	 */
 	ide_outb(device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
-	dev_desc->uclass_id = UCLASS_IDE;
+	desc->uclass_id = UCLASS_IDE;
 	if (IS_ENABLED(CONFIG_ATAPI))
 		tries = 2;
 
@@ -610,49 +608,44 @@ static void ide_ident(struct blk_desc *dev_desc)
 
 	ide_input_swap_data(device, (ulong *)&iop, ATA_SECTORWORDS);
 
-	ident_cpy((unsigned char *)dev_desc->revision, iop.fw_rev,
-		  sizeof(dev_desc->revision));
-	ident_cpy((unsigned char *)dev_desc->vendor, iop.model,
-		  sizeof(dev_desc->vendor));
-	ident_cpy((unsigned char *)dev_desc->product, iop.serial_no,
-		  sizeof(dev_desc->product));
+	ident_cpy((u8 *)desc->revision, iop.fw_rev, sizeof(desc->revision));
+	ident_cpy((u8 *)desc->vendor, iop.model, sizeof(desc->vendor));
+	ident_cpy((u8 *)desc->product, iop.serial_no, sizeof(desc->product));
 
 	if ((iop.config & 0x0080) == 0x0080)
-		dev_desc->removable = 1;
+		desc->removable = 1;
 	else
-		dev_desc->removable = 0;
+		desc->removable = 0;
 
 	if (IS_ENABLED(CONFIG_ATAPI) && is_atapi) {
-		dev_desc->atapi = true;
-		atapi_inquiry(dev_desc);
+		desc->atapi = true;
+		atapi_inquiry(desc);
 		return;
 	}
 
 	iop.lba_capacity[0] = be16_to_cpu(iop.lba_capacity[0]);
 	iop.lba_capacity[1] = be16_to_cpu(iop.lba_capacity[1]);
-	dev_desc->lba =
-			((unsigned long)iop.lba_capacity[0]) |
-			((unsigned long)iop.lba_capacity[1] << 16);
+	desc->lba = (ulong)iop.lba_capacity[0] |
+		(ulong)iop.lba_capacity[1] << 16;
 
 	if (IS_ENABLED(CONFIG_LBA48) && (iop.command_set_2 & 0x0400)) {
 		/* LBA 48 support */
-		dev_desc->lba48 = true;
+		desc->lba48 = true;
 		for (int i = 0; i < 4; i++)
 			iop.lba48_capacity[i] = be16_to_cpu(iop.lba48_capacity[i]);
-		dev_desc->lba =
-			((unsigned long long)iop.lba48_capacity[0] |
-			((unsigned long long)iop.lba48_capacity[1] << 16) |
-			((unsigned long long)iop.lba48_capacity[2] << 32) |
-			((unsigned long long)iop.lba48_capacity[3] << 48));
+		desc->lba = (unsigned long long)iop.lba48_capacity[0] |
+			(unsigned long long)iop.lba48_capacity[1] << 16 |
+			(unsigned long long)iop.lba48_capacity[2] << 32 |
+			(unsigned long long)iop.lba48_capacity[3] << 48;
 	} else {
-		dev_desc->lba48 = false;
+		desc->lba48 = false;
 	}
 
 	/* assuming HD */
-	dev_desc->type = DEV_TYPE_HARDDISK;
-	dev_desc->blksz = ATA_BLOCKSIZE;
-	dev_desc->log2blksz = LOG2(dev_desc->blksz);
-	dev_desc->lun = 0;	/* just to fill something in... */
+	desc->type = DEV_TYPE_HARDDISK;
+	desc->blksz = ATA_BLOCKSIZE;
+	desc->log2blksz = LOG2(desc->blksz);
+	desc->lun = 0;	/* just to fill something in... */
 
 #if 0				/* only used to test the powersaving mode,
 				 * if enabled, the drive goes after 5 sec
@@ -751,8 +744,8 @@ static void ide_input_data(int dev, ulong *sect_buf, int words)
 static ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		      void *buffer)
 {
-	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
-	int device = block_dev->devnum;
+	struct blk_desc *desc = dev_get_uclass_plat(dev);
+	int device = desc->devnum;
 	ulong n = 0;
 	unsigned char c;
 	unsigned char pwrsave = 0;	/* power save */
@@ -864,8 +857,8 @@ IDE_READ_E:
 static ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		       const void *buffer)
 {
-	struct blk_desc *block_dev = dev_get_uclass_plat(dev);
-	int device = block_dev->devnum;
+	struct blk_desc *desc = dev_get_uclass_plat(dev);
+	int device = desc->devnum;
 	ulong n = 0;
 	unsigned char c;
 	bool lba48 = false;
