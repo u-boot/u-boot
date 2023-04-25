@@ -71,9 +71,7 @@ static void ide_reset(void)
 	/* de-assert RESET signal */
 	ide_set_reset(0);
 
-	/* wait 250 ms */
-	for (i = 0; i < 250; ++i)
-		udelay(1000);
+	mdelay(250);
 }
 #else
 #define ide_reset()	/* dummy */
@@ -237,7 +235,7 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 	ide_output_data_shorts(device, (unsigned short *)ccb, ccblen / 2);
 
 	/* ATAPI Command written wait for completition */
-	udelay(5000);		/* device must set bsy */
+	mdelay(5);		/* device must set bsy */
 
 	mask = ATA_STAT_DRQ | ATA_STAT_BUSY | ATA_STAT_ERR;
 	/*
@@ -293,7 +291,7 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
 					      n);
 		}
 	}
-	udelay(5000);		/* seems that some CD ROMs need this... */
+	mdelay(5);		/* seems that some CD ROMs need this... */
 	mask = ATA_STAT_BUSY | ATA_STAT_ERR;
 	res = 0;
 	c = atapi_wait_mask(device, ATAPI_TIME_OUT, mask, res);
@@ -357,7 +355,7 @@ retry:
 
 	if ((key == 6) || (asc == 0x29) || (asc == 0x28)) { /* Unit Attention */
 		if (unitattn-- > 0) {
-			udelay(200 * 1000);
+			mdelay(200);
 			goto retry;
 		}
 		printf("Unit Attention, tried %d\n", ATAPI_UNIT_ATTN);
@@ -366,7 +364,7 @@ retry:
 	if ((asc == 0x4) && (ascq == 0x1)) {
 		/* not ready, but will be ready soon */
 		if (notready-- > 0) {
-			udelay(200 * 1000);
+			mdelay(200);
 			goto retry;
 		}
 		printf("Drive not ready, tried %d times\n",
@@ -586,9 +584,9 @@ static void ide_ident(struct blk_desc *dev_desc)
 				debug("Retrying...\n");
 				ide_outb(device, ATA_DEV_HD,
 					 ATA_LBA | ATA_DEVICE(device));
-				udelay(100000);
+				mdelay(100);
 				ide_outb(device, ATA_COMMAND, 0x08);
-				udelay(500000);	/* 500 ms */
+				mdelay(500);
 			}
 			/*
 			 * Select device
@@ -715,14 +713,13 @@ void ide_init(void)
 
 		ide_bus_ok[bus] = 0;
 
-		/* Select device
-		 */
-		udelay(100000);	/* 100 ms */
+		/* Select device */
+		mdelay(100);
 		ide_outb(dev, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(dev));
-		udelay(100000);	/* 100 ms */
+		mdelay(100);
 		i = 0;
 		do {
-			udelay(10000);	/* 10 ms */
+			mdelay(10);
 
 			c = ide_inb(dev, ATA_STATUS);
 			i++;
