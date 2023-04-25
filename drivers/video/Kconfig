@@ -466,6 +466,17 @@ config VIDEO_BCM2835
 	  that same resolution (or as near as possible) and 32bpp depth, so
 	  that U-Boot can access it with full colour depth.
 
+config VIDEO_LCD_ENDEAVORU
+	tristate "Endeavoru 720x1280 DSI video mode panel"
+	depends on PANEL && BACKLIGHT
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the IPS-LCD panel
+	  module for HTC One X. Driver supports a family of panels,
+	  made at least by 3 vendors (Sharp, Sony and AUO), but set up
+	  using the same DSI command sequence. The panel has a 720x1280
+	  resolution and uses 24 bit RGB per pixel.
+
 config VIDEO_LCD_ORISETECH_OTM8009A
 	bool "OTM8009A DSI LCD panel support"
 	select VIDEO_MIPI_DSI
