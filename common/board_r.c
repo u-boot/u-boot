@@ -523,12 +523,7 @@ static int initr_post(void)
 static int initr_ide(void)
 {
 	puts("IDE:   ");
-#if defined(CONFIG_START_IDE)
-	if (board_start_ide())
-		ide_init();
-#else
 	ide_init();
-#endif
 	return 0;
 }
 #endif

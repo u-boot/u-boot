@@ -47,11 +47,4 @@ void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts);
 
 void ide_led(uchar led, uchar status);
 
-/**
- * board_start_ide() - Start up the board IDE interfac
- *
- * Return: 0 if ok
- */
-int board_start_ide(void);
-
 #endif /* _IDE_H */
