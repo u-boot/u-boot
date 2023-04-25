@@ -50,8 +50,6 @@ struct blk_desc ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 #define IDE_SPIN_UP_TIME_OUT 5000 /* 5 sec spin-up timeout */
 
 #ifdef CONFIG_IDE_RESET
-extern void ide_set_reset(int idereset);
-
 static void ide_reset(void)
 {
 	int i;

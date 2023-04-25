@@ -22,4 +22,14 @@ ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer);
 
+/**
+ * ide_set_reset() - Assert or de-assert reset for the IDE device
+ *
+ * This is provided by boards which need to reset the device through another
+ * means, e.g. a GPIO.
+ *
+ * @idereset: 1 to assert reset, 0 to de-assert it
+ */
+void ide_set_reset(int idereset);
+
 #endif /* _IDE_H */
