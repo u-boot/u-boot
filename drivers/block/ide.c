@@ -36,6 +36,9 @@ ulong ide_bus_offset[CONFIG_SYS_IDE_MAXBUS] = {
 #endif
 };
 
+#define ATA_CURR_BASE(dev)	(CONFIG_SYS_ATA_BASE_ADDR + \
+		ide_bus_offset[IDE_BUS(dev)])
+
 static int ide_bus_ok[CONFIG_SYS_IDE_MAXBUS];
 
 struct blk_desc ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
