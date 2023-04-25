@@ -75,7 +75,7 @@ static void ide_reset(void)
 #define ide_reset()	/* dummy */
 #endif /* CONFIG_IDE_RESET */
 
-__weak void ide_outb(int dev, int port, unsigned char val)
+static void ide_outb(int dev, int port, unsigned char val)
 {
 	debug("ide_outb (dev= %d, port= 0x%x, val= 0x%02x) : @ 0x%08lx\n",
 	      dev, port, val, ATA_CURR_BASE(dev) + port);
@@ -83,7 +83,7 @@ __weak void ide_outb(int dev, int port, unsigned char val)
 	outb(val, ATA_CURR_BASE(dev) + port);
 }
 
-__weak unsigned char ide_inb(int dev, int port)
+static unsigned char ide_inb(int dev, int port)
 {
 	uchar val;
 
@@ -94,7 +94,7 @@ __weak unsigned char ide_inb(int dev, int port)
 	return val;
 }
 
-__weak void ide_input_swap_data(int dev, ulong *sect_buf, int words)
+static void ide_input_swap_data(int dev, ulong *sect_buf, int words)
 {
 	uintptr_t paddr = (ATA_CURR_BASE(dev) + ATA_DATA_REG);
 	ushort *dbuf = (ushort *)sect_buf;
@@ -164,7 +164,7 @@ OUT:
 
 /* since ATAPI may use commands with not 4 bytes alligned length
  * we have our own transfer functions, 2 bytes alligned */
-__weak void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
+static void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
 	uintptr_t paddr = (ATA_CURR_BASE(dev) + ATA_DATA_REG);
 	ushort *dbuf;
@@ -179,7 +179,7 @@ __weak void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts)
 	}
 }
 
-__weak void ide_input_data_shorts(int dev, ushort *sect_buf, int shorts)
+static void ide_input_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
 	uintptr_t paddr = (ATA_CURR_BASE(dev) + ATA_DATA_REG);
 	ushort *dbuf;
@@ -778,7 +778,7 @@ static void ide_init(void)
 	schedule();
 }
 
-__weak void ide_output_data(int dev, const ulong *sect_buf, int words)
+static void ide_output_data(int dev, const ulong *sect_buf, int words)
 {
 	uintptr_t paddr = (ATA_CURR_BASE(dev) + ATA_DATA_REG);
 	ushort *dbuf;
@@ -792,7 +792,7 @@ __weak void ide_output_data(int dev, const ulong *sect_buf, int words)
 	}
 }
 
-__weak void ide_input_data(int dev, ulong *sect_buf, int words)
+static void ide_input_data(int dev, ulong *sect_buf, int words)
 {
 	uintptr_t paddr = (ATA_CURR_BASE(dev) + ATA_DATA_REG);
 	ushort *dbuf;

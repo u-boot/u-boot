@@ -22,17 +22,4 @@ ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		const void *buffer);
 
-/*
- * I/O function overrides
- */
-unsigned char ide_inb(int dev, int port);
-void ide_outb(int dev, int port, unsigned char val);
-void ide_input_swap_data(int dev, ulong *sect_buf, int words);
-void ide_input_data(int dev, ulong *sect_buf, int words);
-void ide_output_data(int dev, const ulong *sect_buf, int words);
-void ide_input_data_shorts(int dev, ushort *sect_buf, int shorts);
-void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts);
-
-void ide_led(uchar led, uchar status);
-
 #endif /* _IDE_H */
