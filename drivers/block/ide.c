@@ -555,10 +555,8 @@ static void ide_ident(struct blk_desc *dev_desc)
 {
 	unsigned char c;
 	hd_driveid_t iop;
-#ifdef CONFIG_ATAPI
 	bool is_atapi = false;
 	int tries = 1;
-#endif
 	int device;
 
 	device = dev_desc->devnum;
@@ -568,17 +566,16 @@ static void ide_ident(struct blk_desc *dev_desc)
 	 */
 	ide_outb(device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
 	dev_desc->uclass_id = UCLASS_IDE;
-#ifdef CONFIG_ATAPI
+	if (IS_ENABLED(CONFIG_ATAPI))
+		tries = 2;
 
-	tries = 2;
-
-	/* Warning: This will be tricky to read */
 	while (tries) {
 		/* check signature */
-		if ((ide_inb(device, ATA_SECT_CNT) == 0x01) &&
-		    (ide_inb(device, ATA_SECT_NUM) == 0x01) &&
-		    (ide_inb(device, ATA_CYL_LOW) == 0x14) &&
-		    (ide_inb(device, ATA_CYL_HIGH) == 0xEB)) {
+		if (IS_ENABLED(CONFIG_ATAPI) &&
+		    ide_inb(device, ATA_SECT_CNT) == 0x01 &&
+		    ide_inb(device, ATA_SECT_NUM) == 0x01 &&
+		    ide_inb(device, ATA_CYL_LOW) == 0x14 &&
+		    ide_inb(device, ATA_CYL_HIGH) == 0xeb) {
 			/* ATAPI Signature found */
 			is_atapi = true;
 			/*
@@ -590,9 +587,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 			 * to become ready
 			 */
 			c = ide_wait(device, ATAPI_TIME_OUT);
-		} else
-#endif
-		{
+		} else {
 			/*
 			 * Start Ident Command
 			 */
@@ -606,8 +601,7 @@ static void ide_ident(struct blk_desc *dev_desc)
 
 		if (((c & ATA_STAT_DRQ) == 0) ||
 		    ((c & (ATA_STAT_FAULT | ATA_STAT_ERR)) != 0)) {
-#ifdef CONFIG_ATAPI
-			{
+			if (IS_ENABLED(CONFIG_ATAPI)) {
 				/*
 				 * Need to soft reset the device
 				 * in case it's an ATAPI...
@@ -618,25 +612,18 @@ static void ide_ident(struct blk_desc *dev_desc)
 				mdelay(100);
 				ide_outb(device, ATA_COMMAND, 0x08);
 				mdelay(500);
+				/* Select device */
+				ide_outb(device, ATA_DEV_HD,
+					 ATA_LBA | ATA_DEVICE(device));
 			}
-			/*
-			 * Select device
-			 */
-			ide_outb(device, ATA_DEV_HD,
-				 ATA_LBA | ATA_DEVICE(device));
 			tries--;
-#else
-			return;
-#endif
-		}
-#ifdef CONFIG_ATAPI
-		else
+		} else {
 			break;
-	}			/* see above - ugly to read */
+		}
+	}
 
 	if (!tries)	/* Not found */
 		return;
-#endif
 
 	ide_input_swap_data(device, (ulong *)&iop, ATA_SECTORWORDS);
 
