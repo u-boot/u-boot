@@ -465,8 +465,6 @@ static ulong atapi_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	return n;
 }
 
-#ifdef CONFIG_ATAPI
-
 static void atapi_inquiry(struct blk_desc *dev_desc)
 {
 	unsigned char ccb[12];	/* Command descriptor block */
@@ -548,8 +546,6 @@ static void atapi_inquiry(struct blk_desc *dev_desc)
 #endif
 	return;
 }
-
-#endif /* CONFIG_ATAPI */
 
 static void ide_ident(struct blk_desc *dev_desc)
 {
@@ -637,13 +633,11 @@ static void ide_ident(struct blk_desc *dev_desc)
 	else
 		dev_desc->removable = 0;
 
-#ifdef CONFIG_ATAPI
-	if (is_atapi) {
+	if (IS_ENABLED(CONFIG_ATAPI) && is_atapi) {
 		dev_desc->atapi = true;
 		atapi_inquiry(dev_desc);
 		return;
 	}
-#endif /* CONFIG_ATAPI */
 
 	iop.lba_capacity[0] = be16_to_cpu(iop.lba_capacity[0]);
 	iop.lba_capacity[1] = be16_to_cpu(iop.lba_capacity[1]);
@@ -732,11 +726,10 @@ static void ide_init(void)
 		if (c & (ATA_STAT_BUSY | ATA_STAT_FAULT)) {
 			puts("not available  ");
 			debug("Status = 0x%02X ", c);
-#ifndef CONFIG_ATAPI		/* ATAPI Devices do not set DRDY */
-		} else if ((c & ATA_STAT_READY) == 0) {
+		} else if (IS_ENABLED(CONFIG_ATAPI) && !(c & ATA_STAT_READY)) {
+			/* ATAPI Devices do not set DRDY */
 			puts("not available  ");
 			debug("Status = 0x%02X ", c);
-#endif
 		} else {
 			puts("OK ");
 			ide_bus_ok[bus] = 1;
