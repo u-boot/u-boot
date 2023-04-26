@@ -17,6 +17,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/setup.h>
 #include <asm/bootm.h>
+#include <mmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -92,4 +93,13 @@ int board_late_init(void)
 	clrsetbits_le16(&wdog->wcr, 0, 0x10);
 
 	return 0;
+}
+
+uint board_mmc_get_env_part(struct mmc *mmc)
+{
+	uint part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
+
+	if (part == 7)
+		part = 0;
+	return part;
 }

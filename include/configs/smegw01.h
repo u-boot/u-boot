@@ -32,17 +32,21 @@
 	"mmcpart=1\0" \
 	"mmcpart_committed=1\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/mmcblk0p${mmcpart_committed} rootwait rw " \
-		__stringify(EXTRA_BOOTPARAMS) "\0" \
+		"root=/dev/mmcblk${mmcdev}p${gpt_partition_entry} rootwait rw " \
+		__stringify(EXTRA_BOOTPARAMS) " SM_ROOT_DEV=${mmcdev} SM_ROOT_PART=${gpt_partition_entry} SM_BOOT_PART=${boot_part}\0" \
 	"commit_mmc=if test \"${ustate}\" = 1 -a \"${mmcpart}\" != \"${mmcpart_committed}\"; then " \
 	              "setenv mmcpart_committed ${mmcpart};" \
 								"saveenv;" \
 						  "fi;\0" \
 	"bootlimit=3\0" \
-	"loadimage=load mmc ${mmcdev}:${mmcpart_committed} ${loadaddr} boot/${image}\0" \
-	"loadfdt=load mmc ${mmcdev}:${mmcpart_committed} ${fdt_addr} boot/${fdtfile}\0" \
+	"loadimage=load mmc ${mmcdev}#rootfs-${mmcpart_committed} ${loadaddr} boot/${image}\0" \
+	"loadfdt=load mmc ${mmcdev}#rootfs-${mmcpart_committed} ${fdt_addr} boot/${fdtfile}\0" \
+	"loadpart=gpt setenv mmc ${mmcdev} rootfs-${mmcpart_committed}\0" \
+	"loadbootpart=mmc partconf 1 boot_part\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 	  "run commit_mmc; " \
+		"run loadpart; " \
+		"run loadbootpart; " \
 		"run mmcargs; " \
 		"if run loadfdt; then " \
 			"if bootz ${loadaddr} - ${fdt_addr}; then " \
