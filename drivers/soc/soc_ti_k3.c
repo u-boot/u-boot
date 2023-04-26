@@ -70,12 +70,12 @@ static const char *get_rev_string(u32 idreg)
 
 	switch (soc) {
 	case JTAG_ID_PARTNO_J721E:
-		if (rev > ARRAY_SIZE(j721e_rev_string_map))
+		if (rev >= ARRAY_SIZE(j721e_rev_string_map))
 			goto bail;
 		return j721e_rev_string_map[rev];
 
 	default:
-		if (rev > ARRAY_SIZE(typical_rev_string_map))
+		if (rev >= ARRAY_SIZE(typical_rev_string_map))
 			goto bail;
 		return typical_rev_string_map[rev];
 	};

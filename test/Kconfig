@@ -3,7 +3,9 @@ config POST
 	help
 	  See doc/README.POST for more details
 
-menuconfig UNIT_TEST
+menu "Unit tests"
+
+config UNIT_TEST
 	bool "Unit tests"
 	help
 	  Select this to compile in unit tests for various parts of
@@ -107,3 +109,5 @@ source "test/env/Kconfig"
 source "test/lib/Kconfig"
 source "test/optee/Kconfig"
 source "test/overlay/Kconfig"
+
+endmenu

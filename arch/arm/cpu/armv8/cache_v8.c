@@ -93,10 +93,16 @@ u64 get_tcr(u64 *pips, u64 *pva_bits)
 
 	if (el == 1) {
 		tcr = TCR_EL1_RSVD | (ips << 32) | TCR_EPD1_DISABLE;
+		if (gd->arch.has_hafdbs)
+			tcr |= TCR_EL1_HA | TCR_EL1_HD;
 	} else if (el == 2) {
 		tcr = TCR_EL2_RSVD | (ips << 16);
+		if (gd->arch.has_hafdbs)
+			tcr |= TCR_EL2_HA | TCR_EL2_HD;
 	} else {
 		tcr = TCR_EL3_RSVD | (ips << 16);
+		if (gd->arch.has_hafdbs)
+			tcr |= TCR_EL3_HA | TCR_EL3_HD;
 	}
 
 	/* PTWs cacheable, inner/outer WBWA and inner shareable */
@@ -198,6 +204,9 @@ static void __cmo_on_leaves(void (*cmo_fn)(unsigned long, unsigned long),
 		 */
 		if (attrs != PTE_BLOCK_MEMTYPE(MT_NORMAL) &&
 		    attrs != PTE_BLOCK_MEMTYPE(MT_NORMAL_NC))
+			continue;
+
+		if (gd->arch.has_hafdbs && (pte & (PTE_RDONLY | PTE_DBM)) != PTE_DBM)
 			continue;
 
 		end = va + BIT(level2shift(level)) - 1;
@@ -309,7 +318,7 @@ static void map_range(u64 virt, u64 phys, u64 size, int level,
 	for (i = idx; size; i++) {
 		u64 next_size, *next_table;
 
-		if (level >= 1 &&
+		if (level >= gd->arch.first_block_level &&
 		    size >= map_size && !(virt & (map_size - 1))) {
 			if (level == 3)
 				table[i] = phys | attrs | PTE_TYPE_PAGE;
@@ -348,6 +357,12 @@ static void add_map(struct mm_region *map)
 	if (va_bits < 39)
 		level = 1;
 
+	if (!gd->arch.first_block_level)
+		gd->arch.first_block_level = 1;
+
+	if (gd->arch.has_hafdbs)
+		attrs |= PTE_DBM | PTE_RDONLY;
+
 	map_range(map->virt, map->phys, map->size, level,
 		  (u64 *)gd->arch.tlb_addr, attrs);
 }
@@ -361,7 +376,7 @@ static void count_range(u64 virt, u64 size, int level, int *cntp)
 	for (i = idx; size; i++) {
 		u64 next_size;
 
-		if (level >= 1 &&
+		if (level >= gd->arch.first_block_level &&
 		    size >= map_size && !(virt & (map_size - 1))) {
 			virt += map_size;
 			size -= map_size;
@@ -399,7 +414,16 @@ static int count_ranges(void)
 __weak u64 get_page_table_size(void)
 {
 	u64 one_pt = MAX_PTE_ENTRIES * sizeof(u64);
-	u64 size;
+	u64 size, mmfr1;
+
+	asm volatile("mrs %0, id_aa64mmfr1_el1" : "=r" (mmfr1));
+	if ((mmfr1 & 0xf) == 2) {
+		gd->arch.has_hafdbs = true;
+		gd->arch.first_block_level = 2;
+	} else {
+		gd->arch.has_hafdbs = false;
+		gd->arch.first_block_level = 1;
+	}
 
 	/* Account for all page tables we would need to cover our memory map */
 	size = one_pt * count_ranges();
