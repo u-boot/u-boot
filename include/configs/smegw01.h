@@ -33,6 +33,7 @@
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/mmcblk0p${mmcpart} rootwait rw " \
 		__stringify(EXTRA_BOOTPARAMS) "\0" \
+	"bootlimit=3\0" \
 	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} boot/${image}\0" \
 	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} boot/${fdtfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
@@ -40,6 +41,13 @@
 		"if run loadfdt; then " \
 			"bootz ${loadaddr} - ${fdt_addr}; " \
 		"fi;\0" \
+	"altbootcmd=echo Performing rollback...; " \
+		"if test \"${mmcpart}\" = 1; then " \
+			"setenv mmcpart 2; " \
+		"else " \
+			"setenv mmcpart 1; " \
+		"fi; setenv bootcount 0; setenv upgrade_available; setenv ustate 3; saveenv; " \
+		"run bootcmd;\0"
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
