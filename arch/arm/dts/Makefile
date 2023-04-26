@@ -159,7 +159,6 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 	rk3399-roc-pc.dtb \
 	rk3399-roc-pc-mezzanine.dtb \
 	rk3399-rock-pi-4a.dtb \
-	rk3399-rock-pi-4b.dtb \
 	rk3399-rock-pi-4c.dtb \
 	rk3399-rock960.dtb \
 	rk3399-rockpro64.dtb \
