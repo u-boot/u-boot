@@ -124,7 +124,8 @@ static int bootdev_test_labels(struct unit_test_state *uts)
 		    mflags);
 
 	/* Check invalid uclass */
-	ut_asserteq(-EINVAL, bootdev_find_by_label("fred0", &dev, &mflags));
+	ut_asserteq(-EPFNOSUPPORT,
+		    bootdev_find_by_label("fred0", &dev, &mflags));
 
 	/* Check unknown sequence number */
 	ut_asserteq(-ENOENT, bootdev_find_by_label("mmc6", &dev, &mflags));
@@ -179,9 +180,8 @@ static int bootdev_test_any(struct unit_test_state *uts)
 
 	/* Check invalid uclass */
 	mflags = 123;
-	ut_asserteq(-EINVAL, bootdev_find_by_any("fred0", &dev, &mflags));
-	ut_assert_nextline("Unknown uclass 'fred0' in label");
-	ut_assert_nextline("Cannot find bootdev 'fred0' (err=-22)");
+	ut_asserteq(-EPFNOSUPPORT, bootdev_find_by_any("fred0", &dev, &mflags));
+	ut_assert_nextline("Cannot find bootdev 'fred0' (err=-96)");
 	ut_asserteq(123, mflags);
 	ut_assert_console_end();
 
@@ -512,9 +512,8 @@ static int bootdev_test_hunt_label(struct unit_test_state *uts)
 	old = (void *)&mflags;   /* arbitrary pointer to check against dev */
 	dev = old;
 	mflags = 123;
-	ut_asserteq(-EINVAL,
+	ut_asserteq(-EPFNOSUPPORT,
 		    bootdev_hunt_and_find_by_label("fred", &dev, &mflags));
-	ut_assert_nextline("Unknown uclass 'fred' in label");
 	ut_asserteq_ptr(old, dev);
 	ut_asserteq(123, mflags);
 	ut_assert_console_end();
@@ -525,7 +524,6 @@ static int bootdev_test_hunt_label(struct unit_test_state *uts)
 		    bootdev_hunt_and_find_by_label("mmc4", &dev, &mflags));
 	ut_asserteq_ptr(old, dev);
 	ut_asserteq(123, mflags);
-	ut_assert_nextline("Unknown seq 4 for label 'mmc4'");
 	ut_assert_console_end();
 
 	ut_assertok(bootstd_test_check_mmc_hunter(uts));

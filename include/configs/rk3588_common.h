@@ -26,12 +26,11 @@
 	"kernel_comp_addr_r=0x08000000\0"	\
 	"kernel_comp_size=0x2000000\0"
 
-#include <config_distro_bootcmd.h>
 #define CFG_EXTRA_ENV_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"partitions=" PARTS_DEFAULT		\
 	ENV_MEM_LAYOUT_SETTINGS			\
-	ROCKCHIP_DEVICE_SETTINGS		\
-	BOOTENV
+	ROCKCHIP_DEVICE_SETTINGS \
+	"boot_targets=" BOOT_TARGETS "\0"
 
 #endif /* __CONFIG_RK3588_COMMON_H */
