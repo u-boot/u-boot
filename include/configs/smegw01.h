@@ -17,6 +17,11 @@
 /* MMC Config*/
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
+/* default to no extra bootparams, we need an empty define for stringification*/
+#ifndef EXTRA_BOOTPARAMS
+#define EXTRA_BOOTPARAMS
+#endif
+
 #define CFG_EXTRA_ENV_SETTINGS \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
@@ -26,7 +31,8 @@
 	"mmcdev=0\0" \
 	"mmcpart=1\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/mmcblk0p${mmcpart} rootwait rw\0" \
+		"root=/dev/mmcblk0p${mmcpart} rootwait rw " \
+		__stringify(EXTRA_BOOTPARAMS) "\0" \
 	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} boot/${image}\0" \
 	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} boot/${fdtfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
