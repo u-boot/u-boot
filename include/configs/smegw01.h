@@ -28,7 +28,7 @@
 	"fdtfile=imx7d-smegw01.dtb\0" \
 	"fdt_addr=0x83000000\0" \
 	"bootm_size=0x10000000\0" \
-	"mmcdev=0\0" \
+	"mmcdev=1\0" \
 	"mmcpart=1\0" \
 	"mmcpart_committed=1\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
