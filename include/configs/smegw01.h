@@ -30,13 +30,19 @@
 	"bootm_size=0x10000000\0" \
 	"mmcdev=0\0" \
 	"mmcpart=1\0" \
+	"mmcpart_committed=1\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/mmcblk0p${mmcpart} rootwait rw " \
+		"root=/dev/mmcblk0p${mmcpart_committed} rootwait rw " \
 		__stringify(EXTRA_BOOTPARAMS) "\0" \
+	"commit_mmc=if test \"${ustate}\" = 1 -a \"${mmcpart}\" != \"${mmcpart_committed}\"; then " \
+	              "setenv mmcpart_committed ${mmcpart};" \
+								"saveenv;" \
+						  "fi;\0" \
 	"bootlimit=3\0" \
-	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} boot/${image}\0" \
-	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} boot/${fdtfile}\0" \
+	"loadimage=load mmc ${mmcdev}:${mmcpart_committed} ${loadaddr} boot/${image}\0" \
+	"loadfdt=load mmc ${mmcdev}:${mmcpart_committed} ${fdt_addr} boot/${fdtfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
+	  "run commit_mmc; " \
 		"run mmcargs; " \
 		"if run loadfdt; then " \
 			"if bootz ${loadaddr} - ${fdt_addr}; then " \
@@ -48,10 +54,12 @@
 			"run altbootcmd; " \
 		"fi;\0" \
 	"altbootcmd=echo Performing rollback...; " \
-		"if test \"${mmcpart}\" = 1; then " \
+		"if test \"${mmcpart_committed}\" = 1; then " \
 			"setenv mmcpart 2; " \
+			"setenv mmcpart_committed 2;" \
 		"else " \
 			"setenv mmcpart 1; " \
+			"setenv mmcpart_committed 1;" \
 		"fi; setenv bootcount 0; setenv upgrade_available; setenv ustate 3; saveenv; " \
 		"run bootcmd;\0"
 
