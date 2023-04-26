@@ -23,7 +23,7 @@
 #endif
 
 #define CFG_EXTRA_ENV_SETTINGS \
-	"image=zImage\0" \
+	"image=fitImage\0" \
 	"console=ttymxc0\0" \
 	"fdtfile=imx7d-smegw01.dtb\0" \
 	"fdt_addr=0x83000000\0" \
@@ -39,8 +39,8 @@
 								"saveenv;" \
 						  "fi;\0" \
 	"bootlimit=3\0" \
-	"loadimage=load mmc ${mmcdev}#rootfs-${mmcpart_committed} ${loadaddr} boot/${image}\0" \
-	"loadfdt=load mmc ${mmcdev}#rootfs-${mmcpart_committed} ${fdt_addr} boot/${fdtfile}\0" \
+	"fit_addr=0x88000000\0" \
+	"loadimage=load mmc ${mmcdev}#rootfs-${mmcpart_committed} ${fit_addr} boot/${image}\0" \
 	"loadpart=gpt setenv mmc ${mmcdev} rootfs-${mmcpart_committed}\0" \
 	"loadbootpart=mmc partconf 1 boot_part\0" \
 	"mmcboot=echo Booting from mmc ...; " \
@@ -48,12 +48,8 @@
 		"run loadpart; " \
 		"run loadbootpart; " \
 		"run mmcargs; " \
-		"if run loadfdt; then " \
-			"if bootz ${loadaddr} - ${fdt_addr}; then " \
-				"; " \
-			"else " \
-				"run altbootcmd; " \
-			"fi;" \
+		"if bootm ${fit_addr}; then " \
+			"; " \
 		"else " \
 			"run altbootcmd; " \
 		"fi;\0" \
