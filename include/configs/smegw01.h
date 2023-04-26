@@ -39,7 +39,13 @@
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"if run loadfdt; then " \
-			"bootz ${loadaddr} - ${fdt_addr}; " \
+			"if bootz ${loadaddr} - ${fdt_addr}; then " \
+				"; " \
+			"else " \
+				"run altbootcmd; " \
+			"fi;" \
+		"else " \
+			"run altbootcmd; " \
 		"fi;\0" \
 	"altbootcmd=echo Performing rollback...; " \
 		"if test \"${mmcpart}\" = 1; then " \
