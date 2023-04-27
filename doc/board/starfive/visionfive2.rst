@@ -51,6 +51,8 @@ cloned and built for JH7110 as below:
 	cd opensbi
 	make PLATFORM=generic FW_TEXT_START=0x40000000 FW_OPTIONS=0
 
+The VisionFive 2 support for OpenSBI was introduced after the v1.2 release.
+
 More detailed description of steps required to build FW_DYNAMIC firmware
 is beyond the scope of this document. Please refer OpenSBI documenation.
 (Note: OpenSBI git repo is at https://github.com/riscv/opensbi.git)
