@@ -89,6 +89,19 @@
 		cs-gpios = <0>, <&gpio_a 0>;
 	};
 
+	nvmxip-qspi1@08000000 {
+		compatible = "nvmxip,qspi";
+		reg = /bits/ 64 <0x08000000 0x00200000>;
+		lba_shift = <9>;
+		lba = <4096>;
+	};
+
+	nvmxip-qspi2@08200000 {
+		compatible = "nvmxip,qspi";
+		reg = /bits/ 64 <0x08200000 0x00100000>;
+		lba_shift = <9>;
+		lba = <2048>;
+	};
 };
 
 #include "sandbox.dtsi"

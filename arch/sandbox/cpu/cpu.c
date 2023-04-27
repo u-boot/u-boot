@@ -230,7 +230,7 @@ phys_addr_t map_to_sysmem(const void *ptr)
 	return mentry->tag;
 }
 
-unsigned int sandbox_read(const void *addr, enum sandboxio_size_t size)
+unsigned long sandbox_read(const void *addr, enum sandboxio_size_t size)
 {
 	struct sandbox_state *state = state_get_current();
 

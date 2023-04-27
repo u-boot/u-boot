@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2013 Google, Inc
+# Copyright 2023 Arm Limited and/or its affiliates <open-source-office@arm.com>
 
 obj-$(CONFIG_UT_DM) += test-dm.o
 
@@ -17,6 +18,10 @@ obj-$(CONFIG_UT_DM) += test-uclass.o
 obj-$(CONFIG_UT_DM) += core.o
 obj-$(CONFIG_UT_DM) += read.o
 obj-$(CONFIG_UT_DM) += phys2bus.o
+ifeq ($(CONFIG_NVMXIP_QSPI)$(CONFIG_SANDBOX64),yy)
+obj-y += nvmxip.o
+endif
+
 ifneq ($(CONFIG_SANDBOX),)
 ifeq ($(CONFIG_ACPIGEN),y)
 obj-y += acpi.o
