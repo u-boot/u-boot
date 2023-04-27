@@ -676,7 +676,6 @@ static int zynq_qspi_exec_op(struct spi_slave *slave,
 			     const struct spi_mem_op *op)
 {
 	int op_len, pos = 0, ret, i;
-	u32 dummy_bytes = 0;
 	unsigned int flag = 0;
 	const u8 *tx_buf = NULL;
 	u8 *rx_buf = NULL;
@@ -689,11 +688,6 @@ static int zynq_qspi_exec_op(struct spi_slave *slave,
 	}
 
 	op_len = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
-	if (op->dummy.nbytes) {
-		op_len = op->cmd.nbytes + op->addr.nbytes +
-			 op->dummy.nbytes / op->dummy.buswidth;
-		dummy_bytes = op->dummy.nbytes / op->dummy.buswidth;
-	}
 
 	u8 op_buf[op_len];
 
@@ -707,8 +701,8 @@ static int zynq_qspi_exec_op(struct spi_slave *slave,
 		pos += op->addr.nbytes;
 	}
 
-	if (dummy_bytes)
-		memset(op_buf + pos, 0xff, dummy_bytes);
+	if (op->dummy.nbytes)
+		memset(op_buf + pos, 0xff, op->dummy.nbytes);
 
 	/* 1st transfer: opcode + address + dummy cycles */
 	/* Make sure to set END bit if no tx or rx data messages follow */
