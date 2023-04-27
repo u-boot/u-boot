@@ -521,7 +521,7 @@ static int parse_offset(struct stm32prog_data *data,
 			stm32prog_err("Layout line %d: invalid part '%s'",
 				      i, p);
 	} else {
-		part->addr = simple_strtoull(p, &tail, 0);
+		part->addr = simple_strtoull(p, &tail, 10);
 		if (tail == p || *tail != '\0') {
 			stm32prog_err("Layout line %d: invalid offset '%s'",
 				      i, p);
