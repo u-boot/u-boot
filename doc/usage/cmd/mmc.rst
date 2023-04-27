@@ -213,10 +213,10 @@ The 'mmc info' command displays device's capabilities:
 The raw data can be read/written via 'mmc read/write' command:
 ::
 
-    => mmc read 0x40000000 0x5000 0x100
+    => mmc read 40000000 5000 100
     MMC read: dev # 0, block # 20480, count 256 ... 256 blocks read: OK
 
-    => mmc write 0x40000000 0x5000 0x10
+    => mmc write 40000000 5000 100
     MMC write: dev # 0, block # 20480, count 256 ... 256 blocks written: OK
 
 The partition list can be shown via 'mmc part' command:
