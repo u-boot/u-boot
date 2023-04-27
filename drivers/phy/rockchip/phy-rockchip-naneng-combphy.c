@@ -76,7 +76,7 @@ struct rockchip_combphy_priv {
 	struct regmap *pipe_grf;
 	struct regmap *phy_grf;
 	struct phy *phy;
-	struct reset_ctl phy_rst;
+	struct reset_ctl_bulk phy_rsts;
 	struct clk ref_clk;
 	const struct rockchip_combphy_cfg *cfg;
 };
@@ -189,7 +189,7 @@ static int rockchip_combphy_init(struct phy *phy)
 	if (ret)
 		goto err_clk;
 
-	reset_deassert(&priv->phy_rst);
+	reset_deassert_bulk(&priv->phy_rsts);
 
 	return 0;
 
@@ -204,7 +204,7 @@ static int rockchip_combphy_exit(struct phy *phy)
 	struct rockchip_combphy_priv *priv = dev_get_priv(phy->dev);
 
 	clk_disable(&priv->ref_clk);
-	reset_assert(&priv->phy_rst);
+	reset_assert_bulk(&priv->phy_rsts);
 
 	return 0;
 }
@@ -255,7 +255,7 @@ static int rockchip_combphy_parse_dt(struct udevice *dev,
 		return PTR_ERR(&priv->ref_clk);
 	}
 
-	ret = reset_get_by_index(dev, 0, &priv->phy_rst);
+	ret = reset_get_bulk(dev, &priv->phy_rsts);
 	if (ret) {
 		dev_err(dev, "no phy reset control specified\n");
 		return ret;
