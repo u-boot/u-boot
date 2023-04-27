@@ -468,6 +468,7 @@ static const struct dm_pci_ops rockchip_pcie_ops = {
 
 static const struct udevice_id rockchip_pcie_ids[] = {
 	{ .compatible = "rockchip,rk3568-pcie" },
+	{ .compatible = "rockchip,rk3588-pcie" },
 	{ }
 };
 
