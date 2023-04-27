@@ -1446,8 +1446,11 @@ int stm32prog_otp_write(struct stm32prog_data *data, u32 offset, u8 *buffer,
 
 	if (!data->otp_part) {
 		data->otp_part = memalign(CONFIG_SYS_CACHELINE_SIZE, otp_size);
-		if (!data->otp_part)
+		if (!data->otp_part) {
+			stm32prog_err("OTP write issue %d", -ENOMEM);
+
 			return -ENOMEM;
+		}
 	}
 
 	if (!offset)
@@ -1510,6 +1513,8 @@ int stm32prog_otp_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 	memcpy(buffer, (void *)((uintptr_t)data->otp_part + offset), *size);
 
 end_otp_read:
+	if (result)
+		stm32prog_err("OTP read issue %d", result);
 	log_debug("%s: result %i\n", __func__, result);
 
 	return result;
@@ -1563,6 +1568,8 @@ int stm32prog_otp_start(struct stm32prog_data *data)
 
 	free(data->otp_part);
 	data->otp_part = NULL;
+	if (result)
+		stm32prog_err("OTP write issue %d", result);
 	log_debug("%s: result %i\n", __func__, result);
 
 	return result;
