@@ -42,6 +42,7 @@ struct rk_pcie {
 	struct clk_bulk	clks;
 	struct reset_ctl_bulk	rsts;
 	struct gpio_desc	rst_gpio;
+	u32		gen;
 };
 
 /* Parameters for the waiting for iATU enabled routine */
@@ -331,7 +332,7 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 	rk_pcie_writel_apb(priv, 0x0, 0xf00040);
 	pcie_dw_setup_host(&priv->dw);
 
-	ret = rk_pcie_link_up(priv, LINK_SPEED_GEN_3);
+	ret = rk_pcie_link_up(priv, priv->gen);
 	if (ret < 0)
 		goto err_link_up;
 
@@ -396,6 +397,9 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 		dev_err(dev, "failed to get pcie phy (ret=%d)\n", ret);
 		goto rockchip_pcie_parse_dt_err_phy_get_by_index;
 	}
+
+	priv->gen = dev_read_u32_default(dev, "max-link-speed",
+					 LINK_SPEED_GEN_3);
 
 	return 0;
 
