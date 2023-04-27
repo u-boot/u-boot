@@ -519,20 +519,6 @@ static int initr_post(void)
 }
 #endif
 
-#if defined(CONFIG_IDE) && !defined(CONFIG_BLK)
-static int initr_ide(void)
-{
-	puts("IDE:   ");
-#if defined(CONFIG_START_IDE)
-	if (board_start_ide())
-		ide_init();
-#else
-	ide_init();
-#endif
-	return 0;
-}
-#endif
-
 #if defined(CFG_PRAM)
 /*
  * Export available size of memory for Linux, taking into account the
@@ -782,9 +768,6 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_POST
 	initr_post,
-#endif
-#if defined(CONFIG_IDE) && !defined(CONFIG_BLK)
-	initr_ide,
 #endif
 #ifdef CONFIG_LAST_STAGE_INIT
 	INIT_FUNC_WATCHDOG_RESET
