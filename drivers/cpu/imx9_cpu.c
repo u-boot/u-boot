@@ -9,7 +9,7 @@
 #include <thermal.h>
 #include <asm/global_data.h>
 #include <asm/system.h>
-#include <firmware/imx/sci/sci.h>
+#include <firmware/linux/imx/sci/sci.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/armv8/cpu.h>
@@ -27,24 +27,21 @@ struct cpu_imx_plat {
 	u32 mpidr;
 };
 
-const char *get_imx8_type(u32 imxtype)
+const char *get_imx9_type(u32 imxtype)
 {
 	switch (imxtype) {
-	case MXC_CPU_IMX8QXP:
-	case MXC_CPU_IMX8QXP_A0:
-		return "QXP";
-	case MXC_CPU_IMX8QM:
-		return "QM";
+	case MXC_CPU_IMX93:
+		return "93";
 	default:
 		return "??";
 	}
 }
 
-const char *get_imx8_rev(u32 rev)
+const char *get_imx9_rev(u32 rev)
 {
 	switch (rev) {
-	case CHIP_REV_A:
-		return "A";
+	case CHIP_REV_1_0:
+		return "1.";
 	case CHIP_REV_B:
 		return "B";
 	case CHIP_REV_C:
@@ -58,19 +55,10 @@ static void set_core_data(struct udevice *dev)
 {
 	struct cpu_imx_plat *plat = dev_get_plat(dev);
 
-	if (device_is_compatible(dev, "arm,cortex-a35")) {
-		plat->cpu_rsrc = SC_R_A35;
+	if (device_is_compatible(dev, "arm,cortex-a35"))
 		plat->name = "A35";
-	} else if (device_is_compatible(dev, "arm,cortex-a53")) {
-		plat->cpu_rsrc = SC_R_A53;
-		plat->name = "A53";
-	} else if (device_is_compatible(dev, "arm,cortex-a72")) {
-		plat->cpu_rsrc = SC_R_A72;
-		plat->name = "A72";
-	} else {
-		plat->cpu_rsrc = SC_R_A53;
+	else
 		plat->name = "?";
-	}
 }
 
 #if IS_ENABLED(CONFIG_IMX_SCU_THERMAL)
@@ -174,7 +162,7 @@ static int cpu_imx_is_current(struct udevice *dev)
 	return 0;
 }
 
-static const struct cpu_ops cpu_imx8_ops = {
+static const struct cpu_ops cpu_imx9_ops = {
 	.get_desc	= cpu_imx_get_desc,
 	.get_info	= cpu_imx_get_info,
 	.get_count	= cpu_imx_get_count,
@@ -182,14 +170,14 @@ static const struct cpu_ops cpu_imx8_ops = {
 	.is_current	= cpu_imx_is_current,
 };
 
-static const struct udevice_id cpu_imx8_ids[] = {
+static const struct udevice_id cpu_imx9_ids[] = {
 	{ .compatible = "arm,cortex-a35" },
 	{ .compatible = "arm,cortex-a53" },
 	{ .compatible = "arm,cortex-a72" },
 	{ }
 };
 
-static ulong imx8_get_cpu_rate(struct udevice *dev)
+static ulong imx9_get_cpu_rate(struct udevice *dev)
 {
 	struct cpu_imx_plat *plat = dev_get_plat(dev);
 	ulong rate;
@@ -205,7 +193,7 @@ static ulong imx8_get_cpu_rate(struct udevice *dev)
 	return rate;
 }
 
-static int imx8_cpu_probe(struct udevice *dev)
+static int imx9_cpu_probe(struct udevice *dev)
 {
 	struct cpu_imx_plat *plat = dev_get_plat(dev);
 	u32 cpurev;
@@ -213,9 +201,9 @@ static int imx8_cpu_probe(struct udevice *dev)
 	set_core_data(dev);
 	cpurev = get_cpu_rev();
 	plat->cpurev = cpurev;
-	plat->rev = get_imx8_rev(cpurev & 0xFFF);
-	plat->type = get_imx8_type((cpurev & 0xFF000) >> 12);
-	plat->freq_mhz = imx8_get_cpu_rate(dev) / 1000000;
+	plat->rev = get_imx9_rev(cpurev & 0xFFF);
+	plat->type = get_imx9_type((cpurev & 0xFF000) >> 12);
+	plat->freq_mhz = imx9_get_cpu_rate(dev) / 1000000;
 	plat->mpidr = dev_read_addr(dev);
 	if (plat->mpidr == FDT_ADDR_T_NONE) {
 		printf("%s: Failed to get CPU reg property\n", __func__);
@@ -225,12 +213,12 @@ static int imx8_cpu_probe(struct udevice *dev)
 	return 0;
 }
 
-U_BOOT_DRIVER(cpu_imx8_drv) = {
-	.name		= "imx8x_cpu",
+U_BOOT_DRIVER(cpu_imx9_drv) = {
+	.name		= "imx9x_cpu",
 	.id		= UCLASS_CPU,
-	.of_match	= cpu_imx8_ids,
-	.ops		= &cpu_imx8_ops,
-	.probe		= imx8_cpu_probe,
+	.of_match	= cpu_imx9_ids,
+	.ops		= &cpu_imx9_ops,
+	.probe		= imx9_cpu_probe,
 	.plat_auto	= sizeof(struct cpu_imx_plat),
 	.flags		= DM_FLAG_PRE_RELOC,
 };

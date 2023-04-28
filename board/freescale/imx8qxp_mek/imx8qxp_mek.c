@@ -16,7 +16,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/sci/sci.h>
+#include <firmware/imx/sci/sci.h>
 #include <asm/arch/imx8-pins.h>
 #include <asm/arch/snvs_security_sc.h>
 #include <asm/arch/iomux.h>

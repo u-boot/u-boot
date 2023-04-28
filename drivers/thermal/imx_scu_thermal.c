@@ -12,7 +12,7 @@
 #include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/device.h>
-#include <asm/arch/sci/sci.h>
+#include <firmware/imx/sci/sci.h>
 #include <linux/delay.h>
 #include <linux/libfdt.h>
 

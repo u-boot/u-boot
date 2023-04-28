@@ -3,7 +3,7 @@
  * Copyright 2018 NXP
  */
 
-#include <asm/arch/sci/sci.h>
+#include <firmware/imx/sci/sci.h>
 #include <asm/mach-imx/sys_proto.h>
 #include <asm/arch/power-domain.h>
 #include <dm/platdata.h>

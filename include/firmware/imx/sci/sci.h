@@ -7,13 +7,13 @@
 #define _SC_SCI_H
 
 #include <log.h>
-#include <asm/arch/sci/types.h>
-#include <asm/arch/sci/svc/misc/api.h>
-#include <asm/arch/sci/svc/pad/api.h>
-#include <asm/arch/sci/svc/pm/api.h>
-#include <asm/arch/sci/svc/rm/api.h>
-#include <asm/arch/sci/svc/seco/api.h>
-#include <asm/arch/sci/rpc.h>
+#include <firmware/imx/sci/types.h>
+#include <firmware/imx/sci/svc/misc/api.h>
+#include <firmware/imx/sci/svc/pad/api.h>
+#include <firmware/imx/sci/svc/pm/api.h>
+#include <firmware/imx/sci/svc/rm/api.h>
+#include <firmware/imx/sci/svc/seco/api.h>
+#include <firmware/imx/sci/rpc.h>
 #include <dt-bindings/soc/imx_rsrc.h>
 #include <linux/errno.h>
 
