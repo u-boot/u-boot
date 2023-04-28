@@ -145,68 +145,122 @@ void get_trained_CDD(u32 fsp)
 	g_cdd_ww_max[fsp] =  cdd_cha_ww_max > cdd_chb_ww_max ? cdd_cha_ww_max : cdd_chb_ww_max;
 }
 
-void update_umctl2_rank_space_setting(unsigned int pstat_num)
+static u32 ddrc_get_fsp_reg_setting(struct dram_cfg_param *ddrc_cfg, unsigned int cfg_num, u32 reg)
+{
+	unsigned int i;
+
+	for (i = 0; i < cfg_num; i++) {
+		if (reg == ddrc_cfg[i].reg)
+			return ddrc_cfg[i].val;
+	}
+
+	return 0;
+}
+
+static void ddrc_update_fsp_reg_setting(struct dram_cfg_param *ddrc_cfg, int cfg_num,
+					u32 reg, u32 val)
+{
+	unsigned int i;
+
+	for (i = 0; i < cfg_num; i++) {
+		if (reg == ddrc_cfg[i].reg) {
+			ddrc_cfg[i].val = val;
+			return;
+		}
+	}
+}
+
+void update_umctl2_rank_space_setting(struct dram_timing_info *dram_timing, unsigned int pstat_num)
 {
 	u32 tmp, tmp_t;
+	u32 wwt, rrt, wrt, rwt;
+	u32 ext_wwt, ext_rrt, ext_wrt, ext_rwt;
+	u32 max_wwt, max_rrt, max_wrt, max_rwt;
+	u32 i;
 
-	int wwt, rrt, wrt, rwt;
-	int ext_wwt, ext_rrt, ext_wrt, ext_rwt;
-	int max_wwt, max_rrt, max_wrt, max_rwt;
+	for (i = 0; i < pstat_num; i++) {
+		/* read wwt, rrt, wrt, rwt fields from timing_cfg_0 */
+		if (!dram_timing->fsp_cfg_num) {
+			tmp = ddrc_get_fsp_reg_setting(dram_timing->ddrc_cfg,
+						       dram_timing->ddrc_cfg_num,
+						       REG_DDR_TIMING_CFG_0);
+		} else {
+			tmp = ddrc_get_fsp_reg_setting(dram_timing->fsp_cfg[i].ddrc_cfg,
+						       ARRAY_SIZE(dram_timing->fsp_cfg[i].ddrc_cfg),
+						       REG_DDR_TIMING_CFG_0);
+		}
+		wwt = (tmp >> 24) & 0x3;
+		rrt = (tmp >> 26) & 0x3;
+		wrt = (tmp >> 28) & 0x3;
+		rwt = (tmp >> 30) & 0x3;
 
-	/* read wwt, rrt, wrt, rwt fields from timing_cfg_0 */
-	tmp = readl(REG_DDR_TIMING_CFG_0);
-	wwt = (tmp >> 24) & 0x3;
-	rrt = (tmp >> 26) & 0x3;
-	wrt = (tmp >> 28) & 0x3;
-	rwt = (tmp >> 30) & 0x3;
+		/* read rxt_wwt, ext_rrt, ext_wrt, ext_rwt fields from timing_cfg_4 */
+		if (!dram_timing->fsp_cfg_num) {
+			tmp_t = ddrc_get_fsp_reg_setting(dram_timing->ddrc_cfg,
+							 dram_timing->ddrc_cfg_num,
+							 REG_DDR_TIMING_CFG_4);
+		} else {
+			tmp_t = ddrc_get_fsp_reg_setting(dram_timing->fsp_cfg[i].ddrc_cfg,
+							 ARRAY_SIZE(dram_timing->fsp_cfg[i].ddrc_cfg),
+							 REG_DDR_TIMING_CFG_4);
+		}
+		ext_wwt = (tmp_t >> 8)  & 0x3;
+		ext_rrt = (tmp_t >> 10) & 0x3;
+		ext_wrt = (tmp_t >> 12) & 0x3;
+		ext_rwt = (tmp_t >> 14) & 0x3;
 
-	/* read rxt_wwt, ext_rrt, ext_wrt, ext_rwt fields from timing_cfg_4 */
-	tmp_t = readl(REG_DDR_TIMING_CFG_4);
-	ext_wwt = (tmp >> 8) & 0x1;
-	ext_rrt = (tmp >> 10) & 0x1;
-	ext_wrt = (tmp >> 12) & 0x1;
-	ext_rwt = (tmp >> 14) & 0x3;
+		wwt = (ext_wwt << 2) | wwt;
+		rrt = (ext_rrt << 2) | rrt;
+		wrt = (ext_wrt << 2) | wrt;
+		rwt = (ext_rwt << 2) | rwt;
 
-	wwt = (ext_wwt << 2) | wwt;
-	rrt = (ext_rrt << 2) | wwt;
-	wrt = (ext_wrt << 2) | wrt;
-	rwt = (ext_rwt << 2) | rwt;
+		max_wwt = MAX(g_cdd_ww_max[0], wwt);
+		max_rrt = MAX(g_cdd_rr_max[0], rrt);
+		max_wrt = MAX(g_cdd_wr_max[0], wrt);
+		max_rwt = MAX(g_cdd_rw_max[0], rwt);
+		/* verify values to see if are bigger then 15 (4 bits) */
+		if (max_wwt > 15)
+			max_wwt = 15;
+		if (max_rrt > 15)
+			max_rrt = 15;
+		if (max_wrt > 15)
+			max_wrt = 15;
+		if (max_rwt > 15)
+			max_rwt = 15;
 
-	/* calculate the maximum between controller and cdd values */
-	max_wwt = MAX(g_cdd_ww_max[0], wwt);
-	max_rrt = MAX(g_cdd_rr_max[0], rrt);
-	max_wrt = MAX(g_cdd_wr_max[0], wrt);
-	max_rwt = MAX(g_cdd_rw_max[0], rwt);
+		/* recalculate timings for controller registers */
+		wwt = max_wwt & 0x3;
+		rrt = max_rrt & 0x3;
+		wrt = max_wrt & 0x3;
+		rwt = max_rwt & 0x3;
 
-	/* verify values to see if are bigger then 7 or 15 (3 bits or 4 bits) */
-	if (max_wwt > 7)
-		max_wwt = 7;
-	if (max_rrt > 7)
-		max_rrt = 7;
-	if (max_wrt > 7)
-		max_wrt = 7;
-	if (max_rwt > 15)
-		max_rwt = 15;
+		ext_wwt = (max_wwt & 0xC) >> 2;
+		ext_rrt = (max_rrt & 0xC) >> 2;
+		ext_wrt = (max_wrt & 0xC) >> 2;
+		ext_rwt = (max_rwt & 0xC) >> 2;
 
-	/* recalculate timings for controller registers */
-	wwt = max_wwt & 0x3;
-	rrt = max_rrt & 0x3;
-	wrt = max_wrt & 0x3;
-	rwt = max_rwt & 0x3;
+		/* update timing_cfg_0 and timing_cfg_4 */
+		tmp = (tmp & 0x00ffffff) | (rwt << 30) | (wrt << 28) |
+			(rrt << 26) | (wwt << 24);
+		tmp_t = (tmp_t & 0xFFFF00FF) | (ext_rwt << 14) |
+			(ext_wrt << 12) | (ext_rrt << 10) | (ext_wwt << 8);
 
-	ext_wwt = (max_wwt & 0x4) >> 2;
-	ext_rrt = (max_rrt & 0x4) >> 2;
-	ext_wrt = (max_wrt & 0x4) >> 2;
-	ext_rwt = (max_rwt & 0xC) >> 2;
-
-	/* update timing_cfg_0 and timing_cfg_4 */
-	tmp = (tmp & 0x00ffffff) | (rwt << 30) | (wrt << 28) |
-		(rrt << 26) | (wwt << 24);
-	writel(tmp, REG_DDR_TIMING_CFG_0);
-
-	tmp_t = (tmp_t & 0xFFFF2AFF) | (ext_rwt << 14) |
-		(ext_wrt << 12) | (ext_rrt << 10) | (ext_wwt << 8);
-	writel(tmp_t, REG_DDR_TIMING_CFG_4);
+		if (!dram_timing->fsp_cfg_num) {
+			ddrc_update_fsp_reg_setting(dram_timing->ddrc_cfg,
+						    dram_timing->ddrc_cfg_num,
+						    REG_DDR_TIMING_CFG_0, tmp);
+			ddrc_update_fsp_reg_setting(dram_timing->ddrc_cfg,
+						    dram_timing->ddrc_cfg_num,
+						    REG_DDR_TIMING_CFG_4, tmp_t);
+		} else {
+			ddrc_update_fsp_reg_setting(dram_timing->fsp_cfg[i].ddrc_cfg,
+						    ARRAY_SIZE(dram_timing->fsp_cfg[i].ddrc_cfg),
+						    REG_DDR_TIMING_CFG_0, tmp);
+			ddrc_update_fsp_reg_setting(dram_timing->fsp_cfg[i].ddrc_cfg,
+						    ARRAY_SIZE(dram_timing->fsp_cfg[i].ddrc_cfg),
+						    REG_DDR_TIMING_CFG_4, tmp_t);
+		}
+	}
 }
 
 u32 ddrc_mrr(u32 chip_select, u32 mode_reg_num, u32 *mode_reg_val)
@@ -313,12 +367,12 @@ int ddr_init(struct dram_timing_info *dram_timing)
 
 	debug("DDRINFO: ddrphy config done\n");
 
+	update_umctl2_rank_space_setting(dram_timing, dram_timing->fsp_msg_num - 1);
+
 	/* rogram the ddrc registers */
 	debug("DDRINFO: ddrc config start\n");
 	ddrc_config(dram_timing);
 	debug("DDRINFO: ddrc config done\n");
-
-	update_umctl2_rank_space_setting(dram_timing->fsp_msg_num - 1);
 
 #ifdef CONFIG_IMX9_DRAM_PM_COUNTER
 	writel(0x200000, REG_DDR_DEBUG_19);
