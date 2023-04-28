@@ -27,7 +27,7 @@ struct cpu_imx_plat {
 	u32 mpidr;
 };
 
-const char *get_imx8_type(u32 imxtype)
+static const char *get_imx8_type(u32 imxtype)
 {
 	switch (imxtype) {
 	case MXC_CPU_IMX8QXP:
@@ -40,7 +40,7 @@ const char *get_imx8_type(u32 imxtype)
 	}
 }
 
-const char *get_imx8_rev(u32 rev)
+static const char *get_imx8_rev(u32 rev)
 {
 	switch (rev) {
 	case CHIP_REV_A:
@@ -101,7 +101,7 @@ static int cpu_imx_get_temp(struct cpu_imx_plat *plat)
 }
 #endif
 
-int cpu_imx_get_desc(const struct udevice *dev, char *buf, int size)
+static int cpu_imx_get_desc(const struct udevice *dev, char *buf, int size)
 {
 	struct cpu_imx_plat *plat = dev_get_plat(dev);
 	int ret, temp;
