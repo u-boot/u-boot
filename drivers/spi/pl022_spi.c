@@ -12,7 +12,7 @@
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
-#include <dm/platform_data/spi_pl022.h>
+#include <fdtdec.h>
 #include <linux/io.h>
 #include <asm/global_data.h>
 #include <spi.h>
@@ -65,6 +65,12 @@
 #define SSP_SR_MASK_RNE		(0x1 << 2) /* Receive FIFO not empty */
 #define SSP_SR_MASK_RFF		(0x1 << 3) /* Receive FIFO full */
 #define SSP_SR_MASK_BSY		(0x1 << 4) /* Busy Flag */
+
+struct pl022_spi_pdata {
+	fdt_addr_t addr;
+	fdt_size_t size;
+	unsigned int freq;
+};
 
 struct pl022_spi_slave {
 	void *base;
