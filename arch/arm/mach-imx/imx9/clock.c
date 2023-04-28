@@ -648,6 +648,9 @@ void dram_pll_init(ulong pll_val)
 void dram_enable_bypass(ulong clk_val)
 {
 	switch (clk_val) {
+	case MHZ(625):
+		ccm_clk_root_cfg(DRAM_ALT_CLK_ROOT, SYS_PLL_PFD2, 1);
+		break;
 	case MHZ(400):
 		ccm_clk_root_cfg(DRAM_ALT_CLK_ROOT, SYS_PLL_PFD1, 2);
 		break;
