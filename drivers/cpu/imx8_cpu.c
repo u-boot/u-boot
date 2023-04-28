@@ -13,6 +13,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/armv8/cpu.h>
+#include <imx_thermal.h>
 #include <linux/bitops.h>
 #include <linux/clk-provider.h>
 
@@ -121,16 +122,44 @@ static int cpu_imx_get_temp(struct cpu_imx_plat *plat)
 }
 #endif
 
+__weak u32 get_cpu_temp_grade(int *minc, int *maxc)
+{
+	return 0;
+}
+
 static int cpu_imx_get_desc(const struct udevice *dev, char *buf, int size)
 {
 	struct cpu_imx_plat *plat = dev_get_plat(dev);
+	const char *grade;
 	int ret, temp;
+	int minc, maxc;
 
 	if (size < 100)
 		return -ENOSPC;
 
 	ret = snprintf(buf, size, "NXP i.MX%s Rev%s %s at %u MHz",
 		       plat->type, plat->rev, plat->name, plat->freq_mhz);
+
+	if (IS_ENABLED(CONFIG_IMX9)) {
+		switch (get_cpu_temp_grade(&minc, &maxc)) {
+		case TEMP_AUTOMOTIVE:
+			grade = "Automotive temperature grade ";
+			break;
+		case TEMP_INDUSTRIAL:
+			grade = "Industrial temperature grade ";
+			break;
+		case TEMP_EXTCOMMERCIAL:
+			grade = "Extended Consumer temperature grade ";
+			break;
+		default:
+			grade = "Consumer temperature grade ";
+			break;
+		}
+
+		buf = buf + ret;
+		size = size - ret;
+		ret = snprintf(buf, size, "\nCPU:   %s (%dC to %dC)", grade, minc, maxc);
+	}
 
 	if (IS_ENABLED(CONFIG_DM_THERMAL)) {
 		temp = cpu_imx_get_temp(plat);
