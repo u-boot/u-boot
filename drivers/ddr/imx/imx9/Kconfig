@@ -22,6 +22,6 @@ config SAVED_DRAM_TIMING_BASE
 	help
 	  after DRAM is trained, need to save the dram related timming
 	  info into memory for low power use.
-	default 0x204DC000
+	default 0x2051C000
 
 endmenu
