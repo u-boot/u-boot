@@ -44,7 +44,8 @@ struct rom_api *g_rom_api = (struct rom_api *)0x1980;
 #ifdef CONFIG_ENV_IS_IN_MMC
 __weak int board_mmc_get_env_dev(int devno)
 {
-	return devno; }
+	return devno;
+}
 
 int mmc_get_env_dev(void)
 {
