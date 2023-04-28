@@ -700,8 +700,8 @@ int clock_init(void)
 	ccm_clk_root_cfg(WAKEUP_AXI_CLK_ROOT, SYS_PLL_PFD2, 2);
 	/* SWO TRACE to 133M */
 	ccm_clk_root_cfg(SWO_TRACE_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3);
-	/* M33 systetick to 133M */
-	ccm_clk_root_cfg(M33_SYSTICK_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3);
+	/* M33 systetick to 24M */
+	ccm_clk_root_cfg(M33_SYSTICK_CLK_ROOT, OSC_24M_CLK, 1);
 	/* NIC to 400M */
 	ccm_clk_root_cfg(NIC_CLK_ROOT, SYS_PLL_PFD1, 2);
 	/* NIC_APB to 133M */
