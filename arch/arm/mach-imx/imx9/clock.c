@@ -574,7 +574,7 @@ u32 imx_get_i2cclk(u32 i2c_num)
 	if (i2c_num > 7)
 		return -EINVAL;
 
-	return ccm_clk_root_get_rate(LPUART1_CLK_ROOT + i2c_num);
+	return ccm_clk_root_get_rate(LPI2C1_CLK_ROOT + i2c_num);
 }
 
 u32 get_lpuart_clk(void)
