@@ -253,6 +253,7 @@ class BuilderThread(threading.Thread):
                     args.extend(['-j', str(self.builder.num_jobs)])
                 if self.builder.warnings_as_errors:
                     args.append('KCFLAGS=-Werror')
+                    args.append('HOSTCFLAGS=-Werror')
                 if self.builder.allow_missing:
                     args.append('BINMAN_ALLOW_MISSING=1')
                 if self.builder.no_lto:
