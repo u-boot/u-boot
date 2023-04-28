@@ -206,6 +206,9 @@ int configure_intpll(enum ccm_clk_src pll, u32 freq)
 		return -EPERM;
 	}
 
+	/* Clear PLL HW CTRL SEL */
+	setbits_le32(&reg->ctrl.reg_clr, PLL_CTRL_HW_CTRL_SEL);
+
 	/* Bypass the PLL to ref */
 	writel(PLL_CTRL_CLKMUX_BYPASS, &reg->ctrl.reg_set);
 
