@@ -19,6 +19,8 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/syscounter.h>
 #include <asm/armv8/mmu.h>
+#include <dm/device.h>
+#include <dm/device_compat.h>
 #include <dm/uclass.h>
 #include <env.h>
 #include <env_internal.h>
@@ -408,6 +410,18 @@ void get_board_serial(struct tag_serialnr *serialnr)
 }
 #endif
 
+static void save_reset_cause(void)
+{
+	struct src_general_regs *src = (struct src_general_regs *)SRC_GLOBAL_RBASE;
+	u32 srsr = readl(&src->srsr);
+
+	/* clear srsr in sec mode */
+	writel(srsr, &src->srsr);
+
+	/* Save value to GPR1 to pass to nonsecure */
+	writel(srsr, &src->gpr[0]);
+}
+
 int arch_cpu_init(void)
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
@@ -417,6 +431,9 @@ int arch_cpu_init(void)
 		clock_init();
 
 		trdc_early_init();
+
+		/* Save SRC SRSR to GPR1 and clear it */
+		save_reset_cause();
 	}
 
 	return 0;
@@ -647,6 +664,48 @@ int m33_prepare(void)
 
 	/* Clear M33 TCM for ECC */
 	memset((void *)(ulong)0x201e0000, 0, 0x40000);
+
+	return 0;
+}
+
+int psci_sysreset_get_status(struct udevice *dev, char *buf, int size)
+{
+	static const char *reset_cause[] = {
+		"POR ",
+		"JTAG ",
+		"IPP USER ",
+		"WDOG1 ",
+		"WDOG2 ",
+		"WDOG3 ",
+		"WDOG4 ",
+		"WDOG5 ",
+		"TEMPSENSE ",
+		"CSU ",
+		"JTAG_SW ",
+		"M33_REQ ",
+		"M33_LOCKUP ",
+		"UNK ",
+		"UNK ",
+		"UNK "
+	};
+
+	struct src_general_regs *src = (struct src_general_regs *)SRC_GLOBAL_RBASE;
+	u32 srsr;
+	u32 i;
+	int res;
+
+	srsr = readl(&src->gpr[0]);
+
+	for (i = ARRAY_SIZE(reset_cause); i > 0; i--) {
+		if (srsr & (BIT(i - 1)))
+			break;
+	}
+
+	res = snprintf(buf, size, "Reset Status: %s\n", i ? reset_cause[i - 1] : "unknown reset");
+	if (res < 0) {
+		dev_err(dev, "Could not write reset status message (err = %d)\n", res);
+		return -EIO;
+	}
 
 	return 0;
 }
