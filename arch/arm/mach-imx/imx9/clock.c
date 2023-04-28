@@ -727,6 +727,12 @@ struct imx_clk_setting imx_clk_settings[] = {
 };
 #else
 struct imx_clk_setting imx_clk_settings[] = {
+	/*
+	 * Set A55 clk to 500M. This clock root is normally used as intermediate
+	 * clock source for A55 core/DSU when doing ARM PLL reconfig. set it to
+	 * 500MHz(LD mode frequency) should be ok.
+	 */
+	{ARM_A55_CLK_ROOT, SYS_PLL_PFD0, 2},
 	/* Set A55 periphal to 333M */
 	{ARM_A55_PERIPH_CLK_ROOT, SYS_PLL_PFD0, 3},
 	/* Set A55 mtr bus to 133M */
