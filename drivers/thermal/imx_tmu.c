@@ -25,6 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SITES_MAX	16
 #define FLAGS_VER2	0x1
 #define FLAGS_VER3	0x2
+#define FLAGS_VER4	0x4
 
 #define TMR_DISABLE	0x0
 #define TMR_ME		0x80000000
@@ -76,6 +77,45 @@ struct imx_tmu_regs {
 	u32 ttr3cr;	/* Temperature Range 3 Control Register */
 };
 
+struct imx_tmu_regs_v4 {
+	u32 tmr;	/* Mode Register */
+	u32 tsr;	/* Status Register */
+	u32 tmsr;	/* Monitor Site Register */
+	u32 tmtmir;	/* Temperature measurement interval Register */
+	u8 res0[0x10];
+	u32 tier;	/* Interrupt Enable Register */
+	u32 tidr;	/* Interrupt Detect Register */
+	u8 res1[0x8];
+	u32 tiiscr;	/* Interrupt Immediate Site Capture Register */
+	u32 tiascr;	/* Interrupt Average Site Capture Register */
+	u32 ticscr;	/* Interrupt Critical Site Capture Register */
+	u8 res2[0x4];
+	u32 tmhtcr;	/* Monitor High Temperature Capture Register */
+	u32 tmltcr;	/* MonitorLow Temperature Capture Register */
+	u32 tmrtrcr; /* Monitor Rising Temperature Rate Capture Register */
+	u32 tmftrcr; /* Monitor Falling Temperature Rate Capture Register */
+	u32 tmhtitr; /* Monitor High Temperature Immediate Threshold */
+	u32 tmhtatr; /* Monitor High Temperature Average Threshold */
+	u32 tmhtactr; /* Monitor High Temperature Average Crit Threshold */
+	u8 res3[0x4];
+	u32 tmltitr; /* Monitor Low Temperature Immediate Threshold */
+	u32 tmltatr; /* Monitor Low Temperature Average Threshold */
+	u32 tmltactr; /* Monitor Low Temperature Average Crit Threshold */
+	u8 res4[0x4];
+	u32 tmrtrctr; /* Monitor Rising Temperature Rate Critical Threshold Register */
+	u32 tmftrctr; /* Monitor Falling Temperature Rate Critical Threshold Register */
+	u8 res5[0x8];
+	u32 ttcfgr;	/* Temperature Configuration Register */
+	u32 tscfgr;	/* Sensor Configuration Register */
+	u8 res6[0x78];
+	u32 tritsr0; /* Immediate Temperature Site Register */
+	u32 tratsr0; /* Average Temperature Site Register */
+	u8 res7[0xdf8];
+	u32 tcmcfg;	/* Central Module Configuration */
+	u8 res8[0xc];
+	u32 ttrcr[16];	/* Temperature Range Control Register */
+};
+
 struct imx_tmu_regs_v2 {
 	u32 ter;	/* TMU enable Register */
 	u32 tsr;	/* Status Register */
@@ -115,6 +155,7 @@ union tmu_regs {
 	struct imx_tmu_regs regs_v1;
 	struct imx_tmu_regs_v2 regs_v2;
 	struct imx_tmu_regs_v3 regs_v3;
+	struct imx_tmu_regs_v4 regs_v4;
 };
 
 struct imx_tmu_plat {
@@ -148,6 +189,9 @@ static int read_temperature(struct udevice *dev, int *temp)
 			 * only reflects the RAW uncalibrated data
 			 */
 			valid =  ((val & 0xff) < 10 || (val & 0xff) > 125) ? 0 : 1;
+		} else if (drv_data & FLAGS_VER4) {
+			val = readl(&pdata->regs->regs_v4.tritsr0);
+			valid = val & 0x80000000;
 		} else {
 			val = readl(&pdata->regs->regs_v1.site[pdata->id].tritsr);
 			valid = val & 0x80000000;
@@ -165,6 +209,13 @@ static int read_temperature(struct udevice *dev, int *temp)
 				return -EINVAL;
 
 			*temp *= 1000;
+		} else if (drv_data & FLAGS_VER4) {
+			*temp = (val & 0x1ff) * 1000;
+			if (val & 0x200)
+				*temp += 500;
+
+			/* Convert Kelvin to Celsius */
+			*temp -= 273000;
 		} else {
 			*temp = (val & 0xff) * 1000;
 		}
@@ -206,6 +257,7 @@ static const struct dm_thermal_ops imx_tmu_ops = {
 static int imx_tmu_calibration(struct udevice *dev)
 {
 	int i, val, len, ret;
+	int index;
 	u32 range[4];
 	const fdt32_t *calibration;
 	struct imx_tmu_plat *pdata = dev_get_plat(dev);
@@ -215,6 +267,25 @@ static int imx_tmu_calibration(struct udevice *dev)
 
 	if (drv_data & (FLAGS_VER2 | FLAGS_VER3))
 		return 0;
+
+	if (drv_data & FLAGS_VER4) {
+		calibration = dev_read_prop(dev, "fsl,tmu-calibration", &len);
+		if (!calibration || len % 8 || len > 128) {
+			printf("TMU: invalid calibration data.\n");
+			return -ENODEV;
+		}
+
+		for (i = 0; i < len; i += 8, calibration += 2) {
+			index = i / 8;
+			writel(index, &pdata->regs->regs_v4.ttcfgr);
+			val = fdt32_to_cpu(*calibration);
+			writel(val, &pdata->regs->regs_v4.tscfgr);
+			val = fdt32_to_cpu(*(calibration + 1));
+			writel((1 << 31) | val, &pdata->regs->regs_v4.ttrcr[index]);
+		}
+
+		return 0;
+	}
 
 	ret = dev_read_u32_array(dev, "fsl,tmu-range", range, 4);
 	if (ret) {
@@ -329,12 +400,16 @@ static void imx_tmu_mx8mp_init(struct udevice *dev)
 static inline void imx_tmu_mx8mp_init(struct udevice *dev) { }
 #endif
 
+static inline void imx_tmu_mx93_init(struct udevice *dev) { }
+
 static void imx_tmu_arch_init(struct udevice *dev)
 {
 	if (is_imx8mm() || is_imx8mn())
 		imx_tmu_mx8mm_mx8mn_init(dev);
 	else if (is_imx8mp())
 		imx_tmu_mx8mp_init(dev);
+	else if (is_imx93())
+		imx_tmu_mx93_init(dev);
 	else
 		dev_err(dev, "Unsupported SoC, TMU calibration not loaded!\n");
 }
@@ -359,6 +434,15 @@ static void imx_tmu_init(struct udevice *dev)
 
 		/* Disable interrupt, using polling instead */
 		writel(0x0, &pdata->regs->regs_v2.tier);
+	} else if (drv_data & FLAGS_VER4) {
+		/* Disable monitoring */
+		writel(TMR_DISABLE, &pdata->regs->regs_v4.tmr);
+
+		/* Disable interrupt, using polling instead */
+		writel(TIER_DISABLE, &pdata->regs->regs_v4.tier);
+
+		/* Set update_interval */
+		writel(TMTMIR_DEFAULT, &pdata->regs->regs_v4.tmtmir);
 	} else {
 		/* Disable monitoring */
 		writel(TMR_DISABLE, &pdata->regs->regs_v1.tmr);
@@ -411,6 +495,22 @@ static int imx_tmu_enable_msite(struct udevice *dev)
 		/* Enable monitor */
 		reg |= TER_EN;
 		writel(reg, &pdata->regs->regs_v2.ter);
+	} else if (drv_data & FLAGS_VER4) {
+		reg = readl(&pdata->regs->regs_v4.tcmcfg);
+		reg |= (1 << 30) | (1 << 28);
+		reg &= ~0xF000; /* set SAR clk =  IPG clk /16 */
+		writel(reg, &pdata->regs->regs_v4.tcmcfg);
+
+		/* Set ALPF*/
+		reg = readl(&pdata->regs->regs_v4.tmr);
+		reg |= TMR_ALPF;
+		writel(reg, &pdata->regs->regs_v4.tmr);
+
+		writel(1, &pdata->regs->regs_v4.tmsr);
+
+		/* Enable ME */
+		reg |= TMR_ME;
+		writel(reg, &pdata->regs->regs_v4.tmr);
 	} else {
 		/* Clear the ME before setting MSITE and ALPF*/
 		reg = readl(&pdata->regs->regs_v1.tmr);
@@ -551,6 +651,7 @@ static const struct udevice_id imx_tmu_ids[] = {
 	{ .compatible = "fsl,imx8mq-tmu", },
 	{ .compatible = "fsl,imx8mm-tmu", .data = FLAGS_VER2, },
 	{ .compatible = "fsl,imx8mp-tmu", .data = FLAGS_VER3, },
+	{ .compatible = "fsl,imx93-tmu", .data = FLAGS_VER4, },
 	{ }
 };
 
