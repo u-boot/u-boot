@@ -703,6 +703,10 @@ static int ehci_usb_probe(struct udevice *dev)
 	usb_internal_phy_clock_gate(priv->phy_addr, 1);
 	usb_phy_enable(ehci, priv->phy_addr);
 #endif
+#else
+	ret = generic_setup_phy(dev, &priv->phy, 0);
+	if (ret)
+		goto err_regulator;
 #endif
 
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
@@ -724,12 +728,6 @@ static int ehci_usb_probe(struct udevice *dev)
 	}
 
 	mdelay(10);
-
-#if defined(CONFIG_PHY)
-	ret = generic_setup_phy(dev, &priv->phy, 0);
-	if (ret)
-		goto err_regulator;
-#endif
 
 	hccr = (struct ehci_hccr *)((uintptr_t)&ehci->caplength);
 	hcor = (struct ehci_hcor *)((uintptr_t)hccr +
