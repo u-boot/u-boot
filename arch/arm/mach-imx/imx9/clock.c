@@ -680,36 +680,42 @@ void set_arm_clk(ulong freq)
 
 #endif
 
-int clock_init(void)
-{
-	int i;
-
+struct imx_clk_setting imx_clk_settings[] = {
 	/* Set A55 periphal to 333M */
-	ccm_clk_root_cfg(ARM_A55_PERIPH_CLK_ROOT, SYS_PLL_PFD0, 3);
+	{ARM_A55_PERIPH_CLK_ROOT, SYS_PLL_PFD0, 3},
 	/* Set A55 mtr bus to 133M */
-	ccm_clk_root_cfg(ARM_A55_MTR_BUS_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3);
-
+	{ARM_A55_MTR_BUS_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
 	/* Sentinel to 200M */
-	ccm_clk_root_cfg(SENTINEL_CLK_ROOT, SYS_PLL_PFD1_DIV2, 2);
+	{SENTINEL_CLK_ROOT, SYS_PLL_PFD1_DIV2, 2},
 	/* Bus_wakeup to 133M */
-	ccm_clk_root_cfg(BUS_WAKEUP_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3);
+	{BUS_WAKEUP_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
 	/* Bus_AON to 133M */
-	ccm_clk_root_cfg(BUS_AON_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3);
+	{BUS_AON_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
 	/* M33 to 200M */
-	ccm_clk_root_cfg(M33_CLK_ROOT, SYS_PLL_PFD1_DIV2, 2);
+	{M33_CLK_ROOT, SYS_PLL_PFD1_DIV2, 2},
 	/*
 	 * WAKEUP_AXI to 312.5M, because of FEC only can support to 320M for
 	 * generating MII clock at 2.5M
 	 */
-	ccm_clk_root_cfg(WAKEUP_AXI_CLK_ROOT, SYS_PLL_PFD2, 2);
+	{WAKEUP_AXI_CLK_ROOT, SYS_PLL_PFD2, 2},
 	/* SWO TRACE to 133M */
-	ccm_clk_root_cfg(SWO_TRACE_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3);
+	{SWO_TRACE_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
 	/* M33 systetick to 24M */
-	ccm_clk_root_cfg(M33_SYSTICK_CLK_ROOT, OSC_24M_CLK, 1);
+	{M33_SYSTICK_CLK_ROOT, OSC_24M_CLK, 1},
 	/* NIC to 400M */
-	ccm_clk_root_cfg(NIC_CLK_ROOT, SYS_PLL_PFD1, 2);
+	{NIC_CLK_ROOT, SYS_PLL_PFD1, 2},
 	/* NIC_APB to 133M */
-	ccm_clk_root_cfg(NIC_APB_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3);
+	{NIC_APB_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3}
+};
+
+int clock_init(void)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(imx_clk_settings); i++) {
+		ccm_clk_root_cfg(imx_clk_settings[i].clk_root,
+				 imx_clk_settings[i].src, imx_clk_settings[i].div);
+	}
 
 	/* allow for non-secure access */
 	for (i = 0; i < OSCPLL_END; i++)
