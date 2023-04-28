@@ -89,15 +89,19 @@ static void set_core_data(struct udevice *dev)
 	}
 }
 
-#if IS_ENABLED(CONFIG_IMX_SCU_THERMAL)
+#if IS_ENABLED(CONFIG_DM_THERMAL)
 static int cpu_imx_get_temp(struct cpu_imx_plat *plat)
 {
 	struct udevice *thermal_dev;
 	int cpu_tmp, ret;
 	int idx = 1; /* use "cpu-thermal0" device */
 
-	if (plat->cpu_rsrc == SC_R_A72)
-		idx = 2; /* use "cpu-thermal1" device */
+	if (IS_ENABLED(CONFIG_IMX8)) {
+		if (plat->cpu_rsrc == SC_R_A72)
+			idx = 2; /* use "cpu-thermal1" device */
+	} else {
+		idx = 1;
+	}
 
 	ret = uclass_get_device(UCLASS_THERMAL, idx, &thermal_dev);
 	if (!ret) {
@@ -128,7 +132,7 @@ static int cpu_imx_get_desc(const struct udevice *dev, char *buf, int size)
 	ret = snprintf(buf, size, "NXP i.MX%s Rev%s %s at %u MHz",
 		       plat->type, plat->rev, plat->name, plat->freq_mhz);
 
-	if (IS_ENABLED(CONFIG_IMX_SCU_THERMAL)) {
+	if (IS_ENABLED(CONFIG_DM_THERMAL)) {
 		temp = cpu_imx_get_temp(plat);
 		buf = buf + ret;
 		size = size - ret;
