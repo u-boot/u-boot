@@ -1361,6 +1361,7 @@ F:	arch/sandbox/
 F:	doc/arch/sandbox.rst
 F:	drivers/*/*sandbox*.c
 F:	include/dt-bindings/*/sandbox*.h
+F:	include/os.h
 
 SEAMA
 M:	Linus Walleij <linus.walleij@linaro.org>

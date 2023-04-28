@@ -7,7 +7,11 @@
 
 from collections import OrderedDict
 import glob
-import importlib.resources
+try:
+    import importlib.resources
+except ImportError:
+    # for Python 3.6
+    import importlib_resources
 import os
 import pkg_resources
 import re

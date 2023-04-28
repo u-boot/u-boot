@@ -31,7 +31,7 @@ static struct udevice *map_dev;
 unsigned long map_len;
 #endif
 
-void sandbox_exit(void)
+void __noreturn sandbox_exit(void)
 {
 	/* Do this here while it still has an effect */
 	os_fd_restore();

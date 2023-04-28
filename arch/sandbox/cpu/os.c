@@ -166,7 +166,7 @@ int os_write_file(const char *fname, const void *buf, int size)
 	return 0;
 }
 
-int os_filesize(int fd)
+off_t os_filesize(int fd)
 {
 	off_t size;
 
@@ -218,7 +218,7 @@ err:
 int os_map_file(const char *pathname, int os_flags, void **bufp, int *sizep)
 {
 	void *ptr;
-	int size;
+	off_t size;
 	int ifd;
 
 	ifd = os_open(pathname, os_flags);
@@ -229,6 +229,10 @@ int os_map_file(const char *pathname, int os_flags, void **bufp, int *sizep)
 	size = os_filesize(ifd);
 	if (size < 0) {
 		printf("Cannot get file size of '%s'\n", pathname);
+		return -EIO;
+	}
+	if ((unsigned long long)size > (unsigned long long)SIZE_MAX) {
+		printf("File '%s' too large to map\n", pathname);
 		return -EIO;
 	}
 

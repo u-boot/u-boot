@@ -390,6 +390,11 @@ static int do_bootflow_menu(struct cmd_tbl *cmdtp, int flag, int argc,
 	bool text_mode = false;
 	int ret;
 
+	if (!IS_ENABLED(CONFIG_EXPO)) {
+		printf("Menu not supported\n");
+		return CMD_RET_FAILURE;
+	}
+
 	if (argc > 1 && *argv[1] == '-')
 		text_mode = strchr(argv[1], 't');
 
@@ -397,20 +402,15 @@ static int do_bootflow_menu(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (ret)
 		return CMD_RET_FAILURE;
 
-	if (IS_ENABLED(CONFIG_EXPO)) {
-		ret = bootflow_menu_run(std, text_mode, &bflow);
-		if (ret) {
-			if (ret == -EAGAIN)
-				printf("Nothing chosen\n");
-			else
-				printf("Menu failed (err=%d)\n", ret);
+	ret = bootflow_menu_run(std, text_mode, &bflow);
+	if (ret) {
+		if (ret == -EAGAIN)
+			printf("Nothing chosen\n");
+		else {
+			printf("Menu failed (err=%d)\n", ret);
+			return CMD_RET_FAILURE;
 		}
-	} else {
-		printf("Menu not supported\n");
-		ret = -ENOSYS;
 	}
-	if (ret)
-		return CMD_RET_FAILURE;
 
 	printf("Selected: %s\n", bflow->os_name ? bflow->os_name : bflow->name);
 	std->cur_bootflow = bflow;
