@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ OR MIT */
 /*
- * Copyright 2021 NXP
+ * Copyright 2022 NXP
  */
 
 #ifndef __DT_BINDINGS_CLOCK_IMX93_CLK_H
@@ -28,13 +28,9 @@
 #define IMX93_CLK_M33_SYSTICK		19
 #define IMX93_CLK_FLEXIO1		20
 #define IMX93_CLK_FLEXIO2		21
-#define IMX93_CLK_LPIT1			22
-#define IMX93_CLK_LPIT2			23
 #define IMX93_CLK_LPTMR1		24
 #define IMX93_CLK_LPTMR2		25
-#define IMX93_CLK_TPM1			26
 #define IMX93_CLK_TPM2			27
-#define IMX93_CLK_TPM3			28
 #define IMX93_CLK_TPM4			29
 #define IMX93_CLK_TPM5			30
 #define IMX93_CLK_TPM6			31
@@ -197,7 +193,12 @@
 #define IMX93_CLK_PMRO_GATE		188
 #define IMX93_CLK_32K			189
 #define IMX93_CLK_SAI1_IPG		190
-#define IMX93_CLK_SAI2_IPG      191
-#define IMX93_CLK_SAI3_IPG      192
-#define IMX93_CLK_END			193
+#define IMX93_CLK_SAI2_IPG		191
+#define IMX93_CLK_SAI3_IPG		192
+#define IMX93_CLK_MU1_A_GATE		193
+#define IMX93_CLK_MU1_B_GATE		194
+#define IMX93_CLK_MU2_A_GATE		195
+#define IMX93_CLK_MU2_B_GATE		196
+#define IMX93_CLK_END			197
+
 #endif
