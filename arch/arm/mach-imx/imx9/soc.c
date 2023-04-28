@@ -26,12 +26,15 @@
 #include <env_internal.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <imx_thermal.h>
 #include <linux/bitops.h>
+#include <linux/bitfield.h>
+#include <linux/delay.h>
+#include <thermal.h>
 #include <asm/setup.h>
 #include <asm/bootm.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/mach-imx/s400_api.h>
-#include <linux/delay.h>
 #include <fuse.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -72,6 +75,82 @@ int mmc_get_env_dev(void)
 	return board_mmc_get_env_dev(boot_instance);
 }
 #endif
+
+/*
+ * SPEED_GRADE[5:4]    SPEED_GRADE[3:0]    MHz
+ * xx                  0000                2300
+ * xx                  0001                2200
+ * xx                  0010                2100
+ * xx                  0011                2000
+ * xx                  0100                1900
+ * xx                  0101                1800
+ * xx                  0110                1700
+ * xx                  0111                1600
+ * xx                  1000                1500
+ * xx                  1001                1400
+ * xx                  1010                1300
+ * xx                  1011                1200
+ * xx                  1100                1100
+ * xx                  1101                1000
+ * xx                  1110                900
+ * xx                  1111                800
+ */
+u32 get_cpu_speed_grade_hz(void)
+{
+	u32 speed, max_speed;
+	u32 val;
+
+	fuse_read(2, 3, &val);
+	val = FIELD_GET(SPEED_GRADING_MASK, val) & 0xF;
+
+	speed = MHZ(2300) - val * MHZ(100);
+
+	if (is_imx93())
+		max_speed = MHZ(1700);
+
+	/* In case the fuse of speed grade not programmed */
+	if (speed > max_speed)
+		speed = max_speed;
+
+	return speed;
+}
+
+/*
+ * `00` - Consumer 0C to 95C
+ * `01` - Ext. Consumer -20C to 105C
+ * `10` - Industrial -40C to 105C
+ * `11` - Automotive -40C to 125C
+ */
+u32 get_cpu_temp_grade(int *minc, int *maxc)
+{
+	u32 val;
+
+	fuse_read(2, 3, &val);
+	val = FIELD_GET(MARKETING_GRADING_MASK, val);
+
+	if (minc && maxc) {
+		if (val == TEMP_AUTOMOTIVE) {
+			*minc = -40;
+			*maxc = 125;
+		} else if (val == TEMP_INDUSTRIAL) {
+			*minc = -40;
+			*maxc = 105;
+		} else if (val == TEMP_EXTCOMMERCIAL) {
+			if (is_imx93()) {
+				/* imx93 only has extended industrial*/
+				*minc = -40;
+				*maxc = 125;
+			} else {
+				*minc = -20;
+				*maxc = 105;
+			}
+		} else {
+			*minc = 0;
+			*maxc = 95;
+		}
+	}
+	return val;
+}
 
 static void set_cpu_info(struct sentinel_get_info_data *info)
 {
