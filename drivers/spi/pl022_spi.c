@@ -12,9 +12,11 @@
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <fdtdec.h>
 #include <linux/io.h>
 #include <asm/global_data.h>
+#include <asm/gpio.h>
 #include <spi.h>
 
 #define SSP_CR0		0x000
@@ -70,6 +72,9 @@ struct pl022_spi_pdata {
 	fdt_addr_t addr;
 	fdt_size_t size;
 	unsigned int freq;
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	struct gpio_desc cs_gpio;
+#endif
 };
 
 struct pl022_spi_slave {
@@ -153,6 +158,17 @@ static int pl022_spi_release_bus(struct udevice *dev)
 	return 0;
 }
 
+static void pl022_spi_set_cs(struct udevice *dev, bool on)
+{
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	struct udevice *bus = dev->parent;
+	struct pl022_spi_pdata *plat = dev_get_plat(bus);
+
+	if (dm_gpio_is_valid(&plat->cs_gpio))
+		dm_gpio_set_value(&plat->cs_gpio, on ? 1 : 0);
+#endif
+}
+
 static int pl022_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			  const void *dout, void *din, unsigned long flags)
 {
@@ -165,7 +181,7 @@ static int pl022_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	if (bitlen == 0)
 		/* Finish any previously submitted transfers */
-		return 0;
+		goto done;
 
 	/*
 	 * TODO: The controller can do non-multiple-of-8 bit
@@ -178,8 +194,12 @@ static int pl022_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (bitlen % 8) {
 		/* Errors always terminate an ongoing transfer */
 		flags |= SPI_XFER_END;
-		return -1;
+		ret = -1;
+		goto done;
 	}
+
+	if (flags & SPI_XFER_BEGIN)
+		pl022_spi_set_cs(dev, true);
 
 	len = bitlen / 8;
 
@@ -206,6 +226,10 @@ static int pl022_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			len_rx++;
 		}
 	}
+
+done:
+	if (flags & SPI_XFER_END)
+		pl022_spi_set_cs(dev, false);
 
 	return ret;
 }
@@ -308,6 +332,13 @@ static int pl022_spi_of_to_plat(struct udevice *bus)
 		return ret;
 
 	plat->freq = clk_get_rate(&clkdev);
+
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	ret = gpio_request_by_name(bus, "cs-gpios", 0, &plat->cs_gpio,
+				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	if (ret < 0 && ret != -ENOENT)
+		return ret;
+#endif
 
 	return 0;
 }
