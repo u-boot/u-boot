@@ -71,13 +71,24 @@ void check_dfi_init_complete(void)
 	setbits_le32(REG_DDRDSR_2, BIT(2));
 }
 
-void ddrc_config(struct dram_cfg_param *ddrc_config, int num)
+void ddrc_config(struct dram_timing_info *dram_timing)
 {
+	u32 num = dram_timing->ddrc_cfg_num;
+	struct dram_cfg_param *ddrc_config;
 	int i = 0;
 
+	ddrc_config = dram_timing->ddrc_cfg;
 	for (i = 0; i < num; i++) {
 		writel(ddrc_config->val, (ulong)ddrc_config->reg);
 		ddrc_config++;
+	}
+
+	if (dram_timing->fsp_cfg) {
+		ddrc_config = dram_timing->fsp_cfg[0].ddrc_cfg;
+		while (ddrc_config->reg != 0) {
+			writel(ddrc_config->val, (ulong)ddrc_config->reg);
+			ddrc_config++;
+		}
 	}
 }
 
@@ -198,10 +209,85 @@ void update_umctl2_rank_space_setting(unsigned int pstat_num)
 	writel(tmp_t, REG_DDR_TIMING_CFG_4);
 }
 
+u32 ddrc_mrr(u32 chip_select, u32 mode_reg_num, u32 *mode_reg_val)
+{
+	u32 temp;
+
+	writel(0x80000000, REG_DDR_SDRAM_MD_CNTL_2);
+	temp = 0x80000000 | (chip_select << 28) | (mode_reg_num << 0);
+	writel(temp, REG_DDR_SDRAM_MD_CNTL);
+	while ((readl(REG_DDR_SDRAM_MD_CNTL) & 0x80000000) == 0x80000000)
+		;
+	while (!(readl(REG_DDR_SDRAM_MPR5)))
+		;
+	*mode_reg_val = (readl(REG_DDR_SDRAM_MPR4) & 0xFF0000) >> 16;
+	writel(0x0, REG_DDR_SDRAM_MPR5);
+	while ((readl(REG_DDR_SDRAM_MPR5)))
+		;
+	writel(0x0, REG_DDR_SDRAM_MPR4);
+	writel(0x0, REG_DDR_SDRAM_MD_CNTL_2);
+
+	return 0;
+}
+
+void ddrc_mrs(u32 cs_sel, u32 opcode, u32 mr)
+{
+	u32 regval;
+
+	regval = (cs_sel << 28) | (opcode << 6) | (mr);
+	writel(regval, REG_DDR_SDRAM_MD_CNTL);
+	setbits_le32(REG_DDR_SDRAM_MD_CNTL, BIT(31));
+	check_ddrc_idle();
+}
+
+u32 lpddr4_mr_read(u32 mr_rank, u32 mr_addr)
+{
+	u32 chip_select, regval;
+
+	if (mr_rank == 1)
+		chip_select = 0; /* CS0 */
+	else if (mr_rank == 2)
+		chip_select = 1; /* CS1 */
+	else
+		chip_select = 4; /* CS0 & CS1 */
+
+	ddrc_mrr(chip_select, mr_addr, &regval);
+
+	return regval;
+}
+
+void update_mr_fsp_op0(struct dram_cfg_param *cfg, unsigned int num)
+{
+	int i;
+
+	ddrc_mrs(0x4, 0x88, 13); /* FSP-OP->1, FSP-WR->0, VRCG=1, DMD=0 */
+	for (i = 0; i < num; i++) {
+		if (cfg[i].reg)
+			ddrc_mrs(0x4, cfg[i].val, cfg[i].reg);
+	}
+	ddrc_mrs(0x4, 0xc0, 13); /* FSP-OP->1, FSP-WR->1, VRCG=0, DMD=0 */
+}
+
+void save_trained_mr12_14(struct dram_cfg_param *cfg, u32 cfg_num, u32 mr12, u32 mr14)
+{
+	int i;
+
+	for (i = 0; i < cfg_num; i++) {
+		if (cfg->reg == 12)
+			cfg->val = mr12;
+		else if (cfg->reg == 14)
+			cfg->val = mr14;
+		cfg++;
+	}
+}
+
 int ddr_init(struct dram_timing_info *dram_timing)
 {
 	unsigned int initial_drate;
+	struct dram_timing_info *saved_timing;
+	void *fsp;
 	int ret;
+	u32 mr12, mr14;
 	u32 regval;
 
 	debug("DDRINFO: start DRAM init\n");
@@ -229,7 +315,7 @@ int ddr_init(struct dram_timing_info *dram_timing)
 
 	/* rogram the ddrc registers */
 	debug("DDRINFO: ddrc config start\n");
-	ddrc_config(dram_timing->ddrc_cfg, dram_timing->ddrc_cfg_num);
+	ddrc_config(dram_timing);
 	debug("DDRINFO: ddrc config done\n");
 
 	update_umctl2_rank_space_setting(dram_timing->fsp_msg_num - 1);
@@ -245,8 +331,29 @@ int ddr_init(struct dram_timing_info *dram_timing)
 
 	check_ddrc_idle();
 
+	mr12 = lpddr4_mr_read(1, 12);
+	mr14 = lpddr4_mr_read(1, 14);
+
 	/* save the dram timing config into memory */
-	dram_config_save(dram_timing, CONFIG_SAVED_DRAM_TIMING_BASE);
+	fsp = dram_config_save(dram_timing, CONFIG_SAVED_DRAM_TIMING_BASE);
+
+	saved_timing = (struct dram_timing_info *)CONFIG_SAVED_DRAM_TIMING_BASE;
+	saved_timing->fsp_cfg = fsp;
+	saved_timing->fsp_cfg_num = dram_timing->fsp_cfg_num;
+	if (saved_timing->fsp_cfg_num) {
+		memcpy(saved_timing->fsp_cfg, dram_timing->fsp_cfg,
+		       dram_timing->fsp_cfg_num * sizeof(struct dram_fsp_cfg));
+
+		save_trained_mr12_14(saved_timing->fsp_cfg[0].mr_cfg,
+				     ARRAY_SIZE(saved_timing->fsp_cfg[0].mr_cfg), mr12, mr14);
+		/*
+		 * Configure mode registers in fsp1 to mode register 0 because DDRC
+		 * doesn't automatically set.
+		 */
+		if (saved_timing->fsp_cfg_num > 1)
+			update_mr_fsp_op0(saved_timing->fsp_cfg[1].mr_cfg,
+					  ARRAY_SIZE(saved_timing->fsp_cfg[1].mr_cfg));
+	}
 
 	return 0;
 }
