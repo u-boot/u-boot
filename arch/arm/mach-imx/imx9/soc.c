@@ -30,6 +30,7 @@
 #include <asm/arch-imx/cpu.h>
 #include <asm/mach-imx/s400_api.h>
 #include <linux/delay.h>
+#include <fuse.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -336,12 +337,48 @@ phys_size_t get_effective_memsize(void)
 
 void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
-	mac[0] = 0x1;
-	mac[1] = 0x2;
-	mac[2] = 0x3;
-	mac[3] = 0x4;
-	mac[4] = 0x5;
-	mac[5] = 0x6;
+	u32 val[2] = {};
+	int ret;
+
+	if (dev_id == 0) {
+		ret = fuse_read(39, 3, &val[0]);
+		if (ret)
+			goto err;
+
+		ret = fuse_read(39, 4, &val[1]);
+		if (ret)
+			goto err;
+
+		mac[0] = val[1] >> 8;
+		mac[1] = val[1];
+		mac[2] = val[0] >> 24;
+		mac[3] = val[0] >> 16;
+		mac[4] = val[0] >> 8;
+		mac[5] = val[0];
+
+	} else {
+		ret = fuse_read(39, 5, &val[0]);
+		if (ret)
+			goto err;
+
+		ret = fuse_read(39, 4, &val[1]);
+		if (ret)
+			goto err;
+
+		mac[0] = val[1] >> 24;
+		mac[1] = val[1] >> 16;
+		mac[2] = val[0] >> 24;
+		mac[3] = val[0] >> 16;
+		mac[4] = val[0] >> 8;
+		mac[5] = val[0];
+	}
+
+	debug("%s: MAC%d: %02x.%02x.%02x.%02x.%02x.%02x\n",
+	      __func__, dev_id, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	return;
+err:
+	memset(mac, 0, 6);
+	printf("%s: fuse read err: %d\n", __func__, ret);
 }
 
 int print_cpuinfo(void)
