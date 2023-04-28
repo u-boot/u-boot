@@ -307,7 +307,7 @@ static int pl022_spi_of_to_plat(struct udevice *bus)
 }
 
 static const struct udevice_id pl022_spi_ids[] = {
-	{ .compatible = "arm,pl022-spi" },
+	{ .compatible = "arm,pl022" },
 	{ }
 };
 #endif
