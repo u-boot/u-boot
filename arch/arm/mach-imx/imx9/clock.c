@@ -674,7 +674,7 @@ void set_arm_clk(ulong freq)
 {
 	/* Increase ARM clock to 1.7Ghz */
 	ccm_shared_gpr_set(SHARED_GPR_A55_CLK, SHARED_GPR_A55_CLK_SEL_CCM);
-	configure_intpll(ARM_PLL_CLK, 1700000000);
+	configure_intpll(ARM_PLL_CLK, freq);
 	ccm_shared_gpr_set(SHARED_GPR_A55_CLK, SHARED_GPR_A55_CLK_SEL_PLL);
 }
 
