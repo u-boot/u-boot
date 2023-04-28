@@ -601,21 +601,27 @@ void init_uart_clk(u32 index)
 
 void init_clk_usdhc(u32 index)
 {
-	/* 400 Mhz */
+	u32 div;
+
+	if (IS_ENABLED(CONFIG_IMX9_LOW_DRIVE_MODE))
+		div = 3; /* 266.67 Mhz */
+	else
+		div = 2; /* 400 Mhz */
+
 	switch (index) {
 	case 0:
 		ccm_lpcg_on(CCGR_USDHC1, 0);
-		ccm_clk_root_cfg(USDHC1_CLK_ROOT, SYS_PLL_PFD1, 2);
+		ccm_clk_root_cfg(USDHC1_CLK_ROOT, SYS_PLL_PFD1, div);
 		ccm_lpcg_on(CCGR_USDHC1, 1);
 		break;
 	case 1:
 		ccm_lpcg_on(CCGR_USDHC2, 0);
-		ccm_clk_root_cfg(USDHC2_CLK_ROOT, SYS_PLL_PFD1, 2);
+		ccm_clk_root_cfg(USDHC2_CLK_ROOT, SYS_PLL_PFD1, div);
 		ccm_lpcg_on(CCGR_USDHC2, 1);
 		break;
 	case 2:
 		ccm_lpcg_on(CCGR_USDHC3, 0);
-		ccm_clk_root_cfg(USDHC3_CLK_ROOT, SYS_PLL_PFD1, 2);
+		ccm_clk_root_cfg(USDHC3_CLK_ROOT, SYS_PLL_PFD1, div);
 		ccm_lpcg_on(CCGR_USDHC3, 1);
 		break;
 	default:
@@ -681,8 +687,45 @@ void set_arm_clk(ulong freq)
 	ccm_shared_gpr_set(SHARED_GPR_A55_CLK, SHARED_GPR_A55_CLK_SEL_PLL);
 }
 
+void set_arm_core_max_clk(void)
+{
+	/* Increase ARM clock to max rate according to speed grade */
+	u32 speed = get_cpu_speed_grade_hz();
+
+	set_arm_clk(speed);
+}
+
 #endif
 
+#if IS_ENABLED(CONFIG_IMX9_LOW_DRIVE_MODE)
+struct imx_clk_setting imx_clk_settings[] = {
+	/* Set A55 clk to 500M */
+	{ARM_A55_CLK_ROOT, SYS_PLL_PFD0, 2},
+	/* Set A55 periphal to 200M */
+	{ARM_A55_PERIPH_CLK_ROOT, SYS_PLL_PFD1, 4},
+	/* Set A55 mtr bus to 133M */
+	{ARM_A55_MTR_BUS_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
+
+	/* Sentinel to 133M */
+	{SENTINEL_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
+	/* Bus_wakeup to 133M */
+	{BUS_WAKEUP_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
+	/* Bus_AON to 133M */
+	{BUS_AON_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
+	/* M33 to 133M */
+	{M33_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
+	/* WAKEUP_AXI to 200M  */
+	{WAKEUP_AXI_CLK_ROOT, SYS_PLL_PFD1, 4},
+	/* SWO TRACE to 133M */
+	{SWO_TRACE_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
+	/* M33 systetick to 24M */
+	{M33_SYSTICK_CLK_ROOT, OSC_24M_CLK, 1},
+	/* NIC to 250M */
+	{NIC_CLK_ROOT, SYS_PLL_PFD0, 4},
+	/* NIC_APB to 133M */
+	{NIC_APB_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3}
+};
+#else
 struct imx_clk_setting imx_clk_settings[] = {
 	/* Set A55 periphal to 333M */
 	{ARM_A55_PERIPH_CLK_ROOT, SYS_PLL_PFD0, 3},
@@ -710,6 +753,7 @@ struct imx_clk_setting imx_clk_settings[] = {
 	/* NIC_APB to 133M */
 	{NIC_APB_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3}
 };
+#endif
 
 int clock_init(void)
 {
@@ -719,6 +763,9 @@ int clock_init(void)
 		ccm_clk_root_cfg(imx_clk_settings[i].clk_root,
 				 imx_clk_settings[i].src, imx_clk_settings[i].div);
 	}
+
+	if (IS_ENABLED(CONFIG_IMX9_LOW_DRIVE_MODE))
+		set_arm_clk(MHZ(900));
 
 	/* allow for non-secure access */
 	for (i = 0; i < OSCPLL_END; i++)
