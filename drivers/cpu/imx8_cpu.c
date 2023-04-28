@@ -39,6 +39,20 @@ static const char *get_imx_type_str(u32 imxtype)
 		return "8QM";
 	case MXC_CPU_IMX93:
 		return "93(52)";/* iMX93 Dual core with NPU */
+	case MXC_CPU_IMX9351:
+		return "93(51)";/* iMX93 Single core with NPU */
+	case MXC_CPU_IMX9332:
+		return "93(32)";/* iMX93 Dual core without NPU */
+	case MXC_CPU_IMX9331:
+		return "93(31)";/* iMX93 Single core without NPU */
+	case MXC_CPU_IMX9322:
+		return "93(22)";/* iMX93 9x9 Dual core  */
+	case MXC_CPU_IMX9321:
+		return "93(21)";/* iMX93 9x9 Single core  */
+	case MXC_CPU_IMX9312:
+		return "93(12)";/* iMX93 9x9 Dual core without NPU */
+	case MXC_CPU_IMX9311:
+		return "93(11)";/* iMX93 9x9 Single core without NPU */
 	default:
 		return "??";
 	}

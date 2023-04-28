@@ -159,11 +159,34 @@ static void set_cpu_info(struct sentinel_get_info_data *info)
 	memcpy((void *)&gd->arch.uid, &info->uid, 4 * sizeof(u32));
 }
 
+static u32 get_cpu_variant_type(u32 type)
+{
+	/* word 19 */
+	u32 val = readl((ulong)FSB_BASE_ADDR + 0x8000 + (19 << 2));
+	u32 val2 = readl((ulong)FSB_BASE_ADDR + 0x8000 + (20 << 2));
+	bool npu_disable = !!(val & BIT(13));
+	bool core1_disable = !!(val & BIT(15));
+	u32 pack_9x9_fused = BIT(4) | BIT(17) | BIT(19) | BIT(24);
+
+	if ((val2 & pack_9x9_fused) == pack_9x9_fused)
+		type = MXC_CPU_IMX9322;
+
+	if (npu_disable && core1_disable)
+		return type + 3;
+	else if (npu_disable)
+		return type + 2;
+	else if (core1_disable)
+		return type + 1;
+
+	return type;
+}
+
 u32 get_cpu_rev(void)
 {
 	u32 rev = (gd->arch.soc_rev >> 24) - 0xa0;
 
-	return (MXC_CPU_IMX93 << 12) | (CHIP_REV_1_0 + rev);
+	return (get_cpu_variant_type(MXC_CPU_IMX93) << 12) |
+		(CHIP_REV_1_0 + rev);
 }
 
 #define UNLOCK_WORD 0xD928C520 /* unlock word */
