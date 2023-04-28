@@ -107,7 +107,7 @@ static int pl022_spi_probe(struct udevice *bus)
 	return 0;
 }
 
-static void flush(struct pl022_spi_slave *ps)
+static void pl022_spi_flush(struct pl022_spi_slave *ps)
 {
 	do {
 		while (readw(ps->base + SSP_SR) & SSP_SR_MASK_RNE)
@@ -126,7 +126,7 @@ static int pl022_spi_claim_bus(struct udevice *dev)
 	reg |= SSP_CR1_MASK_SSE;
 	writew(reg, ps->base + SSP_CR1);
 
-	flush(ps);
+	pl022_spi_flush(ps);
 
 	return 0;
 }
@@ -137,7 +137,7 @@ static int pl022_spi_release_bus(struct udevice *dev)
 	struct pl022_spi_slave *ps = dev_get_priv(bus);
 	u16 reg;
 
-	flush(ps);
+	pl022_spi_flush(ps);
 
 	/* Disable the SPI hardware */
 	reg = readw(ps->base + SSP_CR1);
