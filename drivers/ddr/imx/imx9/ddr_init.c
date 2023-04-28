@@ -12,6 +12,13 @@
 #include <asm/arch/sys_proto.h>
 #include <linux/delay.h>
 
+static unsigned int g_cdd_rr_max[4];
+static unsigned int g_cdd_rw_max[4];
+static unsigned int g_cdd_wr_max[4];
+static unsigned int g_cdd_ww_max[4];
+
+#define MAX(a, b)	(((a) > (b)) ? (a) : (b))
+
 void ddrphy_coldreset(void)
 {
 	/* dramphy_apb_n default 1 , assert -> 0, de_assert -> 1 */
@@ -74,8 +81,121 @@ void ddrc_config(struct dram_cfg_param *ddrc_config, int num)
 	}
 }
 
+static unsigned int look_for_max(unsigned int data[], unsigned int addr_start,
+				 unsigned int addr_end)
+{
+	unsigned int i, imax = 0;
+
+	for (i = addr_start; i <= addr_end; i++) {
+		if (((data[i] >> 7) == 0) && data[i] > imax)
+			imax = data[i];
+	}
+
+	return imax;
+}
+
 void get_trained_CDD(u32 fsp)
 {
+	unsigned int i, tmp;
+	unsigned int cdd_cha[12], cdd_chb[12];
+	unsigned int cdd_cha_rr_max, cdd_cha_rw_max, cdd_cha_wr_max, cdd_cha_ww_max;
+	unsigned int cdd_chb_rr_max, cdd_chb_rw_max, cdd_chb_wr_max, cdd_chb_ww_max;
+
+	for (i = 0; i < 6; i++) {
+		tmp = dwc_ddrphy_apb_rd(0x54013 + i);
+		cdd_cha[i * 2] = tmp & 0xff;
+		cdd_cha[i * 2 + 1] = (tmp >> 8) & 0xff;
+	}
+
+	for (i = 0; i < 7; i++) {
+		tmp = dwc_ddrphy_apb_rd(0x5402c + i);
+
+		if (i == 0) {
+			cdd_chb[0] = (tmp >> 8) & 0xff;
+		} else if (i == 6) {
+			cdd_chb[11] = tmp & 0xff;
+		} else {
+			cdd_chb[i * 2 - 1] = tmp & 0xff;
+			cdd_chb[i * 2] = (tmp >> 8) & 0xff;
+		}
+	}
+
+	cdd_cha_rr_max = look_for_max(cdd_cha, 0, 1);
+	cdd_cha_rw_max = look_for_max(cdd_cha, 2, 5);
+	cdd_cha_wr_max = look_for_max(cdd_cha, 6, 9);
+	cdd_cha_ww_max = look_for_max(cdd_cha, 10, 11);
+	cdd_chb_rr_max = look_for_max(cdd_chb, 0, 1);
+	cdd_chb_rw_max = look_for_max(cdd_chb, 2, 5);
+	cdd_chb_wr_max = look_for_max(cdd_chb, 6, 9);
+	cdd_chb_ww_max = look_for_max(cdd_chb, 10, 11);
+	g_cdd_rr_max[fsp] =  cdd_cha_rr_max > cdd_chb_rr_max ? cdd_cha_rr_max : cdd_chb_rr_max;
+	g_cdd_rw_max[fsp] =  cdd_cha_rw_max > cdd_chb_rw_max ? cdd_cha_rw_max : cdd_chb_rw_max;
+	g_cdd_wr_max[fsp] =  cdd_cha_wr_max > cdd_chb_wr_max ? cdd_cha_wr_max : cdd_chb_wr_max;
+	g_cdd_ww_max[fsp] =  cdd_cha_ww_max > cdd_chb_ww_max ? cdd_cha_ww_max : cdd_chb_ww_max;
+}
+
+void update_umctl2_rank_space_setting(unsigned int pstat_num)
+{
+	u32 tmp, tmp_t;
+
+	int wwt, rrt, wrt, rwt;
+	int ext_wwt, ext_rrt, ext_wrt, ext_rwt;
+	int max_wwt, max_rrt, max_wrt, max_rwt;
+
+	/* read wwt, rrt, wrt, rwt fields from timing_cfg_0 */
+	tmp = readl(REG_DDR_TIMING_CFG_0);
+	wwt = (tmp >> 24) & 0x3;
+	rrt = (tmp >> 26) & 0x3;
+	wrt = (tmp >> 28) & 0x3;
+	rwt = (tmp >> 30) & 0x3;
+
+	/* read rxt_wwt, ext_rrt, ext_wrt, ext_rwt fields from timing_cfg_4 */
+	tmp_t = readl(REG_DDR_TIMING_CFG_4);
+	ext_wwt = (tmp >> 8) & 0x1;
+	ext_rrt = (tmp >> 10) & 0x1;
+	ext_wrt = (tmp >> 12) & 0x1;
+	ext_rwt = (tmp >> 14) & 0x3;
+
+	wwt = (ext_wwt << 2) | wwt;
+	rrt = (ext_rrt << 2) | wwt;
+	wrt = (ext_wrt << 2) | wrt;
+	rwt = (ext_rwt << 2) | rwt;
+
+	/* calculate the maximum between controller and cdd values */
+	max_wwt = MAX(g_cdd_ww_max[0], wwt);
+	max_rrt = MAX(g_cdd_rr_max[0], rrt);
+	max_wrt = MAX(g_cdd_wr_max[0], wrt);
+	max_rwt = MAX(g_cdd_rw_max[0], rwt);
+
+	/* verify values to see if are bigger then 7 or 15 (3 bits or 4 bits) */
+	if (max_wwt > 7)
+		max_wwt = 7;
+	if (max_rrt > 7)
+		max_rrt = 7;
+	if (max_wrt > 7)
+		max_wrt = 7;
+	if (max_rwt > 15)
+		max_rwt = 15;
+
+	/* recalculate timings for controller registers */
+	wwt = max_wwt & 0x3;
+	rrt = max_rrt & 0x3;
+	wrt = max_wrt & 0x3;
+	rwt = max_rwt & 0x3;
+
+	ext_wwt = (max_wwt & 0x4) >> 2;
+	ext_rrt = (max_rrt & 0x4) >> 2;
+	ext_wrt = (max_wrt & 0x4) >> 2;
+	ext_rwt = (max_rwt & 0xC) >> 2;
+
+	/* update timing_cfg_0 and timing_cfg_4 */
+	tmp = (tmp & 0x00ffffff) | (rwt << 30) | (wrt << 28) |
+		(rrt << 26) | (wwt << 24);
+	writel(tmp, REG_DDR_TIMING_CFG_0);
+
+	tmp_t = (tmp_t & 0xFFFF2AFF) | (ext_rwt << 14) |
+		(ext_wrt << 12) | (ext_rrt << 10) | (ext_wwt << 8);
+	writel(tmp_t, REG_DDR_TIMING_CFG_4);
 }
 
 int ddr_init(struct dram_timing_info *dram_timing)
@@ -111,6 +231,8 @@ int ddr_init(struct dram_timing_info *dram_timing)
 	debug("DDRINFO: ddrc config start\n");
 	ddrc_config(dram_timing->ddrc_cfg, dram_timing->ddrc_cfg_num);
 	debug("DDRINFO: ddrc config done\n");
+
+	update_umctl2_rank_space_setting(dram_timing->fsp_msg_num - 1);
 
 #ifdef CONFIG_IMX9_DRAM_PM_COUNTER
 	writel(0x200000, REG_DDR_DEBUG_19);
