@@ -14,7 +14,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
- * get_clocks() fills in gd->cpu_clock depending on CONFIG_8xx_GCLK_FREQ
+ * get_clocks() fills in gd->cpu_clk depending on CONFIG_SYS_CLK_FREQ
  */
 int get_clocks(void)
 {
@@ -28,7 +28,7 @@ int get_clocks(void)
 	 * (For example, the cogent CMA286-60 CPU module has no
 	 * separate oscillator for PITRTCLK)
 	 */
-	gd->cpu_clk = CONFIG_8xx_GCLK_FREQ;
+	gd->cpu_clk = CONFIG_SYS_CLK_FREQ;
 
 	if ((sccr & SCCR_EBDF11) == 0) {
 		/* No Bus Divider active */

@@ -547,6 +547,24 @@ config MPC8XXX_GPIO
 	  value setting, the open-drain feature, which can configure individual
 	  GPIOs to work as open-drain outputs, is supported.
 
+config QE_GPIO
+	bool "Freescale QUICC ENGINE GPIO driver"
+	depends on DM_GPIO
+	depends on QE
+	help
+	  This driver supports the QUICC Engine GPIOs of MPC83XX CPUs.
+	  Each GPIO bank is identified by its own entry in the device tree,
+	  i.e.
+
+	  qe_pio_a: gpio-controller@1400 {
+		compatible = "fsl,mpc8323-qe-pario-bank";
+		reg = <0x1400 0x18>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	  };
+
+	  Each bank has 32 GPIOs.
+
 config MPC8XX_GPIO
 	bool "Freescale MPC8XX GPIO driver"
 	depends on DM_GPIO
