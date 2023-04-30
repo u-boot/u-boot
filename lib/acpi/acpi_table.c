@@ -11,8 +11,7 @@
 #include <log.h>
 #include <mapmem.h>
 #include <tables_csum.h>
-#include <timestamp.h>
-#include <version.h>
+#include <version_string.h>
 #include <acpi/acpi_table.h>
 #include <asm/global_data.h>
 #include <dm/acpi.h>
@@ -25,12 +24,12 @@
  * to have valid date. So for U-Boot version 2021.04 OEM_REVISION is set to
  * value 0x20210401.
  */
-#define OEM_REVISION ((((U_BOOT_VERSION_NUM / 1000) % 10) << 28) | \
-		      (((U_BOOT_VERSION_NUM / 100) % 10) << 24) | \
-		      (((U_BOOT_VERSION_NUM / 10) % 10) << 20) | \
-		      ((U_BOOT_VERSION_NUM % 10) << 16) | \
-		      (((U_BOOT_VERSION_NUM_PATCH / 10) % 10) << 12) | \
-		      ((U_BOOT_VERSION_NUM_PATCH % 10) << 8) | \
+#define OEM_REVISION ((((version_num / 1000) % 10) << 28) | \
+		      (((version_num / 100) % 10) << 24) | \
+		      (((version_num / 10) % 10) << 20) | \
+		      ((version_num % 10) << 16) | \
+		      (((version_num_patch / 10) % 10) << 12) | \
+		      ((version_num_patch % 10) << 8) | \
 		      0x01)
 
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags)
