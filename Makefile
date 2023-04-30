@@ -1812,7 +1812,7 @@ quiet_cmd_gen_envp = ENVP    $@
 		rm -f $@; \
 		touch $@ ; \
 	fi
-include/generated/env.in: include/generated/env.txt FORCE
+include/generated/env.in: include/generated/env.txt
 	$(call cmd,gen_envp)
 
 # Regenerate the environment if it changes
@@ -1830,7 +1830,7 @@ quiet_cmd_envc = ENVC    $@
 		touch $@ ; \
 	fi
 
-include/generated/env.txt: $(wildcard $(ENV_FILE)) FORCE
+include/generated/env.txt: $(wildcard $(ENV_FILE))
 	$(call cmd,envc)
 
 # Write out the resulting environment, converted to a C string
