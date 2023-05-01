@@ -331,7 +331,7 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 
 	conf_noffset = fit_conf_get_node((const void *)header,
 					 fit_uname_config);
-	if (conf_noffset <= 0)
+	if (conf_noffset < 0)
 		return 0;
 
 	for (idx = 0;
