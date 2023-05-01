@@ -29,6 +29,11 @@
 		pad-byte = <0xff>;
 
 		blob {
+			/*
+			 * This value matches SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+			 * and SYS_SPI_U_BOOT_OFFS if those are defined.
+			 */
+			min-size = <0x8000>;
 			filename = "spl/sunxi-spl.bin";
 		};
 
@@ -105,7 +110,6 @@
 		};
 #else
 		u-boot-img {
-			offset = <CONFIG_SPL_PAD_TO>;
 		};
 #endif
 	};
