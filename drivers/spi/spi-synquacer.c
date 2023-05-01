@@ -186,7 +186,7 @@ static void synquacer_spi_config(struct udevice *dev, void *rx, const void *tx)
 	struct udevice *bus = dev->parent;
 	struct synquacer_spi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
-	u32 val, div, bus_width;
+	u32 val, div, bus_width = 1;
 	int rwflag;
 
 	rwflag = (rx ? 1 : 0) | (tx ? 2 : 0);
@@ -211,6 +211,8 @@ static void synquacer_spi_config(struct udevice *dev, void *rx, const void *tx)
 		bus_width = 4;
 	else if (priv->mode & SPI_TX_OCTAL)
 		bus_width = 8;
+	else
+		log_warning("SPI mode not configured, setting to byte mode\n");
 
 	div = DIV_ROUND_UP(125000000, priv->speed);
 

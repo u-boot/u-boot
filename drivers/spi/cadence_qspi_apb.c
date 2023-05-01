@@ -120,7 +120,16 @@ static int cadence_qspi_set_protocol(struct cadence_spi_priv *priv,
 {
 	int ret;
 
-	priv->dtr = op->data.dtr && op->cmd.dtr && op->addr.dtr;
+	/*
+	 * For an op to be DTR, cmd phase along with every other non-empty
+	 * phase should have dtr field set to 1. If an op phase has zero
+	 * nbytes, ignore its dtr field; otherwise, check its dtr field.
+	 * Also, dummy checks not performed here Since supports_op()
+	 * already checks that all or none of the fields are DTR.
+	 */
+	priv->dtr = op->cmd.dtr &&
+		    (!op->addr.nbytes || op->addr.dtr) &&
+		    (!op->data.nbytes || op->data.dtr);
 
 	ret = cadence_qspi_buswidth_to_inst_type(op->cmd.buswidth);
 	if (ret < 0)
@@ -367,6 +376,9 @@ int cadence_qspi_apb_exec_flash_cmd(void *reg_base, unsigned int reg)
 	if (!cadence_qspi_wait_idle(reg_base))
 		return -EIO;
 
+	/* Flush the CMDCTRL reg after the execution */
+	writel(0, reg_base + CQSPI_REG_CMDCTRL);
+
 	return 0;
 }
 
@@ -453,11 +465,6 @@ int cadence_qspi_apb_command_read(struct cadence_spi_priv *priv,
 	unsigned int dummy_clk;
 	u8 opcode;
 
-	if (rxlen > CQSPI_STIG_DATA_LEN_MAX || !rxbuf) {
-		printf("QSPI: Invalid input arguments rxlen %u\n", rxlen);
-		return -EINVAL;
-	}
-
 	if (priv->dtr)
 		opcode = op->cmd.opcode >> 8;
 	else
@@ -540,25 +547,11 @@ int cadence_qspi_apb_command_write(struct cadence_spi_priv *priv,
 	unsigned int reg = 0;
 	unsigned int wr_data;
 	unsigned int wr_len;
+	unsigned int dummy_clk;
 	unsigned int txlen = op->data.nbytes;
 	const void *txbuf = op->data.buf.out;
 	void *reg_base = priv->regbase;
-	u32 addr;
 	u8 opcode;
-
-	/* Reorder address to SPI bus order if only transferring address */
-	if (!txlen) {
-		addr = cpu_to_be32(op->addr.val);
-		if (op->addr.nbytes == 3)
-			addr >>= 8;
-		txbuf = &addr;
-		txlen = op->addr.nbytes;
-	}
-
-	if (txlen > CQSPI_STIG_DATA_LEN_MAX) {
-		printf("QSPI: Invalid input arguments txlen %u\n", txlen);
-		return -EINVAL;
-	}
 
 	if (priv->dtr)
 		opcode = op->cmd.opcode >> 8;
@@ -566,6 +559,27 @@ int cadence_qspi_apb_command_write(struct cadence_spi_priv *priv,
 		opcode = op->cmd.opcode;
 
 	reg |= opcode << CQSPI_REG_CMDCTRL_OPCODE_LSB;
+
+	/* setup ADDR BIT field */
+	if (op->addr.nbytes) {
+		writel(op->addr.val, priv->regbase + CQSPI_REG_CMDADDRESS);
+		/*
+		 * address bytes are zero indexed
+		 */
+		reg |= (((op->addr.nbytes - 1) &
+			  CQSPI_REG_CMDCTRL_ADD_BYTES_MASK) <<
+			  CQSPI_REG_CMDCTRL_ADD_BYTES_LSB);
+		reg |= (0x1 << CQSPI_REG_CMDCTRL_ADDR_EN_LSB);
+	}
+
+	/* Set up dummy cycles. */
+	dummy_clk = cadence_qspi_calc_dummy(op, priv->dtr);
+	if (dummy_clk > CQSPI_DUMMY_CLKS_MAX)
+		return -EOPNOTSUPP;
+
+	if (dummy_clk)
+		reg |= (dummy_clk & CQSPI_REG_CMDCTRL_DUMMY_MASK)
+		     << CQSPI_REG_CMDCTRL_DUMMY_LSB;
 
 	if (txlen) {
 		/* writing data = yes */
