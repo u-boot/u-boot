@@ -733,7 +733,7 @@ static int do_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		gd->fdt_blob = blob;
 		cfg_noffset = fit_conf_get_node(working_fdt, NULL);
-		if (!cfg_noffset) {
+		if (cfg_noffset < 0) {
 			printf("Could not find configuration node: %s\n",
 			       fdt_strerror(cfg_noffset));
 			return CMD_RET_FAILURE;
