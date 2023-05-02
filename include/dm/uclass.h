@@ -274,7 +274,7 @@ int uclass_get_device_by_ofnode(enum uclass_id id, ofnode node,
  * The device is probed to activate it ready for use.
  *
  * @id: ID to look up
- * @node: Device tree path to search for (if no such path then -ENODEV is returned)
+ * @path: Device tree path to search for (if no such path then -ENODEV is returned)
  * @devp: Returns pointer to device (there is only one for each node)
  * Return: 0 if OK, -ve on error
  */
