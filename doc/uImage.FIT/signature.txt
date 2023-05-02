@@ -56,10 +56,10 @@ of data from the FDT and exponentiation mod n. Code size impact is a little
 under 5KB on Tegra Seaboard, for example.
 
 It is relatively straightforward to add new algorithms if required. If
-another RSA variant is needed, then it can be added to the table in
-image-sig.c. If another algorithm is needed (such as DSA) then it can be
-placed alongside rsa.c, and its functions added to the table in image-sig.c
-also.
+another RSA variant is needed, then it can be added with the
+U_BOOT_CRYPTO_ALGO() macro. If another algorithm is needed (such as DSA) then
+it can be placed in a directory alongside lib/rsa/, and its functions added
+using U_BOOT_CRYPTO_ALGO().
 
 
 Creating an RSA key pair and certificate
