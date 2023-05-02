@@ -695,8 +695,6 @@ bootm.
 
 Possible Future Work
 --------------------
-- Add support for other RSA/SHA variants, such as rsa4096,sha512.
-- Other algorithms besides RSA
 - More sandbox tests for failure modes
 - Passwords for keys/certificates
 - Perhaps implement OAEP
