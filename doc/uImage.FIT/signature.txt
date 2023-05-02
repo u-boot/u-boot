@@ -42,8 +42,8 @@ device.
 Algorithms
 ----------
 In principle any suitable algorithm can be used to sign and verify a hash.
-At present only one class of algorithms is supported: SHA1 hashing with RSA.
-This works by hashing the image to produce a 20-byte hash.
+U-Boot supports a few hashing and verification algorithms. See below for
+details.
 
 While it is acceptable to bring in large cryptographic libraries such as
 openssl on the host side (e.g. mkimage), it is not desirable for U-Boot.
