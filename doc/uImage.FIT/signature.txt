@@ -439,6 +439,7 @@ be enabled:
 
 CONFIG_FIT_SIGNATURE - enable signing and verification in FITs
 CONFIG_RSA - enable RSA algorithm for signing
+CONFIG_ECDSA - enable ECDSA algorithm for signing
 
 WARNING: When relying on signed FIT images with required signature check
 the legacy image format is default disabled by not defining
