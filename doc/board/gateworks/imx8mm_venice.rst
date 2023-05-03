@@ -47,4 +47,6 @@ Update eMMC
 
    => tftpboot $loadaddr flash.bin
    => setexpr blkcnt $filesize + 0x1ff && setexpr blkcnt $blkcnt / 0x200
-   => mmc dev 2 && mmc write $loadaddr 0x42 $blkcnt
+   => mmc dev 2 0 && mmc write $loadaddr 0x42 $blkcnt # emmc user hw part
+   => mmc dev 2 1 && mmc write $loadaddr 0x42 $blkcnt # or emmc boot0 hw part
+   => mmc dev 2 2 && mmc write $loadaddr 0x42 $blkcnt # or emmc boot1 hw part
