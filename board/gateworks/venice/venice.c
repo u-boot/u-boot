@@ -7,6 +7,7 @@
 #include <init.h>
 #include <led.h>
 #include <miiphy.h>
+#include <mmc.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 
@@ -137,6 +138,20 @@ int board_late_init(void)
 int board_mmc_get_env_dev(int devno)
 {
 	return devno;
+}
+
+uint mmc_get_env_part(struct mmc *mmc)
+{
+	if (!IS_SD(mmc)) {
+		switch (EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config)) {
+		case 1:
+			return 1;
+		case 2:
+			return 2;
+		}
+	}
+
+	return 0;
 }
 
 int ft_board_setup(void *fdt, struct bd_info *bd)
