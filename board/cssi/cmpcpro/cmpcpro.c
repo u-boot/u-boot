@@ -397,8 +397,3 @@ void ft_board_setup_phy3(void)
 
 	setbits_be32(&immr->qepio.ioport[2].pdat, 0x00000400);
 }
-
-#define ADDR_FPGA_R_BASE		((unsigned char  __iomem *)CONFIG_FPGA_BASE)
-#define ADDR_FPGA_R_ALARMES_IN		((unsigned char  __iomem *)CONFIG_FPGA_BASE + 0x31)
-#define ADDR_FPGA_R_FAV			((unsigned char  __iomem *)CONFIG_FPGA_BASE + 0x44)
-
