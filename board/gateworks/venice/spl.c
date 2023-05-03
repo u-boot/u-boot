@@ -327,6 +327,21 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 	}
 }
 
+unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc, unsigned long raw_sect)
+{
+	if (!IS_SD(mmc)) {
+		switch (EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config)) {
+		case 1:
+		case 2:
+			if (IS_ENABLED(CONFIG_IMX8MN) || IS_ENABLED(CONFIG_IMX8MP))
+				raw_sect -= 32 * 2;
+			break;
+		}
+	}
+
+	return raw_sect;
+}
+
 const char *spl_board_loader_name(u32 boot_device)
 {
 	switch (boot_device) {
