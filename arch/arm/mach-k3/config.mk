@@ -18,6 +18,8 @@ O ?= .
 # devices that require sysfw.itb in ROM boot image.
 
 ifdef CONFIG_BINMAN
+ifndef CONFIG_TARGET_IOT2050_A53_PG1
+ifndef CONFIG_TARGET_IOT2050_A53_PG2
 
 ifndef CONFIG_TARGET_J7200_R5_EVM
 BOARD_YAML = $(srctree)/board/ti/$(BOARD)/board-cfg.yaml
@@ -59,5 +61,8 @@ INPUTS-y	+= pm-cfg.yaml
 INPUTS-y	+= schema.yaml
 INPUTS-y	+= custMpk.pem
 INPUTS-y	+= ti-degenerate-key.pem
+
+endif
+endif
 endif
 endif
