@@ -13,3 +13,4 @@ obj-y	+= interrupts.o
 obj-y	+= speed.o
 obj-y	+= cache.o
 obj-$(CONFIG_USB_SOF_UCODE_PATCH) += micropatch_usb_sof.o
+obj-$(CONFIG_SMC_UCODE_PATCH) += micropatch_smc.o
