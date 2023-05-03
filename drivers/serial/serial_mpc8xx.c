@@ -89,7 +89,7 @@ static int serial_mpc8xx_probe(struct udevice *dev)
 	/* initialize pointers to SMC */
 
 	sp = cp->cp_smc + SMC_INDEX;
-	up = (smc_uart_t __iomem *)&cp->cp_dparam[PROFF_SMC];
+	up = (smc_uart_t __iomem *)&cp->cp_dpmem[PROFF_SMC];
 	/* Disable relocation */
 	out_be16(&up->smc_rpbase, 0);
 

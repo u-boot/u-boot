@@ -51,7 +51,7 @@ static int mpc8xx_spi_probe(struct udevice *dev)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t __iomem *cp = &immr->im_cpm;
-	spi_t __iomem *spi = (spi_t __iomem *)&cp->cp_dparam[PROFF_SPI];
+	spi_t __iomem *spi = (spi_t __iomem *)&cp->cp_dpmem[PROFF_SPI];
 	cbd_t __iomem *tbdf, *rbdf;
 
 	/* Disable relocation */

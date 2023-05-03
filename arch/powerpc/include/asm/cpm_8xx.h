@@ -92,15 +92,15 @@ typedef struct cpm_buf_desc {
 
 /* Parameter RAM offsets.
 */
-#define PROFF_SCC1	((uint)0x0000)
-#define PROFF_IIC	((uint)0x0080)
-#define PROFF_REVNUM	((uint)0x00b0)
-#define PROFF_SCC2	((uint)0x0100)
-#define PROFF_SPI	((uint)0x0180)
-#define PROFF_SCC3	((uint)0x0200)
-#define PROFF_SMC1	((uint)0x0280)
-#define PROFF_SCC4	((uint)0x0300)
-#define PROFF_SMC2	((uint)0x0380)
+#define PROFF_SCC1	((uint)0x1c00)
+#define PROFF_IIC	((uint)0x1c80)
+#define PROFF_REVNUM	((uint)0x1cb0)
+#define PROFF_SCC2	((uint)0x1d00)
+#define PROFF_SPI	((uint)0x1d80)
+#define PROFF_SCC3	((uint)0x1e00)
+#define PROFF_SMC1	((uint)0x1e80)
+#define PROFF_SCC4	((uint)0x1f00)
+#define PROFF_SMC2	((uint)0x1f80)
 
 /* Define enough so I can at least use the serial port as a UART.
  */
