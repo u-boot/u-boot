@@ -896,20 +896,6 @@ int board_early_init_r(void)
 			}
 		}
 
-		/* is FPGA firmware loaded ? */
-		if (!(in_be32(&cp->cp_pedat) & 0x00000001)) {
-			printf("Reloading FPGA firmware\n");
-
-			/* Load FPGA firmware */
-			/* Activate PROG_FPGA_FIRMWARE for 1 usec */
-			clrbits_be32(&cp->cp_pedat, 0x00000002);
-			udelay(1);
-			setbits_be32(&cp->cp_pedat, 0x00000002);
-
-			/* Wait 200ms before checking DONE_FPGA_FIRMWARE */
-			mdelay(200);
-		}
-
 		iop_setup_common();
 	} else {
 		iop_setup_cmpc885();
