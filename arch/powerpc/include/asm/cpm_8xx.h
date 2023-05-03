@@ -684,4 +684,11 @@ void irq_install_handler(int vec, void (*handler)(void *), void *dev_id);
 #define CICR_HP_MASK		((uint)0x00001f00)	/* Hi-pri int. */
 #define CICR_IEN		((uint)0x00000080)	/* Int. enable */
 #define CICR_SPS		((uint)0x00000001)	/* SCC Spread */
+
+#ifdef CONFIG_NO_UCODE_PATCH
+static inline void cpm_load_patch(cpm8xx_t __iomem *cp) { }
+#else
+void cpm_load_patch(cpm8xx_t __iomem *cp);
+#endif
+
 #endif /* __CPM_8XX__ */

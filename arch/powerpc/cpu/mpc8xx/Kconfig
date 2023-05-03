@@ -30,6 +30,31 @@ config MPC885
 
 endchoice
 
+choice
+	prompt "Microcode patch selection"
+	default NO_UCODE_PATCH
+	help
+	  This allows loading of CPM microcode.
+
+	  Only one microcode can be loaded at a time.
+
+config NO_UCODE_PATCH
+	bool "None"
+
+config USB_SOF_UCODE_PATCH
+	bool "USB SOF patch"
+	depends on MPC885
+	help
+	  This microcode fixes CPM15 errata:
+
+	  When the USB controller is configured in Host mode, and the
+	  SOF generation (SFTE=1 in USMOD register) is being used,
+	  there may be false CRC error indication in other SCCs.
+	  Although the data is received correctly, the CRC result
+	  will be corrupted.
+
+endchoice
+
 comment "Specific commands"
 
 config CMD_IMMAP
