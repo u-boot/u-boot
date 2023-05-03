@@ -20,7 +20,7 @@ if ! which $dtc >/dev/null ; then
 	exit 1
 fi
 
-MAJOR=$($dtc -v | head -1 | awk '{print $NF}' | cut -d . -f 1)
+MAJOR=$($dtc -v | head -1 | awk '{print $NF}' | cut -d . -f 1 | tr -d v)
 MINOR=$($dtc -v | head -1 | awk '{print $NF}' | cut -d . -f 2)
 PATCH=$($dtc -v | head -1 | awk '{print $NF}' | cut -d . -f 3 | cut -d - -f 1)
 
