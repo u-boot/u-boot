@@ -26,7 +26,6 @@
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 #define CFG_EXTRA_ENV_SETTINGS \
-	"splblk=0x42\0" \
 	BOOTENV
 
 #define CFG_SYS_INIT_RAM_ADDR        0x40000000
