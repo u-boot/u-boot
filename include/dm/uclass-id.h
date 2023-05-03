@@ -56,6 +56,7 @@ enum uclass_id {
 	UCLASS_EFI_MEDIA,	/* Devices provided by UEFI firmware */
 	UCLASS_ETH,		/* Ethernet device */
 	UCLASS_ETH_PHY,		/* Ethernet PHY device */
+	UCLASS_EXTCON,		/* External Connector Class */
 	UCLASS_FIRMWARE,	/* Firmware */
 	UCLASS_FPGA,		/* FPGA device */
 	UCLASS_FUZZING_ENGINE,	/* Fuzzing engine */

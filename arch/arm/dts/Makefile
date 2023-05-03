@@ -1142,9 +1142,6 @@ dtb-$(CONFIG_TARGET_OMAP4_SDP4430) += \
 	omap4-sdp.dtb \
 	omap4-sdp-es23plus.dtb
 
-dtb-$(CONFIG_TARGET_OMAP5_UEVM) += \
-	omap5-uevm.dtb
-
 dtb-$(CONFIG_TARGET_SAMA7G5EK) += \
 	at91-sama7g5ek.dtb
 
@@ -1199,6 +1196,8 @@ dtb-$(CONFIG_ARCH_BCM283X) += \
 	bcm2837-rpi-3-b-plus.dtb \
 	bcm2837-rpi-cm3-io3.dtb \
 	bcm2711-rpi-4-b.dtb
+
+dtb-$(CONFIG_TARGET_BCMNS) += ns-board.dtb
 
 dtb-$(CONFIG_TARGET_BCMNS3) += ns3-board.dtb
 
@@ -1308,6 +1307,8 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7981-rfb.dtb \
 	mt7981-emmc-rfb.dtb \
 	mt7981-sd-rfb.dtb \
+	mt7986a-bpi-r3-sd.dtb \
+	mt7986a-bpi-r3-emmc.dtb \
 	mt7986a-rfb.dtb \
 	mt7986b-rfb.dtb \
 	mt7986a-sd-rfb.dtb \

@@ -12,8 +12,8 @@ supported boards and it's usage steps.
 SDM845 - hi-end qualcomm chip, introduced in late 2017.
 Mostly used in flagship phones and tablets of 2018.
 
-U-Boot can be used as a replacement for Qualcomm's original ABL (UEFI) bootloader.
-It is loaded as an Android boot image through ABL
+The current boot flow support loading u-boot as an Android boot image via
+Qualcomm's UEFI-based ABL (Android) Bootloader.
 
 Installation
 ------------

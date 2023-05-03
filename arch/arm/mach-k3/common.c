@@ -580,7 +580,10 @@ void remove_fwl_configs(struct fwl_data *fwl_data, size_t fwl_data_size)
 
 			fwl_ops->get_fwl_region(ti_sci, &region);
 
-			if (region.control != 0) {
+			/* Don't disable the background regions */
+			if (region.control != 0 &&
+			    ((region.control & K3_BACKGROUND_FIREWALL_BIT) ==
+			     0)) {
 				pr_debug("Attempting to disable firewall %5d (%25s)\n",
 					 region.fwl_id, fwl_data[i].name);
 				region.control = 0;
@@ -641,8 +644,8 @@ int misc_init_r(void)
 			printf("Failed to probe am65_cpsw_nuss driver\n");
 	}
 
-	/* Default FIT boot on non-GP devices */
-	if (get_device_type() != K3_DEVICE_TYPE_GP)
+	/* Default FIT boot on HS-SE devices */
+	if (get_device_type() == K3_DEVICE_TYPE_HS_SE)
 		env_set("boot_fit", "1");
 
 	return 0;

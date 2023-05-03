@@ -9,3 +9,4 @@ Broadcom
 
    bcm7xxx
    raspberrypi
+   northstar

@@ -51,16 +51,21 @@
 			};
 		};
 
-		debug_uart: serial@a84000 {
-			compatible = "qcom,msm-geni-uart";
-			reg = <0xa84000 0x4000>;
-			reg-names = "se_phys";
-			clock-names = "se-clk";
-			clocks = <&gcc GCC_QUPV3_WRAP1_S1_CLK>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&qup_uart9>;
-			qcom,wrapper-core = <0x8a>;
-			status = "disabled";
+		qupv3_id_1: geniqup@ac0000 {
+			compatible = "qcom,geni-se-qup";
+			reg = <0x00ac0000 0x6000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+
+			uart9: serial@a84000 {
+				compatible = "qcom,geni-debug-uart";
+				reg = <0xa84000 0x4000>;
+				clock-names = "se";
+				clocks = <&gcc GCC_QUPV3_WRAP1_S1_CLK>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&qup_uart9>;
+			};
 		};
 
 		spmi@c440000 {

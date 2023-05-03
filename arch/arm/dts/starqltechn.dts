@@ -9,6 +9,8 @@
 /dts-v1/;
 
 #include "sdm845.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
 
 / {
 	model = "Samsung S9 (SM-G9600)";
@@ -21,7 +23,7 @@
 	};
 
 	aliases {
-		serial0 = &debug_uart;
+		serial0 = &uart9;
 	};
 
 	memory {
@@ -41,6 +43,22 @@
 		height = <2960>;
 		stride = <(1440 * 4)>;
 		format = "a8r8g8b8";
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		key-pwr {
+			label = "Power";
+			linux,code = <KEY_ENTER>;
+			gpios = <&pm8998_pon 0 GPIO_ACTIVE_LOW>;
+		};
+
+		key-vol-down {
+			label = "Volume Down";
+			linux,code = <KEY_DOWN>;
+			gpios = <&pm8998_pon 1 GPIO_ACTIVE_LOW>;
+		};
 	};
 
 	soc: soc {
