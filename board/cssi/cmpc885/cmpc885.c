@@ -11,6 +11,7 @@
 #include <env.h>
 #include <common.h>
 #include <mpc8xx.h>
+#include <asm/cpm_8xx.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <stdio.h>
@@ -450,6 +451,9 @@ void iop_setup_miae(void)
 
 	/* Wait reset on FPGA_F */
 	udelay(100);
+
+	/* Load CPM relocation code */
+	cpm_load_patch(cp);
 
 	/* Set the front panel LED color to red */
 	clrbits_8((unsigned char  __iomem *)CONFIG_FPGA_BASE + 0x44, 0x02);
