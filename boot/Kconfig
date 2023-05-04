@@ -231,7 +231,7 @@ config SPL_LOAD_FIT_APPLY_OVERLAY
 	depends on SPL_LOAD_FIT
 	select OF_LIBFDT_OVERLAY
 	help
-	  The device tree is loaded from the FIT image. Allow the SPL is to
+	  The device tree is loaded from the FIT image. Allow the SPL to
 	  also load device-tree overlays from the FIT image an apply them
 	  over the device tree.
 

@@ -626,7 +626,7 @@ config EVENT_DEBUG
 	bool "Enable event debugging assistance"
 	default y if SANDBOX
 	help
-	  Enable this get usefui features for seeing what is happening with
+	  Enable this to get useful features for seeing what is happening with
 	  events, such as event-type names. This adds to the code size of
 	  U-Boot so can be turned off for production builds.
 
