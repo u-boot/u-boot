@@ -141,14 +141,16 @@ in_flash:
 	mtspr	DER, r2
 
 	/* set up the stack on top of internal DPRAM */
-	lis	r3, (CFG_SYS_INIT_RAM_ADDR + CFG_SYS_INIT_RAM_SIZE)@h
-	ori	r3, r3, (CFG_SYS_INIT_RAM_ADDR + CFG_SYS_INIT_RAM_SIZE)@l
+	lis	r3, CFG_SYS_INIT_SP@h
+	ori	r3, r3, CFG_SYS_INIT_SP@l
 	stw	r0, -4(r3)
 	stw	r0, -8(r3)
 	addi	r1, r3, -8
 
+	lis	r3, (CFG_SYS_INIT_RAM_ADDR + CFG_SYS_INIT_RAM_SIZE)@h
+	ori	r3, r3, (CFG_SYS_INIT_RAM_ADDR + CFG_SYS_INIT_RAM_SIZE)@l
+
 	bl	board_init_f_alloc_reserve
-	addi	r1, r3, -8
 
 	/* Zeroise the CPM dpram */
 	lis	r4, CONFIG_SYS_IMMR@h

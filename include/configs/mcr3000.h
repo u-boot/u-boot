@@ -14,6 +14,7 @@
 /* Definitions for initial stack pointer and data area (in DPRAM) */
 #define CFG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_IMMR + 0x2800)
 #define	CFG_SYS_INIT_RAM_SIZE	(0x2e00 - 0x2800)
+#define CFG_SYS_INIT_SP		(CONFIG_SYS_IMMR + 0x3c00)
 
 /* RAM configuration (note that CFG_SYS_SDRAM_BASE must be zero) */
 #define	CFG_SYS_SDRAM_BASE		0x00000000
