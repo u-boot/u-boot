@@ -422,6 +422,8 @@ struct cb_tsc_info {
 #define CB_TAG_SERIALNO			0x002a
 #define CB_MAX_SERIALNO_LENGTH		32
 
+#define CB_TAG_ACPI_RSDP		0x0043
+
 #define CB_TAG_CMOS_OPTION_TABLE	0x00c8
 
 struct cb_cmos_option_table {

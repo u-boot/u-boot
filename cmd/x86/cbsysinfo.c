@@ -363,6 +363,7 @@ static void show_table(struct sysinfo_t *info, bool verbose)
 	print_hex("MTC size", info->mtc_size);
 
 	print_ptr("Chrome OS VPD", info->chromeos_vpd);
+	print_ptr("RSDP", info->rsdp);
 }
 
 static int do_cbsysinfo(struct cmd_tbl *cmdtp, int flag, int argc,

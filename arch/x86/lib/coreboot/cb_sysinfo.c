@@ -264,6 +264,13 @@ static void cb_parse_mrc_cache(void *ptr, struct sysinfo_t *info)
 	info->mrc_cache = map_sysmem(cbmem->cbmem_tab, 0);
 }
 
+static void cb_parse_acpi_rsdp(void *ptr, struct sysinfo_t *info)
+{
+	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
+
+	info->rsdp = map_sysmem(cbmem->cbmem_tab, 0);
+}
+
 __weak void cb_parse_unhandled(u32 tag, unsigned char *ptr)
 {
 }
@@ -428,6 +435,9 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 		case CB_TAG_MRC_CACHE:
 			cb_parse_mrc_cache(rec, info);
 			break;
+		case CB_TAG_ACPI_RSDP:
+			cb_parse_acpi_rsdp(rec, info);
+			break;
 		default:
 			cb_parse_unhandled(rec->tag, ptr);
 			break;
@@ -454,6 +464,7 @@ int get_coreboot_info(struct sysinfo_t *info)
 	if (!ret)
 		return -ENOENT;
 	gd->arch.coreboot_table = addr;
+	gd_set_acpi_start(map_to_sysmem(info->rsdp));
 	gd->flags |= GD_FLG_SKIP_LL_INIT;
 
 	return 0;
