@@ -439,6 +439,8 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 			cb_parse_acpi_rsdp(rec, info);
 			break;
 		default:
+			if (info->unimpl_count < SYSINFO_MAX_UNIMPL)
+				info->unimpl[info->unimpl_count++] = rec->tag;
 			cb_parse_unhandled(rec->tag, ptr);
 			break;
 		}

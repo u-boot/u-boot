@@ -364,6 +364,14 @@ static void show_table(struct sysinfo_t *info, bool verbose)
 
 	print_ptr("Chrome OS VPD", info->chromeos_vpd);
 	print_ptr("RSDP", info->rsdp);
+	printf("%-12s: ", "Unimpl.");
+	if (info->unimpl_count) {
+		for (i = 0; i < info->unimpl_count; i++)
+			printf("%02x ", info->unimpl[i]);
+		printf("\n");
+	} else {
+		printf("(none)\n");
+	}
 }
 
 static int do_cbsysinfo(struct cmd_tbl *cmdtp, int flag, int argc,
