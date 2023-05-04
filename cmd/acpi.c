@@ -162,6 +162,10 @@ static int do_acpi_items(struct cmd_tbl *cmdtp, int flag, int argc,
 	bool dump_contents;
 
 	dump_contents = argc >= 2 && !strcmp("-d", argv[1]);
+	if (!IS_ENABLED(CONFIG_ACPIGEN)) {
+		printf("Not supported (enable ACPIGEN)\n");
+		return CMD_RET_FAILURE;
+	}
 	acpi_dump_items(dump_contents ? ACPI_DUMP_CONTENTS : ACPI_DUMP_LIST);
 
 	return 0;

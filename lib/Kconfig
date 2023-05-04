@@ -281,9 +281,17 @@ config SUPPORT_ACPI
 	  U-Boot can generate these tables and pass them to the Operating
 	  System.
 
+config ACPI
+	bool "Enable support for ACPI libraries"
+	depends on SUPPORT_ACPI
+	help
+	  Provides library functions for dealing with ACPI tables. This does
+	  not necessarily include generation of tables
+	  (see GENERATE_ACPI_TABLE), but allows for tables to be located.
+
 config GENERATE_ACPI_TABLE
 	bool "Generate an ACPI (Advanced Configuration and Power Interface) table"
-	depends on SUPPORT_ACPI
+	depends on ACPI
 	select QFW if QEMU
 	help
 	  The Advanced Configuration and Power Interface (ACPI) specification
