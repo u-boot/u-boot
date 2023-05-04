@@ -36,49 +36,11 @@ static void dump_hdr(struct acpi_table_header *hdr)
 	}
 }
 
-/**
- * find_table() - Look up an ACPI table
- *
- * @sig: Signature of table (4 characters, upper case)
- * Return: pointer to table header, or NULL if not found
- */
-struct acpi_table_header *find_table(const char *sig)
-{
-	struct acpi_rsdp *rsdp;
-	struct acpi_rsdt *rsdt;
-	int len, i, count;
-
-	rsdp = map_sysmem(gd_acpi_start(), 0);
-	if (!rsdp)
-		return NULL;
-	rsdt = map_sysmem(rsdp->rsdt_address, 0);
-	len = rsdt->header.length - sizeof(rsdt->header);
-	count = len / sizeof(u32);
-	for (i = 0; i < count; i++) {
-		struct acpi_table_header *hdr;
-
-		hdr = map_sysmem(rsdt->entry[i], 0);
-		if (!memcmp(hdr->signature, sig, ACPI_NAME_LEN))
-			return hdr;
-		if (!memcmp(hdr->signature, "FACP", ACPI_NAME_LEN)) {
-			struct acpi_fadt *fadt = (struct acpi_fadt *)hdr;
-
-			if (!memcmp(sig, "DSDT", ACPI_NAME_LEN) && fadt->dsdt)
-				return map_sysmem(fadt->dsdt, 0);
-			if (!memcmp(sig, "FACS", ACPI_NAME_LEN) &&
-			    fadt->firmware_ctrl)
-				return map_sysmem(fadt->firmware_ctrl, 0);
-		}
-	}
-
-	return NULL;
-}
-
 static int dump_table_name(const char *sig)
 {
 	struct acpi_table_header *hdr;
 
-	hdr = find_table(sig);
+	hdr = acpi_find_table(sig);
 	if (!hdr)
 		return -ENOENT;
 	printf("%.*s @ %08lx\n", ACPI_NAME_LEN, hdr->signature,

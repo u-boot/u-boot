@@ -923,6 +923,14 @@ int acpi_fill_csrt(struct acpi_ctx *ctx);
  */
 ulong write_acpi_tables(ulong start);
 
+/**
+ * acpi_find_table() - Look up an ACPI table
+ *
+ * @sig: Signature of table (4 characters, upper case)
+ * Return: pointer to table header, or NULL if not found
+ */
+struct acpi_table_header *acpi_find_table(const char *sig);
+
 #endif /* !__ACPI__*/
 
 #include <asm/acpi_table.h>
