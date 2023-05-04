@@ -303,7 +303,7 @@ static int mrccache_save_type(enum mrc_type_t type)
 	mrc = &gd->arch.mrc[type];
 	if (!mrc->len)
 		return 0;
-	log_debug("Saving %#x bytes of MRC output data type %d to SPI flash\n",
+	log_debug("Saving %x bytes of MRC output data type %d to SPI flash\n",
 		  mrc->len, type);
 	ret = mrccache_get_region(type, &sf, &entry);
 	if (ret)
