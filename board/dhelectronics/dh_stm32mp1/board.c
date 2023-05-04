@@ -184,9 +184,9 @@ int checkboard(void)
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
-static u8 brdcode __section("data");
-static u8 ddr3code __section("data");
-static u8 somcode __section("data");
+static u8 brdcode __section(".data");
+static u8 ddr3code __section(".data");
+static u8 somcode __section(".data");
 static u32 opp_voltage_mv __section(".data");
 
 static void board_get_coding_straps(void)
