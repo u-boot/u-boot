@@ -52,7 +52,7 @@ config SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 config SYS_K3_MCU_SCRATCHPAD_BASE
 	hex
 	default 0x40280000 if SOC_K3_AM654
-	default 0x40280000 if SOC_K3_J721E || SOC_K3_J721S2
+	default 0x41cff9fc if SOC_K3_J721E || SOC_K3_J721S2
 	help
 	  Describes the base address of MCU Scratchpad RAM.
 
