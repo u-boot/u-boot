@@ -20,7 +20,7 @@ class Entry_u_boot_tpl_with_ucode_ptr(Entry_u_boot_with_ucode_ptr):
     process.
     """
     def __init__(self, section, etype, node):
-        super().__init__(section, etype, node)
+        super().__init__(section, etype, node, auto_write_symbols=True)
         self.elf_fname = 'tpl/u-boot-tpl'
 
     def GetDefaultFilename(self):

@@ -28,8 +28,8 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
     microcode, to allow early x86 boot code to find it without doing anything
     complicated. Otherwise it is the same as the u-boot entry.
     """
-    def __init__(self, section, etype, node):
-        super().__init__(section, etype, node)
+    def __init__(self, section, etype, node, auto_write_symbols=False):
+        super().__init__(section, etype, node, auto_write_symbols)
         self.elf_fname = 'u-boot'
         self.target_offset = None
 
