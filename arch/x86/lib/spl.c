@@ -186,7 +186,8 @@ void board_init_f(ulong flags)
 
 void board_init_f_r(void)
 {
-	init_cache_f_r();
+	mtrr_commit(false);
+	init_cache();
 	gd->flags &= ~GD_FLG_SERIAL_READY;
 	debug("cache status %d\n", dcache_status());
 	board_init_r(gd, 0);
