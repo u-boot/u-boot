@@ -354,6 +354,9 @@ cmd_dtco = mkdir -p $(dir ${dtc-tmp}) ; \
 $(obj)/%.dtbo: $(src)/%.dts $(DTC) FORCE
 	$(call if_changed_dep,dtco)
 
+$(obj)/%.dtbo: $(src)/%.dtso $(DTC) FORCE
+	$(call if_changed_dep,dtco)
+
 # Fonts
 # ---------------------------------------------------------------------------
 
