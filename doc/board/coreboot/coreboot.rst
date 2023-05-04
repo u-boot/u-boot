@@ -71,3 +71,32 @@ Memory map
               (typically redirects to 7ab10030 or similar)
          500  Location of coreboot sysinfo table, used during startup
   ==========  ==================================================================
+
+
+Debug UART
+----------
+
+It is possible to enable the debug UART with coreboot. To do this, use the
+info from the cbsysinfo command to locate the UART base. For example::
+
+   => cbsysinfo
+   ...
+   Serial I/O port: 00000000
+      base        : 00000000
+      pointer     : 767b51bc
+      type        : 2
+      base        : fe03e000
+      baud        : 0d115200
+      regwidth    : 4
+      input_hz    : 0d1843200
+      PCI addr    : 00000010
+   ...
+
+Here you can see that the UART base is fe03e000, regwidth is 4 (1 << 2) and the
+input clock is 1843200. So you can add the following CONFIG options::
+
+   CONFIG_DEBUG_UART=y
+   CONFIG_DEBUG_UART_BASE=fe03e000
+   CONFIG_DEBUG_UART_CLOCK=1843200
+   CONFIG_DEBUG_UART_SHIFT=2
+   CONFIG_DEBUG_UART_ANNOUNCE=y
