@@ -86,7 +86,7 @@ static int ivybridge_cpu_init(void *ctx, struct event *ev)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT, ivybridge_cpu_init);
+EVENT_SPY(EVT_DM_POST_INIT_F, ivybridge_cpu_init);
 
 #define PCH_EHCI0_TEMP_BAR0 0xe8000000
 #define PCH_EHCI1_TEMP_BAR0 0xe8000400

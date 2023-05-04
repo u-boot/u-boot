@@ -436,8 +436,8 @@ int dm_init_and_scan(bool pre_reloc_only)
 			return ret;
 		}
 	}
-	if (CONFIG_IS_ENABLED(DM_EVENT)) {
-		ret = event_notify_null(EVT_DM_POST_INIT);
+	if (CONFIG_IS_ENABLED(DM_EVENT) && !(gd->flags & GD_FLG_RELOC)) {
+		ret = event_notify_null(EVT_DM_POST_INIT_F);
 		if (ret)
 			return log_msg_ret("ev", ret);
 	}

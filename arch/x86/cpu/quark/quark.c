@@ -263,7 +263,7 @@ static int quark_init_pcie(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT, quark_init_pcie);
+EVENT_SPY(EVT_DM_POST_INIT_F, quark_init_pcie);
 
 int checkcpu(void)
 {

@@ -102,7 +102,7 @@ static int pic32_flash_prefetch(void *ctx, struct event *event)
 	prefetch_init();
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT, pic32_flash_prefetch);
+EVENT_SPY(EVT_DM_POST_INIT_F, pic32_flash_prefetch);
 
 /* Un-gate DDR2 modules (gated by default) */
 static void ddr2_pmd_ungate(void)

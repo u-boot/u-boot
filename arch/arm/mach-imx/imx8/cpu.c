@@ -89,7 +89,7 @@ static int imx8_init_mu(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT, imx8_init_mu);
+EVENT_SPY(EVT_DM_POST_INIT_F, imx8_init_mu);
 
 #if defined(CONFIG_ARCH_MISC_INIT)
 int arch_misc_init(void)
