@@ -89,7 +89,7 @@ stages:
           virtualenv -p /usr/bin/python3 /tmp/venvhtml
           . /tmp/venvhtml/bin/activate
           pip install -r doc/sphinx/requirements.txt
-          make htmldocs
+          make htmldocs KDOC_WERROR=1
           make infodocs
 
   - job: todo

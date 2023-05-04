@@ -1,5 +1,7 @@
 # SPDX-License-Identifier:      GPL-2.0+
 
+"""Directoreis used for authentication and capsule tests."""
+
 # Directories
 CAPSULE_DATA_DIR = '/EFI/CapsuleTestData'
 CAPSULE_INSTALL_DIR = '/EFI/UpdateCapsule'

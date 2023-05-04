@@ -51,6 +51,8 @@ cloned and built for JH7110 as below:
 	cd opensbi
 	make PLATFORM=generic FW_TEXT_START=0x40000000 FW_OPTIONS=0
 
+The VisionFive 2 support for OpenSBI was introduced after the v1.2 release.
+
 More detailed description of steps required to build FW_DYNAMIC firmware
 is beyond the scope of this document. Please refer OpenSBI documenation.
 (Note: OpenSBI git repo is at https://github.com/riscv/opensbi.git)
@@ -79,14 +81,19 @@ This will generate u-boot-spl.bin.normal.out file.
 Flashing
 ~~~~~~~~
 
-SPL loads the U-Boot SPL (u-boot-spl.bin.normal.out) from a partition with GUID type
-2E54B353-1271-4842-806F-E436D6AF6985
+The device firmware loads U-Boot SPL (u-boot-spl.bin.normal.out) from the
+partition with type GUID 2E54B353-1271-4842-806F-E436D6AF6985. You are free
+to choose any partition number.
 
-U-Boot SPL expects a U-Boot FIT image (u-boot.itb) from a partition with GUID
-type BC13C2FF-59E6-4262-A352-B275FD6F7172
+With the default configuration U-Boot SPL loads the U-Boot FIT image
+(u-boot.itb) from partition 2 (CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION=0x2).
+When formatting it is recommended to use GUID
+BC13C2FF-59E6-4262-A352-B275FD6F7172 for this partition.
 
-FIT image (u-boot.itb) is a combination of fw_dynamic.bin, u-boot-nodtb.bin and
-device tree blob (jh7110-starfive-visionfive-2-v1.3b.dtb/jh7110-starfive-visionfive-2-v1.2a.dtb)
+The FIT image (u-boot.itb) is a combination of OpenSBI's fw_dynamic.bin,
+u-boot-nodtb.bin and the device tree blob
+(jh7110-starfive-visionfive-2-v1.3b.dtb or
+jh7110-starfive-visionfive-2-v1.2a.dtb).
 
 Format the SD card (make sure the disk has GPT, otherwise use gdisk to switch)
 
@@ -117,7 +124,9 @@ Program the SD card
 Booting
 ~~~~~~~
 
-Change DIP switches MSEL[1:0] are set to 10, select the boot mode to SD.
+The board provides the DIP switches MSEL[1:0] to select the boot device.
+To select booting from SD-card set the DIP switches MSEL[1:0] to 10.
+
 Once you plugin the sdcard and power up, you should see the U-Boot prompt.
 
 Sample boot log from StarFive VisionFive2 board

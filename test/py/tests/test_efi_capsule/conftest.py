@@ -2,8 +2,7 @@
 # Copyright (c) 2020, Linaro Limited
 # Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
 
-"""Fixture for UEFI capsule test
-"""
+"""Fixture for UEFI capsule test."""
 
 from subprocess import call, check_call, CalledProcessError
 import pytest
@@ -11,13 +10,15 @@ from capsule_defs import CAPSULE_DATA_DIR, CAPSULE_INSTALL_DIR, EFITOOLS_PATH
 
 @pytest.fixture(scope='session')
 def efi_capsule_data(request, u_boot_config):
-    """Set up a file system to be used in UEFI capsule and authentication test
-    and return a ath to disk image to be used for testing
+    """Set up a file system and return path to image.
+
+    The function sets up a file system to be used in UEFI capsule and
+    authentication test and returns a path to disk image to be used
+    for testing.
 
     request -- Pytest request object.
     u_boot_config -- U-boot configuration.
     """
-
     mnt_point = u_boot_config.persistent_data_dir + '/test_efi_capsule'
     data_dir = mnt_point + CAPSULE_DATA_DIR
     install_dir = mnt_point + CAPSULE_INSTALL_DIR

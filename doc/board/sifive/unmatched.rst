@@ -56,8 +56,10 @@ Flashing
 ZSBL loads the U-Boot SPL (u-boot-spl.bin) from a partition with GUID type
 5B193300-FC78-40CD-8002-E86C45580B47
 
-U-Boot SPL expects u-boot.itb from a partition with GUID
-type 2E54B353-1271-4842-806F-E436D6AF6985
+With the default configuration U-Boot SPL expects u-boot.itb starting at sector
+2082 (CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR=0x822). It is recommended to use a
+partition with type GUID 2E54B353-1271-4842-806F-E436D6AF6985 for storing
+main U-Boot.
 
 u-boot.itb is a combination of fw_dynamic.bin, u-boot-nodtb.bin and
 device tree blob (hifive-unmatched-a00.dtb)

@@ -2,7 +2,7 @@
 # Copyright (c) 2019, Linaro Limited
 # Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
 
-""" Fixture for UEFI secure boot test """
+"""Fixture for UEFI secure boot test."""
 
 from subprocess import call, check_call, CalledProcessError
 import pytest
@@ -132,7 +132,9 @@ def efi_boot_env(request, u_boot_config):
 
 @pytest.fixture(scope='session')
 def efi_boot_env_intca(request, u_boot_config):
-    """Set up a file system to be used in UEFI secure boot test
+    """Set up file system for secure boot test.
+
+    Set up a file system to be used in UEFI secure boot test
     of intermediate certificates.
 
     Args:

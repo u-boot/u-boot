@@ -41,6 +41,7 @@ Shell commands
    cmd/cmp
    cmd/coninfo
    cmd/conitrace
+   cmd/cp
    cmd/cyclic
    cmd/dm
    cmd/ebtupdate
