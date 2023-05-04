@@ -593,11 +593,14 @@ int of_read_u64(const struct device_node *np, const char *propname, u64 *outp)
 int of_property_match_string(const struct device_node *np, const char *propname,
 			     const char *string)
 {
-	const struct property *prop = of_find_property(np, propname, NULL);
+	int len = 0;
+	const struct property *prop = of_find_property(np, propname, &len);
 	size_t l;
 	int i;
 	const char *p, *end;
 
+	if (!prop && len == -FDT_ERR_NOTFOUND)
+		return -ENOENT;
 	if (!prop)
 		return -EINVAL;
 	if (!prop->value)
