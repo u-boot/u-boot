@@ -450,6 +450,22 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	// "reset" will both be treated as "read".
 	cmd = argv[1][0];
 
+	// select device
+	if (cmd == 'd') {
+		 /* 'dev' command */
+		unsigned int devnum;
+
+		devnum = simple_strtoul(argv[2], NULL, 0);
+		if (devnum >= MAX_TLV_DEVICES) {
+			printf("Invalid device number\n");
+			return 0;
+		}
+		current_dev = devnum;
+		has_been_read = 0;
+
+		return 0;
+	}
+
 	// Read the EEPROM contents
 	if (cmd == 'r') {
 		has_been_read = 0;
@@ -508,16 +524,6 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		tlvinfo_delete_tlv(eeprom, tcode);
 		if (argc == 4)
 			tlvinfo_add_tlv(eeprom, tcode, argv[3]);
-	} else if (cmd == 'd') { /* 'dev' command */
-		unsigned int devnum;
-
-		devnum = simple_strtoul(argv[2], NULL, 0);
-		if (devnum > MAX_TLV_DEVICES || !tlv_devices[devnum]) {
-			printf("Invalid device number\n");
-			return 0;
-		}
-		current_dev = devnum;
-		has_been_read = 0;
 	} else {
 		return CMD_RET_USAGE;
 	}
