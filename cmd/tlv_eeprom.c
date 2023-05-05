@@ -29,18 +29,18 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* File scope function prototypes */
 static bool is_checksum_valid(u8 *eeprom);
-static int read_eeprom(u8 *eeprom);
-static void show_eeprom(u8 *eeprom);
+static int read_eeprom(int devnum, u8 *eeprom);
+static void show_eeprom(int devnum, u8 *eeprom);
 static void decode_tlv(struct tlvinfo_tlv *tlv);
 static void update_crc(u8 *eeprom);
-static int prog_eeprom(u8 *eeprom);
+static int prog_eeprom(int devnum, u8 *eeprom);
 static bool tlvinfo_find_tlv(u8 *eeprom, u8 tcode, int *eeprom_index);
 static bool tlvinfo_delete_tlv(u8 *eeprom, u8 code);
 static bool tlvinfo_add_tlv(u8 *eeprom, int tcode, char *strval);
 static int set_mac(char *buf, const char *string);
 static int set_date(char *buf, const char *string);
 static int set_bytes(char *buf, const char *string, int *converted_accum);
-static void show_tlv_devices(void);
+static void show_tlv_devices(int current_dev);
 
 /* Set to 1 if we've read EEPROM into memory */
 static int has_been_read;
@@ -48,7 +48,6 @@ static int has_been_read;
 static u8 eeprom[TLV_INFO_MAX_LEN];
 
 static struct udevice *tlv_devices[MAX_TLV_DEVICES];
-static unsigned int current_dev;
 
 #define to_header(p) ((struct tlvinfo_header *)p)
 #define to_entry(p) ((struct tlvinfo_tlv *)p)
@@ -125,7 +124,7 @@ static bool is_checksum_valid(u8 *eeprom)
  *
  *  Read the EEPROM into memory, if it hasn't already been read.
  */
-static int read_eeprom(u8 *eeprom)
+static int read_eeprom(int devnum, u8 *eeprom)
 {
 	int ret;
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
@@ -135,12 +134,11 @@ static int read_eeprom(u8 *eeprom)
 		return 0;
 
 	/* Read the header */
-	ret = read_tlv_eeprom((void *)eeprom_hdr, 0, HDR_SIZE, current_dev);
+	ret = read_tlv_eeprom((void *)eeprom_hdr, 0, HDR_SIZE, devnum);
 	/* If the header was successfully read, read the TLVs */
 	if (ret == 0 && is_valid_tlvinfo_header(eeprom_hdr))
 		ret = read_tlv_eeprom((void *)eeprom_tlv, HDR_SIZE,
-				      be16_to_cpu(eeprom_hdr->totallen),
-				      current_dev);
+				      be16_to_cpu(eeprom_hdr->totallen), devnum);
 
 	// If the contents are invalid, start over with default contents
 	if (!is_valid_tlvinfo_header(eeprom_hdr) ||
@@ -165,7 +163,7 @@ static int read_eeprom(u8 *eeprom)
  *
  *  Display the contents of the EEPROM
  */
-static void show_eeprom(u8 *eeprom)
+static void show_eeprom(int devnum, u8 *eeprom)
 {
 	int tlv_end;
 	int curr_tlv;
@@ -180,7 +178,7 @@ static void show_eeprom(u8 *eeprom)
 		return;
 	}
 
-	printf("TLV: %u\n", current_dev);
+	printf("TLV: %u\n", devnum);
 	printf("TlvInfo Header:\n");
 	printf("   Id String:    %s\n", eeprom_hdr->signature);
 	printf("   Version:      %d\n", eeprom_hdr->version);
@@ -389,7 +387,7 @@ static void update_crc(u8 *eeprom)
  *
  *  Write the EEPROM data from CPU memory to the hardware.
  */
-static int prog_eeprom(u8 *eeprom)
+static int prog_eeprom(int devnum, u8 *eeprom)
 {
 	int ret = 0;
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
@@ -398,7 +396,7 @@ static int prog_eeprom(u8 *eeprom)
 	update_crc(eeprom);
 
 	eeprom_len = HDR_SIZE + be16_to_cpu(eeprom_hdr->totallen);
-	ret = write_tlv_eeprom(eeprom, eeprom_len);
+	ret = write_tlv_eeprom(eeprom, eeprom_len, devnum);
 	if (ret) {
 		printf("Programming failed.\n");
 		return -1;
@@ -433,11 +431,12 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char cmd;
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
+	static unsigned int current_dev;
 
 	// If no arguments, read the EERPOM and display its contents
 	if (argc == 1) {
-		read_eeprom(eeprom);
-		show_eeprom(eeprom);
+		read_eeprom(current_dev, eeprom);
+		show_eeprom(current_dev, eeprom);
 		return 0;
 	}
 
@@ -448,7 +447,7 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	// Read the EEPROM contents
 	if (cmd == 'r') {
 		has_been_read = 0;
-		if (!read_eeprom(eeprom))
+		if (!read_eeprom(current_dev, eeprom))
 			printf("EEPROM data loaded from device to memory.\n");
 		return 0;
 	}
@@ -463,7 +462,7 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (argc == 2) {
 		switch (cmd) {
 		case 'w':   /* write */
-			prog_eeprom(eeprom);
+			prog_eeprom(current_dev, eeprom);
 			break;
 		case 'e':   /* erase */
 			strcpy(eeprom_hdr->signature, TLV_INFO_ID_STRING);
@@ -476,7 +475,7 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			show_tlv_code_list();
 			break;
 		case 'd':   /* dev */
-			show_tlv_devices();
+			show_tlv_devices(current_dev);
 			break;
 		default:
 			return CMD_RET_USAGE;
@@ -883,7 +882,7 @@ static int set_bytes(char *buf, const char *string, int *converted_accum)
 	return 0;
 }
 
-static void show_tlv_devices(void)
+static void show_tlv_devices(int current_dev)
 {
 	unsigned int dev;
 
@@ -953,14 +952,14 @@ int read_tlv_eeprom(void *eeprom, int offset, int len, int dev_num)
 /**
  * write_tlv_eeprom - write the hwinfo to i2c EEPROM
  */
-int write_tlv_eeprom(void *eeprom, int len)
+int write_tlv_eeprom(void *eeprom, int len, int dev)
 {
 	if (!(gd->flags & GD_FLG_RELOC))
 		return -ENODEV;
-	if (!tlv_devices[current_dev])
+	if (!tlv_devices[dev])
 		return -ENODEV;
 
-	return i2c_eeprom_write(tlv_devices[current_dev], 0, eeprom, len);
+	return i2c_eeprom_write(tlv_devices[dev], 0, eeprom, len);
 }
 
 int read_tlvinfo_tlv_eeprom(void *eeprom, struct tlvinfo_header **hdr,
@@ -1015,10 +1014,11 @@ int mac_read_from_eeprom(void)
 	int maccount;
 	u8 macbase[6];
 	struct tlvinfo_header *eeprom_hdr = to_header(eeprom);
+	int devnum = 0; // TODO: support multiple EEPROMs
 
 	puts("EEPROM: ");
 
-	if (read_eeprom(eeprom)) {
+	if (read_eeprom(devnum, eeprom)) {
 		printf("Read failed.\n");
 		return -1;
 	}
@@ -1083,7 +1083,7 @@ int mac_read_from_eeprom(void)
  *
  *  This function must be called after relocation.
  */
-int populate_serial_number(void)
+int populate_serial_number(int devnum)
 {
 	char serialstr[257];
 	int eeprom_index;
@@ -1092,7 +1092,7 @@ int populate_serial_number(void)
 	if (env_get("serial#"))
 		return 0;
 
-	if (read_eeprom(eeprom)) {
+	if (read_eeprom(devnum, eeprom)) {
 		printf("Read failed.\n");
 		return -1;
 	}

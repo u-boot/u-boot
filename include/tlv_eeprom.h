@@ -84,11 +84,12 @@ int read_tlv_eeprom(void *eeprom, int offset, int len, int dev);
  * write_tlv_eeprom - Write the entire EEPROM binary data to the hardware
  * @eeprom: Pointer to buffer to hold the binary data
  * @len   : Maximum size of buffer
+ * @dev   : EEPROM device to write
  *
  * Note: this routine does not validate the EEPROM data.
  *
  */
-int write_tlv_eeprom(void *eeprom, int len);
+int write_tlv_eeprom(void *eeprom, int len, int dev);
 
 /**
  * read_tlvinfo_tlv_eeprom - Read the TLV from EEPROM, and validate
