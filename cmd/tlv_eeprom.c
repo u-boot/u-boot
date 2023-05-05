@@ -134,6 +134,8 @@ static int read_eeprom(int devnum, u8 *eeprom)
 	if (ret == 0 && is_valid_tlvinfo_header(eeprom_hdr))
 		ret = read_tlv_eeprom((void *)eeprom_tlv, HDR_SIZE,
 				      be16_to_cpu(eeprom_hdr->totallen), devnum);
+	else if (ret == -ENODEV)
+		return ret;
 
 	// If the contents are invalid, start over with default contents
 	if (!is_valid_tlvinfo_header(eeprom_hdr) ||
@@ -432,8 +434,13 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	// If no arguments, read the EERPOM and display its contents
 	if (argc == 1) {
 		if (!has_been_read) {
-			if (read_eeprom(current_dev, eeprom) == 0)
-				has_been_read = 1;
+			ret = read_eeprom(current_dev, eeprom);
+			if (ret) {
+				printf("Failed to read EEPROM data from device.\n");
+				return 0;
+			}
+
+			has_been_read = 1;
 		}
 		show_eeprom(current_dev, eeprom);
 		return 0;
@@ -446,11 +453,14 @@ int do_tlv_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	// Read the EEPROM contents
 	if (cmd == 'r') {
 		has_been_read = 0;
-		if (read_eeprom(current_dev, eeprom) == 0) {
-			printf("EEPROM data loaded from device to memory.\n");
-			has_been_read = 1;
+		ret = read_eeprom(current_dev, eeprom);
+		if (ret) {
+			printf("Failed to read EEPROM data from device.\n");
+			return 0;
 		}
-		return 0;
+
+		printf("EEPROM data loaded from device to memory.\n");
+		has_been_read = 1;
 	}
 
 	// Subsequent commands require that the EEPROM has already been read.
