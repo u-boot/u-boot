@@ -55,7 +55,8 @@
 		"do;" \
 		"setenv overlaystring ${overlaystring}'#'${overlay};" \
 		"done;\0" \
-	"run_fit=bootm ${addr_fit}#conf-${fdtfile}${overlaystring}\0" \
+	"get_fit_config=setexpr name_fit_config gsub / _ conf-${fdtfile}\0" \
+	"run_fit=run get_fit_config; bootm ${addr_fit}#${name_fit_config}${overlaystring}\0" \
 
 /*
  * DDR information.  If the CONFIG_NR_DRAM_BANKS is not defined,
