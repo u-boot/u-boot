@@ -51,6 +51,12 @@ config MESON_G12A
 	help
 	  Select this if your SoC is an S905X/D2
 
+config MESON_A1
+	bool "A1"
+	select MESON64_COMMON
+	help
+	  Select this if your SoC is an A113L
+
 endchoice
 
 config SYS_SOC
