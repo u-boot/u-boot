@@ -15,3 +15,10 @@ config VIDEO_DSI_TEGRA30
 	help
 	   T30 has native support for DSI panels. This option enables support
 	   for such panels which can be used on endeavoru and tf600t.
+
+config TEGRA_BACKLIGHT_PWM
+	bool "Enable Tegra DC PWM backlight support"
+	depends on BACKLIGHT
+	select VIDEO_TEGRA20
+	help
+	   Tegra DC dependent backlight.

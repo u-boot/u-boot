@@ -68,7 +68,7 @@ struct global_data {
 	 * @mem_clk: memory clock rate in Hz
 	 */
 	unsigned long mem_clk;
-#if defined(CONFIG_VIDEO)
+#if CONFIG_IS_ENABLED(VIDEO)
 	/**
 	 * @fb_base: base address of frame buffer memory
 	 */
@@ -359,7 +359,7 @@ struct global_data {
 	 */
 	struct membuff console_in;
 #endif
-#ifdef CONFIG_VIDEO
+#if CONFIG_IS_ENABLED(VIDEO)
 	/**
 	 * @video_top: top of video frame buffer area
 	 */

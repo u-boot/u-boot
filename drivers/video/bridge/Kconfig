@@ -33,3 +33,10 @@ config VIDEO_BRIDGE_ANALOGIX_ANX6345
 	help
 	 The Analogix ANX6345 is RGB-to-DP converter. It enables an eDP LCD
 	 panel to be connected to an parallel LCD interface.
+
+config VIDEO_BRIDGE_SOLOMON_SSD2825
+	bool "Solomon SSD2825 bridge driver"
+	depends on PANEL && DM_GPIO
+	select VIDEO_MIPI_DSI
+	help
+	  Solomon SSD2824 SPI RGB-DSI bridge driver wrapped into panel uClass.
