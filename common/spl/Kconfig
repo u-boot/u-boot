@@ -1345,69 +1345,6 @@ config SPL_THERMAL
 	  automatic power-off when the temperature gets too high or low. Other
 	  devices may be discrete but connected on a suitable bus.
 
-config SPL_USB_GADGET
-	bool "Suppport USB Gadget drivers"
-	help
-	  Enable USB Gadget API which allows to enable USB device functions
-	  in SPL.
-
-if SPL_USB_GADGET
-
-config SPL_USB_ETHER
-	bool "Support USB Ethernet drivers"
-	depends on SPL_NET
-	help
-	  Enable access to the USB network subsystem and associated
-	  drivers in SPL. This permits SPL to load U-Boot over a
-	  USB-connected Ethernet link (such as a USB Ethernet dongle) rather
-	  than from an onboard peripheral. Environment support is required
-	  since the network stack uses a number of environment variables.
-	  See also SPL_NET and SPL_ETH.
-
-config SPL_DFU
-	bool "Support DFU (Device Firmware Upgrade)"
-	select SPL_HASH
-	select SPL_DFU_NO_RESET
-	depends on SPL_RAM_SUPPORT
-	help
-	  This feature enables the DFU (Device Firmware Upgrade) in SPL with
-	  RAM memory device support. The ROM code will load and execute
-	  the SPL built with dfu. The user can load binaries (u-boot/kernel) to
-	  selected device partition from host-pc using dfu-utils.
-	  This feature is useful to flash the binaries to factory or bare-metal
-	  boards using USB interface.
-
-choice
-	bool "DFU device selection"
-	depends on SPL_DFU
-
-config SPL_DFU_RAM
-	bool "RAM device"
-	depends on SPL_DFU && SPL_RAM_SUPPORT
-	help
-	 select RAM/DDR memory device for loading binary images
-	 (u-boot/kernel) to the selected device partition using
-	 DFU and execute the u-boot/kernel from RAM.
-
-endchoice
-
-config SPL_USB_SDP_SUPPORT
-	bool "Support SDP (Serial Download Protocol)"
-	depends on SPL_SERIAL
-	help
-	  Enable Serial Download Protocol (SDP) device support in SPL. This
-	  allows to download images into memory and execute (jump to) them
-	  using the same protocol as implemented by the i.MX family's boot ROM.
-
-config SPL_SDP_USB_DEV
-	int "SDP USB controller index"
-	default 0
-	depends on SPL_USB_SDP_SUPPORT
-	help
-	  Some boards have USB controller other than 0. Define this option
-	  so it can be used in compiled environment.
-endif
-
 config SPL_WATCHDOG
 	bool "Support watchdog drivers"
 	imply SPL_WDT if !HW_WATCHDOG
