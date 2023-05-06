@@ -1345,16 +1345,6 @@ config SPL_THERMAL
 	  automatic power-off when the temperature gets too high or low. Other
 	  devices may be discrete but connected on a suitable bus.
 
-config SPL_USB_HOST
-	bool "Support USB host drivers"
-	help
-	  Enable access to USB (Universal Serial Bus) host devices so that
-	  SPL can load U-Boot from a connected USB peripheral, such as a USB
-	  flash stick. While USB takes a little longer to start up than most
-	  buses, it is very flexible since many different types of storage
-	  device can be attached. This option enables the drivers in
-	  drivers/usb/host as part of an SPL build.
-
 config SPL_USB_STORAGE
 	bool "Support loading from USB"
 	depends on SPL_USB_HOST
