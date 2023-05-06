@@ -124,6 +124,15 @@ void fastboot_init(void *buf_addr, u32 buf_size);
 void fastboot_boot(void);
 
 /**
+ * fastboot_handle_boot() - Shared implementation of system reaction to
+ * fastboot commands
+ *
+ * Making desceisions about device boot state (stay in fastboot, reboot
+ * to bootloader, reboot to OS, etc).
+ */
+void fastboot_handle_boot(int command, bool success);
+
+/**
  * fastboot_handle_command() - Handle fastboot command
  *
  * @cmd_string: Pointer to command string

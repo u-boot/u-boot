@@ -39,7 +39,7 @@ struct phy_device *phy_connect_phy_id(struct mii_dev *bus, struct udevice *dev,
 
 	if (!IS_ENABLED(CONFIG_DM_ETH_PHY)) {
 		ret = gpio_request_by_name_nodev(node, "reset-gpios", 0, &gpio,
-						 GPIOD_ACTIVE_LOW);
+						 GPIOD_IS_OUT | GPIOD_ACTIVE_LOW);
 		if (!ret) {
 			assert = ofnode_read_u32_default(node,
 							 "reset-assert-us", 0);

@@ -20,6 +20,7 @@
 #include <dm/uclass-internal.h>
 #include <test/test.h>
 #include <test/ut.h>
+#include <ndisc.h>
 
 #define DM_TEST_ETH_NUM		4
 
@@ -607,3 +608,90 @@ static int dm_test_eth_async_ping_reply(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_eth_async_ping_reply, UT_TESTF_SCAN_FDT);
+
+#if IS_ENABLED(CONFIG_IPV6_ROUTER_DISCOVERY)
+
+static u8 ip6_ra_buf[] = {0x60, 0xf, 0xc5, 0x4a, 0x0, 0x38, 0x3a, 0xff, 0xfe,
+			  0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x6, 0x85, 0xe6,
+			  0x29, 0x77, 0xcb, 0xc8, 0x53, 0xff, 0x2, 0x0, 0x0,
+			  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+			  0x1, 0x86, 0x0, 0xdc, 0x90, 0x40, 0x80, 0x15, 0x18,
+			  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x3, 0x4,
+			  0x40, 0xc0, 0x0, 0x0, 0x37, 0xdc, 0x0, 0x0, 0x37,
+			  0x78, 0x0, 0x0, 0x0, 0x0, 0x20, 0x1, 0xca, 0xfe, 0xca,
+			  0xfe, 0xca, 0xfe, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+			  0x0, 0x1, 0x1, 0x0, 0x15, 0x5d, 0xe2, 0x8a, 0x2};
+
+static int dm_test_validate_ra(struct unit_test_state *uts)
+{
+	struct ip6_hdr *ip6 = (struct ip6_hdr *)ip6_ra_buf;
+	struct icmp6hdr *icmp = (struct icmp6hdr *)(ip6 + 1);
+	__be16 temp = 0;
+
+	ut_assert(validate_ra(ip6) == true);
+
+	temp = ip6->payload_len;
+	ip6->payload_len = 15;
+	ut_assert(validate_ra(ip6) == false);
+	ip6->payload_len = temp;
+
+	temp = ip6->saddr.s6_addr16[0];
+	ip6->saddr.s6_addr16[0] = 0x2001;
+	ut_assert(validate_ra(ip6) == false);
+	ip6->saddr.s6_addr16[0] = temp;
+
+	temp = ip6->hop_limit;
+	ip6->hop_limit = 15;
+	ut_assert(validate_ra(ip6) == false);
+	ip6->hop_limit = temp;
+
+	temp = icmp->icmp6_code;
+	icmp->icmp6_code = 15;
+	ut_assert(validate_ra(ip6) == false);
+	icmp->icmp6_code = temp;
+
+	return 0;
+}
+
+DM_TEST(dm_test_validate_ra, 0);
+
+static int dm_test_process_ra(struct unit_test_state *uts)
+{
+	int len = sizeof(ip6_ra_buf);
+	struct ip6_hdr *ip6 = (struct ip6_hdr *)ip6_ra_buf;
+	struct icmp6hdr *icmp = (struct icmp6hdr *)(ip6 + 1);
+	struct ra_msg *msg = (struct ra_msg *)icmp;
+	unsigned char *option = msg->opt;
+	struct icmp6_ra_prefix_info *prefix =
+					(struct icmp6_ra_prefix_info *)option;
+	__be16 temp = 0;
+	unsigned char option_len = option[1];
+
+	ut_assert(process_ra(ip6, len) == 0);
+
+	temp = icmp->icmp6_rt_lifetime;
+	icmp->icmp6_rt_lifetime = 0;
+	ut_assert(process_ra(ip6, len) != 0);
+	icmp->icmp6_rt_lifetime = temp;
+
+	ut_assert(process_ra(ip6, 0) != 0);
+
+	option[1] = 0;
+	ut_assert(process_ra(ip6, len) != 0);
+	option[1] = option_len;
+
+	prefix->on_link = false;
+	ut_assert(process_ra(ip6, len) != 0);
+	prefix->on_link = true;
+
+	temp = prefix->prefix.s6_addr16[0];
+	prefix->prefix.s6_addr16[0] = 0x80fe;
+	ut_assert(process_ra(ip6, len) != 0);
+	prefix->prefix.s6_addr16[0] = temp;
+
+	return 0;
+}
+
+DM_TEST(dm_test_process_ra, 0);
+
+#endif

@@ -26,6 +26,10 @@
  * NFSv2 is still used by default. But if server does not support NFSv2, then
  * NFSv3 is used, if available on NFS server. */
 
+/* NOTE 5: NFSv1 support added by Christian Gmeiner, Thomas Rienoessl,
+ * September 27, 2018. As of now, NFSv3 is the default choice. If the server
+ * does not support NFSv3, we fall back to versions 2 or 1. */
+
 #include <common.h>
 #include <command.h>
 #include <display_options.h>
@@ -76,10 +80,14 @@ static char *nfs_filename;
 static char *nfs_path;
 static char nfs_path_buff[2048];
 
-#define NFSV2_FLAG 1
-#define NFSV3_FLAG 1 << 1
-static char supported_nfs_versions = NFSV2_FLAG | NFSV3_FLAG;
+enum nfs_version {
+	NFS_UNKOWN = 0,
+	NFS_V1 = 1,
+	NFS_V2 = 2,
+	NFS_V3 = 3,
+};
 
+static enum nfs_version choosen_nfs_version = NFS_V3;
 static inline int store_block(uchar *src, unsigned offset, unsigned len)
 {
 	ulong newsize = offset + len;
@@ -188,13 +196,41 @@ static void rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 	rpc_pkt.u.call.prog = htonl(rpc_prog);
 	switch (rpc_prog) {
 	case PROG_NFS:
-		if (supported_nfs_versions & NFSV2_FLAG)
-			rpc_pkt.u.call.vers = htonl(2);	/* NFS v2 */
-		else /* NFSV3_FLAG */
-			rpc_pkt.u.call.vers = htonl(3);	/* NFS v3 */
+		switch (choosen_nfs_version) {
+		case NFS_V1:
+		case NFS_V2:
+			rpc_pkt.u.call.vers = htonl(2);
+			break;
+
+		case NFS_V3:
+			rpc_pkt.u.call.vers = htonl(3);
+			break;
+
+		case NFS_UNKOWN:
+			/* nothing to do */
+			break;
+		}
+		break;
+	case PROG_MOUNT:
+		switch (choosen_nfs_version) {
+		case NFS_V1:
+			rpc_pkt.u.call.vers = htonl(1);
+			break;
+
+		case NFS_V2:
+			rpc_pkt.u.call.vers = htonl(2);
+			break;
+
+		case NFS_V3:
+			rpc_pkt.u.call.vers = htonl(3);
+			break;
+
+		case NFS_UNKOWN:
+			/* nothing to do */
+			break;
+		}
 		break;
 	case PROG_PORTMAP:
-	case PROG_MOUNT:
 	default:
 		rpc_pkt.u.call.vers = htonl(2);	/* portmapper is version 2 */
 	}
@@ -299,10 +335,10 @@ static void nfs_readlink_req(void)
 	p = &(data[0]);
 	p = rpc_add_credentials(p);
 
-	if (supported_nfs_versions & NFSV2_FLAG) {
+	if (choosen_nfs_version != NFS_V3) {
 		memcpy(p, filefh, NFS_FHSIZE);
 		p += (NFS_FHSIZE / 4);
-	} else { /* NFSV3_FLAG */
+	} else { /* NFS_V3 */
 		*p++ = htonl(filefh3_length);
 		memcpy(p, filefh, filefh3_length);
 		p += (filefh3_length / 4);
@@ -328,7 +364,7 @@ static void nfs_lookup_req(char *fname)
 	p = &(data[0]);
 	p = rpc_add_credentials(p);
 
-	if (supported_nfs_versions & NFSV2_FLAG) {
+	if (choosen_nfs_version != NFS_V3) {
 		memcpy(p, dirfh, NFS_FHSIZE);
 		p += (NFS_FHSIZE / 4);
 		*p++ = htonl(fnamelen);
@@ -340,7 +376,7 @@ static void nfs_lookup_req(char *fname)
 		len = (uint32_t *)p - (uint32_t *)&(data[0]);
 
 		rpc_req(PROG_NFS, NFS_LOOKUP, data, len);
-	} else {  /* NFSV3_FLAG */
+	} else {  /* NFS_V3 */
 		*p++ = htonl(NFS_FHSIZE);	/* Dir handle length */
 		memcpy(p, dirfh, NFS_FHSIZE);
 		p += (NFS_FHSIZE / 4);
@@ -368,13 +404,13 @@ static void nfs_read_req(int offset, int readlen)
 	p = &(data[0]);
 	p = rpc_add_credentials(p);
 
-	if (supported_nfs_versions & NFSV2_FLAG) {
+	if (choosen_nfs_version != NFS_V3) {
 		memcpy(p, filefh, NFS_FHSIZE);
 		p += (NFS_FHSIZE / 4);
 		*p++ = htonl(offset);
 		*p++ = htonl(readlen);
 		*p++ = 0;
-	} else { /* NFSV3_FLAG */
+	} else { /* NFS_V3 */
 		*p++ = htonl(filefh3_length);
 		memcpy(p, filefh, filefh3_length);
 		p += (filefh3_length / 4);
@@ -398,15 +434,15 @@ static void nfs_send(void)
 
 	switch (nfs_state) {
 	case STATE_PRCLOOKUP_PROG_MOUNT_REQ:
-		if (supported_nfs_versions & NFSV2_FLAG)
+		if (choosen_nfs_version != NFS_V3)
 			rpc_lookup_req(PROG_MOUNT, 1);
-		else  /* NFSV3_FLAG */
+		else  /* NFS_V3 */
 			rpc_lookup_req(PROG_MOUNT, 3);
 		break;
 	case STATE_PRCLOOKUP_PROG_NFS_REQ:
-		if (supported_nfs_versions & NFSV2_FLAG)
+		if (choosen_nfs_version != NFS_V3)
 			rpc_lookup_req(PROG_NFS, 2);
-		else  /* NFSV3_FLAG */
+		else  /* NFS_V3 */
 			rpc_lookup_req(PROG_NFS, 3);
 		break;
 	case STATE_MOUNT_REQ:
@@ -430,6 +466,54 @@ static void nfs_send(void)
 /**************************************************************************
 Handlers for the reply from server
 **************************************************************************/
+
+static int rpc_handle_error(struct rpc_t *rpc_pkt)
+{
+	if (rpc_pkt->u.reply.rstatus  ||
+	    rpc_pkt->u.reply.verifier ||
+	    rpc_pkt->u.reply.astatus  ||
+	    rpc_pkt->u.reply.data[0]) {
+		switch (ntohl(rpc_pkt->u.reply.astatus)) {
+		case NFS_RPC_SUCCESS: /* Not an error */
+			break;
+		case NFS_RPC_PROG_MISMATCH: {
+			/* Remote can't support NFS version */
+			const int min = ntohl(rpc_pkt->u.reply.data[0]);
+			const int max = ntohl(rpc_pkt->u.reply.data[1]);
+
+			if (max < NFS_V1 || max > NFS_V3 || min > NFS_V3) {
+				puts("*** ERROR: NFS version not supported");
+				debug(": Requested: V%d, accepted: min V%d - max V%d\n",
+				      choosen_nfs_version,
+				      ntohl(rpc_pkt->u.reply.data[0]),
+				      ntohl(rpc_pkt->u.reply.data[1]));
+				puts("\n");
+				choosen_nfs_version = NFS_UNKOWN;
+				break;
+			}
+
+			debug("*** Warning: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
+			      choosen_nfs_version,
+			      ntohl(rpc_pkt->u.reply.data[0]),
+			      ntohl(rpc_pkt->u.reply.data[1]));
+			debug("Will retry with NFSv%d\n", min);
+			choosen_nfs_version = min;
+			return -NFS_RPC_PROG_MISMATCH;
+		}
+		case NFS_RPC_PROG_UNAVAIL:
+		case NFS_RPC_PROC_UNAVAIL:
+		case NFS_RPC_GARBAGE_ARGS:
+		case NFS_RPC_SYSTEM_ERR:
+		default: /* Unknown error on 'accept state' flag */
+			debug("*** ERROR: accept state error (%d)\n",
+			      ntohl(rpc_pkt->u.reply.astatus));
+			break;
+		}
+		return -1;
+	}
+
+	return 0;
+}
 
 static int rpc_lookup_reply(int prog, uchar *pkt, unsigned len)
 {
@@ -464,6 +548,7 @@ static int rpc_lookup_reply(int prog, uchar *pkt, unsigned len)
 static int nfs_mount_reply(uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
+	int ret;
 
 	debug("%s\n", __func__);
 
@@ -474,11 +559,9 @@ static int nfs_mount_reply(uchar *pkt, unsigned len)
 	else if (ntohl(rpc_pkt.u.reply.id) < rpc_id)
 		return -NFS_RPC_DROP;
 
-	if (rpc_pkt.u.reply.rstatus  ||
-	    rpc_pkt.u.reply.verifier ||
-	    rpc_pkt.u.reply.astatus  ||
-	    rpc_pkt.u.reply.data[0])
-		return -1;
+	ret = rpc_handle_error(&rpc_pkt);
+	if (ret)
+		return ret;
 
 	fs_mounted = 1;
 	/*  NFSv2 and NFSv3 use same structure */
@@ -514,6 +597,7 @@ static int nfs_umountall_reply(uchar *pkt, unsigned len)
 static int nfs_lookup_reply(uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
+	int ret;
 
 	debug("%s\n", __func__);
 
@@ -524,55 +608,15 @@ static int nfs_lookup_reply(uchar *pkt, unsigned len)
 	else if (ntohl(rpc_pkt.u.reply.id) < rpc_id)
 		return -NFS_RPC_DROP;
 
-	if (rpc_pkt.u.reply.rstatus  ||
-	    rpc_pkt.u.reply.verifier ||
-	    rpc_pkt.u.reply.astatus  ||
-	    rpc_pkt.u.reply.data[0]) {
-		switch (ntohl(rpc_pkt.u.reply.astatus)) {
-		case NFS_RPC_SUCCESS: /* Not an error */
-			break;
-		case NFS_RPC_PROG_MISMATCH:
-			/* Remote can't support NFS version */
-			switch (ntohl(rpc_pkt.u.reply.data[0])) {
-			/* Minimal supported NFS version */
-			case 3:
-				debug("*** Warning: NFS version not supported: Requested: V%d, accepted: min V%d - max V%d\n",
-				      (supported_nfs_versions & NFSV2_FLAG) ?
-						2 : 3,
-				      ntohl(rpc_pkt.u.reply.data[0]),
-				      ntohl(rpc_pkt.u.reply.data[1]));
-				debug("Will retry with NFSv3\n");
-				/* Clear NFSV2_FLAG from supported versions */
-				supported_nfs_versions &= ~NFSV2_FLAG;
-				return -NFS_RPC_PROG_MISMATCH;
-			case 4:
-			default:
-				puts("*** ERROR: NFS version not supported");
-				debug(": Requested: V%d, accepted: min V%d - max V%d\n",
-				      (supported_nfs_versions & NFSV2_FLAG) ?
-						2 : 3,
-				      ntohl(rpc_pkt.u.reply.data[0]),
-				      ntohl(rpc_pkt.u.reply.data[1]));
-				puts("\n");
-			}
-			break;
-		case NFS_RPC_PROG_UNAVAIL:
-		case NFS_RPC_PROC_UNAVAIL:
-		case NFS_RPC_GARBAGE_ARGS:
-		case NFS_RPC_SYSTEM_ERR:
-		default: /* Unknown error on 'accept state' flag */
-			debug("*** ERROR: accept state error (%d)\n",
-			      ntohl(rpc_pkt.u.reply.astatus));
-			break;
-		}
-		return -1;
-	}
+	ret = rpc_handle_error(&rpc_pkt);
+	if (ret)
+		return ret;
 
-	if (supported_nfs_versions & NFSV2_FLAG) {
+	if (choosen_nfs_version != NFS_V3) {
 		if (((uchar *)&(rpc_pkt.u.reply.data[0]) - (uchar *)(&rpc_pkt) + NFS_FHSIZE) > len)
 			return -NFS_RPC_DROP;
 		memcpy(filefh, rpc_pkt.u.reply.data + 1, NFS_FHSIZE);
-	} else {  /* NFSV3_FLAG */
+	} else {  /* NFS_V3 */
 		filefh3_length = ntohl(rpc_pkt.u.reply.data[1]);
 		if (filefh3_length > NFS3_FHSIZE)
 			filefh3_length  = NFS3_FHSIZE;
@@ -631,7 +675,7 @@ static int nfs_readlink_reply(uchar *pkt, unsigned len)
 	    rpc_pkt.u.reply.data[0])
 		return -1;
 
-	if (!(supported_nfs_versions & NFSV2_FLAG)) { /* NFSV3_FLAG */
+	if (choosen_nfs_version == NFS_V3) {
 		nfsv3_data_offset =
 			nfs3_get_attributes_offset(rpc_pkt.u.reply.data);
 	}
@@ -692,10 +736,10 @@ static int nfs_read_reply(uchar *pkt, unsigned len)
 	if (!(nfs_offset % ((NFS_READ_SIZE / 2) * 10)))
 		putc('#');
 
-	if (supported_nfs_versions & NFSV2_FLAG) {
+	if (choosen_nfs_version != NFS_V3) {
 		rlen = ntohl(rpc_pkt.u.reply.data[18]);
 		data_ptr = (uchar *)&(rpc_pkt.u.reply.data[19]);
-	} else {  /* NFSV3_FLAG */
+	} else {  /* NFS_V3 */
 		int nfsv3_data_offset =
 			nfs3_get_attributes_offset(rpc_pkt.u.reply.data);
 
@@ -773,6 +817,10 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			/* just to be sure... */
 			nfs_state = STATE_UMOUNT_REQ;
 			nfs_send();
+		} else if (reply == -NFS_RPC_PROG_MISMATCH &&
+			   choosen_nfs_version != NFS_UNKOWN) {
+			nfs_state = STATE_MOUNT_REQ;
+			nfs_send();
 		} else {
 			nfs_state = STATE_LOOKUP_REQ;
 			nfs_send();
@@ -801,7 +849,7 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			nfs_state = STATE_UMOUNT_REQ;
 			nfs_send();
 		} else if (reply == -NFS_RPC_PROG_MISMATCH &&
-			   supported_nfs_versions != 0) {
+			   choosen_nfs_version != NFS_UNKOWN) {
 			/* umount */
 			nfs_state = STATE_UMOUNT_REQ;
 			nfs_send();

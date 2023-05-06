@@ -1578,7 +1578,7 @@ void handle_pxe_menu(struct pxe_context *ctx, struct pxe_menu *cfg)
 
 int pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
 		  pxe_getfile_func getfile, void *userdata,
-		  bool allow_abs_path, const char *bootfile)
+		  bool allow_abs_path, const char *bootfile, bool use_ipv6)
 {
 	const char *last_slash;
 	size_t path_len = 0;
@@ -1588,6 +1588,7 @@ int pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
 	ctx->getfile = getfile;
 	ctx->userdata = userdata;
 	ctx->allow_abs_path = allow_abs_path;
+	ctx->use_ipv6 = use_ipv6;
 
 	/* figure out the boot directory, if there is one */
 	if (bootfile && strlen(bootfile) >= MAX_TFTP_PATH_LEN)

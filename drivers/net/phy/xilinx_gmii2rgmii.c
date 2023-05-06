@@ -48,7 +48,14 @@ static int xilinxgmiitorgmii_config(struct phy_device *phydev)
 		return -EINVAL;
 	}
 
-	ext_phydev->interface = PHY_INTERFACE_MODE_RGMII;
+	ext_phydev->interface = ofnode_read_phy_mode(node);
+	if (ext_phydev->interface == PHY_INTERFACE_MODE_NA) {
+		ext_phydev->interface = PHY_INTERFACE_MODE_RGMII;
+	} else if (!phy_interface_is_rgmii(ext_phydev)) {
+		printf("Incorrect external interface type\n");
+		return -EINVAL;
+	}
+
 	ext_phydev->node = phandle.node;
 	phydev->priv = ext_phydev;
 

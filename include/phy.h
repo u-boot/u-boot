@@ -361,20 +361,15 @@ int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id);
  */
 static inline bool phy_interface_is_rgmii(struct phy_device *phydev)
 {
-	return phydev->interface >= PHY_INTERFACE_MODE_RGMII &&
-		phydev->interface <= PHY_INTERFACE_MODE_RGMII_TXID;
-}
-
-/**
- * phy_interface_is_sgmii - Convenience function for testing if a PHY interface
- * is SGMII (all variants)
- * @phydev: the phy_device struct
- * @return: true if MII bus is SGMII or false if it is not
- */
-static inline bool phy_interface_is_sgmii(struct phy_device *phydev)
-{
-	return phydev->interface >= PHY_INTERFACE_MODE_SGMII &&
-		phydev->interface <= PHY_INTERFACE_MODE_QSGMII;
+	switch (phydev->interface) {
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		return 1;
+	default:
+		return 0;
+	}
 }
 
 bool phy_interface_is_ncsi(void);

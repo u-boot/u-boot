@@ -484,6 +484,8 @@ extern char	net_hostname[32];	/* Our hostname */
 #ifdef CONFIG_NET
 extern char	net_root_path[CONFIG_BOOTP_MAX_ROOT_PATH_LEN];	/* Our root path */
 #endif
+/* Indicates whether the pxe path prefix / config file was specified in dhcp option */
+extern char *pxelinux_configfile;
 /** END OF BOOTP EXTENTIONS **/
 extern u8		net_ethaddr[ARP_HLEN];		/* Our ethernet address */
 extern u8		net_server_ethaddr[ARP_HLEN];	/* Boot server enet address */
@@ -504,8 +506,9 @@ extern ushort		net_native_vlan;	/* Our Native VLAN */
 extern int		net_restart_wrap;	/* Tried all network devices */
 
 enum proto_t {
-	BOOTP, RARP, ARP, TFTPGET, DHCP, PING, PING6, DNS, NFS, CDP, NETCONS,
-	SNTP, TFTPSRV, TFTPPUT, LINKLOCAL, FASTBOOT, WOL, UDP, NCSI, WGET
+	BOOTP, RARP, ARP, TFTPGET, DHCP, DHCP6, PING, PING6, DNS, NFS, CDP,
+	NETCONS, SNTP, TFTPSRV, TFTPPUT, LINKLOCAL, FASTBOOT_UDP, FASTBOOT_TCP,
+	WOL, UDP, NCSI, WGET, RS
 };
 
 extern char	net_boot_file_name[1024];/* Boot File name */

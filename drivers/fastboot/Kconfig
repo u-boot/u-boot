@@ -4,6 +4,13 @@ config FASTBOOT
 	bool
 	imply ANDROID_BOOT_IMAGE
 	imply CMD_FASTBOOT
+	help
+	  Fastboot is a protocol used in Android devices for
+	  communicating between the device and a computer during
+	  the bootloader stage. It allows the user to flash the
+	  device firmware and unlock the bootloader.
+	  More information about the protocol and usecases:
+	  https://android.googlesource.com/platform/system/core/+/refs/heads/master/fastboot/
 
 config USB_FUNCTION_FASTBOOT
 	bool "Enable USB fastboot gadget"
@@ -27,6 +34,13 @@ config UDP_FUNCTION_FASTBOOT_PORT
 	default 5554
 	help
 	  The fastboot protocol requires a UDP port number.
+
+config TCP_FUNCTION_FASTBOOT
+	depends on NET
+	select FASTBOOT
+	bool "Enable fastboot protocol over TCP"
+	help
+	  This enables the fastboot protocol over TCP.
 
 if FASTBOOT
 

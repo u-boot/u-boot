@@ -15,7 +15,7 @@
 #include <command.h>
 #include <env.h>
 #include <fastboot.h>
-#include <net/fastboot.h>
+#include <net.h>
 
 /**
  * fastboot_buf_addr - base address of the fastboot download buffer
@@ -153,6 +153,37 @@ void fastboot_boot(void)
 		 * of fastbootcmd if that's what's being run
 		 */
 		do_reset(NULL, 0, 0, NULL);
+	}
+}
+
+/**
+ * fastboot_handle_boot() - Shared implementation of system reaction to
+ * fastboot commands
+ *
+ * Making desceisions about device boot state (stay in fastboot, reboot
+ * to bootloader, reboot to OS, etc).
+ */
+void fastboot_handle_boot(int command, bool success)
+{
+	if (!success)
+		return;
+
+	switch (command) {
+	case FASTBOOT_COMMAND_BOOT:
+		fastboot_boot();
+		net_set_state(NETLOOP_SUCCESS);
+		break;
+
+	case FASTBOOT_COMMAND_CONTINUE:
+		net_set_state(NETLOOP_SUCCESS);
+		break;
+
+	case FASTBOOT_COMMAND_REBOOT:
+	case FASTBOOT_COMMAND_REBOOT_BOOTLOADER:
+	case FASTBOOT_COMMAND_REBOOT_FASTBOOTD:
+	case FASTBOOT_COMMAND_REBOOT_RECOVERY:
+		do_reset(NULL, 0, 0, NULL);
+		break;
 	}
 }
 

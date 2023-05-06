@@ -988,10 +988,12 @@ F:	cmd/fastboot.c
 F:	doc/android/fastboot*.rst
 F:	include/fastboot.h
 F:	include/fastboot-internal.h
-F:	include/net/fastboot.h
+F:	include/net/fastboot_tcp.h
+F:	include/net/fastboot_udp.h
 F:	drivers/fastboot/
 F:	drivers/usb/gadget/f_fastboot.c
-F:	net/fastboot.c
+F:	net/fastboot_tcp.c
+F:	net/fastboot_udp.c
 F:	test/dm/fastboot.c
 
 FPGA

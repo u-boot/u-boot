@@ -29,6 +29,7 @@
 #include <fsl-mc/fsl_dpsparser.h>
 #include <fsl-mc/fsl_qbman_portal.h>
 #include <fsl-mc/ldpaa_wriop.h>
+#include <net/ldpaa_eth.h>
 
 #define MC_RAM_BASE_ADDR_ALIGNMENT  (512UL * 1024 * 1024)
 #define MC_RAM_BASE_ADDR_ALIGNMENT_MASK	(~(MC_RAM_BASE_ADDR_ALIGNMENT - 1))
@@ -383,37 +384,31 @@ static int mc_fixup_dpc_mac_addr(void *blob, int dpmac_id,
 
 static int mc_fixup_mac_addrs(void *blob, enum mc_fixup_type type)
 {
-	int i, err = 0, ret = 0;
-#define ETH_NAME_LEN 20
 	struct udevice *eth_dev;
-	char ethname[ETH_NAME_LEN];
+	int err = 0, ret = 0;
+	struct uclass *uc;
+	uint32_t dpmac_id;
 
-	for (i = WRIOP1_DPMAC1; i < NUM_WRIOP_PORTS; i++) {
-		/* port not enabled */
-		if (wriop_is_enabled_dpmac(i) != 1)
+	uclass_get(UCLASS_ETH, &uc);
+	uclass_foreach_dev(eth_dev, uc) {
+		if (!eth_dev->driver || !eth_dev->driver->name ||
+		    strcmp(eth_dev->driver->name, LDPAA_ETH_DRIVER_NAME))
 			continue;
 
-		snprintf(ethname, ETH_NAME_LEN, "DPMAC%d@%s", i,
-			 phy_interface_strings[wriop_get_enet_if(i)]);
-
-		eth_dev = eth_get_dev_by_name(ethname);
-		if (eth_dev == NULL)
-			continue;
-
+		dpmac_id = ldpaa_eth_get_dpmac_id(eth_dev);
 		switch (type) {
 		case MC_FIXUP_DPL:
-			err = mc_fixup_dpl_mac_addr(blob, i, eth_dev);
+			err = mc_fixup_dpl_mac_addr(blob, dpmac_id, eth_dev);
 			break;
 		case MC_FIXUP_DPC:
-			err = mc_fixup_dpc_mac_addr(blob, i, eth_dev);
+			err = mc_fixup_dpc_mac_addr(blob, dpmac_id, eth_dev);
 			break;
 		default:
 			break;
 		}
 
 		if (err)
-			printf("fsl-mc: ERROR fixing mac address for %s\n",
-			       ethname);
+			printf("fsl-mc: ERROR fixing mac address for %s\n", eth_dev->name);
 		ret |= err;
 	}
 
