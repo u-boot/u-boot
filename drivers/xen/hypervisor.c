@@ -264,7 +264,14 @@ void clear_evtchn(uint32_t port)
 
 int xen_init(void)
 {
+	int el = current_el();
+
 	debug("%s\n", __func__);
+
+	if (el != 1) {
+		puts("XEN:\tnot running from EL1\n");
+		return 0;
+	}
 
 	map_shared_info(NULL);
 	init_events();

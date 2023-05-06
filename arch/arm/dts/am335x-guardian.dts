@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com/
  * Copyright (C) 2018 Robert Bosch Power Tools GmbH
  */
 /dts-v1/;
@@ -29,10 +29,10 @@
 		reg = <0x80000000 0x10000000>; /* 256 MB */
 	};
 
-	gpio_keys {
-		compatible = "gpio-keys";
+	guardian_buttons: gpio-keys {
 		pinctrl-names = "default";
 		pinctrl-0 = <&guardian_button_pins>;
+		compatible = "gpio-keys";
 
 		select-button {
 			label = "guardian-select-button";
@@ -49,10 +49,10 @@
 		};
 	};
 
-	leds {
-		compatible = "gpio-leds";
+	guardian_leds: gpio-leds {
 		pinctrl-names = "default";
 		pinctrl-0 = <&guardian_led_pins>;
+		compatible = "gpio-leds";
 
 		life-led {
 			label = "guardian:life-led";
@@ -98,7 +98,7 @@
 
 	};
 
-	pwm7: dmtimer-pwm {
+	pwm7: pwm-7 {
 		compatible = "ti,omap-dmtimer-pwm";
 		ti,timers = <&timer7>;
 		pinctrl-names = "default";

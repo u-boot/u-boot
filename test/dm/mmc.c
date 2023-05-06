@@ -30,7 +30,7 @@ static int dm_test_mmc_blk(struct unit_test_state *uts)
 	struct udevice *dev;
 	struct blk_desc *dev_desc;
 	int i;
-	char write[1024], read[1024];
+	char write[4 * 512], read[4 * 512];
 
 	ut_assertok(uclass_get_device(UCLASS_MMC, 0, &dev));
 	ut_assertok(blk_get_device_by_str("mmc", "0", &dev_desc));
@@ -39,14 +39,14 @@ static int dm_test_mmc_blk(struct unit_test_state *uts)
 	ut_asserteq(512, dev_desc->blksz);
 	for (i = 0; i < sizeof(write); i++)
 		write[i] = i;
-	ut_asserteq(2, blk_dwrite(dev_desc, 0, 2, write));
-	ut_asserteq(2, blk_dread(dev_desc, 0, 2, read));
+	ut_asserteq(4, blk_dwrite(dev_desc, 0, 4, write));
+	ut_asserteq(4, blk_dread(dev_desc, 0, 4, read));
 	ut_asserteq_mem(write, read, sizeof(write));
 
-	/* Now erase them */
-	memset(write, '\0', sizeof(write));
-	ut_asserteq(2, blk_derase(dev_desc, 0, 2));
-	ut_asserteq(2, blk_dread(dev_desc, 0, 2, read));
+	/* Now erase two of them [1 - 2] and verify all blocks */
+	memset(&write[512], '\0', 2 * 512);
+	ut_asserteq(2, blk_derase(dev_desc, 1, 2));
+	ut_asserteq(4, blk_dread(dev_desc, 0, 4, read));
 	ut_asserteq_mem(write, read, sizeof(write));
 
 	return 0;

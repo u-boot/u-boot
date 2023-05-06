@@ -83,7 +83,7 @@ int rockchip_cpuid_from_efuse(const u32 cpuid_offset,
 
 	/* read the cpu_id range from the efuses */
 	ret = misc_read(dev, cpuid_offset, cpuid, cpuid_length);
-	if (ret) {
+	if (ret < 0) {
 		debug("%s: reading cpuid from the efuses failed\n",
 		      __func__);
 		return -1;

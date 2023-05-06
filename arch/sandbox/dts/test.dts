@@ -1802,6 +1802,24 @@
 		compatible = "u-boot,fwu-mdata-gpt";
 		fwu-mdata-store = <&mmc0>;
 	};
+
+	nvmxip-qspi1@08000000 {
+		compatible = "nvmxip,qspi";
+		reg = <0x08000000 0x00200000>;
+		lba_shift = <9>;
+		lba = <4096>;
+	};
+
+	nvmxip-qspi2@08200000 {
+		compatible = "nvmxip,qspi";
+		reg = <0x08200000 0x00100000>;
+		lba_shift = <9>;
+		lba = <2048>;
+	};
+
+	extcon {
+		compatible = "sandbox,extcon";
+	};
 };
 
 #include "sandbox_pmic.dtsi"

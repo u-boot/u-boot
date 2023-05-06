@@ -100,6 +100,8 @@ static const struct udevice_id hi6220_dwmmc_ids[] = {
 	  .data = (ulong)&hi6220_mmc_data },
 	{ .compatible = "hisilicon,hi3798cv200-dw-mshc",
 	  .data = (ulong)&hi6220_mmc_data },
+	{ .compatible = "hisilicon,hi3798mv200-dw-mshc",
+	  .data = (ulong)&hi6220_mmc_data },
 	{ .compatible = "hisilicon,hi3660-dw-mshc",
 	  .data = (ulong)&hi3660_mmc_data },
 	{ }

@@ -6,6 +6,7 @@
  * virtio ring implementation
  */
 
+#include <bouncebuf.h>
 #include <common.h>
 #include <dm.h>
 #include <log.h>
@@ -15,15 +16,63 @@
 #include <virtio_ring.h>
 #include <linux/bug.h>
 #include <linux/compat.h>
+#include <linux/kernel.h>
+
+static void *virtio_alloc_pages(struct udevice *vdev, u32 npages)
+{
+	return memalign(PAGE_SIZE, npages * PAGE_SIZE);
+}
+
+static void virtio_free_pages(struct udevice *vdev, void *ptr, u32 npages)
+{
+	free(ptr);
+}
+
+static int __bb_force_page_align(struct bounce_buffer *state)
+{
+	const ulong align_mask = PAGE_SIZE - 1;
+
+	if ((ulong)state->user_buffer & align_mask)
+		return 0;
+
+	if (state->len != state->len_aligned)
+		return 0;
+
+	return 1;
+}
 
 static unsigned int virtqueue_attach_desc(struct virtqueue *vq, unsigned int i,
 					  struct virtio_sg *sg, u16 flags)
 {
 	struct vring_desc_shadow *desc_shadow = &vq->vring_desc_shadow[i];
 	struct vring_desc *desc = &vq->vring.desc[i];
+	void *addr;
+
+	if (IS_ENABLED(CONFIG_BOUNCE_BUFFER) && vq->vring.bouncebufs) {
+		struct bounce_buffer *bb = &vq->vring.bouncebufs[i];
+		unsigned int bbflags;
+		int ret;
+
+		if (flags & VRING_DESC_F_WRITE)
+			bbflags = GEN_BB_WRITE;
+		else
+			bbflags = GEN_BB_READ;
+
+		ret = bounce_buffer_start_extalign(bb, sg->addr, sg->length,
+						   bbflags, PAGE_SIZE,
+						   __bb_force_page_align);
+		if (ret) {
+			debug("%s: failed to allocate bounce buffer (length 0x%zx)\n",
+			      vq->vdev->name, sg->length);
+		}
+
+		addr = bb->bounce_buffer;
+	} else {
+		addr = sg->addr;
+	}
 
 	/* Update the shadow descriptor. */
-	desc_shadow->addr = (u64)(uintptr_t)sg->addr;
+	desc_shadow->addr = (u64)(uintptr_t)addr;
 	desc_shadow->len = sg->length;
 	desc_shadow->flags = flags;
 
@@ -34,6 +83,19 @@ static unsigned int virtqueue_attach_desc(struct virtqueue *vq, unsigned int i,
 	desc->next = cpu_to_virtio16(vq->vdev, desc_shadow->next);
 
 	return desc_shadow->next;
+}
+
+static void virtqueue_detach_desc(struct virtqueue *vq, unsigned int idx)
+{
+	struct vring_desc *desc = &vq->vring.desc[idx];
+	struct bounce_buffer *bb;
+
+	if (!IS_ENABLED(CONFIG_BOUNCE_BUFFER) || !vq->vring.bouncebufs)
+		return;
+
+	bb = &vq->vring.bouncebufs[idx];
+	bounce_buffer_stop(bb);
+	desc->addr = cpu_to_virtio64(vq->vdev, (u64)(uintptr_t)bb->user_buffer);
 }
 
 int virtqueue_add(struct virtqueue *vq, struct virtio_sg *sgs[],
@@ -154,10 +216,12 @@ static void detach_buf(struct virtqueue *vq, unsigned int head)
 	i = head;
 
 	while (vq->vring_desc_shadow[i].flags & VRING_DESC_F_NEXT) {
+		virtqueue_detach_desc(vq, i);
 		i = vq->vring_desc_shadow[i].next;
 		vq->num_free++;
 	}
 
+	virtqueue_detach_desc(vq, i);
 	vq->vring_desc_shadow[i].next = vq->free_head;
 	vq->free_head = head;
 
@@ -271,8 +335,11 @@ struct virtqueue *vring_create_virtqueue(unsigned int index, unsigned int num,
 					 unsigned int vring_align,
 					 struct udevice *udev)
 {
+	struct virtio_dev_priv *uc_priv = dev_get_uclass_priv(udev);
+	struct udevice *vdev = uc_priv->vdev;
 	struct virtqueue *vq;
 	void *queue = NULL;
+	struct bounce_buffer *bbs = NULL;
 	struct vring vring;
 
 	/* We assume num is a power of 2 */
@@ -283,7 +350,9 @@ struct virtqueue *vring_create_virtqueue(unsigned int index, unsigned int num,
 
 	/* TODO: allocate each queue chunk individually */
 	for (; num && vring_size(num, vring_align) > PAGE_SIZE; num /= 2) {
-		queue = memalign(PAGE_SIZE, vring_size(num, vring_align));
+		size_t sz = vring_size(num, vring_align);
+
+		queue = virtio_alloc_pages(vdev, DIV_ROUND_UP(sz, PAGE_SIZE));
 		if (queue)
 			break;
 	}
@@ -293,30 +362,44 @@ struct virtqueue *vring_create_virtqueue(unsigned int index, unsigned int num,
 
 	if (!queue) {
 		/* Try to get a single page. You are my only hope! */
-		queue = memalign(PAGE_SIZE, vring_size(num, vring_align));
+		queue = virtio_alloc_pages(vdev, 1);
 	}
 	if (!queue)
 		return NULL;
 
 	memset(queue, 0, vring_size(num, vring_align));
-	vring_init(&vring, num, queue, vring_align);
+
+	if (virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM)) {
+		bbs = calloc(num, sizeof(*bbs));
+		if (!bbs)
+			goto err_free_queue;
+	}
+
+	vring_init(&vring, num, queue, vring_align, bbs);
 
 	vq = __vring_new_virtqueue(index, vring, udev);
-	if (!vq) {
-		free(queue);
-		return NULL;
-	}
+	if (!vq)
+		goto err_free_bbs;
+
 	debug("(%s): created vring @ %p for vq @ %p with num %u\n", udev->name,
 	      queue, vq, num);
 
 	return vq;
+
+err_free_bbs:
+	free(bbs);
+err_free_queue:
+	virtio_free_pages(vdev, queue, DIV_ROUND_UP(vring.size, PAGE_SIZE));
+	return NULL;
 }
 
 void vring_del_virtqueue(struct virtqueue *vq)
 {
-	free(vq->vring.desc);
+	virtio_free_pages(vq->vdev, vq->vring.desc,
+			  DIV_ROUND_UP(vq->vring.size, PAGE_SIZE));
 	free(vq->vring_desc_shadow);
 	list_del(&vq->list);
+	free(vq->vring.bouncebufs);
 	free(vq);
 }
 

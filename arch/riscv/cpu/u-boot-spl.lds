@@ -32,14 +32,6 @@ SECTIONS
 	} > .spl_mem
 	. = ALIGN(4);
 
-	.got : {
-		__got_start = .;
-		*(.got.plt) *(.got)
-		__got_end = .;
-	} > .spl_mem
-
-	. = ALIGN(4);
-
 	__u_boot_list : {
 		KEEP(*(SORT(__u_boot_list*)));
 	} > .spl_mem
@@ -52,24 +44,7 @@ SECTIONS
 		__binman_sym_end = .;
 	} > .spl_mem
 
-	. = ALIGN(4);
-
-	/DISCARD/ : { *(.rela.plt*) }
-	.rela.dyn : {
-		__rel_dyn_start = .;
-		*(.rela*)
-		__rel_dyn_end = .;
-	} > .spl_mem
-
-	. = ALIGN(4);
-
-	.dynsym : {
-		__dyn_sym_start = .;
-		*(.dynsym)
-		__dyn_sym_end = .;
-	} > .spl_mem
-
-	. = ALIGN(4);
+	. = ALIGN(8);
 
 	_end = .;
 	_image_binary_end = .;

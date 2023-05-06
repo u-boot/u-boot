@@ -16,7 +16,7 @@
 #define CFG_SYS_SDRAM_BASE1		0x880000000
 
 /* SPL Loader Configuration */
-#if defined(CONFIG_TARGET_J721S2_A72_EVM) || defined(CONFIG_TARGET_J7200_A72_EVM)
+#if defined(CONFIG_TARGET_J721S2_A72_EVM)
 #define CFG_SYS_UBOOT_BASE		0x50280000
 /* Image load address in RAM for DFU boot*/
 #else

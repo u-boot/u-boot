@@ -1,11 +1,10 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-U-Boot for JetHub J100
-=======================
+U-Boot for JetHub J100 (A113X)
+==============================
 
-JetHome Jethub D1 (http://jethome.ru/jethub-d1) is a series of home
-automation controller manufactured by JetHome with the following
-specifications:
+JetHome Jethub D1 (http://jethome.ru/jethub-d1) is a home automation controller device
+manufactured by JetHome with the following specifications:
 
  - Amlogic A113X (ARM Cortex-A53) quad-core up to 1.5GHz
  - no video out
@@ -22,16 +21,15 @@ specifications:
  - DC source with a voltage of 9 to 56 V / Passive POE
  - DIN Rail Mounting case
 
-Basic version also has:
+The basic version also has:
 
- - TI CC2538 + CC2592 Zigbee Wireless Module with up to 20dBm output
-   power and Zigbee 3.0 support.
+ - TI CC2538 + CC2592 Zigbee Wireless with upto 20dBm output power and Zigbee 3.0
  - 1 x 1-Wire
  - 2 x RS-485
  - 4 x dry contact digital GPIO inputs
  - 3 x relay GPIO outputs
 
-U-Boot compilation
+U-Boot Compilation
 ------------------
 
 .. code-block:: bash
@@ -40,14 +38,21 @@ U-Boot compilation
     $ make jethub_j100_defconfig
     $ make
 
-Image creation
---------------
+U-Boot Signing with Pre-Built FIP repo
+--------------------------------------
 
-For simplified usage, pleaser refer to :doc:`pre-generated-fip` with codename `jethub-j100`
+.. code-block:: bash
 
-Amlogic doesn't provide sources for the firmware and for tools needed
-to create the bootloader image, so it is necessary to obtain binaries
-from the git tree published by the board vendor:
+    $ git clone https://github.com/LibreELEC/amlogic-boot-fip --depth=1
+    $ cd amlogic-boot-fip
+    $ mkdir my-output-dir
+    $ ./build-fip.sh jethub-j100 /path/to/u-boot/u-boot.bin my-output-dir
+
+U-Boot Manual Signing
+---------------------
+
+Amlogic does not provide sources for the firmware and tools needed to create a bootloader
+image so it is necessary to obtain binaries from sources published by the board vendor:
 
 .. code-block:: bash
 
@@ -55,7 +60,7 @@ from the git tree published by the board vendor:
     $ cd jethub-u-boot
     $ export FIPDIR=$PWD
 
-Go back to mainline U-boot source tree then :
+Go back to the mainline U-Boot source tree then:
 
 .. code-block:: bash
 
@@ -90,27 +95,27 @@ Go back to mainline U-boot source tree then :
         bl2
 
     $ $FIPDIR/j100/aml_encrypt_axg --bl3sig --input fip/bl30_new.bin \
-                                        --output fip/bl30_new.bin.enc \
-                                        --level v3 --type bl30
+                                   --output fip/bl30_new.bin.enc \
+                                   --level v3 --type bl30
     $ $FIPDIR/j100/aml_encrypt_axg --bl3sig --input fip/bl31.img \
-                                        --output fip/bl31.img.enc \
-                                        --level v3 --type bl31
+                                   --output fip/bl31.img.enc \
+                                   --level v3 --type bl31
     $ $FIPDIR/j100/aml_encrypt_axg --bl3sig --input fip/bl33.bin --compress lz4 \
-                                        --output fip/bl33.bin.enc \
-                                        --level v3 --type bl33
+                                   --output fip/bl33.bin.enc \
+                                   --level v3 --type bl33
     $ $FIPDIR/j100/aml_encrypt_axg --bl2sig --input fip/bl2_new.bin \
-                                        --output fip/bl2.n.bin.sig
+                                   --output fip/bl2.n.bin.sig
     $ $FIPDIR/j100/aml_encrypt_axg --bootmk \
-                --output fip/u-boot.bin \
-                --bl2 fip/bl2.n.bin.sig \
-                --bl30 fip/bl30_new.bin.enc \
-                --bl31 fip/bl31.img.enc \
-                --bl33 fip/bl33.bin.enc --level v3
+                                   --output fip/u-boot.bin \
+                                   --bl2 fip/bl2.n.bin.sig \
+                                   --bl30 fip/bl30_new.bin.enc \
+                                   --bl31 fip/bl31.img.enc \
+                                   --bl33 fip/bl33.bin.enc --level v3
 
-and then write the image to eMMC with:
+Then write U-Boot to SD or eMMC with:
 
 .. code-block:: bash
 
-    $ DEV=/dev/your_emmc_device
+    $ DEV=/dev/boot_device
     $ dd if=fip/u-boot.bin.sd.bin of=$DEV conv=fsync,notrunc bs=512 skip=1 seek=1
-    $ dd if=fip/u-boot.bin.sd.bin of=$DEV conv=fsync,notrunc bs=1 count=444
+    $ dd if=fip/u-boot.bin.sd.bin of=$DEV conv=fsync,notrunc bs=1 count=440

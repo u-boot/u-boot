@@ -328,7 +328,7 @@ static int select_ramdisk(struct bootm_headers *images, const char *select, u8 a
 	bool done_select = !select;
 	bool done = false;
 	int rd_noffset;
-	ulong rd_addr;
+	ulong rd_addr = 0;
 	char *buf;
 
 	if (CONFIG_IS_ENABLED(FIT)) {

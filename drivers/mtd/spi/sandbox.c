@@ -248,6 +248,7 @@ static int sandbox_sf_process_cmd(struct sandbox_spi_flash *sbsf, const u8 *rx,
 		break;
 	case SPINOR_OP_READ_FAST:
 		sbsf->pad_addr_bytes = 1;
+		fallthrough;
 	case SPINOR_OP_READ:
 	case SPINOR_OP_PP:
 		sbsf->state = SF_ADDR;

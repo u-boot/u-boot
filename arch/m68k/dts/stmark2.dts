@@ -41,3 +41,7 @@
 	status = "okay";
 	mii-base = <0>;
 };
+
+&i2c0 {
+	status = "okay";
+};

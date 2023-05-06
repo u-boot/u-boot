@@ -89,7 +89,7 @@ static int dump_otp(struct cmd_tbl *cmdtp, int flag,
 
 	for (i = 0; true; i += sizeof(data)) {
 		ret = misc_read(dev, i, &data, sizeof(data));
-		if (ret < 0)
+		if (ret <= 0)
 			return 0;
 
 		print_buffer(i, data, 1, sizeof(data), sizeof(data));
@@ -249,8 +249,10 @@ static int rockchip_otp_read(struct udevice *dev, int offset,
 
 	offset += data->offset;
 
-	if (data->block_size <= 1)
-		return data->read(dev, offset, buf, size);
+	if (data->block_size <= 1) {
+		ret = data->read(dev, offset, buf, size);
+		goto done;
+	}
 
 	block_start = offset / data->block_size;
 	block_offset = offset % data->block_size;
@@ -266,7 +268,9 @@ static int rockchip_otp_read(struct udevice *dev, int offset,
 		memcpy(buf, buffer + block_offset, size);
 
 	free(buffer);
-	return ret;
+
+done:
+	return ret < 0 ? ret : size;
 }
 
 static const struct misc_ops rockchip_otp_ops = {

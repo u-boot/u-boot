@@ -30,9 +30,6 @@ config MPC885
 
 endchoice
 
-config 8xx_GCLK_FREQ
-	int "CPU GCLK Frequency"
-
 comment "Specific commands"
 
 config CMD_IMMAP
@@ -51,7 +48,8 @@ config SYS_SIUMCR
 	  SIU Module Configuration (11-6)
 
 config SYS_SYPCR
-	hex "SYPCR register"
+	hex "SYPCR register" if !WDT_MPC8xxx
+	default 0
 	help
 	  System Protection Control (11-9)
 

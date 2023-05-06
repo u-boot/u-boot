@@ -23,3 +23,12 @@
 &fec0 {
 	status = "okay";
 };
+
+&i2c0 {
+	status = "okay";
+
+	rtc@68 {
+		compatible = "dallas,ds1338";
+		reg = <0x68>;
+	};
+};

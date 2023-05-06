@@ -471,6 +471,7 @@ static int test_write_limit(struct udevice *dev)
 			break;
 		case TPM_MAXNVWRITES:
 			assert(i >= TPM_MAX_NV_WRITES_NOOWNER);
+			break;
 		default:
 			pr_err("\tunexpected error code %d (0x%x)\n",
 			      result, result);

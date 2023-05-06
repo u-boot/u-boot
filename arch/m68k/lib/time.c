@@ -25,7 +25,7 @@ static volatile ulong timestamp = 0;
 #define CFG_SYS_WATCHDOG_FREQ (CONFIG_SYS_HZ / 2)
 #endif
 
-#if defined(CFG_MCFTMR)
+#if CONFIG_IS_ENABLED(MCFTMR)
 #ifndef CFG_SYS_UDELAY_BASE
 #	error	"uDelay base not defined!"
 #endif
@@ -111,8 +111,6 @@ ulong get_timer(ulong base)
 	return (timestamp - base);
 }
 
-#endif				/* CFG_MCFTMR */
-
 /*
  * This function is derived from PowerPC code (read timebase as long long).
  * On M68K it just returns the timer value.
@@ -121,6 +119,40 @@ unsigned long long get_ticks(void)
 {
 	return get_timer(0);
 }
+#else
+static u64 timer64 __section(".data");
+static u16 timer16 __section(".data");
+
+uint64_t __weak get_ticks(void)
+{
+	volatile pit_t *timerp = (pit_t *) (CFG_SYS_UDELAY_BASE);
+	u16 val = ~timerp->pcntr;
+
+	if (timer16 > val)
+		timer64 += 0xffff - timer16 + val;
+	else
+		timer64 += val - timer16;
+
+	timer16 = val;
+
+	return timer64;
+}
+
+/* PIT timer */
+int timer_init(void)
+{
+	volatile pit_t *timerp = (pit_t *) (CFG_SYS_UDELAY_BASE);
+
+	timer16 = 0;
+	timer64 = 0;
+
+	/* Set up PIT as timebase clock */
+	timerp->pmr = 0xffff;
+	timerp->pcsr = PIT_PCSR_EN | PIT_PCSR_OVW;
+
+	return 0;
+}
+#endif				/* CONFIG_MCFTMR */
 
 unsigned long usec2ticks(unsigned long usec)
 {

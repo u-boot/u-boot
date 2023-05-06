@@ -100,7 +100,7 @@ Then run proftool to convert the trace information to ftrace format
 
 .. code-block:: console
 
-    $ ./sandbox/tools/proftool -m sandbox/System.map -t trace dump-ftrace >trace.dat
+    $ ./sandbox/tools/proftool -m sandbox/System.map -t trace dump-ftrace -o trace.dat
 
 Finally run kernelshark to display it (note it only works with `.dat` files!):
 

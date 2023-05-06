@@ -266,6 +266,7 @@ static int sandbox_flash_bulk(struct udevice *dev, struct usb_device *udev,
 		default:
 			break;
 		}
+		break;
 	case SANDBOX_FLASH_EP_IN:
 		switch (info->phase) {
 		case SCSIPH_DATA:

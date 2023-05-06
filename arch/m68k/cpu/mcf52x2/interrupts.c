@@ -34,7 +34,7 @@ int interrupt_init(void)
 	return 0;
 }
 
-#if defined(CFG_MCFTMR)
+#if CONFIG_IS_ENABLED(MCFTMR)
 void dtimer_intr_setup(void)
 {
 	intctrl_t *intp = (intctrl_t *) (CFG_SYS_INTR_BASE);
@@ -42,7 +42,7 @@ void dtimer_intr_setup(void)
 	clrbits_be32(&intp->int_icr1, INT_ICR1_TMR3MASK);
 	setbits_be32(&intp->int_icr1, CFG_SYS_TMRINTR_PRI);
 }
-#endif				/* CFG_MCFTMR */
+#endif				/* CONFIG_MCFTMR */
 #endif				/* CONFIG_M5272 */
 
 #if defined(CONFIG_M5208) || defined(CONFIG_M5282) || \
@@ -63,7 +63,7 @@ int interrupt_init(void)
 	return 0;
 }
 
-#if defined(CFG_MCFTMR)
+#if CONFIG_IS_ENABLED(MCFTMR)
 void dtimer_intr_setup(void)
 {
 	int0_t *intp = (int0_t *) (CFG_SYS_INTR_BASE);
@@ -72,7 +72,7 @@ void dtimer_intr_setup(void)
 	clrbits_be32(&intp->imrl0, 0x00000001);
 	clrbits_be32(&intp->imrl0, CFG_SYS_TMRINTR_MASK);
 }
-#endif				/* CFG_MCFTMR */
+#endif				/* CONFIG_MCFTMR */
 #endif				/* CONFIG_M5282 | CONFIG_M5271 | CONFIG_M5275 */
 
 #if defined(CONFIG_M5249) || defined(CONFIG_M5253)
@@ -83,11 +83,11 @@ int interrupt_init(void)
 	return 0;
 }
 
-#if defined(CFG_MCFTMR)
+#if CONFIG_IS_ENABLED(MCFTMR)
 void dtimer_intr_setup(void)
 {
 	mbar_writeLong(MCFSIM_IMR, mbar_readLong(MCFSIM_IMR) & ~0x00000400);
 	mbar_writeByte(MCFSIM_TIMER2ICR, CFG_SYS_TMRINTR_PRI);
 }
-#endif				/* CFG_MCFTMR */
+#endif				/* CONFIG_MCFTMR */
 #endif				/* CONFIG_M5249 || CONFIG_M5253 */

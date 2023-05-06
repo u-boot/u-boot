@@ -6,6 +6,9 @@
  */
 
 /dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+
 #include "sun6i-a31.dtsi"
 
 / {
@@ -18,6 +21,15 @@
 
 	chosen {
 		stdout-path = "serial0:115200n8";
+	};
+
+	reg_usb1_vbus: usb1-vbus {
+		compatible = "regulator-fixed";
+		regulator-name = "usb1-vbus";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		enable-active-high;
+		gpio = <&pio 7 24 GPIO_ACTIVE_HIGH>; /* PH24 */
 	};
 };
 
@@ -54,5 +66,10 @@
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_ph_pins>;
+	status = "okay";
+};
+
+&usbphy {
+	usb1_vbus-supply = <&reg_usb1_vbus>;
 	status = "okay";
 };

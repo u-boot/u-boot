@@ -11,50 +11,14 @@
 
 #define IDE_BUS(dev)	(dev / (CONFIG_SYS_IDE_MAXDEVICE / CONFIG_SYS_IDE_MAXBUS))
 
-#define	ATA_CURR_BASE(dev)	(CONFIG_SYS_ATA_BASE_ADDR+ide_bus_offset[IDE_BUS(dev)])
-extern ulong ide_bus_offset[];
-
-/*
- * Function Prototypes
- */
-
-void ide_init(void);
-struct blk_desc;
-struct udevice;
-#ifdef CONFIG_BLK
-ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
-	       void *buffer);
-ulong ide_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
-		const void *buffer);
-#else
-ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
-	       void *buffer);
-ulong ide_write(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
-		const void *buffer);
-#endif
-
-#if defined(CONFIG_OF_IDE_FIXUP)
-int ide_device_present(int dev);
-#endif
-
-/*
- * I/O function overrides
- */
-unsigned char ide_inb(int dev, int port);
-void ide_outb(int dev, int port, unsigned char val);
-void ide_input_swap_data(int dev, ulong *sect_buf, int words);
-void ide_input_data(int dev, ulong *sect_buf, int words);
-void ide_output_data(int dev, const ulong *sect_buf, int words);
-void ide_input_data_shorts(int dev, ushort *sect_buf, int shorts);
-void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts);
-
-void ide_led(uchar led, uchar status);
-
 /**
- * board_start_ide() - Start up the board IDE interfac
+ * ide_set_reset() - Assert or de-assert reset for the IDE device
  *
- * Return: 0 if ok
+ * This is provided by boards which need to reset the device through another
+ * means, e.g. a GPIO.
+ *
+ * @idereset: 1 to assert reset, 0 to de-assert it
  */
-int board_start_ide(void);
+void ide_set_reset(int idereset);
 
 #endif /* _IDE_H */

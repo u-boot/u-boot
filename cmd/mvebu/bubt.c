@@ -223,8 +223,7 @@ static int mmc_burn_image(size_t image_size)
 	orig_part = mmc->block_dev.hwpart;
 #endif
 
-	part = (mmc->part_config >> 3) & PART_ACCESS_MASK;
-
+	part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
 	if (part == 7)
 		part = 0;
 
@@ -925,8 +924,11 @@ static int check_image_header(void)
 	offset = le32_to_cpu(hdr->srcaddr);
 	size = le32_to_cpu(hdr->blocksize);
 
-	if (hdr->blockid == 0x78) /* SATA id */
-		offset *= 512;
+	if (hdr->blockid == 0x78) { /* SATA id */
+		struct blk_desc *blk_dev = IS_ENABLED(BLK) ? blk_get_devnum_by_uclass_id(UCLASS_SCSI, 0) : NULL;
+		unsigned long blksz = blk_dev ? blk_dev->blksz : 512;
+		offset *= blksz;
+	}
 
 	if (offset % 4 != 0 || size < 4 || size % 4 != 0) {
 		printf("Error: Bad A38x image blocksize.\n");

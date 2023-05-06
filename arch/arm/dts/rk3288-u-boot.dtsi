@@ -91,6 +91,11 @@
 	bootph-all;
 };
 
+&edp {
+	clocks = <&cru SCLK_EDP>, <&cru SCLK_EDP_24M>, <&cru PCLK_EDP_CTRL>;
+	clock-names = "clk_edp", "clk_edp_24m", "pclk_edp";
+};
+
 &gpio7 {
 	bootph-all;
 };

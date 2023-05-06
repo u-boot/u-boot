@@ -481,7 +481,7 @@ int rkcommon_verify_header(unsigned char *buf, int size,
 	return -ENOENT;
 }
 
-void rkcommon_print_header(const void *buf)
+void rkcommon_print_header(const void *buf, struct image_tool_params *params)
 {
 	struct header0_info header0;
 	struct header0_info_v2 header0_v2;

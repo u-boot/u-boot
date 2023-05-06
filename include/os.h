@@ -64,7 +64,7 @@ off_t os_lseek(int fd, off_t offset, int whence);
  * @fd:		File descriptor as returned by os_open()
  * Return:	file size or negative error code
  */
-int os_filesize(int fd);
+off_t os_filesize(int fd);
 
 /**
  * Access to the OS open() system call

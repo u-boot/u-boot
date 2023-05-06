@@ -2432,6 +2432,9 @@ static int mmc_startup_v4(struct mmc *mmc)
 
 	mmc->wr_rel_set = ext_csd[EXT_CSD_WR_REL_SET];
 
+	mmc->can_trim =
+		!!(ext_csd[EXT_CSD_SEC_FEATURE] & EXT_CSD_SEC_FEATURE_TRIM_EN);
+
 	return 0;
 error:
 	if (mmc->ext_csd) {

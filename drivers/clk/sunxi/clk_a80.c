@@ -14,12 +14,18 @@
 #include <linux/bitops.h>
 
 static const struct ccu_clk_gate a80_gates[] = {
+	[CLK_NAND0_0]		= GATE(0x400, BIT(31)),
+	[CLK_NAND0_1]		= GATE(0x404, BIT(31)),
+	[CLK_NAND1_0]		= GATE(0x408, BIT(31)),
+	[CLK_NAND1_1]		= GATE(0x40c, BIT(31)),
 	[CLK_SPI0]		= GATE(0x430, BIT(31)),
 	[CLK_SPI1]		= GATE(0x434, BIT(31)),
 	[CLK_SPI2]		= GATE(0x438, BIT(31)),
 	[CLK_SPI3]		= GATE(0x43c, BIT(31)),
 
 	[CLK_BUS_MMC]		= GATE(0x580, BIT(8)),
+	[CLK_BUS_NAND0]		= GATE(0x580, BIT(13)),
+	[CLK_BUS_NAND1]		= GATE(0x580, BIT(12)),
 	[CLK_BUS_SPI0]		= GATE(0x580, BIT(20)),
 	[CLK_BUS_SPI1]		= GATE(0x580, BIT(21)),
 	[CLK_BUS_SPI2]		= GATE(0x580, BIT(22)),
@@ -42,6 +48,8 @@ static const struct ccu_clk_gate a80_gates[] = {
 
 static const struct ccu_reset a80_resets[] = {
 	[RST_BUS_MMC]		= RESET(0x5a0, BIT(8)),
+	[RST_BUS_NAND0]		= RESET(0x5a0, BIT(13)),
+	[RST_BUS_NAND1]		= RESET(0x5a0, BIT(12)),
 	[RST_BUS_SPI0]		= RESET(0x5a0, BIT(20)),
 	[RST_BUS_SPI1]		= RESET(0x5a0, BIT(21)),
 	[RST_BUS_SPI2]		= RESET(0x5a0, BIT(22)),

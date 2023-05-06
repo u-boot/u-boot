@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com/
  */
 /dts-v1/;
 
@@ -63,10 +63,10 @@
 		&led_wkgpio_pins
 	>;
 
-	heartbeat {
+	led-heartbeat {
 		gpios = <&gpio4 14 GPIO_ACTIVE_HIGH>;
 	};
-	mmc {
+	led-mmc {
 		gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
 	};
 };

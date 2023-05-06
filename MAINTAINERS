@@ -291,6 +291,7 @@ S:	Maintained
 F:	arch/arm/cpu/armv8/hisilicon
 F:	arch/arm/include/asm/arch-hi6220/
 F:	arch/arm/include/asm/arch-hi3660/
+F:	arch/arm/mach-histb
 
 ARM HPE GXP ARCHITECTURE
 M:	Jean-Marie Verdun <verdun@hpe.com>
@@ -1181,13 +1182,6 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mmc.git
 F:	drivers/mmc/
 
-NAND FLASH
-M:	Dario Binacchi <dario.binacchi@amarulasolutions.com>
-M:	Michael Trimarchi <michael@amarulasolutions.com>
-S:	Maintained
-T:	git https://source.denx.de/u-boot/custodians/u-boot-nand-flash.git
-F:	drivers/mtd/nand/raw/
-
 NETWORK
 M:	Joe Hershberger <joe.hershberger@ni.com>
 M:	Ramon Fried <rfried.dev@gmail.com>
@@ -1210,6 +1204,14 @@ F:	drivers/nvme/
 F:	cmd/nvme.c
 F:	include/nvme.h
 F:	doc/develop/driver-model/nvme.rst
+
+NVMXIP
+M:	Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
+S:	Maintained
+F:	doc/develop/driver-model/nvmxip.rst
+F:	doc/device-tree-bindings/nvmxip/nvmxip_qspi.txt
+F:	drivers/mtd/nvmxip/
+F:	test/dm/nvmxip.c
 
 NVMEM
 M:	Sean Anderson <seanga2@gmail.com>
@@ -1306,6 +1308,13 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-mpc85xx.git
 F:	arch/powerpc/cpu/mpc85xx/
 
+RAW NAND
+M:	Dario Binacchi <dario.binacchi@amarulasolutions.com>
+M:	Michael Trimarchi <michael@amarulasolutions.com>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-nand-flash.git
+F:	drivers/mtd/nand/raw/
+
 RISC-V
 M:	Rick Chen <rick@andestech.com>
 M:	Leo <ycliang@andestech.com>
@@ -1353,6 +1362,7 @@ F:	arch/sandbox/
 F:	doc/arch/sandbox.rst
 F:	drivers/*/*sandbox*.c
 F:	include/dt-bindings/*/sandbox*.h
+F:	include/os.h
 
 SEAMA
 M:	Linus Walleij <linus.walleij@linaro.org>
@@ -1397,6 +1407,14 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-spi.git
 F:	drivers/spi/
 F:	include/spi*
+
+SPI NAND
+M:	Dario Binacchi <dario.binacchi@amarulasolutions.com>
+M:	Michael Trimarchi <michael@amarulasolutions.com>
+R:	Frieder Schrempf <frieder.schrempf@kontron.de>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-nand-flash.git
+F:	drivers/mtd/nand/spi/
 
 SPI-NOR
 M:	Jagan Teki <jagan@amarulasolutions.com>
@@ -1476,18 +1494,16 @@ F:	configs/k2g_hs_evm_defconfig
 F:	configs/k2l_hs_evm_defconfig
 F:	configs/am65x_hs_evm_r5_defconfig
 F:	configs/am65x_hs_evm_a53_defconfig
-F:	configs/j7200_hs_evm_a72_defconfig
-F:	configs/j7200_hs_evm_r5_defconfig
 F:	configs/j721e_hs_evm_a72_defconfig
 F:	configs/j721e_hs_evm_r5_defconfig
-F:	configs/j721s2_hs_evm_a72_defconfig
-F:	configs/j721s2_hs_evm_r5_defconfig
 
 TPM DRIVERS
 M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-tpm.git
+F:	cmd/tpm*
 F:	drivers/tpm/
+F:	include/tpm*
 
 TQ GROUP
 #M:	Martin Krause <martin.krause@tq-systems.de>

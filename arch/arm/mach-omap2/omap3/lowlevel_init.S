@@ -15,13 +15,14 @@
 #include <asm/arch/clocks_omap3.h>
 #include <linux/linkage.h>
 
+.arch_extension sec
+
 /*
  * Funtion for making PPA HAL API calls in secure devices
  * Input:
  *	R0 - Service ID
  *	R1 - paramer list
  */
-/* TODO: Re-evaluate the comment at the end regarding armv5 vs armv7 */
 ENTRY(do_omap3_emu_romcode_call)
 	PUSH {r4-r12, lr} @ Save all registers from ROM code!
 	MOV r12, r0	@ Copy the Secure Service ID in R12
@@ -32,8 +33,7 @@ ENTRY(do_omap3_emu_romcode_call)
 	MOV r6, #0xFF	@ Indicate new Task call
 	mcr     p15, 0, r0, c7, c10, 4	@ DSB
 	mcr     p15, 0, r0, c7, c10, 5	@ DMB
-	.word	0xe1600071	@ SMC #1 to call PPA service - hand assembled
-				@ because we use -march=armv5
+	SMC     #1	@ Call PPA service
 	POP {r4-r12, pc}
 ENDPROC(do_omap3_emu_romcode_call)
 

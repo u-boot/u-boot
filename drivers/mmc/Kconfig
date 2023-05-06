@@ -476,6 +476,14 @@ config MMC_SDHCI_SDMA
 	  This enables support for the SDMA (Single Operation DMA) defined
 	  in the SD Host Controller Standard Specification Version 1.00 .
 
+config SPL_MMC_SDHCI_SDMA
+	bool "Support SDHCI SDMA in SPL"
+	depends on SPL_MMC && MMC_SDHCI
+	default y if MMC_SDHCI_SDMA
+	help
+	  This enables support for the SDMA (Single Operation DMA) defined
+	  in the SD Host Controller Standard Specification Version 1.00 in SPL.
+
 config MMC_SDHCI_ADMA
 	bool "Support SDHCI ADMA2"
 	depends on MMC_SDHCI
@@ -621,6 +629,7 @@ config MMC_SDHCI_MV
 	bool "SDHCI support on Marvell platform"
 	depends on ARCH_MVEBU
 	depends on MMC_SDHCI
+	depends on DM_MMC
 	help
 	  This selects the Secure Digital Host Controller Interface on
 	  Marvell platform.

@@ -1,10 +1,9 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-U-Boot for ODROID-GO-ULTRA
-==========================
+U-Boot for ODROID-GO-ULTRA (S922X)
+==================================
 
-The Odroid Go Ultra is a portable gaming device with the following
-characteristics:
+The ODROID GO ULTRA is a portable gaming device with the following characteristics:
 
  - Amlogic S922X SoC
  - RK817 & RK818 PMICs
@@ -19,7 +18,7 @@ characteristics:
  - 2x ADC Analog Joysticks
  - USB-C Port for USB2 Device and Charging
 
-U-Boot compilation
+U-Boot Compilation
 ------------------
 
 .. code-block:: bash
@@ -28,7 +27,20 @@ U-Boot compilation
     $ make odroid-go-ultra_defconfig
     $ make
 
-Image creation
---------------
+U-Boot Signing with Pre-Built FIP repo
+--------------------------------------
 
-Pleaser refer to :doc:`pre-generated-fip` with codename `odroid-go-ultra`
+.. code-block:: bash
+
+    $ git clone https://github.com/LibreELEC/amlogic-boot-fip --depth=1
+    $ cd amlogic-boot-fip
+    $ mkdir my-output-dir
+    $ ./build-fip.sh odroid-go-ultra /path/to/u-boot/u-boot.bin my-output-dir
+
+Then write the image to SD or eMMC with:
+
+.. code-block:: bash
+
+    $ DEV=/dev/boot_device
+    $ dd if=fip/u-boot.bin.sd.bin of=$DEV conv=fsync,notrunc bs=512 skip=1 seek=1
+    $ dd if=fip/u-boot.bin.sd.bin of=$DEV conv=fsync,notrunc bs=1 count=440

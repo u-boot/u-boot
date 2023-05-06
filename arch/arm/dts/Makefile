@@ -171,6 +171,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3568) += \
 
 dtb-$(CONFIG_ROCKCHIP_RK3588) += \
 	rk3588-edgeble-neu6a-io.dtb \
+	rk3588-evb1-v10.dtb \
 	rk3588-rock-5b.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RV1108) += \
@@ -191,6 +192,8 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-gxbb-nanopi-k2.dtb \
 	meson-gxbb-p200.dtb \
 	meson-gxbb-p201.dtb \
+	meson-gxbb-wetek-hub.dtb \
+	meson-gxbb-wetek-play2.dtb \
 	meson-gxl-s805x-libretech-ac.dtb \
 	meson-gxl-s905d-libretech-pc.dtb \
 	meson-gxl-s905w-jethome-jethub-j80.dtb \
@@ -198,20 +201,25 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-gxl-s905x-libretech-cc.dtb \
 	meson-gxl-s905x-libretech-cc-v2.dtb \
 	meson-gxl-s905x-p212.dtb \
+	meson-gxm-gt1-ultimate.dtb \
 	meson-gxm-khadas-vim2.dtb \
 	meson-gxm-s912-libretech-pc.dtb \
 	meson-gxm-wetek-core2.dtb \
 	meson-g12a-radxa-zero.dtb \
 	meson-g12a-sei510.dtb \
 	meson-g12a-u200.dtb \
+	meson-g12b-a311d-bananapi-m2s.dtb \
 	meson-g12b-a311d-khadas-vim3.dtb \
+	meson-g12b-bananapi-cm4-cm4io.dtb \
+	meson-g12b-gsking-x.dtb \
 	meson-g12b-gtking.dtb \
 	meson-g12b-gtking-pro.dtb \
-	meson-g12b-gsking-x.dtb \
 	meson-g12b-odroid-go-ultra.dtb \
 	meson-g12b-odroid-n2.dtb \
 	meson-g12b-odroid-n2l.dtb \
 	meson-g12b-odroid-n2-plus.dtb \
+	meson-g12b-radxa-zero2.dtb \
+	meson-sm1-bananapi-m2-pro.dtb \
 	meson-sm1-bananapi-m5.dtb \
 	meson-sm1-khadas-vim3l.dtb \
 	meson-sm1-odroid-c4.dtb \
@@ -953,6 +961,7 @@ dtb-$(CONFIG_ARCH_IMX8) += \
 	fsl-imx8qm-apalis.dtb \
 	fsl-imx8qm-mek.dtb \
 	imx8qm-cgtqmx8.dtb \
+	imx8qm-dmsse20-a1.dtb \
 	imx8qm-rom7720-a1.dtb \
 	fsl-imx8qxp-ai_ml.dtb \
 	fsl-imx8qxp-colibri.dtb \
@@ -1134,9 +1143,6 @@ dtb-$(CONFIG_TARGET_OMAP4_SDP4430) += \
 	omap4-sdp.dtb \
 	omap4-sdp-es23plus.dtb
 
-dtb-$(CONFIG_TARGET_OMAP5_UEVM) += \
-	omap5-uevm.dtb
-
 dtb-$(CONFIG_TARGET_SAMA7G5EK) += \
 	at91-sama7g5ek.dtb
 
@@ -1191,6 +1197,8 @@ dtb-$(CONFIG_ARCH_BCM283X) += \
 	bcm2837-rpi-3-b-plus.dtb \
 	bcm2837-rpi-cm3-io3.dtb \
 	bcm2711-rpi-4-b.dtb
+
+dtb-$(CONFIG_TARGET_BCMNS) += ns-board.dtb
 
 dtb-$(CONFIG_TARGET_BCMNS3) += ns3-board.dtb
 
@@ -1300,6 +1308,8 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7981-rfb.dtb \
 	mt7981-emmc-rfb.dtb \
 	mt7981-sd-rfb.dtb \
+	mt7986a-bpi-r3-sd.dtb \
+	mt7986a-bpi-r3-emmc.dtb \
 	mt7986a-rfb.dtb \
 	mt7986b-rfb.dtb \
 	mt7986a-sd-rfb.dtb \

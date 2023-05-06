@@ -187,7 +187,6 @@ enum fdt_compat_id {
 	COMPAT_INTEL_BAYTRAIL_FSP,	/* Intel Bay Trail FSP */
 	COMPAT_INTEL_BAYTRAIL_FSP_MDP,	/* Intel FSP memory-down params */
 	COMPAT_INTEL_IVYBRIDGE_FSP,	/* Intel Ivy Bridge FSP */
-	COMPAT_SUNXI_NAND,		/* SUNXI NAND controller */
 	COMPAT_ALTERA_SOCFPGA_CLK,	/* SoCFPGA Clock initialization */
 	COMPAT_ALTERA_SOCFPGA_PINCTRL_SINGLE,	/* SoCFPGA pinctrl-single */
 	COMPAT_ALTERA_SOCFPGA_H2F_BRG,          /* SoCFPGA hps2fpga bridge */

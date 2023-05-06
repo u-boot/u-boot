@@ -46,11 +46,11 @@ static int console_set_font(struct udevice *dev, struct video_fontdata *fontdata
 
 int check_bpix_support(int bpix)
 {
-	if (bpix == VIDEO_BPP8 && IS_ENABLED(CONFIG_VIDEO_BPP8))
+	if (bpix == VIDEO_BPP8 && CONFIG_IS_ENABLED(VIDEO_BPP8))
 		return 0;
-	else if (bpix == VIDEO_BPP16 && IS_ENABLED(CONFIG_VIDEO_BPP16))
+	else if (bpix == VIDEO_BPP16 && CONFIG_IS_ENABLED(VIDEO_BPP16))
 		return 0;
-	else if (bpix == VIDEO_BPP32 && IS_ENABLED(CONFIG_VIDEO_BPP32))
+	else if (bpix == VIDEO_BPP32 && CONFIG_IS_ENABLED(VIDEO_BPP32))
 		return 0;
 	else
 		return -ENOSYS;

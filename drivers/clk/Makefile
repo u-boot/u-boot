@@ -13,6 +13,7 @@ obj-$(CONFIG_$(SPL_TPL_)CLK_COMPOSITE_CCF) += clk-composite.o
 
 obj-y += analogbits/
 obj-y += imx/
+obj-$(CONFIG_CLK_JH7110) += starfive/
 obj-y += tegra/
 obj-y += ti/
 obj-$(CONFIG_$(SPL_TPL_)CLK_INTEL) += intel/
@@ -39,7 +40,7 @@ obj-$(CONFIG_CLK_MVEBU) += mvebu/
 obj-$(CONFIG_CLK_OCTEON) += clk_octeon.o
 obj-$(CONFIG_CLK_OWL) += owl/
 obj-$(CONFIG_CLK_RENESAS) += renesas/
-obj-$(CONFIG_CLK_SCMI) += clk_scmi.o
+obj-$(CONFIG_$(SPL_TPL_)CLK_SCMI) += clk_scmi.o
 obj-$(CONFIG_CLK_SIFIVE) += sifive/
 obj-$(CONFIG_CLK_UNIPHIER) += uniphier/
 obj-$(CONFIG_CLK_VERSACLOCK) += clk_versaclock.o

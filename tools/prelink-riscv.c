@@ -118,5 +118,7 @@ int main(int argc, const char *const *argv)
 			prelink_le32(data);
 	}
 
+	munmap(data, st.st_size);
+
 	return 0;
 }

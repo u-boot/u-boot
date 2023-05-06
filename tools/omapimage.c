@@ -85,7 +85,7 @@ static void omapimage_print_section(struct ch_settings *chs)
 		chs->flags);
 }
 
-static void omapimage_print_header(const void *ptr)
+static void omapimage_print_header(const void *ptr, struct image_tool_params *params)
 {
 	const struct ch_toc *toc = (struct ch_toc *)ptr;
 	const struct gp_header *gph =

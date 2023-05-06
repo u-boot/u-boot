@@ -14,9 +14,11 @@
 #include <asm/io.h>
 #include <common.h>
 #include <env.h>
+#include <env_internal.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/setup.h>
 #include <asm/bootm.h>
+#include <mmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -80,6 +82,7 @@ int board_init(void)
 int board_late_init(void)
 {
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
+	unsigned char eth1addr[6];
 
 	imx_iomux_v3_setup_multiple_pads(wdog_pads, ARRAY_SIZE(wdog_pads));
 
@@ -91,5 +94,35 @@ int board_late_init(void)
 	 */
 	clrsetbits_le16(&wdog->wcr, 0, 0x10);
 
+	/* Get the second MAC address */
+	imx_get_mac_from_fuse(1, eth1addr);
+	if (!env_get("eth1addr") && is_valid_ethaddr(eth1addr))
+		eth_env_set_enetaddr("eth1addr", eth1addr);
+
 	return 0;
+}
+
+uint board_mmc_get_env_part(struct mmc *mmc)
+{
+	uint part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
+
+	if (part == 7)
+		part = 0;
+	return part;
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	if (op == ENVOP_SAVE || op == ENVOP_ERASE)
+		return ENVL_MMC;
+
+	switch (prio) {
+	case 0:
+		return ENVL_NOWHERE;
+
+	case 1:
+		return ENVL_MMC;
+	}
+
+	return ENVL_UNKNOWN;
 }

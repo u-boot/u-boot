@@ -49,5 +49,3 @@
 	snps,dis-u1-entry-quirk;
 	snps,dis-u2-entry-quirk;
 };
-
-#include "k3-am65-iot2050-common-pg2-u-boot.dtsi"

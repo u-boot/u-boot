@@ -111,6 +111,5 @@
 #define CFG_SYS_CS0_MASK		0x007F0001
 #define CFG_SYS_CS0_CTRL		0x00001FA0
 
-#define CFG_MCFTMR
 
 #endif				/* _M5208EVBE_H */

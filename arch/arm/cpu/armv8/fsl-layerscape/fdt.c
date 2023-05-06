@@ -387,6 +387,10 @@ void fdt_fixup_remove_jr(void *blob)
 	u64 jr_offset, used_jr;
 	fdt32_t *reg;
 
+	/* Return if crypto node not found */
+	if (crypto_node < 0)
+		return;
+
 	used_jr = sec_firmware_used_jobring_offset();
 	fdt_support_default_count_cells(blob, crypto_node, &addr_cells, NULL);
 

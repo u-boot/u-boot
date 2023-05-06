@@ -16,16 +16,17 @@
 ifdef CONFIG_32BIT
 KBUILD_LDFLAGS		+= -m $(32bit-emul)
 EFI_LDS			:= elf_riscv32_efi.lds
+PLATFORM_ELFFLAGS	+= -B riscv -O elf32-littleriscv
 endif
 
 ifdef CONFIG_64BIT
 KBUILD_LDFLAGS		+= -m $(64bit-emul)
 EFI_LDS			:= elf_riscv64_efi.lds
+PLATFORM_ELFFLAGS	+= -B riscv -O elf64-littleriscv
 endif
 
 PLATFORM_CPPFLAGS	+= -ffixed-gp -fpic
-PLATFORM_RELFLAGS	+= -fno-common -gdwarf-2 -ffunction-sections \
-			   -fdata-sections
+PLATFORM_RELFLAGS	+= -fno-common -ffunction-sections -fdata-sections
 LDFLAGS_u-boot		+= --gc-sections -static -pie
 
 EFI_CRT0		:= crt0_riscv_efi.o

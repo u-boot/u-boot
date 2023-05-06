@@ -60,6 +60,12 @@ config TARGET_IMX8MQ_PHANBELL
 	select IMX8MQ
 	select IMX8M_LPDDR4
 
+config TARGET_IMX8MQ_REFORM2
+	bool "imx8mq_reform2"
+	select BINMAN
+	select IMX8MQ
+	select IMX8M_LPDDR4
+
 config TARGET_IMX8MM_DATA_MODUL_EDM_SBC
 	bool "Data Modul eDM SBC i.MX8M Mini"
 	select BINMAN
@@ -362,6 +368,7 @@ source "board/kontron/pitx_imx8m/Kconfig"
 source "board/kontron/sl-mx8mm/Kconfig"
 source "board/menlo/mx8menlo/Kconfig"
 source "board/msc/sm2s_imx8mp/Kconfig"
+source "board/mntre/imx8mq_reform2/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
 source "board/purism/librem5/Kconfig"

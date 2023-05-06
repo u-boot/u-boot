@@ -784,8 +784,8 @@ class TestFdtUtil(unittest.TestCase):
 
     def test_ensure_compiled_tmpdir(self):
         """Test providing a temporary directory"""
+        old_outdir = tools.outdir
         try:
-            old_outdir = tools.outdir
             tools.outdir= None
             tmpdir = tempfile.mkdtemp(prefix='test_fdt.')
             dtb = fdt_util.EnsureCompiled(find_dtb_file('dtoc_test_simple.dts'),
@@ -793,7 +793,7 @@ class TestFdtUtil(unittest.TestCase):
             self.assertEqual(tmpdir, os.path.dirname(dtb))
             shutil.rmtree(tmpdir)
         finally:
-            tools.outdir= old_outdir
+            tools.outdir = old_outdir
 
     def test_get_phandle_name_offset(self):
         val = fdt_util.GetPhandleNameOffset(self.node, 'missing')

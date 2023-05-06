@@ -28,6 +28,7 @@ static struct {
 	{ UCLASS_AHCI, "sata" },
 	{ UCLASS_HOST, "host" },
 	{ UCLASS_NVME, "nvme" },
+	{ UCLASS_NVMXIP, "nvmxip" },
 	{ UCLASS_EFI_MEDIA, "efi" },
 	{ UCLASS_EFI_LOADER, "efiloader" },
 	{ UCLASS_VIRTIO, "virtio" },

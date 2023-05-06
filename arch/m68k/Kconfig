@@ -198,7 +198,17 @@ source "board/freescale/m5373evb/Kconfig"
 source "board/sysam/amcore/Kconfig"
 source "board/sysam/stmark2/Kconfig"
 
+config M68K_QEMU
+	bool "Build with workarounds for incomplete QEMU emulation"
+	default n
+	help
+	  QEMU 8.x currently does not implement RAMBAR accesses and
+	  DMA timers. Enable this option for U-Boot CI purposes only
+	  to skip the RAMBAR accesses.
+
 config MCFTMR
 	bool "Use DMA timer"
+	default y if !M68K_QEMU
+	default n if M68K_QEMU
 
 endmenu

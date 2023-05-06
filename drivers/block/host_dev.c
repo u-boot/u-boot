@@ -24,7 +24,8 @@ static int host_sb_attach_file(struct udevice *dev, const char *filename)
 	struct host_sb_plat *plat = dev_get_plat(dev);
 	struct blk_desc *desc;
 	struct udevice *blk;
-	int ret, fd, size;
+	int ret, fd;
+	off_t size;
 	char *fname;
 
 	if (!filename)

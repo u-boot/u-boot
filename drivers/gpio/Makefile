@@ -38,6 +38,7 @@ obj-$(CONFIG_TEGRA186_GPIO)	+= tegra186_gpio.o
 obj-$(CONFIG_DA8XX_GPIO)	+= da8xx_gpio.o
 obj-$(CONFIG_ALTERA_PIO)	+= altera_pio.o
 obj-$(CONFIG_MPC8XXX_GPIO)	+= mpc8xxx_gpio.o
+obj-$(CONFIG_QE_GPIO)	+= qe_gpio.o
 obj-$(CONFIG_MPC8XX_GPIO)	+= mpc8xx_gpio.o
 obj-$(CONFIG_MPC83XX_SPISEL_BOOT)	+= mpc83xx_spisel_boot.o
 obj-$(CONFIG_SH_GPIO_PFC)	+= sh_pfc.o

@@ -12,15 +12,60 @@
 #include <asm/io.h>
 #include <asm/armv7_mpu.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/sysfw-loader.h>
+#include "sysfw-loader.h"
 #include "common.h"
-#include <asm/arch/sys_proto.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
+#include <dm/root.h>
 #include <mmc.h>
 #include <remoteproc.h>
+
+struct fwl_data cbass_hc_cfg0_fwls[] = {
+	{ "PCIE0_CFG", 2577, 7 },
+	{ "EMMC8SS0_CFG", 2579, 4 },
+	{ "USB3SS0_CORE", 2580, 4 },
+	{ "USB3SS1_CORE", 2581, 1 },
+}, cbass_hc2_fwls[] = {
+	{ "PCIE0", 2547, 24 },
+	{ "HC2_WIZ16B8M4CT2", 2552, 1 },
+}, cbass_rc_cfg0_fwls[] = {
+	{ "EMMCSD4SS0_CFG", 2400, 4 },
+}, infra_cbass0_fwls[] = {
+	{ "PSC0", 5, 1 },
+	{ "PLL_CTRL0", 6, 1 },
+	{ "PLL_MMR0", 8, 26 },
+	{ "CTRL_MMR0", 9, 16 },
+	{ "GPIO0", 16, 1 },
+}, mcu_cbass0_fwls[] = {
+	{ "MCU_R5FSS0_CORE0", 1024, 4 },
+	{ "MCU_R5FSS0_CORE0_CFG", 1025, 3 },
+	{ "MCU_R5FSS0_CORE1", 1028, 4 },
+	{ "MCU_R5FSS0_CORE1_CFG", 1029, 1 },
+	{ "MCU_FSS0_CFG", 1032, 12 },
+	{ "MCU_FSS0_S1", 1033, 8 },
+	{ "MCU_FSS0_S0", 1036, 8 },
+	{ "MCU_PSROM49152X32", 1048, 1 },
+	{ "MCU_MSRAM128KX64", 1050, 8 },
+	{ "MCU_MSRAM128KX64_CFG", 1051, 1 },
+	{ "MCU_TIMER0", 1056, 1 },
+	{ "MCU_TIMER9", 1065, 1 },
+	{ "MCU_USART0", 1120, 1 },
+	{ "MCU_I2C0", 1152, 1 },
+	{ "MCU_CTRL_MMR0", 1200, 8 },
+	{ "MCU_PLL_MMR0", 1201, 3 },
+	{ "MCU_CPSW0", 1220, 2 },
+}, wkup_cbass0_fwls[] = {
+	{ "WKUP_PSC0", 129, 1 },
+	{ "WKUP_PLL_CTRL0", 130, 1 },
+	{ "WKUP_CTRL_MMR0", 131, 16 },
+	{ "WKUP_GPIO0", 132, 1 },
+	{ "WKUP_I2C0", 144, 1 },
+	{ "WKUP_USART0", 160, 1 },
+}, navss_cbass0_fwls[] = {
+	{ "NACSS_VIRT0", 6253, 1 },
+};
 
 static void ctrl_mmr_unlock(void)
 {
@@ -150,6 +195,14 @@ void k3_spl_init(void)
 			if (ret)
 				panic("Failed to initialize clk-k3!\n");
 		}
+
+		remove_fwl_configs(cbass_hc_cfg0_fwls, ARRAY_SIZE(cbass_hc_cfg0_fwls));
+		remove_fwl_configs(cbass_hc2_fwls, ARRAY_SIZE(cbass_hc2_fwls));
+		remove_fwl_configs(cbass_rc_cfg0_fwls, ARRAY_SIZE(cbass_rc_cfg0_fwls));
+		remove_fwl_configs(infra_cbass0_fwls, ARRAY_SIZE(infra_cbass0_fwls));
+		remove_fwl_configs(mcu_cbass0_fwls, ARRAY_SIZE(mcu_cbass0_fwls));
+		remove_fwl_configs(wkup_cbass0_fwls, ARRAY_SIZE(wkup_cbass0_fwls));
+		remove_fwl_configs(navss_cbass0_fwls, ARRAY_SIZE(navss_cbass0_fwls));
 	}
 
 	/* Output System Firmware version info */
@@ -181,6 +234,69 @@ void k3_mem_init(void)
 	}
 	spl_enable_dcache();
 }
+
+/* Support for the various EVM / SK families */
+#if defined(CONFIG_SPL_OF_LIST) && defined(CONFIG_TI_I2C_BOARD_DETECT)
+void do_dt_magic(void)
+{
+	int ret, rescan, mmc_dev = -1;
+	static struct mmc *mmc;
+
+	do_board_detect();
+
+	/*
+	 * Board detection has been done.
+	 * Let us see if another dtb wouldn't be a better match
+	 * for our board
+	 */
+	if (IS_ENABLED(CONFIG_CPU_V7R)) {
+		ret = fdtdec_resetup(&rescan);
+		if (!ret && rescan) {
+			dm_uninit();
+			dm_init_and_scan(true);
+		}
+	}
+
+	/*
+	 * Because of multi DTB configuration, the MMC device has
+	 * to be re-initialized after reconfiguring FDT inorder to
+	 * boot from MMC. Do this when boot mode is MMC and ROM has
+	 * not loaded SYSFW.
+	 */
+	switch (spl_boot_device()) {
+	case BOOT_DEVICE_MMC1:
+		mmc_dev = 0;
+		break;
+	case BOOT_DEVICE_MMC2:
+	case BOOT_DEVICE_MMC2_2:
+		mmc_dev = 1;
+		break;
+	}
+
+	if (mmc_dev > 0 && !check_rom_loaded_sysfw()) {
+		ret = mmc_init_device(mmc_dev);
+		if (!ret) {
+			mmc = find_mmc_device(mmc_dev);
+			if (mmc) {
+				ret = mmc_init(mmc);
+				if (ret)
+					printf("mmc init failed with error: %d\n", ret);
+			}
+		}
+	}
+}
+#endif
+
+#ifdef CONFIG_SPL_BUILD
+void board_init_f(ulong dummy)
+{
+	k3_spl_init();
+#if defined(CONFIG_SPL_OF_LIST) && defined(CONFIG_TI_I2C_BOARD_DETECT)
+	do_dt_magic();
+#endif
+	k3_mem_init();
+}
+#endif
 
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 {
@@ -263,58 +379,4 @@ u32 spl_boot_device(void)
 		return __get_primary_bootmedia(main_devstat, wkup_devstat);
 	else
 		return __get_backup_bootmedia(main_devstat);
-}
-
-#define J721S2_DEV_MCU_RTI0			295
-#define J721S2_DEV_MCU_RTI1			296
-#define J721S2_DEV_MCU_ARMSS0_CPU0		284
-#define J721S2_DEV_MCU_ARMSS0_CPU1		285
-
-void release_resources_for_core_shutdown(void)
-{
-	if (IS_ENABLED(CONFIG_SYS_K3_SPL_ATF)) {
-		struct ti_sci_handle *ti_sci;
-		struct ti_sci_dev_ops *dev_ops;
-		struct ti_sci_proc_ops *proc_ops;
-		int ret;
-		u32 i;
-
-		const u32 put_device_ids[] = {
-			J721S2_DEV_MCU_RTI0,
-			J721S2_DEV_MCU_RTI1,
-		};
-
-		ti_sci = get_ti_sci_handle();
-		dev_ops = &ti_sci->ops.dev_ops;
-		proc_ops = &ti_sci->ops.proc_ops;
-
-		/* Iterate through list of devices to put (shutdown) */
-		for (i = 0; i < ARRAY_SIZE(put_device_ids); i++) {
-			u32 id = put_device_ids[i];
-
-			ret = dev_ops->put_device(ti_sci, id);
-			if (ret)
-				panic("Failed to put device %u (%d)\n", id, ret);
-		}
-
-		const u32 put_core_ids[] = {
-			J721S2_DEV_MCU_ARMSS0_CPU1,
-			J721S2_DEV_MCU_ARMSS0_CPU0,	/* Handle CPU0 after CPU1 */
-		};
-
-		/* Iterate through list of cores to put (shutdown) */
-		for (i = 0; i < ARRAY_SIZE(put_core_ids); i++) {
-			u32 id = put_core_ids[i];
-
-			/*
-			 * Queue up the core shutdown request. Note that this call
-			 * needs to be followed up by an actual invocation of an WFE
-			 * or WFI CPU instruction.
-			 */
-			ret = proc_ops->proc_shutdown_no_wait(ti_sci, id);
-			if (ret)
-				panic("Failed sending core %u shutdown message (%d)\n",
-				      id, ret);
-		}
-	}
 }

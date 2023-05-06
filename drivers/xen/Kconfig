@@ -1,6 +1,6 @@
 config PVBLOCK
 	bool "Xen para-virtualized block device"
-	depends on DM
+	depends on DM && XEN
 	select BLK
 	help
 	  This driver implements the front-end of the Xen virtual

@@ -175,6 +175,8 @@ config CC_HAS_ASM_INLINE
 
 config XEN
 	bool "Select U-Boot be run as a bootloader for XEN Virtual Machine"
+	depends on ARM64
+	select SSCANF
 	help
 	  Enabling this option will make U-Boot be run as a bootloader
 	  for XEN [1] Virtual Machine.
@@ -435,7 +437,7 @@ config BUILD_TARGET
 	default "u-boot-with-spl.sfp" if TARGET_SOCFPGA_ARRIA10
 	default "u-boot-with-spl.sfp" if TARGET_SOCFPGA_GEN5
 	default "u-boot.itb" if !BINMAN && SPL_LOAD_FIT && (ARCH_ROCKCHIP || \
-				ARCH_SUNXI || RISCV || ARCH_ZYNQMP)
+				RISCV || ARCH_ZYNQMP)
 	default "u-boot.kwb" if (ARCH_KIRKWOOD || ARMADA_32BIT) && !SPL
 	help
 	  Some SoCs need special image types (e.g. U-Boot binary

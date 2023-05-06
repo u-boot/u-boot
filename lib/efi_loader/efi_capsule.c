@@ -404,12 +404,6 @@ out:
 
 	return status;
 }
-#else
-efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_size,
-				      void **image, efi_uintn_t *image_size)
-{
-	return EFI_UNSUPPORTED;
-}
 #endif /* CONFIG_EFI_CAPSULE_AUTHENTICATE */
 
 static __maybe_unused bool fwu_empty_capsule(struct efi_capsule_header *capsule)

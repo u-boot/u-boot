@@ -82,7 +82,7 @@ static int egon_verify_header(unsigned char *ptr, int image_size,
 	return EXIT_SUCCESS;
 }
 
-static void egon_print_header(const void *buf)
+static void egon_print_header(const void *buf, struct image_tool_params *params)
 {
 	const struct boot_file_head *header = buf;
 

@@ -511,6 +511,13 @@ config WINBOND_W83627
 	  legacy UART or other devices in the Winbond Super IO chips
 	  on X86 platforms.
 
+config QCOM_GENI_SE
+	bool "Qualcomm GENI Serial Engine Driver"
+	depends on ARCH_SNAPDRAGON
+	help
+	  The driver manages Generic Interface (GENI) firmware based
+	  Qualcomm Technologies, Inc. Universal Peripheral (QUP) Wrapper.
+
 config QFW
 	bool
 	help

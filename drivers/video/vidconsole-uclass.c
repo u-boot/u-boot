@@ -86,7 +86,7 @@ static void vidconsole_newline(struct udevice *dev)
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
 	struct udevice *vid_dev = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
-	const int rows = CONFIG_CONSOLE_SCROLL_LINES;
+	const int rows = CONFIG_VAL(CONSOLE_SCROLL_LINES);
 	int i, ret;
 
 	priv->xcur_frac = priv->xstart_frac;

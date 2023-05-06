@@ -20,6 +20,10 @@ choice
 	prompt "Target select"
 	optional
 
+config TARGET_CMPCPRO
+	bool "Support CMPCPRO board from CSSI"
+	select ARCH_MPC832X
+
 config TARGET_MPC837XERDB
 	bool "Support MPC837XERDB"
 	select ARCH_MPC837X
@@ -205,5 +209,6 @@ config NEVER_ASSERT_ODT_TO_CPU
 
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/gdsys/mpc8308/Kconfig"
+source "board/cssi/cmpcpro/Kconfig"
 
 endmenu

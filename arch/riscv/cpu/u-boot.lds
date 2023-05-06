@@ -57,7 +57,7 @@ SECTIONS
 		__efi_runtime_rel_stop = .;
 	}
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 
 	/DISCARD/ : { *(.rela.plt*) }
 	.rela.dyn : {
@@ -66,7 +66,7 @@ SECTIONS
 		__rel_dyn_end = .;
 	}
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 
 	.dynsym : {
 		__dyn_sym_start = .;
@@ -74,7 +74,7 @@ SECTIONS
 		__dyn_sym_end = .;
 	}
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 
 	_end = .;
 

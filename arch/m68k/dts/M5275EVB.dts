@@ -27,3 +27,9 @@
 &fec1 {
 	status = "okay";
 };
+
+&i2c0 {
+	clock-frequency = <80000>;
+	u-boot,i2c-slave-addr = <0x7f>;
+	status = "okay";
+};

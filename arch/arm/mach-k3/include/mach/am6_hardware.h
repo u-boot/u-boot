@@ -39,4 +39,23 @@
 
 #define	NAVSS_NBSS_THREADMAP				0x10
 
+#if defined(CONFIG_SYS_K3_SPL_ATF) && !defined(__ASSEMBLY__)
+
+#define AM6_DEV_MCU_RTI0			134
+#define AM6_DEV_MCU_RTI1			135
+#define AM6_DEV_MCU_ARMSS0_CPU0			159
+#define AM6_DEV_MCU_ARMSS0_CPU1			245
+
+static const u32 put_device_ids[] = {
+	AM6_DEV_MCU_RTI0,
+	AM6_DEV_MCU_RTI1,
+};
+
+static const u32 put_core_ids[] = {
+	AM6_DEV_MCU_ARMSS0_CPU1,
+	AM6_DEV_MCU_ARMSS0_CPU0,	/* Handle CPU0 after CPU1 */
+};
+
+#endif
+
 #endif /* __ASM_ARCH_AM6_HARDWARE_H */

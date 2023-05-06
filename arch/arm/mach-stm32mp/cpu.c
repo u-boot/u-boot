@@ -190,7 +190,7 @@ static void setup_boot_mode(void)
 		  __func__, boot_ctx, boot_mode, instance, forced_mode);
 	switch (boot_mode & TAMP_BOOT_DEVICE_MASK) {
 	case BOOT_SERIAL_UART:
-		if (instance > ARRAY_SIZE(serial_addr))
+		if (instance >= ARRAY_SIZE(serial_addr))
 			break;
 		/* serial : search associated node in devicetree */
 		sprintf(cmd, "serial@%x", serial_addr[instance]);
@@ -220,7 +220,7 @@ static void setup_boot_mode(void)
 		break;
 	case BOOT_FLASH_SD:
 	case BOOT_FLASH_EMMC:
-		if (instance > ARRAY_SIZE(sdmmc_addr))
+		if (instance >= ARRAY_SIZE(sdmmc_addr))
 			break;
 		/* search associated sdmmc node in devicetree */
 		sprintf(cmd, "mmc@%x", sdmmc_addr[instance]);

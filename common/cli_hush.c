@@ -2171,11 +2171,17 @@ int set_local_var(const char *s, int flg_export)
 	 * NAME=VALUE format.  So the first order of business is to
 	 * split 's' on the '=' into 'name' and 'value' */
 	value = strchr(name, '=');
-	if (value == NULL || *(value + 1) == 0) {
+	if (!value) {
 		free(name);
 		return -1;
 	}
 	*value++ = 0;
+
+	if (!*value) {
+		unset_local_var(name);
+		free(name);
+		return 0;
+	}
 
 	for(cur = top_vars; cur; cur = cur->next) {
 		if(strcmp(cur->name, name)==0)

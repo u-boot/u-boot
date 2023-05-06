@@ -180,7 +180,7 @@ static inline u64 readq(const volatile void __iomem *addr)
  *  IO port access primitives
  *  -------------------------
  *
- * The NDS32 doesn't have special IO access instructions just like ARM;
+ * The RISC-V doesn't have special IO access instructions just like ARM;
  * all IO is memory mapped.
  * Note that these are defined to perform little endian accesses
  * only.  Their primary purpose is to access PCI and ISA peripherals.

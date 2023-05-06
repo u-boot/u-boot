@@ -1152,7 +1152,12 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 int ahci_probe_scsi_pci(struct udevice *ahci_dev)
 {
 	ulong base;
-	u16 vendor, device;
+	u16 vendor, device, cmd;
+
+	/* Enable bus mastering */
+	dm_pci_read_config16(ahci_dev, PCI_COMMAND, &cmd);
+	cmd |= PCI_COMMAND_MASTER;
+	dm_pci_write_config16(ahci_dev, PCI_COMMAND, cmd);
 
 	base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5, 0, 0,
 				     PCI_REGION_TYPE, PCI_REGION_MEM);

@@ -2749,6 +2749,8 @@ static u64 dram_detect_cap(struct dram_info *dram,
 	/* detect cs1 row */
 	sdram_detect_cs1_row(cap_info, params->base.dramtype);
 
+	sdram_detect_high_row(cap_info);
+
 	/* detect die bw */
 	sdram_detect_dbw(cap_info, params->base.dramtype);
 

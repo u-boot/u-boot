@@ -466,6 +466,17 @@ config VIDEO_BCM2835
 	  that same resolution (or as near as possible) and 32bpp depth, so
 	  that U-Boot can access it with full colour depth.
 
+config VIDEO_LCD_ENDEAVORU
+	tristate "Endeavoru 720x1280 DSI video mode panel"
+	depends on PANEL && BACKLIGHT
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the IPS-LCD panel
+	  module for HTC One X. Driver supports a family of panels,
+	  made at least by 3 vendors (Sharp, Sony and AUO), but set up
+	  using the same DSI command sequence. The panel has a 720x1280
+	  resolution and uses 24 bit RGB per pixel.
+
 config VIDEO_LCD_ORISETECH_OTM8009A
 	bool "OTM8009A DSI LCD panel support"
 	select VIDEO_MIPI_DSI
@@ -479,6 +490,24 @@ config VIDEO_LCD_RAYDIUM_RM68200
 	help
 	Say Y here if you want to enable support for Raydium RM68200
 	720x1280 DSI video mode panel.
+
+config VIDEO_LCD_RENESAS_R61307
+	tristate "Renesas R61307 DSI video mode panel"
+	depends on PANEL && BACKLIGHT
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for KOE tx13d100vm0eaa
+	  IPS-LCD module with Renesas R69328 IC. The panel has a 1024x768
+	  resolution and uses 24 bit RGB per pixel.
+
+config VIDEO_LCD_RENESAS_R69328
+	tristate "Renesas R69328 720x1280 DSI video mode panel"
+	depends on PANEL && BACKLIGHT
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for JDI dx12d100vm0eaa
+	  IPS-LCD module with Renesas R69328 IC. The panel has a 720x1280
+	  resolution and uses 24 bit RGB per pixel.
 
 config VIDEO_LCD_SSD2828
 	bool "SSD2828 bridge chip"
@@ -605,6 +634,15 @@ config ATMEL_HLCD
 	bool "Enable ATMEL video support using HLCDC"
 	help
 	   HLCDC supports video output to an attached LCD panel.
+
+config BACKLIGHT_LM3533
+	bool "Backlight Driver for LM3533"
+	depends on BACKLIGHT
+	select DM_I2C
+	help
+	  Say Y to enable the backlight driver for National Semiconductor / TI
+	  LM3533 Lighting Power chip. Only Bank A is supported as for now.
+	  Supported backlight level range is from 2 to 255 with step of 1.
 
 source "drivers/video/ti/Kconfig"
 
@@ -886,7 +924,7 @@ endif # SPLASH_SCREEN
 
 config VIDEO_BMP_GZIP
 	bool "Gzip compressed BMP image support"
-	depends on CMD_BMP || SPLASH_SCREEN
+	depends on BMP || SPLASH_SCREEN
 	help
 	  If this option is set, additionally to standard BMP
 	  images, gzipped BMP images can be displayed via the
@@ -922,5 +960,226 @@ config BMP_32BPP
 	  Support display of bitmaps file with 32-bit-per-pixel.
 
 endif # VIDEO
+
+config SPL_VIDEO
+	bool "Enable driver model support for LCD/video"
+	depends on SPL_DM
+	help
+	  The video subsystem adds a small amount of overhead to the image.
+	  If this is acceptable and you have a need to use video drivers in
+	  SPL, enable this option. It might provide a cleaner interface to
+	  setting up video within SPL, and allows the same drivers to be
+	  used as U-Boot proper.
+
+if SPL_VIDEO
+source "drivers/video/tidss/Kconfig"
+
+config SPL_VIDEO_LOGO
+	bool "Show the U-Boot logo on the display at SPL"
+	default y if !SPL_SPLASH_SCREEN
+	select SPL_VIDEO_BMP_RLE8
+	help
+	  This enables showing the U-Boot logo on the display when a video
+	  device is probed. It appears at the top right. The logo itself is at
+	  tools/logos/u-boot_logo.bmp and looks best when the display has a
+	  black background.
+
+config SPL_SPLASH_SCREEN
+	bool "Show a splash-screen image at SPL"
+	help
+	  If this option is set, the environment is checked for a variable
+	  "splashimage" at spl stage.
+
+config SPL_SYS_WHITE_ON_BLACK
+	bool "Display console as white on a black background at SPL"
+	help
+	 Normally the display is black on a white background, Enable this
+	 option to invert this, i.e. white on a black background at spl stage.
+	 This can be better in low-light situations or to reduce eye strain in
+	 some cases.
+
+config SPL_VIDEO_PCI_DEFAULT_FB_SIZE
+	hex "Default framebuffer size to use if no drivers request it at SPL"
+	default 0x1000000 if X86 && PCI
+	default 0 if !(X86 && PCI)
+	help
+	  Generally, video drivers request the amount of memory they need for
+	  the frame buffer when they are bound, by setting the size field in
+	  struct video_uc_plat. That memory is then reserved for use after
+	  relocation. But PCI drivers cannot be bound before relocation unless
+	  they are mentioned in the devicetree.
+
+	  With this value set appropriately, it is possible for PCI video
+	  devices to have a framebuffer allocated by U-Boot.
+
+	  Note: the framebuffer needs to be large enough to store all pixels at
+	  maximum resolution. For example, at 1920 x 1200 with 32 bits per
+	  pixel, 2560 * 1600 * 32 / 8 = 0xfa0000 bytes are needed.
+
+config SPL_CONSOLE_SCROLL_LINES
+	int "Number of lines to scroll the console by at SPL"
+	default 1
+	help
+	  When the console need to be scrolled, this is the number of
+	  lines to scroll by. It defaults to 1. Increasing this makes the
+	  console jump but can help speed up operation when scrolling
+	  is slow.
+
+config SPL_CONSOLE_NORMAL
+	bool "Support a simple text console at SPL"
+	default y
+	help
+	  Support drawing text on the frame buffer console so that it can be
+	  used as a console. Rotation is not supported by this driver (see
+	  CONFIG_CONSOLE_ROTATION for that). A built-in 8x16 font is used
+	  for the display.
+
+config SPL_BACKLIGHT
+	bool "Enable panel backlight uclass support at SPL"
+	default y
+	help
+	  This provides backlight uclass driver that enables basic panel
+	  backlight support.
+
+config SPL_PANEL
+	bool "Enable panel uclass support at SPL"
+	default y
+	help
+	  This provides panel uclass driver that enables basic panel support.
+
+config SPL_SIMPLE_PANEL
+	bool "Enable simple panel support at SPL"
+	depends on SPL_PANEL && SPL_BACKLIGHT && SPL_DM_GPIO
+	default y
+	help
+	  This turns on a simple panel driver that enables a compatible
+	  video panel.
+
+config SPL_SYS_WHITE_ON_BLACK
+	bool "Display console as white on a black background at SPL"
+	help
+	 Normally the display is black on a white background, Enable this
+	 option to invert this, i.e. white on a black background at spl stage.
+	 This can be better in low-light situations or to reduce eye strain in
+	 some cases.
+
+if SPL_SPLASH_SCREEN
+
+config SPL_SPLASH_SCREEN_ALIGN
+	bool "Allow positioning the splash image anywhere on the display at SPL"
+	help
+	  If this option is set the splash image can be freely positioned
+	  on the screen only at SPL. Environment variable "splashpos" specifies
+	  the position as "x,y". If a positive number is given it is used as
+	  number of pixel from left/top. If a negative number is given it
+	  is used as number of pixel from right/bottom.
+
+config SPL_SPLASH_SOURCE
+	bool "Control the source of the splash image at SPL"
+	help
+	  Use the splash_source.c library. This library provides facilities to
+	  declare board specific splash image locations, routines for loading
+	  splash image from supported locations, and a way of controlling the
+	  selected splash location using the "splashsource" environment
+	  variable.
+
+	  This CONFIG works as follows:
+
+	  - If splashsource is set to a supported location name as defined by
+	    board code, use that splash location.
+	  - If splashsource is undefined, use the first splash location as
+	    default.
+	  - If splashsource is set to an unsupported value, do not load a splash
+	    screen.
+
+	  A splash source location can describe either storage with raw data, a
+	  storage formatted with a file system or a FIT image. In case of a
+	  filesystem, the splash screen data is loaded as a file. The name of
+	  the splash screen file can be controlled with the environment variable
+	  "splashfile".
+
+	  To enable loading the splash image from a FIT image, CONFIG_FIT must
+	  be enabled. The FIT image has to start at the 'offset' field address
+	  in the selected splash location. The name of splash image within the
+	  FIT shall be specified by the environment variable "splashfile".
+
+	  In case the environment variable "splashfile" is not defined the
+	  default name 'splash.bmp' will be used.
+
+endif # SPL_SPLASH_SCREEN
+
+config SPL_VIDEO_BMP_GZIP
+	bool "Gzip compressed BMP image support at SPL"
+	depends on SPL_SPLASH_SCREEN || SPL_BMP
+	help
+	  If this option is set, additionally to standard BMP
+	  images, gzipped BMP images can be displayed via the
+	  splashscreen supportat SPL stage.
+
+config SPL_VIDEO_LOGO_MAX_SIZE
+	hex "Maximum size of the bitmap logo in bytes at SPL"
+	default 0x100000
+	help
+	  Sets the maximum uncompressed size of the logo. This is needed when
+	  decompressing a BMP file using the gzip algorithm, since it cannot
+	  read the size from the bitmap header.
+
+config SPL_VIDEO_BMP_RLE8
+	bool "Run length encoded BMP image (RLE8) support at SPL"
+	help
+	  If this option is set, the 8-bit RLE compressed BMP images
+	  is supported.
+
+config SPL_BMP_16BPP
+	bool "16-bit-per-pixel BMP image support at SPL"
+	help
+	  Support display of bitmaps file with 16-bit-per-pixel
+
+config SPL_BMP_24BPP
+	bool "24-bit-per-pixel BMP image support at SPL"
+	help
+	  Support display of bitmaps file with 24-bit-per-pixel.
+
+config SPL_BMP_32BPP
+	bool "32-bit-per-pixel BMP image support at SPL"
+	help
+	  Support display of bitmaps file with 32-bit-per-pixel.
+
+config SPL_VIDEO_BPP8
+	bool "Support 8-bit-per-pixel displays at SPL"
+	default y
+	help
+	  Support drawing text and bitmaps onto a 8-bit-per-pixel display.
+	  Enabling this will include code to support this display. Without
+	  this option, such displays will not be supported and console output
+	  will be empty.
+
+config SPL_VIDEO_BPP16
+	bool "Support 16-bit-per-pixel displays at SPL"
+	default y
+	help
+	  Support drawing text and bitmaps onto a 16-bit-per-pixel display.
+	  Enabling this will include code to support this display. Without
+	  this option, such displays will not be supported and console output
+	  will be empty.
+
+config SPL_VIDEO_BPP32
+	bool "Support 32-bit-per-pixel displays at SPL"
+	default y
+	help
+	  Support drawing text and bitmaps onto a 32-bit-per-pixel display.
+	  Enabling this will include code to support this display. Without
+	  this option, such displays will not be supported and console output
+	  will be empty.
+
+config SPL_HIDE_LOGO_VERSION
+    bool "Hide the version information on the splash screen at SPL"
+    help
+      Normally the U-Boot version string is shown on the display when the
+      splash screen is enabled. This information is not otherwise visible
+      since video starts up after U-Boot has displayed the initial banner.
+
+      Enable this option to hide this information.
+endif
 
 endmenu

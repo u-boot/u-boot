@@ -45,7 +45,7 @@ static inline void unmap_sysmem(const void *vaddr)
 /* Map from a pointer to our RAM buffer */
 phys_addr_t map_to_sysmem(const void *ptr);
 
-unsigned int sandbox_read(const void *addr, enum sandboxio_size_t size);
+unsigned long sandbox_read(const void *addr, enum sandboxio_size_t size);
 void sandbox_write(void *addr, unsigned int val, enum sandboxio_size_t size);
 
 #define readb(addr) sandbox_read((const void *)addr, SB_SIZE_8)

@@ -17,9 +17,6 @@ choice
 config TARGET_CM_T54
 	bool "CompuLab CM-T54"
 
-config TARGET_OMAP5_UEVM
-	bool "TI OMAP5 uEVM board"
-
 config TARGET_DRA7XX_EVM
 	bool "TI DRA7XX"
 	select BOARD_LATE_INIT
@@ -162,7 +159,6 @@ endchoice
 endmenu
 endif
 
-source "board/ti/omap5_uevm/Kconfig"
 source "board/ti/dra7xx/Kconfig"
 source "board/ti/am57xx/Kconfig"
 
