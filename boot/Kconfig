@@ -1554,8 +1554,8 @@ config USE_BOOTCOMMAND
 config BOOTCOMMAND
 	string "bootcmd value"
 	depends on USE_BOOTCOMMAND && !USE_DEFAULT_ENV_FILE
-	default "bootflow scan -lb" if BOOTSTD_BOOTCOMMAND && CMD_BOOTFLOW_FULL
-	default "bootflow scan" if BOOTSTD_BOOTCOMMAND && !CMD_BOOTFLOW_FULL
+	default "bootflow scan -lb" if BOOTSTD_DEFAULTS && CMD_BOOTFLOW_FULL
+	default "bootflow scan" if BOOTSTD_DEFAULTS && !CMD_BOOTFLOW_FULL
 	default "run distro_bootcmd" if !BOOTSTD_BOOTCOMMAND && DISTRO_DEFAULTS
 	help
 	  This is the string of commands that will be used as bootcmd and if
