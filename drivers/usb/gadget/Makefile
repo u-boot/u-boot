@@ -5,6 +5,7 @@
 
 obj-$(CONFIG_$(SPL_TPL_)USB_GADGET) += epautoconf.o config.o usbstring.o
 obj-$(CONFIG_$(SPL_TPL_)USB_ETHER) += epautoconf.o config.o usbstring.o ether.o
+obj-$(CONFIG_$(SPL_TPL_)USB_ETH_RNDIS) += rndis.o
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_USB_GADGET) += g_dnl.o
@@ -33,8 +34,6 @@ endif
 endif
 
 obj-$(CONFIG_CI_UDC) += ci_udc.o
-
-obj-$(CONFIG_USB_ETH_RNDIS) += rndis.o
 
 # Devices not related to the new gadget layer depend on CONFIG_USB_DEVICE
 # This is really only N900 and USBTTY now.

@@ -285,6 +285,30 @@ config SPL_USB_ETHER
 	  since the network stack uses a number of environment variables.
 	  See also SPL_NET and SPL_ETH.
 
+if SPL_USB_ETHER
+
+choice
+	prompt "USB Ethernet Gadget Model in SPL"
+	default SPL_USB_ETH_RNDIS
+	help
+	  There is several models (protocols) to implement Ethernet over USB
+	  devices. The main ones are Microsoft's RNDIS and USB's CDC-Ethernet
+	  (also called CDC-ECM). RNDIS is obviously compatible with Windows,
+	  while CDC-ECM is not. Most other operating systems support both, so
+	  if inter-operability is a concern, RNDIS is to be preferred.
+
+config SPL_USB_ETH_RNDIS
+	bool "RNDIS Protocol"
+	help
+	  The RNDIS (Remote Network Driver Interface Specification) is a
+	  Microsoft proprietary protocol to create an Ethernet device over USB.
+	  Windows obviously supports it, as well as all the major operating
+	  systems, so it's the best option for compatibility.
+
+endchoice
+
+endif # SPL_USB_ETHER
+
 config SPL_DFU
 	bool "Support DFU (Device Firmware Upgrade) in SPL"
 	select SPL_HASH
