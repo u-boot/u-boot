@@ -590,6 +590,14 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 		return ret;
 
 	/*
+	 * Disable use of DMA and force use of PIO mode in SPL to fix an issue
+	 * where loading part of TF-A into SRAM using DMA silently fails.
+	 */
+	if (IS_ENABLED(CONFIG_SPL_BUILD) &&
+	    dev_read_bool(dev, "u-boot,spl-fifo-mode"))
+		host->flags &= ~USE_DMA;
+
+	/*
 	 * Reading more than 4 blocks with a single CMD18 command in PIO mode
 	 * triggers Data End Bit Error on RK3568 and RK3588. Limit to reading
 	 * max 4 blocks in one command when using PIO mode.
