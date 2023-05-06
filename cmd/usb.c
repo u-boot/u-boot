@@ -620,7 +620,6 @@ static int do_usb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct usb_device *udev = NULL;
 	int i;
-	extern char usb_started;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;

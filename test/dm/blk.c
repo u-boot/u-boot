@@ -16,9 +16,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Allow resetting the USB-started flag */
-extern char usb_started;
-
 /* Test that block devices can be created */
 static int dm_test_blk_base(struct unit_test_state *uts)
 {

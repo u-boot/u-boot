@@ -18,7 +18,6 @@
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
 
-extern bool usb_started; /* flag for the started/stopped USB status */
 static bool asynch_allowed;
 
 struct usb_uclass_priv {

@@ -19,9 +19,9 @@
 
 /* Allow reseting the USB-started flag */
 #if defined(CONFIG_USB_HOST) || defined(CONFIG_USB_GADGET)
-extern char usb_started;
+extern bool usb_started;
 #else
-char usb_started;
+#include <usb.h>
 #endif
 
 /* Check 'bootdev list' command */

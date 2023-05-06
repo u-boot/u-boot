@@ -43,7 +43,7 @@
 #define USB_BUFSIZ	512
 
 static int asynch_allowed;
-char usb_started; /* flag for the started/stopped USB status */
+bool usb_started; /* flag for the started/stopped USB status */
 
 #if !CONFIG_IS_ENABLED(DM_USB)
 static struct usb_device usb_dev[USB_MAX_DEVICE];
