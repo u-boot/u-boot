@@ -638,6 +638,7 @@ config BOOTMETH_SANDBOX
 config BOOTMETH_SCRIPT
 	bool "Bootdev support for U-Boot scripts"
 	default y if BOOTSTD_FULL
+	select HUSH_PARSER
 	help
 	  Enables support for booting a distro via a U-Boot script. This makes
 	  the bootdevs look for a 'boot/boot.scr' file which can be used to
