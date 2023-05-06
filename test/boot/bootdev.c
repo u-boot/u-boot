@@ -306,6 +306,7 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 {
 	struct bootstd_priv *std;
 
+	usb_started = false;
 	test_set_skip_delays(true);
 
 	/* get access to the used hunters */
@@ -346,6 +347,7 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	struct bootstd_priv *std;
 
 	test_set_skip_delays(true);
+	usb_started = false;
 
 	/* get access to the used hunters */
 	ut_assertok(bootstd_get_priv(&std));
@@ -474,6 +476,7 @@ BOOTSTD_TEST(bootdev_test_bootable, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 /* Check hunting for bootdev of a particular priority */
 static int bootdev_test_hunt_prio(struct unit_test_state *uts)
 {
+	usb_started = false;
 	test_set_skip_delays(true);
 
 	console_record_reset_enable();
@@ -501,6 +504,8 @@ static int bootdev_test_hunt_label(struct unit_test_state *uts)
 	struct udevice *dev, *old;
 	struct bootstd_priv *std;
 	int mflags;
+
+	usb_started = false;
 
 	/* get access to the used hunters */
 	ut_assertok(bootstd_get_priv(&std));
