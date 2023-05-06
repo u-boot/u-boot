@@ -1345,23 +1345,6 @@ config SPL_THERMAL
 	  automatic power-off when the temperature gets too high or low. Other
 	  devices may be discrete but connected on a suitable bus.
 
-config SPL_USB_STORAGE
-	bool "Support loading from USB"
-	depends on SPL_USB_HOST
-	help
-	  Enable support for USB devices in SPL. This allows use of USB
-	  devices such as hard drives and flash drivers for loading U-Boot.
-	  The actual drivers are enabled separately using the normal U-Boot
-	  config options. This enables loading from USB using a configured
-	  device.
-
-config SYS_USB_FAT_BOOT_PARTITION
-	int "Partition on USB to use to load U-Boot from"
-	depends on SPL_USB_STORAGE
-	default 1
-	help
-	  Partition on the USB storage device to load U-Boot from
-
 config SPL_USB_GADGET
 	bool "Suppport USB Gadget drivers"
 	help

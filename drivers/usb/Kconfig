@@ -126,6 +126,28 @@ config USB_HUB_DEBOUNCE_TIMEOUT
 	  value = 1s because some usb device needs around 1.5s to be initialized
 	  and a 2s value should solve detection issue on problematic USB keys.
 
+if SPL_USB_HOST
+
+comment "USB peripherals in SPL"
+
+config SPL_USB_STORAGE
+	bool "Support loading from USB"
+	help
+	  Enable support for USB devices in SPL. This allows use of USB
+	  devices such as hard drives and flash drivers for loading U-Boot.
+	  The actual drivers are enabled separately using the normal U-Boot
+	  config options. This enables loading from USB using a configured
+	  device.
+
+config SYS_USB_FAT_BOOT_PARTITION
+	int "Partition on USB to use to load U-Boot from"
+	depends on SPL_USB_STORAGE
+	default 1
+	help
+	  Partition on the USB storage device to load U-Boot from.
+
+endif
+
 if USB_KEYBOARD
 
 config USB_KEYBOARD_FN_KEYS
