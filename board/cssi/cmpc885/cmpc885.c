@@ -11,6 +11,7 @@
 #include <env.h>
 #include <common.h>
 #include <mpc8xx.h>
+#include <asm/cpm_8xx.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <stdio.h>
@@ -451,6 +452,9 @@ void iop_setup_miae(void)
 	/* Wait reset on FPGA_F */
 	udelay(100);
 
+	/* Load CPM relocation code */
+	cpm_load_patch(cp);
+
 	/* Set the front panel LED color to red */
 	clrbits_8((unsigned char  __iomem *)CONFIG_FPGA_BASE + 0x44, 0x02);
 
@@ -586,13 +590,8 @@ void iop_setup_miae(void)
 	setbits_be32(&cp->cp_peso, 0x00031980);
 }
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 /* Specific board initialization */
-int board_early_init_r(void)
+int board_early_init_f(void)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	iop8xx_t __iomem *iop = &immr->im_ioport;
@@ -864,8 +863,6 @@ int board_early_init_r(void)
 
 		/* Check if fpga firmware is loaded */
 		if (!(in_be32(&cp->cp_pedat) & 0x00000001)) {
-			printf("Reloading FPGA firmware.\n");
-
 			/* Load fpga firmware */
 			/* Activate PROG_FPGA_FIRMWARE for 1 usec */
 			clrbits_be32(&cp->cp_pedat, 0x00000002);
@@ -874,12 +871,8 @@ int board_early_init_r(void)
 
 			/* Wait 200 msec and check DONE_FPGA_FIRMWARE */
 			mdelay(200);
-			if (!(in_be32(&cp->cp_pedat) & 0x00000001)) {
-				for (;;) {
-					printf("error loading firmware.\n");
-					mdelay(500);
-				}
-			}
+			if (!(in_be32(&cp->cp_pedat) & 0x00000001))
+				hang();
 
 			/* Send a reset signal and wait for 20 msec */
 			clrbits_be16(ADDR_CPLD_R_RESET, R_RST_STATUS);
@@ -889,26 +882,8 @@ int board_early_init_r(void)
 
 		/* Wait 300 msec and check the reset state */
 		mdelay(300);
-		if (!(in_be16(ADDR_CPLD_R_RESET) & R_RESET_STATUS)) {
-			for (;;) {
-				printf("Could not reset FPGA.\n");
-				mdelay(500);
-			}
-		}
-
-		/* is FPGA firmware loaded ? */
-		if (!(in_be32(&cp->cp_pedat) & 0x00000001)) {
-			printf("Reloading FPGA firmware\n");
-
-			/* Load FPGA firmware */
-			/* Activate PROG_FPGA_FIRMWARE for 1 usec */
-			clrbits_be32(&cp->cp_pedat, 0x00000002);
-			udelay(1);
-			setbits_be32(&cp->cp_pedat, 0x00000002);
-
-			/* Wait 200ms before checking DONE_FPGA_FIRMWARE */
-			mdelay(200);
-		}
+		if (!(in_be16(ADDR_CPLD_R_RESET) & R_RESET_STATUS))
+			hang();
 
 		iop_setup_common();
 	} else {
