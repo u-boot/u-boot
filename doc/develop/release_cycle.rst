@@ -52,7 +52,7 @@ Current Status
 
 * The Merge Window for the next release (v2023.07) is **closed**.
 
-* The next branch is now **closed**.
+* The next branch is now **open**.
 
 * Release "v2023.07" is scheduled for 03 July 2023.
 
@@ -66,7 +66,7 @@ For the next scheduled release, release candidates were made on::
 
 * U-Boot v2023.07-rc1 was released on Mon 01 May 2023.
 
-.. * U-Boot v2023.07-rc2 was released on Mon 08 May 2023.
+* U-Boot v2023.07-rc2 was released on Mon 08 May 2023.
 
 .. * U-Boot v2023.07-rc3 was released on Mon 22 May 2023.
 
