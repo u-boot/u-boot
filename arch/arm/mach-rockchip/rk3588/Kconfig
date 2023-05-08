@@ -1,5 +1,11 @@
 if ROCKCHIP_RK3588
 
+config TARGET_EVB_RK3588
+	bool "Rockchip EVB1 v10"
+	select BOARD_LATE_INIT
+	help
+	  RK3588 EVB is a evaluation board for Rockchp RK3588.
+
 config TARGET_RK3588_NEU6
 	bool "Edgeble Neural Compute Module 6(Neu6) SoM"
 	select BOARD_LATE_INIT
@@ -51,6 +57,7 @@ config SYS_MALLOC_F_LEN
 	default 0x80000
 
 source board/edgeble/neural-compute-module-6/Kconfig
+source board/rockchip/evb_rk3588/Kconfig
 source board/radxa/rock5b-rk3588/Kconfig
 
 endif

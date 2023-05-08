@@ -60,6 +60,12 @@ config TARGET_IMX8MQ_PHANBELL
 	select IMX8MQ
 	select IMX8M_LPDDR4
 
+config TARGET_IMX8MQ_REFORM2
+	bool "imx8mq_reform2"
+	select BINMAN
+	select IMX8MQ
+	select IMX8M_LPDDR4
+
 config TARGET_IMX8MM_DATA_MODUL_EDM_SBC
 	bool "Data Modul eDM SBC i.MX8M Mini"
 	select BINMAN
@@ -169,6 +175,23 @@ config TARGET_IMX8MN_VENICE
 	select IMX8M_LPDDR4
 	select GATEWORKS_SC
 	select MISC
+
+config TARGET_IMX8MP_DATA_MODUL_EDM_SBC
+	bool "Data Modul eDM SBC i.MX8M Plus"
+	select BINMAN
+	select IMX8MP
+	select IMX8M_LPDDR4
+	select SUPPORT_SPL
+
+config TARGET_IMX8MP_BEACON
+	bool "imx8mm Beacon Embedded devkit"
+	select BINMAN
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
 
 config TARGET_IMX8MP_DH_DHCOM_PDK2
 	bool "DH electronics DHCOM Premium Developer Kit (2) i.MX8M Plus"
@@ -326,10 +349,12 @@ endchoice
 source "board/advantech/imx8mp_rsb3720a1/Kconfig"
 source "board/beacon/imx8mm/Kconfig"
 source "board/beacon/imx8mn/Kconfig"
+source "board/beacon/imx8mp/Kconfig"
 source "board/bsh/imx8mn_smm_s2/Kconfig"
 source "board/cloos/imx8mm_phg/Kconfig"
 source "board/compulab/imx8mm-cl-iot-gate/Kconfig"
 source "board/data_modul/imx8mm_edm_sbc/Kconfig"
+source "board/data_modul/imx8mp_edm_sbc/Kconfig"
 source "board/dhelectronics/dh_imx8mp/Kconfig"
 source "board/engicam/imx8mm/Kconfig"
 source "board/engicam/imx8mp/Kconfig"
@@ -343,6 +368,7 @@ source "board/kontron/pitx_imx8m/Kconfig"
 source "board/kontron/sl-mx8mm/Kconfig"
 source "board/menlo/mx8menlo/Kconfig"
 source "board/msc/sm2s_imx8mp/Kconfig"
+source "board/mntre/imx8mq_reform2/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
 source "board/purism/librem5/Kconfig"

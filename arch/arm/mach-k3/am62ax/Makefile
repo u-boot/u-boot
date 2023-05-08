@@ -4,3 +4,4 @@
 
 obj-y += clk-data.o
 obj-y += dev-data.o
+obj-y += am62a_qos_data.o

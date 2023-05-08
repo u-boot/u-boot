@@ -129,7 +129,7 @@ static int cli_ch_esc(struct cli_ch_state *cch, int ichar,
 
 	*actp = act;
 
-	return act == ESC_CONVERTED ? ichar : 0;
+	return ichar;
 }
 
 int cli_ch_process(struct cli_ch_state *cch, int ichar)
@@ -145,6 +145,7 @@ int cli_ch_process(struct cli_ch_state *cch, int ichar)
 				return cch->esc_save[cch->emit_upto++];
 			cch->emit_upto = 0;
 			cch->emitting = false;
+			cch->esc_len = 0;
 		}
 		return 0;
 	} else if (ichar == -ETIMEDOUT) {
@@ -185,7 +186,7 @@ int cli_ch_process(struct cli_ch_state *cch, int ichar)
 			cch->esc_save[cch->esc_len++] = ichar;
 			ichar = cch->esc_save[cch->emit_upto++];
 			cch->emitting = true;
-			break;
+			return ichar;
 		case ESC_CONVERTED:
 			/* valid escape sequence, return the resulting char */
 			cch->esc_len = 0;

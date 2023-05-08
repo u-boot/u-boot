@@ -1,11 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Device Tree Source for Keystone 2 Hawking Netcp driver
  *
- * Copyright 2015 Texas Instruments, Inc.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * Copyright (C) 2015-2017 Texas Instruments Incorporated - http://www.ti.com/
  */
 
 qmss: qmss@2a40000 {
@@ -15,9 +12,9 @@ qmss: qmss@2a40000 {
 	#size-cells = <1>;
 	clocks = <&chipclk13>;
 	ranges;
-	queue-range	= <0 0x4000>;
-	linkram0	= <0x100000 0x8000>;
-	linkram1	= <0x0 0x10000>;
+	queue-range = <0 0x4000>;
+	linkram0 = <0x100000 0x8000>;
+	linkram1 = <0x0 0x10000>;
 
 	qmgrs {
 		#address-cells = <1>;
@@ -47,6 +44,7 @@ qmss: qmss@2a40000 {
 				    "region", "push", "pop";
 		};
 	};
+
 	queue-pools {
 		qpend {
 			qpend-0 {
@@ -89,6 +87,7 @@ qmss: qmss@2a40000 {
 			};
 		};
 	};
+
 	descriptor-regions {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -129,7 +128,7 @@ netcp: netcp@2000000 {
 	#size-cells = <1>;
 
 	/* NetCP address range */
-	ranges  = <0 0x2000000 0x100000>;
+	ranges = <0 0x2000000 0x100000>;
 
 	clocks = <&papllclk>, <&clkcpgmac>, <&chipclk12>;
 	dma-coherent;
@@ -169,11 +168,11 @@ netcp: netcp@2000000 {
 			secondary-slave-ports {
 				port-2 {
 					slave-port = <2>;
-					link-interface	= <2>;
+					link-interface = <2>;
 				};
 				port-3 {
 					slave-port = <3>;
-					link-interface	= <2>;
+					link-interface = <2>;
 				};
 			};
 		};

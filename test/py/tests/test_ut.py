@@ -213,7 +213,7 @@ booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
               str(exc))
     finally:
         if mounted:
-            u_boot_utils.run_and_log(cons, 'sudo umount %s' % mnt)
+            u_boot_utils.run_and_log(cons, 'sudo umount --lazy %s' % mnt)
         if loop:
             u_boot_utils.run_and_log(cons, 'sudo losetup -d %s' % loop)
 
@@ -274,7 +274,7 @@ label Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
               str(exc))
     finally:
         if mounted:
-            u_boot_utils.run_and_log(cons, 'sudo umount %s' % mnt)
+            u_boot_utils.run_and_log(cons, 'sudo umount --lazy %s' % mnt)
         if loop:
             u_boot_utils.run_and_log(cons, 'sudo losetup -d %s' % loop)
 

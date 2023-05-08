@@ -604,6 +604,7 @@ struct efi_device_path_acpi_path {
 #  define DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR	0x0b
 #  define DEVICE_PATH_SUB_TYPE_MSG_UART		0x0e
 #  define DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS	0x0f
+#  define DEVICE_PATH_SUB_TYPE_MSG_USB_WWI	0x10
 #  define DEVICE_PATH_SUB_TYPE_MSG_SATA		0x12
 #  define DEVICE_PATH_SUB_TYPE_MSG_NVME		0x17
 #  define DEVICE_PATH_SUB_TYPE_MSG_URI		0x18
@@ -1172,7 +1173,7 @@ struct efi_hii_keyboard_layout {
 	efi_guid_t guid;
 	u32 layout_descriptor_string_offset;
 	u8 descriptor_count;
-	struct efi_key_descriptor descriptors[];
+	/* struct efi_key_descriptor descriptors[]; follows here */
 } __packed;
 
 struct efi_hii_keyboard_package {

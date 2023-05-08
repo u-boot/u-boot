@@ -51,11 +51,13 @@ static int mpc8xx_spi_probe(struct udevice *dev)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t __iomem *cp = &immr->im_cpm;
-	spi_t __iomem *spi = (spi_t __iomem *)&cp->cp_dparam[PROFF_SPI];
+	spi_t __iomem *spi = (spi_t __iomem *)&cp->cp_dpmem[PROFF_SPI];
+	u16 spi_rpbase;
 	cbd_t __iomem *tbdf, *rbdf;
 
-	/* Disable relocation */
-	out_be16(&spi->spi_rpbase, 0x1d80);
+	spi_rpbase = in_be16(&spi->spi_rpbase);
+	if (spi_rpbase)
+		spi = (spi_t __iomem *)&cp->cp_dpmem[spi_rpbase];
 
 /* 1 */
 	/* Initialize the parameter ram.

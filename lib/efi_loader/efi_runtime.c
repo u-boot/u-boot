@@ -32,7 +32,7 @@ struct efi_runtime_mmio_list {
 };
 
 /* This list contains all runtime available mmio regions */
-LIST_HEAD(efi_runtime_mmio);
+static LIST_HEAD(efi_runtime_mmio);
 
 static efi_status_t __efi_runtime EFIAPI efi_unimplemented(void);
 

@@ -14,6 +14,7 @@ Board-specific doc
    apple/index
    armltd/index
    atmel/index
+   beacon/index
    broadcom/index
    bsh/index
    cloos/index
@@ -39,6 +40,7 @@ Board-specific doc
    sipeed/index
    socionext/index
    st/index
+   starfive/index
    ste/index
    tbs/index
    ti/index

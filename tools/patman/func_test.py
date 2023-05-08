@@ -489,8 +489,8 @@ complicated as possible''')
         # pylint: disable=E1101
         self.repo.checkout(target, strategy=pygit2.GIT_CHECKOUT_FORCE)
         control.setup()
+        orig_dir = os.getcwd()
         try:
-            orig_dir = os.getcwd()
             os.chdir(self.gitdir)
 
             # Check that it can detect the current branch
@@ -679,8 +679,8 @@ diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
         self.repo.checkout(target, strategy=pygit2.GIT_CHECKOUT_FORCE)
 
         # Check that it can detect the current branch
+        orig_dir = os.getcwd()
         try:
-            orig_dir = os.getcwd()
             os.chdir(self.gitdir)
             with self.assertRaises(ValueError) as exc:
                 gitutil.count_commits_to_branch(None)

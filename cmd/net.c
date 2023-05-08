@@ -111,6 +111,29 @@ U_BOOT_CMD(
 );
 #endif
 
+#if defined(CONFIG_CMD_DHCP6)
+static int do_dhcp6(struct cmd_tbl *cmdtp, int flag, int argc,
+		    char *const argv[])
+{
+	int i;
+	int dhcp_argc;
+	char *dhcp_argv[] = {NULL, NULL, NULL, NULL};
+
+	/* Add -ipv6 flag for autoload */
+	for (i = 0; i < argc; i++)
+		dhcp_argv[i] = argv[i];
+	dhcp_argc = argc + 1;
+	dhcp_argv[dhcp_argc - 1] =  USE_IP6_CMD_PARAM;
+
+	return netboot_common(DHCP6, cmdtp, dhcp_argc, dhcp_argv);
+}
+
+U_BOOT_CMD(dhcp6,	3,	1,	do_dhcp6,
+	   "boot image via network using DHCPv6/TFTP protocol.\n"
+	   "Use IPv6 hostIPaddr framed with [] brackets",
+	   "[loadAddress] [[hostIPaddr:]bootfilename]");
+#endif
+
 #if defined(CONFIG_CMD_DHCP)
 static int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
@@ -186,7 +209,7 @@ U_BOOT_CMD(
 
 static void netboot_update_env(void)
 {
-	char tmp[22];
+	char tmp[44];
 
 	if (net_gateway.s_addr) {
 		ip_to_string(net_gateway, tmp);
@@ -247,6 +270,27 @@ static void netboot_update_env(void)
 		env_set("ntpserverip", tmp);
 	}
 #endif
+
+	if (IS_ENABLED(CONFIG_IPV6)) {
+		if (!ip6_is_unspecified_addr(&net_ip6) ||
+		    net_prefix_length != 0) {
+			sprintf(tmp, "%pI6c", &net_ip6);
+			if (net_prefix_length != 0)
+				sprintf(tmp, "%s/%d", tmp, net_prefix_length);
+
+			env_set("ip6addr", tmp);
+		}
+
+		if (!ip6_is_unspecified_addr(&net_server_ip6)) {
+			sprintf(tmp, "%pI6c", &net_server_ip6);
+			env_set("serverip6", tmp);
+		}
+
+		if (!ip6_is_unspecified_addr(&net_gateway6)) {
+			sprintf(tmp, "%pI6c", &net_gateway6);
+			env_set("gatewayip6", tmp);
+		}
+	}
 }
 
 /**

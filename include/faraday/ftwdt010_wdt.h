@@ -89,7 +89,4 @@ struct ftwdt010_wdt {
  */
 #define FTWDT010_TIMEOUT_FACTOR		(get_board_sys_clk() / 1000) /* 1 ms */
 
-void ftwdt010_wdt_reset(void);
-void ftwdt010_wdt_disable(void);
-
 #endif /* __FTWDT010_H */

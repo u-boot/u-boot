@@ -49,6 +49,16 @@
 				timeout-loop = <50000>;
 				status = "disabled";
 			};
+
+			i2c0: i2c@300 {
+				compatible = "fsl-i2c";
+				#address-cells=<1>;
+				#size-cells=<0>;
+				cell-index = <0>;
+				reg = <0x300 0x14>;
+				clock-frequency = <100000>;
+				status = "disabled";
+			};
 		};
 	};
 };

@@ -4,6 +4,7 @@ Use U-Boot
 .. toctree::
    :maxdepth: 1
 
+   blkmap
    dfu
    environment
    fdt_overlays
@@ -38,7 +39,9 @@ Shell commands
    cmd/cbsysinfo
    cmd/cls
    cmd/cmp
+   cmd/coninfo
    cmd/conitrace
+   cmd/cp
    cmd/cyclic
    cmd/dm
    cmd/ebtupdate

@@ -285,5 +285,6 @@ source "drivers/phy/rockchip/Kconfig"
 source "drivers/phy/cadence/Kconfig"
 source "drivers/phy/ti/Kconfig"
 source "drivers/phy/qcom/Kconfig"
+source "drivers/phy/renesas/Kconfig"
 
 endmenu

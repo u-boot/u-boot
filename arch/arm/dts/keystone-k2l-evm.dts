@@ -1,11 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright 2014 Texas Instruments, Inc.
- *
  * Keystone 2 Lamarr EVM device tree
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * Copyright (C) 2014-2017 Texas Instruments Incorporated - http://www.ti.com/
  */
 /dts-v1/;
 
@@ -97,7 +94,7 @@
 
 &spi0 {
 	status ="okay";
-	nor_flash: n25q128a11@0 {
+	nor_flash: flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "Micron,n25q128a11", "jedec,spi-nor";

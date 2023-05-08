@@ -98,7 +98,7 @@ _start:
 	nop
 	move.w	#0x2700,%sr
 
-#if defined(CONFIG_M5208)
+#if defined(CONFIG_M5208) && !defined(CONFIG_M68K_QEMU)
 	/* Initialize RAMBAR: locate SRAM and validate it */
 	move.l	#(CFG_SYS_INIT_RAM_ADDR + CFG_SYS_INIT_RAM_CTRL), %d0
 	movec	%d0, %RAMBAR1
@@ -120,7 +120,7 @@ _start:
 	movec	%d0, %RAMBAR0
 #endif /* CONFIG_M5272 || CONFIG_M5249 || CONFIG_M5253 */
 
-#if defined(CONFIG_M5282) || defined(CONFIG_M5271)
+#if (defined(CONFIG_M5282) || defined(CONFIG_M5271)) && !defined(CONFIG_M68K_QEMU)
 	/* set MBAR address + valid flag */
 	move.l	#(CFG_SYS_MBAR + 1), %d0
 	move.l	%d0, 0x40000000

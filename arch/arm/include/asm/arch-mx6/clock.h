@@ -41,6 +41,8 @@ enum mxc_clock {
 	MXC_SATA_CLK,
 	MXC_NFC_CLK,
 	MXC_I2C_CLK,
+	MXC_LCDIF1_CLK,
+	MXC_LCDIF2_CLK,
 };
 
 enum ldb_di_clock {

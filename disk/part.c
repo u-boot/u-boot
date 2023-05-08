@@ -140,6 +140,7 @@ void dev_print(struct blk_desc *dev_desc)
 	case UCLASS_NVME:
 	case UCLASS_PVBLOCK:
 	case UCLASS_HOST:
+	case UCLASS_BLKMAP:
 		printf ("Vendor: %s Rev: %s Prod: %s\n",
 			dev_desc->vendor,
 			dev_desc->revision,

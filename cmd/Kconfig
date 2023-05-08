@@ -1446,7 +1446,8 @@ config CMD_SATA
 
 config CMD_SCSI
 	bool "scsi - Access to SCSI devices"
-	default y if SCSI
+	depends on SCSI
+	default y
 	help
 	  This provides a 'scsi' command which provides access to SCSI (Small
 	  Computer System Interface) devices. The command provides a way to
@@ -1672,6 +1673,15 @@ config CMD_DHCP
 	help
 	  Boot image via network using DHCP/TFTP protocol
 
+config CMD_DHCP6
+	bool "dhcp6"
+	depends on IPV6
+	help
+	  Boot image via network using DHCPv6/TFTP protocol using IPv6.
+
+	  Will perform 4-message exchange with DHCPv6 server, requesting
+	  the minimum required options to TFTP boot. Complies with RFC 8415.
+
 config BOOTP_MAY_FAIL
 	bool "Allow for the BOOTP/DHCP server to not be found"
 	depends on CMD_BOOTP
@@ -1784,6 +1794,23 @@ config BOOTP_VCI_STRING
 	default "U-Boot.armv8" if ARM64
 	default "U-Boot.arm" if ARM
 	default "U-Boot"
+
+if CMD_DHCP6
+
+config DHCP6_PXE_CLIENTARCH
+	hex
+	default 0x16 if ARM64
+	default 0x15 if ARM
+	default 0xFF
+
+config DHCP6_PXE_DHCP_OPTION
+	bool "Request & store 'pxe_configfile' from DHCP6 server"
+
+config DHCP6_ENTERPRISE_ID
+	int "Enterprise ID to send in DHCPv6 Vendor Class Option"
+	default 0
+
+endif
 
 config CMD_TFTPBOOT
 	bool "tftpboot"
@@ -1915,6 +1942,12 @@ config CMD_NCSI
 	  Normally this happens automatically before other network
 	  operations.
 
+config IPV6_ROUTER_DISCOVERY
+	bool "Do IPv6 router discovery"
+	depends on IPV6
+	help
+	  Will automatically perform router solicitation on first IPv6
+	  network operation
 endif
 
 config CMD_ETHSW
@@ -1939,6 +1972,17 @@ config CMD_WOL
 endif
 
 menu "Misc commands"
+
+config CMD_2048
+	bool "Play 2048"
+	help
+	  This is a simple sliding block puzzle game designed by Italian web
+	  developer Gabriele Cirulli. The game's objective is to slide numbered
+	  tiles on a grid to combine them to create a tile with the number
+	  2048.
+
+	  This needs ANSI support on your terminal to work. It is not fully
+	  functional on a video device.
 
 config CMD_BMP
 	bool "Enable 'bmp' command"
@@ -1979,6 +2023,25 @@ config CMD_BLOCK_CACHE
 	  This is most useful when fine-tuning the operation of the cache
 	  during development, but also allows the cache to be disabled when
 	  it might hurt performance (e.g. when using the ums command).
+
+config CMD_BLKMAP
+	bool "blkmap - Composable virtual block devices"
+	depends on BLKMAP
+	default y if BLKMAP
+	help
+ 	  Create virtual block devices that are backed by various sources,
+ 	  e.g. RAM, or parts of an existing block device. Though much more
+ 	  rudimentary, it borrows a lot of ideas from Linux's device mapper
+ 	  subsystem.
+
+	  Example use-cases:
+	  - Treat a region of RAM as a block device, i.e. a RAM disk. This let's
+            you extract files from filesystem images stored in RAM (perhaps as a
+            result of a TFTP transfer).
+	  - Create a virtual partition on an existing device. This let's you
+            access filesystems that aren't stored at an exact partition
+            boundary. A common example is a filesystem image embedded in an FIT
+            image.
 
 config CMD_BUTTON
 	bool "button"

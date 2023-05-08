@@ -9,6 +9,7 @@
 /* Definitions for initial stack pointer and data area (in DPRAM) */
 #define CFG_SYS_INIT_RAM_ADDR		(CONFIG_SYS_IMMR + 0x2800)
 #define CFG_SYS_INIT_RAM_SIZE		(0x2e00 - 0x2800)
+#define CFG_SYS_INIT_SP			(CONFIG_SYS_IMMR + 0x3c00)
 
 /* RAM configuration (note that CFG_SYS_SDRAM_BASE must be zero) */
 #define CFG_SYS_SDRAM_BASE		0x00000000
@@ -25,5 +26,11 @@
 
 /* NAND configuration part */
 #define CFG_SYS_NAND_BASE		0xC0000000
+
+/* Board names */
+#define CFG_BOARD_CMPCXXX		"cmpc885"
+#define CFG_BOARD_MCR3000_2G		"mcr3k_2g"
+#define CFG_BOARD_VGOIP			"vgoip"
+#define CFG_BOARD_MIAE			"miae"
 
 #endif /* __CONFIG_H */

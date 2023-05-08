@@ -8,7 +8,7 @@
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/sysfw-loader.h>
+#include "sysfw-loader.h"
 #include "common.h"
 #include <dm.h>
 #include <dm/uclass-internal.h>
@@ -64,6 +64,20 @@ static void ctrl_mmr_unlock(void)
 	mmr_unlock(PADCFG_MMR0_BASE, 1);
 	mmr_unlock(PADCFG_MMR1_BASE, 1);
 }
+
+#if (IS_ENABLED(CONFIG_CPU_V7R))
+static void setup_qos(void)
+{
+	u32 i;
+
+	for (i = 0; i < am62a_qos_count; i++)
+		writel(am62a_qos_data[i].val, (uintptr_t)am62a_qos_data[i].reg);
+}
+#else
+static void setup_qos(void)
+{
+}
+#endif
 
 void board_init_f(ulong dummy)
 {
@@ -157,6 +171,8 @@ void board_init_f(ulong dummy)
 	if (ret)
 		panic("DRAM init failed: %d\n", ret);
 #endif
+
+	setup_qos();
 
 	printf("am62a_init: %s done\n", __func__);
 }

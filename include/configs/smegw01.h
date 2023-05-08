@@ -17,23 +17,25 @@
 /* MMC Config*/
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
-#define CFG_EXTRA_ENV_SETTINGS \
-	"image=zImage\0" \
-	"console=ttymxc0\0" \
-	"fdtfile=imx7d-smegw01.dtb\0" \
-	"fdt_addr=0x83000000\0" \
-	"bootm_size=0x10000000\0" \
-	"mmcdev=0\0" \
-	"mmcpart=1\0" \
-	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/mmcblk0p${mmcpart} rootwait rw\0" \
-	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} boot/${image}\0" \
-	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} boot/${fdtfile}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
-		"if run loadfdt; then " \
-			"bootz ${loadaddr} - ${fdt_addr}; " \
-		"fi;\0" \
+/* default to no extra bootparams, we need an empty define for stringification*/
+#ifndef EXTRA_BOOTPARAMS
+#define EXTRA_BOOTPARAMS
+#endif
+
+#ifdef CONFIG_SYS_BOOT_LOCKED
+#define EXTRA_ENV_FLAGS
+#else
+#define EXTRA_ENV_FLAGS "mmcdev:dw,"
+#endif
+
+#define CFG_ENV_FLAGS_LIST_STATIC \
+	"mmcpart:dw," \
+	"mmcpart_committed:dw," \
+	"ustate:dw," \
+	"bootcount:dw," \
+	"bootlimit:dw," \
+	"upgrade_available:dw," \
+	EXTRA_ENV_FLAGS
 
 /* Physical Memory Map */
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR

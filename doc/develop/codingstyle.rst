@@ -19,6 +19,10 @@ The following rules apply:
   applies only to Linux, not to U-Boot. Only large hunks which are copied
   unchanged from Linux may retain that comment format.
 
+* Python code shall conform to `PEP8 (Style Guide for Python Code)
+  <https://peps.python.org/pep-0008/>`_. Use `pylint
+  <https://github.com/pylint-dev/pylint>`_ for checking the code.
+
 * Use patman to send your patches (``tools/patman/patman -H`` for full
   instructions). With a few tags in your commits this will check your patches
   and take care of emailing them.
@@ -66,6 +70,9 @@ multi-line comment rule of Coding Style. While not mandatory, adding
 documentation is strongly advised. The Linux kernel `kernel-doc
 <https://www.kernel.org/doc/html/latest/doc-guide/kernel-doc.html>`_
 documentation applies with no changes.
+
+Our Python code documentation follows `PEP257 (Docstring Conventions)
+<https://peps.python.org/pep-0257/>`_.
 
 Use structures for I/O access
 -----------------------------

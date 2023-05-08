@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * MMC IOdelay values for TI's DRA7xx SoCs.
- * Copyright (C) 2019 Texas Instruments
+ * Copyright (C) 2018 Texas Instruments
  * Author: Faiz Abbas <faiz_abbas@ti.com>
  */
 

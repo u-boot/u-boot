@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0+
 
 VERSION = 2023
-PATCHLEVEL = 04
+PATCHLEVEL = 07
 SUBLEVEL =
-EXTRAVERSION = -rc5
+EXTRAVERSION = -rc2
 NAME =
 
 # *DOCUMENTATION*
@@ -437,6 +437,7 @@ KBUILD_LDFLAGS  :=
 ifeq ($(cc-name),clang)
 ifneq ($(CROSS_COMPILE),)
 CLANG_TARGET	:= --target=$(notdir $(CROSS_COMPILE:%-=%))
+LDPPFLAGS	+= $(CLANG_TARGET)
 GCC_TOOLCHAIN_DIR := $(dir $(shell which $(LD)))
 CLANG_PREFIX	:= --prefix=$(GCC_TOOLCHAIN_DIR)
 GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
@@ -893,7 +894,9 @@ u-boot-main := $(libs-y)
 ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
 PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
 else
+ifndef CONFIG_CC_IS_CLANG
 PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(c_flags) -print-libgcc-file-name`) -lgcc
+endif
 endif
 PLATFORM_LIBS += $(PLATFORM_LIBGCC)
 
@@ -1522,6 +1525,9 @@ endif
 u-boot.uim: u-boot.bin FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
+u-boot-nand.imx: u-boot.imx FORCE
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
+
 u-boot-with-spl.imx u-boot-with-nand-spl.imx: SPL $(if $(CONFIG_OF_SEPARATE),u-boot.img,u-boot.uim) FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
@@ -1758,7 +1764,7 @@ ifeq ($(CONFIG_KALLSYMS),y)
 endif
 
 ifeq ($(CONFIG_RISCV),y)
-	@tools/prelink-riscv $@ 0
+	@tools/prelink-riscv $@
 endif
 
 quiet_cmd_sym ?= SYM     $@

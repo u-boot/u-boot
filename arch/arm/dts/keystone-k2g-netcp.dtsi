@@ -1,11 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Device Tree Source for K2G Netcp driver
  *
- * Copyright 2015 Texas Instruments, Inc.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
  */
 
 qmss: qmss@4020000 {
@@ -17,8 +14,8 @@ qmss: qmss@4020000 {
 	/* clocks = <&k2g_clks K2G_DEV_NSS0 K2G_DEV_NSS_VCLK>; */
 	clock-names = "nss_vclk";
 	ranges;
-	queue-range	= <0 0x80>;
-	linkram0	= <0x4020000 0x7ff>;
+	queue-range = <0 0x80>;
+	linkram0 = <0x4020000 0x7ff>;
 
 	qmgrs {
 		#address-cells = <1>;
@@ -80,12 +77,12 @@ knav_dmas: knav_dmas@0 {
 
 	dma_gbe: dma_gbe@0 {
 		reg = <0x4010000 0x100>,
-			  <0x4011000 0x2a0>, /* 21 Tx channels */
-			  <0x4012000 0x400>, /* 32 Rx channels */
-			  <0x4010100 0x80>,
-			  <0x4013000 0x400>; /* 32 Rx flows */
+		      <0x4011000 0x2a0>, /* 21 Tx channels */
+		      <0x4012000 0x400>, /* 32 Rx channels */
+		      <0x4010100 0x80>,
+		      <0x4013000 0x400>; /* 32 Rx flows */
 		reg-names = "global", "txchan", "rxchan",
-				"txsched", "rxflow";
+			    "txsched", "rxflow";
 	};
 
 };
@@ -99,9 +96,9 @@ netcp: netcp@4000000 {
 	reg = <0x2620110 0x8>;
 	reg-names = "efuse";
 	compatible = "ti,netcp-1.0";
-	status = "disabled";
 	#address-cells = <1>;
 	#size-cells = <1>;
+	status = "disabled";
 	/* power-domains = <&k2g_pds K2G_DEV_NSS0>; */
 	/* clocks = <&k2g_clks K2G_DEV_NSS0 K2G_DEV_NSS_ESW_CLK>; */
 	clock-names = "ethss_clk";
@@ -130,7 +127,7 @@ netcp: netcp@4000000 {
 			interfaces {
 				gbe0: interface-0 {
 					slave-port = <0>;
-					link-interface	= <5>;
+					link-interface = <5>;
 				};
 			};
 		};

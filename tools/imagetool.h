@@ -132,7 +132,7 @@ struct image_type_params {
 	 */
 	int (*verify_header) (unsigned char *, int, struct image_tool_params *);
 	/* Prints image information abstracting from image header */
-	void (*print_header) (const void *);
+	void (*print_header) (const void *, struct image_tool_params *);
 	/*
 	 * The header or image contents need to be set as per image type to
 	 * be generated using this callback function.

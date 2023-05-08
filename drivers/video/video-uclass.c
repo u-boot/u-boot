@@ -132,7 +132,7 @@ int video_reserve(ulong *addrp)
 
 	/* Allocate space for PCI video devices in case there were not bound */
 	if (*addrp == gd->video_top)
-		*addrp -= CONFIG_VIDEO_PCI_DEFAULT_FB_SIZE;
+		*addrp -= CONFIG_VAL(VIDEO_PCI_DEFAULT_FB_SIZE);
 
 	gd->video_bottom = *addrp;
 	gd->fb_base = *addrp;
@@ -149,7 +149,7 @@ int video_fill(struct udevice *dev, u32 colour)
 
 	switch (priv->bpix) {
 	case VIDEO_BPP16:
-		if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+		if (CONFIG_IS_ENABLED(VIDEO_BPP16)) {
 			u16 *ppix = priv->fb;
 			u16 *end = priv->fb + priv->fb_size;
 
@@ -158,7 +158,7 @@ int video_fill(struct udevice *dev, u32 colour)
 			break;
 		}
 	case VIDEO_BPP32:
-		if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+		if (CONFIG_IS_ENABLED(VIDEO_BPP32)) {
 			u32 *ppix = priv->fb;
 			u32 *end = priv->fb + priv->fb_size;
 
@@ -212,14 +212,14 @@ u32 video_index_to_colour(struct video_priv *priv, unsigned int idx)
 {
 	switch (priv->bpix) {
 	case VIDEO_BPP16:
-		if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+		if (CONFIG_IS_ENABLED(VIDEO_BPP16)) {
 			return ((colours[idx].r >> 3) << 11) |
 			       ((colours[idx].g >> 2) <<  5) |
 			       ((colours[idx].b >> 3) <<  0);
 		}
 		break;
 	case VIDEO_BPP32:
-		if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+		if (CONFIG_IS_ENABLED(VIDEO_BPP32)) {
 			if (priv->format == VIDEO_X2R10G10B10)
 				return (colours[idx].r << 22) |
 				       (colours[idx].g << 12) |
@@ -513,8 +513,8 @@ static int video_post_probe(struct udevice *dev)
 		return ret;
 	}
 
-	if (IS_ENABLED(CONFIG_VIDEO_LOGO) &&
-	    !IS_ENABLED(CONFIG_SPLASH_SCREEN) && !plat->hide_logo) {
+	if (CONFIG_IS_ENABLED(VIDEO_LOGO) &&
+	    !CONFIG_IS_ENABLED(SPLASH_SCREEN) && !plat->hide_logo) {
 		ret = show_splash(dev);
 		if (ret) {
 			log_debug("Cannot show splash screen\n");

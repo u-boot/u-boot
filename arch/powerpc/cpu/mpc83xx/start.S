@@ -215,6 +215,7 @@ in_flash:
 	 * gt-regs BAT can be reused after board_init_f calls
 	 * board_early_init_f (EVB only).
 	 */
+#ifdef CONFIG_SYS_INIT_RAM_LOCK
 	/* enable address translation */
 	bl	enable_addr_trans
 	sync
@@ -222,7 +223,6 @@ in_flash:
 	/* enable the data cache */
 	bl	dcache_enable
 	sync
-#ifdef CONFIG_SYS_INIT_RAM_LOCK
 	bl	lock_ram_in_cache
 	sync
 #endif
@@ -483,6 +483,7 @@ init_e300_core: /* time t 10 */
 
 
 	lis	r3, CONFIG_SYS_IMMR@h
+#ifndef CONFIG_WDT_MPC8xxx
 #if defined(CONFIG_WATCHDOG)
 	/* Initialise the Watchdog values and reset it (if req) */
 	/*------------------------------------------------------*/
@@ -508,6 +509,7 @@ init_e300_core: /* time t 10 */
 	stw r4, SWCRR(r3)
 1:
 #endif /* CONFIG_WATCHDOG */
+#endif
 
 #if defined(CONFIG_MASK_AER_AO)
 	/* Write the Arbiter Event Enable to mask Address Only traps. */

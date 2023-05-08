@@ -138,17 +138,3 @@ int board_early_init_f(void)
 
 	return 0;
 }
-
-int board_early_init_r(void)
-{
-	struct udevice *watchdog_dev = NULL;
-
-	if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
-		puts("Cannot find watchdog!\n");
-	} else {
-		puts("Enabling watchdog.\n");
-		wdt_start(watchdog_dev, 0xffff, 0);
-	}
-
-	return 0;
-}

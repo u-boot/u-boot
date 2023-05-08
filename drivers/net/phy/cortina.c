@@ -382,7 +382,7 @@ int cs4223_startup(struct phy_device *phydev)
 	return 0;
 }
 
-struct phy_driver cs4340_driver = {
+U_BOOT_PHY_DRIVER(cs4340) = {
 	.name = "Cortina CS4315/CS4340",
 	.uid = PHY_UID_CS4340,
 	.mask = 0xfffffff0,
@@ -396,7 +396,7 @@ struct phy_driver cs4340_driver = {
 	.shutdown = &gen10g_shutdown,
 };
 
-struct phy_driver cs4223_driver = {
+U_BOOT_PHY_DRIVER(cs4223) = {
 	.name = "Cortina CS4223",
 	.uid = PHY_UID_CS4223,
 	.mask = 0x0ffff00f,
@@ -408,13 +408,6 @@ struct phy_driver cs4223_driver = {
 	.startup = &cs4223_startup,
 	.shutdown = &gen10g_shutdown,
 };
-
-int phy_cortina_init(void)
-{
-	phy_register(&cs4340_driver);
-	phy_register(&cs4223_driver);
-	return 0;
-}
 
 int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id)
 {

@@ -124,7 +124,7 @@ static int meson_gxl_phy_config(struct phy_device *phydev)
 	return genphy_config(phydev);
 }
 
-static struct phy_driver meson_gxl_phy_driver = {
+U_BOOT_PHY_DRIVER(meson_gxl_phy) = {
 	.name = "Meson GXL Internal PHY",
 	.uid = 0x01814400,
 	.mask = 0xfffffff0,
@@ -133,10 +133,3 @@ static struct phy_driver meson_gxl_phy_driver = {
 	.startup = &meson_gxl_startup,
 	.shutdown = &genphy_shutdown,
 };
-
-int phy_meson_gxl_init(void)
-{
-	phy_register(&meson_gxl_phy_driver);
-
-	return 0;
-}

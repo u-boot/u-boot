@@ -134,6 +134,10 @@ static inline efi_status_t efi_launch_capsules(void)
 #define U_BOOT_GUID \
 	EFI_GUID(0xe61d73b9, 0xa384, 0x4acc, \
 		 0xae, 0xab, 0x82, 0xe8, 0x28, 0xf3, 0x62, 0x8b)
+/* GUID used as root for blkmap devices */
+#define U_BOOT_BLKMAP_DEV_GUID \
+	EFI_GUID(0x4cad859d, 0xd644, 0x42ff,	\
+		 0x87, 0x0b, 0xc0, 0x2e, 0xac, 0x05, 0x58, 0x63)
 /* GUID used as host device on sandbox */
 #define U_BOOT_HOST_DEV_GUID \
 	EFI_GUID(0xbbe4e671, 0x5773, 0x4ea1, \
@@ -508,9 +512,6 @@ struct efi_register_notify_event {
 	efi_guid_t protocol;
 	struct list_head handles;
 };
-
-/* List of all events registered by RegisterProtocolNotify() */
-extern struct list_head efi_register_notify_events;
 
 /* called at pre-initialization */
 int efi_init_early(void);

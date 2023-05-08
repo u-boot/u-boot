@@ -104,7 +104,7 @@ static int rtl8211_probe(struct phy_device *phydev)
 }
 
 /* Support for RTL8211 External PHY */
-struct phy_driver rtl8211_external_driver = {
+U_BOOT_PHY_DRIVER(rtl8211_external) = {
 	.name = "Cortina RTL8211 External",
 	.uid = PHY_ID_RTL8211_EXT,
 	.mask = PHY_ID_MASK,
@@ -115,7 +115,7 @@ struct phy_driver rtl8211_external_driver = {
 };
 
 /* Support for RTL8211 Internal PHY */
-struct phy_driver rtl8211_internal_driver = {
+U_BOOT_PHY_DRIVER(rtl8211_internal) = {
 	.name = "Cortina RTL8211 Inrernal",
 	.uid = PHY_ID_RTL8211_INT,
 	.mask = PHY_ID_MASK,
@@ -124,10 +124,3 @@ struct phy_driver rtl8211_internal_driver = {
 	.probe = &rtl8211_probe,
 	.startup = &genphy_startup,
 };
-
-int phy_cortina_access_init(void)
-{
-	phy_register(&rtl8211_external_driver);
-	phy_register(&rtl8211_internal_driver);
-	return 0;
-}

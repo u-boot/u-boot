@@ -559,7 +559,7 @@ config BOARD_TYPES
 
 config DISPLAY_CPUINFO
 	bool "Display information about the CPU during start up"
-	default y if ARC|| ARM || NIOS2 || X86 || XTENSA || M68K
+	default y if ARC || ARM || NIOS2 || X86 || XTENSA || M68K
 	help
 	  Display information about the CPU that U-Boot is running on
 	  when U-Boot starts up. The function print_cpuinfo() is called
@@ -626,7 +626,7 @@ config EVENT_DEBUG
 	bool "Enable event debugging assistance"
 	default y if SANDBOX
 	help
-	  Enable this get usefui features for seeing what is happening with
+	  Enable this to get useful features for seeing what is happening with
 	  events, such as event-type names. This adds to the code size of
 	  U-Boot so can be turned off for production builds.
 
@@ -742,7 +742,7 @@ config SYS_MALLOC_BOOTPARAMS
 config SYS_BOOTPARAMS_LEN
 	hex "Size of the bootparam buffer to malloc in bytes"
 	depends on SYS_MALLOC_BOOTPARAMS
-	default 0x20000 if MIPS || RCAR_GEN3
+	default 0x20000 if MIPS || RCAR_64
 	default 0x10000
 
 config ID_EEPROM
@@ -1154,3 +1154,15 @@ config FDT_SIMPLEFB
 
 config IO_TRACE
 	bool
+
+config BMP
+	bool "Enable bmp image display"
+	default y if CMD_BMP
+	help
+	  Enable bmp functions to display bmp image and get bmp info.
+
+config SPL_BMP
+	bool "Enable bmp image display at  SPL"
+	depends on SPL_VIDEO
+	help
+	  Enable bmp functions to display bmp image and get bmp info at SPL.

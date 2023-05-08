@@ -68,7 +68,7 @@ int rkcommon_verify_header(unsigned char *buf, int size,
  *
  * @buf:	Pointer to the image (can be a read-only file-mapping)
  */
-void rkcommon_print_header(const void *buf);
+void rkcommon_print_header(const void *buf, struct image_tool_params *params);
 
 /**
  * rkcommon_need_rc4_spl() - check if rc4 encoded spl is required

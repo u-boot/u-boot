@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Device Tree file for Travese Ten64 (LS1088) board
+ * Device Tree file for Traverse Technologies Ten64
+ * (LS1088A) board
  * Based on fsl-ls1088a-rdb.dts
  * Copyright 2017-2020 NXP
- * Copyright 2019-2021 Traverse Technologies
+ * Copyright 2019-2023 Traverse Technologies
  *
  * Author: Mathew McBride <matt@traverse.com.au>
  */
@@ -20,7 +21,8 @@
 	compatible = "traverse,ten64", "fsl,ls1088a";
 
 	aliases {
-		spi0 = &qspi;
+		serial0 = &duart0;
+		serial1 = &duart1;
 	};
 
 	chosen {
@@ -34,18 +36,16 @@
 		 * external power off (e.g ATX Power Button)
 		 * asserted
 		 */
-		powerdn {
+		button-powerdn {
 			label = "External Power Down";
 			gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
-			interrupts = <&gpio1 17 IRQ_TYPE_EDGE_FALLING>;
 			linux,code = <KEY_POWER>;
 		};
 
 		/* Rear Panel 'ADMIN' button (GPIO_H) */
-		admin {
+		button-admin {
 			label = "ADMIN button";
 			gpios = <&gpio3 8 GPIO_ACTIVE_HIGH>;
-			interrupts = <&gpio3 8 IRQ_TYPE_EDGE_RISING>;
 			linux,code = <KEY_WPS_BUTTON>;
 		};
 	};
@@ -53,17 +53,17 @@
 	leds {
 		compatible = "gpio-leds";
 
-		sfp1down {
+		led-0 {
 			label = "ten64:green:sfp1:down";
 			gpios = <&gpio3 11 GPIO_ACTIVE_HIGH>;
 		};
 
-		sfp2up {
+		led-1 {
 			label = "ten64:green:sfp2:up";
 			gpios = <&gpio3 12 GPIO_ACTIVE_HIGH>;
 		};
 
-		admin {
+		led-2 {
 			label = "ten64:admin";
 			gpios = <&sfpgpio 12 GPIO_ACTIVE_HIGH>;
 		};
@@ -93,17 +93,17 @@
 /* XG1 - Upper SFP */
 &dpmac1 {
 	sfp = <&sfp_xg1>;
+	pcs-handle = <&pcs1>;
 	phy-connection-type = "10gbase-r";
 	managed = "in-band-status";
-	status = "okay";
 };
 
 /* XG0 - Lower SFP */
 &dpmac2 {
 	sfp = <&sfp_xg0>;
+	pcs-handle = <&pcs2>;
 	phy-connection-type = "10gbase-r";
 	managed = "in-band-status";
-	status = "okay";
 };
 
 /* DPMAC3..6 is GE4 to GE8 */
@@ -111,28 +111,28 @@
 	phy-handle = <&mdio1_phy5>;
 	phy-connection-type = "qsgmii";
 	managed = "in-band-status";
-	status = "okay";
+	pcs-handle = <&pcs3_0>;
 };
 
 &dpmac4 {
 	phy-handle = <&mdio1_phy6>;
 	phy-connection-type = "qsgmii";
 	managed = "in-band-status";
-	status = "okay";
+	pcs-handle = <&pcs3_1>;
 };
 
 &dpmac5 {
 	phy-handle = <&mdio1_phy7>;
 	phy-connection-type = "qsgmii";
 	managed = "in-band-status";
-	status = "okay";
+	pcs-handle = <&pcs3_2>;
 };
 
 &dpmac6 {
 	phy-handle = <&mdio1_phy8>;
 	phy-connection-type = "qsgmii";
 	managed = "in-band-status";
-	status = "okay";
+	pcs-handle = <&pcs3_3>;
 };
 
 /* DPMAC7..10 is GE0 to GE3 */
@@ -140,35 +140,35 @@
 	phy-handle = <&mdio1_phy1>;
 	phy-connection-type = "qsgmii";
 	managed = "in-band-status";
-	status = "okay";
+	pcs-handle = <&pcs7_0>;
 };
 
 &dpmac8 {
 	phy-handle = <&mdio1_phy2>;
 	phy-connection-type = "qsgmii";
 	managed = "in-band-status";
-	status = "okay";
+	pcs-handle = <&pcs7_1>;
 };
 
 &dpmac9 {
 	phy-handle = <&mdio1_phy3>;
 	phy-connection-type = "qsgmii";
 	managed = "in-band-status";
-	status = "okay";
+	pcs-handle = <&pcs7_2>;
 };
 
 &dpmac10 {
 	phy-handle = <&mdio1_phy4>;
 	phy-connection-type = "qsgmii";
 	managed = "in-band-status";
+	pcs-handle = <&pcs7_3>;
+};
+
+&duart0 {
 	status = "okay";
 };
 
-&serial0 {
-	status = "okay";
-};
-
-&serial1 {
+&duart1 {
 	status = "okay";
 };
 
@@ -232,11 +232,6 @@
 		compatible = "atmel,at97sc3204t";
 		reg = <0x29>;
 	};
-
-	uc: board-controller@7e {
-		compatible = "traverse,ten64-controller";
-		reg = <0x7e>;
-	};
 };
 
 &i2c2 {
@@ -251,7 +246,7 @@
 &i2c3 {
 	status = "okay";
 
-	i2c-switch@70 {
+	i2c-mux@70 {
 		compatible = "nxp,pca9540";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -269,6 +264,22 @@
 			reg = <1>;
 		};
 	};
+};
+
+&pcs_mdio1 {
+	status = "okay";
+};
+
+&pcs_mdio2 {
+	status = "okay";
+};
+
+&pcs_mdio3 {
+	status = "okay";
+};
+
+&pcs_mdio7 {
+	status = "okay";
 };
 
 &qspi {

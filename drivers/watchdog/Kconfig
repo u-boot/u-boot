@@ -31,6 +31,7 @@ config WATCHDOG_TIMEOUT_MSECS
 	default 30000 if ARCH_SOCFPGA
 	default 16000 if ARCH_SUNXI
 	default 5376 if ULP_WATCHDOG
+	default 15000 if ARCH_BCM283X
 	default 60000
 	help
 	  Watchdog timeout in msec
@@ -184,12 +185,28 @@ config WDT_MESON_GXBB
 	  Select this to enable Meson watchdog timer,
 	  which can be found on some Amlogic platforms.
 
-config WDT_MPC8xx
-	bool "MPC8xx watchdog timer support"
-	depends on WDT && MPC8xx
-	select HW_WATCHDOG
+config WDT_MPC8xxx
+	bool "MPC8xxx watchdog timer support"
+	depends on WDT && (MPC8xx || MPC83xx)
 	help
-	  Select this to enable mpc8xx watchdog timer
+	  Select this to enable mpc8xxx watchdog timer
+
+config WDT_MPC8xxx_BME
+	bool "Enable MPC8xx Bus Monitoring"
+	depends on WDT_MPC8xxx && MPC8xx
+	help
+	  Select this to enable mpc8xx Bus Monitor.
+
+config WDT_MPC8xxx_BMT
+	int "MPC8xx Bus Monitor Timing" if WDT_MPC8xxx_BME
+	range 0 255
+	default 255
+	depends on WDT_MPC8xxx
+	help
+	  Bus monitor timing. Defines the timeout period, in 8 system clock
+	  resolution, for the bus monitor.
+
+	  Maximum timeout is 2,040 clocks (255 x 8).
 
 config WDT_MT7620
 	bool "MediaTek MT7620 watchdog timer support"
@@ -327,6 +344,14 @@ config WDT_SUNXI
 	help
 	  Enable support for the watchdog timer in Allwinner sunxi SoCs.
 
+config WDT_BCM2835
+	bool "Broadcom 2835 watchdog timer support"
+	depends on WDT && ARCH_BCM283X
+	default y
+	help
+	  Enable support for the watchdog timer in Broadcom 283X SoCs such
+	  as Raspberry Pi boards.
+
 config XILINX_TB_WATCHDOG
 	bool "Xilinx Axi watchdog timer support"
 	depends on WDT
@@ -352,6 +377,14 @@ config WDT_TANGIER
 	  Intel Tangier SoC. If you're using a board with Intel Tangier
 	  SoC, say Y here.
 
+config WDT_ARM_SMC
+	bool "ARM SMC watchdog timer support"
+	depends on WDT && ARM_SMCCC
+	imply WATCHDOG
+	help
+	  Select this to enable Arm SMC watchdog timer. This watchdog will manage
+	  a watchdog based on ARM SMCCC communication.
+
 config SPL_WDT
 	bool "Enable driver model for watchdog timer drivers in SPL"
 	depends on SPL_DM
@@ -359,4 +392,11 @@ config SPL_WDT
 	  Enable driver model for watchdog timer in SPL.
 	  This is similar to CONFIG_WDT in U-Boot.
 
+config WDT_FTWDT010
+	bool "Faraday Technology ftwdt010 watchdog timer support"
+	depends on WDT
+	imply WATCHDOG
+	help
+	  Faraday Technology ftwdt010 watchdog is an architecture independent
+	  watchdog. It is usually used in SoC chip design.
 endmenu

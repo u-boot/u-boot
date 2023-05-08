@@ -419,4 +419,21 @@ ENTRY(__gnu_thumb1_case_uhi)
 	ret	lr
 ENDPROC(__gnu_thumb1_case_uhi)
 .popsection
+
+/* Taken and adapted from: https://github.com/gcc-mirror/gcc/blob/4f181f9c7ee3efc509d185fdfda33be9018f1611/libgcc/config/arm/lib1funcs.S#L2156 */
+.pushsection .text.__gnu_thumb1_case_si, "ax"
+ENTRY(__gnu_thumb1_case_si)
+	push	{r0, r1}
+	mov	r1, lr
+	adds	r1, r1, #2	/* Align to word.  */
+	lsrs	r1, r1, #2
+	lsls	r0, r0, #2
+	lsls	r1, r1, #2
+	ldr	r0, [r1, r0]
+	adds	r0, r0, r1
+	mov	lr, r0
+	pop	{r0, r1}
+	mov	pc, lr		/* We know we were called from thumb code.  */
+ENDPROC(__gnu_thumb1_case_si)
+.popsection
 #endif

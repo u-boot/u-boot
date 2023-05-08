@@ -413,6 +413,7 @@ int net_ip6_handler(struct ethernet_hdr *et, struct ip6_hdr *ip6, int len)
 			break;
 		case IPV6_NDISC_NEIGHBOUR_SOLICITATION:
 		case IPV6_NDISC_NEIGHBOUR_ADVERTISEMENT:
+		case IPV6_NDISC_ROUTER_ADVERTISEMENT:
 			ndisc_receive(et, ip6, len);
 			break;
 		default:

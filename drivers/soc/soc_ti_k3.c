@@ -8,20 +8,8 @@
 #include <dm.h>
 #include <soc.h>
 
+#include <asm/arch/hardware.h>
 #include <asm/io.h>
-
-#define AM65X			0xbb5a
-#define J721E			0xbb64
-#define J7200			0xbb6d
-#define AM64X			0xbb38
-#define J721S2			0xbb75
-#define AM62X			0xbb7e
-#define AM62AX			0xbb8d
-
-#define JTAG_ID_VARIANT_SHIFT	28
-#define JTAG_ID_VARIANT_MASK	(0xf << 28)
-#define JTAG_ID_PARTNO_SHIFT	12
-#define JTAG_ID_PARTNO_MASK	(0xffff << 12)
 
 struct soc_ti_k3_plat {
 	const char *family;
@@ -36,25 +24,25 @@ static const char *get_family_string(u32 idreg)
 	soc = (idreg & JTAG_ID_PARTNO_MASK) >> JTAG_ID_PARTNO_SHIFT;
 
 	switch (soc) {
-	case AM65X:
+	case JTAG_ID_PARTNO_AM65X:
 		family = "AM65X";
 		break;
-	case J721E:
+	case JTAG_ID_PARTNO_J721E:
 		family = "J721E";
 		break;
-	case J7200:
+	case JTAG_ID_PARTNO_J7200:
 		family = "J7200";
 		break;
-	case AM64X:
+	case JTAG_ID_PARTNO_AM64X:
 		family = "AM64X";
 		break;
-	case J721S2:
+	case JTAG_ID_PARTNO_J721S2:
 		family = "J721S2";
 		break;
-	case AM62X:
+	case JTAG_ID_PARTNO_AM62X:
 		family = "AM62X";
 		break;
-	case AM62AX:
+	case JTAG_ID_PARTNO_AM62AX:
 		family = "AM62AX";
 		break;
 	default:
@@ -81,13 +69,13 @@ static const char *get_rev_string(u32 idreg)
 	soc = (idreg & JTAG_ID_PARTNO_MASK) >> JTAG_ID_PARTNO_SHIFT;
 
 	switch (soc) {
-	case J721E:
-		if (rev > ARRAY_SIZE(j721e_rev_string_map))
+	case JTAG_ID_PARTNO_J721E:
+		if (rev >= ARRAY_SIZE(j721e_rev_string_map))
 			goto bail;
 		return j721e_rev_string_map[rev];
 
 	default:
-		if (rev > ARRAY_SIZE(typical_rev_string_map))
+		if (rev >= ARRAY_SIZE(typical_rev_string_map))
 			goto bail;
 		return typical_rev_string_map[rev];
 	};

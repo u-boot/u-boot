@@ -36,7 +36,6 @@ static u32 rmt_timestamp;
 
 static u32 tcp_seq_init;
 static u32 tcp_ack_edge;
-static u32 tcp_seq_max;
 
 static int tcp_activity_count;
 
@@ -90,9 +89,10 @@ void tcp_set_tcp_state(enum tcp_state new_state)
 	current_tcp_state = new_state;
 }
 
-static void dummy_handler(uchar *pkt, unsigned int dport,
-			  struct in_addr sip, unsigned int sport,
-			  unsigned int len)
+static void dummy_handler(uchar *pkt, u16 dport,
+			  struct in_addr sip, u16 sport,
+			  u32 tcp_seq_num, u32 tcp_ack_num,
+			  u8 action, unsigned int len)
 {
 }
 
@@ -256,7 +256,7 @@ int tcp_set_tcp_header(uchar *pkt, int dport, int sport, int payload_len,
 	switch (action) {
 	case TCP_SYN:
 		debug_cond(DEBUG_DEV_PKT,
-			   "TCP Hdr:SYN (%pI4, %pI4, sq=%d, ak=%d)\n",
+			   "TCP Hdr:SYN (%pI4, %pI4, sq=%u, ak=%u)\n",
 			   &net_server_ip, &net_ip,
 			   tcp_seq_num, tcp_ack_num);
 		tcp_activity_count = 0;
@@ -271,41 +271,46 @@ int tcp_set_tcp_header(uchar *pkt, int dport, int sport, int payload_len,
 			current_tcp_state = TCP_SYN_SENT;
 		}
 		break;
+	case TCP_SYN | TCP_ACK:
 	case TCP_ACK:
 		pkt_hdr_len = IP_HDR_SIZE + net_set_ack_options(b);
 		b->ip.hdr.tcp_flags = action;
 		debug_cond(DEBUG_DEV_PKT,
-			   "TCP Hdr:ACK (%pI4, %pI4, s=%d, a=%d, A=%x)\n",
+			   "TCP Hdr:ACK (%pI4, %pI4, s=%u, a=%u, A=%x)\n",
 			   &net_server_ip, &net_ip, tcp_seq_num, tcp_ack_num,
 			   action);
 		break;
 	case TCP_FIN:
 		debug_cond(DEBUG_DEV_PKT,
-			   "TCP Hdr:FIN  (%pI4, %pI4, s=%d, a=%d)\n",
+			   "TCP Hdr:FIN  (%pI4, %pI4, s=%u, a=%u)\n",
 			   &net_server_ip, &net_ip, tcp_seq_num, tcp_ack_num);
 		payload_len = 0;
 		pkt_hdr_len = IP_TCP_HDR_SIZE;
 		current_tcp_state = TCP_FIN_WAIT_1;
 		break;
-
+	case TCP_RST | TCP_ACK:
+	case TCP_RST:
+		debug_cond(DEBUG_DEV_PKT,
+			   "TCP Hdr:RST  (%pI4, %pI4, s=%u, a=%u)\n",
+			   &net_server_ip, &net_ip, tcp_seq_num, tcp_ack_num);
+		current_tcp_state = TCP_CLOSED;
+		break;
 	/* Notify connection closing */
-
 	case (TCP_FIN | TCP_ACK):
 	case (TCP_FIN | TCP_ACK | TCP_PUSH):
 		if (current_tcp_state == TCP_CLOSE_WAIT)
 			current_tcp_state = TCP_CLOSING;
 
-		tcp_ack_edge++;
 		debug_cond(DEBUG_DEV_PKT,
-			   "TCP Hdr:FIN ACK PSH(%pI4, %pI4, s=%d, a=%d, A=%x)\n",
+			   "TCP Hdr:FIN ACK PSH(%pI4, %pI4, s=%u, a=%u, A=%x)\n",
 			   &net_server_ip, &net_ip,
-			   tcp_seq_num, tcp_ack_edge, action);
+			   tcp_seq_num, tcp_ack_num, action);
 		fallthrough;
 	default:
 		pkt_hdr_len = IP_HDR_SIZE + net_set_ack_options(b);
 		b->ip.hdr.tcp_flags = action | TCP_PUSH | TCP_ACK;
 		debug_cond(DEBUG_DEV_PKT,
-			   "TCP Hdr:dft  (%pI4, %pI4, s=%d, a=%d, A=%x)\n",
+			   "TCP Hdr:dft  (%pI4, %pI4, s=%u, a=%u, A=%x)\n",
 			   &net_server_ip, &net_ip,
 			   tcp_seq_num, tcp_ack_num, action);
 	}
@@ -313,12 +318,12 @@ int tcp_set_tcp_header(uchar *pkt, int dport, int sport, int payload_len,
 	pkt_len	= pkt_hdr_len + payload_len;
 	tcp_len	= pkt_len - IP_HDR_SIZE;
 
+	tcp_ack_edge = tcp_ack_num;
 	/* TCP Header */
 	b->ip.hdr.tcp_ack = htonl(tcp_ack_edge);
 	b->ip.hdr.tcp_src = htons(sport);
 	b->ip.hdr.tcp_dst = htons(dport);
 	b->ip.hdr.tcp_seq = htonl(tcp_seq_num);
-	tcp_seq_num = tcp_seq_num + payload_len;
 
 	/*
 	 * TCP window size - TCP header variable tcp_win.
@@ -353,9 +358,8 @@ int tcp_set_tcp_header(uchar *pkt, int dport, int sport, int payload_len,
  * tcp_hole() - Selective Acknowledgment (Essential for fast stream transfer)
  * @tcp_seq_num: TCP sequence start number
  * @len: the length of sequence numbers
- * @tcp_seq_max: maximum of sequence numbers
  */
-void tcp_hole(u32 tcp_seq_num, u32 len, u32 tcp_seq_max)
+void tcp_hole(u32 tcp_seq_num, u32 len)
 {
 	u32 idx_sack, sack_in;
 	u32 sack_end = TCP_SACK - 1;
@@ -496,7 +500,7 @@ void tcp_parse_options(uchar *o, int o_len)
 	}
 }
 
-static u8 tcp_state_machine(u8 tcp_flags, u32 *tcp_seq_num, int payload_len)
+static u8 tcp_state_machine(u8 tcp_flags, u32 tcp_seq_num, int payload_len)
 {
 	u8 tcp_fin = tcp_flags & TCP_FIN;
 	u8 tcp_syn = tcp_flags & TCP_SYN;
@@ -527,46 +531,44 @@ static u8 tcp_state_machine(u8 tcp_flags, u32 *tcp_seq_num, int payload_len)
 	switch  (current_tcp_state) {
 	case TCP_CLOSED:
 		debug_cond(DEBUG_INT_STATE, "TCP CLOSED %x\n", tcp_flags);
-		if (tcp_ack)
+		if (tcp_syn) {
+			action = TCP_SYN | TCP_ACK;
+			tcp_seq_init = tcp_seq_num;
+			tcp_ack_edge = tcp_seq_num + 1;
+			current_tcp_state = TCP_SYN_RECEIVED;
+		} else if (tcp_ack || tcp_fin) {
 			action = TCP_DATA;
-		else if (tcp_syn)
-			action = TCP_RST;
-		else if (tcp_fin)
-			action = TCP_DATA;
+		}
 		break;
+	case TCP_SYN_RECEIVED:
 	case TCP_SYN_SENT:
-		debug_cond(DEBUG_INT_STATE, "TCP_SYN_SENT %x, %d\n",
-			   tcp_flags, *tcp_seq_num);
+		debug_cond(DEBUG_INT_STATE, "TCP_SYN_SENT | TCP_SYN_RECEIVED %x, %u\n",
+			   tcp_flags, tcp_seq_num);
 		if (tcp_fin) {
 			action = action | TCP_PUSH;
 			current_tcp_state = TCP_CLOSE_WAIT;
-		}
-		if (tcp_syn) {
-			action = action | TCP_ACK | TCP_PUSH;
-			if (tcp_ack) {
-				tcp_seq_init = *tcp_seq_num;
-				*tcp_seq_num = *tcp_seq_num + 1;
-				tcp_seq_max = *tcp_seq_num;
-				tcp_ack_edge = *tcp_seq_num;
-				sack_idx = 0;
-				edge_a[sack_idx].se.l = *tcp_seq_num;
-				edge_a[sack_idx].se.r = *tcp_seq_num;
-				prev_len = 0;
-				current_tcp_state = TCP_ESTABLISHED;
-				for (i = 0; i < TCP_SACK; i++)
-					edge_a[i].st = NOPKT;
-			}
-		} else if (tcp_ack) {
+		} else if (tcp_ack || (tcp_syn && tcp_ack)) {
+			action |= TCP_ACK;
+			tcp_seq_init = tcp_seq_num;
+			tcp_ack_edge = tcp_seq_num + 1;
+			sack_idx = 0;
+			edge_a[sack_idx].se.l = tcp_ack_edge;
+			edge_a[sack_idx].se.r = tcp_ack_edge;
+			prev_len = 0;
+			current_tcp_state = TCP_ESTABLISHED;
+			for (i = 0; i < TCP_SACK; i++)
+				edge_a[i].st = NOPKT;
+
+			if (tcp_syn && tcp_ack)
+				action |= TCP_PUSH;
+		} else {
 			action = TCP_DATA;
 		}
-
 		break;
 	case TCP_ESTABLISHED:
 		debug_cond(DEBUG_INT_STATE, "TCP_ESTABLISHED %x\n", tcp_flags);
-		if (*tcp_seq_num > tcp_seq_max)
-			tcp_seq_max = *tcp_seq_num;
 		if (payload_len > 0) {
-			tcp_hole(*tcp_seq_num, payload_len, tcp_seq_max);
+			tcp_hole(tcp_seq_num, payload_len);
 			tcp_fin = TCP_DATA;  /* cause standalone FIN */
 		}
 
@@ -603,15 +605,14 @@ static u8 tcp_state_machine(u8 tcp_flags, u32 *tcp_seq_num, int payload_len)
 	case TCP_FIN_WAIT_1:
 		debug_cond(DEBUG_INT_STATE, "TCP_FIN_WAIT_1 (%x)\n", tcp_flags);
 		if (tcp_fin) {
+			tcp_ack_edge++;
 			action = TCP_ACK | TCP_FIN;
 			current_tcp_state = TCP_FIN_WAIT_2;
 		}
 		if (tcp_syn)
 			action = TCP_RST;
-		if (tcp_ack) {
+		if (tcp_ack)
 			current_tcp_state = TCP_CLOSED;
-			tcp_seq_num = tcp_seq_num + 1;
-		}
 		break;
 	case TCP_CLOSING:
 		debug_cond(DEBUG_INT_STATE, "TCP_CLOSING (%x)\n", tcp_flags);
@@ -640,7 +641,6 @@ void rxhand_tcp_f(union tcp_build_pkt *b, unsigned int pkt_len)
 	u16 tcp_rx_xsum = b->ip.hdr.ip_sum;
 	u8  tcp_action = TCP_DATA;
 	u32 tcp_seq_num, tcp_ack_num;
-	struct in_addr action_and_state;
 	int tcp_hdr_len, payload_len;
 
 	/* Verify IP header */
@@ -685,7 +685,7 @@ void rxhand_tcp_f(union tcp_build_pkt *b, unsigned int pkt_len)
 
 	/* Packets are not ordered. Send to app as received. */
 	tcp_action = tcp_state_machine(b->ip.hdr.tcp_flags,
-				       &tcp_seq_num, payload_len);
+				       tcp_seq_num, payload_len);
 
 	tcp_activity_count++;
 	if (tcp_activity_count > TCP_ACTIVITY) {
@@ -695,18 +695,17 @@ void rxhand_tcp_f(union tcp_build_pkt *b, unsigned int pkt_len)
 
 	if ((tcp_action & TCP_PUSH) || payload_len > 0) {
 		debug_cond(DEBUG_DEV_PKT,
-			   "TCP Notify (action=%x, Seq=%d,Ack=%d,Pay%d)\n",
+			   "TCP Notify (action=%x, Seq=%u,Ack=%u,Pay%d)\n",
 			   tcp_action, tcp_seq_num, tcp_ack_num, payload_len);
 
-		action_and_state.s_addr = tcp_action;
-		(*tcp_packet_handler) ((uchar *)b + pkt_len - payload_len,
-				       tcp_seq_num, action_and_state,
-				       tcp_ack_num, payload_len);
+		(*tcp_packet_handler) ((uchar *)b + pkt_len - payload_len, b->ip.hdr.tcp_dst,
+				       b->ip.hdr.ip_src, b->ip.hdr.tcp_src, tcp_seq_num,
+				       tcp_ack_num, tcp_action, payload_len);
 
 	} else if (tcp_action != TCP_DATA) {
 		debug_cond(DEBUG_DEV_PKT,
-			   "TCP Action (action=%x,Seq=%d,Ack=%d,Pay=%d)\n",
-			   tcp_action, tcp_seq_num, tcp_ack_num, payload_len);
+			   "TCP Action (action=%x,Seq=%u,Ack=%u,Pay=%d)\n",
+			   tcp_action, tcp_ack_num, tcp_ack_edge, payload_len);
 
 		/*
 		 * Warning: Incoming Ack & Seq sequence numbers are transposed
@@ -715,6 +714,6 @@ void rxhand_tcp_f(union tcp_build_pkt *b, unsigned int pkt_len)
 		net_send_tcp_packet(0, ntohs(b->ip.hdr.tcp_src),
 				    ntohs(b->ip.hdr.tcp_dst),
 				    (tcp_action & (~TCP_PUSH)),
-				    tcp_seq_num, tcp_ack_num);
+				    tcp_ack_num, tcp_ack_edge);
 	}
 }

@@ -20,11 +20,10 @@
 	"kernel_addr_r=0x00680000\0" \
 	"ramdisk_addr_r=0x04000000\0"
 
-#include <config_distro_bootcmd.h>
 #define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	"partitions=" PARTS_DEFAULT \
 	ROCKCHIP_DEVICE_SETTINGS \
-	BOOTENV
+	"boot_targets=" BOOT_TARGETS "\0"
 
 #endif

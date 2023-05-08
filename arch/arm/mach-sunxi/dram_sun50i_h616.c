@@ -234,37 +234,49 @@ static const u8 phy_init[] = {
 	0x09, 0x05, 0x18
 };
 
-static void mctl_phy_configure_odt(void)
+static void mctl_phy_configure_odt(struct dram_para *para)
 {
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x388);
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x38c);
+	unsigned int val;
 
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x3c8);
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x3cc);
+	val = para->dx_dri & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x388);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x38c);
 
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x408);
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x40c);
+	val = (para->dx_dri >> 8) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x3c8);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x3cc);
 
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x448);
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x44c);
+	val = (para->dx_dri >> 16) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x408);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x40c);
 
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x340);
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x344);
+	val = (para->dx_dri >> 24) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x448);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x44c);
 
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x348);
-	writel_relaxed(0xe, SUNXI_DRAM_PHY0_BASE + 0x34c);
+	val = para->ca_dri & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x340);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x344);
 
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x380);
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x384);
+	val = (para->ca_dri >> 8) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x348);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x34c);
 
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x3c0);
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x3c4);
+	val = para->dx_odt & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x380);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x384);
 
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x400);
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x404);
+	val = (para->dx_odt >> 8) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x3c0);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x3c4);
 
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x440);
-	writel_relaxed(0x8, SUNXI_DRAM_PHY0_BASE + 0x444);
+	val = (para->dx_odt >> 16) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x400);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x404);
+
+	val = (para->dx_odt >> 24) & 0x1f;
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x440);
+	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x444);
 
 	dmb();
 }
@@ -285,7 +297,7 @@ static bool mctl_phy_write_leveling(struct dram_para *para)
 	else
 		val = 3;
 
-	mctl_await_completion((u32*)(SUNXI_DRAM_PHY0_BASE + 0x188), val, val);
+	mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x188), val, val);
 
 	clrbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 4);
 
@@ -314,7 +326,7 @@ static bool mctl_phy_write_leveling(struct dram_para *para)
 		else
 			val = 3;
 
-		mctl_await_completion((u32*)(SUNXI_DRAM_PHY0_BASE + 0x188), val, val);
+		mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x188), val, val);
 
 		clrbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 4);
 	}
@@ -398,26 +410,26 @@ static bool mctl_phy_read_training(struct dram_para *para)
 	setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 6);
 	setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 1);
 
-	mctl_await_completion((u32*)(SUNXI_DRAM_PHY0_BASE + 0x840), 0xc, 0xc);
+	mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x840), 0xc, 0xc);
 	if (readl(SUNXI_DRAM_PHY0_BASE + 0x840) & 3)
 		result = false;
 
 	if (para->bus_full_width) {
-		mctl_await_completion((u32*)(SUNXI_DRAM_PHY0_BASE + 0xa40), 0xc, 0xc);
+		mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0xa40), 0xc, 0xc);
 		if (readl(SUNXI_DRAM_PHY0_BASE + 0xa40) & 3)
 			result = false;
 	}
 
-	ptr1 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x898);
-	ptr2 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x850);
+	ptr1 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x898);
+	ptr2 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x850);
 	for (i = 0; i < 9; i++) {
 		val1 = readl(&ptr1[i]);
 		val2 = readl(&ptr2[i]);
 		if (val1 - val2 <= 6)
 			result = false;
 	}
-	ptr1 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x8bc);
-	ptr2 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x874);
+	ptr1 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x8bc);
+	ptr2 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x874);
 	for (i = 0; i < 9; i++) {
 		val1 = readl(&ptr1[i]);
 		val2 = readl(&ptr2[i]);
@@ -426,8 +438,8 @@ static bool mctl_phy_read_training(struct dram_para *para)
 	}
 
 	if (para->bus_full_width) {
-		ptr1 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0xa98);
-		ptr2 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0xa50);
+		ptr1 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xa98);
+		ptr2 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xa50);
 		for (i = 0; i < 9; i++) {
 			val1 = readl(&ptr1[i]);
 			val2 = readl(&ptr2[i]);
@@ -435,8 +447,8 @@ static bool mctl_phy_read_training(struct dram_para *para)
 				result = false;
 		}
 
-		ptr1 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0xabc);
-		ptr2 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0xa74);
+		ptr1 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xabc);
+		ptr2 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xa74);
 		for (i = 0; i < 9; i++) {
 			val1 = readl(&ptr1[i]);
 			val2 = readl(&ptr2[i]);
@@ -454,12 +466,12 @@ static bool mctl_phy_read_training(struct dram_para *para)
 		setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 6);
 		setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 1);
 
-		mctl_await_completion((u32*)(SUNXI_DRAM_PHY0_BASE + 0x840), 0xc, 0xc);
+		mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x840), 0xc, 0xc);
 		if (readl(SUNXI_DRAM_PHY0_BASE + 0x840) & 3)
 			result = false;
 
 		if (para->bus_full_width) {
-			mctl_await_completion((u32*)(SUNXI_DRAM_PHY0_BASE + 0xa40), 0xc, 0xc);
+			mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0xa40), 0xc, 0xc);
 			if (readl(SUNXI_DRAM_PHY0_BASE + 0xa40) & 3)
 				result = false;
 		}
@@ -488,26 +500,26 @@ static bool mctl_phy_write_training(struct dram_para *para)
 	setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 0x10);
 	setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 0x20);
 
-	mctl_await_completion((u32*)(SUNXI_DRAM_PHY0_BASE + 0x8e0), 3, 3);
+	mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x8e0), 3, 3);
 	if (readl(SUNXI_DRAM_PHY0_BASE + 0x8e0) & 0xc)
 		result = false;
 
 	if (para->bus_full_width) {
-		mctl_await_completion((u32*)(SUNXI_DRAM_PHY0_BASE + 0xae0), 3, 3);
+		mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0xae0), 3, 3);
 		if (readl(SUNXI_DRAM_PHY0_BASE + 0xae0) & 0xc)
 			result = false;
 	}
 
-	ptr1 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x938);
-	ptr2 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x8f0);
+	ptr1 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x938);
+	ptr2 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x8f0);
 	for (i = 0; i < 9; i++) {
 		val1 = readl(&ptr1[i]);
 		val2 = readl(&ptr2[i]);
 		if (val1 - val2 <= 6)
 			result = false;
 	}
-	ptr1 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x95c);
-	ptr2 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x914);
+	ptr1 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x95c);
+	ptr2 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x914);
 	for (i = 0; i < 9; i++) {
 		val1 = readl(&ptr1[i]);
 		val2 = readl(&ptr2[i]);
@@ -516,16 +528,16 @@ static bool mctl_phy_write_training(struct dram_para *para)
 	}
 
 	if (para->bus_full_width) {
-		ptr1 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0xb38);
-		ptr2 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0xaf0);
+		ptr1 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xb38);
+		ptr2 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xaf0);
 		for (i = 0; i < 9; i++) {
 			val1 = readl(&ptr1[i]);
 			val2 = readl(&ptr2[i]);
 			if (val1 - val2 <= 6)
 				result = false;
 		}
-		ptr1 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0xb5c);
-		ptr2 = (u32*)(SUNXI_DRAM_PHY0_BASE + 0xb14);
+		ptr1 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xb5c);
+		ptr2 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xb14);
 		for (i = 0; i < 9; i++) {
 			val1 = readl(&ptr1[i]);
 			val2 = readl(&ptr2[i]);
@@ -542,12 +554,12 @@ static bool mctl_phy_write_training(struct dram_para *para)
 		setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 0x10);
 		setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 0x20);
 
-		mctl_await_completion((u32*)(SUNXI_DRAM_PHY0_BASE + 0x8e0), 3, 3);
+		mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x8e0), 3, 3);
 		if (readl(SUNXI_DRAM_PHY0_BASE + 0x8e0) & 0xc)
 			result = false;
 
 		if (para->bus_full_width) {
-			mctl_await_completion((u32*)(SUNXI_DRAM_PHY0_BASE + 0xae0), 3, 3);
+			mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0xae0), 3, 3);
 			if (readl(SUNXI_DRAM_PHY0_BASE + 0xae0) & 0xc)
 				result = false;
 		}
@@ -560,116 +572,254 @@ static bool mctl_phy_write_training(struct dram_para *para)
 	return result;
 }
 
-static bool mctl_phy_bit_delay_compensation(struct dram_para *para)
+static void mctl_phy_bit_delay_compensation(struct dram_para *para)
 {
-	u32 *ptr;
+	u32 *ptr, val;
 	int i;
 
-	clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x60, 1);
-	setbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 8);
-	clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 0x10);
+	if (para->tpr10 & TPR10_DX_BIT_DELAY1) {
+		clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x60, 1);
+		setbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 8);
+		clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 0x10);
 
-	ptr = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x484);
-	for (i = 0; i < 9; i++) {
-		writel_relaxed(0x16, ptr);
-		writel_relaxed(0x16, ptr + 0x30);
-		ptr += 2;
+		if (para->tpr10 & BIT(30))
+			val = para->tpr11 & 0x3f;
+		else
+			val = (para->tpr11 & 0xf) << 1;
+
+		ptr = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x484);
+		for (i = 0; i < 9; i++) {
+			writel_relaxed(val, ptr);
+			writel_relaxed(val, ptr + 0x30);
+			ptr += 2;
+		}
+
+		if (para->tpr10 & BIT(30))
+			val = (para->odt_en >> 15) & 0x1e;
+		else
+			val = (para->tpr11 >> 15) & 0x1e;
+
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x4d0);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x590);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x4cc);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x58c);
+
+		if (para->tpr10 & BIT(30))
+			val = (para->tpr11 >> 8) & 0x3f;
+		else
+			val = (para->tpr11 >> 3) & 0x1e;
+
+		ptr = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x4d8);
+		for (i = 0; i < 9; i++) {
+			writel_relaxed(val, ptr);
+			writel_relaxed(val, ptr + 0x30);
+			ptr += 2;
+		}
+
+		if (para->tpr10 & BIT(30))
+			val = (para->odt_en >> 19) & 0x1e;
+		else
+			val = (para->tpr11 >> 19) & 0x1e;
+
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x524);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x5e4);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x520);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x5e0);
+
+		if (para->tpr10 & BIT(30))
+			val = (para->tpr11 >> 16) & 0x3f;
+		else
+			val = (para->tpr11 >> 7) & 0x1e;
+
+		ptr = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x604);
+		for (i = 0; i < 9; i++) {
+			writel_relaxed(val, ptr);
+			writel_relaxed(val, ptr + 0x30);
+			ptr += 2;
+		}
+
+		if (para->tpr10 & BIT(30))
+			val = (para->odt_en >> 23) & 0x1e;
+		else
+			val = (para->tpr11 >> 23) & 0x1e;
+
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x650);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x710);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x64c);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x70c);
+
+		if (para->tpr10 & BIT(30))
+			val = (para->tpr11 >> 24) & 0x3f;
+		else
+			val = (para->tpr11 >> 11) & 0x1e;
+
+		ptr = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x658);
+		for (i = 0; i < 9; i++) {
+			writel_relaxed(val, ptr);
+			writel_relaxed(val, ptr + 0x30);
+			ptr += 2;
+		}
+
+		if (para->tpr10 & BIT(30))
+			val = (para->odt_en >> 27) & 0x1e;
+		else
+			val = (para->tpr11 >> 27) & 0x1e;
+
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x6a4);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x764);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x6a0);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x760);
+
+		dmb();
+
+		setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x60, 1);
 	}
-	writel_relaxed(0x1c, SUNXI_DRAM_PHY0_BASE + 0x4d0);
-	writel_relaxed(0x1c, SUNXI_DRAM_PHY0_BASE + 0x590);
-	writel_relaxed(0x1c, SUNXI_DRAM_PHY0_BASE + 0x4cc);
-	writel_relaxed(0x1c, SUNXI_DRAM_PHY0_BASE + 0x58c);
 
-	ptr = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x4d8);
-	for (i = 0; i < 9; i++) {
-		writel_relaxed(0x1a, ptr);
-		writel_relaxed(0x1a, ptr + 0x30);
-		ptr += 2;
+	if (para->tpr10 & TPR10_DX_BIT_DELAY0) {
+		clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x54, 0x80);
+		clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 4);
+
+		if (para->tpr10 & BIT(30))
+			val = para->tpr12 & 0x3f;
+		else
+			val = (para->tpr12 & 0xf) << 1;
+
+		ptr = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x480);
+		for (i = 0; i < 9; i++) {
+			writel_relaxed(val, ptr);
+			writel_relaxed(val, ptr + 0x30);
+			ptr += 2;
+		}
+
+		if (para->tpr10 & BIT(30))
+			val = (para->odt_en << 1) & 0x1e;
+		else
+			val = (para->tpr12 >> 15) & 0x1e;
+
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x528);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x5e8);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x4c8);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x588);
+
+		if (para->tpr10 & BIT(30))
+			val = (para->tpr12 >> 8) & 0x3f;
+		else
+			val = (para->tpr12 >> 3) & 0x1e;
+
+		ptr = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x4d4);
+		for (i = 0; i < 9; i++) {
+			writel_relaxed(val, ptr);
+			writel_relaxed(val, ptr + 0x30);
+			ptr += 2;
+		}
+
+		if (para->tpr10 & BIT(30))
+			val = (para->odt_en >> 3) & 0x1e;
+		else
+			val = (para->tpr12 >> 19) & 0x1e;
+
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x52c);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x5ec);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x51c);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x5dc);
+
+		if (para->tpr10 & BIT(30))
+			val = (para->tpr12 >> 16) & 0x3f;
+		else
+			val = (para->tpr12 >> 7) & 0x1e;
+
+		ptr = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x600);
+		for (i = 0; i < 9; i++) {
+			writel_relaxed(val, ptr);
+			writel_relaxed(val, ptr + 0x30);
+			ptr += 2;
+		}
+
+		if (para->tpr10 & BIT(30))
+			val = (para->odt_en >> 7) & 0x1e;
+		else
+			val = (para->tpr12 >> 23) & 0x1e;
+
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x6a8);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x768);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x648);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x708);
+
+		if (para->tpr10 & BIT(30))
+			val = (para->tpr12 >> 24) & 0x3f;
+		else
+			val = (para->tpr12 >> 11) & 0x1e;
+
+		ptr = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x654);
+		for (i = 0; i < 9; i++) {
+			writel_relaxed(val, ptr);
+			writel_relaxed(val, ptr + 0x30);
+			ptr += 2;
+		}
+
+		if (para->tpr10 & BIT(30))
+			val = (para->odt_en >> 11) & 0x1e;
+		else
+			val = (para->tpr12 >> 27) & 0x1e;
+
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x6ac);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x76c);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x69c);
+		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x75c);
+
+		dmb();
+
+		setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x54, 0x80);
 	}
-	writel_relaxed(0x1e, SUNXI_DRAM_PHY0_BASE + 0x524);
-	writel_relaxed(0x1e, SUNXI_DRAM_PHY0_BASE + 0x5e4);
-	writel_relaxed(0x1e, SUNXI_DRAM_PHY0_BASE + 0x520);
-	writel_relaxed(0x1e, SUNXI_DRAM_PHY0_BASE + 0x5e0);
+}
 
-	ptr = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x604);
-	for (i = 0; i < 9; i++) {
-		writel_relaxed(0x1a, ptr);
-		writel_relaxed(0x1a, ptr + 0x30);
-		ptr += 2;
+static void mctl_phy_ca_bit_delay_compensation(struct dram_para *para)
+{
+	u32 val, *ptr;
+	int i;
+
+	if (para->tpr0 & BIT(30))
+		val = (para->tpr0 >> 7) & 0x3e;
+	else
+		val = (para->tpr10 >> 3) & 0x1e;
+
+	ptr = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0x780);
+	for (i = 0; i < 32; i++)
+		writel(val, &ptr[i]);
+
+	val = (para->tpr10 << 1) & 0x1e;
+	writel(val, SUNXI_DRAM_PHY0_BASE + 0x7d8);
+	writel(val, SUNXI_DRAM_PHY0_BASE + 0x7dc);
+	writel(val, SUNXI_DRAM_PHY0_BASE + 0x7e0);
+	writel(val, SUNXI_DRAM_PHY0_BASE + 0x7f4);
+
+	/* following configuration is DDR3 specific */
+	val = (para->tpr10 >> 7) & 0x1e;
+	if (para->tpr2 & 1) {
+		writel(val, SUNXI_DRAM_PHY0_BASE + 0x794);
+		if (para->ranks == 2) {
+			val = (para->tpr10 >> 11) & 0x1e;
+			writel(val, SUNXI_DRAM_PHY0_BASE + 0x7e4);
+		}
+		if (para->tpr0 & BIT(31)) {
+			val = (para->tpr0 << 1) & 0x3e;
+			writel(val, SUNXI_DRAM_PHY0_BASE + 0x790);
+			writel(val, SUNXI_DRAM_PHY0_BASE + 0x7b8);
+			writel(val, SUNXI_DRAM_PHY0_BASE + 0x7cc);
+		}
+	} else {
+		writel(val, SUNXI_DRAM_PHY0_BASE + 0x7d4);
+		if (para->ranks == 2) {
+			val = (para->tpr10 >> 11) & 0x1e;
+			writel(val, SUNXI_DRAM_PHY0_BASE + 0x79c);
+		}
+		if (para->tpr0 & BIT(31)) {
+			val = (para->tpr0 << 1) & 0x3e;
+			writel(val, SUNXI_DRAM_PHY0_BASE + 0x78c);
+			writel(val, SUNXI_DRAM_PHY0_BASE + 0x7a4);
+			writel(val, SUNXI_DRAM_PHY0_BASE + 0x7b8);
+		}
 	}
-	writel_relaxed(0x1e, SUNXI_DRAM_PHY0_BASE + 0x650);
-	writel_relaxed(0x1e, SUNXI_DRAM_PHY0_BASE + 0x710);
-	writel_relaxed(0x1e, SUNXI_DRAM_PHY0_BASE + 0x64c);
-	writel_relaxed(0x1e, SUNXI_DRAM_PHY0_BASE + 0x70c);
-
-	ptr = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x658);
-	for (i = 0; i < 9; i++) {
-		writel_relaxed(0x1a, ptr);
-		writel_relaxed(0x1a, ptr + 0x30);
-		ptr += 2;
-	}
-	writel_relaxed(0x1e, SUNXI_DRAM_PHY0_BASE + 0x6a4);
-	writel_relaxed(0x1e, SUNXI_DRAM_PHY0_BASE + 0x764);
-	writel_relaxed(0x1e, SUNXI_DRAM_PHY0_BASE + 0x6a0);
-	writel_relaxed(0x1e, SUNXI_DRAM_PHY0_BASE + 0x760);
-
-	dmb();
-
-	setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x60, 1);
-
-	/* second part */
-	clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x54, 0x80);
-	clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 4);
-
-	ptr = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x480);
-	for (i = 0; i < 9; i++) {
-		writel_relaxed(0x10, ptr);
-		writel_relaxed(0x10, ptr + 0x30);
-		ptr += 2;
-	}
-	writel_relaxed(0x18, SUNXI_DRAM_PHY0_BASE + 0x528);
-	writel_relaxed(0x18, SUNXI_DRAM_PHY0_BASE + 0x5e8);
-	writel_relaxed(0x18, SUNXI_DRAM_PHY0_BASE + 0x4c8);
-	writel_relaxed(0x18, SUNXI_DRAM_PHY0_BASE + 0x588);
-
-	ptr = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x4d4);
-	for (i = 0; i < 9; i++) {
-		writel_relaxed(0x12, ptr);
-		writel_relaxed(0x12, ptr + 0x30);
-		ptr += 2;
-	}
-	writel_relaxed(0x1a, SUNXI_DRAM_PHY0_BASE + 0x52c);
-	writel_relaxed(0x1a, SUNXI_DRAM_PHY0_BASE + 0x5ec);
-	writel_relaxed(0x1a, SUNXI_DRAM_PHY0_BASE + 0x51c);
-	writel_relaxed(0x1a, SUNXI_DRAM_PHY0_BASE + 0x5dc);
-
-	ptr = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x600);
-	for (i = 0; i < 9; i++) {
-		writel_relaxed(0x12, ptr);
-		writel_relaxed(0x12, ptr + 0x30);
-		ptr += 2;
-	}
-	writel_relaxed(0x1a, SUNXI_DRAM_PHY0_BASE + 0x6a8);
-	writel_relaxed(0x1a, SUNXI_DRAM_PHY0_BASE + 0x768);
-	writel_relaxed(0x1a, SUNXI_DRAM_PHY0_BASE + 0x648);
-	writel_relaxed(0x1a, SUNXI_DRAM_PHY0_BASE + 0x708);
-
-	ptr = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x654);
-	for (i = 0; i < 9; i++) {
-		writel_relaxed(0x14, ptr);
-		writel_relaxed(0x14, ptr + 0x30);
-		ptr += 2;
-	}
-	writel_relaxed(0x1c, SUNXI_DRAM_PHY0_BASE + 0x6ac);
-	writel_relaxed(0x1c, SUNXI_DRAM_PHY0_BASE + 0x76c);
-	writel_relaxed(0x1c, SUNXI_DRAM_PHY0_BASE + 0x69c);
-	writel_relaxed(0x1c, SUNXI_DRAM_PHY0_BASE + 0x75c);
-
-	dmb();
-
-	setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x54, 0x80);
-
-	return true;
 }
 
 static bool mctl_phy_init(struct dram_para *para)
@@ -678,7 +828,7 @@ static bool mctl_phy_init(struct dram_para *para)
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
 	struct sunxi_mctl_ctl_reg * const mctl_ctl =
 			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
-	u32 val, *ptr;
+	u32 val, val2, *ptr, mr0, mr2;
 	int i;
 
 	if (para->bus_full_width)
@@ -687,42 +837,40 @@ static bool mctl_phy_init(struct dram_para *para)
 		val = 3;
 	clrsetbits_le32(SUNXI_DRAM_PHY0_BASE + 0x3c, 0xf, val);
 
-	writel(0xd, SUNXI_DRAM_PHY0_BASE + 0x14);
-	writel(0xd, SUNXI_DRAM_PHY0_BASE + 0x35c);
-	writel(0xd, SUNXI_DRAM_PHY0_BASE + 0x368);
-	writel(0xd, SUNXI_DRAM_PHY0_BASE + 0x374);
+	if (para->tpr2 & 0x100) {
+		val = 9;
+		val2 = 7;
+	} else {
+		val = 13;
+		val2 = 9;
+	}
+
+	writel(val, SUNXI_DRAM_PHY0_BASE + 0x14);
+	writel(val, SUNXI_DRAM_PHY0_BASE + 0x35c);
+	writel(val, SUNXI_DRAM_PHY0_BASE + 0x368);
+	writel(val, SUNXI_DRAM_PHY0_BASE + 0x374);
 
 	writel(0, SUNXI_DRAM_PHY0_BASE + 0x18);
 	writel(0, SUNXI_DRAM_PHY0_BASE + 0x360);
 	writel(0, SUNXI_DRAM_PHY0_BASE + 0x36c);
 	writel(0, SUNXI_DRAM_PHY0_BASE + 0x378);
 
-	writel(9, SUNXI_DRAM_PHY0_BASE + 0x1c);
-	writel(9, SUNXI_DRAM_PHY0_BASE + 0x364);
-	writel(9, SUNXI_DRAM_PHY0_BASE + 0x370);
-	writel(9, SUNXI_DRAM_PHY0_BASE + 0x37c);
+	writel(val2, SUNXI_DRAM_PHY0_BASE + 0x1c);
+	writel(val2, SUNXI_DRAM_PHY0_BASE + 0x364);
+	writel(val2, SUNXI_DRAM_PHY0_BASE + 0x370);
+	writel(val2, SUNXI_DRAM_PHY0_BASE + 0x37c);
 
-	ptr = (u32*)(SUNXI_DRAM_PHY0_BASE + 0xc0);
+	ptr = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xc0);
 	for (i = 0; i < ARRAY_SIZE(phy_init); i++)
 		writel(phy_init[i], &ptr[i]);
 
-	if (IS_ENABLED(CONFIG_DRAM_SUN50I_H616_UNKNOWN_FEATURE)) {
-		ptr = (u32*)(SUNXI_DRAM_PHY0_BASE + 0x780);
-		for (i = 0; i < 32; i++)
-			writel(0x16, &ptr[i]);
-		writel(0xe, SUNXI_DRAM_PHY0_BASE + 0x78c);
-		writel(0xe, SUNXI_DRAM_PHY0_BASE + 0x7a4);
-		writel(0xe, SUNXI_DRAM_PHY0_BASE + 0x7b8);
-		writel(0x8, SUNXI_DRAM_PHY0_BASE + 0x7d4);
-		writel(0xe, SUNXI_DRAM_PHY0_BASE + 0x7dc);
-		writel(0xe, SUNXI_DRAM_PHY0_BASE + 0x7e0);
-	}
+	if (para->tpr10 & TPR10_CA_BIT_DELAY)
+		mctl_phy_ca_bit_delay_compensation(para);
 
 	writel(0x80, SUNXI_DRAM_PHY0_BASE + 0x3dc);
 	writel(0x80, SUNXI_DRAM_PHY0_BASE + 0x45c);
 
-	if (IS_ENABLED(CONFIG_DRAM_ODT_EN))
-		mctl_phy_configure_odt();
+	mctl_phy_configure_odt(para);
 
 	clrsetbits_le32(SUNXI_DRAM_PHY0_BASE + 4, 7, 0xa);
 
@@ -738,7 +886,7 @@ static bool mctl_phy_init(struct dram_para *para)
 
 	clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x14c, 8);
 
-	mctl_await_completion((u32*)(SUNXI_DRAM_PHY0_BASE + 0x180), 4, 4);
+	mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0x180), 4, 4);
 
 	writel(0x37, SUNXI_DRAM_PHY0_BASE + 0x58);
 	clrbits_le32(&mctl_com->unk_0x500, 0x200);
@@ -766,7 +914,15 @@ static bool mctl_phy_init(struct dram_para *para)
 	writel(1, &mctl_ctl->swctl);
 	mctl_await_completion(&mctl_ctl->swstat, 1, 1);
 
-	writel(0x1f14, &mctl_ctl->mrctrl1);
+	if (para->tpr2 & 0x100) {
+		mr0 = 0x1b50;
+		mr2 = 0x10;
+	} else {
+		mr0 = 0x1f14;
+		mr2 = 0x20;
+	}
+
+	writel(mr0, &mctl_ctl->mrctrl1);
 	writel(0x80000030, &mctl_ctl->mrctrl0);
 	mctl_await_completion(&mctl_ctl->mrctrl0, BIT(31), 0);
 
@@ -774,7 +930,7 @@ static bool mctl_phy_init(struct dram_para *para)
 	writel(0x80001030, &mctl_ctl->mrctrl0);
 	mctl_await_completion(&mctl_ctl->mrctrl0, BIT(31), 0);
 
-	writel(0x20, &mctl_ctl->mrctrl1);
+	writel(mr2, &mctl_ctl->mrctrl1);
 	writel(0x80002030, &mctl_ctl->mrctrl0);
 	mctl_await_completion(&mctl_ctl->mrctrl0, BIT(31), 0);
 
@@ -788,7 +944,7 @@ static bool mctl_phy_init(struct dram_para *para)
 	clrbits_le32(&mctl_ctl->rfshctl3, 1);
 	writel(1, &mctl_ctl->swctl);
 
-	if (IS_ENABLED(CONFIG_DRAM_SUN50I_H616_WRITE_LEVELING)) {
+	if (para->tpr10 & TPR10_WRITE_LEVELING) {
 		for (i = 0; i < 5; i++)
 			if (mctl_phy_write_leveling(para))
 				break;
@@ -798,7 +954,7 @@ static bool mctl_phy_init(struct dram_para *para)
 		}
 	}
 
-	if (IS_ENABLED(CONFIG_DRAM_SUN50I_H616_READ_CALIBRATION)) {
+	if (para->tpr10 & TPR10_READ_CALIBRATION) {
 		for (i = 0; i < 5; i++)
 			if (mctl_phy_read_calibration(para))
 				break;
@@ -808,7 +964,7 @@ static bool mctl_phy_init(struct dram_para *para)
 		}
 	}
 
-	if (IS_ENABLED(CONFIG_DRAM_SUN50I_H616_READ_TRAINING)) {
+	if (para->tpr10 & TPR10_READ_TRAINING) {
 		for (i = 0; i < 5; i++)
 			if (mctl_phy_read_training(para))
 				break;
@@ -818,7 +974,7 @@ static bool mctl_phy_init(struct dram_para *para)
 		}
 	}
 
-	if (IS_ENABLED(CONFIG_DRAM_SUN50I_H616_WRITE_TRAINING)) {
+	if (para->tpr10 & TPR10_WRITE_TRAINING) {
 		for (i = 0; i < 5; i++)
 			if (mctl_phy_write_training(para))
 				break;
@@ -828,8 +984,7 @@ static bool mctl_phy_init(struct dram_para *para)
 		}
 	}
 
-	if (IS_ENABLED(CONFIG_DRAM_SUN50I_H616_BIT_DELAY_COMPENSATION))
-		mctl_phy_bit_delay_compensation(para);
+	mctl_phy_bit_delay_compensation(para);
 
 	clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x60, 4);
 
@@ -873,7 +1028,7 @@ static bool mctl_ctrl_init(struct dram_para *para)
 	writel(0x06000400, &mctl_ctl->unk_0x3240);
 	writel(0x06000400, &mctl_ctl->unk_0x4240);
 
-	setbits_le32(&mctl_com->cr, BIT(31));
+	writel(BIT(31), &mctl_com->cr);
 
 	mctl_set_addrmap(para);
 
@@ -1007,6 +1162,15 @@ unsigned long sunxi_dram_init(void)
 	struct dram_para para = {
 		.clk = CONFIG_DRAM_CLK,
 		.type = SUNXI_DRAM_TYPE_DDR3,
+		.dx_odt = CONFIG_DRAM_SUN50I_H616_DX_ODT,
+		.dx_dri = CONFIG_DRAM_SUN50I_H616_DX_DRI,
+		.ca_dri = CONFIG_DRAM_SUN50I_H616_CA_DRI,
+		.odt_en = CONFIG_DRAM_SUN50I_H616_ODT_EN,
+		.tpr0 = CONFIG_DRAM_SUN50I_H616_TPR0,
+		.tpr2 = CONFIG_DRAM_SUN50I_H616_TPR2,
+		.tpr10 = CONFIG_DRAM_SUN50I_H616_TPR10,
+		.tpr11 = CONFIG_DRAM_SUN50I_H616_TPR11,
+		.tpr12 = CONFIG_DRAM_SUN50I_H616_TPR12,
 	};
 	unsigned long size;
 

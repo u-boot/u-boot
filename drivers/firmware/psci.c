@@ -319,4 +319,5 @@ U_BOOT_DRIVER(psci) = {
 #ifdef CONFIG_ARM_SMCCC_FEATURES
 	.plat_auto = sizeof(struct psci_plat_data),
 #endif
+	.flags = DM_FLAG_PRE_RELOC,
 };

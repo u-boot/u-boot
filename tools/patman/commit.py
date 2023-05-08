@@ -29,6 +29,8 @@ class Commit:
             value: Set of people who gave that rtag, each a name/email string
         warn: List of warnings for this commit, each a str
         patch (str): Filename of the patch file for this commit
+        future (concurrent.futures.Future): Future object for processing this
+            commit, or None
     """
     def __init__(self, hash):
         self.hash = hash
@@ -42,6 +44,7 @@ class Commit:
         self.rtags = collections.defaultdict(set)
         self.warn = []
         self.patch = ''
+        self.future = None
 
     def __str__(self):
         return self.subject

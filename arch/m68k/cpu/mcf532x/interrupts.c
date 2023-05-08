@@ -23,7 +23,7 @@ int interrupt_init(void)
 	return 0;
 }
 
-#if defined(CFG_MCFTMR)
+#if CONFIG_IS_ENABLED(MCFTMR)
 void dtimer_intr_setup(void)
 {
 	int0_t *intp = (int0_t *) (CFG_SYS_INTR_BASE);

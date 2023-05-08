@@ -95,7 +95,7 @@ controlled by a description in the board device tree.'''
     parser.add_argument('-H', '--full-help', action='store_true',
         default=False, help='Display the README file')
     parser.add_argument('--tooldir', type=str,
-        default=os.path.join(os.getenv('HOME'), '.binman-tools'),
+        default=os.path.join(os.path.expanduser('~/.binman-tools')),
         help='Set the directory to store tools')
     parser.add_argument('--toolpath', type=str, action='append',
         help='Add a path to the list of directories containing tools')

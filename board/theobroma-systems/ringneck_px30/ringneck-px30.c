@@ -118,10 +118,6 @@ int mmc_get_env_dev(void)
 	return CONFIG_SYS_MMC_ENV_DEV;
 }
 
-#if !IS_ENABLED(CONFIG_ENV_IS_NOWHERE)
-#error Please enable CONFIG_ENV_IS_NOWHERE
-#endif
-
 enum env_location arch_env_get_location(enum env_operation op, int prio)
 {
 	const char *boot_device =

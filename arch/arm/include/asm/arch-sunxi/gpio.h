@@ -209,7 +209,6 @@ enum sunxi_gpio_number {
 
 /* Virtual AXP0 GPIOs */
 #define SUNXI_GPIO_AXP0_PREFIX "AXP0-"
-#define SUNXI_GPIO_AXP0_VBUS_DETECT	4
 #define SUNXI_GPIO_AXP0_VBUS_ENABLE	5
 #define SUNXI_GPIO_AXP0_GPIO_COUNT	6
 

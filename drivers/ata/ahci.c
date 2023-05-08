@@ -211,8 +211,8 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 	      uc_priv->cap, uc_priv->port_map, uc_priv->n_ports);
 
 #if !defined(CONFIG_DM_SCSI)
-	if (uc_priv->n_ports > CONFIG_SYS_SCSI_MAX_SCSI_ID)
-		uc_priv->n_ports = CONFIG_SYS_SCSI_MAX_SCSI_ID;
+	if (uc_priv->n_ports > CONFIG_SYS_SATA_MAX_PORTS)
+		uc_priv->n_ports = CONFIG_SYS_SATA_MAX_PORTS;
 #endif
 
 	for (i = 0; i < uc_priv->n_ports; i++) {
@@ -1152,7 +1152,12 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 int ahci_probe_scsi_pci(struct udevice *ahci_dev)
 {
 	ulong base;
-	u16 vendor, device;
+	u16 vendor, device, cmd;
+
+	/* Enable bus mastering */
+	dm_pci_read_config16(ahci_dev, PCI_COMMAND, &cmd);
+	cmd |= PCI_COMMAND_MASTER;
+	dm_pci_write_config16(ahci_dev, PCI_COMMAND, cmd);
 
 	base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5, 0, 0,
 				     PCI_REGION_TYPE, PCI_REGION_MEM);

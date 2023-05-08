@@ -337,11 +337,21 @@ static int ksz_port_setup(struct udevice *dev, int port,
 	return 0;
 }
 
+static int ksz_port_probe(struct udevice *dev, int port, struct phy_device *phy)
+{
+	int supported = PHY_GBIT_FEATURES;
+
+	/* configure phy */
+	phy->supported &= supported;
+	phy->advertising &= supported;
+
+	return phy_config(phy);
+}
+
 static int ksz_port_enable(struct udevice *dev, int port, struct phy_device *phy)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
 	struct ksz_dsa_priv *priv = dev_get_priv(dev);
-	int supported = PHY_GBIT_FEATURES;
 	u8 data8;
 	int ret;
 
@@ -365,23 +375,12 @@ static int ksz_port_enable(struct udevice *dev, int port, struct phy_device *phy
 	if (port == pdata->cpu_port)
 		return 0;
 
-	/* configure phy */
-	phy->supported &= supported;
-	phy->advertising &= supported;
-	ret = phy_config(phy);
-	if (ret)
-		return ret;
-
-	ret = phy_startup(phy);
-	if (ret)
-		return ret;
-
 	/* start switch */
 	ksz_read8(priv->dev, REG_SW_OPERATION, &data8);
 	data8 |= SW_START;
 	ksz_write8(priv->dev, REG_SW_OPERATION, data8);
 
-	return 0;
+	return phy_startup(phy);
 }
 
 static void ksz_port_disable(struct udevice *dev, int port, struct phy_device *phy)
@@ -410,6 +409,7 @@ static void ksz_port_disable(struct udevice *dev, int port, struct phy_device *p
 }
 
 static const struct dsa_ops ksz_dsa_ops = {
+	.port_probe = ksz_port_probe,
 	.port_enable = ksz_port_enable,
 	.port_disable = ksz_port_disable,
 };
@@ -443,15 +443,10 @@ static int ksz_i2c_probe(struct udevice *dev)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
 	struct ksz_dsa_priv *priv = dev_get_priv(dev);
-	struct udevice *master = dsa_get_master(dev);
 	int i, ret;
 	u8 data8;
 	u32 id;
 
-	if (!master)
-		return -ENODEV;
-
-	dev_dbg(dev, "%s %s master:%s\n", __func__, dev->name, master->name);
 	dev_set_parent_priv(dev, priv);
 
 	ret = i2c_set_chip_offset_len(dev, 2);
@@ -500,8 +495,6 @@ static int ksz_i2c_probe(struct udevice *dev)
 		data8 &= ~(PORT_TX_ENABLE | PORT_RX_ENABLE | PORT_LEARN_DISABLE);
 		ksz_pwrite8(priv->dev, i, REG_PORT_MSTP_STATE, data8);
 	}
-
-	dsa_set_tagging(dev, 0, 0);
 
 	return 0;
 };

@@ -71,7 +71,7 @@
  * value #defined above. This is used to check at runtime if the
  * symbol values were filled in and are OK to use.
  */
-extern ulong _binman_sym_magic;
+extern unsigned long _binman_sym_magic;
 
 /**
  * DECLARE_BINMAN_MAGIC_SYM - Declare the internal magic symbol
@@ -81,7 +81,7 @@ extern ulong _binman_sym_magic;
  * definitions of the symbol.
  */
 #define DECLARE_BINMAN_MAGIC_SYM \
-	ulong _binman_sym_magic \
+	unsigned long _binman_sym_magic \
 		__attribute__((aligned(4), section(".binman_sym")))
 
 /**
@@ -93,14 +93,14 @@ extern ulong _binman_sym_magic;
  * Return: 1 if binman symbol values are usable, 0 if not
  */
 #define BINMAN_SYMS_OK \
-	(*(ulong *)&_binman_sym_magic == BINMAN_SYM_MAGIC_VALUE)
+	(*(unsigned long *)&_binman_sym_magic == BINMAN_SYM_MAGIC_VALUE)
 
 /**
  * binman_sym() - Access a previously declared symbol
  *
  * This is used to get the value of a symbol. E.g.:
  *
- *    ulong address = binman_sym(ulong, u_boot_spl, pos);
+ *    unsigned long address = binman_sym(unsigned long, u_boot_spl, pos);
  *
  * @_type: Type f the symbol (e.g. unsigned long)
  * @entry_name: Name of the entry to look for (e.g. 'u_boot_spl')

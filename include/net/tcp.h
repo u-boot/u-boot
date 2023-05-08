@@ -259,6 +259,7 @@ union tcp_build_pkt {
  * enum tcp_state - TCP State machine states for connection
  * @TCP_CLOSED: Need to send SYN to connect
  * @TCP_SYN_SENT: Trying to connect, waiting for SYN ACK
+ * @TCP_SYN_RECEIVED: Initial SYN received, waiting for ACK
  * @TCP_ESTABLISHED: both server & client have a connection
  * @TCP_CLOSE_WAIT: Rec FIN, passed to app for FIN, ACK rsp
  * @TCP_CLOSING: Rec FIN, sent FIN, ACK waiting for ACK
@@ -268,6 +269,7 @@ union tcp_build_pkt {
 enum tcp_state {
 	TCP_CLOSED,
 	TCP_SYN_SENT,
+	TCP_SYN_RECEIVED,
 	TCP_ESTABLISHED,
 	TCP_CLOSE_WAIT,
 	TCP_CLOSING,
@@ -283,14 +285,18 @@ int tcp_set_tcp_header(uchar *pkt, int dport, int sport, int payload_len,
 /**
  * rxhand_tcp() - An incoming packet handler.
  * @pkt: pointer to the application packet
- * @dport: destination UDP port
+ * @dport: destination TCP port
  * @sip: source IP address
- * @sport: source UDP port
+ * @sport: source TCP port
+ * @tcp_seq_num: TCP sequential number
+ * @tcp_ack_num: TCP acknowledgment number
+ * @action: TCP action (SYN, ACK, FIN, etc)
  * @len: packet length
  */
-typedef void rxhand_tcp(uchar *pkt, unsigned int dport,
-			struct in_addr sip, unsigned int sport,
-			unsigned int len);
+typedef void rxhand_tcp(uchar *pkt, u16 dport,
+			struct in_addr sip, u16 sport,
+			u32 tcp_seq_num, u32 tcp_ack_num,
+			u8 action, unsigned int len);
 void tcp_set_tcp_handler(rxhand_tcp *f);
 
 void rxhand_tcp_f(union tcp_build_pkt *b, unsigned int len);

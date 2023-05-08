@@ -70,7 +70,7 @@ static int distro_pxe_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	addr = simple_strtoul(addr_str, NULL, 16);
 
 	log_debug("calling pxe_get()\n");
-	ret = pxe_get(addr, &bootdir, &size);
+	ret = pxe_get(addr, &bootdir, &size, false);
 	log_debug("pxe_get() returned %d\n", ret);
 	if (ret)
 		return log_msg_ret("pxeb", ret);
@@ -146,7 +146,7 @@ static int distro_pxe_boot(struct udevice *dev, struct bootflow *bflow)
 	info.bflow = bflow;
 	info.cmdtp = &cmdtp;
 	ret = pxe_setup_ctx(ctx, &cmdtp, distro_pxe_getfile, &info, false,
-			    bflow->subdir);
+			    bflow->subdir, false);
 	if (ret)
 		return log_msg_ret("ctx", -EINVAL);
 

@@ -194,6 +194,5 @@ int rockchip_get_clk(struct udevice **devp);
  * Return: 0 success, or error value
  */
 int rockchip_reset_bind(struct udevice *pdev, u32 reg_offset, u32 reg_number);
-int rockchip_get_scmi_clk(struct udevice **devp);
 
 #endif

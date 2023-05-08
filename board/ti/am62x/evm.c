@@ -9,19 +9,25 @@
 
 #include <env.h>
 #include <spl.h>
+#include <init.h>
 #include <video.h>
 #include <splash.h>
 #include <k3-ddrss.h>
 #include <fdt_support.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/sys_proto.h>
 #include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SPLASH_SCREEN
+#if CONFIG_IS_ENABLED(SPLASH_SCREEN)
 static struct splash_location default_splash_locations[] = {
+	{
+		.name = "sf",
+		.storage = SPLASH_STORAGE_SF,
+		.flags = SPLASH_STORAGE_RAW,
+		.offset = 0x700000,
+	},
 	{
 		.name		= "mmc",
 		.storage	= SPLASH_STORAGE_MMC,
@@ -53,6 +59,44 @@ int dram_init_banksize(void)
 }
 
 #if defined(CONFIG_SPL_BUILD)
+#ifdef CONFIG_SPL_VIDEO_TIDSS
+static int setup_dram(void)
+{
+	dram_init();
+	dram_init_banksize();
+	gd->ram_base = CFG_SYS_SDRAM_BASE;
+	gd->ram_top = gd->ram_base + gd->ram_size;
+	gd->relocaddr = gd->ram_top;
+	return 0;
+}
+
+static int video_setup(void)
+{
+	ulong addr;
+	int ret;
+	addr = gd->relocaddr;
+
+	ret = video_reserve(&addr);
+	if (ret)
+		return ret;
+	debug("Reserving %luk for video at: %08lx\n",
+	      ((unsigned long)gd->relocaddr - addr) >> 10, addr);
+	gd->relocaddr = addr;
+	return 0;
+}
+
+#endif
+void spl_board_init(void)
+{
+#if defined(CONFIG_SPL_VIDEO_TIDSS)
+	setup_dram();
+	arch_reserve_mmu();
+	video_setup();
+	enable_caches();
+	splash_display();
+#endif
+}
+
 #if defined(CONFIG_K3_AM64_DDRSS)
 static void fixup_ddr_driver_for_ecc(struct spl_image_info *spl_image)
 {

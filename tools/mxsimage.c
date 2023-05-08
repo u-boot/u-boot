@@ -2239,7 +2239,7 @@ static int mxsimage_verify_header(unsigned char *ptr, int image_size,
 	return mxsimage_verify_print_header(params->imagefile, 1);
 }
 
-static void mxsimage_print_header(const void *hdr)
+static void mxsimage_print_header(const void *hdr, struct image_tool_params *params)
 {
 	if (imagefile)
 		mxsimage_verify_print_header(imagefile, 0);

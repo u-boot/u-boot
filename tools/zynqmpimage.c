@@ -209,7 +209,7 @@ static void print_partition(const void *ptr, const struct partition_header *ph)
 	printf("    Checksum   : 0x%08x\n", le32_to_cpu(ph->checksum));
 }
 
-void zynqmpimage_print_header(const void *ptr)
+void zynqmpimage_print_header(const void *ptr, struct image_tool_params *params)
 {
 	struct zynqmp_header *zynqhdr = (struct zynqmp_header *)ptr;
 	int i;

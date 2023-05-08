@@ -12,7 +12,7 @@ config ARM64
 
 config ARM64_CRC32
 	bool "Enable support for CRC32 instruction"
-	depends on ARM64
+	depends on ARM64 && CC_IS_GCC
 	default y
 	help
 	  ARMv8 implements dedicated crc32 instruction for crc32 calculation.
@@ -357,7 +357,7 @@ config SYS_ARM_ARCH
 
 choice
 	prompt "Select the ARM data write cache policy"
-	default SYS_ARM_CACHE_WRITETHROUGH if TARGET_BCMCYGNUS || RZA1
+	default SYS_ARM_CACHE_WRITETHROUGH if TARGET_BCMCYGNUS || TARGET_BCMNS || RZA1
 	default SYS_ARM_CACHE_WRITEBACK
 
 config SYS_ARM_CACHE_WRITEBACK
@@ -578,6 +578,16 @@ config ARCH_DAVINCI
 	help
 	  Support for TI's DaVinci platform.
 
+config ARCH_HISTB
+	bool "Hisilicon HiSTB SoCs"
+	select DM
+	select DM_SERIAL
+	select OF_CONTROL
+	select PL01X_SERIAL
+	imply CMD_DM
+	help
+	  Support for HiSTB SoCs.
+
 config ARCH_KIRKWOOD
 	bool "Marvell Kirkwood"
 	select ARCH_MISC_INIT
@@ -670,6 +680,25 @@ config TARGET_BCMCYGNUS
 	imply FAT_WRITE
 	imply HASH_VERIFY
 	imply NETDEVICES
+
+config TARGET_BCMNS
+	bool "Support Broadcom Northstar"
+	select CPU_V7A
+	select DM
+	select DM_GPIO
+	select DM_SERIAL
+	select OF_CONTROL
+	select TIMER
+	select SYS_NS16550
+	select ARM_GLOBAL_TIMER
+	imply SYS_THUMB_BUILD
+	imply MTD_RAW_NAND
+	imply NAND_BRCMNAND
+	imply NAND_BRCMNAND_IPROC
+	help
+	  Support for Broadcom Northstar SoCs. NS is a dual-core 32-bit
+	  ARMv7 Cortex-A9 SoC family including BCM4708, BCM47094,
+	  BCM5301x etc.
 
 config TARGET_BCMNS2
 	bool "Support Broadcom Northstar2"
@@ -1956,8 +1985,7 @@ config ARCH_ROCKCHIP
 	imply ADC
 	imply CMD_DM
 	imply DEBUG_UART_BOARD_INIT
-	imply DISTRO_DEFAULTS if !ROCKCHIP_RK3399
-	imply BOOTSTD_DEFAULTS if !DISTRO_DEFAULTS
+	imply BOOTSTD_DEFAULTS
 	imply FAT_WRITE
 	imply SARADC_ROCKCHIP
 	imply SPL_SYSRESET
@@ -2044,7 +2072,6 @@ config TARGET_XENGUEST_ARM64
 	select OF_CONTROL
 	select LINUX_KERNEL_IMAGE_HEADER
 	select XEN_SERIAL
-	select SSCANF
 	imply OF_HAS_PRIOR_STAGE
 
 config ARCH_GXP
@@ -2157,6 +2184,8 @@ source "arch/arm/mach-hpe/gxp/Kconfig"
 
 source "arch/arm/mach-highbank/Kconfig"
 
+source "arch/arm/mach-histb/Kconfig"
+
 source "arch/arm/mach-integrator/Kconfig"
 
 source "arch/arm/mach-ipq40xx/Kconfig"
@@ -2268,6 +2297,7 @@ source "board/Marvell/octeontx2/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/cortina/presidio-asic/Kconfig"
+source "board/broadcom/bcmns/Kconfig"
 source "board/broadcom/bcmns3/Kconfig"
 source "board/cavium/thunderx/Kconfig"
 source "board/eets/pdu001/Kconfig"

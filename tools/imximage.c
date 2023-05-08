@@ -813,7 +813,7 @@ static int imximage_verify_header(unsigned char *ptr, int image_size,
 	return 0;
 }
 
-static void imximage_print_header(const void *ptr)
+static void imximage_print_header(const void *ptr, struct image_tool_params *params)
 {
 	struct imx_header *imx_hdr = (struct imx_header *) ptr;
 	uint32_t version = detect_imximage_version(imx_hdr);

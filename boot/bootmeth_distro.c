@@ -150,7 +150,7 @@ static int distro_boot(struct udevice *dev, struct bootflow *bflow)
 	info.dev = dev;
 	info.bflow = bflow;
 	ret = pxe_setup_ctx(&ctx, &cmdtp, distro_getfile, &info, true,
-			    bflow->subdir);
+			    bflow->subdir, false);
 	if (ret)
 		return log_msg_ret("ctx", -EINVAL);
 

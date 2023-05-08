@@ -14,7 +14,7 @@
 #include <config_distro_bootcmd.h>
 
 #define NANDARGS \
-	"nandargs=setenv bootargs console=${console} " \
+	"nandargs=setenv bootargs " \
 		"${optargs} " \
 		"mtdparts=${mtdparts} " \
 		"root=${nandroot} " \

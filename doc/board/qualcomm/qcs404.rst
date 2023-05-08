@@ -9,8 +9,8 @@ About this
 This document describes the information about Qualcomm QCS404 evaluation board
 and it's usage steps.
 
-U-Boot can be used as a replacement for Qualcomm's original ABL (UEFI) bootloader.
-It is loaded as an Android boot image through ABL
+The current boot flow support loading u-boot as an Android boot image via
+Qualcomm's UEFI-based ABL (Android) Bootloader.
 
 Installation
 ------------

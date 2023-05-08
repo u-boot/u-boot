@@ -378,7 +378,7 @@ int default_spl_mmc_emmc_boot_partition(struct mmc *mmc)
 	 * 1 and 2 match up to boot0 / boot1 and 7 is user data
 	 * which is the first physical partition (0).
 	 */
-	part = (mmc->part_config >> 3) & PART_ACCESS_MASK;
+	part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
 	if (part == 7)
 		part = 0;
 #endif

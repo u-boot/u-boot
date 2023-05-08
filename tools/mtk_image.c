@@ -510,7 +510,7 @@ static int mtk_image_verify_header(unsigned char *ptr, int image_size,
 	return -1;
 }
 
-static void mtk_image_print_header(const void *ptr)
+static void mtk_image_print_header(const void *ptr, struct image_tool_params *params)
 {
 	struct legacy_img_hdr *hdr = (struct legacy_img_hdr *)ptr;
 	union lk_hdr *lk = (union lk_hdr *)ptr;

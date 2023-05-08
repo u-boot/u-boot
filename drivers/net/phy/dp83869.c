@@ -473,7 +473,7 @@ static int dp83869_probe(struct phy_device *phydev)
 	return 0;
 }
 
-static struct phy_driver DP83869_driver = {
+U_BOOT_PHY_DRIVER(dp83869) = {
 	.name = "TI DP83869",
 	.uid = 0x2000a0f1,
 	.mask = 0xfffffff0,
@@ -485,9 +485,3 @@ static struct phy_driver DP83869_driver = {
 	.readext = dp83869_readext,
 	.writeext = dp83869_writeext
 };
-
-int phy_dp83869_init(void)
-{
-	phy_register(&DP83869_driver);
-	return 0;
-}

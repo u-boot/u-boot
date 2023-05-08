@@ -213,6 +213,7 @@ int enable_spi_clk(unsigned char enable, unsigned spi_num)
 static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 {
 	u32 div, test_div, pll_num, pll_denom;
+	u64 temp64;
 
 	switch (pll) {
 	case PLL_SYS:
@@ -272,7 +273,10 @@ static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 		}
 		test_div = 1 << (2 - test_div);
 
-		return infreq * (div + pll_num / pll_denom) / test_div;
+		temp64 = (u64)infreq;
+		temp64 *= pll_num;
+		do_div(temp64, pll_denom);
+		return infreq * div + (unsigned long)temp64;
 	default:
 		return 0;
 	}
@@ -412,6 +416,60 @@ static u32 get_uart_clk(void)
 	uart_podf = reg >> MXC_CCM_CSCDR1_UART_CLK_PODF_OFFSET;
 
 	return freq / (uart_podf + 1);
+}
+
+static u32 get_lcd_clk(unsigned int ifnum)
+{
+	u32 pll_rate;
+	u32 pred, postd;
+
+	if (!is_mx6sx() && !is_mx6ul() && !is_mx6ull() && !is_mx6sl() &&
+	    !is_mx6sll()) {
+		debug("This chip does't support lcd\n");
+		return 0;
+	}
+
+	pll_rate = decode_pll(PLL_VIDEO, MXC_HCLK);
+	if (ifnum == 1) {
+		if (!is_mx6sl()) {
+			pred = __raw_readl(&imx_ccm->cscdr2);
+			pred &= MXC_CCM_CSCDR2_LCDIF1_PRE_DIV_MASK;
+			pred = pred >> MXC_CCM_CSCDR2_LCDIF1_PRE_DIV_OFFSET;
+
+			postd = readl(&imx_ccm->cbcmr);
+			postd &= MXC_CCM_CBCMR_LCDIF1_PODF_MASK;
+			postd = postd >> MXC_CCM_CBCMR_LCDIF1_PODF_OFFSET;
+		} else {
+			pred = __raw_readl(&imx_ccm->cscdr2);
+			pred &= MXC_CCM_CSCDR2_LCDIF_PIX_PRE_DIV_MASK;
+			pred = pred >> MXC_CCM_CSCDR2_LCDIF_PIX_PRE_DIV_OFFSET;
+
+			postd = readl(&imx_ccm->cscmr1);
+			postd &= MXC_CCM_CSCMR1_LCDIF_PIX_PODF_OFFSET;
+			postd = postd >> MXC_CCM_CBCMR_LCDIF1_PODF_OFFSET;
+		}
+	} else if (ifnum == 2) {
+		if (is_mx6sx()) {
+			pred = __raw_readl(&imx_ccm->cscdr2);
+			pred &= MXC_CCM_CSCDR2_LCDIF2_PRE_DIV_MASK;
+			pred = pred >> MXC_CCM_CSCDR2_LCDIF2_PRE_DIV_OFFSET;
+
+			postd = readl(&imx_ccm->cscmr1);
+			postd &= MXC_CCM_CSCMR1_LCDIF2_PODF_MASK;
+			postd = postd >> MXC_CCM_CSCMR1_LCDIF2_PODF_OFFSET;
+
+		} else {
+			goto if_err;
+		}
+	} else {
+		goto if_err;
+	}
+
+	return DIV_ROUND_UP_ULL((u64)pll_rate, (postd + 1) * (pred + 1));
+
+if_err:
+	debug("This chip not support lcd iterface %d\n", ifnum);
+	return 0;
 }
 
 static u32 get_cspi_clk(void)
@@ -744,6 +802,7 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 		}
 
 		enable_lcdif_clock(base_addr, 1);
+		debug("pixel clock = %u\n", mxc_get_clock(MXC_LCDIF1_CLK));
 	} else if (is_mx6sx()) {
 		/* Setting LCDIF2 for i.MX6SX */
 		if (enable_pll_video(pll_div, pll_num, pll_denom, post_div))
@@ -765,6 +824,7 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 				 MXC_CCM_CSCMR1_LCDIF2_PODF_OFFSET));
 
 		enable_lcdif_clock(base_addr, 1);
+		debug("pixel clock = %u\n", mxc_get_clock(MXC_LCDIF2_CLK));
 	}
 }
 
@@ -1269,6 +1329,10 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 		return get_usdhc_clk(3);
 	case MXC_SATA_CLK:
 		return get_ahb_clk();
+	case MXC_LCDIF1_CLK:
+		return get_lcd_clk(1);
+	case MXC_LCDIF2_CLK:
+		return get_lcd_clk(2);
 	default:
 		printf("Unsupported MXC CLK: %d\n", clk);
 		break;

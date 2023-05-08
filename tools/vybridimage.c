@@ -134,7 +134,7 @@ static void vybridimage_print_hdr_field(struct nand_page_0_boot_header *hdr,
 	printf("header.fcb[%d] = %08x\n", idx, hdr->fcb[idx]);
 }
 
-static void vybridimage_print_header(const void *ptr)
+static void vybridimage_print_header(const void *ptr, struct image_tool_params *params)
 {
 	struct nand_page_0_boot_header *hdr =
 		(struct nand_page_0_boot_header *)ptr;

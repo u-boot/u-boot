@@ -2,7 +2,6 @@
 #
 # (C) Copyright 2002
 # Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
-PLATFORM_RELFLAGS += -fno-common -ffixed-x18
 PLATFORM_RELFLAGS += $(call cc-option,-mbranch-protection=none)
 
 PF_NO_UNALIGNED := $(call cc-option, -mstrict-align)

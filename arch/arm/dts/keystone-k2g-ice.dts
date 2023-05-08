@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Device Tree Source for K2G Industrial Communication Engine EVM
  *
@@ -38,7 +38,7 @@
 &qspi {
 	status = "okay";
 
-	flash0: m25p80@0 {
+	flash0: flash@0 {
 		compatible = "s25fl256s1", "jedec,spi-nor";
 		reg = <0>;
 		spi-tx-bus-width = <1>;

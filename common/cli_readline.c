@@ -284,9 +284,8 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 			}
 
 			ichar = getcmd_getch();
+			ichar = cli_ch_process(cch, ichar);
 		}
-
-		ichar = cli_ch_process(cch, ichar);
 
 		/* ichar=0x0 when error occurs in U-Boot getc */
 		if (!ichar)

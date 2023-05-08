@@ -71,7 +71,7 @@ enum env_flags_varaccess {
 #define NET6_FLAGS \
 	"ip6addr:s," \
 	"serverip6:s," \
-	"gatewayip6:s"
+	"gatewayip6:s,"
 #else
 #define NET6_FLAGS
 #endif

@@ -13,29 +13,74 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/gpio.h>
 #include <dm/pinctrl.h>
-#include <dt-bindings/clock/rk3288-cru.h>
+#include <dm/read.h>
+#include <dt-bindings/pinctrl/rockchip.h>
+
+#define SWPORT_DR		0x0000
+#define SWPORT_DDR		0x0004
+#define EXT_PORT		0x0050
+#define SWPORT_DR_L		0x0000
+#define SWPORT_DR_H		0x0004
+#define SWPORT_DDR_L		0x0008
+#define SWPORT_DDR_H		0x000C
+#define EXT_PORT_V2		0x0070
+#define VER_ID_V2		0x0078
 
 enum {
 	ROCKCHIP_GPIOS_PER_BANK		= 32,
 };
 
-#define OFFSET_TO_BIT(bit)	(1UL << (bit))
-
 struct rockchip_gpio_priv {
-	struct rockchip_gpio_regs *regs;
+	void __iomem *regs;
 	struct udevice *pinctrl;
 	int bank;
 	char name[2];
+	u32 version;
 };
+
+static int rockchip_gpio_get_value(struct udevice *dev, unsigned offset)
+{
+	struct rockchip_gpio_priv *priv = dev_get_priv(dev);
+	u32 mask = BIT(offset), data;
+
+	if (priv->version)
+		data = readl(priv->regs + EXT_PORT_V2);
+	else
+		data = readl(priv->regs + EXT_PORT);
+
+	return (data & mask) ? 1 : 0;
+}
+
+static int rockchip_gpio_set_value(struct udevice *dev, unsigned offset,
+				   int value)
+{
+	struct rockchip_gpio_priv *priv = dev_get_priv(dev);
+	u32 mask = BIT(offset), data = value ? mask : 0;
+
+	if (priv->version && offset >= 16)
+		rk_clrsetreg(priv->regs + SWPORT_DR_H, mask >> 16, data >> 16);
+	else if (priv->version)
+		rk_clrsetreg(priv->regs + SWPORT_DR_L, mask, data);
+	else
+		clrsetbits_le32(priv->regs + SWPORT_DR, mask, data);
+
+	return 0;
+}
 
 static int rockchip_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
 	struct rockchip_gpio_priv *priv = dev_get_priv(dev);
-	struct rockchip_gpio_regs *regs = priv->regs;
+	u32 mask = BIT(offset);
 
-	clrbits_le32(&regs->swport_ddr, OFFSET_TO_BIT(offset));
+	if (priv->version && offset >= 16)
+		rk_clrreg(priv->regs + SWPORT_DDR_H, mask >> 16);
+	else if (priv->version)
+		rk_clrreg(priv->regs + SWPORT_DDR_L, mask);
+	else
+		clrbits_le32(priv->regs + SWPORT_DDR, mask);
 
 	return 0;
 }
@@ -44,52 +89,42 @@ static int rockchip_gpio_direction_output(struct udevice *dev, unsigned offset,
 					  int value)
 {
 	struct rockchip_gpio_priv *priv = dev_get_priv(dev);
-	struct rockchip_gpio_regs *regs = priv->regs;
-	int mask = OFFSET_TO_BIT(offset);
+	u32 mask = BIT(offset);
 
-	clrsetbits_le32(&regs->swport_dr, mask, value ? mask : 0);
-	setbits_le32(&regs->swport_ddr, mask);
+	rockchip_gpio_set_value(dev, offset, value);
 
-	return 0;
-}
-
-static int rockchip_gpio_get_value(struct udevice *dev, unsigned offset)
-{
-	struct rockchip_gpio_priv *priv = dev_get_priv(dev);
-	struct rockchip_gpio_regs *regs = priv->regs;
-
-	return readl(&regs->ext_port) & OFFSET_TO_BIT(offset) ? 1 : 0;
-}
-
-static int rockchip_gpio_set_value(struct udevice *dev, unsigned offset,
-				   int value)
-{
-	struct rockchip_gpio_priv *priv = dev_get_priv(dev);
-	struct rockchip_gpio_regs *regs = priv->regs;
-	int mask = OFFSET_TO_BIT(offset);
-
-	clrsetbits_le32(&regs->swport_dr, mask, value ? mask : 0);
+	if (priv->version && offset >= 16)
+		rk_setreg(priv->regs + SWPORT_DDR_H, mask >> 16);
+	else if (priv->version)
+		rk_setreg(priv->regs + SWPORT_DDR_L, mask);
+	else
+		setbits_le32(priv->regs + SWPORT_DDR, mask);
 
 	return 0;
 }
 
 static int rockchip_gpio_get_function(struct udevice *dev, unsigned offset)
 {
-#ifdef CONFIG_SPL_BUILD
-	return -ENODATA;
-#else
 	struct rockchip_gpio_priv *priv = dev_get_priv(dev);
-	struct rockchip_gpio_regs *regs = priv->regs;
-	bool is_output;
+	u32 mask = BIT(offset), data;
 	int ret;
 
-	ret = pinctrl_get_gpio_mux(priv->pinctrl, priv->bank, offset);
-	if (ret)
-		return ret;
-	is_output = readl(&regs->swport_ddr) & OFFSET_TO_BIT(offset);
+	if (CONFIG_IS_ENABLED(PINCTRL)) {
+		ret = pinctrl_get_gpio_mux(priv->pinctrl, priv->bank, offset);
+		if (ret < 0)
+			return ret;
+		else if (ret != RK_FUNC_GPIO)
+			return GPIOF_FUNC;
+	}
 
-	return is_output ? GPIOF_OUTPUT : GPIOF_INPUT;
-#endif
+	if (priv->version && offset >= 16)
+		data = readl(priv->regs + SWPORT_DDR_H) << 16;
+	else if (priv->version)
+		data = readl(priv->regs + SWPORT_DDR_L);
+	else
+		data = readl(priv->regs + SWPORT_DDR);
+
+	return (data & mask) ? GPIOF_OUTPUT : GPIOF_INPUT;
 }
 
 /* Simple SPL interface to GPIOs */
@@ -147,9 +182,12 @@ static int rockchip_gpio_probe(struct udevice *dev)
 	int ret;
 
 	priv->regs = dev_read_addr_ptr(dev);
-	ret = uclass_first_device_err(UCLASS_PINCTRL, &priv->pinctrl);
-	if (ret)
-		return ret;
+
+	if (CONFIG_IS_ENABLED(PINCTRL)) {
+		ret = uclass_first_device_err(UCLASS_PINCTRL, &priv->pinctrl);
+		if (ret)
+			return ret;
+	}
 
 	/*
 	 * If "gpio-ranges" is present in the devicetree use it to parse
@@ -160,7 +198,7 @@ static int rockchip_gpio_probe(struct udevice *dev)
 					     0, &args);
 	if (!ret || ret != -ENOENT) {
 		uc_priv->gpio_count = args.args[2];
-		priv->bank = args.args[1] / args.args[2];
+		priv->bank = args.args[1] / ROCKCHIP_GPIOS_PER_BANK;
 	} else {
 		uc_priv->gpio_count = ROCKCHIP_GPIOS_PER_BANK;
 		end = strrchr(dev->name, '@');
@@ -169,6 +207,8 @@ static int rockchip_gpio_probe(struct udevice *dev)
 
 	priv->name[0] = 'A' + priv->bank;
 	uc_priv->bank_name = priv->name;
+
+	priv->version = readl(priv->regs + VER_ID_V2);
 
 	return 0;
 }

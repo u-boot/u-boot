@@ -134,8 +134,8 @@ ENTRY(c_runtime_cpu_setup)
  */
 #if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 	mcr	p15, 0, r0, c7, c5, 0	@ invalidate icache
-	mcr     p15, 0, r0, c7, c10, 4	@ DSB
-	mcr     p15, 0, r0, c7, c5, 4	@ ISB
+	dsb
+	isb
 #endif
 
 	bx	lr
@@ -188,8 +188,8 @@ ENTRY(cpu_init_cp15)
 	mcr	p15, 0, r0, c8, c7, 0	@ invalidate TLBs
 	mcr	p15, 0, r0, c7, c5, 0	@ invalidate icache
 	mcr	p15, 0, r0, c7, c5, 6	@ invalidate BP array
-	mcr     p15, 0, r0, c7, c10, 4	@ DSB
-	mcr     p15, 0, r0, c7, c5, 4	@ ISB
+	dsb
+	isb
 
 	/*
 	 * disable MMU stuff and caches

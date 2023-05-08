@@ -1486,11 +1486,11 @@ out:
 }
 
 /**
- * fdt_node_offset_by_compat_reg: Find a node that matches compatiable and
+ * fdt_node_offset_by_compat_reg: Find a node that matches compatible and
  * who's reg property matches a physical cpu address
  *
  * @blob: ptr to device tree
- * @compat: compatiable string to match
+ * @compat: compatible string to match
  * @compat_off: property name
  *
  */

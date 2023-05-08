@@ -33,7 +33,7 @@
 &cbass_main{
 	bootph-pre-ram;
 
-	main_navss {
+	main_navss: bus@30000000 {
 		bootph-pre-ram;
 	};
 };
@@ -49,7 +49,7 @@
 		bootph-pre-ram;
 	};
 
-	mcu-navss {
+	mcu_navss: bus@28380000 {
 		bootph-pre-ram;
 
 		ringacc@2b800000 {
@@ -235,6 +235,10 @@
 
 &fss {
 	bootph-pre-ram;
+};
+
+&hbmc {
+	status = "disabled";
 };
 
 &ospi0 {

@@ -11,6 +11,7 @@ config SYS_CONFIG_NAME
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
+	select ENV_IS_NOWHERE
 
 config ENV_SIZE
 	default 0x3000

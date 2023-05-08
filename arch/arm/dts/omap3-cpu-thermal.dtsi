@@ -1,16 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0-only
 /*
  * Device Tree Source for OMAP3 SoC CPU thermal
  *
- * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
- *
- * This file is licensed under the terms of the GNU General Public License
- * version 2.  This program is licensed "as is" without any warranty of any
- * kind, whether express or implied.
+ * Copyright (C) 2017 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include <dt-bindings/thermal/thermal.h>
 
-cpu_thermal: cpu_thermal {
+cpu_thermal: cpu-thermal {
 	polling-delay-passive = <250>; /* milliseconds */
 	polling-delay = <1000>; /* milliseconds */
 	coefficients = <0 20000>;

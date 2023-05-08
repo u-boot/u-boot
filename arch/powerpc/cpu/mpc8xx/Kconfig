@@ -30,8 +30,50 @@ config MPC885
 
 endchoice
 
-config 8xx_GCLK_FREQ
-	int "CPU GCLK Frequency"
+choice
+	prompt "Microcode patch selection"
+	default NO_UCODE_PATCH
+	help
+	  This allows loading of CPM microcode.
+
+	  Only one microcode can be loaded at a time.
+
+config NO_UCODE_PATCH
+	bool "None"
+
+config USB_SOF_UCODE_PATCH
+	bool "USB SOF patch"
+	depends on MPC885
+	help
+	  This microcode fixes CPM15 errata:
+
+	  When the USB controller is configured in Host mode, and the
+	  SOF generation (SFTE=1 in USMOD register) is being used,
+	  there may be false CRC error indication in other SCCs.
+	  Although the data is received correctly, the CRC result
+	  will be corrupted.
+
+config SMC_UCODE_PATCH
+	bool "SMC relocation patch"
+	help
+	  This microcode relocates SMC1 and SMC2 parameter RAMs to allow
+	  extended parameter RAM for SCC3 and SCC4 (ex: for QMC mode)
+
+config SMC1_RPBASE
+	hex "SMC1 relocation offset"
+	depends on SMC_UCODE_PATCH
+	default 0x1e80
+	help
+	  Offset of SMC1 parameter RAM to be written to RPBASE register.
+
+config SMC2_RPBASE
+	hex "SMC2 relocation offset"
+	depends on SMC_UCODE_PATCH
+	default 0x1f80
+	help
+	  Offset of SMC2 parameter RAM to be written to RPBASE register.
+
+endchoice
 
 comment "Specific commands"
 
@@ -51,7 +93,8 @@ config SYS_SIUMCR
 	  SIU Module Configuration (11-6)
 
 config SYS_SYPCR
-	hex "SYPCR register"
+	hex "SYPCR register" if !WDT_MPC8xxx
+	default 0
 	help
 	  System Protection Control (11-9)
 

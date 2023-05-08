@@ -132,6 +132,14 @@
 	};
 };
 
+&duart0 {
+	status = "okay";
+};
+
+&duart1 {
+	status = "okay";
+};
+
 &dspi {
 	bus-num = <0>;
 	status = "okay";

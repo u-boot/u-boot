@@ -7,7 +7,7 @@
 import pytest
 
 @pytest.mark.buildconfigspec('cmd_bootefi_selftest')
-def test_efi_selftest(u_boot_console):
+def test_efi_selftest_base(u_boot_console):
     """Run UEFI unit tests
 
     u_boot_console -- U-Boot console

@@ -86,4 +86,12 @@
 #define TI_SRAM_SCRATCH_BOARD_EEPROM_START	0x70000001
 #endif /* CONFIG_CPU_V7R */
 
+#if defined(CONFIG_SYS_K3_SPL_ATF) && !defined(__ASSEMBLY__)
+
+static const u32 put_device_ids[] = {};
+
+static const u32 put_core_ids[] = {};
+
+#endif
+
 #endif /* __ASM_ARCH_AM62A_HARDWARE_H */

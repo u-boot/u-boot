@@ -674,6 +674,7 @@ repeat:
 
 		case 'x':
 			flags |= SMALL;
+		/* fallthrough */
 		case 'X':
 			base = 16;
 			break;
@@ -681,8 +682,10 @@ repeat:
 		case 'd':
 			if (fmt[1] == 'E')
 				flags |= ERRSTR;
+		/* fallthrough */
 		case 'i':
 			flags |= SIGN;
+		/* fallthrough */
 		case 'u':
 			break;
 

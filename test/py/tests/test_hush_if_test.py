@@ -182,3 +182,16 @@ def test_hush_if_test_host_file_exists(u_boot_console):
 
     expr = 'test -e hostfs - ' + test_file
     exec_hush_if(u_boot_console, expr, False)
+
+def test_hush_var(u_boot_console):
+    """Test the set and unset of variables"""
+    u_boot_console.run_command('ut_var_nonexistent=')
+    u_boot_console.run_command('ut_var_exists=1')
+    u_boot_console.run_command('ut_var_unset=1')
+    exec_hush_if(u_boot_console, 'test -z "$ut_var_nonexistent"', True)
+    exec_hush_if(u_boot_console, 'test -z "$ut_var_exists"', False)
+    exec_hush_if(u_boot_console, 'test -z "$ut_var_unset"', False)
+    exec_hush_if(u_boot_console, 'ut_var_unset=', True)
+    exec_hush_if(u_boot_console, 'test -z "$ut_var_unset"', True)
+    u_boot_console.run_command('ut_var_exists=')
+    u_boot_console.run_command('ut_var_unset=')

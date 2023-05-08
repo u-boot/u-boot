@@ -21,8 +21,6 @@
 	"kernel_addr_r=0x62000000\0" \
 	"ramdisk_addr_r=0x64000000\0"
 
-#include <config_distro_bootcmd.h>
-
 /* Linux fails to load the fdt if it's loaded above 512M on a evb-rk3036 board,
  * so limit the fdt reallocation to that */
 #define CFG_EXTRA_ENV_SETTINGS \
@@ -30,6 +28,6 @@
 	"fdt_high=0x7fffffff\0" \
 	"partitions=" PARTS_DEFAULT \
 	ENV_MEM_LAYOUT_SETTINGS \
-	BOOTENV
+	"boot_targets=" BOOT_TARGETS "\0"
 
 #endif

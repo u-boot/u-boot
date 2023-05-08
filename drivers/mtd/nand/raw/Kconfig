@@ -156,6 +156,13 @@ config NAND_BRCMNAND_63158
        help
          Enable support for broadcom nand driver on bcm63158.
 
+config NAND_BRCMNAND_IPROC
+       bool "Support Broadcom NAND controller on the iproc family"
+       depends on NAND_BRCMNAND
+       help
+         Enable support for broadcom nand driver on the Broadcom
+         iproc family such as Northstar (BCM5301x, BCM4708...)
+
 config NAND_DAVINCI
 	bool "Support TI Davinci NAND controller"
 	select SYS_NAND_SELF_INIT if TARGET_DA850EVM

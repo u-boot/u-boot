@@ -11,6 +11,7 @@
 #include <env.h>
 #include <common.h>
 #include <mpc8xx.h>
+#include <asm/cpm_8xx.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <stdio.h>
@@ -22,98 +23,28 @@
 #include <init.h>
 #include <fdt_support.h>
 #include <linux/delay.h>
-
 #include <spi.h>
 
+#include "../common/common.h"
+
 DECLARE_GLOBAL_DATA_PTR;
-
-#define BOARD_CMPC885		"cmpc885"
-#define BOARD_MCR3000_2G	"mcr3k_2g"
-#define BOARD_VGOIP		"vgoip"
-#define BOARD_MIAE		"miae"
-
-#define TYPE_MCR	0x22
-#define TYPE_MIAE	0x23
-
-#define FAR_CASRSA     2
-#define FAR_VGOIP      4
-#define FAV_CLA        7
-#define FAV_SRSA       8
 
 #define ADDR_CPLD_R_RESET		((unsigned short __iomem *)CONFIG_CPLD_BASE)
 #define ADDR_CPLD_R_ETAT		((unsigned short __iomem *)(CONFIG_CPLD_BASE + 2))
 #define ADDR_CPLD_R_TYPE		((unsigned char  __iomem *)(CONFIG_CPLD_BASE + 3))
-
-#define ADDR_FPGA_R_BASE		((unsigned char  __iomem *)CONFIG_FPGA_BASE)
-#define ADDR_FPGA_R_ALARMES_IN		((unsigned char  __iomem *)CONFIG_FPGA_BASE + 0x31)
-#define ADDR_FPGA_R_FAV			((unsigned char  __iomem *)CONFIG_FPGA_BASE + 0x44)
 
 #define PATH_PHY2			"/soc@ff000000/mdio@e00/ethernet-phy@2"
 #define PATH_PHY3			"/soc@ff000000/mdio@e00/ethernet-phy@3"
 #define PATH_ETH1			"/soc@ff000000/ethernet@1e00"
 #define FIBER_PHY PATH_PHY2
 
-#define FPGA_R_ACQ_AL_FAV	0x04
 #define R_ETAT_PRES_BASE	0x0040
 
 #define R_RESET_STATUS		0x0400
 #define R_RST_STATUS		0x0004
 
-static int fdt_set_node_and_value(void *blob, char *node, const char *prop,
-				  void *var, int size)
-{
-	int ret, off;
-
-	off = fdt_path_offset(blob, node);
-
-	if (off < 0) {
-		printf("Cannot find %s node err:%s\n", node, fdt_strerror(off));
-
-		return off;
-	}
-
-	ret = fdt_setprop(blob, off, prop, var, size);
-
-	if (ret < 0)
-		printf("Cannot set %s/%s prop err: %s\n", node, prop, fdt_strerror(ret));
-
-	return ret;
-}
-
-/* Checks front/rear id and remove unneeded nodes from the blob */
-static void ft_cleanup(void *blob, uint32_t id, const char *prop, const char *compatible)
-{
-	int off;
-
-	off = fdt_node_offset_by_compatible(blob, -1, compatible);
-
-	while (off != -FDT_ERR_NOTFOUND) {
-		const struct fdt_property *ids;
-		int nb_ids, idx;
-		int tmp = -1;
-
-		ids = fdt_get_property(blob, off, prop, &nb_ids);
-
-		for (idx = 0; idx < nb_ids; idx += 4) {
-			if (*((uint32_t *)&ids->data[idx]) == id)
-				break;
-		}
-
-		if (idx >= nb_ids)
-			fdt_del_node(blob, off);
-		else
-			tmp = off;
-
-		off = fdt_node_offset_by_compatible(blob, tmp, compatible);
-	}
-
-	fdt_set_node_and_value(blob, "/", prop, &id, sizeof(uint32_t));
-}
-
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	u8 fav_id, far_id;
-
 	const char *sync = "receive";
 
 	ft_cpu_setup(blob, bd);
@@ -137,32 +68,19 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	do_fixup_by_path(blob, "/localbus/e1", "rising-edge-sync-pulse", sync, strlen(sync), 1);
 
 	/* MIAE only */
-	if (!(in_be16(ADDR_CPLD_R_ETAT) & R_ETAT_PRES_BASE) || in_8(ADDR_FPGA_R_BASE) != TYPE_MIAE)
+	if (!(in_be16(ADDR_CPLD_R_ETAT) & R_ETAT_PRES_BASE))
 		return 0;
 
-	far_id = in_8(ADDR_FPGA_R_BASE + 0x43) >> 5;
-	ft_cleanup(blob, (u32)far_id, "far-id", "cs,mia-far");
+	return ft_board_setup_common(blob);
+}
 
-	/*
-	 * special case, with CASRSA (far_id: 2)
-	 * FAV-SRSA register itself as FAV-CLA
-	 */
-	fav_id = in_8(ADDR_FPGA_R_BASE + 0x44) >> 5;
+void ft_board_setup_phy3(void)
+{
+	/* switch to phy3 with gpio, we'll only use phy3 */
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	cpm8xx_t __iomem *cp = (cpm8xx_t __iomem *)&immr->im_cpm;
 
-	if (far_id == FAR_CASRSA && fav_id == FAV_CLA)
-		fav_id = FAV_SRSA;
-
-	ft_cleanup(blob, (u32)fav_id, "fav-id", "cs,mia-fav");
-
-	if (far_id == FAR_CASRSA) {
-		/* switch to phy3 with gpio, we'll only use phy3 */
-		immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
-		cpm8xx_t __iomem *cp = (cpm8xx_t __iomem *)&immr->im_cpm;
-
-		setbits_be32(&cp->cp_pedat, 0x00002000);
-	}
-
-	return 0;
+	setbits_be32(&cp->cp_pedat, 0x00002000);
 }
 
 int checkboard(void)
@@ -170,73 +88,29 @@ int checkboard(void)
 	serial_puts("Board: ");
 
 	/* Is a motherboard present ? */
-	if (in_be16(ADDR_CPLD_R_ETAT) & R_ETAT_PRES_BASE) {
-		switch (in_8(ADDR_FPGA_R_BASE)) {
-			int far_id;
-		case TYPE_MCR:
-			printf("MCR3000_2G (CS GROUP)\n");
-			break;
-		case TYPE_MIAE:
-			far_id = in_8(ADDR_FPGA_R_BASE + 0x43) >> 5;
+	if (in_be16(ADDR_CPLD_R_ETAT) & R_ETAT_PRES_BASE)
+		return checkboard_common();
 
-			if (far_id == FAR_VGOIP)
-				printf("VGoIP (CS GROUP)\n");
-			else
-				printf("MIAE (CS GROUP)\n");
+	printf("CMPC885 (CS GROUP)\n");
 
-			break;
-		default:
-			printf("Unknown\n");
-			for (;;)
-				;
-			break;
-		}
-	} else {
-		printf("CMPC885 (CS GROUP)\n");
-	}
 	return 0;
 }
 
-#define SPI_EEPROM_READ	0x03
 #define MAX_SPI_BYTES	0x20
 
-#define EE_OFF_MAC1	0x13
-#define EE_OFF_MAC2	0x19
+#define EE_OFF_MAC1	0x10
+#define EE_OFF_MAC2	0x16
 
 /* Reads MAC addresses from SPI EEPROM */
 static int setup_mac(void)
 {
-	struct udevice *eeprom;
-	struct spi_slave *slave;
-	char name[30], *str;
 	uchar din[MAX_SPI_BYTES];
-	uchar dout[MAX_SPI_BYTES] = {SPI_EEPROM_READ, 0, 0};
-	int bitlen = 256, cs = 0, mode = 0, bus = 0, ret;
+	int ret;
 	unsigned long ident = 0x08005120;
 
-	snprintf(name, sizeof(name), "generic_%d:%d", bus, cs);
-
-	str = strdup(name);
-	if (!str)
-		return -1;
-
-	ret = uclass_get_device(UCLASS_SPI, 0, &eeprom);
-	if (ret) {
-		printf("Could not enable Serial Peripheral Interface (SPI).\n");
-		return -1;
-	}
-
-	ret = _spi_get_bus_and_cs(bus, cs, 1000000, mode, "spi_generic_drv", str, &eeprom, &slave);
+	ret = read_eeprom(din, sizeof(din));
 	if (ret)
 		return ret;
-
-	ret = spi_claim_bus(slave);
-
-	ret = spi_xfer(slave, bitlen, dout, din, SPI_XFER_BEGIN | SPI_XFER_END);
-	if (ret) {
-		printf("Error %d during SPI transaction\n", ret);
-		return ret;
-	}
 
 	if (memcmp(din + EE_OFF_MAC1, &ident, sizeof(ident)) == 0)
 		eth_env_set_enetaddr("ethaddr", din + EE_OFF_MAC1);
@@ -244,64 +118,17 @@ static int setup_mac(void)
 	if (memcmp(din + EE_OFF_MAC2, &ident, sizeof(ident)) == 0)
 		eth_env_set_enetaddr("eth1addr", din + EE_OFF_MAC2);
 
-	spi_release_bus(slave);
-
 	return 0;
 }
 
 int misc_init_r(void)
 {
-	u8 val, tmp, far_id;
-	int count = 3;
-
-	val = in_8(ADDR_FPGA_R_BASE);
-
 	/* Verify mother board presence */
 	if (in_be16(ADDR_CPLD_R_ETAT) & R_ETAT_PRES_BASE) {
-		/* identify the type of mother board */
-		switch (val) {
-		case TYPE_MCR:
-			/* if at boot alarm button is pressed, delay boot */
-			if ((in_8(ADDR_FPGA_R_ALARMES_IN) & FPGA_R_ACQ_AL_FAV) == 0)
-				env_set("bootdelay", "60");
-
-			env_set("config", BOARD_MCR3000_2G);
-			env_set("hostname", BOARD_MCR3000_2G);
-			break;
-
-		case TYPE_MIAE:
-			do {
-				tmp = in_8(ADDR_FPGA_R_BASE + 0x41);
-				count--;
-				mdelay(10); /* 10msec wait */
-			} while (count && tmp != in_8(ADDR_FPGA_R_BASE + 0x41));
-
-			if (!count) {
-				printf("Cannot read the reset factory switch position\n");
-				hang();
-			}
-
-			if (tmp & 0x1)
-				env_set_default("Factory settings switch ON", 0);
-
-			env_set("config", BOARD_MIAE);
-			far_id = in_8(ADDR_FPGA_R_BASE + 0x43) >> 5;
-
-			if (far_id == FAR_VGOIP)
-				env_set("hostname", BOARD_VGOIP);
-			else
-				env_set("hostname", BOARD_MIAE);
-			break;
-
-		default:
-			env_set("config", BOARD_CMPC885);
-			env_set("hostname", BOARD_CMPC885);
-			break;
-		}
+		misc_init_r_common();
 	} else {
-		printf("no mother board detected");
-		env_set("config", BOARD_CMPC885);
-		env_set("hostname", BOARD_CMPC885);
+		env_set("config", CFG_BOARD_CMPCXXX);
+		env_set("hostname", CFG_BOARD_CMPCXXX);
 	}
 
 	if (setup_mac())
@@ -313,7 +140,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-static void iop_setup_mcr(void)
+void iop_setup_mcr(void)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	iop8xx_t __iomem *iop = &immr->im_ioport;
@@ -616,7 +443,7 @@ static void iop_setup_cmpc885(void)
 	clrbits_be32(&cp->cp_peso, 0x00031980);
 }
 
-static void iop_setup_miae(void)
+void iop_setup_miae(void)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	iop8xx_t __iomem *iop = &immr->im_ioport;
@@ -625,8 +452,11 @@ static void iop_setup_miae(void)
 	/* Wait reset on FPGA_F */
 	udelay(100);
 
+	/* Load CPM relocation code */
+	cpm_load_patch(cp);
+
 	/* Set the front panel LED color to red */
-	clrbits_8(ADDR_FPGA_R_FAV, 0x02);
+	clrbits_8((unsigned char  __iomem *)CONFIG_FPGA_BASE + 0x44, 0x02);
 
 	/* We must initialize data before changing direction */
 	setbits_be16(&iop->iop_pcdat, 0x0888);
@@ -760,13 +590,8 @@ static void iop_setup_miae(void)
 	setbits_be32(&cp->cp_peso, 0x00031980);
 }
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 /* Specific board initialization */
-int board_early_init_r(void)
+int board_early_init_f(void)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	iop8xx_t __iomem *iop = &immr->im_ioport;
@@ -1038,8 +863,6 @@ int board_early_init_r(void)
 
 		/* Check if fpga firmware is loaded */
 		if (!(in_be32(&cp->cp_pedat) & 0x00000001)) {
-			printf("Reloading FPGA firmware.\n");
-
 			/* Load fpga firmware */
 			/* Activate PROG_FPGA_FIRMWARE for 1 usec */
 			clrbits_be32(&cp->cp_pedat, 0x00000002);
@@ -1048,12 +871,8 @@ int board_early_init_r(void)
 
 			/* Wait 200 msec and check DONE_FPGA_FIRMWARE */
 			mdelay(200);
-			if (!(in_be32(&cp->cp_pedat) & 0x00000001)) {
-				for (;;) {
-					printf("error loading firmware.\n");
-					mdelay(500);
-				}
-			}
+			if (!(in_be32(&cp->cp_pedat) & 0x00000001))
+				hang();
 
 			/* Send a reset signal and wait for 20 msec */
 			clrbits_be16(ADDR_CPLD_R_RESET, R_RST_STATUS);
@@ -1063,41 +882,10 @@ int board_early_init_r(void)
 
 		/* Wait 300 msec and check the reset state */
 		mdelay(300);
-		if (!(in_be16(ADDR_CPLD_R_RESET) & R_RESET_STATUS)) {
-			for (;;) {
-				printf("Could not reset FPGA.\n");
-				mdelay(500);
-			}
-		}
+		if (!(in_be16(ADDR_CPLD_R_RESET) & R_RESET_STATUS))
+			hang();
 
-		/* is FPGA firmware loaded ? */
-		if (!(in_be32(&cp->cp_pedat) & 0x00000001)) {
-			printf("Reloading FPGA firmware\n");
-
-			/* Load FPGA firmware */
-			/* Activate PROG_FPGA_FIRMWARE for 1 usec */
-			clrbits_be32(&cp->cp_pedat, 0x00000002);
-			udelay(1);
-			setbits_be32(&cp->cp_pedat, 0x00000002);
-
-			/* Wait 200ms before checking DONE_FPGA_FIRMWARE */
-			mdelay(200);
-		}
-
-		/* Identify the type of mother board */
-		switch (in_8(ADDR_FPGA_R_BASE)) {
-		case TYPE_MCR:
-			iop_setup_mcr();
-			break;
-
-		case TYPE_MIAE:
-			iop_setup_miae();
-			break;
-
-		default:
-			break;
-		}
-	/* CMPC885 board alone */
+		iop_setup_common();
 	} else {
 		iop_setup_cmpc885();
 	}

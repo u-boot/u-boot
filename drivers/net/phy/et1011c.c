@@ -87,7 +87,7 @@ static int et1011c_startup(struct phy_device *phydev)
 	return et1011c_parse_status(phydev);
 }
 
-static struct phy_driver et1011c_driver = {
+U_BOOT_PHY_DRIVER(et1011c) = {
 	.name		= "ET1011C",
 	.uid		= 0x0282f014,
 	.mask		= 0xfffffff0,
@@ -95,10 +95,3 @@ static struct phy_driver et1011c_driver = {
 	.config		= &et1011c_config,
 	.startup	= &et1011c_startup,
 };
-
-int phy_et1011c_init(void)
-{
-	phy_register(&et1011c_driver);
-
-	return 0;
-}

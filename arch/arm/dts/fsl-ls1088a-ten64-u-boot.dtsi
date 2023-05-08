@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0+
+#include <config.h>
+
+#include "fsl-ls1088a-u-boot.dtsi"
+
+/{
+	aliases {
+		spi0 = &qspi;
+	};
+};
+
+&i2c0 {
+	uc: board-controller@7e {
+		compatible = "traverse,ten64-controller";
+		reg = <0x7e>;
+	};
+};
+

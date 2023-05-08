@@ -384,17 +384,6 @@ static int rtl8211x_startup(struct phy_device *phydev)
 	return rtl8211x_parse_status(phydev);
 }
 
-static int rtl8211e_startup(struct phy_device *phydev)
-{
-	int ret;
-
-	ret = genphy_update_link(phydev);
-	if (ret)
-		return ret;
-
-	return genphy_parse_link(phydev);
-}
-
 static int rtl8211f_startup(struct phy_device *phydev)
 {
 	int ret;
@@ -409,7 +398,7 @@ static int rtl8211f_startup(struct phy_device *phydev)
 }
 
 /* Support for RTL8211B PHY */
-static struct phy_driver RTL8211B_driver = {
+U_BOOT_PHY_DRIVER(rtl8211b) = {
 	.name = "RealTek RTL8211B",
 	.uid = 0x1cc912,
 	.mask = 0xffffff,
@@ -421,19 +410,19 @@ static struct phy_driver RTL8211B_driver = {
 };
 
 /* Support for RTL8211E-VB-CG, RTL8211E-VL-CG and RTL8211EG-VB-CG PHYs */
-static struct phy_driver RTL8211E_driver = {
+U_BOOT_PHY_DRIVER(rtl8211e) = {
 	.name = "RealTek RTL8211E",
 	.uid = 0x1cc915,
 	.mask = 0xffffff,
 	.features = PHY_GBIT_FEATURES,
 	.probe = &rtl8211e_probe,
 	.config = &rtl8211e_config,
-	.startup = &rtl8211e_startup,
+	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
 };
 
 /* Support for RTL8211DN PHY */
-static struct phy_driver RTL8211DN_driver = {
+U_BOOT_PHY_DRIVER(rtl8211dn) = {
 	.name = "RealTek RTL8211DN",
 	.uid = 0x1cc914,
 	.mask = 0xffffff,
@@ -444,7 +433,7 @@ static struct phy_driver RTL8211DN_driver = {
 };
 
 /* Support for RTL8211F PHY */
-static struct phy_driver RTL8211F_driver = {
+U_BOOT_PHY_DRIVER(rtl8211f) = {
 	.name = "RealTek RTL8211F",
 	.uid = 0x1cc916,
 	.mask = 0xffffff,
@@ -458,24 +447,13 @@ static struct phy_driver RTL8211F_driver = {
 };
 
 /* Support for RTL8201F PHY */
-static struct phy_driver RTL8201F_driver = {
+U_BOOT_PHY_DRIVER(rtl8201f) = {
 	.name = "RealTek RTL8201F 10/100Mbps Ethernet",
 	.uid = 0x1cc816,
 	.mask = 0xffffff,
 	.features = PHY_BASIC_FEATURES,
 	.probe = &rtl8210f_probe,
 	.config = &rtl8201f_config,
-	.startup = &rtl8211e_startup,
+	.startup = &genphy_startup,
 	.shutdown = &genphy_shutdown,
 };
-
-int phy_realtek_init(void)
-{
-	phy_register(&RTL8211B_driver);
-	phy_register(&RTL8211E_driver);
-	phy_register(&RTL8211F_driver);
-	phy_register(&RTL8211DN_driver);
-	phy_register(&RTL8201F_driver);
-
-	return 0;
-}

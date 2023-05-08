@@ -421,7 +421,7 @@ class Toolchains:
         Returns:
             Resolved string
 
-        >>> bsettings.Setup()
+        >>> bsettings.Setup(None)
         >>> tcs = Toolchains()
         >>> tcs.Add('fred', False)
         >>> var_dict = {'oblique' : 'OBLIQUE', 'first' : 'fi${second}rst', \

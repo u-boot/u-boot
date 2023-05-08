@@ -35,6 +35,24 @@ struct lmb_property {
 	enum lmb_flags flags;
 };
 
+/*
+ * For regions size management, see LMB configuration in KConfig
+ * all the #if test are done with CONFIG_LMB_USE_MAX_REGIONS (boolean)
+ *
+ * case 1. CONFIG_LMB_USE_MAX_REGIONS is defined (legacy mode)
+ *         => CONFIG_LMB_MAX_REGIONS is used to configure the region size,
+ *         directly in the array lmb_region.region[], with the same
+ *         configuration for memory and reserved regions.
+ *
+ * case 2. CONFIG_LMB_USE_MAX_REGIONS is not defined, the size of each
+ *         region is configurated *independently* with
+ *         => CONFIG_LMB_MEMORY_REGIONS: struct lmb.memory_regions
+ *         => CONFIG_LMB_RESERVED_REGIONS: struct lmb.reserved_regions
+ *         lmb_region.region is only a pointer to the correct buffer,
+ *         initialized in lmb_init(). This configuration is useful to manage
+ *         more reserved memory regions with CONFIG_LMB_RESERVED_REGIONS.
+ */
+
 /**
  * struct lmb_region - Description of a set of region.
  *
@@ -68,7 +86,7 @@ struct lmb_region {
 struct lmb {
 	struct lmb_region memory;
 	struct lmb_region reserved;
-#ifdef CONFIG_LMB_MEMORY_REGIONS
+#if !IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
 	struct lmb_property memory_regions[CONFIG_LMB_MEMORY_REGIONS];
 	struct lmb_property reserved_regions[CONFIG_LMB_RESERVED_REGIONS];
 #endif

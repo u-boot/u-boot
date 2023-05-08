@@ -35,6 +35,8 @@
 #include <mapmem.h>
 #include <dm/root.h>
 #include <dm/util.h>
+#include <dm/device-internal.h>
+#include <dm/uclass-internal.h>
 #include <linux/compiler.h>
 #include <fdt_support.h>
 #include <bootcount.h>
@@ -887,6 +889,19 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			      CONFIG_BOOTSTAGE_STASH_SIZE);
 	if (ret)
 		debug("Failed to stash bootstage: err=%d\n", ret);
+#endif
+
+#if defined(CONFIG_SPL_VIDEO)
+	struct udevice *dev;
+	int rc;
+
+	rc = uclass_find_device(UCLASS_VIDEO, 0, &dev);
+	if (!rc && dev) {
+		rc = device_remove(dev, DM_REMOVE_NORMAL);
+		if (rc)
+			printf("Cannot remove video device '%s' (err=%d)\n",
+			       dev->name, rc);
+	}
 #endif
 
 	spl_board_prepare_for_boot();

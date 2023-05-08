@@ -136,6 +136,5 @@
 #define CFG_SYS_CS2_MASK		(16 << 20)
 #define CFG_SYS_CS2_CTRL		0x00001f60
 
-#define CFG_MCFTMR
 
 #endif				/* _M5373EVB_H */

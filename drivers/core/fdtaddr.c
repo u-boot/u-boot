@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <fdt_support.h>
 #include <log.h>
+#include <mapmem.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device-internal.h>
@@ -97,7 +98,10 @@ void *devfdt_get_addr_index_ptr(const struct udevice *dev, int index)
 {
 	fdt_addr_t addr = devfdt_get_addr_index(dev, index);
 
-	return (addr == FDT_ADDR_T_NONE) ? NULL : (void *)(uintptr_t)addr;
+	if (addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	return map_sysmem(addr, 0);
 }
 
 fdt_addr_t devfdt_get_addr_size_index(const struct udevice *dev, int index,

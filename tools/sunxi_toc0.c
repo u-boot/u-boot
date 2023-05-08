@@ -757,7 +757,7 @@ static const char *toc0_item_name(uint32_t name)
 	return "(unknown)";
 }
 
-static void toc0_print_header(const void *buf)
+static void toc0_print_header(const void *buf, struct image_tool_params *params)
 {
 	const struct toc0_main_info *main_info = buf;
 	const struct toc0_item_info *item_info = (void *)(main_info + 1);

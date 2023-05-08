@@ -35,7 +35,7 @@ LIST_HEAD(efi_obj_list);
 __efi_runtime_data LIST_HEAD(efi_events);
 
 /* List of queued events */
-LIST_HEAD(efi_event_queue);
+static LIST_HEAD(efi_event_queue);
 
 /* Flag to disable timer activity in ExitBootServices() */
 static bool timers_enabled = true;
@@ -44,7 +44,7 @@ static bool timers_enabled = true;
 bool efi_st_keep_devices;
 
 /* List of all events registered by RegisterProtocolNotify() */
-LIST_HEAD(efi_register_notify_events);
+static LIST_HEAD(efi_register_notify_events);
 
 /* Handle of the currently executing image */
 static efi_handle_t current_image;

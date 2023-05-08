@@ -914,6 +914,8 @@ static int low_drive_gpu_freq(void *blob)
 
 	if (cnt != 7)
 		printf("Warning: %s, assigned-clock-rates count %d\n", nodes_path_8mn[0], cnt);
+	if (cnt < 2)
+		return -1;
 
 	assignedclks[cnt - 1] = 200000000;
 	assignedclks[cnt - 2] = 200000000;
@@ -1393,40 +1395,6 @@ usb_modify_speed:
 
 	return 0;
 }
-#endif
-
-#ifdef CONFIG_OF_BOARD_FIXUP
-#ifndef CONFIG_SPL_BUILD
-int board_fix_fdt(void *fdt)
-{
-	if (is_imx8mpul()) {
-		int i = 0;
-		int nodeoff, ret;
-		const char *status = "disabled";
-		static const char * const dsi_nodes[] = {
-			"/soc@0/bus@32c00000/mipi_dsi@32e60000",
-			"/soc@0/bus@32c00000/lcd-controller@32e80000",
-			"/dsi-host"
-		};
-
-		for (i = 0; i < ARRAY_SIZE(dsi_nodes); i++) {
-			nodeoff = fdt_path_offset(fdt, dsi_nodes[i]);
-			if (nodeoff > 0) {
-set_status:
-				ret = fdt_setprop(fdt, nodeoff, "status", status,
-						  strlen(status) + 1);
-				if (ret == -FDT_ERR_NOSPACE) {
-					ret = fdt_increase_size(fdt, 512);
-					if (!ret)
-						goto set_status;
-				}
-			}
-		}
-	}
-
-	return 0;
-}
-#endif
 #endif
 
 #if !CONFIG_IS_ENABLED(SYSRESET)
