@@ -900,12 +900,12 @@ static int npcm8xx_pinconf_set(struct udevice *dev, unsigned int selector,
 		setbits_le32(base + GPIO_OES, BIT(gpio));
 	case PIN_CONFIG_OUTPUT:
 		dev_dbg(dev, "set pin %d output %d\n", pin, arg);
-		clrbits_le32(base + GPIO_IEM, BIT(gpio));
-		setbits_le32(base + GPIO_OES, BIT(gpio));
 		if (arg)
 			setbits_le32(base + GPIO_DOUT, BIT(gpio));
 		else
 			clrbits_le32(base + GPIO_DOUT, BIT(gpio));
+		clrbits_le32(base + GPIO_IEM, BIT(gpio));
+		setbits_le32(base + GPIO_OES, BIT(gpio));
 		break;
 	case PIN_CONFIG_DRIVE_PUSH_PULL:
 		dev_dbg(dev, "set pin %d push pull\n", pin);
