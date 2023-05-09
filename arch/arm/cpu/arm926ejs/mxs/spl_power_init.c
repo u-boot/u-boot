@@ -763,7 +763,8 @@ static void mxs_batt_boot(void)
 		       &power_regs->hw_power_5vctrl_set);
 	}
 
-	mxs_power_enable_4p2();
+	if (CONFIG_IS_ENABLED(MXS_PMU_ENABLE_4P2_LINEAR_REGULATOR))
+		mxs_power_enable_4p2();
 }
 
 /**
