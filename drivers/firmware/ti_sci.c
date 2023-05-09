@@ -265,7 +265,7 @@ static int ti_sci_do_xfer(struct ti_sci_info *info,
 	if (xfer->rx_len) {
 		ret = ti_sci_get_response(info, xfer, &info->chan_rx);
 		if (!ti_sci_is_response_ack(xfer->tx_message.buf)) {
-			dev_err(info->dev, "Message not acknowledged");
+			dev_err(info->dev, "Message not acknowledged\n");
 			ret = -ENODEV;
 		}
 	}
