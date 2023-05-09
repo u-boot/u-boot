@@ -41,6 +41,29 @@ static void mxs_power_clock2xtal(void)
 		&clkctrl_regs->hw_clkctrl_clkseq_set);
 }
 
+static void mxs_power_regs_dump(void)
+{
+	struct mxs_power_regs *power_regs =
+		(struct mxs_power_regs *)MXS_POWER_BASE;
+
+	debug("ctrl:\t\t 0x%x\n", readl(&power_regs->hw_power_ctrl));
+	debug("5vctrl:\t\t 0x%x\n", readl(&power_regs->hw_power_5vctrl));
+	debug("minpwr:\t\t 0x%x\n", readl(&power_regs->hw_power_minpwr));
+	debug("charge:\t\t 0x%x\n", readl(&power_regs->hw_power_charge));
+	debug("vddctrl:\t 0x%x\n", readl(&power_regs->hw_power_vdddctrl));
+	debug("vddactrl:\t 0x%x\n", readl(&power_regs->hw_power_vddactrl));
+	debug("vddioctrl:\t 0x%x\n", readl(&power_regs->hw_power_vddioctrl));
+	debug("vddmemctrl:\t 0x%x\n", readl(&power_regs->hw_power_vddmemctrl));
+	debug("dcdc4p2:\t 0x%x\n", readl(&power_regs->hw_power_dcdc4p2));
+	debug("misc:\t\t 0x%x\n", readl(&power_regs->hw_power_misc));
+	debug("dclimits:\t 0x%x\n", readl(&power_regs->hw_power_dclimits));
+	debug("loopctrl:\t 0x%x\n", readl(&power_regs->hw_power_loopctrl));
+	debug("sts:\t\t 0x%x\n", readl(&power_regs->hw_power_sts));
+	debug("speed:\t\t 0x%x\n", readl(&power_regs->hw_power_speed));
+	debug("battmonitor:\t 0x%x\n",
+	      readl(&power_regs->hw_power_battmonitor));
+}
+
 /**
  * mxs_power_clock2pll() - Switch CPU core clock source to PLL
  *
@@ -1280,6 +1303,7 @@ void mxs_power_init(void)
 		POWER_CTRL_DCDC4P2_BO_IRQ, &power_regs->hw_power_ctrl_clr);
 
 	writel(POWER_5VCTRL_PWDN_5VBRNOUT, &power_regs->hw_power_5vctrl_set);
+	mxs_power_regs_dump();
 
 	early_delay(1000);
 }
