@@ -59,6 +59,10 @@ config SPL_MXS_PMU_MINIMAL_VDD5V_CURRENT
 	  by the PMU is reduced to zero - the DCDC_BATT is used as
 	  the main power source for PMU.
 
+config SPL_MXS_PMU_DISABLE_BATT_CHARGE
+	bool "Disable Battery Charging in MX28 PMU"
+	default n
+
 source "board/freescale/mx28evk/Kconfig"
 source "board/liebherr/xea/Kconfig"
 

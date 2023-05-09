@@ -756,6 +756,13 @@ static void mxs_batt_boot(void)
 		setbits_le32(&power_regs->hw_power_5vctrl,
 			     POWER_5VCTRL_ILIMIT_EQ_ZERO);
 
+	if (CONFIG_IS_ENABLED(MXS_PMU_DISABLE_BATT_CHARGE)) {
+		writel(POWER_CHARGE_PWD_BATTCHRG,
+		       &power_regs->hw_power_charge_set);
+		writel(POWER_5VCTRL_PWD_CHARGE_4P2_MASK,
+		       &power_regs->hw_power_5vctrl_set);
+	}
+
 	mxs_power_enable_4p2();
 }
 
