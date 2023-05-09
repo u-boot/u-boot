@@ -56,7 +56,7 @@ static int mpc8xxx_spi_of_to_plat(struct udevice *dev)
 	struct clk clk;
 	int ret;
 
-	priv->spi = (spi8xxx_t *)dev_read_addr(dev);
+	priv->spi = dev_read_addr_ptr(dev);
 
 	ret = gpio_request_list_by_name(dev, "gpios", priv->gpios,
 					ARRAY_SIZE(priv->gpios), GPIOD_IS_OUT | GPIOD_ACTIVE_LOW);

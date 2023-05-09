@@ -115,8 +115,8 @@ static int ssphy_probe(struct udevice *dev)
 	struct ssphy_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	priv->base = (void *)dev_read_addr(dev);
-	if ((ulong)priv->base == FDT_ADDR_T_NONE)
+	priv->base = dev_read_addr_ptr(dev);
+	if (!priv->base)
 		return -EINVAL;
 
 	ret = ssphy_clk_init(dev, priv);

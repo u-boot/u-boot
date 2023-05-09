@@ -1,0 +1,6 @@
+RGXX3-RK3566
+M:	Chris Morgan <macromorgan@hotmail.com>
+S:	Maintained
+F:	board/anbernic/rgxx3-rk3566
+F:	include/configs/anbernic-rgxx3-rk3566
+F:	configs/anbernic-rgxx3_defconfig

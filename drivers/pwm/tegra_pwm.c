@@ -59,7 +59,7 @@ static int tegra_pwm_of_to_plat(struct udevice *dev)
 {
 	struct tegra_pwm_priv *priv = dev_get_priv(dev);
 
-	priv->regs = (struct pwm_ctlr *)dev_read_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 
 	return 0;
 }

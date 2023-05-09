@@ -5300,18 +5300,18 @@ static int mvpp2_base_probe(struct udevice *dev)
 	}
 
 	/* Save base addresses for later use */
-	priv->base = (void *)devfdt_get_addr_index(dev, 0);
-	if (IS_ERR(priv->base))
-		return PTR_ERR(priv->base);
+	priv->base = devfdt_get_addr_index_ptr(dev, 0);
+	if (!priv->base)
+		return -EINVAL;
 
 	if (priv->hw_version == MVPP21) {
-		priv->lms_base = (void *)devfdt_get_addr_index(dev, 1);
-		if (IS_ERR(priv->lms_base))
-			return PTR_ERR(priv->lms_base);
+		priv->lms_base = devfdt_get_addr_index_ptr(dev, 1);
+		if (!priv->lms_base)
+			return -EINVAL;
 	} else {
-		priv->iface_base = (void *)devfdt_get_addr_index(dev, 1);
-		if (IS_ERR(priv->iface_base))
-			return PTR_ERR(priv->iface_base);
+		priv->iface_base = devfdt_get_addr_index_ptr(dev, 1);
+		if (!priv->iface_base)
+			return -EINVAL;
 
 		/* Store common base addresses for all ports */
 		priv->mpcs_base = priv->iface_base + MVPP22_MPCS;
@@ -5350,10 +5350,10 @@ static int mvpp2_probe(struct udevice *dev)
 	if (priv->hw_version == MVPP21) {
 		int priv_common_regs_num = 2;
 
-		port->base = (void __iomem *)devfdt_get_addr_index(
+		port->base = devfdt_get_addr_index_ptr(
 			dev->parent, priv_common_regs_num + port->id);
-		if (IS_ERR(port->base))
-			return PTR_ERR(port->base);
+		if (!port->base)
+			return -EINVAL;
 	} else {
 		port->gop_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
 					      "gop-port-id", -1);

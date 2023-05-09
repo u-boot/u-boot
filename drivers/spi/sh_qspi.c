@@ -334,7 +334,7 @@ static int sh_qspi_of_to_plat(struct udevice *dev)
 {
 	struct sh_qspi_slave *plat = dev_get_plat(dev);
 
-	plat->regs = (struct sh_qspi_regs *)dev_read_addr(dev);
+	plat->regs = dev_read_addr_ptr(dev);
 
 	return 0;
 }

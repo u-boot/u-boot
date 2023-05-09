@@ -97,7 +97,7 @@ static int qe_uec_mdio_probe(struct udevice *dev)
 	u32 num = 0;
 	int ret = -ENODEV;
 
-	priv->base = (struct ucc_mii_mng *)dev_read_addr(dev);
+	priv->base = dev_read_addr_ptr(dev);
 	base = (fdt_size_t)priv->base;
 
 	/*

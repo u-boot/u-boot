@@ -1125,17 +1125,16 @@ static int apseed_spi_of_to_plat(struct udevice *bus)
 	int ret;
 	struct clk hclk;
 
-	priv->regs = (void __iomem *)devfdt_get_addr_index(bus, 0);
-	if ((u32)priv->regs == FDT_ADDR_T_NONE) {
+	priv->regs = devfdt_get_addr_index_ptr(bus, 0);
+	if (!priv->regs) {
 		dev_err(bus, "wrong ctrl base\n");
-		return -ENODEV;
+		return -EINVAL;
 	}
 
-	plat->ahb_base =
-		(void __iomem *)devfdt_get_addr_size_index(bus, 1, &plat->ahb_sz);
-	if ((u32)plat->ahb_base == FDT_ADDR_T_NONE) {
+	plat->ahb_base = devfdt_get_addr_size_index_ptr(bus, 1, &plat->ahb_sz);
+	if (!plat->ahb_base) {
 		dev_err(bus, "wrong AHB base\n");
-		return -ENODEV;
+		return -EINVAL;
 	}
 
 	plat->max_cs = dev_read_u32_default(bus, "num-cs", ASPEED_SPI_MAX_CS);
@@ -1151,8 +1150,8 @@ static int apseed_spi_of_to_plat(struct udevice *bus)
 	plat->hclk_rate = clk_get_rate(&hclk);
 	clk_free(&hclk);
 
-	dev_dbg(bus, "ctrl_base = 0x%x, ahb_base = 0x%p, size = 0x%lx\n",
-		(u32)priv->regs, plat->ahb_base, plat->ahb_sz);
+	dev_dbg(bus, "ctrl_base = 0x%x, ahb_base = 0x%p, size = 0x%llx\n",
+		(u32)priv->regs, plat->ahb_base, (fdt64_t)plat->ahb_sz);
 	dev_dbg(bus, "hclk = %dMHz, max_cs = %d\n",
 		plat->hclk_rate / 1000000, plat->max_cs);
 

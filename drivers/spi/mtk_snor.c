@@ -470,7 +470,7 @@ static int mtk_snor_probe(struct udevice *bus)
 	int ret;
 	u32 reg;
 
-	priv->base = (void __iomem *)devfdt_get_addr(bus);
+	priv->base = devfdt_get_addr_ptr(bus);
 	if (!priv->base)
 		return -EINVAL;
 

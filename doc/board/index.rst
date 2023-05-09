@@ -11,6 +11,7 @@ Board-specific doc
    AndesTech/index
    allwinner/index
    amlogic/index
+   anbernic/index
    apple/index
    armltd/index
    atmel/index

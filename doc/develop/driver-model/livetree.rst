@@ -103,7 +103,7 @@ The new code is:
 
     struct udevice *bus;
 
-    i2c_bus->regs = (struct i2c_ctlr *)dev_read_addr(dev);
+    i2c_bus->regs = dev_read_addr_ptr(dev);
     plat->frequency = dev_read_u32_default(bus, "spi-max-frequency", 500000);
 
 The dev_read\_...() interface is more convenient and works with both the

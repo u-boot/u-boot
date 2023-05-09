@@ -801,7 +801,7 @@ static int rk3066_dmc_conv_of_plat(struct udevice *dev)
 	memcpy(&plat->base, of_plat->rockchip_sdram_params, sizeof(plat->base));
 	/* RK3066 supports dual-channel, set default channel num to 2. */
 	plat->num_channels = 1;
-	ret = regmap_init_mem_plat(dev, of_plat->reg,
+	ret = regmap_init_mem_plat(dev, of_plat->reg, sizeof(of_plat->reg[0]),
 				   ARRAY_SIZE(of_plat->reg) / 2, &plat->map);
 	if (ret)
 		return ret;

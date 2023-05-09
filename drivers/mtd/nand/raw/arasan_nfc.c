@@ -1233,7 +1233,7 @@ static int arasan_probe(struct udevice *dev)
 	ofnode child;
 	int err = -1;
 
-	info->reg = (struct nand_regs *)dev_read_addr(dev);
+	info->reg = dev_read_addr_ptr(dev);
 	mtd = nand_to_mtd(nand_chip);
 	nand_set_controller_data(nand_chip, &arasan->nand_ctrl);
 

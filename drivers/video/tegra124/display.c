@@ -361,7 +361,7 @@ static int display_init(struct udevice *dev, void *lcdbase,
 		return ret;
 	}
 
-	dc_ctlr = (struct dc_ctlr *)dev_read_addr(dev);
+	dc_ctlr = dev_read_addr_ptr(dev);
 	if (ofnode_decode_display_timing(dev_ofnode(dev), 0, timing)) {
 		debug("%s: Failed to decode display timing\n", __func__);
 		return -EINVAL;

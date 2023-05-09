@@ -232,7 +232,7 @@ static int mscc_sgpio_probe(struct udevice *dev)
 	debug("probe: gpios = %d, bit-count = %d\n",
 	      uc_priv->gpio_count, priv->bitcount);
 
-	priv->regs = (u32 __iomem *)dev_read_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 	uc_priv->bank_name = "sgpio";
 
 	sgpio_clrsetbits(priv, REG_SIO_CONFIG, 0,

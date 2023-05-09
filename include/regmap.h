@@ -378,17 +378,18 @@ int regmap_init_mem(ofnode node, struct regmap **mapp);
  *
  * @dev:	Device that uses this map
  * @reg:	List of address, size pairs
+ * @size:	Size of one reg array item
  * @count:	Number of pairs (e.g. 1 if the regmap has a single entry)
  * @mapp:	Returns allocated map
  * Return: 0 if OK, -ve on error
  *
  * This creates a new regmap with a list of regions passed in, rather than
- * using the device tree. It only supports 32-bit machines.
+ * using the device tree.
  *
  * Use regmap_uninit() to free it.
  *
  */
-int regmap_init_mem_plat(struct udevice *dev, fdt_val_t *reg, int count,
+int regmap_init_mem_plat(struct udevice *dev, void *reg, int size, int count,
 			 struct regmap **mapp);
 
 int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index);

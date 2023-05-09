@@ -397,10 +397,18 @@ endif # EXPERT
 
 config PHYS_64BIT
 	bool "64bit physical address support"
+	select FDT_64BIT
 	help
 	  Say Y here to support 64bit physical memory address.
 	  This can be used not only for 64bit SoCs, but also for
 	  large physical address extension on 32bit SoCs.
+
+config FDT_64BIT
+	bool "64bit fdt address support"
+	help
+	  Say Y here to support 64bit fdt addresses.
+	  This can be used not only for 64bit SoCs, but also
+	  for large address extensions on 32bit SoCs.
 
 config HAS_ROM
 	bool

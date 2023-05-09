@@ -753,11 +753,11 @@ static int hsdk_cgu_clk_probe(struct udevice *dev)
 	else
 		hsdk_clk->map = hsdk_4xd_clk_map;
 
-	hsdk_clk->cgu_regs = (void __iomem *)devfdt_get_addr_index(dev, 0);
+	hsdk_clk->cgu_regs = devfdt_get_addr_index_ptr(dev, 0);
 	if (!hsdk_clk->cgu_regs)
 		return -EINVAL;
 
-	hsdk_clk->creg_regs = (void __iomem *)devfdt_get_addr_index(dev, 1);
+	hsdk_clk->creg_regs = devfdt_get_addr_index_ptr(dev, 1);
 	if (!hsdk_clk->creg_regs)
 		return -EINVAL;
 

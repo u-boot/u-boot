@@ -337,15 +337,15 @@ static int meson_pcie_parse_dt(struct udevice *dev)
 	struct meson_pcie *priv = dev_get_priv(dev);
 	int ret;
 
-	priv->dw.dbi_base = (void *)dev_read_addr_index(dev, 0);
+	priv->dw.dbi_base = dev_read_addr_index_ptr(dev, 0);
 	if (!priv->dw.dbi_base)
-		return -ENODEV;
+		return -EINVAL;
 
 	dev_dbg(dev, "ELBI address is 0x%p\n", priv->dw.dbi_base);
 
-	priv->meson_cfg_base = (void *)dev_read_addr_index(dev, 1);
+	priv->meson_cfg_base = dev_read_addr_index_ptr(dev, 1);
 	if (!priv->meson_cfg_base)
-		return -ENODEV;
+		return -EINVAL;
 
 	dev_dbg(dev, "CFG address is 0x%p\n", priv->meson_cfg_base);
 

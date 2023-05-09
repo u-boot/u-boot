@@ -1174,9 +1174,9 @@ static int fdt_decode_nand(struct udevice *dev, struct nand_drv *info)
 {
 	int ecc_strength;
 
-	info->reg = (struct nand_ctlr *)dev_read_addr(dev);
-	info->dma_glb = (struct dma_global *)dev_read_addr_index(dev, 1);
-	info->dma_nand = (struct dma_ssp *)dev_read_addr_index(dev, 2);
+	info->reg = dev_read_addr_ptr(dev);
+	info->dma_glb = dev_read_addr_index_ptr(dev, 1);
+	info->dma_nand = dev_read_addr_index_ptr(dev, 2);
 	info->config.enabled = dev_read_enabled(dev);
 	ecc_strength = dev_read_u32_default(dev, "nand-ecc-strength", 16);
 	info->flash_base =

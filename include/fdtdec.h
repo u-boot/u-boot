@@ -18,15 +18,18 @@
 #include <pci.h>
 
 /*
- * A typedef for a physical address. Note that fdt data is always big
+ * Support for 64bit fdt addresses.
+ * This can be used not only for 64bit SoCs, but also
+ * for large address extensions on 32bit SoCs.
+ * Note that fdt data is always big
  * endian even on a litle endian machine.
  */
-typedef phys_addr_t fdt_addr_t;
-typedef phys_size_t fdt_size_t;
 
 #define FDT_SIZE_T_NONE (-1U)
 
-#ifdef CONFIG_PHYS_64BIT
+#ifdef CONFIG_FDT_64BIT
+typedef u64 fdt_addr_t;
+typedef u64 fdt_size_t;
 #define FDT_ADDR_T_NONE ((ulong)(-1))
 
 #define fdt_addr_to_cpu(reg) be64_to_cpu(reg)
@@ -35,6 +38,8 @@ typedef phys_size_t fdt_size_t;
 #define cpu_to_fdt_size(reg) cpu_to_be64(reg)
 typedef fdt64_t fdt_val_t;
 #else
+typedef u32 fdt_addr_t;
+typedef u32 fdt_size_t;
 #define FDT_ADDR_T_NONE (-1U)
 
 #define fdt_addr_to_cpu(reg) be32_to_cpu(reg)

@@ -447,7 +447,7 @@ int rk_vop_probe(struct udevice *dev)
 	efi_add_memory_map(plat->base, plat->size, EFI_RESERVED_MEMORY_TYPE);
 #endif
 
-	priv->regs = (struct rk3288_vop *)dev_read_addr(dev);
+	priv->regs = dev_read_addr_ptr(dev);
 
 	/*
 	 * Try all the ports until we find one that works. In practice this

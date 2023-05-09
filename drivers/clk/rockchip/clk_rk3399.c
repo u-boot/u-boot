@@ -1455,7 +1455,7 @@ static int rk3399_clk_bind(struct udevice *dev)
 	ret = offsetof(struct rockchip_cru, softrst_con[0]);
 	ret = rockchip_reset_bind(dev, ret, 21);
 	if (ret)
-		debug("Warning: software reset driver bind faile\n");
+		debug("Warning: software reset driver bind failed\n");
 #endif
 
 	return 0;
@@ -1652,7 +1652,7 @@ static int rk3399_pmuclk_bind(struct udevice *dev)
 	ret = offsetof(struct rk3399_pmucru, pmucru_softrst_con[0]);
 	ret = rockchip_reset_bind(dev, ret, 2);
 	if (ret)
-		debug("Warning: software reset driver bind faile\n");
+		debug("Warning: software reset driver bind failed\n");
 #endif
 	return 0;
 }

@@ -93,8 +93,8 @@ static int rockchip_p3phy_probe(struct udevice *dev)
 	struct udevice *syscon;
 	int ret;
 
-	priv->mmio = (void __iomem *)dev_read_addr(dev);
-	if ((fdt_addr_t)priv->mmio == FDT_ADDR_T_NONE)
+	priv->mmio = dev_read_addr_ptr(dev);
+	if (!priv->mmio)
 		return -EINVAL;
 
 	ret = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,

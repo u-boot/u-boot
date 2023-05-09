@@ -88,13 +88,13 @@ static int comphy_probe(struct udevice *dev)
 	int res;
 
 	/* Save base addresses for later use */
-	chip_cfg->comphy_base_addr = (void *)devfdt_get_addr_index(dev, 0);
-	if (IS_ERR(chip_cfg->comphy_base_addr))
-		return PTR_ERR(chip_cfg->comphy_base_addr);
+	chip_cfg->comphy_base_addr = devfdt_get_addr_index_ptr(dev, 0);
+	if (!chip_cfg->comphy_base_addr)
+		return -EINVAL;
 
-	chip_cfg->hpipe3_base_addr = (void *)devfdt_get_addr_index(dev, 1);
-	if (IS_ERR(chip_cfg->hpipe3_base_addr))
-		return PTR_ERR(chip_cfg->hpipe3_base_addr);
+	chip_cfg->hpipe3_base_addr = devfdt_get_addr_index_ptr(dev, 1);
+	if (!chip_cfg->hpipe3_base_addr)
+		return -EINVAL;
 
 	if (device_is_compatible(dev, "marvell,comphy-a3700")) {
 		chip_cfg->comphy_init_map = comphy_a3700_init_serdes_map;

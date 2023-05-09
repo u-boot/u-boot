@@ -5,6 +5,12 @@ F:      board/rockchip/evb_rk3328
 F:      include/configs/evb_rk3328.h
 F:      configs/evb-rk3328_defconfig
 
+NANOPI-R2C-RK3328
+M:      Tianling Shen <cnsztl@gmail.com>
+S:      Maintained
+F:      configs/nanopi-r2c-rk3328_defconfig
+F:      arch/arm/dts/rk3328-nanopi-r2c-u-boot.dtsi
+
 NANOPI-R2S-RK3328
 M:      David Bauer <mail@david-bauer.net>
 S:      Maintained
