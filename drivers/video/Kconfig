@@ -962,7 +962,7 @@ config BMP_32BPP
 endif # VIDEO
 
 config SPL_VIDEO
-	bool "Enable driver model support for LCD/video"
+	bool "Enable driver model support for LCD/video in SPL"
 	depends on SPL_DM
 	help
 	  The video subsystem adds a small amount of overhead to the image.
