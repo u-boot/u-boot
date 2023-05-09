@@ -51,6 +51,14 @@ endchoice
 config SYS_SOC
 	default "mxs"
 
+config SPL_MXS_PMU_MINIMAL_VDD5V_CURRENT
+	bool "Force minimal current draw from VDD5V by MX28 PMU"
+	default n
+	help
+	  After setting this option, the current drawn from VDD5V
+	  by the PMU is reduced to zero - the DCDC_BATT is used as
+	  the main power source for PMU.
+
 source "board/freescale/mx28evk/Kconfig"
 source "board/liebherr/xea/Kconfig"
 

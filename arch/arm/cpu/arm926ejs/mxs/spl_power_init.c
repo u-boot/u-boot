@@ -752,6 +752,10 @@ static void mxs_batt_boot(void)
 		POWER_5VCTRL_CHARGE_4P2_ILIMIT_MASK,
 		0x8 << POWER_5VCTRL_CHARGE_4P2_ILIMIT_OFFSET);
 
+	if (CONFIG_IS_ENABLED(MXS_PMU_MINIMAL_VDD5V_CURRENT))
+		setbits_le32(&power_regs->hw_power_5vctrl,
+			     POWER_5VCTRL_ILIMIT_EQ_ZERO);
+
 	mxs_power_enable_4p2();
 }
 
