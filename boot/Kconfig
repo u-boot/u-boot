@@ -437,6 +437,7 @@ config BOOTSTD_DEFAULTS
 	depends on BOOTSTD
 	imply USE_BOOTCOMMAND
 	select BOOT_DEFAULTS
+	select BOOTMETH_DISTRO
 	help
 	  These are not required but are commonly needed to support a good
 	  selection of booting methods. Enable this to improve the capability
@@ -493,7 +494,7 @@ config BOOTMETH_EXTLINUX_PXE
 
 config BOOTMETH_EFILOADER
 	bool "Bootdev support for EFI boot"
-	depends on CMD_BOOTEFI
+	depends on EFI_LOADER
 	default y
 	help
 	  Enables support for EFI boot using bootdevs. This makes the
@@ -522,6 +523,13 @@ config BOOTMETH_VBE
 	  Enables support for VBE boot. This is a standard boot method which
 	  supports selection of various firmware components, seleciton of an OS to
 	  boot as well as updating these using fwupd.
+
+config BOOTMETH_DISTRO
+	bool  # Options needed to boot any distro
+	select BOOTMETH_SCRIPT  # E.g. Armbian uses scripts
+	select BOOTMETH_EXTLINUX  # E.g. Debian uses these
+	select BOOTMETH_EXTLINUX_PXE if CMD_PXE && CMD_NET && DM_ETH
+	select BOOTMETH_EFILOADER if EFI_LOADER # E.g. Ubuntu uses this
 
 config SPL_BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded (SPL)"
