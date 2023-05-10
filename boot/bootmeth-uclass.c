@@ -319,7 +319,7 @@ static int alloc_file(const char *fname, uint size, void **bufp)
 		return log_msg_ret("read", ret);
 	}
 	if (size != bytes_read)
-		return log_msg_ret("bread", -EINVAL);
+		return log_msg_ret("bread", -EIO);
 	buf[size] = '\0';
 
 	*bufp = buf;

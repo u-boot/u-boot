@@ -55,7 +55,7 @@ static void report_bootflow_err(struct bootflow *bflow, int err)
 		break;
 	}
 
-	printf(", err=%d\n", err);
+	printf(", err=%dE\n", err);
 }
 
 /**

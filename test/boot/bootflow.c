@@ -168,21 +168,21 @@ static int bootflow_cmd_scan_e(struct unit_test_state *uts)
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("Scanning bootdev 'mmc2.bootdev':");
 	ut_assert_nextline("  0  syslinux     media   mmc          0  mmc2.bootdev.whole        <NULL>");
-	ut_assert_nextline("     ** No partition found, err=-93");
+	ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
 	ut_assert_nextline("  1  efi          media   mmc          0  mmc2.bootdev.whole        <NULL>");
-	ut_assert_nextline("     ** No partition found, err=-93");
+	ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
 
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
 	ut_assert_nextline("  2  syslinux     media   mmc          0  mmc1.bootdev.whole        <NULL>");
-	ut_assert_nextline("     ** No partition found, err=-2");
+	ut_assert_nextline("     ** No partition found, err=-2: No such file or directory");
 	ut_assert_nextline("  3  efi          media   mmc          0  mmc1.bootdev.whole        <NULL>");
-	ut_assert_nextline("     ** No partition found, err=-2");
+	ut_assert_nextline("     ** No partition found, err=-2: No such file or directory");
 	ut_assert_nextline("  4  syslinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
 	ut_assert_nextline("  5  efi          fs      mmc          1  mmc1.bootdev.part_1       efi/boot/bootsbox.efi");
 
 	ut_assert_skip_to_line("Scanning bootdev 'mmc0.bootdev':");
 	ut_assert_skip_to_line(" 3f  efi          media   mmc          0  mmc0.bootdev.whole        <NULL>");
-	ut_assert_nextline("     ** No partition found, err=-93");
+	ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
 	ut_assert_nextline("No more bootdevs");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("(64 bootflows, 1 valid)");

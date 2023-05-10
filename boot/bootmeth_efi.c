@@ -235,7 +235,7 @@ static int distro_efi_read_bootflow_file(struct udevice *dev,
 
 	ret = efiload_read_file(desc, bflow);
 	if (ret)
-		return log_msg_ret("read", -EINVAL);
+		return log_msg_ret("read", ret);
 
 	fdt_addr = env_get_hex("fdt_addr_r", 0);
 
