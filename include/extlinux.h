@@ -4,18 +4,18 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#ifndef __distro_h
-#define __distro_h
+#ifndef __extlinux_h
+#define __extlinux_h
 
-#define DISTRO_FNAME	"extlinux/extlinux.conf"
+#define EXTLINUX_FNAME	"extlinux/extlinux.conf"
 
 /**
- * struct distro_info - useful information for distro_getfile()
+ * struct extlinux_info - useful information for extlinux_getfile()
  *
  * @dev: bootmethod device being used to boot
  * @bflow: bootflow being booted
  */
-struct distro_info {
+struct extlinux_info {
 	struct udevice *dev;
 	struct bootflow *bflow;
 	struct cmd_tbl *cmdtp;

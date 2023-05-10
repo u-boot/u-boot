@@ -366,7 +366,7 @@ This example shows the abridged sandbox output::
     ..
     sysreset      0  [   ]   sysreset_sandbox      |-- sysreset_sandbox
     bootstd       0  [   ]   bootstd_drv           |-- bootstd
-    bootmeth      0  [   ]   bootmeth_distro       |   |-- syslinux
+    bootmeth      0  [   ]   bootmeth_extlinux     |   |-- extlinux
     bootmeth      1  [   ]   bootmeth_efi          |   `-- efi
     reboot-mod    0  [   ]   reboot-mode-gpio      |-- reboot-mode0
     reboot-mod    1  [   ]   reboot-mode-rtc       |-- reboot-mode@14

@@ -462,24 +462,32 @@ config BOOTMETH_GLOBAL
 	  EFI bootmgr, since they take full control over which bootdevs are
 	  selected to boot.
 
-config BOOTMETH_DISTRO
-	bool "Bootdev support for distro boot"
+config BOOTMETH_EXTLINUX
+	bool "Bootdev support for extlinux boot"
 	select PXE_UTILS
 	default y
 	help
-	  Enables support for distro boot using bootdevs. This makes the
+	  Enables support for extlinux boot using bootdevs. This makes the
 	  bootdevs look for a 'extlinux/extlinux.conf' on each filesystem
 	  they scan.
 
+	  The specification for this filed is here:
+
+	    https://uapi-group.org/specifications/specs/boot_loader_specification/
+
 	  This provides a way to try out standard boot on an existing boot flow.
 
-config BOOTMETH_DISTRO_PXE
-	bool "Bootdev support for distro boot over network"
+config BOOTMETH_EXTLINUX_PXE
+	bool "Bootdev support for extlinux boot over network"
 	depends on CMD_PXE && CMD_NET && DM_ETH
 	default y
 	help
-	  Enables support for distro boot using bootdevs. This makes the
+	  Enables support for extlinux boot using bootdevs. This makes the
 	  bootdevs look for a 'extlinux/extlinux.conf' on the tftp server.
+
+	  The specification for this file is here:
+
+	    https://uapi-group.org/specifications/specs/boot_loader_specification/
 
 	  This provides a way to try out standard boot on an existing boot flow.
 

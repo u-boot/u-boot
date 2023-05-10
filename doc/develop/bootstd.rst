@@ -154,7 +154,7 @@ bootmeths
 This environment variable can be used to control the list of bootmeths used and
 their ordering for example::
 
-   setenv bootmeths "syslinux efi"
+   setenv bootmeths "extlinux efi"
 
 Entries may be removed or re-ordered in this list to affect the order the
 bootmeths are tried on each bootdev. If the variable is empty, the default
@@ -389,8 +389,8 @@ Configuration
 -------------
 
 Standard boot is enabled with `CONFIG_BOOTSTD`. Each bootmeth has its own CONFIG
-option also. For example, `CONFIG_BOOTMETH_DISTRO` enables support for distro
-boot from a disk.
+option also. For example, `CONFIG_BOOTMETH_EXTLINUX` enables support for
+booting from a disk using an `extlinux.conf` file.
 
 To enable all feature sof standard boot, use `CONFIG_BOOTSTD_FULL`. This
 includes the full set of commands, more error messages when things go wrong and
@@ -406,8 +406,8 @@ Available bootmeth drivers
 
 Bootmeth drivers are provided for:
 
-   - distro boot from a disk (syslinux)
-   - distro boot from a network (PXE)
+   - extlinux / syslinux boot from a disk
+   - extlinux boot from a network (PXE)
    - U-Boot scripts from disk, network or SPI flash
    - EFI boot using bootefi from disk
    - VBE
@@ -683,8 +683,8 @@ This feature can be added as needed. Note that sandbox is a special case, since
 in that case the host filesystem can be accessed even though the block device
 is NULL.
 
-If we take the example of the `bootmeth_distro` driver, this call ends up at
-`distro_read_bootflow()`. It has the filesystem ready, so tries various
+If we take the example of the `bootmeth_extlinux` driver, this call ends up at
+`extlinux_read_bootflow()`. It has the filesystem ready, so tries various
 filenames to try to find the `extlinux.conf` file, reading it if possible. If
 all goes well the bootflow ends up in the `BOOTFLOWST_READY` state.
 
@@ -697,12 +697,12 @@ the  `BOOTFLOWST_READY` state.
 
 That is the basic operation of scanning for bootflows. The process of booting a
 bootflow is handled by the bootmeth driver for that bootflow. In the case of
-distro boot, this parses and processes the `extlinux.conf` file that was read.
-See `distro_boot()` for how that works. The processing may involve reading
+extlinux boot, this parses and processes the `extlinux.conf` file that was read.
+See `extlinux_boot()` for how that works. The processing may involve reading
 additional files, which is handled by the `read_file()` method, which is
-`distro_read_file()` in this case. All bootmethds should support reading files,
-since the bootflow is typically only the basic instructions and does not include
-the operating system itself, ramdisk, device tree, etc.
+`extlinux_read_file()` in this case. All bootmethds should support reading
+files, since the bootflow is typically only the basic instructions and does not
+include the operating system itself, ramdisk, device tree, etc.
 
 The vast majority of the bootstd code is concerned with iterating through
 partitions on bootdevs and using bootmethds to find bootflows.

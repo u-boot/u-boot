@@ -57,7 +57,7 @@ static int bootflow_cmd(struct unit_test_state *uts)
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("Scanning bootdev 'mmc2.bootdev':");
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
-	ut_assert_nextline("  0  syslinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	ut_assert_nextline("  0  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
 	ut_assert_nextline("No more bootdevs");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("(1 bootflow, 1 valid)");
@@ -67,7 +67,7 @@ static int bootflow_cmd(struct unit_test_state *uts)
 	ut_assert_nextline("Showing bootflows for bootdev 'mmc1.bootdev'");
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("  0  syslinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	ut_assert_nextline("  0  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("(1 bootflow, 1 valid)");
 	ut_assert_console_end();
@@ -136,7 +136,7 @@ static int bootflow_cmd_glob(struct unit_test_state *uts)
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("Scanning bootdev 'mmc2.bootdev':");
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
-	ut_assert_nextline("  0  syslinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	ut_assert_nextline("  0  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
 	ut_assert_nextline("Scanning bootdev 'mmc0.bootdev':");
 	ut_assert_nextline("No more bootdevs");
 	ut_assert_nextlinen("---");
@@ -147,7 +147,7 @@ static int bootflow_cmd_glob(struct unit_test_state *uts)
 	ut_assert_nextline("Showing all bootflows");
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("  0  syslinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	ut_assert_nextline("  0  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("(1 bootflow, 1 valid)");
 	ut_assert_console_end();
@@ -167,17 +167,17 @@ static int bootflow_cmd_scan_e(struct unit_test_state *uts)
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("Scanning bootdev 'mmc2.bootdev':");
-	ut_assert_nextline("  0  syslinux     media   mmc          0  mmc2.bootdev.whole        <NULL>");
+	ut_assert_nextline("  0  extlinux     media   mmc          0  mmc2.bootdev.whole        <NULL>");
 	ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
 	ut_assert_nextline("  1  efi          media   mmc          0  mmc2.bootdev.whole        <NULL>");
 	ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
 
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
-	ut_assert_nextline("  2  syslinux     media   mmc          0  mmc1.bootdev.whole        <NULL>");
+	ut_assert_nextline("  2  extlinux     media   mmc          0  mmc1.bootdev.whole        <NULL>");
 	ut_assert_nextline("     ** No partition found, err=-2: No such file or directory");
 	ut_assert_nextline("  3  efi          media   mmc          0  mmc1.bootdev.whole        <NULL>");
 	ut_assert_nextline("     ** No partition found, err=-2: No such file or directory");
-	ut_assert_nextline("  4  syslinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	ut_assert_nextline("  4  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
 	ut_assert_nextline("  5  efi          fs      mmc          1  mmc1.bootdev.part_1       efi/boot/bootsbox.efi");
 
 	ut_assert_skip_to_line("Scanning bootdev 'mmc0.bootdev':");
@@ -192,9 +192,9 @@ static int bootflow_cmd_scan_e(struct unit_test_state *uts)
 	ut_assert_nextline("Showing all bootflows");
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("  0  syslinux     media   mmc          0  mmc2.bootdev.whole        <NULL>");
+	ut_assert_nextline("  0  extlinux     media   mmc          0  mmc2.bootdev.whole        <NULL>");
 	ut_assert_nextline("  1  efi          media   mmc          0  mmc2.bootdev.whole        <NULL>");
-	ut_assert_skip_to_line("  4  syslinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	ut_assert_skip_to_line("  4  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
 	ut_assert_skip_to_line(" 3f  efi          media   mmc          0  mmc0.bootdev.whole        <NULL>");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("(64 bootflows, 1 valid)");
@@ -218,7 +218,7 @@ static int bootflow_cmd_info(struct unit_test_state *uts)
 	ut_assert_nextline("Name:      mmc1.bootdev.part_1");
 	ut_assert_nextline("Device:    mmc1.bootdev");
 	ut_assert_nextline("Block dev: mmc1.blk");
-	ut_assert_nextline("Method:    syslinux");
+	ut_assert_nextline("Method:    extlinux");
 	ut_assert_nextline("State:     ready");
 	ut_assert_nextline("Partition: 1");
 	ut_assert_nextline("Subdir:    (none)");
@@ -251,7 +251,7 @@ static int bootflow_scan_boot(struct unit_test_state *uts)
 	ut_assertok(inject_response(uts));
 	ut_assertok(run_command("bootflow scan -b", 0));
 	ut_assert_nextline(
-		"** Booting bootflow 'mmc1.bootdev.part_1' with syslinux");
+		"** Booting bootflow 'mmc1.bootdev.part_1' with extlinux");
 	ut_assert_nextline("Ignoring unknown command: ui");
 
 	/*
@@ -282,7 +282,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(0, iter.part);
 	ut_asserteq(0, iter.max_part);
-	ut_asserteq_str("syslinux", iter.method->name);
+	ut_asserteq_str("extlinux", iter.method->name);
 	ut_asserteq(0, bflow.err);
 
 	/*
@@ -309,7 +309,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(0, iter.part);
 	ut_asserteq(0x1e, iter.max_part);
-	ut_asserteq_str("syslinux", iter.method->name);
+	ut_asserteq_str("extlinux", iter.method->name);
 	ut_asserteq(0, bflow.err);
 	ut_asserteq(BOOTFLOWST_MEDIA, bflow.state);
 	bootflow_free(&bflow);
@@ -330,7 +330,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(1, iter.part);
 	ut_asserteq(0x1e, iter.max_part);
-	ut_asserteq_str("syslinux", iter.method->name);
+	ut_asserteq_str("extlinux", iter.method->name);
 	ut_asserteq(0, bflow.err);
 	ut_asserteq(BOOTFLOWST_READY, bflow.state);
 	bootflow_free(&bflow);
@@ -351,7 +351,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 	ut_asserteq(0, iter.cur_method);
 	ut_asserteq(2, iter.part);
 	ut_asserteq(0x1e, iter.max_part);
-	ut_asserteq_str("syslinux", iter.method->name);
+	ut_asserteq_str("extlinux", iter.method->name);
 	ut_asserteq(0, bflow.err);
 	ut_asserteq(BOOTFLOWST_MEDIA, bflow.state);
 	bootflow_free(&bflow);
@@ -489,7 +489,7 @@ static int bootflow_cmd_boot(struct unit_test_state *uts)
 	ut_assertok(inject_response(uts));
 	ut_asserteq(1, run_command("bootflow boot", 0));
 	ut_assert_nextline(
-		"** Booting bootflow 'mmc1.bootdev.part_1' with syslinux");
+		"** Booting bootflow 'mmc1.bootdev.part_1' with extlinux");
 	ut_assert_nextline("Ignoring unknown command: ui");
 
 	/*
@@ -614,7 +614,7 @@ static int bootflow_cmd_hunt_label(struct unit_test_state *uts)
 	ut_assert_nextline("Scanning bootdev 'mmc2.bootdev':");
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
 	ut_assert_nextline(
-		"  0  syslinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+		"  0  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
 	ut_assert_nextline("Scanning bootdev 'mmc0.bootdev':");
 	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
 	ut_assert_console_end();
