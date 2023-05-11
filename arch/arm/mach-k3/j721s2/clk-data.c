@@ -247,6 +247,7 @@ static const struct clk_data clk_list[] = {
 	CLK_MUX("emmcsd1_lb_clksel_out0", emmcsd1_lb_clksel_out0_parents, 2, 0x1080b4, 16, 1, 0),
 	CLK_MUX("mcu_clkout_mux_out0", mcu_clkout_mux_out0_parents, 2, 0x40f08010, 0, 1, 0),
 	CLK_DIV_DEFFREQ("usart_programmable_clock_divider_out0", "hsdiv4_16fft_main_1_hsdivout0_clk", 0x1081c0, 0, 2, 0, 0, 48000000),
+	CLK_DIV("usart_programmable_clock_divider_out5", "hsdiv4_16fft_main_1_hsdivout0_clk", 0x1081d4, 0, 2, 0, 0),
 	CLK_DIV("usart_programmable_clock_divider_out8", "hsdiv4_16fft_main_1_hsdivout0_clk", 0x1081e0, 0, 2, 0, 0),
 	CLK_DIV("hsdiv0_16fft_main_12_hsdivout0_clk", "pllfracf2_ssmod_16fft_main_12_foutvcop_clk", 0x68c080, 0, 7, 0, 0),
 	CLK_DIV("hsdiv0_16fft_main_26_hsdivout0_clk", "pllfracf2_ssmod_16fft_main_26_foutvcop_clk", 0x69a080, 0, 7, 0, 0),
@@ -383,6 +384,8 @@ static const struct dev_clk soc_dev_clk_data[] = {
 	DEV_CLK(223, 3, "gluelogic_hfosc0_clkout"),
 	DEV_CLK(223, 4, "k3_pll_ctrl_wrap_wkup_0_chip_div1_clk_clk"),
 	DEV_CLK(223, 5, "board_0_wkup_i2c0_scl_out"),
+	DEV_CLK(354, 2, "k3_pll_ctrl_wrap_main_0_chip_div1_clk_clk"),
+	DEV_CLK(354, 3, "usart_programmable_clock_divider_out5"),
 	DEV_CLK(357, 2, "k3_pll_ctrl_wrap_main_0_chip_div1_clk_clk"),
 	DEV_CLK(357, 3, "usart_programmable_clock_divider_out8"),
 	DEV_CLK(360, 4, "k3_pll_ctrl_wrap_main_0_chip_div1_clk_clk"),
@@ -397,7 +400,7 @@ static const struct dev_clk soc_dev_clk_data[] = {
 
 const struct ti_k3_clk_platdata j721s2_clk_platdata = {
 	.clk_list = clk_list,
-	.clk_list_cnt = 104,
+	.clk_list_cnt = 105,
 	.soc_dev_clk_data = soc_dev_clk_data,
-	.soc_dev_clk_data_cnt = 122,
+	.soc_dev_clk_data_cnt = 124,
 };
