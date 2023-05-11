@@ -457,7 +457,7 @@ struct global_data {
 	 */
 	fdt_addr_t translation_offset;
 #endif
-#ifdef CONFIG_GENERATE_ACPI_TABLE
+#ifdef CONFIG_ACPI
 	/**
 	 * @acpi_ctx: ACPI context pointer
 	 */
@@ -536,7 +536,7 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #define gd_dm_priv_base()		NULL
 #endif
 
-#ifdef CONFIG_GENERATE_ACPI_TABLE
+#ifdef CONFIG_ACPI
 #define gd_acpi_ctx()		gd->acpi_ctx
 #define gd_acpi_start()		gd->acpi_start
 #define gd_set_acpi_start(addr)	gd->acpi_start = addr

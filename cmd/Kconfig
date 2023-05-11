@@ -109,7 +109,7 @@ menu "Info commands"
 
 config CMD_ACPI
 	bool "acpi"
-	depends on ACPIGEN
+	depends on ACPI
 	default y
 	help
 	  List and dump ACPI tables. ACPI (Advanced Configuration and Power

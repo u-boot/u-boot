@@ -42,7 +42,7 @@ int fsp_setup_pinctrl(void *ctx, struct event *event)
 
 	return ret;
 }
-EVENT_SPY(EVT_DM_POST_INIT, fsp_setup_pinctrl);
+EVENT_SPY(EVT_DM_POST_INIT_F, fsp_setup_pinctrl);
 
 #if !defined(CONFIG_TPL_BUILD)
 binman_sym_declare(ulong, intel_fsp_m, image_pos);

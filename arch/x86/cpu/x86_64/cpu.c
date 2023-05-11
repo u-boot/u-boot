@@ -50,3 +50,10 @@ int x86_cpu_init_f(void)
 {
 	return 0;
 }
+
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
+void board_debug_uart_init(void)
+{
+	/* this was already done in SPL */
+}
+#endif

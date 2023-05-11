@@ -262,7 +262,7 @@ int imx9_probe_mu(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT, imx9_probe_mu);
+EVENT_SPY(EVT_DM_POST_INIT_F, imx9_probe_mu);
 
 int timer_init(void)
 {

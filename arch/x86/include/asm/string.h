@@ -14,7 +14,11 @@ extern char *strrchr(const char *s, int c);
 #undef __HAVE_ARCH_STRCHR
 extern char *strchr(const char *s, int c);
 
-#ifdef CONFIG_X86_64
+/*
+ * Our assembly routines do not work on in 64-bit mode and we don't do a lot of
+ * copying in SPL, so code size is more important there.
+ */
+#if defined(CONFIG_SPL_BUILD) || !IS_ENABLED(CONFIG_X86_32BIT_INIT)
 
 #undef __HAVE_ARCH_MEMCPY
 extern void *memcpy(void *, const void *, __kernel_size_t);

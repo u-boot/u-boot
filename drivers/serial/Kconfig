@@ -669,6 +669,16 @@ config COREBOOT_SERIAL
 	  a serial console on any platform without needing to change the
 	  device tree, etc.
 
+config COREBOOT_SERIAL_FROM_DBG2
+	bool "Obtain UART from ACPI tables"
+	depends on COREBOOT_SERIAL
+	default y if !SPL
+	help
+	  Select this to try to find a DBG2 record in the ACPI tables, in the
+	  event that coreboot does not provide information about the UART in the
+	  normal sysinfo tables. This provides a useful fallback when serial
+	  is not enabled in coreboot.
+
 config CORTINA_UART
 	bool "Cortina UART support"
 	depends on DM_SERIAL

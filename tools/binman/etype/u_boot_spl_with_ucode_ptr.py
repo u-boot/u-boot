@@ -18,7 +18,7 @@ class Entry_u_boot_spl_with_ucode_ptr(Entry_u_boot_with_ucode_ptr):
     process.
     """
     def __init__(self, section, etype, node):
-        super().__init__(section, etype, node)
+        super().__init__(section, etype, node, auto_write_symbols=True)
         self.elf_fname = 'spl/u-boot-spl'
 
     def GetDefaultFilename(self):

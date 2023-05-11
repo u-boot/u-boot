@@ -572,6 +572,7 @@ int cpu_has_64bit(void)
 		has_long_mode();
 }
 
+/* Base address for page tables used for 64-bit mode */
 #define PAGETABLE_BASE		0x80000
 #define PAGETABLE_SIZE		(6 * 4096)
 
@@ -614,43 +615,20 @@ int cpu_jump_to_64bit(ulong setup_base, ulong target)
 }
 
 /*
- * Jump from SPL to U-Boot
+ * cpu_jump_to_64bit_uboot() - Jump from SPL to U-Boot
  *
- * This function is work-in-progress with many issues to resolve.
- *
- * It works by setting up several regions:
- *   ptr      - a place to put the code that jumps into 64-bit mode
- *   gdt      - a place to put the global descriptor table
- *   pgtable  - a place to put the page tables
- *
- * The cpu_call64() code is copied from ROM and then manually patched so that
- * it has the correct GDT address in RAM. U-Boot is copied from ROM into
- * its pre-relocation address. Then we jump to the cpu_call64() code in RAM,
- * which changes to 64-bit mode and starts U-Boot.
+ * It works by setting up page tables and calling the code to enter 64-bit long
+ * mode
  */
 int cpu_jump_to_64bit_uboot(ulong target)
 {
-	typedef void (*func_t)(ulong pgtable, ulong setup_base, ulong target);
 	uint32_t *pgtable;
-	func_t func;
-	char *ptr;
 
 	pgtable = (uint32_t *)PAGETABLE_BASE;
-
 	build_pagetable(pgtable);
 
-	extern long call64_stub_size;
-	ptr = malloc(call64_stub_size);
-	if (!ptr) {
-		printf("Failed to allocate the cpu_call64 stub\n");
-		return -ENOMEM;
-	}
-	memcpy(ptr, cpu_call64, call64_stub_size);
-
-	func = (func_t)ptr;
-
 	/* Jump to U-Boot */
-	func((ulong)pgtable, 0, (ulong)target);
+	cpu_call64(PAGETABLE_BASE, 0, (ulong)target);
 
 	return -EFAULT;
 }

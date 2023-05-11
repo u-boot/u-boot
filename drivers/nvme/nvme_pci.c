@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <init.h>
 #include <pci.h>
 #include "nvme.h"
 
@@ -30,6 +31,10 @@ static int nvme_probe(struct udevice *udev)
 	ndev->instance = trailing_strtol(udev->name);
 	ndev->bar = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0, 0, 0,
 				   PCI_REGION_TYPE, PCI_REGION_MEM);
+
+	/* Turn on bus-mastering */
+	dm_pci_clrset_config16(udev, PCI_COMMAND, 0, PCI_COMMAND_MASTER);
+
 	return nvme_init(udev);
 }
 

@@ -195,6 +195,7 @@ config SANDBOX
 	imply PHYLIB
 	imply DM_MDIO
 	imply DM_MDIO_MUX
+	imply ACPI
 	imply ACPI_PMC
 	imply ACPI_PMC_SANDBOX
 	imply CMD_PMC
@@ -261,6 +262,7 @@ config X86
 	imply PCH
 	imply PHYSMEM
 	imply RTC_MC146818
+	imply ACPI
 	imply ACPIGEN if !QEMU && !EFI_APP
 	imply SYSINFO if GENERATE_SMBIOS_TABLE
 	imply SYSINFO_SMBIOS if GENERATE_SMBIOS_TABLE
