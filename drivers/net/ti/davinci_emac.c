@@ -833,9 +833,9 @@ static int davinci_emac_probe(struct udevice *dev)
 #endif
 	}
 
-#if defined(CONFIG_TI816X) || (defined(CONFIG_DRIVER_TI_EMAC_USE_RMII) && \
+#if defined(CONFIG_DRIVER_TI_EMAC_USE_RMII) && \
 		defined(CONFIG_MACH_DAVINCI_DA850_EVM) && \
-			!defined(CONFIG_DRIVER_TI_EMAC_RMII_NO_NEGOTIATE))
+			!defined(CONFIG_DRIVER_TI_EMAC_RMII_NO_NEGOTIATE)
 	for (i = 0; i < num_phy; i++) {
 		if (phy[i].is_phy_connected(i))
 			phy[i].auto_negotiate(i);

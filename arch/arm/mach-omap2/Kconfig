@@ -77,16 +77,6 @@ config OMAP54XX
 	imply SPL_SERIAL
 	imply SYS_I2C_OMAP24XX
 
-config TI816X
-	bool "TI816X SoC"
-	select SPECIFY_CONSOLE_INDEX
-	imply NAND_OMAP_ELM
-	imply NAND_OMAP_GPMC
-	help
-	  Support for AM335x SOC from Texas Instruments.
-	  The AM335x high performance SOC features a Cortex-A8
-	  ARM core and more.
-
 config AM43XX
 	bool "AM43XX SoC"
 	select SPECIFY_CONSOLE_INDEX
@@ -203,7 +193,6 @@ source "board/BuR/brppt1/Kconfig"
 source "board/siemens/draco/Kconfig"
 source "board/siemens/pxm2/Kconfig"
 source "board/siemens/rut/Kconfig"
-source "board/ti/ti816x/Kconfig"
 source "board/ti/am43xx/Kconfig"
 source "board/ti/am335x/Kconfig"
 source "board/compulab/cm_t43/Kconfig"
