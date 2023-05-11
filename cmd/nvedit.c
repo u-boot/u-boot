@@ -43,28 +43,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if	defined(CONFIG_ENV_IS_IN_EEPROM)	|| \
-	defined(CONFIG_ENV_IS_IN_FLASH)		|| \
-	defined(CONFIG_ENV_IS_IN_MMC)		|| \
-	defined(CONFIG_ENV_IS_IN_FAT)		|| \
-	defined(CONFIG_ENV_IS_IN_EXT4)		|| \
-	defined(CONFIG_ENV_IS_IN_NAND)		|| \
-	defined(CONFIG_ENV_IS_IN_NVRAM)		|| \
-	defined(CONFIG_ENV_IS_IN_ONENAND)	|| \
-	defined(CONFIG_ENV_IS_IN_SPI_FLASH)	|| \
-	defined(CONFIG_ENV_IS_IN_REMOTE)	|| \
-	defined(CONFIG_ENV_IS_IN_UBI)
-
-#define ENV_IS_IN_DEVICE
-
-#endif
-
-#if	!defined(ENV_IS_IN_DEVICE)		&& \
-	!defined(CONFIG_ENV_IS_NOWHERE)
-# error Define one of CONFIG_ENV_IS_IN_{EEPROM|FLASH|MMC|FAT|EXT4|\
-NAND|NVRAM|ONENAND|SATA|SPI_FLASH|REMOTE|UBI} or CONFIG_ENV_IS_NOWHERE
-#endif
-
 /*
  * Maximum expected input data size for import command
  */
@@ -596,7 +574,7 @@ static int do_env_edit(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 #endif /* CONFIG_CMD_EDITENV */
 
-#if defined(CONFIG_CMD_SAVEENV) && defined(ENV_IS_IN_DEVICE)
+#if defined(CONFIG_CMD_SAVEENV) && !IS_ENABLED(CONFIG_ENV_IS_DEFAULT)
 static int do_env_save(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
@@ -1105,7 +1083,7 @@ static int do_env_info(struct cmd_tbl *cmdtp, int flag,
 	int eval_flags = 0;
 	int eval_results = 0;
 	bool quiet = false;
-#if defined(CONFIG_CMD_SAVEENV) && defined(ENV_IS_IN_DEVICE)
+#if defined(CONFIG_CMD_SAVEENV) && !IS_ENABLED(CONFIG_ENV_IS_DEFAULT)
 	enum env_location loc;
 #endif
 
@@ -1148,7 +1126,7 @@ static int do_env_info(struct cmd_tbl *cmdtp, int flag,
 
 	/* evaluate whether environment can be persisted */
 	if (eval_flags & ENV_INFO_IS_PERSISTED) {
-#if defined(CONFIG_CMD_SAVEENV) && defined(ENV_IS_IN_DEVICE)
+#if defined(CONFIG_CMD_SAVEENV) && !IS_ENABLED(CONFIG_ENV_IS_DEFAULT)
 		loc = env_get_location(ENVOP_SAVE, gd->env_load_prio);
 		if (ENVL_NOWHERE != loc && ENVL_UNKNOWN != loc) {
 			if (!quiet)
@@ -1229,7 +1207,7 @@ static struct cmd_tbl cmd_env_sub[] = {
 #if defined(CONFIG_CMD_RUN)
 	U_BOOT_CMD_MKENT(run, CONFIG_SYS_MAXARGS, 1, do_run, "", ""),
 #endif
-#if defined(CONFIG_CMD_SAVEENV) && defined(ENV_IS_IN_DEVICE)
+#if defined(CONFIG_CMD_SAVEENV) && !IS_ENABLED(CONFIG_ENV_IS_DEFAULT)
 	U_BOOT_CMD_MKENT(save, 1, 0, do_env_save, "", ""),
 #if defined(CONFIG_CMD_ERASEENV)
 	U_BOOT_CMD_MKENT(erase, 1, 0, do_env_erase, "", ""),
@@ -1320,7 +1298,7 @@ static char env_help_text[] =
 #if defined(CONFIG_CMD_RUN)
 	"env run var [...] - run commands in an environment variable\n"
 #endif
-#if defined(CONFIG_CMD_SAVEENV) && defined(ENV_IS_IN_DEVICE)
+#if defined(CONFIG_CMD_SAVEENV) && !IS_ENABLED(CONFIG_ENV_IS_DEFAULT)
 	"env save - save environment\n"
 #if defined(CONFIG_CMD_ERASEENV)
 	"env erase - erase environment\n"
