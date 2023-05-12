@@ -216,6 +216,10 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 			(con_out, u"Cannot open device path to text protocol\r\n");
 		goto out;
 	}
+	con_out->output_string(con_out, u"File path: ");
+	ret = print_device_path(loaded_image->file_path, device_path_to_text);
+	if (ret != EFI_SUCCESS)
+		goto out;
 	if (!loaded_image->device_handle) {
 		con_out->output_string
 			(con_out, u"Missing device handle\r\n");
@@ -232,10 +236,6 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 	}
 	con_out->output_string(con_out, u"Boot device: ");
 	ret = print_device_path(device_path, device_path_to_text);
-	if (ret != EFI_SUCCESS)
-		goto out;
-	con_out->output_string(con_out, u"File path: ");
-	ret = print_device_path(loaded_image->file_path, device_path_to_text);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
