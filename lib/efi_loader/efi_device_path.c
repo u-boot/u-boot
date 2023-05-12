@@ -1203,7 +1203,8 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	} else if (!strcmp(dev, "Uart")) {
 		if (device)
 			*device = efi_dp_from_uart();
-	} else if (!strcmp(dev, "Mem")) {
+	} else if (!strcmp(dev, "Mem") || !strcmp(dev, "hostfs"))  {
+		/* loadm command and semihosting */
 		efi_get_image_parameters(&image_addr, &image_size);
 
 		if (device)
