@@ -1022,7 +1022,7 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 		const char *path)
 {
 	struct efi_device_path_file_path *fp;
-	void *buf, *start;
+	void *buf, *pos;
 	size_t dpsize = 0, fpsize;
 
 	if (desc)
@@ -1035,26 +1035,28 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 
 	dpsize += fpsize;
 
-	start = buf = efi_alloc(dpsize + sizeof(END));
+	buf = efi_alloc(dpsize + sizeof(END));
 	if (!buf)
 		return NULL;
 
 	if (desc)
-		buf = dp_part_fill(buf, desc, part);
+		pos = dp_part_fill(buf, desc, part);
+	else
+		pos = buf;
 
 	/* add file-path: */
 	if (*path) {
-		fp = buf;
+		fp = pos;
 		fp->dp.type = DEVICE_PATH_TYPE_MEDIA_DEVICE;
 		fp->dp.sub_type = DEVICE_PATH_SUB_TYPE_FILE_PATH;
 		fp->dp.length = (u16)fpsize;
 		path_to_uefi(fp->str, path);
-		buf += fpsize;
+		pos += fpsize;
 	}
 
-	*((struct efi_device_path *)buf) = END;
+	memcpy(pos, &END, sizeof(END));
 
-	return start;
+	return buf;
 }
 
 struct efi_device_path *efi_dp_from_uart(void)
