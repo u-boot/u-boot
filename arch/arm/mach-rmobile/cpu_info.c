@@ -30,7 +30,7 @@ void enable_caches(void)
 #endif
 
 #ifdef CONFIG_DISPLAY_CPUINFO
-#ifndef CONFIG_RZA1
+#if !defined(CONFIG_RZA1) && !defined(CONFIG_RZN1)
 __weak const u8 *rzg_get_cpu_name(void)
 {
 	return 0;
@@ -126,10 +126,16 @@ int print_cpuinfo(void)
 
 	return 0;
 }
-#else
+#elif defined(CONFIG_RZA1)
 int print_cpuinfo(void)
 {
 	printf("CPU: Renesas Electronics RZ/A1\n");
+	return 0;
+}
+#else /* CONFIG_RZN1 */
+int print_cpuinfo(void)
+{
+	printf("CPU: Renesas Electronics RZ/N1\n");
 	return 0;
 }
 #endif
