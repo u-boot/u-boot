@@ -1185,6 +1185,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			      struct efi_device_path **file)
 {
 	struct blk_desc *desc = NULL;
+	struct efi_device_path *dp;
 	struct disk_partition fs_partition;
 	size_t image_size;
 	void *image_addr;
@@ -1197,25 +1198,22 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 		/* loadm command and semihosting */
 		efi_get_image_parameters(&image_addr, &image_size);
 
-		if (device)
-			*device = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
-						  (uintptr_t)image_addr,
-						  image_size);
+		dp = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
+				     (uintptr_t)image_addr, image_size);
 	} else if (IS_ENABLED(CONFIG_NETDEVICES) && !strcmp(dev, "Net")) {
-		if (device)
-			*device = efi_dp_from_eth();
+		dp = efi_dp_from_eth();
 	} else if (!strcmp(dev, "Uart")) {
-		if (device)
-			*device = efi_dp_from_uart();
+		dp = efi_dp_from_uart();
 	} else {
 		part = blk_get_device_part_str(dev, devnr, &desc, &fs_partition,
 					       1);
 		if (part < 0 || !desc)
 			return EFI_INVALID_PARAMETER;
 
-		if (device)
-			*device = efi_dp_from_part(desc, part);
+		dp = efi_dp_from_part(desc, part);
 	}
+	if (device)
+		*device = dp;
 
 	if (!path)
 		return EFI_SUCCESS;
