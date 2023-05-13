@@ -1,4 +1,4 @@
-obj-$(CONFIG_CLK_RENESAS) += renesas-cpg-mssr.o
+obj-$(CONFIG_CLK_RCAR) += renesas-cpg-mssr.o
 obj-$(CONFIG_CLK_RCAR_CPG_LIB) += rcar-cpg-lib.o
 obj-$(CONFIG_CLK_RCAR_GEN2) += clk-rcar-gen2.o
 obj-$(CONFIG_CLK_R8A774A1) += r8a774a1-cpg-mssr.o
