@@ -1079,8 +1079,7 @@ struct efi_device_path *efi_dp_from_uart(void)
 	return buf;
 }
 
-#ifdef CONFIG_NETDEVICES
-struct efi_device_path *efi_dp_from_eth(void)
+struct efi_device_path __maybe_unused *efi_dp_from_eth(void)
 {
 	void *buf, *start;
 	unsigned dpsize = 0;
@@ -1099,7 +1098,6 @@ struct efi_device_path *efi_dp_from_eth(void)
 
 	return start;
 }
-#endif
 
 /* Construct a device-path for memory-mapped image */
 struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
@@ -1195,15 +1193,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	if (path && !file)
 		return EFI_INVALID_PARAMETER;
 
-	if (!strcmp(dev, "Net")) {
-#ifdef CONFIG_NETDEVICES
-		if (device)
-			*device = efi_dp_from_eth();
-#endif
-	} else if (!strcmp(dev, "Uart")) {
-		if (device)
-			*device = efi_dp_from_uart();
-	} else if (!strcmp(dev, "Mem") || !strcmp(dev, "hostfs"))  {
+	if (!strcmp(dev, "Mem") || !strcmp(dev, "hostfs"))  {
 		/* loadm command and semihosting */
 		efi_get_image_parameters(&image_addr, &image_size);
 
@@ -1211,6 +1201,12 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			*device = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
 						  (uintptr_t)image_addr,
 						  image_size);
+	} else if (IS_ENABLED(CONFIG_NETDEVICES) && !strcmp(dev, "Net")) {
+		if (device)
+			*device = efi_dp_from_eth();
+	} else if (!strcmp(dev, "Uart")) {
+		if (device)
+			*device = efi_dp_from_uart();
 	} else {
 		part = blk_get_device_part_str(dev, devnr, &desc, &fs_partition,
 					       1);
