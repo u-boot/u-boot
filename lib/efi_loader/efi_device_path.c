@@ -1187,8 +1187,6 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	size_t image_size;
 	void *image_addr;
 	int part = 0;
-	char *filename;
-	char *s;
 
 	if (path && !file)
 		return EFI_INVALID_PARAMETER;
@@ -1220,17 +1218,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	if (!path)
 		return EFI_SUCCESS;
 
-	filename = calloc(1, strlen(path) + 1);
-	if (!filename)
-		return EFI_OUT_OF_RESOURCES;
-
-	sprintf(filename, "%s", path);
-	/* DOS style file path: */
-	s = filename;
-	while ((s = strchr(s, '/')))
-		*s++ = '\\';
-	*file = efi_dp_from_file(desc, part, filename);
-	free(filename);
+	*file = efi_dp_from_file(desc, part, path);
 
 	if (!*file)
 		return EFI_INVALID_PARAMETER;
