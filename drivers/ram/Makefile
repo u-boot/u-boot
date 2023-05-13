@@ -25,4 +25,5 @@ obj-$(CONFIG_SPL_STARFIVE_DDR) += starfive/
 endif
 obj-$(CONFIG_ARCH_OCTEON) += octeon/
 
+obj-$(CONFIG_ARCH_RMOBILE) += renesas/
 obj-$(CONFIG_CADENCE_DDR_CTRL) += cadence/
