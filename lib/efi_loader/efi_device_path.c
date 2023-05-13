@@ -1002,47 +1002,31 @@ static void path_to_uefi(void *uefi, const char *src)
 }
 
 /**
- * efi_dp_from_file() - create device path for file
+ * efi_dp_from_file() - append file path node to device path.
  *
- * The function creates a device path from the block descriptor @desc and the
- * partition number @part and appends a device path node created describing the
- * file path @path.
- *
- * If @desc is NULL, the device path will not contain nodes describing the
- * partition.
- * If @path is an empty string "", the device path will not contain a node
- * for the file path.
- *
- * @desc:	block device descriptor or NULL
- * @part:	partition number
- * @path:	file path on partition or ""
+ * @dp:		device path or NULL
+ * @path:	file path or NULL
  * Return:	device path or NULL in case of an error
  */
-struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
-		const char *path)
+struct efi_device_path *efi_dp_from_file(const struct efi_device_path *dp,
+					 const char *path)
 {
 	struct efi_device_path_file_path *fp;
 	void *buf, *pos;
-	size_t dpsize = 0, fpsize;
+	size_t dpsize, fpsize;
 
-	if (desc)
-		dpsize = dp_part_size(desc, part);
-
+	dpsize = efi_dp_size(dp);
 	fpsize = sizeof(struct efi_device_path) +
 		 2 * (utf8_utf16_strlen(path) + 1);
 	if (fpsize > U16_MAX)
 		return NULL;
 
-	dpsize += fpsize;
-
-	buf = efi_alloc(dpsize + sizeof(END));
+	buf = efi_alloc(dpsize + fpsize + sizeof(END));
 	if (!buf)
 		return NULL;
 
-	if (desc)
-		pos = dp_part_fill(buf, desc, part);
-	else
-		pos = buf;
+	memcpy(buf, dp, dpsize);
+	pos = buf + dpsize;
 
 	/* add file-path: */
 	if (*path) {
@@ -1218,8 +1202,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	if (!path)
 		return EFI_SUCCESS;
 
-	*file = efi_dp_from_file(desc, part, path);
-
+	*file = efi_dp_from_file(dp, path);
 	if (!*file)
 		return EFI_OUT_OF_RESOURCES;
 
