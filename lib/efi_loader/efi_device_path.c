@@ -1223,7 +1223,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	*file = efi_dp_from_file(desc, part, path);
 
 	if (!*file)
-		return EFI_INVALID_PARAMETER;
+		return EFI_OUT_OF_RESOURCES;
 
 	return EFI_SUCCESS;
 }
