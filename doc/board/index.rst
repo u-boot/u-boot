@@ -34,6 +34,7 @@ Board-specific doc
    openpiton/index
    purism/index
    qualcomm/index
+   renesas/index
    rockchip/index
    samsung/index
    siemens/index
