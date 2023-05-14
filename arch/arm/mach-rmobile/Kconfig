@@ -48,6 +48,24 @@ config RZA1
 	prompt "Renesas ARM SoCs RZ/A1 (32bit)"
 	select CPU_V7A
 
+config RZN1
+	prompt "Renesas ARM SoCs RZ/N1 (32bit)"
+	select CPU_V7A
+	select ARMV7_SET_CORTEX_SMPEN if !SPL
+	select SPL_ARMV7_SET_CORTEX_SMPEN if SPL
+	select CLK
+	select CLK_RENESAS
+	select CLK_R9A06G032
+	select DM
+	select DM_ETH
+	select DM_SERIAL
+	select PINCTRL
+	select PINCONF
+	select REGMAP
+	select SYSRESET
+	select SYSRESET_SYSCON
+	imply CMD_DM
+
 endchoice
 
 config SYS_SOC
@@ -56,5 +74,6 @@ config SYS_SOC
 source "arch/arm/mach-rmobile/Kconfig.32"
 source "arch/arm/mach-rmobile/Kconfig.64"
 source "arch/arm/mach-rmobile/Kconfig.rza1"
+source "arch/arm/mach-rmobile/Kconfig.rzn1"
 
 endif

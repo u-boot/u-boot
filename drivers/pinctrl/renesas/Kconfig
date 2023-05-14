@@ -139,3 +139,10 @@ config PINCTRL_PFC_R7S72100
 	  Support pin multiplexing control on Renesas RZ/A1 R7S72100 SoCs.
 
 endif
+
+config PINCTRL_RZN1
+	bool "Renesas RZ/N1 R906G032 pin control driver"
+	depends on RZN1
+	default y if RZN1
+	help
+	  Support pin multiplexing control on Renesas RZ/N1 R906G032 SoCs.
