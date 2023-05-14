@@ -55,7 +55,7 @@ static void report_bootflow_err(struct bootflow *bflow, int err)
 		break;
 	}
 
-	printf(", err=%d\n", err);
+	printf(", err=%dE\n", err);
 }
 
 /**
@@ -125,7 +125,7 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 			dev = std->cur_bootdev;
 	} else {
 		if (has_args) {
-			printf("Flags not supported: enable CONFIG_BOOTFLOW_FULL\n");
+			printf("Flags not supported: enable CONFIG_BOOTSTD_FULL\n");
 			return CMD_RET_USAGE;
 		}
 		boot = true;

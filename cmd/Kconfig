@@ -258,7 +258,7 @@ config CMD_BOOTFLOW
 config CMD_BOOTFLOW_FULL
 	bool "bootflow - extract subcommands"
 	depends on BOOTSTD_FULL
-	default y if BOOTSTD_FULL
+	default y
 	help
 	  Add the ability to list the available bootflows, select one and obtain
 	  information about it.

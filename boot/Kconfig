@@ -437,6 +437,7 @@ config BOOTSTD_DEFAULTS
 	depends on BOOTSTD
 	imply USE_BOOTCOMMAND
 	select BOOT_DEFAULTS
+	select BOOTMETH_DISTRO
 	help
 	  These are not required but are commonly needed to support a good
 	  selection of booting methods. Enable this to improve the capability
@@ -462,30 +463,38 @@ config BOOTMETH_GLOBAL
 	  EFI bootmgr, since they take full control over which bootdevs are
 	  selected to boot.
 
-config BOOTMETH_DISTRO
-	bool "Bootdev support for distro boot"
+config BOOTMETH_EXTLINUX
+	bool "Bootdev support for extlinux boot"
 	select PXE_UTILS
 	default y
 	help
-	  Enables support for distro boot using bootdevs. This makes the
+	  Enables support for extlinux boot using bootdevs. This makes the
 	  bootdevs look for a 'extlinux/extlinux.conf' on each filesystem
 	  they scan.
 
+	  The specification for this filed is here:
+
+	    https://uapi-group.org/specifications/specs/boot_loader_specification/
+
 	  This provides a way to try out standard boot on an existing boot flow.
 
-config BOOTMETH_DISTRO_PXE
-	bool "Bootdev support for distro boot over network"
+config BOOTMETH_EXTLINUX_PXE
+	bool "Bootdev support for extlinux boot over network"
 	depends on CMD_PXE && CMD_NET && DM_ETH
 	default y
 	help
-	  Enables support for distro boot using bootdevs. This makes the
+	  Enables support for extlinux boot using bootdevs. This makes the
 	  bootdevs look for a 'extlinux/extlinux.conf' on the tftp server.
+
+	  The specification for this file is here:
+
+	    https://uapi-group.org/specifications/specs/boot_loader_specification/
 
 	  This provides a way to try out standard boot on an existing boot flow.
 
 config BOOTMETH_EFILOADER
 	bool "Bootdev support for EFI boot"
-	depends on CMD_BOOTEFI
+	depends on EFI_LOADER
 	default y
 	help
 	  Enables support for EFI boot using bootdevs. This makes the
@@ -514,6 +523,13 @@ config BOOTMETH_VBE
 	  Enables support for VBE boot. This is a standard boot method which
 	  supports selection of various firmware components, seleciton of an OS to
 	  boot as well as updating these using fwupd.
+
+config BOOTMETH_DISTRO
+	bool  # Options needed to boot any distro
+	select BOOTMETH_SCRIPT  # E.g. Armbian uses scripts
+	select BOOTMETH_EXTLINUX  # E.g. Debian uses these
+	select BOOTMETH_EXTLINUX_PXE if CMD_PXE && CMD_NET && DM_ETH
+	select BOOTMETH_EFILOADER if EFI_LOADER # E.g. Ubuntu uses this
 
 config SPL_BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded (SPL)"
@@ -638,6 +654,7 @@ config BOOTMETH_SANDBOX
 config BOOTMETH_SCRIPT
 	bool "Bootdev support for U-Boot scripts"
 	default y if BOOTSTD_FULL
+	select HUSH_PARSER
 	help
 	  Enables support for booting a distro via a U-Boot script. This makes
 	  the bootdevs look for a 'boot/boot.scr' file which can be used to
@@ -1553,8 +1570,8 @@ config USE_BOOTCOMMAND
 config BOOTCOMMAND
 	string "bootcmd value"
 	depends on USE_BOOTCOMMAND && !USE_DEFAULT_ENV_FILE
-	default "bootflow scan -lb" if BOOTSTD_BOOTCOMMAND && CMD_BOOTFLOW_FULL
-	default "bootflow scan" if BOOTSTD_BOOTCOMMAND && !CMD_BOOTFLOW_FULL
+	default "bootflow scan -lb" if BOOTSTD_DEFAULTS && CMD_BOOTFLOW_FULL
+	default "bootflow scan" if BOOTSTD_DEFAULTS && !CMD_BOOTFLOW_FULL
 	default "run distro_bootcmd" if !BOOTSTD_BOOTCOMMAND && DISTRO_DEFAULTS
 	help
 	  This is the string of commands that will be used as bootcmd and if

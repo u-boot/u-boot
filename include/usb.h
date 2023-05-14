@@ -11,11 +11,14 @@
 #ifndef _USB_H_
 #define _USB_H_
 
+#include <stdbool.h>
 #include <fdtdec.h>
 #include <usb_defs.h>
 #include <linux/usb/ch9.h>
 #include <asm/cache.h>
 #include <part.h>
+
+extern bool usb_started; /* flag for the started/stopped USB status */
 
 /*
  * The EHCI spec says that we must align to at least 32 bytes.  However,

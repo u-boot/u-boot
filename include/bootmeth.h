@@ -255,7 +255,7 @@ int bootmeth_setup_iter_order(struct bootflow_iter *iter, bool include_global);
  * This selects the ordering to use for bootmeths
  *
  * @order_str: String containing the ordering. This is a comma-separate list of
- * bootmeth-device names, e.g. "syslinux,efi". If empty then a default ordering
+ * bootmeth-device names, e.g. "extlinux,efi". If empty then a default ordering
  * is used, based on the sequence number of devices (i.e. using aliases)
  * Return: 0 if OK, -ENODEV if an unknown bootmeth is mentioned, -ENOMEM if
  * out of memory, -ENOENT if there are no bootmeth devices

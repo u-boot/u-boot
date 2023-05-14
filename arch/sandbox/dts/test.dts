@@ -86,8 +86,8 @@
 		filename-prefixes = "/", "/boot/";
 		bootdev-order = "mmc2", "mmc1";
 
-		syslinux {
-			compatible = "u-boot,distro-syslinux";
+		extlinux {
+			compatible = "u-boot,extlinux";
 		};
 
 		efi {

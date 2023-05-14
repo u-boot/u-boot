@@ -7,8 +7,8 @@ device (bootdev). These are normally created as children of the bootstd device.
 Required properties:
 
 compatible:
-   "u-boot,distro-syslinux" - distro boot from a block device
-   "u-boot,distro-pxe" - distro boot from a network device
+   "u-boot,extlinux" - distro boot from a block device
+   "u-boot,extlinux-pxe" - distro boot from a network device
    "u-boot,distro-efi" - EFI boot from an .efi file
    "u-boot,efi-bootmgr" - EFI boot using boot manager (bootmgr)
 
@@ -21,8 +21,8 @@ Example:
 		filename-prefixes = "/", "/boot/";
 		bootdev-order = "mmc2", "mmc1";
 
-		syslinux {
-			compatible = "u-boot,distro-syslinux";
+		extlinux {
+			compatible = "u-boot,extlinux";
 		};
 
 		efi {
