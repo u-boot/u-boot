@@ -31,6 +31,8 @@
 };
 
 &pinctrl {
+	bootph-all;
+
 	usb {
 		vcc5v0_host_en: vcc5v0-host-en {
 			rockchip,pins = <4 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
@@ -38,9 +40,33 @@
 	};
 };
 
+&pcfg_pull_up_drv_level_2 {
+	bootph-all;
+};
+
+&pcfg_pull_up {
+	bootph-all;
+};
+
 &sdmmc {
 	bus-width = <4>;
 	status = "okay";
+};
+
+&sdmmc_bus4 {
+	bootph-all;
+};
+
+&sdmmc_clk {
+	bootph-all;
+};
+
+&sdmmc_cmd {
+	bootph-all;
+};
+
+&sdmmc_det {
+	bootph-all;
 };
 
 &sdhci {
