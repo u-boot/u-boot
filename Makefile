@@ -423,7 +423,8 @@ DTC_MIN_VERSION	:= 010406
 CHECK		= sparse
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
-		  -Wbitwise -Wno-return-void -D__CHECK_ENDIAN__ $(CF)
+		  -Wbitwise -Wno-return-void -Wno-unknown-attribute \
+		  -D__CHECK_ENDIAN__ $(CF)
 
 KBUILD_CPPFLAGS := -D__KERNEL__ -D__UBOOT__
 
@@ -1031,6 +1032,9 @@ LDFLAGS_u-boot += --build-id=none
 ifeq ($(CONFIG_ARC)$(CONFIG_NIOS2)$(CONFIG_X86)$(CONFIG_XTENSA),)
 LDFLAGS_u-boot += -Ttext $(CONFIG_TEXT_BASE)
 endif
+
+# make the checker run with the right architecture
+CHECKFLAGS += --arch=$(ARCH)
 
 # insure the checker run with the right endianness
 CHECKFLAGS += $(if $(CONFIG_CPU_BIG_ENDIAN),-mbig-endian,-mlittle-endian)
