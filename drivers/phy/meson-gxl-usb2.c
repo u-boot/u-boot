@@ -16,7 +16,6 @@
 #include <generic-phy.h>
 #include <regmap.h>
 #include <linux/delay.h>
-#include <power/regulator.h>
 #include <clk.h>
 #include <linux/usb/otg.h>
 
@@ -101,9 +100,6 @@
 
 struct phy_meson_gxl_usb2_priv {
 	struct regmap		*regmap;
-#if CONFIG_IS_ENABLED(DM_REGULATOR)
-	struct udevice		*phy_supply;
-#endif
 #if CONFIG_IS_ENABLED(CLK)
 	struct clk		clk;
 #endif
@@ -167,14 +163,6 @@ static int phy_meson_gxl_usb2_power_on(struct phy *phy)
 
 	phy_meson_gxl_usb2_set_mode(phy, USB_DR_MODE_HOST);
 
-#if CONFIG_IS_ENABLED(DM_REGULATOR)
-	if (priv->phy_supply) {
-		int ret = regulator_set_enable(priv->phy_supply, true);
-		if (ret)
-			return ret;
-	}
-#endif
-
 	return 0;
 }
 
@@ -188,16 +176,6 @@ static int phy_meson_gxl_usb2_power_off(struct phy *phy)
 	/* power off the PHY by putting it into reset mode */
 	val |= U2P_R0_POWER_ON_RESET;
 	regmap_write(priv->regmap, U2P_R0, val);
-
-#if CONFIG_IS_ENABLED(DM_REGULATOR)
-	if (priv->phy_supply) {
-		int ret = regulator_set_enable(priv->phy_supply, false);
-		if (ret) {
-			pr_err("Error disabling PHY supply\n");
-			return ret;
-		}
-	}
-#endif
 
 	return 0;
 }
@@ -225,14 +203,6 @@ int meson_gxl_usb2_phy_probe(struct udevice *dev)
 	if (ret && ret != -ENOSYS && ret != -ENOTSUPP) {
 		pr_err("failed to enable PHY clock\n");
 		clk_free(&priv->clk);
-		return ret;
-	}
-#endif
-
-#if CONFIG_IS_ENABLED(DM_REGULATOR)
-	ret = device_get_supply_regulator(dev, "phy-supply", &priv->phy_supply);
-	if (ret && ret != -ENOENT) {
-		pr_err("Failed to get PHY regulator\n");
 		return ret;
 	}
 #endif
