@@ -47,6 +47,8 @@
 };
 
 &i2c2 {
+	pinctrl-0 = <&i2c2m1_xfer>;
+	pinctrl-names = "default";
 	status = "okay";
 };
 
