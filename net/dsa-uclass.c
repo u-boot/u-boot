@@ -381,7 +381,7 @@ static int dsa_post_bind(struct udevice *dev)
 
 	node = ofnode_find_subnode(node, "ports");
 	if (!ofnode_valid(node))
-		node = ofnode_find_subnode(node, "ethernet-ports");
+		node = ofnode_find_subnode(dev_ofnode(dev), "ethernet-ports");
 	if (!ofnode_valid(node)) {
 		dev_err(dev, "ports node is missing under DSA device!\n");
 		return -EINVAL;
