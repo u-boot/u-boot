@@ -201,14 +201,14 @@ static int rockchip_usb2phy_probe(struct udevice *dev)
 
 	/* find out a proper config which can be matched with dt. */
 	index = 0;
-	while (phy_cfgs[index].reg) {
+	do {
 		if (phy_cfgs[index].reg == reg) {
 			priv->phy_cfg = &phy_cfgs[index];
 			break;
 		}
 
 		++index;
-	}
+	} while (phy_cfgs[index].reg);
 
 	if (!priv->phy_cfg) {
 		dev_err(dev, "failed find proper phy-cfg\n");
@@ -348,6 +348,58 @@ static const struct rockchip_usb2phy_cfg rk3568_phy_cfgs[] = {
 	{ /* sentinel */ }
 };
 
+static const struct rockchip_usb2phy_cfg rk3588_phy_cfgs[] = {
+	{
+		.reg		= 0x0000,
+		.port_cfgs	= {
+			[USB2PHY_PORT_OTG] = {
+				.phy_sus	= { 0x000c, 11, 11, 0, 1 },
+				.ls_det_en	= { 0x0080, 0, 0, 0, 1 },
+				.ls_det_st	= { 0x0084, 0, 0, 0, 1 },
+				.ls_det_clr	= { 0x0088, 0, 0, 0, 1 },
+				.utmi_ls	= { 0x00c0, 10, 9, 0, 1 },
+			}
+		},
+	},
+	{
+		.reg		= 0x4000,
+		.port_cfgs	= {
+			[USB2PHY_PORT_OTG] = {
+				.phy_sus	= { 0x000c, 11, 11, 0, 0 },
+				.ls_det_en	= { 0x0080, 0, 0, 0, 1 },
+				.ls_det_st	= { 0x0084, 0, 0, 0, 1 },
+				.ls_det_clr	= { 0x0088, 0, 0, 0, 1 },
+				.utmi_ls	= { 0x00c0, 10, 9, 0, 1 },
+			}
+		},
+	},
+	{
+		.reg		= 0x8000,
+		.port_cfgs	= {
+			[USB2PHY_PORT_HOST] = {
+				.phy_sus	= { 0x0008, 2, 2, 0, 1 },
+				.ls_det_en	= { 0x0080, 0, 0, 0, 1 },
+				.ls_det_st	= { 0x0084, 0, 0, 0, 1 },
+				.ls_det_clr	= { 0x0088, 0, 0, 0, 1 },
+				.utmi_ls	= { 0x00c0, 10, 9, 0, 1 },
+			}
+		},
+	},
+	{
+		.reg		= 0xc000,
+		.port_cfgs	= {
+			[USB2PHY_PORT_HOST] = {
+				.phy_sus	= { 0x0008, 2, 2, 0, 1 },
+				.ls_det_en	= { 0x0080, 0, 0, 0, 1 },
+				.ls_det_st	= { 0x0084, 0, 0, 0, 1 },
+				.ls_det_clr	= { 0x0088, 0, 0, 0, 1 },
+				.utmi_ls	= { 0x00c0, 10, 9, 0, 1 },
+			}
+		},
+	},
+	{ /* sentinel */ }
+};
+
 static const struct udevice_id rockchip_usb2phy_ids[] = {
 	{
 		.compatible = "rockchip,rk3399-usb2phy",
@@ -356,6 +408,10 @@ static const struct udevice_id rockchip_usb2phy_ids[] = {
 	{
 		.compatible = "rockchip,rk3568-usb2phy",
 		.data = (ulong)&rk3568_phy_cfgs,
+	},
+	{
+		.compatible = "rockchip,rk3588-usb2phy",
+		.data = (ulong)&rk3588_phy_cfgs,
 	},
 	{ /* sentinel */ }
 };
