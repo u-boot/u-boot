@@ -228,24 +228,24 @@ int generic_phy_init(struct phy *phy)
 
 	if (!generic_phy_valid(phy))
 		return 0;
-	ops = phy_dev_ops(phy->dev);
-	if (!ops->init)
-		return 0;
-
 	counts = phy_get_counts(phy);
 	if (counts->init_count > 0) {
 		counts->init_count++;
 		return 0;
 	}
 
-	ret = ops->init(phy);
-	if (ret)
-		dev_err(phy->dev, "PHY: Failed to init %s: %d.\n",
-			phy->dev->name, ret);
-	else
-		counts->init_count = 1;
+	ops = phy_dev_ops(phy->dev);
+	if (ops->init) {
+		ret = ops->init(phy);
+		if (ret) {
+			dev_err(phy->dev, "PHY: Failed to init %s: %d.\n",
+				phy->dev->name, ret);
+			return ret;
+		}
+	}
+	counts->init_count = 1;
 
-	return ret;
+	return 0;
 }
 
 int generic_phy_reset(struct phy *phy)
@@ -274,10 +274,6 @@ int generic_phy_exit(struct phy *phy)
 
 	if (!generic_phy_valid(phy))
 		return 0;
-	ops = phy_dev_ops(phy->dev);
-	if (!ops->exit)
-		return 0;
-
 	counts = phy_get_counts(phy);
 	if (counts->init_count == 0)
 		return 0;
@@ -286,14 +282,18 @@ int generic_phy_exit(struct phy *phy)
 		return 0;
 	}
 
-	ret = ops->exit(phy);
-	if (ret)
-		dev_err(phy->dev, "PHY: Failed to exit %s: %d.\n",
-			phy->dev->name, ret);
-	else
-		counts->init_count = 0;
+	ops = phy_dev_ops(phy->dev);
+	if (ops->exit) {
+		ret = ops->exit(phy);
+		if (ret) {
+			dev_err(phy->dev, "PHY: Failed to exit %s: %d.\n",
+				phy->dev->name, ret);
+			return ret;
+		}
+	}
+	counts->init_count = 0;
 
-	return ret;
+	return 0;
 }
 
 int generic_phy_power_on(struct phy *phy)
@@ -304,10 +304,6 @@ int generic_phy_power_on(struct phy *phy)
 
 	if (!generic_phy_valid(phy))
 		return 0;
-	ops = phy_dev_ops(phy->dev);
-	if (!ops->power_on)
-		return 0;
-
 	counts = phy_get_counts(phy);
 	if (counts->power_on_count > 0) {
 		counts->power_on_count++;
@@ -321,12 +317,15 @@ int generic_phy_power_on(struct phy *phy)
 		return ret;
 	}
 
-	ret = ops->power_on(phy);
-	if (ret) {
-		dev_err(phy->dev, "PHY: Failed to power on %s: %d.\n",
-			phy->dev->name, ret);
-		regulator_set_enable_if_allowed(counts->supply, false);
-		return ret;
+	ops = phy_dev_ops(phy->dev);
+	if (ops->power_on) {
+		ret = ops->power_on(phy);
+		if (ret) {
+			dev_err(phy->dev, "PHY: Failed to power on %s: %d.\n",
+				phy->dev->name, ret);
+			regulator_set_enable_if_allowed(counts->supply, false);
+			return ret;
+		}
 	}
 	counts->power_on_count = 1;
 
@@ -341,10 +340,6 @@ int generic_phy_power_off(struct phy *phy)
 
 	if (!generic_phy_valid(phy))
 		return 0;
-	ops = phy_dev_ops(phy->dev);
-	if (!ops->power_off)
-		return 0;
-
 	counts = phy_get_counts(phy);
 	if (counts->power_on_count == 0)
 		return 0;
@@ -353,11 +348,14 @@ int generic_phy_power_off(struct phy *phy)
 		return 0;
 	}
 
-	ret = ops->power_off(phy);
-	if (ret) {
-		dev_err(phy->dev, "PHY: Failed to power off %s: %d.\n",
-			phy->dev->name, ret);
-		return ret;
+	ops = phy_dev_ops(phy->dev);
+	if (ops->power_off) {
+		ret = ops->power_off(phy);
+		if (ret) {
+			dev_err(phy->dev, "PHY: Failed to power off %s: %d.\n",
+				phy->dev->name, ret);
+			return ret;
+		}
 	}
 	counts->power_on_count = 0;
 
