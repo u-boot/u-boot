@@ -998,7 +998,7 @@ int ofnode_decode_panel_timing(ofnode parent,
 	u32 val = 0;
 	int ret = 0;
 
-	timings = ofnode_find_subnode(parent, "panel-timings");
+	timings = ofnode_find_subnode(parent, "panel-timing");
 	if (!ofnode_valid(timings))
 		return -EINVAL;
 	memset(dt, 0, sizeof(*dt));

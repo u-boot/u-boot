@@ -10,9 +10,7 @@
 #include <env_callback.h>
 #include <linux/stringify.h>
 
-#ifndef USE_HOSTCC
 #include <generated/environment.h>
-#endif
 
 #ifdef DEFAULT_ENV_INSTANCE_EMBEDDED
 env_t embedded_environment __UBOOT_ENV_SECTION__(environment) = {

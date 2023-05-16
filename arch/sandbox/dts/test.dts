@@ -344,7 +344,7 @@
 				vsync-len = <13>;
 			};
 		};
-		panel-timings {
+		panel-timing {
 			clock-frequency = <6500000>;
 			hactive = <240>;
 			vactive = <320>;
