@@ -88,6 +88,11 @@ int mtd_arg_off_size(int argc, char *const argv[], int *idx, loff_t *off,
 		return -1;
 	}
 
+	if (*size == 0) {
+		debug("ERROR: Invalid size 0\n");
+		return -1;
+	}
+
 print:
 	printf("device %d ", *idx);
 	if (*size == chipsize)
