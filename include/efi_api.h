@@ -1170,7 +1170,33 @@ struct efi_key_descriptor {
 
 struct efi_hii_keyboard_layout {
 	u16 layout_length;
-	efi_guid_t guid;
+	/*
+	 * The EFI spec defines this as efi_guid_t.
+	 * clang and gcc both report alignment problems here.
+	 * clang with -Wunaligned-access
+	 * warning: field guid within 'struct efi_hii_keyboard_layout' is less
+	 * aligned than 'efi_guid_t' and is usually due to
+	 * 'struct efi_hii_keyboard_layout' being packed, which can lead to
+	 * unaligned accesses
+	 *
+	 * GCC with -Wpacked-not-aligned -Waddress-of-packed-member
+	 * 'efi_guid_t' offset 2 in 'struct efi_hii_keyboard_layout'
+	 * isn't aligned to 4
+	 *
+	 * Removing the alignment from efi_guid_t is not an option, since
+	 * it is also used in non-packed structs and that would break
+	 * calculations with offsetof
+	 *
+	 * This is the only place we get a report for. That happens because
+	 * all other declarations of efi_guid_t within a packed struct happens
+	 * to be 4-byte aligned.  i.e a u32, a u64 a 2 * u16 or any combination
+	 * that ends up landing efi_guid_t on a 4byte boundary precedes.
+	 *
+	 * Replace this with a 1-byte aligned counterpart of b[16].  This is a
+	 * packed struct so the memory  placement of efi_guid_t should not change
+	 *
+	 */
+	u8 guid[16];
 	u32 layout_descriptor_string_offset;
 	u8 descriptor_count;
 	/* struct efi_key_descriptor descriptors[]; follows here */

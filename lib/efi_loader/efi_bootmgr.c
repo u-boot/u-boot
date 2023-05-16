@@ -47,7 +47,7 @@ const efi_guid_t efi_guid_bootmenu_auto_generated =
 static
 struct efi_device_path *expand_media_path(struct efi_device_path *device_path)
 {
-	struct efi_device_path *dp, *rem, *full_path;
+	struct efi_device_path *rem, *full_path;
 	efi_handle_t handle;
 
 	if (!device_path)
@@ -58,15 +58,12 @@ struct efi_device_path *expand_media_path(struct efi_device_path *device_path)
 	 * simple file system protocol, append a default file name to support
 	 * booting from removable media.
 	 */
-	dp = device_path;
-	handle = efi_dp_find_obj(dp, &efi_simple_file_system_protocol_guid,
-				 &rem);
+	handle = efi_dp_find_obj(device_path,
+				 &efi_simple_file_system_protocol_guid, &rem);
 	if (handle) {
 		if (rem->type == DEVICE_PATH_TYPE_END) {
-			dp = efi_dp_from_file(NULL, 0,
-					      "/EFI/BOOT/" BOOTEFI_NAME);
-			full_path = efi_dp_append(device_path, dp);
-			efi_free_pool(dp);
+			full_path = efi_dp_from_file(device_path,
+						     "/EFI/BOOT/" BOOTEFI_NAME);
 		} else {
 			full_path = efi_dp_dup(device_path);
 		}

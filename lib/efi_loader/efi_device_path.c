@@ -1002,59 +1002,45 @@ static void path_to_uefi(void *uefi, const char *src)
 }
 
 /**
- * efi_dp_from_file() - create device path for file
+ * efi_dp_from_file() - append file path node to device path.
  *
- * The function creates a device path from the block descriptor @desc and the
- * partition number @part and appends a device path node created describing the
- * file path @path.
- *
- * If @desc is NULL, the device path will not contain nodes describing the
- * partition.
- * If @path is an empty string "", the device path will not contain a node
- * for the file path.
- *
- * @desc:	block device descriptor or NULL
- * @part:	partition number
- * @path:	file path on partition or ""
+ * @dp:		device path or NULL
+ * @path:	file path or NULL
  * Return:	device path or NULL in case of an error
  */
-struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
-		const char *path)
+struct efi_device_path *efi_dp_from_file(const struct efi_device_path *dp,
+					 const char *path)
 {
 	struct efi_device_path_file_path *fp;
-	void *buf, *start;
-	size_t dpsize = 0, fpsize;
+	void *buf, *pos;
+	size_t dpsize, fpsize;
 
-	if (desc)
-		dpsize = dp_part_size(desc, part);
-
+	dpsize = efi_dp_size(dp);
 	fpsize = sizeof(struct efi_device_path) +
 		 2 * (utf8_utf16_strlen(path) + 1);
 	if (fpsize > U16_MAX)
 		return NULL;
 
-	dpsize += fpsize;
-
-	start = buf = efi_alloc(dpsize + sizeof(END));
+	buf = efi_alloc(dpsize + fpsize + sizeof(END));
 	if (!buf)
 		return NULL;
 
-	if (desc)
-		buf = dp_part_fill(buf, desc, part);
+	memcpy(buf, dp, dpsize);
+	pos = buf + dpsize;
 
 	/* add file-path: */
 	if (*path) {
-		fp = buf;
+		fp = pos;
 		fp->dp.type = DEVICE_PATH_TYPE_MEDIA_DEVICE;
 		fp->dp.sub_type = DEVICE_PATH_SUB_TYPE_FILE_PATH;
 		fp->dp.length = (u16)fpsize;
 		path_to_uefi(fp->str, path);
-		buf += fpsize;
+		pos += fpsize;
 	}
 
-	*((struct efi_device_path *)buf) = END;
+	memcpy(pos, &END, sizeof(END));
 
-	return start;
+	return buf;
 }
 
 struct efi_device_path *efi_dp_from_uart(void)
@@ -1079,8 +1065,7 @@ struct efi_device_path *efi_dp_from_uart(void)
 	return buf;
 }
 
-#ifdef CONFIG_NETDEVICES
-struct efi_device_path *efi_dp_from_eth(void)
+struct efi_device_path __maybe_unused *efi_dp_from_eth(void)
 {
 	void *buf, *start;
 	unsigned dpsize = 0;
@@ -1099,7 +1084,6 @@ struct efi_device_path *efi_dp_from_eth(void)
 
 	return start;
 }
-#endif
 
 /* Construct a device-path for memory-mapped image */
 struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
@@ -1185,58 +1169,42 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			      struct efi_device_path **file)
 {
 	struct blk_desc *desc = NULL;
+	struct efi_device_path *dp;
 	struct disk_partition fs_partition;
 	size_t image_size;
 	void *image_addr;
 	int part = 0;
-	char *filename;
-	char *s;
 
 	if (path && !file)
 		return EFI_INVALID_PARAMETER;
 
-	if (!strcmp(dev, "Net")) {
-#ifdef CONFIG_NETDEVICES
-		if (device)
-			*device = efi_dp_from_eth();
-#endif
-	} else if (!strcmp(dev, "Uart")) {
-		if (device)
-			*device = efi_dp_from_uart();
-	} else if (!strcmp(dev, "Mem")) {
+	if (!strcmp(dev, "Mem") || !strcmp(dev, "hostfs"))  {
+		/* loadm command and semihosting */
 		efi_get_image_parameters(&image_addr, &image_size);
 
-		if (device)
-			*device = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
-						  (uintptr_t)image_addr,
-						  image_size);
+		dp = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
+				     (uintptr_t)image_addr, image_size);
+	} else if (IS_ENABLED(CONFIG_NETDEVICES) && !strcmp(dev, "Net")) {
+		dp = efi_dp_from_eth();
+	} else if (!strcmp(dev, "Uart")) {
+		dp = efi_dp_from_uart();
 	} else {
 		part = blk_get_device_part_str(dev, devnr, &desc, &fs_partition,
 					       1);
 		if (part < 0 || !desc)
 			return EFI_INVALID_PARAMETER;
 
-		if (device)
-			*device = efi_dp_from_part(desc, part);
+		dp = efi_dp_from_part(desc, part);
 	}
+	if (device)
+		*device = dp;
 
 	if (!path)
 		return EFI_SUCCESS;
 
-	filename = calloc(1, strlen(path) + 1);
-	if (!filename)
-		return EFI_OUT_OF_RESOURCES;
-
-	sprintf(filename, "%s", path);
-	/* DOS style file path: */
-	s = filename;
-	while ((s = strchr(s, '/')))
-		*s++ = '\\';
-	*file = efi_dp_from_file(desc, part, filename);
-	free(filename);
-
+	*file = efi_dp_from_file(dp, path);
 	if (!*file)
-		return EFI_INVALID_PARAMETER;
+		return EFI_OUT_OF_RESOURCES;
 
 	return EFI_SUCCESS;
 }

@@ -810,7 +810,7 @@ bool efi_dp_is_multi_instance(const struct efi_device_path *dp);
 struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part);
 /* Create a device node for a block device partition. */
 struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part);
-struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
+struct efi_device_path *efi_dp_from_file(const struct efi_device_path *dp,
 					 const char *path);
 struct efi_device_path *efi_dp_from_eth(void);
 struct efi_device_path *efi_dp_from_mem(uint32_t mem_type,

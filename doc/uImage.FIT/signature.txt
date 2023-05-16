@@ -42,8 +42,8 @@ device.
 Algorithms
 ----------
 In principle any suitable algorithm can be used to sign and verify a hash.
-At present only one class of algorithms is supported: SHA1 hashing with RSA.
-This works by hashing the image to produce a 20-byte hash.
+U-Boot supports a few hashing and verification algorithms. See below for
+details.
 
 While it is acceptable to bring in large cryptographic libraries such as
 openssl on the host side (e.g. mkimage), it is not desirable for U-Boot.
@@ -56,10 +56,10 @@ of data from the FDT and exponentiation mod n. Code size impact is a little
 under 5KB on Tegra Seaboard, for example.
 
 It is relatively straightforward to add new algorithms if required. If
-another RSA variant is needed, then it can be added to the table in
-image-sig.c. If another algorithm is needed (such as DSA) then it can be
-placed alongside rsa.c, and its functions added to the table in image-sig.c
-also.
+another RSA variant is needed, then it can be added with the
+U_BOOT_CRYPTO_ALGO() macro. If another algorithm is needed (such as DSA) then
+it can be placed in a directory alongside lib/rsa/, and its functions added
+using U_BOOT_CRYPTO_ALGO().
 
 
 Creating an RSA key pair and certificate
@@ -439,6 +439,7 @@ be enabled:
 
 CONFIG_FIT_SIGNATURE - enable signing and verification in FITs
 CONFIG_RSA - enable RSA algorithm for signing
+CONFIG_ECDSA - enable ECDSA algorithm for signing
 
 WARNING: When relying on signed FIT images with required signature check
 the legacy image format is default disabled by not defining
@@ -694,8 +695,6 @@ bootm.
 
 Possible Future Work
 --------------------
-- Add support for other RSA/SHA variants, such as rsa4096,sha512.
-- Other algorithms besides RSA
 - More sandbox tests for failure modes
 - Passwords for keys/certificates
 - Perhaps implement OAEP
