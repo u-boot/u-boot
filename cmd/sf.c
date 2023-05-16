@@ -353,6 +353,11 @@ static int do_spi_flash_erase(int argc, char *const argv[])
 	if (ret != 1)
 		return CMD_RET_USAGE;
 
+	if (size == 0) {
+		debug("ERROR: Invalid size 0\n");
+		return CMD_RET_FAILURE;
+	}
+
 	/* Consistency checking */
 	if (offset + size > flash->size) {
 		printf("ERROR: attempting %s past flash size (%#x)\n",
