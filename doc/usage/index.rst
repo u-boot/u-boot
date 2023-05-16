@@ -63,6 +63,7 @@ Shell commands
    cmd/gpio
    cmd/host
    cmd/load
+   cmd/loadb
    cmd/loadm
    cmd/loady
    cmd/mbr
