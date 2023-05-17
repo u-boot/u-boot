@@ -34,6 +34,26 @@
 	status = "okay";
 };
 
+&emmc_bus8 {
+	bootph-all;
+};
+
+&emmc_clk {
+	bootph-all;
+};
+
+&emmc_cmd {
+	bootph-all;
+};
+
+&emmc_data_strobe {
+	bootph-all;
+};
+
+&emmc_rstnout {
+	bootph-all;
+};
+
 &pcie2x1l2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pcie2x1l2_pins &pcie_reset_h>;
@@ -60,6 +80,10 @@
 			rockchip,pins = <4 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
+};
+
+&pcfg_pull_none {
+	bootph-all;
 };
 
 &pcfg_pull_up_drv_level_2 {
@@ -97,6 +121,10 @@
 	mmc-hs200-1_8v;
 	pinctrl-names = "default";
 	pinctrl-0 = <&emmc_bus8 &emmc_clk &emmc_cmd &emmc_data_strobe &emmc_rstnout>;
+};
+
+&uart2m0_xfer {
+	bootph-all;
 };
 
 &usb_host0_ehci {
