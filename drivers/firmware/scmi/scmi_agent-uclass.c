@@ -38,6 +38,80 @@ static const struct error_code scmi_linux_errmap[] = {
 	{ .scmi = SCMI_PROTOCOL_ERROR, .errno = -EPROTO, },
 };
 
+struct udevice *scmi_get_protocol(struct udevice *dev,
+				  enum scmi_std_protocol id)
+{
+	struct scmi_agent_priv *priv;
+	struct udevice *proto;
+
+	priv = dev_get_uclass_plat(dev);
+	if (!priv) {
+		dev_err(dev, "No priv data found\n");
+		return NULL;
+	}
+
+	switch (id) {
+	case SCMI_PROTOCOL_ID_CLOCK:
+		proto = priv->clock_dev;
+		break;
+	case SCMI_PROTOCOL_ID_RESET_DOMAIN:
+		proto = priv->resetdom_dev;
+		break;
+	case SCMI_PROTOCOL_ID_VOLTAGE_DOMAIN:
+		proto = priv->voltagedom_dev;
+		break;
+	default:
+		dev_err(dev, "Protocol not supported\n");
+		proto = NULL;
+		break;
+	}
+	if (proto && device_probe(proto))
+		dev_err(dev, "Probe failed\n");
+
+	return proto;
+}
+
+/**
+ * scmi_add_protocol - add protocol to agent
+ * @dev:	SCMI agent device
+ * @proto_id:	SCMI protocol ID
+ * @proto:	SCMI protocol device
+ *
+ * Associate the protocol instance, @proto, to the agent, @dev,
+ * for later use.
+ *
+ * Return:	0 on success, error code on failure
+ */
+static int scmi_add_protocol(struct udevice *dev,
+			     enum scmi_std_protocol proto_id,
+			     struct udevice *proto)
+{
+	struct scmi_agent_priv *priv;
+
+	priv = dev_get_uclass_plat(dev);
+	if (!priv) {
+		dev_err(dev, "No priv data found\n");
+		return -ENODEV;
+	}
+
+	switch (proto_id) {
+	case SCMI_PROTOCOL_ID_CLOCK:
+		priv->clock_dev = proto;
+		break;
+	case SCMI_PROTOCOL_ID_RESET_DOMAIN:
+		priv->resetdom_dev = proto;
+		break;
+	case SCMI_PROTOCOL_ID_VOLTAGE_DOMAIN:
+		priv->voltagedom_dev = proto;
+		break;
+	default:
+		dev_err(dev, "Protocol not supported\n");
+		return -EPROTO;
+	}
+
+	return 0;
+}
+
 int scmi_to_linux_errno(s32 scmi_code)
 {
 	int n;
@@ -168,9 +242,10 @@ static int scmi_bind_protocols(struct udevice *dev)
 	int ret = 0;
 	ofnode node;
 	const char *name;
+	struct driver *drv;
+	struct udevice *proto;
 
 	dev_for_each_subnode(node, dev) {
-		struct driver *drv = NULL;
 		u32 protocol_id;
 
 		if (!ofnode_is_enabled(node))
@@ -179,6 +254,7 @@ static int scmi_bind_protocols(struct udevice *dev)
 		if (ofnode_read_u32(node, "reg", &protocol_id))
 			continue;
 
+		drv = NULL;
 		name = ofnode_get_name(node);
 		switch (protocol_id) {
 		case SCMI_PROTOCOL_ID_CLOCK:
@@ -209,9 +285,17 @@ static int scmi_bind_protocols(struct udevice *dev)
 			continue;
 		}
 
-		ret = device_bind(dev, drv, name, NULL, node, NULL);
-		if (ret)
+		ret = device_bind(dev, drv, name, NULL, node, &proto);
+		if (ret) {
+			dev_err(dev, "failed to bind %s protocol\n", drv->name);
 			break;
+		}
+		ret = scmi_add_protocol(dev, protocol_id, proto);
+		if (ret) {
+			dev_err(dev, "failed to add protocol: %s, ret: %d\n",
+				proto->name, ret);
+			break;
+		}
 	}
 
 	return ret;
@@ -221,5 +305,6 @@ UCLASS_DRIVER(scmi_agent) = {
 	.id		= UCLASS_SCMI_AGENT,
 	.name		= "scmi_agent",
 	.post_bind	= scmi_bind_protocols,
+	.per_device_plat_auto = sizeof(struct scmi_agent_priv),
 	.per_child_auto	= sizeof(struct scmi_agent_proto_priv),
 };

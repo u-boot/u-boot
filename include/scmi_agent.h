@@ -10,6 +10,7 @@
 #ifndef SCMI_AGENT_H
 #define SCMI_AGENT_H
 
+#include <scmi_protocols.h>
 #include <asm/types.h>
 
 struct udevice;
@@ -73,6 +74,19 @@ int devm_scmi_of_get_channel(struct udevice *dev);
  * Return: 0 on success and a negative errno on failure
  */
 int devm_scmi_process_msg(struct udevice *dev, struct scmi_msg *msg);
+
+/**
+ * scmi_get_protocol() - get protocol instance
+ *
+ * @dev:	SCMI agent device
+ * @id:		SCMI protocol ID
+ *
+ * Obtain the device instance for given protocol ID, @id.
+ *
+ * Return:	Pointer to the device if found, null otherwise
+ */
+struct udevice *scmi_get_protocol(struct udevice *dev,
+				  enum scmi_std_protocol id);
 
 /**
  * scmi_to_linux_errno() - Convert an SCMI error code into a Linux errno code

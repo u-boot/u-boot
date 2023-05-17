@@ -5,9 +5,22 @@
 #ifndef _SCMI_AGENT_UCLASS_H
 #define _SCMI_AGENT_UCLASS_H
 
-struct udevice;
+#include <dm/device.h>
+
 struct scmi_msg;
 struct scmi_channel;
+
+/**
+ * struct scmi_agent_priv - private data maintained by agent instance
+ * @clock_dev:		SCMI clock protocol device
+ * @resetdom_dev:	SCMI reset domain protocol device
+ * @voltagedom_dev:	SCMI voltage domain protocol device
+ */
+struct scmi_agent_priv {
+	struct udevice *clock_dev;
+	struct udevice *resetdom_dev;
+	struct udevice *voltagedom_dev;
+};
 
 /**
  * struct scmi_transport_ops - The functions that a SCMI transport layer must implement.
