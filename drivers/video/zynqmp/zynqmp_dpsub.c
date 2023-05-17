@@ -27,8 +27,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Maximum supported resolution */
-#define WIDTH				640
-#define HEIGHT				480
+#define WIDTH				1024
+#define HEIGHT				768
 
 static struct dp_dma dp_dma;
 static struct dp_dma_descriptor cur_desc __aligned(256);
@@ -1995,7 +1995,7 @@ static void init_run_config(struct udevice *dev)
 	struct zynqmp_dpsub_priv *dp_sub = dev_get_priv(dev);
 
 	dp_sub->dp_dma               = &dp_dma;
-	dp_sub->video_mode           = VIDC_VM_640x480_60_P;
+	dp_sub->video_mode           = VIDC_VM_1024x768_60_P;
 	dp_sub->bpc                  = VIDC_BPC_8;
 	dp_sub->color_encode         = DP_CENC_RGB;
 	dp_sub->use_max_cfg_caps     = 1;

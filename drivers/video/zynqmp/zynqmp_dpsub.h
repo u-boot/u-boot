@@ -9,6 +9,7 @@
 
 enum video_mode {
 	VIDC_VM_640x480_60_P = 0,
+	VIDC_VM_1024x768_60_P = 1,
 };
 
 enum {
@@ -644,7 +645,7 @@ struct zynqmp_dpsub_priv {
 #define VIDEO_REF_CTRL_DIVISOR0_SHIFT					8
 #define PSS_REF_CLK							0
 #define FPD_CTRL_OFFSET							12
-#define VIDC_VM_NUM_SUPPORTED						1
+#define VIDC_VM_NUM_SUPPORTED						2
 
 static const u32 vs[4][4] = {
 	{ 0x2a, 0x27, 0x24, 0x20 },
@@ -664,6 +665,9 @@ const struct video_timing_mode vidc_video_timing_modes[VIDC_VM_NUM_SUPPORTED] = 
 	{ VIDC_VM_640x480_60_P, "640x480@60Hz", VIDC_FR_60HZ,
 	{640, 16, 96, 48, 800, 0,
 	 480, 10, 2, 33, 525, 0, 0, 0, 0, 0} },
+	{ VIDC_VM_1024x768_60_P, "1024x768@60Hz", VIDC_FR_60HZ,
+	{1024, 24, 136, 160, 1344, 0,
+	 768, 3, 6, 29, 806, 0, 0, 0, 0, 0} },
 };
 
 const struct av_buf_vid_attribute avbuf_supported_formats[] = {
