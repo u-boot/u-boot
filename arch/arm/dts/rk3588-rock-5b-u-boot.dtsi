@@ -30,8 +30,30 @@
 	};
 };
 
+&combphy0_ps {
+	status = "okay";
+};
+
+&pcie2x1l2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie2x1l2_pins &pcie_reset_h>;
+	reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+
 &pinctrl {
 	bootph-all;
+
+	pcie {
+		pcie_reset_h: pcie-reset-h {
+			rockchip,pins = <3 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		pcie2x1l2_pins: pcie2x1l2-pins {
+			rockchip,pins = <3 RK_PC7 4 &pcfg_pull_none>,
+					<3 RK_PD0 4 &pcfg_pull_none>;
+		};
+	};
 
 	usb {
 		vcc5v0_host_en: vcc5v0-host-en {
