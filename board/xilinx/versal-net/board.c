@@ -75,32 +75,45 @@ char *soc_name_decode(void)
 
 bool soc_detection(void)
 {
-	u32 version;
+	u32 version, ps_version;
 
 	version = readl(PMC_TAP_VERSION);
 	platform_id = FIELD_GET(PLATFORM_MASK, version);
+	ps_version = FIELD_GET(PS_VERSION_MASK, version);
 
 	debug("idcode %x, version %x, usercode %x\n",
 	      readl(PMC_TAP_IDCODE), version,
 	      readl(PMC_TAP_USERCODE));
 
-	debug("pmc_ver %lx, ps version %lx, rtl version %lx\n",
+	debug("pmc_ver %lx, ps version %x, rtl version %lx\n",
 	      FIELD_GET(PMC_VERSION_MASK, version),
-	      FIELD_GET(PS_VERSION_MASK, version),
+	      ps_version,
 	      FIELD_GET(RTL_VERSION_MASK, version));
 
 	platform_version = FIELD_GET(PLATFORM_VERSION_MASK, version);
 
 	if (platform_id == VERSAL_NET_SPP ||
 	    platform_id == VERSAL_NET_EMU) {
-		/*
-		 * 9 is diff for
-		 * 0 means 0.9 version
-		 * 1 means 1.0 version
-		 * 2 means 1.1 version
-		 * etc,
-		 */
-		platform_version += 9;
+		if (ps_version == PS_VERSION_PRODUCTION) {
+			/*
+			 * ES1 version ends at 1.9 version where there was +9
+			 * used because of IPP/SPP conversion. Production
+			 * version have platform_version started from 0 again
+			 * that's why adding +20 to continue with the same line.
+			 * It means the last ES1 version ends at 1.9 version and
+			 * new PRODUCTION line starts at 2.0.
+			 */
+			platform_version += 20;
+		} else {
+			/*
+			 * 9 is diff for
+			 * 0 means 0.9 version
+			 * 1 means 1.0 version
+			 * 2 means 1.1 version
+			 * etc,
+			 */
+			platform_version += 9;
+		}
 	}
 
 	debug("Platform id: %d version: %d.%d\n", platform_id,
