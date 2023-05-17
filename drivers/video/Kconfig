@@ -740,14 +740,7 @@ config VIDEO_SEPS525
 	  Enable support for the Syncoam PM-OLED display driver (RGB 160x128).
 	  Currently driver is supporting only SPI interface.
 
-config VIDEO_ZYNQMP_DPSUB
-	bool "Enable video support for ZynqMP Display Port"
-	depends on ZYNQMP_POWER_DOMAIN
-	help
-	  Enable support for Xilinx ZynqMP Display Port. Currently this file
-	  is used as placeholder for driver. The main reason is to record
-	  compatible string and calling power domain driver.
-
+source "drivers/video/zynqmp/Kconfig"
 source "drivers/video/nexell/Kconfig"
 
 config CONSOLE_SCROLL_LINES
