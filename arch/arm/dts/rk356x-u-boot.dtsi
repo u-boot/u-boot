@@ -34,6 +34,11 @@
 	};
 };
 
+&xin24m {
+	bootph-all;
+	status = "okay";
+};
+
 &cru {
 	bootph-all;
 	status = "okay";
