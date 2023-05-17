@@ -873,7 +873,7 @@ static int arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 		if (ret)
 			return ret;
 	} else if (IS_ENABLED(CONFIG_ARCH_VERSAL_NET) &&
-		   device_is_compatible(dev, "xlnx,versal-net-5.1-emmc")) {
+		   device_is_compatible(dev, "xlnx,versal-net-emmc")) {
 		if (mmc->clock >= MIN_PHY_CLK_HZ)
 			if (iclk_phase == VERSAL_NET_EMMC_ICLK_PHASE_DDR52_DLY_CHAIN)
 				iclk_phase = VERSAL_NET_EMMC_ICLK_PHASE_DDR52_DLL;
@@ -948,7 +948,7 @@ static void arasan_dt_parse_clk_phases(struct udevice *dev)
 	}
 
 	if (IS_ENABLED(CONFIG_ARCH_VERSAL_NET) &&
-	    device_is_compatible(dev, "xlnx,versal-net-5.1-emmc")) {
+	    device_is_compatible(dev, "xlnx,versal-net-emmc")) {
 		for (i = 0; i <= MMC_TIMING_MMC_HS400; i++) {
 			clk_data->clk_phase_in[i] = versal_net_emmc_iclk_phases[i];
 			clk_data->clk_phase_out[i] = versal_net_emmc_oclk_phases[i];
@@ -1102,7 +1102,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		}
 	}
 #endif
-	if (device_is_compatible(dev, "xlnx,versal-net-5.1-emmc"))
+	if (device_is_compatible(dev, "xlnx,versal-net-emmc"))
 		priv->internal_phy_reg = true;
 
 	ret = clk_get_by_index(dev, 0, &clk);
@@ -1136,7 +1136,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		host->quirks |= SDHCI_QUIRK_NO_1_8_V;
 
 	if (CONFIG_IS_ENABLED(ARCH_VERSAL_NET) &&
-	    device_is_compatible(dev, "xlnx,versal-net-5.1-emmc"))
+	    device_is_compatible(dev, "xlnx,versal-net-emmc"))
 		host->quirks |= SDHCI_QUIRK_CAPS_BIT63_FOR_HS400;
 
 	plat->cfg.f_max = CONFIG_ZYNQ_SDHCI_MAX_FREQ;
@@ -1219,7 +1219,7 @@ static int arasan_sdhci_bind(struct udevice *dev)
 
 static const struct udevice_id arasan_sdhci_ids[] = {
 	{ .compatible = "arasan,sdhci-8.9a" },
-	{ .compatible = "xlnx,versal-net-5.1-emmc" },
+	{ .compatible = "xlnx,versal-net-emmc" },
 	{ }
 };
 
