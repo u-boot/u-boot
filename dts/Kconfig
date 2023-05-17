@@ -171,7 +171,7 @@ config OF_LIST
 	default DEFAULT_DEVICE_TREE
 	help
 	  This option specifies a list of device tree files to use for DT
-	  control. These will be packaged into a FIT. At run-time, U-boot
+	  control. These will be packaged into a FIT. At run-time, U-Boot
 	  or SPL will select the correct DT to use by examining the
 	  hardware (e.g. reading a board ID value). This is a list of
 	  device tree files (without the directory or .dtb suffix)
@@ -254,7 +254,7 @@ config DTB_RESELECT
 config MULTI_DTB_FIT
 	bool "Support embedding several DTBs in a FIT image for u-boot"
 	help
-	  This option provides hooks to allow U-boot to parse an
+	  This option provides hooks to allow U-Boot to parse an
 	  appended FIT image and enable board specific code to then select
 	  the correct DTB to be used. Use this if you need to support
 	  multiple DTBs but don't use the SPL.

@@ -30,7 +30,7 @@ CONNECTORS  One connector for Smart Card One connector for TSI
 Note of warning:
 ================
 
-U-boot has a *strong* dependency with the l-loader and the arm trusted firmware
+U-Boot has a *strong* dependency with the l-loader and the arm trusted firmware
 repositories.
 
 The boot sequence is:

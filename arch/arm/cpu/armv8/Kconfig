@@ -145,7 +145,7 @@ config ARMV8_PSCI
 	bool "Enable PSCI support" if EXPERT
 	help
 	  PSCI is Power State Coordination Interface defined by ARM.
-	  The PSCI in U-boot provides a general framework and each platform
+	  The PSCI in U-Boot provides a general framework and each platform
 	  can implement their own specific PSCI functions.
 	  Say Y here to enable PSCI support on ARMv8 platform.
 

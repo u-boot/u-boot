@@ -27,7 +27,7 @@
  *   https://patchwork.kernel.org/patch/9148419/
  * - the Toradex version by Max Krummenacher <max.krummenacher@toradex.com>:
  *   http://git.toradex.com/cgit/linux-toradex.git/tree/drivers/gpio/gpio-fxl6408.c?h=toradex_5.4-2.3.x-imx
- * - the U-boot PCA953x driver by Peng Fan <van.freenix@gmail.com>:
+ * - the U-Boot PCA953x driver by Peng Fan <van.freenix@gmail.com>:
  *   drivers/gpio/pca953x_gpio.c
  *
  * TODO:

@@ -51,7 +51,7 @@
 
 	idle-states {
 		/*
-		 * PSCI node is not added default, U-boot will add missing
+		 * PSCI node is not added default, U-Boot will add missing
 		 * parts if it determines to use PSCI.
 		 */
 		entry-method = "psci";

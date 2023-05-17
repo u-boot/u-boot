@@ -53,7 +53,7 @@ This will generate the SPL and u-boot-dtb.img binaries.
 
 - Boot first from SD card as shown in the previous section
 
-In U-boot change the eMMC partition config::
+In U-Boot change the eMMC partition config::
 
    => mmc partconf 2 1 0 0
 

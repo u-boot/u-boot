@@ -17,7 +17,7 @@ def efi_capsule_data(request, u_boot_config):
     for testing.
 
     request -- Pytest request object.
-    u_boot_config -- U-boot configuration.
+    u_boot_config -- U-Boot configuration.
     """
     mnt_point = u_boot_config.persistent_data_dir + '/test_efi_capsule'
     data_dir = mnt_point + CAPSULE_DATA_DIR

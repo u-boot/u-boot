@@ -333,12 +333,12 @@ Note:
 
 Unlike later SoC models the rk3066 BootROM doesn't have SDMMC support.
 If all other boot options fail then it enters into a BootROM mode on the USB OTG port.
-This method loads TPL/SPL on NAND with U-boot and kernel on SD card.
+This method loads TPL/SPL on NAND with U-Boot and kernel on SD card.
 
 SD Card
 ^^^^^^^
 
-U-boot expects a GPT partition map and a boot directory structure with files on the SD card.
+U-Boot expects a GPT partition map and a boot directory structure with files on the SD card.
 
 .. code-block:: none
 
@@ -363,7 +363,7 @@ Boot partition:
         zImage
         rk3066a-mk808.dtb
 
-To write a U-boot image to the SD card (assumed to be /dev/sda):
+To write a U-Boot image to the SD card (assumed to be /dev/sda):
 
 .. code-block:: bash
 

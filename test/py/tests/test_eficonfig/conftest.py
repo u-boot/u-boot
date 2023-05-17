@@ -14,7 +14,7 @@ def efi_eficonfig_data(u_boot_config):
        tests
 
     Args:
-        u_boot_config -- U-boot configuration.
+        u_boot_config -- U-Boot configuration.
 
     Return:
         A path to disk image to be used for testing

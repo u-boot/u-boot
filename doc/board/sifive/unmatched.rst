@@ -558,7 +558,7 @@ for partitions one through three respectively.
 	    --new=3:10280:10535 --change-name=3:env   --typecode=3:3DE21764-95BD-54BD-A5C3-4ABE786F38A8 \
 	    /dev/mtdblock0
 
-Write U-boot SPL and U-boot to their partitions.
+Write U-Boot SPL and U-Boot to their partitions.
 
 .. code-block:: none
 

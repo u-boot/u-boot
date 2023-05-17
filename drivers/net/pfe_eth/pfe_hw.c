@@ -814,7 +814,7 @@ static inline void class_set_config(struct class_cfg *cfg)
 	writel(0x1, CLASS_AXI_CTRL);
 
 	/*Make Util AXI transactions non-bufferable */
-	/*Util is disabled in U-boot, do it from here */
+	/*Util is disabled in U-Boot, do it from here */
 	writel(0x1, UTIL_AXI_CTRL);
 }
 

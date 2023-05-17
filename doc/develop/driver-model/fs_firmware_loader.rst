@@ -92,9 +92,9 @@ For example of getting DT phandle from /chosen and creating instance:
 	if (ret)
 		return ret;
 
-Firmware loader driver is also designed to support U-boot environment
+Firmware loader driver is also designed to support U-Boot environment
 variables, so all these data from FDT can be overwritten
-through the U-boot environment variable during run time.
+through the U-Boot environment variable during run time.
 
 For examples:
 
@@ -110,7 +110,7 @@ fw_ubi_volume:
 When above environment variables are set, environment values would be
 used instead of data from FDT.
 The benefit of this design allows user to change storage attribute data
-at run time through U-boot console and saving the setting as default
+at run time through U-Boot console and saving the setting as default
 environment values in the storage for the next power cycle, so no
 compilation is required for both driver and FDT.
 

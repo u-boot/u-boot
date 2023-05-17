@@ -9,7 +9,7 @@ Overview
 The Device Firmware Upgrade (DFU) allows to download and upload firmware
 to/from U-Boot connected over USB.
 
-U-boot follows the Universal Serial Bus Device Class Specification for
+U-Boot follows the Universal Serial Bus Device Class Specification for
 Device Firmware Upgrade Version 1.1 the USB forum (DFU v1.1 in www.usb.org).
 
 U-Boot implements this DFU capability (CONFIG_DFU) with the command dfu

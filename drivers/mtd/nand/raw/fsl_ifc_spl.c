@@ -275,8 +275,8 @@ void nand_boot(void)
 
 #ifdef CONFIG_CHAIN_OF_TRUST
 	/*
-	 * U-Boot header is appended at end of U-boot image, so
-	 * calculate U-boot header address using U-boot header size.
+	 * U-Boot header is appended at end of U-Boot image, so
+	 * calculate U-Boot header address using U-Boot header size.
 	 */
 #define FSL_U_BOOT_HDR_ADDR \
 		((CFG_SYS_NAND_U_BOOT_START + \

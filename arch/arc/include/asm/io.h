@@ -80,7 +80,7 @@ static inline void sync(void)
 
 /*
  * We add memory barriers for __raw_readX / __raw_writeX accessors same way as
- * it is done for readX and writeX accessors as lots of U-boot driver uses
+ * it is done for readX and writeX accessors as lots of U-Boot driver uses
  * __raw_readX / __raw_writeX instead of proper accessor with barrier.
  */
 #define __raw_writeb(v, c)	({ __iowmb(); __arch_putb(v, c); })

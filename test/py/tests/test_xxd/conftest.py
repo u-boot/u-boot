@@ -13,7 +13,7 @@ def xxd_data(u_boot_config):
     """Set up a file system to be used in xxd tests
 
     Args:
-        u_boot_config -- U-boot configuration.
+        u_boot_config -- U-Boot configuration.
     """
     mnt_point = u_boot_config.persistent_data_dir + '/test_xxd'
     image_path = u_boot_config.persistent_data_dir + '/xxd.img'

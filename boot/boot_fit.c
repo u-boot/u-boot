@@ -67,7 +67,7 @@ void *locate_dtb_in_fit(const void *fit)
 	header = (struct legacy_img_hdr *)fit;
 
 	if (image_get_magic(header) != FDT_MAGIC) {
-		debug("No FIT image appended to U-boot\n");
+		debug("No FIT image appended to U-Boot\n");
 		return NULL;
 	}
 

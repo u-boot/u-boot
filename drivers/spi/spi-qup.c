@@ -9,7 +9,7 @@
  * Author: Robert Marko <robert.marko@sartura.hr>
  * Author: Luka Kovacic <luka.kovacic@sartura.hr>
  *
- * Based on stock U-boot and Linux drivers
+ * Based on stock U-Boot and Linux drivers
  */
 
 #include <asm/gpio.h>

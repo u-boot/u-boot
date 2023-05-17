@@ -275,9 +275,9 @@ int fsl_check_boot_mode_secure(void);
 int fsl_setenv_chain_of_trust(void);
 
 /*
- * This function is used to validate the main U-boot binary from
+ * This function is used to validate the main U-Boot binary from
  * SPL just before passing control to it using QorIQ Trust
- * Architecture header (appended to U-boot image).
+ * Architecture header (appended to U-Boot image).
  */
 void spl_validate_uboot(uint32_t hdr_addr, uintptr_t img_addr);
 
