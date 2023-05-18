@@ -382,6 +382,8 @@ int process_ra(struct ip6_hdr *ip6, int len)
 	unsigned char type = 0;
 	struct icmp6_ra_prefix_info *prefix = NULL;
 
+	if (len > ETH_MAX_MTU)
+		return -EMSGSIZE;
 	/* Ignore the packet if router lifetime is 0. */
 	if (!icmp->icmp6_rt_lifetime)
 		return -EOPNOTSUPP;
