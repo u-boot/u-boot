@@ -316,6 +316,11 @@ static void dhcp6_parse_options(uchar *rx_pkt, unsigned int len)
 		option_ptr = ((uchar *)option_hdr) + sizeof(struct dhcp6_hdr);
 		option_len = ntohs(option_hdr->option_len);
 
+		if (option_ptr + option_len > rx_pkt + len) {
+			debug("Invalid option length\n");
+			return;
+		}
+
 		switch (ntohs(option_hdr->option_id)) {
 		case DHCP6_OPTION_CLIENTID:
 			if (memcmp(option_ptr, sm_params.duid, option_len)
