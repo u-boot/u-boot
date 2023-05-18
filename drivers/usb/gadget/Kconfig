@@ -36,6 +36,12 @@ menuconfig USB_GADGET
 	   peripheral/device side bus controller, and a "gadget driver" for
 	   your peripheral protocol.
 
+config SPL_USB_GADGET
+	bool "USB Gadget Support in SPL"
+	help
+	  Enable USB Gadget API which allows to enable USB device functions
+	  in SPL.
+
 if USB_GADGET
 
 config USB_GADGET_MANUFACTURER
@@ -265,3 +271,85 @@ config USBNET_HOST_ADDR
 endif # USB_ETHER
 
 endif # USB_GADGET
+
+if SPL_USB_GADGET
+
+config SPL_USB_ETHER
+	bool "Support USB Ethernet drivers in SPL"
+	depends on SPL_NET
+	help
+	  Enable access to the USB network subsystem and associated
+	  drivers in SPL. This permits SPL to load U-Boot over a
+	  USB-connected Ethernet link (such as a USB Ethernet dongle) rather
+	  than from an onboard peripheral. Environment support is required
+	  since the network stack uses a number of environment variables.
+	  See also SPL_NET and SPL_ETH.
+
+if SPL_USB_ETHER
+
+choice
+	prompt "USB Ethernet Gadget Model in SPL"
+	default SPL_USB_ETH_RNDIS
+	help
+	  There is several models (protocols) to implement Ethernet over USB
+	  devices. The main ones are Microsoft's RNDIS and USB's CDC-Ethernet
+	  (also called CDC-ECM). RNDIS is obviously compatible with Windows,
+	  while CDC-ECM is not. Most other operating systems support both, so
+	  if inter-operability is a concern, RNDIS is to be preferred.
+
+config SPL_USB_ETH_RNDIS
+	bool "RNDIS Protocol"
+	help
+	  The RNDIS (Remote Network Driver Interface Specification) is a
+	  Microsoft proprietary protocol to create an Ethernet device over USB.
+	  Windows obviously supports it, as well as all the major operating
+	  systems, so it's the best option for compatibility.
+
+endchoice
+
+endif # SPL_USB_ETHER
+
+config SPL_DFU
+	bool "Support DFU (Device Firmware Upgrade) in SPL"
+	select SPL_HASH
+	select SPL_DFU_NO_RESET
+	depends on SPL_RAM_SUPPORT
+	help
+	  This feature enables the DFU (Device Firmware Upgrade) in SPL with
+	  RAM memory device support. The ROM code will load and execute
+	  the SPL built with dfu. The user can load binaries (u-boot/kernel) to
+	  selected device partition from host-pc using dfu-utils.
+	  This feature is useful to flash the binaries to factory or bare-metal
+	  boards using USB interface.
+
+choice
+	bool "DFU device selection in SPL"
+	depends on SPL_DFU
+
+config SPL_DFU_RAM
+	bool "RAM device"
+	depends on SPL_DFU && SPL_RAM_SUPPORT
+	help
+	 select RAM/DDR memory device for loading binary images
+	 (u-boot/kernel) to the selected device partition using
+	 DFU and execute the u-boot/kernel from RAM.
+
+endchoice
+
+config SPL_USB_SDP_SUPPORT
+	bool "Support SDP (Serial Download Protocol) in SPL"
+	depends on SPL_SERIAL
+	help
+	  Enable Serial Download Protocol (SDP) device support in SPL. This
+	  allows to download images into memory and execute (jump to) them
+	  using the same protocol as implemented by the i.MX family's boot ROM.
+
+config SPL_SDP_USB_DEV
+	int "SDP USB controller index in SPL"
+	default 0
+	depends on SPL_USB_SDP_SUPPORT
+	help
+	  Some boards have USB controller other than 0. Define this option
+	  so it can be used in compiled environment.
+
+endif # SPL_USB_GADGET

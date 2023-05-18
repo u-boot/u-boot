@@ -6,6 +6,19 @@ comment "USB Host Controller Drivers"
 config USB_HOST
 	bool
 	select DM_USB
+	help
+	  Enable access to USB (Universal Serial Bus) host devices so that
+	  SPL can load U-Boot from a connected USB peripheral, such as a USB
+	  flash stick. While USB takes a little longer to start up than most
+	  buses, it is very flexible since many different types of storage
+	  device can be attached.
+
+config SPL_USB_HOST
+	bool "Support USB host drivers"
+	depends on SPL
+	help
+	  For detailed help see USB_HOST Kconfig symbol. This option enables
+	  the drivers in drivers/usb/host as part of an SPL build.
 
 config USB_XHCI_HCD
 	bool "xHCI HCD (USB 3.0) support"
