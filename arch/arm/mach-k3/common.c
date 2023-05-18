@@ -347,8 +347,13 @@ void board_fit_image_post_process(const void *fit, int node, void **p_image,
 	if ((i != IMAGE_ID_ATF) && (i != IMAGE_ID_OPTEE))
 #endif
 	{
+		ti_secure_image_check_binary(p_image, p_size);
 		ti_secure_image_post_process(p_image, p_size);
 	}
+#if IS_ENABLED(CONFIG_SYS_K3_SPL_ATF)
+	else
+		ti_secure_image_check_binary(p_image, p_size);
+#endif
 }
 #endif
 
