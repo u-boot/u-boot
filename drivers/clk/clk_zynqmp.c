@@ -691,6 +691,7 @@ static ulong zynqmp_clk_get_rate(struct clk *clk)
 	case topsw_lsbus:
 	case sata_ref ... gpu_pp1_ref:
 		two_divs = true;
+		fallthrough;
 	case cpu_r5:
 	case dbg_fpd:
 	case ams_ref:
