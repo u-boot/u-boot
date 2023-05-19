@@ -1996,7 +1996,7 @@ static int rk3588_clk_bind(struct udevice *dev)
 
 #if CONFIG_IS_ENABLED(RESET_ROCKCHIP)
 	ret = offsetof(struct rk3588_cru, softrst_con[0]);
-	ret = rockchip_reset_bind(dev, ret, 49158);
+	ret = rk3588_reset_bind_lut(dev, ret, 49158);
 	if (ret)
 		debug("Warning: software reset driver bind failed\n");
 #endif

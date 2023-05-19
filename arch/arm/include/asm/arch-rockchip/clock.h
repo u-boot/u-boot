@@ -194,5 +194,26 @@ int rockchip_get_clk(struct udevice **devp);
  * Return: 0 success, or error value
  */
 int rockchip_reset_bind(struct udevice *pdev, u32 reg_offset, u32 reg_number);
+/*
+ * rockchip_reset_bind_lut() - Bind soft reset device as child of clock device
+ *			       using a dedicated SoC lookup table
+ * @pdev: clock udevice
+ * @lookup_table: register lookup_table dedicated to SoC
+ * @reg_offset: the first offset in cru for softreset registers
+ * @reg_number: the reg numbers of softreset registers
+ * Return: 0 success, or error value
+ */
+int rockchip_reset_bind_lut(struct udevice *pdev, const int *lookup_table,
+			    u32 reg_offset, u32 reg_number);
+/*
+ * rk3588_reset_bind_lut() - Bind soft reset device as child of clock device
+ *			     using dedicated RK3588 lookup table
+ *
+ * @pdev: clock udevice
+ * @reg_offset: the first offset in cru for softreset registers
+ * @reg_number: the reg numbers of softreset registers
+ * Return: 0 success, or error value
+ */
+int rk3588_reset_bind_lut(struct udevice *pdev, u32 reg_offset, u32 reg_number);
 
 #endif

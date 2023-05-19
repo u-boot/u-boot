@@ -15,6 +15,11 @@
 	};
 };
 
+&sdhci {
+	cap-mmc-highspeed;
+	mmc-ddr-1_8v;
+};
+
 &spi1 {
 	spi_flash: flash@0 {
 		bootph-all;

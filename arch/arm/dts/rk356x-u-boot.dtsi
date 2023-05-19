@@ -34,6 +34,11 @@
 	};
 };
 
+&xin24m {
+	bootph-all;
+	status = "okay";
+};
+
 &cru {
 	bootph-all;
 	status = "okay";
@@ -63,3 +68,14 @@
 	bootph-pre-ram;
 	status = "okay";
 };
+
+#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
+&binman {
+	simple-bin-spi {
+		mkimage {
+			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
+			offset = <0x8000>;
+		};
+	};
+};
+#endif

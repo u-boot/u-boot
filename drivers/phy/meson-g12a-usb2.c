@@ -54,49 +54,11 @@
 
 struct phy_meson_g12a_usb2_priv {
 	struct regmap		*regmap;
-#if CONFIG_IS_ENABLED(DM_REGULATOR)
-	struct udevice		*phy_supply;
-#endif
 #if CONFIG_IS_ENABLED(CLK)
 	struct clk		clk;
 #endif
 	struct reset_ctl	reset;
 };
-
-
-static int phy_meson_g12a_usb2_power_on(struct phy *phy)
-{
-#if CONFIG_IS_ENABLED(DM_REGULATOR)
-	struct udevice *dev = phy->dev;
-	struct phy_meson_g12a_usb2_priv *priv = dev_get_priv(dev);
-
-	if (priv->phy_supply) {
-		int ret = regulator_set_enable(priv->phy_supply, true);
-		if (ret)
-			return ret;
-	}
-#endif
-
-	return 0;
-}
-
-static int phy_meson_g12a_usb2_power_off(struct phy *phy)
-{
-#if CONFIG_IS_ENABLED(DM_REGULATOR)
-	struct udevice *dev = phy->dev;
-	struct phy_meson_g12a_usb2_priv *priv = dev_get_priv(dev);
-
-	if (priv->phy_supply) {
-		int ret = regulator_set_enable(priv->phy_supply, false);
-		if (ret) {
-			pr_err("Error disabling PHY supply\n");
-			return ret;
-		}
-	}
-#endif
-
-	return 0;
-}
 
 static int phy_meson_g12a_usb2_init(struct phy *phy)
 {
@@ -155,8 +117,6 @@ static int phy_meson_g12a_usb2_exit(struct phy *phy)
 struct phy_ops meson_g12a_usb2_phy_ops = {
 	.init = phy_meson_g12a_usb2_init,
 	.exit = phy_meson_g12a_usb2_exit,
-	.power_on = phy_meson_g12a_usb2_power_on,
-	.power_off = phy_meson_g12a_usb2_power_off,
 };
 
 int meson_g12a_usb2_phy_probe(struct udevice *dev)
@@ -189,14 +149,6 @@ int meson_g12a_usb2_phy_probe(struct udevice *dev)
 	if (ret && ret != -ENOSYS && ret != -ENOTSUPP) {
 		pr_err("failed to enable PHY clock\n");
 		clk_free(&priv->clk);
-		return ret;
-	}
-#endif
-
-#if CONFIG_IS_ENABLED(DM_REGULATOR)
-	ret = device_get_supply_regulator(dev, "phy-supply", &priv->phy_supply);
-	if (ret && ret != -ENOENT) {
-		pr_err("Failed to get PHY regulator\n");
 		return ret;
 	}
 #endif

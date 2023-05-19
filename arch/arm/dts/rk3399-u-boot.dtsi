@@ -120,6 +120,7 @@
 &sdhci {
 	max-frequency = <200000000>;
 	bootph-all;
+	u-boot,spl-fifo-mode;
 };
 
 &sdmmc {
