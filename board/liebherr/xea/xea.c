@@ -62,6 +62,7 @@ static void init_clocks(void)
 void board_init_f(ulong arg)
 {
 	init_clocks();
+	spl_early_init();
 	preloader_console_init();
 }
 
