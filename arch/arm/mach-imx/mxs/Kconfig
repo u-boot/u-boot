@@ -45,6 +45,7 @@ config TARGET_MX28EVK
 
 config TARGET_XEA
 	bool "Support XEA"
+	select PL01X_SERIAL
 
 endchoice
 
