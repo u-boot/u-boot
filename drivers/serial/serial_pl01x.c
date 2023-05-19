@@ -329,7 +329,7 @@ int pl01x_serial_pending(struct udevice *dev, bool input)
 	if (input)
 		return pl01x_tstc(priv->regs);
 	else
-		return fr & UART_PL01x_FR_TXFF ? 0 : 1;
+		return fr & UART_PL01x_FR_TXFE ? 0 : 1;
 }
 
 static const struct dm_serial_ops pl01x_serial_ops = {
