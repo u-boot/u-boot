@@ -12,6 +12,11 @@
  */
 #include "imx28-u-boot.dtsi"
 / {
+	aliases {
+		/delete-property/ spi1;
+		/delete-property/ usbphy0;
+		/delete-property/ usbphy1;
+	};
 	apb@80000000 {
 		bootph-pre-ram;
 
@@ -34,6 +39,8 @@
 };
 
 &pinctrl {
+	/delete-property/ pinctrl-names;
+	/delete-property/ pinctrl-0;
 	bootph-pre-ram;
 };
 
@@ -46,3 +53,12 @@
 	spi-max-frequency = <40000000>;
 	bootph-pre-ram;
 };
+
+/delete-node/ &ssp2;
+/delete-node/ &usb0;
+/delete-node/ &usbphy0;
+/delete-node/ &usb1;
+/delete-node/ &usbphy1;
+/delete-node/ &hog_pins_a;
+/delete-node/ &hog_pins_tiva;
+/delete-node/ &hog_pins_coding;
