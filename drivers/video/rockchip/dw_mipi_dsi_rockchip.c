@@ -505,7 +505,6 @@ dw_mipi_dsi_get_lane_mbps(void *priv_data, struct display_timing *timings,
 	unsigned int _prediv, best_prediv;
 	unsigned long _fbdiv, best_fbdiv;
 	unsigned long min_delta = ULONG_MAX;
-	unsigned int pllref_clk;
 
 	bpp = mipi_dsi_pixel_format_to_bpp(format);
 	if (bpp < 0) {
@@ -537,7 +536,7 @@ dw_mipi_dsi_get_lane_mbps(void *priv_data, struct display_timing *timings,
 		return 0;
 	}
 
-	pllref_clk = clk_get_rate(dsi->ref);
+	fin = clk_get_rate(dsi->ref);
 	fout = target_mbps * USEC_PER_SEC;
 
 	/* constraint: 5Mhz <= Fref / N <= 40MHz */
