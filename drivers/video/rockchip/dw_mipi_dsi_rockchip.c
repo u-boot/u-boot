@@ -18,6 +18,7 @@
 #include <panel.h>
 #include <phy-mipi-dphy.h>
 #include <reset.h>
+#include <syscon.h>
 #include <video_bridge.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
@@ -29,6 +30,9 @@
 #include <asm/io.h>
 #include <dm/device-internal.h>
 #include <linux/bitops.h>
+
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/hardware.h>
 
 #define USEC_PER_SEC	1000000L
 
@@ -197,6 +201,7 @@ struct dw_rockchip_dsi_priv {
 	struct mipi_dsi_device device;
 	void __iomem *base;
 	struct udevice *panel;
+	void __iomem *grf;
 
 	/* Optional external dphy */
 	struct phy phy;
@@ -752,16 +757,13 @@ static int dw_mipi_dsi_rockchip_set_bl(struct udevice *dev, int percent)
 static void dw_mipi_dsi_rockchip_config(struct dw_rockchip_dsi_priv *dsi)
 {
 	if (dsi->cdata->lanecfg1_grf_reg)
-		dsi_write(dsi, dsi->cdata->lanecfg1_grf_reg,
-			  dsi->cdata->lanecfg1);
+		rk_setreg(dsi->grf + dsi->cdata->lanecfg1_grf_reg, dsi->cdata->lanecfg1);
 
 	if (dsi->cdata->lanecfg2_grf_reg)
-		dsi_write(dsi, dsi->cdata->lanecfg2_grf_reg,
-			  dsi->cdata->lanecfg2);
+		rk_setreg(dsi->grf + dsi->cdata->lanecfg2_grf_reg, dsi->cdata->lanecfg2);
 
 	if (dsi->cdata->enable_grf_reg)
-		dsi_write(dsi, dsi->cdata->enable_grf_reg,
-			  dsi->cdata->enable);
+		rk_setreg(dsi->grf + dsi->cdata->enable_grf_reg, dsi->cdata->enable);
 }
 
 static int dw_mipi_dsi_rockchip_bind(struct udevice *dev)
@@ -793,6 +795,8 @@ static int dw_mipi_dsi_rockchip_probe(struct udevice *dev)
 		dev_err(dev, "dsi dt register address error\n");
 		return -EINVAL;
 	}
+
+	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 
 	i = 0;
 	while (cdata[i].reg) {
