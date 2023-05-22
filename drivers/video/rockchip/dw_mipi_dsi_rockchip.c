@@ -460,7 +460,7 @@ static int dsi_phy_init(void *priv_data)
 	dw_mipi_dsi_phy_write(dsi, HS_TX_DATA_LANE_EXIT_STATE_TIME_CONTROL,
 			      BIT(5) | ns2bc(dsi, 100));
 
-	return ret;
+	return 0;
 }
 
 static void dsi_phy_post_set_mode(void *priv_data, unsigned long mode_flags)
