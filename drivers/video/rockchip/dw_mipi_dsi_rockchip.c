@@ -822,6 +822,7 @@ static int dw_mipi_dsi_rockchip_probe(struct udevice *dev)
 
 	priv->pclk = devm_clk_get(dev, "pclk");
 	if (IS_ERR(priv->pclk)) {
+		ret = PTR_ERR(priv->pclk);
 		dev_err(dev, "peripheral clock get error %d\n", ret);
 		return ret;
 	}
@@ -833,7 +834,8 @@ static int dw_mipi_dsi_rockchip_probe(struct udevice *dev)
 
 	} else {
 		priv->ref = devm_clk_get(dev, "ref");
-		if (ret) {
+		if (IS_ERR(priv->ref)) {
+			ret = PTR_ERR(priv->ref);
 			dev_err(dev, "pll reference clock get error %d\n", ret);
 			return ret;
 		}
@@ -841,7 +843,8 @@ static int dw_mipi_dsi_rockchip_probe(struct udevice *dev)
 
 	priv->rst = devm_reset_control_get_by_index(device->dev, 0);
 	if (IS_ERR(priv->rst)) {
-		dev_err(dev, "missing dsi hardware reset\n");
+		ret = PTR_ERR(priv->rst);
+		dev_err(dev, "missing dsi hardware reset %d\n", ret);
 		return ret;
 	}
 
