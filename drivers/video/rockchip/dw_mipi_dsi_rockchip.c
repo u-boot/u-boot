@@ -814,9 +814,9 @@ static int dw_mipi_dsi_rockchip_probe(struct udevice *dev)
 	 * NULL if it's not initialized.
 	 */
 	ret = generic_phy_get_by_name(dev, "dphy", &priv->phy);
-	if ((ret) && (ret != -ENODEV)) {
+	if (ret && ret != -ENODATA) {
 		dev_err(dev, "failed to get mipi dphy: %d\n", ret);
-		return -EINVAL;
+		return ret;
 	}
 
 	priv->pclk = devm_clk_get(dev, "pclk");
