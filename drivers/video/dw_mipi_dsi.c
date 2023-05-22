@@ -538,9 +538,9 @@ static void dw_mipi_dsi_dpi_config(struct dw_mipi_dsi *dsi,
 		break;
 	}
 
-	if (device->mode_flags & DISPLAY_FLAGS_VSYNC_HIGH)
+	if (timings->flags & DISPLAY_FLAGS_VSYNC_LOW)
 		val |= VSYNC_ACTIVE_LOW;
-	if (device->mode_flags & DISPLAY_FLAGS_HSYNC_HIGH)
+	if (timings->flags & DISPLAY_FLAGS_HSYNC_LOW)
 		val |= HSYNC_ACTIVE_LOW;
 
 	dsi_write(dsi, DSI_DPI_VCID, DPI_VCID(dsi->channel));
