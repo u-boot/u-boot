@@ -998,11 +998,47 @@ static int ldpaa_eth_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static int ldpaa_eth_get_sset_count(struct udevice *dev)
+{
+	return LDPAA_ETH_DPNI_NUM_STATS + LDPAA_ETH_DPMAC_NUM_STATS;
+}
+
+static void ldpaa_eth_get_strings(struct udevice *dev, u8 *data)
+{
+	u8 *p = data;
+	int i;
+
+	for (i = 0; i < LDPAA_ETH_DPNI_NUM_STATS; i++) {
+		strlcpy(p, ldpaa_eth_dpni_stat_strings[i], ETH_GSTRING_LEN);
+		p += ETH_GSTRING_LEN;
+	}
+
+	for (i = 0; i < LDPAA_ETH_DPMAC_NUM_STATS; i++) {
+		strlcpy(p, ldpaa_eth_dpmac_stat_strings[i], ETH_GSTRING_LEN);
+		p += ETH_GSTRING_LEN;
+	}
+}
+
+static void ldpaa_eth_get_stats(struct udevice *dev, u64 *data)
+{
+	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
+	int i, j = 0;
+
+	for (i = 0; i < LDPAA_ETH_DPNI_NUM_STATS; i++)
+		*(data + j++) = priv->dpni_stats[i];
+
+	for (i = 0; i < LDPAA_ETH_DPMAC_NUM_STATS; i++)
+		*(data + j++) = priv->dpmac_stats[i];
+}
+
 static const struct eth_ops ldpaa_eth_ops = {
-	.start	= ldpaa_eth_open,
-	.send	= ldpaa_eth_tx,
-	.recv	= ldpaa_eth_pull_dequeue_rx,
-	.stop	= ldpaa_eth_stop,
+	.start = ldpaa_eth_open,
+	.send = ldpaa_eth_tx,
+	.recv = ldpaa_eth_pull_dequeue_rx,
+	.stop = ldpaa_eth_stop,
+	.get_sset_count = ldpaa_eth_get_sset_count,
+	.get_strings = ldpaa_eth_get_strings,
+	.get_stats = ldpaa_eth_get_stats,
 };
 
 static const struct udevice_id ldpaa_eth_of_ids[] = {
