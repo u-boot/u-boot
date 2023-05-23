@@ -23,10 +23,10 @@
 #define XST_PM_NO_ACCESS	2002L
 #define XST_PM_ALREADY_CONFIGURED	2009L
 
-struct zynqmp_power {
+static struct zynqmp_power {
 	struct mbox_chan tx_chan;
 	struct mbox_chan rx_chan;
-} zynqmp_power = {};
+} zynqmp_power __section(".data");
 
 #define NODE_ID_LOCATION	5
 
