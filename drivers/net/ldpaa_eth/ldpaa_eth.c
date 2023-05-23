@@ -38,68 +38,56 @@ static void init_phy(struct udevice *dev)
 }
 #endif
 
-#ifdef DEBUG
-
-#define DPNI_STATS_PER_PAGE 6
-
-static const char *dpni_statistics[][DPNI_STATS_PER_PAGE] = {
-	{
-	"DPNI_CNT_ING_ALL_FRAMES",
-	"DPNI_CNT_ING_ALL_BYTES",
-	"DPNI_CNT_ING_MCAST_FRAMES",
-	"DPNI_CNT_ING_MCAST_BYTES",
-	"DPNI_CNT_ING_BCAST_FRAMES",
-	"DPNI_CNT_ING_BCAST_BYTES",
-	}, {
-	"DPNI_CNT_EGR_ALL_FRAMES",
-	"DPNI_CNT_EGR_ALL_BYTES",
-	"DPNI_CNT_EGR_MCAST_FRAMES",
-	"DPNI_CNT_EGR_MCAST_BYTES",
-	"DPNI_CNT_EGR_BCAST_FRAMES",
-	"DPNI_CNT_EGR_BCAST_BYTES",
-	}, {
-	"DPNI_CNT_ING_FILTERED_FRAMES",
-	"DPNI_CNT_ING_DISCARDED_FRAMES",
-	"DPNI_CNT_ING_NOBUFFER_DISCARDS",
-	"DPNI_CNT_EGR_DISCARDED_FRAMES",
-	"DPNI_CNT_EGR_CNF_FRAMES",
-	""
-	},
-};
-
-static void print_dpni_stats(const char *strings[],
-			     union dpni_statistics dpni_stats)
+static void ldpaa_eth_collect_dpni_stats(struct udevice *dev, u64 *data)
 {
-	uint64_t *stat;
-	int i;
+	union dpni_statistics dpni_stats;
+	int dpni_stats_page_size[DPNI_STATISTICS_CNT] = {
+		sizeof(dpni_stats.page_0),
+		sizeof(dpni_stats.page_1),
+		sizeof(dpni_stats.page_2),
+		sizeof(dpni_stats.page_3),
+		sizeof(dpni_stats.page_4),
+		sizeof(dpni_stats.page_5),
+		sizeof(dpni_stats.page_6),
+	};
+	int j, k, num_cnt, err, i = 0;
 
-	stat = (uint64_t *)&dpni_stats;
-	for (i = 0; i < DPNI_STATS_PER_PAGE; i++) {
-		if (strcmp(strings[i], "\0") == 0)
-			break;
-		printf("%s= %llu\n", strings[i], *stat);
-		stat++;
+	for (j = 0; j <= 6; j++) {
+		/* We're not interested in pages 4 & 5 for now */
+		if (j == 4 || j == 5)
+			continue;
+		err = dpni_get_statistics(dflt_mc_io, MC_CMD_NO_FLAGS,
+					  dflt_dpni->dpni_handle,
+					  j, &dpni_stats);
+		if (err) {
+			memset(&dpni_stats, 0, sizeof(dpni_stats));
+			printf("dpni_get_stats(%d) failed\n", j);
+		}
+
+		num_cnt = dpni_stats_page_size[j] / sizeof(u64);
+		for (k = 0; k < num_cnt; k++)
+			*(data + i++) = dpni_stats.raw.counter[k];
 	}
 }
 
-static void ldpaa_eth_get_dpni_counter(void)
+static void ldpaa_eth_add_dpni_stats(struct udevice *dev, u64 *data)
 {
-	int err = 0;
-	unsigned int page = 0;
-	union dpni_statistics dpni_stats;
+	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
+	int i;
 
-	printf("DPNI counters ..\n");
-	for (page = 0; page < 3; page++) {
-		err = dpni_get_statistics(dflt_mc_io, MC_CMD_NO_FLAGS,
-					  dflt_dpni->dpni_handle, page,
-					  &dpni_stats);
-		if (err < 0) {
-			printf("dpni_get_statistics: failed:");
-			printf("%d for page[%d]\n", err, page);
-			return;
-		}
-		print_dpni_stats(dpni_statistics[page], dpni_stats);
-	}
+	for (i = 0; i < LDPAA_ETH_DPNI_NUM_STATS; i++)
+		priv->dpni_stats[i] += data[i];
+}
+
+#ifdef DEBUG
+
+static void ldpaa_eth_dump_dpni_stats(struct udevice *dev, u64 *data)
+{
+	int i;
+
+	printf("DPNI counters:\n");
+	for (i = 0; i < LDPAA_ETH_DPNI_NUM_STATS; i++)
+		printf("  %s: %llu\n", ldpaa_eth_dpni_stat_strings[i], data[i]);
 }
 
 static void ldpaa_eth_get_dpmac_counter(struct udevice *dev)
@@ -556,12 +544,22 @@ static void ldpaa_eth_stop(struct udevice *dev)
 	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
 	struct phy_device *phydev = NULL;
 	int err = 0;
+	u64 *data;
 
 	if (!eth_is_active(dev))
 		return;
 
+	data = kzalloc(sizeof(u64) * LDPAA_ETH_DPNI_NUM_STATS, GFP_KERNEL);
+	if (data) {
+		ldpaa_eth_collect_dpni_stats(dev, data);
+		ldpaa_eth_add_dpni_stats(dev, data);
 #ifdef DEBUG
-	ldpaa_eth_get_dpni_counter();
+		ldpaa_eth_dump_dpni_stats(dev, data);
+#endif
+	}
+	kfree(data);
+
+#ifdef DEBUG
 	ldpaa_eth_get_dpmac_counter(dev);
 #endif
 

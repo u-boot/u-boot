@@ -115,6 +115,33 @@ struct ldpaa_fas {
 					 LDPAA_ETH_FAS_MNLE	| \
 					 LDPAA_ETH_FAS_TIDE)
 
+static const char ldpaa_eth_dpni_stat_strings[][ETH_GSTRING_LEN] = {
+	"[dpni ] rx frames",
+	"[dpni ] rx bytes",
+	"[dpni ] rx mcast frames",
+	"[dpni ] rx mcast bytes",
+	"[dpni ] rx bcast frames",
+	"[dpni ] rx bcast bytes",
+	"[dpni ] tx frames",
+	"[dpni ] tx bytes",
+	"[dpni ] tx mcast frames",
+	"[dpni ] tx mcast bytes",
+	"[dpni ] tx bcast frames",
+	"[dpni ] tx bcast bytes",
+	"[dpni ] rx filtered frames",
+	"[dpni ] rx discarded frames",
+	"[dpni ] rx nobuffer discards",
+	"[dpni ] tx discarded frames",
+	"[dpni ] tx confirmed frames",
+	"[dpni ] tx dequeued bytes",
+	"[dpni ] tx dequeued frames",
+	"[dpni ] tx rejected bytes",
+	"[dpni ] tx rejected frames",
+	"[dpni ] tx pending frames",
+};
+
+#define LDPAA_ETH_DPNI_NUM_STATS	ARRAY_SIZE(ldpaa_eth_dpni_stat_strings)
+
 struct ldpaa_eth_priv {
 	struct phy_device *phy;
 	int phy_mode;
@@ -129,6 +156,9 @@ struct ldpaa_eth_priv {
 	uint16_t tx_flow_id;
 
 	enum ldpaa_eth_type type;	/* 1G or 10G ethernet */
+
+	/* SW kept statistics */
+	u64 dpni_stats[LDPAA_ETH_DPNI_NUM_STATS];
 };
 
 struct dprc_endpoint dpmac_endpoint;
