@@ -395,7 +395,7 @@ static int zynqmp_firmware_bind(struct udevice *dev)
 		}
 	}
 
-	return dm_scan_fdt_dev(dev);
+	return 0;
 }
 
 U_BOOT_DRIVER(zynqmp_firmware) = {
