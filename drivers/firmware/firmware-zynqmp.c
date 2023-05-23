@@ -63,29 +63,32 @@ static unsigned int xpm_configobject_close[] = {
 
 int zynqmp_pmufw_config_close(void)
 {
-	zynqmp_pmufw_load_config_object(xpm_configobject_close,
-					sizeof(xpm_configobject_close));
-	return 0;
+	return zynqmp_pmufw_load_config_object(xpm_configobject_close,
+					       sizeof(xpm_configobject_close));
 }
 
 int zynqmp_pmufw_node(u32 id)
 {
-	static bool skip_config;
-	int ret;
+	static bool check = true;
+	static bool permission = true;
 
-	if (skip_config)
+	if (check) {
+		check = false;
+
+		if (zynqmp_pmufw_node(NODE_OCM_BANK_0) == -EACCES) {
+			printf("PMUFW:  No permission to change config object\n");
+			permission = false;
+		}
+	}
+
+	if (!permission)
 		return 0;
 
 	/* Record power domain id */
 	xpm_configobject[NODE_ID_LOCATION] = id;
 
-	ret = zynqmp_pmufw_load_config_object(xpm_configobject,
-					      sizeof(xpm_configobject));
-
-	if (ret == -EACCES && id == NODE_OCM_BANK_0)
-		skip_config = true;
-
-	return 0;
+	return zynqmp_pmufw_load_config_object(xpm_configobject,
+					       sizeof(xpm_configobject));
 }
 
 static int do_pm_probe(void)
@@ -250,8 +253,6 @@ int zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 	err = xilinx_pm_request(PM_SET_CONFIGURATION, (u32)(u64)cfg_obj, 0, 0,
 				0, ret_payload);
 	if (err == XST_PM_NO_ACCESS) {
-		if (((u32 *)cfg_obj)[NODE_ID_LOCATION] == NODE_OCM_BANK_0)
-			printf("PMUFW:  No permission to change config object\n");
 		return -EACCES;
 	}
 
@@ -294,9 +295,6 @@ static int zynqmp_power_probe(struct udevice *dev)
 	printf("PMUFW:\tv%d.%d\n",
 	       ret >> ZYNQMP_PM_VERSION_MAJOR_SHIFT,
 	       ret & ZYNQMP_PM_VERSION_MINOR_MASK);
-
-	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP))
-		zynqmp_pmufw_node(NODE_OCM_BANK_0);
 
 	return 0;
 };
