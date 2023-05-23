@@ -10,6 +10,7 @@
 #include <dt-bindings/leds/common.h>
 #include <dt-bindings/gpio/gpio.h>
 #include "k3-am62a7.dtsi"
+#include "k3-am62a-sk-binman.dtsi"
 
 / {
 	compatible =  "ti,am62a7-sk", "ti,am62a7";

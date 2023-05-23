@@ -9,6 +9,7 @@
 #include "k3-am62-ddr.dtsi"
 
 #include "k3-am625-sk-u-boot.dtsi"
+#include "k3-am625-sk-binman.dtsi"
 
 / {
 	aliases {
