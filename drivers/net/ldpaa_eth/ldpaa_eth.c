@@ -68,7 +68,7 @@ static const char *dpni_statistics[][DPNI_STATS_PER_PAGE] = {
 };
 
 static void print_dpni_stats(const char *strings[],
-			     struct dpni_statistics dpni_stats)
+			     union dpni_statistics dpni_stats)
 {
 	uint64_t *stat;
 	int i;
@@ -86,7 +86,7 @@ static void ldpaa_eth_get_dpni_counter(void)
 {
 	int err = 0;
 	unsigned int page = 0;
-	struct dpni_statistics dpni_stats;
+	union dpni_statistics dpni_stats;
 
 	printf("DPNI counters ..\n");
 	for (page = 0; page < 3; page++) {

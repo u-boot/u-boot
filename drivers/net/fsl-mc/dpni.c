@@ -491,7 +491,7 @@ int dpni_get_statistics(struct fsl_mc_io *mc_io,
 			uint32_t cmd_flags,
 			uint16_t token,
 			uint8_t  page,
-			struct dpni_statistics *stat)
+			union dpni_statistics *stat)
 {
 	struct mc_command cmd = { 0 };
 	int err;

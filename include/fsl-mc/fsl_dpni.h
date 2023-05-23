@@ -258,13 +258,13 @@ do { \
 /*                cmd, param, offset, width, type, arg_name */
 #define DPNI_RSP_GET_STATISTICS(cmd, stat) \
 do { \
-	MC_RSP_OP(cmd, 0, 0, 64, uint64_t, (stat)->counter0); \
-	MC_RSP_OP(cmd, 1, 0, 64, uint64_t, (stat)->counter1); \
-	MC_RSP_OP(cmd, 2, 0, 64, uint64_t, (stat)->counter2); \
-	MC_RSP_OP(cmd, 3, 0, 64, uint64_t, (stat)->counter3); \
-	MC_RSP_OP(cmd, 4, 0, 64, uint64_t, (stat)->counter4); \
-	MC_RSP_OP(cmd, 5, 0, 64, uint64_t, (stat)->counter5); \
-	MC_RSP_OP(cmd, 6, 0, 64, uint64_t, (stat)->counter6); \
+	MC_RSP_OP(cmd, 0, 0, 64, uint64_t, (stat)->raw.counter[0]); \
+	MC_RSP_OP(cmd, 1, 0, 64, uint64_t, (stat)->raw.counter[1]); \
+	MC_RSP_OP(cmd, 2, 0, 64, uint64_t, (stat)->raw.counter[2]); \
+	MC_RSP_OP(cmd, 3, 0, 64, uint64_t, (stat)->raw.counter[3]); \
+	MC_RSP_OP(cmd, 4, 0, 64, uint64_t, (stat)->raw.counter[4]); \
+	MC_RSP_OP(cmd, 5, 0, 64, uint64_t, (stat)->raw.counter[5]); \
+	MC_RSP_OP(cmd, 6, 0, 64, uint64_t, (stat)->raw.counter[6]); \
 } while (0)
 
 enum net_prot {
@@ -1257,40 +1257,101 @@ int dpni_set_tx_confirmation_mode(struct fsl_mc_io	*mc_io,
 				  uint32_t		cmd_flags,
 				  uint16_t		token,
 				  enum dpni_confirmation_mode mode);
-struct dpni_statistics {
-	/**
-	 * Page_0 statistics structure
-	 * @ingress_all_frames: Ingress frame count
-	 * @ingress_all_bytes: Ingress byte count
-	 * @ingress_multicast_frames: Ingress multicast frame count
-	 * @ingress_multicast_bytes: Ingress multicast byte count
-	 * @ingress_broadcast_frames: Ingress broadcast frame count
-	 * @ingress_broadcast_bytes: Ingress broadcast byte count
-	 *
-	 * Page_1 statistics structure
-	 * @egress_all_frames: Egress frame count
-	 * @egress_all_bytes: Egress byte count
-	 * @egress_multicast_frames: Egress multicast frame count
-	 * @egress_multicast_bytes: Egress multicast byte count
-	 * @egress_broadcast_frames: Egress broadcast frame count
-	 * @egress_broadcast_bytes: Egress broadcast byte count
-	 *
-	 * Page_2 statistics structure
-	 * @ingress_filtered_frames: Ingress filtered frame count
-	 * @ingress_discarded_frames: Ingress discarded frame count
-	 * @ingress_nobuffer_discards: Ingress discarded frame count due to
-	 *  lack of buffers.
-	 * @egress_discarded_frames: Egress discarded frame count
-	 * @egress_confirmed_frames: Egress confirmed frame count
-	 */
 
-	uint64_t counter0;
-	uint64_t counter1;
-	uint64_t counter2;
-	uint64_t counter3;
-	uint64_t counter4;
-	uint64_t counter5;
-	uint64_t counter6;
+#define DPNI_STATISTICS_CNT		7
+
+/**
+ * union dpni_statistics - Union describing the DPNI statistics
+ * @page_0: Page_0 statistics structure
+ * @page_0.ingress_all_frames: Ingress frame count
+ * @page_0.ingress_all_bytes: Ingress byte count
+ * @page_0.ingress_multicast_frames: Ingress multicast frame count
+ * @page_0.ingress_multicast_bytes: Ingress multicast byte count
+ * @page_0.ingress_broadcast_frames: Ingress broadcast frame count
+ * @page_0.ingress_broadcast_bytes: Ingress broadcast byte count
+ * @page_1: Page_1 statistics structure
+ * @page_1.egress_all_frames: Egress frame count
+ * @page_1.egress_all_bytes: Egress byte count
+ * @page_1.egress_multicast_frames: Egress multicast frame count
+ * @page_1.egress_multicast_bytes: Egress multicast byte count
+ * @page_1.egress_broadcast_frames: Egress broadcast frame count
+ * @page_1.egress_broadcast_bytes: Egress broadcast byte count
+ * @page_2: Page_2 statistics structure
+ * @page_2.ingress_filtered_frames: Ingress filtered frame count
+ * @page_2.ingress_discarded_frames: Ingress discarded frame count
+ * @page_2.ingress_nobuffer_discards: Ingress discarded frame count due to
+ *	lack of buffers
+ * @page_2.egress_discarded_frames: Egress discarded frame count
+ * @page_2.egress_confirmed_frames: Egress confirmed frame count
+ * @page_3: Page_3 statistics structure
+ * @page_3.egress_dequeue_bytes: Cumulative count of the number of bytes
+ *	dequeued from egress FQs
+ * @page_3.egress_dequeue_frames: Cumulative count of the number of frames
+ *	dequeued from egress FQs
+ * @page_3.egress_reject_bytes: Cumulative count of the number of bytes in
+ *	egress frames whose enqueue was rejected
+ * @page_3.egress_reject_frames: Cumulative count of the number of egress
+ *	frames whose enqueue was rejected
+ * @page_4: Page_4 statistics structure: congestion points
+ * @page_4.cgr_reject_frames: number of rejected frames due to congestion point
+ * @page_4.cgr_reject_bytes: number of rejected bytes due to congestion point
+ * @page_5: Page_5 statistics structure: policer
+ * @page_5.policer_cnt_red: NUmber of red colored frames
+ * @page_5.policer_cnt_yellow: number of yellow colored frames
+ * @page_5.policer_cnt_green: number of green colored frames
+ * @page_5.policer_cnt_re_red: number of recolored red frames
+ * @page_5.policer_cnt_re_yellow: number of recolored yellow frames
+ * @page_6: Page_6 statistics structure
+ * @page_6.tx_pending_frames: total number of frames pending in egress FQs
+ * @raw: raw statistics structure, used to index counters
+ */
+union dpni_statistics {
+	struct {
+		u64 ingress_all_frames;
+		u64 ingress_all_bytes;
+		u64 ingress_multicast_frames;
+		u64 ingress_multicast_bytes;
+		u64 ingress_broadcast_frames;
+		u64 ingress_broadcast_bytes;
+	} page_0;
+	struct {
+		u64 egress_all_frames;
+		u64 egress_all_bytes;
+		u64 egress_multicast_frames;
+		u64 egress_multicast_bytes;
+		u64 egress_broadcast_frames;
+		u64 egress_broadcast_bytes;
+	} page_1;
+	struct {
+		u64 ingress_filtered_frames;
+		u64 ingress_discarded_frames;
+		u64 ingress_nobuffer_discards;
+		u64 egress_discarded_frames;
+		u64 egress_confirmed_frames;
+	} page_2;
+	struct {
+		u64 egress_dequeue_bytes;
+		u64 egress_dequeue_frames;
+		u64 egress_reject_bytes;
+		u64 egress_reject_frames;
+	} page_3;
+	struct {
+		u64 cgr_reject_frames;
+		u64 cgr_reject_bytes;
+	} page_4;
+	struct {
+		u64 policer_cnt_red;
+		u64 policer_cnt_yellow;
+		u64 policer_cnt_green;
+		u64 policer_cnt_re_red;
+		u64 policer_cnt_re_yellow;
+	} page_5;
+	struct {
+		u64 tx_pending_frames;
+	} page_6;
+	struct {
+		u64 counter[DPNI_STATISTICS_CNT];
+	} raw;
 };
 
 /**
@@ -1308,7 +1369,7 @@ int dpni_get_statistics(struct fsl_mc_io *mc_io,
 			uint32_t cmd_flags,
 			uint16_t token,
 			uint8_t page,
-			struct dpni_statistics *stat);
+			union dpni_statistics *stat);
 
 /**
  * dpni_reset_statistics() - Clears DPNI statistics
