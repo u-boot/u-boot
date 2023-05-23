@@ -142,6 +142,39 @@ static const char ldpaa_eth_dpni_stat_strings[][ETH_GSTRING_LEN] = {
 
 #define LDPAA_ETH_DPNI_NUM_STATS	ARRAY_SIZE(ldpaa_eth_dpni_stat_strings)
 
+static const char ldpaa_eth_dpmac_stat_strings[][ETH_GSTRING_LEN] = {
+	[DPMAC_CNT_ING_ALL_FRAME]		= "[mac] rx all frames",
+	[DPMAC_CNT_ING_GOOD_FRAME]		= "[mac] rx frames ok",
+	[DPMAC_CNT_ING_ERR_FRAME]		= "[mac] rx frame errors",
+	[DPMAC_CNT_ING_FRAME_DISCARD]		= "[mac] rx frame discards",
+	[DPMAC_CNT_ING_UCAST_FRAME]		= "[mac] rx u-cast",
+	[DPMAC_CNT_ING_BCAST_FRAME]		= "[mac] rx b-cast",
+	[DPMAC_CNT_ING_MCAST_FRAME]		= "[mac] rx m-cast",
+	[DPMAC_CNT_ING_FRAME_64]		= "[mac] rx 64 bytes",
+	[DPMAC_CNT_ING_FRAME_127]		= "[mac] rx 65-127 bytes",
+	[DPMAC_CNT_ING_FRAME_255]		= "[mac] rx 128-255 bytes",
+	[DPMAC_CNT_ING_FRAME_511]		= "[mac] rx 256-511 bytes",
+	[DPMAC_CNT_ING_FRAME_1023]		= "[mac] rx 512-1023 bytes",
+	[DPMAC_CNT_ING_FRAME_1518]		= "[mac] rx 1024-1518 bytes",
+	[DPMAC_CNT_ING_FRAME_1519_MAX]		= "[mac] rx 1519-max bytes",
+	[DPMAC_CNT_ING_FRAG]			= "[mac] rx frags",
+	[DPMAC_CNT_ING_JABBER]			= "[mac] rx jabber",
+	[DPMAC_CNT_ING_ALIGN_ERR]		= "[mac] rx align errors",
+	[DPMAC_CNT_ING_OVERSIZED]		= "[mac] rx oversized",
+	[DPMAC_CNT_ING_VALID_PAUSE_FRAME]	= "[mac] rx pause",
+	[DPMAC_CNT_ING_BYTE]			= "[mac] rx bytes",
+	[DPMAC_CNT_EGR_GOOD_FRAME]		= "[mac] tx frames ok",
+	[DPMAC_CNT_EGR_UCAST_FRAME]		= "[mac] tx u-cast",
+	[DPMAC_CNT_EGR_MCAST_FRAME]		= "[mac] tx m-cast",
+	[DPMAC_CNT_EGR_BCAST_FRAME]		= "[mac] tx b-cast",
+	[DPMAC_CNT_EGR_ERR_FRAME]		= "[mac] tx frame errors",
+	[DPMAC_CNT_EGR_UNDERSIZED]		= "[mac] tx undersized",
+	[DPMAC_CNT_EGR_VALID_PAUSE_FRAME]	= "[mac] tx b-pause",
+	[DPMAC_CNT_EGR_BYTE]			= "[mac] tx bytes",
+};
+
+#define LDPAA_ETH_DPMAC_NUM_STATS	ARRAY_SIZE(ldpaa_eth_dpmac_stat_strings)
+
 struct ldpaa_eth_priv {
 	struct phy_device *phy;
 	int phy_mode;
@@ -159,6 +192,7 @@ struct ldpaa_eth_priv {
 
 	/* SW kept statistics */
 	u64 dpni_stats[LDPAA_ETH_DPNI_NUM_STATS];
+	u64 dpmac_stats[LDPAA_ETH_DPMAC_NUM_STATS];
 };
 
 struct dprc_endpoint dpmac_endpoint;

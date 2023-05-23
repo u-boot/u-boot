@@ -412,6 +412,8 @@ int dpmac_set_link_state(struct fsl_mc_io		*mc_io,
  * @DPMAC_CNT_EGR_ERR_FRAME: counts frame transmitted with an error
  * @DPMAC_CNT_ING_GOOD_FRAME: counts frame received without error, including
  *			      pause frames.
+ * @DPMAC_CNT_EGR_GOOD_FRAME: counts frames transmitted without error, including
+ *			      pause frames.
  */
 enum dpmac_counter {
 	DPMAC_CNT_ING_FRAME_64,
@@ -440,7 +442,8 @@ enum dpmac_counter {
 	DPMAC_CNT_EGR_BCAST_FRAME,
 	DPMAC_CNT_EGR_UCAST_FRAME,
 	DPMAC_CNT_EGR_ERR_FRAME,
-	DPMAC_CNT_ING_GOOD_FRAME
+	DPMAC_CNT_ING_GOOD_FRAME,
+	DPMAC_CNT_EGR_GOOD_FRAME,
 };
 
 /**

@@ -79,8 +79,33 @@ static void ldpaa_eth_add_dpni_stats(struct udevice *dev, u64 *data)
 		priv->dpni_stats[i] += data[i];
 }
 
-#ifdef DEBUG
+static void ldpaa_eth_collect_dpmac_stats(struct udevice *dev, u64 *data)
+{
+	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
+	int err, i;
+	u64 value;
 
+	for (i = 0; i < LDPAA_ETH_DPMAC_NUM_STATS; i++) {
+		err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+					priv->dpmac_handle, i,
+					&value);
+		if (err)
+			printf("dpmac_get_counter(%d) failed\n", i);
+
+		*(data + i) = value;
+	}
+}
+
+static void ldpaa_eth_add_dpmac_stats(struct udevice *dev, u64 *data)
+{
+	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
+	int i;
+
+	for (i = 0; i < LDPAA_ETH_DPMAC_NUM_STATS; i++)
+		priv->dpmac_stats[i] += data[i];
+}
+
+#ifdef DEBUG
 static void ldpaa_eth_dump_dpni_stats(struct udevice *dev, u64 *data)
 {
 	int i;
@@ -90,82 +115,13 @@ static void ldpaa_eth_dump_dpni_stats(struct udevice *dev, u64 *data)
 		printf("  %s: %llu\n", ldpaa_eth_dpni_stat_strings[i], data[i]);
 }
 
-static void ldpaa_eth_get_dpmac_counter(struct udevice *dev)
+static void ldpaa_eth_dump_dpmac_stats(struct udevice *dev, u64 *data)
 {
-	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
-	int err = 0;
-	u64 value;
+	int i;
 
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_ING_BYTE,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_ING_BYTE failed\n");
-		return;
-	}
-	printf("\nDPMAC counters ..\n");
-	printf("DPMAC_CNT_ING_BYTE=%lld\n", value);
-
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_ING_FRAME_DISCARD,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_ING_FRAME_DISCARD failed\n");
-		return;
-	}
-	printf("DPMAC_CNT_ING_FRAME_DISCARD=%lld\n", value);
-
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_ING_ALIGN_ERR,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_ING_ALIGN_ERR failed\n");
-		return;
-	}
-	printf("DPMAC_CNT_ING_ALIGN_ERR =%lld\n", value);
-
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_ING_BYTE,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_ING_BYTE failed\n");
-		return;
-	}
-	printf("DPMAC_CNT_ING_BYTE=%lld\n", value);
-
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_ING_ERR_FRAME,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_ING_ERR_FRAME failed\n");
-		return;
-	}
-	printf("DPMAC_CNT_ING_ERR_FRAME=%lld\n", value);
-
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_EGR_BYTE ,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_EGR_BYTE failed\n");
-		return;
-	}
-	printf("DPMAC_CNT_EGR_BYTE =%lld\n", value);
-
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_EGR_ERR_FRAME ,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_EGR_ERR_FRAME failed\n");
-		return;
-	}
-	printf("DPMAC_CNT_EGR_ERR_FRAME =%lld\n", value);
+	printf("DPMAC counters:\n");
+	for (i = 0; i < LDPAA_ETH_DPMAC_NUM_STATS; i++)
+		printf("  %s: %llu\n", ldpaa_eth_dpmac_stat_strings[i], data[i]);
 }
 #endif
 
@@ -559,9 +515,15 @@ static void ldpaa_eth_stop(struct udevice *dev)
 	}
 	kfree(data);
 
+	data = kzalloc(sizeof(u64) * LDPAA_ETH_DPMAC_NUM_STATS, GFP_KERNEL);
+	if (data) {
+		ldpaa_eth_collect_dpmac_stats(dev, data);
+		ldpaa_eth_add_dpmac_stats(dev, data);
 #ifdef DEBUG
-	ldpaa_eth_get_dpmac_counter(dev);
+		ldpaa_eth_dump_dpmac_stats(dev, data);
 #endif
+	}
+	kfree(data);
 
 	err = dprc_disconnect(dflt_mc_io, MC_CMD_NO_FLAGS,
 			      dflt_dprc_handle, &dpmac_endpoint);
