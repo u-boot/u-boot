@@ -82,7 +82,7 @@ int zynqmp_pmufw_node(u32 id)
 	ret = zynqmp_pmufw_load_config_object(xpm_configobject,
 					      sizeof(xpm_configobject));
 
-	if (ret == XST_PM_NO_ACCESS && id == NODE_OCM_BANK_0)
+	if (ret == -EACCES && id == NODE_OCM_BANK_0)
 		skip_config = true;
 
 	return 0;
@@ -235,8 +235,7 @@ int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id)
  *
  * @cfg_obj: Pointer to the configuration object
  * @size:    Size of @cfg_obj in bytes
- * Return:   0 on success otherwise negative errno. If the config object
- *           is not loadable returns positive errno XST_PM_NO_ACCESS(2002)
+ * Return:   0 on success otherwise negative errno.
  */
 int zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 {
@@ -251,10 +250,8 @@ int zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 	err = xilinx_pm_request(PM_SET_CONFIGURATION, (u32)(u64)cfg_obj, 0, 0,
 				0, ret_payload);
 	if (err == XST_PM_NO_ACCESS) {
-		if (((u32 *)cfg_obj)[NODE_ID_LOCATION] == NODE_OCM_BANK_0) {
+		if (((u32 *)cfg_obj)[NODE_ID_LOCATION] == NODE_OCM_BANK_0)
 			printf("PMUFW:  No permission to change config object\n");
-			return err;
-		}
 		return -EACCES;
 	}
 
