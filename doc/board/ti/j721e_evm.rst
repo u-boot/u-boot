@@ -130,67 +130,56 @@ support. Below is the pictorial representation of boot flow:
 
 Sources:
 --------
-1. SYSFW:
-	Tree: git://git.ti.com/k3-image-gen/k3-image-gen.git
-	Branch: master
-
-2. ATF:
+1. ATF:
 	Tree: https://github.com/ARM-software/arm-trusted-firmware.git
 	Branch: master
 
-3. OPTEE:
+2. OPTEE:
 	Tree: https://github.com/OP-TEE/optee_os.git
 	Branch: master
 
-4. DM Firmware:
-	Tree: git://git.ti.com/processor-firmware/ti-linux-firmware.git
-	Branch: ti-linux-firmware
-
-5. U-Boot:
+3. U-Boot:
 	Tree: https://source.denx.de/u-boot/u-boot
 	Branch: master
 
+4. TI Linux Firmware:
+	Tree: git://git.ti.com/processor-firmware/ti-linux-firmware.git
+	Branch: ti-linux-firmware
+
 Build procedure:
 ----------------
-1. SYSFW:
-
-.. code-block:: bash
-
-    make CROSS_COMPILE=arm-linux-gnueabihf- SOC=j721e
-
-2. ATF:
+1. ATF:
 
 .. code-block:: bash
 
     make CROSS_COMPILE=aarch64-linux-gnu- ARCH=aarch64 PLAT=k3 TARGET_BOARD=generic SPD=opteed
 
-3. OPTEE:
+2. OPTEE:
 
 .. code-block:: bash
 
     make PLATFORM=k3-j721e CFG_ARM64_core=y
 
-4. U-Boot:
+3. U-Boot:
 
 * 4.1 R5:
 
 .. code-block:: bash
 
     make CROSS_COMPILE=arm-linux-gnueabihf- j721e_evm_r5_defconfig O=build/r5
-    make CROSS_COMPILE=arm-linux-gnueabihf- O=build/r5
+    make CROSS_COMPILE=arm-linux-gnueabihf- O=build/r5 BINMAN_INDIRS=<path/to/ti-linux-firmware>
 
 * 4.2 A72:
 
 .. code-block:: bash
 
     make CROSS_COMPILE=aarch64-linux-gnu- j721e_evm_a72_defconfig O=build/a72
-    make CROSS_COMPILE=aarch64-linux-gnu- ATF=<ATF dir>/build/k3/generic/release/bl31.bin TEE=<OPTEE OS dir>/out/arm-plat-k3/core/tee-pager_v2.bin DM=<DM firmware>/ti-dm/j721e/ipc_echo_testb_mcu1_0_release_strip.xer5f O=build/a72
+    make CROSS_COMPILE=aarch64-linux-gnu- BL31=<ATF dir>/build/k3/generic/release/bl31.bin TEE=<OPTEE OS dir>/out/arm-plat-k3/core/tee-pager_v2.bin BINMAN_INDIRS=<path/to/ti-linux-firmware>
 
 Target Images
 --------------
 Copy the below images to an SD card and boot:
- - sysfw.itb from step 1
- - tiboot3.bin from step 4.1
+ - tiboot3.bin and sysfw.itb from step 4.1
  - tispl.bin, u-boot.img from 4.2
 
 Image formats:

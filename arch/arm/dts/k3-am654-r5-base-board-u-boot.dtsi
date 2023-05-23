@@ -5,6 +5,7 @@
 
 #include <dt-bindings/pinctrl/k3.h>
 #include <dt-bindings/net/ti-dp83867.h>
+#include "k3-am65x-binman.dtsi"
 
 / {
 	chosen {
