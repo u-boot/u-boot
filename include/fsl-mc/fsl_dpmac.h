@@ -84,7 +84,7 @@ do { \
 
 /*                cmd, param, offset, width, type, arg_name */
 #define DPMAC_CMD_GET_COUNTER(cmd, type) \
-	MC_CMD_OP(cmd, 1, 0,  64, enum dpmac_counter, type)
+	MC_CMD_OP(cmd, 0, 0,  8, enum dpmac_counter, type)
 
 /*                cmd, param, offset, width, type, arg_name */
 #define DPMAC_RSP_GET_COUNTER(cmd, counter) \
