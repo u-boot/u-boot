@@ -97,6 +97,7 @@ ENV_DATA              = b'var1=1\nvar2="2"'
 PRE_LOAD_MAGIC        = b'UBSH'
 PRE_LOAD_VERSION      = 0x11223344.to_bytes(4, 'big')
 PRE_LOAD_HDR_SIZE     = 0x00001000.to_bytes(4, 'big')
+TI_BOARD_CONFIG_DATA  = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
 
 # Subdirectory of the input dir to use to put test FDTs
 TEST_FDT_SUBDIR       = 'fdts'
@@ -198,6 +199,9 @@ class TestFunctional(unittest.TestCase):
 
         shutil.copytree(cls.TestFile('files'),
                         os.path.join(cls._indir, 'files'))
+
+        shutil.copytree(cls.TestFile('yaml'),
+                        os.path.join(cls._indir, 'yaml'))
 
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
         TestFunctional._MakeInputFile('compress_big', COMPRESS_DATA_BIG)
@@ -6676,6 +6680,22 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                                 ['fit'])
         self.assertIn("Node '/fit': Missing tool: 'mkimage'", str(e.exception))
 
+    def testTIBoardConfig(self):
+        """Test that a schema validated board config file can be generated"""
+        data = self._DoReadFile('277_ti_board_cfg.dts')
+        self.assertEqual(TI_BOARD_CONFIG_DATA, data)
+
+    def testTIBoardConfigCombined(self):
+        """Test that a schema validated combined board config file can be generated"""
+        data = self._DoReadFile('278_ti_board_cfg_combined.dts')
+        configlen_noheader = TI_BOARD_CONFIG_DATA * 4
+        self.assertGreater(data, configlen_noheader)
+
+    def testTIBoardConfigNoDataType(self):
+        """Test that error is thrown when data type is not supported"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('279_ti_board_cfg_no_type.dts')
+        self.assertIn("Schema validation error", str(e.exception))
 
 if __name__ == "__main__":
     unittest.main()
