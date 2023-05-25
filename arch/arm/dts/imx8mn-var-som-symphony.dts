@@ -56,10 +56,6 @@
 	};
 };
 
-&ethphy {
-	reset-gpios = <&pca9534 5 GPIO_ACTIVE_HIGH>;
-};
-
 &i2c2 {
 	clock-frequency = <400000>;
 	pinctrl-names = "default";
