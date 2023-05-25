@@ -11,6 +11,10 @@
 	model = "Variscite VAR-SOM-MX8MN module";
 	compatible = "variscite,var-som-mx8mn", "fsl,imx8mn";
 
+	aliases {
+		eeprom-som = &eeprom_som;
+	};
+
 	chosen {
 		stdout-path = &uart4;
 	};
@@ -221,6 +225,12 @@
 				regulator-always-on;
 			};
 		};
+	};
+
+	eeprom_som: eeprom@52 {
+		compatible = "atmel,24c04";
+		reg = <0x52>;
+		pagesize = <16>;
 	};
 };
 

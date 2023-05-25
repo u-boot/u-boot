@@ -245,6 +245,8 @@ config TARGET_IMX8MN_VAR_SOM
 	select IMX8MN
 	select SUPPORT_SPL
 	select IMX8M_DDR4
+	select MISC
+	select I2C_EEPROM
 
 config TARGET_KONTRON_PITX_IMX8M
 	bool "Support Kontron pITX-imx8m"
