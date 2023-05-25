@@ -111,16 +111,30 @@ static size_t ecdsa_key_size_bytes(const EC_KEY *key)
 	return EC_GROUP_order_bits(group) / 8;
 }
 
+static int default_password(char *buf, int size, int rwflag, void *u)
+{
+	strncpy(buf, (char *)u, size);
+	buf[size - 1] = '\0';
+	return strlen(buf);
+}
+
 static int read_key(struct signer *ctx, const char *key_name)
 {
 	FILE *f = fopen(key_name, "r");
+	const char *key_pass;
 
 	if (!f) {
 		fprintf(stderr, "Can not get key file '%s'\n", key_name);
 		return -ENOENT;
 	}
 
-	ctx->evp_key = PEM_read_PrivateKey(f, NULL, NULL, NULL);
+	key_pass = getenv("MKIMAGE_SIGN_PASSWORD");
+	if (key_pass) {
+		ctx->evp_key = PEM_read_PrivateKey(f, NULL, default_password, (void *)key_pass);
+
+	} else {
+		ctx->evp_key = PEM_read_PrivateKey(f, NULL, NULL, NULL);
+	}
 	fclose(f);
 	if (!ctx->evp_key) {
 		fprintf(stderr, "Can not read key from '%s'\n", key_name);
