@@ -82,7 +82,17 @@ struct bd_info;
 
 #define is_imx8qxp() (is_cpu_type(MXC_CPU_IMX8QXP))
 
-#define is_imx93() (is_cpu_type(MXC_CPU_IMX93))
+#define is_imx93() (is_cpu_type(MXC_CPU_IMX93) || is_cpu_type(MXC_CPU_IMX9331) || \
+	is_cpu_type(MXC_CPU_IMX9332) || is_cpu_type(MXC_CPU_IMX9351) || \
+	is_cpu_type(MXC_CPU_IMX9322) || is_cpu_type(MXC_CPU_IMX9321) || \
+	is_cpu_type(MXC_CPU_IMX9312) || is_cpu_type(MXC_CPU_IMX9311))
+#define is_imx9351() (is_cpu_type(MXC_CPU_IMX9351))
+#define is_imx9332() (is_cpu_type(MXC_CPU_IMX9332))
+#define is_imx9331() (is_cpu_type(MXC_CPU_IMX9331))
+#define is_imx9322() (is_cpu_type(MXC_CPU_IMX9322))
+#define is_imx9321() (is_cpu_type(MXC_CPU_IMX9321))
+#define is_imx9312() (is_cpu_type(MXC_CPU_IMX9312))
+#define is_imx9311() (is_cpu_type(MXC_CPU_IMX9311))
 
 #define is_imxrt1020() (is_cpu_type(MXC_CPU_IMXRT1020))
 #define is_imxrt1050() (is_cpu_type(MXC_CPU_IMXRT1050))

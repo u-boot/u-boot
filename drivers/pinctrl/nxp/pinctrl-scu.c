@@ -7,7 +7,7 @@
 #include <errno.h>
 #include <linux/bitops.h>
 #include <asm/io.h>
-#include <asm/arch/sci/sci.h>
+#include <firmware/imx/sci/sci.h>
 #include <misc.h>
 
 #include "pinctrl-imx.h"

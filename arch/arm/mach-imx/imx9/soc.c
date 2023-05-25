@@ -19,17 +19,24 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/syscounter.h>
 #include <asm/armv8/mmu.h>
+#include <dm/device.h>
+#include <dm/device_compat.h>
 #include <dm/uclass.h>
 #include <env.h>
 #include <env_internal.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <imx_thermal.h>
 #include <linux/bitops.h>
+#include <linux/bitfield.h>
+#include <linux/delay.h>
+#include <thermal.h>
 #include <asm/setup.h>
 #include <asm/bootm.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/mach-imx/s400_api.h>
-#include <linux/delay.h>
+#include <fuse.h>
+#include <asm/arch/ddr.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,19 +45,17 @@ struct rom_api *g_rom_api = (struct rom_api *)0x1980;
 #ifdef CONFIG_ENV_IS_IN_MMC
 __weak int board_mmc_get_env_dev(int devno)
 {
-	return devno; }
+	return devno;
+}
 
 int mmc_get_env_dev(void)
 {
-	volatile gd_t *pgd = gd;
 	int ret;
 	u32 boot;
 	u16 boot_type;
 	u8 boot_instance;
 
-	ret = g_rom_api->query_boot_infor(QUERY_BT_DEV, &boot,
-					  ((uintptr_t)&boot) ^ QUERY_BT_DEV);
-	set_gd(pgd);
+	ret = rom_api_query_boot_infor(QUERY_BT_DEV, &boot);
 
 	if (ret != ROM_API_OKAY) {
 		puts("ROMAPI: failure at query_boot_info\n");
@@ -70,6 +75,82 @@ int mmc_get_env_dev(void)
 }
 #endif
 
+/*
+ * SPEED_GRADE[5:4]    SPEED_GRADE[3:0]    MHz
+ * xx                  0000                2300
+ * xx                  0001                2200
+ * xx                  0010                2100
+ * xx                  0011                2000
+ * xx                  0100                1900
+ * xx                  0101                1800
+ * xx                  0110                1700
+ * xx                  0111                1600
+ * xx                  1000                1500
+ * xx                  1001                1400
+ * xx                  1010                1300
+ * xx                  1011                1200
+ * xx                  1100                1100
+ * xx                  1101                1000
+ * xx                  1110                900
+ * xx                  1111                800
+ */
+u32 get_cpu_speed_grade_hz(void)
+{
+	u32 speed, max_speed;
+	u32 val;
+
+	fuse_read(2, 3, &val);
+	val = FIELD_GET(SPEED_GRADING_MASK, val) & 0xF;
+
+	speed = MHZ(2300) - val * MHZ(100);
+
+	if (is_imx93())
+		max_speed = MHZ(1700);
+
+	/* In case the fuse of speed grade not programmed */
+	if (speed > max_speed)
+		speed = max_speed;
+
+	return speed;
+}
+
+/*
+ * `00` - Consumer 0C to 95C
+ * `01` - Ext. Consumer -20C to 105C
+ * `10` - Industrial -40C to 105C
+ * `11` - Automotive -40C to 125C
+ */
+u32 get_cpu_temp_grade(int *minc, int *maxc)
+{
+	u32 val;
+
+	fuse_read(2, 3, &val);
+	val = FIELD_GET(MARKETING_GRADING_MASK, val);
+
+	if (minc && maxc) {
+		if (val == TEMP_AUTOMOTIVE) {
+			*minc = -40;
+			*maxc = 125;
+		} else if (val == TEMP_INDUSTRIAL) {
+			*minc = -40;
+			*maxc = 105;
+		} else if (val == TEMP_EXTCOMMERCIAL) {
+			if (is_imx93()) {
+				/* imx93 only has extended industrial*/
+				*minc = -40;
+				*maxc = 125;
+			} else {
+				*minc = -20;
+				*maxc = 105;
+			}
+		} else {
+			*minc = 0;
+			*maxc = 95;
+		}
+	}
+	return val;
+}
+
 static void set_cpu_info(struct sentinel_get_info_data *info)
 {
 	gd->arch.soc_rev = info->soc;
@@ -77,11 +158,34 @@ static void set_cpu_info(struct sentinel_get_info_data *info)
 	memcpy((void *)&gd->arch.uid, &info->uid, 4 * sizeof(u32));
 }
 
+static u32 get_cpu_variant_type(u32 type)
+{
+	/* word 19 */
+	u32 val = readl((ulong)FSB_BASE_ADDR + 0x8000 + (19 << 2));
+	u32 val2 = readl((ulong)FSB_BASE_ADDR + 0x8000 + (20 << 2));
+	bool npu_disable = !!(val & BIT(13));
+	bool core1_disable = !!(val & BIT(15));
+	u32 pack_9x9_fused = BIT(4) | BIT(17) | BIT(19) | BIT(24);
+
+	if ((val2 & pack_9x9_fused) == pack_9x9_fused)
+		type = MXC_CPU_IMX9322;
+
+	if (npu_disable && core1_disable)
+		return type + 3;
+	else if (npu_disable)
+		return type + 2;
+	else if (core1_disable)
+		return type + 1;
+
+	return type;
+}
+
 u32 get_cpu_rev(void)
 {
 	u32 rev = (gd->arch.soc_rev >> 24) - 0xa0;
 
-	return (MXC_CPU_IMX93 << 12) | (CHIP_REV_1_0 + rev);
+	return (get_cpu_variant_type(MXC_CPU_IMX93) << 12) |
+		(CHIP_REV_1_0 + rev);
 }
 
 #define UNLOCK_WORD 0xD928C520 /* unlock word */
@@ -180,21 +284,216 @@ static struct mm_region imx93_mem_map[] = {
 
 struct mm_region *mem_map = imx93_mem_map;
 
-int dram_init(void)
+static unsigned int imx9_find_dram_entry_in_mem_map(void)
 {
-	gd->ram_size = PHYS_SDRAM_SIZE;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(imx93_mem_map); i++)
+		if (imx93_mem_map[i].phys == CFG_SYS_SDRAM_BASE)
+			return i;
+
+	hang();	/* Entry not found, this must never happen. */
+}
+
+void enable_caches(void)
+{
+	/* If OPTEE runs, remove OPTEE memory from MMU table to avoid speculative prefetch
+	 * If OPTEE does not run, still update the MMU table according to dram banks structure
+	 * to set correct dram size from board_phys_sdram_size
+	 */
+	int i = 0;
+	/*
+	 * please make sure that entry initial value matches
+	 * imx93_mem_map for DRAM1
+	 */
+	int entry = imx9_find_dram_entry_in_mem_map();
+	u64 attrs = imx93_mem_map[entry].attrs;
+
+	while (i < CONFIG_NR_DRAM_BANKS &&
+	       entry < ARRAY_SIZE(imx93_mem_map)) {
+		if (gd->bd->bi_dram[i].start == 0)
+			break;
+		imx93_mem_map[entry].phys = gd->bd->bi_dram[i].start;
+		imx93_mem_map[entry].virt = gd->bd->bi_dram[i].start;
+		imx93_mem_map[entry].size = gd->bd->bi_dram[i].size;
+		imx93_mem_map[entry].attrs = attrs;
+		debug("Added memory mapping (%d): %llx %llx\n", entry,
+		      imx93_mem_map[entry].phys, imx93_mem_map[entry].size);
+		i++; entry++;
+	}
+
+	icache_enable();
+	dcache_enable();
+}
+
+__weak int board_phys_sdram_size(phys_size_t *size)
+{
+	phys_size_t start, end;
+	phys_size_t val;
+
+	if (!size)
+		return -EINVAL;
+
+	val = readl(REG_DDR_CS0_BNDS);
+	start = (val >> 16) << 24;
+	end   = (val & 0xFFFF);
+	end   = end ? end + 1 : 0;
+	end   = end << 24;
+	*size = end - start;
+
+	val = readl(REG_DDR_CS1_BNDS);
+	start = (val >> 16) << 24;
+	end   = (val & 0xFFFF);
+	end   = end ? end + 1 : 0;
+	end   = end << 24;
+	*size += end - start;
 
 	return 0;
 }
 
+int dram_init(void)
+{
+	phys_size_t sdram_size;
+	int ret;
+
+	ret = board_phys_sdram_size(&sdram_size);
+	if (ret)
+		return ret;
+
+	/* rom_pointer[1] contains the size of TEE occupies */
+	if (rom_pointer[1])
+		gd->ram_size = sdram_size - rom_pointer[1];
+	else
+		gd->ram_size = sdram_size;
+
+	return 0;
+}
+
+int dram_init_banksize(void)
+{
+	int bank = 0;
+	int ret;
+	phys_size_t sdram_size;
+	phys_size_t sdram_b1_size, sdram_b2_size;
+
+	ret = board_phys_sdram_size(&sdram_size);
+	if (ret)
+		return ret;
+
+	/* Bank 1 can't cross over 4GB space */
+	if (sdram_size > 0x80000000) {
+		sdram_b1_size = 0x80000000;
+		sdram_b2_size = sdram_size - 0x80000000;
+	} else {
+		sdram_b1_size = sdram_size;
+		sdram_b2_size = 0;
+	}
+
+	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
+	if (rom_pointer[1]) {
+		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
+		phys_size_t optee_size = (size_t)rom_pointer[1];
+
+		gd->bd->bi_dram[bank].size = optee_start - gd->bd->bi_dram[bank].start;
+		if ((optee_start + optee_size) < (PHYS_SDRAM + sdram_b1_size)) {
+			if (++bank >= CONFIG_NR_DRAM_BANKS) {
+				puts("CONFIG_NR_DRAM_BANKS is not enough\n");
+				return -1;
+			}
+
+			gd->bd->bi_dram[bank].start = optee_start + optee_size;
+			gd->bd->bi_dram[bank].size = PHYS_SDRAM +
+				sdram_b1_size - gd->bd->bi_dram[bank].start;
+		}
+	} else {
+		gd->bd->bi_dram[bank].size = sdram_b1_size;
+	}
+
+	if (sdram_b2_size) {
+		if (++bank >= CONFIG_NR_DRAM_BANKS) {
+			puts("CONFIG_NR_DRAM_BANKS is not enough for SDRAM_2\n");
+			return -1;
+		}
+		gd->bd->bi_dram[bank].start = 0x100000000UL;
+		gd->bd->bi_dram[bank].size = sdram_b2_size;
+	}
+
+	return 0;
+}
+
+phys_size_t get_effective_memsize(void)
+{
+	int ret;
+	phys_size_t sdram_size;
+	phys_size_t sdram_b1_size;
+
+	ret = board_phys_sdram_size(&sdram_size);
+	if (!ret) {
+		/* Bank 1 can't cross over 4GB space */
+		if (sdram_size > 0x80000000)
+			sdram_b1_size = 0x80000000;
+		else
+			sdram_b1_size = sdram_size;
+
+		if (rom_pointer[1]) {
+			/* We will relocate u-boot to top of dram1. TEE position has two cases:
+			 * 1. At the top of dram1,  Then return the size removed optee size.
+			 * 2. In the middle of dram1, return the size of dram1.
+			 */
+			if ((rom_pointer[0] + rom_pointer[1]) == (PHYS_SDRAM + sdram_b1_size))
+				return ((phys_addr_t)rom_pointer[0] - PHYS_SDRAM);
+		}
+
+		return sdram_b1_size;
+	} else {
+		return PHYS_SDRAM_SIZE;
+	}
+}
+
 void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
-	mac[0] = 0x1;
-	mac[1] = 0x2;
-	mac[2] = 0x3;
-	mac[3] = 0x4;
-	mac[4] = 0x5;
-	mac[5] = 0x6;
+	u32 val[2] = {};
+	int ret;
+
+	if (dev_id == 0) {
+		ret = fuse_read(39, 3, &val[0]);
+		if (ret)
+			goto err;
+
+		ret = fuse_read(39, 4, &val[1]);
+		if (ret)
+			goto err;
+
+		mac[0] = val[1] >> 8;
+		mac[1] = val[1];
+		mac[2] = val[0] >> 24;
+		mac[3] = val[0] >> 16;
+		mac[4] = val[0] >> 8;
+		mac[5] = val[0];
+
+	} else {
+		ret = fuse_read(39, 5, &val[0]);
+		if (ret)
+			goto err;
+
+		ret = fuse_read(39, 4, &val[1]);
+		if (ret)
+			goto err;
+
+		mac[0] = val[1] >> 24;
+		mac[1] = val[1] >> 16;
+		mac[2] = val[0] >> 24;
+		mac[3] = val[0] >> 16;
+		mac[4] = val[0] >> 8;
+		mac[5] = val[0];
+	}
+
+	debug("%s: MAC%d: %02x.%02x.%02x.%02x.%02x.%02x\n",
+	      __func__, dev_id, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	return;
+err:
+	memset(mac, 0, 6);
+	printf("%s: fuse read err: %d\n", __func__, ret);
 }
 
 int print_cpuinfo(void)
@@ -224,6 +523,18 @@ void get_board_serial(struct tag_serialnr *serialnr)
 }
 #endif
 
+static void save_reset_cause(void)
+{
+	struct src_general_regs *src = (struct src_general_regs *)SRC_GLOBAL_RBASE;
+	u32 srsr = readl(&src->srsr);
+
+	/* clear srsr in sec mode */
+	writel(srsr, &src->srsr);
+
+	/* Save value to GPR1 to pass to nonsecure */
+	writel(srsr, &src->gpr[0]);
+}
+
 int arch_cpu_init(void)
 {
 	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
@@ -233,6 +544,9 @@ int arch_cpu_init(void)
 		clock_init();
 
 		trdc_early_init();
+
+		/* Save SRC SRSR to GPR1 and clear it */
+		save_reset_cause();
 	}
 
 	return 0;
@@ -463,6 +777,48 @@ int m33_prepare(void)
 
 	/* Clear M33 TCM for ECC */
 	memset((void *)(ulong)0x201e0000, 0, 0x40000);
+
+	return 0;
+}
+
+int psci_sysreset_get_status(struct udevice *dev, char *buf, int size)
+{
+	static const char *reset_cause[] = {
+		"POR ",
+		"JTAG ",
+		"IPP USER ",
+		"WDOG1 ",
+		"WDOG2 ",
+		"WDOG3 ",
+		"WDOG4 ",
+		"WDOG5 ",
+		"TEMPSENSE ",
+		"CSU ",
+		"JTAG_SW ",
+		"M33_REQ ",
+		"M33_LOCKUP ",
+		"UNK ",
+		"UNK ",
+		"UNK "
+	};
+
+	struct src_general_regs *src = (struct src_general_regs *)SRC_GLOBAL_RBASE;
+	u32 srsr;
+	u32 i;
+	int res;
+
+	srsr = readl(&src->gpr[0]);
+
+	for (i = ARRAY_SIZE(reset_cause); i > 0; i--) {
+		if (srsr & (BIT(i - 1)))
+			break;
+	}
+
+	res = snprintf(buf, size, "Reset Status: %s\n", i ? reset_cause[i - 1] : "unknown reset");
+	if (res < 0) {
+		dev_err(dev, "Could not write reset status message (err = %d)\n", res);
+		return -EIO;
+	}
 
 	return 0;
 }

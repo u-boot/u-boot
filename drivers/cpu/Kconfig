@@ -7,6 +7,12 @@ config CPU
 	  they can work correctly in the OS. This provides a framework for
 	  finding out information about available CPUs and making changes.
 
+config CPU_IMX
+	bool "Enable i.MX CPU driver"
+	depends on CPU && ARM64
+	help
+	  Support CPU cores for SoCs of the i.MX series.
+
 config CPU_MPC83XX
 	bool "Enable MPC83xx CPU driver"
 	depends on CPU && MPC83xx

@@ -13,9 +13,21 @@
 #define DDR_PHY_BASE			0x4E100000
 #define DDRMIX_BLK_CTRL_BASE		0x4E010000
 
+#define REG_DDR_SDRAM_MD_CNTL	(DDR_CTL_BASE + 0x120)
+#define REG_DDR_CS0_BNDS        (DDR_CTL_BASE + 0x0)
+#define REG_DDR_CS1_BNDS        (DDR_CTL_BASE + 0x8)
 #define REG_DDRDSR_2			(DDR_CTL_BASE + 0xB24)
+#define REG_DDR_TIMING_CFG_0	(DDR_CTL_BASE + 0x104)
 #define REG_DDR_SDRAM_CFG		(DDR_CTL_BASE + 0x110)
+#define REG_DDR_TIMING_CFG_4	(DDR_CTL_BASE + 0x160)
 #define REG_DDR_DEBUG_19		(DDR_CTL_BASE + 0xF48)
+#define REG_DDR_SDRAM_CFG_3	(DDR_CTL_BASE + 0x260)
+#define REG_DDR_SDRAM_CFG_4	(DDR_CTL_BASE + 0x264)
+#define REG_DDR_SDRAM_MD_CNTL_2	(DDR_CTL_BASE + 0x270)
+#define REG_DDR_SDRAM_MPR4	(DDR_CTL_BASE + 0x28C)
+#define REG_DDR_SDRAM_MPR5	(DDR_CTL_BASE + 0x290)
+
+#define REG_DDR_ERR_EN		(DDR_CTL_BASE + 0x1000)
 
 #define SRC_BASE_ADDR			(0x44460000)
 #define SRC_DPHY_BASE_ADDR		(SRC_BASE_ADDR + 0x1400)
@@ -50,6 +62,12 @@ struct dram_cfg_param {
 	unsigned int val;
 };
 
+struct dram_fsp_cfg {
+	struct dram_cfg_param ddrc_cfg[20];
+	struct dram_cfg_param mr_cfg[10];
+	unsigned int bypass;
+};
+
 struct dram_fsp_msg {
 	unsigned int drate;
 	enum fw_type fw_type;
@@ -61,6 +79,9 @@ struct dram_timing_info {
 	/* umctl2 config */
 	struct dram_cfg_param *ddrc_cfg;
 	unsigned int ddrc_cfg_num;
+	/* fsp config */
+	struct dram_fsp_cfg *fsp_cfg;
+	unsigned int fsp_cfg_num;
 	/* ddrphy config */
 	struct dram_cfg_param *ddrphy_cfg;
 	unsigned int ddrphy_cfg_num;
@@ -84,7 +105,7 @@ int ddr_init(struct dram_timing_info *timing_info);
 int ddr_cfg_phy(struct dram_timing_info *timing_info);
 void load_lpddr4_phy_pie(void);
 void ddrphy_trained_csr_save(struct dram_cfg_param *param, unsigned int num);
-void dram_config_save(struct dram_timing_info *info, unsigned long base);
+void *dram_config_save(struct dram_timing_info *info, unsigned long base);
 void board_dram_ecc_scrub(void);
 void ddrc_inline_ecc_scrub(unsigned int start_address,
 			   unsigned int range_address);

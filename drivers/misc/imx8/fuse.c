@@ -7,7 +7,7 @@
 #include <console.h>
 #include <errno.h>
 #include <fuse.h>
-#include <asm/arch/sci/sci.h>
+#include <firmware/imx/sci/sci.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
 #include <linux/arm-smccc.h>

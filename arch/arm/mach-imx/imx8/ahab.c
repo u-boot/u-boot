@@ -9,7 +9,7 @@
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
-#include <asm/arch/sci/sci.h>
+#include <firmware/imx/sci/sci.h>
 #include <asm/mach-imx/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/arch/sys_proto.h>

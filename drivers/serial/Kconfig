@@ -966,6 +966,14 @@ config MSM_GENI_SERIAL
 	  Driver works in FIFO mode.
 	  Multiple baudrates supported.
 
+config MXS_AUART_SERIAL
+	bool "MXS AUART"
+	depends on DM_SERIAL
+	help
+	  Support for Freescale i.MX23 / i.MX28 AUART or Application UART IP.
+	  This IP is present in the aforementioned SoCs, however this is not
+	  the IP used to drive the Debug UART port, for that see PL01X_SERIAL .
+
 config OCTEON_SERIAL_BOOTCMD
 	bool "MIPS Octeon PCI remote bootcmd input"
 	depends on ARCH_OCTEON

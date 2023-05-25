@@ -61,6 +61,13 @@
 #define MXC_CPU_MX7ULP		0xE1 /* Temporally hard code */
 #define MXC_CPU_VF610		0xF6 /* dummy ID */
 #define MXC_CPU_IMX93		0xC1 /* dummy ID */
+#define MXC_CPU_IMX9351		0xC2 /* dummy ID */
+#define MXC_CPU_IMX9332		0xC3 /* dummy ID */
+#define MXC_CPU_IMX9331		0xC4 /* dummy ID */
+#define MXC_CPU_IMX9322		0xC5 /* dummy ID */
+#define MXC_CPU_IMX9321		0xC6 /* dummy ID */
+#define MXC_CPU_IMX9312		0xC7 /* dummy ID */
+#define MXC_CPU_IMX9311		0xC8 /* dummy ID */
 
 #define MXC_SOC_MX6		0x60
 #define MXC_SOC_MX7		0x70
