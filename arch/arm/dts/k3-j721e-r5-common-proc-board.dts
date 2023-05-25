@@ -8,6 +8,7 @@
 #include "k3-j721e-som-p0.dtsi"
 #include "k3-j721e-ddr-evm-lp4-4266.dtsi"
 #include "k3-j721e-ddr.dtsi"
+#include "k3-j721e-binman.dtsi"
 #include <dt-bindings/phy/phy-cadence.h>
 
 / {
