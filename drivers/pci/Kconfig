@@ -374,4 +374,11 @@ config PCIE_UNIPHIER
 	  Say Y here if you want to enable PCIe controller support on
 	  UniPhier SoCs.
 
+config PCIE_XILINX_NWL
+	bool "Xilinx NWL PCIe controller"
+	depends on ARCH_ZYNQMP
+	help
+	 Say 'Y' here if you want support for Xilinx / AMD NWL PCIe
+	 controller as Root Port.
+
 endif
