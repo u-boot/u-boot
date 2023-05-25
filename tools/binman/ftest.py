@@ -98,6 +98,7 @@ PRE_LOAD_MAGIC        = b'UBSH'
 PRE_LOAD_VERSION      = 0x11223344.to_bytes(4, 'big')
 PRE_LOAD_HDR_SIZE     = 0x00001000.to_bytes(4, 'big')
 TI_BOARD_CONFIG_DATA  = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+TI_UNSECURE_DATA      = b'unsecuredata'
 
 # Subdirectory of the input dir to use to put test FDTs
 TEST_FDT_SUBDIR       = 'fdts'
@@ -211,6 +212,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('fw_dynamic.bin', OPENSBI_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
         TestFunctional._MakeInputFile('rockchip-tpl.bin', ROCKCHIP_TPL_DATA)
+        TestFunctional._MakeInputFile('ti_unsecure.bin', TI_UNSECURE_DATA)
 
         # Add a few .dtb files for testing
         TestFunctional._MakeInputFile('%s/test-fdt1.dtb' % TEST_FDT_SUBDIR,
@@ -6696,6 +6698,56 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         with self.assertRaises(ValueError) as e:
             data = self._DoReadFile('279_ti_board_cfg_no_type.dts')
         self.assertIn("Schema validation error", str(e.exception))
+
+    def testPackTiSecure(self):
+        """Test that an image with a TI secured binary can be created"""
+        keyfile = self.TestFile('key.key')
+        entry_args = {
+            'keyfile': keyfile,
+        }
+        data = self._DoReadFileDtb('279_ti_secure.dts',
+                                   entry_args=entry_args)[0]
+        self.assertGreater(len(data), len(TI_UNSECURE_DATA))
+
+    def testPackTiSecureMissingTool(self):
+        """Test that an image with a TI secured binary (non-functional) can be created
+        when openssl is missing"""
+        keyfile = self.TestFile('key.key')
+        entry_args = {
+            'keyfile': keyfile,
+        }
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('279_ti_secure.dts',
+                             force_missing_bintools='openssl',
+                             entry_args=entry_args)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: openssl")
+
+    def testPackTiSecureROM(self):
+        """Test that a ROM image with a TI secured binary can be created"""
+        keyfile = self.TestFile('key.key')
+        entry_args = {
+            'keyfile': keyfile,
+        }
+        data = self._DoReadFileDtb('280_ti_secure_rom.dts',
+                                entry_args=entry_args)[0]
+        data_a = self._DoReadFileDtb('288_ti_secure_rom_a.dts',
+                                entry_args=entry_args)[0]
+        data_b = self._DoReadFileDtb('289_ti_secure_rom_b.dts',
+                                entry_args=entry_args)[0]
+        self.assertGreater(len(data), len(TI_UNSECURE_DATA))
+        self.assertGreater(len(data_a), len(TI_UNSECURE_DATA))
+        self.assertGreater(len(data_b), len(TI_UNSECURE_DATA))
+
+    def testPackTiSecureROMCombined(self):
+        """Test that a ROM image with a TI secured binary can be created"""
+        keyfile = self.TestFile('key.key')
+        entry_args = {
+            'keyfile': keyfile,
+        }
+        data = self._DoReadFileDtb('281_ti_secure_rom_combined.dts',
+                                entry_args=entry_args)[0]
+        self.assertGreater(len(data), len(TI_UNSECURE_DATA))
 
 if __name__ == "__main__":
     unittest.main()
