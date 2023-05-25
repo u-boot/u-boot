@@ -134,6 +134,32 @@
 #define HS_RX_CONTROL_OF_LANE_2				0x84
 #define HS_RX_CONTROL_OF_LANE_3				0x94
 
+#define DW_MIPI_NEEDS_PHY_CFG_CLK	BIT(0)
+#define DW_MIPI_NEEDS_GRF_CLK		BIT(1)
+
+#define RK3399_GRF_SOC_CON20		0x6250
+#define RK3399_DSI0_LCDC_SEL		BIT(0)
+#define RK3399_DSI1_LCDC_SEL		BIT(4)
+
+#define RK3399_GRF_SOC_CON22		0x6258
+#define RK3399_DSI0_TURNREQUEST		(0xf << 12)
+#define RK3399_DSI0_TURNDISABLE		(0xf << 8)
+#define RK3399_DSI0_FORCETXSTOPMODE	(0xf << 4)
+#define RK3399_DSI0_FORCERXMODE		(0xf << 0)
+
+#define RK3399_GRF_SOC_CON23		0x625c
+#define RK3399_DSI1_TURNDISABLE		(0xf << 12)
+#define RK3399_DSI1_FORCETXSTOPMODE	(0xf << 8)
+#define RK3399_DSI1_FORCERXMODE		(0xf << 4)
+#define RK3399_DSI1_ENABLE		(0xf << 0)
+
+#define RK3399_GRF_SOC_CON24		0x6260
+#define RK3399_TXRX_MASTERSLAVEZ	BIT(7)
+#define RK3399_TXRX_ENABLECLK		BIT(6)
+#define RK3399_TXRX_BASEDIR		BIT(5)
+#define RK3399_TXRX_SRC_SEL_ISP0	BIT(4)
+#define RK3399_TXRX_TURNREQUEST		GENMASK(3, 0)
+
 #define RK3568_GRF_VO_CON2		0x0368
 #define RK3568_DSI0_SKEWCALHS		(0x1f << 11)
 #define RK3568_DSI0_FORCETXSTOPMODE	(0xf << 4)
@@ -209,6 +235,8 @@ struct dw_rockchip_dsi_priv {
 
 	struct clk *pclk;
 	struct clk *ref;
+	struct clk *grf_clk;
+	struct clk *phy_cfg_clk;
 	struct reset_ctl *rst;
 	unsigned int lane_mbps; /* per lane */
 	u16 input_div;
@@ -844,6 +872,28 @@ static int dw_mipi_dsi_rockchip_probe(struct udevice *dev)
 		}
 	}
 
+	if (cdata->flags & DW_MIPI_NEEDS_PHY_CFG_CLK) {
+		priv->phy_cfg_clk = devm_clk_get(dev, "phy_cfg");
+		if (IS_ERR(priv->phy_cfg_clk)) {
+			ret = PTR_ERR(priv->phy_cfg_clk);
+			dev_err(dev, "phy_cfg_clk clock get error %d\n", ret);
+			return ret;
+		}
+
+		clk_enable(priv->phy_cfg_clk);
+	}
+
+	if (cdata->flags & DW_MIPI_NEEDS_GRF_CLK) {
+		priv->grf_clk = devm_clk_get(dev, "grf");
+		if (IS_ERR(priv->grf_clk)) {
+			ret = PTR_ERR(priv->grf_clk);
+			dev_err(dev, "grf_clk clock get error %d\n", ret);
+			return ret;
+		}
+
+		clk_enable(priv->grf_clk);
+	}
+
 	priv->rst = devm_reset_control_get_by_index(device->dev, 0);
 	if (IS_ERR(priv->rst)) {
 		ret = PTR_ERR(priv->rst);
@@ -862,6 +912,52 @@ static int dw_mipi_dsi_rockchip_probe(struct udevice *dev)
 struct video_bridge_ops dw_mipi_dsi_rockchip_ops = {
 	.attach = dw_mipi_dsi_rockchip_attach,
 	.set_backlight = dw_mipi_dsi_rockchip_set_bl,
+};
+
+static const struct rockchip_dw_dsi_chip_data rk3399_chip_data[] = {
+	{
+		.reg = 0xff960000,
+		.lcdsel_grf_reg = RK3399_GRF_SOC_CON20,
+		.lcdsel_big = HIWORD_UPDATE(0, RK3399_DSI0_LCDC_SEL),
+		.lcdsel_lit = HIWORD_UPDATE(RK3399_DSI0_LCDC_SEL,
+					    RK3399_DSI0_LCDC_SEL),
+
+		.lanecfg1_grf_reg = RK3399_GRF_SOC_CON22,
+		.lanecfg1 = HIWORD_UPDATE(0, RK3399_DSI0_TURNREQUEST |
+					     RK3399_DSI0_TURNDISABLE |
+					     RK3399_DSI0_FORCETXSTOPMODE |
+					     RK3399_DSI0_FORCERXMODE),
+
+		.flags = DW_MIPI_NEEDS_PHY_CFG_CLK | DW_MIPI_NEEDS_GRF_CLK,
+		.max_data_lanes = 4,
+	},
+	{
+		.reg = 0xff968000,
+		.lcdsel_grf_reg = RK3399_GRF_SOC_CON20,
+		.lcdsel_big = HIWORD_UPDATE(0, RK3399_DSI1_LCDC_SEL),
+		.lcdsel_lit = HIWORD_UPDATE(RK3399_DSI1_LCDC_SEL,
+					    RK3399_DSI1_LCDC_SEL),
+
+		.lanecfg1_grf_reg = RK3399_GRF_SOC_CON23,
+		.lanecfg1 = HIWORD_UPDATE(0, RK3399_DSI1_TURNDISABLE |
+					     RK3399_DSI1_FORCETXSTOPMODE |
+					     RK3399_DSI1_FORCERXMODE |
+					     RK3399_DSI1_ENABLE),
+
+		.lanecfg2_grf_reg = RK3399_GRF_SOC_CON24,
+		.lanecfg2 = HIWORD_UPDATE(RK3399_TXRX_MASTERSLAVEZ |
+					  RK3399_TXRX_ENABLECLK,
+					  RK3399_TXRX_MASTERSLAVEZ |
+					  RK3399_TXRX_ENABLECLK |
+					  RK3399_TXRX_BASEDIR),
+
+		.enable_grf_reg = RK3399_GRF_SOC_CON23,
+		.enable = HIWORD_UPDATE(RK3399_DSI1_ENABLE, RK3399_DSI1_ENABLE),
+
+		.flags = DW_MIPI_NEEDS_PHY_CFG_CLK | DW_MIPI_NEEDS_GRF_CLK,
+		.max_data_lanes = 4,
+	},
+	{ /* sentinel */ }
 };
 
 static const struct rockchip_dw_dsi_chip_data rk3568_chip_data[] = {
@@ -887,6 +983,9 @@ static const struct rockchip_dw_dsi_chip_data rk3568_chip_data[] = {
 };
 
 static const struct udevice_id dw_mipi_dsi_rockchip_dt_ids[] = {
+	{ .compatible = "rockchip,rk3399-mipi-dsi",
+	  .data = (long)&rk3399_chip_data,
+	},
 	{ .compatible = "rockchip,rk3568-mipi-dsi",
 	  .data = (long)&rk3568_chip_data,
 	},
