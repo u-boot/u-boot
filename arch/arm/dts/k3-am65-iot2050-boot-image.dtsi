@@ -26,9 +26,81 @@
 			missing-msg = "iot2050-seboot";
 		};
 
-		blob@0x180000 {
+		fit@0x180000 {
 			offset = <0x180000>;
-			filename = "tispl.bin";
+			pad-byte = <0xff>;
+			description = "Configuration to load ATF and SPL";
+
+			images {
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					os = "arm-trusted-firmware";
+					load = <CONFIG_K3_ATF_LOAD_ADDR>;
+					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
+					atf: atf-bl31 {
+					};
+				};
+
+				tee {
+					description = "OPTEE";
+					type = "tee";
+					arch = "arm64";
+					compression = "none";
+					os = "tee";
+					load = <0x9e800000>;
+					entry = <0x9e800000>;
+					tee: tee-os {
+					};
+				};
+
+				dm {
+					description = "DM binary";
+					type = "firmware";
+					arch = "arm32";
+					compression = "none";
+					os = "DM";
+					load = <0x89000000>;
+					entry = <0x89000000>;
+					blob-ext {
+						filename = "/dev/null";
+					};
+				};
+
+				spl {
+					description = "SPL (64-bit)";
+					type = "standalone";
+					os = "U-Boot";
+					arch = "arm64";
+					compression = "none";
+					load = <CONFIG_SPL_TEXT_BASE>;
+					entry = <CONFIG_SPL_TEXT_BASE>;
+					u_boot_spl_nodtb: blob-ext {
+						filename = "spl/u-boot-spl-nodtb.bin";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am65-iot2050-spl.dtb";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					spl_am65x_evm_dtb: blob-ext {
+						filename = "spl/dts/k3-am65-iot2050-spl.dtb";
+					};
+				};
+			};
+
+			configurations {
+				default = "spl";
+				spl {
+					fdt = "fdt-0";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+				};
+			};
 		};
 
 		fit@0x380000 {

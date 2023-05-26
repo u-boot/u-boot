@@ -4,6 +4,8 @@
  * Copyright (C) 2021-2022 Texas Instruments Incorporated - https://www.ti.com/
  */
 
+#include "k3-am625-sk-binman.dtsi"
+
 / {
 	chosen {
 		stdout-path = "serial2:115200n8";
