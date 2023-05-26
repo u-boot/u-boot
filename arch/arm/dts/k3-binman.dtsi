@@ -1,0 +1,116 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+/ {
+	binman: binman {
+		multiple-images;
+	};
+};
+
+&binman {
+	custMpk {
+		filename = "custMpk.pem";
+		blob-ext {
+			filename = "../keys/custMpk.pem";
+		};
+	};
+
+	ti-degenerate-key {
+		filename = "ti-degenerate-key.pem";
+		blob-ext {
+			filename = "../keys/ti-degenerate-key.pem";
+		};
+	};
+};
+
+#ifndef CONFIG_ARM64
+
+&binman {
+	board-cfg {
+		filename = "board-cfg.bin";
+		bcfg_yaml: ti-board-config {
+			config = "board-cfg.yaml";
+			schema = "../common/schema.yaml";
+		};
+	};
+	pm-cfg {
+		filename = "pm-cfg.bin";
+		rcfg_yaml: ti-board-config {
+			config = "pm-cfg.yaml";
+			schema = "../common/schema.yaml";
+		};
+	};
+	rm-cfg {
+		filename = "rm-cfg.bin";
+		pcfg_yaml: ti-board-config {
+			config = "rm-cfg.yaml";
+			schema = "../common/schema.yaml";
+		};
+	};
+	sec-cfg {
+		filename = "sec-cfg.bin";
+		scfg_yaml: ti-board-config {
+			config = "sec-cfg.yaml";
+			schema = "../common/schema.yaml";
+		};
+	};
+	combined-tifs-cfg {
+		filename = "combined-tifs-cfg.bin";
+		ti-board-config {
+			bcfg_yaml_tifs: board-cfg {
+				config = "board-cfg.yaml";
+				schema = "../common/schema.yaml";
+			};
+			scfg_yaml_tifs: sec-cfg {
+				config = "sec-cfg.yaml";
+				schema = "../common/schema.yaml";
+			};
+			pcfg_yaml_tifs: pm-cfg {
+				config = "pm-cfg.yaml";
+				schema = "../common/schema.yaml";
+			};
+			rcfg_yaml_tifs: rm-cfg {
+				config = "rm-cfg.yaml";
+				schema = "../common/schema.yaml";
+			};
+		};
+	};
+	combined-dm-cfg {
+		filename = "combined-dm-cfg.bin";
+		ti-board-config {
+			pcfg_yaml_dm: pm-cfg {
+				config = "pm-cfg.yaml";
+				schema = "../common/schema.yaml";
+			};
+			rcfg_yaml_dm: rm-cfg {
+				config = "rm-cfg.yaml";
+				schema = "../common/schema.yaml";
+			};
+		};
+	};
+	combined-sysfw-cfg {
+		filename = "combined-sysfw-cfg.bin";
+		ti-board-config {
+			board-cfg {
+				config = "board-cfg.yaml";
+				schema = "../common/schema.yaml";
+			};
+			sec-cfg {
+				config = "sec-cfg.yaml";
+				schema = "../common/schema.yaml";
+			};
+			pm-cfg {
+				config = "pm-cfg.yaml";
+				schema = "../common/schema.yaml";
+			};
+			rm-cfg {
+				config = "rm-cfg.yaml";
+				schema = "../common/schema.yaml";
+			};
+		};
+	};
+};
+
+#endif
