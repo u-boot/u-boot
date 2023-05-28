@@ -27,10 +27,6 @@ struct spl_fit_info {
 	int conf_node;		/* FDT offset to selected configuration node */
 };
 
-__weak void board_spl_fit_post_load(const void *fit)
-{
-}
-
 __weak ulong board_spl_fit_size_align(ulong size)
 {
 	return size;
@@ -828,9 +824,6 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 		spl_image->entry_point = spl_image->load_addr;
 
 	spl_image->flags |= SPL_FIT_FOUND;
-
-	if (IS_ENABLED(CONFIG_IMX_HAB))
-		board_spl_fit_post_load(ctx.fit);
 
 	return 0;
 }

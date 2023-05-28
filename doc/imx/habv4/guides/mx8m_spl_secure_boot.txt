@@ -79,18 +79,16 @@ code within it:
 
 The diagram below illustrate a signed U-Boot binary, DT blob and external
 ATF BL31 blob combined to form fitImage part of flash.bin container layout.
-The *load_address is derived from CONFIG_TEXT_BASE such that the U-Boot
-binary *start is placed exactly at CONFIG_SPL_TEXT_BASE in DRAM, however the
-SPL moves the fitImage tree further to location:
- *load_address = CONFIG_SPL_TEXT_BASE - CONFIG_FIT_EXTERNAL_OFFSET (=12kiB) -
-                 512 Byte sector - sizeof(mkimage header)
+The *load_address is CONFIG_SPL_LOAD_FIT_ADDRESS, the fitImage is loaded
+including all of its embedded data, authenticated using IVT+CSF concatenated
+at the end of the fitImage at offset aligned to 4 kiB. The fitImage with
+external data is not supported.
 
             ------- +-----------------------------+ <-- *load_address
                 ^   |                             |
                 |   |        fitImage tree        |
-                |   |    with external data at    |
-                |   |   offset 12 kiB from tree   |
-                |   |        (cca. 1 kiB)         |
+                |   |      with embedded data     |
+                |   |        (cca. 1 MiB)         |
          Signed |   |                             |
   .-----  Tree  |   +-----------------------------+
   |       Data  |   | Padding to next 4k aligned  |
@@ -101,34 +99,9 @@ SPL moves the fitImage tree further to location:
   |         ------- +-----------------------------+ <-- *csf
   |                 | Command Sequence File (CSF) |
   |                 |  for all signed entries in  |
-   >--------------->| the fitImage, tree and data |
-  |                 |        (cca 6-7 kiB)        |
-  |                 +-----------------------------+
-  |                 |  Padding to 12 kiB offset   |
-  |                 |     from *load_address      |
-  |         ------- +-----------------------------+ <-- *start
-  |             ^   |                             |
-  |      Signed |   |                             |
-  |---- Payload |   |  U-Boot external data blob  |
-  |       Data  |   |                             |
-  |             v   |                             |
-  |         ------- +-----------------------------+
-  |                 |     Padding to 4 Bytes      |
-  |         ------- +-----------------------------+
-  |             ^   |                             |
-  |      Signed |   |                             |
-  |---- Payload |   |    ATF external data blob   |
-  |       Data  |   |                             |
-  |             v   |                             |
-  |         ------- +-----------------------------+
-  |                 |     Padding to 4 Bytes      |
-  |         ------- +-----------------------------+
-  |             ^   |                             |
-  |      Signed |   |                             |
-  '---- Payload |   |    DTB external data blob   |
-          Data  |   |                             |
-                v   |                             |
-            ------- +-----------------------------+
+  '---------------->| the fitImage, tree and data |
+                    |        (cca 6-7 kiB)        |
+                    +-----------------------------+
 
 The diagram below illustrate a combined flash.bin container layout:
 
@@ -202,29 +175,11 @@ dd if=csf_spl.bin of=flash.bin bs=1 seek=${spl_dd_offset} conv=notrunc
 
 CSF "Blocks" line for csf_fit.txt can be generated as follows:
 ```
-# fitImage tree
-fit_block_base=$(printf "0x%x" $(( $(sed -n "/CONFIG_TEXT_BASE=/ s@.*=@@p" .config) - $(sed -n "/CONFIG_FIT_EXTERNAL_OFFSET=/ s@.*=@@p" .config) - 0x200 - 0x40)) )
+# fitImage
+fit_block_base=$(printf "0x%x" $(sed -n "/CONFIG_SPL_LOAD_FIT_ADDRESS=/ s@.*=@@p" .config) )
 fit_block_offset=$(printf "0x%s" $(fdtget -t x u-boot.dtb /binman/imx-boot/uboot offset))
-fit_block_size=$(printf "0x%x" $(( ( $(fdtdump u-boot.itb 2>/dev/null | sed -n "/^...totalsize:/ s@.*\(0x[0-9a-f]\+\).*@\1@p") + 0x1000 - 0x1 ) & ~(0x1000 - 0x1) + 0x20 )) )
-sed -i "/Blocks = / s@.*@  Blocks = $fit_block_base $fit_block_offset $fit_block_size \"flash.bin\", \\\\@" csf_fit.tmp
-
-# U-Boot
-uboot_block_base=$(printf "0x%s" $(fdtget -t x u-boot.itb /images/uboot load))
-uboot_block_offset=$(printf "0x%x" $(( $(printf "0x%s" $(fdtget -t x u-boot.itb /images/uboot data-position)) + ${fit_block_offset} )))
-uboot_block_size=$(printf "0x%s" $(fdtget -t x u-boot.itb /images/uboot data-size))
-sed -i "/0xuuuu/ s@.*@           $uboot_block_base $uboot_block_offset $uboot_block_size \"flash.bin\", \\\\@" csf_fit.tmp
-
-# ATF
-atf_block_base=$(printf "0x%s" $(fdtget -t x u-boot.itb /images/atf load))
-atf_block_offset=$(printf "0x%x" $(( $(printf "0x%s" $(fdtget -t x u-boot.itb /images/atf data-position)) + ${fit_block_offset} )))
-atf_block_size=$(printf "0x%s" $(fdtget -t x u-boot.itb /images/atf data-size))
-sed -i "/0xaaaa/ s@.*@           $atf_block_base $atf_block_offset $atf_block_size \"flash.bin\", \\\\@" csf_fit.tmp
-
-# DTB
-dtb_block_base=$(printf "0x%x" $(( ${uboot_block_base} + ${uboot_block_size} )))
-dtb_block_offset=$(printf "0x%x" $(( $(printf "0x%s" $(fdtget -t x u-boot.itb /images/fdt-1 data-position)) + ${fit_block_offset} )))
-dtb_block_size=$(printf "0x%s" $(fdtget -t x u-boot.itb /images/fdt-1 data-size))
-sed -i "/0xdddd/ s@.*@           $dtb_block_base $dtb_block_offset $dtb_block_size \"flash.bin\"@" csf_fit.tmp
+fit_block_size=$(printf "0x%x" $(( ( ( $(stat -tc %s u-boot.itb) + 0x1000 - 0x1 ) & ~(0x1000 - 0x1)) + 0x20 )) )
+sed -i "/Blocks = / s@.*@  Blocks = $fit_block_base $fit_block_offset $fit_block_size \"flash.bin\"@" csf_fit.tmp
 ```
 
 The fitImage part of flash.bin requires separate IVT. Generate the IVT and
@@ -237,8 +192,9 @@ csf_block_base=$(printf "%08x" $(( ${fit_block_base} + ${fit_block_size} )) | se
 ivt_block_offset=$((${fit_block_offset} + ${fit_block_size} - 0x20))
 csf_block_offset=$((${ivt_block_offset} + 0x20))
 
-echo "0xd1002041 ${ivt_ptr_base} 0x00000000 0x00000000 0x00000000 ${ivt_block_base} ${csf_block_base} 0x00000000" | xxd -r -p > ivt.bin
+echo "0xd1002041 ${ivt_block_base} 0x00000000 0x00000000 0x00000000 ${ivt_block_base} ${csf_block_base} 0x00000000" | xxd -r -p > ivt.bin
 dd if=ivt.bin of=flash.bin bs=1 seek=${ivt_block_offset} conv=notrunc
+```
 
 To generate CSF signature for the fitImage part of flash.bin container, use CST:
 ```
