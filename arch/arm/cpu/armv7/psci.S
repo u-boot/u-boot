@@ -311,11 +311,11 @@ ENTRY(psci_cpu_entry)
 	bl	psci_arch_cpu_entry
 
 	bl	psci_get_cpu_id			@ CPU ID => r0
-	mov	r2, r0				@ CPU ID => r2
 	bl	psci_get_context_id		@ context id => r0
-	mov	r1, r0				@ context id => r1
-	mov	r0, r2				@ CPU ID => r0
+	push	{r0}				@ save context id
+	bl	psci_get_cpu_id			@ CPU ID => r0
 	bl	psci_get_target_pc		@ target PC => r0
+	pop	{r1}				@ context id => r1
 	b	_do_nonsec_entry
 ENDPROC(psci_cpu_entry)
 
