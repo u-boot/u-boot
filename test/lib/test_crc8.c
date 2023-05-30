@@ -5,6 +5,7 @@
  * Unit test for crc8
  */
 
+#include <errno.h>
 #include <test/lib.h>
 #include <test/ut.h>
 #include <u-boot/crc.h>
