@@ -185,12 +185,10 @@
 
 &usb3_0 {
 	dma-ranges = <0x40000000 0x40000000 0xc0000000>;
-	/delete-property/ power-domains;
 };
 
 &usb3_1 {
 	dma-ranges = <0x40000000 0x40000000 0xc0000000>;
-	/delete-property/ power-domains;
 };
 
 &usb_dwc3_0 {
