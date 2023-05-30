@@ -7,6 +7,14 @@ F:      configs/evb-rk3568_defconfig
 F:	arch/arm/dts/rk3568-evb-boot.dtsi
 F:	arch/arm/dts/rk3568-evb.dts
 
+NANOPI-R5S
+M:      Tianling Shen <cnsztl@gmail.com>
+S:      Maintained
+F:      configs/nanopi-r5s-rk3568_defconfig
+F:      arch/arm/dts/rk3568-nanopi-r5s.dts
+F:      arch/arm/dts/rk3568-nanopi-r5s.dtsi
+F:      arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi
+
 RADXA-CM3
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
