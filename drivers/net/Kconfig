@@ -695,6 +695,7 @@ config SUN8I_EMAC
 config SH_ETHER
 	bool "Renesas SH Ethernet MAC"
 	select PHYLIB
+	select PHY_ETHERNET_ID
 	help
 	  This driver supports the Ethernet for Renesas SH and ARM SoCs.
 
