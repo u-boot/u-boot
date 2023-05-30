@@ -44,6 +44,9 @@
 
 &aips3 {
 	bootph-pre-ram;
+	spba-bus@30800000 {
+		bootph-pre-ram;
+	};
 };
 
 &iomuxc {
