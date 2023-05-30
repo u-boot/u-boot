@@ -812,8 +812,8 @@ struct phy_device *phy_find_by_mask(struct mii_dev *bus, uint phy_mask)
 	return get_phy_device_by_mask(bus, phy_mask);
 }
 
-void phy_connect_dev(struct phy_device *phydev, struct udevice *dev,
-		     phy_interface_t interface)
+static void phy_connect_dev(struct phy_device *phydev, struct udevice *dev,
+			    phy_interface_t interface)
 {
 	/* Soft Reset the PHY */
 	phy_reset(phydev);
