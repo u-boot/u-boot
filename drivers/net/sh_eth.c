@@ -601,13 +601,10 @@ static int sh_eth_phy_config(struct udevice *dev)
 	int ret = 0;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 	struct phy_device *phydev;
-	int mask = 0xffffffff;
 
-	phydev = phy_find_by_mask(priv->bus, mask);
+	phydev = phy_connect(priv->bus, -1, dev, pdata->phy_interface);
 	if (!phydev)
 		return -ENODEV;
-
-	phy_connect_dev(phydev, dev, pdata->phy_interface);
 
 	port_info->phydev = phydev;
 	phy_config(phydev);
