@@ -7,6 +7,13 @@ F:      configs/evb-rk3568_defconfig
 F:	arch/arm/dts/rk3568-evb-boot.dtsi
 F:	arch/arm/dts/rk3568-evb.dts
 
+NANOPI-R5C
+M:      Tianling Shen <cnsztl@gmail.com>
+S:      Maintained
+F:      configs/nanopi-r5c-rk3568_defconfig
+F:      arch/arm/dts/rk3568-nanopi-r5c.dts
+F:      arch/arm/dts/rk3568-nanopi-r5c-u-boot.dtsi
+
 NANOPI-R5S
 M:      Tianling Shen <cnsztl@gmail.com>
 S:      Maintained
