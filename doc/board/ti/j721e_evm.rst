@@ -268,6 +268,49 @@ Image formats:
                 | +-------------------+ |
                 +-----------------------+
 
+R5 Memory Map:
+--------------
+
+.. list-table::
+   :widths: 16 16 16
+   :header-rows: 1
+
+   * - Region
+     - Start Address
+     - End Address
+
+   * - SPL
+     - 0x41c00000
+     - 0x41c40000
+
+   * - EMPTY
+     - 0x41c40000
+     - 0x41c81920
+
+   * - STACK
+     - 0x41c85920
+     - 0x41c81920
+
+   * - Global data
+     - 0x41c859f0
+     - 0x41c85920
+
+   * - Heap
+     - 0x41c859f0
+     - 0x41cf59f0
+
+   * - BSS
+     - 0x41cf59f0
+     - 0x41cff9f0
+
+   * - MCU Scratchpad
+     - 0x41cff9fc
+     - 0x41cffbfc
+
+   * - ROM DATA
+     - 0x41cffbfc
+     - 0x41cfffff
+
 OSPI:
 -----
 ROM supports booting from OSPI from offset 0x0.

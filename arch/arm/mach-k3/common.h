@@ -41,3 +41,4 @@ enum k3_device_type get_device_type(void);
 void ti_secure_image_post_process(void **p_image, size_t *p_size);
 struct ti_sci_handle *get_ti_sci_handle(void);
 void do_board_detect(void);
+void ti_secure_image_check_binary(void **p_image, size_t *p_size);
