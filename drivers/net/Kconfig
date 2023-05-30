@@ -764,6 +764,7 @@ config RENESAS_RAVB
 	bool "Renesas Ethernet AVB MAC"
 	depends on RCAR_64
 	select PHYLIB
+	select PHY_ETHERNET_ID
 	help
 	  This driver implements support for the Ethernet AVB block in
 	  Renesas M3 and H3 SoCs.
