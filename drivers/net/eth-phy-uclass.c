@@ -147,7 +147,7 @@ static int eth_phy_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
-void eth_phy_reset(struct udevice *dev, int value)
+static void eth_phy_reset(struct udevice *dev, int value)
 {
 	struct eth_phy_device_priv *uc_priv = dev_get_uclass_priv(dev);
 	u32 delay;
