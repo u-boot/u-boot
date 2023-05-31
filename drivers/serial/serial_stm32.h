@@ -66,6 +66,7 @@ struct stm32x7_serial_plat {
 #define USART_CR3_OVRDIS		BIT(12)
 
 #define USART_ISR_TXE			BIT(7)
+#define USART_ISR_TC			BIT(6)
 #define USART_ISR_RXNE			BIT(5)
 #define USART_ISR_ORE			BIT(3)
 #define USART_ISR_FE			BIT(1)

@@ -18,6 +18,7 @@
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
+#include <linux/iopoll.h>
 #include "serial_stm32.h"
 #include <dm/device_compat.h>
 
@@ -181,9 +182,12 @@ static int stm32_serial_probe(struct udevice *dev)
 	struct stm32x7_serial_plat *plat = dev_get_plat(dev);
 	struct clk clk;
 	struct reset_ctl reset;
+	u32 isr;
 	int ret;
+	bool stm32f4;
 
 	plat->uart_info = (struct stm32_uart_info *)dev_get_driver_data(dev);
+	stm32f4 = plat->uart_info->stm32f4;
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0)
@@ -192,6 +196,17 @@ static int stm32_serial_probe(struct udevice *dev)
 	ret = clk_enable(&clk);
 	if (ret) {
 		dev_err(dev, "failed to enable clock\n");
+		return ret;
+	}
+
+	/*
+	 * before uart initialization, wait for TC bit (Transmission Complete)
+	 * in case there is still chars from previous bootstage to transmit
+	 */
+	ret = read_poll_timeout(readl, isr, isr & USART_ISR_TC, 10, 150,
+				plat->base + ISR_OFFSET(stm32f4));
+	if (ret) {
+		clk_disable(&clk);
 		return ret;
 	}
 
