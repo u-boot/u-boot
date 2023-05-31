@@ -58,7 +58,7 @@ static void ldpaa_eth_collect_dpni_stats(struct udevice *dev, u64 *data)
 			continue;
 		err = dpni_get_statistics(dflt_mc_io, MC_CMD_NO_FLAGS,
 					  dflt_dpni->dpni_handle,
-					  j, &dpni_stats);
+					  j, 0, &dpni_stats);
 		if (err) {
 			memset(&dpni_stats, 0, sizeof(dpni_stats));
 			printf("dpni_get_stats(%d) failed\n", j);
@@ -378,7 +378,8 @@ static int ldpaa_eth_open(struct udevice *dev)
 	struct dpni_link_state link_state;
 #endif
 	int err = 0;
-	struct dpni_queue d_queue;
+	struct dpni_queue d_queue_cfg = { 0 };
+	struct dpni_queue_id d_queue;
 
 	if (eth_is_active(dev))
 		return 0;
@@ -422,7 +423,7 @@ static int ldpaa_eth_open(struct udevice *dev)
 		goto err_dpni_bind;
 
 	err = dpni_add_mac_addr(dflt_mc_io, MC_CMD_NO_FLAGS,
-				dflt_dpni->dpni_handle, plat->enetaddr);
+				dflt_dpni->dpni_handle, plat->enetaddr, 0, 0, 0);
 	if (err) {
 		printf("dpni_add_mac_addr() failed\n");
 		return err;
@@ -461,7 +462,7 @@ static int ldpaa_eth_open(struct udevice *dev)
 	memset(&d_queue, 0, sizeof(struct dpni_queue));
 	err = dpni_get_queue(dflt_mc_io, MC_CMD_NO_FLAGS,
 			     dflt_dpni->dpni_handle, DPNI_QUEUE_RX,
-			     0, 0, &d_queue);
+			     0, 0, &d_queue_cfg, &d_queue);
 	if (err) {
 		printf("dpni_get_queue failed\n");
 		goto err_get_queue;
@@ -470,7 +471,7 @@ static int ldpaa_eth_open(struct udevice *dev)
 	priv->rx_dflt_fqid = d_queue.fqid;
 
 	err = dpni_get_qdid(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpni->dpni_handle,
-			    &priv->tx_qdid);
+			    DPNI_QUEUE_TX, &priv->tx_qdid);
 	if (err) {
 		printf("dpni_get_qdid() failed\n");
 		goto err_qdid;
@@ -845,7 +846,7 @@ static int ldpaa_dpni_setup(struct ldpaa_eth_priv *priv)
 	/* ...rx, ... */
 	err = dpni_set_buffer_layout(dflt_mc_io, MC_CMD_NO_FLAGS,
 				     dflt_dpni->dpni_handle,
-				     &dflt_dpni->buf_layout, DPNI_QUEUE_RX);
+				     DPNI_QUEUE_RX, &dflt_dpni->buf_layout);
 	if (err) {
 		printf("dpni_set_buffer_layout() failed");
 		goto err_buf_layout;
@@ -857,7 +858,7 @@ static int ldpaa_dpni_setup(struct ldpaa_eth_priv *priv)
 				      DPNI_BUF_LAYOUT_OPT_PARSER_RESULT);
 	err = dpni_set_buffer_layout(dflt_mc_io, MC_CMD_NO_FLAGS,
 				     dflt_dpni->dpni_handle,
-				     &dflt_dpni->buf_layout, DPNI_QUEUE_TX);
+				     DPNI_QUEUE_TX, &dflt_dpni->buf_layout);
 	if (err) {
 		printf("dpni_set_buffer_layout() failed");
 		goto err_buf_layout;
@@ -867,8 +868,7 @@ static int ldpaa_dpni_setup(struct ldpaa_eth_priv *priv)
 	dflt_dpni->buf_layout.options &= ~DPNI_BUF_LAYOUT_OPT_PRIVATE_DATA_SIZE;
 	err = dpni_set_buffer_layout(dflt_mc_io, MC_CMD_NO_FLAGS,
 				     dflt_dpni->dpni_handle,
-				     &dflt_dpni->buf_layout,
-				     DPNI_QUEUE_TX_CONFIRM);
+				     DPNI_QUEUE_TX_CONFIRM, &dflt_dpni->buf_layout);
 	if (err) {
 		printf("dpni_set_buffer_layout() failed");
 		goto err_buf_layout;
@@ -923,7 +923,7 @@ static int ldpaa_dpni_bind(struct ldpaa_eth_priv *priv)
 
 	err = dpni_set_queue(dflt_mc_io, MC_CMD_NO_FLAGS,
 			     dflt_dpni->dpni_handle,
-			     DPNI_QUEUE_TX, 0, 0, &tx_queue);
+			     DPNI_QUEUE_TX, 0, 0, 0, &tx_queue);
 
 	if (err) {
 		printf("dpni_set_queue() failed\n");
@@ -932,7 +932,7 @@ static int ldpaa_dpni_bind(struct ldpaa_eth_priv *priv)
 
 	err = dpni_set_tx_confirmation_mode(dflt_mc_io, MC_CMD_NO_FLAGS,
 					    dflt_dpni->dpni_handle,
-					    DPNI_CONF_DISABLE);
+					    0, DPNI_CONF_DISABLE);
 	if (err) {
 		printf("dpni_set_tx_confirmation_mode() failed\n");
 		return err;
