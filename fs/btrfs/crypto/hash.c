@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 
+#include <asm/unaligned.h>
 #include <linux/xxhash.h>
-#include <linux/unaligned/access_ok.h>
 #include <linux/types.h>
 #include <u-boot/sha256.h>
 #include <u-boot/blake2.h>
