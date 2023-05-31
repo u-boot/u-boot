@@ -83,29 +83,6 @@ enum mc_cmd_status {
 	((enum mc_cmd_status)mc_dec((_hdr), \
 		MC_CMD_HDR_STATUS_O, MC_CMD_HDR_STATUS_S))
 
-#define MC_CMD_HDR_READ_TOKEN(_hdr) \
-	((uint16_t)mc_dec((_hdr), MC_CMD_HDR_TOKEN_O, MC_CMD_HDR_TOKEN_S))
-
-#define MC_PREP_OP(_ext, _param, _offset, _width, _type, _arg) \
-	((_ext)[_param] |= cpu_to_le64(mc_enc((_offset), (_width), _arg)))
-
-#define MC_EXT_OP(_ext, _param, _offset, _width, _type, _arg) \
-	(_arg = (_type)mc_dec(cpu_to_le64(_ext[_param]), (_offset), (_width)))
-
-#define MC_CMD_OP(_cmd, _param, _offset, _width, _type, _arg) \
-	((_cmd).params[_param] |= mc_enc((_offset), (_width), _arg))
-
-#define MC_RSP_OP(_cmd, _param, _offset, _width, _type, _arg) \
-	(_arg = (_type)mc_dec(_cmd.params[_param], (_offset), (_width)))
-
-/*                cmd, param, offset, width, type, arg_name */
-#define MC_CMD_READ_OBJ_ID(cmd, obj_id) \
-	MC_RSP_OP(cmd, 0, 0,  32,  uint32_t,	    obj_id)
-
-/* cmd, param, offset, width, type, arg_name */
-#define CMD_DESTROY_SET_OBJ_ID_PARAM0(cmd, object_id) \
-	MC_CMD_OP(cmd, 0, 0,  32,  uint32_t,  object_id)
-
 static inline uint64_t mc_encode_cmd_header(uint16_t cmd_id,
 					    uint32_t cmd_flags,
 					    uint16_t token)
