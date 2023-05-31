@@ -123,21 +123,6 @@ int dpio_disable(struct fsl_mc_io *mc_io,
 	return mc_send_command(mc_io, &cmd);
 }
 
-int dpio_reset(struct fsl_mc_io *mc_io,
-	       uint32_t cmd_flags,
-	       uint16_t token)
-{
-	struct mc_command cmd = { 0 };
-
-	/* prepare command */
-	cmd.header = mc_encode_cmd_header(DPIO_CMDID_RESET,
-					  cmd_flags,
-					  token);
-
-	/* send command to mc*/
-	return mc_send_command(mc_io, &cmd);
-}
-
 int dpio_get_attributes(struct fsl_mc_io *mc_io,
 			uint32_t cmd_flags,
 			uint16_t token,

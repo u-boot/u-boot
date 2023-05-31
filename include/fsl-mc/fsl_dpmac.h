@@ -21,12 +21,8 @@
 #define DPMAC_CMDID_DESTROY			0x98c1
 #define DPMAC_CMDID_GET_API_VERSION             0xa0c1
 
-#define DPMAC_CMDID_GET_ATTR			0x0041
 #define DPMAC_CMDID_RESET			0x0051
 
-#define DPMAC_CMDID_MDIO_READ			0x0c01
-#define DPMAC_CMDID_MDIO_WRITE			0x0c11
-#define DPMAC_CMDID_GET_LINK_CFG		0x0c21
 #define DPMAC_CMDID_SET_LINK_STATE		0x0c31
 #define DPMAC_CMDID_GET_COUNTER			0x0c41
 
@@ -37,42 +33,6 @@
 /*                cmd, param, offset, width, type, arg_name */
 #define DPMAC_CMD_OPEN(cmd, dpmac_id) \
 	MC_CMD_OP(cmd, 0, 0,  32, int,	    dpmac_id)
-
-/*                cmd, param, offset, width, type,	arg_name */
-#define DPMAC_RSP_GET_ATTRIBUTES(cmd, attr) \
-do { \
-	MC_RSP_OP(cmd, 0, 0,  32, int,			attr->phy_id);\
-	MC_RSP_OP(cmd, 0, 32, 32, int,			attr->id);\
-	MC_RSP_OP(cmd, 1, 32,  8, enum dpmac_link_type,	attr->link_type);\
-	MC_RSP_OP(cmd, 1, 40,  8, enum dpmac_eth_if,	attr->eth_if);\
-	MC_RSP_OP(cmd, 2, 0,  32, uint32_t,		attr->max_rate);\
-} while (0)
-
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_CMD_MDIO_READ(cmd, cfg) \
-do { \
-	MC_CMD_OP(cmd, 0, 0,  8,  uint8_t,  cfg->phy_addr); \
-	MC_CMD_OP(cmd, 0, 8,  8,  uint8_t,  cfg->reg); \
-} while (0)
-
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_RSP_MDIO_READ(cmd, data) \
-	MC_RSP_OP(cmd, 0, 16, 16, uint16_t, data)
-
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_CMD_MDIO_WRITE(cmd, cfg) \
-do { \
-	MC_CMD_OP(cmd, 0, 0,  8,  uint8_t,  cfg->phy_addr); \
-	MC_CMD_OP(cmd, 0, 8,  8,  uint8_t,  cfg->reg); \
-	MC_CMD_OP(cmd, 0, 16, 16, uint16_t, cfg->data); \
-} while (0)
-
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_RSP_GET_LINK_CFG(cmd, cfg) \
-do { \
-	MC_RSP_OP(cmd, 0, 0,  64, uint64_t, cfg->options); \
-	MC_RSP_OP(cmd, 1, 0,  32, uint32_t, cfg->rate); \
-} while (0)
 
 /*                cmd, param, offset, width, type, arg_name */
 #define DPMAC_CMD_SET_LINK_STATE(cmd, cfg) \
@@ -251,62 +211,6 @@ struct dpmac_attr {
 	uint32_t		max_rate;
 };
 
-/**
- * dpmac_get_attributes - Retrieve DPMAC attributes.
- *
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPMAC object
- * @attr:	Returned object's attributes
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpmac_get_attributes(struct fsl_mc_io	*mc_io,
-			 uint32_t		cmd_flags,
-			 uint16_t		token,
-			 struct dpmac_attr	*attr);
-
-/**
- * struct dpmac_mdio_cfg - DPMAC MDIO read/write parameters
- * @phy_addr: MDIO device address
- * @reg: Address of the register within the Clause 45 PHY device from which data
- *	is to be read
- * @data: Data read/write from/to MDIO
- */
-struct dpmac_mdio_cfg {
-	uint8_t		phy_addr;
-	uint8_t		reg;
-	uint16_t	data;
-};
-
-/**
- * dpmac_mdio_read() - Perform MDIO read transaction
- * @mc_io:	Pointer to opaque I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPMAC object
- * @cfg:	Structure with MDIO transaction parameters
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpmac_mdio_read(struct fsl_mc_io		*mc_io,
-		    uint32_t			cmd_flags,
-		    uint16_t			token,
-		    struct dpmac_mdio_cfg	*cfg);
-
-/**
- * dpmac_mdio_write() - Perform MDIO write transaction
- * @mc_io:	Pointer to opaque I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPMAC object
- * @cfg:	Structure with MDIO transaction parameters
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpmac_mdio_write(struct fsl_mc_io		*mc_io,
-		     uint32_t			cmd_flags,
-		     uint16_t			token,
-		     struct dpmac_mdio_cfg	*cfg);
-
 /* DPMAC link configuration/state options */
 
 /* Enable auto-negotiation */
@@ -317,30 +221,6 @@ int dpmac_mdio_write(struct fsl_mc_io		*mc_io,
 #define DPMAC_LINK_OPT_PAUSE		0x0000000000000004ULL
 /* Enable a-symmetric pause frames */
 #define DPMAC_LINK_OPT_ASYM_PAUSE	0x0000000000000008ULL
-
-/**
- * struct dpmac_link_cfg - Structure representing DPMAC link configuration
- * @rate: Link's rate - in Mbps
- * @options: Enable/Disable DPMAC link cfg features (bitmap)
- */
-struct dpmac_link_cfg {
-	uint32_t rate;
-	uint64_t options;
-};
-
-/**
- * dpmac_get_link_cfg() - Get Ethernet link configuration
- * @mc_io:	Pointer to opaque I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPMAC object
- * @cfg:	Returned structure with the link configuration
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpmac_get_link_cfg(struct fsl_mc_io	*mc_io,
-		       uint32_t		cmd_flags,
-		       uint16_t		token,
-		       struct dpmac_link_cfg	*cfg);
 
 /**
  * struct dpmac_link_state - DPMAC link configuration request

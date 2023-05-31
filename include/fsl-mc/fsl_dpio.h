@@ -21,7 +21,6 @@
 #define DPIO_CMDID_ENABLE					0x0021
 #define DPIO_CMDID_DISABLE					0x0031
 #define DPIO_CMDID_GET_ATTR					0x0041
-#define DPIO_CMDID_RESET					0x0051
 
 /*                cmd, param, offset, width, type, arg_name */
 #define DPIO_CMD_OPEN(cmd, dpio_id) \
@@ -176,18 +175,6 @@ int dpio_enable(struct fsl_mc_io	*mc_io,
 int dpio_disable(struct fsl_mc_io	*mc_io,
 		 uint32_t		cmd_flags,
 		 uint16_t		token);
-
-/**
- * dpio_reset() - Reset the DPIO, returns the object to initial state.
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPIO object
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpio_reset(struct fsl_mc_io	*mc_io,
-	       uint32_t			cmd_flags,
-	       uint16_t		token);
 
 /**
  * struct dpio_attr - Structure representing DPIO attributes

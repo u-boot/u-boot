@@ -18,16 +18,6 @@ int dpni_prepare_cfg(const struct dpni_cfg	*cfg,
 	return 0;
 }
 
-int dpni_extract_cfg(struct dpni_cfg	*cfg,
-		     const uint8_t	*cfg_buf)
-{
-	uint64_t *params = (uint64_t *)cfg_buf;
-
-	DPNI_EXT_CFG(params, cfg);
-
-	return 0;
-}
-
 int dpni_open(struct fsl_mc_io *mc_io,
 	      uint32_t cmd_flags,
 	      int dpni_id,
@@ -198,23 +188,6 @@ int dpni_get_attributes(struct fsl_mc_io *mc_io,
 	return 0;
 }
 
-int dpni_set_errors_behavior(struct fsl_mc_io *mc_io,
-			     uint32_t cmd_flags,
-			     uint16_t token,
-			      struct dpni_error_cfg *cfg)
-{
-	struct mc_command cmd = { 0 };
-
-	/* prepare command */
-	cmd.header = mc_encode_cmd_header(DPNI_CMDID_SET_ERRORS_BEHAVIOR,
-					  cmd_flags,
-					  token);
-	DPNI_CMD_SET_ERRORS_BEHAVIOR(cmd, cfg);
-
-	/* send command to mc*/
-	return mc_send_command(mc_io, &cmd);
-}
-
 int dpni_set_buffer_layout(struct fsl_mc_io *mc_io,
 			   uint32_t cmd_flags,
 			   uint16_t token,
@@ -322,48 +295,6 @@ int dpni_get_link_state(struct fsl_mc_io *mc_io,
 	return 0;
 }
 
-
-int dpni_set_primary_mac_addr(struct fsl_mc_io *mc_io,
-			      uint32_t cmd_flags,
-			      uint16_t token,
-			      const uint8_t mac_addr[6])
-{
-	struct mc_command cmd = { 0 };
-
-	/* prepare command */
-	cmd.header = mc_encode_cmd_header(DPNI_CMDID_SET_PRIM_MAC,
-					  cmd_flags,
-					  token);
-	DPNI_CMD_SET_PRIMARY_MAC_ADDR(cmd, mac_addr);
-
-	/* send command to mc*/
-	return mc_send_command(mc_io, &cmd);
-}
-
-int dpni_get_primary_mac_addr(struct fsl_mc_io *mc_io,
-			      uint32_t cmd_flags,
-			      uint16_t token,
-			      uint8_t mac_addr[6])
-{
-	struct mc_command cmd = { 0 };
-	int err;
-
-	/* prepare command */
-	cmd.header = mc_encode_cmd_header(DPNI_CMDID_GET_PRIM_MAC,
-					  cmd_flags,
-					  token);
-
-	/* send command to mc*/
-	err = mc_send_command(mc_io, &cmd);
-	if (err)
-		return err;
-
-	/* retrieve response parameters */
-	DPNI_RSP_GET_PRIMARY_MAC_ADDR(cmd, mac_addr);
-
-	return 0;
-}
-
 int dpni_add_mac_addr(struct fsl_mc_io *mc_io,
 		      uint32_t cmd_flags,
 		      uint16_t token,
@@ -376,23 +307,6 @@ int dpni_add_mac_addr(struct fsl_mc_io *mc_io,
 					  cmd_flags,
 					  token);
 	DPNI_CMD_ADD_MAC_ADDR(cmd, mac_addr);
-
-	/* send command to mc*/
-	return mc_send_command(mc_io, &cmd);
-}
-
-int dpni_remove_mac_addr(struct fsl_mc_io *mc_io,
-			 uint32_t cmd_flags,
-			 uint16_t token,
-			 const uint8_t mac_addr[6])
-{
-	struct mc_command cmd = { 0 };
-
-	/* prepare command */
-	cmd.header = mc_encode_cmd_header(DPNI_CMDID_REMOVE_MAC_ADDR,
-					  cmd_flags,
-					  token);
-	DPNI_CMD_REMOVE_MAC_ADDR(cmd, mac_addr);
 
 	/* send command to mc*/
 	return mc_send_command(mc_io, &cmd);
@@ -510,18 +424,4 @@ int dpni_get_statistics(struct fsl_mc_io *mc_io,
 	DPNI_RSP_GET_STATISTICS(cmd, stat);
 
 	return 0;
-}
-
-int dpni_reset_statistics(struct fsl_mc_io *mc_io,
-			  uint32_t cmd_flags,
-			  uint16_t token)
-{
-	struct mc_command cmd = { 0 };
-
-	/* prepare command */
-	cmd.header = mc_encode_cmd_header(DPNI_CMDID_RESET_STATISTICS,
-					  cmd_flags, token);
-
-	/* send command to mc*/
-	return mc_send_command(mc_io, &cmd);
 }

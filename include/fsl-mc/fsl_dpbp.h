@@ -156,20 +156,6 @@ int dpbp_disable(struct fsl_mc_io	*mc_io,
 		 uint16_t		token);
 
 /**
- * dpbp_is_enabled() - Check if the DPBP is enabled.
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPBP object
- * @en:		Returns '1' if object is enabled; '0' otherwise
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpbp_is_enabled(struct fsl_mc_io	*mc_io,
-		    uint32_t		cmd_flags,
-		    uint16_t		token,
-		    int		*en);
-
-/**
  * dpbp_reset() - Reset the DPBP, returns the object to initial state.
  * @mc_io:	Pointer to MC portal's I/O object
  * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
