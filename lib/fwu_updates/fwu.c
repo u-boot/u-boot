@@ -546,6 +546,24 @@ __weak int fwu_plat_get_update_index(uint *update_idx)
 }
 
 /**
+ * fwu_plat_get_bootidx() - Get the value of the boot index
+ * @boot_idx: Boot index value
+ *
+ * Get the value of the bank(partition) from which the platform
+ * has booted. This value is passed to U-Boot from the earlier
+ * stage bootloader which loads and boots all the relevant
+ * firmware images
+ */
+__weak void fwu_plat_get_bootidx(uint *boot_idx)
+{
+	int ret;
+
+	ret = fwu_get_active_index(boot_idx);
+	if (ret < 0)
+		*boot_idx = 0; /* Dummy value */
+}
+
+/**
  * fwu_update_checks_pass() - Check if FWU update can be done
  *
  * Check if the FWU update can be executed. The updates are
