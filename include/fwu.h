@@ -8,6 +8,8 @@
 
 #include <blk.h>
 #include <efi.h>
+#include <mtd.h>
+#include <uuid.h>
 
 #include <linux/types.h>
 
@@ -16,6 +18,12 @@ struct udevice;
 
 struct fwu_mdata_gpt_blk_priv {
 	struct udevice *blk_dev;
+};
+
+struct fwu_mtd_image_info {
+	u32 start, size;
+	int bank_num, image_num;
+	char uuidbuf[UUID_STR_LEN + 1];
 };
 
 struct fwu_mdata_ops {
@@ -250,5 +258,29 @@ u8 fwu_empty_capsule_checks_pass(void);
  *
  */
 int fwu_trial_state_ctr_start(void);
+
+/**
+ * fwu_gen_alt_info_from_mtd() - Parse dfu_alt_info from metadata in mtd
+ * @buf: Buffer into which the dfu_alt_info is filled
+ * @len: Maximum characters that can be written in buf
+ * @mtd: Pointer to underlying MTD device
+ *
+ * Parse dfu_alt_info from metadata in mtd. Used for setting the env.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_gen_alt_info_from_mtd(char *buf, size_t len, struct mtd_info *mtd);
+
+/**
+ * fwu_mtd_get_alt_num() - Mapping of fwu_plat_get_alt_num for MTD device
+ * @image_guid: Image GUID for which DFU alt number needs to be retrieved
+ * @alt_num: Pointer to the alt_num
+ * @mtd_dev: Name of mtd device instance
+ *
+ * To map fwu_plat_get_alt_num onto mtd based metadata implementation.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_mtd_get_alt_num(efi_guid_t *image_guid, u8 *alt_num, const char *mtd_dev);
 
 #endif /* _FWU_H_ */
