@@ -2,7 +2,7 @@
 /*
  * Data Path Soft Parser API
  *
- * Copyright 2018 NXP
+ * Copyright 2018, 2023 NXP
  */
 #ifndef _FSL_DPSPARSER_H
 #define _FSL_DPSPARSER_H
@@ -20,13 +20,26 @@
 
 #define DPSPARSER_CMDID_APPLY_SPB			0x1181
 
-/*                cmd, param, offset, width, type, arg_name */
-#define DPSPARSER_CMD_BLOB_SET_ADDR(cmd, addr) \
-	MC_CMD_OP(cmd, 0, 0,  64, u64,	    addr)
+#pragma pack(push, 1)
 
-/*                cmd, param, offset, width, type,	arg_name */
-#define DPSPARSER_CMD_BLOB_REPORT_ERROR(cmd, err) \
-	MC_RSP_OP(cmd, 0, 0, 16, u16, err)
+struct dpsparser_cmd_destroy {
+	__le32 dpsparser_id;
+};
+
+struct dpsparser_cmd_blob_set_address {
+	__le64 blob_addr;
+};
+
+struct dpsparser_rsp_blob_report_error {
+	__le16 error;
+};
+
+struct dpsparser_rsp_get_api_version {
+	__le16 major;
+	__le16 minor;
+};
+
+#pragma pack(pop)
 
 /* Data Path Soft Parser API
  * Contains initialization APIs and runtime control APIs for DPSPARSER
@@ -99,110 +112,20 @@ struct fsl_mc_io;
 	NULL, \
 }
 
-/**
- * dpsparser_open() - Open a control session for the specified object.
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Returned token; use in subsequent API calls
- *
- * This function can be used to open a control session for an
- * already created object; an object may have been declared in
- * the DPL or by calling the dpsparser_create function.
- * This function returns a unique authentication token,
- * associated with the specific object ID and the specific MC
- * portal; this token must be used in all subsequent commands for
- * this specific object
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpsparser_open(struct fsl_mc_io	*mc_io,
-		   u32 cmd_flags,
-		   u16 *token);
+int dpsparser_open(struct fsl_mc_io *mc_io, u32 cmd_flags, u16 *token);
 
-/**
- * dpsparser_close() - Close the control session of the object
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPSPARSER object
- *
- * After this function is called, no further operations are
- * allowed on the object without opening a new control session.
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpsparser_close(struct fsl_mc_io *mc_io,
-		    u32 cmd_flags,
-		    u16	token);
+int dpsparser_close(struct fsl_mc_io *mc_io, u32 cmd_flags, u16 token);
 
-/**
- * dpsparser_create() - Create the DPSPARSER object.
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Returned token; use in subsequent API calls
- *
- * Create the DPSPARSER object, allocate required resources and
- * perform required initialization.
- *
- * The object can be created either by declaring it in the
- * DPL file, or by calling this function.
- * This function returns a unique authentication token,
- * associated with the specific object ID and the specific MC
- * portal; this token must be used in all subsequent calls to
- * this specific object. For objects that are created using the
- * DPL file, call dpsparser_open function to get an authentication
- * token first.
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpsparser_create(struct fsl_mc_io *mc_io,
-		     u16 token,
-		     u32 cmd_flags,
+int dpsparser_create(struct fsl_mc_io *mc_io, u16 token, u32 cmd_flags,
 		     u32 *obj_id);
 
-/**
- * dpsparser_destroy() - Destroy the DPSPARSER object and release all its
- * resources.
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPSPARSER object
- *
- * Return:	'0' on Success; error code otherwise.
- */
-int dpsparser_destroy(struct fsl_mc_io *mc_io,
-		      u16 token,
-		      u32 cmd_flags,
+int dpsparser_destroy(struct fsl_mc_io *mc_io, u16 token, u32 cmd_flags,
 		      u32 obj_id);
 
-/**
- * dpsparser_apply_spb() - Applies the Soft Parser Blob loaded at specified
- * address.
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPSPARSER object
- * @blob_addr:	Blob loading address
- * @error: Error reported by MC related to SP Blob parsing and apply
- *
- * Return:	'0' on Success; error code otherwise.
- */
-int dpsparser_apply_spb(struct fsl_mc_io *mc_io,
-			u32 cmd_flags,
-			u16 token,
-			u64 blob_addr,
-			u16 *error);
+int dpsparser_apply_spb(struct fsl_mc_io *mc_io, u32 cmd_flags, u16 token,
+			u64 blob_addr, u16 *error);
 
-/**
- * dpsparser_get_api_version - Retrieve DPSPARSER Major and Minor version info.
- *
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @major_ver:	DPSPARSER major version
- * @minor_ver:	DPSPARSER minor version
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpsparser_get_api_version(struct fsl_mc_io *mc_io,
-			      u32 cmd_flags,
-			      u16 *major_ver,
-			      u16 *minor_ver);
+int dpsparser_get_api_version(struct fsl_mc_io *mc_io, u32 cmd_flags,
+			      u16 *major_ver, u16 *minor_ver);
 
 #endif /* _FSL_DPSPARSER_H */
