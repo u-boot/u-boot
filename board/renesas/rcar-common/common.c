@@ -49,6 +49,11 @@ int dram_init_banksize(void)
 	return 0;
 }
 
+int __weak board_init(void)
+{
+	return 0;
+}
+
 #if defined(CONFIG_RCAR_GEN3)
 #define RST_BASE	0xE6160000
 #define RST_CA57RESCNT	(RST_BASE + 0x40)
