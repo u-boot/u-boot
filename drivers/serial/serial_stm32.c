@@ -29,6 +29,10 @@ static void _stm32_serial_setbrg(fdt_addr_t base,
 {
 	bool stm32f4 = uart_info->stm32f4;
 	u32 int_div, mantissa, fraction, oversampling;
+	u8 uart_enable_bit = uart_info->uart_enable_bit;
+
+	/* BRR register must be set when uart is disabled */
+	clrbits_le32(base + CR1_OFFSET(stm32f4), BIT(uart_enable_bit));
 
 	int_div = DIV_ROUND_CLOSEST(clock_rate, baudrate);
 
@@ -44,6 +48,8 @@ static void _stm32_serial_setbrg(fdt_addr_t base,
 	fraction = int_div % oversampling;
 
 	writel(mantissa | fraction, base + BRR_OFFSET(stm32f4));
+
+	setbits_le32(base + CR1_OFFSET(stm32f4), BIT(uart_enable_bit));
 }
 
 static int stm32_serial_setbrg(struct udevice *dev, int baudrate)
