@@ -19,6 +19,15 @@ static inline uint64_t mc_dec(uint64_t val, int lsoffset, int width)
 	return (uint64_t)((val >> lsoffset) & MAKE_UMASK64(width));
 }
 
+struct mc_cmd_header {
+	u8 src_id;
+	u8 flags_hw;
+	u8 status;
+	u8 flags_sw;
+	__le16 token;
+	__le16 cmd_id;
+};
+
 struct mc_command {
 	uint64_t header;
 	uint64_t params[MC_CMD_NUM_OF_PARAMS];
@@ -179,4 +188,19 @@ static inline void mc_cmd_read_api_version(struct mc_command *cmd,
 	*minor_ver = le16_to_cpu(rsp_params->minor_ver);
 }
 
+static inline uint16_t mc_cmd_hdr_read_token(struct mc_command *cmd)
+{
+	struct mc_cmd_header *hdr = (struct mc_cmd_header *)&cmd->header;
+	u16 token = le16_to_cpu(hdr->token);
+
+	return token;
+}
+
+static inline uint32_t mc_cmd_read_object_id(struct mc_command *cmd)
+{
+	struct mc_rsp_create *rsp_params;
+
+	rsp_params = (struct mc_rsp_create *)cmd->params;
+	return le32_to_cpu(rsp_params->object_id);
+}
 #endif /* __FSL_MC_CMD_H */
