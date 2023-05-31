@@ -13,10 +13,6 @@
 #include <asm/arch/clocks_am33xx.h>
 #include <asm/arch/hardware.h>
 
-#if defined(CONFIG_TI816X)
-#include <asm/arch/clock_ti81xx.h>
-#endif
-
 #define LDELAY 1000000
 
 /*CM_<clock_domain>__CLKCTRL */
