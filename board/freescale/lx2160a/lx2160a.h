@@ -58,4 +58,13 @@
 #endif
 #endif
 
+#if IS_ENABLED(CONFIG_TARGET_LX2160ARDB)
+u8 get_board_rev(void);
+#else
+static inline u8 get_board_rev(void)
+{
+	return 0;
+}
+#endif
+
 #endif /* __LX2160_H */
