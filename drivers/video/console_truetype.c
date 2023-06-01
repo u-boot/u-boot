@@ -154,33 +154,33 @@ static int console_truetype_set_row(struct udevice *dev, uint row, int clr)
 	end = line + met->font_size * vid_priv->line_length;
 
 	switch (vid_priv->bpix) {
-#ifdef CONFIG_VIDEO_BPP8
 	case VIDEO_BPP8: {
 		u8 *dst;
 
-		for (dst = line; dst < (u8 *)end; ++dst)
-			*dst = clr;
+		if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+			for (dst = line; dst < (u8 *)end; ++dst)
+				*dst = clr;
+		}
 		break;
 	}
-#endif
-#ifdef CONFIG_VIDEO_BPP16
 	case VIDEO_BPP16: {
 		u16 *dst = line;
 
-		for (dst = line; dst < (u16 *)end; ++dst)
-			*dst = clr;
+		if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+			for (dst = line; dst < (u16 *)end; ++dst)
+				*dst = clr;
+		}
 		break;
 	}
-#endif
-#ifdef CONFIG_VIDEO_BPP32
 	case VIDEO_BPP32: {
 		u32 *dst = line;
 
-		for (dst = line; dst < (u32 *)end; ++dst)
-			*dst = clr;
+		if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+			for (dst = line; dst < (u32 *)end; ++dst)
+				*dst = clr;
+		}
 		break;
 	}
-#endif
 	default:
 		return -ENOSYS;
 	}
@@ -317,52 +317,52 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 				end = dst;
 			}
 			break;
-#ifdef CONFIG_VIDEO_BPP16
 		case VIDEO_BPP16: {
 			uint16_t *dst = (uint16_t *)line + xoff;
 			int i;
 
-			for (i = 0; i < width; i++) {
-				int val = *bits;
-				int out;
+			if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+				for (i = 0; i < width; i++) {
+					int val = *bits;
+					int out;
 
-				if (vid_priv->colour_bg)
-					val = 255 - val;
-				out = val >> 3 |
-					(val >> 2) << 5 |
-					(val >> 3) << 11;
-				if (vid_priv->colour_fg)
-					*dst++ |= out;
-				else
-					*dst++ &= out;
-				bits++;
+					if (vid_priv->colour_bg)
+						val = 255 - val;
+					out = val >> 3 |
+						(val >> 2) << 5 |
+						(val >> 3) << 11;
+					if (vid_priv->colour_fg)
+						*dst++ |= out;
+					else
+						*dst++ &= out;
+					bits++;
+				}
+				end = dst;
 			}
-			end = dst;
 			break;
 		}
-#endif
-#ifdef CONFIG_VIDEO_BPP32
 		case VIDEO_BPP32: {
 			u32 *dst = (u32 *)line + xoff;
 			int i;
 
-			for (i = 0; i < width; i++) {
-				int val = *bits;
-				int out;
+			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+				for (i = 0; i < width; i++) {
+					int val = *bits;
+					int out;
 
-				if (vid_priv->colour_bg)
-					val = 255 - val;
-				out = val | val << 8 | val << 16;
-				if (vid_priv->colour_fg)
-					*dst++ |= out;
-				else
-					*dst++ &= out;
-				bits++;
+					if (vid_priv->colour_bg)
+						val = 255 - val;
+					out = val | val << 8 | val << 16;
+					if (vid_priv->colour_fg)
+						*dst++ |= out;
+					else
+						*dst++ &= out;
+					bits++;
+				}
+				end = dst;
 			}
-			end = dst;
 			break;
 		}
-#endif
 		default:
 			free(data);
 			return -ENOSYS;
@@ -405,33 +405,33 @@ static int console_truetype_erase(struct udevice *dev, int xstart, int ystart,
 	line = start;
 	for (row = ystart; row < yend; row++) {
 		switch (vid_priv->bpix) {
-#ifdef CONFIG_VIDEO_BPP8
 		case VIDEO_BPP8: {
 			uint8_t *dst = line;
 
-			for (i = 0; i < pixels; i++)
-				*dst++ = clr;
+			if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+				for (i = 0; i < pixels; i++)
+					*dst++ = clr;
+			}
 			break;
 		}
-#endif
-#ifdef CONFIG_VIDEO_BPP16
 		case VIDEO_BPP16: {
 			uint16_t *dst = line;
 
-			for (i = 0; i < pixels; i++)
-				*dst++ = clr;
+			if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+				for (i = 0; i < pixels; i++)
+					*dst++ = clr;
+			}
 			break;
 		}
-#endif
-#ifdef CONFIG_VIDEO_BPP32
 		case VIDEO_BPP32: {
 			uint32_t *dst = line;
 
-			for (i = 0; i < pixels; i++)
-				*dst++ = clr;
+			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+				for (i = 0; i < pixels; i++)
+					*dst++ = clr;
+			}
 			break;
 		}
-#endif
 		default:
 			return -ENOSYS;
 		}
