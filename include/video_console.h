@@ -72,6 +72,17 @@ struct vidfont_info {
 };
 
 /**
+ * struct vidconsole_colour - Holds colour information
+ *
+ * @colour_fg:	Foreground colour (pixel value)
+ * @colour_bg:	Background colour (pixel value)
+ */
+struct vidconsole_colour {
+	u32 colour_fg;
+	u32 colour_bg;
+};
+
+/**
  * struct vidconsole_ops - Video console operations
  *
  * These operations work on either an absolute console position (measured
@@ -203,6 +214,25 @@ int vidconsole_get_font(struct udevice *dev, int seq,
  * @size:	Font size to use (0 to use default)
  */
 int vidconsole_select_font(struct udevice *dev, const char *name, uint size);
+
+/**
+ * vidconsole_push_colour() - Temporarily change the font colour
+ *
+ * @dev:	Device to adjust
+ * @fg:		Foreground colour to select
+ * @bg:		Background colour to select
+ * @old:	Place to store the current colour, so it can be restored
+ */
+void vidconsole_push_colour(struct udevice *dev, enum colour_idx fg,
+			    enum colour_idx bg, struct vidconsole_colour *old);
+
+/**
+ * vidconsole_pop_colour() - Restore the original colour
+ *
+ * @dev:	Device to adjust
+ * @old:	Old colour to be restored
+ */
+void vidconsole_pop_colour(struct udevice *dev, struct vidconsole_colour *old);
 
 /**
  * vidconsole_putc_xy() - write a single character to a position
