@@ -256,7 +256,7 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 	 */
 	x_shift = xpos - (double)tt_floor(xpos);
 	xpos += advance * met->scale;
-	width_frac = (int)VID_TO_POS(xpos);
+	width_frac = (int)VID_TO_POS(advance * met->scale);
 	if (x + width_frac >= vc_priv->xsize_frac)
 		return -EAGAIN;
 
