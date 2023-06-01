@@ -178,8 +178,7 @@ Some ideas for future work:
 - Image formats other than BMP
 - Use of ANSI sequences to control a serial terminal
 - Colour selection
-- Better support for handling lots of settings, e.g. with multiple menus and
-  radio/option widgets
+- Better support for handling lots of settings, e.g. with radio/option widgets
 - Mouse support
 - Integrate Nuklear, NxWidgets or some other library for a richer UI
 - Optimise rendering by only updating the display with changes since last render

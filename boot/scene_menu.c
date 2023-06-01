@@ -323,6 +323,7 @@ static struct scene_menitem *scene_menu_find_key(struct scene *scn,
 int scene_menu_send_key(struct scene *scn, struct scene_obj_menu *menu, int key,
 			struct expo_action *event)
 {
+	const bool open = menu->obj.flags & SCENEOF_OPEN;
 	struct scene_menitem *item, *cur, *key_item;
 
 	cur = NULL;
@@ -367,8 +368,13 @@ int scene_menu_send_key(struct scene *scn, struct scene_obj_menu *menu, int key,
 		log_debug("select item %d\n", event->select.id);
 		break;
 	case BKEY_QUIT:
-		event->type = EXPOACT_QUIT;
-		log_debug("quit\n");
+		if (scn->expo->popup && open) {
+			event->type = EXPOACT_CLOSE;
+			event->select.id = menu->obj.id;
+		} else {
+			event->type = EXPOACT_QUIT;
+			log_debug("menu quit\n");
+		}
 		break;
 	case '0'...'9':
 		key_item = scene_menu_find_key(scn, menu, key);

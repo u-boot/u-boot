@@ -13,6 +13,7 @@
 #include <expo.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <menu.h>
 #include <video.h>
 #include <video_console.h>
 #include <linux/input.h>
@@ -469,10 +470,89 @@ int scene_render(struct scene *scn)
 	return 0;
 }
 
+/**
+ * send_key_obj() - Handle a keypress for moving between objects
+ *
+ * @scn: Scene to receive the key
+ * @key: Key to send (KEYCODE_UP)
+ * @event: Returns resulting event from this keypress
+ * Returns: 0 if OK, -ve on error
+ */
+static void send_key_obj(struct scene *scn, struct scene_obj *obj, int key,
+			 struct expo_action *event)
+{
+	switch (key) {
+	case BKEY_UP:
+		while (obj != list_first_entry(&scn->obj_head, struct scene_obj,
+					       sibling)) {
+			obj = list_entry(obj->sibling.prev,
+					 struct scene_obj, sibling);
+			if (obj->type == SCENEOBJT_MENU) {
+				event->type = EXPOACT_POINT_OBJ;
+				event->select.id = obj->id;
+				log_debug("up to obj %d\n", event->select.id);
+				break;
+			}
+		}
+		break;
+	case BKEY_DOWN:
+		while (!list_is_last(&obj->sibling, &scn->obj_head)) {
+			obj = list_entry(obj->sibling.next, struct scene_obj,
+					 sibling);
+			if (obj->type == SCENEOBJT_MENU) {
+				event->type = EXPOACT_POINT_OBJ;
+				event->select.id = obj->id;
+				log_debug("down to obj %d\n", event->select.id);
+				break;
+			}
+		}
+		break;
+	case BKEY_SELECT:
+		if (obj->type == SCENEOBJT_MENU) {
+			event->type = EXPOACT_OPEN;
+			event->select.id = obj->id;
+			log_debug("open obj %d\n", event->select.id);
+		}
+		break;
+	case BKEY_QUIT:
+		event->type = EXPOACT_QUIT;
+		log_debug("obj quit\n");
+		break;
+	}
+}
+
 int scene_send_key(struct scene *scn, int key, struct expo_action *event)
 {
+	struct scene_obj_menu *menu;
 	struct scene_obj *obj;
 	int ret;
+
+	event->type = EXPOACT_NONE;
+
+	/*
+	 * In 'popup' mode, arrow keys move betwen objects, unless a menu is
+	 * opened
+	 */
+	if (scn->expo->popup) {
+		obj = NULL;
+		if (scn->highlight_id) {
+			obj = scene_obj_find(scn, scn->highlight_id,
+					     SCENEOBJT_NONE);
+		}
+		if (!obj)
+			return 0;
+
+		if (!(obj->flags & SCENEOF_OPEN)) {
+			send_key_obj(scn, obj, key, event);
+			return 0;
+		}
+
+		menu = (struct scene_obj_menu *)obj,
+		ret = scene_menu_send_key(scn, menu, key, event);
+		if (ret)
+			return log_msg_ret("key", ret);
+		return 0;
+	}
 
 	list_for_each_entry(obj, &scn->obj_head, sibling) {
 		if (obj->type == SCENEOBJT_MENU) {

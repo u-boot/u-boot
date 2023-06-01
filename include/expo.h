@@ -16,14 +16,21 @@ struct udevice;
  * enum expoact_type - types of actions reported by the expo
  *
  * @EXPOACT_NONE: no action
+ * @EXPOACT_POINT_OBJ: object was highlighted (@id indicates which)
  * @EXPOACT_POINT_ITEM: menu item was highlighted (@id indicates which)
  * @EXPOACT_SELECT: menu item was selected (@id indicates which)
+ * @EXPOACT_OPEN: menu was opened, so an item can be selected (@id indicates
+ * which menu object)
+ * @EXPOACT_CLOSE: menu was closed (@id indicates which menu object)
  * @EXPOACT_QUIT: request to exit the menu
  */
 enum expoact_type {
 	EXPOACT_NONE,
+	EXPOACT_POINT_OBJ,
 	EXPOACT_POINT_ITEM,
 	EXPOACT_SELECT,
+	EXPOACT_OPEN,
+	EXPOACT_CLOSE,
 	EXPOACT_QUIT,
 };
 
