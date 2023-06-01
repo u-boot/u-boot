@@ -62,10 +62,43 @@ static double tt_sqrt(double value)
 	return lo;
 }
 
+static double tt_fmod(double x, double y)
+{
+	double rem;
+
+	if (y == 0.0)
+		return 0.0;
+	rem = x - (x / y) * y;
+
+	return rem;
+}
+
+/* dummy implementation */
+static double tt_pow(double x, double y)
+{
+	return 0;
+}
+
+/* dummy implementation */
+static double tt_cos(double val)
+{
+	return 0;
+}
+
+/* dummy implementation */
+static double tt_acos(double val)
+{
+	return 0;
+}
+
 #define STBTT_ifloor		tt_floor
 #define STBTT_iceil		tt_ceil
 #define STBTT_fabs		tt_fabs
 #define STBTT_sqrt		tt_sqrt
+#define STBTT_pow		tt_pow
+#define STBTT_fmod		tt_fmod
+#define STBTT_cos		tt_cos
+#define STBTT_acos		tt_acos
 #define STBTT_malloc(size, u)	((void)(u), malloc(size))
 #define STBTT_free(size, u)	((void)(u), free(size))
 #define STBTT_assert(x)
