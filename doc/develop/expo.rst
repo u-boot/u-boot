@@ -162,6 +162,12 @@ properties:
 font-size
     Font size to use for all text (type: u32)
 
+menu-inset
+    Number of pixels to inset the menu on the sides and top (type: u32)
+
+menuitem-gap-y
+    Number of pixels between menu items
+
 
 API documentation
 -----------------

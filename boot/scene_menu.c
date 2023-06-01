@@ -98,7 +98,7 @@ static void menu_point_to_item(struct scene_obj_menu *menu, uint item_id)
 	update_pointers(menu, item_id, true);
 }
 
-static int scene_bbox_union(struct scene *scn, uint id,
+static int scene_bbox_union(struct scene *scn, uint id, int inset,
 			    struct vidconsole_bbox *bbox)
 {
 	struct scene_obj *obj;
@@ -109,14 +109,14 @@ static int scene_bbox_union(struct scene *scn, uint id,
 	if (!obj)
 		return log_msg_ret("obj", -ENOENT);
 	if (bbox->valid) {
-		bbox->x0 = min(bbox->x0, obj->dim.x);
+		bbox->x0 = min(bbox->x0, obj->dim.x - inset);
 		bbox->y0 = min(bbox->y0, obj->dim.y);
-		bbox->x1 = max(bbox->x1, obj->dim.x + obj->dim.w);
+		bbox->x1 = max(bbox->x1, obj->dim.x + obj->dim.w + inset);
 		bbox->y1 = max(bbox->y1, obj->dim.y + obj->dim.h);
 	} else {
-		bbox->x0 = obj->dim.x;
+		bbox->x0 = obj->dim.x - inset;
 		bbox->y0 = obj->dim.y;
-		bbox->x1 = obj->dim.x + obj->dim.w;
+		bbox->x1 = obj->dim.x + obj->dim.w + inset;
 		bbox->y1 = obj->dim.y + obj->dim.h;
 		bbox->valid = true;
 	}
@@ -135,22 +135,31 @@ static void scene_menu_calc_bbox(struct scene_obj_menu *menu,
 				 struct vidconsole_bbox *bbox,
 				 struct vidconsole_bbox *label_bbox)
 {
+	const struct expo_theme *theme = &menu->obj.scene->expo->theme;
 	const struct scene_menitem *item;
 
 	bbox->valid = false;
-	scene_bbox_union(menu->obj.scene, menu->title_id, bbox);
+	scene_bbox_union(menu->obj.scene, menu->title_id, 0, bbox);
 
 	label_bbox->valid = false;
 
 	list_for_each_entry(item, &menu->item_head, sibling) {
-		scene_bbox_union(menu->obj.scene, item->label_id, bbox);
-		scene_bbox_union(menu->obj.scene, item->key_id, bbox);
-		scene_bbox_union(menu->obj.scene, item->desc_id, bbox);
-		scene_bbox_union(menu->obj.scene, item->preview_id, bbox);
+		scene_bbox_union(menu->obj.scene, item->label_id,
+				 theme->menu_inset, bbox);
+		scene_bbox_union(menu->obj.scene, item->key_id, 0, bbox);
+		scene_bbox_union(menu->obj.scene, item->desc_id, 0, bbox);
+		scene_bbox_union(menu->obj.scene, item->preview_id, 0, bbox);
 
 		/* Get the bounding box of all labels */
-		scene_bbox_union(menu->obj.scene, item->label_id, label_bbox);
+		scene_bbox_union(menu->obj.scene, item->label_id,
+				 theme->menu_inset, label_bbox);
 	}
+
+	/*
+	 * subtract the final menuitem's gap to keep the insert the same top
+	 * and bottom
+	 */
+	label_bbox->y1 -= theme->menuitem_gap_y;
 }
 
 int scene_menu_calc_dims(struct scene_obj_menu *menu)
@@ -182,6 +191,7 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 	const bool open = menu->obj.flags & SCENEOF_OPEN;
 	struct expo *exp = scn->expo;
 	const bool stack = exp->popup;
+	const struct expo_theme *theme = &exp->theme;
 	struct scene_menitem *item;
 	uint sel_id;
 	int x, y;
@@ -233,7 +243,8 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 		 * Put the label on the left, then leave a space for the
 		 * pointer, then the key and the description
 		 */
-		ret = scene_obj_set_pos(scn, item->label_id, x, y);
+		ret = scene_obj_set_pos(scn, item->label_id,
+					x + theme->menu_inset, y);
 		if (ret < 0)
 			return log_msg_ret("nam", ret);
 		scene_obj_set_hide(scn, item->label_id,
@@ -269,7 +280,7 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 		}
 
 		if (!stack || open)
-			y += height;
+			y += height + theme->menuitem_gap_y;
 	}
 
 	if (sel_id)
