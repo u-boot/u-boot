@@ -164,10 +164,10 @@ enum colour_idx {
  * VID_COLOR_COUNT.
  *
  * @priv	private data of the video device (UCLASS_VIDEO)
- * @idx		color index
+ * @idx		color index (e.g. VID_YELLOW)
  * Return:	color value
  */
-u32 video_index_to_colour(struct video_priv *priv, unsigned int idx);
+u32 video_index_to_colour(struct video_priv *priv, enum colour_idx idx);
 
 /**
  * video_reserve() - Reserve frame-buffer memory for video devices

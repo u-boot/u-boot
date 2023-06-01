@@ -260,7 +260,7 @@ static const struct vid_rgb colours[VID_COLOUR_COUNT] = {
 	{ 0xff, 0xff, 0xff },  /* white */
 };
 
-u32 video_index_to_colour(struct video_priv *priv, unsigned int idx)
+u32 video_index_to_colour(struct video_priv *priv, enum colour_idx idx)
 {
 	switch (priv->bpix) {
 	case VIDEO_BPP16:
