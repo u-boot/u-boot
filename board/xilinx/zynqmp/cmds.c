@@ -211,6 +211,7 @@ static int do_zynqmp_pmufw(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (!strncmp(argv[2], "node", 4)) {
 		u32 id;
+		int ret;
 
 		if (!strncmp(argv[3], "close", 5))
 			return zynqmp_pmufw_config_close();
@@ -223,7 +224,11 @@ static int do_zynqmp_pmufw(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		printf("Enable permission for node ID %d\n", id);
 
-		return zynqmp_pmufw_node(id);
+		ret = zynqmp_pmufw_node(id);
+		if (ret == -ENODEV)
+			ret = 0;
+
+		return ret;
 	}
 
 	addr = hextoul(argv[2], NULL);
