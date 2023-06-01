@@ -17,8 +17,8 @@ static int do_cat(struct cmd_tbl *cmdtp, int flag, int argc,
 	char *dev;
 	char *file;
 	char *buffer;
-	phys_addr_t addr;
-	loff_t file_size;
+	ulong file_size;
+	int ret;
 
 	if (argc < 4)
 		return CMD_RET_USAGE;
@@ -27,40 +27,27 @@ static int do_cat(struct cmd_tbl *cmdtp, int flag, int argc,
 	dev = argv[2];
 	file = argv[3];
 
-	// check file exists
-	if (fs_set_blk_dev(ifname, dev, FS_TYPE_ANY))
-		return CMD_RET_FAILURE;
+	ret = fs_load_alloc(ifname, dev, file, 0, 0, (void **)&buffer,
+			    &file_size);
 
-	if (!fs_exists(file)) {
+	// check file exists
+	switch (ret) {
+	case 0:
+		break;
+	case -ENOMEDIUM:
+		return CMD_RET_FAILURE;
+	case -ENOENT:
 		log_err("File does not exist: ifname=%s dev=%s file=%s\n", ifname, dev, file);
 		return CMD_RET_FAILURE;
-	}
-
-	// get file size
-	if (fs_set_blk_dev(ifname, dev, FS_TYPE_ANY))
+	case -E2BIG:
+		log_err("File is too large: ifname=%s dev=%s file=%s\n", ifname, dev, file);
 		return CMD_RET_FAILURE;
-
-	if (fs_size(file, &file_size)) {
-		log_err("Cannot read file size: ifname=%s dev=%s file=%s\n", ifname, dev, file);
+	case -ENOMEM:
+		log_err("Not enough memory: ifname=%s dev=%s file=%s\n", ifname, dev, file);
 		return CMD_RET_FAILURE;
-	}
-
-	// allocate memory for file content
-	buffer = calloc(sizeof(char), file_size + 1);
-	if (!buffer) {
-		log_err("Out of memory\n");
-		return CMD_RET_FAILURE;
-	}
-
-	// map pointer to system memory
-	addr = map_to_sysmem(buffer);
-
-	// read file to memory
-	if (fs_set_blk_dev(ifname, dev, FS_TYPE_ANY))
-		return CMD_RET_FAILURE;
-
-	if (fs_read(file, addr, 0, 0, &file_size)) {
-		log_err("Cannot read file: ifname=%s dev=%s file=%s\n", ifname, dev, file);
+	default:
+	case -EIO:
+		log_err("File-read failed: ifname=%s dev=%s file=%s\n", ifname, dev, file);
 		return CMD_RET_FAILURE;
 	}
 
