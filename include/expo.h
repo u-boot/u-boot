@@ -258,6 +258,25 @@ int expo_new(const char *name, void *priv, struct expo **expp);
 void expo_destroy(struct expo *exp);
 
 /**
+ * expo_set_dynamic_start() - Set the start of the 'dynamic' IDs
+ *
+ * It is common for a set of 'static' IDs to be used to refer to objects in the
+ * expo. These typically use an enum so that they are defined in sequential
+ * order.
+ *
+ * Dynamic IDs (for objects not in the enum) are intended to be used for
+ * objects to which the code does not need to refer. These are ideally located
+ * above the static IDs.
+ *
+ * Use this function to set the start of the dynamic range, making sure that the
+ * value is higher than all the statically allocated IDs.
+ *
+ * @exp: Expo to update
+ * @dyn_start: Start ID that expo should use for dynamic allocation
+ */
+void expo_set_dynamic_start(struct expo *exp, uint dyn_start);
+
+/**
  * expo_str() - add a new string to an expo
  *
  * @exp: Expo to update

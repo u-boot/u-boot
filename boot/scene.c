@@ -18,16 +18,6 @@
 #include <linux/input.h>
 #include "scene_internal.h"
 
-uint resolve_id(struct expo *exp, uint id)
-{
-	if (!id)
-		id = exp->next_id++;
-	else if (id >= exp->next_id)
-		exp->next_id = id + 1;
-
-	return id;
-}
-
 int scene_new(struct expo *exp, const char *name, uint id, struct scene **scnp)
 {
 	struct scene *scn;

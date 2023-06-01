@@ -56,6 +56,21 @@ void expo_destroy(struct expo *exp)
 	free(exp);
 }
 
+uint resolve_id(struct expo *exp, uint id)
+{
+	if (!id)
+		id = exp->next_id++;
+	else if (id >= exp->next_id)
+		exp->next_id = id + 1;
+
+	return id;
+}
+
+void expo_set_dynamic_start(struct expo *exp, uint dyn_start)
+{
+	exp->next_id = dyn_start;
+}
+
 int expo_str(struct expo *exp, const char *name, uint id, const char *str)
 {
 	struct expo_string *estr;

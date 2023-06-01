@@ -85,6 +85,9 @@ or even the IDs of objects. Programmatic creation of many items in a loop can be
 handled by allocating space in the enum for a maximum number of items, then
 adding the loop count to the enum values to obtain unique IDs.
 
+Where dynamic IDs are need, use expo_set_dynamic_start() to set the start value,
+so that they are allocated above the starting (enum) IDs.
+
 All text strings are stored in a structure attached to the expo, referenced by
 a text ID. This makes it easier at some point to implement multiple languages or
 to support Unicode strings.
