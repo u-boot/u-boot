@@ -138,6 +138,15 @@ struct scene_dim {
 };
 
 /**
+ * enum scene_obj_flags_t - flags for objects
+ *
+ * @SCENEOF_HIDE: object should be hidden
+ */
+enum scene_obj_flags_t {
+	SCENEOF_HIDE	= 1 << 0,
+};
+
+/**
  * struct scene_obj - information about an object in a scene
  *
  * @scene: Scene that this object relates to
@@ -145,7 +154,7 @@ struct scene_dim {
  * @id: ID number of the object
  * @type: Type of this object
  * @dim: Dimensions for this object
- * @hide: true if the object should be hidden
+ * @flags: Flags for this object
  * @sibling: Node to link this object to its siblings
  */
 struct scene_obj {
@@ -154,7 +163,7 @@ struct scene_obj {
 	uint id;
 	enum scene_obj_t type;
 	struct scene_dim dim;
-	bool hide;
+	int flags;
 	struct list_head sibling;
 };
 

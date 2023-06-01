@@ -372,7 +372,7 @@ static int expo_object_menu(struct unit_test_state *uts)
 
 	ut_asserteq(-4, prev1->obj.dim.x);
 	ut_asserteq(menu->obj.dim.y + 32, prev1->obj.dim.y);
-	ut_asserteq(false, prev1->obj.hide);
+	ut_asserteq(false, prev1->obj.flags & SCENEOF_HIDE);
 
 	expo_destroy(exp);
 
@@ -488,10 +488,10 @@ static int expo_render_image(struct unit_test_state *uts)
 
 	/* make sure only the preview for the second item is shown */
 	obj = scene_obj_find(scn, ITEM1_PREVIEW, SCENEOBJT_NONE);
-	ut_asserteq(true, obj->hide);
+	ut_asserteq(true, obj->flags & SCENEOF_HIDE);
 
 	obj = scene_obj_find(scn, ITEM2_PREVIEW, SCENEOBJT_NONE);
-	ut_asserteq(false, obj->hide);
+	ut_asserteq(false, obj->flags & SCENEOF_HIDE);
 
 	/* select it */
 	ut_assertok(expo_send_key(exp, BKEY_SELECT));

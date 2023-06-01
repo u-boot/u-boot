@@ -55,6 +55,17 @@ int scene_obj_add(struct scene *scn, const char *name, uint id,
 		  enum scene_obj_t type, uint size, struct scene_obj **objp);
 
 /**
+ * scene_obj_flag_clrset() - Adjust object flags
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @clr: Bits to clear in the object's flags
+ * @set: Bits to set in the object's flags
+ * Returns 0 if OK, -ENOENT if the object was not found
+ */
+int scene_obj_flag_clrset(struct scene *scn, uint id, uint clr, uint set);
+
+/**
  * scene_menu_arrange() - Set the position of things in the menu
  *
  * This updates any items associated with a menu to make sure they are
