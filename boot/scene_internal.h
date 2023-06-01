@@ -154,6 +154,13 @@ int scene_render(struct scene *scn);
 int scene_send_key(struct scene *scn, int key, struct expo_action *event);
 
 /**
+ * scene_menu_render() - Render the background behind a menu
+ *
+ * @menu: Menu to render
+ */
+void scene_menu_render(struct scene_obj_menu *menu);
+
+/**
  * scene_menu_calc_dims() - Calculate the dimensions of a menu
  *
  * Updates the width and height of the menu based on its contents

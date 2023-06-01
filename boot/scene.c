@@ -345,14 +345,44 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 		}
 		if (ret && ret != -ENOSYS)
 			return log_msg_ret("font", ret);
-		vidconsole_set_cursor_pos(cons, x, y);
 		str = expo_get_str(exp, txt->str_id);
-		if (str)
+		if (str) {
+			struct video_priv *vid_priv;
+			struct vidconsole_colour old;
+			enum colour_idx fore, back;
+
+			if (CONFIG_IS_ENABLED(SYS_WHITE_ON_BLACK)) {
+				fore = VID_BLACK;
+				back = VID_WHITE;
+			} else {
+				fore = VID_LIGHT_GRAY;
+				back = VID_BLACK;
+			}
+
+			vid_priv = dev_get_uclass_priv(dev);
+			if (obj->flags & SCENEOF_POINT) {
+				vidconsole_push_colour(cons, fore, back, &old);
+				video_fill_part(dev, x, y,
+						x + obj->dim.w, y + obj->dim.h,
+						vid_priv->colour_bg);
+			}
+			vidconsole_set_cursor_pos(cons, x, y);
 			vidconsole_put_string(cons, str);
+			if (obj->flags & SCENEOF_POINT)
+				vidconsole_pop_colour(cons, &old);
+		}
 		break;
 	}
 	case SCENEOBJT_MENU: {
 		struct scene_obj_menu *menu = (struct scene_obj_menu *)obj;
+
+		if (exp->popup && (obj->flags & SCENEOF_OPEN)) {
+			if (!cons)
+				return -ENOTSUPP;
+
+			/* draw a background behind the menu items */
+			scene_menu_render(menu);
+		}
 		/*
 		 * With a vidconsole, the text and item pointer are rendered as
 		 * normal objects so we don't need to do anything here. The menu
@@ -491,6 +521,38 @@ int scene_apply_theme(struct scene *scn, struct expo_theme *theme)
 	ret = scene_arrange(scn);
 	if (ret)
 		return log_msg_ret("arr", ret);
+
+	return 0;
+}
+
+void scene_set_highlight_id(struct scene *scn, uint id)
+{
+	scn->highlight_id = id;
+}
+
+void scene_highlight_first(struct scene *scn)
+{
+	struct scene_obj *obj;
+
+	list_for_each_entry(obj, &scn->obj_head, sibling) {
+		switch (obj->type) {
+		case SCENEOBJT_MENU:
+			scene_set_highlight_id(scn, obj->id);
+			return;
+		default:
+			break;
+		}
+	}
+}
+
+int scene_set_open(struct scene *scn, uint id, bool open)
+{
+	int ret;
+
+	ret = scene_obj_flag_clrset(scn, id, SCENEOF_OPEN,
+				    open ? SCENEOF_OPEN : 0);
+	if (ret)
+		return log_msg_ret("flg", ret);
 
 	return 0;
 }

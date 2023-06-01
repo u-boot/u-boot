@@ -413,6 +413,36 @@ int scene_new(struct expo *exp, const char *name, uint id, struct scene **scnp);
 struct scene *expo_lookup_scene_id(struct expo *exp, uint scene_id);
 
 /**
+ * scene_highlight_first() - Highlight the first item in a scene
+ *
+ * This highlights the first item, so that the user can see that it is pointed
+ * to
+ *
+ * @scn: Scene to update
+ */
+void scene_highlight_first(struct scene *scn);
+
+/**
+ * scene_set_highlight_id() - Set the object which is highlighted
+ *
+ * Sets a new object to highlight in the scene
+ *
+ * @scn: Scene to update
+ * @id: ID of object to highlight
+ */
+void scene_set_highlight_id(struct scene *scn, uint id);
+
+/**
+ * scene_set_open() - Set whether an item is open or not
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @open: true to open the object, false to close it
+ * Returns: 0 if OK, -ENOENT if @id is invalid
+ */
+int scene_set_open(struct scene *scn, uint id, bool open);
+
+/**
  * scene_title_set() - set the scene title
  *
  * @scn: Scene to update
