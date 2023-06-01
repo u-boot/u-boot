@@ -211,10 +211,9 @@ void *dev_remap_addr(const struct udevice *dev)
 	return dev_remap_addr_index(dev, 0);
 }
 
-fdt_addr_t dev_read_addr_size(const struct udevice *dev, const char *property,
-			      fdt_size_t *sizep)
+fdt_addr_t dev_read_addr_size(const struct udevice *dev, fdt_size_t *sizep)
 {
-	return ofnode_get_addr_size(dev_ofnode(dev), property, sizep);
+	return dev_read_addr_size_index(dev, 0, sizep);
 }
 
 const char *dev_read_name(const struct udevice *dev)

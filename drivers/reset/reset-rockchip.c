@@ -97,7 +97,7 @@ static int rockchip_reset_probe(struct udevice *dev)
 	fdt_addr_t addr;
 	fdt_size_t size;
 
-	addr = dev_read_addr_size(dev, "reg", &size);
+	addr = dev_read_addr_size(dev, &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
