@@ -70,6 +70,7 @@ struct expo_theme {
  * @action: Action selected by user. At present only one is supported, with the
  * type set to EXPOACT_NONE if there is no action
  * @text_mode: true to use text mode for the menu (no vidconsole)
+ * @popup: true to use popup menus, instead of showing all items
  * @priv: Private data for the controller
  * @theme: Information about fonts styles, etc.
  * @scene_head: List of scenes
@@ -83,6 +84,7 @@ struct expo {
 	uint next_id;
 	struct expo_action action;
 	bool text_mode;
+	bool popup;
 	void *priv;
 	struct expo_theme theme;
 	struct list_head scene_head;
@@ -111,6 +113,7 @@ struct expo_string {
  * @name: Name of the scene (allocated)
  * @id: ID number of the scene
  * @title_id: String ID of title of the scene (allocated)
+ * @highlight_id: ID of highlighted object, if any
  * @sibling: Node to link this scene to its siblings
  * @obj_head: List of objects in the scene
  */
@@ -119,6 +122,7 @@ struct scene {
 	char *name;
 	uint id;
 	uint title_id;
+	uint highlight_id;
 	struct list_head sibling;
 	struct list_head obj_head;
 };
@@ -157,9 +161,14 @@ struct scene_dim {
  * enum scene_obj_flags_t - flags for objects
  *
  * @SCENEOF_HIDE: object should be hidden
+ * @SCENEOF_POINT: object should be highlighted
+ * @SCENEOF_OPEN: object should be opened (e.g. menu is opened so that an option
+ * can be selected)
  */
 enum scene_obj_flags_t {
 	SCENEOF_HIDE	= 1 << 0,
+	SCENEOF_POINT	= 1 << 1,
+	SCENEOF_OPEN	= 1 << 2,
 };
 
 /**

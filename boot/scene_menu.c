@@ -56,6 +56,7 @@ static struct scene_menitem *scene_menuitem_find(struct scene_obj_menu *menu,
 static int update_pointers(struct scene_obj_menu *menu, uint id, bool point)
 {
 	struct scene *scn = menu->obj.scene;
+	const bool stack = scn->expo->popup;
 	const struct scene_menitem *item;
 	int ret;
 
@@ -73,6 +74,12 @@ static int update_pointers(struct scene_obj_menu *menu, uint id, bool point)
 					menu->obj.dim.x + 200, label->dim.y);
 		if (ret < 0)
 			return log_msg_ret("ptr", ret);
+	}
+
+	if (stack) {
+		point &= scn->highlight_id == menu->obj.id;
+		scene_obj_flag_clrset(scn, item->label_id, SCENEOF_POINT,
+				      point ? SCENEOF_POINT : 0);
 	}
 
 	return 0;
@@ -172,11 +179,15 @@ int scene_menu_calc_dims(struct scene_obj_menu *menu)
 
 int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 {
+	const bool open = menu->obj.flags & SCENEOF_OPEN;
+	struct expo *exp = scn->expo;
+	const bool stack = exp->popup;
 	struct scene_menitem *item;
 	uint sel_id;
-	int y, cur_y;
+	int x, y;
 	int ret;
 
+	x = menu->obj.dim.x;
 	y = menu->obj.dim.y;
 	if (menu->title_id) {
 		ret = scene_obj_set_pos(scn, menu->title_id, menu->obj.dim.x, y);
@@ -187,7 +198,10 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 		if (ret < 0)
 			return log_msg_ret("hei", ret);
 
-		y += ret * 2;
+		if (stack)
+			x += 200;
+		else
+			y += ret * 2;
 	}
 
 	/*
@@ -198,9 +212,10 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 	 */
 	sel_id = menu->cur_item_id;
 	list_for_each_entry(item, &menu->item_head, sibling) {
+		bool selected;
 		int height;
 
-		ret = scene_obj_get_hw(scn, item->desc_id, NULL);
+		ret = scene_obj_get_hw(scn, item->label_id, NULL);
 		if (ret < 0)
 			return log_msg_ret("get", ret);
 		height = ret;
@@ -212,29 +227,29 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 		if (!sel_id)
 			sel_id = item->id;
 
+		selected = sel_id == item->id;
+
 		/*
 		 * Put the label on the left, then leave a space for the
 		 * pointer, then the key and the description
 		 */
-		if (item->label_id) {
-			ret = scene_obj_set_pos(scn, item->label_id, menu->obj.dim.x,
-						y);
+		ret = scene_obj_set_pos(scn, item->label_id, x, y);
+		if (ret < 0)
+			return log_msg_ret("nam", ret);
+		scene_obj_set_hide(scn, item->label_id,
+				   stack && !open && !selected);
+
+		if (item->key_id) {
+			ret = scene_obj_set_pos(scn, item->key_id, x + 230, y);
 			if (ret < 0)
-				return log_msg_ret("nam", ret);
+				return log_msg_ret("key", ret);
 		}
 
-		ret = scene_obj_set_pos(scn, item->key_id, menu->obj.dim.x + 230,
-					y);
-		if (ret < 0)
-			return log_msg_ret("key", ret);
-
-		ret = scene_obj_set_pos(scn, item->desc_id, menu->obj.dim.x + 280,
-					y);
-		if (ret < 0)
-			return log_msg_ret("des", ret);
-
-		if (menu->cur_item_id == item->id)
-			cur_y = y;
+		if (item->desc_id) {
+			ret = scene_obj_set_pos(scn, item->desc_id, x + 280, y);
+			if (ret < 0)
+				return log_msg_ret("des", ret);
+		}
 
 		if (item->preview_id) {
 			bool hide;
@@ -253,7 +268,8 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 				return log_msg_ret("hid", ret);
 		}
 
-		y += height;
+		if (!stack || open)
+			y += height;
 	}
 
 	if (sel_id)
@@ -380,7 +396,7 @@ int scene_menuitem(struct scene *scn, uint menu_id, const char *name, uint id,
 		return log_msg_ret("find", -ENOENT);
 
 	/* Check that the text ID is valid */
-	if (!scene_obj_find(scn, desc_id, SCENEOBJT_TEXT))
+	if (!scene_obj_find(scn, label_id, SCENEOBJT_TEXT))
 		return log_msg_ret("txt", -EINVAL);
 
 	item = calloc(1, sizeof(struct scene_obj_menu));
