@@ -378,7 +378,7 @@ static int expo_object_menu(struct unit_test_state *uts)
 
 	ut_asserteq(-4, prev1->obj.dim.x);
 	ut_asserteq(menu->obj.dim.y + 32, prev1->obj.dim.y);
-	ut_asserteq(false, prev1->obj.flags & SCENEOF_HIDE);
+	ut_asserteq(true, prev1->obj.flags & SCENEOF_HIDE);
 
 	expo_destroy(exp);
 
