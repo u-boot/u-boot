@@ -72,7 +72,7 @@ static oftree oftree_ensure(void *fdt)
 		}
 	} else {
 		if (fdt != gd->fdt_blob) {
-			log_debug("Cannot only access control FDT before relocation\n");
+			log_debug("Only the control FDT can be accessed before relocation\n");
 			return oftree_null();
 		}
 	}
