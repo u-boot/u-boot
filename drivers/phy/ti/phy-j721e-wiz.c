@@ -256,6 +256,7 @@ enum wiz_type {
 	J721E_WIZ_10G,
 	AM64_WIZ_10G,
 	J784S4_WIZ_10G,
+	J721S2_WIZ_10G,
 };
 
 struct wiz_data {
@@ -304,6 +305,15 @@ static struct wiz_data j784s4_wiz_10g = {
 	.refclk_dig_sel = &refclk_dig_sel_16g,
 	.pma_cmn_refclk1_int_mode = &pma_cmn_refclk1_int_mode,
 	.clk_mux_sel = clk_mux_sel_10g_2_refclk,
+	.clk_div_sel_num = WIZ_DIV_NUM_CLOCKS_10G,
+};
+
+static struct wiz_data j721s2_10g_data = {
+	.type = J721S2_WIZ_10G,
+	.pll0_refclk_mux_sel = &pll0_refclk_mux_sel,
+	.pll1_refclk_mux_sel = &pll1_refclk_mux_sel,
+	.refclk_dig_sel = &refclk_dig_sel_10g,
+	.clk_mux_sel = clk_mux_sel_10g,
 	.clk_div_sel_num = WIZ_DIV_NUM_CLOCKS_10G,
 };
 
@@ -1037,8 +1047,14 @@ static int j721e_wiz_bind_of_clocks(struct wiz *wiz)
 	ofnode node;
 	int i, rc;
 
-	if (type == AM64_WIZ_10G || type == J784S4_WIZ_10G)
+	switch (type) {
+	case AM64_WIZ_10G:
+	case J784S4_WIZ_10G:
+	case J721S2_WIZ_10G:
 		return j721e_wiz_bind_clocks(wiz);
+	default:
+		break;
+	};
 
 	div_clk_drv = lists_driver_lookup_name("wiz_div_clk");
 	if (!div_clk_drv) {
@@ -1281,6 +1297,9 @@ static const struct udevice_id j721e_wiz_ids[] = {
 	},
 	{
 		.compatible = "ti,j784s4-wiz-10g", .data = (ulong)&j784s4_wiz_10g,
+	},
+	{
+		.compatible = "ti,j721s2-wiz-10g", .data = (ulong)&j721s2_10g_data,
 	},
 	{}
 };

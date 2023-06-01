@@ -14,8 +14,8 @@
  * @bus:     The AXI bus from which to retrieve a emulation device
  * @address: The address of a transfer that should be handled by a emulation
  *	     device
- * @length:  The data width of a transfer that should be handled by a emulation
- *	     device
+ * @size:    A constant indicating the data width of the transfer that
+ *	     should be handled by an emulation device
  * @emulp:   Pointer to a buffer receiving the emulation device that handles
  *	     the transfer specified by the address and length parameters
  *
@@ -45,8 +45,8 @@
  * Return: 0 of OK, -ENODEV if no device capable of handling the specified
  *	   transfer exists or the device could not be retrieved
  */
-int axi_sandbox_get_emul(struct udevice *bus, ulong address, uint length,
-			 struct udevice **emulp);
+int axi_sandbox_get_emul(struct udevice *bus, ulong address,
+			 const enum axi_size_t size, struct udevice **emulp);
 /**
  * axi_get_store() - Get address of internal storage of a emulated AXI device
  * @dev:	Emulated AXI device to get the pointer of the internal storage

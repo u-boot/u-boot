@@ -37,13 +37,13 @@ static int npcm_gpio_direction_output(struct udevice *dev, unsigned int offset,
 {
 	struct npcm_gpio_priv *priv = dev_get_priv(dev);
 
-	clrbits_le32(priv->base + GPIO_IEM, BIT(offset));
-	writel(BIT(offset), priv->base + GPIO_OES);
-
 	if (value)
 		setbits_le32(priv->base + GPIO_DOUT, BIT(offset));
 	else
 		clrbits_le32(priv->base + GPIO_DOUT, BIT(offset));
+
+	clrbits_le32(priv->base + GPIO_IEM, BIT(offset));
+	writel(BIT(offset), priv->base + GPIO_OES);
 
 	return 0;
 }

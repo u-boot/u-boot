@@ -15,6 +15,15 @@
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
 
+#define RTC_BASE_ADDRESS		0x2b1f0000
+#define REG_K3RTC_S_CNT_LSW		(RTC_BASE_ADDRESS + 0x18)
+#define REG_K3RTC_KICK0			(RTC_BASE_ADDRESS + 0x70)
+#define REG_K3RTC_KICK1			(RTC_BASE_ADDRESS + 0x74)
+
+/* Magic values for lock/unlock */
+#define K3RTC_KICK0_UNLOCK_VALUE	0x83e70b13
+#define K3RTC_KICK1_UNLOCK_VALUE	0x95a4f1e0
+
 /*
  * This uninitialized global variable would normal end up in the .bss section,
  * but the .bss is cleared between writing and reading this variable, so move
@@ -71,6 +80,42 @@ static __maybe_unused void enable_mcu_esm_reset(void)
 	writel(stat, CTRLMMR_MCU_RST_CTRL);
 }
 
+#if defined(CONFIG_CPU_V7R)
+
+/*
+ * RTC Erratum i2327 Workaround for Silicon Revision 1
+ *
+ * Due to a bug in initial synchronization out of cold power on,
+ * IRQ status can get locked infinitely if we do not unlock RTC
+ *
+ * This workaround *must* be applied within 1 second of power on,
+ * So, this is closest point to be able to guarantee the max
+ * timing.
+ *
+ * https://www.ti.com/lit/er/sprz487c/sprz487c.pdf
+ */
+void rtc_erratumi2327_init(void)
+{
+	u32 counter;
+
+	/*
+	 * If counter has gone past 1, nothing we can do, leave
+	 * system locked! This is the only way we know if RTC
+	 * can be used for all practical purposes.
+	 */
+	counter = readl(REG_K3RTC_S_CNT_LSW);
+	if (counter > 1)
+		return;
+	/*
+	 * Need to set this up at the very start
+	 * MUST BE DONE under 1 second of boot.
+	 */
+	writel(K3RTC_KICK0_UNLOCK_VALUE, REG_K3RTC_KICK0);
+	writel(K3RTC_KICK1_UNLOCK_VALUE, REG_K3RTC_KICK1);
+	return;
+}
+#endif
+
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
@@ -78,6 +123,7 @@ void board_init_f(ulong dummy)
 
 #if defined(CONFIG_CPU_V7R)
 	setup_k3_mpu_regions();
+	rtc_erratumi2327_init();
 #endif
 
 	/*
