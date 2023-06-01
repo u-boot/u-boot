@@ -580,6 +580,9 @@ static void record_transfer_result(struct usb_device *udev,
 	case COMP_SHORT_TX:
 		udev->status = 0;
 		break;
+	case COMP_TX_ERR:
+		udev->status = USB_ST_CRC_ERR;
+		break;
 	case COMP_STALL:
 		udev->status = USB_ST_STALLED;
 		break;
@@ -978,6 +981,10 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 	if (udev->status == USB_ST_STALLED) {
 		reset_ep(udev, ep_index);
 		return -EPIPE;
+	}
+	if (udev->status == USB_ST_CRC_ERR ) {
+		reset_ep(udev, ep_index);
+		return -EAGAIN;
 	}
 
 	/* Invalidate buffer to make it available to usb-core */
