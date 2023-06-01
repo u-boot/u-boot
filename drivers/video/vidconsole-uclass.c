@@ -596,6 +596,28 @@ int vidconsole_select_font(struct udevice *dev, const char *name, uint size)
 	return ops->select_font(dev, name, size);
 }
 
+int vidconsole_measure(struct udevice *dev, const char *name, uint size,
+		       const char *text, struct vidconsole_bbox *bbox)
+{
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+	int ret;
+
+	if (ops->select_font) {
+		ret = ops->measure(dev, name, size, text, bbox);
+		if (ret != -ENOSYS)
+			return ret;
+	}
+
+	bbox->valid = true;
+	bbox->x0 = 0;
+	bbox->y0 = 0;
+	bbox->x1 = priv->x_charsize * strlen(text);
+	bbox->y1 = priv->y_charsize;
+
+	return 0;
+}
+
 void vidconsole_push_colour(struct udevice *dev, enum colour_idx fg,
 			    enum colour_idx bg, struct vidconsole_colour *old)
 {

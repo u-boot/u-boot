@@ -614,8 +614,8 @@ static void select_metrics(struct udevice *dev, struct console_tt_metrics *met)
 	vc_priv->tab_width_frac = VID_TO_POS(met->font_size) * 8 / 2;
 }
 
-static int truetype_select_font(struct udevice *dev, const char *name,
-				uint size)
+static int get_metrics(struct udevice *dev, const char *name, uint size,
+		       struct console_tt_metrics **metp)
 {
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_metrics *met;
@@ -653,7 +653,66 @@ static int truetype_select_font(struct udevice *dev, const char *name,
 		met = priv->metrics;
 	}
 
+	*metp = met;
+
+	return 0;
+}
+
+static int truetype_select_font(struct udevice *dev, const char *name,
+				uint size)
+{
+	struct console_tt_metrics *met;
+	int ret;
+
+	ret = get_metrics(dev, name, size, &met);
+	if (ret)
+		return log_msg_ret("sel", ret);
+
 	select_metrics(dev, met);
+
+	return 0;
+}
+
+int truetype_measure(struct udevice *dev, const char *name, uint size,
+		     const char *text, struct vidconsole_bbox *bbox)
+{
+	struct console_tt_metrics *met;
+	stbtt_fontinfo *font;
+	int lsb, advance;
+	const char *s;
+	int width;
+	int last;
+	int ret;
+
+	ret = get_metrics(dev, name, size, &met);
+	if (ret)
+		return log_msg_ret("sel", ret);
+
+	bbox->valid = false;
+	if (!*text)
+		return 0;
+
+	font = &met->font;
+	width = 0;
+	for (last = 0, s = text; *s; s++) {
+		int ch = *s;
+
+		/* Used kerning to fine-tune the position of this character */
+		if (last)
+			width += stbtt_GetCodepointKernAdvance(font, last, ch);
+
+		/* First get some basic metrics about this character */
+		stbtt_GetCodepointHMetrics(font, ch, &advance, &lsb);
+
+		width += advance;
+		last = ch;
+	}
+
+	bbox->valid = true;
+	bbox->x0 = 0;
+	bbox->y0 = 0;
+	bbox->x1 = tt_ceil((double)width * met->scale);
+	bbox->y1 = met->font_size;
 
 	return 0;
 }
@@ -709,6 +768,7 @@ struct vidconsole_ops console_truetype_ops = {
 	.get_font	= console_truetype_get_font,
 	.get_font_size	= console_truetype_get_font_size,
 	.select_font	= truetype_select_font,
+	.measure	= truetype_measure,
 };
 
 U_BOOT_DRIVER(vidconsole_truetype) = {
