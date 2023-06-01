@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <expo.h>
 #include <menu.h>
@@ -668,3 +669,46 @@ static int expo_test_build(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(expo_test_build, UT_TESTF_DM);
+
+/* Check the cedit command */
+static int expo_cedit(struct unit_test_state *uts)
+{
+	extern struct expo *cur_exp;
+	struct scene_obj_menu *menu;
+	struct scene_obj_txt *txt;
+	struct expo *exp;
+	struct scene *scn;
+
+	if (!IS_ENABLED(CONFIG_CMD_CEDIT))
+		return -EAGAIN;
+
+	ut_assertok(run_command("cedit load hostfs - cedit.dtb", 0));
+
+	console_record_reset_enable();
+
+	/*
+	 * ^N  Move down to second menu
+	 * ^M  Open menu
+	 * ^N  Move down to second item
+	 * ^M  Select item
+	 * \e  Quit
+	 */
+	console_in_puts("\x0e\x0d\x0e\x0d\e");
+	ut_assertok(run_command("cedit run", 0));
+
+	exp = cur_exp;
+	scn = expo_lookup_scene_id(exp, exp->scene_id);
+	ut_assertnonnull(scn);
+
+	menu = scene_obj_find(scn, scn->highlight_id, SCENEOBJT_NONE);
+	ut_assertnonnull(menu);
+
+	txt = scene_obj_find(scn, menu->title_id, SCENEOBJT_NONE);
+	ut_assertnonnull(txt);
+	ut_asserteq_str("AC Power", expo_get_str(exp, txt->str_id));
+
+	ut_asserteq(ID_AC_ON, menu->cur_item_id);
+
+	return 0;
+}
+BOOTSTD_TEST(expo_cedit, UT_TESTF_DM | UT_TESTF_SCAN_FDT);

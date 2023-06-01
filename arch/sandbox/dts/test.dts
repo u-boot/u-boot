@@ -144,6 +144,12 @@
 	cedit: cedit {
 	};
 
+	cedit-theme {
+		font-size = <30>;
+		menu-inset = <3>;
+		menuitem-gap-y = <1>;
+	};
+
 	fuzzing-engine {
 		compatible = "sandbox,fuzzing-engine";
 	};

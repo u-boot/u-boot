@@ -282,6 +282,15 @@ label Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
         copy_prepared_image(cons, mmc_dev, fname)
 
 
+def setup_cedit_file(cons):
+    infname = os.path.join(cons.config.source_dir,
+                           'test/boot/files/expo_layout.dts')
+    expo_tool = os.path.join(cons.config.source_dir, 'tools/expo.py')
+    outfname = 'cedit.dtb'
+    u_boot_utils.run_and_log(
+        cons, f'{expo_tool} -e {infname} -l {infname} -o {outfname}')
+
+
 @pytest.mark.buildconfigspec('ut_dm')
 def test_ut_dm_init(u_boot_console):
     """Initialize data for ut dm tests."""
@@ -319,6 +328,7 @@ def test_ut_dm_init_bootstd(u_boot_console):
 
     setup_bootflow_image(u_boot_console)
     setup_bootmenu_image(u_boot_console)
+    setup_cedit_file(u_boot_console)
 
     # Restart so that the new mmc1.img is picked up
     u_boot_console.restart_uboot()
