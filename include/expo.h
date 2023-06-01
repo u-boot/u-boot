@@ -306,12 +306,12 @@ int expo_set_scene_id(struct expo *exp, uint scene_id);
 int expo_render(struct expo *exp);
 
 /**
- * exp_set_text_mode() - Controls whether the expo renders in text mode
+ * expo_set_text_mode() - Controls whether the expo renders in text mode
  *
  * @exp: Expo to update
  * @text_mode: true to use text mode, false to use the console
  */
-void exp_set_text_mode(struct expo *exp, bool text_mode);
+void expo_set_text_mode(struct expo *exp, bool text_mode);
 
 /**
  * scene_new() - create a new scene in a expo

@@ -507,7 +507,7 @@ static int expo_render_image(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* now try in text mode */
-	exp_set_text_mode(exp, true);
+	expo_set_text_mode(exp, true);
 	ut_assertok(expo_render(exp));
 
 	ut_assert_nextline("U-Boot    :    Boot Menu");

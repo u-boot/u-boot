@@ -209,7 +209,7 @@ int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
 		return log_msg_ret("scn", ret);
 
 	if (text_mode)
-		exp_set_text_mode(exp, text_mode);
+		expo_set_text_mode(exp, text_mode);
 
 	done = false;
 	do {

@@ -97,7 +97,7 @@ int expo_set_display(struct expo *exp, struct udevice *dev)
 	return 0;
 }
 
-void exp_set_text_mode(struct expo *exp, bool text_mode)
+void expo_set_text_mode(struct expo *exp, bool text_mode)
 {
 	exp->text_mode = text_mode;
 }
