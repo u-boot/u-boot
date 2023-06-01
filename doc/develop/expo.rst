@@ -182,8 +182,6 @@ Some ideas for future work:
 - Add a Kconfig option to drop the names to save code / data space
 - Add a Kconfig option to disable vidconsole support to save code / data space
 - Support both graphical and text menus at the same time on different devices
-- Implement proper measurement of object bounding boxes, to permit more exact
-  layout. This would tidy up the layout when Truetype is not used
 - Support unicode
 - Support curses for proper serial-terminal menus
 

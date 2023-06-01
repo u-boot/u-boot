@@ -207,6 +207,19 @@ int scene_obj_set_pos(struct scene *scn, uint id, int x, int y)
 	return 0;
 }
 
+int scene_obj_set_size(struct scene *scn, uint id, int w, int h)
+{
+	struct scene_obj *obj;
+
+	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
+	if (!obj)
+		return log_msg_ret("find", -ENOENT);
+	obj->dim.w = w;
+	obj->dim.h = h;
+
+	return 0;
+}
+
 int scene_obj_set_hide(struct scene *scn, uint id, bool hide)
 {
 	int ret;
@@ -409,6 +422,45 @@ int scene_send_key(struct scene *scn, int key, struct expo_action *event)
 			if (ret)
 				return log_msg_ret("key", ret);
 			break;
+		}
+	}
+
+	return 0;
+}
+
+int scene_calc_dims(struct scene *scn, bool do_menus)
+{
+	struct scene_obj *obj;
+	int ret;
+
+	list_for_each_entry(obj, &scn->obj_head, sibling) {
+		switch (obj->type) {
+		case SCENEOBJT_NONE:
+		case SCENEOBJT_TEXT:
+		case SCENEOBJT_IMAGE: {
+			int width;
+
+			if (!do_menus) {
+				ret = scene_obj_get_hw(scn, obj->id, &width);
+				if (ret < 0)
+					return log_msg_ret("get", ret);
+				obj->dim.w = width;
+				obj->dim.h = ret;
+			}
+			break;
+		}
+		case SCENEOBJT_MENU: {
+			struct scene_obj_menu *menu;
+
+			if (do_menus) {
+				menu = (struct scene_obj_menu *)obj;
+
+				ret = scene_menu_calc_dims(menu);
+				if (ret)
+					return log_msg_ret("men", ret);
+			}
+			break;
+		}
 		}
 	}
 

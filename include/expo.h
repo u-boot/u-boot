@@ -328,6 +328,16 @@ const char *expo_get_str(struct expo *exp, uint id);
 int expo_set_display(struct expo *exp, struct udevice *dev);
 
 /**
+ * expo_calc_dims() - Calculate the dimensions of the objects
+ *
+ * Updates the width and height of all objects based on their contents
+ *
+ * @exp: Expo to update
+ * Returns 0 if OK, -ENOTSUPP if there is no graphical console
+ */
+int expo_calc_dims(struct expo *exp);
+
+/**
  * expo_set_scene_id() - Set the current scene ID
  *
  * @exp: Expo to update
@@ -467,6 +477,17 @@ int scene_txt_set_font(struct scene *scn, uint id, const char *font_name,
  * Returns: 0 if OK, -ENOENT if @id is invalid
  */
 int scene_obj_set_pos(struct scene *scn, uint id, int x, int y);
+
+/**
+ * scene_obj_set_size() - Set the size of an object
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @w: width in pixels
+ * @h: height in pixels
+ * Returns: 0 if OK, -ENOENT if @id is invalid
+ */
+int scene_obj_set_size(struct scene *scn, uint id, int w, int h);
 
 /**
  * scene_obj_set_hide() - Set whether an object is hidden

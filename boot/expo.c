@@ -114,6 +114,30 @@ int expo_set_display(struct expo *exp, struct udevice *dev)
 	return 0;
 }
 
+int expo_calc_dims(struct expo *exp)
+{
+	struct scene *scn;
+	int ret;
+
+	if (!exp->cons)
+		return log_msg_ret("dim", -ENOTSUPP);
+
+	list_for_each_entry(scn, &exp->scene_head, sibling) {
+		/*
+		 * Do the menus last so that all the menus' text objects
+		 * are dimensioned
+		 */
+		ret = scene_calc_dims(scn, false);
+		if (ret)
+			return log_msg_ret("scn", ret);
+		ret = scene_calc_dims(scn, true);
+		if (ret)
+			return log_msg_ret("scn", ret);
+	}
+
+	return 0;
+}
+
 void expo_set_text_mode(struct expo *exp, bool text_mode)
 {
 	exp->text_mode = text_mode;

@@ -66,6 +66,17 @@ int scene_obj_add(struct scene *scn, const char *name, uint id,
 int scene_obj_flag_clrset(struct scene *scn, uint id, uint clr, uint set);
 
 /**
+ * scene_calc_dims() - Calculate the dimensions of the scene objects
+ *
+ * Updates the width and height of all objects based on their contents
+ *
+ * @scn: Scene to update
+ * @do_menus: true to calculate only menus, false to calculate everything else
+ * Returns 0 if OK, -ENOTSUPP if there is no graphical console
+ */
+int scene_calc_dims(struct scene *scn, bool do_menus);
+
+/**
  * scene_menu_arrange() - Set the position of things in the menu
  *
  * This updates any items associated with a menu to make sure they are
@@ -132,5 +143,15 @@ int scene_render(struct scene *scn);
  * Returns: 0 if OK, -ve on error
  */
 int scene_send_key(struct scene *scn, int key, struct expo_action *event);
+
+/**
+ * scene_menu_calc_dims() - Calculate the dimensions of a menu
+ *
+ * Updates the width and height of the menu based on its contents
+ *
+ * @menu: Menu to update
+ * Returns 0 if OK, -ENOTSUPP if there is no graphical console
+ */
+int scene_menu_calc_dims(struct scene_obj_menu *menu);
 
 #endif /* __SCENE_INTERNAL_H */

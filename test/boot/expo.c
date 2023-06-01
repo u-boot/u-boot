@@ -473,6 +473,48 @@ static int expo_render_image(struct unit_test_state *uts)
 	/* render without a scene */
 	ut_asserteq(-ECHILD, expo_render(exp));
 
+	ut_assertok(expo_calc_dims(exp));
+	ut_assertok(scene_arrange(scn));
+
+	/* check dimensions of text */
+	obj = scene_obj_find(scn, OBJ_TEXT, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(400, obj->dim.x);
+	ut_asserteq(100, obj->dim.y);
+	ut_asserteq(126, obj->dim.w);
+	ut_asserteq(40, obj->dim.h);
+
+	/* check dimensions of image */
+	obj = scene_obj_find(scn, OBJ_LOGO, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(50, obj->dim.x);
+	ut_asserteq(20, obj->dim.y);
+	ut_asserteq(160, obj->dim.w);
+	ut_asserteq(160, obj->dim.h);
+
+	/* check dimensions of menu labels - both should be the same width */
+	obj = scene_obj_find(scn, ITEM1_LABEL, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(50, obj->dim.x);
+	ut_asserteq(436, obj->dim.y);
+	ut_asserteq(29, obj->dim.w);
+	ut_asserteq(18, obj->dim.h);
+
+	obj = scene_obj_find(scn, ITEM2_LABEL, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(50, obj->dim.x);
+	ut_asserteq(454, obj->dim.y);
+	ut_asserteq(29, obj->dim.w);
+	ut_asserteq(18, obj->dim.h);
+
+	/* check dimensions of menu */
+	obj = scene_obj_find(scn, OBJ_MENU, SCENEOBJT_NONE);
+	ut_assertnonnull(obj);
+	ut_asserteq(50, obj->dim.x);
+	ut_asserteq(400, obj->dim.y);
+	ut_asserteq(160, obj->dim.w);
+	ut_asserteq(160, obj->dim.h);
+
 	/* render it */
 	expo_set_scene_id(exp, SCENE1);
 	ut_assertok(expo_render(exp));

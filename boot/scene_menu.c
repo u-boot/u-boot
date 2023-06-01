@@ -43,6 +43,85 @@ static void menu_point_to_item(struct scene_obj_menu *menu, uint item_id)
 	menu->cur_item_id = item_id;
 }
 
+static int scene_bbox_union(struct scene *scn, uint id,
+			    struct vidconsole_bbox *bbox)
+{
+	struct scene_obj *obj;
+
+	if (!id)
+		return 0;
+	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
+	if (!obj)
+		return log_msg_ret("obj", -ENOENT);
+	if (bbox->valid) {
+		bbox->x0 = min(bbox->x0, obj->dim.x);
+		bbox->y0 = min(bbox->y0, obj->dim.y);
+		bbox->x1 = max(bbox->x1, obj->dim.x + obj->dim.w);
+		bbox->y1 = max(bbox->y1, obj->dim.y + obj->dim.h);
+	} else {
+		bbox->x0 = obj->dim.x;
+		bbox->y0 = obj->dim.y;
+		bbox->x1 = obj->dim.x + obj->dim.w;
+		bbox->y1 = obj->dim.y + obj->dim.h;
+		bbox->valid = true;
+	}
+
+	return 0;
+}
+
+/**
+ * scene_menu_calc_bbox() - Calculate bounding boxes for the menu
+ *
+ * @menu: Menu to process
+ * @bbox: Returns bounding box of menu including prompts
+ * @label_bbox: Returns bounding box of labels
+ */
+static void scene_menu_calc_bbox(struct scene_obj_menu *menu,
+				 struct vidconsole_bbox *bbox,
+				 struct vidconsole_bbox *label_bbox)
+{
+	const struct scene_menitem *item;
+
+	bbox->valid = false;
+	scene_bbox_union(menu->obj.scene, menu->title_id, bbox);
+
+	label_bbox->valid = false;
+
+	list_for_each_entry(item, &menu->item_head, sibling) {
+		scene_bbox_union(menu->obj.scene, item->label_id, bbox);
+		scene_bbox_union(menu->obj.scene, item->key_id, bbox);
+		scene_bbox_union(menu->obj.scene, item->desc_id, bbox);
+		scene_bbox_union(menu->obj.scene, item->preview_id, bbox);
+
+		/* Get the bounding box of all labels */
+		scene_bbox_union(menu->obj.scene, item->label_id, label_bbox);
+	}
+}
+
+int scene_menu_calc_dims(struct scene_obj_menu *menu)
+{
+	struct vidconsole_bbox bbox, label_bbox;
+	const struct scene_menitem *item;
+
+	scene_menu_calc_bbox(menu, &bbox, &label_bbox);
+
+	/* Make all labels the same size */
+	if (label_bbox.valid) {
+		list_for_each_entry(item, &menu->item_head, sibling) {
+			scene_obj_set_size(menu->obj.scene, item->label_id,
+					   label_bbox.x1 - label_bbox.x0,
+					   label_bbox.y1 - label_bbox.y0);
+		}
+	}
+
+	if (bbox.valid) {
+		menu->obj.dim.w = bbox.x1 - bbox.x0;
+		menu->obj.dim.h = bbox.y1 - bbox.y0;
+	}
+
+	return 0;
+}
+
 int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 {
 	struct scene_menitem *item;
