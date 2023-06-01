@@ -226,7 +226,7 @@ static int expo_object(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(expo_object, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 
-/* Check setting object attributes */
+/* Check setting object attributes and using themes */
 static int expo_object_attr(struct unit_test_state *uts)
 {
 	struct scene_obj_menu *menu;
@@ -236,6 +236,7 @@ static int expo_object_attr(struct unit_test_state *uts)
 	struct expo *exp;
 	ulong start_mem;
 	char name[100];
+	ofnode node;
 	char *data;
 	int id;
 
@@ -272,6 +273,11 @@ static int expo_object_attr(struct unit_test_state *uts)
 
 	ut_asserteq(-ENOENT, scene_menu_set_title(scn, OBJ_TEXT2, OBJ_TEXT));
 	ut_asserteq(-EINVAL, scene_menu_set_title(scn, OBJ_MENU, OBJ_TEXT2));
+
+	node = ofnode_path("/bootstd/theme");
+	ut_assert(ofnode_valid(node));
+	ut_assertok(expo_apply_theme(exp, node));
+	ut_asserteq(30, txt->font_size);
 
 	expo_destroy(exp);
 

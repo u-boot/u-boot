@@ -155,8 +155,13 @@ such as scanning devices for more bootflows.
 Themes
 ------
 
-Expo does not itself support themes. The bootflow_menu implement supposed a
-basic theme, applying font sizes to the various text objects in the expo.
+Expo supports simple themes, for setting the font size, for example. Use the
+expo_apply_theme() function to load a theme, passing a node with the required
+properties:
+
+font-size
+    Font size to use for all text (type: u32)
+
 
 API documentation
 -----------------

@@ -90,6 +90,15 @@ int scene_calc_dims(struct scene *scn, bool do_menus);
 int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu);
 
 /**
+ * scene_apply_theme() - Apply a theme to a scene
+ *
+ * @scn: Scene to update
+ * @theme: Theme to apply
+ * Returns: 0 if OK, -ve on error
+ */
+int scene_apply_theme(struct scene *scn, struct expo_theme *theme);
+
+/**
  * scene_menu_send_key() - Send a key to a menu for processing
  *
  * @scn: Scene to use

@@ -7,6 +7,7 @@
 #ifndef __SCENE_H
 #define __SCENE_H
 
+#include <dm/ofnode_decl.h>
 #include <linux/list.h>
 
 struct udevice;
@@ -43,6 +44,19 @@ struct expo_action {
 };
 
 /**
+ * struct expo_theme - theme for the expo
+ *
+ * @font_size: Default font size for all text
+ * @menu_inset: Inset width (on each side and top/bottom) for menu items
+ * @menuitem_gap_y: Gap between menu items in pixels
+ */
+struct expo_theme {
+	u32 font_size;
+	u32 menu_inset;
+	u32 menuitem_gap_y;
+};
+
+/**
  * struct expo - information about an expo
  *
  * A group of scenes which can be presented to the user, typically to obtain
@@ -57,6 +71,7 @@ struct expo_action {
  * type set to EXPOACT_NONE if there is no action
  * @text_mode: true to use text mode for the menu (no vidconsole)
  * @priv: Private data for the controller
+ * @theme: Information about fonts styles, etc.
  * @scene_head: List of scenes
  * @str_head: list of strings
  */
@@ -69,6 +84,7 @@ struct expo {
 	struct expo_action action;
 	bool text_mode;
 	void *priv;
+	struct expo_theme theme;
 	struct list_head scene_head;
 	struct list_head str_head;
 };
@@ -582,5 +598,13 @@ int expo_send_key(struct expo *exp, int key);
  * Returns: 0 if OK, -EAGAIN if there was no action to return
  */
 int expo_action_get(struct expo *exp, struct expo_action *act);
+
+/**
+ * expo_apply_theme() - Apply a theme to an expo
+ *
+ * @exp: Expo to update
+ * @node: Node containing the theme
+ */
+int expo_apply_theme(struct expo *exp, ofnode node);
 
 #endif /*__SCENE_H */
