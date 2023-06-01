@@ -92,6 +92,18 @@ void *scene_obj_find(struct scene *scn, uint id, enum scene_obj_t type)
 	return NULL;
 }
 
+void *scene_obj_find_by_name(struct scene *scn, const char *name)
+{
+	struct scene_obj *obj;
+
+	list_for_each_entry(obj, &scn->obj_head, sibling) {
+		if (!strcmp(name, obj->name))
+			return obj;
+	}
+
+	return NULL;
+}
+
 int scene_obj_add(struct scene *scn, const char *name, uint id,
 		  enum scene_obj_t type, uint size, struct scene_obj **objp)
 {

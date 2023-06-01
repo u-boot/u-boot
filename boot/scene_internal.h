@@ -41,6 +41,14 @@ uint resolve_id(struct expo *exp, uint id);
 void *scene_obj_find(struct scene *scn, uint id, enum scene_obj_t type);
 
 /**
+ * scene_obj_find_by_name() - Find an object in a scene by name
+ *
+ * @scn: Scene to search
+ * @name: Name to search for
+ */
+void *scene_obj_find_by_name(struct scene *scn, const char *name);
+
+/**
  * scene_obj_add() - Add a new object to a scene
  *
  * @scn: Scene to update

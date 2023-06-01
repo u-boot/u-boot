@@ -11,6 +11,7 @@
 #include <linux/list.h>
 
 struct udevice;
+struct video_priv;
 
 /**
  * enum expoact_type - types of actions reported by the expo
@@ -379,6 +380,14 @@ int expo_calc_dims(struct expo *exp);
 int expo_set_scene_id(struct expo *exp, uint scene_id);
 
 /**
+ * expo_first_scene_id() - Get the ID of the first scene
+ *
+ * @exp: Expo to check
+ * Returns: Scene ID of first scene, or -ENOENT if there are no scenes
+ */
+int expo_first_scene_id(struct expo *exp);
+
+/**
  * expo_render() - render the expo on the display / console
  *
  * @exp: Expo to render
@@ -666,5 +675,25 @@ int expo_apply_theme(struct expo *exp, ofnode node);
  * error, -ENOENT if there is a references to a non-existent string
  */
 int expo_build(ofnode root, struct expo **expp);
+
+/**
+ * cedit_arange() - Arrange objects in a configuration-editor scene
+ *
+ * @exp: Expo to update
+ * @vid_priv: Private info of the video device
+ * @scene_id: scene ID to arrange
+ * Returns: 0 if OK, -ve on error
+ */
+int cedit_arange(struct expo *exp, struct video_priv *vid_priv, uint scene_id);
+
+/**
+ * cedit_run() - Run a configuration editor
+ *
+ * This accepts input until the user quits with Escape
+ *
+ * @exp: Expo to use
+ * Returns: 0 if OK, -ve on error
+ */
+int cedit_run(struct expo *exp);
 
 #endif /*__SCENE_H */

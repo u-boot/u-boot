@@ -171,8 +171,6 @@ menu-inset
 menuitem-gap-y
     Number of pixels between menu items
 
-.. _expo_format:
-
 Pop-up mode
 -----------
 
@@ -202,6 +200,8 @@ just as its title and label, as with the `CPU Speed` and `AC Power` menus here::
      UP and DOWN to choose, ENTER to select
 
 
+.. _expo_format:
+
 Expo Format
 -----------
 
@@ -211,7 +211,8 @@ makes it easier and faster to create and edit the description. An expo builder
 is provided to convert this format into an expo structure.
 
 Layout of the expo scenes is handled automatically, based on a set of simple
-rules.
+rules. The :doc:`../usage/cmd/cedit` can be used to load a configuration
+and create an expo from it.
 
 Top-level node
 ~~~~~~~~~~~~~~
@@ -464,6 +465,7 @@ Some ideas for future work:
 - Support unicode
 - Support curses for proper serial-terminal menus
 - Add support for large menus which need to scroll
+- Add support for reading and writing configuration settings with cedit
 
 .. Simon Glass <sjg@chromium.org>
 .. 7-Oct-22

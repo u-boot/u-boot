@@ -1630,4 +1630,18 @@ config SAVE_PREV_BL_INITRAMFS_START_ADDR
 	  If no initramfs was provided by previous bootloader, no env variables
 	  will be created.
 
+menu "Configuration editor"
+
+config CEDIT
+	bool "Configuration editor"
+	depends on BOOTSTD
+	help
+	  Provides a way to deal with board configuration and present it to
+	  the user for adjustment.
+
+	  This is intended to provide both graphical and text-based user
+	  interfaces, but only graphical is support at present.
+
+endmenu		# Configuration editor
+
 endmenu		# Booting

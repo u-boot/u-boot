@@ -376,7 +376,8 @@ int expo_build(ofnode root, struct expo **expp)
 	ret = read_strings(&info, root);
 	if (ret)
 		return log_msg_ret("str", ret);
-	list_strings(&info);
+	if (_DEBUG)
+		list_strings(&info);
 
 	ret = expo_new("name", NULL, &exp);
 	if (ret)
