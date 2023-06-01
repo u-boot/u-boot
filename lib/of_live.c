@@ -330,3 +330,9 @@ int of_live_build(const void *fdt_blob, struct device_node **rootp)
 
 	return ret;
 }
+
+void of_live_free(struct device_node *root)
+{
+	/* the tree is stored as a contiguous block of memory */
+	free(root);
+}

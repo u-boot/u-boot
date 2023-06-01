@@ -1266,3 +1266,22 @@ static int dm_test_livetree_align(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_livetree_align, UT_TESTF_LIVE_TREE);
+
+/* check that it is possible to load an arbitrary livetree */
+static int dm_test_livetree_ensure(struct unit_test_state *uts)
+{
+	oftree tree;
+	ofnode node;
+
+	/* read from other.dtb */
+	ut_assertok(test_load_other_fdt(uts));
+	tree = oftree_from_fdt(uts->other_fdt);
+	ut_assert(oftree_valid(tree));
+	node = oftree_path(tree, "/node/subnode");
+	ut_assert(ofnode_valid(node));
+	ut_asserteq_str("sandbox-other2",
+			ofnode_read_string(node, "compatible"));
+
+	return 0;
+}
+DM_TEST(dm_test_livetree_ensure, 0);

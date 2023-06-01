@@ -353,6 +353,16 @@ static inline oftree oftree_from_np(struct device_node *root)
 }
 
 /**
+ * oftree_dispose() - Dispose of an oftree
+ *
+ * This can be used to dispose of a tree that has been created (other than
+ * the control FDT which must not be disposed)
+ *
+ * @tree: Tree to dispose
+ */
+void oftree_dispose(oftree tree);
+
+/**
  * ofnode_name_eq() - Check if the node name is equivalent to a given name
  *                    ignoring the unit address
  *

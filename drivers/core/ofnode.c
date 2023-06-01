@@ -12,6 +12,7 @@
 #include <fdt_support.h>
 #include <log.h>
 #include <malloc.h>
+#include <of_live.h>
 #include <linux/libfdt.h>
 #include <dm/of_access.h>
 #include <dm/of_addr.h>
@@ -51,17 +52,26 @@ static oftree oftree_ensure(void *fdt)
 	oftree tree;
 	int i;
 
+	if (of_live_active()) {
+		struct device_node *root;
+		int ret;
+
+		ret = unflatten_device_tree(fdt, &root);
+		if (ret) {
+			log_err("Failed to create live tree: err=%d\n", ret);
+			return oftree_null();
+		}
+		tree = oftree_from_np(root);
+
+		return tree;
+	}
+
 	if (gd->flags & GD_FLG_RELOC) {
 		i = oftree_find(fdt);
 		if (i == -1) {
 			if (oftree_count == CONFIG_OFNODE_MULTI_TREE_MAX) {
 				log_warning("Too many registered device trees (max %d)\n",
 					    CONFIG_OFNODE_MULTI_TREE_MAX);
-				return oftree_null();
-			}
-
-			if (of_live_active()) {
-				log_err("Cannot register a flattree when OF_LIVE is active\n");
 				return oftree_null();
 			}
 
@@ -80,6 +90,12 @@ static oftree oftree_ensure(void *fdt)
 	tree.fdt = fdt;
 
 	return tree;
+}
+
+void oftree_dispose(oftree tree)
+{
+	if (of_live_active())
+		of_live_free(tree.np);
 }
 
 void *ofnode_lookup_fdt(ofnode node)

@@ -36,4 +36,14 @@ int of_live_build(const void *fdt_blob, struct device_node **rootp);
  */
 int unflatten_device_tree(const void *blob, struct device_node **mynodes);
 
+/**
+ * of_live_free() - Dispose of a livetree
+ *
+ * This frees memory used by the tree, after which @root becomes invalid and
+ * cannot be used
+ *
+ * @root: Tree to dispose
+ */
+void of_live_free(struct device_node *root);
+
 #endif
