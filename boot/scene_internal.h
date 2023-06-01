@@ -161,6 +161,26 @@ int scene_send_key(struct scene *scn, int key, struct expo_action *event);
 void scene_menu_render(struct scene_obj_menu *menu);
 
 /**
+ * scene_render_deps() - Render an object and its dependencies
+ *
+ * @scn: Scene to render
+ * @id: Object ID to render (or 0 for none)
+ * Returns: 0 if OK, -ve on error
+ */
+int scene_render_deps(struct scene *scn, uint id);
+
+/**
+ * scene_menu_render_deps() - Render a menu and its dependencies
+ *
+ * Renders the menu and all of its attached objects
+ *
+ * @scn: Scene to render
+ * @menu: Menu render
+ * Returns: 0 if OK, -ve on error
+ */
+int scene_menu_render_deps(struct scene *scn, struct scene_obj_menu *menu);
+
+/**
  * scene_menu_calc_dims() - Calculate the dimensions of a menu
  *
  * Updates the width and height of the menu based on its contents

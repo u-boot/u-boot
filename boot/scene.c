@@ -421,6 +421,30 @@ int scene_arrange(struct scene *scn)
 	return 0;
 }
 
+int scene_render_deps(struct scene *scn, uint id)
+{
+	struct scene_obj *obj;
+	int ret;
+
+	if (!id)
+		return 0;
+	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
+	if (!obj)
+		return log_msg_ret("obj", -ENOENT);
+
+	if (!(obj->flags & SCENEOF_HIDE)) {
+		ret = scene_obj_render(obj, false);
+		if (ret && ret != -ENOTSUPP)
+			return log_msg_ret("ren", ret);
+
+		if (obj->type == SCENEOBJT_MENU)
+			scene_menu_render_deps(scn,
+					       (struct scene_obj_menu *)obj);
+	}
+
+	return 0;
+}
+
 int scene_render(struct scene *scn)
 {
 	struct expo *exp = scn->expo;
@@ -433,6 +457,13 @@ int scene_render(struct scene *scn)
 			if (ret && ret != -ENOTSUPP)
 				return log_msg_ret("ren", ret);
 		}
+	}
+
+	/* render any highlighted object on top of the others */
+	if (scn->highlight_id && !exp->text_mode) {
+		ret = scene_render_deps(scn, scn->highlight_id);
+		if (ret && ret != -ENOTSUPP)
+			return log_msg_ret("dep", ret);
 	}
 
 	return 0;

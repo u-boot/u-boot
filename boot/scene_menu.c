@@ -544,3 +544,20 @@ void scene_menu_render(struct scene_obj_menu *menu)
 			vid_priv->colour_fg);
 	vidconsole_pop_colour(cons, &old);
 }
+
+int scene_menu_render_deps(struct scene *scn, struct scene_obj_menu *menu)
+{
+	struct scene_menitem *item;
+
+	scene_render_deps(scn, menu->title_id);
+	scene_render_deps(scn, menu->cur_item_id);
+	scene_render_deps(scn, menu->pointer_id);
+
+	list_for_each_entry(item, &menu->item_head, sibling) {
+		scene_render_deps(scn, item->key_id);
+		scene_render_deps(scn, item->label_id);
+		scene_render_deps(scn, item->desc_id);
+	}
+
+	return 0;
+}

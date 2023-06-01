@@ -172,6 +172,18 @@ int expo_set_scene_id(struct expo *exp, uint scene_id)
 	return 0;
 }
 
+int expo_first_scene_id(struct expo *exp)
+{
+	struct scene *scn;
+
+	if (list_empty(&exp->scene_head))
+		return -ENOENT;
+
+	scn = list_first_entry(&exp->scene_head, struct scene, sibling);
+
+	return scn->id;
+}
+
 int expo_render(struct expo *exp)
 {
 	struct udevice *dev = exp->display;
