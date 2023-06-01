@@ -60,6 +60,11 @@ static oftree oftree_ensure(void *fdt)
 				return oftree_null();
 			}
 
+			if (of_live_active()) {
+				log_err("Cannot register a flattree when OF_LIVE is active\n");
+				return oftree_null();
+			}
+
 			/* register the new tree */
 			i = oftree_count++;
 			oftree_list[i] = fdt;
@@ -133,6 +138,10 @@ oftree oftree_from_fdt(void *fdt)
 	if (CONFIG_IS_ENABLED(OFNODE_MULTI_TREE))
 		return oftree_ensure(fdt);
 
+#ifdef OF_CHECKS
+	if (of_live_active())
+		return oftree_null();
+#endif
 	tree.fdt = fdt;
 
 	return tree;
