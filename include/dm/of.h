@@ -63,6 +63,8 @@ struct device_node {
 	struct device_node *sibling;
 };
 
+#define BAD_OF_ROOT	0xdead11e3
+
 #define OF_MAX_PHANDLE_ARGS 16
 
 /**
