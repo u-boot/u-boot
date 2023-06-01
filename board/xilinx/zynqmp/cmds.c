@@ -216,6 +216,10 @@ static int do_zynqmp_pmufw(struct cmd_tbl *cmdtp, int flag, int argc,
 			return zynqmp_pmufw_config_close();
 
 		id = dectoul(argv[3], NULL);
+		if (!id) {
+			printf("Incorrect ID passed\n");
+			return CMD_RET_USAGE;
+		}
 
 		printf("Enable permission for node ID %d\n", id);
 
@@ -429,7 +433,7 @@ static char zynqmp_help_text[] =
 	"		       lock(0)/split(1)\n"
 #endif
 	"zynqmp pmufw address size - load PMU FW configuration object\n"
-	"zynqmp pmufw node <id> - load PMU FW configuration object\n"
+	"zynqmp pmufw node <id> - load PMU FW configuration object, <id> in dec\n"
 	"zynqmp pmufw node close - disable config object loading\n"
 	"	node: keyword, id: NODE_ID in decimal format\n"
 	"zynqmp rsa srcaddr srclen mod exp rsaop -\n"
