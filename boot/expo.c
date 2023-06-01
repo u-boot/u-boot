@@ -58,6 +58,7 @@ void expo_destroy(struct expo *exp)
 
 uint resolve_id(struct expo *exp, uint id)
 {
+	log_debug("resolve id %d\n", id);
 	if (!id)
 		id = exp->next_id++;
 	else if (id >= exp->next_id)

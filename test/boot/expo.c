@@ -13,6 +13,7 @@
 #include <test/suites.h>
 #include <test/ut.h>
 #include "bootstd_common.h"
+#include <test/cedit-test.h>
 #include "../../boot/scene_internal.h"
 
 enum {
@@ -588,3 +589,82 @@ static int expo_render_image(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(expo_render_image, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/* Check building an expo from a devicetree description */
+static int expo_test_build(struct unit_test_state *uts)
+{
+	struct scene_obj_menu *menu;
+	struct scene_menitem *item;
+	struct scene_obj_txt *txt;
+	struct scene_obj *obj;
+	struct scene *scn;
+	struct expo *exp;
+	int count;
+	ofnode node;
+
+	node = ofnode_path("/cedit");
+	ut_assert(ofnode_valid(node));
+	ut_assertok(expo_build(node, &exp));
+
+	ut_asserteq_str("name", exp->name);
+	ut_asserteq(0, exp->scene_id);
+	ut_asserteq(ID_DYNAMIC_START + 20, exp->next_id);
+	ut_asserteq(false, exp->popup);
+
+	/* check the scene */
+	scn = expo_lookup_scene_id(exp, ID_SCENE1);
+	ut_assertnonnull(scn);
+	ut_asserteq_str("main", scn->name);
+	ut_asserteq(ID_SCENE1, scn->id);
+	ut_asserteq(ID_DYNAMIC_START + 1, scn->title_id);
+	ut_asserteq(0, scn->highlight_id);
+
+	/* check the title */
+	txt = scene_obj_find(scn, scn->title_id, SCENEOBJT_NONE);
+	ut_assertnonnull(txt);
+	obj = &txt->obj;
+	ut_asserteq_ptr(scn, obj->scene);
+	ut_asserteq_str("title", obj->name);
+	ut_asserteq(scn->title_id, obj->id);
+	ut_asserteq(SCENEOBJT_TEXT, obj->type);
+	ut_asserteq(0, obj->flags);
+	ut_asserteq_str("Test Configuration", expo_get_str(exp, txt->str_id));
+
+	/* check the menu */
+	menu = scene_obj_find(scn, ID_CPU_SPEED, SCENEOBJT_NONE);
+	obj = &menu->obj;
+	ut_asserteq_ptr(scn, obj->scene);
+	ut_asserteq_str("cpu-speed", obj->name);
+	ut_asserteq(ID_CPU_SPEED, obj->id);
+	ut_asserteq(SCENEOBJT_MENU, obj->type);
+	ut_asserteq(0, obj->flags);
+
+	txt = scene_obj_find(scn, menu->title_id, SCENEOBJT_NONE);
+	ut_asserteq_str("CPU speed", expo_get_str(exp, txt->str_id));
+
+	ut_asserteq(0, menu->cur_item_id);
+	ut_asserteq(0, menu->pointer_id);
+
+	/* check the items */
+	item = list_first_entry(&menu->item_head, struct scene_menitem,
+				sibling);
+	ut_asserteq_str("00", item->name);
+	ut_asserteq(ID_CPU_SPEED_1, item->id);
+	ut_asserteq(0, item->key_id);
+	ut_asserteq(0, item->desc_id);
+	ut_asserteq(0, item->preview_id);
+	ut_asserteq(0, item->flags);
+
+	txt = scene_obj_find(scn, item->label_id, SCENEOBJT_NONE);
+	ut_asserteq_str("2 GHz", expo_get_str(exp, txt->str_id));
+
+	count = 0;
+	list_for_each_entry(item, &menu->item_head, sibling)
+		count++;
+	ut_asserteq(3, count);
+
+	expo_destroy(exp);
+
+	return 0;
+}
+BOOTSTD_TEST(expo_test_build, UT_TESTF_DM);

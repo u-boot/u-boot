@@ -141,6 +141,9 @@
 		};
 	};
 
+	cedit: cedit {
+	};
+
 	fuzzing-engine {
 		compatible = "sandbox,fuzzing-engine";
 	};
@@ -1830,3 +1833,5 @@
 #ifdef CONFIG_SANDBOX_VPL
 #include "sandbox_vpl.dtsi"
 #endif
+
+#include "cedit.dtsi"

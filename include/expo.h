@@ -653,4 +653,18 @@ int expo_action_get(struct expo *exp, struct expo_action *act);
  */
 int expo_apply_theme(struct expo *exp, ofnode node);
 
+/**
+ * expo_build() - Build an expo from an FDT description
+ *
+ * Build a complete expo from a description in the provided devicetree.
+ *
+ * See doc/developer/expo.rst for a description of the format
+ *
+ * @root: Root node for expo description
+ * @expp: Returns the new expo
+ * Returns: 0 if OK, -ENOMEM if out of memory, -EINVAL if there is a format
+ * error, -ENOENT if there is a references to a non-existent string
+ */
+int expo_build(ofnode root, struct expo **expp);
+
 #endif /*__SCENE_H */
