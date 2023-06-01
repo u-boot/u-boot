@@ -13,6 +13,7 @@
 #include <env.h>
 #include <lmb.h>
 #include <log.h>
+#include <malloc.h>
 #include <mapmem.h>
 #include <part.h>
 #include <ext4fs.h>
@@ -26,6 +27,7 @@
 #include <asm/io.h>
 #include <div64.h>
 #include <linux/math64.h>
+#include <linux/sizes.h>
 #include <efi_loader.h>
 #include <squashfs.h>
 #include <erofs.h>
@@ -1007,4 +1009,60 @@ int do_fs_types(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 		puts(": <none>");
 	puts("\n");
 	return CMD_RET_SUCCESS;
+}
+
+int fs_read_alloc(const char *fname, ulong size, uint align, void **bufp)
+{
+	loff_t bytes_read;
+	ulong addr;
+	char *buf;
+	int ret;
+
+	buf = memalign(align, size + 1);
+	if (!buf)
+		return log_msg_ret("buf", -ENOMEM);
+	addr = map_to_sysmem(buf);
+
+	ret = fs_read(fname, addr, 0, size, &bytes_read);
+	if (ret) {
+		free(buf);
+		return log_msg_ret("read", ret);
+	}
+	if (size != bytes_read)
+		return log_msg_ret("bread", -EIO);
+	buf[size] = '\0';
+
+	*bufp = buf;
+
+	return 0;
+}
+
+int fs_load_alloc(const char *ifname, const char *dev_part_str,
+		  const char *fname, ulong max_size, ulong align, void **bufp,
+		  ulong *sizep)
+{
+	loff_t size;
+	void *buf;
+	int ret;
+
+	if (fs_set_blk_dev(ifname, dev_part_str, FS_TYPE_ANY))
+		return log_msg_ret("set", -ENOMEDIUM);
+
+	ret = fs_size(fname, &size);
+	if (ret)
+		return log_msg_ret("sz", -ENOENT);
+
+	if (size >= (max_size ?: SZ_1G))
+		return log_msg_ret("sz", -E2BIG);
+
+	if (fs_set_blk_dev(ifname, dev_part_str, FS_TYPE_ANY))
+		return log_msg_ret("set", -ENOMEDIUM);
+
+	ret = fs_read_alloc(fname, size, align, &buf);
+	if (ret)
+		return log_msg_ret("al", ret);
+	*sizep = size;
+	*bufp = buf;
+
+	return 0;
 }
