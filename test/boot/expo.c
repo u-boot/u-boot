@@ -530,7 +530,7 @@ static int expo_render_image(struct unit_test_state *uts)
 
 	ut_assertok(expo_action_get(exp, &act));
 
-	ut_asserteq(EXPOACT_POINT, act.type);
+	ut_asserteq(EXPOACT_POINT_ITEM, act.type);
 	ut_asserteq(ITEM2, act.select.id);
 	ut_assertok(expo_render(exp));
 
@@ -570,7 +570,7 @@ static int expo_render_image(struct unit_test_state *uts)
 
 	ut_assertok(expo_action_get(exp, &act));
 
-	ut_asserteq(EXPOACT_POINT, act.type);
+	ut_asserteq(EXPOACT_POINT_ITEM, act.type);
 	ut_asserteq(ITEM1, act.select.id);
 
 	ut_assertok(expo_render(exp));

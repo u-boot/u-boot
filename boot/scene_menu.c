@@ -347,7 +347,7 @@ int scene_menu_send_key(struct scene *scn, struct scene_obj_menu *menu, int key,
 					     struct scene_menitem, sibling)) {
 			item = list_entry(item->sibling.prev,
 					  struct scene_menitem, sibling);
-			event->type = EXPOACT_POINT;
+			event->type = EXPOACT_POINT_ITEM;
 			event->select.id = item->id;
 			log_debug("up to item %d\n", event->select.id);
 		}
@@ -356,7 +356,7 @@ int scene_menu_send_key(struct scene *scn, struct scene_obj_menu *menu, int key,
 		if (!list_is_last(&item->sibling, &menu->item_head)) {
 			item = list_entry(item->sibling.next,
 					  struct scene_menitem, sibling);
-			event->type = EXPOACT_POINT;
+			event->type = EXPOACT_POINT_ITEM;
 			event->select.id = item->id;
 			log_debug("down to item %d\n", event->select.id);
 		}
