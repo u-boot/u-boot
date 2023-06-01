@@ -124,6 +124,10 @@ int bootflow_menu_new(struct expo **expp)
 		priv->num_bootflows++;
 	}
 
+	ret = scene_arrange(scn);
+	if (ret)
+		return log_msg_ret("arr", ret);
+
 	*expp = exp;
 
 	return 0;

@@ -348,7 +348,9 @@ static int expo_object_menu(struct unit_test_state *uts)
 	ut_asserteq(desc_id, item->desc_id);
 	ut_asserteq(preview_id, item->preview_id);
 
-	/* adding an item should cause the first item to become current */
+	ut_assertok(scene_arrange(scn));
+
+	/* arranging the scene should cause the first item to become current */
 	ut_asserteq(id, menu->cur_item_id);
 
 	/* the title should be at the top */

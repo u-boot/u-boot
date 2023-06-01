@@ -211,8 +211,6 @@ int scene_obj_set_pos(struct scene *scn, uint id, int x, int y)
 		return log_msg_ret("find", -ENOENT);
 	obj->x = x;
 	obj->y = y;
-	if (obj->type == SCENEOBJT_MENU)
-		scene_menu_arrange(scn, (struct scene_obj_menu *)obj);
 
 	return 0;
 }
@@ -391,11 +389,6 @@ int scene_send_key(struct scene *scn, int key, struct expo_action *event)
 			ret = scene_menu_send_key(scn, menu, key, event);
 			if (ret)
 				return log_msg_ret("key", ret);
-
-			/* only allow one menu */
-			ret = scene_menu_arrange(scn, menu);
-			if (ret)
-				return log_msg_ret("arr", ret);
 			break;
 		}
 	}

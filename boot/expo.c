@@ -116,8 +116,16 @@ struct scene *expo_lookup_scene_id(struct expo *exp, uint scene_id)
 
 int expo_set_scene_id(struct expo *exp, uint scene_id)
 {
-	if (!expo_lookup_scene_id(exp, scene_id))
+	struct scene *scn;
+	int ret;
+
+	scn = expo_lookup_scene_id(exp, scene_id);
+	if (!scn)
 		return log_msg_ret("id", -ENOENT);
+	ret = scene_arrange(scn);
+	if (ret)
+		return log_msg_ret("arr", ret);
+
 	exp->scene_id = scene_id;
 
 	return 0;
@@ -165,6 +173,11 @@ int expo_send_key(struct expo *exp, int key)
 		ret = scene_send_key(scn, key, &exp->action);
 		if (ret)
 			return log_msg_ret("key", ret);
+
+		/* arrange it to get any changes */
+		ret = scene_arrange(scn);
+		if (ret)
+			return log_msg_ret("arr", ret);
 	}
 
 	return scn ? 0 : -ECHILD;
