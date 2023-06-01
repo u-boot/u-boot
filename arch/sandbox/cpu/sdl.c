@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <sysreset.h>
 #include <linux/input.h>
 #include <SDL2/SDL.h>
 #include <asm/state.h>
@@ -81,7 +82,7 @@ static void sandbox_sdl_poll_events(void)
 		switch (event.type) {
 		case SDL_QUIT:
 			puts("LCD window closed - quitting\n");
-			reset_cpu();
+			sysreset_walk(SYSRESET_POWER_OFF);
 			break;
 		}
 	}
