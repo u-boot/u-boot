@@ -6,7 +6,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#define LOG_CATEGORY	LOGC_BOOT
+#define LOG_CATEGORY	LOGC_EXPO
 
 #include <common.h>
 #include <dm.h>
