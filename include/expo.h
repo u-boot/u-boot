@@ -92,7 +92,7 @@ struct expo_string {
  * @expo: Expo this scene is part of
  * @name: Name of the scene (allocated)
  * @id: ID number of the scene
- * @title: Title of the scene (allocated)
+ * @title_id: String ID of title of the scene (allocated)
  * @sibling: Node to link this scene to its siblings
  * @obj_head: List of objects in the scene
  */
@@ -100,7 +100,7 @@ struct scene {
 	struct expo *expo;
 	char *name;
 	uint id;
-	char *title;
+	uint title_id;
 	struct list_head sibling;
 	struct list_head obj_head;
 };
@@ -338,10 +338,10 @@ struct scene *expo_lookup_scene_id(struct expo *exp, uint scene_id);
  * scene_title_set() - set the scene title
  *
  * @scn: Scene to update
- * @title: Title to set, NULL if none (this is allocated by this call)
- * Returns: 0 if OK, -ENOMEM if out of memory
+ * @title_id: Title ID to set
+ * Returns: 0 if OK
  */
-int scene_title_set(struct scene *scn, const char *title);
+int scene_title_set(struct scene *scn, uint title_id);
 
 /**
  * scene_obj_count() - Count the number of objects in a scene

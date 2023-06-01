@@ -65,16 +65,12 @@ void scene_destroy(struct scene *scn)
 		scene_obj_destroy(obj);
 
 	free(scn->name);
-	free(scn->title);
 	free(scn);
 }
 
-int scene_title_set(struct scene *scn, const char *title)
+int scene_title_set(struct scene *scn, uint id)
 {
-	free(scn->title);
-	scn->title = strdup(title);
-	if (!scn->title)
-		return log_msg_ret("tit", -ENOMEM);
+	scn->title_id = id;
 
 	return 0;
 }

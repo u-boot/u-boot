@@ -28,6 +28,8 @@ enum {
 	OBJ_MENU_TITLE,
 
 	/* strings */
+	STR_SCENE_TITLE,
+
 	STR_TEXT,
 	STR_TEXT2,
 	STR_MENU_TITLE,
@@ -120,7 +122,7 @@ static int expo_scene(struct unit_test_state *uts)
 	struct expo *exp;
 	ulong start_mem;
 	char name[100];
-	int id;
+	int id, title_id;
 
 	start_mem = ut_check_free();
 
@@ -141,21 +143,20 @@ static int expo_scene(struct unit_test_state *uts)
 	ut_asserteq_str(SCENE_NAME1, scn->name);
 
 	/* Set the title */
-	strcpy(name, SCENE_TITLE);
-	ut_assertok(scene_title_set(scn, name));
-	*name = '\0';
-	ut_assertnonnull(scn->title);
-	ut_asserteq_str(SCENE_TITLE, scn->title);
+	title_id = expo_str(exp, "title", STR_SCENE_TITLE, SCENE_TITLE);
+	ut_assert(title_id >= 0);
 
-	/* Use an allocated ID */
+	/* Use an allocated ID - this will be allocated after the title str */
 	scn = NULL;
 	id = scene_new(exp, SCENE_NAME2, 0, &scn);
 	ut_assertnonnull(scn);
-	ut_asserteq(SCENE2, id);
-	ut_asserteq(SCENE2 + 1, exp->next_id);
+	ut_assertok(scene_title_set(scn, title_id));
+	ut_asserteq(STR_SCENE_TITLE + 1, id);
+	ut_asserteq(STR_SCENE_TITLE + 2, exp->next_id);
 	ut_asserteq_ptr(exp, scn->expo);
 
 	ut_asserteq_str(SCENE_NAME2, scn->name);
+	ut_asserteq(title_id, scn->title_id);
 
 	expo_destroy(exp);
 
