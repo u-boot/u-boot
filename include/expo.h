@@ -50,6 +50,7 @@ struct expo_action {
  *
  * @name: Name of the expo (allocated)
  * @display: Display to use (`UCLASS_VIDEO`), or NULL to use text mode
+ * @cons: Console to use (`UCLASS_VIDEO_CONSOLE`), or NULL to use text mode
  * @scene_id: Current scene ID (0 if none)
  * @next_id: Next ID number to use, for automatic allocation
  * @action: Action selected by user. At present only one is supported, with the
@@ -62,6 +63,7 @@ struct expo_action {
 struct expo {
 	char *name;
 	struct udevice *display;
+	struct udevice *cons;
 	uint scene_id;
 	uint next_id;
 	struct expo_action action;

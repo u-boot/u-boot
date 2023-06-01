@@ -83,7 +83,16 @@ const char *expo_get_str(struct expo *exp, uint id)
 
 int expo_set_display(struct expo *exp, struct udevice *dev)
 {
+	struct udevice *cons;
+	int ret;
+
+	ret = device_find_first_child_by_uclass(dev, UCLASS_VIDEO_CONSOLE,
+						&cons);
+	if (ret)
+		return log_msg_ret("con", ret);
+
 	exp->display = dev;
+	exp->cons = cons;
 
 	return 0;
 }
