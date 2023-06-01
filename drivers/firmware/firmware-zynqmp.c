@@ -315,7 +315,8 @@ U_BOOT_DRIVER(zynqmp_power) = {
 int __maybe_unused xilinx_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
 				     u32 arg3, u32 *ret_payload)
 {
-	debug("%s at EL%d, API ID: 0x%0x\n", __func__, current_el(), api_id);
+	debug("%s at EL%d, API ID: 0x%0x, 0x%0x, 0x%0x, 0x%0x, 0x%0x\n",
+	      __func__, current_el(), api_id, arg0, arg1, arg2, arg3);
 
 	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3) {
 #if defined(CONFIG_ZYNQMP_IPI)
