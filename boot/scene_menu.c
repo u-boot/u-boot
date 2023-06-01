@@ -49,9 +49,9 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 	int y, cur_y;
 	int ret;
 
-	y = menu->obj.y;
+	y = menu->obj.dim.y;
 	if (menu->title_id) {
-		ret = scene_obj_set_pos(scn, menu->title_id, menu->obj.x, y);
+		ret = scene_obj_set_pos(scn, menu->title_id, menu->obj.dim.x, y);
 		if (ret < 0)
 			return log_msg_ret("tit", ret);
 
@@ -89,18 +89,18 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 		 * pointer, then the key and the description
 		 */
 		if (item->label_id) {
-			ret = scene_obj_set_pos(scn, item->label_id, menu->obj.x,
+			ret = scene_obj_set_pos(scn, item->label_id, menu->obj.dim.x,
 						y);
 			if (ret < 0)
 				return log_msg_ret("nam", ret);
 		}
 
-		ret = scene_obj_set_pos(scn, item->key_id, menu->obj.x + 230,
+		ret = scene_obj_set_pos(scn, item->key_id, menu->obj.dim.x + 230,
 					y);
 		if (ret < 0)
 			return log_msg_ret("key", ret);
 
-		ret = scene_obj_set_pos(scn, item->desc_id, menu->obj.x + 280,
+		ret = scene_obj_set_pos(scn, item->desc_id, menu->obj.dim.x + 280,
 					y);
 		if (ret < 0)
 			return log_msg_ret("des", ret);
@@ -134,7 +134,7 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 		 * points to
 		 */
 		ret = scene_obj_set_pos(scn, menu->pointer_id,
-					menu->obj.x + 200, cur_y);
+					menu->obj.dim.x + 200, cur_y);
 		if (ret < 0)
 			return log_msg_ret("ptr", ret);
 	}

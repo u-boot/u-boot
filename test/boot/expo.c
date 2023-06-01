@@ -250,8 +250,8 @@ static int expo_object_attr(struct unit_test_state *uts)
 	ut_assert(id > 0);
 
 	ut_assertok(scene_obj_set_pos(scn, OBJ_LOGO, 123, 456));
-	ut_asserteq(123, img->obj.x);
-	ut_asserteq(456, img->obj.y);
+	ut_asserteq(123, img->obj.dim.x);
+	ut_asserteq(456, img->obj.dim.y);
 
 	ut_asserteq(-ENOENT, scene_obj_set_pos(scn, OBJ_TEXT2, 0, 0));
 
@@ -307,8 +307,8 @@ static int expo_object_menu(struct unit_test_state *uts)
 	ut_asserteq(0, menu->pointer_id);
 
 	ut_assertok(scene_obj_set_pos(scn, OBJ_MENU, 50, 400));
-	ut_asserteq(50, menu->obj.x);
-	ut_asserteq(400, menu->obj.y);
+	ut_asserteq(50, menu->obj.dim.x);
+	ut_asserteq(400, menu->obj.dim.y);
 
 	id = scene_txt_str(scn, "title", OBJ_MENU_TITLE, STR_MENU_TITLE,
 			   "Main Menu", &tit);
@@ -354,24 +354,24 @@ static int expo_object_menu(struct unit_test_state *uts)
 	ut_asserteq(id, menu->cur_item_id);
 
 	/* the title should be at the top */
-	ut_asserteq(menu->obj.x, tit->obj.x);
-	ut_asserteq(menu->obj.y, tit->obj.y);
+	ut_asserteq(menu->obj.dim.x, tit->obj.dim.x);
+	ut_asserteq(menu->obj.dim.y, tit->obj.dim.y);
 
 	/* the first item should be next */
-	ut_asserteq(menu->obj.x, name1->obj.x);
-	ut_asserteq(menu->obj.y + 32, name1->obj.y);
+	ut_asserteq(menu->obj.dim.x, name1->obj.dim.x);
+	ut_asserteq(menu->obj.dim.y + 32, name1->obj.dim.y);
 
-	ut_asserteq(menu->obj.x + 230, key1->obj.x);
-	ut_asserteq(menu->obj.y + 32, key1->obj.y);
+	ut_asserteq(menu->obj.dim.x + 230, key1->obj.dim.x);
+	ut_asserteq(menu->obj.dim.y + 32, key1->obj.dim.y);
 
-	ut_asserteq(menu->obj.x + 200, ptr->obj.x);
-	ut_asserteq(menu->obj.y + 32, ptr->obj.y);
+	ut_asserteq(menu->obj.dim.x + 200, ptr->obj.dim.x);
+	ut_asserteq(menu->obj.dim.y + 32, ptr->obj.dim.y);
 
-	ut_asserteq(menu->obj.x + 280, desc1->obj.x);
-	ut_asserteq(menu->obj.y + 32, desc1->obj.y);
+	ut_asserteq(menu->obj.dim.x + 280, desc1->obj.dim.x);
+	ut_asserteq(menu->obj.dim.y + 32, desc1->obj.dim.y);
 
-	ut_asserteq(-4, prev1->obj.x);
-	ut_asserteq(menu->obj.y + 32, prev1->obj.y);
+	ut_asserteq(-4, prev1->obj.dim.x);
+	ut_asserteq(menu->obj.dim.y + 32, prev1->obj.dim.y);
 	ut_asserteq(false, prev1->obj.hide);
 
 	expo_destroy(exp);

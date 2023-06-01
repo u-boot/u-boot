@@ -123,14 +123,28 @@ enum scene_obj_t {
 };
 
 /**
+ * struct scene_dim - Dimensions of an object
+ *
+ * @x: x position, in pixels from left side
+ * @y: y position, in pixels from top
+ * @w: width, in pixels
+ * @h: height, in pixels
+ */
+struct scene_dim {
+	int x;
+	int y;
+	int w;
+	int h;
+};
+
+/**
  * struct scene_obj - information about an object in a scene
  *
  * @scene: Scene that this object relates to
  * @name: Name of the object (allocated)
  * @id: ID number of the object
  * @type: Type of this object
- * @x: x position, in pixels from left side
- * @y: y position, in pixels from top
+ * @dim: Dimensions for this object
  * @hide: true if the object should be hidden
  * @sibling: Node to link this object to its siblings
  */
@@ -139,8 +153,7 @@ struct scene_obj {
 	char *name;
 	uint id;
 	enum scene_obj_t type;
-	int x;
-	int y;
+	struct scene_dim dim;
 	bool hide;
 	struct list_head sibling;
 };
