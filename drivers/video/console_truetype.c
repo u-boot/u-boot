@@ -379,72 +379,6 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 }
 
 /**
- * console_truetype_erase() - Erase a character
- *
- * This is used for backspace. We erase a square of the display within the
- * given bounds.
- *
- * @dev:	Device to update
- * @xstart:	X start position in pixels from the left
- * @ystart:	Y start position in pixels from the top
- * @xend:	X end position in pixels from the left
- * @yend:	Y end position  in pixels from the top
- * @clr:	Value to write
- * Return: 0 if OK, -ENOSYS if the display depth is not supported
- */
-static int console_truetype_erase(struct udevice *dev, int xstart, int ystart,
-				  int xend, int yend, int clr)
-{
-	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
-	void *start, *line;
-	int pixels = xend - xstart;
-	int row, i, ret;
-
-	start = vid_priv->fb + ystart * vid_priv->line_length;
-	start += xstart * VNBYTES(vid_priv->bpix);
-	line = start;
-	for (row = ystart; row < yend; row++) {
-		switch (vid_priv->bpix) {
-		case VIDEO_BPP8: {
-			uint8_t *dst = line;
-
-			if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
-				for (i = 0; i < pixels; i++)
-					*dst++ = clr;
-			}
-			break;
-		}
-		case VIDEO_BPP16: {
-			uint16_t *dst = line;
-
-			if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
-				for (i = 0; i < pixels; i++)
-					*dst++ = clr;
-			}
-			break;
-		}
-		case VIDEO_BPP32: {
-			uint32_t *dst = line;
-
-			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
-				for (i = 0; i < pixels; i++)
-					*dst++ = clr;
-			}
-			break;
-		}
-		default:
-			return -ENOSYS;
-		}
-		line += vid_priv->line_length;
-	}
-	ret = vidconsole_sync_copy(dev, start, line);
-	if (ret)
-		return ret;
-
-	return 0;
-}
-
-/**
  * console_truetype_backspace() - Handle a backspace operation
  *
  * This clears the previous character so that the console looks as if it had
@@ -482,9 +416,9 @@ static int console_truetype_backspace(struct udevice *dev)
 	else
 		xend = vid_priv->xsize;
 
-	console_truetype_erase(dev, VID_TO_PIXEL(pos->xpos_frac), pos->ypos,
-			       xend, pos->ypos + vc_priv->y_charsize,
-			       vid_priv->colour_bg);
+	video_fill_part(vid_dev, VID_TO_PIXEL(pos->xpos_frac), pos->ypos,
+			xend, pos->ypos + vc_priv->y_charsize,
+			vid_priv->colour_bg);
 
 	/* Move the cursor back to where it was when we pushed this record */
 	vc_priv->xcur_frac = pos->xpos_frac;

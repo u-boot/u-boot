@@ -205,6 +205,22 @@ int video_clear(struct udevice *dev);
 int video_fill(struct udevice *dev, u32 colour);
 
 /**
+ * video_fill_part() - Erase a region
+ *
+ * Erase a rectangle of the display within the given bounds.
+ *
+ * @dev:	Device to update
+ * @xstart:	X start position in pixels from the left
+ * @ystart:	Y start position in pixels from the top
+ * @xend:	X end position in pixels from the left
+ * @yend:	Y end position  in pixels from the top
+ * @colour:	Value to write
+ * Return: 0 if OK, -ENOSYS if the display depth is not supported
+ */
+int video_fill_part(struct udevice *dev, int xstart, int ystart, int xend,
+		    int yend, u32 colour);
+
+/**
  * video_sync() - Sync a device's frame buffer with its hardware
  *
  * @vid:	Device to sync

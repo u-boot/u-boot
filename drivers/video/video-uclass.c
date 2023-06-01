@@ -142,6 +142,58 @@ int video_reserve(ulong *addrp)
 	return 0;
 }
 
+int video_fill_part(struct udevice *dev, int xstart, int ystart, int xend,
+		    int yend, u32 colour)
+{
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+	void *start, *line;
+	int pixels = xend - xstart;
+	int row, i, ret;
+
+	start = priv->fb + ystart * priv->line_length;
+	start += xstart * VNBYTES(priv->bpix);
+	line = start;
+	for (row = ystart; row < yend; row++) {
+		switch (priv->bpix) {
+		case VIDEO_BPP8: {
+			u8 *dst = line;
+
+			if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+				for (i = 0; i < pixels; i++)
+					*dst++ = colour;
+			}
+			break;
+		}
+		case VIDEO_BPP16: {
+			u16 *dst = line;
+
+			if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+				for (i = 0; i < pixels; i++)
+					*dst++ = colour;
+			}
+			break;
+		}
+		case VIDEO_BPP32: {
+			u32 *dst = line;
+
+			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+				for (i = 0; i < pixels; i++)
+					*dst++ = colour;
+			}
+			break;
+		}
+		default:
+			return -ENOSYS;
+		}
+		line += priv->line_length;
+	}
+	ret = video_sync_copy(dev, start, line);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 int video_fill(struct udevice *dev, u32 colour)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
