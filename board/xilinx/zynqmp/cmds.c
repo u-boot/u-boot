@@ -394,17 +394,17 @@ static int do_zynqmp(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
 	struct cmd_tbl *c;
+	int ret = CMD_RET_USAGE;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
 	c = find_cmd_tbl(argv[1], &cmd_zynqmp_sub[0],
 			 ARRAY_SIZE(cmd_zynqmp_sub));
-
 	if (c)
-		return c->cmd(c, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
+		ret = c->cmd(c, flag, argc, argv);
+
+	return cmd_process_error(c, ret);
 }
 
 /***************************************************/
