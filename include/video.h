@@ -163,7 +163,7 @@ enum colour_idx {
  * The caller has to guarantee that the color index is less than
  * VID_COLOR_COUNT.
  *
- * @priv	private data of the console device
+ * @priv	private data of the video device (UCLASS_VIDEO)
  * @idx		color index
  * Return:	color value
  */
