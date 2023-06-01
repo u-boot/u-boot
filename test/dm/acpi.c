@@ -11,10 +11,8 @@
 #include <dm.h>
 #include <malloc.h>
 #include <mapmem.h>
-#include <timestamp.h>
-#include <version.h>
 #include <tables_csum.h>
-#include <version.h>
+#include <version_string.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
 #include <acpi/acpi_table.h>
@@ -26,12 +24,12 @@
 
 #define BUF_SIZE		4096
 
-#define OEM_REVISION ((((U_BOOT_VERSION_NUM / 1000) % 10) << 28) | \
-		      (((U_BOOT_VERSION_NUM / 100) % 10) << 24) | \
-		      (((U_BOOT_VERSION_NUM / 10) % 10) << 20) | \
-		      ((U_BOOT_VERSION_NUM % 10) << 16) | \
-		      (((U_BOOT_VERSION_NUM_PATCH / 10) % 10) << 12) | \
-		      ((U_BOOT_VERSION_NUM_PATCH % 10) << 8) | \
+#define OEM_REVISION ((((version_num / 1000) % 10) << 28) | \
+		      (((version_num / 100) % 10) << 24) | \
+		      (((version_num / 10) % 10) << 20) | \
+		      ((version_num % 10) << 16) | \
+		      (((version_num_patch / 10) % 10) << 12) | \
+		      ((version_num_patch % 10) << 8) | \
 		      0x01)
 
 /**
