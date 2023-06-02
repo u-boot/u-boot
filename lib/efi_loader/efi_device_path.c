@@ -843,12 +843,17 @@ static unsigned dp_part_size(struct blk_desc *desc, int part)
  * @buf		buffer to which the device path is written
  * @desc	block device descriptor
  * @part	partition number, 0 identifies a block device
+ *
+ * Return:	pointer to position after the node
  */
 static void *dp_part_node(void *buf, struct blk_desc *desc, int part)
 {
 	struct disk_partition info;
+	int ret;
 
-	part_get_info(desc, part, &info);
+	ret = part_get_info(desc, part, &info);
+	if (ret < 0)
+		return buf;
 
 	if (desc->part_type == PART_TYPE_ISO) {
 		struct efi_device_path_cdrom_path *cddp = buf;

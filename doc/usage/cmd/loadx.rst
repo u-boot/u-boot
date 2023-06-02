@@ -1,6 +1,6 @@
 .. SPDX-License-Identifier: GPL-2.0+:
 
-loady command
+loadx command
 =============
 
 Synopsis
@@ -8,13 +8,13 @@ Synopsis
 
 ::
 
-    loady [addr [baud]]
+    loadx [addr [baud]]
 
 Description
 -----------
 
-The loady command is used to transfer a file to the device via the serial line
-using the YMODEM protocol.
+The loadx command is used to transfer a file to the device via the serial line
+using the XMODEM protocol.
 
 The number of transferred bytes is saved in environment variable filesize.
 
@@ -32,31 +32,34 @@ Example
 In the example below the terminal emulation program picocom was used to
 transfer a file to the device.
 
-After entering the loady command the key sequence <CTRL-A><CTRL-S> is used to
-let picocom prompt for the file name. Picocom invokes the program sz for the
+.. code-block::
+
+    picocom --send-cmd 'sx -b vv' --baud 115200 /dev/ttyUSB0
+
+After entering the loadx command the key sequence <CTRL-A><CTRL-S> is used to
+let picocom prompt for the file name. Picocom invokes the program sx for the
 file transfer.
 
 ::
 
-    => loady 80064000 115200
-    ## Ready for binary (ymodem) download to 0x80064000 at 115200 bps...
+    => loadx 60800000 115200
+    ## Ready for binary (xmodem) download to 0x60800000 at 115200 bps...
     C
-    *** file: BOOTRISCV64.EFI
-    $ sz -b -vv BOOTRISCV64.EFI
-    Sending: BOOTRISCV64.EFI
-    Bytes Sent: 398976   BPS:7883
-    Sending:
-    Ymodem sectors/kbytes sent:   0/ 0k
-    Transfer complete
+    *** file: helloworld.efi
+    $ sx -b vv helloworld.efi
+    sx: cannot open vv: No such file or directory
+    Sending helloworld.efi, 24 blocks: Give your local XMODEM receive command now.
+    Xmodem sectors/kbytes sent:   0/ 0kRetry 0: NAK on sector
+    Bytes Sent:   3072   BPS:1147
 
-    *** exit status: 0 ***
-    /1(CAN) packets, 4 retries
-    ## Total Size      = 0x0006165f = 398943 Bytes
-    => echo ${filesize}
-    6165f
+    Transfer incomplete
+
+    *** exit status: 1 ***
+    ## Total Size      = 0x00000c00 = 3072 Bytes
+    ## Start Addr      = 0x60800000
     =>
 
-Transfer can be cancelled by pressing 3 times <CTRL+C> after two seconds
+The transfer can be cancelled by pressing 3 times <CTRL+C> after two seconds
 of inactivity on terminal.
 
 Configuration
