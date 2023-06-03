@@ -1268,6 +1268,7 @@ config SPL_NVME
 	depends on BLK
 	select HAVE_BLOCK_DEVICE
 	select FS_LOADER
+	select SPL_BLK_FS
 	help
 	  This option enables support for NVM Express devices.
 	  It supports basic functions of NVMe (read/write).
