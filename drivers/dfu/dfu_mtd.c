@@ -90,22 +90,36 @@ static int mtd_block_op(enum dfu_op op, struct dfu_entity *dfu,
 				return -EIO;
 			}
 
+			/* Skip the block if it is bad, don't erase it again */
+			ret = mtd_block_isbad(mtd, erase_op.addr);
+			if (ret) {
+				printf("Skipping %s at 0x%08llx\n",
+				       ret == 1 ? "bad block" : "bbt reserved",
+				       erase_op.addr);
+				erase_op.addr += mtd->erasesize;
+				continue;
+			}
+
 			ret = mtd_erase(mtd, &erase_op);
 
 			if (ret) {
-				/* Abort if its not a bad block error */
-				if (ret != -EIO) {
-					printf("Failure while erasing at offset 0x%llx\n",
-					       erase_op.fail_addr);
-					return 0;
+				/* If this is not -EIO, we have no idea what to do. */
+				if (ret == -EIO) {
+					printf("Marking bad block at 0x%08llx (%d)\n",
+					       erase_op.fail_addr, ret);
+					ret = mtd_block_markbad(mtd, erase_op.addr);
 				}
-				printf("Skipping bad block at 0x%08llx\n",
-				       erase_op.addr);
+				/* Abort if it is not -EIO or can't mark bad */
+				if (ret) {
+					printf("Failure while erasing at offset 0x%llx (%d)\n",
+					       erase_op.fail_addr, ret);
+					return ret;
+				}
 			} else {
 				remaining -= mtd->erasesize;
 			}
 
-			/* Continue erase behind bad block */
+			/* Continue erase behind the current block */
 			erase_op.addr += mtd->erasesize;
 		}
 	}
