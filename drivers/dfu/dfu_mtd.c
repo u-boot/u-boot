@@ -85,8 +85,8 @@ static int mtd_block_op(enum dfu_op op, struct dfu_entity *dfu,
 
 		while (remaining) {
 			if (erase_op.addr + remaining > lim) {
-				printf("Limit reached 0x%llx while erasing at offset 0x%llx\n",
-				       lim, off);
+				printf("Limit reached 0x%llx while erasing at offset 0x%llx, remaining 0x%llx\n",
+				       lim, erase_op.addr, remaining);
 				return -EIO;
 			}
 
