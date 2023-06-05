@@ -16,7 +16,7 @@ int checkboard(void)
 {
 	u32 changelist;
 
-	lowlevel_display("U-boot  ");
+	lowlevel_display("U-Boot  ");
 
 	printf("Board: MIPS Boston\n");
 

@@ -127,7 +127,7 @@ void spl_validate_uboot(uint32_t hdr_addr, uintptr_t img_addr)
 				   &img_addr);
 
 	if (res == 0)
-		printf("SPL: Validation of U-boot successful\n");
+		printf("SPL: Validation of U-Boot successful\n");
 }
 
 #ifdef CONFIG_SPL_FRAMEWORK
