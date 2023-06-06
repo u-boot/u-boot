@@ -25,22 +25,11 @@
 #include <power/regulator.h>
 #include <test/ut.h>
 
-static int ut_assert_scmi_state_preprobe(struct unit_test_state *uts)
-{
-	struct sandbox_scmi_service *scmi_ctx = sandbox_scmi_service_ctx();
-
-	ut_assertnonnull(scmi_ctx);
-	ut_assertnull(scmi_ctx->agent);
-
-	return 0;
-}
-
 static int ut_assert_scmi_state_postprobe(struct unit_test_state *uts,
+					  struct sandbox_scmi_agent *agent,
 					  struct udevice *dev)
 {
 	struct sandbox_scmi_devices *scmi_devices;
-	struct sandbox_scmi_service *scmi_ctx;
-	struct sandbox_scmi_agent *agent;
 
 	/* Device references to check context against test sequence */
 	scmi_devices = sandbox_scmi_devices_ctx(dev);
@@ -50,10 +39,6 @@ static int ut_assert_scmi_state_postprobe(struct unit_test_state *uts,
 	ut_asserteq(2, scmi_devices->regul_count);
 
 	/* State of the simulated SCMI server exposed */
-	scmi_ctx = sandbox_scmi_service_ctx();
-	ut_assertnonnull(scmi_ctx);
-	agent = scmi_ctx->agent;
-	ut_assertnonnull(agent);
 	ut_asserteq(3, agent->clk_count);
 	ut_assertnonnull(agent->clk);
 	ut_asserteq(1, agent->reset_count);
@@ -65,27 +50,32 @@ static int ut_assert_scmi_state_postprobe(struct unit_test_state *uts,
 }
 
 static int load_sandbox_scmi_test_devices(struct unit_test_state *uts,
+					  struct sandbox_scmi_agent **ctx,
 					  struct udevice **dev)
 {
-	int ret;
+	struct udevice *agent_dev;
 
-	ret = ut_assert_scmi_state_preprobe(uts);
-	if (ret)
-		return ret;
+	ut_assertok(uclass_get_device_by_name(UCLASS_SCMI_AGENT, "scmi",
+					      &agent_dev));
+	ut_assertnonnull(agent_dev);
 
+	*ctx = sandbox_scmi_agent_ctx(agent_dev);
+	ut_assertnonnull(*ctx);
+
+	/* probe */
 	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "sandbox_scmi",
 					      dev));
 	ut_assertnonnull(*dev);
 
-	return ut_assert_scmi_state_postprobe(uts, *dev);
+	return ut_assert_scmi_state_postprobe(uts, *ctx, *dev);
 }
 
 static int release_sandbox_scmi_test_devices(struct unit_test_state *uts,
 					     struct udevice *dev)
 {
+	/* un-probe */
 	ut_assertok(device_remove(dev, DM_REMOVE_NORMAL));
 
-	/* Not sure test devices are fully removed, agent may not be visible */
 	return 0;
 }
 
@@ -95,10 +85,11 @@ static int release_sandbox_scmi_test_devices(struct unit_test_state *uts,
  */
 static int dm_test_scmi_sandbox_agent(struct unit_test_state *uts)
 {
+	struct sandbox_scmi_agent *ctx;
 	struct udevice *dev = NULL;
 	int ret;
 
-	ret = load_sandbox_scmi_test_devices(uts, &dev);
+	ret = load_sandbox_scmi_test_devices(uts, &ctx, &dev);
 	if (!ret)
 		ret = release_sandbox_scmi_test_devices(uts, dev);
 
@@ -108,23 +99,18 @@ DM_TEST(dm_test_scmi_sandbox_agent, UT_TESTF_SCAN_FDT);
 
 static int dm_test_scmi_clocks(struct unit_test_state *uts)
 {
-	struct sandbox_scmi_devices *scmi_devices;
-	struct sandbox_scmi_service *scmi_ctx;
 	struct sandbox_scmi_agent *agent;
+	struct sandbox_scmi_devices *scmi_devices;
 	struct udevice *agent_dev, *clock_dev, *dev;
 	int ret_dev;
 	int ret;
 
-	ret = load_sandbox_scmi_test_devices(uts, &dev);
+	ret = load_sandbox_scmi_test_devices(uts, &agent, &dev);
 	if (ret)
 		return ret;
 
 	scmi_devices = sandbox_scmi_devices_ctx(dev);
 	ut_assertnonnull(scmi_devices);
-	scmi_ctx = sandbox_scmi_service_ctx();
-	ut_assertnonnull(scmi_ctx);
-	agent = scmi_ctx->agent;
-	ut_assertnonnull(agent);
 
 	/* Sandbox SCMI clock protocol has its own channel */
 	ut_assertok(uclass_get_device_by_name(UCLASS_SCMI_AGENT, "scmi",
@@ -179,22 +165,17 @@ DM_TEST(dm_test_scmi_clocks, UT_TESTF_SCAN_FDT);
 
 static int dm_test_scmi_resets(struct unit_test_state *uts)
 {
-	struct sandbox_scmi_devices *scmi_devices;
-	struct sandbox_scmi_service *scmi_ctx;
 	struct sandbox_scmi_agent *agent;
+	struct sandbox_scmi_devices *scmi_devices;
 	struct udevice *agent_dev, *reset_dev, *dev = NULL;
 	int ret;
 
-	ret = load_sandbox_scmi_test_devices(uts, &dev);
+	ret = load_sandbox_scmi_test_devices(uts, &agent, &dev);
 	if (ret)
 		return ret;
 
 	scmi_devices = sandbox_scmi_devices_ctx(dev);
 	ut_assertnonnull(scmi_devices);
-	scmi_ctx = sandbox_scmi_service_ctx();
-	ut_assertnonnull(scmi_ctx);
-	agent = scmi_ctx->agent;
-	ut_assertnonnull(agent);
 
 	/* Sandbox SCMI reset protocol doesn't have its own channel */
 	ut_assertok(uclass_get_device_by_name(UCLASS_SCMI_AGENT, "scmi",
@@ -219,21 +200,16 @@ DM_TEST(dm_test_scmi_resets, UT_TESTF_SCAN_FDT);
 
 static int dm_test_scmi_voltage_domains(struct unit_test_state *uts)
 {
-	struct sandbox_scmi_devices *scmi_devices;
-	struct sandbox_scmi_service *scmi_ctx;
 	struct sandbox_scmi_agent *agent;
+	struct sandbox_scmi_devices *scmi_devices;
 	struct dm_regulator_uclass_plat *uc_pdata;
 	struct udevice *dev;
 	struct udevice *regul0_dev;
 
-	ut_assertok(load_sandbox_scmi_test_devices(uts, &dev));
+	ut_assertok(load_sandbox_scmi_test_devices(uts, &agent, &dev));
 
 	scmi_devices = sandbox_scmi_devices_ctx(dev);
 	ut_assertnonnull(scmi_devices);
-	scmi_ctx = sandbox_scmi_service_ctx();
-	ut_assertnonnull(scmi_ctx);
-	agent = scmi_ctx->agent;
-	ut_assertnonnull(agent);
 
 	/* Set/Get an SCMI voltage domain level */
 	regul0_dev = scmi_devices->regul[0];

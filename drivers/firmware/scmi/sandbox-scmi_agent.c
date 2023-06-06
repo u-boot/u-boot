@@ -86,11 +86,9 @@ static struct sandbox_scmi_voltd scmi_voltd[] = {
 	{ .id = 1, .voltage_uv = 1800000 },
 };
 
-static struct sandbox_scmi_service sandbox_scmi_service_state;
-
-struct sandbox_scmi_service *sandbox_scmi_service_ctx(void)
+struct sandbox_scmi_agent *sandbox_scmi_agent_ctx(struct udevice *dev)
 {
-	return &sandbox_scmi_service_state;
+	return dev_get_priv(dev);
 }
 
 static void debug_print_agent_state(struct udevice *dev, char *str)
@@ -985,15 +983,7 @@ static int sandbox_scmi_test_process_msg(struct udevice *dev,
 
 static int sandbox_scmi_test_remove(struct udevice *dev)
 {
-	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
-
-	if (agent != sandbox_scmi_service_ctx()->agent)
-		return -EINVAL;
-
 	debug_print_agent_state(dev, "removed");
-
-	/* We only need to dereference the agent in the context */
-	sandbox_scmi_service_ctx()->agent = NULL;
 
 	return 0;
 }
@@ -1001,9 +991,6 @@ static int sandbox_scmi_test_remove(struct udevice *dev)
 static int sandbox_scmi_test_probe(struct udevice *dev)
 {
 	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
-
-	if (sandbox_scmi_service_ctx()->agent)
-		return -EINVAL;
 
 	*agent = (struct sandbox_scmi_agent){
 		.clk = scmi_clk,
@@ -1015,9 +1002,6 @@ static int sandbox_scmi_test_probe(struct udevice *dev)
 	};
 
 	debug_print_agent_state(dev, "probed");
-
-	/* Save reference for tests purpose */
-	sandbox_scmi_service_ctx()->agent = agent;
 
 	return 0;
 };
