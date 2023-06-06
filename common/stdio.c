@@ -386,11 +386,3 @@ int stdio_add_devices(void)
 
 	return 0;
 }
-
-int stdio_init(void)
-{
-	stdio_init_tables();
-	stdio_add_devices();
-
-	return 0;
-}

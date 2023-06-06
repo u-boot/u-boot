@@ -84,13 +84,6 @@ int stdio_init_tables(void);
  */
 int stdio_add_devices(void);
 
-/**
- * stdio_init() - Sets up stdio ready for use
- *
- * This calls stdio_init_tables() and stdio_add_devices()
- */
-int stdio_init(void);
-
 void stdio_print_current_devices(void);
 
 /**
