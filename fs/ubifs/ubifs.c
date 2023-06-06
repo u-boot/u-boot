@@ -925,12 +925,12 @@ void ubifs_close(void)
 }
 
 /* Compat wrappers for common/cmd_ubifs.c */
-int ubifs_load(char *filename, u32 addr, u32 size)
+int ubifs_load(char *filename, unsigned long addr, u32 size)
 {
 	loff_t actread;
 	int err;
 
-	printf("Loading file '%s' to addr 0x%08x...\n", filename, addr);
+	printf("Loading file '%s' to addr 0x%08lx...\n", filename, addr);
 
 	err = ubifs_read(filename, (void *)(uintptr_t)addr, 0, size, &actread);
 	if (err == 0) {
