@@ -148,10 +148,6 @@ check_member(sunxi_mctl_ctl_reg, unk_0x4240, 0x4240);
 struct dram_para {
 	u32 clk;
 	enum sunxi_dram_type type;
-	u8 cols;
-	u8 rows;
-	u8 ranks;
-	u8 bus_full_width;
 	u32 dx_odt;
 	u32 dx_dri;
 	u32 ca_dri;
@@ -163,6 +159,12 @@ struct dram_para {
 	u32 tpr12;
 };
 
+struct dram_config {
+	u8 cols;
+	u8 rows;
+	u8 ranks;
+	u8 bus_full_width;
+};
 
 static inline int ns_to_t(int nanoseconds)
 {

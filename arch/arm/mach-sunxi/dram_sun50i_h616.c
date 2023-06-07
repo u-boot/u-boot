@@ -141,15 +141,15 @@ static void mctl_sys_init(u32 clk_rate)
 	writel(0x8000, &mctl_ctl->clken);
 }
 
-static void mctl_set_addrmap(const struct dram_para *para)
+static void mctl_set_addrmap(const struct dram_config *config)
 {
 	struct sunxi_mctl_ctl_reg * const mctl_ctl =
 			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
-	u8 cols = para->cols;
-	u8 rows = para->rows;
-	u8 ranks = para->ranks;
+	u8 cols = config->cols;
+	u8 rows = config->rows;
+	u8 ranks = config->ranks;
 
-	if (!para->bus_full_width)
+	if (!config->bus_full_width)
 		cols -= 1;
 
 	/* Ranks */
@@ -281,7 +281,7 @@ static void mctl_phy_configure_odt(const struct dram_para *para)
 	dmb();
 }
 
-static bool mctl_phy_write_leveling(const struct dram_para *para)
+static bool mctl_phy_write_leveling(const struct dram_config *config)
 {
 	bool result = true;
 	u32 val;
@@ -292,7 +292,7 @@ static bool mctl_phy_write_leveling(const struct dram_para *para)
 
 	setbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 4);
 
-	if (para->bus_full_width)
+	if (config->bus_full_width)
 		val = 0xf;
 	else
 		val = 3;
@@ -316,12 +316,12 @@ static bool mctl_phy_write_leveling(const struct dram_para *para)
 
 	clrbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 0xc0);
 
-	if (para->ranks == 2) {
+	if (config->ranks == 2) {
 		clrsetbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 0xc0, 0x40);
 
 		setbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 4);
 
-		if (para->bus_full_width)
+		if (config->bus_full_width)
 			val = 0xf;
 		else
 			val = 3;
@@ -336,7 +336,7 @@ static bool mctl_phy_write_leveling(const struct dram_para *para)
 	return result;
 }
 
-static bool mctl_phy_read_calibration(const struct dram_para *para)
+static bool mctl_phy_read_calibration(const struct dram_config *config)
 {
 	bool result = true;
 	u32 val, tmp;
@@ -345,7 +345,7 @@ static bool mctl_phy_read_calibration(const struct dram_para *para)
 
 	setbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 1);
 
-	if (para->bus_full_width)
+	if (config->bus_full_width)
 		val = 0xf;
 	else
 		val = 3;
@@ -361,7 +361,7 @@ static bool mctl_phy_read_calibration(const struct dram_para *para)
 
 	clrbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 0x30);
 
-	if (para->ranks == 2) {
+	if (config->ranks == 2) {
 		clrsetbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 0x30, 0x10);
 
 		setbits_le32(SUNXI_DRAM_PHY0_BASE + 8, 1);
@@ -395,7 +395,7 @@ static bool mctl_phy_read_calibration(const struct dram_para *para)
 	return result;
 }
 
-static bool mctl_phy_read_training(const struct dram_para *para)
+static bool mctl_phy_read_training(const struct dram_config *config)
 {
 	u32 val1, val2, *ptr1, *ptr2;
 	bool result = true;
@@ -414,7 +414,7 @@ static bool mctl_phy_read_training(const struct dram_para *para)
 	if (readl(SUNXI_DRAM_PHY0_BASE + 0x840) & 3)
 		result = false;
 
-	if (para->bus_full_width) {
+	if (config->bus_full_width) {
 		mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0xa40), 0xc, 0xc);
 		if (readl(SUNXI_DRAM_PHY0_BASE + 0xa40) & 3)
 			result = false;
@@ -437,7 +437,7 @@ static bool mctl_phy_read_training(const struct dram_para *para)
 			result = false;
 	}
 
-	if (para->bus_full_width) {
+	if (config->bus_full_width) {
 		ptr1 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xa98);
 		ptr2 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xa50);
 		for (i = 0; i < 9; i++) {
@@ -459,7 +459,7 @@ static bool mctl_phy_read_training(const struct dram_para *para)
 
 	clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 3);
 
-	if (para->ranks == 2) {
+	if (config->ranks == 2) {
 		/* maybe last parameter should be 1? */
 		clrsetbits_le32(SUNXI_DRAM_PHY0_BASE + 0x198, 3, 2);
 
@@ -470,7 +470,7 @@ static bool mctl_phy_read_training(const struct dram_para *para)
 		if (readl(SUNXI_DRAM_PHY0_BASE + 0x840) & 3)
 			result = false;
 
-		if (para->bus_full_width) {
+		if (config->bus_full_width) {
 			mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0xa40), 0xc, 0xc);
 			if (readl(SUNXI_DRAM_PHY0_BASE + 0xa40) & 3)
 				result = false;
@@ -484,7 +484,7 @@ static bool mctl_phy_read_training(const struct dram_para *para)
 	return result;
 }
 
-static bool mctl_phy_write_training(const struct dram_para *para)
+static bool mctl_phy_write_training(const struct dram_config *config)
 {
 	u32 val1, val2, *ptr1, *ptr2;
 	bool result = true;
@@ -504,7 +504,7 @@ static bool mctl_phy_write_training(const struct dram_para *para)
 	if (readl(SUNXI_DRAM_PHY0_BASE + 0x8e0) & 0xc)
 		result = false;
 
-	if (para->bus_full_width) {
+	if (config->bus_full_width) {
 		mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0xae0), 3, 3);
 		if (readl(SUNXI_DRAM_PHY0_BASE + 0xae0) & 0xc)
 			result = false;
@@ -527,7 +527,7 @@ static bool mctl_phy_write_training(const struct dram_para *para)
 			result = false;
 	}
 
-	if (para->bus_full_width) {
+	if (config->bus_full_width) {
 		ptr1 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xb38);
 		ptr2 = (u32 *)(SUNXI_DRAM_PHY0_BASE + 0xaf0);
 		for (i = 0; i < 9; i++) {
@@ -548,7 +548,7 @@ static bool mctl_phy_write_training(const struct dram_para *para)
 
 	clrbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 0x60);
 
-	if (para->ranks == 2) {
+	if (config->ranks == 2) {
 		clrsetbits_le32(SUNXI_DRAM_PHY0_BASE + 0x198, 0xc, 4);
 
 		setbits_le32(SUNXI_DRAM_PHY0_BASE + 0x190, 0x10);
@@ -558,7 +558,7 @@ static bool mctl_phy_write_training(const struct dram_para *para)
 		if (readl(SUNXI_DRAM_PHY0_BASE + 0x8e0) & 0xc)
 			result = false;
 
-		if (para->bus_full_width) {
+		if (config->bus_full_width) {
 			mctl_await_completion((u32 *)(SUNXI_DRAM_PHY0_BASE + 0xae0), 3, 3);
 			if (readl(SUNXI_DRAM_PHY0_BASE + 0xae0) & 0xc)
 				result = false;
@@ -773,7 +773,8 @@ static void mctl_phy_bit_delay_compensation(const struct dram_para *para)
 	}
 }
 
-static void mctl_phy_ca_bit_delay_compensation(const struct dram_para *para)
+static void mctl_phy_ca_bit_delay_compensation(const struct dram_para *para,
+					       const struct dram_config *config)
 {
 	u32 val, *ptr;
 	int i;
@@ -797,7 +798,7 @@ static void mctl_phy_ca_bit_delay_compensation(const struct dram_para *para)
 	val = (para->tpr10 >> 7) & 0x1e;
 	if (para->tpr2 & 1) {
 		writel(val, SUNXI_DRAM_PHY0_BASE + 0x794);
-		if (para->ranks == 2) {
+		if (config->ranks == 2) {
 			val = (para->tpr10 >> 11) & 0x1e;
 			writel(val, SUNXI_DRAM_PHY0_BASE + 0x7e4);
 		}
@@ -809,7 +810,7 @@ static void mctl_phy_ca_bit_delay_compensation(const struct dram_para *para)
 		}
 	} else {
 		writel(val, SUNXI_DRAM_PHY0_BASE + 0x7d4);
-		if (para->ranks == 2) {
+		if (config->ranks == 2) {
 			val = (para->tpr10 >> 11) & 0x1e;
 			writel(val, SUNXI_DRAM_PHY0_BASE + 0x79c);
 		}
@@ -822,7 +823,8 @@ static void mctl_phy_ca_bit_delay_compensation(const struct dram_para *para)
 	}
 }
 
-static bool mctl_phy_init(const struct dram_para *para)
+static bool mctl_phy_init(const struct dram_para *para,
+			  const struct dram_config *config)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
@@ -831,7 +833,7 @@ static bool mctl_phy_init(const struct dram_para *para)
 	u32 val, val2, *ptr, mr0, mr2;
 	int i;
 
-	if (para->bus_full_width)
+	if (config->bus_full_width)
 		val = 0xf;
 	else
 		val = 3;
@@ -865,7 +867,7 @@ static bool mctl_phy_init(const struct dram_para *para)
 		writel(phy_init[i], &ptr[i]);
 
 	if (para->tpr10 & TPR10_CA_BIT_DELAY)
-		mctl_phy_ca_bit_delay_compensation(para);
+		mctl_phy_ca_bit_delay_compensation(para, config);
 
 	writel(0x80, SUNXI_DRAM_PHY0_BASE + 0x3dc);
 	writel(0x80, SUNXI_DRAM_PHY0_BASE + 0x45c);
@@ -946,7 +948,7 @@ static bool mctl_phy_init(const struct dram_para *para)
 
 	if (para->tpr10 & TPR10_WRITE_LEVELING) {
 		for (i = 0; i < 5; i++)
-			if (mctl_phy_write_leveling(para))
+			if (mctl_phy_write_leveling(config))
 				break;
 		if (i == 5) {
 			debug("write leveling failed!\n");
@@ -956,7 +958,7 @@ static bool mctl_phy_init(const struct dram_para *para)
 
 	if (para->tpr10 & TPR10_READ_CALIBRATION) {
 		for (i = 0; i < 5; i++)
-			if (mctl_phy_read_calibration(para))
+			if (mctl_phy_read_calibration(config))
 				break;
 		if (i == 5) {
 			debug("read calibration failed!\n");
@@ -966,7 +968,7 @@ static bool mctl_phy_init(const struct dram_para *para)
 
 	if (para->tpr10 & TPR10_READ_TRAINING) {
 		for (i = 0; i < 5; i++)
-			if (mctl_phy_read_training(para))
+			if (mctl_phy_read_training(config))
 				break;
 		if (i == 5) {
 			debug("read training failed!\n");
@@ -976,7 +978,7 @@ static bool mctl_phy_init(const struct dram_para *para)
 
 	if (para->tpr10 & TPR10_WRITE_TRAINING) {
 		for (i = 0; i < 5; i++)
-			if (mctl_phy_write_training(para))
+			if (mctl_phy_write_training(config))
 				break;
 		if (i == 5) {
 			debug("write training failed!\n");
@@ -991,7 +993,8 @@ static bool mctl_phy_init(const struct dram_para *para)
 	return true;
 }
 
-static bool mctl_ctrl_init(const struct dram_para *para)
+static bool mctl_ctrl_init(const struct dram_para *para,
+			   const struct dram_config *config)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
@@ -1010,15 +1013,15 @@ static bool mctl_ctrl_init(const struct dram_para *para)
 
 	setbits_le32(&mctl_com->unk_0x008, 0xff00);
 
-	reg_val = MSTR_BURST_LENGTH(8) | MSTR_ACTIVE_RANKS(para->ranks);
+	reg_val = MSTR_BURST_LENGTH(8) | MSTR_ACTIVE_RANKS(config->ranks);
 	reg_val |= MSTR_DEVICETYPE_DDR3 | MSTR_2TMODE;
-	if (para->bus_full_width)
+	if (config->bus_full_width)
 		reg_val |= MSTR_BUSWIDTH_FULL;
 	else
 		reg_val |= MSTR_BUSWIDTH_HALF;
 	writel(BIT(31) | BIT(30) | reg_val, &mctl_ctl->mstr);
 
-	if (para->ranks == 2)
+	if (config->ranks == 2)
 		writel(0x0303, &mctl_ctl->odtmap);
 	else
 		writel(0x0201, &mctl_ctl->odtmap);
@@ -1030,7 +1033,7 @@ static bool mctl_ctrl_init(const struct dram_para *para)
 
 	writel(BIT(31), &mctl_com->cr);
 
-	mctl_set_addrmap(para);
+	mctl_set_addrmap(config);
 
 	mctl_set_timing_params(para);
 
@@ -1056,7 +1059,7 @@ static bool mctl_ctrl_init(const struct dram_para *para)
 	/* this write seems to enable PHY MMIO region */
 	setbits_le32(&mctl_com->unk_0x500, BIT(24));
 
-	if (!mctl_phy_init(para))
+	if (!mctl_phy_init(para, config))
 		return false;
 
 	writel(0, &mctl_ctl->swctl);
@@ -1073,18 +1076,20 @@ static bool mctl_ctrl_init(const struct dram_para *para)
 	return true;
 }
 
-static bool mctl_core_init(const struct dram_para *para)
+static bool mctl_core_init(const struct dram_para *para,
+			   const struct dram_config *config)
 {
 	mctl_sys_init(para->clk);
 
-	return mctl_ctrl_init(para);
+	return mctl_ctrl_init(para, config);
 }
 
-static void mctl_auto_detect_rank_width(struct dram_para *para)
+static void mctl_auto_detect_rank_width(const struct dram_para *para,
+					struct dram_config *config)
 {
 	/* this is minimum size that it's supported */
-	para->cols = 8;
-	para->rows = 13;
+	config->cols = 8;
+	config->rows = 13;
 
 	/*
 	 * Strategy here is to test most demanding combination first and least
@@ -1095,94 +1100,97 @@ static void mctl_auto_detect_rank_width(struct dram_para *para)
 	 */
 
 	debug("testing 32-bit width, rank = 2\n");
-	para->bus_full_width = 1;
-	para->ranks = 2;
-	if (mctl_core_init(para))
+	config->bus_full_width = 1;
+	config->ranks = 2;
+	if (mctl_core_init(para, config))
 		return;
 
 	debug("testing 32-bit width, rank = 1\n");
-	para->bus_full_width = 1;
-	para->ranks = 1;
-	if (mctl_core_init(para))
+	config->bus_full_width = 1;
+	config->ranks = 1;
+	if (mctl_core_init(para, config))
 		return;
 
 	debug("testing 16-bit width, rank = 2\n");
-	para->bus_full_width = 0;
-	para->ranks = 2;
-	if (mctl_core_init(para))
+	config->bus_full_width = 0;
+	config->ranks = 2;
+	if (mctl_core_init(para, config))
 		return;
 
 	debug("testing 16-bit width, rank = 1\n");
-	para->bus_full_width = 0;
-	para->ranks = 1;
-	if (mctl_core_init(para))
+	config->bus_full_width = 0;
+	config->ranks = 1;
+	if (mctl_core_init(para, config))
 		return;
 
 	panic("This DRAM setup is currently not supported.\n");
 }
 
-static void mctl_auto_detect_dram_size(struct dram_para *para)
+static void mctl_auto_detect_dram_size(const struct dram_para *para,
+				       struct dram_config *config)
 {
 	/* detect row address bits */
-	para->cols = 8;
-	para->rows = 18;
-	mctl_core_init(para);
+	config->cols = 8;
+	config->rows = 18;
+	mctl_core_init(para, config);
 
-	for (para->rows = 13; para->rows < 18; para->rows++) {
+	for (config->rows = 13; config->rows < 18; config->rows++) {
 		/* 8 banks, 8 bit per byte and 16/32 bit width */
-		if (mctl_mem_matches((1 << (para->rows + para->cols +
-					    4 + para->bus_full_width))))
+		if (mctl_mem_matches((1 << (config->rows + config->cols +
+					    4 + config->bus_full_width))))
 			break;
 	}
 
 	/* detect column address bits */
-	para->cols = 11;
-	mctl_core_init(para);
+	config->cols = 11;
+	mctl_core_init(para, config);
 
-	for (para->cols = 8; para->cols < 11; para->cols++) {
+	for (config->cols = 8; config->cols < 11; config->cols++) {
 		/* 8 bits per byte and 16/32 bit width */
-		if (mctl_mem_matches(1 << (para->cols + 1 +
-					   para->bus_full_width)))
+		if (mctl_mem_matches(1 << (config->cols + 1 +
+					   config->bus_full_width)))
 			break;
 	}
 }
 
-static unsigned long mctl_calc_size(const struct dram_para *para)
+static unsigned long mctl_calc_size(const struct dram_config *config)
 {
-	u8 width = para->bus_full_width ? 4 : 2;
+	u8 width = config->bus_full_width ? 4 : 2;
 
 	/* 8 banks */
-	return (1ULL << (para->cols + para->rows + 3)) * width * para->ranks;
+	return (1ULL << (config->cols + config->rows + 3)) * width * config->ranks;
 }
+
+static const struct dram_para para = {
+	.clk = CONFIG_DRAM_CLK,
+	.type = SUNXI_DRAM_TYPE_DDR3,
+	.dx_odt = CONFIG_DRAM_SUN50I_H616_DX_ODT,
+	.dx_dri = CONFIG_DRAM_SUN50I_H616_DX_DRI,
+	.ca_dri = CONFIG_DRAM_SUN50I_H616_CA_DRI,
+	.odt_en = CONFIG_DRAM_SUN50I_H616_ODT_EN,
+	.tpr0 = CONFIG_DRAM_SUN50I_H616_TPR0,
+	.tpr2 = CONFIG_DRAM_SUN50I_H616_TPR2,
+	.tpr10 = CONFIG_DRAM_SUN50I_H616_TPR10,
+	.tpr11 = CONFIG_DRAM_SUN50I_H616_TPR11,
+	.tpr12 = CONFIG_DRAM_SUN50I_H616_TPR12,
+};
 
 unsigned long sunxi_dram_init(void)
 {
 	struct sunxi_prcm_reg *const prcm =
 		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
-	struct dram_para para = {
-		.clk = CONFIG_DRAM_CLK,
-		.type = SUNXI_DRAM_TYPE_DDR3,
-		.dx_odt = CONFIG_DRAM_SUN50I_H616_DX_ODT,
-		.dx_dri = CONFIG_DRAM_SUN50I_H616_DX_DRI,
-		.ca_dri = CONFIG_DRAM_SUN50I_H616_CA_DRI,
-		.odt_en = CONFIG_DRAM_SUN50I_H616_ODT_EN,
-		.tpr0 = CONFIG_DRAM_SUN50I_H616_TPR0,
-		.tpr2 = CONFIG_DRAM_SUN50I_H616_TPR2,
-		.tpr10 = CONFIG_DRAM_SUN50I_H616_TPR10,
-		.tpr11 = CONFIG_DRAM_SUN50I_H616_TPR11,
-		.tpr12 = CONFIG_DRAM_SUN50I_H616_TPR12,
-	};
+	struct dram_config config;
 	unsigned long size;
 
 	setbits_le32(&prcm->res_cal_ctrl, BIT(8));
 	clrbits_le32(&prcm->ohms240, 0x3f);
 
-	mctl_auto_detect_rank_width(&para);
-	mctl_auto_detect_dram_size(&para);
+	mctl_auto_detect_rank_width(&para, &config);
+	mctl_auto_detect_dram_size(&para, &config);
 
-	mctl_core_init(&para);
+	mctl_core_init(&para, &config);
 
-	size = mctl_calc_size(&para);
+	size = mctl_calc_size(&config);
 
 	mctl_set_master_priority();
 
