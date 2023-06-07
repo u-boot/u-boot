@@ -313,6 +313,7 @@ static const struct dm_spi_ops bcm63xx_hsspi_ops = {
 
 static const struct udevice_id bcm63xx_hsspi_ids[] = {
 	{ .compatible = "brcm,bcm6328-hsspi", },
+	{ .compatible = "brcm,bcmbca-hsspi-v1.0", },
 	{ /* sentinel */ }
 };
 
