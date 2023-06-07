@@ -537,6 +537,45 @@ where signature.dts looks like::
             };
     };
 
+Anti-rollback Protection
+************************
+
+Anti-rollback prevents unintentional installation of outdated firmware.
+To enable anti-rollback, you must add the lowest-supported-version property
+to dtb and specify --fw-version when creating a capsule file with the
+mkeficapsule tool.
+When executing capsule update, U-Boot checks if fw_version is greater than
+or equal to lowest-supported-version. If fw_version is less than
+lowest-supported-version, the update will fail.
+For example, if lowest-supported-version is set to 7 and you run capsule
+update using a capsule file with --fw-version of 5, the update will fail.
+When the --fw-version in the capsule file is updated, lowest-supported-version
+in the dtb might be updated accordingly.
+
+To insert the lowest supported version into a dtb
+
+.. code-block:: console
+
+    $ dtc -@ -I dts -O dtb -o version.dtbo version.dts
+    $ fdtoverlay -i orig.dtb -o new.dtb -v version.dtbo
+
+where version.dts looks like::
+
+    /dts-v1/;
+    /plugin/;
+    &{/} {
+            firmware-version {
+                    image1 {
+                            image-type-id = "09D7CF52-0720-4710-91D1-08469B7FE9C8";
+                            image-index = <1>;
+                            lowest-supported-version = <3>;
+                    };
+            };
+    };
+
+The properties of image-type-id and image-index must match the value
+defined in the efi_fw_image array as image_type_id and image_index.
+
 Executing the boot manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
