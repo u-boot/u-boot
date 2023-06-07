@@ -318,6 +318,33 @@ Run the following command
       --guid <image GUID> \
       <capsule_file_name>
 
+The UEFI specification does not define the firmware versioning mechanism.
+EDK II reference implementation inserts the FMP Payload Header right before
+the payload. It coutains the fw_version and lowest supported version,
+EDK II reference implementation uses these information to implement the
+firmware versioning and anti-rollback protection, the firmware version and
+lowest supported version is stored into EFI non-volatile variable.
+
+In U-Boot, the firmware versioning is implemented utilizing
+the FMP Payload Header same as EDK II reference implementation,
+reads the FMP Payload Header and stores the firmware version into
+"FmpStateXXXX" EFI non-volatile variable. XXXX indicates the image index,
+since FMP protocol handles multiple image indexes.
+
+To add the fw_version into the FMP Payload Header,
+add --fw-version option in mkeficapsule tool.
+
+.. code-block:: console
+
+    $ mkeficapsule \
+      --index <index> --instance 0 \
+      --guid <image GUID> \
+      --fw-version 5 \
+      <capsule_file_name>
+
+If the --fw-version option is not set, FMP Payload Header is not inserted
+and fw_version is set as 0.
+
 Performing the update
 *********************
 
