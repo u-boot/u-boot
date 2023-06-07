@@ -419,7 +419,8 @@ static void efi_firmware_get_fw_version(const void **p_image,
  * @image_index:	Image index
  * @state:		Pointer to fmp state
  *
- * Verify the capsule file
+ * Verify the capsule authentication and check if the fw_version
+ * is equal or greater than the lowest supported version.
  *
  * Return:		status code
  */
@@ -429,10 +430,26 @@ efi_status_t efi_firmware_verify_image(const void **p_image,
 				       u8 image_index,
 				       struct fmp_state *state)
 {
+	u32 lsv;
 	efi_status_t ret;
+	efi_guid_t *image_type_id;
 
 	ret = efi_firmware_capsule_authenticate(p_image, p_image_size);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
 	efi_firmware_get_fw_version(p_image, p_image_size, state);
+
+	image_type_id = efi_firmware_get_image_type_id(image_index);
+	if (!image_type_id)
+		return EFI_INVALID_PARAMETER;
+
+	efi_firmware_get_lsv_from_dtb(image_index, image_type_id, &lsv);
+	if (state->fw_version < lsv) {
+		log_err("Firmware version %u too low. Expecting >= %u. Aborting update\n",
+			state->fw_version, lsv);
+		return EFI_INVALID_PARAMETER;
+	}
 
 	return ret;
 }
