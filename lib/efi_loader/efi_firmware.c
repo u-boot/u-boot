@@ -145,6 +145,39 @@ efi_status_t EFIAPI efi_firmware_set_package_info_unsupported(
 }
 
 /**
+ * efi_firmware_fill_version_info - fill the version information
+ * @image_info:		Image information
+ * @fw_array:		Pointer to size of new image
+ *
+ * Fill the version information into image_info strucrure.
+ *
+ */
+static
+void efi_firmware_fill_version_info(struct efi_firmware_image_descriptor *image_info,
+				    struct efi_fw_image *fw_array)
+{
+	u16 varname[13]; /* u"FmpStateXXXX" */
+	efi_status_t ret;
+	efi_uintn_t size;
+	struct fmp_state var_state = { 0 };
+
+	efi_create_indexed_name(varname, sizeof(varname), "FmpState",
+				fw_array->image_index);
+	size = sizeof(var_state);
+	ret = efi_get_variable_int(varname, &fw_array->image_type_id,
+				   NULL, &size, &var_state, NULL);
+	if (ret == EFI_SUCCESS)
+		image_info->version = var_state.fw_version;
+	else
+		image_info->version = 0;
+
+	image_info->version_name = NULL; /* not supported */
+	image_info->lowest_supported_image_version = 0;
+	image_info->last_attempt_version = 0;
+	image_info->last_attempt_status = LAST_ATTEMPT_STATUS_SUCCESS;
+}
+
+/**
  * efi_fill_image_desc_array - populate image descriptor array
  * @image_info_size:		Size of @image_info
  * @image_info:			Image information
@@ -193,11 +226,10 @@ static efi_status_t efi_fill_image_desc_array(
 		image_info[i].image_index = fw_array[i].image_index;
 		image_info[i].image_type_id = fw_array[i].image_type_id;
 		image_info[i].image_id = fw_array[i].image_index;
-
 		image_info[i].image_id_name = fw_array[i].fw_name;
 
-		image_info[i].version = 0; /* not supported */
-		image_info[i].version_name = NULL; /* not supported */
+		efi_firmware_fill_version_info(&image_info[i], &fw_array[i]);
+
 		image_info[i].size = 0;
 		image_info[i].attributes_supported =
 			IMAGE_ATTRIBUTE_IMAGE_UPDATABLE |
@@ -210,9 +242,6 @@ static efi_status_t efi_fill_image_desc_array(
 			image_info[0].attributes_setting |=
 				IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED;
 
-		image_info[i].lowest_supported_image_version = 0;
-		image_info[i].last_attempt_version = 0;
-		image_info[i].last_attempt_status = LAST_ATTEMPT_STATUS_SUCCESS;
 		image_info[i].hardware_instance = 1;
 		image_info[i].dependencies = NULL;
 	}
