@@ -134,6 +134,9 @@ val = (in_le32(SMMU_SCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
 	out_le32(SMMU_NSCR0, val);
 #endif
 
+	if (!IS_ENABLED(CONFIG_SYS_EARLY_PCI_INIT))
+		pci_init();
+
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT, 0);
 	return 0;
 }
