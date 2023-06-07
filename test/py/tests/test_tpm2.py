@@ -272,6 +272,12 @@ def test_tpm2_pcr_extend(u_boot_console):
     force_init(u_boot_console)
     ram = u_boot_utils.find_ram_base(u_boot_console)
 
+    read_pcr = u_boot_console.run_command('tpm2 pcr_read 0 0x%x' % (ram + 0x20))
+    output = u_boot_console.run_command('echo $?')
+    assert output.endswith('0')
+    str = re.findall(r'\d+ known updates', read_pcr)[0]
+    updates = int(re.findall(r'\d+', str)[0])
+
     u_boot_console.run_command('tpm2 pcr_extend 0 0x%x' % ram)
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
