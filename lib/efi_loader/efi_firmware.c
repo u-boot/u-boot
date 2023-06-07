@@ -145,6 +145,51 @@ efi_status_t EFIAPI efi_firmware_set_package_info_unsupported(
 }
 
 /**
+ * efi_firmware_get_lsv_from_dtb - get lowest supported version from dtb
+ * @image_index:	Image index
+ * @image_type_id:	Image type id
+ * @lsv:		Pointer to store the lowest supported version
+ *
+ * Read the firmware version information from dtb.
+ */
+static void efi_firmware_get_lsv_from_dtb(u8 image_index,
+					  efi_guid_t *image_type_id, u32 *lsv)
+{
+	const void *fdt = gd->fdt_blob;
+	const fdt32_t *val;
+	const char *guid_str;
+	int len, offset, index;
+	int parent;
+
+	*lsv = 0;
+
+	parent = fdt_subnode_offset(fdt, 0, "firmware-version");
+	if (parent < 0)
+		return;
+
+	fdt_for_each_subnode(offset, fdt, parent) {
+		efi_guid_t guid;
+
+		guid_str = fdt_getprop(fdt, offset, "image-type-id", &len);
+		if (!guid_str)
+			continue;
+		uuid_str_to_bin(guid_str, guid.b, UUID_STR_FORMAT_GUID);
+
+		val = fdt_getprop(fdt, offset, "image-index", &len);
+		if (!val)
+			continue;
+		index = fdt32_to_cpu(*val);
+
+		if (!guidcmp(&guid, image_type_id) && index == image_index) {
+			val = fdt_getprop(fdt, offset,
+					  "lowest-supported-version", &len);
+			if (val)
+				*lsv = fdt32_to_cpu(*val);
+		}
+	}
+}
+
+/**
  * efi_firmware_fill_version_info - fill the version information
  * @image_info:		Image information
  * @fw_array:		Pointer to size of new image
@@ -171,8 +216,11 @@ void efi_firmware_fill_version_info(struct efi_firmware_image_descriptor *image_
 	else
 		image_info->version = 0;
 
+	efi_firmware_get_lsv_from_dtb(fw_array->image_index,
+				      &fw_array->image_type_id,
+				      &image_info->lowest_supported_image_version);
+
 	image_info->version_name = NULL; /* not supported */
-	image_info->lowest_supported_image_version = 0;
 	image_info->last_attempt_version = 0;
 	image_info->last_attempt_status = LAST_ATTEMPT_STATUS_SUCCESS;
 }
