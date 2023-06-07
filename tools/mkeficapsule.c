@@ -41,6 +41,7 @@ static struct option options[] = {
 	{"guid", required_argument, NULL, 'g'},
 	{"index", required_argument, NULL, 'i'},
 	{"instance", required_argument, NULL, 'I'},
+	{"fw-version", required_argument, NULL, 'v'},
 	{"private-key", required_argument, NULL, 'p'},
 	{"certificate", required_argument, NULL, 'c'},
 	{"monotonic-count", required_argument, NULL, 'm'},
@@ -60,6 +61,7 @@ static void print_usage(void)
 		"\t-g, --guid <guid string>    guid for image blob type\n"
 		"\t-i, --index <index>         update image index\n"
 		"\t-I, --instance <instance>   update hardware instance\n"
+		"\t-v, --fw-version <version>  firmware version\n"
 		"\t-p, --private-key <privkey file>  private key file\n"
 		"\t-c, --certificate <cert file>     signer's certificate file\n"
 		"\t-m, --monotonic-count <count>     monotonic count\n"
@@ -402,6 +404,7 @@ static void free_sig_data(struct auth_context *ctx)
  */
 static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 			unsigned long index, unsigned long instance,
+			struct fmp_payload_header_params *fmp_ph_params,
 			uint64_t mcount, char *privkey_file, char *cert_file,
 			uint16_t oemflags)
 {
@@ -410,10 +413,11 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	struct efi_firmware_management_capsule_image_header image;
 	struct auth_context auth_context;
 	FILE *f;
-	uint8_t *data;
+	uint8_t *data, *new_data, *buf;
 	off_t bin_size;
 	uint64_t offset;
 	int ret;
+	struct fmp_payload_header payload_header;
 
 #ifdef DEBUG
 	fprintf(stderr, "For output: %s\n", path);
@@ -423,6 +427,7 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	auth_context.sig_size = 0;
 	f = NULL;
 	data = NULL;
+	new_data = NULL;
 	ret = -1;
 
 	/*
@@ -431,12 +436,30 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	if (read_bin_file(bin, &data, &bin_size))
 		goto err;
 
+	buf = data;
+
+	/* insert fmp payload header right before the payload */
+	if (fmp_ph_params->have_header) {
+		new_data = malloc(bin_size + sizeof(payload_header));
+		if (!new_data)
+			goto err;
+
+		payload_header.signature = FMP_PAYLOAD_HDR_SIGNATURE;
+		payload_header.header_size = sizeof(payload_header);
+		payload_header.fw_version = fmp_ph_params->fw_version;
+		payload_header.lowest_supported_version = 0; /* not used */
+		memcpy(new_data, &payload_header, sizeof(payload_header));
+		memcpy(new_data + sizeof(payload_header), data, bin_size);
+		buf = new_data;
+		bin_size += sizeof(payload_header);
+	}
+
 	/* first, calculate signature to determine its size */
 	if (privkey_file && cert_file) {
 		auth_context.key_file = privkey_file;
 		auth_context.cert_file = cert_file;
 		auth_context.auth.monotonic_count = mcount;
-		auth_context.image_data = data;
+		auth_context.image_data = buf;
 		auth_context.image_size = bin_size;
 
 		if (create_auth_data(&auth_context)) {
@@ -536,7 +559,7 @@ static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
 	/*
 	 * firmware binary
 	 */
-	if (write_capsule_file(f, data, bin_size, "Firmware binary"))
+	if (write_capsule_file(f, buf, bin_size, "Firmware binary"))
 		goto err;
 
 	ret = 0;
@@ -545,6 +568,7 @@ err:
 		fclose(f);
 	free_sig_data(&auth_context);
 	free(data);
+	free(new_data);
 
 	return ret;
 }
@@ -644,6 +668,7 @@ int main(int argc, char **argv)
 	unsigned long oemflags;
 	char *privkey_file, *cert_file;
 	int c, idx;
+	struct fmp_payload_header_params fmp_ph_params = { 0 };
 
 	guid = NULL;
 	index = 0;
@@ -678,6 +703,10 @@ int main(int argc, char **argv)
 			break;
 		case 'I':
 			instance = strtoul(optarg, NULL, 0);
+			break;
+		case 'v':
+			fmp_ph_params.fw_version = strtoul(optarg, NULL, 0);
+			fmp_ph_params.have_header = true;
 			break;
 		case 'p':
 			if (privkey_file) {
@@ -751,7 +780,7 @@ int main(int argc, char **argv)
 			exit(EXIT_FAILURE);
 		}
 	} else 	if (create_fwbin(argv[argc - 1], argv[argc - 2], guid,
-				 index, instance, mcount, privkey_file,
+				 index, instance, &fmp_ph_params, mcount, privkey_file,
 				 cert_file, (uint16_t)oemflags) < 0) {
 		fprintf(stderr, "Creating firmware capsule failed\n");
 		exit(EXIT_FAILURE);
