@@ -92,7 +92,7 @@ static void mctl_set_master_priority(void)
 	dmb();
 }
 
-static void mctl_sys_init(struct dram_para *para)
+static void mctl_sys_init(u32 clk_rate)
 {
 	struct sunxi_ccm_reg * const ccm =
 			(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
@@ -114,7 +114,7 @@ static void mctl_sys_init(struct dram_para *para)
 
 	/* Set PLL5 rate to doubled DRAM clock rate */
 	writel(CCM_PLL5_CTRL_EN | CCM_PLL5_LOCK_EN | CCM_PLL5_OUT_EN |
-	       CCM_PLL5_CTRL_N(para->clk * 2 / 24), &ccm->pll5_cfg);
+	       CCM_PLL5_CTRL_N(clk_rate * 2 / 24), &ccm->pll5_cfg);
 	mctl_await_completion(&ccm->pll5_cfg, CCM_PLL5_LOCK, CCM_PLL5_LOCK);
 
 	/* Configure DRAM mod clock */
@@ -141,7 +141,7 @@ static void mctl_sys_init(struct dram_para *para)
 	writel(0x8000, &mctl_ctl->clken);
 }
 
-static void mctl_set_addrmap(struct dram_para *para)
+static void mctl_set_addrmap(const struct dram_para *para)
 {
 	struct sunxi_mctl_ctl_reg * const mctl_ctl =
 			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
@@ -234,7 +234,7 @@ static const u8 phy_init[] = {
 	0x09, 0x05, 0x18
 };
 
-static void mctl_phy_configure_odt(struct dram_para *para)
+static void mctl_phy_configure_odt(const struct dram_para *para)
 {
 	unsigned int val;
 
@@ -281,7 +281,7 @@ static void mctl_phy_configure_odt(struct dram_para *para)
 	dmb();
 }
 
-static bool mctl_phy_write_leveling(struct dram_para *para)
+static bool mctl_phy_write_leveling(const struct dram_para *para)
 {
 	bool result = true;
 	u32 val;
@@ -336,7 +336,7 @@ static bool mctl_phy_write_leveling(struct dram_para *para)
 	return result;
 }
 
-static bool mctl_phy_read_calibration(struct dram_para *para)
+static bool mctl_phy_read_calibration(const struct dram_para *para)
 {
 	bool result = true;
 	u32 val, tmp;
@@ -395,7 +395,7 @@ static bool mctl_phy_read_calibration(struct dram_para *para)
 	return result;
 }
 
-static bool mctl_phy_read_training(struct dram_para *para)
+static bool mctl_phy_read_training(const struct dram_para *para)
 {
 	u32 val1, val2, *ptr1, *ptr2;
 	bool result = true;
@@ -484,7 +484,7 @@ static bool mctl_phy_read_training(struct dram_para *para)
 	return result;
 }
 
-static bool mctl_phy_write_training(struct dram_para *para)
+static bool mctl_phy_write_training(const struct dram_para *para)
 {
 	u32 val1, val2, *ptr1, *ptr2;
 	bool result = true;
@@ -572,7 +572,7 @@ static bool mctl_phy_write_training(struct dram_para *para)
 	return result;
 }
 
-static void mctl_phy_bit_delay_compensation(struct dram_para *para)
+static void mctl_phy_bit_delay_compensation(const struct dram_para *para)
 {
 	u32 *ptr, val;
 	int i;
@@ -773,7 +773,7 @@ static void mctl_phy_bit_delay_compensation(struct dram_para *para)
 	}
 }
 
-static void mctl_phy_ca_bit_delay_compensation(struct dram_para *para)
+static void mctl_phy_ca_bit_delay_compensation(const struct dram_para *para)
 {
 	u32 val, *ptr;
 	int i;
@@ -822,7 +822,7 @@ static void mctl_phy_ca_bit_delay_compensation(struct dram_para *para)
 	}
 }
 
-static bool mctl_phy_init(struct dram_para *para)
+static bool mctl_phy_init(const struct dram_para *para)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
@@ -991,7 +991,7 @@ static bool mctl_phy_init(struct dram_para *para)
 	return true;
 }
 
-static bool mctl_ctrl_init(struct dram_para *para)
+static bool mctl_ctrl_init(const struct dram_para *para)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
@@ -1073,9 +1073,9 @@ static bool mctl_ctrl_init(struct dram_para *para)
 	return true;
 }
 
-static bool mctl_core_init(struct dram_para *para)
+static bool mctl_core_init(const struct dram_para *para)
 {
-	mctl_sys_init(para);
+	mctl_sys_init(para->clk);
 
 	return mctl_ctrl_init(para);
 }
@@ -1147,7 +1147,7 @@ static void mctl_auto_detect_dram_size(struct dram_para *para)
 	}
 }
 
-static unsigned long mctl_calc_size(struct dram_para *para)
+static unsigned long mctl_calc_size(const struct dram_para *para)
 {
 	u8 width = para->bus_full_width ? 4 : 2;
 
