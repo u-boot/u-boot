@@ -18,10 +18,10 @@
 static struct efi_fw_image fw_images[ROCKPI4_UPDATABLE_IMAGES] = {0};
 
 struct efi_capsule_update_info update_info = {
+	.num_images = ROCKPI4_UPDATABLE_IMAGES,
 	.images = fw_images,
 };
 
-u8 num_image_type_guids = ROCKPI4_UPDATABLE_IMAGES;
 #endif
 
 #ifndef CONFIG_SPL_BUILD

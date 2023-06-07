@@ -40,10 +40,10 @@ struct efi_fw_image fw_images[] = {
 struct efi_capsule_update_info update_info = {
 	.dfu_string = "sf 0:0=u-boot-bin raw 0x210000 0x1d0000;"
 			"u-boot-env raw 0x3e0000 0x20000",
+	.num_images = ARRAY_SIZE(fw_images),
 	.images = fw_images,
 };
 
-u8 num_image_type_guids = ARRAY_SIZE(fw_images);
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 int board_early_init_f(void)
