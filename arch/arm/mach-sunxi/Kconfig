@@ -476,6 +476,14 @@ config SUNXI_DRAM_H6_DDR3_1333
 	This option is the DDR3 timing used by the boot0 on H6 TV boxes
 	which use a DDR3-1333 timing.
 
+config SUNXI_DRAM_H616_LPDDR3
+	bool "LPDDR3 DRAM chips on the H616 DRAM controller"
+	select SUNXI_DRAM_LPDDR3
+	depends on DRAM_SUN50I_H616
+	help
+	  This option is the LPDDR3 timing used by the stock boot0 by
+	  Allwinner.
+
 config SUNXI_DRAM_H616_DDR3_1333
 	bool "DDR3-1333 boot0 timings on the H616 DRAM controller"
 	select SUNXI_DRAM_DDR3
