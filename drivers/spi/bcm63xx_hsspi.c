@@ -221,7 +221,7 @@ static int bcm63xx_hsspi_xfer(struct udevice *dev, unsigned int bitlen,
 	size_t data_bytes = bitlen / 8;
 	size_t step_size = HSSPI_FIFO_SIZE;
 	uint16_t opcode = 0;
-	uint32_t val;
+	uint32_t val = SPI_PFL_MODE_FILL_MASK;
 	const uint8_t *tx = dout;
 	uint8_t *rx = din;
 
@@ -240,14 +240,17 @@ static int bcm63xx_hsspi_xfer(struct udevice *dev, unsigned int bitlen,
 		step_size -= HSSPI_FIFO_OP_SIZE;
 
 	/* dual mode */
-	if ((opcode == HSSPI_FIFO_OP_CODE_R && plat->mode == SPI_RX_DUAL) ||
-	    (opcode == HSSPI_FIFO_OP_CODE_W && plat->mode == SPI_TX_DUAL))
+	if ((opcode == HSSPI_FIFO_OP_CODE_R && (plat->mode & SPI_RX_DUAL)) ||
+	    (opcode == HSSPI_FIFO_OP_CODE_W && (plat->mode & SPI_TX_DUAL))) {
 		opcode |= HSSPI_FIFO_OP_MBIT_MASK;
 
-	/* profile mode */
-	val = SPI_PFL_MODE_FILL_MASK |
-	      SPI_PFL_MODE_MDRDSZ_MASK |
-	      SPI_PFL_MODE_MDWRSZ_MASK;
+		/* profile mode */
+		if (plat->mode & SPI_RX_DUAL)
+			val |= SPI_PFL_MODE_MDRDSZ_MASK;
+		if (plat->mode & SPI_TX_DUAL)
+			val |= SPI_PFL_MODE_MDWRSZ_MASK;
+	}
+
 	if (plat->mode & SPI_3WIRE)
 		val |= SPI_PFL_MODE_3WIRE_MASK;
 	writel(val, priv->regs + SPI_PFL_MODE_REG(plat->cs));
