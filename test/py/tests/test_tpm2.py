@@ -41,11 +41,9 @@ def force_init(u_boot_console, force=False):
     skip_test = u_boot_console.config.env.get('env__tpm_device_test_skip', False)
     if skip_test:
         pytest.skip('skip TPM device test')
-    output = u_boot_console.run_command('tpm2 init')
+    output = u_boot_console.run_command('tpm2 autostart')
     if force or not 'Error' in output:
         u_boot_console.run_command('echo --- start of init ---')
-        u_boot_console.run_command('tpm2 startup TPM2_SU_CLEAR')
-        u_boot_console.run_command('tpm2 self_test full')
         u_boot_console.run_command('tpm2 clear TPM2_RH_LOCKOUT')
         output = u_boot_console.run_command('echo $?')
         if not output.endswith('0'):
@@ -83,20 +81,13 @@ def tpm2_sandbox_init(u_boot_console):
     This allows all tests to run in parallel, since no test depends on another.
     """
     u_boot_console.restart_uboot()
-    u_boot_console.run_command('tpm2 init')
+    u_boot_console.run_command('tpm2 autostart')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
 
     skip_test = u_boot_console.config.env.get('env__tpm_device_test_skip', False)
     if skip_test:
         pytest.skip('skip TPM device test')
-    u_boot_console.run_command('tpm2 startup TPM2_SU_CLEAR')
-    output = u_boot_console.run_command('echo $?')
-    assert output.endswith('0')
-
-    u_boot_console.run_command('tpm2 self_test full')
-    output = u_boot_console.run_command('echo $?')
-    assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_tpm_v2')
 def test_tpm2_sandbox_self_test_full(u_boot_console):
