@@ -96,13 +96,19 @@ struct stm32_header_v2 {
 	u8 extension_padding[376];
 };
 
-/* partition type in flashlayout file */
+/*
+ * partition type in flashlayout file
+ * SYSTEM = linux partition, bootable
+ * FILESYSTEM = linux partition
+ * ESP = EFI system partition
+ */
 enum stm32prog_part_type {
 	PART_BINARY,
 	PART_FIP,
 	PART_ENV,
 	PART_SYSTEM,
 	PART_FILESYSTEM,
+	PART_ESP,
 	RAW_IMAGE,
 };
 

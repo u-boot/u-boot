@@ -429,6 +429,8 @@ static int parse_type(struct stm32prog_data *data,
 		part->part_type = PART_ENV;
 	} else if (!strcmp(p, "System")) {
 		part->part_type = PART_SYSTEM;
+	} else if (!strcmp(p, "ESP")) {
+		part->part_type = PART_ESP;
 	} else if (!strcmp(p, "FileSystem")) {
 		part->part_type = PART_FILESYSTEM;
 	} else if (!strcmp(p, "RawImage")) {
@@ -1123,7 +1125,11 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 			case PART_FIP:
 				type_str = FIP_TYPE_UUID;
 				break;
-			default:
+			case PART_ESP:
+				/* EFI System Partition */
+				type_str = "system";
+				break;
+			default: /* PART_FILESYSTEM or PART_SYSTEM for distro */
 				type_str = "linux";
 				break;
 			}
