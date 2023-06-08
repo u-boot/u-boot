@@ -13,6 +13,7 @@
 #include <mapmem.h>
 #include <net.h>
 #include <stdio_dev.h>
+#include <dm/ofnode.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
 #include <asm/global_data.h>
@@ -1065,7 +1066,6 @@ void fdt_del_node_and_alias(void *blob, const char *alias)
 
 /* Max address size we deal with */
 #define OF_MAX_ADDR_CELLS	4
-#define OF_BAD_ADDR	FDT_ADDR_T_NONE
 #define OF_CHECK_COUNTS(na, ns)	((na) > 0 && (na) <= OF_MAX_ADDR_CELLS && \
 			(ns) > 0)
 
