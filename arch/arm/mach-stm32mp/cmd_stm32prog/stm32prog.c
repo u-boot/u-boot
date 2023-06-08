@@ -425,6 +425,8 @@ static int parse_type(struct stm32prog_data *data,
 		}
 	} else if (!strcmp(p, "FIP")) {
 		part->part_type = PART_FIP;
+	} else if (!strcmp(p, "ENV")) {
+		part->part_type = PART_ENV;
 	} else if (!strcmp(p, "System")) {
 		part->part_type = PART_SYSTEM;
 	} else if (!strcmp(p, "FileSystem")) {
@@ -1114,6 +1116,9 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 			switch (part->part_type) {
 			case PART_BINARY:
 				type_str = LINUX_RESERVED_UUID;
+				break;
+			case PART_ENV:
+				type_str = "u-boot-env";
 				break;
 			case PART_FIP:
 				type_str = FIP_TYPE_UUID;
