@@ -41,7 +41,6 @@ config DFU_MMC
 config DFU_MTD
 	bool "MTD back end for DFU"
 	depends on DM_MTD
-	depends on CMD_MTDPARTS
 	help
 	  This option enables using DFU to read and write to on any MTD device.
 
