@@ -7,10 +7,11 @@
  */
 
 #include <common.h>
-#include <clk.h>
+#include <clk-uclass.h>
 #include <dm.h>
 #include <asm/global_data.h>
 #include <dm/device_compat.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <generic-phy.h>
 #include <reset.h>
@@ -55,6 +56,7 @@ struct rockchip_usb2phy_port_cfg {
 
 struct rockchip_usb2phy_cfg {
 	unsigned int reg;
+	struct usb2phy_reg	clkout_ctl;
 	const struct rockchip_usb2phy_port_cfg port_cfgs[USB2PHY_NUM_PORTS];
 };
 
@@ -74,6 +76,18 @@ static inline int property_enable(void *reg_base,
 	val = (tmp << reg->bitstart) | (mask << BIT_WRITEABLE_SHIFT);
 
 	return writel(val, reg_base + reg->offset);
+}
+
+static inline bool property_enabled(void *reg_base,
+				    const struct usb2phy_reg *reg)
+{
+	unsigned int tmp, orig;
+	unsigned int mask = GENMASK(reg->bitend, reg->bitstart);
+
+	orig = readl(reg_base + reg->offset);
+
+	tmp = (orig & mask) >> reg->bitstart;
+	return tmp != reg->disable;
 }
 
 static const
@@ -168,6 +182,65 @@ static struct phy_ops rockchip_usb2phy_ops = {
 	.of_xlate = rockchip_usb2phy_of_xlate,
 };
 
+/**
+ * round_rate() - Adjust a rate to the exact rate a clock can provide.
+ * @clk:	The clock to manipulate.
+ * @rate:	Desidered clock rate in Hz.
+ *
+ * Return: rounded rate in Hz, or -ve error code.
+ */
+ulong rockchip_usb2phy_clk_round_rate(struct clk *clk, ulong rate)
+{
+	return 480000000;
+}
+
+/**
+ * enable() - Enable a clock.
+ * @clk:	The clock to manipulate.
+ *
+ * Return: zero on success, or -ve error code.
+ */
+int rockchip_usb2phy_clk_enable(struct clk *clk)
+{
+	struct udevice *parent = dev_get_parent(clk->dev);
+	struct rockchip_usb2phy *priv = dev_get_priv(parent);
+	const struct rockchip_usb2phy_cfg *phy_cfg = priv->phy_cfg;
+
+	/* turn on 480m clk output if it is off */
+	if (!property_enabled(priv->reg_base, &phy_cfg->clkout_ctl)) {
+		property_enable(priv->reg_base, &phy_cfg->clkout_ctl, true);
+
+		/* waiting for the clk become stable */
+		usleep_range(1200, 1300);
+	}
+
+	return 0;
+}
+
+/**
+ * disable() - Disable a clock.
+ * @clk:	The clock to manipulate.
+ *
+ * Return: zero on success, or -ve error code.
+ */
+int rockchip_usb2phy_clk_disable(struct clk *clk)
+{
+	struct udevice *parent = dev_get_parent(clk->dev);
+	struct rockchip_usb2phy *priv = dev_get_priv(parent);
+	const struct rockchip_usb2phy_cfg *phy_cfg = priv->phy_cfg;
+
+	/* turn off 480m clk output */
+	property_enable(priv->reg_base, &phy_cfg->clkout_ctl, false);
+
+	return 0;
+}
+
+static struct clk_ops rockchip_usb2phy_clk_ops = {
+	.enable = rockchip_usb2phy_clk_enable,
+	.disable = rockchip_usb2phy_clk_disable,
+	.round_rate = rockchip_usb2phy_clk_round_rate
+};
+
 static int rockchip_usb2phy_probe(struct udevice *dev)
 {
 	struct rockchip_usb2phy *priv = dev_get_priv(dev);
@@ -234,7 +307,8 @@ static int rockchip_usb2phy_bind(struct udevice *dev)
 	dev_for_each_subnode(node, dev) {
 		if (!ofnode_valid(node)) {
 			dev_info(dev, "subnode %s not found\n", dev->name);
-			return -ENXIO;
+			ret = -ENXIO;
+			goto bind_fail;
 		}
 
 		name = ofnode_get_name(node);
@@ -245,9 +319,28 @@ static int rockchip_usb2phy_bind(struct udevice *dev)
 		if (ret) {
 			dev_err(dev,
 				"'%s' cannot bind 'rockchip_usb2phy_port'\n", name);
-			return ret;
+			goto bind_fail;
 		}
 	}
+
+	node = dev_ofnode(dev);
+	name = "clk_usbphy_480m";
+	dev_read_string_index(dev, "clock-output-names", 0, &name);
+
+	dev_dbg(dev, "clk %s for node %s\n", name, ofnode_get_name(node));
+
+	ret = device_bind_driver_to_node(dev, "rockchip_usb2phy_clock",
+					 name, node, &usb2phy_dev);
+	if (ret) {
+		dev_err(dev,
+			"'%s' cannot bind 'rockchip_usb2phy_clock'\n", name);
+		goto bind_fail;
+	}
+
+	return 0;
+
+bind_fail:
+	device_chld_unbind(dev, NULL);
 
 	return ret;
 }
@@ -255,6 +348,7 @@ static int rockchip_usb2phy_bind(struct udevice *dev)
 static const struct rockchip_usb2phy_cfg rk3399_usb2phy_cfgs[] = {
 	{
 		.reg		= 0xe450,
+		.clkout_ctl	= { 0xe450, 4, 4, 1, 0 },
 		.port_cfgs	= {
 			[USB2PHY_PORT_OTG] = {
 				.phy_sus	= { 0xe454, 1, 0, 2, 1 },
@@ -276,6 +370,7 @@ static const struct rockchip_usb2phy_cfg rk3399_usb2phy_cfgs[] = {
 	},
 	{
 		.reg		= 0xe460,
+		.clkout_ctl	= { 0xe460, 4, 4, 1, 0 },
 		.port_cfgs	= {
 			[USB2PHY_PORT_OTG] = {
 				.phy_sus        = { 0xe464, 1, 0, 2, 1 },
@@ -301,6 +396,7 @@ static const struct rockchip_usb2phy_cfg rk3399_usb2phy_cfgs[] = {
 static const struct rockchip_usb2phy_cfg rk3568_phy_cfgs[] = {
 	{
 		.reg		= 0xfe8a0000,
+		.clkout_ctl	= { 0x0008, 4, 4, 1, 0 },
 		.port_cfgs	= {
 			[USB2PHY_PORT_OTG] = {
 				.phy_sus	= { 0x0000, 8, 0, 0x052, 0x1d1 },
@@ -326,6 +422,7 @@ static const struct rockchip_usb2phy_cfg rk3568_phy_cfgs[] = {
 	},
 	{
 		.reg		= 0xfe8b0000,
+		.clkout_ctl	= { 0x0008, 4, 4, 1, 0 },
 		.port_cfgs	= {
 			[USB2PHY_PORT_OTG] = {
 				.phy_sus	= { 0x0000, 8, 0, 0x1d2, 0x1d1 },
@@ -420,6 +517,12 @@ U_BOOT_DRIVER(rockchip_usb2phy_port) = {
 	.name		= "rockchip_usb2phy_port",
 	.id		= UCLASS_PHY,
 	.ops		= &rockchip_usb2phy_ops,
+};
+
+U_BOOT_DRIVER(rockchip_usb2phy_clock) = {
+	.name		= "rockchip_usb2phy_clock",
+	.id		= UCLASS_CLK,
+	.ops		= &rockchip_usb2phy_clk_ops,
 };
 
 U_BOOT_DRIVER(rockchip_usb2phy) = {
