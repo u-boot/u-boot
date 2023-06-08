@@ -81,8 +81,6 @@
  * From usbc/usbc.c
  ******************************************************************************/
 
-#define OFF_SUN6I_AHB_RESET0	0x2c0
-
 struct sunxi_musb_config {
 	struct musb_hdrc_config *config;
 };
