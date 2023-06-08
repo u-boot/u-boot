@@ -187,6 +187,11 @@ static int do_zynqmp_tcm_init(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
+	if (strcmp(argv[2], "lockstep") && strcmp(argv[2], "split")) {
+		printf("mode param should be lockstep or split\n");
+		return CMD_RET_FAILURE;
+	}
+
 	mode = hextoul(argv[2], NULL);
 	if (mode != TCM_LOCK && mode != TCM_SPLIT) {
 		printf("Mode should be either 0(lock)/1(split)\n");
