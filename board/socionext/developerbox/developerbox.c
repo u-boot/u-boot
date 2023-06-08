@@ -41,10 +41,10 @@ struct efi_capsule_update_info update_info = {
 	.dfu_string = "mtd nor1=u-boot.bin raw 200000 100000;"
 			"fip.bin raw 180000 78000;"
 			"optee.bin raw 500000 100000",
+	.num_images = ARRAY_SIZE(fw_images),
 	.images = fw_images,
 };
 
-u8 num_image_type_guids = ARRAY_SIZE(fw_images);
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 static struct mm_region sc2a11_mem_map[] = {

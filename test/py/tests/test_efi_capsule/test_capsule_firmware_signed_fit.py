@@ -10,7 +10,15 @@ with signed capsule files containing FIT images
 """
 
 import pytest
-from capsule_defs import CAPSULE_DATA_DIR, CAPSULE_INSTALL_DIR
+from capsule_common import (
+    setup,
+    init_content,
+    place_capsule_file,
+    exec_manual_update,
+    check_file_removed,
+    verify_content,
+    do_reboot_dtb_specified
+)
 
 @pytest.mark.boardspec('sandbox_flattree')
 @pytest.mark.buildconfigspec('efi_capsule_firmware_fit')
@@ -37,70 +45,23 @@ class TestEfiCapsuleFirmwareSignedFit():
         should pass and the firmware be updated.
         """
         disk_img = efi_capsule_data
+        capsule_files = ['Test13']
         with u_boot_console.log.section('Test Case 1-a, before reboot'):
-            output = u_boot_console.run_command_list([
-                'host bind 0 %s' % disk_img,
-                'printenv -e PlatformLangCodes', # workaround for terminal size determination
-                'efidebug boot add -b 1 TEST host 0:1 /helloworld.efi',
-                'efidebug boot order 1',
-                'env set -e -nv -bs -rt OsIndications =0x0000000000000004',
-                'env set dfu_alt_info '
-                        '"sf 0:0=u-boot-bin raw 0x100000 '
-                        '0x50000;u-boot-env raw 0x150000 0x200000"',
-                'env save'])
+            setup(u_boot_console, disk_img, '0x0000000000000004')
+            init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
+            place_capsule_file(u_boot_console, capsule_files)
 
-            # initialize content
-            output = u_boot_console.run_command_list([
-                'sf probe 0:0',
-                'fatload host 0:1 4000000 %s/u-boot.bin.old'
-                        % CAPSULE_DATA_DIR,
-                'sf write 4000000 100000 10',
-                'sf read 5000000 100000 10',
-                'md.b 5000000 10'])
-            assert 'Old' in ''.join(output)
-
-            # place a capsule file
-            output = u_boot_console.run_command_list([
-                'fatload host 0:1 4000000 %s/Test13' % CAPSULE_DATA_DIR,
-                'fatwrite host 0:1 4000000 %s/Test13 $filesize'
-                        % CAPSULE_INSTALL_DIR,
-                'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-            assert 'Test13' in ''.join(output)
-
-        # reboot
-        mnt_point = u_boot_config.persistent_data_dir + '/test_efi_capsule'
-        u_boot_console.config.dtb = mnt_point + CAPSULE_DATA_DIR \
-                                    + '/test_sig.dtb'
-        u_boot_console.restart_uboot()
+        do_reboot_dtb_specified(u_boot_config, u_boot_console, 'test_sig.dtb')
 
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
         with u_boot_console.log.section('Test Case 1-b, after reboot'):
             if not capsule_early:
-                # make sure that dfu_alt_info exists even persistent variables
-                # are not available.
-                output = u_boot_console.run_command_list([
-                    'env set dfu_alt_info '
-                            '"sf 0:0=u-boot-bin raw 0x100000 '
-                            '0x50000;u-boot-env raw 0x150000 0x200000"',
-                    'host bind 0 %s' % disk_img,
-                    'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-                assert 'Test13' in ''.join(output)
+                exec_manual_update(u_boot_console, disk_img, capsule_files)
 
-                # need to run uefi command to initiate capsule handling
-                output = u_boot_console.run_command(
-                    'env print -e Capsule0000', wait_for_reboot = True)
+            check_file_removed(u_boot_console, disk_img, capsule_files)
 
-            output = u_boot_console.run_command_list([
-                'host bind 0 %s' % disk_img,
-                'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-            assert 'Test13' not in ''.join(output)
-
-            output = u_boot_console.run_command_list([
-                'sf probe 0:0',
-                'sf read 4000000 100000 10',
-                'md.b 4000000 10'])
-            assert 'u-boot:New' in ''.join(output)
+            verify_content(u_boot_console, '100000', 'u-boot:New')
 
     def test_efi_capsule_auth2(
             self, u_boot_config, u_boot_console, efi_capsule_data):
@@ -113,73 +74,26 @@ class TestEfiCapsuleFirmwareSignedFit():
         not be updated.
         """
         disk_img = efi_capsule_data
+        capsule_files = ['Test14']
         with u_boot_console.log.section('Test Case 2-a, before reboot'):
-            output = u_boot_console.run_command_list([
-                'host bind 0 %s' % disk_img,
-                'printenv -e PlatformLangCodes', # workaround for terminal size determination
-                'efidebug boot add -b 1 TEST host 0:1 /helloworld.efi',
-                'efidebug boot order 1',
-                'env set -e -nv -bs -rt OsIndications =0x0000000000000004',
-                'env set dfu_alt_info '
-                        '"sf 0:0=u-boot-bin raw 0x100000 '
-                        '0x50000;u-boot-env raw 0x150000 0x200000"',
-                'env save'])
+            setup(u_boot_console, disk_img, '0x0000000000000004')
+            init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
+            place_capsule_file(u_boot_console, capsule_files)
 
-            # initialize content
-            output = u_boot_console.run_command_list([
-                'sf probe 0:0',
-                'fatload host 0:1 4000000 %s/u-boot.bin.old'
-                        % CAPSULE_DATA_DIR,
-                'sf write 4000000 100000 10',
-                'sf read 5000000 100000 10',
-                'md.b 5000000 10'])
-            assert 'Old' in ''.join(output)
-
-            # place a capsule file
-            output = u_boot_console.run_command_list([
-                'fatload host 0:1 4000000 %s/Test14' % CAPSULE_DATA_DIR,
-                'fatwrite host 0:1 4000000 %s/Test14 $filesize'
-                                % CAPSULE_INSTALL_DIR,
-                'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-            assert 'Test14' in ''.join(output)
-
-        # reboot
-        mnt_point = u_boot_config.persistent_data_dir + '/test_efi_capsule'
-        u_boot_console.config.dtb = mnt_point + CAPSULE_DATA_DIR \
-                                    + '/test_sig.dtb'
-        u_boot_console.restart_uboot()
+        do_reboot_dtb_specified(u_boot_config, u_boot_console, 'test_sig.dtb')
 
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
         with u_boot_console.log.section('Test Case 2-b, after reboot'):
             if not capsule_early:
-                # make sure that dfu_alt_info exists even persistent variables
-                # are not available.
-                output = u_boot_console.run_command_list([
-                    'env set dfu_alt_info '
-                        '"sf 0:0=u-boot-bin raw 0x100000 '
-                        '0x50000;u-boot-env raw 0x150000 0x200000"',
-                    'host bind 0 %s' % disk_img,
-                    'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-                assert 'Test14' in ''.join(output)
-
-                # need to run uefi command to initiate capsule handling
-                output = u_boot_console.run_command(
-                    'env print -e Capsule0000', wait_for_reboot = True)
+                exec_manual_update(u_boot_console, disk_img, capsule_files)
 
             # deleted any way
-            output = u_boot_console.run_command_list([
-                'host bind 0 %s' % disk_img,
-                'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-            assert 'Test14' not in ''.join(output)
+            check_file_removed(u_boot_console, disk_img, capsule_files)
 
             # TODO: check CapsuleStatus in CapsuleXXXX
 
-            output = u_boot_console.run_command_list([
-                'sf probe 0:0',
-                'sf read 4000000 100000 10',
-                'md.b 4000000 10'])
-            assert 'u-boot:Old' in ''.join(output)
+            verify_content(u_boot_console, '100000', 'u-boot:Old')
 
     def test_efi_capsule_auth3(
             self, u_boot_config, u_boot_console, efi_capsule_data):
@@ -191,70 +105,89 @@ class TestEfiCapsuleFirmwareSignedFit():
         should fail and the firmware not be updated.
         """
         disk_img = efi_capsule_data
+        capsule_files = ['Test02']
         with u_boot_console.log.section('Test Case 3-a, before reboot'):
-            output = u_boot_console.run_command_list([
-                'host bind 0 %s' % disk_img,
-                'printenv -e PlatformLangCodes', # workaround for terminal size determination
-                'efidebug boot add -b 1 TEST host 0:1 /helloworld.efi',
-                'efidebug boot order 1',
-                'env set -e -nv -bs -rt OsIndications =0x0000000000000004',
-                'env set dfu_alt_info '
-                        '"sf 0:0=u-boot-bin raw 0x100000 '
-                        '0x50000;u-boot-env raw 0x150000 0x200000"',
-                'env save'])
+            setup(u_boot_console, disk_img, '0x0000000000000004')
+            init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
+            place_capsule_file(u_boot_console, capsule_files)
 
-            # initialize content
-            output = u_boot_console.run_command_list([
-                'sf probe 0:0',
-                'fatload host 0:1 4000000 %s/u-boot.bin.old'
-                        % CAPSULE_DATA_DIR,
-                'sf write 4000000 100000 10',
-                'sf read 5000000 100000 10',
-                'md.b 5000000 10'])
-            assert 'Old' in ''.join(output)
-
-            # place a capsule file
-            output = u_boot_console.run_command_list([
-                'fatload host 0:1 4000000 %s/Test02' % CAPSULE_DATA_DIR,
-                'fatwrite host 0:1 4000000 %s/Test02 $filesize'
-                            % CAPSULE_INSTALL_DIR,
-                'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-            assert 'Test02' in ''.join(output)
-
-        # reboot
-        mnt_point = u_boot_config.persistent_data_dir + '/test_efi_capsule'
-        u_boot_console.config.dtb = mnt_point + CAPSULE_DATA_DIR \
-                                    + '/test_sig.dtb'
-        u_boot_console.restart_uboot()
+        do_reboot_dtb_specified(u_boot_config, u_boot_console, 'test_sig.dtb')
 
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
         with u_boot_console.log.section('Test Case 3-b, after reboot'):
             if not capsule_early:
-                # make sure that dfu_alt_info exists even persistent variables
-                # are not available.
-                output = u_boot_console.run_command_list([
-                    'env set dfu_alt_info '
-                            '"sf 0:0=u-boot-bin raw 0x100000 '
-                            '0x50000;u-boot-env raw 0x150000 0x200000"',
-                    'host bind 0 %s' % disk_img,
-                    'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-                assert 'Test02' in ''.join(output)
-
-                # need to run uefi command to initiate capsule handling
-                output = u_boot_console.run_command(
-                    'env print -e Capsule0000', wait_for_reboot = True)
+                exec_manual_update(u_boot_console, disk_img, capsule_files)
 
             # deleted any way
-            output = u_boot_console.run_command_list([
-                'host bind 0 %s' % disk_img,
-                'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-            assert 'Test02' not in ''.join(output)
+            check_file_removed(u_boot_console, disk_img, capsule_files)
 
             # TODO: check CapsuleStatus in CapsuleXXXX
 
+            verify_content(u_boot_console, '100000', 'u-boot:Old')
+
+    def test_efi_capsule_auth4(
+            self, u_boot_config, u_boot_console, efi_capsule_data):
+        """Test Case 4 - Update U-Boot on SPI Flash, raw image format with version information
+        0x100000-0x150000: U-Boot binary (but dummy)
+
+        If the capsule is properly signed, the authentication
+        should pass and the firmware be updated.
+        """
+        disk_img = efi_capsule_data
+        capsule_files = ['Test114']
+        with u_boot_console.log.section('Test Case 4-a, before reboot'):
+            setup(u_boot_console, disk_img, '0x0000000000000004')
+            init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
+            place_capsule_file(u_boot_console, capsule_files)
+
+        do_reboot_dtb_specified(u_boot_config, u_boot_console, 'test_ver.dtb')
+
+        capsule_early = u_boot_config.buildconfig.get(
+            'config_efi_capsule_on_disk_early')
+        with u_boot_console.log.section('Test Case 4-b, after reboot'):
+            if not capsule_early:
+                exec_manual_update(u_boot_console, disk_img, capsule_files)
+
+            check_file_removed(u_boot_console, disk_img, capsule_files)
+
             output = u_boot_console.run_command_list([
-                'sf probe 0:0',
-                'sf read 4000000 100000 10',
-                'md.b 4000000 10'])
-            assert 'u-boot:Old' in ''.join(output)
+                'env set dfu_alt_info "sf 0:0=u-boot-bin raw 0x100000 0x50000;'
+                'u-boot-env raw 0x150000 0x200000"',
+                'efidebug capsule esrt'])
+
+            # ensure that SANDBOX_UBOOT_IMAGE_GUID is in the ESRT.
+            assert '3673B45D-6A7C-46F3-9E60-ADABB03F7937' in ''.join(output)
+            assert 'ESRT: fw_version=5' in ''.join(output)
+            assert 'ESRT: lowest_supported_fw_version=3' in ''.join(output)
+
+            verify_content(u_boot_console, '100000', 'u-boot:New')
+            verify_content(u_boot_console, '150000', 'u-boot-env:New')
+
+    def test_efi_capsule_auth5(
+            self, u_boot_config, u_boot_console, efi_capsule_data):
+        """Test Case 5 - Update U-Boot on SPI Flash, raw image format with version information
+        0x100000-0x150000: U-Boot binary (but dummy)
+
+        If the capsule is signed but fw_version is lower than lowest
+        supported version, the authentication should fail and the firmware
+        not be updated.
+        """
+        disk_img = efi_capsule_data
+        capsule_files = ['Test115']
+        with u_boot_console.log.section('Test Case 5-a, before reboot'):
+            setup(u_boot_console, disk_img, '0x0000000000000004')
+            init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
+            place_capsule_file(u_boot_console, capsule_files)
+
+        do_reboot_dtb_specified(u_boot_config, u_boot_console, 'test_ver.dtb')
+
+        capsule_early = u_boot_config.buildconfig.get(
+            'config_efi_capsule_on_disk_early')
+        with u_boot_console.log.section('Test Case 5-b, after reboot'):
+            if not capsule_early:
+                exec_manual_update(u_boot_console, disk_img, capsule_files)
+
+            check_file_removed(u_boot_console, disk_img, capsule_files)
+
+            verify_content(u_boot_console, '100000', 'u-boot:Old')
