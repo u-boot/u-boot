@@ -63,6 +63,12 @@ static const efi_guid_t uuid_mmc[3] = {
 	ROOTFS_MMC2_UUID
 };
 
+/*
+ * GUID value defined in the FWU specification for identification
+ * of the FWU metadata partition.
+ */
+#define FWU_MDATA_UUID "8a7a84a0-8387-40f6-ab41-a8b9a5a60d23"
+
 /* FIP type partition UUID used by TF-A*/
 #define FIP_TYPE_UUID "19D5DF83-11B0-457B-BE2C-7559C13142A5"
 
@@ -425,6 +431,8 @@ static int parse_type(struct stm32prog_data *data,
 		}
 	} else if (!strcmp(p, "FIP")) {
 		part->part_type = PART_FIP;
+	} else if (!strcmp(p, "FWU_MDATA")) {
+		part->part_type = PART_FWU_MDATA;
 	} else if (!strcmp(p, "ENV")) {
 		part->part_type = PART_ENV;
 	} else if (!strcmp(p, "System")) {
@@ -1124,6 +1132,9 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 				break;
 			case PART_FIP:
 				type_str = FIP_TYPE_UUID;
+				break;
+			case PART_FWU_MDATA:
+				type_str = FWU_MDATA_UUID;
 				break;
 			case PART_ESP:
 				/* EFI System Partition */

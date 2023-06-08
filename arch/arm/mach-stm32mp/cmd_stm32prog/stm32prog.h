@@ -105,6 +105,7 @@ struct stm32_header_v2 {
 enum stm32prog_part_type {
 	PART_BINARY,
 	PART_FIP,
+	PART_FWU_MDATA,
 	PART_ENV,
 	PART_SYSTEM,
 	PART_FILESYSTEM,
