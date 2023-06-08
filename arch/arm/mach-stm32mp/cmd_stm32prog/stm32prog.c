@@ -208,11 +208,6 @@ static int optee_ta_invoke(struct stm32prog_data *data, int cmd, int type,
 	return rc;
 }
 
-/* partition handling routines : CONFIG_CMD_MTDPARTS */
-int mtdparts_init(void);
-int find_dev_and_part(const char *id, struct mtd_device **dev,
-		      u8 *part_num, struct part_info **part);
-
 char *stm32prog_get_error(struct stm32prog_data *data)
 {
 	static const char error_msg[] = "Unspecified";
@@ -741,6 +736,7 @@ static int init_device(struct stm32prog_data *data,
 	struct mmc *mmc = NULL;
 	struct blk_desc *block_dev = NULL;
 	struct mtd_info *mtd = NULL;
+	struct mtd_info *partition;
 	char mtd_id[16];
 	int part_id;
 	int ret;
@@ -749,6 +745,7 @@ static int init_device(struct stm32prog_data *data,
 	u64 part_addr, part_size;
 	bool part_found;
 	const char *part_name;
+	u8 i;
 
 	switch (dev->target) {
 	case STM32PROG_MMC:
@@ -793,10 +790,11 @@ static int init_device(struct stm32prog_data *data,
 			stm32prog_err("unknown device type = %d", dev->target);
 			return -ENODEV;
 		}
+		/* register partitions with MTDIDS/MTDPARTS or OF fallback */
+		mtd_probe_devices();
 		get_mtd_by_target(mtd_id, dev->target, dev->dev_id);
 		log_debug("%s\n", mtd_id);
 
-		mtdparts_init();
 		mtd = get_mtd_device_nm(mtd_id);
 		if (IS_ERR(mtd)) {
 			stm32prog_err("MTD device %s not found", mtd_id);
@@ -943,25 +941,23 @@ static int init_device(struct stm32prog_data *data,
 		}
 
 		if (IS_ENABLED(CONFIG_MTD) && mtd) {
-			char mtd_part_id[32];
-			struct part_info *mtd_part;
-			struct mtd_device *mtd_dev;
-			u8 part_num;
-
-			sprintf(mtd_part_id, "%s,%d", mtd_id,
-				part->part_id - 1);
-			ret = find_dev_and_part(mtd_part_id, &mtd_dev,
-						&part_num, &mtd_part);
-			if (ret != 0) {
-				stm32prog_err("%s (0x%x): Invalid MTD partition %s",
-					      part->name, part->id,
-					      mtd_part_id);
+			i = 0;
+			list_for_each_entry(partition, &mtd->partitions, node) {
+				if ((part->part_id - 1) == i) {
+					part_found = true;
+					break;
+				}
+				i++;
+			}
+			if (part_found) {
+				part_addr = partition->offset;
+				part_size = partition->size;
+				part_name = partition->name;
+			} else {
+				stm32prog_err("%s (0x%x):Couldn't find part %d on device mtd %s",
+					      part->name, part->id, part->part_id, mtd_id);
 				return -ENODEV;
 			}
-			part_addr = mtd_part->offset;
-			part_size = mtd_part->size;
-			part_name = mtd_part->name;
-			part_found = true;
 		}
 
 		/* no partition for this device */
