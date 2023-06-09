@@ -83,9 +83,12 @@ static void spl_dram_init(int size)
 
 	printf("DRAM    : LPDDR4 ");
 	if (size > 512)
-		printf("%d GiB\n", size / 1024);
+		printf("%d GiB", size / 1024);
 	else
-		printf("%d MiB\n", size);
+		printf("%d MiB", size);
+	printf(" %dMT/s %dMHz\n",
+	       dram_timing->fsp_msg[0].drate,
+	       dram_timing->fsp_msg[0].drate / 2);
 	ddr_init(dram_timing);
 }
 
