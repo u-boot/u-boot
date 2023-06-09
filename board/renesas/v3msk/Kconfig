@@ -1,10 +1,10 @@
-if TARGET_EAGLE
+if TARGET_V3MSK
 
 config SYS_SOC
 	default "rmobile"
 
 config SYS_BOARD
-	default "eagle"
+	default "v3msk"
 
 config SYS_VENDOR
 	default "renesas"

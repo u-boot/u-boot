@@ -1,0 +1,6 @@
+V3MSK BOARD
+M:	Cogent Embedded, Inc. <source@cogentembedded.com>
+S:	Maintained
+F:	board/renesas/v3msk/
+F:	include/configs/v3msk.h
+F:	configs/r8a77970_v3msk_defconfig

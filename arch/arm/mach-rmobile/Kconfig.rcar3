@@ -99,6 +99,11 @@ config TARGET_CONDOR
 	help
           Support for Renesas R-Car Gen3 Condor platform
 
+config TARGET_V3HSK
+	bool "V3HSK board"
+	help
+          Support for Renesas R-Car Gen3 V3HSK platform
+
 config TARGET_DRAAK
 	bool "Draak board"
 	imply R8A77995
@@ -110,6 +115,11 @@ config TARGET_EAGLE
 	imply R8A77970
 	help
           Support for Renesas R-Car Gen3 Eagle platform
+
+config TARGET_V3MSK
+	bool "V3MSK board"
+	help
+          Support for Renesas R-Car Gen3 V3MSK platform
 
 config TARGET_EBISU
 	bool "Ebisu board"
@@ -166,6 +176,8 @@ source "board/renesas/eagle/Kconfig"
 source "board/renesas/ebisu/Kconfig"
 source "board/renesas/salvator-x/Kconfig"
 source "board/renesas/ulcb/Kconfig"
+source "board/renesas/v3hsk/Kconfig"
+source "board/renesas/v3msk/Kconfig"
 source "board/beacon/beacon-rzg2m/Kconfig"
 source "board/hoperun/hihope-rzg2/Kconfig"
 source "board/silinux/ek874/Kconfig"

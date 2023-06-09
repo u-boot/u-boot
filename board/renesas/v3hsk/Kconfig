@@ -1,15 +1,15 @@
-if TARGET_EAGLE
+if TARGET_V3HSK
 
 config SYS_SOC
 	default "rmobile"
 
 config SYS_BOARD
-	default "eagle"
+	default "v3hsk"
 
 config SYS_VENDOR
 	default "renesas"
 
 config SYS_CONFIG_NAME
-	default "rcar-gen3-common"
+	default "v3hsk"
 
 endif

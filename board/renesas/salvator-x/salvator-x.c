@@ -67,21 +67,12 @@ int board_init(void)
 	return 0;
 }
 
-#define RST_BASE	0xE6160000
-#define RST_CA57RESCNT	(RST_BASE + 0x40)
-#define RST_CA53RESCNT	(RST_BASE + 0x44)
-#define RST_RSTOUTCR	(RST_BASE + 0x58)
-#define RST_CODE	0xA5A5000F
-
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) && defined(CONFIG_SYS_I2C_SH)
 void reset_cpu(void)
 {
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) && defined(CONFIG_SYS_I2C_SH)
 	i2c_reg_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x20, 0x80);
-#else
-	/* only CA57 ? */
-	writel(RST_CODE, RST_CA57RESCNT);
-#endif
 }
+#endif
 
 #ifdef CONFIG_MULTI_DTB_FIT
 int board_fit_config_name_match(const char *name)
