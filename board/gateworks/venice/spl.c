@@ -71,6 +71,9 @@ static void spl_dram_init(int size)
 		dram_timing = &dram_timing_2gb_dual_die;
 		size = 2048;
 #elif CONFIG_IMX8MP
+	case 1024:
+		dram_timing = &dram_timing_1gb_single_die;
+		break;
 	case 4096:
 		dram_timing = &dram_timing_4gb_dual_die;
 		break;
@@ -124,7 +127,8 @@ static int power_init_board(void)
 
 	if ((!strncmp(model, "GW71", 4)) ||
 	    (!strncmp(model, "GW72", 4)) ||
-	    (!strncmp(model, "GW73", 4))) {
+	    (!strncmp(model, "GW73", 4)) ||
+	    (!strncmp(model, "GW7905", 6))) {
 		ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &bus);
 		if (ret) {
 			printf("PMIC    : failed I2C1 probe: %d\n", ret);
@@ -135,11 +139,22 @@ static int power_init_board(void)
 			printf("PMIC    : failed probe: %d\n", ret);
 			return ret;
 		}
-		puts("PMIC    : MP5416\n");
+#ifdef CONFIG_IMX8MM
+		puts("PMIC    : MP5416 (IMX8MM)\n");
 
 		/* set VDD_ARM SW3 to 0.92V for 1.6GHz */
 		dm_i2c_reg_write(dev, MP5416_VSET_SW3,
 				 BIT(7) | MP5416_VSET_SW3_SVAL(920000));
+#elif CONFIG_IMX8MP
+		puts("PMIC    : MP5416 (IMX8MP)\n");
+
+		/* set VDD_ARM SW3 to 0.95V for 1.6GHz */
+		dm_i2c_reg_write(dev, MP5416_VSET_SW3,
+				 BIT(7) | MP5416_VSET_SW3_SVAL(950000));
+		/* set VDD_SOC SW1 to 0.95V for 1.6GHz */
+		dm_i2c_reg_write(dev, MP5416_VSET_SW1,
+				 BIT(7) | MP5416_VSET_SW1_SVAL(950000));
+#endif
 	}
 
 	else if (!strncmp(model, "GW74", 4)) {

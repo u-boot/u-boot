@@ -218,6 +218,11 @@ const char *eeprom_get_dtb_name(int level, char *buf, int sz)
 		int rev_base_bom = get_bom_rev(base_info.model);
 
 		snprintf(buf, sz, "%s%2dxx-%dx", pre, base, som);
+		/* GW79xx baseboards have no build options */
+		if (base == 79) {
+			base = (int)strtoul(base_info.model + 2, NULL, 10);
+			snprintf(buf, sz, "%s%4d-%dx", pre, base, som);
+		}
 		switch (level) {
 		case 0: /* full model (ie gw73xx-0x-a1a1) */
 			if (rev_base_bom)
