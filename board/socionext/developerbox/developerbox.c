@@ -20,6 +20,13 @@
 
 #if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
 struct efi_fw_image fw_images[] = {
+#if CONFIG_IS_ENABLED(FWU_MULTI_BANK_UPDATE)
+	{
+		.image_type_id = DEVELOPERBOX_FIP_IMAGE_GUID,
+		.fw_name = u"DEVELOPERBOX-FIP",
+		.image_index = 1,
+	},
+#else
 	{
 		.image_type_id = DEVELOPERBOX_UBOOT_IMAGE_GUID,
 		.fw_name = u"DEVELOPERBOX-UBOOT",
@@ -35,6 +42,7 @@ struct efi_fw_image fw_images[] = {
 		.fw_name = u"DEVELOPERBOX-OPTEE",
 		.image_index = 3,
 	},
+#endif
 };
 
 struct efi_capsule_update_info update_info = {

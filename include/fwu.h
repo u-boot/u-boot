@@ -8,6 +8,8 @@
 
 #include <blk.h>
 #include <efi.h>
+#include <mtd.h>
+#include <uuid.h>
 
 #include <linux/types.h>
 
@@ -18,83 +20,32 @@ struct fwu_mdata_gpt_blk_priv {
 	struct udevice *blk_dev;
 };
 
-/**
- * @mdata_check: check the validity of the FWU metadata partitions
- * @get_mdata() - Get a FWU metadata copy
- * @update_mdata() - Update the FWU metadata copy
- */
+struct fwu_mtd_image_info {
+	u32 start, size;
+	int bank_num, image_num;
+	char uuidbuf[UUID_STR_LEN + 1];
+};
+
 struct fwu_mdata_ops {
 	/**
-	 * check_mdata() - Check if the FWU metadata is valid
-	 * @dev:	FWU device
-	 *
-	 * Validate both copies of the FWU metadata. If one of the copies
-	 * has gone bad, restore it from the other copy.
+	 * read_mdata() - Populate the asked FWU metadata copy
+	 * @dev: FWU metadata device
+	 * @mdata: Output FWU mdata read
+	 * @primary: If primary or secondary copy of metadata is to be read
 	 *
 	 * Return: 0 if OK, -ve on error
 	 */
-	int (*check_mdata)(struct udevice *dev);
+	int (*read_mdata)(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
 
 	/**
-	 * get_mdata() - Get a FWU metadata copy
-	 * @dev:	FWU device
-	 * @mdata:	Pointer to FWU metadata
-	 *
-	 * Get a valid copy of the FWU metadata.
-	 *
-	 * Return: 0 if OK, -ve on error
-	 */
-	int (*get_mdata)(struct udevice *dev, struct fwu_mdata *mdata);
-
-	/**
-	 * update_mdata() - Update the FWU metadata
-	 * @dev:	FWU device
-	 * @mdata:	Copy of the FWU metadata
-	 *
-	 * Update the FWU metadata structure by writing to the
-	 * FWU metadata partitions.
+	 * write_mdata() - Write the given FWU metadata copy
+	 * @dev: FWU metadata device
+	 * @mdata: Copy of the FWU metadata to write
+	 * @primary: If primary or secondary copy of metadata is to be written
 	 *
 	 * Return: 0 if OK, -ve on error
 	 */
-	int (*update_mdata)(struct udevice *dev, struct fwu_mdata *mdata);
-
-	/**
-	 * get_mdata_part_num() - Get the FWU metadata partition numbers
-	 * @dev:		FWU metadata device
-	 * @mdata_parts:	 array for storing the metadata partition numbers
-	 *
-	 * Get the partition numbers on the storage device on which the
-	 * FWU metadata is stored. Two partition numbers will be returned.
-	 *
-	 * Return: 0 if OK, -ve on error
-	 */
-	int (*get_mdata_part_num)(struct udevice *dev, uint *mdata_parts);
-
-	/**
-	 * read_mdata_partition() - Read the FWU metadata from a partition
-	 * @dev:	FWU metadata device
-	 * @mdata:	Copy of the FWU metadata
-	 * @part_num:	Partition number from which FWU metadata is to be read
-	 *
-	 * Read the FWU metadata from the specified partition number
-	 *
-	 * Return: 0 if OK, -ve on error
-	 */
-	int (*read_mdata_partition)(struct udevice *dev,
-				    struct fwu_mdata *mdata, uint part_num);
-
-	/**
-	 * write_mdata_partition() - Write the FWU metadata to a partition
-	 * @dev:	FWU metadata device
-	 * @mdata:	Copy of the FWU metadata
-	 * @part_num:	Partition number to which FWU metadata is to be written
-	 *
-	 * Write the FWU metadata to the specified partition number
-	 *
-	 * Return: 0 if OK, -ve on error
-	 */
-	int (*write_mdata_partition)(struct udevice *dev,
-				     struct fwu_mdata *mdata, uint part_num);
+	int (*write_mdata)(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
 };
 
 #define FWU_MDATA_VERSION	0x1
@@ -127,100 +78,25 @@ struct fwu_mdata_ops {
 		 0xe1, 0xfc, 0xed, 0xf1, 0xc6, 0xf8)
 
 /**
- * fwu_check_mdata_validity() - Check for validity of the FWU metadata copies
- *
- * Read both the metadata copies from the storage media, verify their
- * checksum, and ascertain that both copies match. If one of the copies
- * has gone bad, restore it from the good copy.
- *
- * Return: 0 if OK, -ve on error
- *
+ * fwu_read_mdata() - Wrapper around fwu_mdata_ops.read_mdata()
  */
-int fwu_check_mdata_validity(void);
+int fwu_read_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
 
 /**
- * fwu_get_mdata_part_num() - Get the FWU metadata partition numbers
- * @dev: FWU metadata device
- * @mdata_parts: array for storing the metadata partition numbers
- *
- * Get the partition numbers on the storage device on which the
- * FWU metadata is stored. Two partition numbers will be returned
- * through the array.
- *
- * Return: 0 if OK, -ve on error
- *
+ * fwu_write_mdata() - Wrapper around fwu_mdata_ops.write_mdata()
  */
-int fwu_get_mdata_part_num(struct udevice *dev, uint *mdata_parts);
+int fwu_write_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
 
 /**
- * fwu_read_mdata_partition() - Read the FWU metadata from a partition
- * @dev: FWU metadata device
- * @mdata: Copy of the FWU metadata
- * @part_num: Partition number from which FWU metadata is to be read
+ * fwu_get_mdata() - Read, verify and return the FWU metadata
  *
- * Read the FWU metadata from the specified partition number
- *
- * Return: 0 if OK, -ve on error
- *
- */
-int fwu_read_mdata_partition(struct udevice *dev, struct fwu_mdata *mdata,
-			     uint part_num);
-
-/**
- * fwu_write_mdata_partition() - Write the FWU metadata to a partition
- * @dev: FWU metadata device
- * @mdata: Copy of the FWU metadata
- * @part_num: Partition number to which FWU metadata is to be written
- *
- * Write the FWU metadata to the specified partition number
+ * Read both the metadata copies from the storage media, verify their checksum,
+ * and ascertain that both copies match. If one of the copies has gone bad,
+ * restore it from the good copy.
  *
  * Return: 0 if OK, -ve on error
- *
  */
-int fwu_write_mdata_partition(struct udevice *dev, struct fwu_mdata *mdata,
-			      uint part_num);
-
-/**
- * fwu_get_mdata() - Get a FWU metadata copy
- * @dev: FWU metadata device
- * @mdata: Copy of the FWU metadata
- *
- * Get a valid copy of the FWU metadata.
- *
- * Note: This function is to be called first when modifying any fields
- * in the metadata. The sequence of calls to modify any field in the
- * metadata would  be 1) fwu_get_mdata 2) Modify metadata, followed by
- * 3) fwu_update_mdata
- *
- * Return: 0 if OK, -ve on error
- *
- */
-int fwu_get_mdata(struct udevice *dev, struct fwu_mdata *mdata);
-
-/**
- * fwu_update_mdata() - Update the FWU metadata
- * @dev: FWU metadata device
- * @mdata: Copy of the FWU metadata
- *
- * Update the FWU metadata structure by writing to the
- * FWU metadata partitions.
- *
- * Note: This function is not to be called directly to update the
- * metadata fields. The sequence of function calls should be
- * 1) fwu_get_mdata() 2) Modify the medata fields 3) fwu_update_mdata()
- *
- * The sequence of updating the partitions should be, update the
- * primary metadata partition (first partition encountered), followed
- * by updating the secondary partition. With this update sequence, in
- * the rare scenario that the two metadata partitions are valid but do
- * not match, maybe due to power outage at the time of updating the
- * metadata copies, the secondary partition can be updated from the
- * primary.
- *
- * Return: 0 if OK, -ve on error
- *
- */
-int fwu_update_mdata(struct udevice *dev, struct fwu_mdata *mdata);
+int fwu_get_mdata(struct fwu_mdata *mdata);
 
 /**
  * fwu_get_active_index() - Get active_index from the FWU metadata
@@ -263,18 +139,6 @@ int fwu_set_active_index(uint active_idx);
 int fwu_get_image_index(u8 *image_index);
 
 /**
- * fwu_mdata_check() - Check if the FWU metadata is valid
- * @dev: FWU metadata device
- *
- * Validate both copies of the FWU metadata. If one of the copies
- * has gone bad, restore it from the other copy.
- *
- * Return: 0 if OK, -ve on error
- *
- */
-int fwu_mdata_check(struct udevice *dev);
-
-/**
  * fwu_revert_boot_index() - Revert the active index in the FWU metadata
  *
  * Revert the active_index value in the FWU metadata, by swapping the values
@@ -285,20 +149,6 @@ int fwu_mdata_check(struct udevice *dev);
  *
  */
 int fwu_revert_boot_index(void);
-
-/**
- * fwu_verify_mdata() - Verify the FWU metadata
- * @mdata: FWU metadata structure
- * @pri_part: FWU metadata partition is primary or secondary
- *
- * Verify the FWU metadata by computing the CRC32 for the metadata
- * structure and comparing it against the CRC32 value stored as part
- * of the structure.
- *
- * Return: 0 if OK, -ve on error
- *
- */
-int fwu_verify_mdata(struct fwu_mdata *mdata, bool pri_part);
 
 /**
  * fwu_accept_image() - Set the Acceptance bit for the image
@@ -408,5 +258,29 @@ u8 fwu_empty_capsule_checks_pass(void);
  *
  */
 int fwu_trial_state_ctr_start(void);
+
+/**
+ * fwu_gen_alt_info_from_mtd() - Parse dfu_alt_info from metadata in mtd
+ * @buf: Buffer into which the dfu_alt_info is filled
+ * @len: Maximum characters that can be written in buf
+ * @mtd: Pointer to underlying MTD device
+ *
+ * Parse dfu_alt_info from metadata in mtd. Used for setting the env.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_gen_alt_info_from_mtd(char *buf, size_t len, struct mtd_info *mtd);
+
+/**
+ * fwu_mtd_get_alt_num() - Mapping of fwu_plat_get_alt_num for MTD device
+ * @image_guid: Image GUID for which DFU alt number needs to be retrieved
+ * @alt_num: Pointer to the alt_num
+ * @mtd_dev: Name of mtd device instance
+ *
+ * To map fwu_plat_get_alt_num onto mtd based metadata implementation.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_mtd_get_alt_num(efi_guid_t *image_guid, u8 *alt_num, const char *mtd_dev);
 
 #endif /* _FWU_H_ */

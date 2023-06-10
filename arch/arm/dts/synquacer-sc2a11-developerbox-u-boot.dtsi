@@ -21,7 +21,7 @@
 		#size-cells = <0>;
 		status = "okay";
 
-		flash@0 {
+		flash0: flash@0 {
 			#address-cells = <1>;
 			#size-cells = <1>;
 			compatible = "jedec,spi-nor";
@@ -74,8 +74,24 @@
 				};
 
 				partition@500000 {
-					label = "Ex-OPTEE";
-					reg = <0x500000 0x200000>;
+					label = "MDATA-Pri";
+					reg = <0x500000 0x1000>;
+				};
+
+				partition@530000 {
+					label = "MDATA-Sec";
+					reg = <0x530000 0x1000>;
+				};
+
+				/* FWU Multi bank update partitions */
+				partition@600000 {
+					label = "FIP-Bank0";
+					reg = <0x600000 0x400000>;
+				};
+
+				partition@a00000 {
+					label = "FIP-Bank1";
+					reg = <0xa00000 0x400000>;
 				};
 			};
 		};
@@ -101,6 +117,33 @@
 	firmware {
 		optee {
 			status = "okay";
+		};
+
+		fwu-mdata {
+			compatible = "u-boot,fwu-mdata-mtd";
+			fwu-mdata-store = <&flash0>;
+			mdata-parts = "MDATA-Pri", "MDATA-Sec";
+
+			fwu-bank0 {
+				id = <0>;
+				label = "FIP-Bank0";
+				fwu-image0 {
+					id = <0>;
+					offset = <0x0>;
+					size = <0x400000>;
+					uuid = "5a66a702-99fd-4fef-a392-c26e261a2828";
+				};
+			};
+			fwu-bank1 {
+				id = <1>;
+				label = "FIP-Bank1";
+				fwu-image0 {
+					id = <0>;
+					offset = <0x0>;
+					size = <0x400000>;
+					uuid = "a8f868a1-6e5c-4757-878d-ce63375ef2c0";
+				};
+			};
 		};
 	};
 };

@@ -43,23 +43,10 @@ static void print_mdata(struct fwu_mdata *mdata)
 int do_fwu_mdata_read(struct cmd_tbl *cmdtp, int flag,
 		     int argc, char * const argv[])
 {
-	struct udevice *dev;
 	int ret = CMD_RET_SUCCESS, res;
-	struct fwu_mdata mdata = { 0 };
+	struct fwu_mdata mdata;
 
-	if (uclass_get_device(UCLASS_FWU_MDATA, 0, &dev) || !dev) {
-		log_err("Unable to get FWU metadata device\n");
-		return CMD_RET_FAILURE;
-	}
-
-	res = fwu_check_mdata_validity();
-	if (res < 0) {
-		log_err("FWU Metadata check failed\n");
-		ret = CMD_RET_FAILURE;
-		goto out;
-	}
-
-	res = fwu_get_mdata(dev, &mdata);
+	res = fwu_get_mdata(&mdata);
 	if (res < 0) {
 		log_err("Unable to get valid FWU metadata\n");
 		ret = CMD_RET_FAILURE;
