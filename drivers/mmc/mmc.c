@@ -2240,6 +2240,7 @@ error:
 			mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
 				   EXT_CSD_BUS_WIDTH, EXT_CSD_BUS_WIDTH_1);
 			mmc_select_mode(mmc, MMC_LEGACY);
+			mmc_set_clock(mmc, mmc->legacy_speed, MMC_CLK_ENABLE);
 			mmc_set_bus_width(mmc, 1);
 		}
 	}
