@@ -608,17 +608,15 @@ static int ethoc_mdio_init(const char *name, struct ethoc *priv)
 static int ethoc_phy_init(struct ethoc *priv, void *dev)
 {
 	struct phy_device *phydev;
-	int mask = 0xffffffff;
+	int mask = -1;
 
 #ifdef CONFIG_PHY_ADDR
-	mask = 1 << CONFIG_PHY_ADDR;
+	mask = CONFIG_PHY_ADDR;
 #endif
 
-	phydev = phy_find_by_mask(priv->bus, mask);
+	phydev = phy_connect(priv->bus, mask, dev, PHY_INTERFACE_MODE_MII);
 	if (!phydev)
 		return -ENODEV;
-
-	phy_connect_dev(phydev, dev, PHY_INTERFACE_MODE_MII);
 
 	phydev->supported &= PHY_BASIC_FEATURES;
 	phydev->advertising = phydev->supported;

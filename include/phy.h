@@ -224,15 +224,6 @@ static inline struct phy_device *fixed_phy_create(ofnode node)
 #endif
 
 /**
- * phy_connect_dev() - Associates the given pair of PHY and Ethernet devices
- * @phydev:	PHY device
- * @dev:	Ethernet device
- * @interface:	type of MAC-PHY interface
- */
-void phy_connect_dev(struct phy_device *phydev, struct udevice *dev,
-		     phy_interface_t interface);
-
-/**
  * phy_connect() - Creates a PHY device for the Ethernet interface
  * Creates a PHY device for the PHY at the given address, if one doesn't exist
  * already, and associates it with the Ethernet device.

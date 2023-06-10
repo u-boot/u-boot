@@ -129,11 +129,11 @@ static int sh_eth_recv_start(struct sh_eth_dev *eth)
 	/* Check if the rx descriptor is ready */
 	invalidate_cache(port_info->rx_desc_cur, sizeof(struct rx_desc_s));
 	if (port_info->rx_desc_cur->rd0 & RD_RACT)
-		return -EINVAL;
+		return -EAGAIN;
 
 	/* Check for errors */
 	if (port_info->rx_desc_cur->rd0 & RD_RFE)
-		return -EINVAL;
+		return 0;
 
 	return port_info->rx_desc_cur->rd1 & 0xffff;
 }
@@ -141,6 +141,8 @@ static int sh_eth_recv_start(struct sh_eth_dev *eth)
 static void sh_eth_recv_finish(struct sh_eth_dev *eth)
 {
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+
+	invalidate_cache(ADDR_TO_P2(port_info->rx_desc_cur->rd2), MAX_BUF_SIZE);
 
 	/* Make current descriptor available again */
 	if (port_info->rx_desc_cur->rd0 & RD_RDLE)
@@ -210,8 +212,6 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 		goto err;
 	}
 
-	flush_cache_wback(port_info->tx_desc_alloc, alloc_desc_size);
-
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->tx_desc_base =
 		(struct tx_desc_s *)ADDR_TO_P2((uintptr_t)port_info->tx_desc_alloc);
@@ -229,6 +229,7 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 	cur_tx_desc--;
 	cur_tx_desc->td0 |= TD_TDLE;
 
+	flush_cache_wback(port_info->tx_desc_alloc, alloc_desc_size);
 	/*
 	 * Point the controller to the tx descriptor list. Must use physical
 	 * addresses
@@ -264,8 +265,6 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 		goto err;
 	}
 
-	flush_cache_wback(port_info->rx_desc_alloc, alloc_desc_size);
-
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->rx_desc_base =
 		(struct rx_desc_s *)ADDR_TO_P2((uintptr_t)port_info->rx_desc_alloc);
@@ -298,6 +297,9 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 	/* Mark the end of the descriptors */
 	cur_rx_desc--;
 	cur_rx_desc->rd0 |= RD_RDLE;
+
+	invalidate_cache(port_info->rx_buf_alloc, NUM_RX_DESC * MAX_BUF_SIZE);
+	flush_cache_wback(port_info->rx_desc_alloc, alloc_desc_size);
 
 	/* Point the controller to the rx descriptor list */
 	sh_eth_write(port_info, ADDR_TO_PHY(port_info->rx_desc_base), RDLAR);
@@ -530,7 +532,6 @@ struct sh_ether_priv {
 	struct mii_dev		*bus;
 	phys_addr_t		iobase;
 	struct clk		clk;
-	struct gpio_desc	reset_gpio;
 };
 
 static int sh_ether_send(struct udevice *dev, void *packet, int len)
@@ -555,15 +556,13 @@ static int sh_ether_recv(struct udevice *dev, int flags, uchar **packetp)
 		*packetp = packet;
 
 		return len;
-	} else {
-		len = 0;
-
-		/* Restart the receiver if disabled */
-		if (!(sh_eth_read(port_info, EDRRR) & EDRRR_R))
-			sh_eth_write(port_info, EDRRR_R, EDRRR);
-
-		return -EAGAIN;
 	}
+
+	/* Restart the receiver if disabled */
+	if (!(sh_eth_read(port_info, EDRRR) & EDRRR_R))
+		sh_eth_write(port_info, EDRRR_R, EDRRR);
+
+	return len;
 }
 
 static int sh_ether_free_pkt(struct udevice *dev, uchar *packet, int length)
@@ -601,13 +600,10 @@ static int sh_eth_phy_config(struct udevice *dev)
 	int ret = 0;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 	struct phy_device *phydev;
-	int mask = 0xffffffff;
 
-	phydev = phy_find_by_mask(priv->bus, mask);
+	phydev = phy_connect(priv->bus, -1, dev, pdata->phy_interface);
 	if (!phydev)
 		return -ENODEV;
-
-	phy_connect_dev(phydev, dev, pdata->phy_interface);
 
 	port_info->phydev = phydev;
 	phy_config(phydev);
@@ -653,7 +649,6 @@ static int sh_ether_probe(struct udevice *udev)
 	struct eth_pdata *pdata = dev_get_plat(udev);
 	struct sh_ether_priv *priv = dev_get_priv(udev);
 	struct sh_eth_dev *eth = &priv->shdev;
-	struct ofnode_phandle_args phandle_args;
 	struct mii_dev *mdiodev;
 	int ret;
 
@@ -664,18 +659,6 @@ static int sh_ether_probe(struct udevice *udev)
 	if (ret < 0)
 		return ret;
 #endif
-
-	ret = dev_read_phandle_with_args(udev, "phy-handle", NULL, 0, 0, &phandle_args);
-	if (!ret) {
-		gpio_request_by_name_nodev(phandle_args.node, "reset-gpios", 0,
-					   &priv->reset_gpio, GPIOD_IS_OUT);
-	}
-
-	if (!dm_gpio_is_valid(&priv->reset_gpio)) {
-		gpio_request_by_name(udev, "reset-gpios", 0, &priv->reset_gpio,
-				     GPIOD_IS_OUT);
-	}
-
 	mdiodev = mdio_alloc();
 	if (!mdiodev) {
 		ret = -ENOMEM;
@@ -737,9 +720,6 @@ static int sh_ether_remove(struct udevice *udev)
 	free(port_info->phydev);
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
-
-	if (dm_gpio_is_valid(&priv->reset_gpio))
-		dm_gpio_free(udev, &priv->reset_gpio);
 
 	return 0;
 }

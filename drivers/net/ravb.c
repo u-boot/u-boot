@@ -131,7 +131,6 @@ struct ravb_priv {
 	struct mii_dev		*bus;
 	void __iomem		*iobase;
 	struct clk_bulk		clks;
-	struct gpio_desc	reset_gpio;
 };
 
 static inline void ravb_flush_dcache(u32 addr, u32 len)
@@ -311,13 +310,6 @@ static int ravb_phy_config(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct phy_device *phydev;
 	int reg;
-
-	if (dm_gpio_is_valid(&eth->reset_gpio)) {
-		dm_gpio_set_value(&eth->reset_gpio, 1);
-		mdelay(20);
-		dm_gpio_set_value(&eth->reset_gpio, 0);
-		mdelay(1);
-	}
 
 	phydev = phy_connect(eth->bus, -1, dev, pdata->phy_interface);
 	if (!phydev)
@@ -503,7 +495,6 @@ static int ravb_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ravb_priv *eth = dev_get_priv(dev);
-	struct ofnode_phandle_args phandle_args;
 	struct mii_dev *mdiodev;
 	void __iomem *iobase;
 	int ret;
@@ -514,17 +505,6 @@ static int ravb_probe(struct udevice *dev)
 	ret = clk_get_bulk(dev, &eth->clks);
 	if (ret < 0)
 		goto err_mdio_alloc;
-
-	ret = dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0, &phandle_args);
-	if (!ret) {
-		gpio_request_by_name_nodev(phandle_args.node, "reset-gpios", 0,
-					   &eth->reset_gpio, GPIOD_IS_OUT);
-	}
-
-	if (!dm_gpio_is_valid(&eth->reset_gpio)) {
-		gpio_request_by_name(dev, "reset-gpios", 0, &eth->reset_gpio,
-				     GPIOD_IS_OUT);
-	}
 
 	mdiodev = mdio_alloc();
 	if (!mdiodev) {
@@ -576,8 +556,6 @@ static int ravb_remove(struct udevice *dev)
 	free(eth->phydev);
 	mdio_unregister(eth->bus);
 	mdio_free(eth->bus);
-	if (dm_gpio_is_valid(&eth->reset_gpio))
-		dm_gpio_free(dev, &eth->reset_gpio);
 	unmap_physmem(eth->iobase, MAP_NOCACHE);
 
 	return 0;

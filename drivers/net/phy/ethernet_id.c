@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <dm/device_compat.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <phy.h>
 #include <linux/delay.h>
 #include <asm/gpio.h>
@@ -17,6 +19,8 @@ struct phy_device *phy_connect_phy_id(struct mii_dev *bus, struct udevice *dev,
 	struct phy_device *phydev;
 	struct ofnode_phandle_args phandle_args;
 	struct gpio_desc gpio;
+	const char *node_name;
+	struct udevice *pdev;
 	ofnode node;
 	u32 id, assert, deassert;
 	u16 vendor, device;
@@ -71,6 +75,19 @@ struct phy_device *phy_connect_phy_id(struct mii_dev *bus, struct udevice *dev,
 	phydev = phy_device_create(bus, phyaddr, id, false);
 	if (phydev)
 		phydev->node = node;
+
+	if (IS_ENABLED(CONFIG_DM_ETH_PHY) && ofnode_valid(node)) {
+		node_name = ofnode_get_name(node);
+		ret = device_bind_driver_to_node(dev, "eth_phy_generic_drv",
+						 node_name, node,
+						 &pdev);
+		if (ret)
+			return NULL;
+
+		ret = device_probe(pdev);
+		if (ret)
+			return NULL;
+	}
 
 	return phydev;
 }
