@@ -25,12 +25,17 @@ extern u64 rcar_atf_boot_args[];
 
 #define FDT_RPC_PATH	"/soc/spi@ee200000"
 
-int fdtdec_board_setup(const void *fdt_blob)
+static void apply_atf_overlay(void *fdt_blob)
 {
 	void *atf_fdt_blob = (void *)(rcar_atf_boot_args[1]);
 
 	if (fdt_magic(atf_fdt_blob) == FDT_MAGIC)
-		fdt_overlay_apply_node((void *)fdt_blob, 0, atf_fdt_blob, 0);
+		fdt_overlay_apply_node(fdt_blob, 0, atf_fdt_blob, 0);
+}
+
+int fdtdec_board_setup(const void *fdt_blob)
+{
+	apply_atf_overlay((void *)fdt_blob);
 
 	return 0;
 }
@@ -159,6 +164,7 @@ static void update_rpc_status(void *blob)
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+	apply_atf_overlay(blob);
 	scrub_duplicate_memory(blob);
 	update_rpc_status(blob);
 
