@@ -648,6 +648,14 @@ static const struct sun4i_usb_phy_cfg sun50i_h6_cfg = {
 	.missing_phys = BIT(1) | BIT(2),
 };
 
+static const struct sun4i_usb_phy_cfg suniv_f1c100s_cfg = {
+	.num_phys = 1,
+	.type = sun4i_a10_phy,
+	.disc_thresh = 3,
+	.phyctl_offset = REG_PHYCTL_A10,
+	.dedicated_clocks = true,
+};
+
 static const struct udevice_id sun4i_usb_phy_ids[] = {
 	{ .compatible = "allwinner,sun4i-a10-usb-phy", .data = (ulong)&sun4i_a10_cfg },
 	{ .compatible = "allwinner,sun5i-a13-usb-phy", .data = (ulong)&sun5i_a13_cfg },
@@ -662,6 +670,7 @@ static const struct udevice_id sun4i_usb_phy_ids[] = {
 	{ .compatible = "allwinner,sun20i-d1-usb-phy", .data = (ulong)&sun20i_d1_cfg },
 	{ .compatible = "allwinner,sun50i-a64-usb-phy", .data = (ulong)&sun50i_a64_cfg},
 	{ .compatible = "allwinner,sun50i-h6-usb-phy", .data = (ulong)&sun50i_h6_cfg},
+	{ .compatible = "allwinner,suniv-f1c100s-usb-phy", .data = (ulong)&suniv_f1c100s_cfg },
 	{ }
 };
 
