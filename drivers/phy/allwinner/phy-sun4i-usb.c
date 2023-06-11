@@ -82,6 +82,7 @@ struct sun4i_usb_phy_cfg {
 	bool dedicated_clocks;
 	bool phy0_dual_route;
 	bool siddq_in_base;
+	bool needs_phy2_siddq;
 	int missing_phys;
 };
 
@@ -118,6 +119,7 @@ struct sun4i_usb_phy_plat {
 	struct gpio_desc gpio_vbus_det;
 	struct gpio_desc gpio_id_det;
 	struct clk clocks;
+	struct clk clk2;
 	struct reset_ctl resets;
 	int id;
 };
@@ -270,6 +272,41 @@ static int sun4i_usb_phy_init(struct phy *phy)
 		dev_err(phy->dev, "failed to deassert usb_%ldreset reset\n",
 			phy->id);
 		return ret;
+	}
+
+	/* Some PHYs on some SoCs (the H616) need the help of PHY2 to work. */
+	if (data->cfg->needs_phy2_siddq && phy->id != 2) {
+		struct sun4i_usb_phy_plat *phy2 = &data->usb_phy[2];
+
+		ret = clk_enable(&phy2->clocks);
+		if (ret) {
+			dev_err(phy->dev, "failed to enable aux clock\n");
+			return ret;
+		}
+
+		ret = reset_deassert(&phy2->resets);
+		if (ret) {
+			dev_err(phy->dev, "failed to deassert aux reset\n");
+			return ret;
+		}
+
+		/*
+		 * This extra clock is just needed to access the
+		 * REG_HCI_PHY_CTL PMU register for PHY2.
+		 */
+		ret = clk_enable(&phy2->clk2);
+		if (ret) {
+			dev_err(phy->dev, "failed to enable PHY2 clock\n");
+			return ret;
+		}
+
+		if (phy2->pmu && data->cfg->hci_phy_ctl_clear) {
+			val = readl(phy2->pmu + REG_HCI_PHY_CTL);
+			val &= ~data->cfg->hci_phy_ctl_clear;
+			writel(val, phy2->pmu + REG_HCI_PHY_CTL);
+		}
+
+		clk_disable(&phy2->clk2);
 	}
 
 	if (usb_phy->pmu && data->cfg->hci_phy_ctl_clear) {
@@ -497,6 +534,15 @@ static int sun4i_usb_phy_probe(struct udevice *dev)
 		ret = clk_get_by_name(dev, name, &phy->clocks);
 		if (ret) {
 			dev_err(dev, "failed to get usb%d_phy clock phandle\n", i);
+			return ret;
+		}
+
+		/* Helper clock from PHY2 for the H616 PHY quirk */
+		snprintf(name, sizeof(name), "pmu%d_clk", i);
+		ret = clk_get_by_name_optional(dev, name, &phy->clk2);
+		if (ret) {
+			dev_err(dev, "failed to get pmu%d_clk clock phandle\n",
+				i);
 			return ret;
 		}
 
