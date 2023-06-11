@@ -372,7 +372,10 @@ static int sun4i_usb_phy_xlate(struct phy *phy,
 {
 	struct sun4i_usb_phy_data *data = dev_get_priv(phy->dev);
 
-	if (args->args_count >= data->cfg->num_phys)
+	if (args->args_count != 1)
+		return -EINVAL;
+
+	if (args->args[0] >= data->cfg->num_phys)
 		return -EINVAL;
 
 	if (data->cfg->missing_phys & BIT(args->args[0]))
