@@ -522,20 +522,16 @@ and used by the steps highlighted below.
             ...
     }
 
-You can do step-4 manually with
+You can perform step-4 by defining the Kconfig symbol
+CONFIG_EFI_CAPSULE_ESL_FILE. Once this has been done, the signature
+node can be added to the u-boot.dtsi file. For reference, check the
+u-boot.dtsi file for the sandbox architecture. If this node has not
+been added to the architecture's u-boot.dtsi file, this needs to be
+done. The node has currently been added for the sandbox and arm
+architectures' in the u-boot.dtsi file. Once the u-boot.dtsi file has
+been added with the signature node, the esl file will automatically
+get embedded into the platform's dtb as part of u-boot build.
 
-.. code-block:: console
-
-    $ dtc -@ -I dts -O dtb -o signature.dtbo signature.dts
-    $ fdtoverlay -i orig.dtb -o new.dtb -v signature.dtbo
-
-where signature.dts looks like::
-
-    &{/} {
-            signature {
-                    capsule-key = /incbin/("CRT.esl");
-            };
-    };
 
 Anti-rollback Protection
 ************************
