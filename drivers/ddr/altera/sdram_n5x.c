@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 /*
- * Copyright (C) 2020-2022 Intel Corporation <www.intel.com>
+ * Copyright (C) 2020-2023 Intel Corporation <www.intel.com>
  *
  */
 
@@ -1726,12 +1726,6 @@ int populate_ddr_handoff(struct ddr_handoff *handoff)
 	debug("%s: Umctl2 handoff length in word(32-bit) = 0x%x\n", __func__,
 	      (u32)handoff->cntlr_handoff_length);
 
-	/* Wrong format on user setting data */
-	if (handoff->cntlr_handoff_length < 0) {
-		debug("%s: Wrong format on user setting data\n", __func__);
-		return -ENOEXEC;
-	}
-
 	/* Get the next handoff section address */
 	next_section_header = handoff->cntlr_handoff_base +
 				handoff->cntlr_total_length;
@@ -1784,13 +1778,6 @@ int populate_ddr_handoff(struct ddr_handoff *handoff)
 		      __func__,
 		     (u32)handoff->cntlr2_handoff_length);
 
-		/* Wrong format on user setting data */
-		if (handoff->cntlr2_handoff_length < 0) {
-			debug("%s: Wrong format on umctl2 user setting data\n",
-			      __func__);
-			return -ENOEXEC;
-		}
-
 		/* Get the next handoff section address */
 		next_section_header = handoff->cntlr2_handoff_base +
 					handoff->cntlr2_total_length;
@@ -1825,13 +1812,6 @@ int populate_ddr_handoff(struct ddr_handoff *handoff)
 						handoff->phy_handoff_base);
 		debug("%s: PHY handoff length in word(32-bit) = 0x%x\n",
 		      __func__, (u32)handoff->phy_handoff_length);
-
-		/* Wrong format on PHY user setting data */
-		if (handoff->phy_handoff_length < 0) {
-			debug("%s: Wrong format on PHY user setting data\n",
-			      __func__);
-			return -ENOEXEC;
-		}
 
 		/* Get the next handoff section address */
 		next_section_header = handoff->phy_handoff_base +
@@ -1870,11 +1850,11 @@ int populate_ddr_handoff(struct ddr_handoff *handoff)
 		debug("%s: PHY engine handoff length in word(32-bit) = 0x%x\n",
 		      __func__, (u32)handoff->phy_engine_handoff_length);
 
-		/* Wrong format on PHY init engine setting data */
-		if (handoff->phy_engine_handoff_length < 0) {
-			debug("%s: Wrong format on PHY init engine ",
-			      __func__);
-			debug("user setting data\n");
+		/* Checking DDR handoff is overflow? */
+		if (SOC64_OCRAM_PHY_BACKUP_BASE <=
+		    (handoff->phy_engine_handoff_base +
+		    handoff->phy_engine_total_length)) {
+			printf("%s: DDR handoff is overflow\n ", __func__);
 			return -ENOEXEC;
 		}
 
