@@ -8,6 +8,8 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <env.h>
+#include <env.h>
 #include <netdev.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <asm/armv8/mmu.h>
@@ -87,6 +89,20 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-void reset_cpu(void)
+void fwu_plat_get_bootidx(uint *boot_idx)
 {
+	int ret;
+
+	/*
+	 * in our platform, the Secure Enclave is the one who controls
+	 * all the boot tries and status, so, every time we get here
+	 * we know that the we are booting from the active index
+	 */
+	ret = fwu_get_active_index(boot_idx);
+	if (ret < 0) {
+		*boot_idx = CONFIG_FWU_NUM_BANKS;
+		log_err("corstone1000: failed to read active index\n");
+	}
+
+	return ret;
 }
