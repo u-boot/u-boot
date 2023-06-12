@@ -89,7 +89,7 @@ static struct bootmeth_ops qfw_bootmeth_ops = {
 };
 
 static const struct udevice_id qfw_bootmeth_ids[] = {
-	{ .compatible = "u-boot,qfw-syslinux" },
+	{ .compatible = "u-boot,qfw-extlinux" },
 	{ }
 };
 

@@ -1,10 +1,23 @@
 if ROCKCHIP_RK3568
 
+choice
+	prompt "RK3568/RK3566 board select"
+
 config TARGET_EVB_RK3568
 	bool "RK3568 evaluation board"
 	select BOARD_LATE_INIT
 	help
 	  RK3568 EVB is a evaluation board for Rockchp RK3568.
+
+config TARGET_ANBERNIC_RGXX3_RK3566
+	bool "Anbernic RGXX3"
+	help
+	  Anbernic RGXX3 gaming device with Rockchip RK3566. This
+	  config can be used with the RG353M, RG353P, RG353V, RG353VS,
+	  and RG503. The correct device tree name will automatically
+	  be selected by the bootloader.
+
+endchoice
 
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xfdc20200
@@ -19,5 +32,6 @@ config SYS_MALLOC_F_LEN
 	default 0x2000
 
 source "board/rockchip/evb_rk3568/Kconfig"
+source "board/anbernic/rgxx3_rk3566/Kconfig"
 
 endif

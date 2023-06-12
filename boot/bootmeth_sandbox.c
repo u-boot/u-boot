@@ -56,7 +56,7 @@ static struct bootmeth_ops sandbox_bootmeth_ops = {
 };
 
 static const struct udevice_id sandbox_bootmeth_ids[] = {
-	{ .compatible = "u-boot,sandbox-syslinux" },
+	{ .compatible = "u-boot,sandbox-extlinux" },
 	{ }
 };
 

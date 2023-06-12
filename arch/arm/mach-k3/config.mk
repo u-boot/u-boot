@@ -68,6 +68,8 @@ ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 SPL_ITS := u-boot-spl-k3_HS.its
 $(SPL_ITS): export IS_HS=1
 INPUTS-y	+= tispl.bin_HS
+INPUTS-y	+= tispl.bin
+tispl.bin: $(obj)/u-boot-spl-nodtb.bin_HS $(patsubst %,$(obj)/dts/%.dtb_HS,$(subst ",,$(CONFIG_SPL_OF_LIST)))
 else
 SPL_ITS := u-boot-spl-k3.its
 INPUTS-y	+= tispl.bin

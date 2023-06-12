@@ -973,6 +973,10 @@ static int decode_regions(struct pci_controller *hose, ofnode parent_node,
 	int len;
 	int i;
 
+	/* handle booting from coreboot, etc. */
+	if (!ll_boot_init())
+		return 0;
+
 	prop = ofnode_get_property(node, "ranges", &len);
 	if (!prop) {
 		debug("%s: Cannot decode regions\n", __func__);

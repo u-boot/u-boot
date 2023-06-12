@@ -535,4 +535,4 @@ static int am33xx_dm_post_init(void *ctx, struct event *event)
 #endif
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT, am33xx_dm_post_init);
+EVENT_SPY(EVT_DM_POST_INIT_F, am33xx_dm_post_init);

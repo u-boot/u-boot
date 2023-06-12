@@ -11,7 +11,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm.h>
-#include <asm/arch/sci/sci.h>
+#include <firmware/imx/sci/sci.h>
 #include <misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;

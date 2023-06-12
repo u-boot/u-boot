@@ -367,7 +367,7 @@ int board_return_to_bootrom(struct spl_image_info *spl_image,
 		printf("USB boot\n");
 		break;
 	default:
-		printf("Unknow (0x%x)\n", bstage);
+		printf("Unknown (0x%x)\n", bstage);
 	}
 
 	if (is_boot_from_stream_device(boot))

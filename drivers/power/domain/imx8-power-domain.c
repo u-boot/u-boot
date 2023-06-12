@@ -10,7 +10,7 @@
 #include <malloc.h>
 #include <power-domain-uclass.h>
 #include <asm/arch/power-domain.h>
-#include <asm/arch/sci/sci.h>
+#include <firmware/imx/sci/sci.h>
 
 static int imx8_power_domain_on(struct power_domain *power_domain)
 {

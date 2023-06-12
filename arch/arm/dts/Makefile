@@ -123,6 +123,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3308) += \
 
 dtb-$(CONFIG_ROCKCHIP_RK3328) += \
 	rk3328-evb.dtb \
+	rk3328-nanopi-r2c.dtb \
 	rk3328-nanopi-r2s.dtb \
 	rk3328-roc-cc.dtb \
 	rk3328-rock64.dtb \
@@ -157,16 +158,17 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 	rk3399-puma-haikou.dtb \
 	rk3399-roc-pc.dtb \
 	rk3399-roc-pc-mezzanine.dtb \
+	rk3399-rock-4c-plus.dtb \
 	rk3399-rock-pi-4a.dtb \
-	rk3399-rock-pi-4b.dtb \
 	rk3399-rock-pi-4c.dtb \
 	rk3399-rock960.dtb \
 	rk3399-rockpro64.dtb \
 	rk3399pro-rock-pi-n10.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RK3568) += \
-	rk3568-evb.dtb \
+	rk3566-anbernic-rgxx3.dtb \
 	rk3566-radxa-cm3-io.dtb \
+	rk3568-evb.dtb \
 	rk3568-rock-3a.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RK3588) += \

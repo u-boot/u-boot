@@ -24,6 +24,7 @@ struct context {
 	efi_uintn_t notify_count;
 	efi_uintn_t handle_count;
 	efi_handle_t *handles;
+	efi_status_t ret;
 };
 
 static struct efi_boot_services *boottime;
@@ -46,17 +47,18 @@ static struct efi_event *event;
 static void EFIAPI notify(struct efi_event *event, void *context)
 {
 	struct context *cp = context;
-	efi_status_t ret;
 	efi_uintn_t handle_count;
 	efi_handle_t *handles;
 
 	cp->notify_count++;
 
 	for (;;) {
-		ret = boottime->locate_handle_buffer(BY_REGISTER_NOTIFY, NULL,
-						     cp->registration_key,
-						     &handle_count, &handles);
-		if (ret != EFI_SUCCESS)
+		cp->ret = boottime->locate_handle_buffer(BY_REGISTER_NOTIFY,
+							 NULL,
+							 cp->registration_key,
+							 &handle_count,
+							 &handles);
+		if (cp->ret != EFI_SUCCESS)
 			break;
 		cp->handle_count += handle_count;
 		cp->handles = handles;
@@ -202,6 +204,10 @@ static int execute(void)
 	}
 	if (context.handle_count != 3) {
 		efi_st_error("LocateHandle failed\n");
+		return EFI_ST_FAILURE;
+	}
+	if (context.ret != EFI_NOT_FOUND) {
+		efi_st_error("LocateHandle did not return EFI_NOT_FOUND\n");
 		return EFI_ST_FAILURE;
 	}
 	ret = boottime->free_pool(context.handles);

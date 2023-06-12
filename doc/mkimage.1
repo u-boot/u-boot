@@ -662,6 +662,51 @@ rk3568
 .TE
 .RE
 .
+.SS spkgimage
+The primary configuration file consists of lines containing key/value pairs
+delimited by whitespace. An example follows.
+.PP
+.RS
+.EX
+# Comments and blank lines may be used
+.I key1 value1
+.I key2 value2
+.EE
+.RE
+.P
+The supported
+.I key
+types are as follows.
+.TP
+.B VERSION
+.TQ
+.B NAND_ECC_BLOCK_SIZE
+.TQ
+.B NAND_ECC_ENABLE
+.TQ
+.B NAND_ECC_SCHEME
+.TQ
+.B NAND_BYTES_PER_ECC_BLOCK
+These all take a positive integer value as their argument.
+The value will be copied directly into the respective field
+of the SPKG header structure. For details on these values,
+refer to Section 7.4 of the Renesas RZ/N1 User's Manual.
+.
+.TP
+.B ADD_DUMMY_BLP
+Takes a numeric argument, which is treated as a boolean. Any nonzero
+value will cause a fake BLp security header to be included in the SPKG
+output.
+.
+.TP
+.B PADDING
+Takes a positive integer value, with an optional
+.B K
+or
+.B M
+suffix, indicating KiB / MiB respectively.
+The output SPKG file will be padded to a multiple of this value.
+.
 .SS sunxi_egon
 The primary configuration is the name to use for the device tree.
 .

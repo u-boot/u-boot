@@ -508,7 +508,7 @@ static int mxic_spi_probe(struct udevice *bus)
 {
 	struct mxic_spi_priv *priv = dev_get_priv(bus);
 
-	priv->regs = (void *)dev_read_addr(bus);
+	priv->regs = dev_read_addr_ptr(bus);
 
 	priv->send_clk = devm_clk_get(bus, "send_clk");
 	if (IS_ERR(priv->send_clk))

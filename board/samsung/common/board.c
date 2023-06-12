@@ -223,7 +223,7 @@ int board_late_init(void)
 	char mmcbootdev_str[16];
 
 	ret = uclass_first_device_err(UCLASS_CROS_EC, &dev);
-	if (ret && ret != -ENODEV) {
+	if (ret && ret != -ENODEV && ret != -EPFNOSUPPORT) {
 		/* Force console on */
 		gd->flags &= ~GD_FLG_SILENT;
 

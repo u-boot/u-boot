@@ -2,7 +2,6 @@
 #
 # Copyright (c) 2016 Google, Inc
 
-obj-y += adsp.o
 obj-$(CONFIG_$(SPL_TPL_)X86_16BIT_INIT) += cpu.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += cpu_full.o
 
@@ -14,6 +13,8 @@ obj-y += refcode.o
 endif
 ifndef CONFIG_SPL_BUILD
 # obj-y += cpu_from_spl.o
+obj-y += adsp.o
+obj-y += sata.o
 endif
 endif
 
@@ -29,5 +30,4 @@ obj-y += pch.o
 obj-y += pinctrl_broadwell.o
 obj-y += power_state.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += refcode.o
-obj-y += sata.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += sdram.o

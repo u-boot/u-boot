@@ -154,8 +154,15 @@ int bootdev_find_in_blk(struct udevice *dev, struct udevice *blk,
 		ret = -ESHUTDOWN;
 	else
 		bflow->state = BOOTFLOWST_MEDIA;
-	if (ret)
+	if (ret) {
+		/* allow partition 1 to be missing */
+		if (iter->part == 1) {
+			iter->max_part = 3;
+			ret = -ENOENT;
+		}
+
 		return log_msg_ret("part", ret);
+	}
 
 	/*
 	 * Currently we don't get the number of partitions, so just

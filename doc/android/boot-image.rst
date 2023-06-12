@@ -11,7 +11,7 @@ Android Boot Image is used to boot Android OS. It usually contains kernel image
 (like ``zImage`` file) and ramdisk. Sometimes it can contain additional
 binaries. This image is built as a part of AOSP (called ``boot.img``), and being
 flashed into ``boot`` partition on eMMC. Bootloader then reads that image from
-``boot`` partition to RAM and boots the kernel from it. Kernel than starts
+``boot`` partition to RAM and boots the kernel from it. Kernel then starts
 ``init`` process from the ramdisk. It should be mentioned that recovery image
 (``recovery.img``) also has Android Boot Image format.
 

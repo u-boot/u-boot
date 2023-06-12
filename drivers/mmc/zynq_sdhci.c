@@ -1196,9 +1196,9 @@ static int arasan_sdhci_of_to_plat(struct udevice *dev)
 	arasan_dt_parse_clk_phases(dev);
 #endif
 
-	priv->host->ioaddr = (void *)dev_read_addr(dev);
-	if (IS_ERR(priv->host->ioaddr))
-		return PTR_ERR(priv->host->ioaddr);
+	priv->host->ioaddr = dev_read_addr_ptr(dev);
+	if (!priv->host->ioaddr)
+		return -EINVAL;
 
 	priv->bank = dev_read_u32_default(dev, "xlnx,mio-bank", 0);
 	priv->no_1p8 = dev_read_bool(dev, "no-1-8-v");

@@ -6,6 +6,8 @@
 
 /* i8042.c - Intel 8042 keyboard driver routines */
 
+#define LOG_CATEGORY UCLASS_KEYBOARD
+
 #include <common.h>
 #include <dm.h>
 #include <env.h>
@@ -54,6 +56,14 @@ static unsigned char ext_key_map[] = {
 	0x00  /* map end */
 	};
 
+/**
+ * kbd_input_empty() - Wait until the keyboard is ready for a command
+ *
+ * Checks the IBF flag (input buffer full), waiting for it to indicate that
+ * any previous command has been processed.
+ *
+ * Return: true if ready, false if it timed out
+ */
 static int kbd_input_empty(void)
 {
 	int kbd_timeout = KBD_TIMEOUT * 1000;
@@ -64,6 +74,12 @@ static int kbd_input_empty(void)
 	return kbd_timeout != -1;
 }
 
+/**
+ * kbd_output_full() - Wait until the keyboard has data available
+ *
+ * Checks the OBF flag (output buffer full), waiting for it to indicate that
+ * a response to a previous command is available
+ */
 static int kbd_output_full(void)
 {
 	int kbd_timeout = KBD_TIMEOUT * 1000;
@@ -126,6 +142,9 @@ static int kbd_cmd_write(int cmd, int data)
 static int kbd_reset(int quirk)
 {
 	int config;
+
+	if (!kbd_input_empty())
+		goto err;
 
 	/* controller self test */
 	if (kbd_cmd_read(CMD_SELF_TEST) != KBC_TEST_OK)

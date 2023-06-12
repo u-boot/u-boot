@@ -205,6 +205,12 @@ struct clk_root_map {
 	u32 mux_type;
 };
 
+struct imx_clk_setting {
+	u32 clk_root;
+	enum ccm_clk_src src;
+	u32 div;
+};
+
 int clock_init(void);
 u32 get_clk_src_rate(enum ccm_clk_src source);
 u32 get_lpuart_clk(void);

@@ -1,5 +1,10 @@
 if ARCH_IMX8ULP
 
+config AHAB_BOOT
+	bool "Support i.MX8ULP AHAB features"
+	help
+	  This option enables the support for AHAB secure boot.
+
 config IMX8ULP
 	bool
 

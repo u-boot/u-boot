@@ -1103,7 +1103,7 @@ static const struct pmc_clk_setup sama7g5_clk_setup[] = {
 
 static int sama7g5_clk_probe(struct udevice *dev)
 {
-	void __iomem *base = (void *)devfdt_get_addr(dev);
+	void __iomem *base = devfdt_get_addr_ptr(dev);
 	unsigned int *clkmuxallocs[SAMA7G5_MAX_MUX_ALLOCS];
 	unsigned int *muxallocs[SAMA7G5_MAX_MUX_ALLOCS];
 	const char *p[10];

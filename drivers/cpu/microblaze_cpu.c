@@ -29,7 +29,7 @@ static int microblaze_cpu_probe_all(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT, microblaze_cpu_probe_all);
+EVENT_SPY(EVT_DM_POST_INIT_F, microblaze_cpu_probe_all);
 
 static void microblaze_set_cpuinfo_pvr(struct microblaze_cpuinfo *ci)
 {

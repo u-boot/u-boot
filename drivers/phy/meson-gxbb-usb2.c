@@ -12,7 +12,6 @@
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>
-#include <power/regulator.h>
 #include <regmap.h>
 #include <reset.h>
 #include <linux/bitops.h>
@@ -81,9 +80,6 @@
 struct phy_meson_gxbb_usb2_priv {
 	struct regmap *regmap;
 	struct reset_ctl_bulk resets;
-#if CONFIG_IS_ENABLED(DM_REGULATOR)
-	struct udevice *phy_supply;
-#endif
 };
 
 static int phy_meson_gxbb_usb2_power_on(struct phy *phy)
@@ -91,15 +87,6 @@ static int phy_meson_gxbb_usb2_power_on(struct phy *phy)
 	struct udevice *dev = phy->dev;
 	struct phy_meson_gxbb_usb2_priv *priv = dev_get_priv(dev);
 	uint val;
-
-#if CONFIG_IS_ENABLED(DM_REGULATOR)
-	if (priv->phy_supply) {
-		int ret = regulator_set_enable(priv->phy_supply, true);
-
-		if (ret)
-			return ret;
-	}
-#endif
 
 	regmap_update_bits(priv->regmap, REG_CONFIG,
 			   REG_CONFIG_CLK_32k_ALTSEL,
@@ -140,26 +127,8 @@ static int phy_meson_gxbb_usb2_power_on(struct phy *phy)
 	return 0;
 }
 
-static int phy_meson_gxbb_usb2_power_off(struct phy *phy)
-{
-#if CONFIG_IS_ENABLED(DM_REGULATOR)
-	struct udevice *dev = phy->dev;
-	struct phy_meson_gxbb_usb2_priv *priv = dev_get_priv(dev);
-
-	if (priv->phy_supply) {
-		int ret = regulator_set_enable(priv->phy_supply, false);
-
-		if (ret)
-			return ret;
-	}
-#endif
-
-	return 0;
-}
-
 static struct phy_ops meson_gxbb_usb2_phy_ops = {
 	.power_on = phy_meson_gxbb_usb2_power_on,
-	.power_off = phy_meson_gxbb_usb2_power_off,
 };
 
 static int meson_gxbb_usb2_phy_probe(struct udevice *dev)
@@ -192,13 +161,6 @@ static int meson_gxbb_usb2_phy_probe(struct udevice *dev)
 		return ret;
 	}
 
-#if CONFIG_IS_ENABLED(DM_REGULATOR)
-	ret = device_get_supply_regulator(dev, "phy-supply", &priv->phy_supply);
-	if (ret && ret != -ENOENT) {
-		pr_err("Failed to get PHY regulator\n");
-		return ret;
-	}
-#endif
 	ret = reset_get_bulk(dev, &priv->resets);
 	if (!ret) {
 		ret = reset_deassert_bulk(&priv->resets);

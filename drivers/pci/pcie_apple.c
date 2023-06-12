@@ -37,14 +37,18 @@
 #define   CORE_RC_STAT_READY		BIT(0)
 #define CORE_FABRIC_STAT		0x04000
 #define   CORE_FABRIC_STAT_MASK		0x001F001F
-#define CORE_LANE_CFG(port)		(0x84000 + 0x4000 * (port))
-#define   CORE_LANE_CFG_REFCLK0REQ	BIT(0)
-#define   CORE_LANE_CFG_REFCLK1REQ	BIT(1)
-#define   CORE_LANE_CFG_REFCLK0ACK	BIT(2)
-#define   CORE_LANE_CFG_REFCLK1ACK	BIT(3)
-#define   CORE_LANE_CFG_REFCLKEN	(BIT(9) | BIT(10))
-#define CORE_LANE_CTL(port)		(0x84004 + 0x4000 * (port))
-#define   CORE_LANE_CTL_CFGACC		BIT(15)
+
+#define CORE_PHY_DEFAULT_BASE(port)	(0x84000 + 0x4000 * (port))
+
+#define PHY_LANE_CFG			0x00000
+#define   PHY_LANE_CFG_REFCLK0REQ	BIT(0)
+#define   PHY_LANE_CFG_REFCLK1REQ	BIT(1)
+#define   PHY_LANE_CFG_REFCLK0ACK	BIT(2)
+#define   PHY_LANE_CFG_REFCLK1ACK	BIT(3)
+#define   PHY_LANE_CFG_REFCLKEN		(BIT(9) | BIT(10))
+#define   PHY_LANE_CFG_REFCLKCGEN	(BIT(30) | BIT(31))
+#define PHY_LANE_CTL			0x00004
+#define   PHY_LANE_CTL_CFGACC		BIT(15)
 
 #define PORT_LTSSMCTL			0x00080
 #define   PORT_LTSSMCTL_START		BIT(0)
@@ -116,11 +120,32 @@
 #define   PORT_TUNSTAT_PERST_ACK_PEND	BIT(1)
 #define PORT_PREFMEM_ENABLE		0x00994
 
+struct reg_info {
+	u32 phy_lane_ctl;
+	u32 port_refclk;
+	u32 port_perst;
+};
+
+const struct reg_info t8103_hw = {
+	.phy_lane_ctl = PHY_LANE_CTL,
+	.port_refclk = PORT_REFCLK,
+	.port_perst = PORT_PERST,
+};
+
+#define PORT_T602X_PERST		0x082c
+
+const struct reg_info t602x_hw = {
+	.phy_lane_ctl = 0,
+	.port_refclk = 0,
+	.port_perst = PORT_T602X_PERST,
+};
+
 struct apple_pcie_priv {
 	struct udevice		*dev;
 	void __iomem            *base;
 	void __iomem            *cfg_base;
 	struct list_head	ports;
+	const struct reg_info	*hw;
 };
 
 struct apple_pcie_port {
@@ -128,6 +153,7 @@ struct apple_pcie_port {
 	struct gpio_desc	reset;
 	ofnode			np;
 	void __iomem		*base;
+	void __iomem		*phy;
 	struct list_head	entry;
 	int			idx;
 };
@@ -187,33 +213,32 @@ static int apple_pcie_setup_refclk(struct apple_pcie_priv *pcie,
 	u32 stat;
 	int res;
 
-	res = readl_poll_sleep_timeout(pcie->base + CORE_RC_PHYIF_STAT, stat,
-				       stat & CORE_RC_PHYIF_STAT_REFCLK,
+	if (pcie->hw->phy_lane_ctl)
+		rmw_set(PHY_LANE_CTL_CFGACC, port->phy + pcie->hw->phy_lane_ctl);
+
+	rmw_set(PHY_LANE_CFG_REFCLK0REQ, port->phy + PHY_LANE_CFG);
+
+	res = readl_poll_sleep_timeout(port->phy + PHY_LANE_CFG,
+				       stat, stat & PHY_LANE_CFG_REFCLK0ACK,
 				       100, 50000);
 	if (res < 0)
 		return res;
 
-	rmw_set(CORE_LANE_CTL_CFGACC, pcie->base + CORE_LANE_CTL(port->idx));
-	rmw_set(CORE_LANE_CFG_REFCLK0REQ, pcie->base + CORE_LANE_CFG(port->idx));
-
-	res = readl_poll_sleep_timeout(pcie->base + CORE_LANE_CFG(port->idx),
-				       stat, stat & CORE_LANE_CFG_REFCLK0ACK,
-				       100, 50000);
-	if (res < 0)
-		return res;
-
-	rmw_set(CORE_LANE_CFG_REFCLK1REQ, pcie->base + CORE_LANE_CFG(port->idx));
-	res = readl_poll_sleep_timeout(pcie->base + CORE_LANE_CFG(port->idx),
-				       stat, stat & CORE_LANE_CFG_REFCLK1ACK,
+	rmw_set(PHY_LANE_CFG_REFCLK1REQ, port->phy + PHY_LANE_CFG);
+	res = readl_poll_sleep_timeout(port->phy + PHY_LANE_CFG,
+				       stat, stat & PHY_LANE_CFG_REFCLK1ACK,
 				       100, 50000);
 
 	if (res < 0)
 		return res;
 
-	rmw_clear(CORE_LANE_CTL_CFGACC, pcie->base + CORE_LANE_CTL(port->idx));
+	if (pcie->hw->phy_lane_ctl)
+		rmw_clear(PHY_LANE_CTL_CFGACC, port->phy + pcie->hw->phy_lane_ctl);
 
-	rmw_set(CORE_LANE_CFG_REFCLKEN, pcie->base + CORE_LANE_CFG(port->idx));
-	rmw_set(PORT_REFCLK_EN, port->base + PORT_REFCLK);
+	rmw_set(PHY_LANE_CFG_REFCLKEN, port->phy + PHY_LANE_CFG);
+
+	if (pcie->hw->port_refclk)
+		rmw_set(PORT_REFCLK_EN, port->base + pcie->hw->port_refclk);
 
 	return 0;
 }
@@ -225,6 +250,7 @@ static int apple_pcie_setup_port(struct apple_pcie_priv *pcie, ofnode np)
 	fdt_addr_t addr;
 	u32 stat, idx;
 	int ret;
+	char name[16];
 
 	ret = gpio_request_by_name_nodev(np, "reset-gpios", 0, &reset, 0);
 	if (ret)
@@ -244,10 +270,20 @@ static int apple_pcie_setup_port(struct apple_pcie_priv *pcie, ofnode np)
 	port->reset = reset;
 	port->np = np;
 
-	addr = dev_read_addr_index(pcie->dev, port->idx + 2);
+	snprintf(name, sizeof(name), "port%d", port->idx);
+	addr = dev_read_addr_name(pcie->dev, name);
+	if (addr == FDT_ADDR_T_NONE)
+		addr = dev_read_addr_index(pcie->dev, port->idx + 2);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 	port->base = map_sysmem(addr, 0);
+
+	snprintf(name, sizeof(name), "phy%d", port->idx);
+	addr = dev_read_addr_name(pcie->dev, name);
+	if (addr == FDT_ADDR_T_NONE)
+		port->phy = pcie->base + CORE_PHY_DEFAULT_BASE(port->idx);
+	else
+		port->phy = map_sysmem(addr, 0);
 
 	rmw_set(PORT_APPCLK_EN, port->base + PORT_APPCLK);
 
@@ -262,7 +298,7 @@ static int apple_pcie_setup_port(struct apple_pcie_priv *pcie, ofnode np)
 	udelay(100);
 
 	/* Deassert PERST# */
-	rmw_set(PORT_PERST_OFF, port->base + PORT_PERST);
+	rmw_set(PORT_PERST_OFF, port->base + pcie->hw->port_perst);
 	dm_gpio_set_value(&reset, 0);
 
 	/* Wait for 100ms after PERST# deassertion (PCIe r5.0, 6.6.1) */
@@ -275,9 +311,6 @@ static int apple_pcie_setup_port(struct apple_pcie_priv *pcie, ofnode np)
 		return ret;
 	}
 
-	rmw_clear(PORT_REFCLK_CGDIS, port->base + PORT_REFCLK);
-	rmw_clear(PORT_APPCLK_CGDIS, port->base + PORT_APPCLK);
-
 	list_add_tail(&port->entry, &pcie->ports);
 
 	writel_relaxed(PORT_LTSSMCTL_START, port->base + PORT_LTSSMCTL);
@@ -289,6 +322,12 @@ static int apple_pcie_setup_port(struct apple_pcie_priv *pcie, ofnode np)
 	readl_poll_sleep_timeout(port->base + PORT_LINKSTS, stat,
 				 (stat & PORT_LINKSTS_UP), 100, 100000);
 
+	if (pcie->hw->port_refclk)
+		rmw_clear(PORT_REFCLK_CGDIS, port->base + PORT_REFCLK);
+	else
+		rmw_set(PHY_LANE_CFG_REFCLKCGEN, port->phy + PHY_LANE_CFG);
+	rmw_clear(PORT_APPCLK_CGDIS, port->base + PORT_APPCLK);
+
 	return 0;
 }
 
@@ -298,6 +337,8 @@ static int apple_pcie_probe(struct udevice *dev)
 	fdt_addr_t addr;
 	ofnode of_port;
 	int i, ret;
+
+	pcie->hw = (struct reg_info *)dev_get_driver_data(dev);
 
 	pcie->dev = dev;
 	addr = dev_read_addr_index(dev, 0);
@@ -341,7 +382,8 @@ static int apple_pcie_remove(struct udevice *dev)
 }
 
 static const struct udevice_id apple_pcie_of_match[] = {
-	{ .compatible = "apple,pcie" },
+	{ .compatible = "apple,t6020-pcie", .data = (ulong)&t602x_hw },
+	{ .compatible = "apple,pcie", .data = (ulong)&t8103_hw },
 	{ /* sentinel */ }
 };
 

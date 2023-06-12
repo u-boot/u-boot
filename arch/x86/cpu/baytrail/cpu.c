@@ -64,7 +64,7 @@ static int baytrail_uart_init(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT, baytrail_uart_init);
+EVENT_SPY(EVT_DM_POST_INIT_F, baytrail_uart_init);
 
 static void set_max_freq(void)
 {

@@ -6,7 +6,7 @@
 #ifndef _ASM_ARCH_IMX8_POWER_DOMAIN_H
 #define _ASM_ARCH_IMX8_POWER_DOMAIN_H
 
-#include <asm/arch/sci/types.h>
+#include <firmware/imx/sci/types.h>
 
 struct imx8_power_domain_plat {
 	sc_rsrc_t resource_id;

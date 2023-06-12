@@ -117,6 +117,8 @@ static int x86_spl_init(void)
 	}
 
 #ifndef CONFIG_SYS_COREBOOT
+	debug("BSS clear from %lx to %lx len %lx\n", (ulong)&__bss_start,
+	      (ulong)&__bss_end, (ulong)&__bss_end - (ulong)&__bss_start);
 	memset(&__bss_start, 0, (ulong)&__bss_end - (ulong)&__bss_start);
 # ifndef CONFIG_TPL
 
@@ -145,7 +147,6 @@ static int x86_spl_init(void)
 		debug("%s: SPI cache setup failed (err=%d)\n", __func__, ret);
 		return ret;
 	}
-	mtrr_commit(true);
 # else
 	ret = syscon_get_by_driver_data(X86_SYSCON_PUNIT, &punit);
 	if (ret)
@@ -184,7 +185,8 @@ void board_init_f(ulong flags)
 
 void board_init_f_r(void)
 {
-	init_cache_f_r();
+	mtrr_commit(false);
+	init_cache();
 	gd->flags &= ~GD_FLG_SERIAL_READY;
 	debug("cache status %d\n", dcache_status());
 	board_init_r(gd, 0);
@@ -215,16 +217,9 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 	spl_image->name = "U-Boot";
 
 	if (!IS_ENABLED(CONFIG_SYS_COREBOOT)) {
-		/*
-		 * Copy U-Boot from ROM
-		 * TODO(sjg@chromium.org): Figure out a way to get the text base
-		 * correctly here, and in the device-tree binman definition.
-		 *
-		 * Also consider using FIT so we get the correct image length
-		 * and parameters.
-		 */
-		memcpy((char *)spl_image->load_addr, (char *)0xfff00000,
-		       0x100000);
+		/* Copy U-Boot from ROM */
+		memcpy((void *)spl_image->load_addr,
+		       (void *)spl_get_image_pos(), spl_get_image_size());
 	}
 
 	debug("Loading to %lx\n", spl_image->load_addr);

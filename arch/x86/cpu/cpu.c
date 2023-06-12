@@ -351,8 +351,8 @@ long locate_coreboot_table(void)
 {
 	long addr;
 
-	/* We look for LBIO in the first 4K of RAM and again at 960KB */
-	addr = detect_coreboot_table_at(0x0, 0x1000);
+	/* We look for LBIO from addresses 1K-4K and again at 960KB */
+	addr = detect_coreboot_table_at(0x400, 0xc00);
 	if (addr < 0)
 		addr = detect_coreboot_table_at(0xf0000, 0x1000);
 

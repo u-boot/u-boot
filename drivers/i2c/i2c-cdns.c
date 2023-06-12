@@ -444,7 +444,7 @@ static int cdns_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 
 	debug("i2c_xfer: %d messages\n", nmsgs);
 	for (u8 retry = 0; retry < CDNS_I2C_ARB_LOST_MAX_RETRIES &&
-	     nmsgs > 0; nmsgs--, msg++) {
+	     nmsgs > 0;) {
 		debug("i2c_xfer: chip=0x%x, len=0x%x\n", msg->addr, msg->len);
 		if (msg->flags & I2C_M_RD) {
 			ret = cdns_i2c_read_data(i2c_bus, msg->addr, msg->buf,
@@ -461,7 +461,8 @@ static int cdns_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 			       retry);
 			continue;
 		}
-
+		nmsgs--;
+		msg++;
 		if (ret) {
 			debug("i2c_write: error sending\n");
 			return -EREMOTEIO;
@@ -479,9 +480,9 @@ static int cdns_i2c_of_to_plat(struct udevice *dev)
 	struct clk clk;
 	int ret;
 
-	i2c_bus->regs = (struct cdns_i2c_regs *)dev_read_addr(dev);
+	i2c_bus->regs = dev_read_addr_ptr(dev);
 	if (!i2c_bus->regs)
-		return -ENOMEM;
+		return -EINVAL;
 
 	if (pdata)
 		i2c_bus->quirks = pdata->quirks;

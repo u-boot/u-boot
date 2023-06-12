@@ -669,6 +669,16 @@ config COREBOOT_SERIAL
 	  a serial console on any platform without needing to change the
 	  device tree, etc.
 
+config COREBOOT_SERIAL_FROM_DBG2
+	bool "Obtain UART from ACPI tables"
+	depends on COREBOOT_SERIAL
+	default y if !SPL
+	help
+	  Select this to try to find a DBG2 record in the ACPI tables, in the
+	  event that coreboot does not provide information about the UART in the
+	  normal sysinfo tables. This provides a useful fallback when serial
+	  is not enabled in coreboot.
+
 config CORTINA_UART
 	bool "Cortina UART support"
 	depends on DM_SERIAL
@@ -955,6 +965,14 @@ config MSM_GENI_SERIAL
 	  i.e. newer ones, starting from SDM845.
 	  Driver works in FIFO mode.
 	  Multiple baudrates supported.
+
+config MXS_AUART_SERIAL
+	bool "MXS AUART"
+	depends on DM_SERIAL
+	help
+	  Support for Freescale i.MX23 / i.MX28 AUART or Application UART IP.
+	  This IP is present in the aforementioned SoCs, however this is not
+	  the IP used to drive the Debug UART port, for that see PL01X_SERIAL .
 
 config OCTEON_SERIAL_BOOTCMD
 	bool "MIPS Octeon PCI remote bootcmd input"

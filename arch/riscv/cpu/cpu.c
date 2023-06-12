@@ -145,7 +145,7 @@ int riscv_cpu_setup(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT, riscv_cpu_setup);
+EVENT_SPY(EVT_DM_POST_INIT_F, riscv_cpu_setup);
 
 int arch_early_init_r(void)
 {

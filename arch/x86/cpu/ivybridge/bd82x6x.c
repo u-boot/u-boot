@@ -31,7 +31,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define RCBA_AUDIO_CONFIG_HDA	BIT(31)
 #define RCBA_AUDIO_CONFIG_MASK	0xfe
 
-#ifndef CONFIG_HAVE_FSP
 static int pch_revision_id = -1;
 static int pch_type = -1;
 
@@ -162,15 +161,19 @@ void pch_iobp_update(struct udevice *dev, u32 address, u32 andvalue,
 
 static int bd82x6x_probe(struct udevice *dev)
 {
-	if (!(gd->flags & GD_FLG_RELOC))
-		return 0;
+	/* make sure the LPC is inited since it provides the gpio base */
+	uclass_first_device(UCLASS_LPC, &dev);
 
-	/* Cause the SATA device to do its init */
-	uclass_first_device(UCLASS_AHCI, &dev);
+	if (!IS_ENABLED(CONFIG_HAVE_FSP)) {
+		if (!(gd->flags & GD_FLG_RELOC))
+			return 0;
+
+		/* Cause the SATA device to do its init */
+		uclass_first_device(UCLASS_AHCI, &dev);
+	}
 
 	return 0;
 }
-#endif /* CONFIG_HAVE_FSP */
 
 static int bd82x6x_pch_get_spi_base(struct udevice *dev, ulong *sbasep)
 {
@@ -269,8 +272,6 @@ U_BOOT_DRIVER(bd82x6x_drv) = {
 	.name		= "bd82x6x",
 	.id		= UCLASS_PCH,
 	.of_match	= bd82x6x_ids,
-#ifndef CONFIG_HAVE_FSP
 	.probe		= bd82x6x_probe,
-#endif
 	.ops		= &bd82x6x_pch_ops,
 };

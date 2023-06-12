@@ -42,6 +42,7 @@ struct rk_pcie {
 	struct clk_bulk	clks;
 	struct reset_ctl_bulk	rsts;
 	struct gpio_desc	rst_gpio;
+	u32		gen;
 };
 
 /* Parameters for the waiting for iATU enabled routine */
@@ -331,7 +332,7 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 	rk_pcie_writel_apb(priv, 0x0, 0xf00040);
 	pcie_dw_setup_host(&priv->dw);
 
-	ret = rk_pcie_link_up(priv, LINK_SPEED_GEN_3);
+	ret = rk_pcie_link_up(priv, priv->gen);
 	if (ret < 0)
 		goto err_link_up;
 
@@ -353,15 +354,15 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 	struct rk_pcie *priv = dev_get_priv(dev);
 	int ret;
 
-	priv->dw.dbi_base = (void *)dev_read_addr_index(dev, 0);
+	priv->dw.dbi_base = dev_read_addr_index_ptr(dev, 0);
 	if (!priv->dw.dbi_base)
-		return -ENODEV;
+		return -EINVAL;
 
 	dev_dbg(dev, "DBI address is 0x%p\n", priv->dw.dbi_base);
 
-	priv->apb_base = (void *)dev_read_addr_index(dev, 1);
+	priv->apb_base = dev_read_addr_index_ptr(dev, 1);
 	if (!priv->apb_base)
-		return -ENODEV;
+		return -EINVAL;
 
 	dev_dbg(dev, "APB address is 0x%p\n", priv->apb_base);
 
@@ -375,29 +376,42 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 	ret = reset_get_bulk(dev, &priv->rsts);
 	if (ret) {
 		dev_err(dev, "Can't get reset: %d\n", ret);
-		return ret;
+		goto rockchip_pcie_parse_dt_err_reset_get_bulk;
 	}
 
 	ret = clk_get_bulk(dev, &priv->clks);
 	if (ret) {
 		dev_err(dev, "Can't get clock: %d\n", ret);
-		return ret;
+		goto rockchip_pcie_parse_dt_err_clk_get_bulk;
 	}
 
 	ret = device_get_supply_regulator(dev, "vpcie3v3-supply",
 					  &priv->vpcie3v3);
 	if (ret && ret != -ENOENT) {
 		dev_err(dev, "failed to get vpcie3v3 supply (ret=%d)\n", ret);
-		return ret;
+		goto rockchip_pcie_parse_dt_err_supply_regulator;
 	}
 
 	ret = generic_phy_get_by_index(dev, 0, &priv->phy);
 	if (ret) {
 		dev_err(dev, "failed to get pcie phy (ret=%d)\n", ret);
-		return ret;
+		goto rockchip_pcie_parse_dt_err_phy_get_by_index;
 	}
 
+	priv->gen = dev_read_u32_default(dev, "max-link-speed",
+					 LINK_SPEED_GEN_3);
+
 	return 0;
+
+rockchip_pcie_parse_dt_err_phy_get_by_index:
+	/* regulators don't need release */
+rockchip_pcie_parse_dt_err_supply_regulator:
+	clk_release_bulk(&priv->clks);
+rockchip_pcie_parse_dt_err_clk_get_bulk:
+	reset_release_bulk(&priv->rsts);
+rockchip_pcie_parse_dt_err_reset_get_bulk:
+	dm_gpio_free(dev, &priv->rst_gpio);
+	return ret;
 }
 
 /**
@@ -426,7 +440,7 @@ static int rockchip_pcie_probe(struct udevice *dev)
 
 	ret = rockchip_pcie_init_port(dev);
 	if (ret)
-		return ret;
+		goto rockchip_pcie_probe_err_init_port;
 
 	dev_info(dev, "PCIE-%d: Link up (Gen%d-x%d, Bus%d)\n",
 		 dev_seq(dev), pcie_dw_get_link_speed(&priv->dw),
@@ -434,12 +448,21 @@ static int rockchip_pcie_probe(struct udevice *dev)
 		 hose->first_busno);
 
 
-	return pcie_dw_prog_outbound_atu_unroll(&priv->dw,
-						PCIE_ATU_REGION_INDEX0,
-						PCIE_ATU_TYPE_MEM,
-						priv->dw.mem.phys_start,
-						priv->dw.mem.bus_start,
-						priv->dw.mem.size);
+	ret = pcie_dw_prog_outbound_atu_unroll(&priv->dw,
+					       PCIE_ATU_REGION_INDEX0,
+					       PCIE_ATU_TYPE_MEM,
+					       priv->dw.mem.phys_start,
+					       priv->dw.mem.bus_start,
+					       priv->dw.mem.size);
+	if (!ret)
+		return ret;
+
+rockchip_pcie_probe_err_init_port:
+	clk_release_bulk(&priv->clks);
+	reset_release_bulk(&priv->rsts);
+	dm_gpio_free(dev, &priv->rst_gpio);
+
+	return ret;
 }
 
 static const struct dm_pci_ops rockchip_pcie_ops = {
@@ -449,6 +472,7 @@ static const struct dm_pci_ops rockchip_pcie_ops = {
 
 static const struct udevice_id rockchip_pcie_ids[] = {
 	{ .compatible = "rockchip,rk3568-pcie" },
+	{ .compatible = "rockchip,rk3588-pcie" },
 	{ }
 };
 

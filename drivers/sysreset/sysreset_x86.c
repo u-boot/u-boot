@@ -129,8 +129,13 @@ static int x86_sysreset_probe(struct udevice *dev)
 {
 	struct x86_sysreset_plat *plat = dev_get_plat(dev);
 
-	/* Locate the PCH if there is one. It isn't essential */
-	uclass_first_device(UCLASS_PCH, &plat->pch);
+	/*
+	 * Locate the PCH if there is one. It isn't essential. Avoid this before
+	 * relocation as we shouldn't need reset then and it needs a lot of
+	 * memory for PCI enumeration.
+	 */
+	if (gd->flags & GD_FLG_RELOC)
+		uclass_first_device(UCLASS_PCH, &plat->pch);
 
 	return 0;
 }

@@ -678,8 +678,8 @@ int ofnode_read_size(ofnode node, const char *propname);
  * @size: Pointer to size of the address
  * Return: address, or FDT_ADDR_T_NONE if not present or invalid
  */
-phys_addr_t ofnode_get_addr_size_index(ofnode node, int index,
-				       fdt_size_t *size);
+fdt_addr_t ofnode_get_addr_size_index(ofnode node, int index,
+				      fdt_size_t *size);
 
 /**
  * ofnode_get_addr_size_index_notrans() - get an address/size from a node
@@ -695,8 +695,8 @@ phys_addr_t ofnode_get_addr_size_index(ofnode node, int index,
  * @size: Pointer to size of the address
  * Return: address, or FDT_ADDR_T_NONE if not present or invalid
  */
-phys_addr_t ofnode_get_addr_size_index_notrans(ofnode node, int index,
-					       fdt_size_t *size);
+fdt_addr_t ofnode_get_addr_size_index_notrans(ofnode node, int index,
+					      fdt_size_t *size);
 
 /**
  * ofnode_get_addr_index() - get an address from a node
@@ -707,7 +707,7 @@ phys_addr_t ofnode_get_addr_size_index_notrans(ofnode node, int index,
  * @index: Index of address to read (0 for first)
  * Return: address, or FDT_ADDR_T_NONE if not present or invalid
  */
-phys_addr_t ofnode_get_addr_index(ofnode node, int index);
+fdt_addr_t ofnode_get_addr_index(ofnode node, int index);
 
 /**
  * ofnode_get_addr() - get an address from a node
@@ -717,7 +717,7 @@ phys_addr_t ofnode_get_addr_index(ofnode node, int index);
  * @node: node to read from
  * Return: address, or FDT_ADDR_T_NONE if not present or invalid
  */
-phys_addr_t ofnode_get_addr(ofnode node);
+fdt_addr_t ofnode_get_addr(ofnode node);
 
 /**
  * ofnode_get_size() - get size from a node
@@ -1067,8 +1067,8 @@ const void *ofprop_get_property(const struct ofprop *prop,
  * @sizep: place to put size value (on success)
  * Return: address value, or FDT_ADDR_T_NONE on error
  */
-phys_addr_t ofnode_get_addr_size(ofnode node, const char *propname,
-				 phys_size_t *sizep);
+fdt_addr_t ofnode_get_addr_size(ofnode node, const char *propname,
+				fdt_size_t *sizep);
 
 /**
  * ofnode_read_u8_array_ptr() - find an 8-bit array

@@ -2,7 +2,7 @@ config FWU_MULTI_BANK_UPDATE
 	bool "Enable FWU Multi Bank Update Feature"
 	depends on EFI_CAPSULE_ON_DISK
 	select PARTITION_TYPE_GUID
-	select EFI_SETUP_EARLY
+	select FWU_MDATA
 	imply EFI_CAPSULE_ON_DISK_EARLY
 	select EVENT
 	help

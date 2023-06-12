@@ -506,7 +506,7 @@ static int davinci_mmc_of_to_plat(struct udevice *dev)
 	struct davinci_mmc_plat *plat = dev_get_plat(dev);
 	struct mmc_config *cfg = &plat->cfg;
 
-	plat->reg_base = (struct davinci_mmc_regs *)dev_read_addr(dev);
+	plat->reg_base = dev_read_addr_ptr(dev);
 	cfg->f_min = 200000;
 	cfg->f_max = 25000000;
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34,

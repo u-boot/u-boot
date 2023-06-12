@@ -41,8 +41,8 @@ static int dwmac_meson8b_of_to_plat(struct udevice *dev)
 {
 	struct dwmac_meson8b_plat *pdata = dev_get_plat(dev);
 
-	pdata->regs = (void *)dev_read_addr_index(dev, 1);
-	if ((fdt_addr_t)pdata->regs == FDT_ADDR_T_NONE)
+	pdata->regs = dev_read_addr_index_ptr(dev, 1);
+	if (!pdata->regs)
 		return -EINVAL;
 
 	pdata->dwmac_setup = (void *)dev_get_driver_data(dev);

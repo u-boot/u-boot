@@ -66,7 +66,7 @@ obj-$(CONFIG_$(SPL_TPL_)CRC8) += crc8.o
 
 obj-y += crypto/
 
-obj-$(CONFIG_$(SPL_TPL_)GENERATE_ACPI_TABLE) += acpi/
+obj-$(CONFIG_$(SPL_TPL_)ACPI) += acpi/
 obj-$(CONFIG_$(SPL_)MD5) += md5.o
 obj-$(CONFIG_ECDSA) += ecdsa/
 obj-$(CONFIG_$(SPL_)RSA) += rsa/

@@ -71,8 +71,8 @@ static int mvebu_reset_of_to_plat(struct udevice *dev)
 {
 	struct mvebu_reset_data *data = dev_get_priv(dev);
 
-	data->base = (void *)dev_read_addr(dev);
-	if ((fdt_addr_t)data->base == FDT_ADDR_T_NONE)
+	data->base = dev_read_addr_ptr(dev);
+	if (!data->base)
 		return -EINVAL;
 
 	return 0;

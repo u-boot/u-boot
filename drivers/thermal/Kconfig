@@ -27,10 +27,10 @@ config IMX_SCU_THERMAL
 	  trip is crossed
 
 config IMX_TMU
-        bool "Thermal Management Unit driver for NXP i.MX8M"
-        depends on ARCH_IMX8M
+        bool "Thermal Management Unit driver for NXP i.MX8M and iMX93"
+        depends on ARCH_IMX8M || IMX93
         help
-          Support for Temperature sensors on NXP i.MX8M.
+          Support for Temperature sensors on NXP i.MX8M and iMX93.
           It supports one critical trip point and one passive trip point.
 	  The boot is hold to the cool device to throttle CPUs when the
 	  passive trip is crossed

@@ -212,6 +212,7 @@ void enable_caches(void)
 #include <usb.h>
 
 #if defined(CONFIG_USB_GADGET_DWC2_OTG)
+#include <linux/usb/otg.h>
 #include <usb/dwc2_udc.h>
 
 static struct dwc2_plat_otg_data otg_data = {
@@ -223,17 +224,23 @@ static struct dwc2_plat_otg_data otg_data = {
 int board_usb_init(int index, enum usb_init_type init)
 {
 	ofnode node;
-	const char *mode;
 	bool matched = false;
 
 	/* find the usb_otg node */
 	node = ofnode_by_compatible(ofnode_null(), "snps,dwc2");
 	while (ofnode_valid(node)) {
-		mode = ofnode_read_string(node, "dr_mode");
-		if (mode && strcmp(mode, "otg") == 0) {
+		switch (usb_get_dr_mode(node)) {
+		case USB_DR_MODE_OTG:
+		case USB_DR_MODE_PERIPHERAL:
 			matched = true;
 			break;
+
+		default:
+			break;
 		}
+
+		if (matched)
+			break;
 
 		node = ofnode_by_compatible(node, "snps,dwc2");
 	}

@@ -52,7 +52,8 @@ config SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 config SYS_K3_MCU_SCRATCHPAD_BASE
 	hex
 	default 0x40280000 if SOC_K3_AM654
-	default 0x41cff9fc if SOC_K3_J721E || SOC_K3_J721S2
+	default 0x40280000 if SOC_K3_J721S2
+	default 0x41cff9fc if SOC_K3_J721E
 	help
 	  Describes the base address of MCU Scratchpad RAM.
 
@@ -140,8 +141,7 @@ config K3_SYSFW_IMAGE_MMCSD_RAW_MODE_PART
 config K3_SYSFW_IMAGE_SIZE_MAX
 	int "Amount of memory dynamically allocated for loading SYSFW blob"
 	depends on K3_LOAD_SYSFW
-	default 163840 if SOC_K3_AM625 || SOC_K3_AM62A7
-	default	278000
+	default	280000
 	help
 	  Amount of memory (in bytes) reserved through dynamic allocation at
 	  runtime for loading the combined System Firmware and configuration image

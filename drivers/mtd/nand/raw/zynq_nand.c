@@ -1085,7 +1085,7 @@ static int zynq_nand_probe(struct udevice *dev)
 	int ondie_ecc_enabled = 0;
 	int is_16bit_bw;
 
-	smc->reg = (struct zynq_nand_smc_regs *)dev_read_addr(dev);
+	smc->reg = dev_read_addr_ptr(dev);
 	of_nand = dev_read_subnode(dev, "nand-controller@0,0");
 	if (!ofnode_valid(of_nand)) {
 		of_nand = dev_read_subnode(dev, "flash@e1000000");

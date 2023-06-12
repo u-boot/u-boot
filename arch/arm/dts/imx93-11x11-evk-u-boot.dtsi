@@ -10,25 +10,6 @@
 		bootph-pre-ram;
 	};
 
-	aliases {
-		usbgadget0 = &usbg1;
-		usbgadget1 = &usbg2;
-	};
-
-	usbg1: usbg1 {
-		compatible = "fsl,imx27-usb-gadget";
-		dr_mode = "peripheral";
-		chipidea,usb = <&usbotg1>;
-		status = "okay";
-	};
-
-	usbg2: usbg2 {
-		compatible = "fsl,imx27-usb-gadget";
-		dr_mode = "peripheral";
-		chipidea,usb = <&usbotg2>;
-		status = "okay";
-	};
-
 	firmware {
 		optee {
 			compatible = "linaro,optee-tz";
@@ -139,16 +120,6 @@
 	reset-gpios = <&pcal6524 15 GPIO_ACTIVE_LOW>;
 	reset-assert-us = <15000>;
 	reset-deassert-us = <100000>;
-};
-
-&usbotg1 {
-	status = "okay";
-	extcon = <&ptn5110>;
-};
-
-&usbotg2 {
-	status = "okay";
-	extcon = <&ptn5110_2>;
 };
 
 &s4muap {

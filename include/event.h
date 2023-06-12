@@ -22,7 +22,7 @@ enum event_t {
 	EVT_TEST,
 
 	/* Events related to driver model */
-	EVT_DM_POST_INIT,
+	EVT_DM_POST_INIT_F,
 	EVT_DM_PRE_PROBE,
 	EVT_DM_POST_PROBE,
 	EVT_DM_PRE_REMOVE,

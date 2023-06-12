@@ -589,7 +589,7 @@ static efi_status_t bootefi_test_prepare
 	if (!bootefi_device_path)
 		return EFI_OUT_OF_RESOURCES;
 
-	bootefi_image_path = efi_dp_from_file(NULL, 0, path);
+	bootefi_image_path = efi_dp_from_file(NULL, path);
 	if (!bootefi_image_path) {
 		ret = EFI_OUT_OF_RESOURCES;
 		goto failure;

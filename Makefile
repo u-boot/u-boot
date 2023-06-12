@@ -3,7 +3,7 @@
 VERSION = 2023
 PATCHLEVEL = 07
 SUBLEVEL =
-EXTRAVERSION = -rc2
+EXTRAVERSION = -rc4
 NAME =
 
 # *DOCUMENTATION*
@@ -2123,7 +2123,7 @@ tools/version.h: include/version.h
 	$(Q)mkdir -p $(dir $@)
 	$(call if_changed,copy)
 
-envtools: scripts_basic $(version_h) $(timestamp_h) tools/version.h
+envtools: u-boot-initial-env scripts_basic $(version_h) $(timestamp_h) tools/version.h
 	$(Q)$(MAKE) $(build)=tools/env
 
 tools-only: export TOOLS_ONLY=y

@@ -13,8 +13,8 @@
 #include <bootflow.h>
 #include <command.h>
 #include <bootmeth.h>
-#include <distro.h>
 #include <dm.h>
+#include <extlinux.h>
 #include <init.h>
 #include <log.h>
 #include <net.h>
@@ -36,7 +36,7 @@ static int eth_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
 		return log_msg_ret("check", ret);
 
 	/*
-	 * Like distro boot, this assumes there is only one Ethernet device.
+	 * Like extlinux boot, this assumes there is only one Ethernet device.
 	 * In this case, that means that @eth is ignored
 	 */
 

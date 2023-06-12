@@ -630,7 +630,7 @@ int board_xhci_enable(fdt_addr_t base)
 {
 	const struct mbus_dram_target_info *dram;
 
-	printf("MVEBU XHCI INIT controller @ 0x%lx\n", base);
+	printf("MVEBU XHCI INIT controller @ 0x%llx\n", (fdt64_t)base);
 
 	dram = mvebu_mbus_dram_info();
 	xhci_mvebu_mbus_config((void __iomem *)base, dram);

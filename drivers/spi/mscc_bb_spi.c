@@ -217,7 +217,7 @@ static int mscc_bb_spi_probe(struct udevice *bus)
 
 	debug("%s: loaded, priv %p\n", __func__, priv);
 
-	priv->regs = (void __iomem *)dev_read_addr(bus);
+	priv->regs = dev_read_addr_ptr(bus);
 
 	priv->deactivate_delay_us =
 		dev_read_u32_default(bus, "spi-deactivate-delay", 0);

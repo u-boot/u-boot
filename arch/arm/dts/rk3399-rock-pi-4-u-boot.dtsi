@@ -12,6 +12,12 @@
 	};
 };
 
+&sdhci {
+	cap-mmc-highspeed;
+	mmc-ddr-1_8v;
+	mmc-hs200-1_8v;
+};
+
 &vdd_log {
 	regulator-init-microvolt = <950000>;
 };

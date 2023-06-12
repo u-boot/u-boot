@@ -11,7 +11,7 @@ block device is probed.
 Rather than using weak functions and direct calls across subsystemss, it is
 often easier to use an event.
 
-An event consists of a type (e.g. EVT_DM_POST_INIT) and some optional data,
+An event consists of a type (e.g. EVT_DM_POST_INIT_F) and some optional data,
 in `union event_data`. An event spy can be created to watch for events of a
 particular type. When the event is created, it is sent to each spy in turn.
 
@@ -26,9 +26,9 @@ To declare a spy, use something like this::
         /* do something */
         return 0;
     }
-    EVENT_SPY(EVT_DM_POST_INIT, snow_setup_cpus);
+    EVENT_SPY(EVT_DM_POST_INIT_F, snow_setup_cpus);
 
-Your function is called when EVT_DM_POST_INIT is emitted, i.e. after driver
+Your function is called when EVT_DM_POST_INIT_F is emitted, i.e. after driver
 model is inited (in SPL, or in U-Boot proper before and after relocation).
 
 

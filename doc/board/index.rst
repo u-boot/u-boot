@@ -11,6 +11,7 @@ Board-specific doc
    AndesTech/index
    allwinner/index
    amlogic/index
+   anbernic/index
    apple/index
    armltd/index
    atmel/index
@@ -33,6 +34,7 @@ Board-specific doc
    openpiton/index
    purism/index
    qualcomm/index
+   renesas/index
    rockchip/index
    samsung/index
    siemens/index
