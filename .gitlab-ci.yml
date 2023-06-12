@@ -37,6 +37,14 @@ stages:
         export OPENSBI=/tmp/opensbi-0.9-rv-bin/share/opensbi/lp64/generic/firmware/fw_dynamic.bin;
       fi
 
+    - if [[ "${TEST_PY_BD}" == "sandbox" ]] || [[ "${TEST_PY_BD}" == "sandbox_flattree" ]]; then
+        if [ ! -d "/tmp/capsules/" ]; then
+          mkdir -p /tmp/capsules/;
+          openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_SIGNER/ -keyout /tmp/capsules/SIGNER.key -out /tmp/capsules/SIGNER.crt -nodes -days 365;
+          openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_SIGNER/ -keyout /tmp/capsules/SIGNER2.key -out /tmp/capsules/SIGNER2.crt -nodes -days 365;
+          cert-to-efi-sig-list /tmp/capsules/SIGNER.crt /tmp/capsules/SIGNER.esl;
+        fi
+      fi
   after_script:
     - cp -v /tmp/${TEST_PY_BD}/*.{html,css} .
     - rm -rf /tmp/uboot-test-hooks /tmp/venv
