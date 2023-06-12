@@ -80,6 +80,65 @@ def pytest_addoption(parser):
         help='Run sandbox under gdbserver. The argument is the channel '+
         'over which gdbserver should communicate, e.g. localhost:1234')
 
+def setup_capsule_auth_build(source_dir, build_dir, board_type, log):
+    """Setup the platform's build for capsule authenticate
+
+    This generates the signatures needed for signing the capsules along
+    with the EFI Signature List(ESL) file, with the capsule
+    authentication feature enabled.
+
+    The ESL file is subsequently embedded into the platform's
+    dtb during the u-boot build, to be used for capsule
+    authentication.
+
+    Two sets of signatures are generated, namely SIGNER and SIGNER2.
+    The SIGNER2 key pair is used as a malicious key for testing the
+    the capsule authentication functionality.
+
+    Args:
+        soruce_dir (str): Directory containing source code
+        build_dir (str): Directory to build in
+        board_type (str): board_type parameter (e.g. 'sandbox')
+        log (Logfile): Log file to use
+
+    Returns:
+        Nothing.
+    """
+    def run_command(name, cmd, source_dir):
+        with log.section(name):
+            if isinstance(cmd, str):
+                cmd = cmd.split()
+                runner = log.get_runner(name, None)
+                runner.run(cmd, cwd=source_dir)
+                runner.close()
+                log.status_pass('OK')
+
+    capsule_sig_dir = '/tmp/capsules/'
+    sig_name = 'SIGNER'
+    mkdir_p(capsule_sig_dir)
+    name = 'openssl'
+    cmd = ( 'openssl req -x509 -sha256 -newkey rsa:2048 '
+            '-subj /CN=TEST_SIGNER/ -keyout %s%s.key '
+            '-out %s%s.crt -nodes -days 365'
+            % (capsule_sig_dir, sig_name, capsule_sig_dir, sig_name)
+           )
+    run_command(name, cmd, source_dir)
+
+    name = 'cert-to-efi-sig-list'
+    cmd = ( 'cert-to-efi-sig-list %s%s.crt %s%s.esl'
+            % (capsule_sig_dir, sig_name, capsule_sig_dir, sig_name)
+           )
+    run_command(name, cmd, source_dir)
+
+    sig_name = 'SIGNER2'
+    name = 'openssl'
+    cmd = ( 'openssl req -x509 -sha256 -newkey rsa:2048 '
+            '-subj /CN=TEST_SIGNER/ -keyout %s%s.key '
+            '-out %s%s.crt -nodes -days 365'
+            % (capsule_sig_dir, sig_name, capsule_sig_dir, sig_name)
+           )
+    run_command(name, cmd, source_dir)
+
 def run_build(config, source_dir, build_dir, board_type, log):
     """run_build: Build U-Boot
 
@@ -102,6 +161,11 @@ def run_build(config, source_dir, build_dir, board_type, log):
             o_opt = 'O=%s' % build_dir
         else:
             o_opt = ''
+
+        capsule_auth_boards = ( 'sandbox', 'sandbox_flattree' )
+        if board_type in capsule_auth_boards:
+            setup_capsule_auth_build(source_dir, build_dir, board_type, log)
+
         cmds = (
             ['make', o_opt, '-s', board_type + '_defconfig'],
             ['make', o_opt, '-s', '-j{}'.format(os.cpu_count())],
