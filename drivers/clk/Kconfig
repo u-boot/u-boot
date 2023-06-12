@@ -160,6 +160,7 @@ config SANDBOX_CLK_CCF
 
 config CLK_SCMI
 	bool "Enable SCMI clock driver"
+	depends on CLK
 	depends on SCMI_FIRMWARE
 	help
 	  Enable this option if you want to support clock devices exposed
