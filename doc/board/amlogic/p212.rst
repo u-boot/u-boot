@@ -50,7 +50,7 @@ the git tree published by the board vendor:
     $ make
     $ export FIPDIR=$PWD/fip
 
-Go back to mainline U-boot source tree then :
+Go back to mainline U-Boot source tree then :
 
 .. code-block:: bash
 

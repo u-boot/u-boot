@@ -68,7 +68,7 @@ Netboot
 - see also doc/SPL/README.am335x-network
 
 - set the jumper into netboot mode
-- compile the U-boot sources with:
+- compile the U-Boot sources with:
   make am335x_shc_netboot_defconfig
   make all
 - copy the images into your tftp boot directory

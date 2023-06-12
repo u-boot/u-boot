@@ -521,7 +521,7 @@ static int rela_elf32(char **argv, FILE *f)
 		uint32_t pos = rela_start + sizeof(Elf32_Rela) * i;
 		uint32_t addr, pos_dyn;
 
-		debug("\nPossition:\t%d/0x%x\n", i, pos);
+		debug("\nPosition:\t%d/0x%x\n", i, pos);
 
 		if (fseek(f, pos, SEEK_SET) < 0) {
 			fprintf(stderr, "%s: %s: seek to %" PRIx32

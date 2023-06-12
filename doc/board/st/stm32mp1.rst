@@ -345,7 +345,7 @@ Build Procedure
         - BL33=u-boot-nodtb.bin
         - BL33_CFG=u-boot.dtb
 
-     You can also update a existing FIP after U-boot compilation with fiptool,
+     You can also update a existing FIP after U-Boot compilation with fiptool,
      a tool provided by TF-A_::
 
      # fiptool update --nt-fw u-boot-nodtb.bin --hw-config u-boot.dtb fip-stm32mp157c-ev1.bin

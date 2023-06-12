@@ -35,7 +35,7 @@ enum pm_api_id {
 	PM_FPGA_LOAD = 22,
 	PM_FPGA_GET_STATUS = 23,
 	PM_GET_CHIPID = 24,
-	/* ID 25 is been used by U-boot to process secure boot images */
+	/* ID 25 is been used by U-Boot to process secure boot images */
 	/* Secure library generic API functions */
 	PM_SECURE_SHA = 26,
 	PM_SECURE_RSA = 27,

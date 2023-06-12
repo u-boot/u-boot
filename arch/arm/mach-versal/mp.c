@@ -23,7 +23,7 @@
 #define VERSAL_CRL_RST_CPU_R5_RESET_PGE_MASK	0x10
 #define VERSAL_CRLAPB_CPU_R5_CTRL_CLKACT_MASK	0x1000000
 
-void set_r5_halt_mode(u8 halt, u8 mode)
+static void set_r5_halt_mode(u8 halt, u8 mode)
 {
 	u32 tmp;
 
@@ -44,7 +44,7 @@ void set_r5_halt_mode(u8 halt, u8 mode)
 	}
 }
 
-void set_r5_tcm_mode(u8 mode)
+static void set_r5_tcm_mode(u8 mode)
 {
 	u32 tmp;
 
@@ -62,7 +62,7 @@ void set_r5_tcm_mode(u8 mode)
 	writel(tmp, &rpu_base->rpu_glbl_ctrl);
 }
 
-void release_r5_reset(u8 mode)
+static void release_r5_reset(u8 mode)
 {
 	u32 tmp;
 
@@ -77,7 +77,7 @@ void release_r5_reset(u8 mode)
 	writel(tmp, &crlapb_base->rst_cpu_r5);
 }
 
-void enable_clock_r5(void)
+static void enable_clock_r5(void)
 {
 	u32 tmp;
 

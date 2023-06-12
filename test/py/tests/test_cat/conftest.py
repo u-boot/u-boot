@@ -13,7 +13,7 @@ def cat_data(u_boot_config):
     """Set up a file system to be used in cat tests
 
     Args:
-        u_boot_config -- U-boot configuration.
+        u_boot_config -- U-Boot configuration.
     """
     mnt_point = u_boot_config.persistent_data_dir + '/test_cat'
     image_path = u_boot_config.persistent_data_dir + '/cat.img'

@@ -357,7 +357,7 @@ bit in OsIndications variable with
 
     => setenv -e -nv -bs -rt -v OsIndications =0x0000000000000004
 
-Since U-boot doesn't currently support SetVariable at runtime, its value
+Since U-Boot doesn't currently support SetVariable at runtime, its value
 won't be taken over across the reboot. If this is the case, you can skip
 this feature check with the Kconfig option (CONFIG_EFI_IGNORE_OSINDICATIONS)
 set.

@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MV_SIP_COMPHY_PLL_LOCK	0x82000003
 #define MV_SIP_COMPHY_XFI_TRAIN	0x82000004
 
-/* Used to distinguish between different possible callers (U-boot/Linux) */
+/* Used to distinguish between different possible callers (U-Boot/Linux) */
 #define COMPHY_CALLER_UBOOT			(0x1 << 21)
 
 #define COMPHY_FW_MODE_FORMAT(mode)		((mode) << 12)

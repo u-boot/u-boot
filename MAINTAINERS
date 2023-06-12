@@ -343,6 +343,7 @@ F:	drivers/rtc/armada38x.c
 F:	drivers/spi/kirkwood_spi.c
 F:	drivers/spi/mvebu_a3700_spi.c
 F:	drivers/pci/pcie_dw_mvebu.c
+F:	drivers/pci/pcie-xilinx-nwl.c
 F:	drivers/watchdog/armada-37xx-wdt.c
 F:	drivers/watchdog/orion_wdt.c
 F:	include/configs/mv-common.h
@@ -755,6 +756,7 @@ F:	drivers/spi/zynq_qspi.c
 F:	drivers/spi/zynq_spi.c
 F:	drivers/timer/cadence-ttc.c
 F:	drivers/video/seps525.c
+F:	drivers/video/zynqmp/
 F:	drivers/watchdog/cdns_wdt.c
 F:	include/zynqmppl.h
 F:	include/zynqmp_firmware.h

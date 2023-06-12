@@ -1,6 +1,6 @@
 PCAP:
 
-U-boot supports live Ethernet packet capture in PCAP(2.4) format.
+U-Boot supports live Ethernet packet capture in PCAP(2.4) format.
 This is enabled by CONFIG_CMD_PCAP.
 
 The capture is stored on physical memory, and should be copied to

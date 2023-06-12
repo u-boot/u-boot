@@ -5,7 +5,7 @@
  */
 
 / {
-	/* Keep HW order from U-boot */
+	/* Keep HW order from U-Boot */
 	aliases {
 		/delete-property/ mmc0;
 		/delete-property/ mmc1;
