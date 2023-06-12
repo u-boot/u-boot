@@ -539,20 +539,11 @@ and used by the steps highlighted below.
             ...
     }
 
-You can do step-4 manually with
-
-.. code-block:: console
-
-    $ dtc -@ -I dts -O dtb -o signature.dtbo signature.dts
-    $ fdtoverlay -i orig.dtb -o new.dtb -v signature.dtbo
-
-where signature.dts looks like::
-
-    &{/} {
-            signature {
-                    capsule-key = /incbin/("CRT.esl");
-            };
-    };
+You can perform step-4 by defining the Kconfig symbol
+CONFIG_EFI_CAPSULE_ESL_FILE. This symbol defines the path to the esl
+file generated in step-2. Once the symbol has been populated with the
+path to the esl file, the esl file will automatically get embedded
+into the platform's dtb as part of U-Boot build.
 
 Anti-rollback Protection
 ************************
