@@ -15,6 +15,7 @@
 #include <video.h>
 #include <video_console.h>
 #include <asm/test.h>
+#include <asm/sdl.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 #include <test/test.h>

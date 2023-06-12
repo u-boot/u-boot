@@ -7,6 +7,7 @@
 #define __SANDBOX_SDL_H
 
 #include <errno.h>
+#include <video.h>
 
 #ifdef CONFIG_SANDBOX_SDL
 
@@ -87,6 +88,22 @@ int sandbox_sdl_sound_stop(void);
  */
 int sandbox_sdl_sound_init(int rate, int channels);
 
+/**
+ * sandbox_sdl_set_bpp() - Set the depth of the sandbox display
+ *
+ * The device must not be active when this function is called. It activiates it
+ * before returning.
+ *
+ * This updates the depth value and adjusts a few other settings accordingly.
+ * It must be called before the display is probed.
+ *
+ * @dev: Device to adjust
+ * @l2bpp: depth to set
+ * Return: 0 if the device was already active, other error if it fails to probe
+ * after the change
+ */
+int sandbox_sdl_set_bpp(struct udevice *dev, enum video_log2_bpp l2bpp);
+
 #else
 static inline int sandbox_sdl_init_display(int width, int height, int log2_bpp,
 					   bool double_size)
@@ -132,6 +149,12 @@ static inline int sandbox_sdl_sound_stop(void)
 static inline int sandbox_sdl_sound_init(int rate, int channels)
 {
 	return -ENODEV;
+}
+
+static inline int sandbox_sdl_set_bpp(struct udevice *dev,
+				      enum video_log2_bpp l2bpp)
+{
+	return -ENOSYS;
 }
 
 #endif
