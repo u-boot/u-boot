@@ -29,13 +29,7 @@ static const char *tool_name = "mkeficapsule";
 efi_guid_t efi_guid_fm_capsule = EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
 efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 
-static const char *opts_short = "g:i:I:v:p:c:m:o:dhAR";
-
-enum {
-	CAPSULE_NORMAL_BLOB = 0,
-	CAPSULE_ACCEPT,
-	CAPSULE_REVERT,
-} capsule_type;
+static const char *opts_short = "g:i:I:v:p:c:m:o:f:dhAR";
 
 static struct option options[] = {
 	{"guid", required_argument, NULL, 'g'},
@@ -48,11 +42,21 @@ static struct option options[] = {
 	{"fw-accept", no_argument, NULL, 'A'},
 	{"fw-revert", no_argument, NULL, 'R'},
 	{"capoemflag", required_argument, NULL, 'o'},
+	{"cfg-file", required_argument, NULL, 'f'},
 	{"help", no_argument, NULL, 'h'},
 	{NULL, 0, NULL, 0},
 };
 
-static void print_usage(void)
+/**
+ * print_usage() - Print the command usage string
+ *
+ * Prints the standard command usage string. Called in the case
+ * of incorrect parameters being passed to the tool.
+ *
+ * Return: None
+ *
+ */
+void print_usage(void)
 {
 	fprintf(stderr, "Usage: %s [options] <image blob> <output file>\n"
 		"Options:\n"
@@ -67,6 +71,7 @@ static void print_usage(void)
 		"\t-A, --fw-accept  firmware accept capsule, requires GUID, no image blob\n"
 		"\t-R, --fw-revert  firmware revert capsule, takes no GUID, no image blob\n"
 		"\t-o, --capoemflag Capsule OEM Flag, an integer between 0x0000 and 0xffff\n"
+		"\t-f, --cfg-file <config file> config file with capsule parameters\n"
 		"\t-h, --help                  print a help message\n",
 		tool_name);
 }
@@ -400,10 +405,10 @@ static void free_sig_data(struct auth_context *ctx)
  * * 0  - on success
  * * -1 - on failure
  */
-static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
-			unsigned long index, unsigned long instance,
-			uint64_t mcount, char *privkey_file, char *cert_file,
-			uint16_t oemflags)
+int create_fwbin(char *path, char *bin, efi_guid_t *guid,
+		 unsigned long index, unsigned long instance,
+		 uint64_t mcount, char *privkey_file, char *cert_file,
+		 uint16_t oemflags)
 {
 	struct efi_capsule_header header;
 	struct efi_firmware_management_capsule_header capsule;
@@ -580,7 +585,21 @@ void convert_uuid_to_guid(unsigned char *buf)
 	buf[7] = c;
 }
 
-static int create_empty_capsule(char *path, efi_guid_t *guid, bool fw_accept)
+/**
+ * create_empty_capsule() - Generate an empty capsule
+ * @path: Path to the empty capsule file to be generated
+ * @guid: Guid value of the image for which empty capsule is generated
+ * @fw_accept: Flag to specify whether to generate accept or revert capsule
+ *
+ * Generate an empty capsule, either an accept or a revert capsule to be
+ * used to flag acceptance or rejection of an earlier executed firmware
+ * update operation. Being used in the FWU Multi Bank firmware update
+ * feature.
+ *
+ * Return: 0 if OK, -ve on error
+ *
+ */
+int create_empty_capsule(char *path, efi_guid_t *guid, bool fw_accept)
 {
 	struct efi_capsule_header header = { 0 };
 	FILE *f = NULL;
@@ -643,6 +662,8 @@ int main(int argc, char **argv)
 	uint64_t mcount;
 	unsigned long oemflags;
 	char *privkey_file, *cert_file;
+	char *cfg_file;
+	enum capsule_type capsule;
 	int c, idx;
 
 	guid = NULL;
@@ -651,8 +672,9 @@ int main(int argc, char **argv)
 	mcount = 0;
 	privkey_file = NULL;
 	cert_file = NULL;
+	cfg_file = NULL;
 	dump_sig = 0;
-	capsule_type = CAPSULE_NORMAL_BLOB;
+	capsule = CAPSULE_NORMAL_BLOB;
 	oemflags = 0;
 	for (;;) {
 		c = getopt_long(argc, argv, opts_short, options, &idx);
@@ -702,20 +724,20 @@ int main(int argc, char **argv)
 			dump_sig = 1;
 			break;
 		case 'A':
-			if (capsule_type) {
+			if (capsule) {
 				fprintf(stderr,
 					"Select either of Accept or Revert capsule generation\n");
 				exit(1);
 			}
-			capsule_type = CAPSULE_ACCEPT;
+			capsule = CAPSULE_ACCEPT;
 			break;
 		case 'R':
-			if (capsule_type) {
+			if (capsule) {
 				fprintf(stderr,
 					"Select either of Accept or Revert capsule generation\n");
 				exit(1);
 			}
-			capsule_type = CAPSULE_REVERT;
+			capsule = CAPSULE_REVERT;
 			break;
 		case 'o':
 			oemflags = strtoul(optarg, NULL, 0);
@@ -725,6 +747,10 @@ int main(int argc, char **argv)
 				exit(1);
 			}
 			break;
+		case 'f':
+			cfg_file = optarg;
+			capsule_with_cfg_file(cfg_file);
+			exit(EXIT_SUCCESS);
 		default:
 			print_usage();
 			exit(EXIT_SUCCESS);
@@ -732,21 +758,21 @@ int main(int argc, char **argv)
 	}
 
 	/* check necessary parameters */
-	if ((capsule_type == CAPSULE_NORMAL_BLOB &&
-	    ((argc != optind + 2) || !guid ||
-	     ((privkey_file && !cert_file) ||
-	      (!privkey_file && cert_file)))) ||
-	    (capsule_type != CAPSULE_NORMAL_BLOB &&
-	    ((argc != optind + 1) ||
-	     ((capsule_type == CAPSULE_ACCEPT) && !guid) ||
-	     ((capsule_type == CAPSULE_REVERT) && guid)))) {
+	if ((capsule == CAPSULE_NORMAL_BLOB &&
+	     ((argc != optind + 2) || !guid ||
+	      ((privkey_file && !cert_file) ||
+	       (!privkey_file && cert_file)))) ||
+	    (capsule != CAPSULE_NORMAL_BLOB &&
+	     ((argc != optind + 1) ||
+	      (capsule == CAPSULE_ACCEPT && !guid) ||
+	      (capsule == CAPSULE_REVERT && guid)))) {
 		print_usage();
 		exit(EXIT_FAILURE);
 	}
 
-	if (capsule_type != CAPSULE_NORMAL_BLOB) {
+	if (capsule != CAPSULE_NORMAL_BLOB) {
 		if (create_empty_capsule(argv[argc - 1], guid,
-					 capsule_type == CAPSULE_ACCEPT) < 0) {
+					 capsule == CAPSULE_ACCEPT) < 0) {
 			fprintf(stderr, "Creating empty capsule failed\n");
 			exit(EXIT_FAILURE);
 		}
@@ -756,6 +782,4 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Creating firmware capsule failed\n");
 		exit(EXIT_FAILURE);
 	}
-
-	exit(EXIT_SUCCESS);
 }
