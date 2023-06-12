@@ -15,7 +15,7 @@ CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyAMA0 loglevel=9 ip=dhcp earlyprintk"
-CONFIG_BOOTCOMMAND="run retrieve_kernel_load_addr; echo Loading kernel from $kernel_addr to memory ... ; loadm $kernel_addr $kernel_addr_r 0xc00000; usb start; usb reset; run distro_bootcmd; bootefi $kernel_addr_r $fdtcontroladdr;"
+CONFIG_BOOTCOMMAND="echo Loading kernel from $kernel_addr to memory ... ; loadm $kernel_addr $kernel_addr_r 0xc00000; usb start; usb reset; run distro_bootcmd; bootefi $kernel_addr_r $fdtcontroladdr;"
 CONFIG_CONSOLE_RECORD=y
 CONFIG_LOGLEVEL=7
 # CONFIG_DISPLAY_CPUINFO is not set
@@ -24,11 +24,16 @@ CONFIG_BOARD_LATE_INIT=y
 CONFIG_SYS_MAXARGS=64
 CONFIG_SYS_CBSIZE=512
 # CONFIG_CMD_CONSOLE is not set
+CONFIG_CMD_FWU_METADATA=y
 CONFIG_CMD_BOOTZ=y
 CONFIG_SYS_BOOTM_LEN=0x800000
 # CONFIG_CMD_XIMG is not set
+CONFIG_CMD_NVMXIP=y
+CONFIG_CMD_GPT=y
+# CONFIG_RANDOM_UUID is not set
 CONFIG_CMD_LOADM=y
 # CONFIG_CMD_LOADS is not set
+CONFIG_CMD_MMC=y
 CONFIG_CMD_USB=y
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_NFS is not set
@@ -40,6 +45,8 @@ CONFIG_OF_CONTROL=y
 CONFIG_VERSION_VARIABLE=y
 CONFIG_NET_RANDOM_ETHADDR=y
 CONFIG_REGMAP=y
+CONFIG_FWU_MDATA=y
+CONFIG_FWU_MDATA_GPT_BLK=y
 CONFIG_MISC=y
 # CONFIG_MMC is not set
 CONFIG_NVMXIP_QSPI=y
@@ -51,6 +58,10 @@ CONFIG_RAM=y
 CONFIG_DM_RTC=y
 CONFIG_RTC_EMULATION=y
 CONFIG_DM_SERIAL=y
+CONFIG_SYSRESET=y
 CONFIG_USB=y
 CONFIG_USB_ISP1760=y
+CONFIG_EFI_CAPSULE_ON_DISK=y
+CONFIG_EFI_IGNORE_OSINDICATIONS=y
+CONFIG_FWU_MULTI_BANK_UPDATE=y
 CONFIG_ERRNO_STR=y

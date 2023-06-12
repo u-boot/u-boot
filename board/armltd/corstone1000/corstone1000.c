@@ -10,6 +10,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <env.h>
+#include <fwu.h>
 #include <netdev.h>
 #include <nvmxip.h>
 #include <part.h>
