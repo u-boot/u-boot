@@ -54,6 +54,12 @@ typedef struct {
 /* flags */
 #define CAPSULE_FLAGS_PERSIST_ACROSS_RESET      0x00010000
 
+enum capsule_type {
+	CAPSULE_NORMAL_BLOB = 0,
+	CAPSULE_ACCEPT,
+	CAPSULE_REVERT,
+};
+
 struct efi_capsule_header {
 	efi_guid_t capsule_guid;
 	uint32_t header_size;
@@ -144,5 +150,113 @@ struct fmp_payload_header_params {
 	bool have_header;
 	uint32_t fw_version;
 };
+
+/**
+ * struct efi_capsule_params - Capsule parameters
+ * @image_guid: Guid value of the payload input image
+ * @image_index: Image index value
+ * @hardware_instance: Hardware instance to be used for the image
+ * @fmp: FMP payload header used for storing firmware version
+ * @monotonic_count: Monotonic count value to be used for signed capsule
+ * @privkey_file: Path to private key used in capsule signing
+ * @cert_file: Path to public key certificate used in capsule signing
+ * @input_file: Path to payload input image
+ * @capsule_file: Path to the output capsule file
+ * @oemflags: Oemflags to be populated in the capsule header
+ * @capsule: Capsule Type, normal or accept or revert
+ */
+struct efi_capsule_params {
+	efi_guid_t *image_guid;
+	unsigned long image_index;
+	unsigned long hardware_instance;
+	struct fmp_payload_header_params fmp;
+	uint64_t monotonic_count;
+	char *privkey_file;
+	char *cert_file;
+	char *input_file;
+	char *capsule_file;
+	unsigned long oemflags;
+	enum capsule_type capsule;
+};
+
+/**
+ * capsule_with_cfg_file() - Generate capsule from config file
+ * @cfg_file: Path to the config file
+ *
+ * Parse the capsule parameters from the config file and use the
+ * parameters for generating one or more capsules.
+ *
+ * Return: None
+ *
+ */
+void capsule_with_cfg_file(const char *cfg_file);
+
+/**
+ * convert_uuid_to_guid() - convert UUID to GUID
+ * @buf:	UUID binary
+ *
+ * UUID and GUID have the same data structure, but their binary
+ * formats are different due to the endianness. See lib/uuid.c.
+ * Since uuid_parse() can handle only UUID, this function must
+ * be called to get correct data for GUID when parsing a string.
+ *
+ * The correct data will be returned in @buf.
+ */
+void convert_uuid_to_guid(unsigned char *buf);
+
+/**
+ * create_empty_capsule() - Generate an empty capsule
+ * @path: Path to the empty capsule file to be generated
+ * @guid: Guid value of the image for which empty capsule is generated
+ * @fw_accept: Flag to specify whether to generate accept or revert capsule
+ *
+ * Generate an empty capsule, either an accept or a revert capsule to be
+ * used to flag acceptance or rejection of an earlier executed firmware
+ * update operation. Being used in the FWU Multi Bank firmware update
+ * feature.
+ *
+ * Return: 0 if OK, -ve on error
+ *
+ */
+int create_empty_capsule(char *path, efi_guid_t *guid, bool fw_accept);
+
+/**
+ * create_fwbin - create an uefi capsule file
+ * @path:	Path to a created capsule file
+ * @bin:	Path to a firmware binary to encapsulate
+ * @guid:	GUID of related FMP driver
+ * @index:	Index number in capsule
+ * @instance:	Instance number in capsule
+ * @fmp:	FMP header params
+ * @mcount:	Monotonic count in authentication information
+ * @private_file:	Path to a private key file
+ * @cert_file:	Path to a certificate file
+ * @oemflags:  Capsule OEM Flags, bits 0-15
+ *
+ * This function actually does the job of creating an uefi capsule file.
+ * All the arguments must be supplied.
+ * If either @private_file ror @cert_file is NULL, the capsule file
+ * won't be signed.
+ *
+ * Return:
+ * * 0  - on success
+ * * -1 - on failure
+ */
+int create_fwbin(char *path, char *bin, efi_guid_t *guid,
+		 unsigned long index, unsigned long instance,
+		 struct fmp_payload_header_params *fmp_ph_params,
+		 uint64_t mcount, char *privkey_file, char *cert_file,
+		 uint16_t oemflags);
+
+/**
+ * print_usage() - Print the command usage string
+ *
+ * Prints the standard command usage string. Called in the case
+ * of incorrect parameters being passed to the tool.
+ *
+ * Return: None
+ *
+ */
+void print_usage(void);
 
 #endif /* _EFI_CAPSULE_H */
