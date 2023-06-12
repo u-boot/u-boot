@@ -318,6 +318,9 @@ Run the following command
       --guid <image GUID> \
       <capsule_file_name>
 
+Capsule with firmware version
+*****************************
+
 The UEFI specification does not define the firmware versioning mechanism.
 EDK II reference implementation inserts the FMP Payload Header right before
 the payload. It coutains the fw_version and lowest supported version,
@@ -344,6 +347,19 @@ add --fw-version option in mkeficapsule tool.
 
 If the --fw-version option is not set, FMP Payload Header is not inserted
 and fw_version is set as 0.
+
+Capsule Generation through binman
+*********************************
+
+Support has also been added to generate capsules during u-boot build
+through binman. This requires the platform's DTB to be populated with
+the capsule entry nodes for binman. The capsules then can be generated
+by specifying the capsule parameters either through a config file, or
+by specifying them as properties in the capsule entry node.
+
+Check the arch/sandbox/dts/sandbox_capsule.dtsi file for the sandbox
+platform as reference for how to generate capsules through binman as
+part of u-boot build.
 
 Performing the update
 *********************
