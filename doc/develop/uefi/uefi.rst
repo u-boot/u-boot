@@ -318,6 +318,76 @@ Run the following command
       --guid <image GUID> \
       <capsule_file_name>
 
+Alternatively, the capsules can be generated through a config
+file. When generating the capsules through a config file, the Kconfig
+symbol CONFIG_EFI_CAPSULE_CFG_FILE is to be used for specifying the
+path to the config file.
+
+The config file describes the parameters that are used for generating
+one or more capsules. The parameters for a given capsule file are
+specified within curly braces, in the form of "key:value" pairs. All
+the parameters that are currently supported by the mkeficapsule tool
+can be specified through the config file.
+
+The following are some example payload parameters specified through
+the config file.
+
+.. code-block:: none
+
+	{
+	    image-guid: 02f4d760-cfd5-43bd-8e2d-a42acb33c660
+	    hardware-instance: 0
+	    monotonic-count: 1
+	    payload: u-boot.bin
+	    image-index: 1
+	    fw-version: 2
+	    private-key: /path/to/priv/key
+	    pub-key-cert: /path/to/pub/key
+	    capsule: u-boot.capsule
+	}
+	{
+	    image-guid: 4ce292da-1dd8-428d-a1c2-77743ef8b96e
+	    hardware-instance: 0
+	    payload: u-boot.itb
+	    image-index: 2
+	    fw-version: 7
+	    oemflags: 0x8000
+	    capsule: fit.capsule
+	}
+	{
+	    capsule-type: accept
+	    image-guid: 4ce292da-1dd8-428d-a1c2-77743ef8b96e
+	    capsule: accept.capsule
+	}
+	{
+	    capsule-type: revert
+	    capsule: revert.capsule
+	}
+
+The following are the keys that specify the capsule parameters
+
+..code-block:: none
+
+    image-guid: Image GUID
+    image-index: Image index value
+    fw-version: Image version
+    private-key: Path to the private key file used for capsule signing
+    pub-key-cert: Path to the public key crt file used for capsule signing
+    payload: Path to the capsule payload file
+    capsule: Path to the output capsule file that is generated
+    hardware-instance: Hardware Instance value
+    monotonic-count: Monotonic count value
+    capsule-type: Specifies capsule type. normal(default), accept or revert
+    oemflags: 16bit Oemflags value to be used(populated in capsule header)
+
+When generating capsules through a config file, the command would look
+like
+
+.. code-block:: console
+
+    $ mkeficapsule --cfg-file </path/to/the/config/file>
+
+
 Capsule with firmware version
 *****************************
 
