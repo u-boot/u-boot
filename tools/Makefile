@@ -250,6 +250,7 @@ HOSTLDLIBS_mkeficapsule += \
 HOSTLDLIBS_mkeficapsule += \
 	$(shell pkg-config --libs uuid 2> /dev/null || echo "-luuid")
 hostprogs-$(CONFIG_TOOLS_MKEFICAPSULE) += mkeficapsule
+mkeficapsule-objs := mkeficapsule.o mkeficapsule_parse.o
 
 mkfwumdata-objs := mkfwumdata.o generated/lib/crc32.o
 HOSTLDLIBS_mkfwumdata += -luuid
