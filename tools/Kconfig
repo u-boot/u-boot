@@ -98,6 +98,21 @@ config TOOLS_MKEFICAPSULE
 	  optionally sign that file. If you want to enable UEFI capsule
 	  update feature on your target, you certainly need this.
 
+config EFI_CAPSULE_CFG_FILE
+	string "Path to the EFI Capsule Config File"
+	help
+	  Path to the EFI capsule config file which provides the
+	  parameters needed to build capsule(s). Parameters can be
+	  provided for multiple payloads resulting in corresponding
+	  capsule images being generated.
+
+config EFI_USE_CAPSULE_CFG_FILE
+	bool "Use the config file for generating capsules"
+	help
+	  Boolean option used to specify if the EFI capsules are to
+	  be generated through parameters specified via the config
+	  file or through command line.
+
 menuconfig FSPI_CONF_HEADER
 	bool "FlexSPI Header Configuration"
 	help
