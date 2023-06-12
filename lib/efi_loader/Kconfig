@@ -244,7 +244,6 @@ config EFI_CAPSULE_ESL_FILE
 	  tree and used for capsule authentication at the time
 	  of capsule update.
 
-
 config EFI_DEVICE_PATH_TO_TEXT
 	bool "Device path to text protocol"
 	default y

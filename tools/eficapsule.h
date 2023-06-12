@@ -52,6 +52,25 @@ typedef struct {
 /* flags */
 #define CAPSULE_FLAGS_PERSIST_ACROSS_RESET      0x00010000
 
+enum capsule_type {
+	CAPSULE_NORMAL_BLOB = 0,
+	CAPSULE_ACCEPT,
+	CAPSULE_REVERT,
+};
+
+struct efi_capsule_params {
+	efi_guid_t *image_guid;
+	unsigned long image_index;
+	unsigned long hardware_instance;
+	uint64_t monotonic_count;
+	char *privkey_file;
+	char *cert_file;
+	char *input_file;
+	char *capsule_file;
+	unsigned long oemflags;
+	enum capsule_type capsule;
+};
+
 struct efi_capsule_header {
 	efi_guid_t capsule_guid;
 	uint32_t header_size;
@@ -112,5 +131,14 @@ struct efi_firmware_image_authentication {
 	uint64_t monotonic_count;
 	struct win_certificate_uefi_guid auth_info;
 } __packed;
+
+extern void capsule_with_cfg_file(const char *cfg_file);
+extern void convert_uuid_to_guid(unsigned char *buf);
+extern int create_empty_capsule(char *path, efi_guid_t *guid, bool fw_accept);
+extern int create_fwbin(char *path, char *bin, efi_guid_t *guid,
+			unsigned long index, unsigned long instance,
+			uint64_t mcount, char *privkey_file, char *cert_file,
+			uint16_t oemflags);
+extern void print_usage(void);
 
 #endif /* _EFI_CAPSULE_H */
