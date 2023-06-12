@@ -1151,6 +1151,13 @@ dtbs: dts/dt.dtb
 dts/dt.dtb: u-boot
 	$(Q)$(MAKE) $(build)=dts dtbs
 
+quiet_cmd_mkeficapsule = MKEFICAPSULE $@
+cmd_mkeficapsule = $(objtree)/tools/mkeficapsule $@
+
+PHONY += capsule
+capsule: tools
+	$(call cmd,mkeficapsule)
+
 quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
 

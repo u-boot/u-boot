@@ -244,6 +244,13 @@ config EFI_CAPSULE_ESL_FILE
 	  tree and used for capsule authentication at the time
 	  of capsule update.
 
+config EFI_CAPSULE_CFG_FILE
+	string "Path to the EFI Capsule Config File"
+	help
+	  Path to the EFI capsule config file which provides the
+	  parameters needed to build capsule(s). Parameters can be
+	  provided for multiple payloads resulting in corresponding
+	  capsule images being generated.
 
 config EFI_DEVICE_PATH_TO_TEXT
 	bool "Device path to text protocol"
