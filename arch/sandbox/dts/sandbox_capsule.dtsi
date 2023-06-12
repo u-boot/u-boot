@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Devicetree file for embedding ESL into test DTB
+ */
+
+&binman {
+	fdt-esl-embed {
+		esl-file = CONFIG_EFI_CAPSULE_ESL_FILE;
+		dtb = "test.dtb", "u-boot.dtb";
+		concat = "./u-boot-nodtb.bin", "./u-boot.dtb", "./u-boot.bin";
+	};
+};
