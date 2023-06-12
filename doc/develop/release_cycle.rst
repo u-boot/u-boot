@@ -70,7 +70,7 @@ For the next scheduled release, release candidates were made on::
 
 * U-Boot v2023.07-rc3 was released on Mon 29 May 2023.
 
-.. * U-Boot v2023.07-rc4 was released on Mon 05 June 2023.
+* U-Boot v2023.07-rc4 was released on Mon 12 June 2023.
 
 .. * U-Boot v2023.07-rc5 was released on Mon 19 June 2023.
 
