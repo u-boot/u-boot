@@ -38,7 +38,7 @@
 		reg = <0x88200000 0x77e00000>;
 	};
 
-	nvmxip-qspi@08000000 {
+	nvmxip: nvmxip-qspi@08000000 {
 		compatible = "nvmxip,qspi";
 		reg = <0x08000000 0x2000000>;
 		lba_shift = <9>;
@@ -104,6 +104,11 @@
 	psci {
 		compatible = "arm,psci-1.0", "arm,psci-0.2";
 		method = "smc";
+	};
+
+	fwu-mdata {
+		compatible = "u-boot,fwu-mdata-gpt";
+		fwu-mdata-store = <&nvmxip>;
 	};
 
 	soc {
