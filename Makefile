@@ -1151,6 +1151,15 @@ dtbs: dts/dt.dtb
 dts/dt.dtb: u-boot
 	$(Q)$(MAKE) $(build)=dts dtbs
 
+quiet_cmd_mkeficapsule = MKEFICAPSULE
+cmd_mkeficapsule = $(objtree)/tools/mkeficapsule --cfg-file=$(CONFIG_EFI_CAPSULE_CFG_FILE)
+
+PHONY += capsule
+capsule: tools
+ifneq ($(CONFIG_EFI_CAPSULE_CFG_FILE),"")
+	$(call cmd,mkeficapsule)
+endif
+
 quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
 
