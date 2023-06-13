@@ -370,6 +370,7 @@ static struct cmd_tbl tpm2_commands[] = {
 	U_BOOT_CMD_MKENT(dam_reset, 0, 1, do_tpm_dam_reset, "", ""),
 	U_BOOT_CMD_MKENT(dam_parameters, 0, 1, do_tpm_dam_parameters, "", ""),
 	U_BOOT_CMD_MKENT(change_auth, 0, 1, do_tpm_change_auth, "", ""),
+	U_BOOT_CMD_MKENT(autostart, 0, 1, do_tpm_autostart, "", ""),
 	U_BOOT_CMD_MKENT(pcr_setauthpolicy, 0, 1,
 			 do_tpm_pcr_setauthpolicy, "", ""),
 	U_BOOT_CMD_MKENT(pcr_setauthvalue, 0, 1,
@@ -392,8 +393,13 @@ U_BOOT_CMD(tpm2, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    Show information about the TPM.\n"
 "state\n"
 "    Show internal state from the TPM (if available)\n"
+"autostart\n"
+"    Initalize the tpm, perform a Startup(clear) and run a full selftest\n"
+"    sequence\n"
 "init\n"
 "    Initialize the software stack. Always the first command to issue.\n"
+"    'tpm startup' is the only acceptable command after a 'tpm init' has been\n"
+"    issued\n"
 "startup <mode>\n"
 "    Issue a TPM2_Startup command.\n"
 "    <mode> is one of:\n"

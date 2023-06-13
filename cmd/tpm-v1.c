@@ -655,6 +655,7 @@ TPM_COMMAND_NO_ARG(tpm_physical_disable)
 static struct cmd_tbl tpm1_commands[] = {
 	U_BOOT_CMD_MKENT(device, 0, 1, do_tpm_device, "", ""),
 	U_BOOT_CMD_MKENT(info, 0, 1, do_tpm_info, "", ""),
+	U_BOOT_CMD_MKENT(init, 0, 1, do_tpm_autostart, "", ""),
 	U_BOOT_CMD_MKENT(init, 0, 1, do_tpm_init, "", ""),
 	U_BOOT_CMD_MKENT(startup, 0, 1,
 			 do_tpm_startup, "", ""),
@@ -733,9 +734,12 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm,
 "  device [num device]\n"
 "    - Show all devices or set the specified device\n"
 "  info - Show information about the TPM\n"
+"  autostart\n"
+"    - Initalize the tpm, perform a Startup(clear) and run a full selftest\n"
+"      sequence\n"
 "  init\n"
 "    - Put TPM into a state where it waits for 'startup' command.\n"
-"  startup mode\n"
+"      startup mode\n"
 "    - Issue TPM_Starup command.  <mode> is one of TPM_ST_CLEAR,\n"
 "      TPM_ST_STATE, and TPM_ST_DEACTIVATED.\n"
 "Admin Testing Commands:\n"
