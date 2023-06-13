@@ -79,6 +79,8 @@ static int setup(const efi_handle_t img_handle,
 	efi_status_t ret;
 	efi_handle_t handle;
 
+	handle1 = NULL;
+	handle2 = NULL;
 	boottime = systable->boottime;
 
 	ret = boottime->install_protocol_interface(&handle1, &guid3,
