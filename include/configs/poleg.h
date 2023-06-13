@@ -27,6 +27,8 @@
 		"eth1addr=00:00:F7:A0:00:FD\0"   \
 		"eth2addr=00:00:F7:A0:00:FE\0"    \
 		"eth3addr=00:00:F7:A0:00:FF\0"    \
+		"console=ttyS0,115200n8\0" \
+		"earlycon=uart8250,mmio32,0xf0000000\0" \
 		"common_bootargs=setenv bootargs earlycon=${earlycon} root=/dev/ram "   \
 		"console=${console} mem=${mem} ramdisk_size=48000 basemac=${ethaddr}\0"    \
 		"sd_prog=fatload mmc 0 10000000 image-bmc; cp.b 10000000 80000000 ${filesize}\0"  \
