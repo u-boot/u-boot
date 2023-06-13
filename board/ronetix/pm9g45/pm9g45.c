@@ -67,10 +67,12 @@ static void pm9g45_nand_hw_init(void)
 
 #ifdef CFG_SYS_NAND_READY_PIN
 	/* Configure RDY/BSY */
+	gpio_request(CFG_SYS_NAND_READY_PIN, "NAND RDY/BSY");
 	gpio_direction_input(CFG_SYS_NAND_READY_PIN);
 #endif
 
 	/* Enable NandFlash */
+	gpio_request(CFG_SYS_NAND_ENABLE_PIN, "NAND enable");
 	gpio_direction_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
