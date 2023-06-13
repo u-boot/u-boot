@@ -33,7 +33,7 @@ static int npcm_otp_check_inputs(u32 arr, u32 word)
 	if (arr >= NPCM_NUM_OF_SA) {
 		if (IS_ENABLED(CONFIG_ARCH_NPCM8XX))
 			printf("\nError: npcm8XX otp includs only one bank: 0\n");
-		if (IS_ENABLED(CONFIG_ARCH_NPCM7XX))
+		if (IS_ENABLED(CONFIG_ARCH_NPCM7xx))
 			printf("\nError: npcm7XX otp includs only two banks: 0 and 1\n");
 		return -1;
 	}
