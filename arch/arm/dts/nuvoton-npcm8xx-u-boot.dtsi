@@ -289,6 +289,23 @@
 			status = "disable";
 		};
 
+		aes: aes@f0858000 {
+			compatible = "nuvoton,npcm845-aes";
+			reg = <0x0 0xf0858000 0x0 0x1000>,
+			      <0x0 0xf0851000 0x0 0x1000>;
+			status = "disabled";
+			clocks = <&clk NPCM8XX_CLK_AHB>;
+			clock-names = "clk_ahb";
+		};
+
+		sha:sha@f085a000 {
+			compatible = "nuvoton,npcm845-sha";
+			reg = <0x0 0xf085a000 0x0 0x1000>;
+			status = "disabled";
+			clocks = <&clk NPCM8XX_CLK_AHB>;
+			clock-names = "clk_ahb";
+		};
+
 		apb {
 			serial0: serial@0 {
 				compatible = "nuvoton,npcm845-uart";
@@ -417,22 +434,6 @@
 				status = "disabled";
 			};
 
-			aes: aes@f0858000 {
-				compatible = "nuvoton,npcm845-aes";
-				reg = <0x0 0xf0858000 0x0 0x1000>,
-				<0x0 0xf0851000 0x0 0x1000>;
-				status = "disabled";
-				clocks = <&clk NPCM8XX_CLK_AHB>;
-				clock-names = "clk_ahb";
-			};
-
-			sha:sha@f085a000 {
-				compatible = "nuvoton,npcm845-sha";
-				reg = <0x0 0xf085a000 0x0 0x1000>;
-				status = "disabled";
-				clocks = <&clk NPCM8XX_CLK_AHB>;
-				clock-names = "clk_ahb";
-			};
 		};
 	};
 	pinctrl: pinctrl@f0800000 {
