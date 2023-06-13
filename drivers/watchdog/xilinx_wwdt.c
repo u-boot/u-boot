@@ -191,7 +191,8 @@ static const struct wdt_ops xlnx_wwdt_ops = {
 };
 
 static const struct udevice_id xlnx_wwdt_ids[] = {
-	{ .compatible = "xlnx,versal-wwdt-1.0", },
+	{ .compatible = "xlnx,versal-wwdt", },
+	{ .compatible = "xlnx,versal-wwdt-1.0", }, /* deprecated */
 	{},
 };
 
