@@ -130,7 +130,6 @@ int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_priv *priv)
 #if defined(CONFIG_DM_GPIO)
 int cadence_qspi_versal_flash_reset(struct udevice *dev)
 {
-#ifndef CONFIG_ARCH_VERSAL_NET
 	struct gpio_desc gpio;
 	u32 reset_gpio;
 	int ret;
@@ -166,7 +165,7 @@ int cadence_qspi_versal_flash_reset(struct udevice *dev)
 	/* Set value 1 to pin */
 	dm_gpio_set_value(&gpio, 1);
 	udelay(1);
-#endif
+
 	return 0;
 }
 #else
