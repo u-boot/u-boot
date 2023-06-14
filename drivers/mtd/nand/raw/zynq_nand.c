@@ -285,7 +285,7 @@ static int zynq_nand_init_nand_flash(struct mtd_info *mtd, int option)
 {
 	struct nand_chip *nand_chip = mtd_to_nand(mtd);
 	struct nand_drv *smc = nand_get_controller_data(nand_chip);
-	u32 status;
+	int status;
 
 	/* disable interrupts */
 	writel(ZYNQ_NAND_CLR_CONFIG, &smc->reg->cfr);
@@ -332,7 +332,7 @@ static int zynq_nand_calculate_hwecc(struct mtd_info *mtd, const u8 *data,
 	struct nand_drv *smc = nand_get_controller_data(nand_chip);
 	u32 ecc_value = 0;
 	u8 ecc_reg, ecc_byte;
-	u32 ecc_status;
+	int ecc_status;
 
 	/* Wait till the ECC operation is complete */
 	ecc_status = zynq_nand_waitfor_ecc_completion(mtd);
