@@ -12648,7 +12648,7 @@ unsigned long *ps7_ddr_init_data = ps7_ddr_init_data_3_0;
 unsigned long *ps7_peripherals_init_data = ps7_peripherals_init_data_3_0;
 
 int
-ps7_post_config()
+ps7_post_config(void)
 {
   // Get the PS_VERSION on run time
   unsigned long si_ver = ps7GetSiliconVersion ();
@@ -12667,7 +12667,7 @@ ps7_post_config()
 }
 
 int
-ps7_init()
+ps7_init(void)
 {
   // Get the PS_VERSION on run time
   unsigned long si_ver = ps7GetSiliconVersion ();
