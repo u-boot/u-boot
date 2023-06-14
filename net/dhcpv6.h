@@ -38,7 +38,7 @@
 #define DUID_MAX_SIZE		DUID_LL_SIZE /* only supports DUID-LL currently */
 
 /* vendor-class-data to send in vendor clas option */
-#define DHCP6_VCI_STRING	"U-boot"
+#define DHCP6_VCI_STRING	"U-Boot"
 
 #define DHCP6_MULTICAST_ADDR	"ff02::1:2"	/* DHCP multicast address */
 
