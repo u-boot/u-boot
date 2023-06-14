@@ -114,8 +114,13 @@ static inline s64 mmc_offset(struct mmc *mmc, int copy)
 	if (IS_ENABLED(CONFIG_SYS_MMC_ENV_PART))
 		hwpart = mmc_get_env_part(mmc);
 
+#if defined(CONFIG_ENV_MMC_PARTITION)
+	str = CONFIG_ENV_MMC_PARTITION;
+#else
 	/* look for the partition in mmc CONFIG_SYS_MMC_ENV_DEV */
 	str = ofnode_conf_read_str(dt_prop.partition);
+#endif
+
 	if (str) {
 		/* try to place the environment at end of the partition */
 		err = mmc_offset_try_partition(str, copy, &val);
