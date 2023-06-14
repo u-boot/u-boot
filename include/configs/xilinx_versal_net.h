@@ -76,20 +76,24 @@
 # define BOOT_TARGET_DEVICES_DHCP(func)
 #endif
 
-#if defined(CONFIG_ZYNQMP_GQSPI) || defined(CONFIG_CADENCE_OSPI_VERSAL_NET)
-# define BOOT_TARGET_DEVICES_XSPI(func)	func(XSPI, xspi, 0)
-#else
-# define BOOT_TARGET_DEVICES_XSPI(func)
-#endif
-
-#define BOOTENV_DEV_XSPI(devtypeu, devtypel, instance) \
-	"bootcmd_xspi0=sf probe 0 0 0 && " \
+#if defined(CONFIG_ZYNQMP_GQSPI) || defined(CONFIG_CADENCE_OSPI_VERSAL)
+# define BOOT_TARGET_DEVICES_XSPI(func)	func(XSPI, xspi, 0) func(XSPI, xspi, 1)
+# define BOOTENV_DEV_SHARED_XSPI \
+	"xspi_boot=sf probe $devnum_xspi:0 0 0 && " \
 	"sf read $scriptaddr $script_offset_f $script_size_f && " \
 	"echo XSPI: Trying to boot script at ${scriptaddr} && " \
 	"source ${scriptaddr}; echo XSPI: SCRIPT FAILED: continuing...;\0"
+#else
+# define BOOT_TARGET_DEVICES_XSPI(func)
+# define BOOTENV_DEV_SHARED_XSPI
+#endif
+
+#define BOOTENV_DEV_XSPI(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "=" \
+	"devnum_xspi=" #instance "; run " #devtypel "_boot\0" \
 
 #define BOOTENV_DEV_NAME_XSPI(devtypeu, devtypel, instance) \
-	"xspi0 "
+	""
 
 #define BOOT_TARGET_DEVICES_JTAG(func)	func(JTAG, jtag, na)
 
@@ -127,6 +131,7 @@
 #define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV \
+	BOOTENV_DEV_SHARED_XSPI \
 	DFU_ALT_INFO
 #endif
 
