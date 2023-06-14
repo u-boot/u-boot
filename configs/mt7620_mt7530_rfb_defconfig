@@ -38,7 +38,6 @@ CONFIG_SYS_BOOTM_LEN=0x1000000
 CONFIG_CMD_GPIO=y
 # CONFIG_CMD_LOADS is not set
 CONFIG_CMD_SPI=y
-# CONFIG_CMD_NFS is not set
 CONFIG_CMD_MII=y
 # CONFIG_CMD_MDIO is not set
 CONFIG_OF_SPL_REMOVE_PROPS="pinctrl-0 pinctrl-names clocks clock-names interrupt-parent interrupts resets reset-names"
