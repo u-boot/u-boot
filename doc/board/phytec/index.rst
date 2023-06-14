@@ -7,3 +7,4 @@ PHYTEC
    :maxdepth: 2
 
    phycore-imx8mm
+   phycore-imx8mp
