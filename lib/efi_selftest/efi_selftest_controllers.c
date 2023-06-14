@@ -271,6 +271,8 @@ static int setup(const efi_handle_t img_handle,
 	efi_status_t ret;
 
 	boottime = systable->boottime;
+	handle_controller =  NULL;
+	handle_driver = NULL;
 
 	/* Create controller handle */
 	ret = boottime->install_protocol_interface(
@@ -402,9 +404,30 @@ static int execute(void)
 	/* Check number of child controllers */
 	ret = count_child_controllers(handle_controller, &guid_controller,
 				      &count);
-	if (ret == EFI_SUCCESS)
+	if (ret == EFI_SUCCESS || count) {
 		efi_st_error("Uninstall failed\n");
+		return EFI_ST_FAILURE;
+	}
+
+
 	return EFI_ST_SUCCESS;
+}
+
+  /*
+   * Tear down unit test.
+   *
+   */
+static int teardown(void)
+{
+	efi_status_t ret;
+	/* Uninstall binding protocol */
+	ret = boottime->uninstall_protocol_interface(handle_driver,
+						     &guid_driver_binding_protocol,
+						     &binding_interface);
+	if (ret != EFI_SUCCESS)
+		efi_st_error("Failed to uninstall protocols\n");
+
+	return ret;
 }
 
 EFI_UNIT_TEST(controllers) = {
@@ -412,4 +435,5 @@ EFI_UNIT_TEST(controllers) = {
 	.phase = EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
 	.setup = setup,
 	.execute = execute,
+	.teardown = teardown,
 };
