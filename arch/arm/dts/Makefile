@@ -416,6 +416,7 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	xilinx-versal-virt.dtb
 dtb-$(CONFIG_ARCH_VERSAL_NET) += \
 	versal-net-mini.dtb \
+	versal-net-mini-emmc.dtb \
 	versal-net-mini-ospi-single.dtb \
 	versal-net-mini-qspi-single.dtb \
 	xilinx-versal-net-virt.dtb
