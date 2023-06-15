@@ -195,7 +195,7 @@ enum boot_device get_boot_device(void)
 #define FUSE_UNIQUE_ID_WORD1 17
 void get_board_serial(struct tag_serialnr *serialnr)
 {
-	sc_err_t err;
+	int err;
 	u32 val1 = 0, val2 = 0;
 	u32 word1, word2;
 
@@ -206,13 +206,13 @@ void get_board_serial(struct tag_serialnr *serialnr)
 	word2 = FUSE_UNIQUE_ID_WORD1;
 
 	err = sc_misc_otp_fuse_read(-1, word1, &val1);
-	if (err != SC_ERR_NONE) {
+	if (err) {
 		printf("%s fuse %d read error: %d\n", __func__, word1, err);
 		return;
 	}
 
 	err = sc_misc_otp_fuse_read(-1, word2, &val2);
-	if (err != SC_ERR_NONE) {
+	if (err) {
 		printf("%s fuse %d read error: %d\n", __func__, word2, err);
 		return;
 	}

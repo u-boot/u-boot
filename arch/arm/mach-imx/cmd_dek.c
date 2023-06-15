@@ -154,7 +154,7 @@ error:
 
 static int blob_encap_dek(u32 src_addr, u32 dst_addr, u32 len)
 {
-	sc_err_t err;
+	int err;
 	sc_rm_mr_t mr_input, mr_output;
 	struct generate_key_blob_hdr hdr;
 	u8 in_size, out_size;

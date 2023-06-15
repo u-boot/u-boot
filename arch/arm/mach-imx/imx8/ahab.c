@@ -147,7 +147,7 @@ int authenticate_os_container(ulong addr)
 	}
 
 exit:
-	if (sc_seco_authenticate(-1, SC_SECO_REL_CONTAINER, 0) != SC_ERR_NONE)
+	if (sc_seco_authenticate(-1, SC_SECO_REL_CONTAINER, 0))
 		printf("Error: release container failed!\n");
 
 	return ret;
@@ -263,7 +263,7 @@ static int do_ahab_status(struct cmd_tbl *cmdtp, int flag, int argc,
 	u16 lc;
 
 	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
-	if (err != SC_ERR_NONE) {
+	if (err) {
 		printf("Error in get lifecycle\n");
 		return -EIO;
 	}
@@ -271,7 +271,7 @@ static int do_ahab_status(struct cmd_tbl *cmdtp, int flag, int argc,
 	display_life_cycle(lc);
 
 	err = sc_seco_get_event(-1, idx, &event);
-	while (err == SC_ERR_NONE) {
+	while (!err) {
 		printf("SECO Event[%u] = 0x%08X\n", idx, event);
 		display_ahab_auth_event(event);
 
@@ -312,7 +312,7 @@ static int do_ahab_close(struct cmd_tbl *cmdtp, int flag, int argc,
 		return -EACCES;
 
 	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
-	if (err != SC_ERR_NONE) {
+	if (err) {
 		printf("Error in get lifecycle\n");
 		return -EIO;
 	}
@@ -324,7 +324,7 @@ static int do_ahab_close(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	err = sc_seco_forward_lifecycle(-1, 16);
-	if (err != SC_ERR_NONE) {
+	if (err) {
 		printf("Error in forward lifecycle to OEM closed\n");
 		return -EIO;
 	}
