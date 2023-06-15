@@ -431,6 +431,11 @@ def test_efi_fit_launch(u_boot_console):
     cons = u_boot_console
     # Array slice removes leading/trailing quotes.
     sys_arch = cons.config.buildconfig.get('config_sys_arch', '"sandbox"')[1:-1]
+    if sys_arch == 'arm':
+        arm64 = cons.config.buildconfig.get('config_arm64')
+        if arm64:
+            sys_arch = 'arm64'
+
     is_sandbox = sys_arch == 'sandbox'
 
     if is_sandbox:
