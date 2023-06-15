@@ -147,7 +147,7 @@ static void enet_device_phy_reset(void)
 int setup_gpr_fec(void)
 {
 	sc_ipc_t ipc_handle = -1;
-	sc_err_t err = 0;
+	int err = 0;
 	unsigned int test;
 
 	/*
@@ -175,35 +175,35 @@ int setup_gpr_fec(void)
 	 */
 
 	err = sc_misc_set_control(ipc_handle, SC_R_ENET_1, SC_C_TXCLK, 1);
-	if (err != SC_ERR_NONE)
+	if (err)
 		printf("Error in setting up SC_C %d\n\r", SC_C_TXCLK);
 
 	sc_misc_get_control(ipc_handle, SC_R_ENET_1, SC_C_TXCLK, &test);
 	debug("TEST SC_C %d-->%d\n\r", SC_C_TXCLK, test);
 
 	err = sc_misc_set_control(ipc_handle, SC_R_ENET_1, SC_C_CLKDIV, 0);
-	if (err != SC_ERR_NONE)
+	if (err)
 		printf("Error in setting up SC_C %d\n\r", SC_C_CLKDIV);
 
 	sc_misc_get_control(ipc_handle, SC_R_ENET_1, SC_C_CLKDIV, &test);
 	debug("TEST SC_C %d-->%d\n\r", SC_C_CLKDIV, test);
 
 	err = sc_misc_set_control(ipc_handle, SC_R_ENET_1, SC_C_DISABLE_50, 0);
-	if (err != SC_ERR_NONE)
+	if (err)
 		printf("Error in setting up SC_C %d\n\r", SC_C_DISABLE_50);
 
 	sc_misc_get_control(ipc_handle, SC_R_ENET_1, SC_C_TXCLK, &test);
 	debug("TEST SC_C %d-->%d\n\r", SC_C_DISABLE_50, test);
 
 	err = sc_misc_set_control(ipc_handle, SC_R_ENET_1, SC_C_DISABLE_125, 1);
-	if (err != SC_ERR_NONE)
+	if (err)
 		printf("Error in setting up SC_C %d\n\r", SC_C_DISABLE_125);
 
 	sc_misc_get_control(ipc_handle, SC_R_ENET_1, SC_C_TXCLK, &test);
 	debug("TEST SC_C %d-->%d\n\r", SC_C_DISABLE_125, test);
 
 	err = sc_misc_set_control(ipc_handle, SC_R_ENET_1, SC_C_SEL_125, 1);
-	if (err != SC_ERR_NONE)
+	if (err)
 		printf("Error in setting up SC_C %d\n\r", SC_C_SEL_125);
 
 	sc_misc_get_control(ipc_handle, SC_R_ENET_1, SC_C_SEL_125, &test);
