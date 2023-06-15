@@ -67,6 +67,20 @@
 	};
 };
 
+&i2c5_pins {
+	bootph-pre-ram;
+	i2c-pins {
+		bootph-pre-ram;
+	};
+};
+
+&i2c5 {
+	bootph-pre-ram;
+	eeprom@50 {
+		bootph-pre-ram;
+	};
+};
+
 &binman {
 	itb {
 		fit {
