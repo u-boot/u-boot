@@ -42,7 +42,7 @@ int mu_hal_sendmsg(ulong base, u32 reg_index, u32 msg)
 
 	assert(reg_index < MU_TR_COUNT);
 
-	debug("sendmsg sr 0x%x\n", readl(&mu_base->sr));
+	debug("sendmsg tsr 0x%x\n", readl(&mu_base->tsr));
 
 	/* Wait TX register to be empty. */
 	ret = readl_poll_timeout(&mu_base->tsr, val, val & mask, 10000);
@@ -64,14 +64,24 @@ int mu_hal_receivemsg(ulong base, u32 reg_index, u32 *msg)
 	u32 mask = MU_SR_RF0_MASK << reg_index;
 	u32 val;
 	int ret;
+	u32 count = 10;
 
 	assert(reg_index < MU_RR_COUNT);
 
-	debug("receivemsg sr 0x%x\n", readl(&mu_base->sr));
+	debug("receivemsg rsr 0x%x\n", readl(&mu_base->rsr));
 
-	/* Wait RX register to be full. */
-	ret = readl_poll_timeout(&mu_base->rsr, val, val & mask, 10000);
-	if (ret < 0) {
+	do {
+		/* Wait RX register to be full. */
+		ret = readl_poll_timeout(&mu_base->rsr, val, val & mask, 1000000);
+		if (ret < 0) {
+			count--;
+			printf("mu receive msg wait %us\n", 10 - count);
+		} else {
+			break;
+		}
+	} while (count > 0);
+
+	if (count == 0) {
 		debug("%s timeout\n", __func__);
 		return -ETIMEDOUT;
 	}
