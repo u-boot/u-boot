@@ -124,15 +124,15 @@ int arch_auxiliary_core_up(u32 core_id, ulong addr)
 	printf("## Starting auxiliary core stack = 0x%08lX, pc = 0x%08lX...\n",
 	       stack, pc);
 
-	/* Set the stack and pc to M4 bootROM */
-	writel(stack, M4_BOOTROM_BASE_ADDR);
-	writel(pc, M4_BOOTROM_BASE_ADDR + 4);
+	/* Set the stack and pc to MCU bootROM */
+	writel(stack, MCU_BOOTROM_BASE_ADDR);
+	writel(pc, MCU_BOOTROM_BASE_ADDR + 4);
 
 	flush_dcache_all();
 
-	/* Enable M4 */
+	/* Enable MCU */
 	if (IS_ENABLED(CONFIG_IMX8M)) {
-		arm_smccc_smc(IMX_SIP_SRC, IMX_SIP_SRC_M4_START, 0, 0, 0, 0, 0, 0, NULL);
+		arm_smccc_smc(IMX_SIP_SRC, IMX_SIP_SRC_MCU_START, 0, 0, 0, 0, 0, 0, NULL);
 	} else {
 		clrsetbits_le32(SRC_BASE_ADDR + SRC_M4_REG_OFFSET,
 				SRC_M4C_NON_SCLR_RST_MASK, SRC_M4_ENABLE_MASK);
@@ -147,7 +147,7 @@ int arch_auxiliary_core_check_up(u32 core_id)
 	unsigned int val;
 
 	if (IS_ENABLED(CONFIG_IMX8M)) {
-		arm_smccc_smc(IMX_SIP_SRC, IMX_SIP_SRC_M4_STARTED, 0, 0, 0, 0, 0, 0, &res);
+		arm_smccc_smc(IMX_SIP_SRC, IMX_SIP_SRC_MCU_STARTED, 0, 0, 0, 0, 0, 0, &res);
 		return res.a0;
 	}
 
@@ -164,13 +164,13 @@ int arch_auxiliary_core_check_up(u32 core_id)
  * the reset vector at the head for the image, with SP and PC
  * as the first two words.
  *
- * Per the cortex-M reference manual, the reset vector of M4 needs
- * to exist at 0x0 (TCMUL). The PC and SP are the first two addresses
- * of that vector.  So to boot M4, the A core must build the M4's reset
+ * Per the cortex-M reference manual, the reset vector of M4/M7 needs
+ * to exist at 0x0 (TCMUL/IDTCM). The PC and SP are the first two addresses
+ * of that vector.  So to boot M4/M7, the A core must build the M4/M7's reset
  * vector with getting the PC and SP from image and filling them to
- * TCMUL. When M4 is kicked, it will load the PC and SP by itself.
- * The TCMUL is mapped to (M4_BOOTROM_BASE_ADDR) at A core side for
- * accessing the M4 TCMUL.
+ * TCMUL/IDTCM. When M4/M7 is kicked, it will load the PC and SP by itself.
+ * The TCMUL/IDTCM is mapped to (MCU_BOOTROM_BASE_ADDR) at A core side for
+ * accessing the M4/M7 TCMUL/IDTCM.
  */
 static int do_bootaux(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])

@@ -89,7 +89,7 @@ static void spl_dram_init(void)
 
 	printf("%s: LPDDR4 %d GiB\n", __func__, size);
 	ddr_init(dram_timing);
-	writel(size, M4_BOOTROM_BASE_ADDR);
+	writel(size, MCU_BOOTROM_BASE_ADDR);
 }
 
 #define USDHC2_CD_GPIO	IMX_GPIO_NR(2, 12)
