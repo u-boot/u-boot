@@ -22,6 +22,27 @@
 cp doc/imx/habv4/csf_examples/mx8m/csf_spl.txt csf_spl.tmp
 cp doc/imx/habv4/csf_examples/mx8m/csf_fit.txt csf_fit.tmp
 
+# update File Paths from env vars
+if ! [ -r $CSF_KEY ]; then
+	echo "Error: \$CSF_KEY not found"
+	exit 1
+fi
+if ! [ -r $IMG_KEY ]; then
+	echo "Error: \$IMG_KEY not found"
+	exit 1
+fi
+if ! [ -r $SRK_TABLE ]; then
+	echo "Error: \$SRK_TABLE not found"
+	exit 1
+fi
+sed -i "s:\$CSF_KEY:$CSF_KEY:" csf_spl.tmp
+sed -i "s:\$IMG_KEY:$IMG_KEY:" csf_spl.tmp
+sed -i "s:\$SRK_TABLE:$SRK_TABLE:" csf_spl.tmp
+sed -i "s:\$CSF_KEY:$CSF_KEY:" csf_fit.tmp
+sed -i "s:\$IMG_KEY:$IMG_KEY:" csf_fit.tmp
+sed -i "s:\$SRK_TABLE:$SRK_TABLE:" csf_fit.tmp
+
+# update SPL Blocks
 spl_block_base=$(printf "0x%x" $(( $(sed -n "/CONFIG_SPL_TEXT_BASE=/ s@.*=@@p" .config) - 0x40)) )
 spl_block_size=$(printf "0x%x" $(stat -tc %s u-boot-spl-ddr.bin))
 sed -i "/Blocks = / s@.*@  Blocks = $spl_block_base 0x0 $spl_block_size \"flash.bin\"@" csf_spl.tmp
