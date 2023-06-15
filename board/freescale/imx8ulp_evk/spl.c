@@ -123,6 +123,16 @@ void spl_board_init(void)
 	ret = ele_release_caam(0x7, &res);
 	if (ret)
 		printf("ele release caam failed %d, 0x%x\n", ret, res);
+
+	/*
+	 * RNG start only available on the A1 soc revision.
+	 * Check some JTAG register for the SoC revision.
+	 */
+	if (!is_soc_rev(CHIP_REV_1_0)) {
+		ret = ele_start_rng();
+		if (ret)
+			printf("Fail to start RNG: %d\n", ret);
+	}
 }
 
 void board_init_f(ulong dummy)

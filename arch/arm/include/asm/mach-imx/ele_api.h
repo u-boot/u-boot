@@ -149,4 +149,5 @@ int ele_get_fw_status(u32 *status, u32 *response);
 int ele_release_m33_trout(void);
 int ele_write_secure_fuse(ulong signed_msg_blk, u32 *response);
 int ele_return_lifecycle_update(ulong signed_msg_blk, u32 *response);
+int ele_start_rng(void);
 #endif
