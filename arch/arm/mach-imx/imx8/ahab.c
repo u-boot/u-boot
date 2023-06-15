@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018-2019 NXP
+ * Copyright 2018-2019, 2022 NXP
  */
 
 #include <common.h>
@@ -16,6 +16,7 @@
 #include <asm/mach-imx/image.h>
 #include <console.h>
 #include <cpu_func.h>
+#include "u-boot/sha256.h"
 #include <asm/mach-imx/ahab.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -25,6 +26,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SECO_LOCAL_SEC_SEC_SECURE_RAM_BASE  (0x60000000UL)
 
 #define SECO_PT                 2U
+#define AHAB_HASH_TYPE_MASK	0x00000700
+#define AHAB_HASH_TYPE_SHA256	0
 
 int ahab_auth_cntr_hdr(struct container_hdr *container, u16 length)
 {
@@ -128,6 +131,9 @@ int authenticate_os_container(ulong addr)
 	u16 length;
 	struct boot_img_t *img;
 	unsigned long s, e;
+#ifdef CONFIG_ARMV8_CE_SHA256
+	u8 hash_value[SHA256_SUM_LEN];
+#endif
 
 	if (addr % 4) {
 		puts("Error: Image's address is not 4 byte aligned\n");
@@ -177,9 +183,23 @@ int authenticate_os_container(ulong addr)
 
 		flush_dcache_range(s, e);
 
-		ret = ahab_verify_cntr_image(img, i);
-		if (ret)
-			goto exit;
+#ifdef CONFIG_ARMV8_CE_SHA256
+		if (((img->hab_flags & AHAB_HASH_TYPE_MASK) >> 8) == AHAB_HASH_TYPE_SHA256) {
+			sha256_csum_wd((void *)img->dst, img->size, hash_value, CHUNKSZ_SHA256);
+			err = memcmp(&img->hash, &hash_value, SHA256_SUM_LEN);
+			if (err) {
+				printf("img %d hash comparison failed, error %d\n", i, err);
+				ret = -EIO;
+				goto exit;
+			}
+		} else {
+#endif
+			ret = ahab_verify_cntr_image(img, i);
+			if (ret)
+				goto exit;
+#ifdef CONFIG_ARMV8_CE_SHA256
+		}
+#endif
 	}
 
 exit:
