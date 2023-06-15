@@ -38,146 +38,90 @@ static void init_phy(struct udevice *dev)
 }
 #endif
 
-#ifdef DEBUG
-
-#define DPNI_STATS_PER_PAGE 6
-
-static const char *dpni_statistics[][DPNI_STATS_PER_PAGE] = {
-	{
-	"DPNI_CNT_ING_ALL_FRAMES",
-	"DPNI_CNT_ING_ALL_BYTES",
-	"DPNI_CNT_ING_MCAST_FRAMES",
-	"DPNI_CNT_ING_MCAST_BYTES",
-	"DPNI_CNT_ING_BCAST_FRAMES",
-	"DPNI_CNT_ING_BCAST_BYTES",
-	}, {
-	"DPNI_CNT_EGR_ALL_FRAMES",
-	"DPNI_CNT_EGR_ALL_BYTES",
-	"DPNI_CNT_EGR_MCAST_FRAMES",
-	"DPNI_CNT_EGR_MCAST_BYTES",
-	"DPNI_CNT_EGR_BCAST_FRAMES",
-	"DPNI_CNT_EGR_BCAST_BYTES",
-	}, {
-	"DPNI_CNT_ING_FILTERED_FRAMES",
-	"DPNI_CNT_ING_DISCARDED_FRAMES",
-	"DPNI_CNT_ING_NOBUFFER_DISCARDS",
-	"DPNI_CNT_EGR_DISCARDED_FRAMES",
-	"DPNI_CNT_EGR_CNF_FRAMES",
-	""
-	},
-};
-
-static void print_dpni_stats(const char *strings[],
-			     struct dpni_statistics dpni_stats)
+static void ldpaa_eth_collect_dpni_stats(struct udevice *dev, u64 *data)
 {
-	uint64_t *stat;
-	int i;
+	union dpni_statistics dpni_stats;
+	int dpni_stats_page_size[DPNI_STATISTICS_CNT] = {
+		sizeof(dpni_stats.page_0),
+		sizeof(dpni_stats.page_1),
+		sizeof(dpni_stats.page_2),
+		sizeof(dpni_stats.page_3),
+		sizeof(dpni_stats.page_4),
+		sizeof(dpni_stats.page_5),
+		sizeof(dpni_stats.page_6),
+	};
+	int j, k, num_cnt, err, i = 0;
 
-	stat = (uint64_t *)&dpni_stats;
-	for (i = 0; i < DPNI_STATS_PER_PAGE; i++) {
-		if (strcmp(strings[i], "\0") == 0)
-			break;
-		printf("%s= %llu\n", strings[i], *stat);
-		stat++;
-	}
-}
-
-static void ldpaa_eth_get_dpni_counter(void)
-{
-	int err = 0;
-	unsigned int page = 0;
-	struct dpni_statistics dpni_stats;
-
-	printf("DPNI counters ..\n");
-	for (page = 0; page < 3; page++) {
+	for (j = 0; j <= 6; j++) {
+		/* We're not interested in pages 4 & 5 for now */
+		if (j == 4 || j == 5)
+			continue;
 		err = dpni_get_statistics(dflt_mc_io, MC_CMD_NO_FLAGS,
-					  dflt_dpni->dpni_handle, page,
-					  &dpni_stats);
-		if (err < 0) {
-			printf("dpni_get_statistics: failed:");
-			printf("%d for page[%d]\n", err, page);
-			return;
+					  dflt_dpni->dpni_handle,
+					  j, 0, &dpni_stats);
+		if (err) {
+			memset(&dpni_stats, 0, sizeof(dpni_stats));
+			printf("dpni_get_stats(%d) failed\n", j);
 		}
-		print_dpni_stats(dpni_statistics[page], dpni_stats);
+
+		num_cnt = dpni_stats_page_size[j] / sizeof(u64);
+		for (k = 0; k < num_cnt; k++)
+			*(data + i++) = dpni_stats.raw.counter[k];
 	}
 }
 
-static void ldpaa_eth_get_dpmac_counter(struct udevice *dev)
+static void ldpaa_eth_add_dpni_stats(struct udevice *dev, u64 *data)
 {
 	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
-	int err = 0;
+	int i;
+
+	for (i = 0; i < LDPAA_ETH_DPNI_NUM_STATS; i++)
+		priv->dpni_stats[i] += data[i];
+}
+
+static void ldpaa_eth_collect_dpmac_stats(struct udevice *dev, u64 *data)
+{
+	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
+	int err, i;
 	u64 value;
 
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_ING_BYTE,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_ING_BYTE failed\n");
-		return;
-	}
-	printf("\nDPMAC counters ..\n");
-	printf("DPMAC_CNT_ING_BYTE=%lld\n", value);
+	for (i = 0; i < LDPAA_ETH_DPMAC_NUM_STATS; i++) {
+		err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
+					priv->dpmac_handle, i,
+					&value);
+		if (err)
+			printf("dpmac_get_counter(%d) failed\n", i);
 
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_ING_FRAME_DISCARD,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_ING_FRAME_DISCARD failed\n");
-		return;
+		*(data + i) = value;
 	}
-	printf("DPMAC_CNT_ING_FRAME_DISCARD=%lld\n", value);
+}
 
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_ING_ALIGN_ERR,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_ING_ALIGN_ERR failed\n");
-		return;
-	}
-	printf("DPMAC_CNT_ING_ALIGN_ERR =%lld\n", value);
+static void ldpaa_eth_add_dpmac_stats(struct udevice *dev, u64 *data)
+{
+	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
+	int i;
 
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_ING_BYTE,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_ING_BYTE failed\n");
-		return;
-	}
-	printf("DPMAC_CNT_ING_BYTE=%lld\n", value);
+	for (i = 0; i < LDPAA_ETH_DPMAC_NUM_STATS; i++)
+		priv->dpmac_stats[i] += data[i];
+}
 
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_ING_ERR_FRAME,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_ING_ERR_FRAME failed\n");
-		return;
-	}
-	printf("DPMAC_CNT_ING_ERR_FRAME=%lld\n", value);
+#ifdef DEBUG
+static void ldpaa_eth_dump_dpni_stats(struct udevice *dev, u64 *data)
+{
+	int i;
 
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_EGR_BYTE ,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_EGR_BYTE failed\n");
-		return;
-	}
-	printf("DPMAC_CNT_EGR_BYTE =%lld\n", value);
+	printf("DPNI counters:\n");
+	for (i = 0; i < LDPAA_ETH_DPNI_NUM_STATS; i++)
+		printf("  %s: %llu\n", ldpaa_eth_dpni_stat_strings[i], data[i]);
+}
 
-	err = dpmac_get_counter(dflt_mc_io, MC_CMD_NO_FLAGS,
-		     priv->dpmac_handle,
-		     DPMAC_CNT_EGR_ERR_FRAME ,
-		     &value);
-	if (err < 0) {
-		printf("dpmac_get_counter: DPMAC_CNT_EGR_ERR_FRAME failed\n");
-		return;
-	}
-	printf("DPMAC_CNT_EGR_ERR_FRAME =%lld\n", value);
+static void ldpaa_eth_dump_dpmac_stats(struct udevice *dev, u64 *data)
+{
+	int i;
+
+	printf("DPMAC counters:\n");
+	for (i = 0; i < LDPAA_ETH_DPMAC_NUM_STATS; i++)
+		printf("  %s: %llu\n", ldpaa_eth_dpmac_stat_strings[i], data[i]);
 }
 #endif
 
@@ -434,7 +378,8 @@ static int ldpaa_eth_open(struct udevice *dev)
 	struct dpni_link_state link_state;
 #endif
 	int err = 0;
-	struct dpni_queue d_queue;
+	struct dpni_queue d_queue_cfg = { 0 };
+	struct dpni_queue_id d_queue;
 
 	if (eth_is_active(dev))
 		return 0;
@@ -478,7 +423,7 @@ static int ldpaa_eth_open(struct udevice *dev)
 		goto err_dpni_bind;
 
 	err = dpni_add_mac_addr(dflt_mc_io, MC_CMD_NO_FLAGS,
-				dflt_dpni->dpni_handle, plat->enetaddr);
+				dflt_dpni->dpni_handle, plat->enetaddr, 0, 0, 0);
 	if (err) {
 		printf("dpni_add_mac_addr() failed\n");
 		return err;
@@ -517,7 +462,7 @@ static int ldpaa_eth_open(struct udevice *dev)
 	memset(&d_queue, 0, sizeof(struct dpni_queue));
 	err = dpni_get_queue(dflt_mc_io, MC_CMD_NO_FLAGS,
 			     dflt_dpni->dpni_handle, DPNI_QUEUE_RX,
-			     0, 0, &d_queue);
+			     0, 0, &d_queue_cfg, &d_queue);
 	if (err) {
 		printf("dpni_get_queue failed\n");
 		goto err_get_queue;
@@ -526,7 +471,7 @@ static int ldpaa_eth_open(struct udevice *dev)
 	priv->rx_dflt_fqid = d_queue.fqid;
 
 	err = dpni_get_qdid(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpni->dpni_handle,
-			    &priv->tx_qdid);
+			    DPNI_QUEUE_TX, &priv->tx_qdid);
 	if (err) {
 		printf("dpni_get_qdid() failed\n");
 		goto err_qdid;
@@ -556,14 +501,30 @@ static void ldpaa_eth_stop(struct udevice *dev)
 	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
 	struct phy_device *phydev = NULL;
 	int err = 0;
+	u64 *data;
 
 	if (!eth_is_active(dev))
 		return;
 
+	data = kzalloc(sizeof(u64) * LDPAA_ETH_DPNI_NUM_STATS, GFP_KERNEL);
+	if (data) {
+		ldpaa_eth_collect_dpni_stats(dev, data);
+		ldpaa_eth_add_dpni_stats(dev, data);
 #ifdef DEBUG
-	ldpaa_eth_get_dpni_counter();
-	ldpaa_eth_get_dpmac_counter(dev);
+		ldpaa_eth_dump_dpni_stats(dev, data);
 #endif
+	}
+	kfree(data);
+
+	data = kzalloc(sizeof(u64) * LDPAA_ETH_DPMAC_NUM_STATS, GFP_KERNEL);
+	if (data) {
+		ldpaa_eth_collect_dpmac_stats(dev, data);
+		ldpaa_eth_add_dpmac_stats(dev, data);
+#ifdef DEBUG
+		ldpaa_eth_dump_dpmac_stats(dev, data);
+#endif
+	}
+	kfree(data);
 
 	err = dprc_disconnect(dflt_mc_io, MC_CMD_NO_FLAGS,
 			      dflt_dprc_handle, &dpmac_endpoint);
@@ -885,7 +846,7 @@ static int ldpaa_dpni_setup(struct ldpaa_eth_priv *priv)
 	/* ...rx, ... */
 	err = dpni_set_buffer_layout(dflt_mc_io, MC_CMD_NO_FLAGS,
 				     dflt_dpni->dpni_handle,
-				     &dflt_dpni->buf_layout, DPNI_QUEUE_RX);
+				     DPNI_QUEUE_RX, &dflt_dpni->buf_layout);
 	if (err) {
 		printf("dpni_set_buffer_layout() failed");
 		goto err_buf_layout;
@@ -897,7 +858,7 @@ static int ldpaa_dpni_setup(struct ldpaa_eth_priv *priv)
 				      DPNI_BUF_LAYOUT_OPT_PARSER_RESULT);
 	err = dpni_set_buffer_layout(dflt_mc_io, MC_CMD_NO_FLAGS,
 				     dflt_dpni->dpni_handle,
-				     &dflt_dpni->buf_layout, DPNI_QUEUE_TX);
+				     DPNI_QUEUE_TX, &dflt_dpni->buf_layout);
 	if (err) {
 		printf("dpni_set_buffer_layout() failed");
 		goto err_buf_layout;
@@ -907,8 +868,7 @@ static int ldpaa_dpni_setup(struct ldpaa_eth_priv *priv)
 	dflt_dpni->buf_layout.options &= ~DPNI_BUF_LAYOUT_OPT_PRIVATE_DATA_SIZE;
 	err = dpni_set_buffer_layout(dflt_mc_io, MC_CMD_NO_FLAGS,
 				     dflt_dpni->dpni_handle,
-				     &dflt_dpni->buf_layout,
-				     DPNI_QUEUE_TX_CONFIRM);
+				     DPNI_QUEUE_TX_CONFIRM, &dflt_dpni->buf_layout);
 	if (err) {
 		printf("dpni_set_buffer_layout() failed");
 		goto err_buf_layout;
@@ -963,7 +923,7 @@ static int ldpaa_dpni_bind(struct ldpaa_eth_priv *priv)
 
 	err = dpni_set_queue(dflt_mc_io, MC_CMD_NO_FLAGS,
 			     dflt_dpni->dpni_handle,
-			     DPNI_QUEUE_TX, 0, 0, &tx_queue);
+			     DPNI_QUEUE_TX, 0, 0, 0, &tx_queue);
 
 	if (err) {
 		printf("dpni_set_queue() failed\n");
@@ -972,7 +932,7 @@ static int ldpaa_dpni_bind(struct ldpaa_eth_priv *priv)
 
 	err = dpni_set_tx_confirmation_mode(dflt_mc_io, MC_CMD_NO_FLAGS,
 					    dflt_dpni->dpni_handle,
-					    DPNI_CONF_DISABLE);
+					    0, DPNI_CONF_DISABLE);
 	if (err) {
 		printf("dpni_set_tx_confirmation_mode() failed\n");
 		return err;
@@ -1038,11 +998,47 @@ static int ldpaa_eth_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static int ldpaa_eth_get_sset_count(struct udevice *dev)
+{
+	return LDPAA_ETH_DPNI_NUM_STATS + LDPAA_ETH_DPMAC_NUM_STATS;
+}
+
+static void ldpaa_eth_get_strings(struct udevice *dev, u8 *data)
+{
+	u8 *p = data;
+	int i;
+
+	for (i = 0; i < LDPAA_ETH_DPNI_NUM_STATS; i++) {
+		strlcpy(p, ldpaa_eth_dpni_stat_strings[i], ETH_GSTRING_LEN);
+		p += ETH_GSTRING_LEN;
+	}
+
+	for (i = 0; i < LDPAA_ETH_DPMAC_NUM_STATS; i++) {
+		strlcpy(p, ldpaa_eth_dpmac_stat_strings[i], ETH_GSTRING_LEN);
+		p += ETH_GSTRING_LEN;
+	}
+}
+
+static void ldpaa_eth_get_stats(struct udevice *dev, u64 *data)
+{
+	struct ldpaa_eth_priv *priv = dev_get_priv(dev);
+	int i, j = 0;
+
+	for (i = 0; i < LDPAA_ETH_DPNI_NUM_STATS; i++)
+		*(data + j++) = priv->dpni_stats[i];
+
+	for (i = 0; i < LDPAA_ETH_DPMAC_NUM_STATS; i++)
+		*(data + j++) = priv->dpmac_stats[i];
+}
+
 static const struct eth_ops ldpaa_eth_ops = {
-	.start	= ldpaa_eth_open,
-	.send	= ldpaa_eth_tx,
-	.recv	= ldpaa_eth_pull_dequeue_rx,
-	.stop	= ldpaa_eth_stop,
+	.start = ldpaa_eth_open,
+	.send = ldpaa_eth_tx,
+	.recv = ldpaa_eth_pull_dequeue_rx,
+	.stop = ldpaa_eth_stop,
+	.get_sset_count = ldpaa_eth_get_sset_count,
+	.get_strings = ldpaa_eth_get_strings,
+	.get_stats = ldpaa_eth_get_stats,
 };
 
 static const struct udevice_id ldpaa_eth_of_ids[] = {

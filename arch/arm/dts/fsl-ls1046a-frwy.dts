@@ -2,7 +2,7 @@
 /*
  * Device Tree Include file for NXP Layerscape-1046A family SoC.
  *
- * Copyright 2019 NXP
+ * Copyright 2019-2023 NXP
  *
  */
 
@@ -33,4 +33,50 @@
 
 &i2c0 {
 	status = "okay";
+};
+
+#include "fsl-ls1046-post.dtsi"
+
+&fman0 {
+	ethernet@e0000 {
+		phy-handle = <&qsgmii_phy4>;
+		phy-connection-type = "qsgmii";
+		status = "okay";
+	};
+
+	ethernet@e8000 {
+		phy-handle = <&qsgmii_phy2>;
+		phy-connection-type = "qsgmii";
+		status = "okay";
+	};
+
+	ethernet@ea000 {
+		phy-handle = <&qsgmii_phy1>;
+		phy-connection-type = "qsgmii";
+		status = "okay";
+	};
+
+	ethernet@f2000 {
+		phy-handle = <&qsgmii_phy3>;
+		phy-connection-type = "qsgmii";
+		status = "okay";
+	};
+
+	mdio@fd000 {
+		qsgmii_phy1: ethernet-phy@1c {
+			reg = <0x1c>;
+		};
+
+		qsgmii_phy2: ethernet-phy@1d {
+			reg = <0x1d>;
+		};
+
+		qsgmii_phy3: ethernet-phy@1e {
+			reg = <0x1e>;
+		};
+
+		qsgmii_phy4: ethernet-phy@1f {
+			reg = <0x1f>;
+		};
+	};
 };

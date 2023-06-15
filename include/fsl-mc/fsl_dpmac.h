@@ -21,74 +21,59 @@
 #define DPMAC_CMDID_DESTROY			0x98c1
 #define DPMAC_CMDID_GET_API_VERSION             0xa0c1
 
-#define DPMAC_CMDID_GET_ATTR			0x0041
 #define DPMAC_CMDID_RESET			0x0051
 
-#define DPMAC_CMDID_MDIO_READ			0x0c01
-#define DPMAC_CMDID_MDIO_WRITE			0x0c11
-#define DPMAC_CMDID_GET_LINK_CFG		0x0c21
 #define DPMAC_CMDID_SET_LINK_STATE		0x0c31
 #define DPMAC_CMDID_GET_COUNTER			0x0c41
 
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_CMD_CREATE(cmd, cfg) \
-	MC_CMD_OP(cmd, 0, 0,  16, uint16_t,      cfg->mac_id)
+/* Macros for accessing command fields smaller than 1byte */
+#define DPMAC_MASK(field)        \
+	GENMASK(DPMAC_##field##_SHIFT + DPMAC_##field##_SIZE - 1, \
+		DPMAC_##field##_SHIFT)
+#define dpmac_set_field(var, field, val) \
+	((var) |= (((val) << DPMAC_##field##_SHIFT) & DPMAC_MASK(field)))
+#define dpmac_get_field(var, field)      \
+	(((var) & DPMAC_MASK(field)) >> DPMAC_##field##_SHIFT)
 
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_CMD_OPEN(cmd, dpmac_id) \
-	MC_CMD_OP(cmd, 0, 0,  32, int,	    dpmac_id)
+#pragma pack(push, 1)
+struct dpmac_cmd_open {
+	__le32 dpmac_id;
+};
 
-/*                cmd, param, offset, width, type,	arg_name */
-#define DPMAC_RSP_GET_ATTRIBUTES(cmd, attr) \
-do { \
-	MC_RSP_OP(cmd, 0, 0,  32, int,			attr->phy_id);\
-	MC_RSP_OP(cmd, 0, 32, 32, int,			attr->id);\
-	MC_RSP_OP(cmd, 1, 32,  8, enum dpmac_link_type,	attr->link_type);\
-	MC_RSP_OP(cmd, 1, 40,  8, enum dpmac_eth_if,	attr->eth_if);\
-	MC_RSP_OP(cmd, 2, 0,  32, uint32_t,		attr->max_rate);\
-} while (0)
+struct dpmac_cmd_create {
+	__le32 mac_id;
+};
 
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_CMD_MDIO_READ(cmd, cfg) \
-do { \
-	MC_CMD_OP(cmd, 0, 0,  8,  uint8_t,  cfg->phy_addr); \
-	MC_CMD_OP(cmd, 0, 8,  8,  uint8_t,  cfg->reg); \
-} while (0)
+struct dpmac_cmd_destroy {
+	__le32 dpmac_id;
+};
 
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_RSP_MDIO_READ(cmd, data) \
-	MC_RSP_OP(cmd, 0, 16, 16, uint16_t, data)
+#define DPMAC_STATE_SIZE		1
+#define DPMAC_STATE_SHIFT		0
+#define DPMAC_STATE_VALID_SIZE		1
+#define DPMAC_STATE_VALID_SHIFT		1
 
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_CMD_MDIO_WRITE(cmd, cfg) \
-do { \
-	MC_CMD_OP(cmd, 0, 0,  8,  uint8_t,  cfg->phy_addr); \
-	MC_CMD_OP(cmd, 0, 8,  8,  uint8_t,  cfg->reg); \
-	MC_CMD_OP(cmd, 0, 16, 16, uint16_t, cfg->data); \
-} while (0)
+struct dpmac_cmd_set_link_state {
+	__le64 options;
+	__le32 rate;
+	__le32 pad;
+	/* only least significant bit is valid */
+	u8 up;
+	u8 pad0[7];
+	__le64 supported;
+	__le64 advertising;
+};
 
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_RSP_GET_LINK_CFG(cmd, cfg) \
-do { \
-	MC_RSP_OP(cmd, 0, 0,  64, uint64_t, cfg->options); \
-	MC_RSP_OP(cmd, 1, 0,  32, uint32_t, cfg->rate); \
-} while (0)
+struct dpmac_cmd_get_counter {
+	u8 type;
+};
 
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_CMD_SET_LINK_STATE(cmd, cfg) \
-do { \
-	MC_CMD_OP(cmd, 0, 0,  64, uint64_t, cfg->options); \
-	MC_CMD_OP(cmd, 1, 0,  32, uint32_t, cfg->rate); \
-	MC_CMD_OP(cmd, 2, 0,  1,  int,      cfg->up); \
-} while (0)
+struct dpmac_rsp_get_counter {
+	__le64 pad;
+	__le64 counter;
+};
 
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_CMD_GET_COUNTER(cmd, type) \
-	MC_CMD_OP(cmd, 1, 0,  64, enum dpmac_counter, type)
-
-/*                cmd, param, offset, width, type, arg_name */
-#define DPMAC_RSP_GET_COUNTER(cmd, counter) \
-	MC_RSP_OP(cmd, 1, 0, 64, uint64_t, counter)
+#pragma pack(pop)
 
 /* Data Path MAC API
  * Contains initialization APIs and runtime control APIs for DPMAC
@@ -96,42 +81,27 @@ do { \
 
 struct fsl_mc_io;
 
-/**
- * dpmac_open() - Open a control session for the specified object.
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @dpmac_id:	DPMAC unique ID
- * @token:	Returned token; use in subsequent API calls
- *
- * This function can be used to open a control session for an
- * already created object; an object may have been declared in
- * the DPL or by calling the dpmac_create function.
- * This function returns a unique authentication token,
- * associated with the specific object ID and the specific MC
- * portal; this token must be used in all subsequent commands for
- * this specific object
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpmac_open(struct fsl_mc_io	*mc_io,
-	       uint32_t		cmd_flags,
-	       int			dpmac_id,
-	       uint16_t		*token);
+int dpmac_open(struct fsl_mc_io *mc_io, u32 cmd_flags, int dpmac_id, u16 *token);
+
+int dpmac_close(struct fsl_mc_io *mc_io, u32 cmd_flags, u16 token);
 
 /**
- * dpmac_close() - Close the control session of the object
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPMAC object
- *
- * After this function is called, no further operations are
- * allowed on the object without opening a new control session.
- *
- * Return:	'0' on Success; Error code otherwise.
+ * struct dpmac_cfg - Structure representing DPMAC configuration
+ * @mac_id:	Represents the Hardware MAC ID; in case of multiple WRIOP,
+ *		the MAC IDs are continuous.
+ *		For example:  2 WRIOPs, 16 MACs in each:
+ *				MAC IDs for the 1st WRIOP: 1-16,
+ *				MAC IDs for the 2nd WRIOP: 17-32.
  */
-int dpmac_close(struct fsl_mc_io	*mc_io,
-		uint32_t		cmd_flags,
-		uint16_t		token);
+struct dpmac_cfg {
+	int mac_id;
+};
+
+int dpmac_create(struct fsl_mc_io *mc_io, u16 dprc_token, u32 cmd_flags,
+		 const struct dpmac_cfg *cfg, u32 *obj_id);
+
+int dpmac_destroy(struct fsl_mc_io *mc_io, u16 dprc_token, u32 cmd_flags,
+		  u32 object_id);
 
 /**
  * enum dpmac_link_type -  DPMAC link type
@@ -171,60 +141,6 @@ enum dpmac_eth_if {
 	DPMAC_ETH_IF_XFI
 };
 
-/**
- * struct dpmac_cfg - Structure representing DPMAC configuration
- * @mac_id:	Represents the Hardware MAC ID; in case of multiple WRIOP,
- *		the MAC IDs are continuous.
- *		For example:  2 WRIOPs, 16 MACs in each:
- *				MAC IDs for the 1st WRIOP: 1-16,
- *				MAC IDs for the 2nd WRIOP: 17-32.
- */
-struct dpmac_cfg {
-	int mac_id;
-};
-
-/**
- * dpmac_create() - Create the DPMAC object.
- * @mc_io:	Pointer to MC portal's I/O object
- * @token:	Authentication token.
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @cfg:	Configuration structure
- * @obj_id:	Returned obj_id; use in subsequent API calls
- *
- * Create the DPMAC object, allocate required resources and
- * perform required initialization.
- *
- * The object can be created either by declaring it in the
- * DPL file, or by calling this function.
- * This function returns a unique authentication token,
- * associated with the specific object ID and the specific MC
- * portal; this token must be used in all subsequent calls to
- * this specific object. For objects that are created using the
- * DPL file, call dpmac_open function to get an authentication
- * token first.
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpmac_create(struct fsl_mc_io	*mc_io,
-		 uint16_t		token,
-		 uint32_t		cmd_flags,
-		 const struct dpmac_cfg	*cfg,
-		 uint32_t		*obj_id);
-
-/**
- * dpmac_destroy() - Destroy the DPMAC object and release all its resources.
- * @mc_io:	Pointer to MC portal's I/O object
- * @token:	Authentication token.
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @obj_id:	DPMAC object id
- *
- * Return:	'0' on Success; error code otherwise.
- */
-int dpmac_destroy(struct fsl_mc_io	*mc_io,
-		  uint16_t		token,
-		  uint32_t		cmd_flags,
-		  uint32_t		obj_id);
-
 /* DPMAC IRQ Index and Events */
 
 /* IRQ index */
@@ -248,64 +164,8 @@ struct dpmac_attr {
 	int			phy_id;
 	enum dpmac_link_type	link_type;
 	enum dpmac_eth_if	eth_if;
-	uint32_t		max_rate;
+	u32		max_rate;
 };
-
-/**
- * dpmac_get_attributes - Retrieve DPMAC attributes.
- *
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPMAC object
- * @attr:	Returned object's attributes
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpmac_get_attributes(struct fsl_mc_io	*mc_io,
-			 uint32_t		cmd_flags,
-			 uint16_t		token,
-			 struct dpmac_attr	*attr);
-
-/**
- * struct dpmac_mdio_cfg - DPMAC MDIO read/write parameters
- * @phy_addr: MDIO device address
- * @reg: Address of the register within the Clause 45 PHY device from which data
- *	is to be read
- * @data: Data read/write from/to MDIO
- */
-struct dpmac_mdio_cfg {
-	uint8_t		phy_addr;
-	uint8_t		reg;
-	uint16_t	data;
-};
-
-/**
- * dpmac_mdio_read() - Perform MDIO read transaction
- * @mc_io:	Pointer to opaque I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPMAC object
- * @cfg:	Structure with MDIO transaction parameters
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpmac_mdio_read(struct fsl_mc_io		*mc_io,
-		    uint32_t			cmd_flags,
-		    uint16_t			token,
-		    struct dpmac_mdio_cfg	*cfg);
-
-/**
- * dpmac_mdio_write() - Perform MDIO write transaction
- * @mc_io:	Pointer to opaque I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPMAC object
- * @cfg:	Structure with MDIO transaction parameters
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpmac_mdio_write(struct fsl_mc_io		*mc_io,
-		     uint32_t			cmd_flags,
-		     uint16_t			token,
-		     struct dpmac_mdio_cfg	*cfg);
 
 /* DPMAC link configuration/state options */
 
@@ -319,55 +179,25 @@ int dpmac_mdio_write(struct fsl_mc_io		*mc_io,
 #define DPMAC_LINK_OPT_ASYM_PAUSE	0x0000000000000008ULL
 
 /**
- * struct dpmac_link_cfg - Structure representing DPMAC link configuration
- * @rate: Link's rate - in Mbps
- * @options: Enable/Disable DPMAC link cfg features (bitmap)
- */
-struct dpmac_link_cfg {
-	uint32_t rate;
-	uint64_t options;
-};
-
-/**
- * dpmac_get_link_cfg() - Get Ethernet link configuration
- * @mc_io:	Pointer to opaque I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPMAC object
- * @cfg:	Returned structure with the link configuration
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpmac_get_link_cfg(struct fsl_mc_io	*mc_io,
-		       uint32_t		cmd_flags,
-		       uint16_t		token,
-		       struct dpmac_link_cfg	*cfg);
-
-/**
  * struct dpmac_link_state - DPMAC link configuration request
  * @rate: Rate in Mbps
  * @options: Enable/Disable DPMAC link cfg features (bitmap)
  * @up: Link state
+ * @state_valid: Ignore/Update the state of the link
+ * @supported: Speeds capability of the phy (bitmap)
+ * @advertising: Speeds that are advertised for autoneg (bitmap)
  */
 struct dpmac_link_state {
-	uint32_t	rate;
-	uint64_t	options;
-	int		up;
+	u32 rate;
+	u64 options;
+	int up;
+	int state_valid;
+	u64 supported;
+	u64 advertising;
 };
 
-/**
- * dpmac_set_link_state() - Set the Ethernet link status
- * @mc_io:	Pointer to opaque I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPMAC object
- * @link_state:	Link state configuration
- *
- * Return:	'0' on Success; Error code otherwise.
- */
-int dpmac_set_link_state(struct fsl_mc_io		*mc_io,
-			 uint32_t			cmd_flags,
-			 uint16_t			token,
-			 struct dpmac_link_state	*link_state);
-
+int dpmac_set_link_state(struct fsl_mc_io *mc_io, u32 cmd_flags, u16 token,
+			 struct dpmac_link_state *link_state);
 /**
  * enum dpni_counter - DPNI counter types
  * @DPMAC_CNT_ING_FRAME_64: counts 64-octet frame, good or bad.
@@ -412,6 +242,8 @@ int dpmac_set_link_state(struct fsl_mc_io		*mc_io,
  * @DPMAC_CNT_EGR_ERR_FRAME: counts frame transmitted with an error
  * @DPMAC_CNT_ING_GOOD_FRAME: counts frame received without error, including
  *			      pause frames.
+ * @DPMAC_CNT_EGR_GOOD_FRAME: counts frames transmitted without error, including
+ *			      pause frames.
  */
 enum dpmac_counter {
 	DPMAC_CNT_ING_FRAME_64,
@@ -440,37 +272,14 @@ enum dpmac_counter {
 	DPMAC_CNT_EGR_BCAST_FRAME,
 	DPMAC_CNT_EGR_UCAST_FRAME,
 	DPMAC_CNT_EGR_ERR_FRAME,
-	DPMAC_CNT_ING_GOOD_FRAME
+	DPMAC_CNT_ING_GOOD_FRAME,
+	DPMAC_CNT_EGR_GOOD_FRAME,
 };
 
-/**
- * dpmac_get_counter() - Read a specific DPMAC counter
- * @mc_io:	Pointer to opaque I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @token:	Token of DPMAC object
- * @type:	The requested counter
- * @counter:	Returned counter value
- *
- * Return:	The requested counter; '0' otherwise.
- */
-int dpmac_get_counter(struct fsl_mc_io		*mc_io,
-		      uint32_t			cmd_flags,
-		      uint16_t			token,
-		      enum dpmac_counter	 type,
-		      uint64_t			*counter);
-/**
- * dpmac_get_api_version - Retrieve DPMAC Major and Minor version info.
- *
- * @mc_io:	Pointer to MC portal's I/O object
- * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
- * @major_ver:	DPMAC major version
- * @minor_ver:	DPMAC minor version
- *
- * Return:     '0' on Success; Error code otherwise.
- */
-int dpmac_get_api_version(struct fsl_mc_io *mc_io,
-			  uint32_t cmd_flags,
-			  uint16_t *major_ver,
-			  uint16_t *minor_ver);
+int dpmac_get_counter(struct fsl_mc_io *mc_io, u32 cmd_flags, u16 token,
+		      enum dpmac_counter type, u64 *counter);
+
+int dpmac_get_api_version(struct fsl_mc_io *mc_io, u32 cmd_flags,
+			  u16 *major_ver, u16 *minor_ver);
 
 #endif /* __FSL_DPMAC_H */
