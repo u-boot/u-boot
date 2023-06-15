@@ -62,7 +62,7 @@ Now build the U-Boot SPL and U-Boot proper
 .. code-block:: console
 
 	cd <U-Boot-dir>
-	make starfive_visionfive2_13b_defconfig
+	make starfive_visionfive2_defconfig
 	make OPENSBI=$(opensbi_dir)/opensbi/build/platform/generic/firmware/fw_dynamic.bin
 
 This will generate spl/u-boot-spl.bin and FIT image (u-boot.itb)
@@ -118,7 +118,7 @@ Program the SD card
 	sudo cp u-boot.itb /mnt/
 	sudo cp Image.gz /mnt/
 	sudo cp initramfs.cpio.gz /mnt/
-	sudo cp jh7110-starfive-visionfive-2-v1.3b.dtb /mnt/
+	sudo cp jh7110-starfive-visionfive-2.dtb /mnt/
 	sudo umount /mnt
 
 Booting
@@ -264,7 +264,7 @@ Sample boot log from StarFive VisionFive2 board
 
 	StarFive #fatload mmc 1:3 ${kernel_addr_r} Image.gz
 	6429424 bytes read in 394 ms (15.6 MiB/s)
-	StarFive #fatload mmc 1:3 ${fdt_addr_r} jh7110-starfive-visionfive-2-v1.3b.dtb
+	StarFive #fatload mmc 1:3 ${fdt_addr_r} jh7110-starfive-visionfive-2.dtb
 	11285 bytes read in 5 ms (2.2 MiB/s)
 	StarFive #fatload mmc 1:3 ${ramdisk_addr_r} initramfs.cpio.gz
 	152848495 bytes read in 9271 ms (15.7 MiB/s)
