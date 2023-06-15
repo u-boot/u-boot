@@ -217,8 +217,8 @@ int upower_init(void)
 	 * CM33 Cache
 	 * PowerQuad RAM
 	 * ETF RAM
-	 * Sentinel PKC, Data RAM1, Inst RAM0/1
-	 * Sentinel ROM
+	 * ELE PKC, Data RAM1, Inst RAM0/1
+	 * ELE ROM
 	 * uPower IRAM/DRAM
 	 * uPower ROM
 	 * CM33 ROM
@@ -230,7 +230,7 @@ int upower_init(void)
 	 * SSRAM Partition 7_a(128KB)
 	 * SSRAM Partition 7_b(64KB)
 	 * SSRAM Partition 7_c(64KB)
-	 * Sentinel Data RAM0, Inst RAM2
+	 * ELE Data RAM0, Inst RAM2
 	 */
 	/* MIPI-CSI FIFO BIT28 not set */
 	memon = 0x3FFFFFEFFFFFFCUL;

@@ -9,25 +9,25 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <dm.h>
-#include <asm/mach-imx/s400_api.h>
+#include <asm/mach-imx/ele_api.h>
 #include <misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int ahab_release_rdc(u8 core_id, u8 xrdc, u32 *response)
+int ele_release_rdc(u8 core_id, u8 xrdc, u32 *response)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 2;
 	msg.command = ELE_RELEASE_RDC_REQ;
 	switch (xrdc) {
@@ -59,20 +59,20 @@ int ahab_release_rdc(u8 core_id, u8 xrdc, u32 *response)
 	return ret;
 }
 
-int ahab_auth_oem_ctnr(ulong ctnr_addr, u32 *response)
+int ele_auth_oem_ctnr(ulong ctnr_addr, u32 *response)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 3;
 	msg.command = ELE_OEM_CNTN_AUTH_REQ;
 	msg.data[0] = upper_32_bits(ctnr_addr);
@@ -89,20 +89,20 @@ int ahab_auth_oem_ctnr(ulong ctnr_addr, u32 *response)
 	return ret;
 }
 
-int ahab_release_container(u32 *response)
+int ele_release_container(u32 *response)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 1;
 	msg.command = ELE_RELEASE_CONTAINER_REQ;
 
@@ -117,20 +117,20 @@ int ahab_release_container(u32 *response)
 	return ret;
 }
 
-int ahab_verify_image(u32 img_id, u32 *response)
+int ele_verify_image(u32 img_id, u32 *response)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 2;
 	msg.command = ELE_VERIFY_IMAGE_REQ;
 	msg.data[0] = 1 << img_id;
@@ -146,20 +146,20 @@ int ahab_verify_image(u32 img_id, u32 *response)
 	return ret;
 }
 
-int ahab_forward_lifecycle(u16 life_cycle, u32 *response)
+int ele_forward_lifecycle(u16 life_cycle, u32 *response)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 2;
 	msg.command = ELE_FWD_LIFECYCLE_UP_REQ;
 	msg.data[0] = life_cycle;
@@ -175,15 +175,15 @@ int ahab_forward_lifecycle(u16 life_cycle, u32 *response)
 	return ret;
 }
 
-int ahab_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *response)
+int ele_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *response)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
@@ -198,8 +198,8 @@ int ahab_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *respo
 		return -EINVAL;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 2;
 	msg.command = ELE_READ_FUSE_REQ;
 	msg.data[0] = fuse_id;
@@ -223,20 +223,20 @@ int ahab_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *respo
 	return ret;
 }
 
-int ahab_write_fuse(u16 fuse_id, u32 fuse_val, bool lock, u32 *response)
+int ele_write_fuse(u16 fuse_id, u32 fuse_val, bool lock, u32 *response)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 3;
 	msg.command = ELE_WRITE_FUSE_REQ;
 	msg.data[0] = (32 << 16) | (fuse_id << 5);
@@ -256,20 +256,20 @@ int ahab_write_fuse(u16 fuse_id, u32 fuse_val, bool lock, u32 *response)
 	return ret;
 }
 
-int ahab_release_caam(u32 core_did, u32 *response)
+int ele_release_caam(u32 core_did, u32 *response)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 2;
 	msg.command = ELE_RELEASE_CAAM_REQ;
 	msg.data[0] = core_did;
@@ -285,15 +285,15 @@ int ahab_release_caam(u32 core_did, u32 *response)
 	return ret;
 }
 
-int ahab_get_fw_version(u32 *fw_version, u32 *sha1, u32 *response)
+int ele_get_fw_version(u32 *fw_version, u32 *sha1, u32 *response)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
@@ -307,8 +307,8 @@ int ahab_get_fw_version(u32 *fw_version, u32 *sha1, u32 *response)
 		return -EINVAL;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 1;
 	msg.command = ELE_GET_FW_VERSION_REQ;
 
@@ -326,20 +326,20 @@ int ahab_get_fw_version(u32 *fw_version, u32 *sha1, u32 *response)
 	return ret;
 }
 
-int ahab_dump_buffer(u32 *buffer, u32 buffer_length)
+int ele_dump_buffer(u32 *buffer, u32 buffer_length)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret, i = 0;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 1;
 	msg.command = ELE_DUMP_DEBUG_BUFFER_REQ;
 
@@ -360,25 +360,25 @@ int ahab_dump_buffer(u32 *buffer, u32 buffer_length)
 	return i;
 }
 
-int ahab_get_info(struct sentinel_get_info_data *info, u32 *response)
+int ele_get_info(struct ele_get_info_data *info, u32 *response)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 4;
 	msg.command = ELE_GET_INFO_REQ;
 	msg.data[0] = upper_32_bits((ulong)info);
 	msg.data[1] = lower_32_bits((ulong)info);
-	msg.data[2] = sizeof(struct sentinel_get_info_data);
+	msg.data[2] = sizeof(struct ele_get_info_data);
 
 	ret = misc_call(dev, false, &msg, size, &msg, size);
 	if (ret)
@@ -391,20 +391,20 @@ int ahab_get_info(struct sentinel_get_info_data *info, u32 *response)
 	return ret;
 }
 
-int ahab_get_fw_status(u32 *status, u32 *response)
+int ele_get_fw_status(u32 *status, u32 *response)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 1;
 	msg.command = ELE_GET_FW_STATUS_REQ;
 
@@ -421,20 +421,20 @@ int ahab_get_fw_status(u32 *status, u32 *response)
 	return ret;
 }
 
-int ahab_release_m33_trout(void)
+int ele_release_m33_trout(void)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 1;
 	msg.command = ELE_ENABLE_RTC_REQ;
 
@@ -446,16 +446,16 @@ int ahab_release_m33_trout(void)
 	return ret;
 }
 
-int ahab_get_events(u32 *events, u32 *events_cnt, u32 *response)
+int ele_get_events(u32 *events, u32 *events_cnt, u32 *response)
 {
-	struct udevice *dev = gd->arch.s400_dev;
-	int size = sizeof(struct sentinel_msg);
-	struct sentinel_msg msg;
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
 	int ret, i = 0;
 	u32 actual_events;
 
 	if (!dev) {
-		printf("s400 dev is not initialized\n");
+		printf("ele dev is not initialized\n");
 		return -ENODEV;
 	}
 
@@ -464,8 +464,8 @@ int ahab_get_events(u32 *events, u32 *events_cnt, u32 *response)
 		return -EINVAL;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 1;
 	msg.command = ELE_GET_EVENTS_REQ;
 

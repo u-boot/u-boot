@@ -9,7 +9,7 @@
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>
-#include <asm/mach-imx/s400_api.h>
+#include <asm/mach-imx/ele_api.h>
 #include <asm/arch/imx-regs.h>
 #include <linux/iopoll.h>
 #include <misc.h>
@@ -85,7 +85,7 @@ int mu_hal_receivemsg(ulong base, u32 reg_index, u32 *msg)
 
 static int imx8ulp_mu_read(struct mu_type *base, void *data)
 {
-	struct sentinel_msg *msg = (struct sentinel_msg *)data;
+	struct ele_msg *msg = (struct ele_msg *)data;
 	int ret;
 	u8 count = 0;
 
@@ -99,7 +99,7 @@ static int imx8ulp_mu_read(struct mu_type *base, void *data)
 	count++;
 
 	/* Check size */
-	if (msg->size > S400_MAX_MSG) {
+	if (msg->size > ELE_MAX_MSG) {
 		*((u32 *)msg) = 0;
 		return -EINVAL;
 	}
@@ -118,7 +118,7 @@ static int imx8ulp_mu_read(struct mu_type *base, void *data)
 
 static int imx8ulp_mu_write(struct mu_type *base, void *data)
 {
-	struct sentinel_msg *msg = (struct sentinel_msg *)data;
+	struct ele_msg *msg = (struct ele_msg *)data;
 	int ret;
 	u8 count = 0;
 
@@ -126,7 +126,7 @@ static int imx8ulp_mu_write(struct mu_type *base, void *data)
 		return -EINVAL;
 
 	/* Check size */
-	if (msg->size > S400_MAX_MSG)
+	if (msg->size > ELE_MAX_MSG)
 		return -EINVAL;
 
 	/* Write first word */
@@ -171,7 +171,7 @@ static int imx8ulp_mu_call(struct udevice *dev, int no_resp, void *tx_msg,
 			return ret;
 	}
 
-	result = ((struct sentinel_msg *)rx_msg)->data[0];
+	result = ((struct ele_msg *)rx_msg)->data[0];
 	if ((result & 0xff) == 0xd6)
 		return 0;
 
@@ -196,7 +196,7 @@ static int imx8ulp_mu_probe(struct udevice *dev)
 	/* U-Boot not enable interrupts, so need to enable RX interrupts */
 	mu_hal_init((ulong)priv->base);
 
-	gd->arch.s400_dev = dev;
+	gd->arch.ele_dev = dev;
 
 	return 0;
 }

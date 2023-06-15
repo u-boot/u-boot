@@ -10,7 +10,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
 #include <div64.h>
-#include <asm/mach-imx/s400_api.h>
+#include <asm/mach-imx/ele_api.h>
 #include <asm/mach-imx/mu_hal.h>
 
 #define DID_NUM 16
@@ -196,7 +196,7 @@ int trdc_mbc_blk_config(ulong trdc_reg, u32 mbc_x, u32 dom_x, u32 mem_x,
 	val &= ~(0xFU << offset);
 
 	/* MBC0-3
-	 *  Global 0, 0x7777 secure pri/user read/write/execute, S400 has already set it.
+	 *  Global 0, 0x7777 secure pri/user read/write/execute, ELE has already set it.
 	 *  So select MBC0_MEMN_GLBAC0
 	 */
 	if (sec_access) {
@@ -266,7 +266,7 @@ int trdc_mrc_region_config(ulong trdc_reg, u32 mrc_x, u32 dom_x, u32 addr_start,
 			continue;
 
 		/* MRC0,1
-		 *  Global 0, 0x7777 secure pri/user read/write/execute, S400 has already set it.
+		 *  Global 0, 0x7777 secure pri/user read/write/execute, ELE has already set it.
 		 *  So select MRCx_MEMN_GLBAC0
 		 */
 		if (sec_access) {
@@ -315,7 +315,7 @@ bool trdc_mbc_enabled(ulong trdc_base)
 int release_rdc(u8 xrdc)
 {
 	ulong s_mu_base = 0x47520000UL;
-	struct sentinel_msg msg;
+	struct ele_msg msg;
 	int ret;
 	u32 rdc_id;
 
@@ -336,8 +336,8 @@ int release_rdc(u8 xrdc)
 		return -EINVAL;
 	}
 
-	msg.version = AHAB_VERSION;
-	msg.tag = AHAB_CMD_TAG;
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
 	msg.size = 2;
 	msg.command = ELE_RELEASE_RDC_REQ;
 	msg.data[0] = (rdc_id << 8) | 0x2; /* A55 */
@@ -394,7 +394,7 @@ void trdc_init(void)
 		/* DDR */
 		trdc_mrc_set_control(0x49010000, 0, 0, 0x7777);
 
-		/* S400*/
+		/* ELE */
 		trdc_mrc_region_config(0x49010000, 0, 0, 0x80000000, 0xFFFFFFFF, false, 0);
 
 		/* MTR */

@@ -12,7 +12,7 @@
 #define ARM_A55_MTR_BUS_CLK_ROOT	1
 #define ARM_A55_CLK_ROOT		2
 #define M33_CLK_ROOT			3
-#define SENTINEL_CLK_ROOT		4
+#define ELE_CLK_ROOT			4
 #define BUS_WAKEUP_CLK_ROOT		5
 #define BUS_AON_CLK_ROOT		6
 #define WAKEUP_AXI_CLK_ROOT		7

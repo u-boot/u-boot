@@ -709,8 +709,8 @@ struct imx_clk_setting imx_clk_settings[] = {
 	/* Set A55 mtr bus to 133M */
 	{ARM_A55_MTR_BUS_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
 
-	/* Sentinel to 133M */
-	{SENTINEL_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
+	/* ELE to 133M */
+	{ELE_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
 	/* Bus_wakeup to 133M */
 	{BUS_WAKEUP_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
 	/* Bus_AON to 133M */
@@ -740,8 +740,8 @@ struct imx_clk_setting imx_clk_settings[] = {
 	{ARM_A55_PERIPH_CLK_ROOT, SYS_PLL_PFD0, 3},
 	/* Set A55 mtr bus to 133M */
 	{ARM_A55_MTR_BUS_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
-	/* Sentinel to 200M */
-	{SENTINEL_CLK_ROOT, SYS_PLL_PFD1_DIV2, 2},
+	/* ELE to 200M */
+	{ELE_CLK_ROOT, SYS_PLL_PFD1_DIV2, 2},
 	/* Bus_wakeup to 133M */
 	{BUS_WAKEUP_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3},
 	/* Bus_AON to 133M */
