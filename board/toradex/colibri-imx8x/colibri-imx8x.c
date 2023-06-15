@@ -43,9 +43,9 @@ static void setup_iomux_uart(void)
 static int is_imx8dx(void)
 {
 	u32 val = 0;
-	sc_err_t sc_err = sc_misc_otp_fuse_read(-1, 6, &val);
+	int sc_err = sc_misc_otp_fuse_read(-1, 6, &val);
 
-	if (sc_err == SC_ERR_NONE) {
+	if (sc_err) {
 		/* DX has two A35 cores disabled */
 		return (val & 0xf) != 0x0;
 	}
@@ -70,7 +70,7 @@ void board_mem_get_layout(u64 *phys_sdram_1_start,
 int board_early_init_f(void)
 {
 	sc_pm_clock_rate_t rate;
-	sc_err_t err = 0;
+	int err;
 
 	/*
 	 * This works around that having only UART3 up the baudrate is 1.2M
@@ -78,13 +78,13 @@ int board_early_init_f(void)
 	 */
 	rate = 80000000;
 	err = sc_pm_set_clock_rate(-1, SC_R_UART_0, SC_PM_CLK_PER, &rate);
-	if (err != SC_ERR_NONE)
+	if (err)
 		return 0;
 
 	/* Set UART3 clock root to 80 MHz and enable it */
 	rate = SC_80MHZ;
 	err = sc_pm_setup_uart(SC_R_UART_3, rate);
-	if (err != SC_ERR_NONE)
+	if (err)
 		return 0;
 
 	setup_iomux_uart();
