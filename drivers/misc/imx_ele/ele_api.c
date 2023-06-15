@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  *
  */
 
@@ -487,6 +487,68 @@ int ele_get_events(u32 *events, u32 *events_cnt, u32 *response)
 
 		*events_cnt = actual_events;
 	}
+
+	return ret;
+}
+
+int ele_write_secure_fuse(ulong signed_msg_blk, u32 *response)
+{
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
+	int ret;
+
+	if (!dev) {
+		printf("ele dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
+	msg.size = 3;
+	msg.command = ELE_WRITE_SECURE_FUSE_REQ;
+
+	msg.data[0] = upper_32_bits(signed_msg_blk);
+	msg.data[1] = lower_32_bits(signed_msg_blk);
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, response 0x%x, failed fuse row index %u\n",
+		       __func__, ret, msg.data[0], msg.data[1]);
+
+	if (response)
+		*response = msg.data[0];
+
+	return ret;
+}
+
+int ele_return_lifecycle_update(ulong signed_msg_blk, u32 *response)
+{
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
+	int ret;
+
+	if (!dev) {
+		printf("ele dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
+	msg.size = 3;
+	msg.command = ELE_RET_LIFECYCLE_UP_REQ;
+
+	msg.data[0] = upper_32_bits(signed_msg_blk);
+	msg.data[1] = lower_32_bits(signed_msg_blk);
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, response 0x%x, failed fuse row index %u\n",
+		       __func__, ret, msg.data[0], msg.data[1]);
+
+	if (response)
+		*response = msg.data[0];
 
 	return ret;
 }
