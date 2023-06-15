@@ -45,7 +45,7 @@ static const struct rproc_att *get_host_mapping(unsigned long auxcore)
  * is valid, returns the entry point address.
  * Translates load addresses in the elf file to the U-Boot address space.
  */
-static unsigned long load_elf_image_m_core_phdr(unsigned long addr, ulong *stack)
+static u32 load_elf_image_m_core_phdr(unsigned long addr, u32 *stack)
 {
 	Elf32_Ehdr *ehdr; /* ELF header structure pointer */
 	Elf32_Phdr *phdr; /* Program header structure pointer */
@@ -95,7 +95,7 @@ static unsigned long load_elf_image_m_core_phdr(unsigned long addr, ulong *stack
 
 int arch_auxiliary_core_up(u32 core_id, ulong addr)
 {
-	ulong stack, pc;
+	u32 stack, pc;
 
 	if (!addr)
 		return -EINVAL;
@@ -121,7 +121,7 @@ int arch_auxiliary_core_up(u32 core_id, ulong addr)
 		pc = *(u32 *)(addr + 4);
 	}
 
-	printf("## Starting auxiliary core stack = 0x%08lX, pc = 0x%08lX...\n",
+	printf("## Starting auxiliary core stack = 0x%08X, pc = 0x%08X...\n",
 	       stack, pc);
 
 	/* Set the stack and pc to MCU bootROM */
