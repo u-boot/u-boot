@@ -249,6 +249,13 @@ config DWC_ETH_QOS_QCOM
 	  The Synopsys Designware Ethernet QOS IP block with specific
 	  configuration used in Qcom QCS404 SoC.
 
+config DWC_ETH_QOS_STARFIVE
+	bool "Synopsys DWC Ethernet QOS device support for STARFIVE"
+	depends on DWC_ETH_QOS
+	help
+	  The Synopsys Designware Ethernet QOS IP block with specific
+	  configuration used in STARFIVE  JH7110 soc.
+
 config E1000
 	bool "Intel PRO/1000 Gigabit Ethernet support"
 	depends on PCI

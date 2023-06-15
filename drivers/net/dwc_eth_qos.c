@@ -1725,6 +1725,12 @@ static const struct udevice_id eqos_ids[] = {
 		.data = (ulong)&eqos_qcom_config
 	},
 #endif
+#if IS_ENABLED(CONFIG_DWC_ETH_QOS_STARFIVE)
+	{
+		.compatible = "starfive,jh7110-dwmac",
+		.data = (ulong)&eqos_jh7110_config
+	},
+#endif
 
 	{ }
 };
