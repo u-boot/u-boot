@@ -53,6 +53,11 @@ static inline int fdt_data_size_(void *fdt)
 	return fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
 }
 
+bool is_fdt_packed(void *fdt)
+{
+	return (fdt32_t)fdt_data_size_(fdt) == fdt_totalsize(fdt);
+}
+
 static int fdt_splice_(void *fdt, void *splicepoint, int oldlen, int newlen)
 {
 	char *p = splicepoint;

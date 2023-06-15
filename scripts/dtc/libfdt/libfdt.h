@@ -1447,6 +1447,7 @@ int fdt_finish(void *fdt);
 int fdt_create_empty_tree(void *buf, int bufsize);
 int fdt_open_into(const void *fdt, void *buf, int bufsize);
 int fdt_pack(void *fdt);
+bool is_fdt_packed(void *fdt);
 
 /**
  * fdt_add_mem_rsv - add one memory reserve map entry

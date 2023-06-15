@@ -466,6 +466,7 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 
 	/*
 	 * Run with the flat tree if:
+	 * - there is free space available in the FDT
 	 * - it is not marked for live tree only
 	 * - it doesn't require the 'other' FDT when OFNODE_MULTI_TREE_MAX is
 	 *   not enabled (since flat tree can only support a single FDT in that
@@ -476,7 +477,8 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 	 *   (for sandbox we handle this by copying the tree, but not for other
 	 *    boards)
 	 */
-	if (!(test->flags & UT_TESTF_LIVE_TREE) &&
+	if (!is_fdt_packed((void *)gd->fdt_blob) &&
+	    !(test->flags & UT_TESTF_LIVE_TREE) &&
 	    (CONFIG_IS_ENABLED(OFNODE_MULTI_TREE) ||
 	     !(test->flags & UT_TESTF_OTHER_FDT)) &&
 	    (!runs || ut_test_run_on_flattree(test)) &&
