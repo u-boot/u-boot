@@ -85,18 +85,18 @@ static void setup_iomux_uart(void)
 
 static uint32_t do_get_tdx_user_fuse(int a, int b)
 {
-	sc_err_t sciErr;
+	int sciErr;
 	u32 val_a = 0;
 	u32 val_b = 0;
 
 	sciErr = sc_misc_otp_fuse_read(-1, a, &val_a);
-	if (sciErr != SC_ERR_NONE) {
+	if (sciErr) {
 		printf("Error reading out user fuse %d\n", a);
 		return 0;
 	}
 
 	sciErr = sc_misc_otp_fuse_read(-1, b, &val_b);
-	if (sciErr != SC_ERR_NONE) {
+	if (sciErr) {
 		printf("Error reading out user fuse %d\n", b);
 		return 0;
 	}
@@ -131,9 +131,9 @@ void board_mem_get_layout(u64 *phys_sdram_1_start,
 {
 	u32 is_quadplus = 0, val = 0;
 	struct tdx_user_fuses tdxramfuses;
-	sc_err_t scierr = sc_misc_otp_fuse_read(-1, 6, &val);
+	int scierr = sc_misc_otp_fuse_read(-1, 6, &val);
 
-	if (scierr == SC_ERR_NONE) {
+	if (scierr) {
 		/* QP has one A72 core disabled */
 		is_quadplus = ((val >> 4) & 0x3) != 0x0;
 	}
