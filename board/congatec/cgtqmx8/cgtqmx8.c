@@ -79,7 +79,7 @@ static void setup_iomux_uart(void)
 int board_early_init_f(void)
 {
 	/* sc_ipc_t ipcHndl = 0; */
-	sc_err_t scierr = 0;
+	int scierr;
 
 	/* When start u-boot in XEN VM, directly return */
 	/* if (IS_ENABLED(CONFIG_XEN)) */
@@ -89,19 +89,19 @@ int board_early_init_f(void)
 
 	/* Power up UART0, this is very early while power domain is not working */
 	scierr = sc_pm_set_resource_power_mode(-1, SC_R_UART_0, SC_PM_PW_MODE_ON);
-	if (scierr != SC_ERR_NONE)
+	if (scierr)
 		return 0;
 
 	/* Set UART0 clock root to 80 MHz */
 	sc_pm_clock_rate_t rate = 80000000;
 
 	scierr = sc_pm_set_clock_rate(-1, SC_R_UART_0, 2, &rate);
-	if (scierr != SC_ERR_NONE)
+	if (scierr)
 		return 0;
 
 	/* Enable UART0 clock root */
 	scierr = sc_pm_clock_enable(-1, SC_R_UART_0, 2, true, false);
-	if (scierr != SC_ERR_NONE)
+	if (scierr)
 		return 0;
 
 	setup_iomux_uart();
