@@ -402,7 +402,7 @@ static int do_authenticate(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[1], NULL, 16);
+	addr = hextoul(argv[1], NULL);
 
 	printf("Authenticate OS container at 0x%lx\n", addr);
 
