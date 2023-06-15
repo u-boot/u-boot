@@ -142,11 +142,11 @@ int ele_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *respon
 int ele_release_caam(u32 core_did, u32 *response);
 int ele_get_fw_version(u32 *fw_version, u32 *sha1, u32 *response);
 int ele_get_events(u32 *events, u32 *events_cnt, u32 *response);
+int ele_generate_dek_blob(u32 key_id, u32 src_paddr, u32 dst_paddr, u32 max_output_size);
 int ele_dump_buffer(u32 *buffer, u32 buffer_length);
 int ele_get_info(struct ele_get_info_data *info, u32 *response);
 int ele_get_fw_status(u32 *status, u32 *response);
 int ele_release_m33_trout(void);
 int ele_write_secure_fuse(ulong signed_msg_blk, u32 *response);
 int ele_return_lifecycle_update(ulong signed_msg_blk, u32 *response);
-
 #endif
