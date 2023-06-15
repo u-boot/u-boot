@@ -13,8 +13,8 @@
 #include <asm/io.h>
 
 #ifdef CONFIG_SYS_FSL_SEC_LE
-#define sec_in32(a)       in_le32((ulong *)(ulong)a)
-#define sec_out32(a, v)   out_le32((ulong *)(ulong)a, v)
+#define sec_in32(a)       in_le32((ulong *)(ulong)(a))
+#define sec_out32(a, v)   out_le32((ulong *)(ulong)(a), v)
 #define sec_in16(a)       in_le16(a)
 #define sec_clrbits32     clrbits_le32
 #define sec_setbits32     setbits_le32
