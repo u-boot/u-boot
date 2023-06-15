@@ -35,14 +35,14 @@ static int authenticate_image(struct boot_img_t *img, int image_index)
 				ALIGN(img->dst + img->size, CONFIG_SYS_CACHELINE_SIZE) - 1);
 
 	if (err) {
-		printf("can't find memreg for image %d load address 0x%x, error %d\n",
+		printf("can't find memreg for image %d load address 0x%llx, error %d\n",
 		       image_index, img->dst & ~(CONFIG_SYS_CACHELINE_SIZE - 1), err);
 		return -ENOMEM;
 	}
 
 	err = sc_rm_get_memreg_info(-1, mr, &start, &end);
 	if (!err)
-		debug("memreg %u 0x%x -- 0x%x\n", mr, start, end);
+		debug("memreg %u 0x%llx -- 0x%llx\n", mr, start, end);
 
 	err = sc_rm_set_memreg_permissions(-1, mr,
 					   SECO_PT, SC_RM_PERM_FULL);
