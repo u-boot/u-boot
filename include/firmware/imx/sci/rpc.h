@@ -23,12 +23,12 @@
 #define RPC_FUNC(MSG)           ((MSG)->func)
 #define RPC_R8(MSG)             ((MSG)->func)
 #define RPC_I64(MSG, IDX)       ((s64)(RPC_U32((MSG), (IDX))) << 32ULL) | \
-				  (s64)(RPC_U32((MSG), (IDX) + 4U))
+				(s64)(RPC_U32((MSG), (IDX) + 4U))
 #define RPC_I32(MSG, IDX)       ((MSG)->DATA.i32[(IDX) / 4U])
 #define RPC_I16(MSG, IDX)       ((MSG)->DATA.i16[(IDX) / 2U])
 #define RPC_I8(MSG, IDX)        ((MSG)->DATA.i8[(IDX)])
 #define RPC_U64(MSG, IDX)       ((u64)(RPC_U32((MSG), (IDX))) << 32ULL) | \
-				  (u64)(RPC_U32((MSG), (IDX) + 4U))
+				(u64)(RPC_U32((MSG), (IDX) + 4U))
 #define RPC_U32(MSG, IDX)       ((MSG)->DATA.u32[(IDX) / 4U])
 #define RPC_U16(MSG, IDX)       ((MSG)->DATA.u16[(IDX) / 2U])
 #define RPC_U8(MSG, IDX)        ((MSG)->DATA.u8[(IDX)])
@@ -67,7 +67,9 @@ struct sc_rpc_msg_s {
 #define PM_FUNC_SET_SYS_POWER_MODE		19U
 #define PM_FUNC_SET_PARTITION_POWER_MODE	1U
 #define PM_FUNC_GET_SYS_POWER_MODE		2U
+#define PM_FUNC_PARTITION_WAKE			28U
 #define PM_FUNC_SET_RESOURCE_POWER_MODE		3U
+#define PM_FUNC_SET_RESOURCE_POWER_MODE_ALL	22U
 #define PM_FUNC_GET_RESOURCE_POWER_MODE		4U
 #define PM_FUNC_REQ_LOW_POWER_MODE		16U
 #define PM_FUNC_REQ_CPU_LOW_POWER_MODE		20U
@@ -81,13 +83,16 @@ struct sc_rpc_msg_s {
 #define PM_FUNC_GET_CLOCK_PARENT		15U
 #define PM_FUNC_RESET				13U
 #define PM_FUNC_RESET_REASON			10U
+#define PM_FUNC_GET_RESET_PART			26U
 #define PM_FUNC_BOOT				8U
+#define PM_FUNC_SET_BOOT_PARM			27U
 #define PM_FUNC_REBOOT				9U
 #define PM_FUNC_REBOOT_PARTITION		12U
+#define PM_FUNC_REBOOT_CONTINUE			25U
 #define PM_FUNC_CPU_START			11U
 #define PM_FUNC_CPU_RESET			23U
 #define PM_FUNC_RESOURCE_RESET			29U
-#define PM_FUNC_IS_PARTITION_STARTED 24U
+#define PM_FUNC_IS_PARTITION_STARTED		24U
 
 /* MISC RPC */
 #define MISC_FUNC_UNKNOWN			0
@@ -95,16 +100,10 @@ struct sc_rpc_msg_s {
 #define MISC_FUNC_GET_CONTROL			2U
 #define MISC_FUNC_SET_MAX_DMA_GROUP		4U
 #define MISC_FUNC_SET_DMA_GROUP			5U
-#define MISC_FUNC_SECO_IMAGE_LOAD		8U
-#define MISC_FUNC_SECO_AUTHENTICATE		9U
-#define MISC_FUNC_SECO_FUSE_WRITE		20U
-#define MISC_FUNC_SECO_ENABLE_DEBUG		21U
-#define MISC_FUNC_SECO_FORWARD_LIFECYCLE	22U
-#define MISC_FUNC_SECO_RETURN_LIFECYCLE		23U
-#define MISC_FUNC_SECO_BUILD_INFO		24U
 #define MISC_FUNC_DEBUG_OUT			10U
 #define MISC_FUNC_WAVEFORM_CAPTURE		6U
 #define MISC_FUNC_BUILD_INFO			15U
+#define MISC_FUNC_API_VER			35U
 #define MISC_FUNC_UNIQUE_ID			19U
 #define MISC_FUNC_SET_ARI			3U
 #define MISC_FUNC_BOOT_STATUS			7U
@@ -114,8 +113,11 @@ struct sc_rpc_msg_s {
 #define MISC_FUNC_SET_TEMP			12U
 #define MISC_FUNC_GET_TEMP			13U
 #define MISC_FUNC_GET_BOOT_DEV			16U
+#define MISC_FUNC_GET_BOOT_TYPE			33U
+#define MISC_FUNC_GET_BOOT_CONTAINER		36U
 #define MISC_FUNC_GET_BUTTON_STATUS		18U
-#define MISC_FUNC_GET_BOOT_CONTAINER	36U
+#define MISC_FUNC_ROMPATCH_CHECKSUM		26U
+#define MISC_FUNC_BOARD_IOCTL			34U
 
 /* PAD RPC */
 #define PAD_FUNC_UNKNOWN			0
@@ -160,6 +162,7 @@ struct sc_rpc_msg_s {
 #define RM_FUNC_GET_RESOURCE_INFO		16U
 #define RM_FUNC_MEMREG_ALLOC			17U
 #define RM_FUNC_MEMREG_SPLIT			29U
+#define RM_FUNC_MEMREG_FRAG			32U
 #define RM_FUNC_MEMREG_FREE			18U
 #define RM_FUNC_FIND_MEMREG			30U
 #define RM_FUNC_ASSIGN_MEMREG			19U
@@ -190,6 +193,7 @@ struct sc_rpc_msg_s {
 #define SECO_FUNC_UPDATE_MPMR 14U /* Index for seco_update_mpmr() RPC call */
 #define SECO_FUNC_GET_MP_SIGN 15U /* Index for seco_get_mp_sign() RPC call */
 #define SECO_FUNC_BUILD_INFO 16U /* Index for seco_build_info() RPC call */
+#define SECO_FUNC_V2X_BUILD_INFO 30U /* Index for sc_seco_v2x_build_info() RPC call */
 #define SECO_FUNC_CHIP_INFO 17U /* Index for seco_chip_info() RPC call */
 #define SECO_FUNC_ENABLE_DEBUG 18U /* Index for seco_enable_debug() RPC call */
 #define SECO_FUNC_GET_EVENT 19U /* Index for seco_get_event() RPC call */
@@ -210,6 +214,7 @@ struct sc_rpc_msg_s {
 #define TIMER_FUNC_UNKNOWN 0 /* Unknown function */
 #define TIMER_FUNC_SET_WDOG_TIMEOUT 1U /* Index for sc_timer_set_wdog_timeout() RPC call */
 #define TIMER_FUNC_SET_WDOG_PRE_TIMEOUT 12U /* Index for sc_timer_set_wdog_pre_timeout() RPC call */
+#define TIMER_FUNC_SET_WDOG_WINDOW 19U /* Index for sc_timer_set_wdog_window() RPC call */
 #define TIMER_FUNC_START_WDOG 2U /* Index for sc_timer_start_wdog() RPC call */
 #define TIMER_FUNC_STOP_WDOG 3U /* Index for sc_timer_stop_wdog() RPC call */
 #define TIMER_FUNC_PING_WDOG 4U /* Index for sc_timer_ping_wdog() RPC call */
