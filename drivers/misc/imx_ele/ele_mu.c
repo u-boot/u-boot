@@ -22,7 +22,7 @@ struct imx8ulp_mu {
 
 #define MU_SR_TE0_MASK		BIT(0)
 #define MU_SR_RF0_MASK		BIT(0)
-#define MU_TR_COUNT		4
+#define MU_TR_COUNT		8
 #define MU_RR_COUNT		4
 
 void mu_hal_init(ulong base)
@@ -65,7 +65,7 @@ int mu_hal_receivemsg(ulong base, u32 reg_index, u32 *msg)
 	u32 val;
 	int ret;
 
-	assert(reg_index < MU_TR_COUNT);
+	assert(reg_index < MU_RR_COUNT);
 
 	debug("receivemsg sr 0x%x\n", readl(&mu_base->sr));
 
