@@ -97,6 +97,7 @@ Shell commands
    cmd/trace
    cmd/true
    cmd/ums
+   cmd/unbind
    cmd/ut
    cmd/wdt
    cmd/wget
