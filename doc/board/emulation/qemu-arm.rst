@@ -113,7 +113,7 @@ In a second console invoke qemu-system-aarch64 with::
 
 Enable the TPM on U-Boot's command line with::
 
-    tpm2 startup TPM2_SU_CLEAR
+    tpm autostart
 
 Debug UART
 ----------
