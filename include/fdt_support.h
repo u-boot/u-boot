@@ -256,6 +256,14 @@ static inline void fdt_fixup_mtdparts(void *fdt,
 }
 #endif
 
+/**
+ * copy the fixed-partition nodes from U-Boot device tree to external blob
+ *
+ * @param blob		FDT blob to update
+ * Return: 0 if ok, or non-zero on error
+ */
+int fdt_copy_fixed_partitions(void *blob);
+
 void fdt_del_node_and_alias(void *blob, const char *alias);
 
 /**

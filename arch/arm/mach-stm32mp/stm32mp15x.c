@@ -266,7 +266,7 @@ static const char * const soc_type[] = {
 };
 
 static const char * const soc_pkg[] = { "??", "AD", "AC", "AB", "AA" };
-static const char * const soc_rev[] = { "?", "A", "B", "Z" };
+static const char * const soc_rev[] = { "?", "A", "B", "Z", "Y"};
 
 static void get_cpu_string_offsets(unsigned int *type, unsigned int *pkg,
 				   unsigned int *rev)
@@ -306,6 +306,9 @@ static void get_cpu_string_offsets(unsigned int *type, unsigned int *pkg,
 		break;
 	case CPU_REV2_1:
 		*rev = 3;
+		break;
+	case CPU_REV2_2:
+		*rev = 4;
 		break;
 	default:
 		*rev = 0;

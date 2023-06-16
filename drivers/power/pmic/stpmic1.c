@@ -34,7 +34,9 @@ static const struct pmic_child_info stpmic1_children_info[] = {
 	{ .prefix = "ldo", .driver = "stpmic1_ldo" },
 	{ .prefix = "buck", .driver = "stpmic1_buck" },
 	{ .prefix = "vref_ddr", .driver = "stpmic1_vref_ddr" },
+	{ .prefix = "vref-ddr", .driver = "stpmic1_vref_ddr" },
 	{ .prefix = "pwr_sw", .driver = "stpmic1_pwr_sw" },
+	{ .prefix = "pwr-sw", .driver = "stpmic1_pwr_sw" },
 	{ .prefix = "boost", .driver = "stpmic1_boost" },
 	{ },
 };

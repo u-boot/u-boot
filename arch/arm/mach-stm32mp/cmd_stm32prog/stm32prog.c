@@ -63,6 +63,12 @@ static const efi_guid_t uuid_mmc[3] = {
 	ROOTFS_MMC2_UUID
 };
 
+/*
+ * GUID value defined in the FWU specification for identification
+ * of the FWU metadata partition.
+ */
+#define FWU_MDATA_UUID "8a7a84a0-8387-40f6-ab41-a8b9a5a60d23"
+
 /* FIP type partition UUID used by TF-A*/
 #define FIP_TYPE_UUID "19D5DF83-11B0-457B-BE2C-7559C13142A5"
 
@@ -207,11 +213,6 @@ static int optee_ta_invoke(struct stm32prog_data *data, int cmd, int type,
 
 	return rc;
 }
-
-/* partition handling routines : CONFIG_CMD_MTDPARTS */
-int mtdparts_init(void);
-int find_dev_and_part(const char *id, struct mtd_device **dev,
-		      u8 *part_num, struct part_info **part);
 
 char *stm32prog_get_error(struct stm32prog_data *data)
 {
@@ -430,8 +431,14 @@ static int parse_type(struct stm32prog_data *data,
 		}
 	} else if (!strcmp(p, "FIP")) {
 		part->part_type = PART_FIP;
+	} else if (!strcmp(p, "FWU_MDATA")) {
+		part->part_type = PART_FWU_MDATA;
+	} else if (!strcmp(p, "ENV")) {
+		part->part_type = PART_ENV;
 	} else if (!strcmp(p, "System")) {
 		part->part_type = PART_SYSTEM;
+	} else if (!strcmp(p, "ESP")) {
+		part->part_type = PART_ESP;
 	} else if (!strcmp(p, "FileSystem")) {
 		part->part_type = PART_FILESYSTEM;
 	} else if (!strcmp(p, "RawImage")) {
@@ -514,7 +521,7 @@ static int parse_offset(struct stm32prog_data *data,
 			stm32prog_err("Layout line %d: invalid part '%s'",
 				      i, p);
 	} else {
-		part->addr = simple_strtoull(p, &tail, 0);
+		part->addr = simple_strtoull(p, &tail, 10);
 		if (tail == p || *tail != '\0') {
 			stm32prog_err("Layout line %d: invalid offset '%s'",
 				      i, p);
@@ -741,6 +748,7 @@ static int init_device(struct stm32prog_data *data,
 	struct mmc *mmc = NULL;
 	struct blk_desc *block_dev = NULL;
 	struct mtd_info *mtd = NULL;
+	struct mtd_info *partition;
 	char mtd_id[16];
 	int part_id;
 	int ret;
@@ -749,6 +757,7 @@ static int init_device(struct stm32prog_data *data,
 	u64 part_addr, part_size;
 	bool part_found;
 	const char *part_name;
+	u8 i;
 
 	switch (dev->target) {
 	case STM32PROG_MMC:
@@ -793,10 +802,11 @@ static int init_device(struct stm32prog_data *data,
 			stm32prog_err("unknown device type = %d", dev->target);
 			return -ENODEV;
 		}
+		/* register partitions with MTDIDS/MTDPARTS or OF fallback */
+		mtd_probe_devices();
 		get_mtd_by_target(mtd_id, dev->target, dev->dev_id);
 		log_debug("%s\n", mtd_id);
 
-		mtdparts_init();
 		mtd = get_mtd_device_nm(mtd_id);
 		if (IS_ERR(mtd)) {
 			stm32prog_err("MTD device %s not found", mtd_id);
@@ -943,25 +953,23 @@ static int init_device(struct stm32prog_data *data,
 		}
 
 		if (IS_ENABLED(CONFIG_MTD) && mtd) {
-			char mtd_part_id[32];
-			struct part_info *mtd_part;
-			struct mtd_device *mtd_dev;
-			u8 part_num;
-
-			sprintf(mtd_part_id, "%s,%d", mtd_id,
-				part->part_id - 1);
-			ret = find_dev_and_part(mtd_part_id, &mtd_dev,
-						&part_num, &mtd_part);
-			if (ret != 0) {
-				stm32prog_err("%s (0x%x): Invalid MTD partition %s",
-					      part->name, part->id,
-					      mtd_part_id);
+			i = 0;
+			list_for_each_entry(partition, &mtd->partitions, node) {
+				if ((part->part_id - 1) == i) {
+					part_found = true;
+					break;
+				}
+				i++;
+			}
+			if (part_found) {
+				part_addr = partition->offset;
+				part_size = partition->size;
+				part_name = partition->name;
+			} else {
+				stm32prog_err("%s (0x%x):Couldn't find part %d on device mtd %s",
+					      part->name, part->id, part->part_id, mtd_id);
 				return -ENODEV;
 			}
-			part_addr = mtd_part->offset;
-			part_size = mtd_part->size;
-			part_name = mtd_part->name;
-			part_found = true;
 		}
 
 		/* no partition for this device */
@@ -999,9 +1007,6 @@ static int treat_partition_list(struct stm32prog_data *data)
 		INIT_LIST_HEAD(&data->dev[j].part_list);
 	}
 
-#ifdef CONFIG_STM32MP15x_STM32IMAGE
-	data->tee_detected = false;
-#endif
 	data->fsbl_nor_detected = false;
 	for (i = 0; i < data->part_nb; i++) {
 		part = &data->part_array[i];
@@ -1053,14 +1058,6 @@ static int treat_partition_list(struct stm32prog_data *data)
 			    !strncmp(part->name, "fsbl", 4))
 				data->fsbl_nor_detected = true;
 			/* fallthrough */
-		case STM32PROG_NAND:
-		case STM32PROG_SPI_NAND:
-#ifdef CONFIG_STM32MP15x_STM32IMAGE
-			if (!data->tee_detected &&
-			    !strncmp(part->name, "tee", 3))
-				data->tee_detected = true;
-			break;
-#endif
 		default:
 			break;
 		}
@@ -1130,10 +1127,20 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 			case PART_BINARY:
 				type_str = LINUX_RESERVED_UUID;
 				break;
+			case PART_ENV:
+				type_str = "u-boot-env";
+				break;
 			case PART_FIP:
 				type_str = FIP_TYPE_UUID;
 				break;
-			default:
+			case PART_FWU_MDATA:
+				type_str = FWU_MDATA_UUID;
+				break;
+			case PART_ESP:
+				/* EFI System Partition */
+				type_str = "system";
+				break;
+			default: /* PART_FILESYSTEM or PART_SYSTEM for distro */
 				type_str = "linux";
 				break;
 			}
@@ -1439,8 +1446,11 @@ int stm32prog_otp_write(struct stm32prog_data *data, u32 offset, u8 *buffer,
 
 	if (!data->otp_part) {
 		data->otp_part = memalign(CONFIG_SYS_CACHELINE_SIZE, otp_size);
-		if (!data->otp_part)
+		if (!data->otp_part) {
+			stm32prog_err("OTP write issue %d", -ENOMEM);
+
 			return -ENOMEM;
+		}
 	}
 
 	if (!offset)
@@ -1503,6 +1513,8 @@ int stm32prog_otp_read(struct stm32prog_data *data, u32 offset, u8 *buffer,
 	memcpy(buffer, (void *)((uintptr_t)data->otp_part + offset), *size);
 
 end_otp_read:
+	if (result)
+		stm32prog_err("OTP read issue %d", result);
 	log_debug("%s: result %i\n", __func__, result);
 
 	return result;
@@ -1556,6 +1568,8 @@ int stm32prog_otp_start(struct stm32prog_data *data)
 
 	free(data->otp_part);
 	data->otp_part = NULL;
+	if (result)
+		stm32prog_err("OTP write issue %d", result);
 	log_debug("%s: result %i\n", __func__, result);
 
 	return result;

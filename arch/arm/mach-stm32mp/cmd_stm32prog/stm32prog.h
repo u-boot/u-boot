@@ -96,12 +96,20 @@ struct stm32_header_v2 {
 	u8 extension_padding[376];
 };
 
-/* partition type in flashlayout file */
+/*
+ * partition type in flashlayout file
+ * SYSTEM = linux partition, bootable
+ * FILESYSTEM = linux partition
+ * ESP = EFI system partition
+ */
 enum stm32prog_part_type {
 	PART_BINARY,
 	PART_FIP,
+	PART_FWU_MDATA,
+	PART_ENV,
 	PART_SYSTEM,
 	PART_FILESYSTEM,
+	PART_ESP,
 	RAW_IMAGE,
 };
 
@@ -149,9 +157,6 @@ struct stm32prog_data {
 	struct stm32prog_dev_t	dev[STM32PROG_MAX_DEV];	/* array of device */
 	int			part_nb;	/* nb of partition */
 	struct stm32prog_part_t	*part_array;	/* array of partition */
-#ifdef CONFIG_STM32MP15x_STM32IMAGE
-	bool			tee_detected;
-#endif
 	bool			fsbl_nor_detected;
 
 	/* command internal information */

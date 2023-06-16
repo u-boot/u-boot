@@ -28,11 +28,6 @@
 		button-gpio = <&gpioa 0 0>;
 	};
 
-	dsi_host: dsi_host {
-		compatible = "synopsys,dw-mipi-dsi";
-		status = "okay";
-	};
-
 	led1 {
 		compatible = "st,led1";
 		led-gpio = <&gpioj 5 0>;

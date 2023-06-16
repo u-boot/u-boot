@@ -10,7 +10,6 @@
 #include <common.h>
 #include <dfu.h>
 #include <mtd.h>
-#include <jffs2/load_kernel.h>
 #include <linux/err.h>
 #include <linux/ctype.h>
 
@@ -275,7 +274,7 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char **argv, int a
 {
 	char *s;
 	struct mtd_info *mtd;
-	int ret, part;
+	int part;
 
 	mtd = get_mtd_device_nm(devstr);
 	if (IS_ERR_OR_NULL(mtd))
@@ -299,10 +298,9 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char **argv, int a
 		if (*s)
 			return -EINVAL;
 	} else if ((!strcmp(argv[0], "part")) || (!strcmp(argv[0], "partubi"))) {
-		char mtd_id[32];
-		struct mtd_device *mtd_dev;
-		u8 part_num;
-		struct part_info *pi;
+		struct mtd_info *partition;
+		int partnum = 0;
+		bool part_found = false;
 
 		if (argc != 2)
 			return -EINVAL;
@@ -313,19 +311,25 @@ int dfu_fill_entity_mtd(struct dfu_entity *dfu, char *devstr, char **argv, int a
 		if (*s)
 			return -EINVAL;
 
-		sprintf(mtd_id, "%s,%d", devstr, part - 1);
-		printf("using id '%s'\n", mtd_id);
+		/* register partitions with MTDIDS/MTDPARTS or OF fallback */
+		mtd_probe_devices();
 
-		mtdparts_init();
-
-		ret = find_dev_and_part(mtd_id, &mtd_dev, &part_num, &pi);
-		if (ret != 0) {
-			printf("Could not locate '%s'\n", mtd_id);
+		partnum = 0;
+		list_for_each_entry(partition, &mtd->partitions, node) {
+			partnum++;
+			if (partnum == part) {
+				part_found = true;
+				break;
+			}
+		}
+		if (!part_found) {
+			printf("No partition %d in %s\n", part, mtd->name);
 			return -1;
 		}
+		log_debug("partition %d:%s in %s\n", partnum, partition->name, mtd->name);
 
-		dfu->data.mtd.start = pi->offset;
-		dfu->data.mtd.size = pi->size;
+		dfu->data.mtd.start = partition->offset;
+		dfu->data.mtd.size = partition->size;
 		if (!strcmp(argv[0], "partubi"))
 			dfu->data.mtd.ubi = 1;
 	} else {

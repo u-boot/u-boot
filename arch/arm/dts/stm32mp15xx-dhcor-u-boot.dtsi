@@ -28,6 +28,33 @@
 
 &flash0 {
 	bootph-pre-ram;
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		partition@0 {
+			label = "fsbl1";
+			reg = <0x00000000 0x00040000>;
+		};
+		partition@40000 {
+			label = "fsbl2";
+			reg = <0x00040000 0x00040000>;
+		};
+		partition@500000 {
+			label = "uboot";
+			reg = <0x00080000 0x00160000>;
+		};
+		partition@900000 {
+			label = "env1";
+			reg = <0x001E0000 0x00010000>;
+		};
+		partition@980000 {
+			label = "env2";
+			reg = <0x001F0000 0x00010000>;
+		};
+	};
 };
 
 &i2c4 {

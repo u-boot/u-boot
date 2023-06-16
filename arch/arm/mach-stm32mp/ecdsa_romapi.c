@@ -5,6 +5,7 @@
  * Implements ECDSA signature verification via the STM32MP ROM.
  */
 #include <asm/system.h>
+#include <asm/arch/sys_proto.h>
 #include <dm/device.h>
 #include <linux/types.h>
 #include <u-boot/ecdsa.h>

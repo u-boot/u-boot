@@ -622,7 +622,7 @@ static int stm32mp_bsec_read(struct udevice *dev, int offset,
 		shadow = false;
 	}
 
-	if ((offs % 4) || (size % 4))
+	if ((offs % 4) || (size % 4) || !size)
 		return -EINVAL;
 
 	if (IS_ENABLED(CONFIG_OPTEE) && priv->tee) {
@@ -678,7 +678,7 @@ static int stm32mp_bsec_write(struct udevice *dev, int offset,
 		shadow = false;
 	}
 
-	if ((offs % 4) || (size % 4))
+	if ((offs % 4) || (size % 4) || !size)
 		return -EINVAL;
 
 	if (IS_ENABLED(CONFIG_OPTEE) && priv->tee) {

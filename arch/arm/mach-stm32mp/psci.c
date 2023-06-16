@@ -161,6 +161,12 @@
 #define RCC_MP_GRSTCSETR_MPUP0RST		BIT(4)
 #define RCC_MP_GRSTCSETR_MPUP1RST		BIT(5)
 
+/* IWDG */
+#define IWDG_KR					0x00
+#define IWDG_KR_RELOAD_KEY			0xaaaa
+#define IWDG_EWCR				0x14
+#define IWDG_EWCR_EWIC				BIT(14)
+
 #define STM32MP1_PSCI_NR_CPUS			2
 #if STM32MP1_PSCI_NR_CPUS > CONFIG_ARMV7_PSCI_NR_CPUS
 #error "invalid value for CONFIG_ARMV7_PSCI_NR_CPUS"
@@ -696,7 +702,18 @@ void __secure psci_system_suspend(u32 __always_unused function_id,
 				  u32 ep, u32 context_id)
 {
 	u32 saved_mcudivr, saved_pll3cr, saved_pll4cr, saved_mssckselr;
+	u32 gicd_addr = stm32mp_get_gicd_base_address();
+	bool iwdg1_wake = false;
+	bool iwdg2_wake = false;
+	bool other_wake = false;
 	u32 saved_pwrctl, reg;
+	u32 gic_enabled[8];
+	u32 irqs;
+	int i;
+
+	/* Cache enable mask of all 256 SPI */
+	for (i = 0; i < ARRAY_SIZE(gic_enabled); i++)
+		gic_enabled[i] = readl(gicd_addr + GICD_ISENABLERn + 0x4 + 4 * i);
 
 	/* Disable IO compensation */
 
@@ -725,11 +742,57 @@ void __secure psci_system_suspend(u32 __always_unused function_id,
 	setbits_le32(STM32_PWR_BASE + PWR_CR3, PWR_CR3_DDRSREN);
 	writel(0x3, STM32_RCC_BASE + RCC_MP_SREQSETR);
 
-	/* Zzz, enter stop mode */
-	asm volatile(
-		"isb\n"
-		"dsb\n"
-		"wfi\n");
+	/* Ping the IWDG before entering suspend */
+	iwdg1_wake = !!(gic_enabled[4] & BIT(22));	/* SPI 150 */
+	iwdg2_wake = !!(gic_enabled[4] & BIT(23));	/* SPI 151 */
+
+	for (;;) {
+		/* Ping IWDG1 and ACK pretimer IRQ */
+		if (iwdg1_wake) {
+			writel(IWDG_KR_RELOAD_KEY, STM32_IWDG1_BASE + IWDG_KR);
+			writel(IWDG_EWCR_EWIC, STM32_IWDG1_BASE + IWDG_EWCR);
+		}
+
+		/* Ping IWDG2 and ACK pretimer IRQ */
+		if (iwdg2_wake) {
+			writel(IWDG_KR_RELOAD_KEY, STM32_IWDG2_BASE + IWDG_KR);
+			writel(IWDG_EWCR_EWIC, STM32_IWDG2_BASE + IWDG_EWCR);
+		}
+
+		iwdg1_wake = false;
+		iwdg2_wake = false;
+
+		/* Zzz, enter stop mode */
+		asm volatile(
+			"isb\n"
+			"dsb\n"
+			"wfi\n");
+
+		/* Determine the wake up source */
+		for (i = 0; i < ARRAY_SIZE(gic_enabled); i++) {
+			irqs = readl(gicd_addr + GICR_IGROUPMODRn + 0x4 + 4 * i);
+			irqs &= gic_enabled[i];
+			if (!irqs)
+				continue;
+
+			/* Test whether IWDG pretimeout triggered the wake up. */
+			if (i == 4) {	/* SPI Num 128..159 */
+				iwdg1_wake = !!(irqs & BIT(22));	/* SPI 150 */
+				iwdg2_wake = !!(irqs & BIT(23));	/* SPI 151 */
+				irqs &= ~(BIT(22) | BIT(23));
+			}
+
+			/* Test whether there is any other wake up trigger. */
+			if (irqs) {
+				other_wake = true;
+				break;
+			}
+		}
+
+		/* Other wake up triggers pending, let OS deal with all of it. */
+		if (other_wake)
+			break;
+	}
 
 	writel(0x3, STM32_RCC_BASE + RCC_MP_SREQCLRR);
 	ddr_sw_self_refresh_exit();

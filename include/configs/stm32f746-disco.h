@@ -36,6 +36,4 @@
 #define CFG_SYS_UBOOT_BASE		(CFG_SYS_FLASH_BASE + \
 					 CONFIG_SPL_PAD_TO)
 
-/* For splashcreen */
-
 #endif /* __CONFIG_H */
