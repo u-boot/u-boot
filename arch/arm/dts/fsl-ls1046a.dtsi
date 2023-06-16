@@ -8,7 +8,9 @@
  * Mingkai Hu <mingkai.hu@nxp.com>
  */
 
-/include/ "skeleton64.dtsi"
+#include "skeleton64.dtsi"
+#include <dt-bindings/clock/fsl,qoriq-clockgen.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
 
 / {
 	compatible = "fsl,ls1046a";
@@ -222,29 +224,37 @@
 		duart0: serial@21c0500 {
 			compatible = "fsl,ns16550", "ns16550a";
 			reg = <0x00 0x21c0500 0x0 0x100>;
-			interrupts = <0 54 0x4>;
-			clocks = <&clockgen 4 0>;
+			interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
+					    QORIQ_CLK_PLL_DIV(2)>;
+			status = "disabled";
 		};
 
 		duart1: serial@21c0600 {
 			compatible = "fsl,ns16550", "ns16550a";
 			reg = <0x00 0x21c0600 0x0 0x100>;
-			interrupts = <0 54 0x4>;
-			clocks = <&clockgen 4 0>;
+			interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
+					    QORIQ_CLK_PLL_DIV(2)>;
+			status = "disabled";
 		};
 
 		duart2: serial@21d0500 {
 			compatible = "fsl,ns16550", "ns16550a";
 			reg = <0x0 0x21d0500 0x0 0x100>;
-			interrupts = <0 55 0x4>;
-			clocks = <&clockgen 4 0>;
+			interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
+					    QORIQ_CLK_PLL_DIV(2)>;
+			status = "disabled";
 		};
 
 		duart3: serial@21d0600 {
 			compatible = "fsl,ns16550", "ns16550a";
 			reg = <0x0 0x21d0600 0x0 0x100>;
-			interrupts = <0 55 0x4>;
-			clocks = <&clockgen 4 0>;
+			interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
+					    QORIQ_CLK_PLL_DIV(2)>;
+			status = "disabled";
 		};
 
 		lpuart0: serial@2950000 {

@@ -7,15 +7,35 @@
  */
 
 /dts-v1/;
-/include/ "fsl-ls1046a.dtsi"
+#include "fsl-ls1046a.dtsi"
 
 / {
 	model = "LS1046A FRWY Board";
 
 	aliases {
 		spi0 = &qspi;
+		serial0 = &duart0;
+		serial1 = &duart1;
+		serial2 = &duart2;
+		serial3 = &duart3;
 	};
 
+};
+
+&duart0 {
+	status = "okay";
+};
+
+&duart1 {
+	status = "okay";
+};
+
+&duart2 {
+	status = "okay";
+};
+
+&duart3 {
+	status = "okay";
 };
 
 &qspi {

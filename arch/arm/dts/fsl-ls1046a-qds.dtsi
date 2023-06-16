@@ -7,7 +7,7 @@
  * Mingkai Hu <Mingkai.hu@nxp.com>
  */
 
-/include/ "fsl-ls1046a.dtsi"
+#include "fsl-ls1046a.dtsi"
 
 / {
 	model = "LS1046A QDS Board";
