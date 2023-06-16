@@ -124,6 +124,7 @@ static int execute(void)
 {
 	efi_status_t ret;
 	efi_handle_t handle1 = NULL, handle2 = NULL;
+	struct interface *interface;
 	struct interface interface1, interface2;
 
 	ret = boottime->install_protocol_interface(&handle1, &guid1,
@@ -143,6 +144,18 @@ static int execute(void)
 	}
 	if (context.handle_count != 1) {
 		efi_st_error("LocateHandle failed\n");
+		return EFI_ST_FAILURE;
+	}
+	interface = NULL;
+	ret = boottime->open_protocol(handle1, &guid1, (void**)&interface,
+				      NULL, NULL,
+				      EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Cannot find installed protocol on handle\n");
+		return EFI_ST_FAILURE;
+	}
+	if (interface != &interface1) {
+		efi_st_error("Wrong interface after install\n");
 		return EFI_ST_FAILURE;
 	}
 	ret = boottime->free_pool(context.handles);
@@ -184,6 +197,18 @@ static int execute(void)
 	ret = boottime->free_pool(context.handles);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("FreePool failed\n");
+		return EFI_ST_FAILURE;
+	}
+	interface = NULL;
+	ret = boottime->open_protocol(handle1, &guid1, (void**)&interface,
+				      NULL, NULL,
+				      EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Cannot find reinstalled protocol on handle\n");
+		return EFI_ST_FAILURE;
+	}
+	if (interface != &interface2) {
+		efi_st_error("Wrong interface after reinstall\n");
 		return EFI_ST_FAILURE;
 	}
 	context.notify_count = 0;

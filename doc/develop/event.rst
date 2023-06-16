@@ -28,8 +28,8 @@ To declare a spy, use something like this::
     }
     EVENT_SPY(EVT_DM_POST_INIT_F, snow_setup_cpus);
 
-Your function is called when EVT_DM_POST_INIT_F is emitted, i.e. after driver
-model is inited (in SPL, or in U-Boot proper before and after relocation).
+This function is called when EVT_DM_POST_INIT_F is emitted, i.e. after the
+driver model is initialized (in U-Boot proper before and after relocation).
 
 
 Debugging
