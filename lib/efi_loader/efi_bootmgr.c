@@ -660,11 +660,13 @@ efi_status_t efi_bootmgr_update_media_device_boot_option(void)
 					   NULL, &count,
 					   (efi_handle_t **)&volume_handles);
 	if (ret != EFI_SUCCESS)
-		return ret;
+		goto out;
 
 	opt = calloc(count, sizeof(struct eficonfig_media_boot_option));
-	if (!opt)
+	if (!opt) {
+		ret = EFI_OUT_OF_RESOURCES;
 		goto out;
+	}
 
 	/* enumerate all devices supporting EFI_SIMPLE_FILE_SYSTEM_PROTOCOL */
 	ret = efi_bootmgr_enumerate_boot_option(opt, volume_handles, count);
@@ -717,5 +719,7 @@ out:
 	free(opt);
 	efi_free_pool(volume_handles);
 
+	if (ret == EFI_NOT_FOUND)
+		return EFI_SUCCESS;
 	return ret;
 }

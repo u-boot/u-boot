@@ -352,7 +352,7 @@ static struct bootmenu_data *bootmenu_create(int delay)
 		 * a architecture-specific default image name such as BOOTAA64.EFI.
 		 */
 		efi_ret = efi_bootmgr_update_media_device_boot_option();
-		if (efi_ret != EFI_SUCCESS && efi_ret != EFI_NOT_FOUND)
+		if (efi_ret != EFI_SUCCESS)
 			goto cleanup;
 
 		ret = prepare_uefi_bootorder_entry(menu, &iter, &i);

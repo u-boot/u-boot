@@ -2314,7 +2314,7 @@ static int do_eficonfig(struct cmd_tbl *cmdtp, int flag, int argc, char *const a
 		return CMD_RET_FAILURE;
 
 	ret = efi_bootmgr_update_media_device_boot_option();
-	if (ret != EFI_SUCCESS && ret != EFI_NOT_FOUND)
+	if (ret != EFI_SUCCESS)
 		return ret;
 
 	while (1) {
