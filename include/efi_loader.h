@@ -517,6 +517,17 @@ struct efi_register_notify_event {
 int efi_init_early(void);
 /* Initialize efi execution environment */
 efi_status_t efi_init_obj_list(void);
+/* Append new boot option in BootOrder variable */
+efi_status_t efi_bootmgr_append_bootorder(u16 index);
+/* Get unused "Boot####" index */
+efi_status_t efi_bootmgr_get_unused_bootoption(u16 *buf,
+					       efi_uintn_t buf_size, u32 *index);
+/* Generate the media device boot option */
+efi_status_t efi_bootmgr_update_media_device_boot_option(void);
+/* Delete selected boot option */
+efi_status_t efi_bootmgr_delete_boot_option(u16 boot_index);
+/* search the boot option index in BootOrder */
+bool efi_search_bootorder(u16 *bootorder, efi_uintn_t num, u32 target, u32 *index);
 /* Set up console modes */
 void efi_setup_console_size(void);
 /* Install device tree */
