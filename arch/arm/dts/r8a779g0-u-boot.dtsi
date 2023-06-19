@@ -7,20 +7,10 @@
 
 #include "r8a779x-u-boot.dtsi"
 
-/ {
-	soc {
-		rpc: spi@ee200000 {
-			compatible = "renesas,r8a779g0-rpc-if", "renesas,rcar-gen4-rpc-if";
-			reg = <0 0xee200000 0 0x200>, <0 0x08000000 0 0x04000000>;
-			interrupts = <GIC_SPI 225 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&cpg CPG_MOD 629>;
-			power-domains = <&sysc R8A779G0_PD_ALWAYS_ON>;
-			resets = <&cpg 629>;
-			bank-width = <2>;
-			num-cs = <1>;
-			status = "disabled";
-		};
-	};
+&rpc {
+	reg = <0 0xee200000 0 0x200>, <0 0x08000000 0 0x04000000>;
+	bank-width = <2>;
+	num-cs = <1>;
 };
 
 &extalr_clk {
