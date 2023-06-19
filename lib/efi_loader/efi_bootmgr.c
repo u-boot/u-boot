@@ -368,6 +368,7 @@ static efi_status_t efi_bootmgr_enumerate_boot_option(struct eficonfig_media_boo
 		struct efi_load_option lo;
 		char buf[BOOTMENU_DEVICE_NAME_MAX];
 		struct efi_device_path *device_path;
+		struct efi_device_path *short_dp;
 
 		ret = efi_search_protocol(volume_handles[i], &efi_guid_device_path, &handler);
 		if (ret != EFI_SUCCESS)
@@ -383,6 +384,11 @@ static efi_status_t efi_bootmgr_enumerate_boot_option(struct eficonfig_media_boo
 
 		p = dev_name;
 		utf8_utf16_strncpy(&p, buf, strlen(buf));
+
+		/* prefer to short form device path */
+		short_dp = efi_dp_shorten(device_path);
+		if (short_dp)
+			device_path = short_dp;
 
 		lo.label = dev_name;
 		lo.attributes = LOAD_OPTION_ACTIVE;
