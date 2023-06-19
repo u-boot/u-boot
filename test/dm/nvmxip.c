@@ -17,7 +17,7 @@
 #include <linux/bitops.h>
 #include <test/test.h>
 #include <test/ut.h>
-#include "../../drivers/mtd/nvmxip/nvmxip.h"
+#include <nvmxip.h>
 
 /* NVMXIP devices described in the device tree */
 #define SANDBOX_NVMXIP_DEVICES 2
