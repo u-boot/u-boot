@@ -243,7 +243,7 @@ static inline struct clk *devm_clk_get_optional(struct udevice *dev,
  *
  * Return: zero on success, or -ve error code.
  */
-int clk_release_all(struct clk *clk, int count);
+int clk_release_all(struct clk *clk, unsigned int count);
 
 /**
  * devm_clk_put	- "free" a managed clock source
@@ -307,7 +307,7 @@ clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 	return -ENOSYS;
 }
 
-static inline int clk_release_all(struct clk *clk, int count)
+static inline int clk_release_all(struct clk *clk, unsigned int count)
 {
 	return -ENOSYS;
 }

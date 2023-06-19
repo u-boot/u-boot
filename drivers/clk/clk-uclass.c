@@ -422,12 +422,13 @@ int clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 	return clk_get_by_index_nodev(node, index, clk);
 }
 
-int clk_release_all(struct clk *clk, int count)
+int clk_release_all(struct clk *clk, unsigned int count)
 {
-	int i, ret;
+	unsigned int i;
+	int ret;
 
 	for (i = 0; i < count; i++) {
-		debug("%s(clk[%d]=%p)\n", __func__, i, &clk[i]);
+		debug("%s(clk[%u]=%p)\n", __func__, i, &clk[i]);
 
 		/* check if clock has been previously requested */
 		if (!clk[i].dev)
