@@ -63,4 +63,6 @@ spl_dtbs: $(obj)/dt-$(SPL_NAME).dtb
 clean-files := dt.dtb.S
 
 # Let clean descend into dts directories
-subdir- += ../arch/arm/dts ../arch/microblaze/dts ../arch/mips/dts ../arch/sandbox/dts ../arch/x86/dts ../arch/powerpc/dts ../arch/riscv/dts
+subdir- += ../arch/arc/dts ../arch/arm/dts ../arch/m68k/dts ../arch/microblaze/dts	\
+	   ../arch/mips/dts ../arch/nios2/dts ../arch/powerpc/dts ../arch/riscv/dts	\
+	   ../arch/sandbox/dts ../arch/sh/dts ../arch/x86/dts ../arch/xtensa/dts
