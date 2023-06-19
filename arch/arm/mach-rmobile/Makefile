@@ -25,6 +25,13 @@ cmd_objcopy = $(OBJCOPY) --gap-fill=0x00 $(OBJCOPYFLAGS) \
 spl/u-boot-spl.srec: spl/u-boot-spl FORCE
 	$(call if_changed,objcopy)
 
+srec_cat_gte_160 := ${shell expr `srec_cat -VERSION | grep ^srec_cat | sed 's/^.* //g' | cut -f1-2 -d.` \>= "1.60"}
+ifeq "$(srec_cat_gte_160)" "1"
+	srec_cat_le_cmd := "-constant-l-e"
+else
+	srec_cat_le_cmd := "-l-e-constant"
+endif
+
 ifneq ($(CONFIG_R8A774C0)$(CONFIG_R8A77990)$(CONFIG_R8A77995),)
 #
 # The first 6 generate statements generate the R-Car Gen3 SCIF loader header.
@@ -52,34 +59,34 @@ quiet_cmd_srec_cat = SRECCAT $@
       cmd_srec_cat = srec_cat -output $@ -M 8 $< -M 8 \
 			-offset -0x13fd0 \
 			-Output_Block_Size 16 \
-			-generate 0xe6300400 0xe6300404 -l-e-constant 0x0 4 \
-			-generate 0xe630048c 0xe6300490 -l-e-constant 0x0 4 \
-			-generate 0xe63005d4 0xe63005d8 -l-e-constant 0xe6304000 4 \
-			-generate 0xe63006e4 0xe63006e8 -l-e-constant $2 4 \
-			-generate 0xe6301154 0xe6301158 -l-e-constant 0xe6304000 4 \
-			-generate 0xe6301264 0xe6301268 -l-e-constant $2 4 \
-			-generate 0xe6304000 0xe6304004 -l-e-constant 0xd2bcc000 4 \
-			-generate 0xe6304004 0xe6304008 -l-e-constant 0xb26c0400 4 \
-			-generate 0xe6304008 0xe630400c -l-e-constant 0xb2720001 4 \
-			-generate 0xe630400c 0xe6304010 -l-e-constant 0xb27c0421 4 \
-			-generate 0xe6304010 0xe6304014 -l-e-constant 0xb2710402 4 \
-			-generate 0xe6304014 0xe6304018 -l-e-constant 0xaa0203e0 4 \
-			-generate 0xe6304018 0xe630401c -l-e-constant 0xd28e0003 4 \
-			-generate 0xe630401c 0xe6304020 -l-e-constant 0xa8c11424 4 \
-			-generate 0xe6304020 0xe6304024 -l-e-constant 0xa8811444 4 \
-			-generate 0xe6304024 0xe6304028 -l-e-constant 0xf1004063 4 \
-			-generate 0xe6304028 0xe630402c -l-e-constant 0x54ffffaa 4 \
-			-generate 0xe630402c 0xe6304030 -l-e-constant 0xd61f0000 4
+			-generate 0xe6300400 0xe6300404 $(srec_cat_le_cmd) 0x0 4 \
+			-generate 0xe630048c 0xe6300490 $(srec_cat_le_cmd) 0x0 4 \
+			-generate 0xe63005d4 0xe63005d8 $(srec_cat_le_cmd) 0xe6304000 4 \
+			-generate 0xe63006e4 0xe63006e8 $(srec_cat_le_cmd) $2 4 \
+			-generate 0xe6301154 0xe6301158 $(srec_cat_le_cmd) 0xe6304000 4 \
+			-generate 0xe6301264 0xe6301268 $(srec_cat_le_cmd) $2 4 \
+			-generate 0xe6304000 0xe6304004 $(srec_cat_le_cmd) 0xd2bcc000 4 \
+			-generate 0xe6304004 0xe6304008 $(srec_cat_le_cmd) 0xb26c0400 4 \
+			-generate 0xe6304008 0xe630400c $(srec_cat_le_cmd) 0xb2720001 4 \
+			-generate 0xe630400c 0xe6304010 $(srec_cat_le_cmd) 0xb27c0421 4 \
+			-generate 0xe6304010 0xe6304014 $(srec_cat_le_cmd) 0xb2710402 4 \
+			-generate 0xe6304014 0xe6304018 $(srec_cat_le_cmd) 0xaa0203e0 4 \
+			-generate 0xe6304018 0xe630401c $(srec_cat_le_cmd) 0xd28e0003 4 \
+			-generate 0xe630401c 0xe6304020 $(srec_cat_le_cmd) 0xa8c11424 4 \
+			-generate 0xe6304020 0xe6304024 $(srec_cat_le_cmd) 0xa8811444 4 \
+			-generate 0xe6304024 0xe6304028 $(srec_cat_le_cmd) 0xf1004063 4 \
+			-generate 0xe6304028 0xe630402c $(srec_cat_le_cmd) 0x54ffffaa 4 \
+			-generate 0xe630402c 0xe6304030 $(srec_cat_le_cmd) 0xd61f0000 4
 else
 quiet_cmd_srec_cat = SRECCAT $@
       cmd_srec_cat = srec_cat -output $@ -M 8 $< -M 8 \
 			-Output_Block_Size 16 \
-			-generate 0xe6300400 0xe6300404 -l-e-constant 0x0 4 \
-			-generate 0xe630048c 0xe6300490 -l-e-constant 0x0 4 \
-			-generate 0xe63005d4 0xe63005d8 -l-e-constant $(CONFIG_SPL_TEXT_BASE) 4 \
-			-generate 0xe63006e4 0xe63006e8 -l-e-constant $2 4 \
-			-generate 0xe6301154 0xe6301158 -l-e-constant $(CONFIG_SPL_TEXT_BASE) 4 \
-			-generate 0xe6301264 0xe6301268 -l-e-constant $2 4
+			-generate 0xe6300400 0xe6300404 $(srec_cat_le_cmd) 0x0 4 \
+			-generate 0xe630048c 0xe6300490 $(srec_cat_le_cmd) 0x0 4 \
+			-generate 0xe63005d4 0xe63005d8 $(srec_cat_le_cmd) $(CONFIG_SPL_TEXT_BASE) 4 \
+			-generate 0xe63006e4 0xe63006e8 $(srec_cat_le_cmd) $2 4 \
+			-generate 0xe6301154 0xe6301158 $(srec_cat_le_cmd) $(CONFIG_SPL_TEXT_BASE) 4 \
+			-generate 0xe6301264 0xe6301268 $(srec_cat_le_cmd) $2 4
 endif
 
 spl/u-boot-spl.scif: spl/u-boot-spl.srec spl/u-boot-spl.bin
