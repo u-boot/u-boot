@@ -575,9 +575,9 @@ efi_status_t efi_search_protocol(const efi_handle_t handle,
  *
  * Return: status code
  */
-efi_status_t efi_remove_protocol(const efi_handle_t handle,
-				 const efi_guid_t *protocol,
-				 void *protocol_interface)
+static efi_status_t efi_remove_protocol(const efi_handle_t handle,
+					const efi_guid_t *protocol,
+					void *protocol_interface)
 {
 	struct efi_handler *handler;
 	efi_status_t ret;
