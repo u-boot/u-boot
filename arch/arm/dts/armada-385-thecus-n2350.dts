@@ -140,6 +140,16 @@
 		};
 	};
 
+	fan {
+		compatible = "gpio-fan";
+		gpios = <&gpio1 16 GPIO_ACTIVE_HIGH>;
+		gpio-fan,speed-map = <	  0  0
+					600  1
+					3000 2 >;
+		pinctrl-0 = <&pmx_fan>;
+		pinctrl-names = "default";
+	};
+
 	usb3_0_power: v5-vbus0 {
 		compatible = "regulator-fixed";
 		regulator-name = "USB3_0_Power";
@@ -376,6 +386,11 @@
 
 	pmx_usb_red_led: pmx-usb-red-led {
 		marvell,pins = "mpp17";
+		marvell,function = "gpio";
+	};
+
+	pmx_fan: pmx-fan {
+		marvell,pins = "mpp48";
 		marvell,function = "gpio";
 	};
 };
