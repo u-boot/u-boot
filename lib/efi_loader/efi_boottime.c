@@ -97,6 +97,12 @@ static efi_status_t EFIAPI efi_disconnect_controller(
 					efi_handle_t driver_image_handle,
 					efi_handle_t child_handle);
 
+static
+efi_status_t EFIAPI efi_connect_controller(efi_handle_t controller_handle,
+					   efi_handle_t *driver_image_handle,
+					   struct efi_device_path *remain_device_path,
+					   bool recursive);
+
 /* Called on every callback entry */
 int __efi_entry_check(void)
 {
@@ -1298,7 +1304,7 @@ static efi_status_t efi_disconnect_all_drivers
 				 const efi_guid_t *protocol,
 				 efi_handle_t child_handle)
 {
-	efi_uintn_t number_of_drivers;
+	efi_uintn_t number_of_drivers, tmp;
 	efi_handle_t *driver_handle_buffer;
 	efi_status_t r, ret;
 
@@ -1308,15 +1314,30 @@ static efi_status_t efi_disconnect_all_drivers
 		return ret;
 	if (!number_of_drivers)
 		return EFI_SUCCESS;
-	ret = EFI_NOT_FOUND;
+
+	tmp = number_of_drivers;
 	while (number_of_drivers) {
-		r = EFI_CALL(efi_disconnect_controller(
+		ret = EFI_CALL(efi_disconnect_controller(
 				handle,
 				driver_handle_buffer[--number_of_drivers],
 				child_handle));
-		if (r == EFI_SUCCESS)
-			ret = r;
+		if (ret != EFI_SUCCESS)
+			goto reconnect;
 	}
+
+	free(driver_handle_buffer);
+	return ret;
+
+reconnect:
+	/* Reconnect all disconnected drivers */
+	for (; number_of_drivers < tmp; number_of_drivers++) {
+		r = EFI_CALL(efi_connect_controller(handle,
+						    &driver_handle_buffer[number_of_drivers],
+						    NULL, true));
+		if (r != EFI_SUCCESS)
+			EFI_PRINT("Failed to reconnect controller\n");
+	}
+
 	free(driver_handle_buffer);
 	return ret;
 }
