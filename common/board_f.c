@@ -633,8 +633,6 @@ static int init_post(void)
 static int reloc_fdt(void)
 {
 	if (!IS_ENABLED(CONFIG_OF_EMBED)) {
-		if (gd->flags & GD_FLG_SKIP_RELOC)
-			return 0;
 		if (gd->new_fdt) {
 			memcpy(gd->new_fdt, gd->fdt_blob,
 			       fdt_totalsize(gd->fdt_blob));
