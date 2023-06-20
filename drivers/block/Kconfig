@@ -107,6 +107,13 @@ config EFI_MEDIA
 
 	  For sandbox there is a test driver.
 
+config SPL_BLK_FS
+	bool "Load images from filesystems on block devices"
+	depends on SPL_BLK
+	help
+	  Use generic support to load images from fat/ext filesystems on
+	  different types of block devices such as NVMe.
+
 if EFI_MEDIA
 
 config EFI_MEDIA_SANDBOX

@@ -1263,6 +1263,33 @@ config SPL_SATA_RAW_U_BOOT_SECTOR
 	  Sector on the SATA disk to load U-Boot from, when the SATA disk is being
 	  used in raw mode. Units: SATA disk sectors (1 sector = 512 bytes).
 
+config SPL_NVME
+	bool "NVM Express device support"
+	depends on BLK
+	select HAVE_BLOCK_DEVICE
+	select FS_LOADER
+	select SPL_BLK_FS
+	help
+	  This option enables support for NVM Express devices.
+	  It supports basic functions of NVMe (read/write).
+
+config SPL_NVME_PCI
+	bool "NVM Express PCI device support for SPL"
+	depends on SPL_PCI && SPL_NVME
+	help
+	  This option enables support for NVM Express PCI devices.
+	  This allows use of NVMe devices for loading u-boot.
+
+config SPL_NVME_BOOT_DEVICE
+	hex "NVMe boot device number"
+	depends on SPL_NVME
+	default 0x0
+
+config SYS_NVME_BOOT_PARTITION
+	hex "NVMe boot partition number"
+	depends on SPL_NVME
+	default	0x1
+
 config SPL_SERIAL
 	bool "Support serial"
 	select SPL_PRINTF
