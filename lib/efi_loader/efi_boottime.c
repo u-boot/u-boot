@@ -1374,17 +1374,23 @@ static efi_status_t efi_uninstall_protocol
 	if (r != EFI_SUCCESS)
 		goto out;
 	/* Disconnect controllers */
-	efi_disconnect_all_drivers(efiobj, protocol, NULL);
+	r = efi_disconnect_all_drivers(efiobj, protocol, NULL);
+	if (r != EFI_SUCCESS) {
+		r = EFI_ACCESS_DENIED;
+		goto out;
+	}
 	/* Close protocol */
 	list_for_each_entry_safe(item, pos, &handler->open_infos, link) {
 		if (item->info.attributes ==
 			EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL ||
 		    item->info.attributes == EFI_OPEN_PROTOCOL_GET_PROTOCOL ||
 		    item->info.attributes == EFI_OPEN_PROTOCOL_TEST_PROTOCOL)
-			list_del(&item->link);
+			efi_delete_open_info(item);
 	}
+	/* if agents didn't close the protocols properly */
 	if (!list_empty(&handler->open_infos)) {
 		r =  EFI_ACCESS_DENIED;
+		EFI_CALL(efi_connect_controller(handle, NULL, NULL, true));
 		goto out;
 	}
 	r = efi_remove_protocol(handle, protocol, protocol_interface);
