@@ -1373,6 +1373,8 @@ static efi_status_t efi_uninstall_protocol
 	r = efi_search_protocol(handle, protocol, &handler);
 	if (r != EFI_SUCCESS)
 		goto out;
+	if (handler->protocol_interface != protocol_interface)
+		return EFI_NOT_FOUND;
 	/* Disconnect controllers */
 	r = efi_disconnect_all_drivers(efiobj, protocol, NULL);
 	if (r != EFI_SUCCESS) {
