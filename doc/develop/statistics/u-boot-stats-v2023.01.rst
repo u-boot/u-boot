@@ -5,7 +5,7 @@ Release Statistics for U-Boot v2023.01
 
 * Processed 1396 changesets from 152 developers
 
-* 23 employers found
+* 24 employers found
 
 * A total of 91252 lines added, 42422 removed (delta 48830)
 
@@ -603,11 +603,11 @@ Release Statistics for U-Boot v2023.01
    ====================================  =====
    Name                                  Count
    ====================================  =====
-   (Unknown)                             557 (39.9%)
+   (Unknown)                             556 (39.8%)
    Google, Inc.                          270 (19.3%)
+   AMD                                   90 (6.4%)
    DENX Software Engineering             86 (6.2%)
    Linaro                                85 (6.1%)
-   AMD                                   80 (5.7%)
    Konsulko Group                        48 (3.4%)
    ST Microelectronics                   47 (3.4%)
    SUSE                                  36 (2.6%)
@@ -616,16 +616,17 @@ Release Statistics for U-Boot v2023.01
    Broadcom                              27 (1.9%)
    Texas Instruments                     26 (1.9%)
    Amarula Solutions                     24 (1.7%)
-   Xilinx                                13 (0.9%)
    NXP                                   8 (0.6%)
    BayLibre SAS                          6 (0.4%)
    Collabora Ltd.                        6 (0.4%)
    Weidmüller Interface GmbH & Co. KG    6 (0.4%)
    Socionext Inc.                        4 (0.3%)
+   Xilinx                                3 (0.2%)
    Edgeble AI Technologies Pvt. Ltd.     1 (0.1%)
    Marvell                               1 (0.1%)
    Rockchip                              1 (0.1%)
    Siemens                               1 (0.1%)
+   Canonical                             1 (0.1%)
    ====================================  =====
 
 
@@ -635,7 +636,7 @@ Release Statistics for U-Boot v2023.01
    ====================================  =====
    Name                                  Count
    ====================================  =====
-   (Unknown)                             41561 (37.8%)
+   (Unknown)                             41551 (37.8%)
    Google, Inc.                          19204 (17.5%)
    Linaro                                11194 (10.2%)
    Toradex                               6724 (6.1%)
@@ -644,18 +645,19 @@ Release Statistics for U-Boot v2023.01
    Collabora Ltd.                        3312 (3.0%)
    Amarula Solutions                     3308 (3.0%)
    ST Microelectronics                   3303 (3.0%)
+   AMD                                   2379 (2.2%)
    Texas Instruments                     2174 (2.0%)
    DENX Software Engineering             2105 (1.9%)
-   AMD                                   2105 (1.9%)
    ARM                                   1569 (1.4%)
    SUSE                                  478 (0.4%)
    Weidmüller Interface GmbH & Co. KG    448 (0.4%)
    NXP                                   446 (0.4%)
-   Xilinx                                280 (0.3%)
    Marvell                               200 (0.2%)
    Socionext Inc.                        76 (0.1%)
    BayLibre SAS                          65 (0.1%)
+   Canonical                             10 (0.0%)
    Siemens                               9 (0.0%)
+   Xilinx                                6 (0.0%)
    Edgeble AI Technologies Pvt. Ltd.     1 (0.0%)
    Rockchip                              1 (0.0%)
    ====================================  =====
@@ -669,47 +671,49 @@ Release Statistics for U-Boot v2023.01
    ====================================  =====
    AMD                                   79 (46.7%)
    Amarula Solutions                     27 (16.0%)
-   (Unknown)                             22 (13.0%)
+   (Unknown)                             18 (10.7%)
    DENX Software Engineering             10 (5.9%)
    NXP                                   7 (4.1%)
    Linaro                                5 (3.0%)
    Google, Inc.                          4 (2.4%)
    ST Microelectronics                   4 (2.4%)
    ARM                                   4 (2.4%)
+   Canonical                             4 (2.4%)
    Texas Instruments                     3 (1.8%)
    Konsulko Group                        2 (1.2%)
    BayLibre SAS                          2 (1.2%)
    ====================================  =====
 
 
-.. table:: Employers with the most hackers (total 154)
+.. table:: Employers with the most hackers (total 153)
    :widths: auto
 
    ====================================  =====
    Name                                  Count
    ====================================  =====
-   (Unknown)                             81 (52.6%)
-   Linaro                                9 (5.8%)
+   (Unknown)                             80 (52.3%)
+   AMD                                   9 (5.9%)
+   Linaro                                9 (5.9%)
    Texas Instruments                     8 (5.2%)
-   AMD                                   7 (4.5%)
    ST Microelectronics                   6 (3.9%)
-   DENX Software Engineering             5 (3.2%)
+   DENX Software Engineering             5 (3.3%)
    Amarula Solutions                     4 (2.6%)
    Toradex                               4 (2.6%)
-   Xilinx                                4 (2.6%)
-   NXP                                   3 (1.9%)
-   Google, Inc.                          3 (1.9%)
-   ARM                                   3 (1.9%)
-   BayLibre SAS                          3 (1.9%)
+   NXP                                   3 (2.0%)
+   Google, Inc.                          3 (2.0%)
+   ARM                                   3 (2.0%)
+   BayLibre SAS                          3 (2.0%)
    Collabora Ltd.                        2 (1.3%)
    SUSE                                  2 (1.3%)
    Weidmüller Interface GmbH & Co. KG    2 (1.3%)
    Socionext Inc.                        2 (1.3%)
-   Konsulko Group                        1 (0.6%)
-   Broadcom                              1 (0.6%)
-   Marvell                               1 (0.6%)
-   Siemens                               1 (0.6%)
-   Edgeble AI Technologies Pvt. Ltd.     1 (0.6%)
-   Rockchip                              1 (0.6%)
+   Canonical                             1 (0.7%)
+   Konsulko Group                        1 (0.7%)
+   Broadcom                              1 (0.7%)
+   Marvell                               1 (0.7%)
+   Siemens                               1 (0.7%)
+   Xilinx                                1 (0.7%)
+   Edgeble AI Technologies Pvt. Ltd.     1 (0.7%)
+   Rockchip                              1 (0.7%)
    ====================================  =====
 

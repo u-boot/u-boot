@@ -5,7 +5,7 @@ Release Statistics for U-Boot v2023.04
 
 * Processed 1691 changesets from 157 developers
 
-* 29 employers found
+* 28 employers found
 
 * A total of 174471 lines added, 78380 removed (delta 96091)
 
@@ -631,17 +631,17 @@ Release Statistics for U-Boot v2023.04
    ====================================  =====
    Name                                  Count
    ====================================  =====
-   (Unknown)                             524 (31.0%)
+   (Unknown)                             464 (27.4%)
    Google, Inc.                          381 (22.5%)
    Konsulko Group                        333 (19.7%)
+   Renesas Electronics                   84 (5.0%)
    DENX Software Engineering             72 (4.3%)
    Texas Instruments                     49 (2.9%)
    Linaro                                47 (2.8%)
    Edgeble AI Technologies Pvt. Ltd.     46 (2.7%)
    ST Microelectronics                   40 (2.4%)
-   AMD                                   34 (2.0%)
+   AMD                                   35 (2.1%)
    NXP                                   25 (1.5%)
-   Renesas Electronics                   24 (1.4%)
    Toradex                               24 (1.4%)
    Amarula Solutions                     20 (1.2%)
    Collabora Ltd.                        20 (1.2%)
@@ -659,7 +659,6 @@ Release Statistics for U-Boot v2023.04
    Intel                                 1 (0.1%)
    linutronix                            1 (0.1%)
    Samsung                               1 (0.1%)
-   Xilinx                                1 (0.1%)
    ====================================  =====
 
 
@@ -669,18 +668,18 @@ Release Statistics for U-Boot v2023.04
    ====================================  =====
    Name                                  Count
    ====================================  =====
-   (Unknown)                             64681 (30.1%)
+   (Unknown)                             51007 (23.8%)
    Texas Instruments                     42105 (19.6%)
    Konsulko Group                        36464 (17.0%)
    Google, Inc.                          30090 (14.0%)
    Edgeble AI Technologies Pvt. Ltd.     23070 (10.7%)
+   Renesas Electronics                   14449 (6.7%)
    Linaro                                4601 (2.1%)
    DENX Software Engineering             4582 (2.1%)
-   AMD                                   1741 (0.8%)
+   AMD                                   1744 (0.8%)
    Amarula Solutions                     1649 (0.8%)
    ST Microelectronics                   882 (0.4%)
    Bootlin                               860 (0.4%)
-   Renesas Electronics                   775 (0.4%)
    Socionext Inc.                        760 (0.4%)
    ARM                                   724 (0.3%)
    Collabora Ltd.                        413 (0.2%)
@@ -695,7 +694,6 @@ Release Statistics for U-Boot v2023.04
    Pengutronix                           13 (0.0%)
    Samsung                               9 (0.0%)
    Ronetix                               4 (0.0%)
-   Xilinx                                3 (0.0%)
    Intel                                 1 (0.0%)
    linutronix                            1 (0.0%)
    ====================================  =====
@@ -707,14 +705,14 @@ Release Statistics for U-Boot v2023.04
    ====================================  =====
    Name                                  Count
    ====================================  =====
-   (Unknown)                             48 (22.3%)
+   Renesas Electronics                   30 (14.0%)
    Rockchip                              29 (13.5%)
    Toradex                               28 (13.0%)
+   (Unknown)                             27 (12.6%)
    Amarula Solutions                     24 (11.2%)
    AMD                                   23 (10.7%)
    NVidia                                19 (8.8%)
    Linaro                                9 (4.2%)
-   Renesas Electronics                   9 (4.2%)
    Texas Instruments                     5 (2.3%)
    Konsulko Group                        5 (2.3%)
    NXP                                   4 (1.9%)
@@ -734,18 +732,18 @@ Release Statistics for U-Boot v2023.04
    ====================================  =====
    Name                                  Count
    ====================================  =====
-   (Unknown)                             86 (53.8%)
+   (Unknown)                             85 (53.1%)
    Linaro                                9 (5.6%)
    Texas Instruments                     8 (5.0%)
-   AMD                                   6 (3.8%)
+   AMD                                   7 (4.4%)
    Collabora Ltd.                        6 (3.8%)
    Toradex                               5 (3.1%)
    DENX Software Engineering             5 (3.1%)
    Amarula Solutions                     4 (2.5%)
    NXP                                   4 (2.5%)
+   Renesas Electronics                   3 (1.9%)
    ARM                                   3 (1.9%)
    ST Microelectronics                   3 (1.9%)
-   Renesas Electronics                   2 (1.2%)
    SUSE                                  2 (1.2%)
    Socionext Inc.                        2 (1.2%)
    Konsulko Group                        1 (0.6%)
@@ -761,7 +759,6 @@ Release Statistics for U-Boot v2023.04
    Pengutronix                           1 (0.6%)
    Samsung                               1 (0.6%)
    Ronetix                               1 (0.6%)
-   Xilinx                                1 (0.6%)
    linutronix                            1 (0.6%)
    ====================================  =====
 
