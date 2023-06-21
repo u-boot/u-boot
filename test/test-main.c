@@ -272,7 +272,7 @@ static int dm_test_restore(struct device_node *of_root)
 		return ret;
 	dm_scan_plat(false);
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA))
-		dm_scan_fdt(false);
+		dm_extended_scan(false);
 
 	return 0;
 }
