@@ -188,6 +188,8 @@ config DMA_ADDR_T_64BIT
 config SIFIVE_CLINT
 	bool
 	depends on RISCV_MMODE
+	select REGMAP
+	select SYSCON
 	help
 	  The SiFive CLINT block holds memory-mapped control and status registers
 	  associated with software and timer interrupts.
@@ -195,6 +197,8 @@ config SIFIVE_CLINT
 config SPL_SIFIVE_CLINT
 	bool
 	depends on SPL_RISCV_MMODE
+	select SPL_REGMAP
+	select SPL_SYSCON
 	help
 	  The SiFive CLINT block holds memory-mapped control and status registers
 	  associated with software and timer interrupts.

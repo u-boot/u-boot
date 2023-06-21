@@ -10,9 +10,12 @@
 
 #include <common.h>
 #include <dm.h>
+#include <regmap.h>
+#include <syscon.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/smp.h>
+#include <asm/syscon.h>
 #include <linux/err.h>
 
 /* MSIP registers */
@@ -30,7 +33,11 @@ int riscv_init_ipi(void)
 	if (ret)
 		return ret;
 
-	gd->arch.clint = dev_read_addr_ptr(dev);
+	if (dev_get_driver_data(dev) != 0)
+		gd->arch.clint = dev_read_addr_ptr(dev);
+	else
+		gd->arch.clint = syscon_get_first_range(RISCV_SYSCON_CLINT);
+
 	if (!gd->arch.clint)
 		return -EINVAL;
 
@@ -57,3 +64,15 @@ int riscv_get_ipi(int hart, int *pending)
 
 	return 0;
 }
+
+static const struct udevice_id riscv_aclint_swi_ids[] = {
+	{ .compatible = "riscv,aclint-mswi", .data = RISCV_SYSCON_CLINT },
+	{ }
+};
+
+U_BOOT_DRIVER(riscv_aclint_swi) = {
+	.name		= "riscv_aclint_swi",
+	.id		= UCLASS_SYSCON,
+	.of_match	= riscv_aclint_swi_ids,
+	.flags		= DM_FLAG_PRE_RELOC,
+};
