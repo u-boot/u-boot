@@ -25,6 +25,7 @@ Shell commands
    cmd/askenv
    cmd/base
    cmd/bdinfo
+   cmd/bind
    cmd/blkcache
    cmd/bootd
    cmd/bootdev
