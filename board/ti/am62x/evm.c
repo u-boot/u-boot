@@ -12,6 +12,7 @@
 #include <init.h>
 #include <video.h>
 #include <splash.h>
+#include <cpu_func.h>
 #include <k3-ddrss.h>
 #include <fdt_support.h>
 #include <asm/io.h>
