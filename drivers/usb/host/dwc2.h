@@ -543,6 +543,10 @@ struct dwc2_core_regs {
 #define DWC2_HPRT0_PRTSPD_LOW				(2 << 17)
 #define DWC2_HPRT0_PRTSPD_MASK				(0x3 << 17)
 #define DWC2_HPRT0_PRTSPD_OFFSET			17
+#define DWC2_HPRT0_W1C_MASK				(DWC2_HPRT0_PRTCONNDET | \
+							DWC2_HPRT0_PRTENA | \
+							DWC2_HPRT0_PRTENCHNG | \
+							DWC2_HPRT0_PRTOVRCURRCHNG)
 #define DWC2_HAINT_CH0					(1 << 0)
 #define DWC2_HAINT_CH0_OFFSET				0
 #define DWC2_HAINT_CH1					(1 << 1)
