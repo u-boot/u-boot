@@ -12,12 +12,16 @@
 #include <dm/device-internal.h>
 #include <linux/err.h>
 
+#define CLINT_MTIME_OFFSET		0xbff8
+#define ACLINT_MTIME_OFFSET		0
+
 /* mtime register */
-#define MTIME_REG(base)			((ulong)(base) + 0xbff8)
+#define MTIME_REG(base, offset)		((ulong)(base) + (offset))
 
 static u64 notrace sifive_clint_get_count(struct udevice *dev)
 {
-	return readq((void __iomem *)MTIME_REG(dev_get_priv(dev)));
+	return readq((void __iomem *)MTIME_REG(dev_get_priv(dev),
+					       dev_get_driver_data(dev)));
 }
 
 #if CONFIG_IS_ENABLED(RISCV_MMODE) && IS_ENABLED(CONFIG_TIMER_EARLY)
@@ -35,7 +39,8 @@ unsigned long notrace timer_early_get_rate(void)
  */
 u64 notrace timer_early_get_count(void)
 {
-	return readq((void __iomem *)MTIME_REG(RISCV_MMODE_TIMERBASE));
+	return readq((void __iomem *)MTIME_REG(RISCV_MMODE_TIMERBASE,
+					       RISCV_MMODE_TIMEROFF));
 }
 #endif
 
@@ -53,8 +58,9 @@ static int sifive_clint_probe(struct udevice *dev)
 }
 
 static const struct udevice_id sifive_clint_ids[] = {
-	{ .compatible = "riscv,clint0" },
-	{ .compatible = "sifive,clint0" },
+	{ .compatible = "riscv,clint0", .data = CLINT_MTIME_OFFSET },
+	{ .compatible = "sifive,clint0", .data = CLINT_MTIME_OFFSET },
+	{ .compatible = "riscv,aclint-mtimer", .data = ACLINT_MTIME_OFFSET },
 	{ }
 };
 
