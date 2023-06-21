@@ -421,7 +421,9 @@ static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 		 * Ignore emulators and block child devices, we only want
 		 * real devices
 		 */
-		if ((device_get_uclass_id(child) != UCLASS_USB_EMUL) &&
+		if (udev &&
+		    (device_get_uclass_id(child) != UCLASS_BOOTDEV) &&
+		    (device_get_uclass_id(child) != UCLASS_USB_EMUL) &&
 		    (device_get_uclass_id(child) != UCLASS_BLK)) {
 			usb_show_tree_graph(udev, pre);
 			pre[index] = 0;
@@ -604,10 +606,12 @@ static void usb_show_info(struct usb_device *udev)
 	     child;
 	     device_find_next_child(&child)) {
 		if (device_active(child) &&
+		    (device_get_uclass_id(child) != UCLASS_BOOTDEV) &&
 		    (device_get_uclass_id(child) != UCLASS_USB_EMUL) &&
 		    (device_get_uclass_id(child) != UCLASS_BLK)) {
 			udev = dev_get_parent_priv(child);
-			usb_show_info(udev);
+			if (udev)
+				usb_show_info(udev);
 		}
 	}
 }
