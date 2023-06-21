@@ -29,16 +29,16 @@ int riscv_init_ipi(void)
 	struct udevice *dev;
 
 	ret = uclass_get_device_by_driver(UCLASS_TIMER,
-					  DM_DRIVER_GET(sifive_clint), &dev);
+					  DM_DRIVER_GET(riscv_aclint_timer), &dev);
 	if (ret)
 		return ret;
 
 	if (dev_get_driver_data(dev) != 0)
-		gd->arch.clint = dev_read_addr_ptr(dev);
+		gd->arch.aclint = dev_read_addr_ptr(dev);
 	else
-		gd->arch.clint = syscon_get_first_range(RISCV_SYSCON_CLINT);
+		gd->arch.aclint = syscon_get_first_range(RISCV_SYSCON_ACLINT);
 
-	if (!gd->arch.clint)
+	if (!gd->arch.aclint)
 		return -EINVAL;
 
 	return 0;
@@ -46,27 +46,27 @@ int riscv_init_ipi(void)
 
 int riscv_send_ipi(int hart)
 {
-	writel(1, (void __iomem *)MSIP_REG(gd->arch.clint, hart));
+	writel(1, (void __iomem *)MSIP_REG(gd->arch.aclint, hart));
 
 	return 0;
 }
 
 int riscv_clear_ipi(int hart)
 {
-	writel(0, (void __iomem *)MSIP_REG(gd->arch.clint, hart));
+	writel(0, (void __iomem *)MSIP_REG(gd->arch.aclint, hart));
 
 	return 0;
 }
 
 int riscv_get_ipi(int hart, int *pending)
 {
-	*pending = readl((void __iomem *)MSIP_REG(gd->arch.clint, hart));
+	*pending = readl((void __iomem *)MSIP_REG(gd->arch.aclint, hart));
 
 	return 0;
 }
 
 static const struct udevice_id riscv_aclint_swi_ids[] = {
-	{ .compatible = "riscv,aclint-mswi", .data = RISCV_SYSCON_CLINT },
+	{ .compatible = "riscv,aclint-mswi", .data = RISCV_SYSCON_ACLINT },
 	{ }
 };
 

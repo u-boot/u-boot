@@ -18,7 +18,7 @@
 /* mtime register */
 #define MTIME_REG(base, offset)		((ulong)(base) + (offset))
 
-static u64 notrace sifive_clint_get_count(struct udevice *dev)
+static u64 notrace riscv_aclint_timer_get_count(struct udevice *dev)
 {
 	return readq((void __iomem *)MTIME_REG(dev_get_priv(dev),
 					       dev_get_driver_data(dev)));
@@ -44,11 +44,11 @@ u64 notrace timer_early_get_count(void)
 }
 #endif
 
-static const struct timer_ops sifive_clint_ops = {
-	.get_count = sifive_clint_get_count,
+static const struct timer_ops riscv_aclint_timer_ops = {
+	.get_count = riscv_aclint_timer_get_count,
 };
 
-static int sifive_clint_probe(struct udevice *dev)
+static int riscv_aclint_timer_probe(struct udevice *dev)
 {
 	dev_set_priv(dev, dev_read_addr_ptr(dev));
 	if (!dev_get_priv(dev))
@@ -57,18 +57,18 @@ static int sifive_clint_probe(struct udevice *dev)
 	return timer_timebase_fallback(dev);
 }
 
-static const struct udevice_id sifive_clint_ids[] = {
+static const struct udevice_id riscv_aclint_timer_ids[] = {
 	{ .compatible = "riscv,clint0", .data = CLINT_MTIME_OFFSET },
 	{ .compatible = "sifive,clint0", .data = CLINT_MTIME_OFFSET },
 	{ .compatible = "riscv,aclint-mtimer", .data = ACLINT_MTIME_OFFSET },
 	{ }
 };
 
-U_BOOT_DRIVER(sifive_clint) = {
-	.name		= "sifive_clint",
+U_BOOT_DRIVER(riscv_aclint_timer) = {
+	.name		= "riscv_aclint_timer",
 	.id		= UCLASS_TIMER,
-	.of_match	= sifive_clint_ids,
-	.probe		= sifive_clint_probe,
-	.ops		= &sifive_clint_ops,
+	.of_match	= riscv_aclint_timer_ids,
+	.probe		= riscv_aclint_timer_probe,
+	.ops		= &riscv_aclint_timer_ops,
 	.flags		= DM_FLAG_PRE_RELOC,
 };

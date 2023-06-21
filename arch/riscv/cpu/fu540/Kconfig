@@ -11,7 +11,7 @@ config SIFIVE_FU540
 	imply CPU
 	imply CPU_RISCV
 	imply RISCV_TIMER if (RISCV_SMODE || SPL_RISCV_SMODE)
-	imply SPL_SIFIVE_CLINT
+	imply SPL_RISCV_ACLINT
 	imply CMD_CPU
 	imply SPL_CPU
 	imply SPL_OPENSBI

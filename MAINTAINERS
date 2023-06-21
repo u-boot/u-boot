@@ -1330,7 +1330,7 @@ F:	doc/arch/riscv.rst
 F:	doc/usage/sbi.rst
 F:	drivers/sysreset/sysreset_sbi.c
 F:	drivers/timer/andes_plmt_timer.c
-F:	drivers/timer/sifive_clint_timer.c
+F:	drivers/timer/riscv_aclint_timer.c
 F:	tools/prelink-riscv.c
 
 RISC-V CANAAN KENDRYTE K210

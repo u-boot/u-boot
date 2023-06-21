@@ -29,7 +29,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select SUPPORT_SPL
 	imply CPU_RISCV
 	imply RISCV_TIMER
-	imply SPL_SIFIVE_CLINT
+	imply SPL_RISCV_ACLINT
 	imply CMD_CPU
 	imply SPL_CPU_SUPPORT
 	imply SPL_SMP

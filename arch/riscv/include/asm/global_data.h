@@ -18,8 +18,8 @@
 struct arch_global_data {
 	long boot_hart;		/* boot hart id */
 	phys_addr_t firmware_fdt_addr;
-#if CONFIG_IS_ENABLED(SIFIVE_CLINT)
-	void __iomem *clint;	/* clint base address */
+#if CONFIG_IS_ENABLED(RISCV_ACLINT)
+	void __iomem *aclint;	/* aclint base address */
 #endif
 #ifdef CONFIG_ANDES_PLICSW
 	void __iomem *plicsw;	/* andes plicsw base address */
