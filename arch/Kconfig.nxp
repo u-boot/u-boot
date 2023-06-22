@@ -45,7 +45,7 @@ config ESBC_HDR_LS
 
 config ESBC_ADDR_64BIT
 	def_bool y
-	depends on ESBC_HDR_LS && FSL_LAYERSCAPE
+	depends on FSL_LAYERSCAPE
 	help
 	  For Layerscape based platforms, ESBC image Address in Header is 64bit.
 
