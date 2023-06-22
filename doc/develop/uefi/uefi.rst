@@ -552,6 +552,13 @@ update using a capsule file with --fw-version of 5, the update will fail.
 When the --fw-version in the capsule file is updated, lowest-supported-version
 in the dtb might be updated accordingly.
 
+If user needs to enforce anti-rollback to any older version,
+the lowest-supported-version property in dtb must be always updated manually.
+
+Note that the lowest-supported-version property specified in U-Boot's control
+device tree can be changed by U-Boot fdt command.
+Secure systems should not enable this command.
+
 To insert the lowest supported version into a dtb
 
 .. code-block:: console
