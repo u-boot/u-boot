@@ -286,6 +286,11 @@ void sandbox_set_enable_pci_map(int enable)
 	enable_pci_map = enable;
 }
 
+int dcache_status(void)
+{
+	return 1;
+}
+
 void flush_dcache_range(unsigned long start, unsigned long stop)
 {
 }
