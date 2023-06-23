@@ -1828,3 +1828,7 @@
 #ifdef CONFIG_SANDBOX_VPL
 #include "sandbox_vpl.dtsi"
 #endif
+
+#ifdef CONFIG_EFI_CAPSULE_AUTHENTICATE
+#include "sandbox_capsule.dtsi"
+#endif
