@@ -9,3 +9,5 @@ doc/uImage.FIT
 
 .. toctree::
     :maxdepth: 1
+
+    source_file_format

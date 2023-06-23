@@ -64,16 +64,15 @@ The following picture shows how the new uImage is prepared. Input consists of
 image source file (.its) and a set of data files. Image is created with the
 help of standard U-Boot mkimage tool which in turn uses dtc (device tree
 compiler) to produce image tree blob (.itb).  Resulting .itb file is the
-actual binary of a new uImage.
+actual binary of a new uImage::
 
-
-tqm5200.its
-+
-vmlinux.bin.gz	   mkimage + dtc	       xfer to target
-eldk-4.2-ramdisk  --------------> tqm5200.itb --------------> bootm
-tqm5200.dtb			     /|\
-...				      |
-				 'new uImage'
+    tqm5200.its
+    +
+    vmlinux.bin.gz     mkimage + dtc               xfer to target
+    eldk-4.2-ramdisk  --------------> tqm5200.itb --------------> bootm
+    tqm5200.dtb                          /|\
+                                          |
+                                     'new uImage'
 
 	- create .its file, automatically filled-in properties are omitted
 	- call mkimage tool on a .its file
@@ -93,26 +92,25 @@ checking required.
 3) Root node properties
 -----------------------
 
-Root node of the uImage Tree should have the following layout:
+Root node of the uImage Tree should have the following layout::
 
-/ o image-tree
-    |- description = "image description"
-    |- timestamp = <12399321>
-    |- #address-cells = <1>
-    |
-    o images
-    | |
-    | o image-1 {...}
-    | o image-2 {...}
-    | ...
-    |
-    o configurations
-      |- default = "conf-1"
-      |
-      o conf-1 {...}
-      o conf-2 {...}
-      ...
-
+    / o image-tree
+        |- description = "image description"
+        |- timestamp = <12399321>
+        |- #address-cells = <1>
+        |
+        o images
+        | |
+        | o image-1 {...}
+        | o image-2 {...}
+        | ...
+        |
+        o configurations
+          |- default = "conf-1"
+          |
+          o conf-1 {...}
+          o conf-2 {...}
+          ...
 
   Optional property:
   - description : Textual description of the uImage
@@ -138,21 +136,21 @@ Root node of the uImage Tree should have the following layout:
 -----------------
 
 This node is a container node for component sub-image nodes. Each sub-node of
-the '/images' node should have the following layout:
+the '/images' node should have the following layout::
 
- o image-1
-   |- description = "component sub-image description"
-   |- data = /incbin/("path/to/data/file.bin")
-   |- type = "sub-image type name"
-   |- arch = "ARCH name"
-   |- os = "OS name"
-   |- compression = "compression name"
-   |- load = <00000000>
-   |- entry = <00000000>
-   |
-   o hash-1 {...}
-   o hash-2 {...}
-   ...
+    o image-1
+        |- description = "component sub-image description"
+        |- data = /incbin/("path/to/data/file.bin")
+        |- type = "sub-image type name"
+        |- arch = "ARCH name"
+        |- os = "OS name"
+        |- compression = "compression name"
+        |- load = <00000000>
+        |- entry = <00000000>
+        |
+        o hash-1 {...}
+        o hash-2 {...}
+        ...
 
   Mandatory properties:
   - description : Textual description of the component sub-image
@@ -202,9 +200,11 @@ the '/images' node should have the following layout:
 5) Hash nodes
 -------------
 
-o hash-1
-  |- algo = "hash or checksum algorithm name"
-  |- value = [hash or checksum value]
+::
+
+    o hash-1
+        |- algo = "hash or checksum algorithm name"
+        |- value = [hash or checksum value]
 
   Mandatory properties:
   - algo : Algorithm name, supported are "crc32", "md5" and "sha1".
@@ -218,14 +218,14 @@ o hash-1
 The 'configurations' node creates convenient, labeled boot configurations,
 which combine together kernel images with their ramdisks and fdt blobs.
 
-The 'configurations' node has has the following structure:
+The 'configurations' node has the following structure::
 
-o configurations
-  |- default = "default configuration sub-node unit name"
-  |
-  o config-1 {...}
-  o config-2 {...}
-  ...
+    o configurations
+        |- default = "default configuration sub-node unit name"
+        |
+        o config-1 {...}
+        o config-2 {...}
+        ...
 
 
   Optional property:
@@ -240,15 +240,15 @@ o configurations
 7) Configuration nodes
 ----------------------
 
-Each configuration has the following structure:
+Each configuration has the following structure::
 
-o config-1
-  |- description = "configuration description"
-  |- kernel = "kernel sub-node unit name"
-  |- fdt = "fdt sub-node unit-name" [, "fdt overlay sub-node unit-name", ...]
-  |- loadables = "loadables sub-node unit-name"
-  |- script = "
-  |- compatible = "vendor,board-style device tree compatible string"
+    o config-1
+        |- description = "configuration description"
+        |- kernel = "kernel sub-node unit name"
+        |- fdt = "fdt sub-node unit-name" [, "fdt overlay sub-node unit-name", ...]
+        |- loadables = "loadables sub-node unit-name"
+        |- script = "
+        |- compatible = "vendor,board-style device tree compatible string"
 
 
   Mandatory properties:
@@ -319,4 +319,4 @@ structure and data to 512 byte, other values available for other align size.
 9) Examples
 -----------
 
-Please see doc/uImage.FIT/*.its for actual image source files.
+Please see `doc/uImage.FIT/*.its` for actual image source files.
