@@ -42,64 +42,83 @@ def efi_capsule_data(request, u_boot_config):
         check_call('cd %s; %s/tools/mkimage -f uboot_bin_env.its uboot_bin_env.itb' %
                    (data_dir, u_boot_config.build_dir),
                    shell=True)
-        check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 u-boot.bin.new Test01' %
-                   (data_dir, u_boot_config.build_dir),
-                   shell=True)
-        check_call('cd %s; %s/tools/mkeficapsule --index 2 --guid 5A7021F5-FEF2-48B4-AABA-832E777418C0 u-boot.env.new Test02' %
-                   (data_dir, u_boot_config.build_dir),
-                   shell=True)
-        check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid 058B7D83-50D5-4C47-A195-60D86AD341C4 u-boot.bin.new Test03' %
-                   (data_dir, u_boot_config.build_dir),
-                   shell=True)
-        check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 uboot_bin_env.itb Test04' %
-                   (data_dir, u_boot_config.build_dir),
-                   shell=True)
-        check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid  058B7D83-50D5-4C47-A195-60D86AD341C4 uboot_bin_env.itb Test05' %
-                   (data_dir, u_boot_config.build_dir),
-                   shell=True)
 
         capsule_auth_enabled = u_boot_config.buildconfig.get(
                     'config_efi_capsule_authenticate')
         if capsule_auth_enabled:
             capsules_path_dir = '/tmp/capsules/'
-            check_call('mv %s/* %s ' %(capsules_path_dir, data_dir), shell=True)
+            check_call('mv %s* %s/ ' %(capsules_path_dir, data_dir), shell=True)
             check_call('cp %s/arch/sandbox/dts/test.dtb %s/test_sig.dtb' %
                        (u_boot_config.build_dir, data_dir), shell=True)
 
-            # raw firmware signed with proper key
-            check_call('cd %s; '
-                       '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
-                            '--private-key SIGNER.key --certificate SIGNER.crt '
-                            '--guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 '
-                            'u-boot.bin.new Test11'
-                       % (data_dir, u_boot_config.build_dir),
+        cfg_file = u_boot_config.buildconfig.get(
+            'config_efi_capsule_cfg_file')[1:-1]
+        if cfg_file:
+            capsules_path_dir = '/tmp/capsules/'
+            check_call('mkdir -p %s ;'
+                       'cp -a %s/* %s/' % (capsules_path_dir, data_dir, capsules_path_dir),
                        shell=True)
-            # raw firmware signed with *mal* key
-            check_call('cd %s; '
-                       '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
-                            '--private-key SIGNER2.key '
-                            '--certificate SIGNER2.crt '
-                            '--guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 '
-                            'u-boot.bin.new Test12'
-                       % (data_dir, u_boot_config.build_dir),
+            check_call(' cp %s/test/py/tests/test_efi_capsule/sandbox_capsule_cfg.txt %s'
+                       % (u_boot_config.source_dir, capsules_path_dir),
                        shell=True)
-            # FIT firmware signed with proper key
             check_call('cd %s; '
-                       '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
-                            '--private-key SIGNER.key --certificate SIGNER.crt '
-                            '--guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 '
-                            'uboot_bin_env.itb Test13'
-                       % (data_dir, u_boot_config.build_dir),
+                       'make capsule O=%s' % (u_boot_config.source_dir, u_boot_config.build_dir),
                        shell=True)
-            # FIT firmware signed with *mal* key
             check_call('cd %s; '
-                       '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
-                            '--private-key SIGNER2.key '
-                            '--certificate SIGNER2.crt '
-                            '--guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 '
-                            'uboot_bin_env.itb Test14'
-                       % (data_dir, u_boot_config.build_dir),
+                       'mv Test* %s/'
+                       % (capsules_path_dir, data_dir), shell=True)
+        else:
+            check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 u-boot.bin.new Test01' %
+                       (data_dir, u_boot_config.build_dir),
                        shell=True)
+            check_call('cd %s; %s/tools/mkeficapsule --index 2 --guid 5A7021F5-FEF2-48B4-AABA-832E777418C0 u-boot.env.new Test02' %
+                       (data_dir, u_boot_config.build_dir),
+                       shell=True)
+            check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid 058B7D83-50D5-4C47-A195-60D86AD341C4 u-boot.bin.new Test03' %
+                       (data_dir, u_boot_config.build_dir),
+                       shell=True)
+            check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 uboot_bin_env.itb Test04' %
+                       (data_dir, u_boot_config.build_dir),
+                       shell=True)
+            check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid  058B7D83-50D5-4C47-A195-60D86AD341C4 uboot_bin_env.itb Test05' %
+                       (data_dir, u_boot_config.build_dir),
+                       shell=True)
+
+            if capsule_auth_enabled:
+                # raw firmware signed with proper key
+                check_call('cd %s; '
+                           '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
+                           '--private-key SIGNER.key --certificate SIGNER.crt '
+                           '--guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 '
+                           'u-boot.bin.new Test11'
+                           % (data_dir, u_boot_config.build_dir),
+                           shell=True)
+                # raw firmware signed with *mal* key
+                check_call('cd %s; '
+                           '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
+                           '--private-key SIGNER2.key '
+                           '--certificate SIGNER2.crt '
+                           '--guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 '
+                           'u-boot.bin.new Test12'
+                           % (data_dir, u_boot_config.build_dir),
+                           shell=True)
+                # FIT firmware signed with proper key
+                check_call('cd %s; '
+                           '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
+                           '--private-key SIGNER.key --certificate SIGNER.crt '
+                           '--guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 '
+                           'uboot_bin_env.itb Test13'
+                           % (data_dir, u_boot_config.build_dir),
+                           shell=True)
+                # FIT firmware signed with *mal* key
+                check_call('cd %s; '
+                           '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
+                           '--private-key SIGNER2.key '
+                           '--certificate SIGNER2.crt '
+                           '--guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 '
+                           'uboot_bin_env.itb Test14'
+                           % (data_dir, u_boot_config.build_dir),
+                           shell=True)
 
         # Create a disk image with EFI system partition
         check_call('virt-make-fs --partition=gpt --size=+1M --type=vfat %s %s' %
