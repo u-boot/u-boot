@@ -11,3 +11,4 @@ doc/uImage.FIT
     :maxdepth: 1
 
     source_file_format
+    x86-fit-boot
