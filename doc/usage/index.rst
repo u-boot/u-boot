@@ -32,6 +32,7 @@ Shell commands
    cmd/bootefi
    cmd/bootflow
    cmd/booti
+   cmd/bootm
    cmd/bootmenu
    cmd/bootmeth
    cmd/button
