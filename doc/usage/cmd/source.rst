@@ -22,7 +22,7 @@ Two formats for script files exist:
 * Flat Image Tree (FIT)
 
 The benefit of the FIT images is that they can be signed and verifed as
-decribed in :download:`signature.txt <../../uImage.FIT/signature.txt>`.
+described in :doc:`../fit/signature`.
 
 Both formats can be created with the mkimage tool.
 

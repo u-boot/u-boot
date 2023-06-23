@@ -12,3 +12,6 @@ doc/uImage.FIT
 
     source_file_format
     x86-fit-boot
+    signature
+    verified-boot
+    beaglebone_vboot
