@@ -1,61 +1,41 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-U-Boot new uImage source file format (bindings definition)
-==========================================================
+Flattened Image Tree (FIT) Format
+=================================
 
 Introduction
 ------------
 
-Evolution of the 2.6 Linux kernel for embedded PowerPC systems introduced new
-booting method which requires that hardware description is available to the
-kernel in the form of Flattened Device Tree.
+The number of elements playing a role in the kernel booting process has
+increased over time and now typically includes the devicetree, kernel image and
+possibly a ramdisk image. Generally, all must be placed in the system memory and
+booted together.
 
-Booting with a Flattened Device Tree is much more flexible and is intended to
-replace direct passing of 'struct bd_info' which was used to boot pre-FDT
-kernels.
+For firmware images a similar process has taken place, with various binaries
+loaded at different addresses, such as ARM's ATF, OpenSBI, FPGA and U-Boot
+itself.
 
-However, U-Boot needs to support both techniques to provide backward
-compatibility for platforms which are not FDT ready. Number of elements
-playing role in the booting process has increased and now includes the FDT
-blob. Kernel image, FDT blob and possibly ramdisk image - all must be placed
-in the system memory and passed to bootm as a arguments. Some of them may be
-missing: FDT is not present for legacy platforms, ramdisk is always optional.
-Additionally, old uImage format has been extended to support multi sub-images
-but the support is limited by simple format of the legacy uImage structure.
-Single binary header 'struct legacy_img_hdr' is not flexible enough to cover all
-possible scenarios.
-
-All those factors combined clearly show that there is a need for new, more
-flexible, multi component uImage format.
-
-
-New uImage format assumptions
------------------------------
-
-Implementation
-~~~~~~~~~~~~~~
-
-Libfdt has been selected for the new uImage format implementation as (1) it
-provides needed functionality, (2) is actively maintained and developed and
-(3) increases code reuse as it is already part of the U-Boot source tree.
+FIT provides a flexible and extensible format to deal with this complexity. It
+provides support for multiple components. It also supports multiple
+configurations, so that the same FIT can be used to boot multiple boards, with
+some components in common (e.g. kernel) and some specific to that board (e.g.
+devicetree).
 
 Terminology
 ~~~~~~~~~~~
 
-This document defines new uImage structure by providing FDT bindings for new
-uImage internals. Bindings are defined from U-Boot perspective, i.e. describe
-final form of the uImage at the moment when it reaches U-Boot. User
+This document defines FIT by providing FDT (Flat Device Tree) bindings. These
+describe the final form of the FIT at the moment when it is used. The user
 perspective may be simpler, as some of the properties (like timestamps and
-hashes) will need to be filled in automatically by the U-Boot mkimage tool.
+hashes) are filled in automatically by the U-Boot mkimage tool.
 
-To avoid confusion with the kernel FDT the following naming convention is
-proposed for the new uImage format related terms:
+To avoid confusion with the kernel FDT the following naming convention is used:
 
 FIT
-    Flattened uImage Tree
+    Flattened Image Tree
 
-FIT is formally a flattened device tree (in the libfdt meaning), which
-conforms to bindings defined in this document.
+FIT is formally a flattened devicetree (in the libfdt meaning), which conforms
+to bindings defined in this document.
 
 .its
     image tree source
@@ -63,22 +43,22 @@ conforms to bindings defined in this document.
 .itb
     flattened image tree blob
 
-Image building procedure
+Image-building procedure
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following picture shows how the new uImage is prepared. Input consists of
+The following picture shows how the FIT is prepared. Input consists of
 image source file (.its) and a set of data files. Image is created with the
 help of standard U-Boot mkimage tool which in turn uses dtc (device tree
-compiler) to produce image tree blob (.itb).  Resulting .itb file is the
-actual binary of a new uImage::
+compiler) to produce image tree blob (.itb). The resulting .itb file is the
+actual binary of a new FIT::
 
     tqm5200.its
     +
     vmlinux.bin.gz     mkimage + dtc               xfer to target
-    eldk-4.2-ramdisk  --------------> tqm5200.itb --------------> bootm
+    eldk-4.2-ramdisk  --------------> tqm5200.itb --------------> boot
     tqm5200.dtb                          /|\
                                           |
-                                     'new uImage'
+                                     'new FIT'
 
 Steps:
 
@@ -89,7 +69,7 @@ Steps:
 #. mkimage calls dtc to create .itb image and assures that
    missing properties are added
 
-#. .itb (new uImage) is uploaded onto the target and used therein
+#. .itb (new FIT) is uploaded onto the target and used therein
 
 
 Unique identifiers
@@ -101,10 +81,10 @@ is used as it's identifier as it assures uniqueness without additional
 checking required.
 
 
-Root node properties
+Root-node properties
 --------------------
 
-Root node of the uImage Tree should have the following layout::
+The root node of the FIT should have the following layout::
 
     / o image-tree
         |- description = "image description"
@@ -128,7 +108,7 @@ Optional property
 ~~~~~~~~~~~~~~~~~
 
 description
-    Textual description of the uImage
+    Textual description of the FIT
 
 Mandatory property
 ~~~~~~~~~~~~~~~~~~
