@@ -385,6 +385,10 @@ hash-1
     Each hash sub-node represents separate hash or checksum
     calculated for node's data according to specified algorithm.
 
+signature-1
+    Each signature sub-node represents separate signature
+    calculated for node's data according to specified algorithm.
+
 
 Hash nodes
 ----------
@@ -418,6 +422,91 @@ algo
 value
     Actual checksum or hash value.
 
+Image-signature nodes
+---------------------
+
+::
+
+    o signature-1
+        |- algo = "algorithm name"
+        |- key-name-hint = "key name"
+        |- value = [hash or checksum value]
+
+
+Mandatory properties
+~~~~~~~~~~~~~~~~~~~~
+
+_`FIT Algorithm`:
+
+algo
+    Algorithm name. Supported algoriths and their value sizes are shown below.
+    Note that the hash is specified separately from the signing algorithm, so
+    it is possible to mix and match any SHA algorithm with any signing
+    algorithm. The size of the signature relates to the signing algorithm, not
+    the hash, since it is the hash that is signed.
+
+    ==================== ============ =========================================
+    Sub-image type       Size (bytes) Meaning
+    ==================== ============ =========================================
+    sha1,rsa2048         256          SHA1 hash signed with 2048-bit
+                                      Rivest–Shamir–Adleman algorithm
+    sha1,rsa3072         384          SHA1 hash signed with 2048-bit RSA
+    sha1,rsa4096         512          SHA1 hash signed with 2048-bit RSA
+    sha1,ecdsa256        32           SHA1 hash signed with 256-bit  Elliptic
+                                      Curve Digital Signature Algorithm
+    sha256,...
+    sha384,...
+    sha512,...
+    ==================== ============ =========================================
+
+key-name-hint
+    Name of key to use for signing. The keys will normally be in
+    a single directory (parameter -k to mkimage). For a given key <name>, its
+    private key is stored in <name>.key and the certificate is stored in
+    <name>.crt.
+
+sign-images
+    A list of images to sign, each being a property of the conf
+    node that contains then. The default is "kernel,fdt" which means that these
+    two images will be looked up in the config and signed if present. This is
+    used by mkimage to determine which images to sign.
+
+The following properies are added as part of signing, and are mandatory:
+
+value
+    Actual signature value. This is added by mkimage.
+
+hashed-nodes
+    A list of nodes which were hashed by the signer. Each is
+    a string - the full path to node. A typical value might be::
+
+	hashed-nodes = "/", "/configurations/conf-1", "/images/kernel",
+	    "/images/kernel/hash-1", "/images/fdt-1",
+	    "/images/fdt-1/hash-1";
+
+hashed-strings
+    The start and size of the string region of the FIT that was hashed. The
+    start is normally 0, indicating the first byte of the string table. The size
+    indicates the number of bytes hashed as part of signing.
+
+The following properies are added as part of signing, and are optional:
+
+timestamp
+    Time when image was signed (standard Unix time_t format)
+
+signer-name
+    Name of the signer (e.g. "mkimage")
+
+signer-version
+    Version string of the signer (e.g. "2013.01")
+
+comment
+    Additional information about the signer or image
+
+padding
+    The padding algorithm, it may be pkcs-1.5 or pss,
+    if no value is provided we assume pkcs-1.5
+
 
 '/configurations' node
 ----------------------
@@ -447,6 +536,13 @@ Mandatory nodes
 configuration-sub-node-unit-name
     At least one of the configuration sub-nodes is required.
 
+Optional nodes
+~~~~~~~~~~~~~~
+
+signature-1
+    Each signature sub-node represents separate signature
+    calculated for the configuration according to specified algorithm.
+
 
 Configuration nodes
 -------------------
@@ -460,7 +556,7 @@ Each configuration has the following structure::
         |- loadables = "loadables sub-node unit-name"
         |- script = "
         |- compatible = "vendor,board-style device tree compatible string"
-
+        o signature-1 {...}
 
 Mandatory properties
 ~~~~~~~~~~~~~~~~~~~~
@@ -511,6 +607,55 @@ configuration for 2.6 FDT kernel is (kernel, fdt) pair.
 Older, 2.4 kernel and 2.6 non-FDT kernel do not use FDT blob, in such cases
 'struct bd_info' must be passed instead of FDT blob, thus fdt property *must
 not* be specified in a configuration node.
+
+Configuration-signature nodes
+-----------------------------
+
+::
+
+    o signature-1
+        |- algo = "algorithm name"
+        |- key-name-hint = "key name"
+        |- sign-images = "path1", "path2";
+        |- value = [hash or checksum value]
+        |- hashed-strings = <0 len>
+
+
+Mandatory properties
+~~~~~~~~~~~~~~~~~~~~
+
+algo
+    See `FIT Algorithm`_.
+
+key-name-hint
+    Name of key to use for signing. The keys will normally be in
+    a single directory (parameter -k to mkimage). For a given key <name>, its
+    private key is stored in <name>.key and the certificate is stored in
+    <name>.crt.
+
+The following properies are added as part of signing, and are mandatory:
+
+value
+    Actual signature value. This is added by mkimage.
+
+The following properies are added as part of signing, and are optional:
+
+timestamp
+    Time when image was signed (standard Unix time_t format)
+
+signer-name
+    Name of the signer (e.g. "mkimage")
+
+signer-version
+    Version string of the signer (e.g. "2013.01")
+
+comment
+    Additional information about the signer or image
+
+padding
+    The padding algorithm, it may be pkcs-1.5 or pss,
+    if no value is provided we assume pkcs-1.5
+
 
 
 Examples
