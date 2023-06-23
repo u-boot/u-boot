@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
 U-Boot new uImage source file format (bindings definition)
 ==========================================================
 
@@ -386,7 +388,8 @@ data-offset
     store is placed immediately after the last byte of the device tree binary,
     aligned to a 4-byte boundary.
 
-data-size : size of the data in bytes
+data-size
+    size of the data in bytes
 
 The 'data-offset' property can be substituted with 'data-position', which
 defines an absolute position or address as the offset. This is helpful when
@@ -405,7 +408,25 @@ structure and data to 512 byte, other values available for other align size.
 Examples
 --------
 
-Please see `doc/uImage.FIT/*.its` for actual image source files.
+Some example files are available here, showing various scenarios
+
+.. toctree::
+    :maxdepth: 1
+
+    kernel
+    kernel_fdt
+    kernel_fdts_compressed
+    kernel
+    multi
+    multi_spl
+    multi-with-fpga
+    multi-with-loadables
+    sec_firmware_ppa
+    sign-configs
+    sign-images
+    uefi
+    update3
+    update_uboot
 
 .. sectionauthor:: Marian Balakowicz <m8@semihalf.com>
 .. sectionauthor:: External data additions, 25/1/16 Simon Glass <sjg@chromium.org>
