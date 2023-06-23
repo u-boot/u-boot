@@ -181,7 +181,8 @@ static int ab_compare_slots(const struct slot_metadata *a,
 	return 0;
 }
 
-int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info)
+int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info,
+		   bool dec_tries)
 {
 	struct bootloader_control *abc = NULL;
 	u32 crc32_le;
@@ -272,8 +273,10 @@ int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info)
 		log_err("ANDROID: Attempting slot %c, tries remaining %d\n",
 			BOOT_SLOT_NAME(slot),
 			abc->slot_info[slot].tries_remaining);
-		abc->slot_info[slot].tries_remaining--;
-		store_needed = true;
+		if (dec_tries) {
+			abc->slot_info[slot].tries_remaining--;
+			store_needed = true;
+		}
 	}
 
 	if (slot >= 0) {
