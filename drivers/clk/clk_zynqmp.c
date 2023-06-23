@@ -12,6 +12,7 @@
 #include <linux/bitops.h>
 #include <clk-uclass.h>
 #include <clk.h>
+#include <zynqmp_firmware.h>
 #include <asm/arch/sys_proto.h>
 #include <dm.h>
 #include <linux/err.h>
