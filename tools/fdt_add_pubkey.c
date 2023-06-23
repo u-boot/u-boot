@@ -2,18 +2,21 @@
 #include <image.h>
 #include "fit_common.h"
 
+extern int fdt_embed_esl(const char *esl_file, void *keydest);
+
 static const char *cmdname;
 
 static const char *algo_name = "sha1,rsa2048"; /* -a <algo> */
 static const char *keydir = "."; /* -k <keydir> */
 static const char *keyname = "key"; /* -n <keyname> */
 static const char *require_keys; /* -r <conf|image> */
+static const char *esl_file; /* -e <esl file> */
 static const char *keydest; /* argv[n] */
 
 static void __attribute__((__noreturn__)) print_usage(const char *msg)
 {
 	fprintf(stderr, "Error: %s\n", msg);
-	fprintf(stderr, "Usage: %s [-a <algo>] [-k <keydir>] [-n <keyname>] [-r <conf|image>]"
+	fprintf(stderr, "Usage: %s [-a <algo>] [-e <esl file>] [-k <keydir>] [-n <keyname>] [-r <conf|image>]"
 			" <fdt blob>\n", cmdname);
 	fprintf(stderr, "Help information: %s [-h]\n", cmdname);
 	exit(EXIT_FAILURE);
@@ -23,6 +26,7 @@ static void __attribute__((__noreturn__)) print_help(void)
 {
 	fprintf(stderr, "Options:\n"
 		"\t-a <algo>       Cryptographic algorithm. Optional parameter, default value: sha1,rsa2048\n"
+		"\t-e <esl file>   EFI Signature List(ESL) file to embed into the FDT\n"
 		"\t-k <keydir>     Directory with public key. Optional parameter, default value: .\n"
 		"\t-n <keyname>    Public key name. Optional parameter, default value: key\n"
 		"\t-r <conf|image> Required: If present this indicates that the key must be verified for the image / configuration to be considered valid.\n"
@@ -34,7 +38,7 @@ static void process_args(int argc, char *argv[])
 {
 	int opt;
 
-	while ((opt = getopt(argc, argv, "a:k:n:r:h")) != -1) {
+	while ((opt = getopt(argc, argv, "a:e:k:n:r:h")) != -1) {
 		switch (opt) {
 		case 'k':
 			keydir = optarg;
@@ -47,6 +51,9 @@ static void process_args(int argc, char *argv[])
 			break;
 		case 'r':
 			require_keys = optarg;
+			break;
+		case 'e':
+			esl_file = optarg;
 			break;
 		case 'h':
 			print_help();
@@ -106,7 +113,10 @@ static int add_pubkey(struct image_sign_info *info)
 		if (destfd < 0)
 			exit(EXIT_FAILURE);
 
-		ret = info->crypto->add_verify_data(info, dest_blob);
+
+		ret = esl_file ? fdt_embed_esl(esl_file, dest_blob) :
+			info->crypto->add_verify_data(info, dest_blob);
+
 		if (ret == -ENOSPC)
 			continue;
 		else if (ret < 0)
