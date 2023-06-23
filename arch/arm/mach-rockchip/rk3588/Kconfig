@@ -34,15 +34,15 @@ config TARGET_ROCK5B_RK3588
 	  4x ARM Cortex-A76, 4x ARM Cortex-A55
 	  4/8/16GB memory LPDDR4x
 	  Mali G610MC4 GPU
-	  MIPI CSI 2 multiple lanes connector
+	  2x MIPI CSI 2 multiple lanes connector
 	  eMMC module connector
 	  uSD slot (up to 128GB)
-	  2x USB 2.0, 2x USB 3.0
-	  2x HDMI output, 1x HDMI input
-	  Ethernet port
+	  2x USB 2.0 Type-A, 2x USB 3.0 Type-A, 1x USB 3.0 Type-C
+	  2x HDMI 2.1 output, 1x micro HDMI input
+	  2.5 Gbps Ethernet port
 	  40-pin IO header including UART, SPI, I2C and 5V DC power in
 	  USB PD over USB Type-C
-	  Size: 85mm x 54mm
+	  Size: 100mm x 72mm (Pico-ITX form factor)
 
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xfd588080
