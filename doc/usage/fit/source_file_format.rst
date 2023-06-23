@@ -1,11 +1,8 @@
 U-Boot new uImage source file format (bindings definition)
 ==========================================================
 
-Author: Marian Balakowicz <m8@semihalf.com>
-External data additions, 25/1/16 Simon Glass <sjg@chromium.org>
-
-1) Introduction
----------------
+Introduction
+------------
 
 Evolution of the 2.6 Linux kernel for embedded PowerPC systems introduced new
 booting method which requires that hardware description is available to the
@@ -30,16 +27,18 @@ All those factors combined clearly show that there is a need for new, more
 flexible, multi component uImage format.
 
 
-2) New uImage format assumptions
---------------------------------
+New uImage format assumptions
+-----------------------------
 
-a) Implementation
+Implementation
+~~~~~~~~~~~~~~
 
 Libfdt has been selected for the new uImage format implementation as (1) it
 provides needed functionality, (2) is actively maintained and developed and
 (3) increases code reuse as it is already part of the U-Boot source tree.
 
-b) Terminology
+Terminology
+~~~~~~~~~~~
 
 This document defines new uImage structure by providing FDT bindings for new
 uImage internals. Bindings are defined from U-Boot perspective, i.e. describe
@@ -50,15 +49,20 @@ hashes) will need to be filled in automatically by the U-Boot mkimage tool.
 To avoid confusion with the kernel FDT the following naming convention is
 proposed for the new uImage format related terms:
 
-FIT	- Flattened uImage Tree
+FIT
+    Flattened uImage Tree
 
 FIT is formally a flattened device tree (in the libfdt meaning), which
 conforms to bindings defined in this document.
 
-.its	- image tree source
-.itb	- flattened image tree blob
+.its
+    image tree source
 
-c) Image building procedure
+.itb
+    flattened image tree blob
+
+Image building procedure
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following picture shows how the new uImage is prepared. Input consists of
 image source file (.its) and a set of data files. Image is created with the
@@ -74,14 +78,20 @@ actual binary of a new uImage::
                                           |
                                      'new uImage'
 
-	- create .its file, automatically filled-in properties are omitted
-	- call mkimage tool on a .its file
-	- mkimage calls dtc to create .itb image and assures that
-	  missing properties are added
-	- .itb (new uImage) is uploaded onto the target and used therein
+Steps:
+
+#. Create .its file, automatically filled-in properties are omitted
+
+#. Call mkimage tool on a .its file
+
+#. mkimage calls dtc to create .itb image and assures that
+   missing properties are added
+
+#. .itb (new uImage) is uploaded onto the target and used therein
 
 
-d) Unique identifiers
+Unique identifiers
+~~~~~~~~~~~~~~~~~~
 
 To identify FIT sub-nodes representing images, hashes, configurations (which
 are defined in the following sections), the "unit name" of the given sub-node
@@ -89,8 +99,8 @@ is used as it's identifier as it assures uniqueness without additional
 checking required.
 
 
-3) Root node properties
------------------------
+Root node properties
+--------------------
 
 Root node of the uImage Tree should have the following layout::
 
@@ -112,28 +122,42 @@ Root node of the uImage Tree should have the following layout::
           o conf-2 {...}
           ...
 
-  Optional property:
-  - description : Textual description of the uImage
+Optional property
+~~~~~~~~~~~~~~~~~
 
-  Mandatory property:
-  - timestamp : Last image modification time being counted in seconds since
+description
+    Textual description of the uImage
+
+Mandatory property
+~~~~~~~~~~~~~~~~~~
+
+timestamp
+    Last image modification time being counted in seconds since
     1970-01-01 00:00:00 - to be automatically calculated by mkimage tool.
 
-  Conditionally mandatory property:
-  - #address-cells : Number of 32bit cells required to represent entry and
+Conditionally mandatory property
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#address-cells
+    Number of 32bit cells required to represent entry and
     load addresses supplied within sub-image nodes. May be omitted when no
     entry or load addresses are used.
 
-  Mandatory nodes:
-  - images : This node contains a set of sub-nodes, each of them representing
+Mandatory nodes
+~~~~~~~~~~~~~~~
+
+images
+    This node contains a set of sub-nodes, each of them representing
     single component sub-image (like kernel, ramdisk, etc.). At least one
     sub-image is required.
-  - configurations : Contains a set of available configuration nodes and
+
+configurations
+    Contains a set of available configuration nodes and
     defines a default configuration.
 
 
-4) '/images' node
------------------
+'/images' node
+--------------
 
 This node is a container node for component sub-image nodes. Each sub-node of
 the '/images' node should have the following layout::
@@ -152,53 +176,89 @@ the '/images' node should have the following layout::
         o hash-2 {...}
         ...
 
-  Mandatory properties:
-  - description : Textual description of the component sub-image
-  - type : Name of component sub-image type, supported types are:
+Mandatory properties
+~~~~~~~~~~~~~~~~~~~~
+
+description
+    Textual description of the component sub-image
+
+type
+    Name of component sub-image type, supported types are:
+
     "standalone", "kernel", "kernel_noload", "ramdisk", "firmware", "script",
     "filesystem", "flat_dt" and others (see uimage_type in common/image.c).
-  - data : Path to the external file which contains this node's binary data.
-  - compression : Compression used by included data. Supported compressions
+
+data
+    Path to the external file which contains this node's binary data.
+
+compression
+    Compression used by included data. Supported compressions
     are "gzip" and "bzip2". If no compression is used compression property
     should be set to "none". If the data is compressed but it should not be
     uncompressed by U-Boot (e.g. compressed ramdisk), this should also be set
     to "none".
 
-  Conditionally mandatory property:
-  - os : OS name, mandatory for types "kernel". Valid OS names are:
+Conditionally mandatory property
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+os
+    OS name, mandatory for types "kernel". Valid OS names are:
     "openbsd", "netbsd", "freebsd", "4_4bsd", "linux", "svr4", "esix",
     "solaris", "irix", "sco", "dell", "ncr", "lynxos", "vxworks", "psos", "qnx",
     "u-boot", "rtems", "unity", "integrity".
-  - arch : Architecture name, mandatory for types: "standalone", "kernel",
+
+arch
+    Architecture name, mandatory for types: "standalone", "kernel",
     "firmware", "ramdisk" and "fdt". Valid architecture names are: "alpha",
     "arm", "i386", "ia64", "mips", "mips64", "ppc", "s390", "sh", "sparc",
     "sparc64", "m68k", "microblaze", "nios2", "blackfin", "avr32", "st200",
     "sandbox".
-  - entry : entry point address, address size is determined by
+
+entry
+    entry point address, address size is determined by
     '#address-cells' property of the root node.
     Mandatory for types: "firmware", and "kernel".
-  - load : load address, address size is determined by '#address-cells'
+
+load
+    load address, address size is determined by '#address-cells'
     property of the root node.
     Mandatory for types: "firmware", and "kernel".
-  - compatible : compatible method for loading image.
+
+compatible
+    compatible method for loading image.
     Mandatory for types: "fpga", and images that do not specify a load address.
     Supported compatible methods:
-    "u-boot,fpga-legacy" - the generic fpga loading routine.
-    "u-boot,zynqmp-fpga-ddrauth" - signed non-encrypted FPGA bitstream for
-    Xilinx Zynq UltraScale+ (ZymqMP) device.
-    "u-boot,zynqmp-fpga-enc" - encrypted FPGA bitstream for Xilinx Zynq
-    UltraScale+ (ZynqMP) device.
-  - phase : U-Boot phase for which the image is intended.
-    "spl" - image is an SPL image
-    "u-boot" - image is a U-Boot image
 
-  Optional nodes:
-  - hash-1 : Each hash sub-node represents separate hash or checksum
+    "u-boot,fpga-legacy"
+        the generic fpga loading routine.
+
+    "u-boot,zynqmp-fpga-ddrauth"
+        signed non-encrypted FPGA bitstream for
+        Xilinx Zynq UltraScale+ (ZymqMP) device.
+
+    "u-boot,zynqmp-fpga-enc"
+        encrypted FPGA bitstream for Xilinx Zynq
+
+    UltraScale+ (ZynqMP) device.
+
+phase
+    U-Boot phase for which the image is intended.
+
+    "spl"
+        image is an SPL image
+
+    "u-boot"
+        image is a U-Boot image
+
+Optional nodes:
+
+hash-1
+    Each hash sub-node represents separate hash or checksum
     calculated for node's data according to specified algorithm.
 
 
-5) Hash nodes
--------------
+Hash nodes
+----------
 
 ::
 
@@ -206,14 +266,18 @@ the '/images' node should have the following layout::
         |- algo = "hash or checksum algorithm name"
         |- value = [hash or checksum value]
 
-  Mandatory properties:
-  - algo : Algorithm name, supported are "crc32", "md5" and "sha1".
-  - value : Actual checksum or hash value, correspondingly 4, 16 or 20 bytes
-    long.
+Mandatory properties
+~~~~~~~~~~~~~~~~~~~~
+
+algo
+    Algorithm name, supported are "crc32", "md5" and "sha1".
+
+value
+    Actual checksum or hash value, correspondingly 4, 16 or 20 bytes long.
 
 
-6) '/configurations' node
--------------------------
+'/configurations' node
+----------------------
 
 The 'configurations' node creates convenient, labeled boot configurations,
 which combine together kernel images with their ramdisks and fdt blobs.
@@ -228,17 +292,21 @@ The 'configurations' node has the following structure::
         ...
 
 
-  Optional property:
-  - default : Selects one of the configuration sub-nodes as a default
-    configuration.
+Optional property
+~~~~~~~~~~~~~~~~~
 
-  Mandatory nodes:
-  - configuration-sub-node-unit-name : At least one of the configuration
-    sub-nodes is required.
+default
+    Selects one of the configuration sub-nodes as a default configuration.
+
+Mandatory nodes
+~~~~~~~~~~~~~~~
+
+configuration-sub-node-unit-name
+    At least one of the configuration sub-nodes is required.
 
 
-7) Configuration nodes
-----------------------
+Configuration nodes
+-------------------
 
 Each configuration has the following structure::
 
@@ -251,27 +319,43 @@ Each configuration has the following structure::
         |- compatible = "vendor,board-style device tree compatible string"
 
 
-  Mandatory properties:
-  - description : Textual configuration description.
-  - kernel or firmware: Unit name of the corresponding kernel or firmware
+Mandatory properties
+~~~~~~~~~~~~~~~~~~~~
+
+description
+    Textual configuration description.
+
+kernel or firmware
+    Unit name of the corresponding kernel or firmware
     (u-boot, op-tee, etc) image. If both "kernel" and "firmware" are specified,
     control is passed to the firmware image.
 
-  Optional properties:
-  - fdt : Unit name of the corresponding fdt blob (component image node of a
+Optional properties
+~~~~~~~~~~~~~~~~~~~
+
+fdt
+    Unit name of the corresponding fdt blob (component image node of a
     "fdt type"). Additional fdt overlay nodes can be supplied which signify
     that the resulting device tree blob is generated by the first base fdt
     blob with all subsequent overlays applied.
-  - fpga : Unit name of the corresponding fpga bitstream blob
+
+fpga
+    Unit name of the corresponding fpga bitstream blob
     (component image node of a "fpga type").
-  - loadables : Unit name containing a list of additional binaries to be
+
+loadables
+    Unit name containing a list of additional binaries to be
     loaded at their given locations.  "loadables" is a comma-separated list
     of strings. U-Boot will load each binary at its given start-address and
     may optionally invoke additional post-processing steps on this binary based
     on its component image node type.
-  - script : The image to use when loading a U-Boot script (for use with the
+
+script
+    The image to use when loading a U-Boot script (for use with the
     source command).
-  - compatible : The root compatible string of the U-Boot device tree that
+
+compatible
+    The root compatible string of the U-Boot device tree that
     this configuration shall automatically match when CONFIG_FIT_BEST_MATCH is
     enabled. If this property is not provided, the compatible string will be
     extracted from the fdt blob instead. This is only possible if the fdt is
@@ -286,8 +370,8 @@ Older, 2.4 kernel and 2.6 non-FDT kernel do not use FDT blob, in such cases
 not* be specified in a configuration node.
 
 
-8) External data
-----------------
+External data
+-------------
 
 The above format shows a 'data' property which holds the data for each image.
 It is also possible for this data to reside outside the FIT itself. This
@@ -297,10 +381,12 @@ be loaded from an external source.
 
 In this case the 'data' property is omitted. Instead you can use:
 
-  - data-offset : offset of the data in a separate image store. The image
+data-offset
+    offset of the data in a separate image store. The image
     store is placed immediately after the last byte of the device tree binary,
     aligned to a 4-byte boundary.
-  - data-size : size of the data in bytes
+
+data-size : size of the data in bytes
 
 The 'data-offset' property can be substituted with 'data-position', which
 defines an absolute position or address as the offset. This is helpful when
@@ -316,7 +402,10 @@ to block(512 byte) for block device, so that we don't need to do the copy when
 read the image data in SPL. Pass '-B 0x200' to mkimage to align the FIT
 structure and data to 512 byte, other values available for other align size.
 
-9) Examples
------------
+Examples
+--------
 
 Please see `doc/uImage.FIT/*.its` for actual image source files.
+
+.. sectionauthor:: Marian Balakowicz <m8@semihalf.com>
+.. sectionauthor:: External data additions, 25/1/16 Simon Glass <sjg@chromium.org>
