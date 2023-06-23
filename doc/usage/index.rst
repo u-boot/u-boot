@@ -8,7 +8,7 @@ Use U-Boot
    dfu
    environment
    fdt_overlays
-   fit
+   fit/index
    netconsole
    partitions
    cmdline
@@ -25,12 +25,14 @@ Shell commands
    cmd/askenv
    cmd/base
    cmd/bdinfo
+   cmd/bind
    cmd/blkcache
    cmd/bootd
    cmd/bootdev
    cmd/bootefi
    cmd/bootflow
    cmd/booti
+   cmd/bootm
    cmd/bootmenu
    cmd/bootmeth
    cmd/button
@@ -97,6 +99,7 @@ Shell commands
    cmd/trace
    cmd/true
    cmd/ums
+   cmd/unbind
    cmd/ut
    cmd/wdt
    cmd/wget

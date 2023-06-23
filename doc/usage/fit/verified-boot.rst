@@ -1,8 +1,11 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
 U-Boot Verified Boot
 ====================
 
 Introduction
 ------------
+
 Verified boot here means the verification of all software loaded into a
 machine during the boot process to ensure that it is authorised and correct
 for that machine.
@@ -21,6 +24,7 @@ memory, so that firmware can easily be upgraded in a secure manner.
 
 Signing
 -------
+
 Verified boot uses cryptographic algorithms to 'sign' software images.
 Images are signed using a private key known only to the signer, but can
 be verified using a public key. As its name suggests the public key can be
@@ -28,31 +32,31 @@ made available without risk to the verification process. The private and
 public keys are mathematically related. For more information on how this
 works look up "public key cryptography" and "RSA" (a particular algorithm).
 
-The signing and verification process looks something like this:
+The signing and verification process looks something like this::
 
 
-      Signing                                      Verification
-      =======                                      ============
+          Signing                                      Verification
+          =======                                      ============
 
- +--------------+                   *
- | RSA key pair |                   *             +---------------+
- | .key  .crt   |                   *             | Public key in |
- +--------------+       +------> public key ----->| trusted place |
-       |                |           *             +---------------+
-       |                |           *                    |
-       v                |           *                    v
-   +---------+          |           *              +--------------+
-   |         |----------+           *              |              |
-   | signer  |                      *              |    U-Boot    |
-   |         |----------+           *              |  signature   |--> yes/no
-   +---------+          |           *              | verification |
-      ^                 |           *              |              |
-      |                 |           *              +--------------+
-      |                 |           *                    ^
- +----------+           |           *                    |
- | Software |           +----> signed image -------------+
- |  image   |                       *
- +----------+                       *
+      +--------------+                 *
+      | RSA key pair |                 *             +---------------+
+      | .key  .crt   |                 *             | Public key in |
+      +--------------+     +------> public key ----->| trusted place |
+            |              |           *             +---------------+
+            |              |           *                    |
+            v              |           *                    v
+       +---------+         |           *             +--------------+
+       |         |---------+           *             |              |
+       | signer  |                     *             |    U-Boot    |
+       |         |---------+           *             |  signature   |--> yes/no
+       +---------+         |           *             | verification |
+            ^              |           *             |              |
+            |              |           *             +--------------+
+            |              |           *                    ^
+       +----------+        |           *                    |
+       | Software |        +----> signed image -------------+
+       |  image   |                    *
+       +----------+                    *
 
 
 The signature algorithm relies only on the public key to do its work. Using
@@ -70,23 +74,25 @@ the verification is worthless.
 
 Chaining Images
 ---------------
+
 The above method works for a signer providing images to a run-time U-Boot.
 It is also possible to extend this scheme to a second level, like this:
 
-1. Master private key is used by the signer to sign a first-stage image.
-2. Master public key is placed in read-only memory.
-2. Secondary private key is created and used to sign second-stage images.
-3. Secondary public key is placed in first stage images
-4. We use the master public key to verify the first-stage image. We then
-use the secondary public key in the first-stage image to verify the second-
-state image.
-5. This chaining process can go on indefinitely. It is recommended to use a
-different key at each stage, so that a compromise in one place will not
-affect the whole change.
+#. Master private key is used by the signer to sign a first-stage image.
+#. Master public key is placed in read-only memory.
+#. Secondary private key is created and used to sign second-stage images.
+#. Secondary public key is placed in first stage images
+#. We use the master public key to verify the first-stage image. We then
+   use the secondary public key in the first-stage image to verify the second-
+   state image.
+#. This chaining process can go on indefinitely. It is recommended to use a
+   different key at each stage, so that a compromise in one place will not
+   affect the whole change.
 
 
 Flattened Image Tree (FIT)
 --------------------------
+
 The FIT format is already widely used in U-Boot. It is a flattened device
 tree (FDT) in a particular format, with images contained within. FITs
 include hashes to verify images, so it is relatively straightforward to
@@ -96,9 +102,6 @@ The public key can be stored in U-Boot's CONFIG_OF_CONTROL device tree in
 a standard place. Then when a FIT is loaded it can be verified using that
 public key. Multiple keys and multiple signatures are supported.
 
-See signature.txt for more information.
+See :doc:`signature` for more information.
 
-
-Simon Glass
-sjg@chromium.org
-1-1-13
+.. sectionauthor:: Simon Glass <sjg@chromium.org> 1-1-13
