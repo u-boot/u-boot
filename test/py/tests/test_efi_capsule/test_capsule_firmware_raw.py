@@ -9,7 +9,7 @@ This test verifies capsule-on-disk firmware update for raw images
 import pytest
 from capsule_defs import CAPSULE_DATA_DIR, CAPSULE_INSTALL_DIR
 
-@pytest.mark.boardspec('sandbox')
+@pytest.mark.boardspec('sandbox64')
 @pytest.mark.buildconfigspec('efi_capsule_firmware_raw')
 @pytest.mark.buildconfigspec('efi_capsule_on_disk')
 @pytest.mark.buildconfigspec('dfu')

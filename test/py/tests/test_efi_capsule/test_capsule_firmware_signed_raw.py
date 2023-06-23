@@ -10,7 +10,7 @@ with signed capsule files containing raw images
 import pytest
 from capsule_defs import CAPSULE_DATA_DIR, CAPSULE_INSTALL_DIR
 
-@pytest.mark.boardspec('sandbox')
+@pytest.mark.boardspec('sandbox64')
 @pytest.mark.buildconfigspec('efi_capsule_firmware_raw')
 @pytest.mark.buildconfigspec('efi_capsule_authenticate')
 @pytest.mark.buildconfigspec('dfu')
