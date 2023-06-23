@@ -81,6 +81,25 @@ is used as it's identifier as it assures uniqueness without additional
 checking required.
 
 
+External data
+~~~~~~~~~~~~~
+
+FIT is normally built initially with image data in the 'data' property of each
+image node. It is also possible for this data to reside outside the FIT itself.
+This allows the 'FDT' part of the FIT to be quite small, so that it can be
+loaded and scanned without loading a large amount of data. Then when an image is
+needed it can be loaded from an external source.
+
+External FITs use 'data-offset' or 'data-position' instead of 'data'.
+
+The mkimage tool can convert a FIT to use external data using the `-E` argument,
+optionally using `-p` to specific a fixed position.
+
+It is often desirable to align each image to a block size or cache-line size
+(e.g. 512 bytes), so that there is no need to copy it to an aligned address when
+reading the image data. The mkimage tool provides a `-B` argument to support
+this.
+
 Root-node properties
 --------------------
 
@@ -215,9 +234,6 @@ type
     zynqmpimage           Xilinx ZynqMP Boot Image }
     ====================  ==================
 
-data
-    Path to the external file which contains this node's binary data.
-
 compression
     Compression used by included data. If no compression is used, the
     compression property should be set to "none". If the data is compressed but
@@ -238,8 +254,27 @@ compression
     zstd                  zstd compressed
     ====================  ==================
 
+data-size
+    size of the data in bytes
+
+
 Conditionally mandatory property
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+data
+    Path to the external file which contains this node's binary data. Within
+    the FIT this is the contents of the file. This is mandatory unless
+    external data is used.
+
+data-offset
+    Offset of the data in a separate image store. The image store is placed
+    immediately after the last byte of the device tree binary, aligned to a
+    4-byte boundary. This is mandatory if external data is used, with an offset.
+
+data-position
+    Machine address at which the data is to be found. This is a fixed address
+    not relative to the loading of the FIT. This is mandatory if external data
+    used with a fixed address.
 
 os
     OS name, mandatory for types "kernel". Valid OS names are:
@@ -477,39 +512,6 @@ Older, 2.4 kernel and 2.6 non-FDT kernel do not use FDT blob, in such cases
 'struct bd_info' must be passed instead of FDT blob, thus fdt property *must
 not* be specified in a configuration node.
 
-
-External data
--------------
-
-The above format shows a 'data' property which holds the data for each image.
-It is also possible for this data to reside outside the FIT itself. This
-allows the FIT to be quite small, so that it can be loaded and scanned
-without loading a large amount of data. Then when an image is needed it can
-be loaded from an external source.
-
-In this case the 'data' property is omitted. Instead you can use:
-
-data-offset
-    offset of the data in a separate image store. The image
-    store is placed immediately after the last byte of the device tree binary,
-    aligned to a 4-byte boundary.
-
-data-size
-    size of the data in bytes
-
-The 'data-offset' property can be substituted with 'data-position', which
-defines an absolute position or address as the offset. This is helpful when
-booting U-Boot proper before performing relocation. Pass '-p [offset]' to
-mkimage to enable 'data-position'.
-
-Normal kernel FIT image has data embedded within FIT structure. U-Boot image
-for SPL boot has external data. Existence of 'data-offset' can be used to
-identify which format is used.
-
-For FIT image with external data, it would be better to align each blob of data
-to block(512 byte) for block device, so that we don't need to do the copy when
-read the image data in SPL. Pass '-B 0x200' to mkimage to align the FIT
-structure and data to 512 byte, other values available for other align size.
 
 Examples
 --------
