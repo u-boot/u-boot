@@ -165,36 +165,150 @@ description
     Textual description of the component sub-image
 
 type
-    Name of component sub-image type, supported types are:
+    Name of component sub-image type. Supported types are:
 
-    "standalone", "kernel", "kernel_noload", "ramdisk", "firmware", "script",
-    "filesystem", "flat_dt" and others (see uimage_type in common/image.c).
+    ====================  ==================
+    Sub-image type        Meaning
+    ====================  ==================
+    invalid               Invalid Image
+    aisimage              Davinci AIS image
+    atmelimage            ATMEL ROM-Boot Image
+    copro                 Coprocessor Image}
+    fdt_legacy            legacy Image with Flat Device Tree
+    filesystem            Filesystem Image
+    firmware              Firmware
+    firmware_ivt          Firmware with HABv4 IVT }
+    flat_dt               Flat Device Tree
+    fpga                  FPGA Image }
+    gpimage               TI Keystone SPL Image
+    imx8image             NXP i.MX8 Boot Image
+    imx8mimage            NXP i.MX8M Boot Image
+    imximage              Freescale i.MX Boot Image
+    kernel                Kernel Image
+    kernel_noload         Kernel Image (no loading done)
+    kwbimage              Kirkwood Boot Image
+    lpc32xximage          LPC32XX Boot Image
+    mtk_image             MediaTek BootROM loadable Image }
+    multi                 Multi-File Image
+    mxsimage              Freescale MXS Boot Image
+    omapimage             TI OMAP SPL With GP CH
+    pblimage              Freescale PBL Boot Image
+    pmmc                  TI Power Management Micro-Controller Firmware
+    ramdisk               RAMDisk Image
+    rkimage               Rockchip Boot Image }
+    rksd                  Rockchip SD Boot Image }
+    rkspi                 Rockchip SPI Boot Image }
+    script                Script
+    socfpgaimage          Altera SoCFPGA CV/AV preloader
+    socfpgaimage_v1       Altera SoCFPGA A10 preloader
+    spkgimage             Renesas SPKG Image }
+    standalone            Standalone Program
+    stm32image            STMicroelectronics STM32 Image }
+    sunxi_egon            Allwinner eGON Boot Image }
+    sunxi_toc0            Allwinner TOC0 Boot Image }
+    tee                   Trusted Execution Environment Image
+    ublimage              Davinci UBL image
+    vybridimage           Vybrid Boot Image
+    x86_setup             x86 setup.bin
+    zynqimage             Xilinx Zynq Boot Image }
+    zynqmpbif             Xilinx ZynqMP Boot Image (bif) }
+    zynqmpimage           Xilinx ZynqMP Boot Image }
+    ====================  ==================
 
 data
     Path to the external file which contains this node's binary data.
 
 compression
-    Compression used by included data. Supported compressions
-    are "gzip" and "bzip2". If no compression is used compression property
-    should be set to "none". If the data is compressed but it should not be
-    uncompressed by U-Boot (e.g. compressed ramdisk), this should also be set
-    to "none".
+    Compression used by included data. If no compression is used, the
+    compression property should be set to "none". If the data is compressed but
+    it should not be uncompressed by the loader (e.g. compressed ramdisk), this
+    should also be set to "none".
+
+    Supported compression types are:
+
+    ====================  ==================
+    Compression type      Meaning
+    ====================  ==================
+    none                  uncompressed
+    bzip2                 bzip2 compressed
+    gzip                  gzip compressed
+    lz4                   lz4 compressed
+    lzma                  lzma compressed
+    lzo                   lzo compressed
+    zstd                  zstd compressed
+    ====================  ==================
 
 Conditionally mandatory property
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 os
     OS name, mandatory for types "kernel". Valid OS names are:
-    "openbsd", "netbsd", "freebsd", "4_4bsd", "linux", "svr4", "esix",
-    "solaris", "irix", "sco", "dell", "ncr", "lynxos", "vxworks", "psos", "qnx",
-    "u-boot", "rtems", "unity", "integrity".
+
+    ====================  ==================
+    OS name               Meaning
+    ====================  ==================
+    invalid               Invalid OS
+    4_4bsd                4_4BSD
+    arm-trusted-firmware  ARM Trusted Firmware
+    dell                  Dell
+    efi                   EFI Firmware
+    esix                  Esix
+    freebsd               FreeBSD
+    integrity             INTEGRITY
+    irix                  Irix
+    linux                 Linux
+    ncr                   NCR
+    netbsd                NetBSD
+    openbsd               OpenBSD
+    openrtos              OpenRTOS
+    opensbi               RISC-V OpenSBI
+    ose                   Enea OSE
+    plan9                 Plan 9
+    psos                  pSOS
+    qnx                   QNX
+    rtems                 RTEMS
+    sco                   SCO
+    solaris               Solaris
+    svr4                  SVR4
+    tee                   Trusted Execution Environment
+    u-boot                U-Boot
+    vxworks               VxWorks
+    ====================  ==================
 
 arch
     Architecture name, mandatory for types: "standalone", "kernel",
-    "firmware", "ramdisk" and "fdt". Valid architecture names are: "alpha",
-    "arm", "i386", "ia64", "mips", "mips64", "ppc", "s390", "sh", "sparc",
-    "sparc64", "m68k", "microblaze", "nios2", "blackfin", "avr32", "st200",
-    "sandbox".
+    "firmware", "ramdisk" and "fdt". Valid architecture names are:
+
+    ====================  ==================
+    Architecture type     Meaning
+    ====================  ==================
+    invalid               Invalid ARCH
+    alpha                 Alpha
+    arc                   ARC
+    arm64                 AArch64
+    arm                   ARM
+    avr32                 AVR32
+    blackfin              Blackfin
+    ia64                  IA64
+    m68k                  M68K
+    microblaze            MicroBlaze
+    mips64                MIPS 64 Bit
+    mips                  MIPS
+    nds32                 NDS32
+    nios2                 NIOS II
+    or1k                  OpenRISC 1000
+    powerpc               PowerPC
+    ppc                   PowerPC
+    riscv                 RISC-V
+    s390                  IBM S390
+    sandbox               Sandbox
+    sh                    SuperH
+    sparc64               SPARC 64 Bit
+    sparc                 SPARC
+    x86_64                AMD x86_64
+    x86                   Intel x86
+    xtensa                Xtensa
+    ====================  ==================
 
 entry
     entry point address, address size is determined by
@@ -211,17 +325,15 @@ compatible
     Mandatory for types: "fpga", and images that do not specify a load address.
     Supported compatible methods:
 
-    "u-boot,fpga-legacy"
-        the generic fpga loading routine.
-
-    "u-boot,zynqmp-fpga-ddrauth"
-        signed non-encrypted FPGA bitstream for
-        Xilinx Zynq UltraScale+ (ZymqMP) device.
-
-    "u-boot,zynqmp-fpga-enc"
-        encrypted FPGA bitstream for Xilinx Zynq
-
-    UltraScale+ (ZynqMP) device.
+    ==========================  =========================================
+    Compatible string           Meaning
+    ==========================  =========================================
+    u-boot,fpga-legacy          Generic fpga loading routine.
+    u-boot,zynqmp-fpga-ddrauth  Signed non-encrypted FPGA bitstream for
+                                Xilinx Zynq UltraScale+ (ZymqMP) device.
+    u-boot,zynqmp-fpga-enc      Encrypted FPGA bitstream for Xilinx Zynq
+                                UltraScale+ (ZynqMP) device.
+    ==========================  =========================================
 
 phase
     U-Boot phase for which the image is intended.
@@ -252,10 +364,24 @@ Mandatory properties
 ~~~~~~~~~~~~~~~~~~~~
 
 algo
-    Algorithm name, supported are "crc32", "md5" and "sha1".
+    Algorithm name. Supported algoriths and their value sizes are:
+
+    ==================== ============ =========================================
+    Sub-image type       Size (bytes) Meaning
+    ==================== ============ =========================================
+    crc16-ccitt          2            Cyclic Redundancy Check 16-bit
+                                      (Consultative Committee for International
+                                      Telegraphy and Telephony)
+    crc32                4            Cyclic Redundancy Check 32-bit
+    md5                  16           Message Digest 5 (MD5)
+    sha1                 20           Secure Hash Algorithm 1 (SHA1)
+    sha256               32           Secure Hash Algorithm 2 (SHA256)
+    sha384               48           Secure Hash Algorithm 2 (SHA384)
+    sha512               64           Secure Hash Algorithm 2 (SHA512)
+    ==================== ============ =========================================
 
 value
-    Actual checksum or hash value, correspondingly 4, 16 or 20 bytes long.
+    Actual checksum or hash value.
 
 
 '/configurations' node
