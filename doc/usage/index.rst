@@ -8,7 +8,7 @@ Use U-Boot
    dfu
    environment
    fdt_overlays
-   fit
+   fit/index
    netconsole
    partitions
    cmdline
