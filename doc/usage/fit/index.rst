@@ -16,3 +16,4 @@ doc/uImage.FIT
     signature
     verified-boot
     beaglebone_vboot
+    overlay-fdt-boot
