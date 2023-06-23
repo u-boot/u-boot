@@ -11,6 +11,7 @@ doc/uImage.FIT
     :maxdepth: 1
 
     source_file_format
+    howto
     x86-fit-boot
     signature
     verified-boot
