@@ -518,6 +518,38 @@ without the fdtmap header, so it can be viewed with `fdtdump`.
 
 
 
+.. _etype_fdt_esl_embed:
+
+Entry: fdt_esl_embed: An entry for embedding ESL contents into the DTB
+----------------------------------------------------------------------
+
+Properties / Entry Arguments:
+    - esl-file: Path to the ESL file. Usually specified
+      through the CONFIG_EFI_CAPSULE_ESL_FILE Kconfig
+      symbol. Mandatory property.
+    - dtb: A list of DTB file names into which the ESL
+      needs to be embedded. Provided as a string list,
+      similar to the compatible property. At least one
+      DTB file needs to be specified. Mandatory property.
+    - concat: An optional property which specifies the
+      files which need to be concatenated, along with
+      the third file into which the result needs to be
+      put into.
+      E.g. concat = "./u-boot-nodtb.bin",  "./u-boot.dtb", "./u-boot.bin";
+      The above concatenates u-boot-nodtb.bin and the
+      u-boot.dtb files, and puts the result into
+      u-boot.bin.
+
+This entry is used for embedding a public key in the form of an
+EFI Signature List(ESL) file into the DTB. The public key is
+used for authenticating capsules prior to capsule update.
+
+Once the dtb file has been updated by embedding the ESL, the concat
+property allows regenerating the u-boot.bin comprising of the
+u-boot-nodtb.bin and the updated dtb.
+
+
+
 .. _etype_files:
 
 Entry: files: A set of files arranged in a section
@@ -614,6 +646,23 @@ The top-level 'fit' node supports the following special properties:
         files for the gen-fdt-nodes operation (as below). This is often
         `of-list` meaning that `-a of-list="dtb1 dtb2..."` should be passed
         to binman.
+
+    In addition to the above properties, a couple of properties exist for embedding
+    the EFI Signature List(ESL) public key file into the DTB's that are put into
+    the FIT image.
+
+    The capsule update functionality is supported for the FIT and raw image types.
+    For the FIT image with capsule updates enabled along with capsule
+    authentication, it requires the the devicetree with the ESL public key.
+    Embedding the ESL into the DTBs is being done through a couple of additional
+    properties
+
+        embed-esl
+            A boolean property which specifies that the ESL needs to be embedded
+            into all the DTB's that are put on the FIT image.
+        esl-file
+            Path to the ESL file that is to be embedded into the DTB's.
+
 
 Substitutions
 ~~~~~~~~~~~~~
