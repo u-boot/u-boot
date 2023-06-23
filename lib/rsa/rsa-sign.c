@@ -33,140 +33,6 @@ static int rsa_err(const char *msg)
 }
 
 /**
- * rsa_pem_get_pub_key() - read a public key from a .crt file
- *
- * @keydir:	Directory containins the key
- * @name	Name of key file (will have a .crt extension)
- * @evpp	Returns EVP_PKEY object, or NULL on failure
- * Return: 0 if ok, -ve on error (in which case *evpp will be set to NULL)
- */
-static int rsa_pem_get_pub_key(const char *keydir, const char *name, EVP_PKEY **evpp)
-{
-	char path[1024];
-	EVP_PKEY *key = NULL;
-	X509 *cert;
-	FILE *f;
-	int ret;
-
-	if (!evpp)
-		return -EINVAL;
-
-	*evpp = NULL;
-	snprintf(path, sizeof(path), "%s/%s.crt", keydir, name);
-	f = fopen(path, "r");
-	if (!f) {
-		fprintf(stderr, "Couldn't open RSA certificate: '%s': %s\n",
-			path, strerror(errno));
-		return -EACCES;
-	}
-
-	/* Read the certificate */
-	cert = NULL;
-	if (!PEM_read_X509(f, &cert, NULL, NULL)) {
-		rsa_err("Couldn't read certificate");
-		ret = -EINVAL;
-		goto err_cert;
-	}
-
-	/* Get the public key from the certificate. */
-	key = X509_get_pubkey(cert);
-	if (!key) {
-		rsa_err("Couldn't read public key\n");
-		ret = -EINVAL;
-		goto err_pubkey;
-	}
-
-	fclose(f);
-	*evpp = key;
-	X509_free(cert);
-
-	return 0;
-
-err_pubkey:
-	X509_free(cert);
-err_cert:
-	fclose(f);
-	return ret;
-}
-
-/**
- * rsa_engine_get_pub_key() - read a public key from given engine
- *
- * @keydir:	Key prefix
- * @name	Name of key
- * @engine	Engine to use
- * @evpp	Returns EVP_PKEY object, or NULL on failure
- * Return: 0 if ok, -ve on error (in which case *evpp will be set to NULL)
- */
-static int rsa_engine_get_pub_key(const char *keydir, const char *name,
-				  ENGINE *engine, EVP_PKEY **evpp)
-{
-	const char *engine_id;
-	char key_id[1024];
-	EVP_PKEY *key = NULL;
-
-	if (!evpp)
-		return -EINVAL;
-
-	*evpp = NULL;
-
-	engine_id = ENGINE_get_id(engine);
-
-	if (engine_id && !strcmp(engine_id, "pkcs11")) {
-		if (keydir)
-			if (strstr(keydir, "object="))
-				snprintf(key_id, sizeof(key_id),
-					 "pkcs11:%s;type=public",
-					 keydir);
-			else
-				snprintf(key_id, sizeof(key_id),
-					 "pkcs11:%s;object=%s;type=public",
-					 keydir, name);
-		else
-			snprintf(key_id, sizeof(key_id),
-				 "pkcs11:object=%s;type=public",
-				 name);
-	} else if (engine_id) {
-		if (keydir)
-			snprintf(key_id, sizeof(key_id),
-				 "%s%s",
-				 keydir, name);
-		else
-			snprintf(key_id, sizeof(key_id),
-				 "%s",
-				 name);
-	} else {
-		fprintf(stderr, "Engine not supported\n");
-		return -ENOTSUP;
-	}
-
-	key = ENGINE_load_public_key(engine, key_id, NULL, NULL);
-	if (!key)
-		return rsa_err("Failure loading public key from engine");
-
-	*evpp = key;
-
-	return 0;
-}
-
-/**
- * rsa_get_pub_key() - read a public key
- *
- * @keydir:	Directory containing the key (PEM file) or key prefix (engine)
- * @name	Name of key file (will have a .crt extension)
- * @engine	Engine to use
- * @evpp	Returns EVP_PKEY object, or NULL on failure
- * Return: 0 if ok, -ve on error (in which case *evpp will be set to NULL)
- */
-static int rsa_get_pub_key(const char *keydir, const char *name,
-			   ENGINE *engine, EVP_PKEY **evpp)
-{
-	if (engine)
-		return rsa_engine_get_pub_key(keydir, name, engine, evpp);
-	return rsa_pem_get_pub_key(keydir, name, evpp);
-}
-
-/**
  * rsa_pem_get_priv_key() - read a private key from a .key file
  *
  * @keydir:	Directory containing the key
@@ -603,6 +469,226 @@ int rsa_get_params(RSA *key, uint64_t *exponent, uint32_t *n0_invp,
 	return ret;
 }
 
+#if defined(CONFIG_EFI_CAPSULE_AUTHENTICATE)
+
+static int get_esl_pub_key(const char *keydir, const char *name,
+			   void **key_ptr, int *key_fd, off_t *key_size)
+{
+	int ret;
+	char path[1024];
+	struct stat pub_key;
+
+	snprintf(path, sizeof(path), "%s/%s", keydir, name);
+
+	printf("%s: esl path => %s\n", __func__, path);
+	*key_fd = open(path, O_RDONLY);
+	if (*key_fd == -1) {
+		fprintf(stderr, "Unable to open %s: %s\n",
+			path, strerror(errno));
+		return -EACCES;
+	}
+
+	ret = fstat(*key_fd, &pub_key);
+	if (ret == -1) {
+		fprintf(stderr, "Can't stat %s: %s\n",
+			path, strerror(errno));
+		ret = errno;
+		goto err;
+	}
+	*key_size = pub_key.st_size;
+
+	/* mmap the public key esl file */
+	*key_ptr = mmap(0, *key_size, PROT_READ, MAP_SHARED, *key_fd, 0);
+	if ((*key_ptr == MAP_FAILED) || (errno != 0)) {
+		fprintf(stderr, "Failed to mmap %s:%s\n",
+			path, strerror(errno));
+		ret = errno;
+		goto err;
+	}
+
+	return 0;
+err:
+	close(*key_fd);
+
+	return ret;
+}
+
+int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
+{
+	int ret, key_fd;
+	off_t key_size;
+	void *key_ptr = NULL;
+	int parent;
+
+	ret = get_esl_pub_key(info->keydir, info->keyname, &key_ptr, &key_fd,
+			      &key_size);
+	if (ret) {
+		debug("Unable to open the public key esl file\n");
+		goto out;
+	}
+
+	parent = fdt_subnode_offset(keydest, 0, FIT_SIG_NODENAME);
+	if (parent == -FDT_ERR_NOTFOUND) {
+		parent = fdt_add_subnode(keydest, 0, FIT_SIG_NODENAME);
+		if (parent < 0) {
+			ret = parent;
+			if (ret != -FDT_ERR_NOSPACE) {
+				fprintf(stderr, "Couldn't create signature node: %s\n",
+					fdt_strerror(parent));
+			}
+		}
+	}
+
+	if (ret)
+		goto out;
+
+	ret = fdt_setprop(keydest, parent, "capsule-key",
+			  key_ptr, key_size);
+
+out:
+	close(key_fd);
+	munmap(key_ptr, key_size);
+
+	if (ret)
+		return ret == -FDT_ERR_NOSPACE ? -ENOSPC : -EIO;
+
+	return ret;
+}
+#else
+/**
+ * rsa_pem_get_pub_key() - read a public key from a .crt file
+ *
+ * @keydir:	Directory containins the key
+ * @name	Name of key file (will have a .crt extension)
+ * @evpp	Returns EVP_PKEY object, or NULL on failure
+ * Return: 0 if ok, -ve on error (in which case *evpp will be set to NULL)
+ */
+static int rsa_pem_get_pub_key(const char *keydir, const char *name, EVP_PKEY **evpp)
+{
+	char path[1024];
+	EVP_PKEY *key = NULL;
+	X509 *cert;
+	FILE *f;
+	int ret;
+
+	if (!evpp)
+		return -EINVAL;
+
+	*evpp = NULL;
+	snprintf(path, sizeof(path), "%s/%s.crt", keydir, name);
+	f = fopen(path, "r");
+	if (!f) {
+		fprintf(stderr, "Couldn't open RSA certificate: '%s': %s\n",
+			path, strerror(errno));
+		return -EACCES;
+	}
+
+	/* Read the certificate */
+	cert = NULL;
+	if (!PEM_read_X509(f, &cert, NULL, NULL)) {
+		rsa_err("Couldn't read certificate");
+		ret = -EINVAL;
+		goto err_cert;
+	}
+
+	/* Get the public key from the certificate. */
+	key = X509_get_pubkey(cert);
+	if (!key) {
+		rsa_err("Couldn't read public key\n");
+		ret = -EINVAL;
+		goto err_pubkey;
+	}
+
+	fclose(f);
+	*evpp = key;
+	X509_free(cert);
+
+	return 0;
+
+err_pubkey:
+	X509_free(cert);
+err_cert:
+	fclose(f);
+	return ret;
+}
+
+/**
+ * rsa_engine_get_pub_key() - read a public key from given engine
+ *
+ * @keydir:	Key prefix
+ * @name	Name of key
+ * @engine	Engine to use
+ * @evpp	Returns EVP_PKEY object, or NULL on failure
+ * Return: 0 if ok, -ve on error (in which case *evpp will be set to NULL)
+ */
+static int rsa_engine_get_pub_key(const char *keydir, const char *name,
+				  ENGINE *engine, EVP_PKEY **evpp)
+{
+	const char *engine_id;
+	char key_id[1024];
+	EVP_PKEY *key = NULL;
+
+	if (!evpp)
+		return -EINVAL;
+
+	*evpp = NULL;
+
+	engine_id = ENGINE_get_id(engine);
+
+	if (engine_id && !strcmp(engine_id, "pkcs11")) {
+		if (keydir)
+			if (strstr(keydir, "object="))
+				snprintf(key_id, sizeof(key_id),
+					 "pkcs11:%s;type=public",
+					 keydir);
+			else
+				snprintf(key_id, sizeof(key_id),
+					 "pkcs11:%s;object=%s;type=public",
+					 keydir, name);
+		else
+			snprintf(key_id, sizeof(key_id),
+				 "pkcs11:object=%s;type=public",
+				 name);
+	} else if (engine_id) {
+		if (keydir)
+			snprintf(key_id, sizeof(key_id),
+				 "%s%s",
+				 keydir, name);
+		else
+			snprintf(key_id, sizeof(key_id),
+				 "%s",
+				 name);
+	} else {
+		fprintf(stderr, "Engine not supported\n");
+		return -ENOTSUP;
+	}
+
+	key = ENGINE_load_public_key(engine, key_id, NULL, NULL);
+	if (!key)
+		return rsa_err("Failure loading public key from engine");
+
+	*evpp = key;
+
+	return 0;
+}
+
+/**
+ * rsa_get_pub_key() - read a public key
+ *
+ * @keydir:	Directory containing the key (PEM file) or key prefix (engine)
+ * @name	Name of key file (will have a .crt extension)
+ * @engine	Engine to use
+ * @evpp	Returns EVP_PKEY object, or NULL on failure
+ * Return: 0 if ok, -ve on error (in which case *evpp will be set to NULL)
+ */
+static int rsa_get_pub_key(const char *keydir, const char *name,
+			   ENGINE *engine, EVP_PKEY **evpp)
+{
+	if (engine)
+		return rsa_engine_get_pub_key(keydir, name, engine, evpp);
+	return rsa_pem_get_pub_key(keydir, name, evpp);
+}
+
 int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
 {
 	BIGNUM *modulus, *r_squared;
@@ -706,3 +792,4 @@ err_get_pub_key:
 
 	return node;
 }
+#endif /* CONFIG_EFI_CAPSULE_AUTHENTICATE */
