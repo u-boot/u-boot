@@ -17,3 +17,4 @@ doc/uImage.FIT
     verified-boot
     beaglebone_vboot
     overlay-fdt-boot
+    command_syntax_extensions
