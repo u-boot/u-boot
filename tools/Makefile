@@ -152,7 +152,7 @@ dumpimage-objs := $(dumpimage-mkimage-objs) dumpimage.o
 mkimage-objs   := $(dumpimage-mkimage-objs) mkimage.o
 fit_info-objs   := $(dumpimage-mkimage-objs) fit_info.o
 fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
-fdt_add_pubkey-objs   := $(dumpimage-mkimage-objs) fdt_add_pubkey.o
+fdt_add_pubkey-objs   := $(dumpimage-mkimage-objs) fdt_add_pubkey.o fdt_add_pubkey_esl.o
 file2include-objs := file2include.o
 
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_TOOLS_LIBCRYPTO),)
