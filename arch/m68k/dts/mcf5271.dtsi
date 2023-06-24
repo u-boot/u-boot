@@ -23,6 +23,12 @@
 			ranges = <0x00000000 0x40000000 0x40000000>;
 			reg = <0x40000000 0x40000000>;
 
+			wdog0: watchdog@140000 {
+				compatible = "fsl,mcf5208-wdt";
+				reg = <0x140000 0x10>;
+				status = "disabled";
+			};
+
 			uart0: uart@200 {
 				compatible = "fsl,mcf-uart";
 				reg = <0x200 0x40>;

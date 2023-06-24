@@ -15,6 +15,11 @@
 	};
 };
 
+&wdog0 {
+	timeout-sec = <32>;
+	status = "okay";
+};
+
 &uart0 {
 	bootph-all;
 	status = "okay";
