@@ -37,29 +37,11 @@ dd if=csf_spl.bin of=flash.bin bs=1 seek=${spl_dd_offset} conv=notrunc
 
 # 3) Sign u-boot.itb
 
-# fitImage tree
-fit_block_base=$(printf "0x%x" $(( $(sed -n "/CONFIG_TEXT_BASE=/ s@.*=@@p" .config) - $(sed -n "/CONFIG_FIT_EXTERNAL_OFFSET=/ s@.*=@@p" .config) - 0x200 - 0x40)) )
+# fitImage
+fit_block_base=$(printf "0x%x" $(sed -n "/CONFIG_SPL_LOAD_FIT_ADDRESS=/ s@.*=@@p" .config) )
 fit_block_offset=$(printf "0x%s" $(fdtget -t x u-boot.dtb /binman/imx-boot/uboot offset))
-fit_block_size=$(printf "0x%x" $(( ( ($(fdtdump u-boot.itb 2>/dev/null | sed -n "/^...totalsize:/ s@.*\(0x[0-9a-f]\+\).*@\1@p") + 0x1000 - 0x1 ) & ~(0x1000 - 0x1)) + 0x20 )) )
-sed -i "/Blocks = / s@.*@  Blocks = $fit_block_base $fit_block_offset $fit_block_size \"flash.bin\", \\\\@" csf_fit.tmp
-
-# U-Boot
-uboot_block_base=$(printf "0x%s" $(fdtget -t x u-boot.itb /images/uboot load))
-uboot_block_offset=$(printf "0x%x" $(( $(printf "0x%s" $(fdtget -t x u-boot.itb /images/uboot data-position)) + ${fit_block_offset} )))
-uboot_block_size=$(printf "0x%s" $(fdtget -t x u-boot.itb /images/uboot data-size))
-sed -i "/0xuuuu/ s@.*@           $uboot_block_base $uboot_block_offset $uboot_block_size \"flash.bin\", \\\\@" csf_fit.tmp
-
-# ATF
-atf_block_base=$(printf "0x%s" $(fdtget -t x u-boot.itb /images/atf load))
-atf_block_offset=$(printf "0x%x" $(( $(printf "0x%s" $(fdtget -t x u-boot.itb /images/atf data-position)) + ${fit_block_offset} )))
-atf_block_size=$(printf "0x%s" $(fdtget -t x u-boot.itb /images/atf data-size))
-sed -i "/0xaaaa/ s@.*@           $atf_block_base $atf_block_offset $atf_block_size \"flash.bin\", \\\\@" csf_fit.tmp
-
-# DTB
-dtb_block_base=$(printf "0x%x" $(( ${uboot_block_base} + ${uboot_block_size} )))
-dtb_block_offset=$(printf "0x%x" $(( $(printf "0x%s" $(fdtget -t x u-boot.itb /images/fdt-1 data-position)) + ${fit_block_offset} )))
-dtb_block_size=$(printf "0x%s" $(fdtget -t x u-boot.itb /images/fdt-1 data-size))
-sed -i "/0xdddd/ s@.*@           $dtb_block_base $dtb_block_offset $dtb_block_size \"flash.bin\"@" csf_fit.tmp
+fit_block_size=$(printf "0x%x" $(( ( ( $(stat -tc %s u-boot.itb) + 0x1000 - 0x1 ) & ~(0x1000 - 0x1)) + 0x20 )) )
+sed -i "/Blocks = / s@.*@  Blocks = $fit_block_base $fit_block_offset $fit_block_size \"flash.bin\"@" csf_fit.tmp
 
 # IVT
 ivt_ptr_base=$(printf "%08x" ${fit_block_base} | sed "s@\(..\)\(..\)\(..\)\(..\)@0x\4\3\2\1@")
@@ -68,7 +50,7 @@ csf_block_base=$(printf "%08x" $(( ${fit_block_base} + ${fit_block_size} )) | se
 ivt_block_offset=$((${fit_block_offset} + ${fit_block_size} - 0x20))
 csf_block_offset=$((${ivt_block_offset} + 0x20))
 
-echo "0xd1002041 ${ivt_ptr_base} 0x00000000 0x00000000 0x00000000 ${ivt_block_base} ${csf_block_base} 0x00000000" | xxd -r -p > ivt.bin
+echo "0xd1002041 ${ivt_block_base} 0x00000000 0x00000000 0x00000000 ${ivt_block_base} ${csf_block_base} 0x00000000" | xxd -r -p > ivt.bin
 dd if=ivt.bin of=flash.bin bs=1 seek=${ivt_block_offset} conv=notrunc
 
 # Generate CSF blob

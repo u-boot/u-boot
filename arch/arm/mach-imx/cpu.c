@@ -510,3 +510,7 @@ char nxp_board_rev_string(void)
 	return (*rev + nxp_board_rev() - 1);
 }
 #endif
+
+__weak void reset_cpu(void)
+{
+}
