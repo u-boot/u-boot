@@ -2430,27 +2430,6 @@ Hit 'q':
 	[q, b, e, ?] ## Application terminated, rc = 0x0
 
 
-Minicom warning:
-================
-
-Over time, many people have reported problems when trying to use the
-"minicom" terminal emulation program for serial download. I (wd)
-consider minicom to be broken, and recommend not to use it. Under
-Unix, I recommend to use C-Kermit for general purpose use (and
-especially for kermit binary protocol download ("loadb" command), and
-use "cu" for S-Record download ("loads" command).  See
-https://www.denx.de/wiki/view/DULG/SystemSetup#Section_4.3.
-for help with kermit.
-
-
-Nevertheless, if you absolutely want to use it try adding this
-configuration to your "File transfer protocols" section:
-
-	   Name	   Program			Name U/D FullScr IO-Red. Multi
-	X  kermit  /usr/bin/kermit -i -l %l -s	 Y    U	   Y	   N	  N
-	Y  kermit  /usr/bin/kermit -i -l %l -r	 N    D	   Y	   N	  N
-
-
 Implementation Internals:
 =========================
 
