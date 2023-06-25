@@ -181,13 +181,17 @@ static ulong load_serial(long offset)
 		    } else
 #endif
 		    {
+			void *dst;
+
 			ret = lmb_reserve(&lmb, store_addr, binlen);
 			if (ret) {
 				printf("\nCannot overwrite reserved area (%08lx..%08lx)\n",
 					store_addr, store_addr + binlen);
 				return ret;
 			}
-			memcpy((char *)(store_addr), binbuf, binlen);
+			dst = map_sysmem(store_addr, binlen);
+			memcpy(dst, binbuf, binlen);
+			unmap_sysmem(dst);
 			lmb_free(&lmb, store_addr, binlen);
 		    }
 		    if ((store_addr) < start_addr)
@@ -350,15 +354,19 @@ static int save_serial(ulong address, ulong count)
 	if(write_record(SREC3_START))			/* write the header */
 		return (-1);
 	do {
-		if(count) {						/* collect hex data in the buffer  */
-			c = *(volatile uchar*)(address + reclen);	/* get one byte    */
-			checksum += c;							/* accumulate checksum */
+		volatile uchar *src;
+
+		src = map_sysmem(address, count);
+		if (count) {				/* collect hex data in the buffer */
+			c = src[reclen];		/* get one byte */
+			checksum += c;			/* accumulate checksum */
 			data[2*reclen]   = hex[(c>>4)&0x0f];
 			data[2*reclen+1] = hex[c & 0x0f];
 			data[2*reclen+2] = '\0';
 			++reclen;
 			--count;
 		}
+		unmap_sysmem((void *)src);
 		if(reclen == SREC_BYTES_PER_RECORD || count == 0) {
 			/* enough data collected for one record: dump it */
 			if(reclen) {	/* build & write a data record: */
