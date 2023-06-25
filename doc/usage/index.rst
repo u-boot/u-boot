@@ -85,6 +85,7 @@ Shell commands
    cmd/read
    cmd/reset
    cmd/rng
+   cmd/saves
    cmd/sbi
    cmd/sf
    cmd/scp03
