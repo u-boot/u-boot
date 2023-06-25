@@ -68,6 +68,7 @@ Shell commands
    cmd/load
    cmd/loadb
    cmd/loadm
+   cmd/loads
    cmd/loadx
    cmd/loady
    cmd/mbr
