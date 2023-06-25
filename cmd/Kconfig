@@ -1228,6 +1228,7 @@ config LOADS_ECHO
 
 config CMD_SAVES
 	bool "saves - Save a file over serial in S-Record format"
+	depends on CMD_LOADS
 	help
 	  Provides a way to save a binary file using the Motorola S-Record
 	  format over the serial line.
