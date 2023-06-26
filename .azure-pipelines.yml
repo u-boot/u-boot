@@ -492,7 +492,7 @@ stages:
         nxp_ls101x:
           BUILDMAN: "freescale&ls101"
         nxp_ls102x:
-          BUILDMAN: "freescale&ls102"
+          BUILDMAN: "freescale&ls102 -x keymile"
         nxp_ls104x:
           BUILDMAN: "freescale&ls104"
         nxp_ls108x:
@@ -507,6 +507,8 @@ stages:
           BUILDMAN: "mx -x mx6,imx8,freescale,technexion,toradex"
         imx8_imx9:
           BUILDMAN: "imx8 imx9"
+        keymile:
+          BUILDMAN: "keymile"
         keystone2_keystone3:
           BUILDMAN: "k2 k3"
         sandbox_asan:
@@ -548,7 +550,7 @@ stages:
         mips:
           BUILDMAN: "mips"
         powerpc:
-          BUILDMAN: "powerpc"
+          BUILDMAN: "powerpc -x keymile"
         siemens:
           BUILDMAN: "siemens"
         tegra:
