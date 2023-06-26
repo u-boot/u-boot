@@ -21,8 +21,6 @@ CONFIG_FIT_VERBOSE=y
 # CONFIG_BOOTSTD is not set
 CONFIG_AUTOBOOT_MENU_SHOW=y
 CONFIG_BOOTMENU_DISABLE_UBOOT_CONSOLE=y
-CONFIG_USE_BOOTCOMMAND=y
-CONFIG_BOOTCOMMAND="if test \"${bootcount}\" -gt \"${bootlimit}\"; then run altbootcmd; else if test \"${ustate}\" = 1; then setenv upgrade_available 1; saveenv; fi; run mmcboot; fi;"
 CONFIG_USE_PREBOOT=y
 CONFIG_PREBOOT="run setup_boot_menu;"
 CONFIG_HUSH_PARSER=y
