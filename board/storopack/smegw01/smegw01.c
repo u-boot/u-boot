@@ -102,7 +102,7 @@ int board_late_init(void)
 	return 0;
 }
 
-uint board_mmc_get_env_part(struct mmc *mmc)
+uint mmc_get_env_part(struct mmc *mmc)
 {
 	uint part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
 
