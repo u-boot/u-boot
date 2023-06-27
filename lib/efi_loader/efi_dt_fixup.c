@@ -74,6 +74,64 @@ void efi_try_purge_kaslr_seed(void *fdt)
 }
 
 /**
+ * efi_dt_nodes_props_purge() - Remove non upstreamed nodes and properties
+ *				from the DT
+ * @fdt: Pointer to the FDT
+ *
+ * Iterate through an array of DT nodes and properties, and remove them
+ * from the device-tree before the DT gets handed over to the kernel.
+ * These are nodes and properties which do not have upstream bindings
+ * and need to be purged before being handed over to the kernel.
+ *
+ * If both the node and property are specified, delete the property. If
+ * only the node is specified, delete the entire node, including it's
+ * subnodes, if any.
+ *
+ * Return: None
+ */
+void efi_dt_nodes_props_purge(void *fdt)
+{
+	int i;
+	int nodeoff = 0;
+	int err = 0;
+	struct dt_node_prop_remove {
+		const char *node_path;
+		const char *prop;
+		uint32_t flags;
+	} list[] = {
+		{
+			.node_path = "/signature",
+		},
+		{
+			.node_path = "/fwu-mdata",
+		},
+		{
+		},
+	};
+
+	for (i = 0; list[i].node_path; i++) {
+		nodeoff = fdt_path_offset(fdt, list[i].node_path);
+		if (nodeoff < 0) {
+			log_debug("Error (%d) getting node offset for %s\n",
+				  nodeoff, list[i].node_path);
+			continue;
+		}
+
+		if (list[i].prop) {
+			err = fdt_delprop(fdt, nodeoff, list[i].prop);
+			if (err < 0 && err != -FDT_ERR_NOTFOUND)
+				log_err("Error (%d) deleting %s\n",
+					err, list[i].prop);
+		} else {
+			err = fdt_del_node(fdt, nodeoff);
+			if (err)
+				log_err("Error (%d) trying to delete node %s\n",
+					err, list[i].node_path);
+		}
+	}
+}
+
+/**
  * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
  *
  * The mem_rsv entries of the FDT are added to the memory map. Any failures are

@@ -547,6 +547,25 @@ efi_status_t EFIAPI efi_convert_pointer(efi_uintn_t debug_disposition,
 void efi_carve_out_dt_rsv(void *fdt);
 /* Purge unused kaslr-seed */
 void efi_try_purge_kaslr_seed(void *fdt);
+
+/**
+ * efi_dt_nodes_props_purge() - Remove non upstreamed nodes and properties
+ *				from the DT
+ * @fdt: Pointer to the FDT
+ *
+ * Iterate through an array of DT nodes and properties, and remove them
+ * from the device-tree before the DT gets handed over to the kernel.
+ * These are nodes and properties which do not have upstream bindings
+ * and need to be purged before being handed over to the kernel.
+ *
+ * If both the node and property are specified, delete the property. If
+ * only the node is specified, delete the entire node, including it's
+ * subnodes, if any.
+ *
+ * Return: None
+ */
+void efi_dt_nodes_props_purge(void *fdt);
+
 /* Called by bootefi to make console interface available */
 efi_status_t efi_console_register(void);
 /* Called by efi_init_obj_list() to proble all block devices */
