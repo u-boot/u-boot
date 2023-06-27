@@ -15,9 +15,11 @@
 #include "usb_ether.h"
 #include "lan7x.h"
 
+extern char *payload_buffer;
 /*
  * Lan7x infrastructure commands
  */
+
 int lan7x_write_reg(struct usb_device *udev, u32 index, u32 data)
 {
 	int len;
@@ -417,6 +419,11 @@ int lan7x_eth_send(struct udevice *dev, void *packet, int length)
 	      (unsigned int)(length + sizeof(tx_cmd_a) + sizeof(tx_cmd_b)),
 	      (unsigned int)actual_len, err);
 
+	printf("Sending Packet length: %d\n", length);
+	for (int i = 0; i < (length+sizeof(tx_cmd_a) + sizeof(tx_cmd_b)); i++)
+		printf("%x ", msg[i]);
+	printf("\n\n");
+
 	return err;
 }
 
@@ -470,6 +477,16 @@ int lan7x_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	 */
 
 	*packetp = ptr + 10;
+	printf("Receive Packet length: %d, eth_packet_len: %d\n", len, packet_len);
+	for (int i = 0; i < len; i++)
+		printf("%x ", ptr[i]);
+	printf("\nPayload: ");
+	for (int i = 42; i < packet_len+10; i++) {
+		printf("%x ", ptr[i+10]);
+		payload_buffer[i-42] = ptr[i+10];
+	}
+	printf("\nPayload recieved....\n\n");
+
 	return packet_len;
 
 err:

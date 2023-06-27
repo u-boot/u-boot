@@ -21,7 +21,12 @@
 #include <net/udp.h>
 #include <net/sntp.h>
 #include <net/ncsi.h>
+#include <console.h>
+#include <linux/delay.h>
+#include <malloc.h>
+#include <net.h>
 
+char *payload_buffer = NULL;
 static int netboot_common(enum proto_t, struct cmd_tbl *, int, char * const []);
 
 #ifdef CONFIG_CMD_BOOTP
@@ -475,10 +480,151 @@ static int do_ping(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
+uchar *packet;
+int payload_offset = 0;
+int total_len = 0;
+int pkt_cnt = 0;
+void get_data(void)
+{
+	payload_offset = total_len;
+	packet[total_len++] = 'a';
+	packet[total_len++] = 'b';
+	packet[total_len++] = 'c';
+	packet[total_len++] = 'd';
+	packet[total_len++] = 'e';
+	packet[total_len++] = 'f';
+	packet[total_len++] = 'g';
+	packet[total_len++] = 'h';
+}
+
+unsigned short checksum(unsigned short* buff, int _16bitword)
+{
+	unsigned long sum;
+	for(sum=0;_16bitword>0;_16bitword--)
+	        sum+=htons(*(buff)++);
+	do
+	{
+	        sum = ((sum >> 16) + (sum & 0xFFFF));
+	}
+	while(sum & 0xFFFF0000);
+
+	return (~sum);
+}
+
+static int do_custom(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
+{
+	u8 net_ethaddr[6], dest_ethaddr[6];
+
+	net_init();
+	if (eth_is_on_demand_init()) {
+		eth_halt();
+		eth_set_current();
+		int ret = eth_init();
+		if (ret < 0) {
+			eth_halt();
+			return CMD_RET_FAILURE;
+		}
+	} else {
+		eth_init_state_only();
+	}
+
+	packet = malloc(1500);
+	payload_buffer = malloc(100);
+	memset(packet, 0, 1500);
+
+	int err = eth_env_get_enetaddr("ethaddr", net_ethaddr);
+	if (!err) {
+		printf("Invalid mac address\n");
+	}
+
+	err = eth_env_get_enetaddr("dest_ethaddr", dest_ethaddr);
+	if (!err) {
+		printf("Invalid mac address\n");
+	}
+
+	printf("ethaddr: %x:%x:%x:%x:%x:%x\n", net_ethaddr[0], net_ethaddr[1], net_ethaddr[2], net_ethaddr[3], net_ethaddr[4], net_ethaddr[5]);
+	printf("dest_ethaddr: %x:%x:%x:%x:%x:%x\n", dest_ethaddr[0], dest_ethaddr[1], dest_ethaddr[2], dest_ethaddr[3], dest_ethaddr[4], dest_ethaddr[5]);
+	printf("ipaddr: %s\n", env_get("ipaddr"));
+	printf("serverip: %s\n\n", env_get("serverip"));
+
+	struct ethernet_hdr *et = (struct ethernet_hdr *)packet;
+	memcpy(et->et_dest, dest_ethaddr, 6);
+        memcpy(et->et_src, net_ethaddr, 6);
+#if 0
+	net_ethaddr[0] = 0x42;
+	net_ethaddr[1] = 0x7C;
+	net_ethaddr[2] = 0xA0;
+	net_ethaddr[3] = 0x9B;
+	net_ethaddr[4] = 0x2F;
+	net_ethaddr[5] = 0xE9;
+#endif
+
+        et->et_protlen = htons(0x0800);
+	total_len+=sizeof(struct ethernet_hdr);
+
+	struct ip_udp_hdr *iph = (struct ip_udp_hdr*)(packet + sizeof(struct ethernet_hdr));
+	iph->ip_hl_v	= 5 | 4 << 4;
+	iph->ip_tos	= 16;
+	iph->ip_id	= htons(10201);
+	iph->ip_ttl	= 64;
+	iph->ip_p	= 17;
+//	iph->ip_src	= string_to_ip("192.168.1.2");
+//	iph->ip_dst	= string_to_ip("192.168.1.5"); // put destination IP address
+	iph->ip_src	= string_to_ip(env_get("ipaddr"));
+	iph->ip_dst	= string_to_ip(env_get("serverip")); // put destination IP address
+
+	iph->ip_len	= htons(total_len - sizeof(struct ethernet_hdr));
+	iph->ip_sum	= htons(checksum((unsigned short*)(packet + sizeof(struct ethernet_hdr)), (sizeof(struct ip_hdr)/2)));
+
+	iph->udp_src = htons(23451);
+	iph->udp_dst = htons(23452);
+	iph->udp_xsum = 0;
+        total_len+= sizeof(struct ip_udp_hdr);
+	get_data();
+	iph->udp_len = htons((total_len - sizeof(struct ip_hdr) - sizeof(struct ethernet_hdr)));
+
+	printf("Packet sending...\n");
+	printf("Packet size: %d\n", total_len);
+	for (pkt_cnt = 0 ; pkt_cnt < 10; pkt_cnt++) {
+		packet[total_len] = pkt_cnt;
+		eth_send(packet, total_len+1);
+		udelay(1500000);
+		eth_rx();
+		udelay(100);
+		printf("recv_payload_buffer: %s\n", payload_buffer);
+		printf("sent_payload_buffe: %s\n", (char *)&packet[payload_offset]);
+		printf("number of bytes: %d\n", total_len - payload_offset);
+		if (!strncmp(payload_buffer, &packet[payload_offset], total_len - payload_offset))
+		{
+			printf("Authentication OK !!!\n\n");
+			return CMD_RET_SUCCESS;
+		}
+		if (ctrlc()) {
+			printf("CTRL-C pressed\n");
+			total_len = 0;
+			free(packet);
+			free(payload_buffer);
+			return CMD_RET_SUCCESS;
+		}
+	}
+	total_len = 0;
+	free(packet);
+	free(payload_buffer);
+
+	return CMD_RET_SUCCESS;
+}
+
 U_BOOT_CMD(
 	ping,	2,	1,	do_ping,
 	"send ICMP ECHO_REQUEST to network host",
 	"pingAddress"
+);
+
+U_BOOT_CMD(
+	custom,	1,	1,	do_custom,
+	"custom command to send authentication request packet to host and receive authentication response",
+	"custom"
 );
 #endif
 

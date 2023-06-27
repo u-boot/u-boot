@@ -372,7 +372,7 @@ static int abortboot_single_key(int bootdelay)
 	int abort = 0;
 	unsigned long ts;
 
-	printf("Hit any key to stop autoboot: %2d ", bootdelay);
+	printf("Hit any key to stop autoboot Nortcele: %2d ", bootdelay);
 
 	/*
 	 * Check if key already pressed
@@ -417,7 +417,11 @@ static int abortboot(int bootdelay)
 		if (autoboot_keyed())
 			abort = abortboot_key_sequence(bootdelay);
 		else
-			abort = abortboot_single_key(bootdelay);
+		  {
+	            printf("/n/r Welcome to Nortcele System code start from here, press any Key\n\r");
+	            getchar();
+		    abort = abortboot_single_key(bootdelay);
+		  }
 	}
 
 	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) && abort)
