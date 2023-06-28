@@ -11,6 +11,9 @@
 #if (defined(CONFIG_MESON_AXG) || defined(CONFIG_MESON_G12A))
 #define GICD_BASE			0xffc01000
 #define GICC_BASE			0xffc02000
+#elif defined(CONFIG_MESON_A1)
+#define GICD_BASE			0xff901000
+#define GICC_BASE			0xff902000
 #else /* MESON GXL and GXBB */
 #define GICD_BASE			0xc4301000
 #define GICC_BASE			0xc4302000

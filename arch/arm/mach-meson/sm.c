@@ -24,6 +24,7 @@
 #define FN_EFUSE_READ			0x82000030
 #define FN_EFUSE_WRITE			0x82000031
 #define FN_CHIP_ID			0x82000044
+#define FN_PWRDM_SET			0x82000093
 
 static void *shmem_input;
 static void *shmem_output;
@@ -136,4 +137,17 @@ int meson_sm_get_reboot_reason(void)
 
 	/* The SMC call is not used, we directly use AO_SEC_SD_CFG15 */
 	return FIELD_GET(REBOOT_REASON_MASK, reason);
+}
+
+int meson_sm_pwrdm_set(size_t index, int cmd)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = FN_PWRDM_SET;
+	regs.regs[1] = index;
+	regs.regs[2] = cmd;
+
+	smc_call(&regs);
+
+	return regs.regs[0];
 }
