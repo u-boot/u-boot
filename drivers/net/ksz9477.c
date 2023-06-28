@@ -16,6 +16,10 @@
 
 #include <asm-generic/gpio.h>
 
+/* Used with variable features to indicate capabilities. */
+#define NEW_XMII			BIT(1)
+#define IS_9893				BIT(2)
+
 /* Global registers */
 
 /* Chip ID */
@@ -41,6 +45,13 @@
 #define PORT_RMII_SEL			0x1
 #define PORT_GMII_SEL			0x2
 #define PORT_MII_SEL			0x3
+/* S1 */
+#define PORT_MII_1000MBIT_S1		BIT(6)
+/* S1 */
+#define PORT_MII_SEL_S1			0x0
+#define PORT_RMII_SEL_S1		0x1
+#define PORT_GMII_SEL_S1		0x2
+#define PORT_RGMII_SEL_S1		0x3
 
 /* Port MSTP State Register */
 #define REG_PORT_MSTP_STATE		0x0b04
@@ -62,6 +73,8 @@
 
 struct ksz_dsa_priv {
 	struct udevice *dev;
+
+	u32 features;			/* chip specific features */
 };
 
 static inline int ksz_read8(struct udevice *dev, u32 reg, u8 *val)
@@ -284,6 +297,60 @@ U_BOOT_DRIVER(ksz_mdio) = {
 	.plat_auto	= sizeof(struct mdio_perdev_priv),
 };
 
+static void ksz9477_set_gbit(struct ksz_dsa_priv *priv, bool gbit, u8 *data)
+{
+	if (priv->features & NEW_XMII) {
+		if (gbit)
+			*data &= ~PORT_MII_NOT_1GBIT;
+		else
+			*data |= PORT_MII_NOT_1GBIT;
+	} else {
+		if (gbit)
+			*data |= PORT_MII_1000MBIT_S1;
+		else
+			*data &= ~PORT_MII_1000MBIT_S1;
+	}
+}
+
+static void ksz9477_set_xmii(struct ksz_dsa_priv *priv, int mode, u8 *data)
+{
+	u8 xmii;
+
+	if (priv->features & NEW_XMII) {
+		switch (mode) {
+		case 0:
+			xmii = PORT_MII_SEL;
+			break;
+		case 1:
+			xmii = PORT_RMII_SEL;
+			break;
+		case 2:
+			xmii = PORT_GMII_SEL;
+			break;
+		default:
+			xmii = PORT_RGMII_SEL;
+			break;
+		}
+	} else {
+		switch (mode) {
+		case 0:
+			xmii = PORT_MII_SEL_S1;
+			break;
+		case 1:
+			xmii = PORT_RMII_SEL_S1;
+			break;
+		case 2:
+			xmii = PORT_GMII_SEL_S1;
+			break;
+		default:
+			xmii = PORT_RGMII_SEL_S1;
+			break;
+		}
+	}
+	*data &= ~PORT_MII_SEL_M;
+	*data |= xmii;
+}
+
 static int ksz_port_setup(struct udevice *dev, int port,
 			  phy_interface_t interface)
 {
@@ -293,9 +360,11 @@ static int ksz_port_setup(struct udevice *dev, int port,
 	dev_dbg(dev, "%s P%d %s\n", __func__, port + 1,
 		(port == pdata->cpu_port) ? "cpu" : "");
 
+	struct ksz_dsa_priv *priv = dev_get_priv(dev);
 	if (port != pdata->cpu_port) {
-		/* phy port: config errata and leds */
-		ksz_phy_errata_setup(dev, port);
+		if (priv->features & NEW_XMII)
+			/* phy port: config errata and leds */
+			ksz_phy_errata_setup(dev, port);
 	} else {
 		/* cpu port: configure MAC interface mode */
 		ksz_pread8(dev, port, REG_PORT_XMII_CTRL_1, &data8);
@@ -303,24 +372,20 @@ static int ksz_port_setup(struct udevice *dev, int port,
 			phy_string_for_interface(interface));
 		switch (interface) {
 		case PHY_INTERFACE_MODE_MII:
-			data8 &= ~PORT_MII_SEL_M;
-			data8 |= PORT_MII_SEL;
-			data8 |= PORT_MII_NOT_1GBIT;
+			ksz9477_set_xmii(priv, 0, &data8);
+			ksz9477_set_gbit(priv, false, &data8);
 			break;
 		case PHY_INTERFACE_MODE_RMII:
-			data8 &= ~PORT_MII_SEL_M;
-			data8 |= PORT_RMII_SEL;
-			data8 |= PORT_MII_NOT_1GBIT;
+			ksz9477_set_xmii(priv, 1, &data8);
+			ksz9477_set_gbit(priv, false, &data8);
 			break;
 		case PHY_INTERFACE_MODE_GMII:
-			data8 &= ~PORT_MII_SEL_M;
-			data8 |= PORT_GMII_SEL;
-			data8 &= ~PORT_MII_NOT_1GBIT;
+			ksz9477_set_xmii(priv, 2, &data8);
+			ksz9477_set_gbit(priv, true, &data8);
 			break;
 		default:
-			data8 &= ~PORT_MII_SEL_M;
-			data8 |= PORT_RGMII_SEL;
-			data8 &= ~PORT_MII_NOT_1GBIT;
+			ksz9477_set_xmii(priv, 3, &data8);
+			ksz9477_set_gbit(priv, true, &data8);
 			data8 &= ~PORT_RGMII_ID_IG_ENABLE;
 			data8 &= ~PORT_RGMII_ID_EG_ENABLE;
 			if (interface == PHY_INTERFACE_MODE_RGMII_ID ||
@@ -329,6 +394,8 @@ static int ksz_port_setup(struct udevice *dev, int port,
 			if (interface == PHY_INTERFACE_MODE_RGMII_ID ||
 			    interface == PHY_INTERFACE_MODE_RGMII_TXID)
 				data8 |= PORT_RGMII_ID_EG_ENABLE;
+			if (priv->features & IS_9893)
+				data8 &= ~PORT_MII_MAC_MODE;
 			break;
 		}
 		ksz_write8(dev, PORT_CTRL_ADDR(port, REG_PORT_XMII_CTRL_1), data8);
@@ -479,10 +546,17 @@ static int ksz_i2c_probe(struct udevice *dev)
 	case 0x00989700:
 		puts("KSZ9897S: ");
 		break;
+	case 0x00989300:
+		puts("KSZ9893R: ");
+		break;
 	default:
 		dev_err(dev, "invalid chip id: 0x%08x\n", id);
 		return -EINVAL;
 	}
+	if ((id & 0xf00) == 0x300)
+		priv->features |= IS_9893;
+	else
+		priv->features |= NEW_XMII;
 
 	/* probe mdio bus */
 	ret = ksz_probe_mdio(dev);
@@ -503,6 +577,7 @@ static const struct udevice_id ksz_i2c_ids[] = {
 	{ .compatible = "microchip,ksz9897" },
 	{ .compatible = "microchip,ksz9477" },
 	{ .compatible = "microchip,ksz9567" },
+	{ .compatible = "microchip,ksz9893" },
 	{ }
 };
 
