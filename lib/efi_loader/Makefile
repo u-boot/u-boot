@@ -89,3 +89,10 @@ obj-$(CONFIG_EFI_ECPT) += efi_conformance.o
 
 EFI_VAR_SEED_FILE := $(subst $\",,$(CONFIG_EFI_VAR_SEED_FILE))
 $(obj)/efi_var_seed.o: $(srctree)/$(EFI_VAR_SEED_FILE)
+
+ifeq ($(CONFIG_EFI_CAPSULE_AUTHENTICATE),y)
+EFI_CAPSULE_KEY_PATH := $(subst $\",,$(CONFIG_EFI_CAPSULE_ESL_FILE))
+ifeq ("$(wildcard $(EFI_CAPSULE_KEY_PATH))","")
+$(error .esl cerificate not found. Configure your CONFIG_EFI_CAPSULE_ESL_FILE)
+endif
+endif

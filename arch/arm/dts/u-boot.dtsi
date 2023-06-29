@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
+/**
+ * Devicetree file with miscellaneous nodes that will be included
+ * at build time into the DTB. Currently being used for including
+ * capsule related information.
+ */
+
+#ifdef CONFIG_EFI_CAPSULE_AUTHENTICATE
+/ {
+	signature {
+		capsule-key = /incbin/(CONFIG_EFI_CAPSULE_ESL_FILE);
+	};
+};
+#endif /* CONFIG_EFI_CAPSULE_AUTHENTICATE */
