@@ -15,7 +15,8 @@
 #include <asm/arch-rockchip/misc.h>
 #include <power/regulator.h>
 
-#define GRF_IO_VSEL_BT565_SHIFT 0
+#define GRF_IO_VSEL_BT565_GPIO2AB 1
+#define GRF_IO_VSEL_AUDIO_GPIO3D4A 2
 #define PMUGRF_CON0_VSEL_SHIFT 8
 
 #ifndef CONFIG_SPL_BUILD
@@ -48,7 +49,8 @@ static void setup_iodomain(void)
 	   syscon_get_first_range(ROCKCHIP_SYSCON_PMUGRF);
 
 	/* BT565 is in 1.8v domain */
-	rk_setreg(&grf->io_vsel, 1 << GRF_IO_VSEL_BT565_SHIFT);
+	rk_setreg(&grf->io_vsel,
+		  GRF_IO_VSEL_BT565_GPIO2AB | GRF_IO_VSEL_AUDIO_GPIO3D4A);
 
 	/* Set GPIO1 1.8v/3.0v source select to PMU1830_VOL */
 	rk_setreg(&pmugrf->soc_con0, 1 << PMUGRF_CON0_VSEL_SHIFT);

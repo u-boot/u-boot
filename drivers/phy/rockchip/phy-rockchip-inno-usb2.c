@@ -259,7 +259,7 @@ static int rockchip_usb2phy_probe(struct udevice *dev)
 	}
 
 	/* support address_cells=2 */
-	if (reg == 0) {
+	if (dev_read_addr_cells(dev) == 2 && reg == 0) {
 		if (ofnode_read_u32_index(dev_ofnode(dev), "reg", 1, &reg)) {
 			dev_err(dev, "%s must have reg[1]\n",
 				ofnode_get_name(dev_ofnode(dev)));

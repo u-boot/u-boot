@@ -12,7 +12,6 @@
 #include <fdtdec.h>
 #include <linux/bitops.h>
 #include <linux/libfdt.h>
-#include <asm/global_data.h>
 
 #include "pinctrl-rockchip.h"
 
@@ -433,13 +432,7 @@ static int rockchip_pinctrl_set_state(struct udevice *dev,
 	int prop_len, param;
 	const u32 *data;
 	ofnode node;
-#ifdef CONFIG_OF_LIVE
-	const struct device_node *np;
-	struct property *pp;
-#else
-	int property_offset, pcfg_node;
-	const void *blob = gd->fdt_blob;
-#endif
+	struct ofprop prop;
 	data = dev_read_prop(config, "rockchip,pins", &count);
 	if (count < 0) {
 		debug("%s: bad array size %d\n", __func__, count);
@@ -473,24 +466,15 @@ static int rockchip_pinctrl_set_state(struct udevice *dev,
 		node = ofnode_get_by_phandle(conf);
 		if (!ofnode_valid(node))
 			return -ENODEV;
-#ifdef CONFIG_OF_LIVE
-		np = ofnode_to_np(node);
-		for (pp = np->properties; pp; pp = pp->next) {
-			prop_name = pp->name;
-			prop_len = pp->length;
-			value = pp->value;
-#else
-		pcfg_node = ofnode_to_offset(node);
-		fdt_for_each_property_offset(property_offset, blob, pcfg_node) {
-			value = fdt_getprop_by_offset(blob, property_offset,
-						      &prop_name, &prop_len);
+		ofnode_for_each_prop(prop, node) {
+			value = ofprop_get_property(&prop, &prop_name, &prop_len);
 			if (!value)
-				return -ENOENT;
-#endif
+				continue;
+
 			param = rockchip_pinconf_prop_name_to_param(prop_name,
 								    &default_val);
 			if (param < 0)
-				break;
+				continue;
 
 			if (prop_len >= sizeof(fdt32_t))
 				arg = fdt32_to_cpu(*(fdt32_t *)value);
