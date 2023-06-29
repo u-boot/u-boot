@@ -113,7 +113,7 @@ the U-Boot build, the example below is a log for mx7dsabresd_defconfig target:
 1.4 Signing the U-Boot binary
 ------------------------------
 
-The CST tool is used for singing the U-Boot binary and generating a CSF binary,
+The CST tool is used for signing the U-Boot binary and generating a CSF binary,
 users should input the CSF description file created in the step above and
 should receive a CSF binary, which contains the CSF commands, SRK table,
 signatures and certificates.
