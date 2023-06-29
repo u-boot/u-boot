@@ -486,6 +486,7 @@ static int do_efi_show_handles(struct cmd_tbl *cmdtp, int flag,
 			if (guidcmp(guid[j], &efi_guid_device_path))
 				printf("  %pUs\n", guid[j]);
 		}
+		efi_free_pool(guid);
 	}
 
 	efi_free_pool(handles);
