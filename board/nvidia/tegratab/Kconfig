@@ -1,0 +1,16 @@
+if TARGET_TEGRATAB
+
+config SYS_BOARD
+	default "tegratab"
+
+config SYS_VENDOR
+	default "nvidia"
+
+config SYS_CONFIG_NAME
+	default "tegratab"
+
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "NVIDIA TegraTab"
+
+endif
