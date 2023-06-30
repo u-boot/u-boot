@@ -35,6 +35,12 @@
 #define STDIN_KBD_USB ""
 #endif
 
+#ifdef CONFIG_BUTTON_KEYBOARD
+#define STDIN_BTN_KBD ",button-kbd"
+#else
+#define STDIN_BTN_KBD ""
+#endif
+
 #ifdef CONFIG_VIDEO
 #define STDOUT_VIDEO ",vidconsole"
 #else
@@ -48,7 +54,7 @@
 #endif
 
 #define TEGRA_DEVICE_SETTINGS \
-	"stdin=serial" STDIN_KBD_KBC STDIN_KBD_USB STDOUT_CROS_EC "\0" \
+	"stdin=serial" STDIN_KBD_KBC STDIN_KBD_USB STDOUT_CROS_EC STDIN_BTN_KBD "\0" \
 	"stdout=serial" STDOUT_VIDEO "\0" \
 	"stderr=serial" STDOUT_VIDEO "\0" \
 	""
