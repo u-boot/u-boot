@@ -6676,6 +6676,119 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                                 ['fit'])
         self.assertIn("Node '/fit': Missing tool: 'mkimage'", str(e.exception))
 
+    def _CheckCapsule(self):
+        self.capsule_data = tools.read_file(self.capsule_fname)
 
+        self.assertEqual(self.capsule_guid, self.capsule_data.hex()[:32])
+        self.assertEqual(self.image_guid, self.capsule_data.hex()[96:128])
+        self.assertEqual(self.payload_data.hex(), self.capsule_data.hex()[184:192])
+
+    def _CheckSignedCapsule(self):
+        self.capsule_data = tools.read_file(self.capsule_fname)
+
+        self.assertEqual(self.capsule_guid, self.capsule_data.hex()[:32])
+        self.assertEqual(self.image_guid, self.capsule_data.hex()[96:128])
+        self.assertEqual(self.payload_data.hex(), self.capsule_data.hex()[4770:4778])
+
+    def testCapsuleGen(self):
+        """Test generation of EFI capsule"""
+        self.payload_data = tools.to_bytes(TEXT_DATA)
+        # Firmware Management Protocol GUID used in capsule header
+        self.capsule_guid = "edd5cb6d2de8444cbda17194199ad92a"
+        # Image GUID specified in the DTS
+        self.image_guid = "52cfd7092007104791d108469b7fe9c8"
+
+        TestFunctional._MakeInputFile('payload.txt', self.payload_data)
+
+        self._DoReadFile('282_capsule.dts')
+
+        self.capsule_fname = tools.get_output_filename('test.capsule')
+        self.assertTrue(os.path.exists(self.capsule_fname))
+
+        self._CheckCapsule()
+
+    def testSignedCapsuleGen(self):
+        """Test generation of EFI capsule"""
+        self.payload_data = tools.to_bytes(TEXT_DATA)
+        # Firmware Management Protocol GUID used in capsule header
+        self.capsule_guid = "edd5cb6d2de8444cbda17194199ad92a"
+        # Image GUID specified in the DTS
+        self.image_guid = "52cfd7092007104791d108469b7fe9c8"
+
+        TestFunctional._MakeInputFile('payload.txt', self.payload_data)
+
+        self._DoReadFile('283_capsule_signed.dts')
+
+        self.capsule_fname = tools.get_output_filename('test.capsule')
+        self.assertTrue(os.path.exists(self.capsule_fname))
+
+        self._CheckSignedCapsule()
+
+    def testCapsuleGenCfgFile(self):
+        """Test generation of EFI capsule through config file"""
+        self.payload_data = tools.to_bytes(TEXT_DATA)
+        # Firmware Management Protocol GUID used in capsule header
+        self.capsule_guid = "edd5cb6d2de8444cbda17194199ad92a"
+        # Image GUID specified in the DTS
+        self.image_guid = "52cfd7092007104791d108469b7fe9c8"
+
+        TestFunctional._MakeInputFile('payload.txt', self.payload_data)
+
+        self._DoReadFile('284_capsule_conf.dts')
+
+        self.capsule_fname = tools.get_output_filename('test.capsule')
+        self.assertTrue(os.path.exists(self.capsule_fname))
+
+        self._CheckCapsule()
+
+    def testCapsuleGenKeyMissing(self):
+        """Test that binman errors out on missing key"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('285_capsule_missing_key.dts')
+
+        self.assertIn("Both private-key and public key Certificate need to be provided",
+                      str(e.exception))
+
+    def testCapsuleGenIndexMissing(self):
+        """Test that binman errors out on missing image index"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('286_capsule_missing_index.dts')
+
+        self.assertIn("mkeficapsule must be provided an Image Index",
+                      str(e.exception))
+
+    def testCapsuleGenGuidMissing(self):
+        """Test that binman errors out on missing image GUID"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('287_capsule_missing_guid.dts')
+
+        self.assertIn("mkeficapsule must be provided an Image GUID",
+                      str(e.exception))
+
+    def testCapsuleGenPayloadMissing(self):
+        """Test that binman errors out on missing input(payload)image"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('288_capsule_missing_payload.dts')
+
+        self.assertIn("mkeficapsule must be provided an input filename(payload)",
+                      str(e.exception))
+
+    def testCapsuleGenImplicitCapsuleName(self):
+        """Test that binman generates capsule with implicit capsule name"""
+        self.payload_data = tools.to_bytes(TEXT_DATA)
+        # Firmware Management Protocol GUID used in capsule header
+        self.capsule_guid = "edd5cb6d2de8444cbda17194199ad92a"
+        # Image GUID specified in the DTS
+        self.image_guid = "52cfd7092007104791d108469b7fe9c8"
+
+        TestFunctional._MakeInputFile('payload.txt', self.payload_data)
+
+        self._DoReadFile('289_capsule_implicit.dts')
+
+        self.capsule_fname = tools.get_output_filename('payload.capsule')
+        self.assertTrue(os.path.exists(self.capsule_fname))
+
+        self._CheckCapsule()
+        
 if __name__ == "__main__":
     unittest.main()

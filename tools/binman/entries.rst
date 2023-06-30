@@ -283,6 +283,43 @@ entry; similarly for SPL.
 
 
 
+.. _etype_capsule:
+
+Entry: capsule: Entry for generating EFI Capsule files
+------------------------------------------------------
+
+This is an entry for generating EFI capsules.
+
+The parameters needed for generation of the capsules can either be
+provided separately, or through a config file.
+
+Properties / Entry arguments:
+    - cfg-file: Config file for providing capsule
+      parameters. These are parameters needed for generating the
+      capsules. The parameters can be listed by running the
+      './tools/mkeficapsule -h' command.
+    - image-index: Unique number for identifying corresponding
+      payload image. Number between 1 and descriptor count, i.e.
+      the total number of firmware images that can be updated.
+    - image-type-id: Image GUID which will be used for identifying the
+      updatable image on the board.
+    - hardware-instance: Optional number for identifying unique
+      hardware instance of a device in the system. Default value of 0
+      for images where value is not to be used.
+    - fw-version: Optional value of image version that can be put on
+      the capsule through the Firmware Management Protocol(FMP) header.
+    - monotomic-count: Count used when signing an image.
+    - private-key: Path to PEM formatted .key private key file.
+    - pub-key-cert: Path to PEM formatted .crt public key certificate
+      file.
+    - filename: Path to the input(payload) file. File can be any
+      format, a binary or an elf, platform specific.
+    - capsule: Path to the output capsule file. A capsule is a
+      continous set of data as defined by the EFI specification. Refer
+      to the specification for more details.
+
+
+
 .. _etype_cbfs:
 
 Entry: cbfs: Coreboot Filesystem (CBFS)
