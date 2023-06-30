@@ -1,0 +1,166 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+/* This dts file describes the HTC One X smartphone */
+/* CPU Speedo ID 4, Soc Speedo ID 1, CPU Process: 1, Core Process: 0 */
+
+#include <dt-bindings/input/input.h>
+
+#include "tegra30.dtsi"
+
+/ {
+	model = "HTC One X";
+	compatible = "htc,endeavoru", "nvidia,tegra30";
+
+	chosen {
+		stdout-path = &uarta;
+	};
+
+	aliases {
+		i2c0 = &pwr_i2c;
+
+		mmc0 = &sdmmc4;	/* eMMC */
+
+		rtc0 = &pmic;
+		rtc1 = "/rtc@7000e000";
+
+		usb0 = &micro_usb;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x80000000 0x40000000>;
+	};
+
+	host1x@50000000 {
+		dc@54200000 {
+			clocks = <&tegra_car TEGRA30_CLK_DISP1>,
+				 <&tegra_car TEGRA30_CLK_PLL_D_OUT0>;
+
+			rgb {
+				status = "okay";
+
+				nvidia,panel = <&dsia>;
+			};
+		};
+
+		dsia: dsi@54300000 {
+			status = "okay";
+
+			avdd-dsi-csi-supply = <&avdd_dsi_csi>;
+
+			panel = <&panel>;
+		};
+	};
+
+	uarta: serial@70006000 {
+		status = "okay";
+	};
+
+	pwr_i2c: i2c@7000d000 {
+		status = "okay";
+		clock-frequency = <100000>;
+
+		/* Texas Instruments TPS80032 PMIC */
+		pmic: tps80032@48 {
+			compatible = "ti,tps80032";
+			reg = <0x48>;
+
+			regulators {
+				/* DSI VDD */
+				avdd_dsi_csi: ldo1 {
+					regulator-name = "avdd_dsi_csi";
+					regulator-min-microvolt = <1200000>;
+					regulator-max-microvolt = <1200000>;
+					regulator-always-on;
+				};
+			};
+		};
+	};
+
+	sdmmc4: sdhci@78000600 {
+		status = "okay";
+		bus-width = <8>;
+		non-removable;
+	};
+
+	micro_usb: usb@7d000000 {
+		status = "okay";
+		dr_mode = "otg";
+	};
+
+	backlight: backlight {
+		compatible = "nvidia,tegra-pwm-backlight";
+
+		nvidia,pwm-source = <1>;
+		nvidia,default-brightness = <0x8E>;
+	};
+
+	/* PMIC has a built-in 32KHz oscillator which is used by PMC */
+	clk32k_in: clock-32k {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <32768>;
+		clock-output-names = "pmic-oscillator";
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		key-power {
+			label = "Power";
+			gpios = <&gpio TEGRA_GPIO(U, 6) GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_ENTER>;
+		};
+
+		key-volume-up {
+			label = "Volume Up";
+			gpios = <&gpio TEGRA_GPIO(S, 0) GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_UP>;
+		};
+
+		key-volume-down {
+			label = "Volume Down";
+			gpios = <&gpio TEGRA_GPIO(W, 3) GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_DOWN>;
+		};
+	};
+
+	panel: panel {
+		compatible = "htc,edge-panel";
+
+		reset-gpios = <&gpio TEGRA_GPIO(N, 6) GPIO_ACTIVE_LOW>;
+
+		vdd-supply = <&vdd_3v3_panel>;
+		vddio-supply = <&vdd_1v8_panel>;
+
+		backlight = <&backlight>;
+	};
+
+	vcore_emmc: regulator-emmc {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_2v85_sdmmc";
+		regulator-min-microvolt = <2850000>;
+		regulator-max-microvolt = <2850000>;
+		gpio = <&gpio TEGRA_GPIO(M, 3) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	vdd_3v3_panel: regulator-lcm {
+		compatible = "regulator-fixed";
+		regulator-name = "v_lcm_3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio TEGRA_GPIO(E, 2) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	vdd_1v8_panel: regulator-lcmio {
+		compatible = "regulator-fixed";
+		regulator-name = "v_lcmio_1v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&gpio TEGRA_GPIO(E, 5) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};
