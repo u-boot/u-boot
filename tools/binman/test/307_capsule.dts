@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	binman {
+		efi-capsule {
+			image-index = <0x1>;
+			/* Image GUID for testing capsule update */
+			image-type-id = "09D7CF52-0720-4710-91D1-08469B7FE9C8";
+			hardware-instance = <0x0>;
+
+			blob-ext {
+				filename = "efi_capsule_payload.bin";
+			};
+		};
+	};
+};

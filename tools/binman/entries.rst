@@ -468,6 +468,70 @@ updating the EC on startup via software sync.
 
 
 
+.. _etype_efi_capsule:
+
+Entry: capsule: Entry for generating EFI Capsule files
+------------------------------------------------------
+
+This is an entry for generating EFI capsules.
+
+    This is an entry for generating EFI capsules.
+
+    The parameters needed for generation of the capsules can
+    either be provided as properties in the entry.
+
+Properties / Entry arguments:
+    - image-index: Unique number for identifying corresponding
+      payload image. Number between 1 and descriptor count, i.e.
+      the total number of firmware images that can be updated.
+    - image-type-id: Image GUID which will be used for identifying the
+      updatable image on the board.
+    - hardware-instance: Optional number for identifying unique
+      hardware instance of a device in the system. Default value of 0
+      for images where value is not to be used.
+    - fw-version: Optional value of image version that can be put on
+      the capsule through the Firmware Management Protocol(FMP) header.
+    - monotonic-count: Count used when signing an image.
+    - private-key: Path to PEM formatted .key private key file.
+    - pub-key-cert: Path to PEM formatted .crt public key certificate
+      file.
+    - capoemflags - Optional OEM flags to be passed through capsule header.
+    - filename: Optional path to the output capsule file. A capsule is a
+      continuous set of data as defined by the EFI specification. Refer
+      to the specification for more details.
+
+    For more details on the description of the capsule format, and the capsule
+    update functionality, refer Section 8.5 and Chapter 23 in the UEFI
+    specification.
+    https://uefi.org/sites/default/files/resources/UEFI_Spec_2_10_Aug29.pdf
+
+    The capsule parameters like image index and image GUID are passed as
+    properties in the entry. The payload to be used in the capsule is to be
+    provided as a subnode of the capsule entry.
+
+A typical capsule entry node would then look something like this::
+
+    capsule {
+            type = "efi-capsule";
+            image-index = <0x1>;
+            /* Image GUID for testing capsule update */
+            image-type-id = "09D7CF52-0720-4710-91D1-08469B7FE9C8";
+            hardware-instance = <0x0>;
+            private-key = "tools/binman/test/key.key";
+            pub-key-cert = "tools/binman/test/key.pem";
+            filename = "test.capsule";
+
+            u-boot {
+            };
+    };
+
+In the above example, the capsule payload is the u-boot image. The
+capsule entry would read the contents of the payload and put them
+into the capsule. Any external file can also be specified as the
+payload using the blob-ext subnode.
+
+
+
 .. _etype_encrypted:
 
 Entry: encrypted: Externally built encrypted binary blob
