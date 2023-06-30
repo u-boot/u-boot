@@ -1,0 +1,10 @@
+GROUPER BOARD
+M:	Svyatoslav Ryhel <clamor95@gmail.com>
+S:	Maintained
+F:	board/asus/grouper/
+F:	configs/grouper_E1565.config
+F:	configs/grouper_PM269.config
+F:	configs/tilapia.config
+F:	configs/grouper_common_defconfig
+F:	doc/board/asus/grouper_common.rst
+F:	include/configs/grouper.h
