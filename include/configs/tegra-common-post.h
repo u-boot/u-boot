@@ -8,9 +8,21 @@
 #define __TEGRA_COMMON_POST_H
 
 #if IS_ENABLED(CONFIG_CMD_USB)
-# define BOOT_TARGET_USB(func) func(USB, usb, 0)
+#define BOOT_TARGET_USB(func) func(USB, usb, 0)
 #else
-# define BOOT_TARGET_USB(func)
+#define BOOT_TARGET_USB(func)
+#endif
+
+#if CONFIG_IS_ENABLED(CMD_DHCP) && CONFIG_IS_ENABLED(CMD_PXE)
+#define BOOT_TARGET_PXE(func) func(PXE, pxe, na)
+#else
+#define BOOT_TARGET_PXE(func)
+#endif
+
+#if CONFIG_IS_ENABLED(CMD_DHCP)
+#define BOOT_TARGET_DHCP(func) func(DHCP, dhcp, na)
+#else
+#define BOOT_TARGET_DHCP(func)
 #endif
 
 #ifndef BOOT_TARGET_DEVICES
@@ -18,8 +30,8 @@
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
 	BOOT_TARGET_USB(func) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+	BOOT_TARGET_PXE(func) \
+	BOOT_TARGET_DHCP(func)
 #endif
 #include <config_distro_bootcmd.h>
 
