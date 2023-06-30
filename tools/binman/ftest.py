@@ -48,6 +48,7 @@ U_BOOT_VPL_DATA       = b'vpl76543210fedcbazywxyz_'
 BLOB_DATA             = b'89'
 ME_DATA               = b'0abcd'
 VGA_DATA              = b'vga'
+EFI_DATA              = b'efi'
 U_BOOT_DTB_DATA       = b'udtb'
 U_BOOT_SPL_DTB_DATA   = b'spldtb'
 U_BOOT_TPL_DTB_DATA   = b'tpldtb'
@@ -118,6 +119,11 @@ REPACK_DTB_PROPS = ['orig-offset', 'orig-size']
 COMP_BINTOOLS = ['bzip2', 'gzip', 'lz4', 'lzma_alone', 'lzop', 'xz', 'zstd']
 
 TEE_ADDR = 0x5678
+
+# Firmware Management Protocol(FMP) GUID
+FW_MGMT_GUID = 'edd5cb6d2de8444cbda17194199ad92a'
+# Image GUID specified in the DTS
+CAPSULE_IMAGE_GUID = '52cfd7092007104791d108469b7fe9c8'
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -7086,6 +7092,115 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                           "sha384,rsa4096")
          self.assertEqual(fdt_util.GetString(key_node, "key-name-hint"),
                           "key")
+
+    def _CheckCapsule(self, signed_capsule=False, version_check=False):
+        fmp_signature = "4d535331" # 'M', 'S', 'S', '1'
+        fmp_size = "10"
+        fmp_fw_version = "02"
+
+        self.capsule_data = tools.read_file(self.capsule_fname)
+
+        # Firmware Management Protocol(FMP) GUID - offset(0 - 32)
+        self.assertEqual(FW_MGMT_GUID, self.capsule_data.hex()[:32])
+        # Image GUID - offset(96 - 128)
+        self.assertEqual(CAPSULE_IMAGE_GUID, self.capsule_data.hex()[96:128])
+
+        if version_check:
+            # FMP header signature - offset(184 - 192)
+            self.assertEqual(fmp_signature, self.capsule_data.hex()[184:192])
+            # FMP header size - offset(192 - 194)
+            self.assertEqual(fmp_size, self.capsule_data.hex()[192:194])
+            # firmware version - offset(200 - 202)
+            self.assertEqual(fmp_fw_version, self.capsule_data.hex()[200:202])
+
+        if signed_capsule:
+            # payload offset signed capsule(4770 - 4776)
+            self.assertEqual(self.payload_data.hex(), self.capsule_data.hex()[4770:4776])
+        elif version_check:
+            # payload offset for non-signed capsule with version header(216 - 222)
+            self.assertEqual(self.payload_data.hex(), self.capsule_data.hex()[216:222])
+        else:
+            # payload offset for non-signed capsule with no version header(184 - 190)
+            self.assertEqual(self.payload_data.hex(), self.capsule_data.hex()[184:190])
+
+    def testCapsuleGen(self):
+        """Test generation of EFI capsule"""
+        self.payload_data = EFI_DATA
+
+        TestFunctional._MakeInputFile('payload.txt', self.payload_data)
+
+        self._DoReadFile('307_capsule.dts')
+
+        self.capsule_fname = tools.get_output_filename('test.capsule')
+        self.assertTrue(os.path.exists(self.capsule_fname))
+
+        self._CheckCapsule()
+
+    def testSignedCapsuleGen(self):
+        """Test generation of EFI capsule"""
+        self.payload_data = EFI_DATA
+
+        TestFunctional._MakeInputFile('payload.txt', self.payload_data)
+
+        self._DoReadFile('308_capsule_signed.dts')
+
+        self.capsule_fname = tools.get_output_filename('test.capsule')
+        self.assertTrue(os.path.exists(self.capsule_fname))
+
+        self._CheckCapsule(signed_capsule=True)
+
+    def testCapsuleGenVersionSupport(self):
+        """Test generation of EFI capsule with version support"""
+        self.payload_data = EFI_DATA
+
+        TestFunctional._MakeInputFile('payload.txt', self.payload_data)
+
+        self._DoReadFile('309_capsule_version.dts')
+
+        self.capsule_fname = tools.get_output_filename('test.capsule')
+        self.assertTrue(os.path.exists(self.capsule_fname))
+
+        self._CheckCapsule(version_check=True)
+
+    def testCapsuleGenKeyMissing(self):
+        """Test that binman errors out on missing key"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('310_capsule_missing_key.dts')
+
+        self.assertIn("Both private key and public key certificate need to be provided",
+                      str(e.exception))
+
+    def testCapsuleGenIndexMissing(self):
+        """Test that binman errors out on missing image index"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('311_capsule_missing_index.dts')
+
+        self.assertIn("mkeficapsule must be provided an Image Index",
+                      str(e.exception))
+
+    def testCapsuleGenGuidMissing(self):
+        """Test that binman errors out on missing image GUID"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('312_capsule_missing_guid.dts')
+
+        self.assertIn("mkeficapsule must be provided an Image GUID",
+                      str(e.exception))
+
+    def testCapsuleGenPayloadMissing(self):
+        """Test that binman errors out on missing input(payload)image"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('313_capsule_missing_payload.dts')
+
+        self.assertIn("mkeficapsule must be provided an input filename(payload)",
+                      str(e.exception))
+
+    def testCapsuleGenCapsuleFileMissing(self):
+        """Test that binman errors out on missing output capsule file"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('314_capsule_missing.dts')
+
+        self.assertIn("Specify the output capsule file",
+                      str(e.exception))
 
 if __name__ == "__main__":
     unittest.main()
