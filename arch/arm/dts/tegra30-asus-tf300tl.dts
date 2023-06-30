@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra30-asus-transformer.dtsi"
+
+/ {
+	model = "ASUS Transformer Pad LTE TF300TL";
+	compatible = "asus,tf300tl", "nvidia,tegra30";
+};

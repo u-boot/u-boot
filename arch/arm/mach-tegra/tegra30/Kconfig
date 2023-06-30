@@ -24,6 +24,10 @@ config TARGET_TEC_NG
 	bool "Avionic Design TEC-NG board"
 	select BOARD_LATE_INIT
 
+config TARGET_TRANSFORMER_T30
+	bool "Asus Tegra30 Transformer board"
+	select BOARD_LATE_INIT
+
 endchoice
 
 config SYS_SOC
@@ -34,5 +38,6 @@ source "board/nvidia/beaver/Kconfig"
 source "board/nvidia/cardhu/Kconfig"
 source "board/toradex/colibri_t30/Kconfig"
 source "board/avionic-design/tec-ng/Kconfig"
+source "board/asus/transformer-t30/Kconfig"
 
 endif

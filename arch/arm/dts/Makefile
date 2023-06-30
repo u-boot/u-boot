@@ -237,6 +237,13 @@ dtb-$(CONFIG_ARCH_TEGRA) += tegra20-harmony.dtb \
 	tegra20-ventana.dtb \
 	tegra20-colibri.dtb \
 	tegra30-apalis.dtb \
+	tegra30-asus-p1801-t.dtb \
+	tegra30-asus-tf201.dtb \
+	tegra30-asus-tf300t.dtb \
+	tegra30-asus-tf300tg.dtb \
+	tegra30-asus-tf300tl.dtb \
+	tegra30-asus-tf600t.dtb \
+	tegra30-asus-tf700t.dtb \
 	tegra30-beaver.dtb \
 	tegra30-cardhu.dtb \
 	tegra30-colibri.dtb \

@@ -1,0 +1,89 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra30-asus-transformer.dtsi"
+
+/ {
+	model = "ASUS VivoTab RT TF600T";
+	compatible = "asus,tf600t", "nvidia,tegra30";
+
+	aliases {
+		spi0 = &spi4;
+	};
+
+	/delete-node/ host1x@50000000;
+
+	pmic_i2c: i2c@7000d000 {
+		/* Texas Instruments TPS659110 PMIC */
+		pmic: tps65911@2d {
+			regulators {
+				vdd_1v2_bl: vdd1 {
+					regulator-name = "vdd_1v2_backlight";
+					regulator-min-microvolt = <1200000>;
+					regulator-max-microvolt = <1200000>;
+					regulator-always-on;
+					regulator-boot-on;
+					ti,regulator-ext-sleep-control = <8>;
+				};
+
+				/delete-node/ ldo2;
+				/delete-node/ ldo3;
+
+				/* uSD slot VDDIO */
+				vddio_usd: ldo5 {
+					regulator-name = "vddio_sdmmc";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <3300000>;
+					regulator-always-on;
+				};
+
+				avdd_dsi_csi: ldo6 {
+					regulator-name = "avdd_dsi_csi";
+					regulator-min-microvolt = <1200000>;
+					regulator-max-microvolt = <1200000>;
+				};
+			};
+		};
+	};
+
+	spi4: spi@7000da00 {
+		status = "okay";
+		spi-max-frequency = <25000000>;
+
+		spi-flash@1 {
+			compatible = "winbond,w25q32", "jedec,spi-nor";
+			reg = <1>;
+			spi-max-frequency = <20000000>;
+		};
+	};
+
+	backlight {
+		power-supply = <&vdd_1v2_bl>;
+	};
+
+	gpio-keys {
+		key-volume-up {
+			label = "Volume Up";
+			gpios = <&gpio TEGRA_GPIO(Q, 3) GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_UP>;
+		};
+
+		key-volume-down {
+			label = "Volume Down";
+			gpios = <&gpio TEGRA_GPIO(Q, 4) GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_DOWN>;
+		};
+	};
+
+	/delete-node/ panel;
+
+	vdd_usd: regulator-usd {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_usd";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	/delete-node/ regulator-pnl;
+	/delete-node/ regulator-bl;
+};

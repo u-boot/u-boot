@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra30-asus-transformer.dtsi"
+
+/ {
+	model = "ASUS Portable AiO P1801-T";
+	compatible = "asus,p1801-t", "nvidia,tegra30";
+
+	/delete-node/ host1x@50000000;
+	/delete-node/ pwm@7000a000;
+
+	/delete-node/ backlight;
+	/delete-node/ panel;
+
+	/delete-node/ regulator-pnl;
+	/delete-node/ regulator-bl;
+};
