@@ -1,0 +1,26 @@
+if TARGET_X3_T30
+
+config SYS_BOARD
+	default "x3-t30"
+
+config SYS_VENDOR
+	default "lg"
+
+config SYS_CONFIG_NAME
+	default "x3-t30"
+
+config DEVICE_P880
+	bool "Enable support for LG Optimus 4X HD"
+	default n
+	help
+	  LG Optimus 4X HD derives from x3 board but has slight
+	  differences.
+
+config DEVICE_P895
+	bool "Enable support for LG Optimus Vu"
+	default n
+	help
+	  LG Optimus Vu derives from x3 board but has slight
+	  differences.
+
+endif

@@ -32,6 +32,10 @@ config TARGET_TRANSFORMER_T30
 	bool "Asus Tegra30 Transformer board"
 	select BOARD_LATE_INIT
 
+config TARGET_X3_T30
+	bool "LG X3 Tegra30 board"
+	select BOARD_LATE_INIT
+
 endchoice
 
 config SYS_SOC
@@ -44,5 +48,6 @@ source "board/toradex/colibri_t30/Kconfig"
 source "board/asus/grouper/Kconfig"
 source "board/avionic-design/tec-ng/Kconfig"
 source "board/asus/transformer-t30/Kconfig"
+source "board/lg/x3-t30/Kconfig"
 
 endif
