@@ -32,6 +32,10 @@ endif
 obj-$(CONFIG_DISPLAY_CPUINFO) += sys_info.o
 obj-y += pmc.o
 
+ifndef CONFIG_TEGRA186
+obj-y += fuse.o
+endif
+
 obj-$(CONFIG_TEGRA20) += tegra20/
 obj-$(CONFIG_TEGRA30) += tegra30/
 obj-$(CONFIG_TEGRA114) += tegra114/
