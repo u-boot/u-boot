@@ -283,6 +283,33 @@ entry; similarly for SPL.
 
 
 
+.. _etype_capsule:
+
+Entry: capsule: Entry for generating EFI Capsule files
+------------------------------------------------------
+
+This is an entry for generating EFI capsules.
+
+The parameters needed for generation of the capsules can either be
+provided separately, or through a config file.
+
+Properties / Entry arguments:
+    - cfg-file: Config file for providing capsule
+      parameters.
+    - image-index: Unique number for identifying
+      corresponding payload image.
+    - image-type-id: Image GUID which will be used
+      for identifying the image.
+    - hardware-instance: Optional number for identifying
+      unique hardware instance of a device in the system.
+    - monotomic-count: Count used when signing an image.
+    - private-key: Path to private key file.
+    - pub-key-cert: Path to public key certificate file.
+    - filename: Path to the input(payload) file.
+    - capsule: Path to the output capsule file.
+
+
+
 .. _etype_cbfs:
 
 Entry: cbfs: Coreboot Filesystem (CBFS)
