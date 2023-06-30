@@ -1,0 +1,6 @@
+{
+	image-index: 1
+	image-guid: 09D7CF52-0720-4710-91D1-08469B7FE9C8
+	payload: payload.txt
+	capsule: test.capsule
+}
