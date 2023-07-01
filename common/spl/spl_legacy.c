@@ -19,7 +19,7 @@
 static void spl_parse_legacy_validate(uintptr_t start, uintptr_t size)
 {
 	uintptr_t spl_start = (uintptr_t)_start;
-	uintptr_t spl_end = (uintptr_t)__bss_end;
+	uintptr_t spl_end = (uintptr_t)_image_binary_end;
 	uintptr_t end = start + size;
 
 	if ((start >= spl_start && start < spl_end) ||
