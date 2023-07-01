@@ -68,6 +68,7 @@ Shell commands
    cmd/load
    cmd/loadb
    cmd/loadm
+   cmd/loads
    cmd/loadx
    cmd/loady
    cmd/mbr
@@ -84,6 +85,7 @@ Shell commands
    cmd/read
    cmd/reset
    cmd/rng
+   cmd/saves
    cmd/sbi
    cmd/sf
    cmd/scp03
