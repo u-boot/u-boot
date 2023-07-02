@@ -76,13 +76,16 @@ static int spl_romapi_load_image_seekable(struct spl_image_info *spl_image,
 	u32 image_offset;
 
 	ret = rom_api_query_boot_infor(QUERY_IVT_OFF, &offset);
-	ret |= rom_api_query_boot_infor(QUERY_PAGE_SZ, &pagesize);
-	ret |= rom_api_query_boot_infor(QUERY_IMG_OFF, &image_offset);
+	if (ret != ROM_API_OKAY)
+		goto err;
 
-	if (ret != ROM_API_OKAY) {
-		puts("ROMAPI: Failure query boot infor pagesize/offset\n");
-		return -1;
-	}
+	ret = rom_api_query_boot_infor(QUERY_PAGE_SZ, &pagesize);
+	if (ret != ROM_API_OKAY)
+		goto err;
+
+	ret = rom_api_query_boot_infor(QUERY_IMG_OFF, &image_offset);
+	if (ret != ROM_API_OKAY)
+		goto err;
 
 	header = (struct legacy_img_hdr *)(CONFIG_SPL_IMX_ROMAPI_LOADADDR);
 
@@ -124,6 +127,10 @@ static int spl_romapi_load_image_seekable(struct spl_image_info *spl_image,
 	}
 
 	return 0;
+
+err:
+	puts("ROMAPI: Failure query boot infor pagesize/offset\n");
+	return -1;
 }
 
 static ulong spl_ram_load_read(struct spl_load_info *load, ulong sector,
@@ -344,12 +351,12 @@ int board_return_to_bootrom(struct spl_image_info *spl_image,
 	u32 boot, bstage;
 
 	ret = rom_api_query_boot_infor(QUERY_BT_DEV, &boot);
-	ret |= rom_api_query_boot_infor(QUERY_BT_STAGE, &bstage);
+	if (ret != ROM_API_OKAY)
+		goto err;
 
-	if (ret != ROM_API_OKAY) {
-		puts("ROMAPI: failure at query_boot_info\n");
-		return -1;
-	}
+	ret = rom_api_query_boot_infor(QUERY_BT_STAGE, &bstage);
+	if (ret != ROM_API_OKAY)
+		goto err;
 
 	printf("Boot Stage: ");
 
@@ -374,4 +381,7 @@ int board_return_to_bootrom(struct spl_image_info *spl_image,
 		return spl_romapi_load_image_stream(spl_image, bootdev);
 
 	return spl_romapi_load_image_seekable(spl_image, bootdev, boot);
+err:
+	puts("ROMAPI: failure at query_boot_info\n");
+	return -1;
 }
