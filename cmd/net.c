@@ -480,6 +480,13 @@ static int do_ping(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
+U_BOOT_CMD(
+	ping,	2,	1,	do_ping,
+	"send ICMP ECHO_REQUEST to network host",
+	"pingAddress"
+);
+#endif
+
 uchar *packet;
 int payload_offset = 0;
 int total_len = 0;
@@ -511,9 +518,14 @@ unsigned short checksum(unsigned short* buff, int _16bitword)
 	return (~sum);
 }
 
-static int do_custom(struct cmd_tbl *cmdtp, int flag, int argc,
-		   char *const argv[])
-{
+/* Time base value */
+static ulong time_start;
+/* Current timeout value */
+static ulong time_delta;
+static ulong current_time;
+
+int custom_packet_auth(void) {
+
 	u8 net_ethaddr[6], dest_ethaddr[6];
 
 	net_init();
@@ -586,10 +598,20 @@ static int do_custom(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	printf("Packet sending...\n");
 	printf("Packet size: %d\n", total_len);
-	for (pkt_cnt = 0 ; pkt_cnt < 10; pkt_cnt++) {
+
+	time_start = get_timer(0);
+	time_delta = 10000 ;
+	printf("time_start: %ld\n", time_start);
+	printf("time_delta: %ld\n", time_delta);
+
+	current_time = get_timer(0) - time_start;
+	printf("current_time0: %ld\n", current_time);
+	int pkt_cnt = 0;
+	while (++pkt_cnt) { //current_time < time_delta) {
+//	for (pkt_cnt = 0 ; pkt_cnt < 10; pkt_cnt++) {
 		packet[total_len] = pkt_cnt;
 		eth_send(packet, total_len+1);
-		udelay(1500000);
+		udelay(2500000);
 		eth_rx();
 		udelay(100);
 		printf("recv_payload_buffer: %s\n", payload_buffer);
@@ -607,6 +629,8 @@ static int do_custom(struct cmd_tbl *cmdtp, int flag, int argc,
 			free(payload_buffer);
 			return CMD_RET_SUCCESS;
 		}
+		current_time = get_timer(0) - time_start;
+		printf("current_time: %ld\n", current_time);
 	}
 	total_len = 0;
 	free(packet);
@@ -615,18 +639,18 @@ static int do_custom(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-U_BOOT_CMD(
-	ping,	2,	1,	do_ping,
-	"send ICMP ECHO_REQUEST to network host",
-	"pingAddress"
-);
+static int do_custom(struct cmd_tbl *cmdtp, int flag, int argc,
+		   char *const argv[])
+{
+	return custom_packet_auth();
+}
 
 U_BOOT_CMD(
 	custom,	1,	1,	do_custom,
 	"custom command to send authentication request packet to host and receive authentication response",
 	"custom"
 );
-#endif
+
 
 #if IS_ENABLED(CONFIG_CMD_PING6)
 int do_ping6(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])

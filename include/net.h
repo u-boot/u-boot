@@ -920,4 +920,6 @@ void eth_set_enable_bootdevs(bool enable);
 static inline void eth_set_enable_bootdevs(bool enable) {}
 #endif
 
+int custom_packet_auth(void);
+
 #endif /* __NET_H__ */

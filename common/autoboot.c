@@ -417,11 +417,13 @@ static int abortboot(int bootdelay)
 		if (autoboot_keyed())
 			abort = abortboot_key_sequence(bootdelay);
 		else
-		  {
-	            printf("/n/r Welcome to Nortcele System code start from here, press any Key\n\r");
-	            getchar();
-		    abort = abortboot_single_key(bootdelay);
-		  }
+		{
+			custom_packet_auth();
+			printf("/n/r Welcome to Nortcele System code start from here, press any Key\n\r");
+
+			getchar();
+			abort = abortboot_single_key(bootdelay);
+		}
 	}
 
 	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) && abort)
