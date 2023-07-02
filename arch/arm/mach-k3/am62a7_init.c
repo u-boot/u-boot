@@ -14,6 +14,10 @@
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
 
+struct fwl_data cbass_main_fwls[] = {
+       { "FSS_DAT_REG3", 7, 8 },
+};
+
 /*
  * This uninitialized global variable would normal end up in the .bss section,
  * but the .bss is cleared between writing and reading this variable, so move
@@ -165,6 +169,9 @@ void board_init_f(ulong dummy)
 
 	/* Output System Firmware version info */
 	k3_sysfw_print_ver();
+
+       /* Disable ROM configured firewalls right after loading sysfw */
+       remove_fwl_configs(cbass_main_fwls, ARRAY_SIZE(cbass_main_fwls));
 
 #if defined(CONFIG_K3_AM62A_DDRSS)
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
