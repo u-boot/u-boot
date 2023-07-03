@@ -54,7 +54,7 @@ Current Status
 
 * The next branch is now **open**.
 
-* Release "v2023.07" is scheduled for 03 July 2023.
+* Release "v2023.07" is scheduled for 10 July 2023.
 
 Future Releases
 ---------------
@@ -74,10 +74,12 @@ For the next scheduled release, release candidates were made on::
 
 * U-Boot v2023.07-rc5 was released on Mon 26 June 2023.
 
+* U-Boot v2023.07-rc6 was released on Mon 03 July 2023.
+
 Please note that the following dates are planned only and may be deviated from
 as needed.
 
-* "v2023.07": end of MW = Mon, Apr 24, 2023; release = Mon, Jul 03, 2023 
+* "v2023.07": end of MW = Mon, Apr 24, 2023; release = Mon, Jul 10, 2023
 
 * "v2023.10": end of MW = Mon, Jul 24, 2023; release = Mon, Oct 02, 2023
 
