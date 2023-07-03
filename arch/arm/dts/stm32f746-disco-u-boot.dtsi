@@ -169,7 +169,7 @@
 	ltdc_pins: ltdc@0 {
 		pins {
 			pinmux = <STM32_PINMUX('E', 4, AF14)>, /* B0 */
-				 <STM32_PINMUX('G',12, AF14)>, /* B4 */
+				 <STM32_PINMUX('G',12, AF9)>,  /* B4 */
 				 <STM32_PINMUX('I', 9, AF14)>, /* VSYNC */
 				 <STM32_PINMUX('I',10, AF14)>, /* HSYNC */
 				 <STM32_PINMUX('I',14, AF14)>, /* CLK */
