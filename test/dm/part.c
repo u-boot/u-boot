@@ -17,10 +17,12 @@ static int do_test(struct unit_test_state *uts, int expected,
 	struct blk_desc *mmc_dev_desc;
 	struct disk_partition part_info;
 
-	ut_asserteq(expected,
-		    part_get_info_by_dev_and_name_or_num("mmc", part_str,
-							 &mmc_dev_desc,
-							 &part_info, whole));
+	int ret = part_get_info_by_dev_and_name_or_num("mmc", part_str,
+						       &mmc_dev_desc,
+						       &part_info, whole);
+
+	ut_assertf(expected == ret, "test(%d, \"%s\", %d) == %d", expected,
+		   part_str, whole, ret);
 	return 0;
 }
 
