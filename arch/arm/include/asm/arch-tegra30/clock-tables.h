@@ -23,6 +23,7 @@ enum clock_id {
 	CLOCK_ID_XCPU = CLOCK_ID_FIRST_SIMPLE,
 	CLOCK_ID_EPCI,
 	CLOCK_ID_SFROM32KHZ,
+	CLOCK_ID_DISPLAY2,
 
 	/* These are the base clocks (inputs to the Tegra SOC) */
 	CLOCK_ID_32KHZ,
@@ -30,7 +31,6 @@ enum clock_id {
 	CLOCK_ID_CLK_M,
 
 	CLOCK_ID_COUNT,	/* number of PLLs */
-	CLOCK_ID_DISPLAY2,	/* Tegra3, placeholder */
 	CLOCK_ID_NONE = -1,
 };
 

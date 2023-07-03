@@ -768,6 +768,9 @@ void clock_init(void)
 	pll_rate[CLOCK_ID_SFROM32KHZ] = 32768;
 	pll_rate[CLOCK_ID_OSC] = clock_get_rate(CLOCK_ID_OSC);
 	pll_rate[CLOCK_ID_CLK_M] = clock_get_rate(CLOCK_ID_CLK_M);
+#ifndef CONFIG_TEGRA20
+	pll_rate[CLOCK_ID_DISPLAY2] = clock_get_rate(CLOCK_ID_DISPLAY2);
+#endif
 
 	debug("Osc = %d\n", pll_rate[CLOCK_ID_OSC]);
 	debug("CLKM = %d\n", pll_rate[CLOCK_ID_CLK_M]);
