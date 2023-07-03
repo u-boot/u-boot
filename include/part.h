@@ -105,7 +105,24 @@ struct blk_desc *blk_get_dev(const char *ifname, int dev);
 
 struct blk_desc *mg_disk_get_dev(int dev);
 
-/* disk/part.c */
+/**
+ * part_get_info_by_type() - Get partitions from a block device using a specific
+ * partition driver
+ *
+ * Each interface allocates its own devices and typically struct blk_desc is
+ * contained with the interface's data structure. There is no global
+ * numbering for block devices, so the interface name must be provided.
+ *
+ * @dev_desc:	Block device descriptor
+ * @part:	Partition number to read
+ * @part_type:	Partition driver to use, or PART_TYPE_UNKNOWN to automatically
+ *		choose a driver
+ * @info:	Returned partition information
+ *
+ * Return: 0 on success, negative errno on failure
+ */
+int part_get_info_by_type(struct blk_desc *dev_desc, int part, int part_type,
+			  struct disk_partition *info);
 int part_get_info(struct blk_desc *dev_desc, int part,
 		  struct disk_partition *info);
 /**
