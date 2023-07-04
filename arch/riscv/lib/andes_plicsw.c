@@ -2,9 +2,10 @@
 /*
  * Copyright (C) 2019, Rick Chen <rick@andestech.com>
  *
- * U-Boot syscon driver for Andes's Platform Level Interrupt Controller (PLIC).
- * The PLIC block holds memory-mapped claim and pending registers
- * associated with software interrupt.
+ * U-Boot syscon driver for Andes' PLICSW
+ * The PLICSW block is an Andes-specific design for software interrupts,
+ * contains memory-mapped priority, enable, claim and pending registers
+ * similar to RISC-V PLIC.
  */
 
 #include <common.h>
@@ -26,9 +27,13 @@
 #define ENABLE_REG(base, hart)	((ulong)(base) + 0x2000 + (hart) * 0x80)
 /* claim register */
 #define CLAIM_REG(base, hart)	((ulong)(base) + 0x200004 + (hart) * 0x1000)
+/* priority register */
+#define PRIORITY_REG(base)	((ulong)(base) + PLICSW_PRIORITY_BASE)
 
 #define ENABLE_HART_IPI         (0x01010101)
 #define SEND_IPI_TO_HART(hart)  (0x1 << (hart))
+#define PLICSW_PRIORITY_BASE        0x4
+#define PLICSW_INTERRUPT_PER_HART   0x8
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -43,9 +48,21 @@ static int enable_ipi(int hart)
 	return 0;
 }
 
+static void init_priority_ipi(int hart_num)
+{
+    uint32_t *priority = (void *)PRIORITY_REG(gd->arch.plicsw);
+
+    for (int i = 0; i < hart_num * PLICSW_INTERRUPT_PER_HART; i++) {
+        writel(1, &priority[i]);
+    }
+
+    return;
+}
+
 int riscv_init_ipi(void)
 {
 	int ret;
+	int hart_num = 0;
 	long *base = syscon_get_first_range(RISCV_SYSCON_PLICSW);
 	ofnode node;
 	struct udevice *dev;
@@ -79,8 +96,10 @@ int riscv_init_ipi(void)
 		ret = ofnode_read_u32(node, "reg", &reg);
 		if (ret == 0)
 			enable_ipi(reg);
+		hart_num++;
 	}
 
+	init_priority_ipi(hart_num);
 	return 0;
 }
 
