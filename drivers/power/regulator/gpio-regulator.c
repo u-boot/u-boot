@@ -27,12 +27,12 @@ struct gpio_regulator_plat {
 static int gpio_regulator_of_to_plat(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
-	struct gpio_regulator_plat *dev_pdata;
+	struct gpio_regulator_plat *plat;
 	struct gpio_desc *gpio;
 	int ret, count, i, j;
 	u32 states_array[GPIO_REGULATOR_MAX_STATES * 2];
 
-	dev_pdata = dev_get_plat(dev);
+	plat = dev_get_plat(dev);
 	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
@@ -47,7 +47,7 @@ static int gpio_regulator_of_to_plat(struct udevice *dev)
 	 * per gpio-regulator. As of now no instance with multiple
 	 * gpios is presnt
 	 */
-	gpio = &dev_pdata->gpio;
+	gpio = &plat->gpio;
 	ret = gpio_request_by_name(dev, "gpios", 0, gpio, GPIOD_IS_OUT);
 	if (ret)
 		debug("regulator gpio - not found! Error: %d", ret);
@@ -68,21 +68,21 @@ static int gpio_regulator_of_to_plat(struct udevice *dev)
 		return ret;
 
 	for (i = 0, j = 0; i < count; i += 2) {
-		dev_pdata->voltages[j] = states_array[i];
-		dev_pdata->states[j] = states_array[i + 1];
+		plat->voltages[j] = states_array[i];
+		plat->states[j] = states_array[i + 1];
 		j++;
 	}
 
-	return regulator_common_of_to_plat(dev, &dev_pdata->common, "enable-gpios");
+	return regulator_common_of_to_plat(dev, &plat->common, "enable-gpios");
 }
 
 static int gpio_regulator_get_value(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
-	struct gpio_regulator_plat *dev_pdata = dev_get_plat(dev);
+	struct gpio_regulator_plat *plat = dev_get_plat(dev);
 	int enable;
 
-	if (!dev_pdata->gpio.dev)
+	if (!plat->gpio.dev)
 		return -ENOSYS;
 
 	uc_pdata = dev_get_uclass_plat(dev);
@@ -91,30 +91,30 @@ static int gpio_regulator_get_value(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	enable = dm_gpio_get_value(&dev_pdata->gpio);
-	if (enable == dev_pdata->states[0])
-		return dev_pdata->voltages[0];
+	enable = dm_gpio_get_value(&plat->gpio);
+	if (enable == plat->states[0])
+		return plat->voltages[0];
 	else
-		return dev_pdata->voltages[1];
+		return plat->voltages[1];
 }
 
 static int gpio_regulator_set_value(struct udevice *dev, int uV)
 {
-	struct gpio_regulator_plat *dev_pdata = dev_get_plat(dev);
+	struct gpio_regulator_plat *plat = dev_get_plat(dev);
 	int ret;
 	bool enable;
 
-	if (!dev_pdata->gpio.dev)
+	if (!plat->gpio.dev)
 		return -ENOSYS;
 
-	if (uV == dev_pdata->voltages[0])
-		enable = dev_pdata->states[0];
-	else if (uV == dev_pdata->voltages[1])
-		enable = dev_pdata->states[1];
+	if (uV == plat->voltages[0])
+		enable = plat->states[0];
+	else if (uV == plat->voltages[1])
+		enable = plat->states[1];
 	else
 		return -EINVAL;
 
-	ret = dm_gpio_set_value(&dev_pdata->gpio, enable);
+	ret = dm_gpio_set_value(&plat->gpio, enable);
 	if (ret) {
 		pr_err("Can't set regulator : %s gpio to: %d\n", dev->name,
 		      enable);
@@ -126,14 +126,14 @@ static int gpio_regulator_set_value(struct udevice *dev, int uV)
 
 static int gpio_regulator_get_enable(struct udevice *dev)
 {
-	struct gpio_regulator_plat *dev_pdata = dev_get_plat(dev);
-	return regulator_common_get_enable(dev, &dev_pdata->common);
+	struct gpio_regulator_plat *plat = dev_get_plat(dev);
+	return regulator_common_get_enable(dev, &plat->common);
 }
 
 static int gpio_regulator_set_enable(struct udevice *dev, bool enable)
 {
-	struct gpio_regulator_plat *dev_pdata = dev_get_plat(dev);
-	return regulator_common_set_enable(dev, &dev_pdata->common, enable);
+	struct gpio_regulator_plat *plat = dev_get_plat(dev);
+	return regulator_common_set_enable(dev, &plat->common, enable);
 }
 
 static const struct dm_regulator_ops gpio_regulator_ops = {
