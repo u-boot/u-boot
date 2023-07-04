@@ -28,7 +28,33 @@ config TARGET_RK3588_NEU6
 	  IO board and Neu6a needs to mount on top of this IO board in order to
 	  create complete Edgeble Neural Compute Module 6B(Neu6B) IO platform.
 
-config TARGET_ROCK5B_RK3588
+config TARGET_ROCK5A_RK3588
+	bool "Radxa ROCK5A RK3588 board"
+	select BOARD_LATE_INIT
+	help
+	  Radxa ROCK5A is a Rockchip RK3588S based SBC (Single Board Computer)
+	  by Radxa.
+
+	  There are tree variants depending on the DRAM size : 4G, 8G and 16G.
+
+	  Specification:
+
+	  Rockchip Rk3588S SoC
+	  4x ARM Cortex-A76, 4x ARM Cortex-A55
+	  4/8/16GB memory LPDDR4x
+	  Mali G610MC4 GPU
+	  MIPI CSI 2 multiple lanes connector
+	  4-lane MIPI DSI connector
+	  Audio – 3.5mm earphone jack
+	  eMMC module connector
+	  uSD slot (up to 128GB)
+	  2x USB 2.0, 2x USB 3.0
+	  2x micro HDMI 2.1 ports, one up to 8Kp60, the other up to 4Kp60
+	  Gigabit Ethernet RJ45 with optional PoE support
+	  40-pin IO header including UART, SPI, I2C and 5V DC power in
+	  USB PD over USB Type-C
+	  Size: 85mm x 56mm (Raspberry Pi 4 form factor)
+
 config TARGET_ROCK5B_RK3588
 	bool "Radxa ROCK5B RK3588 board"
 	select BOARD_LATE_INIT
@@ -68,6 +94,7 @@ config SYS_MALLOC_F_LEN
 
 source board/edgeble/neural-compute-module-6/Kconfig
 source board/rockchip/evb_rk3588/Kconfig
+source board/radxa/rock5a-rk3588s/Kconfig
 source board/radxa/rock5b-rk3588/Kconfig
 
 endif
