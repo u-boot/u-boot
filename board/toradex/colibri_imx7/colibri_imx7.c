@@ -311,9 +311,22 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #ifdef CONFIG_USB_EHCI_MX7
 int board_fix_fdt(void *rw_fdt_blob)
 {
+	int ret;
+
 	/* i.MX 7Solo has only one single USB OTG1 but no USB host port */
 	if (is_cpu_type(MXC_CPU_MX7S)) {
 		int offset = fdt_path_offset(rw_fdt_blob, "/soc/bus@30800000/usb@30b20000");
+
+		/*
+		 * We're changing from status = "okay" to status = "disabled".
+		 * In this case we'll need more space, so increase the size
+		 * a little bit.
+		 */
+		ret = fdt_increase_size(rw_fdt_blob, 32);
+		if (ret < 0) {
+			printf("Cannot increase FDT size: %d\n", ret);
+			return ret;
+		}
 
 		return fdt_status_disabled(rw_fdt_blob, offset);
 	}
