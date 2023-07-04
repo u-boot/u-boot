@@ -83,11 +83,15 @@
 #include <config_distro_bootcmd.h>
 
 #define CFG_EXTRA_ENV_SETTINGS	\
-				"kernel_addr_r=0x00080000\0" \
-				"pxefile_addr_r=0x01f00000\0" \
-				"scriptaddr=0x01f00000\0" \
-				"fdt_addr_r=0x02000000\0" \
-				"ramdisk_addr_r=0x02800000\0" \
+				"fdt_high=0xffffffffffffffff\0" \
+				"initrd_high=0xffffffffffffffff\0" \
+				"kernel_addr_r=0x00600000\0" \
+				"kernel_comp_addr_r=0x04600000\0" \
+				"kernel_comp_size=0x04000000\0" \
+				"pxefile_addr_r=0x08600000\0" \
+				"scriptaddr=0x08700000\0" \
+				"fdt_addr_r=0x08800000\0" \
+				"ramdisk_addr_r=0x08900000\0" \
 				BOOTENV
 
 #endif /* __CONFIG_H */
