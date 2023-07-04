@@ -128,7 +128,7 @@ config FLASH_SPANSION_S29WS_N
 
 config FLASH_CFI_MTD
 	bool "Enable CFI MTD driver"
-	depends on FLASH_CFI_DRIVER
+	depends on FLASH_CFI_DRIVER && MTD
 	help
 	  This option enables the building of the cfi_mtd driver
 	  in the drivers directory. The driver exports CFI flash
