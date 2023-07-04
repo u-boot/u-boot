@@ -808,6 +808,9 @@ static bool is_gpio_persist(struct udevice *dev, uint bank)
 	status = npcm_get_reset_status();
 	dev_dbg(dev, "reset status: 0x%x\n", status);
 
+	if (status & PORST)
+		return false;
+
 	if (status & CORST)
 		regmap_read(priv->rst_regmap, CORSTC, &val);
 	else if (status & WD0RST)
