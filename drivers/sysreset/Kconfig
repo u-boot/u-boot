@@ -61,14 +61,14 @@ endif
 
 config POWEROFF_GPIO
 	bool "Enable support for GPIO poweroff driver"
-	select DM_GPIO
+	depends on DM_GPIO
 	help
 	  Support for system poweroff using a GPIO pin. This can be used
 	  for systems having a single GPIO to trigger a system poweroff.
 
 config SYSRESET_GPIO
 	bool "Enable support for GPIO reset driver"
-	select DM_GPIO
+	depends on DM_GPIO
 	help
 	  Reset support via GPIO pin connected reset logic. This is used for
 	  example on Microblaze where reset logic can be controlled via GPIO
