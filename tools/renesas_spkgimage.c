@@ -73,7 +73,7 @@ static int spkgimage_parse_config_line(char *line, size_t line_num)
 		conf.padding = check_range(name, value, 1, INT_MAX);
 	} else {
 		fprintf(stderr,
-			"config error: unknown keyword on line %ld\n",
+			"config error: unknown keyword on line %zu\n",
 			line_num);
 		return -EINVAL;
 	}
