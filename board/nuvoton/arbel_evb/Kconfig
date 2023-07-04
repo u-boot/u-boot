@@ -11,8 +11,8 @@ config SYS_CONFIG_NAME
 
 config SYS_MEM_TOP_HIDE
 	hex "Reserved TOP memory"
-	default 0xB000000
+	default 0x0
 	help
-	  Reserve memory for ECC/GFX/VCD/ECE.
+	  Reserve memory for ECC/GFX/OPTEE/TIP/CP.
 
 endif
