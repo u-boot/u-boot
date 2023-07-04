@@ -311,6 +311,42 @@
 	};
 };
 
+&emmc_bus8 {
+	bootph-all;
+};
+
+&emmc_clk {
+	bootph-all;
+};
+
+&emmc_cmd {
+	bootph-all;
+};
+
+&emmc_data_strobe {
+	bootph-all;
+};
+
+&emmc_rstnout {
+	bootph-all;
+};
+
+&pinctrl {
+	bootph-all;
+};
+
+&pcfg_pull_none {
+	bootph-all;
+};
+
+&pcfg_pull_up_drv_level_2 {
+	bootph-all;
+};
+
+&pcfg_pull_up {
+	bootph-all;
+};
+
 &xin24m {
 	bootph-all;
 	status = "okay";
@@ -344,10 +380,30 @@
 	u-boot,spl-fifo-mode;
 };
 
+&sdmmc_bus4 {
+	bootph-all;
+};
+
+&sdmmc_clk {
+	bootph-all;
+};
+
+&sdmmc_cmd {
+	bootph-all;
+};
+
+&sdmmc_det {
+	bootph-all;
+};
+
 &uart2 {
 	clock-frequency = <24000000>;
 	bootph-pre-ram;
 	status = "okay";
+};
+
+&uart2m0_xfer {
+	bootph-all;
 };
 
 &ioc {
