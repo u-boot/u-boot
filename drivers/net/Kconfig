@@ -633,6 +633,7 @@ config RTL8139
 
 config RTL8169
 	bool "Realtek 8169 series Ethernet controller driver"
+	depends on PCI
 	help
 	  This driver supports Realtek 8169 series gigabit ethernet family of
 	  PCI/PCIe chipsets/adapters.

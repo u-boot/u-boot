@@ -145,7 +145,7 @@ addresses, the csf_uboot.txt can be used as example:
 1.4 Signing the images
 -----------------------
 
-The CST tool is used for singing the U-Boot binary and generating a CSF binary,
+The CST tool is used for signing the U-Boot binary and generating a CSF binary,
 users should input the CSF description file created in the step above and
 receive a CSF binary, which contains the CSF commands, SRK table, signatures
 and certificates.

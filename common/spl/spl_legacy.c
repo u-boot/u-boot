@@ -7,6 +7,7 @@
 #include <image.h>
 #include <log.h>
 #include <malloc.h>
+#include <asm/sections.h>
 #include <spl.h>
 
 #include <lzma/LzmaTypes.h>
@@ -14,6 +15,22 @@
 #include <lzma/LzmaTools.h>
 
 #define LZMA_LEN	(1 << 20)
+
+static void spl_parse_legacy_validate(uintptr_t start, uintptr_t size)
+{
+	uintptr_t spl_start = (uintptr_t)_start;
+	uintptr_t spl_end = (uintptr_t)_image_binary_end;
+	uintptr_t end = start + size;
+
+	if ((start >= spl_start && start < spl_end) ||
+	    (end > spl_start && end <= spl_end) ||
+	    (start < spl_start && end >= spl_end) ||
+	    (start > end && end > spl_start))
+		panic("SPL: Image overlaps SPL\n");
+
+	if (size > CONFIG_SYS_BOOTM_LEN)
+		panic("SPL: Image too large\n");
+}
 
 int spl_parse_legacy_header(struct spl_image_info *spl_image,
 			    const struct legacy_img_hdr *header)
@@ -57,6 +74,9 @@ int spl_parse_legacy_header(struct spl_image_info *spl_image,
 	debug(SPL_TPL_PROMPT
 	      "payload image: %32s load addr: 0x%lx size: %d\n",
 	      spl_image->name, spl_image->load_addr, spl_image->size);
+
+	spl_parse_legacy_validate(spl_image->load_addr, spl_image->size);
+	spl_parse_legacy_validate(spl_image->entry_point, 0);
 
 	return 0;
 }

@@ -15,7 +15,7 @@
 #if !CONFIG_IS_ENABLED(SYSRESET)
 void __weak _machine_restart(void)
 {
-	fprintf(stderr, "*** reset failed ***\n");
+	puts("*** reset failed ***\n");
 
 	while (1)
 		/* NOP */;

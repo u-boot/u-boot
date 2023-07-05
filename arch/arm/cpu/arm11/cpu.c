@@ -20,6 +20,7 @@
 #include <irq_func.h>
 #include <asm/cache.h>
 #include <asm/system.h>
+#include <asm/arm11.h>
 
 static void cache_flush(void);
 
@@ -41,6 +42,11 @@ int cleanup_before_linux (void)
 	cache_flush();
 
 	return 0;
+}
+
+void allow_unaligned(void)
+{
+	arm11_arch_cp15_allow_unaligned();
 }
 
 static void cache_flush(void)

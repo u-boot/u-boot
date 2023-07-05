@@ -156,6 +156,7 @@ void v7_arch_cp15_set_l2aux_ctrl(u32 l2auxctrl, u32 cpu_midr,
 				 u32 cpu_rev);
 void v7_arch_cp15_set_acr(u32 acr, u32 cpu_midr, u32 cpu_rev_comb,
 			  u32 cpu_variant, u32 cpu_rev);
+void v7_arch_cp15_allow_unaligned(void);
 #endif /* ! __ASSEMBLY__ */
 
 #endif

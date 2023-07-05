@@ -1,6 +1,5 @@
 SiFive HiFive Unmatched FU740 BOARD
 M:	Paul Walmsley <paul.walmsley@sifive.com>
-M:	Pragnesh Patel <pragnesh.patel@sifive.com>
 M:	Green Wan <green.wan@sifive.com>
 S:	Maintained
 F:	board/sifive/unmatched/

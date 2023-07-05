@@ -103,7 +103,9 @@
 
 		fit {
 			description = "Configuration to load ATF before U-Boot";
+#ifndef CONFIG_IMX_HAB
 			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
+#endif
 			fit,fdt-list = "of-list";
 			#address-cells = <1>;
 

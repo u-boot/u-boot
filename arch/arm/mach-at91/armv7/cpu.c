@@ -24,7 +24,7 @@
 
 int arch_cpu_init(void)
 {
-#if defined(CONFIG_CLK_CCF)
+#if defined(CONFIG_CLK_CCF) || defined(CONFIG_CLK_SCMI)
 	return 0;
 #else
 	return at91_clock_init(CFG_SYS_AT91_MAIN_CLOCK);

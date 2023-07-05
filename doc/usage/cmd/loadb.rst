@@ -13,7 +13,7 @@ Synopsis
 Description
 -----------
 
-The loady command is used to transfer a file to the device via the serial line
+The loadb command is used to transfer a file to the device via the serial line
 using the Kermit protocol.
 
 The number of transferred bytes is saved in environment variable filesize.
