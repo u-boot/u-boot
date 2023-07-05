@@ -6676,6 +6676,29 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                                 ['fit'])
         self.assertIn("Node '/fit': Missing tool: 'mkimage'", str(e.exception))
 
+    def _SetupCapsulePayload(self, fname):
+        with open(fname, 'w') as fd:
+            fd.write(TEXT_DATA)
+
+    def testCapsuleGen(self):
+        """Test generation of EFI capsule"""
+        self._SetupCapsulePayload("payload.txt")
+
+        self._DoReadFile('282_capsule.dts')
+
+        # Firmware Management Protocol GUID used in capsule header
+        capsule_guid = "edd5cb6d2de8444cbda17194199ad92a"
+        # Image GUID specified in the DTS
+        image_guid = "52cfd7092007104791d108469b7fe9c8"
+        capsule_fname = 'test.capsule'
+        payload_data = tools.to_bytes(TEXT_DATA)
+
+        capsule_data = tools.read_file(capsule_fname)
+
+        self.assertEqual(capsule_guid, capsule_data.hex()[:32])
+        self.assertEqual(image_guid, capsule_data.hex()[96:128])
+        self.assertEqual(payload_data.hex(), capsule_data.hex()[184:192])
+
 
 if __name__ == "__main__":
     unittest.main()
