@@ -110,7 +110,6 @@ class TestEfiCapsuleFirmwareFit():
         0x100000-0x150000: U-Boot binary (but dummy)
         0x150000-0x200000: U-Boot environment (but dummy)
         """
-
         disk_img = efi_capsule_data
         with u_boot_console.log.section('Test Case 2-a, before reboot'):
             output = u_boot_console.run_command_list([
