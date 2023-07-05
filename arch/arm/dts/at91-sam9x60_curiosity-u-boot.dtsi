@@ -14,10 +14,6 @@
 
 		apb {
 			bootph-all;
-
-			pinctrl {
-				bootph-all;
-			};
 		};
 	};
 
@@ -39,6 +35,10 @@
 };
 
 &main_xtal {
+	bootph-all;
+};
+
+&pinctrl {
 	bootph-all;
 };
 
