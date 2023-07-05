@@ -80,6 +80,89 @@ def pytest_addoption(parser):
         help='Run sandbox under gdbserver. The argument is the channel '+
         'over which gdbserver should communicate, e.g. localhost:1234')
 
+def setup_capsule_build(source_dir, build_dir, board_type, log):
+    """Setup the platform's build for capsule authenticate
+
+    This generates the keys needed for signing the capsules along
+    with the EFI Signature List(ESL) file, with the capsule
+    authentication feature enabled.
+
+    The ESL file is subsequently embedded into the platform's
+    dtb during the u-boot build, to be used for capsule
+    authentication.
+
+    Two sets of keys are generated, namely SIGNER and SIGNER2.
+    The SIGNER2 key pair is used as a malicious key for testing the
+    the capsule authentication functionality.
+
+    Args:
+        soruce_dir (str): Directory containing source code
+        build_dir (str): Directory to build in
+        board_type (str): board_type parameter (e.g. 'sandbox')
+        log (Logfile): Log file to use
+
+    Returns:
+        Nothing.
+    """
+    def run_command(name, cmd, source_dir):
+        with log.section(name):
+            if isinstance(cmd, str):
+                cmd = cmd.split()
+                runner = log.get_runner(name, None)
+                runner.run(cmd, cwd=source_dir)
+                runner.close()
+                log.status_pass('OK')
+
+    def gen_capsule_payloads(capsule_dir):
+        fname = '%su-boot.bin.old' % capsule_dir
+        with open(fname, 'w') as fd:
+            fd.write('u-boot:Old')
+
+        fname = '%su-boot.bin.new' % capsule_dir
+        with open(fname, 'w') as fd:
+            fd.write('u-boot:New')
+
+        fname = '%su-boot.env.old' % capsule_dir
+        with open(fname, 'w') as fd:
+            fd.write('u-boot-env:Old')
+
+        fname = '%su-boot.env.new' % capsule_dir
+        with open(fname, 'w') as fd:
+            fd.write('u-boot-env:New')
+
+    capsule_sig_dir = '/tmp/capsules/'
+    sig_name = 'SIGNER'
+    mkdir_p(capsule_sig_dir)
+    name = 'openssl'
+    cmd = ( 'openssl req -x509 -sha256 -newkey rsa:2048 '
+            '-subj /CN=TEST_SIGNER/ -keyout %s%s.key '
+            '-out %s%s.crt -nodes -days 365'
+            % (capsule_sig_dir, sig_name, capsule_sig_dir, sig_name)
+           )
+    run_command(name, cmd, source_dir)
+
+    name = 'cert-to-efi-sig-list'
+    cmd = ( 'cert-to-efi-sig-list %s%s.crt %s%s.esl'
+            % (capsule_sig_dir, sig_name, capsule_sig_dir, sig_name)
+           )
+    run_command(name, cmd, source_dir)
+
+    sig_name = 'SIGNER2'
+    name = 'openssl'
+    cmd = ( 'openssl req -x509 -sha256 -newkey rsa:2048 '
+            '-subj /CN=TEST_SIGNER/ -keyout %s%s.key '
+            '-out %s%s.crt -nodes -days 365'
+            % (capsule_sig_dir, sig_name, capsule_sig_dir, sig_name)
+           )
+    run_command(name, cmd, source_dir)
+
+    capsule_cfg_file = 'test/py/tests/test_efi_capsule/sandbox_capsule_cfg.txt'
+    name = 'cp'
+    cmd = ( ' cp %s %s' % (capsule_cfg_file, capsule_sig_dir))
+    run_command(name, cmd, source_dir)
+
+    gen_capsule_payloads(capsule_sig_dir)
+
 def run_build(config, source_dir, build_dir, board_type, log):
     """run_build: Build U-Boot
 
@@ -190,6 +273,10 @@ def pytest_configure(config):
 
     import multiplexed_log
     log = multiplexed_log.Logfile(result_dir + '/test-log.html')
+
+    capsule_boards = ( 'sandbox', 'sandbox64', 'sandbox_flattree' )
+    if board_type in capsule_boards:
+        setup_capsule_build(source_dir, build_dir, board_type, log)
 
     if config.getoption('build'):
         worker_id = os.environ.get("PYTEST_XDIST_WORKER")
