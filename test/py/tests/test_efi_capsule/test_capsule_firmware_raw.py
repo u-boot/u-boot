@@ -111,6 +111,12 @@ class TestEfiCapsuleFirmwareRaw:
         0x100000-0x150000: U-Boot binary (but dummy)
         0x150000-0x200000: U-Boot environment (but dummy)
         """
+
+        # other tests might have run and the
+        # system might not be in a clean state.
+        # Restart before starting the tests.
+        u_boot_console.restart_uboot()
+
         disk_img = efi_capsule_data
         with u_boot_console.log.section('Test Case 2-a, before reboot'):
             output = u_boot_console.run_command_list([
@@ -194,6 +200,12 @@ class TestEfiCapsuleFirmwareRaw:
         Update U-Boot on SPI Flash, raw image format
         0x100000-0x150000: U-Boot binary (but dummy)
         """
+
+        # other tests might have run and the
+        # system might not be in a clean state.
+        # Restart before starting the tests.
+        u_boot_console.restart_uboot()
+
         disk_img = efi_capsule_data
         with u_boot_console.log.section('Test Case 3-a, before reboot'):
             output = u_boot_console.run_command_list([

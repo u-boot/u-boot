@@ -111,6 +111,11 @@ class TestEfiCapsuleFirmwareFit():
         0x150000-0x200000: U-Boot environment (but dummy)
         """
 
+        # other tests might have run and the
+        # system might not be in a clean state.
+        # Restart before starting the tests.
+        u_boot_console.restart_uboot()
+
         disk_img = efi_capsule_data
         with u_boot_console.log.section('Test Case 2-a, before reboot'):
             output = u_boot_console.run_command_list([

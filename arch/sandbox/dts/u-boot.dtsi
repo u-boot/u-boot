@@ -12,4 +12,147 @@
 		capsule-key = /incbin/(CONFIG_EFI_CAPSULE_ESL_FILE);
 	};
 #endif
+
+	binman: binman {
+		multiple-images;
+	};
+};
+
+&binman {
+	itb {
+		filename = "/tmp/capsules/uboot_bin_env.itb";
+
+		fit {
+			description = "Automatic U-Boot environment update";
+			#address-cells = <2>;
+
+			images {
+				u-boot-bin {
+					description = "U-Boot binary on SPI Flash";
+					data = /incbin/("/tmp/capsules/u-boot.bin.new");
+					compression = "none";
+					type = "firmware";
+					arch = "sandbox";
+					load = <0>;
+					hash-1 {
+						algo = "sha1";
+					};
+				};
+				u-boot-env {
+					description = "U-Boot environment on SPI Flash";
+					data = /incbin/("/tmp/capsules/u-boot.env.new");
+					compression = "none";
+					type = "firmware";
+					arch = "sandbox";
+					load = <0>;
+					hash-1 {
+						algo = "sha1";
+					};
+				};
+			};
+		};
+	};
+
+#ifdef CONFIG_EFI_USE_CAPSULE_CFG_FILE
+	capsule1 {
+		capsule {
+			cfg-file = CONFIG_EFI_CAPSULE_CFG_FILE;
+		};
+	};
+#else
+	capsule2 {
+		capsule {
+			image-index = <0x1>;
+			image-type-id = "09D7CF52-0720-4710-91D1-08469B7FE9C8";
+			filename = "/tmp/capsules/u-boot.bin.new";
+			capsule = "/tmp/capsules/Test01";
+		};
+	};
+
+	capsule3 {
+		capsule {
+			image-index = <0x2>;
+			image-type-id = "5A7021F5-FEF2-48B4-AABA-832E777418C0";
+			filename = "/tmp/capsules/u-boot.env.new";
+			capsule = "/tmp/capsules/Test02";
+		};
+	};
+
+	capsule4 {
+		capsule {
+			image-index = <0x1>;
+			image-type-id = "058B7D83-50D5-4C47-A195-60D86AD341C4";
+			filename = "/tmp/capsules/u-boot.bin.new";
+			capsule = "/tmp/capsules/Test03";
+		};
+	};
+
+	capsule5 {
+		capsule {
+			image-index = <0x1>;
+			image-type-id = "3673B45D-6A7C-46F3-9E60-ADABB03F7937";
+			filename = "/tmp/capsules/uboot_bin_env.itb";
+			capsule = "/tmp/capsules/Test04";
+		};
+	};
+
+	capsule6 {
+		capsule {
+			image-index = <0x1>;
+			image-type-id = "058B7D83-50D5-4C47-A195-60D86AD341C4";
+			filename = "/tmp/capsules/uboot_bin_env.itb";
+			capsule = "/tmp/capsules/Test05";
+		};
+	};
+
+#ifdef CONFIG_EFI_CAPSULE_AUTHENTICATE
+	capsule7 {
+		capsule {
+			image-index = <0x1>;
+			image-type-id = "09D7CF52-0720-4710-91D1-08469B7FE9C8";
+			private-key = "/tmp/capsules/SIGNER.key";
+			pub-key-cert = "/tmp/capsules/SIGNER.crt";
+			monotonic-count = <0x1>;
+			filename = "/tmp/capsules/u-boot.bin.new";
+			capsule = "/tmp/capsules/Test11";
+		};
+	};
+
+	capsule8 {
+		capsule {
+			image-index = <0x1>;
+			image-type-id = "09D7CF52-0720-4710-91D1-08469B7FE9C8";
+			private-key = "/tmp/capsules/SIGNER2.key";
+			pub-key-cert = "/tmp/capsules/SIGNER2.crt";
+			monotonic-count = <0x1>;
+			filename = "/tmp/capsules/u-boot.bin.new";
+			capsule = "/tmp/capsules/Test12";
+		};
+	};
+
+	capsule9 {
+		capsule {
+			image-index = <0x1>;
+			image-type-id = "3673B45D-6A7C-46F3-9E60-ADABB03F7937";
+			private-key = "/tmp/capsules/SIGNER.key";
+			pub-key-cert = "/tmp/capsules/SIGNER.crt";
+			monotonic-count = <0x1>;
+			filename = "/tmp/capsules/uboot_bin_env.itb";
+			capsule = "/tmp/capsules/Test13";
+		};
+	};
+
+	capsule10 {
+		capsule {
+			image-index = <0x1>;
+			image-type-id = "3673B45D-6A7C-46F3-9E60-ADABB03F7937";
+			private-key = "/tmp/capsules/SIGNER2.key";
+			pub-key-cert = "/tmp/capsules/SIGNER2.crt";
+			monotonic-count = <0x1>;
+			filename = "/tmp/capsules/uboot_bin_env.itb";
+			capsule = "/tmp/capsules/Test14";
+		};
+	};
+#endif
+#endif
 };
