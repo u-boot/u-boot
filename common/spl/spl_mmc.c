@@ -415,8 +415,12 @@ int default_spl_mmc_emmc_boot_partition(struct mmc *mmc)
 		switch(EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config)) {
 		case 0: /* Booting from this eMMC device is disabled */
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+#ifdef CONFIG_SPL_MMC_WARNINGS
 			puts("spl: WARNING: Booting from this eMMC device is disabled in EXT_CSD[179] register\n");
 			puts("spl: WARNING: Continuing anyway and selecting User Area partition for booting\n");
+#else
+			puts("spl: mmc: fallback to user area\n");
+#endif
 #endif
 			/* FIXME: This is incorrect and probably we should select next eMMC device for booting */
 			part = 0;
@@ -432,8 +436,12 @@ int default_spl_mmc_emmc_boot_partition(struct mmc *mmc)
 			break;
 		default: /* Other values are reserved */
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+#ifdef CONFIG_SPL_MMC_WARNINGS
 			puts("spl: WARNING: EXT_CSD[179] register is configured to boot from Reserved value\n");
 			puts("spl: WARNING: Selecting User Area partition for booting\n");
+#else
+			puts("spl: mmc: fallback to user area\n");
+#endif
 #endif
 			part = 0;
 			break;
