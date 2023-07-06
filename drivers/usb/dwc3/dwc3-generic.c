@@ -105,7 +105,7 @@ static int dwc3_generic_probe(struct udevice *dev,
 	if (CONFIG_IS_ENABLED(DM_GPIO) &&
 	    device_is_compatible(dev->parent, "xlnx,zynqmp-dwc3")) {
 		priv->ulpi_reset = devm_gpiod_get_optional(dev->parent, "reset",
-								GPIOD_ACTIVE_LOW);
+							   GPIOD_IS_OUT | GPIOD_ACTIVE_LOW);
 		/* property is optional, don't return error! */
 		if (priv->ulpi_reset) {
 			/* Toggle ulpi to reset the phy. */
