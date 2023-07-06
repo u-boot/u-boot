@@ -185,7 +185,7 @@ static void jh7110_pll_set_rate(struct clk_jh7110_pllx *pll,
 	PLLX_SET(pll->offset->dsmpd, pll->offset->dsmpd_mask, 1);
 	PLLX_SET(pll->offset->prediv, pll->offset->prediv_mask, rate->prediv);
 	PLLX_SET(pll->offset->fbdiv, pll->offset->fbdiv_mask, rate->fbdiv);
-	PLLX_SET(pll->offset->postdiv1, pll->offset->postdiv1, 0);
+	PLLX_SET(pll->offset->postdiv1, pll->offset->postdiv1_mask, 0);
 	PLLX_SET(pll->offset->pd, pll->offset->pd_mask, PLL_PD_ON);
 
 	if (set) {

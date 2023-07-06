@@ -7,14 +7,23 @@
 #ifndef __ASM_RISCV_SYSTEM_H
 #define __ASM_RISCV_SYSTEM_H
 
+#include <asm/csr.h>
+
 struct event;
 
 /*
- * Interrupt configuring macros.
- *
- * TODO
- *
+ * Interupt configuration macros
  */
+
+#define local_irq_save(__flags)                                 \
+    do {                                                        \
+        __flags = csr_read_clear(CSR_SSTATUS, SR_SIE) & SR_SIE; \
+    } while (0)
+
+#define local_irq_restore(__flags)              \
+    do {                                        \
+        csr_set(CSR_SSTATUS, __flags & SR_SIE); \
+    } while (0)
 
 /* Hook to set up the CPU (called from SPL too) */
 int riscv_cpu_setup(void *ctx, struct event *event);
