@@ -31,6 +31,10 @@
 	>;
 };
 
+&emmc {
+	bootph-all;
+};
+
 &gpio3 {
 	bootph-all;
 };

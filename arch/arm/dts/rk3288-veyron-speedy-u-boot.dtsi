@@ -15,19 +15,3 @@
 		0x0 0xc3 0x6 0x1>;
 	rockchip,sdram-params = <0x20D266A4 0x5B6 6 533000000 6 13 0>;
 };
-
-&sdmmc {
-	bootph-all;
-};
-
-&emmc {
-	bootph-all;
-};
-
-&uart2 {
-	bootph-all;
-};
-
-&pinctrl {
-	bootph-all;
-};
