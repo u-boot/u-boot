@@ -508,8 +508,8 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 				puts("spl: mmc booting disabled\n");
 			else
 				puts("spl: mmc misconfigured\n");
-			return part;
 #endif
+			return part;
 		}
 
 		if (CONFIG_IS_ENABLED(MMC_TINY))
