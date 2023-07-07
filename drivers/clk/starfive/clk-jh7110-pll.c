@@ -19,6 +19,8 @@
 #include <linux/delay.h>
 #include <linux/err.h>
 
+#include "clk.h"
+
 #define UBOOT_DM_CLK_JH7110_PLLX "jh7110_clk_pllx"
 
 #define PLL_PD_OFF		1
@@ -30,6 +32,8 @@
 #define CLK_DDR_BUS_PLL1_DIV2	1
 #define CLK_DDR_BUS_PLL1_DIV4	2
 #define CLK_DDR_BUS_PLL1_DIV8	3
+
+#define JH7110_PLL_ID_TRANS(id)	((id) + JH7110_EXTCLK_END)
 
 enum starfive_pll_type {
 	PLL0 = 0,
@@ -371,15 +375,30 @@ static int jh7110_pll_clk_probe(struct udevice *dev)
 	if (sysreg == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	clk_dm(JH7110_SYSCLK_PLL0_OUT,
+	clk_dm(JH7110_PLL_ID_TRANS(JH7110_SYSCLK_PLL0_OUT),
 	       starfive_jh7110_pll("pll0_out", "oscillator", reg,
 				   (void __iomem *)sysreg, &starfive_jh7110_pll0));
-	clk_dm(JH7110_SYSCLK_PLL1_OUT,
+	clk_dm(JH7110_PLL_ID_TRANS(JH7110_SYSCLK_PLL1_OUT),
 	       starfive_jh7110_pll("pll1_out", "oscillator", reg,
 				   (void __iomem *)sysreg, &starfive_jh7110_pll1));
-	clk_dm(JH7110_SYSCLK_PLL2_OUT,
+	clk_dm(JH7110_PLL_ID_TRANS(JH7110_SYSCLK_PLL2_OUT),
 	       starfive_jh7110_pll("pll2_out", "oscillator", reg,
 				   (void __iomem *)sysreg, &starfive_jh7110_pll2));
+
+	return 0;
+}
+
+static int jh7110_pll_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
+{
+	if (args->args_count > 1) {
+		debug("Invalid args_count: %d\n", args->args_count);
+		return -EINVAL;
+	}
+
+	if (args->args_count)
+		clk->id = JH7110_PLL_ID_TRANS(args->args[0]);
+	else
+		clk->id = 0;
 
 	return 0;
 }
@@ -389,11 +408,13 @@ static const struct udevice_id jh7110_pll_clk_of_match[] = {
 	{ }
 };
 
+JH7110_CLK_OPS(pll);
+
 /* PLL clk device */
 U_BOOT_DRIVER(jh7110_pll_clk) = {
 	.name	= "jh7110_pll_clk",
 	.id	= UCLASS_CLK,
 	.of_match	= jh7110_pll_clk_of_match,
 	.probe	= jh7110_pll_clk_probe,
-	.ops	= &ccf_clk_ops,
+	.ops	= &jh7110_pll_clk_ops,
 };
