@@ -1658,6 +1658,54 @@ by setting the size of the entry to something larger than the text.
 
 
 
+.. _etype_ti_board_config:
+
+Entry: ti-board-config: An entry containing a TI schema validated board config binary
+-------------------------------------------------------------------------------------
+
+This etype supports generation of two kinds of board configuration
+binaries: singular board config binary as well as combined board config
+binary.
+
+Properties / Entry arguments:
+    - config-file: File containing board configuration data in YAML
+    - schema-file: File containing board configuration YAML schema against
+      which the config file is validated
+
+Output files:
+    - board config binary: File containing board configuration binary
+
+These above parameters are used only when the generated binary is
+intended to be a single board configuration binary. Example::
+
+    my-ti-board-config {
+        ti-board-config {
+            config = "board-config.yaml";
+            schema = "schema.yaml";
+        };
+    };
+
+To generate a combined board configuration binary, we pack the
+needed individual binaries into a ti-board-config binary. In this case,
+the available supported subnode names are board-cfg, pm-cfg, sec-cfg and
+rm-cfg. The final binary is prepended with a header containing details about
+the included board config binaries. Example::
+
+    my-combined-ti-board-config {
+        ti-board-config {
+            board-cfg {
+                config = "board-cfg.yaml";
+                schema = "schema.yaml";
+            };
+            sec-cfg {
+                config = "sec-cfg.yaml";
+                schema = "schema.yaml";
+            };
+        }
+    }
+
+
+
 .. _etype_u_boot:
 
 Entry: u-boot: U-Boot flat binary
