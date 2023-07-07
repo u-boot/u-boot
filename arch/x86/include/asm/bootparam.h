@@ -62,7 +62,7 @@ struct setup_indirect {
 /**
  * struct setup_header - Information needed by Linux to boot
  *
- * See https://www.kernel.org/doc/html/latest/x86/boot.html
+ * See https://www.kernel.org/doc/html/latest/arch/x86/boot.html
  */
 struct setup_header {
 	__u8	setup_sects;
