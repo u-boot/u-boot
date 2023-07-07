@@ -55,7 +55,8 @@ static lbaint_t write_sparse_chunk_raw(struct sparse_storage *info,
 				       void *data,
 				       char *response)
 {
-	lbaint_t n = blkcnt, write_blks, blks = 0, aligned_buf_blks = 100;
+	lbaint_t n = blkcnt, write_blks, blks = 0;
+	lbaint_t aligned_buf_blks = FASTBOOT_MAX_BLK_WRITE;
 	uint32_t *aligned_buf = NULL;
 
 	if (CONFIG_IS_ENABLED(SYS_DCACHE_OFF)) {
