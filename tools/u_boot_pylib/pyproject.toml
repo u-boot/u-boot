@@ -20,3 +20,7 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://u-boot.readthedocs.io"
 "Bug Tracker" = "https://source.denx.de/groups/u-boot/-/issues"
+
+[tool.setuptools.packages.find]
+where = [".."]
+include = ["u_boot_pylib*"]
