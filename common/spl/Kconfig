@@ -855,13 +855,6 @@ config SPL_MMC_WRITE
 	help
 	  Enable write access to MMC and SD Cards in SPL
 
-config SPL_MMC_WARNINGS
-	bool "Print MMC warnings"
-	depends on SPL_MMC
-	default y if !TARGET_SAMA5D2_XPLAINED
-	help
-	  Print SPL MMC warnings. You can disable this option to reduce SPL size.
-
 
 config SPL_MPC8XXX_INIT_DDR
 	bool "Support MPC8XXX DDR init"

@@ -414,16 +414,14 @@ int default_spl_mmc_emmc_boot_partition(struct mmc *mmc)
 	else {
 		switch(EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config)) {
 		case 0: /* Booting from this eMMC device is disabled */
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-#ifdef CONFIG_SPL_MMC_WARNINGS
-			puts("spl: WARNING: Booting from this eMMC device is disabled in EXT_CSD[179] register\n");
-			puts("spl: WARNING: Continuing anyway and selecting User Area partition for booting\n");
-#else
-			puts("spl: mmc: fallback to user area\n");
-#endif
-#endif
-			/* FIXME: This is incorrect and probably we should select next eMMC device for booting */
-			part = 0;
+			/*
+			 * This eMMC device has disabled booting.
+			 * This may happen because of misconfiguration of eMMC device or
+			 * because user explicitly wanted to not boot from this eMMC device.
+			 * eMMC boot configuration can be changed by "mmc partconf" command.
+			 */
+			part = -ENXIO; /* negative value indicates error */
+			/* Note that error message is printed by caller of this function. */
 			break;
 		case 1: /* Boot partition 1 is used for booting */
 			part = 1;
@@ -435,15 +433,18 @@ int default_spl_mmc_emmc_boot_partition(struct mmc *mmc)
 			part = 0;
 			break;
 		default: /* Other values are reserved */
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-#ifdef CONFIG_SPL_MMC_WARNINGS
-			puts("spl: WARNING: EXT_CSD[179] register is configured to boot from Reserved value\n");
-			puts("spl: WARNING: Selecting User Area partition for booting\n");
-#else
-			puts("spl: mmc: fallback to user area\n");
-#endif
-#endif
-			part = 0;
+			/*
+			 * This eMMC device has configured booting from reserved value.
+			 * This may happen because of misconfiguration of eMMC device or
+			 * because this is newer eMMC device than what U-Boot understand.
+			 * If newer eMMC specification defines meaning for some reserved
+			 * values then switch above should be updated for new cases.
+			 * At this stage we do not know how to interpret this reserved
+			 * value so return error.
+			 * eMMC boot configuration can be changed by "mmc partconf" command.
+			 */
+			part = -EINVAL; /* negative value indicates error */
+			/* Note that error message is printed by caller of this function. */
 			break;
 		}
 	}
@@ -501,6 +502,15 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 	switch (boot_mode) {
 	case MMCSD_MODE_EMMCBOOT:
 		part = spl_mmc_emmc_boot_partition(mmc);
+		if (part < 0) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+			if (part == -ENXIO)
+				puts("spl: mmc booting disabled\n");
+			else
+				puts("spl: mmc misconfigured\n");
+			return part;
+#endif
+		}
 
 		if (CONFIG_IS_ENABLED(MMC_TINY))
 			err = mmc_switch_part(mmc, part);
