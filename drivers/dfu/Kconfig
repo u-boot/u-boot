@@ -35,6 +35,7 @@ config DFU_TIMEOUT
 
 config DFU_MMC
 	bool "MMC back end for DFU"
+	depends on MMC
 	help
 	  This option enables using DFU to read and write to MMC based storage.
 
