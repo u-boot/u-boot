@@ -4,7 +4,7 @@
 
 import pytest
 
-@pytest.mark.boardspec('sandbox')
+@pytest.mark.boardspec('sandbox_flattree')
 @pytest.mark.buildconfigspec('cmd_efidebug')
 @pytest.mark.buildconfigspec('cmd_bootefi_bootmgr')
 @pytest.mark.singlethread

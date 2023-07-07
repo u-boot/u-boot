@@ -33,12 +33,6 @@ class TestEfiCapsuleFirmwareSignedRaw():
         If the capsule is properly signed, the authentication
         should pass and the firmware be updated.
         """
-
-        # other tests might have run and the
-        # system might not be in a clean state.
-        # Restart before starting the tests.
-        u_boot_console.restart_uboot()
-
         disk_img = efi_capsule_data
         with u_boot_console.log.section('Test Case 1-a, before reboot'):
             output = u_boot_console.run_command_list([
