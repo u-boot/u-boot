@@ -3,6 +3,7 @@
  * Copyright (C) 2022-23 StarFive Technology Co., Ltd.
  *
  * Author:	Yanhong Wang <yanhong.wang@starfivetech.com>
+ *		Xingyu Wu <xingyu.wu@starfivetech.com>
  */
 
 #include <common.h>
@@ -15,8 +16,6 @@
 #include <dt-bindings/clock/starfive,jh7110-crg.h>
 #include <log.h>
 #include <linux/clk-provider.h>
-
-#include "clk.h"
 
 #define STARFIVE_CLK_ENABLE_SHIFT	31 /* [31] */
 #define STARFIVE_CLK_INVERT_SHIFT	30 /* [30] */
@@ -230,28 +229,8 @@ static struct clk *starfive_clk_gate_divider(void __iomem *reg,
 static int jh7110_syscrg_init(struct udevice *dev)
 {
 	struct jh7110_clk_priv *priv = dev_get_priv(dev);
-	struct ofnode_phandle_args args;
-	fdt_addr_t addr;
 	struct clk *pclk;
-	int ret;
 
-	ret = ofnode_parse_phandle_with_args(dev->node_, "starfive,sys-syscon", NULL, 0, 0, &args);
-	if (ret)
-		return ret;
-
-	addr =  ofnode_get_addr(args.node);
-	if (addr == FDT_ADDR_T_NONE)
-		return -EINVAL;
-
-	clk_dm(JH7110_SYSCLK_PLL0_OUT,
-	       starfive_jh7110_pll("pll0_out", "oscillator", (void __iomem *)addr,
-				   priv->reg, &starfive_jh7110_pll0));
-	clk_dm(JH7110_SYSCLK_PLL1_OUT,
-	       starfive_jh7110_pll("pll1_out", "oscillator", (void __iomem *)addr,
-				   priv->reg, &starfive_jh7110_pll1));
-	clk_dm(JH7110_SYSCLK_PLL2_OUT,
-	       starfive_jh7110_pll("pll2_out", "oscillator", (void __iomem *)addr,
-				   priv->reg, &starfive_jh7110_pll2));
 	clk_dm(JH7110_SYSCLK_CPU_ROOT,
 	       starfive_clk_mux(priv->reg, "cpu_root",
 				OFFSET(JH7110_SYSCLK_CPU_ROOT), 1,
