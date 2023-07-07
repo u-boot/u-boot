@@ -353,7 +353,7 @@ class TestFunctional(unittest.TestCase):
                     use_expanded=False, verbosity=None, allow_missing=False,
                     allow_fake_blobs=False, extra_indirs=None, threads=None,
                     test_section_timeout=False, update_fdt_in_elf=None,
-                    force_missing_bintools='', ignore_missing=False):
+                    force_missing_bintools='', ignore_missing=False, output_dir=None):
         """Run binman with a given test file
 
         Args:
@@ -384,6 +384,7 @@ class TestFunctional(unittest.TestCase):
             update_fdt_in_elf: Value to pass with --update-fdt-in-elf=xxx
             force_missing_tools (str): comma-separated list of bintools to
                 regard as missing
+            output_dir: Specific output directory to use for image using -O
 
         Returns:
             int return code, 0 on success
@@ -430,6 +431,8 @@ class TestFunctional(unittest.TestCase):
         if extra_indirs:
             for indir in extra_indirs:
                 args += ['-I', indir]
+        if output_dir:
+            args += ['-O', output_dir]
         return self._DoBinman(*args)
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):
@@ -6113,10 +6116,21 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                       str(e.exception))
 
     def testSymlink(self):
-        """Test that image files can be named"""
+        """Test that image files can be symlinked"""
         retcode = self._DoTestFile('259_symlink.dts', debug=True, map=True)
         self.assertEqual(0, retcode)
         image = control.images['test_image']
+        fname = tools.get_output_filename('test_image.bin')
+        sname = tools.get_output_filename('symlink_to_test.bin')
+        self.assertTrue(os.path.islink(sname))
+        self.assertEqual(os.readlink(sname), fname)
+
+    def testSymlinkOverwrite(self):
+        """Test that symlinked images can be overwritten"""
+        testdir = TestFunctional._MakeInputDir('symlinktest')
+        self._DoTestFile('259_symlink.dts', debug=True, map=True, output_dir=testdir)
+        # build the same image again in the same directory so that existing symlink is present
+        self._DoTestFile('259_symlink.dts', debug=True, map=True, output_dir=testdir)
         fname = tools.get_output_filename('test_image.bin')
         sname = tools.get_output_filename('symlink_to_test.bin')
         self.assertTrue(os.path.islink(sname))
