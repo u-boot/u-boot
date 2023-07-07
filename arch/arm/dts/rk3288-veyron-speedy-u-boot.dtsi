@@ -5,6 +5,20 @@
 
 #include "rk3288-veyron-u-boot.dtsi"
 
+/ {
+	sound {
+		compatible = "rockchip,audio-max98090-jerry";
+
+		cpu {
+			sound-dai = <&i2s 0>;
+		};
+
+		codec {
+			sound-dai = <&max98090 0>;
+		};
+	};
+};
+
 &dmc {
 	rockchip,pctl-timing = <0x215 0xc8 0x0 0x35 0x26 0x2 0x70 0x2000d
 		0x6 0x0 0x8 0x4 0x17 0x24 0xd 0x6
