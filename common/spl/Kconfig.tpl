@@ -43,6 +43,7 @@ config TPL_FRAMEWORK
 
 config TPL_BANNER_PRINT
 	bool "Enable output of the TPL banner 'U-Boot TPL ...'"
+	depends on DEBUG_UART && TPL_SERIAL
 	default y
 	help
 	  If this option is enabled, TPL will print the banner with version
