@@ -403,6 +403,7 @@ stages:
           echo -n "u-boot:New" >/tmp/capsules/u-boot.bin.new;
           echo -n "u-boot-env:Old" >/tmp/capsules/u-boot.env.old;
           echo -n "u-boot-env:New" >/tmp/capsules/u-boot.env.new;
+          cp test/py/tests/test_efi_capsule/sandbox_capsule_cfg.txt /tmp/capsules/;
           if [[ "${TEST_PY_BD}" == "sandbox" ]] || [[ "${TEST_PY_BD}" == "sandbox_flattree" ]]; then
               openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_SIGNER/ -keyout /tmp/capsules/SIGNER.key -out /tmp/capsules/SIGNER.crt -nodes -days 365;
               openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_SIGNER/ -keyout /tmp/capsules/SIGNER2.key -out /tmp/capsules/SIGNER2.crt -nodes -days 365;
@@ -600,6 +601,7 @@ stages:
                   echo -n "u-boot:New" >/tmp/capsules/u-boot.bin.new;
                   echo -n "u-boot-env:Old" >/tmp/capsules/u-boot.env.old;
                   echo -n "u-boot-env:New" >/tmp/capsules/u-boot.env.new;
+                  cp test/py/tests/test_efi_capsule/sandbox_capsule_cfg.txt /tmp/capsules/;
 
                   openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_SIGNER/ -keyout /tmp/capsules/SIGNER.key -out /tmp/capsules/SIGNER.crt -nodes -days 365;
                   openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_SIGNER/ -keyout /tmp/capsules/SIGNER2.key -out /tmp/capsules/SIGNER2.crt -nodes -days 365;
