@@ -161,6 +161,11 @@ def setup_capsule_build(source_dir, build_dir, board_type, log):
            )
     run_command(name, cmd, source_dir)
 
+    capsule_cfg_file = 'test/py/tests/test_efi_capsule/sandbox_capsule_cfg.txt'
+    name = 'cp'
+    cmd = ( ' cp %s %s' % (capsule_cfg_file, capsule_sig_dir))
+    run_command(name, cmd, source_dir)
+
     gen_capsule_payloads(capsule_sig_dir)
 
 def run_build(config, source_dir, build_dir, board_type, log):
