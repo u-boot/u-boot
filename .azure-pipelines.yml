@@ -406,6 +406,16 @@ stages:
           if [ -n "${BUILD_ENV}" ]; then
               export ${BUILD_ENV};
           fi
+          mkdir -p ${UBOOT_TRAVIS_BUILD_DIR}/capsule_input_files/
+          echo -n "u-boot:Old" > ${UBOOT_TRAVIS_BUILD_DIR}/capsule_input_files/u-boot.bin.old;
+          echo -n "u-boot:New" > ${UBOOT_TRAVIS_BUILD_DIR}/capsule_input_files/u-boot.bin.new;
+          echo -n "u-boot-env:Old" > ${UBOOT_TRAVIS_BUILD_DIR}/capsule_input_files/u-boot.env.old;
+          echo -n "u-boot-env:New" > ${UBOOT_TRAVIS_BUILD_DIR}/capsule_input_files/u-boot.env.new;
+          if [[ "${TEST_PY_BD}" == "sandbox" ]] || [[ "${TEST_PY_BD}" == "sandbox_flattree" ]]; then
+              openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_SIGNER/ -keyout ${UBOOT_TRAVIS_BUILD_DIR}/capsule_input_files/SIGNER.key -out ${UBOOT_TRAVIS_BUILD_DIR}/capsule_input_files/SIGNER.crt -nodes -days 365;
+              openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_SIGNER/ -keyout ${UBOOT_TRAVIS_BUILD_DIR}/capsule_input_files/SIGNER2.key -out ${UBOOT_TRAVIS_BUILD_DIR}/capsule_input_files/SIGNER2.crt -nodes -days 365;
+              cert-to-efi-sig-list ${UBOOT_TRAVIS_BUILD_DIR}/capsule_input_files/SIGNER.crt ${UBOOT_TRAVIS_BUILD_DIR}/capsule_input_files/SIGNER.esl;
+          fi
           pip install -r tools/buildman/requirements.txt
           tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e --board ${TEST_PY_BD} ${OVERRIDE}
           cp ~/grub_x86.efi ${UBOOT_TRAVIS_BUILD_DIR}/
