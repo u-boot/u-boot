@@ -7,11 +7,358 @@
  */
 
 #ifdef CONFIG_EFI_HAVE_CAPSULE_SUPPORT
+
+#define SANDBOX_UBOOT_IMAGE_GUID	"09d7cf52-0720-4710-91d1-08469b7fe9c8"
+#define SANDBOX_UBOOT_ENV_IMAGE_GUID	"5a7021f5-fef2-48b4-aaba-832e777418c0"
+#define SANDBOX_FIT_IMAGE_GUID		"3673b45d-6a7c-46f3-9e60-adabb03f7937"
+#define SANDBOX_INCORRECT_GUID		"058b7d83-50d5-4c47-a195-60d86ad341c4"
+
+#define UBOOT_BIN_IMAGE			"test/py/tests/test_efi_capsule/test_files/u-boot.bin.new"
+#define UBOOT_ENV_IMAGE			"test/py/tests/test_efi_capsule/test_files/u-boot.env.new"
+#define UBOOT_FIT_IMAGE			"u-boot_bin_env.itb"
+
+#define CAPSULE_PRIV_KEY		"test/py/tests/test_efi_capsule/test_files/SIGNER.key"
+#define CAPSULE_PUB_KEY			"test/py/tests/test_efi_capsule/test_files/SIGNER.crt"
+#define CAPSULE_INVAL_KEY		"test/py/tests/test_efi_capsule/test_files/SIGNER2.key"
+#define CAPSULE_INVAL_PUB_KEY		"test/py/tests/test_efi_capsule/test_files/SIGNER2.crt"
+
 / {
 #ifdef CONFIG_EFI_CAPSULE_AUTHENTICATE
 	signature {
 		capsule-key = /incbin/(CONFIG_EFI_CAPSULE_ESL_FILE);
 	};
 #endif
+
+	binman: binman {
+		multiple-images;
+	};
+};
+
+&binman {
+	itb {
+		filename = UBOOT_FIT_IMAGE;
+
+		fit {
+			description = "Automatic U-Boot environment update";
+			#address-cells = <2>;
+
+			images {
+				u-boot-bin {
+					description = "U-Boot binary on SPI Flash";
+					compression = "none";
+					type = "firmware";
+					arch = "sandbox";
+					load = <0>;
+					blob {
+						filename = UBOOT_BIN_IMAGE;
+					};
+
+					hash-1 {
+						algo = "sha1";
+					};
+				};
+				u-boot-env {
+					description = "U-Boot environment on SPI Flash";
+					compression = "none";
+					type = "firmware";
+					arch = "sandbox";
+					load = <0>;
+					blob {
+						filename = UBOOT_ENV_IMAGE;
+					};
+
+					hash-1 {
+						algo = "sha1";
+					};
+				};
+			};
+		};
+	};
+
+	capsule1 {
+		filename = "Test01";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			image-type-id = SANDBOX_UBOOT_IMAGE_GUID;
+
+			blob-ext {
+				filename = UBOOT_BIN_IMAGE;
+			};
+		};
+	};
+
+	capsule2 {
+		filename = "Test02";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x2>;
+			image-type-id = SANDBOX_UBOOT_ENV_IMAGE_GUID;
+
+			blob-ext {
+				filename = UBOOT_ENV_IMAGE;
+			};
+		};
+	};
+
+	capsule3 {
+		filename = "Test03";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			image-type-id = SANDBOX_INCORRECT_GUID;
+
+			blob-ext {
+				filename = UBOOT_BIN_IMAGE;
+			};
+		};
+	};
+
+	capsule4 {
+		filename = "Test04";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			image-type-id = SANDBOX_FIT_IMAGE_GUID;
+
+			blob-ext {
+				filename = UBOOT_FIT_IMAGE;
+			};
+		};
+	};
+
+	capsule5 {
+		filename = "Test05";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			image-type-id = SANDBOX_INCORRECT_GUID;
+
+			blob-ext {
+				filename = UBOOT_FIT_IMAGE;
+			};
+		};
+	};
+
+	capsule6 {
+		filename = "Test101";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			fw-version = <0x5>;
+			image-type-id = SANDBOX_UBOOT_IMAGE_GUID;
+
+			blob-ext {
+				filename = UBOOT_BIN_IMAGE;
+			};
+		};
+	};
+
+	capsule7 {
+		filename = "Test102";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x2>;
+			fw-version = <0xa>;
+			image-type-id = SANDBOX_UBOOT_ENV_IMAGE_GUID;
+
+			blob-ext {
+				filename = UBOOT_ENV_IMAGE;
+			};
+		};
+	};
+
+	capsule8 {
+		filename = "Test103";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			fw-version = <0x2>;
+			image-type-id = SANDBOX_UBOOT_IMAGE_GUID;
+
+			blob-ext {
+				filename = UBOOT_BIN_IMAGE;
+			};
+		};
+	};
+
+	capsule9 {
+		filename = "Test104";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			fw-version = <0x5>;
+			image-type-id = SANDBOX_FIT_IMAGE_GUID;
+
+			blob-ext {
+				filename = UBOOT_FIT_IMAGE;
+			};
+		};
+	};
+
+	capsule10 {
+		filename = "Test105";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			fw-version = <0x2>;
+			image-type-id = SANDBOX_FIT_IMAGE_GUID;
+
+			blob-ext {
+				filename = UBOOT_FIT_IMAGE;
+			};
+		};
+	};
+
+#ifdef CONFIG_EFI_CAPSULE_AUTHENTICATE
+	capsule11 {
+		filename = "Test11";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			image-type-id = SANDBOX_UBOOT_IMAGE_GUID;
+			private-key = CAPSULE_PRIV_KEY;
+			pub-key-cert = CAPSULE_PUB_KEY;
+			monotonic-count = <0x1>;
+
+			blob-ext {
+				filename = UBOOT_BIN_IMAGE;
+			};
+		};
+	};
+
+	capsule12 {
+		filename = "Test12";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			image-type-id = SANDBOX_UBOOT_IMAGE_GUID;
+			private-key = CAPSULE_INVAL_KEY;
+			pub-key-cert = CAPSULE_INVAL_PUB_KEY;
+			monotonic-count = <0x1>;
+
+			blob-ext {
+				filename = UBOOT_BIN_IMAGE;
+			};
+		};
+	};
+
+	capsule13 {
+		filename = "Test13";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			image-type-id = SANDBOX_FIT_IMAGE_GUID;
+			private-key = CAPSULE_PRIV_KEY;
+			pub-key-cert = CAPSULE_PUB_KEY;
+			monotonic-count = <0x1>;
+
+			blob-ext {
+				filename = UBOOT_FIT_IMAGE;
+			};
+		};
+	};
+
+	capsule14 {
+		filename = "Test14";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			image-type-id = SANDBOX_FIT_IMAGE_GUID;
+			private-key = CAPSULE_INVAL_KEY;
+			pub-key-cert = CAPSULE_INVAL_PUB_KEY;
+			monotonic-count = <0x1>;
+
+			blob-ext {
+				filename = UBOOT_FIT_IMAGE;
+			};
+		};
+	};
+
+	capsule15 {
+		filename = "Test111";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			fw-version = <0x5>;
+			image-type-id = SANDBOX_UBOOT_IMAGE_GUID;
+			private-key = CAPSULE_PRIV_KEY;
+			pub-key-cert = CAPSULE_PUB_KEY;
+			monotonic-count = <0x1>;
+
+			blob-ext {
+				filename = UBOOT_BIN_IMAGE;
+			};
+		};
+	};
+
+	capsule16 {
+		filename = "Test112";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x2>;
+			fw-version = <0xa>;
+			image-type-id = SANDBOX_UBOOT_ENV_IMAGE_GUID;
+			private-key = CAPSULE_PRIV_KEY;
+			pub-key-cert = CAPSULE_PUB_KEY;
+			monotonic-count = <0x1>;
+
+			blob-ext {
+				filename = UBOOT_ENV_IMAGE;
+			};
+		};
+	};
+
+	capsule17 {
+		filename = "Test113";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			fw-version = <0x2>;
+			image-type-id = SANDBOX_UBOOT_IMAGE_GUID;
+			private-key = CAPSULE_PRIV_KEY;
+			pub-key-cert = CAPSULE_PUB_KEY;
+			monotonic-count = <0x1>;
+
+			blob-ext {
+				filename = UBOOT_BIN_IMAGE;
+			};
+		};
+	};
+
+	capsule18 {
+		filename = "Test114";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			fw-version = <0x5>;
+			image-type-id = SANDBOX_FIT_IMAGE_GUID;
+			private-key = CAPSULE_PRIV_KEY;
+			pub-key-cert = CAPSULE_PUB_KEY;
+			monotonic-count = <0x1>;
+
+			blob-ext {
+				filename = UBOOT_FIT_IMAGE;
+			};
+		};
+	};
+
+	capsule19 {
+		filename = "Test115";
+		capsule {
+			type = "efi-capsule";
+			image-index = <0x1>;
+			fw-version = <0x2>;
+			image-type-id = SANDBOX_FIT_IMAGE_GUID;
+			private-key = CAPSULE_PRIV_KEY;
+			pub-key-cert = CAPSULE_PUB_KEY;
+			monotonic-count = <0x1>;
+
+			blob-ext {
+				filename = UBOOT_FIT_IMAGE;
+			};
+		};
+	};
+#endif /* CONFIG_EFI_CAPSULE_AUTHENTICATE */
 };
 #endif /* CONFIG_EFI_HAVE_CAPSULE_SUPPORT */
