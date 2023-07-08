@@ -25,48 +25,25 @@ def efi_capsule_data(request, u_boot_config):
     image_path = u_boot_config.persistent_data_dir + '/test_efi_capsule.img'
 
     try:
+        capsules_path_dir = u_boot_config.build_dir + '/capsule_input_files/'
         # Create a target device
         check_call('dd if=/dev/zero of=./spi.bin bs=1MiB count=16', shell=True)
 
         check_call('rm -rf %s' % mnt_point, shell=True)
         check_call('mkdir -p %s' % data_dir, shell=True)
         check_call('mkdir -p %s' % install_dir, shell=True)
-
-        capsule_auth_enabled = u_boot_config.buildconfig.get(
-                    'config_efi_capsule_authenticate')
-        if capsule_auth_enabled:
-            # Create private key (SIGNER.key) and certificate (SIGNER.crt)
-            check_call('cd %s; '
-                       'openssl req -x509 -sha256 -newkey rsa:2048 '
-                            '-subj /CN=TEST_SIGNER/ -keyout SIGNER.key '
-                            '-out SIGNER.crt -nodes -days 365'
-                       % data_dir, shell=True)
-            check_call('cd %s; %scert-to-efi-sig-list SIGNER.crt SIGNER.esl'
-                       % (data_dir, EFITOOLS_PATH), shell=True)
-
-            # Update dtb adding capsule certificate
-            check_call('cd %s; '
-                       'cp %s/test/py/tests/test_efi_capsule/signature.dts .'
-                       % (data_dir, u_boot_config.source_dir), shell=True)
-            check_call('cd %s; '
-                       'dtc -@ -I dts -O dtb -o signature.dtbo signature.dts; '
-                       'fdtoverlay -i %s/arch/sandbox/dts/test.dtb '
-                            '-o test_sig.dtb signature.dtbo'
-                       % (data_dir, u_boot_config.build_dir), shell=True)
-
-            # Create *malicious* private key (SIGNER2.key) and certificate
-            # (SIGNER2.crt)
-            check_call('cd %s; '
-                       'openssl req -x509 -sha256 -newkey rsa:2048 '
-                            '-subj /CN=TEST_SIGNER/ -keyout SIGNER2.key '
-                            '-out SIGNER2.crt -nodes -days 365'
-                       % data_dir, shell=True)
+        check_call('cp %s/* %s ' % (capsules_path_dir, data_dir), shell=True)
 
         # Update dtb to add the version information
         check_call('cd %s; '
                    'cp %s/test/py/tests/test_efi_capsule/version.dts .'
                    % (data_dir, u_boot_config.source_dir), shell=True)
+
+        capsule_auth_enabled = u_boot_config.buildconfig.get(
+                    'config_efi_capsule_authenticate')
         if capsule_auth_enabled:
+            check_call('cp %s/arch/sandbox/dts/test.dtb %s/test_sig.dtb' %
+                       (u_boot_config.build_dir, data_dir), shell=True)
             check_call('cd %s; '
                        'dtc -@ -I dts -O dtb -o version.dtbo version.dts; '
                        'fdtoverlay -i test_sig.dtb '
