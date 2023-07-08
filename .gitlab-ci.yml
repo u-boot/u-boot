@@ -287,6 +287,7 @@ Check packing of Python tools:
 sandbox test.py:
   variables:
     TEST_PY_BD: "sandbox"
+    OVERRIDE: "-a CONFIG_EFI_GENERATE_CAPSULES=y"
   <<: *buildman_and_testpy_dfn
 
 sandbox with clang test.py:
@@ -343,6 +344,7 @@ evb-ast2600 test.py:
 sandbox_flattree test.py:
   variables:
     TEST_PY_BD: "sandbox_flattree"
+    OVERRIDE: "-a CONFIG_EFI_GENERATE_CAPSULES=y"
   <<: *buildman_and_testpy_dfn
 
 vexpress_ca9x4 test.py:

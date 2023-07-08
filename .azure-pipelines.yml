@@ -254,6 +254,7 @@ stages:
       matrix:
         sandbox:
           TEST_PY_BD: "sandbox"
+          OVERRIDE: "-a CONFIG_EFI_GENERATE_CAPSULES=y"
         sandbox_clang:
           TEST_PY_BD: "sandbox"
           OVERRIDE: "-O clang-16"
@@ -271,6 +272,7 @@ stages:
           TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
         sandbox_flattree:
           TEST_PY_BD: "sandbox_flattree"
+          OVERRIDE: "-a CONFIG_EFI_GENERATE_CAPSULES=y"
         sandbox_trace:
           TEST_PY_BD: "sandbox"
           BUILD_ENV: "FTRACE=1 NO_LTO=1"
