@@ -1,0 +1,175 @@
+# This is a config file used for generating EFI capsules for the
+# sandbox platform. The image GUIDs used in this file are as
+# follows
+#
+# 09d7cf52-0720-4710-91d1-08469b7fe9c8 - u-boot image GUID
+#
+# 5a7021f5-fef2-48b4-aaba-832e777418c0 - u-boot env image GUID
+#
+# 3673b45d-6a7c-46f3-9e60-adabb03f7937 - FIT image GUID
+#
+# 058b7d83-50d5-4c47-a195-60d86ad341c4 - Incorrect GUID for the platform
+#
+
+{
+	image-index: 1
+	image-guid: 09d7cf52-0720-4710-91d1-08469b7fe9c8
+	payload: /tmp/capsules/u-boot.bin.new
+	capsule: /tmp/capsules/Test01
+}
+{
+	image-index: 2
+	image-guid: 5a7021f5-fef2-48b4-aaba-832e777418c0
+	payload: /tmp/capsules/u-boot.env.new
+	capsule: /tmp/capsules/Test02
+}
+{
+	image-index: 1
+	image-guid: 058b7d83-50d5-4c47-a195-60d86ad341c4
+	payload: /tmp/capsules/u-boot.bin.new
+	capsule: /tmp/capsules/Test03
+
+}
+{
+	image-index: 1
+	image-guid: 3673b45d-6a7c-46f3-9e60-adabb03f7937
+	payload: /tmp/capsules/uboot_bin_env.itb
+	capsule: /tmp/capsules/Test04
+
+}
+{
+	image-index: 1
+	image-guid: 058b7d83-50d5-4c47-a195-60d86ad341c4
+	payload: /tmp/capsules/uboot_bin_env.itb
+	capsule: /tmp/capsules/Test05
+
+}
+{
+	image-index: 1
+	image-guid: 058b7d83-50d5-4c47-a195-60d86ad341c4
+	payload: /tmp/capsules/uboot_bin_env.itb
+	capsule: /tmp/capsules/Test05
+}
+{
+	image-index: 1
+	monotonic-count: 1
+	private-key: /tmp/capsules/SIGNER.key
+	pub-key-cert: /tmp/capsules/SIGNER.crt
+	image-guid: 09d7cf52-0720-4710-91d1-08469b7fe9c8
+	payload: /tmp/capsules/u-boot.bin.new
+	capsule: /tmp/capsules/Test11
+}
+{
+	image-index: 1
+	monotonic-count: 1
+	private-key: /tmp/capsules/SIGNER2.key
+	pub-key-cert: /tmp/capsules/SIGNER2.crt
+	image-guid: 09d7cf52-0720-4710-91d1-08469b7fe9c8
+	payload: /tmp/capsules/u-boot.bin.new
+	capsule: /tmp/capsules/Test12
+}
+{
+	image-index: 1
+	monotonic-count: 1
+	private-key: /tmp/capsules/SIGNER.key
+	pub-key-cert: /tmp/capsules/SIGNER.crt
+	image-guid: 3673b45d-6a7c-46f3-9e60-adabb03f7937
+	payload: /tmp/capsules/uboot_bin_env.itb
+	capsule: /tmp/capsules/Test13
+}
+{
+	image-index: 1
+	monotonic-count: 1
+	private-key: /tmp/capsules/SIGNER2.key
+	pub-key-cert: /tmp/capsules/SIGNER2.crt
+	image-guid: 3673b45d-6a7c-46f3-9e60-adabb03f7937
+	payload: /tmp/capsules/uboot_bin_env.itb
+	capsule: /tmp/capsules/Test14
+}
+{
+	image-index: 1
+	fw-version: 5
+	image-guid: 09d7cf52-0720-4710-91d1-08469b7fe9c8
+	payload: /tmp/capsules/u-boot.bin.new
+	capsule: /tmp/capsules/Test101
+}
+{
+	image-index: 2
+	fw-version: 10
+	image-guid: 5a7021f5-fef2-48b4-aaba-832e777418c0
+	payload: /tmp/capsules/u-boot.env.new
+	capsule: /tmp/capsules/Test102
+}
+{
+	image-index: 1
+	fw-version: 2
+	image-guid: 09d7cf52-0720-4710-91d1-08469b7fe9c8
+	payload: /tmp/capsules/u-boot.bin.new
+	capsule: /tmp/capsules/Test103
+
+}
+{
+	image-index: 1
+	fw-version: 5
+	image-guid: 3673b45d-6a7c-46f3-9e60-adabb03f7937
+	payload: /tmp/capsules/uboot_bin_env.itb
+	capsule: /tmp/capsules/Test104
+}
+{
+	image-index: 1
+	fw-version: 2
+	image-guid: 3673b45d-6a7c-46f3-9e60-adabb03f7937
+	payload: /tmp/capsules/uboot_bin_env.itb
+	capsule: /tmp/capsules/Test105
+
+}
+{
+	image-index: 1
+	monotonic-count: 1
+	fw-version: 5
+	private-key: /tmp/capsules/SIGNER.key
+	pub-key-cert: /tmp/capsules/SIGNER.crt
+	image-guid: 09d7cf52-0720-4710-91d1-08469b7fe9c8
+	payload: /tmp/capsules/u-boot.bin.new
+	capsule: /tmp/capsules/Test111
+}
+{
+	image-index: 2
+	monotonic-count: 1
+	fw-version: 10
+	private-key: /tmp/capsules/SIGNER.key
+	pub-key-cert: /tmp/capsules/SIGNER.crt
+	image-guid: 5a7021f5-fef2-48b4-aaba-832e777418c0
+	payload: /tmp/capsules/u-boot.env.new
+	capsule: /tmp/capsules/Test112
+}
+{
+	image-index: 1
+	monotonic-count: 1
+	fw-version: 2
+	private-key: /tmp/capsules/SIGNER.key
+	pub-key-cert: /tmp/capsules/SIGNER.crt
+	image-guid: 09d7cf52-0720-4710-91d1-08469b7fe9c8
+	payload: /tmp/capsules/u-boot.bin.new
+	capsule: /tmp/capsules/Test113
+}
+{
+	image-index: 1
+	fw-version: 5
+	monotonic-count: 1
+	private-key: /tmp/capsules/SIGNER.key
+	pub-key-cert: /tmp/capsules/SIGNER.crt
+	image-guid: 3673b45d-6a7c-46f3-9e60-adabb03f7937
+	payload: /tmp/capsules/uboot_bin_env.itb
+	capsule: /tmp/capsules/Test114
+}
+{
+	image-index: 1
+	fw-version: 2
+	monotonic-count: 1
+	private-key: /tmp/capsules/SIGNER.key
+	pub-key-cert: /tmp/capsules/SIGNER.crt
+	image-guid: 3673b45d-6a7c-46f3-9e60-adabb03f7937
+	payload: /tmp/capsules/uboot_bin_env.itb
+	capsule: /tmp/capsules/Test115
+}
