@@ -177,6 +177,10 @@ efi_status_t __efi_runtime efi_var_mem_ins(
 
 u64 __efi_runtime efi_var_mem_free(void)
 {
+	if (efi_var_buf->length + sizeof(struct efi_var_entry) >=
+	    EFI_VAR_BUF_SIZE)
+		return 0;
+
 	return EFI_VAR_BUF_SIZE - efi_var_buf->length -
 	       sizeof(struct efi_var_entry);
 }
