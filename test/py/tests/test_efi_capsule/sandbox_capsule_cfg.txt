@@ -1,0 +1,162 @@
+{
+	image-index: 1
+	image-guid: 09D7CF52-0720-4710-91D1-08469B7FE9C8
+	payload: u-boot.bin.new
+	capsule: Test01
+}
+{
+	image-index: 2
+	image-guid: 5A7021F5-FEF2-48B4-AABA-832E777418C0
+	payload: u-boot.env.new
+	capsule: Test02
+}
+{
+	image-index: 1
+	image-guid: 058B7D83-50D5-4C47-A195-60D86AD341C4
+	payload: u-boot.bin.new
+	capsule: Test03
+
+}
+{
+	image-index: 1
+	image-guid: 3673B45D-6A7C-46F3-9E60-ADABB03F7937
+	payload: u-boot_bin_env.itb
+	capsule: Test04
+
+}
+{
+	image-index: 1
+	image-guid: 058B7D83-50D5-4C47-A195-60D86AD341C4
+	payload: u-boot_bin_env.itb
+	capsule: Test05
+
+}
+{
+	image-index: 1
+	image-guid: 058B7D83-50D5-4C47-A195-60D86AD341C4
+	payload: u-boot_bin_env.itb
+	capsule: Test05
+}
+{
+	image-index: 1
+	monotonic-count: 1
+	private-key: SIGNER.key
+	pub-key-cert: SIGNER.crt
+	image-guid: 09D7CF52-0720-4710-91D1-08469B7FE9C8
+	payload: u-boot.bin.new
+	capsule: Test11
+}
+{
+	image-index: 1
+	monotonic-count: 1
+	private-key: SIGNER2.key
+	pub-key-cert: SIGNER2.crt
+	image-guid: 09D7CF52-0720-4710-91D1-08469B7FE9C8
+	payload: u-boot.bin.new
+	capsule: Test12
+}
+{
+	image-index: 1
+	monotonic-count: 1
+	private-key: SIGNER.key
+	pub-key-cert: SIGNER.crt
+	image-guid: 3673B45D-6A7C-46F3-9E60-ADABB03F7937
+	payload: u-boot_bin_env.itb
+	capsule: Test13
+}
+{
+	image-index: 1
+	monotonic-count: 1
+	private-key: SIGNER2.key
+	pub-key-cert: SIGNER2.crt
+	image-guid: 3673B45D-6A7C-46F3-9E60-ADABB03F7937
+	payload: u-boot_bin_env.itb
+	capsule: Test14
+}
+{
+	image-index: 1
+	fw-version: 5
+	image-guid: 09D7CF52-0720-4710-91D1-08469B7FE9C8
+	payload: u-boot.bin.new
+	capsule: Test101
+}
+{
+	image-index: 2
+	fw-version: 10
+	image-guid: 5A7021F5-FEF2-48B4-AABA-832E777418C0
+	payload: u-boot.env.new
+	capsule: Test102
+}
+{
+	image-index: 1
+	fw-version: 2
+	image-guid: 09D7CF52-0720-4710-91D1-08469B7FE9C8
+	payload: u-boot.bin.new
+	capsule: Test103
+
+}
+{
+	image-index: 1
+	fw-version: 5
+	image-guid: 3673B45D-6A7C-46F3-9E60-ADABB03F7937
+	payload: u-boot_bin_env.itb
+	capsule: Test104
+}
+{
+	image-index: 1
+	fw-version: 2
+	image-guid: 3673B45D-6A7C-46F3-9E60-ADABB03F7937
+	payload: u-boot_bin_env.itb
+	capsule: Test105
+
+}
+{
+	image-index: 1
+	monotonic-count: 1
+	fw-version: 5
+	private-key: SIGNER.key
+	pub-key-cert: SIGNER.crt
+	image-guid: 09D7CF52-0720-4710-91D1-08469B7FE9C8
+	payload: u-boot.bin.new
+	capsule: Test111
+}
+{
+	image-index: 2
+	monotonic-count: 1
+	fw-version: 10
+	private-key: SIGNER.key
+	pub-key-cert: SIGNER.crt
+	image-guid: 5A7021F5-FEF2-48B4-AABA-832E777418C0
+	payload: u-boot.env.new
+	capsule: Test112
+}
+{
+	image-index: 1
+	monotonic-count: 1
+	fw-version: 2
+	private-key: SIGNER.key
+	pub-key-cert: SIGNER.crt
+	image-guid: 09D7CF52-0720-4710-91D1-08469B7FE9C8
+	payload: u-boot.bin.new
+	capsule: Test113
+}
+{
+	image-index: 1
+	fw-version: 5
+	monotonic-count: 1
+	private-key: SIGNER.key
+	pub-key-cert: SIGNER.crt
+	image-guid: 3673B45D-6A7C-46F3-9E60-ADABB03F7937
+	payload: u-boot_bin_env.itb
+	capsule: Test114
+}
+{
+	image-index: 1
+	fw-version: 2
+	monotonic-count: 1
+	private-key: SIGNER.key
+	pub-key-cert: SIGNER.crt
+	image-guid: 3673B45D-6A7C-46F3-9E60-ADABB03F7937
+	payload: u-boot_bin_env.itb
+	capsule: Test115
+}
