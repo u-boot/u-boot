@@ -202,6 +202,10 @@ config TARGET_X530
 	bool "Support Allied Telesis x530"
 	select 88F6820
 
+config TARGET_X240
+	bool "Support Allied Telesis x240"
+	select ALLEYCAT_5
+
 config TARGET_DB_XC3_24G4XG
 	bool "Support DB-XC3-24G4XG"
 	select 98DX3336
@@ -274,6 +278,7 @@ config SYS_BOARD
 	default "theadorable" if TARGET_THEADORABLE
 	default "a38x" if TARGET_CONTROLCENTERDC
 	default "x530" if TARGET_X530
+	default "x240" if TARGET_X240
 	default "db-xc3-24g4xg" if TARGET_DB_XC3_24G4XG
 	default "crs3xx-98dx3236" if TARGET_CRS3XX_98DX3236
 	default "mvebu_alleycat-5" if TARGET_MVEBU_ALLEYCAT5
@@ -297,6 +302,7 @@ config SYS_CONFIG_NAME
 	default "turris_mox" if TARGET_TURRIS_MOX
 	default "controlcenterdc" if TARGET_CONTROLCENTERDC
 	default "x530" if TARGET_X530
+	default "x240" if TARGET_X240
 	default "db-xc3-24g4xg" if TARGET_DB_XC3_24G4XG
 	default "crs3xx-98dx3236" if TARGET_CRS3XX_98DX3236
 	default "mvebu_alleycat-5" if TARGET_MVEBU_ALLEYCAT5
@@ -320,6 +326,7 @@ config SYS_VENDOR
 	default "CZ.NIC" if TARGET_TURRIS_MOX
 	default "gdsys" if TARGET_CONTROLCENTERDC
 	default "alliedtelesis" if TARGET_X530
+	default "alliedtelesis" if TARGET_X240
 	default "mikrotik" if TARGET_CRS3XX_98DX3236
 	default "Marvell" if TARGET_MVEBU_ALLEYCAT5
 
