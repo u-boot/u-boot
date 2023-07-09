@@ -125,6 +125,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* System control register and bit to enable NAND on some SoCs */
 #define GENCONF_SOC_DEVICE_MUX	0x208
 #define GENCONF_SOC_DEVICE_MUX_NFC_EN BIT(0)
+#define GENCONF_SOC_DEVICE_MUX_NFC_DEVBUS_ARB_EN BIT(27)
 
 /*
  * This should be large enough to read 'ONFI' and 'JEDEC'.
@@ -1739,7 +1740,7 @@ static int alloc_nand_resource(struct udevice *dev, struct pxa3xx_nand_info *inf
 			return PTR_ERR(sysctrl_base);
 
 		regmap_read(sysctrl_base, GENCONF_SOC_DEVICE_MUX, &reg);
-		reg |= GENCONF_SOC_DEVICE_MUX_NFC_EN;
+		reg |= GENCONF_SOC_DEVICE_MUX_NFC_EN | GENCONF_SOC_DEVICE_MUX_NFC_DEVBUS_ARB_EN;
 		regmap_write(sysctrl_base, GENCONF_SOC_DEVICE_MUX, reg);
 	}
 
