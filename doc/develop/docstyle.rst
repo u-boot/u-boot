@@ -20,7 +20,7 @@ We apply the following rules:
 * For documentation we use reStructured text conforming to the requirements
   of `Sphinx <https://www.sphinx-doc.org>`_.
 * For documentation within code we follow the Linux kernel guide
-  `Writing kernel-doc comments <https://docs.kernel.org/doc-guide/kernel-doc.html>`_.
+  `Writing kernel-doc comments <https://www.kernel.org/doc/html/latest/doc-guide/kernel-doc.html>`_.
 * We try to stick to 80 columns per line in documents.
 * For tables we prefer simple tables over grid tables. We avoid list tables
   as they make the reStructured text documents hard to read.

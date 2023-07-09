@@ -19,7 +19,7 @@ wherever they might be located.
 The implementation is loosely modeled on Linux's "Device Mapper"
 subsystem, see `kernel documentation`_ for more information.
 
-.. _kernel documentation: https://docs.kernel.org/admin-guide/device-mapper/index.html
+.. _kernel documentation: https://www.kernel.org/doc/html/latest/admin-guide/device-mapper/index.html
 
 
 Example: Netbooting an Ext4 Image
