@@ -25,7 +25,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <misc.h>
-#include <mtd_node.h>
 #include <net.h>
 #include <netdev.h>
 #include <phy.h>
@@ -92,10 +91,10 @@
 struct efi_fw_image fw_images[1];
 
 struct efi_capsule_update_info update_info = {
+	.num_images = ARRAY_SIZE(fw_images),
 	.images = fw_images,
 };
 
-u8 num_image_type_guids = ARRAY_SIZE(fw_images);
 #endif /* EFI_HAVE_CAPSULE_SUPPORT */
 
 int board_early_init_f(void)
@@ -915,20 +914,7 @@ int mmc_get_env_dev(void)
 #if defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	static const struct node_info nodes[] = {
-		{ "jedec,spi-nor",		MTD_DEV_TYPE_NOR,  },
-		{ "spi-nand",			MTD_DEV_TYPE_SPINAND},
-		{ "st,stm32mp15-fmc2",		MTD_DEV_TYPE_NAND, },
-		{ "st,stm32mp1-fmc2-nfc",	MTD_DEV_TYPE_NAND, },
-	};
-	char *boot_device;
-
-	/* Check the boot-source and don't update MTD for serial or usb boot */
-	boot_device = env_get("boot_device");
-	if (!boot_device ||
-	    (strcmp(boot_device, "serial") && strcmp(boot_device, "usb")))
-		if (IS_ENABLED(CONFIG_FDT_FIXUP_PARTITIONS))
-			fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+	fdt_copy_fixed_partitions(blob);
 
 	if (IS_ENABLED(CONFIG_FDT_SIMPLEFB))
 		fdt_simplefb_enable_and_mem_rsv(blob);

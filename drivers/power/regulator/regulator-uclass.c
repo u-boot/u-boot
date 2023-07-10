@@ -197,6 +197,12 @@ int regulator_set_enable_if_allowed(struct udevice *dev, bool enable)
 	ret = regulator_set_enable(dev, enable);
 	if (ret == -ENOSYS || ret == -EACCES)
 		return 0;
+	/* if we want to disable but it's in use by someone else */
+	if (!enable && ret == -EBUSY)
+		return 0;
+	/* if it's already enabled/disabled */
+	if (ret == -EALREADY)
+		return 0;
 
 	return ret;
 }

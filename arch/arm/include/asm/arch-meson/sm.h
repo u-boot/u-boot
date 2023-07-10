@@ -58,4 +58,34 @@ enum {
  */
 int meson_sm_get_reboot_reason(void);
 
+#define PWRDM_OFF 0
+#define PWRDM_ON 1
+
+/**
+ * meson_sm_pwrdm_set - do command at specified power domain.
+ *
+ * @index: power domain index.
+ * @cmd: command index.
+ * @return: zero on success or error code on failure.
+ */
+int meson_sm_pwrdm_set(size_t index, int cmd);
+
+/**
+ * meson_sm_pwrdm_off - disable specified power domain.
+ *
+ * @index: power domain index.
+ * @return: zero on success or error code on failure.
+ */
+#define meson_sm_pwrdm_off(index) \
+	meson_sm_pwrdm_set(index, PWRDM_OFF)
+
+/**
+ * meson_sm_pwrdm_on - enable specified power domain.
+ *
+ * @index: power domain index.
+ * @return: zero on success or error code on failure.
+ */
+#define meson_sm_pwrdm_on(index) \
+	meson_sm_pwrdm_set(index, PWRDM_ON)
+
 #endif /* __MESON_SM_H__ */

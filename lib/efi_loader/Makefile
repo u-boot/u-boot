@@ -23,6 +23,7 @@ CFLAGS_REMOVE_initrddump.o := $(CFLAGS_NON_EFI)
 
 ifdef CONFIG_RISCV
 always += boothart.efi
+targets += boothart.o
 endif
 
 ifneq ($(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
@@ -32,10 +33,12 @@ endif
 
 ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
 always += dtbdump.efi
+targets += dtbdump.o
 endif
 
 ifdef CONFIG_EFI_LOAD_FILE2_INITRD
 always += initrddump.efi
+targets += initrddump.o
 endif
 
 obj-$(CONFIG_CMD_BOOTEFI_HELLO) += helloworld_efi.o

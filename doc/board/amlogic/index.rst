@@ -118,6 +118,7 @@ Board Documentation
    sei610
    s400
    u200
+   videostrong-kii-pro
    wetek-core2
    wetek-hub
    wetek-play2

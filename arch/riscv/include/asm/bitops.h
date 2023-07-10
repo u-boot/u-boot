@@ -158,6 +158,9 @@ static inline unsigned long ffz(unsigned long word)
 #define hweight16(x) generic_hweight16(x)
 #define hweight8(x) generic_hweight8(x)
 
+#define test_and_set_bit		__test_and_set_bit
+#define test_and_clear_bit		__test_and_clear_bit
+
 #define ext2_set_bit			test_and_set_bit
 #define ext2_clear_bit			test_and_clear_bit
 #define ext2_test_bit			test_bit

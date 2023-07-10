@@ -157,4 +157,13 @@ config LUT_SEQUENCE
 	help
 	  Look Up Table Sequence
 
+config TOOLS_MKFWUMDATA
+	bool "Build mkfwumdata command"
+	default y if FWU_MULTI_BANK_UPDATE
+	help
+	  This command allows users to create a raw image of the FWU
+	  metadata for initial installation of the FWU multi bank
+	  update on the board. The installation method depends on
+	  the platform.
+
 endmenu

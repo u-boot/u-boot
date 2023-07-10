@@ -1353,24 +1353,15 @@ err:
 
 static int dpni_init(void)
 {
-	int err;
-	uint8_t	cfg_buf[256] = {0};
-	struct dpni_cfg dpni_cfg;
+	struct dpni_cfg dpni_cfg = {0};
 	uint16_t major_ver, minor_ver;
+	int err;
 
 	dflt_dpni = calloc(sizeof(struct fsl_dpni_obj), 1);
 	if (!dflt_dpni) {
 		printf("No memory: calloc() failed\n");
 		err = -ENOMEM;
 		goto err_calloc;
-	}
-
-	memset(&dpni_cfg, 0, sizeof(dpni_cfg));
-	err = dpni_prepare_cfg(&dpni_cfg, &cfg_buf[0]);
-	if (err < 0) {
-		err = -ENODEV;
-		printf("dpni_prepare_cfg() failed: %d\n", err);
-		goto err_prepare_cfg;
 	}
 
 	err = dpni_create(dflt_mc_io,
@@ -1429,7 +1420,6 @@ err_get_version:
 		     MC_CMD_NO_FLAGS,
 		     dflt_dpni->dpni_id);
 err_create:
-err_prepare_cfg:
 	free(dflt_dpni);
 err_calloc:
 	return err;

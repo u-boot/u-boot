@@ -17,7 +17,7 @@ def efi_capsule_data(request, u_boot_config):
     for testing.
 
     request -- Pytest request object.
-    u_boot_config -- U-boot configuration.
+    u_boot_config -- U-Boot configuration.
     """
     mnt_point = u_boot_config.persistent_data_dir + '/test_efi_capsule'
     data_dir = mnt_point + CAPSULE_DATA_DIR
@@ -62,6 +62,23 @@ def efi_capsule_data(request, u_boot_config):
                             '-out SIGNER2.crt -nodes -days 365'
                        % data_dir, shell=True)
 
+        # Update dtb to add the version information
+        check_call('cd %s; '
+                   'cp %s/test/py/tests/test_efi_capsule/version.dts .'
+                   % (data_dir, u_boot_config.source_dir), shell=True)
+        if capsule_auth_enabled:
+            check_call('cd %s; '
+                       'dtc -@ -I dts -O dtb -o version.dtbo version.dts; '
+                       'fdtoverlay -i test_sig.dtb '
+                            '-o test_ver.dtb version.dtbo'
+                       % (data_dir), shell=True)
+        else:
+            check_call('cd %s; '
+                       'dtc -@ -I dts -O dtb -o version.dtbo version.dts; '
+                       'fdtoverlay -i %s/arch/sandbox/dts/test.dtb '
+                            '-o test_ver.dtb version.dtbo'
+                       % (data_dir, u_boot_config.build_dir), shell=True)
+
         # Create capsule files
         # two regions: one for u-boot.bin and the other for u-boot.env
         check_call('cd %s; echo -n u-boot:Old > u-boot.bin.old; echo -n u-boot:New > u-boot.bin.new; echo -n u-boot-env:Old > u-boot.env.old; echo -n u-boot-env:New > u-boot.env.new' % data_dir,
@@ -85,6 +102,26 @@ def efi_capsule_data(request, u_boot_config):
                    (data_dir, u_boot_config.build_dir),
                    shell=True)
         check_call('cd %s; %s/tools/mkeficapsule --index 1 --guid  058B7D83-50D5-4C47-A195-60D86AD341C4 uboot_bin_env.itb Test05' %
+                   (data_dir, u_boot_config.build_dir),
+                   shell=True)
+        check_call('cd %s; %s/tools/mkeficapsule --index 1 --fw-version 5 '
+                        '--guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 u-boot.bin.new Test101' %
+                   (data_dir, u_boot_config.build_dir),
+                   shell=True)
+        check_call('cd %s; %s/tools/mkeficapsule --index 2 --fw-version 10 '
+                        '--guid 5A7021F5-FEF2-48B4-AABA-832E777418C0 u-boot.env.new Test102' %
+                   (data_dir, u_boot_config.build_dir),
+                   shell=True)
+        check_call('cd %s; %s/tools/mkeficapsule --index 1 --fw-version 2 '
+                        '--guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 u-boot.bin.new Test103' %
+                   (data_dir, u_boot_config.build_dir),
+                   shell=True)
+        check_call('cd %s; %s/tools/mkeficapsule --index 1 --fw-version 5 '
+                        '--guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 uboot_bin_env.itb Test104' %
+                   (data_dir, u_boot_config.build_dir),
+                   shell=True)
+        check_call('cd %s; %s/tools/mkeficapsule --index 1 --fw-version 2 '
+                        '--guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 uboot_bin_env.itb Test105' %
                    (data_dir, u_boot_config.build_dir),
                    shell=True)
 
@@ -121,6 +158,51 @@ def efi_capsule_data(request, u_boot_config):
                             '--certificate SIGNER2.crt '
                             '--guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 '
                             'uboot_bin_env.itb Test14'
+                       % (data_dir, u_boot_config.build_dir),
+                       shell=True)
+            # raw firmware signed with proper key with version information
+            check_call('cd %s; '
+                       '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
+                            '--fw-version 5 '
+                            '--private-key SIGNER.key --certificate SIGNER.crt '
+                            '--guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 '
+                            'u-boot.bin.new Test111'
+                       % (data_dir, u_boot_config.build_dir),
+                       shell=True)
+            # raw firmware signed with proper key with version information
+            check_call('cd %s; '
+                       '%s/tools/mkeficapsule --index 2 --monotonic-count 1 '
+                            '--fw-version 10 '
+                            '--private-key SIGNER.key --certificate SIGNER.crt '
+                            '--guid 5A7021F5-FEF2-48B4-AABA-832E777418C0 '
+                            'u-boot.env.new Test112'
+                       % (data_dir, u_boot_config.build_dir),
+                       shell=True)
+            # raw firmware signed with proper key with lower version information
+            check_call('cd %s; '
+                       '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
+                            '--fw-version 2 '
+                            '--private-key SIGNER.key --certificate SIGNER.crt '
+                            '--guid 09D7CF52-0720-4710-91D1-08469B7FE9C8 '
+                            'u-boot.bin.new Test113'
+                       % (data_dir, u_boot_config.build_dir),
+                       shell=True)
+            # FIT firmware signed with proper key with version information
+            check_call('cd %s; '
+                       '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
+                            '--fw-version 5 '
+                            '--private-key SIGNER.key --certificate SIGNER.crt '
+                            '--guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 '
+                            'uboot_bin_env.itb Test114'
+                       % (data_dir, u_boot_config.build_dir),
+                       shell=True)
+            # FIT firmware signed with proper key with lower version information
+            check_call('cd %s; '
+                       '%s/tools/mkeficapsule --index 1 --monotonic-count 1 '
+                            '--fw-version 2 '
+                            '--private-key SIGNER.key --certificate SIGNER.crt '
+                            '--guid 3673B45D-6A7C-46F3-9E60-ADABB03F7937 '
+                            'uboot_bin_env.itb Test115'
                        % (data_dir, u_boot_config.build_dir),
                        shell=True)
 

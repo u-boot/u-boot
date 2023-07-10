@@ -144,10 +144,18 @@ static int eth_phy_of_to_plat(struct udevice *dev)
 	uc_priv->reset_assert_delay = dev_read_u32_default(dev, "reset-assert-us", 0);
 	uc_priv->reset_deassert_delay = dev_read_u32_default(dev, "reset-deassert-us", 0);
 
+	/* These are used by some DTs, try these as a fallback. */
+	if (!uc_priv->reset_assert_delay && !uc_priv->reset_deassert_delay) {
+		uc_priv->reset_assert_delay =
+			dev_read_u32_default(dev, "reset-delay-us", 0);
+		uc_priv->reset_deassert_delay =
+			dev_read_u32_default(dev, "reset-post-delay-us", 0);
+	}
+
 	return 0;
 }
 
-void eth_phy_reset(struct udevice *dev, int value)
+static void eth_phy_reset(struct udevice *dev, int value)
 {
 	struct eth_phy_device_priv *uc_priv = dev_get_uclass_priv(dev);
 	u32 delay;

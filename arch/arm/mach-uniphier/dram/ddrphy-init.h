@@ -4,7 +4,7 @@
  */
 
 #ifndef ARCH_DDRPHY_INIT_H
-#define ARCH_DDRPHY_INTT_H
+#define ARCH_DDRPHY_INIT_H
 
 #include <linux/compiler.h>
 #include <linux/types.h>

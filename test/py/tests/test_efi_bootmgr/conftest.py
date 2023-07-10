@@ -12,7 +12,7 @@ def efi_bootmgr_data(u_boot_config):
     """Set up a file system to be used in UEFI bootmanager tests.
 
     Args:
-        u_boot_config -- U-boot configuration.
+        u_boot_config -- U-Boot configuration.
 
     Return:
         A path to disk image to be used for testing

@@ -7,8 +7,17 @@
 #include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
+#include <cpu_func.h>
+#include <stdint.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_SYS_CACHELINE_SIZE
+# define MEMSIZE_CACHELINE_SIZE CONFIG_SYS_CACHELINE_SIZE
+#else
+/* Just use the greatest cache flush alignment requirement I'm aware of */
+# define MEMSIZE_CACHELINE_SIZE 128
+#endif
 
 #ifdef __PPC__
 /*
@@ -19,6 +28,15 @@ DECLARE_GLOBAL_DATA_PTR;
 #else
 # define sync()		/* nothing */
 #endif
+
+static void dcache_flush_invalidate(volatile long *p)
+{
+	uintptr_t start, stop;
+	start = ALIGN_DOWN((uintptr_t)p, MEMSIZE_CACHELINE_SIZE);
+	stop = start + MEMSIZE_CACHELINE_SIZE;
+	flush_dcache_range(start, stop);
+	invalidate_dcache_range(start, stop);
+}
 
 /*
  * Check memory range for valid RAM. A simple memory test determines
@@ -34,6 +52,7 @@ long get_ram_size(long *base, long maxsize)
 	long           val;
 	long           size;
 	int            i = 0;
+	int            dcache_en = dcache_status();
 
 	for (cnt = (maxsize / sizeof(long)) >> 1; cnt > 0; cnt >>= 1) {
 		addr = base + cnt;	/* pointer arith! */
@@ -41,6 +60,8 @@ long get_ram_size(long *base, long maxsize)
 		save[i++] = *addr;
 		sync();
 		*addr = ~cnt;
+		if (dcache_en)
+			dcache_flush_invalidate(addr);
 	}
 
 	addr = base;
@@ -50,6 +71,9 @@ long get_ram_size(long *base, long maxsize)
 	*addr = 0;
 
 	sync();
+	if (dcache_en)
+		dcache_flush_invalidate(addr);
+
 	if ((val = *addr) != 0) {
 		/* Restore the original data before leaving the function. */
 		sync();

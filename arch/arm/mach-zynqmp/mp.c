@@ -326,6 +326,10 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 		flush_dcache_all();
 
 		if (!strncmp(argv[1], "lockstep", 8)) {
+			if (nr != ZYNQMP_CORE_RPU0) {
+				printf("Lockstep mode should run on ZYNQMP_CORE_RPU0\n");
+				return 1;
+			}
 			printf("R5 lockstep mode\n");
 			set_r5_reset(nr, LOCK);
 			set_r5_tcm_mode(LOCK);

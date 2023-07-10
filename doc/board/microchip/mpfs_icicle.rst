@@ -134,7 +134,7 @@ Build OpenSBI
 .. code-block:: none
 
    make PLATFORM=generic FW_PAYLOAD_PATH=<u-boot-directory>/u-boot.bin
-   FW_FDT_PATH=<u-boot-directory>/arch/riscv/dts/microchip-mpfs-icicle-kit-.dtb
+   FW_FDT_PATH=<u-boot-directory>/arch/riscv/dts/mpfs-icicle-kit-.dtb
 
 3. Output "fw_payload.bin" file available at
    "<opensbi-directory>/build/platform/generic/firmware/fw_payload.bin"
@@ -277,14 +277,14 @@ load uImage (with initramfs).
    done
    Bytes transferred = 14482480 (dcfc30 hex)
 
-   RISC-V # tftpboot ${fdt_addr_r} microchip-mpfs-icicle-kit.dtb
+   RISC-V # tftpboot ${fdt_addr_r} mpfs-icicle-kit.dtb
    ethernet@20112000: PHY present at 9
    ethernet@20112000: Starting autonegotiation...
    ethernet@20112000: Autonegotiation complete
    ethernet@20112000: link up, 1000Mbps full-duplex (lpa: 0x7800)
    Using ethernet@20112000 device
    TFTP from server 192.168.1.3; our IP address is 192.168.1.5
-   Filename 'microchip-mpfs-icicle-kit.dtb'.
+   Filename 'mpfs-icicle-kit.dtb'.
    Load address: 0x82200000
    Loading: #
 			2.5 MiB/s

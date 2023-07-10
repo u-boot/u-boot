@@ -44,6 +44,7 @@ u32 get_cpu_dev(void);
 #define CPU_REV1_2	0x1003
 #define CPU_REV2	0x2000
 #define CPU_REV2_1	0x2001
+#define CPU_REV2_2	0x2003
 
 /* return Silicon revision = REV_ID[15:0] of Device Version */
 u32 get_cpu_rev(void);

@@ -76,17 +76,23 @@ static int baltos_set_console(void)
 
 static int read_eeprom(BSP_VS_HWPARAM *header)
 {
-	i2c_set_bus_num(1);
+	int rc;
+	struct udevice *dev;
+	struct udevice *bus;
+
+	rc = uclass_get_device_by_seq(UCLASS_I2C, 1, &bus);
+	if (rc)
+		return rc;
 
 	/* Check if baseboard eeprom is available */
-	if (i2c_probe(CONFIG_SYS_I2C_EEPROM_ADDR)) {
+	if (dm_i2c_probe(bus, CONFIG_SYS_I2C_EEPROM_ADDR, 0, &dev)) {
 		puts("Could not probe the EEPROM; something fundamentally "
 			"wrong on the I2C bus.\n");
 		return -ENODEV;
 	}
 
 	/* read the eeprom using i2c */
-	if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 1, (uchar *)header,
+	if (dm_i2c_read(dev, 0, (uchar *)header,
 		     sizeof(BSP_VS_HWPARAM))) {
 		puts("Could not read the EEPROM; something fundamentally"
 			" wrong on the I2C bus.\n");
@@ -173,34 +179,28 @@ const struct dpll_params dpll_ddr_baltos = {
 
 void am33xx_spl_board_init(void)
 {
-	int mpu_vdd;
-	int sil_rev;
+	int sil_rev, mpu_vdd;
+	int freq;
 
-	/* Get the frequency */
-	dpll_mpu_opp100.m = am335x_get_efuse_mpu_max_freq(cdev);
-
-	/*
-	 * The GP EVM, IDK and EVM SK use a TPS65910 PMIC.  For all
-	 * MPU frequencies we support we use a CORE voltage of
-	 * 1.1375V.  For MPU voltage we need to switch based on
-	 * the frequency we are running at.
-	 */
+	enable_i2c1_pin_mux();
 	i2c_set_bus_num(1);
 
-	printf("I2C speed: %d Hz\n", CONFIG_SYS_I2C_SPEED);
+	freq = am335x_get_efuse_mpu_max_freq(cdev);
 
-	if (i2c_probe(TPS65910_CTRL_I2C_ADDR)) {
-		puts("i2c: cannot access TPS65910\n");
+	/*
+	 * The GP EVM, IDK and EVM SK use a TPS65910 PMIC. For all
+	 * MPU frequencies we support we use a CORE voltage of
+	 * 1.1375V. For MPU voltage we need to switch based on
+	 * the frequency we are running at.
+	 */
+	if (power_tps65910_init(1))
 		return;
-	}
-
 	/*
 	 * Depending on MPU clock and PG we will need a different
 	 * VDD to drive at that speed.
 	 */
 	sil_rev = readl(&cdev->deviceid) >> 28;
-	mpu_vdd = am335x_get_tps65910_mpu_vdd(sil_rev,
-					      dpll_mpu_opp100.m);
+	mpu_vdd = am335x_get_tps65910_mpu_vdd(sil_rev, freq);
 
 	/* Tell the TPS65910 to use i2c */
 	tps65910_set_i2c_control();
@@ -212,12 +212,6 @@ void am33xx_spl_board_init(void)
 	/* Second, update the CORE voltage. */
 	if (tps65910_voltage_update(CORE, TPS65910_OP_REG_SEL_1_1_3))
 		return;
-
-	/* Set CORE Frequencies to OPP100 */
-	do_setup_dpll(&dpll_core_regs, &dpll_core_opp100);
-
-	/* Set MPU Frequency to what we detected now that voltages are set */
-	do_setup_dpll(&dpll_mpu_regs, &dpll_mpu_opp100);
 
 	writel(0x000010ff, PRM_DEVICE_INST + 4);
 }

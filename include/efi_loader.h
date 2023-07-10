@@ -1078,15 +1078,16 @@ struct efi_fw_image {
  * platforms which enable capsule updates
  *
  * @dfu_string:		String used to populate dfu_alt_info
+ * @num_images:		The number of images array entries
  * @images:		Pointer to an array of updatable images
  */
 struct efi_capsule_update_info {
 	const char *dfu_string;
+	int num_images;
 	struct efi_fw_image *images;
 };
 
 extern struct efi_capsule_update_info update_info;
-extern u8 num_image_type_guids;
 
 /**
  * Install the ESRT system table.

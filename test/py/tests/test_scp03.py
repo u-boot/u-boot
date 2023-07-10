@@ -5,7 +5,7 @@
 # SCP03 command test
 
 """
-This tests SCP03 command in U-boot.
+This tests SCP03 command in U-Boot.
 
 For additional details check doc/usage/scp03.rst
 """

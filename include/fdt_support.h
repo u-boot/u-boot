@@ -7,7 +7,8 @@
 #ifndef __FDT_SUPPORT_H
 #define __FDT_SUPPORT_H
 
-#if defined(CONFIG_OF_LIBFDT) && !defined(USE_HOSTCC)
+#if (defined(CONFIG_OF_LIBFDT) || defined(CONFIG_OF_CONTROL)) && \
+	!defined(USE_HOSTCC)
 
 #include <asm/u-boot.h>
 #include <linux/libfdt.h>
@@ -254,6 +255,14 @@ static inline void fdt_fixup_mtdparts(void *fdt,
 {
 }
 #endif
+
+/**
+ * copy the fixed-partition nodes from U-Boot device tree to external blob
+ *
+ * @param blob		FDT blob to update
+ * Return: 0 if ok, or non-zero on error
+ */
+int fdt_copy_fixed_partitions(void *blob);
 
 void fdt_del_node_and_alias(void *blob, const char *alias);
 

@@ -123,7 +123,7 @@ config SYS_IVM_EEPROM_PAGE_LEN
 	  Page size of inventory in EEPROM.
 
 config PG_WCOM_UBOOT_UPDATE_SUPPORTED
-	bool "Enable U-boot Field Fail-Safe Update Functionality"
+	bool "Enable U-Boot Field Fail-Safe Update Functionality"
 	select EVENT
 	default n
 	help
@@ -132,7 +132,7 @@ config PG_WCOM_UBOOT_UPDATE_SUPPORTED
 	  from parallel NOR flash.
 
 config PG_WCOM_UBOOT_BOOTPACKAGE
-	bool "U-boot Is Part Of Factory Boot-Package Image"
+	bool "U-Boot Is Part Of Factory Boot-Package Image"
 	default n
 	help
 	  Indicates that u-boot will be a part of the factory programmed
@@ -140,7 +140,7 @@ config PG_WCOM_UBOOT_BOOTPACKAGE
 	  Has to be set for original u-boot programmed at factory.
 
 config PG_WCOM_UBOOT_UPDATE_TEXT_BASE
-	hex "Text Base For U-boot Programmed Outside Factory"
+	hex "Text Base For U-Boot Programmed Outside Factory"
 	default 0xFFFFFFFF
 	help
 	  Text base of an updated u-boot that is not factory programmed but
@@ -148,7 +148,7 @@ config PG_WCOM_UBOOT_UPDATE_TEXT_BASE
 	  Has to be set for original u-boot programmed at factory.
 
 config PG_WCOM_UBOOT_UPDATE
-	bool "U-boot Is Part Of Factory Boot-Package Image"
+	bool "U-Boot Is Part Of Factory Boot-Package Image"
 	default n
 	help
 	  Indicates that u-boot will be a part of the embedded software and

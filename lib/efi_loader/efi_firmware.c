@@ -10,6 +10,7 @@
 #include <charset.h>
 #include <dfu.h>
 #include <efi_loader.h>
+#include <efi_variable.h>
 #include <fwu.h>
 #include <image.h>
 #include <signatures.h>
@@ -36,9 +37,50 @@ struct fmp_payload_header {
 	u32 lowest_supported_version;
 };
 
+/**
+ * struct fmp_state - fmp firmware update state
+ *
+ * This structure describes the state of the firmware update
+ * through FMP protocol.
+ *
+ * @fw_version:			Firmware versions used
+ * @lowest_supported_version:	Lowest supported version
+ * @last_attempt_version:	Last attempt version
+ * @last_attempt_status:	Last attempt status
+ */
+struct fmp_state {
+	u32 fw_version;
+	u32 lowest_supported_version; /* not used */
+	u32 last_attempt_version; /* not used */
+	u32 last_attempt_status; /* not used */
+};
+
 __weak void set_dfu_alt_info(char *interface, char *devstr)
 {
 	env_set("dfu_alt_info", update_info.dfu_string);
+}
+
+/**
+ * efi_firmware_get_image_type_id - get image_type_id
+ * @image_index:	image index
+ *
+ * Return the image_type_id identified by the image index.
+ *
+ * Return:		pointer to the image_type_id, NULL if image_index is invalid
+ */
+static
+efi_guid_t *efi_firmware_get_image_type_id(u8 image_index)
+{
+	int i;
+	struct efi_fw_image *fw_array;
+
+	fw_array = update_info.images;
+	for (i = 0; i < update_info.num_images; i++) {
+		if (fw_array[i].image_index == image_index)
+			return &fw_array[i].image_type_id;
+	}
+
+	return NULL;
 }
 
 /* Place holder; not supported */
@@ -103,6 +145,87 @@ efi_status_t EFIAPI efi_firmware_set_package_info_unsupported(
 }
 
 /**
+ * efi_firmware_get_lsv_from_dtb - get lowest supported version from dtb
+ * @image_index:	Image index
+ * @image_type_id:	Image type id
+ * @lsv:		Pointer to store the lowest supported version
+ *
+ * Read the firmware version information from dtb.
+ */
+static void efi_firmware_get_lsv_from_dtb(u8 image_index,
+					  efi_guid_t *image_type_id, u32 *lsv)
+{
+	const void *fdt = gd->fdt_blob;
+	const fdt32_t *val;
+	const char *guid_str;
+	int len, offset, index;
+	int parent;
+
+	*lsv = 0;
+
+	parent = fdt_subnode_offset(fdt, 0, "firmware-version");
+	if (parent < 0)
+		return;
+
+	fdt_for_each_subnode(offset, fdt, parent) {
+		efi_guid_t guid;
+
+		guid_str = fdt_getprop(fdt, offset, "image-type-id", &len);
+		if (!guid_str)
+			continue;
+		uuid_str_to_bin(guid_str, guid.b, UUID_STR_FORMAT_GUID);
+
+		val = fdt_getprop(fdt, offset, "image-index", &len);
+		if (!val)
+			continue;
+		index = fdt32_to_cpu(*val);
+
+		if (!guidcmp(&guid, image_type_id) && index == image_index) {
+			val = fdt_getprop(fdt, offset,
+					  "lowest-supported-version", &len);
+			if (val)
+				*lsv = fdt32_to_cpu(*val);
+		}
+	}
+}
+
+/**
+ * efi_firmware_fill_version_info - fill the version information
+ * @image_info:		Image information
+ * @fw_array:		Pointer to size of new image
+ *
+ * Fill the version information into image_info strucrure.
+ *
+ */
+static
+void efi_firmware_fill_version_info(struct efi_firmware_image_descriptor *image_info,
+				    struct efi_fw_image *fw_array)
+{
+	u16 varname[13]; /* u"FmpStateXXXX" */
+	efi_status_t ret;
+	efi_uintn_t size;
+	struct fmp_state var_state = { 0 };
+
+	efi_create_indexed_name(varname, sizeof(varname), "FmpState",
+				fw_array->image_index);
+	size = sizeof(var_state);
+	ret = efi_get_variable_int(varname, &fw_array->image_type_id,
+				   NULL, &size, &var_state, NULL);
+	if (ret == EFI_SUCCESS)
+		image_info->version = var_state.fw_version;
+	else
+		image_info->version = 0;
+
+	efi_firmware_get_lsv_from_dtb(fw_array->image_index,
+				      &fw_array->image_type_id,
+				      &image_info->lowest_supported_image_version);
+
+	image_info->version_name = NULL; /* not supported */
+	image_info->last_attempt_version = 0;
+	image_info->last_attempt_status = LAST_ATTEMPT_STATUS_SUCCESS;
+}
+
+/**
  * efi_fill_image_desc_array - populate image descriptor array
  * @image_info_size:		Size of @image_info
  * @image_info:			Image information
@@ -131,7 +254,7 @@ static efi_status_t efi_fill_image_desc_array(
 	struct efi_fw_image *fw_array;
 	int i;
 
-	total_size = sizeof(*image_info) * num_image_type_guids;
+	total_size = sizeof(*image_info) * update_info.num_images;
 
 	if (*image_info_size < total_size) {
 		*image_info_size = total_size;
@@ -141,21 +264,20 @@ static efi_status_t efi_fill_image_desc_array(
 	*image_info_size = total_size;
 
 	fw_array = update_info.images;
-	*descriptor_count = num_image_type_guids;
+	*descriptor_count = update_info.num_images;
 	*descriptor_version = EFI_FIRMWARE_IMAGE_DESCRIPTOR_VERSION;
 	*descriptor_size = sizeof(*image_info);
 	*package_version = 0xffffffff; /* not supported */
 	*package_version_name = NULL; /* not supported */
 
-	for (i = 0; i < num_image_type_guids; i++) {
+	for (i = 0; i < update_info.num_images; i++) {
 		image_info[i].image_index = fw_array[i].image_index;
 		image_info[i].image_type_id = fw_array[i].image_type_id;
 		image_info[i].image_id = fw_array[i].image_index;
-
 		image_info[i].image_id_name = fw_array[i].fw_name;
 
-		image_info[i].version = 0; /* not supported */
-		image_info[i].version_name = NULL; /* not supported */
+		efi_firmware_fill_version_info(&image_info[i], &fw_array[i]);
+
 		image_info[i].size = 0;
 		image_info[i].attributes_supported =
 			IMAGE_ATTRIBUTE_IMAGE_UPDATABLE |
@@ -168,9 +290,6 @@ static efi_status_t efi_fill_image_desc_array(
 			image_info[0].attributes_setting |=
 				IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED;
 
-		image_info[i].lowest_supported_image_version = 0;
-		image_info[i].last_attempt_version = 0;
-		image_info[i].last_attempt_status = LAST_ATTEMPT_STATUS_SUCCESS;
 		image_info[i].hardware_instance = 1;
 		image_info[i].dependencies = NULL;
 	}
@@ -194,8 +313,6 @@ efi_status_t efi_firmware_capsule_authenticate(const void **p_image,
 {
 	const void *image = *p_image;
 	efi_uintn_t image_size = *p_image_size;
-	u32 fmp_hdr_signature;
-	struct fmp_payload_header *header;
 	void *capsule_payload;
 	efi_status_t status;
 	efi_uintn_t capsule_payload_size;
@@ -222,24 +339,119 @@ efi_status_t efi_firmware_capsule_authenticate(const void **p_image,
 		debug("Updating capsule without authenticating.\n");
 	}
 
-	fmp_hdr_signature = FMP_PAYLOAD_HDR_SIGNATURE;
-	header = (void *)image;
-
-	if (!memcmp(&header->signature, &fmp_hdr_signature,
-		    sizeof(fmp_hdr_signature))) {
-		/*
-		 * When building the capsule with the scripts in
-		 * edk2, a FMP header is inserted above the capsule
-		 * payload. Compensate for this header to get the
-		 * actual payload that is to be updated.
-		 */
-		image += header->header_size;
-		image_size -= header->header_size;
-	}
-
 	*p_image = image;
 	*p_image_size = image_size;
 	return EFI_SUCCESS;
+}
+
+/**
+ * efi_firmware_set_fmp_state_var - set FmpStateXXXX variable
+ * @state:		Pointer to fmp state
+ * @image_index:	image index
+ *
+ * Update the FmpStateXXXX variable with the firmware update state.
+ *
+ * Return:		status code
+ */
+static
+efi_status_t efi_firmware_set_fmp_state_var(struct fmp_state *state, u8 image_index)
+{
+	u16 varname[13]; /* u"FmpStateXXXX" */
+	efi_status_t ret;
+	efi_guid_t *image_type_id;
+	struct fmp_state var_state = { 0 };
+
+	image_type_id = efi_firmware_get_image_type_id(image_index);
+	if (!image_type_id)
+		return EFI_INVALID_PARAMETER;
+
+	efi_create_indexed_name(varname, sizeof(varname), "FmpState",
+				image_index);
+
+	/*
+	 * Only the fw_version is set here.
+	 * lowest_supported_version in FmpState variable is ignored since
+	 * it can be tampered if the file based EFI variable storage is used.
+	 */
+	var_state.fw_version = state->fw_version;
+
+	ret = efi_set_variable_int(varname, image_type_id,
+				   EFI_VARIABLE_READ_ONLY |
+				   EFI_VARIABLE_NON_VOLATILE |
+				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				   EFI_VARIABLE_RUNTIME_ACCESS,
+				   sizeof(var_state), &var_state, false);
+
+	return ret;
+}
+
+/**
+ * efi_firmware_get_fw_version - get fw_version from FMP payload header
+ * @p_image:		Pointer to new image
+ * @p_image_size:	Pointer to size of new image
+ * @state:		Pointer to fmp state
+ *
+ * Parse the FMP payload header and fill the fmp_state structure.
+ * If no FMP payload header is found, fmp_state structure is not updated.
+ *
+ */
+static void efi_firmware_get_fw_version(const void **p_image,
+					efi_uintn_t *p_image_size,
+					struct fmp_state *state)
+{
+	const struct fmp_payload_header *header;
+	u32 fmp_hdr_signature = FMP_PAYLOAD_HDR_SIGNATURE;
+
+	header = *p_image;
+	if (header->signature == fmp_hdr_signature) {
+		/* FMP header is inserted above the capsule payload */
+		state->fw_version = header->fw_version;
+
+		*p_image += header->header_size;
+		*p_image_size -= header->header_size;
+	}
+}
+
+/**
+ * efi_firmware_verify_image - verify image
+ * @p_image:		Pointer to new image
+ * @p_image_size:	Pointer to size of new image
+ * @image_index:	Image index
+ * @state:		Pointer to fmp state
+ *
+ * Verify the capsule authentication and check if the fw_version
+ * is equal or greater than the lowest supported version.
+ *
+ * Return:		status code
+ */
+static
+efi_status_t efi_firmware_verify_image(const void **p_image,
+				       efi_uintn_t *p_image_size,
+				       u8 image_index,
+				       struct fmp_state *state)
+{
+	u32 lsv;
+	efi_status_t ret;
+	efi_guid_t *image_type_id;
+
+	ret = efi_firmware_capsule_authenticate(p_image, p_image_size);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	efi_firmware_get_fw_version(p_image, p_image_size, state);
+
+	image_type_id = efi_firmware_get_image_type_id(image_index);
+	if (!image_type_id)
+		return EFI_INVALID_PARAMETER;
+
+	efi_firmware_get_lsv_from_dtb(image_index, image_type_id, &lsv);
+	if (state->fw_version < lsv) {
+		log_err("Firmware version %u too low. Expecting >= %u. Aborting update\n",
+			state->fw_version, lsv);
+		return EFI_INVALID_PARAMETER;
+	}
+
+	return ret;
 }
 
 /**
@@ -331,6 +543,7 @@ efi_status_t EFIAPI efi_firmware_fit_set_image(
 	u16 **abort_reason)
 {
 	efi_status_t status;
+	struct fmp_state state = { 0 };
 
 	EFI_ENTRY("%p %d %p %zu %p %p %p\n", this, image_index, image,
 		  image_size, vendor_code, progress, abort_reason);
@@ -338,12 +551,15 @@ efi_status_t EFIAPI efi_firmware_fit_set_image(
 	if (!image || image_index != 1)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	status = efi_firmware_capsule_authenticate(&image, &image_size);
+	status = efi_firmware_verify_image(&image, &image_size, image_index,
+					   &state);
 	if (status != EFI_SUCCESS)
 		return EFI_EXIT(status);
 
 	if (fit_update(image))
 		return EFI_EXIT(EFI_DEVICE_ERROR);
+
+	efi_firmware_set_fmp_state_var(&state, image_index);
 
 	return EFI_EXIT(EFI_SUCCESS);
 }
@@ -392,6 +608,7 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 {
 	int ret;
 	efi_status_t status;
+	struct fmp_state state = { 0 };
 
 	EFI_ENTRY("%p %d %p %zu %p %p %p\n", this, image_index, image,
 		  image_size, vendor_code, progress, abort_reason);
@@ -399,7 +616,8 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 	if (!image)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	status = efi_firmware_capsule_authenticate(&image, &image_size);
+	status = efi_firmware_verify_image(&image, &image_size, image_index,
+					   &state);
 	if (status != EFI_SUCCESS)
 		return EFI_EXIT(status);
 
@@ -418,6 +636,8 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 	if (dfu_write_by_alt(image_index - 1, (void *)image, image_size,
 			     NULL, NULL))
 		return EFI_EXIT(EFI_DEVICE_ERROR);
+
+	efi_firmware_set_fmp_state_var(&state, image_index);
 
 	return EFI_EXIT(EFI_SUCCESS);
 }

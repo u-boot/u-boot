@@ -133,6 +133,11 @@ int board_fix_fdt(void *fdt)
 		fdt_setprop(fdt, off, "reg-names", reg_names, names_len);
 	}
 
+	/* Fixup u-boot's DTS in case this is a revC board and
+	 * we're using DM_ETH.
+	 */
+	if (IS_ENABLED(CONFIG_TARGET_LX2160ARDB) && IS_ENABLED(CONFIG_DM_ETH))
+		fdt_fixup_board_phy_revc(fdt);
 	return 0;
 }
 #endif
@@ -487,6 +492,15 @@ int config_board_mux(void)
 }
 #endif
 
+#if IS_ENABLED(CONFIG_TARGET_LX2160ARDB)
+u8 get_board_rev(void)
+{
+	u8 board_rev = (QIXIS_READ(arch) & 0xf) - 1 + 'A';
+
+	return board_rev;
+}
+#endif
+
 unsigned long get_board_sys_clk(void)
 {
 #if defined(CONFIG_TARGET_LX2160AQDS) || defined(CONFIG_TARGET_LX2162AQDS)
@@ -627,6 +641,8 @@ void fdt_fixup_board_enet(void *fdt)
 	if (get_mc_boot_status() == 0 &&
 	    (is_lazy_dpl_addr_valid() || get_dpl_apply_status() == 0)) {
 		fdt_status_okay(fdt, offset);
+		if (IS_ENABLED(CONFIG_TARGET_LX2160ARDB))
+			fdt_fixup_board_phy_revc(fdt);
 	} else {
 		fdt_status_fail(fdt, offset);
 	}
@@ -760,9 +776,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	u64 mc_memory_size = 0;
 	u16 total_memory_banks;
 	int err;
-#if IS_ENABLED(CONFIG_TARGET_LX2160ARDB)
-	u8 board_rev;
-#endif
 
 	err = fdt_increase_size(blob, 512);
 	if (err) {
@@ -825,8 +838,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	fdt_fixup_icid(blob);
 
 #if IS_ENABLED(CONFIG_TARGET_LX2160ARDB)
-	board_rev = (QIXIS_READ(arch) & 0xf) - 1 + 'A';
-	if (board_rev == 'C')
+	if (get_board_rev() == 'C')
 		fdt_fixup_i2c_thermal_node(blob);
 #endif
 

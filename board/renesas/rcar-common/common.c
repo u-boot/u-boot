@@ -10,8 +10,10 @@
 #include <common.h>
 #include <dm.h>
 #include <fdt_support.h>
+#include <hang.h>
 #include <init.h>
 #include <asm/global_data.h>
+#include <asm/io.h>
 #include <dm/uclass-internal.h>
 #include <asm/arch/rmobile.h>
 #include <linux/libfdt.h>
@@ -51,6 +53,46 @@ int dram_init_banksize(void)
 
 	return 0;
 }
+
+int __weak board_init(void)
+{
+	return 0;
+}
+
+#if defined(CONFIG_RCAR_GEN3)
+#define RST_BASE	0xE6160000
+#define RST_CA57RESCNT	(RST_BASE + 0x40)
+#define RST_CA53RESCNT	(RST_BASE + 0x44)
+#define RST_RSTOUTCR	(RST_BASE + 0x58)
+#define RST_CA57_CODE	0xA5A5000F
+#define RST_CA53_CODE	0x5A5A000F
+
+void __weak reset_cpu(void)
+{
+	unsigned long midr, cputype;
+
+	asm volatile("mrs %0, midr_el1" : "=r" (midr));
+	cputype = (midr >> 4) & 0xfff;
+
+	if (cputype == 0xd03)
+		writel(RST_CA53_CODE, RST_CA53RESCNT);
+	else if (cputype == 0xd07)
+		writel(RST_CA57_CODE, RST_CA57RESCNT);
+	else
+		hang();
+}
+#elif defined(CONFIG_RCAR_GEN4)
+#define RST_BASE	0xE6160000 /* Domain0 */
+#define RST_SRESCR0	(RST_BASE + 0x18)
+#define RST_SPRES	0x5AA58000
+
+void __weak reset_cpu(void)
+{
+	writel(RST_SPRES, RST_SRESCR0);
+}
+#else
+#error Neither CONFIG_RCAR_GEN3 nor CONFIG_RCAR_GEN4 are set
+#endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 static int is_mem_overlap(void *blob, int first_mem_node, int curr_mem_node)

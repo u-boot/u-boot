@@ -48,20 +48,20 @@ hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo
 HOSTCFLAGS_bmp_logo.o := -pedantic
 
 hostprogs-$(BUILD_ENVCRC) += envcrc
-envcrc-objs := envcrc.o lib/crc32.o env/embedded.o lib/sha1.o
+envcrc-objs := envcrc.o generated/lib/crc32.o generated/env/embedded.o generated/lib/sha1.o
 
 hostprogs-$(CONFIG_CMD_NET) += gen_eth_addr
 HOSTCFLAGS_gen_eth_addr.o := -pedantic
 
 hostprogs-$(CONFIG_CMD_NET) += gen_ethaddr_crc
-gen_ethaddr_crc-objs := gen_ethaddr_crc.o lib/crc8.o
+gen_ethaddr_crc-objs := gen_ethaddr_crc.o generated/lib/crc8.o
 HOSTCFLAGS_gen_ethaddr_crc.o := -pedantic
 
 hostprogs-$(CONFIG_CMD_LOADS) += img2srec
 HOSTCFLAGS_img2srec.o := -pedantic
 
 hostprogs-y += mkenvimage
-mkenvimage-objs := mkenvimage.o os_support.o lib/crc32.o
+mkenvimage-objs := mkenvimage.o os_support.o generated/lib/crc32.o
 
 hostprogs-y += dumpimage mkimage
 hostprogs-$(CONFIG_TOOLS_LIBCRYPTO) += fit_info fit_check_sign
@@ -71,30 +71,30 @@ ifneq ($(CONFIG_CMD_BOOTEFI_SELFTEST)$(CONFIG_FWU_MDATA_GPT_BLK),)
 hostprogs-y += file2include
 endif
 
-FIT_OBJS-y := fit_common.o fit_image.o image-host.o boot/image-fit.o
-FIT_SIG_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := image-sig-host.o boot/image-fit-sig.o
-FIT_CIPHER_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := boot/image-cipher.o
+FIT_OBJS-y := fit_common.o fit_image.o image-host.o generated/boot/image-fit.o
+FIT_SIG_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := image-sig-host.o generated/boot/image-fit-sig.o
+FIT_CIPHER_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := generated/boot/image-cipher.o
 
 # The following files are synced with upstream DTC.
 # Use synced versions from scripts/dtc/libfdt/.
 LIBFDT_OBJS := $(addprefix libfdt/, fdt.o fdt_ro.o fdt_wip.o fdt_sw.o fdt_rw.o \
 		fdt_strerror.o fdt_empty_tree.o fdt_addresses.o fdt_overlay.o)
 
-RSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix lib/rsa/, \
+RSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix generated/lib/rsa/, \
 					rsa-sign.o rsa-verify.o \
 					rsa-mod-exp.o)
 
-ECDSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix lib/ecdsa/, ecdsa-libcrypto.o)
+ECDSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix generated/lib/ecdsa/, ecdsa-libcrypto.o)
 
-AES_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix lib/aes/, \
+AES_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix generated/lib/aes/, \
 					aes-encrypt.o aes-decrypt.o)
 
 # Cryptographic helpers and image types that depend on openssl/libcrypto
 LIBCRYPTO_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := \
-			lib/fdt-libcrypto.o \
+			generated/lib/fdt-libcrypto.o \
 			sunxi_toc0.o
 
-ROCKCHIP_OBS = lib/rc4.o rkcommon.o rkimage.o rksd.o rkspi.o
+ROCKCHIP_OBS = generated/lib/rc4.o rkcommon.o rkimage.o rksd.o rkspi.o
 
 # common objs for dumpimage and mkimage
 dumpimage-mkimage-objs := aisimage.o \
@@ -102,20 +102,20 @@ dumpimage-mkimage-objs := aisimage.o \
 			$(FIT_OBJS-y) \
 			$(FIT_SIG_OBJS-y) \
 			$(FIT_CIPHER_OBJS-y) \
-			boot/fdt_region.o \
-			boot/bootm.o \
-			lib/crc32.o \
+			generated/boot/fdt_region.o \
+			generated/boot/bootm.o \
+			generated/lib/crc32.o \
 			default_image.o \
-			lib/fdtdec_common.o \
-			lib/fdtdec.o \
-			boot/image.o \
-			boot/image-host.o \
+			generated/lib/fdtdec_common.o \
+			generated/lib/fdtdec.o \
+			generated/boot/image.o \
+			generated/boot/image-host.o \
 			imagetool.o \
 			imximage.o \
 			imx8image.o \
 			imx8mimage.o \
 			kwbimage.o \
-			lib/md5.o \
+			generated/lib/md5.o \
 			lpc32xximage.o \
 			mxsimage.o \
 			omapimage.o \
@@ -128,12 +128,12 @@ dumpimage-mkimage-objs := aisimage.o \
 			$(ROCKCHIP_OBS) \
 			socfpgaimage.o \
 			sunxi_egon.o \
-			lib/crc16-ccitt.o \
-			lib/hash-checksum.o \
-			lib/sha1.o \
-			lib/sha256.o \
-			lib/sha512.o \
-			common/hash.o \
+			generated/lib/crc16-ccitt.o \
+			generated/lib/hash-checksum.o \
+			generated/lib/sha1.o \
+			generated/lib/sha256.o \
+			generated/lib/sha512.o \
+			generated/common/hash.o \
 			ublimage.o \
 			zynqimage.o \
 			zynqmpimage.o \
@@ -213,7 +213,7 @@ HOSTCFLAGS_mxsboot.o := -pedantic
 
 hostprogs-$(CONFIG_ARCH_SUNXI) += mksunxiboot
 hostprogs-$(CONFIG_ARCH_SUNXI) += sunxi-spl-image-builder
-sunxi-spl-image-builder-objs := sunxi-spl-image-builder.o lib/bch.o
+sunxi-spl-image-builder-objs := sunxi-spl-image-builder.o generated/lib/bch.o
 
 hostprogs-$(CONFIG_NETCONSOLE) += ncb
 
@@ -221,16 +221,16 @@ hostprogs-$(CONFIG_ARCH_KIRKWOOD) += kwboot
 hostprogs-$(CONFIG_ARCH_MVEBU) += kwboot
 
 hostprogs-y += proftool
-proftool-objs = proftool.o lib/abuf.o
+proftool-objs = proftool.o generated/lib/abuf.o
 
 hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela
 hostprogs-$(CONFIG_RISCV) += prelink-riscv
 
 hostprogs-$(CONFIG_ARCH_OCTEON) += update_octeon_header
-update_octeon_header-objs := update_octeon_header.o lib/crc32.o
+update_octeon_header-objs := update_octeon_header.o generated/lib/crc32.o
 
 hostprogs-y += fdtgrep
-fdtgrep-objs += $(LIBFDT_OBJS) boot/fdt_region.o fdtgrep.o
+fdtgrep-objs += $(LIBFDT_OBJS) generated/boot/fdt_region.o fdtgrep.o
 
 ifneq ($(TOOLS_ONLY),y)
 hostprogs-y += spl_size_limit
@@ -251,6 +251,10 @@ HOSTLDLIBS_mkeficapsule += \
 	$(shell pkg-config --libs uuid 2> /dev/null || echo "-luuid")
 hostprogs-$(CONFIG_TOOLS_MKEFICAPSULE) += mkeficapsule
 
+mkfwumdata-objs := mkfwumdata.o generated/lib/crc32.o
+HOSTLDLIBS_mkfwumdata += -luuid
+hostprogs-$(CONFIG_TOOLS_MKFWUMDATA) += mkfwumdata
+
 # We build some files with extra pedantic flags to try to minimize things
 # that won't build on some weird host compiler -- though there are lots of
 # exceptions for files that aren't complaint.
@@ -262,12 +266,12 @@ HOSTCFLAGS_sha256.o := -pedantic
 HOSTCFLAGS_sha512.o := -pedantic -DCONFIG_SHA512 -DCONFIG_SHA384
 
 quiet_cmd_wrap = WRAP    $@
-cmd_wrap = echo "\#include <../$(patsubst $(obj)/%,%,$@)>" >$@
+cmd_wrap = echo "\#include <../$(patsubst $(obj)/generated/%,%,$@)>" >$@
 
-$(obj)/boot/%.c $(obj)/common/%.c $(obj)/env/%.c $(obj)/lib/%.c:
+$(obj)/generated/%.c:
 	$(call cmd,wrap)
 
-clean-dirs := lib common
+clean-dirs := generated
 
 always := $(hostprogs-y)
 

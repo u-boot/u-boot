@@ -24,16 +24,16 @@ struct fixed_clock_regulator_plat {
 static int fixed_regulator_of_to_plat(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
-	struct regulator_common_plat *dev_pdata;
+	struct regulator_common_plat *plat;
 
-	dev_pdata = dev_get_plat(dev);
+	plat = dev_get_plat(dev);
 	uc_pdata = dev_get_uclass_plat(dev);
 	if (!uc_pdata)
 		return -ENXIO;
 
 	uc_pdata->type = REGULATOR_TYPE_FIXED;
 
-	return regulator_common_of_to_plat(dev, dev_pdata, "gpio");
+	return regulator_common_of_to_plat(dev, plat, "gpio");
 }
 
 static int fixed_regulator_get_value(struct udevice *dev)
@@ -88,7 +88,7 @@ static int fixed_clock_regulator_get_enable(struct udevice *dev)
 static int fixed_clock_regulator_set_enable(struct udevice *dev, bool enable)
 {
 	struct fixed_clock_regulator_plat *priv = dev_get_priv(dev);
-	struct regulator_common_plat *dev_pdata = dev_get_plat(dev);
+	struct regulator_common_plat *plat = dev_get_plat(dev);
 	int ret = 0;
 
 	if (enable) {
@@ -101,11 +101,11 @@ static int fixed_clock_regulator_set_enable(struct udevice *dev, bool enable)
 	if (ret)
 		return ret;
 
-	if (enable && dev_pdata->startup_delay_us)
-		udelay(dev_pdata->startup_delay_us);
+	if (enable && plat->startup_delay_us)
+		udelay(plat->startup_delay_us);
 
-	if (!enable && dev_pdata->off_on_delay_us)
-		udelay(dev_pdata->off_on_delay_us);
+	if (!enable && plat->off_on_delay_us)
+		udelay(plat->off_on_delay_us);
 
 	return ret;
 }

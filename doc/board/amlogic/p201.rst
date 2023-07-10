@@ -56,7 +56,7 @@ image but sources have been shared by Linux development contractor, Baylibre:
     $ make
     $ export FIPDIR=$PWD/fip
 
-Go back to mainline U-boot source tree then :
+Go back to mainline U-Boot source tree then :
 
 .. code-block:: bash
 

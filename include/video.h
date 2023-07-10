@@ -64,6 +64,7 @@ enum video_log2_bpp {
 
 enum video_format {
 	VIDEO_UNKNOWN,
+	VIDEO_RGBA8888,
 	VIDEO_X8B8G8R8,
 	VIDEO_X8R8G8B8,
 	VIDEO_X2R10G10B10,

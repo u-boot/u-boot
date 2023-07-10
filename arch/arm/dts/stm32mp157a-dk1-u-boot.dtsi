@@ -12,6 +12,7 @@
 		i2c3 = &i2c4;
 		usb0 = &usbotg_hs;
 	};
+
 	config {
 		u-boot,boot-led = "heartbeat";
 		u-boot,error-led = "error";

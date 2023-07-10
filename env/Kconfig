@@ -55,20 +55,23 @@ config ENV_MAX_ENTRIES
 	  be generous and should work in most cases. This setting can be used
 	  to tune behaviour; see lib/hashtable.c for details.
 
-config ENV_IS_NOWHERE
-	bool "Environment is not stored"
-	default y if !ENV_IS_IN_EEPROM && !ENV_IS_IN_EXT4 && \
+config ENV_IS_DEFAULT
+	def_bool y if !ENV_IS_IN_EEPROM && !ENV_IS_IN_EXT4 && \
 		     !ENV_IS_IN_FAT && !ENV_IS_IN_FLASH && \
 		     !ENV_IS_IN_MMC && !ENV_IS_IN_NAND && \
 		     !ENV_IS_IN_NVRAM && !ENV_IS_IN_ONENAND && \
 		     !ENV_IS_IN_REMOTE && !ENV_IS_IN_SPI_FLASH && \
 		     !ENV_IS_IN_UBI
+	select ENV_IS_NOWHERE
+
+config ENV_IS_NOWHERE
+	bool "Environment is not stored"
 	help
-	  Define this if you don't want to or can't have an environment stored
+	  Define this if you don't care whether or not an environment is stored
 	  on a storage medium. In this case the environment will still exist
-	  while U-Boot is running, but once U-Boot exits it will not be
-	  stored. U-Boot will therefore always start up with a default
-	  environment.
+	  while U-Boot is running, but once U-Boot exits it may not be
+	  stored. If no other ENV_IS_IN_ is defined, U-Boot will always start
+	  up with the default environment.
 
 config ENV_IS_IN_EEPROM
 	bool "Environment in EEPROM"

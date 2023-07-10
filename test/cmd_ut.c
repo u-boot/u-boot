@@ -54,6 +54,9 @@ int cmd_ut_category(const char *name, const char *prefix,
 static struct cmd_tbl cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(all, CONFIG_SYS_MAXARGS, 1, do_ut_all, "", ""),
 	U_BOOT_CMD_MKENT(info, 1, 1, do_ut_info, "", ""),
+#ifdef CONFIG_CMD_BDI
+	U_BOOT_CMD_MKENT(bdinfo, CONFIG_SYS_MAXARGS, 1, do_ut_bdinfo, "", ""),
+#endif
 #ifdef CONFIG_BOOTSTD
 	U_BOOT_CMD_MKENT(bootstd, CONFIG_SYS_MAXARGS, 1, do_ut_bootstd,
 			 "", ""),
@@ -175,6 +178,9 @@ static char ut_help_text[] =
 	"\ninfo - show info about tests"
 #ifdef CONFIG_CMD_ADDRMAP
 	"\naddrmap - very basic test of addrmap command"
+#endif
+#ifdef CONFIG_CMD_BDI
+	"\nbdinfo - bdinfo command"
 #endif
 #ifdef CONFIG_SANDBOX
 	"\nbloblist - bloblist implementation"

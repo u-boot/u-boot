@@ -414,15 +414,12 @@ static int pch_gbe_phy_init(struct udevice *dev)
 	struct pch_gbe_priv *priv = dev_get_priv(dev);
 	struct eth_pdata *plat = dev_get_plat(dev);
 	struct phy_device *phydev;
-	int mask = 0xffffffff;
 
-	phydev = phy_find_by_mask(priv->bus, mask);
+	phydev = phy_connect(priv->bus, -1, dev, plat->phy_interface);
 	if (!phydev) {
 		printf("pch_gbe: cannot find the phy\n");
 		return -1;
 	}
-
-	phy_connect_dev(phydev, dev, plat->phy_interface);
 
 	phydev->supported &= PHY_GBIT_FEATURES;
 	phydev->advertising = phydev->supported;

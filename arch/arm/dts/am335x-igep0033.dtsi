@@ -175,7 +175,7 @@
 		};
 
 		partition@1 {
-			label = "U-boot";
+			label = "U-Boot";
 			reg = <0x00080000 0x001e0000>;
 		};
 

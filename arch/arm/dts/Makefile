@@ -187,8 +187,10 @@ dtb-$(CONFIG_ARCH_S5P4418) += \
 	s5p4418-nanopi2.dtb
 
 dtb-$(CONFIG_ARCH_MESON) += \
+	meson-a1-ad401.dtb \
 	meson-axg-s400.dtb \
 	meson-axg-jethome-jethub-j100.dtb \
+	meson-gxbb-kii-pro.dtb \
 	meson-gxbb-nanopi-k2.dtb \
 	meson-gxbb-odroidc2.dtb \
 	meson-gxbb-nanopi-k2.dtb \
@@ -451,7 +453,6 @@ dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb	\
 	am4372-generic.dtb \
 	am437x-cm-t43.dtb
 dtb-$(CONFIG_TARGET_AM3517_EVM) += am3517-evm.dtb
-dtb-$(CONFIG_TI816X) += dm8168-evm.dtb
 dtb-$(CONFIG_TARGET_THUNDERX_88XX) += thunderx-88xx.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
@@ -1053,7 +1054,9 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	r8a77965-ulcb-u-boot.dtb \
 	r8a77965-salvator-x-u-boot.dtb \
 	r8a77970-eagle-u-boot.dtb \
+	r8a77970-v3msk-u-boot.dtb \
 	r8a77980-condor-u-boot.dtb \
+	r8a77980-v3hsk-u-boot.dtb \
 	r8a77990-ebisu-u-boot.dtb \
 	r8a77995-draak-u-boot.dtb
 

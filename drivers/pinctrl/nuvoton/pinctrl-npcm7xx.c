@@ -1552,12 +1552,12 @@ static int npcm7xx_pinconf_set(struct udevice *dev, unsigned int pin,
 		setbits_le32(base + NPCM7XX_GP_N_OES, BIT(gpio));
 	case PIN_CONFIG_OUTPUT:
 		dev_dbg(dev, "set pin %d output %d\n", pin, arg);
-		clrbits_le32(base + NPCM7XX_GP_N_IEM, BIT(gpio));
-		setbits_le32(base + NPCM7XX_GP_N_OES, BIT(gpio));
 		if (arg)
 			setbits_le32(base + NPCM7XX_GP_N_DOUT, BIT(gpio));
 		else
 			clrbits_le32(base + NPCM7XX_GP_N_DOUT, BIT(gpio));
+		clrbits_le32(base + NPCM7XX_GP_N_IEM, BIT(gpio));
+		setbits_le32(base + NPCM7XX_GP_N_OES, BIT(gpio));
 		break;
 	case PIN_CONFIG_DRIVE_PUSH_PULL:
 		dev_dbg(dev, "set pin %d push pull\n", pin);

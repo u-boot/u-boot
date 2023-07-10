@@ -9,13 +9,11 @@ ifneq ($(CONFIG_AM43XX)$(CONFIG_AM33XX),)
 obj-y	+= clock.o
 endif
 
-obj-$(CONFIG_TI816X)	+= clock_ti816x.o
 obj-y	+= sys_info.o
 obj-y	+= ddr.o
-ifeq ($(CONFIG_TI816X)$(CONFIG_$(SPL_)SKIP_LOWLEVEL_INIT),)
+ifeq ($(CONFIG_$(SPL_)SKIP_LOWLEVEL_INIT),)
 obj-y	+= emif4.o
 endif
-obj-$(CONFIG_TI816X)	+= ti816x_emif4.o
 obj-y	+= board.o
 obj-y	+= mux.o
 obj-y	+= prcm-regs.o

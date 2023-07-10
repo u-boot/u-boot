@@ -45,7 +45,7 @@ config ESBC_HDR_LS
 
 config ESBC_ADDR_64BIT
 	def_bool y
-	depends on ESBC_HDR_LS && FSL_LAYERSCAPE
+	depends on FSL_LAYERSCAPE
 	help
 	  For Layerscape based platforms, ESBC image Address in Header is 64bit.
 
@@ -90,7 +90,7 @@ config SPL_UBOOT_KEY_HASH
 	default ""
 	help
 	  Set the key hash for U-Boot here if public/private key pair used to
-	  sign U-boot are different from the SRK hash put in the fuse.  Example
+	  sign U-Boot are different from the SRK hash put in the fuse.  Example
 	  of a key hash is
 	  41066b564c6ffcef40ccbc1e0a5d0d519604000c785d97bbefd25e4d288d1c8b.
 	  Otherwise leave this empty.

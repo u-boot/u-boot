@@ -110,7 +110,7 @@ config ARMV7_LPAE
 config ARMV7_SET_CORTEX_SMPEN
 	bool
 	help
-	  Enable the ARM Cortex ACTLR.SMP enable bit in U-boot.
+	  Enable the ARM Cortex ACTLR.SMP enable bit in U-Boot.
 
 config SPL_ARMV7_SET_CORTEX_SMPEN
 	bool

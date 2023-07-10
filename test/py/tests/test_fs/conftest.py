@@ -97,7 +97,7 @@ def pytest_generate_tests(metafunc):
 # Helper functions
 #
 def fstype_to_ubname(fs_type):
-    """Convert a file system type to an U-boot specific string
+    """Convert a file system type to an U-Boot specific string
 
     A generated string can be used as part of file system related commands
     or a config name in u-boot. Currently fat16 and fat32 are handled
@@ -217,7 +217,7 @@ def fs_obj_basic(request, u_boot_config):
 
     Args:
         request: Pytest request object.
-	u_boot_config: U-boot configuration.
+	u_boot_config: U-Boot configuration.
 
     Return:
         A fixture for basic fs test, i.e. a triplet of file system type,
@@ -339,7 +339,7 @@ def fs_obj_ext(request, u_boot_config):
 
     Args:
         request: Pytest request object.
-	u_boot_config: U-boot configuration.
+	u_boot_config: U-Boot configuration.
 
     Return:
         A fixture for extended fs test, i.e. a triplet of file system type,
@@ -440,7 +440,7 @@ def fs_obj_mkdir(request, u_boot_config):
 
     Args:
         request: Pytest request object.
-	u_boot_config: U-boot configuration.
+	u_boot_config: U-Boot configuration.
 
     Return:
         A fixture for mkdir test, i.e. a duplet of file system type and
@@ -471,7 +471,7 @@ def fs_obj_unlink(request, u_boot_config):
 
     Args:
         request: Pytest request object.
-	u_boot_config: U-boot configuration.
+	u_boot_config: U-Boot configuration.
 
     Return:
         A fixture for unlink test, i.e. a duplet of file system type and
@@ -551,7 +551,7 @@ def fs_obj_symlink(request, u_boot_config):
 
     Args:
         request: Pytest request object.
-        u_boot_config: U-boot configuration.
+        u_boot_config: U-Boot configuration.
 
     Return:
         A fixture for basic fs test, i.e. a triplet of file system type,

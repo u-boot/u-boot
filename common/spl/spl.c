@@ -321,7 +321,7 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 		spl_image->fdt_addr = (void *)dt_data;
 
 		if (spl_image->os == IH_OS_U_BOOT) {
-			/* HACK: U-boot expects FDT at a specific address */
+			/* HACK: U-Boot expects FDT at a specific address */
 			fdt_hack = spl_image->load_addr + spl_image->size;
 			fdt_hack = (fdt_hack + 3) & ~3;
 			debug("Relocating FDT to %p\n", spl_image->fdt_addr);
@@ -331,7 +331,7 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 
 	conf_noffset = fit_conf_get_node((const void *)header,
 					 fit_uname_config);
-	if (conf_noffset <= 0)
+	if (conf_noffset < 0)
 		return 0;
 
 	for (idx = 0;

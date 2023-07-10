@@ -65,8 +65,3 @@ int board_init(void)
 
 	return 0;
 }
-
-void reset_cpu(void)
-{
-	writel(RST_SPRES, RST_SRESCR0);
-}

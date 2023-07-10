@@ -7,3 +7,4 @@
 #
 
 obj-y	:= developerbox.o
+obj-$(CONFIG_FWU_MDATA_MTD) += fwu_plat.o

@@ -553,6 +553,7 @@ static const struct clk_data clk_list[] = {
 	CLK_MUX("main_pll4_xref_sel_out0", main_pll4_xref_sel_out0_parents, 2, 0x43008090, 4, 1, 0),
 	CLK_MUX("mcu_clkout_mux_out0", mcu_clkout_mux_out0_parents, 2, 0x40f08010, 0, 1, 0),
 	CLK_DIV_DEFFREQ("usart_programmable_clock_divider_out0", "hsdiv4_16fft_main_1_hsdivout0_clk", 0x1081c0, 0, 2, 0, 0, 48000000),
+	CLK_DIV_DEFFREQ("usart_programmable_clock_divider_out2", "hsdiv4_16fft_main_1_hsdivout0_clk", 0x1081c8, 0, 2, 0, 0, 48000000),
 	CLK_DIV("hsdiv0_16fft_main_12_hsdivout0_clk", "pllfracf_ssmod_16fft_main_12_foutvcop_clk", 0x68c080, 0, 7, 0, 0),
 	CLK_DIV("hsdiv0_16fft_main_6_hsdivout0_clk", "pllfrac2_ssmod_16fft_main_6_foutvcop_clk", 0x686080, 0, 7, 0, 0),
 	CLK_DIV("hsdiv0_16fft_main_7_hsdivout0_clk", "pllfrac2_ssmod_16fft_main_7_foutvcop_clk", 0x687080, 0, 7, 0, 0),
@@ -760,6 +761,8 @@ static const struct dev_clk soc_dev_clk_data[] = {
 	DEV_CLK(197, 4, "k3_pll_ctrl_wrap_wkup_0_chip_div1_clk_clk"),
 	DEV_CLK(202, 2, "hsdiv0_16fft_main_8_hsdivout0_clk"),
 	DEV_CLK(203, 0, "hsdiv0_16fft_main_8_hsdivout0_clk"),
+	DEV_CLK(279, 0, "usart_programmable_clock_divider_out2"),
+	DEV_CLK(279, 1, "k3_pll_ctrl_wrap_main_0_chip_div1_clk_clk"),
 	DEV_CLK(288, 3, "postdiv3_16fft_main_1_hsdivout7_clk"),
 	DEV_CLK(288, 4, "k3_pll_ctrl_wrap_main_0_chip_div1_clk_clk"),
 	DEV_CLK(288, 5, "k3_pll_ctrl_wrap_main_0_chip_div1_clk_clk"),
@@ -780,7 +783,7 @@ static const struct dev_clk soc_dev_clk_data[] = {
 
 const struct ti_k3_clk_platdata j721e_clk_platdata = {
 	.clk_list = clk_list,
-	.clk_list_cnt = 156,
+	.clk_list_cnt = 157,
 	.soc_dev_clk_data = soc_dev_clk_data,
-	.soc_dev_clk_data_cnt = 171,
+	.soc_dev_clk_data_cnt = 173,
 };

@@ -74,3 +74,39 @@ simplified with a simple wrapper script - saved as
 
     #!/bin/sh
     exec clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd "$@"
+
+
+Known Issues
+------------
+
+When build U-boot for `xenguest_arm64_defconfig` target, it reports linkage
+error:
+
+.. code-block:: bash
+
+    aarch64-linux-gnu-ld.bfd: drivers/xen/hypervisor.o: in function `do_hypervisor_callback':
+    /home/leoy/Dev2/u-boot/drivers/xen/hypervisor.c:188: undefined reference to `__aarch64_swp8_acq_rel'
+    aarch64-linux-gnu-ld.bfd: drivers/xen/hypervisor.o: in function `synch_test_and_set_bit':
+    /home/leoy/Dev2/u-boot/./arch/arm/include/asm/xen/system.h:40: undefined reference to `__aarch64_ldset1_acq_rel'
+    aarch64-linux-gnu-ld.bfd: drivers/xen/hypervisor.o: in function `synch_test_and_clear_bit':
+    /home/leoy/Dev2/u-boot/./arch/arm/include/asm/xen/system.h:28: undefined reference to `__aarch64_ldclr1_acq_rel'
+    aarch64-linux-gnu-ld.bfd: drivers/xen/hypervisor.o: in function `synch_test_and_set_bit':
+    /home/leoy/Dev2/u-boot/./arch/arm/include/asm/xen/system.h:40: undefined reference to `__aarch64_ldset1_acq_rel'
+    aarch64-linux-gnu-ld.bfd: drivers/xen/hypervisor.o: in function `synch_test_and_clear_bit':
+    /home/leoy/Dev2/u-boot/./arch/arm/include/asm/xen/system.h:28: undefined reference to `__aarch64_ldclr1_acq_rel'
+    aarch64-linux-gnu-ld.bfd: drivers/xen/events.o: in function `synch_test_and_clear_bit':
+    /home/leoy/Dev2/u-boot/./arch/arm/include/asm/xen/system.h:28: undefined reference to `__aarch64_ldclr1_acq_rel'
+    aarch64-linux-gnu-ld.bfd: drivers/xen/events.o: in function `synch_test_and_set_bit':
+    /home/leoy/Dev2/u-boot/./arch/arm/include/asm/xen/system.h:40: undefined reference to `__aarch64_ldset1_acq_rel'
+    aarch64-linux-gnu-ld.bfd: drivers/xen/gnttab.o: in function `gnttab_end_access':
+    /home/leoy/Dev2/u-boot/drivers/xen/gnttab.c:109: undefined reference to `__aarch64_cas2_acq_rel'
+    Segmentation fault
+
+To fix the failure, we need to append option `-mno-outline-atomics` in Clang
+command to not generate local calls to out-of-line atomic operations:
+
+.. code-block:: bash
+
+    make HOSTCC=clang xenguest_arm64_defconfig
+    make HOSTCC=clang CROSS_COMPILE=aarch64-linux-gnu- \
+         CC="clang -target aarch64-linux-gnueabi -mno-outline-atomics" -j8

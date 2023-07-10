@@ -553,7 +553,7 @@ config NAND_ZYNQ_USE_BOOTLOADER1_TIMINGS
 	bool "Enable use of 1st stage bootloader timing for NAND"
 	depends on NAND_ZYNQ
 	help
-	  This flag prevent U-boot reconfigure NAND flash controller and reuse
+	  This flag prevent U-Boot reconfigure NAND flash controller and reuse
 	  the NAND timing from 1st stage bootloader.
 
 config NAND_OCTEONTX
@@ -732,10 +732,10 @@ config SYS_NAND_BAD_BLOCK_POS
 	default 5 if HAS_NAND_SMALL_BADBLOCK_POS
 
 config SYS_NAND_U_BOOT_LOCATIONS
-	bool "Define U-boot binaries locations in NAND"
+	bool "Define U-Boot binaries locations in NAND"
 	help
 	Enable CONFIG_SYS_NAND_U_BOOT_OFFS though Kconfig.
-	This option should not be enabled when compiling U-boot for boards
+	This option should not be enabled when compiling U-Boot for boards
 	defining CONFIG_SYS_NAND_U_BOOT_OFFS in their include/configs/<board>.h
 	file.
 

@@ -744,7 +744,6 @@ config SYS_I2C_SPEED
 config SYS_I2C_BUS_MAX
 	int "Max I2C busses"
 	depends on ARCH_OMAP2PLUS || ARCH_SOCFPGA
-	default 2 if TI816X
 	default 3 if OMAP34XX || AM33XX || AM43XX
 	default 4 if ARCH_SOCFPGA || OMAP44XX
 	default 5 if OMAP54XX

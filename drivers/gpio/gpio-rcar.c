@@ -130,20 +130,9 @@ static int rcar_gpio_get_function(struct udevice *dev, unsigned offset)
 		return GPIOF_INPUT;
 }
 
-static int rcar_gpio_request(struct udevice *dev, unsigned offset,
-			     const char *label)
-{
-	return pinctrl_gpio_request(dev, offset, label);
-}
-
-static int rcar_gpio_free(struct udevice *dev, unsigned offset)
-{
-	return pinctrl_gpio_free(dev, offset);
-}
-
 static const struct dm_gpio_ops rcar_gpio_ops = {
-	.request		= rcar_gpio_request,
-	.rfree			= rcar_gpio_free,
+	.request		= pinctrl_gpio_request,
+	.rfree			= pinctrl_gpio_free,
 	.direction_input	= rcar_gpio_direction_input,
 	.direction_output	= rcar_gpio_direction_output,
 	.get_value		= rcar_gpio_get_value,

@@ -187,6 +187,11 @@ static int do_zynqmp_tcm_init(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
+	if (strcmp(argv[2], "lockstep") && strcmp(argv[2], "split")) {
+		printf("mode param should be lockstep or split\n");
+		return CMD_RET_FAILURE;
+	}
+
 	mode = hextoul(argv[2], NULL);
 	if (mode != TCM_LOCK && mode != TCM_SPLIT) {
 		printf("Mode should be either 0(lock)/1(split)\n");
@@ -211,15 +216,24 @@ static int do_zynqmp_pmufw(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (!strncmp(argv[2], "node", 4)) {
 		u32 id;
+		int ret;
 
 		if (!strncmp(argv[3], "close", 5))
 			return zynqmp_pmufw_config_close();
 
 		id = dectoul(argv[3], NULL);
+		if (!id) {
+			printf("Incorrect ID passed\n");
+			return CMD_RET_USAGE;
+		}
 
 		printf("Enable permission for node ID %d\n", id);
 
-		return zynqmp_pmufw_node(id);
+		ret = zynqmp_pmufw_node(id);
+		if (ret == -ENODEV)
+			ret = 0;
+
+		return ret;
 	}
 
 	addr = hextoul(argv[2], NULL);
@@ -390,17 +404,17 @@ static int do_zynqmp(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
 	struct cmd_tbl *c;
+	int ret = CMD_RET_USAGE;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
 	c = find_cmd_tbl(argv[1], &cmd_zynqmp_sub[0],
 			 ARRAY_SIZE(cmd_zynqmp_sub));
-
 	if (c)
-		return c->cmd(c, flag, argc, argv);
-	else
-		return CMD_RET_USAGE;
+		ret = c->cmd(c, flag, argc, argv);
+
+	return cmd_process_error(c, ret);
 }
 
 /***************************************************/
@@ -429,7 +443,7 @@ static char zynqmp_help_text[] =
 	"		       lock(0)/split(1)\n"
 #endif
 	"zynqmp pmufw address size - load PMU FW configuration object\n"
-	"zynqmp pmufw node <id> - load PMU FW configuration object\n"
+	"zynqmp pmufw node <id> - load PMU FW configuration object, <id> in dec\n"
 	"zynqmp pmufw node close - disable config object loading\n"
 	"	node: keyword, id: NODE_ID in decimal format\n"
 	"zynqmp rsa srcaddr srclen mod exp rsaop -\n"

@@ -256,6 +256,7 @@ config SYS_CONSOLE_OVERWRITE_ROUTINE
 
 config SYS_CONSOLE_ENV_OVERWRITE
 	bool "Update environment variables during console init"
+	depends on SYS_CONSOLE_IS_IN_ENV
 	help
 	  The console environment variables (stdout, stdin, stderr) can be
 	  used to determine the correct console devices on start-up. This

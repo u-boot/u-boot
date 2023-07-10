@@ -30,7 +30,6 @@
 #include <bmp_logo.h>
 #include <dm/root.h>
 #include <env.h>
-#include <env_internal.h>
 #include <i2c_eeprom.h>
 #include <i2c.h>
 #include <micrel.h>
@@ -529,22 +528,3 @@ int embedded_dtb_select(void)
 	return 0;
 }
 #endif
-
-enum env_location env_get_location(enum env_operation op, int prio)
-{
-	if (op == ENVOP_SAVE || op == ENVOP_ERASE)
-		return ENVL_SPI_FLASH;
-
-	switch (prio) {
-	case 0:
-		return ENVL_NOWHERE;
-
-	case 1:
-		return ENVL_SPI_FLASH;
-
-	default:
-		return ENVL_UNKNOWN;
-	}
-
-	return ENVL_UNKNOWN;
-}

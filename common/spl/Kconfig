@@ -1263,6 +1263,33 @@ config SPL_SATA_RAW_U_BOOT_SECTOR
 	  Sector on the SATA disk to load U-Boot from, when the SATA disk is being
 	  used in raw mode. Units: SATA disk sectors (1 sector = 512 bytes).
 
+config SPL_NVME
+	bool "NVM Express device support"
+	depends on BLK
+	select HAVE_BLOCK_DEVICE
+	select FS_LOADER
+	select SPL_BLK_FS
+	help
+	  This option enables support for NVM Express devices.
+	  It supports basic functions of NVMe (read/write).
+
+config SPL_NVME_PCI
+	bool "NVM Express PCI device support for SPL"
+	depends on SPL_PCI && SPL_NVME
+	help
+	  This option enables support for NVM Express PCI devices.
+	  This allows use of NVMe devices for loading u-boot.
+
+config SPL_NVME_BOOT_DEVICE
+	hex "NVMe boot device number"
+	depends on SPL_NVME
+	default 0x0
+
+config SYS_NVME_BOOT_PARTITION
+	hex "NVMe boot partition number"
+	depends on SPL_NVME
+	default	0x1
+
 config SPL_SERIAL
 	bool "Support serial"
 	select SPL_PRINTF
@@ -1344,96 +1371,6 @@ config SPL_THERMAL
 	  temperature sensors to permit warnings, speed throttling or even
 	  automatic power-off when the temperature gets too high or low. Other
 	  devices may be discrete but connected on a suitable bus.
-
-config SPL_USB_HOST
-	bool "Support USB host drivers"
-	help
-	  Enable access to USB (Universal Serial Bus) host devices so that
-	  SPL can load U-Boot from a connected USB peripheral, such as a USB
-	  flash stick. While USB takes a little longer to start up than most
-	  buses, it is very flexible since many different types of storage
-	  device can be attached. This option enables the drivers in
-	  drivers/usb/host as part of an SPL build.
-
-config SPL_USB_STORAGE
-	bool "Support loading from USB"
-	depends on SPL_USB_HOST
-	help
-	  Enable support for USB devices in SPL. This allows use of USB
-	  devices such as hard drives and flash drivers for loading U-Boot.
-	  The actual drivers are enabled separately using the normal U-Boot
-	  config options. This enables loading from USB using a configured
-	  device.
-
-config SYS_USB_FAT_BOOT_PARTITION
-	int "Partition on USB to use to load U-Boot from"
-	depends on SPL_USB_STORAGE
-	default 1
-	help
-	  Partition on the USB storage device to load U-Boot from
-
-config SPL_USB_GADGET
-	bool "Suppport USB Gadget drivers"
-	help
-	  Enable USB Gadget API which allows to enable USB device functions
-	  in SPL.
-
-if SPL_USB_GADGET
-
-config SPL_USB_ETHER
-	bool "Support USB Ethernet drivers"
-	depends on SPL_NET
-	help
-	  Enable access to the USB network subsystem and associated
-	  drivers in SPL. This permits SPL to load U-Boot over a
-	  USB-connected Ethernet link (such as a USB Ethernet dongle) rather
-	  than from an onboard peripheral. Environment support is required
-	  since the network stack uses a number of environment variables.
-	  See also SPL_NET and SPL_ETH.
-
-config SPL_DFU
-	bool "Support DFU (Device Firmware Upgrade)"
-	select SPL_HASH
-	select SPL_DFU_NO_RESET
-	depends on SPL_RAM_SUPPORT
-	help
-	  This feature enables the DFU (Device Firmware Upgrade) in SPL with
-	  RAM memory device support. The ROM code will load and execute
-	  the SPL built with dfu. The user can load binaries (u-boot/kernel) to
-	  selected device partition from host-pc using dfu-utils.
-	  This feature is useful to flash the binaries to factory or bare-metal
-	  boards using USB interface.
-
-choice
-	bool "DFU device selection"
-	depends on SPL_DFU
-
-config SPL_DFU_RAM
-	bool "RAM device"
-	depends on SPL_DFU && SPL_RAM_SUPPORT
-	help
-	 select RAM/DDR memory device for loading binary images
-	 (u-boot/kernel) to the selected device partition using
-	 DFU and execute the u-boot/kernel from RAM.
-
-endchoice
-
-config SPL_USB_SDP_SUPPORT
-	bool "Support SDP (Serial Download Protocol)"
-	depends on SPL_SERIAL
-	help
-	  Enable Serial Download Protocol (SDP) device support in SPL. This
-	  allows to download images into memory and execute (jump to) them
-	  using the same protocol as implemented by the i.MX family's boot ROM.
-
-config SPL_SDP_USB_DEV
-	int "SDP USB controller index"
-	default 0
-	depends on SPL_USB_SDP_SUPPORT
-	help
-	  Some boards have USB controller other than 0. Define this option
-	  so it can be used in compiled environment.
-endif
 
 config SPL_WATCHDOG
 	bool "Support watchdog drivers"
@@ -1524,8 +1461,10 @@ config SPL_OPENSBI_SCRATCH_OPTIONS
 	default 0x1
 	depends on SPL_OPENSBI
 	help
-	  Options passed to fw_dynamic, for example SBI_SCRATCH_NO_BOOT_PRINTS or
-	  SBI_SCRATCH_DEBUG_PRINTS.
+	  This bitmap of options is passed from U-Boot SPL to OpenSBI.
+	  As of OpenSBI 1.3 the following bits are defined:
+	  - SBI_SCRATCH_NO_BOOT_PRINTS = 0x1 (Disable prints during boot)
+	  - SBI_SCRATCH_DEBUG_PRINTS   = 0x2 (Enable runtime debug prints)
 
 config SPL_TARGET
 	string "Addtional build targets for 'make'"

@@ -4,7 +4,7 @@
  */
 
 #ifndef __ARCH_IMX8M_SYS_PROTO_H
-#define __ARCH_NMX8M_SYS_PROTO_H
+#define __ARCH_IMX8M_SYS_PROTO_H
 
 #include <asm/mach-imx/sys_proto.h>
 #include <asm/arch/imx-regs.h>

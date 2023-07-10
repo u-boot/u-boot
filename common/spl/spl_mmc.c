@@ -250,7 +250,7 @@ static int mmc_load_image_raw_os(struct spl_image_info *spl_image,
 		return ret;
 
 	if (spl_image->os != IH_OS_LINUX && spl_image->os != IH_OS_TEE) {
-		puts("Expected image is not found. Trying to start U-boot\n");
+		puts("Expected image is not found. Trying to start U-Boot\n");
 		return -ENOENT;
 	}
 

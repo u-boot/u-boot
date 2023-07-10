@@ -67,6 +67,7 @@ static struct ti_dev soc_dev_list[] = {
 	PSC_DEV(99, &soc_lpsc_list[12]),
 	PSC_DEV(98, &soc_lpsc_list[13]),
 	PSC_DEV(146, &soc_lpsc_list[14]),
+	PSC_DEV(354, &soc_lpsc_list[15]),
 	PSC_DEV(357, &soc_lpsc_list[15]),
 	PSC_DEV(4, &soc_lpsc_list[16]),
 	PSC_DEV(202, &soc_lpsc_list[17]),
@@ -81,5 +82,5 @@ const struct ti_k3_pd_platdata j721s2_pd_platdata = {
 	.num_psc = 2,
 	.num_pd = 6,
 	.num_lpsc = 19,
-	.num_devs = 24,
+	.num_devs = 25,
 };

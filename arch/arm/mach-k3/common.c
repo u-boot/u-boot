@@ -568,36 +568,48 @@ void disable_linefill_optimization(void)
 }
 #endif
 
-void remove_fwl_configs(struct fwl_data *fwl_data, size_t fwl_data_size)
+static void remove_fwl_regions(struct fwl_data fwl_data, size_t num_regions,
+			       enum k3_firewall_region_type fwl_type)
 {
-	struct ti_sci_msg_fwl_region region;
 	struct ti_sci_fwl_ops *fwl_ops;
 	struct ti_sci_handle *ti_sci;
-	size_t i, j;
+	struct ti_sci_msg_fwl_region region;
+	size_t j;
 
 	ti_sci = get_ti_sci_handle();
 	fwl_ops = &ti_sci->ops.fwl_ops;
-	for (i = 0; i < fwl_data_size; i++) {
-		for (j = 0; j <  fwl_data[i].regions; j++) {
-			region.fwl_id = fwl_data[i].fwl_id;
-			region.region = j;
-			region.n_permission_regs = 3;
 
-			fwl_ops->get_fwl_region(ti_sci, &region);
+	for (j = 0; j < fwl_data.regions; j++) {
+		region.fwl_id = fwl_data.fwl_id;
+		region.region = j;
+		region.n_permission_regs = 3;
 
-			/* Don't disable the background regions */
-			if (region.control != 0 &&
-			    ((region.control & K3_BACKGROUND_FIREWALL_BIT) ==
-			     0)) {
-				pr_debug("Attempting to disable firewall %5d (%25s)\n",
-					 region.fwl_id, fwl_data[i].name);
-				region.control = 0;
+		fwl_ops->get_fwl_region(ti_sci, &region);
 
-				if (fwl_ops->set_fwl_region(ti_sci, &region))
-					pr_err("Could not disable firewall %5d (%25s)\n",
-					       region.fwl_id, fwl_data[i].name);
-			}
+		/* Don't disable the background regions */
+		if (region.control != 0 &&
+		    ((region.control & K3_FIREWALL_BACKGROUND_BIT) ==
+		     fwl_type)) {
+			pr_debug("Attempting to disable firewall %5d (%25s)\n",
+				 region.fwl_id, fwl_data.name);
+			region.control = 0;
+
+			if (fwl_ops->set_fwl_region(ti_sci, &region))
+				pr_err("Could not disable firewall %5d (%25s)\n",
+				       region.fwl_id, fwl_data.name);
 		}
+	}
+}
+
+void remove_fwl_configs(struct fwl_data *fwl_data, size_t fwl_data_size)
+{
+	size_t i;
+
+	for (i = 0; i < fwl_data_size; i++) {
+		remove_fwl_regions(fwl_data[i], fwl_data[i].regions,
+				   K3_FIREWALL_REGION_FOREGROUND);
+		remove_fwl_regions(fwl_data[i], fwl_data[i].regions,
+				   K3_FIREWALL_REGION_BACKGROUND);
 	}
 }
 

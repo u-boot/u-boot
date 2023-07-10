@@ -14,7 +14,7 @@ def efi_boot_env(request, u_boot_config):
 
     Args:
         request: Pytest request object.
-        u_boot_config: U-boot configuration.
+        u_boot_config: U-Boot configuration.
 
     Return:
         A path to disk image to be used for testing
@@ -139,7 +139,7 @@ def efi_boot_env_intca(request, u_boot_config):
 
     Args:
         request: Pytest request object.
-        u_boot_config: U-boot configuration.
+        u_boot_config: U-Boot configuration.
 
     Return:
         A path to disk image to be used for testing

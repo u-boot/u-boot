@@ -28,7 +28,7 @@
 #define BCM_NS3_MEM_SHARE_START    0x8d000000
 #define BCM_NS3_MEM_SHARE_LEN      0x020fffff
 
-/* ATF/U-boot/Linux error logs */
+/* ATF/U-Boot/Linux error logs */
 #define BCM_NS3_MEM_ELOG_START     0x8f113000
 #define BCM_NS3_MEM_ELOG_LEN       0x00100000
 

@@ -167,6 +167,9 @@ enum eth_recv_flags {
  *		    to the network stack. This function should fill in the
  *		    eth_pdata::enetaddr field - optional
  * set_promisc: Enable or Disable promiscuous mode
+ * get_sset_count: Number of statistics counters
+ * get_string: Names of the statistic counters
+ * get_stats: The values of the statistic counters
  */
 struct eth_ops {
 	int (*start)(struct udevice *dev);
@@ -178,6 +181,9 @@ struct eth_ops {
 	int (*write_hwaddr)(struct udevice *dev);
 	int (*read_rom_hwaddr)(struct udevice *dev);
 	int (*set_promisc)(struct udevice *dev, bool enable);
+	int (*get_sset_count)(struct udevice *dev);
+	void (*get_strings)(struct udevice *dev, u8 *data);
+	void (*get_stats)(struct udevice *dev, u64 *data);
 };
 
 #define eth_get_ops(dev) ((struct eth_ops *)(dev)->driver->ops)

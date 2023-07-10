@@ -113,4 +113,34 @@ struct efi_firmware_image_authentication {
 	struct win_certificate_uefi_guid auth_info;
 } __packed;
 
+/* fmp payload header */
+#define SIGNATURE_16(A, B)	((A) | ((B) << 8))
+#define SIGNATURE_32(A, B, C, D)	\
+	(SIGNATURE_16(A, B) | (SIGNATURE_16(C, D) << 16))
+
+#define FMP_PAYLOAD_HDR_SIGNATURE	SIGNATURE_32('M', 'S', 'S', '1')
+
+/**
+ * struct fmp_payload_header - EDK2 header for the FMP payload
+ *
+ * This structure describes the header which is preprended to the
+ * FMP payload by the edk2 capsule generation scripts.
+ *
+ * @signature:			Header signature used to identify the header
+ * @header_size:		Size of the structure
+ * @fw_version:			Firmware versions used
+ * @lowest_supported_version:	Lowest supported version (not used)
+ */
+struct fmp_payload_header {
+	uint32_t signature;
+	uint32_t header_size;
+	uint32_t fw_version;
+	uint32_t lowest_supported_version;
+};
+
+struct fmp_payload_header_params {
+	bool have_header;
+	uint32_t fw_version;
+};
+
 #endif /* _EFI_CAPSULE_H */

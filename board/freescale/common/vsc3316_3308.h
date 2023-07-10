@@ -4,7 +4,7 @@
  */
 
 #ifndef __VSC_CROSSBAR_H_
-#define __VSC_CROSSBAR_H	1_
+#define __VSC_CROSSBAR_H_
 
 #include <common.h>
 #include <i2c.h>

@@ -13,6 +13,7 @@
 #include <mapmem.h>
 #include <net.h>
 #include <stdio_dev.h>
+#include <dm/ofnode.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
 #include <asm/global_data.h>
@@ -1050,6 +1051,79 @@ void fdt_fixup_mtdparts(void *blob, const struct node_info *node_info,
 }
 #endif
 
+int fdt_copy_fixed_partitions(void *blob)
+{
+	ofnode node, subnode;
+	int off, suboff, res;
+	char path[256];
+	int address_cells, size_cells;
+	u8 i, j, child_count;
+
+	node = ofnode_by_compatible(ofnode_null(), "fixed-partitions");
+	while (ofnode_valid(node)) {
+		/* copy the U-Boot fixed partition */
+		address_cells = ofnode_read_simple_addr_cells(node);
+		size_cells = ofnode_read_simple_size_cells(node);
+
+		res = ofnode_get_path(ofnode_get_parent(node), path, sizeof(path));
+		if (res)
+			return res;
+
+		off = fdt_path_offset(blob, path);
+		if (off < 0)
+			return -ENODEV;
+
+		off = fdt_find_or_add_subnode(blob, off, "partitions");
+		res = fdt_setprop_string(blob, off, "compatible", "fixed-partitions");
+		if (res)
+			return res;
+
+		res = fdt_setprop_u32(blob, off, "#address-cells", address_cells);
+		if (res)
+			return res;
+
+		res = fdt_setprop_u32(blob, off, "#size-cells", size_cells);
+		if (res)
+			return res;
+
+		/*
+		 * parse partition in reverse order as fdt_find_or_add_subnode() only
+		 * insert the new node after the parent's properties
+		 */
+		child_count = ofnode_get_child_count(node);
+		for (i = child_count; i > 0 ; i--) {
+			subnode = ofnode_first_subnode(node);
+			if (!ofnode_valid(subnode))
+				break;
+
+			for (j = 0; (j < i - 1); j++)
+				subnode = ofnode_next_subnode(subnode);
+
+			if (!ofnode_valid(subnode))
+				break;
+
+			const u32 *reg;
+			int len;
+
+			suboff = fdt_find_or_add_subnode(blob, off, ofnode_get_name(subnode));
+			res = fdt_setprop_string(blob, suboff, "label",
+						 ofnode_read_string(subnode, "label"));
+			if (res)
+				return res;
+
+			reg = ofnode_get_property(subnode, "reg", &len);
+			res = fdt_setprop(blob, suboff, "reg", reg, len);
+			if (res)
+				return res;
+		}
+
+		/* go to next fixed-partitions node */
+		node = ofnode_by_compatible(node, "fixed-partitions");
+	}
+
+	return 0;
+}
+
 void fdt_del_node_and_alias(void *blob, const char *alias)
 {
 	int off = fdt_path_offset(blob, alias);
@@ -1065,7 +1139,6 @@ void fdt_del_node_and_alias(void *blob, const char *alias)
 
 /* Max address size we deal with */
 #define OF_MAX_ADDR_CELLS	4
-#define OF_BAD_ADDR	FDT_ADDR_T_NONE
 #define OF_CHECK_COUNTS(na, ns)	((na) > 0 && (na) <= OF_MAX_ADDR_CELLS && \
 			(ns) > 0)
 

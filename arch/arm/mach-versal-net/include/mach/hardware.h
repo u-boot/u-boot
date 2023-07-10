@@ -27,7 +27,13 @@ struct iou_scntrs_regs {
 	u32 base_frequency_id_register; /* 0x20 */
 };
 
+struct crp_regs {
+	u32 reserved0[128];
+	u32 boot_mode_usr;	/* 0x200 */
+};
+
 #define VERSAL_NET_CRL_APB_BASEADDR		0xEB5E0000
+#define VERSAL_NET_CRP_BASEADDR			0xF1260000
 #define VERSAL_NET_IOU_SCNTR_SECURE		0xEC920000
 
 #define CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT	BIT(25)
@@ -36,6 +42,7 @@ struct iou_scntrs_regs {
 #define IOU_SCNTRS_CONTROL_EN			1
 
 #define crlapb_base ((struct crlapb_regs *)VERSAL_NET_CRL_APB_BASEADDR)
+#define crp_base ((struct crp_regs *)VERSAL_NET_CRP_BASEADDR)
 #define iou_scntr_secure ((struct iou_scntrs_regs *)VERSAL_NET_IOU_SCNTR_SECURE)
 
 #define PMC_TAP	0xF11A0000
@@ -44,10 +51,25 @@ struct iou_scntrs_regs {
 #define PMC_TAP_VERSION		(PMC_TAP + 0x4)
 # define PMC_VERSION_MASK	GENMASK(7, 0)
 # define PS_VERSION_MASK	GENMASK(15, 8)
+# define PS_VERSION_PRODUCTION	0x20
 # define RTL_VERSION_MASK	GENMASK(23, 16)
 # define PLATFORM_MASK		GENMASK(27, 24)
 # define PLATFORM_VERSION_MASK	GENMASK(31, 28)
 #define PMC_TAP_USERCODE	(PMC_TAP + 0x8)
+
+/* Bootmode setting values */
+#define BOOT_MODES_MASK	0x0000000F
+#define QSPI_MODE_24BIT	0x00000001
+#define QSPI_MODE_32BIT	0x00000002
+#define SD_MODE		0x00000003 /* sd 0 */
+#define SD_MODE1	0x00000005 /* sd 1 */
+#define EMMC_MODE	0x00000006
+#define USB_MODE	0x00000007
+#define OSPI_MODE	0x00000008
+#define SD1_LSHFT_MODE	0x0000000E /* SD1 Level shifter */
+#define JTAG_MODE	0x00000000
+#define BOOT_MODE_USE_ALT	0x100
+#define BOOT_MODE_ALT_SHIFT	12
 
 enum versal_net_platform {
 	VERSAL_NET_SILICON = 0,

@@ -324,7 +324,7 @@ typedef struct {
 /* I can almost use ordinary FILE *.  Is open_memstream() universally
  * available?  Where is it documented? */
 struct in_str {
-	const char *p;
+	const unsigned char *p;
 #ifndef __U_BOOT__
 	char peek_buf[2];
 #endif

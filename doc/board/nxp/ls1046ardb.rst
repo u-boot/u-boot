@@ -150,7 +150,7 @@ Then, launch openocd like::
 
     openocd -f u-boot.tcl
 
-You should see the U-boot SPL banner followed by the banner for U-Boot proper
+You should see the U-Boot SPL banner followed by the banner for U-Boot proper
 in the output of openocd. The CMSIS-DAP adapter is slow, so this can take a
 long time. If you don't see it, something has gone wrong. After a while, you
 should see the prompt. You can load an image using semihosting by running::

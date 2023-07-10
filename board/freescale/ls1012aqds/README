@@ -53,7 +53,7 @@ QSPI flash map
 Images		| Size	|QSPI Flash Address
 ------------------------------------------
 RCW + PBI	| 1MB	| 0x4000_0000
-U-boot		| 1MB	| 0x4010_0000
-U-boot Env	| 1MB	| 0x4020_0000
+U-Boot		| 1MB	| 0x4010_0000
+U-Boot Env	| 1MB	| 0x4020_0000
 PPA FIT image	| 2MB	| 0x4050_0000
 Linux ITB	| ~53MB | 0x40A0_0000

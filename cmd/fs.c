@@ -20,7 +20,7 @@ U_BOOT_CMD(
 	"determine a file's size",
 	"<interface> <dev[:part]> <filename>\n"
 	"    - Find file 'filename' from 'dev' on 'interface'\n"
-	"      and determine its size."
+	"      determine its size, and store in the 'filesize' variable."
 );
 
 static int do_load_wrapper(struct cmd_tbl *cmdtp, int flag, int argc,

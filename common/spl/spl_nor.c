@@ -121,6 +121,6 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 					   &hdr);
 	}
 
-	return 0;
+	return -EINVAL;
 }
 SPL_LOAD_IMAGE_METHOD("NOR", 0, BOOT_DEVICE_NOR, spl_nor_load_image);

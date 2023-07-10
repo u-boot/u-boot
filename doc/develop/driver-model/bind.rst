@@ -7,7 +7,7 @@ Binding/unbinding a driver
 This document aims to describe the bind and unbind commands.
 
 For debugging purpose, it should be useful to bind or unbind a driver from
-the U-boot command line.
+the U-Boot command line.
 
 The unbind command calls the remove device driver callback and unbind the
 device from its driver.

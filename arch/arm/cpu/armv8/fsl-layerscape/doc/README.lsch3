@@ -125,7 +125,7 @@ mcinitcmd:	This environment variable is defined to initiate MC and DPL deploymen
 		from the location where it is stored(NOR, NAND, SD, SATA, USB)during
 		u-boot booting.If this variable is not defined then MC_BOOT_ENV_VAR
 		will be null and MC will not be booted and DPL will not be applied
-		during U-boot booting.However the MC, DPC and DPL can be applied from
+		during U-Boot booting.However the MC, DPC and DPL can be applied from
 		console independently.
 		The variable needs to be set from the console once and then on
 		rebooting the parameters set in the variable will automatically be

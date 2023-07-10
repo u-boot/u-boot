@@ -583,7 +583,7 @@ enum hsdk_axi_masters {
  *
  * Please read ARC HS Development IC Specification, section 17.2 for more
  * information about apertures configuration.
- * NOTE: we intentionally modify default settings in U-boot. Default settings
+ * NOTE: we intentionally modify default settings in U-Boot. Default settings
  * are specified in "Table 111 CREG Address Decoder register reset values".
  */
 
@@ -942,7 +942,7 @@ static int do_hsdk_go(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	if (board_mismatch()) {
-		printf("ERR: U-boot is not configured for this board!\n");
+		printf("ERR: U-Boot is not configured for this board!\n");
 		return CMD_RET_FAILURE;
 	}
 
@@ -983,10 +983,10 @@ U_BOOT_CMD(
 
 /*
  * We may simply use static variable here to store init status, but we also want
- * to avoid the situation when we reload U-boot via MDB after previous
+ * to avoid the situation when we reload U-Boot via MDB after previous
  * init is done but HW reset (board reset) isn't done. So let's store the
  * init status in any unused register (i.e CREG_CPU_0_ENTRY) so status will
- * survive after U-boot is reloaded via MDB.
+ * survive after U-Boot is reloaded via MDB.
  */
 #define INIT_MARKER_REGISTER		((void __iomem *)CREG_CPU_0_ENTRY)
 /* must be equal to INIT_MARKER_REGISTER reset value */
@@ -1008,7 +1008,7 @@ static int do_hsdk_init(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	if (board_mismatch()) {
-		printf("ERR: U-boot is not configured for this board!\n");
+		printf("ERR: U-Boot is not configured for this board!\n");
 		return CMD_RET_FAILURE;
 	}
 
@@ -1258,11 +1258,11 @@ int checkboard(void)
 	printf("Board: Synopsys %s\n", board_name(get_board_type_runtime()));
 
 	if (board_mismatch())
-		printf("WARN: U-boot is configured NOT for this board but for %s!\n",
+		printf("WARN: U-Boot is configured NOT for this board but for %s!\n",
 		       board_name(get_board_type_config()));
 
 	reg = readl(CREG_AXI_M_HS_CORE_BOOT) & CREG_CORE_BOOT_IMAGE;
-	printf("U-boot autostart: %s\n", reg ? "enabled" : "disabled");
+	printf("U-Boot autostart: %s\n", reg ? "enabled" : "disabled");
 
 	return 0;
 };
