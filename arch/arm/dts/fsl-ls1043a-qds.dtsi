@@ -7,7 +7,7 @@
  * Mingkai Hu <Mingkai.hu@freescale.com>
  */
 
-/include/ "fsl-ls1043a.dtsi"
+#include "fsl-ls1043a.dtsi"
 
 / {
 	model = "LS1043A QDS Board";
