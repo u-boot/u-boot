@@ -2,7 +2,7 @@
 /*
  * Copyright 2018 Xilinx, Inc.
  *
- * Michal Simek <michal.simek@xilinx.com>
+ * Michal Simek <michal.simek@amd.com>
  */
 #include <common.h>
 #include <asm/io.h>

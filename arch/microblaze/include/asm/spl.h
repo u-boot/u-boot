@@ -2,7 +2,7 @@
 /*
  * (C) Copyright 2013 - 2014 Xilinx, Inc
  *
- * Michal Simek <michal.simek@xilinx.com>
+ * Michal Simek <michal.simek@amd.com>
  */
 
 #ifndef _ASM_MICROBLAZE_SPL_H_

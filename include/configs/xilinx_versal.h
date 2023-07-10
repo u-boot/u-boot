@@ -2,7 +2,7 @@
 /*
  * Configuration for Xilinx Versal
  * (C) Copyright 2016 - 2018 Xilinx, Inc.
- * Michal Simek <michal.simek@xilinx.com>
+ * Michal Simek <michal.simek@amd.com>
  *
  * Based on Configuration for Xilinx ZynqMP
  */

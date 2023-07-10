@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * (C) Copyright 2019 Xilinx, Inc,
- * Siva Durga Prasad Paladugu <siva.durga.paladugu@xilinx.com>
+ * Siva Durga Prasad Paladugu <siva.durga.prasad.paladugu@amd.com>>
  */
 
 #ifndef _VERSALPL_H_

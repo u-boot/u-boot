@@ -3,7 +3,7 @@
  * Xilinx ZynqMP SOC driver
  *
  * Copyright (C) 2021 Xilinx, Inc.
- * Michal Simek <michal.simek@xilinx.com>
+ * Michal Simek <michal.simek@amd.com>
  *
  * Copyright (C) 2022 Weidmüller Interface GmbH & Co. KG
  * Stefan Herbrechtsmeier <stefan.herbrechtsmeier@weidmueller.com>

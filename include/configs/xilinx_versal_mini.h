@@ -3,8 +3,8 @@
  * Configuration for Xilinx Versal MINI configuration
  *
  * (C) Copyright 2018-2019 Xilinx, Inc.
- * Michal Simek <michal.simek@xilinx.com>
- * Siva Durga Prasad Paladugu <siva.durga.paladugu@xilinx.com>
+ * Michal Simek <michal.simek@amd.com>
+ * Siva Durga Prasad Paladugu <siva.durga.prasad.paladugu@amd.com>>
  */
 
 #ifndef __CONFIG_VERSAL_MINI_H

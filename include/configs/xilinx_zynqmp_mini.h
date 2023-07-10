@@ -3,8 +3,8 @@
  * Configuration for Xilinx ZynqMP Flash utility
  *
  * (C) Copyright 2018 Xilinx, Inc.
- * Michal Simek <michal.simek@xilinx.com>
- * Siva Durga Prasad Paladugu <sivadur@xilinx.com>
+ * Michal Simek <michal.simek@amd.com>
+ * Siva Durga Prasad Paladugu <siva.durga.prasad.paladugu@amd.com>>
  */
 
 #ifndef __CONFIG_ZYNQMP_MINI_H

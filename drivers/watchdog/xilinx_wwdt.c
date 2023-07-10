@@ -2,7 +2,7 @@
 /*
  * Xilinx window watchdog timer driver.
  *
- * Author(s):	Michal Simek <michal.simek@xilinx.com>
+ * Author(s):	Michal Simek <michal.simek@amd.com>
  *		Ashok Reddy Soma <ashok.reddy.soma@xilinx.com>
  *
  * Copyright (c) 2020, Xilinx Inc.
