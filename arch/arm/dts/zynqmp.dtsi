@@ -193,7 +193,6 @@
 
 			zynqmp_pcap: pcap {
 				compatible = "xlnx,zynqmp-pcap-fpga";
-				clock-names = "ref_clk";
 			};
 
 			xlnx_aes: zynqmp-aes {
