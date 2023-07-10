@@ -126,7 +126,7 @@
 };
 
 &gpu {
-	clocks = <&zynqmp_clk GPU_REF>, <&zynqmp_clk GPU_PP0_REF>, <&zynqmp_clk GPU_PP1_REF>;
+	clocks = <&zynqmp_clk GPU_REF>, <&zynqmp_clk GPU_PP0_REF>;
 };
 
 &lpd_dma_chan1 {
