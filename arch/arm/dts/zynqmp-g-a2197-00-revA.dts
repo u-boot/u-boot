@@ -131,8 +131,8 @@
 &i2c0 { /* MIO 34-35 - can't stay here */
 	status = "okay";
 	clock-frequency = <400000>;
-	scl-gpios = <&gpio 34 GPIO_ACTIVE_HIGH>;
-	sda-gpios = <&gpio 35 GPIO_ACTIVE_HIGH>;
+	scl-gpios = <&gpio 34 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpio 35 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 	i2c-mux@74 { /* u94 */
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
