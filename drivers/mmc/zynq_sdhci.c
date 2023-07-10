@@ -422,7 +422,8 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 
 	mdelay(1);
 
-	arasan_zynqmp_dll_reset(host, priv->node_id);
+	if (device_is_compatible(mmc->dev, "xlnx,zynqmp-8.9a"))
+		arasan_zynqmp_dll_reset(host, priv->node_id);
 
 	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_INT_ENABLE);
 	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_SIGNAL_ENABLE);
@@ -468,7 +469,9 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	}
 
 	udelay(1);
-	arasan_zynqmp_dll_reset(host, priv->node_id);
+
+	if (device_is_compatible(mmc->dev, "xlnx,zynqmp-8.9a"))
+		arasan_zynqmp_dll_reset(host, priv->node_id);
 
 	/* Enable only interrupts served by the SD controller */
 	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK,
