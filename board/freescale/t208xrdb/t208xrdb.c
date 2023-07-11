@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2009-2013 Freescale Semiconductor, Inc.
- * Copyright 2021 NXP
+ * Copyright 2021-2023 NXP
  */
 
 #include <common.h>
@@ -106,6 +106,9 @@ int board_early_init_r(void)
 	 */
 	if (adjust_vdd(0))
 		printf("Warning: Adjusting core voltage failed.\n");
+
+	pci_init();
+
 	return 0;
 }
 
