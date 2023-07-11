@@ -96,7 +96,8 @@ endif
 
 config EFI_VAR_BUF_SIZE
 	int "Memory size of the UEFI variable store"
-	default 16384
+	default 16384 if EFI_MM_COMM_TEE
+	default 65536
 	range 4096 2147483647
 	help
 	  This defines the size in bytes of the memory area reserved for keeping
@@ -106,7 +107,7 @@ config EFI_VAR_BUF_SIZE
 	  match the value of PcdFlashNvStorageVariableSize used to compile the
 	  StandAloneMM module.
 
-	  Minimum 4096, default 16384.
+	  Minimum 4096, default 65536, or 16384 when using StandAloneMM.
 
 config EFI_GET_TIME
 	bool "GetTime() runtime service"

@@ -63,7 +63,7 @@ struct efi_firmware_management_capsule_header {
 	uint32_t version;
 	uint16_t embedded_driver_count;
 	uint16_t payload_item_count;
-	uint32_t item_offset_list[];
+	uint64_t item_offset_list[];
 } __packed;
 
 /* image_capsule_support */
