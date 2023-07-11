@@ -168,6 +168,7 @@ class Bintoolfutility(bintool.Bintool):
         #
         # Unfortunately this requires logging in and obtaining a line for the
         # .gitcookies file. So use a mirror instead.
+
         result = self.build_from_git(
             'https://github.com/sjg20/vboot_reference.git',
             'all',
