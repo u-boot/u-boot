@@ -88,6 +88,9 @@ int board_early_init_r(void)
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		0, flash_esel, BOOKE_PAGESZ_256M, 1);
 #endif
+
+	pci_init();
+
 	return 0;
 }
 
