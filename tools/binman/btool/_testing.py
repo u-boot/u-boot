@@ -32,5 +32,6 @@ class Bintool_testing(bintool.Bintool):
                 return self.apt_install('package')
             return self.fetch_from_drive('junk')
         if method == bintool.FETCH_BUILD:
-            return self.build_from_git('url', 'target', 'pathname')
+            cmd = ['target']
+            return self.build_from_git('url', cmd, 'pathname')
         return None

@@ -107,8 +107,10 @@ class Bintoolfiptool(bintool.Bintool):
         """
         if method != bintool.FETCH_BUILD:
             return None
+
+        cmd = ['fiptool']
         result = self.build_from_git(
             'https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git',
-            'fiptool',
+            cmd,
             'tools/fiptool/fiptool')
         return result
