@@ -62,6 +62,10 @@
 
 &gpio4 {
 	bootph-pre-ram;
+
+	ctrl-sleep-moci-hog {
+		bootph-pre-ram;
+	};
 };
 
 &gpio5 {
@@ -103,6 +107,10 @@
 };
 
 &pca9450 {
+	bootph-pre-ram;
+};
+
+&pinctrl_ctrl_sleep_moci {
 	bootph-pre-ram;
 };
 
