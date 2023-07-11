@@ -10,6 +10,7 @@ choice
 
 config TARGET_MX23_OLINUXINO
 	bool "Support mx23_olinuxino"
+	select PL01X_SERIAL
 	select BOARD_EARLY_INIT_F
 
 config TARGET_MX23EVK
