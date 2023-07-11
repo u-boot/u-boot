@@ -12,22 +12,14 @@
  */
 
 #include <common.h>
-#include <clk.h>
 #include <dm.h>
-#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <generic-phy.h>
 #include <pci.h>
-#include <power-domain.h>
 #include <power/regulator.h>
 #include <reset.h>
-#include <syscon.h>
-#include <asm/io.h>
 #include <asm-generic/gpio.h>
-#include <asm/arch-rockchip/clock.h>
 #include <linux/iopoll.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define HIWORD_UPDATE(mask, val)        (((mask) << 16) | (val))
 #define HIWORD_UPDATE_BIT(val)          HIWORD_UPDATE(val, val)
@@ -383,41 +375,38 @@ static int rockchip_pcie_set_vpcie(struct udevice *dev)
 	struct rockchip_pcie *priv = dev_get_priv(dev);
 	int ret;
 
-	if (priv->vpcie3v3) {
-		ret = regulator_set_enable(priv->vpcie3v3, true);
-		if (ret) {
-			dev_err(dev, "failed to enable vpcie3v3 (ret=%d)\n",
-				ret);
-			return ret;
-		}
+	ret = regulator_set_enable_if_allowed(priv->vpcie12v, true);
+	if (ret && ret != -ENOSYS) {
+		dev_err(dev, "failed to enable vpcie12v (ret=%d)\n", ret);
+		return ret;
 	}
 
-	if (priv->vpcie1v8) {
-		ret = regulator_set_enable(priv->vpcie1v8, true);
-		if (ret) {
-			dev_err(dev, "failed to enable vpcie1v8 (ret=%d)\n",
-				ret);
-			goto err_disable_3v3;
-		}
+	ret = regulator_set_enable_if_allowed(priv->vpcie3v3, true);
+	if (ret && ret != -ENOSYS) {
+		dev_err(dev, "failed to enable vpcie3v3 (ret=%d)\n", ret);
+		goto err_disable_12v;
 	}
 
-	if (priv->vpcie0v9) {
-		ret = regulator_set_enable(priv->vpcie0v9, true);
-		if (ret) {
-			dev_err(dev, "failed to enable vpcie0v9 (ret=%d)\n",
-				ret);
-			goto err_disable_1v8;
-		}
+	ret = regulator_set_enable_if_allowed(priv->vpcie1v8, true);
+	if (ret && ret != -ENOSYS) {
+		dev_err(dev, "failed to enable vpcie1v8 (ret=%d)\n", ret);
+		goto err_disable_3v3;
+	}
+
+	ret = regulator_set_enable_if_allowed(priv->vpcie0v9, true);
+	if (ret && ret != -ENOSYS) {
+		dev_err(dev, "failed to enable vpcie0v9 (ret=%d)\n", ret);
+		goto err_disable_1v8;
 	}
 
 	return 0;
 
 err_disable_1v8:
-	if (priv->vpcie1v8)
-		regulator_set_enable(priv->vpcie1v8, false);
+	regulator_set_enable_if_allowed(priv->vpcie1v8, false);
 err_disable_3v3:
-	if (priv->vpcie3v3)
-		regulator_set_enable(priv->vpcie3v3, false);
+	regulator_set_enable_if_allowed(priv->vpcie3v3, false);
+err_disable_12v:
+	regulator_set_enable_if_allowed(priv->vpcie12v, false);
 	return ret;
 }
 
@@ -427,19 +416,12 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 	int ret;
 
 	priv->axi_base = dev_read_addr_name(dev, "axi-base");
-	if (!priv->axi_base)
-		return -ENODEV;
+	if (priv->axi_base == FDT_ADDR_T_NONE)
+		return -EINVAL;
 
 	priv->apb_base = dev_read_addr_name(dev, "apb-base");
-	if (!priv->axi_base)
-		return -ENODEV;
-
-	ret = gpio_request_by_name(dev, "ep-gpios", 0,
-				   &priv->ep_gpio, GPIOD_IS_OUT);
-	if (ret) {
-		dev_err(dev, "failed to find ep-gpios property\n");
-		return ret;
-	}
+	if (priv->apb_base == FDT_ADDR_T_NONE)
+		return -EINVAL;
 
 	ret = reset_get_by_name(dev, "core", &priv->core_rst);
 	if (ret) {
@@ -483,6 +465,13 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 		return ret;
 	}
 
+	ret = device_get_supply_regulator(dev, "vpcie12v-supply",
+					  &priv->vpcie12v);
+	if (ret && ret != -ENOENT) {
+		dev_err(dev, "failed to get vpcie12v supply (ret=%d)\n", ret);
+		return ret;
+	}
+
 	ret = device_get_supply_regulator(dev, "vpcie3v3-supply",
 					  &priv->vpcie3v3);
 	if (ret && ret != -ENOENT) {
@@ -510,6 +499,13 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 		return ret;
 	}
 
+	ret = gpio_request_by_name(dev, "ep-gpios", 0,
+				   &priv->ep_gpio, GPIOD_IS_OUT);
+	if (ret) {
+		dev_err(dev, "failed to find ep-gpios property\n");
+		return ret;
+	}
+
 	return 0;
 }
 
@@ -529,16 +525,26 @@ static int rockchip_pcie_probe(struct udevice *dev)
 
 	ret = rockchip_pcie_set_vpcie(dev);
 	if (ret)
-		return ret;
+		goto err_gpio_free;
 
 	ret = rockchip_pcie_init_port(dev);
 	if (ret)
-		return ret;
+		goto err_disable_vpcie;
 
 	dev_info(dev, "PCIE-%d: Link up (Bus%d)\n",
 		 dev_seq(dev), hose->first_busno);
 
 	return 0;
+
+err_disable_vpcie:
+	regulator_set_enable_if_allowed(priv->vpcie0v9, false);
+	regulator_set_enable_if_allowed(priv->vpcie1v8, false);
+	regulator_set_enable_if_allowed(priv->vpcie3v3, false);
+	regulator_set_enable_if_allowed(priv->vpcie12v, false);
+err_gpio_free:
+	if (dm_gpio_is_valid(&priv->ep_gpio))
+		dm_gpio_free(dev, &priv->ep_gpio);
+	return ret;
 }
 
 static const struct dm_pci_ops rockchip_pcie_ops = {
@@ -552,10 +558,10 @@ static const struct udevice_id rockchip_pcie_ids[] = {
 };
 
 U_BOOT_DRIVER(rockchip_pcie) = {
-	.name			= "rockchip_pcie",
-	.id			= UCLASS_PCI,
-	.of_match		= rockchip_pcie_ids,
-	.ops			= &rockchip_pcie_ops,
-	.probe			= rockchip_pcie_probe,
+	.name		= "rockchip_pcie",
+	.id		= UCLASS_PCI,
+	.of_match	= rockchip_pcie_ids,
+	.ops		= &rockchip_pcie_ops,
+	.probe		= rockchip_pcie_probe,
 	.priv_auto	= sizeof(struct rockchip_pcie),
 };
