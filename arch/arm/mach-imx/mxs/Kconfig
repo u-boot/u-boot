@@ -41,6 +41,7 @@ choice
 
 config TARGET_MX28EVK
 	bool "Support mx28evk"
+	select PL01X_SERIAL
 	select BOARD_EARLY_INIT_F
 
 config TARGET_XEA

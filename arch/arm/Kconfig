@@ -919,7 +919,6 @@ config ARCH_MX28
 	bool "NXP i.MX28 family"
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
-	select PL011_SERIAL if !TARGET_XEA
 	select MACH_IMX
 	select SUPPORT_SPL
 
