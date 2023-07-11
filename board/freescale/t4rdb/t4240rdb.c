@@ -86,6 +86,8 @@ int board_early_init_r(void)
 	if (adjust_vdd(0))
 		printf("Warning: Adjusting core voltage failed.\n");
 
+	pci_init();
+
 	return 0;
 }
 
