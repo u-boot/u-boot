@@ -159,6 +159,8 @@ int board_early_init_r(void)
 	board_mux_lane();
 #endif
 
+	pci_init();
+
 	return 0;
 }
 
