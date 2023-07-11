@@ -1,0 +1,12 @@
+if TARGET_QC750
+
+config SYS_BOARD
+	default "qc750"
+
+config SYS_VENDOR
+	default "wexler"
+
+config SYS_CONFIG_NAME
+	default "qc750"
+
+endif
