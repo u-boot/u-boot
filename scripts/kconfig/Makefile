@@ -99,7 +99,9 @@ endif
 %_config: %_defconfig
 	@:
 
-configfiles=$(wildcard $(srctree)/kernel/configs/$@ $(srctree)/arch/$(SRCARCH)/configs/$@)
+configfiles=$(wildcard $(srctree)/kernel/configs/$@ \
+		$(srctree)/arch/$(SRCARCH)/configs/$@ \
+		$(shell find $(srctree)/board -name "$@"))
 
 %.config: $(obj)/conf
 	$(if $(call configfiles),, $(error No configuration exists for this target on this architecture))
