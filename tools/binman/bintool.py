@@ -328,7 +328,7 @@ class Bintool:
             return result.stdout
 
     @classmethod
-    def build_from_git(cls, git_repo, make_target, bintool_path, flags=None):
+    def build_from_git(cls, git_repo, make_targets, bintool_path, flags=None):
         """Build a bintool from a git repo
 
         This clones the repo in a temporary directory, builds it with 'make',
@@ -336,7 +336,8 @@ class Bintool:
 
         Args:
             git_repo (str): URL of git repo
-            make_target (str): Target to pass to 'make' to build the tool
+            make_targets (list of str): List of targets to pass to 'make' to build
+                the tool
             bintool_path (str): Relative path of the tool in the repo, after
                 build is complete
             flags (list of str): Flags or variables to pass to make, or None
@@ -350,12 +351,14 @@ class Bintool:
         tmpdir = tempfile.mkdtemp(prefix='binmanf.')
         print(f"- clone git repo '{git_repo}' to '{tmpdir}'")
         tools.run('git', 'clone', '--depth', '1', git_repo, tmpdir)
-        print(f"- build target '{make_target}'")
-        cmd = ['make', '-C', tmpdir, '-j', f'{multiprocessing.cpu_count()}',
-               make_target]
-        if flags:
-            cmd += flags
-        tools.run(*cmd)
+        for target in make_targets:
+            print(f"- build target '{target}'")
+            cmd = ['make', '-C', tmpdir, '-j', f'{multiprocessing.cpu_count()}',
+                   target]
+            if flags:
+                cmd += flags
+            tools.run(*cmd)
+
         fname = os.path.join(tmpdir, bintool_path)
         if not os.path.exists(fname):
             print(f"- File '{fname}' was not produced")
