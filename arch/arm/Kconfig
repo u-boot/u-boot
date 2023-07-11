@@ -912,7 +912,7 @@ config ARCH_MX23
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
-	select PL011_SERIAL
+	select PL011_SERIAL if !TARGET_MX23EVK
 	select SUPPORT_SPL
 
 config ARCH_MX28
