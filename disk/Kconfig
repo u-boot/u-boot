@@ -51,7 +51,7 @@ config SPL_MAC_PARTITION
 
 config DOS_PARTITION
 	bool "Enable MS Dos partition table"
-	default y if DISTRO_DEFAULTS
+	default y if BOOT_DEFAULTS
 	default y if x86 || CMD_FAT || USB_STORAGE
 	select PARTITIONS
 	help
@@ -67,7 +67,7 @@ config SPL_DOS_PARTITION
 
 config ISO_PARTITION
 	bool "Enable ISO partition table"
-	default y if DISTRO_DEFAULTS
+	default y if BOOT_DEFAULTS
 	default y if MIPS || ARCH_TEGRA
 	select PARTITIONS
 
@@ -91,7 +91,7 @@ config SPL_AMIGA_PARTITION
 
 config EFI_PARTITION
 	bool "Enable EFI GPT partition table"
-	default y if DISTRO_DEFAULTS
+	default y if BOOT_DEFAULTS
 	default y if ARCH_TEGRA
 	select PARTITIONS
 	select LIB_UUID
@@ -139,7 +139,7 @@ config SPL_EFI_PARTITION
 config PARTITION_UUIDS
 	bool "Enable support of UUID for partition"
 	depends on PARTITIONS
-	default y if DISTRO_DEFAULTS
+	default y if BOOT_DEFAULTS
 	default y if EFI_PARTITION
 	select LIB_UUID
 	help
