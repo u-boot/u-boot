@@ -3,13 +3,15 @@
  * T1023 Silicon/SoC Device Tree Source (post include)
  *
  * Copyright 2014 Freescale Semiconductor Inc.
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2023 NXP
  *
  */
 
 &soc {
 
 /include/ "qoriq-clockgen2.dtsi"
+/include/ "qoriq-duart-0.dtsi"
+/include/ "qoriq-duart-1.dtsi"
 /include/ "qoriq-gpio-0.dtsi"
 /include/ "qoriq-gpio-1.dtsi"
 /include/ "qoriq-gpio-2.dtsi"
