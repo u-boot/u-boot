@@ -12,14 +12,6 @@
 
 #include <linux/sizes.h>
 
-#define BOOT_TARGET_DEVICES(func) \
-	func(USB, usb, 0) \
-	func(SCSI, scsi, 0) \
-	func(VIRTIO, virtio, 0) \
-	func(IDE, ide, 0) \
-	func(DHCP, dhcp, na)
-
-#include <config_distro_bootcmd.h>
 #include <configs/x86-common.h>
 
 #define CFG_STD_DEVICES_SETTINGS	"stdin=serial,i8042-kbd\0" \
