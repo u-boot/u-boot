@@ -89,4 +89,14 @@ void zimage_dump(struct boot_params *base_ptr);
 int zboot_start(ulong addr, ulong size, ulong initrd, ulong initrd_size,
 		ulong base, char *cmdline);
 
+/*
+ * zimage_get_kernel_version() - Get the version string from a kernel
+ *
+ * @params: boot_params pointer
+ * @kernel_base: base address of kernel
+ * Return: Kernel version as a NUL-terminated string
+ */
+const char *zimage_get_kernel_version(struct boot_params *params,
+				      void *kernel_base);
+
 #endif

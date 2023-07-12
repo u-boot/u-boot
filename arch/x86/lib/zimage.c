@@ -181,7 +181,7 @@ static int setup_device_tree(struct setup_header *hdr, const void *fdt_blob)
 	return 0;
 }
 
-static const char *get_kernel_version(struct boot_params *params,
+const char *zimage_get_kernel_version(struct boot_params *params,
 				      void *kernel_base)
 {
 	struct setup_header *hdr = &params->hdr;
@@ -189,10 +189,14 @@ static const char *get_kernel_version(struct boot_params *params,
 	const char *s, *end;
 
 	bootproto = get_boot_protocol(hdr, false);
+	log_debug("bootproto %x, hdr->setup_sects %x\n", bootproto,
+		  hdr->setup_sects);
 	if (bootproto < 0x0200 || hdr->setup_sects < 15)
 		return NULL;
 
 	/* sanity-check the kernel version in case it is missing */
+	log_debug("hdr->kernel_version %x, str at %p\n", hdr->kernel_version,
+		  kernel_base + hdr->kernel_version + 0x200);
 	for (s = kernel_base + hdr->kernel_version + 0x200, end = s + 0x100; *s;
 	     s++) {
 		if (!isprint(*s))
@@ -239,7 +243,7 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 	log_debug("Using boot protocol version %x.%02x\n",
 		  (bootproto & 0xff00) >> 8, bootproto & 0xff);
 
-	version = get_kernel_version(params, image);
+	version = zimage_get_kernel_version(params, image);
 	if (version)
 		printf("Linux kernel version %s\n", version);
 	else
@@ -728,7 +732,8 @@ void zimage_dump(struct boot_params *base_ptr)
 	print_num("Real mode switch", hdr->realmode_swtch);
 	print_num("Start sys seg", hdr->start_sys_seg);
 	print_num("Kernel version", hdr->kernel_version);
-	version = get_kernel_version(base_ptr, (void *)state.bzimage_addr);
+	version = zimage_get_kernel_version(base_ptr,
+					    (void *)state.bzimage_addr);
 	if (version)
 		printf("   @%p: %s\n", version, version);
 	print_num("Type of loader", hdr->type_of_loader);
