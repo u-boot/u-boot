@@ -610,3 +610,194 @@ static int on_bootargs(const char *name, const char *value, enum env_op op,
 }
 U_BOOT_ENV_CALLBACK(bootargs, on_bootargs);
 #endif
+
+/**
+ * copy_in() - Copy a string into a cmdline buffer
+ *
+ * @buf: Buffer to copy into
+ * @end: End of buffer (pointer to char after the end)
+ * @arg: String to copy from
+ * @len: Number of chars to copy from @arg (note that this is not usually the
+ * sane as strlen(arg) since the string may contain following arguments)
+ * @new_val: Value to put after arg, or BOOTFLOWCL_EMPTY to use an empty value
+ * with no '=' sign
+ * Returns: Number of chars written to @buf
+ */
+static int copy_in(char *buf, char *end, const char *arg, int len,
+		   const char *new_val)
+{
+	char *to = buf;
+
+	/* copy the arg name */
+	if (to + len >= end)
+		return -E2BIG;
+	memcpy(to, arg, len);
+	to += len;
+
+	if (new_val == BOOTFLOWCL_EMPTY) {
+		/* no value */
+	} else {
+		bool need_quote = strchr(new_val, ' ');
+		len = strlen(new_val);
+
+		/* need space for value, equals sign and maybe two quotes */
+		if (to + 1 + (need_quote ? 2 : 0) + len >= end)
+			return -E2BIG;
+		*to++ = '=';
+		if (need_quote)
+			*to++ = '"';
+		memcpy(to, new_val, len);
+		to += len;
+		if (need_quote)
+			*to++ = '"';
+	}
+
+	return to - buf;
+}
+
+int cmdline_set_arg(char *buf, int maxlen, const char *cmdline,
+		    const char *set_arg, const char *new_val, int *posp)
+{
+	bool found_arg = false;
+	const char *from;
+	char *to, *end;
+	int set_arg_len;
+	char empty = '\0';
+	int ret;
+
+	from = cmdline ?: &empty;
+
+	/* check if the value has quotes inside */
+	if (new_val && new_val != BOOTFLOWCL_EMPTY && strchr(new_val, '"'))
+		return -EBADF;
+
+	set_arg_len = strlen(set_arg);
+	for (to = buf, end = buf + maxlen; *from;) {
+		const char *val, *arg_end, *val_end, *p;
+		bool in_quote;
+
+		if (to >= end)
+			return -E2BIG;
+		while (*from == ' ')
+			from++;
+		if (!*from)
+			break;
+
+		/* find the end of this arg */
+		val = NULL;
+		arg_end = NULL;
+		val_end = NULL;
+		in_quote = false;
+		for (p = from;; p++) {
+			if (in_quote) {
+				if (!*p)
+					return -EINVAL;
+				if (*p == '"')
+					in_quote = false;
+				continue;
+			}
+			if (*p == '=') {
+				arg_end = p;
+				val = p + 1;
+			} else if (*p == '"') {
+				in_quote = true;
+			} else if (!*p || *p == ' ') {
+				val_end = p;
+				if (!arg_end)
+					arg_end = p;
+				break;
+			}
+		}
+		/*
+		 * At this point val_end points to the end of the value, or the
+		 * last char after the arg name, if there is no label.
+		 * arg_end is the char after the arg name
+		 * val points to the value, or NULL if there is none
+		 * char after the value.
+		 *
+		 *        fred=1234
+		 *        ^   ^^   ^
+		 *      from  ||   |
+		 *           / \    \
+		 *    arg_end  val   val_end
+		 */
+		log_debug("from %s arg_end %ld val %ld val_end %ld\n", from,
+			  (long)(arg_end - from), (long)(val - from),
+			  (long)(val_end - from));
+
+		if (to != buf) {
+			if (to >= end)
+				return -E2BIG;
+			*to++ = ' ';
+		}
+
+		/* if this is the target arg, update it */
+		if (!strncmp(from, set_arg, arg_end - from)) {
+			if (!buf) {
+				bool has_quote = val_end[-1] == '"';
+
+				/*
+				 * exclude any start/end quotes from
+				 * calculations
+				 */
+				if (!val)
+					val = val_end;
+				*posp = val - cmdline + has_quote;
+				return val_end - val - 2 * has_quote;
+			}
+			found_arg = true;
+			if (!new_val) {
+				/* delete this arg */
+				from = val_end + (*val_end == ' ');
+				log_debug("delete from: %s\n", from);
+				if (to != buf)
+					to--; /* drop the space we added */
+				continue;
+			}
+
+			ret = copy_in(to, end, from, arg_end - from, new_val);
+			if (ret < 0)
+				return ret;
+			to += ret;
+
+		/* if not the target arg, copy it unchanged */
+		} else if (to) {
+			int len;
+
+			len = val_end - from;
+			if (to + len >= end)
+				return -E2BIG;
+			memcpy(to, from, len);
+			to += len;
+		}
+		from = val_end;
+	}
+
+	/* If we didn't find the arg, add it */
+	if (!found_arg) {
+		/* trying to delete something that is not there */
+		if (!new_val || !buf)
+			return -ENOENT;
+		if (to >= end)
+			return -E2BIG;
+
+		/* add a space to separate it from the previous arg */
+		if (to != buf && to[-1] != ' ')
+			*to++ = ' ';
+		ret = copy_in(to, end, set_arg, set_arg_len, new_val);
+		log_debug("ret=%d, to: %s buf: %s\n", ret, to, buf);
+		if (ret < 0)
+			return ret;
+		to += ret;
+	}
+
+	/* delete any trailing space */
+	if (to > buf && to[-1] == ' ')
+		to--;
+
+	if (to >= end)
+		return -E2BIG;
+	*to++ = '\0';
+
+	return to - buf;
+}

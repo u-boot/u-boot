@@ -444,4 +444,44 @@ int bootflow_menu_apply_theme(struct expo *exp, ofnode node);
 int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
 		      struct bootflow **bflowp);
 
+#define BOOTFLOWCL_EMPTY	((void *)1)
+
+/**
+ * cmdline_set_arg() - Update or read an argument in a cmdline string
+ *
+ * Handles updating a single arg in a cmdline string, returning it in a supplied
+ * buffer; also reading an arg from a cmdline string
+ *
+ * When updating, consecutive spaces are squashed as are spaces at the start and
+ * end.
+ *
+ * @buf: Working buffer to use (initial contents are ignored). Use NULL when
+ * reading
+ * @maxlen: Length of working buffer. Use 0 when reading
+ * @cmdline: Command line to update, in the form:
+ *
+ *	fred mary= jane=123 john="has spaces"
+ *
+ * @set_arg: Argument to set or read (may or may not exist)
+ * @new_val: Value for the new argument. May not include quotes (") but may
+ * include embedded spaces, in which case it will be quoted when added to the
+ * command line. Use NULL to delete the argument from @cmdline, BOOTFLOWCL_EMPTY
+ * to set it to an empty value (no '=' sign after arg), "" to add an '=' sign
+ * but with an empty value. Use NULL when reading.
+ * @posp: Ignored when setting an argument; when getting an argument, returns
+ * the start position of its value in @cmdline, after the first quote, if any
+ *
+ * Return:
+ * For updating:
+ *	length of new buffer (including \0 terminator) on success, -ENOENT if
+ *	@new_val is NULL and @set_arg does not exist in @from, -EINVAL if a
+ *	quoted arg-value in @from is not terminated with a quote, -EBADF if
+ *	@new_val has spaces but does not start and end with quotes (or it has
+ *	quotes in the middle of the string), -E2BIG if @maxlen is too small
+ * For reading:
+ *	length of arg value (excluding quotes), -ENOENT if not found
+ */
+int cmdline_set_arg(char *buf, int maxlen, const char *cmdline,
+		    const char *set_arg, const char *new_val, int *posp);
+
 #endif
