@@ -460,6 +460,7 @@ stages:
           fi
           # Some tests using libguestfs-tools need the fuse device to run
           docker run "$@" --device /dev/fuse:/dev/fuse -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
+        retryCountOnTaskFailure: 2 # QEMU may be too slow, etc.
 
 - stage: world_build
   jobs:
