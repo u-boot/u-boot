@@ -13,7 +13,7 @@ Synopis
     bootflow select [<num|name>]
     bootflow info [-d]
     bootflow boot
-
+    bootflow cmdline [set|get|clear|delete] <param> [<value>]
 
 Description
 -----------
@@ -197,6 +197,26 @@ bootflow boot
 
 This boots the current bootflow.
 
+
+bootflow cmdline
+~~~~~~~~~~~~~~~~
+
+Some bootmeths can obtain the OS command line since it is stored with the OS.
+In that case, you can use `bootflow cmdline` to adjust this. The command line
+is assumed to be in the format used by Linux, i.e. a space-separated set of
+parameters with optional values, e.g. "noinitrd console=/dev/tty0".
+
+To change or add a parameter, use::
+
+    bootflow cmdline set <param> <value>
+
+To clear a parameter value to empty you can use "" for the value, or use::
+
+    bootflow cmdline clear <param>
+
+To delete a parameter entirely, use::
+
+    bootflow cmdline delete <param>
 
 Example
 -------

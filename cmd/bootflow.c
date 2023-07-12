@@ -431,6 +431,72 @@ static int do_bootflow_menu(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	return 0;
 }
+
+static int do_bootflow_cmdline(struct cmd_tbl *cmdtp, int flag, int argc,
+			       char *const argv[])
+{
+	struct bootstd_priv *std;
+	struct bootflow *bflow;
+	const char *op, *arg, *val = NULL;
+	int ret;
+
+	if (argc < 3)
+		return CMD_RET_USAGE;
+
+	ret = bootstd_get_priv(&std);
+	if (ret)
+		return CMD_RET_FAILURE;
+
+	bflow = std->cur_bootflow;
+	if (!bflow) {
+		printf("No bootflow selected\n");
+		return CMD_RET_FAILURE;
+	}
+
+	op = argv[1];
+	arg = argv[2];
+	if (*op == 's') {
+		if (argc < 4)
+			return CMD_RET_USAGE;
+		val = argv[3];
+	}
+
+	switch (*op) {
+	case 'c':	/* clear */
+		val = "";
+		fallthrough;
+	case 's':	/* set */
+	case 'd':	/* delete */
+		ret = bootflow_cmdline_set_arg(bflow, arg, val, true);
+		break;
+	case 'g':	/* get */
+		ret = bootflow_cmdline_get_arg(bflow, arg, &val);
+		if (ret >= 0)
+			printf("%.*s\n", ret, val);
+		break;
+	}
+	switch (ret) {
+	case -E2BIG:
+		printf("Argument too long\n");
+		break;
+	case -ENOENT:
+		printf("Argument not found\n");
+		break;
+	case -EINVAL:
+		printf("Mismatched quotes\n");
+		break;
+	case -EBADF:
+		printf("Value must be quoted\n");
+		break;
+	default:
+		if (ret < 0)
+			printf("Unknown error: %dE\n", ret);
+	}
+	if (ret < 0)
+		return CMD_RET_FAILURE;
+
+	return 0;
+}
 #endif /* CONFIG_CMD_BOOTFLOW_FULL */
 
 #ifdef CONFIG_SYS_LONGHELP
@@ -441,7 +507,8 @@ static char bootflow_help_text[] =
 	"bootflow select [<num>|<name>] - select a bootflow\n"
 	"bootflow info [-d]             - show info on current bootflow (-d dump bootflow)\n"
 	"bootflow boot                  - boot current bootflow (or first available if none selected)\n"
-	"bootflow menu [-t]             - show a menu of available bootflows";
+	"bootflow menu [-t]             - show a menu of available bootflows\n"
+	"bootflow cmdline [set|get|clear|delete] <param> [<value>] - update cmdline";
 #else
 	"scan - boot first available bootflow\n";
 #endif
@@ -455,5 +522,6 @@ U_BOOT_CMD_WITH_SUBCMDS(bootflow, "Boot flows", bootflow_help_text,
 	U_BOOT_SUBCMD_MKENT(info, 2, 1, do_bootflow_info),
 	U_BOOT_SUBCMD_MKENT(boot, 1, 1, do_bootflow_boot),
 	U_BOOT_SUBCMD_MKENT(menu, 2, 1, do_bootflow_menu),
+	U_BOOT_SUBCMD_MKENT(cmdline, 4, 1, do_bootflow_cmdline),
 #endif
 );

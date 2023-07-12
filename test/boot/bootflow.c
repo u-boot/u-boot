@@ -837,3 +837,111 @@ static int test_bootflow_cmdline_set(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(test_bootflow_cmdline_set, 0);
+
+/* Test of bootflow_cmdline_set_arg() */
+static int bootflow_set_arg(struct unit_test_state *uts)
+{
+	struct bootflow s_bflow, *bflow = &s_bflow;
+	ulong mem_start;
+
+	ut_assertok(env_set("bootargs", NULL));
+
+	mem_start = ut_check_delta(0);
+
+	/* Do a simple sanity check. Rely on bootflow_cmdline() for the rest */
+	bflow->cmdline = NULL;
+	ut_assertok(bootflow_cmdline_set_arg(bflow, "fred", "123", false));
+	ut_asserteq_str(bflow->cmdline, "fred=123");
+
+	ut_assertok(bootflow_cmdline_set_arg(bflow, "mary", "and here", false));
+	ut_asserteq_str(bflow->cmdline, "fred=123 mary=\"and here\"");
+
+	ut_assertok(bootflow_cmdline_set_arg(bflow, "mary", NULL, false));
+	ut_asserteq_str(bflow->cmdline, "fred=123");
+	ut_assertok(bootflow_cmdline_set_arg(bflow, "fred", NULL, false));
+	ut_asserteq_ptr(bflow->cmdline, NULL);
+
+	ut_asserteq(0, ut_check_delta(mem_start));
+
+	ut_assertok(bootflow_cmdline_set_arg(bflow, "mary", "here", true));
+	ut_asserteq_str("mary=here", env_get("bootargs"));
+	ut_assertok(env_set("bootargs", NULL));
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_set_arg, 0);
+
+/* Test of bootflow_cmdline_get_arg() */
+static int bootflow_cmdline_get(struct unit_test_state *uts)
+{
+	int pos;
+
+	/* empty string */
+	ut_asserteq(-ENOENT, cmdline_get_arg("", "fred", &pos));
+
+	/* arg with empty value */
+	ut_asserteq(0, cmdline_get_arg("fred= mary", "fred", &pos));
+	ut_asserteq(5, pos);
+
+	/* arg with a value */
+	ut_asserteq(2, cmdline_get_arg("fred=23", "fred", &pos));
+	ut_asserteq(5, pos);
+
+	/* arg with a value */
+	ut_asserteq(3, cmdline_get_arg("mary=1 fred=234", "fred", &pos));
+	ut_asserteq(12, pos);
+
+	/* arg with a value, after quoted arg */
+	ut_asserteq(3, cmdline_get_arg("mary=\"1 2\" fred=234", "fred", &pos));
+	ut_asserteq(16, pos);
+
+	/* arg in the middle */
+	ut_asserteq(0, cmdline_get_arg("mary=\"1 2\" fred john=23", "fred",
+				       &pos));
+	ut_asserteq(15, pos);
+
+	/* quoted arg */
+	ut_asserteq(3, cmdline_get_arg("mary=\"1 2\" fred=\"3 4\" john=23",
+				       "fred", &pos));
+	ut_asserteq(17, pos);
+
+	/* args starting with the same prefix */
+	ut_asserteq(1, cmdline_get_arg("mary=abc johnathon=3 john=1", "john",
+				       &pos));
+	ut_asserteq(26, pos);
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_cmdline_get, 0);
+
+static int bootflow_cmdline(struct unit_test_state *uts)
+{
+	ut_assertok(run_command("bootflow scan mmc", 0));
+	ut_assertok(run_command("bootflow sel 0", 0));
+	console_record_reset_enable();
+
+	ut_asserteq(1, run_command("bootflow cmdline get fred", 0));
+	ut_assert_nextline("Argument not found");
+	ut_assert_console_end();
+
+	ut_asserteq(0, run_command("bootflow cmdline set fred 123", 0));
+	ut_asserteq(0, run_command("bootflow cmdline get fred", 0));
+	ut_assert_nextline("123");
+
+	ut_asserteq(0, run_command("bootflow cmdline set mary abc", 0));
+	ut_asserteq(0, run_command("bootflow cmdline get mary", 0));
+	ut_assert_nextline("abc");
+
+	ut_asserteq(0, run_command("bootflow cmdline delete fred", 0));
+	ut_asserteq(1, run_command("bootflow cmdline get fred", 0));
+	ut_assert_nextline("Argument not found");
+
+	ut_asserteq(0, run_command("bootflow cmdline clear mary", 0));
+	ut_asserteq(0, run_command("bootflow cmdline get mary", 0));
+	ut_assert_nextline_empty();
+
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_cmdline, 0);

@@ -484,4 +484,46 @@ int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
 int cmdline_set_arg(char *buf, int maxlen, const char *cmdline,
 		    const char *set_arg, const char *new_val, int *posp);
 
+/**
+ * bootflow_cmdline_set_arg() - Set a single argument for a bootflow
+ *
+ * Update the allocated cmdline and set the bootargs variable
+ *
+ * @bflow: Bootflow to update
+ * @arg: Argument to update (e.g. "console")
+ * @val: Value to set (e.g. "ttyS2") or NULL to delete the argument if present,
+ * "" to set it to an empty value (e.g. "console=") and BOOTFLOWCL_EMPTY to add
+ * it without any value ("initrd")
+ * @set_env: true to set the "bootargs" environment variable too
+ *
+ * Return: 0 if OK, -ENOMEM if out of memory
+ */
+int bootflow_cmdline_set_arg(struct bootflow *bflow, const char *arg,
+			     const char *val, bool set_env);
+
+/**
+ * cmdline_get_arg() - Read an argument from a cmdline
+ *
+ * @cmdline: Command line to read, in the form:
+ *
+ *	fred mary= jane=123 john="has spaces"
+ * @arg: Argument to read (may or may not exist)
+ * @posp: Returns position of argument (after any leading quote) if present
+ * Return: Length of argument value excluding quotes if found, -ENOENT if not
+ * found
+ */
+int cmdline_get_arg(const char *cmdline, const char *arg, int *posp);
+
+/**
+ * bootflow_cmdline_get_arg() - Read an argument from a cmdline
+ *
+ * @bootflow: Bootflow to read from
+ * @arg: Argument to read (may or may not exist)
+ * @valp: Returns a pointer to the argument (after any leading quote) if present
+ * Return: Length of argument value excluding quotes if found, -ENOENT if not
+ * found
+ */
+int bootflow_cmdline_get_arg(struct bootflow *bflow, const char *arg,
+			     const char **val);
+
 #endif

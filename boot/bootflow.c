@@ -801,3 +801,56 @@ int cmdline_set_arg(char *buf, int maxlen, const char *cmdline,
 
 	return to - buf;
 }
+
+int bootflow_cmdline_set_arg(struct bootflow *bflow, const char *set_arg,
+			     const char *new_val, bool set_env)
+{
+	char buf[2048];
+	char *cmd = NULL;
+	int ret;
+
+	ret = cmdline_set_arg(buf, sizeof(buf), bflow->cmdline, set_arg,
+			      new_val, NULL);
+	if (ret < 0)
+		return ret;
+
+	ret = bootflow_cmdline_set(bflow, buf);
+	if (*buf) {
+		cmd = strdup(buf);
+		if (!cmd)
+			return -ENOMEM;
+	}
+	free(bflow->cmdline);
+	bflow->cmdline = cmd;
+
+	if (set_env) {
+		ret = env_set("bootargs", bflow->cmdline);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+int cmdline_get_arg(const char *cmdline, const char *arg, int *posp)
+{
+	int ret;
+
+	ret = cmdline_set_arg(NULL, 1, cmdline, arg, NULL, posp);
+
+	return ret;
+}
+
+int bootflow_cmdline_get_arg(struct bootflow *bflow, const char *arg,
+			     const char **val)
+{
+	int ret;
+	int pos;
+
+	ret = cmdline_get_arg(bflow->cmdline, arg, &pos);
+	if (ret < 0)
+		return ret;
+	*val = bflow->cmdline + pos;
+
+	return ret;
+}
