@@ -34,7 +34,7 @@ config BOARD_SPECIFIC_OPTIONS
 	imply SMP
 	imply DM_SERIAL
 	imply SIFIVE_SERIAL
-	imply SIFIVE_CLINT
+	imply RISCV_ACLINT
 	imply POWER_DOMAIN
 	imply SIMPLE_PM_BUS
 	imply CLK_K210

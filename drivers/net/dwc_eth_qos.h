@@ -289,3 +289,4 @@ int eqos_null_ops(struct udevice *dev);
 
 extern struct eqos_config eqos_imx_config;
 extern struct eqos_config eqos_qcom_config;
+extern struct eqos_config eqos_jh7110_config;

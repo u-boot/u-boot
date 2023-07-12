@@ -25,4 +25,4 @@ config STARFIVE_JH7110
 	imply SPL_CPU
 	imply SPL_LOAD_FIT
 	imply SPL_OPENSBI
-	imply SPL_SIFIVE_CLINT
+	imply SPL_RISCV_ACLINT

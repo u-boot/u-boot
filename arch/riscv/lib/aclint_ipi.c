@@ -10,9 +10,12 @@
 
 #include <common.h>
 #include <dm.h>
+#include <regmap.h>
+#include <syscon.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/smp.h>
+#include <asm/syscon.h>
 #include <linux/err.h>
 
 /* MSIP registers */
@@ -26,12 +29,16 @@ int riscv_init_ipi(void)
 	struct udevice *dev;
 
 	ret = uclass_get_device_by_driver(UCLASS_TIMER,
-					  DM_DRIVER_GET(sifive_clint), &dev);
+					  DM_DRIVER_GET(riscv_aclint_timer), &dev);
 	if (ret)
 		return ret;
 
-	gd->arch.clint = dev_read_addr_ptr(dev);
-	if (!gd->arch.clint)
+	if (dev_get_driver_data(dev) != 0)
+		gd->arch.aclint = dev_read_addr_ptr(dev);
+	else
+		gd->arch.aclint = syscon_get_first_range(RISCV_SYSCON_ACLINT);
+
+	if (!gd->arch.aclint)
 		return -EINVAL;
 
 	return 0;
@@ -39,21 +46,33 @@ int riscv_init_ipi(void)
 
 int riscv_send_ipi(int hart)
 {
-	writel(1, (void __iomem *)MSIP_REG(gd->arch.clint, hart));
+	writel(1, (void __iomem *)MSIP_REG(gd->arch.aclint, hart));
 
 	return 0;
 }
 
 int riscv_clear_ipi(int hart)
 {
-	writel(0, (void __iomem *)MSIP_REG(gd->arch.clint, hart));
+	writel(0, (void __iomem *)MSIP_REG(gd->arch.aclint, hart));
 
 	return 0;
 }
 
 int riscv_get_ipi(int hart, int *pending)
 {
-	*pending = readl((void __iomem *)MSIP_REG(gd->arch.clint, hart));
+	*pending = readl((void __iomem *)MSIP_REG(gd->arch.aclint, hart));
 
 	return 0;
 }
+
+static const struct udevice_id riscv_aclint_swi_ids[] = {
+	{ .compatible = "riscv,aclint-mswi", .data = RISCV_SYSCON_ACLINT },
+	{ }
+};
+
+U_BOOT_DRIVER(riscv_aclint_swi) = {
+	.name		= "riscv_aclint_swi",
+	.id		= UCLASS_SYSCON,
+	.of_match	= riscv_aclint_swi_ids,
+	.flags		= DM_FLAG_PRE_RELOC,
+};

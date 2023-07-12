@@ -12,7 +12,7 @@
  */
 enum {
 	RISCV_NONE,
-	RISCV_SYSCON_CLINT,	/* Core Local Interruptor (CLINT) */
+	RISCV_SYSCON_ACLINT,	/* Advanced Core Local Interruptor (ACLINT) */
 	RISCV_SYSCON_PLICSW,	/* Andes PLICSW */
 };
 

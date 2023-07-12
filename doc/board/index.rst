@@ -45,6 +45,7 @@ Board-specific doc
    starfive/index
    ste/index
    tbs/index
+   thead/index
    ti/index
    toradex/index
    variscite/index

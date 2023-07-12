@@ -12,7 +12,7 @@ obj-$(CONFIG_CMD_GO) += boot.o
 obj-y	+= cache.o
 obj-$(CONFIG_SIFIVE_CACHE) += sifive_cache.o
 ifeq ($(CONFIG_$(SPL_)RISCV_MMODE),y)
-obj-$(CONFIG_$(SPL_)SIFIVE_CLINT) += sifive_clint.o
+obj-$(CONFIG_$(SPL_)RISCV_ACLINT) += aclint_ipi.o
 obj-$(CONFIG_ANDES_PLICSW) += andes_plicsw.o
 else
 obj-$(CONFIG_SBI) += sbi.o
