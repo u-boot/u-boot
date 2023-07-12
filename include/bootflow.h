@@ -58,7 +58,7 @@ enum bootflow_flags_t {
  *
  * @bm_node: Points to siblings in the same bootdev
  * @glob_node: Points to siblings in the global list (all bootdev)
- * @dev: Bootdevice device which produced this bootflow
+ * @dev: Bootdev device which produced this bootflow
  * @blk: Block device which contains this bootflow, NULL if this is a network
  *	device or sandbox 'host' device
  * @part: Partition number (0 for whole device)

@@ -315,14 +315,14 @@ static int bootflow_check(struct bootflow_iter *iter, struct bootflow *bflow)
 
 	/* If we got a valid bootflow, return it */
 	if (!ret) {
-		log_debug("Bootdevice '%s' part %d method '%s': Found bootflow\n",
+		log_debug("Bootdev '%s' part %d method '%s': Found bootflow\n",
 			  dev->name, iter->part, iter->method->name);
 		return 0;
 	}
 
 	/* Unless there is nothing more to try, move to the next device */
 	else if (ret != BF_NO_MORE_PARTS && ret != -ENOSYS) {
-		log_debug("Bootdevice '%s' part %d method '%s': Error %d\n",
+		log_debug("Bootdev '%s' part %d method '%s': Error %d\n",
 			  dev->name, iter->part, iter->method->name, ret);
 		/*
 		 * For 'all' we return all bootflows, even
