@@ -526,4 +526,16 @@ int cmdline_get_arg(const char *cmdline, const char *arg, int *posp);
 int bootflow_cmdline_get_arg(struct bootflow *bflow, const char *arg,
 			     const char **val);
 
+/**
+ * bootflow_cmdline_auto() - Automatically set a value for a known argument
+ *
+ * This handles a small number of known arguments, for Linux in particular. It
+ * adds suitable kernel parameters automatically, e.g. to enable the console.
+ *
+ * @bflow: Bootflow to update
+ * @arg: Name of argument to set (e.g. "earlycon" or "console")
+ * Return: 0 if OK -ve on error
+ */
+int bootflow_cmdline_auto(struct bootflow *bflow, const char *arg);
+
 #endif

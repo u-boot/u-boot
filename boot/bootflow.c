@@ -14,6 +14,7 @@
 #include <dm.h>
 #include <env_internal.h>
 #include <malloc.h>
+#include <serial.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
@@ -853,4 +854,36 @@ int bootflow_cmdline_get_arg(struct bootflow *bflow, const char *arg,
 	*val = bflow->cmdline + pos;
 
 	return ret;
+}
+
+int bootflow_cmdline_auto(struct bootflow *bflow, const char *arg)
+{
+	struct serial_device_info info;
+	char buf[50];
+	int ret;
+
+	ret = serial_getinfo(gd->cur_serial_dev, &info);
+	if (ret)
+		return ret;
+
+	*buf = '\0';
+	if (!strcmp("earlycon", arg)) {
+		snprintf(buf, sizeof(buf),
+			 "uart8250,mmio32,%#lx,%dn8", info.addr,
+			 info.baudrate);
+	} else if (!strcmp("console", arg)) {
+		snprintf(buf, sizeof(buf),
+			 "ttyS0,%dn8", info.baudrate);
+	}
+
+	if (!*buf) {
+		printf("Unknown param '%s\n", arg);
+		return -ENOENT;
+	}
+
+	ret = bootflow_cmdline_set_arg(bflow, arg, buf, true);
+	if (ret)
+		return ret;
+
+	return 0;
 }

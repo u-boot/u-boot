@@ -13,7 +13,7 @@ Synopis
     bootflow select [<num|name>]
     bootflow info [-d]
     bootflow boot
-    bootflow cmdline [set|get|clear|delete] <param> [<value>]
+    bootflow cmdline [set|get|clear|delete|auto] <param> [<value>]
 
 Description
 -----------
@@ -217,6 +217,16 @@ To clear a parameter value to empty you can use "" for the value, or use::
 To delete a parameter entirely, use::
 
     bootflow cmdline delete <param>
+
+Automatic parameters are available in a very few cases. You can use these to
+add parmeters where the value is known by U-Boot. For example::
+
+    bootflow cmdline auto earlycon
+    bootflow cmdline auto console
+
+can be used to set the early console (or console) to a suitable value so that
+output appears on the serial port. This is only supported by the 16550 serial
+driver so far.
 
 Example
 -------
@@ -449,6 +459,69 @@ Here is am example using the -e flag to see all errors::
     ---  -----------  ------  --------  ----  ---------------------  ----------------
     (21 bootflows, 2 valid)
     U-Boot>
+
+Here is an example of booting ChromeOS, adjusting the console beforehand. Note that
+the cmdline is word-wrapped here and some parts of the command line are elided::
+
+    => bootfl list
+    Showing all bootflows
+    Seq  Method       State   Uclass    Part  Name                      Filename
+    ---  -----------  ------  --------  ----  ------------------------  ----------------
+    0  cros         ready   nvme         0  5.10.153-20434-g98da1eb2c <NULL>
+    1  efi          ready   nvme         c  nvme#0.blk#1.bootdev.part efi/boot/bootia32.efi
+    2  efi          ready   usb_mass_    2  usb_mass_storage.lun0.boo efi/boot/bootia32.efi
+    ---  -----------  ------  --------  ----  ------------------------  ----------------
+    (3 bootflows, 3 valid)
+    => bootfl sel 0
+    => bootfl inf
+    Name:      5.10.153-20434-g98da1eb2cf9d (chrome-bot@chromeos-release-builder-us-central1-b-x32-12-xijx) #1 SMP PREEMPT Tue Jan 24 19:38:23 PST 2023
+    Device:    nvme#0.blk#1.bootdev
+    Block dev: nvme#0.blk#1
+    Method:    cros
+    State:     ready
+    Partition: 0
+    Subdir:    (none)
+    Filename:  <NULL>
+    Buffer:    737a1400
+    Size:      c47000 (12873728 bytes)
+    OS:        ChromeOS
+    Cmdline:   console= loglevel=7 init=/sbin/init cros_secure drm.trace=0x106
+        root=/dev/dm-0 rootwait ro dm_verity.error_behavior=3
+        dm_verity.max_bios=-1 dm_verity.dev_wait=1
+        dm="1 vroot none ro 1,0 6348800
+          verity payload=PARTUUID=799c935b-ae62-d143-8493-816fa936eef7/PARTNROFF=1
+          hashtree=PARTUUID=799c935b-ae62-d143-8493-816fa936eef7/PARTNROFF=1
+          hashstart=6348800 alg=sha256
+          root_hexdigest=78cc462cd45aecbcd49ca476587b4dee59aa1b00ba5ece58e2c29ec9acd914ab
+          salt=8dec4dc80a75dd834a9b3175c674405e15b16a253fdfe05c79394ae5fd76f66a"
+        noinitrd vt.global_cursor_default=0
+        kern_guid=799c935b-ae62-d143-8493-816fa936eef7 add_efi_memmap boot=local
+        noresume noswap i915.modeset=1 ramoops.ecc=1 tpm_tis.force=0
+        intel_pmc_core.warn_on_s0ix_failures=1 i915.enable_guc=3 i915.enable_dc=4
+        xdomain=0 swiotlb=65536 intel_iommu=on i915.enable_psr=1
+        usb-storage.quirks=13fe:6500:u
+    X86 setup: 742e3400
+    Logo:      (none)
+    FDT:       <NULL>
+    Error:     0
+    => bootflow cmdline auto earlycon
+    => bootflow cmd auto console
+    => print bootargs
+    bootargs=console=ttyS0,115200n8 loglevel=7 ...
+        usb-storage.quirks=13fe:6500:u earlycon=uart8250,mmio32,0xfe03e000,115200n8
+    => bootflow cmd del console
+    => print bootargs
+    bootargs=loglevel=7 ... earlycon=uart8250,mmio32,0xfe03e000,115200n8
+    => bootfl boot
+    ** Booting bootflow '5.10.153-20434-g98da1eb2cf9d (chrome-bot@chromeos-release-builder-us-central1-b-x32-12-xijx) #1 SMP PREEMPT Tue Jan 24 19:38:23 PST 2023' with cros
+    Kernel command line: "loglevel=7 ... earlycon=uart8250,mmio32,0xfe03e000,115200n8"
+
+    Starting kernel ...
+
+    [    0.000000] Linux version 5.10.153-20434-g98da1eb2cf9d (chrome-bot@chromeos-release-builder-us-central1-b-x32-12-xijx) (Chromium OS 15.0_pre465103_p20220825-r4 clang version 15.0.0 (/var/tmp/portage/sys-devel/llvm-15.0_pre465103_p20220825-r4/work/llvm-15.0_pre465103_p20220825/clang db1978b67431ca3462ad8935bf662c15750b8252), LLD 15.0.0) #1 SMP PREEMPT Tue Jan 24 19:38:23 PST 2023
+    [    0.000000] Command line: loglevel=7 ... usb-storage.quirks=13fe:6500:u earlycon=uart8250,mmio32,0xfe03e000,115200n8
+    [    0.000000] x86/split lock detection: warning about user-space split_locks
+
 
 
 Return value
