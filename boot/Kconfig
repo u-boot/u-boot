@@ -463,6 +463,17 @@ config BOOTMETH_GLOBAL
 	  EFI bootmgr, since they take full control over which bootdevs are
 	  selected to boot.
 
+config BOOTMETH_CROS
+	bool "Bootdev support for Chromium OS"
+	depends on X86 || SANDBOX
+	default y
+	help
+	  Enables support for booting Chromium OS using bootdevs. This uses the
+	  kernel A slot and obtains the kernel command line from the parameters
+	  provided there.
+
+	  Note that only x86 devices are supported at present.
+
 config BOOTMETH_EXTLINUX
 	bool "Bootdev support for extlinux boot"
 	select PXE_UTILS
