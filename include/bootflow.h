@@ -82,6 +82,7 @@ enum bootflow_flags_t {
  * @fdt_addr: Address of loaded fdt
  * @flags: Flags for the bootflow (see enum bootflow_flags_t)
  * @cmdline: OS command line, or NULL if not known (allocated)
+ * @x86_setup: Pointer to x86 setup block inside @buf, NULL if not present
  */
 struct bootflow {
 	struct list_head bm_node;
@@ -106,6 +107,7 @@ struct bootflow {
 	ulong fdt_addr;
 	int flags;
 	char *cmdline;
+	char *x86_setup;
 };
 
 /**
