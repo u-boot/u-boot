@@ -258,7 +258,6 @@ displayed and booted::
     Name:      mmc@7e202000.bootdev.part_2
     Device:    mmc@7e202000.bootdev
     Block dev: mmc@7e202000.blk
-    Sequence:  1
     Method:    distro
     State:     ready
     Partition: 2
@@ -266,6 +265,10 @@ displayed and booted::
     Filename:  extlinux/extlinux.conf
     Buffer:    3db7ae88
     Size:      232 (562 bytes)
+    OS:        Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
+    Cmdline:   (none)
+    Logo:      (none)
+    FDT:       <NULL>
     Error:     0
     U-Boot> bootflow boot
     ** Booting bootflow 'smsc95xx_eth.bootdev.0'
