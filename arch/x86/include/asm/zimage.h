@@ -72,4 +72,21 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
  */
 void zimage_dump(struct boot_params *base_ptr);
 
+/**
+ * zboot_start() - Boot a zimage
+ *
+ * Boot a zimage, given the component parts
+ *
+ * @addr: Address where the bzImage is moved before booting, either
+ *	BZIMAGE_LOAD_ADDR or ZIMAGE_LOAD_ADDR
+ * @base: Pointer to the boot parameters, typically at address
+ *	DEFAULT_SETUP_BASE
+ * @initrd: Address of the initial ramdisk, or 0 if none
+ * @initrd_size: Size of the initial ramdisk, or 0 if none
+ * @cmdline: Command line to use for booting
+ * Return: -EFAULT on error (normally it does not return)
+ */
+int zboot_start(ulong addr, ulong size, ulong initrd, ulong initrd_size,
+		ulong base, char *cmdline);
+
 #endif
