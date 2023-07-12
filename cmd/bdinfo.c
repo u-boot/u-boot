@@ -13,6 +13,7 @@
 #include <lmb.h>
 #include <mapmem.h>
 #include <net.h>
+#include <serial.h>
 #include <video.h>
 #include <vsprintf.h>
 #include <asm/cache.h>
@@ -113,6 +114,25 @@ static void show_video_info(void)
 	}
 }
 
+static void print_serial(struct udevice *dev)
+{
+	struct serial_device_info info;
+	int ret;
+
+	if (!dev || !IS_ENABLED(CONFIG_DM_SERIAL))
+		return;
+
+	ret = serial_getinfo(dev, &info);
+	if (ret)
+		return;
+
+	bdinfo_print_num_l("serial addr", info.addr);
+	bdinfo_print_num_l(" width", info.reg_width);
+	bdinfo_print_num_l(" shift", info.reg_shift);
+	bdinfo_print_num_l(" offset", info.reg_offset);
+	bdinfo_print_num_l(" clock", info.clock);
+}
+
 int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct bd_info *bd = gd->bd;
@@ -151,6 +171,7 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		if (IS_ENABLED(CONFIG_OF_REAL))
 			printf("devicetree  = %s\n", fdtdec_get_srcname());
 	}
+	print_serial(gd->cur_serial_dev);
 
 	arch_print_bdinfo();
 
