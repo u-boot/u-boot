@@ -506,7 +506,7 @@ stages:
         imx:
           BUILDMAN: "mx -x mx6,imx8,freescale,technexion,toradex"
         imx8_imx9:
-          BUILDMAN: "imx8 imx9"
+          BUILDMAN: "imx8 imx9 -x engicam,technexion,toradex"
         keymile:
           BUILDMAN: "keymile"
         keystone2_keystone3:
