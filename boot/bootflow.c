@@ -12,6 +12,7 @@
 #include <bootmeth.h>
 #include <bootstd.h>
 #include <dm.h>
+#include <env_internal.h>
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
@@ -552,3 +553,60 @@ int bootflow_iter_check_system(const struct bootflow_iter *iter)
 
 	return -ENOTSUPP;
 }
+
+/**
+ * bootflow_cmdline_set() - Set the command line for a bootflow
+ *
+ * @value: New command-line string
+ * Returns 0 if OK, -ENOENT if no current bootflow, -ENOMEM if out of memory
+ */
+int bootflow_cmdline_set(struct bootflow *bflow, const char *value)
+{
+	char *cmdline = NULL;
+
+	if (value) {
+		cmdline = strdup(value);
+		if (!cmdline)
+			return -ENOMEM;
+	}
+
+	free(bflow->cmdline);
+	bflow->cmdline = cmdline;
+
+	return 0;
+}
+
+#ifdef CONFIG_BOOTSTD_FULL
+/**
+ * on_bootargs() - Update the cmdline of a bootflow
+ */
+static int on_bootargs(const char *name, const char *value, enum env_op op,
+		       int flags)
+{
+	struct bootstd_priv *std;
+	struct bootflow *bflow;
+	int ret;
+
+	ret = bootstd_get_priv(&std);
+	if (ret)
+		return 0;
+	bflow = std->cur_bootflow;
+	if (!bflow)
+		return 0;
+
+	switch (op) {
+	case env_op_create:
+	case env_op_overwrite:
+		ret = bootflow_cmdline_set(bflow, value);
+		if (ret && ret != ENOENT)
+			return 1;
+		return 0;
+	case env_op_delete:
+		bootflow_cmdline_set(bflow, NULL);
+		fallthrough;
+	default:
+		return 0;
+	}
+}
+U_BOOT_ENV_CALLBACK(bootargs, on_bootargs);
+#endif

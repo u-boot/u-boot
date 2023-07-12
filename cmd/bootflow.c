@@ -288,6 +288,12 @@ static int do_bootflow_select(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 	std->cur_bootflow = found;
+	if (IS_ENABLED(CONFIG_BOOTSTD_FULL)) {
+		if (env_set("bootargs", found->cmdline)) {
+			printf("Cannot set bootargs\n");
+			return CMD_RET_FAILURE;
+		}
+	}
 
 	return 0;
 }

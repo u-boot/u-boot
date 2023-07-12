@@ -60,8 +60,10 @@
 #define NET6_CALLBACKS
 #endif
 
-#ifdef CONFIG_BOOTSTD
-#define BOOTSTD_CALLBACK	"bootmeths:bootmeths,"
+#ifdef CONFIG_BOOTSTD_FULL
+#define BOOTSTD_CALLBACK \
+	"bootmeths:bootmeths," \
+	"bootargs:bootargs,"
 #else
 #define BOOTSTD_CALLBACK
 #endif
