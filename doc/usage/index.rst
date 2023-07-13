@@ -22,6 +22,7 @@ Shell commands
 
    cmd/acpi
    cmd/addrmap
+   cmd/armffa
    cmd/askenv
    cmd/base
    cmd/bdinfo

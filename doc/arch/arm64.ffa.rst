@@ -205,6 +205,13 @@ The following features are provided:
 
 - FF-A bus can be compiled and used without EFI
 
+The armffa command
+-----------------------------------
+
+armffa is a command showcasing how to use the FF-A bus and how to invoke the driver operations.
+
+Please refer the command documentation at :doc:`../usage/cmd/armffa`
+
 Example of boot logs with FF-A enabled
 --------------------------------------
 

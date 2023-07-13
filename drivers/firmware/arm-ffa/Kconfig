@@ -5,6 +5,7 @@ config ARM_FFA_TRANSPORT
 	depends on DM && ARM64
 	select ARM_SMCCC
 	select ARM_SMCCC_FEATURES
+	imply CMD_ARMFFA
 	select LIB_UUID
 	select DEVRES
 	help
