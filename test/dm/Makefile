@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2013 Google, Inc
-# Copyright 2023 Arm Limited and/or its affiliates <open-source-office@arm.com>
+# Copyright 2022-2023 Arm Limited and/or its affiliates <open-source-office@arm.com>
 
 obj-$(CONFIG_UT_DM) += test-dm.o
 
@@ -92,6 +92,7 @@ obj-$(CONFIG_POWER_DOMAIN) += power-domain.o
 obj-$(CONFIG_ACPI_PMC) += pmc.o
 obj-$(CONFIG_DM_PMIC) += pmic.o
 obj-$(CONFIG_DM_PWM) += pwm.o
+obj-$(CONFIG_ARM_FFA_TRANSPORT) += ffa.o
 obj-$(CONFIG_QFW) += qfw.o
 obj-$(CONFIG_RAM) += ram.o
 obj-y += regmap.o
