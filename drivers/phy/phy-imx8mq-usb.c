@@ -78,9 +78,7 @@ enum imx8mpq_phy_type {
 };
 
 struct imx8mq_usb_phy {
-#if CONFIG_IS_ENABLED(CLK)
 	struct clk phy_clk;
-#endif
 	void __iomem *base;
 	enum imx8mpq_phy_type type;
 	struct udevice *vbus_supply;
@@ -178,13 +176,13 @@ static int imx8mq_usb_phy_power_on(struct phy *usb_phy)
 	u32 value;
 	int ret;
 
-#if CONFIG_IS_ENABLED(CLK)
-	ret = clk_enable(&imx_phy->phy_clk);
-	if (ret) {
-		printf("Failed to enable usb phy clock\n");
-		return ret;
+	if (CONFIG_IS_ENABLED(CLK)) {
+		ret = clk_enable(&imx_phy->phy_clk);
+		if (ret) {
+			dev_err(dev, "Failed to enable usb phy clock: %d\n", ret);
+			return ret;
+		}
 	}
-#endif
 
 	if (CONFIG_IS_ENABLED(DM_REGULATOR) && imx_phy->vbus_supply) {
 		ret = regulator_set_enable_if_allowed(imx_phy->vbus_supply, true);
@@ -202,9 +200,8 @@ static int imx8mq_usb_phy_power_on(struct phy *usb_phy)
 	return 0;
 
 err:
-#if CONFIG_IS_ENABLED(CLK)
-	clk_disable(&imx_phy->phy_clk);
-#endif
+	if (CONFIG_IS_ENABLED(CLK))
+		clk_disable(&imx_phy->phy_clk);
 	return ret;
 }
 
@@ -220,9 +217,8 @@ static int imx8mq_usb_phy_power_off(struct phy *usb_phy)
 	value |= PHY_CTRL6_RXTERM_OVERRIDE_SEL;
 	writel(value, imx_phy->base + PHY_CTRL6);
 
-#if CONFIG_IS_ENABLED(CLK)
-	clk_disable(&imx_phy->phy_clk);
-#endif
+	if (CONFIG_IS_ENABLED(CLK))
+		clk_disable(&imx_phy->phy_clk);
 
 	if (CONFIG_IS_ENABLED(DM_REGULATOR) && imx_phy->vbus_supply) {
 		ret = regulator_set_enable_if_allowed(imx_phy->vbus_supply, false);
@@ -258,14 +254,14 @@ int imx8mq_usb_phy_probe(struct udevice *dev)
 	if (!priv->base)
 		return -EINVAL;
 
-#if CONFIG_IS_ENABLED(CLK)
-	/* Assigned clock already set clock */
-	ret = clk_get_by_name(dev, "phy", &priv->phy_clk);
-	if (ret) {
-		printf("Failed to get usb phy clock\n");
-		return ret;
+	if (CONFIG_IS_ENABLED(CLK)) {
+		ret = clk_get_by_name(dev, "phy", &priv->phy_clk);
+		if (ret) {
+			dev_err(dev, "Failed to get usb phy clock %d\n", ret);
+			return ret;
+		}
 	}
-#endif
+
 	if (CONFIG_IS_ENABLED(DM_REGULATOR)) {
 		ret = device_get_supply_regulator(dev, "vbus-supply",
 						  &priv->vbus_supply);
