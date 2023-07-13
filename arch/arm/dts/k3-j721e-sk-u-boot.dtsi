@@ -4,6 +4,7 @@
  */
 
 #include <dt-bindings/net/ti-dp83867.h>
+#include "k3-j721e-binman.dtsi"
 
 / {
 	chosen {

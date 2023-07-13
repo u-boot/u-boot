@@ -182,6 +182,8 @@ class Image(section.Entry_section):
         # Create symlink to file if symlink given
         if self._symlink is not None:
             sname = tools.get_output_filename(self._symlink)
+            if os.path.islink(sname):
+                os.remove(sname)
             os.symlink(fname, sname)
 
     def WriteMap(self):

@@ -97,6 +97,7 @@ build all 32bit ARM platforms:
   script:
     - ret=0;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
+      pip install -r tools/buildman/requirements.txt;
       ./tools/buildman/buildman -o /tmp -PEWM arm -x aarch64 || ret=$?;
       if [[ $ret -ne 0 ]]; then
         ./tools/buildman/buildman -o /tmp -seP;
@@ -110,6 +111,7 @@ build all 64bit ARM platforms:
     - . /tmp/venv/bin/activate
     - ret=0;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
+      pip install -r tools/buildman/requirements.txt;
       ./tools/buildman/buildman -o /tmp -PEWM aarch64 || ret=$?;
       if [[ $ret -ne 0 ]]; then
         ./tools/buildman/buildman -o /tmp -seP;
@@ -208,6 +210,7 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
       virtualenv -p /usr/bin/python3 /tmp/venv;
       . /tmp/venv/bin/activate;
       pip install -r test/py/requirements.txt;
+      pip install -r tools/buildman/requirements.txt;
       export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl;
       export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
       export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
@@ -240,6 +243,7 @@ Run pylint:
   script:
     - git config --global --add safe.directory "${CI_PROJECT_DIR}"
     - pip install -r test/py/requirements.txt
+    - pip install -r tools/buildman/requirements.txt
     - pip install asteval pylint==2.12.2 pyopenssl
     - export PATH=${PATH}:~/.local/bin
     - echo "[MASTER]" >> .pylintrc

@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: GPL-2.0+
+# Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
+#
+# Test config
+#
+---
+
+main-branch:
+  obj:
+    a: 0x0
+    b: 0
+  arr: [0, 0, 0, 0]
+  another-arr:
+    - #1
+      c: 0
+      d: 0
+    - #2
+      c: 0
+      d: 0

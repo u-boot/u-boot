@@ -1,0 +1,518 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+#include "k3-binman.dtsi"
+
+#ifdef CONFIG_TARGET_AM654_R5_EVM
+
+&binman {
+	tiboot3-am65x_sr2-hs-evm.bin {
+		filename = "tiboot3-am65x_sr2-hs-evm.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl>;
+			core = "public";
+			load = <CONFIG_SPL_TEXT_BASE>;
+			keyfile = "custMpk.pem";
+		};
+		u_boot_spl: u-boot-spl {
+			no-expanded;
+		};
+	};
+	sysfw {
+		filename = "sysfw.bin";
+		ti-secure-rom {
+			content = <&ti_sci_cert>;
+			core = "secure";
+			load = <0x40000>;
+			keyfile = "custMpk.pem";
+			countersign;
+		};
+		ti_sci_cert: ti-sci-cert.bin {
+			filename = "ti-sysfw/ti-sci-firmware-am65x_sr2-hs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+		ti-sci-firmware-am65x-hs-enc.bin {
+			filename = "ti-sysfw/ti-sci-firmware-am65x_sr2-hs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+	itb {
+		filename = "sysfw-am65x_sr2-hs-evm.itb";
+		fit {
+			description = "SYSFW and Config fragments";
+			#address-cells = <1>;
+			images {
+				sysfw.bin {
+					description = "sysfw";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+					    filename = "sysfw.bin";
+					};
+				};
+				board-cfg.bin {
+					description = "board-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&board_cfg>;
+						keyfile = "custMpk.pem";
+					};
+					board_cfg: board-cfg {
+						filename = "board-cfg.bin";
+						type = "blob-ext";
+					};
+				};
+				pm-cfg.bin {
+					description = "pm-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&pm_cfg>;
+						keyfile = "custMpk.pem";
+					};
+					pm_cfg: pm-cfg {
+						filename = "pm-cfg.bin";
+						type = "blob-ext";
+					};
+				};
+				rm-cfg.bin {
+					description = "rm-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&rm_cfg>;
+						keyfile = "custMpk.pem";\
+					};
+					rm_cfg: rm-cfg {
+						filename = "rm-cfg.bin";
+						type = "blob-ext";
+					};
+				};
+				sec-cfg.bin {
+					description = "sec-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&sec_cfg>;
+						keyfile = "custMpk.pem";
+					};
+					sec_cfg: sec-cfg {
+						filename = "sec-cfg.bin";
+						type = "blob-ext";
+					};
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	tiboot3-am65x_sr2-gp-evm.bin {
+		filename = "tiboot3-am65x_sr2-gp-evm.bin";
+		symlink = "tiboot3.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl_unsigned>;
+			core = "public";
+			load = <CONFIG_SPL_TEXT_BASE>;
+			sw-rev = <CONFIG_K3_X509_SWRV>;
+			keyfile = "ti-degenerate-key.pem";
+		};
+		u_boot_spl_unsigned: u-boot-spl {
+			no-expanded;
+		};
+	};
+	sysfw_gp {
+		filename = "sysfw.bin_gp";
+		ti-secure-rom {
+			content = <&ti_sci>;
+			core = "secure";
+			load = <0x40000>;
+			sw-rev = <CONFIG_K3_X509_SWRV>;
+			keyfile = "ti-degenerate-key.pem";
+		};
+		ti_sci: ti-sci.bin {
+			filename = "ti-sysfw/ti-sci-firmware-am65x_sr2-gp.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+	itb_gp {
+		filename = "sysfw-am65x_sr2-gp-evm.itb";
+		symlink = "sysfw.itb";
+		fit {
+			description = "SYSFW and Config fragments";
+			#address-cells = <1>;
+			images {
+				sysfw.bin {
+					description = "sysfw";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+					    filename = "sysfw.bin_gp";
+					};
+				};
+				board-cfg.bin {
+					description = "board-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+						filename = "board-cfg.bin";
+					};
+				};
+				pm-cfg.bin {
+					description = "pm-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+						filename = "pm-cfg.bin";
+					};
+				};
+				rm-cfg.bin {
+					description = "rm-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+						filename = "rm-cfg.bin";
+					};
+				};
+				sec-cfg.bin {
+					description = "sec-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+						filename = "sec-cfg.bin";
+					};
+				};
+			};
+		};
+	};
+};
+#endif
+
+#ifdef CONFIG_TARGET_AM654_A53_EVM
+
+#define SPL_NODTB "spl/u-boot-spl-nodtb.bin"
+#define SPL_AM654_EVM_DTB "spl/dts/k3-am654-base-board.dtb"
+
+#define UBOOT_NODTB "u-boot-nodtb.bin"
+#define AM654_EVM_DTB "arch/arm/dts/k3-am654-base-board.dtb"
+
+&binman {
+	ti-spl {
+		filename = "tispl.bin";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "Configuration to load ATF and SPL";
+			#address-cells = <1>;
+
+			images {
+
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					os = "arm-trusted-firmware";
+					load = <CONFIG_K3_ATF_LOAD_ADDR>;
+					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
+					ti-secure {
+						content = <&atf>;
+						keyfile = "custMpk.pem";
+					};
+					atf: atf-bl31 {
+					};
+				};
+
+				tee {
+					description = "OPTEE";
+					type = "tee";
+					arch = "arm64";
+					compression = "none";
+					os = "tee";
+					load = <0x9e800000>;
+					entry = <0x9e800000>;
+					ti-secure {
+						content = <&tee>;
+						keyfile = "custMpk.pem";
+					};
+					tee: tee-os {
+					};
+				};
+
+				dm {
+					description = "DM binary";
+					type = "firmware";
+					arch = "arm32";
+					compression = "none";
+					os = "DM";
+					load = <0x89000000>;
+					entry = <0x89000000>;
+					blob-ext {
+						filename = "/dev/null";
+					};
+				};
+
+				spl {
+					description = "SPL (64-bit)";
+					type = "standalone";
+					os = "U-Boot";
+					arch = "arm64";
+					compression = "none";
+					load = <CONFIG_SPL_TEXT_BASE>;
+					entry = <CONFIG_SPL_TEXT_BASE>;
+					ti-secure {
+						content = <&u_boot_spl_nodtb>;
+						keyfile = "custMpk.pem";
+
+					};
+					u_boot_spl_nodtb: blob-ext {
+						filename = SPL_NODTB;
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am654-base-board";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&spl_am65x_evm_dtb>;
+						keyfile = "custMpk.pem";
+					};
+					spl_am65x_evm_dtb: blob-ext {
+						filename = SPL_AM654_EVM_DTB;
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am654-base-board";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot {
+		filename = "u-boot.img";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "FIT image with multiple configurations";
+
+			images {
+				uboot {
+					description = "U-Boot for AM65 board";
+					type = "firmware";
+					os = "u-boot";
+					arch = "arm";
+					compression = "none";
+					load = <CONFIG_TEXT_BASE>;
+					ti-secure {
+						content = <&u_boot_nodtb>;
+						keyfile = "custMpk.pem";
+					};
+					u_boot_nodtb: u-boot-nodtb {
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am654-base-board";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&am65x_evm_dtb>;
+						keyfile = "custMpk.pem";
+
+					};
+					am65x_evm_dtb: blob-ext {
+						filename = AM654_EVM_DTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am654-base-board";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	ti-spl_unsigned {
+		filename = "tispl.bin_unsigned";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "Configuration to load ATF and SPL";
+			#address-cells = <1>;
+
+			images {
+
+				atf {
+					description = "ARM Trusted Firmware";
+					type = "firmware";
+					arch = "arm64";
+					compression = "none";
+					os = "arm-trusted-firmware";
+					load = <CONFIG_K3_ATF_LOAD_ADDR>;
+					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
+					atf-bl31 {
+						filename = "bl31.bin";
+					};
+				};
+
+				tee {
+					description = "OPTEE";
+					type = "tee";
+					arch = "arm64";
+					compression = "none";
+					os = "tee";
+					load = <0x9e800000>;
+					entry = <0x9e800000>;
+					tee-os {
+						filename = "tee-pager_v2.bin";
+					};
+				};
+
+				dm {
+					description = "DM binary";
+					type = "firmware";
+					arch = "arm32";
+					compression = "none";
+					os = "DM";
+					load = <0x89000000>;
+					entry = <0x89000000>;
+					blob-ext {
+						filename = "/dev/null";
+					};
+				};
+
+				spl {
+					description = "SPL (64-bit)";
+					type = "standalone";
+					os = "U-Boot";
+					arch = "arm64";
+					compression = "none";
+					load = <CONFIG_SPL_TEXT_BASE>;
+					entry = <CONFIG_SPL_TEXT_BASE>;
+					blob-ext {
+						filename = SPL_NODTB;
+					};
+				};
+
+				fdt-0 {
+					description = "k3-j721e-common-proc-board";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = SPL_AM654_EVM_DTB;
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am654-base-board";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot_unsigned {
+		filename = "u-boot.img_unsigned";
+		pad-byte = <0xff>;
+
+		fit {
+			description = "FIT image with multiple configurations";
+
+			images {
+				uboot {
+					description = "U-Boot for AM65 board";
+					type = "firmware";
+					os = "u-boot";
+					arch = "arm";
+					compression = "none";
+					load = <CONFIG_TEXT_BASE>;
+					blob {
+						filename = UBOOT_NODTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am654-base-board";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = AM654_EVM_DTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am654-base-board";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+#endif
