@@ -666,8 +666,6 @@ static int fwu_boottime_checks(void *ctx, struct event *event)
 		ret = fwu_set_active_index(boot_idx);
 		if (!ret)
 			boottime_check = 1;
-
-		return 0;
 	}
 
 	if (efi_init_obj_list() != EFI_SUCCESS)
