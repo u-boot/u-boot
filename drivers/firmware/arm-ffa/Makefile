@@ -5,4 +5,12 @@
 # Authors:
 #   Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
 
-obj-y += arm-ffa-uclass.o arm-ffa.o
+# build the generic FF-A methods
+obj-y += arm-ffa-uclass.o
+ifeq ($(CONFIG_SANDBOX),y)
+# build the FF-A sandbox emulator and driver
+obj-y += ffa-emul-uclass.o sandbox_ffa.o
+else
+# build the Arm64 FF-A driver
+obj-y += arm-ffa.o
+endif
