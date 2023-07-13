@@ -6677,6 +6677,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertIn("Node '/fit': Missing tool: 'mkimage'", str(e.exception))
 
     def _CheckCapsule(self):
+        self.assertTrue(os.path.exists(self.capsule_fname))
         self.capsule_data = tools.read_file(self.capsule_fname)
 
         self.assertEqual(self.capsule_guid, self.capsule_data.hex()[:32])
@@ -6684,6 +6685,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual(self.payload_data.hex(), self.capsule_data.hex()[184:192])
 
     def _CheckSignedCapsule(self):
+        self.assertTrue(os.path.exists(self.capsule_fname))
         self.capsule_data = tools.read_file(self.capsule_fname)
 
         self.assertEqual(self.capsule_guid, self.capsule_data.hex()[:32])
