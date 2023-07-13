@@ -77,6 +77,7 @@ RUN apt-get update && apt-get install -y \
 	libsdl1.2-dev \
 	libsdl2-dev \
 	libseccomp-dev \
+	libslirp-dev \
 	libssl-dev \
 	libtool \
 	libudev-dev \
@@ -175,12 +176,10 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 
 RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 	cd /tmp/qemu && \
-	git checkout v6.1.0 && \
+	git checkout v8.0.3 && \
 	# config user.name and user.email to make 'git am' happy
 	git config user.name u-boot && \
 	git config user.email u-boot@denx.de && \
-	# manually apply the bug fix for QEMU 6.1.0 Xilinx Zynq UART emulation codes
-	wget -O - http://patchwork.ozlabs.org/project/qemu-devel/patch/20210823020813.25192-2-bmeng.cn@gmail.com/mbox/ | git am && \
 	./configure --prefix=/opt/qemu --target-list="aarch64-softmmu,arm-softmmu,i386-softmmu,m68k-softmmu,mips-softmmu,mips64-softmmu,mips64el-softmmu,mipsel-softmmu,ppc-softmmu,riscv32-softmmu,riscv64-softmmu,sh4-softmmu,x86_64-softmmu,xtensa-softmmu" && \
 	make -j$(nproc) all install && \
 	rm -rf /tmp/qemu
