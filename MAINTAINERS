@@ -1634,3 +1634,8 @@ S:	Maintained
 F:	arch/arm/dts/ls1021a-twr-u-boot.dtsi
 F:	drivers/crypto/fsl/
 F:	include/fsl_sec.h
+
+UUID testing
+M:	Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
+S:	Maintained
+F:	test/lib/uuid.c
