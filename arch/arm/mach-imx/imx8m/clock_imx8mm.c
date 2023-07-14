@@ -90,7 +90,6 @@ static int fracpll_configure(enum pll_clocks pll, u32 freq)
 	case ANATOP_DRAM_PLL:
 		setbits_le32(GPC_BASE_ADDR + 0xEC, 1 << 7);
 		setbits_le32(GPC_BASE_ADDR + 0xF8, 1 << 5);
-		writel(SRC_DDR1_ENABLE_MASK, SRC_BASE_ADDR + 0x1004);
 
 		pll_base = &ana_pll->dram_pll_gnrl_ctl;
 		break;

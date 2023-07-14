@@ -106,7 +106,7 @@ static void spl_dram_init(void)
 	}
 
 	gd->ram_size = size;
-	writel(size, M4_BOOTROM_BASE_ADDR);
+	writel(size, MCU_BOOTROM_BASE_ADDR);
 }
 
 int do_board_detect(void)

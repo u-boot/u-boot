@@ -31,7 +31,7 @@ config IMX_RDC
 
 config IMX_BOOTAUX
 	bool "Support boot auxiliary core"
-	depends on ARCH_MX7 || ARCH_MX6 || ARCH_VF610 || ARCH_IMX8M
+	depends on ARCH_MX7 || ARCH_MX6 || ARCH_VF610 || ARCH_IMX8 || ARCH_IMX8M
 	help
 	  bootaux [addr] to boot auxiliary core.
 
@@ -86,6 +86,7 @@ config CMD_DEKBLOB
 	select IMX_CAAM_DEK_ENCAP if ARCH_MX6 || ARCH_MX7 || ARCH_MX7ULP
 	select IMX_OPTEE_DEK_ENCAP if ARCH_IMX8M
 	select IMX_SECO_DEK_ENCAP if ARCH_IMX8
+	select IMX_ELE_DEK_ENCAP if ARCH_IMX8ULP || ARCH_IMX9
 	help
 	  This enables the 'dek_blob' command which is used with the
 	  Freescale secure boot mechanism. This command encapsulates and
@@ -112,6 +113,12 @@ config IMX_SECO_DEK_ENCAP
 	help
 	  This enabled the DEK blob encapsulation with the SECO API. This option
 	  is only available on imx8.
+
+config IMX_ELE_DEK_ENCAP
+	bool "Support the DEK blob encapsulation with ELE"
+	help
+	  This enabled the DEK blob encapsulation with the ELE API. This option
+	  is only available on imx8ulp and imx9.
 
 config CMD_PRIBLOB
 	bool "Support the set_priblob_bitfield command"

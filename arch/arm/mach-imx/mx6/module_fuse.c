@@ -206,7 +206,7 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 			if (off < 0)
 				continue; /* Not found, skip it */
 add_status:
-			rc = fdt_setprop(blob, nodeoff, "status", status,
+			rc = fdt_setprop(blob, off, "status", status,
 					 strlen(status) + 1);
 			if (rc) {
 				if (rc == -FDT_ERR_NOSPACE) {

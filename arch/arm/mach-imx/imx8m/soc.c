@@ -737,7 +737,7 @@ static int disable_fdt_nodes(void *blob, const char *const nodes_path[], int siz
 		if (nodeoff < 0)
 			continue; /* Not found, skip it */
 
-		printf("Found %s node\n", nodes_path[i]);
+		debug("Found %s node\n", nodes_path[i]);
 
 add_status:
 		rc = fdt_setprop(blob, nodeoff, "status", status, strlen(status) + 1);
@@ -1266,7 +1266,7 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 		if (nodeoff >= 0) {
 			const char *speed = "high-speed";
 
-			printf("Found %s node\n", usb_dwc3_path[v]);
+			debug("Found %s node\n", usb_dwc3_path[v]);
 
 usb_modify_speed:
 

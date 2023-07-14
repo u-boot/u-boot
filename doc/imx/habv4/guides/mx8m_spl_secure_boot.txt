@@ -207,6 +207,16 @@ dd if=csf_fit.bin of=flash.bin bs=1 seek=${csf_block_offset} conv=notrunc
 ```
 
 The entire script is available in doc/imx/habv4/csf_examples/mx8m/csf.sh
+and can be used as follows to modify flash.bin to be signed
+(adjust paths as needed):
+```
+export CST_DIR=/usr/src/cst-3.3.1/
+export CSF_KEY=$CST_DIR/crts/CSF1_1_sha256_4096_65537_v3_usr_crt.pem
+export IMG_KEY=$CST_DIR/crts/IMG1_1_sha256_4096_65537_v3_usr_crt.pem
+export SRK_TABLE=$CST_DIR/crts/SRK_1_2_3_4_table.bin
+export PATH=$CST_DIR/linux64/bin:$PATH
+/bin/sh doc/imx/habv4/csf_examples/mx8m/csf.sh
+```
 
 1.4 Closing the device
 -----------------------

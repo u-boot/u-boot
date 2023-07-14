@@ -338,6 +338,9 @@ static int imx8m_power_domain_on(struct power_domain *power_domain)
 		}
 	}
 
+	/* delay for reset to propagate */
+	udelay(5);
+
 	if (domain->bits.pxx) {
 		/* request the domain to power up */
 		setbits_le32(base + regs->pup, domain->bits.pxx);

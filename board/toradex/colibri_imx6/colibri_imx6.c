@@ -767,8 +767,7 @@ MX6_MMDC_P1_MPRDDQBY3DL, 0x33333333,
 /*
  * MDMISC	mirroring	interleaved (row/bank/col)
  */
-/* TODO: check what the RALAT field does */
-MX6_MMDC_P0_MDMISC, 0x00081740,
+MX6_MMDC_P0_MDMISC, 0x000b17c0,
 
 /*
  * MDSCR	con_req
@@ -900,8 +899,7 @@ MX6_MMDC_P1_MPRDDQBY3DL, 0x33333333,
 /*
  * MDMISC	mirroring	interleaved (row/bank/col)
  */
-/* TODO: check what the RALAT field does */
-MX6_MMDC_P0_MDMISC, 0x00081740,
+MX6_MMDC_P0_MDMISC, 0x000b17c0,
 
 /*
  * MDSCR	con_req

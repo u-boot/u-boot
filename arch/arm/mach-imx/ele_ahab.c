@@ -7,14 +7,13 @@
 #include <command.h>
 #include <errno.h>
 #include <asm/io.h>
-#include <asm/mach-imx/s400_api.h>
+#include <asm/mach-imx/ele_api.h>
 #include <asm/mach-imx/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/image.h>
 #include <console.h>
 #include <cpu_func.h>
-#include <asm/mach-imx/ahab.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -267,7 +266,7 @@ int ahab_auth_cntr_hdr(struct container_hdr *container, u16 length)
 	flush_dcache_range(IMG_CONTAINER_BASE,
 			   IMG_CONTAINER_BASE + ALIGN(length, CONFIG_SYS_CACHELINE_SIZE) - 1);
 
-	err = ahab_auth_oem_ctnr(IMG_CONTAINER_BASE, &resp);
+	err = ele_auth_oem_ctnr(IMG_CONTAINER_BASE, &resp);
 	if (err) {
 		printf("Authenticate container hdr failed, return %d, resp 0x%x\n",
 		       err, resp);
@@ -282,7 +281,7 @@ int ahab_auth_release(void)
 	int err;
 	u32 resp;
 
-	err = ahab_release_container(&resp);
+	err = ele_release_container(&resp);
 	if (err) {
 		printf("Error: release container failed, resp 0x%x!\n", resp);
 		display_ahab_auth_ind(resp);
@@ -296,7 +295,7 @@ int ahab_verify_cntr_image(struct boot_img_t *img, int image_index)
 	int err;
 	u32 resp;
 
-	err = ahab_verify_image(image_index, &resp);
+	err = ele_verify_image(image_index, &resp);
 	if (err) {
 		printf("Authenticate img %d failed, return %d, resp 0x%x\n",
 		       image_index, err, resp);
@@ -403,7 +402,7 @@ static int do_authenticate(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul(argv[1], NULL, 16);
+	addr = hextoul(argv[1], NULL);
 
 	printf("Authenticate OS container at 0x%lx\n", addr);
 
@@ -485,7 +484,7 @@ static int do_ahab_close(struct cmd_tbl *cmdtp, int flag, int argc,
 		return -EPERM;
 	}
 
-	err = ahab_forward_lifecycle(8, &resp);
+	err = ele_forward_lifecycle(8, &resp);
 	if (err != 0) {
 		printf("Error in forward lifecycle to OEM closed\n");
 		return -EIO;
@@ -502,7 +501,7 @@ int ahab_dump(void)
 	int ret, i = 0;
 
 	do {
-		ret = ahab_dump_buffer(buffer, 32);
+		ret = ele_dump_buffer(buffer, 32);
 		if (ret < 0) {
 			printf("Error in dump AHAB log\n");
 			return -EIO;
@@ -547,7 +546,7 @@ static int do_ahab_status(struct cmd_tbl *cmdtp, int flag, int argc, char *const
 
 	display_life_cycle(lc);
 
-	ret = ahab_get_events(events, &cnt, NULL);
+	ret = ele_get_events(events, &cnt, NULL);
 	if (ret) {
 		printf("Get ELE EVENTS error %d\n", ret);
 		return CMD_RET_FAILURE;
@@ -562,6 +561,68 @@ static int do_ahab_status(struct cmd_tbl *cmdtp, int flag, int argc, char *const
 		display_event(events[i]);
 
 	return 0;
+}
+
+static int do_sec_fuse_prog(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+{
+	ulong addr;
+	u32 header, response;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	addr = hextoul(argv[1], NULL);
+	header = *(u32 *)addr;
+
+	if ((header & 0xff0000ff) != 0x89000000) {
+		printf("Wrong Signed message block format, header 0x%x\n", header);
+		return CMD_RET_FAILURE;
+	}
+
+	header = (header & 0xffff00) >> 8;
+
+	printf("Signed Message block at 0x%lx, size 0x%x\n", addr, header);
+	flush_dcache_range(addr, addr + header - 1);
+
+	if (ele_write_secure_fuse(addr, &response)) {
+		printf("Program secure fuse failed, response 0x%x\n", response);
+		return CMD_RET_FAILURE;
+	}
+
+	printf("Program secure fuse completed, response 0x%x\n", response);
+
+	return CMD_RET_SUCCESS;
+}
+
+static int do_ahab_return_lifecycle(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+{
+	ulong addr;
+	u32 header, response;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	addr = hextoul(argv[1], NULL);
+	header = *(u32 *)addr;
+
+	if ((header & 0xff0000ff) != 0x89000000) {
+		printf("Wrong Signed message block format, header 0x%x\n", header);
+		return CMD_RET_FAILURE;
+	}
+
+	header = (header & 0xffff00) >> 8;
+
+	printf("Signed Message block at 0x%lx, size 0x%x\n", addr, header);
+	flush_dcache_range(addr, addr + header - 1);
+
+	if (ele_return_lifecycle_update(addr, &response)) {
+		printf("Return lifecycle failed, response 0x%x\n", response);
+		return CMD_RET_FAILURE;
+	}
+
+	printf("Return lifecycle completed, response 0x%x\n", response);
+
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(auth_cntr, CONFIG_SYS_MAXARGS, 1, do_authenticate,
@@ -583,4 +644,16 @@ U_BOOT_CMD(ahab_dump, CONFIG_SYS_MAXARGS, 1, do_ahab_dump,
 U_BOOT_CMD(ahab_status, CONFIG_SYS_MAXARGS, 1, do_ahab_status,
 	   "display AHAB lifecycle only",
 	   ""
+);
+
+U_BOOT_CMD(ahab_sec_fuse_prog, CONFIG_SYS_MAXARGS, 1, do_sec_fuse_prog,
+	   "Program secure fuse via signed message block",
+	   "addr\n"
+	   "addr - Signed message block for secure fuse\n"
+);
+
+U_BOOT_CMD(ahab_return_lifecycle, CONFIG_SYS_MAXARGS, 1, do_ahab_return_lifecycle,
+	   "Return lifecycle to OEM field return via signed message block",
+	   "addr\n"
+	   "addr - Return lifecycle message block signed by OEM SRK\n"
 );

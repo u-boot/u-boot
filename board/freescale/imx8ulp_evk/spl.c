@@ -19,7 +19,7 @@
 #include <asm/arch/ddr.h>
 #include <asm/arch/rdc.h>
 #include <asm/arch/upower.h>
-#include <asm/mach-imx/s400_api.h>
+#include <asm/mach-imx/ele_api.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -63,9 +63,9 @@ void display_ele_fw_version(void)
 	u32 fw_version, sha1, res;
 	int ret;
 
-	ret = ahab_get_fw_version(&fw_version, &sha1, &res);
+	ret = ele_get_fw_version(&fw_version, &sha1, &res);
 	if (ret) {
-		printf("ahab get firmware version failed %d, 0x%x\n", ret, res);
+		printf("ele get firmware version failed %d, 0x%x\n", ret, res);
 	} else {
 		printf("ELE firmware version %u.%u.%u-%x",
 		       (fw_version & (0x00ff0000)) >> 16,
@@ -120,9 +120,19 @@ void spl_board_init(void)
 	set_lpav_qos();
 
 	/* Enable A35 access to the CAAM */
-	ret = ahab_release_caam(0x7, &res);
+	ret = ele_release_caam(0x7, &res);
 	if (ret)
-		printf("ahab release caam failed %d, 0x%x\n", ret, res);
+		printf("ele release caam failed %d, 0x%x\n", ret, res);
+
+	/*
+	 * RNG start only available on the A1 soc revision.
+	 * Check some JTAG register for the SoC revision.
+	 */
+	if (!is_soc_rev(CHIP_REV_1_0)) {
+		ret = ele_start_rng();
+		if (ret)
+			printf("Fail to start RNG: %d\n", ret);
+	}
 }
 
 void board_init_f(ulong dummy)

@@ -124,6 +124,9 @@ config TARGET_IMX8MM_VENICE
 	select IMX8M_LPDDR4
 	select GATEWORKS_SC
 	select MISC
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
 
 config TARGET_KONTRON_MX8MM
 	bool "Kontron Electronics N80xx"
@@ -175,6 +178,9 @@ config TARGET_IMX8MN_VENICE
 	select IMX8M_LPDDR4
 	select GATEWORKS_SC
 	select MISC
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
 
 config TARGET_IMX8MP_DATA_MODUL_EDM_SBC
 	bool "Data Modul eDM SBC i.MX8M Plus"
@@ -232,6 +238,9 @@ config TARGET_IMX8MP_VENICE
 	select IMX8M_LPDDR4
 	select GATEWORKS_SC
 	select MISC
+	select FSL_CAAM
+	select ARCH_MISC_INIT
+	select SPL_CRYPTO if SPL
 
 config TARGET_PICO_IMX8MQ
 	bool "Support Technexion Pico iMX8MQ"
@@ -245,6 +254,10 @@ config TARGET_IMX8MN_VAR_SOM
 	select IMX8MN
 	select SUPPORT_SPL
 	select IMX8M_DDR4
+	select MISC
+	select I2C_EEPROM
+	select DM_ETH_PHY
+	select NVMEM
 
 config TARGET_KONTRON_PITX_IMX8M
 	bool "Support Kontron pITX-imx8m"

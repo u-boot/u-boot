@@ -13,12 +13,16 @@
 #include <asm/io.h>
 #include <common.h>
 #include <command.h>
-#include "../drivers/crypto/fsl_caam_internal.h"
+#include <fsl_sec.h>
 
 int do_priblob_write(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 {
-	writel((readl(CAAM_SCFGR) & 0xFFFFFFFC) | 3, CAAM_SCFGR);
-	printf("New priblob setting = 0x%x\n", readl(CAAM_SCFGR) & 0x3);
+	ccsr_sec_t *sec_regs = (ccsr_sec_t *)CAAM_BASE_ADDR;
+	u32 scfgr = sec_in32(&sec_regs->scfgr);
+
+	scfgr |= 0x3;
+	sec_out32(&sec_regs->scfgr, scfgr);
+	printf("New priblob setting = 0x%x\n", sec_in32(&sec_regs->scfgr) & 0x3);
 
 	return 0;
 }

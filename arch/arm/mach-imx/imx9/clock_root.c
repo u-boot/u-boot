@@ -34,7 +34,7 @@ static struct clk_root_map clk_root_array[] = {
 	{ ARM_A55_MTR_BUS_CLK_ROOT,	2 },
 	{ ARM_A55_CLK_ROOT,		0 },
 	{ M33_CLK_ROOT,			2 },
-	{ SENTINEL_CLK_ROOT,		2 },
+	{ ELE_CLK_ROOT,			2 },
 	{ BUS_WAKEUP_CLK_ROOT,		2 },
 	{ BUS_AON_CLK_ROOT,		2 },
 	{ WAKEUP_AXI_CLK_ROOT,		0 },

@@ -9,7 +9,7 @@
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <dm/device-internal.h>
-#include <asm/mach-imx/s400_api.h>
+#include <asm/mach-imx/ele_api.h>
 #include <asm/arch/imx-regs.h>
 #include <linux/iopoll.h>
 #include <misc.h>
@@ -22,7 +22,7 @@ struct imx8ulp_mu {
 
 #define MU_SR_TE0_MASK		BIT(0)
 #define MU_SR_RF0_MASK		BIT(0)
-#define MU_TR_COUNT		4
+#define MU_TR_COUNT		8
 #define MU_RR_COUNT		4
 
 void mu_hal_init(ulong base)
@@ -42,7 +42,7 @@ int mu_hal_sendmsg(ulong base, u32 reg_index, u32 msg)
 
 	assert(reg_index < MU_TR_COUNT);
 
-	debug("sendmsg sr 0x%x\n", readl(&mu_base->sr));
+	debug("sendmsg tsr 0x%x\n", readl(&mu_base->tsr));
 
 	/* Wait TX register to be empty. */
 	ret = readl_poll_timeout(&mu_base->tsr, val, val & mask, 10000);
@@ -64,14 +64,24 @@ int mu_hal_receivemsg(ulong base, u32 reg_index, u32 *msg)
 	u32 mask = MU_SR_RF0_MASK << reg_index;
 	u32 val;
 	int ret;
+	u32 count = 10;
 
-	assert(reg_index < MU_TR_COUNT);
+	assert(reg_index < MU_RR_COUNT);
 
-	debug("receivemsg sr 0x%x\n", readl(&mu_base->sr));
+	debug("receivemsg rsr 0x%x\n", readl(&mu_base->rsr));
 
-	/* Wait RX register to be full. */
-	ret = readl_poll_timeout(&mu_base->rsr, val, val & mask, 10000);
-	if (ret < 0) {
+	do {
+		/* Wait RX register to be full. */
+		ret = readl_poll_timeout(&mu_base->rsr, val, val & mask, 1000000);
+		if (ret < 0) {
+			count--;
+			printf("mu receive msg wait %us\n", 10 - count);
+		} else {
+			break;
+		}
+	} while (count > 0);
+
+	if (count == 0) {
 		debug("%s timeout\n", __func__);
 		return -ETIMEDOUT;
 	}
@@ -85,7 +95,7 @@ int mu_hal_receivemsg(ulong base, u32 reg_index, u32 *msg)
 
 static int imx8ulp_mu_read(struct mu_type *base, void *data)
 {
-	struct sentinel_msg *msg = (struct sentinel_msg *)data;
+	struct ele_msg *msg = (struct ele_msg *)data;
 	int ret;
 	u8 count = 0;
 
@@ -99,7 +109,7 @@ static int imx8ulp_mu_read(struct mu_type *base, void *data)
 	count++;
 
 	/* Check size */
-	if (msg->size > S400_MAX_MSG) {
+	if (msg->size > ELE_MAX_MSG) {
 		*((u32 *)msg) = 0;
 		return -EINVAL;
 	}
@@ -118,7 +128,7 @@ static int imx8ulp_mu_read(struct mu_type *base, void *data)
 
 static int imx8ulp_mu_write(struct mu_type *base, void *data)
 {
-	struct sentinel_msg *msg = (struct sentinel_msg *)data;
+	struct ele_msg *msg = (struct ele_msg *)data;
 	int ret;
 	u8 count = 0;
 
@@ -126,7 +136,7 @@ static int imx8ulp_mu_write(struct mu_type *base, void *data)
 		return -EINVAL;
 
 	/* Check size */
-	if (msg->size > S400_MAX_MSG)
+	if (msg->size > ELE_MAX_MSG)
 		return -EINVAL;
 
 	/* Write first word */
@@ -171,7 +181,7 @@ static int imx8ulp_mu_call(struct udevice *dev, int no_resp, void *tx_msg,
 			return ret;
 	}
 
-	result = ((struct sentinel_msg *)rx_msg)->data[0];
+	result = ((struct ele_msg *)rx_msg)->data[0];
 	if ((result & 0xff) == 0xd6)
 		return 0;
 
@@ -196,7 +206,7 @@ static int imx8ulp_mu_probe(struct udevice *dev)
 	/* U-Boot not enable interrupts, so need to enable RX interrupts */
 	mu_hal_init((ulong)priv->base);
 
-	gd->arch.s400_dev = dev;
+	gd->arch.ele_dev = dev;
 
 	return 0;
 }

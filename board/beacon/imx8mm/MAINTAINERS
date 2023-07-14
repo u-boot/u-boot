@@ -5,3 +5,4 @@ S:	Maintained
 F:	board/beacon/imx8mm/
 F:	include/configs/imx8mm_beacon.h
 F:	configs/imx8mm_beacon_defconfig
+F:	doc/board/beacon/

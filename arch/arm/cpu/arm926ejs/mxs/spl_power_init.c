@@ -41,6 +41,29 @@ static void mxs_power_clock2xtal(void)
 		&clkctrl_regs->hw_clkctrl_clkseq_set);
 }
 
+static void mxs_power_regs_dump(void)
+{
+	struct mxs_power_regs *power_regs =
+		(struct mxs_power_regs *)MXS_POWER_BASE;
+
+	debug("ctrl:\t\t 0x%x\n", readl(&power_regs->hw_power_ctrl));
+	debug("5vctrl:\t\t 0x%x\n", readl(&power_regs->hw_power_5vctrl));
+	debug("minpwr:\t\t 0x%x\n", readl(&power_regs->hw_power_minpwr));
+	debug("charge:\t\t 0x%x\n", readl(&power_regs->hw_power_charge));
+	debug("vddctrl:\t 0x%x\n", readl(&power_regs->hw_power_vdddctrl));
+	debug("vddactrl:\t 0x%x\n", readl(&power_regs->hw_power_vddactrl));
+	debug("vddioctrl:\t 0x%x\n", readl(&power_regs->hw_power_vddioctrl));
+	debug("vddmemctrl:\t 0x%x\n", readl(&power_regs->hw_power_vddmemctrl));
+	debug("dcdc4p2:\t 0x%x\n", readl(&power_regs->hw_power_dcdc4p2));
+	debug("misc:\t\t 0x%x\n", readl(&power_regs->hw_power_misc));
+	debug("dclimits:\t 0x%x\n", readl(&power_regs->hw_power_dclimits));
+	debug("loopctrl:\t 0x%x\n", readl(&power_regs->hw_power_loopctrl));
+	debug("sts:\t\t 0x%x\n", readl(&power_regs->hw_power_sts));
+	debug("speed:\t\t 0x%x\n", readl(&power_regs->hw_power_speed));
+	debug("battmonitor:\t 0x%x\n",
+	      readl(&power_regs->hw_power_battmonitor));
+}
+
 /**
  * mxs_power_clock2pll() - Switch CPU core clock source to PLL
  *
@@ -752,7 +775,19 @@ static void mxs_batt_boot(void)
 		POWER_5VCTRL_CHARGE_4P2_ILIMIT_MASK,
 		0x8 << POWER_5VCTRL_CHARGE_4P2_ILIMIT_OFFSET);
 
-	mxs_power_enable_4p2();
+	if (CONFIG_IS_ENABLED(MXS_PMU_MINIMAL_VDD5V_CURRENT))
+		setbits_le32(&power_regs->hw_power_5vctrl,
+			     POWER_5VCTRL_ILIMIT_EQ_ZERO);
+
+	if (CONFIG_IS_ENABLED(MXS_PMU_DISABLE_BATT_CHARGE)) {
+		writel(POWER_CHARGE_PWD_BATTCHRG,
+		       &power_regs->hw_power_charge_set);
+		writel(POWER_5VCTRL_PWD_CHARGE_4P2_MASK,
+		       &power_regs->hw_power_5vctrl_set);
+	}
+
+	if (CONFIG_IS_ENABLED(MXS_PMU_ENABLE_4P2_LINEAR_REGULATOR))
+		mxs_power_enable_4p2();
 }
 
 /**
@@ -1268,6 +1303,7 @@ void mxs_power_init(void)
 		POWER_CTRL_DCDC4P2_BO_IRQ, &power_regs->hw_power_ctrl_clr);
 
 	writel(POWER_5VCTRL_PWDN_5VBRNOUT, &power_regs->hw_power_5vctrl_set);
+	mxs_power_regs_dump();
 
 	early_delay(1000);
 }

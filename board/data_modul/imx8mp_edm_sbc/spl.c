@@ -107,6 +107,20 @@ void board_boot_order(u32 *spl_boot_list)
 	spl_boot_list[4] = BOOT_DEVICE_NONE;
 }
 
+unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc, unsigned long sect)
+{
+	const u32 boot_dev = spl_boot_device();
+	int part;
+
+	if (boot_dev == BOOT_DEVICE_MMC2) {	/* eMMC */
+		part = spl_mmc_emmc_boot_partition(mmc);
+		if (part == 1 || part == 2)	/* eMMC BOOT1/BOOT2 HW partitions */
+			return sect - 0x40;
+	}
+
+	return sect;
+}
+
 static struct dram_timing_info *dram_timing_info[8] = {
 	&dmo_imx8mp_sbc_dram_timing_32_32,	/* 32 Gbit x32 */
 	NULL,					/* 32 Gbit x16 */

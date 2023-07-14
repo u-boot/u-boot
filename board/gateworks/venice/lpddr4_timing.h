@@ -16,6 +16,7 @@ extern struct dram_timing_info dram_timing_1gb_single_die;
 extern struct dram_timing_info dram_timing_2gb_single_die;
 extern struct dram_timing_info dram_timing_2gb_dual_die;
 #elif CONFIG_IMX8MP
+extern struct dram_timing_info dram_timing_1gb_single_die;
 extern struct dram_timing_info dram_timing_4gb_dual_die;
 #endif
 

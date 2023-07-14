@@ -11,6 +11,10 @@
 	model = "Variscite VAR-SOM-MX8MN module";
 	compatible = "variscite,var-som-mx8mn", "fsl,imx8mn";
 
+	aliases {
+		eeprom-som = &eeprom_som;
+	};
+
 	chosen {
 		stdout-path = &uart4;
 	};
@@ -98,11 +102,17 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		ethphy: ethernet-phy@4 {
+		ethphy: ethernet-phy@4 { /* AR8033 or ADIN1300 */
 			compatible = "ethernet-phy-ieee802.3-c22";
 			reg = <4>;
 			reset-gpios = <&gpio1 9 GPIO_ACTIVE_LOW>;
 			reset-assert-us = <10000>;
+			/*
+			 * Deassert delay:
+			 * ADIN1300 requires 5ms.
+			 * AR8033   requires 1ms.
+			 */
+			reset-deassert-us = <20000>;
 		};
 	};
 };
@@ -221,6 +231,12 @@
 				regulator-always-on;
 			};
 		};
+	};
+
+	eeprom_som: eeprom@52 {
+		compatible = "atmel,24c04";
+		reg = <0x52>;
+		pagesize = <16>;
 	};
 };
 

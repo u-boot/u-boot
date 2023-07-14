@@ -26,6 +26,8 @@
 #include <asm/armv8/mmu.h>
 #include <asm/setup.h>
 #include <asm/mach-imx/boot_mode.h>
+#include <power-domain.h>
+#include <elf.h>
 #include <spl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -102,6 +104,178 @@ int arch_misc_init(void)
 		if (ret)
 			printf("Failed to initialize caam_jr: %d\n", ret);
 	}
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_IMX_BOOTAUX
+
+#ifdef CONFIG_IMX8QM
+int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
+{
+	sc_rsrc_t core_rsrc, mu_rsrc;
+	sc_faddr_t tcml_addr;
+	u32 tcml_size = SZ_128K;
+	ulong addr;
+
+	switch (core_id) {
+	case 0:
+		core_rsrc = SC_R_M4_0_PID0;
+		tcml_addr = 0x34FE0000;
+		mu_rsrc = SC_R_M4_0_MU_1A;
+		break;
+	case 1:
+		core_rsrc = SC_R_M4_1_PID0;
+		tcml_addr = 0x38FE0000;
+		mu_rsrc = SC_R_M4_1_MU_1A;
+		break;
+	default:
+		printf("Not support this core boot up, ID:%u\n", core_id);
+		return -EINVAL;
+	}
+
+	addr = (sc_faddr_t)boot_private_data;
+
+	if (addr >= tcml_addr && addr <= tcml_addr + tcml_size) {
+		printf("Wrong image address 0x%lx, should not in TCML\n",
+		       addr);
+		return -EINVAL;
+	}
+
+	printf("Power on M4 and MU\n");
+
+	if (sc_pm_set_resource_power_mode(-1, core_rsrc, SC_PM_PW_MODE_ON) != SC_ERR_NONE)
+		return -EIO;
+
+	if (sc_pm_set_resource_power_mode(-1, mu_rsrc, SC_PM_PW_MODE_ON) != SC_ERR_NONE)
+		return -EIO;
+
+	printf("Copy M4 image from 0x%lx to TCML 0x%lx\n", addr, (ulong)tcml_addr);
+
+	if (addr != tcml_addr)
+		memcpy((void *)tcml_addr, (void *)addr, tcml_size);
+
+	printf("Start M4 %u\n", core_id);
+	if (sc_pm_cpu_start(-1, core_rsrc, true, tcml_addr) != SC_ERR_NONE)
+		return -EIO;
+
+	printf("bootaux complete\n");
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_IMX8QXP
+int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
+{
+	sc_rsrc_t core_rsrc, mu_rsrc = SC_R_NONE;
+	sc_faddr_t aux_core_ram;
+	u32 size;
+	ulong addr;
+
+	switch (core_id) {
+	case 0:
+		core_rsrc = SC_R_M4_0_PID0;
+		aux_core_ram = 0x34FE0000;
+		mu_rsrc = SC_R_M4_0_MU_1A;
+		size = SZ_128K;
+		break;
+	case 1:
+		core_rsrc = SC_R_DSP;
+		aux_core_ram = 0x596f8000;
+		size = SZ_2K;
+		break;
+	default:
+		printf("Not support this core boot up, ID:%u\n", core_id);
+		return -EINVAL;
+	}
+
+	addr = (sc_faddr_t)boot_private_data;
+
+	if (addr >= aux_core_ram && addr <= aux_core_ram + size) {
+		printf("Wrong image address 0x%lx, should not in aux core ram\n",
+		       addr);
+		return -EINVAL;
+	}
+
+	printf("Power on aux core %d\n", core_id);
+
+	if (sc_pm_set_resource_power_mode(-1, core_rsrc, SC_PM_PW_MODE_ON) != SC_ERR_NONE)
+		return -EIO;
+
+	if (mu_rsrc != SC_R_NONE) {
+		if (sc_pm_set_resource_power_mode(-1, mu_rsrc, SC_PM_PW_MODE_ON) != SC_ERR_NONE)
+			return -EIO;
+	}
+
+	if (core_id == 1) {
+		struct power_domain pd;
+
+		if (sc_pm_clock_enable(-1, core_rsrc, SC_PM_CLK_PER, true, false) != SC_ERR_NONE) {
+			printf("Error enable clock\n");
+			return -EIO;
+		}
+
+		if (!power_domain_lookup_name("audio_sai0", &pd)) {
+			if (power_domain_on(&pd)) {
+				printf("Error power on SAI0\n");
+				return -EIO;
+			}
+		}
+
+		if (!power_domain_lookup_name("audio_ocram", &pd)) {
+			if (power_domain_on(&pd)) {
+				printf("Error power on HIFI RAM\n");
+				return -EIO;
+			}
+		}
+	}
+
+	printf("Copy image from 0x%lx to 0x%lx\n", addr, (ulong)aux_core_ram);
+	if (core_id == 0) {
+		/* M4 use bin file */
+		memcpy((void *)aux_core_ram, (void *)addr, size);
+	} else {
+		/* HIFI use elf file */
+		if (!valid_elf_image(addr))
+			return -1;
+		addr = load_elf_image_shdr(addr);
+	}
+
+	printf("Start %s\n", core_id == 0 ? "M4" : "HIFI");
+
+	if (sc_pm_cpu_start(-1, core_rsrc, true, aux_core_ram) != SC_ERR_NONE)
+		return -EIO;
+
+	printf("bootaux complete\n");
+	return 0;
+}
+#endif
+
+int arch_auxiliary_core_check_up(u32 core_id)
+{
+	sc_rsrc_t core_rsrc;
+	sc_pm_power_mode_t power_mode;
+
+	switch (core_id) {
+	case 0:
+		core_rsrc = SC_R_M4_0_PID0;
+		break;
+#ifdef CONFIG_IMX8QM
+	case 1:
+		core_rsrc = SC_R_M4_1_PID0;
+		break;
+#endif
+	default:
+		printf("Not support this core, ID:%u\n", core_id);
+		return 0;
+	}
+
+	if (sc_pm_get_resource_power_mode(-1, core_rsrc, &power_mode) != SC_ERR_NONE)
+		return 0;
+
+	if (power_mode != SC_PM_PW_MODE_OFF)
+		return 1;
 
 	return 0;
 }
@@ -195,7 +369,7 @@ enum boot_device get_boot_device(void)
 #define FUSE_UNIQUE_ID_WORD1 17
 void get_board_serial(struct tag_serialnr *serialnr)
 {
-	sc_err_t err;
+	int err;
 	u32 val1 = 0, val2 = 0;
 	u32 word1, word2;
 
@@ -206,13 +380,13 @@ void get_board_serial(struct tag_serialnr *serialnr)
 	word2 = FUSE_UNIQUE_ID_WORD1;
 
 	err = sc_misc_otp_fuse_read(-1, word1, &val1);
-	if (err != SC_ERR_NONE) {
+	if (err) {
 		printf("%s fuse %d read error: %d\n", __func__, word1, err);
 		return;
 	}
 
 	err = sc_misc_otp_fuse_read(-1, word2, &val2);
-	if (err != SC_ERR_NONE) {
+	if (err) {
 		printf("%s fuse %d read error: %d\n", __func__, word2, err);
 		return;
 	}

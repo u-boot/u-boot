@@ -56,6 +56,10 @@
 
 &gpio5 {
 	bootph-pre-ram;
+
+	ctrl-sleep-moci-hog {
+		bootph-pre-ram;
+	};
 };
 
 &i2c1 {
@@ -86,6 +90,10 @@
 		pagesize = <16>;
 		reg = <0x57>;
 	};
+};
+
+&pinctrl_ctrl_sleep_moci {
+	bootph-pre-ram;
 };
 
 &pinctrl_i2c1 {

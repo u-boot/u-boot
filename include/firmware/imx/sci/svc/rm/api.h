@@ -38,32 +38,36 @@
 
 /* Types */
 
-/*!
+/*
  * This type is used to declare a resource partition.
  */
 typedef u8 sc_rm_pt_t;
 
-/*!
+/*
  * This type is used to declare a memory region.
  */
 typedef u8 sc_rm_mr_t;
 
-/*!
+/*
  * This type is used to declare a resource domain ID used by the
  * isolation HW.
  */
 typedef u8 sc_rm_did_t;
 
-/*!
+/*
  * This type is used to declare an SMMU StreamID.
  */
 typedef u16 sc_rm_sid_t;
 
-/*!
+/*
  * This type is a used to declare master transaction attributes.
  */
 typedef u8 sc_rm_spa_t;
 
+/*
+ * This type is used to declare a resource/memory region access permission.
+ * Refer to the XRDC2 Block Guide for more information.
+ */
 typedef u8 sc_rm_perm_t;
 
 #endif /* SC_RM_API_H */

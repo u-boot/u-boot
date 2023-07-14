@@ -63,3 +63,11 @@ config STM32_ADC
 	  - core driver to deal with common resources
 	  - child driver to deal with individual ADC resources (declare ADC
 	  device and associated channels, start/stop conversions)
+
+config ADC_IMX93
+	bool "Enable NXP IMX93 ADC driver"
+	help
+	  This enables basic driver for NXP IMX93 ADC.
+	  It provides:
+	  - 4 analog input channels
+	  - 12-bit resolution

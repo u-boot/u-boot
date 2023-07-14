@@ -882,7 +882,7 @@ config ARCH_IMX8ULP
 	select SUPPORT_SPL
 	select GPIO_EXTRA_HEADER
 	select MISC
-	select IMX_SENTINEL
+	select IMX_ELE
 	imply CMD_DM
 
 config ARCH_IMX9
@@ -894,7 +894,7 @@ config ARCH_IMX9
 	select SUPPORT_SPL
 	select GPIO_EXTRA_HEADER
 	select MISC
-	select IMX_SENTINEL
+	select IMX_ELE
 	imply CMD_DM
 
 config ARCH_IMXRT
@@ -912,14 +912,12 @@ config ARCH_MX23
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
 	select MACH_IMX
-	select PL011_SERIAL
 	select SUPPORT_SPL
 
 config ARCH_MX28
 	bool "NXP i.MX28 family"
 	select CPU_ARM926EJS
 	select GPIO_EXTRA_HEADER
-	select PL011_SERIAL
 	select MACH_IMX
 	select SUPPORT_SPL
 

@@ -13,6 +13,7 @@
 #include <firmware/imx/sci/svc/pm/api.h>
 #include <firmware/imx/sci/svc/rm/api.h>
 #include <firmware/imx/sci/svc/seco/api.h>
+#include <firmware/imx/sci/svc/timer/api.h>
 #include <firmware/imx/sci/rpc.h>
 #include <dt-bindings/soc/imx_rsrc.h>
 #include <linux/errno.h>
@@ -73,6 +74,7 @@ int sc_pm_set_clock_parent(sc_ipc_t ipc, sc_rsrc_t resource, sc_pm_clk_t clk,
 			   sc_pm_clk_parent_t parent);
 int sc_pm_cpu_start(sc_ipc_t ipc, sc_rsrc_t resource, sc_bool_t enable,
 		    sc_faddr_t address);
+void sc_pm_reboot(sc_ipc_t ipc, sc_pm_reset_type_t type);
 sc_bool_t sc_pm_is_partition_started(sc_ipc_t ipc, sc_rm_pt_t pt);
 int sc_pm_resource_reset(sc_ipc_t ipc, sc_rsrc_t resource);
 
@@ -88,6 +90,7 @@ void sc_misc_build_info(sc_ipc_t ipc, u32 *build, u32 *commit);
 int sc_misc_otp_fuse_read(sc_ipc_t ipc, u32 word, u32 *val);
 int sc_misc_get_temp(sc_ipc_t ipc, sc_rsrc_t resource, sc_misc_temp_t temp,
 		     s16 *celsius, s8 *tenths);
+void sc_misc_get_button_status(sc_ipc_t ipc, sc_bool_t *status);
 
 /* RM API */
 sc_bool_t sc_rm_is_memreg_owned(sc_ipc_t ipc, sc_rm_mr_t mr);
@@ -117,6 +120,9 @@ int sc_pad_get(sc_ipc_t ipc, sc_pad_t pad, uint32_t *val);
 /* SMMU API */
 int sc_rm_set_master_sid(sc_ipc_t ipc, sc_rsrc_t resource, sc_rm_sid_t sid);
 
+/* Timer API */
+int sc_timer_set_wdog_window(sc_ipc_t ipc, sc_timer_wdog_time_t window);
+
 /* SECO API */
 int sc_seco_authenticate(sc_ipc_t ipc, sc_seco_auth_cmd_t cmd,
 			 sc_faddr_t addr);
@@ -124,6 +130,7 @@ int sc_seco_forward_lifecycle(sc_ipc_t ipc, u32 change);
 int sc_seco_chip_info(sc_ipc_t ipc, u16 *lc, u16 *monotonic, u32 *uid_l,
 		      u32 *uid_h);
 void sc_seco_build_info(sc_ipc_t ipc, u32 *version, u32 *commit);
+int sc_seco_v2x_build_info(sc_ipc_t ipc, u32 *version, u32 *commit);
 int sc_seco_get_event(sc_ipc_t ipc, u8 idx, u32 *event);
 int sc_seco_gen_key_blob(sc_ipc_t ipc, u32 id, sc_faddr_t load_addr,
 			 sc_faddr_t export_addr, u16 max_size);
@@ -374,6 +381,23 @@ static inline int sc_seco_secvio_config(sc_ipc_t ipc, u8 id, u8 access, u32 *dat
 	return -EOPNOTSUPP;
 }
 
+static inline void sc_pm_reboot(sc_ipc_t ipc, sc_pm_reset_type_t type)
+{
+}
+
+static inline int sc_seco_v2x_build_info(sc_ipc_t ipc, u32 *version, u32 *commit)
+{
+	return -EOPNOTSUPP;
+}
+
+static inline void sc_misc_get_button_status(sc_ipc_t ipc, sc_bool_t *status)
+{
+}
+
+static inline int sc_timer_set_wdog_window(sc_ipc_t ipc, sc_timer_wdog_time_t window)
+{
+	return -EOPNOTSUPP;
+}
 #endif
 
 #endif

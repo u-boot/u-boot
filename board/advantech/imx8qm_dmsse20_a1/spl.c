@@ -111,7 +111,7 @@ int board_mmc_init(struct bd_info *bis)
 		switch (i) {
 		case 0:
 			ret = sc_pm_set_resource_power_mode(-1, SC_R_SDHC_0, SC_PM_PW_MODE_ON);
-			if (ret != SC_ERR_NONE)
+			if (ret)
 				return ret;
 
 			imx8_iomux_setup_multiple_pads(emmc0, ARRAY_SIZE(emmc0));
@@ -120,10 +120,10 @@ int board_mmc_init(struct bd_info *bis)
 			break;
 		case 1:
 			ret = sc_pm_set_resource_power_mode(-1, SC_R_SDHC_2, SC_PM_PW_MODE_ON);
-			if (ret != SC_ERR_NONE)
+			if (ret)
 				return ret;
 			ret = sc_pm_set_resource_power_mode(-1, SC_R_GPIO_4, SC_PM_PW_MODE_ON);
-			if (ret != SC_ERR_NONE)
+			if (ret)
 				return ret;
 
 			imx8_iomux_setup_multiple_pads(usdhc2_sd, ARRAY_SIZE(usdhc2_sd));

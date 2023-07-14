@@ -32,6 +32,7 @@ Board-specific doc
    nokia/index
    nxp/index
    openpiton/index
+   phytec/index
    purism/index
    qualcomm/index
    renesas/index

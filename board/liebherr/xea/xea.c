@@ -62,6 +62,7 @@ static void init_clocks(void)
 void board_init_f(ulong arg)
 {
 	init_clocks();
+	spl_early_init();
 	preloader_console_init();
 }
 
@@ -203,5 +204,22 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 #endif
+/*
+ * NOTE:
+ *
+ * IMX28 clock "stub" DM driver!
+ *
+ * Only used for SPL stage, which is NOT using DM; serial and
+ * eMMC configuration.
+ */
+static const struct udevice_id imx28_clk_ids[] = {
+	{ .compatible = "fsl,imx28-clkctrl", },
+	{ }
+};
 
+U_BOOT_DRIVER(fsl_imx28_clkctrl) = {
+	.name           = "fsl_imx28_clkctrl",
+	.id             = UCLASS_CLK,
+	.of_match       = imx28_clk_ids,
+};
 #endif	/* CONFIG_SPL_BUILD */

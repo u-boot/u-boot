@@ -34,7 +34,7 @@
 #include <asm/setup.h>
 #include <asm/bootm.h>
 #include <asm/arch-imx/cpu.h>
-#include <asm/mach-imx/s400_api.h>
+#include <asm/mach-imx/ele_api.h>
 #include <fuse.h>
 #include <asm/arch/ddr.h>
 
@@ -151,7 +151,7 @@ u32 get_cpu_temp_grade(int *minc, int *maxc)
 	return val;
 }
 
-static void set_cpu_info(struct sentinel_get_info_data *info)
+static void set_cpu_info(struct ele_get_info_data *info)
 {
 	gd->arch.soc_rev = info->soc;
 	gd->arch.lifecycle = info->lc;
@@ -557,7 +557,7 @@ int imx9_probe_mu(void *ctx, struct event *event)
 	struct udevice *devp;
 	int node, ret;
 	u32 res;
-	struct sentinel_get_info_data info;
+	struct ele_get_info_data info;
 
 	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "fsl,imx93-mu-s4");
 
@@ -568,7 +568,7 @@ int imx9_probe_mu(void *ctx, struct event *event)
 	if (gd->flags & GD_FLG_RELOC)
 		return 0;
 
-	ret = ahab_get_info(&info, &res);
+	ret = ele_get_info(&info, &res);
 	if (ret)
 		return ret;
 
@@ -600,35 +600,31 @@ int timer_init(void)
 enum env_location env_get_location(enum env_operation op, int prio)
 {
 	enum boot_device dev = get_boot_device();
-	enum env_location env_loc = ENVL_UNKNOWN;
 
 	if (prio)
-		return env_loc;
+		return ENVL_UNKNOWN;
 
 	switch (dev) {
-#if defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 	case QSPI_BOOT:
-		env_loc = ENVL_SPI_FLASH;
-		break;
-#endif
-#if defined(CONFIG_ENV_IS_IN_MMC)
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_SPI_FLASH))
+			return ENVL_SPI_FLASH;
+		return ENVL_NOWHERE;
 	case SD1_BOOT:
 	case SD2_BOOT:
 	case SD3_BOOT:
 	case MMC1_BOOT:
 	case MMC2_BOOT:
 	case MMC3_BOOT:
-		env_loc =  ENVL_MMC;
-		break;
-#endif
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC))
+			return ENVL_MMC;
+		else if (CONFIG_IS_ENABLED(ENV_IS_IN_EXT4))
+			return ENVL_EXT4;
+		else if (CONFIG_IS_ENABLED(ENV_IS_IN_FAT))
+			return ENVL_FAT;
+		return ENVL_NOWHERE;
 	default:
-#if defined(CONFIG_ENV_IS_NOWHERE)
-		env_loc = ENVL_NOWHERE;
-#endif
-		break;
+		return ENVL_NOWHERE;
 	}
-
-	return env_loc;
 }
 
 static int mix_power_init(enum mix_power_domain pd)
@@ -646,7 +642,7 @@ static int mix_power_init(enum mix_power_domain pd)
 		mem_id = SRC_MEM_MEDIA;
 		scr = BIT(5);
 
-		/* Enable S400 handshake */
+		/* Enable ELE handshake */
 		struct blk_ctrl_s_aonmix_regs *s_regs =
 			(struct blk_ctrl_s_aonmix_regs *)BLK_CTRL_S_ANOMIX_BASE_ADDR;
 
@@ -763,8 +759,8 @@ int m33_prepare(void)
 	while (!(val & SRC_MIX_SLICE_FUNC_STAT_RST_STAT))
 		val = readl(&mix_regs->func_stat);
 
-	/* Release Sentinel TROUT */
-	ahab_release_m33_trout();
+	/* Release ELE TROUT */
+	ele_release_m33_trout();
 
 	/* Mask WDOG1 IRQ from A55, we use it for M33 reset */
 	setbits_le32(&s_regs->ca55_irq_mask[1], BIT(6));
@@ -772,7 +768,7 @@ int m33_prepare(void)
 	/* Turn on WDOG1 clock */
 	ccm_lpcg_on(CCGR_WDG1, 1);
 
-	/* Set sentinel LP handshake for M33 reset */
+	/* Set ELE LP handshake for M33 reset */
 	setbits_le32(&s_regs->lp_handshake[0], BIT(6));
 
 	/* Clear M33 TCM for ECC */

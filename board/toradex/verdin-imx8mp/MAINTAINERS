@@ -1,6 +1,5 @@
 Verdin iMX8M Plus
 F:	arch/arm/dts/imx8mp-verdin.dtsi
-F:	arch/arm/dts/imx8mp-verdin-dahlia.dtsi
 F:	arch/arm/dts/imx8mp-verdin-dev.dtsi
 F:	arch/arm/dts/imx8mp-verdin-wifi.dtsi
 F:	arch/arm/dts/imx8mp-verdin-wifi-dev.dts

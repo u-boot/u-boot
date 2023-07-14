@@ -13,6 +13,19 @@
 	bootph-pre-ram;
 };
 
+&eeprom_som {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	eth_mac_address: eth-mac-address@19 {
+		reg = <0x19 0x06>;
+	};
+};
+
+&fec1 {
+	nvmem-cells = <&eth_mac_address>;
+	nvmem-cell-names = "mac-address";
+};
+
 &gpio1 {
 	bootph-pre-ram;
 };
@@ -66,5 +79,9 @@
 };
 
 &usdhc3 {
+	bootph-pre-ram;
+};
+
+&eeprom_som {
 	bootph-pre-ram;
 };

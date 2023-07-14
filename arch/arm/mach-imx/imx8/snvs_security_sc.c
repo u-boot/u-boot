@@ -286,16 +286,15 @@ static int check_write_secvio_config(u32 id, u32 *_p1, u32 *_p2,
 				     u32 *_p3, u32 *_p4, u32 *_p5,
 				     u32 _cnt)
 {
-	int scierr = 0;
+	int err;
 	u32 d1 = ptr_value(_p1);
 	u32 d2 = ptr_value(_p2);
 	u32 d3 = ptr_value(_p3);
 	u32 d4 = ptr_value(_p4);
 	u32 d5 = ptr_value(_p5);
 
-	scierr = sc_seco_secvio_config(-1, id, SC_WRITE_CONF, &d1, &d2, &d3,
-				       &d4, &d4, _cnt);
-	if (scierr != SC_ERR_NONE) {
+	err = sc_seco_secvio_config(-1, id, SC_WRITE_CONF, &d1, &d2, &d3, &d4, &d4, _cnt);
+	if (err) {
 		printf("Failed to set secvio configuration\n");
 		debug("Failed to set conf id 0x%x with values ", id);
 		debug("0x%.8x 0x%.8x 0x%.8x 0x%.8x 0x%.8x (cnt: %d)\n",
@@ -315,7 +314,7 @@ static int check_write_secvio_config(u32 id, u32 *_p1, u32 *_p2,
 		*(u32 *)_p5 = d5;
 
 exit:
-	return scierr;
+	return err;
 }
 
 #define SC_CHECK_WRITE1(id, _p1) \
@@ -323,7 +322,7 @@ exit:
 
 static int apply_snvs_config(struct snvs_security_sc_conf *cnf)
 {
-	int scierr = 0;
+	int err = 0;
 
 	debug("%s\n", __func__);
 
@@ -365,92 +364,88 @@ static int apply_snvs_config(struct snvs_security_sc_conf *cnf)
 			cnf->lp.act_tamper_routing_ctl1,
 			cnf->lp.act_tamper_routing_ctl2);
 
-	scierr = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.tamper_filt_cfg),
-					   &cnf->lp.tamper_filt_cfg,
-					   &cnf->lp.tamper_filt1_cfg,
-					   &cnf->lp.tamper_filt2_cfg, NULL,
-					   NULL, 3);
-	if (scierr != SC_ERR_NONE)
+	err = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.tamper_filt_cfg),
+					&cnf->lp.tamper_filt_cfg,
+					&cnf->lp.tamper_filt1_cfg,
+					&cnf->lp.tamper_filt2_cfg,
+					NULL, NULL, 3);
+	if (err)
 		goto exit;
 
 	/* Configure AT */
-	scierr = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.act_tamper1_cfg),
-					   &cnf->lp.act_tamper1_cfg,
-					   &cnf->lp.act_tamper2_cfg,
-					   &cnf->lp.act_tamper2_cfg,
-					   &cnf->lp.act_tamper2_cfg,
-					   &cnf->lp.act_tamper2_cfg, 5);
-	if (scierr != SC_ERR_NONE)
+	err = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.act_tamper1_cfg),
+					&cnf->lp.act_tamper1_cfg,
+					&cnf->lp.act_tamper2_cfg,
+					&cnf->lp.act_tamper2_cfg,
+					&cnf->lp.act_tamper2_cfg,
+					&cnf->lp.act_tamper2_cfg, 5);
+	if (err)
 		goto exit;
 
 	/* Configure AT routing */
-	scierr = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.act_tamper_routing_ctl1),
-					   &cnf->lp.act_tamper_routing_ctl1,
-					   &cnf->lp.act_tamper_routing_ctl2,
-					   NULL, NULL, NULL, 2);
-	if (scierr != SC_ERR_NONE)
+	err = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.act_tamper_routing_ctl1),
+					&cnf->lp.act_tamper_routing_ctl1,
+					&cnf->lp.act_tamper_routing_ctl2,
+					NULL, NULL, NULL, 2);
+	if (err)
 		goto exit;
 
 	/* Configure AT frequency */
-	scierr = SC_CHECK_WRITE1(SC_CONF_OFFSET_OF(lp.act_tamper_clk_ctl),
-				 &cnf->lp.act_tamper_clk_ctl);
-	if (scierr != SC_ERR_NONE)
+	err = SC_CHECK_WRITE1(SC_CONF_OFFSET_OF(lp.act_tamper_clk_ctl),
+			      &cnf->lp.act_tamper_clk_ctl);
+	if (err)
 		goto exit;
 
 	/* Activate the ATs */
-	scierr = SC_CHECK_WRITE1(SC_CONF_OFFSET_OF(lp.act_tamper_ctl),
-				 &cnf->lp.act_tamper_ctl);
-	if (scierr != SC_ERR_NONE)
+	err = SC_CHECK_WRITE1(SC_CONF_OFFSET_OF(lp.act_tamper_ctl), &cnf->lp.act_tamper_ctl);
+	if (err)
 		goto exit;
 
 	/* Activate the detectors */
-	scierr = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.tamper_det_cfg),
-					   &cnf->lp.tamper_det_cfg,
-					   &cnf->lp.tamper_det_cfg2, NULL, NULL,
-					   NULL, 2);
-	if (scierr != SC_ERR_NONE)
+	err = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.tamper_det_cfg),
+					&cnf->lp.tamper_det_cfg,
+					&cnf->lp.tamper_det_cfg2, NULL, NULL, NULL, 2);
+	if (err)
 		goto exit;
 
 	/* Configure LP secvio */
-	scierr = SC_CHECK_WRITE1(SC_CONF_OFFSET_OF(lp.secvio_ctl),
-				 &cnf->lp.secvio_ctl);
-	if (scierr != SC_ERR_NONE)
+	err = SC_CHECK_WRITE1(SC_CONF_OFFSET_OF(lp.secvio_ctl), &cnf->lp.secvio_ctl);
+	if (err)
 		goto exit;
 
 	/* Configure HP secvio */
-	scierr = SC_CHECK_WRITE1(SC_CONF_OFFSET_OF(hp.secvio_ctl),
-				 &cnf->hp.secvio_ctl);
-	if (scierr != SC_ERR_NONE)
+	err = SC_CHECK_WRITE1(SC_CONF_OFFSET_OF(hp.secvio_ctl), &cnf->hp.secvio_ctl);
+	if (err)
 		goto exit;
 
 	/* Lock access */
-	scierr = SC_CHECK_WRITE1(SC_CONF_OFFSET_OF(hp.lock), &cnf->hp.lock);
-	if (scierr != SC_ERR_NONE)
+	err = SC_CHECK_WRITE1(SC_CONF_OFFSET_OF(hp.lock), &cnf->hp.lock);
+	if (err)
 		goto exit;
 
-	scierr = SC_CHECK_WRITE1(SC_CONF_OFFSET_OF(lp.lock), &cnf->lp.lock);
-	if (scierr != SC_ERR_NONE)
+	err = SC_CHECK_WRITE1(SC_CONF_OFFSET_OF(lp.lock), &cnf->lp.lock);
+	if (err)
 		goto exit;
 
 exit:
-	return (scierr == SC_ERR_NONE) ? 0 : -EIO;
+	return err;
 }
 
 static int dgo_write(u32 _id, u8 _access, u32 *_pdata)
 {
-	int scierr = sc_seco_secvio_dgo_config(-1, _id, _access, _pdata);
+	int err = sc_seco_secvio_dgo_config(-1, _id, _access, _pdata);
 
-	if (scierr != SC_ERR_NONE) {
+	if (err) {
 		printf("Failed to set dgo configuration\n");
 		debug("Failed to set conf id 0x%x : 0x%.8x", _id, *_pdata);
 	}
 
-	return scierr;
+	return err;
 }
 
 static int apply_snvs_dgo_config(struct snvs_dgo_conf *cnf)
 {
-	int scierr = 0;
+	int err;
 
 	debug("%s\n", __func__);
 
@@ -468,50 +463,50 @@ static int apply_snvs_dgo_config(struct snvs_dgo_conf *cnf)
 			cnf->tamper_misc_ctl,
 			cnf->tamper_core_volt_mon_ctl);
 
-	dgo_write(0x04, 1, &cnf->tamper_offset_ctl);
-	if (scierr != SC_ERR_NONE)
+	err = dgo_write(0x04, 1, &cnf->tamper_offset_ctl);
+	if (err)
 		goto exit;
 
-	dgo_write(0x14, 1, &cnf->tamper_pull_ctl);
-	if (scierr != SC_ERR_NONE)
+	err = dgo_write(0x14, 1, &cnf->tamper_pull_ctl);
+	if (err)
 		goto exit;
 
-	dgo_write(0x24, 1, &cnf->tamper_ana_test_ctl);
-	if (scierr != SC_ERR_NONE)
+	err = dgo_write(0x24, 1, &cnf->tamper_ana_test_ctl);
+	if (err)
 		goto exit;
 
-	dgo_write(0x34, 1, &cnf->tamper_sensor_trim_ctl);
-	if (scierr != SC_ERR_NONE)
+	err = dgo_write(0x34, 1, &cnf->tamper_sensor_trim_ctl);
+	if (err)
 		goto exit;
 
-	dgo_write(0x54, 1, &cnf->tamper_core_volt_mon_ctl);
-	if (scierr != SC_ERR_NONE)
+	err = dgo_write(0x54, 1, &cnf->tamper_core_volt_mon_ctl);
+	if (err)
 		goto exit;
 
 	/* Last as it could lock the writes */
-	dgo_write(0x44, 1, &cnf->tamper_misc_ctl);
-	if (scierr != SC_ERR_NONE)
+	err = dgo_write(0x44, 1, &cnf->tamper_misc_ctl);
+	if (err)
 		goto exit;
 
 exit:
-	return (scierr == SC_ERR_NONE) ? 0 : -EIO;
+	return err;
 }
 
 static int pad_write(u32 _pad, u32 _value)
 {
-	int scierr = sc_pad_set(-1, _pad, _value);
+	int err = sc_pad_set(-1, _pad, _value);
 
-	if (scierr != SC_ERR_NONE) {
+	if (err) {
 		printf("Failed to set pad configuration\n");
 		debug("Failed to set conf pad 0x%x : 0x%.8x", _pad, _value);
 	}
 
-	return scierr;
+	return err;
 }
 
 static int apply_tamper_pin_list_config(struct tamper_pin_cfg *confs, u32 size)
 {
-	int scierr = 0;
+	int err = 0;
 	u32 idx;
 
 	debug("%s\n", __func__);
@@ -519,13 +514,13 @@ static int apply_tamper_pin_list_config(struct tamper_pin_cfg *confs, u32 size)
 	for (idx = 0; idx < size; idx++) {
 		debug("\t idx %d: pad %d: 0x%.8x\n", idx, confs[idx].pad,
 		      confs[idx].mux_conf);
-		pad_write(confs[idx].pad, 3 << 30 | confs[idx].mux_conf);
-		if (scierr != SC_ERR_NONE)
+		err = pad_write(confs[idx].pad, 3 << 30 | confs[idx].mux_conf);
+		if (err)
 			goto exit;
 	}
 
 exit:
-	return (scierr == SC_ERR_NONE) ? 0 : -EIO;
+	return err;
 }
 
 int examples(void)
@@ -753,7 +748,7 @@ static char snvs_clear_status_help_text[] =
 static int do_snvs_clear_status(struct cmd_tbl *cmdtp, int flag, int argc,
 				char *const argv[])
 {
-	int scierr = 0;
+	int err;
 	u32 idx = 0;
 
 	struct snvs_security_sc_conf conf = {0};
@@ -764,20 +759,18 @@ static int do_snvs_clear_status(struct cmd_tbl *cmdtp, int flag, int argc,
 	conf.lp.status = hextoul(argv[++idx], NULL);
 	conf.lp.tamper_det_status = hextoul(argv[++idx], NULL);
 
-	scierr = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.status),
-					   &conf.lp.status, NULL, NULL, NULL,
-					   NULL, 1);
-	if (scierr != SC_ERR_NONE)
+	err = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.status),
+					&conf.lp.status, NULL, NULL, NULL, NULL, 1);
+	if (err)
 		goto exit;
 
-	scierr = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.tamper_det_status),
-					   &conf.lp.tamper_det_status, NULL,
-					   NULL, NULL, NULL, 1);
-	if (scierr != SC_ERR_NONE)
+	err = check_write_secvio_config(SC_CONF_OFFSET_OF(lp.tamper_det_status),
+					&conf.lp.tamper_det_status, NULL, NULL, NULL, NULL, 1);
+	if (err)
 		goto exit;
 
 exit:
-	return (scierr == SC_ERR_NONE) ? 0 : 1;
+	return err;
 }
 
 U_BOOT_CMD(snvs_clear_status,
@@ -793,7 +786,7 @@ static char snvs_sec_status_help_text[] =
 static int do_snvs_sec_status(struct cmd_tbl *cmdtp, int flag, int argc,
 			      char *const argv[])
 {
-	int scierr;
+	int err;
 	u32 idx;
 
 	u32 data[5];
@@ -864,8 +857,8 @@ static int do_snvs_sec_status(struct cmd_tbl *cmdtp, int flag, int argc,
 	for (idx = 0; idx < ARRAY_SIZE(pads); idx++) {
 		u8 pad_id = pads[idx];
 
-		scierr = sc_pad_get(-1, pad_id, &data[0]);
-		if (scierr == 0)
+		err = sc_pad_get(-1, pad_id, &data[0]);
+		if (!err)
 			printf("\t- Pin %d: %.8x\n", pad_id, data[0]);
 		else
 			printf("Failed to read Pin %d\n", pad_id);
@@ -876,8 +869,8 @@ static int do_snvs_sec_status(struct cmd_tbl *cmdtp, int flag, int argc,
 	for (idx = 0; idx < ARRAY_SIZE(fuses); idx++) {
 		u32 fuse_id = fuses[idx];
 
-		scierr = sc_misc_otp_fuse_read(-1, fuse_id, &data[0]);
-		if (scierr == 0)
+		err = sc_misc_otp_fuse_read(-1, fuse_id, &data[0]);
+		if (!err)
 			printf("\t- Fuse %d: %.8x\n", fuse_id, data[0]);
 		else
 			printf("Failed to read Fuse %d\n", fuse_id);
@@ -888,10 +881,10 @@ static int do_snvs_sec_status(struct cmd_tbl *cmdtp, int flag, int argc,
 	for (idx = 0; idx < ARRAY_SIZE(snvs); idx++) {
 		struct snvs_reg *reg = &snvs[idx];
 
-		scierr = sc_seco_secvio_config(-1, reg->id, 0, &data[0],
-					       &data[1], &data[2], &data[3],
-					       &data[4], reg->nb);
-		if (scierr == 0) {
+		err = sc_seco_secvio_config(-1, reg->id, 0, &data[0],
+					    &data[1], &data[2], &data[3],
+					    &data[4], reg->nb);
+		if (!err) {
 			int subidx;
 
 			printf("\t- SNVS %.2x(%d):", reg->id, reg->nb);
@@ -908,8 +901,8 @@ static int do_snvs_sec_status(struct cmd_tbl *cmdtp, int flag, int argc,
 	for (idx = 0; idx < ARRAY_SIZE(dgo); idx++) {
 		u8 dgo_id = dgo[idx];
 
-		scierr = sc_seco_secvio_dgo_config(-1, dgo_id, 0, &data[0]);
-		if (scierr == 0)
+		err = sc_seco_secvio_dgo_config(-1, dgo_id, 0, &data[0]);
+		if (!err)
 			printf("\t- DGO %.2x: %.8x\n", dgo_id, data[0]);
 		else
 			printf("Failed to read DGO %d\n", dgo_id);

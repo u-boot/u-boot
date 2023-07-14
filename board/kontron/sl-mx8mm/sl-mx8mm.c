@@ -37,7 +37,7 @@ struct efi_capsule_update_info update_info = {
 
 int board_phys_sdram_size(phys_size_t *size)
 {
-	u32 ddr_size = readl(M4_BOOTROM_BASE_ADDR);
+	u32 ddr_size = readl(MCU_BOOTROM_BASE_ADDR);
 
 	if (ddr_size == 4) {
 		*size = 0x100000000;

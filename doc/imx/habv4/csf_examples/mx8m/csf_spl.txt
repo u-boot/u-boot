@@ -7,13 +7,13 @@
   Signature Format = CMS
 
 [Install SRK]
-  # FIXME: Adjust path here
-  File = "/path/to/cst-3.3.1/crts/SRK_1_2_3_4_table.bin"
+  # SRK_TABLE is full path to SRK_1_2_3_4_table.bin
+  File = "$SRK_TABLE"
   Source index = 0
 
 [Install CSFK]
-  # FIXME: Adjust path here
-  File = "/path/to/cst-3.3.1/crts/CSF1_1_sha256_4096_65537_v3_usr_crt.pem"
+  # CSF_KEY is full path to CSF1_1_sha256_4096_65537_v3_usr_crt.pem
+  File = "$CSF_KEY"
 
 [Authenticate CSF]
 
@@ -24,8 +24,8 @@
 [Install Key]
   Verification index = 0
   Target Index = 2
-  # FIXME: Adjust path here
-  File = "/path/to/cst-3.3.1/crts/IMG1_1_sha256_4096_65537_v3_usr_crt.pem"
+  # IMG_KEY is full path to IMG1_1_sha256_4096_65537_v3_usr_crt.pem
+  File = "$IMG_KEY"
 
 [Authenticate Data]
   Verification index = 2

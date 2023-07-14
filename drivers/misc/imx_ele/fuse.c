@@ -10,7 +10,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/imx-regs.h>
 #include <env.h>
-#include <asm/mach-imx/s400_api.h>
+#include <asm/mach-imx/ele_api.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -24,11 +24,11 @@ struct fsb_map_entry {
 	bool redundancy;
 };
 
-struct s400_map_entry {
+struct ele_map_entry {
 	s32 fuse_bank;
 	u32 fuse_words;
 	u32 fuse_offset;
-	u32 s400_index;
+	u32 ele_index;
 };
 
 #if defined(CONFIG_IMX8ULP)
@@ -65,7 +65,7 @@ u32 nonecc_fuse_banks[] = {
 	0, 1, 8, 12, 16, 22, 24, 25, 26, 27, 36, 41, 51, 56
 };
 
-struct s400_map_entry s400_api_mapping_table[] = {
+struct ele_map_entry ele_api_mapping_table[] = {
 	{ 1, 8 },	/* LOCK */
 	{ 2, 8 },	/* ECID */
 	{ 7, 4, 0, 1 },	/* OTP_UNIQ_ID */
@@ -122,7 +122,7 @@ struct fsb_map_entry fsb_mapping_table[] = {
 	{ 63, 8 },
 };
 
-struct s400_map_entry s400_api_mapping_table[] = {
+struct ele_map_entry ele_api_mapping_table[] = {
 	{ 7, 1, 7, 63 },
 	{ 16, 8, },
 	{ 17, 8, },
@@ -159,18 +159,18 @@ static s32 map_fsb_fuse_index(u32 bank, u32 word, bool *redundancy)
 	return word + word_pos;
 }
 
-static s32 map_s400_fuse_index(u32 bank, u32 word)
+static s32 map_ele_fuse_index(u32 bank, u32 word)
 {
-	s32 size = ARRAY_SIZE(s400_api_mapping_table);
+	s32 size = ARRAY_SIZE(ele_api_mapping_table);
 	s32 i;
 
 	/* map the fuse from ocotp fuse map to FSB*/
 	for (i = 0; i < size; i++) {
-		if (s400_api_mapping_table[i].fuse_bank != -1 &&
-		    s400_api_mapping_table[i].fuse_bank == bank) {
-			if (word >= s400_api_mapping_table[i].fuse_offset &&
-			    word < (s400_api_mapping_table[i].fuse_offset +
-			    s400_api_mapping_table[i].fuse_words))
+		if (ele_api_mapping_table[i].fuse_bank != -1 &&
+		    ele_api_mapping_table[i].fuse_bank == bank) {
+			if (word >= ele_api_mapping_table[i].fuse_offset &&
+			    word < (ele_api_mapping_table[i].fuse_offset +
+			    ele_api_mapping_table[i].fuse_words))
 				break;
 		}
 	}
@@ -178,10 +178,10 @@ static s32 map_s400_fuse_index(u32 bank, u32 word)
 	if (i == size)
 		return -1; /* Failed to find */
 
-	if (s400_api_mapping_table[i].s400_index != 0)
-		return s400_api_mapping_table[i].s400_index;
+	if (ele_api_mapping_table[i].ele_index != 0)
+		return ele_api_mapping_table[i].ele_index;
 
-	return s400_api_mapping_table[i].fuse_bank * 8 + word;
+	return ele_api_mapping_table[i].fuse_bank * 8 + word;
 }
 
 #if defined(CONFIG_IMX8ULP)
@@ -202,7 +202,7 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 		return 0;
 	}
 
-	word_index = map_s400_fuse_index(bank, word);
+	word_index = map_ele_fuse_index(bank, word);
 	if (word_index >= 0) {
 		u32 data[4];
 		u32 res, size = 4;
@@ -212,7 +212,7 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 		if (word_index != 1)
 			size = 1;
 
-		ret = ahab_read_common_fuse(word_index, data, size, &res);
+		ret = ele_read_common_fuse(word_index, data, size, &res);
 		if (ret) {
 			printf("ahab read fuse failed %d, 0x%x\n", ret, res);
 			return ret;
@@ -255,13 +255,13 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 		return 0;
 	}
 
-	word_index = map_s400_fuse_index(bank, word);
+	word_index = map_ele_fuse_index(bank, word);
 	if (word_index >= 0) {
 		u32 data;
 		u32 res, size = 1;
 		int ret;
 
-		ret = ahab_read_common_fuse(word_index, &data, size, &res);
+		ret = ele_read_common_fuse(word_index, &data, size, &res);
 		if (ret) {
 			printf("ahab read fuse failed %d, 0x%x\n", ret, res);
 			return ret;
@@ -304,7 +304,7 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 		lock = true;
 #endif
 
-	ret = ahab_write_fuse((bank * 8 + word), val, lock, &res);
+	ret = ele_write_fuse((bank * 8 + word), val, lock, &res);
 	if (ret) {
 		printf("ahab write fuse failed %d, 0x%x\n", ret, res);
 		return ret;

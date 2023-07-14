@@ -6,9 +6,12 @@
 #include <fdt_support.h>
 #include <init.h>
 #include <led.h>
+#include <mmc.h>
 #include <miiphy.h>
+#include <mmc.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/mach-imx/boot_mode.h>
 
 #include "eeprom.h"
 
@@ -17,7 +20,7 @@ int board_phys_sdram_size(phys_size_t *size)
 	if (!size)
 		return -EINVAL;
 
-	*size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
+	*size = get_ram_size((void *)PHYS_SDRAM, (long)PHYS_SDRAM_SIZE + (long)PHYS_SDRAM_2_SIZE);
 
 	return 0;
 }
@@ -93,10 +96,12 @@ int board_init(void)
 int board_late_init(void)
 {
 	const char *str;
+	struct mmc *mmc = NULL;
 	char env[32];
 	int ret, i;
 	u8 enetaddr[6];
 	char fdt[64];
+	int bootdev;
 
 	/* Set board serial/model */
 	if (!env_get("serial#"))
@@ -131,12 +136,94 @@ int board_late_init(void)
 		i++;
 	} while (!ret);
 
+	/*
+	 * set bootdev/bootblk/bootpart (used in firmware_update script)
+	 * dynamically depending on boot device and SoC
+	 */
+	bootdev = -1;
+	switch (get_boot_device()) {
+	case SD1_BOOT:
+	case MMC1_BOOT: /* SDHC1 */
+		bootdev = 0;
+		break;
+	case SD2_BOOT:
+	case MMC2_BOOT: /* SDHC2 */
+		bootdev = 1;
+		break;
+	case SD3_BOOT:
+	case MMC3_BOOT: /* SDHC3 */
+		bootdev = 2;
+		break;
+	default:
+		bootdev = 2; /* assume SDHC3 (eMMC) if booting over SDP */
+		break;
+	}
+	if (bootdev != -1)
+		mmc = find_mmc_device(bootdev);
+	if (mmc) {
+		int bootblk;
+
+		if (IS_ENABLED(CONFIG_IMX8MN) || IS_ENABLED(CONFIG_IMX8MP))
+			bootblk = 32 * SZ_1K / 512;
+		else
+			bootblk = 33 * SZ_1K / 512;
+		mmc_init(mmc);
+		if (!IS_SD(mmc)) {
+			int bootpart;
+
+			switch (EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config)) {
+			case 1: /* boot0 */
+				bootpart = 1;
+				break;
+			case 2: /* boot1 */
+				bootpart = 2;
+				break;
+			case 7: /* user */
+			default:
+				bootpart = 0;
+				break;
+			}
+			/* IMX8MP/IMX8MN BOOTROM v2 uses offset=0 for boot parts */
+			if ((IS_ENABLED(CONFIG_IMX8MN) || IS_ENABLED(CONFIG_IMX8MP)) &&
+			    (bootpart == 1 || bootpart == 2))
+				bootblk = 0;
+			env_set_hex("bootpart", bootpart);
+			env_set_hex("bootblk", bootblk);
+		} else { /* SD */
+			env_set("bootpart", "");
+			env_set_hex("bootblk", bootblk);
+		}
+		env_set_hex("dev", bootdev);
+	}
+
+	/* override soc=imx8m to provide a more specific soc name */
+	if (IS_ENABLED(CONFIG_IMX8MN))
+		env_set("soc", "imx8mn");
+	else if (IS_ENABLED(CONFIG_IMX8MP))
+		env_set("soc", "imx8mp");
+	else if (IS_ENABLED(CONFIG_IMX8MM))
+		env_set("soc", "imx8mm");
+
 	return 0;
 }
 
 int board_mmc_get_env_dev(int devno)
 {
 	return devno;
+}
+
+uint mmc_get_env_part(struct mmc *mmc)
+{
+	if (!IS_SD(mmc)) {
+		switch (EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config)) {
+		case 1:
+			return 1;
+		case 2:
+			return 2;
+		}
+	}
+
+	return 0;
 }
 
 int ft_board_setup(void *fdt, struct bd_info *bd)

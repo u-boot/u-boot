@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2008-2015 Freescale Semiconductor, Inc.
+ * Copyright 2022 NXP
  *
  * Command for encapsulating DEK blob
  */
@@ -20,6 +21,11 @@
 #include <firmware/imx/sci/sci.h>
 #include <asm/mach-imx/image.h>
 #endif
+#ifdef CONFIG_IMX_ELE_DEK_ENCAP
+#include <asm/mach-imx/ele_api.h>
+#include <asm/mach-imx/image.h>
+#endif
+
 #include <cpu_func.h>
 
 /**
@@ -101,6 +107,7 @@ static int blob_encap_dek(u32 src_addr, u32 dst_addr, u32 len)
 			       0x0, &shm_output);
 	if (ret < 0) {
 		printf("Cannot register output shared memory 0x%X\n", ret);
+		tee_shm_free(shm_input);
 		goto error;
 	}
 
@@ -122,11 +129,11 @@ static int blob_encap_dek(u32 src_addr, u32 dst_addr, u32 len)
 	if (ret < 0)
 		printf("Cannot generate Blob with PTA DEK Blob 0x%X\n", ret);
 
-error:
 	/* Free shared memory */
 	tee_shm_free(shm_input);
 	tee_shm_free(shm_output);
 
+error:
 	/* Close session */
 	ret = tee_close_session(dev, arg.session);
 	if (ret < 0)
@@ -154,7 +161,7 @@ error:
 
 static int blob_encap_dek(u32 src_addr, u32 dst_addr, u32 len)
 {
-	sc_err_t err;
+	int err;
 	sc_rm_mr_t mr_input, mr_output;
 	struct generate_key_blob_hdr hdr;
 	u8 in_size, out_size;
@@ -282,6 +289,84 @@ error:
 	return ret;
 }
 #endif /* CONFIG_IMX_SECO_DEK_ENCAP */
+
+#ifdef CONFIG_IMX_ELE_DEK_ENCAP
+
+#define DEK_BLOB_HDR_SIZE 8
+#define AHAB_PRIVATE_KEY 0x81
+#define AHAB_DEK_BLOB	 0x01
+#define AHAB_ALG_AES	 0x03
+#define AHAB_128_AES_KEY 0x10
+#define AHAB_192_AES_KEY 0x18
+#define AHAB_256_AES_KEY 0x20
+
+static int blob_encap_dek(u32 src_addr, u32 dst_addr, u32 len)
+{
+	u8 in_size, out_size;
+	u8 *src_ptr, *dst_ptr;
+	struct generate_key_blob_hdr hdr;
+
+	/* Set sizes */
+	in_size = sizeof(struct generate_key_blob_hdr) + len / 8;
+	out_size = BLOB_SIZE(len / 8) + DEK_BLOB_HDR_SIZE;
+
+	/* Get src and dst virtual addresses */
+	src_ptr = map_sysmem(src_addr, in_size);
+	dst_ptr = map_sysmem(dst_addr, out_size);
+
+	/* Check addr input */
+	if (!(src_ptr && dst_ptr)) {
+		debug("src_addr or dst_addr invalid\n");
+		return -1;
+	}
+
+	/* Build key header */
+	hdr.version = 0x0;
+	hdr.length_lsb = in_size;
+	hdr.length_msb = 0x00;
+	hdr.tag = AHAB_PRIVATE_KEY;
+	hdr.flags = AHAB_DEK_BLOB;
+	hdr.algorithm = AHAB_ALG_AES;
+	hdr.mode = 0x0; /* Not used by the ELE */
+
+	switch (len) {
+	case 128:
+		hdr.size = AHAB_128_AES_KEY;
+		break;
+	case 192:
+		hdr.size = AHAB_192_AES_KEY;
+		break;
+	case 256:
+		hdr.size = AHAB_256_AES_KEY;
+		break;
+	default:
+		/* Not supported */
+		debug("Invalid DEK size. Valid sizes are 128, 192 and 256b\n");
+		return -1;
+	}
+
+	/* Move input key and append blob header */
+	memmove((void *)(src_ptr + sizeof(struct generate_key_blob_hdr)),
+		(void *)src_ptr, len / 8);
+	memcpy((void *)src_ptr, (void *)&hdr,
+	       sizeof(struct generate_key_blob_hdr));
+
+	/* Flush the cache */
+	flush_dcache_range(src_addr, src_addr + in_size);
+	flush_dcache_range((ulong)dst_ptr, (ulong)(dst_ptr +
+			roundup(out_size, ARCH_DMA_MINALIGN)));
+
+	/* Call ELE */
+	if (ele_generate_dek_blob(0x00, src_addr, dst_addr, out_size))
+		return -1;
+
+	/* Invalidate output buffer */
+	invalidate_dcache_range((ulong)dst_ptr, (ulong)(dst_ptr +
+			roundup(out_size, ARCH_DMA_MINALIGN)));
+
+	return 0;
+}
+#endif /* CONFIG_IMX_ELE_DEK_ENCAP */
 
 /**
  * do_dek_blob() - Handle the "dek_blob" command-line command
