@@ -12,6 +12,7 @@ obj-$(CONFIG_$(SPL_)PHY) += phy-uclass.o
 obj-$(CONFIG_$(SPL_)NOP_PHY) += nop-phy.o
 obj-$(CONFIG_MIPI_DPHY_HELPERS) += phy-core-mipi-dphy.o
 obj-$(CONFIG_AB8500_USB_PHY) += phy-ab8500-usb.o
+obj-$(CONFIG_APPLE_ATCPHY) += phy-apple-atc.o
 obj-$(CONFIG_BCM6318_USBH_PHY) += bcm6318-usbh-phy.o
 obj-$(CONFIG_BCM6348_USBH_PHY) += bcm6348-usbh-phy.o
 obj-$(CONFIG_BCM6358_USBH_PHY) += bcm6358-usbh-phy.o

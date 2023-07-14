@@ -998,6 +998,7 @@ config ARCH_APPLE
 	select OF_BOARD_SETUP
 	select OF_CONTROL
 	select PCI
+	select PHY
 	select PINCTRL
 	select POSITION_INDEPENDENT
 	select POWER_DOMAIN
