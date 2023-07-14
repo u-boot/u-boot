@@ -761,7 +761,7 @@ int cvmx_pko3_pq_config(unsigned int node, unsigned int mac_num,
  * The Scheduler Queues in Levels 3 to 5 and Descriptor Queues are
  * configured one-to-one or many-to-one to a single parent Scheduler
  * Queues. The level of the parent SQ is specified in an argument,
- * as well as the number of childer to attach to the specific parent.
+ * as well as the number of children to attach to the specific parent.
  * The children can have fair round-robin or priority-based scheduling
  * when multiple children are assigned a single parent.
  *
