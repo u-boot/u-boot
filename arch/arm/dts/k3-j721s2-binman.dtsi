@@ -146,7 +146,7 @@
 #define SPL_AM68_SK_DTB "spl/dts/k3-am68-sk-base-board.dtb"
 
 #define UBOOT_NODTB "u-boot-nodtb.bin"
-#define J721S2_EVM_DTB "arch/arm/dts/k3-j721s2-common-proc-board.dtb"
+#define J721S2_EVM_DTB "u-boot.dtb"
 #define AM68_SK_DTB "arch/arm/dts/k3-am68-sk-base-board.dtb"
 
 &binman {

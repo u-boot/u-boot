@@ -210,7 +210,7 @@
 #define SPL_AM654_EVM_DTB "spl/dts/k3-am654-base-board.dtb"
 
 #define UBOOT_NODTB "u-boot-nodtb.bin"
-#define AM654_EVM_DTB "arch/arm/dts/k3-am654-base-board.dtb"
+#define AM654_EVM_DTB "u-boot.dtb"
 
 &binman {
 	ti-spl {

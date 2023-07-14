@@ -123,7 +123,7 @@
 #define SPL_AM642_SK_DTB "spl/dts/k3-am642-sk.dtb"
 
 #define UBOOT_NODTB "u-boot-nodtb.bin"
-#define AM642_EVM_DTB "arch/arm/dts/k3-am642-evm.dtb"
+#define AM642_EVM_DTB "u-boot.dtb"
 #define AM642_SK_DTB "arch/arm/dts/k3-am642-sk.dtb"
 
 &binman {

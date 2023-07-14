@@ -184,7 +184,7 @@
 #define SPL_J7200_EVM_DTB "spl/dts/k3-j7200-common-proc-board.dtb"
 
 #define UBOOT_NODTB "u-boot-nodtb.bin"
-#define J7200_EVM_DTB "arch/arm/dts/k3-j7200-common-proc-board.dtb"
+#define J7200_EVM_DTB "u-boot.dtb"
 
 &binman {
 	ti-dm {
