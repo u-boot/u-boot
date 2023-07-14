@@ -12,6 +12,7 @@ config TARGET_AM654_A53_EVM
 	select ARM64
 	select SYS_DISABLE_DCACHE_OPS
 	select BOARD_LATE_INIT
+	select BINMAN
 	imply TI_I2C_BOARD_DETECT
 
 config TARGET_AM654_R5_EVM
@@ -20,6 +21,7 @@ config TARGET_AM654_R5_EVM
 	select SYS_THUMB_BUILD
 	select K3_LOAD_SYSFW
 	select K3_AM654_DDRSS
+	select BINMAN
 	imply SYS_K3_SPL_ATF
 	imply TI_I2C_BOARD_DETECT
 
