@@ -287,8 +287,11 @@ int unflatten_device_tree(const void *blob, struct device_node **mynodes)
 	debug("  size is %lx, allocating...\n", size);
 
 	/* Allocate memory for the expanded device tree */
-	mem = malloc(size + 4);
+	mem = memalign(__alignof__(struct device_node), size + 4);
 	memset(mem, '\0', size);
+
+	/* Set up value for dm_test_livetree_align() */
+	*(u32 *)mem = BAD_OF_ROOT;
 
 	*(__be32 *)(mem + size) = cpu_to_be32(0xdeadbeef);
 
@@ -326,4 +329,10 @@ int of_live_build(const void *fdt_blob, struct device_node **rootp)
 	debug("%s: stop\n", __func__);
 
 	return ret;
+}
+
+void of_live_free(struct device_node *root)
+{
+	/* the tree is stored as a contiguous block of memory */
+	free(root);
 }

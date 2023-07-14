@@ -7,22 +7,31 @@
 #ifndef __SCENE_H
 #define __SCENE_H
 
+#include <dm/ofnode_decl.h>
 #include <linux/list.h>
 
 struct udevice;
+struct video_priv;
 
 /**
  * enum expoact_type - types of actions reported by the expo
  *
  * @EXPOACT_NONE: no action
- * @EXPOACT_POINT: menu item was highlighted (@id indicates which)
+ * @EXPOACT_POINT_OBJ: object was highlighted (@id indicates which)
+ * @EXPOACT_POINT_ITEM: menu item was highlighted (@id indicates which)
  * @EXPOACT_SELECT: menu item was selected (@id indicates which)
+ * @EXPOACT_OPEN: menu was opened, so an item can be selected (@id indicates
+ * which menu object)
+ * @EXPOACT_CLOSE: menu was closed (@id indicates which menu object)
  * @EXPOACT_QUIT: request to exit the menu
  */
 enum expoact_type {
 	EXPOACT_NONE,
-	EXPOACT_POINT,
+	EXPOACT_POINT_OBJ,
+	EXPOACT_POINT_ITEM,
 	EXPOACT_SELECT,
+	EXPOACT_OPEN,
+	EXPOACT_CLOSE,
 	EXPOACT_QUIT,
 };
 
@@ -30,7 +39,7 @@ enum expoact_type {
  * struct expo_action - an action report by the expo
  *
  * @type: Action type (EXPOACT_NONE if there is no action)
- * @select: Used for EXPOACT_POINT and EXPOACT_SELECT
+ * @select: Used for EXPOACT_POINT_ITEM and EXPOACT_SELECT
  * @id: ID number of the object affected.
  */
 struct expo_action {
@@ -43,6 +52,19 @@ struct expo_action {
 };
 
 /**
+ * struct expo_theme - theme for the expo
+ *
+ * @font_size: Default font size for all text
+ * @menu_inset: Inset width (on each side and top/bottom) for menu items
+ * @menuitem_gap_y: Gap between menu items in pixels
+ */
+struct expo_theme {
+	u32 font_size;
+	u32 menu_inset;
+	u32 menuitem_gap_y;
+};
+
+/**
  * struct expo - information about an expo
  *
  * A group of scenes which can be presented to the user, typically to obtain
@@ -50,23 +72,29 @@ struct expo_action {
  *
  * @name: Name of the expo (allocated)
  * @display: Display to use (`UCLASS_VIDEO`), or NULL to use text mode
+ * @cons: Console to use (`UCLASS_VIDEO_CONSOLE`), or NULL to use text mode
  * @scene_id: Current scene ID (0 if none)
  * @next_id: Next ID number to use, for automatic allocation
  * @action: Action selected by user. At present only one is supported, with the
  * type set to EXPOACT_NONE if there is no action
  * @text_mode: true to use text mode for the menu (no vidconsole)
+ * @popup: true to use popup menus, instead of showing all items
  * @priv: Private data for the controller
+ * @theme: Information about fonts styles, etc.
  * @scene_head: List of scenes
  * @str_head: list of strings
  */
 struct expo {
 	char *name;
 	struct udevice *display;
+	struct udevice *cons;
 	uint scene_id;
 	uint next_id;
 	struct expo_action action;
 	bool text_mode;
+	bool popup;
 	void *priv;
+	struct expo_theme theme;
 	struct list_head scene_head;
 	struct list_head str_head;
 };
@@ -92,7 +120,8 @@ struct expo_string {
  * @expo: Expo this scene is part of
  * @name: Name of the scene (allocated)
  * @id: ID number of the scene
- * @title: Title of the scene (allocated)
+ * @title_id: String ID of title of the scene (allocated)
+ * @highlight_id: ID of highlighted object, if any
  * @sibling: Node to link this scene to its siblings
  * @obj_head: List of objects in the scene
  */
@@ -100,7 +129,8 @@ struct scene {
 	struct expo *expo;
 	char *name;
 	uint id;
-	char *title;
+	uint title_id;
+	uint highlight_id;
 	struct list_head sibling;
 	struct list_head obj_head;
 };
@@ -121,15 +151,43 @@ enum scene_obj_t {
 };
 
 /**
+ * struct scene_dim - Dimensions of an object
+ *
+ * @x: x position, in pixels from left side
+ * @y: y position, in pixels from top
+ * @w: width, in pixels
+ * @h: height, in pixels
+ */
+struct scene_dim {
+	int x;
+	int y;
+	int w;
+	int h;
+};
+
+/**
+ * enum scene_obj_flags_t - flags for objects
+ *
+ * @SCENEOF_HIDE: object should be hidden
+ * @SCENEOF_POINT: object should be highlighted
+ * @SCENEOF_OPEN: object should be opened (e.g. menu is opened so that an option
+ * can be selected)
+ */
+enum scene_obj_flags_t {
+	SCENEOF_HIDE	= 1 << 0,
+	SCENEOF_POINT	= 1 << 1,
+	SCENEOF_OPEN	= 1 << 2,
+};
+
+/**
  * struct scene_obj - information about an object in a scene
  *
  * @scene: Scene that this object relates to
  * @name: Name of the object (allocated)
  * @id: ID number of the object
  * @type: Type of this object
- * @x: x position, in pixels from left side
- * @y: y position, in pixels from top
- * @hide: true if the object should be hidden
+ * @dim: Dimensions for this object
+ * @flags: Flags for this object
  * @sibling: Node to link this object to its siblings
  */
 struct scene_obj {
@@ -137,9 +195,8 @@ struct scene_obj {
 	char *name;
 	uint id;
 	enum scene_obj_t type;
-	int x;
-	int y;
-	bool hide;
+	struct scene_dim dim;
+	int flags;
 	struct list_head sibling;
 };
 
@@ -256,6 +313,25 @@ int expo_new(const char *name, void *priv, struct expo **expp);
 void expo_destroy(struct expo *exp);
 
 /**
+ * expo_set_dynamic_start() - Set the start of the 'dynamic' IDs
+ *
+ * It is common for a set of 'static' IDs to be used to refer to objects in the
+ * expo. These typically use an enum so that they are defined in sequential
+ * order.
+ *
+ * Dynamic IDs (for objects not in the enum) are intended to be used for
+ * objects to which the code does not need to refer. These are ideally located
+ * above the static IDs.
+ *
+ * Use this function to set the start of the dynamic range, making sure that the
+ * value is higher than all the statically allocated IDs.
+ *
+ * @exp: Expo to update
+ * @dyn_start: Start ID that expo should use for dynamic allocation
+ */
+void expo_set_dynamic_start(struct expo *exp, uint dyn_start);
+
+/**
  * expo_str() - add a new string to an expo
  *
  * @exp: Expo to update
@@ -285,6 +361,16 @@ const char *expo_get_str(struct expo *exp, uint id);
 int expo_set_display(struct expo *exp, struct udevice *dev);
 
 /**
+ * expo_calc_dims() - Calculate the dimensions of the objects
+ *
+ * Updates the width and height of all objects based on their contents
+ *
+ * @exp: Expo to update
+ * Returns 0 if OK, -ENOTSUPP if there is no graphical console
+ */
+int expo_calc_dims(struct expo *exp);
+
+/**
  * expo_set_scene_id() - Set the current scene ID
  *
  * @exp: Expo to update
@@ -292,6 +378,14 @@ int expo_set_display(struct expo *exp, struct udevice *dev);
  * Returns: 0 if OK, -ENOENT if there is no scene with that ID
  */
 int expo_set_scene_id(struct expo *exp, uint scene_id);
+
+/**
+ * expo_first_scene_id() - Get the ID of the first scene
+ *
+ * @exp: Expo to check
+ * Returns: Scene ID of first scene, or -ENOENT if there are no scenes
+ */
+int expo_first_scene_id(struct expo *exp);
 
 /**
  * expo_render() - render the expo on the display / console
@@ -304,12 +398,12 @@ int expo_set_scene_id(struct expo *exp, uint scene_id);
 int expo_render(struct expo *exp);
 
 /**
- * exp_set_text_mode() - Controls whether the expo renders in text mode
+ * expo_set_text_mode() - Controls whether the expo renders in text mode
  *
  * @exp: Expo to update
  * @text_mode: true to use text mode, false to use the console
  */
-void exp_set_text_mode(struct expo *exp, bool text_mode);
+void expo_set_text_mode(struct expo *exp, bool text_mode);
 
 /**
  * scene_new() - create a new scene in a expo
@@ -335,13 +429,43 @@ int scene_new(struct expo *exp, const char *name, uint id, struct scene **scnp);
 struct scene *expo_lookup_scene_id(struct expo *exp, uint scene_id);
 
 /**
+ * scene_highlight_first() - Highlight the first item in a scene
+ *
+ * This highlights the first item, so that the user can see that it is pointed
+ * to
+ *
+ * @scn: Scene to update
+ */
+void scene_highlight_first(struct scene *scn);
+
+/**
+ * scene_set_highlight_id() - Set the object which is highlighted
+ *
+ * Sets a new object to highlight in the scene
+ *
+ * @scn: Scene to update
+ * @id: ID of object to highlight
+ */
+void scene_set_highlight_id(struct scene *scn, uint id);
+
+/**
+ * scene_set_open() - Set whether an item is open or not
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @open: true to open the object, false to close it
+ * Returns: 0 if OK, -ENOENT if @id is invalid
+ */
+int scene_set_open(struct scene *scn, uint id, bool open);
+
+/**
  * scene_title_set() - set the scene title
  *
  * @scn: Scene to update
- * @title: Title to set, NULL if none (this is allocated by this call)
- * Returns: 0 if OK, -ENOMEM if out of memory
+ * @title_id: Title ID to set
+ * Returns: 0 if OK
  */
-int scene_title_set(struct scene *scn, const char *title);
+int scene_title_set(struct scene *scn, uint title_id);
 
 /**
  * scene_obj_count() - Count the number of objects in a scene
@@ -424,6 +548,17 @@ int scene_txt_set_font(struct scene *scn, uint id, const char *font_name,
  * Returns: 0 if OK, -ENOENT if @id is invalid
  */
 int scene_obj_set_pos(struct scene *scn, uint id, int x, int y);
+
+/**
+ * scene_obj_set_size() - Set the size of an object
+ *
+ * @scn: Scene to update
+ * @id: ID of object to update
+ * @w: width in pixels
+ * @h: height in pixels
+ * Returns: 0 if OK, -ENOENT if @id is invalid
+ */
+int scene_obj_set_size(struct scene *scn, uint id, int w, int h);
 
 /**
  * scene_obj_set_hide() - Set whether an object is hidden
@@ -518,5 +653,47 @@ int expo_send_key(struct expo *exp, int key);
  * Returns: 0 if OK, -EAGAIN if there was no action to return
  */
 int expo_action_get(struct expo *exp, struct expo_action *act);
+
+/**
+ * expo_apply_theme() - Apply a theme to an expo
+ *
+ * @exp: Expo to update
+ * @node: Node containing the theme
+ */
+int expo_apply_theme(struct expo *exp, ofnode node);
+
+/**
+ * expo_build() - Build an expo from an FDT description
+ *
+ * Build a complete expo from a description in the provided devicetree.
+ *
+ * See doc/developer/expo.rst for a description of the format
+ *
+ * @root: Root node for expo description
+ * @expp: Returns the new expo
+ * Returns: 0 if OK, -ENOMEM if out of memory, -EINVAL if there is a format
+ * error, -ENOENT if there is a references to a non-existent string
+ */
+int expo_build(ofnode root, struct expo **expp);
+
+/**
+ * cedit_arange() - Arrange objects in a configuration-editor scene
+ *
+ * @exp: Expo to update
+ * @vid_priv: Private info of the video device
+ * @scene_id: scene ID to arrange
+ * Returns: 0 if OK, -ve on error
+ */
+int cedit_arange(struct expo *exp, struct video_priv *vid_priv, uint scene_id);
+
+/**
+ * cedit_run() - Run a configuration editor
+ *
+ * This accepts input until the user quits with Escape
+ *
+ * @exp: Expo to use
+ * Returns: 0 if OK, -ve on error
+ */
+int cedit_run(struct expo *exp);
 
 #endif /*__SCENE_H */

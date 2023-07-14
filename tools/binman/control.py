@@ -9,7 +9,7 @@ from collections import OrderedDict
 import glob
 try:
     import importlib.resources
-except ImportError:
+except ImportError:  # pragma: no cover
     # for Python 3.6
     import importlib_resources
 import os

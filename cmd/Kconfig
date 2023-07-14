@@ -428,6 +428,15 @@ config CMD_ABOOTIMG
 
 	  See doc/android/boot-image.rst for details.
 
+config CMD_CEDIT
+	bool "cedit - Configuration editor"
+	depends on CEDIT
+	default y
+	help
+	  Provides a command to allow editing of board configuration and
+	  providing a UI for the user to adjust settings. Subcommands allow
+	  loading and saving of configuration as well as showing an editor.
+
 config CMD_ELF
 	bool "bootelf, bootvx"
 	default y

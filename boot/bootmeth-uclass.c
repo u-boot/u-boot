@@ -301,32 +301,6 @@ int bootmeth_try_file(struct bootflow *bflow, struct blk_desc *desc,
 	return 0;
 }
 
-static int alloc_file(const char *fname, uint size, void **bufp)
-{
-	loff_t bytes_read;
-	ulong addr;
-	char *buf;
-	int ret;
-
-	buf = malloc(size + 1);
-	if (!buf)
-		return log_msg_ret("buf", -ENOMEM);
-	addr = map_to_sysmem(buf);
-
-	ret = fs_read(fname, addr, 0, size, &bytes_read);
-	if (ret) {
-		free(buf);
-		return log_msg_ret("read", ret);
-	}
-	if (size != bytes_read)
-		return log_msg_ret("bread", -EIO);
-	buf[size] = '\0';
-
-	*bufp = buf;
-
-	return 0;
-}
-
 int bootmeth_alloc_file(struct bootflow *bflow, uint size_limit, uint align)
 {
 	void *buf;
@@ -338,7 +312,7 @@ int bootmeth_alloc_file(struct bootflow *bflow, uint size_limit, uint align)
 	if (size > size_limit)
 		return log_msg_ret("chk", -E2BIG);
 
-	ret = alloc_file(bflow->fname, bflow->size, &buf);
+	ret = fs_read_alloc(bflow->fname, bflow->size, align, &buf);
 	if (ret)
 		return log_msg_ret("all", ret);
 
@@ -374,7 +348,7 @@ int bootmeth_alloc_other(struct bootflow *bflow, const char *fname,
 	if (ret)
 		return log_msg_ret("fs", ret);
 
-	ret = alloc_file(path, size, &buf);
+	ret = fs_read_alloc(path, size, 0, &buf);
 	if (ret)
 		return log_msg_ret("all", ret);
 

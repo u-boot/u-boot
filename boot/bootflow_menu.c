@@ -124,6 +124,10 @@ int bootflow_menu_new(struct expo **expp)
 		priv->num_bootflows++;
 	}
 
+	ret = scene_arrange(scn);
+	if (ret)
+		return log_msg_ret("arr", ret);
+
 	*expp = exp;
 
 	return 0;
@@ -205,7 +209,7 @@ int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
 		return log_msg_ret("scn", ret);
 
 	if (text_mode)
-		exp_set_text_mode(exp, text_mode);
+		expo_set_text_mode(exp, text_mode);
 
 	done = false;
 	do {

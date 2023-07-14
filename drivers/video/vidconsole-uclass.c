@@ -596,6 +596,48 @@ int vidconsole_select_font(struct udevice *dev, const char *name, uint size)
 	return ops->select_font(dev, name, size);
 }
 
+int vidconsole_measure(struct udevice *dev, const char *name, uint size,
+		       const char *text, struct vidconsole_bbox *bbox)
+{
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+	int ret;
+
+	if (ops->select_font) {
+		ret = ops->measure(dev, name, size, text, bbox);
+		if (ret != -ENOSYS)
+			return ret;
+	}
+
+	bbox->valid = true;
+	bbox->x0 = 0;
+	bbox->y0 = 0;
+	bbox->x1 = priv->x_charsize * strlen(text);
+	bbox->y1 = priv->y_charsize;
+
+	return 0;
+}
+
+void vidconsole_push_colour(struct udevice *dev, enum colour_idx fg,
+			    enum colour_idx bg, struct vidconsole_colour *old)
+{
+	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
+
+	old->colour_fg = vid_priv->colour_fg;
+	old->colour_bg = vid_priv->colour_bg;
+
+	vid_priv->colour_fg = video_index_to_colour(vid_priv, fg);
+	vid_priv->colour_bg = video_index_to_colour(vid_priv, bg);
+}
+
+void vidconsole_pop_colour(struct udevice *dev, struct vidconsole_colour *old)
+{
+	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
+
+	vid_priv->colour_fg = old->colour_fg;
+	vid_priv->colour_bg = old->colour_bg;
+}
+
 /* Set up the number of rows and colours (rotated drivers override this) */
 static int vidconsole_pre_probe(struct udevice *dev)
 {

@@ -1474,7 +1474,7 @@ static int gpio_post_bind(struct udevice *dev)
 	}
 #endif
 
-	if (CONFIG_IS_ENABLED(GPIO_HOG)) {
+	if (CONFIG_IS_ENABLED(GPIO_HOG) && dev_has_ofnode(dev)) {
 		struct udevice *child;
 		ofnode node;
 

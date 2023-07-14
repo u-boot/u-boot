@@ -72,6 +72,38 @@ struct vidfont_info {
 };
 
 /**
+ * struct vidconsole_colour - Holds colour information
+ *
+ * @colour_fg:	Foreground colour (pixel value)
+ * @colour_bg:	Background colour (pixel value)
+ */
+struct vidconsole_colour {
+	u32 colour_fg;
+	u32 colour_bg;
+};
+
+/**
+ * struct vidconsole_bbox - Bounding box of text
+ *
+ * This describes the bounding box of something, measured in pixels. The x0/y0
+ * pair is inclusive; the x1/y2 pair is exclusive, meaning that it is one pixel
+ * beyond the extent of the object
+ *
+ * @valid: Values are valid (bounding box is known)
+ * @x0: left x position, in pixels from left side
+ * @y0: top y position, in pixels from top
+ * @x1: right x position + 1
+ * @y1: botton y position + 1
+ */
+struct vidconsole_bbox {
+	bool valid;
+	int x0;
+	int y0;
+	int x1;
+	int y1;
+};
+
+/**
  * struct vidconsole_ops - Video console operations
  *
  * These operations work on either an absolute console position (measured
@@ -178,6 +210,20 @@ struct vidconsole_ops {
 	 * Returns: 0 on success, -ENOENT if no such font
 	 */
 	int (*select_font)(struct udevice *dev, const char *name, uint size);
+
+	/**
+	 * measure() - Measure the bounds of some text
+	 *
+	 * @dev:	Device to adjust
+	 * @name:	Font name to use (NULL to use default)
+	 * @size:	Font size to use (0 to use default)
+	 * @text:	Text to measure
+	 * @bbox:	Returns bounding box of text, assuming it is positioned
+	 *		at 0,0
+	 * Returns: 0 on success, -ENOENT if no such font
+	 */
+	int (*measure)(struct udevice *dev, const char *name, uint size,
+		       const char *text, struct vidconsole_bbox *bbox);
 };
 
 /* Get a pointer to the driver operations for a video console device */
@@ -203,6 +249,38 @@ int vidconsole_get_font(struct udevice *dev, int seq,
  * @size:	Font size to use (0 to use default)
  */
 int vidconsole_select_font(struct udevice *dev, const char *name, uint size);
+
+/*
+ * vidconsole_measure() - Measuring the bounding box of some text
+ *
+ * @dev: Console device to use
+ * @name: Font name, NULL for default
+ * @size: Font size, ignored if @name is NULL
+ * @text: Text to measure
+ * @bbox: Returns nounding box of text
+ * Returns: 0 if OK, -ve on error
+ */
+int vidconsole_measure(struct udevice *dev, const char *name, uint size,
+		       const char *text, struct vidconsole_bbox *bbox);
+
+/**
+ * vidconsole_push_colour() - Temporarily change the font colour
+ *
+ * @dev:	Device to adjust
+ * @fg:		Foreground colour to select
+ * @bg:		Background colour to select
+ * @old:	Place to store the current colour, so it can be restored
+ */
+void vidconsole_push_colour(struct udevice *dev, enum colour_idx fg,
+			    enum colour_idx bg, struct vidconsole_colour *old);
+
+/**
+ * vidconsole_pop_colour() - Restore the original colour
+ *
+ * @dev:	Device to adjust
+ * @old:	Old colour to be restored
+ */
+void vidconsole_pop_colour(struct udevice *dev, struct vidconsole_colour *old);
 
 /**
  * vidconsole_putc_xy() - write a single character to a position

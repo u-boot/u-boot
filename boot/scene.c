@@ -6,25 +6,18 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY	LOGC_EXPO
+
 #include <common.h>
 #include <dm.h>
 #include <expo.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <menu.h>
 #include <video.h>
 #include <video_console.h>
 #include <linux/input.h>
 #include "scene_internal.h"
-
-uint resolve_id(struct expo *exp, uint id)
-{
-	if (!id)
-		id = exp->next_id++;
-	else if (id >= exp->next_id)
-		exp->next_id = id + 1;
-
-	return id;
-}
 
 int scene_new(struct expo *exp, const char *name, uint id, struct scene **scnp)
 {
@@ -65,16 +58,12 @@ void scene_destroy(struct scene *scn)
 		scene_obj_destroy(obj);
 
 	free(scn->name);
-	free(scn->title);
 	free(scn);
 }
 
-int scene_title_set(struct scene *scn, const char *title)
+int scene_title_set(struct scene *scn, uint id)
 {
-	free(scn->title);
-	scn->title = strdup(title);
-	if (!scn->title)
-		return log_msg_ret("tit", -ENOMEM);
+	scn->title_id = id;
 
 	return 0;
 }
@@ -97,6 +86,18 @@ void *scene_obj_find(struct scene *scn, uint id, enum scene_obj_t type)
 	list_for_each_entry(obj, &scn->obj_head, sibling) {
 		if (obj->id == id &&
 		    (type == SCENEOBJT_NONE || obj->type == type))
+			return obj;
+	}
+
+	return NULL;
+}
+
+void *scene_obj_find_by_name(struct scene *scn, const char *name)
+{
+	struct scene_obj *obj;
+
+	list_for_each_entry(obj, &scn->obj_head, sibling) {
+		if (!strcmp(name, obj->name))
 			return obj;
 	}
 
@@ -213,22 +214,46 @@ int scene_obj_set_pos(struct scene *scn, uint id, int x, int y)
 	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
 	if (!obj)
 		return log_msg_ret("find", -ENOENT);
-	obj->x = x;
-	obj->y = y;
-	if (obj->type == SCENEOBJT_MENU)
-		scene_menu_arrange(scn, (struct scene_obj_menu *)obj);
+	obj->dim.x = x;
+	obj->dim.y = y;
 
 	return 0;
 }
 
-int scene_obj_set_hide(struct scene *scn, uint id, bool hide)
+int scene_obj_set_size(struct scene *scn, uint id, int w, int h)
 {
 	struct scene_obj *obj;
 
 	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
 	if (!obj)
 		return log_msg_ret("find", -ENOENT);
-	obj->hide = hide;
+	obj->dim.w = w;
+	obj->dim.h = h;
+
+	return 0;
+}
+
+int scene_obj_set_hide(struct scene *scn, uint id, bool hide)
+{
+	int ret;
+
+	ret = scene_obj_flag_clrset(scn, id, SCENEOF_HIDE,
+				    hide ? SCENEOF_HIDE : 0);
+	if (ret)
+		return log_msg_ret("flg", ret);
+
+	return 0;
+}
+
+int scene_obj_flag_clrset(struct scene *scn, uint id, uint clr, uint set)
+{
+	struct scene_obj *obj;
+
+	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
+	if (!obj)
+		return log_msg_ret("find", -ENOENT);
+	obj->flags &= ~clr;
+	obj->flags |= set;
 
 	return 0;
 }
@@ -258,16 +283,30 @@ int scene_obj_get_hw(struct scene *scn, uint id, int *widthp)
 	case SCENEOBJT_TEXT: {
 		struct scene_obj_txt *txt = (struct scene_obj_txt *)obj;
 		struct expo *exp = scn->expo;
+		struct vidconsole_bbox bbox;
+		const char *str;
+		int len, ret;
 
+		str = expo_get_str(exp, txt->str_id);
+		if (!str)
+			return log_msg_ret("str", -ENOENT);
+		len = strlen(str);
+
+		/* if there is no console, make it up */
+		if (!exp->cons) {
+			if (widthp)
+				*widthp = 8 * len;
+			return 16;
+		}
+
+		ret = vidconsole_measure(scn->expo->cons, txt->font_name,
+					 txt->font_size, str, &bbox);
+		if (ret)
+			return log_msg_ret("mea", ret);
 		if (widthp)
-			*widthp = 16; /* fake value for now */
-		if (txt->font_size)
-			return txt->font_size;
-		if (exp->display)
-			return video_default_font_height(exp->display);
+			*widthp = bbox.x1;
 
-		/* use a sensible default */
-		return 16;
+		return bbox.y1;
 	}
 	}
 
@@ -282,18 +321,13 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 {
 	struct scene *scn = obj->scene;
 	struct expo *exp = scn->expo;
-	struct udevice *cons, *dev = exp->display;
+	const struct expo_theme *theme = &exp->theme;
+	struct udevice *dev = exp->display;
+	struct udevice *cons = text_mode ? NULL : exp->cons;
 	int x, y, ret;
 
-	cons = NULL;
-	if (!text_mode) {
-		ret = device_find_first_child_by_uclass(dev,
-							UCLASS_VIDEO_CONSOLE,
-							&cons);
-	}
-
-	x = obj->x;
-	y = obj->y;
+	x = obj->dim.x;
+	y = obj->dim.y;
 
 	switch (obj->type) {
 	case SCENEOBJT_NONE:
@@ -325,14 +359,45 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 		}
 		if (ret && ret != -ENOSYS)
 			return log_msg_ret("font", ret);
-		vidconsole_set_cursor_pos(cons, x, y);
 		str = expo_get_str(exp, txt->str_id);
-		if (str)
+		if (str) {
+			struct video_priv *vid_priv;
+			struct vidconsole_colour old;
+			enum colour_idx fore, back;
+
+			if (CONFIG_IS_ENABLED(SYS_WHITE_ON_BLACK)) {
+				fore = VID_BLACK;
+				back = VID_WHITE;
+			} else {
+				fore = VID_LIGHT_GRAY;
+				back = VID_BLACK;
+			}
+
+			vid_priv = dev_get_uclass_priv(dev);
+			if (obj->flags & SCENEOF_POINT) {
+				vidconsole_push_colour(cons, fore, back, &old);
+				video_fill_part(dev, x - theme->menu_inset, y,
+						x + obj->dim.w,
+						y + obj->dim.h,
+						vid_priv->colour_bg);
+			}
+			vidconsole_set_cursor_pos(cons, x, y);
 			vidconsole_put_string(cons, str);
+			if (obj->flags & SCENEOF_POINT)
+				vidconsole_pop_colour(cons, &old);
+		}
 		break;
 	}
 	case SCENEOBJT_MENU: {
 		struct scene_obj_menu *menu = (struct scene_obj_menu *)obj;
+
+		if (exp->popup && (obj->flags & SCENEOF_OPEN)) {
+			if (!cons)
+				return -ENOTSUPP;
+
+			/* draw a background behind the menu items */
+			scene_menu_render(menu);
+		}
 		/*
 		 * With a vidconsole, the text and item pointer are rendered as
 		 * normal objects so we don't need to do anything here. The menu
@@ -371,6 +436,30 @@ int scene_arrange(struct scene *scn)
 	return 0;
 }
 
+int scene_render_deps(struct scene *scn, uint id)
+{
+	struct scene_obj *obj;
+	int ret;
+
+	if (!id)
+		return 0;
+	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
+	if (!obj)
+		return log_msg_ret("obj", -ENOENT);
+
+	if (!(obj->flags & SCENEOF_HIDE)) {
+		ret = scene_obj_render(obj, false);
+		if (ret && ret != -ENOTSUPP)
+			return log_msg_ret("ren", ret);
+
+		if (obj->type == SCENEOBJT_MENU)
+			scene_menu_render_deps(scn,
+					       (struct scene_obj_menu *)obj);
+	}
+
+	return 0;
+}
+
 int scene_render(struct scene *scn)
 {
 	struct expo *exp = scn->expo;
@@ -378,20 +467,106 @@ int scene_render(struct scene *scn)
 	int ret;
 
 	list_for_each_entry(obj, &scn->obj_head, sibling) {
-		if (!obj->hide) {
+		if (!(obj->flags & SCENEOF_HIDE)) {
 			ret = scene_obj_render(obj, exp->text_mode);
 			if (ret && ret != -ENOTSUPP)
 				return log_msg_ret("ren", ret);
 		}
 	}
 
+	/* render any highlighted object on top of the others */
+	if (scn->highlight_id && !exp->text_mode) {
+		ret = scene_render_deps(scn, scn->highlight_id);
+		if (ret && ret != -ENOTSUPP)
+			return log_msg_ret("dep", ret);
+	}
+
 	return 0;
+}
+
+/**
+ * send_key_obj() - Handle a keypress for moving between objects
+ *
+ * @scn: Scene to receive the key
+ * @key: Key to send (KEYCODE_UP)
+ * @event: Returns resulting event from this keypress
+ * Returns: 0 if OK, -ve on error
+ */
+static void send_key_obj(struct scene *scn, struct scene_obj *obj, int key,
+			 struct expo_action *event)
+{
+	switch (key) {
+	case BKEY_UP:
+		while (obj != list_first_entry(&scn->obj_head, struct scene_obj,
+					       sibling)) {
+			obj = list_entry(obj->sibling.prev,
+					 struct scene_obj, sibling);
+			if (obj->type == SCENEOBJT_MENU) {
+				event->type = EXPOACT_POINT_OBJ;
+				event->select.id = obj->id;
+				log_debug("up to obj %d\n", event->select.id);
+				break;
+			}
+		}
+		break;
+	case BKEY_DOWN:
+		while (!list_is_last(&obj->sibling, &scn->obj_head)) {
+			obj = list_entry(obj->sibling.next, struct scene_obj,
+					 sibling);
+			if (obj->type == SCENEOBJT_MENU) {
+				event->type = EXPOACT_POINT_OBJ;
+				event->select.id = obj->id;
+				log_debug("down to obj %d\n", event->select.id);
+				break;
+			}
+		}
+		break;
+	case BKEY_SELECT:
+		if (obj->type == SCENEOBJT_MENU) {
+			event->type = EXPOACT_OPEN;
+			event->select.id = obj->id;
+			log_debug("open obj %d\n", event->select.id);
+		}
+		break;
+	case BKEY_QUIT:
+		event->type = EXPOACT_QUIT;
+		log_debug("obj quit\n");
+		break;
+	}
 }
 
 int scene_send_key(struct scene *scn, int key, struct expo_action *event)
 {
+	struct scene_obj_menu *menu;
 	struct scene_obj *obj;
 	int ret;
+
+	event->type = EXPOACT_NONE;
+
+	/*
+	 * In 'popup' mode, arrow keys move betwen objects, unless a menu is
+	 * opened
+	 */
+	if (scn->expo->popup) {
+		obj = NULL;
+		if (scn->highlight_id) {
+			obj = scene_obj_find(scn, scn->highlight_id,
+					     SCENEOBJT_NONE);
+		}
+		if (!obj)
+			return 0;
+
+		if (!(obj->flags & SCENEOF_OPEN)) {
+			send_key_obj(scn, obj, key, event);
+			return 0;
+		}
+
+		menu = (struct scene_obj_menu *)obj,
+		ret = scene_menu_send_key(scn, menu, key, event);
+		if (ret)
+			return log_msg_ret("key", ret);
+		return 0;
+	}
 
 	list_for_each_entry(obj, &scn->obj_head, sibling) {
 		if (obj->type == SCENEOBJT_MENU) {
@@ -401,14 +576,108 @@ int scene_send_key(struct scene *scn, int key, struct expo_action *event)
 			ret = scene_menu_send_key(scn, menu, key, event);
 			if (ret)
 				return log_msg_ret("key", ret);
-
-			/* only allow one menu */
-			ret = scene_menu_arrange(scn, menu);
-			if (ret)
-				return log_msg_ret("arr", ret);
 			break;
 		}
 	}
+
+	return 0;
+}
+
+int scene_calc_dims(struct scene *scn, bool do_menus)
+{
+	struct scene_obj *obj;
+	int ret;
+
+	list_for_each_entry(obj, &scn->obj_head, sibling) {
+		switch (obj->type) {
+		case SCENEOBJT_NONE:
+		case SCENEOBJT_TEXT:
+		case SCENEOBJT_IMAGE: {
+			int width;
+
+			if (!do_menus) {
+				ret = scene_obj_get_hw(scn, obj->id, &width);
+				if (ret < 0)
+					return log_msg_ret("get", ret);
+				obj->dim.w = width;
+				obj->dim.h = ret;
+			}
+			break;
+		}
+		case SCENEOBJT_MENU: {
+			struct scene_obj_menu *menu;
+
+			if (do_menus) {
+				menu = (struct scene_obj_menu *)obj;
+
+				ret = scene_menu_calc_dims(menu);
+				if (ret)
+					return log_msg_ret("men", ret);
+			}
+			break;
+		}
+		}
+	}
+
+	return 0;
+}
+
+int scene_apply_theme(struct scene *scn, struct expo_theme *theme)
+{
+	struct scene_obj *obj;
+	int ret;
+
+	/* Avoid error-checking optional items */
+	scene_txt_set_font(scn, scn->title_id, NULL, theme->font_size);
+
+	list_for_each_entry(obj, &scn->obj_head, sibling) {
+		switch (obj->type) {
+		case SCENEOBJT_NONE:
+		case SCENEOBJT_IMAGE:
+		case SCENEOBJT_MENU:
+			break;
+		case SCENEOBJT_TEXT:
+			scene_txt_set_font(scn, obj->id, NULL,
+					   theme->font_size);
+			break;
+		}
+	}
+
+	ret = scene_arrange(scn);
+	if (ret)
+		return log_msg_ret("arr", ret);
+
+	return 0;
+}
+
+void scene_set_highlight_id(struct scene *scn, uint id)
+{
+	scn->highlight_id = id;
+}
+
+void scene_highlight_first(struct scene *scn)
+{
+	struct scene_obj *obj;
+
+	list_for_each_entry(obj, &scn->obj_head, sibling) {
+		switch (obj->type) {
+		case SCENEOBJT_MENU:
+			scene_set_highlight_id(scn, obj->id);
+			return;
+		default:
+			break;
+		}
+	}
+}
+
+int scene_set_open(struct scene *scn, uint id, bool open)
+{
+	int ret;
+
+	ret = scene_obj_flag_clrset(scn, id, SCENEOF_OPEN,
+				    open ? SCENEOF_OPEN : 0);
+	if (ret)
+		return log_msg_ret("flg", ret);
 
 	return 0;
 }

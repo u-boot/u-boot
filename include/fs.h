@@ -300,4 +300,42 @@ int do_fs_type(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
  */
 int do_fs_types(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[]);
 
+/**
+ * fs_read_alloc() - Allocate space for a file and read it
+ *
+ * You must call fs_set_blk_dev() or a similar function before calling this,
+ * since that sets up the block device to use.
+ *
+ * The file is terminated with a nul character
+ *
+ * @fname: Filename to read
+ * @size: Size of file to read (must be correct!)
+ * @align: Alignment to use for memory allocation (0 for default)
+ * @bufp: On success, returns the allocated buffer with the nul-terminated file
+ *	in it
+ * Return: 0 if OK, -ENOMEM if out of memory, -EIO if read failed
+ */
+int fs_read_alloc(const char *fname, ulong size, uint align, void **bufp);
+
+/**
+ * fs_load_alloc() - Load a file into allocated space
+ *
+ * The file is terminated with a nul character
+ *
+ * @ifname: Interface name to read from (e.g. "mmc")
+ * @dev_part_str: Device and partition string (e.g. "1:2")
+ * @fname: Filename to read
+ * @max_size: Maximum allowed size for the file (use 0 for 1GB)
+ * @align: Alignment to use for memory allocation (0 for default)
+ * @bufp: On success, returns the allocated buffer with the nul-terminated file
+ *	in it
+ * @sizep: On success, returns the size of the file
+ * Return: 0 if OK, -ENOMEM if out of memory, -ENOENT if the file does not
+ * exist, -ENOMEDIUM if the device does not exist, -E2BIG if the file is too
+ * large (greater than @max_size), -EIO if read failed
+ */
+int fs_load_alloc(const char *ifname, const char *dev_part_str,
+		  const char *fname, ulong max_size, ulong align, void **bufp,
+		  ulong *sizep);
+
 #endif /* _FS_H */

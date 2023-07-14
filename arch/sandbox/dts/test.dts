@@ -96,6 +96,8 @@
 
 		theme {
 			font-size = <30>;
+			menu-inset = <3>;
+			menuitem-gap-y = <1>;
 		};
 
 		/*
@@ -137,6 +139,15 @@
 			version-offset = <0xdffe00>;
 			version-size = <0x100>;
 		};
+	};
+
+	cedit: cedit {
+	};
+
+	cedit-theme {
+		font-size = <30>;
+		menu-inset = <3>;
+		menuitem-gap-y = <1>;
 	};
 
 	fuzzing-engine {
@@ -1828,3 +1839,5 @@
 #ifdef CONFIG_SANDBOX_VPL
 #include "sandbox_vpl.dtsi"
 #endif
+
+#include "cedit.dtsi"

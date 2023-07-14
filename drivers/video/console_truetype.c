@@ -62,10 +62,43 @@ static double tt_sqrt(double value)
 	return lo;
 }
 
+static double tt_fmod(double x, double y)
+{
+	double rem;
+
+	if (y == 0.0)
+		return 0.0;
+	rem = x - (x / y) * y;
+
+	return rem;
+}
+
+/* dummy implementation */
+static double tt_pow(double x, double y)
+{
+	return 0;
+}
+
+/* dummy implementation */
+static double tt_cos(double val)
+{
+	return 0;
+}
+
+/* dummy implementation */
+static double tt_acos(double val)
+{
+	return 0;
+}
+
 #define STBTT_ifloor		tt_floor
 #define STBTT_iceil		tt_ceil
 #define STBTT_fabs		tt_fabs
 #define STBTT_sqrt		tt_sqrt
+#define STBTT_pow		tt_pow
+#define STBTT_fmod		tt_fmod
+#define STBTT_cos		tt_cos
+#define STBTT_acos		tt_acos
 #define STBTT_malloc(size, u)	((void)(u), malloc(size))
 #define STBTT_free(size, u)	((void)(u), free(size))
 #define STBTT_assert(x)
@@ -154,33 +187,33 @@ static int console_truetype_set_row(struct udevice *dev, uint row, int clr)
 	end = line + met->font_size * vid_priv->line_length;
 
 	switch (vid_priv->bpix) {
-#ifdef CONFIG_VIDEO_BPP8
 	case VIDEO_BPP8: {
 		u8 *dst;
 
-		for (dst = line; dst < (u8 *)end; ++dst)
-			*dst = clr;
+		if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+			for (dst = line; dst < (u8 *)end; ++dst)
+				*dst = clr;
+		}
 		break;
 	}
-#endif
-#ifdef CONFIG_VIDEO_BPP16
 	case VIDEO_BPP16: {
 		u16 *dst = line;
 
-		for (dst = line; dst < (u16 *)end; ++dst)
-			*dst = clr;
+		if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+			for (dst = line; dst < (u16 *)end; ++dst)
+				*dst = clr;
+		}
 		break;
 	}
-#endif
-#ifdef CONFIG_VIDEO_BPP32
 	case VIDEO_BPP32: {
 		u32 *dst = line;
 
-		for (dst = line; dst < (u32 *)end; ++dst)
-			*dst = clr;
+		if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+			for (dst = line; dst < (u32 *)end; ++dst)
+				*dst = clr;
+		}
 		break;
 	}
-#endif
 	default:
 		return -ENOSYS;
 	}
@@ -256,7 +289,7 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 	 */
 	x_shift = xpos - (double)tt_floor(xpos);
 	xpos += advance * met->scale;
-	width_frac = (int)VID_TO_POS(xpos);
+	width_frac = (int)VID_TO_POS(advance * met->scale);
 	if (x + width_frac >= vc_priv->xsize_frac)
 		return -EAGAIN;
 
@@ -317,52 +350,52 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 				end = dst;
 			}
 			break;
-#ifdef CONFIG_VIDEO_BPP16
 		case VIDEO_BPP16: {
 			uint16_t *dst = (uint16_t *)line + xoff;
 			int i;
 
-			for (i = 0; i < width; i++) {
-				int val = *bits;
-				int out;
+			if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+				for (i = 0; i < width; i++) {
+					int val = *bits;
+					int out;
 
-				if (vid_priv->colour_bg)
-					val = 255 - val;
-				out = val >> 3 |
-					(val >> 2) << 5 |
-					(val >> 3) << 11;
-				if (vid_priv->colour_fg)
-					*dst++ |= out;
-				else
-					*dst++ &= out;
-				bits++;
+					if (vid_priv->colour_bg)
+						val = 255 - val;
+					out = val >> 3 |
+						(val >> 2) << 5 |
+						(val >> 3) << 11;
+					if (vid_priv->colour_fg)
+						*dst++ |= out;
+					else
+						*dst++ &= out;
+					bits++;
+				}
+				end = dst;
 			}
-			end = dst;
 			break;
 		}
-#endif
-#ifdef CONFIG_VIDEO_BPP32
 		case VIDEO_BPP32: {
 			u32 *dst = (u32 *)line + xoff;
 			int i;
 
-			for (i = 0; i < width; i++) {
-				int val = *bits;
-				int out;
+			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+				for (i = 0; i < width; i++) {
+					int val = *bits;
+					int out;
 
-				if (vid_priv->colour_bg)
-					val = 255 - val;
-				out = val | val << 8 | val << 16;
-				if (vid_priv->colour_fg)
-					*dst++ |= out;
-				else
-					*dst++ &= out;
-				bits++;
+					if (vid_priv->colour_bg)
+						val = 255 - val;
+					out = val | val << 8 | val << 16;
+					if (vid_priv->colour_fg)
+						*dst++ |= out;
+					else
+						*dst++ &= out;
+					bits++;
+				}
+				end = dst;
 			}
-			end = dst;
 			break;
 		}
-#endif
 		default:
 			free(data);
 			return -ENOSYS;
@@ -376,72 +409,6 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 	free(data);
 
 	return width_frac;
-}
-
-/**
- * console_truetype_erase() - Erase a character
- *
- * This is used for backspace. We erase a square of the display within the
- * given bounds.
- *
- * @dev:	Device to update
- * @xstart:	X start position in pixels from the left
- * @ystart:	Y start position in pixels from the top
- * @xend:	X end position in pixels from the left
- * @yend:	Y end position  in pixels from the top
- * @clr:	Value to write
- * Return: 0 if OK, -ENOSYS if the display depth is not supported
- */
-static int console_truetype_erase(struct udevice *dev, int xstart, int ystart,
-				  int xend, int yend, int clr)
-{
-	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
-	void *start, *line;
-	int pixels = xend - xstart;
-	int row, i, ret;
-
-	start = vid_priv->fb + ystart * vid_priv->line_length;
-	start += xstart * VNBYTES(vid_priv->bpix);
-	line = start;
-	for (row = ystart; row < yend; row++) {
-		switch (vid_priv->bpix) {
-#ifdef CONFIG_VIDEO_BPP8
-		case VIDEO_BPP8: {
-			uint8_t *dst = line;
-
-			for (i = 0; i < pixels; i++)
-				*dst++ = clr;
-			break;
-		}
-#endif
-#ifdef CONFIG_VIDEO_BPP16
-		case VIDEO_BPP16: {
-			uint16_t *dst = line;
-
-			for (i = 0; i < pixels; i++)
-				*dst++ = clr;
-			break;
-		}
-#endif
-#ifdef CONFIG_VIDEO_BPP32
-		case VIDEO_BPP32: {
-			uint32_t *dst = line;
-
-			for (i = 0; i < pixels; i++)
-				*dst++ = clr;
-			break;
-		}
-#endif
-		default:
-			return -ENOSYS;
-		}
-		line += vid_priv->line_length;
-	}
-	ret = vidconsole_sync_copy(dev, start, line);
-	if (ret)
-		return ret;
-
-	return 0;
 }
 
 /**
@@ -482,9 +449,9 @@ static int console_truetype_backspace(struct udevice *dev)
 	else
 		xend = vid_priv->xsize;
 
-	console_truetype_erase(dev, VID_TO_PIXEL(pos->xpos_frac), pos->ypos,
-			       xend, pos->ypos + vc_priv->y_charsize,
-			       vid_priv->colour_bg);
+	video_fill_part(vid_dev, VID_TO_PIXEL(pos->xpos_frac), pos->ypos,
+			xend, pos->ypos + vc_priv->y_charsize,
+			vid_priv->colour_bg);
 
 	/* Move the cursor back to where it was when we pushed this record */
 	vc_priv->xcur_frac = pos->xpos_frac;
@@ -680,8 +647,8 @@ static void select_metrics(struct udevice *dev, struct console_tt_metrics *met)
 	vc_priv->tab_width_frac = VID_TO_POS(met->font_size) * 8 / 2;
 }
 
-static int truetype_select_font(struct udevice *dev, const char *name,
-				uint size)
+static int get_metrics(struct udevice *dev, const char *name, uint size,
+		       struct console_tt_metrics **metp)
 {
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_metrics *met;
@@ -719,7 +686,66 @@ static int truetype_select_font(struct udevice *dev, const char *name,
 		met = priv->metrics;
 	}
 
+	*metp = met;
+
+	return 0;
+}
+
+static int truetype_select_font(struct udevice *dev, const char *name,
+				uint size)
+{
+	struct console_tt_metrics *met;
+	int ret;
+
+	ret = get_metrics(dev, name, size, &met);
+	if (ret)
+		return log_msg_ret("sel", ret);
+
 	select_metrics(dev, met);
+
+	return 0;
+}
+
+int truetype_measure(struct udevice *dev, const char *name, uint size,
+		     const char *text, struct vidconsole_bbox *bbox)
+{
+	struct console_tt_metrics *met;
+	stbtt_fontinfo *font;
+	int lsb, advance;
+	const char *s;
+	int width;
+	int last;
+	int ret;
+
+	ret = get_metrics(dev, name, size, &met);
+	if (ret)
+		return log_msg_ret("sel", ret);
+
+	bbox->valid = false;
+	if (!*text)
+		return 0;
+
+	font = &met->font;
+	width = 0;
+	for (last = 0, s = text; *s; s++) {
+		int ch = *s;
+
+		/* Used kerning to fine-tune the position of this character */
+		if (last)
+			width += stbtt_GetCodepointKernAdvance(font, last, ch);
+
+		/* First get some basic metrics about this character */
+		stbtt_GetCodepointHMetrics(font, ch, &advance, &lsb);
+
+		width += advance;
+		last = ch;
+	}
+
+	bbox->valid = true;
+	bbox->x0 = 0;
+	bbox->y0 = 0;
+	bbox->x1 = tt_ceil((double)width * met->scale);
+	bbox->y1 = met->font_size;
 
 	return 0;
 }
@@ -775,6 +801,7 @@ struct vidconsole_ops console_truetype_ops = {
 	.get_font	= console_truetype_get_font,
 	.get_font_size	= console_truetype_get_font_size,
 	.select_font	= truetype_select_font,
+	.measure	= truetype_measure,
 };
 
 U_BOOT_DRIVER(vidconsole_truetype) = {
