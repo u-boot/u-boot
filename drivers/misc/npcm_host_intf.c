@@ -50,9 +50,6 @@ static int npcm_host_intf_bind(struct udevice *dev)
 	const char *type;
 	int ret;
 
-	/* Release host wait */
-	setbits_8(SMC_CTL_REG_ADDR, SMC_CTL_HOSTWAIT);
-
 	syscon = syscon_regmap_lookup_by_phandle(dev, "syscon");
 	if (IS_ERR(syscon)) {
 		dev_err(dev, "%s: unable to get syscon, dev %s\n", __func__, dev->name);
@@ -92,6 +89,9 @@ static int npcm_host_intf_bind(struct udevice *dev)
 		regmap_update_bits(syscon, MFSEL4, MFSEL4_ESPISEL, 0);
 		regmap_update_bits(syscon, MFSEL1, MFSEL1_LPCSEL, MFSEL1_LPCSEL);
 	}
+
+	/* Release host wait */
+	setbits_8(SMC_CTL_REG_ADDR, SMC_CTL_HOSTWAIT);
 
 	return 0;
 }
