@@ -95,6 +95,8 @@ static int fwu_trial_count_update(void)
 			log_err("Unable to revert active_index\n");
 		ret = 1;
 	} else {
+		log_info("Trial State count: attempt %d out of %d\n",
+			 trial_state_ctr, CONFIG_FWU_TRIAL_STATE_CNT);
 		ret = trial_counter_update(&trial_state_ctr);
 		if (ret)
 			log_err("Unable to increment TrialStateCtr variable\n");
