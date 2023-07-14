@@ -31,6 +31,7 @@ struct legacy_img_hdr;
 struct blk_desc;
 struct legacy_img_hdr;
 struct spl_boot_device;
+enum boot_device;
 
 /*
  * u_boot_first_phase() - check if this is the first U-Boot phase
@@ -525,7 +526,7 @@ void spl_board_prepare_for_linux(void);
 void spl_board_prepare_for_optee(void *fdt);
 void spl_board_prepare_for_boot(void);
 int spl_board_ubi_load_image(u32 boot_device);
-int spl_board_boot_device(u32 boot_device);
+int spl_board_boot_device(enum boot_device boot_dev_spl);
 
 /**
  * spl_board_loader_name() - Return a name for the loader
