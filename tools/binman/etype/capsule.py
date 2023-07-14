@@ -97,11 +97,7 @@ class Entry_capsule(Entry):
 
             self.capsule_fname = fdt_util.GetString(self._node, 'capsule')
             if not self.capsule_fname:
-                self.capsule_fname = os.path.splitext(self.payload)[0] + '.capsule'
-
-            if not os.path.exists(self.capsule_fname):
-                capsule_path = tools.get_output_filename(self.capsule_fname)
-                self.capsule_fname = capsule_path
+                self.Raise('Specify the output capsule file')
 
     def _GenCapsule(self):
         if self.cfg_file:
