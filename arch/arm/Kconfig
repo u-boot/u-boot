@@ -798,6 +798,7 @@ config ARCH_K3
 	select SPL
 	select SUPPORT_SPL
 	select FIT
+	select REGEX
 
 config ARCH_OMAP2PLUS
 	bool "TI OMAP2+"
