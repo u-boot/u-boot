@@ -46,7 +46,7 @@ int scmi_to_linux_errno(s32 scmi_code)
 
 	for (n = 0; n < ARRAY_SIZE(scmi_linux_errmap); n++)
 		if (scmi_code == scmi_linux_errmap[n].scmi)
-			return scmi_linux_errmap[1].errno;
+			return scmi_linux_errmap[n].errno;
 
 	return -EPROTO;
 }

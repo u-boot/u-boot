@@ -775,7 +775,7 @@ static inline void ufshcd_prepare_utp_nop_upiu(struct ufs_hba *hba)
 
 	/* command descriptor fields */
 	ucd_req_ptr->header.dword_0 =
-			UPIU_HEADER_DWORD(UPIU_TRANSACTION_NOP_OUT, 0, 0, 0x1f);
+			UPIU_HEADER_DWORD(UPIU_TRANSACTION_NOP_OUT, 0, 0, TASK_TAG);
 	/* clear rest of the fields of basic header */
 	ucd_req_ptr->header.dword_1 = 0;
 	ucd_req_ptr->header.dword_2 = 0;

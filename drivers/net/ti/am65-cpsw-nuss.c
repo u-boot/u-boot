@@ -223,6 +223,8 @@ out:
 	return phy->link;
 }
 
+#define AM65_GMII_SEL_PORT_OFFS(x)	(0x4 * ((x) - 1))
+
 #define AM65_GMII_SEL_MODE_MII		0
 #define AM65_GMII_SEL_MODE_RMII		1
 #define AM65_GMII_SEL_MODE_RGMII	2
@@ -233,11 +235,12 @@ static void am65_cpsw_gmii_sel_k3(struct am65_cpsw_priv *priv,
 				  phy_interface_t phy_mode, int slave)
 {
 	struct am65_cpsw_common	*common = priv->cpsw_common;
+	fdt_addr_t gmii_sel = common->gmii_sel + AM65_GMII_SEL_PORT_OFFS(slave);
 	u32 reg;
 	u32 mode = 0;
 	bool rgmii_id = false;
 
-	reg = readl(common->gmii_sel);
+	reg = readl(gmii_sel);
 
 	dev_dbg(common->dev, "old gmii_sel: %08x\n", reg);
 
@@ -273,9 +276,9 @@ static void am65_cpsw_gmii_sel_k3(struct am65_cpsw_priv *priv,
 	reg = mode;
 	dev_dbg(common->dev, "gmii_sel PHY mode: %u, new gmii_sel: %08x\n",
 		phy_mode, reg);
-	writel(reg, common->gmii_sel);
+	writel(reg, gmii_sel);
 
-	reg = readl(common->gmii_sel);
+	reg = readl(gmii_sel);
 	if (reg != mode)
 		dev_err(common->dev,
 			"gmii_sel PHY mode NOT SET!: requested: %08x, gmii_sel: %08x\n",

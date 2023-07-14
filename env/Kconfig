@@ -662,6 +662,18 @@ config SYS_MMC_ENV_PART
 	  partition 0 or the first boot partition, which is 1 or some other defined
 	  partition.
 
+config USE_ENV_MMC_PARTITION
+	bool "use the mmc environment partition name"
+	depends on ENV_IS_IN_MMC
+
+config ENV_MMC_PARTITION
+	string "mmc environment partition name"
+	depends on USE_ENV_MMC_PARTITION
+	help
+	  MMC partition name used to save environment variables.
+	  If this variable is unset, u-boot will try to get the env partition name
+	  from the device-tree's /config node.
+
 config ENV_MMC_USE_DT
 	bool "Read partition name and offset in DT"
 	depends on ENV_IS_IN_MMC && OF_CONTROL

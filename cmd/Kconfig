@@ -1859,7 +1859,6 @@ config CMD_RARP
 
 config CMD_NFS
 	bool "nfs"
-	default y
 	help
 	  Boot image via network using NFS protocol.
 

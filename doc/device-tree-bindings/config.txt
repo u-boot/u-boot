@@ -76,6 +76,8 @@ u-boot,mmc-env-partition (int)
 	precedence. In that case, only if the partition is not found,
 	mmc-env-offset* will be tried.
 
+	Note that CONFIG_ENV_MMC_PARTITION overrides this device-tree setting.
+
 u-boot,no-apm-finalize (bool)
 	For x86 devices running on coreboot, this tells U-Boot not to lock
 	down the Intel Management Engine (ME) registers. This allows U-Boot to
