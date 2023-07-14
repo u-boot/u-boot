@@ -58,6 +58,5 @@
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
 
-/* MMC ENV related defines */
 
 #endif /* __CONFIG_J721E_EVM_H */
