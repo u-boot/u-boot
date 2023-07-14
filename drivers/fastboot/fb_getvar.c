@@ -183,7 +183,7 @@ static void __maybe_unused getvar_has_slot(char *part_name, char *response)
 
 	/* part_name_wslot = part_name + "_a" */
 	len = strlcpy(part_name_wslot, part_name, PART_NAME_LEN - 3);
-	if (len > PART_NAME_LEN - 3)
+	if (len >= PART_NAME_LEN - 3)
 		goto fail;
 	strcat(part_name_wslot, "_a");
 
