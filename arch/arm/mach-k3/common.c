@@ -497,8 +497,7 @@ static void remove_fwl_regions(struct fwl_data fwl_data, size_t num_regions,
 
 		/* Don't disable the background regions */
 		if (region.control != 0 &&
-		    ((region.control & K3_FIREWALL_BACKGROUND_BIT) ==
-		     fwl_type)) {
+		    ((region.control >> K3_FIREWALL_BACKGROUND_BIT) & 1) == fwl_type) {
 			pr_debug("Attempting to disable firewall %5d (%25s)\n",
 				 region.fwl_id, fwl_data.name);
 			region.control = 0;
