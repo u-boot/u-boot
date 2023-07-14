@@ -21,7 +21,7 @@
 
 /* U-Boot general configuration */
 #define EXTRA_ENV_AM62A7_BOARD_SETTINGS					\
-	"default_device_tree=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"	\
+	"default_device_tree=ti/k3-am62a7-sk.dtb\0"			\
 	"findfdt="							\
 		"setenv name_fdt ${default_device_tree};"		\
 		"setenv fdtfile ${name_fdt}\0"				\
