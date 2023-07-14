@@ -251,6 +251,15 @@
 			status = "disabled";
 		};
 
+		nand: nand-controller@805b0000 {
+			compatible = "marvell,mvebu-ac5-pxa3xx-nand";
+			reg = <0x0 0x805b0000 0x0 0x54>;
+			#address-cells = <0x00000001>;
+			marvell,nand-enable-arbiter;
+			num-cs = <0x00000001>;
+			status = "disabled";
+		};
+
 		gic: interrupt-controller@80600000 {
 			compatible = "arm,gic-v3";
 			#interrupt-cells = <3>;

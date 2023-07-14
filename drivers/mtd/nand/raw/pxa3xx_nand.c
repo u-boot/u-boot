@@ -125,6 +125,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* System control register and bit to enable NAND on some SoCs */
 #define GENCONF_SOC_DEVICE_MUX	0x208
 #define GENCONF_SOC_DEVICE_MUX_NFC_EN BIT(0)
+#define GENCONF_SOC_DEVICE_MUX_NFC_DEVBUS_ARB_EN BIT(27)
 
 /*
  * This should be large enough to read 'ONFI' and 'JEDEC'.
@@ -167,6 +168,7 @@ enum pxa3xx_nand_variant {
 	PXA3XX_NAND_VARIANT_PXA,
 	PXA3XX_NAND_VARIANT_ARMADA370,
 	PXA3XX_NAND_VARIANT_ARMADA_8K,
+	PXA3XX_NAND_VARIANT_AC5,
 };
 
 struct pxa3xx_nand_host {
@@ -391,6 +393,10 @@ static const struct udevice_id pxa3xx_nand_dt_ids[] = {
 		.compatible = "marvell,armada-8k-nand-controller",
 		.data = PXA3XX_NAND_VARIANT_ARMADA_8K,
 	},
+	{
+		.compatible = "marvell,mvebu-ac5-pxa3xx-nand",
+		.data = PXA3XX_NAND_VARIANT_AC5,
+	},
 	{}
 };
 
@@ -504,6 +510,9 @@ static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
 		mode = fls(mode) - 1;
 		if (mode < 0)
 			mode = 0;
+
+		if (info->variant == PXA3XX_NAND_VARIANT_AC5)
+			mode = min(mode, 3);
 
 		timings = onfi_async_timing_mode_to_sdr_timings(mode);
 		if (IS_ERR(timings))
@@ -730,7 +739,8 @@ static irqreturn_t pxa3xx_nand_irq(struct pxa3xx_nand_info *info)
 
 		/* NDCB3 register is available in NFCv2 (Armada 370/XP SoC) */
 		if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370 ||
-			info->variant == PXA3XX_NAND_VARIANT_ARMADA_8K)
+			info->variant == PXA3XX_NAND_VARIANT_ARMADA_8K ||
+			info->variant == PXA3XX_NAND_VARIANT_AC5)
 			nand_writel(info, NDCB0, info->ndcb3);
 	}
 
@@ -1579,7 +1589,8 @@ static int pxa3xx_nand_scan(struct mtd_info *mtd)
 
 	/* Device detection must be done with ECC disabled */
 	if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370 ||
-		info->variant == PXA3XX_NAND_VARIANT_ARMADA_8K)
+		info->variant == PXA3XX_NAND_VARIANT_ARMADA_8K ||
+		info->variant == PXA3XX_NAND_VARIANT_AC5)
 		nand_writel(info, NDECCCTRL, 0x0);
 
 	if (nand_scan_ident(mtd, 1, NULL))
@@ -1630,7 +1641,8 @@ static int pxa3xx_nand_scan(struct mtd_info *mtd)
 	 */
 	if (mtd->writesize > info->chunk_size) {
 		if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370 ||
-			info->variant == PXA3XX_NAND_VARIANT_ARMADA_8K) {
+			info->variant == PXA3XX_NAND_VARIANT_ARMADA_8K ||
+			info->variant == PXA3XX_NAND_VARIANT_AC5) {
 			chip->cmdfunc = nand_cmdfunc_extended;
 		} else {
 			dev_err(mtd->dev,
@@ -1728,7 +1740,7 @@ static int alloc_nand_resource(struct udevice *dev, struct pxa3xx_nand_info *inf
 			return PTR_ERR(sysctrl_base);
 
 		regmap_read(sysctrl_base, GENCONF_SOC_DEVICE_MUX, &reg);
-		reg |= GENCONF_SOC_DEVICE_MUX_NFC_EN;
+		reg |= GENCONF_SOC_DEVICE_MUX_NFC_EN | GENCONF_SOC_DEVICE_MUX_NFC_DEVBUS_ARB_EN;
 		regmap_write(sysctrl_base, GENCONF_SOC_DEVICE_MUX, reg);
 	}
 

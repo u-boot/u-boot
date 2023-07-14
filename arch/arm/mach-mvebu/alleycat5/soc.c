@@ -255,6 +255,12 @@ void soc_print_clock_info(void)
 	printf("\tMSS     %4d MHz\n", 200);
 }
 
+/* Return NAND clock in Hz */
+u32 mvebu_get_nand_clock(void)
+{
+	return 400 * 1000000;
+}
+
 /*
  * Override of __weak int mach_cpu_init(void) :
  * SoC/machine dependent CPU setup

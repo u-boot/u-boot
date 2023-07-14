@@ -31,7 +31,6 @@
 		usb0 = &usb0;
 		usb1 = &usb1;
 		pinctrl0 = &pinctrl0;
-		sar-reg0 = "/config-space/sar-reg";
 	};
 
 	usb1phy: usb-phy {

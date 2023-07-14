@@ -23,7 +23,7 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-	memory {
+	memory@0 {
 		device_type = "memory";
 		reg = <0x00000000 0x40000000>; /* 1GB */
 	};
@@ -37,43 +37,43 @@
 
 	};
 
-	usb3_0_phy: usb3_0_phy {
+	usb3_0_phy: usb-phy {
 		compatible = "usb-nop-xceiv";
 		vcc-supply = <&usb3_0_power>;
+		 #phy-cells = <0>;
 	};
 
-	usb3_1_phy: usb3_1_phy {
+	usb3_1_phy: usb-phy {
 		compatible = "usb-nop-xceiv";
 		vcc-supply = <&usb3_1_power>;
+		 #phy-cells = <0>;
 	};
 
-	gpio-keys {
+	keys {
 		compatible = "gpio-keys";
-		#address-cells = <1>;
-		#size-cells = <0>;
 		pinctrl-0 = <&pmx_power_button &pmx_copy_button &pmx_reset_button>;
 		pinctrl-names = "default";
 
-		button@1 {
+		button-1 {
 			label = "Power Button";
 			linux,code = <KEY_POWER>;
 			gpios = <&gpio1 17 GPIO_ACTIVE_HIGH>;
 		};
 
-		button@2 {
+		button-2 {
 			label = "Copy Button";
 			linux,code = <KEY_COPY>;
 			gpios = <&gpio1 20 GPIO_ACTIVE_HIGH>;
 		};
 
-		button@3 {
+		button-3 {
 			label = "Reset Button";
 			linux,code = <KEY_RESTART>;
 			gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
 		};
 	};
 
-	gpio-leds {
+	leds {
 		compatible = "gpio-leds";
 		pinctrl-0 = <&pmx_sata1_white_led
 				&pmx_sata1_red_led
@@ -88,142 +88,142 @@
 
 		pinctrl-names = "default";
 
-		white_sata1 {
+		led-1 {
 			label = "n2350:white:sata1";
 			gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "ide-disk1";
 		};
 
-		red_sata1 {
+		led-2 {
 			label = "n2350:red:sata1";
 			gpios = <&gpio1 14 GPIO_ACTIVE_HIGH>;
 		};
 
-		white-sata2 {
+		led-3 {
 			label = "n2350:white:sata2";
 			gpios = <&gpio0 19 GPIO_ACTIVE_HIGH>;
 		};
 
-		red-sata2 {
+		led-4 {
 			label = "n2350:red:sata2";
 			gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
 		};
 
-		white-sys {
+		led-5 {
 			label = "n2350:white:sys";
 			gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "default-on";
 		};
 
-		red-sys {
+		led-6 {
 			label = "n2350:red:sys";
 			gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
 		};
 
-		blue-pwr {
+		led-7 {
 			label = "n2350:blue:pwr";
 			gpios = <&gpio1 11 GPIO_ACTIVE_HIGH>;
 		};
 
-		red-pwr {
+		led-8 {
 			label = "n2350:red:pwr";
 			gpios = <&gpio0 18 GPIO_ACTIVE_HIGH>;
 		};
 
-		white-usb {
+		led-9 {
 			label = "n2350:white:usb";
 			gpios = <&gpio0 16 GPIO_ACTIVE_HIGH>;
 		};
 
-		red-usb {
+		led-10 {
 			label = "n2350:red:usb";
 			gpios = <&gpio0 17 GPIO_ACTIVE_HIGH>;
 		};
 	};
 
-	regulators {
-		compatible = "simple-bus";
-		#address-cells = <1>;
-		#size-cells = <0>;
+	fan {
+		compatible = "gpio-fan";
+		gpios = <&gpio1 16 GPIO_ACTIVE_HIGH>;
+		gpio-fan,speed-map = <	  0  0
+					600  1
+					3000 2 >;
+		pinctrl-0 = <&pmx_fan>;
+		pinctrl-names = "default";
+	};
 
-		usb3_0_power: regulator@1 {
-			compatible = "regulator-fixed";
-			reg = <1>;
-			regulator-name = "USB3_0_Power";
-			regulator-min-microvolt = <5000000>;
-			regulator-max-microvolt = <5000000>;
-			enable-active-high;
-			regulator-always-on;
-			regulator-boot-on;
-			gpio = <&gpio0 21 GPIO_ACTIVE_HIGH>;
-		};
+	usb3_0_power: v5-vbus0 {
+		compatible = "regulator-fixed";
+		regulator-name = "USB3_0_Power";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		enable-active-high;
+		regulator-always-on;
+		regulator-boot-on;
+		gpio = <&gpio0 21 GPIO_ACTIVE_HIGH>;
+	};
 
-		usb3_1_power: regulator@2 {
-			compatible = "regulator-fixed";
-			reg = <1>;
-			regulator-name = "USB3_1_Power";
-			regulator-min-microvolt = <5000000>;
-			regulator-max-microvolt = <5000000>;
-			enable-active-high;
-			regulator-always-on;
-			regulator-boot-on;
-			gpio = <&gpio0 24 GPIO_ACTIVE_HIGH>;
-		};
+	usb3_1_power: v5-vbus1 {
+		compatible = "regulator-fixed";
+		regulator-name = "USB3_1_Power";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		enable-active-high;
+		regulator-always-on;
+		regulator-boot-on;
+		gpio = <&gpio0 24 GPIO_ACTIVE_HIGH>;
+	};
 
-		reg_sata0: regulator@3 {
-			compatible = "regulator-fixed";
-			regulator-name = "pwr_en_sata0";
-			regulator-min-microvolt = <12000000>;
-			regulator-max-microvolt = <12000000>;
-			enable-active-high;
-			regulator-always-on;
-			regulator-boot-on;
-			gpio = <&gpio1 12 GPIO_ACTIVE_HIGH>;
-		};
+	reg_sata0: pwr-sata0 {
+		compatible = "regulator-fixed";
+		regulator-name = "pwr_en_sata0";
+		regulator-min-microvolt = <12000000>;
+		regulator-max-microvolt = <12000000>;
+		enable-active-high;
+		regulator-always-on;
+		regulator-boot-on;
+		gpio = <&gpio1 12 GPIO_ACTIVE_HIGH>;
+	};
 
-		reg_5v_sata0: v5-sata0 {
-			compatible = "regulator-fixed";
-			regulator-name = "v5.0-sata0";
-			regulator-min-microvolt = <5000000>;
-			regulator-max-microvolt = <5000000>;
-			vin-supply = <&reg_sata0>;
-		};
+	reg_5v_sata0: v5-sata0 {
+		compatible = "regulator-fixed";
+		regulator-name = "v5.0-sata0";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		vin-supply = <&reg_sata0>;
+	};
 
-		reg_12v_sata0: v12-sata0 {
-			compatible = "regulator-fixed";
-			regulator-name = "v12.0-sata0";
-			regulator-min-microvolt = <12000000>;
-			regulator-max-microvolt = <12000000>;
-			vin-supply = <&reg_sata0>;
-		};
+	reg_12v_sata0: v12-sata0 {
+		compatible = "regulator-fixed";
+		regulator-name = "v12.0-sata0";
+		regulator-min-microvolt = <12000000>;
+		regulator-max-microvolt = <12000000>;
+		vin-supply = <&reg_sata0>;
+	};
 
-		reg_sata1: regulator@4 {
-			regulator-name = "pwr_en_sata1";
-			compatible = "regulator-fixed";
-			regulator-min-microvolt = <12000000>;
-			regulator-max-microvolt = <12000000>;
-			enable-active-high;
-			regulator-always-on;
-			regulator-boot-on;
-			gpio = <&gpio1 13 GPIO_ACTIVE_HIGH>;
-		};
+	reg_sata1: pwr-sata0 {
+		regulator-name = "pwr_en_sata1";
+		compatible = "regulator-fixed";
+		regulator-min-microvolt = <12000000>;
+		regulator-max-microvolt = <12000000>;
+		enable-active-high;
+		regulator-always-on;
+		regulator-boot-on;
+		gpio = <&gpio1 13 GPIO_ACTIVE_HIGH>;
+	};
 
-		reg_5v_sata1: v5-sata1 {
-			compatible = "regulator-fixed";
-			regulator-name = "v5.0-sata1";
-			regulator-min-microvolt = <5000000>;
-			regulator-max-microvolt = <5000000>;
-			vin-supply = <&reg_sata1>;
-		};
+	reg_5v_sata1: v5-sata1 {
+		compatible = "regulator-fixed";
+		regulator-name = "v5.0-sata1";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		vin-supply = <&reg_sata1>;
+	};
 
-		reg_12v_sata1: v12-sata1 {
-			compatible = "regulator-fixed";
-			regulator-name = "v12.0-sata1";
-			regulator-min-microvolt = <12000000>;
-			regulator-max-microvolt = <12000000>;
-			vin-supply = <&reg_sata1>;
-		};
-
+	reg_12v_sata1: v12-sata1 {
+		compatible = "regulator-fixed";
+		regulator-name = "v12.0-sata1";
+		regulator-min-microvolt = <12000000>;
+		regulator-max-microvolt = <12000000>;
+		vin-supply = <&reg_sata1>;
 	};
 
 	gpio-poweroff {
@@ -267,7 +267,7 @@
 };
 
 &mdio {
-	phy0: ethernet-phy@0 {
+	phy0: ethernet-phy@1 {
 		reg = <1>;
 	};
 };
@@ -301,18 +301,14 @@
 
 &pciec {
 	status = "okay";
-	/*
-	 * The two PCIe units are accessible through
-	 * standard PCIe slots on the board.
-	 */
-	pcie@1,0 {
-		/* Port 0, Lane 0 */
-		status = "okay";
-	};
-	pcie@2,0 {
-		/* Port 1, Lane 0 */
-		status = "okay";
-	};
+};
+
+&pcie1 {
+	status = "okay";
+};
+
+&pcie2 {
+	status = "okay";
 };
 
 &pinctrl {
@@ -392,6 +388,11 @@
 		marvell,pins = "mpp17";
 		marvell,function = "gpio";
 	};
+
+	pmx_fan: pmx-fan {
+		marvell,pins = "mpp48";
+		marvell,function = "gpio";
+	};
 };
 
 &sdhci {
@@ -408,10 +409,10 @@
 	status = "okay";
 
 	/* spi: 4M Flash Macronix MX25L3205D */
-	spi-flash@0 {
+	flash@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		compatible = "macronix,mx25l3205d", "jedec,spi-nor";
+		compatible = "jedec,spi-nor";
 		reg = <0>;
 
 		spi-max-frequency = <108000000>;
