@@ -93,3 +93,21 @@ int fdt_fixup_msmc_ram_k3(void *blob)
 
 	return ret;
 }
+
+int fdt_del_node_path(void *blob, const char *path)
+{
+	int ret;
+	int nodeoff;
+
+	nodeoff = fdt_path_offset(blob, path);
+	if (nodeoff < 0)
+		return 0; /* Not found, skip it */
+
+	ret = fdt_del_node(blob, nodeoff);
+	if (ret < 0)
+		printf("Unable to delete node %s, err=%s\n", path, fdt_strerror(ret));
+	else
+		debug("Deleted node %s\n", path);
+
+	return ret;
+}
