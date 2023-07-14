@@ -40,7 +40,7 @@ static inline void spi_cs_activate(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct npcm_pspi_priv *priv = dev_get_priv(bus);
 
-	dm_gpio_set_value(&priv->cs_gpio, 0);
+	dm_gpio_set_value(&priv->cs_gpio, 1);
 }
 
 static inline void spi_cs_deactivate(struct udevice *dev)
@@ -48,7 +48,7 @@ static inline void spi_cs_deactivate(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct npcm_pspi_priv *priv = dev_get_priv(bus);
 
-	dm_gpio_set_value(&priv->cs_gpio, 1);
+	dm_gpio_set_value(&priv->cs_gpio, 0);
 }
 
 static inline void npcm_pspi_enable(struct npcm_pspi_priv *priv)
@@ -122,6 +122,9 @@ static int npcm_pspi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (flags & SPI_XFER_END)
 		spi_cs_deactivate(dev);
 
+	debug("npcm_pspi_xfer: slave %s:%s dout %08X din %08X bitlen %u\n",
+	      dev->parent->name, dev->name, *(uint *)tx, *(uint *)rx, bitlen);
+
 	npcm_pspi_disable(priv);
 
 	return ret;
@@ -183,6 +186,7 @@ static int npcm_pspi_set_mode(struct udevice *bus, uint mode)
 	val |= pspi_mode;
 	writew(val, priv->base + PSPI_CTL1);
 
+	debug("%s: mode=%u\n", __func__, mode);
 	return 0;
 }
 
@@ -197,9 +201,9 @@ static int npcm_pspi_probe(struct udevice *bus)
 		return ret;
 
 	priv->base = dev_read_addr_ptr(bus);
-	priv->max_hz = dev_read_u32_default(bus, "spi-max-frequency", 0);
+	priv->max_hz = dev_read_u32_default(bus, "spi-max-frequency", 1000000);
 	gpio_request_by_name_nodev(offset_to_ofnode(node), "cs-gpios", 0,
-				   &priv->cs_gpio, GPIOD_IS_OUT);
+				   &priv->cs_gpio, GPIOD_IS_OUT| GPIOD_ACTIVE_LOW);
 
 	return 0;
 }

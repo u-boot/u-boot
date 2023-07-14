@@ -101,11 +101,20 @@ config ATMEL_SPI
 
 config BCM63XX_HSSPI
 	bool "BCM63XX HSSPI driver"
-	depends on (ARCH_BMIPS || BCM6856 || BCM6858 || BCM63158)
+	depends on (ARCH_BMIPS || ARCH_BCMBCA)
 	help
-	  Enable the BCM6328 HSSPI driver. This driver can be used to
+	  Enable the BCM63XX HSSPI driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this Broadcom
 	  SPI core.
+
+config BCMBCA_HSSPI
+	bool "BCMBCA HSSPI driver"
+	depends on ARCH_BCMBCA && HAVE_SPI_CS_CTRL
+	help
+	  This enables support for the High Speed SPI controller present on
+	  newer Broadcom BCMBCA SoCs. These SoCs include an updated SPI controller
+	  that adds the capability to allow the driver to control chip select
+	  explicitly.
 
 config BCM63XX_SPI
 	bool "BCM6348 SPI driver"

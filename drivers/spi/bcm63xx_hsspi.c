@@ -20,7 +20,13 @@
 
 #define HSSPI_PP			0
 
-#define SPI_MAX_SYNC_CLOCK		30000000
+/*
+ * The maximum frequency for SPI synchronous mode is 30MHz for some chips and
+ * 25MHz for some others. This depends on the chip layout and SPI signals
+ * distance to the pad. We use the lower of these values to cover all relevant
+ * chips.
+ */
+#define SPI_MAX_SYNC_CLOCK		25000000
 
 /* SPI Control register */
 #define SPI_CTL_REG			0x000
@@ -72,12 +78,16 @@
 #define SPI_PFL_MODE_REG(x)		(0x100 + (0x20 * (x)) + 0x08)
 #define SPI_PFL_MODE_FILL_SHIFT		0
 #define SPI_PFL_MODE_FILL_MASK		(0xff << SPI_PFL_MODE_FILL_SHIFT)
+#define SPI_PFL_MODE_MDRDST_SHIFT	8
+#define SPI_PFL_MODE_MDWRST_SHIFT	12
 #define SPI_PFL_MODE_MDRDSZ_SHIFT	16
 #define SPI_PFL_MODE_MDRDSZ_MASK	(1 << SPI_PFL_MODE_MDRDSZ_SHIFT)
 #define SPI_PFL_MODE_MDWRSZ_SHIFT	18
 #define SPI_PFL_MODE_MDWRSZ_MASK	(1 << SPI_PFL_MODE_MDWRSZ_SHIFT)
 #define SPI_PFL_MODE_3WIRE_SHIFT	20
 #define SPI_PFL_MODE_3WIRE_MASK		(1 << SPI_PFL_MODE_3WIRE_SHIFT)
+#define SPI_PFL_MODE_PREPCNT_SHIFT	24
+#define SPI_PFL_MODE_PREPCNT_MASK	(4 << SPI_PFL_MODE_PREPCNT_SHIFT)
 
 /* SPI Ping-Pong FIFO registers */
 #define HSSPI_FIFO_SIZE			0x200
@@ -96,12 +106,21 @@
 #define HSSPI_FIFO_OP_CODE_W		(2 << HSSPI_FIFO_OP_CODE_SHIFT)
 #define HSSPI_FIFO_OP_CODE_R		(3 << HSSPI_FIFO_OP_CODE_SHIFT)
 
+#define HSSPI_MAX_DATA_SIZE			(HSSPI_FIFO_SIZE - HSSPI_FIFO_OP_SIZE)
+#define HSSPI_MAX_PREPEND_SIZE		15
+
+#define HSSPI_XFER_MODE_PREPEND		0
+#define HSSPI_XFER_MODE_DUMMYCS		1
+
 struct bcm63xx_hsspi_priv {
 	void __iomem *regs;
 	ulong clk_rate;
 	uint8_t num_cs;
 	uint8_t cs_pols;
 	uint speed;
+	uint xfer_mode;
+	uint32_t prepend_cnt;
+	uint8_t prepend_buf[HSSPI_MAX_PREPEND_SIZE];
 };
 
 static int bcm63xx_hsspi_cs_info(struct udevice *bus, uint cs,
@@ -143,9 +162,16 @@ static void bcm63xx_hsspi_activate_cs(struct bcm63xx_hsspi_priv *priv,
 				   struct dm_spi_slave_plat *plat)
 {
 	uint32_t clr, set;
+	uint speed = priv->speed;
+
+	if (priv->xfer_mode == HSSPI_XFER_MODE_DUMMYCS &&
+	    speed > SPI_MAX_SYNC_CLOCK) {
+		speed = SPI_MAX_SYNC_CLOCK;
+		debug("Force to dummy cs mode. Reduce the speed to %dHz\n", speed);
+	}
 
 	/* profile clock */
-	set = DIV_ROUND_UP(priv->clk_rate, priv->speed);
+	set = DIV_ROUND_UP(priv->clk_rate, speed);
 	set = DIV_ROUND_UP(2048, set);
 	set &= SPI_PFL_CLK_FREQ_MASK;
 	set |= SPI_PFL_CLK_RSTLOOP_MASK;
@@ -164,7 +190,7 @@ static void bcm63xx_hsspi_activate_cs(struct bcm63xx_hsspi_priv *priv,
 		set |= SPI_PFL_SIG_LATCHRIS_MASK;
 
 	/* async clk */
-	if (priv->speed > SPI_MAX_SYNC_CLOCK)
+	if (speed > SPI_MAX_SYNC_CLOCK)
 		set |= SPI_PFL_SIG_ASYNCIN_MASK;
 
 	clrsetbits_32(priv->regs + SPI_PFL_SIG_REG(plat->cs), clr, set);
@@ -173,17 +199,24 @@ static void bcm63xx_hsspi_activate_cs(struct bcm63xx_hsspi_priv *priv,
 	set = 0;
 	clr = 0;
 
-	/* invert cs polarity */
-	if (priv->cs_pols & BIT(plat->cs))
-		clr |= BIT(plat->cs);
-	else
-		set |= BIT(plat->cs);
+	if (priv->xfer_mode == HSSPI_XFER_MODE_PREPEND) {
+		if (priv->cs_pols & BIT(plat->cs))
+			set |= BIT(plat->cs);
+		else
+			clr |= BIT(plat->cs);
+	} else {
+		/* invert cs polarity */
+		if (priv->cs_pols & BIT(plat->cs))
+			clr |= BIT(plat->cs);
+		else
+			set |= BIT(plat->cs);
 
-	/* invert dummy cs polarity */
-	if (priv->cs_pols & BIT(!plat->cs))
-		clr |= BIT(!plat->cs);
-	else
-		set |= BIT(!plat->cs);
+		/* invert dummy cs polarity */
+		if (priv->cs_pols & BIT(!plat->cs))
+			clr |= BIT(!plat->cs);
+		else
+			set |= BIT(!plat->cs);
+	}
 
 	clrsetbits_32(priv->regs + SPI_CTL_REG, clr, set);
 }
@@ -212,16 +245,21 @@ static void bcm63xx_hsspi_deactivate_cs(struct bcm63xx_hsspi_priv *priv)
  * all the time. This hack is also used in the upstream linux driver and
  * allows keeping CS active between transfers even if the HW doesn't give
  * this possibility.
+ *
+ * This workaround only works when the dummy CS (usually CS1 when the actual
+ * CS is 0) pinmuxed to SPI chip select function if SPI clock is faster than
+ * SPI_MAX_SYNC_CLOCK. In old broadcom chip, CS1 pin is default to chip select
+ * function. But this is not the case for new chips. To make this function
+ * always work, it should be called with maximum clock of SPI_MAX_SYNC_CLOCK.
  */
-static int bcm63xx_hsspi_xfer(struct udevice *dev, unsigned int bitlen,
-		const void *dout, void *din, unsigned long flags)
+static int bcm63xx_hsspi_xfer_dummy_cs(struct udevice *dev, unsigned int data_bytes,
+				       const void *dout, void *din, unsigned long flags)
 {
 	struct bcm63xx_hsspi_priv *priv = dev_get_priv(dev->parent);
 	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
-	size_t data_bytes = bitlen / 8;
 	size_t step_size = HSSPI_FIFO_SIZE;
 	uint16_t opcode = 0;
-	uint32_t val;
+	uint32_t val = SPI_PFL_MODE_FILL_MASK;
 	const uint8_t *tx = dout;
 	uint8_t *rx = din;
 
@@ -240,14 +278,17 @@ static int bcm63xx_hsspi_xfer(struct udevice *dev, unsigned int bitlen,
 		step_size -= HSSPI_FIFO_OP_SIZE;
 
 	/* dual mode */
-	if ((opcode == HSSPI_FIFO_OP_CODE_R && plat->mode == SPI_RX_DUAL) ||
-	    (opcode == HSSPI_FIFO_OP_CODE_W && plat->mode == SPI_TX_DUAL))
+	if ((opcode == HSSPI_FIFO_OP_CODE_R && (plat->mode & SPI_RX_DUAL)) ||
+	    (opcode == HSSPI_FIFO_OP_CODE_W && (plat->mode & SPI_TX_DUAL))) {
 		opcode |= HSSPI_FIFO_OP_MBIT_MASK;
 
-	/* profile mode */
-	val = SPI_PFL_MODE_FILL_MASK |
-	      SPI_PFL_MODE_MDRDSZ_MASK |
-	      SPI_PFL_MODE_MDWRSZ_MASK;
+		/* profile mode */
+		if (plat->mode & SPI_RX_DUAL)
+			val |= SPI_PFL_MODE_MDRDSZ_MASK;
+		if (plat->mode & SPI_TX_DUAL)
+			val |= SPI_PFL_MODE_MDWRSZ_MASK;
+	}
+
 	if (plat->mode & SPI_3WIRE)
 		val |= SPI_PFL_MODE_3WIRE_MASK;
 	writel(val, priv->regs + SPI_PFL_MODE_REG(plat->cs));
@@ -301,6 +342,182 @@ static int bcm63xx_hsspi_xfer(struct udevice *dev, unsigned int bitlen,
 	return 0;
 }
 
+static int bcm63xx_prepare_prepend_transfer(struct bcm63xx_hsspi_priv *priv,
+					    unsigned int data_bytes, const void *dout, void *din,
+					    unsigned long flags)
+{
+	/*
+	 * only support multiple half duplex write transfer + optional
+	 * full duplex read/write at the end.
+	 */
+	if (flags & SPI_XFER_BEGIN) {
+		/* clear prepends */
+		priv->prepend_cnt = 0;
+	}
+
+	if (din) {
+		/* buffering reads not possible for prepend mode */
+		if (!(flags & SPI_XFER_END)) {
+			debug("unable to buffer reads\n");
+			return HSSPI_XFER_MODE_DUMMYCS;
+		}
+
+		/* check rx size */
+		if (data_bytes > HSSPI_MAX_DATA_SIZE) {
+			debug("max rx bytes exceeded\n");
+			return HSSPI_XFER_MODE_DUMMYCS;
+		}
+	}
+
+	if (dout) {
+		/* check tx size */
+		if (flags & SPI_XFER_END) {
+			if (priv->prepend_cnt + data_bytes > HSSPI_MAX_DATA_SIZE) {
+				debug("max tx bytes exceeded\n");
+				return HSSPI_XFER_MODE_DUMMYCS;
+			}
+		} else {
+			if (priv->prepend_cnt + data_bytes > HSSPI_MAX_PREPEND_SIZE) {
+				debug("max prepend bytes exceeded\n");
+				return HSSPI_XFER_MODE_DUMMYCS;
+			}
+
+			/*
+			 * buffer transfer data in the prepend buf in case we have to fall
+			 * back to dummy cs mode.
+			 */
+			memcpy(&priv->prepend_buf[priv->prepend_cnt], dout, data_bytes);
+			priv->prepend_cnt += data_bytes;
+		}
+	}
+
+	return	HSSPI_XFER_MODE_PREPEND;
+}
+
+static int bcm63xx_hsspi_xfer_prepend(struct udevice *dev, unsigned int data_bytes,
+				      const void *dout, void *din, unsigned long flags)
+{
+	struct bcm63xx_hsspi_priv *priv = dev_get_priv(dev->parent);
+	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
+	uint16_t opcode = 0;
+	uint32_t val, offset;
+	int ret;
+
+	if (flags & SPI_XFER_END) {
+		offset = HSSPI_FIFO_BASE + HSSPI_FIFO_OP_SIZE;
+		if (priv->prepend_cnt) {
+			/* copy prepend data */
+			memcpy_toio(priv->regs + offset,
+				    priv->prepend_buf, priv->prepend_cnt);
+		}
+
+		if (dout && data_bytes) {
+			/* copy tx data */
+			offset += priv->prepend_cnt;
+			memcpy_toio(priv->regs + offset, dout, data_bytes);
+		}
+
+		bcm63xx_hsspi_activate_cs(priv, plat);
+		if (dout && !din) {
+			/* all half-duplex write. merge to single write */
+			data_bytes += priv->prepend_cnt;
+			opcode = HSSPI_FIFO_OP_CODE_W;
+			priv->prepend_cnt = 0;
+		} else if (!dout && din) {
+			/* half-duplex read with prepend write */
+			opcode = HSSPI_FIFO_OP_CODE_R;
+		} else {
+			/* full duplex read/write */
+			opcode = HSSPI_FIFO_OP_READ_WRITE;
+		}
+
+		/* profile mode */
+		val = SPI_PFL_MODE_FILL_MASK;
+		if (plat->mode & SPI_3WIRE)
+			val |= SPI_PFL_MODE_3WIRE_MASK;
+
+		/* dual mode */
+		if ((opcode == HSSPI_FIFO_OP_CODE_R && (plat->mode & SPI_RX_DUAL)) ||
+		    (opcode == HSSPI_FIFO_OP_CODE_W && (plat->mode & SPI_TX_DUAL))) {
+			opcode |= HSSPI_FIFO_OP_MBIT_MASK;
+
+			if (plat->mode & SPI_RX_DUAL) {
+				val |= SPI_PFL_MODE_MDRDSZ_MASK;
+				val |= priv->prepend_cnt << SPI_PFL_MODE_MDRDST_SHIFT;
+			}
+			if (plat->mode & SPI_TX_DUAL) {
+				val |= SPI_PFL_MODE_MDWRSZ_MASK;
+				val |= priv->prepend_cnt << SPI_PFL_MODE_MDWRST_SHIFT;
+			}
+		}
+		val |= (priv->prepend_cnt << SPI_PFL_MODE_PREPCNT_SHIFT);
+		writel(val, priv->regs + SPI_PFL_MODE_REG(plat->cs));
+
+		/* set fifo operation */
+		val = opcode | (data_bytes & HSSPI_FIFO_OP_BYTES_MASK);
+		writew(cpu_to_be16(val),
+		       priv->regs + HSSPI_FIFO_OP_REG);
+
+		/* issue the transfer */
+		val = SPI_CMD_OP_START;
+		val |= (plat->cs << SPI_CMD_PFL_SHIFT) &
+		       SPI_CMD_PFL_MASK;
+		val |= (plat->cs << SPI_CMD_SLAVE_SHIFT) &
+		       SPI_CMD_SLAVE_MASK;
+		writel(val, priv->regs + SPI_CMD_REG);
+
+		/* wait for completion */
+		ret = wait_for_bit_32(priv->regs + SPI_STAT_REG,
+				      SPI_STAT_SRCBUSY_MASK, false,
+				      1000, false);
+		if (ret) {
+			bcm63xx_hsspi_deactivate_cs(priv);
+			printf("spi polling timeout\n");
+			return ret;
+		}
+
+		/* copy rx data */
+		if (din)
+			memcpy_fromio(din, priv->regs + HSSPI_FIFO_BASE,
+				      data_bytes);
+		bcm63xx_hsspi_deactivate_cs(priv);
+	}
+
+	return 0;
+}
+
+static int bcm63xx_hsspi_xfer(struct udevice *dev, unsigned int bitlen,
+			      const void *dout, void *din, unsigned long flags)
+{
+	struct bcm63xx_hsspi_priv *priv = dev_get_priv(dev->parent);
+	int ret;
+	u32 data_bytes = bitlen >> 3;
+
+	if (priv->xfer_mode == HSSPI_XFER_MODE_PREPEND) {
+		priv->xfer_mode =
+			bcm63xx_prepare_prepend_transfer(priv, data_bytes, dout, din, flags);
+	}
+
+	/* if not prependable, fall back to dummy cs mode with safe clock */
+	if (priv->xfer_mode == HSSPI_XFER_MODE_DUMMYCS) {
+		/* For pending prepend data from previous transfers, send it first */
+		if (priv->prepend_cnt) {
+			bcm63xx_hsspi_xfer_dummy_cs(dev, priv->prepend_cnt,
+						    priv->prepend_buf, NULL,
+						    (flags & ~SPI_XFER_END) | SPI_XFER_BEGIN);
+			priv->prepend_cnt = 0;
+		}
+		ret = bcm63xx_hsspi_xfer_dummy_cs(dev, data_bytes, dout, din, flags);
+	} else {
+		ret = bcm63xx_hsspi_xfer_prepend(dev, data_bytes, dout, din, flags);
+	}
+
+	if (flags & SPI_XFER_END)
+		priv->xfer_mode = HSSPI_XFER_MODE_PREPEND;
+
+	return ret;
+}
+
 static const struct dm_spi_ops bcm63xx_hsspi_ops = {
 	.cs_info = bcm63xx_hsspi_cs_info,
 	.set_mode = bcm63xx_hsspi_set_mode,
@@ -310,6 +527,7 @@ static const struct dm_spi_ops bcm63xx_hsspi_ops = {
 
 static const struct udevice_id bcm63xx_hsspi_ids[] = {
 	{ .compatible = "brcm,bcm6328-hsspi", },
+	{ .compatible = "brcm,bcmbca-hsspi-v1.0", },
 	{ /* sentinel */ }
 };
 
@@ -317,6 +535,7 @@ static int bcm63xx_hsspi_child_pre_probe(struct udevice *dev)
 {
 	struct bcm63xx_hsspi_priv *priv = dev_get_priv(dev->parent);
 	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
+	struct spi_slave *slave = dev_get_parent_priv(dev);
 
 	/* check cs */
 	if (plat->cs >= priv->num_cs) {
@@ -329,6 +548,13 @@ static int bcm63xx_hsspi_child_pre_probe(struct udevice *dev)
 		priv->cs_pols |= BIT(plat->cs);
 	else
 		priv->cs_pols &= ~BIT(plat->cs);
+
+	/*
+	 * set the max read/write size to make sure each xfer are within the
+	 * prepend limit
+	 */
+	slave->max_read_size = HSSPI_MAX_DATA_SIZE;
+	slave->max_write_size = HSSPI_MAX_DATA_SIZE;
 
 	return 0;
 }
@@ -390,6 +616,9 @@ static int bcm63xx_hsspi_probe(struct udevice *dev)
 	/* read default cs polarities */
 	priv->cs_pols = readl(priv->regs + SPI_CTL_REG) &
 			SPI_CTL_CS_POL_MASK;
+
+	/* default in prepend mode */
+	priv->xfer_mode = HSSPI_XFER_MODE_PREPEND;
 
 	return 0;
 }
