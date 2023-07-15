@@ -153,7 +153,6 @@ config ROCKCHIP_RK3288
 config ROCKCHIP_RK3308
 	bool "Support Rockchip RK3308"
 	select ARM64
-	select DEBUG_UART_BOARD_INIT
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select SPL
