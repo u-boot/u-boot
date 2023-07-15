@@ -4,6 +4,7 @@
  */
 
 #include "imx8mp-u-boot.dtsi"
+#include "imx8mp-pinfunc.h"
 
 / {
 	aliases {
@@ -15,6 +16,17 @@
 
 	config {
 		dmo,ram-coding-gpios = <&gpio3 20 0>, <&gpio4 3 0>, <&gpio4 1 0>;
+	};
+
+	reg_usb1_vbus: regulator-usb1-vbus {
+		compatible = "regulator-fixed";
+		enable-active-high;
+		gpio = <&gpio1 12 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_usb1_vbus>;
+		regulator-max-microvolt = <5000000>;
+		regulator-min-microvolt = <5000000>;
+		regulator-name = "USB1_PWR";
 	};
 
 	wdt-reboot {
@@ -113,6 +125,10 @@
 	bootph-pre-ram;
 };
 
+&usb3_phy0 {
+	vbus-supply = <&reg_usb1_vbus>;
+};
+
 &usdhc2 {
 	bootph-pre-ram;
 	sd-uhs-sdr104;
@@ -127,4 +143,18 @@
 
 &wdog1 {
 	bootph-pre-ram;
+};
+
+&iomuxc {
+	usb1-grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO13__USB1_OTG_OC		0x80
+		>;
+	};
+
+	pinctrl_usb1_vbus: usb1-vbus-grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO12__GPIO1_IO12		0x6
+		>;
+	};
 };
