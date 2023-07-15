@@ -238,6 +238,15 @@ config MAX7320_GPIO
 	 original maxim device has 8 push/pull outputs,
 	 some clones offers 16bit.
 
+config MAX77663_GPIO
+	bool "MAX77663 GPIO cell of PMIC driver"
+	depends on DM_GPIO && DM_PMIC_MAX77663
+	help
+	  GPIO driver for MAX77663 PMIC from Maxim Semiconductor.
+	  MAX77663 PMIC has 8 pins that can be configured as GPIOs
+	  and 3 GPIO-like pins dedicated for power/reset buttons
+	  and LID sensor.
+
 config MCP230XX_GPIO
 	bool "MCP230XX GPIO driver"
 	depends on DM
