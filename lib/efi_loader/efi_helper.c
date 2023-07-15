@@ -257,3 +257,28 @@ efi_status_t efi_next_variable_name(efi_uintn_t *size, u16 **buf, efi_guid_t *gu
 
 	return ret;
 }
+
+/**
+ * efi_search_bootorder() - search the boot option index in BootOrder
+ *
+ * @bootorder:	pointer to the BootOrder variable
+ * @num:	number of BootOrder entry
+ * @target:	target boot option index to search
+ * @index:	pointer to store the index of BootOrder variable
+ * Return:	true if exists, false otherwise
+ */
+bool efi_search_bootorder(u16 *bootorder, efi_uintn_t num, u32 target, u32 *index)
+{
+	u32 i;
+
+	for (i = 0; i < num; i++) {
+		if (target == bootorder[i]) {
+			if (index)
+				*index = i;
+
+			return true;
+		}
+	}
+
+	return false;
+}

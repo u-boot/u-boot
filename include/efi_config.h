@@ -105,11 +105,6 @@ efi_status_t eficonfig_process_common(struct efimenu *efi_menu,
 				      void (*item_data_print)(void *),
 				      char *(*item_choice)(void *));
 efi_status_t eficonfig_process_select_file(void *data);
-efi_status_t eficonfig_get_unused_bootoption(u16 *buf,
-					     efi_uintn_t buf_size, u32 *index);
-efi_status_t eficonfig_append_bootorder(u16 index);
-efi_status_t eficonfig_generate_media_device_boot_option(void);
-
 efi_status_t eficonfig_append_menu_entry(struct efimenu *efi_menu,
 					 char *title, eficonfig_entry_func func,
 					 void *data);

@@ -1135,43 +1135,6 @@ out:
 }
 
 /**
- * eficonfig_get_unused_bootoption() - get unused "Boot####" index
- *
- * @buf:	pointer to the buffer to store boot option variable name
- * @buf_size:	buffer size
- * @index:	pointer to store the index in the BootOrder variable
- * Return:	status code
- */
-efi_status_t eficonfig_get_unused_bootoption(u16 *buf, efi_uintn_t buf_size,
-					     unsigned int *index)
-{
-	u32 i;
-	efi_status_t ret;
-	efi_uintn_t size;
-
-	if (buf_size < u16_strsize(u"Boot####"))
-		return EFI_BUFFER_TOO_SMALL;
-
-	for (i = 0; i <= 0xFFFF; i++) {
-		size = 0;
-		efi_create_indexed_name(buf, buf_size, "Boot", i);
-		ret = efi_get_variable_int(buf, &efi_global_variable_guid,
-					   NULL, &size, NULL, NULL);
-		if (ret == EFI_BUFFER_TOO_SMALL)
-			continue;
-		else
-			break;
-	}
-
-	if (i > 0xFFFF)
-		return EFI_OUT_OF_RESOURCES;
-
-	*index = i;
-
-	return EFI_SUCCESS;
-}
-
-/**
  * eficonfig_set_boot_option() - set boot option
  *
  * @varname:		pointer to variable name
@@ -1204,46 +1167,6 @@ static efi_status_t eficonfig_set_boot_option(u16 *varname, struct efi_device_pa
 				   EFI_VARIABLE_RUNTIME_ACCESS,
 				   size, p, false);
 	free(p);
-
-	return ret;
-}
-
-/**
- * eficonfig_append_bootorder() - append new boot option in BootOrder variable
- *
- * @index:	"Boot####" index to append to BootOrder variable
- * Return:	status code
- */
-efi_status_t eficonfig_append_bootorder(u16 index)
-{
-	u16 *bootorder;
-	efi_status_t ret;
-	u16 *new_bootorder = NULL;
-	efi_uintn_t last, size, new_size;
-
-	/* append new boot option */
-	bootorder = efi_get_var(u"BootOrder", &efi_global_variable_guid, &size);
-	last = size / sizeof(u16);
-	new_size = size + sizeof(u16);
-	new_bootorder = calloc(1, new_size);
-	if (!new_bootorder) {
-		ret = EFI_OUT_OF_RESOURCES;
-		goto out;
-	}
-	memcpy(new_bootorder, bootorder, size);
-	new_bootorder[last] = index;
-
-	ret = efi_set_variable_int(u"BootOrder", &efi_global_variable_guid,
-				   EFI_VARIABLE_NON_VOLATILE |
-				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
-				   EFI_VARIABLE_RUNTIME_ACCESS,
-				   new_size, new_bootorder, false);
-	if (ret != EFI_SUCCESS)
-		goto out;
-
-out:
-	free(bootorder);
-	free(new_bootorder);
 
 	return ret;
 }
@@ -1619,7 +1542,7 @@ static efi_status_t eficonfig_process_add_boot_option(void *data)
 	if (!bo)
 		return EFI_OUT_OF_RESOURCES;
 
-	ret = eficonfig_get_unused_bootoption(varname, sizeof(varname), &bo->boot_index);
+	ret = efi_bootmgr_get_unused_bootoption(varname, sizeof(varname), &bo->boot_index);
 	if (ret != EFI_SUCCESS)
 		return ret;
 
@@ -1627,7 +1550,7 @@ static efi_status_t eficonfig_process_add_boot_option(void *data)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	ret = eficonfig_append_bootorder((u16)bo->boot_index);
+	ret = efi_bootmgr_append_bootorder((u16)bo->boot_index);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
@@ -1654,31 +1577,6 @@ static efi_status_t eficonfig_process_boot_selected(void *data)
 		*info->selected = info->boot_index;
 
 	return EFI_SUCCESS;
-}
-
-/**
- * search_bootorder() - search the boot option index in BootOrder
- *
- * @bootorder:	pointer to the BootOrder variable
- * @num:	number of BootOrder entry
- * @target:	target boot option index to search
- * @index:	pointer to store the index of BootOrder variable
- * Return:	true if exists, false otherwise
- */
-static bool search_bootorder(u16 *bootorder, efi_uintn_t num, u32 target, u32 *index)
-{
-	u32 i;
-
-	for (i = 0; i < num; i++) {
-		if (target == bootorder[i]) {
-			if (index)
-				*index = i;
-
-			return true;
-		}
-	}
-
-	return false;
 }
 
 /**
@@ -1805,7 +1703,7 @@ static efi_status_t eficonfig_show_boot_selection(unsigned int *selected)
 
 		if (efi_varname_is_load_option(var_name16, &index)) {
 			/* If the index is included in the BootOrder, skip it */
-			if (search_bootorder(bootorder, num, index, NULL))
+			if (efi_search_bootorder(bootorder, num, index, NULL))
 				continue;
 
 			ret = eficonfig_add_boot_selection_entry(efi_menu, index, selected);
@@ -2202,7 +2100,7 @@ static efi_status_t eficonfig_create_change_boot_order_entry(struct efimenu *efi
 
 		if (efi_varname_is_load_option(var_name16, &index)) {
 			/* If the index is included in the BootOrder, skip it */
-			if (search_bootorder(bootorder, num, index, NULL))
+			if (efi_search_bootorder(bootorder, num, index, NULL))
 				continue;
 
 			ret = eficonfig_add_change_boot_order_entry(efi_menu, index, false);
@@ -2305,50 +2203,6 @@ out:
 }
 
 /**
- * delete_boot_option() - delete selected boot option
- *
- * @boot_index:	boot option index to delete
- * Return:	status code
- */
-static efi_status_t delete_boot_option(u16 boot_index)
-{
-	u16 *bootorder;
-	u16 varname[9];
-	efi_status_t ret;
-	unsigned int index;
-	efi_uintn_t num, size;
-
-	efi_create_indexed_name(varname, sizeof(varname),
-				"Boot", boot_index);
-	ret = efi_set_variable_int(varname, &efi_global_variable_guid,
-				   0, 0, NULL, false);
-	if (ret != EFI_SUCCESS) {
-		log_err("delete boot option(%ls) failed\n", varname);
-		return ret;
-	}
-
-	/* update BootOrder if necessary */
-	bootorder = efi_get_var(u"BootOrder", &efi_global_variable_guid, &size);
-	if (!bootorder)
-		return EFI_SUCCESS;
-
-	num = size / sizeof(u16);
-	if (!search_bootorder(bootorder, num, boot_index, &index))
-		return EFI_SUCCESS;
-
-	memmove(&bootorder[index], &bootorder[index + 1],
-		(num - index - 1) * sizeof(u16));
-	size -= sizeof(u16);
-	ret = efi_set_variable_int(u"BootOrder", &efi_global_variable_guid,
-				   EFI_VARIABLE_NON_VOLATILE |
-				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
-				   EFI_VARIABLE_RUNTIME_ACCESS,
-				   size, bootorder, false);
-
-	return ret;
-}
-
-/**
  * eficonfig_process_delete_boot_option() - handler to delete boot option
  *
  * @data:	pointer to the data for each entry
@@ -2362,7 +2216,7 @@ static efi_status_t eficonfig_process_delete_boot_option(void *data)
 	while (1) {
 		ret = eficonfig_show_boot_selection(&selected);
 		if (ret == EFI_SUCCESS)
-			ret = delete_boot_option(selected);
+			ret = efi_bootmgr_delete_boot_option(selected);
 
 		if (ret != EFI_SUCCESS)
 			break;
@@ -2370,256 +2224,6 @@ static efi_status_t eficonfig_process_delete_boot_option(void *data)
 
 	/* to stay the parent menu */
 	ret = (ret == EFI_ABORTED) ? EFI_NOT_READY : ret;
-
-	return ret;
-}
-
-/**
- * eficonfig_enumerate_boot_option() - enumerate the possible bootable media
- *
- * @opt:		pointer to the media boot option structure
- * @volume_handles:	pointer to the efi handles
- * @count:		number of efi handle
- * Return:		status code
- */
-efi_status_t eficonfig_enumerate_boot_option(struct eficonfig_media_boot_option *opt,
-					     efi_handle_t *volume_handles, efi_status_t count)
-{
-	u32 i;
-	struct efi_handler *handler;
-	efi_status_t ret = EFI_SUCCESS;
-
-	for (i = 0; i < count; i++) {
-		u16 *p;
-		u16 dev_name[BOOTMENU_DEVICE_NAME_MAX];
-		char *optional_data;
-		struct efi_load_option lo;
-		char buf[BOOTMENU_DEVICE_NAME_MAX];
-		struct efi_device_path *device_path;
-
-		ret = efi_search_protocol(volume_handles[i], &efi_guid_device_path, &handler);
-		if (ret != EFI_SUCCESS)
-			continue;
-		ret = efi_protocol_open(handler, (void **)&device_path,
-					efi_root, NULL, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
-		if (ret != EFI_SUCCESS)
-			continue;
-
-		ret = efi_disk_get_device_name(volume_handles[i], buf, BOOTMENU_DEVICE_NAME_MAX);
-		if (ret != EFI_SUCCESS)
-			continue;
-
-		p = dev_name;
-		utf8_utf16_strncpy(&p, buf, strlen(buf));
-
-		lo.label = dev_name;
-		lo.attributes = LOAD_OPTION_ACTIVE;
-		lo.file_path = device_path;
-		lo.file_path_length = efi_dp_size(device_path) + sizeof(END);
-		/*
-		 * Set the dedicated guid to optional_data, it is used to identify
-		 * the boot option that automatically generated by the bootmenu.
-		 * efi_serialize_load_option() expects optional_data is null-terminated
-		 * utf8 string, so set the "1234567" string to allocate enough space
-		 * to store guid, instead of realloc the load_option.
-		 */
-		lo.optional_data = "1234567";
-		opt[i].size = efi_serialize_load_option(&lo, (u8 **)&opt[i].lo);
-		if (!opt[i].size) {
-			ret = EFI_OUT_OF_RESOURCES;
-			goto out;
-		}
-		/* set the guid */
-		optional_data = (char *)opt[i].lo + (opt[i].size - u16_strsize(u"1234567"));
-		memcpy(optional_data, &efi_guid_bootmenu_auto_generated, sizeof(efi_guid_t));
-	}
-
-out:
-	return ret;
-}
-
-/**
- * eficonfig_delete_invalid_boot_option() - delete non-existing boot option
- *
- * @opt:		pointer to the media boot option structure
- * @count:		number of media boot option structure
- * Return:		status code
- */
-efi_status_t eficonfig_delete_invalid_boot_option(struct eficonfig_media_boot_option *opt,
-						  efi_status_t count)
-{
-	efi_uintn_t size;
-	void *load_option;
-	u32 i, list_size = 0;
-	struct efi_load_option lo;
-	u16 *var_name16 = NULL;
-	u16 varname[] = u"Boot####";
-	efi_status_t ret = EFI_SUCCESS;
-	u16 *delete_index_list = NULL, *p;
-	efi_uintn_t buf_size;
-
-	buf_size = 128;
-	var_name16 = malloc(buf_size);
-	if (!var_name16)
-		return EFI_OUT_OF_RESOURCES;
-
-	var_name16[0] = 0;
-	for (;;) {
-		int index;
-		efi_guid_t guid;
-		efi_uintn_t tmp;
-
-		ret = efi_next_variable_name(&buf_size, &var_name16, &guid);
-		if (ret == EFI_NOT_FOUND) {
-			/*
-			 * EFI_NOT_FOUND indicates we retrieved all EFI variables.
-			 * This should be treated as success.
-			 */
-			ret = EFI_SUCCESS;
-			break;
-		}
-		if (ret != EFI_SUCCESS)
-			goto out;
-
-		if (!efi_varname_is_load_option(var_name16, &index))
-			continue;
-
-		efi_create_indexed_name(varname, sizeof(varname), "Boot", index);
-		load_option = efi_get_var(varname, &efi_global_variable_guid, &size);
-		if (!load_option)
-			continue;
-
-		tmp = size;
-		ret = efi_deserialize_load_option(&lo, load_option, &size);
-		if (ret != EFI_SUCCESS)
-			goto next;
-
-		if (size >= sizeof(efi_guid_bootmenu_auto_generated) &&
-		    !guidcmp(lo.optional_data, &efi_guid_bootmenu_auto_generated)) {
-			for (i = 0; i < count; i++) {
-				if (opt[i].size == tmp &&
-				    memcmp(opt[i].lo, load_option, tmp) == 0) {
-					opt[i].exist = true;
-					break;
-				}
-			}
-
-			/*
-			 * The entire list of variables must be retrieved by
-			 * efi_get_next_variable_name_int() before deleting the invalid
-			 * boot option, just save the index here.
-			 */
-			if (i == count) {
-				p = realloc(delete_index_list, sizeof(u32) *
-					    (list_size + 1));
-				if (!p) {
-					ret = EFI_OUT_OF_RESOURCES;
-					goto out;
-				}
-				delete_index_list = p;
-				delete_index_list[list_size++] = index;
-			}
-		}
-next:
-		free(load_option);
-	}
-
-	/* delete all invalid boot options */
-	for (i = 0; i < list_size; i++) {
-		ret = delete_boot_option(delete_index_list[i]);
-		if (ret != EFI_SUCCESS)
-			goto out;
-	}
-
-out:
-	free(var_name16);
-	free(delete_index_list);
-
-	return ret;
-}
-
-/**
- * eficonfig_generate_media_device_boot_option() - generate the media device boot option
- *
- * This function enumerates all devices supporting EFI_SIMPLE_FILE_SYSTEM_PROTOCOL
- * and generate the bootmenu entries.
- * This function also provide the BOOT#### variable maintenance for
- * the media device entries.
- *   - Automatically create the BOOT#### variable for the newly detected device,
- *     this BOOT#### variable is distinguished by the special GUID
- *     stored in the EFI_LOAD_OPTION.optional_data
- *   - If the device is not attached to the system, the associated BOOT#### variable
- *     is automatically deleted.
- *
- * Return:	status code
- */
-efi_status_t eficonfig_generate_media_device_boot_option(void)
-{
-	u32 i;
-	efi_status_t ret;
-	efi_uintn_t count;
-	efi_handle_t *volume_handles = NULL;
-	struct eficonfig_media_boot_option *opt = NULL;
-
-	ret = efi_locate_handle_buffer_int(BY_PROTOCOL, &efi_simple_file_system_protocol_guid,
-					   NULL, &count, (efi_handle_t **)&volume_handles);
-	if (ret != EFI_SUCCESS)
-		return ret;
-
-	opt = calloc(count, sizeof(struct eficonfig_media_boot_option));
-	if (!opt)
-		goto out;
-
-	/* enumerate all devices supporting EFI_SIMPLE_FILE_SYSTEM_PROTOCOL */
-	ret = eficonfig_enumerate_boot_option(opt, volume_handles, count);
-	if (ret != EFI_SUCCESS)
-		goto out;
-
-	/*
-	 * System hardware configuration may vary depending on the user setup.
-	 * The boot option is automatically added by the bootmenu.
-	 * If the device is not attached to the system, the boot option needs
-	 * to be deleted.
-	 */
-	ret = eficonfig_delete_invalid_boot_option(opt, count);
-	if (ret != EFI_SUCCESS)
-		goto out;
-
-	/* add non-existent boot option */
-	for (i = 0; i < count; i++) {
-		u32 boot_index;
-		u16 var_name[9];
-
-		if (!opt[i].exist) {
-			ret = eficonfig_get_unused_bootoption(var_name, sizeof(var_name),
-							      &boot_index);
-			if (ret != EFI_SUCCESS)
-				goto out;
-
-			ret = efi_set_variable_int(var_name, &efi_global_variable_guid,
-						   EFI_VARIABLE_NON_VOLATILE |
-						   EFI_VARIABLE_BOOTSERVICE_ACCESS |
-						   EFI_VARIABLE_RUNTIME_ACCESS,
-						   opt[i].size, opt[i].lo, false);
-			if (ret != EFI_SUCCESS)
-				goto out;
-
-			ret = eficonfig_append_bootorder(boot_index);
-			if (ret != EFI_SUCCESS) {
-				efi_set_variable_int(var_name, &efi_global_variable_guid,
-						     0, 0, NULL, false);
-				goto out;
-			}
-		}
-	}
-
-out:
-	if (opt) {
-		for (i = 0; i < count; i++)
-			free(opt[i].lo);
-	}
-	free(opt);
-	efi_free_pool(volume_handles);
 
 	return ret;
 }
@@ -2709,8 +2313,8 @@ static int do_eficonfig(struct cmd_tbl *cmdtp, int flag, int argc, char *const a
 	if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
 
-	ret = eficonfig_generate_media_device_boot_option();
-	if (ret != EFI_SUCCESS && ret != EFI_NOT_FOUND)
+	ret = efi_bootmgr_update_media_device_boot_option();
+	if (ret != EFI_SUCCESS)
 		return ret;
 
 	while (1) {
