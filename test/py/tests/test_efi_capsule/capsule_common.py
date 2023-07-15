@@ -6,7 +6,7 @@
 
 from capsule_defs import CAPSULE_DATA_DIR, CAPSULE_INSTALL_DIR
 
-def setup(u_boot_console, disk_img, osindications):
+def capsule_setup(u_boot_console, disk_img, osindications):
     """setup the test
 
     Args:
