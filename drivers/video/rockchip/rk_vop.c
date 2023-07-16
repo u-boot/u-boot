@@ -432,7 +432,7 @@ int rk_vop_probe(struct udevice *dev)
 	ret = reset_assert(&ahb_rst);
 	if (ret) {
 		dev_err(dev, "failed to assert ahb reset (ret=%d)\n", ret);
-	return ret;
+		return ret;
 	}
 	udelay(20);
 

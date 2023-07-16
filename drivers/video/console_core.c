@@ -201,6 +201,12 @@ int console_simple_select_font(struct udevice *dev, const char *name, uint size)
 {
 	struct video_fontdata *font;
 
+	if (!name) {
+		if (fonts->name)
+			console_set_font(dev, fonts);
+		return 0;
+	}
+
 	for (font = fonts; font->name; font++) {
 		if (!strcmp(name, font->name)) {
 			console_set_font(dev, font);

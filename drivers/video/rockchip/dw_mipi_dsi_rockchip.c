@@ -18,6 +18,7 @@
 #include <panel.h>
 #include <phy-mipi-dphy.h>
 #include <reset.h>
+#include <syscon.h>
 #include <video_bridge.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
@@ -29,6 +30,9 @@
 #include <asm/io.h>
 #include <dm/device-internal.h>
 #include <linux/bitops.h>
+
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/hardware.h>
 
 #define USEC_PER_SEC	1000000L
 
@@ -197,6 +201,7 @@ struct dw_rockchip_dsi_priv {
 	struct mipi_dsi_device device;
 	void __iomem *base;
 	struct udevice *panel;
+	void __iomem *grf;
 
 	/* Optional external dphy */
 	struct phy phy;
@@ -344,7 +349,7 @@ static int dsi_phy_init(void *priv_data)
 	struct dw_rockchip_dsi_priv *dsi = dev_get_priv(dev);
 	int ret, i, vco;
 
-	if (&dsi->phy) {
+	if (dsi->phy.dev) {
 		ret = generic_phy_configure(&dsi->phy, &dsi->phy_opts);
 		if (ret) {
 			dev_err(dsi->dsi_host,
@@ -460,7 +465,7 @@ static int dsi_phy_init(void *priv_data)
 	dw_mipi_dsi_phy_write(dsi, HS_TX_DATA_LANE_EXIT_STATE_TIME_CONTROL,
 			      BIT(5) | ns2bc(dsi, 100));
 
-	return ret;
+	return 0;
 }
 
 static void dsi_phy_post_set_mode(void *priv_data, unsigned long mode_flags)
@@ -505,7 +510,6 @@ dw_mipi_dsi_get_lane_mbps(void *priv_data, struct display_timing *timings,
 	unsigned int _prediv, best_prediv;
 	unsigned long _fbdiv, best_fbdiv;
 	unsigned long min_delta = ULONG_MAX;
-	unsigned int pllref_clk;
 
 	bpp = mipi_dsi_pixel_format_to_bpp(format);
 	if (bpp < 0) {
@@ -527,7 +531,7 @@ dw_mipi_dsi_get_lane_mbps(void *priv_data, struct display_timing *timings,
 	}
 
 	/* for external phy only the mipi_dphy_config is necessary */
-	if (&dsi->phy) {
+	if (dsi->phy.dev) {
 		phy_mipi_dphy_get_default_config(timings->pixelclock.typ  * 10 / 8,
 						 bpp, lanes,
 						 &dsi->phy_opts);
@@ -537,7 +541,7 @@ dw_mipi_dsi_get_lane_mbps(void *priv_data, struct display_timing *timings,
 		return 0;
 	}
 
-	pllref_clk = clk_get_rate(dsi->ref);
+	fin = clk_get_rate(dsi->ref);
 	fout = target_mbps * USEC_PER_SEC;
 
 	/* constraint: 5Mhz <= Fref / N <= 40MHz */
@@ -753,16 +757,13 @@ static int dw_mipi_dsi_rockchip_set_bl(struct udevice *dev, int percent)
 static void dw_mipi_dsi_rockchip_config(struct dw_rockchip_dsi_priv *dsi)
 {
 	if (dsi->cdata->lanecfg1_grf_reg)
-		dsi_write(dsi, dsi->cdata->lanecfg1_grf_reg,
-			  dsi->cdata->lanecfg1);
+		rk_setreg(dsi->grf + dsi->cdata->lanecfg1_grf_reg, dsi->cdata->lanecfg1);
 
 	if (dsi->cdata->lanecfg2_grf_reg)
-		dsi_write(dsi, dsi->cdata->lanecfg2_grf_reg,
-			  dsi->cdata->lanecfg2);
+		rk_setreg(dsi->grf + dsi->cdata->lanecfg2_grf_reg, dsi->cdata->lanecfg2);
 
 	if (dsi->cdata->enable_grf_reg)
-		dsi_write(dsi, dsi->cdata->enable_grf_reg,
-			  dsi->cdata->enable);
+		rk_setreg(dsi->grf + dsi->cdata->enable_grf_reg, dsi->cdata->enable);
 }
 
 static int dw_mipi_dsi_rockchip_bind(struct udevice *dev)
@@ -795,6 +796,8 @@ static int dw_mipi_dsi_rockchip_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
+	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+
 	i = 0;
 	while (cdata[i].reg) {
 		if (cdata[i].reg == (fdt_addr_t)priv->base) {
@@ -815,25 +818,27 @@ static int dw_mipi_dsi_rockchip_probe(struct udevice *dev)
 	 * NULL if it's not initialized.
 	 */
 	ret = generic_phy_get_by_name(dev, "dphy", &priv->phy);
-	if ((ret) && (ret != -ENODEV)) {
+	if (ret && ret != -ENODATA) {
 		dev_err(dev, "failed to get mipi dphy: %d\n", ret);
-		return -EINVAL;
+		return ret;
 	}
 
 	priv->pclk = devm_clk_get(dev, "pclk");
 	if (IS_ERR(priv->pclk)) {
+		ret = PTR_ERR(priv->pclk);
 		dev_err(dev, "peripheral clock get error %d\n", ret);
 		return ret;
 	}
 
 	/* Get a ref clock only if not using an external phy. */
-	if (&priv->phy) {
+	if (priv->phy.dev) {
 		dev_dbg(dev, "setting priv->ref to NULL\n");
 		priv->ref = NULL;
 
 	} else {
 		priv->ref = devm_clk_get(dev, "ref");
-		if (ret) {
+		if (IS_ERR(priv->ref)) {
+			ret = PTR_ERR(priv->ref);
 			dev_err(dev, "pll reference clock get error %d\n", ret);
 			return ret;
 		}
@@ -841,7 +846,8 @@ static int dw_mipi_dsi_rockchip_probe(struct udevice *dev)
 
 	priv->rst = devm_reset_control_get_by_index(device->dev, 0);
 	if (IS_ERR(priv->rst)) {
-		dev_err(dev, "missing dsi hardware reset\n");
+		ret = PTR_ERR(priv->rst);
+		dev_err(dev, "missing dsi hardware reset %d\n", ret);
 		return ret;
 	}
 
