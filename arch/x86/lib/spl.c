@@ -15,6 +15,7 @@
 #include <malloc.h>
 #include <spl.h>
 #include <syscon.h>
+#include <vesa.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
 #include <asm/fsp2/fsp_api.h>
@@ -263,4 +264,12 @@ void spl_board_init(void)
 #ifndef CONFIG_TPL
 	preloader_console_init();
 #endif
+
+	if (CONFIG_IS_ENABLED(VIDEO)) {
+		struct udevice *dev;
+
+		/* Set up PCI video in SPL if required */
+		uclass_first_device_err(UCLASS_PCI, &dev);
+		uclass_first_device_err(UCLASS_VIDEO, &dev);
+	}
 }
