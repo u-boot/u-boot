@@ -10,6 +10,9 @@
 #include <log.h>
 #include <mapmem.h>
 #include <acpi/acpi_table.h>
+#include <asm/global_data.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static const efi_guid_t acpi_guid = EFI_ACPI_TABLE_GUID;
 
@@ -20,26 +23,28 @@ static const efi_guid_t acpi_guid = EFI_ACPI_TABLE_GUID;
  */
 efi_status_t efi_acpi_register(void)
 {
-	/* Map within the low 32 bits, to allow for 32bit ACPI tables */
-	u64 acpi = U32_MAX;
+	ulong addr, start, end;
 	efi_status_t ret;
-	ulong addr;
 
-	/* Reserve 64kiB page for ACPI */
-	ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
-				 EFI_ACPI_RECLAIM_MEMORY, 16, &acpi);
+	/* Mark space used for tables */
+	start = ALIGN_DOWN(gd->arch.table_start, EFI_PAGE_MASK);
+	end = ALIGN(gd->arch.table_end, EFI_PAGE_MASK);
+	ret = efi_add_memory_map(start, end - start, EFI_ACPI_RECLAIM_MEMORY);
 	if (ret != EFI_SUCCESS)
 		return ret;
+	if (gd->arch.table_start_high) {
+		start = ALIGN_DOWN(gd->arch.table_start_high, EFI_PAGE_MASK);
+		end = ALIGN(gd->arch.table_end_high, EFI_PAGE_MASK);
+		ret = efi_add_memory_map(start, end - start,
+					 EFI_ACPI_RECLAIM_MEMORY);
+		if (ret != EFI_SUCCESS)
+			return ret;
+	}
 
-	/*
-	 * Generate ACPI tables - we know that efi_allocate_pages() returns
-	 * a 4k-aligned address, so it is safe to assume that
-	 * write_acpi_tables() will write the table at that address.
-	 */
-	addr = map_to_sysmem((void *)(ulong)acpi);
-	write_acpi_tables(addr);
+	addr = gd_acpi_start();
+	printf("EFI using ACPI tables at %lx\n", addr);
 
 	/* And expose them to our EFI payload */
 	return efi_install_configuration_table(&acpi_guid,
-					       (void *)(uintptr_t)acpi);
+					       (void *)(ulong)addr);
 }
