@@ -273,7 +273,7 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 		defined(CONFIG_FRAMEBUFFER_VESA_MODE)
 	vesa_mode = CONFIG_FRAMEBUFFER_VESA_MODE;
 #endif
-	debug("Selected vesa mode %#x\n", vesa_mode);
+	debug("Selected vesa mode 0x%x\n", vesa_mode);
 
 	if (exec_method & PCI_ROM_USE_NATIVE) {
 #ifdef CONFIG_X86
@@ -324,7 +324,7 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 		log_debug("done\n");
 #endif
 	}
-	debug("Final vesa mode %#x\n", mode_info.video_mode);
+	debug("Final vesa mode %x\n", mode_info.video_mode);
 	ret = 0;
 
 err:
