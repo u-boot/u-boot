@@ -65,6 +65,8 @@ static int set_max_freq(void)
 
 static int x86_spl_init(void)
 {
+	struct udevice *dev;
+
 #ifndef CONFIG_TPL
 	/*
 	 * TODO(sjg@chromium.org): We use this area of RAM for the stack
@@ -114,6 +116,13 @@ static int x86_spl_init(void)
 		return ret;
 	}
 #endif
+	/* probe the LPC so we get the GPIO_BASE set up correctly */
+	ret = uclass_first_device_err(UCLASS_LPC, &dev);
+	if (ret && ret != -ENODEV) {
+		log_debug("lpc probe failed\n");
+		return ret;
+	}
+
 	ret = dram_init();
 	if (ret) {
 		log_debug("dram_init() failed (err=%d)\n", ret);
