@@ -3,7 +3,7 @@
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#define LOG_CATEGORY LOGC_BOARD
+#define LOG_CATEGORY LOGC_ACPI
 
 #include <common.h>
 #include <bloblist.h>
@@ -78,33 +78,33 @@ void table_fill_string(char *dest, const char *src, size_t n, char pad)
 
 int write_tables(void)
 {
-	u32 rom_table_start;
-	u32 rom_table_end;
 	u32 high_table, table_size;
 	struct memory_area cfg_tables[ARRAY_SIZE(table_list) + 1];
+	u32 rom_addr;
 	int i;
 
-	rom_table_start = ROM_TABLE_ADDR;
+	rom_addr = ROM_TABLE_ADDR;
 
-	debug("Writing tables to %x:\n", rom_table_start);
+	debug("Writing tables to %x:\n", rom_addr);
 	for (i = 0; i < ARRAY_SIZE(table_list); i++) {
 		const struct table_info *table = &table_list[i];
 		int size = table->size ? : CONFIG_ROM_TABLE_SIZE;
+		u32 rom_table_end;
 
 		if (IS_ENABLED(CONFIG_BLOBLIST_TABLES) && table->tag) {
-			rom_table_start = (ulong)bloblist_add(table->tag, size,
-							      table->align);
-			if (!rom_table_start)
+			rom_addr = (ulong)bloblist_add(table->tag, size,
+						       table->align);
+			if (!rom_addr)
 				return log_msg_ret("bloblist", -ENOBUFS);
 		}
-		rom_table_end = table->write(rom_table_start);
+		rom_table_end = table->write(rom_addr);
 		if (!rom_table_end) {
 			log_err("Can't create configuration table %d\n", i);
 			return -EINTR;
 		}
 
 		if (IS_ENABLED(CONFIG_SEABIOS)) {
-			table_size = rom_table_end - rom_table_start;
+			table_size = rom_table_end - rom_addr;
 			high_table = (u32)(ulong)high_table_malloc(table_size);
 			if (high_table) {
 				if (!table->write(high_table)) {
@@ -123,13 +123,13 @@ int write_tables(void)
 		}
 
 		debug("- wrote '%s' to %x, end %x\n", table->name,
-		      rom_table_start, rom_table_end);
-		if (rom_table_end - rom_table_start > size) {
+		      rom_addr, rom_table_end);
+		if (rom_table_end - rom_addr > size) {
 			log_err("Out of space for configuration tables: need %x, have %x\n",
-				rom_table_end - rom_table_start, size);
+				rom_table_end - rom_addr, size);
 			return log_msg_ret("bloblist", -ENOSPC);
 		}
-		rom_table_start = rom_table_end;
+		rom_addr = rom_table_end;
 	}
 
 	if (IS_ENABLED(CONFIG_SEABIOS)) {
