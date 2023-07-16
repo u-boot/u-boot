@@ -598,6 +598,15 @@ static inline struct part_driver *part_driver_get_first(void)
 	return ll_entry_start(struct part_driver, part_driver);
 }
 
+/**
+ * part_get_type_by_name() - Get partition type by name
+ *
+ * @name: Name of partition type to look up (not case-sensitive)
+ * Returns: Corresponding partition type (PART_TYPE_...) or PART_TYPE_UNKNOWN if
+ * not known
+ */
+int part_get_type_by_name(const char *name);
+
 #else
 static inline int part_driver_get_count(void)
 { return 0; }
