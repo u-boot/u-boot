@@ -78,7 +78,7 @@ static int int_exception_handler(void)
 	};
 	struct eregs *regs = &reg_info;
 
-	debug("Oops, exception %d while executing option rom\n", regs->vector);
+	log_err("Exception %d while executing option rom\n", regs->vector);
 	cpu_hlt();
 
 	return 0;
