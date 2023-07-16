@@ -26,6 +26,7 @@
 
 #include <common.h>
 #include <bios_emul.h>
+#include <bloblist.h>
 #include <bootstage.h>
 #include <dm.h>
 #include <errno.h>
@@ -34,6 +35,7 @@
 #include <malloc.h>
 #include <pci.h>
 #include <pci_rom.h>
+#include <spl.h>
 #include <vesa.h>
 #include <video.h>
 #include <acpi/acpi_s3.h>
@@ -374,34 +376,68 @@ int vesa_setup_video(struct udevice *dev, int (*int15_handler)(void))
 		printf("Not available (previous bootloader prevents it)\n");
 		return -EPERM;
 	}
-	bootstage_start(BOOTSTAGE_ID_ACCUM_LCD, "vesa display");
-	ret = dm_pci_run_vga_bios(dev, int15_handler, PCI_ROM_USE_NATIVE |
-					PCI_ROM_ALLOW_FALLBACK);
-	bootstage_accum(BOOTSTAGE_ID_ACCUM_LCD);
-	if (ret) {
-		debug("failed to run video BIOS: %d\n", ret);
-		return ret;
-	}
 
-	ret = vesa_setup_video_priv(&mode_info.vesa,
-				    mode_info.vesa.phys_base_ptr, uc_priv,
-				    plat);
-	if (ret) {
-		if (ret == -ENFILE) {
-			/*
-			 * See video-uclass.c for how to set up reserved memory
-			 * in your video driver
-			 */
-			log_err("CONFIG_VIDEO_COPY enabled but driver '%s' set up no reserved memory\n",
-				dev->driver->name);
+	/* In U-Boot proper, collect the information added by SPL (see below) */
+	if (IS_ENABLED(CONFIG_SPL_VIDEO) && spl_phase() > PHASE_SPL &&
+	    CONFIG_IS_ENABLED(BLOBLIST)) {
+		struct video_handoff *ho;
+
+		ho = bloblist_find(BLOBLISTT_U_BOOT_VIDEO, sizeof(*ho));
+		if (!ho)
+			return log_msg_ret("blf", -ENOENT);
+		plat->base = ho->fb;
+		plat->size = ho->size;
+		uc_priv->xsize = ho->xsize;
+		uc_priv->ysize = ho->ysize;
+		uc_priv->line_length = ho->line_length;
+		uc_priv->bpix = ho->bpix;
+	} else {
+		bootstage_start(BOOTSTAGE_ID_ACCUM_LCD, "vesa display");
+		ret = dm_pci_run_vga_bios(dev, int15_handler,
+					  PCI_ROM_USE_NATIVE |
+					  PCI_ROM_ALLOW_FALLBACK);
+		bootstage_accum(BOOTSTAGE_ID_ACCUM_LCD);
+		if (ret) {
+			debug("failed to run video BIOS: %d\n", ret);
+			return ret;
 		}
 
-		debug("No video mode configured\n");
-		return ret;
+		ret = vesa_setup_video_priv(&mode_info.vesa,
+					    mode_info.vesa.phys_base_ptr,
+					    uc_priv, plat);
+		if (ret) {
+			if (ret == -ENFILE) {
+				/*
+				 * See video-uclass.c for how to set up reserved
+				 * memory in your video driver
+				 */
+				log_err("CONFIG_VIDEO_COPY enabled but driver '%s' set up no reserved memory\n",
+					dev->driver->name);
+			}
+
+			debug("No video mode configured\n");
+			return ret;
+		}
 	}
 
 	printf("Video: %dx%dx%d\n", uc_priv->xsize, uc_priv->ysize,
 	       mode_info.vesa.bits_per_pixel);
+
+	/* In SPL, store the information for use by U-Boot proper */
+	if (spl_phase() == PHASE_SPL && CONFIG_IS_ENABLED(BLOBLIST)) {
+		struct video_handoff *ho;
+
+		ho = bloblist_add(BLOBLISTT_U_BOOT_VIDEO, sizeof(*ho), 0);
+		if (!ho)
+			return log_msg_ret("blc", -ENOMEM);
+
+		ho->fb = plat->base;
+		ho->size = plat->size;
+		ho->xsize = uc_priv->xsize;
+		ho->ysize = uc_priv->ysize;
+		ho->line_length = uc_priv->line_length;
+		ho->bpix = uc_priv->bpix;
+	}
 
 	return 0;
 }

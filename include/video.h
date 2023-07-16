@@ -134,6 +134,30 @@ struct video_ops {
 
 #define video_get_ops(dev)        ((struct video_ops *)(dev)->driver->ops)
 
+/**
+ * struct video_handoff - video information passed from SPL
+ *
+ * This is used when video is set up by SPL, to provide the details to U-Boot
+ * proper.
+ *
+ * @fb: Base address of frame buffer, 0 if not yet known
+ * @size: Frame-buffer size, in bytes
+ * @xsize:	Number of pixel columns (e.g. 1366)
+ * @ysize:	Number of pixels rows (e.g.. 768)
+ * @line_length:	Length of each frame buffer line, in bytes. This can be
+ *		set by the driver, but if not, the uclass will set it after
+ *		probing
+ * @bpix:	Encoded bits per pixel (enum video_log2_bpp)
+ */
+struct video_handoff {
+	u64 fb;
+	u32 size;
+	u16 xsize;
+	u16 ysize;
+	u32 line_length;
+	u8 bpix;
+};
+
 /** enum colour_idx - the 16 colors supported by consoles */
 enum colour_idx {
 	VID_BLACK = 0,
