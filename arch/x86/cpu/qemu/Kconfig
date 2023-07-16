@@ -12,7 +12,7 @@ config QEMU
 	imply SYS_NS16550
 	imply USB
 	imply USB_EHCI_HCD
-	imply VIDEO_VESA
+	imply VIDEO_BOCHS
 
 if QEMU
 
