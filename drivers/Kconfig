@@ -10,6 +10,8 @@ source "drivers/ata/Kconfig"
 
 source "drivers/axi/Kconfig"
 
+source "drivers/bios_emulator/Kconfig"
+
 source "drivers/bus/Kconfig"
 
 source "drivers/block/Kconfig"
