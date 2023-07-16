@@ -19,6 +19,7 @@
 #include <asm/cpu_common.h>
 #include <asm/fsp2/fsp_api.h>
 #include <asm/global_data.h>
+#include <asm/mp.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
@@ -138,6 +139,12 @@ static int x86_spl_init(void)
 	memcpy(gd->new_gd, gd, sizeof(*gd));
 	arch_setup_gd(gd->new_gd);
 	gd->start_addr_sp = (ulong)ptr;
+
+	if (_LOG_DEBUG) {
+		ret = mtrr_list(mtrr_get_var_count(), MP_SELECT_BSP);
+		if (ret)
+			printf("mtrr_list failed\n");
+	}
 
 	/* Cache the SPI flash. Otherwise copying the code to RAM takes ages */
 	ret = mtrr_add_request(MTRR_TYPE_WRBACK,

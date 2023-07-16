@@ -10,71 +10,19 @@
 #include <asm/mp.h>
 #include <asm/mtrr.h>
 
-static const char *const mtrr_type_name[MTRR_TYPE_COUNT] = {
-	"Uncacheable",
-	"Combine",
-	"2",
-	"3",
-	"Through",
-	"Protect",
-	"Back",
-};
-
-static void read_mtrrs(void *arg)
-{
-	struct mtrr_info *info = arg;
-
-	mtrr_read_all(info);
-}
-
-static int do_mtrr_list(int reg_count, int cpu_select)
-{
-	struct mtrr_info info;
-	int ret;
-	int i;
-
-	printf("Reg Valid Write-type   %-16s %-16s %-16s\n", "Base   ||",
-	       "Mask   ||", "Size   ||");
-	memset(&info, '\0', sizeof(info));
-	ret = mp_run_on_cpus(cpu_select, read_mtrrs, &info);
-	if (ret)
-		return log_msg_ret("run", ret);
-	for (i = 0; i < reg_count; i++) {
-		const char *type = "Invalid";
-		uint64_t base, mask, size;
-		bool valid;
-
-		base = info.mtrr[i].base;
-		mask = info.mtrr[i].mask;
-		size = ~mask & ((1ULL << CONFIG_CPU_ADDR_BITS) - 1);
-		size |= (1 << 12) - 1;
-		size += 1;
-		valid = mask & MTRR_PHYS_MASK_VALID;
-		type = mtrr_type_name[base & MTRR_BASE_TYPE_MASK];
-		printf("%d   %-5s %-12s %016llx %016llx %016llx\n", i,
-		       valid ? "Y" : "N", type, base & ~MTRR_BASE_TYPE_MASK,
-		       mask & ~MTRR_PHYS_MASK_VALID, size);
-	}
-
-	return 0;
-}
-
 static int do_mtrr_set(int cpu_select, uint reg, int argc, char *const argv[])
 {
 	const char *typename = argv[0];
 	uint32_t start, size;
 	uint64_t base, mask;
-	int i, type = -1;
+	int type = -1;
 	bool valid;
 	int ret;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
-	for (i = 0; i < MTRR_TYPE_COUNT; i++) {
-		if (*typename == *mtrr_type_name[i])
-			type = i;
-	}
-	if (type == -1) {
+	type = mtrr_get_type_by_name(typename);
+	if (type < 0) {
 		printf("Invalid type name %s\n", typename);
 		return CMD_RET_USAGE;
 	}
@@ -146,7 +94,7 @@ static int do_mtrr(struct cmd_tbl *cmdtp, int flag, int argc,
 			if (!first)
 				printf("\n");
 			printf("CPU %d:\n", i);
-			ret = do_mtrr_list(reg_count, i);
+			ret = mtrr_list(reg_count, i);
 			if (ret) {
 				printf("Failed to read CPU %s (err=%d)\n",
 				       i < MP_SELECT_ALL ? simple_itoa(i) : "",
