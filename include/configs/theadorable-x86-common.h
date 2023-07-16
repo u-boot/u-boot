@@ -15,8 +15,6 @@
 					"stdout=serial\0" \
 					"stderr=serial\0"
 
-#define VIDEO_IO_OFFSET				0
-
 /* Environment settings */
 
 #undef CFG_EXTRA_ENV_SETTINGS
