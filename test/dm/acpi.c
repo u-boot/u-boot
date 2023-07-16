@@ -609,3 +609,41 @@ static int dm_test_acpi_cmd_items(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_cmd_items, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test 'acpi set' command */
+static int dm_test_acpi_cmd_set(struct unit_test_state *uts)
+{
+	struct acpi_ctx ctx;
+	ulong addr;
+	void *buf;
+
+	gd_set_acpi_start(0);
+
+	console_record_reset();
+	ut_asserteq(0, gd_acpi_start());
+	ut_assertok(run_command("acpi set", 0));
+	ut_assert_nextline("ACPI pointer: 0");
+
+	buf = memalign(16, BUF_SIZE);
+	ut_assertnonnull(buf);
+	addr = map_to_sysmem(buf);
+	ut_assertok(setup_ctx_and_base_tables(uts, &ctx, addr));
+
+	ut_assertok(acpi_write_dev_tables(&ctx));
+
+	ut_assertok(run_command("acpi set", 0));
+	ut_assert_nextline("ACPI pointer: %lx", addr);
+
+	ut_assertok(run_command("acpi set 0", 0));
+	ut_assert_nextline("Setting ACPI pointer to 0");
+	ut_asserteq(0, gd_acpi_start());
+
+	ut_assertok(run_commandf("acpi set %lx", addr));
+	ut_assert_nextline("Setting ACPI pointer to %lx", addr);
+	ut_asserteq(addr, gd_acpi_start());
+
+	ut_assert_console_end();
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_cmd_set, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

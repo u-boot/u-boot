@@ -118,6 +118,22 @@ static int do_acpi_list(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_acpi_set(struct cmd_tbl *cmdtp, int flag, int argc,
+		       char *const argv[])
+{
+	ulong val;
+
+	if (argc < 2) {
+		printf("ACPI pointer: %lx\n", gd_acpi_start());
+	} else {
+		val = hextoul(argv[1], NULL);
+		printf("Setting ACPI pointer to %lx\n", val);
+		gd_set_acpi_start(val);
+	}
+
+	return 0;
+}
+
 static int do_acpi_items(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
@@ -157,12 +173,14 @@ static int do_acpi_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 
 #ifdef CONFIG_SYS_LONGHELP
 static char acpi_help_text[] =
-	"list - list ACPI tables\n"
-	"acpi items [-d]  - List/dump each piece of ACPI data from devices\n"
-	"acpi dump <name> - Dump ACPI table";
+	"list  - list ACPI tables\n"
+	"acpi items [-d]   - List/dump each piece of ACPI data from devices\n"
+	"acpi set [<addr>] - Set or show address of ACPI tables\n"
+	"acpi dump <name>  - Dump ACPI table";
 #endif
 
 U_BOOT_CMD_WITH_SUBCMDS(acpi, "ACPI tables", acpi_help_text,
 	U_BOOT_SUBCMD_MKENT(list, 1, 1, do_acpi_list),
 	U_BOOT_SUBCMD_MKENT(items, 2, 1, do_acpi_items),
+	U_BOOT_SUBCMD_MKENT(set, 2, 1, do_acpi_set),
 	U_BOOT_SUBCMD_MKENT(dump, 2, 1, do_acpi_dump));
