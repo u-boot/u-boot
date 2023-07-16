@@ -18,6 +18,7 @@
 #include <dm.h>
 #include <misc.h>
 #include <tables_csum.h>
+#include <asm/acpi_table.h>
 
 #if defined(CONFIG_GENERATE_ACPI_TABLE) && !defined(CONFIG_SANDBOX)
 /*
@@ -227,6 +228,9 @@ out:
 	}
 
 	free(table_loader);
+
+	gd_set_acpi_start(acpi_get_rsdp_addr());
+
 	return addr;
 }
 
