@@ -93,6 +93,7 @@ static int pci_rom_probe(struct udevice *dev, struct pci_rom_header **hdrp)
 		debug("%s: rom_address=%x\n", __func__, rom_address);
 		return -ENOENT;
 	}
+	rom_address &= PCI_ROM_ADDRESS_MASK;
 
 	/* Enable expansion ROM address decoding. */
 	dm_pci_write_config32(dev, PCI_ROM_ADDRESS,
