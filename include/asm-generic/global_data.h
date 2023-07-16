@@ -301,6 +301,12 @@ struct global_data {
 	 * @timebase_l: low 32 bits of timer
 	 */
 	unsigned int timebase_l;
+	/**
+	 * @malloc_start: start of malloc() region
+	 */
+#if CONFIG_IS_ENABLED(CMD_BDINFO_EXTRA)
+	unsigned long malloc_start;
+#endif
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	/**
 	 * @malloc_base: base address of early malloc()
@@ -560,6 +566,13 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #define gd_event_state()	NULL
 #endif
 
+#if CONFIG_IS_ENABLED(CMD_BDINFO_EXTRA)
+#define gd_malloc_start()		gd->malloc_start
+#define gd_set_malloc_start(_val)	gd->malloc_start = (_val)
+#else
+#define gd_malloc_start()	0
+#define gd_set_malloc_start(val)
+#endif
 /**
  * enum gd_flags - global data flags
  *

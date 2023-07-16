@@ -176,6 +176,7 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (IS_ENABLED(CONFIG_CMD_BDINFO_EXTRA)) {
 		bdinfo_print_num_ll("stack ptr", (ulong)&bd);
 		bdinfo_print_num_ll("ram_top ptr", (ulong)gd->ram_top);
+		bdinfo_print_num_l("malloc base", gd_malloc_start());
 	}
 
 	arch_print_bdinfo();
