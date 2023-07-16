@@ -117,6 +117,17 @@ void __noreturn board_init_f_r_trampoline(ulong sp);
  */
 void __noreturn board_init_f_r(void);
 
+/*
+ * board_init_f_r_trampoline64() - jump to relocated address with new stack
+ *
+ * This is the 64-bit version
+ *
+ * @new_gd: New global_data pointer to use
+ * @sp: New stack pointer to pass on to board_init_r()
+ */
+void __noreturn board_init_f_r_trampoline64(struct global_data *new_gd,
+					    ulong sp);
+
 int arch_misc_init(void);
 
 /* Read the time stamp counter */
