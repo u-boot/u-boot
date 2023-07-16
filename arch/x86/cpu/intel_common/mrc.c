@@ -3,6 +3,8 @@
  * Copyright (c) 2016 Google, Inc
  */
 
+#define LOG_CATEGORY	UCLASS_RAM
+
 #include <common.h>
 #include <dm.h>
 #include <init.h>
@@ -144,12 +146,10 @@ int mrc_locate_spd(struct udevice *dev, int size, const void **spd_datap)
 
 	ret = gpio_request_list_by_name(dev, "board-id-gpios", desc,
 					ARRAY_SIZE(desc), GPIOD_IS_IN);
-	if (ret < 0) {
-		debug("%s: gpio ret=%d\n", __func__, ret);
-		return ret;
-	}
+	if (ret < 0)
+		return log_msg_ret("gpio", ret);
 	spd_index = dm_gpio_get_values_as_int(desc, ret);
-	debug("spd index %d\n", spd_index);
+	log_debug("spd index %d\n", spd_index);
 
 	node = fdt_first_subnode(blob, dev_of_offset(dev));
 	if (node < 0)

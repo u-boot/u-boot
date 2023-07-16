@@ -3,6 +3,8 @@
  * Copyright (c) 2016 Google, Inc
  */
 
+#define LOG_CATEGORY	LOGC_BOOT
+
 #include <common.h>
 #include <cpu_func.h>
 #include <debug_uart.h>
@@ -76,25 +78,25 @@ static int x86_spl_init(void)
 #endif
 	int ret;
 
-	debug("%s starting\n", __func__);
+	log_debug("x86 spl starting\n");
 	if (IS_ENABLED(TPL))
 		ret = x86_cpu_reinit_f();
 	else
 		ret = x86_cpu_init_f();
 	ret = spl_init();
 	if (ret) {
-		debug("%s: spl_init() failed\n", __func__);
+		log_debug("spl_init() failed (err=%d)\n", ret);
 		return ret;
 	}
 	ret = arch_cpu_init();
 	if (ret) {
-		debug("%s: arch_cpu_init() failed\n", __func__);
+		log_debug("arch_cpu_init() failed (err=%d)\n", ret);
 		return ret;
 	}
 #ifndef CONFIG_TPL
 	ret = fsp_setup_pinctrl(NULL, NULL);
 	if (ret) {
-		debug("%s: fsp_setup_pinctrl() failed\n", __func__);
+		log_debug("fsp_setup_pinctrl() failed (err=%d)\n", ret);
 		return ret;
 	}
 #endif
@@ -108,23 +110,25 @@ static int x86_spl_init(void)
 #if !defined(CONFIG_TPL) && !CONFIG_IS_ENABLED(CPU)
 	ret = print_cpuinfo();
 	if (ret) {
-		debug("%s: print_cpuinfo() failed\n", __func__);
+		log_debug("print_cpuinfo() failed (err=%d)\n", ret);
 		return ret;
 	}
 #endif
 	ret = dram_init();
 	if (ret) {
-		debug("%s: dram_init() failed\n", __func__);
+		log_debug("dram_init() failed (err=%d)\n", ret);
 		return ret;
 	}
+	log_debug("mrc\n");
 	if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE)) {
 		ret = mrccache_spl_save();
 		if (ret)
-			debug("%s: Failed to write to mrccache (err=%d)\n",
-			      __func__, ret);
+			log_debug("Failed to write to mrccache (err=%d)\n",
+				  ret);
 	}
 
 #ifndef CONFIG_SYS_COREBOOT
+	log_debug("bss\n");
 	debug("BSS clear from %lx to %lx len %lx\n", (ulong)&__bss_start,
 	      (ulong)&__bss_end, (ulong)&__bss_end - (ulong)&__bss_start);
 	memset(&__bss_start, 0, (ulong)&__bss_end - (ulong)&__bss_start);
@@ -145,6 +149,7 @@ static int x86_spl_init(void)
 	gd->new_gd = (struct global_data *)ptr;
 	memcpy(gd->new_gd, gd, sizeof(*gd));
 
+	log_debug("logging\n");
 	/*
 	 * Make sure logging is disabled when we switch, since the log system
 	 * list head will move
@@ -184,6 +189,7 @@ static int x86_spl_init(void)
 		debug("Failed to set CPU frequency (err=%d)\n", ret);
 # endif
 #endif
+	log_debug("done\n");
 
 	return 0;
 }

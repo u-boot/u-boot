@@ -26,6 +26,8 @@
  * reserved or subject to arcane restrictions.
  */
 
+#define LOG_CATEGORY	UCLASS_GPIO
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
@@ -155,8 +157,7 @@ static int ich6_gpio_request(struct udevice *dev, unsigned offset,
 	 */
 	tmplong = inl(bank->use_sel);
 	if (!(tmplong & (1UL << offset))) {
-		debug("%s: gpio %d is reserved for internal use\n", __func__,
-		      offset);
+		log_debug("gpio %d is reserved for internal use\n", offset);
 		return -EPERM;
 	}
 
