@@ -11,16 +11,16 @@
 #include <efi.h>
 #include <efi_loader.h>
 #include <env_internal.h>
+#include <extension_board.h>
 #include <init.h>
 #include <led.h>
+#include <malloc.h>
 #include <os.h>
 #include <asm/global_data.h>
 #include <asm/test.h>
 #include <asm/u-boot-sandbox.h>
 #include <linux/kernel.h>
-#include <malloc.h>
-
-#include <extension_board.h>
+#include <linux/sizes.h>
 
 /*
  * Pointer to initial global data area
