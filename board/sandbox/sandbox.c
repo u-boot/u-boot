@@ -15,7 +15,9 @@
 #include <init.h>
 #include <led.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <os.h>
+#include <acpi/acpi_table.h>
 #include <asm/global_data.h>
 #include <asm/test.h>
 #include <asm/u-boot-sandbox.h>
@@ -154,6 +156,8 @@ int extension_board_scan(struct list_head *extension_list)
 int board_late_init(void)
 {
 	struct udevice *dev;
+	ulong addr, end;
+	void *ptr;
 	int ret;
 
 	ret = uclass_first_device_err(UCLASS_CROS_EC, &dev);
@@ -166,6 +170,18 @@ int board_late_init(void)
 		panic("Cannot init cros-ec device");
 		return -1;
 	}
+
+	if (IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE)) {
+		/* Reserve 64K for ACPI tables, aligned to a 4K boundary */
+		ptr = memalign(SZ_4K, SZ_64K);
+		addr = map_to_sysmem(ptr);
+
+		/* Generate ACPI tables */
+		end = write_acpi_tables(addr);
+		gd->arch.table_start = addr;
+		gd->arch.table_end = addr;
+	}
+
 	return 0;
 }
 #endif
