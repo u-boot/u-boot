@@ -205,6 +205,13 @@ static int bdinfo_test_move(struct unit_test_state *uts)
 		ut_assertok(test_num_l(uts, " clock", info.clock));
 	}
 
+	if (IS_ENABLED(CONFIG_CMD_BDINFO_EXTRA)) {
+		ut_assert_nextlinen("stack ptr");
+		ut_assertok(test_num_ll(uts, "ram_top ptr",
+					(unsigned long long)gd->ram_top));
+		ut_assertok(test_num_l(uts, "malloc base", gd_malloc_start()));
+	}
+
 	ut_assertok(ut_check_console_end(uts));
 
 	return 0;

@@ -173,6 +173,11 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 	print_serial(gd->cur_serial_dev);
 
+	if (IS_ENABLED(CONFIG_CMD_BDINFO_EXTRA)) {
+		bdinfo_print_num_ll("stack ptr", (ulong)&bd);
+		bdinfo_print_num_ll("ram_top ptr", (ulong)gd->ram_top);
+	}
+
 	arch_print_bdinfo();
 
 	return 0;
