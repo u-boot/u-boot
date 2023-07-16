@@ -97,7 +97,13 @@ static int x86_spl_init(void)
 		return ret;
 	}
 #endif
-	preloader_console_init();
+	/*
+	 * spl_board_init() below sets up the console if enabled. If it isn't,
+	 * do it here. We cannot call this twice since it results in a double
+	 * banner and CI tests fail.
+	 */
+	if (!IS_ENABLED(CONFIG_SPL_BOARD_INIT))
+		preloader_console_init();
 #if !defined(CONFIG_TPL) && !CONFIG_IS_ENABLED(CPU)
 	ret = print_cpuinfo();
 	if (ret) {
