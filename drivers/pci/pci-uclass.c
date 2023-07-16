@@ -13,6 +13,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <pci.h>
+#include <spl.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/device-internal.h>
@@ -722,6 +723,9 @@ static bool pci_need_device_pre_reloc(struct udevice *bus, uint vendor,
 	u32 vendev;
 	int index;
 
+	if (spl_phase() == PHASE_SPL && CONFIG_IS_ENABLED(PCI_PNP))
+		return true;
+
 	for (index = 0;
 	     !dev_read_u32_index(bus, "u-boot,pci-pre-reloc", index,
 				 &vendev);
@@ -793,7 +797,9 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 			 * space is pretty limited (ie: using Cache As RAM).
 			 */
 			if (!(gd->flags & GD_FLG_RELOC) &&
-			    !(drv->flags & DM_FLAG_PRE_RELOC))
+			    !(drv->flags & DM_FLAG_PRE_RELOC) &&
+			    (!CONFIG_IS_ENABLED(PCI_PNP) ||
+			     spl_phase() != PHASE_SPL))
 				return log_msg_ret("pre", -EPERM);
 
 			/*
@@ -918,6 +924,8 @@ int pci_bind_bus_devices(struct udevice *bus)
 			}
 			ret = pci_find_and_bind_driver(bus, &find_id, bdf,
 						       &dev);
+		} else {
+			debug("device: %s\n", dev->name);
 		}
 		if (ret == -EPERM)
 			continue;

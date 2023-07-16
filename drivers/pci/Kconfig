@@ -44,7 +44,12 @@ config SPL_PCI_PNP
 	bool "Enable Plug & Play support for PCI"
 	help
 	  Enable PCI memory and I/O space resource allocation and assignment.
+
 	  This is required to auto configure the enumerated devices.
+
+	  This is normally not done in SPL, but can be enabled if devices must
+	  be set up in the SPL phase. Often it is enough to manually configure
+	  one device, so this option can be disabled.
 
 config PCI_REGION_MULTI_ENTRY
 	bool "Enable Multiple entries of region type MEMORY in ranges for PCI"
