@@ -202,21 +202,6 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 			    struct disk_partition *info, int allow_whole_dev);
 
 /**
- * part_get_info_by_name_type() - Search for a partition by name
- *                                for only specified partition type
- *
- * @param dev_desc - block device descriptor
- * @param gpt_name - the specified table entry name
- * @param info - returns the disk partition info
- * @param part_type - only search in partitions of this type
- *
- * Return: - the partition number on match (starting on 1), -1 on no match,
- * otherwise error
- */
-int part_get_info_by_name_type(struct blk_desc *dev_desc, const char *name,
-			       struct disk_partition *info, int part_type);
-
-/**
  * part_get_info_by_name() - Search for a partition by name
  *                           among all available registered partitions
  *
@@ -292,14 +277,6 @@ static inline int blk_get_device_part_str(const char *ifname,
 					  struct disk_partition *info,
 					  int allow_whole_dev)
 { *dev_desc = NULL; return -1; }
-
-static inline int part_get_info_by_name_type(struct blk_desc *dev_desc,
-					     const char *name,
-					     struct disk_partition *info,
-					     int part_type)
-{
-	return -ENOENT;
-}
 
 static inline int part_get_info_by_name(struct blk_desc *dev_desc,
 					const char *name,
