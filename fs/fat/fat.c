@@ -8,6 +8,8 @@
  * 2003-03-10 - kharris@nexus-tech.net - ported to uboot
  */
 
+#define LOG_CATEGORY	LOGC_FS
+
 #include <common.h>
 #include <blk.h>
 #include <config.h>
@@ -97,8 +99,8 @@ int fat_register_device(struct blk_desc *dev_desc, int part_no)
 	/* Read the partition table, if present */
 	if (part_get_info(dev_desc, part_no, &info)) {
 		if (part_no != 0) {
-			printf("** Partition %d not valid on device %d **\n",
-					part_no, dev_desc->devnum);
+			log_err("Partition %d invalid on device %d\n", part_no,
+				dev_desc->devnum);
 			return -1;
 		}
 
@@ -168,7 +170,7 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
 	__u32 ret = 0x00;
 
 	if (CHECK_CLUST(entry, mydata->fatsize)) {
-		printf("Error: Invalid FAT entry: 0x%08x\n", entry);
+		log_err("Invalid FAT entry: %#08x\n", entry);
 		return ret;
 	}
 
@@ -586,19 +588,19 @@ static int get_fs_info(fsdata *mydata)
 	mydata->sect_size = (bs.sector_size[1] << 8) + bs.sector_size[0];
 	mydata->clust_size = bs.cluster_size;
 	if (mydata->sect_size != cur_part_info.blksz) {
-		printf("Error: FAT sector size mismatch (fs=%hu, dev=%lu)\n",
-				mydata->sect_size, cur_part_info.blksz);
+		log_err("FAT sector size mismatch (fs=%u, dev=%lu)\n",
+			mydata->sect_size, cur_part_info.blksz);
 		return -1;
 	}
 	if (mydata->clust_size == 0) {
-		printf("Error: FAT cluster size not set\n");
+		log_err("FAT cluster size not set\n");
 		return -1;
 	}
 	if ((unsigned int)mydata->clust_size * mydata->sect_size >
 	    MAX_CLUSTSIZE) {
-		printf("Error: FAT cluster size too big (cs=%u, max=%u)\n",
-		       (unsigned int)mydata->clust_size * mydata->sect_size,
-		       MAX_CLUSTSIZE);
+		log_err("FAT cluster size too big (cs=%u, max=%u)\n",
+			(uint)mydata->clust_size * mydata->sect_size,
+			MAX_CLUSTSIZE);
 		return -1;
 	}
 
