@@ -254,14 +254,16 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 
 	ret = pci_rom_probe(dev, &rom);
 	if (ret)
-		return ret;
+		return log_msg_ret("pro", ret);
 
 	ret = pci_rom_load(rom, &ram, &alloced);
-	if (ret)
+	if (ret) {
+		ret = log_msg_ret("ld", ret);
 		goto err;
+	}
 
 	if (!board_should_run_oprom(dev)) {
-		ret = -ENXIO;
+		ret = log_msg_ret("run", -ENXIO);
 		goto err;
 	}
 
@@ -299,21 +301,25 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 #ifdef CONFIG_BIOSEMU
 		BE_VGAInfo *info;
 
+		log_debug("Running video BIOS with emulator...");
 		ret = biosemu_setup(dev, &info);
 		if (ret)
 			goto err;
 		biosemu_set_interrupt_handler(0x15, int15_handler);
 		ret = biosemu_run(dev, (uchar *)ram, 1 << 16, info,
 				  true, vesa_mode, &mode_info);
+		log_debug("done\n");
 		if (ret)
 			goto err;
 #endif
 	} else {
 #if defined(CONFIG_X86) && (CONFIG_IS_ENABLED(X86_32BIT_INIT) || CONFIG_TPL)
+		log_debug("Running video BIOS...");
 		bios_set_interrupt_handler(0x15, int15_handler);
 
 		bios_run_on_x86(dev, (unsigned long)ram, vesa_mode,
 				&mode_info);
+		log_debug("done\n");
 #endif
 	}
 	debug("Final vesa mode %#x\n", mode_info.video_mode);
