@@ -298,20 +298,20 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 	}
 
 	if (emulate) {
-#ifdef CONFIG_BIOSEMU
-		BE_VGAInfo *info;
+		if (CONFIG_IS_ENABLED(BIOSEMU)) {
+			BE_VGAInfo *info;
 
-		log_debug("Running video BIOS with emulator...");
-		ret = biosemu_setup(dev, &info);
-		if (ret)
-			goto err;
-		biosemu_set_interrupt_handler(0x15, int15_handler);
-		ret = biosemu_run(dev, (uchar *)ram, 1 << 16, info,
-				  true, vesa_mode, &mode_info);
-		log_debug("done\n");
-		if (ret)
-			goto err;
-#endif
+			log_debug("Running video BIOS with emulator...");
+			ret = biosemu_setup(dev, &info);
+			if (ret)
+				goto err;
+			biosemu_set_interrupt_handler(0x15, int15_handler);
+			ret = biosemu_run(dev, (uchar *)ram, 1 << 16, info,
+					  true, vesa_mode, &mode_info);
+			log_debug("done\n");
+			if (ret)
+				goto err;
+		}
 	} else {
 #if defined(CONFIG_X86) && (CONFIG_IS_ENABLED(X86_32BIT_INIT) || CONFIG_TPL)
 		log_debug("Running video BIOS...");

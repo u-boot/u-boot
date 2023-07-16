@@ -23,7 +23,7 @@
 static int (*int_handler[256])(void);
 
 /* to have a common register file for interrupt handlers */
-#ifndef CONFIG_BIOSEMU
+#if !CONFIG_IS_ENABLED(BIOSEMU)
 X86EMU_sysEnv _X86EMU_env;
 #endif
 
