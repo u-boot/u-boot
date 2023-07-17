@@ -179,7 +179,7 @@ class Entry_section(Entry):
         Returns:
             bool: True if the node is a special one, else False
         """
-        start_list = ('hash', 'signature', 'template')
+        start_list = ('cipher', 'hash', 'signature', 'template')
         return any(node.name.startswith(name) for name in start_list)
 
     def ReadNode(self):
