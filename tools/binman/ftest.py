@@ -94,6 +94,8 @@ ROCKCHIP_TPL_DATA     = b'rockchip-tpl'
 TEST_FDT1_DATA        = b'fdt1'
 TEST_FDT2_DATA        = b'test-fdt2'
 ENV_DATA              = b'var1=1\nvar2="2"'
+ENCRYPTED_IV_DATA     = b'123456'
+ENCRYPTED_KEY_DATA    = b'abcde'
 PRE_LOAD_MAGIC        = b'UBSH'
 PRE_LOAD_VERSION      = 0x11223344.to_bytes(4, 'big')
 PRE_LOAD_HDR_SIZE     = 0x00001000.to_bytes(4, 'big')
@@ -231,6 +233,10 @@ class TestFunctional(unittest.TestCase):
 
         # Newer OP_TEE file in v1 binary format
         cls.make_tee_bin('tee.bin')
+
+        # test files for encrypted tests
+        TestFunctional._MakeInputFile('encrypted-file.iv', ENCRYPTED_IV_DATA)
+        TestFunctional._MakeInputFile('encrypted-file.key', ENCRYPTED_KEY_DATA)
 
         cls.comp_bintools = {}
         for name in COMP_BINTOOLS:
@@ -6994,6 +7000,59 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFileDtb('298_ti_secure_rom_combined.dts',
                                 entry_args=entry_args)[0]
         self.assertGreater(len(data), len(TI_UNSECURE_DATA))
+
+    def testEncryptedNoAlgo(self):
+        """Test encrypted node with missing required properties"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('301_encrypted_no_algo.dts')
+        self.assertIn(
+            "Node '/binman/fit/images/u-boot/encrypted': 'encrypted' entry is missing properties: algo iv-filename",
+            str(e.exception))
+
+    def testEncryptedInvalidIvfile(self):
+        """Test encrypted node with invalid iv file"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('302_encrypted_invalid_iv_file.dts')
+        self.assertIn("Filename 'invalid-iv-file' not found in input path",
+                      str(e.exception))
+
+    def testEncryptedMissingKey(self):
+        """Test encrypted node with missing key properties"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('303_encrypted_missing_key.dts')
+        self.assertIn(
+            "Node '/binman/fit/images/u-boot/encrypted': Provide either 'key-filename' or 'key-source'",
+            str(e.exception))
+
+    def testEncryptedKeySource(self):
+        """Test encrypted node with key-source property"""
+        data = self._DoReadFileDtb('304_encrypted_key_source.dts')[0]
+
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+
+        node = dtb.GetNode('/images/u-boot/cipher')
+        self.assertEqual('algo-name', node.props['algo'].value)
+        self.assertEqual('key-source-value', node.props['key-source'].value)
+        self.assertEqual(ENCRYPTED_IV_DATA,
+                         tools.to_bytes(''.join(node.props['iv'].value)))
+        self.assertNotIn('key', node.props)
+
+    def testEncryptedKeyFile(self):
+        """Test encrypted node with key-filename property"""
+        data = self._DoReadFileDtb('305_encrypted_key_file.dts')[0]
+
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+
+        node = dtb.GetNode('/images/u-boot/cipher')
+        self.assertEqual('algo-name', node.props['algo'].value)
+        self.assertEqual(ENCRYPTED_IV_DATA,
+                         tools.to_bytes(''.join(node.props['iv'].value)))
+        self.assertEqual(ENCRYPTED_KEY_DATA,
+                         tools.to_bytes(''.join(node.props['key'].value)))
+        self.assertNotIn('key-source', node.props)
+
 
 if __name__ == "__main__":
     unittest.main()
