@@ -23,7 +23,7 @@
 static int (*int_handler[256])(void);
 
 /* to have a common register file for interrupt handlers */
-#ifndef CONFIG_BIOSEMU
+#if !CONFIG_IS_ENABLED(BIOSEMU)
 X86EMU_sysEnv _X86EMU_env;
 #endif
 
@@ -78,7 +78,7 @@ static int int_exception_handler(void)
 	};
 	struct eregs *regs = &reg_info;
 
-	debug("Oops, exception %d while executing option rom\n", regs->vector);
+	log_err("Exception %d while executing option rom\n", regs->vector);
 	cpu_hlt();
 
 	return 0;

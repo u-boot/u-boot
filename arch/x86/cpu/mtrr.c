@@ -30,6 +30,16 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static const char *const mtrr_type_name[MTRR_TYPE_COUNT] = {
+	"Uncacheable",
+	"Combine",
+	"2",
+	"3",
+	"Through",
+	"Protect",
+	"Back",
+};
+
 /* Prepare to adjust MTRRs */
 void mtrr_open(struct mtrr_state *state, bool do_caches)
 {
@@ -320,3 +330,54 @@ int mtrr_set(int cpu_select, int reg, u64 base, u64 mask)
 
 	return mtrr_start_op(cpu_select, &oper);
 }
+
+static void read_mtrrs_(void *arg)
+{
+	struct mtrr_info *info = arg;
+
+	mtrr_read_all(info);
+}
+
+int mtrr_list(int reg_count, int cpu_select)
+{
+	struct mtrr_info info;
+	int ret;
+	int i;
+
+	printf("Reg Valid Write-type   %-16s %-16s %-16s\n", "Base   ||",
+	       "Mask   ||", "Size   ||");
+	memset(&info, '\0', sizeof(info));
+	ret = mp_run_on_cpus(cpu_select, read_mtrrs_, &info);
+	if (ret)
+		return log_msg_ret("run", ret);
+	for (i = 0; i < reg_count; i++) {
+		const char *type = "Invalid";
+		u64 base, mask, size;
+		bool valid;
+
+		base = info.mtrr[i].base;
+		mask = info.mtrr[i].mask;
+		size = ~mask & ((1ULL << CONFIG_CPU_ADDR_BITS) - 1);
+		size |= (1 << 12) - 1;
+		size += 1;
+		valid = mask & MTRR_PHYS_MASK_VALID;
+		type = mtrr_type_name[base & MTRR_BASE_TYPE_MASK];
+		printf("%d   %-5s %-12s %016llx %016llx %016llx\n", i,
+		       valid ? "Y" : "N", type, base & ~MTRR_BASE_TYPE_MASK,
+		       mask & ~MTRR_PHYS_MASK_VALID, size);
+	}
+
+	return 0;
+}
+
+int mtrr_get_type_by_name(const char *typename)
+{
+	int i;
+
+	for (i = 0; i < MTRR_TYPE_COUNT; i++) {
+		if (*typename == *mtrr_type_name[i])
+			return i;
+	}
+
+	return -EINVAL;
+};

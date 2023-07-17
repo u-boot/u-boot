@@ -54,6 +54,22 @@ static struct part_driver *part_driver_lookup_type(struct blk_desc *dev_desc)
 	return NULL;
 }
 
+int part_get_type_by_name(const char *name)
+{
+	struct part_driver *drv =
+		ll_entry_start(struct part_driver, part_driver);
+	const int n_ents = ll_entry_count(struct part_driver, part_driver);
+	struct part_driver *entry;
+
+	for (entry = drv; entry != drv + n_ents; entry++) {
+		if (!strcasecmp(name, entry->name))
+			return entry->part_type;
+	}
+
+	/* Not found */
+	return PART_TYPE_UNKNOWN;
+}
+
 static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
 	struct blk_desc *dev_desc;

@@ -255,7 +255,7 @@ static const struct {
 		EFI_CERT_TYPE_PKCS7_GUID,
 	},
 #endif
-#ifdef CONFIG_EFI
+#if defined(CONFIG_CMD_EFIDEBUG) || defined(CONFIG_EFI)
 	{ "EFI_LZMA_COMPRESSED", EFI_LZMA_COMPRESSED },
 	{ "EFI_DXE_SERVICES", EFI_DXE_SERVICES },
 	{ "EFI_HOB_LIST", EFI_HOB_LIST },

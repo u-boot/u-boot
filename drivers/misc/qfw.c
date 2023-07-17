@@ -18,6 +18,7 @@
 #include <dm.h>
 #include <misc.h>
 #include <tables_csum.h>
+#include <asm/acpi_table.h>
 
 #if defined(CONFIG_GENERATE_ACPI_TABLE) && !defined(CONFIG_SANDBOX)
 /*
@@ -64,6 +65,11 @@ static int bios_linker_allocate(struct udevice *dev,
 			printf("error: allocating resource\n");
 			return -ENOMEM;
 		}
+		if (aligned_addr < gd->arch.table_start_high)
+			gd->arch.table_start_high = aligned_addr;
+		if (aligned_addr + size > gd->arch.table_end_high)
+			gd->arch.table_end_high = aligned_addr + size;
+
 	} else if (entry->alloc.zone == BIOS_LINKER_LOADER_ALLOC_ZONE_FSEG) {
 		aligned_addr = ALIGN(*addr, align);
 	} else {
@@ -188,6 +194,10 @@ ulong write_acpi_tables(ulong addr)
 		return addr;
 	}
 
+	/* QFW always puts tables at high addresses */
+	gd->arch.table_start_high = (ulong)table_loader;
+	gd->arch.table_end_high = (ulong)table_loader;
+
 	qfw_read_entry(dev, be16_to_cpu(file->cfg.select), size, table_loader);
 
 	for (i = 0; i < (size / sizeof(*entry)); i++) {
@@ -227,6 +237,9 @@ out:
 	}
 
 	free(table_loader);
+
+	gd_set_acpi_start(acpi_get_rsdp_addr());
+
 	return addr;
 }
 

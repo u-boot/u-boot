@@ -258,7 +258,7 @@ static ulong get_sp(void)
 	ulong ret;
 
 #if CONFIG_IS_ENABLED(X86_64)
-	ret = gd->start_addr_sp;
+	asm("mov %%rsp, %0" : "=r"(ret) : );
 #else
 	asm("mov %%esp, %0" : "=r"(ret) : );
 #endif

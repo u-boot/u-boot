@@ -37,8 +37,14 @@ static int log_console_emit(struct log_device *ldev, struct log_rec *rec)
 			printf("%s:", rec->file);
 		if (fmt & BIT(LOGF_LINE))
 			printf("%d-", rec->line);
-		if (fmt & BIT(LOGF_FUNC))
-			printf("%*s()", CONFIG_LOGF_FUNC_PAD, rec->func);
+		if (fmt & BIT(LOGF_FUNC)) {
+			if (CONFIG_IS_ENABLED(USE_TINY_PRINTF)) {
+				printf("%s()", rec->func);
+			} else {
+				printf("%*s()", CONFIG_LOGF_FUNC_PAD,
+				       rec->func);
+			}
+		}
 	}
 	if (fmt & BIT(LOGF_MSG))
 		printf("%s%s", add_space ? " " : "", rec->msg);

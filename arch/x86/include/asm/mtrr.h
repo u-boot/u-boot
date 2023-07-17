@@ -190,6 +190,26 @@ int mtrr_set(int cpu_select, int reg, u64 base, u64 mask);
  */
 int mtrr_get_var_count(void);
 
+/**
+ * mtrr_list() - List the MTRRs
+ *
+ * Shows a list of all the MTRRs including their values
+ *
+ * @reg_count: Number of registers to show. You can use mtrr_get_var_count() for
+ * this
+ * @cpu_select: CPU to use. Use MP_SELECT_BSP for the boot CPU
+ * Returns: 0 if OK, -ve if the CPU was not found
+ */
+int mtrr_list(int reg_count, int cpu_select);
+
+/**
+ * mtrr_get_type_by_name() - Get the type of an MTRR given its type name
+ *
+ * @typename: Name to check
+ * Returns: MTRR type (MTRR_TYPE_...) or -EINVAL if invalid
+ */
+int mtrr_get_type_by_name(const char *typename);
+
 #endif
 
 #if ((CONFIG_XIP_ROM_SIZE & (CONFIG_XIP_ROM_SIZE - 1)) != 0)

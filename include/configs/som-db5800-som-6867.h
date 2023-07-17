@@ -16,6 +16,4 @@
 					"stdout=serial,vidconsole\0" \
 					"stderr=serial,vidconsole\0"
 
-#define VIDEO_IO_OFFSET				0
-
 #endif	/* __CONFIG_H */

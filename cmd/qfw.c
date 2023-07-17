@@ -26,7 +26,7 @@ static int qemu_fwcfg_cmd_list_firmware(void)
 	for (file = qfw_file_iter_init(qfw_dev, &iter);
 	     !qfw_file_iter_end(&iter);
 	     file = qfw_file_iter_next(&iter)) {
-		printf("%-56s\n", file->cfg.name);
+		printf("%08lx %-56s\n", file->addr, file->cfg.name);
 	}
 
 	return 0;

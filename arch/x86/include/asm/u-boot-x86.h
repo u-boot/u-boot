@@ -102,8 +102,31 @@ int video_bios_init(void);
  */
 int fsp_save_s3_stack(void);
 
-void	board_init_f_r_trampoline(ulong) __attribute__ ((noreturn));
-void	board_init_f_r(void) __attribute__ ((noreturn));
+/**
+ * board_init_f_r_trampoline() - jump to relocated address with new stack
+ *
+ * @sp: New stack pointer to use
+ */
+void __noreturn board_init_f_r_trampoline(ulong sp);
+
+/**
+ * board_init_f_r() - jump to relocated U-Boot
+ *
+ * This is used to jump from pre-relocation to post-relocation U-Boot. It
+ * enables the cache and jump to the new location.
+ */
+void __noreturn board_init_f_r(void);
+
+/*
+ * board_init_f_r_trampoline64() - jump to relocated address with new stack
+ *
+ * This is the 64-bit version
+ *
+ * @new_gd: New global_data pointer to use
+ * @sp: New stack pointer to pass on to board_init_r()
+ */
+void __noreturn board_init_f_r_trampoline64(struct global_data *new_gd,
+					    ulong sp);
 
 int arch_misc_init(void);
 

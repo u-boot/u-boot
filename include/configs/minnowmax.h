@@ -17,6 +17,4 @@
 					"stderr=vidconsole,serial\0" \
 					"usb_pgood_delay=40\0"
 
-#define VIDEO_IO_OFFSET				0
-
 #endif	/* __CONFIG_H */

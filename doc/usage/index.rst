@@ -76,6 +76,7 @@ Shell commands
    cmd/md
    cmd/mmc
    cmd/mtest
+   cmd/mtrr
    cmd/panic
    cmd/part
    cmd/pause

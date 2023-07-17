@@ -395,7 +395,7 @@ int bootmeth_common_read_file(struct udevice *dev, struct bootflow *bflow,
 /**
  * on_bootmeths() - Update the bootmeth order
  *
- * This will check for a valid baudrate and only apply it if valid.
+ * This will check for a valid list of bootmeths and only apply it if valid.
  */
 static int on_bootmeths(const char *name, const char *value, enum env_op op,
 			int flags)

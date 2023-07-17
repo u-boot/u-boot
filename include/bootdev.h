@@ -200,7 +200,7 @@ void bootdev_clear_bootflows(struct udevice *dev);
  * All fields in @bflow must be set up. Note that @bflow->dev is used to add the
  * bootflow to that device.
  *
- * @dev: Bootdevice device to add to
+ * @dev: Bootdev device to add to
  * @bflow: Bootflow to add. Note that fields within bflow must be allocated
  *	since this function takes over ownership of these. This functions makes
  *	a copy of @bflow itself (without allocating its fields again), so the

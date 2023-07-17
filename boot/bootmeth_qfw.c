@@ -76,7 +76,7 @@ static int qfw_bootmeth_bind(struct udevice *dev)
 {
 	struct bootmeth_uc_plat *plat = dev_get_uclass_plat(dev);
 
-	plat->desc = "Sandbox boot for testing";
+	plat->desc = "QEMU boot using firmware interface";
 
 	return 0;
 }

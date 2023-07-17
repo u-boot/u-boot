@@ -3,6 +3,8 @@
  * Copyright (c) 2016 Google, Inc
  */
 
+#define LOG_CATEGORY	LOGC_BOOT
+
 #include <common.h>
 #include <cpu_func.h>
 #include <debug_uart.h>
@@ -15,10 +17,12 @@
 #include <malloc.h>
 #include <spl.h>
 #include <syscon.h>
+#include <vesa.h>
 #include <asm/cpu.h>
 #include <asm/cpu_common.h>
 #include <asm/fsp2/fsp_api.h>
 #include <asm/global_data.h>
+#include <asm/mp.h>
 #include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
@@ -61,6 +65,8 @@ static int set_max_freq(void)
 
 static int x86_spl_init(void)
 {
+	struct udevice *dev;
+
 #ifndef CONFIG_TPL
 	/*
 	 * TODO(sjg@chromium.org): We use this area of RAM for the stack
@@ -74,49 +80,64 @@ static int x86_spl_init(void)
 #endif
 	int ret;
 
-	debug("%s starting\n", __func__);
+	log_debug("x86 spl starting\n");
 	if (IS_ENABLED(TPL))
 		ret = x86_cpu_reinit_f();
 	else
 		ret = x86_cpu_init_f();
 	ret = spl_init();
 	if (ret) {
-		debug("%s: spl_init() failed\n", __func__);
+		log_debug("spl_init() failed (err=%d)\n", ret);
 		return ret;
 	}
 	ret = arch_cpu_init();
 	if (ret) {
-		debug("%s: arch_cpu_init() failed\n", __func__);
+		log_debug("arch_cpu_init() failed (err=%d)\n", ret);
 		return ret;
 	}
 #ifndef CONFIG_TPL
 	ret = fsp_setup_pinctrl(NULL, NULL);
 	if (ret) {
-		debug("%s: fsp_setup_pinctrl() failed\n", __func__);
+		log_debug("fsp_setup_pinctrl() failed (err=%d)\n", ret);
 		return ret;
 	}
 #endif
-	preloader_console_init();
+	/*
+	 * spl_board_init() below sets up the console if enabled. If it isn't,
+	 * do it here. We cannot call this twice since it results in a double
+	 * banner and CI tests fail.
+	 */
+	if (!IS_ENABLED(CONFIG_SPL_BOARD_INIT))
+		preloader_console_init();
 #if !defined(CONFIG_TPL) && !CONFIG_IS_ENABLED(CPU)
 	ret = print_cpuinfo();
 	if (ret) {
-		debug("%s: print_cpuinfo() failed\n", __func__);
+		log_debug("print_cpuinfo() failed (err=%d)\n", ret);
 		return ret;
 	}
 #endif
-	ret = dram_init();
-	if (ret) {
-		debug("%s: dram_init() failed\n", __func__);
+	/* probe the LPC so we get the GPIO_BASE set up correctly */
+	ret = uclass_first_device_err(UCLASS_LPC, &dev);
+	if (ret && ret != -ENODEV) {
+		log_debug("lpc probe failed\n");
 		return ret;
 	}
+
+	ret = dram_init();
+	if (ret) {
+		log_debug("dram_init() failed (err=%d)\n", ret);
+		return ret;
+	}
+	log_debug("mrc\n");
 	if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE)) {
 		ret = mrccache_spl_save();
 		if (ret)
-			debug("%s: Failed to write to mrccache (err=%d)\n",
-			      __func__, ret);
+			log_debug("Failed to write to mrccache (err=%d)\n",
+				  ret);
 	}
 
 #ifndef CONFIG_SYS_COREBOOT
+	log_debug("bss\n");
 	debug("BSS clear from %lx to %lx len %lx\n", (ulong)&__bss_start,
 	      (ulong)&__bss_end, (ulong)&__bss_end - (ulong)&__bss_start);
 	memset(&__bss_start, 0, (ulong)&__bss_end - (ulong)&__bss_start);
@@ -136,8 +157,28 @@ static int x86_spl_init(void)
 	 */
 	gd->new_gd = (struct global_data *)ptr;
 	memcpy(gd->new_gd, gd, sizeof(*gd));
+
+	log_debug("logging\n");
+	/*
+	 * Make sure logging is disabled when we switch, since the log system
+	 * list head will move
+	 */
+	gd->new_gd->flags &= ~GD_FLG_LOG_READY;
 	arch_setup_gd(gd->new_gd);
 	gd->start_addr_sp = (ulong)ptr;
+
+	/* start up logging again, with the new list-head location */
+	ret = log_init();
+	if (ret) {
+		log_debug("Log setup failed (err=%d)\n", ret);
+		return ret;
+	}
+
+	if (_LOG_DEBUG) {
+		ret = mtrr_list(mtrr_get_var_count(), MP_SELECT_BSP);
+		if (ret)
+			printf("mtrr_list failed\n");
+	}
 
 	/* Cache the SPI flash. Otherwise copying the code to RAM takes ages */
 	ret = mtrr_add_request(MTRR_TYPE_WRBACK,
@@ -157,6 +198,7 @@ static int x86_spl_init(void)
 		debug("Failed to set CPU frequency (err=%d)\n", ret);
 # endif
 #endif
+	log_debug("done\n");
 
 	return 0;
 }
@@ -250,4 +292,12 @@ void spl_board_init(void)
 #ifndef CONFIG_TPL
 	preloader_console_init();
 #endif
+
+	if (CONFIG_IS_ENABLED(VIDEO)) {
+		struct udevice *dev;
+
+		/* Set up PCI video in SPL if required */
+		uclass_first_device_err(UCLASS_PCI, &dev);
+		uclass_first_device_err(UCLASS_VIDEO, &dev);
+	}
 }

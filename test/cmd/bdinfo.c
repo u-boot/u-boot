@@ -16,6 +16,7 @@
 #include <env.h>
 #include <lmb.h>
 #include <net.h>
+#include <serial.h>
 #include <video.h>
 #include <vsprintf.h>
 #include <asm/cache.h>
@@ -189,6 +190,26 @@ static int bdinfo_test_move(struct unit_test_state *uts)
 		lmb_test_dump_all(uts, &lmb);
 		if (IS_ENABLED(CONFIG_OF_REAL))
 			ut_assert_nextline("devicetree  = %s", fdtdec_get_srcname());
+	}
+
+	if (IS_ENABLED(CONFIG_DM_SERIAL)) {
+		struct serial_device_info info;
+
+		ut_assertnonnull(gd->cur_serial_dev);
+		ut_assertok(serial_getinfo(gd->cur_serial_dev, &info));
+
+		ut_assertok(test_num_l(uts, "serial addr", info.addr));
+		ut_assertok(test_num_l(uts, " width", info.reg_width));
+		ut_assertok(test_num_l(uts, " shift", info.reg_shift));
+		ut_assertok(test_num_l(uts, " offset", info.reg_offset));
+		ut_assertok(test_num_l(uts, " clock", info.clock));
+	}
+
+	if (IS_ENABLED(CONFIG_CMD_BDINFO_EXTRA)) {
+		ut_assert_nextlinen("stack ptr");
+		ut_assertok(test_num_ll(uts, "ram_top ptr",
+					(unsigned long long)gd->ram_top));
+		ut_assertok(test_num_l(uts, "malloc base", gd_malloc_start()));
 	}
 
 	ut_assertok(ut_check_console_end(uts));

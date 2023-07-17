@@ -135,6 +135,14 @@ config CMD_BDI
 	help
 	  Print board info
 
+config CMD_BDINFO_EXTRA
+	bool "bdinfo extra features"
+	default y if SANDBOX || X86
+	help
+	  Show additional information about the board. This uses a little more
+	  code space but provides more options, particularly those useful for
+	  bringup, development and debugging.
+
 config CMD_CONFIG
 	bool "config"
 	default SANDBOX

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Bootdevice for ethernet (uses PXE)
+ * Bootdev for ethernet (uses PXE)
  *
  * Copyright 2021 Google LLC
  * Written by Simon Glass <sjg@chromium.org>

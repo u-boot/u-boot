@@ -9,6 +9,8 @@
  * Copyright (C) 2011 Google Inc.
  */
 
+#define LOG_CATEGORY	UCLASS_RAM
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
@@ -213,7 +215,7 @@ static int copy_spd(struct udevice *dev, struct pei_data *peid)
 
 	ret = mrc_locate_spd(dev, sizeof(peid->spd_data[0]), &data);
 	if (ret) {
-		debug("%s: Could not locate SPD (ret=%d)\n", __func__, ret);
+		log_debug("Could not locate SPD (err=%d)\n", ret);
 		return ret;
 	}
 

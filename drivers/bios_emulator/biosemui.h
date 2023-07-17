@@ -128,19 +128,19 @@ typedef struct {
 	u32 finalVal;
 } BE_portInfo;
 
-#define PM_inpb(port)	inb(port+VIDEO_IO_OFFSET)
-#define PM_inpw(port)	inw(port+VIDEO_IO_OFFSET)
-#define PM_inpd(port)	inl(port+VIDEO_IO_OFFSET)
-#define PM_outpb(port,val)	outb(val,port+VIDEO_IO_OFFSET)
-#define PM_outpw(port,val)	outw(val,port+VIDEO_IO_OFFSET)
-#define PM_outpd(port,val)	outl(val,port+VIDEO_IO_OFFSET)
+#define PM_inpb(port)	inb(port)
+#define PM_inpw(port)	inw(port)
+#define PM_inpd(port)	inl(port)
+#define PM_outpb(port, val)	outb(val, port)
+#define PM_outpw(port, val)	outw(val, port)
+#define PM_outpd(port, val)	outl(val, port)
 
 #define LOG_inpb(port)	PM_inpb(port)
 #define LOG_inpw(port)	PM_inpw(port)
 #define LOG_inpd(port)	PM_inpd(port)
-#define LOG_outpb(port,val)	PM_outpb(port,val)
-#define LOG_outpw(port,val)	PM_outpw(port,val)
-#define LOG_outpd(port,val)	PM_outpd(port,val)
+#define LOG_outpb(port, val)	PM_outpb(port, val)
+#define LOG_outpw(port, val)	PM_outpw(port, val)
+#define LOG_outpd(port, val)	PM_outpd(port, val)
 
 /*-------------------------- Function Prototypes --------------------------*/
 

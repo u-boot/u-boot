@@ -278,6 +278,36 @@ config VIDCONSOLE_AS_NAME
 	  possible to update the environment, the breakage may be confusing for
 	  users. This option will be removed around the end of 2020.
 
+config VIDEO_BOCHS
+	bool "Enable Bochs video emulation for QEMU"
+	depends on X86
+	help
+	  Enable this to use the Bochs video support provided in the QEMU
+	  emulator. This appears as a PCI device which U-Boot can set up to
+	  provide a frame buffer.
+
+if VIDEO_BOCHS
+
+config VIDEO_BOCHS_SIZE_X
+	int "Width of display (X resolution)"
+	default 1280
+	help
+	  Sets the width of the display.
+
+	  These two options control the size of the display set up by QEMU.
+	  Typical sizes are 1024 x 768 or 1280 x 1024.
+
+config VIDEO_BOCHS_SIZE_Y
+	int "High of display (Y resolution)"
+	default 1024
+	help
+	  Sets the height of the display.
+
+	  These two options control the size of the display set up by QEMU.
+	  Typical sizes are 1024 x 768 or 1280 x 1024.
+
+endif
+
 config VIDEO_COREBOOT
 	bool "Enable coreboot framebuffer driver support"
 	depends on X86

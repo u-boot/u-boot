@@ -6,6 +6,8 @@
  * Copyright (C) 2015 Bin Meng <bmeng.cn@gmail.com>
  */
 
+#define LOG_CATEGORY	UCLASS_RAM
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
@@ -197,8 +199,8 @@ static void mrccache_setup(struct mrc_output *mrc, void *data)
 	cache->signature = MRC_DATA_SIGNATURE;
 	cache->data_size = mrc->len;
 	checksum = compute_ip_checksum(mrc->buf, cache->data_size);
-	debug("Saving %d bytes for MRC output data, checksum %04x\n",
-	      cache->data_size, checksum);
+	log_debug("Saving %d bytes for MRC output data, checksum %04x\n",
+		  cache->data_size, checksum);
 	cache->checksum = checksum;
 	cache->reserved = 0;
 	memcpy(cache->data, mrc->buf, cache->data_size);

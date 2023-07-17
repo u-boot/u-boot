@@ -226,6 +226,7 @@ static int bootflow_cmd_info(struct unit_test_state *uts)
 	ut_assert_nextlinen("Buffer:    ");
 	ut_assert_nextline("Size:      253 (595 bytes)");
 	ut_assert_nextline("OS:        Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)");
+	ut_assert_nextline("Cmdline:   (none)");
 	ut_assert_nextline("Logo:      (none)");
 	ut_assert_nextline("FDT:       <NULL>");
 	ut_assert_nextline("Error:     0");
@@ -682,3 +683,265 @@ static int bootflow_menu_theme(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootflow_menu_theme, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/**
+ * check_arg() - Check both the normal case and the buffer-overflow case
+ *
+ * @uts: Unit-test state
+ * @expect_ret: Expected return value (i.e. buffer length)
+ * @expect_str: String expected to be returned
+ * @buf: Buffer to use
+ * @from: Original cmdline to update
+ * @arg: Argument to update (e.g. "console")
+ * @val: Value to set (e.g. "ttyS2") or NULL to delete the argument if present,
+ * "" to set it to an empty value (e.g. "console=") and BOOTFLOWCL_EMPTY to add
+ * it without any value ("initrd")
+ */
+static int check_arg(struct unit_test_state *uts, int expect_ret,
+		     const char *expect_str, char *buf, const char *from,
+		     const char *arg, const char *val)
+{
+	/* check for writing outside the reported bounds */
+	buf[expect_ret] = '[';
+	ut_asserteq(expect_ret,
+		    cmdline_set_arg(buf, expect_ret, from, arg, val, NULL));
+	ut_asserteq_str(expect_str, buf);
+	ut_asserteq('[', buf[expect_ret]);
+
+	/* do the test again but with one less byte in the buffer */
+	ut_asserteq(-E2BIG, cmdline_set_arg(buf, expect_ret - 1, from, arg,
+					    val, NULL));
+
+	return 0;
+}
+
+/* Test of bootflow_cmdline_set_arg() */
+static int test_bootflow_cmdline_set(struct unit_test_state *uts)
+{
+	char buf[50];
+	const int size = sizeof(buf);
+
+	/*
+	 * note that buffer-overflow tests are immediately each test case, just
+	 * top keep the code together
+	 */
+
+	/* add an arg that doesn't already exist, starting from empty */
+	ut_asserteq(-ENOENT, cmdline_set_arg(buf, size, NULL, "me", NULL,
+					     NULL));
+
+	ut_assertok(check_arg(uts, 3, "me", buf, NULL, "me", BOOTFLOWCL_EMPTY));
+	ut_assertok(check_arg(uts, 4, "me=", buf, NULL, "me", ""));
+	ut_assertok(check_arg(uts, 8, "me=fred", buf, NULL, "me", "fred"));
+
+	/* add an arg that doesn't already exist, starting from non-empty */
+	ut_assertok(check_arg(uts, 11, "arg=123 me", buf, "arg=123", "me",
+			      BOOTFLOWCL_EMPTY));
+	ut_assertok(check_arg(uts, 12, "arg=123 me=", buf, "arg=123", "me",
+			      ""));
+	ut_assertok(check_arg(uts, 16, "arg=123 me=fred", buf, "arg=123", "me",
+			      "fred"));
+
+	/* update an arg at the start */
+	ut_assertok(check_arg(uts, 1, "", buf, "arg=123", "arg", NULL));
+	ut_assertok(check_arg(uts, 4, "arg", buf, "arg=123", "arg",
+			      BOOTFLOWCL_EMPTY));
+	ut_assertok(check_arg(uts, 5, "arg=", buf, "arg=123", "arg", ""));
+	ut_assertok(check_arg(uts, 6, "arg=1", buf, "arg=123", "arg", "1"));
+	ut_assertok(check_arg(uts, 9, "arg=1234", buf, "arg=123", "arg",
+			      "1234"));
+
+	/* update an arg at the end */
+	ut_assertok(check_arg(uts, 5, "mary", buf, "mary arg=123", "arg",
+			      NULL));
+	ut_assertok(check_arg(uts, 9, "mary arg", buf, "mary arg=123", "arg",
+			      BOOTFLOWCL_EMPTY));
+	ut_assertok(check_arg(uts, 10, "mary arg=", buf, "mary arg=123", "arg",
+			      ""));
+	ut_assertok(check_arg(uts, 11, "mary arg=1", buf, "mary arg=123", "arg",
+			      "1"));
+	ut_assertok(check_arg(uts, 14, "mary arg=1234", buf, "mary arg=123",
+			      "arg", "1234"));
+
+	/* update an arg in the middle */
+	ut_assertok(check_arg(uts, 16, "mary=abc john=2", buf,
+			      "mary=abc arg=123 john=2", "arg", NULL));
+	ut_assertok(check_arg(uts, 20, "mary=abc arg john=2", buf,
+			      "mary=abc arg=123 john=2", "arg",
+			      BOOTFLOWCL_EMPTY));
+	ut_assertok(check_arg(uts, 21, "mary=abc arg= john=2", buf,
+			      "mary=abc arg=123 john=2", "arg", ""));
+	ut_assertok(check_arg(uts, 22, "mary=abc arg=1 john=2", buf,
+			      "mary=abc arg=123 john=2", "arg", "1"));
+	ut_assertok(check_arg(uts, 25, "mary=abc arg=1234 john=2", buf,
+			      "mary=abc arg=123 john=2", "arg", "1234"));
+
+	/* handle existing args with quotes */
+	ut_assertok(check_arg(uts, 16, "mary=\"abc\" john", buf,
+			      "mary=\"abc\" arg=123 john", "arg", NULL));
+
+	/* handle existing args with quoted spaces */
+	ut_assertok(check_arg(uts, 20, "mary=\"abc def\" john", buf,
+			      "mary=\"abc def\" arg=123 john", "arg", NULL));
+
+	ut_assertok(check_arg(uts, 34, "mary=\"abc def\" arg=123 john def=4",
+			      buf, "mary=\"abc def\" arg=123 john", "def",
+			      "4"));
+
+	/* quote at the start */
+	ut_asserteq(-EBADF, cmdline_set_arg(buf, size,
+					    "mary=\"abc def\" arg=\"123 456\"",
+					    "arg", "\"4 5 6", NULL));
+
+	/* quote at the end */
+	ut_asserteq(-EBADF, cmdline_set_arg(buf, size,
+					    "mary=\"abc def\" arg=\"123 456\"",
+					    "arg", "4 5 6\"", NULL));
+
+	/* quote in the middle */
+	ut_asserteq(-EBADF, cmdline_set_arg(buf, size,
+					    "mary=\"abc def\" arg=\"123 456\"",
+					    "arg", "\"4 \"5 6\"", NULL));
+
+	/* handle updating a quoted arg */
+	ut_assertok(check_arg(uts, 27, "mary=\"abc def\" arg=\"4 5 6\"", buf,
+			      "mary=\"abc def\" arg=\"123 456\"", "arg",
+			      "4 5 6"));
+
+	/* changing a quoted arg to a non-quoted arg */
+	ut_assertok(check_arg(uts, 23, "mary=\"abc def\" arg=789", buf,
+			      "mary=\"abc def\" arg=\"123 456\"", "arg",
+			      "789"));
+
+	/* changing a non-quoted arg to a quoted arg */
+	ut_assertok(check_arg(uts, 29, "mary=\"abc def\" arg=\"456 789\"", buf,
+			      "mary=\"abc def\" arg=123", "arg", "456 789"));
+
+	/* handling of spaces */
+	ut_assertok(check_arg(uts, 8, "arg=123", buf, " ", "arg", "123"));
+	ut_assertok(check_arg(uts, 8, "arg=123", buf, "   ", "arg", "123"));
+	ut_assertok(check_arg(uts, 13, "john arg=123", buf, " john  ", "arg",
+			      "123"));
+	ut_assertok(check_arg(uts, 13, "john arg=123", buf, " john  arg=123  ",
+			      "arg", "123"));
+	ut_assertok(check_arg(uts, 18, "john arg=123 mary", buf,
+			      " john  arg=123 mary ", "arg", "123"));
+
+	/* unchanged arg */
+	ut_assertok(check_arg(uts, 3, "me", buf, "me", "me", BOOTFLOWCL_EMPTY));
+
+	/* arg which starts with the same name */
+	ut_assertok(check_arg(uts, 28, "mary=abc johnathon=2 john=3", buf,
+			      "mary=abc johnathon=2 john=1", "john", "3"));
+
+	return 0;
+}
+BOOTSTD_TEST(test_bootflow_cmdline_set, 0);
+
+/* Test of bootflow_cmdline_set_arg() */
+static int bootflow_set_arg(struct unit_test_state *uts)
+{
+	struct bootflow s_bflow, *bflow = &s_bflow;
+	ulong mem_start;
+
+	ut_assertok(env_set("bootargs", NULL));
+
+	mem_start = ut_check_delta(0);
+
+	/* Do a simple sanity check. Rely on bootflow_cmdline() for the rest */
+	bflow->cmdline = NULL;
+	ut_assertok(bootflow_cmdline_set_arg(bflow, "fred", "123", false));
+	ut_asserteq_str(bflow->cmdline, "fred=123");
+
+	ut_assertok(bootflow_cmdline_set_arg(bflow, "mary", "and here", false));
+	ut_asserteq_str(bflow->cmdline, "fred=123 mary=\"and here\"");
+
+	ut_assertok(bootflow_cmdline_set_arg(bflow, "mary", NULL, false));
+	ut_asserteq_str(bflow->cmdline, "fred=123");
+	ut_assertok(bootflow_cmdline_set_arg(bflow, "fred", NULL, false));
+	ut_asserteq_ptr(bflow->cmdline, NULL);
+
+	ut_asserteq(0, ut_check_delta(mem_start));
+
+	ut_assertok(bootflow_cmdline_set_arg(bflow, "mary", "here", true));
+	ut_asserteq_str("mary=here", env_get("bootargs"));
+	ut_assertok(env_set("bootargs", NULL));
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_set_arg, 0);
+
+/* Test of bootflow_cmdline_get_arg() */
+static int bootflow_cmdline_get(struct unit_test_state *uts)
+{
+	int pos;
+
+	/* empty string */
+	ut_asserteq(-ENOENT, cmdline_get_arg("", "fred", &pos));
+
+	/* arg with empty value */
+	ut_asserteq(0, cmdline_get_arg("fred= mary", "fred", &pos));
+	ut_asserteq(5, pos);
+
+	/* arg with a value */
+	ut_asserteq(2, cmdline_get_arg("fred=23", "fred", &pos));
+	ut_asserteq(5, pos);
+
+	/* arg with a value */
+	ut_asserteq(3, cmdline_get_arg("mary=1 fred=234", "fred", &pos));
+	ut_asserteq(12, pos);
+
+	/* arg with a value, after quoted arg */
+	ut_asserteq(3, cmdline_get_arg("mary=\"1 2\" fred=234", "fred", &pos));
+	ut_asserteq(16, pos);
+
+	/* arg in the middle */
+	ut_asserteq(0, cmdline_get_arg("mary=\"1 2\" fred john=23", "fred",
+				       &pos));
+	ut_asserteq(15, pos);
+
+	/* quoted arg */
+	ut_asserteq(3, cmdline_get_arg("mary=\"1 2\" fred=\"3 4\" john=23",
+				       "fred", &pos));
+	ut_asserteq(17, pos);
+
+	/* args starting with the same prefix */
+	ut_asserteq(1, cmdline_get_arg("mary=abc johnathon=3 john=1", "john",
+				       &pos));
+	ut_asserteq(26, pos);
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_cmdline_get, 0);
+
+static int bootflow_cmdline(struct unit_test_state *uts)
+{
+	ut_assertok(run_command("bootflow scan mmc", 0));
+	ut_assertok(run_command("bootflow sel 0", 0));
+	console_record_reset_enable();
+
+	ut_asserteq(1, run_command("bootflow cmdline get fred", 0));
+	ut_assert_nextline("Argument not found");
+	ut_assert_console_end();
+
+	ut_asserteq(0, run_command("bootflow cmdline set fred 123", 0));
+	ut_asserteq(0, run_command("bootflow cmdline get fred", 0));
+	ut_assert_nextline("123");
+
+	ut_asserteq(0, run_command("bootflow cmdline set mary abc", 0));
+	ut_asserteq(0, run_command("bootflow cmdline get mary", 0));
+	ut_assert_nextline("abc");
+
+	ut_asserteq(0, run_command("bootflow cmdline delete fred", 0));
+	ut_asserteq(1, run_command("bootflow cmdline get fred", 0));
+	ut_assert_nextline("Argument not found");
+
+	ut_asserteq(0, run_command("bootflow cmdline clear mary", 0));
+	ut_asserteq(0, run_command("bootflow cmdline get mary", 0));
+	ut_assert_nextline_empty();
+
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_cmdline, 0);

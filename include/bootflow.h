@@ -58,7 +58,7 @@ enum bootflow_flags_t {
  *
  * @bm_node: Points to siblings in the same bootdev
  * @glob_node: Points to siblings in the global list (all bootdev)
- * @dev: Bootdevice device which produced this bootflow
+ * @dev: Bootdev device which produced this bootflow
  * @blk: Block device which contains this bootflow, NULL if this is a network
  *	device or sandbox 'host' device
  * @part: Partition number (0 for whole device)
@@ -81,6 +81,8 @@ enum bootflow_flags_t {
  * @fdt_size: Size of FDT file
  * @fdt_addr: Address of loaded fdt
  * @flags: Flags for the bootflow (see enum bootflow_flags_t)
+ * @cmdline: OS command line, or NULL if not known (allocated)
+ * @x86_setup: Pointer to x86 setup block inside @buf, NULL if not present
  */
 struct bootflow {
 	struct list_head bm_node;
@@ -104,6 +106,8 @@ struct bootflow {
 	int fdt_size;
 	ulong fdt_addr;
 	int flags;
+	char *cmdline;
+	char *x86_setup;
 };
 
 /**
@@ -439,5 +443,99 @@ int bootflow_menu_apply_theme(struct expo *exp, ofnode node);
  */
 int bootflow_menu_run(struct bootstd_priv *std, bool text_mode,
 		      struct bootflow **bflowp);
+
+#define BOOTFLOWCL_EMPTY	((void *)1)
+
+/**
+ * cmdline_set_arg() - Update or read an argument in a cmdline string
+ *
+ * Handles updating a single arg in a cmdline string, returning it in a supplied
+ * buffer; also reading an arg from a cmdline string
+ *
+ * When updating, consecutive spaces are squashed as are spaces at the start and
+ * end.
+ *
+ * @buf: Working buffer to use (initial contents are ignored). Use NULL when
+ * reading
+ * @maxlen: Length of working buffer. Use 0 when reading
+ * @cmdline: Command line to update, in the form:
+ *
+ *	fred mary= jane=123 john="has spaces"
+ *
+ * @set_arg: Argument to set or read (may or may not exist)
+ * @new_val: Value for the new argument. May not include quotes (") but may
+ * include embedded spaces, in which case it will be quoted when added to the
+ * command line. Use NULL to delete the argument from @cmdline, BOOTFLOWCL_EMPTY
+ * to set it to an empty value (no '=' sign after arg), "" to add an '=' sign
+ * but with an empty value. Use NULL when reading.
+ * @posp: Ignored when setting an argument; when getting an argument, returns
+ * the start position of its value in @cmdline, after the first quote, if any
+ *
+ * Return:
+ * For updating:
+ *	length of new buffer (including \0 terminator) on success, -ENOENT if
+ *	@new_val is NULL and @set_arg does not exist in @from, -EINVAL if a
+ *	quoted arg-value in @from is not terminated with a quote, -EBADF if
+ *	@new_val has spaces but does not start and end with quotes (or it has
+ *	quotes in the middle of the string), -E2BIG if @maxlen is too small
+ * For reading:
+ *	length of arg value (excluding quotes), -ENOENT if not found
+ */
+int cmdline_set_arg(char *buf, int maxlen, const char *cmdline,
+		    const char *set_arg, const char *new_val, int *posp);
+
+/**
+ * bootflow_cmdline_set_arg() - Set a single argument for a bootflow
+ *
+ * Update the allocated cmdline and set the bootargs variable
+ *
+ * @bflow: Bootflow to update
+ * @arg: Argument to update (e.g. "console")
+ * @val: Value to set (e.g. "ttyS2") or NULL to delete the argument if present,
+ * "" to set it to an empty value (e.g. "console=") and BOOTFLOWCL_EMPTY to add
+ * it without any value ("initrd")
+ * @set_env: true to set the "bootargs" environment variable too
+ *
+ * Return: 0 if OK, -ENOMEM if out of memory
+ */
+int bootflow_cmdline_set_arg(struct bootflow *bflow, const char *arg,
+			     const char *val, bool set_env);
+
+/**
+ * cmdline_get_arg() - Read an argument from a cmdline
+ *
+ * @cmdline: Command line to read, in the form:
+ *
+ *	fred mary= jane=123 john="has spaces"
+ * @arg: Argument to read (may or may not exist)
+ * @posp: Returns position of argument (after any leading quote) if present
+ * Return: Length of argument value excluding quotes if found, -ENOENT if not
+ * found
+ */
+int cmdline_get_arg(const char *cmdline, const char *arg, int *posp);
+
+/**
+ * bootflow_cmdline_get_arg() - Read an argument from a cmdline
+ *
+ * @bootflow: Bootflow to read from
+ * @arg: Argument to read (may or may not exist)
+ * @valp: Returns a pointer to the argument (after any leading quote) if present
+ * Return: Length of argument value excluding quotes if found, -ENOENT if not
+ * found
+ */
+int bootflow_cmdline_get_arg(struct bootflow *bflow, const char *arg,
+			     const char **val);
+
+/**
+ * bootflow_cmdline_auto() - Automatically set a value for a known argument
+ *
+ * This handles a small number of known arguments, for Linux in particular. It
+ * adds suitable kernel parameters automatically, e.g. to enable the console.
+ *
+ * @bflow: Bootflow to update
+ * @arg: Name of argument to set (e.g. "earlycon" or "console")
+ * Return: 0 if OK -ve on error
+ */
+int bootflow_cmdline_auto(struct bootflow *bflow, const char *arg);
 
 #endif

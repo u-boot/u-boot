@@ -196,7 +196,7 @@ static int initr_barrier(void)
 
 static int initr_malloc(void)
 {
-	ulong malloc_start;
+	ulong start;
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	debug("Pre-reloc malloc() used %#lx bytes (%ld KB)\n", gd->malloc_ptr,
@@ -207,8 +207,9 @@ static int initr_malloc(void)
 	 * This value MUST match the value of gd->start_addr_sp in board_f.c:
 	 * reserve_noncached().
 	 */
-	malloc_start = gd->relocaddr - TOTAL_MALLOC_LEN;
-	mem_malloc_init((ulong)map_sysmem(malloc_start, TOTAL_MALLOC_LEN),
+	start = gd->relocaddr - TOTAL_MALLOC_LEN;
+	gd_set_malloc_start(start);
+	mem_malloc_init((ulong)map_sysmem(start, TOTAL_MALLOC_LEN),
 			TOTAL_MALLOC_LEN);
 	return 0;
 }
