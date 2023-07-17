@@ -175,7 +175,6 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 
 RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 	cd /tmp/qemu && \
-	git submodule update --init dtc && \
 	git checkout v6.1.0 && \
 	# config user.name and user.email to make 'git am' happy
 	git config user.name u-boot && \
