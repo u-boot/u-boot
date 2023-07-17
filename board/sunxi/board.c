@@ -34,6 +34,7 @@
 #include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/printk.h>
+#include <linux/types.h>
 #ifndef CONFIG_ARM64
 #include <asm/armv7.h>
 #endif
@@ -937,7 +938,7 @@ int board_fit_config_name_match(const char *name)
 #ifdef CONFIG_PINE64_DT_SELECTION
 	if (strstr(best_dt_name, "-pine64-plus")) {
 		/* Differentiate the Pine A64 boards by their DRAM size. */
-		if ((gd->ram_size == 512 * 1024 * 1024))
+		if (gd->ram_size == SZ_512M)
 			best_dt_name = "sun50i-a64-pine64";
 	}
 #endif
