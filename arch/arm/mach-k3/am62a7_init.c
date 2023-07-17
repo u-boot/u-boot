@@ -181,7 +181,7 @@ void board_init_f(ulong dummy)
 
 	setup_qos();
 
-	printf("am62a_init: %s done\n", __func__);
+	debug("am62a_init: %s done\n", __func__);
 }
 
 static u32 __get_backup_bootmedia(u32 devstat)
@@ -279,7 +279,7 @@ u32 spl_boot_device(void)
 	else
 		bootmedia = __get_backup_bootmedia(devstat);
 
-	printf("am62a_init: %s: devstat = 0x%x bootmedia = 0x%x bootindex = %d\n",
+	debug("am62a_init: %s: devstat = 0x%x bootmedia = 0x%x bootindex = %d\n",
 	       __func__, devstat, bootmedia, bootindex);
 	return bootmedia;
 }
