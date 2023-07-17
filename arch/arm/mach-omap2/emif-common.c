@@ -40,7 +40,7 @@ void set_lpmode_selfrefresh(u32 base)
 	readl(&emif->emif_pwr_mgmt_ctrl);
 }
 
-void force_emif_self_refresh()
+void force_emif_self_refresh(void)
 {
 	set_lpmode_selfrefresh(EMIF1_BASE);
 	if (!is_dra72x())
