@@ -214,14 +214,9 @@ RUN mkdir -p /tmp/capsules && \
 	echo -n "u-boot:New" > u-boot.bin.new && \
 	echo -n "u-boot-env:Old" > u-boot.env.old && \
 	echo -n "u-boot-env:New" > u-boot.env.new && \
-	cp test/py/tests/test_efi_capsule/sandbox_capsule_cfg.txt \
-	/tmp/capsules/ && \
-	openssl req -x509 -sha256 -newkey rsa:2048 \
-	-subj /CN=TEST_SIGNER/ -keyout SIGNER.key \
-	-out SIGNER.crt -nodes -days 365 && \
-	openssl req -x509 -sha256 -newkey rsa:2048 \
-	-subj /CN=TEST_SIGNER/ -keyout SIGNER2.key \
-	-out SIGNER2.crt -nodes -days 365 && \
+	cp test/py/tests/test_efi_capsule/sandbox_capsule_cfg.txt /tmp/capsules/ && \
+	openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_SIGNER/ -keyout SIGNER.key -out SIGNER.crt -nodes -days 365 && \
+	openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_SIGNER/ -keyout SIGNER2.key -out SIGNER2.crt -nodes -days 365 && \
 	cert-to-efi-sig-list SIGNER.crt SIGNER.esl
 
 # Build genimage (required by some targets to generate disk images)
