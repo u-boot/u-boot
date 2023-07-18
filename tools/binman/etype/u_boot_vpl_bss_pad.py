@@ -38,7 +38,7 @@ class Entry_u_boot_vpl_bss_pad(Entry_blob):
     def ObtainContents(self):
         fname = tools.get_input_filename('vpl/u-boot-vpl')
         bss_size = elf.GetSymbolAddress(fname, '__bss_size')
-        if not bss_size:
+        if bss_size is None:
             self.Raise('Expected __bss_size symbol in vpl/u-boot-vpl')
         self.SetContents(tools.get_bytes(0, bss_size))
         return True

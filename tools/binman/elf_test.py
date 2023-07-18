@@ -371,6 +371,11 @@ class TestElf(unittest.TestCase):
             elf.GetSymbolOffset(fname, 'embed')
         self.assertIn('__image_copy_start', str(e.exception))
 
+    def test_get_symbol_address(self):
+        fname = self.ElfTestFile('embed_data')
+        addr = elf.GetSymbolAddress(fname, 'region_size')
+        self.assertEqual(0, addr)
+
 
 if __name__ == '__main__':
     unittest.main()

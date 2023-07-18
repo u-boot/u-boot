@@ -6773,6 +6773,18 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
         fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
 
+    def testSplEmptyBss(self):
+        """Test an expanded SPL with a zero-size BSS"""
+        # ELF file with a '__bss_size' symbol
+        self._SetupSplElf(src_fname='bss_data_zero')
+
+        entry_args = {
+            'spl-bss-pad': 'y',
+            'spl-dtb': 'y',
+        }
+        data = self._DoReadFileDtb('285_spl_expand.dts',
+                                   use_expanded=True, entry_args=entry_args)[0]
+
 
 if __name__ == "__main__":
     unittest.main()

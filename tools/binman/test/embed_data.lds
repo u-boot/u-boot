@@ -17,6 +17,7 @@ SECTIONS
 		embed_start = .;
 		*(.embed*)
 		embed_end = .;
+		region_size = 0;
 		. = ALIGN(32);
 		*(.data*)
 	}
