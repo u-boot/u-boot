@@ -840,6 +840,13 @@ M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	tools/buildman/
 
+CAAM
+M:	Gaurav Jain <gaurav.jain@nxp.com>
+S:	Maintained
+F:	arch/arm/dts/ls1021a-twr-u-boot.dtsi
+F:	drivers/crypto/fsl/
+F:	include/fsl_sec.h
+
 CAT
 M:	Roger Knecht <rknecht@pm.me>
 S:	Maintained
@@ -1627,10 +1634,3 @@ T:	git https://source.denx.de/u-boot/u-boot.git
 F:	configs/tools-only_defconfig
 F:	*
 F:	*/
-
-CAAM
-M:	Gaurav Jain <gaurav.jain@nxp.com>
-S:	Maintained
-F:	arch/arm/dts/ls1021a-twr-u-boot.dtsi
-F:	drivers/crypto/fsl/
-F:	include/fsl_sec.h
