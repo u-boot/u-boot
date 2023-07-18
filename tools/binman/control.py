@@ -57,8 +57,9 @@ def _ReadImageDesc(binman_node, use_expanded):
     images = OrderedDict()
     if 'multiple-images' in binman_node.props:
         for node in binman_node.subnodes:
-            images[node.name] = Image(node.name, node,
-                                      use_expanded=use_expanded)
+            if 'template' not in node.name:
+                images[node.name] = Image(node.name, node,
+                                          use_expanded=use_expanded)
     else:
         images['image'] = Image('image', binman_node, use_expanded=use_expanded)
     return images

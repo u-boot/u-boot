@@ -6793,6 +6793,18 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         second = U_BOOT_DATA + b'#' + VGA_DATA + U_BOOT_DTB_DATA
         self.assertEqual(U_BOOT_IMG_DATA + first + second, data)
 
+    def testTemplateBlobMulti(self):
+        """Test using a template with 'multiple-images' enabled"""
+        TestFunctional._MakeInputFile('my-blob.bin', b'blob')
+        TestFunctional._MakeInputFile('my-blob2.bin', b'other')
+        retcode = self._DoTestFile('287_template_multi.dts')
+
+        self.assertEqual(0, retcode)
+        image = control.images['image']
+        image_fname = tools.get_output_filename('my-image.bin')
+        data = tools.read_file(image_fname)
+        self.assertEqual(b'blob@@@@other', data)
+
 
 if __name__ == "__main__":
     unittest.main()
