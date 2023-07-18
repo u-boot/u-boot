@@ -194,6 +194,17 @@ int video_fill_part(struct udevice *dev, int xstart, int ystart, int xend,
 	return 0;
 }
 
+int video_reserve_from_bloblist(struct video_handoff *ho)
+{
+	gd->video_bottom = ho->fb;
+	gd->fb_base = ho->fb;
+	gd->video_top = ho->fb + ho->size;
+	debug("Reserving %luk for video using blob at: %08x\n",
+	      ((unsigned long)ho->size) >> 10, (u32)ho->fb);
+
+	return 0;
+}
+
 int video_fill(struct udevice *dev, u32 colour)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);

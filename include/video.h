@@ -406,4 +406,13 @@ int bmp_display(ulong addr, int x, int y);
  */
 int bmp_info(ulong addr);
 
+/*
+ * video_reserve_from_bloblist()- Reserve frame-buffer memory for video devices
+ * using blobs.
+ *
+ * @ho: video information passed from SPL
+ * Returns: 0 (always)
+ */
+int video_reserve_from_bloblist(struct video_handoff *ho);
+
 #endif
