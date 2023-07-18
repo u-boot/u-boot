@@ -168,6 +168,7 @@ class Entry_section(Entry):
         self._end_4gb = False
         self._ignore_missing = False
         self._filename = None
+        self.align_default = 0
 
     def IsSpecialSubnode(self, node):
         """Check if a node is a special one used by the section itself
