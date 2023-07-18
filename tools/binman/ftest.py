@@ -6390,7 +6390,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         err = stderr.getvalue()
         self.assertRegex(
             err,
-            "Image '.*' is missing external blobs but is still functional: missing")
+            "Image '.*' is missing optional external blobs but is still functional: missing")
 
     def testSectionInner(self):
         """Test an inner section with a size"""

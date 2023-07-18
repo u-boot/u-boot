@@ -674,7 +674,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     image.CheckOptional(optional_list)
     if optional_list:
         tout.warning(
-            "Image '%s' is missing external blobs but is still functional: %s" %
+            "Image '%s' is missing optional external blobs but is still functional: %s" %
             (image.name, ' '.join([e.name for e in optional_list])))
         _ShowHelpForMissingBlobs(optional_list)
 
