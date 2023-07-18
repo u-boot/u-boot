@@ -141,7 +141,8 @@ class TestElf(unittest.TestCase):
         entry = FakeEntry(10)
         section = FakeSection()
         elf_fname = self.ElfTestFile('u_boot_binman_syms_bad')
-        elf.LookupAndWriteSymbols(elf_fname, entry, section)
+        count = elf.LookupAndWriteSymbols(elf_fname, entry, section)
+        self.assertEqual(0, count)
 
     def testBadSymbolSize(self):
         """Test that an attempt to use an 8-bit symbol are detected
@@ -162,7 +163,7 @@ class TestElf(unittest.TestCase):
     def testNoValue(self):
         """Test the case where we have no value for the symbol
 
-        This should produce -1 values for all thress symbols, taking up the
+        This should produce -1 values for all three symbols, taking up the
         first 16 bytes of the image.
         """
         if not elf.ELF_TOOLS:
@@ -170,7 +171,8 @@ class TestElf(unittest.TestCase):
         entry = FakeEntry(28)
         section = FakeSection(sym_value=None)
         elf_fname = self.ElfTestFile('u_boot_binman_syms')
-        elf.LookupAndWriteSymbols(elf_fname, entry, section)
+        count = elf.LookupAndWriteSymbols(elf_fname, entry, section)
+        self.assertEqual(5, count)
         expected = (struct.pack('<L', elf.BINMAN_SYM_MAGIC_VALUE) +
                     tools.get_bytes(255, 20) +
                     tools.get_bytes(ord('a'), 4))
