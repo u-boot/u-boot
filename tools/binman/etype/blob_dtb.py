@@ -38,7 +38,7 @@ class Entry_blob_dtb(Entry_blob):
             self.Raise("Invalid prepend in '%s': '%s'" %
                        (self._node.name, self.prepend))
 
-    def ObtainContents(self):
+    def ObtainContents(self, fake_size=0):
         """Get the device-tree from the list held by the 'state' module"""
         self._filename = self.GetDefaultFilename()
         self._pathname, _ = state.GetFdtContents(self.GetFdtEtype())
