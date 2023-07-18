@@ -4,6 +4,6 @@ S:	Maintained
 F:	arch/arm/dts/imx6ull-seeed-npi-imx6ull-dev-board.dts
 F:	arch/arm/dts/imx6ull-seeed-npi-imx6ull-u-boot.dtsi
 F:	arch/arm/dts/imx6ull-seeed-npi-imx6ull.dtsi
-F:	board/seeed/npi-imx6ull/
+F:	board/seeed/npi_imx6ull/
 F:	configs/seeed_npi_imx6ull_defconfig
 F:	include/configs/npi_imx6ull.h
