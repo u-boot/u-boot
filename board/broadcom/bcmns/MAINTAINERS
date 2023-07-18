@@ -2,5 +2,5 @@ BCMNS BOARD
 M:	Linus Walleij <linus.walleij@linaro.org>
 S:	Maintained
 F:	board/broadcom/bcmnsp/
-F:	configs/bcmnsp_defconfig
+F:	configs/bcmns_defconfig
 F:	include/configs/bcmnsp.h

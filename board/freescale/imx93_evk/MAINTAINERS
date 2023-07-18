@@ -4,4 +4,4 @@ S:	Maintained
 F:	board/freescale/imx93_evk/
 F:	include/configs/imx93_evk.h
 F:	configs/imx93_11x11_evk_defconfig
-	configs/imx93_11x11_evk_ld_defconfig
+F:	configs/imx93_11x11_evk_ld_defconfig
