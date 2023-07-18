@@ -316,12 +316,15 @@ class Entry_section(Entry):
         This should be overridden by subclasses which want to build their own
         data structure for the section.
 
+        Missing entries will have be given empty (or fake) data, so are
+        processed normally here.
+
         Args:
             required: True if the data must be present, False if it is OK to
                 return None
 
         Returns:
-            Contents of the section (bytes)
+            Contents of the section (bytes), None if not available
         """
         section_data = bytearray()
 
@@ -710,6 +713,33 @@ class Entry_section(Entry):
 
     def GetEntryContents(self, skip_entry=None):
         """Call ObtainContents() for each entry in the section
+
+        The overall goal of this function is to read in any available data in
+        this entry and any subentries. This includes reading in blobs, setting
+        up objects which have predefined contents, etc.
+
+        Since entry types which contain entries call ObtainContents() on all
+        those entries too, the result is that ObtainContents() is called
+        recursively for the whole tree below this one.
+
+        Entries with subentries are generally not *themselves& processed here,
+        i.e. their ObtainContents() implementation simply obtains contents of
+        their subentries, skipping their own contents. For example, the
+        implementation here (for entry_Section) does not attempt to pack the
+        entries into a final result. That is handled later.
+
+        Generally, calling this results in SetContents() being called for each
+        entry, so that the 'data' and 'contents_size; properties are set, and
+        subsequent calls to GetData() will return value data.
+
+        Where 'allow_missing' is set, this can result in the 'missing' property
+        being set to True if there is no data. This is handled by setting the
+        data to b''. This function will still return success. Future calls to
+        GetData() for this entry will return b'', or in the case where the data
+        is faked, GetData() will return that fake data.
+
+        Args:
+            skip_entry: (single) Entry to skip, or None to process all entries
 
         Note that this may set entry.absent to True if the entry is not
         actually needed

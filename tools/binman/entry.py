@@ -474,6 +474,9 @@ class Entry(object):
     def ObtainContents(self, skip_entry=None, fake_size=0):
         """Figure out the contents of an entry.
 
+        For missing blobs (where allow-missing is enabled), the contents are set
+        to b'' and self.missing is set to True.
+
         Args:
             skip_entry (Entry): Entry to skip when obtaining section contents
             fake_size (int): Size of fake file to create if needed
