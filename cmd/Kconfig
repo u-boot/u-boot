@@ -2005,6 +2005,7 @@ config CMD_2048
 config CMD_BMP
 	bool "Enable 'bmp' command"
 	depends on VIDEO
+	select BMP
 	help
 	  This provides a way to obtain information about a BMP-format image
 	  and to display it. BMP (which presumably stands for BitMaP) is a
