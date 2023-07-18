@@ -121,7 +121,6 @@ class Entry_mkimage(Entry):
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)
-        self._multiple_data_files = fdt_util.GetBool(self._node, 'multiple-data-files')
         self._mkimage_entries = OrderedDict()
         self._imagename = None
         self._filename = fdt_util.GetString(self._node, 'filename')
@@ -129,6 +128,8 @@ class Entry_mkimage(Entry):
 
     def ReadNode(self):
         super().ReadNode()
+        self._multiple_data_files = fdt_util.GetBool(self._node,
+                                                     'multiple-data-files')
         self._args = fdt_util.GetArgs(self._node, 'args')
         self._data_to_imagename = fdt_util.GetBool(self._node,
                                                    'data-to-imagename')
