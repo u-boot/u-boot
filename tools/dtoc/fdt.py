@@ -748,6 +748,28 @@ class Node:
             dst.copy_node(node)
         return dst
 
+    def copy_subnodes_from_phandles(self, phandle_list):
+        """Copy subnodes of a list of nodes into another node
+
+        Args:
+            phandle_list (list of int): List of phandles of nodes to copy
+
+        For each node in the phandle list, its subnodes and their properties are
+        copied recursively. Note that it does not copy the node itself, nor its
+        properties.
+        """
+        # Process in reverse order, since new nodes are inserted at the start of
+        # the destination's node list. We want them to appear in order of the
+        # phandle list
+        for phandle in phandle_list.__reversed__():
+            parent = self.GetFdt().LookupPhandle(phandle)
+            tout.debug(f'adding template {parent.path} to node {self.path}')
+            for node in parent.subnodes.__reversed__():
+                dst = self.copy_node(node)
+
+            tout.debug(f'merge props from {parent.path} to {dst.path}')
+            self.merge_props(parent)
+
 
 class Fdt:
     """Provides simple access to a flat device tree blob using libfdts.

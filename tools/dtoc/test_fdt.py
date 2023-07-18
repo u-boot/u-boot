@@ -380,6 +380,45 @@ class TestNode(unittest.TestCase):
         dst = new_dtb.GetNode('/dest')
         do_copy_checks(new_dtb, dst, expect_none=False)
 
+    def test_copy_subnodes_from_phandles(self):
+        """Test copy_node() function"""
+        dtb = fdt.FdtScan(find_dtb_file('dtoc_test_copy.dts'))
+
+        orig = dtb.GetNode('/')
+        node_list = fdt_util.GetPhandleList(orig, 'copy-list')
+
+        dst = dtb.GetNode('/dest')
+        dst.copy_subnodes_from_phandles(node_list)
+
+        pmic = dtb.GetNode('/dest/over')
+        self.assertTrue(pmic)
+
+        subn = dtb.GetNode('/dest/first@0')
+        self.assertTrue(subn)
+        self.assertEqual({'a-prop', 'b-prop', 'reg'}, subn.props.keys())
+
+        self.assertEqual(
+            ['/dest/earlier', '/dest/later', '/dest/over', '/dest/first@0',
+             '/dest/second', '/dest/existing', '/dest/base'],
+            [n.path for n in dst.subnodes])
+
+        # Make sure that the phandle for 'over' is not copied
+        over = dst.FindNode('over')
+        print('keys', over.props.keys())
+        self.assertNotIn('phandle', over.props.keys())
+
+        # Check the merged properties, first the base ones in '/dest'
+        expect = {'bootph-all', 'compatible', 'stringarray', 'longbytearray',
+                  'maybe-empty-int'}
+
+        # Properties from 'base'
+        expect.update({'#address-cells', '#size-cells'})
+
+        # Properties from 'another'
+        expect.add('new-prop')
+
+        self.assertEqual(expect, set(dst.props.keys()))
+
 
 class TestProp(unittest.TestCase):
     """Test operation of the Prop class"""
