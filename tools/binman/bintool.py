@@ -288,7 +288,7 @@ class Bintool:
         name = os.path.expanduser(self.name)  # Expand paths containing ~
         all_args = (name,) + args
         env = tools.get_env_with_path()
-        tout.detail(f"bintool: {' '.join(all_args)}")
+        tout.debug(f"bintool: {' '.join(all_args)}")
         result = command.run_pipe(
             [all_args], capture=True, capture_stderr=True, env=env,
             raise_on_error=False, binary=binary)

@@ -385,8 +385,8 @@ def SetInt(node, prop, value, for_repack=False):
         for_repack: True is this property is only needed for repacking
     """
     for n in GetUpdateNodes(node, for_repack):
-        tout.detail("File %s: Update node '%s' prop '%s' to %#x" %
-                    (n.GetFdt().name, n.path, prop, value))
+        tout.debug("File %s: Update node '%s' prop '%s' to %#x" %
+                   (n.GetFdt().name, n.path, prop, value))
         n.SetInt(prop, value)
 
 def CheckAddHashProp(node):
