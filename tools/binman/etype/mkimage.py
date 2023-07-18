@@ -218,3 +218,39 @@ class Entry_mkimage(Entry_section):
 
     def CheckEntries(self):
         pass
+
+    def ProcessContents(self):
+        # The blob may have changed due to WriteSymbols()
+        ok = super().ProcessContents()
+        data = self.BuildSectionData(True)
+        ok2 = self.ProcessContentsUpdate(data)
+        return ok and ok2
+
+    def SetImagePos(self, image_pos):
+        """Set the position in the image
+
+        This sets each subentry's offsets, sizes and positions-in-image
+        according to where they ended up in the packed mkimage file.
+
+        NOTE: This assumes a legacy mkimage and assumes that the images are
+        written to the output in order. SoC-specific mkimage handling may not
+        conform to this, in which case these values may be wrong.
+
+        Args:
+            image_pos (int): Position of this entry in the image
+        """
+        # The mkimage header consists of 0x40 bytes, following by a table of
+        # offsets for each file
+        upto = 0x40
+
+        # Skip the 0-terminated list of offsets (assume a single image)
+        upto += 4 + 4
+        for entry in self.GetEntries().values():
+            entry.SetOffsetSize(upto, None)
+
+            # Give up if any entries lack a size
+            if entry.size is None:
+                return
+            upto += entry.size
+
+        super().SetImagePos(image_pos)

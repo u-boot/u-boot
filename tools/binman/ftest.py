@@ -6820,6 +6820,70 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         second = U_BOOT_DATA + b'#' + VGA_DATA + U_BOOT_DTB_DATA
         self.assertEqual(U_BOOT_IMG_DATA + first + second + first, data)
 
+    def testMkimageSymbols(self):
+        """Test using mkimage to build an image with symbols in it"""
+        self._SetupSplElf('u_boot_binman_syms')
+        data = self._DoReadFile('290_mkimage_sym.dts')
+
+        image = control.images['image']
+        entries = image.GetEntries()
+        self.assertIn('u-boot', entries)
+        u_boot = entries['u-boot']
+
+        mkim = entries['mkimage']
+        mkim_entries = mkim.GetEntries()
+        self.assertIn('u-boot-spl', mkim_entries)
+        spl = mkim_entries['u-boot-spl']
+        self.assertIn('u-boot-spl2', mkim_entries)
+        spl2 = mkim_entries['u-boot-spl2']
+
+        # skip the mkimage header and the area sizes
+        mk_data = data[mkim.offset + 0x40:]
+        size, term = struct.unpack('>LL', mk_data[:8])
+
+        # There should be only one image, so check that the zero terminator is
+        # present
+        self.assertEqual(0, term)
+
+        content = mk_data[8:8 + size]
+
+        # The image should contain the symbols from u_boot_binman_syms.c
+        # Note that image_pos is adjusted by the base address of the image,
+        # which is 0x10 in our test image
+        spl_data = content[:0x18]
+        content = content[0x1b:]
+
+        # After the header is a table of offsets for each image. There should
+        # only be one image, then a 0 terminator, so figure out the real start
+        # of the image data
+        base = 0x40 + 8
+
+        # Check symbols in both u-boot-spl and u-boot-spl2
+        for i in range(2):
+            vals = struct.unpack('<LLQLL', spl_data)
+
+            # The image should contain the symbols from u_boot_binman_syms.c
+            # Note that image_pos is adjusted by the base address of the image,
+            # which is 0x10 in our 'u_boot_binman_syms' test image
+            self.assertEqual(elf.BINMAN_SYM_MAGIC_VALUE, vals[0])
+            self.assertEqual(base, vals[1])
+            self.assertEqual(spl2.offset, vals[2])
+            # figure out the internal positions of its components
+            self.assertEqual(0x10 + u_boot.image_pos, vals[3])
+
+            # Check that spl and spl2 are actually at the indicated positions
+            self.assertEqual(
+                elf.BINMAN_SYM_MAGIC_VALUE,
+                struct.unpack('<I', data[spl.image_pos:spl.image_pos + 4])[0])
+            self.assertEqual(
+                elf.BINMAN_SYM_MAGIC_VALUE,
+                struct.unpack('<I', data[spl2.image_pos:spl2.image_pos + 4])[0])
+
+            self.assertEqual(len(U_BOOT_DATA), vals[4])
+
+            # Move to next
+            spl_data = content[:0x18]
+
 
 if __name__ == "__main__":
     unittest.main()
