@@ -142,11 +142,17 @@ const struct toradex_som toradex_modules[] = {
 	[70] = { "Verdin iMX8M Plus Quad 8GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
 };
 
-const char * const toradex_carrier_boards[] = {
-	[0] = "UNKNOWN CARRIER BOARD",
-	[155] = "Dahlia",
-	[156] = "Verdin Development Board",
-	[173] = "Yavia",
+struct pid4list {
+	int pid4;
+	char * const name;
+};
+
+const struct pid4list toradex_carrier_boards[] = {
+	/* the code assumes unknown at index 0 */
+	{0,				"UNKNOWN CARRIER BOARD"},
+	{DAHLIA,			"Dahlia"},
+	{VERDIN_DEVELOPMENT_BOARD,	"Verdin Development Board"},
+	{YAVIA,				"Yavia"},
 };
 
 const char * const toradex_display_adapters[] = {
@@ -159,6 +165,19 @@ const u32 toradex_ouis[] = {
 	[0] = 0x00142dUL,
 	[1] = 0x8c06cbUL,
 };
+
+const char * const get_toradex_carrier_boards(int pid4)
+{
+	int i, index = 0;
+
+	for (i = 1; i < ARRAY_SIZE(toradex_carrier_boards); i++) {
+		if (pid4 == toradex_carrier_boards[i].pid4) {
+			index = i;
+			break;
+		}
+	}
+	return toradex_carrier_boards[index].name;
+}
 
 static u32 get_serial_from_mac(struct toradex_eth_addr *eth_addr)
 {
@@ -639,10 +658,11 @@ static int get_cfgblock_carrier_interactive(void)
 	int ret = 0;
 
 	printf("Supported carrier boards:\n");
-	printf("CARRIER BOARD NAME\t\t [ID]\n");
+	printf("%30s\t[ID]\n", "CARRIER BOARD NAME");
 	for (int i = 0; i < ARRAY_SIZE(toradex_carrier_boards); i++)
-		if (toradex_carrier_boards[i])
-			printf("%s \t\t [%d]\n", toradex_carrier_boards[i], i);
+		printf("%30s\t[%d]\n",
+		       toradex_carrier_boards[i].name,
+		       toradex_carrier_boards[i].pid4);
 
 	sprintf(message, "Choose your carrier board (provide ID): ");
 	len = cli_readline(message);

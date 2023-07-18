@@ -101,6 +101,7 @@ enum {
 enum {
 	DAHLIA = 155,
 	VERDIN_DEVELOPMENT_BOARD = 156,
+	YAVIA = 173,
 };
 
 enum {
@@ -109,7 +110,6 @@ enum {
 };
 
 extern const struct toradex_som toradex_modules[];
-extern const char * const toradex_carrier_boards[];
 extern bool valid_cfgblock;
 extern struct toradex_hw tdx_hw_tag;
 extern struct toradex_hw tdx_car_hw_tag;
@@ -119,6 +119,7 @@ extern u32 tdx_car_serial;
 
 int read_tdx_cfg_block(void);
 int read_tdx_cfg_block_carrier(void);
+const char * const get_toradex_carrier_boards(int pid4);
 
 int try_migrate_tdx_cfg_block_carrier(void);
 
