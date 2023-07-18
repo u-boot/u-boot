@@ -194,3 +194,13 @@ Documentation is available via::
 
 
 
+Bintool: fdt_add_pubkey: Add public key to device tree
+------------------------------------------------------
+
+This bintool supports running `fdt_add_pubkey` in order to add a public
+key coming from a certificate to a device-tree.
+
+Normally signing is done using `mkimage` in context of `binman sign`. However,
+in this process the public key is not added to the stage before u-boot proper.
+Using `fdt_add_pubkey` the key can be injected to the SPL independent of
+`mkimage`
