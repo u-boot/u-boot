@@ -720,7 +720,7 @@ class Entry_section(Entry):
                     next_todo.append(entry)
             return entry
 
-        todo = self._entries.values()
+        todo = self.GetEntries().values()
         for passnum in range(3):
             threads = state.GetThreads()
             next_todo = []
@@ -893,7 +893,7 @@ class Entry_section(Entry):
             allow_missing: True if allowed, False if not allowed
         """
         self.allow_missing = allow_missing
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.SetAllowMissing(allow_missing)
 
     def SetAllowFakeBlob(self, allow_fake):
@@ -903,7 +903,7 @@ class Entry_section(Entry):
             allow_fake: True if allowed, False if not allowed
         """
         super().SetAllowFakeBlob(allow_fake)
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.SetAllowFakeBlob(allow_fake)
 
     def CheckMissing(self, missing_list):
@@ -915,7 +915,7 @@ class Entry_section(Entry):
         Args:
             missing_list: List of Entry objects to be added to
         """
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.CheckMissing(missing_list)
 
     def CheckFakedBlobs(self, faked_blobs_list):
@@ -926,7 +926,7 @@ class Entry_section(Entry):
         Args:
             faked_blobs_list: List of Entry objects to be added to
         """
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.CheckFakedBlobs(faked_blobs_list)
 
     def CheckOptional(self, optional_list):
@@ -937,7 +937,7 @@ class Entry_section(Entry):
         Args:
             optional_list (list): List of Entry objects to be added to
         """
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.CheckOptional(optional_list)
 
     def check_missing_bintools(self, missing_list):
@@ -949,7 +949,7 @@ class Entry_section(Entry):
             missing_list: List of Bintool objects to be added to
         """
         super().check_missing_bintools(missing_list)
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.check_missing_bintools(missing_list)
 
     def _CollectEntries(self, entries, entries_by_name, add_entry):
@@ -999,12 +999,12 @@ class Entry_section(Entry):
             entry.Raise(f'Missing required properties/entry args: {missing}')
 
     def CheckAltFormats(self, alt_formats):
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.CheckAltFormats(alt_formats)
 
     def AddBintools(self, btools):
         super().AddBintools(btools)
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.AddBintools(btools)
 
     def read_elf_segments(self):
