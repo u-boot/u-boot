@@ -727,6 +727,13 @@ optional:
     Note that missing, optional blobs do not produce a non-zero exit code from
     binman, although it does show a warning about the missing external blob.
 
+insert-template:
+    This is not strictly speaking an entry property, since it is processed early
+    in Binman before the entries are read. It is a list of phandles of nodes to
+    include in the current (target) node. For each node, its subnodes and their
+    properties are brought into the target node. See Templates_ below for
+    more information.
+
 The attributes supported for images and sections are described below. Several
 are similar to those for entries.
 
@@ -1170,6 +1177,86 @@ If you are having trouble figuring out what is going on, you can use
      arch/arm/dts/juno-r2-u-boot.dtsi arch/arm/dts/-u-boot.dtsi
      arch/arm/dts/armv8-u-boot.dtsi arch/arm/dts/armltd-u-boot.dtsi
      arch/arm/dts/u-boot.dtsi ... found: "arch/arm/dts/juno-r2-u-boot.dtsi"
+
+
+Templates
+=========
+
+Sometimes multiple images need to be created which have all have a common
+part. For example, a board may generate SPI and eMMC images which both include
+a FIT. Since the FIT includes many entries, it is tedious to repeat them twice
+in the image description.
+
+Templates provide a simple way to handle this::
+
+    binman {
+        multiple-images;
+        common_part: template-1 {
+            some-property;
+            fit {
+                ... lots of entries in here
+            };
+
+            text {
+                text = "base image";
+            };
+        };
+
+        spi-image {
+            filename = "image-spi.bin";
+            insert-template = <&fit>;
+
+            /* things specific to SPI follow */
+            footer {
+            ];
+
+            text {
+                text = "SPI image";
+            };
+        };
+
+        mmc-image {
+            filename = "image-mmc.bin";
+            insert-template = <&fit>;
+
+            /* things specific to MMC follow */
+            footer {
+            ];
+
+            text {
+                text = "MMC image";
+            };
+        };
+    };
+
+The template node name must start with 'template', so it is not considered to be
+an image itself.
+
+The mechanism is very simple. For each phandle in the 'insert-templates'
+property, the source node is looked up. Then the subnodes of that source node
+are copied into the target node, i.e. the one containing the `insert-template`
+property.
+
+If the target node has a node with the same name as a template, its properties
+override corresponding properties in the template. This allows the template to
+be uses as a base, with the node providing updates to the properties as needed.
+The overriding happens recursively.
+
+Template nodes appear first in each node that they are inserted into and
+ordering of template nodes is preserved. Other nodes come afterwards. If a
+template node also appears in the target node, then the template node sets the
+order. Thus the template can be used to set the ordering, even if the target
+node provides all the properties. In the above example, `fit` and `text` appear
+first in the `spi-image` and `mmc-image` images, followed by `footer`.
+
+Where there are multiple template nodes, they are inserted in that order. so
+the first template node appears first, then the second.
+
+Properties in the template node are inserted into the destination node if they
+do not exist there. In the example above, `some-property` is added to each of
+`spi-image` and `mmc-image`.
+
+Note that template nodes are not removed from the binman description at present.
 
 
 Updating an ELF file

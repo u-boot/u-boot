@@ -22,6 +22,7 @@ from binman import bintool
 from binman import cbfs_util
 from binman import elf
 from binman import entry
+from dtoc import fdt_util
 from u_boot_pylib import command
 from u_boot_pylib import tools
 from u_boot_pylib import tout
@@ -478,6 +479,29 @@ def SignEntries(image_fname, input_fname, privatekey_fname, algo, entry_paths,
 
     AfterReplace(image, allow_resize=True, write_map=write_map)
 
+def _ProcessTemplates(parent):
+    """Handle any templates in the binman description
+
+    Args:
+        parent: Binman node to process (typically /binman)
+
+    Search though each target node looking for those with an 'insert-template'
+    property. Use that as a list of references to template nodes to use to
+    adjust the target node.
+
+    Processing involves copying each subnode of the template node into the
+    target node.
+
+    For now this is not done recursively, so templates must be at the top level
+    of the binman image.
+
+    See 'Templates' in the Binman documnentation for details.
+    """
+    for node in parent.subnodes:
+        tmpl = fdt_util.GetPhandleList(node, 'insert-template')
+        if tmpl:
+            node.copy_subnodes_from_phandles(tmpl)
+
 def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     """Prepare the images to be processed and select the device tree
 
@@ -519,6 +543,8 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     if not node:
         raise ValueError("Device tree '%s' does not have a 'binman' "
                             "node" % dtb_fname)
+
+    _ProcessTemplates(node)
 
     images = _ReadImageDesc(node, use_expanded)
 
