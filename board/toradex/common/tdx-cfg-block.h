@@ -120,7 +120,7 @@ extern u32 tdx_car_serial;
 int read_tdx_cfg_block(void);
 int read_tdx_cfg_block_carrier(void);
 const char * const get_toradex_carrier_boards(int pid4);
-
+const char * const get_toradex_display_adapters(int pid4);
 int try_migrate_tdx_cfg_block_carrier(void);
 
 void get_mac_from_serial(u32 tdx_serial, struct toradex_eth_addr *eth_addr);

@@ -155,10 +155,11 @@ const struct pid4list toradex_carrier_boards[] = {
 	{YAVIA,				"Yavia"},
 };
 
-const char * const toradex_display_adapters[] = {
-	[0] = "UNKNOWN DISPLAY ADAPTER",
-	[157] = "Verdin DSI to HDMI Adapter",
-	[159] = "Verdin DSI to LVDS Adapter",
+const struct pid4list toradex_display_adapters[] = {
+	/* the code assumes unknown at index 0 */
+	{0,				"UNKNOWN DISPLAY ADAPTER"},
+	{VERDIN_DSI_TO_HDMI_ADAPTER,	"Verdin DSI to HDMI Adapter"},
+	{VERDIN_DSI_TO_LVDS_ADAPTER,	"Verdin DSI to LVDS Adapter"},
 };
 
 const u32 toradex_ouis[] = {
@@ -177,6 +178,19 @@ const char * const get_toradex_carrier_boards(int pid4)
 		}
 	}
 	return toradex_carrier_boards[index].name;
+}
+
+const char * const get_toradex_display_adapters(int pid4)
+{
+	int i, index = 0;
+
+	for (i = 1; i < ARRAY_SIZE(toradex_display_adapters); i++) {
+		if (pid4 == toradex_display_adapters[i].pid4) {
+			index = i;
+			break;
+		}
+	}
+	return toradex_display_adapters[index].name;
 }
 
 static u32 get_serial_from_mac(struct toradex_eth_addr *eth_addr)
