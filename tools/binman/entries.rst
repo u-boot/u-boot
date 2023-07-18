@@ -615,6 +615,12 @@ The top-level 'fit' node supports the following special properties:
         `of-list` meaning that `-a of-list="dtb1 dtb2..."` should be passed
         to binman.
 
+    fit,fdt-list-val
+        As an alternative to fit,fdt-list the list of device tree files
+        can be provided in this property as a string list, e.g.::
+
+            fit,fdt-list-val = "dtb1", "dtb2";
+
 Substitutions
 ~~~~~~~~~~~~~
 

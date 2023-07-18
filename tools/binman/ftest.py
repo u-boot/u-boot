@@ -6761,6 +6761,18 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         # Just check that the data appears in the file somewhere
         self.assertIn(U_BOOT_DATA, data)
 
+    def testFitFdtList(self):
+        """Test an image with an FIT with the fit,fdt-list-val option"""
+        entry_args = {
+            'default-dt': 'test-fdt2',
+        }
+        data = self._DoReadFileDtb(
+            '284_fit_fdt_list.dts',
+            entry_args=entry_args,
+            extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
+        self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
+        fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
+
 
 if __name__ == "__main__":
     unittest.main()
