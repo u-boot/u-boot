@@ -1314,10 +1314,8 @@ features to produce new behaviours.
         """
         data = b''
         for entry in entries:
-            # First get the input data and put it in a file. If not available,
-            # try later.
-            if not entry.ObtainContents(fake_size=fake_size):
-                return None, None, None
+            # First get the input data and put it in a file
+            entry.ObtainContents(fake_size=fake_size)
             data += entry.GetData()
         uniq = self.GetUniqueName()
         fname = tools.get_output_filename(f'{prefix}.{uniq}')

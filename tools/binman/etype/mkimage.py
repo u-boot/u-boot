@@ -8,10 +8,11 @@
 from collections import OrderedDict
 
 from binman.entry import Entry
+from binman.etype.section import Entry_section
 from dtoc import fdt_util
 from u_boot_pylib import tools
 
-class Entry_mkimage(Entry):
+class Entry_mkimage(Entry_section):
     """Binary produced by mkimage
 
     Properties / Entry arguments:
@@ -121,10 +122,8 @@ class Entry_mkimage(Entry):
     """
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)
-        self._mkimage_entries = OrderedDict()
         self._imagename = None
-        self._filename = fdt_util.GetString(self._node, 'filename')
-        self.align_default = None
+        self._multiple_data_files = False
 
     def ReadNode(self):
         super().ReadNode()
@@ -135,41 +134,55 @@ class Entry_mkimage(Entry):
                                                    'data-to-imagename')
         if self._data_to_imagename and self._node.FindNode('imagename'):
             self.Raise('Cannot use both imagename node and data-to-imagename')
-        self.ReadEntries()
 
     def ReadEntries(self):
         """Read the subnodes to find out what should go in this image"""
         for node in self._node.subnodes:
-            entry = Entry.Create(self, node)
+            if self.IsSpecialSubnode(node):
+                continue
+            entry = Entry.Create(self, node,
+                                 expanded=self.GetImage().use_expanded,
+                                 missing_etype=self.GetImage().missing_etype)
             entry.ReadNode()
+            entry.SetPrefix(self._name_prefix)
             if entry.name == 'imagename':
                 self._imagename = entry
             else:
-                self._mkimage_entries[entry.name] = entry
+                self._entries[entry.name] = entry
 
-    def ObtainContents(self):
+    def BuildSectionData(self, required):
+        """Build mkimage entry contents
+
+        Runs mkimage to build the entry contents
+
+        Args:
+            required (bool): True if the data must be present, False if it is OK
+                to return None
+
+        Returns:
+            bytes: Contents of the section
+        """
         # Use a non-zero size for any fake files to keep mkimage happy
         # Note that testMkimageImagename() relies on this 'mkimage' parameter
         fake_size = 1024
         if self._multiple_data_files:
             fnames = []
             uniq = self.GetUniqueName()
-            for entry in self._mkimage_entries.values():
-                if not entry.ObtainContents(fake_size=fake_size):
-                    return False
-                if entry._pathname:
-                    fnames.append(entry._pathname)
+            for entry in self._entries.values():
+                # Put the contents in a temporary file
+                ename = f'mkimage-in-{uniq}-{entry.name}'
+                fname = tools.get_output_filename(ename)
+                data = entry.GetData(required)
+                tools.write_file(fname, data)
+                fnames.append(fname)
             input_fname = ":".join(fnames)
+            data = b''
         else:
             data, input_fname, uniq = self.collect_contents_to_file(
-                self._mkimage_entries.values(), 'mkimage', fake_size)
-            if data is None:
-                return False
+                self._entries.values(), 'mkimage', fake_size)
         if self._imagename:
             image_data, imagename_fname, _ = self.collect_contents_to_file(
                 [self._imagename], 'mkimage-n', 1024)
-            if image_data is None:
-                return False
         outfile = self._filename if self._filename else 'mkimage-out.%s' % uniq
         output_fname = tools.get_output_filename(outfile)
 
@@ -177,8 +190,7 @@ class Entry_mkimage(Entry):
         self.CheckMissing(missing_list)
         self.missing = bool(missing_list)
         if self.missing:
-            self.SetContents(b'')
-            return self.allow_missing
+            return b''
 
         args = ['-d', input_fname]
         if self._data_to_imagename:
@@ -187,71 +199,22 @@ class Entry_mkimage(Entry):
             args += ['-n', imagename_fname]
         args += self._args + [output_fname]
         if self.mkimage.run_cmd(*args) is not None:
-            self.SetContents(tools.read_file(output_fname))
+            return tools.read_file(output_fname)
         else:
             # Bintool is missing; just use the input data as the output
             self.record_missing_bintool(self.mkimage)
-            self.SetContents(data)
-
-        return True
+            return data
 
     def GetEntries(self):
         # Make a copy so we don't change the original
-        entries = OrderedDict(self._mkimage_entries)
+        entries = OrderedDict(self._entries)
         if self._imagename:
             entries['imagename'] = self._imagename
         return entries
 
-    def SetAllowMissing(self, allow_missing):
-        """Set whether a section allows missing external blobs
-
-        Args:
-            allow_missing: True if allowed, False if not allowed
-        """
-        self.allow_missing = allow_missing
-        for entry in self._mkimage_entries.values():
-            entry.SetAllowMissing(allow_missing)
-        if self._imagename:
-            self._imagename.SetAllowMissing(allow_missing)
-
-    def SetAllowFakeBlob(self, allow_fake):
-        """Set whether the sub nodes allows to create a fake blob
-
-        Args:
-            allow_fake: True if allowed, False if not allowed
-        """
-        for entry in self._mkimage_entries.values():
-            entry.SetAllowFakeBlob(allow_fake)
-        if self._imagename:
-            self._imagename.SetAllowFakeBlob(allow_fake)
-
-    def CheckMissing(self, missing_list):
-        """Check if any entries in this section have missing external blobs
-
-        If there are missing (non-optional) blobs, the entries are added to the
-        list
-
-        Args:
-            missing_list: List of Entry objects to be added to
-        """
-        for entry in self._mkimage_entries.values():
-            entry.CheckMissing(missing_list)
-        if self._imagename:
-            self._imagename.CheckMissing(missing_list)
-
-    def CheckFakedBlobs(self, faked_blobs_list):
-        """Check if any entries in this section have faked external blobs
-
-        If there are faked blobs, the entries are added to the list
-
-        Args:
-            faked_blobs_list: List of Entry objects to be added to
-        """
-        for entry in self._mkimage_entries.values():
-            entry.CheckFakedBlobs(faked_blobs_list)
-        if self._imagename:
-            self._imagename.CheckFakedBlobs(faked_blobs_list)
-
     def AddBintools(self, btools):
         super().AddBintools(btools)
         self.mkimage = self.AddBintool(btools, 'mkimage')
+
+    def CheckEntries(self):
+        pass
