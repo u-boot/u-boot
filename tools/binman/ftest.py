@@ -6812,6 +6812,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         tools.write_file(fname, fit_data)
         out = tools.run('dumpimage', '-l', fname)
 
+    def testTemplateSection(self):
+        """Test using a template in a section (not at top level)"""
+        TestFunctional._MakeInputFile('vga2.bin', b'#' + VGA_DATA)
+        data = self._DoReadFile('289_template_section.dts')
+        first = U_BOOT_DATA + VGA_DATA + U_BOOT_DTB_DATA
+        second = U_BOOT_DATA + b'#' + VGA_DATA + U_BOOT_DTB_DATA
+        self.assertEqual(U_BOOT_IMG_DATA + first + second + first, data)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -493,8 +493,8 @@ def _ProcessTemplates(parent):
     Processing involves copying each subnode of the template node into the
     target node.
 
-    For now this is not done recursively, so templates must be at the top level
-    of the binman image.
+    This is done recursively, so templates can be at any level of the binman
+    image, e.g. inside a section.
 
     See 'Templates' in the Binman documnentation for details.
     """
@@ -502,6 +502,7 @@ def _ProcessTemplates(parent):
         tmpl = fdt_util.GetPhandleList(node, 'insert-template')
         if tmpl:
             node.copy_subnodes_from_phandles(tmpl)
+        _ProcessTemplates(node)
 
 def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     """Prepare the images to be processed and select the device tree
