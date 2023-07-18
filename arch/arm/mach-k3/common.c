@@ -538,8 +538,10 @@ void spl_enable_dcache(void)
 		ram_top = (phys_addr_t) 0x100000000;
 
 	gd->arch.tlb_addr = ram_top - gd->arch.tlb_size;
+	gd->arch.tlb_addr &= ~(0x10000 - 1);
 	debug("TLB table from %08lx to %08lx\n", gd->arch.tlb_addr,
 	      gd->arch.tlb_addr + gd->arch.tlb_size);
+	gd->relocaddr = gd->arch.tlb_addr;
 
 	dcache_enable();
 #endif
