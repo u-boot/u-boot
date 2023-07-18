@@ -112,12 +112,12 @@ def _ReadMissingBlobHelp():
     _FinishTag(tag, msg, result)
     return result
 
-def _ShowBlobHelp(path, text):
-    tout.warning('\n%s:' % path)
+def _ShowBlobHelp(level, path, text):
+    tout.do_output(level, '\n%s:' % path)
     for line in text.splitlines():
-        tout.warning('   %s' % line)
+        tout.do_output(level, '   %s' % line)
 
-def _ShowHelpForMissingBlobs(missing_list):
+def _ShowHelpForMissingBlobs(level, missing_list):
     """Show help for each missing blob to help the user take action
 
     Args:
@@ -134,7 +134,7 @@ def _ShowHelpForMissingBlobs(missing_list):
         # Show the first match help message
         for tag in tags:
             if tag in missing_blob_help:
-                _ShowBlobHelp(entry._node.path, missing_blob_help[tag])
+                _ShowBlobHelp(level, entry._node.path, missing_blob_help[tag])
                 break
 
 def GetEntryModules(include_testing=True):
@@ -658,9 +658,9 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     missing_list = []
     image.CheckMissing(missing_list)
     if missing_list:
-        tout.warning("Image '%s' is missing external blobs and is non-functional: %s" %
-                     (image.name, ' '.join([e.name for e in missing_list])))
-        _ShowHelpForMissingBlobs(missing_list)
+        tout.error("Image '%s' is missing external blobs and is non-functional: %s" %
+                   (image.name, ' '.join([e.name for e in missing_list])))
+        _ShowHelpForMissingBlobs(tout.ERROR, missing_list)
 
     faked_list = []
     image.CheckFakedBlobs(faked_list)
@@ -676,7 +676,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
         tout.warning(
             "Image '%s' is missing optional external blobs but is still functional: %s" %
             (image.name, ' '.join([e.name for e in optional_list])))
-        _ShowHelpForMissingBlobs(optional_list)
+        _ShowHelpForMissingBlobs(tout.WARNING, optional_list)
 
     missing_bintool_list = []
     image.check_missing_bintools(missing_bintool_list)
