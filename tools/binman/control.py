@@ -112,8 +112,8 @@ def _ReadMissingBlobHelp():
     _FinishTag(tag, msg, result)
     return result
 
-def _ShowBlobHelp(level, path, text):
-    tout.do_output(level, '%s:' % path)
+def _ShowBlobHelp(level, path, text, fname):
+    tout.do_output(level, '%s (%s):' % (path, fname))
     for line in text.splitlines():
         tout.do_output(level, '   %s' % line)
     tout.do_output(level, '')
@@ -133,10 +133,17 @@ def _ShowHelpForMissingBlobs(level, missing_list):
         tags = entry.GetHelpTags()
 
         # Show the first match help message
+        shown_help = False
         for tag in tags:
             if tag in missing_blob_help:
-                _ShowBlobHelp(level, entry._node.path, missing_blob_help[tag])
+                _ShowBlobHelp(level, entry._node.path, missing_blob_help[tag],
+                              entry.GetDefaultFilename())
+                shown_help = True
                 break
+        # Or a generic help message
+        if not shown_help:
+            _ShowBlobHelp(level, entry._node.path, "Missing blob",
+                          entry.GetDefaultFilename())
 
 def GetEntryModules(include_testing=True):
     """Get a set of entry class implementations

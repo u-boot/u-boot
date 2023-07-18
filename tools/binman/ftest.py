@@ -3806,6 +3806,7 @@ class TestFunctional(unittest.TestCase):
                                    allow_missing=True)
         self.assertEqual(103, ret)
         err = stderr.getvalue()
+        self.assertIn('(missing-file)', err)
         self.assertRegex(err, "Image 'image'.*missing.*: blob-ext")
         self.assertIn('Some images are invalid', err)
 
@@ -3816,6 +3817,7 @@ class TestFunctional(unittest.TestCase):
                                    allow_missing=True, ignore_missing=True)
         self.assertEqual(0, ret)
         err = stderr.getvalue()
+        self.assertIn('(missing-file)', err)
         self.assertRegex(err, "Image 'image'.*missing.*: blob-ext")
         self.assertIn('Some images are invalid', err)
 
