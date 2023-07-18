@@ -871,6 +871,12 @@ config IHS_VIDEO_OUT
 	  out On-screen Display (OSD) used on gdsys FPGAs to control dynamic
 	  textual overlays of the display outputs.
 
+config VIDEO_REMOVE
+	bool "Remove video driver"
+	help
+	  Use this option to specify if user wants to call remove method of
+	  video driver in u-boot proper stage.
+
 config SPLASH_SCREEN
 	bool "Show a splash-screen image"
 	help
@@ -1093,6 +1099,12 @@ config SPL_SYS_WHITE_ON_BLACK
 	 option to invert this, i.e. white on a black background at spl stage.
 	 This can be better in low-light situations or to reduce eye strain in
 	 some cases.
+
+config SPL_VIDEO_REMOVE
+	bool "Remove video driver after SPL stage"
+	help
+	  if this  option is enabled video driver will be removed at the end of
+	  SPL stage, beforeloading the next stage.
 
 if SPL_SPLASH_SCREEN
 
