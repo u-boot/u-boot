@@ -43,7 +43,7 @@ for the external TPL binary is https://github.com/rockchip-linux/rkbin.
 
 tee-os:
 See the documentation for your board. You may need to build Open Portable
-Trusted Execution Environment (OP-TEE) with TEE=/path/to/tee.bin
+Trusted Execution Environment (OP-TEE) and build with TEE=/path/to/tee.bin
 
 opensbi:
 See the documentation for your board. The OpenSBI git repo is at
