@@ -25,6 +25,7 @@
 					fit,data;
 
 					tee-os {
+						optional;
 					};
 				};
 			};

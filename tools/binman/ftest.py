@@ -6358,6 +6358,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                          fdt_util.fdt32_to_cpu(node.props['entry'].value))
         self.assertEqual(U_BOOT_DATA, node.props['data'].bytes)
 
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self.checkFitTee('264_tee_os_opt_fit.dts', '')
+        err = stderr.getvalue()
+        self.assertRegex(
+            err,
+            "Image '.*' is missing optional external blobs but is still functional: tee-os")
+
     def testFitTeeOsOptionalFitBad(self):
         """Test an image with a FIT with an optional OP-TEE binary"""
         with self.assertRaises(ValueError) as exc:
