@@ -211,6 +211,11 @@ M:	Aleksandr Aleksandrov <aleksandr.aleksandrov@emlid.com>
 S:	Maintained
 F:	configs/emlid_neutis_n5_devboard_defconfig
 
+LCTECH PI F1C200S
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/lctech_pi_f1c200s_defconfig
+
 GEMEI-G9 TABLET
 M:	Priit Laes <plaes@plaes.org>
 S:	Maintained
