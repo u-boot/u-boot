@@ -2,6 +2,7 @@ MX6Q_ENGICAM BOARD
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 F:	board/engicam/imx6q
+F:	board/engicam/common
 F:	include/configs/imx6-engicam.h
 F:	configs/imx6qdl_icore_mmc_defconfig
 F:	configs/imx6q_icore_nand_defconfig

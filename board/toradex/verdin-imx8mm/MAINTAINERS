@@ -8,6 +8,7 @@ F:	arch/arm/dts/imx8mm-verdin-wifi.dtsi
 F:	arch/arm/dts/imx8mm-verdin-wifi-dev.dts
 F:	arch/arm/dts/imx8mm-verdin-wifi-dev-u-boot.dtsi
 F:	board/toradex/verdin-imx8mm/
+F:	board/toradex/common/
 F:	configs/verdin-imx8mm_defconfig
 F:	doc/board/toradex/verdin-imx8mm.rst
 F:	include/configs/verdin-imx8mm.h

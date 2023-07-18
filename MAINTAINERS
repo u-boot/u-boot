@@ -282,6 +282,7 @@ F:	arch/arm/include/asm/arch-mx*/
 F:	arch/arm/include/asm/arch-vf610/
 F:	arch/arm/include/asm/mach-imx/
 F:	board/freescale/*mx*/
+F:	board/freescale/common/
 F:	drivers/serial/serial_mxc.c
 
 ARM HISILICON

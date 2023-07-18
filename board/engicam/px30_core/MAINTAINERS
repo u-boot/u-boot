@@ -15,5 +15,6 @@ M:	Jagan Teki <jagan@amarulasolutions.com>
 M:	Suniel Mahesh <sunil@amarulasolutions.com>
 S:	Maintained
 F:	board/engicam/px30_core
+F:	board/engicam/common
 F:	include/configs/px30_core.h
 F:	configs/px30-core-edimm2.2-px30_defconfig
