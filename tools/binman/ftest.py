@@ -1452,7 +1452,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(U_BOOT_SPL_NODTB_DATA, data[:len(U_BOOT_SPL_NODTB_DATA)])
 
     def checkSymbols(self, dts, base_data, u_boot_offset, entry_args=None,
-                     use_expanded=False):
+                     use_expanded=False, no_write_symbols=False):
         """Check the image contains the expected symbol values
 
         Args:
@@ -1481,9 +1481,14 @@ class TestFunctional(unittest.TestCase):
         sym_values = struct.pack('<LLQLL', elf.BINMAN_SYM_MAGIC_VALUE,
                                  0x00, u_boot_offset + len(U_BOOT_DATA),
                                  0x10 + u_boot_offset, 0x04)
-        expected = (sym_values + base_data[24:] +
-                    tools.get_bytes(0xff, 1) + U_BOOT_DATA + sym_values +
-                    base_data[24:])
+        if no_write_symbols:
+            expected = (base_data +
+                        tools.get_bytes(0xff, 0x38 - len(base_data)) +
+                        U_BOOT_DATA + base_data)
+        else:
+            expected = (sym_values + base_data[24:] +
+                        tools.get_bytes(0xff, 1) + U_BOOT_DATA + sym_values +
+                        base_data[24:])
         self.assertEqual(expected, data)
 
     def testSymbols(self):
@@ -6675,6 +6680,21 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             control.SignEntries(fname, None, private_key, 'sha256,rsa4096',
                                 ['fit'])
         self.assertIn("Node '/fit': Missing tool: 'mkimage'", str(e.exception))
+
+    def testSymbolNoWrite(self):
+        """Test disabling of symbol writing"""
+        self.checkSymbols('282_symbols_disable.dts', U_BOOT_SPL_DATA, 0x1c,
+                          no_write_symbols=True)
+
+    def testSymbolNoWriteExpanded(self):
+        """Test disabling of symbol writing in expanded entries"""
+        entry_args = {
+            'spl-dtb': '1',
+        }
+        self.checkSymbols('282_symbols_disable.dts', U_BOOT_SPL_NODTB_DATA +
+                          U_BOOT_SPL_DTB_DATA, 0x38,
+                          entry_args=entry_args, use_expanded=True,
+                          no_write_symbols=True)
 
 
 if __name__ == "__main__":

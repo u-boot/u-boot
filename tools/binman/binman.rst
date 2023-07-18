@@ -831,6 +831,13 @@ write-symbols:
     binman. This is automatic for certain entry types, e.g. `u-boot-spl`. See
     binman_syms_ for more information.
 
+no-write-symbols:
+    Disables symbol writing for this entry. This can be used in entry types
+    where symbol writing is automatic. For example, if `u-boot-spl` refers to
+    the `u_boot_any_image_pos` symbol but U-Boot is not available in the image
+    containing SPL, this can be used to disable the writing. Quite likely this
+    indicates a bug in your setup.
+
 elf-filename:
     Sets the file name of a blob's associated ELF file. For example, if the
     blob is `zephyr.bin` then the ELF file may be `zephyr.elf`. This allows
