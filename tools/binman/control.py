@@ -113,9 +113,10 @@ def _ReadMissingBlobHelp():
     return result
 
 def _ShowBlobHelp(level, path, text):
-    tout.do_output(level, '\n%s:' % path)
+    tout.do_output(level, '%s:' % path)
     for line in text.splitlines():
         tout.do_output(level, '   %s' % line)
+    tout.do_output(level, '')
 
 def _ShowHelpForMissingBlobs(level, missing_list):
     """Show help for each missing blob to help the user take action
@@ -658,7 +659,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     missing_list = []
     image.CheckMissing(missing_list)
     if missing_list:
-        tout.error("Image '%s' is missing external blobs and is non-functional: %s" %
+        tout.error("Image '%s' is missing external blobs and is non-functional: %s\n" %
                    (image.name, ' '.join([e.name for e in missing_list])))
         _ShowHelpForMissingBlobs(tout.ERROR, missing_list)
 
@@ -666,7 +667,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     image.CheckFakedBlobs(faked_list)
     if faked_list:
         tout.warning(
-            "Image '%s' has faked external blobs and is non-functional: %s" %
+            "Image '%s' has faked external blobs and is non-functional: %s\n" %
             (image.name, ' '.join([os.path.basename(e.GetDefaultFilename())
                                    for e in faked_list])))
 
@@ -674,7 +675,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     image.CheckOptional(optional_list)
     if optional_list:
         tout.warning(
-            "Image '%s' is missing optional external blobs but is still functional: %s" %
+            "Image '%s' is missing optional external blobs but is still functional: %s\n" %
             (image.name, ' '.join([e.name for e in optional_list])))
         _ShowHelpForMissingBlobs(tout.WARNING, optional_list)
 
@@ -682,7 +683,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     image.check_missing_bintools(missing_bintool_list)
     if missing_bintool_list:
         tout.warning(
-            "Image '%s' has missing bintools and is non-functional: %s" %
+            "Image '%s' has missing bintools and is non-functional: %s\n" %
             (image.name, ' '.join([os.path.basename(bintool.name)
                                    for bintool in missing_bintool_list])))
     return any([missing_list, faked_list, missing_bintool_list])
@@ -827,7 +828,7 @@ def Binman(args):
             # This can only be True if -M is provided, since otherwise binman
             # would have raised an error already
             if invalid:
-                msg = '\nSome images are invalid'
+                msg = 'Some images are invalid'
                 if args.ignore_missing:
                     tout.warning(msg)
                 else:
