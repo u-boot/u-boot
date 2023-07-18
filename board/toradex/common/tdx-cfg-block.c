@@ -146,6 +146,7 @@ const char * const toradex_carrier_boards[] = {
 	[0] = "UNKNOWN CARRIER BOARD",
 	[155] = "Dahlia",
 	[156] = "Verdin Development Board",
+	[173] = "Yavia",
 };
 
 const char * const toradex_display_adapters[] = {
