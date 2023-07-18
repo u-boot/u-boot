@@ -6,12 +6,14 @@
 #define LOG_CATEGORY UCLASS_VIDEO
 
 #include <common.h>
+#include <bloblist.h>
 #include <console.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <spl.h>
 #include <stdio_dev.h>
 #include <video.h>
 #include <video_console.h>
@@ -138,6 +140,16 @@ int video_reserve(ulong *addrp)
 	gd->fb_base = *addrp;
 	debug("Video frame buffers from %lx to %lx\n", gd->video_bottom,
 	      gd->video_top);
+
+	if (spl_phase() == PHASE_SPL && CONFIG_IS_ENABLED(BLOBLIST)) {
+		struct video_handoff *ho;
+
+		ho = bloblist_add(BLOBLISTT_U_BOOT_VIDEO, sizeof(*ho), 0);
+		if (!ho)
+			return log_msg_ret("blf", -ENOENT);
+		ho->fb = *addrp;
+		ho->size = size;
+	}
 
 	return 0;
 }
