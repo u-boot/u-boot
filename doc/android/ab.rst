@@ -31,6 +31,12 @@ boot script. This command analyzes and processes A/B metadata stored on a
 special partition (e.g. ``misc``) and determines which slot should be used for
 booting up.
 
+If the A/B metadata partition has a backup bootloader_message block that is used
+to ensure one is always valid even in the event of interruption when writing, it
+can be enabled in your board configuration file::
+
+    CONFIG_ANDROID_AB_BACKUP_OFFSET=0x1000
+
 Command usage
 -------------
 

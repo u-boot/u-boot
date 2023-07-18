@@ -25,8 +25,8 @@ int erofs_dev_read(int device_id, void *buf, u64 offset, size_t len)
 
 int erofs_blk_read(void *buf, erofs_blk_t start, u32 nblocks)
 {
-	return erofs_dev_read(0, buf, blknr_to_addr(start),
-			 blknr_to_addr(nblocks));
+	return erofs_dev_read(0, buf, erofs_pos(start),
+			 erofs_pos(nblocks));
 }
 
 int erofs_probe(struct blk_desc *fs_dev_desc,
@@ -52,7 +52,7 @@ struct erofs_dir_stream {
 	struct fs_dirent dirent;
 
 	struct erofs_inode inode;
-	char dblk[EROFS_BLKSIZ];
+	char dblk[EROFS_MAX_BLOCK_SIZE];
 	unsigned int maxsize, de_end;
 	erofs_off_t pos;
 };
@@ -125,7 +125,7 @@ int erofs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
 		return 1;
 
 	if (!dirs->maxsize) {
-		dirs->maxsize = min_t(unsigned int, EROFS_BLKSIZ,
+		dirs->maxsize = min_t(unsigned int, EROFS_MAX_BLOCK_SIZE,
 				      dirs->inode.i_size - pos);
 
 		err = erofs_pread(&dirs->inode, dirs->dblk,
@@ -136,7 +136,7 @@ int erofs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
 		de = (struct erofs_dirent *)dirs->dblk;
 		dirs->de_end = le16_to_cpu(de->nameoff);
 		if (dirs->de_end < sizeof(struct erofs_dirent) ||
-		    dirs->de_end >= EROFS_BLKSIZ) {
+		    dirs->de_end >= EROFS_MAX_BLOCK_SIZE) {
 			erofs_err("invalid de[0].nameoff %u @ nid %llu",
 				  dirs->de_end, de->nid | 0ULL);
 			return -EFSCORRUPTED;
@@ -183,7 +183,7 @@ int erofs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
 
 	pos += sizeof(*de);
 	if (erofs_blkoff(pos) >= dirs->de_end) {
-		pos = blknr_to_addr(erofs_blknr(pos) + 1);
+		pos = erofs_pos(erofs_blknr(pos) + 1);
 		dirs->maxsize = 0;
 	}
 	dirs->pos = pos;

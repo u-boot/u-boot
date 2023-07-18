@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0+
 #include "internal.h"
 
+#define makedev(major, minor) ((dev_t)((((major) & 0xfff) << 8) | ((minor) & 0xff)))
+static dev_t erofs_new_decode_dev(u32 dev)
+{
+	const unsigned int major = (dev & 0xfff00) >> 8;
+	const unsigned int minor = (dev & 0xff) | ((dev >> 12) & 0xfff00);
+
+	return makedev(major, minor);
+}
+
 int erofs_read_inode_from_disk(struct erofs_inode *vi)
 {
 	int ret, ifmt;
@@ -26,7 +35,8 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
 	case EROFS_INODE_LAYOUT_EXTENDED:
 		vi->inode_isize = sizeof(struct erofs_inode_extended);
 
-		ret = erofs_dev_read(0, buf + sizeof(*dic), inode_loc + sizeof(*dic),
+		ret = erofs_dev_read(0, buf + sizeof(*dic),
+				     inode_loc + sizeof(*dic),
 				     sizeof(*die) - sizeof(*dic));
 		if (ret < 0)
 			return -EIO;
@@ -43,7 +53,8 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
 			break;
 		case S_IFCHR:
 		case S_IFBLK:
-			vi->u.i_rdev = 0;
+			vi->u.i_rdev =
+				erofs_new_decode_dev(le32_to_cpu(die->i_u.rdev));
 			break;
 		case S_IFIFO:
 		case S_IFSOCK:
@@ -57,8 +68,8 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
 		vi->i_gid = le32_to_cpu(die->i_gid);
 		vi->i_nlink = le32_to_cpu(die->i_nlink);
 
-		vi->i_ctime = le64_to_cpu(die->i_ctime);
-		vi->i_ctime_nsec = le64_to_cpu(die->i_ctime_nsec);
+		vi->i_mtime = le64_to_cpu(die->i_mtime);
+		vi->i_mtime_nsec = le64_to_cpu(die->i_mtime_nsec);
 		vi->i_size = le64_to_cpu(die->i_size);
 		if (vi->datalayout == EROFS_INODE_CHUNK_BASED)
 			/* fill chunked inode summary info */
@@ -77,7 +88,8 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
 			break;
 		case S_IFCHR:
 		case S_IFBLK:
-			vi->u.i_rdev = 0;
+			vi->u.i_rdev =
+				erofs_new_decode_dev(le32_to_cpu(dic->i_u.rdev));
 			break;
 		case S_IFIFO:
 		case S_IFSOCK:
@@ -91,8 +103,8 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
 		vi->i_gid = le16_to_cpu(dic->i_gid);
 		vi->i_nlink = le16_to_cpu(dic->i_nlink);
 
-		vi->i_ctime = sbi.build_time;
-		vi->i_ctime_nsec = sbi.build_time_nsec;
+		vi->i_mtime = sbi.build_time;
+		vi->i_mtime_nsec = sbi.build_time_nsec;
 
 		vi->i_size = le32_to_cpu(dic->i_size);
 		if (vi->datalayout == EROFS_INODE_CHUNK_BASED)
@@ -111,10 +123,13 @@ int erofs_read_inode_from_disk(struct erofs_inode *vi)
 				  vi->u.chunkformat, vi->nid | 0ULL);
 			return -EOPNOTSUPP;
 		}
-		vi->u.chunkbits = LOG_BLOCK_SIZE +
+		vi->u.chunkbits = sbi.blkszbits +
 			(vi->u.chunkformat & EROFS_CHUNK_FORMAT_BLKBITS_MASK);
-	} else if (erofs_inode_is_data_compressed(vi->datalayout))
-		z_erofs_fill_inode(vi);
+	} else if (erofs_inode_is_data_compressed(vi->datalayout)) {
+		if (erofs_blksiz() != EROFS_MAX_BLOCK_SIZE)
+			return -EOPNOTSUPP;
+		return z_erofs_fill_inode(vi);
+	}
 	return 0;
 bogusimode:
 	erofs_err("bogus i_mode (%o) @ nid %llu", vi->i_mode, vi->nid | 0ULL);
@@ -163,12 +178,11 @@ struct nameidata {
 	unsigned int	ftype;
 };
 
-int erofs_namei(struct nameidata *nd,
-		const char *name, unsigned int len)
+int erofs_namei(struct nameidata *nd, const char *name, unsigned int len)
 {
 	erofs_nid_t nid = nd->nid;
 	int ret;
-	char buf[EROFS_BLKSIZ];
+	char buf[EROFS_MAX_BLOCK_SIZE];
 	struct erofs_inode vi = { .nid = nid };
 	erofs_off_t offset;
 
@@ -179,7 +193,7 @@ int erofs_namei(struct nameidata *nd,
 	offset = 0;
 	while (offset < vi.i_size) {
 		erofs_off_t maxsize = min_t(erofs_off_t,
-					    vi.i_size - offset, EROFS_BLKSIZ);
+					    vi.i_size - offset, erofs_blksiz());
 		struct erofs_dirent *de = (void *)buf;
 		unsigned int nameoff;
 
@@ -189,7 +203,7 @@ int erofs_namei(struct nameidata *nd,
 
 		nameoff = le16_to_cpu(de->nameoff);
 		if (nameoff < sizeof(struct erofs_dirent) ||
-		    nameoff >= PAGE_SIZE) {
+		    nameoff >= erofs_blksiz()) {
 			erofs_err("invalid de[0].nameoff %u @ nid %llu",
 				  nameoff, nid | 0ULL);
 			return -EFSCORRUPTED;

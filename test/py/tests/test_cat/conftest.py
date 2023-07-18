@@ -32,4 +32,5 @@ def cat_data(u_boot_config):
         pytest.skip('Setup failed')
     finally:
         shutil.rmtree(mnt_point)
-        os.remove(image_path)
+        if os.path.exists(image_path):
+            os.remove(image_path)

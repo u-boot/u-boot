@@ -244,7 +244,7 @@ static int do_verify_mbr(struct blk_desc *dev, const char *str)
 	for (i = 0; i < count; i++) {
 		struct disk_partition p;
 
-		if (part_get_info(dev, i + 1, &p))
+		if (part_get_info_by_type(dev, i + 1, PART_TYPE_DOS, &p))
 			goto fail;
 
 		if ((partitions[i].size && p.size != partitions[i].size) ||

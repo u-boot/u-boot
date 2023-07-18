@@ -936,6 +936,15 @@ config ANDROID_AB
 	  allows a bootloader to try a new version of the system but roll back
 	  to previous version if the new one didn't boot all the way.
 
+config ANDROID_AB_BACKUP_OFFSET
+	hex "Offset of backup bootloader control"
+	depends on ANDROID_AB
+	default 0x0
+	help
+	  If non-zero, a backup bootloader message starting at this offset in
+	  the partition will tried in the event that the primary one (starting
+	  at offset 0) fails its checksum.
+
 endmenu
 
 menu "Blob list"

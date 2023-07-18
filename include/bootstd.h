@@ -69,7 +69,7 @@ const char *const *const bootstd_get_bootdev_order(struct udevice *dev,
 /**
  * bootstd_get_prefixes() - Get the filename-prefixes list
  *
- * This reads the prefixes, e.g. {"/", "/bpot", NULL}
+ * This reads the prefixes, e.g. {"/", "/boot", NULL}
  *
  * The list is alloced by the bootstd driver so should not be freed. That is the
  * reason for all the const stuff in the function signature
