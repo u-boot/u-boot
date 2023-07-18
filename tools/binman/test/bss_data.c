@@ -7,9 +7,8 @@
  */
 
 int bss_data[10];
-int __bss_size = sizeof(bss_data);
 
-int main()
+int main(void)
 {
 	bss_data[2] = 2;
 
