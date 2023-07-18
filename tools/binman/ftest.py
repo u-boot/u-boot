@@ -6805,6 +6805,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = tools.read_file(image_fname)
         self.assertEqual(b'blob@@@@other', data)
 
+    def testTemplateFit(self):
+        """Test using a template in a FIT"""
+        fit_data = self._DoReadFile('288_template_fit.dts')
+        fname = os.path.join(self._indir, 'fit_data.fit')
+        tools.write_file(fname, fit_data)
+        out = tools.run('dumpimage', '-l', fname)
+
 
 if __name__ == "__main__":
     unittest.main()
