@@ -5,6 +5,7 @@ L:	u-boot-amlogic@groups.io
 F:	board/amlogic/w400/
 F:	configs/bananapi-cm4-cm4io_defconfig
 F:	configs/bananapi-m2s_defconfig
+F:	configs/odroid-n2l_defconfig
 F:	configs/radxa-zero2_defconfig
 F:	doc/board/amlogic/w400.rst
 F:	doc/board/amlogic/bananapi-cm4io.rst
