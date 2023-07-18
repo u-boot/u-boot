@@ -204,3 +204,15 @@ Normally signing is done using `mkimage` in context of `binman sign`. However,
 in this process the public key is not added to the stage before u-boot proper.
 Using `fdt_add_pubkey` the key can be injected to the SPL independent of
 `mkimage`
+
+
+
+Bintool: bootgen: Sign ZynqMP FSBL image
+---------------------------------------------
+
+This bintool supports running `bootgen` in order to sign a SPL for ZynqMP
+devices.
+
+The bintool automatically creates an appropriate input image file (.bif) for
+bootgen based on the passed arguments. The output is a bootable,
+authenticated `boot.bin` file.
