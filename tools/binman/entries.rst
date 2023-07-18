@@ -2117,6 +2117,45 @@ binman uses that to look up symbols to write into the SPL binary.
 
 
 
+.. _etype_u_boot_spl_pubkey_dtb:
+
+Entry: u-boot-spl-pubkey-dtb: U-Boot SPL device tree including public key
+-------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - key-name-hint: Public key name without extension (.crt).
+                Default is determined by underlying
+                bintool (fdt_add_pubkey), usually 'key'.
+    - algo: (Optional) Algorithm used for signing. Default is determined by
+            underlying bintool (fdt_add_pubkey), usually 'sha1,rsa2048'
+    - required: (Optional) If present this indicates that the key must be
+                verified for the image / configuration to be
+                considered valid
+
+The following example shows an image containing an SPL which
+is packed together with the dtb. Binman will add a signature
+node to the dtb.
+
+Example node::
+
+    image {
+    ...
+        spl {
+            filename = "spl.bin"
+
+            u-boot-spl-nodtb {
+            };
+            u-boot-spl-pubkey-dtb {
+                algo = "sha384,rsa4096";
+                required = "conf";
+                key-name-hint = "dev";
+            };
+        };
+    ...
+    }
+
+
+
 .. _etype_u_boot_spl_with_ucode_ptr:
 
 Entry: u-boot-spl-with-ucode-ptr: U-Boot SPL with embedded microcode pointer
