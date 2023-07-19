@@ -163,7 +163,8 @@ class Builder:
         checkout: True to check out source, False to skip that step.
             This is used for testing.
         col: terminal.Color() object
-        count: Number of commits to build
+        count: Total number of commits to build, which is the number of commits
+            multiplied by the number of boards
         do_make: Method to call to invoke Make
         fail: Number of builds that failed due to error
         force_build: Force building even if a build already exists

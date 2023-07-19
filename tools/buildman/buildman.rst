@@ -159,7 +159,7 @@ on the command line:
 
 .. code-block:: bash
 
-  buildman --boards sandbox,snow --boards
+  buildman --boards sandbox,snow --boards firefly-rk3399
 
 It is convenient to use the -n option to see what will be built based on
 the subset given. Use -v as well to get an actual list of boards.

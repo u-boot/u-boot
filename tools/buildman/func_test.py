@@ -1047,3 +1047,14 @@ endif
         self._RunControl('-x', 'board2', '-x' 'board4')
         self.assertEqual(['board0', 'board1'],
                          [b.target for b in self._boards.get_selected()])
+
+    def test_single_boards(self):
+        """Test building single boards"""
+        self._RunControl('--boards', 'board1')
+        self.assertEqual(1, self._builder.count)
+
+        self._RunControl('--boards', 'board1', '--boards', 'board2')
+        self.assertEqual(2, self._builder.count)
+
+        self._RunControl('--boards', 'board1,board2', '--boards', 'board4')
+        self.assertEqual(3, self._builder.count)
