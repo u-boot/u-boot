@@ -48,7 +48,7 @@ def get_action_summary(is_summary, commits, selected, options):
     return msg
 
 # pylint: disable=R0913
-def show_actions(series, why_selected, boards_selected, bldr, options,
+def show_actions(series, why_selected, boards_selected, output_dir, options,
                  board_warnings):
     """Display a list of actions that we would take, if not a dry run.
 
@@ -61,7 +61,7 @@ def show_actions(series, why_selected, boards_selected, bldr, options,
                 the value would be a list of board names.
         boards_selected: Dict of selected boards, key is target name,
                 value is Board object
-        bldr: The builder that will be used to build the commits
+        output_dir (str): Output directory for builder
         options: Command line options object
         board_warnings: List of warnings obtained from board selected
     """
@@ -74,7 +74,7 @@ def show_actions(series, why_selected, boards_selected, bldr, options,
         commits = None
     print(get_action_summary(False, commits, boards_selected,
             options))
-    print(f'Build directory: {bldr.base_dir}')
+    print(f'Build directory: {output_dir}')
     if commits:
         for upto in range(0, len(series.commits), options.step):
             commit = series.commits[upto]
@@ -427,7 +427,7 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
 
     # For a dry run, just show our actions as a sanity check
     if options.dry_run:
-        show_actions(series, why_selected, selected, builder, options,
+        show_actions(series, why_selected, selected, output_dir, options,
                     board_warnings)
     else:
         builder.force_build = options.force_build
