@@ -10,6 +10,7 @@ based on the jobs provided.
 
 import errno
 import glob
+import io
 import os
 import shutil
 import sys
@@ -292,7 +293,7 @@ class BuilderThread(threading.Thread):
                 args, cwd, src_dir = self._build_args(brd, out_dir, out_rel_dir,
                                                       work_dir, commit_upto)
                 config_args = [f'{brd.target}_defconfig']
-                config_out = ''
+                config_out = io.StringIO()
 
                 # Remove any output targets. Since we use a build directory that
                 # was previously used by another board, it may have produced an
@@ -311,14 +312,14 @@ class BuilderThread(threading.Thread):
                     if self.mrproper:
                         result = self.make(commit, brd, 'mrproper', cwd,
                                 'mrproper', *args, env=env)
-                        config_out += result.combined
+                        config_out.write(result.combined)
                         cmd_list.append([self.builder.gnu_make, 'mrproper',
                                          *args])
                     result = self.make(commit, brd, 'config', cwd,
                             *(args + config_args), env=env)
                     cmd_list.append([self.builder.gnu_make] + args +
                                     config_args)
-                    config_out += result.combined
+                    config_out.write(result.combined)
                     do_config = False   # No need to configure next time
                     if adjust_cfg:
                         cfgutil.adjust_cfg_file(cfg_file, adjust_cfg)
@@ -340,7 +341,7 @@ class BuilderThread(threading.Thread):
                             result.return_code = 1
                 result.stderr = result.stderr.replace(src_dir + '/', '')
                 if self.builder.verbose_build:
-                    result.stdout = config_out + result.stdout
+                    result.stdout = config_out.getvalue() + result.stdout
                 result.cmd_list = cmd_list
             else:
                 result.return_code = 1
