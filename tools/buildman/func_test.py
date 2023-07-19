@@ -877,3 +877,69 @@ Active  aarch64     armv8 - armltd total_compute board2
         Path(os.path.join(config_dir, 'board0_defconfig')).unlink()
         self.assertFalse(boards.output_is_new(boards_cfg, config_dir, src))
 
+    def test_maintainers(self):
+        """Test detecting boards without a MAINTAINERS entry"""
+        src = self._git_dir
+        main = os.path.join(src, 'boards', 'board0', 'MAINTAINERS')
+        other = os.path.join(src, 'boards', 'board2', 'MAINTAINERS')
+        config_dir = os.path.join(src, 'configs')
+        params_list, warnings = self._boards.build_board_list(config_dir, src)
+
+        # There should be two boards no warnings
+        self.assertEquals(2, len(params_list))
+        self.assertFalse(warnings)
+
+        # Set an invalid status line in the file
+        orig_data = tools.read_file(main, binary=False)
+        lines = ['S:      Other\n' if line.startswith('S:') else line
+                  for line in orig_data.splitlines(keepends=True)]
+        tools.write_file(main, ''.join(lines), binary=False)
+        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        self.assertEquals(2, len(params_list))
+        params = params_list[0]
+        if params['target'] == 'board2':
+            params = params_list[1]
+        self.assertEquals('-', params['status'])
+        self.assertEquals(["WARNING: Other: unknown status for 'board0'"],
+                          warnings)
+
+        # Remove the status line (S:) from a file
+        lines = [line for line in orig_data.splitlines(keepends=True)
+                 if not line.startswith('S:')]
+        tools.write_file(main, ''.join(lines), binary=False)
+        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        self.assertEquals(2, len(params_list))
+        self.assertEquals(["WARNING: -: unknown status for 'board0'"], warnings)
+
+        # Remove the configs/ line (F:) from a file - this is the last line
+        data = ''.join(orig_data.splitlines(keepends=True)[:-1])
+        tools.write_file(main, data, binary=False)
+        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        self.assertEquals(2, len(params_list))
+        self.assertEquals(
+            ["WARNING: no status info for 'board0'",
+             "WARNING: no maintainers for 'board0'"], warnings)
+
+        # Remove the maintainer line (M:) from a file (this should be fine)
+        lines = [line for line in orig_data.splitlines(keepends=True)
+                 if not line.startswith('M:')]
+        tools.write_file(main, ''.join(lines), binary=False)
+        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        self.assertEquals(2, len(params_list))
+        self.assertFalse(warnings)
+
+        # Move the contents of the second file into this one, removing the
+        # second file, to check multiple records in a single file.
+        data = orig_data + tools.read_file(other, binary=False)
+        tools.write_file(main, data, binary=False)
+        os.remove(other)
+        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        self.assertEquals(2, len(params_list))
+        self.assertFalse(warnings)
+
+        # Add another record, this should be ignored
+        extra = '\n\nAnother\nM: Fred\nF: configs/board9_defconfig\nS: other\n'
+        tools.write_file(main, data + extra, binary=False)
+        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        self.assertEquals(2, len(params_list))
+        self.assertFalse(warnings)

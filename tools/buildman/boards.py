@@ -328,13 +328,21 @@ class MaintainersDatabase:
 
         return ':'.join(self.database[target][1])
 
-    def parse_file(self, fname):
+    def parse_file(self, srcdir, fname):
         """Parse a MAINTAINERS file.
 
         Parse a MAINTAINERS file and accumulate board status and maintainers
         information in the self.database dict.
 
+        defconfig files are used to specify the target, e.g. xxx_defconfig is
+        used for target 'xxx'. If there is no defconfig file mentioned in the
+        MAINTAINERS file F: entries, then this function does nothing.
+
+        The N: name entries can be used to specify a defconfig file using
+        wildcards.
+
         Args:
+            srcdir (str): Directory containing source code (Kconfig files)
             fname (str): MAINTAINERS file to be parsed
         """
         targets = []
@@ -350,9 +358,12 @@ class MaintainersDatabase:
                     maintainers.append(rest)
                 elif tag == 'F:':
                     # expand wildcard and filter by 'configs/*_defconfig'
-                    for item in glob.glob(rest):
+                    glob_path = os.path.join(srcdir, rest)
+                    for item in glob.glob(glob_path):
                         front, match, rear = item.partition('configs/')
-                        if not front and match:
+                        if front.endswith('/'):
+                            front = front[:-1]
+                        if front == srcdir and match:
                             front, match, rear = rear.rpartition('_defconfig')
                             if match and not rear:
                                 targets.append(front)
@@ -361,9 +372,10 @@ class MaintainersDatabase:
                 elif tag == 'N:':
                     # Just scan the configs directory since that's all we care
                     # about
-                    for dirpath, _, fnames in os.walk('configs'):
-                        for fname in fnames:
-                            path = os.path.join(dirpath, fname)
+                    walk_path = os.walk(os.path.join(srcdir, 'configs'))
+                    for dirpath, _, fnames in walk_path:
+                        for cfg in fnames:
+                            path = os.path.join(dirpath, cfg)
                             front, match, rear = path.partition('configs/')
                             if not front and match:
                                 front, match, rear = rear.rpartition('_defconfig')
@@ -693,7 +705,7 @@ class Boards:
         return params_list
 
     @classmethod
-    def insert_maintainers_info(cls, params_list):
+    def insert_maintainers_info(cls, srcdir, params_list):
         """Add Status and Maintainers information to the board parameters list.
 
         Args:
@@ -703,9 +715,10 @@ class Boards:
             list of str: List of warnings collected due to missing status, etc.
         """
         database = MaintainersDatabase()
-        for (dirpath, _, filenames) in os.walk('.'):
+        for (dirpath, _, filenames) in os.walk(srcdir):
             if 'MAINTAINERS' in filenames:
-                database.parse_file(os.path.join(dirpath, 'MAINTAINERS'))
+                database.parse_file(srcdir,
+                                    os.path.join(dirpath, 'MAINTAINERS'))
 
         for i, params in enumerate(params_list):
             target = params['target']
@@ -748,6 +761,30 @@ class Boards:
         with open(output, 'w', encoding="utf-8") as outf:
             outf.write(COMMENT_BLOCK + '\n'.join(output_lines) + '\n')
 
+    def build_board_list(self, config_dir, srcdir, jobs=1):
+        """Generate a board-database file
+
+        This works by reading the Kconfig, then loading each board's defconfig
+        in to get the setting for each option. In particular, CONFIG_TARGET_xxx
+        is typically set by the defconfig, where xxx is the target to build.
+
+        Args:
+            config_dir (str): Directory containing the defconfig files
+            srcdir (str): Directory containing source code (Kconfig files)
+            jobs (int): The number of jobs to run simultaneously
+
+        Returns:
+            tuple:
+                list of dict: List of board parameters, each a dict:
+                    key: 'arch', 'cpu', 'soc', 'vendor', 'board', 'config',
+                         'target'
+                    value: string value of the key
+                list of str: Warnings that came up
+        """
+        params_list = self.scan_defconfigs(config_dir, srcdir, jobs)
+        warnings = self.insert_maintainers_info(srcdir, params_list)
+        return params_list, warnings
+
     def ensure_board_list(self, output, jobs=1, force=False, quiet=False):
         """Generate a board database file if needed.
 
@@ -767,8 +804,7 @@ class Boards:
             if not quiet:
                 print(f'{output} is up to date. Nothing to do.')
             return True
-        params_list = self.scan_defconfigs(CONFIG_DIR, os.getcwd(), jobs)
-        warnings = self.insert_maintainers_info(params_list)
+        params_list, warnings = self.build_board_list(CONFIG_DIR, '.', jobs)
         for warn in warnings:
             print(warn, file=sys.stderr)
         self.format_and_output(params_list, output)
