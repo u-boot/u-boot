@@ -389,6 +389,32 @@ def determine_boards(brds, args, col, opt_boards, exclude_list):
     return selected, why_selected, board_warnings
 
 
+def adjust_options(options, series, selected):
+    """Adjust options according to various constraints
+
+    Updates verbose, show_errors, threads, jobs and step
+
+    Args:
+        options (Options): Options object to adjust
+        series (Series): Series being built / summarised
+        selected (list of Board): List of Board objects that are marked
+    """
+    if not series and not options.dry_run:
+        options.verbose = True
+        if not options.summary:
+            options.show_errors = True
+
+    # By default we have one thread per CPU. But if there are not enough jobs
+    # we can have fewer threads and use a high '-j' value for make.
+    if options.threads is None:
+        options.threads = min(multiprocessing.cpu_count(), len(selected))
+    if not options.jobs:
+        options.jobs = max(1, (multiprocessing.cpu_count() +
+                len(selected) - 1) // len(selected))
+
+    if not options.step:
+        options.step = len(series.commits) - 1
+
 def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                 clean_dir=False, test_thread_exceptions=False):
     """The main control code for buildman
@@ -453,21 +479,15 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
 
     series = determine_series(selected, col, git_dir, options.count,
                               options.branch, options.work_in_output)
-    if not series and not options.dry_run:
-        options.verbose = True
-        if not options.summary:
-            options.show_errors = True
 
-    # By default we have one thread per CPU. But if there are not enough jobs
-    # we can have fewer threads and use a high '-j' value for make.
-    if options.threads is None:
-        options.threads = min(multiprocessing.cpu_count(), len(selected))
-    if not options.jobs:
-        options.jobs = max(1, (multiprocessing.cpu_count() +
-                len(selected) - 1) // len(selected))
+    adjust_options(options, series, selected)
 
-    if not options.step:
-        options.step = len(series.commits) - 1
+    # For a dry run, just show our actions as a sanity check
+    if options.dry_run:
+        show_actions(series, why_selected, selected, output_dir, board_warnings,
+                     options.step, options.threads, options.jobs,
+                     options.verbose)
+        return 0
 
     gnu_make = command.output(os.path.join(options.git,
             'scripts/show-gnu-make'), raise_on_error=False).rstrip()
@@ -479,13 +499,6 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                                       options.branch)
 
     # Create a new builder with the selected options.
-
-    # For a dry run, just show our actions as a sanity check
-    if options.dry_run:
-        show_actions(series, why_selected, selected, output_dir, board_warnings,
-                     options.step, options.threads, options.jobs,
-                     options.verbose)
-        return 0
 
     adjust_cfg = cfgutil.convert_list_to_dict(options.adjust_cfg)
 
