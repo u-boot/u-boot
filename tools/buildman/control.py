@@ -15,7 +15,6 @@ except ImportError:
     import importlib_resources
 import os
 import shutil
-import subprocess
 import sys
 
 from buildman import boards
@@ -30,6 +29,8 @@ from u_boot_pylib import terminal
 from u_boot_pylib import tools
 from u_boot_pylib.terminal import tprint
 
+TEST_BUILDER = None
+
 def get_plural(count):
     """Returns a plural 's' if count is not 1"""
     return 's' if count != 1 else ''
@@ -43,17 +44,17 @@ def get_action_summary(is_summary, commits, selected, options):
     if commits:
         count = len(commits)
         count = (count + options.step - 1) // options.step
-        commit_str = '%d commit%s' % (count, get_plural(count))
+        commit_str = f'{count} commit{get_plural(count)}'
     else:
         commit_str = 'current source'
-    str = '%s %s for %d boards' % (
-        'Summary of' if is_summary else 'Building', commit_str,
-        len(selected))
-    str += ' (%d thread%s, %d job%s per thread)' % (options.threads,
-            get_plural(options.threads), options.jobs, get_plural(options.jobs))
-    return str
+    msg = (f"{'Summary of' if is_summary else 'Building'} "
+           f'{commit_str} for {len(selected)} boards')
+    msg += (f' ({options.threads} thread{get_plural(options.threads)}, '
+            f'{options.jobs} job{get_plural(options.jobs)} per thread)')
+    return msg
 
-def show_actions(series, why_selected, boards_selected, builder, options,
+# pylint: disable=R0913
+def show_actions(series, why_selected, boards_selected, bldr, options,
                  board_warnings):
     """Display a list of actions that we would take, if not a dry run.
 
@@ -66,7 +67,7 @@ def show_actions(series, why_selected, boards_selected, builder, options,
                 the value would be a list of board names.
         boards_selected: Dict of selected boards, key is target name,
                 value is Board object
-        builder: The builder that will be used to build the commits
+        bldr: The builder that will be used to build the commits
         options: Command line options object
         board_warnings: List of warnings obtained from board selected
     """
@@ -79,7 +80,7 @@ def show_actions(series, why_selected, boards_selected, builder, options,
         commits = None
     print(get_action_summary(False, commits, boards_selected,
             options))
-    print('Build directory: %s' % builder.base_dir)
+    print(f'Build directory: {bldr.base_dir}')
     if commits:
         for upto in range(0, len(series.commits), options.step):
             commit = series.commits[upto]
@@ -88,11 +89,11 @@ def show_actions(series, why_selected, boards_selected, builder, options,
     print()
     for arg in why_selected:
         if arg != 'all':
-            print(arg, ': %d boards' % len(why_selected[arg]))
+            print(arg, f': {len(why_selected[arg])} boards')
             if options.verbose:
-                print('   %s' % ' '.join(why_selected[arg]))
-    print(('Total boards to build for each commit: %d\n' %
-            len(why_selected['all'])))
+                print(f"   {' '.join(why_selected[arg])}")
+    print('Total boards to build for each '
+          f"commit: {len(why_selected['all'])}\n")
     if board_warnings:
         for warning in board_warnings:
             print(col.build(col.YELLOW, warning))
@@ -116,12 +117,26 @@ def show_toolchain_prefix(brds, toolchains):
         tc_set.add(toolchains.Select(brd.arch))
     if len(tc_set) != 1:
         return 'Supplied boards must share one toolchain'
-        return False
-    tc = tc_set.pop()
-    print(tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
+    tchain = tc_set.pop()
+    print(tchain.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
     return None
 
 def get_allow_missing(opt_allow, opt_no_allow, num_selected, has_branch):
+    """Figure out whether to allow external blobs
+
+    Uses the allow-missing setting and the provided arguments to decide whether
+    missing external blobs should be allowed
+
+    Args:
+        opt_allow (bool): True if --allow-missing flag is set
+        opt_no_allow (bool): True if --no-allow-missing flag is set
+        num_selected (int): Number of selected board
+        has_branch (bool): True if a git branch (to build) has been provided
+
+    Returns:
+        bool: True to allow missing external blobs, False to produce an error if
+            external blobs are used
+    """
     allow_missing = False
     am_setting = bsettings.GetGlobalItemValue('allow-missing')
     if am_setting:
@@ -159,7 +174,8 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             raise an exception instead of reporting their result. This simulates
             a failure in the code somewhere
     """
-    global builder
+    # Used so testing can obtain the builder: pylint: disable=W0603
+    global TEST_BUILDER
 
     if options.full_help:
         with importlib.resources.path('buildman', 'README.rst') as readme:
@@ -178,21 +194,22 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
     if options.fetch_arch:
         if options.fetch_arch == 'list':
             sorted_list = toolchains.ListArchs()
-            print(col.build(col.BLUE, 'Available architectures: %s\n' %
-                            ' '.join(sorted_list)))
+            print(col.build(
+                col.BLUE,
+                f"Available architectures: {' '.join(sorted_list)}\n"))
             return 0
-        else:
-            fetch_arch = options.fetch_arch
-            if fetch_arch == 'all':
-                fetch_arch = ','.join(toolchains.ListArchs())
-                print(col.build(col.CYAN, '\nDownloading toolchains: %s' %
-                                fetch_arch))
-            for arch in fetch_arch.split(','):
-                print()
-                ret = toolchains.FetchAndInstall(arch)
-                if ret:
-                    return ret
-            return 0
+
+        fetch_arch = options.fetch_arch
+        if fetch_arch == 'all':
+            fetch_arch = ','.join(toolchains.ListArchs())
+            print(col.build(col.CYAN,
+                            f'\nDownloading toolchains: {fetch_arch}'))
+        for arch in fetch_arch.split(','):
+            print()
+            ret = toolchains.FetchAndInstall(arch)
+            if ret:
+                return ret
+        return 0
 
     if no_toolchains:
         toolchains.GetSettings()
@@ -218,6 +235,7 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             board_file = options.regen_board_list
 
         brds = boards.Boards()
+
         if options.maintainer_check:
             warnings = brds.build_board_list(jobs=nr_cups)[1]
             if warnings:
@@ -226,11 +244,13 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                 return 2
             return 0
 
-        ok = brds.ensure_board_list(board_file, nr_cups,
-                                    force=options.regen_board_list,
-                                    quiet=not options.verbose)
+        okay = brds.ensure_board_list(
+            board_file,
+            options.threads or multiprocessing.cpu_count(),
+            force=options.regen_board_list,
+            quiet=not options.verbose)
         if options.regen_board_list:
-            return 0 if ok else 2
+            return 0 if okay else 2
         brds.read_boards(board_file)
 
     exclude = []
@@ -240,14 +260,14 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
 
     if options.boards:
         requested_boards = []
-        for b in options.boards:
-            requested_boards += b.split(',')
+        for brd in options.boards:
+            requested_boards += brd.split(',')
     else:
         requested_boards = None
     why_selected, board_warnings = brds.select_boards(args, exclude,
                                                       requested_boards)
     selected = brds.get_selected()
-    if not len(selected):
+    if not selected:
         sys.exit(col.build(col.RED, 'No matching boards found'))
 
     if options.print_prefix:
@@ -274,15 +294,15 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             if count is None:
                 sys.exit(col.build(col.RED, msg))
             elif count == 0:
-                sys.exit(col.build(col.RED, "Range '%s' has no commits" %
-                                   options.branch))
+                sys.exit(col.build(col.RED,
+                                   f"Range '{options.branch}' has no commits"))
             if msg:
                 print(col.build(col.YELLOW, msg))
             count += 1   # Build upstream commit also
 
     if not count:
-        msg = ("No commits found to process in branch '%s': "
-               "set branch's upstream or use -c flag" % options.branch)
+        msg = (f"No commits found to process in branch '{options.branch}': "
+               "set branch's upstream or use -c flag")
         sys.exit(col.build(col.RED, msg))
     if options.work_in_output:
         if len(selected) != 1:
@@ -381,6 +401,7 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             adjust_cfg=adjust_cfg,
             allow_missing=allow_missing, no_lto=options.no_lto,
             reproducible_builds=options.reproducible_builds)
+    TEST_BUILDER = builder
     builder.force_config_on_failure = not options.quick
     if make_func:
         builder.do_make = make_func
@@ -401,8 +422,8 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
         if series:
             commits = series.commits
             # Number the commits for test purposes
-            for commit in range(len(commits)):
-                commits[commit].sequence = commit
+            for i, commit in enumerate(commits):
+                commit.sequence = i
         else:
             commits = None
 
@@ -425,8 +446,8 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                 commits, board_selected, options.keep_outputs, options.verbose)
             if excs:
                 return 102
-            elif fail:
+            if fail:
                 return 100
-            elif warned and not options.ignore_warnings:
+            if warned and not options.ignore_warnings:
                 return 101
     return 0

@@ -260,7 +260,7 @@ class TestFunctional(unittest.TestCase):
             make_func=self._HandleMake, brds=brds, clean_dir=clean_dir,
             test_thread_exceptions=test_thread_exceptions)
         if get_builder:
-            self._builder = control.builder
+            self._builder = control.TEST_BUILDER
         return result
 
     def testFullHelp(self):
