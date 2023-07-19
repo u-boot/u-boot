@@ -121,10 +121,9 @@ def show_toolchain_prefix(brds, toolchains):
     for brd in board_selected.values():
         tc_set.add(toolchains.Select(brd.arch))
     if len(tc_set) != 1:
-        return 'Supplied boards must share one toolchain'
+        sys.exit('Supplied boards must share one toolchain')
     tchain = tc_set.pop()
     print(tchain.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
-    return None
 
 def get_allow_missing(opt_allow, opt_no_allow, num_selected, has_branch):
     """Figure out whether to allow external blobs
@@ -557,9 +556,7 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
         brds, args, col, options.boards, options.exclude)
 
     if options.print_prefix:
-        err = show_toolchain_prefix(brds, toolchains)
-        if err:
-            sys.exit(col.build(col.RED, err))
+        show_toolchain_prefix(brds, toolchains)
         return 0
 
     series = determine_series(selected, col, git_dir, options.count,
