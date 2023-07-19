@@ -42,6 +42,24 @@ def mkdir(dirname, parents = False):
         else:
             raise
 
+
+def _remove_old_outputs(out_dir):
+    """Remove any old output-target files
+
+    Args:
+        out_dir (str): Output directory for the build
+
+    Since we use a build directory that was previously used by another
+    board, it may have produced an SPL image. If we don't remove it (i.e.
+    see do_config and self.mrproper below) then it will appear to be the
+    output of this build, even if it does not produce SPL images.
+    """
+    for elf in BASE_ELF_FILENAMES:
+        fname = os.path.join(out_dir, elf)
+        if os.path.exists(fname):
+            os.remove(fname)
+
+
 # pylint: disable=R0903
 class BuilderJob:
     """Holds information about a job to be performed by a thread
@@ -366,15 +384,7 @@ class BuilderThread(threading.Thread):
                 config_args = [f'{brd.target}_defconfig']
                 config_out = io.StringIO()
 
-                # Remove any output targets. Since we use a build directory that
-                # was previously used by another board, it may have produced an
-                # SPL image. If we don't remove it (i.e. see do_config and
-                # self.mrproper below) then it will appear to be the output of
-                # this build, even if it does not produce SPL images.
-                for elf in BASE_ELF_FILENAMES:
-                    fname = os.path.join(out_dir, elf)
-                    if os.path.exists(fname):
-                        os.remove(fname)
+                _remove_old_outputs(out_dir)
 
                 # If we need to reconfigure, do that now
                 cfg_file = os.path.join(out_dir, '.config')
