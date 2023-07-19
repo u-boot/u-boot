@@ -6,29 +6,21 @@
 
 """See README for more information"""
 
-import doctest
-import multiprocessing
 import os
-import re
 import sys
 
 # Bring in the patman libraries
+# pylint: disable=C0413
 our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(1, os.path.join(our_path, '..'))
 
 # Our modules
-from buildman import board
 from buildman import bsettings
-from buildman import builder
 from buildman import cmdline
 from buildman import control
-from buildman import toolchain
-from patman import patchstream
-from patman import gitutil
-from u_boot_pylib import terminal
 from u_boot_pylib import test_util
 
-def RunTests(skip_net_tests, debug, verbose, args):
+def run_tests(skip_net_tests, debug, verbose, args):
     """Run the buildman tests
 
     Args:
@@ -37,9 +29,11 @@ def RunTests(skip_net_tests, debug, verbose, args):
         verbosity (int): Verbosity level to use (0-4)
         args (list of str): List of tests to run, empty to run all
     """
+    # These imports are here since tests are not available when buildman is
+    # installed as a Python module
+    # pylint: disable=C0415
     from buildman import func_test
     from buildman import test
-    import doctest
 
     test_name = args and args[0] or None
     if skip_net_tests:
@@ -55,6 +49,11 @@ def RunTests(skip_net_tests, debug, verbose, args):
     return (0 if result.wasSuccessful() else 1)
 
 def run_buildman():
+    """Run bulidman
+
+    This is the main program. It collects arguments and runs either the tests or
+    the control module.
+    """
     options, args = cmdline.ParseArgs()
 
     if not options.debug:
@@ -62,8 +61,8 @@ def run_buildman():
 
     # Run our meagre tests
     if cmdline.HAS_TESTS and options.test:
-        return RunTests(options.skip_net_tests, options.debug, options.verbose,
-                        args)
+        return run_tests(options.skip_net_tests, options.debug, options.verbose,
+                         args)
 
     # Build selected commits for selected boards
     else:
