@@ -509,7 +509,7 @@ Some images are invalid'''
         for commit in range(self._commits):
             for brd in self._boards.get_list():
                 if brd.arch != 'sandbox':
-                  errfile = self._builder.GetErrFile(commit, brd.target)
+                  errfile = self._builder.get_err_file(commit, brd.target)
                   fd = open(errfile)
                   self.assertEqual(fd.readlines(),
                           ['No tool chain for %s\n' % brd.arch])

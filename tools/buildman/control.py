@@ -513,15 +513,14 @@ def run_builder(builder, commits, board_selected, args):
         tprint(get_action_summary(args.summary, commit_count, board_selected,
                                   args.threads, args.jobs))
 
-    builder.SetDisplayOptions(
-        args.show_errors, args.show_sizes, args.show_detail,
-        args.show_bloat, args.list_error_boards, args.show_config,
-        args.show_environment, args.filter_dtb_warnings,
-        args.filter_migration_warnings, args.ide)
+    builder.set_display_options(
+        args.show_errors, args.show_sizes, args.show_detail, args.show_bloat,
+        args.list_error_boards, args.show_config, args.show_environment,
+        args.filter_dtb_warnings, args.filter_migration_warnings, args.ide)
     if args.summary:
-        builder.ShowSummary(commits, board_selected)
+        builder.show_summary(commits, board_selected)
     else:
-        fail, warned, excs = builder.BuildBoards(
+        fail, warned, excs = builder.build_boards(
             commits, board_selected, args.keep_outputs, args.verbose)
         if excs:
             return 102

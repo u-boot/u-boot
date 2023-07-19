@@ -77,7 +77,7 @@ class ResultThread(threading.Thread):
         """
         while True:
             result = self.builder.out_queue.get()
-            self.builder.ProcessResult(result)
+            self.builder.process_result(result)
             self.builder.out_queue.task_done()
 
 
@@ -176,7 +176,7 @@ class BuilderThread(threading.Thread):
             out_dir = os.path.join(work_dir, out_rel_dir)
 
         # Check if the job was already completed last time
-        done_file = self.builder.GetDoneFile(commit_upto, brd.target)
+        done_file = self.builder.get_done_file(commit_upto, brd.target)
         result.already_done = os.path.exists(done_file)
         will_build = (force_build or force_build_failures or
             not result.already_done)
@@ -194,7 +194,7 @@ class BuilderThread(threading.Thread):
             if result.return_code == RETURN_CODE_RETRY:
                 will_build = True
             elif will_build:
-                err_file = self.builder.GetErrFile(commit_upto, brd.target)
+                err_file = self.builder.get_err_file(commit_upto, brd.target)
                 if os.path.exists(err_file) and os.stat(err_file).st_size:
                     result.stderr = 'bad'
                 elif not force_build:
@@ -270,7 +270,7 @@ class BuilderThread(threading.Thread):
                 # SPL image. If we don't remove it (i.e. see do_config and
                 # self.mrproper below) then it will appear to be the output of
                 # this build, even if it does not produce SPL images.
-                build_dir = self.builder.GetBuildDir(commit_upto, brd.target)
+                build_dir = self.builder.get_build_dir(commit_upto, brd.target)
                 for elf in BASE_ELF_FILENAMES:
                     fname = os.path.join(out_dir, elf)
                     if os.path.exists(fname):
@@ -345,9 +345,9 @@ class BuilderThread(threading.Thread):
             return
 
         # Write the output and stderr
-        output_dir = self.builder._GetOutputDir(result.commit_upto)
+        output_dir = self.builder._get_output_dir(result.commit_upto)
         Mkdir(output_dir)
-        build_dir = self.builder.GetBuildDir(result.commit_upto,
+        build_dir = self.builder.get_build_dir(result.commit_upto,
                 result.brd.target)
         Mkdir(build_dir)
 
@@ -356,7 +356,7 @@ class BuilderThread(threading.Thread):
             if result.stdout:
                 fd.write(result.stdout)
 
-        errfile = self.builder.GetErrFile(result.commit_upto,
+        errfile = self.builder.get_err_file(result.commit_upto,
                 result.brd.target)
         if result.stderr:
             with open(errfile, 'w') as fd:
@@ -370,7 +370,7 @@ class BuilderThread(threading.Thread):
 
         if result.toolchain:
             # Write the build result and toolchain information.
-            done_file = self.builder.GetDoneFile(result.commit_upto,
+            done_file = self.builder.get_done_file(result.commit_upto,
                     result.brd.target)
             with open(done_file, 'w') as fd:
                 if maybe_aborted:
@@ -403,7 +403,7 @@ class BuilderThread(threading.Thread):
                         capture_stderr=True, cwd=result.out_dir,
                         raise_on_error=False, env=env)
                 if nm_result.stdout:
-                    nm = self.builder.GetFuncSizesFile(result.commit_upto,
+                    nm = self.builder.get_func_sizes_file(result.commit_upto,
                                     result.brd.target, fname)
                     with open(nm, 'w') as fd:
                         print(nm_result.stdout, end=' ', file=fd)
@@ -414,7 +414,7 @@ class BuilderThread(threading.Thread):
                         raise_on_error=False, env=env)
                 rodata_size = ''
                 if dump_result.stdout:
-                    objdump = self.builder.GetObjdumpFile(result.commit_upto,
+                    objdump = self.builder.get_objdump_file(result.commit_upto,
                                     result.brd.target, fname)
                     with open(objdump, 'w') as fd:
                         print(dump_result.stdout, end=' ', file=fd)
@@ -447,7 +447,7 @@ class BuilderThread(threading.Thread):
             # adds an additional hex value at the end of each line for the
             # rodata size
             if len(lines):
-                sizes = self.builder.GetSizesFile(result.commit_upto,
+                sizes = self.builder.get_sizes_file(result.commit_upto,
                                 result.brd.target)
                 with open(sizes, 'w') as fd:
                     print('\n'.join(lines), file=fd)
@@ -502,7 +502,7 @@ class BuilderThread(threading.Thread):
         if self.thread_num != -1:
             self.builder.out_queue.put(result)
         else:
-            self.builder.ProcessResult(result)
+            self.builder.process_result(result)
 
     def RunJob(self, job):
         """Run a single job
@@ -516,7 +516,7 @@ class BuilderThread(threading.Thread):
             List of Result objects
         """
         brd = job.brd
-        work_dir = self.builder.GetThreadDir(self.thread_num)
+        work_dir = self.builder.get_thread_dir(self.thread_num)
         self.toolchain = None
         if job.commits:
             # Run 'make board_defconfig' on the first commit

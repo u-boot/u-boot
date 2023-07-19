@@ -208,8 +208,8 @@ class TestBuild(unittest.TestCase):
 
         # Build the boards for the pre-defined commits and warnings/errors
         # associated with each. This calls our Make() to inject the fake output.
-        build.BuildBoards(self.commits, board_selected, keep_outputs=False,
-                          verbose=False)
+        build.build_boards(self.commits, board_selected, keep_outputs=False,
+                           verbose=False)
         lines = terminal.get_print_test_lines()
         count = 0
         for line in lines:
@@ -219,8 +219,8 @@ class TestBuild(unittest.TestCase):
         # We should get two starting messages, an update for every commit built
         # and a summary message
         self.assertEqual(count, len(commits) * len(BOARDS) + 3)
-        build.SetDisplayOptions(**kwdisplay_args);
-        build.ShowSummary(self.commits, board_selected)
+        build.set_display_options(**kwdisplay_args);
+        build.show_summary(self.commits, board_selected)
         if echo_lines:
             terminal.echo_print_test_lines()
         return iter(terminal.get_print_test_lines())
@@ -528,17 +528,17 @@ class TestBuild(unittest.TestCase):
                                                    'sandbox']),
                          ({'all': ['board4'], 'sandbox': ['board4']}, []))
     def CheckDirs(self, build, dirname):
-        self.assertEqual('base%s' % dirname, build._GetOutputDir(1))
+        self.assertEqual('base%s' % dirname, build._get_output_dir(1))
         self.assertEqual('base%s/fred' % dirname,
-                         build.GetBuildDir(1, 'fred'))
+                         build.get_build_dir(1, 'fred'))
         self.assertEqual('base%s/fred/done' % dirname,
-                         build.GetDoneFile(1, 'fred'))
+                         build.get_done_file(1, 'fred'))
         self.assertEqual('base%s/fred/u-boot.sizes' % dirname,
-                         build.GetFuncSizesFile(1, 'fred', 'u-boot'))
+                         build.get_func_sizes_file(1, 'fred', 'u-boot'))
         self.assertEqual('base%s/fred/u-boot.objdump' % dirname,
-                         build.GetObjdumpFile(1, 'fred', 'u-boot'))
+                         build.get_objdump_file(1, 'fred', 'u-boot'))
         self.assertEqual('base%s/fred/err' % dirname,
-                         build.GetErrFile(1, 'fred'))
+                         build.get_err_file(1, 'fred'))
 
     def testOutputDir(self):
         build = builder.Builder(self.toolchains, BASE_DIR, None, 1, 2,
@@ -622,7 +622,7 @@ class TestBuild(unittest.TestCase):
         build = builder.Builder(self.toolchains, base_dir, None, 1, 2)
         build.commits = self.commits
         build.commit_count = len(commits)
-        result = set(build._GetOutputSpaceRemovals())
+        result = set(build._get_output_space_removals())
         expected = set([os.path.join(base_dir, f) for f in to_remove])
         self.assertEqual(expected, result)
 
