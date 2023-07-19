@@ -137,13 +137,40 @@ class BuilderThread(threading.Thread):
         return self.builder.do_make(commit, brd, stage, cwd, *args,
                 **kwargs)
 
-    def _build_args(self, args, brd):
+    def _build_args(self, brd, out_dir, out_rel_dir, work_dir, commit_upto):
         """Set up arguments to the args list based on the settings
 
         Args:
-            args (list of str): List of string arguments to add things to
             brd (Board): Board to create arguments for
+            out_dir (str): Path to output directory containing the files
+            out_rel_dir (str): Output directory relative to the current dir
+            work_dir (str): Directory to which the source will be checked out
+            commit_upto (int): Commit number to build (0...n-1)
+
+        Returns:
+            tuple:
+                list of str: Arguments to pass to make
+                str: Current working directory, or None if no commit
+                str: Source directory (typically the work directory)
         """
+        args = []
+        cwd = work_dir
+        src_dir = os.path.realpath(work_dir)
+        if not self.builder.in_tree:
+            if commit_upto is None:
+                # In this case we are building in the original source directory
+                # (i.e. the current directory where buildman is invoked. The
+                # output directory is set to this thread's selected work
+                # directory.
+                #
+                # Symlinks can confuse U-Boot's Makefile since we may use '..'
+                # in our path, so remove them.
+                real_dir = os.path.realpath(out_dir)
+                args.append(f'O={real_dir}')
+                cwd = None
+                src_dir = os.getcwd()
+            else:
+                args.append(f'O={out_rel_dir}')
         if self.builder.verbose_build:
             args.append('V=1')
         else:
@@ -161,6 +188,7 @@ class BuilderThread(threading.Thread):
             args.append('SOURCE_DATE_EPOCH=0')
         args.extend(self.builder.toolchains.GetMakeArguments(brd))
         args.extend(self.toolchain.MakeArgs())
+        return args, cwd, src_dir
 
     def run_commit(self, commit_upto, brd, work_dir, do_config, config_only,
                   force_build, force_build_failures, work_in_output,
@@ -199,6 +227,7 @@ class BuilderThread(threading.Thread):
         result = command.CommandResult()
         result.return_code = 0
         if work_in_output or self.builder.in_tree:
+            out_rel_dir = None
             out_dir = work_dir
         else:
             if self.per_board_out_dir:
@@ -259,25 +288,9 @@ class BuilderThread(threading.Thread):
                 # Set up the environment and command line
                 env = self.toolchain.MakeEnvironment(self.builder.full_path)
                 mkdir(out_dir)
-                args = []
-                cwd = work_dir
-                src_dir = os.path.realpath(work_dir)
-                if not self.builder.in_tree:
-                    if commit_upto is None:
-                        # In this case we are building in the original source
-                        # directory (i.e. the current directory where buildman
-                        # is invoked. The output directory is set to this
-                        # thread's selected work directory.
-                        #
-                        # Symlinks can confuse U-Boot's Makefile since
-                        # we may use '..' in our path, so remove them.
-                        real_dir = os.path.realpath(out_dir)
-                        args.append(f'O={real_dir}')
-                        cwd = None
-                        src_dir = os.getcwd()
-                    else:
-                        args.append(f'O={out_rel_dir}')
-                self._build_args(args, brd)
+
+                args, cwd, src_dir = self._build_args(brd, out_dir, out_rel_dir,
+                                                      work_dir, commit_upto)
                 config_args = [f'{brd.target}_defconfig']
                 config_out = ''
 
