@@ -127,6 +127,7 @@ struct mtk_eth_priv {
 	u32 mt753x_smi_addr;
 	u32 mt753x_phy_base;
 	u32 mt753x_pmcr;
+	u32 mt753x_reset_wait_time;
 
 	struct gpio_desc rst_gpio;
 	int mcm;
@@ -943,12 +944,12 @@ int mt753x_switch_init(struct mtk_eth_priv *priv)
 		reset_assert(&priv->rst_mcm);
 		udelay(1000);
 		reset_deassert(&priv->rst_mcm);
-		mdelay(1000);
+		mdelay(priv->mt753x_reset_wait_time);
 	} else if (dm_gpio_is_valid(&priv->rst_gpio)) {
 		dm_gpio_set_value(&priv->rst_gpio, 0);
 		udelay(1000);
 		dm_gpio_set_value(&priv->rst_gpio, 1);
-		mdelay(1000);
+		mdelay(priv->mt753x_reset_wait_time);
 	}
 
 	ret = priv->switch_init(priv);
@@ -1528,11 +1529,13 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 			priv->switch_init = mt7530_setup;
 			priv->switch_mac_control = mt7530_mac_control;
 			priv->mt753x_smi_addr = MT753X_DFL_SMI_ADDR;
+			priv->mt753x_reset_wait_time = 1000;
 		} else if (!strcmp(str, "mt7531")) {
 			priv->sw = SW_MT7531;
 			priv->switch_init = mt7531_setup;
 			priv->switch_mac_control = mt7531_mac_control;
 			priv->mt753x_smi_addr = MT753X_DFL_SMI_ADDR;
+			priv->mt753x_reset_wait_time = 200;
 		} else {
 			printf("error: unsupported switch\n");
 			return -EINVAL;
