@@ -919,8 +919,9 @@ Active  aarch64     armv8 - armltd total_compute board2
         params_list, warnings = self._boards.build_board_list(config_dir, src)
         self.assertEquals(2, len(params_list))
         self.assertEquals(
-            ['WARNING: orphaned defconfig in boards/board0/MAINTAINERS ending at line 4',
-             "WARNING: no maintainers for 'board0'"], warnings)
+            ["WARNING: no maintainers for 'board0'",
+             'WARNING: orphaned defconfig in boards/board0/MAINTAINERS ending at line 4',
+             ], warnings)
 
         # Remove the maintainer line (M:) from a file (this should be fine)
         lines = [line for line in orig_data.splitlines(keepends=True)

@@ -766,7 +766,7 @@ class Boards:
         """
         database = MaintainersDatabase()
         for (dirpath, _, filenames) in os.walk(srcdir):
-            if 'MAINTAINERS' in filenames:
+            if 'MAINTAINERS' in filenames and 'tools/buildman' not in dirpath:
                 database.parse_file(srcdir,
                                     os.path.join(dirpath, 'MAINTAINERS'))
 
@@ -779,7 +779,7 @@ class Boards:
             else:
                 params['status'] = '-'
             params_list[i] = params
-        return database.warnings
+        return sorted(database.warnings)
 
     @classmethod
     def format_and_output(cls, params_list, output):
