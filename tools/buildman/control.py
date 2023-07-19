@@ -147,6 +147,51 @@ def get_allow_missing(opt_allow, opt_no_allow, num_selected, has_branch):
         allow_missing = False
     return allow_missing
 
+
+def determine_series(count, has_range, branch, git_dir):
+    """Determine the series which is to be built, if any
+
+    Args:
+        count (int): Number of commits in branch
+        has_range (bool): True if a range of commits ('xx..yy') is being built
+        branch (str): Name of branch to build, or None if none
+        git_dir (str): Git directory to use, e.g. './.git'
+
+    Returns:
+        Series: Series to build, or None for none
+
+    Read the metadata from the commits. First look at the upstream commit,
+    then the ones in the branch. We would like to do something like
+    upstream/master~..branch but that isn't possible if upstream/master is
+    a merge commit (it will list all the commits that form part of the
+    merge)
+
+    Conflicting tags are not a problem for buildman, since it does not use
+    them. For example, Series-version is not useful for buildman. On the
+    other hand conflicting tags will cause an error. So allow later tags
+    to overwrite earlier ones by setting allow_overwrite=True
+    """
+    if branch:
+        if count == -1:
+            if has_range:
+                range_expr = branch
+            else:
+                range_expr = gitutil.get_range_in_branch(git_dir, branch)
+            upstream_commit = gitutil.get_upstream(git_dir, branch)
+            series = patchstream.get_metadata_for_list(upstream_commit,
+                git_dir, 1, series=None, allow_overwrite=True)
+
+            series = patchstream.get_metadata_for_list(range_expr,
+                    git_dir, None, series, allow_overwrite=True)
+        else:
+            # Honour the count
+            series = patchstream.get_metadata_for_list(branch,
+                    git_dir, count, series=None, allow_overwrite=True)
+    else:
+        series = None
+    return series
+
+
 def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                 clean_dir=False, test_thread_exceptions=False):
     """The main control code for buildman
@@ -174,7 +219,7 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
     gitutil.setup()
     col = terminal.Color()
 
-    options.git_dir = os.path.join(options.git, '.git')
+    git_dir = os.path.join(options.git, '.git')
 
     no_toolchains = toolchains is None
     if no_toolchains:
@@ -275,11 +320,11 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             count = 1
         else:
             if has_range:
-                count, msg = gitutil.count_commits_in_range(options.git_dir,
-                                                         options.branch)
+                count, msg = gitutil.count_commits_in_range(git_dir,
+                                                            options.branch)
             else:
-                count, msg = gitutil.count_commits_in_branch(options.git_dir,
-                                                          options.branch)
+                count, msg = gitutil.count_commits_in_branch(git_dir,
+                                                             options.branch)
             if count is None:
                 sys.exit(col.build(col.RED, msg))
             elif count == 0:
@@ -301,39 +346,11 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             sys.exit(col.build(col.RED,
                                '-w can only be used with a single commit'))
 
-    # Read the metadata from the commits. First look at the upstream commit,
-    # then the ones in the branch. We would like to do something like
-    # upstream/master~..branch but that isn't possible if upstream/master is
-    # a merge commit (it will list all the commits that form part of the
-    # merge)
-    # Conflicting tags are not a problem for buildman, since it does not use
-    # them. For example, Series-version is not useful for buildman. On the
-    # other hand conflicting tags will cause an error. So allow later tags
-    # to overwrite earlier ones by setting allow_overwrite=True
-    if options.branch:
-        if count == -1:
-            if has_range:
-                range_expr = options.branch
-            else:
-                range_expr = gitutil.get_range_in_branch(options.git_dir,
-                                                      options.branch)
-            upstream_commit = gitutil.get_upstream(options.git_dir,
-                                                  options.branch)
-            series = patchstream.get_metadata_for_list(upstream_commit,
-                options.git_dir, 1, series=None, allow_overwrite=True)
-
-            series = patchstream.get_metadata_for_list(range_expr,
-                    options.git_dir, None, series, allow_overwrite=True)
-        else:
-            # Honour the count
-            series = patchstream.get_metadata_for_list(options.branch,
-                    options.git_dir, count, series=None, allow_overwrite=True)
-    else:
-        series = None
-        if not options.dry_run:
-            options.verbose = True
-            if not options.summary:
-                options.show_errors = True
+    series = determine_series(count, has_range, options.branch, git_dir)
+    if not series and not options.dry_run:
+        options.verbose = True
+        if not options.summary:
+            options.show_errors = True
 
     # By default we have one thread per CPU. But if there are not enough jobs
     # we can have fewer threads and use a high '-j' value for make.
@@ -375,7 +392,7 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
         else:
             adjust_cfg['LOCALVERSION_AUTO'] = '~'
 
-    builder = Builder(toolchains, output_dir, options.git_dir,
+    builder = Builder(toolchains, output_dir, git_dir,
             options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
             show_unknown=options.show_unknown, step=options.step,
             no_subdirs=options.no_subdirs, full_path=options.full_path,
