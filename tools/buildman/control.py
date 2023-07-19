@@ -602,15 +602,16 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
         options.show_bloat, options.list_error_boards, options.show_config,
         options.show_environment, options.filter_dtb_warnings,
         options.filter_migration_warnings, options.ide)
+    retval = 0
     if options.summary:
         builder.ShowSummary(commits, board_selected)
     else:
         fail, warned, excs = builder.BuildBoards(
             commits, board_selected, options.keep_outputs, options.verbose)
         if excs:
-            return 102
+            retval = 102
         if fail:
-            return 100
+            retval = 100
         if warned and not options.ignore_warnings:
-            return 101
-    return 0
+            retval = 101
+    return retval
