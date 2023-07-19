@@ -513,7 +513,7 @@ int mtk_pinconf_drive_set_v0(struct udevice *dev, u32 pin, u32 arg)
 			return err;
 	}
 
-	return 0;
+	return err;
 }
 
 int mtk_pinconf_drive_set_v1(struct udevice *dev, u32 pin, u32 arg)
@@ -531,7 +531,7 @@ int mtk_pinconf_drive_set_v1(struct udevice *dev, u32 pin, u32 arg)
 			return err;
 	}
 
-	return 0;
+	return err;
 }
 
 int mtk_pinconf_drive_set(struct udevice *dev, u32 pin, u32 arg)
