@@ -137,6 +137,28 @@ class BuilderThread(threading.Thread):
         return self.builder.do_make(commit, brd, stage, cwd, *args,
                 **kwargs)
 
+    def _build_args(self, args):
+        """Set up arguments to the args list based on the settings
+
+        Args:
+            args (list of str): List of string arguments to add things to
+        """
+        if self.builder.verbose_build:
+            args.append('V=1')
+        else:
+            args.append('-s')
+        if self.builder.num_jobs is not None:
+            args.extend(['-j', str(self.builder.num_jobs)])
+        if self.builder.warnings_as_errors:
+            args.append('KCFLAGS=-Werror')
+            args.append('HOSTCFLAGS=-Werror')
+        if self.builder.allow_missing:
+            args.append('BINMAN_ALLOW_MISSING=1')
+        if self.builder.no_lto:
+            args.append('NO_LTO=1')
+        if self.builder.reproducible_builds:
+            args.append('SOURCE_DATE_EPOCH=0')
+
     def run_commit(self, commit_upto, brd, work_dir, do_config, config_only,
                   force_build, force_build_failures, work_in_output,
                   adjust_cfg):
@@ -252,21 +274,7 @@ class BuilderThread(threading.Thread):
                         src_dir = os.getcwd()
                     else:
                         args.append(f'O={out_rel_dir}')
-                if self.builder.verbose_build:
-                    args.append('V=1')
-                else:
-                    args.append('-s')
-                if self.builder.num_jobs is not None:
-                    args.extend(['-j', str(self.builder.num_jobs)])
-                if self.builder.warnings_as_errors:
-                    args.append('KCFLAGS=-Werror')
-                    args.append('HOSTCFLAGS=-Werror')
-                if self.builder.allow_missing:
-                    args.append('BINMAN_ALLOW_MISSING=1')
-                if self.builder.no_lto:
-                    args.append('NO_LTO=1')
-                if self.builder.reproducible_builds:
-                    args.append('SOURCE_DATE_EPOCH=0')
+                self._build_args(args)
                 config_args = [f'{brd.target}_defconfig']
                 config_out = ''
                 args.extend(self.builder.toolchains.GetMakeArguments(brd))
