@@ -262,21 +262,26 @@ class BuilderThread(threading.Thread):
             result.return_code = 0
         return result
 
-    def _read_done_file(self, commit_upto, brd, result, force_build,
+    def _read_done_file(self, commit_upto, brd, force_build,
                         force_build_failures):
         """Check the 'done' file and see if this commit should be built
 
         Args:
             commit (Commit): Commit only being built
             brd (Board): Board being built
-            result (CommandResult): result object to update
             force_build (bool): Force a build even if one was previously done
             force_build_failures (bool): Force a bulid if the previous result
                 showed failure
 
         Returns:
-            bool: True if build should be built
+            tuple:
+                bool: True if build should be built
+                CommandResult: if there was a previous run:
+                    - already_done set to True
+                    - return_code set to return code
+                    - result.stderr set to 'bad' if stderr output was recorded
         """
+        result = command.CommandResult()
         done_file = self.builder.get_done_file(commit_upto, brd.target)
         result.already_done = os.path.exists(done_file)
         will_build = (force_build or force_build_failures or
@@ -300,7 +305,7 @@ class BuilderThread(threading.Thread):
                 elif not force_build:
                     # The build passed, so no need to build it again
                     will_build = False
-        return will_build
+        return will_build, result
 
     def _decide_dirs(self, brd, work_dir, work_in_output):
         """Decide the output directory to use
@@ -438,13 +443,11 @@ class BuilderThread(threading.Thread):
         """
         # Create a default result - it will be overwritte by the call to
         # self.make() below, in the event that we do a build.
-        result = command.CommandResult()
-        result.return_code = 0
         out_dir, out_rel_dir = self._decide_dirs(brd, work_dir, work_in_output)
 
         # Check if the job was already completed last time
-        will_build = self._read_done_file(commit_upto, brd, result, force_build,
-                                          force_build_failures)
+        will_build, result = self._read_done_file(commit_upto, brd, force_build,
+                                                  force_build_failures)
 
         if will_build:
             # We are going to have to build it. First, get a toolchain
