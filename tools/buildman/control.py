@@ -202,6 +202,9 @@ def count_commits(branch, count, col, git_dir):
 def determine_series(selected, col, git_dir, count, branch, work_in_output):
     """Determine the series which is to be built, if any
 
+    If there is a series, the commits in that series are numbered by setting
+    their sequence value (starting from 0). This is used by tests.
+
     Args:
         selected (list of Board): List of Board objects that are marked
             selected
@@ -254,6 +257,10 @@ def determine_series(selected, col, git_dir, count, branch, work_in_output):
             # Honour the count
             series = patchstream.get_metadata_for_list(branch,
                     git_dir, count, series=None, allow_overwrite=True)
+
+        # Number the commits for test purposes
+        for i, commit in enumerate(series.commits):
+            commit.sequence = i
     else:
         series = None
     return series
@@ -580,9 +587,6 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
 
     if series:
         commits = series.commits
-        # Number the commits for test purposes
-        for i, commit in enumerate(commits):
-            commit.sequence = i
     else:
         commits = None
 
