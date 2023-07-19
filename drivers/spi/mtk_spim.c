@@ -242,6 +242,9 @@ static int mtk_spim_hw_init(struct spi_slave *slave)
 			reg_val &= ~SPI_CMD_SAMPLE_SEL;
 	}
 
+	/* Disable interrupt enable for pause mode & normal mode */
+	reg_val &= ~(SPI_CMD_PAUSE_IE | SPI_CMD_FINISH_IE);
+
 	/* disable dma mode */
 	reg_val &= ~(SPI_CMD_TX_DMA | SPI_CMD_RX_DMA);
 
