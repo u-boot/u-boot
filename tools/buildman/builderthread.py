@@ -218,6 +218,32 @@ class BuilderThread(threading.Thread):
         config_out.write(result.combined)
         return result
 
+    def _build(self, commit, brd, cwd, args, env, cmd_list, config_only):
+        """Perform the build
+
+        Args:
+            commit (Commit): Commit only being built
+            brd (Board): Board being built
+            cwd (str): Current working directory
+            args (list of str): Arguments to pass to make
+            env (dict): Environment strings
+            cmd_list (list of str): List to add the commands to, for logging
+            config_only (bool): True if this is a config-only build (using the
+                'make cfg' target)
+
+        Returns:
+            CommandResult object
+        """
+        if config_only:
+            args.append('cfg')
+        result = self.make(commit, brd, 'build', cwd, *args, env=env)
+        cmd_list.append([self.builder.gnu_make] + args)
+        if (result.return_code == 2 and
+            ('Some images are invalid' in result.stderr)):
+            # This is handled later by the check for output in stderr
+            result.return_code = 0
+        return result
+
     def run_commit(self, commit_upto, brd, work_dir, do_config, config_only,
                   force_build, force_build_failures, work_in_output,
                   adjust_cfg):
@@ -342,17 +368,11 @@ class BuilderThread(threading.Thread):
                     do_config = False   # No need to configure next time
                     if adjust_cfg:
                         cfgutil.adjust_cfg_file(cfg_file, adjust_cfg)
+
+                # Now do the build, if everything looks OK
                 if result.return_code == 0:
-                    if config_only:
-                        args.append('cfg')
-                    result = self.make(commit, brd, 'build', cwd, *args,
-                            env=env)
-                    cmd_list.append([self.builder.gnu_make] + args)
-                    if (result.return_code == 2 and
-                        ('Some images are invalid' in result.stderr)):
-                        # This is handled later by the check for output in
-                        # stderr
-                        result.return_code = 0
+                    result = self._build(commit, brd, cwd, args, env, cmd_list,
+                                         config_only)
                     if adjust_cfg:
                         errs = cfgutil.check_cfg_file(cfg_file, adjust_cfg)
                         if errs:
