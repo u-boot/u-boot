@@ -616,9 +616,5 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
 
     TEST_BUILDER = builder
 
-    # Work out which boards to build
-    board_selected = brds.get_selected_dict()
-
-    commits = series.commits if series else None
-    retval = run_builder(builder, commits, board_selected, options)
-    return retval
+    return run_builder(builder, series.commits if series else None,
+                       brds.get_selected_dict(), options)
