@@ -237,6 +237,7 @@
 		reset-names = "fe";
 		mediatek,ethsys = <&ethsys>;
 		mediatek,sgmiisys = <&sgmiisys0>;
+		mediatek,infracfg = <&topmisc>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 		status = "disabled";
@@ -252,6 +253,12 @@
 	sgmiisys1: syscon@10070000 {
 		compatible = "mediatek,mt7986-sgmiisys", "syscon";
 		reg = <0x10070000 0x1000>;
+		#clock-cells = <1>;
+	};
+
+	topmisc: topmisc@11d10000 {
+		compatible = "mediatek,mt7981-topmisc", "syscon";
+		reg = <0x11d10000 0x10000>;
 		#clock-cells = <1>;
 	};
 
