@@ -1311,6 +1311,19 @@ You should use 'buildman -nv <criteria>' instead of greoing the boards.cfg file,
 since it may be dropped altogether in future.
 
 
+Checking maintainers
+--------------------
+
+Sometimes a board is added without a corresponding entry in a MAINTAINERS file.
+Use the `--maintainer-check` option to check this::
+
+   $ buildman --maintainer-check
+   WARNING: board/mikrotik/crs3xx-98dx3236/MAINTAINERS: missing defconfig ending at line 7
+   WARNING: no maintainers for 'clearfog_spi'
+
+Buildman returns with an exit code of 2 if there area any warnings.
+
+
 Checking the command
 --------------------
 

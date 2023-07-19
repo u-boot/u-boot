@@ -213,11 +213,13 @@ class KconfigScanner:
         if self._tmpfile:
             try_remove(self._tmpfile)
 
-    def scan(self, defconfig):
+    def scan(self, defconfig, warn_targets):
         """Load a defconfig file to obtain board parameters.
 
         Args:
             defconfig (str): path to the defconfig file to be processed
+            warn_targets (bool): True to warn about missing or duplicate
+                CONFIG_TARGET options
 
         Returns:
             tuple: dictionary of board parameters.  It has a form of:
@@ -252,19 +254,20 @@ class KconfigScanner:
                 params[key] = '-'
 
         # Check there is exactly one TARGET_xxx set
-        target = None
-        for name, sym in self._conf.syms.items():
-            if name.startswith('TARGET_') and sym.str_value == 'y':
-                tname = name[7:].lower()
-                if target:
-                    warnings.append(
-                        f'WARNING: {leaf}: Duplicate TARGET_xxx: {target} and {tname}')
-                else:
-                    target = tname
+        if warn_targets:
+            target = None
+            for name, sym in self._conf.syms.items():
+                if name.startswith('TARGET_') and sym.str_value == 'y':
+                    tname = name[7:].lower()
+                    if target:
+                        warnings.append(
+                            f'WARNING: {leaf}: Duplicate TARGET_xxx: {target} and {tname}')
+                    else:
+                        target = tname
 
-        if not target:
-            cfg_name = expect_target.replace('-', '_').upper()
-            warnings.append(f'WARNING: {leaf}: No TARGET_{cfg_name} enabled')
+            if not target:
+                cfg_name = expect_target.replace('-', '_').upper()
+                warnings.append(f'WARNING: {leaf}: No TARGET_{cfg_name} enabled')
 
         params['target'] = expect_target
 
@@ -666,7 +669,8 @@ class Boards:
         return result, warnings
 
     @classmethod
-    def scan_defconfigs_for_multiprocess(cls, srcdir, queue, defconfigs):
+    def scan_defconfigs_for_multiprocess(cls, srcdir, queue, defconfigs,
+                                         warn_targets):
         """Scan defconfig files and queue their board parameters
 
         This function is intended to be passed to multiprocessing.Process()
@@ -678,10 +682,12 @@ class Boards:
                 written into this.
             defconfigs (sequence of str): A sequence of defconfig files to be
                 scanned.
+            warn_targets (bool): True to warn about missing or duplicate
+                CONFIG_TARGET options
         """
         kconf_scanner = KconfigScanner(srcdir)
         for defconfig in defconfigs:
-            queue.put(kconf_scanner.scan(defconfig))
+            queue.put(kconf_scanner.scan(defconfig, warn_targets))
 
     @classmethod
     def read_queues(cls, queues, params_list, warnings):
@@ -698,7 +704,7 @@ class Boards:
                 params_list.append(params)
                 warnings.update(warn)
 
-    def scan_defconfigs(self, config_dir, srcdir, jobs=1):
+    def scan_defconfigs(self, config_dir, srcdir, jobs=1, warn_targets=False):
         """Collect board parameters for all defconfig files.
 
         This function invokes multiple processes for faster processing.
@@ -707,6 +713,8 @@ class Boards:
             config_dir (str): Directory containing the defconfig files
             srcdir (str): Directory containing source code (Kconfig files)
             jobs (int): The number of jobs to run simultaneously
+            warn_targets (bool): True to warn about missing or duplicate
+                CONFIG_TARGET options
 
         Returns:
             tuple:
@@ -732,7 +740,7 @@ class Boards:
             que = multiprocessing.Queue(maxsize=-1)
             proc = multiprocessing.Process(
                 target=self.scan_defconfigs_for_multiprocess,
-                args=(srcdir, que, defconfigs))
+                args=(srcdir, que, defconfigs, warn_targets))
             proc.start()
             processes.append(proc)
             queues.append(que)
@@ -819,7 +827,8 @@ class Boards:
         with open(output, 'w', encoding="utf-8") as outf:
             outf.write(COMMENT_BLOCK + '\n'.join(output_lines) + '\n')
 
-    def build_board_list(self, config_dir, srcdir, jobs=1):
+    def build_board_list(self, config_dir=CONFIG_DIR, srcdir='.', jobs=1,
+                         warn_targets=False):
         """Generate a board-database file
 
         This works by reading the Kconfig, then loading each board's defconfig
@@ -830,6 +839,8 @@ class Boards:
             config_dir (str): Directory containing the defconfig files
             srcdir (str): Directory containing source code (Kconfig files)
             jobs (int): The number of jobs to run simultaneously
+            warn_targets (bool): True to warn about missing or duplicate
+                CONFIG_TARGET options
 
         Returns:
             tuple:
@@ -839,7 +850,8 @@ class Boards:
                     value: string value of the key
                 list of str: Warnings that came up
         """
-        params_list, warnings = self.scan_defconfigs(config_dir, srcdir, jobs)
+        params_list, warnings = self.scan_defconfigs(config_dir, srcdir, jobs,
+                                                     warn_targets)
         m_warnings = self.insert_maintainers_info(srcdir, params_list)
         return params_list, warnings + m_warnings
 

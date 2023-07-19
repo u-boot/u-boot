@@ -202,6 +202,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
             sys.exit(col.build(col.RED, '-w requires that you specify -o'))
         options.output_dir = '..'
 
+    nr_cups = options.threads or multiprocessing.cpu_count()
+
     # Work out what subset of the boards we are building
     if not brds:
         if not os.path.exists(options.output_dir):
@@ -209,8 +211,15 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
         board_file = os.path.join(options.output_dir, 'boards.cfg')
 
         brds = boards.Boards()
-        ok = brds.ensure_board_list(board_file,
-                                    options.threads or multiprocessing.cpu_count(),
+        if options.maintainer_check:
+            warnings = brds.build_board_list(jobs=nr_cups)[1]
+            if warnings:
+                for warn in warnings:
+                    print(warn, file=sys.stderr)
+                return 2
+            return 0
+
+        ok = brds.ensure_board_list(board_file, nr_cups,
                                     force=options.regen_board_list,
                                     quiet=not options.verbose)
         if options.regen_board_list:

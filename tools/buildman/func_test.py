@@ -976,7 +976,8 @@ config TARGET_OTHER
 endif
 ''')
         tools.write_file(kc_file, orig_kc_data + extra)
-        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        params_list, warnings = self._boards.build_board_list(config_dir, src,
+                                                              warn_targets=True)
         self.assertEquals(2, len(params_list))
         self.assertEquals(
             ['WARNING: board2_defconfig: Duplicate TARGET_xxx: board2 and other'],
@@ -986,7 +987,8 @@ endif
         lines = [b'' if line == b'config TARGET_BOARD2\n' else line
                   for line in orig_kc_data.splitlines(keepends=True)]
         tools.write_file(kc_file, b''.join(lines))
-        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        params_list, warnings = self._boards.build_board_list(config_dir, src,
+                                                              warn_targets=True)
         self.assertEquals(2, len(params_list))
         self.assertEquals(
             ['WARNING: board2_defconfig: No TARGET_BOARD2 enabled'],

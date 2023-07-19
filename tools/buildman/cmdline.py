@@ -85,6 +85,8 @@ def ParseArgs():
     parser.add_option(
           '-M', '--allow-missing', action='store_true', default=False,
           help='Tell binman to allow missing blobs and generate fake ones as needed'),
+    parser.add_option('--maintainer-check', action='store_true',
+                      help='Check that maintainer entries exist for each board')
     parser.add_option(
           '--no-allow-missing', action='store_true', default=False,
           help='Disable telling binman to allow missing blobs'),
