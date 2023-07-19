@@ -563,10 +563,10 @@ stages:
           BUILDMAN: "uniphier"
         aarch64_catch_all:
           BUILDMAN: "aarch64 -x amlogic,bcm,imx8,imx9,k3,tegra,ls1,ls2,lx216,mvebu,uniphier,renesas,sunxi,samsung,socfpga,rk,versal,zynq"
-        rockchip_32bit:
-          BUILDMAN: "rk -x aarch64"
-        rockchip_64bit:
-          BUILDMAN: "rk&aarch64"
+        rk_rv_non_rockchip:
+          BUILDMAN: "rk|rv -x rockchip"
+        rk_rv_and_rockchip:
+          BUILDMAN: "(rk|rv)&rockchip"
         renesas:
           BUILDMAN: "renesas"
         zynq:
