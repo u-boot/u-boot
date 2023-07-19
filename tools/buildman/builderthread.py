@@ -246,8 +246,8 @@ class BuilderThread(threading.Thread):
                         #
                         # Symlinks can confuse U-Boot's Makefile since
                         # we may use '..' in our path, so remove them.
-                        out_dir = os.path.realpath(out_dir)
-                        args.append(f'O={out_dir}')
+                        real_dir = os.path.realpath(out_dir)
+                        args.append(f'O={real_dir}')
                         cwd = None
                         src_dir = os.getcwd()
                     else:
