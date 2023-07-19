@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2020 NXP
+ * Copyright 2020-2023 NXP
  */
 
 #include <common.h>
@@ -20,6 +20,7 @@
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_liodn.h>
+#include <clock_legacy.h>
 #include <fm_eth.h>
 #include "t102xrdb.h"
 #ifdef CONFIG_TARGET_T1024RDB
@@ -43,6 +44,13 @@ enum {
 	I2C_SET_BANK0,
 	I2C_SET_BANK4,
 };
+#endif
+
+#if CONFIG_IS_ENABLED(DM_SERIAL)
+int get_serial_clock(void)
+{
+	return get_bus_freq(0) / 2;
+}
 #endif
 
 int checkboard(void)
@@ -158,6 +166,8 @@ int board_early_init_r(void)
 #ifdef CONFIG_TARGET_T1024RDB
 	board_mux_lane();
 #endif
+
+	pci_init();
 
 	return 0;
 }

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2020-2021 NXP
+ * Copyright 2020-2023 NXP
  */
 
 /*
@@ -283,7 +283,9 @@
 #define CFG_SYS_INIT_SP_OFFSET	(CFG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /* Serial Port */
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 #define CFG_SYS_NS16550_CLK		(get_bus_freq(0)/2)
+#endif
 
 #define CFG_SYS_BAUDRATE_TABLE	\
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2009-2013 Freescale Semiconductor, Inc.
- * Copyright 2021 NXP
+ * Copyright 2021-2023 NXP
  */
 
 #include <common.h>
@@ -20,6 +20,7 @@
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_liodn.h>
+#include <clock_legacy.h>
 #include <fm_eth.h>
 #include "t208xrdb.h"
 #include "cpld.h"
@@ -41,6 +42,13 @@ u8 get_hw_revision(void)
 		return 'E';
 	}
 }
+
+#if CONFIG_IS_ENABLED(DM_SERIAL)
+int get_serial_clock(void)
+{
+	return get_bus_freq(0) / 2;
+}
+#endif
 
 int checkboard(void)
 {
@@ -106,6 +114,9 @@ int board_early_init_r(void)
 	 */
 	if (adjust_vdd(0))
 		printf("Warning: Adjusting core voltage failed.\n");
+
+	pci_init();
+
 	return 0;
 }
 

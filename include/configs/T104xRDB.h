@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2020-2021 NXP
+ * Copyright 2020-2023 NXP
  */
 
 #ifndef __CONFIG_H
@@ -238,7 +238,9 @@
  * open - index 2
  * shorted - index 1
  */
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 #define CFG_SYS_NS16550_CLK		(get_bus_freq(0)/2)
+#endif
 
 #define CFG_SYS_BAUDRATE_TABLE	\
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}

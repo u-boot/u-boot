@@ -3,7 +3,7 @@
  * T1024RDB Device Tree Source
  *
  * Copyright 2013 - 2015 Freescale Semiconductor Inc.
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2023 NXP
  */
 
 /include/ "t102x.dtsi"
@@ -17,6 +17,10 @@
 
 	aliases {
 		sg_2500_aqr105_phy4 = &sg_2500_aqr105_phy4;
+		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
+		serial3 = &serial3;
 		spi0 = &espi0;
 	};
 

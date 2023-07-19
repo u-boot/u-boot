@@ -3,7 +3,7 @@
  * T1042D4RDB Device Tree Source
  *
  * Copyright 2013 - 2015 Freescale Semiconductor Inc.
- * Copyright 2019-2021 NXP
+ * Copyright 2019-2023 NXP
  */
 
 /include/ "t104x.dtsi"
@@ -17,6 +17,10 @@
 
 	aliases {
 		spi0 = &espi0;
+		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
+		serial3 = &serial3;
 	};
 };
 
