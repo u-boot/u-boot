@@ -255,7 +255,10 @@ class Builder:
                  config_only=False, squash_config_y=False,
                  warnings_as_errors=False, work_in_output=False,
                  test_thread_exceptions=False, adjust_cfg=None,
-                 allow_missing=False, no_lto=False, reproducible_builds=False):
+                 allow_missing=False, no_lto=False, reproducible_builds=False,
+                 force_build=False, force_build_failures=False,
+                 force_reconfig=False, in_tree=False,
+                 force_config_on_failure=False, make_func=None):
         """Create a new Builder object
 
         Args:
@@ -295,7 +298,14 @@ class Builder:
                         a string Kconfig
             allow_missing: Run build with BINMAN_ALLOW_MISSING=1
             no_lto (bool): True to set the NO_LTO flag when building
-
+            force_build (bool): Rebuild even commits that are already built
+            force_build_failures (bool): Rebuild commits that have not been
+                built, or failed to build
+            force_reconfig (bool): Reconfigure on each commit
+            in_tree (bool): Bulid in tree instead of out-of-tree
+            force_config_on_failure (bool): Reconfigure the build before
+                retrying a failed build
+            make_func (function): Function to call to run 'make'
         """
         self.toolchains = toolchains
         self.base_dir = base_dir
@@ -304,7 +314,7 @@ class Builder:
         else:
             self._working_dir = os.path.join(base_dir, '.bm-work')
         self.threads = []
-        self.do_make = self.Make
+        self.do_make = make_func or self.Make
         self.gnu_make = gnu_make
         self.checkout = checkout
         self.num_threads = num_threads
@@ -318,11 +328,7 @@ class Builder:
         self._complete_delay = None
         self._next_delay_update = datetime.now()
         self._start_time = datetime.now()
-        self.force_config_on_failure = True
-        self.force_build_failures = False
-        self.force_reconfig = False
         self._step = step
-        self.in_tree = False
         self._error_lines = 0
         self.no_subdirs = no_subdirs
         self.full_path = full_path
@@ -336,6 +342,11 @@ class Builder:
         self._ide = False
         self.no_lto = no_lto
         self.reproducible_builds = reproducible_builds
+        self.force_build = force_build
+        self.force_build_failures = force_build_failures
+        self.force_reconfig = force_reconfig
+        self.in_tree = in_tree
+        self.force_config_on_failure = force_config_on_failure
 
         if not self.squash_config_y:
             self.config_filenames += EXTRA_CONFIG_FILENAMES

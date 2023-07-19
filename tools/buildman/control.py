@@ -545,8 +545,6 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                                       options.no_allow_missing, len(selected),
                                       options.branch)
 
-    # Create a new builder with the selected options.
-
     adjust_cfg = cfgutil.convert_list_to_dict(options.adjust_cfg)
 
     # Drop LOCALVERSION_AUTO since it changes the version string on every commit
@@ -557,6 +555,7 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
         else:
             adjust_cfg['LOCALVERSION_AUTO'] = '~'
 
+    # Create a new builder with the selected options
     builder = Builder(toolchains, output_dir, git_dir,
             options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
             show_unknown=options.show_unknown, step=options.step,
@@ -571,16 +570,13 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             test_thread_exceptions=test_thread_exceptions,
             adjust_cfg=adjust_cfg,
             allow_missing=allow_missing, no_lto=options.no_lto,
-            reproducible_builds=options.reproducible_builds)
-    TEST_BUILDER = builder
-    builder.force_config_on_failure = not options.quick
-    if make_func:
-        builder.do_make = make_func
+            reproducible_builds=options.reproducible_builds,
+            force_build = options.force_build,
+            force_build_failures = options.force_build_failures,
+            force_reconfig = options.force_reconfig, in_tree = options.in_tree,
+            force_config_on_failure=not options.quick, make_func=make_func)
 
-    builder.force_build = options.force_build
-    builder.force_build_failures = options.force_build_failures
-    builder.force_reconfig = options.force_reconfig
-    builder.in_tree = options.in_tree
+    TEST_BUILDER = builder
 
     # Work out which boards to build
     board_selected = brds.get_selected_dict()
