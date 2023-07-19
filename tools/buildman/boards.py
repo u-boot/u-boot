@@ -220,16 +220,17 @@ class KconfigScanner:
             defconfig (str): path to the defconfig file to be processed
 
         Returns:
-            A dictionary of board parameters.  It has a form of:
-            {
-                'arch': <arch_name>,
-                'cpu': <cpu_name>,
-                'soc': <soc_name>,
-                'vendor': <vendor_name>,
-                'board': <board_name>,
-                'target': <target_name>,
-                'config': <config_header_name>,
-            }
+            tuple: dictionary of board parameters.  It has a form of:
+                {
+                    'arch': <arch_name>,
+                    'cpu': <cpu_name>,
+                    'soc': <soc_name>,
+                    'vendor': <vendor_name>,
+                    'board': <board_name>,
+                    'target': <target_name>,
+                    'config': <config_header_name>,
+                }
+            warnings (list of str): list of warnings found
         """
         leaf = os.path.basename(defconfig)
         expect_target, match, rear = leaf.partition('_defconfig')
@@ -239,6 +240,7 @@ class KconfigScanner:
         self._tmpfile = None
 
         params = {}
+        warnings = []
 
         # Get the value of CONFIG_SYS_ARCH, CONFIG_SYS_CPU, ... etc.
         # Set '-' if the value is empty.
@@ -248,6 +250,17 @@ class KconfigScanner:
                 params[key] = value
             else:
                 params[key] = '-'
+
+        # Check there is exactly one TARGET_xxx set
+        target = None
+        for name, sym in self._conf.syms.items():
+            if name.startswith('TARGET_') and sym.str_value == 'y':
+                tname = name[7:].lower()
+                if target:
+                    warnings.append(
+                        f'WARNING: {leaf}: Duplicate TARGET_xxx: {target} and {tname}')
+                else:
+                    target = tname
 
         params['target'] = expect_target
 
@@ -266,7 +279,7 @@ class KconfigScanner:
             else:
                 params['arch'] = 'riscv64'
 
-        return params
+        return params, warnings
 
 
 class MaintainersDatabase:
@@ -658,11 +671,19 @@ class Boards:
             queue.put(kconf_scanner.scan(defconfig))
 
     @classmethod
-    def read_queues(cls, queues, params_list):
-        """Read the queues and append the data to the paramers list"""
+    def read_queues(cls, queues, params_list, warnings):
+        """Read the queues and append the data to the paramers list
+
+        Args:
+            queues (list of multiprocessing.Queue): Queues to read
+            params_list (list of dict): List to add params too
+            warnings (set of str): Set to add warnings to
+        """
         for que in queues:
             while not que.empty():
-                params_list.append(que.get())
+                params, warn = que.get()
+                params_list.append(params)
+                warnings.update(warn)
 
     def scan_defconfigs(self, config_dir, srcdir, jobs=1):
         """Collect board parameters for all defconfig files.
@@ -675,9 +696,12 @@ class Boards:
             jobs (int): The number of jobs to run simultaneously
 
         Returns:
-            list of dict: List of board parameters, each a dict:
-                key: 'arch', 'cpu', 'soc', 'vendor', 'board', 'target', 'config'
-                value: string value of the key
+            tuple:
+                list of dict: List of board parameters, each a dict:
+                    key: 'arch', 'cpu', 'soc', 'vendor', 'board', 'target',
+                        'config'
+                    value: string value of the key
+                list of str: List of warnings recorded
         """
         all_defconfigs = []
         for (dirpath, _, filenames) in os.walk(config_dir):
@@ -700,13 +724,14 @@ class Boards:
             processes.append(proc)
             queues.append(que)
 
-        # The resulting data should be accumulated to this list
+        # The resulting data should be accumulated to these lists
         params_list = []
+        warnings = set()
 
         # Data in the queues should be retrieved preriodically.
         # Otherwise, the queues would become full and subprocesses would get stuck.
         while any(p.is_alive() for p in processes):
-            self.read_queues(queues, params_list)
+            self.read_queues(queues, params_list, warnings)
             # sleep for a while until the queues are filled
             time.sleep(SLEEP_TIME)
 
@@ -716,9 +741,9 @@ class Boards:
             proc.join()
 
         # retrieve leftover data
-        self.read_queues(queues, params_list)
+        self.read_queues(queues, params_list, warnings)
 
-        return params_list
+        return params_list, sorted(list(warnings))
 
     @classmethod
     def insert_maintainers_info(cls, srcdir, params_list):
@@ -797,9 +822,9 @@ class Boards:
                     value: string value of the key
                 list of str: Warnings that came up
         """
-        params_list = self.scan_defconfigs(config_dir, srcdir, jobs)
-        warnings = self.insert_maintainers_info(srcdir, params_list)
-        return params_list, warnings
+        params_list, warnings = self.scan_defconfigs(config_dir, srcdir, jobs)
+        m_warnings = self.insert_maintainers_info(srcdir, params_list)
+        return params_list, warnings + m_warnings
 
     def ensure_board_list(self, output, jobs=1, force=False, quiet=False):
         """Generate a board database file if needed.

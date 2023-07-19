@@ -794,10 +794,11 @@ CONFIG_LOCALVERSION=y
 
         # Scan the test directory which contains a Kconfig and some *_defconfig
         # files
-        params = self._boards.scan_defconfigs(src, src)
+        params, warnings = self._boards.scan_defconfigs(src, src)
 
         # We should get two boards
         self.assertEquals(2, len(params))
+        self.assertFalse(warnings)
         first = 0 if params[0]['target'] == 'board0' else 1
         board0 = params[first]
         board2 = params[1 - first]
@@ -882,6 +883,7 @@ Active  aarch64     armv8 - armltd total_compute board2
         src = self._git_dir
         main = os.path.join(src, 'boards', 'board0', 'MAINTAINERS')
         other = os.path.join(src, 'boards', 'board2', 'MAINTAINERS')
+        kc_file = os.path.join(src, 'Kconfig')
         config_dir = os.path.join(src, 'configs')
         params_list, warnings = self._boards.build_board_list(config_dir, src)
 
@@ -945,4 +947,20 @@ Active  aarch64     armv8 - armltd total_compute board2
         self.assertEquals(2, len(params_list))
         self.assertEquals(
             ['WARNING: orphaned defconfig in boards/board0/MAINTAINERS ending at line 16'],
+             warnings)
+
+        # Add another TARGET to the Kconfig
+        tools.write_file(main, data, binary=False)
+        extra = (b'''
+if TARGET_BOARD2
+config TARGET_OTHER
+\tbool "other"
+\tdefault y
+endif
+''')
+        tools.write_file(kc_file, tools.read_file(kc_file) + extra)
+        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        self.assertEquals(2, len(params_list))
+        self.assertEquals(
+            ['WARNING: board2_defconfig: Duplicate TARGET_xxx: board2 and other'],
              warnings)
