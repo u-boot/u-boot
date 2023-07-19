@@ -436,7 +436,8 @@ static int mt7531_mii_ind_write(struct mtk_eth_priv *priv, u8 phy, u8 reg,
 			     MDIO_ST_C22);
 }
 
-int mt7531_mmd_ind_read(struct mtk_eth_priv *priv, u8 addr, u8 devad, u16 reg)
+static int mt7531_mmd_ind_read(struct mtk_eth_priv *priv, u8 addr, u8 devad,
+			       u16 reg)
 {
 	u8 phy_addr;
 	int ret;
@@ -934,7 +935,7 @@ static int mt7531_setup(struct mtk_eth_priv *priv)
 	return 0;
 }
 
-int mt753x_switch_init(struct mtk_eth_priv *priv)
+static int mt753x_switch_init(struct mtk_eth_priv *priv)
 {
 	int ret;
 	int i;
