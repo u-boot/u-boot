@@ -345,6 +345,12 @@ class MaintainersDatabase:
             srcdir (str): Directory containing source code (Kconfig files)
             fname (str): MAINTAINERS file to be parsed
         """
+        def add_targets():
+            """Add any new targets"""
+            if targets:
+                for target in targets:
+                    self.database[target] = (status, maintainers)
+
         targets = []
         maintainers = []
         status = '-'
@@ -382,14 +388,11 @@ class MaintainersDatabase:
                                 if match and not rear:
                                     targets.append(front)
                 elif line == '\n':
-                    for target in targets:
-                        self.database[target] = (status, maintainers)
+                    add_targets()
                     targets = []
                     maintainers = []
                     status = '-'
-        if targets:
-            for target in targets:
-                self.database[target] = (status, maintainers)
+        add_targets()
 
 
 class Boards:
