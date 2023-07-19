@@ -1648,7 +1648,7 @@ class Builder:
                'worktree' to set up a git worktree
         """
         thread_dir = self.get_thread_dir(thread_num)
-        builderthread.Mkdir(thread_dir)
+        builderthread.mkdir(thread_dir)
         git_dir = os.path.join(thread_dir, '.git')
 
         # Create a worktree or a git repo clone for this thread if it
@@ -1696,7 +1696,7 @@ class Builder:
                 work
             setup_git: True to set up a git worktree or a git clone
         """
-        builderthread.Mkdir(self._working_dir)
+        builderthread.mkdir(self._working_dir)
         if setup_git and self.git_dir:
             src_dir = os.path.abspath(self.git_dir)
             if gitutil.check_worktree_is_available(src_dir):
@@ -1772,7 +1772,7 @@ class Builder:
         self._verbose = verbose
 
         self.reset_result_summary(board_selected)
-        builderthread.Mkdir(self.base_dir, parents = True)
+        builderthread.mkdir(self.base_dir, parents = True)
         self._prepare_working_space(min(self.num_threads, len(board_selected)),
                 commits is not None)
         self._prepare_output_space()
@@ -1793,7 +1793,7 @@ class Builder:
             if self.num_threads:
                 self.queue.put(job)
             else:
-                self._single_builder.RunJob(job)
+                self._single_builder.run_job(job)
 
         if self.num_threads:
             term = threading.Thread(target=self.queue.join)
