@@ -8,11 +8,6 @@ This holds the main control logic for buildman, when not running tests.
 """
 
 import multiprocessing
-try:
-    import importlib.resources
-except ImportError:
-    # for Python 3.6
-    import importlib_resources
 import os
 import shutil
 import sys
@@ -26,7 +21,6 @@ from patman import gitutil
 from patman import patchstream
 from u_boot_pylib import command
 from u_boot_pylib import terminal
-from u_boot_pylib import tools
 from u_boot_pylib.terminal import tprint
 
 TEST_BUILDER = None
@@ -176,11 +170,6 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
     """
     # Used so testing can obtain the builder: pylint: disable=W0603
     global TEST_BUILDER
-
-    if options.full_help:
-        with importlib.resources.path('buildman', 'README.rst') as readme:
-            tools.print_full_help(str(readme))
-        return 0
 
     gitutil.setup()
     col = terminal.Color()

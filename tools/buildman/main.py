@@ -6,6 +6,11 @@
 
 """See README for more information"""
 
+try:
+    from importlib.resources import files
+except ImportError:
+    # for Python 3.6
+    import importlib_resources
 import os
 import sys
 
@@ -19,6 +24,7 @@ from buildman import bsettings
 from buildman import cmdline
 from buildman import control
 from u_boot_pylib import test_util
+from u_boot_pylib import tools
 
 def run_tests(skip_net_tests, debug, verbose, args):
     """Run the buildman tests
@@ -63,6 +69,9 @@ def run_buildman():
     if cmdline.HAS_TESTS and options.test:
         return run_tests(options.skip_net_tests, options.debug, options.verbose,
                          args)
+
+    elif options.full_help:
+        tools.print_full_help(str(files('buildman').joinpath('README.rst')))
 
     # Build selected commits for selected boards
     else:
