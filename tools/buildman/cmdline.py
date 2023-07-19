@@ -2,6 +2,11 @@
 # Copyright (c) 2014 Google, Inc
 #
 
+"""Handles parsing of buildman arguments
+
+This creates the argument parser and uses it to parse the arguments passed in
+"""
+
 from optparse import OptionParser
 import os
 import pathlib
@@ -71,7 +76,8 @@ def parse_args():
     parser.add_option('-k', '--keep-outputs', action='store_true',
           default=False, help='Keep all build output files (e.g. binaries)')
     parser.add_option('-K', '--show-config', action='store_true',
-          default=False, help='Show configuration changes in summary (both board config files and Kconfig)')
+          default=False,
+          help='Show configuration changes in summary (both board config files and Kconfig)')
     parser.add_option('--preserve-config-y', action='store_true',
           default=False, help="Don't convert y to 1 in configs")
     parser.add_option('-l', '--list-error-boards', action='store_true',
@@ -84,16 +90,17 @@ def parse_args():
           default=False, help="Run 'make mrproper before reconfiguring")
     parser.add_option(
           '-M', '--allow-missing', action='store_true', default=False,
-          help='Tell binman to allow missing blobs and generate fake ones as needed'),
+          help='Tell binman to allow missing blobs and generate fake ones as needed')
     parser.add_option('--maintainer-check', action='store_true',
                       help='Check that maintainer entries exist for each board')
     parser.add_option(
           '--no-allow-missing', action='store_true', default=False,
-          help='Disable telling binman to allow missing blobs'),
+          help='Disable telling binman to allow missing blobs')
     parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
           default=False, help="Do a dry run (describe actions, but do nothing)")
     parser.add_option('-N', '--no-subdirs', action='store_true', dest='no_subdirs',
-          default=False, help="Don't create subdirectories when building current source for a single board")
+          default=False,
+          help="Don't create subdirectories when building current source for a single board")
     parser.add_option('-o', '--output-dir', type='string', dest='output_dir',
           help='Directory where all builds happen and buildman has its workspace (default is ../)')
     parser.add_option('-O', '--override-toolchain', type='string',
