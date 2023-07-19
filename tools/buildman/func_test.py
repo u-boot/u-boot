@@ -933,8 +933,8 @@ Active  aarch64     armv8 - armltd total_compute board2
 
         # Move the contents of the second file into this one, removing the
         # second file, to check multiple records in a single file.
-        data = orig_data + tools.read_file(other, binary=False)
-        tools.write_file(main, data, binary=False)
+        both_data = orig_data + tools.read_file(other, binary=False)
+        tools.write_file(main, both_data, binary=False)
         os.remove(other)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
         self.assertEquals(2, len(params_list))
@@ -942,7 +942,7 @@ Active  aarch64     armv8 - armltd total_compute board2
 
         # Add another record, this should be ignored with a warning
         extra = '\n\nAnother\nM: Fred\nF: configs/board9_defconfig\nS: other\n'
-        tools.write_file(main, data + extra, binary=False)
+        tools.write_file(main, both_data + extra, binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
         self.assertEquals(2, len(params_list))
         self.assertEquals(
@@ -950,7 +950,7 @@ Active  aarch64     armv8 - armltd total_compute board2
              warnings)
 
         # Add another TARGET to the Kconfig
-        tools.write_file(main, data, binary=False)
+        tools.write_file(main, both_data, binary=False)
         orig_kc_data = tools.read_file(kc_file)
         extra = (b'''
 if TARGET_BOARD2
@@ -975,3 +975,12 @@ endif
         self.assertEquals(
             ['WARNING: board2_defconfig: No TARGET_BOARD2 enabled'],
              warnings)
+        tools.write_file(kc_file, orig_kc_data)
+
+        # Replace the last F: line of board 2 with an N: line
+        data = ''.join(both_data.splitlines(keepends=True)[:-1])
+        tools.write_file(main, data + 'N: oa.*2\n', binary=False)
+        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        self.assertEquals(2, len(params_list))
+        self.assertFalse(warnings)
+

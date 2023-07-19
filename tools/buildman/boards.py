@@ -411,12 +411,17 @@ class MaintainersDatabase:
                     walk_path = os.walk(os.path.join(srcdir, 'configs'))
                     for dirpath, _, fnames in walk_path:
                         for cfg in fnames:
-                            path = os.path.join(dirpath, cfg)
+                            path = os.path.join(dirpath, cfg)[len(srcdir) + 1:]
                             front, match, rear = path.partition('configs/')
-                            if not front and match:
-                                front, match, rear = rear.rpartition('_defconfig')
-                                if match and not rear:
-                                    targets.append(front)
+                            if front or not match:
+                                continue
+                            front, match, rear = rear.rpartition('_defconfig')
+
+                            # Use this entry if it matches the defconfig file
+                            # without the _defconfig suffix. For example
+                            # 'am335x.*' matches am335x_guardian_defconfig
+                            if match and not rear and re.search(rest, front):
+                                targets.append(front)
                 elif line == '\n':
                     add_targets(linenum)
                     targets = []
