@@ -192,6 +192,36 @@ def determine_series(count, has_range, branch, git_dir):
     return series
 
 
+def do_fetch_arch(toolchains, col, fetch_arch):
+    """Handle the --fetch-arch option
+
+    Args:
+        toolchains (Toolchains): Tool chains to use
+        col (terminal.Color): Color object to build
+        fetch_arch (str): Argument passed to the --fetch-arch option
+
+    Returns:
+        int: Return code for buildman
+    """
+    if fetch_arch == 'list':
+        sorted_list = toolchains.ListArchs()
+        print(col.build(
+            col.BLUE,
+            f"Available architectures: {' '.join(sorted_list)}\n"))
+        return 0
+
+    if fetch_arch == 'all':
+        fetch_arch = ','.join(toolchains.ListArchs())
+        print(col.build(col.CYAN,
+                        f'\nDownloading toolchains: {fetch_arch}'))
+    for arch in fetch_arch.split(','):
+        print()
+        ret = toolchains.FetchAndInstall(arch)
+        if ret:
+            return ret
+    return 0
+
+
 def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                 clean_dir=False, test_thread_exceptions=False):
     """The main control code for buildman
@@ -226,24 +256,7 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
         toolchains = toolchain.Toolchains(options.override_toolchain)
 
     if options.fetch_arch:
-        if options.fetch_arch == 'list':
-            sorted_list = toolchains.ListArchs()
-            print(col.build(
-                col.BLUE,
-                f"Available architectures: {' '.join(sorted_list)}\n"))
-            return 0
-
-        fetch_arch = options.fetch_arch
-        if fetch_arch == 'all':
-            fetch_arch = ','.join(toolchains.ListArchs())
-            print(col.build(col.CYAN,
-                            f'\nDownloading toolchains: {fetch_arch}'))
-        for arch in fetch_arch.split(','):
-            print()
-            ret = toolchains.FetchAndInstall(arch)
-            if ret:
-                return ret
-        return 0
+        return do_fetch_arch(toolchains, col, options.fetch_arch)
 
     if no_toolchains:
         toolchains.GetSettings()
