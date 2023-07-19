@@ -558,6 +558,8 @@ int mmc_deferred_probe(struct mmc *mmc);
 int mmc_reinit(struct mmc *mmc);
 int mmc_get_b_max(struct mmc *mmc, void *dst, lbaint_t blkcnt);
 int mmc_hs400_prepare_ddr(struct mmc *mmc);
+int mmc_send_stop_transmission(struct mmc *mmc, bool write);
+
 #else
 struct mmc_ops {
 	int (*send_cmd)(struct mmc *mmc,

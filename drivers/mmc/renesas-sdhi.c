@@ -611,6 +611,17 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 			priv->smpcmp |= BIT(i);
 
 		mdelay(1);
+
+		/*
+		 * eMMC specification specifies that CMD12 can be used to stop a tuning
+		 * command, but SD specification does not, so do nothing unless it is
+		 * eMMC.
+		 */
+		if (ret && (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200)) {
+			ret = mmc_send_stop_transmission(mmc, false);
+			if (ret < 0)
+				dev_dbg(dev, "Tuning abort fail (%d)\n", ret);
+		}
 	}
 
 	ret = renesas_sdhi_select_tuning(priv, taps);

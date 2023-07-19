@@ -398,6 +398,26 @@ int mmc_send_tuning(struct mmc *mmc, u32 opcode, int *cmd_error)
 }
 #endif
 
+int mmc_send_stop_transmission(struct mmc *mmc, bool write)
+{
+	struct mmc_cmd cmd;
+
+	cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
+	cmd.cmdarg = 0;
+	/*
+	 * JEDEC Standard No. 84-B51 Page 126
+	 * CMD12 STOP_TRANSMISSION R1/R1b[3]
+	 * NOTE 3 R1 for read cases and R1b for write cases.
+	 *
+	 * Physical Layer Simplified Specification Version 9.00
+	 * 7.3.1.3 Detailed Command Description
+	 * CMD12 R1b
+	 */
+	cmd.resp_type = (IS_SD(mmc) || write) ? MMC_RSP_R1b : MMC_RSP_R1;
+
+	return mmc_send_cmd(mmc, &cmd, NULL);
+}
+
 static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 			   lbaint_t blkcnt)
 {
@@ -425,10 +445,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 		return 0;
 
 	if (blkcnt > 1) {
-		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
-		cmd.cmdarg = 0;
-		cmd.resp_type = MMC_RSP_R1b;
-		if (mmc_send_cmd(mmc, &cmd, NULL)) {
+		if (mmc_send_stop_transmission(mmc, false)) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 			pr_err("mmc fail to send stop cmd\n");
 #endif
@@ -2223,6 +2240,7 @@ error:
 			mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
 				   EXT_CSD_BUS_WIDTH, EXT_CSD_BUS_WIDTH_1);
 			mmc_select_mode(mmc, MMC_LEGACY);
+			mmc_set_clock(mmc, mmc->legacy_speed, MMC_CLK_ENABLE);
 			mmc_set_bus_width(mmc, 1);
 		}
 	}
