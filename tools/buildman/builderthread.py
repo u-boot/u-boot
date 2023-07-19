@@ -302,6 +302,30 @@ class BuilderThread(threading.Thread):
                     will_build = False
         return will_build
 
+    def _decide_dirs(self, brd, work_dir, work_in_output):
+        """Decide the output directory to use
+
+        Args:
+            work_dir (str): Directory to which the source will be checked out
+            work_in_output (bool): Use the output directory as the work
+                directory and don't write to a separate output directory.
+
+        Returns:
+            tuple:
+                out_dir (str): Output directory for the build
+                out_rel_dir (str): Output directory relatie to the current dir
+        """
+        if work_in_output or self.builder.in_tree:
+            out_rel_dir = None
+            out_dir = work_dir
+        else:
+            if self.per_board_out_dir:
+                out_rel_dir = os.path.join('..', brd.target)
+            else:
+                out_rel_dir = 'build'
+            out_dir = os.path.join(work_dir, out_rel_dir)
+        return out_dir, out_rel_dir
+
     def run_commit(self, commit_upto, brd, work_dir, do_config, config_only,
                   force_build, force_build_failures, work_in_output,
                   adjust_cfg):
@@ -338,15 +362,7 @@ class BuilderThread(threading.Thread):
         # self.make() below, in the event that we do a build.
         result = command.CommandResult()
         result.return_code = 0
-        if work_in_output or self.builder.in_tree:
-            out_rel_dir = None
-            out_dir = work_dir
-        else:
-            if self.per_board_out_dir:
-                out_rel_dir = os.path.join('..', brd.target)
-            else:
-                out_rel_dir = 'build'
-            out_dir = os.path.join(work_dir, out_rel_dir)
+        out_dir, out_rel_dir = self._decide_dirs(brd, work_dir, work_in_output)
 
         # Check if the job was already completed last time
         will_build = self._read_done_file(commit_upto, brd, result, force_build,
