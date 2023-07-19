@@ -123,8 +123,10 @@ struct mtk_eth_priv {
 
 	enum mtk_switch sw;
 	int (*switch_init)(struct mtk_eth_priv *priv);
+	void (*switch_mac_control)(struct mtk_eth_priv *priv, bool enable);
 	u32 mt753x_smi_addr;
 	u32 mt753x_phy_base;
+	u32 mt753x_pmcr;
 
 	struct gpio_desc rst_gpio;
 	int mcm;
@@ -613,6 +615,16 @@ static int mt7530_pad_clk_setup(struct mtk_eth_priv *priv, int mode)
 	return 0;
 }
 
+static void mt7530_mac_control(struct mtk_eth_priv *priv, bool enable)
+{
+	u32 pmcr = FORCE_MODE;
+
+	if (enable)
+		pmcr = priv->mt753x_pmcr;
+
+	mt753x_reg_write(priv, PMCR_REG(6), pmcr);
+}
+
 static int mt7530_setup(struct mtk_eth_priv *priv)
 {
 	u16 phy_addr, phy_val;
@@ -663,10 +675,13 @@ static int mt7530_setup(struct mtk_eth_priv *priv)
 	      FORCE_DPX | FORCE_LINK;
 
 	/* MT7530 Port6: Forced 1000M/FD, FC disabled */
-	mt753x_reg_write(priv, PMCR_REG(6), val);
+	priv->mt753x_pmcr = val;
 
 	/* MT7530 Port5: Forced link down */
 	mt753x_reg_write(priv, PMCR_REG(5), FORCE_MODE);
+
+	/* Keep MAC link down before starting eth */
+	mt753x_reg_write(priv, PMCR_REG(6), FORCE_MODE);
 
 	/* MT7530 Port6: Set to RGMII */
 	mt753x_reg_rmw(priv, MT7530_P6ECR, P6_INTF_MODE_M, P6_INTF_MODE_RGMII);
@@ -823,6 +838,17 @@ static void mt7531_phy_setting(struct mtk_eth_priv *priv)
 	}
 }
 
+static void mt7531_mac_control(struct mtk_eth_priv *priv, bool enable)
+{
+	u32 pmcr = FORCE_MODE_LNK;
+
+	if (enable)
+		pmcr = priv->mt753x_pmcr;
+
+	mt753x_reg_write(priv, PMCR_REG(5), pmcr);
+	mt753x_reg_write(priv, PMCR_REG(6), pmcr);
+}
+
 static int mt7531_setup(struct mtk_eth_priv *priv)
 {
 	u16 phy_addr, phy_val;
@@ -882,8 +908,11 @@ static int mt7531_setup(struct mtk_eth_priv *priv)
 	       (SPEED_1000M << FORCE_SPD_S) | FORCE_DPX |
 	       FORCE_LINK;
 
-	mt753x_reg_write(priv, PMCR_REG(5), pmcr);
-	mt753x_reg_write(priv, PMCR_REG(6), pmcr);
+	priv->mt753x_pmcr = pmcr;
+
+	/* Keep MAC link down before starting eth */
+	mt753x_reg_write(priv, PMCR_REG(5), FORCE_MODE_LNK);
+	mt753x_reg_write(priv, PMCR_REG(6), FORCE_MODE_LNK);
 
 	/* Turn on PHYs */
 	for (i = 0; i < MT753X_NUM_PHYS; i++) {
@@ -1227,6 +1256,9 @@ static int mtk_eth_start(struct udevice *dev)
 
 	mtk_eth_fifo_init(priv);
 
+	if (priv->switch_mac_control)
+		priv->switch_mac_control(priv, true);
+
 	/* Start PHY */
 	if (priv->sw == SW_NONE) {
 		ret = mtk_phy_start(priv);
@@ -1244,6 +1276,9 @@ static int mtk_eth_start(struct udevice *dev)
 static void mtk_eth_stop(struct udevice *dev)
 {
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
+
+	if (priv->switch_mac_control)
+		priv->switch_mac_control(priv, false);
 
 	mtk_pdma_rmw(priv, PDMA_GLO_CFG_REG,
 		     TX_WB_DDONE | RX_DMA_EN | TX_DMA_EN, 0);
@@ -1484,16 +1519,19 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 	/* check for switch first, otherwise phy will be used */
 	priv->sw = SW_NONE;
 	priv->switch_init = NULL;
+	priv->switch_mac_control = NULL;
 	str = dev_read_string(dev, "mediatek,switch");
 
 	if (str) {
 		if (!strcmp(str, "mt7530")) {
 			priv->sw = SW_MT7530;
 			priv->switch_init = mt7530_setup;
+			priv->switch_mac_control = mt7530_mac_control;
 			priv->mt753x_smi_addr = MT753X_DFL_SMI_ADDR;
 		} else if (!strcmp(str, "mt7531")) {
 			priv->sw = SW_MT7531;
 			priv->switch_init = mt7531_setup;
+			priv->switch_mac_control = mt7531_mac_control;
 			priv->mt753x_smi_addr = MT753X_DFL_SMI_ADDR;
 		} else {
 			printf("error: unsupported switch\n");
