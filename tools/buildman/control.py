@@ -29,7 +29,24 @@ def get_plural(count):
     """Returns a plural 's' if count is not 1"""
     return 's' if count != 1 else ''
 
-def get_action_summary(is_summary, commits, selected, step, threads, jobs):
+
+def count_build_commits(commits, step):
+    """Calculate the number of commits to be built
+
+    Args:
+        commits (list of Commit): Commits to build or None
+        step (int): Step value for commits, typically 1
+
+    Returns:
+        Number of commits that will be built
+    """
+    if commits:
+        count = len(commits)
+        return (count + step - 1) // step
+    return 0
+
+
+def get_action_summary(is_summary, commit_count, selected, threads, jobs):
     """Return a string summarising the intended action.
 
     Args:
@@ -43,10 +60,8 @@ def get_action_summary(is_summary, commits, selected, step, threads, jobs):
     Returns:
         Summary string.
     """
-    if commits:
-        count = len(commits)
-        count = (count + step - 1) // step
-        commit_str = f'{count} commit{get_plural(count)}'
+    if commit_count:
+        commit_str = f'{commit_count} commit{get_plural(commit_count)}'
     else:
         commit_str = 'current source'
     msg = (f"{'Summary of' if is_summary else 'Building'} "
@@ -83,8 +98,8 @@ def show_actions(series, why_selected, boards_selected, output_dir,
         commits = series.commits
     else:
         commits = None
-    print(get_action_summary(False, commits, boards_selected, step, threads,
-                             jobs))
+    print(get_action_summary(False, count_build_commits(commits, step),
+                             boards_selected, threads, jobs))
     print(f'Build directory: {output_dir}')
     if commits:
         for upto in range(0, len(series.commits), step):
@@ -494,8 +509,9 @@ def run_builder(builder, commits, board_selected, options):
     builder.gnu_make = gnu_make
 
     if not options.ide:
-        tprint(get_action_summary(options.summary, commits, board_selected,
-                                  options.step, options.threads, options.jobs))
+        commit_count = count_build_commits(commits, options.step)
+        tprint(get_action_summary(options.summary, commit_count, board_selected,
+                                  options.threads, options.jobs))
 
     builder.SetDisplayOptions(
         options.show_errors, options.show_sizes, options.show_detail,
