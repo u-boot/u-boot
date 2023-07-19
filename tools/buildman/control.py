@@ -222,6 +222,47 @@ def do_fetch_arch(toolchains, col, fetch_arch):
     return 0
 
 
+def determine_boards(brds, args, col, opt_boards, exclude_list):
+    """Determine which boards to build
+
+    Each element of args and exclude can refer to a board name, arch or SoC
+
+    Args:
+        brds (Boards): Boards object
+        args (list of str): Arguments describing boards to build
+        col (Terminal.Color): Color object
+        opt_boards (list of str): Specific boards to build, or None for all
+        exclude_list (list of str): Arguments describing boards to exclude
+
+    Returns:
+        tuple:
+            list of Board: List of Board objects that are marked selected
+            why_selected: Dictionary where each key is a buildman argument
+                    provided by the user, and the value is the list of boards
+                    brought in by that argument. For example, 'arm' might bring
+                    in 400 boards, so in this case the key would be 'arm' and
+                    the value would be a list of board names.
+            board_warnings: List of warnings obtained from board selected
+    """
+    exclude = []
+    if exclude_list:
+        for arg in exclude_list:
+            exclude += arg.split(',')
+
+    if opt_boards:
+        requested_boards = []
+        for brd in opt_boards:
+            requested_boards += brd.split(',')
+    else:
+        requested_boards = None
+    why_selected, board_warnings = brds.select_boards(args, exclude,
+                                                      requested_boards)
+    selected = brds.get_selected()
+    if not selected:
+        sys.exit(col.build(col.RED, 'No matching boards found'))
+    return selected, why_selected, board_warnings
+
+
 def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                 clean_dir=False, test_thread_exceptions=False):
     """The main control code for buildman
@@ -300,22 +341,8 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             return 0 if okay else 2
         brds.read_boards(board_file)
 
-    exclude = []
-    if options.exclude:
-        for arg in options.exclude:
-            exclude += arg.split(',')
-
-    if options.boards:
-        requested_boards = []
-        for brd in options.boards:
-            requested_boards += brd.split(',')
-    else:
-        requested_boards = None
-    why_selected, board_warnings = brds.select_boards(args, exclude,
-                                                      requested_boards)
-    selected = brds.get_selected()
-    if not selected:
-        sys.exit(col.build(col.RED, 'No matching boards found'))
+    selected, why_selected, board_warnings = determine_boards(
+        brds, args, col, options.boards, options.exclude)
 
     if options.print_prefix:
         err = show_toolchain_prefix(brds, toolchains)
