@@ -137,11 +137,12 @@ class BuilderThread(threading.Thread):
         return self.builder.do_make(commit, brd, stage, cwd, *args,
                 **kwargs)
 
-    def _build_args(self, args):
+    def _build_args(self, args, brd):
         """Set up arguments to the args list based on the settings
 
         Args:
             args (list of str): List of string arguments to add things to
+            brd (Board): Board to create arguments for
         """
         if self.builder.verbose_build:
             args.append('V=1')
@@ -158,6 +159,8 @@ class BuilderThread(threading.Thread):
             args.append('NO_LTO=1')
         if self.builder.reproducible_builds:
             args.append('SOURCE_DATE_EPOCH=0')
+        args.extend(self.builder.toolchains.GetMakeArguments(brd))
+        args.extend(self.toolchain.MakeArgs())
 
     def run_commit(self, commit_upto, brd, work_dir, do_config, config_only,
                   force_build, force_build_failures, work_in_output,
@@ -274,11 +277,9 @@ class BuilderThread(threading.Thread):
                         src_dir = os.getcwd()
                     else:
                         args.append(f'O={out_rel_dir}')
-                self._build_args(args)
+                self._build_args(args, brd)
                 config_args = [f'{brd.target}_defconfig']
                 config_out = ''
-                args.extend(self.builder.toolchains.GetMakeArguments(brd))
-                args.extend(self.toolchain.MakeArgs())
 
                 # Remove any output targets. Since we use a build directory that
                 # was previously used by another board, it may have produced an
