@@ -4,18 +4,25 @@
  * Author: Sam Shih <sam.shih@mediatek.com>
  */
 
-#include <cpu_func.h>
+#include <fdtdec.h>
 #include <init.h>
 #include <asm/armv8/mmu.h>
 #include <asm/system.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 #include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)CFG_SYS_SDRAM_BASE, SZ_2G);
+	int ret;
+
+	ret = fdtdec_setup_mem_size_base();
+	if (ret)
+		return ret;
+
+	gd->ram_size = get_ram_size((void *)gd->ram_base, SZ_2G);
 
 	return 0;
 }
