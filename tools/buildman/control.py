@@ -148,14 +148,17 @@ def get_allow_missing(opt_allow, opt_no_allow, num_selected, has_branch):
     return allow_missing
 
 
-def determine_series(count, has_range, branch, git_dir):
+def determine_series(selected, col, git_dir, count, branch, work_in_output):
     """Determine the series which is to be built, if any
 
     Args:
-        count (int): Number of commits in branch
-        has_range (bool): True if a range of commits ('xx..yy') is being built
-        branch (str): Name of branch to build, or None if none
+        selected (list of Board(: List of Board objects that are marked
+            selected
+        col (Terminal.Color): Color object to use
         git_dir (str): Git directory to use, e.g. './.git'
+        count (int): Number of commits in branch
+        branch (str): Name of branch to build, or None if none
+        work_in_output (bool): True to work in the output directory
 
     Returns:
         Series: Series to build, or None for none
@@ -171,6 +174,40 @@ def determine_series(count, has_range, branch, git_dir):
     other hand conflicting tags will cause an error. So allow later tags
     to overwrite earlier ones by setting allow_overwrite=True
     """
+
+    # Work out how many commits to build. We want to build everything on the
+    # branch. We also build the upstream commit as a control so we can see
+    # problems introduced by the first commit on the branch.
+    has_range = branch and '..' in branch
+    if count == -1:
+        if not branch:
+            count = 1
+        else:
+            if has_range:
+                count, msg = gitutil.count_commits_in_range(git_dir, branch)
+            else:
+                count, msg = gitutil.count_commits_in_branch(git_dir, branch)
+            if count is None:
+                sys.exit(col.build(col.RED, msg))
+            elif count == 0:
+                sys.exit(col.build(col.RED,
+                                   f"Range '{branch}' has no commits"))
+            if msg:
+                print(col.build(col.YELLOW, msg))
+            count += 1   # Build upstream commit also
+
+    if not count:
+        msg = (f"No commits found to process in branch '{branch}': "
+               "set branch's upstream or use -c flag")
+        sys.exit(col.build(col.RED, msg))
+    if work_in_output:
+        if len(selected) != 1:
+            sys.exit(col.build(col.RED,
+                               '-w can only be used with a single board'))
+        if count != 1:
+            sys.exit(col.build(col.RED,
+                               '-w can only be used with a single commit'))
+
     if branch:
         if count == -1:
             if has_range:
@@ -350,43 +387,8 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             sys.exit(col.build(col.RED, err))
         return 0
 
-    # Work out how many commits to build. We want to build everything on the
-    # branch. We also build the upstream commit as a control so we can see
-    # problems introduced by the first commit on the branch.
-    count = options.count
-    has_range = options.branch and '..' in options.branch
-    if count == -1:
-        if not options.branch:
-            count = 1
-        else:
-            if has_range:
-                count, msg = gitutil.count_commits_in_range(git_dir,
-                                                            options.branch)
-            else:
-                count, msg = gitutil.count_commits_in_branch(git_dir,
-                                                             options.branch)
-            if count is None:
-                sys.exit(col.build(col.RED, msg))
-            elif count == 0:
-                sys.exit(col.build(col.RED,
-                                   f"Range '{options.branch}' has no commits"))
-            if msg:
-                print(col.build(col.YELLOW, msg))
-            count += 1   # Build upstream commit also
-
-    if not count:
-        msg = (f"No commits found to process in branch '{options.branch}': "
-               "set branch's upstream or use -c flag")
-        sys.exit(col.build(col.RED, msg))
-    if options.work_in_output:
-        if len(selected) != 1:
-            sys.exit(col.build(col.RED,
-                               '-w can only be used with a single board'))
-        if count != 1:
-            sys.exit(col.build(col.RED,
-                               '-w can only be used with a single commit'))
-
-    series = determine_series(count, has_range, options.branch, git_dir)
+    series = determine_series(selected, col, git_dir, options.count,
+                              options.branch, options.work_in_output)
     if not series and not options.dry_run:
         options.verbose = True
         if not options.summary:
