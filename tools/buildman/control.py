@@ -259,6 +259,41 @@ def do_fetch_arch(toolchains, col, fetch_arch):
     return 0
 
 
+def get_toolchains(toolchains, col, override_toolchain, fetch_arch,
+                   list_tool_chains, verbose):
+    """Get toolchains object to use
+
+    Args:
+        toolchains (Toolchains or None): Toolchains to use. If None, then a
+            Toolchains object will be created and scanned
+        col (Terminal.Color): Color object
+        override_toolchain (str or None): Override value for toolchain, or None
+        fetch_arch (bool): True to fetch the toolchain for the architectures
+        list_tool_chains (bool): True to list all tool chains
+        verbose (bool): True for verbose output when listing toolchains
+
+    Returns:
+        Either:
+            int: Operation completed and buildman should exit with exit code
+            Toolchains: Toolchains object to use
+    """
+    no_toolchains = toolchains is None
+    if no_toolchains:
+        toolchains = toolchain.Toolchains(override_toolchain)
+
+    if fetch_arch:
+        return do_fetch_arch(toolchains, col, fetch_arch)
+
+    if no_toolchains:
+        toolchains.GetSettings()
+        toolchains.Scan(list_tool_chains and verbose)
+    if list_tool_chains:
+        toolchains.List()
+        print()
+        return 0
+    return toolchains
+
+
 def get_boards_obj(output_dir, regen_board_list, maintainer_check, threads,
                    verbose):
     """Object the Boards object to use
@@ -372,21 +407,9 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
 
     git_dir = os.path.join(options.git, '.git')
 
-    no_toolchains = toolchains is None
-    if no_toolchains:
-        toolchains = toolchain.Toolchains(options.override_toolchain)
-
-    if options.fetch_arch:
-        return do_fetch_arch(toolchains, col, options.fetch_arch)
-
-    if no_toolchains:
-        toolchains.GetSettings()
-        toolchains.Scan(options.list_tool_chains and options.verbose)
-    if options.list_tool_chains:
-        toolchains.List()
-        print()
-        return 0
-
+    toolchains = get_toolchains(toolchains, col, options.override_toolchain,
+                                options.fetch_arch, options.list_tool_chains,
+                                options.verbose)
     if not options.output_dir:
         if options.work_in_output:
             sys.exit(col.build(col.RED, '-w requires that you specify -o'))
