@@ -365,8 +365,8 @@ def get_toolchains(toolchains, col, override_toolchain, fetch_arch,
     return toolchains
 
 
-def get_boards_obj(output_dir, regen_board_list, maintainer_check, threads,
-                   verbose):
+def get_boards_obj(output_dir, regen_board_list, maintainer_check, full_check,
+                   threads, verbose):
     """Object the Boards object to use
 
     Creates the output directory and ensures there is a boards.cfg file, then
@@ -376,6 +376,8 @@ def get_boards_obj(output_dir, regen_board_list, maintainer_check, threads,
         output_dir (str): Output directory to use
         regen_board_list (bool): True to just regenerate the board list
         maintainer_check (bool): True to just run a maintainer check
+        full_check (bool): True to just run a full check of Kconfig and
+            maintainers
         threads (int or None): Number of threads to use to create boards file
         verbose (bool): False to suppress output from boards-file generation
 
@@ -386,8 +388,9 @@ def get_boards_obj(output_dir, regen_board_list, maintainer_check, threads,
     """
     brds = boards.Boards()
     nr_cpus = threads or multiprocessing.cpu_count()
-    if maintainer_check:
-        warnings = brds.build_board_list(jobs=nr_cpus)[1]
+    if maintainer_check or full_check:
+        warnings = brds.build_board_list(jobs=nr_cpus,
+                                         warn_targets=full_check)[1]
         if warnings:
             for warn in warnings:
                 print(warn, file=sys.stderr)
@@ -614,7 +617,8 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
     # Work out what subset of the boards we are building
     if not brds:
         brds = get_boards_obj(output_dir, args.regen_board_list,
-                              args.maintainer_check, args.threads, args.verbose)
+                              args.maintainer_check, args.full_check,
+                              args.threads, args.verbose)
         if isinstance(brds, int):
             return brds
 
