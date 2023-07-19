@@ -474,6 +474,40 @@ def setup_output_dir(output_dir, work_in_output, branch, no_subdirs, col,
             shutil.rmtree(output_dir)
     return output_dir
 
+def run_builder(builder, commits, board_selected, options):
+    """Run the builder or show the summary
+
+    Args:
+        commits (list of Commit): List of commits being built, None if no branch
+        boards_selected (dict): Dict of selected boards:
+            key: target name
+            value: Board object
+        options (Options): Options to use
+
+    Returns:
+        int: Return code for buildman
+    """
+    if not options.ide:
+        tprint(get_action_summary(options.summary, commits, board_selected,
+                                  options.step, options.threads, options.jobs))
+
+    builder.SetDisplayOptions(
+        options.show_errors, options.show_sizes, options.show_detail,
+        options.show_bloat, options.list_error_boards, options.show_config,
+        options.show_environment, options.filter_dtb_warnings,
+        options.filter_migration_warnings, options.ide)
+    if options.summary:
+        builder.ShowSummary(commits, board_selected)
+    else:
+        fail, warned, excs = builder.BuildBoards(
+            commits, board_selected, options.keep_outputs, options.verbose)
+        if excs:
+            return 102
+        if fail:
+            return 100
+        if warned and not options.ignore_warnings:
+            return 101
+    return 0
 
 def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                 clean_dir=False, test_thread_exceptions=False):
@@ -586,25 +620,5 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
     board_selected = brds.get_selected_dict()
 
     commits = series.commits if series else None
-    if not options.ide:
-        tprint(get_action_summary(options.summary, commits, board_selected,
-                                  options.step, options.threads, options.jobs))
-
-    builder.SetDisplayOptions(
-        options.show_errors, options.show_sizes, options.show_detail,
-        options.show_bloat, options.list_error_boards, options.show_config,
-        options.show_environment, options.filter_dtb_warnings,
-        options.filter_migration_warnings, options.ide)
-    retval = 0
-    if options.summary:
-        builder.ShowSummary(commits, board_selected)
-    else:
-        fail, warned, excs = builder.BuildBoards(
-            commits, board_selected, options.keep_outputs, options.verbose)
-        if excs:
-            retval = 102
-        if fail:
-            retval = 100
-        if warned and not options.ignore_warnings:
-            retval = 101
+    retval = run_builder(builder, commits, board_selected, options)
     return retval
