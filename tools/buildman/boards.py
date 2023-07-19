@@ -341,11 +341,15 @@ class MaintainersDatabase:
             str: Maintainers of the board.  If the board has two or more
             maintainers, they are separated with colons.
         """
-        if not target in self.database:
-            self.warnings.append(f"WARNING: no maintainers for '{target}'")
-            return ''
+        entry = self.database.get(target)
+        if entry:
+            status, maint_list = entry
+            if not status.startswith('Orphan'):
+                if len(maint_list) > 1 or (maint_list and maint_list[0] != '-'):
+                    return ':'.join(maint_list)
 
-        return ':'.join(self.database[target][1])
+        self.warnings.append(f"WARNING: no maintainers for '{target}'")
+        return ''
 
     def parse_file(self, srcdir, fname):
         """Parse a MAINTAINERS file.

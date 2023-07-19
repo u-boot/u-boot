@@ -923,13 +923,29 @@ Active  aarch64     armv8 - armltd total_compute board2
              'WARNING: orphaned defconfig in boards/board0/MAINTAINERS ending at line 4',
              ], warnings)
 
-        # Remove the maintainer line (M:) from a file (this should be fine)
+        # Mark a board as orphaned - this should give a warning
+        lines = ['S: Orphaned' if line.startswith('S') else line
+                 for line in orig_data.splitlines(keepends=True)]
+        tools.write_file(main, ''.join(lines), binary=False)
+        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        self.assertEquals(2, len(params_list))
+        self.assertEquals(["WARNING: no maintainers for 'board0'"], warnings)
+
+        # Change the maintainer to '-' - this should give a warning
+        lines = ['M: -' if line.startswith('M') else line
+                 for line in orig_data.splitlines(keepends=True)]
+        tools.write_file(main, ''.join(lines), binary=False)
+        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        self.assertEquals(2, len(params_list))
+        self.assertEquals(["WARNING: -: unknown status for 'board0'"], warnings)
+
+        # Remove the maintainer line (M:) from a file
         lines = [line for line in orig_data.splitlines(keepends=True)
                  if not line.startswith('M:')]
         tools.write_file(main, ''.join(lines), binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
         self.assertEquals(2, len(params_list))
-        self.assertFalse(warnings)
+        self.assertEquals(["WARNING: no maintainers for 'board0'"], warnings)
 
         # Move the contents of the second file into this one, removing the
         # second file, to check multiple records in a single file.
