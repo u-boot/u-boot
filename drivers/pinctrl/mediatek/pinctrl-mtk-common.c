@@ -304,6 +304,19 @@ static const char *mtk_get_function_name(struct udevice *dev,
 	return priv->soc->funcs[selector].name;
 }
 
+static int mtk_pinmux_set(struct udevice *dev, unsigned int pin_selector,
+			  unsigned int func_selector)
+{
+	int err;
+
+	err = mtk_hw_set_value(dev, pin_selector, PINCTRL_PIN_REG_MODE,
+			       func_selector);
+	if (err)
+		return err;
+
+	return 0;
+}
+
 static int mtk_pinmux_group_set(struct udevice *dev,
 				unsigned int group_selector,
 				unsigned int func_selector)
@@ -647,6 +660,7 @@ const struct pinctrl_ops mtk_pinctrl_ops = {
 	.get_group_name = mtk_get_group_name,
 	.get_functions_count = mtk_get_functions_count,
 	.get_function_name = mtk_get_function_name,
+	.pinmux_set = mtk_pinmux_set,
 	.pinmux_group_set = mtk_pinmux_group_set,
 #if CONFIG_IS_ENABLED(PINCONF)
 	.pinconf_num_params = ARRAY_SIZE(mtk_conf_params),
