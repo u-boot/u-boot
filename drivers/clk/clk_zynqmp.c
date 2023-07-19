@@ -719,6 +719,8 @@ static ulong zynqmp_clk_set_rate(struct clk *clk, ulong rate)
 	switch (id) {
 	case gem0_ref ... gem3_ref:
 	case gem0_tx ... gem3_tx:
+	case gem0_rx ... gem3_rx:
+	case gem_tsu:
 	case qspi_ref ... can1_ref:
 	case usb0_bus_ref ... usb3_dual_ref:
 		return zynqmp_clk_set_peripheral_rate(priv, id,
