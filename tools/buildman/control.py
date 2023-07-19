@@ -259,6 +259,49 @@ def do_fetch_arch(toolchains, col, fetch_arch):
     return 0
 
 
+def get_boards_obj(output_dir, regen_board_list, maintainer_check, threads,
+                   verbose):
+    """Object the Boards object to use
+
+    Creates the output directory and ensures there is a boards.cfg file, then
+    read it in.
+
+    Args:
+        output_dir (str): Output directory to use
+        regen_board_list (bool): True to just regenerate the board list
+        maintainer_check (bool): True to just run a maintainer check
+        threads (int or None): Number of threads to use to create boards file
+        verbose (bool): False to suppress output from boards-file generation
+
+    Returns:
+        Either:
+            int: Operation completed and buildman should exit with exit code
+            Boards: Boards object to use
+    """
+    brds = boards.Boards()
+    nr_cpus = threads or multiprocessing.cpu_count()
+    if maintainer_check:
+        warnings = brds.build_board_list(jobs=nr_cpus)[1]
+        if warnings:
+            for warn in warnings:
+                print(warn, file=sys.stderr)
+            return 2
+        return 0
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    board_file = os.path.join(output_dir, 'boards.cfg')
+    if regen_board_list and regen_board_list != '-':
+        board_file = regen_board_list
+
+    okay = brds.ensure_board_list(board_file, nr_cpus, force=regen_board_list,
+                                  quiet=not verbose)
+    if regen_board_list:
+        return 0 if okay else 2
+    brds.read_boards(board_file)
+    return brds
+
+
 def determine_boards(brds, args, col, opt_boards, exclude_list):
     """Determine which boards to build
 
@@ -349,34 +392,13 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             sys.exit(col.build(col.RED, '-w requires that you specify -o'))
         options.output_dir = '..'
 
-    nr_cups = options.threads or multiprocessing.cpu_count()
-
     # Work out what subset of the boards we are building
     if not brds:
-        if not os.path.exists(options.output_dir):
-            os.makedirs(options.output_dir)
-        board_file = os.path.join(options.output_dir, 'boards.cfg')
-        if options.regen_board_list and options.regen_board_list != '-':
-            board_file = options.regen_board_list
-
-        brds = boards.Boards()
-
-        if options.maintainer_check:
-            warnings = brds.build_board_list(jobs=nr_cups)[1]
-            if warnings:
-                for warn in warnings:
-                    print(warn, file=sys.stderr)
-                return 2
-            return 0
-
-        okay = brds.ensure_board_list(
-            board_file,
-            options.threads or multiprocessing.cpu_count(),
-            force=options.regen_board_list,
-            quiet=not options.verbose)
-        if options.regen_board_list:
-            return 0 if okay else 2
-        brds.read_boards(board_file)
+        brds = get_boards_obj(options.output_dir, options.regen_board_list,
+                              options.maintainer_check, options.threads,
+                              options.verbose)
+        if isinstance(brds, int):
+            return brds
 
     selected, why_selected, board_warnings = determine_boards(
         brds, args, col, options.boards, options.exclude)
