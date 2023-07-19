@@ -198,7 +198,7 @@ static int mtk_mii_rw(struct mtk_eth_priv *priv, u8 phy, u8 reg, u16 data,
 	      (((u32)phy << MDIO_PHY_ADDR_S) & MDIO_PHY_ADDR_M) |
 	      (((u32)reg << MDIO_REG_ADDR_S) & MDIO_REG_ADDR_M);
 
-	if (cmd == MDIO_CMD_WRITE)
+	if (cmd == MDIO_CMD_WRITE || cmd == MDIO_CMD_ADDR)
 		val |= data & MDIO_RW_DATA_M;
 
 	mtk_gmac_write(priv, GMAC_PIAC_REG, val | PHY_ACS_ST);
@@ -210,7 +210,7 @@ static int mtk_mii_rw(struct mtk_eth_priv *priv, u8 phy, u8 reg, u16 data,
 		return ret;
 	}
 
-	if (cmd == MDIO_CMD_READ) {
+	if (cmd == MDIO_CMD_READ || cmd == MDIO_CMD_READ_C45) {
 		val = mtk_gmac_read(priv, GMAC_PIAC_REG);
 		return val & MDIO_RW_DATA_M;
 	}
