@@ -511,8 +511,10 @@ Some images are invalid'''
                 if brd.arch != 'sandbox':
                   errfile = self._builder.get_err_file(commit, brd.target)
                   fd = open(errfile)
-                  self.assertEqual(fd.readlines(),
-                          ['No tool chain for %s\n' % brd.arch])
+                  self.assertEqual(
+                      fd.readlines(),
+                      [f'Tool chain error for {brd.arch}: '
+                       f"No tool chain found for arch '{brd.arch}'"])
                   fd.close()
 
     def testBranch(self):

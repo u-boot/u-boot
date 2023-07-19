@@ -457,18 +457,13 @@ class BuilderThread(threading.Thread):
                 except ValueError as err:
                     result.return_code = 10
                     result.stdout = ''
-                    result.stderr = str(err)
-                    # TODO(sjg@chromium.org): This gets swallowed, but needs
-                    # to be reported.
+                    result.stderr = f'Tool chain error for {brd.arch}: {str(err)}'
 
             if self.toolchain:
                 commit = self._checkout(commit_upto, work_dir)
                 result, do_config = self._config_and_build(
                     commit_upto, brd, work_dir, do_config, config_only,
                     adjust_cfg, commit, out_dir, out_rel_dir, result)
-            else:
-                result.return_code = 1
-                result.stderr = f'No tool chain for {brd.arch}\n'
             result.already_done = False
 
         result.toolchain = self.toolchain
