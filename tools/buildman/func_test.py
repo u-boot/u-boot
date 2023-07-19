@@ -38,8 +38,8 @@ chromeos_peach=VBOOT=${chroot}/build/peach_pit/usr ${vboot}
 '''
 
 BOARDS = [
-    ['Active', 'arm', 'armv7', '', 'Tester', 'ARM Board 1', 'board0',  ''],
-    ['Active', 'arm', 'armv7', '', 'Tester', 'ARM Board 2', 'board1', ''],
+    ['Active', 'arm', 'armv7', '', 'Tester', 'ARM Board 0', 'board0',  ''],
+    ['Active', 'arm', 'armv7', '', 'Tester', 'ARM Board 1', 'board1', ''],
     ['Active', 'powerpc', 'powerpc', '', 'Tester', 'PowerPC board 1', 'board2', ''],
     ['Active', 'sandbox', 'sandbox', '', 'Tester', 'Sandbox board', 'board4', ''],
 ]
