@@ -351,7 +351,7 @@ class BuilderThread(threading.Thread):
             return
 
         # Write the output and stderr
-        output_dir = self.builder._get_output_dir(result.commit_upto)
+        output_dir = self.builder.get_output_dir(result.commit_upto)
         mkdir(output_dir)
         build_dir = self.builder.get_build_dir(result.commit_upto,
                 result.brd.target)

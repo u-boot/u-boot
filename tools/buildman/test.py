@@ -528,7 +528,7 @@ class TestBuild(unittest.TestCase):
                                                    'sandbox']),
                          ({'all': ['board4'], 'sandbox': ['board4']}, []))
     def CheckDirs(self, build, dirname):
-        self.assertEqual('base%s' % dirname, build._get_output_dir(1))
+        self.assertEqual('base%s' % dirname, build.get_output_dir(1))
         self.assertEqual('base%s/fred' % dirname,
                          build.get_build_dir(1, 'fred'))
         self.assertEqual('base%s/fred/done' % dirname,

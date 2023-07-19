@@ -565,7 +565,7 @@ class Builder:
             terminal.print_clear()
             tprint(line, newline=False, limit_to_line=True)
 
-    def _get_output_dir(self, commit_upto):
+    def get_output_dir(self, commit_upto):
         """Get the name of the output directory for a commit number
 
         The output directory is typically .../<branch>/<commit>.
@@ -598,7 +598,7 @@ class Builder:
             commit_upto: Commit number to use (0..self.count-1)
             target: Target name
         """
-        output_dir = self._get_output_dir(commit_upto)
+        output_dir = self.get_output_dir(commit_upto)
         if self.work_in_output:
             return output_dir
         return os.path.join(output_dir, target)
@@ -1717,7 +1717,7 @@ class Builder:
 
         Figure out what needs to be deleted in the output directory before it
         can be used. We only delete old buildman directories which have the
-        expected name pattern. See _get_output_dir().
+        expected name pattern. See get_output_dir().
 
         Returns:
             List of full paths of directories to remove
@@ -1726,7 +1726,7 @@ class Builder:
             return
         dir_list = []
         for commit_upto in range(self.commit_count):
-            dir_list.append(self._get_output_dir(commit_upto))
+            dir_list.append(self.get_output_dir(commit_upto))
 
         to_remove = []
         for dirname in glob.glob(os.path.join(self.base_dir, '*')):
