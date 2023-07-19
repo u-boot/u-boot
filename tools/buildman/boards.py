@@ -772,8 +772,12 @@ class Boards:
 
         for i, params in enumerate(params_list):
             target = params['target']
-            params['status'] = database.get_status(target)
-            params['maintainers'] = database.get_maintainers(target)
+            maintainers = database.get_maintainers(target)
+            params['maintainers'] = maintainers
+            if maintainers:
+                params['status'] = database.get_status(target)
+            else:
+                params['status'] = '-'
             params_list[i] = params
         return database.warnings
 
