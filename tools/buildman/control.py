@@ -159,6 +159,46 @@ def get_allow_missing(opt_allow, opt_no_allow, num_selected, has_branch):
     return allow_missing
 
 
+def count_commits(branch, count, col, git_dir):
+    """Could the number of commits in the branch/ranch being built
+
+    Args:
+        branch (str): Name of branch to build, or None if none
+        count (int): Number of commits to build, or -1 for all
+        col (Terminal.Color): Color object to use
+        git_dir (str): Git directory to use, e.g. './.git'
+
+    Returns:
+        tuple:
+            Number of commits being built
+            True if the 'branch' string contains a range rather than a simple
+                name
+    """
+    has_range = branch and '..' in branch
+    if count == -1:
+        if not branch:
+            count = 1
+        else:
+            if has_range:
+                count, msg = gitutil.count_commits_in_range(git_dir, branch)
+            else:
+                count, msg = gitutil.count_commits_in_branch(git_dir, branch)
+            if count is None:
+                sys.exit(col.build(col.RED, msg))
+            elif count == 0:
+                sys.exit(col.build(col.RED,
+                                   f"Range '{branch}' has no commits"))
+            if msg:
+                print(col.build(col.YELLOW, msg))
+            count += 1   # Build upstream commit also
+
+    if not count:
+        msg = (f"No commits found to process in branch '{branch}': "
+               "set branch's upstream or use -c flag")
+        sys.exit(col.build(col.RED, msg))
+    return count, has_range
+
+
 def determine_series(selected, col, git_dir, count, branch, work_in_output):
     """Determine the series which is to be built, if any
 
@@ -189,28 +229,7 @@ def determine_series(selected, col, git_dir, count, branch, work_in_output):
     # Work out how many commits to build. We want to build everything on the
     # branch. We also build the upstream commit as a control so we can see
     # problems introduced by the first commit on the branch.
-    has_range = branch and '..' in branch
-    if count == -1:
-        if not branch:
-            count = 1
-        else:
-            if has_range:
-                count, msg = gitutil.count_commits_in_range(git_dir, branch)
-            else:
-                count, msg = gitutil.count_commits_in_branch(git_dir, branch)
-            if count is None:
-                sys.exit(col.build(col.RED, msg))
-            elif count == 0:
-                sys.exit(col.build(col.RED,
-                                   f"Range '{branch}' has no commits"))
-            if msg:
-                print(col.build(col.YELLOW, msg))
-            count += 1   # Build upstream commit also
-
-    if not count:
-        msg = (f"No commits found to process in branch '{branch}': "
-               "set branch's upstream or use -c flag")
-        sys.exit(col.build(col.RED, msg))
+    count, has_range = count_commits(branch, count, col, git_dir)
     if work_in_output:
         if len(selected) != 1:
             sys.exit(col.build(col.RED,
