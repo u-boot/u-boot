@@ -473,6 +473,7 @@ def setup_output_dir(output_dir, work_in_output, branch, no_subdirs, col,
             shutil.rmtree(output_dir)
     return output_dir
 
+
 def run_builder(builder, commits, board_selected, options):
     """Run the builder or show the summary
 
@@ -486,6 +487,12 @@ def run_builder(builder, commits, board_selected, options):
     Returns:
         int: Return code for buildman
     """
+    gnu_make = command.output(os.path.join(options.git,
+            'scripts/show-gnu-make'), raise_on_error=False).rstrip()
+    if not gnu_make:
+        sys.exit('GNU Make not found')
+    builder.gnu_make = gnu_make
+
     if not options.ide:
         tprint(get_action_summary(options.summary, commits, board_selected,
                                   options.step, options.threads, options.jobs))
@@ -571,11 +578,6 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                      options.verbose)
         return 0
 
-    gnu_make = command.output(os.path.join(options.git,
-            'scripts/show-gnu-make'), raise_on_error=False).rstrip()
-    if not gnu_make:
-        sys.exit('GNU Make not found')
-
     allow_missing = get_allow_missing(options.allow_missing,
                                       options.no_allow_missing, len(selected),
                                       options.branch)
@@ -592,7 +594,7 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
 
     # Create a new builder with the selected options
     builder = Builder(toolchains, output_dir, git_dir,
-            options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
+            options.threads, options.jobs, checkout=True,
             show_unknown=options.show_unknown, step=options.step,
             no_subdirs=options.no_subdirs, full_path=options.full_path,
             verbose_build=options.verbose_build,
