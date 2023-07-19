@@ -395,6 +395,13 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             output_dir = os.path.join(options.output_dir, dirname)
         if clean_dir and os.path.exists(output_dir):
             shutil.rmtree(output_dir)
+
+    # For a dry run, just show our actions as a sanity check
+    if options.dry_run:
+        show_actions(series, why_selected, selected, output_dir, options,
+                    board_warnings)
+        return 0
+
     adjust_cfg = cfgutil.convert_list_to_dict(options.adjust_cfg)
 
     # Drop LOCALVERSION_AUTO since it changes the version string on every commit
@@ -425,48 +432,43 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
     if make_func:
         builder.do_make = make_func
 
-    # For a dry run, just show our actions as a sanity check
-    if options.dry_run:
-        show_actions(series, why_selected, selected, output_dir, options,
-                    board_warnings)
+    builder.force_build = options.force_build
+    builder.force_build_failures = options.force_build_failures
+    builder.force_reconfig = options.force_reconfig
+    builder.in_tree = options.in_tree
+
+    # Work out which boards to build
+    board_selected = brds.get_selected_dict()
+
+    if series:
+        commits = series.commits
+        # Number the commits for test purposes
+        for i, commit in enumerate(commits):
+            commit.sequence = i
     else:
-        builder.force_build = options.force_build
-        builder.force_build_failures = options.force_build_failures
-        builder.force_reconfig = options.force_reconfig
-        builder.in_tree = options.in_tree
+        commits = None
 
-        # Work out which boards to build
-        board_selected = brds.get_selected_dict()
+    if not options.ide:
+        tprint(get_action_summary(options.summary, commits, board_selected,
+                                options))
 
-        if series:
-            commits = series.commits
-            # Number the commits for test purposes
-            for i, commit in enumerate(commits):
-                commit.sequence = i
-        else:
-            commits = None
-
-        if not options.ide:
-            tprint(get_action_summary(options.summary, commits, board_selected,
-                                    options))
-
-        # We can't show function sizes without board details at present
-        if options.show_bloat:
-            options.show_detail = True
-        builder.SetDisplayOptions(
-            options.show_errors, options.show_sizes, options.show_detail,
-            options.show_bloat, options.list_error_boards, options.show_config,
-            options.show_environment, options.filter_dtb_warnings,
-            options.filter_migration_warnings, options.ide)
-        if options.summary:
-            builder.ShowSummary(commits, board_selected)
-        else:
-            fail, warned, excs = builder.BuildBoards(
-                commits, board_selected, options.keep_outputs, options.verbose)
-            if excs:
-                return 102
-            if fail:
-                return 100
-            if warned and not options.ignore_warnings:
-                return 101
+    # We can't show function sizes without board details at present
+    if options.show_bloat:
+        options.show_detail = True
+    builder.SetDisplayOptions(
+        options.show_errors, options.show_sizes, options.show_detail,
+        options.show_bloat, options.list_error_boards, options.show_config,
+        options.show_environment, options.filter_dtb_warnings,
+        options.filter_migration_warnings, options.ide)
+    if options.summary:
+        builder.ShowSummary(commits, board_selected)
+    else:
+        fail, warned, excs = builder.BuildBoards(
+            commits, board_selected, options.keep_outputs, options.verbose)
+        if excs:
+            return 102
+        if fail:
+            return 100
+        if warned and not options.ignore_warnings:
+            return 101
     return 0
