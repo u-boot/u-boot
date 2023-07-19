@@ -152,6 +152,20 @@
 		status = "disabled";
 	};
 
+	i2c0: i2c@11007000 {
+		compatible = "mediatek,mt7981-i2c";
+		reg = <0x11007000 0x1000>,
+		      <0x10217080 0x80>;
+		interrupts = <GIC_SPI 136 IRQ_TYPE_LEVEL_HIGH>;
+		clock-div = <1>;
+		clocks = <&infracfg_ao CK_INFRA_I2CO_CK>,
+			 <&infracfg_ao CK_INFRA_AP_DMA_CK>;
+		clock-names = "main", "dma";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
+
 	uart0: serial@11002000 {
 		compatible = "mediatek,hsuart";
 		reg = <0x11002000 0x400>;
