@@ -286,7 +286,6 @@ class BuilderThread(threading.Thread):
                 cfg_file = os.path.join(out_dir, '.config')
                 cmd_list = []
                 if do_config or adjust_cfg:
-                    config_out = ''
                     if self.mrproper:
                         result = self.make(commit, brd, 'mrproper', cwd,
                                 'mrproper', *args, env=env)
