@@ -9,7 +9,7 @@ import pathlib
 BUILDMAN_DIR = pathlib.Path(__file__).parent
 HAS_TESTS = os.path.exists(BUILDMAN_DIR / "test.py")
 
-def ParseArgs():
+def parse_args():
     """Parse command line arguments from sys.argv[]
 
     Returns:

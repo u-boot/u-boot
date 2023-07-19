@@ -60,7 +60,7 @@ def run_buildman():
     This is the main program. It collects arguments and runs either the tests or
     the control module.
     """
-    options, args = cmdline.ParseArgs()
+    options, args = cmdline.parse_args()
 
     if not options.debug:
         sys.tracebacklimit = 0
