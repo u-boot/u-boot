@@ -23,11 +23,15 @@ from u_boot_pylib import command
 RETURN_CODE_RETRY = -1
 BASE_ELF_FILENAMES = ['u-boot', 'spl/u-boot-spl', 'tpl/u-boot-tpl']
 
-def mkdir(dirname, parents = False):
+def mkdir(dirname, parents=False):
     """Make a directory if it doesn't already exist.
 
     Args:
-        dirname: Directory to create
+        dirname (str): Directory to create
+        parents (bool): True to also make parent directories
+
+    Raises:
+        OSError: File already exists
     """
     try:
         if parents:
@@ -141,14 +145,16 @@ class BuilderThread(threading.Thread):
         argument is only for information.
 
         Args:
-            commit: Commit object that is being built
-            brd: Board object that is being built
-            stage: Stage of the build. Valid stages are:
+            commit (Commit): Commit that is being built
+            brd (Board): Board that is being built
+            stage (str): Stage of the build. Valid stages are:
                         mrproper - can be called to clean source
                         config - called to configure for a board
                         build - the main make invocation - it does the build
-            args: A list of arguments to pass to 'make'
-            kwargs: A list of keyword arguments to pass to command.run_pipe()
+            cwd (str): Working directory to set, or None to leave it alone
+            *args (list of str): Arguments to pass to 'make'
+            **kwargs (dict): A list of keyword arguments to pass to
+                command.run_pipe()
 
         Returns:
             CommandResult object
@@ -418,16 +424,16 @@ class BuilderThread(threading.Thread):
         the build and just return the previously-saved results.
 
         Args:
-            commit_upto: Commit number to build (0...n-1)
-            brd: Board object to build
-            work_dir: Directory to which the source will be checked out
-            do_config: True to run a make <board>_defconfig on the source
-            config_only: Only configure the source, do not build it
-            force_build: Force a build even if one was previously done
-            force_build_failures: Force a bulid if the previous result showed
-                failure
-            work_in_output: Use the output directory as the work directory and
-                don't write to a separate output directory.
+            commit_upto (int): Commit number to build (0...n-1)
+            brd (Board): Board to build
+            work_dir (str): Directory to which the source will be checked out
+            do_config (bool): True to run a make <board>_defconfig on the source
+            config_only (bool): Only configure the source, do not build it
+            force_build (bool): Force a build even if one was previously done
+            force_build_failures (bool): Force a bulid if the previous result
+                showed failure
+            work_in_output (bool) : Use the output directory as the work
+                directory and don't write to a separate output directory.
             adjust_cfg (list of str): List of changes to make to .config file
                 before building. Each is one of (where C is either CONFIG_xxx
                 or just xxx):
@@ -476,11 +482,11 @@ class BuilderThread(threading.Thread):
         """Write a built result to the output directory.
 
         Args:
-            result: CommandResult object containing result to write
-            keep_outputs: True to store the output binaries, False
+            result (CommandResult): result to write
+            keep_outputs (bool): True to store the output binaries, False
                 to delete them
-            work_in_output: Use the output directory as the work directory and
-                don't write to a separate output directory.
+            work_in_output (bool): Use the output directory as the work
+                directory and don't write to a separate output directory.
         """
         # If we think this might have been aborted with Ctrl-C, record the
         # failure but not that we are 'done' with this board. A retry may fix
@@ -618,10 +624,10 @@ class BuilderThread(threading.Thread):
         """Copy files from the build directory to the output.
 
         Args:
-            out_dir: Path to output directory containing the files
-            build_dir: Place to copy the files
-            dirname: Source directory, '' for normal U-Boot, 'spl' for SPL
-            patterns: A list of filenames (strings) to copy, each relative
+            out_dir (str): Path to output directory containing the files
+            build_dir (str): Place to copy the files
+            dirname (str): Source directory, '' for normal U-Boot, 'spl' for SPL
+            patterns (list of str): A list of filenames to copy, each relative
                to the build directory
         """
         for pattern in patterns:
@@ -638,10 +644,10 @@ class BuilderThread(threading.Thread):
         """Send a result to the builder for processing
 
         Args:
-            result: CommandResult object containing the results of the build
+            result (CommandResult): results of the build
 
         Raises:
-            ValueError if self.test_exception is true (for testing)
+            ValueError: self.test_exception is true (for testing)
         """
         if self.test_exception:
             raise ValueError('test exception')
@@ -656,10 +662,10 @@ class BuilderThread(threading.Thread):
         A job consists of a building a list of commits for a particular board.
 
         Args:
-            job: Job to build
+            job (Job): Job to build
 
-        Returns:
-            List of Result objects
+        Raises:
+            ValueError: Thread was interrupted
         """
         brd = job.brd
         work_dir = self.builder.get_thread_dir(self.thread_num)
