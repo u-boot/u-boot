@@ -54,6 +54,16 @@
 	(DP_PDMA << MC_DP_S) | \
 	(DP_PDMA << UN_DP_S))
 
+#define GDMA_BRIDGE_TO_CPU \
+	(0xC0000000 | \
+	GDM_ICS_EN | \
+	GDM_TCS_EN | \
+	GDM_UCS_EN | \
+	(DP_PDMA << MYMAC_DP_S) | \
+	(DP_PDMA << BC_DP_S) | \
+	(DP_PDMA << MC_DP_S) | \
+	(DP_PDMA << UN_DP_S))
+
 #define GDMA_FWD_DISCARD \
 	(0x20000000 | \
 	GDM_ICS_EN | \
@@ -68,7 +78,8 @@
 enum mtk_switch {
 	SW_NONE,
 	SW_MT7530,
-	SW_MT7531
+	SW_MT7531,
+	SW_MT7988,
 };
 
 /* struct mtk_soc_data -	This is the structure holding all differences
@@ -102,6 +113,7 @@ struct mtk_eth_priv {
 	void __iomem *fe_base;
 	void __iomem *gmac_base;
 	void __iomem *sgmii_base;
+	void __iomem *gsw_base;
 
 	struct regmap *ethsys_regmap;
 
@@ -171,6 +183,11 @@ static void mtk_gdma_write(struct mtk_eth_priv *priv, int no, u32 reg,
 	writel(val, priv->fe_base + gdma_base + reg);
 }
 
+static void mtk_fe_rmw(struct mtk_eth_priv *priv, u32 reg, u32 clr, u32 set)
+{
+	clrsetbits_le32(priv->fe_base + reg, clr, set);
+}
+
 static u32 mtk_gmac_read(struct mtk_eth_priv *priv, u32 reg)
 {
 	return readl(priv->gmac_base + reg);
@@ -206,6 +223,16 @@ static void mtk_infra_rmw(struct mtk_eth_priv *priv, u32 reg, u32 clr,
 	val &= ~clr;
 	val |= set;
 	regmap_write(priv->infra_regmap, reg, val);
+}
+
+static u32 mtk_gsw_read(struct mtk_eth_priv *priv, u32 reg)
+{
+	return readl(priv->gsw_base + reg);
+}
+
+static void mtk_gsw_write(struct mtk_eth_priv *priv, u32 reg, u32 val)
+{
+	writel(val, priv->gsw_base + reg);
 }
 
 /* Direct MDIO clause 22/45 access via SoC */
@@ -342,6 +369,11 @@ static int mt753x_reg_read(struct mtk_eth_priv *priv, u32 reg, u32 *data)
 {
 	int ret, low_word, high_word;
 
+	if (priv->sw == SW_MT7988) {
+		*data = mtk_gsw_read(priv, reg);
+		return 0;
+	}
+
 	/* Write page address */
 	ret = mtk_mii_write(priv, priv->mt753x_smi_addr, 0x1f, reg >> 6);
 	if (ret)
@@ -366,6 +398,11 @@ static int mt753x_reg_read(struct mtk_eth_priv *priv, u32 reg, u32 *data)
 static int mt753x_reg_write(struct mtk_eth_priv *priv, u32 reg, u32 data)
 {
 	int ret;
+
+	if (priv->sw == SW_MT7988) {
+		mtk_gsw_write(priv, reg, data);
+		return 0;
+	}
 
 	/* Write page address */
 	ret = mtk_mii_write(priv, priv->mt753x_smi_addr, 0x1f, reg >> 6);
@@ -537,6 +574,7 @@ static int mtk_mdio_register(struct udevice *dev)
 		priv->mmd_write = mtk_mmd_ind_write;
 		break;
 	case SW_MT7531:
+	case SW_MT7988:
 		priv->mii_read = mt7531_mii_ind_read;
 		priv->mii_write = mt7531_mii_ind_write;
 		priv->mmd_read = mt7531_mmd_ind_read;
@@ -953,6 +991,103 @@ static int mt7531_setup(struct mtk_eth_priv *priv)
 	val |= MT7531_BYPASS_MODE;
 	val &= ~MT7531_POWER_ON_OFF;
 	mt753x_core_reg_write(priv, CORE_PLL_GROUP4, val);
+
+	return 0;
+}
+
+static void mt7988_phy_setting(struct mtk_eth_priv *priv)
+{
+	u16 val;
+	u32 i;
+
+	for (i = 0; i < MT753X_NUM_PHYS; i++) {
+		/* Enable HW auto downshift */
+		priv->mii_write(priv, i, 0x1f, 0x1);
+		val = priv->mii_read(priv, i, PHY_EXT_REG_14);
+		val |= PHY_EN_DOWN_SHFIT;
+		priv->mii_write(priv, i, PHY_EXT_REG_14, val);
+
+		/* PHY link down power saving enable */
+		val = priv->mii_read(priv, i, PHY_EXT_REG_17);
+		val |= PHY_LINKDOWN_POWER_SAVING_EN;
+		priv->mii_write(priv, i, PHY_EXT_REG_17, val);
+	}
+}
+
+static void mt7988_mac_control(struct mtk_eth_priv *priv, bool enable)
+{
+	u32 pmcr = FORCE_MODE_LNK;
+
+	if (enable)
+		pmcr = priv->mt753x_pmcr;
+
+	mt753x_reg_write(priv, PMCR_REG(6), pmcr);
+}
+
+static int mt7988_setup(struct mtk_eth_priv *priv)
+{
+	u16 phy_addr, phy_val;
+	u32 pmcr;
+	int i;
+
+	priv->gsw_base = regmap_get_range(priv->ethsys_regmap, 0) + GSW_BASE;
+
+	priv->mt753x_phy_base = (priv->mt753x_smi_addr + 1) &
+				MT753X_SMI_ADDR_MASK;
+
+	/* Turn off PHYs */
+	for (i = 0; i < MT753X_NUM_PHYS; i++) {
+		phy_addr = MT753X_PHY_ADDR(priv->mt753x_phy_base, i);
+		phy_val = priv->mii_read(priv, phy_addr, MII_BMCR);
+		phy_val |= BMCR_PDOWN;
+		priv->mii_write(priv, phy_addr, MII_BMCR, phy_val);
+	}
+
+	switch (priv->phy_interface) {
+	case PHY_INTERFACE_MODE_USXGMII:
+		/* Use CPU bridge instead of actual USXGMII path */
+
+		/* Set GDM1 no drop */
+		mtk_fe_rmw(priv, PSE_NO_DROP_CFG_REG, 0, PSE_NO_DROP_GDM1);
+
+		/* Enable GDM1 to GSW CPU bridge */
+		mtk_gmac_rmw(priv, GMAC_MAC_MISC_REG, 0, BIT(0));
+
+		/* XGMAC force link up */
+		mtk_gmac_rmw(priv, GMAC_XGMAC_STS_REG, 0, P1_XGMAC_FORCE_LINK);
+
+		/* Setup GSW CPU bridge IPG */
+		mtk_gmac_rmw(priv, GMAC_GSW_CFG_REG, GSWTX_IPG_M | GSWRX_IPG_M,
+			     (0xB << GSWTX_IPG_S) | (0xB << GSWRX_IPG_S));
+		break;
+	default:
+		printf("Error: MT7988 GSW does not support %s interface\n",
+		       phy_string_for_interface(priv->phy_interface));
+		break;
+	}
+
+	pmcr = MT7988_FORCE_MODE |
+	       (IPG_96BIT_WITH_SHORT_IPG << IPG_CFG_S) |
+	       MAC_MODE | MAC_TX_EN | MAC_RX_EN |
+	       BKOFF_EN | BACKPR_EN |
+	       FORCE_RX_FC | FORCE_TX_FC |
+	       (SPEED_1000M << FORCE_SPD_S) | FORCE_DPX |
+	       FORCE_LINK;
+
+	priv->mt753x_pmcr = pmcr;
+
+	/* Keep MAC link down before starting eth */
+	mt753x_reg_write(priv, PMCR_REG(6), FORCE_MODE_LNK);
+
+	/* Turn on PHYs */
+	for (i = 0; i < MT753X_NUM_PHYS; i++) {
+		phy_addr = MT753X_PHY_ADDR(priv->mt753x_phy_base, i);
+		phy_val = priv->mii_read(priv, phy_addr, MII_BMCR);
+		phy_val &= ~BMCR_PDOWN;
+		priv->mii_write(priv, phy_addr, MII_BMCR, phy_val);
+	}
+
+	mt7988_phy_setting(priv);
 
 	return 0;
 }
@@ -1497,6 +1632,11 @@ static int mtk_eth_start(struct udevice *dev)
 	}
 
 	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V3)) {
+		if (priv->sw == SW_MT7988 && priv->gmac_id == 0) {
+			mtk_gdma_write(priv, priv->gmac_id, GDMA_IG_CTRL_REG,
+				       GDMA_BRIDGE_TO_CPU);
+		}
+
 		mtk_gdma_write(priv, priv->gmac_id, GDMA_EG_CTRL_REG,
 			       GDMA_CPU_BRIDGE_EN);
 	}
@@ -1845,6 +1985,12 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 			priv->switch_mac_control = mt7531_mac_control;
 			priv->mt753x_smi_addr = MT753X_DFL_SMI_ADDR;
 			priv->mt753x_reset_wait_time = 200;
+		} else if (!strcmp(str, "mt7988")) {
+			priv->sw = SW_MT7988;
+			priv->switch_init = mt7988_setup;
+			priv->switch_mac_control = mt7988_mac_control;
+			priv->mt753x_smi_addr = MT753X_DFL_SMI_ADDR;
+			priv->mt753x_reset_wait_time = 50;
 		} else {
 			printf("error: unsupported switch\n");
 			return -EINVAL;
@@ -1878,6 +2024,15 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 
 	return 0;
 }
+
+static const struct mtk_soc_data mt7988_data = {
+	.caps = MT7988_CAPS,
+	.ana_rgc3 = 0x128,
+	.gdma_count = 3,
+	.pdma_base = PDMA_V3_BASE,
+	.txd_size = sizeof(struct mtk_tx_dma_v2),
+	.rxd_size = sizeof(struct mtk_rx_dma_v2),
+};
 
 static const struct mtk_soc_data mt7986_data = {
 	.caps = MT7986_CAPS,
@@ -1930,6 +2085,7 @@ static const struct mtk_soc_data mt7621_data = {
 };
 
 static const struct udevice_id mtk_eth_ids[] = {
+	{ .compatible = "mediatek,mt7988-eth", .data = (ulong)&mt7988_data },
 	{ .compatible = "mediatek,mt7986-eth", .data = (ulong)&mt7986_data },
 	{ .compatible = "mediatek,mt7981-eth", .data = (ulong)&mt7981_data },
 	{ .compatible = "mediatek,mt7629-eth", .data = (ulong)&mt7629_data },

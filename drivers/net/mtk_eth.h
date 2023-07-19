@@ -51,6 +51,8 @@ enum mkt_eth_capabilities {
 
 #define MT7986_CAPS  (MTK_NETSYS_V2)
 
+#define MT7988_CAPS  (MTK_NETSYS_V3 | MTK_INFRA)
+
 /* Frame Engine Register Bases */
 #define PDMA_V1_BASE			0x0800
 #define PDMA_V2_BASE			0x6000
@@ -59,6 +61,7 @@ enum mkt_eth_capabilities {
 #define GDMA2_BASE			0x1500
 #define GDMA3_BASE			0x0540
 #define GMAC_BASE			0x10000
+#define GSW_BASE			0x20000
 
 /* Ethernet subsystem registers */
 
@@ -117,6 +120,9 @@ enum mkt_eth_capabilities {
 #define RG_XFI_PLL_ANA_SWWA		0x02283248
 
 /* Frame Engine Registers */
+#define PSE_NO_DROP_CFG_REG		0x108
+#define PSE_NO_DROP_GDM1		BIT(1)
+
 #define FE_GLO_MISC_REG			0x124
 #define PDMA_VER_V2			BIT(4)
 
@@ -186,6 +192,17 @@ enum mkt_eth_capabilities {
 #define MDIO_ST_M			0x30000
 #define MDIO_RW_DATA_S			0
 #define MDIO_RW_DATA_M			0xffff
+
+#define GMAC_XGMAC_STS_REG		0x000c
+#define P1_XGMAC_FORCE_LINK		BIT(15)
+
+#define GMAC_MAC_MISC_REG		0x0010
+
+#define GMAC_GSW_CFG_REG		0x0080
+#define GSWTX_IPG_M			0xF0000
+#define GSWTX_IPG_S			16
+#define GSWRX_IPG_M			0xF
+#define GSWRX_IPG_S			0
 
 /* MDIO_CMD: MDIO commands */
 #define MDIO_CMD_ADDR			0
@@ -283,6 +300,9 @@ enum mkt_eth_capabilities {
 #define FORCE_MODE_LNK			BIT(31)
 #define MT7531_FORCE_MODE		FORCE_MODE_EEE1G | FORCE_MODE_EEE100 |\
 					FORCE_MODE_TX_FC | FORCE_MODE_RX_FC | \
+					FORCE_MODE_DPX   | FORCE_MODE_SPD | \
+					FORCE_MODE_LNK
+#define MT7988_FORCE_MODE		FORCE_MODE_TX_FC | FORCE_MODE_RX_FC | \
 					FORCE_MODE_DPX   | FORCE_MODE_SPD | \
 					FORCE_MODE_LNK
 
