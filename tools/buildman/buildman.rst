@@ -1062,9 +1062,9 @@ same as 'am335x_evm_usbspl'/
 
 The -K option uses the u-boot.cfg, spl/u-boot-spl.cfg and tpl/u-boot-tpl.cfg
 files which are produced by a build. If all you want is to check the
-configuration you can in fact avoid doing a full build, using -D. This tells
-buildman to configuration U-Boot and create the .cfg files, but not actually
-build the source. This is 5-10 times faster than doing a full build.
+configuration you can in fact avoid doing a full build, using --config-only.
+This tells buildman to configuration U-Boot and create the .cfg files, but not
+actually build the source. This is 5-10 times faster than doing a full build.
 
 By default buildman considers the follow two configuration methods
 equivalent::

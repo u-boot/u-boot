@@ -38,13 +38,13 @@ def add_upto_m(parser):
     parser.add_argument('-C', '--force-reconfig', dest='force_reconfig',
           action='store_true', default=False,
           help='Reconfigure for every commit (disable incremental build)')
+    parser.add_argument('--config-only', action='store_true',
+                        default=False,
+                        help="Don't build, just configure each commit")
     parser.add_argument('-d', '--detail', dest='show_detail',
           action='store_true', default=False,
           help='Show detailed size delta for each board in the -S summary')
-    parser.add_argument('-D', '--config-only', action='store_true',
-                        default=False,
-          help="Don't build, just configure each commit")
-    parser.add_argument('--debug', action='store_true',
+    parser.add_argument('-D', '--debug', action='store_true',
         help='Enabling debugging (provides a full traceback on error)')
     parser.add_argument('-e', '--show_errors', action='store_true',
           default=False, help='Show errors and warnings')
