@@ -14,19 +14,14 @@ import pathlib
 BUILDMAN_DIR = pathlib.Path(__file__).parent
 HAS_TESTS = os.path.exists(BUILDMAN_DIR / "test.py")
 
-def parse_args():
-    """Parse command line arguments from sys.argv[]
+def add_upto_m(parser):
+    """Add arguments up to 'M'
 
-    Returns:
-        tuple containing:
-            options: command line options
-            args: command lin arguments
+    Args:
+        parser (ArgumentParser): Parse to add to
+
+    This is split out to avoid having too many statements in one function
     """
-    epilog = """ [list of target/arch/cpu/board/vendor/soc to build]
-
-    Build U-Boot for all commits in a branch. Use -n to do a dry run"""
-
-    parser = argparse.ArgumentParser(epilog=epilog)
     parser.add_argument('-a', '--adjust-cfg', type=str, action='append',
           help='Adjust the Kconfig settings in .config before building')
     parser.add_argument('-A', '--print-prefix', action='store_true',
@@ -107,6 +102,16 @@ def parse_args():
     parser.add_argument('-N', '--no-subdirs', action='store_true', dest='no_subdirs',
           default=False,
           help="Don't create subdirectories when building current source for a single board")
+
+
+def add_after_m(parser):
+    """Add arguments after 'M'
+
+    Args:
+        parser (ArgumentParser): Parse to add to
+
+    This is split out to avoid having too many statements in one function
+    """
     parser.add_argument('-o', '--output-dir', type=str, dest='output_dir',
           help='Directory where all builds happen and buildman has its workspace (default is ../)')
     parser.add_argument('-O', '--override-toolchain', type=str,
@@ -156,6 +161,23 @@ def parse_args():
     parser.add_argument('-Y', '--filter-migration-warnings', action='store_true',
           default=False,
           help='Filter out migration warnings from output')
+
+
+def parse_args():
+    """Parse command line arguments from sys.argv[]
+
+    Returns:
+        tuple containing:
+            options: command line options
+            args: command lin arguments
+    """
+    epilog = """ [list of target/arch/cpu/board/vendor/soc to build]
+
+    Build U-Boot for all commits in a branch. Use -n to do a dry run"""
+
+    parser = argparse.ArgumentParser(epilog=epilog)
+    add_upto_m(parser)
+    add_after_m(parser)
     parser.add_argument('terms', type=str, nargs='*',
                         help='Board / SoC names to build')
 
