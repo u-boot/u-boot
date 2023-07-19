@@ -28,11 +28,12 @@ from patman import gitutil
 from u_boot_pylib import terminal
 from u_boot_pylib import test_util
 
-def RunTests(skip_net_tests, verbose, args):
+def RunTests(skip_net_tests, debug, verbose, args):
     """Run the buildman tests
 
     Args:
         skip_net_tests (bool): True to skip tests which need the network
+        debug (bool): True to run in debugging mode (full traceback)
         verbosity (int): Verbosity level to use (0-4)
         args (list of str): List of tests to run, empty to run all
     """
@@ -47,7 +48,7 @@ def RunTests(skip_net_tests, verbose, args):
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
     result = test_util.run_test_suites(
-        'buildman', False, verbose, False, None, test_name, [],
+        'buildman', debug, verbose, False, None, test_name, [],
         [test.TestBuild, func_test.TestFunctional,
          'buildman.toolchain', 'patman.gitutil'])
 
@@ -61,7 +62,7 @@ def run_buildman():
 
     # Run our meagre tests
     if cmdline.HAS_TESTS and options.test:
-        RunTests(options.skip_net_tests, options.verbose, args)
+        RunTests(options.skip_net_tests, options.debug, options.verbose, args)
 
     # Build selected commits for selected boards
     else:
