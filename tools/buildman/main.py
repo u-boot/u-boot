@@ -62,14 +62,16 @@ def run_buildman():
 
     # Run our meagre tests
     if cmdline.HAS_TESTS and options.test:
-        RunTests(options.skip_net_tests, options.debug, options.verbose, args)
+        return RunTests(options.skip_net_tests, options.debug, options.verbose,
+                        args)
 
     # Build selected commits for selected boards
     else:
         bsettings.Setup(options.config_file)
         ret_code = control.DoBuildman(options, args)
-        sys.exit(ret_code)
+        return ret_code
+    return 0
 
 
 if __name__ == "__main__":
-    run_buildman()
+    sys.exit(run_buildman())
