@@ -603,10 +603,6 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                      options.verbose)
         return 0
 
-    allow_missing = get_allow_missing(options.allow_missing,
-                                      options.no_allow_missing, len(selected),
-                                      options.branch)
-
     # Create a new builder with the selected options
     builder = Builder(toolchains, output_dir, git_dir,
             options.threads, options.jobs, checkout=True,
@@ -622,7 +618,10 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             test_thread_exceptions=test_thread_exceptions,
             adjust_cfg=calc_adjust_cfg(options.adjust_cfg,
                                        options.reproducible_builds),
-            allow_missing=allow_missing, no_lto=options.no_lto,
+            allow_missing=get_allow_missing(options.allow_missing,
+                                            options.no_allow_missing,
+                                            len(selected), options.branch),
+            no_lto=options.no_lto,
             reproducible_builds=options.reproducible_builds,
             force_build = options.force_build,
             force_build_failures = options.force_build_failures,
