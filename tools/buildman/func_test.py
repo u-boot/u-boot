@@ -1023,3 +1023,27 @@ endif
             result = self._RunControl('-A', 'board0')
         self.assertEqual('arm-\n', stdout.getvalue())
         self.assertEqual('', stderr.getvalue())
+
+    def test_exclude_one(self):
+        """Test excluding a single board from an arch"""
+        self._RunControl('arm', '-x', 'board1')
+        self.assertEqual(['board0'],
+                         [b.target for b in self._boards.get_selected()])
+
+    def test_exclude_arch(self):
+        """Test excluding an arch"""
+        self._RunControl('-x', 'arm')
+        self.assertEqual(['board2', 'board4'],
+                         [b.target for b in self._boards.get_selected()])
+
+    def test_exclude_comma(self):
+        """Test excluding a comma-separated list of things"""
+        self._RunControl('-x', 'arm,powerpc')
+        self.assertEqual(['board4'],
+                         [b.target for b in self._boards.get_selected()])
+
+    def test_exclude_list(self):
+        """Test excluding a list of things"""
+        self._RunControl('-x', 'board2', '-x' 'board4')
+        self.assertEqual(['board0', 'board1'],
+                         [b.target for b in self._boards.get_selected()])
