@@ -255,9 +255,10 @@ class TestFunctional(unittest.TestCase):
         options, args = cmdline.ParseArgs()
         if brds == False:
             brds = self._boards
-        result = control.DoBuildman(options, args, toolchains=self._toolchains,
-                make_func=self._HandleMake, brds=brds, clean_dir=clean_dir,
-                test_thread_exceptions=test_thread_exceptions)
+        result = control.do_buildman(
+            options, args, toolchains=self._toolchains,
+            make_func=self._HandleMake, brds=brds, clean_dir=clean_dir,
+            test_thread_exceptions=test_thread_exceptions)
         if get_builder:
             self._builder = control.builder
         return result

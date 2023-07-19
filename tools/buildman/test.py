@@ -465,7 +465,7 @@ class TestBuild(unittest.TestCase):
         options.show_errors = False
         options.keep_outputs = False
         args = ['tegra20']
-        control.DoBuildman(options, args)
+        control.do_buildman(options, args)
 
     def testBoardSingle(self):
         """Test single board selection"""

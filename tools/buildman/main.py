@@ -67,9 +67,8 @@ def run_buildman():
     # Build selected commits for selected boards
     else:
         bsettings.Setup(options.config_file)
-        ret_code = control.DoBuildman(options, args)
+        ret_code = control.do_buildman(options, args)
         return ret_code
-    return 0
 
 
 if __name__ == "__main__":

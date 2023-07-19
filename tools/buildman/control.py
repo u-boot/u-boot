@@ -2,6 +2,11 @@
 # Copyright (c) 2013 The Chromium OS Authors.
 #
 
+"""Control module for buildman
+
+This holds the main control logic for buildman, when not running tests.
+"""
+
 import multiprocessing
 try:
     import importlib.resources
@@ -25,11 +30,11 @@ from u_boot_pylib import terminal
 from u_boot_pylib import tools
 from u_boot_pylib.terminal import tprint
 
-def GetPlural(count):
+def get_plural(count):
     """Returns a plural 's' if count is not 1"""
     return 's' if count != 1 else ''
 
-def GetActionSummary(is_summary, commits, selected, options):
+def get_action_summary(is_summary, commits, selected, options):
     """Return a string summarising the intended action.
 
     Returns:
@@ -38,18 +43,18 @@ def GetActionSummary(is_summary, commits, selected, options):
     if commits:
         count = len(commits)
         count = (count + options.step - 1) // options.step
-        commit_str = '%d commit%s' % (count, GetPlural(count))
+        commit_str = '%d commit%s' % (count, get_plural(count))
     else:
         commit_str = 'current source'
     str = '%s %s for %d boards' % (
         'Summary of' if is_summary else 'Building', commit_str,
         len(selected))
     str += ' (%d thread%s, %d job%s per thread)' % (options.threads,
-            GetPlural(options.threads), options.jobs, GetPlural(options.jobs))
+            get_plural(options.threads), options.jobs, get_plural(options.jobs))
     return str
 
-def ShowActions(series, why_selected, boards_selected, builder, options,
-                board_warnings):
+def show_actions(series, why_selected, boards_selected, builder, options,
+                 board_warnings):
     """Display a list of actions that we would take, if not a dry run.
 
     Args:
@@ -72,7 +77,7 @@ def ShowActions(series, why_selected, boards_selected, builder, options,
         commits = series.commits
     else:
         commits = None
-    print(GetActionSummary(False, commits, boards_selected,
+    print(get_action_summary(False, commits, boards_selected,
             options))
     print('Build directory: %s' % builder.base_dir)
     if commits:
@@ -92,7 +97,7 @@ def ShowActions(series, why_selected, boards_selected, builder, options,
         for warning in board_warnings:
             print(col.build(col.YELLOW, warning))
 
-def ShowToolchainPrefix(brds, toolchains):
+def show_toolchain_prefix(brds, toolchains):
     """Show information about a the tool chain used by one or more boards
 
     The function checks that all boards use the same toolchain, then prints
@@ -133,8 +138,8 @@ def get_allow_missing(opt_allow, opt_no_allow, num_selected, has_branch):
         allow_missing = False
     return allow_missing
 
-def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
-               clean_dir=False, test_thread_exceptions=False):
+def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
+                clean_dir=False, test_thread_exceptions=False):
     """The main control code for buildman
 
     Args:
@@ -246,7 +251,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
         sys.exit(col.build(col.RED, 'No matching boards found'))
 
     if options.print_prefix:
-        err = ShowToolchainPrefix(brds, toolchains)
+        err = show_toolchain_prefix(brds, toolchains)
         if err:
             sys.exit(col.build(col.RED, err))
         return 0
@@ -382,7 +387,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
 
     # For a dry run, just show our actions as a sanity check
     if options.dry_run:
-        ShowActions(series, why_selected, selected, builder, options,
+        show_actions(series, why_selected, selected, builder, options,
                     board_warnings)
     else:
         builder.force_build = options.force_build
@@ -402,7 +407,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
             commits = None
 
         if not options.ide:
-            tprint(GetActionSummary(options.summary, commits, board_selected,
+            tprint(get_action_summary(options.summary, commits, board_selected,
                                     options))
 
         # We can't show function sizes without board details at present
