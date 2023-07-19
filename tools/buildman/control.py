@@ -515,6 +515,31 @@ def run_builder(builder, commits, board_selected, options):
             return 101
     return 0
 
+
+def calc_adjust_cfg(adjust_cfg, reproducible_builds):
+    """Calculate the value to use for adjust_cfg
+
+    Args:
+        adjust_cfg (list of str): List of configuration changes. See cfgutil for
+            details
+        reproducible_builds (bool): True to adjust the configuration to get
+            reproduceable builds
+
+    Returns:
+        adjust_cfg (list of str): List of configuration changes
+    """
+    adjust_cfg = cfgutil.convert_list_to_dict(adjust_cfg)
+
+    # Drop LOCALVERSION_AUTO since it changes the version string on every commit
+    if reproducible_builds:
+        # If these are mentioned, leave the local version alone
+        if 'LOCALVERSION' in adjust_cfg or 'LOCALVERSION_AUTO' in adjust_cfg:
+            print('Not dropping LOCALVERSION_AUTO for reproducible build')
+        else:
+            adjust_cfg['LOCALVERSION_AUTO'] = '~'
+    return adjust_cfg
+
+
 def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                 clean_dir=False, test_thread_exceptions=False):
     """The main control code for buildman
@@ -582,16 +607,6 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                                       options.no_allow_missing, len(selected),
                                       options.branch)
 
-    adjust_cfg = cfgutil.convert_list_to_dict(options.adjust_cfg)
-
-    # Drop LOCALVERSION_AUTO since it changes the version string on every commit
-    if options.reproducible_builds:
-        # If these are mentioned, leave the local version alone
-        if 'LOCALVERSION' in adjust_cfg or 'LOCALVERSION_AUTO' in adjust_cfg:
-            print('Not dropping LOCALVERSION_AUTO for reproducible build')
-        else:
-            adjust_cfg['LOCALVERSION_AUTO'] = '~'
-
     # Create a new builder with the selected options
     builder = Builder(toolchains, output_dir, git_dir,
             options.threads, options.jobs, checkout=True,
@@ -605,7 +620,8 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
             warnings_as_errors=options.warnings_as_errors,
             work_in_output=options.work_in_output,
             test_thread_exceptions=test_thread_exceptions,
-            adjust_cfg=adjust_cfg,
+            adjust_cfg=calc_adjust_cfg(options.adjust_cfg,
+                                       options.reproducible_builds),
             allow_missing=allow_missing, no_lto=options.no_lto,
             reproducible_builds=options.reproducible_builds,
             force_build = options.force_build,
