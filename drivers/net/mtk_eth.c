@@ -893,7 +893,7 @@ static int mt7531_setup(struct mtk_eth_priv *priv)
 		if (!port5_sgmii)
 			mt7531_port_rgmii_init(priv, 5);
 		break;
-	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		mt7531_port_sgmii_init(priv, 6);
 		if (port5_sgmii)
 			mt7531_port_sgmii_init(priv, 5);
@@ -986,6 +986,7 @@ static void mtk_phy_link_adjust(struct mtk_eth_priv *priv)
 	      (MAC_RX_PKT_LEN_1536 << MAC_RX_PKT_LEN_S) |
 	      MAC_MODE | FORCE_MODE |
 	      MAC_TX_EN | MAC_RX_EN |
+	      DEL_RXFIFO_CLR |
 	      BKOFF_EN | BACKPR_EN;
 
 	switch (priv->phydev->speed) {
@@ -996,6 +997,7 @@ static void mtk_phy_link_adjust(struct mtk_eth_priv *priv)
 		mcr |= (SPEED_100M << FORCE_SPD_S);
 		break;
 	case SPEED_1000:
+	case SPEED_2500:
 		mcr |= (SPEED_1000M << FORCE_SPD_S);
 		break;
 	};
@@ -1048,7 +1050,8 @@ static int mtk_phy_start(struct mtk_eth_priv *priv)
 		return 0;
 	}
 
-	mtk_phy_link_adjust(priv);
+	if (!priv->force_mode)
+		mtk_phy_link_adjust(priv);
 
 	debug("Speed: %d, %s duplex%s\n", phydev->speed,
 	      (phydev->duplex) ? "full" : "half",
@@ -1076,7 +1079,31 @@ static int mtk_phy_probe(struct udevice *dev)
 	return 0;
 }
 
-static void mtk_sgmii_init(struct mtk_eth_priv *priv)
+static void mtk_sgmii_an_init(struct mtk_eth_priv *priv)
+{
+	/* Set SGMII GEN1 speed(1G) */
+	clrsetbits_le32(priv->sgmii_base + priv->soc->ana_rgc3,
+			SGMSYS_SPEED_2500, 0);
+
+	/* Enable SGMII AN */
+	setbits_le32(priv->sgmii_base + SGMSYS_PCS_CONTROL_1,
+		     SGMII_AN_ENABLE);
+
+	/* SGMII AN mode setting */
+	writel(SGMII_AN_MODE, priv->sgmii_base + SGMSYS_SGMII_MODE);
+
+	/* SGMII PN SWAP setting */
+	if (priv->pn_swap) {
+		setbits_le32(priv->sgmii_base + SGMSYS_QPHY_WRAP_CTRL,
+			     SGMII_PN_SWAP_TX_RX);
+	}
+
+	/* Release PHYA power down state */
+	clrsetbits_le32(priv->sgmii_base + SGMSYS_QPHY_PWR_STATE_CTRL,
+			SGMII_PHYA_PWD, 0);
+}
+
+static void mtk_sgmii_force_init(struct mtk_eth_priv *priv)
 {
 	/* Set SGMII GEN2 speed(2.5G) */
 	setbits_le32(priv->sgmii_base + priv->soc->ana_rgc3,
@@ -1111,10 +1138,14 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 		ge_mode = GE_MODE_RGMII;
 		break;
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		ge_mode = GE_MODE_RGMII;
 		mtk_ethsys_rmw(priv, ETHSYS_SYSCFG0_REG, SYSCFG0_SGMII_SEL_M,
 			       SYSCFG0_SGMII_SEL(priv->gmac_id));
-		mtk_sgmii_init(priv);
+		if (priv->phy_interface == PHY_INTERFACE_MODE_SGMII)
+			mtk_sgmii_an_init(priv);
+		else
+			mtk_sgmii_force_init(priv);
 		break;
 	case PHY_INTERFACE_MODE_MII:
 	case PHY_INTERFACE_MODE_GMII:
@@ -1148,6 +1179,7 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 			mcr |= SPEED_100M << FORCE_SPD_S;
 			break;
 		case SPEED_1000:
+		case SPEED_2500:
 			mcr |= SPEED_1000M << FORCE_SPD_S;
 			break;
 		}
@@ -1490,13 +1522,15 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 		priv->duplex = ofnode_read_bool(subnode, "full-duplex");
 
 		if (priv->speed != SPEED_10 && priv->speed != SPEED_100 &&
-		    priv->speed != SPEED_1000) {
+		    priv->speed != SPEED_1000 && priv->speed != SPEED_2500 &&
+		    priv->speed != SPEED_10000) {
 			printf("error: no valid speed set in fixed-link\n");
 			return -EINVAL;
 		}
 	}
 
-	if (priv->phy_interface == PHY_INTERFACE_MODE_SGMII) {
+	if (priv->phy_interface == PHY_INTERFACE_MODE_SGMII ||
+	    priv->phy_interface == PHY_INTERFACE_MODE_2500BASEX) {
 		/* get corresponding sgmii phandle */
 		ret = dev_read_phandle_with_args(dev, "mediatek,sgmiisys",
 						 NULL, 0, 0, &args);

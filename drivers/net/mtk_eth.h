@@ -69,6 +69,7 @@ enum mkt_eth_capabilities {
 #define SGMII_AN_RESTART		BIT(9)
 
 #define SGMSYS_SGMII_MODE		0x20
+#define SGMII_AN_MODE			0x31120103
 #define SGMII_FORCE_MODE		0x31120019
 
 #define SGMSYS_QPHY_PWR_STATE_CTRL	0xe8
@@ -168,6 +169,7 @@ enum mkt_eth_capabilities {
 #define FORCE_MODE			BIT(15)
 #define MAC_TX_EN			BIT(14)
 #define MAC_RX_EN			BIT(13)
+#define DEL_RXFIFO_CLR			BIT(12)
 #define BKOFF_EN			BIT(9)
 #define BACKPR_EN			BIT(8)
 #define FORCE_RX_FC			BIT(5)
