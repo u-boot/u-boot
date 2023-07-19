@@ -157,7 +157,7 @@ def get_allow_missing(opt_allow, opt_no_allow, num_selected, has_branch):
             external blobs are used
     """
     allow_missing = False
-    am_setting = bsettings.GetGlobalItemValue('allow-missing')
+    am_setting = bsettings.get_global_item_value('allow-missing')
     if am_setting:
         if am_setting == 'always':
             allow_missing = True

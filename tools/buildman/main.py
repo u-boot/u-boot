@@ -74,7 +74,7 @@ def run_buildman():
 
     # Build selected commits for selected boards
     else:
-        bsettings.Setup(args.config_file)
+        bsettings.setup(args.config_file)
         ret_code = control.do_buildman(args)
         return ret_code
 

@@ -2037,7 +2037,7 @@ doc/develop/moveconfig.rst for documentation.'''
 
     if not args.cleanup_headers_only:
         check_clean_directory()
-        bsettings.Setup('')
+        bsettings.setup('')
         toolchains = toolchain.Toolchains()
         toolchains.GetSettings()
         toolchains.Scan(verbose=False)

@@ -139,7 +139,7 @@ class Toolchain:
         """Get toolchain wrapper from the setting file.
         """
         value = ''
-        for name, value in bsettings.GetItems('toolchain-wrapper'):
+        for name, value in bsettings.get_items('toolchain-wrapper'):
             if not value:
                 print("Warning: Wrapper not found")
         if value:
@@ -249,7 +249,7 @@ class Toolchains:
         self.prefixes = {}
         self.paths = []
         self.override_toolchain = override_toolchain
-        self._make_flags = dict(bsettings.GetItems('make-flags'))
+        self._make_flags = dict(bsettings.get_items('make-flags'))
 
     def GetPathList(self, show_warning=True):
         """Get a list of available toolchain paths
@@ -261,7 +261,7 @@ class Toolchains:
             List of strings, each a path to a toolchain mentioned in the
             [toolchain] section of the settings file.
         """
-        toolchains = bsettings.GetItems('toolchain')
+        toolchains = bsettings.get_items('toolchain')
         if show_warning and not toolchains:
             print(("Warning: No tool chains. Please run 'buildman "
                    "--fetch-arch all' to download all available toolchains, or "
@@ -283,7 +283,7 @@ class Toolchains:
         Args:
             show_warning: True to show a warning if there are no tool chains.
         """
-        self.prefixes = bsettings.GetItems('toolchain-prefix')
+        self.prefixes = bsettings.get_items('toolchain-prefix')
         self.paths += self.GetPathList(show_warning)
 
     def Add(self, fname, test=True, verbose=False, priority=PRIORITY_CALC,
@@ -399,7 +399,7 @@ class Toolchains:
         returns:
             toolchain object, or None if none found
         """
-        for tag, value in bsettings.GetItems('toolchain-alias'):
+        for tag, value in bsettings.get_items('toolchain-alias'):
             if arch == tag:
                 for alias in value.split():
                     if alias in self.toolchains:
@@ -421,7 +421,7 @@ class Toolchains:
         Returns:
             Resolved string
 
-        >>> bsettings.Setup(None)
+        >>> bsettings.setup(None)
         >>> tcs = Toolchains()
         >>> tcs.Add('fred', False)
         >>> var_dict = {'oblique' : 'OBLIQUE', 'first' : 'fi${second}rst', \
@@ -598,5 +598,5 @@ class Toolchains:
         if not self.TestSettingsHasPath(dirpath):
             print(("Adding 'download' to config file '%s'" %
                    bsettings.config_fname))
-            bsettings.SetItem('toolchain', 'download', '%s/*/*' % dest)
+            bsettings.set_item('toolchain', 'download', '%s/*/*' % dest)
         return 0

@@ -138,8 +138,8 @@ class TestBuild(unittest.TestCase):
         self.brds.select_boards([])
 
         # Add some test settings
-        bsettings.Setup(None)
-        bsettings.AddFile(settings_data)
+        bsettings.setup(None)
+        bsettings.add_file(settings_data)
 
         # Set up the toolchains
         self.toolchains = toolchain.Toolchains()

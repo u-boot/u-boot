@@ -186,8 +186,8 @@ class TestFunctional(unittest.TestCase):
         self._buildman_pathname = sys.argv[0]
         self._buildman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
         command.test_result = self._HandleCommand
-        bsettings.Setup(None)
-        bsettings.AddFile(settings_data)
+        bsettings.setup(None)
+        bsettings.add_file(settings_data)
         self.setupToolchains()
         self._toolchains.Add('arm-gcc', test=False)
         self._toolchains.Add('powerpc-gcc', test=False)
@@ -699,7 +699,7 @@ Some images are invalid'''
 
     def testBlobSettingsAlways(self):
         """Test the 'always' policy"""
-        bsettings.SetItem('global', 'allow-missing', 'always')
+        bsettings.set_item('global', 'allow-missing', 'always')
         self.assertEqual(True,
                          control.get_allow_missing(False, False, 1, False))
         self.assertEqual(False,
@@ -707,7 +707,7 @@ Some images are invalid'''
 
     def testBlobSettingsBranch(self):
         """Test the 'branch' policy"""
-        bsettings.SetItem('global', 'allow-missing', 'branch')
+        bsettings.set_item('global', 'allow-missing', 'branch')
         self.assertEqual(False,
                          control.get_allow_missing(False, False, 1, False))
         self.assertEqual(True,
@@ -717,7 +717,7 @@ Some images are invalid'''
 
     def testBlobSettingsMultiple(self):
         """Test the 'multiple' policy"""
-        bsettings.SetItem('global', 'allow-missing', 'multiple')
+        bsettings.set_item('global', 'allow-missing', 'multiple')
         self.assertEqual(False,
                          control.get_allow_missing(False, False, 1, False))
         self.assertEqual(True,
@@ -727,7 +727,7 @@ Some images are invalid'''
 
     def testBlobSettingsBranchMultiple(self):
         """Test the 'branch multiple' policy"""
-        bsettings.SetItem('global', 'allow-missing', 'branch multiple')
+        bsettings.set_item('global', 'allow-missing', 'branch multiple')
         self.assertEqual(False,
                          control.get_allow_missing(False, False, 1, False))
         self.assertEqual(True,
