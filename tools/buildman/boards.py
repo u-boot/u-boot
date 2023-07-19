@@ -345,17 +345,28 @@ class MaintainersDatabase:
             srcdir (str): Directory containing source code (Kconfig files)
             fname (str): MAINTAINERS file to be parsed
         """
-        def add_targets():
-            """Add any new targets"""
+        def add_targets(linenum):
+            """Add any new targets
+
+            Args:
+                linenum (int): Current line number
+            """
+            added = False
             if targets:
                 for target in targets:
                     self.database[target] = (status, maintainers)
+                    added = True
+            if not added and (status != '-' and maintainers):
+                leaf = fname[len(srcdir) + 1:]
+                if leaf != 'MAINTAINERS':
+                    self.warnings.append(
+                        f'WARNING: orphaned defconfig in {leaf} ending at line {linenum + 1}')
 
         targets = []
         maintainers = []
         status = '-'
         with open(fname, encoding="utf-8") as inf:
-            for line in inf:
+            for linenum, line in enumerate(inf):
                 # Check also commented maintainers
                 if line[:3] == '#M:':
                     line = line[1:]
@@ -388,11 +399,11 @@ class MaintainersDatabase:
                                 if match and not rear:
                                     targets.append(front)
                 elif line == '\n':
-                    add_targets()
+                    add_targets(linenum)
                     targets = []
                     maintainers = []
                     status = '-'
-        add_targets()
+        add_targets(linenum)
 
 
 class Boards:
