@@ -441,6 +441,10 @@ def adjust_options(options, series, selected):
     if not options.step:
         options.step = len(series.commits) - 1
 
+    # We can't show function sizes without board details at present
+    if options.show_bloat:
+        options.show_detail = True
+
 
 def setup_output_dir(output_dir, work_in_output, branch, no_subdirs, col,
                      clean_dir):
@@ -581,18 +585,11 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
     # Work out which boards to build
     board_selected = brds.get_selected_dict()
 
-    if series:
-        commits = series.commits
-    else:
-        commits = None
-
+    commits = series.commits if series else None
     if not options.ide:
         tprint(get_action_summary(options.summary, commits, board_selected,
                                   options.step, options.threads, options.jobs))
 
-    # We can't show function sizes without board details at present
-    if options.show_bloat:
-        options.show_detail = True
     builder.SetDisplayOptions(
         options.show_errors, options.show_sizes, options.show_detail,
         options.show_bloat, options.list_error_boards, options.show_config,
