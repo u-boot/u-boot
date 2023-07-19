@@ -229,19 +229,7 @@ class KconfigScanner:
                 'config': <config_header_name>,
             }
         """
-        # strip special prefixes and save it in a temporary file
-        outfd, self._tmpfile = tempfile.mkstemp()
-        with os.fdopen(outfd, 'w') as outf:
-            with open(defconfig, encoding='utf-8') as inf:
-                for line in inf:
-                    colon = line.find(':CONFIG_')
-                    if colon == -1:
-                        outf.write(line)
-                    else:
-                        outf.write(line[colon + 1:])
-
-        self._conf.load_config(self._tmpfile)
-        try_remove(self._tmpfile)
+        self._conf.load_config(defconfig)
         self._tmpfile = None
 
         params = {}
