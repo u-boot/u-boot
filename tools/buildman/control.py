@@ -56,8 +56,8 @@ def get_action_summary(is_summary, commits, selected, step, threads, jobs):
     return msg
 
 # pylint: disable=R0913
-def show_actions(series, why_selected, boards_selected, output_dir, options,
-                 board_warnings):
+def show_actions(series, why_selected, boards_selected, output_dir,
+                 board_warnings, step, threads, jobs, verbose):
     """Display a list of actions that we would take, if not a dry run.
 
     Args:
@@ -70,8 +70,11 @@ def show_actions(series, why_selected, boards_selected, output_dir, options,
         boards_selected: Dict of selected boards, key is target name,
                 value is Board object
         output_dir (str): Output directory for builder
-        options: Command line options object
         board_warnings: List of warnings obtained from board selected
+        step (int): Step increment through commits
+        threads (int): Number of processor threads being used
+        jobs (int): Number of jobs to build at once
+        verbose (bool): True to indicate why each board was selected
     """
     col = terminal.Color()
     print('Dry run, so not doing much. But I would do this:')
@@ -80,11 +83,11 @@ def show_actions(series, why_selected, boards_selected, output_dir, options,
         commits = series.commits
     else:
         commits = None
-    print(get_action_summary(False, commits, boards_selected,
-                             options.step, options.threads, options.jobs))
+    print(get_action_summary(False, commits, boards_selected, step, threads,
+                             jobs))
     print(f'Build directory: {output_dir}')
     if commits:
-        for upto in range(0, len(series.commits), options.step):
+        for upto in range(0, len(series.commits), step):
             commit = series.commits[upto]
             print('   ', col.build(col.YELLOW, commit.hash[:8], bright=False), end=' ')
             print(commit.subject)
@@ -92,7 +95,7 @@ def show_actions(series, why_selected, boards_selected, output_dir, options,
     for arg in why_selected:
         if arg != 'all':
             print(arg, f': {len(why_selected[arg])} boards')
-            if options.verbose:
+            if verbose:
                 print(f"   {' '.join(why_selected[arg])}")
     print('Total boards to build for each '
           f"commit: {len(why_selected['all'])}\n")
@@ -479,8 +482,9 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
 
     # For a dry run, just show our actions as a sanity check
     if options.dry_run:
-        show_actions(series, why_selected, selected, output_dir, options,
-                    board_warnings)
+        show_actions(series, why_selected, selected, output_dir, board_warnings,
+                     options.step, options.threads, options.jobs,
+                     options.verbose)
         return 0
 
     adjust_cfg = cfgutil.convert_list_to_dict(options.adjust_cfg)
