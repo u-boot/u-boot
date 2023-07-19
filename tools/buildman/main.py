@@ -48,11 +48,21 @@ def run_tests(skip_net_tests, debug, verbose, args):
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
     result = test_util.run_test_suites(
-        'buildman', debug, verbose, False, None, test_name, [],
+        'buildman', debug, verbose, False, args.threads, test_name, [],
         [test.TestBuild, func_test.TestFunctional,
          'buildman.toolchain', 'patman.gitutil'])
 
     return (0 if result.wasSuccessful() else 1)
+
+def run_test_coverage():
+    """Run the tests and check that we get 100% coverage"""
+    test_util.run_test_coverage(
+        'tools/buildman/buildman', None,
+        ['tools/patman/*.py', 'tools/u_boot_pylib/*', '*test_fdt.py',
+         'tools/buildman/kconfiglib.py', 'tools/buildman/*test*.py',
+         'tools/buildman/main.py'],
+        '/tmp/b', single_thread='-T1')
+
 
 def run_buildman():
     """Run bulidman
@@ -68,6 +78,9 @@ def run_buildman():
     # Run our meagre tests
     if cmdline.HAS_TESTS and args.test:
         return run_tests(args.skip_net_tests, args.debug, args.verbose, args)
+
+    elif cmdline.HAS_TESTS and args.coverage:
+        run_test_coverage()
 
     elif args.full_help:
         tools.print_full_help(str(files('buildman').joinpath('README.rst')))

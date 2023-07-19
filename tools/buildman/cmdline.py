@@ -142,6 +142,8 @@ def add_after_m(parser):
                           help='Skip tests which need the network')
         parser.add_argument('-t', '--test', action='store_true', dest='test',
                           default=False, help='run tests')
+        parser.add_argument('--coverage', action='store_true',
+                            help='Calculated test coverage')
     parser.add_argument('-T', '--threads', type=int,
           default=None,
           help='Number of builder threads to use (0=single-thread)')
