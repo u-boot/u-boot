@@ -231,6 +231,10 @@ class KconfigScanner:
                 'config': <config_header_name>,
             }
         """
+        leaf = os.path.basename(defconfig)
+        expect_target, match, rear = leaf.partition('_defconfig')
+        assert match and not rear, f'{leaf} : invalid defconfig'
+
         self._conf.load_config(defconfig)
         self._tmpfile = None
 
@@ -245,9 +249,7 @@ class KconfigScanner:
             else:
                 params[key] = '-'
 
-        defconfig = os.path.basename(defconfig)
-        params['target'], match, rear = defconfig.partition('_defconfig')
-        assert match and not rear, f'{defconfig} : invalid defconfig'
+        params['target'] = expect_target
 
         # fix-up for aarch64
         if params['arch'] == 'arm' and params['cpu'] == 'armv8':
