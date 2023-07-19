@@ -244,6 +244,46 @@ class BuilderThread(threading.Thread):
             result.return_code = 0
         return result
 
+    def _read_done_file(self, commit_upto, brd, result, force_build,
+                        force_build_failures):
+        """Check the 'done' file and see if this commit should be built
+
+        Args:
+            commit (Commit): Commit only being built
+            brd (Board): Board being built
+            result (CommandResult): result object to update
+            force_build (bool): Force a build even if one was previously done
+            force_build_failures (bool): Force a bulid if the previous result
+                showed failure
+
+        Returns:
+            bool: True if build should be built
+        """
+        done_file = self.builder.get_done_file(commit_upto, brd.target)
+        result.already_done = os.path.exists(done_file)
+        will_build = (force_build or force_build_failures or
+            not result.already_done)
+        if result.already_done:
+            with open(done_file, 'r', encoding='utf-8') as outf:
+                try:
+                    result.return_code = int(outf.readline())
+                except ValueError:
+                    # The file may be empty due to running out of disk space.
+                    # Try a rebuild
+                    result.return_code = RETURN_CODE_RETRY
+
+            # Check the signal that the build needs to be retried
+            if result.return_code == RETURN_CODE_RETRY:
+                will_build = True
+            elif will_build:
+                err_file = self.builder.get_err_file(commit_upto, brd.target)
+                if os.path.exists(err_file) and os.stat(err_file).st_size:
+                    result.stderr = 'bad'
+                elif not force_build:
+                    # The build passed, so no need to build it again
+                    will_build = False
+        return will_build
+
     def run_commit(self, commit_upto, brd, work_dir, do_config, config_only,
                   force_build, force_build_failures, work_in_output,
                   adjust_cfg):
@@ -291,30 +331,8 @@ class BuilderThread(threading.Thread):
             out_dir = os.path.join(work_dir, out_rel_dir)
 
         # Check if the job was already completed last time
-        done_file = self.builder.get_done_file(commit_upto, brd.target)
-        result.already_done = os.path.exists(done_file)
-        will_build = (force_build or force_build_failures or
-            not result.already_done)
-        if result.already_done:
-            # Get the return code from that build and use it
-            with open(done_file, 'r', encoding='utf-8') as outf:
-                try:
-                    result.return_code = int(outf.readline())
-                except ValueError:
-                    # The file may be empty due to running out of disk space.
-                    # Try a rebuild
-                    result.return_code = RETURN_CODE_RETRY
-
-            # Check the signal that the build needs to be retried
-            if result.return_code == RETURN_CODE_RETRY:
-                will_build = True
-            elif will_build:
-                err_file = self.builder.get_err_file(commit_upto, brd.target)
-                if os.path.exists(err_file) and os.stat(err_file).st_size:
-                    result.stderr = 'bad'
-                elif not force_build:
-                    # The build passed, so no need to build it again
-                    will_build = False
+        will_build = self._read_done_file(commit_upto, brd, result, force_build,
+                                          force_build_failures)
 
         if will_build:
             # We are going to have to build it. First, get a toolchain
