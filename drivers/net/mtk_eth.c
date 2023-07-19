@@ -103,6 +103,8 @@ struct mtk_eth_priv {
 
 	struct regmap *ethsys_regmap;
 
+	struct regmap *infra_regmap;
+
 	struct mii_dev *mdio_bus;
 	int (*mii_read)(struct mtk_eth_priv *priv, u8 phy, u8 reg);
 	int (*mii_write)(struct mtk_eth_priv *priv, u8 phy, u8 reg, u16 val);
@@ -184,6 +186,17 @@ static void mtk_ethsys_rmw(struct mtk_eth_priv *priv, u32 reg, u32 clr,
 	val &= ~clr;
 	val |= set;
 	regmap_write(priv->ethsys_regmap, reg, val);
+}
+
+static void mtk_infra_rmw(struct mtk_eth_priv *priv, u32 reg, u32 clr,
+			  u32 set)
+{
+	uint val;
+
+	regmap_read(priv->infra_regmap, reg, &val);
+	val &= ~clr;
+	val |= set;
+	regmap_write(priv->infra_regmap, reg, val);
 }
 
 /* Direct MDIO clause 22/45 access via SoC */
@@ -1139,6 +1152,11 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 		break;
 	case PHY_INTERFACE_MODE_SGMII:
 	case PHY_INTERFACE_MODE_2500BASEX:
+		if (MTK_HAS_CAPS(priv->soc->caps, MTK_GMAC2_U3_QPHY)) {
+			mtk_infra_rmw(priv, USB_PHY_SWITCH_REG, QPHY_SEL_MASK,
+				      SGMII_QPHY_SEL);
+		}
+
 		ge_mode = GE_MODE_RGMII;
 		mtk_ethsys_rmw(priv, ETHSYS_SYSCFG0_REG, SYSCFG0_SGMII_SEL_M,
 			       SYSCFG0_SGMII_SEL(priv->gmac_id));
@@ -1497,6 +1515,19 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 	if (IS_ERR(priv->ethsys_regmap))
 		return PTR_ERR(priv->ethsys_regmap);
 
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_INFRA)) {
+		/* get corresponding infracfg phandle */
+		ret = dev_read_phandle_with_args(dev, "mediatek,infracfg",
+						 NULL, 0, 0, &args);
+
+		if (ret)
+			return ret;
+
+		priv->infra_regmap = syscon_node_to_regmap(args.node);
+		if (IS_ERR(priv->infra_regmap))
+			return PTR_ERR(priv->infra_regmap);
+	}
+
 	/* Reset controllers */
 	ret = reset_get_by_name(dev, "fe", &priv->rst_fe);
 	if (ret) {
@@ -1614,7 +1645,7 @@ static const struct mtk_soc_data mt7986_data = {
 };
 
 static const struct mtk_soc_data mt7981_data = {
-	.caps = MT7986_CAPS,
+	.caps = MT7981_CAPS,
 	.ana_rgc3 = 0x128,
 	.pdma_base = PDMA_V2_BASE,
 	.txd_size = sizeof(struct mtk_tx_dma_v2),
