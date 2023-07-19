@@ -105,6 +105,11 @@ struct mtk_eth_priv {
 
 	struct regmap *infra_regmap;
 
+	struct regmap *usxgmii_regmap;
+	struct regmap *xfi_pextp_regmap;
+	struct regmap *xfi_pll_regmap;
+	struct regmap *toprgu_regmap;
+
 	struct mii_dev *mdio_bus;
 	int (*mii_read)(struct mtk_eth_priv *priv, u8 phy, u8 reg);
 	int (*mii_write)(struct mtk_eth_priv *priv, u8 phy, u8 reg, u16 val);
@@ -989,6 +994,42 @@ static int mt753x_switch_init(struct mtk_eth_priv *priv)
 	return 0;
 }
 
+static void mtk_xphy_link_adjust(struct mtk_eth_priv *priv)
+{
+	u16 lcl_adv = 0, rmt_adv = 0;
+	u8 flowctrl;
+	u32 mcr;
+
+	mcr = mtk_gmac_read(priv, XGMAC_PORT_MCR(priv->gmac_id));
+	mcr &= ~(XGMAC_FORCE_TX_FC | XGMAC_FORCE_RX_FC);
+
+	if (priv->phydev->duplex) {
+		if (priv->phydev->pause)
+			rmt_adv = LPA_PAUSE_CAP;
+		if (priv->phydev->asym_pause)
+			rmt_adv |= LPA_PAUSE_ASYM;
+
+		if (priv->phydev->advertising & ADVERTISED_Pause)
+			lcl_adv |= ADVERTISE_PAUSE_CAP;
+		if (priv->phydev->advertising & ADVERTISED_Asym_Pause)
+			lcl_adv |= ADVERTISE_PAUSE_ASYM;
+
+		flowctrl = mii_resolve_flowctrl_fdx(lcl_adv, rmt_adv);
+
+		if (flowctrl & FLOW_CTRL_TX)
+			mcr |= XGMAC_FORCE_TX_FC;
+		if (flowctrl & FLOW_CTRL_RX)
+			mcr |= XGMAC_FORCE_RX_FC;
+
+		debug("rx pause %s, tx pause %s\n",
+		      flowctrl & FLOW_CTRL_RX ? "enabled" : "disabled",
+		      flowctrl & FLOW_CTRL_TX ? "enabled" : "disabled");
+	}
+
+	mcr &= ~(XGMAC_TRX_DISABLE);
+	mtk_gmac_write(priv, XGMAC_PORT_MCR(priv->gmac_id), mcr);
+}
+
 static void mtk_phy_link_adjust(struct mtk_eth_priv *priv)
 {
 	u16 lcl_adv = 0, rmt_adv = 0;
@@ -1063,8 +1104,12 @@ static int mtk_phy_start(struct mtk_eth_priv *priv)
 		return 0;
 	}
 
-	if (!priv->force_mode)
-		mtk_phy_link_adjust(priv);
+	if (!priv->force_mode) {
+		if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII)
+			mtk_xphy_link_adjust(priv);
+		else
+			mtk_phy_link_adjust(priv);
+	}
 
 	debug("Speed: %d, %s duplex%s\n", phydev->speed,
 	      (phydev->duplex) ? "full" : "half",
@@ -1138,6 +1183,112 @@ static void mtk_sgmii_force_init(struct mtk_eth_priv *priv)
 	/* Release PHYA power down state */
 	clrsetbits_le32(priv->sgmii_base + SGMSYS_QPHY_PWR_STATE_CTRL,
 			SGMII_PHYA_PWD, 0);
+}
+
+static void mtk_xfi_pll_enable(struct mtk_eth_priv *priv)
+{
+	u32 val = 0;
+
+	/* Add software workaround for USXGMII PLL TCL issue */
+	regmap_write(priv->xfi_pll_regmap, XFI_PLL_ANA_GLB8,
+		     RG_XFI_PLL_ANA_SWWA);
+
+	regmap_read(priv->xfi_pll_regmap, XFI_PLL_DIG_GLB8, &val);
+	val |= RG_XFI_PLL_EN;
+	regmap_write(priv->xfi_pll_regmap, XFI_PLL_DIG_GLB8, val);
+}
+
+static void mtk_usxgmii_reset(struct mtk_eth_priv *priv)
+{
+	switch (priv->gmac_id) {
+	case 1:
+		regmap_write(priv->toprgu_regmap, 0xFC, 0x0000A004);
+		regmap_write(priv->toprgu_regmap, 0x18, 0x88F0A004);
+		regmap_write(priv->toprgu_regmap, 0xFC, 0x00000000);
+		regmap_write(priv->toprgu_regmap, 0x18, 0x88F00000);
+		regmap_write(priv->toprgu_regmap, 0x18, 0x00F00000);
+		break;
+	case 2:
+		regmap_write(priv->toprgu_regmap, 0xFC, 0x00005002);
+		regmap_write(priv->toprgu_regmap, 0x18, 0x88F05002);
+		regmap_write(priv->toprgu_regmap, 0xFC, 0x00000000);
+		regmap_write(priv->toprgu_regmap, 0x18, 0x88F00000);
+		regmap_write(priv->toprgu_regmap, 0x18, 0x00F00000);
+		break;
+	}
+
+	mdelay(10);
+}
+
+static void mtk_usxgmii_setup_phya_an_10000(struct mtk_eth_priv *priv)
+{
+	regmap_write(priv->usxgmii_regmap, 0x810, 0x000FFE6D);
+	regmap_write(priv->usxgmii_regmap, 0x818, 0x07B1EC7B);
+	regmap_write(priv->usxgmii_regmap, 0x80C, 0x30000000);
+	ndelay(1020);
+	regmap_write(priv->usxgmii_regmap, 0x80C, 0x10000000);
+	ndelay(1020);
+	regmap_write(priv->usxgmii_regmap, 0x80C, 0x00000000);
+
+	regmap_write(priv->xfi_pextp_regmap, 0x9024, 0x00C9071C);
+	regmap_write(priv->xfi_pextp_regmap, 0x2020, 0xAA8585AA);
+	regmap_write(priv->xfi_pextp_regmap, 0x2030, 0x0C020707);
+	regmap_write(priv->xfi_pextp_regmap, 0x2034, 0x0E050F0F);
+	regmap_write(priv->xfi_pextp_regmap, 0x2040, 0x00140032);
+	regmap_write(priv->xfi_pextp_regmap, 0x50F0, 0x00C014AA);
+	regmap_write(priv->xfi_pextp_regmap, 0x50E0, 0x3777C12B);
+	regmap_write(priv->xfi_pextp_regmap, 0x506C, 0x005F9CFF);
+	regmap_write(priv->xfi_pextp_regmap, 0x5070, 0x9D9DFAFA);
+	regmap_write(priv->xfi_pextp_regmap, 0x5074, 0x27273F3F);
+	regmap_write(priv->xfi_pextp_regmap, 0x5078, 0xA7883C68);
+	regmap_write(priv->xfi_pextp_regmap, 0x507C, 0x11661166);
+	regmap_write(priv->xfi_pextp_regmap, 0x5080, 0x0E000AAF);
+	regmap_write(priv->xfi_pextp_regmap, 0x5084, 0x08080D0D);
+	regmap_write(priv->xfi_pextp_regmap, 0x5088, 0x02030909);
+	regmap_write(priv->xfi_pextp_regmap, 0x50E4, 0x0C0C0000);
+	regmap_write(priv->xfi_pextp_regmap, 0x50E8, 0x04040000);
+	regmap_write(priv->xfi_pextp_regmap, 0x50EC, 0x0F0F0C06);
+	regmap_write(priv->xfi_pextp_regmap, 0x50A8, 0x506E8C8C);
+	regmap_write(priv->xfi_pextp_regmap, 0x6004, 0x18190000);
+	regmap_write(priv->xfi_pextp_regmap, 0x00F8, 0x01423342);
+	regmap_write(priv->xfi_pextp_regmap, 0x00F4, 0x80201F20);
+	regmap_write(priv->xfi_pextp_regmap, 0x0030, 0x00050C00);
+	regmap_write(priv->xfi_pextp_regmap, 0x0070, 0x02002800);
+	ndelay(1020);
+	regmap_write(priv->xfi_pextp_regmap, 0x30B0, 0x00000020);
+	regmap_write(priv->xfi_pextp_regmap, 0x3028, 0x00008A01);
+	regmap_write(priv->xfi_pextp_regmap, 0x302C, 0x0000A884);
+	regmap_write(priv->xfi_pextp_regmap, 0x3024, 0x00083002);
+	regmap_write(priv->xfi_pextp_regmap, 0x3010, 0x00022220);
+	regmap_write(priv->xfi_pextp_regmap, 0x5064, 0x0F020A01);
+	regmap_write(priv->xfi_pextp_regmap, 0x50B4, 0x06100600);
+	regmap_write(priv->xfi_pextp_regmap, 0x3048, 0x40704000);
+	regmap_write(priv->xfi_pextp_regmap, 0x3050, 0xA8000000);
+	regmap_write(priv->xfi_pextp_regmap, 0x3054, 0x000000AA);
+	regmap_write(priv->xfi_pextp_regmap, 0x306C, 0x00000F00);
+	regmap_write(priv->xfi_pextp_regmap, 0xA060, 0x00040000);
+	regmap_write(priv->xfi_pextp_regmap, 0x90D0, 0x00000001);
+	regmap_write(priv->xfi_pextp_regmap, 0x0070, 0x0200E800);
+	udelay(150);
+	regmap_write(priv->xfi_pextp_regmap, 0x0070, 0x0200C111);
+	ndelay(1020);
+	regmap_write(priv->xfi_pextp_regmap, 0x0070, 0x0200C101);
+	udelay(15);
+	regmap_write(priv->xfi_pextp_regmap, 0x0070, 0x0202C111);
+	ndelay(1020);
+	regmap_write(priv->xfi_pextp_regmap, 0x0070, 0x0202C101);
+	udelay(100);
+	regmap_write(priv->xfi_pextp_regmap, 0x30B0, 0x00000030);
+	regmap_write(priv->xfi_pextp_regmap, 0x00F4, 0x80201F00);
+	regmap_write(priv->xfi_pextp_regmap, 0x3040, 0x30000000);
+	udelay(400);
+}
+
+static void mtk_usxgmii_an_init(struct mtk_eth_priv *priv)
+{
+	mtk_xfi_pll_enable(priv);
+	mtk_usxgmii_reset(priv);
+	mtk_usxgmii_setup_phya_an_10000(priv);
 }
 
 static void mtk_mac_init(struct mtk_eth_priv *priv)
@@ -1220,6 +1371,36 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 			     RX_RST | RXC_DQSISEL);
 		mtk_gmac_rmw(priv, GMAC_TRGMII_RCK_CTRL, RX_RST, 0);
 	}
+}
+
+static void mtk_xmac_init(struct mtk_eth_priv *priv)
+{
+	u32 sts;
+
+	switch (priv->phy_interface) {
+	case PHY_INTERFACE_MODE_USXGMII:
+		mtk_usxgmii_an_init(priv);
+		break;
+	default:
+		break;
+	}
+
+	/* Set GMAC to the correct mode */
+	mtk_ethsys_rmw(priv, ETHSYS_SYSCFG0_REG,
+		       SYSCFG0_GE_MODE_M << SYSCFG0_GE_MODE_S(priv->gmac_id),
+		       0);
+
+	if (priv->gmac_id == 1) {
+		mtk_infra_rmw(priv, TOPMISC_NETSYS_PCS_MUX,
+			      NETSYS_PCS_MUX_MASK, MUX_G2_USXGMII_SEL);
+	} else if (priv->gmac_id == 2) {
+		sts = mtk_gmac_read(priv, XGMAC_STS(priv->gmac_id));
+		sts |= XGMAC_FORCE_LINK;
+		mtk_gmac_write(priv, XGMAC_STS(priv->gmac_id), sts);
+	}
+
+	/* Force GMAC link down */
+	mtk_gmac_write(priv, GMAC_PORT_MCR(priv->gmac_id), FORCE_MODE);
 }
 
 static void mtk_eth_fifo_init(struct mtk_eth_priv *priv)
@@ -1463,7 +1644,10 @@ static int mtk_eth_probe(struct udevice *dev)
 				ARCH_DMA_MINALIGN);
 
 	/* Set MAC mode */
-	mtk_mac_init(priv);
+	if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII)
+		mtk_xmac_init(priv);
+	else
+		mtk_mac_init(priv);
 
 	/* Probe phy if switch is not specified */
 	if (priv->sw == SW_NONE)
@@ -1581,6 +1765,46 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 		}
 
 		priv->pn_swap = ofnode_read_bool(args.node, "pn_swap");
+	} else if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII) {
+		/* get corresponding usxgmii phandle */
+		ret = dev_read_phandle_with_args(dev, "mediatek,usxgmiisys",
+						 NULL, 0, 0, &args);
+		if (ret)
+			return ret;
+
+		priv->usxgmii_regmap = syscon_node_to_regmap(args.node);
+		if (IS_ERR(priv->usxgmii_regmap))
+			return PTR_ERR(priv->usxgmii_regmap);
+
+		/* get corresponding xfi_pextp phandle */
+		ret = dev_read_phandle_with_args(dev, "mediatek,xfi_pextp",
+						 NULL, 0, 0, &args);
+		if (ret)
+			return ret;
+
+		priv->xfi_pextp_regmap = syscon_node_to_regmap(args.node);
+		if (IS_ERR(priv->xfi_pextp_regmap))
+			return PTR_ERR(priv->xfi_pextp_regmap);
+
+		/* get corresponding xfi_pll phandle */
+		ret = dev_read_phandle_with_args(dev, "mediatek,xfi_pll",
+						 NULL, 0, 0, &args);
+		if (ret)
+			return ret;
+
+		priv->xfi_pll_regmap = syscon_node_to_regmap(args.node);
+		if (IS_ERR(priv->xfi_pll_regmap))
+			return PTR_ERR(priv->xfi_pll_regmap);
+
+		/* get corresponding toprgu phandle */
+		ret = dev_read_phandle_with_args(dev, "mediatek,toprgu",
+						 NULL, 0, 0, &args);
+		if (ret)
+			return ret;
+
+		priv->toprgu_regmap = syscon_node_to_regmap(args.node);
+		if (IS_ERR(priv->toprgu_regmap))
+			return PTR_ERR(priv->toprgu_regmap);
 	}
 
 	/* check for switch first, otherwise phy will be used */

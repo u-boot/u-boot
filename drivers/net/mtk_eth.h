@@ -68,6 +68,11 @@ enum mkt_eth_capabilities {
 #define ETHSYS_TRGMII_CLK_SEL362_5	BIT(11)
 
 /* Top misc registers */
+#define TOPMISC_NETSYS_PCS_MUX		0x84
+#define NETSYS_PCS_MUX_MASK		GENMASK(1, 0)
+#define MUX_G2_USXGMII_SEL		BIT(1)
+#define MUX_HSGMII1_G1_SEL		BIT(0)
+
 #define USB_PHY_SWITCH_REG		0x218
 #define QPHY_SEL_MASK			0x3
 #define SGMII_QPHY_SEL			0x2
@@ -97,6 +102,15 @@ enum mkt_eth_capabilities {
 #define SGMSYS_GEN2_SPEED		0x2028
 #define SGMSYS_GEN2_SPEED_V2		0x128
 #define SGMSYS_SPEED_2500		BIT(2)
+
+/* USXGMII subsystem config registers */
+/* Register to control USXGMII XFI PLL digital */
+#define XFI_PLL_DIG_GLB8		0x08
+#define RG_XFI_PLL_EN			BIT(31)
+
+/* Register to control USXGMII XFI PLL analog */
+#define XFI_PLL_ANA_GLB8		0x108
+#define RG_XFI_PLL_ANA_SWWA		0x02283248
 
 /* Frame Engine Registers */
 #define FE_GLO_MISC_REG			0x124
@@ -220,6 +234,16 @@ enum mkt_eth_capabilities {
 #define TD_DM_DRVN_M			0xf0
 #define TD_DM_DRVP_S			0
 #define TD_DM_DRVP_M			0x0f
+
+/* XGMAC Status Registers */
+#define XGMAC_STS(x)			(((x) == 2) ? 0x001C : 0x000C)
+#define XGMAC_FORCE_LINK		BIT(15)
+
+/* XGMAC Registers */
+#define XGMAC_PORT_MCR(x)		(0x2000 + (((x) - 1) * 0x1000))
+#define XGMAC_TRX_DISABLE		0xf
+#define XGMAC_FORCE_TX_FC		BIT(5)
+#define XGMAC_FORCE_RX_FC		BIT(4)
 
 /* MT7530 Registers */
 
