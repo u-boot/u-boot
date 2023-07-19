@@ -12,12 +12,10 @@
 
 #define CFG_MAX_MEM_MAPPED		0x1c000000
 
-#define CFG_SYS_INIT_SP_OFFSET	0x800000
+#define CFG_SYS_INIT_SP_OFFSET		0x800000
 
 /* MMC */
 #define MMC_SUPPORTS_TUNING
-
-/* NAND */
 
 /* Serial SPL */
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_SERIAL)
@@ -26,7 +24,7 @@
 #endif
 
 /* Serial common */
-#define CFG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, \
+#define CFG_SYS_BAUDRATE_TABLE		{ 9600, 19200, 38400, 57600, 115200, \
 					  230400, 460800, 921600 }
 
 /* Dummy value */
