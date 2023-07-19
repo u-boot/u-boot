@@ -748,7 +748,7 @@ static int axiemac_recv(struct udevice *dev, int flags, uchar **packetp)
 
 	/* Wait for an incoming packet */
 	if (!isrxready(priv))
-		return -1;
+		return -EAGAIN;
 
 	debug("axiemac: RX data ready\n");
 
