@@ -209,6 +209,12 @@ class TestFunctional(unittest.TestCase):
         # Set to True to report missing blobs
         self._missing = False
 
+        self._buildman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
+        self._test_dir = os.path.join(self._buildman_dir, 'test')
+
+        # Set up some fake source files
+        shutil.copytree(self._test_dir, self._git_dir)
+
         # Avoid sending any output and clear all terminal output
         terminal.set_print_test_mode()
         terminal.get_print_test_lines()
@@ -779,3 +785,34 @@ Some images are invalid'''
 CONFIG_LOCALVERSION=y
 ''', cfg_data)
         self.assertIn('Not dropping LOCALVERSION_AUTO', stdout.getvalue())
+
+    def test_scan_defconfigs(self):
+        """Test scanning the defconfigs to obtain all the boards"""
+        src = self._git_dir
+
+        # Scan the test directory which contains a Kconfig and some *_defconfig
+        # files
+        params = self._boards.scan_defconfigs(src, src)
+
+        # We should get two boards
+        self.assertEquals(2, len(params))
+        first = 0 if params[0]['target'] == 'board0' else 1
+        board0 = params[first]
+        board2 = params[1 - first]
+
+        self.assertEquals('arm', board0['arch'])
+        self.assertEquals('armv7', board0['cpu'])
+        self.assertEquals('-', board0['soc'])
+        self.assertEquals('Tester', board0['vendor'])
+        self.assertEquals('ARM Board 0', board0['board'])
+        self.assertEquals('config0', board0['config'])
+        self.assertEquals('board0', board0['target'])
+
+        self.assertEquals('powerpc', board2['arch'])
+        self.assertEquals('ppc', board2['cpu'])
+        self.assertEquals('mpc85xx', board2['soc'])
+        self.assertEquals('Tester', board2['vendor'])
+        self.assertEquals('PowerPC board 1', board2['board'])
+        self.assertEquals('config2', board2['config'])
+        self.assertEquals('board2', board2['target'])
+
