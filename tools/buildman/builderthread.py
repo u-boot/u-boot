@@ -326,6 +326,26 @@ class BuilderThread(threading.Thread):
             out_dir = os.path.join(work_dir, out_rel_dir)
         return out_dir, out_rel_dir
 
+    def _checkout(self, commit_upto, work_dir):
+        """Checkout the right commit
+
+        Args:
+            commit_upto (int): Commit number to build (0...n-1)
+            work_dir (str): Directory to which the source will be checked out
+
+        Returns:
+            Commit: Commit being built, or 'current' for current source
+        """
+        if self.builder.commits:
+            commit = self.builder.commits[commit_upto]
+            if self.builder.checkout:
+                git_dir = os.path.join(work_dir, '.git')
+                gitutil.checkout(commit.hash, git_dir, work_dir, force=True)
+        else:
+            commit = 'current'
+        return commit
+
+
     def run_commit(self, commit_upto, brd, work_dir, do_config, config_only,
                   force_build, force_build_failures, work_in_output,
                   adjust_cfg):
@@ -381,15 +401,7 @@ class BuilderThread(threading.Thread):
                     # to be reported.
 
             if self.toolchain:
-                # Checkout the right commit
-                if self.builder.commits:
-                    commit = self.builder.commits[commit_upto]
-                    if self.builder.checkout:
-                        git_dir = os.path.join(work_dir, '.git')
-                        gitutil.checkout(commit.hash, git_dir, work_dir,
-                                         force=True)
-                else:
-                    commit = 'current'
+                commit = self._checkout(commit_upto, work_dir)
 
                 # Set up the environment and command line
                 env = self.toolchain.MakeEnvironment(self.builder.full_path)
