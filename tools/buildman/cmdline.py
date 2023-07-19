@@ -122,6 +122,8 @@ def add_after_m(parser):
           default=False, help="Use full toolchain path in CROSS_COMPILE")
     parser.add_argument('-P', '--per-board-out-dir', action='store_true',
           default=False, help="Use an O= (output) directory per board rather than per thread")
+    parser.add_argument('--print-arch', action='store_true',
+          default=False, help="Print the architecture for a board (ARCH=)")
     parser.add_argument('-r', '--reproducible-builds', action='store_true',
           help='Set SOURCE_DATE_EPOCH=0 to suuport a reproducible build')
     parser.add_argument('-R', '--regen-board-list', type=str,

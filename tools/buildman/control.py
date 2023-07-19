@@ -140,6 +140,26 @@ def show_toolchain_prefix(brds, toolchains):
     tchain = tc_set.pop()
     print(tchain.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
 
+def show_arch(brds):
+    """Show information about a the architecture used by one or more boards
+
+    The function checks that all boards use the same architecture, then prints
+    the correct value for ARCH.
+
+    Args:
+        boards: Boards object containing selected boards
+
+    Return:
+        None on success, string error message otherwise
+    """
+    board_selected = brds.get_selected_dict()
+    arch_set = set()
+    for brd in board_selected.values():
+        arch_set.add(brd.arch)
+    if len(arch_set) != 1:
+        sys.exit('Supplied boards must share one arch')
+    print(arch_set.pop())
+
 def get_allow_missing(opt_allow, opt_no_allow, num_selected, has_branch):
     """Figure out whether to allow external blobs
 
@@ -603,6 +623,10 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
 
     if args.print_prefix:
         show_toolchain_prefix(brds, toolchains)
+        return 0
+
+    if args.print_arch:
+        show_arch(brds)
         return 0
 
     series = determine_series(selected, col, git_dir, args.count,

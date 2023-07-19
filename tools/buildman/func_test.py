@@ -1060,3 +1060,10 @@ endif
 
         self._RunControl('--boards', 'board1,board2', '--boards', 'board4')
         self.assertEqual(3, self._builder.count)
+
+    def test_print_arch(self):
+        """Test that we can print the board architecture"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            result = self._RunControl('--print-arch', 'board0')
+        self.assertEqual('arm\n', stdout.getvalue())
+        self.assertEqual('', stderr.getvalue())
