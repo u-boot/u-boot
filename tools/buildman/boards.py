@@ -50,7 +50,7 @@ def try_remove(fname):
             raise
 
 
-def output_is_new(output):
+def output_is_new(output, config_dir, srcdir):
     """Check if the output file is up to date.
 
     Looks at defconfig and Kconfig files to make sure none is newer than the
@@ -59,6 +59,8 @@ def output_is_new(output):
 
     Args:
         output (str): Filename to check
+        config_dir (str): Directory containing defconfig files
+        srcdir (str): Directory containing Kconfig and MAINTAINERS files
 
     Returns:
         True if the given output file exists and is newer than any of
@@ -76,7 +78,7 @@ def output_is_new(output):
             return False
         raise
 
-    for (dirpath, _, filenames) in os.walk(CONFIG_DIR):
+    for (dirpath, _, filenames) in os.walk(config_dir):
         for filename in fnmatch.filter(filenames, '*_defconfig'):
             if fnmatch.fnmatch(filename, '.*'):
                 continue
@@ -84,7 +86,7 @@ def output_is_new(output):
             if ctime < os.path.getctime(filepath):
                 return False
 
-    for (dirpath, _, filenames) in os.walk('.'):
+    for (dirpath, _, filenames) in os.walk(srcdir):
         for filename in filenames:
             if (fnmatch.fnmatch(filename, '*~') or
                 not fnmatch.fnmatch(filename, 'Kconfig*') and
@@ -103,7 +105,7 @@ def output_is_new(output):
             if line[0] == '#' or line == '\n':
                 continue
             defconfig = line.split()[6] + '_defconfig'
-            if not os.path.exists(os.path.join(CONFIG_DIR, defconfig)):
+            if not os.path.exists(os.path.join(config_dir, defconfig)):
                 return False
 
     return True
@@ -191,10 +193,10 @@ class KconfigScanner:
         # 'target' is added later
     }
 
-    def __init__(self):
+    def __init__(self, srctree):
         """Scan all the Kconfig files and create a Kconfig object."""
         # Define environment variables referenced from Kconfig
-        os.environ['srctree'] = os.getcwd()
+        os.environ['srctree'] = srctree
         os.environ['UBOOTVERSION'] = 'dummy'
         os.environ['KCONFIG_OBJDIR'] = ''
         self._tmpfile = None
@@ -610,19 +612,20 @@ class Boards:
         return result, warnings
 
     @classmethod
-    def scan_defconfigs_for_multiprocess(cls, queue, defconfigs):
+    def scan_defconfigs_for_multiprocess(cls, srcdir, queue, defconfigs):
         """Scan defconfig files and queue their board parameters
 
         This function is intended to be passed to multiprocessing.Process()
         constructor.
 
         Args:
+            srcdir (str): Directory containing source code
             queue (multiprocessing.Queue): The resulting board parameters are
                 written into this.
             defconfigs (sequence of str): A sequence of defconfig files to be
                 scanned.
         """
-        kconf_scanner = KconfigScanner()
+        kconf_scanner = KconfigScanner(srcdir)
         for defconfig in defconfigs:
             queue.put(kconf_scanner.scan(defconfig))
 
@@ -633,16 +636,23 @@ class Boards:
             while not que.empty():
                 params_list.append(que.get())
 
-    def scan_defconfigs(self, jobs=1):
+    def scan_defconfigs(self, config_dir, srcdir, jobs=1):
         """Collect board parameters for all defconfig files.
 
         This function invokes multiple processes for faster processing.
 
         Args:
+            config_dir (str): Directory containing the defconfig files
+            srcdir (str): Directory containing source code (Kconfig files)
             jobs (int): The number of jobs to run simultaneously
+
+        Returns:
+            list of dict: List of board parameters, each a dict:
+                key: 'arch', 'cpu', 'soc', 'vendor', 'board', 'target', 'config'
+                value: string value of the key
         """
         all_defconfigs = []
-        for (dirpath, _, filenames) in os.walk(CONFIG_DIR):
+        for (dirpath, _, filenames) in os.walk(config_dir):
             for filename in fnmatch.filter(filenames, '*_defconfig'):
                 if fnmatch.fnmatch(filename, '.*'):
                     continue
@@ -657,7 +667,7 @@ class Boards:
             que = multiprocessing.Queue(maxsize=-1)
             proc = multiprocessing.Process(
                 target=self.scan_defconfigs_for_multiprocess,
-                args=(que, defconfigs))
+                args=(srcdir, que, defconfigs))
             proc.start()
             processes.append(proc)
             queues.append(que)
@@ -741,6 +751,9 @@ class Boards:
     def ensure_board_list(self, output, jobs=1, force=False, quiet=False):
         """Generate a board database file if needed.
 
+        This is intended to check if Kconfig has changed since the boards.cfg
+        files was generated.
+
         Args:
             output (str): The name of the output file
             jobs (int): The number of jobs to run simultaneously
@@ -750,11 +763,11 @@ class Boards:
         Returns:
             bool: True if all is well, False if there were warnings
         """
-        if not force and output_is_new(output):
+        if not force and output_is_new(output, CONFIG_DIR, '.'):
             if not quiet:
                 print(f'{output} is up to date. Nothing to do.')
             return True
-        params_list = self.scan_defconfigs(jobs)
+        params_list = self.scan_defconfigs(CONFIG_DIR, os.getcwd(), jobs)
         warnings = self.insert_maintainers_info(params_list)
         for warn in warnings:
             print(warn, file=sys.stderr)
