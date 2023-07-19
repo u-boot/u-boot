@@ -434,6 +434,36 @@ def adjust_options(options, series, selected):
     if not options.step:
         options.step = len(series.commits) - 1
 
+
+def setup_output_dir(output_dir, work_in_output, branch, no_subdirs, col,
+                     clean_dir):
+    """Set up the output directory
+
+    Args:
+        output_dir (str): Output directory provided by the user, or None if none
+        work_in_output (bool): True to work in the output directory
+        branch (str): Name of branch to build, or None if none
+        no_subdirs (bool): True to put the output in the top-level output dir
+        clean_dir: Used for tests only, indicates that the existing output_dir
+            should be removed before starting the build
+
+    Returns:
+        str: Updated output directory pathname
+    """
+    if not output_dir:
+        if work_in_output:
+            sys.exit(col.build(col.RED, '-w requires that you specify -o'))
+        output_dir = '..'
+    if branch and not no_subdirs:
+        # As a special case allow the board directory to be placed in the
+        # output directory itself rather than any subdirectory.
+        dirname = branch.replace('/', '_')
+        output_dir = os.path.join(output_dir, dirname)
+        if clean_dir and os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+    return output_dir
+
+
 def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                 clean_dir=False, test_thread_exceptions=False):
     """The main control code for buildman
@@ -466,18 +496,9 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
     toolchains = get_toolchains(toolchains, col, options.override_toolchain,
                                 options.fetch_arch, options.list_tool_chains,
                                 options.verbose)
-    output_dir = options.output_dir
-    if not output_dir:
-        if options.work_in_output:
-            sys.exit(col.build(col.RED, '-w requires that you specify -o'))
-        output_dir = '..'
-    if options.branch and not options.no_subdirs:
-        # As a special case allow the board directory to be placed in the
-        # output directory itself rather than any subdirectory.
-        dirname = options.branch.replace('/', '_')
-        output_dir = os.path.join(output_dir, dirname)
-        if clean_dir and os.path.exists(output_dir):
-            shutil.rmtree(output_dir)
+    output_dir = setup_output_dir(
+        options.output_dir, options.work_in_output, options.branch,
+        options.no_subdirs, col, clean_dir)
 
     # Work out what subset of the boards we are building
     if not brds:
