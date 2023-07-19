@@ -191,6 +191,33 @@ class BuilderThread(threading.Thread):
         args.extend(self.toolchain.MakeArgs())
         return args, cwd, src_dir
 
+    def _reconfigure(self, commit, brd, cwd, args, env, config_args, config_out,
+                     cmd_list):
+        """Reconfigure the build
+
+        Args:
+            commit (Commit): Commit only being built
+            brd (Board): Board being built
+            cwd (str): Current working directory
+            args (list of str): Arguments to pass to make
+            env (dict): Environment strings
+            config_args (list of str): defconfig arg for this board
+            cmd_list (list of str): List to add the commands to, for logging
+
+        Returns:
+            CommandResult object
+        """
+        if self.mrproper:
+            result = self.make(commit, brd, 'mrproper', cwd, 'mrproper', *args,
+                               env=env)
+            config_out.write(result.combined)
+            cmd_list.append([self.builder.gnu_make, 'mrproper', *args])
+        result = self.make(commit, brd, 'config', cwd, *(args + config_args),
+                           env=env)
+        cmd_list.append([self.builder.gnu_make] + args + config_args)
+        config_out.write(result.combined)
+        return result
+
     def run_commit(self, commit_upto, brd, work_dir, do_config, config_only,
                   force_build, force_build_failures, work_in_output,
                   adjust_cfg):
@@ -309,17 +336,9 @@ class BuilderThread(threading.Thread):
                 cfg_file = os.path.join(out_dir, '.config')
                 cmd_list = []
                 if do_config or adjust_cfg:
-                    if self.mrproper:
-                        result = self.make(commit, brd, 'mrproper', cwd,
-                                'mrproper', *args, env=env)
-                        config_out.write(result.combined)
-                        cmd_list.append([self.builder.gnu_make, 'mrproper',
-                                         *args])
-                    result = self.make(commit, brd, 'config', cwd,
-                            *(args + config_args), env=env)
-                    cmd_list.append([self.builder.gnu_make] + args +
-                                    config_args)
-                    config_out.write(result.combined)
+                    result = self._reconfigure(
+                        commit, brd, cwd, args, env, config_args, config_out,
+                        cmd_list)
                     do_config = False   # No need to configure next time
                     if adjust_cfg:
                         cfgutil.adjust_cfg_file(cfg_file, adjust_cfg)
