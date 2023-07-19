@@ -137,6 +137,8 @@ struct mtk_spim_capability {
  * @state:		Controller state
  * @sel_clk:		Pad clock
  * @spi_clk:		Core clock
+ * @pll_clk_rate:	Controller's PLL source clock rate, which is different
+ *			from SPI bus clock rate
  * @xfer_len:		Current length of data for transfer
  * @hw_cap:		Controller capabilities
  * @tick_dly:		Used to postpone SPI sampling time
@@ -149,6 +151,7 @@ struct mtk_spim_priv {
 	void __iomem *base;
 	u32 state;
 	struct clk sel_clk, spi_clk;
+	u32 pll_clk_rate;
 	u32 xfer_len;
 	struct mtk_spim_capability hw_cap;
 	u32 tick_dly;
@@ -253,11 +256,10 @@ static int mtk_spim_hw_init(struct spi_slave *slave)
 static void mtk_spim_prepare_transfer(struct mtk_spim_priv *priv,
 				      u32 speed_hz)
 {
-	u32 spi_clk_hz, div, sck_time, cs_time, reg_val;
+	u32 div, sck_time, cs_time, reg_val;
 
-	spi_clk_hz = clk_get_rate(&priv->spi_clk);
-	if (speed_hz <= spi_clk_hz / 4)
-		div = DIV_ROUND_UP(spi_clk_hz, speed_hz);
+	if (speed_hz <= priv->pll_clk_rate / 4)
+		div = DIV_ROUND_UP(priv->pll_clk_rate, speed_hz);
 	else
 		div = 4;
 
@@ -404,7 +406,7 @@ static int mtk_spim_transfer_wait(struct spi_slave *slave,
 {
 	struct udevice *bus = dev_get_parent(slave->dev);
 	struct mtk_spim_priv *priv = dev_get_priv(bus);
-	u32 sck_l, sck_h, spi_bus_clk, clk_count, reg;
+	u32 sck_l, sck_h, clk_count, reg;
 	ulong us = 1;
 	int ret = 0;
 
@@ -413,12 +415,11 @@ static int mtk_spim_transfer_wait(struct spi_slave *slave,
 	else
 		clk_count = op->data.nbytes;
 
-	spi_bus_clk = clk_get_rate(&priv->spi_clk);
 	sck_l = readl(priv->base + SPI_CFG2_REG) >> SPI_CFG2_SCK_LOW_OFFSET;
 	sck_h = readl(priv->base + SPI_CFG2_REG) & SPI_CFG2_SCK_HIGH_MASK;
-	do_div(spi_bus_clk, sck_l + sck_h + 2);
+	do_div(priv->pll_clk_rate, sck_l + sck_h + 2);
 
-	us = CLK_TO_US(spi_bus_clk, clk_count * 8);
+	us = CLK_TO_US(priv->pll_clk_rate, clk_count * 8);
 	us += 1000 * 1000; /* 1s tolerance */
 
 	if (us > UINT_MAX)
@@ -661,6 +662,10 @@ static int mtk_spim_probe(struct udevice *dev)
 
 	clk_enable(&priv->sel_clk);
 	clk_enable(&priv->spi_clk);
+
+	priv->pll_clk_rate = clk_get_rate(&priv->spi_clk);
+	if (priv->pll_clk_rate == 0)
+		return -EINVAL;
 
 	return 0;
 }
