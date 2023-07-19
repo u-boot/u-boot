@@ -951,6 +951,7 @@ Active  aarch64     armv8 - armltd total_compute board2
 
         # Add another TARGET to the Kconfig
         tools.write_file(main, data, binary=False)
+        orig_kc_data = tools.read_file(kc_file)
         extra = (b'''
 if TARGET_BOARD2
 config TARGET_OTHER
@@ -958,9 +959,19 @@ config TARGET_OTHER
 \tdefault y
 endif
 ''')
-        tools.write_file(kc_file, tools.read_file(kc_file) + extra)
+        tools.write_file(kc_file, orig_kc_data + extra)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
         self.assertEquals(2, len(params_list))
         self.assertEquals(
             ['WARNING: board2_defconfig: Duplicate TARGET_xxx: board2 and other'],
+             warnings)
+
+        # Remove the TARGET_BOARD0 Kconfig option
+        lines = [b'' if line == b'config TARGET_BOARD2\n' else line
+                  for line in orig_kc_data.splitlines(keepends=True)]
+        tools.write_file(kc_file, b''.join(lines))
+        params_list, warnings = self._boards.build_board_list(config_dir, src)
+        self.assertEquals(2, len(params_list))
+        self.assertEquals(
+            ['WARNING: board2_defconfig: No TARGET_BOARD2 enabled'],
              warnings)

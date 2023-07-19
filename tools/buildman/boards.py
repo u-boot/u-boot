@@ -262,6 +262,10 @@ class KconfigScanner:
                 else:
                     target = tname
 
+        if not target:
+            cfg_name = expect_target.replace('-', '_').upper()
+            warnings.append(f'WARNING: {leaf}: No TARGET_{cfg_name} enabled')
+
         params['target'] = expect_target
 
         # fix-up for aarch64
