@@ -29,22 +29,30 @@ def get_plural(count):
     """Returns a plural 's' if count is not 1"""
     return 's' if count != 1 else ''
 
-def get_action_summary(is_summary, commits, selected, options):
+def get_action_summary(is_summary, commits, selected, step, threads, jobs):
     """Return a string summarising the intended action.
+
+    Args:
+        is_summary (bool): True if this is a summary (otherwise it is building)
+        commits (list): List of commits being built
+        selected (list of Board): List of Board objects that are marked
+        step (int): Step increment through commits
+        threads (int): Number of processor threads being used
+        jobs (int): Number of jobs to build at once
 
     Returns:
         Summary string.
     """
     if commits:
         count = len(commits)
-        count = (count + options.step - 1) // options.step
+        count = (count + step - 1) // step
         commit_str = f'{count} commit{get_plural(count)}'
     else:
         commit_str = 'current source'
     msg = (f"{'Summary of' if is_summary else 'Building'} "
            f'{commit_str} for {len(selected)} boards')
-    msg += (f' ({options.threads} thread{get_plural(options.threads)}, '
-            f'{options.jobs} job{get_plural(options.jobs)} per thread)')
+    msg += (f' ({threads} thread{get_plural(threads)}, '
+            f'{jobs} job{get_plural(jobs)} per thread)')
     return msg
 
 # pylint: disable=R0913
@@ -73,7 +81,7 @@ def show_actions(series, why_selected, boards_selected, output_dir, options,
     else:
         commits = None
     print(get_action_summary(False, commits, boards_selected,
-            options))
+                             options.step, options.threads, options.jobs))
     print(f'Build directory: {output_dir}')
     if commits:
         for upto in range(0, len(series.commits), options.step):
@@ -152,7 +160,7 @@ def determine_series(selected, col, git_dir, count, branch, work_in_output):
     """Determine the series which is to be built, if any
 
     Args:
-        selected (list of Board(: List of Board objects that are marked
+        selected (list of Board): List of Board objects that are marked
             selected
         col (Terminal.Color): Color object to use
         git_dir (str): Git directory to use, e.g. './.git'
@@ -523,7 +531,7 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
 
     if not options.ide:
         tprint(get_action_summary(options.summary, commits, board_selected,
-                                options))
+                                  options.step, options.threads, options.jobs))
 
     # We can't show function sizes without board details at present
     if options.show_bloat:
