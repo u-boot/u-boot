@@ -314,7 +314,7 @@ static int mtk_pinmux_group_set(struct udevice *dev,
 	int i;
 
 	for (i = 0; i < grp->num_pins; i++) {
-		int *pin_modes = grp->data;
+		const int *pin_modes = grp->data;
 
 		mtk_hw_set_value(dev, grp->pins[i], PINCTRL_PIN_REG_MODE,
 				 pin_modes[i]);
@@ -769,7 +769,7 @@ static int mtk_gpiochip_register(struct udevice *parent)
 #endif
 
 int mtk_pinctrl_common_probe(struct udevice *dev,
-			     struct mtk_pinctrl_soc *soc)
+			     const struct mtk_pinctrl_soc *soc)
 {
 	struct mtk_pinctrl_priv *priv = dev_get_priv(dev);
 	int ret = 0;

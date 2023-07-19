@@ -326,12 +326,12 @@ static const struct mtk_pin_desc mt8516_pins[] = {
  */
 
 /* UART */
-static int mt8516_uart0_0_rxd_txd_pins[]		= { 62, 63, };
-static int mt8516_uart0_0_rxd_txd_funcs[]		= {  1,  1, };
-static int mt8516_uart1_0_rxd_txd_pins[]		= { 64, 65, };
-static int mt8516_uart1_0_rxd_txd_funcs[]		= {  1,  1, };
-static int mt8516_uart2_0_rxd_txd_pins[]		= { 34, 35, };
-static int mt8516_uart2_0_rxd_txd_funcs[]		= {  1,  1, };
+static const int mt8516_uart0_0_rxd_txd_pins[]		= { 62, 63, };
+static const int mt8516_uart0_0_rxd_txd_funcs[]		= {  1,  1, };
+static const int mt8516_uart1_0_rxd_txd_pins[]		= { 64, 65, };
+static const int mt8516_uart1_0_rxd_txd_funcs[]		= {  1,  1, };
+static const int mt8516_uart2_0_rxd_txd_pins[]		= { 34, 35, };
+static const int mt8516_uart2_0_rxd_txd_funcs[]		= {  1,  1, };
 
 /* Joint those groups owning the same capability in user point of view which
  * allows that people tend to use through the device tree.
@@ -341,9 +341,9 @@ static const char *const mt8516_uart_groups[] = { "uart0_0_rxd_txd",
 						"uart2_0_rxd_txd", };
 
 /* MMC0 */
-static int mt8516_msdc0_pins[] = { 110, 111, 112, 113, 114, 115, 116, 117, 118,
-				   119, 120, };
-static int mt8516_msdc0_funcs[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, };
+static const int mt8516_msdc0_pins[] = { 110, 111, 112, 113, 114, 115, 116, 117,
+					 118, 119, 120, };
+static const int mt8516_msdc0_funcs[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, };
 
 static const struct mtk_group_desc mt8516_groups[] = {
 	PINCTRL_PIN_GROUP("uart0_0_rxd_txd", mt8516_uart0_0_rxd_txd),

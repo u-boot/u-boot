@@ -174,9 +174,9 @@ struct mtk_pin_desc {
  */
 struct mtk_group_desc {
 	const char *name;
-	int *pins;
+	const int *pins;
 	int num_pins;
-	void *data;
+	const void *data;
 };
 
 /**
@@ -233,7 +233,7 @@ struct mtk_pinctrl_soc {
  */
 struct mtk_pinctrl_priv {
 	void __iomem *base[MAX_BASE_CALC];
-	struct mtk_pinctrl_soc *soc;
+	const struct mtk_pinctrl_soc *soc;
 };
 
 extern const struct pinctrl_ops mtk_pinctrl_ops;
@@ -242,7 +242,7 @@ extern const struct pinctrl_ops mtk_pinctrl_ops;
 void mtk_rmw(struct udevice *dev, u32 reg, u32 mask, u32 set);
 void mtk_i_rmw(struct udevice *dev, u8 i, u32 reg, u32 mask, u32 set);
 int mtk_pinctrl_common_probe(struct udevice *dev,
-			     struct mtk_pinctrl_soc *soc);
+			     const struct mtk_pinctrl_soc *soc);
 
 #if CONFIG_IS_ENABLED(PINCONF)
 
