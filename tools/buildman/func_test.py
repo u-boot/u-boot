@@ -233,29 +233,33 @@ class TestFunctional(unittest.TestCase):
         return command.run_pipe([[self._buildman_pathname] + list(args)],
                 capture=True, capture_stderr=True)
 
-    def _RunControl(self, *args, brds=None, clean_dir=False,
-                    test_thread_exceptions=False):
+    def _RunControl(self, *args, brds=False, clean_dir=False,
+                    test_thread_exceptions=False, get_builder=True):
         """Run buildman
 
         Args:
             args: List of arguments to pass
-            brds: Boards object
+            brds: Boards object, or False to pass self._boards, or None to pass
+                None
             clean_dir: Used for tests only, indicates that the existing output_dir
                 should be removed before starting the build
             test_thread_exceptions: Uses for tests only, True to make the threads
                 raise an exception instead of reporting their result. This simulates
                 a failure in the code somewhere
+            get_builder (bool): Set self._builder to the resulting builder
 
         Returns:
             result code from buildman
         """
         sys.argv = [sys.argv[0]] + list(args)
         options, args = cmdline.ParseArgs()
+        if brds == False:
+            brds = self._boards
         result = control.DoBuildman(options, args, toolchains=self._toolchains,
-                make_func=self._HandleMake, brds=brds or self._boards,
-                clean_dir=clean_dir,
+                make_func=self._HandleMake, brds=brds, clean_dir=clean_dir,
                 test_thread_exceptions=test_thread_exceptions)
-        self._builder = control.builder
+        if get_builder:
+            self._builder = control.builder
         return result
 
     def testFullHelp(self):
@@ -1002,3 +1006,12 @@ endif
         self.assertEquals(2, len(params_list))
         self.assertFalse(warnings)
 
+    def testRegenBoards(self):
+        """Test that we can regenerate the boards.cfg file"""
+        outfile = os.path.join(self._output_dir, 'test-boards.cfg')
+        if os.path.exists(outfile):
+            os.remove(outfile)
+        with test_util.capture_sys_output() as (stdout, stderr):
+            result = self._RunControl('-R', outfile, brds=None,
+                                      get_builder=False)
+        self.assertTrue(os.path.exists(outfile))

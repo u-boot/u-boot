@@ -106,7 +106,7 @@ def ParseArgs():
           default=False, help="Use an O= (output) directory per board rather than per thread")
     parser.add_option('-r', '--reproducible-builds', action='store_true',
           help='Set SOURCE_DATE_EPOCH=0 to suuport a reproducible build')
-    parser.add_option('-R', '--regen-board-list', action='store_true',
+    parser.add_option('-R', '--regen-board-list', type='string',
           help='Force regeneration of the list of boards, like the old boards.cfg file')
     parser.add_option('-s', '--summary', action='store_true',
           default=False, help='Show a build summary')

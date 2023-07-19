@@ -209,6 +209,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, brds=None,
         if not os.path.exists(options.output_dir):
             os.makedirs(options.output_dir)
         board_file = os.path.join(options.output_dir, 'boards.cfg')
+        if options.regen_board_list and options.regen_board_list != '-':
+            board_file = options.regen_board_list
 
         brds = boards.Boards()
         if options.maintainer_check:

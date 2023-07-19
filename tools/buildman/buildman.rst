@@ -1303,9 +1303,10 @@ Using boards.cfg
 
 This file is no-longer needed by buildman but it is still generated in the
 working directory. This helps avoid a delay on every build, since scanning all
-the Kconfig files takes a few seconds. Use the -R flag to force regeneration
-of the file - in that case buildman exits after writing the file. with exit code
-2 if there was an error in the maintainer files.
+the Kconfig files takes a few seconds. Use the `-R <filename>` flag to force
+regeneration of the file - in that case buildman exits after writing the file
+with exit code 2 if there was an error in the maintainer files. To use the
+default filename, use a hyphen, i.e. `-R -`.
 
 You should use 'buildman -nv <criteria>' instead of greoing the boards.cfg file,
 since it may be dropped altogether in future.
