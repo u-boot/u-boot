@@ -18,6 +18,7 @@ enum mkt_eth_capabilities {
 	MTK_U3_COPHY_V2_BIT,
 	MTK_INFRA_BIT,
 	MTK_NETSYS_V2_BIT,
+	MTK_NETSYS_V3_BIT,
 
 	/* PATH BITS */
 	MTK_ETH_PATH_GMAC1_TRGMII_BIT,
@@ -29,6 +30,7 @@ enum mkt_eth_capabilities {
 #define MTK_U3_COPHY_V2			BIT(MTK_U3_COPHY_V2_BIT)
 #define MTK_INFRA			BIT(MTK_INFRA_BIT)
 #define MTK_NETSYS_V2			BIT(MTK_NETSYS_V2_BIT)
+#define MTK_NETSYS_V3			BIT(MTK_NETSYS_V3_BIT)
 
 /* Supported path present on SoCs */
 #define MTK_ETH_PATH_GMAC1_TRGMII	BIT(MTK_ETH_PATH_GMAC1_TRGMII_BIT)
@@ -52,8 +54,10 @@ enum mkt_eth_capabilities {
 /* Frame Engine Register Bases */
 #define PDMA_V1_BASE			0x0800
 #define PDMA_V2_BASE			0x6000
+#define PDMA_V3_BASE			0x6800
 #define GDMA1_BASE			0x0500
 #define GDMA2_BASE			0x1500
+#define GDMA3_BASE			0x0540
 #define GMAC_BASE			0x10000
 
 /* Ethernet subsystem registers */
@@ -152,6 +156,9 @@ enum mkt_eth_capabilities {
 #define MC_DP_M				0xf0
 #define UN_DP_S				0
 #define UN_DP_M				0x0f
+
+#define GDMA_EG_CTRL_REG		0x004
+#define GDMA_CPU_BRIDGE_EN		BIT(31)
 
 #define GDMA_MAC_LSB_REG		0x008
 
