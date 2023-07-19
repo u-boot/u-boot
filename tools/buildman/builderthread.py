@@ -2,6 +2,12 @@
 # Copyright (c) 2014 Google, Inc
 #
 
+"""Implementation the bulider threads
+
+This module provides the BuilderThread class, which handles calling the builder
+based on the jobs provided.
+"""
+
 import errno
 import glob
 import os
@@ -30,12 +36,12 @@ def mkdir(dirname, parents = False):
     except OSError as err:
         if err.errno == errno.EEXIST:
             if os.path.realpath('.') == os.path.realpath(dirname):
-                print("Cannot create the current working directory '%s'!" % dirname)
+                print(f"Cannot create the current working directory '{dirname}'!")
                 sys.exit(1)
-            pass
         else:
             raise
 
+# pylint: disable=R0903
 class BuilderJob:
     """Holds information about a job to be performed by a thread
 
@@ -107,6 +113,7 @@ class BuilderThread(threading.Thread):
         self.mrproper = mrproper
         self.per_board_out_dir = per_board_out_dir
         self.test_exception = test_exception
+        self.toolchain = None
 
     def make(self, commit, brd, stage, cwd, *args, **kwargs):
         """Run 'make' on a particular commit and board.
@@ -182,9 +189,9 @@ class BuilderThread(threading.Thread):
             not result.already_done)
         if result.already_done:
             # Get the return code from that build and use it
-            with open(done_file, 'r') as fd:
+            with open(done_file, 'r', encoding='utf-8') as outf:
                 try:
-                    result.return_code = int(fd.readline())
+                    result.return_code = int(outf.readline())
                 except ValueError:
                     # The file may be empty due to running out of disk space.
                     # Try a rebuild
@@ -240,11 +247,11 @@ class BuilderThread(threading.Thread):
                         # Symlinks can confuse U-Boot's Makefile since
                         # we may use '..' in our path, so remove them.
                         out_dir = os.path.realpath(out_dir)
-                        args.append('O=%s' % out_dir)
+                        args.append(f'O={out_dir}')
                         cwd = None
                         src_dir = os.getcwd()
                     else:
-                        args.append('O=%s' % out_rel_dir)
+                        args.append(f'O={out_rel_dir}')
                 if self.builder.verbose_build:
                     args.append('V=1')
                 else:
@@ -260,7 +267,7 @@ class BuilderThread(threading.Thread):
                     args.append('NO_LTO=1')
                 if self.builder.reproducible_builds:
                     args.append('SOURCE_DATE_EPOCH=0')
-                config_args = ['%s_defconfig' % brd.target]
+                config_args = [f'{brd.target}_defconfig']
                 config_out = ''
                 args.extend(self.builder.toolchains.GetMakeArguments(brd))
                 args.extend(self.toolchain.MakeArgs())
@@ -270,7 +277,6 @@ class BuilderThread(threading.Thread):
                 # SPL image. If we don't remove it (i.e. see do_config and
                 # self.mrproper below) then it will appear to be the output of
                 # this build, even if it does not produce SPL images.
-                build_dir = self.builder.get_build_dir(commit_upto, brd.target)
                 for elf in BASE_ELF_FILENAMES:
                     fname = os.path.join(out_dir, elf)
                     if os.path.exists(fname):
@@ -317,7 +323,7 @@ class BuilderThread(threading.Thread):
                 result.cmd_list = cmd_list
             else:
                 result.return_code = 1
-                result.stderr = 'No tool chain for %s\n' % brd.arch
+                result.stderr = f'No tool chain for {brd.arch}\n'
             result.already_done = False
 
         result.toolchain = self.toolchain
@@ -352,15 +358,15 @@ class BuilderThread(threading.Thread):
         mkdir(build_dir)
 
         outfile = os.path.join(build_dir, 'log')
-        with open(outfile, 'w') as fd:
+        with open(outfile, 'w', encoding='utf-8') as outf:
             if result.stdout:
-                fd.write(result.stdout)
+                outf.write(result.stdout)
 
         errfile = self.builder.get_err_file(result.commit_upto,
                 result.brd.target)
         if result.stderr:
-            with open(errfile, 'w') as fd:
-                fd.write(result.stderr)
+            with open(errfile, 'w', encoding='utf-8') as outf:
+                outf.write(result.stderr)
         elif os.path.exists(errfile):
             os.remove(errfile)
 
@@ -372,43 +378,44 @@ class BuilderThread(threading.Thread):
             # Write the build result and toolchain information.
             done_file = self.builder.get_done_file(result.commit_upto,
                     result.brd.target)
-            with open(done_file, 'w') as fd:
+            with open(done_file, 'w', encoding='utf-8') as outf:
                 if maybe_aborted:
                     # Special code to indicate we need to retry
-                    fd.write('%s' % RETURN_CODE_RETRY)
+                    outf.write(f'{RETURN_CODE_RETRY}')
                 else:
-                    fd.write('%s' % result.return_code)
-            with open(os.path.join(build_dir, 'toolchain'), 'w') as fd:
-                print('gcc', result.toolchain.gcc, file=fd)
-                print('path', result.toolchain.path, file=fd)
-                print('cross', result.toolchain.cross, file=fd)
-                print('arch', result.toolchain.arch, file=fd)
-                fd.write('%s' % result.return_code)
+                    outf.write(f'{result.return_code}')
+            with open(os.path.join(build_dir, 'toolchain'), 'w',
+                      encoding='utf-8') as outf:
+                print('gcc', result.toolchain.gcc, file=outf)
+                print('path', result.toolchain.path, file=outf)
+                print('cross', result.toolchain.cross, file=outf)
+                print('arch', result.toolchain.arch, file=outf)
+                outf.write(f'{result.return_code}')
 
             # Write out the image and function size information and an objdump
             env = result.toolchain.MakeEnvironment(self.builder.full_path)
-            with open(os.path.join(build_dir, 'out-env'), 'wb') as fd:
+            with open(os.path.join(build_dir, 'out-env'), 'wb') as outf:
                 for var in sorted(env.keys()):
-                    fd.write(b'%s="%s"' % (var, env[var]))
+                    outf.write(b'%s="%s"' % (var, env[var]))
 
             with open(os.path.join(build_dir, 'out-cmd'), 'w',
-                      encoding='utf-8') as fd:
+                      encoding='utf-8') as outf:
                 for cmd in result.cmd_list:
-                    print(' '.join(cmd), file=fd)
+                    print(' '.join(cmd), file=outf)
 
             lines = []
             for fname in BASE_ELF_FILENAMES:
-                cmd = ['%snm' % self.toolchain.cross, '--size-sort', fname]
+                cmd = [f'{self.toolchain.cross}nm', '--size-sort', fname]
                 nm_result = command.run_pipe([cmd], capture=True,
                         capture_stderr=True, cwd=result.out_dir,
                         raise_on_error=False, env=env)
                 if nm_result.stdout:
-                    nm = self.builder.get_func_sizes_file(result.commit_upto,
-                                    result.brd.target, fname)
-                    with open(nm, 'w') as fd:
-                        print(nm_result.stdout, end=' ', file=fd)
+                    nm_fname = self.builder.get_func_sizes_file(
+                        result.commit_upto, result.brd.target, fname)
+                    with open(nm_fname, 'w', encoding='utf-8') as outf:
+                        print(nm_result.stdout, end=' ', file=outf)
 
-                cmd = ['%sobjdump' % self.toolchain.cross, '-h', fname]
+                cmd = [f'{self.toolchain.cross}objdump', '-h', fname]
                 dump_result = command.run_pipe([cmd], capture=True,
                         capture_stderr=True, cwd=result.out_dir,
                         raise_on_error=False, env=env)
@@ -416,14 +423,14 @@ class BuilderThread(threading.Thread):
                 if dump_result.stdout:
                     objdump = self.builder.get_objdump_file(result.commit_upto,
                                     result.brd.target, fname)
-                    with open(objdump, 'w') as fd:
-                        print(dump_result.stdout, end=' ', file=fd)
+                    with open(objdump, 'w', encoding='utf-8') as outf:
+                        print(dump_result.stdout, end=' ', file=outf)
                     for line in dump_result.stdout.splitlines():
                         fields = line.split()
                         if len(fields) > 5 and fields[1] == '.rodata':
                             rodata_size = fields[2]
 
-                cmd = ['%ssize' % self.toolchain.cross, fname]
+                cmd = [f'{self.toolchain.cross}size', fname]
                 size_result = command.run_pipe([cmd], capture=True,
                         capture_stderr=True, cwd=result.out_dir,
                         raise_on_error=False, env=env)
@@ -432,13 +439,12 @@ class BuilderThread(threading.Thread):
                                  rodata_size)
 
             # Extract the environment from U-Boot and dump it out
-            cmd = ['%sobjcopy' % self.toolchain.cross, '-O', 'binary',
+            cmd = [f'{self.toolchain.cross}objcopy', '-O', 'binary',
                    '-j', '.rodata.default_environment',
                    'env/built-in.o', 'uboot.env']
             command.run_pipe([cmd], capture=True,
                             capture_stderr=True, cwd=result.out_dir,
                             raise_on_error=False, env=env)
-            ubootenv = os.path.join(result.out_dir, 'uboot.env')
             if not work_in_output:
                 self.copy_files(result.out_dir, build_dir, '', ['uboot.env'])
 
@@ -446,11 +452,11 @@ class BuilderThread(threading.Thread):
             # of binutil's 'size' utility, but it omits the header line and
             # adds an additional hex value at the end of each line for the
             # rodata size
-            if len(lines):
+            if lines:
                 sizes = self.builder.get_sizes_file(result.commit_upto,
                                 result.brd.target)
-                with open(sizes, 'w') as fd:
-                    print('\n'.join(lines), file=fd)
+                with open(sizes, 'w', encoding='utf-8') as outf:
+                    print('\n'.join(lines), file=outf)
 
         if not work_in_output:
             # Write out the configuration files, with a special case for SPL
@@ -485,7 +491,7 @@ class BuilderThread(threading.Thread):
                 if dirname:
                     base, ext = os.path.splitext(target)
                     if ext:
-                        target = '%s-%s%s' % (base, dirname, ext)
+                        target = f'{base}-{dirname}{ext}'
                 shutil.copy(fname, os.path.join(build_dir, target))
 
     def _send_result(self, result):
@@ -598,7 +604,8 @@ class BuilderThread(threading.Thread):
             job = self.builder.queue.get()
             try:
                 self.run_job(job)
-            except Exception as e:
-                print('Thread exception (use -T0 to run without threads):', e)
-                self.builder.thread_exceptions.append(e)
+            except Exception as exc:
+                print('Thread exception (use -T0 to run without threads):',
+                      exc)
+                self.builder.thread_exceptions.append(exc)
             self.builder.queue.task_done()
