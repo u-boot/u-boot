@@ -415,6 +415,13 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
         if options.work_in_output:
             sys.exit(col.build(col.RED, '-w requires that you specify -o'))
         output_dir = '..'
+    if options.branch and not options.no_subdirs:
+        # As a special case allow the board directory to be placed in the
+        # output directory itself rather than any subdirectory.
+        dirname = options.branch.replace('/', '_')
+        output_dir = os.path.join(output_dir, dirname)
+        if clean_dir and os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
 
     # Work out what subset of the boards we are building
     if not brds:
@@ -461,14 +468,6 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
                                       options.branch)
 
     # Create a new builder with the selected options.
-    if options.branch:
-        dirname = options.branch.replace('/', '_')
-        # As a special case allow the board directory to be placed in the
-        # output directory itself rather than any subdirectory.
-        if not options.no_subdirs:
-            output_dir = os.path.join(output_dir, dirname)
-        if clean_dir and os.path.exists(output_dir):
-            shutil.rmtree(output_dir)
 
     # For a dry run, just show our actions as a sanity check
     if options.dry_run:
