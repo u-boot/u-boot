@@ -28,7 +28,14 @@ from patman import gitutil
 from u_boot_pylib import terminal
 from u_boot_pylib import test_util
 
-def RunTests(skip_net_tests, verboose, args):
+def RunTests(skip_net_tests, verbose, args):
+    """Run the buildman tests
+
+    Args:
+        skip_net_tests (bool): True to skip tests which need the network
+        verbosity (int): Verbosity level to use (0-4)
+        args (list of str): List of tests to run, empty to run all
+    """
     from buildman import func_test
     from buildman import test
     import doctest
@@ -40,7 +47,7 @@ def RunTests(skip_net_tests, verboose, args):
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
     result = test_util.run_test_suites(
-        'buildman', False, verboose, False, None, test_name, [],
+        'buildman', False, verbose, False, None, test_name, [],
         [test.TestBuild, func_test.TestFunctional,
          'buildman.toolchain', 'patman.gitutil'])
 
