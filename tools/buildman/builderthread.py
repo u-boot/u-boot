@@ -64,6 +64,27 @@ def _remove_old_outputs(out_dir):
             os.remove(fname)
 
 
+def copy_files(out_dir, build_dir, dirname, patterns):
+    """Copy files from the build directory to the output.
+
+    Args:
+        out_dir (str): Path to output directory containing the files
+        build_dir (str): Place to copy the files
+        dirname (str): Source directory, '' for normal U-Boot, 'spl' for SPL
+        patterns (list of str): A list of filenames to copy, each relative
+           to the build directory
+    """
+    for pattern in patterns:
+        file_list = glob.glob(os.path.join(out_dir, dirname, pattern))
+        for fname in file_list:
+            target = os.path.basename(fname)
+            if dirname:
+                base, ext = os.path.splitext(target)
+                if ext:
+                    target = f'{base}-{dirname}{ext}'
+            shutil.copy(fname, os.path.join(build_dir, target))
+
+
 # pylint: disable=R0903
 class BuilderJob:
     """Holds information about a job to be performed by a thread
@@ -592,7 +613,7 @@ class BuilderThread(threading.Thread):
                             capture_stderr=True, cwd=result.out_dir,
                             raise_on_error=False, env=env)
             if not work_in_output:
-                self.copy_files(result.out_dir, build_dir, '', ['uboot.env'])
+                copy_files(result.out_dir, build_dir, '', ['uboot.env'])
 
             # Write out the image sizes file. This is similar to the output
             # of binutil's 'size' utility, but it omits the header line and
@@ -607,7 +628,7 @@ class BuilderThread(threading.Thread):
         if not work_in_output:
             # Write out the configuration files, with a special case for SPL
             for dirname in ['', 'spl', 'tpl']:
-                self.copy_files(
+                copy_files(
                     result.out_dir, build_dir, dirname,
                     ['u-boot.cfg', 'spl/u-boot-spl.cfg', 'tpl/u-boot-tpl.cfg',
                      '.config', 'include/autoconf.mk',
@@ -615,30 +636,10 @@ class BuilderThread(threading.Thread):
 
             # Now write the actual build output
             if keep_outputs:
-                self.copy_files(
+                copy_files(
                     result.out_dir, build_dir, '',
                     ['u-boot*', '*.bin', '*.map', '*.img', 'MLO', 'SPL',
                      'include/autoconf.mk', 'spl/u-boot-spl*'])
-
-    def copy_files(self, out_dir, build_dir, dirname, patterns):
-        """Copy files from the build directory to the output.
-
-        Args:
-            out_dir (str): Path to output directory containing the files
-            build_dir (str): Place to copy the files
-            dirname (str): Source directory, '' for normal U-Boot, 'spl' for SPL
-            patterns (list of str): A list of filenames to copy, each relative
-               to the build directory
-        """
-        for pattern in patterns:
-            file_list = glob.glob(os.path.join(out_dir, dirname, pattern))
-            for fname in file_list:
-                target = os.path.basename(fname)
-                if dirname:
-                    base, ext = os.path.splitext(target)
-                    if ext:
-                        target = f'{base}-{dirname}{ext}'
-                shutil.copy(fname, os.path.join(build_dir, target))
 
     def _send_result(self, result):
         """Send a result to the builder for processing
