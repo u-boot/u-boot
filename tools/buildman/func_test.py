@@ -252,12 +252,12 @@ class TestFunctional(unittest.TestCase):
             result code from buildman
         """
         sys.argv = [sys.argv[0]] + list(args)
-        options, args = cmdline.parse_args()
+        args = cmdline.parse_args()
         if brds == False:
             brds = self._boards
         result = control.do_buildman(
-            options, args, toolchains=self._toolchains,
-            make_func=self._HandleMake, brds=brds, clean_dir=clean_dir,
+            args, toolchains=self._toolchains, make_func=self._HandleMake,
+            brds=brds, clean_dir=clean_dir,
             test_thread_exceptions=test_thread_exceptions)
         if get_builder:
             self._builder = control.TEST_BUILDER

@@ -429,35 +429,35 @@ def determine_boards(brds, args, col, opt_boards, exclude_list):
     return selected, why_selected, board_warnings
 
 
-def adjust_options(options, series, selected):
-    """Adjust options according to various constraints
+def adjust_args(args, series, selected):
+    """Adjust arguments according to various constraints
 
     Updates verbose, show_errors, threads, jobs and step
 
     Args:
-        options (Options): Options object to adjust
+        args (Namespace): Namespace object to adjust
         series (Series): Series being built / summarised
         selected (list of Board): List of Board objects that are marked
     """
-    if not series and not options.dry_run:
-        options.verbose = True
-        if not options.summary:
-            options.show_errors = True
+    if not series and not args.dry_run:
+        args.verbose = True
+        if not args.summary:
+            args.show_errors = True
 
     # By default we have one thread per CPU. But if there are not enough jobs
     # we can have fewer threads and use a high '-j' value for make.
-    if options.threads is None:
-        options.threads = min(multiprocessing.cpu_count(), len(selected))
-    if not options.jobs:
-        options.jobs = max(1, (multiprocessing.cpu_count() +
+    if args.threads is None:
+        args.threads = min(multiprocessing.cpu_count(), len(selected))
+    if not args.jobs:
+        args.jobs = max(1, (multiprocessing.cpu_count() +
                 len(selected) - 1) // len(selected))
 
-    if not options.step:
-        options.step = len(series.commits) - 1
+    if not args.step:
+        args.step = len(series.commits) - 1
 
     # We can't show function sizes without board details at present
-    if options.show_bloat:
-        options.show_detail = True
+    if args.show_bloat:
+        args.show_detail = True
 
 
 def setup_output_dir(output_dir, work_in_output, branch, no_subdirs, col,
@@ -489,7 +489,7 @@ def setup_output_dir(output_dir, work_in_output, branch, no_subdirs, col,
     return output_dir
 
 
-def run_builder(builder, commits, board_selected, options):
+def run_builder(builder, commits, board_selected, args):
     """Run the builder or show the summary
 
     Args:
@@ -497,37 +497,37 @@ def run_builder(builder, commits, board_selected, options):
         boards_selected (dict): Dict of selected boards:
             key: target name
             value: Board object
-        options (Options): Options to use
+        args (Namespace): Namespace to use
 
     Returns:
         int: Return code for buildman
     """
-    gnu_make = command.output(os.path.join(options.git,
+    gnu_make = command.output(os.path.join(args.git,
             'scripts/show-gnu-make'), raise_on_error=False).rstrip()
     if not gnu_make:
         sys.exit('GNU Make not found')
     builder.gnu_make = gnu_make
 
-    if not options.ide:
-        commit_count = count_build_commits(commits, options.step)
-        tprint(get_action_summary(options.summary, commit_count, board_selected,
-                                  options.threads, options.jobs))
+    if not args.ide:
+        commit_count = count_build_commits(commits, args.step)
+        tprint(get_action_summary(args.summary, commit_count, board_selected,
+                                  args.threads, args.jobs))
 
     builder.SetDisplayOptions(
-        options.show_errors, options.show_sizes, options.show_detail,
-        options.show_bloat, options.list_error_boards, options.show_config,
-        options.show_environment, options.filter_dtb_warnings,
-        options.filter_migration_warnings, options.ide)
-    if options.summary:
+        args.show_errors, args.show_sizes, args.show_detail,
+        args.show_bloat, args.list_error_boards, args.show_config,
+        args.show_environment, args.filter_dtb_warnings,
+        args.filter_migration_warnings, args.ide)
+    if args.summary:
         builder.ShowSummary(commits, board_selected)
     else:
         fail, warned, excs = builder.BuildBoards(
-            commits, board_selected, options.keep_outputs, options.verbose)
+            commits, board_selected, args.keep_outputs, args.verbose)
         if excs:
             return 102
         if fail:
             return 100
-        if warned and not options.ignore_warnings:
+        if warned and not args.ignore_warnings:
             return 101
     return 0
 
@@ -556,12 +556,12 @@ def calc_adjust_cfg(adjust_cfg, reproducible_builds):
     return adjust_cfg
 
 
-def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
+def do_buildman(args, toolchains=None, make_func=None, brds=None,
                 clean_dir=False, test_thread_exceptions=False):
     """The main control code for buildman
 
     Args:
-        options: Command line options object
+        args: ArgumentParser object
         args: Command line arguments (list of strings)
         toolchains: Toolchains to use - this should be a Toolchains()
                 object. If None, then it will be created and scanned
@@ -583,68 +583,67 @@ def do_buildman(options, args, toolchains=None, make_func=None, brds=None,
     gitutil.setup()
     col = terminal.Color()
 
-    git_dir = os.path.join(options.git, '.git')
+    git_dir = os.path.join(args.git, '.git')
 
-    toolchains = get_toolchains(toolchains, col, options.override_toolchain,
-                                options.fetch_arch, options.list_tool_chains,
-                                options.verbose)
+    toolchains = get_toolchains(toolchains, col, args.override_toolchain,
+                                args.fetch_arch, args.list_tool_chains,
+                                args.verbose)
     output_dir = setup_output_dir(
-        options.output_dir, options.work_in_output, options.branch,
-        options.no_subdirs, col, clean_dir)
+        args.output_dir, args.work_in_output, args.branch,
+        args.no_subdirs, col, clean_dir)
 
     # Work out what subset of the boards we are building
     if not brds:
-        brds = get_boards_obj(output_dir, options.regen_board_list,
-                              options.maintainer_check, options.threads,
-                              options.verbose)
+        brds = get_boards_obj(output_dir, args.regen_board_list,
+                              args.maintainer_check, args.threads, args.verbose)
         if isinstance(brds, int):
             return brds
 
     selected, why_selected, board_warnings = determine_boards(
-        brds, args, col, options.boards, options.exclude)
+        brds, args.terms, col, args.boards, args.exclude)
 
-    if options.print_prefix:
+    if args.print_prefix:
         show_toolchain_prefix(brds, toolchains)
         return 0
 
-    series = determine_series(selected, col, git_dir, options.count,
-                              options.branch, options.work_in_output)
+    series = determine_series(selected, col, git_dir, args.count,
+                              args.branch, args.work_in_output)
 
-    adjust_options(options, series, selected)
+    adjust_args(args, series, selected)
 
     # For a dry run, just show our actions as a sanity check
-    if options.dry_run:
+    if args.dry_run:
         show_actions(series, why_selected, selected, output_dir, board_warnings,
-                     options.step, options.threads, options.jobs,
-                     options.verbose)
+                     args.step, args.threads, args.jobs,
+                     args.verbose)
         return 0
 
-    # Create a new builder with the selected options
+    # Create a new builder with the selected args
     builder = Builder(toolchains, output_dir, git_dir,
-            options.threads, options.jobs, checkout=True,
-            show_unknown=options.show_unknown, step=options.step,
-            no_subdirs=options.no_subdirs, full_path=options.full_path,
-            verbose_build=options.verbose_build,
-            mrproper=options.mrproper,
-            per_board_out_dir=options.per_board_out_dir,
-            config_only=options.config_only,
-            squash_config_y=not options.preserve_config_y,
-            warnings_as_errors=options.warnings_as_errors,
-            work_in_output=options.work_in_output,
+            args.threads, args.jobs, checkout=True,
+            show_unknown=args.show_unknown, step=args.step,
+            no_subdirs=args.no_subdirs, full_path=args.full_path,
+            verbose_build=args.verbose_build,
+            mrproper=args.mrproper,
+            per_board_out_dir=args.per_board_out_dir,
+            config_only=args.config_only,
+            squash_config_y=not args.preserve_config_y,
+            warnings_as_errors=args.warnings_as_errors,
+            work_in_output=args.work_in_output,
             test_thread_exceptions=test_thread_exceptions,
-            adjust_cfg=calc_adjust_cfg(options.adjust_cfg,
-                                       options.reproducible_builds),
-            allow_missing=get_allow_missing(options.allow_missing,
-                                            options.no_allow_missing,
-                                            len(selected), options.branch),
-            no_lto=options.no_lto,
-            reproducible_builds=options.reproducible_builds,
-            force_build = options.force_build,
-            force_build_failures = options.force_build_failures,
-            force_reconfig = options.force_reconfig, in_tree = options.in_tree,
-            force_config_on_failure=not options.quick, make_func=make_func)
+            adjust_cfg=calc_adjust_cfg(args.adjust_cfg,
+                                       args.reproducible_builds),
+            allow_missing=get_allow_missing(args.allow_missing,
+                                            args.no_allow_missing,
+                                            len(selected), args.branch),
+            no_lto=args.no_lto,
+            reproducible_builds=args.reproducible_builds,
+            force_build = args.force_build,
+            force_build_failures = args.force_build_failures,
+            force_reconfig = args.force_reconfig, in_tree = args.in_tree,
+            force_config_on_failure=not args.quick, make_func=make_func)
 
     TEST_BUILDER = builder
 
     return run_builder(builder, series.commits if series else None,
-                       brds.get_selected_dict(), options)
+                       brds.get_selected_dict(), args)
