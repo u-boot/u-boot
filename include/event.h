@@ -11,6 +11,7 @@
 #define __event_h
 
 #include <dm/ofnode_decl.h>
+#include <linux/types.h>
 
 /**
  * enum event_t - Types of events supported by U-Boot
@@ -30,6 +31,9 @@ enum event_t {
 
 	/* Init hooks */
 	EVT_MISC_INIT_F,
+
+	/* Fpga load hook */
+	EVT_FPGA_LOAD,
 
 	/* Device tree fixups before booting */
 	EVT_FT_FIXUP,
@@ -58,6 +62,19 @@ union event_data {
 	struct event_dm {
 		struct udevice *dev;
 	} dm;
+
+	/**
+	 * struct event_fpga_load - fpga load event
+	 *
+	 * @buf: The buffer that was loaded into the fpga
+	 * @bsize: The size of the buffer that was loaded into the fpga
+	 * @result: Result of the load operation
+	 */
+	struct event_fpga_load {
+		const void *buf;
+		size_t bsize;
+		int result;
+	} fpga_load;
 
 	/**
 	 * struct event_ft_fixup - FDT fixup before booting
