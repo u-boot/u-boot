@@ -96,12 +96,12 @@ static int media[MAX_UNITS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 #define TX_TIMEOUT  (6*HZ)
 
 /* write/read MMIO register. Notice: {read,write}[wl] do the necessary swapping */
-#define RTL_W8(reg, val8)	writeb((val8), ioaddr + (reg))
-#define RTL_W16(reg, val16)	writew((val16), ioaddr + (reg))
-#define RTL_W32(reg, val32)	writel((val32), ioaddr + (reg))
-#define RTL_R8(reg)		readb(ioaddr + (reg))
-#define RTL_R16(reg)		readw(ioaddr + (reg))
-#define RTL_R32(reg)		readl(ioaddr + (reg))
+#define RTL_W8(reg, val8)	writeb((val8), (void *)(ioaddr + (reg)))
+#define RTL_W16(reg, val16)	writew((val16), (void *)(ioaddr + (reg)))
+#define RTL_W32(reg, val32)	writel((val32), (void *)(ioaddr + (reg)))
+#define RTL_R8(reg)		readb((void *)(ioaddr + (reg)))
+#define RTL_R16(reg)		readw((void *)(ioaddr + (reg)))
+#define RTL_R32(reg)		readl((void *)(ioaddr + (reg)))
 
 #define bus_to_phys(a)	pci_mem_to_phys((pci_dev_t)(unsigned long)dev->priv, \
 	(pci_addr_t)(unsigned long)a)
