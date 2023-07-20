@@ -353,10 +353,11 @@ static const unsigned int rtl8169_rx_config =
     (RX_FIFO_THRESH << RxCfgFIFOShift) | (RX_DMA_BURST << RxCfgDMAShift);
 
 static struct pci_device_id supported[] = {
+	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8125) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8161) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8167) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8168) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8169) },
-	{ PCI_DEVICE(PCI_VENDOR_ID_REALTEK, 0x8125) },
 	{}
 };
 
@@ -1051,8 +1052,9 @@ static int rtl8169_eth_probe(struct udevice *dev)
 	int ret;
 
 	switch (pplat->device) {
-	case 0x8168:
 	case 0x8125:
+	case 0x8161:
+	case 0x8168:
 		region = 2;
 		break;
 	default:
