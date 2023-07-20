@@ -575,9 +575,9 @@ efi_status_t efi_search_protocol(const efi_handle_t handle,
  *
  * Return: status code
  */
-efi_status_t efi_remove_protocol(const efi_handle_t handle,
-				 const efi_guid_t *protocol,
-				 void *protocol_interface)
+static efi_status_t efi_remove_protocol(const efi_handle_t handle,
+					const efi_guid_t *protocol,
+					void *protocol_interface)
 {
 	struct efi_handler *handler;
 	efi_status_t ret;
@@ -1357,18 +1357,11 @@ static efi_status_t efi_uninstall_protocol
 			(efi_handle_t handle, const efi_guid_t *protocol,
 			 void *protocol_interface)
 {
-	struct efi_object *efiobj;
 	struct efi_handler *handler;
 	struct efi_open_protocol_info_item *item;
 	struct efi_open_protocol_info_item *pos;
 	efi_status_t r;
 
-	/* Check handle */
-	efiobj = efi_search_obj(handle);
-	if (!efiobj) {
-		r = EFI_INVALID_PARAMETER;
-		goto out;
-	}
 	/* Find the protocol on the handle */
 	r = efi_search_protocol(handle, protocol, &handler);
 	if (r != EFI_SUCCESS)
@@ -1376,7 +1369,7 @@ static efi_status_t efi_uninstall_protocol
 	if (handler->protocol_interface != protocol_interface)
 		return EFI_NOT_FOUND;
 	/* Disconnect controllers */
-	r = efi_disconnect_all_drivers(efiobj, protocol, NULL);
+	r = efi_disconnect_all_drivers(handle, protocol, NULL);
 	if (r != EFI_SUCCESS) {
 		r = EFI_ACCESS_DENIED;
 		goto out;

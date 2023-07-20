@@ -579,6 +579,13 @@ struct efi_device_path_vendor {
 	u8 vendor_data[];
 } __packed;
 
+struct efi_device_path_udevice {
+	struct efi_device_path dp;
+	efi_guid_t guid;
+	int uclass_id;
+	int dev_number;
+} __packed;
+
 struct efi_device_path_controller {
 	struct efi_device_path dp;
 	u32 controller_number;

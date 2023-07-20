@@ -11,7 +11,7 @@ with signed capsule files containing FIT images
 
 import pytest
 from capsule_common import (
-    setup,
+    capsule_setup,
     init_content,
     place_capsule_file,
     exec_manual_update,
@@ -47,7 +47,7 @@ class TestEfiCapsuleFirmwareSignedFit():
         disk_img = efi_capsule_data
         capsule_files = ['Test13']
         with u_boot_console.log.section('Test Case 1-a, before reboot'):
-            setup(u_boot_console, disk_img, '0x0000000000000004')
+            capsule_setup(u_boot_console, disk_img, '0x0000000000000004')
             init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
             place_capsule_file(u_boot_console, capsule_files)
 
@@ -76,7 +76,7 @@ class TestEfiCapsuleFirmwareSignedFit():
         disk_img = efi_capsule_data
         capsule_files = ['Test14']
         with u_boot_console.log.section('Test Case 2-a, before reboot'):
-            setup(u_boot_console, disk_img, '0x0000000000000004')
+            capsule_setup(u_boot_console, disk_img, '0x0000000000000004')
             init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
             place_capsule_file(u_boot_console, capsule_files)
 
@@ -107,7 +107,7 @@ class TestEfiCapsuleFirmwareSignedFit():
         disk_img = efi_capsule_data
         capsule_files = ['Test02']
         with u_boot_console.log.section('Test Case 3-a, before reboot'):
-            setup(u_boot_console, disk_img, '0x0000000000000004')
+            capsule_setup(u_boot_console, disk_img, '0x0000000000000004')
             init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
             place_capsule_file(u_boot_console, capsule_files)
 
@@ -137,7 +137,7 @@ class TestEfiCapsuleFirmwareSignedFit():
         disk_img = efi_capsule_data
         capsule_files = ['Test114']
         with u_boot_console.log.section('Test Case 4-a, before reboot'):
-            setup(u_boot_console, disk_img, '0x0000000000000004')
+            capsule_setup(u_boot_console, disk_img, '0x0000000000000004')
             init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
             place_capsule_file(u_boot_console, capsule_files)
 
@@ -176,7 +176,7 @@ class TestEfiCapsuleFirmwareSignedFit():
         disk_img = efi_capsule_data
         capsule_files = ['Test115']
         with u_boot_console.log.section('Test Case 5-a, before reboot'):
-            setup(u_boot_console, disk_img, '0x0000000000000004')
+            capsule_setup(u_boot_console, disk_img, '0x0000000000000004')
             init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
             place_capsule_file(u_boot_console, capsule_files)
 
