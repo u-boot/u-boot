@@ -270,17 +270,22 @@ static u32 zynqmp_clk_get_register(enum zynqmp_clk id)
 	case usb3_dual_ref:
 		return CRL_APB_USB3_DUAL_REF_CTRL;
 	case gem_tsu_ref:
+	case gem_tsu:
 		return CRL_APB_GEM_TSU_REF_CTRL;
 	case gem0_tx:
+	case gem0_rx:
 	case gem0_ref:
 		return CRL_APB_GEM0_REF_CTRL;
 	case gem1_tx:
+	case gem1_rx:
 	case gem1_ref:
 		return CRL_APB_GEM1_REF_CTRL;
 	case gem2_tx:
+	case gem2_rx:
 	case gem2_ref:
 		return CRL_APB_GEM2_REF_CTRL;
 	case gem3_tx:
+	case gem3_rx:
 	case gem3_ref:
 		return CRL_APB_GEM3_REF_CTRL;
 	case usb0_bus_ref:
