@@ -4,6 +4,7 @@
  */
 
 #include "k3-am654-r5-base-board-u-boot.dtsi"
+#include "k3-am65x-binman.dtsi"
 
 &pru0_0 {
 	remoteproc-name = "pru0_0";
