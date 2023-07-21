@@ -296,6 +296,7 @@ static void ten64_set_macaddrs_from_board_info(struct t64uc_board_info *boardinf
 {
 	char ethaddr[18];
 	char enetvar[10];
+	char serial[18];
 	u8 intfidx, this_dpmac_num;
 	u64 macaddr = 0;
 	/* We will copy the MAC address returned from the
@@ -315,6 +316,19 @@ static void ten64_set_macaddrs_from_board_info(struct t64uc_board_info *boardinf
 	 * convert to CPU
 	 */
 	macaddr = __be64_to_cpu(macaddr);
+
+	/* Set serial# to GE0/DPMAC7 MAC address
+	 * (Matches the labels on the board and appliance)
+	 */
+	snprintf(serial, 18, "%02X%02X%02X%02X%02X%02X",
+		 MACADDRBITS(macaddr, 40),
+		 MACADDRBITS(macaddr, 32),
+		 MACADDRBITS(macaddr, 24),
+		 MACADDRBITS(macaddr, 16),
+		 MACADDRBITS(macaddr, 8),
+		 MACADDRBITS(macaddr, 0));
+	if (!env_get("serial#"))
+		env_set("serial#", serial);
 
 	for (intfidx = 0; intfidx < 10; intfidx++) {
 		snprintf(ethaddr, 18, "%02X:%02X:%02X:%02X:%02X:%02X",
