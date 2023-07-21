@@ -46,6 +46,15 @@
 	"bootm $load_addr#ten64\0"
 #undef CFG_EXTRA_ENV_SETTINGS
 
+#if CONFIG_IS_ENABLED(CMD_BOOTMENU)
+#define DEFAULT_MENU_ENTRIES \
+	"bootmenu_0=Continue standard boot=run bootcmd\0" \
+	"bootmenu_1=Boot into recovery=run bootcmd_recovery\0" \
+	"bootmenu_2=Boot OpenWrt from NAND=run bootcmd_openwrt_nand\0"
+#else
+#define DEFAULT_MENU_ENTRIES ""
+#endif /* CONFIG_IS_ENABLED(CMD_BOOTMENU) */
+
 #define CFG_EXTRA_ENV_SETTINGS \
 	"BOARD=ten64\0"					\
 	"fdt_addr_r=0x90000000\0"		\
@@ -57,7 +66,8 @@
 	"openwrt_active_sys=a\0" \
 	"load_efi_dtb=mtd read devicetree $fdt_addr_r && fdt addr $fdt_addr_r && " \
 	"fdt resize && fdt boardsetup\0" \
-	"bootcmd_recovery=mtd read recovery 0xa0000000 && " \
-	"setenv bootargs \"earlycon root=/dev/ram0 ramdisk_size=0x3000000\" && bootm 0xa0000000#ten64\0"
+	"bootcmd_recovery=mtd read recovery 0xa0000000;  " \
+	"setenv bootargs \"earlycon root=/dev/ram0 ramdisk_size=0x3000000\" && bootm 0xa0000000#ten64\0" \
+	DEFAULT_MENU_ENTRIES
 
 #endif /* __TEN64_H */
