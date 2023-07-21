@@ -158,6 +158,7 @@ class Entry(object):
         self.offset_from_elf = None
         self.preserve = False
         self.build_done = False
+        self.no_write_symbols = False
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -321,6 +322,7 @@ class Entry(object):
                                                              'offset-from-elf')
 
         self.preserve = fdt_util.GetBool(self._node, 'preserve')
+        self.no_write_symbols = fdt_util.GetBool(self._node, 'no-write-symbols')
 
     def GetDefaultFilename(self):
         return None
@@ -471,6 +473,9 @@ class Entry(object):
 
     def ObtainContents(self, skip_entry=None, fake_size=0):
         """Figure out the contents of an entry.
+
+        For missing blobs (where allow-missing is enabled), the contents are set
+        to b'' and self.missing is set to True.
 
         Args:
             skip_entry (Entry): Entry to skip when obtaining section contents
@@ -695,7 +700,7 @@ class Entry(object):
         Args:
           section: Section containing the entry
         """
-        if self.auto_write_symbols:
+        if self.auto_write_symbols and not self.no_write_symbols:
             # Check if we are writing symbols into an ELF file
             is_elf = self.GetDefaultFilename() == self.elf_fname
             elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage(),
@@ -1309,10 +1314,6 @@ features to produce new behaviours.
         """
         data = b''
         for entry in entries:
-            # First get the input data and put it in a file. If not available,
-            # try later.
-            if not entry.ObtainContents(fake_size=fake_size):
-                return None, None, None
             data += entry.GetData()
         uniq = self.GetUniqueName()
         fname = tools.get_output_filename(f'{prefix}.{uniq}')

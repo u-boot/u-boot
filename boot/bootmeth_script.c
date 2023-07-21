@@ -190,7 +190,10 @@ static int script_boot(struct udevice *dev, struct bootflow *bflow)
 	ulong addr;
 	int ret;
 
-	ret = env_set("devtype", blk_get_devtype(bflow->blk));
+	if (desc->uclass_id == UCLASS_USB)
+		ret = env_set("devtype", "usb");
+	else
+		ret = env_set("devtype", blk_get_devtype(bflow->blk));
 	if (!ret)
 		ret = env_set_hex("devnum", desc->devnum);
 	if (!ret)

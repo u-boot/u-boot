@@ -226,6 +226,7 @@
 		mkimage {
 			args = "-T stm32image -a 0x2ffc2500 -e 0x2ffc2500";
 			u-boot-spl {
+				no-write-symbols;
 			};
 		};
 	};

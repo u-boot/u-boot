@@ -168,6 +168,7 @@ class Entry_section(Entry):
         self._end_4gb = False
         self._ignore_missing = False
         self._filename = None
+        self.align_default = 0
 
     def IsSpecialSubnode(self, node):
         """Check if a node is a special one used by the section itself
@@ -178,7 +179,8 @@ class Entry_section(Entry):
         Returns:
             bool: True if the node is a special one, else False
         """
-        return node.name.startswith('hash') or node.name.startswith('signature')
+        start_list = ('hash', 'signature', 'template')
+        return any(node.name.startswith(name) for name in start_list)
 
     def ReadNode(self):
         """Read properties from the section node"""
@@ -315,12 +317,15 @@ class Entry_section(Entry):
         This should be overridden by subclasses which want to build their own
         data structure for the section.
 
+        Missing entries will have be given empty (or fake) data, so are
+        processed normally here.
+
         Args:
             required: True if the data must be present, False if it is OK to
                 return None
 
         Returns:
-            Contents of the section (bytes)
+            Contents of the section (bytes), None if not available
         """
         section_data = bytearray()
 
@@ -710,6 +715,33 @@ class Entry_section(Entry):
     def GetEntryContents(self, skip_entry=None):
         """Call ObtainContents() for each entry in the section
 
+        The overall goal of this function is to read in any available data in
+        this entry and any subentries. This includes reading in blobs, setting
+        up objects which have predefined contents, etc.
+
+        Since entry types which contain entries call ObtainContents() on all
+        those entries too, the result is that ObtainContents() is called
+        recursively for the whole tree below this one.
+
+        Entries with subentries are generally not *themselves& processed here,
+        i.e. their ObtainContents() implementation simply obtains contents of
+        their subentries, skipping their own contents. For example, the
+        implementation here (for entry_Section) does not attempt to pack the
+        entries into a final result. That is handled later.
+
+        Generally, calling this results in SetContents() being called for each
+        entry, so that the 'data' and 'contents_size; properties are set, and
+        subsequent calls to GetData() will return value data.
+
+        Where 'allow_missing' is set, this can result in the 'missing' property
+        being set to True if there is no data. This is handled by setting the
+        data to b''. This function will still return success. Future calls to
+        GetData() for this entry will return b'', or in the case where the data
+        is faked, GetData() will return that fake data.
+
+        Args:
+            skip_entry: (single) Entry to skip, or None to process all entries
+
         Note that this may set entry.absent to True if the entry is not
         actually needed
         """
@@ -719,7 +751,7 @@ class Entry_section(Entry):
                     next_todo.append(entry)
             return entry
 
-        todo = self._entries.values()
+        todo = self.GetEntries().values()
         for passnum in range(3):
             threads = state.GetThreads()
             next_todo = []
@@ -892,7 +924,7 @@ class Entry_section(Entry):
             allow_missing: True if allowed, False if not allowed
         """
         self.allow_missing = allow_missing
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.SetAllowMissing(allow_missing)
 
     def SetAllowFakeBlob(self, allow_fake):
@@ -902,7 +934,7 @@ class Entry_section(Entry):
             allow_fake: True if allowed, False if not allowed
         """
         super().SetAllowFakeBlob(allow_fake)
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.SetAllowFakeBlob(allow_fake)
 
     def CheckMissing(self, missing_list):
@@ -914,7 +946,7 @@ class Entry_section(Entry):
         Args:
             missing_list: List of Entry objects to be added to
         """
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.CheckMissing(missing_list)
 
     def CheckFakedBlobs(self, faked_blobs_list):
@@ -925,7 +957,7 @@ class Entry_section(Entry):
         Args:
             faked_blobs_list: List of Entry objects to be added to
         """
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.CheckFakedBlobs(faked_blobs_list)
 
     def CheckOptional(self, optional_list):
@@ -936,7 +968,7 @@ class Entry_section(Entry):
         Args:
             optional_list (list): List of Entry objects to be added to
         """
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.CheckOptional(optional_list)
 
     def check_missing_bintools(self, missing_list):
@@ -948,7 +980,7 @@ class Entry_section(Entry):
             missing_list: List of Bintool objects to be added to
         """
         super().check_missing_bintools(missing_list)
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.check_missing_bintools(missing_list)
 
     def _CollectEntries(self, entries, entries_by_name, add_entry):
@@ -998,12 +1030,12 @@ class Entry_section(Entry):
             entry.Raise(f'Missing required properties/entry args: {missing}')
 
     def CheckAltFormats(self, alt_formats):
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.CheckAltFormats(alt_formats)
 
     def AddBintools(self, btools):
         super().AddBintools(btools)
-        for entry in self._entries.values():
+        for entry in self.GetEntries().values():
             entry.AddBintools(btools)
 
     def read_elf_segments(self):

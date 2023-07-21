@@ -248,6 +248,9 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False,
         entry: Entry to process
         section: Section which can be used to lookup symbol values
         base_sym: Base symbol marking the start of the image
+
+    Returns:
+        int: Number of symbols written
     """
     if not base_sym:
         base_sym = '__image_copy_start'
@@ -269,12 +272,13 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False,
 
     if not syms:
         tout.debug('LookupAndWriteSymbols: no syms')
-        return
+        return 0
     base = syms.get(base_sym)
     if not base and not is_elf:
         tout.debug('LookupAndWriteSymbols: no base')
-        return
+        return 0
     base_addr = 0 if is_elf else base.address
+    count = 0
     for name, sym in syms.items():
         if name.startswith('_binman'):
             msg = ("Section '%s': Symbol '%s'\n   in entry '%s'" %
@@ -307,6 +311,11 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False,
                        (msg, name, offset, value, len(value_bytes)))
             entry.data = (entry.data[:offset] + value_bytes +
                         entry.data[offset + sym.size:])
+            count += 1
+    if count:
+        tout.detail(
+            f"Section '{section.GetPath()}': entry '{entry.GetPath()}' : {count} symbols")
+    return count
 
 def GetSymbolValue(sym, data, msg):
     """Get the value of a symbol
