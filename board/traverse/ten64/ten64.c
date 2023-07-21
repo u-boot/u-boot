@@ -47,7 +47,9 @@ static void ten64_board_retimer_ds110df410_init(void);
 enum {
 	TEN64_BOARD_REV_A = 0xFF,
 	TEN64_BOARD_REV_B = 0xFE,
-	TEN64_BOARD_REV_C = 0xFD
+	TEN64_BOARD_REV_C = 0xFD,
+	TEN64_BOARD_REV_D = 0xFC,
+	TEN64_BOARD_MAX
 };
 
 #define RESV_MEM_IN_BANK(b)	(gd->arch.resv_ram >= base[b] && \
@@ -75,20 +77,24 @@ int checkboard(void)
 
 	switch (board_rev) {
 	case TEN64_BOARD_REV_A:
-		snprintf(boardmodel, 32, "1064-0201A (Alpha)");
+		snprintf(boardmodel, 32, "A (Alpha)");
 		break;
 	case TEN64_BOARD_REV_B:
-		snprintf(boardmodel, 32, "1064-0201B (Beta)");
+		snprintf(boardmodel, 32, "B (Beta)");
 		break;
 	case TEN64_BOARD_REV_C:
-		snprintf(boardmodel, 32, "1064-0201C");
+		snprintf(boardmodel, 32, "C");
+		break;
+	case TEN64_BOARD_REV_D:
+		snprintf(boardmodel, 32, "D");
 		break;
 	default:
-		snprintf(boardmodel, 32, "1064 Revision %X", (0xFF - board_rev));
+		snprintf(boardmodel, 32, " Revision %X", (0xFF - board_rev));
 		break;
 	}
 
-	printf("Board: %s, boot from ", boardmodel);
+	printf("Board: 1064-0201%s, boot from ", boardmodel);
+
 	if (src == BOOT_SOURCE_SD_MMC)
 		puts("SD card\n");
 	else if (src == BOOT_SOURCE_QSPI_NOR)
