@@ -747,8 +747,8 @@ static int zynq_qspi_check_buswidth(struct spi_slave *slave, u8 width)
 	return -EOPNOTSUPP;
 }
 
-bool zynq_qspi_mem_exec_op(struct spi_slave *slave,
-			   const struct spi_mem_op *op)
+static bool zynq_qspi_mem_exec_op(struct spi_slave *slave,
+				  const struct spi_mem_op *op)
 {
 	if (zynq_qspi_check_buswidth(slave, op->cmd.buswidth))
 		return false;

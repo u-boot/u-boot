@@ -227,15 +227,33 @@ int board_late_init(void)
 		break;
 	case QSPI_MODE_24BIT:
 		puts("QSPI_MODE_24\n");
-		mode = "xspi0";
+		if (uclass_get_device_by_name(UCLASS_SPI,
+					      "spi@f1030000", &dev)) {
+			puts("Boot from QSPI but without QSPI enabled!\n");
+			return -1;
+		}
+		mode = "xspi";
+		bootseq = dev_seq(dev);
 		break;
 	case QSPI_MODE_32BIT:
 		puts("QSPI_MODE_32\n");
-		mode = "xspi0";
+		if (uclass_get_device_by_name(UCLASS_SPI,
+					      "spi@f1030000", &dev)) {
+			puts("Boot from QSPI but without QSPI enabled!\n");
+			return -1;
+		}
+		mode = "xspi";
+		bootseq = dev_seq(dev);
 		break;
 	case OSPI_MODE:
 		puts("OSPI_MODE\n");
-		mode = "xspi0";
+		if (uclass_get_device_by_name(UCLASS_SPI,
+					      "spi@f1010000", &dev)) {
+			puts("Boot from OSPI but without OSPI enabled!\n");
+			return -1;
+		}
+		mode = "xspi";
+		bootseq = dev_seq(dev);
 		break;
 	case EMMC_MODE:
 		puts("EMMC_MODE\n");

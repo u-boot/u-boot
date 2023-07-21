@@ -6,7 +6,7 @@
  * (C) Copyright 2016
  * Toradex AG
  *
- * Michal Simek <michal.simek@xilinx.com>
+ * Michal Simek <michal.simek@amd.com>
  * Stefan Agner <stefan.agner@toradex.com>
  */
 #include <common.h>

@@ -363,8 +363,8 @@ static int xilinx_qspi_check_buswidth(struct spi_slave *slave, u8 width)
 	return -EOPNOTSUPP;
 }
 
-bool xilinx_qspi_mem_exec_op(struct spi_slave *slave,
-			     const struct spi_mem_op *op)
+static bool xilinx_qspi_mem_exec_op(struct spi_slave *slave,
+				    const struct spi_mem_op *op)
 {
 	if (xilinx_qspi_check_buswidth(slave, op->cmd.buswidth))
 		return false;

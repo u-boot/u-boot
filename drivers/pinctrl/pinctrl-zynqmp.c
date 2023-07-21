@@ -3,7 +3,7 @@
  * Xilinx pinctrl driver for ZynqMP
  *
  * Author(s):   Ashok Reddy Soma <ashok.reddy.soma@xilinx.com>
- *              Michal Simek <michal.simek@xilinx.com>
+ *              Michal Simek <michal.simek@amd.com>
  *
  * Copyright (C) 2021 Xilinx, Inc. All rights reserved.
  */

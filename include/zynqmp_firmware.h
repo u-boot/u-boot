@@ -454,6 +454,8 @@ int zynqmp_pm_set_sd_config(u32 node, enum pm_sd_config_type config, u32 value);
 int zynqmp_pm_set_gem_config(u32 node, enum pm_gem_config_type config,
 			     u32 value);
 int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id);
+int zynqmp_mmio_read(const u32 address, u32 *value);
+int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value);
 
 /* Type of Config Object */
 #define PM_CONFIG_OBJECT_TYPE_BASE	0x1U

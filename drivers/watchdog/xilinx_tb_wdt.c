@@ -2,7 +2,7 @@
 /*
  * Xilinx AXI platforms watchdog timer driver.
  *
- * Author(s):	Michal Simek <michal.simek@xilinx.com>
+ * Author(s):	Michal Simek <michal.simek@amd.com>
  *		Shreenidhi Shedi <yesshedi@gmail.com>
  *
  * Copyright (c) 2011-2018 Xilinx Inc.

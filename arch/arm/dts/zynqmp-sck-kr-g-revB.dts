@@ -4,7 +4,7 @@
  *
  * (C) Copyright 2021 - 2022, Xilinx, Inc.
  *
- * Michal Simek <michal.simek@xilinx.com>
+ * Michal Simek <michal.simek@amd.com>
  */
 
 #include <dt-bindings/gpio/gpio.h>
@@ -68,8 +68,8 @@
 	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&pinctrl_i2c1_default>;
 	pinctrl-1 = <&pinctrl_i2c1_gpio>;
-	scl-gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
-	sda-gpios = <&gpio 25 GPIO_ACTIVE_HIGH>;
+	scl-gpios = <&gpio 24 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	sda-gpios = <&gpio 25 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 
 	u14: ina260@40 { /* u14 */
 		compatible = "ti,ina260";
@@ -188,6 +188,7 @@
 	phy-handle = <&phy0>;
 	phy-mode = "sgmii";
 	is-internal-pcspma;
+	assigned-clock-rates = <250000000>;
 };
 
 &gem1 { /* mdio mio50/51, gem mio38 - mio49 */
@@ -196,6 +197,7 @@
 	pinctrl-0 = <&pinctrl_gem1_default>;
 	phy-handle = <&phy1>;
 	phy-mode = "rgmii-id";
+	assigned-clock-rates = <250000000>;
 
 	mdio: mdio {
 		#address-cells = <1>;
@@ -208,7 +210,7 @@
 			ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_75_NS>;
 			ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
 			ti,dp83867-rxctrl-strap-quirk;
-			reset-assert-us = <100>;
+			reset-assert-us = <300>;
 			reset-deassert-us = <280>;
 			reset-gpios = <&slg7xl45106 5 GPIO_ACTIVE_LOW>;
 		};

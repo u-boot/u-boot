@@ -5,6 +5,8 @@
  */
 
 #include <common.h>
+#include <debug_uart.h>
+#include <dfu.h>
 #include <init.h>
 #include <log.h>
 #include <dm/uclass.h>

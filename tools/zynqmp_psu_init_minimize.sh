@@ -1,6 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0+
-# Copyright (C) 2018 Michal Simek <michal.simek@xilinx.com>
+# Copyright (C) 2018 Michal Simek <michal.simek@amd.com>
 # Copyright (C) 2019 Luca Ceresoli <luca@lucaceresoli.net>
 # Copyright (C) 2022 Weidmüller Interface GmbH & Co. KG
 # Stefan Herbrechtsmeier <stefan.herbrechtsmeier@weidmueller.com>
