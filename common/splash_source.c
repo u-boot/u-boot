@@ -363,7 +363,7 @@ static int splash_load_fit(struct splash_location *location, u32 bmp_load_addr)
 	if (res < 0)
 		return res;
 
-	img_header = (struct legacy_img_hdr *)bmp_load_addr;
+	img_header = (struct legacy_img_hdr *)(uintptr_t)bmp_load_addr;
 	if (image_get_magic(img_header) != FDT_MAGIC) {
 		printf("Could not find FDT magic\n");
 		return -EINVAL;
@@ -373,7 +373,7 @@ static int splash_load_fit(struct splash_location *location, u32 bmp_load_addr)
 
 	/* Read in entire FIT */
 	fit_header = (const u32 *)(bmp_load_addr + header_size);
-	res = splash_storage_read_raw(location, (u32)fit_header, fit_size);
+	res = splash_storage_read_raw(location, (uintptr_t)fit_header, fit_size);
 	if (res < 0)
 		return res;
 
@@ -398,7 +398,7 @@ static int splash_load_fit(struct splash_location *location, u32 bmp_load_addr)
 	/* Extract the splash data from FIT */
 	/* 1. Test if splash is in FIT internal data. */
 	if (!fit_image_get_data(fit_header, node_offset, &internal_splash_data, &internal_splash_size))
-		memmove((void *)bmp_load_addr, internal_splash_data, internal_splash_size);
+		memmove((void *)(uintptr_t)bmp_load_addr, internal_splash_data, internal_splash_size);
 	/* 2. Test if splash is in FIT external data with fixed position. */
 	else if (!fit_image_get_data_position(fit_header, node_offset, &external_splash_addr))
 		is_splash_external = true;

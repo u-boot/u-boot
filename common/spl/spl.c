@@ -891,18 +891,18 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		debug("Failed to stash bootstage: err=%d\n", ret);
 #endif
 
-#if defined(CONFIG_SPL_VIDEO)
-	struct udevice *dev;
-	int rc;
+	if (IS_ENABLED(CONFIG_SPL_VIDEO_REMOVE)) {
+		struct udevice *dev;
+		int rc;
 
-	rc = uclass_find_device(UCLASS_VIDEO, 0, &dev);
-	if (!rc && dev) {
-		rc = device_remove(dev, DM_REMOVE_NORMAL);
-		if (rc)
-			printf("Cannot remove video device '%s' (err=%d)\n",
-			       dev->name, rc);
+		rc = uclass_find_device(UCLASS_VIDEO, 0, &dev);
+		if (!rc && dev) {
+			rc = device_remove(dev, DM_REMOVE_NORMAL);
+			if (rc)
+				printf("Cannot remove video device '%s' (err=%d)\n",
+				       dev->name, rc);
+		}
 	}
-#endif
 
 	spl_board_prepare_for_boot();
 	jump_to_image_no_args(&spl_image);
@@ -992,6 +992,7 @@ ulong spl_relocate_stack_gd(void)
 #endif
 	/* Get stack position: use 8-byte alignment for ABI compliance */
 	ptr = CONFIG_SPL_STACK_R_ADDR - roundup(sizeof(gd_t),16);
+	gd->start_addr_sp = ptr;
 	new_gd = (gd_t *)ptr;
 	memcpy(new_gd, (void *)gd, sizeof(gd_t));
 #if CONFIG_IS_ENABLED(DM)

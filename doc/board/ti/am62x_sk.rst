@@ -230,6 +230,63 @@ Image formats:
                 | +-------------------+ |
                 +-----------------------+
 
+A53 SPL DDR Memory Layout
+-------------------------
+
+This provides an overview memory usage in A53 SPL stage.
+
+.. list-table::
+   :widths: 16 16 16
+   :header-rows: 1
+
+   * - Region
+     - Start Address
+     - End Address
+
+   * - EMPTY
+     - 0x80000000
+     - 0x80080000
+
+   * - TEXT BASE
+     - 0x80080000
+     - 0x800d8000
+
+   * - EMPTY
+     - 0x800d8000
+     - 0x80200000
+
+   * - BMP IMAGE
+     - 0x80200000
+     - 0x80b77660
+
+   * - STACK
+     - 0x80b77660
+     - 0x80b77e60
+
+   * - GD
+     - 0x80b77e60
+     - 0x80b78000
+
+   * - MALLOC
+     - 0x80b78000
+     - 0x80b80000
+
+   * - EMPTY
+     - 0x80b80000
+     - 0x80c80000
+
+   * - BSS
+     - 0x80c80000
+     - 0x80d00000
+
+   * - BLOBS
+     - 0x80d00000
+     - 0x80d00400
+
+   * - EMPTY
+     - 0x80d00400
+     - 0x81000000
+
 Switch Setting for Boot Mode
 ----------------------------
 

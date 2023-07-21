@@ -71,8 +71,8 @@ const struct ti_k3_pd_platdata am62x_pd_platdata = {
 	.pd = soc_pd_list,
 	.lpsc = soc_lpsc_list,
 	.devs = soc_dev_list,
-	.num_psc = 2,
-	.num_pd = 5,
-	.num_lpsc = 16,
-	.num_devs = 21,
+	.num_psc = ARRAY_SIZE(soc_psc_list),
+	.num_pd = ARRAY_SIZE(soc_pd_list),
+	.num_lpsc = ARRAY_SIZE(soc_lpsc_list),
+	.num_devs = ARRAY_SIZE(soc_dev_list),
 };

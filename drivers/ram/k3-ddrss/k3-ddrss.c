@@ -138,6 +138,7 @@ struct k3_ddrss_desc {
 	u32 ddr_freq1;
 	u32 ddr_freq2;
 	u32 ddr_fhs_cnt;
+	u32 dram_class;
 	struct udevice *vtt_supply;
 	u32 instance;
 	lpddr4_obj *driverdt;
@@ -243,14 +244,11 @@ static void k3_lpddr4_freq_update(struct k3_ddrss_desc *ddrss)
 
 static void k3_lpddr4_ack_freq_upd_req(const lpddr4_privatedata *pd)
 {
-	u32 dram_class;
 	struct k3_ddrss_desc *ddrss = (struct k3_ddrss_desc *)pd->ddr_instance;
 
 	debug("--->>> LPDDR4 Initialization is in progress ... <<<---\n");
 
-	dram_class = k3_lpddr4_read_ddr_type(pd);
-
-	switch (dram_class) {
+	switch (ddrss->dram_class) {
 	case DENALI_CTL_0_DRAM_CLASS_DDR4:
 		break;
 	case DENALI_CTL_0_DRAM_CLASS_LPDDR4:
@@ -263,13 +261,12 @@ static void k3_lpddr4_ack_freq_upd_req(const lpddr4_privatedata *pd)
 
 static int k3_ddrss_init_freq(struct k3_ddrss_desc *ddrss)
 {
-	u32 dram_class;
 	int ret;
 	lpddr4_privatedata *pd = &ddrss->pd;
 
-	dram_class = k3_lpddr4_read_ddr_type(pd);
+	ddrss->dram_class = k3_lpddr4_read_ddr_type(pd);
 
-	switch (dram_class) {
+	switch (ddrss->dram_class) {
 	case DENALI_CTL_0_DRAM_CLASS_DDR4:
 		/* Set to ddr_freq1 from DT for DDR4 */
 		ret = clk_set_rate(&ddrss->ddr_clk, ddrss->ddr_freq1);

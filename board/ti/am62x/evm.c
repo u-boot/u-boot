@@ -12,6 +12,7 @@
 #include <init.h>
 #include <video.h>
 #include <splash.h>
+#include <cpu_func.h>
 #include <k3-ddrss.h>
 #include <fdt_support.h>
 #include <asm/io.h>
@@ -59,42 +60,31 @@ int dram_init_banksize(void)
 }
 
 #if defined(CONFIG_SPL_BUILD)
-#ifdef CONFIG_SPL_VIDEO_TIDSS
-static int setup_dram(void)
-{
-	dram_init();
-	dram_init_banksize();
-	gd->ram_base = CFG_SYS_SDRAM_BASE;
-	gd->ram_top = gd->ram_base + gd->ram_size;
-	gd->relocaddr = gd->ram_top;
-	return 0;
-}
-
 static int video_setup(void)
 {
-	ulong addr;
-	int ret;
-	addr = gd->relocaddr;
+	if (CONFIG_IS_ENABLED(VIDEO)) {
+		ulong addr;
+		int ret;
 
-	ret = video_reserve(&addr);
-	if (ret)
-		return ret;
-	debug("Reserving %luk for video at: %08lx\n",
-	      ((unsigned long)gd->relocaddr - addr) >> 10, addr);
-	gd->relocaddr = addr;
+		addr = gd->relocaddr;
+		ret = video_reserve(&addr);
+		if (ret)
+			return ret;
+		debug("Reserving %luk for video at: %08lx\n",
+		      ((unsigned long)gd->relocaddr - addr) >> 10, addr);
+		gd->relocaddr = addr;
+	}
+
 	return 0;
 }
 
-#endif
 void spl_board_init(void)
 {
-#if defined(CONFIG_SPL_VIDEO_TIDSS)
-	setup_dram();
-	arch_reserve_mmu();
 	video_setup();
 	enable_caches();
-	splash_display();
-#endif
+	if (IS_ENABLED(CONFIG_SPL_SPLASH_SCREEN) && IS_ENABLED(CONFIG_SPL_BMP))
+		splash_display();
+
 }
 
 #if defined(CONFIG_K3_AM64_DDRSS)

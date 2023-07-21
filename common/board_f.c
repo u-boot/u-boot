@@ -411,7 +411,16 @@ __weak int arch_reserve_mmu(void)
 
 static int reserve_video(void)
 {
-	if (IS_ENABLED(CONFIG_VIDEO)) {
+	if (IS_ENABLED(CONFIG_SPL_VIDEO) && spl_phase() > PHASE_SPL &&
+	    CONFIG_IS_ENABLED(BLOBLIST)) {
+		struct video_handoff *ho;
+
+		ho = bloblist_find(BLOBLISTT_U_BOOT_VIDEO, sizeof(*ho));
+		if (!ho)
+			return log_msg_ret("blf", -ENOENT);
+		video_reserve_from_bloblist(ho);
+		gd->relocaddr = ho->fb;
+	} else if (CONFIG_IS_ENABLED(VIDEO)) {
 		ulong addr;
 		int ret;
 

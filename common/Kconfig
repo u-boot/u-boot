@@ -1167,7 +1167,6 @@ config IO_TRACE
 
 config BMP
 	bool "Enable bmp image display"
-	default y if CMD_BMP
 	help
 	  Enable bmp functions to display bmp image and get bmp info.
 
