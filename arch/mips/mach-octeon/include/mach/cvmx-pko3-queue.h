@@ -6,6 +6,8 @@
 #ifndef __CVMX_PKO3_QUEUE_H__
 #define __CVMX_PKO3_QUEUE_H__
 
+enum cvmx_pko3_level_e;
+
 /**
  * @INTERNAL
  *
@@ -46,11 +48,10 @@ int cvmx_pko3_get_port_queue(int xiface, int index);
  * The children can have fair round-robin or priority-based scheduling
  * when multiple children are assigned a single parent.
  *
- * @param node is the OCI node location for the queues to be configured
- * @param parent_level is the level of the parent queue, 2 to 5.
+ * @param node on which to operate
+ * @param child_level  is the level of the child queue
  * @param parent_queue is the number of the parent Scheduler Queue
  * @param child_base is the number of the first child SQ or DQ to assign to
- * @param parent
  * @param child_count is the number of consecutive children to assign
  * @param stat_prio_count is the priority setting for the children L2 SQs
  *
@@ -65,8 +66,10 @@ int cvmx_pko3_get_port_queue(int xiface, int index);
  *
  * Note: this function supports the configuration of node-local unit.
  */
-int cvmx_pko3_sq_config_children(unsigned int node, unsigned int parent_level,
-				 unsigned int parent_queue, unsigned int child_base,
+int cvmx_pko3_sq_config_children(unsigned int node,
+				 enum cvmx_pko3_level_e child_level,
+				 unsigned int parent_queue,
+				 unsigned int child_base,
 				 unsigned int child_count, int stat_prio_count);
 
 /*

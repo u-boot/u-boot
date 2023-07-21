@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2019
   ubuntu_vm: ubuntu-22.04
   macos_vm: macOS-12
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20230308-04Apr2023
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20230624-20Jul2023
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -194,7 +194,7 @@ stages:
           ln -s /opt/nokia/libc6_2.5.1-1eglibc27+0m5_armel.deb nokia_rx51_tmp/
           ln -s /opt/nokia/busybox_1.10.2.legal-1osso30+0m5_armel.deb nokia_rx51_tmp/
           ln -s /opt/nokia/qemu-system-arm nokia_rx51_tmp/
-          export PATH=/opt/gcc-12.2.0-nolibc/arm-linux-gnueabi/bin:$PATH
+          export PATH=/opt/gcc-13.1.0-nolibc/arm-linux-gnueabi/bin:$PATH
           test/nokia_rx51_test.sh
 
   - job: pylint
@@ -460,6 +460,7 @@ stages:
           fi
           # Some tests using libguestfs-tools need the fuse device to run
           docker run "$@" --device /dev/fuse:/dev/fuse -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
+        retryCountOnTaskFailure: 2 # QEMU may be too slow, etc.
 
 - stage: world_build
   jobs:
@@ -506,7 +507,7 @@ stages:
         imx:
           BUILDMAN: "mx -x mx6,imx8,freescale,technexion,toradex"
         imx8_imx9:
-          BUILDMAN: "imx8 imx9"
+          BUILDMAN: "imx8 imx9 -x engicam,technexion,toradex"
         keymile:
           BUILDMAN: "keymile"
         keystone2_keystone3:
@@ -563,10 +564,10 @@ stages:
           BUILDMAN: "uniphier"
         aarch64_catch_all:
           BUILDMAN: "aarch64 -x amlogic,bcm,imx8,imx9,k3,tegra,ls1,ls2,lx216,mvebu,uniphier,renesas,sunxi,samsung,socfpga,rk,versal,zynq"
-        rockchip_32bit:
-          BUILDMAN: "rk -x aarch64"
-        rockchip_64bit:
-          BUILDMAN: "rk&aarch64"
+        rk_rv_non_rockchip:
+          BUILDMAN: "rk|rv -x rockchip"
+        rk_rv_and_rockchip:
+          BUILDMAN: "(rk|rv)&rockchip"
         renesas:
           BUILDMAN: "renesas"
         zynq:

@@ -10,7 +10,7 @@ default:
 
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20230308-04Apr2023
+image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20230624-20Jul2023
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -20,6 +20,7 @@ stages:
 
 .buildman_and_testpy_template: &buildman_and_testpy_dfn
   stage: test.py
+  retry: 2 # QEMU may be too slow, etc.
   before_script:
     # Clone uboot-test-hooks
     - git config --global --add safe.directory "${CI_PROJECT_DIR}"
@@ -231,7 +232,7 @@ Run tests for Nokia RX-51 (aka N900):
       ln -s /opt/nokia/libc6_2.5.1-1eglibc27+0m5_armel.deb nokia_rx51_tmp/;
       ln -s /opt/nokia/busybox_1.10.2.legal-1osso30+0m5_armel.deb nokia_rx51_tmp/;
       ln -s /opt/nokia/qemu-system-arm nokia_rx51_tmp/;
-      export PATH=/opt/gcc-12.2.0-nolibc/arm-linux-gnueabi/bin:$PATH;
+      export PATH=/opt/gcc-13.1.0-nolibc/arm-linux-gnueabi/bin:$PATH;
       test/nokia_rx51_test.sh
 
 # Check for any pylint regressions

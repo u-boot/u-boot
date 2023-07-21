@@ -475,10 +475,6 @@ Setting up
       sudo mkdir -p /toolchains
       sudo mv ~/.buildman-toolchains/*/* /toolchains/
 
-   For those not available from kernel.org, download from the following links:
-
-   - `Arc Toolchain`_
-
    Buildman should now be set up to use your new toolchain.
 
    At the time of writing, U-Boot has these architectures:
@@ -1341,8 +1337,6 @@ Credits
 Thanks to Grant Grundler <grundler@chromium.org> for his ideas for improving
 the build speed by building all commits for a board instead of the other
 way around.
-
-.. _`Arc Toolchain`: https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2021.03-release/arc_gnu_2021.03_prebuilt_elf32_le_linux_install.tar.gz
 
 .. sectionauthor:: Simon Glass
 .. sectionauthor:: Copyright (c) 2013 The Chromium OS Authors.

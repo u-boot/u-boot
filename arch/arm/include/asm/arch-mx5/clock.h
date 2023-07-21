@@ -42,7 +42,7 @@ enum mxc_clock {
 u32 imx_get_uartclk(void);
 u32 imx_get_fecclk(void);
 unsigned int mxc_get_clock(enum mxc_clock clk);
-int mxc_set_clock(u32 ref, u32 freq, u32 clk_type);
+int mxc_set_clock(u32 ref, u32 freq, enum mxc_clock clk);
 void set_usb_phy_clk(void);
 void enable_usb_phy1_clk(bool enable);
 void enable_usb_phy2_clk(bool enable);
