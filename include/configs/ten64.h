@@ -39,6 +39,11 @@
 	func(PXE, pxe, 0)
 #include <config_distro_bootcmd.h>
 
+#define OPENWRT_NAND_BOOTCMD	\
+	"bootcmd_openwrt_nand=ubi part ubi${openwrt_active_sys} && "\
+	"ubi read $load_addr kernel && " \
+	"setenv bootargs \"root=/dev/ubiblock0_1 earlycon ubi.mtd=ubi${openwrt_active_sys}\" &&"\
+	"bootm $load_addr#ten64\0"
 #undef CFG_EXTRA_ENV_SETTINGS
 
 #define CFG_EXTRA_ENV_SETTINGS \
@@ -48,6 +53,8 @@
 	"kernel_addr_r=0x81000000\0"		\
 	"load_addr=0xa0000000\0"		\
 	BOOTENV \
+	OPENWRT_NAND_BOOTCMD \
+	"openwrt_active_sys=a\0" \
 	"load_efi_dtb=mtd read devicetree $fdt_addr_r && fdt addr $fdt_addr_r && " \
 	"fdt resize && fdt boardsetup\0" \
 	"bootcmd_recovery=mtd read recovery 0xa0000000 && " \
