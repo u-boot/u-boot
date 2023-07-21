@@ -328,8 +328,8 @@ static void ten64_set_macaddrs_from_board_info(struct t64uc_board_info *boardinf
 		this_dpmac_num = allocation_order[intfidx];
 		printf("DPMAC%d: %s\n", this_dpmac_num, ethaddr);
 		snprintf(enetvar, 10,
-			 (this_dpmac_num != 1) ? "eth%daddr" : "ethaddr",
-			 this_dpmac_num - 1);
+			 (intfidx != 0) ? "eth%daddr" : "ethaddr",
+			 intfidx);
 		macaddr++;
 
 		if (!env_get(enetvar))
