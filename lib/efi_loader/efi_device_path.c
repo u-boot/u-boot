@@ -548,14 +548,19 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
  */
 __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 {
+	enum uclass_id uclass_id;
+
 	if (!dev || !dev->driver)
 		return buf;
 
-	switch (device_get_uclass_id(dev)) {
+	uclass_id = device_get_uclass_id(dev);
+	if (uclass_id != UCLASS_ROOT)
+		buf = dp_fill(buf, dev->parent);
+
+	switch (uclass_id) {
 #ifdef CONFIG_NETDEVICES
 	case UCLASS_ETH: {
-		struct efi_device_path_mac_addr *dp =
-			dp_fill(buf, dev->parent);
+		struct efi_device_path_mac_addr *dp = buf;
 		struct eth_pdata *pdata = dev_get_plat(dev);
 
 		dp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
@@ -573,8 +578,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 		switch (device_get_uclass_id(dev->parent)) {
 #ifdef CONFIG_IDE
 		case UCLASS_IDE: {
-			struct efi_device_path_atapi *dp =
-			dp_fill(buf, dev->parent);
+			struct efi_device_path_atapi *dp = buf;
 			struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 			dp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
@@ -590,8 +594,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #endif
 #if defined(CONFIG_SCSI)
 		case UCLASS_SCSI: {
-			struct efi_device_path_scsi *dp =
-				dp_fill(buf, dev->parent);
+			struct efi_device_path_scsi *dp = buf;
 			struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 			dp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
@@ -604,8 +607,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #endif
 #if defined(CONFIG_MMC)
 		case UCLASS_MMC: {
-			struct efi_device_path_sd_mmc_path *sddp =
-				dp_fill(buf, dev->parent);
+			struct efi_device_path_sd_mmc_path *sddp = buf;
 			struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 			sddp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
@@ -619,8 +621,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #endif
 #if defined(CONFIG_AHCI) || defined(CONFIG_SATA)
 		case UCLASS_AHCI: {
-			struct efi_device_path_sata *dp =
-				dp_fill(buf, dev->parent);
+			struct efi_device_path_sata *dp = buf;
 			struct blk_desc *desc = dev_get_uclass_plat(dev);
 
 			dp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
@@ -635,8 +636,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #endif
 #if defined(CONFIG_NVME)
 		case UCLASS_NVME: {
-			struct efi_device_path_nvme *dp =
-				dp_fill(buf, dev->parent);
+			struct efi_device_path_nvme *dp = buf;
 			u32 ns_id;
 
 			dp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
@@ -650,8 +650,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #if defined(CONFIG_USB)
 		case UCLASS_MASS_STORAGE: {
 			struct blk_desc *desc = dev_get_uclass_plat(dev);
-			struct efi_device_path_controller *dp =
-				dp_fill(buf, dev->parent);
+			struct efi_device_path_controller *dp = buf;
 
 			dp->dp.type	= DEVICE_PATH_TYPE_HARDWARE_DEVICE;
 			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_CONTROLLER;
@@ -662,10 +661,9 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #endif
 		default: {
 			/* UCLASS_BLKMAP, UCLASS_HOST, UCLASS_VIRTIO */
-			struct efi_device_path_udevice *dp;
+			struct efi_device_path_udevice *dp = buf;
 			struct blk_desc *desc = dev_get_uclass_plat(dev);
 
-			dp = dp_fill(buf, dev->parent);
 			dp->dp.type = DEVICE_PATH_TYPE_HARDWARE_DEVICE;
 			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_VENDOR;
 			dp->dp.length = sizeof(*dp);
@@ -680,8 +678,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 	}
 #if defined(CONFIG_MMC)
 	case UCLASS_MMC: {
-		struct efi_device_path_sd_mmc_path *sddp =
-			dp_fill(buf, dev->parent);
+		struct efi_device_path_sd_mmc_path *sddp = buf;
 		struct mmc *mmc = mmc_get_mmc_dev(dev);
 		struct blk_desc *desc = mmc_get_blk_desc(mmc);
 
@@ -697,7 +694,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 #endif
 	case UCLASS_MASS_STORAGE:
 	case UCLASS_USB_HUB: {
-		struct efi_device_path_usb *udp = dp_fill(buf, dev->parent);
+		struct efi_device_path_usb *udp = buf;
 
 		switch (device_get_uclass_id(dev->parent)) {
 		case UCLASS_USB_HUB: {
@@ -717,13 +714,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 		return &udp[1];
 	}
 	default: {
-		struct efi_device_path_udevice *vdp;
-		enum uclass_id uclass_id = device_get_uclass_id(dev);
-
-		if (uclass_id == UCLASS_ROOT)
-			vdp = buf;
-		else
-			vdp = dp_fill(buf, dev->parent);
+		struct efi_device_path_udevice *vdp = buf;
 
 		vdp->dp.type = DEVICE_PATH_TYPE_HARDWARE_DEVICE;
 		vdp->dp.sub_type = DEVICE_PATH_SUB_TYPE_VENDOR;
