@@ -15,6 +15,8 @@
 #define QSPI_NOR_BOOTCOMMAND	"run distro_bootcmd"
 #define SD_BOOTCOMMAND		"run distro_bootcmd"
 
+#define SD_FIRMWARE_PATH "firmware/traverse/ten64/"
+
 #define QSPI_MC_INIT_CMD				\
 	"sf probe 0:0 && sf read 0x80000000 0x300000 0x200000 &&"	\
 	"sf read 0x80200000 0x5C0000 0x40000 &&"				\
@@ -22,10 +24,10 @@
 	"sf read 0x8E000000 0x580000 0x40000 && fsl_mc lazyapply DPL 0x8E000000 && "\
 	"echo 'default DPL loaded'\0"
 #define SD_MC_INIT_CMD				\
-	"mmcinfo; fatload mmc 0 0x80000000 mcfirmware/mc_ls1088a.itb; "\
-	"fatload mmc 0 0x80200000 dpaa2config/dpc.0x1D-0x0D.dtb; "\
+	"mmcinfo; fatload mmc 0 0x80000000 " SD_FIRMWARE_PATH "mc_ls1088a.itb; "\
+	"fatload mmc 0 0x80200000 " SD_FIRMWARE_PATH "dpc.0x1D-0x0D.dtb; "\
 	"fsl_mc start mc 0x80000000 0x80200000 && "	\
-	"fatload mmc 0 0x8E000000 dpaa2config/eth-dpl-all.dtb && " \
+	"fatload mmc 0 0x8E000000 " SD_FIRMWARE_PATH "eth-dpl-all.dtb && " \
 	"fsl_mc lazyapply DPL 0x8E000000 && echo 'default DPL loaded'\0"
 
 #define BOOT_TARGET_DEVICES(func) \
