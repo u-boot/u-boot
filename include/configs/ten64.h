@@ -50,6 +50,7 @@
 	BOOTENV \
 	"load_efi_dtb=mtd read devicetree $fdt_addr_r && fdt addr $fdt_addr_r && " \
 	"fdt resize && fdt boardsetup\0" \
-	"bootcmd_recovery=mtd read recovery 0xa0000000; && bootm 0xa0000000#ten64\0"
+	"bootcmd_recovery=mtd read recovery 0xa0000000 && " \
+	"setenv bootargs \"earlycon root=/dev/ram0 ramdisk_size=0x3000000\" && bootm 0xa0000000#ten64\0"
 
 #endif /* __TEN64_H */
