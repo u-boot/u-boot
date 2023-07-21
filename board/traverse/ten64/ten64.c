@@ -341,20 +341,27 @@ static int board_cycle_retimer(struct udevice **retim_dev)
 	u8 loop;
 	struct udevice *uc_dev;
 	struct udevice *i2cbus;
+	u32 board_rev = ten64_get_board_rev();
 
 	ret = ten64_get_micro_udevice(&uc_dev, &i2cbus);
 	if (ret)
 		return ret;
 
-	ret = dm_i2c_probe(i2cbus, I2C_RETIMER_ADDR, 0, retim_dev);
-	if (ret == 0) {
-		puts("(retimer on, resetting...) ");
+	/* Retimer power cycle not implemented on early board
+	 * revisions/controller firmwares
+	 */
+	if (IS_ENABLED(CONFIG_TEN64_CONTROLLER) &&
+	    board_rev <= TEN64_BOARD_REV_C) {
+		ret = dm_i2c_probe(i2cbus, I2C_RETIMER_ADDR, 0, retim_dev);
+		if (ret == 0) {
+			puts("(retimer on, resetting...) ");
 
-		ret = misc_call(uc_dev, TEN64_CNTRL_10G_OFF, NULL, 0, NULL, 0);
-		mdelay(1000);
+			ret = misc_call(uc_dev, TEN64_CNTRL_10G_OFF, NULL, 0, NULL, 0);
+			mdelay(1000);
+		}
+
+		ret = misc_call(uc_dev, TEN64_CNTRL_10G_ON, NULL, 0, NULL, 0);
 	}
-
-	ret = misc_call(uc_dev, TEN64_CNTRL_10G_ON, NULL, 0, NULL, 0);
 
 	// Wait for retimer to come back
 	for (loop = 0; loop < 5; loop++) {
@@ -375,19 +382,13 @@ static void ten64_board_retimer_ds110df410_init(void)
 	u8 reg;
 	int ret;
 	struct udevice *retim_dev;
-	u32 board_rev = ten64_get_board_rev();
 
 	puts("Retimer: ");
-	/* Retimer power cycle not implemented on early board
-	 * revisions/controller firmwares
-	 */
-	if (IS_ENABLED(CONFIG_TEN64_CONTROLLER) &&
-	    board_rev >= TEN64_BOARD_REV_C) {
-		ret = board_cycle_retimer(&retim_dev);
-		if (ret) {
-			puts("Retimer power on failed\n");
-			return;
-		}
+
+	ret = board_cycle_retimer(&retim_dev);
+	if (ret) {
+		puts("Retimer power on failed\n");
+		return;
 	}
 
 	/* Access to Control/Shared register */
