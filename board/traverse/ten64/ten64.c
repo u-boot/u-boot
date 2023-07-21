@@ -174,6 +174,12 @@ void fdt_fixup_board_enet(void *fdt)
 		return;
 	}
 
+	/* In the U-Boot FDT, a 'simple-mfd' compatible is added.
+	 * Remove this as FreeBSD will only match "fsl,qoriq-mc"
+	 * exactly on the DPAA2 bus/MC node.
+	 */
+	fdt_setprop(fdt, offset, "compatible", "fsl,qoriq-mc", 12);
+
 	if (get_mc_boot_status() == 0 &&
 	    (is_lazy_dpl_addr_valid() || get_dpl_apply_status() == 0))
 		fdt_status_okay(fdt, offset);
