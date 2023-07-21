@@ -207,7 +207,6 @@ endif
 
 config MACH_SUNXI_H3_H5
 	bool
-	select PHY_SUN4I_USB
 	select SUNXI_DE2
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT
@@ -236,7 +235,6 @@ config MACH_SUNIV
 config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
 	select CPU_V7A
-	select PHY_SUN4I_USB
 	select DRAM_SUN4I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
@@ -247,7 +245,6 @@ config MACH_SUN5I
 	bool "sun5i (Allwinner A13)"
 	select CPU_V7A
 	select DRAM_SUN4I
-	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	imply SPL_SYS_I2C_LEGACY
@@ -261,7 +258,6 @@ config MACH_SUN6I
 	select ARCH_SUPPORT_PSCI
 	select SPL_ARMV7_SET_CORTEX_SMPEN
 	select DRAM_SUN6I
-	select PHY_SUN4I_USB
 	select SPL_I2C
 	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
@@ -277,7 +273,6 @@ config MACH_SUN7I
 	select ARCH_SUPPORT_PSCI
 	select SPL_ARMV7_SET_CORTEX_SMPEN
 	select DRAM_SUN4I
-	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
@@ -291,7 +286,6 @@ config MACH_SUN8I_A23
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN8I_A23
-	select PHY_SUN4I_USB
 	select SPL_I2C
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
@@ -305,7 +299,6 @@ config MACH_SUN8I_A33
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN8I_A33
-	select PHY_SUN4I_USB
 	select SPL_I2C
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
@@ -316,7 +309,6 @@ config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"
 	select CPU_V7A
 	select DRAM_SUN8I_A83T
-	select PHY_SUN4I_USB
 	select SPL_I2C
 	select SUNXI_GEN_SUN6I
 	select MMC_SUNXI_HAS_NEW_MODE
@@ -344,7 +336,6 @@ config MACH_SUN8I_R40
 	select SUPPORT_SPL
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT
-	select PHY_SUN4I_USB
 	imply SPL_SYS_I2C_LEGACY
 
 config MACH_SUN8I_V3S
@@ -372,7 +363,6 @@ config MACH_SUN9I
 config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
 	select ARM64
-	select PHY_SUN4I_USB
 	select SUN6I_PRCM
 	select SUNXI_DE2
 	select SUNXI_GEN_SUN6I
@@ -395,7 +385,6 @@ config MACH_SUN50I_H5
 config MACH_SUN50I_H6
 	bool "sun50i (Allwinner H6)"
 	select ARM64
-	select PHY_SUN4I_USB
 	select DRAM_SUN50I_H6
 	select SUN50I_GEN_H6
 
@@ -442,7 +431,7 @@ config ARM_BOOT_HOOK_RMR
 	This allows both the SPL and the U-Boot proper to be entered in
 	either mode and switch to AArch64 if needed.
 
-if SUNXI_DRAM_DW || DRAM_SUN50I_H6
+if SUNXI_DRAM_DW || DRAM_SUN50I_H6 || DRAM_SUN50I_H616
 config SUNXI_DRAM_DDR3
 	bool
 
@@ -486,6 +475,22 @@ config SUNXI_DRAM_H6_DDR3_1333
 	---help---
 	This option is the DDR3 timing used by the boot0 on H6 TV boxes
 	which use a DDR3-1333 timing.
+
+config SUNXI_DRAM_H616_LPDDR3
+	bool "LPDDR3 DRAM chips on the H616 DRAM controller"
+	select SUNXI_DRAM_LPDDR3
+	depends on DRAM_SUN50I_H616
+	help
+	  This option is the LPDDR3 timing used by the stock boot0 by
+	  Allwinner.
+
+config SUNXI_DRAM_H616_DDR3_1333
+	bool "DDR3-1333 boot0 timings on the H616 DRAM controller"
+	select SUNXI_DRAM_DDR3
+	depends on DRAM_SUN50I_H616
+	help
+	  This option is the DDR3 timing used by the boot0 on H616 TV boxes
+	  which use a DDR3-1333 timing.
 
 config SUNXI_DRAM_DDR2_V3S
 	bool "DDR2 found in V3s chip"

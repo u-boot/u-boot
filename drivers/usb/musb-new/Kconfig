@@ -68,6 +68,7 @@ config USB_MUSB_PIC32
 config USB_MUSB_SUNXI
 	bool "Enable sunxi OTG / DRC USB controller"
 	depends on ARCH_SUNXI
+	depends on PHY_SUN4I_USB
 	select USB_MUSB_PIO_ONLY
 	default y
 	---help---

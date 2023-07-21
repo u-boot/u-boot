@@ -93,7 +93,8 @@ enum {
 	MBUS_QOS_HIGH,
 	MBUS_QOS_HIGHEST
 };
-inline void mbus_configure_port(u8 port,
+
+static void mbus_configure_port(u8 port,
 				bool bwlimit,
 				bool priority,
 				u8 qos,

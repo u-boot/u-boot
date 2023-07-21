@@ -4,6 +4,9 @@
 config PHY_SUN4I_USB
 	bool "Allwinner Sun4I USB PHY driver"
 	depends on ARCH_SUNXI
+	depends on !MACH_SUN9I
+	default n if MACH_SUN8I_V3S
+	default y
 	select DM_REGULATOR
 	select PHY
 	help
@@ -11,7 +14,7 @@ config PHY_SUN4I_USB
 	  sunxi SoCs.
 
 	  This driver controls the entire USB PHY block, both the USB OTG
-	  parts, as well as the 2 regular USB 2 host PHYs.
+	  parts, as well as the regular USB HCI host PHYs.
 
 config INITIAL_USB_SCAN_DELAY
 	int "Delay initial USB scan by x ms to allow builtin devices to init"
