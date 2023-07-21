@@ -465,3 +465,12 @@ static void ten64_board_retimer_ds110df410_init(void)
 	puts("OK\n");
 }
 
+/* Opt out of the fsl_setenv_bootcmd
+ * in arch/arm/cpu/armv8/fsl-layerscape/soc.c
+ * which is invoked by board_late_init.
+ */
+int fsl_setenv_bootcmd(void)
+{
+	return 0;
+}
+
