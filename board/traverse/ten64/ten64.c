@@ -31,6 +31,7 @@
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
+#include <nvme.h>
 
 #include <fsl_immap.h>
 
@@ -184,6 +185,11 @@ void fdt_fixup_board_enet(void *fdt)
 int fsl_board_late_init(void)
 {
 	ten64_board_retimer_ds110df410_init();
+
+	/* Ensure nvme storage devices are available to bootflow */
+	if (IS_ENABLED(CONFIG_NVME))
+		nvme_scan_namespace();
+
 	return 0;
 }
 
@@ -444,3 +450,4 @@ static void ten64_board_retimer_ds110df410_init(void)
 
 	puts("OK\n");
 }
+
