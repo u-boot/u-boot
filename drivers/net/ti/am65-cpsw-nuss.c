@@ -103,7 +103,6 @@ struct am65_cpsw_common {
 	fdt_addr_t		cpsw_base;
 	fdt_addr_t		mdio_base;
 	fdt_addr_t		ale_base;
-	fdt_addr_t		gmii_sel;
 
 	struct clk		fclk;
 	struct power_domain	pwrdmn;
@@ -233,18 +232,37 @@ out:
 
 #define AM65_GMII_SEL_RGMII_IDMODE	BIT(4)
 
-static void am65_cpsw_gmii_sel_k3(struct am65_cpsw_priv *priv,
-				  phy_interface_t phy_mode, int slave)
+static int am65_cpsw_gmii_sel_k3(struct am65_cpsw_priv *priv,
+				 phy_interface_t phy_mode)
 {
-	struct am65_cpsw_common	*common = priv->cpsw_common;
-	fdt_addr_t gmii_sel = common->gmii_sel + AM65_GMII_SEL_PORT_OFFS(slave);
-	u32 reg;
-	u32 mode = 0;
+	struct udevice *dev = priv->dev;
+	u32 offset, reg, phandle;
 	bool rgmii_id = false;
+	fdt_addr_t gmii_sel;
+	u32 mode = 0;
+	ofnode node;
+	int ret;
 
+	ret = ofnode_read_u32(dev_ofnode(dev), "phys", &phandle);
+	if (ret)
+		return ret;
+
+	ret = ofnode_read_u32_index(dev_ofnode(dev), "phys", 1, &offset);
+	if (ret)
+		return ret;
+
+	node = ofnode_get_by_phandle(phandle);
+	if (!ofnode_valid(node))
+		return -ENODEV;
+
+	gmii_sel = ofnode_get_addr(node);
+	if (gmii_sel == FDT_ADDR_T_NONE)
+		return -ENODEV;
+
+	gmii_sel += AM65_GMII_SEL_PORT_OFFS(offset);
 	reg = readl(gmii_sel);
 
-	dev_dbg(common->dev, "old gmii_sel: %08x\n", reg);
+	dev_dbg(dev, "old gmii_sel: %08x\n", reg);
 
 	switch (phy_mode) {
 	case PHY_INTERFACE_MODE_RMII:
@@ -263,7 +281,7 @@ static void am65_cpsw_gmii_sel_k3(struct am65_cpsw_priv *priv,
 		break;
 
 	default:
-		dev_warn(common->dev,
+		dev_warn(dev,
 			 "Unsupported PHY mode: %u. Defaulting to MII.\n",
 			 phy_mode);
 		/* fallthrough */
@@ -276,15 +294,19 @@ static void am65_cpsw_gmii_sel_k3(struct am65_cpsw_priv *priv,
 		mode |= AM65_GMII_SEL_RGMII_IDMODE;
 
 	reg = mode;
-	dev_dbg(common->dev, "gmii_sel PHY mode: %u, new gmii_sel: %08x\n",
+	dev_dbg(dev, "gmii_sel PHY mode: %u, new gmii_sel: %08x\n",
 		phy_mode, reg);
 	writel(reg, gmii_sel);
 
 	reg = readl(gmii_sel);
-	if (reg != mode)
-		dev_err(common->dev,
+	if (reg != mode) {
+		dev_err(dev,
 			"gmii_sel PHY mode NOT SET!: requested: %08x, gmii_sel: %08x\n",
 			mode, reg);
+		return 0;
+	}
+
+	return 0;
 }
 
 static int am65_cpsw_start(struct udevice *dev)
@@ -757,7 +779,9 @@ static int am65_cpsw_port_probe(struct udevice *dev)
 	if (ret)
 		goto out;
 
-	am65_cpsw_gmii_sel_k3(priv, pdata->phy_interface, priv->port_id);
+	ret = am65_cpsw_gmii_sel_k3(priv, pdata->phy_interface);
+	if (ret)
+		goto out;
 
 	ret = am65_cpsw_mdio_init(dev);
 	if (ret)
@@ -850,19 +874,6 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 				  (i * AM65_CPSW_CPSW_NU_PORTS_OFFSET);
 		port->macsl_base = port->port_base +
 				   AM65_CPSW_CPSW_NU_PORT_MACSL_OFFSET;
-	}
-
-	node = dev_read_subnode(dev, "cpsw-phy-sel");
-	if (!ofnode_valid(node)) {
-		dev_err(dev, "can't find cpsw-phy-sel\n");
-		ret = -ENOENT;
-		goto out;
-	}
-
-	cpsw_common->gmii_sel = ofnode_get_addr(node);
-	if (cpsw_common->gmii_sel == FDT_ADDR_T_NONE) {
-		dev_err(dev, "failed to get gmii_sel base\n");
-		goto out;
 	}
 
 	cpsw_common->bus_freq =
