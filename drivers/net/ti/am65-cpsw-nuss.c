@@ -22,7 +22,9 @@
 #include <net.h>
 #include <phy.h>
 #include <power-domain.h>
+#include <regmap.h>
 #include <soc.h>
+#include <syscon.h>
 #include <linux/bitops.h>
 #include <linux/soc/ti/ti-udma.h>
 
@@ -102,7 +104,6 @@ struct am65_cpsw_common {
 	fdt_addr_t		mdio_base;
 	fdt_addr_t		ale_base;
 	fdt_addr_t		gmii_sel;
-	fdt_addr_t		mac_efuse;
 
 	struct clk		fclk;
 	struct power_domain	pwrdmn;
@@ -517,24 +518,45 @@ static void am65_cpsw_stop(struct udevice *dev)
 	common->started = false;
 }
 
+static int am65_cpsw_am654_get_efuse_macid(struct udevice *dev,
+					   int slave, u8 *mac_addr)
+{
+	u32 mac_lo, mac_hi, offset;
+	struct regmap *syscon;
+	int ret;
+
+	syscon = syscon_regmap_lookup_by_phandle(dev, "ti,syscon-efuse");
+	if (IS_ERR(syscon)) {
+		if (PTR_ERR(syscon) == -ENODEV)
+			return 0;
+		return PTR_ERR(syscon);
+	}
+
+	ret = dev_read_u32_index(dev, "ti,syscon-efuse", 1, &offset);
+	if (ret)
+		return ret;
+
+	regmap_read(syscon, offset, &mac_lo);
+	regmap_read(syscon, offset + 4, &mac_hi);
+
+	mac_addr[0] = (mac_hi >> 8) & 0xff;
+	mac_addr[1] = mac_hi & 0xff;
+	mac_addr[2] = (mac_lo >> 24) & 0xff;
+	mac_addr[3] = (mac_lo >> 16) & 0xff;
+	mac_addr[4] = (mac_lo >> 8) & 0xff;
+	mac_addr[5] = mac_lo & 0xff;
+
+	return 0;
+}
+
 static int am65_cpsw_read_rom_hwaddr(struct udevice *dev)
 {
 	struct am65_cpsw_priv *priv = dev_get_priv(dev);
-	struct am65_cpsw_common *common = priv->cpsw_common;
 	struct eth_pdata *pdata = dev_get_plat(dev);
-	u32 mac_hi, mac_lo;
 
-	if (common->mac_efuse == FDT_ADDR_T_NONE)
-		return -1;
-
-	mac_lo = readl(common->mac_efuse);
-	mac_hi = readl(common->mac_efuse + 4);
-	pdata->enetaddr[0] = (mac_hi >> 8) & 0xff;
-	pdata->enetaddr[1] = mac_hi & 0xff;
-	pdata->enetaddr[2] = (mac_lo >> 24) & 0xff;
-	pdata->enetaddr[3] = (mac_lo >> 16) & 0xff;
-	pdata->enetaddr[4] = (mac_lo >> 8) & 0xff;
-	pdata->enetaddr[5] = mac_lo & 0xff;
+	am65_cpsw_am654_get_efuse_macid(dev,
+					priv->port_id,
+					pdata->enetaddr);
 
 	return 0;
 }
@@ -759,8 +781,6 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 	cpsw_common->ss_base = dev_read_addr(dev);
 	if (cpsw_common->ss_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
-	cpsw_common->mac_efuse = devfdt_get_addr_name(dev, "mac_efuse");
-	/* no err check - optional */
 
 	ret = power_domain_get_by_index(dev, &cpsw_common->pwrdmn, 0);
 	if (ret) {
