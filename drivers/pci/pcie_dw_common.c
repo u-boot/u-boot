@@ -141,9 +141,9 @@ static uintptr_t set_cfg_address(struct pcie_dw *pcie,
 
 	/*
 	 * Not accessing root port configuration space?
-	 * Region #0 is used for Outbound CFG space access.
+	 * Region #1 is used for Outbound CFG space access.
 	 * Direction = Outbound
-	 * Region Index = 0
+	 * Region Index = 1
 	 */
 	d = PCI_MASK_BUS(d);
 	d = PCI_ADD_BUS(bus, d);
@@ -328,8 +328,10 @@ void pcie_dw_setup_host(struct pcie_dw *pci)
 			pci->prefetch.bus_start = hose->regions[ret].bus_start;  /* PREFETCH_bus_addr */
 			pci->prefetch.size = hose->regions[ret].size;	    /* PREFETCH size */
 		} else if (hose->regions[ret].flags == PCI_REGION_SYS_MEMORY) {
-			pci->cfg_base = (void *)(pci->io.phys_start - pci->io.size);
-			pci->cfg_size = pci->io.size;
+			if (!pci->cfg_base) {
+				pci->cfg_base = (void *)(pci->io.phys_start - pci->io.size);
+				pci->cfg_size = pci->io.size;
+			}
 		} else {
 			dev_err(pci->dev, "invalid flags type!\n");
 		}

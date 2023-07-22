@@ -366,6 +366,13 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 
 	dev_dbg(dev, "APB address is 0x%p\n", priv->apb_base);
 
+	priv->dw.cfg_base = dev_read_addr_size_index_ptr(dev, 2,
+							 &priv->dw.cfg_size);
+	if (!priv->dw.cfg_base)
+		return -EINVAL;
+
+	dev_dbg(dev, "CFG address is 0x%p\n", priv->dw.cfg_base);
+
 	ret = gpio_request_by_name(dev, "reset-gpios", 0,
 				   &priv->rst_gpio, GPIOD_IS_OUT);
 	if (ret) {
