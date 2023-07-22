@@ -95,6 +95,7 @@ List of mainline supported Rockchip boards:
 
 * rk3568
      - Rockchip Evb-RK3568 (evb-rk3568)
+     - Hardkernel ODROID-M1 (odroid-m1-rk3568)
 
 * rk3588
      - Rockchip EVB (evb-rk3588)

@@ -17,6 +17,11 @@ config TARGET_ANBERNIC_RGXX3_RK3566
 	  and RG503. The correct device tree name will automatically
 	  be selected by the bootloader.
 
+config TARGET_ODROID_M1_RK3568
+	bool "ODROID-M1"
+	help
+	  Hardkernel ODROID-M1 single board computer with a RK3568B2 SoC.
+
 endchoice
 
 config ROCKCHIP_BOOT_MODE_REG
@@ -33,5 +38,6 @@ config SYS_MALLOC_F_LEN
 
 source "board/rockchip/evb_rk3568/Kconfig"
 source "board/anbernic/rgxx3_rk3566/Kconfig"
+source "board/hardkernel/odroid_m1/Kconfig"
 
 endif
