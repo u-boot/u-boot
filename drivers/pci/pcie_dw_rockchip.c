@@ -61,6 +61,8 @@ struct rk_pcie {
 #define PCIE_CLIENT_DBG_TRANSITION_DATA	0xffff0000
 #define PCIE_CLIENT_DBF_EN		0xffff0003
 
+#define PCIE_TYPE0_HDR_DBI2_OFFSET	0x100000
+
 static int rk_pcie_read(void __iomem *addr, int size, u32 *val)
 {
 	if ((uintptr_t)addr & (size - 1)) {
@@ -157,6 +159,12 @@ static inline void rk_pcie_writel_apb(struct rk_pcie *rk_pcie, u32 reg,
 static void rk_pcie_configure(struct rk_pcie *pci, u32 cap_speed)
 {
 	dw_pcie_dbi_write_enable(&pci->dw, true);
+
+	/* Disable BAR 0 and BAR 1 */
+	writel(0, pci->dw.dbi_base + PCIE_TYPE0_HDR_DBI2_OFFSET +
+	       PCI_BASE_ADDRESS_0);
+	writel(0, pci->dw.dbi_base + PCIE_TYPE0_HDR_DBI2_OFFSET +
+	       PCI_BASE_ADDRESS_1);
 
 	clrsetbits_le32(pci->dw.dbi_base + PCIE_LINK_CAPABILITY,
 			TARGET_LINK_SPEED_MASK, cap_speed);
