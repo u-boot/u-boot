@@ -288,21 +288,16 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 	struct rk_pcie *priv = dev_get_priv(dev);
 
 	/* Set power and maybe external ref clk input */
-	if (priv->vpcie3v3) {
-		ret = regulator_set_value(priv->vpcie3v3, 3300000);
-		if (ret) {
-			dev_err(priv->dw.dev, "failed to enable vpcie3v3 (ret=%d)\n",
-				ret);
-			return ret;
-		}
+	ret = regulator_set_enable_if_allowed(priv->vpcie3v3, true);
+	if (ret && ret != -ENOSYS) {
+		dev_err(dev, "failed to enable vpcie3v3 (ret=%d)\n", ret);
+		return ret;
 	}
-
-	udelay(MACRO_US * 1000);
 
 	ret = generic_phy_init(&priv->phy);
 	if (ret) {
 		dev_err(dev, "failed to init phy (ret=%d)\n", ret);
-		return ret;
+		goto err_disable_regulator;
 	}
 
 	ret = generic_phy_power_on(&priv->phy);
@@ -345,6 +340,8 @@ err_power_off_phy:
 	generic_phy_power_off(&priv->phy);
 err_exit_phy:
 	generic_phy_exit(&priv->phy);
+err_disable_regulator:
+	regulator_set_enable_if_allowed(priv->vpcie3v3, false);
 
 	return ret;
 }
