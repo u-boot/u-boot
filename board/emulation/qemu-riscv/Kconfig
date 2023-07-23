@@ -25,6 +25,10 @@ config SPL_OPENSBI_LOAD_ADDR
 	hex
 	default 0x80100000
 
+config PRE_CON_BUF_ADDR
+	hex
+	default 0x81000000
+
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select GENERIC_RISCV
@@ -71,5 +75,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply VIDEO
 	imply VIDEO_BOCHS
 	imply SYS_WHITE_ON_BLACK
+	imply PRE_CONSOLE_BUFFER
 
 endif
