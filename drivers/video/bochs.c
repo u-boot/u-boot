@@ -101,8 +101,8 @@ static int bochs_video_bind(struct udevice *dev)
 {
 	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
-	/* Set the maximum supported resolution */
-	uc_plat->size = 2560 * 1600 * 4;
+	/* Set the frame buffer size per configuration */
+	uc_plat->size = xsize * ysize * 32 / 8;
 	log_debug("%s: Frame buffer size %x\n", __func__, uc_plat->size);
 
 	return 0;
