@@ -340,8 +340,8 @@ class TestNode(unittest.TestCase):
             over = dtb.GetNode('/dest/base/over')
             self.assertTrue(over)
 
-            # Make sure that the phandle for 'over' is not copied
-            self.assertNotIn('phandle', over.props.keys())
+            # Make sure that the phandle for 'over' is copied
+            self.assertIn('phandle', over.props.keys())
 
             second = dtb.GetNode('/dest/base/second')
             self.assertTrue(second)
@@ -349,7 +349,7 @@ class TestNode(unittest.TestCase):
                              [n.name for n in chk.subnodes])
             self.assertEqual(chk, over.parent)
             self.assertEqual(
-                {'bootph-all', 'compatible', 'reg', 'low-power'},
+                {'bootph-all', 'compatible', 'reg', 'low-power', 'phandle'},
                 over.props.keys())
 
             if expect_none:
@@ -385,9 +385,22 @@ class TestNode(unittest.TestCase):
 
         dtb.Sync(auto_resize=True)
 
-        # Now check that the FDT looks correct
+        # Now check the resulting FDT. It should have duplicate phandles since
+        # 'over' has been copied to 'dest/base/over' but still exists in its old
+        # place
         new_dtb = fdt.Fdt.FromData(dtb.GetContents())
+        with self.assertRaises(ValueError) as exc:
+            new_dtb.Scan()
+        self.assertIn(
+            'Duplicate phandle 1 in nodes /dest/base/over and /base/over',
+            str(exc.exception))
+
+        # Remove the source nodes for the copy
+        new_dtb.GetNode('/base').Delete()
+
+        # Now it should scan OK
         new_dtb.Scan()
+
         dst = new_dtb.GetNode('/dest')
         do_copy_checks(new_dtb, dst, second1_ph_val, expect_none=False)
 
