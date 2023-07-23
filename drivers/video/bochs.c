@@ -11,7 +11,6 @@
 #include <pci.h>
 #include <video.h>
 #include <asm/io.h>
-#include <asm/mtrr.h>
 #include <linux/sizes.h>
 #include "bochs.h"
 
