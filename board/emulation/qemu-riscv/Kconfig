@@ -76,5 +76,10 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply VIDEO_BOCHS
 	imply SYS_WHITE_ON_BLACK
 	imply PRE_CONSOLE_BUFFER
+	imply USB
+	imply USB_XHCI_HCD
+	imply USB_XHCI_PCI
+	imply USB_KEYBOARD
+	imply CMD_USB
 
 endif

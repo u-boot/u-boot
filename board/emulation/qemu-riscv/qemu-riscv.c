@@ -12,6 +12,7 @@
 #include <log.h>
 #include <spl.h>
 #include <init.h>
+#include <usb.h>
 #include <virtio_types.h>
 #include <virtio.h>
 
@@ -41,6 +42,10 @@ int board_init(void)
 
 int board_late_init(void)
 {
+	/* start usb so that usb keyboard can be used as input device */
+	if (CONFIG_IS_ENABLED(USB_KEYBOARD))
+		usb_init();
+
 	return 0;
 }
 

@@ -17,7 +17,7 @@
 
 /* Environment options */
 
-#define CFG_STD_DEVICES_SETTINGS	"stdin=serial\0" \
+#define CFG_STD_DEVICES_SETTINGS	"stdin=serial,usbkbd\0" \
 					"stdout=serial,vidconsole\0" \
 					"stderr=serial,vidconsole\0"
 
