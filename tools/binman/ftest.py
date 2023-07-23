@@ -6862,6 +6862,15 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         second = U_BOOT_DATA + b'#' + VGA_DATA + U_BOOT_DTB_DATA
         self.assertEqual(U_BOOT_IMG_DATA + first + second, data)
 
+        dtb_fname1 = tools.get_output_filename('u-boot.dtb.tmpl1')
+        self.assertTrue(os.path.exists(dtb_fname1))
+        dtb = fdt.Fdt.FromData(tools.read_file(dtb_fname1))
+        dtb.Scan()
+        node1 = dtb.GetNode('/binman/template')
+        self.assertTrue(node1)
+        vga = dtb.GetNode('/binman/first/intel-vga')
+        self.assertTrue(vga)
+
     def testTemplateBlobMulti(self):
         """Test using a template with 'multiple-images' enabled"""
         TestFunctional._MakeInputFile('my-blob.bin', b'blob')

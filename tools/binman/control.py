@@ -494,6 +494,9 @@ def _ProcessTemplates(parent):
     Args:
         parent: Binman node to process (typically /binman)
 
+    Returns:
+        bool: True if any templates were processed
+
     Search though each target node looking for those with an 'insert-template'
     property. Use that as a list of references to template nodes to use to
     adjust the target node.
@@ -506,11 +509,15 @@ def _ProcessTemplates(parent):
 
     See 'Templates' in the Binman documnentation for details.
     """
+    found = False
     for node in parent.subnodes:
         tmpl = fdt_util.GetPhandleList(node, 'insert-template')
         if tmpl:
             node.copy_subnodes_from_phandles(tmpl)
-        _ProcessTemplates(node)
+            found = True
+
+        found |= _ProcessTemplates(node)
+    return found
 
 def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     """Prepare the images to be processed and select the device tree
@@ -554,7 +561,10 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
         raise ValueError("Device tree '%s' does not have a 'binman' "
                             "node" % dtb_fname)
 
-    _ProcessTemplates(node)
+    if _ProcessTemplates(node):
+        dtb.Sync(True)
+        fname = tools.get_output_filename('u-boot.dtb.tmpl1')
+        tools.write_file(fname, dtb.GetContents())
 
     images = _ReadImageDesc(node, use_expanded)
 

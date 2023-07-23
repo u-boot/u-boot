@@ -1256,6 +1256,10 @@ Properties in the template node are inserted into the destination node if they
 do not exist there. In the example above, `some-property` is added to each of
 `spi-image` and `mmc-image`.
 
+The initial devicetree produced by the templating process is written to the
+`u-boot.dtb.tmpl1` file. This can be useful to see what is going on if there is
+a failure before the final `u-boot.dtb.out` file is written.
+
 Note that template nodes are not removed from the binman description at present.
 
 
