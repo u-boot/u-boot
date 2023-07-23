@@ -280,7 +280,6 @@ config VIDCONSOLE_AS_NAME
 
 config VIDEO_BOCHS
 	bool "Enable Bochs video emulation for QEMU"
-	depends on X86
 	help
 	  Enable this to use the Bochs video support provided in the QEMU
 	  emulator. This appears as a PCI device which U-Boot can set up to
