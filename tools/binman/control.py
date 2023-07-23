@@ -57,7 +57,7 @@ def _ReadImageDesc(binman_node, use_expanded):
     images = OrderedDict()
     if 'multiple-images' in binman_node.props:
         for node in binman_node.subnodes:
-            if 'template' not in node.name:
+            if not node.name.startswith('template'):
                 images[node.name] = Image(node.name, node,
                                           use_expanded=use_expanded)
     else:
@@ -519,6 +519,13 @@ def _ProcessTemplates(parent):
         found |= _ProcessTemplates(node)
     return found
 
+def _RemoveTemplates(parent):
+    """Remove any templates in the binman description
+    """
+    for node in parent.subnodes:
+        if node.name.startswith('template'):
+            node.Delete()
+
 def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     """Prepare the images to be processed and select the device tree
 
@@ -564,6 +571,11 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     if _ProcessTemplates(node):
         dtb.Sync(True)
         fname = tools.get_output_filename('u-boot.dtb.tmpl1')
+        tools.write_file(fname, dtb.GetContents())
+
+        _RemoveTemplates(node)
+        dtb.Sync(True)
+        fname = tools.get_output_filename('u-boot.dtb.tmpl2')
         tools.write_file(fname, dtb.GetContents())
 
     images = _ReadImageDesc(node, use_expanded)
