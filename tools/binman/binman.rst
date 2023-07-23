@@ -1264,6 +1264,24 @@ The initial devicetree produced by the templating process is written to the
 a failure before the final `u-boot.dtb.out` file is written. A second
 `u-boot.dtb.tmpl2` file is written when the templates themselves are removed.
 
+Dealing with phandles
+---------------------
+
+Templates can contain phandles and these are copied to the destination node.
+However this should be used with care, since if a template is instantiated twice
+then the phandle will be copied twice, resulting in a devicetree with duplicate
+phandles, i.e. the same phandle used by two different nodes. Binman detects this
+situation and produces an error, for example::
+
+  Duplicate phandle 1 in nodes /binman/image/fit/images/atf/atf-bl31 and
+  /binman/image-2/fit/images/atf/atf-bl31
+
+In this case an atf-bl31 node containing a phandle has been copied into two
+different target nodes, resulting in the same phandle for each. See
+testTemplatePhandleDup() for the test case.
+
+The solution is typically to put the phandles in the corresponding target nodes
+(one for each) and remove the phandle from the template.
 
 Updating an ELF file
 ====================

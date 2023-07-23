@@ -6969,6 +6969,33 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             # Move to next
             spl_data = content[:0x18]
 
+    def testTemplatePhandle(self):
+        """Test using a template in a node containing a phandle"""
+        entry_args = {
+            'atf-bl31-path': 'bl31.elf',
+        }
+        data = self._DoReadFileDtb('291_template_phandle.dts',
+                                   entry_args=entry_args)
+        fname = tools.get_output_filename('image.bin')
+        out = tools.run('dumpimage', '-l', fname)
+
+        # We should see the FIT description and one for each of the two images
+        lines = out.splitlines()
+        descs = [line.split()[-1] for line in lines if 'escription' in line]
+        self.assertEqual(['test-desc', 'atf', 'fdt'], descs)
+
+    def testTemplatePhandleDup(self):
+        """Test using a template in a node containing a phandle"""
+        entry_args = {
+            'atf-bl31-path': 'bl31.elf',
+        }
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('292_template_phandle_dup.dts',
+                                entry_args=entry_args)
+        self.assertIn(
+            'Duplicate phandle 1 in nodes /binman/image/fit/images/atf/atf-bl31 and /binman/image-2/fit/images/atf/atf-bl31',
+            str(e.exception))
+
     def testTIBoardConfig(self):
         """Test that a schema validated board config file can be generated"""
         data = self._DoReadFile('293_ti_board_cfg.dts')

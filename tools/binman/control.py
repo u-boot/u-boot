@@ -575,6 +575,10 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
 
         _RemoveTemplates(node)
         dtb.Sync(True)
+
+        # Rescan the dtb to pick up the new phandles
+        dtb.Scan()
+        node = _FindBinmanNode(dtb)
         fname = tools.get_output_filename('u-boot.dtb.tmpl2')
         tools.write_file(fname, dtb.GetContents())
 
