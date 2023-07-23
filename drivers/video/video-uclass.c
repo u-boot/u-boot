@@ -626,10 +626,12 @@ static int video_post_bind(struct udevice *dev)
 	addr = uc_priv->video_ptr;
 	size = alloc_fb(dev, &addr);
 	if (addr < gd->video_bottom) {
-		/* Device tree node may need the 'bootph-all' or
+		/*
+		 * Device tree node may need the 'bootph-all' or
 		 * 'bootph-some-ram' tag
 		 */
-		printf("Video device '%s' cannot allocate frame buffer memory -ensure the device is set up before relocation\n",
+		printf("Video device '%s' cannot allocate frame buffer memory "
+		       "- ensure the device is set up before relocation\n",
 		       dev->name);
 		return -ENOSPC;
 	}
