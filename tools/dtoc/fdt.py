@@ -249,6 +249,7 @@ class Prop:
         """
         if self.dirty:
             node = self._node
+            tout.debug(f'sync {node.path}: {self.name}')
             fdt_obj = node._fdt._fdt_obj
             node_name = fdt_obj.get_name(node._offset)
             if node_name and node_name != node.name:
@@ -716,9 +717,13 @@ class Node:
         'phandle' property is not copied since this might result in two nodes
         with the same phandle, thus making phandle references ambiguous.
         """
+        tout.debug(f'copy to {self.path}: {src.path}')
         for name, src_prop in src.props.items():
+            done = False
             if name != 'phandle' and name not in self.props:
                 self.props[name] = Prop(self, None, name, src_prop.bytes)
+                done = True
+            tout.debug(f"  {name}{'' if done else '  - ignored'}")
 
     def copy_node(self, src):
         """Copy a node and all its subnodes into this node

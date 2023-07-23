@@ -32,6 +32,7 @@ from dtoc.fdt import Type, BytesToValue
 import libfdt
 from u_boot_pylib import test_util
 from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 #pylint: disable=protected-access
 
@@ -414,7 +415,7 @@ class TestNode(unittest.TestCase):
 
         # Make sure that the phandle for 'over' is not copied
         over = dst.FindNode('over')
-        print('keys', over.props.keys())
+        tout.debug(f'keys: {over.props.keys()}')
         self.assertNotIn('phandle', over.props.keys())
 
         # Check the merged properties, first the base ones in '/dest'
