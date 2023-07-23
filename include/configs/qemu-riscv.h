@@ -22,21 +22,11 @@
 					"stderr=serial,vidconsole\0"
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(QEMU, qemu, na) \
 	func(VIRTIO, virtio, 0) \
 	func(SCSI, scsi, 0) \
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-
-#define BOOTENV_DEV_QEMU(devtypeu, devtypel, instance) \
-	"bootcmd_qemu=" \
-		"if env exists kernel_start; then " \
-			"bootm ${kernel_start} - ${fdtcontroladdr};" \
-		"fi;\0"
-
-#define BOOTENV_DEV_NAME_QEMU(devtypeu, devtypel, instance) \
-	"qemu "
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	CFG_STD_DEVICES_SETTINGS \
