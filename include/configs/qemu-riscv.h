@@ -17,6 +17,10 @@
 
 /* Environment options */
 
+#define CFG_STD_DEVICES_SETTINGS	"stdin=serial\0" \
+					"stdout=serial,vidconsole\0" \
+					"stderr=serial,vidconsole\0"
+
 #define BOOT_TARGET_DEVICES(func) \
 	func(QEMU, qemu, na) \
 	func(VIRTIO, virtio, 0) \
@@ -35,6 +39,7 @@
 	"qemu "
 
 #define CFG_EXTRA_ENV_SETTINGS \
+	CFG_STD_DEVICES_SETTINGS \
 	"fdt_high=0xffffffffffffffff\0" \
 	"initrd_high=0xffffffffffffffff\0" \
 	"kernel_addr_r=0x84000000\0" \

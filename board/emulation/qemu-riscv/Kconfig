@@ -68,5 +68,8 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply MTD_NOR_FLASH
 	imply CFI_FLASH
 	imply OF_HAS_PRIOR_STAGE
+	imply VIDEO
+	imply VIDEO_BOCHS
+	imply SYS_WHITE_ON_BLACK
 
 endif

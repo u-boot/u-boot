@@ -133,6 +133,11 @@ An attached disk can be emulated in RISC-V virt machine by adding::
 
 You will have to run 'scsi scan' to use it.
 
+A video console can be emulated in RISC-V virt machine by removing "-nographic"
+and adding::
+
+    -serial stdio -device VGA
+
 Running with KVM
 ----------------
 
