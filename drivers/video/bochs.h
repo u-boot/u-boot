@@ -6,7 +6,10 @@
 #ifndef __BOCHS_H
 #define __BOCHS_H
 
-#define VGA_INDEX	0x3c0
+#define VGA_INDEX		0x3c0
+
+#define VGA_ATT_W		0x3c0
+#define VGA_AR_ENABLE_DISPLAY	0x20
 
 #define IOPORT_INDEX	0x01ce
 #define IOPORT_DATA	0x01cf
