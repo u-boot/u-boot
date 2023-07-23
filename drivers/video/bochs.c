@@ -27,9 +27,9 @@ static int bochs_read(void *mmio, int index)
 	return readw(mmio + MMIO_BASE + index * 2);
 }
 
-static void bochs_vga_write(uint8_t val)
+static void bochs_vga_write(void *mmio, int index, uint8_t val)
 {
-	outb(val, VGA_ATT_W);
+	writeb(val, mmio + VGA_BASE + index);
 }
 
 static int bochs_init_fb(struct udevice *dev)
@@ -79,7 +79,7 @@ static int bochs_init_fb(struct udevice *dev)
 	bochs_write(mmio, INDEX_ENABLE, ENABLED | LFB_ENABLED);
 
 	/* disable blanking */
-	bochs_vga_write(VGA_AR_ENABLE_DISPLAY);
+	bochs_vga_write(mmio, VGA_ATT_W - VGA_INDEX, VGA_AR_ENABLE_DISPLAY);
 
 	plat->base = fb;
 

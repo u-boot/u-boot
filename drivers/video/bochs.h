@@ -11,9 +11,6 @@
 #define VGA_ATT_W		0x3c0
 #define VGA_AR_ENABLE_DISPLAY	0x20
 
-#define IOPORT_INDEX	0x01ce
-#define IOPORT_DATA	0x01cf
-
 enum {
 	INDEX_ID,
 	INDEX_XRES,
@@ -34,6 +31,7 @@ enum {
 #define LFB_ENABLED	BIT(6)
 #define NOCLEARMEM	BIT(7)
 
+#define VGA_BASE	0x400
 #define MMIO_BASE	0x500
 
 #endif
