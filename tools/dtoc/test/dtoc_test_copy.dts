@@ -37,11 +37,12 @@
 					new-prop;
 				};
 
-				second1 {
+				second1: second1 {
 					new-prop;
 				};
 
 				second4 {
+					use_second1 = <&second1>;
 				};
 			};
 		};
@@ -65,12 +66,13 @@
 		};
 
 		second: second {
-			second1 {
+			second_1_bad: second1 {
 				some-prop;
 			};
 
 			second2 {
 				some-prop;
+				use_second1_bad = <&second_1_bad>;
 			};
 		};
 	};

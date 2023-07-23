@@ -272,6 +272,7 @@ class Prop:
         the FDT is synced
         """
         self._offset = None
+        self.dirty = True
 
 class Node:
     """A device tree node

@@ -308,7 +308,7 @@ class TestNode(unittest.TestCase):
 
     def test_copy_node(self):
         """Test copy_node() function"""
-        def do_copy_checks(dtb, dst, expect_none):
+        def do_copy_checks(dtb, dst, second1_ph_val, expect_none):
             self.assertEqual(
                 ['/dest/base', '/dest/first@0', '/dest/existing'],
                 [n.path for n in dst.subnodes])
@@ -365,12 +365,22 @@ class TestNode(unittest.TestCase):
                 ['second1', 'second2', 'second3', 'second4'],
                 [n.name for n in second.subnodes])
 
+            # Check the 'second_1_bad' phandle is not copied over
+            second1 = second.FindNode('second1')
+            self.assertTrue(second1)
+            sph = second1.props.get('phandle')
+            self.assertTrue(sph)
+            self.assertEqual(second1_ph_val, sph.bytes)
+
+
         dtb = fdt.FdtScan(find_dtb_file('dtoc_test_copy.dts'))
         tmpl = dtb.GetNode('/base')
         dst = dtb.GetNode('/dest')
+        second1_ph_val = (dtb.GetNode('/dest/base/second/second1').
+                          props['phandle'].bytes)
         dst.copy_node(tmpl)
 
-        do_copy_checks(dtb, dst, expect_none=True)
+        do_copy_checks(dtb, dst, second1_ph_val, expect_none=True)
 
         dtb.Sync(auto_resize=True)
 
@@ -378,7 +388,7 @@ class TestNode(unittest.TestCase):
         new_dtb = fdt.Fdt.FromData(dtb.GetContents())
         new_dtb.Scan()
         dst = new_dtb.GetNode('/dest')
-        do_copy_checks(new_dtb, dst, expect_none=False)
+        do_copy_checks(new_dtb, dst, second1_ph_val, expect_none=False)
 
     def test_copy_subnodes_from_phandles(self):
         """Test copy_node() function"""
