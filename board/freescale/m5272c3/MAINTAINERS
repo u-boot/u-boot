@@ -1,5 +1,5 @@
 M5272C3 BOARD
-#M:	-
+M:      Angelo Dureghello <angelo@kernel-space.org>
 S:	Maintained
 F:	board/freescale/m5272c3/
 F:	include/configs/M5272C3.h

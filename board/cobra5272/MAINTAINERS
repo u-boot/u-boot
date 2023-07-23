@@ -1,5 +1,5 @@
 COBRA5272 BOARD
-#M:	-
+M:      Angelo Dureghello <angelo@kernel-space.org>
 S:	Maintained
 F:	board/cobra5272/
 F:	include/configs/cobra5272.h
