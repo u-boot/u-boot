@@ -84,8 +84,6 @@ int stdio_init_tables(void);
  */
 int stdio_add_devices(void);
 
-void stdio_print_current_devices(void);
-
 /**
  * stdio_deregister_dev() - deregister the device "devname".
  *

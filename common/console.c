@@ -1010,7 +1010,7 @@ int console_init_f(void)
 	return 0;
 }
 
-void stdio_print_current_devices(void)
+static void stdio_print_current_devices(void)
 {
 	/* Print information */
 	puts("In:    ");
