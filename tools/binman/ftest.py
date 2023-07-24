@@ -5647,41 +5647,61 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testPreLoad(self):
         """Test an image with a pre-load header"""
         entry_args = {
-            'pre-load-key-path': '.',
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
         }
-        data, _, _, _ = self._DoReadFileDtb('230_pre_load.dts',
-                                            entry_args=entry_args)
-        self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
-        self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
-        self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
-        data = self._DoReadFile('230_pre_load.dts')
+        data = self._DoReadFileDtb(
+            '230_pre_load.dts', entry_args=entry_args,
+            extra_indirs=[os.path.join(self._binman_dir, 'test')])[0]
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
         self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
 
+    def testPreLoadNoKey(self):
+        """Test an image with a pre-load heade0r with missing key"""
+        with self.assertRaises(FileNotFoundError) as exc:
+            self._DoReadFile('230_pre_load.dts')
+        self.assertIn("No such file or directory: 'dev.key'",
+                      str(exc.exception))
+
     def testPreLoadPkcs(self):
         """Test an image with a pre-load header with padding pkcs"""
-        data = self._DoReadFile('231_pre_load_pkcs.dts')
+        entry_args = {
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
+        }
+        data = self._DoReadFileDtb('231_pre_load_pkcs.dts',
+                                   entry_args=entry_args)[0]
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
         self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
 
     def testPreLoadPss(self):
         """Test an image with a pre-load header with padding pss"""
-        data = self._DoReadFile('232_pre_load_pss.dts')
+        entry_args = {
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
+        }
+        data = self._DoReadFileDtb('232_pre_load_pss.dts',
+                                   entry_args=entry_args)[0]
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
         self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
 
     def testPreLoadInvalidPadding(self):
         """Test an image with a pre-load header with an invalid padding"""
+        entry_args = {
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
+        }
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('233_pre_load_invalid_padding.dts')
+            self._DoReadFileDtb('233_pre_load_invalid_padding.dts',
+                                entry_args=entry_args)
 
     def testPreLoadInvalidSha(self):
         """Test an image with a pre-load header with an invalid hash"""
+        entry_args = {
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
+        }
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('234_pre_load_invalid_sha.dts')
+            self._DoReadFileDtb('234_pre_load_invalid_sha.dts',
+                                entry_args=entry_args)
 
     def testPreLoadInvalidAlgo(self):
         """Test an image with a pre-load header with an invalid algo"""
@@ -5690,8 +5710,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testPreLoadInvalidKey(self):
         """Test an image with a pre-load header with an invalid key"""
+        entry_args = {
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
+        }
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('236_pre_load_invalid_key.dts')
+            data = self._DoReadFileDtb('236_pre_load_invalid_key.dts',
+                                       entry_args=entry_args)
 
     def _CheckSafeUniqueNames(self, *images):
         """Check all entries of given images for unsafe unique names"""
