@@ -708,6 +708,7 @@ int efi_disk_remove(void *ctx, struct event *event)
 	efi_handle_t handle;
 	struct blk_desc *desc;
 	struct efi_disk_obj *diskobj = NULL;
+	efi_status_t ret;
 
 	if (dev_tag_get_ptr(dev, DM_TAG_EFI, (void **)&handle))
 		return 0;
@@ -727,10 +728,14 @@ int efi_disk_remove(void *ctx, struct event *event)
 		return 0;
 	}
 
+	ret = efi_delete_handle(handle);
+	/* Do not delete DM device if there are still EFI drivers attached. */
+	if (ret != EFI_SUCCESS)
+		return -1;
+
 	if (diskobj)
 		efi_free_pool(diskobj->dp);
 
-	efi_delete_handle(handle);
 	dev_tag_del(dev, DM_TAG_EFI);
 
 	return 0;

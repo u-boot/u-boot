@@ -629,7 +629,7 @@ void efi_add_handle(efi_handle_t obj);
 /* Create handle */
 efi_status_t efi_create_handle(efi_handle_t *handle);
 /* Delete handle */
-void efi_delete_handle(efi_handle_t obj);
+efi_status_t efi_delete_handle(efi_handle_t obj);
 /* Call this to validate a handle and find the EFI object for it */
 struct efi_object *efi_search_obj(const efi_handle_t handle);
 /* Locate device_path handle */
