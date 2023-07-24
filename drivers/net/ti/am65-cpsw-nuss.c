@@ -15,6 +15,7 @@
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
+#include <dm/pinctrl.h>
 #include <dma-uclass.h>
 #include <dm/of_access.h>
 #include <miiphy.h>
@@ -561,13 +562,61 @@ static const struct soc_attr k3_mdio_soc_data[] = {
 	{ /* sentinel */ },
 };
 
+static ofnode am65_cpsw_find_mdio(ofnode parent)
+{
+	ofnode node;
+
+	ofnode_for_each_subnode(node, parent)
+		if (ofnode_device_is_compatible(node, "ti,cpsw-mdio"))
+			return node;
+
+	return ofnode_null();
+}
+
+static int am65_cpsw_mdio_setup(struct udevice *dev)
+{
+	struct am65_cpsw_priv *priv = dev_get_priv(dev);
+	struct am65_cpsw_common	*cpsw_common = priv->cpsw_common;
+	struct udevice *mdio_dev;
+	ofnode mdio;
+	int ret;
+
+	mdio = am65_cpsw_find_mdio(dev_ofnode(cpsw_common->dev));
+	if (!ofnode_valid(mdio))
+		return 0;
+
+	/*
+	 * The MDIO controller is represented in the DT binding by a
+	 * subnode of the MAC controller.
+	 *
+	 * We don't have a DM driver for the MDIO device yet, and thus any
+	 * pinctrl setting on its node will be ignored.
+	 *
+	 * However, we do need to make sure the pins states tied to the
+	 * MDIO node are configured properly. Fortunately, the core DM
+	 * does that for use when we get a device, so we can work around
+	 * that whole issue by just requesting a dummy MDIO driver to
+	 * probe, and our pins will get muxed.
+	 */
+	ret = uclass_get_device_by_ofnode(UCLASS_MDIO, mdio, &mdio_dev);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static int am65_cpsw_mdio_init(struct udevice *dev)
 {
 	struct am65_cpsw_priv *priv = dev_get_priv(dev);
 	struct am65_cpsw_common	*cpsw_common = priv->cpsw_common;
+	int ret;
 
 	if (!priv->has_phy || cpsw_common->bus)
 		return 0;
+
+	ret = am65_cpsw_mdio_setup(dev);
+	if (ret)
+		return ret;
 
 	cpsw_common->bus = cpsw_mdio_init(dev->name,
 					  cpsw_common->mdio_base,
@@ -836,4 +885,15 @@ U_BOOT_DRIVER(am65_cpsw_nuss_port) = {
 	.priv_auto	= sizeof(struct am65_cpsw_priv),
 	.plat_auto	= sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA | DM_FLAG_OS_PREPARE,
+};
+
+static const struct udevice_id am65_cpsw_mdio_ids[] = {
+	{ .compatible = "ti,cpsw-mdio" },
+	{ }
+};
+
+U_BOOT_DRIVER(am65_cpsw_mdio) = {
+	.name		= "am65_cpsw_mdio",
+	.id		= UCLASS_MDIO,
+	.of_match	= am65_cpsw_mdio_ids,
 };
