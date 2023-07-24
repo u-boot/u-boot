@@ -6930,19 +6930,19 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testTIBoardConfig(self):
         """Test that a schema validated board config file can be generated"""
-        data = self._DoReadFile('277_ti_board_cfg.dts')
+        data = self._DoReadFile('293_ti_board_cfg.dts')
         self.assertEqual(TI_BOARD_CONFIG_DATA, data)
 
     def testTIBoardConfigCombined(self):
         """Test that a schema validated combined board config file can be generated"""
-        data = self._DoReadFile('278_ti_board_cfg_combined.dts')
+        data = self._DoReadFile('294_ti_board_cfg_combined.dts')
         configlen_noheader = TI_BOARD_CONFIG_DATA * 4
         self.assertGreater(data, configlen_noheader)
 
     def testTIBoardConfigNoDataType(self):
         """Test that error is thrown when data type is not supported"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('279_ti_board_cfg_no_type.dts')
+            data = self._DoReadFile('295_ti_board_cfg_no_type.dts')
         self.assertIn("Schema validation error", str(e.exception))
 
     def testPackTiSecure(self):
@@ -6951,7 +6951,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'keyfile': keyfile,
         }
-        data = self._DoReadFileDtb('279_ti_secure.dts',
+        data = self._DoReadFileDtb('296_ti_secure.dts',
                                    entry_args=entry_args)[0]
         self.assertGreater(len(data), len(TI_UNSECURE_DATA))
 
@@ -6963,7 +6963,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'keyfile': keyfile,
         }
         with test_util.capture_sys_output() as (_, stderr):
-            self._DoTestFile('279_ti_secure.dts',
+            self._DoTestFile('296_ti_secure.dts',
                              force_missing_bintools='openssl',
                              entry_args=entry_args)
         err = stderr.getvalue()
@@ -6975,11 +6975,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'keyfile': keyfile,
         }
-        data = self._DoReadFileDtb('280_ti_secure_rom.dts',
+        data = self._DoReadFileDtb('297_ti_secure_rom.dts',
                                 entry_args=entry_args)[0]
-        data_a = self._DoReadFileDtb('288_ti_secure_rom_a.dts',
+        data_a = self._DoReadFileDtb('299_ti_secure_rom_a.dts',
                                 entry_args=entry_args)[0]
-        data_b = self._DoReadFileDtb('289_ti_secure_rom_b.dts',
+        data_b = self._DoReadFileDtb('300_ti_secure_rom_b.dts',
                                 entry_args=entry_args)[0]
         self.assertGreater(len(data), len(TI_UNSECURE_DATA))
         self.assertGreater(len(data_a), len(TI_UNSECURE_DATA))
@@ -6991,7 +6991,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'keyfile': keyfile,
         }
-        data = self._DoReadFileDtb('281_ti_secure_rom_combined.dts',
+        data = self._DoReadFileDtb('298_ti_secure_rom_combined.dts',
                                 entry_args=entry_args)[0]
         self.assertGreater(len(data), len(TI_UNSECURE_DATA))
 
