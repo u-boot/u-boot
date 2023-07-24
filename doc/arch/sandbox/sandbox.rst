@@ -200,6 +200,7 @@ Supported Drivers
 
 U-Boot sandbox supports these emulations:
 
+- Arm FF-A
 - Block devices
 - Chrome OS EC
 - GPIO

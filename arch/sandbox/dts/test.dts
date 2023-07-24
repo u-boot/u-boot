@@ -1831,6 +1831,14 @@
 	extcon {
 		compatible = "sandbox,extcon";
 	};
+
+	arm-ffa-emul {
+		compatible = "sandbox,arm-ffa-emul";
+
+		sandbox-arm-ffa {
+				compatible = "sandbox,arm-ffa";
+		};
+	};
 };
 
 #include "sandbox_pmic.dtsi"
