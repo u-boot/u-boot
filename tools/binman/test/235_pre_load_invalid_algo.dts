@@ -11,7 +11,7 @@
 			content = <&image>;
 			 algo-name = "sha256,rsa20480";
 			 padding-name = "pkcs-1.5";
-			 key-name = "tools/binman/test/230_dev.key";
+			 key-name = "dev.key";
 			 header-size = <4096>;
 			 version = <1>;
 		};

@@ -94,6 +94,8 @@ ROCKCHIP_TPL_DATA     = b'rockchip-tpl'
 TEST_FDT1_DATA        = b'fdt1'
 TEST_FDT2_DATA        = b'test-fdt2'
 ENV_DATA              = b'var1=1\nvar2="2"'
+ENCRYPTED_IV_DATA     = b'123456'
+ENCRYPTED_KEY_DATA    = b'abcde'
 PRE_LOAD_MAGIC        = b'UBSH'
 PRE_LOAD_VERSION      = 0x11223344.to_bytes(4, 'big')
 PRE_LOAD_HDR_SIZE     = 0x00001000.to_bytes(4, 'big')
@@ -231,6 +233,10 @@ class TestFunctional(unittest.TestCase):
 
         # Newer OP_TEE file in v1 binary format
         cls.make_tee_bin('tee.bin')
+
+        # test files for encrypted tests
+        TestFunctional._MakeInputFile('encrypted-file.iv', ENCRYPTED_IV_DATA)
+        TestFunctional._MakeInputFile('encrypted-file.key', ENCRYPTED_KEY_DATA)
 
         cls.comp_bintools = {}
         for name in COMP_BINTOOLS:
@@ -645,6 +651,16 @@ class TestFunctional(unittest.TestCase):
             Filename of ELF file to use as VPL
         """
         TestFunctional._MakeInputFile('vpl/u-boot-vpl',
+            tools.read_file(cls.ElfTestFile(src_fname)))
+
+    @classmethod
+    def _SetupPmuFwlElf(cls, src_fname='bss_data'):
+        """Set up an ELF file with a '_dt_ucode_base_size' symbol
+
+        Args:
+            Filename of ELF file to use as VPL
+        """
+        TestFunctional._MakeInputFile('pmu-firmware.elf',
             tools.read_file(cls.ElfTestFile(src_fname)))
 
     @classmethod
@@ -5647,41 +5663,61 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testPreLoad(self):
         """Test an image with a pre-load header"""
         entry_args = {
-            'pre-load-key-path': '.',
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
         }
-        data, _, _, _ = self._DoReadFileDtb('230_pre_load.dts',
-                                            entry_args=entry_args)
-        self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
-        self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
-        self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
-        data = self._DoReadFile('230_pre_load.dts')
+        data = self._DoReadFileDtb(
+            '230_pre_load.dts', entry_args=entry_args,
+            extra_indirs=[os.path.join(self._binman_dir, 'test')])[0]
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
         self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
 
+    def testPreLoadNoKey(self):
+        """Test an image with a pre-load heade0r with missing key"""
+        with self.assertRaises(FileNotFoundError) as exc:
+            self._DoReadFile('230_pre_load.dts')
+        self.assertIn("No such file or directory: 'dev.key'",
+                      str(exc.exception))
+
     def testPreLoadPkcs(self):
         """Test an image with a pre-load header with padding pkcs"""
-        data = self._DoReadFile('231_pre_load_pkcs.dts')
+        entry_args = {
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
+        }
+        data = self._DoReadFileDtb('231_pre_load_pkcs.dts',
+                                   entry_args=entry_args)[0]
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
         self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
 
     def testPreLoadPss(self):
         """Test an image with a pre-load header with padding pss"""
-        data = self._DoReadFile('232_pre_load_pss.dts')
+        entry_args = {
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
+        }
+        data = self._DoReadFileDtb('232_pre_load_pss.dts',
+                                   entry_args=entry_args)[0]
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
         self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
 
     def testPreLoadInvalidPadding(self):
         """Test an image with a pre-load header with an invalid padding"""
+        entry_args = {
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
+        }
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('233_pre_load_invalid_padding.dts')
+            self._DoReadFileDtb('233_pre_load_invalid_padding.dts',
+                                entry_args=entry_args)
 
     def testPreLoadInvalidSha(self):
         """Test an image with a pre-load header with an invalid hash"""
+        entry_args = {
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
+        }
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('234_pre_load_invalid_sha.dts')
+            self._DoReadFileDtb('234_pre_load_invalid_sha.dts',
+                                entry_args=entry_args)
 
     def testPreLoadInvalidAlgo(self):
         """Test an image with a pre-load header with an invalid algo"""
@@ -5690,8 +5726,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testPreLoadInvalidKey(self):
         """Test an image with a pre-load header with an invalid key"""
+        entry_args = {
+            'pre-load-key-path': os.path.join(self._binman_dir, 'test'),
+        }
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('236_pre_load_invalid_key.dts')
+            data = self._DoReadFileDtb('236_pre_load_invalid_key.dts',
+                                       entry_args=entry_args)
 
     def _CheckSafeUniqueNames(self, *images):
         """Check all entries of given images for unsafe unique names"""
@@ -6659,18 +6699,18 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testPackRockchipTpl(self):
         """Test that an image with a Rockchip TPL binary can be created"""
-        data = self._DoReadFile('277_rockchip_tpl.dts')
+        data = self._DoReadFile('291_rockchip_tpl.dts')
         self.assertEqual(ROCKCHIP_TPL_DATA, data[:len(ROCKCHIP_TPL_DATA)])
 
     def testMkimageMissingBlobMultiple(self):
         """Test missing blob with mkimage entry and multiple-data-files"""
         with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoTestFile('278_mkimage_missing_multiple.dts', allow_missing=True)
+            self._DoTestFile('292_mkimage_missing_multiple.dts', allow_missing=True)
         err = stderr.getvalue()
         self.assertIn("is missing external blobs and is non-functional", err)
 
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('278_mkimage_missing_multiple.dts', allow_missing=False)
+            self._DoTestFile('292_mkimage_missing_multiple.dts', allow_missing=False)
         self.assertIn("not found in input path", str(e.exception))
 
     def _PrepareSignEnv(self, dts='280_fit_sign.dts'):
@@ -6906,19 +6946,19 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testTIBoardConfig(self):
         """Test that a schema validated board config file can be generated"""
-        data = self._DoReadFile('277_ti_board_cfg.dts')
+        data = self._DoReadFile('293_ti_board_cfg.dts')
         self.assertEqual(TI_BOARD_CONFIG_DATA, data)
 
     def testTIBoardConfigCombined(self):
         """Test that a schema validated combined board config file can be generated"""
-        data = self._DoReadFile('278_ti_board_cfg_combined.dts')
+        data = self._DoReadFile('294_ti_board_cfg_combined.dts')
         configlen_noheader = TI_BOARD_CONFIG_DATA * 4
         self.assertGreater(data, configlen_noheader)
 
     def testTIBoardConfigNoDataType(self):
         """Test that error is thrown when data type is not supported"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('279_ti_board_cfg_no_type.dts')
+            data = self._DoReadFile('295_ti_board_cfg_no_type.dts')
         self.assertIn("Schema validation error", str(e.exception))
 
     def testPackTiSecure(self):
@@ -6927,7 +6967,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'keyfile': keyfile,
         }
-        data = self._DoReadFileDtb('279_ti_secure.dts',
+        data = self._DoReadFileDtb('296_ti_secure.dts',
                                    entry_args=entry_args)[0]
         self.assertGreater(len(data), len(TI_UNSECURE_DATA))
 
@@ -6939,7 +6979,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'keyfile': keyfile,
         }
         with test_util.capture_sys_output() as (_, stderr):
-            self._DoTestFile('279_ti_secure.dts',
+            self._DoTestFile('296_ti_secure.dts',
                              force_missing_bintools='openssl',
                              entry_args=entry_args)
         err = stderr.getvalue()
@@ -6951,11 +6991,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'keyfile': keyfile,
         }
-        data = self._DoReadFileDtb('280_ti_secure_rom.dts',
+        data = self._DoReadFileDtb('297_ti_secure_rom.dts',
                                 entry_args=entry_args)[0]
-        data_a = self._DoReadFileDtb('288_ti_secure_rom_a.dts',
+        data_a = self._DoReadFileDtb('299_ti_secure_rom_a.dts',
                                 entry_args=entry_args)[0]
-        data_b = self._DoReadFileDtb('289_ti_secure_rom_b.dts',
+        data_b = self._DoReadFileDtb('300_ti_secure_rom_b.dts',
                                 entry_args=entry_args)[0]
         self.assertGreater(len(data), len(TI_UNSECURE_DATA))
         self.assertGreater(len(data_a), len(TI_UNSECURE_DATA))
@@ -6967,9 +7007,85 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'keyfile': keyfile,
         }
-        data = self._DoReadFileDtb('281_ti_secure_rom_combined.dts',
+        data = self._DoReadFileDtb('298_ti_secure_rom_combined.dts',
                                 entry_args=entry_args)[0]
         self.assertGreater(len(data), len(TI_UNSECURE_DATA))
+
+    def testEncryptedNoAlgo(self):
+        """Test encrypted node with missing required properties"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('301_encrypted_no_algo.dts')
+        self.assertIn(
+            "Node '/binman/fit/images/u-boot/encrypted': 'encrypted' entry is missing properties: algo iv-filename",
+            str(e.exception))
+
+    def testEncryptedInvalidIvfile(self):
+        """Test encrypted node with invalid iv file"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('302_encrypted_invalid_iv_file.dts')
+        self.assertIn("Filename 'invalid-iv-file' not found in input path",
+                      str(e.exception))
+
+    def testEncryptedMissingKey(self):
+        """Test encrypted node with missing key properties"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('303_encrypted_missing_key.dts')
+        self.assertIn(
+            "Node '/binman/fit/images/u-boot/encrypted': Provide either 'key-filename' or 'key-source'",
+            str(e.exception))
+
+    def testEncryptedKeySource(self):
+        """Test encrypted node with key-source property"""
+        data = self._DoReadFileDtb('304_encrypted_key_source.dts')[0]
+
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+
+        node = dtb.GetNode('/images/u-boot/cipher')
+        self.assertEqual('algo-name', node.props['algo'].value)
+        self.assertEqual('key-source-value', node.props['key-source'].value)
+        self.assertEqual(ENCRYPTED_IV_DATA,
+                         tools.to_bytes(''.join(node.props['iv'].value)))
+        self.assertNotIn('key', node.props)
+
+    def testEncryptedKeyFile(self):
+        """Test encrypted node with key-filename property"""
+        data = self._DoReadFileDtb('305_encrypted_key_file.dts')[0]
+
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+
+        node = dtb.GetNode('/images/u-boot/cipher')
+        self.assertEqual('algo-name', node.props['algo'].value)
+        self.assertEqual(ENCRYPTED_IV_DATA,
+                         tools.to_bytes(''.join(node.props['iv'].value)))
+        self.assertEqual(ENCRYPTED_KEY_DATA,
+                         tools.to_bytes(''.join(node.props['key'].value)))
+        self.assertNotIn('key-source', node.props)
+
+
+    def testSplPubkeyDtb(self):
+         """Test u_boot_spl_pubkey_dtb etype"""
+         data = tools.read_file(self.TestFile("key.pem"))
+         self._MakeInputFile("key.crt", data)
+         self._DoReadFileRealDtb('306_spl_pubkey_dtb.dts')
+         image = control.images['image']
+         entries = image.GetEntries()
+         dtb_entry = entries['u-boot-spl-pubkey-dtb']
+         dtb_data = dtb_entry.GetData()
+         dtb = fdt.Fdt.FromData(dtb_data)
+         dtb.Scan()
+
+         signature_node = dtb.GetNode('/signature')
+         self.assertIsNotNone(signature_node)
+         key_node = signature_node.FindNode("key-key")
+         self.assertIsNotNone(key_node)
+         self.assertEqual(fdt_util.GetString(key_node, "required"),
+                          "conf")
+         self.assertEqual(fdt_util.GetString(key_node, "algo"),
+                          "sha384,rsa4096")
+         self.assertEqual(fdt_util.GetString(key_node, "key-name-hint"),
+                          "key")
 
 if __name__ == "__main__":
     unittest.main()

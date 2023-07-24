@@ -81,7 +81,8 @@ class Entry_pre_load(Entry_collection):
 
     def ReadNode(self):
         super().ReadNode()
-        self.key_path, = self.GetEntryArgsOrProps([EntryArg('pre-load-key-path', str)])
+        self.key_path, = self.GetEntryArgsOrProps(
+            [EntryArg('pre-load-key-path', str)])
         if self.key_path is None:
             self.key_path = ''
 
@@ -98,8 +99,7 @@ class Entry_pre_load(Entry_collection):
             self.Raise(sign_name + " is not supported")
 
         # Read the key
-        with open(key_name, 'rb') as pem:
-            key = RSA.import_key(pem.read())
+        key = RSA.import_key(tools.read_file(key_name))
 
         # Check if the key has the expected size
         if key.size_in_bytes() != RSAS[sign_name]:

@@ -24,7 +24,7 @@ except:
 
 
 def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None,
-                    extra_args=None):
+                    extra_args=None, single_thread='-P1'):
     """Run tests and check that we get 100% coverage
 
     Args:
@@ -39,6 +39,9 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None
         required: List of modules which must be in the coverage report
         extra_args (str): Extra arguments to pass to the tool before the -t/test
             arg
+        single_thread (str): Argument string to make the tests run
+            single-threaded. This is necessary to get proper coverage results.
+            The default is '-P0'
 
     Raises:
         ValueError if the code coverage is not 100%
@@ -58,8 +61,9 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None
     if build_dir:
         prefix = 'PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools ' % build_dir
     cmd = ('%spython3-coverage run '
-           '--omit "%s" %s %s %s -P1' % (prefix, ','.join(glob_list),
-                                         prog, extra_args or '', test_cmd))
+           '--omit "%s" %s %s %s %s' % (prefix, ','.join(glob_list),
+                                        prog, extra_args or '', test_cmd,
+                                        single_thread or '-P1'))
     os.system(cmd)
     stdout = command.output('python3-coverage', 'report')
     lines = stdout.splitlines()

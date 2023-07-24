@@ -159,7 +159,7 @@ on the command line:
 
 .. code-block:: bash
 
-  buildman --boards sandbox,snow --boards
+  buildman --boards sandbox,snow --boards firefly-rk3399
 
 It is convenient to use the -n option to see what will be built based on
 the subset given. Use -v as well to get an actual list of boards.
@@ -1062,9 +1062,9 @@ same as 'am335x_evm_usbspl'/
 
 The -K option uses the u-boot.cfg, spl/u-boot-spl.cfg and tpl/u-boot-tpl.cfg
 files which are produced by a build. If all you want is to check the
-configuration you can in fact avoid doing a full build, using -D. This tells
-buildman to configuration U-Boot and create the .cfg files, but not actually
-build the source. This is 5-10 times faster than doing a full build.
+configuration you can in fact avoid doing a full build, using --config-only.
+This tells buildman to configuration U-Boot and create the .cfg files, but not
+actually build the source. This is 5-10 times faster than doing a full build.
 
 By default buildman considers the follow two configuration methods
 equivalent::
@@ -1303,12 +1303,30 @@ Using boards.cfg
 
 This file is no-longer needed by buildman but it is still generated in the
 working directory. This helps avoid a delay on every build, since scanning all
-the Kconfig files takes a few seconds. Use the -R flag to force regeneration
-of the file - in that case buildman exits after writing the file. with exit code
-2 if there was an error in the maintainer files.
+the Kconfig files takes a few seconds. Use the `-R <filename>` flag to force
+regeneration of the file - in that case buildman exits after writing the file
+with exit code 2 if there was an error in the maintainer files. To use the
+default filename, use a hyphen, i.e. `-R -`.
 
 You should use 'buildman -nv <criteria>' instead of greoing the boards.cfg file,
 since it may be dropped altogether in future.
+
+
+Checking maintainers
+--------------------
+
+Sometimes a board is added without a corresponding entry in a MAINTAINERS file.
+Use the `--maintainer-check` option to check this::
+
+   $ buildman --maintainer-check
+   WARNING: board/mikrotik/crs3xx-98dx3236/MAINTAINERS: missing defconfig ending at line 7
+   WARNING: no maintainers for 'clearfog_spi'
+
+Buildman returns with an exit code of 2 if there area any warnings.
+
+An experimental `--full-check option` also checks for boards which don't have a
+CONFIG_TARGET_xxx where xxx corresponds to their defconfig filename. This is
+not strictly necessary, but may be useful information.
 
 
 Checking the command

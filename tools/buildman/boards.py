@@ -50,7 +50,7 @@ def try_remove(fname):
             raise
 
 
-def output_is_new(output):
+def output_is_new(output, config_dir, srcdir):
     """Check if the output file is up to date.
 
     Looks at defconfig and Kconfig files to make sure none is newer than the
@@ -59,6 +59,8 @@ def output_is_new(output):
 
     Args:
         output (str): Filename to check
+        config_dir (str): Directory containing defconfig files
+        srcdir (str): Directory containing Kconfig and MAINTAINERS files
 
     Returns:
         True if the given output file exists and is newer than any of
@@ -76,7 +78,7 @@ def output_is_new(output):
             return False
         raise
 
-    for (dirpath, _, filenames) in os.walk(CONFIG_DIR):
+    for (dirpath, _, filenames) in os.walk(config_dir):
         for filename in fnmatch.filter(filenames, '*_defconfig'):
             if fnmatch.fnmatch(filename, '.*'):
                 continue
@@ -84,7 +86,7 @@ def output_is_new(output):
             if ctime < os.path.getctime(filepath):
                 return False
 
-    for (dirpath, _, filenames) in os.walk('.'):
+    for (dirpath, _, filenames) in os.walk(srcdir):
         for filename in filenames:
             if (fnmatch.fnmatch(filename, '*~') or
                 not fnmatch.fnmatch(filename, 'Kconfig*') and
@@ -103,7 +105,7 @@ def output_is_new(output):
             if line[0] == '#' or line == '\n':
                 continue
             defconfig = line.split()[6] + '_defconfig'
-            if not os.path.exists(os.path.join(CONFIG_DIR, defconfig)):
+            if not os.path.exists(os.path.join(config_dir, defconfig)):
                 return False
 
     return True
@@ -191,10 +193,10 @@ class KconfigScanner:
         # 'target' is added later
     }
 
-    def __init__(self):
+    def __init__(self, srctree):
         """Scan all the Kconfig files and create a Kconfig object."""
         # Define environment variables referenced from Kconfig
-        os.environ['srctree'] = os.getcwd()
+        os.environ['srctree'] = srctree
         os.environ['UBOOTVERSION'] = 'dummy'
         os.environ['KCONFIG_OBJDIR'] = ''
         self._tmpfile = None
@@ -211,40 +213,36 @@ class KconfigScanner:
         if self._tmpfile:
             try_remove(self._tmpfile)
 
-    def scan(self, defconfig):
+    def scan(self, defconfig, warn_targets):
         """Load a defconfig file to obtain board parameters.
 
         Args:
             defconfig (str): path to the defconfig file to be processed
+            warn_targets (bool): True to warn about missing or duplicate
+                CONFIG_TARGET options
 
         Returns:
-            A dictionary of board parameters.  It has a form of:
-            {
-                'arch': <arch_name>,
-                'cpu': <cpu_name>,
-                'soc': <soc_name>,
-                'vendor': <vendor_name>,
-                'board': <board_name>,
-                'target': <target_name>,
-                'config': <config_header_name>,
-            }
+            tuple: dictionary of board parameters.  It has a form of:
+                {
+                    'arch': <arch_name>,
+                    'cpu': <cpu_name>,
+                    'soc': <soc_name>,
+                    'vendor': <vendor_name>,
+                    'board': <board_name>,
+                    'target': <target_name>,
+                    'config': <config_header_name>,
+                }
+            warnings (list of str): list of warnings found
         """
-        # strip special prefixes and save it in a temporary file
-        outfd, self._tmpfile = tempfile.mkstemp()
-        with os.fdopen(outfd, 'w') as outf:
-            with open(defconfig, encoding='utf-8') as inf:
-                for line in inf:
-                    colon = line.find(':CONFIG_')
-                    if colon == -1:
-                        outf.write(line)
-                    else:
-                        outf.write(line[colon + 1:])
+        leaf = os.path.basename(defconfig)
+        expect_target, match, rear = leaf.partition('_defconfig')
+        assert match and not rear, f'{leaf} : invalid defconfig'
 
-        self._conf.load_config(self._tmpfile)
-        try_remove(self._tmpfile)
+        self._conf.load_config(defconfig)
         self._tmpfile = None
 
         params = {}
+        warnings = []
 
         # Get the value of CONFIG_SYS_ARCH, CONFIG_SYS_CPU, ... etc.
         # Set '-' if the value is empty.
@@ -255,9 +253,23 @@ class KconfigScanner:
             else:
                 params[key] = '-'
 
-        defconfig = os.path.basename(defconfig)
-        params['target'], match, rear = defconfig.partition('_defconfig')
-        assert match and not rear, f'{defconfig} : invalid defconfig'
+        # Check there is exactly one TARGET_xxx set
+        if warn_targets:
+            target = None
+            for name, sym in self._conf.syms.items():
+                if name.startswith('TARGET_') and sym.str_value == 'y':
+                    tname = name[7:].lower()
+                    if target:
+                        warnings.append(
+                            f'WARNING: {leaf}: Duplicate TARGET_xxx: {target} and {tname}')
+                    else:
+                        target = tname
+
+            if not target:
+                cfg_name = expect_target.replace('-', '_').upper()
+                warnings.append(f'WARNING: {leaf}: No TARGET_{cfg_name} enabled')
+
+        params['target'] = expect_target
 
         # fix-up for aarch64
         if params['arch'] == 'arm' and params['cpu'] == 'armv8':
@@ -274,7 +286,7 @@ class KconfigScanner:
             else:
                 params['arch'] = 'riscv64'
 
-        return params
+        return params, warnings
 
 
 class MaintainersDatabase:
@@ -332,26 +344,55 @@ class MaintainersDatabase:
             str: Maintainers of the board.  If the board has two or more
             maintainers, they are separated with colons.
         """
-        if not target in self.database:
-            self.warnings.append(f"WARNING: no maintainers for '{target}'")
-            return ''
+        entry = self.database.get(target)
+        if entry:
+            status, maint_list = entry
+            if not status.startswith('Orphan'):
+                if len(maint_list) > 1 or (maint_list and maint_list[0] != '-'):
+                    return ':'.join(maint_list)
 
-        return ':'.join(self.database[target][1])
+        self.warnings.append(f"WARNING: no maintainers for '{target}'")
+        return ''
 
-    def parse_file(self, fname):
+    def parse_file(self, srcdir, fname):
         """Parse a MAINTAINERS file.
 
         Parse a MAINTAINERS file and accumulate board status and maintainers
         information in the self.database dict.
 
+        defconfig files are used to specify the target, e.g. xxx_defconfig is
+        used for target 'xxx'. If there is no defconfig file mentioned in the
+        MAINTAINERS file F: entries, then this function does nothing.
+
+        The N: name entries can be used to specify a defconfig file using
+        wildcards.
+
         Args:
+            srcdir (str): Directory containing source code (Kconfig files)
             fname (str): MAINTAINERS file to be parsed
         """
+        def add_targets(linenum):
+            """Add any new targets
+
+            Args:
+                linenum (int): Current line number
+            """
+            added = False
+            if targets:
+                for target in targets:
+                    self.database[target] = (status, maintainers)
+                    added = True
+            if not added and (status != '-' and maintainers):
+                leaf = fname[len(srcdir) + 1:]
+                if leaf != 'MAINTAINERS':
+                    self.warnings.append(
+                        f'WARNING: orphaned defconfig in {leaf} ending at line {linenum + 1}')
+
         targets = []
         maintainers = []
         status = '-'
         with open(fname, encoding="utf-8") as inf:
-            for line in inf:
+            for linenum, line in enumerate(inf):
                 # Check also commented maintainers
                 if line[:3] == '#M:':
                     line = line[1:]
@@ -360,9 +401,12 @@ class MaintainersDatabase:
                     maintainers.append(rest)
                 elif tag == 'F:':
                     # expand wildcard and filter by 'configs/*_defconfig'
-                    for item in glob.glob(rest):
+                    glob_path = os.path.join(srcdir, rest)
+                    for item in glob.glob(glob_path):
                         front, match, rear = item.partition('configs/')
-                        if not front and match:
+                        if front.endswith('/'):
+                            front = front[:-1]
+                        if front == srcdir and match:
                             front, match, rear = rear.rpartition('_defconfig')
                             if match and not rear:
                                 targets.append(front)
@@ -371,23 +415,26 @@ class MaintainersDatabase:
                 elif tag == 'N:':
                     # Just scan the configs directory since that's all we care
                     # about
-                    for dirpath, _, fnames in os.walk('configs'):
-                        for fname in fnames:
-                            path = os.path.join(dirpath, fname)
+                    walk_path = os.walk(os.path.join(srcdir, 'configs'))
+                    for dirpath, _, fnames in walk_path:
+                        for cfg in fnames:
+                            path = os.path.join(dirpath, cfg)[len(srcdir) + 1:]
                             front, match, rear = path.partition('configs/')
-                            if not front and match:
-                                front, match, rear = rear.rpartition('_defconfig')
-                                if match and not rear:
-                                    targets.append(front)
+                            if front or not match:
+                                continue
+                            front, match, rear = rear.rpartition('_defconfig')
+
+                            # Use this entry if it matches the defconfig file
+                            # without the _defconfig suffix. For example
+                            # 'am335x.*' matches am335x_guardian_defconfig
+                            if match and not rear and re.search(rest, front):
+                                targets.append(front)
                 elif line == '\n':
-                    for target in targets:
-                        self.database[target] = (status, maintainers)
+                    add_targets(linenum)
                     targets = []
                     maintainers = []
                     status = '-'
-        if targets:
-            for target in targets:
-                self.database[target] = (status, maintainers)
+        add_targets(linenum)
 
 
 class Boards:
@@ -622,39 +669,63 @@ class Boards:
         return result, warnings
 
     @classmethod
-    def scan_defconfigs_for_multiprocess(cls, queue, defconfigs):
+    def scan_defconfigs_for_multiprocess(cls, srcdir, queue, defconfigs,
+                                         warn_targets):
         """Scan defconfig files and queue their board parameters
 
         This function is intended to be passed to multiprocessing.Process()
         constructor.
 
         Args:
+            srcdir (str): Directory containing source code
             queue (multiprocessing.Queue): The resulting board parameters are
                 written into this.
             defconfigs (sequence of str): A sequence of defconfig files to be
                 scanned.
+            warn_targets (bool): True to warn about missing or duplicate
+                CONFIG_TARGET options
         """
-        kconf_scanner = KconfigScanner()
+        kconf_scanner = KconfigScanner(srcdir)
         for defconfig in defconfigs:
-            queue.put(kconf_scanner.scan(defconfig))
+            queue.put(kconf_scanner.scan(defconfig, warn_targets))
 
     @classmethod
-    def read_queues(cls, queues, params_list):
-        """Read the queues and append the data to the paramers list"""
+    def read_queues(cls, queues, params_list, warnings):
+        """Read the queues and append the data to the paramers list
+
+        Args:
+            queues (list of multiprocessing.Queue): Queues to read
+            params_list (list of dict): List to add params too
+            warnings (set of str): Set to add warnings to
+        """
         for que in queues:
             while not que.empty():
-                params_list.append(que.get())
+                params, warn = que.get()
+                params_list.append(params)
+                warnings.update(warn)
 
-    def scan_defconfigs(self, jobs=1):
+    def scan_defconfigs(self, config_dir, srcdir, jobs=1, warn_targets=False):
         """Collect board parameters for all defconfig files.
 
         This function invokes multiple processes for faster processing.
 
         Args:
+            config_dir (str): Directory containing the defconfig files
+            srcdir (str): Directory containing source code (Kconfig files)
             jobs (int): The number of jobs to run simultaneously
+            warn_targets (bool): True to warn about missing or duplicate
+                CONFIG_TARGET options
+
+        Returns:
+            tuple:
+                list of dict: List of board parameters, each a dict:
+                    key: 'arch', 'cpu', 'soc', 'vendor', 'board', 'target',
+                        'config'
+                    value: string value of the key
+                list of str: List of warnings recorded
         """
         all_defconfigs = []
-        for (dirpath, _, filenames) in os.walk(CONFIG_DIR):
+        for (dirpath, _, filenames) in os.walk(config_dir):
             for filename in fnmatch.filter(filenames, '*_defconfig'):
                 if fnmatch.fnmatch(filename, '.*'):
                     continue
@@ -669,18 +740,19 @@ class Boards:
             que = multiprocessing.Queue(maxsize=-1)
             proc = multiprocessing.Process(
                 target=self.scan_defconfigs_for_multiprocess,
-                args=(que, defconfigs))
+                args=(srcdir, que, defconfigs, warn_targets))
             proc.start()
             processes.append(proc)
             queues.append(que)
 
-        # The resulting data should be accumulated to this list
+        # The resulting data should be accumulated to these lists
         params_list = []
+        warnings = set()
 
         # Data in the queues should be retrieved preriodically.
         # Otherwise, the queues would become full and subprocesses would get stuck.
         while any(p.is_alive() for p in processes):
-            self.read_queues(queues, params_list)
+            self.read_queues(queues, params_list, warnings)
             # sleep for a while until the queues are filled
             time.sleep(SLEEP_TIME)
 
@@ -690,12 +762,12 @@ class Boards:
             proc.join()
 
         # retrieve leftover data
-        self.read_queues(queues, params_list)
+        self.read_queues(queues, params_list, warnings)
 
-        return params_list
+        return params_list, sorted(list(warnings))
 
     @classmethod
-    def insert_maintainers_info(cls, params_list):
+    def insert_maintainers_info(cls, srcdir, params_list):
         """Add Status and Maintainers information to the board parameters list.
 
         Args:
@@ -705,16 +777,21 @@ class Boards:
             list of str: List of warnings collected due to missing status, etc.
         """
         database = MaintainersDatabase()
-        for (dirpath, _, filenames) in os.walk('.'):
-            if 'MAINTAINERS' in filenames:
-                database.parse_file(os.path.join(dirpath, 'MAINTAINERS'))
+        for (dirpath, _, filenames) in os.walk(srcdir):
+            if 'MAINTAINERS' in filenames and 'tools/buildman' not in dirpath:
+                database.parse_file(srcdir,
+                                    os.path.join(dirpath, 'MAINTAINERS'))
 
         for i, params in enumerate(params_list):
             target = params['target']
-            params['status'] = database.get_status(target)
-            params['maintainers'] = database.get_maintainers(target)
+            maintainers = database.get_maintainers(target)
+            params['maintainers'] = maintainers
+            if maintainers:
+                params['status'] = database.get_status(target)
+            else:
+                params['status'] = '-'
             params_list[i] = params
-        return database.warnings
+        return sorted(database.warnings)
 
     @classmethod
     def format_and_output(cls, params_list, output):
@@ -750,8 +827,39 @@ class Boards:
         with open(output, 'w', encoding="utf-8") as outf:
             outf.write(COMMENT_BLOCK + '\n'.join(output_lines) + '\n')
 
+    def build_board_list(self, config_dir=CONFIG_DIR, srcdir='.', jobs=1,
+                         warn_targets=False):
+        """Generate a board-database file
+
+        This works by reading the Kconfig, then loading each board's defconfig
+        in to get the setting for each option. In particular, CONFIG_TARGET_xxx
+        is typically set by the defconfig, where xxx is the target to build.
+
+        Args:
+            config_dir (str): Directory containing the defconfig files
+            srcdir (str): Directory containing source code (Kconfig files)
+            jobs (int): The number of jobs to run simultaneously
+            warn_targets (bool): True to warn about missing or duplicate
+                CONFIG_TARGET options
+
+        Returns:
+            tuple:
+                list of dict: List of board parameters, each a dict:
+                    key: 'arch', 'cpu', 'soc', 'vendor', 'board', 'config',
+                         'target'
+                    value: string value of the key
+                list of str: Warnings that came up
+        """
+        params_list, warnings = self.scan_defconfigs(config_dir, srcdir, jobs,
+                                                     warn_targets)
+        m_warnings = self.insert_maintainers_info(srcdir, params_list)
+        return params_list, warnings + m_warnings
+
     def ensure_board_list(self, output, jobs=1, force=False, quiet=False):
         """Generate a board database file if needed.
+
+        This is intended to check if Kconfig has changed since the boards.cfg
+        files was generated.
 
         Args:
             output (str): The name of the output file
@@ -762,12 +870,11 @@ class Boards:
         Returns:
             bool: True if all is well, False if there were warnings
         """
-        if not force and output_is_new(output):
+        if not force and output_is_new(output, CONFIG_DIR, '.'):
             if not quiet:
                 print(f'{output} is up to date. Nothing to do.')
             return True
-        params_list = self.scan_defconfigs(jobs)
-        warnings = self.insert_maintainers_info(params_list)
+        params_list, warnings = self.build_board_list(CONFIG_DIR, '.', jobs)
         for warn in warnings:
             print(warn, file=sys.stderr)
         self.format_and_output(params_list, output)
