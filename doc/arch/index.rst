@@ -8,7 +8,6 @@ Architecture-specific doc
 
    arc
    arm64
-   arm64.ffa
    m68k
    mips
    nios2
