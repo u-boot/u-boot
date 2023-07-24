@@ -120,7 +120,7 @@ then headers with directories, then local files:
    #include <others.h>
    #include <asm/...>
    #include <arm/arch/...>
-   #include <dm/device_compat/.h>
+   #include <dm/device_compat.h>
    #include <linux/...>
    #include "local.h"
 
