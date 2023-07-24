@@ -800,6 +800,13 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	    IS_ENABLED(CONFIG_SPL_ATF))
 		dram_init_banksize();
 
+	if (CONFIG_IS_ENABLED(PCI)) {
+		ret = pci_init();
+		if (ret)
+			puts(SPL_TPL_PROMPT "Cannot initialize PCI\n");
+		/* Don't fail. We still can try other boot methods. */
+	}
+
 	bootcount_inc();
 
 	/* Dump driver model states to aid analysis */
