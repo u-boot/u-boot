@@ -3,6 +3,7 @@
  * Copyright (C) 2022-23 StarFive Technology Co., Ltd.
  *
  * Author:	Yanhong Wang <yanhong.wang@starfivetech.com>
+ *		Xingyu Wu <xingyu.wu@starfivetech.com>
  */
 
 #include <common.h>
@@ -11,6 +12,8 @@
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm/device.h>
+#include <dm/read.h>
+#include <dt-bindings/clock/starfive,jh7110-crg.h>
 #include <linux/bitops.h>
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
@@ -29,6 +32,47 @@
 #define CLK_DDR_BUS_PLL1_DIV2	1
 #define CLK_DDR_BUS_PLL1_DIV4	2
 #define CLK_DDR_BUS_PLL1_DIV8	3
+
+#define JH7110_PLL_ID_TRANS(id)	((id) + JH7110_EXTCLK_END)
+
+enum starfive_pll_type {
+	PLL0 = 0,
+	PLL1,
+	PLL2,
+	PLL_MAX = PLL2
+};
+
+struct starfive_pllx_rate {
+	u64 rate;
+	u32 prediv;
+	u32 fbdiv;
+	u32 frac;
+};
+
+struct starfive_pllx_offset {
+	u32 pd;
+	u32 prediv;
+	u32 fbdiv;
+	u32 frac;
+	u32 postdiv1;
+	u32 dacpd;
+	u32 dsmpd;
+	u32 pd_mask;
+	u32 prediv_mask;
+	u32 fbdiv_mask;
+	u32 frac_mask;
+	u32 postdiv1_mask;
+	u32 dacpd_mask;
+	u32 dsmpd_mask;
+};
+
+struct starfive_pllx_clk {
+	enum starfive_pll_type type;
+	const struct starfive_pllx_offset *offset;
+	const struct starfive_pllx_rate *rate_table;
+	int rate_count;
+	int flags;
+};
 
 struct clk_jh7110_pllx {
 	struct clk		clk;
@@ -271,7 +315,7 @@ static ulong jh7110_pllx_set_rate(struct clk *clk, ulong drate)
 	return jh7110_pllx_recalc_rate(clk);
 }
 
-static const struct clk_ops clk_jh7110_ops = {
+static const struct clk_ops jh7110_clk_pllx_ops = {
 	.set_rate	= jh7110_pllx_set_rate,
 	.get_rate	= jh7110_pllx_recalc_rate,
 };
@@ -314,8 +358,63 @@ struct clk *starfive_jh7110_pll(const char *name, const char *parent_name,
 	return clk;
 }
 
+/* PLLx clock implementation */
 U_BOOT_DRIVER(jh7110_clk_pllx) = {
 	.name	= UBOOT_DM_CLK_JH7110_PLLX,
 	.id	= UCLASS_CLK,
-	.ops	= &clk_jh7110_ops,
+	.ops	= &jh7110_clk_pllx_ops,
+	.flags	= DM_FLAG_PRE_RELOC,
+};
+
+static int jh7110_pll_clk_probe(struct udevice *dev)
+{
+	void __iomem *reg =  (void __iomem *)dev_read_addr_ptr(dev->parent);
+	fdt_addr_t sysreg = ofnode_get_addr(ofnode_by_compatible(ofnode_null(),
+					    "starfive,jh7110-syscrg"));
+
+	if (sysreg == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	clk_dm(JH7110_PLL_ID_TRANS(JH7110_SYSCLK_PLL0_OUT),
+	       starfive_jh7110_pll("pll0_out", "oscillator", reg,
+				   (void __iomem *)sysreg, &starfive_jh7110_pll0));
+	clk_dm(JH7110_PLL_ID_TRANS(JH7110_SYSCLK_PLL1_OUT),
+	       starfive_jh7110_pll("pll1_out", "oscillator", reg,
+				   (void __iomem *)sysreg, &starfive_jh7110_pll1));
+	clk_dm(JH7110_PLL_ID_TRANS(JH7110_SYSCLK_PLL2_OUT),
+	       starfive_jh7110_pll("pll2_out", "oscillator", reg,
+				   (void __iomem *)sysreg, &starfive_jh7110_pll2));
+
+	return 0;
+}
+
+static int jh7110_pll_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
+{
+	if (args->args_count > 1) {
+		debug("Invalid args_count: %d\n", args->args_count);
+		return -EINVAL;
+	}
+
+	if (args->args_count)
+		clk->id = JH7110_PLL_ID_TRANS(args->args[0]);
+	else
+		clk->id = 0;
+
+	return 0;
+}
+
+static const struct udevice_id jh7110_pll_clk_of_match[] = {
+	{ .compatible = "starfive,jh7110-pll", },
+	{ }
+};
+
+JH7110_CLK_OPS(pll);
+
+/* PLL clk device */
+U_BOOT_DRIVER(jh7110_pll_clk) = {
+	.name	= "jh7110_pll_clk",
+	.id	= UCLASS_CLK,
+	.of_match	= jh7110_pll_clk_of_match,
+	.probe	= jh7110_pll_clk_probe,
+	.ops	= &jh7110_pll_clk_ops,
 };

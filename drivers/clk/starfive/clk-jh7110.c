@@ -3,6 +3,7 @@
  * Copyright (C) 2022-23 StarFive Technology Co., Ltd.
  *
  * Author:	Yanhong Wang <yanhong.wang@starfivetech.com>
+ *		Xingyu Wu <xingyu.wu@starfivetech.com>
  */
 
 #include <common.h>
@@ -24,8 +25,10 @@
 #define STARFIVE_CLK_DIV_SHIFT		0  /* [23:0] */
 
 #define OFFSET(id) ((id) * 4)
-#define AONOFFSET(id) (((id) - JH7110_SYSCLK_END) * 4)
-#define STGOFFSET(id) (((id) - JH7110_AONCLK_END) * 4)
+
+#define JH7110_SYS_ID_TRANS(id) ((id) + JH7110_PLLCLK_END + JH7110_EXTCLK_END)
+#define JH7110_AON_ID_TRANS(id) ((id) + JH7110_SYS_ID_TRANS(JH7110_SYSCLK_END))
+#define JH7110_STG_ID_TRANS(id) ((id) + JH7110_AON_ID_TRANS(JH7110_AONCLK_END))
 
 typedef int (*jh1710_init_fn)(struct udevice *dev);
 
@@ -230,224 +233,204 @@ static struct clk *starfive_clk_gate_divider(void __iomem *reg,
 static int jh7110_syscrg_init(struct udevice *dev)
 {
 	struct jh7110_clk_priv *priv = dev_get_priv(dev);
-	struct ofnode_phandle_args args;
-	fdt_addr_t addr;
 	struct clk *pclk;
-	int ret;
 
-	ret = ofnode_parse_phandle_with_args(dev->node_, "starfive,sys-syscon", NULL, 0, 0, &args);
-	if (ret)
-		return ret;
-
-	addr =  ofnode_get_addr(args.node);
-	if (addr == FDT_ADDR_T_NONE)
-		return -EINVAL;
-
-	clk_dm(JH7110_SYSCLK_PLL0_OUT,
-	       starfive_jh7110_pll("pll0_out", "oscillator", (void __iomem *)addr,
-				   priv->reg, &starfive_jh7110_pll0));
-	clk_dm(JH7110_SYSCLK_PLL1_OUT,
-	       starfive_jh7110_pll("pll1_out", "oscillator", (void __iomem *)addr,
-				   priv->reg, &starfive_jh7110_pll1));
-	clk_dm(JH7110_SYSCLK_PLL2_OUT,
-	       starfive_jh7110_pll("pll2_out", "oscillator", (void __iomem *)addr,
-				   priv->reg, &starfive_jh7110_pll2));
-	clk_dm(JH7110_SYSCLK_CPU_ROOT,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_CPU_ROOT),
 	       starfive_clk_mux(priv->reg, "cpu_root",
 				OFFSET(JH7110_SYSCLK_CPU_ROOT), 1,
 				cpu_root_sels, ARRAY_SIZE(cpu_root_sels)));
-	clk_dm(JH7110_SYSCLK_CPU_CORE,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_CPU_CORE),
 	       starfive_clk_divider(priv->reg,
 				    "cpu_core", "cpu_root",
 				    OFFSET(JH7110_SYSCLK_CPU_CORE), 3));
-	clk_dm(JH7110_SYSCLK_CPU_BUS,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_CPU_BUS),
 	       starfive_clk_divider(priv->reg,
 				    "cpu_bus", "cpu_core",
 				    OFFSET(JH7110_SYSCLK_CPU_BUS), 2));
-	clk_dm(JH7110_SYSCLK_PERH_ROOT,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_PERH_ROOT),
 	       starfive_clk_composite(priv->reg,
 				      "perh_root",
 				      perh_root_sels, ARRAY_SIZE(perh_root_sels),
 				      OFFSET(JH7110_SYSCLK_PERH_ROOT), 1, 0, 2));
-	clk_dm(JH7110_SYSCLK_BUS_ROOT,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_BUS_ROOT),
 	       starfive_clk_mux(priv->reg, "bus_root",
 				OFFSET(JH7110_SYSCLK_BUS_ROOT), 1,
 				bus_root_sels,	ARRAY_SIZE(bus_root_sels)));
-	clk_dm(JH7110_SYSCLK_NOCSTG_BUS,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_NOCSTG_BUS),
 	       starfive_clk_divider(priv->reg,
 				    "nocstg_bus", "bus_root",
 				    OFFSET(JH7110_SYSCLK_NOCSTG_BUS), 3));
-	clk_dm(JH7110_SYSCLK_AXI_CFG0,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_AXI_CFG0),
 	       starfive_clk_divider(priv->reg,
 				    "axi_cfg0", "bus_root",
 				    OFFSET(JH7110_SYSCLK_AXI_CFG0), 2));
-	clk_dm(JH7110_SYSCLK_STG_AXIAHB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_STG_AXIAHB),
 	       starfive_clk_divider(priv->reg,
 				    "stg_axiahb", "axi_cfg0",
 				    OFFSET(JH7110_SYSCLK_STG_AXIAHB), 2));
-	clk_dm(JH7110_SYSCLK_AHB0,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_AHB0),
 	       starfive_clk_gate(priv->reg,
 				 "ahb0", "stg_axiahb",
 				 OFFSET(JH7110_SYSCLK_AHB0)));
-	clk_dm(JH7110_SYSCLK_AHB1,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_AHB1),
 	       starfive_clk_gate(priv->reg,
 				 "ahb1", "stg_axiahb",
 				 OFFSET(JH7110_SYSCLK_AHB1)));
-	clk_dm(JH7110_SYSCLK_APB_BUS,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_APB_BUS),
 	       starfive_clk_divider(priv->reg,
 				    "apb_bus", "stg_axiahb",
 				    OFFSET(JH7110_SYSCLK_APB_BUS), 4));
-	clk_dm(JH7110_SYSCLK_APB0,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_APB0),
 	       starfive_clk_gate(priv->reg,
 				 "apb0", "apb_bus",
 				 OFFSET(JH7110_SYSCLK_APB0)));
-	clk_dm(JH7110_SYSCLK_QSPI_AHB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_QSPI_AHB),
 	       starfive_clk_gate(priv->reg,
 				 "qspi_ahb", "ahb1",
 				 OFFSET(JH7110_SYSCLK_QSPI_AHB)));
-	clk_dm(JH7110_SYSCLK_QSPI_APB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_QSPI_APB),
 	       starfive_clk_gate(priv->reg,
 				 "qspi_apb", "apb_bus",
 				 OFFSET(JH7110_SYSCLK_QSPI_APB)));
-	clk_dm(JH7110_SYSCLK_QSPI_REF_SRC,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_QSPI_REF_SRC),
 	       starfive_clk_divider(priv->reg,
 				    "qspi_ref_src", "pll0_out",
 				    OFFSET(JH7110_SYSCLK_QSPI_REF_SRC), 5));
-	clk_dm(JH7110_SYSCLK_QSPI_REF,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_QSPI_REF),
 	       starfive_clk_composite(priv->reg,
 				      "qspi_ref",
 				      qspi_ref_sels, ARRAY_SIZE(qspi_ref_sels),
 				      OFFSET(JH7110_SYSCLK_QSPI_REF), 1, 1, 0));
-	clk_dm(JH7110_SYSCLK_SDIO0_AHB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_SDIO0_AHB),
 	       starfive_clk_gate(priv->reg,
 				 "sdio0_ahb", "ahb0",
 				 OFFSET(JH7110_SYSCLK_SDIO0_AHB)));
-	clk_dm(JH7110_SYSCLK_SDIO1_AHB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_SDIO1_AHB),
 	       starfive_clk_gate(priv->reg,
 				 "sdio1_ahb", "ahb0",
 				 OFFSET(JH7110_SYSCLK_SDIO1_AHB)));
-	clk_dm(JH7110_SYSCLK_SDIO0_SDCARD,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_SDIO0_SDCARD),
 	       starfive_clk_fix_parent_composite(priv->reg,
 						 "sdio0_sdcard", "axi_cfg0",
 						 OFFSET(JH7110_SYSCLK_SDIO0_SDCARD), 0, 1, 4));
-	clk_dm(JH7110_SYSCLK_SDIO1_SDCARD,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_SDIO1_SDCARD),
 	       starfive_clk_fix_parent_composite(priv->reg,
 						 "sdio1_sdcard", "axi_cfg0",
 						 OFFSET(JH7110_SYSCLK_SDIO1_SDCARD), 0, 1, 4));
-	clk_dm(JH7110_SYSCLK_USB_125M,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_USB_125M),
 	       starfive_clk_divider(priv->reg,
 				    "usb_125m", "pll0_out",
 				    OFFSET(JH7110_SYSCLK_USB_125M), 4));
-	clk_dm(JH7110_SYSCLK_NOC_BUS_STG_AXI,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_NOC_BUS_STG_AXI),
 	       starfive_clk_gate(priv->reg,
 				 "noc_bus_stg_axi", "nocstg_bus",
 				 OFFSET(JH7110_SYSCLK_NOC_BUS_STG_AXI)));
-	clk_dm(JH7110_SYSCLK_GMAC1_AHB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC1_AHB),
 	       starfive_clk_gate(priv->reg,
 				 "gmac1_ahb", "ahb0",
 				 OFFSET(JH7110_SYSCLK_GMAC1_AHB)));
-	clk_dm(JH7110_SYSCLK_GMAC1_AXI,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC1_AXI),
 	       starfive_clk_gate(priv->reg,
 				 "gmac1_axi", "stg_axiahb",
 				 OFFSET(JH7110_SYSCLK_GMAC1_AXI)));
-	clk_dm(JH7110_SYSCLK_GMAC_SRC,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC_SRC),
 	       starfive_clk_divider(priv->reg,
 				    "gmac_src", "pll0_out",
 				    OFFSET(JH7110_SYSCLK_GMAC_SRC), 3));
-	clk_dm(JH7110_SYSCLK_GMAC1_GTXCLK,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC1_GTXCLK),
 	       starfive_clk_divider(priv->reg,
 				    "gmac1_gtxclk", "pll0_out",
 				    OFFSET(JH7110_SYSCLK_GMAC1_GTXCLK), 4));
-	clk_dm(JH7110_SYSCLK_GMAC1_GTXC,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC1_GTXC),
 	       starfive_clk_gate(priv->reg,
 				 "gmac1_gtxc", "gmac1_gtxclk",
 				 OFFSET(JH7110_SYSCLK_GMAC1_GTXC)));
-	clk_dm(JH7110_SYSCLK_GMAC1_RMII_RTX,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC1_RMII_RTX),
 	       starfive_clk_divider(priv->reg,
 				    "gmac1_rmii_rtx", "gmac1-rmii-refin-clock",
 				    OFFSET(JH7110_SYSCLK_GMAC1_RMII_RTX), 5));
-	clk_dm(JH7110_SYSCLK_GMAC1_PTP,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC1_PTP),
 	       starfive_clk_gate_divider(priv->reg,
 					 "gmac1_ptp", "gmac_src",
 					 OFFSET(JH7110_SYSCLK_GMAC1_PTP), 5));
-	clk_dm(JH7110_SYSCLK_GMAC1_RX,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC1_RX),
 	       starfive_clk_mux(priv->reg, "gmac1_rx",
 				OFFSET(JH7110_SYSCLK_GMAC1_RX), 1,
 				gmac1_rx_sels,	ARRAY_SIZE(gmac1_rx_sels)));
-	clk_dm(JH7110_SYSCLK_GMAC1_TX,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC1_TX),
 	       starfive_clk_composite(priv->reg,
 				      "gmac1_tx",
 				      gmac1_tx_sels, ARRAY_SIZE(gmac1_tx_sels),
 				      OFFSET(JH7110_SYSCLK_GMAC1_TX), 1, 1, 0));
-	clk_dm(JH7110_SYSCLK_GMAC1_TX_INV,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC1_TX_INV),
 	       starfive_clk_inv(priv->reg,
 				"gmac1_tx_inv", "gmac1_tx",
 				OFFSET(JH7110_SYSCLK_GMAC1_TX_INV)));
-	clk_dm(JH7110_SYSCLK_GMAC0_GTXCLK,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC0_GTXCLK),
 	       starfive_clk_gate_divider(priv->reg,
 					 "gmac0_gtxclk", "pll0_out",
 					 OFFSET(JH7110_SYSCLK_GMAC0_GTXCLK), 4));
-	clk_dm(JH7110_SYSCLK_GMAC0_PTP,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC0_PTP),
 	       starfive_clk_gate_divider(priv->reg,
 					 "gmac0_ptp", "gmac_src",
 					 OFFSET(JH7110_SYSCLK_GMAC0_PTP), 5));
-	clk_dm(JH7110_SYSCLK_GMAC0_GTXC,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_GMAC0_GTXC),
 	       starfive_clk_gate(priv->reg,
 				 "gmac0_gtxc", "gmac0_gtxclk",
 				 OFFSET(JH7110_SYSCLK_GMAC0_GTXC)));
-	clk_dm(JH7110_SYSCLK_UART0_APB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_UART0_APB),
 	       starfive_clk_gate(priv->reg,
 				 "uart0_apb", "apb0",
 				 OFFSET(JH7110_SYSCLK_UART0_APB)));
-	clk_dm(JH7110_SYSCLK_UART0_CORE,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_UART0_CORE),
 	       starfive_clk_gate(priv->reg,
 				 "uart0_core", "oscillator",
 				 OFFSET(JH7110_SYSCLK_UART0_CORE)));
-	clk_dm(JH7110_SYSCLK_UART1_APB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_UART1_APB),
 	       starfive_clk_gate(priv->reg,
 				 "uart1_apb", "apb0",
 				 OFFSET(JH7110_SYSCLK_UART1_APB)));
-	clk_dm(JH7110_SYSCLK_UART1_CORE,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_UART1_CORE),
 	       starfive_clk_gate(priv->reg,
 				 "uart1_core", "oscillator",
 				 OFFSET(JH7110_SYSCLK_UART1_CORE)));
-	clk_dm(JH7110_SYSCLK_UART2_APB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_UART2_APB),
 	       starfive_clk_gate(priv->reg,
 				 "uart2_apb", "apb0",
 				 OFFSET(JH7110_SYSCLK_UART2_APB)));
-	clk_dm(JH7110_SYSCLK_UART2_CORE,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_UART2_CORE),
 	       starfive_clk_gate(priv->reg,
 				 "uart2_core", "oscillator",
 				 OFFSET(JH7110_SYSCLK_UART2_CORE)));
-	clk_dm(JH7110_SYSCLK_UART3_APB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_UART3_APB),
 	       starfive_clk_gate(priv->reg,
 				 "uart3_apb", "apb0",
 				 OFFSET(JH7110_SYSCLK_UART3_APB)));
-	clk_dm(JH7110_SYSCLK_UART3_CORE,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_UART3_CORE),
 	       starfive_clk_gate_divider(priv->reg,
 					 "uart3_core", "perh_root",
 					 OFFSET(JH7110_SYSCLK_UART3_CORE), 8));
-	clk_dm(JH7110_SYSCLK_UART4_APB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_UART4_APB),
 	       starfive_clk_gate(priv->reg,
 				 "uart4_apb", "apb0",
 				 OFFSET(JH7110_SYSCLK_UART4_APB)));
-	clk_dm(JH7110_SYSCLK_UART4_CORE,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_UART4_CORE),
 	       starfive_clk_gate_divider(priv->reg,
 					 "uart4_core", "perh_root",
 					 OFFSET(JH7110_SYSCLK_UART4_CORE), 8));
-	clk_dm(JH7110_SYSCLK_UART5_APB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_UART5_APB),
 	       starfive_clk_gate(priv->reg,
 				 "uart5_apb", "apb0",
 				 OFFSET(JH7110_SYSCLK_UART5_APB)));
-	clk_dm(JH7110_SYSCLK_UART5_CORE,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_UART5_CORE),
 	       starfive_clk_gate_divider(priv->reg,
 					 "uart5_core", "perh_root",
 					 OFFSET(JH7110_SYSCLK_UART5_CORE), 8));
-	clk_dm(JH7110_SYSCLK_I2C2_APB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_I2C2_APB),
 	       starfive_clk_gate(priv->reg,
 				 "i2c2_apb", "apb0",
 				 OFFSET(JH7110_SYSCLK_I2C2_APB)));
-	clk_dm(JH7110_SYSCLK_I2C5_APB,
+	clk_dm(JH7110_SYS_ID_TRANS(JH7110_SYSCLK_I2C5_APB),
 	       starfive_clk_gate(priv->reg,
 				 "i2c5_apb", "apb0",
 				 OFFSET(JH7110_SYSCLK_I2C5_APB)));
@@ -463,39 +446,39 @@ static int jh7110_aoncrg_init(struct udevice *dev)
 {
 	struct jh7110_clk_priv *priv = dev_get_priv(dev);
 
-	clk_dm(JH7110_AONCLK_OSC_DIV4,
+	clk_dm(JH7110_AON_ID_TRANS(JH7110_AONCLK_OSC_DIV4),
 	       starfive_clk_divider(priv->reg,
 				    "osc_div4", "oscillator",
-				    AONOFFSET(JH7110_AONCLK_OSC_DIV4), 5));
-	clk_dm(JH7110_AONCLK_APB_FUNC,
+				    OFFSET(JH7110_AONCLK_OSC_DIV4), 5));
+	clk_dm(JH7110_AON_ID_TRANS(JH7110_AONCLK_APB_FUNC),
 	       starfive_clk_mux(priv->reg, "apb_func",
-				AONOFFSET(JH7110_AONCLK_APB_FUNC), 1,
+				OFFSET(JH7110_AONCLK_APB_FUNC), 1,
 				apb_func_sels,	ARRAY_SIZE(apb_func_sels)));
-	clk_dm(JH7110_AONCLK_GMAC0_AHB,
+	clk_dm(JH7110_AON_ID_TRANS(JH7110_AONCLK_GMAC0_AHB),
 	       starfive_clk_gate(priv->reg,
 				 "gmac0_ahb", "stg_axiahb",
-				 AONOFFSET(JH7110_AONCLK_GMAC0_AHB)));
-	clk_dm(JH7110_AONCLK_GMAC0_AXI,
+				 OFFSET(JH7110_AONCLK_GMAC0_AHB)));
+	clk_dm(JH7110_AON_ID_TRANS(JH7110_AONCLK_GMAC0_AXI),
 	       starfive_clk_gate(priv->reg,
 				 "gmac0_axi", "stg_axiahb",
-				 AONOFFSET(JH7110_AONCLK_GMAC0_AXI)));
-	clk_dm(JH7110_AONCLK_GMAC0_RMII_RTX,
+				 OFFSET(JH7110_AONCLK_GMAC0_AXI)));
+	clk_dm(JH7110_AON_ID_TRANS(JH7110_AONCLK_GMAC0_RMII_RTX),
 	       starfive_clk_divider(priv->reg,
 				    "gmac0_rmii_rtx", "gmac0-rmii-refin-clock",
-				    AONOFFSET(JH7110_AONCLK_GMAC0_RMII_RTX), 5));
-	clk_dm(JH7110_AONCLK_GMAC0_TX,
+				    OFFSET(JH7110_AONCLK_GMAC0_RMII_RTX), 5));
+	clk_dm(JH7110_AON_ID_TRANS(JH7110_AONCLK_GMAC0_TX),
 	       starfive_clk_composite(priv->reg,
 				      "gmac0_tx", gmac0_tx_sels,
 				      ARRAY_SIZE(gmac0_tx_sels),
-				      AONOFFSET(JH7110_AONCLK_GMAC0_TX), 1, 1, 0));
-	clk_dm(JH7110_AONCLK_GMAC0_TX_INV,
+				      OFFSET(JH7110_AONCLK_GMAC0_TX), 1, 1, 0));
+	clk_dm(JH7110_AON_ID_TRANS(JH7110_AONCLK_GMAC0_TX_INV),
 	       starfive_clk_inv(priv->reg,
 				"gmac0_tx_inv", "gmac0_tx",
-				AONOFFSET(JH7110_AONCLK_GMAC0_TX_INV)));
-	clk_dm(JH7110_AONCLK_OTPC_APB,
+				OFFSET(JH7110_AONCLK_GMAC0_TX_INV)));
+	clk_dm(JH7110_AON_ID_TRANS(JH7110_AONCLK_OTPC_APB),
 	       starfive_clk_gate(priv->reg,
 				 "otpc_apb", "apb_bus",
-				 AONOFFSET(JH7110_AONCLK_OTPC_APB)));
+				 OFFSET(JH7110_AONCLK_OTPC_APB)));
 
 	return 0;
 }
@@ -504,57 +487,57 @@ static int jh7110_stgcrg_init(struct udevice *dev)
 {
 	struct jh7110_clk_priv *priv = dev_get_priv(dev);
 
-	clk_dm(JH7110_STGCLK_USB_APB,
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_USB_APB),
 	       starfive_clk_gate(priv->reg,
 				 "usb_apb", "apb_bus",
-				 STGOFFSET(JH7110_STGCLK_USB_APB)));
-	clk_dm(JH7110_STGCLK_USB_UTMI_APB,
+				 OFFSET(JH7110_STGCLK_USB_APB)));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_USB_UTMI_APB),
 	       starfive_clk_gate(priv->reg,
 				 "usb_utmi_apb", "apb_bus",
-				 STGOFFSET(JH7110_STGCLK_USB_UTMI_APB)));
-	clk_dm(JH7110_STGCLK_USB_AXI,
+				 OFFSET(JH7110_STGCLK_USB_UTMI_APB)));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_USB_AXI),
 	       starfive_clk_gate(priv->reg,
 				 "usb_axi", "stg_axiahb",
-				 STGOFFSET(JH7110_STGCLK_USB_AXI)));
-	clk_dm(JH7110_STGCLK_USB_LPM,
+				 OFFSET(JH7110_STGCLK_USB_AXI)));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_USB_LPM),
 	       starfive_clk_gate_divider(priv->reg,
 					 "usb_lpm", "oscillator",
-					 STGOFFSET(JH7110_STGCLK_USB_LPM), 2));
-	clk_dm(JH7110_STGCLK_USB_STB,
+					 OFFSET(JH7110_STGCLK_USB_LPM), 2));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_USB_STB),
 	       starfive_clk_gate_divider(priv->reg,
 					 "usb_stb", "oscillator",
-					 STGOFFSET(JH7110_STGCLK_USB_STB), 3));
-	clk_dm(JH7110_STGCLK_USB_APP_125,
+					 OFFSET(JH7110_STGCLK_USB_STB), 3));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_USB_APP_125),
 	       starfive_clk_gate(priv->reg,
 				 "usb_app_125", "usb_125m",
-				 STGOFFSET(JH7110_STGCLK_USB_APP_125)));
-	clk_dm(JH7110_STGCLK_USB_REFCLK,
+				 OFFSET(JH7110_STGCLK_USB_APP_125)));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_USB_REFCLK),
 	       starfive_clk_divider(priv->reg, "usb_refclk", "oscillator",
-				    STGOFFSET(JH7110_STGCLK_USB_REFCLK), 2));
-	clk_dm(JH7110_STGCLK_PCIE0_AXI,
+				    OFFSET(JH7110_STGCLK_USB_REFCLK), 2));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_PCIE0_AXI),
 	       starfive_clk_gate(priv->reg,
 				 "pcie0_axi", "stg_axiahb",
-				 STGOFFSET(JH7110_STGCLK_PCIE0_AXI)));
-	clk_dm(JH7110_STGCLK_PCIE0_APB,
+				 OFFSET(JH7110_STGCLK_PCIE0_AXI)));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_PCIE0_APB),
 	       starfive_clk_gate(priv->reg,
 				 "pcie0_apb", "apb_bus",
-				 STGOFFSET(JH7110_STGCLK_PCIE0_APB)));
-	clk_dm(JH7110_STGCLK_PCIE0_TL,
+				 OFFSET(JH7110_STGCLK_PCIE0_APB)));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_PCIE0_TL),
 	       starfive_clk_gate(priv->reg,
 				 "pcie0_tl", "stg_axiahb",
-				 STGOFFSET(JH7110_STGCLK_PCIE0_TL)));
-	clk_dm(JH7110_STGCLK_PCIE1_AXI,
+				 OFFSET(JH7110_STGCLK_PCIE0_TL)));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_PCIE1_AXI),
 	       starfive_clk_gate(priv->reg,
 				 "pcie1_axi", "stg_axiahb",
-				 STGOFFSET(JH7110_STGCLK_PCIE1_AXI)));
-	clk_dm(JH7110_STGCLK_PCIE1_APB,
+				 OFFSET(JH7110_STGCLK_PCIE1_AXI)));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_PCIE1_APB),
 	       starfive_clk_gate(priv->reg,
 				 "pcie1_apb", "apb_bus",
-				 STGOFFSET(JH7110_STGCLK_PCIE1_APB)));
-	clk_dm(JH7110_STGCLK_PCIE1_TL,
+				 OFFSET(JH7110_STGCLK_PCIE1_APB)));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_PCIE1_TL),
 	       starfive_clk_gate(priv->reg,
 				 "pcie1_tl", "stg_axiahb",
-				 STGOFFSET(JH7110_STGCLK_PCIE1_TL)));
+				 OFFSET(JH7110_STGCLK_PCIE1_TL)));
 
 	return 0;
 }
@@ -579,25 +562,104 @@ static int jh7110_clk_bind(struct udevice *dev)
 							dev_ofnode(dev), NULL);
 }
 
-static const struct udevice_id jh7110_clk_of_match[] = {
+static int jh7110_sys_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
+{
+	if (args->args_count > 1) {
+		debug("Invalid args_count: %d\n", args->args_count);
+		return -EINVAL;
+	}
+
+	if (args->args_count)
+		clk->id = JH7110_SYS_ID_TRANS(args->args[0]);
+	else
+		clk->id = 0;
+
+	return 0;
+}
+
+static int jh7110_aon_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
+{
+	if (args->args_count > 1) {
+		debug("Invalid args_count: %d\n", args->args_count);
+		return -EINVAL;
+	}
+
+	if (args->args_count)
+		clk->id = JH7110_AON_ID_TRANS(args->args[0]);
+	else
+		clk->id = 0;
+
+	return 0;
+}
+
+static int jh7110_stg_clk_of_xlate(struct clk *clk, struct ofnode_phandle_args *args)
+{
+	if (args->args_count > 1) {
+		debug("Invalid args_count: %d\n", args->args_count);
+		return -EINVAL;
+	}
+
+	if (args->args_count)
+		clk->id = JH7110_STG_ID_TRANS(args->args[0]);
+	else
+		clk->id = 0;
+
+	return 0;
+}
+
+static const struct udevice_id jh7110_sys_clk_of_match[] = {
 	{ .compatible = "starfive,jh7110-syscrg",
 	  .data = (ulong)&jh7110_syscrg_init
 	},
-	{ .compatible = "starfive,jh7110-stgcrg",
-	  .data = (ulong)&jh7110_stgcrg_init
-	},
+	{ }
+};
+
+JH7110_CLK_OPS(sys);
+
+U_BOOT_DRIVER(jh7110_sys_clk) = {
+	.name = "jh7110_sys_clk",
+	.id = UCLASS_CLK,
+	.of_match = jh7110_sys_clk_of_match,
+	.probe = jh7110_clk_probe,
+	.ops = &jh7110_sys_clk_ops,
+	.priv_auto = sizeof(struct jh7110_clk_priv),
+	.bind = jh7110_clk_bind,
+};
+
+static const struct udevice_id jh7110_aon_clk_of_match[] = {
 	{ .compatible = "starfive,jh7110-aoncrg",
 	  .data = (ulong)&jh7110_aoncrg_init
 	},
 	{ }
 };
 
-U_BOOT_DRIVER(jh7110_clk) = {
-	.name = "jh7110_clk",
+JH7110_CLK_OPS(aon);
+
+U_BOOT_DRIVER(jh7110_aon_clk) = {
+	.name = "jh7110_aon_clk",
 	.id = UCLASS_CLK,
-	.of_match = jh7110_clk_of_match,
+	.of_match = jh7110_aon_clk_of_match,
 	.probe = jh7110_clk_probe,
-	.ops = &ccf_clk_ops,
+	.ops = &jh7110_aon_clk_ops,
 	.priv_auto = sizeof(struct jh7110_clk_priv),
-	.bind		= jh7110_clk_bind,
+	.bind = jh7110_clk_bind,
+};
+
+static const struct udevice_id jh7110_stg_clk_of_match[] = {
+	{ .compatible = "starfive,jh7110-stgcrg",
+	  .data = (ulong)&jh7110_stgcrg_init
+	},
+	{ }
+};
+
+JH7110_CLK_OPS(stg);
+
+U_BOOT_DRIVER(jh7110_stg_clk) = {
+	.name = "jh7110_stg_clk",
+	.id = UCLASS_CLK,
+	.of_match = jh7110_stg_clk_of_match,
+	.probe = jh7110_clk_probe,
+	.ops = &jh7110_stg_clk_ops,
+	.priv_auto = sizeof(struct jh7110_clk_priv),
+	.bind = jh7110_clk_bind,
 };

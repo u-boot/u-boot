@@ -313,9 +313,9 @@
 			  <&syscrg JH7110_SYSCLK_BUS_ROOT>,
 			  <&syscrg JH7110_SYSCLK_PERH_ROOT>,
 			  <&syscrg JH7110_SYSCLK_QSPI_REF>;
-	assigned-clock-parents = <&syscrg JH7110_SYSCLK_PLL0_OUT>,
-				 <&syscrg JH7110_SYSCLK_PLL2_OUT>,
-				 <&syscrg JH7110_SYSCLK_PLL2_OUT>,
+	assigned-clock-parents = <&pllclk JH7110_SYSCLK_PLL0_OUT>,
+				 <&pllclk JH7110_SYSCLK_PLL2_OUT>,
+				 <&pllclk JH7110_SYSCLK_PLL2_OUT>,
 				 <&syscrg JH7110_SYSCLK_QSPI_REF_SRC>;
 	assigned-clock-rates = <0>, <0>, <0>, <0>;
 };

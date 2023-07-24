@@ -91,16 +91,35 @@ _start:
  * Set stackpointer in internal/ex RAM to call board_init_f
  */
 call_board_init_f:
-	li	t0, -16
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
-	li	t1, CONFIG_SPL_STACK
+	li	t0, CONFIG_SPL_STACK
 #else
-	li	t1, SYS_INIT_SP_ADDR
+	li	t0, SYS_INIT_SP_ADDR
 #endif
-	and	sp, t1, t0		/* force 16 byte alignment */
+	and	t0, t0, -16		/* force 16 byte alignment */
+
+	/* setup stack */
+#if CONFIG_IS_ENABLED(SMP)
+	/* tp: hart id */
+	slli	t1, tp, CONFIG_STACK_SIZE_SHIFT
+	sub	sp, t0, t1
+#else
+	mv	sp, t0
+#endif
+/*
+ * Now sp points to the right stack belonging to current CPU.
+ * It's essential before any function call, otherwise, we get data-race.
+ */
 
 call_board_init_f_0:
-	mv	a0, sp
+	/* find top of reserve space */
+#if CONFIG_IS_ENABLED(SMP)
+	li	t1, CONFIG_NR_CPUS
+#else
+	li	t1, 1
+#endif
+	slli	t1, t1, CONFIG_STACK_SIZE_SHIFT
+	sub	a0, t0, t1		/* t1 -> size of all CPU stacks */
 	jal	board_init_f_alloc_reserve
 
 	/*
@@ -109,14 +128,6 @@ call_board_init_f_0:
 	 */
 	mv	s0, a0
 
-	/* setup stack */
-#if CONFIG_IS_ENABLED(SMP)
-	/* tp: hart id */
-	slli	t0, tp, CONFIG_STACK_SIZE_SHIFT
-	sub	sp, a0, t0
-#else
-	mv	sp, a0
-#endif
 
 	/* Configure proprietary settings and customized CSRs of harts */
 call_harts_early_init:

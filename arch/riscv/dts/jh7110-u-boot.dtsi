@@ -83,7 +83,6 @@
 
 &syscrg {
 	bootph-pre-ram;
-	starfive,sys-syscon = <&sys_syscon>;
 };
 
 &stgcrg {

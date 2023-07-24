@@ -1,57 +1,25 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright (C) 2022 Starfive, Inc.
+ * Copyright (C) 2022 StarFive Technology Co., Ltd.
  * Author:	Yanhong Wang <yanhong.wang@starfivetech.com>
- *
  */
 
 #ifndef __CLK_STARFIVE_H
 #define __CLK_STARFIVE_H
 
-enum starfive_pll_type {
-	PLL0 = 0,
-	PLL1,
-	PLL2,
-	PLL_MAX = PLL2
-};
+/* the number of fixed clocks in DTS */
+#define JH7110_EXTCLK_END	12
 
-struct starfive_pllx_rate {
-	u64 rate;
-	u32 prediv;
-	u32 fbdiv;
-	u32 frac;
-};
+#define _JH7110_CLK_OPS(_name)					\
+static const struct clk_ops jh7110_##_name##_clk_ops = {	\
+	.set_rate = ccf_clk_set_rate,				\
+	.get_rate = ccf_clk_get_rate,				\
+	.set_parent = ccf_clk_set_parent,			\
+	.enable = ccf_clk_enable,				\
+	.disable = ccf_clk_disable,				\
+	.of_xlate = jh7110_##_name##_clk_of_xlate,		\
+}
 
-struct starfive_pllx_offset {
-	u32 pd;
-	u32 prediv;
-	u32 fbdiv;
-	u32 frac;
-	u32 postdiv1;
-	u32 dacpd;
-	u32 dsmpd;
-	u32 pd_mask;
-	u32 prediv_mask;
-	u32 fbdiv_mask;
-	u32 frac_mask;
-	u32 postdiv1_mask;
-	u32 dacpd_mask;
-	u32 dsmpd_mask;
-};
+#define JH7110_CLK_OPS(name) _JH7110_CLK_OPS(name)
 
-struct starfive_pllx_clk {
-	enum starfive_pll_type type;
-	const struct starfive_pllx_offset *offset;
-	const struct starfive_pllx_rate *rate_table;
-	int rate_count;
-	int flags;
-};
-
-extern struct starfive_pllx_clk starfive_jh7110_pll0;
-extern struct starfive_pllx_clk starfive_jh7110_pll1;
-extern struct starfive_pllx_clk starfive_jh7110_pll2;
-
-struct clk *starfive_jh7110_pll(const char *name, const char *parent_name,
-				void __iomem *base, void __iomem *sysreg,
-				const struct starfive_pllx_clk *pll_clk);
 #endif
