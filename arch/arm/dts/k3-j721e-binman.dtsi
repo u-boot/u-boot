@@ -299,7 +299,7 @@
 #define SPL_J721E_SK_DTB "spl/dts/k3-j721e-sk.dtb"
 
 #define UBOOT_NODTB "u-boot-nodtb.bin"
-#define J721E_EVM_DTB "arch/arm/dts/k3-j721e-common-proc-board.dtb"
+#define J721E_EVM_DTB "u-boot.dtb"
 #define J721E_SK_DTB "arch/arm/dts/k3-j721e-sk.dtb"
 
 &binman {

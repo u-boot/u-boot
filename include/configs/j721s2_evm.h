@@ -23,12 +23,7 @@
 #define CFG_SYS_UBOOT_BASE		0x50080000
 #endif
 
-/* Incorporate settings into the U-Boot environment */
-#define CFG_EXTRA_ENV_SETTINGS
-
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
-
-/* MMC ENV related defines */
 
 #endif /* __CONFIG_J721S2_EVM_H */

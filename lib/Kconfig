@@ -508,6 +508,7 @@ config SHA256
 
 config SHA512
 	bool "Enable SHA512 support"
+	default y if TI_SECURE_DEVICE && FIT_SIGNATURE
 	help
 	  This option enables support of hashing using SHA512 algorithm.
 	  The hash is calculated in software.

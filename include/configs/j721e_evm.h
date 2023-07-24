@@ -24,40 +24,8 @@
 #define CFG_SYS_UBOOT_BASE		0x50080000
 #endif
 
-#if CONFIG_IS_ENABLED(CMD_PXE)
-# define BOOT_TARGET_PXE(func) func(PXE, pxe, na)
-#else
-# define BOOT_TARGET_PXE(func)
-#endif
-
-#if CONFIG_IS_ENABLED(CMD_DHCP)
-# define BOOT_TARGET_DHCP(func) func(DHCP, dhcp, na)
-#else
-# define BOOT_TARGET_DHCP(func)
-#endif
-
-#ifdef CONFIG_CMD_USB
-# define BOOT_TARGET_USB(func)	func(USB, usb, 0)
-#else
-# define BOOT_TARGET_USB(func)
-#endif
-
-#define BOOT_TARGET_DEVICES(func) \
-	BOOT_TARGET_USB(func) \
-	func(MMC, mmc, 1) \
-	func(MMC, mmc, 0) \
-	BOOT_TARGET_PXE(func) \
-	BOOT_TARGET_DHCP(func)
-
-#include <config_distro_bootcmd.h>
-
-/* Incorporate settings into the U-Boot environment */
-#define CFG_EXTRA_ENV_SETTINGS					\
-	BOOTENV
-
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
 
-/* MMC ENV related defines */
 
 #endif /* __CONFIG_J721E_EVM_H */

@@ -9,7 +9,7 @@
 #include <asm/armv7_mpu.h>
 #include <asm/hardware.h>
 
-#define K3_FIREWALL_BACKGROUND_BIT BIT(8)
+#define K3_FIREWALL_BACKGROUND_BIT (8)
 
 struct fwl_data {
 	const char *name;

@@ -145,7 +145,7 @@
 #define SPL_AM625_SK_DTB "spl/dts/k3-am625-sk.dtb"
 
 #define UBOOT_NODTB "u-boot-nodtb.bin"
-#define AM625_SK_DTB "arch/arm/dts/k3-am625-sk.dtb"
+#define AM625_SK_DTB "u-boot.dtb"
 
 &binman {
 	ti-dm {

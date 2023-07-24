@@ -13,31 +13,6 @@
 
 #include <linux/sizes.h>
 
-#if IS_ENABLED(CONFIG_CMD_USB)
-# define BOOT_TARGET_USB(func) \
-	func(USB, usb, 0) \
-	func(USB, usb, 1) \
-	func(USB, usb, 2)
-#else
-# define BOOT_TARGET_USB(func)
-#endif
-
-/*
- * This defines all MMC devices, even if the basic variant has no mmc1.
- * The non-supported device will be removed from the boot targets during
- * runtime, when that board was detected.
- */
-#define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 1) \
-	func(MMC, mmc, 0) \
-	BOOT_TARGET_USB(func)
-
-#include <config_distro_bootcmd.h>
-
-#define CFG_EXTRA_ENV_SETTINGS						\
-	DEFAULT_LINUX_BOOT_ENV						\
-	BOOTENV
-
 #include <configs/ti_armv7_common.h>
 
 #ifdef CONFIG_ENV_WRITEABLE_LIST

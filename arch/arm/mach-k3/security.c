@@ -91,8 +91,9 @@ void ti_secure_image_post_process(void **p_image, size_t *p_size)
 		return;
 	}
 
-	if (get_device_type() != K3_DEVICE_TYPE_HS_SE &&
-	    get_device_type() != K3_DEVICE_TYPE_HS_FS)
+	if (get_device_type() == K3_DEVICE_TYPE_GP &&
+	    (get_device_type() != K3_DEVICE_TYPE_HS_SE &&
+	     !ti_secure_cert_detected(*p_image)))
 		return;
 
 	/* Clean out image so it can be seen by system firmware */

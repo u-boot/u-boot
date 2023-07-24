@@ -798,6 +798,8 @@ config ARCH_K3
 	select SPL
 	select SUPPORT_SPL
 	select FIT
+	select REGEX
+	select FIT_SIGNATURE if ARM64
 
 config ARCH_OMAP2PLUS
 	bool "TI OMAP2+"
