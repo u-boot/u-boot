@@ -155,6 +155,17 @@ Support is provided for fetching this on Debian-like systems, using apt.
 
 
 
+Bintool: openssl: openssl tool
+------------------------------
+
+This bintool supports creating new openssl certificates.
+
+It also supports fetching a binary openssl
+
+Documentation about openssl is at https://www.openssl.org/
+
+
+
 Bintool: xz: Compression/decompression using the xz algorithm
 -------------------------------------------------------------
 
