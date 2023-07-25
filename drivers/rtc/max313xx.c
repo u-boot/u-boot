@@ -326,10 +326,22 @@ static int max313xx_reset(struct udevice *dev)
 	return ret;
 }
 
+static int max313xx_read8(struct udevice *dev, unsigned int reg)
+{
+	return  dm_i2c_reg_read(dev, reg);
+}
+
+static int max313xx_write8(struct udevice *dev, unsigned int reg, int val)
+{
+	return dm_i2c_reg_write(dev, reg, val);
+}
+
 static const struct rtc_ops max3133x_rtc_ops = {
 	.get	= max313xx_read_time,
 	.set	= max313xx_set_time,
 	.reset  = max313xx_reset,
+	.read8	= max313xx_read8,
+	.write8	= max313xx_write8,
 };
 
 static int max313xx_init(struct udevice *dev)

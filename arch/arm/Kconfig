@@ -357,7 +357,7 @@ config SYS_ARM_ARCH
 
 choice
 	prompt "Select the ARM data write cache policy"
-	default SYS_ARM_CACHE_WRITETHROUGH if TARGET_BCMCYGNUS || TARGET_BCMNS || RZA1
+	default SYS_ARM_CACHE_WRITETHROUGH if TARGET_BCMNS || RZA1
 	default SYS_ARM_CACHE_WRITEBACK
 
 config SYS_ARM_CACHE_WRITEBACK
@@ -667,19 +667,6 @@ config TARGET_VEXPRESS_CA9X4
 	bool "Support vexpress_ca9x4"
 	select CPU_V7A
 	select PL011_SERIAL
-
-config TARGET_BCMCYGNUS
-	bool "Support bcmcygnus"
-	select CPU_V7A
-	select GPIO_EXTRA_HEADER
-	select IPROC
-	imply BCM_SF2_ETH
-	imply BCM_SF2_ETH_GMAC
-	imply CMD_HASH
-	imply CRC32_VERIFY
-	imply FAT_WRITE
-	imply HASH_VERIFY
-	imply NETDEVICES
 
 config TARGET_BCMNS
 	bool "Support Broadcom Northstar"

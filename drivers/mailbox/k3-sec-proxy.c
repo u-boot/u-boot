@@ -94,11 +94,6 @@ static inline u32 sp_readl(void __iomem *addr, unsigned int offset)
 	return readl(addr + offset);
 }
 
-static inline void sp_writel(void __iomem *addr, unsigned int offset, u32 data)
-{
-	writel(data, addr + offset);
-}
-
 /**
  * k3_sec_proxy_of_xlate() - Translation of phandle to channel
  * @chan:	Mailbox channel
@@ -241,15 +236,20 @@ static int k3_sec_proxy_send(struct mbox_chan *chan, const void *data)
 		/* Ensure all unused data is 0 */
 		data_trail &= 0xFFFFFFFF >> (8 * (sizeof(u32) - trail_bytes));
 		writel(data_trail, data_reg);
-		data_reg++;
+		data_reg += sizeof(u32);
 	}
 
 	/*
 	 * 'data_reg' indicates next register to write. If we did not already
 	 * write on tx complete reg(last reg), we must do so for transmit
+	 * In addition, we also need to make sure all intermediate data
+	 * registers(if any required), are reset to 0 for TISCI backward
+	 * compatibility to be maintained.
 	 */
-	if (data_reg <= (spt->data + spm->desc->data_end_offset))
-		sp_writel(spt->data, spm->desc->data_end_offset, 0);
+	while (data_reg <= (spt->data + spm->desc->data_end_offset)) {
+		writel(0x0, data_reg);
+		data_reg += sizeof(u32);
+	}
 
 	debug("%s: Message successfully sent on thread %ld\n",
 	      __func__, chan->id);

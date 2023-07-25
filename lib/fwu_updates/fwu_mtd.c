@@ -175,8 +175,10 @@ int fwu_gen_alt_info_from_mtd(char *buf, size_t len, struct mtd_info *mtd)
 
 		l = strlen(buf);
 		/* Replace the last ';' with '&' if there is another image. */
-		if (i != CONFIG_FWU_NUM_IMAGES_PER_BANK - 1 && l)
-			buf[l - 1] = '&';
+		if (i != CONFIG_FWU_NUM_IMAGES_PER_BANK - 1 && l) {
+			buf[l] = '&';
+			buf++;
+		}
 		len -= l;
 		buf += l;
 	}

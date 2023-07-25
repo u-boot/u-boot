@@ -10,6 +10,7 @@ F:	arch/arm/boot/dts/imx7d-colibri-emmc.dtsi
 F:	arch/arm/boot/dts/imx7d-colibri-emmc-eval-v3.dts
 F:	arch/arm/boot/dts/imx7d-colibri-eval-v3.dts
 F:	board/toradex/colibri_imx7/
+F:	board/toradex/common/
 F:	configs/colibri_imx7_defconfig
 F:	configs/colibri_imx7_emmc_defconfig
 F:	doc/board/toradex/colibri_imx7.rst

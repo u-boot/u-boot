@@ -1,7 +1,7 @@
 ROCK960-RK3399
 M:      Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 S:      Maintained
-F:      board/rockchip/rock960_rk3399
+F:      board/vamrs/rock960_rk3399/
 F:      include/configs/rock960_rk3399.h
 F:      configs/rock960-rk3399_defconfig
 

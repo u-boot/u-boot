@@ -7,5 +7,6 @@ F:	arch/arm/dts/imx6q-apalis-eval.dts
 F:	arch/arm/dts/imx6q-apalis-eval-u-boot.dtsi
 F:	arch/arm/dts/imx6qdl-apalis.dtsi
 F:	board/toradex/apalis_imx6/
+F:	board/toradex/common/
 F:	configs/apalis_imx6_defconfig
 F:	include/configs/apalis_imx6.h

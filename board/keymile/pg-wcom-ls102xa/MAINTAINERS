@@ -3,6 +3,8 @@ M:	Aleksandar Gerasimovski <aleksandar.gerasimovski@hitachienergy.com>
 M:	Rainer Boschung <rainer.boschung@hitachienergy.com>
 S:	Maintained
 F:	board/keymile/pg-wcom-ls102xa/
+F:	board/keymile/common/
+F:	board/keymile/scripts/
 F:	include/configs/km/pg-wcom-ls102xa.h
 F:	include/configs/pg-wcom-seli8.h
 F:	include/configs/pg-wcom-expu1.h

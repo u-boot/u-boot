@@ -8,5 +8,6 @@ F:	arch/arm/dts/vf-colibri-eval-v3.dtsi
 F:	arch/arm/dts/vf610-colibri-eval-v3-u-boot.dtsi
 F:	arch/arm/dts/vf610-colibri.dts
 F:	board/toradex/colibri_vf/
+F:	board/toradex/common/
 F:	configs/colibri_vf_defconfig
 F:	include/configs/colibri_vf.h

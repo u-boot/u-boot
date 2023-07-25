@@ -19,8 +19,6 @@
 #include <linux/compat.h>
 #include <android_image.h>
 
-#define FASTBOOT_MAX_BLK_WRITE 16384
-
 #define BOOT_PARTITION_NAME "boot"
 
 struct fb_mmc_sparse {

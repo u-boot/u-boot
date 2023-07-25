@@ -670,8 +670,8 @@ cleanup:
 	return ret;
 }
 
-int part_get_info_by_name_type(struct blk_desc *dev_desc, const char *name,
-			       struct disk_partition *info, int part_type)
+int part_get_info_by_name(struct blk_desc *dev_desc, const char *name,
+			  struct disk_partition *info)
 {
 	struct part_driver *part_drv;
 	int ret;
@@ -700,12 +700,6 @@ int part_get_info_by_name_type(struct blk_desc *dev_desc, const char *name,
 	}
 
 	return -ENOENT;
-}
-
-int part_get_info_by_name(struct blk_desc *dev_desc, const char *name,
-			  struct disk_partition *info)
-{
-	return part_get_info_by_name_type(dev_desc, name, info, PART_TYPE_ALL);
 }
 
 /**

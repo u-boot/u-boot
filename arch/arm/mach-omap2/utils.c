@@ -100,8 +100,7 @@ static u32 omap_mmc_get_part_size(const char *part)
 		return 0;
 	}
 
-	/* Check only for EFI (GPT) partition table */
-	res = part_get_info_by_name_type(dev_desc, part, &info, PART_TYPE_EFI);
+	res = part_get_info_by_name(dev_desc, part, &info);
 	if (res < 0)
 		return 0;
 

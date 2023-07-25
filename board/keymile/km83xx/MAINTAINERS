@@ -3,6 +3,8 @@ M:	Holger Brunck <holger.brunck@hitachienergy.com>
 M:	Heiko Schocher <hs@denx.de>
 S:	Maintained
 F:	board/keymile/km83xx/
+F:	board/keymile/common/
+F:	board/keymile/scripts/
 F:	include/configs/km8360.h
 F:	configs/kmcoge5ne_defconfig
 F:	configs/kmeter1_defconfig

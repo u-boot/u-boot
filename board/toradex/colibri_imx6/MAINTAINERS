@@ -4,6 +4,7 @@ W:	http://developer.toradex.com/software/linux/linux-software
 W:      https://www.toradex.com/community
 S:	Maintained
 F:	board/toradex/colibri_imx6/
+F:	board/toradex/common/
 F:	include/configs/colibri_imx6.h
 F:	configs/colibri_imx6_defconfig
 F:	arch/arm/dts/imx6dl-colibri-eval-v3.dts

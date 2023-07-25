@@ -12,6 +12,7 @@ F:	arch/arm/dts/kirkwood-ns2max-u-boot.dtsi
 F:	arch/arm/dts/kirkwood-ns2mini.dts
 F:	arch/arm/dts/kirkwood-ns2mini-u-boot.dtsi
 F:	arch/arm/dts/kirkwood-ns2-u-boot.dtsi
+F:	board/LaCie/common/
 F:	board/LaCie/netspace_v2/
 F:	include/configs/lacie_kw.h
 F:	configs/inetspace_v2_defconfig
