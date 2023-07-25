@@ -447,6 +447,8 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 
 		ptr += rec->size;
 	}
+	info->table_size += (void *)ptr - (void *)header;
+	info->rec_count += header->table_entries;
 
 	return 1;
 }
@@ -462,6 +464,8 @@ int get_coreboot_info(struct sysinfo_t *info)
 	addr = locate_coreboot_table();
 	if (addr < 0)
 		return addr;
+	info->table_size = 0;
+	info->rec_count = 0;
 	ret = cb_parse_header((void *)addr, 0x1000, info);
 	if (!ret)
 		return -ENOENT;
