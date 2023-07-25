@@ -183,7 +183,9 @@ Build procedure:
 
 Target Images
 --------------
-Copy the below images to an SD card and boot:
+In order to boot we need tiboot3.bin, sysfw.itb, tispl.bin and u-boot.img.
+Each SoC variant (GP, HS-FS and HS-SE) requires a different source for these
+files.
 
  - GP
 
