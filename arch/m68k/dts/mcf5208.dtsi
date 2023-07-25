@@ -16,6 +16,12 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 
+		wdog0: watchdog@fc08c000 {
+			compatible = "fsl,mcf5208-wdt";
+			reg = <0xfc08c000 0x10>;
+			status = "disabled";
+		};
+
 		uart0: uart@fc060000 {
 			compatible = "fsl,mcf-uart";
 			reg = <0xfc060000 0x40>;

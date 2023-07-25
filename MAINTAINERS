@@ -876,6 +876,7 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-coldfire.git
 F:	arch/m68k/
 F:	doc/arch/m68k.rst
+F:	drivers/watchdog/mcf_wdt.c
 
 CYCLIC
 M:	Stefan Roese <sr@denx.de>

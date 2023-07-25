@@ -17,7 +17,6 @@
 #include <init.h>
 #include <net.h>
 #include <vsprintf.h>
-#include <watchdog.h>
 #include <command.h>
 #include <asm/global_data.h>
 #include <asm/immap.h>
@@ -53,51 +52,7 @@ int print_cpuinfo(void)
 	return 0;
 };
 #endif /* CONFIG_DISPLAY_CPUINFO */
-
-#if defined(CONFIG_WATCHDOG)
-/* Called by macro WATCHDOG_RESET */
-void watchdog_reset(void)
-{
-	wdog_t *wdt = (wdog_t *)(MMAP_WDOG);
-
-	out_be16(&wdt->sr, 0x5555);
-	out_be16(&wdt->sr, 0xaaaa);
-}
-
-int watchdog_disable(void)
-{
-	wdog_t *wdt = (wdog_t *)(MMAP_WDOG);
-
-	/* reset watchdog counter */
-	out_be16(&wdt->sr, 0x5555);
-	out_be16(&wdt->sr, 0xaaaa);
-	/* disable watchdog timer */
-	out_be16(&wdt->cr, 0);
-
-	puts("WATCHDOG:disabled\n");
-	return (0);
-}
-
-int watchdog_init(void)
-{
-	wdog_t *wdt = (wdog_t *)(MMAP_WDOG);
-
-	/* disable watchdog */
-	out_be16(&wdt->cr, 0);
-
-	/* set timeout and enable watchdog */
-	out_be16(&wdt->mr,
-		(CONFIG_WATCHDOG_TIMEOUT_MSECS * CONFIG_SYS_HZ) / (32768 * 1000) - 1);
-
-	/* reset watchdog counter */
-	out_be16(&wdt->sr, 0x5555);
-	out_be16(&wdt->sr, 0xaaaa);
-
-	puts("WATCHDOG:enabled\n");
-	return (0);
-}
-#endif				/* #ifdef CONFIG_WATCHDOG */
-#endif				/* #ifdef CONFIG_M5208 */
+#endif /* #ifdef CONFIG_M5208 */
 
 #ifdef  CONFIG_M5271
 #if defined(CONFIG_DISPLAY_CPUINFO)

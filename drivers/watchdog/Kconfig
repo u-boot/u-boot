@@ -178,6 +178,13 @@ config WDT_MAX6370
 	help
 	  Select this to enable max6370 watchdog timer.
 
+config WDT_MCF
+	bool "ColdFire family watchdog timer support"
+	depends on WDT
+	help
+	  Select this to enable ColdFire watchdog timer,
+	  which supports mcf52x2 mcf532x mcf523x families.
+
 config WDT_MESON_GXBB
 	bool "Amlogic watchdog timer support"
 	depends on WDT

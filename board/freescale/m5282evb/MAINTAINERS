@@ -1,5 +1,5 @@
 M5282EVB BOARD
-#M:	-
+M:      Angelo Dureghello <angelo@kernel-space.org>
 S:	Maintained
 F:	board/freescale/m5282evb/
 F:	include/configs/M5282EVB.h
