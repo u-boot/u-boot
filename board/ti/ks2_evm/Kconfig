@@ -9,6 +9,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "k2e_evm"
 
+config ENV_SOURCE_FILE
+       default "k2e_evm"
+
 endif
 
 if TARGET_K2HK_EVM
@@ -21,6 +24,9 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "k2hk_evm"
+
+config ENV_SOURCE_FILE
+       default "k2hk_evm"
 
 endif
 
@@ -35,6 +41,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "k2l_evm"
 
+config ENV_SOURCE_FILE
+       default "k2l_evm"
+
 endif
 
 if TARGET_K2G_EVM
@@ -47,6 +56,9 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "k2g_evm"
+
+config ENV_SOURCE_FILE
+       default "k2g_evm"
 
 endif
 
