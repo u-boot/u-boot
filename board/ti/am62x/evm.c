@@ -78,8 +78,54 @@ static int video_setup(void)
 	return 0;
 }
 
+#define CTRLMMR_USB0_PHY_CTRL	0x43004008
+#define CTRLMMR_USB1_PHY_CTRL	0x43004018
+#define CORE_VOLTAGE		0x80000000
+
+#define WKUP_CTRLMMR_DBOUNCE_CFG1 0x04504084
+#define WKUP_CTRLMMR_DBOUNCE_CFG2 0x04504088
+#define WKUP_CTRLMMR_DBOUNCE_CFG3 0x0450408c
+#define WKUP_CTRLMMR_DBOUNCE_CFG4 0x04504090
+#define WKUP_CTRLMMR_DBOUNCE_CFG5 0x04504094
+#define WKUP_CTRLMMR_DBOUNCE_CFG6 0x04504098
+
 void spl_board_init(void)
 {
+	u32 val;
+
+	/* Set USB0 PHY core voltage to 0.85V */
+	val = readl(CTRLMMR_USB0_PHY_CTRL);
+	val &= ~(CORE_VOLTAGE);
+	writel(val, CTRLMMR_USB0_PHY_CTRL);
+
+	/* Set USB1 PHY core voltage to 0.85V */
+	val = readl(CTRLMMR_USB1_PHY_CTRL);
+	val &= ~(CORE_VOLTAGE);
+	writel(val, CTRLMMR_USB1_PHY_CTRL);
+
+	/* We have 32k crystal, so lets enable it */
+	val = readl(MCU_CTRL_LFXOSC_CTRL);
+	val &= ~(MCU_CTRL_LFXOSC_32K_DISABLE_VAL);
+	writel(val, MCU_CTRL_LFXOSC_CTRL);
+	/* Add any TRIM needed for the crystal here.. */
+	/* Make sure to mux up to take the SoC 32k from the crystal */
+	writel(MCU_CTRL_DEVICE_CLKOUT_LFOSC_SELECT_VAL,
+	       MCU_CTRL_DEVICE_CLKOUT_32K_CTRL);
+
+	/* Setup debounce conf registers - arbitrary values. Times are approx */
+	/* 1.9ms debounce @ 32k */
+	writel(0x1, WKUP_CTRLMMR_DBOUNCE_CFG1);
+	/* 5ms debounce @ 32k */
+	writel(0x5, WKUP_CTRLMMR_DBOUNCE_CFG2);
+	/* 20ms debounce @ 32k */
+	writel(0x14, WKUP_CTRLMMR_DBOUNCE_CFG3);
+	/* 46ms debounce @ 32k */
+	writel(0x18, WKUP_CTRLMMR_DBOUNCE_CFG4);
+	/* 100ms debounce @ 32k */
+	writel(0x1c, WKUP_CTRLMMR_DBOUNCE_CFG5);
+	/* 156ms debounce @ 32k */
+	writel(0x1f, WKUP_CTRLMMR_DBOUNCE_CFG6);
+
 	video_setup();
 	enable_caches();
 	if (IS_ENABLED(CONFIG_SPL_SPLASH_SCREEN) && IS_ENABLED(CONFIG_SPL_BMP))
