@@ -231,6 +231,15 @@ config SYS_I2C_DW
 	  controller is used in various SoCs, e.g. the ST SPEAr, Altera
 	  SoCFPGA, Synopsys ARC700 and some Intel x86 SoCs.
 
+config SYS_I2C_DW_PCI
+	bool "Designware PCI I2C Controller"
+	depends on SYS_I2C_DW && PCI && ACPIGEN
+	default y
+	help
+	  Say yes here to select the Designware PCI I2C Host Controller.
+	  This PCI I2C controller is the base on Desigware I2C host
+	  controller.
+
 config SYS_I2C_AST2600
     bool "AST2600 I2C Controller"
     depends on DM_I2C && ARCH_ASPEED
