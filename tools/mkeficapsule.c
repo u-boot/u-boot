@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright 2018 Linaro Limited
+ * Copyright 2023 Linaro Limited
  *		Author: AKASHI Takahiro
  */
 
