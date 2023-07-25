@@ -9,8 +9,6 @@
 #ifndef __CONFIG_K2HK_EVM_H
 #define __CONFIG_K2HK_EVM_H
 
-#include <environment/ti/spi.h>
-
 /* U-Boot general configuration */
 #define ENV_KS2_BOARD_SETTINGS						\
 	DEFAULT_FW_INITRAMFS_BOOT_ENV					\
@@ -26,8 +24,6 @@
 	"name_fs=arago-console-image-k2hk-evm.cpio.gz\0"
 
 #include <configs/ti_armv7_keystone2.h>
-
-#define SPI_MTD_PARTS KEYSTONE_SPI0_MTD_PARTS
 
 /* Network */
 #define CFG_KSNET_CPSW_NUM_PORTS	5

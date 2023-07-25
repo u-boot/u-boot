@@ -10,7 +10,6 @@
 #define __CONFIG_K2G_EVM_H
 
 #include <environment/ti/mmc.h>
-#include <environment/ti/spi.h>
 
 /* U-Boot general configuration */
 #define ENV_KS2_BOARD_SETTINGS						\
@@ -53,8 +52,6 @@
 /* Network */
 #define CFG_KSNET_CPSW_NUM_PORTS	2
 #define PHY_ANEG_TIMEOUT	10000 /* PHY needs longer aneg time */
-
-#define SPI_MTD_PARTS	KEYSTONE_SPI1_MTD_PARTS
 
 #include <configs/ti_armv7_keystone2.h>
 
