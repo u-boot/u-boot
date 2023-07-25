@@ -792,6 +792,7 @@ config ARCH_KEYSTONE
 	select SYS_ARCH_TIMER
 	select SYS_THUMB_BUILD
 	imply CMD_MTDPARTS
+	imply CMD_NFS
 	imply CMD_SAVES
 	imply FIT
 
