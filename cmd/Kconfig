@@ -1840,6 +1840,10 @@ config BOOTP_PXE_CLIENTARCH
 	default 0x15 if ARM
 	default 0x0 if X86
 
+config BOOTP_PXE_DHCP_OPTION
+	bool "Request & store 'pxe_configfile' from BOOTP/DHCP server"
+	depends on BOOTP_PXE
+
 config BOOTP_VCI_STRING
 	string
 	depends on CMD_BOOTP

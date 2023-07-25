@@ -26,6 +26,7 @@
 #ifdef CONFIG_BOOTP_RANDOM_DELAY
 #include "net_rand.h"
 #endif
+#include <malloc.h>
 
 #define BOOTP_VENDOR_MAGIC	0x63825363	/* RFC1048 Magic Cookie */
 
@@ -601,6 +602,10 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	*e++  = 42;
 	*cnt += 1;
 #endif
+	if (IS_ENABLED(CONFIG_BOOTP_PXE_DHCP_OPTION)) {
+		*e++ = 209;	/* PXELINUX Config File */
+		*cnt += 1;
+	}
 	/* no options, so back up to avoid sending an empty request list */
 	if (*cnt == 0)
 		e -= 2;
@@ -907,6 +912,22 @@ static void dhcp_process_options(uchar *popt, uchar *end)
 						   oplen);
 				memcpy(&net_boot_file_name, popt + 2, size);
 				net_boot_file_name[size] = 0;
+			}
+			break;
+		case 209:	/* PXELINUX Config File */
+			if (IS_ENABLED(CONFIG_BOOTP_PXE_DHCP_OPTION)) {
+				/* In case it has already been allocated when get DHCP Offer packet,
+				 * free first to avoid memory leak.
+				 */
+				if (pxelinux_configfile)
+					free(pxelinux_configfile);
+
+				pxelinux_configfile = (char *)malloc((oplen + 1) * sizeof(char));
+
+				if (pxelinux_configfile)
+					strlcpy(pxelinux_configfile, popt + 2, oplen + 1);
+				else
+					printf("Error: Failed to allocate pxelinux_configfile\n");
 			}
 			break;
 		default:

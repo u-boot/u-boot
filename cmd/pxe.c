@@ -141,6 +141,14 @@ int pxe_get(ulong pxefile_addr_r, char **bootdirp, ulong *sizep, bool use_ipv6)
 			  env_get("bootfile"), use_ipv6))
 		return -ENOMEM;
 
+	if (IS_ENABLED(CONFIG_BOOTP_PXE_DHCP_OPTION) &&
+	    pxelinux_configfile && !use_ipv6) {
+		if (pxe_dhcp_option_path(&ctx, pxefile_addr_r) > 0)
+			goto done;
+
+		goto error_exit;
+	}
+
 	if (IS_ENABLED(CONFIG_DHCP6_PXE_DHCP_OPTION) &&
 	    pxelinux_configfile && use_ipv6) {
 		if (pxe_dhcp_option_path(&ctx, pxefile_addr_r) > 0)
