@@ -588,7 +588,8 @@ Some images are invalid'''
     def testBranchWithSlash(self):
         """Test building a branch with a '/' in the name"""
         self._test_branch = '/__dev/__testbranch'
-        self._RunControl('-b', self._test_branch, clean_dir=False)
+        self._RunControl('-b', self._test_branch, '-o', self._output_dir,
+                         clean_dir=False)
         self.assertEqual(self._builder.count, self._total_builds)
         self.assertEqual(self._builder.fail, 0)
 
@@ -1028,37 +1029,39 @@ endif
 
     def test_exclude_one(self):
         """Test excluding a single board from an arch"""
-        self._RunControl('arm', '-x', 'board1')
+        self._RunControl('arm', '-x', 'board1', '-o', self._output_dir)
         self.assertEqual(['board0'],
                          [b.target for b in self._boards.get_selected()])
 
     def test_exclude_arch(self):
         """Test excluding an arch"""
-        self._RunControl('-x', 'arm')
+        self._RunControl('-x', 'arm', '-o', self._output_dir)
         self.assertEqual(['board2', 'board4'],
                          [b.target for b in self._boards.get_selected()])
 
     def test_exclude_comma(self):
         """Test excluding a comma-separated list of things"""
-        self._RunControl('-x', 'arm,powerpc')
+        self._RunControl('-x', 'arm,powerpc', '-o', self._output_dir)
         self.assertEqual(['board4'],
                          [b.target for b in self._boards.get_selected()])
 
     def test_exclude_list(self):
         """Test excluding a list of things"""
-        self._RunControl('-x', 'board2', '-x' 'board4')
+        self._RunControl('-x', 'board2', '-x' 'board4', '-o', self._output_dir)
         self.assertEqual(['board0', 'board1'],
                          [b.target for b in self._boards.get_selected()])
 
     def test_single_boards(self):
         """Test building single boards"""
-        self._RunControl('--boards', 'board1')
+        self._RunControl('--boards', 'board1', '-o', self._output_dir)
         self.assertEqual(1, self._builder.count)
 
-        self._RunControl('--boards', 'board1', '--boards', 'board2')
+        self._RunControl('--boards', 'board1', '--boards', 'board2',
+                         '-o', self._output_dir)
         self.assertEqual(2, self._builder.count)
 
-        self._RunControl('--boards', 'board1,board2', '--boards', 'board4')
+        self._RunControl('--boards', 'board1,board2', '--boards', 'board4',
+                         '-o', self._output_dir)
         self.assertEqual(3, self._builder.count)
 
     def test_print_arch(self):
