@@ -304,7 +304,7 @@ static void dhcp6_parse_ia_options(struct dhcp6_option_hdr *ia_ptr, uchar *ia_op
 static void dhcp6_parse_options(uchar *rx_pkt, unsigned int len)
 {
 	uchar *option_ptr;
-	int sol_max_rt_sec, option_len;
+	int sol_max_rt_sec, option_len, param_len_1;
 	char *s, *e;
 	struct dhcp6_option_hdr *option_hdr;
 
@@ -390,14 +390,23 @@ static void dhcp6_parse_options(uchar *rx_pkt, unsigned int len)
 		case DHCP6_OPTION_OPT_BOOTFILE_PARAM:
 			if (IS_ENABLED(CONFIG_DHCP6_PXE_DHCP_OPTION)) {
 				debug("DHCP6_OPTION_OPT_BOOTFILE_PARAM FOUND\n");
+				/* if CONFIG_DHCP6_PXE_DHCP_OPTION is set the PXE config file path
+				 * is contained in the first OPT_BOOTFILE_PARAM argument
+				 */
+				param_len_1 = ntohs(*((u16 *)option_ptr));
+				option_ptr += sizeof(u16);
+				if (param_len_1 + sizeof(u16) > option_len) {
+					debug("Invalid BOOTFILE_PARAM param_len_1. Skipping\n");
+					break;
+				}
 
 				if (pxelinux_configfile)
 					free(pxelinux_configfile);
 
-				pxelinux_configfile = (char *)malloc((option_len + 1) *
+				pxelinux_configfile = (char *)malloc((param_len_1 + 1) *
 						      sizeof(char));
 				if (pxelinux_configfile)
-					strlcpy(pxelinux_configfile, option_ptr, option_len + 1);
+					strlcpy(pxelinux_configfile, option_ptr, param_len_1 + 1);
 				else
 					printf("Error: Failed to allocate pxelinux_configfile\n");
 
