@@ -132,9 +132,9 @@ static int set_name(fat_itr *itr, const char *filename, char *shortname)
 		return period_location;
 	if (*dirent.name == ' ')
 		*dirent.name = '_';
-	/* 0xe5 signals a deleted directory entry. Replace it by 0x05. */
-	if (*dirent.name == 0xe5)
-		*dirent.name = 0x05;
+	/* Substitute character 0xe5 signaling deletetion by character 0x05 */
+	if (*dirent.name == DELETED_FLAG)
+		*dirent.name = aRING;
 
 	/* If filename and short name are the same, quit. */
 	sprintf(buf, "%.*s.%.3s", period_location, dirent.name, dirent.ext);
