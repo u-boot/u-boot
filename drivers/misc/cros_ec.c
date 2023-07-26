@@ -1100,8 +1100,11 @@ int cros_ec_get_sku_id(struct udevice *dev)
 
 	ret = ec_command_inptr(dev, EC_CMD_GET_SKU_ID, 0, NULL, 0,
 			       (uint8_t **)&r, sizeof(*r));
-	if (ret != sizeof(*r))
-		return -ret;
+	if (ret != sizeof(*r)) {
+		if (ret >= 0)
+			ret = -EIO;
+		return ret;
+	}
 
 	return r->sku_id;
 }
