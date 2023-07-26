@@ -238,7 +238,7 @@ static int virtio_uclass_post_probe(struct udevice *udev)
 
 	ret = device_bind_driver(udev, name, str, &vdev);
 	if (ret == -ENOENT) {
-		debug("(%s): no driver configured\n", udev->name);
+		debug("(%s): %s driver not configured\n", udev->name, name);
 		return 0;
 	}
 	if (ret) {
