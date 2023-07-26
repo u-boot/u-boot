@@ -52,65 +52,6 @@ int scmi_to_linux_errno(s32 scmi_code)
 	return -EPROTO;
 }
 
-/*
- * SCMI agent devices binds devices of various uclasses depeding on
- * the FDT description. scmi_bind_protocol() is a generic bind sequence
- * called by the uclass at bind stage, that is uclass post_bind.
- */
-static int scmi_bind_protocols(struct udevice *dev)
-{
-	int ret = 0;
-	ofnode node;
-	const char *name;
-
-	dev_for_each_subnode(node, dev) {
-		struct driver *drv = NULL;
-		u32 protocol_id;
-
-		if (!ofnode_is_enabled(node))
-			continue;
-
-		if (ofnode_read_u32(node, "reg", &protocol_id))
-			continue;
-
-		name = ofnode_get_name(node);
-		switch (protocol_id) {
-		case SCMI_PROTOCOL_ID_CLOCK:
-			if (CONFIG_IS_ENABLED(CLK_SCMI))
-				drv = DM_DRIVER_GET(scmi_clock);
-			break;
-		case SCMI_PROTOCOL_ID_RESET_DOMAIN:
-			if (IS_ENABLED(CONFIG_RESET_SCMI))
-				drv = DM_DRIVER_GET(scmi_reset_domain);
-			break;
-		case SCMI_PROTOCOL_ID_VOLTAGE_DOMAIN:
-			if (IS_ENABLED(CONFIG_DM_REGULATOR_SCMI)) {
-				node = ofnode_find_subnode(node, "regulators");
-				if (!ofnode_valid(node)) {
-					dev_err(dev, "no regulators node\n");
-					return -ENXIO;
-				}
-				drv = DM_DRIVER_GET(scmi_voltage_domain);
-			}
-			break;
-		default:
-			break;
-		}
-
-		if (!drv) {
-			dev_dbg(dev, "Ignore unsupported SCMI protocol %#x\n",
-				protocol_id);
-			continue;
-		}
-
-		ret = device_bind(dev, drv, name, NULL, node, NULL);
-		if (ret)
-			break;
-	}
-
-	return ret;
-}
-
 static struct udevice *find_scmi_protocol_device(struct udevice *dev)
 {
 	struct udevice *parent = NULL, *protocol;
@@ -215,6 +156,65 @@ int devm_scmi_process_msg(struct udevice *dev, struct scmi_msg *msg)
 	priv = dev_get_parent_priv(protocol);
 
 	return scmi_process_msg(protocol->parent, priv->channel, msg);
+}
+
+/*
+ * SCMI agent devices binds devices of various uclasses depending on
+ * the FDT description. scmi_bind_protocol() is a generic bind sequence
+ * called by the uclass at bind stage, that is uclass post_bind.
+ */
+static int scmi_bind_protocols(struct udevice *dev)
+{
+	int ret = 0;
+	ofnode node;
+	const char *name;
+
+	dev_for_each_subnode(node, dev) {
+		struct driver *drv = NULL;
+		u32 protocol_id;
+
+		if (!ofnode_is_enabled(node))
+			continue;
+
+		if (ofnode_read_u32(node, "reg", &protocol_id))
+			continue;
+
+		name = ofnode_get_name(node);
+		switch (protocol_id) {
+		case SCMI_PROTOCOL_ID_CLOCK:
+			if (CONFIG_IS_ENABLED(CLK_SCMI))
+				drv = DM_DRIVER_GET(scmi_clock);
+			break;
+		case SCMI_PROTOCOL_ID_RESET_DOMAIN:
+			if (IS_ENABLED(CONFIG_RESET_SCMI))
+				drv = DM_DRIVER_GET(scmi_reset_domain);
+			break;
+		case SCMI_PROTOCOL_ID_VOLTAGE_DOMAIN:
+			if (IS_ENABLED(CONFIG_DM_REGULATOR_SCMI)) {
+				node = ofnode_find_subnode(node, "regulators");
+				if (!ofnode_valid(node)) {
+					dev_err(dev, "no regulators node\n");
+					return -ENXIO;
+				}
+				drv = DM_DRIVER_GET(scmi_voltage_domain);
+			}
+			break;
+		default:
+			break;
+		}
+
+		if (!drv) {
+			dev_dbg(dev, "Ignore unsupported SCMI protocol %#x\n",
+				protocol_id);
+			continue;
+		}
+
+		ret = device_bind(dev, drv, name, NULL, node, NULL);
+		if (ret)
+			break;
+	}
+
+	return ret;
 }
 
 UCLASS_DRIVER(scmi_agent) = {
