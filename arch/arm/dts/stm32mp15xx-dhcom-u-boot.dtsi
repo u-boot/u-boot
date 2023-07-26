@@ -153,6 +153,20 @@
 };
 
 &rcc {
+	/*
+	 * Reinstate clock names from stm32mp151.dtsi, the MCO2 trick
+	 * used in stm32mp15xx-dhcom-som.dtsi is not supported by the
+	 * U-Boot clock framework.
+	 */
+	clock-names = "hse", "hsi", "csi", "lse", "lsi";
+	clocks = <&clk_hse>, <&clk_hsi>, <&clk_csi>,
+		 <&clk_lse>, <&clk_lsi>;
+
+	/* The MCO2 is already configured correctly, remove those. */
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	/delete-property/ assigned-clock-rates;
+
 	st,clksrc = <
 		CLK_MPU_PLL1P
 		CLK_AXI_PLL2P
