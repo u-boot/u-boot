@@ -287,6 +287,10 @@ const struct flash_info spi_nor_ids[] = {
 	{ INFO("mx25uw6345g",    0xc28437, 0, 64 * 1024, 128, SECT_4K | SPI_NOR_OCTAL_DTR_READ | SPI_NOR_4B_OPCODES) },
 #endif
 
+#ifdef CONFIG_SPI_FLASH_SILICONKAISER
+	{ INFO("sk25lp128", 0x257018, 0, 64 * 1024, 256, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+#endif
+
 #ifdef CONFIG_SPI_FLASH_STMICRO		/* STMICRO */
 	/* Micron */
 	{ INFO("n25q016a",	 0x20bb15, 0, 64 * 1024,   32, SECT_4K | SPI_NOR_QUAD_READ) },
