@@ -45,10 +45,7 @@ boot media needed to load the binaries packaged inside `tiboot3.bin`,
 including a 32bit U-Boot SPL, (called the wakup SPL) that ROM will jump
 to after it has finished loading everything into internal SRAM.
 
-.. code-block:: text
-
-   |  WKUP Domain
-    ROM -> WKUP SPL ->
+.. image:: img/boot_flow_01.svg
 
 The wakeup SPL, running on a wakeup domain core, will initialize DDR and
 any peripherals needed load the larger binaries inside the `tispl.bin`
@@ -57,10 +54,7 @@ application cores inside the main domain to initialize the main domain,
 starting with Trusted Firmware-A (TF-A), before moving on to start
 OP-TEE and the main domain's U-Boot SPL.
 
-.. code-block:: text
-
-   |  WKUP Domain   | Main Domain ->
-    ROM -> WKUP SPL -> TF-A -> OP-TEE -> Main SPL
+.. image:: img/boot_flow_02.svg
 
 The main domain's SPL, running on a 64bit application core, has
 virtually unlimited space (billions of bytes now that DDR is working) to
@@ -68,10 +62,7 @@ initialize even more peripherals needed to load in the `u-boot.img`
 which loads more firmware into the micro-controller & wakeup domains and
 finally prepare the main domain to run Linux.
 
-.. code-block:: text
-
-   |  WKUP Domain   | Main Domain ->
-    ROM -> WKUP SPL -> TF-A -> OP-TEE -> Main SPL -> UBoot -> Linux
+.. image:: img/boot_flow_03.svg
 
 This is the typical boot flow for all K3 based SoCs, however this flow
 offers quite a lot in the terms of flexibility, especially on High
