@@ -143,18 +143,33 @@ The following table shows some common boot modes used on J7200 platform. More
 details can be found in the Technical Reference Manual:
 https://www.ti.com/lit/pdf/spruiu1 under the `Boot Mode Pins` section.
 
+.. list-table:: Boot Modes
+   :widths: 16 16 16
+   :header-rows: 1
 
-*Boot Modes*
+   * - Switch Label
+     - SW9: 12345678
+     - SW8: 12345678
 
-============ ============= =============
-Switch Label SW9: 12345678 SW8: 12345678
-============ ============= =============
-SD           00000000      10000010
-EMMC         01000000      10000000
-OSPI         01000000      00000110
-UART         01110000      00000000
-USB DFU      00100000      10000000
-============ ============= =============
+   * - SD
+     - 00000000
+     - 10000010
+
+   * - EMMC
+     - 01000000
+     - 10000000
+
+   * - OSPI
+     - 01000000
+     - 00000110
+
+   * - UART
+     - 01110000
+     - 00000000
+
+   * - USB DFU
+     - 00100000
+     - 10000000
 
 For SW8 and SW9, the switch state in the "ON" position = 1.
 
