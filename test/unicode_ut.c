@@ -807,12 +807,12 @@ static int unicode_test_u16_strlcat(struct unit_test_state *uts)
 
 	/* dest and src are empty string */
 	memset(buf, 0, sizeof(buf));
-	ret = u16_strlcat(buf, &null_src, sizeof(buf));
+	ret = u16_strlcat(buf, &null_src, ARRAY_SIZE(buf));
 	ut_asserteq(0, ret);
 
 	/* dest is empty string */
 	memset(buf, 0, sizeof(buf));
-	ret = u16_strlcat(buf, src, sizeof(buf));
+	ret = u16_strlcat(buf, src, ARRAY_SIZE(buf));
 	ut_asserteq(4, ret);
 	ut_assert(!unicode_test_u16_strcmp(buf, src, 40));
 
@@ -820,7 +820,7 @@ static int unicode_test_u16_strlcat(struct unit_test_state *uts)
 	memset(buf, 0xCD, (sizeof(buf) - sizeof(u16)));
 	buf[39] = 0;
 	memcpy(buf, dest, sizeof(dest));
-	ret = u16_strlcat(buf, &null_src, sizeof(buf));
+	ret = u16_strlcat(buf, &null_src, ARRAY_SIZE(buf));
 	ut_asserteq(5, ret);
 	ut_assert(!unicode_test_u16_strcmp(buf, dest, 40));
 
