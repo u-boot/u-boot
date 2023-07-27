@@ -21,6 +21,7 @@
 #include <mmc.h>
 #include <net.h>
 #include <pxe_utils.h>
+#include <linux/sizes.h>
 
 #define EFI_DIRNAME	"efi/boot/"
 
@@ -281,9 +282,12 @@ static int distro_efi_try_bootflow_files(struct udevice *dev,
 		ret = distro_efi_get_fdt_name(fname, sizeof(fname), seq);
 		if (ret == -EALREADY)
 			bflow->flags = BOOTFLOWF_USE_PRIOR_FDT;
-		if (!ret)
+		if (!ret) {
+			/* Limit FDT files to 4MB */
+			size = SZ_4M;
 			ret = bootmeth_common_read_file(dev, bflow, fname,
 							fdt_addr, &size);
+		}
 	}
 
 	if (*fname) {
