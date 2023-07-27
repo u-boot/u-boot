@@ -117,21 +117,10 @@ instead use Falcon boot flow to reduce boot time.
 
 Sources:
 --------
-1. Trusted Firmware-A:
-        Tree: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/
-        Branch: master
 
-2. OP-TEE:
-        Tree: https://github.com/OP-TEE/optee_os.git
-        Branch: master
-
-3. U-Boot:
-        Tree: https://source.denx.de/u-boot/u-boot
-        Branch: master
-
-4. TI Linux Firmware:
-        Tree: git://git.ti.com/processor-firmware/ti-linux-firmware.git
-        Branch: ti-linux-firmware
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_boot_sources
+    :end-before: .. k3_rst_include_end_boot_sources
 
 Build procedure:
 ----------------
