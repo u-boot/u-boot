@@ -204,7 +204,7 @@ struct icmp6_ra_prefix_info {
 	 * be initialized to zero by the sender and ignored by the receiver.
 	 */
 	struct in6_addr prefix;
-};
+} __packed;
 
 extern struct in6_addr const net_null_addr_ip6;	/* NULL IPv6 address */
 extern struct in6_addr net_gateway6;	/* Our gateways IPv6 address */
