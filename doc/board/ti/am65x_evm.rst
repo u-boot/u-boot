@@ -273,16 +273,34 @@ ROM supports booting from MCU_UART0 via X-Modem protocol. The entire UART-based
 boot process up to U-Boot (proper) prompt goes through different stages and uses
 different UART peripherals as follows:
 
-.. code-block:: text
+.. list-table:: ROM UART Boot Responsibilities
+   :widths: 16 16 16 16
+   :header-rows: 1
 
- +---------+---------------+-------------+------------+
- | WHO     | Loading WHAT  |  HW Module  |  Protocol  |
- +---------+---------------+-------------+------------+
- |Boot ROM |  tiboot3.bin  |  MCU_UART0  |  X-Modem(*)|
- |R5 SPL   |  sysfw.itb    |  MCU_UART0  |  Y-Modem(*)|
- |R5 SPL   |  tispl.bin    |  MAIN_UART0 |  Y-Modem   |
- |A53 SPL  |  u-boot.img   |  MAIN_UART0 |  Y-Modem   |
- +---------+---------------+-------------+------------+
+   * - Who
+     - Loading What
+     - Hardware Module
+     - Protocol
+
+   * - Boot ROM
+     - tiboot3.bin
+     - MCU_UART0
+     - X-Modem(*)
+
+   * - R5 SPL
+     - sysfw.itb
+     - MCU_UART0
+     - Y-Modem(*)
+
+   * - R5 SPL
+     - tispl.bin
+     - MAIN_UART0
+     - Y-Modem
+
+   * - A53 SPL
+     - u-boot.img
+     - MAIN_UART0
+     - Y-Modem
 
 Note that in addition to X/Y-Modem related protocol timeouts the DMSC
 watchdog timeout of 3min (typ.) needs to be observed until System Firmware
