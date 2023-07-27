@@ -24,6 +24,10 @@ cores, voltage domains and peripherals:
 
 More info can be found in TRM: http://www.ti.com/lit/pdf/spruid7
 
+Platform information:
+
+* https://www.ti.com/tool/TMDX654GPEVM
+
 Boot Flow:
 ----------
 On AM65x family devices, ROM supports boot only via MCU(R5). This means that

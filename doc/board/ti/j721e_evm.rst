@@ -29,6 +29,11 @@ specific processing cores and peripherals:
 
 More info can be found in TRM: http://www.ti.com/lit/pdf/spruil1
 
+Platform information:
+
+* https://www.ti.com/tool/J721EXSOMXEVM
+* https://www.ti.com/tool/SK-TDA4VM
+
 Boot Flow:
 ----------
 Boot flow is similar to that of AM65x SoC and extending it with remoteproc

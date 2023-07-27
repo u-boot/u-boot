@@ -38,6 +38,10 @@ Some highlights of this SoC are:
 More details can be found in the Technical Reference Manual:
 https://www.ti.com/lit/pdf/spruiv7
 
+Platform information:
+
+* https://www.ti.com/tool/SK-AM62B
+
 Boot Flow:
 ----------
 Below is the pictorial representation of boot flow:

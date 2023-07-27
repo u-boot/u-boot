@@ -26,6 +26,10 @@ specific processing cores and peripherals:
 
 More info can be found in TRM: https://www.ti.com/lit/pdf/spruiu1
 
+Platform information:
+
+* https://www.ti.com/tool/J7200XSOMXEVM
+
 Boot Flow:
 ----------
 Below is the pictorial representation of boot flow:
