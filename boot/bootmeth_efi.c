@@ -94,6 +94,20 @@ static int get_efi_pxe_vci(char *str, int max_len)
 	return 0;
 }
 
+/**
+ * bootmeth_uses_network() - check if the media device is Ethernet
+ *
+ * @bflow: Bootflow to check
+ * Returns: true if the media device is Ethernet, else false
+ */
+static bool bootmeth_uses_network(struct bootflow *bflow)
+{
+	const struct udevice *media = dev_get_parent(bflow->dev);
+
+	return IS_ENABLED(CONFIG_CMD_DHCP) &&
+	    device_get_uclass_id(media) == UCLASS_ETH;
+}
+
 static void set_efi_bootdev(struct blk_desc *desc, struct bootflow *bflow)
 {
 	const struct udevice *media_dev;
@@ -354,11 +368,9 @@ static int distro_efi_read_bootflow_net(struct bootflow *bflow)
 
 static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
-	const struct udevice *media = dev_get_parent(bflow->dev);
 	int ret;
 
-	if (IS_ENABLED(CONFIG_CMD_DHCP) &&
-	    device_get_uclass_id(media) == UCLASS_ETH) {
+	if (bootmeth_uses_network(bflow)) {
 		/* we only support reading from one device, so ignore 'dev' */
 		ret = distro_efi_read_bootflow_net(bflow);
 		if (ret)
@@ -378,7 +390,7 @@ int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 	char cmd[50];
 
 	/* A non-zero buffer indicates the kernel is there */
-	if (bflow->buf) {
+	if (!bootmeth_uses_network(bflow)) {
 		/* Set the EFI bootdev again, since reading an FDT loses it! */
 		if (bflow->blk) {
 			struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
