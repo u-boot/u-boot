@@ -143,13 +143,24 @@ static void set_efi_bootdev(struct blk_desc *desc, struct bootflow *bflow)
 	efi_set_bootdev(dev_name, devnum_str, bflow->fname, bflow->buf, size);
 }
 
-static int efiload_read_file(struct blk_desc *desc, struct bootflow *bflow)
+static int efiload_read_file(struct bootflow *bflow, ulong addr)
 {
+	struct blk_desc *desc = NULL;
+	loff_t bytes_read;
 	int ret;
 
-	ret = bootmeth_alloc_file(bflow, 0x2000000, 0x10000);
+	if (bflow->blk)
+		 desc = dev_get_uclass_plat(bflow->blk);
+	ret = bootmeth_setup_fs(bflow, desc);
+	if (ret)
+		return log_msg_ret("set", ret);
+
+	ret = fs_read(bflow->fname, addr, 0, bflow->size, &bytes_read);
 	if (ret)
 		return log_msg_ret("read", ret);
+	bflow->buf = map_sysmem(addr, bflow->size);
+
+	set_efi_bootdev(desc, bflow);
 
 	return 0;
 }
@@ -223,7 +234,18 @@ static int distro_efi_get_fdt_name(char *fname, int size, int seq)
 	return 0;
 }
 
-static int distro_efi_read_bootflow_file(struct udevice *dev,
+/*
+ * distro_efi_try_bootflow_files() - Check that files are present
+ *
+ * This reads any FDT file and checks whether the bootflow file is present, for
+ * later reading. We avoid reading the bootflow now, since it is likely large,
+ * it may take a long time and we want to avoid needing to allocate memory for
+ * it
+ *
+ * @dev: bootmeth device to use
+ * @bflow: bootflow to update
+ */
+static int distro_efi_try_bootflow_files(struct udevice *dev,
 					 struct bootflow *bflow)
 {
 	struct blk_desc *desc = NULL;
@@ -247,9 +269,8 @@ static int distro_efi_read_bootflow_file(struct udevice *dev,
 	if (ret)
 		return log_msg_ret("try", ret);
 
-	ret = efiload_read_file(desc, bflow);
-	if (ret)
-		return log_msg_ret("read", ret);
+	/* Since we can access the file, let's call it ready */
+	bflow->state = BOOTFLOWST_READY;
 
 	fdt_addr = env_get_hex("fdt_addr_r", 0);
 
@@ -376,7 +397,7 @@ static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 		if (ret)
 			return log_msg_ret("net", ret);
 	} else {
-		ret = distro_efi_read_bootflow_file(dev, bflow);
+		ret = distro_efi_try_bootflow_files(dev, bflow);
 		if (ret)
 			return log_msg_ret("blk", ret);
 	}
@@ -388,17 +409,13 @@ int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 {
 	ulong kernel, fdt;
 	char cmd[50];
+	int ret;
 
-	/* A non-zero buffer indicates the kernel is there */
+	kernel = env_get_hex("kernel_addr_r", 0);
 	if (!bootmeth_uses_network(bflow)) {
-		/* Set the EFI bootdev again, since reading an FDT loses it! */
-		if (bflow->blk) {
-			struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
-
-			set_efi_bootdev(desc, bflow);
-		}
-
-		kernel = (ulong)map_to_sysmem(bflow->buf);
+		ret = efiload_read_file(bflow, kernel);
+		if (ret)
+			return log_msg_ret("read", ret);
 
 		/*
 		 * use the provided device tree if available, else fall back to
@@ -417,7 +434,6 @@ int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 		 * But this is the same behaviour for distro boot, so it can be
 		 * fixed here.
 		 */
-		kernel = env_get_hex("kernel_addr_r", 0);
 		fdt = env_get_hex("fdt_addr_r", 0);
 	}
 
