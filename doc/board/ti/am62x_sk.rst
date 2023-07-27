@@ -56,39 +56,60 @@ Sources:
 
 Build procedure:
 ----------------
-1. Trusted Firmware-A:
+0. Setup the environment variables:
 
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_common_env_vars_desc
+    :end-before: .. k3_rst_include_end_common_env_vars_desc
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_board_env_vars_desc
+    :end-before: .. k3_rst_include_end_board_env_vars_desc
+
+Set the variables corresponding to this platform:
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_common_env_vars_defn
+    :end-before: .. k3_rst_include_end_common_env_vars_defn
 .. code-block:: bash
 
- $ make CROSS_COMPILE=aarch64-none-linux-gnu- ARCH=aarch64 PLAT=k3 \
-        TARGET_BOARD=lite SPD=opteed
+ $ export UBOOT_CFG_CORTEXR=am62x_evm_r5_defconfig
+ $ export UBOOT_CFG_CORTEXA=am62x_evm_a53_defconfig
+ $ export TFA_BOARD=lite
+ $ # we dont use any extra TFA parameters
+ $ unset TFA_EXTRA_ARGS
+ $ export OPTEE_PLATFORM=k3-am62x
+ $ export OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
+
+.. am62x_evm_rst_include_start_build_steps
+
+1. Trusted Firmware-A:
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_tfa
+    :end-before: .. k3_rst_include_end_build_steps_tfa
+
 
 2. OP-TEE:
 
-.. code-block:: bash
-
- $ make PLATFORM=k3 CFG_ARM64_core=y CROSS_COMPILE=arm-none-linux-gnueabihf- \
-        CROSS_COMPILE64=aarch64-none-linux-gnu-
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_optee
+    :end-before: .. k3_rst_include_end_build_steps_optee
 
 3. U-Boot:
 
-* 3.1 R5:
+* 4.1 R5:
 
-.. code-block:: bash
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_spl_r5
+    :end-before: .. k3_rst_include_end_build_steps_spl_r5
 
- $ make ARCH=arm am62x_evm_r5_defconfig
- $ make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabihf- \
-        BINMAN_INDIRS=<path/to/ti-linux-firmware>
+* 4.2 A53:
 
-* 3.2 A53:
-
-.. code-block:: bash
-
- $ make ARCH=arm am62x_evm_a53_defconfig
- $ make ARCH=arm CROSS_COMPILE=aarch64-none-linux-gnu- \
-        BL31=<path/to/trusted-firmware-a/dir>/build/k3/lite/release/bl31.bin \
-        TEE=<path/to/optee_os/dir>/out/arm-plat-k3/core/tee-raw.bin \
-        BINMAN_INDIRS=<path/to/ti-linux-firmware>
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_uboot
+    :end-before: .. k3_rst_include_end_build_steps_uboot
+.. am62x_evm_rst_include_end_build_steps
 
 Target Images
 --------------

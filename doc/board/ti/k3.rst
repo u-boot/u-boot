@@ -154,10 +154,71 @@ compiled for 64bit main domain CPU cores.
 All of that to say you will need both a 32bit and 64bit cross compiler
 (assuming you're using an x86 desktop)
 
+.. k3_rst_include_start_common_env_vars_desc
+.. list-table:: Generic environment variables
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - S/w Component
+     - Env Variable
+     - Description
+   * - All Software
+     - CC32
+     - Cross compiler for ARMv7 (ARM 32bit), typically arm-linux-gnueabihf-
+   * - All Software
+     - CC64
+     - Cross compiler for ARMv8 (ARM 64bit), typically aarch64-linux-gnu-
+   * - All Software
+     - LNX_FW_PATH
+     - Path to TI Linux firmware repository
+   * - All Software
+     - TFA_PATH
+     - Path to source of Trusted Firmware-A
+   * - All Software
+     - OPTEE_PATH
+     - Path to source of OP-TEE
+.. k3_rst_include_end_common_env_vars_desc
+
+.. k3_rst_include_start_common_env_vars_defn
 .. code-block:: bash
 
  $ export CC32=arm-linux-gnueabihf-
  $ export CC64=aarch64-linux-gnu-
+ $ export LNX_FW_PATH=path/to/ti-linux-firmware
+ $ export TFA_PATH=path/to/trusted-firmware-a
+ $ export OPTEE_PATH=path/to/optee_os
+.. k3_rst_include_end_common_env_vars_defn
+
+We will also need some common environment variables set up for the various
+other build sources. we shall use the following, in the build descriptions below:
+
+.. k3_rst_include_start_board_env_vars_desc
+.. list-table:: Board specific environment variables
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - S/w Component
+     - Env Variable
+     - Description
+   * - U-Boot
+     - UBOOT_CFG_CORTEXR
+     - Defconfig for Cortex-R (Boot processor).
+   * - U-Boot
+     - UBOOT_CFG_CORTEXA
+     - Defconfig for Cortex-A (MPU processor).
+   * - Trusted Firmware-A
+     - TFA_BOARD
+     - Platform name used for building TF-A for Cortex-A Processor.
+   * - Trusted Firmware-A
+     - TFA_EXTRA_ARGS
+     - Any extra arguments used for building TF-A.
+   * - OP-TEE
+     - OPTEE_PLATFORM
+     - Platform name used for building OP-TEE for Cortex-A Processor.
+   * - OP-TEE
+     - OPTEE_EXTRA_ARGS
+     - Any extra arguments used for building OP-TEE.
+.. k3_rst_include_end_board_env_vars_desc
 
 Building tiboot3.bin
 ^^^^^^^^^^^^^^^^^^^^^
@@ -168,13 +229,13 @@ Building tiboot3.bin
    the final `tiboot3.bin` binary. (or the `sysfw.itb` if your device
    uses the split binary flow)
 
-
+.. k3_rst_include_start_build_steps_spl_r5
 .. code-block:: bash
 
  $ # inside u-boot source
- $ make ARCH=arm {SOC}_evm_r5_defconfig
- $ make ARCH=arm CROSS_COMPILE=$CC32 \
-        BINMAN_INDIRS=<path/to/ti-linux-firmware>
+ $ make $UBOOT_CFG_CORTEXR
+ $ make CROSS_COMPILE=$CC32 BINMAN_INDIRS=$LNX_FW_PATH
+.. k3_rst_include_end_build_steps_spl_r5
 
 At this point you should have all the needed binaries to boot the wakeup
 domain of your K3 SoC.
@@ -204,39 +265,43 @@ firmware if your device using a split firmware.
 2. We will first need TF-A, as it's the first thing to run on the 'big'
    application cores on the main domain.
 
+.. k3_rst_include_start_build_steps_tfa
 .. code-block:: bash
 
  $ # inside trusted-firmware-a source
- $ make CROSS_COMPILE=$CC64 ARCH=aarch64 PLAT=k3 \
-        TARGET_BOARD={lite|generic|j784s4} \
-        SPD=opteed
+ $ make CROSS_COMPILE=$CC64 ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS \
+        TARGET_BOARD=$TFA_BOARD
+.. k3_rst_include_end_build_steps_tfa
 
 Typically all `j7*` devices will use `TARGET_BOARD=generic` or `TARGET_BOARD
-=j784s4` (if it is a J784S4 device), while all Sitara (`am6*`) devices
+=j784s4` (if it is a J784S4 device), while typical Sitara (`am6*`) devices
 use the `lite` option.
 
 3. The Open Portable Trusted Execution Environment (OP-TEE) is designed
    to run as a companion to a non-secure Linux kernel for Cortex-A cores
    using the TrustZone technology built into the core.
 
+.. k3_rst_include_start_build_steps_optee
 .. code-block:: bash
 
  $ # inside optee_os source
- $ make CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 \
-        PLATFORM=k3 CFG_ARM64_core=y
+ $ make CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFG_ARM64_core=y $OPTEE_EXTRA_ARGS \
+         PLATFORM=$OPTEE_PLATFORM
+.. k3_rst_include_end_build_steps_optee
 
 4. Finally, after TF-A has initialized the main domain and OP-TEE has
    finished, we can jump back into U-Boot again, this time running on a
    64bit core in the main domain.
 
+.. k3_rst_include_start_build_steps_uboot
 .. code-block:: bash
 
  $ # inside u-boot source
- $ make ARCH=arm {SOC}_evm_a{53,72}_defconfig
- $ make ARCH=arm CROSS_COMPILE=$CC64 \
-        BINMAN_INDIRS=<path/to/ti-linux-firmware> \
-        BL31=<path/to/trusted-firmware-a/dir>/build/k3/generic/release/bl31.bin \
-        TEE=<path/to/optee_os/dir>/out/arm-plat-k3/core/tee-raw.bin
+ $ make $UBOOT_CFG_CORTEXA
+ $ make CROSS_COMPILE=$CC64 BINMAN_INDIRS=$LNX_FW_PATH \
+        BL31=$TFA_PATH/build/k3/$TFA_BOARD/release/bl31.bin \
+        TEE=$OPTEE_PATH/out/arm-plat-k3/core/tee-raw.bin
+.. k3_rst_include_end_build_steps_uboot
 
 At this point you should have every binary needed initialize both the
 wakeup and main domain and to boot to the U-Boot prompt
@@ -314,13 +379,11 @@ and the same can be extended to other platforms
 
 2. Compile U-boot for the respective board
 
-  .. code-block:: bash
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_uboot
+    :end-before: .. k3_rst_include_end_build_steps_uboot
 
-     make O=build/a72 CROSS_COMPILE=aarch64-none-linux-gnu- ARCH=arm
-     BL31=/path/to/bl31.bin TEE=/path/to/bl32.bin
-     BINMAN_INDIRS="/path/to/ti-linux-firmware" -j15
-
-  .. note::
+.. note::
 
     The changes only affect a72 binaries so the example just builds that
 
@@ -366,11 +429,9 @@ and the same can be extended to other platforms
 
    This is required so that the modified dtb gets updated in u-boot.img
 
-   .. code-block:: bash
-
-     make O=build/a72 CROSS_COMPILE=aarch64-none-linux-gnu- ARCH=arm
-     BL31=/path/to/bl31.bin TEE=/path/to/bl32.bin
-     BINMAN_INDIRS="/path/to/ti-linux-firmware" -j15
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_uboot
+    :end-before: .. k3_rst_include_end_build_steps_uboot
 
 6. (Optional) Enabled FIT_SIGNATURE_ENFORCED
 

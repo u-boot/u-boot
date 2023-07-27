@@ -55,38 +55,61 @@ Sources:
 
 Build procedure:
 ----------------
-1. Trusted Firmware-A:
+0. Setup the environment variables:
 
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_common_env_vars_desc
+    :end-before: .. k3_rst_include_end_common_env_vars_desc
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_board_env_vars_desc
+    :end-before: .. k3_rst_include_end_board_env_vars_desc
+
+Set the variables corresponding to this platform:
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_common_env_vars_defn
+    :end-before: .. k3_rst_include_end_common_env_vars_defn
 .. code-block:: bash
 
- $ make CROSS_COMPILE=aarch64-linux-gnu- ARCH=aarch64 PLAT=k3 \
-        TARGET_BOARD=generic SPD=opteed
+ $ export UBOOT_CFG_CORTEXR=am65x_evm_r5_defconfig
+ $ export UBOOT_CFG_CORTEXA=am65x_evm_a53_defconfig
+ $ export TFA_BOARD=generic
+ $ # we dont use any extra TFA parameters
+ $ unset TFA_EXTRA_ARGS
+ $ export OPTEE_PLATFORM=k3-am65x
+ $ # we dont use any extra OP-TEE parameters
+ $ unset OPTEE_EXTRA_ARGS
+
+.. am65x_evm_rst_include_start_build_steps
+
+1. Trusted Firmware-A:
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_tfa
+    :end-before: .. k3_rst_include_end_build_steps_tfa
+
 
 2. OP-TEE:
 
-.. code-block:: bash
-
- $ make PLATFORM=k3-am65x CFG_ARM64_core=y
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_optee
+    :end-before: .. k3_rst_include_end_build_steps_optee
 
 3. U-Boot:
 
 * 4.1 R5:
 
-.. code-block:: bash
-
- $ make am65x_evm_r5_defconfig
- $ make CROSS_COMPILE=arm-linux-gnueabihf- \
-        BINMAN_INDIRS=<path/to/ti-linux-firmware>
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_spl_r5
+    :end-before: .. k3_rst_include_end_build_steps_spl_r5
 
 * 4.2 A53:
 
-.. code-block:: bash
-
- $ make am65x_evm_a53_defconfig
- $ make CROSS_COMPILE=aarch64-linux-gnu- \
-        BL31=<path/to/trusted-firmware-a/dir>/build/k3/generic/release/bl31.bin \
-        TEE=<path/to/optee_os/dir>/out/arm-plat-k3/core/tee-raw.bin \
-        BINMAN_INDIRS=<path/to/ti-linux-firmware>
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_uboot
+    :end-before: .. k3_rst_include_end_build_steps_uboot
+.. am65x_evm_rst_include_end_build_steps
 
 Target Images
 --------------
