@@ -31,10 +31,10 @@ efi_status_t efi_set_load_options(efi_handle_t handle,
 	efi_status_t ret;
 
 	ret = efi_search_protocol(handle, &efi_guid_loaded_image, &handler);
-	loaded_image_info = handler->protocol_interface;
 	if (ret != EFI_SUCCESS)
 		return EFI_INVALID_PARAMETER;
 
+	loaded_image_info = handler->protocol_interface;
 	loaded_image_info->load_options = load_options;
 	loaded_image_info->load_options_size = load_options_size;
 
