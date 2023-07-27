@@ -1418,7 +1418,6 @@ int xhci_register(struct udevice *dev, struct xhci_hccr *hccr,
 
 	return 0;
 err:
-	free(ctrl);
 	debug("%s: failed, ret=%d\n", __func__, ret);
 	return ret;
 }
