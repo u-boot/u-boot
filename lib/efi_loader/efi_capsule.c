@@ -368,9 +368,8 @@ efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_s
 					     auth_hdr->auth_info.hdr.dwLength
 					     - sizeof(auth_hdr->auth_info),
 					     &buf);
-	if (IS_ERR(capsule_sig)) {
+	if (!capsule_sig) {
 		debug("Parsing variable's pkcs7 header failed\n");
-		capsule_sig = NULL;
 		goto out;
 	}
 
