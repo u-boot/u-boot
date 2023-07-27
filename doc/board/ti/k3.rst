@@ -111,6 +111,8 @@ All scripts and code needed to build the `tiboot3.bin`, `tispl.bin` and
 `u-boot.img` for all K3 SoCs can be located at the following places
 online
 
+.. k3_rst_include_start_boot_sources
+
 * **Das U-Boot**
 
   | **source:** https://source.denx.de/u-boot/u-boot.git
@@ -130,6 +132,8 @@ online
 
   | **source:** https://git.ti.com/git/processor-firmware/ti-linux-firmware.git
   | **branch:** ti-linux-firmware
+
+.. k3_rst_include_end_boot_sources
 
 Build Procedure
 ---------------
