@@ -179,22 +179,7 @@ used:
 
 eMMC layout:
 
-.. code-block:: text
-
-            boot0 partition (8 MB)                        user partition
-    0x0+----------------------------------+      0x0+-------------------------+
-       |     tiboot3.bin (512 KB)         |         |                         |
-  0x400+----------------------------------+         |                         |
-       |       tispl.bin (2 MB)           |         |                         |
- 0x1400+----------------------------------+         |        rootfs           |
-       |       u-boot.img (4 MB)          |         |                         |
- 0x3400+----------------------------------+         |                         |
-       |      environment (128 KB)        |         |                         |
- 0x3500+----------------------------------+         |                         |
-       |   backup environment (128 KB)    |         |                         |
- 0x3600+----------------------------------+         |                         |
-       |          sysfw (1 MB)            |         |                         |
- 0x3E00+----------------------------------+         +-------------------------+
+.. image:: img/emmc_am65x_evm_boot0.svg
 
 Kernel image and DT are expected to be present in the /boot folder of rootfs.
 To boot kernel from eMMC, use the following commands:
