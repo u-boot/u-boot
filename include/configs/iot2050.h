@@ -15,6 +15,17 @@
 
 #include <configs/ti_armv7_common.h>
 
+/*
+ * This defines all MMC devices, even if the basic variant has no mmc1.
+ * The non-supported device will be removed from the boot targets during
+ * runtime, when that board was detected.
+ */
+#undef BOOT_TARGET_DEVICES
+#define BOOT_TARGET_DEVICES(func) \
+       func(MMC, mmc, 1) \
+       func(MMC, mmc, 0) \
+       BOOT_TARGET_USB(func)
+
 #ifdef CONFIG_ENV_WRITEABLE_LIST
 #define CFG_ENV_FLAGS_LIST_STATIC					\
 	"board_uuid:sw,board_name:sw,board_serial:sw,board_a5e:sw,"	\
