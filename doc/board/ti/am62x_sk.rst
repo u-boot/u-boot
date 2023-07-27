@@ -209,16 +209,32 @@ The following table shows some common boot modes used on AM62 platform. More
 details can be found in the Technical Reference Manual:
 https://www.ti.com/lit/pdf/spruiv7 under the `Boot Mode Pins` section.
 
-*Boot Modes*
+.. list-table:: Boot Modes
+   :widths: 16 16 16
+   :header-rows: 1
 
-============ ============= =============
-Switch Label SW2: 12345678 SW3: 12345678
-============ ============= =============
-SD           01000000      11000010
-OSPI         00000000      11001110
-EMMC         00000000      11010010
-UART         00000000      11011100
-USB DFU      00000000      11001010
-============ ============= =============
+   * - Switch Label
+     - SW2: 12345678
+     - SW3: 12345678
+
+   * - SD
+     - 01000000
+     - 11000010
+
+   * - OSPI
+     - 00000000
+     - 11001110
+
+   * - EMMC
+     - 00000000
+     - 11010010
+
+   * - UART
+     - 00000000
+     - 11011100
+
+   * - USB DFU
+     - 00000000
+     - 11001010
 
 For SW2 and SW1, the switch state in the "ON" position = 1.
