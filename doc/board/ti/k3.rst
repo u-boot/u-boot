@@ -30,10 +30,10 @@ K3 Based SoCs
 .. toctree::
    :maxdepth: 1
 
-   j721e_evm
-   j7200_evm
    am62x_sk
    am65x_evm
+   j7200_evm
+   j721e_evm
 
 Boot Flow Overview
 ------------------
