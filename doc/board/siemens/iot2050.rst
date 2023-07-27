@@ -66,8 +66,8 @@ U-Boot:
 
 .. code-block:: text
 
- $ export ATF=/path/to/bl31.bin
- $ export TEE=/path/to/tee-pager_v2.bin
+ $ export BL31=/path/to/bl31.bin
+ $ export TEE=/path/to/tee-raw.bin
  $ make iot2050_defconfig
 
  $ make
