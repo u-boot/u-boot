@@ -702,8 +702,8 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 				}
 			}
 
-		if (label->kaslrseed)
-			label_boot_kaslrseed();
+			if (label->kaslrseed)
+				label_boot_kaslrseed();
 
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
 			if (label->fdtoverlays)
