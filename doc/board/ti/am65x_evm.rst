@@ -229,32 +229,7 @@ addresses.
 
 Flash layout for OSPI:
 
-.. code-block:: text
-
-         0x0 +----------------------------+
-             |     ospi.tiboot3(512K)     |
-             |                            |
-     0x80000 +----------------------------+
-             |     ospi.tispl(2M)         |
-             |                            |
-    0x280000 +----------------------------+
-             |     ospi.u-boot(4M)        |
-             |                            |
-    0x680000 +----------------------------+
-             |     ospi.env(128K)         |
-             |                            |
-    0x6A0000 +----------------------------+
-             |   ospi.env.backup (128K)   |
-             |                            |
-    0x6C0000 +----------------------------+
-             |      ospi.sysfw(1M)        |
-             |                            |
-    0x7C0000 +----------------------------+
-             |      padding (256k)        |
-    0x800000 +----------------------------+
-             |     ospi.rootfs(UBIFS)     |
-             |                            |
-             +----------------------------+
+.. image:: img/ospi_sysfw.svg
 
 Kernel Image and DT are expected to be present in the /boot folder of UBIFS
 ospi.rootfs just like in SD card case. U-Boot looks for UBI volume named
