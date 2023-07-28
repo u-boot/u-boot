@@ -113,6 +113,11 @@ AFLAGS_REMOVE_memset.o := -mthumb -mthumb-interwork
 AFLAGS_REMOVE_memcpy.o := -mthumb -mthumb-interwork
 AFLAGS_memset.o := -DMEMSET_NO_THUMB_BUILD
 AFLAGS_memcpy.o := -DMEMCPY_NO_THUMB_BUILD
+
+# This is only necessary to force ARM mode on THUMB1 targets.
+ifneq ($(CONFIG_SYS_ARM_ARCH),4)
+obj-y   += bitops.o
+endif
 endif
 endif
 
