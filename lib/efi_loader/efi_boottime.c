@@ -59,6 +59,10 @@ static efi_handle_t current_image;
 static volatile gd_t *efi_gd, *app_gd;
 #endif
 
+static efi_status_t efi_uninstall_protocol
+			(efi_handle_t handle, const efi_guid_t *protocol,
+			 void *protocol_interface);
+
 /* 1 if inside U-Boot code, 0 if inside EFI payload code */
 static int entry_count = 1;
 static int nesting_level;
@@ -610,8 +614,8 @@ static efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
 	list_for_each_entry_safe(protocol, pos, &efiobj->protocols, link) {
 		efi_status_t ret;
 
-		ret = efi_remove_protocol(handle, &protocol->guid,
-					  protocol->protocol_interface);
+		ret = efi_uninstall_protocol(handle, &protocol->guid,
+					     protocol->protocol_interface);
 		if (ret != EFI_SUCCESS)
 			return ret;
 	}
@@ -622,19 +626,23 @@ static efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
  * efi_delete_handle() - delete handle
  *
  * @handle: handle to delete
+ *
+ * Return: status code
  */
-void efi_delete_handle(efi_handle_t handle)
+efi_status_t efi_delete_handle(efi_handle_t handle)
 {
 	efi_status_t ret;
 
 	ret = efi_remove_all_protocols(handle);
-	if (ret == EFI_INVALID_PARAMETER) {
-		log_err("Can't remove invalid handle %p\n", handle);
-		return;
+	if (ret != EFI_SUCCESS) {
+		log_err("Handle %p has protocols installed. Unable to delete\n", handle);
+		return ret;
 	}
 
 	list_del(&handle->link);
 	free(handle);
+
+	return ret;
 }
 
 /**

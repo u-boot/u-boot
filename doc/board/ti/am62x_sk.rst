@@ -38,138 +38,87 @@ Some highlights of this SoC are:
 More details can be found in the Technical Reference Manual:
 https://www.ti.com/lit/pdf/spruiv7
 
+Platform information:
+
+* https://www.ti.com/tool/SK-AM62B
+
 Boot Flow:
 ----------
 Below is the pictorial representation of boot flow:
 
-.. code-block:: text
-
- +------------------------------------------------------------------------+
- |        TIFS            |      Main R5          |        A53            |
- +------------------------------------------------------------------------+
- |    +--------+          |                       |                       |
- |    |  Reset |          |                       |                       |
- |    +--------+          |                       |                       |
- |         :              |                       |                       |
- |    +--------+          |   +-----------+       |                       |
- |    | *ROM*  |----------|-->| Reset rls |       |                       |
- |    +--------+          |   +-----------+       |                       |
- |    |        |          |         :             |                       |
- |    |  ROM   |          |         :             |                       |
- |    |services|          |         :             |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |          |   |  *R5 ROM*   |     |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |<---------|---|Load and auth|     |                       |
- |    |        |          |   | tiboot3.bin |     |                       |
- |    +--------+          |   +-------------+     |                       |
- |    |        |<---------|---| Load sysfw  |     |                       |
- |    |        |          |   | part to TIFS|     |                       |
- |    |        |          |   | core        |     |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |          |         :             |                       |
- |    |        |          |         :             |                       |
- |    |        |          |         :             |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |          |   |  *R5 SPL*   |     |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |          |   |    DDR      |     |                       |
- |    |        |          |   |   config    |     |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |          |   |    Load     |     |                       |
- |    |        |          |   |  tispl.bin  |     |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |          |   |   Load R5   |     |                       |
- |    |        |          |   |   firmware  |     |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |<---------|---| Start A53   |     |                       |
- |    |        |          |   | and jump to |     |                       |
- |    |        |          |   | DM fw image |     |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |          |                       |     +-----------+     |
- |    |        |----------|-----------------------|---->| Reset rls |     |
- |    |        |          |                       |     +-----------+     |
- |    |  TIFS  |          |                       |          :            |
- |    |Services|          |                       |     +-------------+   |
- |    |        |<---------|-----------------------|---->|*TF-A/OP-TEE*|   |
- |    |        |          |                       |     +-------------+   |
- |    |        |          |                       |          :            |
- |    |        |          |                       |     +-----------+     |
- |    |        |<---------|-----------------------|---->| *A53 SPL* |     |
- |    |        |          |                       |     +-----------+     |
- |    |        |          |                       |     |   Load    |     |
- |    |        |          |                       |     | u-boot.img|     |
- |    |        |          |                       |     +-----------+     |
- |    |        |          |                       |          :            |
- |    |        |          |                       |     +-----------+     |
- |    |        |<---------|-----------------------|---->| *U-Boot*  |     |
- |    |        |          |                       |     +-----------+     |
- |    |        |          |                       |     |  prompt   |     |
- |    |        |----------|-----------------------|-----+-----------+-----|
- |    +--------+          |                       |                       |
- |                        |                       |                       |
- +------------------------------------------------------------------------+
+.. image:: img/boot_diagram_k3_current.svg
 
 - Here TIFS acts as master and provides all the critical services. R5/A53
   requests TIFS to get these services done as shown in the above diagram.
 
 Sources:
 --------
-1. Trusted Firmware-A:
-	Tree: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/
-	Branch: master
 
-2. OP-TEE:
-	Tree: https://github.com/OP-TEE/optee_os.git
-	Branch: master
-
-3. U-Boot:
-	Tree: https://source.denx.de/u-boot/u-boot
-	Branch: master
-
-4. TI Linux Firmware:
-	Tree: git://git.ti.com/processor-firmware/ti-linux-firmware.git
-	Branch: ti-linux-firmware
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_boot_sources
+    :end-before: .. k3_rst_include_end_boot_sources
 
 Build procedure:
 ----------------
-1. Trusted Firmware-A:
+0. Setup the environment variables:
 
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_common_env_vars_desc
+    :end-before: .. k3_rst_include_end_common_env_vars_desc
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_board_env_vars_desc
+    :end-before: .. k3_rst_include_end_board_env_vars_desc
+
+Set the variables corresponding to this platform:
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_common_env_vars_defn
+    :end-before: .. k3_rst_include_end_common_env_vars_defn
 .. code-block:: bash
 
- $ make CROSS_COMPILE=aarch64-none-linux-gnu- ARCH=aarch64 PLAT=k3 \
-        TARGET_BOARD=lite SPD=opteed
+ $ export UBOOT_CFG_CORTEXR=am62x_evm_r5_defconfig
+ $ export UBOOT_CFG_CORTEXA=am62x_evm_a53_defconfig
+ $ export TFA_BOARD=lite
+ $ # we dont use any extra TFA parameters
+ $ unset TFA_EXTRA_ARGS
+ $ export OPTEE_PLATFORM=k3-am62x
+ $ export OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
+
+.. am62x_evm_rst_include_start_build_steps
+
+1. Trusted Firmware-A:
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_tfa
+    :end-before: .. k3_rst_include_end_build_steps_tfa
+
 
 2. OP-TEE:
 
-.. code-block:: bash
-
- $ make PLATFORM=k3 CFG_ARM64_core=y CROSS_COMPILE=arm-none-linux-gnueabihf- \
-        CROSS_COMPILE64=aarch64-none-linux-gnu-
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_optee
+    :end-before: .. k3_rst_include_end_build_steps_optee
 
 3. U-Boot:
 
-* 3.1 R5:
+* 4.1 R5:
 
-.. code-block:: bash
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_spl_r5
+    :end-before: .. k3_rst_include_end_build_steps_spl_r5
 
- $ make ARCH=arm am62x_evm_r5_defconfig
- $ make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabihf- \
-        BINMAN_INDIRS=<path/to/ti-linux-firmware>
+* 4.2 A53:
 
-* 3.2 A53:
-
-.. code-block:: bash
-
- $ make ARCH=arm am62x_evm_a53_defconfig
- $ make ARCH=arm CROSS_COMPILE=aarch64-none-linux-gnu- \
-        BL31=<path/to/trusted-firmware-a/dir>/build/k3/lite/release/bl31.bin \
-        TEE=<path/to/optee_os/dir>/out/arm-plat-k3/core/tee-raw.bin \
-        BINMAN_INDIRS=<path/to/ti-linux-firmware>
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_uboot
+    :end-before: .. k3_rst_include_end_build_steps_uboot
+.. am62x_evm_rst_include_end_build_steps
 
 Target Images
 --------------
-Copy the below images to an SD card and boot:
+In order to boot we need tiboot3.bin, tispl.bin and u-boot.img.  Each SoC
+variant (GP, HS-FS, HS-SE) requires a different source for these files.
 
  - GP
 
@@ -189,60 +138,18 @@ Copy the below images to an SD card and boot:
 Image formats:
 --------------
 
-- tiboot3.bin:
+- tiboot3.bin
 
-.. code-block:: text
-
-                +-----------------------+
-                |        X.509          |
-                |      Certificate      |
-                | +-------------------+ |
-                | |                   | |
-                | |        R5         | |
-                | |   u-boot-spl.bin  | |
-                | |                   | |
-                | +-------------------+ |
-                | |                   | |
-                | |TIFS with board cfg| |
-                | |                   | |
-                | +-------------------+ |
-                | |                   | |
-                | |                   | |
-                | |     FIT header    | |
-                | | +---------------+ | |
-                | | |               | | |
-                | | |   DTB 1...N   | | |
-                | | +---------------+ | |
-                | +-------------------+ |
-                +-----------------------+
+.. image:: img/multi_cert_tiboot3.bin.svg
 
 - tispl.bin
 
-.. code-block:: text
-
-                +-----------------------+
-                |                       |
-                |       FIT HEADER      |
-                | +-------------------+ |
-                | |                   | |
-                | |     A53 TF-A      | |
-                | +-------------------+ |
-                | |                   | |
-                | |     A53 OP-TEE    | |
-                | +-------------------+ |
-                | |                   | |
-                | |      R5 DM FW     | |
-                | +-------------------+ |
-                | |                   | |
-                | |      A53 SPL      | |
-                | +-------------------+ |
-                | |                   | |
-                | |   SPL DTB 1...N   | |
-                | +-------------------+ |
-                +-----------------------+
+.. image:: img/dm_tispl.bin.svg
 
 A53 SPL DDR Memory Layout
 -------------------------
+
+.. am62x_evm_rst_include_start_ddr_mem_layout
 
 This provides an overview memory usage in A53 SPL stage.
 
@@ -297,6 +204,7 @@ This provides an overview memory usage in A53 SPL stage.
    * - EMPTY
      - 0x80d00400
      - 0x81000000
+.. am62x_evm_rst_include_end_ddr_mem_layout
 
 Switch Setting for Boot Mode
 ----------------------------
@@ -309,16 +217,32 @@ The following table shows some common boot modes used on AM62 platform. More
 details can be found in the Technical Reference Manual:
 https://www.ti.com/lit/pdf/spruiv7 under the `Boot Mode Pins` section.
 
-*Boot Modes*
+.. list-table:: Boot Modes
+   :widths: 16 16 16
+   :header-rows: 1
 
-============ ============= =============
-Switch Label SW2: 12345678 SW3: 12345678
-============ ============= =============
-SD           01000000      11000010
-OSPI         00000000      11001110
-EMMC         00000000      11010010
-UART         00000000      11011100
-USB DFU      00000000      11001010
-============ ============= =============
+   * - Switch Label
+     - SW2: 12345678
+     - SW3: 12345678
+
+   * - SD
+     - 01000000
+     - 11000010
+
+   * - OSPI
+     - 00000000
+     - 11001110
+
+   * - EMMC
+     - 00000000
+     - 11010010
+
+   * - UART
+     - 00000000
+     - 11011100
+
+   * - USB DFU
+     - 00000000
+     - 11001010
 
 For SW2 and SW1, the switch state in the "ON" position = 1.

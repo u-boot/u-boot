@@ -24,6 +24,10 @@ cores, voltage domains and peripherals:
 
 More info can be found in TRM: http://www.ti.com/lit/pdf/spruid7
 
+Platform information:
+
+* https://www.ti.com/tool/TMDX654GPEVM
+
 Boot Flow:
 ----------
 On AM65x family devices, ROM supports boot only via MCU(R5). This means that
@@ -41,136 +45,80 @@ applications. This should happen before running Linux.
 3. In production boot flow, we might not like to use full U-Boot,
 instead use Falcon boot flow to reduce boot time.
 
-.. code-block:: text
-
- +------------------------------------------------------------------------+
- |        DMSC            |         R5            |        A53            |
- +------------------------------------------------------------------------+
- |    +--------+          |                       |                       |
- |    |  Reset |          |                       |                       |
- |    +--------+          |                       |                       |
- |         :              |                       |                       |
- |    +--------+          |   +-----------+       |                       |
- |    | *ROM*  |----------|-->| Reset rls |       |                       |
- |    +--------+          |   +-----------+       |                       |
- |    |        |          |         :             |                       |
- |    |  ROM   |          |         :             |                       |
- |    |services|          |         :             |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |          |   |  *R5 ROM*   |     |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |<---------|---|Load and auth|     |                       |
- |    |        |          |   | tiboot3.bin |     |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |          |         :             |                       |
- |    |        |          |         :             |                       |
- |    |        |          |         :             |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |          |   |  *R5 SPL*   |     |                       |
- |    |        |          |   +-------------+     |                       |
- |    |        |          |   |    Load     |     |                       |
- |    |        |          |   |  sysfw.itb  |     |                       |
- |    | Start  |          |   +-------------+     |                       |
- |    | System |<---------|---|    Start    |     |                       |
- |    |Firmware|          |   |    SYSFW    |     |                       |
- |    +--------+          |   +-------------+     |                       |
- |        :               |   |             |     |                       |
- |    +---------+         |   |   Load      |     |                       |
- |    | *SYSFW* |         |   |   system    |     |                       |
- |    +---------+         |   | Config data |     |                       |
- |    |         |<--------|---|             |     |                       |
- |    |         |         |   +-------------+     |                       |
- |    |         |         |   |             |     |                       |
- |    |         |         |   |    DDR      |     |                       |
- |    |         |         |   |   config    |     |                       |
- |    |         |         |   +-------------+     |                       |
- |    |         |         |   |             |     |                       |
- |    |         |<--------|---| Start A53   |     |                       |
- |    |         |         |   |  and Reset  |     |                       |
- |    |         |         |   +-------------+     |                       |
- |    |         |         |                       |     +-----------+     |
- |    |         |---------|-----------------------|---->| Reset rls |     |
- |    |         |         |                       |     +-----------+     |
- |    |  DMSC   |         |                       |          :            |
- |    |Services |         |                       |     +------------+    |
- |    |         |<--------|-----------------------|---->|*ATF/OP-TEE*|    |
- |    |         |         |                       |     +------------+    |
- |    |         |         |                       |          :            |
- |    |         |         |                       |     +-----------+     |
- |    |         |<--------|-----------------------|---->| *A53 SPL* |     |
- |    |         |         |                       |     +-----------+     |
- |    |         |         |                       |     |   Load    |     |
- |    |         |         |                       |     | u-boot.img|     |
- |    |         |         |                       |     +-----------+     |
- |    |         |         |                       |          :            |
- |    |         |         |                       |     +-----------+     |
- |    |         |<--------|-----------------------|---->| *U-Boot*  |     |
- |    |         |         |                       |     +-----------+     |
- |    |         |         |                       |     |  prompt   |     |
- |    |         |         |                       |     +-----------+     |
- |    +---------+         |                       |                       |
- |                        |                       |                       |
- +------------------------------------------------------------------------+
+.. image:: img/boot_diagram_am65.svg
 
 - Here DMSC acts as master and provides all the critical services. R5/A53
   requests DMSC to get these services done as shown in the above diagram.
 
 Sources:
 --------
-1. Trusted Firmware-A:
-        Tree: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/
-        Branch: master
 
-2. OP-TEE:
-        Tree: https://github.com/OP-TEE/optee_os.git
-        Branch: master
-
-3. U-Boot:
-        Tree: https://source.denx.de/u-boot/u-boot
-        Branch: master
-
-4. TI Linux Firmware:
-        Tree: git://git.ti.com/processor-firmware/ti-linux-firmware.git
-        Branch: ti-linux-firmware
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_boot_sources
+    :end-before: .. k3_rst_include_end_boot_sources
 
 Build procedure:
 ----------------
-1. Trusted Firmware-A:
+0. Setup the environment variables:
 
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_common_env_vars_desc
+    :end-before: .. k3_rst_include_end_common_env_vars_desc
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_board_env_vars_desc
+    :end-before: .. k3_rst_include_end_board_env_vars_desc
+
+Set the variables corresponding to this platform:
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_common_env_vars_defn
+    :end-before: .. k3_rst_include_end_common_env_vars_defn
 .. code-block:: bash
 
- $ make CROSS_COMPILE=aarch64-linux-gnu- ARCH=aarch64 PLAT=k3 \
-        TARGET_BOARD=generic SPD=opteed
+ $ export UBOOT_CFG_CORTEXR=am65x_evm_r5_defconfig
+ $ export UBOOT_CFG_CORTEXA=am65x_evm_a53_defconfig
+ $ export TFA_BOARD=generic
+ $ # we dont use any extra TFA parameters
+ $ unset TFA_EXTRA_ARGS
+ $ export OPTEE_PLATFORM=k3-am65x
+ $ # we dont use any extra OP-TEE parameters
+ $ unset OPTEE_EXTRA_ARGS
+
+.. am65x_evm_rst_include_start_build_steps
+
+1. Trusted Firmware-A:
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_tfa
+    :end-before: .. k3_rst_include_end_build_steps_tfa
+
 
 2. OP-TEE:
 
-.. code-block:: bash
-
- $ make PLATFORM=k3-am65x CFG_ARM64_core=y
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_optee
+    :end-before: .. k3_rst_include_end_build_steps_optee
 
 3. U-Boot:
 
 * 4.1 R5:
 
-.. code-block:: bash
-
- $ make am65x_evm_r5_defconfig
- $ make CROSS_COMPILE=arm-linux-gnueabihf- \
-        BINMAN_INDIRS=<path/to/ti-linux-firmware>
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_spl_r5
+    :end-before: .. k3_rst_include_end_build_steps_spl_r5
 
 * 4.2 A53:
 
-.. code-block:: bash
-
- $ make am65x_evm_a53_defconfig
- $ make CROSS_COMPILE=aarch64-linux-gnu- \
-        BL31=<path/to/trusted-firmware-a/dir>/build/k3/generic/release/bl31.bin \
-        TEE=<path/to/optee_os/dir>/out/arm-plat-k3/core/tee-raw.bin \
-        BINMAN_INDIRS=<path/to/ti-linux-firmware>
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_uboot
+    :end-before: .. k3_rst_include_end_build_steps_uboot
+.. am65x_evm_rst_include_end_build_steps
 
 Target Images
 --------------
-Copy the below images to an SD card and boot:
+In order to boot we need tiboot3.bin, sysfw.itb, tispl.bin and u-boot.img.
+Each SoC variant (GP and HS) requires a different source for these files.
 
 - GP
 
@@ -185,74 +133,17 @@ Copy the below images to an SD card and boot:
 Image formats:
 --------------
 
-- tiboot3.bin:
+- tiboot3.bin
 
-.. code-block:: text
-
-                +-----------------------+
-                |        X.509          |
-                |      Certificate      |
-                | +-------------------+ |
-                | |                   | |
-                | |        R5         | |
-                | |   u-boot-spl.bin  | |
-                | |                   | |
-                | +-------------------+ |
-                | |                   | |
-                | |     FIT header    | |
-                | | +---------------+ | |
-                | | |               | | |
-                | | |   DTB 1...N   | | |
-                | | +---------------+ | |
-                | +-------------------+ |
-                +-----------------------+
+.. image:: img/no_multi_cert_tiboot3.bin.svg
 
 - tispl.bin
 
-.. code-block:: text
-
-                +-----------------------+
-                |                       |
-                |       FIT HEADER      |
-                | +-------------------+ |
-                | |                   | |
-                | |      A53 ATF      | |
-                | +-------------------+ |
-                | |                   | |
-                | |     A53 OP-TEE    | |
-                | +-------------------+ |
-                | |                   | |
-                | |      A53 SPL      | |
-                | +-------------------+ |
-                | |                   | |
-                | |   SPL DTB 1...N   | |
-                | +-------------------+ |
-                +-----------------------+
+.. image:: img/nodm_tispl.bin.svg
 
 - sysfw.itb
 
-.. code-block:: text
-
-                +-----------------------+
-                |                       |
-                |       FIT HEADER      |
-                | +-------------------+ |
-                | |                   | |
-                | |     sysfw.bin     | |
-                | +-------------------+ |
-                | |                   | |
-                | |    board config   | |
-                | +-------------------+ |
-                | |                   | |
-                | |     PM config     | |
-                | +-------------------+ |
-                | |                   | |
-                | |     RM config     | |
-                | +-------------------+ |
-                | |                   | |
-                | |    Secure config  | |
-                | +-------------------+ |
-                +-----------------------+
+.. image:: img/sysfw.itb.svg
 
 eMMC:
 -----
@@ -293,22 +184,7 @@ used:
 
 eMMC layout:
 
-.. code-block:: text
-
-            boot0 partition (8 MB)                        user partition
-    0x0+----------------------------------+      0x0+-------------------------+
-       |     tiboot3.bin (512 KB)         |         |                         |
-  0x400+----------------------------------+         |                         |
-       |       tispl.bin (2 MB)           |         |                         |
- 0x1400+----------------------------------+         |        rootfs           |
-       |       u-boot.img (4 MB)          |         |                         |
- 0x3400+----------------------------------+         |                         |
-       |      environment (128 KB)        |         |                         |
- 0x3500+----------------------------------+         |                         |
-       |   backup environment (128 KB)    |         |                         |
- 0x3600+----------------------------------+         |                         |
-       |          sysfw (1 MB)            |         |                         |
- 0x3E00+----------------------------------+         +-------------------------+
+.. image:: img/emmc_am65x_evm_boot0.svg
 
 Kernel image and DT are expected to be present in the /boot folder of rootfs.
 To boot kernel from eMMC, use the following commands:
@@ -343,32 +219,7 @@ addresses.
 
 Flash layout for OSPI:
 
-.. code-block:: text
-
-         0x0 +----------------------------+
-             |     ospi.tiboot3(512K)     |
-             |                            |
-     0x80000 +----------------------------+
-             |     ospi.tispl(2M)         |
-             |                            |
-    0x280000 +----------------------------+
-             |     ospi.u-boot(4M)        |
-             |                            |
-    0x680000 +----------------------------+
-             |     ospi.env(128K)         |
-             |                            |
-    0x6A0000 +----------------------------+
-             |   ospi.env.backup (128K)   |
-             |                            |
-    0x6C0000 +----------------------------+
-             |      ospi.sysfw(1M)        |
-             |                            |
-    0x7C0000 +----------------------------+
-             |      padding (256k)        |
-    0x800000 +----------------------------+
-             |     ospi.rootfs(UBIFS)     |
-             |                            |
-             +----------------------------+
+.. image:: img/ospi_sysfw.svg
 
 Kernel Image and DT are expected to be present in the /boot folder of UBIFS
 ospi.rootfs just like in SD card case. U-Boot looks for UBI volume named
@@ -387,16 +238,34 @@ ROM supports booting from MCU_UART0 via X-Modem protocol. The entire UART-based
 boot process up to U-Boot (proper) prompt goes through different stages and uses
 different UART peripherals as follows:
 
-.. code-block:: text
+.. list-table:: ROM UART Boot Responsibilities
+   :widths: 16 16 16 16
+   :header-rows: 1
 
- +---------+---------------+-------------+------------+
- | WHO     | Loading WHAT  |  HW Module  |  Protocol  |
- +---------+---------------+-------------+------------+
- |Boot ROM |  tiboot3.bin  |  MCU_UART0  |  X-Modem(*)|
- |R5 SPL   |  sysfw.itb    |  MCU_UART0  |  Y-Modem(*)|
- |R5 SPL   |  tispl.bin    |  MAIN_UART0 |  Y-Modem   |
- |A53 SPL  |  u-boot.img   |  MAIN_UART0 |  Y-Modem   |
- +---------+---------------+-------------+------------+
+   * - Who
+     - Loading What
+     - Hardware Module
+     - Protocol
+
+   * - Boot ROM
+     - tiboot3.bin
+     - MCU_UART0
+     - X-Modem(*)
+
+   * - R5 SPL
+     - sysfw.itb
+     - MCU_UART0
+     - Y-Modem(*)
+
+   * - R5 SPL
+     - tispl.bin
+     - MAIN_UART0
+     - Y-Modem
+
+   * - A53 SPL
+     - u-boot.img
+     - MAIN_UART0
+     - Y-Modem
 
 Note that in addition to X/Y-Modem related protocol timeouts the DMSC
 watchdog timeout of 3min (typ.) needs to be observed until System Firmware

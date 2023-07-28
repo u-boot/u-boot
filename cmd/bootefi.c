@@ -607,20 +607,6 @@ failure:
 }
 
 /**
- * bootefi_run_finish() - finish up after running an EFI test
- *
- * @loaded_image_info: Pointer to a struct which holds the loaded image info
- * @image_obj: Pointer to a struct which holds the loaded image object
- */
-static void bootefi_run_finish(struct efi_loaded_image_obj *image_obj,
-			       struct efi_loaded_image *loaded_image_info)
-{
-	efi_restore_gd();
-	free(loaded_image_info->load_options);
-	efi_delete_handle(&image_obj->header);
-}
-
-/**
  * do_efi_selftest() - execute EFI selftest
  *
  * Return:	status code
@@ -638,7 +624,12 @@ static int do_efi_selftest(void)
 
 	/* Execute the test */
 	ret = EFI_CALL(efi_selftest(&image_obj->header, &systab));
-	bootefi_run_finish(image_obj, loaded_image_info);
+	efi_restore_gd();
+	free(loaded_image_info->load_options);
+	if (ret != EFI_SUCCESS)
+		efi_delete_handle(&image_obj->header);
+	else
+		ret = efi_delete_handle(&image_obj->header);
 
 	return ret != EFI_SUCCESS;
 }
