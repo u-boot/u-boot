@@ -86,6 +86,12 @@ S:	Maintained
 F:	configs/rock-4c-plus-rk3399_defconfig
 F:	arch/arm/dts/rk3399-rock-4c-plus.dts
 
+ROCK-4SE
+M:	Christopher Obbard <chris.obbard@collabora.com>
+S:	Maintained
+F:	configs/rock-4se-rk3399_defconfig
+F:	arch/arm/dts/rk3399-rock-4se-u-boot.dtsi
+
 ROCK-PI-4
 M:	Akash Gajjar <akash@openedev.com>
 M:	Jagan Teki <jagan@amarulasolutions.com>

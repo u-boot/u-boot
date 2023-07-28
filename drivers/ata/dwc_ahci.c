@@ -13,7 +13,9 @@
 #include <ahci.h>
 #include <scsi.h>
 #include <sata.h>
+#ifdef CONFIG_ARCH_OMAP2PLUS
 #include <asm/arch/sata.h>
+#endif
 #include <asm/io.h>
 #include <generic-phy.h>
 
@@ -72,12 +74,14 @@ static int dwc_ahci_probe(struct udevice *dev)
 		return ret;
 	}
 
+#ifdef CONFIG_ARCH_OMAP2PLUS
 	if (priv->wrapper_base) {
 		u32 val = TI_SATA_IDLE_NO | TI_SATA_STANDBY_NO;
 
 		/* Enable SATA module, No Idle, No Standby */
 		writel(val, priv->wrapper_base + TI_SATA_SYSCONFIG);
 	}
+#endif
 
 	return ahci_probe_scsi(dev, (ulong)priv->base);
 }

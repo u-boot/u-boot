@@ -46,7 +46,17 @@
 			<&pmucru CLK_RTC32K_FRAC>;
 };
 
+&dsi_dphy0 {
+	status = "okay";
+};
+
+&dsi0 {
+	status = "okay";
+};
+
 &i2c2 {
+	pinctrl-0 = <&i2c2m1_xfer>;
+	pinctrl-names = "default";
 	status = "okay";
 };
 

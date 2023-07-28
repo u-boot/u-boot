@@ -41,6 +41,13 @@ config PHY_ROCKCHIP_SNPS_PCIE3
 	  It could support PCIe Gen3 single root complex, and could
 	  also be able splited into multiple combinations of lanes.
 
+config PHY_ROCKCHIP_USBDP
+	tristate "Rockchip USBDP COMBO PHY Driver"
+	depends on ARCH_ROCKCHIP
+	select PHY
+	help
+	  Enable this to support the Rockchip USB3.0/DP
+	  combo PHY with Samsung IP block.
 
 config PHY_ROCKCHIP_TYPEC
 	bool "Rockchip TYPEC PHY Driver"

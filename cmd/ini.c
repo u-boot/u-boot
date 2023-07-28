@@ -89,7 +89,7 @@ static char *memgets(char *str, int num, char **mem, size_t *memsize)
 		end = *mem + *memsize;
 		newline = 0;
 	}
-	len = min((end - *mem) + newline, num);
+	len = min((int)(end - *mem) + newline, num);
 	memcpy(str, *mem, len);
 	if (len < num)
 		str[len] = '\0';

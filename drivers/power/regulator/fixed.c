@@ -25,6 +25,7 @@ static int fixed_regulator_of_to_plat(struct udevice *dev)
 {
 	struct dm_regulator_uclass_plat *uc_pdata;
 	struct regulator_common_plat *plat;
+	bool gpios;
 
 	plat = dev_get_plat(dev);
 	uc_pdata = dev_get_uclass_plat(dev);
@@ -33,7 +34,8 @@ static int fixed_regulator_of_to_plat(struct udevice *dev)
 
 	uc_pdata->type = REGULATOR_TYPE_FIXED;
 
-	return regulator_common_of_to_plat(dev, plat, "gpio");
+	gpios = dev_read_bool(dev, "gpios");
+	return regulator_common_of_to_plat(dev, plat, gpios ? "gpios" : "gpio");
 }
 
 static int fixed_regulator_get_value(struct udevice *dev)

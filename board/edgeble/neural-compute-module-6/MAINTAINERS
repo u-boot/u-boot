@@ -4,3 +4,4 @@ S:	Maintained
 F:	board/edgeble/neural-compute-module-6
 F:	include/configs/neural-compute-module-6.h
 F:	configs/neu6a-io-rk3588_defconfig
+F:	configs/neu6b-io-rk3588_defconfig

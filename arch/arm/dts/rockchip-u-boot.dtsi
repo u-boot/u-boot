@@ -33,9 +33,13 @@
 			};
 		};
 
-#if defined(CONFIG_SPL_FIT) && defined(CONFIG_ARM64)
+#if defined(CONFIG_SPL_FIT) && (defined(CONFIG_ARM64) || defined(CONFIG_SPL_OPTEE_IMAGE))
 		fit: fit {
+#ifdef CONFIG_ARM64
 			description = "FIT image for U-Boot with bl31 (TF-A)";
+#else
+			description = "FIT image with OP-TEE";
+#endif
 			#address-cells = <1>;
 			fit,fdt-list = "of-list";
 			filename = "u-boot.itb";
@@ -44,10 +48,14 @@
 			offset = <CONFIG_SPL_PAD_TO>;
 			images {
 				u-boot {
-					description = "U-Boot (64-bit)";
+					description = "U-Boot";
 					type = "standalone";
 					os = "U-Boot";
+#ifdef CONFIG_ARM64
 					arch = "arm64";
+#else
+					arch = "arm";
+#endif
 					compression = "none";
 					load = <CONFIG_TEXT_BASE>;
 					entry = <CONFIG_TEXT_BASE>;
@@ -60,6 +68,7 @@
 #endif
 				};
 
+#ifdef CONFIG_ARM64
 				@atf-SEQ {
 					fit,operation = "split-elf";
 					description = "ARM Trusted Firmware";
@@ -99,6 +108,25 @@
 					};
 #endif
 				};
+#else
+				op-tee {
+					description = "OP-TEE";
+					type = "tee";
+					arch = "arm";
+					os = "tee";
+					compression = "none";
+					load = <(CFG_SYS_SDRAM_BASE + 0x8400000)>;
+					entry = <(CFG_SYS_SDRAM_BASE + 0x8400000)>;
+
+					tee-os {
+					};
+#ifdef CONFIG_SPL_FIT_SIGNATURE
+					hash {
+						algo = "sha256";
+					};
+#endif
+				};
+#endif
 
 				@fdt-SEQ {
 					description = "fdt-NAME";
@@ -117,7 +145,11 @@
 				@config-SEQ {
 					description = "NAME.dtb";
 					fdt = "fdt-SEQ";
+#ifdef CONFIG_ARM64
 					fit,firmware = "atf-1", "u-boot";
+#else
+					fit,firmware = "op-tee", "u-boot";
+#endif
 					fit,loadables;
 				};
 			};
@@ -150,7 +182,7 @@
 			};
 		};
 
-#ifdef CONFIG_ARM64
+#if defined(CONFIG_ARM64) || defined(CONFIG_SPL_OPTEE_IMAGE)
 		fit {
 			type = "blob";
 			filename = "u-boot.itb";

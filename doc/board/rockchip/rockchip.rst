@@ -84,7 +84,7 @@ List of mainline supported Rockchip boards:
      - Orange Pi RK3399 (orangepi-rk3399)
      - Pine64 RockPro64 (rockpro64-rk3399)
      - Radxa ROCK 4C+ (rock-4c-plus-rk3399)
-     - Radxa ROCK 4SE (rock-pi-4-rk3399)
+     - Radxa ROCK 4SE (rock-4se-rk3399)
      - Radxa ROCK Pi 4A/B/A+/B+ (rock-pi-4-rk3399)
      - Radxa ROCK Pi 4C (rock-pi-4c-rk3399)
      - Rockchip Evb-RK3399 (evb_rk3399)
@@ -95,10 +95,12 @@ List of mainline supported Rockchip boards:
 
 * rk3568
      - Rockchip Evb-RK3568 (evb-rk3568)
+     - Hardkernel ODROID-M1 (odroid-m1-rk3568)
 
 * rk3588
      - Rockchip EVB (evb-rk3588)
-     - Edgeble Neural Compute Module 6 SoM - Neu6a (neu6a-io-rk3588)
+     - Edgeble Neural Compute Module 6A SoM - Neu6a (neu6a-io-rk3588)
+     - Edgeble Neural Compute Module 6B SoM - Neu6b (neu6b-io-rk3588)
      - Radxa ROCK 5B (rock5b-rk3588)
 
 * rv1108

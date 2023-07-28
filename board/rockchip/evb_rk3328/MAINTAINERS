@@ -18,6 +18,18 @@ F:      configs/nanopi-r2s-rk3328_defconfig
 F:      arch/arm/dts/rk3328-nanopi-r2s-u-boot.dtsi
 F:      arch/arm/dts/rk3328-nanopi-r2s.dts
 
+ORANGEPI-R1-PLUS-RK3328
+M:      Tianling Shen <cnsztl@gmail.com>
+S:      Maintained
+F:      configs/orangepi-r1-plus-rk3328_defconfig
+F:      arch/arm/dts/rk3328-orangepi-r1-plus-u-boot.dtsi
+
+ORANGEPI-R1-PLUS-LTS-RK3328
+M:      Tianling Shen <cnsztl@gmail.com>
+S:      Maintained
+F:      configs/orangepi-r1-plus-lts-rk3328_defconfig
+F:      arch/arm/dts/rk3328-orangepi-r1-plus-lts-u-boot.dtsi
+
 ROC-RK3328-CC
 M:      Loic Devulder <ldevulder@suse.com>
 M:      Chen-Yu Tsai <wens@csie.org>

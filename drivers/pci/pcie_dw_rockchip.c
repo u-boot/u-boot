@@ -61,8 +61,7 @@ struct rk_pcie {
 #define PCIE_CLIENT_DBG_TRANSITION_DATA	0xffff0000
 #define PCIE_CLIENT_DBF_EN		0xffff0003
 
-/* Parameters for the waiting for #perst signal */
-#define MACRO_US			1000
+#define PCIE_TYPE0_HDR_DBI2_OFFSET	0x100000
 
 static int rk_pcie_read(void __iomem *addr, int size, u32 *val)
 {
@@ -161,6 +160,12 @@ static void rk_pcie_configure(struct rk_pcie *pci, u32 cap_speed)
 {
 	dw_pcie_dbi_write_enable(&pci->dw, true);
 
+	/* Disable BAR 0 and BAR 1 */
+	writel(0, pci->dw.dbi_base + PCIE_TYPE0_HDR_DBI2_OFFSET +
+	       PCI_BASE_ADDRESS_0);
+	writel(0, pci->dw.dbi_base + PCIE_TYPE0_HDR_DBI2_OFFSET +
+	       PCI_BASE_ADDRESS_1);
+
 	clrsetbits_le32(pci->dw.dbi_base + PCIE_LINK_CAPABILITY,
 			TARGET_LINK_SPEED_MASK, cap_speed);
 
@@ -242,43 +247,46 @@ static int rk_pcie_link_up(struct rk_pcie *priv, u32 cap_speed)
 	/* DW pre link configurations */
 	rk_pcie_configure(priv, cap_speed);
 
-	/* Rest the device */
-	if (dm_gpio_is_valid(&priv->rst_gpio)) {
-		dm_gpio_set_value(&priv->rst_gpio, 0);
-		/*
-		 * Minimal is 100ms from spec but we see
-		 * some wired devices need much more, such as 600ms.
-		 * Add a enough delay to cover all cases.
-		 */
-		udelay(MACRO_US * 1000);
-		dm_gpio_set_value(&priv->rst_gpio, 1);
-	}
-
 	rk_pcie_disable_ltssm(priv);
 	rk_pcie_link_status_clear(priv);
 	rk_pcie_enable_debug(priv);
 
+	/* Reset the device */
+	if (dm_gpio_is_valid(&priv->rst_gpio))
+		dm_gpio_set_value(&priv->rst_gpio, 0);
+
 	/* Enable LTSSM */
 	rk_pcie_enable_ltssm(priv);
 
-	for (retries = 0; retries < 5; retries++) {
-		if (is_link_up(priv)) {
-			dev_info(priv->dw.dev, "PCIe Link up, LTSSM is 0x%x\n",
-				 rk_pcie_readl_apb(priv, PCIE_CLIENT_LTSSM_STATUS));
-			rk_pcie_debug_dump(priv);
-			return 0;
-		}
+	/*
+	 * PCIe requires the refclk to be stable for 100ms prior to releasing
+	 * PERST. See table 2-4 in section 2.6.2 AC Specifications of the PCI
+	 * Express Card Electromechanical Specification, 1.1. However, we don't
+	 * know if the refclk is coming from RC's PHY or external OSC. If it's
+	 * from RC, so enabling LTSSM is the just right place to release #PERST.
+	 */
+	mdelay(100);
+	if (dm_gpio_is_valid(&priv->rst_gpio))
+		dm_gpio_set_value(&priv->rst_gpio, 1);
 
-		dev_info(priv->dw.dev, "PCIe Linking... LTSSM is 0x%x\n",
-			 rk_pcie_readl_apb(priv, PCIE_CLIENT_LTSSM_STATUS));
-		rk_pcie_debug_dump(priv);
-		udelay(MACRO_US * 1000);
+	/* Check if the link is up or not */
+	for (retries = 0; retries < 10; retries++) {
+		if (is_link_up(priv))
+			break;
+
+		mdelay(100);
 	}
 
-	dev_err(priv->dw.dev, "PCIe-%d Link Fail\n", dev_seq(priv->dw.dev));
-	/* Link maybe in Gen switch recovery but we need to wait more 1s */
-	udelay(MACRO_US * 1000);
-	return -EIO;
+	if (retries >= 10) {
+		dev_err(priv->dw.dev, "PCIe-%d Link Fail\n",
+			dev_seq(priv->dw.dev));
+		return -EIO;
+	}
+
+	dev_info(priv->dw.dev, "PCIe Link up, LTSSM is 0x%x\n",
+		 rk_pcie_readl_apb(priv, PCIE_CLIENT_LTSSM_STATUS));
+	rk_pcie_debug_dump(priv);
+	return 0;
 }
 
 static int rockchip_pcie_init_port(struct udevice *dev)
@@ -287,22 +295,23 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 	u32 val;
 	struct rk_pcie *priv = dev_get_priv(dev);
 
-	/* Set power and maybe external ref clk input */
-	if (priv->vpcie3v3) {
-		ret = regulator_set_value(priv->vpcie3v3, 3300000);
-		if (ret) {
-			dev_err(priv->dw.dev, "failed to enable vpcie3v3 (ret=%d)\n",
-				ret);
-			return ret;
-		}
+	ret = reset_assert_bulk(&priv->rsts);
+	if (ret) {
+		dev_err(dev, "failed to assert resets (ret=%d)\n", ret);
+		return ret;
 	}
 
-	udelay(MACRO_US * 1000);
+	/* Set power and maybe external ref clk input */
+	ret = regulator_set_enable_if_allowed(priv->vpcie3v3, true);
+	if (ret && ret != -ENOSYS) {
+		dev_err(dev, "failed to enable vpcie3v3 (ret=%d)\n", ret);
+		return ret;
+	}
 
 	ret = generic_phy_init(&priv->phy);
 	if (ret) {
 		dev_err(dev, "failed to init phy (ret=%d)\n", ret);
-		return ret;
+		goto err_disable_regulator;
 	}
 
 	ret = generic_phy_power_on(&priv->phy);
@@ -345,6 +354,8 @@ err_power_off_phy:
 	generic_phy_power_off(&priv->phy);
 err_exit_phy:
 	generic_phy_exit(&priv->phy);
+err_disable_regulator:
+	regulator_set_enable_if_allowed(priv->vpcie3v3, false);
 
 	return ret;
 }
@@ -365,6 +376,13 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 		return -EINVAL;
 
 	dev_dbg(dev, "APB address is 0x%p\n", priv->apb_base);
+
+	priv->dw.cfg_base = dev_read_addr_size_index_ptr(dev, 2,
+							 &priv->dw.cfg_size);
+	if (!priv->dw.cfg_base)
+		return -EINVAL;
+
+	dev_dbg(dev, "CFG address is 0x%p\n", priv->dw.cfg_base);
 
 	ret = gpio_request_by_name(dev, "reset-gpios", 0,
 				   &priv->rst_gpio, GPIOD_IS_OUT);
