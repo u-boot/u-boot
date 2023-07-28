@@ -59,6 +59,70 @@
 	status = "okay";
 };
 
+&pinctrl {
+	bootph-all;
+};
+
+&pcfg_pull_none {
+	bootph-all;
+};
+
+&pcfg_pull_up_drv_level_2 {
+	bootph-all;
+};
+
+&pcfg_pull_up {
+	bootph-all;
+};
+
+&emmc_bus8 {
+	bootph-all;
+};
+
+&emmc_clk {
+	bootph-all;
+};
+
+&emmc_cmd {
+	bootph-all;
+};
+
+&emmc_datastrobe {
+	bootph-all;
+};
+
+&emmc_rstnout {
+	bootph-all;
+};
+
+&fspi_pins {
+	bootph-all;
+};
+
+&sdmmc0_bus4 {
+	bootph-all;
+};
+
+&sdmmc0_clk {
+	bootph-all;
+};
+
+&sdmmc0_cmd {
+	bootph-all;
+};
+
+&sdmmc0_det {
+	bootph-all;
+};
+
+&sdmmc0_pwren {
+	bootph-all;
+};
+
+&uart2m0_xfer {
+	bootph-all;
+};
+
 &sdhci {
 	bootph-pre-ram;
 	status = "okay";
