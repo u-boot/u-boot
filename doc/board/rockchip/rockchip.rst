@@ -218,7 +218,7 @@ SD Card
 ^^^^^^^
 
 All Rockchip platforms (except rk3128 which doesn't use SPL) are now
-supporting a single boot image using binman and pad_cat.
+supporting a single boot image using binman.
 
 To write an image that boots from a SD card (assumed to be /dev/sda):
 
@@ -269,31 +269,15 @@ is u-boot-dtb.img
 SPI
 ^^^
 
-The SPI boot method requires the generation of idbloader.img with help of the mkimage tool.
+Write u-boot-rockchip-spi.bin to offset 0 of SPI flash.
 
-SPL-alone SPI boot image:
-
-.. code-block:: bash
-
-        ./tools/mkimage -n rk3399 -T rkspi -d spl/u-boot-spl.bin idbloader.img
-
-TPL+SPL SPI boot image:
-
-.. code-block:: bash
-
-        ./tools/mkimage -n rk3399 -T rkspi -d tpl/u-boot-tpl.bin:spl/u-boot-spl.bin idbloader.img
-
-Copy SPI boot images into SD card and boot from SD:
+Copy u-boot-rockchip-spi.bin into SD card and boot from SD:
 
 .. code-block:: bash
 
         sf probe
-        load mmc 1:1 $kernel_addr_r idbloader.img
-        sf erase 0 +$filesize
-        sf write $kernel_addr_r 0 ${filesize}
-        load mmc 1:1 ${kernel_addr_r} u-boot.itb
-        sf erase 0x60000 +$filesize
-        sf write $kernel_addr_r 0x60000 ${filesize}
+        load mmc 1:1 $kernel_addr_r u-boot-rockchip-spi.bin
+        sf update $fileaddr 0 $filesize
 
 2. Package the image with Rockchip miniloader
 ---------------------------------------------
