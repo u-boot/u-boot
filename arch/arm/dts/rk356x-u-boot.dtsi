@@ -9,6 +9,7 @@
 	aliases {
 		mmc0 = &sdhci;
 		mmc1 = &sdmmc0;
+		spi4 = &sfc;
 	};
 
 	chosen {

@@ -7,10 +7,6 @@
 #include "rk356x-u-boot.dtsi"
 
 / {
-	aliases {
-		spi0 = &sfc;
-	};
-
 	chosen {
 		stdout-path = &uart2;
 	};
