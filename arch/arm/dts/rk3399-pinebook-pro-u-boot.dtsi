@@ -10,10 +10,6 @@
 	chosen {
 		u-boot,spl-boot-order = "same-as-spl", &sdhci, &spiflash, &sdmmc;
 	};
-
-	config {
-		u-boot,spl-payload-offset = <0x60000>; /* @ 384KB */
-	};
 };
 
 &edp {
