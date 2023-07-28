@@ -7,5 +7,6 @@
 #define _COMMON_FDT_H
 
 int fdt_fixup_msmc_ram_k3(void *blob);
+int fdt_del_node_path(void *blob, const char *path);
 
 #endif /* _COMMON_FDT_H */

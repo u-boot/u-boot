@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <fdt_support.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
+#include "common_fdt.h"
 
 static int fdt_fixup_msmc_ram(void *blob, char *parent_path, char *node_name)
 {

@@ -9,7 +9,7 @@
 / {
 	chosen {
 		stdout-path = "serial2:115200n8";
-		tick-timer = &timer1;
+		tick-timer = &main_timer0;
 	};
 
 	aliases {
@@ -21,16 +21,13 @@
 	};
 };
 
-&cbass_main{
+&cbass_main {
 	bootph-pre-ram;
+};
 
-	timer1: timer@2400000 {
-		compatible = "ti,omap5430-timer";
-		reg = <0x00 0x2400000 0x00 0x80>;
-		ti,timer-alwon;
-		clock-frequency = <25000000>;
-		bootph-pre-ram;
-	};
+&main_timer0 {
+	clock-frequency = <25000000>;
+	bootph-pre-ram;
 };
 
 &dmss {
@@ -77,10 +74,6 @@
 	bootph-pre-ram;
 };
 
-&main_uart1 {
-	bootph-pre-ram;
-};
-
 &cbass_mcu {
 	bootph-pre-ram;
 };
@@ -90,10 +83,6 @@
 };
 
 &mcu_pmx0 {
-	bootph-pre-ram;
-};
-
-&wkup_uart0 {
 	bootph-pre-ram;
 };
 
@@ -130,17 +119,7 @@
 };
 
 &cpsw3g {
-	reg = <0x0 0x8000000 0x0 0x200000>,
-	      <0x0 0x43000200 0x0 0x8>;
-	reg-names = "cpsw_nuss", "mac_efuse";
-	/delete-property/ ranges;
 	bootph-pre-ram;
-
-	cpsw-phy-sel@04044 {
-		compatible = "ti,am64-phy-gmii-sel";
-		reg = <0x0 0x00104044 0x0 0x8>;
-		bootph-pre-ram;
-	};
 };
 
 &cpsw_port1 {

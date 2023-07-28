@@ -114,6 +114,7 @@ static const struct udevice_id omap_timer_ids[] = {
 	{ .compatible = "ti,am335x-timer" },
 	{ .compatible = "ti,am4372-timer" },
 	{ .compatible = "ti,omap5430-timer" },
+	{ .compatible = "ti,am654-timer" },
 	{}
 };
 
