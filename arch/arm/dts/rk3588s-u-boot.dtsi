@@ -7,6 +7,15 @@
 #include <dt-bindings/phy/phy.h>
 
 / {
+	aliases {
+		spi0 = &spi0;
+		spi1 = &spi1;
+		spi2 = &spi2;
+		spi3 = &spi3;
+		spi4 = &spi4;
+		spi5 = &sfc;
+	};
+
 	dmc {
 		compatible = "rockchip,rk3588-dmc";
 		bootph-all;
