@@ -556,6 +556,7 @@ typedef struct malloc_chunk* mbinptr;
 #define IAV(i)  bin_at(i), bin_at(i)
 
 static mbinptr av_[NAV * 2 + 2] = {
+#if !CONFIG_IS_ENABLED(SYS_MALLOC_RUNTIME_INIT)
  NULL, NULL,
  IAV(0),   IAV(1),   IAV(2),   IAV(3),   IAV(4),   IAV(5),   IAV(6),   IAV(7),
  IAV(8),   IAV(9),   IAV(10),  IAV(11),  IAV(12),  IAV(13),  IAV(14),  IAV(15),
@@ -573,6 +574,7 @@ static mbinptr av_[NAV * 2 + 2] = {
  IAV(104), IAV(105), IAV(106), IAV(107), IAV(108), IAV(109), IAV(110), IAV(111),
  IAV(112), IAV(113), IAV(114), IAV(115), IAV(116), IAV(117), IAV(118), IAV(119),
  IAV(120), IAV(121), IAV(122), IAV(123), IAV(124), IAV(125), IAV(126), IAV(127)
+#endif
 };
 
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
@@ -623,7 +625,7 @@ void mem_malloc_init(ulong start, ulong size)
 	mem_malloc_end = start + size;
 	mem_malloc_brk = start;
 
-	if (CONFIG_IS_ENABLED(SYS_MALLOC_DEFAULT_TO_INIT))
+	if (CONFIG_IS_ENABLED(SYS_MALLOC_RUNTIME_INIT))
 		malloc_init();
 
 	debug("using memory %#lx-%#lx for malloc()\n", mem_malloc_start,
@@ -2151,7 +2153,10 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
 #ifdef CONFIG_SYS_MALLOC_CLEAR_ON_INIT
 #if MORECORE_CLEARS
   mchunkptr oldtop = top;
-  INTERNAL_SIZE_T oldtopsize = chunksize(top);
+  INTERNAL_SIZE_T oldtopsize;
+  if (!CONFIG_VAL(SYS_MALLOC_F_LEN) ||
+      (gd->flags & GD_FLG_FULL_MALLOC_INIT))
+    oldtopsize = chunksize(top);
 #endif
 #endif
   Void_t* mem = mALLOc (sz);
