@@ -77,10 +77,11 @@ To check whether a feature is enabled, use CONFIG_IS_ENABLED()::
 This checks CONFIG_CLK for the main build, CONFIG_SPL_CLK for the SPL build,
 CONFIG_TPL_CLK for the TPL build, etc.
 
-U-Boot Phases
--------------
+U-Boot Boot Phases
+------------------
 
-U-Boot boots through the following phases:
+U-Boot goes through the following boot phases where TPL, VPL, SPL are optional.
+While many boards use SPL, less use TPL.
 
 TPL
    Very early init, as tiny as possible. This loads SPL (or VPL if enabled).
@@ -97,6 +98,12 @@ SPL
 U-Boot
    U-Boot proper, containing the command line and boot logic.
 
+Further usages of U-Boot SPL comprise:
+
+* Launching BL31 of ARM Trusted Firmware which invokes main U-Boot as BL33
+* launching EDK II
+* launching Linux kernel
+* launching RISC-V OpenSBI which invokes main U-Boot
 
 Checking the boot phase
 -----------------------
