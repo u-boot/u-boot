@@ -194,4 +194,5 @@ source "board/ti/am62ax/Kconfig"
 source "board/ti/j721e/Kconfig"
 source "board/siemens/iot2050/Kconfig"
 source "board/ti/j721s2/Kconfig"
+source "board/toradex/verdin-am62/Kconfig"
 endif
