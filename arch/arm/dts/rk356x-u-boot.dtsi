@@ -12,7 +12,7 @@
 	};
 
 	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc0;
+		u-boot,spl-boot-order = "same-as-spl", &sdmmc0, &sdhci;
 	};
 
 	dmc: dmc {
