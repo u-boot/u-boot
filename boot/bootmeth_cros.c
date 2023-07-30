@@ -335,15 +335,12 @@ static int cros_read_kernel(struct bootflow *bflow)
 
 static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
-	struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
-	ulong base, setup, cmdline, num_blks, kern_base;
 	const struct vb2_kernel_preamble *preamble;
-	struct cros_priv s_priv, *priv = &s_priv;
 	struct disk_partition info;
-	const char *uuid = NULL;
 	struct vb2_keyblock *hdr;
+	const char *uuid = NULL;
+	struct cros_priv *priv;
 	int part, ret;
-	void *buf;
 
 	log_debug("starting, part=%d\n", bflow->part);
 
@@ -362,84 +359,32 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	}
 	bflow->part = part;
 
-	log_info("Selected parition %d, header at %lx\n", bflow->part,
+	priv = malloc(sizeof(struct cros_priv));
+	if (!priv) {
+		free(hdr);
+		return log_msg_ret("buf", -ENOMEM);
+	}
+	bflow->bootmeth_priv = priv;
+
+	log_info("Selected partition %d, header at %lx\n", bflow->part,
 		 (ulong)map_to_sysmem(hdr));
+
+	/* Grab a few things from the preamble */
 	preamble = (void *)hdr + hdr->keyblock_size;
-	log_debug("Kernel preamble at %lx, version major %x, minor %x\n",
-		  (ulong)map_to_sysmem(preamble),
-		  preamble->header_version_major,
-		  preamble->header_version_minor);
-
-	log_debug("  - load_address %lx, bl_addr %lx, bl_size %lx\n",
-		  (ulong)preamble->body_load_address,
-		  (ulong)preamble->bootloader_address,
-		  (ulong)preamble->bootloader_size);
-
 	priv->body_offset = hdr->keyblock_size + preamble->preamble_size;
 	priv->part_start = info.start;
-	priv->body_size = preamble->body_signature.data_size;
-	priv->body_load_address = preamble->body_load_address;
-	priv->bootloader_address = preamble->bootloader_address;
-	priv->bootloader_size = preamble->bootloader_size;
-	log_debug("Kernel body at %lx size %lx\n", priv->body_offset,
-		  priv->body_size);
-	bflow->size = priv->body_size;
 
-	buf = memalign(SZ_1K, priv->body_size);
-	if (!buf)
-		return log_msg_ret("buf", -ENOMEM);
-
-	/* Check that the header is not smaller than permitted */
-	if (priv->body_offset < PROBE_SIZE)
-		return log_msg_ret("san", EFAULT);
-
-	/* Read kernel body */
-	num_blks = priv->body_size >> desc->log2blksz;
-	log_debug("Reading body to %lx, blk=%s, size=%lx, blocks=%lx\n",
-		  (ulong)map_to_sysmem(buf), bflow->blk->name, priv->body_size,
-		  num_blks);
-	ret = blk_read(bflow->blk,
-		       priv->part_start +
-		       (priv->body_offset >> desc->log2blksz),
-		       num_blks, buf);
-	if (ret != num_blks)
-		return log_msg_ret("inf", -EIO);
-	base = map_to_sysmem(buf) + priv->bootloader_address -
-		priv->body_load_address;
-
-	setup = base + X86_SETUP_OFFSET;
-	cmdline = base + CMDLINE_OFFSET;
-	kern_base = base + X86_KERNEL_OFFSET;
-	log_debug("base %lx setup %lx cmdline %lx kern_base %lx\n", base,
-		  setup, cmdline, kern_base);
-
-#ifdef CONFIG_X86
-	const char *version;
-
-	version = zimage_get_kernel_version(map_sysmem(setup, 0),
-					    map_sysmem(kern_base, 0));
-	log_debug("version %s\n", version);
-	if (version)
-		bflow->name = strdup(version);
-#endif
-	if (!bflow->name)
-		bflow->name = strdup("ChromeOS");
-	if (!bflow->name)
-		return log_msg_ret("nam", -ENOMEM);
-	bflow->os_name = strdup("ChromeOS");
-	if (!bflow->os_name)
-		return log_msg_ret("os", -ENOMEM);
-
+	/* Now read everything we can learn about kernel */
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 	uuid = info.uuid;
 #endif
-	ret = copy_cmdline(map_sysmem(cmdline, 0), uuid, &bflow->cmdline);
+	ret = cros_read_info(bflow, uuid, preamble);
+	preamble = NULL;
+	free(hdr);
 	if (ret)
-		return log_msg_ret("cmd", ret);
-
+		return log_msg_ret("inf", ret);
+	bflow->size = priv->body_size;
 	bflow->state = BOOTFLOWST_READY;
-	bflow->buf = buf;
-	bflow->x86_setup = map_sysmem(setup, 0);
 
 	return 0;
 }
@@ -452,6 +397,11 @@ static int cros_read_file(struct udevice *dev, struct bootflow *bflow,
 
 static int cros_boot(struct udevice *dev, struct bootflow *bflow)
 {
+	int ret;
+
+	ret = cros_read_kernel(bflow);
+	if (ret)
+		return log_msg_ret("rd", ret);
 #ifdef CONFIG_X86
 	zboot_start(map_to_sysmem(bflow->buf), bflow->size, 0, 0,
 		    map_to_sysmem(bflow->x86_setup),
