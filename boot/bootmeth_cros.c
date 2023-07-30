@@ -13,6 +13,7 @@
 #include <bootdev.h>
 #include <bootflow.h>
 #include <bootmeth.h>
+#include <display_options.h>
 #include <dm.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -133,7 +134,7 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	struct disk_partition info;
 	const char *uuid = NULL;
 	void *buf, *hdr;
-	int ret;
+	int part, ret;
 
 	log_debug("starting, part=%d\n", bflow->part);
 
@@ -141,13 +142,19 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	if (bflow->part)
 		return log_msg_ret("max", -ENOENT);
 
-	/* Check partition 2 */
-	ret = scan_part(bflow->blk, 2, &info, &hdr);
-	if (ret)
-		return log_msg_ret("scan", ret);
-	bflow->part = 2;
+	/* Check partition 2 then 4 */
+	part = 2;
+	ret = scan_part(bflow->blk, part, &info, &hdr);
+	if (ret) {
+		part = 4;
+		ret = scan_part(bflow->blk, part, &info, &hdr);
+		if (ret)
+			return log_msg_ret("scan", ret);
+	}
+	bflow->part = part;
 
-	log_info("Header at %lx\n", (ulong)map_to_sysmem(hdr));
+	log_info("Selected parition %d, header at %lx\n", bflow->part,
+		 (ulong)map_to_sysmem(hdr));
 	start = *(u32 *)(hdr + KERN_START);
 	size = ALIGN(*(u32 *)(hdr + KERN_SIZE), desc->blksz);
 	log_debug("Reading start %lx size %lx\n", start, size);
