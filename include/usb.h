@@ -257,7 +257,14 @@ int usb_kbd_deregister(int force);
 
 #endif
 /* routines */
-int usb_init(void); /* initialize the USB Controller */
+
+/*
+ * usb_init() - initialize the USB Controllers
+ *
+ * Returns: 0 if OK, -ENOENT if there are no USB devices
+ */
+int usb_init(void);
+
 int usb_stop(void); /* stop the USB Controller */
 int usb_detect_change(void); /* detect if a USB device has been (un)plugged */
 

@@ -346,7 +346,7 @@ int usb_init(void)
 	if (controllers_initialized == 0)
 		printf("No working controllers found\n");
 
-	return usb_started ? 0 : -1;
+	return usb_started ? 0 : -ENOENT;
 }
 
 int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
