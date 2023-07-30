@@ -419,13 +419,17 @@ static int cros_boot(struct udevice *dev, struct bootflow *bflow)
 		if (ret)
 			return log_msg_ret("rd", ret);
 	}
-#ifdef CONFIG_X86
-	zboot_start(map_to_sysmem(bflow->buf), bflow->size, 0, 0,
-		    map_to_sysmem(bflow->x86_setup),
-		    bflow->cmdline);
-#endif
 
-	return log_msg_ret("go", -EFAULT);
+	if (IS_ENABLED(CONFIG_X86)) {
+		ret = zboot_start(map_to_sysmem(bflow->buf), bflow->size, 0, 0,
+				  map_to_sysmem(bflow->x86_setup),
+				  bflow->cmdline);
+	} else {
+		ret = bootm_boot_start(map_to_sysmem(bflow->buf),
+				       bflow->cmdline);
+	}
+
+	return log_msg_ret("go", ret);
 }
 
 static int cros_bootmeth_bind(struct udevice *dev)

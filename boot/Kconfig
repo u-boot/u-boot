@@ -464,8 +464,8 @@ config BOOTMETH_GLOBAL
 
 config BOOTMETH_CROS
 	bool "Bootdev support for Chromium OS"
-	depends on X86 || SANDBOX
-	default y
+	depends on X86 || ARM || SANDBOX
+	default y if !ARM
 	help
 	  Enables support for booting Chromium OS using bootdevs. This uses the
 	  kernel A slot and obtains the kernel command line from the parameters
