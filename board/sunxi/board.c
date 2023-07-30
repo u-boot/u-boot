@@ -569,7 +569,8 @@ void sunxi_board_init(void)
 
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || \
 	defined CONFIG_AXP221_POWER || defined CONFIG_AXP305_POWER || \
-	defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER
+	defined CONFIG_AXP809_POWER || defined CONFIG_AXP818_POWER || \
+	defined CONFIG_AXP313_POWER
 	power_failed = axp_init();
 
 	if (IS_ENABLED(CONFIG_AXP_DISABLE_BOOT_ON_POWERON) && !power_failed) {
