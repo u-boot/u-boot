@@ -124,11 +124,3 @@
 	bootph-all;
 	status = "okay";
 };
-
-&vcc5v0_usb_host {
-	regulator-boot-on;
-};
-
-&vcc5v0_usb_hub {
-	regulator-boot-on;
-};
