@@ -98,6 +98,7 @@ List of mainline supported Rockchip boards:
      - Hardkernel ODROID-M1 (odroid-m1-rk3568)
      - Pine64 Quartz64-A Board (quartz64-a-rk3566_defconfig)
      - Pine64 Quartz64-B Board (quartz64-b-rk3566_defconfig)
+     - Pine64 SOQuartz on Model A (soquartz-model-a-rk3566_defconfig)
 
 * rk3588
      - Rockchip EVB (evb-rk3588)
