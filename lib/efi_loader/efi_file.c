@@ -1192,18 +1192,22 @@ efi_open_volume(struct efi_simple_file_system_protocol *this,
 	return EFI_EXIT(efi_open_volume_int(this, root));
 }
 
-struct efi_simple_file_system_protocol *
-efi_simple_file_system(struct blk_desc *desc, int part,
-		       struct efi_device_path *dp)
+efi_status_t
+efi_create_simple_file_system(struct blk_desc *desc, int part,
+			      struct efi_device_path *dp,
+			      struct efi_simple_file_system_protocol **fsp)
 {
 	struct file_system *fs;
 
 	fs = calloc(1, sizeof(*fs));
+	if (!fs)
+		return EFI_OUT_OF_RESOURCES;
 	fs->base.rev = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_REVISION;
 	fs->base.open_volume = efi_open_volume;
 	fs->desc = desc;
 	fs->part = part;
 	fs->dp = dp;
+	*fsp = &fs->base;
 
-	return &fs->base;
+	return EFI_SUCCESS;
 }

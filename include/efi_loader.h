@@ -696,9 +696,21 @@ void efi_signal_event(struct efi_event *event);
 /* return true if the device is removable */
 bool efi_disk_is_removable(efi_handle_t handle);
 
-/* open file system: */
-struct efi_simple_file_system_protocol *efi_simple_file_system(
-		struct blk_desc *desc, int part, struct efi_device_path *dp);
+/**
+ * efi_create_simple_file_system() - create simple file system protocol
+ *
+ * Create a simple file system protocol for a partition.
+ *
+ * @desc:	block device descriptor
+ * @part:	partition number
+ * @dp:		device path
+ * @fsp:	simple file system protocol
+ * Return:	status code
+ */
+efi_status_t
+efi_create_simple_file_system(struct blk_desc *desc, int part,
+			      struct efi_device_path *dp,
+			      struct efi_simple_file_system_protocol **fsp);
 
 /* open file from device-path: */
 struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp);
