@@ -43,7 +43,7 @@ int spl_blk_load_image(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev,
 		       enum uclass_id uclass_id, int devnum, int partnum)
 {
-	const char *filename = CONFIG_SPL_PAYLOAD;
+	const char *filename = CONFIG_SPL_FS_LOAD_PAYLOAD_NAME;
 	struct disk_partition part_info = {};
 	struct legacy_img_hdr *header;
 	struct blk_desc *blk_desc;
@@ -66,7 +66,7 @@ int spl_blk_load_image(struct spl_image_info *spl_image,
 	}
 
 	dev.ifname = blk_get_uclass_name(uclass_id);
-	snprintf(dev.dev_part_str, sizeof(dev.dev_part_str) - 1, "%d:%d",
+	snprintf(dev.dev_part_str, sizeof(dev.dev_part_str) - 1, "%x:%x",
 		 devnum, partnum);
 	ret = fs_set_blk_dev(dev.ifname, dev.dev_part_str, FS_TYPE_ANY);
 	if (ret) {

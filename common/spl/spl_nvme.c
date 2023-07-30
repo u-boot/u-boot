@@ -7,17 +7,12 @@
 
 #include <common.h>
 #include <spl.h>
-#include <init.h>
 #include <nvme.h>
 
 static int spl_nvme_load_image(struct spl_image_info *spl_image,
 			       struct spl_boot_device *bootdev)
 {
 	int ret;
-
-	ret = pci_init();
-	if (ret < 0)
-		return ret;
 
 	ret = nvme_scan_namespace();
 	if (ret < 0)

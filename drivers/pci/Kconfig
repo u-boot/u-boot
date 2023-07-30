@@ -41,7 +41,8 @@ config PCI_PNP
 	  Enable PCI memory and I/O space resource allocation and assignment.
 
 config SPL_PCI_PNP
-	bool "Enable Plug & Play support for PCI"
+	bool "Enable Plug & Play support for PCI in SPL"
+	depends on SPL_PCI
 	help
 	  Enable PCI memory and I/O space resource allocation and assignment.
 
