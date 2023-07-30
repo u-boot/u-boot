@@ -78,6 +78,14 @@ static uint32_t elf32_to_cpu(uint32_t data)
 	return be32_to_cpu(data);
 }
 
+static uint32_t cpu_to_elf32(uint32_t data)
+{
+	if (ei_data == ELFDATA2LSB)
+		return cpu_to_le32(data);
+
+	return cpu_to_be32(data);
+}
+
 static bool supported_rela(Elf64_Rela *rela)
 {
 	uint64_t mask = 0xffffffffULL; /* would be different on 32-bit */
@@ -602,13 +610,15 @@ static int rela_elf32(char **argv, FILE *f)
 			}
 
 			debug("Symbol description:\n");
-			debug(" st_name:\t0x%x\n", symbols.st_name);
-			debug(" st_value:\t0x%x\n", symbols.st_value);
-			debug(" st_size:\t0x%x\n", symbols.st_size);
+			debug(" st_name:\t0x%x\n", elf32_to_cpu(symbols.st_name));
+			debug(" st_value:\t0x%x\n", elf32_to_cpu(symbols.st_value));
+			debug(" st_size:\t0x%x\n", elf32_to_cpu(symbols.st_size));
 
-			value = swrela.r_addend + symbols.st_value;
+			value = swrela.r_addend + elf32_to_cpu(symbols.st_value);
 
 			debug("Value:\t0x%x\n", value);
+
+			value = cpu_to_elf32(value);
 
 			if (fseek(f, addr, SEEK_SET) < 0) {
 				fprintf(stderr, "%s: %s: seek to %"
