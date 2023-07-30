@@ -22,6 +22,35 @@
 #include <linux/sizes.h>
 #include "bootmeth_cros.h"
 
+/*
+ * Layout of the ChromeOS kernel
+ *
+ * Partitions 2 and 4 contain kernels
+ *
+ * Contents are:
+ *
+ * Offset	Contents
+ *   0		struct vb2_keyblock
+ *   m		struct vb2_kernel_preamble
+ *   m + n	kernel buffer
+ *
+ * m is keyblock->keyblock_size
+ * n is preamble->preamble_size
+ *
+ * The kernel buffer itself consists of various parts:
+ *
+ * Offset	Contents
+ *   m + n	kernel image (Flat vmlinux binary or FIT)
+ *   b - 8KB	Command line text
+ *   b - 4KB	X86 setup block (struct boot_params, extends for about 16KB)
+ *   b          X86 bootloader (continuation of setup block)
+ *   b + 16KB	X86 setup block (copy, used for hold data pointed to)
+ *
+ * b is m + n + preamble->bootloader_address - preamble->body_load_address
+ *
+ * Useful metadata extends from b - 8KB through to b + 32 KB
+ */
+
 enum {
 	PROBE_SIZE	= SZ_4K,	/* initial bytes read from partition */
 
