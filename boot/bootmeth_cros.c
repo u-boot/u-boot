@@ -72,6 +72,7 @@ enum {
  * @bootloader_address: Address of bootloader, after body is loaded at
  *	body_load_address
  * @bootloader_size:  Size of bootloader in bytes
+ * @info_buf: Buffer containing ChromiumOS info
  */
 struct cros_priv {
 	ulong body_offset;
@@ -80,6 +81,7 @@ struct cros_priv {
 	ulong body_load_address;
 	ulong bootloader_address;
 	ulong bootloader_size;
+	void *info_buf;
 };
 
 static int cros_check(struct udevice *dev, struct bootflow_iter *iter)
@@ -169,6 +171,125 @@ static int scan_part(struct udevice *blk, int partnum,
 	}
 
 	*hdrp = hdr;
+
+	return 0;
+}
+
+/**
+ * cros_read_buf() - Read information into a buf and parse it
+ *
+ * @bflow: Bootflow to update
+ * @buf: Buffer to use
+ * @size: Size of buffer and number of bytes to read thereinto
+ * @start: Start offset to read from on disk
+ * @before_base: Number of bytes to read before the bootloader base
+ * @uuid: UUID string if supported, else NULL
+ * Return: 0 if OK, -ENOMEM if out of memory, -EIO on read failure
+ */
+static int cros_read_buf(struct bootflow *bflow, void *buf, ulong size,
+			 loff_t start, ulong before_base, const char *uuid)
+{
+	struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
+	ulong base, setup, cmdline, kern_base;
+	ulong num_blks;
+	int ret;
+
+	num_blks = size >> desc->log2blksz;
+	log_debug("Reading info to %lx, blk=%s, size=%lx, blocks=%lx\n",
+		  (ulong)map_to_sysmem(buf), bflow->blk->name, size, num_blks);
+	ret = blk_read(bflow->blk, start, num_blks, buf);
+	if (ret != num_blks)
+		return log_msg_ret("inf", -EIO);
+	base = map_to_sysmem(buf) + before_base;
+
+	setup = base + X86_SETUP_OFFSET;
+	cmdline = base + CMDLINE_OFFSET;
+	kern_base = base + X86_KERNEL_OFFSET;
+	log_debug("base %lx setup %lx cmdline %lx kern_base %lx\n", base,
+		  setup, cmdline, kern_base);
+
+#ifdef CONFIG_X86
+	const char *version;
+
+	version = zimage_get_kernel_version(map_sysmem(setup, 0),
+					    map_sysmem(kern_base, 0));
+	log_debug("version %s\n", version);
+	if (version)
+		bflow->name = strdup(version);
+#endif
+	if (!bflow->name)
+		bflow->name = strdup("ChromeOS");
+	if (!bflow->name)
+		return log_msg_ret("nam", -ENOMEM);
+	bflow->os_name = strdup("ChromeOS");
+	if (!bflow->os_name)
+		return log_msg_ret("os", -ENOMEM);
+
+	ret = copy_cmdline(map_sysmem(cmdline, 0), uuid, &bflow->cmdline);
+	if (ret)
+		return log_msg_ret("cmd", ret);
+	bflow->x86_setup = map_sysmem(setup, 0);
+
+	return 0;
+}
+
+/**
+ * cros_read_info() - Read information and fill out the bootflow
+ *
+ * @bflow: Bootflow to update
+ * @uuid: UUID string if supported, else NULL
+ * @preamble: Kernel preamble information
+ * Return: 0 if OK, -ENOMEM if out of memory, -EIO on read failure
+ */
+static int cros_read_info(struct bootflow *bflow, const char *uuid,
+			  const struct vb2_kernel_preamble *preamble)
+{
+	struct cros_priv *priv = bflow->bootmeth_priv;
+	struct udevice *blk = bflow->blk;
+	struct blk_desc *desc = dev_get_uclass_plat(blk);
+	ulong offset, size, before_base;
+	void *buf;
+	int ret;
+
+	log_debug("Kernel preamble at %lx, version major %x, minor %x\n",
+		  (ulong)map_to_sysmem(preamble),
+		  preamble->header_version_major,
+		  preamble->header_version_minor);
+
+	log_debug("  - load_address %lx, bl_addr %lx, bl_size %lx\n",
+		  (ulong)preamble->body_load_address,
+		  (ulong)preamble->bootloader_address,
+		  (ulong)preamble->bootloader_size);
+
+	priv->body_size = preamble->body_signature.data_size;
+	priv->body_load_address = preamble->body_load_address;
+	priv->bootloader_address = preamble->bootloader_address;
+	priv->bootloader_size = preamble->bootloader_size;
+	log_debug("Kernel body at %lx size %lx\n", priv->body_offset,
+		  priv->body_size);
+
+	/* Work out how many bytes to read before the bootloader base */
+	before_base = -CMDLINE_OFFSET;
+
+	/* Read the cmdline through to the end of the bootloader */
+	size = priv->bootloader_size + before_base;
+	offset = priv->body_offset +
+		(priv->bootloader_address - priv->body_load_address) +
+		CMDLINE_OFFSET;
+	buf = malloc(size);
+	if (!buf)
+		return log_msg_ret("buf", -ENOMEM);
+
+	ret = cros_read_buf(bflow, buf, size,
+			    priv->part_start + (offset >> desc->log2blksz),
+			    before_base, uuid);
+	if (ret) {
+		/* Clear this since the buffer is invalid */
+		bflow->x86_setup = NULL;
+		free(buf);
+		return log_msg_ret("pro", ret);
+	}
+	priv->info_buf = buf;
 
 	return 0;
 }
