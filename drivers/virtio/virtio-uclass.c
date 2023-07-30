@@ -248,7 +248,7 @@ static int virtio_uclass_post_probe(struct udevice *udev)
 	device_set_name_alloced(vdev);
 
 	if (uc_priv->device == VIRTIO_ID_BLOCK && !IS_ENABLED(CONFIG_SANDBOX)) {
-		ret = bootdev_setup_sibling_blk(vdev, "virtio_bootdev");
+		ret = bootdev_setup_for_sibling_blk(vdev, "virtio_bootdev");
 		if (ret)
 			return log_msg_ret("bootdev", ret);
 	}

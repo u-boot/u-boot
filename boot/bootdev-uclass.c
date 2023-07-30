@@ -262,7 +262,7 @@ static int bootdev_get_suffix_start(struct udevice *dev, const char *suffix)
 	return len;
 }
 
-int bootdev_setup_sibling_blk(struct udevice *blk, const char *drv_name)
+int bootdev_setup_for_sibling_blk(struct udevice *blk, const char *drv_name)
 {
 	struct udevice *parent, *dev;
 	char dev_name[50];
@@ -305,7 +305,9 @@ int bootdev_get_sibling_blk(struct udevice *dev, struct udevice **blkp)
 	if (device_get_uclass_id(dev) != UCLASS_BOOTDEV)
 		return -EINVAL;
 
-	/* This should always work if bootdev_setup_sibling_blk() was used */
+	/*
+	 * This should always work if bootdev_setup_for_sibling_blk() was used
+	 */
 	len = bootdev_get_suffix_start(dev, ".bootdev");
 	ret = device_find_child_by_namelen(parent, dev->name, len, &blk);
 	if (ret) {
@@ -335,7 +337,7 @@ static int bootdev_get_from_blk(struct udevice *blk, struct udevice **bootdevp)
 	if (device_get_uclass_id(blk) != UCLASS_BLK)
 		return -EINVAL;
 
-	/* This should always work if bootdev_setup_sibling_blk() was used */
+	/* This should always work if bootdev_setup_for_sibling_blk() was used */
 	len = bootdev_get_suffix_start(blk, ".blk");
 	snprintf(dev_name, sizeof(dev_name), "%.*s.%s", len, blk->name,
 		 "bootdev");

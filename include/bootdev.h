@@ -371,7 +371,7 @@ int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp);
 /**
  * bootdev_setup_for_dev() - Bind a new bootdev device (deprecated)
  *
- * Please use bootdev_setup_sibling_blk() instead since it supports multiple
+ * Please use bootdev_setup_for_sibling_blk() instead since it supports multiple
  * (child) block devices for each media device.
  *
  * Creates a bootdev device as a child of @parent. This should be called from
@@ -386,7 +386,7 @@ int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp);
 int bootdev_setup_for_dev(struct udevice *parent, const char *drv_name);
 
 /**
- * bootdev_setup_for_blk() - Bind a new bootdev device for a blk device
+ * bootdev_setup_for_sibling_blk() - Bind a new bootdev device for a blk device
  *
  * Creates a bootdev device as a sibling of @blk. This should be called from
  * the driver's bind() method or its uclass' post_bind() method, at the same
@@ -398,7 +398,7 @@ int bootdev_setup_for_dev(struct udevice *parent, const char *drv_name);
  * @drv_name: Name of bootdev driver to bind
  * Return: 0 if OK, -ve on error
  */
-int bootdev_setup_sibling_blk(struct udevice *blk, const char *drv_name);
+int bootdev_setup_for_sibling_blk(struct udevice *blk, const char *drv_name);
 
 /**
  * bootdev_get_sibling_blk() - Locate the block device for a bootdev
@@ -428,8 +428,8 @@ static inline int bootdev_setup_for_dev(struct udevice *parent,
 	return 0;
 }
 
-static inline int bootdev_setup_sibling_blk(struct udevice *blk,
-					    const char *drv_name)
+static inline int bootdev_setup_for_sibling_blk(struct udevice *blk,
+						const char *drv_name)
 {
 	return 0;
 }
