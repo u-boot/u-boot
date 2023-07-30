@@ -108,7 +108,7 @@ struct bootflow {
 	ulong fdt_addr;
 	int flags;
 	char *cmdline;
-	char *x86_setup;
+	void *x86_setup;
 	void *bootmeth_priv;
 };
 

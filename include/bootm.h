@@ -152,4 +152,15 @@ int zboot_start(ulong addr, ulong size, ulong initrd, ulong initrd_size,
 const char *zimage_get_kernel_version(struct boot_params *params,
 				      void *kernel_base);
 
+/**
+ * zimage_dump() - Dump the metadata of a zimage
+ *
+ * This shows all available information in a zimage that has been loaded.
+ *
+ * @base_ptr: Pointer to the boot parameters, typically at address
+ *	DEFAULT_SETUP_BASE
+ * @show_cmdline: true to show the full command line
+ */
+void zimage_dump(struct boot_params *base_ptr, bool show_cmdline);
+
 #endif

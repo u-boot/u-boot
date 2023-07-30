@@ -11,7 +11,7 @@ Synopis
     bootflow scan [-abelGH] [bootdev]
     bootflow list [-e]
     bootflow select [<num|name>]
-    bootflow info [-d]
+    bootflow info [-ds]
     bootflow boot
     bootflow cmdline [set|get|clear|delete|auto] <param> [<value>]
 
@@ -190,6 +190,8 @@ Error
     can look up Linux error codes to find the meaning of the number.
 
 Use the `-d` flag to dump out the contents of the bootfile file.
+
+The `-s` flag shows any x86 setup block, instead of the above.
 
 
 bootflow boot
@@ -522,6 +524,61 @@ the cmdline is word-wrapped here and some parts of the command line are elided::
     [    0.000000] Command line: loglevel=7 ... usb-storage.quirks=13fe:6500:u earlycon=uart8250,mmio32,0xfe03e000,115200n8
     [    0.000000] x86/split lock detection: warning about user-space split_locks
 
+This shows looking at x86 setup information::
+
+    => bootfl sel 0
+    => bootfl i -s
+    Setup located at 77b56010:
+
+    ACPI RSDP addr      : 0
+    E820: 2 entries
+            Addr        Size  Type
+               0        1000  RAM
+        fffff000        1000  Reserved
+    Setup sectors       : 1e
+    Root flags          : 1
+    Sys size            : 63420
+    RAM size            : 0
+    Video mode          : ffff
+    Root dev            : 0
+    Boot flag           : 0
+    Jump                : 66eb
+    Header              : 53726448
+                          Kernel V2
+    Version             : 20d
+    Real mode switch    : 0
+    Start sys seg       : 1000
+    Kernel version      : 38cc
+       @00003acc:
+    Type of loader      : ff
+                          unknown
+    Load flags          : 1
+                        : loaded-high
+    Setup move size     : 8000
+    Code32 start        : 100000
+    Ramdisk image       : 0
+    Ramdisk size        : 0
+    Bootsect kludge     : 0
+    Heap end ptr        : 5160
+    Ext loader ver      : 0
+    Ext loader type     : 0
+    Command line ptr    : 735000
+    Initrd addr max     : 7fffffff
+    Kernel alignment    : 200000
+    Relocatable kernel  : 1
+    Min alignment       : 15
+                        : 200000
+    Xload flags         : 3
+                        : 64-bit-entry can-load-above-4gb
+    Cmdline size        : 7ff
+    Hardware subarch    : 0
+    HW subarch data     : 0
+    Payload offset      : 26e
+    Payload length      : 612045
+    Setup data          : 0
+    Pref address        : 1000000
+    Init size           : 1383000
+    Handover offset     : 0
 
 
 Return value

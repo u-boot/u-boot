@@ -692,7 +692,7 @@ static void show_loader(struct setup_header *hdr)
 	printf("\n");
 }
 
-void zimage_dump(struct boot_params *base_ptr)
+void zimage_dump(struct boot_params *base_ptr, bool show_cmdline)
 {
 	struct setup_header *hdr;
 	const char *version;
@@ -703,7 +703,7 @@ void zimage_dump(struct boot_params *base_ptr)
 
 	printf("E820: %d entries\n", base_ptr->e820_entries);
 	if (base_ptr->e820_entries) {
-		printf("%18s  %16s  %s\n", "Addr", "Size", "Type");
+		printf("%12s  %10s  %s\n", "Addr", "Size", "Type");
 		for (i = 0; i < base_ptr->e820_entries; i++) {
 			struct e820_entry *entry = &base_ptr->e820_map[i];
 
@@ -749,7 +749,7 @@ void zimage_dump(struct boot_params *base_ptr)
 	print_num("Ext loader ver", hdr->ext_loader_ver);
 	print_num("Ext loader type", hdr->ext_loader_type);
 	print_num("Command line ptr", hdr->cmd_line_ptr);
-	if (hdr->cmd_line_ptr) {
+	if (show_cmdline && hdr->cmd_line_ptr) {
 		printf("   ");
 		/* Use puts() to avoid limits from CONFIG_SYS_PBSIZE */
 		puts((char *)(ulong)hdr->cmd_line_ptr);
@@ -787,7 +787,7 @@ static int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("No zboot setup_base\n");
 		return CMD_RET_FAILURE;
 	}
-	zimage_dump(base_ptr);
+	zimage_dump(base_ptr, true);
 
 	return 0;
 }

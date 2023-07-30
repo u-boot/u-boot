@@ -9,6 +9,7 @@
 #include <common.h>
 #include <bootdev.h>
 #include <bootflow.h>
+#include <bootm.h>
 #include <bootstd.h>
 #include <command.h>
 #include <console.h>
@@ -303,11 +304,14 @@ static int do_bootflow_info(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	struct bootstd_priv *std;
 	struct bootflow *bflow;
+	bool x86_setup = false;
 	bool dump = false;
 	int ret;
 
-	if (argc > 1 && *argv[1] == '-')
+	if (argc > 1 && *argv[1] == '-') {
 		dump = strchr(argv[1], 'd');
+		x86_setup = strchr(argv[1], 's');
+	}
 
 	ret = bootstd_get_priv(&std);
 	if (ret)
@@ -318,6 +322,12 @@ static int do_bootflow_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 	bflow = std->cur_bootflow;
+
+	if (IS_ENABLED(CONFIG_X86) && x86_setup) {
+		zimage_dump(bflow->x86_setup, false);
+
+		return 0;
+	}
 
 	printf("Name:      %s\n", bflow->name);
 	printf("Device:    %s\n", bflow->dev->name);
@@ -508,7 +518,7 @@ static char bootflow_help_text[] =
 	"scan [-abeGl] [bdev]  - scan for valid bootflows (-l list, -a all, -e errors, -b boot, -G no global)\n"
 	"bootflow list [-e]             - list scanned bootflows (-e errors)\n"
 	"bootflow select [<num>|<name>] - select a bootflow\n"
-	"bootflow info [-d]             - show info on current bootflow (-d dump bootflow)\n"
+	"bootflow info [-ds]            - show info on current bootflow (-d dump bootflow)\n"
 	"bootflow boot                  - boot current bootflow (or first available if none selected)\n"
 	"bootflow menu [-t]             - show a menu of available bootflows\n"
 	"bootflow cmdline [set|get|clear|delete|auto] <param> [<value>] - update cmdline";
