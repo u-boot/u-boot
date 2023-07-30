@@ -106,7 +106,7 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 		return log_msg_ret("hdr", -ENOMEM);
 	ret = blk_read(bflow->blk, info.start, num_blks, hdr);
 	if (ret != num_blks)
-		return log_msg_ret("inf", ret);
+		return log_msg_ret("inf", -EIO);
 
 	if (memcmp("CHROMEOS", hdr, 8))
 		return -ENOENT;
@@ -125,7 +125,7 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 		  bflow->blk->name, (ulong)info.start, num_blks);
 	ret = blk_read(bflow->blk, (ulong)info.start + 0x80, num_blks, buf);
 	if (ret != num_blks)
-		return log_msg_ret("inf", ret);
+		return log_msg_ret("inf", -EIO);
 	base = map_to_sysmem(buf);
 
 	setup = base + start - OFFSET_BASE - SETUP_OFFSET;
