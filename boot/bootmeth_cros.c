@@ -21,6 +21,7 @@
 #include <asm/zimage.h>
 #endif
 #include <linux/sizes.h>
+#include "bootmeth_cros.h"
 
 enum {
 	PROBE_SIZE	= SZ_4K,	/* initial bytes read from partition */
@@ -82,7 +83,8 @@ static int copy_cmdline(const char *from, const char *uuid, char **bufp)
 /**
  * scan_part() - Scan a kernel partition to see if has a ChromeOS header
  *
- * This reads the first PROBE_SIZE of a partition, loookng for CHROMEOS
+ * This reads the first PROBE_SIZE of a partition, loookng for
+ * VB2_KEYBLOCK_MAGIC
  *
  * @blk: Block device to scan
  * @partnum: Partition number to scan
@@ -114,7 +116,7 @@ static int scan_part(struct udevice *blk, int partnum,
 		return log_msg_ret("inf", -EIO);
 	}
 
-	if (memcmp("CHROMEOS", hdr, 8)) {
+	if (memcmp(VB2_KEYBLOCK_MAGIC, hdr->magic, VB2_KEYBLOCK_MAGIC_SIZE)) {
 		free(hdr);
 		return -ENOENT;
 	}
