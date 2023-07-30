@@ -101,6 +101,7 @@ List of mainline supported Rockchip boards:
      - Pine64 SOQuartz on Blade (soquartz-blade-rk3566_defconfig)
      - Pine64 SOQuartz on CM4-IO (soquartz-cm4-rk3566_defconfig)
      - Pine64 SOQuartz on Model A (soquartz-model-a-rk3566_defconfig)
+     - Radxa E25 Carrier Board (radxa-e25-rk3568_defconfig)
 
 * rk3588
      - Rockchip EVB (evb-rk3588)
