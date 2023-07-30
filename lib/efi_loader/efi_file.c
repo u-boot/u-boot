@@ -195,6 +195,8 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 
 	/* +2 is for null and '/' */
 	fh = calloc(1, sizeof(*fh) + plen + (flen * MAX_UTF8_PER_UTF16) + 2);
+	if (!fh)
+		return NULL;
 
 	fh->open_mode = open_mode;
 	fh->base = efi_file_handle_protocol;
