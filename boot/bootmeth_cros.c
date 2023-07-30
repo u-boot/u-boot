@@ -23,6 +23,8 @@
 #include <linux/sizes.h>
 
 enum {
+	PROBE_SIZE	= SZ_4K,	/* initial bytes read from partition */
+
 	/* Offsets in the kernel-partition header */
 	KERN_START	= 0x4f0,
 	KERN_SIZE	= 0x518,
@@ -77,6 +79,51 @@ static int copy_cmdline(const char *from, const char *uuid, char **bufp)
 	return 0;
 }
 
+/**
+ * scan_part() - Scan a kernel partition to see if has a ChromeOS header
+ *
+ * This reads the first PROBE_SIZE of a partition, loookng for CHROMEOS
+ *
+ * @blk: Block device to scan
+ * @partnum: Partition number to scan
+ * @info: Please to put partition info
+ * @hdrp: Return allocated keyblock header on success
+ */
+static int scan_part(struct udevice *blk, int partnum,
+		     struct disk_partition *info, void **hdrp)
+{
+	struct blk_desc *desc = dev_get_uclass_plat(blk);
+	struct vb2_keyblock *hdr;
+	ulong num_blks;
+	int ret;
+
+	ret = part_get_info(desc, partnum, info);
+	if (ret)
+		return log_msg_ret("part", ret);
+
+	/* Make a buffer for the header information */
+	num_blks = PROBE_SIZE >> desc->log2blksz;
+	log_debug("Reading header, blk=%s, start=%lx, blocks=%lx\n",
+		  blk->name, (ulong)info->start, num_blks);
+	hdr = memalign(SZ_1K, PROBE_SIZE);
+	if (!hdr)
+		return log_msg_ret("hdr", -ENOMEM);
+	ret = blk_read(blk, info->start, num_blks, hdr);
+	if (ret != num_blks) {
+		free(hdr);
+		return log_msg_ret("inf", -EIO);
+	}
+
+	if (memcmp("CHROMEOS", hdr, 8)) {
+		free(hdr);
+		return -ENOENT;
+	}
+
+	*hdrp = hdr;
+
+	return 0;
+}
+
 static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
@@ -93,23 +140,10 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 		return log_msg_ret("max", -ENOENT);
 
 	/* Check partition 2 */
-	ret = part_get_info(desc, 2, &info);
+	ret = scan_part(bflow->blk, 2, &info, &hdr);
 	if (ret)
-		return log_msg_ret("part", ret);
-
-	/* Make a buffer for the header information */
-	num_blks = SZ_4K >> desc->log2blksz;
-	log_debug("Reading header, blk=%s, start=%lx, blocks=%lx\n",
-		  bflow->blk->name, (ulong)info.start, num_blks);
-	hdr = memalign(SZ_1K, SZ_4K);
-	if (!hdr)
-		return log_msg_ret("hdr", -ENOMEM);
-	ret = blk_read(bflow->blk, info.start, num_blks, hdr);
-	if (ret != num_blks)
-		return log_msg_ret("inf", -EIO);
-
-	if (memcmp("CHROMEOS", hdr, 8))
-		return -ENOENT;
+		return log_msg_ret("scan", ret);
+	bflow->part = 2;
 
 	log_info("Header at %lx\n", (ulong)map_to_sysmem(hdr));
 	start = *(u32 *)(hdr + KERN_START);
