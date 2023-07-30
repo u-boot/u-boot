@@ -1059,9 +1059,9 @@ static int ide_probe(struct udevice *udev)
 		desc->lba48 = pdesc.lba48;
 		desc->type = pdesc.type;
 
-		ret = bootdev_setup_for_dev(udev, "ide_bootdev");
+		ret = bootdev_setup_for_sibling_blk(blk, "ide_bootdev");
 		if (ret)
-			return log_msg_ret("bootdev", ret);
+			return log_msg_ret("bd", ret);
 	}
 
 	return 0;
