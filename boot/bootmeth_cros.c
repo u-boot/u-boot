@@ -12,15 +12,13 @@
 #include <blk.h>
 #include <bootdev.h>
 #include <bootflow.h>
+#include <bootm.h>
 #include <bootmeth.h>
 #include <display_options.h>
 #include <dm.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <part.h>
-#ifdef CONFIG_X86
-#include <asm/zimage.h>
-#endif
 #include <linux/sizes.h>
 #include "bootmeth_cros.h"
 
