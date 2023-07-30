@@ -489,7 +489,7 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 				enum efi_memory_type memory_type,
 				efi_uintn_t pages, uint64_t *memory)
 {
-	u64 len = pages << EFI_PAGE_SHIFT;
+	u64 len;
 	efi_status_t ret;
 	uint64_t addr;
 
@@ -499,6 +499,11 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 		return EFI_INVALID_PARAMETER;
 	if (!memory)
 		return EFI_INVALID_PARAMETER;
+	len = (u64)pages << EFI_PAGE_SHIFT;
+	/* Catch possible overflow on 64bit systems */
+	if (sizeof(efi_uintn_t) == sizeof(u64) &&
+	    (len >> EFI_PAGE_SHIFT) != (u64)pages)
+		return EFI_OUT_OF_RESOURCES;
 
 	switch (type) {
 	case EFI_ALLOCATE_ANY_PAGES:
