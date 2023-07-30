@@ -537,6 +537,8 @@ static int default_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
 	int ret;
 
 	ret = bootdev_get_sibling_blk(dev, &blk);
+	log_debug("sibling_blk ret=%d, blk=%s\n", ret,
+		  ret ? "(none)" : blk->name);
 	/*
 	 * If there is no media, indicate that no more partitions should be
 	 * checked
@@ -662,7 +664,8 @@ int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp)
 				ret = bootdev_hunt_prio(iter->cur_prio,
 							iter->flags &
 							BOOTFLOWIF_SHOW);
-				log_debug("- hunt ret %d\n", ret);
+				log_debug("- bootdev_hunt_prio() ret %d\n",
+					  ret);
 				if (ret)
 					return log_msg_ret("hun", ret);
 			}
@@ -698,6 +701,7 @@ int bootdev_setup_iter(struct bootflow_iter *iter, const char *label,
 	/* hunt for any pre-scan devices */
 	if (iter->flags & BOOTFLOWIF_HUNT) {
 		ret = bootdev_hunt_prio(BOOTDEVP_1_PRE_SCAN, show);
+		log_debug("- bootdev_hunt_prio() ret %d\n", ret);
 		if (ret)
 			return log_msg_ret("pre", ret);
 	}
@@ -768,6 +772,7 @@ static int bootdev_hunt_drv(struct bootdev_hunter *info, uint seq, bool show)
 		log_debug("Hunting with: %s\n", name);
 		if (info->hunt) {
 			ret = info->hunt(info, show);
+			log_debug("  - hunt result %d\n", ret);
 			if (ret)
 				return ret;
 		}
@@ -833,9 +838,11 @@ int bootdev_hunt_prio(enum bootdev_prio_t prio, bool show)
 		if (prio != info->prio)
 			continue;
 		ret = bootdev_hunt_drv(info, i, show);
+		log_debug("bootdev_hunt_drv() return %d\n", ret);
 		if (ret && ret != -ENOENT)
 			result = ret;
 	}
+	log_debug("exit %d\n", result);
 
 	return result;
 }
