@@ -216,7 +216,7 @@ void bootdev_list(bool probe)
 	for (i = 0; dev; i++) {
 		printf("%3x   [ %c ]  %6s  %-9.9s %s\n", dev_seq(dev),
 		       device_active(dev) ? '+' : ' ',
-		       ret ? simple_itoa(ret) : "OK",
+		       ret ? simple_itoa(-ret) : "OK",
 		       dev_get_uclass_name(dev_get_parent(dev)), dev->name);
 		if (probe)
 			ret = uclass_next_device_check(&dev);
