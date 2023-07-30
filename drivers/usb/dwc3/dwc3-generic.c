@@ -558,9 +558,9 @@ int dwc3_glue_probe(struct udevice *dev)
 			return ret;
 	}
 
-	ret = device_find_first_child(dev, &child);
-	if (ret)
-		return ret;
+	device_find_first_child(dev, &child);
+	if (!child)
+		return 0;
 
 	if (glue->clks.count == 0) {
 		ret = dwc3_glue_clk_init(child, glue);
