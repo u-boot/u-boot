@@ -137,7 +137,6 @@ static int x86_spl_init(void)
 	}
 
 #ifndef CONFIG_SYS_COREBOOT
-	log_debug("bss\n");
 	debug("BSS clear from %lx to %lx len %lx\n", (ulong)&__bss_start,
 	      (ulong)&__bss_end, (ulong)&__bss_end - (ulong)&__bss_start);
 	memset(&__bss_start, 0, (ulong)&__bss_end - (ulong)&__bss_start);
