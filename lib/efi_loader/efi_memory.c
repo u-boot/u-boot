@@ -282,6 +282,8 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 
 	++efi_memory_map_key;
 	newlist = calloc(1, sizeof(*newlist));
+	if (!newlist)
+		return EFI_OUT_OF_RESOURCES;
 	newlist->desc.type = memory_type;
 	newlist->desc.physical_start = start;
 	newlist->desc.virtual_start = start;
