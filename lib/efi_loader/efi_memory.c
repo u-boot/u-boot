@@ -34,6 +34,7 @@ struct efi_mem_list {
 #define EFI_CARVE_NO_OVERLAP		-1
 #define EFI_CARVE_LOOP_AGAIN		-2
 #define EFI_CARVE_OVERLAPS_NONRAM	-3
+#define EFI_CARVE_OUT_OF_RESOURCES	-4
 
 /* This list contains all memory map items */
 static LIST_HEAD(efi_mem);
@@ -239,6 +240,8 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
 
 	/* Create a new map from [ carve_start ... map_end ] */
 	newmap = calloc(1, sizeof(*newmap));
+	if (!newmap)
+		return EFI_CARVE_OUT_OF_RESOURCES;
 	newmap->desc = map->desc;
 	newmap->desc.physical_start = carve_start;
 	newmap->desc.virtual_start = carve_start;
@@ -313,6 +316,9 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 			r = efi_mem_carve_out(lmem, &newlist->desc,
 					      overlap_only_ram);
 			switch (r) {
+			case EFI_CARVE_OUT_OF_RESOURCES:
+				free(newlist);
+				return EFI_OUT_OF_RESOURCES;
 			case EFI_CARVE_OVERLAPS_NONRAM:
 				/*
 				 * The user requested to only have RAM overlaps,
