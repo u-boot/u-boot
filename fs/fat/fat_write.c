@@ -690,8 +690,8 @@ get_set_cluster(fsdata *mydata, __u32 clustnum, loff_t pos, __u8 *buffer,
 	static u8 *tmpbuf_cluster;
 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
 	__u32 startsect;
-	loff_t wsize;
-	int clustcount, i, ret;
+	loff_t clustcount, wsize;
+	int i, ret;
 
 	*gotsize = 0;
 	if (!size)
