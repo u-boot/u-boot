@@ -27,9 +27,9 @@
 enum {
 	PROBE_SIZE	= SZ_4K,	/* initial bytes read from partition */
 
-	SETUP_OFFSET	= 0x1000,	/* bytes before base */
-	CMDLINE_OFFSET	= 0x2000,	/* bytes before base */
-	OFFSET_BASE	= 0x100000,	/* assumed kernel load-address */
+	X86_SETUP_OFFSET = -0x1000,	/* setup offset relative to base */
+	CMDLINE_OFFSET	= -0x2000,	/* cmdline offset relative to base */
+	X86_KERNEL_OFFSET = 0x4000,	/* kernel offset relative to base */
 };
 
 static int cros_check(struct udevice *dev, struct bootflow_iter *iter)
@@ -126,7 +126,7 @@ static int scan_part(struct udevice *blk, int partnum,
 static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
-	ulong base, start, setup, cmdline, num_blks, kern_base;
+	ulong base, setup, cmdline, num_blks, kern_base;
 	const struct vb2_kernel_preamble *preamble;
 	ulong body_offset, body_size;
 	struct disk_partition info;
@@ -160,7 +160,6 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 		  preamble->header_version_major,
 		  preamble->header_version_minor);
 
-	start = (ulong)preamble->bootloader_address;
 	log_debug("  - load_address %lx, bl_addr %lx, bl_size %lx\n",
 		  (ulong)preamble->body_load_address,
 		  (ulong)preamble->bootloader_address,
@@ -189,12 +188,13 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 		       num_blks, buf);
 	if (ret != num_blks)
 		return log_msg_ret("inf", -EIO);
-	base = map_to_sysmem(buf);
+	base = map_to_sysmem(buf) + preamble->bootloader_address -
+		preamble->body_load_address;
 
-	setup = base + start - OFFSET_BASE - SETUP_OFFSET;
-	cmdline = base + start - OFFSET_BASE - CMDLINE_OFFSET;
-	kern_base = base + start - OFFSET_BASE + SZ_16K;
-	log_debug("base %lx setup %lx, cmdline %lx, kern_base %lx\n", base,
+	setup = base + X86_SETUP_OFFSET;
+	cmdline = base + CMDLINE_OFFSET;
+	kern_base = base + X86_KERNEL_OFFSET;
+	log_debug("base %lx setup %lx cmdline %lx kern_base %lx\n", base,
 		  setup, cmdline, kern_base);
 
 #ifdef CONFIG_X86
