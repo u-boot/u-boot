@@ -99,7 +99,7 @@ static int do_bootdev_info(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	printf("Name:      %s\n", dev->name);
 	printf("Sequence:  %d\n", dev_seq(dev));
-	printf("Status:    %s\n", ret ? simple_itoa(ret) : device_active(dev) ?
+	printf("Status:    %s\n", ret ? simple_itoa(-ret) : device_active(dev) ?
 		"Probed" : "OK");
 	printf("Uclass:    %s\n", dev_get_uclass_name(dev_get_parent(dev)));
 	printf("Bootflows: %d (%d valid)\n", i, num_valid);
