@@ -27,10 +27,6 @@
 enum {
 	PROBE_SIZE	= SZ_4K,	/* initial bytes read from partition */
 
-	/* Offsets in the kernel-partition header */
-	KERN_START	= 0x4f0,
-	KERN_SIZE	= 0x518,
-
 	SETUP_OFFSET	= 0x1000,	/* bytes before base */
 	CMDLINE_OFFSET	= 0x2000,	/* bytes before base */
 	OFFSET_BASE	= 0x100000,	/* assumed kernel load-address */
@@ -93,7 +89,7 @@ static int copy_cmdline(const char *from, const char *uuid, char **bufp)
  * @hdrp: Return allocated keyblock header on success
  */
 static int scan_part(struct udevice *blk, int partnum,
-		     struct disk_partition *info, void **hdrp)
+		     struct disk_partition *info, struct vb2_keyblock **hdrp)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(blk);
 	struct vb2_keyblock *hdr;
@@ -130,11 +126,14 @@ static int scan_part(struct udevice *blk, int partnum,
 static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
-	ulong base, start, size, setup, cmdline, num_blks, kern_base;
+	ulong base, start, setup, cmdline, num_blks, kern_base;
+	const struct vb2_kernel_preamble *preamble;
+	ulong body_offset, body_size;
 	struct disk_partition info;
 	const char *uuid = NULL;
-	void *buf, *hdr;
+	struct vb2_keyblock *hdr;
 	int part, ret;
+	void *buf;
 
 	log_debug("starting, part=%d\n", bflow->part);
 
@@ -155,18 +154,39 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 
 	log_info("Selected parition %d, header at %lx\n", bflow->part,
 		 (ulong)map_to_sysmem(hdr));
-	start = *(u32 *)(hdr + KERN_START);
-	size = ALIGN(*(u32 *)(hdr + KERN_SIZE), desc->blksz);
-	log_debug("Reading start %lx size %lx\n", start, size);
-	bflow->size = size;
+	preamble = (void *)hdr + hdr->keyblock_size;
+	log_debug("Kernel preamble at %lx, version major %x, minor %x\n",
+		  (ulong)map_to_sysmem(preamble),
+		  preamble->header_version_major,
+		  preamble->header_version_minor);
 
-	buf = memalign(SZ_1K, size);
+	start = (ulong)preamble->bootloader_address;
+	log_debug("  - load_address %lx, bl_addr %lx, bl_size %lx\n",
+		  (ulong)preamble->body_load_address,
+		  (ulong)preamble->bootloader_address,
+		  (ulong)preamble->bootloader_size);
+
+	body_offset = hdr->keyblock_size + preamble->preamble_size;
+	body_size = preamble->body_signature.data_size;
+	log_debug("Kernel body at %lx size %lx\n", body_offset, body_size);
+	bflow->size = body_size;
+
+	buf = memalign(SZ_1K, body_size);
 	if (!buf)
 		return log_msg_ret("buf", -ENOMEM);
-	num_blks = size >> desc->log2blksz;
-	log_debug("Reading data, blk=%s, start=%lx, blocks=%lx\n",
-		  bflow->blk->name, (ulong)info.start, num_blks);
-	ret = blk_read(bflow->blk, (ulong)info.start + 0x80, num_blks, buf);
+
+	/* Check that the header is not smaller than permitted */
+	if (body_offset < PROBE_SIZE)
+		return log_msg_ret("san", EFAULT);
+
+	/* Read kernel body */
+	num_blks = body_size >> desc->log2blksz;
+	log_debug("Reading body to %lx, blk=%s, size=%lx, blocks=%lx\n",
+		  (ulong)map_to_sysmem(buf), bflow->blk->name, body_size,
+		  num_blks);
+	ret = blk_read(bflow->blk,
+		       info.start + (body_offset >> desc->log2blksz),
+		       num_blks, buf);
 	if (ret != num_blks)
 		return log_msg_ret("inf", -EIO);
 	base = map_to_sysmem(buf);
