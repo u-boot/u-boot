@@ -27,6 +27,7 @@
 #include <asm/mtrr.h>
 #include <asm/pci.h>
 #include <asm/processor.h>
+#include <asm/qemu.h>
 #include <asm/spl.h>
 #include <asm-generic/sections.h>
 
@@ -291,6 +292,8 @@ void spl_board_init(void)
 #ifndef CONFIG_TPL
 	preloader_console_init();
 #endif
+	if (IS_ENABLED(CONFIG_QEMU))
+		qemu_chipset_init();
 
 	if (CONFIG_IS_ENABLED(VIDEO)) {
 		struct udevice *dev;
