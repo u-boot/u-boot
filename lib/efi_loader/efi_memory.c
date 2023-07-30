@@ -324,6 +324,7 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 				 * The user requested to only have RAM overlaps,
 				 * but we hit a non-RAM region. Error out.
 				 */
+				free(newlist);
 				return EFI_NO_MAPPING;
 			case EFI_CARVE_NO_OVERLAP:
 				/* Just ignore this list entry */
@@ -354,6 +355,7 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 		 * The payload wanted to have RAM overlaps, but we overlapped
 		 * with an unallocated region. Error out.
 		 */
+		free(newlist);
 		return EFI_NO_MAPPING;
 	}
 
