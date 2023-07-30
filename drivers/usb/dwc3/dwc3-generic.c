@@ -226,8 +226,7 @@ U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 };
 #endif
 
-#if defined(CONFIG_SPL_USB_HOST) || \
-	!defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_HOST)
+#if CONFIG_IS_ENABLED(USB_HOST)
 static int dwc3_generic_host_probe(struct udevice *dev)
 {
 	struct xhci_hcor *hcor;
@@ -409,7 +408,7 @@ struct dwc3_glue_ops ti_ops = {
 static int dwc3_glue_bind_common(struct udevice *parent, ofnode node)
 {
 	const char *name = ofnode_get_name(node);
-	const char *driver = NULL;
+	const char *driver;
 	enum usb_dr_mode dr_mode;
 	struct udevice *dev;
 	int ret;
@@ -421,27 +420,17 @@ static int dwc3_glue_bind_common(struct udevice *parent, ofnode node)
 	if (!dr_mode)
 		dr_mode = usb_get_dr_mode(node);
 
-	switch (dr_mode) {
-	case USB_DR_MODE_PERIPHERAL:
-	case USB_DR_MODE_OTG:
-#if CONFIG_IS_ENABLED(DM_USB_GADGET)
+	if (CONFIG_IS_ENABLED(DM_USB_GADGET) &&
+	    (dr_mode == USB_DR_MODE_PERIPHERAL || dr_mode == USB_DR_MODE_OTG)) {
 		debug("%s: dr_mode: OTG or Peripheral\n", __func__);
 		driver = "dwc3-generic-peripheral";
-#endif
-		break;
-#if defined(CONFIG_SPL_USB_HOST) || !defined(CONFIG_SPL_BUILD)
-	case USB_DR_MODE_HOST:
+	} else if (CONFIG_IS_ENABLED(USB_HOST) && dr_mode == USB_DR_MODE_HOST) {
 		debug("%s: dr_mode: HOST\n", __func__);
 		driver = "dwc3-generic-host";
-		break;
-#endif
-	default:
-		debug("%s: unsupported dr_mode\n", __func__);
+	} else {
+		debug("%s: unsupported dr_mode %d\n", __func__, dr_mode);
 		return -ENODEV;
-	};
-
-	if (!driver)
-		return -ENXIO;
+	}
 
 	ret = device_bind_driver_to_node(parent, driver, name,
 					 node, &dev);
