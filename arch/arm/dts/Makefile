@@ -171,6 +171,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 
 dtb-$(CONFIG_ROCKCHIP_RK3568) += \
 	rk3566-anbernic-rgxx3.dtb \
+	rk3566-quartz64-a.dtb \
 	rk3566-radxa-cm3-io.dtb \
 	rk3568-evb.dtb \
 	rk3568-nanopi-r5c.dtb \

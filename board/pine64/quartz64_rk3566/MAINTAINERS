@@ -1,0 +1,9 @@
+QUARTZ64-RK3566
+M:	Nicolas Frattaroli <frattaroli.nicolas@gmail.com>
+R:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	board/pine64/quartz64_rk3566/
+F:	include/configs/quartz64_rk3566.h
+F:	configs/quartz64-a-rk3566_defconfig
+F:	arch/arm/dts/rk3566-quartz64-a.dts
+F:	arch/arm/dts/rk3566-quartz64-a-u-boot.dtsi
