@@ -294,6 +294,45 @@ static int cros_read_info(struct bootflow *bflow, const char *uuid,
 	return 0;
 }
 
+static int cros_read_kernel(struct bootflow *bflow)
+{
+	struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
+	struct cros_priv *priv = bflow->bootmeth_priv;
+	ulong base, setup;
+	ulong num_blks;
+	void *buf;
+	int ret;
+
+	bflow->size = priv->body_size;
+
+	buf = memalign(SZ_1K, priv->body_size);
+	if (!buf)
+		return log_msg_ret("buf", -ENOMEM);
+
+	/* Check that the header is not smaller than permitted */
+	if (priv->body_offset < PROBE_SIZE)
+		return log_msg_ret("san", EFAULT);
+
+	/* Read kernel body */
+	num_blks = priv->body_size >> desc->log2blksz;
+	log_debug("Reading body to %lx, blk=%s, size=%lx, blocks=%lx\n",
+		  (ulong)map_to_sysmem(buf), bflow->blk->name, priv->body_size,
+		  num_blks);
+	ret = blk_read(bflow->blk,
+		       priv->part_start + (priv->body_offset >> desc->log2blksz),
+		       num_blks, buf);
+	if (ret != num_blks)
+		return log_msg_ret("inf", -EIO);
+	base = map_to_sysmem(buf) + priv->bootloader_address -
+		priv->body_load_address;
+	setup = base + X86_SETUP_OFFSET;
+
+	bflow->buf = buf;
+	bflow->x86_setup = map_sysmem(setup, 0);
+
+	return 0;
+}
+
 static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
