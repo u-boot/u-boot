@@ -1011,6 +1011,16 @@ config SPL_VIDEO
 if SPL_VIDEO
 source "drivers/video/tidss/Kconfig"
 
+config SPL_VIDEO_HANDOFF
+	bool "Pass the video frame-buffer through to U-Boot proper"
+	depends on SPL_BLOBLIST
+	default y if !X86
+	help
+	  Enable this to set up video-handoff information in SPL which can be
+	  picked up in U-Boot proper. This includes the frame buffer and
+	  various other pieces of information. With this enabled, SPL can set
+	  up video and avoid re-initing it later.
+
 config SPL_VIDEO_LOGO
 	bool "Show the U-Boot logo on the display at SPL"
 	default y if !SPL_SPLASH_SCREEN

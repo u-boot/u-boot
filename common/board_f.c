@@ -411,8 +411,7 @@ __weak int arch_reserve_mmu(void)
 
 static int reserve_video(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_VIDEO) && spl_phase() > PHASE_SPL &&
-	    CONFIG_IS_ENABLED(BLOBLIST)) {
+	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && spl_phase() > PHASE_SPL) {
 		struct video_handoff *ho;
 
 		ho = bloblist_find(BLOBLISTT_U_BOOT_VIDEO, sizeof(*ho));
