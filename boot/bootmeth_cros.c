@@ -59,6 +59,29 @@ enum {
 	X86_KERNEL_OFFSET = 0x4000,	/* kernel offset relative to base */
 };
 
+/**
+ * struct cros_priv - Private data
+ *
+ * This is read from the disk and recorded for use when the full kernel must
+ * be loaded and booted
+ *
+ * @body_offset: Offset of kernel body from start of partition (in bytes)
+ * @body_size: Size of kernel body in bytes
+ * @part_start: Block offset of selected partition from the start of the disk
+ * @body_load_address: Nominal load address for kernel body
+ * @bootloader_address: Address of bootloader, after body is loaded at
+ *	body_load_address
+ * @bootloader_size:  Size of bootloader in bytes
+ */
+struct cros_priv {
+	ulong body_offset;
+	ulong body_size;
+	lbaint_t part_start;
+	ulong body_load_address;
+	ulong bootloader_address;
+	ulong bootloader_size;
+};
+
 static int cros_check(struct udevice *dev, struct bootflow_iter *iter)
 {
 	/* This only works on block and network devices */
@@ -155,7 +178,7 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
 	ulong base, setup, cmdline, num_blks, kern_base;
 	const struct vb2_kernel_preamble *preamble;
-	ulong body_offset, body_size;
+	struct cros_priv s_priv, *priv = &s_priv;
 	struct disk_partition info;
 	const char *uuid = NULL;
 	struct vb2_keyblock *hdr;
@@ -192,31 +215,37 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 		  (ulong)preamble->bootloader_address,
 		  (ulong)preamble->bootloader_size);
 
-	body_offset = hdr->keyblock_size + preamble->preamble_size;
-	body_size = preamble->body_signature.data_size;
-	log_debug("Kernel body at %lx size %lx\n", body_offset, body_size);
-	bflow->size = body_size;
+	priv->body_offset = hdr->keyblock_size + preamble->preamble_size;
+	priv->part_start = info.start;
+	priv->body_size = preamble->body_signature.data_size;
+	priv->body_load_address = preamble->body_load_address;
+	priv->bootloader_address = preamble->bootloader_address;
+	priv->bootloader_size = preamble->bootloader_size;
+	log_debug("Kernel body at %lx size %lx\n", priv->body_offset,
+		  priv->body_size);
+	bflow->size = priv->body_size;
 
-	buf = memalign(SZ_1K, body_size);
+	buf = memalign(SZ_1K, priv->body_size);
 	if (!buf)
 		return log_msg_ret("buf", -ENOMEM);
 
 	/* Check that the header is not smaller than permitted */
-	if (body_offset < PROBE_SIZE)
+	if (priv->body_offset < PROBE_SIZE)
 		return log_msg_ret("san", EFAULT);
 
 	/* Read kernel body */
-	num_blks = body_size >> desc->log2blksz;
+	num_blks = priv->body_size >> desc->log2blksz;
 	log_debug("Reading body to %lx, blk=%s, size=%lx, blocks=%lx\n",
-		  (ulong)map_to_sysmem(buf), bflow->blk->name, body_size,
+		  (ulong)map_to_sysmem(buf), bflow->blk->name, priv->body_size,
 		  num_blks);
 	ret = blk_read(bflow->blk,
-		       info.start + (body_offset >> desc->log2blksz),
+		       priv->part_start +
+		       (priv->body_offset >> desc->log2blksz),
 		       num_blks, buf);
 	if (ret != num_blks)
 		return log_msg_ret("inf", -EIO);
-	base = map_to_sysmem(buf) + preamble->bootloader_address -
-		preamble->body_load_address;
+	base = map_to_sysmem(buf) + priv->bootloader_address -
+		priv->body_load_address;
 
 	setup = base + X86_SETUP_OFFSET;
 	cmdline = base + CMDLINE_OFFSET;
