@@ -405,6 +405,19 @@ struct dwc3_glue_ops ti_ops = {
 	.glue_configure = dwc3_ti_glue_configure,
 };
 
+static int dwc3_rk_glue_get_ctrl_dev(struct udevice *dev, ofnode *node)
+{
+	*node = dev_ofnode(dev);
+	if (!ofnode_valid(*node))
+		return -EINVAL;
+
+	return 0;
+}
+
+struct dwc3_glue_ops rk_ops = {
+	.glue_get_ctrl_dev = dwc3_rk_glue_get_ctrl_dev,
+};
+
 static int dwc3_glue_bind_common(struct udevice *parent, ofnode node)
 {
 	const char *name = ofnode_get_name(node);
@@ -596,6 +609,7 @@ static const struct udevice_id dwc3_glue_ids[] = {
 	{ .compatible = "ti,am654-dwc3" },
 	{ .compatible = "rockchip,rk3328-dwc3" },
 	{ .compatible = "rockchip,rk3399-dwc3" },
+	{ .compatible = "rockchip,rk3568-dwc3", .data = (ulong)&rk_ops },
 	{ .compatible = "qcom,dwc3" },
 	{ .compatible = "fsl,imx8mp-dwc3", .data = (ulong)&imx8mp_ops },
 	{ .compatible = "fsl,imx8mq-dwc3" },
