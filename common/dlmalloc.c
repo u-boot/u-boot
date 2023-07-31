@@ -588,9 +588,7 @@ static void malloc_bin_reloc(void)
 static inline void malloc_bin_reloc(void) {}
 #endif
 
-#ifdef CONFIG_SYS_MALLOC_DEFAULT_TO_INIT
 static void malloc_init(void);
-#endif
 
 ulong mem_malloc_start = 0;
 ulong mem_malloc_end = 0;
@@ -625,9 +623,8 @@ void mem_malloc_init(ulong start, ulong size)
 	mem_malloc_end = start + size;
 	mem_malloc_brk = start;
 
-#ifdef CONFIG_SYS_MALLOC_DEFAULT_TO_INIT
-	malloc_init();
-#endif
+	if (CONFIG_IS_ENABLED(SYS_MALLOC_DEFAULT_TO_INIT))
+		malloc_init();
 
 	debug("using memory %#lx-%#lx for malloc()\n", mem_malloc_start,
 	      mem_malloc_end);
@@ -733,7 +730,6 @@ static unsigned int max_n_mmaps = 0;
 static unsigned long max_mmapped_mem = 0;
 #endif
 
-#ifdef CONFIG_SYS_MALLOC_DEFAULT_TO_INIT
 static void malloc_init(void)
 {
 	int i, j;
@@ -762,7 +758,6 @@ static void malloc_init(void)
 	memset((void *)&current_mallinfo, 0, sizeof(struct mallinfo));
 #endif
 }
-#endif
 
 /*
   Debugging support
