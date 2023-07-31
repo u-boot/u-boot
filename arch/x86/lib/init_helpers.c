@@ -21,8 +21,7 @@ int init_cache_f_r(void)
 	/*
 	 * Supported configurations:
 	 *
-	 * booting from slimbootloader - in that case the MTRRs are already set
-	 *	up
+	 * booting from slimbootloader - MTRRs are already set up
 	 * booting with FSPv1 - MTRRs are already set up
 	 * booting with FSPv2 - MTRRs must be set here
 	 * booting from coreboot - in this case there is no SPL, so we set up
@@ -30,8 +29,7 @@ int init_cache_f_r(void)
 	 * Note: if there is an SPL, then it has already set up MTRRs so we
 	 *	don't need to do that here
 	 */
-	do_mtrr &= !IS_ENABLED(CONFIG_SPL) &&
-		!IS_ENABLED(CONFIG_FSP_VERSION1) &&
+	do_mtrr &= !IS_ENABLED(CONFIG_FSP_VERSION1) &&
 		!IS_ENABLED(CONFIG_SYS_SLIMBOOTLOADER);
 
 	if (do_mtrr) {
