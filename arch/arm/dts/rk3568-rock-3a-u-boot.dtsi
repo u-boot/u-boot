@@ -12,12 +12,8 @@
 	};
 };
 
-&pcie2x1 {
-	pinctrl-0 = <&pcie20m1_pins &pcie_reset_h>;
-};
-
 &pcie3x2 {
-	pinctrl-0 = <&pcie30x2m1_pins &pcie3x2_reset_h>;
+	pinctrl-0 = <&pcie3x2_reset_h>;
 };
 
 &pinctrl {
@@ -51,14 +47,6 @@
 		spi-rx-bus-width = <4>;
 		spi-tx-bus-width = <1>;
 	};
-};
-
-&sdmmc2 {
-	status = "disabled";
-};
-
-&uart1 {
-	status = "disabled";
 };
 
 &uart2 {
