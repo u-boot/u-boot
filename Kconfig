@@ -381,6 +381,17 @@ config SYS_MALLOC_RUNTIME_INIT
          reduce the size of U-Boot by letting malloc's data reside in .bss
          instead of .data.
 
+config SPL_SYS_MALLOC_RUNTIME_INIT
+	bool "Initialize malloc's internal data at runtime in SPL"
+	default y
+	depends on SPL
+	help
+	 Initialize malloc's internal data structures at SPL runtime, rather
+	 than at compile-time. This is necessary if relocating the malloc arena
+	 from a smaller static memory to a large DDR memory. It can also reduce
+	 the size of U-Boot by letting malloc's data reside in .bss instead of
+	 .data.
+
 config TOOLS_DEBUG
 	bool "Enable debug information for tools"
 	help
