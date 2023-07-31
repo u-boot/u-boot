@@ -5,8 +5,6 @@
  * Graeme Russ, graeme.russ@gmail.com.
  */
 
-#include <asm/ibmpc.h>
-
 #ifndef __CONFIG_X86_COMMON_H
 #define __CONFIG_X86_COMMON_H
 
