@@ -94,7 +94,7 @@ to add environment variables.
 
 Board maintainers are encouraged to migrate to the text-based environment as it
 is easier to maintain. The distro-board script still requires the old-style
-environment but work is underway to address this.
+environments, so use :doc:`../develop/bootstd` instead.
 
 
 List of environment variables
