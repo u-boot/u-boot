@@ -11,73 +11,13 @@
 	};
 };
 
-&emmc_bus8 {
-	bootph-all;
-};
-
-&emmc_clk {
-	bootph-all;
-};
-
-&emmc_cmd {
-	bootph-all;
-};
-
-&emmc_datastrobe {
-	bootph-all;
-};
-
-&pinctrl {
-	bootph-all;
-};
-
-&pcfg_pull_none {
-	bootph-all;
-};
-
-&pcfg_pull_up_drv_level_2 {
-	bootph-all;
-};
-
-&pcfg_pull_up {
-	bootph-all;
-};
-
-&sdmmc0_bus4 {
-	bootph-all;
-};
-
-&sdmmc0_clk {
-	bootph-all;
-};
-
-&sdmmc0_cmd {
-	bootph-all;
-};
-
-&sdmmc0_det {
-	bootph-all;
-};
-
-&sdmmc0_pwren {
-	bootph-all;
-};
-
 &sdhci {
 	cap-mmc-highspeed;
 	mmc-ddr-1_8v;
-};
-
-&uart2m0_xfer {
-	bootph-all;
 };
 
 &uart2 {
 	clock-frequency = <24000000>;
 	bootph-all;
 	status = "okay";
-};
-
-&vcc5v0_usb30 {
-	regulator-boot-on;
 };

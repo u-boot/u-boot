@@ -345,6 +345,36 @@ bind_fail:
 	return ret;
 }
 
+static const struct rockchip_usb2phy_cfg rk3328_usb2phy_cfgs[] = {
+	{
+		.reg = 0x100,
+		.clkout_ctl	= { 0x108, 4, 4, 1, 0 },
+		.port_cfgs	= {
+			[USB2PHY_PORT_OTG] = {
+				.phy_sus	= { 0x0100, 15, 0, 0, 0x1d1 },
+				.bvalid_det_en	= { 0x0110, 3, 2, 0, 3 },
+				.bvalid_det_st	= { 0x0114, 3, 2, 0, 3 },
+				.bvalid_det_clr = { 0x0118, 3, 2, 0, 3 },
+				.ls_det_en	= { 0x0110, 0, 0, 0, 1 },
+				.ls_det_st	= { 0x0114, 0, 0, 0, 1 },
+				.ls_det_clr	= { 0x0118, 0, 0, 0, 1 },
+				.utmi_avalid	= { 0x0120, 10, 10, 0, 1 },
+				.utmi_bvalid	= { 0x0120, 9, 9, 0, 1 },
+				.utmi_ls	= { 0x0120, 5, 4, 0, 1 },
+			},
+			[USB2PHY_PORT_HOST] = {
+				.phy_sus	= { 0x104, 15, 0, 0, 0x1d1 },
+				.ls_det_en	= { 0x110, 1, 1, 0, 1 },
+				.ls_det_st	= { 0x114, 1, 1, 0, 1 },
+				.ls_det_clr	= { 0x118, 1, 1, 0, 1 },
+				.utmi_ls	= { 0x120, 17, 16, 0, 1 },
+				.utmi_hstdet	= { 0x120, 19, 19, 0, 1 }
+			}
+		},
+	},
+	{ /* sentinel */ }
+};
+
 static const struct rockchip_usb2phy_cfg rk3399_usb2phy_cfgs[] = {
 	{
 		.reg		= 0xe450,
@@ -498,6 +528,10 @@ static const struct rockchip_usb2phy_cfg rk3588_phy_cfgs[] = {
 };
 
 static const struct udevice_id rockchip_usb2phy_ids[] = {
+	{
+		.compatible = "rockchip,rk3328-usb2phy",
+		.data = (ulong)&rk3328_usb2phy_cfgs,
+	},
 	{
 		.compatible = "rockchip,rk3399-usb2phy",
 		.data = (ulong)&rk3399_usb2phy_cfgs,

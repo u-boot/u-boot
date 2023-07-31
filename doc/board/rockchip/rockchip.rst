@@ -96,11 +96,18 @@ List of mainline supported Rockchip boards:
 * rk3568
      - Rockchip Evb-RK3568 (evb-rk3568)
      - Hardkernel ODROID-M1 (odroid-m1-rk3568)
+     - Pine64 Quartz64-A Board (quartz64-a-rk3566_defconfig)
+     - Pine64 Quartz64-B Board (quartz64-b-rk3566_defconfig)
+     - Pine64 SOQuartz on Blade (soquartz-blade-rk3566_defconfig)
+     - Pine64 SOQuartz on CM4-IO (soquartz-cm4-rk3566_defconfig)
+     - Pine64 SOQuartz on Model A (soquartz-model-a-rk3566_defconfig)
+     - Radxa E25 Carrier Board (radxa-e25-rk3568_defconfig)
 
 * rk3588
      - Rockchip EVB (evb-rk3588)
      - Edgeble Neural Compute Module 6A SoM - Neu6a (neu6a-io-rk3588)
      - Edgeble Neural Compute Module 6B SoM - Neu6b (neu6b-io-rk3588)
+     - Radxa ROCK 5A (rock5a-rk3588s)
      - Radxa ROCK 5B (rock5b-rk3588)
 
 * rv1108
@@ -213,7 +220,7 @@ SD Card
 ^^^^^^^
 
 All Rockchip platforms (except rk3128 which doesn't use SPL) are now
-supporting a single boot image using binman and pad_cat.
+supporting a single boot image using binman.
 
 To write an image that boots from a SD card (assumed to be /dev/sda):
 
@@ -264,31 +271,15 @@ is u-boot-dtb.img
 SPI
 ^^^
 
-The SPI boot method requires the generation of idbloader.img with help of the mkimage tool.
+Write u-boot-rockchip-spi.bin to offset 0 of SPI flash.
 
-SPL-alone SPI boot image:
-
-.. code-block:: bash
-
-        ./tools/mkimage -n rk3399 -T rkspi -d spl/u-boot-spl.bin idbloader.img
-
-TPL+SPL SPI boot image:
-
-.. code-block:: bash
-
-        ./tools/mkimage -n rk3399 -T rkspi -d tpl/u-boot-tpl.bin:spl/u-boot-spl.bin idbloader.img
-
-Copy SPI boot images into SD card and boot from SD:
+Copy u-boot-rockchip-spi.bin into SD card and boot from SD:
 
 .. code-block:: bash
 
         sf probe
-        load mmc 1:1 $kernel_addr_r idbloader.img
-        sf erase 0 +$filesize
-        sf write $kernel_addr_r 0 ${filesize}
-        load mmc 1:1 ${kernel_addr_r} u-boot.itb
-        sf erase 0x60000 +$filesize
-        sf write $kernel_addr_r 0x60000 ${filesize}
+        load mmc 1:1 $kernel_addr_r u-boot-rockchip-spi.bin
+        sf update $fileaddr 0 $filesize
 
 2. Package the image with Rockchip miniloader
 ---------------------------------------------

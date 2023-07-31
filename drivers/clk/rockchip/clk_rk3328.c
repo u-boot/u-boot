@@ -681,6 +681,7 @@ static ulong rk3328_clk_set_rate(struct clk *clk, ulong rate)
 	case ACLK_GMAC:
 	case PCLK_GMAC:
 	case SCLK_USB3OTG_SUSPEND:
+	case USB480M:
 		return 0;
 	default:
 		return -ENOENT;
@@ -771,6 +772,7 @@ static int rk3328_clk_set_parent(struct clk *clk, struct clk *parent)
 	case SCLK_MAC2IO_EXT:
 		return rk3328_gmac2io_ext_set_parent(clk, parent);
 	case DCLK_LCDC:
+	case USB480M:
 	case SCLK_PDM:
 	case SCLK_RTC32K:
 	case SCLK_UART0:

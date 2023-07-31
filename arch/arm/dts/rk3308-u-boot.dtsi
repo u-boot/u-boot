@@ -26,6 +26,11 @@
 	bootph-all;
 };
 
+&sdmmc {
+	bootph-all;
+	u-boot,spl-fifo-mode;
+};
+
 &grf {
 	bootph-all;
 };

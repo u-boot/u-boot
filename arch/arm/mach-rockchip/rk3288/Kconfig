@@ -16,7 +16,9 @@ config TARGET_CHROMEBOOK_JERRY
 
 config TARGET_CHROMEBIT_MICKEY
 	bool "Google/Rockchip Veyron-Mickey Chromebit"
+	select HAS_ROM
 	select BOARD_LATE_INIT
+	select ROCKCHIP_SPI_IMAGE
 	help
 	  Mickey is a small RK3288-based device with one USB 3.0 port, HDMI
 	  and WiFi. It has a separate power port and is designed to connect
@@ -26,7 +28,9 @@ config TARGET_CHROMEBIT_MICKEY
 
 config TARGET_CHROMEBOOK_MINNIE
 	bool "Google/Rockchip Veyron-Minnie Chromebook"
+	select HAS_ROM
 	select BOARD_LATE_INIT
+	select ROCKCHIP_SPI_IMAGE
 	help
 	  Minnie is a RK3288-based convertible clamshell device with 2 USB 3.0
 	  ports, micro HDMI, a 10.1-inch 1280x800 EDP display, micro-SD card,
@@ -37,7 +41,9 @@ config TARGET_CHROMEBOOK_MINNIE
 
 config TARGET_CHROMEBOOK_SPEEDY
 	bool "Google/Rockchip Veyron-Speedy Chromebook"
+	select HAS_ROM
 	select BOARD_LATE_INIT
+	select ROCKCHIP_SPI_IMAGE
 	help
 	  Speedy is a RK3288-based clamshell device with 2 USB 2.0 ports,
 	  micro HDMI, an 11.6 inch display, micro-SD card,

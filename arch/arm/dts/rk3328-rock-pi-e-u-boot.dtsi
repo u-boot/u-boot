@@ -45,11 +45,6 @@
 	bootph-pre-ram;
 };
 
-&usb_host0_xhci {
-	vbus-supply = <&vcc_host_5v>;
-	status = "okay";
-};
-
 /* Need this and all the pinctrl/gpio stuff above to set pinmux */
 &vcc_sd {
 	bootph-pre-ram;

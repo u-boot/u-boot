@@ -12,7 +12,6 @@
 / {
 	aliases {
 		mmc1 = &sdmmc;
-		spi0 = &sfc;
 	};
 
 	chosen {
@@ -77,26 +76,6 @@
 	status = "okay";
 };
 
-&emmc_bus8 {
-	bootph-all;
-};
-
-&emmc_clk {
-	bootph-all;
-};
-
-&emmc_cmd {
-	bootph-all;
-};
-
-&emmc_data_strobe {
-	bootph-all;
-};
-
-&emmc_rstnout {
-	bootph-all;
-};
-
 &fspim2_pins {
 	bootph-all;
 };
@@ -109,8 +88,6 @@
 };
 
 &pinctrl {
-	bootph-all;
-
 	pcie {
 		pcie_reset_h: pcie-reset-h {
 			rockchip,pins = <3 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
@@ -139,37 +116,9 @@
 	};
 };
 
-&pcfg_pull_none {
-	bootph-all;
-};
-
-&pcfg_pull_up_drv_level_2 {
-	bootph-all;
-};
-
-&pcfg_pull_up {
-	bootph-all;
-};
-
 &sdmmc {
 	bus-width = <4>;
 	status = "okay";
-};
-
-&sdmmc_bus4 {
-	bootph-all;
-};
-
-&sdmmc_clk {
-	bootph-all;
-};
-
-&sdmmc_cmd {
-	bootph-all;
-};
-
-&sdmmc_det {
-	bootph-all;
 };
 
 &sdhci {
@@ -197,10 +146,6 @@
 		spi-rx-bus-width = <4>;
 		spi-tx-bus-width = <1>;
 	};
-};
-
-&uart2m0_xfer {
-	bootph-all;
 };
 
 &usb_host0_ehci {

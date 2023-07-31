@@ -1,0 +1,32 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+#include "rk356x-u-boot.dtsi"
+
+/ {
+	chosen {
+		stdout-path = &uart2;
+	};
+};
+
+/* PCIe PHY driver in U-Boot does not support bifurcation */
+&pcie3x1 {
+	status = "disabled";
+};
+
+&sdhci {
+	cap-mmc-highspeed;
+	mmc-ddr-1_8v;
+	mmc-hs200-1_8v;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+};
+
+&uart2 {
+	bootph-all;
+	clock-frequency = <24000000>;
+	status = "okay";
+};
+
+&usb_host0_xhci {
+	dr_mode = "host";
+};

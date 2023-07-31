@@ -174,7 +174,7 @@ int rk_board_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_DEBUG_UART)
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
 __weak void board_debug_uart_init(void)
 {
 	static struct rk3308_grf * const grf = (void *)GRF_BASE;
