@@ -333,8 +333,7 @@ static int do_pxe(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 }
 
 U_BOOT_CMD(pxe, 4, 1, do_pxe,
-	   "commands to get and boot from pxe files\n"
-	   "To use IPv6 add -ipv6 parameter",
+	   "get and boot from pxe files",
 	   "get [" USE_IP6_CMD_PARAM "] - try to retrieve a pxe file using tftp\n"
 	   "pxe boot [pxefile_addr_r] [-ipv6] - boot from the pxe file at pxefile_addr_r\n"
 );
