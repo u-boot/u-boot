@@ -706,8 +706,7 @@ static efi_status_t tcg2_create_digest(const u8 *input, u32 length,
 			sha512_finish(&ctx_512, final);
 			break;
 		default:
-			EFI_PRINT("Unsupported algorithm %x\n", hash_alg);
-			return EFI_INVALID_PARAMETER;
+			continue;
 		}
 		digest_list->digests[digest_list->count].hash_alg = hash_alg;
 		memcpy(&digest_list->digests[digest_list->count].digest, final,
@@ -930,8 +929,7 @@ static efi_status_t tcg2_hash_pe_image(void *efi, u64 efi_size,
 			hash_calculate("sha512", regs->reg, regs->num, hash);
 			break;
 		default:
-			EFI_PRINT("Unsupported algorithm %x\n", hash_alg);
-			return EFI_INVALID_PARAMETER;
+			continue;
 		}
 		digest_list->digests[digest_list->count].hash_alg = hash_alg;
 		memcpy(&digest_list->digests[digest_list->count].digest, hash,
