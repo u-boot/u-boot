@@ -262,7 +262,7 @@ static int append_value(char **bufp, size_t *sizep, char *data)
 	char *tmp_buf = NULL, *new_buf = NULL, *value;
 	unsigned long len = 0;
 
-	if (!strncmp(data, "=0x", 2)) { /* hexadecimal number */
+	if (!strncmp(data, "=0x", 3)) { /* hexadecimal number */
 		union {
 			u8 u8;
 			u16 u16;
