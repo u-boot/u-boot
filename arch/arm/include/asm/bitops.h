@@ -15,9 +15,34 @@
 #ifndef __ASM_ARM_BITOPS_H
 #define __ASM_ARM_BITOPS_H
 
+#if __LINUX_ARM_ARCH__ < 5
+
 #include <asm-generic/bitops/__ffs.h>
 #include <asm-generic/bitops/__fls.h>
 #include <asm-generic/bitops/fls.h>
+
+#else
+
+#define PLATFORM_FFS
+#define PLATFORM_FLS
+
+#if !IS_ENABLED(CONFIG_HAS_THUMB2) && CONFIG_IS_ENABLED(SYS_THUMB_BUILD)
+
+unsigned long __fls(unsigned long word);
+unsigned long __ffs(unsigned long word);
+int fls(unsigned int x);
+int ffs(int x);
+
+#else
+
+#include <asm-generic/bitops/builtin-__fls.h>
+#include <asm-generic/bitops/builtin-__ffs.h>
+#include <asm-generic/bitops/builtin-fls.h>
+#include <asm-generic/bitops/builtin-ffs.h>
+
+#endif
+#endif
+
 #include <asm-generic/bitops/fls64.h>
 
 #ifdef __KERNEL__
@@ -113,7 +138,7 @@ static inline int test_bit(int nr, const void * addr)
 
 static inline int __ilog2(unsigned int x)
 {
-	return generic_fls(x) - 1;
+	return fls(x) - 1;
 }
 
 #define ffz(x)  __ffs(~(x))
