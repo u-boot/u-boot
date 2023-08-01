@@ -414,6 +414,7 @@ struct dm_gpio_ops {
  * @gpio_base: Base GPIO number for this device. For the first active device
  * this will be 0; the numbering for others will follow sequentially so that
  * @gpio_base for device 1 will equal the number of GPIOs in device 0.
+ * @claimed: Array of bits indicating which GPIOs in the bank are claimed.
  * @name: Array of pointers to the name for each GPIO in this bank. The
  * value of the pointer will be NULL if the GPIO has not been claimed.
  */
@@ -421,6 +422,7 @@ struct gpio_dev_priv {
 	const char *bank_name;
 	unsigned gpio_count;
 	unsigned gpio_base;
+	u32 *claimed;
 	char **name;
 };
 
