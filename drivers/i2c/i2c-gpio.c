@@ -339,7 +339,7 @@ static int i2c_gpio_of_to_plat(struct udevice *dev)
 	/* "gpios" is deprecated and replaced by "sda-gpios" + "scl-gpios". */
 	ret = gpio_request_list_by_name(dev, "gpios", bus->gpios,
 					ARRAY_SIZE(bus->gpios), 0);
-	if (ret == -ENOENT) {
+	if (ret == 0) {
 		ret = gpio_request_by_name(dev, "sda-gpios", 0,
 					   &bus->gpios[PIN_SDA], 0);
 		if (ret < 0)
