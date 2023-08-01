@@ -901,18 +901,10 @@ static int tidss_drv_probe(struct udevice *dev)
 
 static int tidss_drv_remove(struct udevice *dev)
 {
-	u32 val;
-	int ret;
-	struct tidss_drv_priv *priv = dev_get_priv(dev);
+	if (CONFIG_IS_ENABLED(VIDEO_REMOVE)) {
+		struct tidss_drv_priv *priv = dev_get_priv(dev);
 
-	priv->base_common = dev_remap_addr_index(dev, 0);
-	REG_FLD_MOD(priv, DSS_SYSCONFIG, 1, 1, 1);
-	/* Wait for reset to complete */
-	ret = readl_poll_timeout(priv->base_common + DSS_SYSSTATUS,
-				 val, val & 1, 5000);
-	if (ret) {
-		dev_warn(priv->dev, "failed to reset priv\n");
-		return ret;
+		VP_REG_FLD_MOD(priv, 0, DSS_VP_CONTROL, 0, 0, 0);
 	}
 	return 0;
 }
@@ -939,5 +931,9 @@ U_BOOT_DRIVER(tidss_drv) = {
 	.probe = tidss_drv_probe,
 	.remove = tidss_drv_remove,
 	.priv_auto = sizeof(struct tidss_drv_priv),
+#if CONFIG_IS_ENABLED(VIDEO_REMOVE)
 	.flags = DM_FLAG_OS_PREPARE,
+#else
+	.flags = DM_FLAG_OS_PREPARE | DM_FLAG_LEAVE_PD_ON,
+#endif
 };

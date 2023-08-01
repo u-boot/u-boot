@@ -11,7 +11,6 @@
 #include <pci.h>
 #include <video.h>
 #include <asm/io.h>
-#include <asm/mtrr.h>
 #include <linux/sizes.h>
 #include "bochs.h"
 
@@ -28,9 +27,9 @@ static int bochs_read(void *mmio, int index)
 	return readw(mmio + MMIO_BASE + index * 2);
 }
 
-static void bochs_vga_write(int index, uint8_t val)
+static void bochs_vga_write(void *mmio, int index, uint8_t val)
 {
-	outb(val, VGA_INDEX);
+	writeb(val, mmio + VGA_BASE + index);
 }
 
 static int bochs_init_fb(struct udevice *dev)
@@ -79,7 +78,8 @@ static int bochs_init_fb(struct udevice *dev)
 	bochs_write(mmio, INDEX_Y_OFFSET, 0);
 	bochs_write(mmio, INDEX_ENABLE, ENABLED | LFB_ENABLED);
 
-	bochs_vga_write(0, 0x20);	/* disable blanking */
+	/* disable blanking */
+	bochs_vga_write(mmio, VGA_ATT_W - VGA_INDEX, VGA_AR_ENABLE_DISPLAY);
 
 	plat->base = fb;
 
@@ -101,8 +101,8 @@ static int bochs_video_bind(struct udevice *dev)
 {
 	struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
-	/* Set the maximum supported resolution */
-	uc_plat->size = 2560 * 1600 * 4;
+	/* Set the frame buffer size per configuration */
+	uc_plat->size = xsize * ysize * 32 / 8;
 	log_debug("%s: Frame buffer size %x\n", __func__, uc_plat->size);
 
 	return 0;
