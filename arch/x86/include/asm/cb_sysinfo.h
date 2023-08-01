@@ -138,6 +138,8 @@
  * @rsdp: Pointer to ACPI RSDP table
  * @unimpl_count: Number of entries in unimpl_map[]
  * @unimpl: List of unimplemented IDs (bottom 8 bits only)
+ * @table_size: Number of bytes taken up by the sysinfo table
+ * @rec_count: Number of records in the sysinfo table
  */
 struct sysinfo_t {
 	unsigned int cpu_khz;
@@ -219,6 +221,8 @@ struct sysinfo_t {
 	void *rsdp;
 	u32 unimpl_count;
 	u8 unimpl[SYSINFO_MAX_UNIMPL];
+	uint table_size;
+	uint rec_count;
 };
 
 extern struct sysinfo_t lib_sysinfo;
