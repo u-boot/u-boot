@@ -79,7 +79,7 @@ endif # CONFIG_SPL_BUILD
 obj-$(CONFIG_CROS_EC) += cros_ec.o
 obj-y += dlmalloc.o
 ifdef CONFIG_SYS_MALLOC_F
-ifneq ($(CONFIG_$(SPL_TPL_)SYS_MALLOC_F_LEN),0)
+ifneq ($(CONFIG_$(SPL_TPL_)SYS_MALLOC_F_LEN),0x0)
 obj-y += malloc_simple.o
 endif
 endif
