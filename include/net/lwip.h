@@ -42,3 +42,17 @@ int ulwip_dhcp(void);
  * Returns:  0 if success, !0 if error
  */
 int ulwip_tftp(ulong addr, const char *filename);
+
+/**
+ * ulwip_wget() - creates the HTTP request to download file
+ *
+ * This function creates the HTTP request to download file from url to the address
+ * specified in parameters. After this function you need to invoke the polling
+ * loop to process network communication.
+ *
+ *
+ * @addr:  start address to download result
+ * @url:   url in format http://host/url
+ * Returns: 0 for success, !0 if error
+ */
+int ulwip_wget(ulong addr, char *url);
