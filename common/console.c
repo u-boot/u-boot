@@ -1010,29 +1010,41 @@ int console_init_f(void)
 	return 0;
 }
 
-void stdio_print_current_devices(void)
+static void stdio_print_current_devices(void)
 {
+	char *stdinname, *stdoutname, *stderrname;
+
+	if (CONFIG_IS_ENABLED(CONSOLE_MUX) &&
+	    CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV)) {
+		/* stdin stdout and stderr are in environment */
+		stdinname  = env_get("stdin");
+		stdoutname = env_get("stdout");
+		stderrname = env_get("stderr");
+
+		stdinname = stdinname ? : "No input devices available!";
+		stdoutname = stdoutname ? : "No output devices available!";
+		stderrname = stderrname ? : "No error devices available!";
+	} else {
+		stdinname = stdio_devices[stdin] ?
+			stdio_devices[stdin]->name :
+			"No input devices available!";
+		stdoutname = stdio_devices[stdout] ?
+			stdio_devices[stdout]->name :
+			"No output devices available!";
+		stderrname = stdio_devices[stderr] ?
+			stdio_devices[stderr]->name :
+			"No error devices available!";
+	}
+
 	/* Print information */
 	puts("In:    ");
-	if (stdio_devices[stdin] == NULL) {
-		puts("No input devices available!\n");
-	} else {
-		printf ("%s\n", stdio_devices[stdin]->name);
-	}
+	printf("%s\n", stdinname);
 
 	puts("Out:   ");
-	if (stdio_devices[stdout] == NULL) {
-		puts("No output devices available!\n");
-	} else {
-		printf ("%s\n", stdio_devices[stdout]->name);
-	}
+	printf("%s\n", stdoutname);
 
 	puts("Err:   ");
-	if (stdio_devices[stderr] == NULL) {
-		puts("No error devices available!\n");
-	} else {
-		printf ("%s\n", stdio_devices[stderr]->name);
-	}
+	printf("%s\n", stderrname);
 }
 
 #if CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV)

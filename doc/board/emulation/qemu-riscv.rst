@@ -133,6 +133,16 @@ An attached disk can be emulated in RISC-V virt machine by adding::
 
 You will have to run 'scsi scan' to use it.
 
+A video console can be emulated in RISC-V virt machine by removing "-nographic"
+and adding::
+
+    -serial stdio -device VGA
+
+In addition, a usb keyboard can be attached to an emulated xHCI controller in
+RISC-V virt machine as an option of input devices by adding::
+
+    -device qemu-xhci,id=xhci -device usb-kbd,bus=xhci.0
+
 Running with KVM
 ----------------
 

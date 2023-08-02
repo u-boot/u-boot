@@ -7,6 +7,7 @@
 
 #include "jh7110.dtsi"
 #include <dt-bindings/pinctrl/pinctrl-starfive-jh7110.h>
+#include <dt-bindings/gpio/gpio.h>
 / {
 	aliases {
 		serial0 = &uart0;
@@ -306,6 +307,16 @@
 		cdns,tchsh-ns = <1>;
 		cdns,tslch-ns = <1>;
 	};
+};
+
+&pcie0 {
+	reset-gpios = <&sysgpio 26 GPIO_ACTIVE_LOW>;
+	status = "disabled";
+};
+
+&pcie1 {
+	reset-gpios = <&sysgpio 28 GPIO_ACTIVE_LOW>;
+	status = "okay";
 };
 
 &syscrg {
