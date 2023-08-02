@@ -14,6 +14,10 @@
 	};
 };
 
+&pcie3x1 {
+	/delete-property/ vpcie3v3-supply;
+};
+
 &sdhci {
 	cap-mmc-highspeed;
 	mmc-ddr-1_8v;
