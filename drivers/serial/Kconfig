@@ -482,8 +482,8 @@ endchoice
 config DEBUG_UART_BASE
 	hex "Base address of UART"
 	depends on DEBUG_UART
-	default 0 if DEBUG_SBI_CONSOLE
-	default 0 if DEBUG_UART_SANDBOX
+	default 0x0 if DEBUG_SBI_CONSOLE
+	default 0x0 if DEBUG_UART_SANDBOX
 	default 0xff000000 if DEBUG_UART_ZYNQ && ARCH_ZYNQMP
 	default 0xe0000000 if DEBUG_UART_ZYNQ && ARCH_ZYNQ
 	help
@@ -1139,6 +1139,6 @@ config SYS_SDSR
 config SYS_SDMR
 	hex "SDMR Value"
 	depends on MPC8XX_CONS
-	default 0
+	default 0x0
 
 endif

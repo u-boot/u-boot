@@ -67,7 +67,7 @@ config SPL_SIZE_LIMIT_SUBTRACT_MALLOC
 config SPL_SIZE_LIMIT_PROVIDE_STACK
 	hex "SPL image size check: provide stack space before relocation"
 	depends on SPL_SIZE_LIMIT > 0
-	default 0
+	default 0x0
 	help
 	  If set, this size is reserved in SPL_SIZE_LIMIT check to ensure such
 	  an image does not overflow SRAM if SPL_SIZE_LIMIT describes the size

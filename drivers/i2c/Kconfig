@@ -372,7 +372,7 @@ config SYS_MXC_I2C1_SPEED
 
 config SYS_MXC_I2C1_SLAVE
 	hex "I2C1 Slave"
-	default 0
+	default 0x0
 	help
 	 MXC I2C1 Slave
 endif
@@ -387,7 +387,7 @@ config SYS_MXC_I2C2_SPEED
 
 config SYS_MXC_I2C2_SLAVE
 	hex "I2C2 Slave"
-	default 0
+	default 0x0
 	help
 	 MXC I2C2 Slave
 endif
@@ -401,7 +401,7 @@ config SYS_MXC_I2C3_SPEED
 
 config SYS_MXC_I2C3_SLAVE
 	hex "I2C3 Slave"
-	default 0
+	default 0x0
 	help
 	 MXC I2C3 Slave
 endif
@@ -415,7 +415,7 @@ config SYS_MXC_I2C4_SPEED
 
 config SYS_MXC_I2C4_SLAVE
 	hex "I2C4 Slave"
-	default 0
+	default 0x0
 	help
 	 MXC I2C4 Slave
 endif
@@ -429,7 +429,7 @@ config SYS_MXC_I2C5_SPEED
 
 config SYS_MXC_I2C5_SLAVE
 	hex "I2C5 Slave"
-	default 0
+	default 0x0
 	help
 	 MXC I2C5 Slave
 endif
@@ -443,7 +443,7 @@ config SYS_MXC_I2C6_SPEED
 
 config SYS_MXC_I2C6_SLAVE
 	hex "I2C6 Slave"
-	default 0
+	default 0x0
 	help
 	 MXC I2C6 Slave
 endif
@@ -457,7 +457,7 @@ config SYS_MXC_I2C7_SPEED
 
 config SYS_MXC_I2C7_SLAVE
 	hex "I2C7 Slave"
-	default 0
+	default 0x0
 	help
 	 MXC I2C7 Slave
 endif
@@ -471,7 +471,7 @@ config SYS_MXC_I2C8_SPEED
 
 config SYS_MXC_I2C8_SLAVE
 	hex "I2C8 Slave"
-	default 0
+	default 0x0
 	help
 	 MXC I2C8 Slave
 endif

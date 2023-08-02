@@ -862,7 +862,7 @@ config OF_LIBFDT
 config OF_LIBFDT_ASSUME_MASK
 	hex "Mask of conditions to assume for libfdt"
 	depends on OF_LIBFDT || FIT
-	default 0
+	default 0x0
 	help
 	  Use this to change the assumptions made by libfdt about the
 	  device tree it is working with. A value of 0 means that no assumptions

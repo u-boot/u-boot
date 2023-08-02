@@ -56,7 +56,7 @@ config FASTBOOT_BUF_ADDR
 				ROCKCHIP_RK3399
 	default 0x280000 if ROCKCHIP_RK3368
 	default 0x100000 if ARCH_ZYNQMP
-	default 0 if SANDBOX
+	default 0x0 if SANDBOX
 	help
 	  The fastboot protocol requires a large memory buffer for
 	  downloads. Define this to the starting RAM address to use for
