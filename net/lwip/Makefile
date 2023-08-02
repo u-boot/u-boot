@@ -62,3 +62,5 @@ obj-y += lwip-external/src/netif/ethernet.o
 
 obj-y += port/if.o
 obj-y += port/sys-arch.o
+
+obj-y += apps/dns/lwip-dns.o
