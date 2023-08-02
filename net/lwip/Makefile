@@ -61,6 +61,7 @@ obj-y += lwip-external/src/api/api_lib.o \
 obj-y += lwip-external/src/netif/ethernet.o
 
 obj-y += port/if.o
+obj-y += port/ulwip.o
 obj-y += port/sys-arch.o
 
 obj-y += apps/dhcp/lwip-dhcp.o

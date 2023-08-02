@@ -38,8 +38,10 @@ struct in_addr {
 	__be32 s_addr;
 };
 
+int do_lwip_dhcp(void);
+
 /**
- * do_tftpb - Run the tftpboot command
+ * do_lwip_tftp - Run the tftpboot command
  *
  * @cmdtp: Command information for tftpboot
  * @flag: Command flags (CMD_FLAG_...)
@@ -47,7 +49,7 @@ struct in_addr {
  * @argv: List of arguments
  * Return: result (see enum command_ret_t)
  */
-int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
+int do_lwip_tftp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
  * dhcp_run() - Run DHCP on the current ethernet device
@@ -345,7 +347,7 @@ extern int		net_restart_wrap;	/* Tried all network devices */
 enum proto_t {
 	BOOTP, RARP, ARP, TFTPGET, DHCP, DHCP6, PING, PING6, DNS, NFS, CDP,
 	NETCONS, SNTP, TFTPSRV, TFTPPUT, LINKLOCAL, FASTBOOT_UDP, FASTBOOT_TCP,
-	WOL, UDP, NCSI, WGET, RS
+	WOL, UDP, NCSI, WGET, RS, LWIP
 };
 
 extern char	net_boot_file_name[1024];/* Boot File name */
