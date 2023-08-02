@@ -61,6 +61,8 @@ struct rockchip_combphy_grfcfg {
 	struct combphy_reg pipe_con1_for_sata;
 	struct combphy_reg pipe_sgmii_mac_sel;
 	struct combphy_reg pipe_xpcs_phy_ready;
+	struct combphy_reg pipe_pcie1l0_sel;
+	struct combphy_reg pipe_pcie1l1_sel;
 	struct combphy_reg u3otg0_port_en;
 	struct combphy_reg u3otg1_port_en;
 };
@@ -435,6 +437,8 @@ static int rk3588_combphy_cfg(struct rockchip_combphy_priv *priv)
 		param_write(priv->phy_grf, &cfg->con1_for_pcie, true);
 		param_write(priv->phy_grf, &cfg->con2_for_pcie, true);
 		param_write(priv->phy_grf, &cfg->con3_for_pcie, true);
+		param_write(priv->pipe_grf, &cfg->pipe_pcie1l0_sel, true);
+		param_write(priv->pipe_grf, &cfg->pipe_pcie1l1_sel, true);
 		break;
 	case PHY_TYPE_USB3:
 		param_write(priv->phy_grf, &cfg->pipe_txcomp_sel, false);
@@ -507,6 +511,8 @@ static const struct rockchip_combphy_grfcfg rk3588_combphy_grfcfgs = {
 	/* pipe-grf */
 	.pipe_con0_for_sata	= { 0x0000, 11, 5, 0x00, 0x22 },
 	.pipe_con1_for_sata	= { 0x0000, 2, 0, 0x00, 0x2 },
+	.pipe_pcie1l0_sel	= { 0x0100, 0, 0, 0x01, 0x0 },
+	.pipe_pcie1l1_sel	= { 0x0100, 1, 1, 0x01, 0x0 },
 };
 
 static const struct rockchip_combphy_cfg rk3588_combphy_cfgs = {
