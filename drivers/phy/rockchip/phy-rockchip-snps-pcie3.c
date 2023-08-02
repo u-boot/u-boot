@@ -35,8 +35,32 @@ struct rockchip_p3phy_priv {
 	struct clk_bulk clks;
 };
 
+struct rockchip_p3phy_ops {
+	int (*phy_init)(struct phy *phy);
+};
+
+static int rockchip_p3phy_rk3568_init(struct phy *phy)
+{
+	struct rockchip_p3phy_priv *priv = dev_get_priv(phy->dev);
+
+	/* Deassert PCIe PMA output clamp mode */
+	regmap_write(priv->phy_grf, GRF_PCIE30PHY_CON9,
+		     (0x1 << 15) | (0x1 << 31));
+
+	reset_deassert(&priv->p30phy);
+	udelay(1);
+
+	return 0;
+}
+
+static const struct rockchip_p3phy_ops rk3568_ops = {
+	.phy_init = rockchip_p3phy_rk3568_init,
+};
+
 static int rochchip_p3phy_init(struct phy *phy)
 {
+	struct rockchip_p3phy_ops *ops =
+		(struct rockchip_p3phy_ops *)dev_get_driver_data(phy->dev);
 	struct rockchip_p3phy_priv *priv = dev_get_priv(phy->dev);
 	int ret;
 
@@ -47,14 +71,11 @@ static int rochchip_p3phy_init(struct phy *phy)
 	reset_assert(&priv->p30phy);
 	udelay(1);
 
-	/* Deassert PCIe PMA output clamp mode */
-	regmap_write(priv->phy_grf, GRF_PCIE30PHY_CON9,
-		     (0x1 << 15) | (0x1 << 31));
+	ret = ops->phy_init(phy);
+	if (ret)
+		clk_disable_bulk(&priv->clks);
 
-	reset_deassert(&priv->p30phy);
-	udelay(1);
-
-	return 0;
+	return ret;
 }
 
 static int rochchip_p3phy_exit(struct phy *phy)
@@ -103,7 +124,10 @@ static struct phy_ops rochchip_p3phy_ops = {
 };
 
 static const struct udevice_id rockchip_p3phy_of_match[] = {
-	{ .compatible = "rockchip,rk3568-pcie3-phy" },
+	{
+		.compatible = "rockchip,rk3568-pcie3-phy",
+		.data = (ulong)&rk3568_ops,
+	},
 	{ },
 };
 
