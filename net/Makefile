@@ -32,8 +32,9 @@ obj-$(CONFIG_$(SPL_TPL_)TCP_FUNCTION_FASTBOOT)  += fastboot_tcp.o
 obj-$(CONFIG_CMD_WOL)  += wol.o
 obj-$(CONFIG_PROT_UDP) += udp.o
 obj-$(CONFIG_PROT_TCP) += tcp.o
-obj-$(CONFIG_CMD_WGET) += wget.o
-
+ifndef CONFIG_SPL_BUILD
+obj-$(CONFIG_LWIP) += lwip/
+endif
 # Disable this warning as it is triggered by:
 # sprintf(buf, index ? "foo%d" : "foo", index)
 # and this is intentional usage.

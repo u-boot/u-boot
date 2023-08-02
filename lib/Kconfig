@@ -265,7 +265,7 @@ config REGEX
 choice
 	prompt "Pseudo-random library support type"
 	depends on NET_RANDOM_ETHADDR || RANDOM_UUID || CMD_UUID || \
-		   RNG_SANDBOX || UT_LIB && AES || FAT_WRITE
+		   RNG_SANDBOX || UT_LIB && AES || FAT_WRITE || LWIP
 	default LIB_RAND
 	help
 	  Select the library to provide pseudo-random number generator
