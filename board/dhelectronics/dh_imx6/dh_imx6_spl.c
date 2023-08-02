@@ -21,6 +21,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
+#include <asm/sections.h>
 #include <asm/system.h>
 #include <errno.h>
 #include <fuse.h>

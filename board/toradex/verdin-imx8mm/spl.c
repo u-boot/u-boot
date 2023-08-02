@@ -16,6 +16,7 @@
 #include <asm/io.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
+#include <asm/sections.h>
 #include <cpu_func.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>

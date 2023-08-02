@@ -19,6 +19,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
 #include <asm/mach-imx/mxc_i2c.h>
+#include <asm/sections.h>
 #include <env.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>

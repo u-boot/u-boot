@@ -32,6 +32,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/video.h>
+#include <asm/sections.h>
 #include <mmc.h>
 #include <fsl_esdhc_imx.h>
 #include <malloc.h>

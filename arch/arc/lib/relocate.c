@@ -6,13 +6,8 @@
 #include <common.h>
 #include <elf.h>
 #include <log.h>
-#include <asm-generic/sections.h>
+#include <asm/sections.h>
 #include <asm/global_data.h>
-
-extern ulong __image_copy_start;
-extern ulong __ivt_start;
-extern ulong __ivt_end;
-extern ulong __text_end;
 
 DECLARE_GLOBAL_DATA_PTR;
 
