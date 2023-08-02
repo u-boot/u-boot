@@ -9,6 +9,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <asm/cache.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <clk.h>
@@ -26,6 +27,7 @@
 #include <soc.h>
 #include <syscon.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <linux/soc/ti/ti-udma.h>
 
 #include "cpsw_mdio.h"
@@ -96,6 +98,8 @@
 
 #define AM65_CPSW_CPPI_PKT_TYPE			0x7
 
+#define DEFAULT_GPIO_RESET_DELAY		10
+
 struct am65_cpsw_port {
 	fdt_addr_t	port_base;
 	fdt_addr_t	port_sgmii_base;
@@ -119,6 +123,10 @@ struct am65_cpsw_common {
 
 	struct mii_dev		*bus;
 	u32			bus_freq;
+
+	struct gpio_desc	mdio_gpio_reset;
+	u32			reset_delay_us;
+	u32			reset_post_delay_us;
 
 	struct dma		dma_tx;
 	struct dma		dma_rx;
@@ -679,6 +687,16 @@ static int am65_cpsw_mdio_init(struct udevice *dev)
 	if (!priv->has_phy || cpsw_common->bus)
 		return 0;
 
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		if (dm_gpio_is_valid(&cpsw_common->mdio_gpio_reset)) {
+			dm_gpio_set_value(&cpsw_common->mdio_gpio_reset, 1);
+			udelay(cpsw_common->reset_delay_us);
+			dm_gpio_set_value(&cpsw_common->mdio_gpio_reset, 0);
+			if (cpsw_common->reset_post_delay_us > 0)
+				udelay(cpsw_common->reset_post_delay_us);
+		}
+	}
+
 	ret = am65_cpsw_mdio_setup(dev);
 	if (ret)
 		return ret;
@@ -818,7 +836,7 @@ out:
 static int am65_cpsw_probe_nuss(struct udevice *dev)
 {
 	struct am65_cpsw_common *cpsw_common = dev_get_priv(dev);
-	ofnode ports_np, node;
+	ofnode ports_np, node, mdio_np;
 	int ret, i;
 	struct udevice *port_dev;
 
@@ -844,6 +862,24 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 	cpsw_common->ale_base = cpsw_common->cpsw_base +
 				AM65_CPSW_CPSW_NU_ALE_BASE;
 	cpsw_common->mdio_base = cpsw_common->ss_base + AM65_CPSW_MDIO_BASE;
+
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		/* get bus level PHY reset GPIO details */
+		mdio_np = dev_read_subnode(dev, "mdio");
+		if (!ofnode_valid(mdio_np)) {
+			ret = -ENOENT;
+			goto out;
+		}
+
+		cpsw_common->reset_delay_us = ofnode_read_u32_default(mdio_np, "reset-delay-us",
+								      DEFAULT_GPIO_RESET_DELAY);
+		cpsw_common->reset_post_delay_us = ofnode_read_u32_default(mdio_np,
+									   "reset-post-delay-us",
+									   0);
+		ret = gpio_request_by_name_nodev(mdio_np, "reset-gpios", 0,
+						 &cpsw_common->mdio_gpio_reset,
+						 GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	}
 
 	ports_np = dev_read_subnode(dev, "ethernet-ports");
 	if (!ofnode_valid(ports_np)) {
