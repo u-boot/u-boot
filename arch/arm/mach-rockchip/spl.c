@@ -116,12 +116,10 @@ void board_init_f(ulong dummy)
 	/*
 	 * Debug UART can be used from here if required:
 	 *
-	 * debug_uart_init();
 	 * printch('a');
 	 * printhex8(0x1234);
 	 * printascii("string");
 	 */
-	debug_uart_init();
 	debug("\nspl:debug uart enabled in %s\n", __func__);
 #endif
 
