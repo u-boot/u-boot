@@ -112,17 +112,6 @@ void board_init_f(ulong dummy)
 {
 	int ret;
 
-#ifdef CONFIG_DEBUG_UART
-	/*
-	 * Debug UART can be used from here if required:
-	 *
-	 * printch('a');
-	 * printhex8(0x1234);
-	 * printascii("string");
-	 */
-	debug("\nspl:debug uart enabled in %s\n", __func__);
-#endif
-
 	board_early_init_f();
 
 	ret = spl_early_init();
