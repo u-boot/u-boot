@@ -57,6 +57,12 @@
 #define AM65_CPSW_PN_REG_SA_L			0x308
 #define AM65_CPSW_PN_REG_SA_H			0x30c
 
+#define AM65_CPSW_SGMII_CONTROL_REG             0x010
+#define AM65_CPSW_SGMII_MR_ADV_ABILITY_REG      0x018
+#define AM65_CPSW_SGMII_CONTROL_MR_AN_ENABLE    BIT(0)
+
+#define ADVERTISE_SGMII				0x1
+
 #define AM65_CPSW_ALE_CTL_REG			0x8
 #define AM65_CPSW_ALE_CTL_REG_ENABLE		BIT(31)
 #define AM65_CPSW_ALE_CTL_REG_RESET_TBL		BIT(30)
@@ -92,6 +98,7 @@
 
 struct am65_cpsw_port {
 	fdt_addr_t	port_base;
+	fdt_addr_t	port_sgmii_base;
 	fdt_addr_t	macsl_base;
 	bool		disabled;
 	u32		mac_control;
@@ -204,6 +211,8 @@ static int am65_cpsw_update_link(struct am65_cpsw_priv *priv)
 			mac_control |= AM65_CPSW_MACSL_CTL_REG_FULL_DUPLEX;
 		if (phy->speed == 100)
 			mac_control |= AM65_CPSW_MACSL_CTL_REG_IFCTL_A;
+		if (phy->interface == PHY_INTERFACE_MODE_SGMII)
+			mac_control |= AM65_CPSW_MACSL_CTL_EXT_EN;
 	}
 
 	if (mac_control == port->mac_control)
@@ -229,6 +238,7 @@ out:
 #define AM65_GMII_SEL_MODE_MII		0
 #define AM65_GMII_SEL_MODE_RMII		1
 #define AM65_GMII_SEL_MODE_RGMII	2
+#define AM65_GMII_SEL_MODE_SGMII	3
 
 #define AM65_GMII_SEL_RGMII_IDMODE	BIT(4)
 
@@ -278,6 +288,10 @@ static int am65_cpsw_gmii_sel_k3(struct am65_cpsw_priv *priv,
 	case PHY_INTERFACE_MODE_RGMII_TXID:
 		mode = AM65_GMII_SEL_MODE_RGMII;
 		rgmii_id = true;
+		break;
+
+	case PHY_INTERFACE_MODE_SGMII:
+		mode = AM65_GMII_SEL_MODE_SGMII;
 		break;
 
 	default:
@@ -418,6 +432,13 @@ static int am65_cpsw_start(struct udevice *dev)
 		dev_err(dev, "mac_sl reset failed\n");
 		ret = -EFAULT;
 		goto err_dis_rx;
+	}
+
+	if (priv->phydev->interface == PHY_INTERFACE_MODE_SGMII) {
+		writel(ADVERTISE_SGMII,
+		       port->port_sgmii_base + AM65_CPSW_SGMII_MR_ADV_ABILITY_REG);
+		writel(AM65_CPSW_SGMII_CONTROL_MR_AN_ENABLE,
+		       port->port_sgmii_base + AM65_CPSW_SGMII_CONTROL_REG);
 	}
 
 	ret = phy_startup(priv->phydev);
@@ -872,6 +893,8 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 		port->port_base = cpsw_common->cpsw_base +
 				  AM65_CPSW_CPSW_NU_PORTS_OFFSET +
 				  (i * AM65_CPSW_CPSW_NU_PORTS_OFFSET);
+		port->port_sgmii_base = cpsw_common->ss_base +
+					(i * AM65_CPSW_SGMII_BASE);
 		port->macsl_base = port->port_base +
 				   AM65_CPSW_CPSW_NU_PORT_MACSL_OFFSET;
 	}
