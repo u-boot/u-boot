@@ -26,17 +26,13 @@
  * @mmio: The base address of PHY internal registers
  * @phy_grf: The regmap for controlling pipe signal
  * @p30phy: The reset signal for PHY
- * @ref_clk_m: The reference clock of M for PHY
- * @ref_clk_n: The reference clock of N for PHY
- * @pclk: The clock for accessing PHY blocks
+ * @clks: The clocks for PHY
  */
 struct rockchip_p3phy_priv {
 	void __iomem *mmio;
 	struct regmap *phy_grf;
 	struct reset_ctl p30phy;
-	struct clk ref_clk_m;
-	struct clk ref_clk_n;
-	struct clk pclk;
+	struct clk_bulk clks;
 };
 
 static int rochchip_p3phy_init(struct phy *phy)
@@ -44,17 +40,9 @@ static int rochchip_p3phy_init(struct phy *phy)
 	struct rockchip_p3phy_priv *priv = dev_get_priv(phy->dev);
 	int ret;
 
-	ret = clk_enable(&priv->ref_clk_m);
-	if (ret < 0 && ret != -ENOSYS)
+	ret = clk_enable_bulk(&priv->clks);
+	if (ret)
 		return ret;
-
-	ret = clk_enable(&priv->ref_clk_n);
-	if (ret < 0 && ret != -ENOSYS)
-		goto err_ref;
-
-	ret = clk_enable(&priv->pclk);
-	if (ret < 0 && ret != -ENOSYS)
-		goto err_pclk;
 
 	reset_assert(&priv->p30phy);
 	udelay(1);
@@ -67,21 +55,13 @@ static int rochchip_p3phy_init(struct phy *phy)
 	udelay(1);
 
 	return 0;
-err_pclk:
-	clk_disable(&priv->ref_clk_n);
-err_ref:
-	clk_disable(&priv->ref_clk_m);
-
-	return ret;
 }
 
 static int rochchip_p3phy_exit(struct phy *phy)
 {
 	struct rockchip_p3phy_priv *priv = dev_get_priv(phy->dev);
 
-	clk_disable(&priv->ref_clk_m);
-	clk_disable(&priv->ref_clk_n);
-	clk_disable(&priv->pclk);
+	clk_disable_bulk(&priv->clks);
 	reset_assert(&priv->p30phy);
 
 	return 0;
@@ -90,21 +70,13 @@ static int rochchip_p3phy_exit(struct phy *phy)
 static int rockchip_p3phy_probe(struct udevice *dev)
 {
 	struct rockchip_p3phy_priv *priv = dev_get_priv(dev);
-	struct udevice *syscon;
 	int ret;
 
 	priv->mmio = dev_read_addr_ptr(dev);
 	if (!priv->mmio)
 		return -EINVAL;
 
-	ret = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
-					   "rockchip,phy-grf",  &syscon);
-	if (ret) {
-		pr_err("unable to find syscon device for rockchip,phy-grf\n");
-		return ret;
-	}
-
-	priv->phy_grf = syscon_get_regmap(syscon);
+	priv->phy_grf = syscon_regmap_lookup_by_phandle(dev, "rockchip,phy-grf");
 	if (IS_ERR(priv->phy_grf)) {
 		dev_err(dev, "failed to find rockchip,phy_grf regmap\n");
 		return PTR_ERR(priv->phy_grf);
@@ -116,22 +88,10 @@ static int rockchip_p3phy_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = clk_get_by_name(dev, "refclk_m", &priv->ref_clk_m);
+	ret = clk_get_bulk(dev, &priv->clks);
 	if (ret) {
-		dev_err(dev, "failed to find ref clock M\n");
-		return PTR_ERR(&priv->ref_clk_m);
-	}
-
-	ret = clk_get_by_name(dev, "refclk_n", &priv->ref_clk_n);
-	if (ret) {
-		dev_err(dev, "failed to find ref clock N\n");
-		return PTR_ERR(&priv->ref_clk_n);
-	}
-
-	ret = clk_get_by_name(dev, "pclk", &priv->pclk);
-	if (ret) {
-		dev_err(dev, "failed to find pclk\n");
-		return PTR_ERR(&priv->pclk);
+		dev_err(dev, "failed to get clocks\n");
+		return ret;
 	}
 
 	return 0;
