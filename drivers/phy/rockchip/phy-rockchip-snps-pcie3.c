@@ -16,9 +16,16 @@
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 
-#define GRF_PCIE30PHY_CON1 0x4
-#define GRF_PCIE30PHY_CON6 0x18
-#define GRF_PCIE30PHY_CON9 0x24
+/* Register for RK3568 */
+#define GRF_PCIE30PHY_CON1			0x4
+#define GRF_PCIE30PHY_CON6			0x18
+#define GRF_PCIE30PHY_CON9			0x24
+#define GRF_PCIE30PHY_DA_OCM			(BIT(15) | BIT(31))
+#define GRF_PCIE30PHY_STATUS0			0x80
+#define GRF_PCIE30PHY_WR_EN			(0xf << 16)
+#define SRAM_INIT_DONE(reg)			(reg & BIT(14))
+
+#define RK3568_BIFURCATION_LANE_0_1		BIT(0)
 
 /**
  * struct rockchip_p3phy_priv - RK DW PCIe PHY state
@@ -27,12 +34,16 @@
  * @phy_grf: The regmap for controlling pipe signal
  * @p30phy: The reset signal for PHY
  * @clks: The clocks for PHY
+ * @num_lanes: The number of lane to controller mappings
+ * @lanes: The lane to controller mapping
  */
 struct rockchip_p3phy_priv {
 	void __iomem *mmio;
 	struct regmap *phy_grf;
 	struct reset_ctl p30phy;
 	struct clk_bulk clks;
+	int num_lanes;
+	u32 lanes[4];
 };
 
 struct rockchip_p3phy_ops {
@@ -42,15 +53,40 @@ struct rockchip_p3phy_ops {
 static int rockchip_p3phy_rk3568_init(struct phy *phy)
 {
 	struct rockchip_p3phy_priv *priv = dev_get_priv(phy->dev);
+	bool bifurcation = false;
+	int ret;
+	u32 reg;
 
 	/* Deassert PCIe PMA output clamp mode */
-	regmap_write(priv->phy_grf, GRF_PCIE30PHY_CON9,
-		     (0x1 << 15) | (0x1 << 31));
+	regmap_write(priv->phy_grf, GRF_PCIE30PHY_CON9, GRF_PCIE30PHY_DA_OCM);
+
+	for (int i = 0; i < priv->num_lanes; i++) {
+		if (priv->lanes[i] > 1)
+			bifurcation = true;
+	}
+
+	/* Set bifurcation if needed, and it doesn't care RC/EP */
+	if (bifurcation) {
+		regmap_write(priv->phy_grf, GRF_PCIE30PHY_CON6,
+			     GRF_PCIE30PHY_WR_EN | RK3568_BIFURCATION_LANE_0_1);
+		regmap_write(priv->phy_grf, GRF_PCIE30PHY_CON1,
+			     GRF_PCIE30PHY_DA_OCM);
+	} else {
+		regmap_write(priv->phy_grf, GRF_PCIE30PHY_CON6,
+			     GRF_PCIE30PHY_WR_EN & ~RK3568_BIFURCATION_LANE_0_1);
+	}
 
 	reset_deassert(&priv->p30phy);
 	udelay(1);
 
-	return 0;
+	ret = regmap_read_poll_timeout(priv->phy_grf,
+				       GRF_PCIE30PHY_STATUS0,
+				       reg, SRAM_INIT_DONE(reg),
+				       0, 500);
+	if (ret)
+		dev_err(phy->dev, "lock failed 0x%x\n", reg);
+
+	return ret;
 }
 
 static const struct rockchip_p3phy_ops rk3568_ops = {
@@ -101,6 +137,23 @@ static int rockchip_p3phy_probe(struct udevice *dev)
 	if (IS_ERR(priv->phy_grf)) {
 		dev_err(dev, "failed to find rockchip,phy_grf regmap\n");
 		return PTR_ERR(priv->phy_grf);
+	}
+
+	ret = dev_read_size(dev, "data-lanes");
+	if (ret > 0) {
+		priv->num_lanes = ret / sizeof(u32);
+		if (priv->num_lanes < 2 ||
+		    priv->num_lanes > ARRAY_SIZE(priv->lanes)) {
+			dev_err(dev, "unsupported data-lanes property size\n");
+			return -EINVAL;
+		}
+
+		ret = dev_read_u32_array(dev, "data-lanes", priv->lanes,
+					 priv->num_lanes);
+		if (ret) {
+			dev_err(dev, "failed to read data-lanes property\n");
+			return ret;
+		}
 	}
 
 	ret = reset_get_by_name(dev, "phy", &priv->p30phy);
