@@ -27,6 +27,17 @@
 
 #define RK3568_BIFURCATION_LANE_0_1		BIT(0)
 
+/* Register for RK3588 */
+#define PHP_GRF_PCIESEL_CON			0x100
+#define RK3588_PCIE3PHY_GRF_CMN_CON0		0x0
+#define RK3588_PCIE3PHY_GRF_PHY0_STATUS1	0x904
+#define RK3588_PCIE3PHY_GRF_PHY1_STATUS1	0xa04
+#define RK3588_SRAM_INIT_DONE(reg)		(reg & BIT(0))
+
+#define RK3588_BIFURCATION_LANE_0_1		BIT(0)
+#define RK3588_BIFURCATION_LANE_2_3		BIT(1)
+#define RK3588_LANE_AGGREGATION			BIT(2)
+
 /**
  * struct rockchip_p3phy_priv - RK DW PCIe PHY state
  *
@@ -40,6 +51,7 @@
 struct rockchip_p3phy_priv {
 	void __iomem *mmio;
 	struct regmap *phy_grf;
+	struct regmap *pipe_grf;
 	struct reset_ctl p30phy;
 	struct clk_bulk clks;
 	int num_lanes;
@@ -93,6 +105,66 @@ static const struct rockchip_p3phy_ops rk3568_ops = {
 	.phy_init = rockchip_p3phy_rk3568_init,
 };
 
+static int rockchip_p3phy_rk3588_init(struct phy *phy)
+{
+	struct rockchip_p3phy_priv *priv = dev_get_priv(phy->dev);
+	u32 reg = 0;
+	u8 mode = 0;
+	int ret;
+
+	/* Deassert PCIe PMA output clamp mode */
+	regmap_write(priv->phy_grf, RK3588_PCIE3PHY_GRF_CMN_CON0,
+		     BIT(8) | BIT(24));
+
+	/* Set bifurcation if needed */
+	for (int i = 0; i < priv->num_lanes; i++) {
+		if (!priv->lanes[i])
+			mode |= (BIT(i) << 3);
+
+		if (priv->lanes[i] > 1)
+			mode |= (BIT(i) >> 1);
+	}
+
+	if (!mode) {
+		reg = RK3588_LANE_AGGREGATION;
+	} else {
+		if (mode & (BIT(0) | BIT(1)))
+			reg |= RK3588_BIFURCATION_LANE_0_1;
+
+		if (mode & (BIT(2) | BIT(3)))
+			reg |= RK3588_BIFURCATION_LANE_2_3;
+	}
+
+	regmap_write(priv->phy_grf, RK3588_PCIE3PHY_GRF_CMN_CON0,
+		     (0x7 << 16) | reg);
+
+	/* Set pcie1ln_sel in PHP_GRF_PCIESEL_CON */
+	reg = (mode & (BIT(6) | BIT(7))) >> 6;
+	if (reg)
+		regmap_write(priv->pipe_grf, PHP_GRF_PCIESEL_CON,
+			     (reg << 16) | reg);
+
+	reset_deassert(&priv->p30phy);
+	udelay(1);
+
+	ret = regmap_read_poll_timeout(priv->phy_grf,
+				       RK3588_PCIE3PHY_GRF_PHY0_STATUS1,
+				       reg, RK3588_SRAM_INIT_DONE(reg),
+				       0, 500);
+	ret |= regmap_read_poll_timeout(priv->phy_grf,
+					RK3588_PCIE3PHY_GRF_PHY1_STATUS1,
+					reg, RK3588_SRAM_INIT_DONE(reg),
+					0, 500);
+	if (ret)
+		dev_err(phy->dev, "lock failed 0x%x\n", reg);
+
+	return ret;
+}
+
+static const struct rockchip_p3phy_ops rk3588_ops = {
+	.phy_init = rockchip_p3phy_rk3588_init,
+};
+
 static int rochchip_p3phy_init(struct phy *phy)
 {
 	struct rockchip_p3phy_ops *ops =
@@ -139,6 +211,15 @@ static int rockchip_p3phy_probe(struct udevice *dev)
 		return PTR_ERR(priv->phy_grf);
 	}
 
+	if (device_is_compatible(dev, "rockchip,rk3588-pcie3-phy")) {
+		priv->pipe_grf =
+			syscon_regmap_lookup_by_phandle(dev, "rockchip,pipe-grf");
+		if (IS_ERR(priv->pipe_grf)) {
+			dev_err(dev, "failed to find rockchip,pipe_grf regmap\n");
+			return PTR_ERR(priv->pipe_grf);
+		}
+	}
+
 	ret = dev_read_size(dev, "data-lanes");
 	if (ret > 0) {
 		priv->num_lanes = ret / sizeof(u32);
@@ -180,6 +261,10 @@ static const struct udevice_id rockchip_p3phy_of_match[] = {
 	{
 		.compatible = "rockchip,rk3568-pcie3-phy",
 		.data = (ulong)&rk3568_ops,
+	},
+	{
+		.compatible = "rockchip,rk3588-pcie3-phy",
+		.data = (ulong)&rk3588_ops,
 	},
 	{ },
 };
