@@ -374,12 +374,12 @@ void *board_fdt_blob_setup(int *err)
 		 * region
 		 */
 		if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS))
-			fdt_blob = (ulong *)&_image_binary_end;
+			fdt_blob = (ulong *)_image_binary_end;
 		else
-			fdt_blob = (ulong *)&__bss_end;
+			fdt_blob = (ulong *)__bss_end;
 	} else {
 		/* FDT is at end of image */
-		fdt_blob = (ulong *)&_end;
+		fdt_blob = (ulong *)_end;
 	}
 
 	if (fdt_magic(fdt_blob) == FDT_MAGIC)

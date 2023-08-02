@@ -70,7 +70,7 @@ void secondary_cpu_init(void)
 		cpumask = 0x0f;
 
 		/* Make BootROM/TPL redirect Core1's bootup flow to our entry point */
-		writel((uintptr_t)&_start, sysc + BOOT_SRAM_BASE_REG);
+		writel((uintptr_t)_start, sysc + BOOT_SRAM_BASE_REG);
 
 		bootup_secondary_core();
 	}

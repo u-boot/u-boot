@@ -124,8 +124,8 @@ static int display_text_info(void)
 #if !defined(CONFIG_SANDBOX) && !defined(CONFIG_EFI_APP)
 	ulong bss_start, bss_end, text_base;
 
-	bss_start = (ulong)&__bss_start;
-	bss_end = (ulong)&__bss_end;
+	bss_start = (ulong)__bss_start;
+	bss_end = (ulong)__bss_end;
 
 #ifdef CONFIG_TEXT_BASE
 	text_base = CONFIG_TEXT_BASE;
@@ -289,21 +289,21 @@ __weak int init_func_vid(void)
 static int setup_mon_len(void)
 {
 #if defined(__ARM__) || defined(__MICROBLAZE__)
-	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
+	gd->mon_len = (ulong)__bss_end - (ulong)_start;
 #elif defined(CONFIG_SANDBOX) && !defined(__riscv)
-	gd->mon_len = (ulong)&_end - (ulong)_init;
+	gd->mon_len = (ulong)_end - (ulong)_init;
 #elif defined(CONFIG_SANDBOX)
 	/* gcc does not provide _init in crti.o on RISC-V */
 	gd->mon_len = 0;
 #elif defined(CONFIG_EFI_APP)
-	gd->mon_len = (ulong)&_end - (ulong)_init;
+	gd->mon_len = (ulong)_end - (ulong)_init;
 #elif defined(CONFIG_NIOS2) || defined(CONFIG_XTENSA)
 	gd->mon_len = CONFIG_SYS_MONITOR_LEN;
 #elif defined(CONFIG_SH) || defined(CONFIG_RISCV)
-	gd->mon_len = (ulong)(&__bss_end) - (ulong)(&_start);
+	gd->mon_len = (ulong)(__bss_end) - (ulong)(_start);
 #elif defined(CONFIG_SYS_MONITOR_BASE)
-	/* TODO: use (ulong)&__bss_end - (ulong)&__text_start; ? */
-	gd->mon_len = (ulong)&__bss_end - CONFIG_SYS_MONITOR_BASE;
+	/* TODO: use (ulong)__bss_end - (ulong)__text_start; ? */
+	gd->mon_len = (ulong)__bss_end - CONFIG_SYS_MONITOR_BASE;
 #endif
 	return 0;
 }

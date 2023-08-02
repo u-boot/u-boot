@@ -86,7 +86,7 @@ unsigned long spl_nor_get_uboot_base(void)
 
 uint32_t spl_nand_get_uboot_raw_page(void)
 {
-	const struct stage_header *sh = (const struct stage_header *)&_start;
+	const struct stage_header *sh = (const struct stage_header *)_start;
 	u32 addr;
 
 	addr = image_get_header_size() + be32_to_cpu(sh->stage_size);

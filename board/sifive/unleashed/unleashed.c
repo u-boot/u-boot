@@ -122,7 +122,7 @@ void *board_fdt_blob_setup(int *err)
 			return (ulong *)(uintptr_t)gd->arch.firmware_fdt_addr;
 	}
 
-	return (ulong *)&_end;
+	return (ulong *)_end;
 }
 
 int board_init(void)
