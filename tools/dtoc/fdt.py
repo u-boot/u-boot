@@ -15,6 +15,9 @@ from libfdt import QUIET_NOTFOUND
 from u_boot_pylib import tools
 from u_boot_pylib import tout
 
+# Temporary hack
+IGNORE_DUP_PHANDLES = False
+
 # This deals with a device tree, presenting it as an assortment of Node and
 # Prop objects, representing nodes and properties, respectively. This file
 # contains the base classes and defines the high-level API. You can use
@@ -339,10 +342,11 @@ class Node:
         if phandle:
             dup = self._fdt.phandle_to_node.get(phandle)
             if dup:
-                raise ValueError(
-                    f'Duplicate phandle {phandle} in nodes {dup.path} and {self.path}')
-
-            self._fdt.phandle_to_node[phandle] = self
+                if not IGNORE_DUP_PHANDLES:
+                    raise ValueError(
+                        f'Duplicate phandle {phandle} in nodes {dup.path} and {self.path}')
+            else:
+                self._fdt.phandle_to_node[phandle] = self
 
         offset = fdt_obj.first_subnode(self.Offset(), QUIET_NOTFOUND)
         while offset >= 0:

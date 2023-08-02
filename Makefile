@@ -1328,6 +1328,11 @@ u-boot.ldr:	u-boot
 # Use 'make BINMAN_VERBOSE=3' to set vebosity level
 default_dt := $(if $(DEVICE_TREE),$(DEVICE_TREE),$(CONFIG_DEFAULT_DEVICE_TREE))
 
+# Temporary workaround for Venice boards
+ifneq ($(CONFIG_TARGET_IMX8MM_VENICE),$(CONFIG_TARGET_IMX8MN_VENICE),$(CONFIG_TARGET_IMX8MP_VENICE),)
+ignore_dups := --ignore-dup-phandles
+endif
+
 quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		$(foreach f,$(BINMAN_TOOLPATHS),--toolpath $(f)) \
@@ -1349,6 +1354,7 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		-a spl-dtb=$(CONFIG_SPL_OF_REAL) \
 		-a tpl-dtb=$(CONFIG_TPL_OF_REAL) \
 		-a pre-load-key-path=${PRE_LOAD_KEY_PATH} \
+		$(ignore_dups) \
 		$(BINMAN_$(@F))
 
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
