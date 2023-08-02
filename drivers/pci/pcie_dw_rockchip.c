@@ -18,6 +18,7 @@
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <dm/device_compat.h>
+#include <linux/bitfield.h>
 #include <linux/iopoll.h>
 #include <linux/delay.h>
 #include <power/regulator.h>
@@ -43,6 +44,7 @@ struct rk_pcie {
 	struct reset_ctl_bulk	rsts;
 	struct gpio_desc	rst_gpio;
 	u32		gen;
+	u32		num_lanes;
 };
 
 /* Parameters for the waiting for iATU enabled routine */
@@ -152,12 +154,13 @@ static inline void rk_pcie_writel_apb(struct rk_pcie *rk_pcie, u32 reg,
  * rk_pcie_configure() - Configure link capabilities and speed
  *
  * @rk_pcie: Pointer to the PCI controller state
- * @cap_speed: The capabilities and speed to configure
  *
  * Configure the link capabilities and speed in the PCIe root complex.
  */
-static void rk_pcie_configure(struct rk_pcie *pci, u32 cap_speed)
+static void rk_pcie_configure(struct rk_pcie *pci)
 {
+	u32 val;
+
 	dw_pcie_dbi_write_enable(&pci->dw, true);
 
 	/* Disable BAR 0 and BAR 1 */
@@ -167,11 +170,49 @@ static void rk_pcie_configure(struct rk_pcie *pci, u32 cap_speed)
 	       PCI_BASE_ADDRESS_1);
 
 	clrsetbits_le32(pci->dw.dbi_base + PCIE_LINK_CAPABILITY,
-			TARGET_LINK_SPEED_MASK, cap_speed);
+			TARGET_LINK_SPEED_MASK, pci->gen);
 
 	clrsetbits_le32(pci->dw.dbi_base + PCIE_LINK_CTL_2,
-			TARGET_LINK_SPEED_MASK, cap_speed);
+			TARGET_LINK_SPEED_MASK, pci->gen);
 
+	/* Set the number of lanes */
+	val = readl(pci->dw.dbi_base + PCIE_PORT_LINK_CONTROL);
+	val &= ~PORT_LINK_FAST_LINK_MODE;
+	val |= PORT_LINK_DLL_LINK_EN;
+	val &= ~PORT_LINK_MODE_MASK;
+	switch (pci->num_lanes) {
+	case 1:
+		val |= PORT_LINK_MODE_1_LANES;
+		break;
+	case 2:
+		val |= PORT_LINK_MODE_2_LANES;
+		break;
+	case 4:
+		val |= PORT_LINK_MODE_4_LANES;
+		break;
+	default:
+		dev_err(pci->dw.dev, "num-lanes %u: invalid value\n", pci->num_lanes);
+		goto out;
+	}
+	writel(val, pci->dw.dbi_base + PCIE_PORT_LINK_CONTROL);
+
+	/* Set link width speed control register */
+	val = readl(pci->dw.dbi_base + PCIE_LINK_WIDTH_SPEED_CONTROL);
+	val &= ~PORT_LOGIC_LINK_WIDTH_MASK;
+	switch (pci->num_lanes) {
+	case 1:
+		val |= PORT_LOGIC_LINK_WIDTH_1_LANES;
+		break;
+	case 2:
+		val |= PORT_LOGIC_LINK_WIDTH_2_LANES;
+		break;
+	case 4:
+		val |= PORT_LOGIC_LINK_WIDTH_4_LANES;
+		break;
+	}
+	writel(val, pci->dw.dbi_base + PCIE_LINK_WIDTH_SPEED_CONTROL);
+
+out:
 	dw_pcie_dbi_write_enable(&pci->dw, false);
 }
 
@@ -231,11 +272,10 @@ static int is_link_up(struct rk_pcie *priv)
  * rk_pcie_link_up() - Wait for the link to come up
  *
  * @rk_pcie: Pointer to the PCI controller state
- * @cap_speed: Desired link speed
  *
  * Return: 1 (true) for active line and negetive (false) for no link (timeout)
  */
-static int rk_pcie_link_up(struct rk_pcie *priv, u32 cap_speed)
+static int rk_pcie_link_up(struct rk_pcie *priv)
 {
 	int retries;
 
@@ -245,7 +285,7 @@ static int rk_pcie_link_up(struct rk_pcie *priv, u32 cap_speed)
 	}
 
 	/* DW pre link configurations */
-	rk_pcie_configure(priv, cap_speed);
+	rk_pcie_configure(priv);
 
 	rk_pcie_disable_ltssm(priv);
 	rk_pcie_link_status_clear(priv);
@@ -341,7 +381,7 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 	rk_pcie_writel_apb(priv, 0x0, 0xf00040);
 	pcie_dw_setup_host(&priv->dw);
 
-	ret = rk_pcie_link_up(priv, priv->gen);
+	ret = rk_pcie_link_up(priv);
 	if (ret < 0)
 		goto err_link_up;
 
@@ -418,6 +458,8 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 
 	priv->gen = dev_read_u32_default(dev, "max-link-speed",
 					 LINK_SPEED_GEN_3);
+
+	priv->num_lanes = dev_read_u32_default(dev, "num-lanes", 1);
 
 	return 0;
 
