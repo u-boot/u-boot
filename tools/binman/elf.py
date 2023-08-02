@@ -447,13 +447,15 @@ def DecodeElf(data, location):
     Returns:
         ElfInfo object containing information about the decoded ELF file
     """
+    if not ELF_TOOLS:
+        raise ValueError("Python: No module named 'elftools'")
     file_size = len(data)
     with io.BytesIO(data) as fd:
         elf = ELFFile(fd)
-        data_start = 0xffffffff;
-        data_end = 0;
-        mem_end = 0;
-        virt_to_phys = 0;
+        data_start = 0xffffffff
+        data_end = 0
+        mem_end = 0
+        virt_to_phys = 0
 
         for i in range(elf.num_segments()):
             segment = elf.get_segment(i)

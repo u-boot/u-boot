@@ -3806,6 +3806,7 @@ class TestFunctional(unittest.TestCase):
                                    allow_missing=True)
         self.assertEqual(103, ret)
         err = stderr.getvalue()
+        self.assertIn('(missing-file)', err)
         self.assertRegex(err, "Image 'image'.*missing.*: blob-ext")
         self.assertIn('Some images are invalid', err)
 
@@ -3816,6 +3817,7 @@ class TestFunctional(unittest.TestCase):
                                    allow_missing=True, ignore_missing=True)
         self.assertEqual(0, ret)
         err = stderr.getvalue()
+        self.assertIn('(missing-file)', err)
         self.assertRegex(err, "Image 'image'.*missing.*: blob-ext")
         self.assertIn('Some images are invalid', err)
 
@@ -6358,6 +6360,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                          fdt_util.fdt32_to_cpu(node.props['entry'].value))
         self.assertEqual(U_BOOT_DATA, node.props['data'].bytes)
 
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self.checkFitTee('264_tee_os_opt_fit.dts', '')
+        err = stderr.getvalue()
+        self.assertRegex(
+            err,
+            "Image '.*' is missing optional external blobs but is still functional: tee-os")
+
     def testFitTeeOsOptionalFitBad(self):
         """Test an image with a FIT with an optional OP-TEE binary"""
         with self.assertRaises(ValueError) as exc:
@@ -6390,7 +6399,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         err = stderr.getvalue()
         self.assertRegex(
             err,
-            "Image '.*' is missing external blobs but is still functional: missing")
+            "Image '.*' is missing optional external blobs but is still functional: missing")
 
     def testSectionInner(self):
         """Test an inner section with a size"""
@@ -6853,6 +6862,22 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         second = U_BOOT_DATA + b'#' + VGA_DATA + U_BOOT_DTB_DATA
         self.assertEqual(U_BOOT_IMG_DATA + first + second, data)
 
+        dtb_fname1 = tools.get_output_filename('u-boot.dtb.tmpl1')
+        self.assertTrue(os.path.exists(dtb_fname1))
+        dtb = fdt.Fdt.FromData(tools.read_file(dtb_fname1))
+        dtb.Scan()
+        node1 = dtb.GetNode('/binman/template')
+        self.assertTrue(node1)
+        vga = dtb.GetNode('/binman/first/intel-vga')
+        self.assertTrue(vga)
+
+        dtb_fname2 = tools.get_output_filename('u-boot.dtb.tmpl2')
+        self.assertTrue(os.path.exists(dtb_fname2))
+        dtb2 = fdt.Fdt.FromData(tools.read_file(dtb_fname2))
+        dtb2.Scan()
+        node2 = dtb2.GetNode('/binman/template')
+        self.assertFalse(node2)
+
     def testTemplateBlobMulti(self):
         """Test using a template with 'multiple-images' enabled"""
         TestFunctional._MakeInputFile('my-blob.bin', b'blob')
@@ -6943,6 +6968,33 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
             # Move to next
             spl_data = content[:0x18]
+
+    def testTemplatePhandle(self):
+        """Test using a template in a node containing a phandle"""
+        entry_args = {
+            'atf-bl31-path': 'bl31.elf',
+        }
+        data = self._DoReadFileDtb('291_template_phandle.dts',
+                                   entry_args=entry_args)
+        fname = tools.get_output_filename('image.bin')
+        out = tools.run('dumpimage', '-l', fname)
+
+        # We should see the FIT description and one for each of the two images
+        lines = out.splitlines()
+        descs = [line.split()[-1] for line in lines if 'escription' in line]
+        self.assertEqual(['test-desc', 'atf', 'fdt'], descs)
+
+    def testTemplatePhandleDup(self):
+        """Test using a template in a node containing a phandle"""
+        entry_args = {
+            'atf-bl31-path': 'bl31.elf',
+        }
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('292_template_phandle_dup.dts',
+                                entry_args=entry_args)
+        self.assertIn(
+            'Duplicate phandle 1 in nodes /binman/image/fit/images/atf/atf-bl31 and /binman/image-2/fit/images/atf/atf-bl31',
+            str(e.exception))
 
     def testTIBoardConfig(self):
         """Test that a schema validated board config file can be generated"""

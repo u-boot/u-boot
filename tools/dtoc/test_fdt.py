@@ -32,6 +32,7 @@ from dtoc.fdt import Type, BytesToValue
 import libfdt
 from u_boot_pylib import test_util
 from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 #pylint: disable=protected-access
 
@@ -308,7 +309,7 @@ class TestNode(unittest.TestCase):
 
     def test_copy_node(self):
         """Test copy_node() function"""
-        def do_copy_checks(dtb, dst, expect_none):
+        def do_copy_checks(dtb, dst, second1_ph_val, expect_none):
             self.assertEqual(
                 ['/dest/base', '/dest/first@0', '/dest/existing'],
                 [n.path for n in dst.subnodes])
@@ -339,8 +340,8 @@ class TestNode(unittest.TestCase):
             over = dtb.GetNode('/dest/base/over')
             self.assertTrue(over)
 
-            # Make sure that the phandle for 'over' is not copied
-            self.assertNotIn('phandle', over.props.keys())
+            # Make sure that the phandle for 'over' is copied
+            self.assertIn('phandle', over.props.keys())
 
             second = dtb.GetNode('/dest/base/second')
             self.assertTrue(second)
@@ -348,7 +349,7 @@ class TestNode(unittest.TestCase):
                              [n.name for n in chk.subnodes])
             self.assertEqual(chk, over.parent)
             self.assertEqual(
-                {'bootph-all', 'compatible', 'reg', 'low-power'},
+                {'bootph-all', 'compatible', 'reg', 'low-power', 'phandle'},
                 over.props.keys())
 
             if expect_none:
@@ -365,20 +366,43 @@ class TestNode(unittest.TestCase):
                 ['second1', 'second2', 'second3', 'second4'],
                 [n.name for n in second.subnodes])
 
+            # Check the 'second_1_bad' phandle is not copied over
+            second1 = second.FindNode('second1')
+            self.assertTrue(second1)
+            sph = second1.props.get('phandle')
+            self.assertTrue(sph)
+            self.assertEqual(second1_ph_val, sph.bytes)
+
+
         dtb = fdt.FdtScan(find_dtb_file('dtoc_test_copy.dts'))
         tmpl = dtb.GetNode('/base')
         dst = dtb.GetNode('/dest')
+        second1_ph_val = (dtb.GetNode('/dest/base/second/second1').
+                          props['phandle'].bytes)
         dst.copy_node(tmpl)
 
-        do_copy_checks(dtb, dst, expect_none=True)
+        do_copy_checks(dtb, dst, second1_ph_val, expect_none=True)
 
         dtb.Sync(auto_resize=True)
 
-        # Now check that the FDT looks correct
+        # Now check the resulting FDT. It should have duplicate phandles since
+        # 'over' has been copied to 'dest/base/over' but still exists in its old
+        # place
         new_dtb = fdt.Fdt.FromData(dtb.GetContents())
+        with self.assertRaises(ValueError) as exc:
+            new_dtb.Scan()
+        self.assertIn(
+            'Duplicate phandle 1 in nodes /dest/base/over and /base/over',
+            str(exc.exception))
+
+        # Remove the source nodes for the copy
+        new_dtb.GetNode('/base').Delete()
+
+        # Now it should scan OK
         new_dtb.Scan()
+
         dst = new_dtb.GetNode('/dest')
-        do_copy_checks(new_dtb, dst, expect_none=False)
+        do_copy_checks(new_dtb, dst, second1_ph_val, expect_none=False)
 
     def test_copy_subnodes_from_phandles(self):
         """Test copy_node() function"""
@@ -404,7 +428,7 @@ class TestNode(unittest.TestCase):
 
         # Make sure that the phandle for 'over' is not copied
         over = dst.FindNode('over')
-        print('keys', over.props.keys())
+        tout.debug(f'keys: {over.props.keys()}')
         self.assertNotIn('phandle', over.props.keys())
 
         # Check the merged properties, first the base ones in '/dest'

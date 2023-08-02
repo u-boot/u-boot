@@ -22,6 +22,7 @@ from binman import bintool
 from binman import cbfs_util
 from binman import elf
 from binman import entry
+from dtoc import fdt
 from dtoc import fdt_util
 from u_boot_pylib import command
 from u_boot_pylib import tools
@@ -57,7 +58,7 @@ def _ReadImageDesc(binman_node, use_expanded):
     images = OrderedDict()
     if 'multiple-images' in binman_node.props:
         for node in binman_node.subnodes:
-            if 'template' not in node.name:
+            if not node.name.startswith('template'):
                 images[node.name] = Image(node.name, node,
                                           use_expanded=use_expanded)
     else:
@@ -112,12 +113,13 @@ def _ReadMissingBlobHelp():
     _FinishTag(tag, msg, result)
     return result
 
-def _ShowBlobHelp(path, text):
-    tout.warning('\n%s:' % path)
+def _ShowBlobHelp(level, path, text, fname):
+    tout.do_output(level, '%s (%s):' % (path, fname))
     for line in text.splitlines():
-        tout.warning('   %s' % line)
+        tout.do_output(level, '   %s' % line)
+    tout.do_output(level, '')
 
-def _ShowHelpForMissingBlobs(missing_list):
+def _ShowHelpForMissingBlobs(level, missing_list):
     """Show help for each missing blob to help the user take action
 
     Args:
@@ -132,10 +134,17 @@ def _ShowHelpForMissingBlobs(missing_list):
         tags = entry.GetHelpTags()
 
         # Show the first match help message
+        shown_help = False
         for tag in tags:
             if tag in missing_blob_help:
-                _ShowBlobHelp(entry._node.path, missing_blob_help[tag])
+                _ShowBlobHelp(level, entry._node.path, missing_blob_help[tag],
+                              entry.GetDefaultFilename())
+                shown_help = True
                 break
+        # Or a generic help message
+        if not shown_help:
+            _ShowBlobHelp(level, entry._node.path, "Missing blob",
+                          entry.GetDefaultFilename())
 
 def GetEntryModules(include_testing=True):
     """Get a set of entry class implementations
@@ -486,6 +495,9 @@ def _ProcessTemplates(parent):
     Args:
         parent: Binman node to process (typically /binman)
 
+    Returns:
+        bool: True if any templates were processed
+
     Search though each target node looking for those with an 'insert-template'
     property. Use that as a list of references to template nodes to use to
     adjust the target node.
@@ -498,11 +510,22 @@ def _ProcessTemplates(parent):
 
     See 'Templates' in the Binman documnentation for details.
     """
+    found = False
     for node in parent.subnodes:
         tmpl = fdt_util.GetPhandleList(node, 'insert-template')
         if tmpl:
             node.copy_subnodes_from_phandles(tmpl)
-        _ProcessTemplates(node)
+            found = True
+
+        found |= _ProcessTemplates(node)
+    return found
+
+def _RemoveTemplates(parent):
+    """Remove any templates in the binman description
+    """
+    for node in parent.subnodes:
+        if node.name.startswith('template'):
+            node.Delete()
 
 def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     """Prepare the images to be processed and select the device tree
@@ -546,7 +569,19 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
         raise ValueError("Device tree '%s' does not have a 'binman' "
                             "node" % dtb_fname)
 
-    _ProcessTemplates(node)
+    if _ProcessTemplates(node):
+        dtb.Sync(True)
+        fname = tools.get_output_filename('u-boot.dtb.tmpl1')
+        tools.write_file(fname, dtb.GetContents())
+
+        _RemoveTemplates(node)
+        dtb.Sync(True)
+
+        # Rescan the dtb to pick up the new phandles
+        dtb.Scan()
+        node = _FindBinmanNode(dtb)
+        fname = tools.get_output_filename('u-boot.dtb.tmpl2')
+        tools.write_file(fname, dtb.GetContents())
 
     images = _ReadImageDesc(node, use_expanded)
 
@@ -658,15 +693,15 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     missing_list = []
     image.CheckMissing(missing_list)
     if missing_list:
-        tout.warning("Image '%s' is missing external blobs and is non-functional: %s" %
-                     (image.name, ' '.join([e.name for e in missing_list])))
-        _ShowHelpForMissingBlobs(missing_list)
+        tout.error("Image '%s' is missing external blobs and is non-functional: %s\n" %
+                   (image.name, ' '.join([e.name for e in missing_list])))
+        _ShowHelpForMissingBlobs(tout.ERROR, missing_list)
 
     faked_list = []
     image.CheckFakedBlobs(faked_list)
     if faked_list:
         tout.warning(
-            "Image '%s' has faked external blobs and is non-functional: %s" %
+            "Image '%s' has faked external blobs and is non-functional: %s\n" %
             (image.name, ' '.join([os.path.basename(e.GetDefaultFilename())
                                    for e in faked_list])))
 
@@ -674,15 +709,15 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     image.CheckOptional(optional_list)
     if optional_list:
         tout.warning(
-            "Image '%s' is missing external blobs but is still functional: %s" %
+            "Image '%s' is missing optional external blobs but is still functional: %s\n" %
             (image.name, ' '.join([e.name for e in optional_list])))
-        _ShowHelpForMissingBlobs(optional_list)
+        _ShowHelpForMissingBlobs(tout.WARNING, optional_list)
 
     missing_bintool_list = []
     image.check_missing_bintools(missing_bintool_list)
     if missing_bintool_list:
         tout.warning(
-            "Image '%s' has missing bintools and is non-functional: %s" %
+            "Image '%s' has missing bintools and is non-functional: %s\n" %
             (image.name, ' '.join([os.path.basename(bintool.name)
                                    for bintool in missing_bintool_list])))
     return any([missing_list, faked_list, missing_bintool_list])
@@ -782,6 +817,10 @@ def Binman(args):
         cbfs_util.VERBOSE = args.verbosity > 2
         state.use_fake_dtb = args.fake_dtb
 
+        # Temporary hack
+        if args.ignore_dup_phandles: # pragma: no cover
+            fdt.IGNORE_DUP_PHANDLES = True
+
         # Normally we replace the 'u-boot' etype with 'u-boot-expanded', etc.
         # When running tests this can be disabled using this flag. When not
         # updating the FDT in image, it is not needed by binman, but we use it
@@ -827,7 +866,7 @@ def Binman(args):
             # This can only be True if -M is provided, since otherwise binman
             # would have raised an error already
             if invalid:
-                msg = '\nSome images are invalid'
+                msg = 'Some images are invalid'
                 if args.ignore_missing:
                     tout.warning(msg)
                 else:

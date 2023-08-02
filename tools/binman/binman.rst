@@ -1256,8 +1256,32 @@ Properties in the template node are inserted into the destination node if they
 do not exist there. In the example above, `some-property` is added to each of
 `spi-image` and `mmc-image`.
 
-Note that template nodes are not removed from the binman description at present.
+Note that template nodes are removed from the binman description after
+processing and before binman builds the image descriptions.
 
+The initial devicetree produced by the templating process is written to the
+`u-boot.dtb.tmpl1` file. This can be useful to see what is going on if there is
+a failure before the final `u-boot.dtb.out` file is written. A second
+`u-boot.dtb.tmpl2` file is written when the templates themselves are removed.
+
+Dealing with phandles
+---------------------
+
+Templates can contain phandles and these are copied to the destination node.
+However this should be used with care, since if a template is instantiated twice
+then the phandle will be copied twice, resulting in a devicetree with duplicate
+phandles, i.e. the same phandle used by two different nodes. Binman detects this
+situation and produces an error, for example::
+
+  Duplicate phandle 1 in nodes /binman/image/fit/images/atf/atf-bl31 and
+  /binman/image-2/fit/images/atf/atf-bl31
+
+In this case an atf-bl31 node containing a phandle has been copied into two
+different target nodes, resulting in the same phandle for each. See
+testTemplatePhandleDup() for the test case.
+
+The solution is typically to put the phandles in the corresponding target nodes
+(one for each) and remove the phandle from the template.
 
 Updating an ELF file
 ====================

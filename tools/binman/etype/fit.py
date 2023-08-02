@@ -842,6 +842,13 @@ class Entry_fit(Entry_section):
         for entry in self._priv_entries.values():
             entry.CheckMissing(missing_list)
 
+    def CheckOptional(self, optional_list):
+        # We must use our private entry list for this since generator nodes
+        # which are removed from self._entries will otherwise not show up as
+        # optional
+        for entry in self._priv_entries.values():
+            entry.CheckOptional(optional_list)
+
     def CheckEntries(self):
         pass
 

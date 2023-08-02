@@ -255,8 +255,20 @@ class TestElf(unittest.TestCase):
             fname = self.ElfTestFile('embed_data')
             with self.assertRaises(ValueError) as e:
                 elf.GetSymbolFileOffset(fname, ['embed_start', 'embed_end'])
-            self.assertIn("Python: No module named 'elftools'",
-                      str(e.exception))
+            with self.assertRaises(ValueError) as e:
+                elf.DecodeElf(tools.read_file(fname), 0xdeadbeef)
+            with self.assertRaises(ValueError) as e:
+                elf.GetFileOffset(fname, 0xdeadbeef)
+            with self.assertRaises(ValueError) as e:
+                elf.GetSymbolFromAddress(fname, 0xdeadbeef)
+            with self.assertRaises(ValueError) as e:
+                entry = FakeEntry(10)
+                section = FakeSection()
+                elf.LookupAndWriteSymbols(fname, entry, section, True)
+
+            self.assertIn(
+                "Section 'section_path': entry 'entry_path': Cannot write symbols to an ELF file without Python elftools",
+                str(e.exception))
         finally:
             elf.ELF_TOOLS = old_val
 
