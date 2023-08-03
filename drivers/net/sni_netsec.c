@@ -286,6 +286,8 @@ struct netsec_rx_pkt_info {
 	bool err_flag;
 };
 
+static int netsec_reset_hardware(struct netsec_priv *priv, bool load_ucode);
+
 static void netsec_write_reg(struct netsec_priv *priv, u32 reg_addr, u32 val)
 {
 	writel(val, priv->ioaddr + reg_addr);
@@ -532,17 +534,10 @@ static int netsec_mac_update_to_phy_state(struct netsec_priv *priv)
 	return 0;
 }
 
-static int netsec_start_gmac(struct netsec_priv *priv)
+static int netsec_reset_gmac(struct netsec_priv *priv)
 {
 	u32 value = 0;
 	int ret;
-
-	if (priv->max_speed != SPEED_1000)
-		value = (NETSEC_GMAC_MCR_REG_CST |
-			 NETSEC_GMAC_MCR_REG_HALF_DUPLEX_COMMON);
-
-	if (netsec_set_mac_reg(priv, GMAC_REG_MCR, value))
-		return -ETIMEDOUT;
 
 	if (netsec_set_mac_reg(priv, GMAC_REG_BMR,
 			       NETSEC_GMAC_BMR_REG_RESET))
@@ -558,9 +553,46 @@ static int netsec_start_gmac(struct netsec_priv *priv)
 	if (value & NETSEC_GMAC_BMR_REG_SWR)
 		return -EAGAIN;
 
+	/**
+	 * NETSEC GMAC sometimes shows the peculiar behaviour where
+	 * MAC_REG_DESC_SOFT_RST never been cleared, resulting in the loss of
+	 * sending packets.
+	 *
+	 * Workaround:
+	 *   Restart NETSEC and PHY, retry again.
+	 */
 	netsec_write_reg(priv, MAC_REG_DESC_SOFT_RST, 1);
-	if (netsec_wait_while_busy(priv, MAC_REG_DESC_SOFT_RST, 1))
+	udelay(1000);
+	if (netsec_read_reg(priv, MAC_REG_DESC_SOFT_RST)) {
+		phy_shutdown(priv->phydev);
+		netsec_reset_hardware(priv, false);
+		phy_startup(priv->phydev);
+		return -EAGAIN;
+	}
+	return 0;
+}
+
+static int netsec_start_gmac(struct netsec_priv *priv)
+{
+	u32 value = 0;
+	u32 failure = 0;
+	int ret;
+
+	if (priv->max_speed != SPEED_1000)
+		value = (NETSEC_GMAC_MCR_REG_CST |
+			 NETSEC_GMAC_MCR_REG_HALF_DUPLEX_COMMON);
+
+	if (netsec_set_mac_reg(priv, GMAC_REG_MCR, value))
 		return -ETIMEDOUT;
+
+	/* Reset GMAC */
+	while ((ret = netsec_reset_gmac(priv)) == -EAGAIN && ++failure < 3)
+		;
+
+	if (ret) {
+		pr_err("%s: failed to reset gmac(err=%d).\n", __func__, ret);
+		return ret;
+	}
 
 	netsec_write_reg(priv, MAC_REG_DESC_INIT, 1);
 	if (netsec_wait_while_busy(priv, MAC_REG_DESC_INIT, 1))
