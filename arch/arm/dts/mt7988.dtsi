@@ -9,6 +9,7 @@
 #include <dt-bindings/clock/mt7988-clk.h>
 #include <dt-bindings/reset/mt7988-reset.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/phy/phy.h>
 
 / {
 	compatible = "mediatek,mt7988-rfb";
@@ -159,6 +160,65 @@
 		reg = <0 0x10081000 0 0x1000>;
 		clock-parent = <&topckgen>;
 		#clock-cells = <1>;
+	};
+
+	dummy_clk: dummy12m {
+		compatible = "fixed-clock";
+		clock-frequency = <12000000>;
+		#clock-cells = <0>;
+		/* must need this line, or uart uanable to get dummy_clk */
+		bootph-all;
+	};
+
+	xhci1: xhci@11200000 {
+		compatible = "mediatek,mt7988-xhci",
+			     "mediatek,mtk-xhci";
+		reg = <0 0x11200000 0 0x2e00>,
+		      <0 0x11203e00 0 0x0100>;
+		reg-names = "mac", "ippc";
+		interrupts = <GIC_SPI 172 IRQ_TYPE_LEVEL_HIGH>;
+		phys = <&tphyu2port0 PHY_TYPE_USB2>,
+		       <&tphyu3port0 PHY_TYPE_USB3>;
+		clocks = <&dummy_clk>,
+			 <&dummy_clk>,
+			 <&dummy_clk>,
+			 <&dummy_clk>,
+			 <&dummy_clk>;
+		clock-names = "sys_ck",
+			      "xhci_ck",
+			      "ref_ck",
+			      "mcu_ck",
+			      "dma_ck";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		status = "okay";
+	};
+
+	usbtphy: usb-phy@11c50000 {
+		compatible = "mediatek,mt7988",
+			     "mediatek,generic-tphy-v2";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		status = "okay";
+
+		tphyu2port0: usb-phy@11c50000 {
+			reg = <0 0x11c50000 0 0x700>;
+			clocks = <&dummy_clk>;
+			clock-names = "ref";
+			#phy-cells = <1>;
+			status = "okay";
+		};
+
+		tphyu3port0: usb-phy@11c50700 {
+			reg = <0 0x11c50700 0 0x900>;
+			clocks = <&dummy_clk>;
+			clock-names = "ref";
+			#phy-cells = <1>;
+			mediatek,usb3-pll-ssc-delta;
+			mediatek,usb3-pll-ssc-delta1;
+			status = "okay";
+		};
 	};
 
 	xfi_pextp0: syscon@11f20000 {
