@@ -156,6 +156,10 @@ static int rk8xx_bind(struct udevice *dev)
 	if (!children)
 		debug("%s: %s - no child found\n", __func__, dev->name);
 
+	if (IS_ENABLED(CONFIG_SPL_BUILD) &&
+	    IS_ENABLED(CONFIG_ROCKCHIP_RK8XX_DISABLE_BOOT_ON_POWERON))
+		dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND);
+
 	/* Always return success for this device */
 	return 0;
 }
@@ -236,14 +240,16 @@ static int rk8xx_probe(struct udevice *dev)
 		      pmic_reg_read(dev, init_data[i].reg));
 	}
 
-	printf("PMIC:  RK%x ", show_variant);
+	if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
+		printf("PMIC:  RK%x ", show_variant);
+		if (on_source && off_source)
+			printf("(on=0x%02x, off=0x%02x)",
+			       pmic_reg_read(dev, on_source),
+			       pmic_reg_read(dev, off_source));
+		printf("\n");
+	}
 
-	if (on_source && off_source)
-		printf("(on=0x%02x, off=0x%02x)",
-		       pmic_reg_read(dev, on_source),
-		       pmic_reg_read(dev, off_source));
-	printf("\n");
-	if (CONFIG_IS_ENABLED(ROCKCHIP_RK8XX_DISABLE_BOOT_ON_POWERON))
+	if (IS_ENABLED(CONFIG_ROCKCHIP_RK8XX_DISABLE_BOOT_ON_POWERON))
 		rk8xx_off_for_plugin(dev);
 
 	return 0;
