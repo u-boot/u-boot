@@ -9,8 +9,8 @@
 
 int clear_bss(void)
 {
-	size_t len = (size_t)&__bss_end - (size_t)&__bss_start;
+	size_t len = (size_t)__bss_end - (size_t)__bss_start;
 
-	memset((void *)&__bss_start, 0x00, len);
+	memset((void *)__bss_start, 0x00, len);
 	return 0;
 }

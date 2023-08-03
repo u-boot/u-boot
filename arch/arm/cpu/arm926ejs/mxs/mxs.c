@@ -100,7 +100,7 @@ int arch_cpu_init(void)
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 
-	mx28_fixup_vt((uint32_t)&_start);
+	mx28_fixup_vt((uint32_t)_start);
 
 	/*
 	 * Enable NAND clock
