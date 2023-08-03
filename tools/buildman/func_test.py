@@ -926,10 +926,7 @@ Active  aarch64     armv8 - armltd total_compute board2
         tools.write_file(main, data, binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
         self.assertEquals(2, len(params_list))
-        self.assertEquals(
-            ["WARNING: no maintainers for 'board0'",
-             'WARNING: orphaned defconfig in boards/board0/MAINTAINERS ending at line 4',
-             ], warnings)
+        self.assertEquals(["WARNING: no maintainers for 'board0'"], warnings)
 
         # Mark a board as orphaned - this should give a warning
         lines = ['S: Orphaned' if line.startswith('S') else line
@@ -969,9 +966,7 @@ Active  aarch64     armv8 - armltd total_compute board2
         tools.write_file(main, both_data + extra, binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
         self.assertEquals(2, len(params_list))
-        self.assertEquals(
-            ['WARNING: orphaned defconfig in boards/board0/MAINTAINERS ending at line 16'],
-             warnings)
+        self.assertFalse(warnings)
 
         # Add another TARGET to the Kconfig
         tools.write_file(main, both_data, binary=False)

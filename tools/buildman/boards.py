@@ -377,16 +377,9 @@ class MaintainersDatabase:
             Args:
                 linenum (int): Current line number
             """
-            added = False
             if targets:
                 for target in targets:
                     self.database[target] = (status, maintainers)
-                    added = True
-            if not added and (status != '-' and maintainers):
-                leaf = fname[len(srcdir) + 1:]
-                if leaf != 'MAINTAINERS':
-                    self.warnings.append(
-                        f'WARNING: orphaned defconfig in {leaf} ending at line {linenum + 1}')
 
         targets = []
         maintainers = []
