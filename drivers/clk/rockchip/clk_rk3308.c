@@ -150,7 +150,7 @@ static ulong rk3308_i2c_get_clk(struct clk *clk)
 	}
 
 	con = readl(&cru->clksel_con[con_id]);
-	div = con >> CLK_I2C_DIV_CON_SHIFT & CLK_I2C_DIV_CON_MASK;
+	div = (con & CLK_I2C_DIV_CON_MASK) >> CLK_I2C_DIV_CON_SHIFT;
 
 	return DIV_TO_RATE(priv->dpll_hz, div);
 }
@@ -314,7 +314,7 @@ static ulong rk3308_saradc_get_clk(struct clk *clk)
 	u32 div, con;
 
 	con = readl(&cru->clksel_con[34]);
-	div = con >> CLK_SARADC_DIV_CON_SHIFT & CLK_SARADC_DIV_CON_MASK;
+	div = (con & CLK_SARADC_DIV_CON_MASK) >> CLK_SARADC_DIV_CON_SHIFT;
 
 	return DIV_TO_RATE(OSC_HZ, div);
 }
@@ -342,7 +342,7 @@ static ulong rk3308_tsadc_get_clk(struct clk *clk)
 	u32 div, con;
 
 	con = readl(&cru->clksel_con[33]);
-	div = con >> CLK_SARADC_DIV_CON_SHIFT & CLK_SARADC_DIV_CON_MASK;
+	div = (con & CLK_SARADC_DIV_CON_MASK) >> CLK_SARADC_DIV_CON_SHIFT;
 
 	return DIV_TO_RATE(OSC_HZ, div);
 }
@@ -385,7 +385,7 @@ static ulong rk3308_spi_get_clk(struct clk *clk)
 	}
 
 	con = readl(&cru->clksel_con[con_id]);
-	div = con >> CLK_SPI_DIV_CON_SHIFT & CLK_SPI_DIV_CON_MASK;
+	div = (con & CLK_SPI_DIV_CON_MASK) >> CLK_SPI_DIV_CON_SHIFT;
 
 	return DIV_TO_RATE(priv->dpll_hz, div);
 }
@@ -429,7 +429,7 @@ static ulong rk3308_pwm_get_clk(struct clk *clk)
 	u32 div, con;
 
 	con = readl(&cru->clksel_con[29]);
-	div = con >> CLK_PWM_DIV_CON_SHIFT & CLK_PWM_DIV_CON_MASK;
+	div = (con & CLK_PWM_DIV_CON_MASK) >> CLK_PWM_DIV_CON_SHIFT;
 
 	return DIV_TO_RATE(priv->dpll_hz, div);
 }
