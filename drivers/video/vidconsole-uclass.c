@@ -603,7 +603,7 @@ int vidconsole_measure(struct udevice *dev, const char *name, uint size,
 	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
 	int ret;
 
-	if (ops->select_font) {
+	if (ops->measure) {
 		ret = ops->measure(dev, name, size, text, bbox);
 		if (ret != -ENOSYS)
 			return ret;
