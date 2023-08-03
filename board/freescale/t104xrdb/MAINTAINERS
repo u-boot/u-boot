@@ -24,8 +24,3 @@ F:	configs/T1040RDB_SDCARD_defconfig
 F:	configs/T1040D4RDB_SDCARD_defconfig
 F:	configs/T1042D4RDB_SDCARD_defconfig
 F:	configs/T1042RDB_PI_SDCARD_defconfig
-
-T1042D4RDB_SECURE_BOOT BOARD
-M:	Ruchika Gupta <ruchika.gupta@nxp.com>
-S:	Maintained
-F:	configs/T1042D4RDB_SECURE_BOOT_defconfig

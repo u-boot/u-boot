@@ -31,6 +31,9 @@ static int extlinux_pxe_getfile(struct pxe_context *ctx, const char *file_path,
 	int ret;
 
 	addr = simple_strtoul(file_addr, NULL, 16);
+
+	/* Allow up to 1GB */
+	*sizep = 1 << 30;
 	ret = bootmeth_read_file(info->dev, info->bflow, file_path, addr,
 				 sizep);
 	if (ret)

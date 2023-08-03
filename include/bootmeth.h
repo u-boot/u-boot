@@ -263,6 +263,19 @@ int bootmeth_setup_iter_order(struct bootflow_iter *iter, bool include_global);
 int bootmeth_set_order(const char *order_str);
 
 /**
+ * bootmeth_setup_fs() - Set up read to read a file
+ *
+ * We must redo the setup before each filesystem operation. This function
+ * handles that, including setting the filesystem type if a block device is not
+ * being used
+ *
+ * @bflow: Information about file to try
+ * @desc: Block descriptor to read from (NULL if not a block device)
+ * Return: 0 if OK, -ve on error
+ */
+int bootmeth_setup_fs(struct bootflow *bflow, struct blk_desc *desc);
+
+/**
  * bootmeth_try_file() - See we can access a given file
  *
  * Check for a file with a given name. If found, the filename is allocated in

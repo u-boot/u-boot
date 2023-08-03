@@ -1,6 +1,5 @@
 LS1043AQDS BOARD
 M:	Mingkai Hu <mingkai.hu@nxp.com>
-M:	Rajesh Bhagat <rajesh.bhagat@nxp.com>
 S:	Maintained
 F:	board/freescale/ls1043aqds/
 F:	include/configs/ls1043aqds.h

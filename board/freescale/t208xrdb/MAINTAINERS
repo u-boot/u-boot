@@ -12,8 +12,3 @@ F:	configs/T2080RDB_revD_defconfig
 F:	configs/T2080RDB_revD_NAND_defconfig
 F:	configs/T2080RDB_revD_SDCARD_defconfig
 F:	configs/T2080RDB_revD_SPIFLASH_defconfig
-
-T2080RDB_SECURE_BOOT BOARD
-M:	Ruchika Gupta <ruchika.gupta@nxp.com>
-S:	Maintained
-F:	configs/T2080RDB_SECURE_BOOT_defconfig

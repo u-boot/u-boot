@@ -1,5 +1,4 @@
 LS1012ARDB BOARD
-M:	Rajesh Bhagat <rajesh.bhagat@nxp.com>
 M:	Pramod Kumar <pramod.kumar_1@nxp.com>
 S:	Maintained
 F:	board/freescale/ls1012ardb/

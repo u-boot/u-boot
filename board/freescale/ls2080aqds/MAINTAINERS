@@ -1,6 +1,5 @@
 LS2080A BOARD
 M:	Priyanka Jain <priyanka.jain@nxp.com>
-M:	Rajesh Bhagat <rajesh.bhagat@nxp.com>
 M:	Wasim Khan <wasim.khan@nxp.com>
 S:	Maintained
 F:	board/freescale/ls2080aqds/
