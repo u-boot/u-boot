@@ -12,6 +12,4 @@
 
 &uart0 {
 	bootph-all;
-	clock-frequency = <24000000>;
-	status = "okay";
 };
