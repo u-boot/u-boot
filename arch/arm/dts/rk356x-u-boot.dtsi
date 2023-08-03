@@ -64,6 +64,10 @@
 	bootph-all;
 };
 
+&pcfg_pull_none_smt {
+	bootph-all;
+};
+
 &pcfg_pull_none {
 	bootph-all;
 };
@@ -97,6 +101,10 @@
 };
 
 &fspi_pins {
+	bootph-all;
+};
+
+&i2c0_xfer {
 	bootph-all;
 };
 
