@@ -18,6 +18,7 @@
 
 #include <asm/arch/ls102xa_devdis.h>
 #include <asm/arch/ls102xa_soc.h>
+#include <asm/sections.h>
 #include <fsl_csu.h>
 #include <fsl_immap.h>
 #include <netdev.h>

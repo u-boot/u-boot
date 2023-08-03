@@ -8,7 +8,8 @@
 
 #include <asm-generic/sections.h>
 
-extern ulong __ivt_start;
-extern ulong __ivt_end;
+extern char __ivt_start[];
+extern char __ivt_end[];
+extern char __text_end[];
 
 #endif /* __ASM_ARC_SECTIONS_H */

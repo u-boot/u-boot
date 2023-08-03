@@ -19,6 +19,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/arch/ddr.h>
 #include <asm-generic/gpio.h>
+#include <asm/sections.h>
 #include <dm/uclass.h>
 #include <dm/device.h>
 #include <dm/pinctrl.h>

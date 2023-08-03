@@ -27,6 +27,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/sections.h>
 #include <bmp_logo.h>
 #include <dm/root.h>
 #include <env.h>
@@ -216,7 +217,6 @@ static void set_gpr_register(void)
 	       &iomuxc_regs->gpr[12]);
 }
 
-extern char __bss_start[], __bss_end[];
 int board_early_init_f(void)
 {
 	select_ldb_di_clock_source(MXC_PLL5_CLK);
