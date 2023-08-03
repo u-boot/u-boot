@@ -228,3 +228,27 @@ J721E common processor board can be attached to a Ethernet QSGMII card and the
 PHY in the card has to be reset before it can be used for data transfer.
 "do_main_cpsw0_qsgmii_phyinit" env variable has to be set for the U-BOOT to
 configure this PHY.
+
+Debugging U-Boot
+----------------
+
+See :ref:`Common Debugging environment - OpenOCD<k3_rst_refer_openocd>`: for
+detailed setup information.
+
+.. warning::
+
+  **OpenOCD support since**: v0.12.0
+
+  If the default package version of OpenOCD in your development
+  environment's distribution needs to be updated, it might be necessary to
+  build OpenOCD from the source.
+
+.. include::  k3.rst
+    :start-after: .. k3_rst_include_start_openocd_connect_XDS110
+    :end-before: .. k3_rst_include_end_openocd_connect_XDS110
+
+To start OpenOCD and connect to the board
+
+.. code-block:: bash
+
+  openocd -f board/ti_j721eevm.cfg
