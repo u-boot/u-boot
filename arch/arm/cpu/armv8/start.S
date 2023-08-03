@@ -58,7 +58,7 @@ reset:
 .globl	save_boot_params_ret
 save_boot_params_ret:
 
-#if CONFIG_POSITION_INDEPENDENT
+#if CONFIG_POSITION_INDEPENDENT && !defined(CONFIG_SPL_BUILD)
 	/* Verify that we're 4K aligned.  */
 	adr	x0, _start
 	ands	x0, x0, #0xfff
