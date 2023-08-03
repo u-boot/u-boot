@@ -11,8 +11,8 @@ the qemu-system-<arch> command line:
   .. code-block:: bash
 
       -device sdhci-pci,sd-spec-version=3 \
-      -device sd-card,drive=MMC1 \
-      -drive if=none,file=disk.img,format=raw,id=MMC1
+      -drive if=none,file=disk.img,format=raw,id=MMC1 \
+      -device sd-card,drive=MMC1
 
 * NVMe
 
@@ -36,3 +36,13 @@ the qemu-system-<arch> command line:
       -device qemu-xhci \
       -drive if=none,file=disk.img,format=raw,id=USB1 \
       -device usb-storage,drive=USB1
+
+* Virtio
+
+  .. code-block:: bash
+
+      -drive if=none,file=disk.img,format=raw,id=VIRTIO1 \
+      -device virtio-blk,drive=VIRTIO1
+
+  .. note::
+     As of v2023.07 U-Boot does not have a driver for virtio-scsi-pci.

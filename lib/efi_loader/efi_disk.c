@@ -487,15 +487,16 @@ static efi_status_t efi_disk_add_dev(
 	 */
 	if ((part || desc->part_type == PART_TYPE_UNKNOWN) &&
 	    efi_fs_exists(desc, part)) {
-		diskobj->volume = efi_simple_file_system(desc, part,
-							 diskobj->dp);
+		ret = efi_create_simple_file_system(desc, part, diskobj->dp,
+						    &diskobj->volume);
+		if (ret != EFI_SUCCESS)
+			goto error;
+
 		ret = efi_add_protocol(&diskobj->header,
 				       &efi_simple_file_system_protocol_guid,
 				       diskobj->volume);
-		if (ret != EFI_SUCCESS) {
-			log_debug("simple FS failed\n");
-			return ret;
-		}
+		if (ret != EFI_SUCCESS)
+			goto error;
 	}
 	diskobj->ops = block_io_disk_template;
 	diskobj->dev_index = dev_index;
@@ -538,6 +539,8 @@ static efi_status_t efi_disk_add_dev(
 	return EFI_SUCCESS;
 error:
 	efi_delete_handle(&diskobj->header);
+	free(diskobj->volume);
+	free(diskobj);
 	return ret;
 }
 

@@ -159,7 +159,7 @@ static void efi_firmware_get_lsv_from_dtb(u8 image_index,
 	const fdt32_t *val;
 	const char *guid_str;
 	int len, offset, index;
-	int parent;
+	int parent, ret;
 
 	*lsv = 0;
 
@@ -173,7 +173,11 @@ static void efi_firmware_get_lsv_from_dtb(u8 image_index,
 		guid_str = fdt_getprop(fdt, offset, "image-type-id", &len);
 		if (!guid_str)
 			continue;
-		uuid_str_to_bin(guid_str, guid.b, UUID_STR_FORMAT_GUID);
+		ret = uuid_str_to_bin(guid_str, guid.b, UUID_STR_FORMAT_GUID);
+		if (ret < 0) {
+			log_warning("Wrong image-type-id format.\n");
+			continue;
+		}
 
 		val = fdt_getprop(fdt, offset, "image-index", &len);
 		if (!val)

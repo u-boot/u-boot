@@ -34,6 +34,7 @@ struct efi_mem_list {
 #define EFI_CARVE_NO_OVERLAP		-1
 #define EFI_CARVE_LOOP_AGAIN		-2
 #define EFI_CARVE_OVERLAPS_NONRAM	-3
+#define EFI_CARVE_OUT_OF_RESOURCES	-4
 
 /* This list contains all memory map items */
 static LIST_HEAD(efi_mem);
@@ -239,6 +240,8 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
 
 	/* Create a new map from [ carve_start ... map_end ] */
 	newmap = calloc(1, sizeof(*newmap));
+	if (!newmap)
+		return EFI_CARVE_OUT_OF_RESOURCES;
 	newmap->desc = map->desc;
 	newmap->desc.physical_start = carve_start;
 	newmap->desc.virtual_start = carve_start;
@@ -282,6 +285,8 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 
 	++efi_memory_map_key;
 	newlist = calloc(1, sizeof(*newlist));
+	if (!newlist)
+		return EFI_OUT_OF_RESOURCES;
 	newlist->desc.type = memory_type;
 	newlist->desc.physical_start = start;
 	newlist->desc.virtual_start = start;
@@ -311,11 +316,15 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 			r = efi_mem_carve_out(lmem, &newlist->desc,
 					      overlap_only_ram);
 			switch (r) {
+			case EFI_CARVE_OUT_OF_RESOURCES:
+				free(newlist);
+				return EFI_OUT_OF_RESOURCES;
 			case EFI_CARVE_OVERLAPS_NONRAM:
 				/*
 				 * The user requested to only have RAM overlaps,
 				 * but we hit a non-RAM region. Error out.
 				 */
+				free(newlist);
 				return EFI_NO_MAPPING;
 			case EFI_CARVE_NO_OVERLAP:
 				/* Just ignore this list entry */
@@ -346,6 +355,7 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 		 * The payload wanted to have RAM overlaps, but we overlapped
 		 * with an unallocated region. Error out.
 		 */
+		free(newlist);
 		return EFI_NO_MAPPING;
 	}
 
@@ -487,7 +497,7 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 				enum efi_memory_type memory_type,
 				efi_uintn_t pages, uint64_t *memory)
 {
-	u64 len = pages << EFI_PAGE_SHIFT;
+	u64 len;
 	efi_status_t ret;
 	uint64_t addr;
 
@@ -497,6 +507,11 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 		return EFI_INVALID_PARAMETER;
 	if (!memory)
 		return EFI_INVALID_PARAMETER;
+	len = (u64)pages << EFI_PAGE_SHIFT;
+	/* Catch possible overflow on 64bit systems */
+	if (sizeof(efi_uintn_t) == sizeof(u64) &&
+	    (len >> EFI_PAGE_SHIFT) != (u64)pages)
+		return EFI_OUT_OF_RESOURCES;
 
 	switch (type) {
 	case EFI_ALLOCATE_ANY_PAGES:

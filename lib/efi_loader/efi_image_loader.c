@@ -592,6 +592,7 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	struct efi_signature_store *db = NULL, *dbx = NULL;
 	void *new_efi = NULL;
 	u8 *auth, *wincerts_end;
+	u64 new_efi_size = efi_size;
 	size_t auth_size;
 	bool ret = false;
 
@@ -600,11 +601,11 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	if (!efi_secure_boot_enabled())
 		return true;
 
-	new_efi = efi_prepare_aligned_image(efi, (u64 *)&efi_size);
+	new_efi = efi_prepare_aligned_image(efi, &new_efi_size);
 	if (!new_efi)
 		return false;
 
-	if (!efi_image_parse(new_efi, efi_size, &regs, &wincerts,
+	if (!efi_image_parse(new_efi, new_efi_size, &regs, &wincerts,
 			     &wincerts_len)) {
 		log_err("Parsing PE executable image failed\n");
 		goto out;

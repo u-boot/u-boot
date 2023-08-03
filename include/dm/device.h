@@ -367,7 +367,7 @@ struct udevice_id {
  * @ops: Driver-specific operations. This is typically a list of function
  * pointers defined by the driver, to implement driver functions required by
  * the uclass.
- * @flags: driver flags - see `DM_FLAGS_...`
+ * @flags: driver flags - see `DM_FLAG_...`
  * @acpi_ops: Advanced Configuration and Power Interface (ACPI) operations,
  * allowing the device to add things to the ACPI tables passed to Linux
  */

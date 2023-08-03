@@ -45,6 +45,7 @@ Implementation
    printf
    smbios
    spl
+   falcon
    uefi/index
    vbe
    version
