@@ -18,6 +18,11 @@
 		tick-timer = &timer0;
 	};
 
+	memory@40000000 {
+		device_type = "memory";
+		reg = <0x40000000 0x10000000>;
+	};
+
 	reg_1p8v: regulator-1p8v {
 		compatible = "regulator-fixed";
 		regulator-name = "fixed-1.8V";
@@ -50,12 +55,12 @@
 &eth {
 	status = "okay";
 	mediatek,gmac-id = <0>;
-	phy-mode = "sgmii";
+	phy-mode = "2500base-x";
 	mediatek,switch = "mt7531";
 	reset-gpios = <&gpio 5 GPIO_ACTIVE_HIGH>;
 
 	fixed-link {
-		speed = <1000>;
+		speed = <2500>;
 		full-duplex;
 	};
 };

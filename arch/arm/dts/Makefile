@@ -1341,6 +1341,8 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7986b-sd-rfb.dtb \
 	mt7986a-emmc-rfb.dtb \
 	mt7986b-emmc-rfb.dtb \
+	mt7988-rfb.dtb \
+	mt7988-sd-rfb.dtb \
 	mt8183-pumpkin.dtb \
 	mt8512-bm1-emmc.dtb \
 	mt8516-pumpkin.dtb \

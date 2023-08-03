@@ -31,6 +31,7 @@
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
+#include <nvme.h>
 
 #include <fsl_immap.h>
 
@@ -47,7 +48,9 @@ static void ten64_board_retimer_ds110df410_init(void);
 enum {
 	TEN64_BOARD_REV_A = 0xFF,
 	TEN64_BOARD_REV_B = 0xFE,
-	TEN64_BOARD_REV_C = 0xFD
+	TEN64_BOARD_REV_C = 0xFD,
+	TEN64_BOARD_REV_D = 0xFC,
+	TEN64_BOARD_MAX
 };
 
 #define RESV_MEM_IN_BANK(b)	(gd->arch.resv_ram >= base[b] && \
@@ -75,20 +78,24 @@ int checkboard(void)
 
 	switch (board_rev) {
 	case TEN64_BOARD_REV_A:
-		snprintf(boardmodel, 32, "1064-0201A (Alpha)");
+		snprintf(boardmodel, 32, "A (Alpha)");
 		break;
 	case TEN64_BOARD_REV_B:
-		snprintf(boardmodel, 32, "1064-0201B (Beta)");
+		snprintf(boardmodel, 32, "B (Beta)");
 		break;
 	case TEN64_BOARD_REV_C:
-		snprintf(boardmodel, 32, "1064-0201C");
+		snprintf(boardmodel, 32, "C");
+		break;
+	case TEN64_BOARD_REV_D:
+		snprintf(boardmodel, 32, "D");
 		break;
 	default:
-		snprintf(boardmodel, 32, "1064 Revision %X", (0xFF - board_rev));
+		snprintf(boardmodel, 32, " Revision %X", (0xFF - board_rev));
 		break;
 	}
 
-	printf("Board: %s, boot from ", boardmodel);
+	printf("Board: 1064-0201%s, boot from ", boardmodel);
+
 	if (src == BOOT_SOURCE_SD_MMC)
 		puts("SD card\n");
 	else if (src == BOOT_SOURCE_QSPI_NOR)
@@ -167,6 +174,12 @@ void fdt_fixup_board_enet(void *fdt)
 		return;
 	}
 
+	/* In the U-Boot FDT, a 'simple-mfd' compatible is added.
+	 * Remove this as FreeBSD will only match "fsl,qoriq-mc"
+	 * exactly on the DPAA2 bus/MC node.
+	 */
+	fdt_setprop(fdt, offset, "compatible", "fsl,qoriq-mc", 12);
+
 	if (get_mc_boot_status() == 0 &&
 	    (is_lazy_dpl_addr_valid() || get_dpl_apply_status() == 0))
 		fdt_status_okay(fdt, offset);
@@ -178,6 +191,11 @@ void fdt_fixup_board_enet(void *fdt)
 int fsl_board_late_init(void)
 {
 	ten64_board_retimer_ds110df410_init();
+
+	/* Ensure nvme storage devices are available to bootflow */
+	if (IS_ENABLED(CONFIG_NVME))
+		nvme_scan_namespace();
+
 	return 0;
 }
 
@@ -284,6 +302,7 @@ static void ten64_set_macaddrs_from_board_info(struct t64uc_board_info *boardinf
 {
 	char ethaddr[18];
 	char enetvar[10];
+	char serial[18];
 	u8 intfidx, this_dpmac_num;
 	u64 macaddr = 0;
 	/* We will copy the MAC address returned from the
@@ -304,6 +323,19 @@ static void ten64_set_macaddrs_from_board_info(struct t64uc_board_info *boardinf
 	 */
 	macaddr = __be64_to_cpu(macaddr);
 
+	/* Set serial# to GE0/DPMAC7 MAC address
+	 * (Matches the labels on the board and appliance)
+	 */
+	snprintf(serial, 18, "%02X%02X%02X%02X%02X%02X",
+		 MACADDRBITS(macaddr, 40),
+		 MACADDRBITS(macaddr, 32),
+		 MACADDRBITS(macaddr, 24),
+		 MACADDRBITS(macaddr, 16),
+		 MACADDRBITS(macaddr, 8),
+		 MACADDRBITS(macaddr, 0));
+	if (!env_get("serial#"))
+		env_set("serial#", serial);
+
 	for (intfidx = 0; intfidx < 10; intfidx++) {
 		snprintf(ethaddr, 18, "%02X:%02X:%02X:%02X:%02X:%02X",
 			 MACADDRBITS(macaddr, 40),
@@ -316,8 +348,8 @@ static void ten64_set_macaddrs_from_board_info(struct t64uc_board_info *boardinf
 		this_dpmac_num = allocation_order[intfidx];
 		printf("DPMAC%d: %s\n", this_dpmac_num, ethaddr);
 		snprintf(enetvar, 10,
-			 (this_dpmac_num != 1) ? "eth%daddr" : "ethaddr",
-			 this_dpmac_num - 1);
+			 (intfidx != 0) ? "eth%daddr" : "ethaddr",
+			 intfidx);
 		macaddr++;
 
 		if (!env_get(enetvar))
@@ -335,20 +367,27 @@ static int board_cycle_retimer(struct udevice **retim_dev)
 	u8 loop;
 	struct udevice *uc_dev;
 	struct udevice *i2cbus;
+	u32 board_rev = ten64_get_board_rev();
 
 	ret = ten64_get_micro_udevice(&uc_dev, &i2cbus);
 	if (ret)
 		return ret;
 
-	ret = dm_i2c_probe(i2cbus, I2C_RETIMER_ADDR, 0, retim_dev);
-	if (ret == 0) {
-		puts("(retimer on, resetting...) ");
+	/* Retimer power cycle not implemented on early board
+	 * revisions/controller firmwares
+	 */
+	if (IS_ENABLED(CONFIG_TEN64_CONTROLLER) &&
+	    board_rev <= TEN64_BOARD_REV_C) {
+		ret = dm_i2c_probe(i2cbus, I2C_RETIMER_ADDR, 0, retim_dev);
+		if (ret == 0) {
+			puts("(retimer on, resetting...) ");
 
-		ret = misc_call(uc_dev, TEN64_CNTRL_10G_OFF, NULL, 0, NULL, 0);
-		mdelay(1000);
+			ret = misc_call(uc_dev, TEN64_CNTRL_10G_OFF, NULL, 0, NULL, 0);
+			mdelay(1000);
+		}
+
+		ret = misc_call(uc_dev, TEN64_CNTRL_10G_ON, NULL, 0, NULL, 0);
 	}
-
-	ret = misc_call(uc_dev, TEN64_CNTRL_10G_ON, NULL, 0, NULL, 0);
 
 	// Wait for retimer to come back
 	for (loop = 0; loop < 5; loop++) {
@@ -369,19 +408,13 @@ static void ten64_board_retimer_ds110df410_init(void)
 	u8 reg;
 	int ret;
 	struct udevice *retim_dev;
-	u32 board_rev = ten64_get_board_rev();
 
 	puts("Retimer: ");
-	/* Retimer power cycle not implemented on early board
-	 * revisions/controller firmwares
-	 */
-	if (IS_ENABLED(CONFIG_TEN64_CONTROLLER) &&
-	    board_rev >= TEN64_BOARD_REV_C) {
-		ret = board_cycle_retimer(&retim_dev);
-		if (ret) {
-			puts("Retimer power on failed\n");
-			return;
-		}
+
+	ret = board_cycle_retimer(&retim_dev);
+	if (ret) {
+		puts("Retimer power on failed\n");
+		return;
 	}
 
 	/* Access to Control/Shared register */
@@ -437,3 +470,13 @@ static void ten64_board_retimer_ds110df410_init(void)
 
 	puts("OK\n");
 }
+
+/* Opt out of the fsl_setenv_bootcmd
+ * in arch/arm/cpu/armv8/fsl-layerscape/soc.c
+ * which is invoked by board_late_init.
+ */
+int fsl_setenv_bootcmd(void)
+{
+	return 0;
+}
+

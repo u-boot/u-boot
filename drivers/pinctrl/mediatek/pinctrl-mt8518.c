@@ -346,12 +346,12 @@ static const struct mtk_pin_desc mt8518_pins[] = {
  */
 
 /* UART */
-static int mt8518_uart0_0_rxd_txd_pins[]		= { 104, 105, };
-static int mt8518_uart0_0_rxd_txd_funcs[]		= {  1,  1, };
-static int mt8518_uart1_0_rxd_txd_pins[]		= { 52, 53, };
-static int mt8518_uart1_0_rxd_txd_funcs[]		= {  1,  1, };
-static int mt8518_uart2_0_rxd_txd_pins[]		= { 106, 107, };
-static int mt8518_uart2_0_rxd_txd_funcs[]		= {  1,  1, };
+static const int mt8518_uart0_0_rxd_txd_pins[]		= { 104, 105, };
+static const int mt8518_uart0_0_rxd_txd_funcs[]		= {  1,  1, };
+static const int mt8518_uart1_0_rxd_txd_pins[]		= { 52, 53, };
+static const int mt8518_uart1_0_rxd_txd_funcs[]		= {  1,  1, };
+static const int mt8518_uart2_0_rxd_txd_pins[]		= { 106, 107, };
+static const int mt8518_uart2_0_rxd_txd_funcs[]		= {  1,  1, };
 
 /* Joint those groups owning the same capability in user point of view which
  * allows that people tend to use through the device tree.
@@ -361,9 +361,9 @@ static const char *const mt8518_uart_groups[] = { "uart0_0_rxd_txd",
 						"uart2_0_rxd_txd", };
 
 /* MMC0 */
-static int mt8518_msdc0_pins[] = { 3, 4, 5, 6, 7, 8, 9, 10, 11,
-				   12, 13, };
-static int mt8518_msdc0_funcs[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, };
+static const int mt8518_msdc0_pins[] = { 3, 4, 5, 6, 7, 8, 9, 10, 11,
+					 12, 13, };
+static const int mt8518_msdc0_funcs[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, };
 
 static const struct mtk_group_desc mt8518_groups[] = {
 	PINCTRL_PIN_GROUP("uart0_0_rxd_txd", mt8518_uart0_0_rxd_txd),
@@ -380,7 +380,7 @@ static const struct mtk_function_desc mt8518_functions[] = {
 	{"msdc", mt8518_msdc_groups, ARRAY_SIZE(mt8518_msdc_groups)},
 };
 
-static struct mtk_pinctrl_soc mt8518_data = {
+static const struct mtk_pinctrl_soc mt8518_data = {
 	.name = "mt8518_pinctrl",
 	.reg_cal = mt8518_reg_cals,
 	.pins = mt8518_pins,

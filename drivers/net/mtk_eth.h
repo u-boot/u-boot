@@ -15,20 +15,31 @@
 enum mkt_eth_capabilities {
 	MTK_TRGMII_BIT,
 	MTK_TRGMII_MT7621_CLK_BIT,
+	MTK_U3_COPHY_V2_BIT,
+	MTK_INFRA_BIT,
 	MTK_NETSYS_V2_BIT,
+	MTK_NETSYS_V3_BIT,
 
 	/* PATH BITS */
 	MTK_ETH_PATH_GMAC1_TRGMII_BIT,
+	MTK_ETH_PATH_GMAC2_SGMII_BIT,
 };
 
 #define MTK_TRGMII			BIT(MTK_TRGMII_BIT)
 #define MTK_TRGMII_MT7621_CLK		BIT(MTK_TRGMII_MT7621_CLK_BIT)
+#define MTK_U3_COPHY_V2			BIT(MTK_U3_COPHY_V2_BIT)
+#define MTK_INFRA			BIT(MTK_INFRA_BIT)
 #define MTK_NETSYS_V2			BIT(MTK_NETSYS_V2_BIT)
+#define MTK_NETSYS_V3			BIT(MTK_NETSYS_V3_BIT)
 
 /* Supported path present on SoCs */
 #define MTK_ETH_PATH_GMAC1_TRGMII	BIT(MTK_ETH_PATH_GMAC1_TRGMII_BIT)
 
+#define MTK_ETH_PATH_GMAC2_SGMII	BIT(MTK_ETH_PATH_GMAC2_SGMII_BIT)
+
 #define MTK_GMAC1_TRGMII	(MTK_ETH_PATH_GMAC1_TRGMII | MTK_TRGMII)
+
+#define MTK_GMAC2_U3_QPHY	(MTK_ETH_PATH_GMAC2_SGMII | MTK_U3_COPHY_V2 | MTK_INFRA)
 
 #define MTK_HAS_CAPS(caps, _x)		(((caps) & (_x)) == (_x))
 
@@ -36,14 +47,21 @@ enum mkt_eth_capabilities {
 
 #define MT7623_CAPS  (MTK_GMAC1_TRGMII)
 
+#define MT7981_CAPS  (MTK_GMAC2_U3_QPHY | MTK_NETSYS_V2)
+
 #define MT7986_CAPS  (MTK_NETSYS_V2)
+
+#define MT7988_CAPS  (MTK_NETSYS_V3 | MTK_INFRA)
 
 /* Frame Engine Register Bases */
 #define PDMA_V1_BASE			0x0800
 #define PDMA_V2_BASE			0x6000
+#define PDMA_V3_BASE			0x6800
 #define GDMA1_BASE			0x0500
 #define GDMA2_BASE			0x1500
+#define GDMA3_BASE			0x0540
 #define GMAC_BASE			0x10000
+#define GSW_BASE			0x20000
 
 /* Ethernet subsystem registers */
 
@@ -55,6 +73,16 @@ enum mkt_eth_capabilities {
 
 #define ETHSYS_CLKCFG0_REG		0x2c
 #define ETHSYS_TRGMII_CLK_SEL362_5	BIT(11)
+
+/* Top misc registers */
+#define TOPMISC_NETSYS_PCS_MUX		0x84
+#define NETSYS_PCS_MUX_MASK		GENMASK(1, 0)
+#define MUX_G2_USXGMII_SEL		BIT(1)
+#define MUX_HSGMII1_G1_SEL		BIT(0)
+
+#define USB_PHY_SWITCH_REG		0x218
+#define QPHY_SEL_MASK			0x3
+#define SGMII_QPHY_SEL			0x2
 
 /* SYSCFG0_GE_MODE: GE Modes */
 #define GE_MODE_RGMII			0
@@ -69,6 +97,7 @@ enum mkt_eth_capabilities {
 #define SGMII_AN_RESTART		BIT(9)
 
 #define SGMSYS_SGMII_MODE		0x20
+#define SGMII_AN_MODE			0x31120103
 #define SGMII_FORCE_MODE		0x31120019
 
 #define SGMSYS_QPHY_PWR_STATE_CTRL	0xe8
@@ -81,7 +110,19 @@ enum mkt_eth_capabilities {
 #define SGMSYS_GEN2_SPEED_V2		0x128
 #define SGMSYS_SPEED_2500		BIT(2)
 
+/* USXGMII subsystem config registers */
+/* Register to control USXGMII XFI PLL digital */
+#define XFI_PLL_DIG_GLB8		0x08
+#define RG_XFI_PLL_EN			BIT(31)
+
+/* Register to control USXGMII XFI PLL analog */
+#define XFI_PLL_ANA_GLB8		0x108
+#define RG_XFI_PLL_ANA_SWWA		0x02283248
+
 /* Frame Engine Registers */
+#define PSE_NO_DROP_CFG_REG		0x108
+#define PSE_NO_DROP_GDM1		BIT(1)
+
 #define FE_GLO_MISC_REG			0x124
 #define PDMA_VER_V2			BIT(4)
 
@@ -122,6 +163,9 @@ enum mkt_eth_capabilities {
 #define UN_DP_S				0
 #define UN_DP_M				0x0f
 
+#define GDMA_EG_CTRL_REG		0x004
+#define GDMA_CPU_BRIDGE_EN		BIT(31)
+
 #define GDMA_MAC_LSB_REG		0x008
 
 #define GDMA_MAC_MSB_REG		0x00c
@@ -149,6 +193,17 @@ enum mkt_eth_capabilities {
 #define MDIO_RW_DATA_S			0
 #define MDIO_RW_DATA_M			0xffff
 
+#define GMAC_XGMAC_STS_REG		0x000c
+#define P1_XGMAC_FORCE_LINK		BIT(15)
+
+#define GMAC_MAC_MISC_REG		0x0010
+
+#define GMAC_GSW_CFG_REG		0x0080
+#define GSWTX_IPG_M			0xF0000
+#define GSWTX_IPG_S			16
+#define GSWRX_IPG_M			0xF
+#define GSWRX_IPG_S			0
+
 /* MDIO_CMD: MDIO commands */
 #define MDIO_CMD_ADDR			0
 #define MDIO_CMD_WRITE			1
@@ -168,6 +223,7 @@ enum mkt_eth_capabilities {
 #define FORCE_MODE			BIT(15)
 #define MAC_TX_EN			BIT(14)
 #define MAC_RX_EN			BIT(13)
+#define DEL_RXFIFO_CLR			BIT(12)
 #define BKOFF_EN			BIT(9)
 #define BACKPR_EN			BIT(8)
 #define FORCE_RX_FC			BIT(5)
@@ -203,6 +259,16 @@ enum mkt_eth_capabilities {
 #define TD_DM_DRVP_S			0
 #define TD_DM_DRVP_M			0x0f
 
+/* XGMAC Status Registers */
+#define XGMAC_STS(x)			(((x) == 2) ? 0x001C : 0x000C)
+#define XGMAC_FORCE_LINK		BIT(15)
+
+/* XGMAC Registers */
+#define XGMAC_PORT_MCR(x)		(0x2000 + (((x) - 1) * 0x1000))
+#define XGMAC_TRX_DISABLE		0xf
+#define XGMAC_FORCE_TX_FC		BIT(5)
+#define XGMAC_FORCE_RX_FC		BIT(4)
+
 /* MT7530 Registers */
 
 #define PCR_REG(p)			(0x2004 + (p) * 0x100)
@@ -234,6 +300,9 @@ enum mkt_eth_capabilities {
 #define FORCE_MODE_LNK			BIT(31)
 #define MT7531_FORCE_MODE		FORCE_MODE_EEE1G | FORCE_MODE_EEE100 |\
 					FORCE_MODE_TX_FC | FORCE_MODE_RX_FC | \
+					FORCE_MODE_DPX   | FORCE_MODE_SPD | \
+					FORCE_MODE_LNK
+#define MT7988_FORCE_MODE		FORCE_MODE_TX_FC | FORCE_MODE_RX_FC | \
 					FORCE_MODE_DPX   | FORCE_MODE_SPD | \
 					FORCE_MODE_LNK
 

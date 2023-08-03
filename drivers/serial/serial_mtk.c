@@ -439,6 +439,7 @@ static inline void _debug_uart_init(void)
 {
 	struct mtk_serial_priv priv;
 
+	memset(&priv, 0, sizeof(struct mtk_serial_priv));
 	priv.regs = (void *) CONFIG_VAL(DEBUG_UART_BASE);
 	priv.fixed_clk_rate = CONFIG_DEBUG_UART_CLOCK;
 

@@ -570,242 +570,246 @@ static const struct mtk_pin_desc mt7981_pins[] = {
 };
 
 /* WA_AICE */
-static int mt7981_wa_aice1_pins[] = { 0, 1, };
-static int mt7981_wa_aice1_funcs[] = { 2, 2, };
+static const int mt7981_wa_aice1_pins[] = { 0, 1, };
+static const int mt7981_wa_aice1_funcs[] = { 2, 2, };
 
-static int mt7981_wa_aice2_pins[] = { 0, 1, };
-static int mt7981_wa_aice2_funcs[] = { 3, 3, };
+static const int mt7981_wa_aice2_pins[] = { 0, 1, };
+static const int mt7981_wa_aice2_funcs[] = { 3, 3, };
 
-static int mt7981_wa_aice3_pins[] = { 28, 29, };
-static int mt7981_wa_aice3_funcs[] = { 3, 3, };
+static const int mt7981_wa_aice3_pins[] = { 28, 29, };
+static const int mt7981_wa_aice3_funcs[] = { 3, 3, };
 
-static int mt7981_wm_aice1_pins[] = { 9, 10, };
-static int mt7981_wm_aice1_funcs[] = { 2, 2, };
+static const int mt7981_wm_aice1_pins[] = { 9, 10, };
+static const int mt7981_wm_aice1_funcs[] = { 2, 2, };
 
-static int mt7981_wm_aice2_pins[] = { 30, 31, };
-static int mt7981_wm_aice2_funcs[] = { 5, 5, };
+static const int mt7981_wm_aice2_pins[] = { 30, 31, };
+static const int mt7981_wm_aice2_funcs[] = { 5, 5, };
 
 /* WM_UART */
-static int mt7981_wm_uart_0_pins[] = { 0, 1, };
-static int mt7981_wm_uart_0_funcs[] = { 5, 5, };
+static const int mt7981_wm_uart_0_pins[] = { 0, 1, };
+static const int mt7981_wm_uart_0_funcs[] = { 5, 5, };
 
-static int mt7981_wm_uart_1_pins[] = { 20, 21, };
-static int mt7981_wm_uart_1_funcs[] = { 4, 4, };
+static const int mt7981_wm_uart_1_pins[] = { 20, 21, };
+static const int mt7981_wm_uart_1_funcs[] = { 4, 4, };
 
-static int mt7981_wm_uart_2_pins[] = { 30, 31, };
-static int mt7981_wm_uart_2_funcs[] = { 3, 3, };
+static const int mt7981_wm_uart_2_pins[] = { 30, 31, };
+static const int mt7981_wm_uart_2_funcs[] = { 3, 3, };
 
 /* DFD */
-static int mt7981_dfd_pins[] = { 0, 1, 4, 5, };
-static int mt7981_dfd_funcs[] = { 5, 5, 6, 6, };
+static const int mt7981_dfd_pins[] = { 0, 1, 4, 5, };
+static const int mt7981_dfd_funcs[] = { 5, 5, 6, 6, };
 
 /* SYS_WATCHDOG */
-static int mt7981_watchdog_pins[] = { 2, };
-static int mt7981_watchdog_funcs[] = { 1, };
+static const int mt7981_watchdog_pins[] = { 2, };
+static const int mt7981_watchdog_funcs[] = { 1, };
 
-static int mt7981_watchdog1_pins[] = { 13, };
-static int mt7981_watchdog1_funcs[] = { 5, };
+static const int mt7981_watchdog1_pins[] = { 13, };
+static const int mt7981_watchdog1_funcs[] = { 5, };
 
 /* PCIE_PERESET_N */
-static int mt7981_pcie_pereset_pins[] = { 3, };
-static int mt7981_pcie_pereset_funcs[] = { 1, };
+static const int mt7981_pcie_pereset_pins[] = { 3, };
+static const int mt7981_pcie_pereset_funcs[] = { 1, };
 
 /* JTAG */
-static int mt7981_jtag_pins[] = { 4, 5, 6, 7, 8, };
-static int mt7981_jtag_funcs[] = { 1, 1, 1, 1, 1, };
+static const int mt7981_jtag_pins[] = { 4, 5, 6, 7, 8, };
+static const int mt7981_jtag_funcs[] = { 1, 1, 1, 1, 1, };
 
 /* WM_JTAG */
-static int mt7981_wm_jtag_0_pins[] = { 4, 5, 6, 7, 8, };
-static int mt7981_wm_jtag_0_funcs[] = { 2, 2, 2, 2, 2, };
+static const int mt7981_wm_jtag_0_pins[] = { 4, 5, 6, 7, 8, };
+static const int mt7981_wm_jtag_0_funcs[] = { 2, 2, 2, 2, 2, };
 
-static int mt7981_wm_jtag_1_pins[] = { 20, 21, 22, 23, 24, };
-static int mt7981_wm_jtag_1_funcs[] = { 5, 5, 5, 5, 5, };
+static const int mt7981_wm_jtag_1_pins[] = { 20, 21, 22, 23, 24, };
+static const int mt7981_wm_jtag_1_funcs[] = { 5, 5, 5, 5, 5, };
 
 /* WO0_JTAG */
-static int mt7981_wo0_jtag_0_pins[] = { 9, 10, 11, 12, 13, };
-static int mt7981_wo0_jtag_0_funcs[] = { 1, 1, 1, 1, 1, };
+static const int mt7981_wo0_jtag_0_pins[] = { 9, 10, 11, 12, 13, };
+static const int mt7981_wo0_jtag_0_funcs[] = { 1, 1, 1, 1, 1, };
 
-static int mt7981_wo0_jtag_1_pins[] = { 25, 26, 27, 28, 29, };
-static int mt7981_wo0_jtag_1_funcs[] = { 5, 5, 5, 5, 5, };
+static const int mt7981_wo0_jtag_1_pins[] = { 25, 26, 27, 28, 29, };
+static const int mt7981_wo0_jtag_1_funcs[] = { 5, 5, 5, 5, 5, };
 
 /* UART2 */
-static int mt7981_uart2_0_pins[] = { 4, 5, 6, 7, };
-static int mt7981_uart2_0_funcs[] = { 3, 3, 3, 3, };
+static const int mt7981_uart2_0_pins[] = { 4, 5, 6, 7, };
+static const int mt7981_uart2_0_funcs[] = { 3, 3, 3, 3, };
 
 /* GBE_LED0 */
-static int mt7981_gbe_led0_pins[] = { 8, };
-static int mt7981_gbe_led0_funcs[] = { 3, };
+static const int mt7981_gbe_led0_pins[] = { 8, };
+static const int mt7981_gbe_led0_funcs[] = { 3, };
 
 /* PTA_EXT */
-static int mt7981_pta_ext_0_pins[] = { 4, 5, 6, };
-static int mt7981_pta_ext_0_funcs[] = { 4, 4, 4, };
+static const int mt7981_pta_ext_0_pins[] = { 4, 5, 6, };
+static const int mt7981_pta_ext_0_funcs[] = { 4, 4, 4, };
 
-static int mt7981_pta_ext_1_pins[] = { 22, 23, 24, };
-static int mt7981_pta_ext_1_funcs[] = { 4, 4, 4, };
+static const int mt7981_pta_ext_1_pins[] = { 22, 23, 24, };
+static const int mt7981_pta_ext_1_funcs[] = { 4, 4, 4, };
 
 /* PWM2 */
-static int mt7981_pwm2_pins[] = { 7, };
-static int mt7981_pwm2_funcs[] = { 4, };
+static const int mt7981_pwm2_pins[] = { 7, };
+static const int mt7981_pwm2_funcs[] = { 4, };
 
 /* NET_WO0_UART_TXD */
-static int mt7981_net_wo0_uart_txd_0_pins[] = { 8, };
-static int mt7981_net_wo0_uart_txd_0_funcs[] = { 4, };
+static const int mt7981_net_wo0_uart_txd_0_pins[] = { 8, };
+static const int mt7981_net_wo0_uart_txd_0_funcs[] = { 4, };
 
-static int mt7981_net_wo0_uart_txd_1_pins[] = { 14, };
-static int mt7981_net_wo0_uart_txd_1_funcs[] = { 3, };
+static const int mt7981_net_wo0_uart_txd_1_pins[] = { 14, };
+static const int mt7981_net_wo0_uart_txd_1_funcs[] = { 3, };
 
-static int mt7981_net_wo0_uart_txd_2_pins[] = { 15, };
-static int mt7981_net_wo0_uart_txd_2_funcs[] = { 4, };
+static const int mt7981_net_wo0_uart_txd_2_pins[] = { 15, };
+static const int mt7981_net_wo0_uart_txd_2_funcs[] = { 4, };
 
 /* SPI1 */
-static int mt7981_spi1_0_pins[] = { 4, 5, 6, 7, };
-static int mt7981_spi1_0_funcs[] = { 5, 5, 5, 5, };
+static const int mt7981_spi1_0_pins[] = { 4, 5, 6, 7, };
+static const int mt7981_spi1_0_funcs[] = { 5, 5, 5, 5, };
 
 /* I2C */
-static int mt7981_i2c0_0_pins[] = { 6, 7, };
-static int mt7981_i2c0_0_funcs[] = { 6, 6, };
+static const int mt7981_i2c0_0_pins[] = { 6, 7, };
+static const int mt7981_i2c0_0_funcs[] = { 6, 6, };
 
-static int mt7981_i2c0_1_pins[] = { 30, 31, };
-static int mt7981_i2c0_1_funcs[] = { 4, 4, };
+static const int mt7981_i2c0_1_pins[] = { 30, 31, };
+static const int mt7981_i2c0_1_funcs[] = { 4, 4, };
 
-static int mt7981_i2c0_2_pins[] = { 36, 37, };
-static int mt7981_i2c0_2_funcs[] = { 2, 2, };
+static const int mt7981_i2c0_2_pins[] = { 36, 37, };
+static const int mt7981_i2c0_2_funcs[] = { 2, 2, };
 
-static int mt7981_u2_phy_i2c_pins[] = { 30, 31, };
-static int mt7981_u2_phy_i2c_funcs[] = { 6, 6, };
+static const int mt7981_u2_phy_i2c_pins[] = { 30, 31, };
+static const int mt7981_u2_phy_i2c_funcs[] = { 6, 6, };
 
-static int mt7981_u3_phy_i2c_pins[] = { 32, 33, };
-static int mt7981_u3_phy_i2c_funcs[] = { 3, 3, };
+static const int mt7981_u3_phy_i2c_pins[] = { 32, 33, };
+static const int mt7981_u3_phy_i2c_funcs[] = { 3, 3, };
 
-static int mt7981_sgmii1_phy_i2c_pins[] = { 32, 33, };
-static int mt7981_sgmii1_phy_i2c_funcs[] = { 2, 2, };
+static const int mt7981_sgmii1_phy_i2c_pins[] = { 32, 33, };
+static const int mt7981_sgmii1_phy_i2c_funcs[] = { 2, 2, };
 
-static int mt7981_sgmii0_phy_i2c_pins[] = { 32, 33, };
-static int mt7981_sgmii0_phy_i2c_funcs[] = { 5, 5, };
+static const int mt7981_sgmii0_phy_i2c_pins[] = { 32, 33, };
+static const int mt7981_sgmii0_phy_i2c_funcs[] = { 5, 5, };
 
 /* DFD_NTRST */
-static int mt7981_dfd_ntrst_pins[] = { 8, };
-static int mt7981_dfd_ntrst_funcs[] = { 6, };
+static const int mt7981_dfd_ntrst_pins[] = { 8, };
+static const int mt7981_dfd_ntrst_funcs[] = { 6, };
 
 /* PWM0 */
-static int mt7981_pwm0_0_pins[] = { 13, };
-static int mt7981_pwm0_0_funcs[] = { 2, };
+static const int mt7981_pwm0_0_pins[] = { 13, };
+static const int mt7981_pwm0_0_funcs[] = { 2, };
 
-static int mt7981_pwm0_1_pins[] = { 15, };
-static int mt7981_pwm0_1_funcs[] = { 1, };
+static const int mt7981_pwm0_1_pins[] = { 15, };
+static const int mt7981_pwm0_1_funcs[] = { 1, };
 
 /* PWM1 */
-static int mt7981_pwm1_0_pins[] = { 14, };
-static int mt7981_pwm1_0_funcs[] = { 2, };
+static const int mt7981_pwm1_0_pins[] = { 14, };
+static const int mt7981_pwm1_0_funcs[] = { 2, };
 
-static int mt7981_pwm1_1_pins[] = { 15, };
-static int mt7981_pwm1_1_funcs[] = { 3, };
+static const int mt7981_pwm1_1_pins[] = { 15, };
+static const int mt7981_pwm1_1_funcs[] = { 3, };
 
 /* GBE_LED1 */
-static int mt7981_gbe_led1_pins[] = { 13, };
-static int mt7981_gbe_led1_funcs[] = { 3, };
+static const int mt7981_gbe_led1_pins[] = { 13, };
+static const int mt7981_gbe_led1_funcs[] = { 3, };
 
 /* PCM */
-static int mt7981_pcm_pins[] = { 9, 10, 11, 12, 13, 25 };
-static int mt7981_pcm_funcs[] = { 4, 4, 4, 4, 4, 4, };
+static const int mt7981_pcm_pins[] = { 9, 10, 11, 12, 13, 25 };
+static const int mt7981_pcm_funcs[] = { 4, 4, 4, 4, 4, 4, };
 
 /* UDI */
-static int mt7981_udi_pins[] = { 9, 10, 11, 12, 13, };
-static int mt7981_udi_funcs[] = { 6, 6, 6, 6, 6, };
+static const int mt7981_udi_pins[] = { 9, 10, 11, 12, 13, };
+static const int mt7981_udi_funcs[] = { 6, 6, 6, 6, 6, };
 
 /* DRV_VBUS */
-static int mt7981_drv_vbus_pins[] = { 14, };
-static int mt7981_drv_vbus_funcs[] = { 1, };
+static const int mt7981_drv_vbus_pins[] = { 14, };
+static const int mt7981_drv_vbus_funcs[] = { 1, };
 
 /* EMMC */
-static int mt7981_emmc_45_pins[] = { 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, };
-static int mt7981_emmc_45_funcs[] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, };
+static const int mt7981_emmc_45_pins[] = {
+	15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, };
+static const int mt7981_emmc_45_funcs[] = {
+	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, };
 
 /* SNFI */
-static int mt7981_snfi_pins[] = { 16, 17, 18, 19, 20, 21, };
-static int mt7981_snfi_funcs[] = { 3, 3, 3, 3, 3, 3, };
+static const int mt7981_snfi_pins[] = { 16, 17, 18, 19, 20, 21, };
+static const int mt7981_snfi_funcs[] = { 3, 3, 3, 3, 3, 3, };
 
 /* SPI0 */
-static int mt7981_spi0_pins[] = { 16, 17, 18, 19, };
-static int mt7981_spi0_funcs[] = { 1, 1, 1, 1, };
+static const int mt7981_spi0_pins[] = { 16, 17, 18, 19, };
+static const int mt7981_spi0_funcs[] = { 1, 1, 1, 1, };
 
 /* SPI0 */
-static int mt7981_spi0_wp_hold_pins[] = { 20, 21, };
-static int mt7981_spi0_wp_hold_funcs[] = { 1, 1, };
+static const int mt7981_spi0_wp_hold_pins[] = { 20, 21, };
+static const int mt7981_spi0_wp_hold_funcs[] = { 1, 1, };
 
 /* SPI1 */
-static int mt7981_spi1_1_pins[] = { 22, 23, 24, 25, };
-static int mt7981_spi1_1_funcs[] = { 1, 1, 1, 1, };
+static const int mt7981_spi1_1_pins[] = { 22, 23, 24, 25, };
+static const int mt7981_spi1_1_funcs[] = { 1, 1, 1, 1, };
 
 /* SPI2 */
-static int mt7981_spi2_pins[] = { 26, 27, 28, 29, };
-static int mt7981_spi2_funcs[] = { 1, 1, 1, 1, };
+static const int mt7981_spi2_pins[] = { 26, 27, 28, 29, };
+static const int mt7981_spi2_funcs[] = { 1, 1, 1, 1, };
 
 /* SPI2 */
-static int mt7981_spi2_wp_hold_pins[] = { 30, 31, };
-static int mt7981_spi2_wp_hold_funcs[] = { 1, 1, };
+static const int mt7981_spi2_wp_hold_pins[] = { 30, 31, };
+static const int mt7981_spi2_wp_hold_funcs[] = { 1, 1, };
 
 /* UART1 */
-static int mt7981_uart1_0_pins[] = { 16, 17, 18, 19, };
-static int mt7981_uart1_0_funcs[] = { 4, 4, 4, 4, };
+static const int mt7981_uart1_0_pins[] = { 16, 17, 18, 19, };
+static const int mt7981_uart1_0_funcs[] = { 4, 4, 4, 4, };
 
-static int mt7981_uart1_1_pins[] = { 26, 27, 28, 29, };
-static int mt7981_uart1_1_funcs[] = { 2, 2, 2, 2, };
+static const int mt7981_uart1_1_pins[] = { 26, 27, 28, 29, };
+static const int mt7981_uart1_1_funcs[] = { 2, 2, 2, 2, };
 
 /* UART2 */
-static int mt7981_uart2_1_pins[] = { 22, 23, 24, 25, };
-static int mt7981_uart2_1_funcs[] = { 3, 3, 3, 3, };
+static const int mt7981_uart2_1_pins[] = { 22, 23, 24, 25, };
+static const int mt7981_uart2_1_funcs[] = { 3, 3, 3, 3, };
 
 /* UART0 */
-static int mt7981_uart0_pins[] = { 32, 33, };
-static int mt7981_uart0_funcs[] = { 1, 1, };
+static const int mt7981_uart0_pins[] = { 32, 33, };
+static const int mt7981_uart0_funcs[] = { 1, 1, };
 
 /* PCIE_CLK_REQ */
-static int mt7981_pcie_clk_pins[] = { 34, };
-static int mt7981_pcie_clk_funcs[] = { 2, };
+static const int mt7981_pcie_clk_pins[] = { 34, };
+static const int mt7981_pcie_clk_funcs[] = { 2, };
 
 /* PCIE_WAKE_N */
-static int mt7981_pcie_wake_pins[] = { 35, };
-static int mt7981_pcie_wake_funcs[] = { 2, };
+static const int mt7981_pcie_wake_pins[] = { 35, };
+static const int mt7981_pcie_wake_funcs[] = { 2, };
 
 /* MDC_MDIO */
-static int mt7981_smi_mdc_mdio_pins[] = { 36, 37, };
-static int mt7981_smi_mdc_mdio_funcs[] = { 1, 1, };
+static const int mt7981_smi_mdc_mdio_pins[] = { 36, 37, };
+static const int mt7981_smi_mdc_mdio_funcs[] = { 1, 1, };
 
-static int mt7981_gbe_ext_mdc_mdio_pins[] = { 36, 37, };
-static int mt7981_gbe_ext_mdc_mdio_funcs[] = { 3, 3, };
+static const int mt7981_gbe_ext_mdc_mdio_pins[] = { 36, 37, };
+static const int mt7981_gbe_ext_mdc_mdio_funcs[] = { 3, 3, };
 
 /* WF0_MODE1 */
-static int mt7981_wf0_mode1_pins[] = { 40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-				       50, 51, 52, 53, 54, 55, 56 };
-static int mt7981_wf0_mode1_funcs[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-					1, 1, 1, 1 };
+static const int mt7981_wf0_mode1_pins[] = {
+	40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56 };
+static const int mt7981_wf0_mode1_funcs[] = {
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 /* WF0_MODE3 */
-static int mt7981_wf0_mode3_pins[] = { 45, 46, 47, 48, 49, 51 };
-static int mt7981_wf0_mode3_funcs[] = { 2, 2, 2, 2, 2, 2 };
+static const int mt7981_wf0_mode3_pins[] = { 45, 46, 47, 48, 49, 51 };
+static const int mt7981_wf0_mode3_funcs[] = { 2, 2, 2, 2, 2, 2 };
 
 /* WF2G_LED */
-static int mt7981_wf2g_led0_pins[] = { 30, };
-static int mt7981_wf2g_led0_funcs[] = { 2, };
+static const int mt7981_wf2g_led0_pins[] = { 30, };
+static const int mt7981_wf2g_led0_funcs[] = { 2, };
 
-static int mt7981_wf2g_led1_pins[] = { 34, };
-static int mt7981_wf2g_led1_funcs[] = { 1, };
+static const int mt7981_wf2g_led1_pins[] = { 34, };
+static const int mt7981_wf2g_led1_funcs[] = { 1, };
 
 /* WF5G_LED */
-static int mt7981_wf5g_led0_pins[] = { 31, };
-static int mt7981_wf5g_led0_funcs[] = { 2, };
+static const int mt7981_wf5g_led0_pins[] = { 31, };
+static const int mt7981_wf5g_led0_funcs[] = { 2, };
 
-static int mt7981_wf5g_led1_pins[] = { 35, };
-static int mt7981_wf5g_led1_funcs[] = { 1, };
+static const int mt7981_wf5g_led1_pins[] = { 35, };
+static const int mt7981_wf5g_led1_funcs[] = { 1, };
 
 /* MT7531_INT */
-static int mt7981_mt7531_int_pins[] = { 38, };
-static int mt7981_mt7531_int_funcs[] = { 1, };
+static const int mt7981_mt7531_int_pins[] = { 38, };
+static const int mt7981_mt7531_int_funcs[] = { 1, };
 
 /* ANT_SEL */
-static int mt7981_ant_sel_pins[] = { 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 34, 35 };
-static int mt7981_ant_sel_funcs[] = { 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 };
+static const int mt7981_ant_sel_pins[] = {
+	14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 34, 35 };
+static const int mt7981_ant_sel_funcs[] = {
+	6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 };
 
 static const struct mtk_group_desc mt7981_groups[] = {
 	/* @GPIO(0,1): WA_AICE(2) */
@@ -1012,7 +1016,7 @@ static const char *const mt7981_pinctrl_register_base_names[] = {
 	"iocfg_lb_base", "iocfg_bl_base", "iocfg_tm_base", "iocfg_tl_base",
 };
 
-static struct mtk_pinctrl_soc mt7981_data = {
+static const struct mtk_pinctrl_soc mt7981_data = {
 	.name = "mt7981_pinctrl",
 	.reg_cal = mt7981_reg_cals,
 	.pins = mt7981_pins,

@@ -810,7 +810,7 @@ int qspi_ahb_init(void)
 #ifdef CONFIG_TFABOOT
 #define MAX_BOOTCMD_SIZE	512
 
-int fsl_setenv_bootcmd(void)
+__weak int fsl_setenv_bootcmd(void)
 {
 	int ret;
 	enum boot_src src = get_boot_src();

@@ -554,114 +554,117 @@ static const struct mtk_io_type_desc mt7986_io_type_desc[] = {
  * The hardware probably has multiple combinations of these pinouts.
  */
 
-static int mt7986_watchdog_pins[] = { 0, };
-static int mt7986_watchdog_funcs[] = { 1, };
+static const int mt7986_watchdog_pins[] = { 0, };
+static const int mt7986_watchdog_funcs[] = { 1, };
 
-static int mt7986_wifi_led_pins[] = { 1, 2, };
-static int mt7986_wifi_led_funcs[] = { 1, 1, };
+static const int mt7986_wifi_led_pins[] = { 1, 2, };
+static const int mt7986_wifi_led_funcs[] = { 1, 1, };
 
-static int mt7986_i2c_pins[] = { 3, 4, };
-static int mt7986_i2c_funcs[] = { 1, 1, };
+static const int mt7986_i2c_pins[] = { 3, 4, };
+static const int mt7986_i2c_funcs[] = { 1, 1, };
 
-static int mt7986_uart1_0_pins[] = { 7, 8, 9, 10, };
-static int mt7986_uart1_0_funcs[] = { 3, 3, 3, 3, };
+static const int mt7986_uart1_0_pins[] = { 7, 8, 9, 10, };
+static const int mt7986_uart1_0_funcs[] = { 3, 3, 3, 3, };
 
-static int mt7986_spi1_0_pins[] = { 11, 12, 13, 14, };
-static int mt7986_spi1_0_funcs[] = { 3, 3, 3, 3, };
+static const int mt7986_spi1_0_pins[] = { 11, 12, 13, 14, };
+static const int mt7986_spi1_0_funcs[] = { 3, 3, 3, 3, };
 
-static int mt7986_pwm1_1_pins[] = { 20, };
-static int mt7986_pwm1_1_funcs[] = { 2, };
+static const int mt7986_pwm1_1_pins[] = { 20, };
+static const int mt7986_pwm1_1_funcs[] = { 2, };
 
-static int mt7986_pwm0_pins[] = { 21, };
-static int mt7986_pwm0_funcs[] = { 1, };
+static const int mt7986_pwm0_pins[] = { 21, };
+static const int mt7986_pwm0_funcs[] = { 1, };
 
-static int mt7986_pwm1_0_pins[] = { 22, };
-static int mt7986_pwm1_0_funcs[] = { 1, };
+static const int mt7986_pwm1_0_pins[] = { 22, };
+static const int mt7986_pwm1_0_funcs[] = { 1, };
 
-static int mt7986_emmc_45_pins[] = {
+static const int mt7986_emmc_45_pins[] = {
 	22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, };
-static int mt7986_emmc_45_funcs[] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, };
+static const int mt7986_emmc_45_funcs[] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, };
 
-static int mt7986_snfi_pins[] = { 23, 24, 25, 26, 27, 28, };
-static int mt7986_snfi_funcs[] = { 1, 1, 1, 1, 1, 1, };
+static const int mt7986_snfi_pins[] = { 23, 24, 25, 26, 27, 28, };
+static const int mt7986_snfi_funcs[] = { 1, 1, 1, 1, 1, 1, };
 
-static int mt7986_spi1_1_pins[] = { 23, 24, 25, 26, };
-static int mt7986_spi1_1_funcs[] = { 3, 3, 3, 3, };
+static const int mt7986_spi1_1_pins[] = { 23, 24, 25, 26, };
+static const int mt7986_spi1_1_funcs[] = { 3, 3, 3, 3, };
 
-static int mt7986_uart1_1_pins[] = { 23, 24, 25, 26, };
-static int mt7986_uart1_1_funcs[] = { 4, 4, 4, 4, };
+static const int mt7986_uart1_1_pins[] = { 23, 24, 25, 26, };
+static const int mt7986_uart1_1_funcs[] = { 4, 4, 4, 4, };
 
-static int mt7986_spi1_2_pins[] = { 29, 30, 31, 32, };
-static int mt7986_spi1_2_funcs[] = { 1, 1, 1, 1, };
+static const int mt7986_spi1_2_pins[] = { 29, 30, 31, 32, };
+static const int mt7986_spi1_2_funcs[] = { 1, 1, 1, 1, };
 
-static int mt7986_uart1_2_pins[] = { 29, 30, 31, 32, };
-static int mt7986_uart1_2_funcs[] = { 3, 3, 3, 3, };
+static const int mt7986_uart1_2_pins[] = { 29, 30, 31, 32, };
+static const int mt7986_uart1_2_funcs[] = { 3, 3, 3, 3, };
 
-static int mt7986_uart2_0_pins[] = { 29, 30, 31, 32, };
-static int mt7986_uart2_0_funcs[] = { 4, 4, 4, 4, };
+static const int mt7986_uart2_0_pins[] = { 29, 30, 31, 32, };
+static const int mt7986_uart2_0_funcs[] = { 4, 4, 4, 4, };
 
-static int mt7986_spi0_pins[] = { 33, 34, 35, 36, };
-static int mt7986_spi0_funcs[] = { 1, 1, 1, 1, };
+static const int mt7986_spi0_pins[] = { 33, 34, 35, 36, };
+static const int mt7986_spi0_funcs[] = { 1, 1, 1, 1, };
 
-static int mt7986_spi0_wp_hold_pins[] = { 37, 38, };
-static int mt7986_spi0_wp_hold_funcs[] = { 1, 1, };
+static const int mt7986_spi0_wp_hold_pins[] = { 37, 38, };
+static const int mt7986_spi0_wp_hold_funcs[] = { 1, 1, };
 
-static int mt7986_uart2_1_pins[] = { 33, 34, 35, 36, };
-static int mt7986_uart2_1_funcs[] = { 3, 3, 3, 3, };
+static const int mt7986_uart2_1_pins[] = { 33, 34, 35, 36, };
+static const int mt7986_uart2_1_funcs[] = { 3, 3, 3, 3, };
 
-static int mt7986_uart1_3_rx_tx_pins[] = { 35, 36, };
-static int mt7986_uart1_3_rx_tx_funcs[] = { 2, 2, };
+static const int mt7986_uart1_3_rx_tx_pins[] = { 35, 36, };
+static const int mt7986_uart1_3_rx_tx_funcs[] = { 2, 2, };
 
-static int mt7986_uart1_3_cts_rts_pins[] = { 37, 38, };
-static int mt7986_uart1_3_cts_rts_funcs[] = { 2, 2, };
+static const int mt7986_uart1_3_cts_rts_pins[] = { 37, 38, };
+static const int mt7986_uart1_3_cts_rts_funcs[] = { 2, 2, };
 
-static int mt7986_spi1_3_pins[] = { 33, 34, 35, 36, };
-static int mt7986_spi1_3_funcs[] = { 4, 4, 4, 4, };
+static const int mt7986_spi1_3_pins[] = { 33, 34, 35, 36, };
+static const int mt7986_spi1_3_funcs[] = { 4, 4, 4, 4, };
 
-static int mt7986_uart0_pins[] = { 39, 40, };
-static int mt7986_uart0_funcs[] = { 1, 1, };
+static const int mt7986_uart0_pins[] = { 39, 40, };
+static const int mt7986_uart0_funcs[] = { 1, 1, };
 
-static int mt7986_pcie_reset_pins[] = { 41, };
-static int mt7986_pcie_reset_funcs[] = { 1, };
+static const int mt7986_pcie_reset_pins[] = { 41, };
+static const int mt7986_pcie_reset_funcs[] = { 1, };
 
-static int mt7986_uart1_pins[] = { 42, 43, 44, 45, };
-static int mt7986_uart1_funcs[] = { 1, 1, 1, 1, };
+static const int mt7986_uart1_pins[] = { 42, 43, 44, 45, };
+static const int mt7986_uart1_funcs[] = { 1, 1, 1, 1, };
 
-static int mt7986_uart2_pins[] = { 46, 47, 48, 49, };
-static int mt7986_uart2_funcs[] = { 1, 1, 1, 1, };
+static const int mt7986_uart2_pins[] = { 46, 47, 48, 49, };
+static const int mt7986_uart2_funcs[] = { 1, 1, 1, 1, };
 
-static int mt7986_emmc_51_pins[] = {
+static const int mt7986_emmc_51_pins[] = {
 	50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, };
-static int mt7986_emmc_51_funcs[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, };
+static const int mt7986_emmc_51_funcs[] = {
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, };
 
-static int mt7986_pcm_pins[] = { 62, 63, 64, 65, };
-static int mt7986_pcm_funcs[] = { 1, 1, 1, 1, };
+static const int mt7986_pcm_pins[] = { 62, 63, 64, 65, };
+static const int mt7986_pcm_funcs[] = { 1, 1, 1, 1, };
 
-static int mt7986_i2s_pins[] = { 62, 63, 64, 65, };
-static int mt7986_i2s_funcs[] = { 1, 1, 1, 1, };
+static const int mt7986_i2s_pins[] = { 62, 63, 64, 65, };
+static const int mt7986_i2s_funcs[] = { 1, 1, 1, 1, };
 
-static int mt7986_switch_int_pins[] = { 66, };
-static int mt7986_switch_int_funcs[] = { 1, };
+static const int mt7986_switch_int_pins[] = { 66, };
+static const int mt7986_switch_int_funcs[] = { 1, };
 
-static int mt7986_mdc_mdio_pins[] = { 67, 68, };
-static int mt7986_mdc_mdio_funcs[] = { 1, 1, };
+static const int mt7986_mdc_mdio_pins[] = { 67, 68, };
+static const int mt7986_mdc_mdio_funcs[] = { 1, 1, };
 
-static int mt7986_wf_2g_pins[] = {74, 75, 76, 77, 78, 79, 80, 81, 82, 83, };
-static int mt7986_wf_2g_funcs[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, };
+static const int mt7986_wf_2g_pins[] = {
+	74, 75, 76, 77, 78, 79, 80, 81, 82, 83, };
+static const int mt7986_wf_2g_funcs[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, };
 
-static int mt7986_wf_5g_pins[] = {91, 92, 93, 94, 95, 96, 97, 98, 99, 100, };
-static int mt7986_wf_5g_funcs[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, };
+static const int mt7986_wf_5g_pins[] = {
+	91, 92, 93, 94, 95, 96, 97, 98, 99, 100, };
+static const int mt7986_wf_5g_funcs[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, };
 
-static int mt7986_wf_dbdc_pins[] = {
+static const int mt7986_wf_dbdc_pins[] = {
 	74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, };
-static int mt7986_wf_dbdc_funcs[] = {
+static const int mt7986_wf_dbdc_funcs[] = {
 	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, };
 
-static int mt7986_pcie_clk_pins[] = { 9, };
-static int mt7986_pcie_clk_funcs[] = { 1, };
+static const int mt7986_pcie_clk_pins[] = { 9, };
+static const int mt7986_pcie_clk_funcs[] = { 1, };
 
-static int mt7986_pcie_wake_pins[] = { 10, };
-static int mt7986_pcie_wake_funcs[] = { 1, };
+static const int mt7986_pcie_wake_pins[] = { 10, };
+static const int mt7986_pcie_wake_funcs[] = { 1, };
 
 static const struct mtk_group_desc mt7986_groups[] = {
 	PINCTRL_PIN_GROUP("watchdog", mt7986_watchdog),
@@ -738,7 +741,7 @@ static const struct mtk_function_desc mt7986_functions[] = {
 	{"wifi", mt7986_wf_groups, ARRAY_SIZE(mt7986_wf_groups)},
 };
 
-static struct mtk_pinctrl_soc mt7986_data = {
+static const struct mtk_pinctrl_soc mt7986_data = {
 	.name = "mt7986_pinctrl",
 	.reg_cal = mt7986_reg_cals,
 	.pins = mt7986_pins,

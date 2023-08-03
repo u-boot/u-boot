@@ -233,283 +233,285 @@ static const struct mtk_pin_desc mt7622_pins[] = {
  */
 
 /* EMMC */
-static int mt7622_emmc_pins[] = { 40, 41, 42, 43, 44, 45, 47, 48, 49, 50, };
-static int mt7622_emmc_funcs[] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, };
+static const int mt7622_emmc_pins[] = {
+	40, 41, 42, 43, 44, 45, 47, 48, 49, 50, };
+static const int mt7622_emmc_funcs[] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, };
 
-static int mt7622_emmc_rst_pins[] = { 37, };
-static int mt7622_emmc_rst_funcs[] = { 1, };
+static const int mt7622_emmc_rst_pins[] = { 37, };
+static const int mt7622_emmc_rst_funcs[] = { 1, };
 
 /* LED for EPHY */
-static int mt7622_ephy_leds_pins[] = { 86, 91, 92, 93, 94, };
-static int mt7622_ephy_leds_funcs[] = { 0, 0, 0, 0, 0, };
-static int mt7622_ephy0_led_pins[] = { 86, };
-static int mt7622_ephy0_led_funcs[] = { 0, };
-static int mt7622_ephy1_led_pins[] = { 91, };
-static int mt7622_ephy1_led_funcs[] = { 2, };
-static int mt7622_ephy2_led_pins[] = { 92, };
-static int mt7622_ephy2_led_funcs[] = { 2, };
-static int mt7622_ephy3_led_pins[] = { 93, };
-static int mt7622_ephy3_led_funcs[] = { 2, };
-static int mt7622_ephy4_led_pins[] = { 94, };
-static int mt7622_ephy4_led_funcs[] = { 2, };
+static const int mt7622_ephy_leds_pins[] = { 86, 91, 92, 93, 94, };
+static const int mt7622_ephy_leds_funcs[] = { 0, 0, 0, 0, 0, };
+static const int mt7622_ephy0_led_pins[] = { 86, };
+static const int mt7622_ephy0_led_funcs[] = { 0, };
+static const int mt7622_ephy1_led_pins[] = { 91, };
+static const int mt7622_ephy1_led_funcs[] = { 2, };
+static const int mt7622_ephy2_led_pins[] = { 92, };
+static const int mt7622_ephy2_led_funcs[] = { 2, };
+static const int mt7622_ephy3_led_pins[] = { 93, };
+static const int mt7622_ephy3_led_funcs[] = { 2, };
+static const int mt7622_ephy4_led_pins[] = { 94, };
+static const int mt7622_ephy4_led_funcs[] = { 2, };
 
 /* Embedded Switch */
-static int mt7622_esw_pins[] = { 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
-				 62, 63, 64, 65, 66, 67, 68, 69, 70, };
-static int mt7622_esw_funcs[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				  0, 0, 0, 0, 0, 0, 0, 0, 0, };
-static int mt7622_esw_p0_p1_pins[] = { 51, 52, 53, 54, 55, 56, 57, 58, };
-static int mt7622_esw_p0_p1_funcs[] = { 0, 0, 0, 0, 0, 0, 0, 0, };
-static int mt7622_esw_p2_p3_p4_pins[] = { 59, 60, 61, 62, 63, 64, 65, 66, 67,
-					  68, 69, 70, };
-static int mt7622_esw_p2_p3_p4_funcs[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0,
-					   0, 0, 0, };
+static const int mt7622_esw_pins[] = {
+	51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
+	69, 70, };
+static const int mt7622_esw_funcs[] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
+static const int mt7622_esw_p0_p1_pins[] = { 51, 52, 53, 54, 55, 56, 57, 58, };
+static const int mt7622_esw_p0_p1_funcs[] = { 0, 0, 0, 0, 0, 0, 0, 0, };
+static const int mt7622_esw_p2_p3_p4_pins[] = {
+	59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, };
+static const int mt7622_esw_p2_p3_p4_funcs[] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
 /* RGMII via ESW */
-static int mt7622_rgmii_via_esw_pins[] = { 59, 60, 61, 62, 63, 64, 65, 66,
-					   67, 68, 69, 70, };
-static int mt7622_rgmii_via_esw_funcs[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-					    0, };
+static const int mt7622_rgmii_via_esw_pins[] = {
+	59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, };
+static const int mt7622_rgmii_via_esw_funcs[] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
 
 /* RGMII via GMAC1 */
-static int mt7622_rgmii_via_gmac1_pins[] = { 59, 60, 61, 62, 63, 64, 65, 66,
-					     67, 68, 69, 70, };
-static int mt7622_rgmii_via_gmac1_funcs[] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-					      2, };
+static const int mt7622_rgmii_via_gmac1_pins[] = {
+	59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, };
+static const int mt7622_rgmii_via_gmac1_funcs[] = {
+	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, };
 
 /* RGMII via GMAC2 */
-static int mt7622_rgmii_via_gmac2_pins[] = { 25, 26, 27, 28, 29, 30, 31, 32,
-					     33, 34, 35, 36, };
-static int mt7622_rgmii_via_gmac2_funcs[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-					      0, };
+static const int mt7622_rgmii_via_gmac2_pins[] = {
+	25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, };
+static const int mt7622_rgmii_via_gmac2_funcs[] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
 
 /* I2C */
-static int mt7622_i2c0_pins[] = { 14, 15, };
-static int mt7622_i2c0_funcs[] = { 0, 0, };
-static int mt7622_i2c1_0_pins[] = { 55, 56, };
-static int mt7622_i2c1_0_funcs[] = { 0, 0, };
-static int mt7622_i2c1_1_pins[] = { 73, 74, };
-static int mt7622_i2c1_1_funcs[] = { 3, 3, };
-static int mt7622_i2c1_2_pins[] = { 87, 88, };
-static int mt7622_i2c1_2_funcs[] = { 0, 0, };
-static int mt7622_i2c2_0_pins[] = { 57, 58, };
-static int mt7622_i2c2_0_funcs[] = { 0, 0, };
-static int mt7622_i2c2_1_pins[] = { 75, 76, };
-static int mt7622_i2c2_1_funcs[] = { 3, 3, };
-static int mt7622_i2c2_2_pins[] = { 89, 90, };
-static int mt7622_i2c2_2_funcs[] = { 0, 0, };
+static const int mt7622_i2c0_pins[] = { 14, 15, };
+static const int mt7622_i2c0_funcs[] = { 0, 0, };
+static const int mt7622_i2c1_0_pins[] = { 55, 56, };
+static const int mt7622_i2c1_0_funcs[] = { 0, 0, };
+static const int mt7622_i2c1_1_pins[] = { 73, 74, };
+static const int mt7622_i2c1_1_funcs[] = { 3, 3, };
+static const int mt7622_i2c1_2_pins[] = { 87, 88, };
+static const int mt7622_i2c1_2_funcs[] = { 0, 0, };
+static const int mt7622_i2c2_0_pins[] = { 57, 58, };
+static const int mt7622_i2c2_0_funcs[] = { 0, 0, };
+static const int mt7622_i2c2_1_pins[] = { 75, 76, };
+static const int mt7622_i2c2_1_funcs[] = { 3, 3, };
+static const int mt7622_i2c2_2_pins[] = { 89, 90, };
+static const int mt7622_i2c2_2_funcs[] = { 0, 0, };
 
 /* I2S */
-static int mt7622_i2s_in_mclk_bclk_ws_pins[] = { 3, 4, 5, };
-static int mt7622_i2s_in_mclk_bclk_ws_funcs[] = { 3, 3, 0, };
-static int mt7622_i2s1_in_data_pins[] = { 1, };
-static int mt7622_i2s1_in_data_funcs[] = { 0, };
-static int mt7622_i2s2_in_data_pins[] = { 16, };
-static int mt7622_i2s2_in_data_funcs[] = { 0, };
-static int mt7622_i2s3_in_data_pins[] = { 17, };
-static int mt7622_i2s3_in_data_funcs[] = { 0, };
-static int mt7622_i2s4_in_data_pins[] = { 18, };
-static int mt7622_i2s4_in_data_funcs[] = { 0, };
-static int mt7622_i2s_out_mclk_bclk_ws_pins[] = { 3, 4, 5, };
-static int mt7622_i2s_out_mclk_bclk_ws_funcs[] = { 0, 0, 0, };
-static int mt7622_i2s1_out_data_pins[] = { 2, };
-static int mt7622_i2s1_out_data_funcs[] = { 0, };
-static int mt7622_i2s2_out_data_pins[] = { 19, };
-static int mt7622_i2s2_out_data_funcs[] = { 0, };
-static int mt7622_i2s3_out_data_pins[] = { 20, };
-static int mt7622_i2s3_out_data_funcs[] = { 0, };
-static int mt7622_i2s4_out_data_pins[] = { 21, };
-static int mt7622_i2s4_out_data_funcs[] = { 0, };
+static const int mt7622_i2s_in_mclk_bclk_ws_pins[] = { 3, 4, 5, };
+static const int mt7622_i2s_in_mclk_bclk_ws_funcs[] = { 3, 3, 0, };
+static const int mt7622_i2s1_in_data_pins[] = { 1, };
+static const int mt7622_i2s1_in_data_funcs[] = { 0, };
+static const int mt7622_i2s2_in_data_pins[] = { 16, };
+static const int mt7622_i2s2_in_data_funcs[] = { 0, };
+static const int mt7622_i2s3_in_data_pins[] = { 17, };
+static const int mt7622_i2s3_in_data_funcs[] = { 0, };
+static const int mt7622_i2s4_in_data_pins[] = { 18, };
+static const int mt7622_i2s4_in_data_funcs[] = { 0, };
+static const int mt7622_i2s_out_mclk_bclk_ws_pins[] = { 3, 4, 5, };
+static const int mt7622_i2s_out_mclk_bclk_ws_funcs[] = { 0, 0, 0, };
+static const int mt7622_i2s1_out_data_pins[] = { 2, };
+static const int mt7622_i2s1_out_data_funcs[] = { 0, };
+static const int mt7622_i2s2_out_data_pins[] = { 19, };
+static const int mt7622_i2s2_out_data_funcs[] = { 0, };
+static const int mt7622_i2s3_out_data_pins[] = { 20, };
+static const int mt7622_i2s3_out_data_funcs[] = { 0, };
+static const int mt7622_i2s4_out_data_pins[] = { 21, };
+static const int mt7622_i2s4_out_data_funcs[] = { 0, };
 
 /* IR */
-static int mt7622_ir_0_tx_pins[] = { 16, };
-static int mt7622_ir_0_tx_funcs[] = { 4, };
-static int mt7622_ir_1_tx_pins[] = { 59, };
-static int mt7622_ir_1_tx_funcs[] = { 5, };
-static int mt7622_ir_2_tx_pins[] = { 99, };
-static int mt7622_ir_2_tx_funcs[] = { 3, };
-static int mt7622_ir_0_rx_pins[] = { 17, };
-static int mt7622_ir_0_rx_funcs[] = { 4, };
-static int mt7622_ir_1_rx_pins[] = { 60, };
-static int mt7622_ir_1_rx_funcs[] = { 5, };
-static int mt7622_ir_2_rx_pins[] = { 100, };
-static int mt7622_ir_2_rx_funcs[] = { 3, };
+static const int mt7622_ir_0_tx_pins[] = { 16, };
+static const int mt7622_ir_0_tx_funcs[] = { 4, };
+static const int mt7622_ir_1_tx_pins[] = { 59, };
+static const int mt7622_ir_1_tx_funcs[] = { 5, };
+static const int mt7622_ir_2_tx_pins[] = { 99, };
+static const int mt7622_ir_2_tx_funcs[] = { 3, };
+static const int mt7622_ir_0_rx_pins[] = { 17, };
+static const int mt7622_ir_0_rx_funcs[] = { 4, };
+static const int mt7622_ir_1_rx_pins[] = { 60, };
+static const int mt7622_ir_1_rx_funcs[] = { 5, };
+static const int mt7622_ir_2_rx_pins[] = { 100, };
+static const int mt7622_ir_2_rx_funcs[] = { 3, };
 
 /* MDIO */
-static int mt7622_mdc_mdio_pins[] = { 23, 24, };
-static int mt7622_mdc_mdio_funcs[] = { 0, 0, };
+static const int mt7622_mdc_mdio_pins[] = { 23, 24, };
+static const int mt7622_mdc_mdio_funcs[] = { 0, 0, };
 
 /* PCIE */
-static int mt7622_pcie0_0_waken_pins[] = { 14, };
-static int mt7622_pcie0_0_waken_funcs[] = { 2, };
-static int mt7622_pcie0_0_clkreq_pins[] = { 15, };
-static int mt7622_pcie0_0_clkreq_funcs[] = { 2, };
-static int mt7622_pcie0_1_waken_pins[] = { 79, };
-static int mt7622_pcie0_1_waken_funcs[] = { 4, };
-static int mt7622_pcie0_1_clkreq_pins[] = { 80, };
-static int mt7622_pcie0_1_clkreq_funcs[] = { 4, };
-static int mt7622_pcie1_0_waken_pins[] = { 14, };
-static int mt7622_pcie1_0_waken_funcs[] = { 3, };
-static int mt7622_pcie1_0_clkreq_pins[] = { 15, };
-static int mt7622_pcie1_0_clkreq_funcs[] = { 3, };
+static const int mt7622_pcie0_0_waken_pins[] = { 14, };
+static const int mt7622_pcie0_0_waken_funcs[] = { 2, };
+static const int mt7622_pcie0_0_clkreq_pins[] = { 15, };
+static const int mt7622_pcie0_0_clkreq_funcs[] = { 2, };
+static const int mt7622_pcie0_1_waken_pins[] = { 79, };
+static const int mt7622_pcie0_1_waken_funcs[] = { 4, };
+static const int mt7622_pcie0_1_clkreq_pins[] = { 80, };
+static const int mt7622_pcie0_1_clkreq_funcs[] = { 4, };
+static const int mt7622_pcie1_0_waken_pins[] = { 14, };
+static const int mt7622_pcie1_0_waken_funcs[] = { 3, };
+static const int mt7622_pcie1_0_clkreq_pins[] = { 15, };
+static const int mt7622_pcie1_0_clkreq_funcs[] = { 3, };
 
-static int mt7622_pcie0_pad_perst_pins[] = { 83, };
-static int mt7622_pcie0_pad_perst_funcs[] = { 0, };
-static int mt7622_pcie1_pad_perst_pins[] = { 84, };
-static int mt7622_pcie1_pad_perst_funcs[] = { 0, };
+static const int mt7622_pcie0_pad_perst_pins[] = { 83, };
+static const int mt7622_pcie0_pad_perst_funcs[] = { 0, };
+static const int mt7622_pcie1_pad_perst_pins[] = { 84, };
+static const int mt7622_pcie1_pad_perst_funcs[] = { 0, };
 
 /* PMIC bus */
-static int mt7622_pmic_bus_pins[] = { 71, 72, };
-static int mt7622_pmic_bus_funcs[] = { 0, 0, };
+static const int mt7622_pmic_bus_pins[] = { 71, 72, };
+static const int mt7622_pmic_bus_funcs[] = { 0, 0, };
 
 /* Parallel NAND */
-static int mt7622_pnand_pins[] = { 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
-				   48, 49, 50, };
-static int mt7622_pnand_funcs[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				    0, };
+static const int mt7622_pnand_pins[] = {
+	37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, };
+static const int mt7622_pnand_funcs[] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
 
 /* PWM */
-static int mt7622_pwm_ch1_0_pins[] = { 51, };
-static int mt7622_pwm_ch1_0_funcs[] = { 3, };
-static int mt7622_pwm_ch1_1_pins[] = { 73, };
-static int mt7622_pwm_ch1_1_funcs[] = { 4, };
-static int mt7622_pwm_ch1_2_pins[] = { 95, };
-static int mt7622_pwm_ch1_2_funcs[] = { 0, };
-static int mt7622_pwm_ch2_0_pins[] = { 52, };
-static int mt7622_pwm_ch2_0_funcs[] = { 3, };
-static int mt7622_pwm_ch2_1_pins[] = { 74, };
-static int mt7622_pwm_ch2_1_funcs[] = { 4, };
-static int mt7622_pwm_ch2_2_pins[] = { 96, };
-static int mt7622_pwm_ch2_2_funcs[] = { 0, };
-static int mt7622_pwm_ch3_0_pins[] = { 53, };
-static int mt7622_pwm_ch3_0_funcs[] = { 3, };
-static int mt7622_pwm_ch3_1_pins[] = { 75, };
-static int mt7622_pwm_ch3_1_funcs[] = { 4, };
-static int mt7622_pwm_ch3_2_pins[] = { 97, };
-static int mt7622_pwm_ch3_2_funcs[] = { 0, };
-static int mt7622_pwm_ch4_0_pins[] = { 54, };
-static int mt7622_pwm_ch4_0_funcs[] = { 3, };
-static int mt7622_pwm_ch4_1_pins[] = { 67, };
-static int mt7622_pwm_ch4_1_funcs[] = { 3, };
-static int mt7622_pwm_ch4_2_pins[] = { 76, };
-static int mt7622_pwm_ch4_2_funcs[] = { 4, };
-static int mt7622_pwm_ch4_3_pins[] = { 98, };
-static int mt7622_pwm_ch4_3_funcs[] = { 0, };
-static int mt7622_pwm_ch5_0_pins[] = { 68, };
-static int mt7622_pwm_ch5_0_funcs[] = { 3, };
-static int mt7622_pwm_ch5_1_pins[] = { 77, };
-static int mt7622_pwm_ch5_1_funcs[] = { 4, };
-static int mt7622_pwm_ch5_2_pins[] = { 99, };
-static int mt7622_pwm_ch5_2_funcs[] = { 0, };
-static int mt7622_pwm_ch6_0_pins[] = { 69, };
-static int mt7622_pwm_ch6_0_funcs[] = { 3, };
-static int mt7622_pwm_ch6_1_pins[] = { 78, };
-static int mt7622_pwm_ch6_1_funcs[] = { 4, };
-static int mt7622_pwm_ch6_2_pins[] = { 81, };
-static int mt7622_pwm_ch6_2_funcs[] = { 4, };
-static int mt7622_pwm_ch6_3_pins[] = { 100, };
-static int mt7622_pwm_ch6_3_funcs[] = { 0, };
-static int mt7622_pwm_ch7_0_pins[] = { 70, };
-static int mt7622_pwm_ch7_0_funcs[] = { 3, };
-static int mt7622_pwm_ch7_1_pins[] = { 82, };
-static int mt7622_pwm_ch7_1_funcs[] = { 4, };
-static int mt7622_pwm_ch7_2_pins[] = { 101, };
-static int mt7622_pwm_ch7_2_funcs[] = { 0, };
+static const int mt7622_pwm_ch1_0_pins[] = { 51, };
+static const int mt7622_pwm_ch1_0_funcs[] = { 3, };
+static const int mt7622_pwm_ch1_1_pins[] = { 73, };
+static const int mt7622_pwm_ch1_1_funcs[] = { 4, };
+static const int mt7622_pwm_ch1_2_pins[] = { 95, };
+static const int mt7622_pwm_ch1_2_funcs[] = { 0, };
+static const int mt7622_pwm_ch2_0_pins[] = { 52, };
+static const int mt7622_pwm_ch2_0_funcs[] = { 3, };
+static const int mt7622_pwm_ch2_1_pins[] = { 74, };
+static const int mt7622_pwm_ch2_1_funcs[] = { 4, };
+static const int mt7622_pwm_ch2_2_pins[] = { 96, };
+static const int mt7622_pwm_ch2_2_funcs[] = { 0, };
+static const int mt7622_pwm_ch3_0_pins[] = { 53, };
+static const int mt7622_pwm_ch3_0_funcs[] = { 3, };
+static const int mt7622_pwm_ch3_1_pins[] = { 75, };
+static const int mt7622_pwm_ch3_1_funcs[] = { 4, };
+static const int mt7622_pwm_ch3_2_pins[] = { 97, };
+static const int mt7622_pwm_ch3_2_funcs[] = { 0, };
+static const int mt7622_pwm_ch4_0_pins[] = { 54, };
+static const int mt7622_pwm_ch4_0_funcs[] = { 3, };
+static const int mt7622_pwm_ch4_1_pins[] = { 67, };
+static const int mt7622_pwm_ch4_1_funcs[] = { 3, };
+static const int mt7622_pwm_ch4_2_pins[] = { 76, };
+static const int mt7622_pwm_ch4_2_funcs[] = { 4, };
+static const int mt7622_pwm_ch4_3_pins[] = { 98, };
+static const int mt7622_pwm_ch4_3_funcs[] = { 0, };
+static const int mt7622_pwm_ch5_0_pins[] = { 68, };
+static const int mt7622_pwm_ch5_0_funcs[] = { 3, };
+static const int mt7622_pwm_ch5_1_pins[] = { 77, };
+static const int mt7622_pwm_ch5_1_funcs[] = { 4, };
+static const int mt7622_pwm_ch5_2_pins[] = { 99, };
+static const int mt7622_pwm_ch5_2_funcs[] = { 0, };
+static const int mt7622_pwm_ch6_0_pins[] = { 69, };
+static const int mt7622_pwm_ch6_0_funcs[] = { 3, };
+static const int mt7622_pwm_ch6_1_pins[] = { 78, };
+static const int mt7622_pwm_ch6_1_funcs[] = { 4, };
+static const int mt7622_pwm_ch6_2_pins[] = { 81, };
+static const int mt7622_pwm_ch6_2_funcs[] = { 4, };
+static const int mt7622_pwm_ch6_3_pins[] = { 100, };
+static const int mt7622_pwm_ch6_3_funcs[] = { 0, };
+static const int mt7622_pwm_ch7_0_pins[] = { 70, };
+static const int mt7622_pwm_ch7_0_funcs[] = { 3, };
+static const int mt7622_pwm_ch7_1_pins[] = { 82, };
+static const int mt7622_pwm_ch7_1_funcs[] = { 4, };
+static const int mt7622_pwm_ch7_2_pins[] = { 101, };
+static const int mt7622_pwm_ch7_2_funcs[] = { 0, };
 
 /* SD */
-static int mt7622_sd_0_pins[] = { 16, 17, 18, 19, 20, 21, };
-static int mt7622_sd_0_funcs[] = { 2, 2, 2, 2, 2, 2, };
-static int mt7622_sd_1_pins[] = { 25, 26, 27, 28, 29, 30, };
-static int mt7622_sd_1_funcs[] = { 2, 2, 2, 2, 2, 2, };
+static const int mt7622_sd_0_pins[] = { 16, 17, 18, 19, 20, 21, };
+static const int mt7622_sd_0_funcs[] = { 2, 2, 2, 2, 2, 2, };
+static const int mt7622_sd_1_pins[] = { 25, 26, 27, 28, 29, 30, };
+static const int mt7622_sd_1_funcs[] = { 2, 2, 2, 2, 2, 2, };
 
 /* Serial NAND */
-static int mt7622_snfi_pins[] = { 8, 9, 10, 11, 12, 13, };
-static int mt7622_snfi_funcs[] = { 2, 2, 2, 2, 2, 2, };
+static const int mt7622_snfi_pins[] = { 8, 9, 10, 11, 12, 13, };
+static const int mt7622_snfi_funcs[] = { 2, 2, 2, 2, 2, 2, };
 
 /* SPI NOR */
-static int mt7622_spi_pins[] = { 8, 9, 10, 11, 12, 13 };
-static int mt7622_spi_funcs[] = { 0, 0, 0, 0, 0, 0, };
+static const int mt7622_spi_pins[] = { 8, 9, 10, 11, 12, 13 };
+static const int mt7622_spi_funcs[] = { 0, 0, 0, 0, 0, 0, };
 
 /* SPIC */
-static int mt7622_spic0_0_pins[] = { 63, 64, 65, 66, };
-static int mt7622_spic0_0_funcs[] = { 4, 4, 4, 4, };
-static int mt7622_spic0_1_pins[] = { 79, 80, 81, 82, };
-static int mt7622_spic0_1_funcs[] = { 3, 3, 3, 3, };
-static int mt7622_spic1_0_pins[] = { 67, 68, 69, 70, };
-static int mt7622_spic1_0_funcs[] = { 4, 4, 4, 4, };
-static int mt7622_spic1_1_pins[] = { 73, 74, 75, 76, };
-static int mt7622_spic1_1_funcs[] = { 0, 0, 0, 0, };
-static int mt7622_spic2_0_pins[] = { 10, 11, 12, 13, };
-static int mt7622_spic2_0_funcs[] = { 0, 0, 0, 0, };
-static int mt7622_spic2_0_wp_hold_pins[] = { 8, 9, };
-static int mt7622_spic2_0_wp_hold_funcs[] = { 0, 0, };
+static const int mt7622_spic0_0_pins[] = { 63, 64, 65, 66, };
+static const int mt7622_spic0_0_funcs[] = { 4, 4, 4, 4, };
+static const int mt7622_spic0_1_pins[] = { 79, 80, 81, 82, };
+static const int mt7622_spic0_1_funcs[] = { 3, 3, 3, 3, };
+static const int mt7622_spic1_0_pins[] = { 67, 68, 69, 70, };
+static const int mt7622_spic1_0_funcs[] = { 4, 4, 4, 4, };
+static const int mt7622_spic1_1_pins[] = { 73, 74, 75, 76, };
+static const int mt7622_spic1_1_funcs[] = { 0, 0, 0, 0, };
+static const int mt7622_spic2_0_pins[] = { 10, 11, 12, 13, };
+static const int mt7622_spic2_0_funcs[] = { 0, 0, 0, 0, };
+static const int mt7622_spic2_0_wp_hold_pins[] = { 8, 9, };
+static const int mt7622_spic2_0_wp_hold_funcs[] = { 0, 0, };
 
 /* TDM */
-static int mt7622_tdm_0_out_mclk_bclk_ws_pins[] = { 8, 9, 10, };
-static int mt7622_tdm_0_out_mclk_bclk_ws_funcs[] = { 3, 3, 3, };
-static int mt7622_tdm_0_in_mclk_bclk_ws_pins[] = { 11, 12, 13, };
-static int mt7622_tdm_0_in_mclk_bclk_ws_funcs[] = { 3, 3, 3, };
-static int mt7622_tdm_0_out_data_pins[] = { 20, };
-static int mt7622_tdm_0_out_data_funcs[] = { 3, };
-static int mt7622_tdm_0_in_data_pins[] = { 21, };
-static int mt7622_tdm_0_in_data_funcs[] = { 3, };
-static int mt7622_tdm_1_out_mclk_bclk_ws_pins[] = { 57, 58, 59, };
-static int mt7622_tdm_1_out_mclk_bclk_ws_funcs[] = { 3, 3, 3, };
-static int mt7622_tdm_1_in_mclk_bclk_ws_pins[] = { 60, 61, 62, };
-static int mt7622_tdm_1_in_mclk_bclk_ws_funcs[] = { 3, 3, 3, };
-static int mt7622_tdm_1_out_data_pins[] = { 55, };
-static int mt7622_tdm_1_out_data_funcs[] = { 3, };
-static int mt7622_tdm_1_in_data_pins[] = { 56, };
-static int mt7622_tdm_1_in_data_funcs[] = { 3, };
+static const int mt7622_tdm_0_out_mclk_bclk_ws_pins[] = { 8, 9, 10, };
+static const int mt7622_tdm_0_out_mclk_bclk_ws_funcs[] = { 3, 3, 3, };
+static const int mt7622_tdm_0_in_mclk_bclk_ws_pins[] = { 11, 12, 13, };
+static const int mt7622_tdm_0_in_mclk_bclk_ws_funcs[] = { 3, 3, 3, };
+static const int mt7622_tdm_0_out_data_pins[] = { 20, };
+static const int mt7622_tdm_0_out_data_funcs[] = { 3, };
+static const int mt7622_tdm_0_in_data_pins[] = { 21, };
+static const int mt7622_tdm_0_in_data_funcs[] = { 3, };
+static const int mt7622_tdm_1_out_mclk_bclk_ws_pins[] = { 57, 58, 59, };
+static const int mt7622_tdm_1_out_mclk_bclk_ws_funcs[] = { 3, 3, 3, };
+static const int mt7622_tdm_1_in_mclk_bclk_ws_pins[] = { 60, 61, 62, };
+static const int mt7622_tdm_1_in_mclk_bclk_ws_funcs[] = { 3, 3, 3, };
+static const int mt7622_tdm_1_out_data_pins[] = { 55, };
+static const int mt7622_tdm_1_out_data_funcs[] = { 3, };
+static const int mt7622_tdm_1_in_data_pins[] = { 56, };
+static const int mt7622_tdm_1_in_data_funcs[] = { 3, };
 
 /* UART */
-static int mt7622_uart0_0_tx_rx_pins[] = { 6, 7, };
-static int mt7622_uart0_0_tx_rx_funcs[] = { 0, 0, };
-static int mt7622_uart1_0_tx_rx_pins[] = { 55, 56, };
-static int mt7622_uart1_0_tx_rx_funcs[] = { 2, 2, };
-static int mt7622_uart1_0_rts_cts_pins[] = { 57, 58, };
-static int mt7622_uart1_0_rts_cts_funcs[] = { 2, 2, };
-static int mt7622_uart1_1_tx_rx_pins[] = { 73, 74, };
-static int mt7622_uart1_1_tx_rx_funcs[] = { 2, 2, };
-static int mt7622_uart1_1_rts_cts_pins[] = { 75, 76, };
-static int mt7622_uart1_1_rts_cts_funcs[] = { 2, 2, };
-static int mt7622_uart2_0_tx_rx_pins[] = { 3, 4, };
-static int mt7622_uart2_0_tx_rx_funcs[] = { 2, 2, };
-static int mt7622_uart2_0_rts_cts_pins[] = { 1, 2, };
-static int mt7622_uart2_0_rts_cts_funcs[] = { 2, 2, };
-static int mt7622_uart2_1_tx_rx_pins[] = { 51, 52, };
-static int mt7622_uart2_1_tx_rx_funcs[] = { 0, 0, };
-static int mt7622_uart2_1_rts_cts_pins[] = { 53, 54, };
-static int mt7622_uart2_1_rts_cts_funcs[] = { 0, 0, };
-static int mt7622_uart2_2_tx_rx_pins[] = { 59, 60, };
-static int mt7622_uart2_2_tx_rx_funcs[] = { 4, 4, };
-static int mt7622_uart2_2_rts_cts_pins[] = { 61, 62, };
-static int mt7622_uart2_2_rts_cts_funcs[] = { 4, 4, };
-static int mt7622_uart2_3_tx_rx_pins[] = { 95, 96, };
-static int mt7622_uart2_3_tx_rx_funcs[] = { 3, 3, };
-static int mt7622_uart3_0_tx_rx_pins[] = { 57, 58, };
-static int mt7622_uart3_0_tx_rx_funcs[] = { 5, 5, };
-static int mt7622_uart3_1_tx_rx_pins[] = { 81, 82, };
-static int mt7622_uart3_1_tx_rx_funcs[] = { 0, 0, };
-static int mt7622_uart3_1_rts_cts_pins[] = { 79, 80, };
-static int mt7622_uart3_1_rts_cts_funcs[] = { 0, 0, };
-static int mt7622_uart4_0_tx_rx_pins[] = { 61, 62, };
-static int mt7622_uart4_0_tx_rx_funcs[] = { 5, 5, };
-static int mt7622_uart4_1_tx_rx_pins[] = { 91, 92, };
-static int mt7622_uart4_1_tx_rx_funcs[] = { 0, 0, };
-static int mt7622_uart4_1_rts_cts_pins[] = { 93, 94 };
-static int mt7622_uart4_1_rts_cts_funcs[] = { 0, 0, };
-static int mt7622_uart4_2_tx_rx_pins[] = { 97, 98, };
-static int mt7622_uart4_2_tx_rx_funcs[] = { 2, 2, };
-static int mt7622_uart4_2_rts_cts_pins[] = { 95, 96 };
-static int mt7622_uart4_2_rts_cts_funcs[] = { 2, 2, };
+static const int mt7622_uart0_0_tx_rx_pins[] = { 6, 7, };
+static const int mt7622_uart0_0_tx_rx_funcs[] = { 0, 0, };
+static const int mt7622_uart1_0_tx_rx_pins[] = { 55, 56, };
+static const int mt7622_uart1_0_tx_rx_funcs[] = { 2, 2, };
+static const int mt7622_uart1_0_rts_cts_pins[] = { 57, 58, };
+static const int mt7622_uart1_0_rts_cts_funcs[] = { 2, 2, };
+static const int mt7622_uart1_1_tx_rx_pins[] = { 73, 74, };
+static const int mt7622_uart1_1_tx_rx_funcs[] = { 2, 2, };
+static const int mt7622_uart1_1_rts_cts_pins[] = { 75, 76, };
+static const int mt7622_uart1_1_rts_cts_funcs[] = { 2, 2, };
+static const int mt7622_uart2_0_tx_rx_pins[] = { 3, 4, };
+static const int mt7622_uart2_0_tx_rx_funcs[] = { 2, 2, };
+static const int mt7622_uart2_0_rts_cts_pins[] = { 1, 2, };
+static const int mt7622_uart2_0_rts_cts_funcs[] = { 2, 2, };
+static const int mt7622_uart2_1_tx_rx_pins[] = { 51, 52, };
+static const int mt7622_uart2_1_tx_rx_funcs[] = { 0, 0, };
+static const int mt7622_uart2_1_rts_cts_pins[] = { 53, 54, };
+static const int mt7622_uart2_1_rts_cts_funcs[] = { 0, 0, };
+static const int mt7622_uart2_2_tx_rx_pins[] = { 59, 60, };
+static const int mt7622_uart2_2_tx_rx_funcs[] = { 4, 4, };
+static const int mt7622_uart2_2_rts_cts_pins[] = { 61, 62, };
+static const int mt7622_uart2_2_rts_cts_funcs[] = { 4, 4, };
+static const int mt7622_uart2_3_tx_rx_pins[] = { 95, 96, };
+static const int mt7622_uart2_3_tx_rx_funcs[] = { 3, 3, };
+static const int mt7622_uart3_0_tx_rx_pins[] = { 57, 58, };
+static const int mt7622_uart3_0_tx_rx_funcs[] = { 5, 5, };
+static const int mt7622_uart3_1_tx_rx_pins[] = { 81, 82, };
+static const int mt7622_uart3_1_tx_rx_funcs[] = { 0, 0, };
+static const int mt7622_uart3_1_rts_cts_pins[] = { 79, 80, };
+static const int mt7622_uart3_1_rts_cts_funcs[] = { 0, 0, };
+static const int mt7622_uart4_0_tx_rx_pins[] = { 61, 62, };
+static const int mt7622_uart4_0_tx_rx_funcs[] = { 5, 5, };
+static const int mt7622_uart4_1_tx_rx_pins[] = { 91, 92, };
+static const int mt7622_uart4_1_tx_rx_funcs[] = { 0, 0, };
+static const int mt7622_uart4_1_rts_cts_pins[] = { 93, 94 };
+static const int mt7622_uart4_1_rts_cts_funcs[] = { 0, 0, };
+static const int mt7622_uart4_2_tx_rx_pins[] = { 97, 98, };
+static const int mt7622_uart4_2_tx_rx_funcs[] = { 2, 2, };
+static const int mt7622_uart4_2_rts_cts_pins[] = { 95, 96 };
+static const int mt7622_uart4_2_rts_cts_funcs[] = { 2, 2, };
 
 /* Watchdog */
-static int mt7622_watchdog_pins[] = { 78, };
-static int mt7622_watchdog_funcs[] = { 0, };
+static const int mt7622_watchdog_pins[] = { 78, };
+static const int mt7622_watchdog_funcs[] = { 0, };
 
 /* WLAN LED */
-static int mt7622_wled_pins[] = { 85, };
-static int mt7622_wled_funcs[] = { 0, };
+static const int mt7622_wled_pins[] = { 85, };
+static const int mt7622_wled_funcs[] = { 0, };
 
 static const struct mtk_group_desc mt7622_groups[] = {
 	PINCTRL_PIN_GROUP("emmc", mt7622_emmc),
@@ -719,7 +721,7 @@ static const struct mtk_function_desc mt7622_functions[] = {
 	{"watchdog", mt7622_wdt_groups, ARRAY_SIZE(mt7622_wdt_groups)},
 };
 
-static struct mtk_pinctrl_soc mt7622_data = {
+static const struct mtk_pinctrl_soc mt7622_data = {
 	.name = "mt7622_pinctrl",
 	.reg_cal = mt7622_reg_cals,
 	.pins = mt7622_pins,
