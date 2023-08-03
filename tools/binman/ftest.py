@@ -6974,7 +6974,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'atf-bl31-path': 'bl31.elf',
         }
-        data = self._DoReadFileDtb('291_template_phandle.dts',
+        data = self._DoReadFileDtb('309_template_phandle.dts',
                                    entry_args=entry_args)
         fname = tools.get_output_filename('image.bin')
         out = tools.run('dumpimage', '-l', fname)
@@ -6990,7 +6990,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'atf-bl31-path': 'bl31.elf',
         }
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('292_template_phandle_dup.dts',
+            self._DoReadFileDtb('310_template_phandle_dup.dts',
                                 entry_args=entry_args)
         self.assertIn(
             'Duplicate phandle 1 in nodes /binman/image/fit/images/atf/atf-bl31 and /binman/image-2/fit/images/atf/atf-bl31',
