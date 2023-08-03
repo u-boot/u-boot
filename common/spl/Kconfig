@@ -561,18 +561,6 @@ config SPL_CRC32
 	  for detected accidental image corruption. For secure applications you
 	  should consider SHA1 or SHA256.
 
-config SPL_MD5
-	bool "Support MD5"
-	depends on SPL_FIT
-	help
-	  Enable this to support MD5 in FIT images within SPL. An MD5
-	  checksum is a 128-bit hash value used to check that the image
-	  contents have not been corrupted. Note that MD5 is not considered
-	  secure as it is possible (with a brute-force attack) to adjust the
-	  image while still retaining the same MD5 hash value. For secure
-	  applications where images may be changed maliciously, you should
-	  consider SHA256 or SHA384.
-
 config SPL_FIT_IMAGE_TINY
 	bool "Remove functionality from SPL FIT loading to reduce size"
 	depends on SPL_FIT
