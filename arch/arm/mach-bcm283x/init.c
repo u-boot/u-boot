@@ -146,6 +146,14 @@ int mach_cpu_init(void)
 	return 0;
 }
 
+#if defined(CONFIG_DISPLAY_CPUINFO)
+int print_cpuinfo(void)
+{
+	printf("CPU: BCM283x\n");
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_ARMV7_LPAE
 #ifdef CONFIG_TARGET_RPI_4_32B
 #define BCM2711_RPI4_PCIE_XHCI_MMIO_VIRT	0xffc00000UL
