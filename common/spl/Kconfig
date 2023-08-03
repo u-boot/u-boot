@@ -550,17 +550,6 @@ config SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
 	  the eMMC EXT_CSC_PART_CONFIG selection should be overridden in SPL
 	  by user defined partition number.
 
-config SPL_CRC32
-	bool "Support CRC32"
-	default y if SPL_LEGACY_IMAGE_FORMAT || SPL_EFI_PARTITION
-	default y if SPL_ENV_SUPPORT || TPL_BLOBLIST
-	help
-	  Enable this to support CRC32 in uImages or FIT images within SPL.
-	  This is a 32-bit checksum value that can be used to verify images.
-	  For FIT images, this is the least secure type of checksum, suitable
-	  for detected accidental image corruption. For secure applications you
-	  should consider SHA1 or SHA256.
-
 config SPL_FIT_IMAGE_TINY
 	bool "Remove functionality from SPL FIT loading to reduce size"
 	depends on SPL_FIT
