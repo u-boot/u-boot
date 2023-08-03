@@ -58,10 +58,11 @@ def efi_capsule_data(request, u_boot_config):
                        % (data_dir, u_boot_config.build_dir), shell=True)
 
         # Create a disk image with EFI system partition
-        check_call('virt-make-fs --partition=gpt --size=+1M --type=vfat %s %s' %
+        check_call('sudo virt-make-fs --partition=gpt --size=+1M --type=vfat %s %s' %
                    (mnt_point, image_path), shell=True)
-        check_call('sgdisk %s -A 1:set:0 -t 1:C12A7328-F81F-11D2-BA4B-00A0C93EC93B' %
+        check_call('sudo sgdisk %s -A 1:set:0 -t 1:C12A7328-F81F-11D2-BA4B-00A0C93EC93B' %
                    image_path, shell=True)
+        check_call('sudo chown -R $USER %s' % image_path, shell=True)
 
     except CalledProcessError as exception:
         pytest.skip('Setup failed: %s' % exception.cmd)
