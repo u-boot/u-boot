@@ -37,6 +37,7 @@ The U-Boot FF-A support provides the following parts:
   FF-A ABIs inspection methods.
 - An FF-A sandbox device driver for FF-A communication with the emulated Secure World.
   The driver leverages the FF-A Uclass to establish FF-A communication.
+- Sandbox FF-A test cases.
 
 FF-A and SMC specifications
 -------------------------------------------

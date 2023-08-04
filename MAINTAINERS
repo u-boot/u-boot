@@ -274,6 +274,7 @@ F:	arch/sandbox/include/asm/sandbox_arm_ffa_priv.h
 F:	doc/arch/arm64.ffa.rst
 F:	drivers/firmware/arm-ffa/
 F:	include/arm_ffa.h
+F:	test/dm/ffa.c
 
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
