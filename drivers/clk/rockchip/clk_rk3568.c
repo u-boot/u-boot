@@ -702,7 +702,10 @@ static ulong rk3568_cpll_div_set_rate(struct rk3568_clk_priv *priv,
 	}
 
 	div = DIV_ROUND_UP(priv->cpll_hz, rate);
-	assert(div - 1 <= 31);
+	if (clk_id == CPLL_25M)
+		assert(div - 1 <= 63);
+	else
+		assert(div - 1 <= 31);
 	rk_clrsetreg(&cru->clksel_con[con],
 		     mask, (div - 1) << shift);
 	return rk3568_cpll_div_get_rate(priv, clk_id);
