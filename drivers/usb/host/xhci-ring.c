@@ -17,6 +17,7 @@
 #include <log.h>
 #include <asm/byteorder.h>
 #include <usb.h>
+#include <watchdog.h>
 #include <asm/unaligned.h>
 #include <linux/bug.h>
 #include <linux/errno.h>
@@ -796,6 +797,8 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 		/* Calculate length for next transfer */
 		addr += trb_buff_len;
 		trb_buff_len = min((length - running_total), TRB_MAX_BUFF_SIZE);
+
+		schedule();
 	} while (running_total < length);
 
 	giveback_first_trb(udev, ep_index, start_cycle, start_trb);
