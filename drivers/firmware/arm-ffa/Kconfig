@@ -2,9 +2,9 @@
 
 config ARM_FFA_TRANSPORT
 	bool "Enable Arm Firmware Framework for Armv8-A driver"
-	depends on DM && ARM64
-	select ARM_SMCCC
-	select ARM_SMCCC_FEATURES
+	depends on DM && (ARM64 || SANDBOX)
+	select ARM_SMCCC if !SANDBOX
+	select ARM_SMCCC_FEATURES if !SANDBOX
 	select LIB_UUID
 	select DEVRES
 	help
@@ -32,5 +32,10 @@ config ARM_FFA_TRANSPORT
 	  Generic FF-A methods are implemented in the Uclass (arm-ffa-uclass.c).
 	  Arm specific methods are implemented in the Arm driver (arm-ffa.c).
 
-	  For more details about the FF-A support, please refer to doc/arch/arm64.ffa.rst
+	  FF-A sandbox is provided to run FF-A under sandbox and allows to test the FF-A Uclass.
+	  Sandbox support includes an emulator for Arm FF-A which emulates the FF-A side of
+	  the Secure World and provides FF-A ABIs inspection methods (ffa-emul-uclass.c).
+	  An FF-A sandbox driver is also provided for FF-A communication with the emulated
+	  Secure World (sandbox_ffa.c).
 
+	  For more details about the FF-A support, please refer to doc/arch/arm64.ffa.rst

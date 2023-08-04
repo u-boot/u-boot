@@ -33,6 +33,10 @@ The U-Boot FF-A support provides the following parts:
 
 - A Uclass driver providing generic FF-A methods.
 - An Arm FF-A device driver providing Arm-specific methods and reusing the Uclass methods.
+- A sandbox emulator for Arm FF-A, emulates the FF-A side of the Secure World and provides
+  FF-A ABIs inspection methods.
+- An FF-A sandbox device driver for FF-A communication with the emulated Secure World.
+  The driver leverages the FF-A Uclass to establish FF-A communication.
 
 FF-A and SMC specifications
 -------------------------------------------
@@ -62,6 +66,7 @@ CONFIG_ARM_FFA_TRANSPORT
     Enables the FF-A support. Turn this on if you want to use FF-A
     communication.
     When using an Arm 64-bit platform, the Arm FF-A driver will be used.
+    When using sandbox, the sandbox FF-A emulator and FF-A sandbox driver will be used.
 
 FF-A ABIs under the hood
 ---------------------------------------
@@ -98,10 +103,8 @@ architecture features including FF-A bus.
 
     Class     Index  Probed  Driver                Name
    -----------------------------------------------------------
-   ...
     firmware      0  [ + ]   psci                      |-- psci
     ffa                   0  [   ]   arm_ffa               |   `-- arm_ffa
-   ...
 
 The PSCI driver is bound to the PSCI device and when probed it tries to discover
 the architecture features by calling a callback the features drivers provide.
@@ -202,6 +205,18 @@ The following features are provided:
   with the driver
 
 - FF-A bus can be compiled and used without EFI
+
+Relationship between the sandbox emulator and the FF-A device
+---------------------------------------------------------------
+
+::
+
+   => dm tree
+
+    Class     Index  Probed  Driver                Name
+   -----------------------------------------------------------
+   ffa_emul      0  [ + ]   sandbox_ffa_emul      `-- arm-ffa-emul
+    ffa                  0  [    ]   sandbox_arm_ffa               `-- sandbox-arm-ffa
 
 Example of boot logs with FF-A enabled
 --------------------------------------
