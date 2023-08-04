@@ -12,14 +12,14 @@
 &binman {
 	custMpk {
 		filename = "custMpk.pem";
-		blob-ext {
+		custmpk_pem: blob-ext {
 			filename = "../keys/custMpk.pem";
 		};
 	};
 
 	ti-degenerate-key {
 		filename = "ti-degenerate-key.pem";
-		blob-ext {
+		dkey_pem: blob-ext {
 			filename = "../keys/ti-degenerate-key.pem";
 		};
 	};
@@ -37,14 +37,14 @@
 	};
 	pm-cfg {
 		filename = "pm-cfg.bin";
-		rcfg_yaml: ti-board-config {
+		pcfg_yaml: ti-board-config {
 			config = "pm-cfg.yaml";
 			schema = "../common/schema.yaml";
 		};
 	};
 	rm-cfg {
 		filename = "rm-cfg.bin";
-		pcfg_yaml: ti-board-config {
+		rcfg_yaml: ti-board-config {
 			config = "rm-cfg.yaml";
 			schema = "../common/schema.yaml";
 		};
@@ -93,19 +93,19 @@
 	combined-sysfw-cfg {
 		filename = "combined-sysfw-cfg.bin";
 		ti-board-config {
-			board-cfg {
+			bcfg_yaml_sysfw: board-cfg {
 				config = "board-cfg.yaml";
 				schema = "../common/schema.yaml";
 			};
-			sec-cfg {
+			scfg_yaml_sysfw: sec-cfg {
 				config = "sec-cfg.yaml";
 				schema = "../common/schema.yaml";
 			};
-			pm-cfg {
+			pcfg_yaml_sysfw: pm-cfg {
 				config = "pm-cfg.yaml";
 				schema = "../common/schema.yaml";
 			};
-			rm-cfg {
+			rcfg_yaml_sysfw: rm-cfg {
 				config = "rm-cfg.yaml";
 				schema = "../common/schema.yaml";
 			};
