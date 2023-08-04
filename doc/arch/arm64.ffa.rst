@@ -120,6 +120,8 @@ At this stage the FF-A bus is registered with the DM and can be interacted with 
 the DM APIs.
 
 Clients are able to probe then use the FF-A bus by calling uclass_first_device().
+Please refer to the armffa command implementation as an example of how to probe
+and interact with the FF-A bus.
 
 When calling uclass_first_device(), the FF-A driver is probed and ends up calling
 ffa_do_probe() provided by the Uclass which does the following:
@@ -218,6 +220,13 @@ Relationship between the sandbox emulator and the FF-A device
    -----------------------------------------------------------
    ffa_emul      0  [ + ]   sandbox_ffa_emul      `-- arm-ffa-emul
     ffa                  0  [    ]   sandbox_arm_ffa               `-- sandbox-arm-ffa
+
+The armffa command
+-----------------------------------
+
+armffa is a command showcasing how to use the FF-A bus and how to invoke the driver operations.
+
+Please refer the command documentation at :doc:`../usage/cmd/armffa`
 
 Example of boot logs with FF-A enabled
 --------------------------------------

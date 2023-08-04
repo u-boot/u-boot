@@ -5,6 +5,7 @@ config ARM_FFA_TRANSPORT
 	depends on DM && (ARM64 || SANDBOX)
 	select ARM_SMCCC if !SANDBOX
 	select ARM_SMCCC_FEATURES if !SANDBOX
+	imply CMD_ARMFFA
 	select LIB_UUID
 	select DEVRES
 	help
