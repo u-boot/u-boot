@@ -540,7 +540,7 @@ stages:
         sun50i:
           BUILDMAN: "sun50i"
         arm_catch_all:
-          BUILDMAN: "arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,renesas,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,rk,toradex,socfpga,k2,k3,zynq"
+          BUILDMAN: "arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,renesas,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,toradex,socfpga,k2,k3,zynq"
         sandbox_x86:
           BUILDMAN: "sandbox x86"
         technexion:
@@ -567,10 +567,10 @@ stages:
           BUILDMAN: "uniphier"
         aarch64_catch_all:
           BUILDMAN: "aarch64 -x amlogic,bcm,imx8,imx9,k3,tegra,ls1,ls2,lx216,mvebu,uniphier,renesas,sunxi,samsung,socfpga,rk,versal,zynq"
-        rk_rv_non_rockchip:
-          BUILDMAN: "rk|rv -x rockchip"
-        rk_rv_and_rockchip:
-          BUILDMAN: "(rk|rv)&rockchip"
+        rk_non_rockchip_64bit:
+          BUILDMAN: "rk&aarch64 -x rockchip"
+        rk_rockchip_64bit:
+          BUILDMAN: "rk&aarch64&rockchip"
         renesas:
           BUILDMAN: "renesas"
         zynq:
