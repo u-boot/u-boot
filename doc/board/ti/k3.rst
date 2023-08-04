@@ -31,6 +31,7 @@ K3 Based SoCs
    :maxdepth: 1
 
    am62x_sk
+   ../toradex/verdin-am62
    am65x_evm
    j7200_evm
    j721e_evm
