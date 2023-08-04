@@ -2486,20 +2486,6 @@ static int usb_eth_free_pkt(struct udevice *dev, uchar *packet,
 	return rx_submit(ethdev, ethdev->rx_req, 0);
 }
 
-static int usb_eth_probe(struct udevice *dev)
-{
-	struct ether_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_plat(dev);
-
-	priv->netdev = dev;
-	l_priv = priv;
-
-	get_ether_addr(CONFIG_USBNET_DEV_ADDR, pdata->enetaddr);
-	eth_env_set_enetaddr("usbnet_devaddr", pdata->enetaddr);
-
-	return 0;
-}
-
 static const struct eth_ops usb_eth_ops = {
 	.start		= usb_eth_start,
 	.send		= usb_eth_send,
@@ -2524,6 +2510,20 @@ int usb_ether_init(void)
 		pr_err("usb - not able to bind usb_ether device\n");
 		return ret;
 	}
+
+	return 0;
+}
+
+static int usb_eth_probe(struct udevice *dev)
+{
+	struct ether_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+
+	priv->netdev = dev;
+	l_priv = priv;
+
+	get_ether_addr(CONFIG_USBNET_DEV_ADDR, pdata->enetaddr);
+	eth_env_set_enetaddr("usbnet_devaddr", pdata->enetaddr);
 
 	return 0;
 }
