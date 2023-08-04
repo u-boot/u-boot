@@ -126,12 +126,11 @@
 
 &sdhci {
 	bootph-pre-ram;
-	status = "okay";
+	max-frequency = <200000000>;
 };
 
 &sdmmc0 {
 	bootph-pre-ram;
-	status = "okay";
 };
 
 #ifdef CONFIG_ROCKCHIP_SPI_IMAGE
