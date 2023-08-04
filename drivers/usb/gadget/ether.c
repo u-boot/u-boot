@@ -2273,10 +2273,11 @@ fail:
 }
 
 /*-------------------------------------------------------------------------*/
-static void _usb_eth_halt(struct ether_priv *priv);
+static void usb_eth_stop(struct udevice *dev);
 
-static int _usb_eth_init(struct ether_priv *priv)
+static int usb_eth_start(struct udevice *udev)
 {
+	struct ether_priv *priv = dev_get_priv(udev);
 	struct eth_dev *dev = &priv->ethdev;
 	struct usb_gadget *gadget;
 	unsigned long ts;
@@ -2347,12 +2348,13 @@ static int _usb_eth_init(struct ether_priv *priv)
 	rx_submit(dev, dev->rx_req, 0);
 	return 0;
 fail:
-	_usb_eth_halt(priv);
+	usb_eth_stop(udev);
 	return -1;
 }
 
-static int _usb_eth_send(struct ether_priv *priv, void *packet, int length)
+static int usb_eth_send(struct udevice *udev, void *packet, int length)
 {
+	struct ether_priv *priv = dev_get_priv(udev);
 	int			retval;
 	void			*rndis_pkt = NULL;
 	struct eth_dev		*dev = &priv->ethdev;
@@ -2419,15 +2421,9 @@ drop:
 	return -ENOMEM;
 }
 
-static int _usb_eth_recv(struct ether_priv *priv)
+static void usb_eth_stop(struct udevice *udev)
 {
-	usb_gadget_handle_interrupts(0);
-
-	return 0;
-}
-
-static void _usb_eth_halt(struct ether_priv *priv)
-{
+	struct ether_priv *priv = dev_get_priv(udev);
 	struct eth_dev *dev = &priv->ethdev;
 
 	/* If the gadget not registered, simple return */
@@ -2459,31 +2455,12 @@ static void _usb_eth_halt(struct ether_priv *priv)
 	usb_gadget_release(0);
 }
 
-static int usb_eth_start(struct udevice *dev)
-{
-	struct ether_priv *priv = dev_get_priv(dev);
-
-	return _usb_eth_init(priv);
-}
-
-static int usb_eth_send(struct udevice *dev, void *packet, int length)
-{
-	struct ether_priv *priv = dev_get_priv(dev);
-
-	return _usb_eth_send(priv, packet, length);
-}
-
 static int usb_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct ether_priv *priv = dev_get_priv(dev);
 	struct eth_dev *ethdev = &priv->ethdev;
-	int ret;
 
-	ret = _usb_eth_recv(priv);
-	if (ret) {
-		pr_err("error packet receive\n");
-		return ret;
-	}
+	usb_gadget_handle_interrupts(0);
 
 	if (packet_received) {
 		if (ethdev->rx_req) {
@@ -2507,13 +2484,6 @@ static int usb_eth_free_pkt(struct udevice *dev, uchar *packet,
 	packet_received = 0;
 
 	return rx_submit(ethdev, ethdev->rx_req, 0);
-}
-
-static void usb_eth_stop(struct udevice *dev)
-{
-	struct ether_priv *priv = dev_get_priv(dev);
-
-	_usb_eth_halt(priv);
 }
 
 static int usb_eth_probe(struct udevice *dev)
