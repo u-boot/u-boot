@@ -244,6 +244,15 @@ config EFI_CAPSULE_ESL_FILE
 	  will be embedded in the platform's device tree and used for
 	  capsule authentication at the time of capsule update.
 
+config EFI_GENERATE_CAPSULES
+	bool "Generate EFI capsules as part of build"
+	depends on EFI_HAVE_CAPSULE_SUPPORT
+	help
+	  Generate EFI capsules as part of the u-boot build. Enabling
+	  this symbol will result in the capsules getting generated as
+	  per the entries under the binman node in the platform's
+	  device-tree.
+
 config EFI_DEVICE_PATH_TO_TEXT
 	bool "Device path to text protocol"
 	default y
