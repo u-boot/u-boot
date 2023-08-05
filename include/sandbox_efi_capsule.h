@@ -11,4 +11,15 @@
 #define SANDBOX_FIT_IMAGE_GUID		"3673b45d-6a7c-46f3-9e60-adabb03f7937"
 #define SANDBOX_INCORRECT_GUID		"058b7d83-50d5-4c47-a195-60d86ad341c4"
 
+#define UBOOT_BIN_IMAGE_NEW		"u-boot.bin.new"
+#define UBOOT_ENV_IMAGE_NEW		"u-boot.env.new"
+#define UBOOT_BIN_IMAGE_OLD		"u-boot.bin.old"
+#define UBOOT_ENV_IMAGE_OLD		"u-boot.env.old"
+#define UBOOT_FIT_IMAGE			"u-boot_bin_env.itb"
+
+#define CAPSULE_PRIV_KEY		"SIGNER.key"
+#define CAPSULE_PUB_KEY			"SIGNER.crt"
+#define CAPSULE_INVAL_KEY		"SIGNER2.key"
+#define CAPSULE_INVAL_PUB_KEY		"SIGNER2.crt"
+
 #endif /* _SANDBOX_EFI_CAPSULE_H_ */
