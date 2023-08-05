@@ -7,8 +7,7 @@
 
 / {
 	chosen {
-		stdout-path = "serial2:115200n8";
-		tick-timer = &timer1;
+		tick-timer = &main_timer0;
 	};
 
 	memory@80000000 {
@@ -16,15 +15,21 @@
 	};
 };
 
-&cbass_main{
+&vtt_supply {
 	bootph-pre-ram;
-	timer1: timer@2400000 {
-		compatible = "ti,omap5430-timer";
-		reg = <0x0 0x2400000 0x0 0x80>;
-		ti,timer-alwon;
-		clock-frequency = <200000000>;
-		bootph-pre-ram;
-	};
+};
+
+&cbass_main {
+	bootph-pre-ram;
+};
+
+&cbass_mcu {
+	bootph-pre-ram;
+};
+
+&main_timer0 {
+	bootph-pre-ram;
+	clock-frequency = <200000000>;
 };
 
 &main_conf {
@@ -36,21 +41,18 @@
 
 &main_pmx0 {
 	bootph-pre-ram;
-	main_i2c0_pins_default: main-i2c0-pins-default {
-		bootph-pre-ram;
-		pinctrl-single,pins = <
-			AM64X_IOPAD(0x0260, PIN_INPUT_PULLUP, 0) /* (A18) I2C0_SCL */
-			AM64X_IOPAD(0x0264, PIN_INPUT_PULLUP, 0) /* (B18) I2C0_SDA */
-		>;
-	};
+};
+
+&main_i2c0_pins_default {
+	bootph-pre-ram;
 };
 
 &main_i2c0 {
-	status = "okay";
 	bootph-pre-ram;
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_i2c0_pins_default>;
-	clock-frequency = <400000>;
+};
+
+&main_uart0_pins_default {
+	bootph-pre-ram;
 };
 
 &main_uart0 {
@@ -111,18 +113,7 @@
 };
 
 &cpsw3g {
-	reg = <0x0 0x8000000 0x0 0x200000>,
-	      <0x0 0x43000200 0x0 0x8>;
-	reg-names = "cpsw_nuss", "mac_efuse";
-	/delete-property/ ranges;
-	pinctrl-0 = <&mdio1_pins_default	/* HACK: as MDIO driver is not DM enabled */
-		     &rgmii1_pins_default
-		     &rgmii2_pins_default>;
-
-	cpsw-phy-sel@04044 {
-		compatible = "ti,am64-phy-gmii-sel";
-		reg = <0x0 0x43004044 0x0 0x8>;
-	};
+	bootph-pre-ram;
 };
 
 &cpsw_port2 {
