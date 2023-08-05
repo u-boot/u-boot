@@ -986,6 +986,7 @@ config CMD_BCB
 config CMD_BIND
 	bool "bind/unbind - Bind or unbind a device to/from a driver"
 	depends on DM
+	default y if USB_ETHER
 	help
 	  Bind or unbind a device to/from a driver from the command line.
 	  This is useful in situations where a device may be handled by several

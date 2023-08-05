@@ -2273,55 +2273,15 @@ fail:
 }
 
 /*-------------------------------------------------------------------------*/
-static void _usb_eth_halt(struct ether_priv *priv);
+static void usb_eth_stop(struct udevice *dev);
 
-static int _usb_eth_init(struct ether_priv *priv)
+static int usb_eth_start(struct udevice *udev)
 {
+	struct ether_priv *priv = dev_get_priv(udev);
 	struct eth_dev *dev = &priv->ethdev;
 	struct usb_gadget *gadget;
 	unsigned long ts;
-	int ret;
 	unsigned long timeout = USB_CONNECT_TIMEOUT;
-
-	ret = usb_gadget_initialize(0);
-	if (ret)
-		return ret;
-
-	/* Configure default mac-addresses for the USB ethernet device */
-#ifdef CONFIG_USBNET_DEV_ADDR
-	strlcpy(dev_addr, CONFIG_USBNET_DEV_ADDR, sizeof(dev_addr));
-#endif
-#ifdef CONFIG_USBNET_HOST_ADDR
-	strlcpy(host_addr, CONFIG_USBNET_HOST_ADDR, sizeof(host_addr));
-#endif
-	/* Check if the user overruled the MAC addresses */
-	if (env_get("usbnet_devaddr"))
-		strlcpy(dev_addr, env_get("usbnet_devaddr"),
-			sizeof(dev_addr));
-
-	if (env_get("usbnet_hostaddr"))
-		strlcpy(host_addr, env_get("usbnet_hostaddr"),
-			sizeof(host_addr));
-
-	if (!is_eth_addr_valid(dev_addr)) {
-		pr_err("Need valid 'usbnet_devaddr' to be set");
-		goto fail;
-	}
-	if (!is_eth_addr_valid(host_addr)) {
-		pr_err("Need valid 'usbnet_hostaddr' to be set");
-		goto fail;
-	}
-
-	priv->eth_driver.speed		= DEVSPEED;
-	priv->eth_driver.bind		= eth_bind;
-	priv->eth_driver.unbind		= eth_unbind;
-	priv->eth_driver.setup		= eth_setup;
-	priv->eth_driver.reset		= eth_disconnect;
-	priv->eth_driver.disconnect	= eth_disconnect;
-	priv->eth_driver.suspend	= eth_suspend;
-	priv->eth_driver.resume		= eth_resume;
-	if (usb_gadget_register_driver(&priv->eth_driver) < 0)
-		goto fail;
 
 	dev->network_started = 0;
 
@@ -2347,12 +2307,13 @@ static int _usb_eth_init(struct ether_priv *priv)
 	rx_submit(dev, dev->rx_req, 0);
 	return 0;
 fail:
-	_usb_eth_halt(priv);
+	usb_eth_stop(udev);
 	return -1;
 }
 
-static int _usb_eth_send(struct ether_priv *priv, void *packet, int length)
+static int usb_eth_send(struct udevice *udev, void *packet, int length)
 {
+	struct ether_priv *priv = dev_get_priv(udev);
 	int			retval;
 	void			*rndis_pkt = NULL;
 	struct eth_dev		*dev = &priv->ethdev;
@@ -2419,15 +2380,9 @@ drop:
 	return -ENOMEM;
 }
 
-static int _usb_eth_recv(struct ether_priv *priv)
+static void usb_eth_stop(struct udevice *udev)
 {
-	usb_gadget_handle_interrupts(0);
-
-	return 0;
-}
-
-static void _usb_eth_halt(struct ether_priv *priv)
-{
+	struct ether_priv *priv = dev_get_priv(udev);
 	struct eth_dev *dev = &priv->ethdev;
 
 	/* If the gadget not registered, simple return */
@@ -2454,36 +2409,14 @@ static void _usb_eth_halt(struct ether_priv *priv)
 		usb_gadget_handle_interrupts(0);
 		dev->network_started = 0;
 	}
-
-	usb_gadget_unregister_driver(&priv->eth_driver);
-	usb_gadget_release(0);
-}
-
-static int usb_eth_start(struct udevice *dev)
-{
-	struct ether_priv *priv = dev_get_priv(dev);
-
-	return _usb_eth_init(priv);
-}
-
-static int usb_eth_send(struct udevice *dev, void *packet, int length)
-{
-	struct ether_priv *priv = dev_get_priv(dev);
-
-	return _usb_eth_send(priv, packet, length);
 }
 
 static int usb_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct ether_priv *priv = dev_get_priv(dev);
 	struct eth_dev *ethdev = &priv->ethdev;
-	int ret;
 
-	ret = _usb_eth_recv(priv);
-	if (ret) {
-		pr_err("error packet receive\n");
-		return ret;
-	}
+	usb_gadget_handle_interrupts(0);
 
 	if (packet_received) {
 		if (ethdev->rx_req) {
@@ -2507,27 +2440,6 @@ static int usb_eth_free_pkt(struct udevice *dev, uchar *packet,
 	packet_received = 0;
 
 	return rx_submit(ethdev, ethdev->rx_req, 0);
-}
-
-static void usb_eth_stop(struct udevice *dev)
-{
-	struct ether_priv *priv = dev_get_priv(dev);
-
-	_usb_eth_halt(priv);
-}
-
-static int usb_eth_probe(struct udevice *dev)
-{
-	struct ether_priv *priv = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_plat(dev);
-
-	priv->netdev = dev;
-	l_priv = priv;
-
-	get_ether_addr(CONFIG_USBNET_DEV_ADDR, pdata->enetaddr);
-	eth_env_set_enetaddr("usbnet_devaddr", pdata->enetaddr);
-
-	return 0;
 }
 
 static const struct eth_ops usb_eth_ops = {
@@ -2555,6 +2467,69 @@ int usb_ether_init(void)
 		return ret;
 	}
 
+	return usb_gadget_initialize(0);
+}
+
+static int usb_eth_probe(struct udevice *dev)
+{
+	struct ether_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+
+	priv->netdev = dev;
+	l_priv = priv;
+
+	get_ether_addr(CONFIG_USBNET_DEV_ADDR, pdata->enetaddr);
+	eth_env_set_enetaddr("usbnet_devaddr", pdata->enetaddr);
+
+	/* Configure default mac-addresses for the USB ethernet device */
+#ifdef CONFIG_USBNET_DEV_ADDR
+	strlcpy(dev_addr, CONFIG_USBNET_DEV_ADDR, sizeof(dev_addr));
+#endif
+#ifdef CONFIG_USBNET_HOST_ADDR
+	strlcpy(host_addr, CONFIG_USBNET_HOST_ADDR, sizeof(host_addr));
+#endif
+	/* Check if the user overruled the MAC addresses */
+	if (env_get("usbnet_devaddr"))
+		strlcpy(dev_addr, env_get("usbnet_devaddr"),
+			sizeof(dev_addr));
+
+	if (env_get("usbnet_hostaddr"))
+		strlcpy(host_addr, env_get("usbnet_hostaddr"),
+			sizeof(host_addr));
+
+	if (!is_eth_addr_valid(dev_addr)) {
+		pr_err("Need valid 'usbnet_devaddr' to be set");
+		return -EINVAL;
+	}
+	if (!is_eth_addr_valid(host_addr)) {
+		pr_err("Need valid 'usbnet_hostaddr' to be set");
+		return -EINVAL;
+	}
+
+	priv->eth_driver.speed		= DEVSPEED;
+	priv->eth_driver.bind		= eth_bind;
+	priv->eth_driver.unbind		= eth_unbind;
+	priv->eth_driver.setup		= eth_setup;
+	priv->eth_driver.reset		= eth_disconnect;
+	priv->eth_driver.disconnect	= eth_disconnect;
+	priv->eth_driver.suspend	= eth_suspend;
+	priv->eth_driver.resume		= eth_resume;
+	return usb_gadget_register_driver(&priv->eth_driver);
+}
+
+static int usb_eth_remove(struct udevice *dev)
+{
+	struct ether_priv *priv = dev_get_priv(dev);
+
+	usb_gadget_unregister_driver(&priv->eth_driver);
+
+	return 0;
+}
+
+static int usb_eth_unbind(struct udevice *dev)
+{
+	usb_gadget_release(0);
+
 	return 0;
 }
 
@@ -2562,6 +2537,8 @@ U_BOOT_DRIVER(eth_usb) = {
 	.name	= "usb_ether",
 	.id	= UCLASS_ETH,
 	.probe	= usb_eth_probe,
+	.remove	= usb_eth_remove,
+	.unbind	= usb_eth_unbind,
 	.ops	= &usb_eth_ops,
 	.priv_auto	= sizeof(struct ether_priv),
 	.plat_auto	= sizeof(struct eth_pdata),
