@@ -7,6 +7,13 @@ F:      configs/evb-rk3568_defconfig
 F:	arch/arm/dts/rk3568-evb-boot.dtsi
 F:	arch/arm/dts/rk3568-evb.dts
 
+Lubancat-2
+M:	Andy Yan <andyshrk@163.com>
+S:	Maintained
+F:	configs/lubancat-2-rk3568_defconfig
+F:	arch/arm/dts/rk3568-lubancat-2.dts
+F:	arch/arm/dts/rk3568-lubancat-2-u-boot.dtsi
+
 NANOPI-R5C
 M:      Tianling Shen <cnsztl@gmail.com>
 S:      Maintained
