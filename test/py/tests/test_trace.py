@@ -61,7 +61,7 @@ def collect_trace(cons):
 
     # Read out the trace data
     addr = 0x02000000
-    size = 0x01000000
+    size = 0x02000000
     out = cons.run_command(f'trace calls {addr:x} {size:x}')
     print(out)
     fname = os.path.join(TMPDIR, 'trace')
