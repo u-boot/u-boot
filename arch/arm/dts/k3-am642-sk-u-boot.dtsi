@@ -54,67 +54,6 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c0_pins_default>;
 	clock-frequency = <400000>;
-
-	tps65219: pmic@30 {
-		compatible = "ti,tps65219";
-		reg = <0x30>;
-
-		regulators {
-			buck1_reg: buck1 {
-				regulator-name = "VDD_CORE";
-				regulator-min-microvolt = <750000>;
-				regulator-max-microvolt = <750000>;
-				regulator-boot-on;
-				regulator-always-on;
-			};
-
-			buck2_reg: buck2 {
-				regulator-name = "VCC1V8";
-				regulator-min-microvolt = <1800000>;
-				regulator-max-microvolt = <1800000>;
-				regulator-boot-on;
-				regulator-always-on;
-			};
-
-			buck3_reg: buck3 {
-				regulator-name = "VDD_LPDDR4";
-				regulator-min-microvolt = <1100000>;
-				regulator-max-microvolt = <1100000>;
-				regulator-boot-on;
-				regulator-always-on;
-			};
-
-			ldo1_reg: ldo1 {
-				regulator-name = "VDDSHV_SD_IO_PMIC";
-				regulator-min-microvolt = <33000000>;
-				regulator-max-microvolt = <33000000>;
-			};
-
-			ldo2_reg: ldo2 {
-				regulator-name = "VDDAR_CORE";
-				regulator-min-microvolt = <850000>;
-				regulator-max-microvolt = <850000>;
-				regulator-boot-on;
-				regulator-always-on;
-			};
-
-			ldo3_reg: ldo3 {
-				regulator-name = "VDDA_1V8";
-				regulator-min-microvolt = <18000000>;
-				regulator-max-microvolt = <18000000>;
-				regulator-boot-on;
-				regulator-always-on;
-			};
-
-			ldo4_reg: ldo4 {
-				regulator-name = "VDD_PHY_2V5";
-				regulator-min-microvolt = <25000000>;
-				regulator-max-microvolt = <25000000>;
-				regulator-boot-on;
-				regulator-always-on;
-			};
-		};
-	};
 };
 
 &main_uart0 {
