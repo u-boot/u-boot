@@ -48,6 +48,7 @@ U_BOOT_VPL_DATA       = b'vpl76543210fedcbazywxyz_'
 BLOB_DATA             = b'89'
 ME_DATA               = b'0abcd'
 VGA_DATA              = b'vga'
+EFI_CAPSULE_DATA      = b'efi'
 U_BOOT_DTB_DATA       = b'udtb'
 U_BOOT_SPL_DTB_DATA   = b'spldtb'
 U_BOOT_TPL_DTB_DATA   = b'tpldtb'
@@ -118,6 +119,11 @@ REPACK_DTB_PROPS = ['orig-offset', 'orig-size']
 COMP_BINTOOLS = ['bzip2', 'gzip', 'lz4', 'lzma_alone', 'lzop', 'xz', 'zstd']
 
 TEE_ADDR = 0x5678
+
+# Firmware Management Protocol(FMP) GUID
+FW_MGMT_GUID = 'edd5cb6d2de8444cbda17194199ad92a'
+# Image GUID specified in the DTS
+CAPSULE_IMAGE_GUID = '52cfd7092007104791d108469b7fe9c8'
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -215,6 +221,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
         TestFunctional._MakeInputFile('rockchip-tpl.bin', ROCKCHIP_TPL_DATA)
         TestFunctional._MakeInputFile('ti_unsecure.bin', TI_UNSECURE_DATA)
+        TestFunctional._MakeInputFile('capsule_input.bin', EFI_CAPSULE_DATA)
 
         # Add a few .dtb files for testing
         TestFunctional._MakeInputFile('%s/test-fdt1.dtb' % TEST_FDT_SUBDIR,
@@ -7215,6 +7222,117 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         err = stderr.getvalue()
         self.assertRegex(err,
                          "Image 'image'.*missing bintools.*: bootgen")
+
+    def _CheckCapsule(self, data, signed_capsule=False, version_check=False,
+                      capoemflags=False):
+        fmp_signature = "4d535331" # 'M', 'S', 'S', '1'
+        fmp_size = "10"
+        fmp_fw_version = "02"
+        oemflag = "0080"
+
+        payload_data = EFI_CAPSULE_DATA
+
+        # TODO - Currently, these offsets for capsule fields are hardcoded.
+        # There are plans to add support to the mkeficapsule tool to dump
+        # the capsule contents which can then be used for capsule
+        # verification.
+
+        # Firmware Management Protocol(FMP) GUID - offset(0 - 32)
+        self.assertEqual(FW_MGMT_GUID, data.hex()[:32])
+        # Image GUID - offset(96 - 128)
+        self.assertEqual(CAPSULE_IMAGE_GUID, data.hex()[96:128])
+
+        if capoemflags:
+            # OEM Flags - offset(40 - 44)
+            self.assertEqual(oemflag, data.hex()[40:44])
+        if signed_capsule and version_check:
+            # FMP header signature - offset(4770 - 4778)
+            self.assertEqual(fmp_signature, data.hex()[4770:4778])
+            # FMP header size - offset(4778 - 4780)
+            self.assertEqual(fmp_size, data.hex()[4778:4780])
+            # firmware version - offset(4786 - 4788)
+            self.assertEqual(fmp_fw_version, data.hex()[4786:4788])
+            # payload offset signed capsule(4802 - 4808)
+            self.assertEqual(payload_data.hex(), data.hex()[4802:4808])
+        elif signed_capsule:
+            # payload offset signed capsule(4770 - 4776)
+            self.assertEqual(payload_data.hex(), data.hex()[4770:4776])
+        elif version_check:
+            # FMP header signature - offset(184 - 192)
+            self.assertEqual(fmp_signature, data.hex()[184:192])
+            # FMP header size - offset(192 - 194)
+            self.assertEqual(fmp_size, data.hex()[192:194])
+            # firmware version - offset(200 - 202)
+            self.assertEqual(fmp_fw_version, data.hex()[200:202])
+            # payload offset for non-signed capsule with version header(216 - 222)
+            self.assertEqual(payload_data.hex(), data.hex()[216:222])
+        else:
+            # payload offset for non-signed capsule with no version header(184 - 190)
+            self.assertEqual(payload_data.hex(), data.hex()[184:190])
+
+    def testCapsuleGen(self):
+        """Test generation of EFI capsule"""
+        data = self._DoReadFile('311_capsule.dts')
+
+        self._CheckCapsule(data)
+
+    def testSignedCapsuleGen(self):
+        """Test generation of EFI capsule"""
+        data = tools.read_file(self.TestFile("key.key"))
+        self._MakeInputFile("key.key", data)
+        data = tools.read_file(self.TestFile("key.pem"))
+        self._MakeInputFile("key.crt", data)
+
+        data = self._DoReadFile('312_capsule_signed.dts')
+
+        self._CheckCapsule(data, signed_capsule=True)
+
+    def testCapsuleGenVersionSupport(self):
+        """Test generation of EFI capsule with version support"""
+        data = self._DoReadFile('313_capsule_version.dts')
+
+        self._CheckCapsule(data, version_check=True)
+
+    def testCapsuleGenSignedVer(self):
+        """Test generation of signed EFI capsule with version information"""
+        data = tools.read_file(self.TestFile("key.key"))
+        self._MakeInputFile("key.key", data)
+        data = tools.read_file(self.TestFile("key.pem"))
+        self._MakeInputFile("key.crt", data)
+
+        data = self._DoReadFile('314_capsule_signed_ver.dts')
+
+        self._CheckCapsule(data, signed_capsule=True, version_check=True)
+
+    def testCapsuleGenCapOemFlags(self):
+        """Test generation of EFI capsule with OEM Flags set"""
+        data = self._DoReadFile('315_capsule_oemflags.dts')
+
+        self._CheckCapsule(data, capoemflags=True)
+
+    def testCapsuleGenKeyMissing(self):
+        """Test that binman errors out on missing key"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('316_capsule_missing_key.dts')
+
+        self.assertIn("Both private key and public key certificate need to be provided",
+                      str(e.exception))
+
+    def testCapsuleGenIndexMissing(self):
+        """Test that binman errors out on missing image index"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('317_capsule_missing_index.dts')
+
+        self.assertIn("entry is missing properties: image-index",
+                      str(e.exception))
+
+    def testCapsuleGenGuidMissing(self):
+        """Test that binman errors out on missing image GUID"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('318_capsule_missing_guid.dts')
+
+        self.assertIn("entry is missing properties: image-guid",
+                      str(e.exception))
 
 if __name__ == "__main__":
     unittest.main()
