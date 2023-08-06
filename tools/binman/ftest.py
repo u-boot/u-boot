@@ -6974,7 +6974,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         entry_args = {
             'atf-bl31-path': 'bl31.elf',
         }
-        data = self._DoReadFileDtb('291_template_phandle.dts',
+        data = self._DoReadFileDtb('309_template_phandle.dts',
                                    entry_args=entry_args)
         fname = tools.get_output_filename('image.bin')
         out = tools.run('dumpimage', '-l', fname)
@@ -6990,7 +6990,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             'atf-bl31-path': 'bl31.elf',
         }
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('292_template_phandle_dup.dts',
+            self._DoReadFileDtb('310_template_phandle_dup.dts',
                                 entry_args=entry_args)
         self.assertIn(
             'Duplicate phandle 1 in nodes /binman/image/fit/images/atf/atf-bl31 and /binman/image-2/fit/images/atf/atf-bl31',
@@ -7138,6 +7138,83 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                           "sha384,rsa4096")
          self.assertEqual(fdt_util.GetString(key_node, "key-name-hint"),
                           "key")
+
+    def testXilinxBootgenSigning(self):
+        """Test xilinx-bootgen etype"""
+        bootgen = bintool.Bintool.create('bootgen')
+        self._CheckBintool(bootgen)
+        data = tools.read_file(self.TestFile("key.key"))
+        self._MakeInputFile("psk.pem", data)
+        self._MakeInputFile("ssk.pem", data)
+        self._SetupPmuFwlElf()
+        self._SetupSplElf()
+        self._DoReadFileRealDtb('307_xilinx_bootgen_sign.dts')
+        image_fname = tools.get_output_filename('image.bin')
+
+        # Read partition header table and check if authentication is enabled
+        bootgen_out = bootgen.run_cmd("-arch", "zynqmp",
+                                      "-read", image_fname, "pht").splitlines()
+        attributes = {"authentication": None,
+                      "core": None,
+                      "encryption": None}
+
+        for l in bootgen_out:
+            for a in attributes.keys():
+                if a in l:
+                   m = re.match(fr".*{a} \[([^]]+)\]", l)
+                   attributes[a] = m.group(1)
+
+        self.assertTrue(attributes['authentication'] == "rsa")
+        self.assertTrue(attributes['core'] == "a53-0")
+        self.assertTrue(attributes['encryption'] == "no")
+
+    def testXilinxBootgenSigningEncryption(self):
+        """Test xilinx-bootgen etype"""
+        bootgen = bintool.Bintool.create('bootgen')
+        self._CheckBintool(bootgen)
+        data = tools.read_file(self.TestFile("key.key"))
+        self._MakeInputFile("psk.pem", data)
+        self._MakeInputFile("ssk.pem", data)
+        self._SetupPmuFwlElf()
+        self._SetupSplElf()
+        self._DoReadFileRealDtb('308_xilinx_bootgen_sign_enc.dts')
+        image_fname = tools.get_output_filename('image.bin')
+
+        # Read boot header in order to verify encryption source and
+        # encryption parameter
+        bootgen_out = bootgen.run_cmd("-arch", "zynqmp",
+                                      "-read", image_fname, "bh").splitlines()
+        attributes = {"auth_only":
+                        {"re": r".*auth_only \[([^]]+)\]", "value": None},
+                      "encryption_keystore":
+                        {"re": r" *encryption_keystore \(0x28\) : (.*)",
+                            "value": None},
+                     }
+
+        for l in bootgen_out:
+            for a in attributes.keys():
+                if a in l:
+                   m = re.match(attributes[a]['re'], l)
+                   attributes[a] = m.group(1)
+
+        # Check if fsbl-attribute is set correctly
+        self.assertTrue(attributes['auth_only'] == "true")
+        # Check if key is stored in efuse
+        self.assertTrue(attributes['encryption_keystore'] == "0xa5c3c5a3")
+
+    def testXilinxBootgenMissing(self):
+        """Test that binman still produces an image if bootgen is missing"""
+        data = tools.read_file(self.TestFile("key.key"))
+        self._MakeInputFile("psk.pem", data)
+        self._MakeInputFile("ssk.pem", data)
+        self._SetupPmuFwlElf()
+        self._SetupSplElf()
+        with test_util.capture_sys_output() as (_, stderr):
+            self._DoTestFile('307_xilinx_bootgen_sign.dts',
+                             force_missing_bintools='bootgen')
+        err = stderr.getvalue()
+        self.assertRegex(err,
+                         "Image 'image'.*missing bintools.*: bootgen")
 
 if __name__ == "__main__":
     unittest.main()

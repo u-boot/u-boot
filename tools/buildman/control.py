@@ -610,6 +610,9 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
     toolchains = get_toolchains(toolchains, col, args.override_toolchain,
                                 args.fetch_arch, args.list_tool_chains,
                                 args.verbose)
+    if isinstance(toolchains, int):
+        return toolchains
+
     output_dir = setup_output_dir(
         args.output_dir, args.work_in_output, args.branch,
         args.no_subdirs, col, clean_dir)

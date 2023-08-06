@@ -2667,3 +2667,78 @@ may be used instead.
 
 
 
+.. _etype_xilinx_bootgen:
+
+Entry: xilinx-bootgen: Signed SPL boot image for Xilinx ZynqMP devices
+----------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - auth-params: (Optional) Authentication parameters passed to bootgen
+    - fsbl-config: (Optional) FSBL parameters passed to bootgen
+    - keysrc-enc: (Optional) Key source when using decryption engine
+    - pmufw-filename: Filename of PMU firmware. Default: pmu-firmware.elf
+    - psk-key-name-hint: Name of primary secret key to use for signing the
+                         secondardy public key. Format: .pem file
+    - ssk-key-name-hint: Name of secondardy secret key to use for signing
+                         the boot image. Format: .pem file
+
+The etype is used to create a boot image for Xilinx ZynqMP
+devices.
+
+Information for signed images:
+
+In AMD/Xilinx SoCs, two pairs of public and secret keys are used
+- primary and secondary. The function of the primary public/secret key pair
+is to authenticate the secondary public/secret key pair.
+The function of the secondary key is to sign/verify the boot image. [1]
+
+AMD/Xilinx uses the following terms for private/public keys [1]:
+
+    PSK = Primary Secret Key (Used to sign Secondary Public Key)
+    PPK = Primary Public Key (Used to verify Secondary Public Key)
+    SSK = Secondary Secret Key (Used to sign the boot image/partitions)
+    SPK = Used to verify the actual boot image
+
+The following example builds a signed boot image. The fuses of
+the primary public key (ppk) should be fused together with the RSA_EN flag.
+
+Example node::
+
+    spl {
+        filename = "boot.signed.bin";
+
+        xilinx-bootgen {
+            psk-key-name-hint = "psk0";
+            ssk-key-name-hint = "ssk0";
+            auth-params = "ppk_select=0", "spk_id=0x00000000";
+
+            u-boot-spl-nodtb {
+            };
+            u-boot-spl-pubkey-dtb {
+                algo = "sha384,rsa4096";
+                required = "conf";
+                key-name-hint = "dev";
+            };
+        };
+    };
+
+For testing purposes, e.g. if no RSA_EN should be fused, one could add
+the "bh_auth_enable" flag in the fsbl-config field. This will skip the
+verification of the ppk fuses and boot the image, even if ppk hash is
+invalid.
+
+Example node::
+
+    xilinx-bootgen {
+        psk-key-name-hint = "psk0";
+        psk-key-name-hint = "ssk0";
+        ...
+        fsbl-config = "bh_auth_enable";
+        ...
+    };
+
+[1] https://docs.xilinx.com/r/en-US/ug1283-bootgen-user-guide/Using-Authentication
+
+
+
+

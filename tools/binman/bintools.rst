@@ -208,7 +208,7 @@ Using `fdt_add_pubkey` the key can be injected to the SPL independent of
 
 
 Bintool: bootgen: Sign ZynqMP FSBL image
----------------------------------------------
+----------------------------------------
 
 This bintool supports running `bootgen` in order to sign a SPL for ZynqMP
 devices.
