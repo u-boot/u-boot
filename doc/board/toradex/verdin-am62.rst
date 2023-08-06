@@ -4,6 +4,9 @@
 Verdin AM62 Module
 ==================
 
+- SoM: https://www.toradex.com/computer-on-modules/verdin-arm-family/ti-am62
+- Carrier board: https://www.toradex.com/products/carrier-board/verdin-development-board-kit
+
 Quick Start
 -----------
 
@@ -74,57 +77,57 @@ Boot
 
 Output:
 
-.. code-block:: bash
+.. code-block:: none
 
-U-Boot SPL 2023.10-rc1-00210-gb678170a34c (Aug 03 2023 - 00:09:14 +0200)
-SYSFW ABI: 3.1 (firmware rev 0x0009 '9.0.1--v09.00.01 (Kool Koala)')
-SPL initial stack usage: 13368 bytes
-Trying to boot from MMC1
-Authentication passed
-Authentication passed
-Authentication passed
-Authentication passed
-Authentication passed
-Starting ATF on ARM64 core...
+  U-Boot SPL 2023.10-rc1-00210-gb678170a34c (Aug 03 2023 - 00:09:14 +0200)
+  SYSFW ABI: 3.1 (firmware rev 0x0009 '9.0.1--v09.00.01 (Kool Koala)')
+  SPL initial stack usage: 13368 bytes
+  Trying to boot from MMC1
+  Authentication passed
+  Authentication passed
+  Authentication passed
+  Authentication passed
+  Authentication passed
+  Starting ATF on ARM64 core...
 
-NOTICE:  BL31: v2.9(release):v2.9.0-73-g463655cc8
-NOTICE:  BL31: Built : 14:51:42, Jun  5 2023
-I/TC:
-I/TC: OP-TEE version: 3.21.0-168-g322cf9e33 (gcc version 12.2.1 20221205 (Arm GNU Toolchain 12.2.Rel1 (Build arm-12.24))) #2 Mon Jun  5 13:04:15 UTC 2023 aarch64
-I/TC: WARNING: This OP-TEE configuration might be insecure!
-I/TC: WARNING: Please check https://optee.readthedocs.io/en/latest/architecture/porting_guidelines.html
-I/TC: Primary CPU initializing
-I/TC: SYSFW ABI: 3.1 (firmware rev 0x0009 '9.0.1--v09.00.01 (Kool Koala)')
-I/TC: HUK Initialized
-I/TC: Primary CPU switching to normal world boot
+  NOTICE:  BL31: v2.9(release):v2.9.0-73-g463655cc8
+  NOTICE:  BL31: Built : 14:51:42, Jun  5 2023
+  I/TC:
+  I/TC: OP-TEE version: 3.21.0-168-g322cf9e33 (gcc version 12.2.1 20221205 (Arm GNU Toolchain 12.2.Rel1 (Build arm-12.24))) #2 Mon Jun  5 13:04:15 UTC 2023 aarch64
+  I/TC: WARNING: This OP-TEE configuration might be insecure!
+  I/TC: WARNING: Please check https://optee.readthedocs.io/en/latest/architecture/porting_guidelines.html
+  I/TC: Primary CPU initializing
+  I/TC: SYSFW ABI: 3.1 (firmware rev 0x0009 '9.0.1--v09.00.01 (Kool Koala)')
+  I/TC: HUK Initialized
+  I/TC: Primary CPU switching to normal world boot
 
-U-Boot SPL 2023.10-rc1-00210-gb678170a34c (Aug 03 2023 - 00:09:41 +0200)
-SYSFW ABI: 3.1 (firmware rev 0x0009 '9.0.1--v09.00.01 (Kool Koala)')
-SPL initial stack usage: 1840 bytes
-Trying to boot from MMC1
-Authentication passed
-Authentication passed
+  U-Boot SPL 2023.10-rc1-00210-gb678170a34c (Aug 03 2023 - 00:09:41 +0200)
+  SYSFW ABI: 3.1 (firmware rev 0x0009 '9.0.1--v09.00.01 (Kool Koala)')
+  SPL initial stack usage: 1840 bytes
+  Trying to boot from MMC1
+  Authentication passed
+  Authentication passed
 
 
-U-Boot 2023.10-rc1-00210-gb678170a34c (Aug 03 2023 - 00:09:41 +0200)
+  U-Boot 2023.10-rc1-00210-gb678170a34c (Aug 03 2023 - 00:09:41 +0200)
 
-SoC:   AM62X SR1.0 HS-FS
-DRAM:  2 GiB
-Core:  136 devices, 28 uclasses, devicetree: separate
-MMC:   mmc@fa10000: 0, mmc@fa00000: 1
-Loading Environment from MMC... OK
-In:    serial@2800000
-Out:   serial@2800000
-Err:   serial@2800000
-Model: Toradex 0076 Verdin AM62 Quad 2GB WB IT V1.0A
-Serial#: 15037380
-Carrier: Toradex Verdin Development Board V1.1A, Serial# 10754333
-am65_cpsw_nuss ethernet@8000000: K3 CPSW: nuss_ver: 0x6BA01103 cpsw_ver: 0x6BA81103 ale_ver: 0x00290105 Ports:2 mdio_freq:1000000
-Setting variant to wifi
-Net:
-Warning: ethernet@8000000port@1 MAC addresses don't match:
-Address in ROM is		1c:63:49:22:5f:f9
-Address in environment is	00:14:2d:e5:73:c4
-eth0: ethernet@8000000port@1 [PRIME], eth1: ethernet@8000000port@2
-Hit any key to stop autoboot:  0
-Verdin AM62 #
+  SoC:   AM62X SR1.0 HS-FS
+  DRAM:  2 GiB
+  Core:  136 devices, 28 uclasses, devicetree: separate
+  MMC:   mmc@fa10000: 0, mmc@fa00000: 1
+  Loading Environment from MMC... OK
+  In:    serial@2800000
+  Out:   serial@2800000
+  Err:   serial@2800000
+  Model: Toradex 0076 Verdin AM62 Quad 2GB WB IT V1.0A
+  Serial#: 15037380
+  Carrier: Toradex Verdin Development Board V1.1A, Serial# 10754333
+  am65_cpsw_nuss ethernet@8000000: K3 CPSW: nuss_ver: 0x6BA01103 cpsw_ver: 0x6BA81103 ale_ver: 0x00290105 Ports:2 mdio_freq:1000000
+  Setting variant to wifi
+  Net:
+  Warning: ethernet@8000000port@1 MAC addresses don't match:
+  Address in ROM is		1c:63:49:22:5f:f9
+  Address in environment is	00:14:2d:e5:73:c4
+  eth0: ethernet@8000000port@1 [PRIME], eth1: ethernet@8000000port@2
+  Hit any key to stop autoboot:  0
+  Verdin AM62 #
