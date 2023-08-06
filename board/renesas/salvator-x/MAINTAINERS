@@ -1,6 +1,8 @@
 SALVATOR_X BOARD
+M:	Marek Vasut <marek.vasut+renesas@mailbox.org>
 M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 S:	Maintained
+F:	arch/arm/dts/*salvator-x*
 F:	board/renesas/salvator-x/
-F:	include/configs/salvator-x.h
 F:	configs/rcar3_salvator-x_defconfig
+F:	include/configs/salvator-x.h

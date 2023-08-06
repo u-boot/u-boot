@@ -462,10 +462,30 @@ F:	configs/cubieboard7_defconfig
 
 ARM RENESAS RMOBILE/R-CAR
 M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-M:	Marek Vasut <marek.vasut+renesas@gmail.com>
+M:	Marek Vasut <marek.vasut+renesas@mailbox.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-sh.git
 F:	arch/arm/mach-rmobile/
+F:	drivers/clk/renesas/
+F:	drivers/gpio/gpio-rcar.c
+F:	drivers/i2c/rcar_*
+F:	drivers/i2c/sh_i2c.c
+F:	drivers/mmc/renesas-sdhi.c
+F:	drivers/mmc/sh_mmcif*
+F:	drivers/mmc/tmio-common*
+F:	drivers/mtd/renesas_rpc_hf.c
+F:	drivers/net/ravb.c
+F:	drivers/net/rswitch.c
+F:	drivers/net/sh_eth*
+F:	drivers/pci/pci-rcar-*
+F:	drivers/phy/phy-rcar-*
+F:	drivers/phy/renesas/
+F:	drivers/pinctrl/renesas/
+F:	drivers/serial/serial_sh*
+F:	drivers/spi/renesas_rpc_spi.c
+F:	drivers/spi/sh_qspi.c
+F:	drivers/sysinfo/rcar3.c
+F:	drivers/usb/host/xhci-rcar*
 
 ARM ROCKCHIP
 M:	Simon Glass <sjg@chromium.org>
