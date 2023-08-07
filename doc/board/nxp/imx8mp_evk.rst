@@ -44,7 +44,6 @@ Build U-Boot
    $ cp ../firmware-imx-8.10/firmware/ddr/synopsys/lpddr4_pmu_train_1d_imem_202006.bin ./build/
    $ cp ../firmware-imx-8.10/firmware/ddr/synopsys/lpddr4_pmu_train_2d_dmem_202006.bin ./build/
    $ cp ../firmware-imx-8.10/firmware/ddr/synopsys/lpddr4_pmu_train_2d_imem_202006.bin ./build/
-   $ export ATF_LOAD_ADDR=0x970000
    $ make O=build
 
 Burn the flash.bin to the MicroSD card at offset 32KB:
