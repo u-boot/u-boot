@@ -80,6 +80,32 @@ class Bintoolmkeficapsule(bintool.Bintool):
 
         return self.run_cmd(*args)
 
+    def generate_empty_capsule(self, image_guid, output_fname,
+                               accept=True):
+        """Generate empty capsules for FWU A/B updates
+
+        Args:
+            image_guid (str): GUID used for identifying the image
+                in case of an accept capsule
+            output_fname (str): Path to the output capsule file
+            accept (bool): Generate an accept capsule,
+                else a revert capsule
+
+        Returns:
+            str: Tool output
+        """
+        if accept:
+            args = [
+                f'--guid={image_guid}',
+                '--fw-accept'
+            ]
+        else:
+            args = [ '--fw-revert' ]
+
+        args += [ output_fname ]
+
+        return self.run_cmd(*args)
+
     def fetch(self, method):
         """Fetch handler for mkeficapsule
 
