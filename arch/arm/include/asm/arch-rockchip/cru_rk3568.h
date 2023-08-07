@@ -106,6 +106,8 @@ struct rk3568_cru {
 	unsigned int emmc_con[2];/* Address Offset: 0x0598 */
 };
 
+#define rockchip_cru rk3568_cru
+
 check_member(rk3568_cru, mode_con00, 0xc0);
 check_member(rk3568_cru, softrst_con[0], 0x400);
 
