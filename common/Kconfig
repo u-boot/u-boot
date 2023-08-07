@@ -951,6 +951,7 @@ menu "Blob list"
 
 config BLOBLIST
 	bool "Support for a bloblist"
+	select CRC32
 	help
 	  This enables support for a bloblist in U-Boot, which can be passed
 	  from TPL to SPL to U-Boot proper (and potentially to Linux). The
@@ -961,6 +962,7 @@ config BLOBLIST
 config SPL_BLOBLIST
 	bool "Support for a bloblist in SPL"
 	depends on BLOBLIST && SPL_LIBGENERIC_SUPPORT && SPL_LIBCOMMON_SUPPORT
+	select SPL_CRC32
 	default y if SPL
 	help
 	  This enables a bloblist in SPL. If this is the first part of U-Boot
@@ -970,6 +972,7 @@ config SPL_BLOBLIST
 config TPL_BLOBLIST
 	bool "Support for a bloblist in TPL"
 	depends on BLOBLIST && TPL_LIBGENERIC_SUPPORT && TPL_LIBCOMMON_SUPPORT
+	select TPL_CRC32
 	default y if TPL
 	help
 	  This enables a bloblist in TPL. The bloblist is set up in TPL and
@@ -1171,7 +1174,7 @@ config BMP
 	  Enable bmp functions to display bmp image and get bmp info.
 
 config SPL_BMP
-	bool "Enable bmp image display at  SPL"
+	bool "Enable bmp image display at SPL"
 	depends on SPL_VIDEO
 	help
 	  Enable bmp functions to display bmp image and get bmp info at SPL.

@@ -534,6 +534,17 @@ config SHA_HW_ACCEL
 
 if SPL
 
+config SPL_CRC32
+	bool "Enable CRC32 support in SPL"
+	default y if SPL_LEGACY_IMAGE_SUPPORT || SPL_EFI_PARTITION
+	default y if SPL_ENV_SUPPORT || TPL_BLOBLIST
+	help
+	  This option enables support of hashing using CRC32 algorithm.
+	  The CRC32 algorithm produces 32-bit checksum value. For FIT
+	  images, this is the least secure type of checksum, suitable for
+	  detected accidental image corruption. For secure applications you
+	  should consider SHA256 or SHA384.
+
 config SPL_SHA1
 	bool "Enable SHA1 support in SPL"
 	default y if SHA1

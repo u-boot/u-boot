@@ -105,9 +105,6 @@ struct erofs_sb_info {
 	u8 xattr_prefix_count;
 };
 
-/* make sure that any user of the erofs headers has at least 64bit off_t type */
-extern int erofs_assert_largefile[sizeof(off_t) - 8];
-
 static inline erofs_off_t iloc(erofs_nid_t nid)
 {
 	return erofs_pos(sbi.meta_blkaddr) + (nid << sbi.islotbits);

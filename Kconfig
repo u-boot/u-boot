@@ -298,7 +298,7 @@ config SYS_MALLOC_LEN
 config SPL_SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool in SPL"
 	depends on SYS_MALLOC_F && SPL
-	default 0 if !SPL_FRAMEWORK
+	default 0x0 if !SPL_FRAMEWORK
 	default 0x2800 if RCAR_GEN3
 	default 0x2000 if IMX8MQ
 	default SYS_MALLOC_F_LEN

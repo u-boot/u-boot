@@ -383,10 +383,15 @@ static int board_cycle_retimer(struct udevice **retim_dev)
 			puts("(retimer on, resetting...) ");
 
 			ret = misc_call(uc_dev, TEN64_CNTRL_10G_OFF, NULL, 0, NULL, 0);
+			if (ret)
+				return ret;
 			mdelay(1000);
 		}
 
+		/* Turn on the retimer */
 		ret = misc_call(uc_dev, TEN64_CNTRL_10G_ON, NULL, 0, NULL, 0);
+		if (ret)
+			return ret;
 	}
 
 	// Wait for retimer to come back
