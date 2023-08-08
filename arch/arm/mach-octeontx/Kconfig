@@ -1,0 +1,23 @@
+if ARCH_OCTEONTX
+
+choice
+	prompt "OcteonTX board select"
+	optional
+
+config TARGET_OCTEONTX_81XX
+	bool "Marvell OcteonTX CN81XX"
+
+config TARGET_OCTEONTX_83XX
+	bool "Marvell OcteonTX CN83XX"
+
+endchoice
+
+config SYS_SOC
+	string
+	default "octeontx"
+
+config SYS_PCI_64BIT
+	bool
+	default y
+
+endif

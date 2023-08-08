@@ -256,7 +256,7 @@ int genphy_update_link(struct phy_device *phydev)
 				return -EINTR;
 			}
 
-			if ((i++ % 500) == 0)
+			if ((i++ % 1000) == 0)
 				printf(".");
 
 			udelay(1000);	/* 1 ms */

@@ -262,6 +262,10 @@ int env_load(void);
  */
 int env_save(void);
 
+#ifdef CONFIG_ENV_WRITE_DEFAULT_IF_CRC_BAD
+int env_write_default_if_crc_bad(void);
+#endif
+
 /**
  * env_erase() - Erase the environment on storage
  *
@@ -332,5 +336,15 @@ int env_get_char(int index);
  * This is used for those unfortunate archs with crappy toolchains
  */
 void env_reloc(void);
+
+/*  */
+/**
+ * cmd_hw_info_load() - load HW information to environment
+ *
+ * This is updates environment with HW info.
+ */
+#ifdef CONFIG_CMD_MVEBU_HW_INFO
+int cmd_hw_info_load(char *name, int silence);
+#endif
 
 #endif

@@ -1,0 +1,90 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ */
+
+#include "armada-70x0.dtsi" /* include SoC device tree */
+#include "armada-7040-dev-info.dtsi"
+
+#define CP110_NUM				0
+#define SPI_DIRECT_BASE				(0xf9000000)
+
+/ {
+	model = "DB-ARMADA-70x0";
+	compatible = "marvell,armada-70x0-db", "marvell,armada-70x0";
+
+	cp0 {
+		config-space {
+			ranges = <0x0 U64_TO_U32_H(CP110_BASE) U64_TO_U32_L(CP110_BASE) 0x2000000>,			/* internal regs */
+				 <0x2000000 U64_TO_U32_H(SPI_DIRECT_BASE) U64_TO_U32_L(SPI_DIRECT_BASE) 0x1000000>;	/* SPI1-DEV0 */
+			i2c@701000 {
+				expander0: pca953x@21 {
+					compatible = "nxp,pca9555";
+					#gpio-cells = <2>;
+					reg = <0x21>;
+					status = "okay";
+				};
+			};
+
+			sdhci@780000 {
+				vqmmc-supply = <&cp0_reg_sd_vccq>;
+			};
+
+			cp0_reg_usb3_vbus0:cp0_usb3_vbus@0 {
+				compatible = "regulator-fixed";
+				regulator-min-microvolt = <5000000>;
+				regulator-max-microvolt = <5000000>;
+				startup-delay-us = <100000>;
+				regulator-force-boot-off;
+				gpio = <&expander0 0 GPIO_ACTIVE_HIGH>;
+			};
+
+			cp0_reg_usb3_vbus1: cp0_usb3_vbus@1 {
+				compatible = "regulator-fixed";
+				regulator-min-microvolt = <5000000>;
+				regulator-max-microvolt = <5000000>;
+				startup-delay-us = <100000>;
+				regulator-force-boot-off;
+				gpio = <&expander0 1 GPIO_ACTIVE_HIGH>;
+			};
+
+			cp0_reg_usb3_current_limiter0:cp0_usb3_current_limiter@0 {
+				compatible = "regulator-fixed";
+				regulator-min-microamp = <900000>;
+				regulator-max-microamp = <900000>;
+				regulator-force-boot-off;
+				gpio = <&expander0 4 GPIO_ACTIVE_HIGH>;
+			};
+
+			cp0_reg_usb3_current_limiter1: cp0_usb3_current_limiter@1 {
+				compatible = "regulator-fixed";
+				regulator-min-microamp = <900000>;
+				regulator-max-microamp = <900000>;
+				regulator-force-boot-off;
+				gpio = <&expander0 5 GPIO_ACTIVE_HIGH>;
+			};
+
+			cp0_usb3_0: usb3@500000 {
+				vbus-supply = <&cp0_reg_usb3_vbus0>;
+				current-limiter = <&cp0_reg_usb3_current_limiter0>;
+				vbus-disable-delay = <500>;
+			};
+
+			cp0_usb3_1: usb3@510000 {
+				vbus-supply = <&cp0_reg_usb3_vbus1>;
+				current-limiter = <&cp0_reg_usb3_current_limiter1>;
+				vbus-disable-delay = <500>;
+			};
+
+			cp0_reg_sd_vccq: cp0_sd_vccq@0 {
+				compatible = "regulator-gpio";
+				regulator-name = "cp0_sd_vcc";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <3300000>;
+				gpios = <&expander0 15 GPIO_ACTIVE_HIGH>;
+				states = <1800000 0x1
+					  3300000 0x0>;
+			};
+		};
+	};
+};

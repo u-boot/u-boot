@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ */
+
+#include "armada-3720-espressobin.dts"
+
+/ {
+	model = "Marvell Armada 3720 Community Board ESPRESSOBin (eMMC)";
+	compatible = "marvell,armada-3720-espressobin",
+		     "marvell,armada-3720-espressobin-emmc",
+		     "marvell,armada3720", "marvell,armada3710";
+
+};
+
+/* U11 */
+&sdhci1 {
+	status = "okay";
+};

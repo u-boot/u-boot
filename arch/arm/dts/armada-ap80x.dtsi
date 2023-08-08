@@ -1,0 +1,151 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ *
+ * https://spdx.org/licenses
+ */
+
+/*
+ * Device Tree file for Marvell Armada AP806/AP807.
+ */
+
+/dts-v1/;
+/ {
+	compatible = "marvell,armada-ap806";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	aliases {
+		serial0 = &uart0;
+		serial1 = &uart1;
+	};
+
+	psci {
+		compatible = "arm,psci-0.2";
+		method = "smc";
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		psci-area@4000000 {
+			reg = <0x0 0x4000000 0x0 0x200000>;
+			no-map;
+		};
+	};
+
+	AP_NAME {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		compatible = "simple-bus";
+		ranges;
+
+		config-space {
+			#address-cells = <1>;
+			#size-cells = <1>;
+			compatible = "simple-bus";
+			ranges = <0x0 0x0 0xf0000000 0x1000000>;
+
+			ap_pinctl: ap-pinctl@6F4000 {
+				compatible = "marvell,ap806-pinctrl";
+				bank-name ="apn-806";
+				reg = <0x6F4000 0x10>;
+				pin-count = <20>;
+				max-func = <3>;
+
+				ap_i2c0_pins: i2c-pins-0 {
+					marvell,pins = < 4 5 >;
+					marvell,function = <3>;
+				};
+				ap_emmc_pins: emmc-pins-0 {
+					marvell,pins = < 0 1 2 3 4 5 6 7
+							 8 9 10 12 >;
+					marvell,function = <1>;
+				};
+				ap_spi0_pins: spi-pins-0 {
+					marvell,pins = < 0 1 2 3>;
+					marvell,function = <3>;
+				};		
+			};
+
+			ap_gpio0: gpio@6F5040 {
+				compatible = "marvell,orion-gpio";
+				reg = <0x6F5040 0x40>;
+				ngpios = <20>;
+				gpio-controller;
+				#gpio-cells = <2>;
+			};
+
+			ap_spi0: spi@510600 {
+				compatible = "marvell,armada-380-spi";
+				reg = <0x510600 0x50>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				cell-index = <1>;
+				spi-max-frequency = <50000000>;
+                                pinctrl-names = "default";
+        			pinctrl-0 = <&ap_spi0_pins>;
+
+				
+			};
+
+			ap_i2c0: i2c@511000 {
+				compatible = "marvell,mv78230-i2c";
+				reg = <0x511000 0x20>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				timeout-ms = <1000>;
+				status = "disabled";
+			};
+
+			uart0: serial@512000 {
+				compatible = "snps,dw-apb-uart";
+				reg = <0x512000 0x100>;
+				reg-shift = <2>;
+				reg-io-width = <1>;
+				status = "disabled";
+				clock-frequency = <200000000>;
+			};
+
+			uart1: serial@512100 {
+				compatible = "snps,dw-apb-uart";
+				reg = <0x512100 0x100>;
+				reg-shift = <2>;
+				reg-io-width = <1>;
+				status = "disabled";
+
+			};
+
+			ap_sdhci0: sdhci@6e0000 {
+				compatible = "marvell,armada-8k-sdhci";
+				reg = <0x6e0000 0x300>;
+				dma-coherent;
+				status = "disabled";
+			};
+
+			ap_ld_efuse0: efuse-0@6F8F00 {
+				compatible = "marvell,mvebu-fuse-ld-user";
+				reg = <0x6F8008 0x4>;
+				otp-mem = <0x6F8F00>;
+				status = "disabled";
+			};
+
+			ap_ld_efuse1: efuse-1@6F8F00 {
+				compatible = "marvell,mvebu-fuse-ld-prop";
+				reg = <0x6F8008 0x4>;
+				otp-mem = <0x6F8F00>;
+				status = "disabled";
+			};
+
+			ap_hd_efuse0: efuse@6F9000  {
+				compatible = "marvell,mvebu-fuse-hd";
+				reg = <0x6F8008 0x4>;
+				otp-mem = <0x6F9000>;
+				rows-count = <64>;
+				status = "disabled";
+			};
+		};
+	};
+};

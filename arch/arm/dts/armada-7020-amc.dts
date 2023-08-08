@@ -1,0 +1,212 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ */
+
+/*
+ * Device Tree file for Marvell Armada 7020 AMC board
+ * Boot device: NAND
+ */
+
+#include "armada-70x0.dtsi"
+
+/ {
+	model = "Marvell Armada 7020 AMC";
+	compatible = "marvell,armada7020-amc", "marvell,armada7020",
+		     "marvell,armada-ap806";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	aliases {
+		i2c0 = &cp0_i2c0;
+		i2c1 = &cp0_mss_i2c0;
+		i2c2 = &ap_i2c0;
+		spi0 = &ap_spi0;
+	};
+
+	memory@00000000 {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>; /* 2GB */
+	};
+
+	simple-bus {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		reg_smi0: reg_smi {
+			compatible = "regulator-fixed";
+			regulator-name = "reg-smi";
+			/*
+			 * set GPIO[31] to 0 to connect SMI to main switch
+			 * board
+			 */
+			gpio = <&cp0_gpio0 31 GPIO_ACTIVE_HIGH>;
+		};
+
+		reg_i2c0: reg_i2c {
+			compatible = "regulator-fixed";
+			regulator-name = "reg-i2c";
+			enable-active-high;
+			 /*
+			  * set GPIO[44] to 1 to connect ap_i2c0 to main switch
+			  * board
+			  */
+			gpio = <&cp0_gpio1 12 GPIO_ACTIVE_HIGH>;
+		};
+	};
+};
+
+&ap_pinctl {
+	   /* MPP Bus:
+	    * SPI  [0-3]
+	    * I2C  [4-5]
+	    * UART0 [11,19]
+	    */
+		  /* 0 1 2 3 4 5 6 7 8 9 */
+	pin-func = < 3 3 3 3 3 3 0 0 0 0
+		     0 3 0 0 0 0 0 0 0 3 >;
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&ap_i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ap_i2c0_pins>;
+	enable_gpios = <&reg_i2c0>;
+	status = "okay";
+};
+
+&ap_spi0 {
+	status = "okay";
+
+	spi-flash@0 {
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		compatible = "jedec,spi-nor", "spi-flash";
+		reg = <0x0>;
+		spi-max-frequency = <108000000>;
+	};
+};
+
+&cp0_nand {
+	status = "okay";
+};
+
+&cp0_pcie0 {
+	num-lanes = <4>;
+	ranges =
+		/* downstream I/O */
+		<0x81000000 0 0xfa000000 0  0xfa000000 0 0x10000
+		/* non-prefetchable memory */
+		0x82000000 0 0xf6000000 0  0xf6000000 0 0x4000000>;
+
+	status = "okay";
+};
+
+&cp0_i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_i2c0_pins>;
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&cp0_mss_i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&cp0_pinctl {
+		/* MPP Bus:
+		 * RGMII [0-11]
+		 * Device Bus [13-27]
+		 * SATA1 [28]
+		 * UART0 [29-30]
+		 * SMI	 [32,34]
+		 * XSMI  [35-36]
+		 * I2C0	 [37-38]
+		 * I2C1	 [50-51]
+		 * SD	 [49, 55-61]
+		 */
+		/*   0    1    2    3    4    5    6    7    8    9 */
+	pin-func = < 3    3    3    3    3    3    3    3    3    3
+		     3    3    0    2    3    1    1    1    1    1
+		     1    1    1    1    1    1    1    1    9    0xA
+		     0xA  0    7    0    7    7    7    2    2    0xFF
+		     0xFF 0xFF 0xFF 0xFF 0    0    0    0    0    0xA
+		     2    2    0    0    0    0xB  0xE  0xE  0xE  0xE
+		     0xE  0xE  0>;
+};
+
+&cp0_sata0 {
+	status = "okay";
+};
+
+&cp0_comphy {
+	phy0 {
+		phy-type = <COMPHY_TYPE_PEX0>;
+	};
+
+	phy1 {
+		phy-type = <COMPHY_TYPE_PEX0>;
+	};
+
+	phy2 {
+		phy-type = <COMPHY_TYPE_PEX0>;
+	};
+
+	phy3 {
+		phy-type = <COMPHY_TYPE_PEX0>;
+	};
+
+	phy4 {
+		phy-type = <COMPHY_TYPE_SFI0>;
+		phy-speed = <COMPHY_SPEED_10_3125G>;
+	};
+
+	phy5 {
+		phy-type = <COMPHY_TYPE_SATA1>;
+	};
+};
+
+&cp0_usb3_0 {
+	status = "okay";
+};
+
+&cp0_utmi0 {
+	status = "okay";
+};
+
+&cp0_sdhci0 {
+	status = "okay";
+	bus-width = <4>;
+	no-1-8-v;
+	non-removable;
+};
+
+&cp0_mdio {
+	status = "okay";
+	enable_gpios = <&reg_smi0>;
+	phy1: ethernet-phy@1 {
+		reg = <1>;
+	};
+};
+
+&cp0_ethernet {
+	status = "okay";
+};
+
+&cp0_eth0 {
+	status = "okay";
+	phy-mode = "sfi";
+};
+
+&cp0_eth1 {
+	status = "okay";
+	phy = <&phy1>;
+	phy-mode = "rgmii-id";
+};

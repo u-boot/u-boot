@@ -37,6 +37,15 @@ config RTC_ENABLE_32KHZ_OUTPUT
 	   Some real-time clocks support the output of 32kHz square waves (such as ds3231),
 	   the config symbol choose Real Time Clock device 32Khz output feature.
 
+config MARVELL_RTC
+	bool "MARVELL RTC support"
+	depends on DM_RTC
+	help
+	  Choose this option to add
+	  support for Marvell's
+	  RTC driver, which is used
+	  by Armada 7K, 8K, 3900 and OcteonTX2 CN913x.
+
 config RTC_PCF2127
 	bool "Enable PCF2127 driver"
 	depends on DM_RTC
@@ -52,6 +61,13 @@ config RTC_DS1307
 	depends on DM_RTC
 	help
 	  Support for Dallas Semiconductor (now Maxim) DS1307 and DS1338/9 and
+	  compatible Real Time Clock devices.
+
+config RTC_DS1337
+	bool "Enable DS1337 driver"
+	depends on DM_RTC
+	help
+	  Support for Dallas Semiconductor (now Maxim) DS1337/39 and DS1388 and
 	  compatible Real Time Clock devices.
 
 config RTC_ISL1208

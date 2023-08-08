@@ -599,10 +599,19 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 {
 	int sub_bus;
 	int ret;
+	int ea_pos;
+	u8 reg;
 
 	debug("%s\n", __func__);
 
-	sub_bus = pci_get_bus_max() + 1;
+	ea_pos = dm_pci_find_capability(bus, PCI_CAP_ID_EA);
+
+	if (ea_pos) {
+		dm_pci_read_config8(bus, ea_pos + sizeof(u32) + sizeof(u8), &reg);
+		sub_bus = reg;
+	} else {
+		sub_bus = pci_get_bus_max() + 1;
+	}
 	debug("%s: bus = %d/%s\n", __func__, sub_bus, bus->name);
 	dm_pciauto_prescan_setup_bridge(bus, sub_bus);
 
@@ -612,12 +621,15 @@ int dm_pci_hose_probe_bus(struct udevice *bus)
 		      ret);
 		return ret;
 	}
-	if (sub_bus != bus->seq) {
-		printf("%s: Internal error, bus '%s' got seq %d, expected %d\n",
-		       __func__, bus->name, bus->seq, sub_bus);
-		return -EPIPE;
+
+	if (!ea_pos) {
+		if (sub_bus != bus->seq) {
+			printf("%s: Internal error, bus '%s' got seq %d, expected %d\n",
+			       __func__, bus->name, bus->seq, sub_bus);
+			return -EPIPE;
+		}
+		sub_bus = pci_get_bus_max();
 	}
-	sub_bus = pci_get_bus_max();
 	dm_pciauto_postscan_setup_bridge(bus, sub_bus);
 
 	return sub_bus;
@@ -675,7 +687,8 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 	      find_id->vendor, find_id->device);
 
 	/* Determine optional OF node */
-	pci_dev_find_ofnode(parent, bdf, &node);
+	if (ofnode_valid(dev_ofnode(parent)))
+		pci_dev_find_ofnode(parent, bdf, &node);
 
 	start = ll_entry_start(struct pci_driver_entry, pci_driver_entry);
 	n_ents = ll_entry_count(struct pci_driver_entry, pci_driver_entry);
@@ -759,7 +772,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 	ulong header_type;
 	pci_dev_t bdf, end;
 	bool found_multi;
-	int ret;
+	int ret, ari_off;
 
 	found_multi = false;
 	end = PCI_BDF(bus->seq, PCI_MAX_PCI_DEVICES - 1,
@@ -831,6 +844,22 @@ int pci_bind_bus_devices(struct udevice *bus)
 		pplat->vendor = vendor;
 		pplat->device = device;
 		pplat->class = class;
+
+		ari_off = dm_pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI);
+		if (ari_off) {
+			u16 ari_cap;
+
+			/* Read Next Function number in ARI Cap Register */
+			dm_pci_read_config16(dev, ari_off + 4, &ari_cap);
+			/* Update next scan on this function number,
+			 * subtract 1 in BDF to satisfy loop increment.
+			 */
+			if (ari_cap & 0xff00) {
+				bdf = PCI_BDF(PCI_BUS(bdf), PCI_DEV(ari_cap),
+					      PCI_FUNC(ari_cap));
+				bdf = bdf - 0x100;
+			}
+		}
 	}
 
 	return 0;
@@ -900,10 +929,12 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 		}
 
 		pos = -1;
+#if !CONFIG_IS_ENABLED(PCI_REGION_MULTI_ENTRY)
 		for (i = 0; i < hose->region_count; i++) {
 			if (hose->regions[i].flags == type)
 				pos = i;
 		}
+#endif
 		if (pos == -1)
 			pos = hose->region_count++;
 		debug(" - type=%d, pos=%d\n", type, pos);
@@ -1342,12 +1373,18 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
 }
 
 static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
-			       int ea_off)
+			       int ea_off, struct pci_child_platdata *pdata)
 {
 	int ea_cnt, i, entry_size;
 	int bar_id = (bar - PCI_BASE_ADDRESS_0) >> 2;
 	u32 ea_entry;
 	phys_addr_t addr;
+
+	/* In case of Virtual Function devices, device is Physical function,
+	 * so pdata will point to required VF specific data.
+	 */
+	if (pdata->is_virtfn)
+		bar_id += PCI_EA_BEI_VF_BAR0;
 
 	/* EA capability structure header */
 	dm_pci_read_config32(dev, ea_off, &ea_entry);
@@ -1371,8 +1408,28 @@ static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
 			addr |= ((u64)ea_entry) << 32;
 		}
 
+		/* In case of Virtual Function devices using BAR
+		 * base and size, add offset for VFn BAR(1, 2, 3...n)
+		 */
+		if (pdata->is_virtfn) {
+			size_t sz;
+
+			/* MaxOffset, 1st DW */
+			dm_pci_read_config32(dev, ea_off + 8, &ea_entry);
+			sz = ea_entry & PCI_EA_FIELD_MASK;
+			/* Fill up lower 2 bits */
+			sz |= (~PCI_EA_FIELD_MASK);
+			if (ea_entry & PCI_EA_IS_64) {
+				/* MaxOffset 2nd DW */
+				dm_pci_read_config32(dev, ea_off + 16,
+						     &ea_entry);
+				sz |= ((u64)ea_entry) << 32;
+			}
+			addr += (pdata->virtid - 1) * (sz + 1);
+		}
+
 		/* size ignored for now */
-		return map_physmem(addr, flags, 0);
+		return map_physmem(addr, 0, flags);
 	}
 
 	return 0;
@@ -1383,26 +1440,36 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 	pci_addr_t pci_bus_addr;
 	u32 bar_response;
 	int ea_off;
+	struct udevice *udev = dev;
+	struct pci_child_platdata *pdata = dev_get_parent_platdata(dev);
+
+	/* In case of Virtual Function devices, use PF udevice
+	 * as EA capability is defined in Physical Function
+	 */
+	if (pdata->is_virtfn)
+		udev = pdata->pfdev;
 
 	/*
 	 * if the function supports Enhanced Allocation use that instead of
 	 * BARs
+	 * Incase of virtual functions, pdata will help read VF BEI
+	 * and EA entry size.
 	 */
-	ea_off = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
+	ea_off = dm_pci_find_capability(udev, PCI_CAP_ID_EA);
 	if (ea_off)
-		return dm_pci_map_ea_bar(dev, bar, flags, ea_off);
+		return dm_pci_map_ea_bar(udev, bar, flags, ea_off, pdata);
 
 	/* read BAR address */
-	dm_pci_read_config32(dev, bar, &bar_response);
+	dm_pci_read_config32(udev, bar, &bar_response);
 	pci_bus_addr = (pci_addr_t)(bar_response & ~0xf);
 
 	/*
 	 * Pass "0" as the length argument to pci_bus_to_virt.  The arg
-	 * isn't actualy used on any platform because u-boot assumes a static
+	 * isn't actually used on any platform because u-boot assumes a static
 	 * linear mapping.  In the future, this could read the BAR size
 	 * and pass that as the size if needed.
 	 */
-	return dm_pci_bus_to_virt(dev, pci_bus_addr, flags, 0, MAP_NOCACHE);
+	return dm_pci_bus_to_virt(udev, pci_bus_addr, flags, 0, MAP_NOCACHE);
 }
 
 static int _dm_pci_find_next_capability(struct udevice *dev, u8 pos, int cap)
@@ -1516,6 +1583,120 @@ int dm_pci_flr(struct udevice *dev)
 	mdelay(100);
 
 	return 0;
+}
+
+int pci_sriov_init(struct udevice *pdev, int vf_en)
+{
+	u16 vendor, device;
+	struct udevice *bus;
+	struct udevice *dev;
+	pci_dev_t bdf;
+	u16 ctrl;
+	u16 num_vfs;
+	u16 total_vf;
+	u16 vf_offset;
+	u16 vf_stride;
+	int vf, ret;
+	int pos;
+
+	pos = dm_pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_SRIOV);
+	if (!pos) {
+		printf("Error: SRIOV capability not found\n");
+		return -ENOENT;
+	}
+
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_CTRL, &ctrl);
+
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
+	if (vf_en > total_vf)
+		vf_en = total_vf;
+	dm_pci_write_config16(pdev, pos + PCI_SRIOV_NUM_VF, vf_en);
+
+	ctrl |= PCI_SRIOV_CTRL_VFE | PCI_SRIOV_CTRL_MSE;
+	dm_pci_write_config16(pdev, pos + PCI_SRIOV_CTRL, ctrl);
+
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_NUM_VF, &num_vfs);
+	if (num_vfs > vf_en)
+		num_vfs = vf_en;
+
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_OFFSET, &vf_offset);
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_STRIDE, &vf_stride);
+
+	dm_pci_read_config16(pdev, PCI_VENDOR_ID, &vendor);
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_DID, &device);
+
+	bdf = dm_pci_get_bdf(pdev);
+
+	pci_get_bus(PCI_BUS(bdf), &bus);
+
+	if (!bus)
+		return -ENODEV;
+
+	bdf += PCI_BDF(0, 0, vf_offset);
+
+	for (vf = 0; vf < num_vfs; vf++) {
+		struct pci_child_platdata *pplat;
+		ulong class;
+
+		pci_bus_read_config(bus, bdf, PCI_CLASS_DEVICE,
+				    &class, PCI_SIZE_16);
+
+		debug("%s: bus %d/%s: found VF %x:%x\n", __func__,
+		      bus->seq, bus->name, PCI_DEV(bdf), PCI_FUNC(bdf));
+
+		/* Find this device in the device tree */
+		ret = pci_bus_find_devfn(bus, PCI_MASK_BUS(bdf), &dev);
+
+		if (ret == -ENODEV) {
+			struct pci_device_id find_id;
+
+			memset(&find_id, 0, sizeof(find_id));
+
+			find_id.vendor = vendor;
+			find_id.device = device;
+			find_id.class = class;
+
+			ret = pci_find_and_bind_driver(bus, &find_id,
+						       bdf, &dev);
+
+			if (ret)
+				return ret;
+		}
+
+		/* Update the platform data */
+		pplat = dev_get_parent_platdata(dev);
+		pplat->devfn = PCI_MASK_BUS(bdf);
+		pplat->vendor = vendor;
+		pplat->device = device;
+		pplat->class = class;
+		pplat->is_virtfn = true;
+		pplat->pfdev = pdev;
+		pplat->virtid = vf * vf_stride + vf_offset;
+
+		debug("%s: bus %d/%s: found VF %x:%x %x:%x class %lx id %x\n",
+		      __func__, dev->seq, dev->name, PCI_DEV(bdf),
+		      PCI_FUNC(bdf), vendor, device, class, pplat->virtid);
+		bdf += PCI_BDF(0, 0, vf_stride);
+	}
+
+	return 0;
+
+}
+
+int pci_sriov_get_totalvfs(struct udevice *pdev)
+{
+	u16 total_vf;
+	int pos;
+
+	pos = dm_pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_SRIOV);
+	if (!pos) {
+		printf("Error: SRIOV capability not found\n");
+		return -ENOENT;
+	}
+
+	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
+
+	return total_vf;
 }
 
 UCLASS_DRIVER(pci) = {

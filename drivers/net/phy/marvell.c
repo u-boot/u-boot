@@ -6,6 +6,7 @@
  * author Andy Fleming
  */
 #include <common.h>
+#include <console.h>
 #include <errno.h>
 #include <phy.h>
 
@@ -101,6 +102,17 @@
 #define MIIM_88E151x_GENERAL_CTRL	20
 #define MIIM_88E151x_MODE_SGMII		1
 #define MIIM_88E151x_RESET_OFFS		15
+
+/* 88E2110 PHY defines */
+#define MIIM_88E2110_PHY_STATUS		0x8008
+#define MIIM_88E2110_PHYSTAT_SPEED	0xc00c
+#define MIIM_88E2110_PHYSTAT_GBIT	0x8000
+#define MIIM_88E2110_PHYSTAT_100	0x4000
+#define MIIM_88E2110_PHYSTAT_DUPLEX	0x2000
+#define MIIM_88E2110_PHYSTAT_SPDDONE	0x0800
+#define MIIM_88E2110_PHYSTAT_LINK	0x0400
+#define MIIM_88E2110_PHYSTAT_5GBIT	0xc008
+#define MIIM_88E2110_PHYSTAT_2_5GBIT	0xc004
 
 static int m88e1xxx_phy_extread(struct phy_device *phydev, int addr,
 				int devaddr, int regnum)
@@ -331,7 +343,7 @@ static int m88e1518_config(struct phy_device *phydev)
 	 * As per Marvell Release Notes - Alaska 88E1510/88E1518/88E1512
 	 * /88E1514 Rev A0, Errata Section 3.1
 	 */
-
+	debug("%s(%s)\n", __func__, phydev->dev->name);
 	/* EEE initialization */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0x00ff);
 	phy_write(phydev, MDIO_DEVAD_NONE, 17, 0x214B);
@@ -404,6 +416,7 @@ static int m88e1518_config(struct phy_device *phydev)
 /* Marvell 88E1510 */
 static int m88e1510_config(struct phy_device *phydev)
 {
+	debug("%s(%s)\n", __func__, phydev->dev->name);
 	/* Select page 3 */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE,
 		  MIIM_88E1118_PHY_LED_PAGE);
@@ -424,8 +437,72 @@ static int m88e1510_config(struct phy_device *phydev)
 
 	/* Reset page selection */
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_88E1118_PHY_PAGE, 0);
+	debug("%s: interface mode: %s\n", __func__,
+	      phy_string_for_interface(phydev->interface));
+	/* SGMII-to-Copper mode initialization (88E1512 & 88E1514 only) */
+	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
+		/* Select page 18 */
+		phy_write(phydev, MDIO_DEVAD_NONE, 22, 18);
 
-	return m88e1518_config(phydev);
+		/* In reg 20, write MODE[2:0] = 0x1 (SGMII to Copper) */
+		m88e1518_phy_writebits(phydev, 20, 0, 3, 1);
+
+		/* PHY reset is necessary after changing MODE[2:0] */
+		m88e1518_phy_writebits(phydev, 20, 15, 1, 1);
+
+		/* Reset page selection */
+		phy_write(phydev, MDIO_DEVAD_NONE, 22, 0);
+	} else if (phydev->interface == PHY_INTERFACE_MODE_RGMII      ||
+		   phydev->interface == PHY_INTERFACE_MODE_RGMII_ID   ||
+		   phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID ||
+		   phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
+		/* RGMII-to-Copper mode initialization */
+
+		/* Select page 2 */
+		phy_write(phydev, MDIO_DEVAD_NONE, 22, 2);
+		/* Set rx and tx delay as needed */
+		switch (phydev->interface) {
+		default:
+		case PHY_INTERFACE_MODE_RGMII:	/* no delay */
+			m88e1518_phy_writebits(phydev, 21, 4, 2, 0);
+			break;
+		case PHY_INTERFACE_MODE_RGMII_ID:	/* delay both */
+			m88e1518_phy_writebits(phydev, 21, 4, 2, 3);
+			break;
+		case PHY_INTERFACE_MODE_RGMII_RXID:	/* delay rx */
+			m88e1518_phy_writebits(phydev, 21, 4, 2, 2);
+			break;
+		case PHY_INTERFACE_MODE_RGMII_TXID:	/* delay tx */
+			m88e1518_phy_writebits(phydev, 21, 4, 2, 1);
+			break;
+		}
+		/* Select page 18 */
+		phy_write(phydev, MDIO_DEVAD_NONE, 22, 18);
+
+		/* In reg 20, write MODE[2:0] = 0x1 (RGMII to Copper) */
+		m88e1518_phy_writebits(phydev, 20, 0, 3, 0);
+
+		/* PHY reset is necessary after changing MODE[2:0] */
+		m88e1518_phy_writebits(phydev, 20, 15, 1, 1);
+
+		/* Reset page selection */
+		phy_write(phydev, MDIO_DEVAD_NONE, 22, 0);
+	} else {
+		printf("%s(%s): Error: unsupported mode %s\n", __func__,
+		       phydev->dev->name,
+		       phy_string_for_interface(phydev->interface));
+		return -1;
+	}
+
+	udelay(100);
+
+	/* soft reset */
+	phy_reset(phydev);
+
+	genphy_config_aneg(phydev);
+	genphy_restart_aneg(phydev);
+
+	return 0;
 }
 
 /* Marvell 88E1118 */
@@ -615,6 +692,182 @@ static int m88e1680_config(struct phy_device *phydev)
 	return 0;
 }
 
+/* Marvell 88E2110 */
+static int m88e2110_probe(struct phy_device *phydev)
+{
+	/*
+	 * skip reset since phy has its own initial value.
+	 * resettting leads to weird behavior
+	 */
+	phydev->flags |= PHY_FLAG_BROKEN_RESET;
+
+	return 0;
+}
+
+static int m88e2110_config(struct phy_device *phydev)
+{
+	u16 reg;
+	ofnode node = phy_get_ofnode(phydev);
+
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
+	if (ofnode_read_bool(node, "enet-phy-lane-swap")) {
+		/* Perform lane swap */
+		reg = phy_read(phydev, 1, 0xc000);
+		reg |= 0x1;
+		phy_write(phydev, 1, 0xc000, reg);
+	}
+
+	/* Configure auto-negotiation advertisement */
+	if (phydev->interface == PHY_INTERFACE_MODE_SFI) {
+		/* Disabled 10G advertisement */
+		phy_write(phydev, 7, 0x20, 0x1e1);
+	} else {
+		if (phydev->interface == PHY_INTERFACE_MODE_SGMII_2500 ||
+		    phydev->interface == PHY_INTERFACE_MODE_2500BASEX) {
+			/* Disabled 10G/5G advertisements */
+			phy_write(phydev, 7, 0x20, 0xa1);
+		} else {
+			/* Disable 10G/5G/2.5G auto-negotiation advertisement */
+			phy_write(phydev, 7, 0x20, 0x1);
+		}
+	}
+
+	/* Restart auto-negotiation */
+	phy_write(phydev, 7, 0, 0x3200);
+
+	return 0;
+}
+
+/* Parse the 88E2110's status register for speed and duplex
+ * information
+ */
+static uint m88e2110_parse_status(struct phy_device *phydev)
+{
+	unsigned int mii_reg;
+
+	mii_reg = phy_read(phydev, 3, MIIM_88E2110_PHY_STATUS);
+
+	if (!(mii_reg & MIIM_88E2110_PHYSTAT_LINK)) {
+		int i = 0;
+
+		puts("Waiting for PHY realtime link");
+		while (!(mii_reg & MIIM_88E2110_PHYSTAT_LINK)) {
+			/* Timeout reached ? */
+			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
+				puts(" TIMEOUT !\n");
+				phydev->link = 0;
+				break;
+			}
+
+			if ((i++ % 1000) == 0)
+				putc('.');
+			udelay(1000);
+			mii_reg = phy_read(phydev, 3, MIIM_88E2110_PHY_STATUS);
+		}
+		puts(" done\n");
+		mdelay(500);	/* another 500 ms (results in faster booting) */
+	}
+
+	if (mii_reg & MIIM_88E2110_PHYSTAT_LINK)
+		phydev->link = 1;
+	else
+		phydev->link = 0;
+
+	if (mii_reg & MIIM_88E2110_PHYSTAT_DUPLEX)
+		phydev->duplex = DUPLEX_FULL;
+	else
+		phydev->duplex = DUPLEX_HALF;
+
+	switch (mii_reg & MIIM_88E2110_PHYSTAT_SPEED) {
+	case MIIM_88E2110_PHYSTAT_5GBIT:
+		phydev->speed = SPEED_5000;
+		break;
+	case MIIM_88E2110_PHYSTAT_2_5GBIT:
+		phydev->speed = SPEED_2500;
+		break;
+	case MIIM_88E2110_PHYSTAT_GBIT:
+		phydev->speed = SPEED_1000;
+		break;
+	case MIIM_88E2110_PHYSTAT_100:
+		phydev->speed = SPEED_100;
+		break;
+	default:
+		phydev->speed = SPEED_10;
+		break;
+	}
+
+	return 0;
+}
+
+static int m88e2110_update_link(struct phy_device *phydev)
+{
+	unsigned int mii_reg;
+
+	/*
+	 * Wait if the link is up, and autonegotiation is in progress
+	 * (ie - we're capable and it's not done)
+	 */
+	mii_reg = phy_read(phydev, 7, MII_BMSR);
+
+	/*
+	 * If we already saw the link up, and it hasn't gone down, then
+	 * we don't need to wait for autoneg again
+	 */
+	if (phydev->link && mii_reg & BMSR_LSTATUS)
+		return 0;
+
+	if ((mii_reg & BMSR_ANEGCAPABLE) && !(mii_reg & BMSR_ANEGCOMPLETE)) {
+		int i = 0;
+
+		debug("%s Waiting for PHY auto negotiation to complete",
+		      phydev->drv->name);
+		while (!(mii_reg & BMSR_ANEGCOMPLETE)) {
+			/*
+			 * Timeout reached ?
+			 */
+			if (i > PHY_ANEG_TIMEOUT) {
+				debug(" TIMEOUT !\n");
+				phydev->link = 0;
+				return 0;
+			}
+
+			if (ctrlc()) {
+				puts("user interrupt!\n");
+				phydev->link = 0;
+				return -EINTR;
+			}
+
+			if ((i++ % 500) == 0)
+				debug(".");
+
+			udelay(1000);	/* 1 ms */
+			mii_reg = phy_read(phydev, 7, MII_BMSR);
+		}
+		debug(" done\n");
+		phydev->link = 1;
+	} else {
+		/* Read the link a second time to clear the latched state */
+		mii_reg = phy_read(phydev, 7, MII_BMSR);
+
+		if (mii_reg & BMSR_LSTATUS)
+			phydev->link = 1;
+		else
+			phydev->link = 0;
+	}
+
+	return 0;
+}
+
+static int m88e2110_startup(struct phy_device *phydev)
+{
+	m88e2110_update_link(phydev);
+	m88e2110_parse_status(phydev);
+
+	return 0;
+}
+
 static struct phy_driver M88E1011S_driver = {
 	.name = "Marvell 88E1011S",
 	.uid = 0x1410c60,
@@ -734,6 +987,17 @@ static struct phy_driver M88E1680_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver M88E2110_driver = {
+	.name = "Marvell 88E2110",
+	.uid = 0x2b09b8,
+	.mask = 0xffffff0,
+	.features = PHY_GBIT_FEATURES,
+	.probe = &m88e2110_probe,
+	.config = &m88e2110_config,
+	.startup = &m88e2110_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_marvell_init(void)
 {
 	phy_register(&M88E1310_driver);
@@ -747,6 +1011,7 @@ int phy_marvell_init(void)
 	phy_register(&M88E1510_driver);
 	phy_register(&M88E1518_driver);
 	phy_register(&M88E1680_driver);
+	phy_register(&M88E2110_driver);
 
 	return 0;
 }

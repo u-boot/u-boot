@@ -13,25 +13,26 @@
  * warranty of any kind, whether express or implied.
  */
 
+#include <asm-generic/gpio.h>
+#include <asm/arch/cpu.h>
+#include <asm/arch/soc.h>
+#include <asm/io.h>
 #include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <fdt_support.h>
+#include <linux/compat.h>
+#include <linux/errno.h>
+#include <linux/mbus.h>
+#include <linux/mdio.h>
+#include <malloc.h>
+#include <miiphy.h>
 #include <net.h>
 #include <netdev.h>
-#include <config.h>
-#include <malloc.h>
-#include <asm/io.h>
-#include <linux/errno.h>
 #include <phy.h>
-#include <miiphy.h>
 #include <watchdog.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/soc.h>
-#include <linux/compat.h>
-#include <linux/mbus.h>
-#include <asm-generic/gpio.h>
-#include <fdt_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -62,7 +63,24 @@ do {									\
 #define MTU			1500
 #define RX_BUFFER_SIZE		(ALIGN(MTU + WRAP, ARCH_DMA_MINALIGN))
 
-#define MVPP2_SMI_TIMEOUT			10000
+/* Common PHY */
+#define COMPHY_TRX_TRAIN_CTRL_REG_0_OFFS	0xA2C
+#define COMPHY_TRX_TRAIN_COMPHY_OFFS		0x1000
+#define COMPHY_TRX_TRAIN_RX_TRAIN_ENABLE	0x1
+#define COMPHY_TRX_RELATIVE_ADDR(comphy_num)				      \
+				  (priv->sdip_base +			      \
+				   COMPHY_TRX_TRAIN_CTRL_REG_0_OFFS +	      \
+				   (comphy_num) * COMPHY_TRX_TRAIN_COMPHY_OFFS)
+
+#define COMPHY_SEL_REG_OFFS			0x140
+#define COMPHY2_SEL_BIT_OFFS			8
+#define COMPHY4_SEL_BIT_OFFS			16
+#define COMPHY2_SEL_MASK			0xF00
+#define COMPHY4_SEL_MASK			0xF000
+#define COMPHY2_MODE_CHECK(val)						      \
+			(((val) & COMPHY2_SEL_MASK) >> COMPHY2_SEL_BIT_OFFS)
+#define COMPHY4_MODE_CHECK(val)						      \
+			(((val) & COMPHY4_SEL_MASK) >> COMPHY4_SEL_BIT_OFFS)
 
 /* RX Fifo Registers */
 #define MVPP2_RX_DATA_FIFO_SIZE_REG(port)	(0x00 + 4 * (port))
@@ -413,8 +431,6 @@ do {									\
 #define      MVPP22_XLG_CTRL3_MACMODESELECT_10GMAC	(1 << 13)
 /* Port Mac Control4 */
 #define MVPP22_XLG_CTRL4_REG			0x184
-#define      MVPP22_XLG_FORWARD_802_3X_FC_EN	BIT(5)
-#define      MVPP22_XLG_FORWARD_PFC_EN		BIT(6)
 #define      MVPP22_XLG_MODE_DMA_1G		BIT(12)
 #define      MVPP22_XLG_EN_IDLE_CHECK_FOR_LINK	BIT(14)
 
@@ -481,32 +497,14 @@ do {									\
 #define MVPP22_SMI_MISC_CFG_REG			(MVPP22_SMI + 0x04)
 #define      MVPP22_SMI_POLLING_EN		BIT(10)
 
-#define MVPP22_SMI_PHY_ADDR_REG(port)		(MVPP22_SMI + 0x04 + \
-						 (0x4 * (port)))
-
 #define MVPP2_CAUSE_TXQ_SENT_DESC_ALL_MASK	0xff
 
 /* Descriptor ring Macros */
 #define MVPP2_QUEUE_NEXT_DESC(q, index) \
 	(((index) < (q)->last_desc) ? ((index) + 1) : 0)
 
-/* SMI: 0xc0054 -> offset 0x54 to lms_base */
-#define MVPP21_SMI				0x0054
 /* PP2.2: SMI: 0x12a200 -> offset 0x1200 to iface_base */
 #define MVPP22_SMI				0x1200
-#define     MVPP2_PHY_REG_MASK			0x1f
-/* SMI register fields */
-#define     MVPP2_SMI_DATA_OFFS			0	/* Data */
-#define     MVPP2_SMI_DATA_MASK			(0xffff << MVPP2_SMI_DATA_OFFS)
-#define     MVPP2_SMI_DEV_ADDR_OFFS		16	/* PHY device address */
-#define     MVPP2_SMI_REG_ADDR_OFFS		21	/* PHY device reg addr*/
-#define     MVPP2_SMI_OPCODE_OFFS		26	/* Write/Read opcode */
-#define     MVPP2_SMI_OPCODE_READ		(1 << MVPP2_SMI_OPCODE_OFFS)
-#define     MVPP2_SMI_READ_VALID		(1 << 27)	/* Read Valid */
-#define     MVPP2_SMI_BUSY			(1 << 28)	/* Busy */
-
-#define     MVPP2_PHY_ADDR_MASK			0x1f
-#define     MVPP2_PHY_REG_MASK			0x1f
 
 /* Additional PPv2.2 offsets */
 #define MVPP22_MPCS				0x007000
@@ -526,8 +524,9 @@ do {									\
 /* Net Complex */
 enum mv_netc_topology {
 	MV_NETC_GE_MAC2_SGMII		=	BIT(0),
-	MV_NETC_GE_MAC3_SGMII		=	BIT(1),
-	MV_NETC_GE_MAC3_RGMII		=	BIT(2),
+	MV_NETC_GE_MAC2_RGMII		=	BIT(1),
+	MV_NETC_GE_MAC3_SGMII		=	BIT(2),
+	MV_NETC_GE_MAC3_RGMII		=	BIT(3),
 };
 
 enum mv_netc_phase {
@@ -902,6 +901,8 @@ struct mvpp2 {
 	void __iomem *xpcs_base;
 	void __iomem *rfu1_base;
 
+	void __iomem *sdip_base;
+
 	u32 netc_config;
 
 	/* List of pointers to port structures */
@@ -952,7 +953,6 @@ struct mvpp2_port {
 
 	/* Per-port registers' base address */
 	void __iomem *base;
-	void __iomem *mdio_base;
 
 	struct mvpp2_rx_queue **rxqs;
 	struct mvpp2_tx_queue **txqs;
@@ -973,9 +973,8 @@ struct mvpp2_port {
 
 	struct phy_device *phy_dev;
 	phy_interface_t phy_interface;
-	int phy_node;
 	int phyaddr;
-	struct mii_dev *bus;
+	struct udevice *mdio_dev;
 #ifdef CONFIG_DM_GPIO
 	struct gpio_desc phy_reset_gpio;
 	struct gpio_desc phy_tx_disable_gpio;
@@ -984,8 +983,6 @@ struct mvpp2_port {
 	unsigned int link;
 	unsigned int duplex;
 	unsigned int speed;
-
-	unsigned int phy_speed;		/* SGMII 1Gbps vs 2.5Gbps */
 
 	struct mvpp2_bm_pool *pool_long;
 	struct mvpp2_bm_pool *pool_short;
@@ -1586,7 +1583,6 @@ static void mvpp2_prs_sram_ai_update(struct mvpp2_prs_entry *pe,
 	int ai_off = MVPP2_PRS_SRAM_AI_OFFS;
 
 	for (i = 0; i < MVPP2_PRS_SRAM_AI_CTRL_BITS; i++) {
-
 		if (!(mask & BIT(i)))
 			continue;
 
@@ -2636,7 +2632,8 @@ static int mvpp2_bm_pool_destroy(struct udevice *dev,
 
 	mvpp2_bm_bufs_free(dev, priv, bm_pool);
 	if (bm_pool->buf_num) {
-		dev_err(dev, "cannot free all buffers in pool %d\n", bm_pool->id);
+		dev_err(dev, "cannot free all buffers in pool %d\n",
+			bm_pool->id);
 		return 0;
 	}
 
@@ -2790,7 +2787,6 @@ static int mvpp2_bm_bufs_add(struct mvpp2_port *port,
 		mvpp2_bm_pool_put(port, bm_pool->id,
 				  (dma_addr_t)buffer_loc.rx_buffer[i],
 				  (unsigned long)buffer_loc.rx_buffer[i]);
-
 	}
 
 	/* Update BM driver with number of buffers added to pool */
@@ -2882,7 +2878,12 @@ static void mvpp2_port_mii_set(struct mvpp2_port *port)
 
 	switch (port->phy_interface) {
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
 		val |= MVPP2_GMAC_INBAND_AN_MASK;
+		break;
+	case PHY_INTERFACE_MODE_1000BASEX:
+	case PHY_INTERFACE_MODE_2500BASEX:
+		val &= ~MVPP2_GMAC_INBAND_AN_MASK;
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
@@ -2944,7 +2945,10 @@ static void mvpp2_port_loopback_set(struct mvpp2_port *port)
 	else
 		val &= ~MVPP2_GMAC_GMII_LB_EN_MASK;
 
-	if (port->phy_interface == PHY_INTERFACE_MODE_SGMII)
+	if (port->phy_interface == PHY_INTERFACE_MODE_SGMII ||
+	    port->phy_interface == PHY_INTERFACE_MODE_SGMII_2500 ||
+	    port->phy_interface == PHY_INTERFACE_MODE_1000BASEX ||
+	    port->phy_interface == PHY_INTERFACE_MODE_2500BASEX)
 		val |= MVPP2_GMAC_PCS_LB_EN_MASK;
 	else
 		val &= ~MVPP2_GMAC_PCS_LB_EN_MASK;
@@ -3055,10 +3059,10 @@ static void gop_gmac_sgmii2_5_cfg(struct mvpp2_port *port)
 
 	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
 	/*
-	 * Configure GIG MAC to 1000Base-X mode connected to a fiber
+	 * Configure GIG MAC to SGMII mode connected to a fiber
 	 * transceiver
 	 */
-	val |= MVPP2_GMAC_PORT_TYPE_MASK;
+	val &= ~MVPP2_GMAC_PORT_TYPE_MASK;
 	writel(val, port->base + MVPP2_GMAC_CTRL_0_REG);
 
 	/* configure AN 0x9268 */
@@ -3110,6 +3114,91 @@ static void gop_gmac_sgmii_cfg(struct mvpp2_port *port)
 	writel(val, port->base + MVPP2_GMAC_AUTONEG_CONFIG);
 }
 
+static void gop_gmac_2500basex_cfg(struct mvpp2_port *port)
+{
+	u32 val, thresh;
+
+	/*
+	 * Configure minimal level of the Tx FIFO before the lower part
+	 * starts to read a packet
+	 */
+	thresh = MVPP2_SGMII2_5_TX_FIFO_MIN_TH;
+	val = readl(port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+	val &= ~MVPP2_GMAC_TX_FIFO_MIN_TH_ALL_MASK;
+	val |= MVPP2_GMAC_TX_FIFO_MIN_TH_MASK(thresh);
+	writel(val, port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+
+	/* Disable bypass of sync module */
+	val = readl(port->base + MVPP2_GMAC_CTRL_4_REG);
+	val |= MVPP2_GMAC_CTRL4_SYNC_BYPASS_MASK;
+	/* configure DP clock select according to mode */
+	val |= MVPP2_GMAC_CTRL4_DP_CLK_SEL_MASK;
+	/* configure QSGMII bypass according to mode */
+	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
+	/*
+	 * Configure GIG MAC to 2500Base-X mode connected to a fiber
+	 * transceiver
+	 */
+	val |= MVPP2_GMAC_PORT_TYPE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_0_REG);
+
+	/* In 2500BaseX mode, we can't negotiate speed
+	 * and we do not want InBand autoneg
+	 * bypass enabled (link interrupt storm risk
+	 * otherwise).
+	 */
+	val = MVPP2_GMAC_AN_BYPASS_EN |
+		MVPP2_GMAC_EN_PCS_AN |
+		MVPP2_GMAC_CONFIG_GMII_SPEED  |
+		MVPP2_GMAC_CONFIG_FULL_DUPLEX |
+		MVPP2_GMAC_CHOOSE_SAMPLE_TX_CONFIG;
+	writel(val, port->base + MVPP2_GMAC_AUTONEG_CONFIG);
+}
+
+static void gop_gmac_1000basex_cfg(struct mvpp2_port *port)
+{
+	u32 val, thresh;
+
+	/*
+	 * Configure minimal level of the Tx FIFO before the lower part
+	 * starts to read a packet
+	 */
+	thresh = MVPP2_SGMII_TX_FIFO_MIN_TH;
+	val = readl(port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+	val &= ~MVPP2_GMAC_TX_FIFO_MIN_TH_ALL_MASK;
+	val |= MVPP2_GMAC_TX_FIFO_MIN_TH_MASK(thresh);
+	writel(val, port->base + MVPP2_GMAC_PORT_FIFO_CFG_1_REG);
+
+	/* Disable bypass of sync module */
+	val = readl(port->base + MVPP2_GMAC_CTRL_4_REG);
+	val |= MVPP2_GMAC_CTRL4_SYNC_BYPASS_MASK;
+	/* configure DP clock select according to mode */
+	val &= ~MVPP2_GMAC_CTRL4_DP_CLK_SEL_MASK;
+	/* configure QSGMII bypass according to mode */
+	val |= MVPP2_GMAC_CTRL4_QSGMII_BYPASS_ACTIVE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_4_REG);
+
+	val = readl(port->base + MVPP2_GMAC_CTRL_0_REG);
+	/* configure GIG MAC to 1000BASEX mode */
+	val |= MVPP2_GMAC_PORT_TYPE_MASK;
+	writel(val, port->base + MVPP2_GMAC_CTRL_0_REG);
+
+	/* In 1000BaseX mode, we can't negotiate speed (it's
+	 * only 1000), and we do not want InBand autoneg
+	 * bypass enabled (link interrupt storm risk
+	 * otherwise).
+	 */
+	val = MVPP2_GMAC_AN_BYPASS_EN |
+		MVPP2_GMAC_EN_PCS_AN |
+		MVPP2_GMAC_CONFIG_GMII_SPEED  |
+		MVPP2_GMAC_CONFIG_FULL_DUPLEX |
+		MVPP2_GMAC_CHOOSE_SAMPLE_TX_CONFIG;
+	writel(val, port->base + MVPP2_GMAC_AUTONEG_CONFIG);
+}
+
 static void gop_gmac_rgmii_cfg(struct mvpp2_port *port)
 {
 	u32 val, thresh;
@@ -3155,10 +3244,17 @@ static int gop_gmac_mode_cfg(struct mvpp2_port *port)
 	/* Set TX FIFO thresholds */
 	switch (port->phy_interface) {
 	case PHY_INTERFACE_MODE_SGMII:
-		if (port->phy_speed == 2500)
-			gop_gmac_sgmii2_5_cfg(port);
-		else
-			gop_gmac_sgmii_cfg(port);
+		gop_gmac_sgmii_cfg(port);
+		break;
+	case PHY_INTERFACE_MODE_SGMII_2500:
+		gop_gmac_sgmii2_5_cfg(port);
+		break;
+	case PHY_INTERFACE_MODE_1000BASEX:
+		gop_gmac_1000basex_cfg(port);
+		break;
+
+	case PHY_INTERFACE_MODE_2500BASEX:
+		gop_gmac_2500basex_cfg(port);
 		break;
 
 	case PHY_INTERFACE_MODE_RGMII:
@@ -3213,56 +3309,31 @@ static int gop_gpcs_reset(struct mvpp2_port *port, int reset)
 	return 0;
 }
 
-/* Set the internal mux's to the required PCS in the PI */
-static int gop_xpcs_mode(struct mvpp2_port *port, int num_of_lanes)
-{
-	u32 val;
-	int lane;
-
-	switch (num_of_lanes) {
-	case 1:
-		lane = 0;
-		break;
-	case 2:
-		lane = 1;
-		break;
-	case 4:
-		lane = 2;
-		break;
-	default:
-		return -1;
-	}
-
-	/* configure XG MAC mode */
-	val = readl(port->priv->xpcs_base + MVPP22_XPCS_GLOBAL_CFG_0_REG);
-	val &= ~MVPP22_XPCS_PCSMODE_MASK;
-	val &= ~MVPP22_XPCS_LANEACTIVE_MASK;
-	val |= (2 * lane) << MVPP22_XPCS_LANEACTIVE_OFFS;
-	writel(val, port->priv->xpcs_base + MVPP22_XPCS_GLOBAL_CFG_0_REG);
-
-	return 0;
-}
-
 static int gop_mpcs_mode(struct mvpp2_port *port)
 {
 	u32 val;
 
 	/* configure PCS40G COMMON CONTROL */
-	val = readl(port->priv->mpcs_base + PCS40G_COMMON_CONTROL);
+	val = readl(port->priv->mpcs_base + port->gop_id * MVPP22_PORT_OFFSET +
+		    PCS40G_COMMON_CONTROL);
 	val &= ~FORWARD_ERROR_CORRECTION_MASK;
-	writel(val, port->priv->mpcs_base + PCS40G_COMMON_CONTROL);
+	writel(val, port->priv->mpcs_base + port->gop_id * MVPP22_PORT_OFFSET +
+	       PCS40G_COMMON_CONTROL);
 
 	/* configure PCS CLOCK RESET */
-	val = readl(port->priv->mpcs_base + PCS_CLOCK_RESET);
+	val = readl(port->priv->mpcs_base + port->gop_id * MVPP22_PORT_OFFSET +
+		    PCS_CLOCK_RESET);
 	val &= ~CLK_DIVISION_RATIO_MASK;
 	val |= 1 << CLK_DIVISION_RATIO_OFFS;
-	writel(val, port->priv->mpcs_base + PCS_CLOCK_RESET);
+	writel(val, port->priv->mpcs_base + port->gop_id * MVPP22_PORT_OFFSET +
+	       PCS_CLOCK_RESET);
 
 	val &= ~CLK_DIV_PHASE_SET_MASK;
 	val |= MAC_CLK_RESET_MASK;
 	val |= RX_SD_CLK_RESET_MASK;
 	val |= TX_SD_CLK_RESET_MASK;
-	writel(val, port->priv->mpcs_base + PCS_CLOCK_RESET);
+	writel(val, port->priv->mpcs_base + port->gop_id * MVPP22_PORT_OFFSET +
+	       PCS_CLOCK_RESET);
 
 	return 0;
 }
@@ -3285,8 +3356,6 @@ static int gop_xlg_mac_mode_cfg(struct mvpp2_port *port, int num_of_act_lanes)
 	/* read - modify - write */
 	val = readl(port->base + MVPP22_XLG_CTRL4_REG);
 	val &= ~MVPP22_XLG_MODE_DMA_1G;
-	val |= MVPP22_XLG_FORWARD_PFC_EN;
-	val |= MVPP22_XLG_FORWARD_802_3X_FC_EN;
 	val &= ~MVPP22_XLG_EN_IDLE_CHECK_FOR_LINK;
 	writel(val, port->base + MVPP22_XLG_CTRL4_REG);
 
@@ -3301,22 +3370,6 @@ static int gop_xlg_mac_mode_cfg(struct mvpp2_port *port, int num_of_act_lanes)
 	val |= MVPP22_XLG_INTERRUPT_LINK_CHANGE;
 	val |= 1; /* unmask summary bit */
 	writel(val, port->base + MVPP22_XLG_INTERRUPT_MASK_REG);
-
-	return 0;
-}
-
-/* Set PCS to reset or exit from reset */
-static int gop_xpcs_reset(struct mvpp2_port *port, int reset)
-{
-	u32 val;
-
-	/* read - modify - write */
-	val = readl(port->priv->xpcs_base + MVPP22_XPCS_GLOBAL_CFG_0_REG);
-	if (reset)
-		val &= ~MVPP22_XPCS_PCSRESET;
-	else
-		val |= MVPP22_XPCS_PCSRESET;
-	writel(val, port->priv->xpcs_base + MVPP22_XPCS_GLOBAL_CFG_0_REG);
 
 	return 0;
 }
@@ -3375,6 +3428,9 @@ static int gop_port_init(struct mvpp2_port *port)
 		break;
 
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_1000BASEX:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		/* configure PCS */
 		gop_gpcs_mode_cfg(port, 1);
 
@@ -3393,16 +3449,15 @@ static int gop_port_init(struct mvpp2_port *port)
 		num_of_act_lanes = 2;
 		mac_num = 0;
 		/* configure PCS */
-		gop_xpcs_mode(port, num_of_act_lanes);
 		gop_mpcs_mode(port);
 		/* configure MAC */
 		gop_xlg_mac_mode_cfg(port, num_of_act_lanes);
 
-		/* pcs unreset */
-		gop_xpcs_reset(port, 0);
-
 		/* mac unreset */
 		gop_xlg_mac_reset(port, 0);
+		break;
+
+	case PHY_INTERFACE_MODE_AP:
 		break;
 
 	default:
@@ -3436,6 +3491,9 @@ static void gop_port_enable(struct mvpp2_port *port, int enable)
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_1000BASEX:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		if (enable)
 			mvpp2_port_enable(port);
 		else
@@ -3445,6 +3503,8 @@ static void gop_port_enable(struct mvpp2_port *port, int enable)
 	case PHY_INTERFACE_MODE_SFI:
 		gop_xlg_mac_port_enable(port, enable);
 
+		break;
+	case PHY_INTERFACE_MODE_AP:
 		break;
 	default:
 		netdev_err(NULL, "%s: Wrong port mode (%d)\n", __func__,
@@ -3469,12 +3529,21 @@ static u32 mvpp2_netc_cfg_create(int gop_id, phy_interface_t phy_type)
 	u32 val = 0;
 
 	if (gop_id == 2) {
-		if (phy_type == PHY_INTERFACE_MODE_SGMII)
+		if (phy_type == PHY_INTERFACE_MODE_SGMII ||
+		    phy_type == PHY_INTERFACE_MODE_SGMII_2500 ||
+		    phy_type == PHY_INTERFACE_MODE_1000BASEX ||
+		    phy_type == PHY_INTERFACE_MODE_2500BASEX)
 			val |= MV_NETC_GE_MAC2_SGMII;
+		else if (phy_type == PHY_INTERFACE_MODE_RGMII ||
+			 phy_type == PHY_INTERFACE_MODE_RGMII_ID)
+			val |= MV_NETC_GE_MAC2_RGMII;
 	}
 
 	if (gop_id == 3) {
-		if (phy_type == PHY_INTERFACE_MODE_SGMII)
+		if (phy_type == PHY_INTERFACE_MODE_SGMII ||
+		    phy_type == PHY_INTERFACE_MODE_SGMII_2500 ||
+		    phy_type == PHY_INTERFACE_MODE_1000BASEX ||
+		    phy_type == PHY_INTERFACE_MODE_2500BASEX)
 			val |= MV_NETC_GE_MAC3_SGMII;
 		else if (phy_type == PHY_INTERFACE_MODE_RGMII ||
 			 phy_type == PHY_INTERFACE_MODE_RGMII_ID)
@@ -3662,7 +3731,7 @@ static int gop_netc_init(struct mvpp2 *priv, enum mv_netc_phase phase)
 
 	if (c & MV_NETC_GE_MAC2_SGMII)
 		gop_netc_mac_to_sgmii(priv, 2, phase);
-	else
+	else if (c & MV_NETC_GE_MAC2_RGMII)
 		gop_netc_mac_to_xgmii(priv, 2, phase);
 
 	if (c & MV_NETC_GE_MAC3_SGMII) {
@@ -4389,7 +4458,8 @@ static void mvpp2_link_event(struct mvpp2_port *port)
 			if (phydev->duplex)
 				val |= MVPP2_GMAC_CONFIG_FULL_DUPLEX;
 
-			if (phydev->speed == SPEED_1000)
+			if (phydev->speed == SPEED_1000 ||
+			    phydev->speed == 2500)
 				val |= MVPP2_GMAC_CONFIG_GMII_SPEED;
 			else if (phydev->speed == SPEED_100)
 				val |= MVPP2_GMAC_CONFIG_MII_SPEED;
@@ -4467,6 +4537,9 @@ static void mvpp2_start_dev(struct mvpp2_port *port)
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_1000BASEX:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		mvpp2_gmac_max_rx_size_set(port);
 	default:
 		break;
@@ -4494,17 +4567,38 @@ static void mvpp2_stop_dev(struct mvpp2_port *port)
 		gop_port_enable(port, 0);
 }
 
-static int mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
+static void mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 {
 	struct phy_device *phy_dev;
 
 	if (!port->init || port->link == 0) {
-		phy_dev = phy_connect(port->bus, port->phyaddr, dev,
-				      port->phy_interface);
+		phy_dev = dm_mdio_phy_connect(port->mdio_dev, port->phyaddr,
+					      dev, port->phy_interface);
+
+		/* If the phy doesn't match with any existing u-boot drivers the
+		 * phy framework will connect it to generic one which
+		 * uid == 0xffffffff. In this case act as if the phy wouldn't be
+		 * declared in dts. Otherwise in case of 3310 (for which the
+		 * driver doesn't exist) the link will not be correctly
+		 * detected. Removing phy entry from dts in case of 3310 is not
+		 * an option because it is required for the phy_fw_down
+		 * procedure.
+		 */
+		if (phy_dev->drv->uid == 0xffffffff) {/* Generic phy */
+			netdev_warn(port->dev,
+				    "Marking phy as invalid, link will not be checked\n");
+			/* set phy_addr to invalid value */
+			port->phyaddr = PHY_MAX_ADDR;
+			mvpp2_egress_enable(port);
+			mvpp2_ingress_enable(port);
+
+			return;
+		}
+
 		port->phy_dev = phy_dev;
 		if (!phy_dev) {
 			netdev_err(port->dev, "cannot connect to phy\n");
-			return -ENODEV;
+			return;
 		}
 		phy_dev->supported &= PHY_GBIT_FEATURES;
 		phy_dev->advertising = phy_dev->supported;
@@ -4516,18 +4610,14 @@ static int mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 
 		phy_config(phy_dev);
 		phy_startup(phy_dev);
-		if (!phy_dev->link) {
+		if (!phy_dev->link)
 			printf("%s: No link\n", phy_dev->dev->name);
-			return -1;
-		}
-
-		port->init = 1;
+		else
+			port->init = 1;
 	} else {
 		mvpp2_egress_enable(port);
 		mvpp2_ingress_enable(port);
 	}
-
-	return 0;
 }
 
 static int mvpp2_open(struct udevice *dev, struct mvpp2_port *port)
@@ -4566,11 +4656,8 @@ static int mvpp2_open(struct udevice *dev, struct mvpp2_port *port)
 		return err;
 	}
 
-	if (port->phy_node) {
-		err = mvpp2_phy_connect(dev, port);
-		if (err < 0)
-			return err;
-
+	if (port->phyaddr < PHY_MAX_ADDR) {
+		mvpp2_phy_connect(dev, port);
 		mvpp2_link_event(port);
 	} else {
 		mvpp2_egress_enable(port);
@@ -4604,7 +4691,8 @@ static int mvpp2_port_init(struct udevice *dev, struct mvpp2_port *port)
 {
 	struct mvpp2 *priv = port->priv;
 	struct mvpp2_txq_pcpu *txq_pcpu;
-	int queue, cpu, err;
+	int queue, cpu, err, comphy_num;
+	u32 val;
 
 	if (port->first_rxq + rxq_number >
 	    MVPP2_MAX_PORTS * priv->max_port_rxqs)
@@ -4697,6 +4785,32 @@ static int mvpp2_port_init(struct udevice *dev, struct mvpp2_port *port)
 	if (err)
 		return err;
 
+	/* Force rx training on 10G port */
+	if (port->phy_interface == PHY_INTERFACE_MODE_SFI) {
+		if (port->gop_id == 2) { /* 10G port2 associated with comphy4 */
+			comphy_num = 4;
+		/* check whether COMPHY 2 or 4 is set to SFI mode */
+		} else {
+			val = readl(priv->rfu1_base + COMPHY_SEL_REG_OFFS);
+			if (COMPHY2_MODE_CHECK(val) == 1) {
+				comphy_num = 2;
+			} else if (COMPHY4_MODE_CHECK(val) == 2) {
+				comphy_num = 4;
+			} else { /* should not reach here */
+				netdev_err(port->dev,
+					   "Failed to find COMPHY lane\n");
+				return 0;
+			}
+		}
+
+		val = readl(COMPHY_TRX_RELATIVE_ADDR(comphy_num));
+		val |= COMPHY_TRX_TRAIN_RX_TRAIN_ENABLE;
+		writel(val, COMPHY_TRX_RELATIVE_ADDR(comphy_num));
+		mdelay(200);
+		val &= ~COMPHY_TRX_TRAIN_RX_TRAIN_ENABLE;
+		writel(val, COMPHY_TRX_RELATIVE_ADDR(comphy_num));
+	}
+
 	return 0;
 }
 
@@ -4708,35 +4822,35 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 	u32 id;
 	u32 phyaddr = 0;
 	int phy_mode = -1;
-
-	/* Default mdio_base from the same eth base */
-	if (port->priv->hw_version == MVPP21)
-		port->mdio_base = port->priv->lms_base + MVPP21_SMI;
-	else
-		port->mdio_base = port->priv->iface_base + MVPP22_SMI;
+	int fixed_link = 0;
+	int ret;
 
 	phy_node = fdtdec_lookup_phandle(gd->fdt_blob, port_node, "phy");
+	fixed_link = fdt_subnode_offset(gd->fdt_blob, port_node, "fixed-link");
 
 	if (phy_node > 0) {
-		ofnode phy_ofnode;
-		fdt_addr_t phy_base;
+		int parent;
 
-		phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node, "reg", 0);
-		if (phyaddr < 0) {
-			dev_err(&pdev->dev, "could not find phy address\n");
-			return -1;
+		if (fixed_link != -FDT_ERR_NOTFOUND) {
+			/* phy_addr is set to invalid value for fixed links */
+			phyaddr = PHY_MAX_ADDR;
+		} else {
+			phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node,
+						 "reg", 0);
+			if (phyaddr < 0) {
+				dev_err(&pdev->dev,
+					"could not find phy address\n");
+				return -1;
+			}
 		}
-
-		phy_ofnode = ofnode_get_parent(offset_to_ofnode(phy_node));
-		phy_base = ofnode_get_addr(phy_ofnode);
-		port->mdio_base = (void *)phy_base;
-
-		if (port->mdio_base < 0) {
-			dev_err(&pdev->dev, "could not find mdio base address\n");
-			return -1;
-		}
+		parent = fdt_parent_offset(gd->fdt_blob, phy_node);
+		ret = uclass_get_device_by_of_offset(UCLASS_MDIO, parent,
+						     &port->mdio_dev);
+		if (ret)
+			return ret;
 	} else {
-		phy_node = 0;
+		/* phy_addr is set to invalid value */
+		phyaddr = PHY_MAX_ADDR;
 	}
 
 	phy_mode_str = fdt_getprop(gd->fdt_blob, port_node, "phy-mode", NULL);
@@ -4760,21 +4874,11 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 			     &port->phy_tx_disable_gpio, GPIOD_IS_OUT);
 #endif
 
-	/*
-	 * ToDo:
-	 * Not sure if this DT property "phy-speed" will get accepted, so
-	 * this might change later
-	 */
-	/* Get phy-speed for SGMII 2.5Gbps vs 1Gbps setup */
-	port->phy_speed = fdtdec_get_int(gd->fdt_blob, port_node,
-					 "phy-speed", 1000);
-
 	port->id = id;
 	if (port->priv->hw_version == MVPP21)
 		port->first_rxq = port->id * rxq_number;
 	else
 		port->first_rxq = port->id * port->priv->max_port_rxqs;
-	port->phy_node = phy_node;
 	port->phy_interface = phy_mode;
 	port->phyaddr = phyaddr;
 
@@ -4873,10 +4977,12 @@ static void mvpp2_rx_fifo_init(struct mvpp2 *priv)
 			} else if (port == 1) {
 				mvpp2_write(priv,
 					    MVPP2_RX_DATA_FIFO_SIZE_REG(port),
-					    MVPP22_RX_FIFO_2_5GB_PORT_DATA_SIZE);
+					    MVPP22_RX_FIFO_2_5GB_PORT_DATA_SIZE
+					    );
 				mvpp2_write(priv,
 					    MVPP2_RX_ATTR_FIFO_SIZE_REG(port),
-					    MVPP22_RX_FIFO_2_5GB_PORT_ATTR_SIZE);
+					    MVPP22_RX_FIFO_2_5GB_PORT_ATTR_SIZE
+					    );
 			} else {
 				mvpp2_write(priv,
 					    MVPP2_RX_DATA_FIFO_SIZE_REG(port),
@@ -4984,9 +5090,9 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 		return -EINVAL;
 	}
 
-	if (priv->hw_version == MVPP22)
+	if (priv->hw_version == MVPP22) {
 		mvpp2_axi_init(priv);
-	else {
+	} else {
 		/* MBUS windows configuration */
 		dram_target_info = mvebu_mbus_dram_info();
 		if (dram_target_info)
@@ -5051,118 +5157,6 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 	return 0;
 }
 
-/* SMI / MDIO functions */
-
-static int smi_wait_ready(struct mvpp2_port *priv)
-{
-	u32 timeout = MVPP2_SMI_TIMEOUT;
-	u32 smi_reg;
-
-	/* wait till the SMI is not busy */
-	do {
-		/* read smi register */
-		smi_reg = readl(priv->mdio_base);
-		if (timeout-- == 0) {
-			printf("Error: SMI busy timeout\n");
-			return -EFAULT;
-		}
-	} while (smi_reg & MVPP2_SMI_BUSY);
-
-	return 0;
-}
-
-/*
- * mpp2_mdio_read - miiphy_read callback function.
- *
- * Returns 16bit phy register value, or 0xffff on error
- */
-static int mpp2_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
-{
-	struct mvpp2_port *priv = bus->priv;
-	u32 smi_reg;
-	u32 timeout;
-
-	/* check parameters */
-	if (addr > MVPP2_PHY_ADDR_MASK) {
-		printf("Error: Invalid PHY address %d\n", addr);
-		return -EFAULT;
-	}
-
-	if (reg > MVPP2_PHY_REG_MASK) {
-		printf("Err: Invalid register offset %d\n", reg);
-		return -EFAULT;
-	}
-
-	/* wait till the SMI is not busy */
-	if (smi_wait_ready(priv) < 0)
-		return -EFAULT;
-
-	/* fill the phy address and regiser offset and read opcode */
-	smi_reg = (addr << MVPP2_SMI_DEV_ADDR_OFFS)
-		| (reg << MVPP2_SMI_REG_ADDR_OFFS)
-		| MVPP2_SMI_OPCODE_READ;
-
-	/* write the smi register */
-	writel(smi_reg, priv->mdio_base);
-
-	/* wait till read value is ready */
-	timeout = MVPP2_SMI_TIMEOUT;
-
-	do {
-		/* read smi register */
-		smi_reg = readl(priv->mdio_base);
-		if (timeout-- == 0) {
-			printf("Err: SMI read ready timeout\n");
-			return -EFAULT;
-		}
-	} while (!(smi_reg & MVPP2_SMI_READ_VALID));
-
-	/* Wait for the data to update in the SMI register */
-	for (timeout = 0; timeout < MVPP2_SMI_TIMEOUT; timeout++)
-		;
-
-	return readl(priv->mdio_base) & MVPP2_SMI_DATA_MASK;
-}
-
-/*
- * mpp2_mdio_write - miiphy_write callback function.
- *
- * Returns 0 if write succeed, -EINVAL on bad parameters
- * -ETIME on timeout
- */
-static int mpp2_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
-			   u16 value)
-{
-	struct mvpp2_port *priv = bus->priv;
-	u32 smi_reg;
-
-	/* check parameters */
-	if (addr > MVPP2_PHY_ADDR_MASK) {
-		printf("Error: Invalid PHY address %d\n", addr);
-		return -EFAULT;
-	}
-
-	if (reg > MVPP2_PHY_REG_MASK) {
-		printf("Err: Invalid register offset %d\n", reg);
-		return -EFAULT;
-	}
-
-	/* wait till the SMI is not busy */
-	if (smi_wait_ready(priv) < 0)
-		return -EFAULT;
-
-	/* fill the phy addr and reg offset and write opcode and data */
-	smi_reg = value << MVPP2_SMI_DATA_OFFS;
-	smi_reg |= (addr << MVPP2_SMI_DEV_ADDR_OFFS)
-		| (reg << MVPP2_SMI_REG_ADDR_OFFS);
-	smi_reg &= ~MVPP2_SMI_OPCODE_READ;
-
-	/* write the smi register */
-	writel(smi_reg, priv->mdio_base);
-
-	return 0;
-}
-
 static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct mvpp2_port *port = dev_get_priv(dev);
@@ -5174,6 +5168,10 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
 	int rx_received;
 	struct mvpp2_rx_queue *rxq;
 	u8 *data;
+
+	if (port->phyaddr < PHY_MAX_ADDR)
+		if (!port->phy_dev->link)
+			return 0;
 
 	/* Process RX packets */
 	rxq = port->rxqs[0];
@@ -5240,6 +5238,10 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
 	int tx_done;
 	int timeout;
 
+	if (port->phyaddr < PHY_MAX_ADDR)
+		if (!port->phy_dev->link)
+			return 0;
+
 	txq = port->txqs[0];
 	aggr_txq = &port->priv->aggr_txqs[smp_processor_id()];
 
@@ -5302,6 +5304,9 @@ static int mvpp2_start(struct udevice *dev)
 	case PHY_INTERFACE_MODE_RGMII:
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
+	case PHY_INTERFACE_MODE_1000BASEX:
+	case PHY_INTERFACE_MODE_2500BASEX:
 		mvpp2_port_power_up(port);
 	default:
 		break;
@@ -5326,14 +5331,6 @@ static int mvpp2_write_hwaddr(struct udevice *dev)
 	struct mvpp2_port *port = dev_get_priv(dev);
 
 	return mvpp2_prs_update_mac_da(port, port->dev_addr);
-}
-
-static int mvpp22_smi_phy_addr_cfg(struct mvpp2_port *port)
-{
-	writel(port->phyaddr, port->priv->iface_base +
-	       MVPP22_SMI_PHY_ADDR_REG(port->gop_id));
-
-	return 0;
 }
 
 static int mvpp2_base_probe(struct udevice *dev)
@@ -5406,6 +5403,8 @@ static int mvpp2_base_probe(struct udevice *dev)
 		priv->mpcs_base = priv->iface_base + MVPP22_MPCS;
 		priv->xpcs_base = priv->iface_base + MVPP22_XPCS;
 		priv->rfu1_base = priv->iface_base + MVPP22_RFU1;
+
+		priv->sdip_base = (void *)devfdt_get_addr_index(dev, 2);
 	}
 
 	if (priv->hw_version == MVPP21)
@@ -5420,31 +5419,13 @@ static int mvpp2_probe(struct udevice *dev)
 {
 	struct mvpp2_port *port = dev_get_priv(dev);
 	struct mvpp2 *priv = dev_get_priv(dev->parent);
-	struct mii_dev *bus;
 	int err;
 
 	/* Only call the probe function for the parent once */
 	if (!priv->probe_done)
 		err = mvpp2_base_probe(dev->parent);
 
-	port->priv = dev_get_priv(dev->parent);
-
-	/* Create and register the MDIO bus driver */
-	bus = mdio_alloc();
-	if (!bus) {
-		printf("Failed to allocate MDIO bus\n");
-		return -ENOMEM;
-	}
-
-	bus->read = mpp2_mdio_read;
-	bus->write = mpp2_mdio_write;
-	snprintf(bus->name, sizeof(bus->name), dev->name);
-	bus->priv = (void *)port;
-	port->bus = bus;
-
-	err = mdio_register(bus);
-	if (err)
-		return err;
+	port->priv = priv;
 
 	err = phy_info_parse(dev, port);
 	if (err)
@@ -5471,10 +5452,6 @@ static int mvpp2_probe(struct udevice *dev)
 
 		port->base = priv->iface_base + MVPP22_PORT_BASE +
 			port->gop_id * MVPP22_PORT_OFFSET;
-
-		/* Set phy address of the port */
-		if(port->phy_node)
-			mvpp22_smi_phy_addr_cfg(port);
 
 		/* GoP Init */
 		gop_port_init(port);

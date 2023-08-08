@@ -1,0 +1,73 @@
+Marvell SPI binding
+===================
+
+Binding for SPI Driver Marvell's Armada familiy SoCs (Apart from A37x0).
+
+Mandatory properties:
+SoC specific:
+- compatible: 		Should be one of the following options:
+				"marvell,armada-375-spi"
+				"marvell,armada-380-spi"
+				"marvell,armada-xp-spi"
+- reg:			Base address of SPI host controllers
+- reg : 		offset and length of the register set for the device.
+			This property can optionally have additional entries to configure
+			the SPI direct access mode that some of the Marvell SoCs support
+			additionally to the normal indirect access (PIO) mode. The values
+			for the MBus "target" and "attribute" are defined in the Marvell
+			SoC "Functional Specifications" Manual in the chapter "Marvell
+			Core Processor Address Decoding".
+			The register sets following the control registers refer to
+			chip-select lines 0 through n(n<=7) respectively.
+- clocks:		This property points to the used clock for the SPI interface.
+- cell-index:		SPI unit id.
+- #address-cells: 	Must be <1>, as required by generic SPI binding.
+- #size-cells:		Must be <0>, also as required by generic SPI binding.
+
+
+Board specific:
+- spi-max-frequency:	SPI max bus frequency.
+
+Example: For SPI-0 node:
+	cpm_spi0: spi@700600 {
+		compatible = "marvell,armada-380-spi";
+			reg = <0x700600 0x50>;
+			#address-cells = <0x1>;
+			#size-cells = <0x0>;
+			cell-index = <1>;
+			clocks = <&cpm_syscon0 0 3>;
+	};
+
+Example with SPI direct mode support in armada 7040 DB boards(optionally):
+	&cp0_spi1: spi@700680 {
+		compatible = "marvell,armada-380-spi";
+		pinctrl-names = "default";
+		pinctrl-0 = <&cp0_spi0_pins>;
+		reg = <0x700680 0x50>,		/* control */
+		      <0x2000000 0x1000000>,	/* CS0 */
+		      <0 0xffffffff>,		/* CS1 */
+		      <0 0xffffffff>,		/* CS2 */
+		      <0 0xffffffff>;		/* CS3 */
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cell-index = <2>;
+	};
+
+To enable the direct mode, the board specific 'ranges' property needs
+to add the entries for the desired SPI controllers and its chip-selects
+that are used in the direct mode instead of PIO mode. Here an example
+for this (SPI controller 1, device 0 is used in direct mode. All other
+SPI device are used in the default indirect (PIO) mode):
+
+#define SPI_DIRECT_BASE                                (0xf9000000)
+
+	cp0 {
+		config-space {
+			/*
+			* Enable the SPI direct access by configuring an entry
+			* here in the board-specific ranges property
+			*/
+			ranges = <0x0 U64_TO_U32_H(CP110_BASE) U64_TO_U32_L(CP110_BASE) 0x2000000>,			/* internal regs */
+				 <0x2000000 U64_TO_U32_H(SPI_DIRECT_BASE) U64_TO_U32_L(SPI_DIRECT_BASE) 0x1000000>;	/* SPI1-DEV0 */
+		}
+	};

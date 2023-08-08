@@ -3,4 +3,6 @@
 # Copyright (C) 2016 Stefan Roese <sr@denx.de>
 
 obj-y = cpu.o
+obj-y += soc.o
+obj-y += clock.o
 obj-y += cache_llc.o

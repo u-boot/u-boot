@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ */
+
+#include "armada-3720-db.dts"
+
+/* detail board setup:
+ * Pcie Jumper slot	:	DB-88F3720-PCIe-mPCIe-Jumper
+ * SGMII module slot	:	DB-88F3720-SerDes-Jumper
+ * RGMII module slot	:	DB-88F3720-PHY module
+ * eMMC slot		:	DB-88F3720-eMMC_NAND module
+ * SDIO slot		:	DB-88F3720-SDcard module
+ *
+ * PHY0 (USB3/SGMII1)	:	USB3
+ * PHY1 (PCIe/SGMII0)	:	PCIe (WiFi via mini_PCIe module)
+ * PHY2 (SATA)		:	SATA
+ * RGMII-0		:	Ethernet via PHY (1 Lane)
+ * USB2 Port 0		:	USB2 as part USB3
+ * USB2 Port 1		:	USB2 Host
+ * eMMC*		:	eMMC NAND,
+				connected to SD / eMMC Host 1 in North Bridge
+ * SDIO*		:	SD card,
+				connected to SDIO Host 0 in South Bridge
+ */
+
+/ {
+	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR4-V3";
+	compatible = "marvell,armada-3720-db-v3",
+		     "marvell,armada3720",
+		     "marvell,armada3710";
+
+};

@@ -92,6 +92,11 @@
 #define     PCIE_CORE_CTRL2_STRICT_ORDER_ENABLE	BIT(5)
 #define     PCIE_CORE_CTRL2_ADDRWIN_MAP_ENABLE	BIT(6)
 
+#define PCIE_PHY_REF_CLOCK			(CONTROL_BASE_ADDR + 0x14)
+#define     PCIE_PHY_CTRL_OFF			16
+#define     PCIE_PHY_BUF_CTRL_OFF		0
+#define     PCIE_PHY_BUF_CTRL_INIT_VAL		0x1342
+
 /* LMI registers base address and register offsets */
 #define LMI_BASE_ADDR				0x6000
 #define CFG_REG					(LMI_BASE_ADDR + 0x0)
@@ -510,6 +515,9 @@ static int pcie_advk_wait_for_link(struct pcie_advk *pcie)
 static int pcie_advk_setup_hw(struct pcie_advk *pcie)
 {
 	u32 reg;
+
+	/* Set HW Reference Clock Buffer Control */
+	advk_writel(pcie, PCIE_PHY_BUF_CTRL_INIT_VAL, PCIE_PHY_REF_CLOCK);
 
 	/* Set to Direct mode */
 	reg = advk_readl(pcie, CTRL_CONFIG_REG);

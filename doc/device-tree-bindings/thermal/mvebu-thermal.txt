@@ -1,0 +1,63 @@
+Marvell Thermal Sensor binding
+==============================
+
+The thermal node includes a description of the Thermal Sensor External Unit.
+The thernal sensor is an on-chip temperature sensor that reads the temperature of
+every core and returns the average or the maximum between them.
+
+Mandatory properties:
+SoC specific:
+	- compatible: should contain two compatibles:
+		- first: "marvell,mvebu-thermal"
+		- second: indicate the thermal sensor type
+		"marvell,thermal-sensor" or "marvell,thermal-ext-sensor"
+	- reg: the base address of thermal unit
+	- gain, offset: parameters of the temperature equation
+		which are:
+		T(in Celsius) = T(read value) * gain + offset
+
+	- divisor: the value that multiply with gain and offset; see Note.
+		Note: in the Tsen spec the default value of gain equals 0.425
+		In the u-boot we cannot calculate a real number (no floating point).
+		For this reason, set the gain and offset by multiplying them by divisor
+		value (usually 1000 or 10000).
+		This helps to calculate the equation; see example below.
+
+
+- In Armada80x0/70x0 there are 2 types of thermal sensor:
+	- regular sensor (integrated in CP)
+	- external sensor (integrated in AP)
+
+Example for external sensor (integrated in AP):
+
+The required calculation:
+T(in Celsius) = T(read value) * 0.425 + 153.4
+The calculation in u-boot:
+T(in Celsius) = (T(read value) * 425 + 153400) / 1000
+
+Example:
+	thermal: thermal@6f8084 {
+		compatible = "marvell,mvebu-thermal", "marvell,thermal-ext-sensor";
+		reg = <0x6f8084 0x12>;
+		gain = <425>;
+		offset = <153400>;
+		divisor = <1000>;
+		status = "okay";
+	};
+
+Example for regular sensor (integrated in CP):
+
+The required calculation:
+T(in Celsius) = T(read value) * 0.4761 - 279.1
+The calculation in u-boot:
+T(in Celsius) = (T(read value) * 4761 - 2791000) / 10000
+
+Example:
+	thermal@400070 {
+		compatible = "marvell,mvebu-thermal", "marvell,thermal-sensor";
+		reg = <0x400070 0x12>;
+		gain = <4761>;
+		offset = <2791000>;
+		divisor = <10000>;
+		status = "okay";
+	};

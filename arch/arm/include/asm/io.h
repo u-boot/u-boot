@@ -226,6 +226,14 @@ static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 #define setbits_8(addr, set) setbits(8, addr, set)
 #define clrsetbits_8(addr, clear, set) clrsetbits(8, addr, clear, set)
 
+#define clrbits_be64(addr, clear) clrbits(be64, addr, clear)
+#define setbits_be64(addr, set) setbits(be64, addr, set)
+#define clrsetbits_be64(addr, clear, set) clrsetbits(be64, addr, clear, set)
+
+#define clrbits_le64(addr, clear) clrbits(le64, addr, clear)
+#define setbits_le64(addr, set) setbits(le64, addr, set)
+#define clrsetbits_le64(addr, clear, set) clrsetbits(le64, addr, clear, set)
+
 /*
  * Now, pick up the machine-defined IO definitions
  */

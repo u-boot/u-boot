@@ -1090,7 +1090,8 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 			}
 			break;
 		case FDT_NOP:
-			printf("%s/* NOP */\n", &tabs[MAX_LEVEL - level]);
+			if (!env_get("fdt_hide_nop"))
+				printf("%s/* NOP */\n", &tabs[MAX_LEVEL - level]);
 			break;
 		case FDT_END:
 			return 1;

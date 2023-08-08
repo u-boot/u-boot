@@ -1,0 +1,41 @@
+menu "Marvell specific command line interface"
+
+config CMD_FAILSAFE
+	depends on ARCH_OCTEONTX2
+	bool "Command for supporting fail safe boot"
+	help
+	   Support for fail safe boot on Marvell's OcteonTX2 platforms.
+	   Disables forced secondary boot and reports if boot from
+	   primary device was successful.
+
+config CMD_ETH
+	depends on NET_OCTEONTX2
+	bool "Command to change fec and phy-mod type"
+	help
+	   Support for change of fec and phy-mod type for some specific
+	   LMAC modes on RVU PF [CGX] network interfaces on Marvell
+	   OcteonTX2 platforms.
+
+config CMD_MDIO_DBG
+	depends on ARCH_OCTEONTX2
+	bool "PHY registers read/write support on mdio bus"
+	help
+	   Support to debug phy registers over MDIO bus using SMC interface
+	   to ATF for RVU PF [CGX] network interfaces on Marvell OcteonTX2
+	   platforms.
+
+config CMD_ATTEST
+	depends on ARCH_OCTEONTX2
+	bool "Command for supporting Software Attestation"
+	help
+	   Support for Software Attestation on Marvell's OcteonTX2 platforms.
+	   Displays Secure Boot software component version information.
+
+config CMD_BOOTIMGUP
+	depends on ARCH_OCTEONTX || ARCH_OCTEONTX2
+	depends on MMC_OCTEONTX || SPI_FLASH
+	bool "bootimgup"
+	help
+	  bootimgup command support
+
+endmenu

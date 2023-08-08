@@ -165,6 +165,10 @@ enum fdt_compat_id {
 	COMPAT_ALTERA_SOCFPGA_FPGA0,		/* SOCFPGA FPGA manager */
 	COMPAT_ALTERA_SOCFPGA_NOC,		/* SOCFPGA Arria 10 NOC */
 	COMPAT_ALTERA_SOCFPGA_CLK_INIT,		/* SOCFPGA Arria 10 clk init */
+	COMPAT_MVEBU_SAR,
+	COMPAT_MVEBU_SAR_REG_COMMON,
+	COMPAT_MVEBU_SAR_REG_AP806,
+	COMPAT_MVEBU_SAR_REG_CP110,
 
 	COMPAT_COUNT,
 };
@@ -458,6 +462,17 @@ int fdtdec_get_pci_vendev(const void *blob, int node,
 int fdtdec_get_pci_bar32(struct udevice *dev, struct fdt_pci_addr *addr,
 			 u32 *bar);
 
+/**
+ * Look at the bus range property of a device node and return the pci bus
+ * range for this node.
+ * The property must hold one fdt_pci_addr with a lengh.
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param res		the resource structure to return the bus range
+ */
+
+int fdtdec_get_pci_bus_range(const void *blob, int node,
+			     struct fdt_resource *res);
 /**
  * Look up a 32-bit integer property in a node and return it. The property
  * must have at least 4 bytes of data. The value of the first cell is

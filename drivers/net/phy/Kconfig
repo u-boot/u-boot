@@ -5,6 +5,15 @@ config BITBANGMII
 config MV88E6352_SWITCH
 	bool "Marvell 88E6352 switch support"
 
+config MV88E6XXX_SWITCH
+	bool "Marvel 88E6xxx switch support"
+	select PHYLIB
+	help
+	  Initialize peridot(MV88E6390/290/190) and topaz(MV88E6341/141)
+	  switches connected to SOC. This driver provide basic functionality
+	  like switch info, read/write switch and phy registers, get link
+	  status etc.
+
 menuconfig PHYLIB
 	bool "Ethernet PHY (physical media interface) support"
 	depends on NET

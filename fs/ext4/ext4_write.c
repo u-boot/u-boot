@@ -918,7 +918,7 @@ int ext4fs_write(const char *fname, const char *buffer,
 	blks_reqd_for_file = lldiv(bytes_reqd_for_file, fs->blksz);
 	if (do_div(bytes_reqd_for_file, fs->blksz) != 0) {
 		blks_reqd_for_file++;
-		debug("total bytes for a file %u\n", blks_reqd_for_file);
+		debug("total blocks for a file %u\n", blks_reqd_for_file);
 	}
 	blocks_remaining = blks_reqd_for_file;
 	/* test for available space in partition */

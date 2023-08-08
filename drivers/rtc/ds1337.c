@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Copyright (C) 2018 Marvell International Ltd.
+ *
  * (C) Copyright 2001-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * Keith Outwater, keith_outwater@mvis.com`
+ *
  */
 
 /*
@@ -14,6 +17,10 @@
 #include <command.h>
 #include <rtc.h>
 #include <i2c.h>
+#include <dm.h>
+#include <fdtdec.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * RTC register addresses
@@ -59,6 +66,168 @@
 #define RTC_STAT_BIT_A2F	0x2	/* Alarm 2 flag			*/
 #define RTC_STAT_BIT_OSF	0x80	/* Oscillator stop flag		*/
 
+#ifdef CONFIG_DM_RTC
+
+/*
+ * Helper functions
+ */
+static uchar dm_rtc_read(struct udevice *dev, uchar reg)
+{
+	return dm_i2c_reg_read(dev, reg);
+}
+
+static void dm_rtc_write(struct udevice *dev, uchar reg, uchar val)
+{
+	dm_i2c_reg_write(dev, reg, val);
+}
+
+static int ds1337_rtc_get(struct udevice *dev, struct rtc_time *tmp)
+{
+	int rel = 0;
+	uchar sec, min, hour, mday, wday, mon_cent, year, control, status;
+
+	control = dm_rtc_read(dev, RTC_CTL_REG_ADDR);
+	status = dm_rtc_read(dev, RTC_STAT_REG_ADDR);
+	sec = dm_rtc_read(dev, RTC_SEC_REG_ADDR);
+	min = dm_rtc_read(dev, RTC_MIN_REG_ADDR);
+	hour = dm_rtc_read(dev, RTC_HR_REG_ADDR);
+	wday = dm_rtc_read(dev, RTC_DAY_REG_ADDR);
+	mday = dm_rtc_read(dev, RTC_DATE_REG_ADDR);
+	mon_cent = dm_rtc_read(dev, RTC_MON_REG_ADDR);
+	year = dm_rtc_read(dev, RTC_YR_REG_ADDR);
+
+	/* No century bit, assume year 2000 */
+#ifdef CONFIG_RTC_DS1388
+	mon_cent |= 0x80;
+#endif
+
+	debug("Get RTC year: %02x mon/cent: %02x mday: %02x wday: %02x",
+	      year, mon_cent, mday, wday);
+	debug(" hr: %02x min: %02x sec: %02x control: %02x status: %02x\n",
+	      hour, min, sec, control, status);
+
+	if (status & RTC_STAT_BIT_OSF) {
+		printf("### Warning: RTC oscillator has stopped\n");
+		/* clear the OSF flag */
+		dm_rtc_write(dev, RTC_STAT_REG_ADDR,
+			     dm_rtc_read(dev, RTC_STAT_REG_ADDR) &
+			     ~RTC_STAT_BIT_OSF);
+		rel = -1;
+	}
+
+	tmp->tm_sec  = bcd2bin(sec & 0x7F);
+	tmp->tm_min  = bcd2bin(min & 0x7F);
+	tmp->tm_hour = bcd2bin(hour & 0x3F);
+	tmp->tm_mday = bcd2bin(mday & 0x3F);
+	tmp->tm_mon  = bcd2bin(mon_cent & 0x1F);
+	tmp->tm_year = bcd2bin(year) + ((mon_cent & 0x80) ? 2100 : 2000);
+	tmp->tm_wday = bcd2bin((wday - 1) & 0x07);
+	tmp->tm_yday = 0;
+	tmp->tm_isdst = 0;
+
+	debug("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
+	      tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
+	      tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	return rel;
+}
+
+static int ds1337_rtc_set(struct udevice *dev, const struct rtc_time *tmp)
+{
+	uchar century;
+
+	debug("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
+	      tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
+	      tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+
+	if (tmp->tm_year < 2000 || tmp->tm_year > 2199)
+		return -1;
+
+	dm_rtc_write(dev, RTC_YR_REG_ADDR, bin2bcd(tmp->tm_year % 100));
+
+	/* Assume 20YY as base, to fix mismatch with linux */
+	century = (tmp->tm_year >= 2100) ? 0x80 : 0;
+	dm_rtc_write(dev, RTC_MON_REG_ADDR, bin2bcd(tmp->tm_mon) | century);
+
+	dm_rtc_write(dev, RTC_DAY_REG_ADDR, bin2bcd(tmp->tm_wday + 1));
+	dm_rtc_write(dev, RTC_DATE_REG_ADDR, bin2bcd(tmp->tm_mday));
+	dm_rtc_write(dev, RTC_HR_REG_ADDR, bin2bcd(tmp->tm_hour));
+	dm_rtc_write(dev, RTC_MIN_REG_ADDR, bin2bcd(tmp->tm_min));
+	dm_rtc_write(dev, RTC_SEC_REG_ADDR, bin2bcd(tmp->tm_sec));
+
+	return 0;
+}
+
+/*
+ * Reset the RTC.  We also enable the oscillator output on the
+ * SQW/INTB* pin and program it for 32,768 Hz output. Note that
+ * according to the datasheet, turning on the square wave output
+ * increases the current drain on the backup battery from about
+ * 600 nA to 2uA. Define CONFIG_RTC_DS1337_NOOSC if you wish to turn
+ * off the OSC output.
+ */
+static int ds1337_rtc_reset(struct udevice *dev)
+{
+	uchar resetval = RTC_CTL_BIT_RS1 | RTC_CTL_BIT_RS2; /* Default DS1337 */
+
+#ifdef CONFIG_RTC_DS1337_NOOSC
+	resetval |= RTC_CTL_BIT_INTCN;
+#elif defined CONFIG_RTC_DS1388
+	resetval = 0x0;
+#endif
+	dm_rtc_write(dev, RTC_CTL_REG_ADDR, resetval);
+
+#ifdef CONFIG_DS1339_TCR_VAL
+	dm_rtc_write(dev, RTC_TC_REG_ADDR, CONFIG_SYS_DS1339_TCR_VAL);
+#endif
+#ifdef CONFIG_DS1388_TCR_VAL
+	dm_rtc_write(dev, RTC_TC_REG_ADDR, CONFIG_SYS_DS1388_TCR_VAL);
+#endif
+	return 0;
+}
+
+static int ds1337_rtc_read8(struct udevice *dev, unsigned int reg)
+{
+	return dm_rtc_read(dev, reg);
+}
+
+static int ds1337_rtc_write8(struct udevice *dev, unsigned int reg, int val)
+{
+	dm_rtc_write(dev, reg, val);
+
+	return 0;
+}
+
+static int ds1337_rtc_probe(struct udevice *dev)
+{
+	ds1337_rtc_reset(dev);
+
+	return 0;
+}
+
+static const struct rtc_ops ds1337_rtc_ops = {
+	.get = ds1337_rtc_get,
+	.set = ds1337_rtc_set,
+	.reset = ds1337_rtc_reset,
+	.read8 = ds1337_rtc_read8,
+	.write8 = ds1337_rtc_write8,
+};
+
+static const struct udevice_id ds1337_rtc_ids[] = {
+	{ .compatible = "dallas,ds1337" },
+	{ .compatible = "isil,isl12057" },
+	{ }
+};
+
+U_BOOT_DRIVER(ds1337_rtc) = {
+	.name = "rtc-ds1337",
+	.id = UCLASS_RTC,
+	.of_match = ds1337_rtc_ids,
+	.probe = ds1337_rtc_probe,
+	.ops = &ds1337_rtc_ops,
+};
+
+#else /* !CONFIG_DM_RTC */
 
 static uchar rtc_read (uchar reg);
 static void rtc_write (uchar reg, uchar val);
@@ -188,3 +357,5 @@ static void rtc_write (uchar reg, uchar val)
 {
 	i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
 }
+
+#endif /* !CONFIG_DM_RTC */

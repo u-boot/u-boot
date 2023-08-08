@@ -17,4 +17,9 @@
 #define LLC_WAY_MASK			0xffffffff
 #define LLC_CACHE_SYNC_MASK		0x1
 
+#define MVEBU_LLC_BASE			(MVEBU_REGISTER(LLC_BASE_ADDR))
+#define LLC_CTRL_REG_OFFSET		0x100
+#define LLC_EN				0x1
+#define LLC_EXCL_EN			0x100
+
 #endif	/* _CACHE_LLC_H_ */

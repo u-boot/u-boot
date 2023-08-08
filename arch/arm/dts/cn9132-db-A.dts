@@ -1,0 +1,109 @@
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ *
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
+ */
+
+#include "cn9131-db-A.dts"
+#include "cn9132-db.dtsi"
+
+/ {
+	model = "Marvell CN9132 development board (CP NOR) setup(A)";
+	compatible = "marvell,cn9132-db", "marvell,armada-ap806-quad",
+		     "marvell,armada-ap806";
+};
+
+&cp2_comphy {
+	phy0 {
+		phy-type = <COMPHY_TYPE_PEX0>;
+	};
+
+	phy1 {
+		phy-type = <COMPHY_TYPE_PEX0>;
+	};
+
+	phy2 {
+		phy-type = <COMPHY_TYPE_SATA0>;
+	};
+
+	phy3 {
+		phy-type = <COMPHY_TYPE_USB3_HOST1>;
+	};
+
+	phy4 {
+		phy-type = <COMPHY_TYPE_SFI0>;
+		phy-speed = <COMPHY_SPEED_10_3125G>;
+	};
+
+	phy5 {
+		phy-type = <COMPHY_TYPE_PEX2>;
+	};
+};
+
+&cp2_ld_efuse1 {
+	status = "okay";
+};
+
+&cp2_ethernet {
+	status = "okay";
+};
+
+/* SLM-1521-V2, CON9 */
+&cp2_eth0 {
+	status = "okay";
+	phy-mode = "sfi";
+};
+
+/* SLM-1521-V2, CON6 */
+&cp2_pcie0 {
+	num-lanes = <2>;
+	status = "okay";
+};
+
+/* SLM-1521-V2, CON8 */
+&cp2_pcie2 {
+	num-lanes = <1>;
+	status = "okay";
+};
+
+&cp2_pinctl {
+	/* MPP Bus:
+	 *	[0-26]		GPIO
+	 *	[27]		SATA0_PRESENT_ACTIVEn
+	 *	[28]		SATA1_PRESENT_ACTIVEn
+	 *	[29-31, 33]	GPIO (Default)
+	 *	[32,34]		SMI
+	 *	[37-38]		I2C0
+	 *	[39-53]		GPIO
+	 *	[54]		SD_CRD_RSTn (out)
+	 *	[55]		SD_CRD_DT (in)
+	 *	[56-62]		SDIO
+	 */
+		/*   0    1    2    3    4    5    6    7    8    9 */
+	pin-func = < 0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0
+		     0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0
+		     0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x9  0x9  0x0
+		     0x0  0x0  0x8  0x0  0x8  0x0  0x0  0x2  0x2  0x0
+		     0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0
+		     0x0  0x0  0x0  0x0  0xa  0xb  0xe  0xe  0xe  0xe
+		     0xe  0xe  0xe >;
+};
+
+/* SLM-1521-V2, CON4 */
+&cp2_sata0 {
+	status = "okay";
+};
+
+/* CON 2 on SLM-1683 - microSD */
+&cp2_sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp2_sdhci_pins>;
+	bus-width = <4>;
+	status = "okay";
+};
+
+/* SLM-1521-V2, CON11 */
+&cp2_usb3_1 {
+	status = "okay";
+};

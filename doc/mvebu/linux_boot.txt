@@ -1,0 +1,43 @@
+Booting Linux Kernel
+====================
+
+U-Boot supports loading the Linux kernel with the following images:
+- Linux image
+- Device Tree Blob (DTB) image
+- RAM File System (RAMFS) image - optional
+
+To load images from a TFTP server, set the TFTP server with the relevant image
+file.
+
+Run the following commands from the U-Boot prompt::
+
+	# setenv serverip <IP address of the TFTP server>
+	# setenv ipaddr <IP address of the board>
+	# setenv gatewayip <IP address of the Gateway>
+	# setenv image_name <Linux image name>
+	# setenv fdt_name <DTB image name>
+
+To mount the file-system via NFS:
+
+	- Set the NFS server with the appropriate file system.
+	- Run the following commands from the U-Boot prompt::
+
+		# setenv rootpath <path to filesystem in the NFS server>
+		# setenv netdev <NFS interface name, eth0 for example>
+		# setenv ramfs_name (optional)
+
+	Note:
+	  For the boards with Marvell SOHO switch, e.g., Espressobin,
+	  'netdev' should be set according to the port name defined by
+	  switch driver instead, i.e., lan0, lan1 or wan0.
+
+To load RAMFS:
+Run the following commands from the U-Boot prompt::
+
+	# setenv ramfs_name <RAMFS image name>
+	# setenv root <the ram device. for example, /dev/ram0 rw>
+
+To boot Linux Kerenl, run from U-Boot prompt::
+
+	# boot
+

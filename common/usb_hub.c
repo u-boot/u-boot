@@ -41,7 +41,7 @@
 
 #define USB_BUFSIZ	512
 
-#define HUB_SHORT_RESET_TIME	20
+#define HUB_SHORT_RESET_TIME	100
 #define HUB_LONG_RESET_TIME	200
 
 #define PORT_OVERCURRENT_MAX_SCAN_COUNT		3
@@ -208,6 +208,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	debug("devnum=%d poweron: query_delay=%d connect_timeout=%d\n",
 	      dev->devnum, max(100, (int)pgood_delay),
 	      max(100, (int)pgood_delay) + 1000);
+	mdelay(pgood_delay + 2000);
 }
 
 #if !CONFIG_IS_ENABLED(DM_USB)

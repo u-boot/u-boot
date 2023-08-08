@@ -66,6 +66,7 @@ struct pci_bar {
  * struct pci_ep_header - represents standard configuration header
  * @vendorid: identifies device manufacturer
  * @deviceid: identifies a particular device
+ * @vf_deviceid: identifies virtual function device id for SRIOV
  * @revid: specifies a device-specific revision identifier
  * @progif_code: identifies a specific register-level programming interface
  * @subclass_code: identifies more specifically the function of the device
@@ -78,6 +79,7 @@ struct pci_bar {
 struct pci_ep_header {
 	u16	vendorid;
 	u16	deviceid;
+	u16     vf_deviceid;
 	u8	revid;
 	u8	progif_code;
 	u8	subclass_code;

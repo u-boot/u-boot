@@ -1553,7 +1553,7 @@ static const char *env_get_mtdparts(char *buf)
 static int parse_mtdparts(const char *const mtdparts)
 {
 	const char *p;
-	struct mtd_device *dev;
+	struct mtd_device *dev = NULL;
 	int err = 1;
 	char tmp_parts[MTDPARTS_MAXLEN];
 

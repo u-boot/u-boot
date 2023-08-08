@@ -4,158 +4,129 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <dm.h>
 #include <i2c.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <power/regulator.h>
+#ifdef CONFIG_BOARD_CONFIG_EEPROM
+#include <mvebu/cfg_eeprom.h>
+#endif
+
+#define CP_USB20_BASE_REG(cp, p)	(MVEBU_REGS_BASE_CP(0, cp) + \
+						0x00580000 + 0x1000 * (p))
+#define CP_USB20_TX_CTRL_REG(cp, p)	(CP_USB20_BASE_REG(cp, p) + 0xC)
+#define CP_USB20_TX_OUT_AMPL_MASK	(0x7 << 20)
+#define CP_USB20_TX_OUT_AMPL_VALUE	(0x3 << 20)
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * Information specific to the DB-88F7040 eval board. We strive to use
- * DT for such platform specfic configurations. At some point, this
- * might be removed here and implemented via DT.
- */
-/* IO expander I2C device */
-#define I2C_IO_EXP_ADDR		0x21
-#define I2C_IO_CFG_REG_0	0x6
-#define I2C_IO_DATA_OUT_REG_0	0x2
-/* VBus enable */
-#define I2C_IO_REG_0_USB_H0_OFF	0
-#define I2C_IO_REG_0_USB_H1_OFF	1
-#define I2C_IO_REG_VBUS		((1 << I2C_IO_REG_0_USB_H0_OFF) | \
-				 (1 << I2C_IO_REG_0_USB_H1_OFF))
-/* Current limit */
-#define I2C_IO_REG_0_USB_H0_CL	4
-#define I2C_IO_REG_0_USB_H1_CL	5
-#define I2C_IO_REG_CL		((1 << I2C_IO_REG_0_USB_H0_CL) | \
-				 (1 << I2C_IO_REG_0_USB_H1_CL))
+#define BOOTCMD_NAME	"pci-bootcmd"
 
-static int usb_enabled = 0;
-
-/* Board specific xHCI dis-/enable code */
-
-/*
- * Set USB VBUS signals (via I2C IO expander/GPIO) as output and set
- * output value as disabled
- *
- * Set USB Current Limit signals (via I2C IO expander/GPIO) as output
- * and set output value as enabled
- */
-int board_xhci_config(void)
+int __soc_early_init_f(void)
 {
-	struct udevice *dev;
-	int ret;
-	u8 buf[8];
-
-	if (of_machine_is_compatible("marvell,armada7040-db")) {
-		/* Configure IO exander PCA9555: 7bit address 0x21 */
-		ret = i2c_get_chip_for_busnum(0, I2C_IO_EXP_ADDR, 1, &dev);
-		if (ret) {
-			printf("Cannot find PCA9555: %d\n", ret);
-			return 0;
-		}
-
-		/*
-		 * Read configuration (direction) and set VBUS pin as output
-		 * (reset pin = output)
-		 */
-		ret = dm_i2c_read(dev, I2C_IO_CFG_REG_0, buf, 1);
-		if (ret) {
-			printf("Failed to read IO expander value via I2C\n");
-			return -EIO;
-		}
-		buf[0] &= ~I2C_IO_REG_VBUS;
-		buf[0] &= ~I2C_IO_REG_CL;
-		ret = dm_i2c_write(dev, I2C_IO_CFG_REG_0, buf, 1);
-		if (ret) {
-			printf("Failed to set IO expander via I2C\n");
-			return -EIO;
-		}
-
-		/* Read output value and configure it */
-		ret = dm_i2c_read(dev, I2C_IO_DATA_OUT_REG_0, buf, 1);
-		if (ret) {
-			printf("Failed to read IO expander value via I2C\n");
-			return -EIO;
-		}
-		buf[0] &= ~I2C_IO_REG_VBUS;
-		buf[0] |= I2C_IO_REG_CL;
-		ret = dm_i2c_write(dev, I2C_IO_DATA_OUT_REG_0, buf, 1);
-		if (ret) {
-			printf("Failed to set IO expander via I2C\n");
-			return -EIO;
-		}
-
-		mdelay(500); /* required delay to let output value settle */
-	}
-
 	return 0;
 }
 
-int board_xhci_enable(fdt_addr_t base)
-{
-	struct udevice *dev;
-	int ret;
-	u8 buf[8];
-
-	if (of_machine_is_compatible("marvell,armada7040-db")) {
-		/*
-		 * This function enables all USB ports simultaniously,
-		 * it only needs to get called once
-		 */
-		if (usb_enabled)
-			return 0;
-
-		/* Configure IO exander PCA9555: 7bit address 0x21 */
-		ret = i2c_get_chip_for_busnum(0, I2C_IO_EXP_ADDR, 1, &dev);
-		if (ret) {
-			printf("Cannot find PCA9555: %d\n", ret);
-			return 0;
-		}
-
-		/* Read VBUS output value */
-		ret = dm_i2c_read(dev, I2C_IO_DATA_OUT_REG_0, buf, 1);
-		if (ret) {
-			printf("Failed to read IO expander value via I2C\n");
-			return -EIO;
-		}
-
-		/* Enable VBUS power: Set output value of VBUS pin as enabled */
-		buf[0] |= I2C_IO_REG_VBUS;
-		ret = dm_i2c_write(dev, I2C_IO_DATA_OUT_REG_0, buf, 1);
-		if (ret) {
-			printf("Failed to set IO expander via I2C\n");
-			return -EIO;
-		}
-
-		mdelay(500); /* required delay to let output value settle */
-		usb_enabled = 1;
-	}
-
-	return 0;
-}
+int soc_early_init_f(void) __attribute__((weak, alias("__soc_early_init_f")));
 
 int board_early_init_f(void)
 {
-	/* Nothing to do (yet), perhaps later some pin-muxing etc */
+	soc_early_init_f();
+
+	return 0;
+}
+
+int board_early_init_r(void)
+{
+#ifdef CONFIG_DM_REGULATOR
+	/* Check if any existing regulator should be turned down */
+	regulators_enable_boot_off(false);
+#endif
 
 	return 0;
 }
 
 int board_init(void)
 {
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+
+#ifdef CONFIG_BOARD_CONFIG_EEPROM
+	cfg_eeprom_init();
+#endif
 
 	return 0;
 }
 
+#if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) ||	\
+	CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)) &&	\
+	!CONFIG_IS_ENABLED(CONSOLE_MUX)
+# error CONFIG_CONSOLE_MUX must be enabled!
+#endif
+
+#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
+static int init_bootcmd_console(void)
+{
+	int ret = 0;
+	char *stdinname = env_get("stdin");
+	struct udevice *bootcmd_dev = NULL;
+	bool stdin_set;
+	char iomux_name[128];
+
+	debug("%s: stdin before: %s\n", __func__,
+	      stdinname ? stdinname : "NONE");
+	if (!stdinname) {
+		env_set("stdin", "serial");
+		stdinname = env_get("stdin");
+	}
+	stdin_set = !!strstr(stdinname, BOOTCMD_NAME);
+	ret = uclass_get_device_by_driver(UCLASS_SERIAL,
+					  DM_GET_DRIVER(octeontx_bootcmd),
+					  &bootcmd_dev);
+	if (ret) {
+		pr_err("%s: Error getting %s serial class\n", __func__,
+		       BOOTCMD_NAME);
+	} else if (bootcmd_dev) {
+		if (stdin_set)
+			strncpy(iomux_name, stdinname, sizeof(iomux_name));
+		else
+			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
+				 stdinname, bootcmd_dev->name);
+		ret = iomux_doenv(stdin, iomux_name);
+		if (ret)
+			pr_err("%s: Error %d enabling the PCI bootcmd input console \"%s\"\n",
+			       __func__, ret, iomux_name);
+		if (!stdin_set)
+			env_set("stdin", iomux_name);
+	}
+	debug("%s: Set iomux and stdin to %s (ret: %d)\n",
+	      __func__, iomux_name, ret);
+	return ret;
+}
+#endif
+
 int board_late_init(void)
 {
 	/* Pre-configure the USB ports (overcurrent, VBus) */
-	board_xhci_config();
 
+	/* Adjust the USB 2.0 port TX output driver amplitude
+	 * for passing compatibility tests
+	 */
+	if (of_machine_is_compatible("marvell,armada3900-vd")) {
+		u32 port;
+
+		for (port = 0; port < 2; port++)
+			clrsetbits_le32(CP_USB20_TX_CTRL_REG(0, port),
+					CP_USB20_TX_OUT_AMPL_MASK,
+					CP_USB20_TX_OUT_AMPL_VALUE);
+	}
+
+#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
+	if (init_bootcmd_console())
+		printf("Failed to init bootcmd input\n");
+#endif
 	return 0;
 }

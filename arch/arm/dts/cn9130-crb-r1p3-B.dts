@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2020 Marvell International Ltd.
+ */
+
+#include "cn9130-crb-B.dts"
+#include "cn9130-crb-r1p3.dtsi"
+
+/ {
+	model = "CN9130-CRB-B";
+	compatible = "marvell,cn9130-crb-B",
+		"marvell,cn9130",
+		"marvell,armada-ap806-quad",
+		"marvell,armada-ap806";
+};

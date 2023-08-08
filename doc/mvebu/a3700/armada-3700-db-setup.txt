@@ -1,0 +1,76 @@
+Armada-3700 Development Board
+=============================
+
+The Armada-3700 Development Board (DB) is a configurable board designed to test
+several combinations of SOC configurations. U-BOOT supports a predefined set of
+those configurations via device tree files.
+
+.. _fig_a3700-ddr3-db:
+
+.. figure:: /images/a3700-ddr3-db.*
+   :align: center
+
+   DB-88F3720-DDR3-Modular Board (Rev2.x)
+
+.. _fig_a3700-ddr4-db:
+
+.. figure:: /images/a3700-ddr4-db.*
+   :align: center
+
+   DB-88F3720-DDR4-Modular Board (Rev3.x)
+
+There are two kinds of DBs, DB-88F3720-DDR3-Modular and DB-88F3720-DDR4-Modular, the only
+difference is DDR type: one is DDR3, the other is DDR4. They are identical concerning the
+following Board Physical Setups.
+
+This document describes the board modifications required to setup each configuration and the
+interfaces supported (or disabled in each one).
+
+To switch to a different configuration, follow the instructions in the "board setup" section.
+Once completed, build u-boot image with dts file of target configuration.
+
+Board Setup Options
+-------------------
+
++---------------+---------------------------------------+---------------------------------------+---------------------------------------+
+| Connector	| Setup-1: Default			| Setup-2: SGMII1			| Setup-3: SGMII1-SFP2.5G		|
++===============+=======================================+=======================================+=======================================+
+| CON14		| SDcard module		(SLM1505-v1)	| SDcard module		(SLM1505-v1)	| SDcard module		(SLM1505-v1)	|
++---------------+---------------------------------------+---------------------------------------+---------------------------------------+
+| CON15(PCIe)	| PCIe-mPCIe-Jumper: SLM-1496(Optional*)| PCIe-mPCIe-Jumper: SLM-1496(Optional*)| PCIe-mPCIe-Jumper: SLM-1496(Optional*)|
++---------------+---------------------------------------+---------------------------------------+---------------------------------------+
+| CON17		| SerDes-Jumper 	(SLM1502-v1)	| 88E1512 Module 	(SLM-1496-v1)	| 88F3720-2xSFP Module 	(SLM-1504-v1)	|
++---------------+---------------------------------------+---------------------------------------+---------------------------------------+
+| CON19		| 88E1512 Module 	(SLM-1496-v1)	| 88E1512 Module 	(SLM-1496-v1)	| 88E1512 Module 	(SLM-1496-v1)	|
++---------------+---------------------------------------+---------------------------------------+---------------------------------------+
+
+  * PCIe-mPCIe-Jumper is used to enable mini PCIe0 port (CON11)
+
+The table below summarizes the interface configuration of each setup.
+
++---------------+-------------------------------+-----------------------+-------------------------------+
+| DB File	| armada-3720-db-v(x)-A		| armada-3720-db-v(x)-B	| armada-3720-db-v(x)-C		|
++===============+===============================+=======================+===============================+
+| Interface	| Setup-1: Default		| Setup-2: SGMII1	| Setup-3: SGMII1-SFP2.5G	|
++---------------+-------------------------------+-----------------------+-------------------------------+
+| SerDes PHY0	| USB3_H0			| SGMII1		| SGMII1-SFP2.5G		|
++---------------+-------------------------------+-----------------------+-------------------------------+
+| SerDes PHY1	| PCIe0				| PCIe0			| PCIe0				|
++---------------+-------------------------------+-----------------------+-------------------------------+
+| SerDes PHY2	| SATA				| SATA			| SATA				|
++---------------+-------------------------------+-----------------------+-------------------------------+
+| SATA		| CON3				| CON3			| CON3				|
++---------------+-------------------------------+-----------------------+-------------------------------+
+| PCIe		| CON15				| CON15			| CON15				|
++---------------+-------------------------------+-----------------------+-------------------------------+
+| USB3		| CON29				| N/A			| N/A				|
++---------------+-------------------------------+-----------------------+-------------------------------+
+| SGMII1	| N/A				| PHY1 (CON17)		| PHY1 (CON17)			|
++---------------+-------------------------------+-----------------------+-------------------------------+
+| RGMII		| PHY0 (CON19)			| PHY0 (CON19)		| PHY0 (CON19)			|
++---------------+-------------------------------+-----------------------+-------------------------------+
+
+
+.. Note::
+	The armada-3720-ddr3-db-v2-A.dts is still named armada-3720-db.dts.
+	Because the armada-3720-db.dts is mainlined, the name must be kept.

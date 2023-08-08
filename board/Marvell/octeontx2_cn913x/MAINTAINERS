@@ -1,0 +1,4 @@
+OCTEONTX2_CN913x BOARD
+F:	board/Marvell/octeontx2_cn913x/
+F:	include/configs/octeontx2_cn913x.h
+F:	configs/mvebu_db_cn91xx_defconfig

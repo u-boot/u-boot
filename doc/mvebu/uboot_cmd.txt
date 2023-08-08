@@ -1,0 +1,366 @@
+.. _uboot_cmd:
+
+U-Boot Commands
+===============
+
+For standard U-Boot commands (mmc, usb, sata, fdt), please refer to denx
+mainline documentation.
+
+
+Base command
+------------
+Base command provides the ability to change the base address of a memory command
+(ir, md, mm, etc..).
+
+   Examples:
+
+	(1) Show the current base address::
+
+		> base
+
+		Base Address: 0x00000000
+
+	(2) change the base address::
+
+		> base 0xf2000000
+
+		Base Address: 0xf2000000
+
+
+BUBT (Burn ATF) command
+-----------------------
+Bubt command is used to burn a new ATF image to flash device.
+
+The bubt command gets the following parameters: ATF file name, destination
+device and source device::
+
+	bubt [file-name] [destination [source]]
+
+	- file-name:	Image file name to burn. default = flash-image.bin
+	- destination:	Flash to burn to [spi, nand, mmc]. default = active flash
+	- source:	Source to load image from [tftp, usb]. default = tftp
+
+Examples:
+
+	``bubt``			- Burn flash-image.bin from tftp to active flash
+	``bubt latest-spi.bin nand``	- Burn latest-spi.bin from tftp to NAND flash
+
+.. Note::
+	- For the TFTP interface set serverip and ipaddr.
+	- To burn image to SD/eMMC device, the target is defined
+	  by parameters CONFIG_SYS_MMC_ENV_DEV and CONFIG_SYS_MMC_ENV_PART.
+
+Bubt command details (burn image step by-step)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This section describes bubt command flow:
+
+1. Fetch the requested ATF image from an available interface (USB/SD/SATA/XDB, etc.)
+   into the DRAM, and place it at <load_address>
+   Example: when using the FAT file system on USB flash device::
+
+	# usb reset
+	# fatls usb 0 (see files in device)
+	# fatload usb 0 <load_address> <file_name>
+
+2. Erase the target device::
+
+	- NAND:		# nand erase 0 100000
+	- SPI:		# sf probe 0
+			# sf erase 0 100000
+	- SD/eMMC:	# mmc dev <dev_id> <boot_partition>
+
+   .. Note::
+	- The eMMC has 2 boot partitions (BOOT0 and BOOT1) and a user data
+	  partition (DATA). The boot partitions are numbered as partition 1 and
+	  2 in MMC driver. Number 0 is used for user data partition and should
+	  not be utilized for storing boot images and U-Boot environment in RAW
+	  mode since it will break file system structures usually located here.
+
+	  The default boot partition is BOOT0. It is selected by the following
+	  parameter::
+
+		CONFIG_SYS_MMC_ENV_PART=1
+
+	  Valid values for this parameter are 1 for BOOT0 and 2 for BOOT1.
+	  Please never use partition number 0 here!
+
+	- The partition number is ignored if the target device is SD card.
+
+	- The boot image offset starts at block 0 for eMMC and block 1 for SD
+	  devices. The block 0 on SD devices is left for MBR storage.
+
+3. Write the ATF image::
+
+	- NAND:		# nand write <load_address> 0 <ATF Size>
+	- SPI:		# sf write <load_address> 0 <ATF Size>
+	- SD/eMMC:	# mmc write <load_address> [0|1] <ATF Size>/<block_size>
+
+
+hw_info command
+---------------
+hw_info commands are used for the following:
+
+  - Store HW manufacturing information to EEPROM during the board production in
+    order to keep these parameters, regardless of the boot-loader upgrading.
+  - Load HW manufacturing information from the EEPROM to the relevant U-Boot
+    env variable in order to take effect.
+
+.. Note::
+	hw_info commands are only relevant for Marvell boards that use the
+	EEPROM device to save the HW manufacturing information.
+
+
+hw_info usage
+~~~~~~~~~~~~~
+- ``hw_info dump [name]``  - Dump all or specific HW parameters from the EEPROM.
+
+- ``hw_info load [name]``  - Load all or specific HW parameters from the EEPROM
+			     to env variables. The hw_info load will be
+			     performed automatically with the ``env default -a``
+			     operation, however it requires that the user
+			     executes ``env save`` manually, later on.
+
+- ``hw_info store [name]`` - Store all or specific HW parameters from env
+			     variables to the EEPROM. Before the operation, the
+			     expected env varibles should already be saved to
+			     env by using the command setenv or editenv.
+
+Supported HW information parameters:
+
+	- board_id      board ID
+	- pcb_slm       PCB system level manufacturing part ID (SLM)
+	- pcb_rev       PCB revision number
+	- eco_rev       ECO revision number
+	- pcb_sn        PCB SN
+	- ethaddr       first MAC address
+	- eth1addr      second MAC address
+	- eth2addr      third MAC address
+	- eth3addr      fourth MAC address
+
+Examples
+~~~~~~~~
+1. Initialize or change HW manufacturing information for the Armada-3700::
+
+	# setenv board_id 0020
+	# setenv pcb_slm 1443
+	# setenv pcb_rev 10
+	# setenv eco_rev 12
+	# setenv pcb_sn 0028
+	# setenv ethaddr 00:50:43:00:00:01
+	# setenv eth1addr 00:50:43:00:00:02
+	# setenv eth2addr 00:50:43:00:00:03
+	# setenv eth3addr 00:50:43:00:00:04
+	# saveenv
+	# hw_info store
+
+2. Restore HW manufacturing information env variables after the resetenv command::
+
+	# hw_info load
+	# saveenv (optional since hw_info load will ask user whether to saveenv)
+
+3. Dump HW parameters from EEPROM
+
+	# hw_info dump
+
+
+ir command
+----------
+Reading and changing internal register values.
+
+Displays the contents of the internal register in 2 forms, hex and binary.
+It is possible to change the value by writing a hex value beginning with 0x
+or by writing 0 or 1 in the required place.
+Pressing enter without any value keeps the value unchanged.
+
+NOTE: before using the ir command, the base address (using base command,
+described above) must be set:
+
+	- Armada3700	-	0xd0000000
+	- AP806		-	0xf0000000
+	- CP110-0	-	0xf2000000
+	- CP110-1	-	0xf4000000
+
+Example::
+
+	# base 0xf4000000
+	Base Address: 0xf4000000
+	# ir 440000
+	Internal register 0x440000 value : 0x33333333
+
+	31      24        16         8         0
+	 |       |         |         |         |
+	OLD: 0011-0011-0011-0011-0011-0011-0011-0011
+	NEW:             00           1			/* Set specific bits */
+
+	New value = 0x33033b33
+
+	# ir 440000
+	Internal register 0x440000 value : 0x33033b33
+
+	31      24        16         8         0
+	 |       |         |         |         |
+	OLD: 0011-0011-0000-0011-0011-1011-0011-0011
+	NEW:	/* Press enter to keep the value unchanged */
+
+
+
+mg_boot command
+---------------
+mg_boot command allows to load MG CM3 firmware and emulate MG's CM3 UART
+
+Introduced commands allows to load MG CM3 firmware into MG's CM3 SRAM and
+release it from reset. The MG's CM3 doesn't have hardware UART but after
+enabling CMD_MVEBU_MG_BOOT option, UART emulation can be used and console
+input/output can be redirected to MG's CM3
+
+The MG's CM3 UART emulation is done in the shared memory where both MG's CM3
+and ARMv8 has access to. The CM3 instead of putting some characters into UART
+registers, puts char into memory which can be read by ARMv8 U-Boot.
+
+Receiving character from CM3 perspective: The CM3 polls some other part of
+shared memory, if it finds some new chars it process it (instead of reading UART
+register). Thanks to that, ARMv8 U-Boot can send some characters to this
+shared memory and the CM3 will be able to receive and process them.
+
+A complementary patch can be found in FreeRTOS github repo:
+"a8k_mg: add uart emulation support"
+
+parameters:
+
+	- remote_file_name - TFTP image path to be loaded to MG CM3 SRAM
+	- cp_nr - CPx number [0 | 1]
+	- io_redirect - redirect console IO to CM3 [0=no (deflt) | 1=yes]
+
+Load the FreeRTOS firmware and switch to emulated MG's CM3 console::
+
+	# mg_boot path/to/tftpfile/RTOSDemo-cm3-mg.bin 0 1
+	# Using egiga1 device
+	# TFTP from server 10.2.0.102; our IP address is 10.2.2.182
+	# Filename 'path/to/tftpfile/RTOSDemo-cm3-mg.bin'.
+	# Load address: 0xf2100000
+	# Loading: #############
+	# 	 1.3 MiB/s
+	# done
+	# Bytes transferred = 61801 (f169 hex)
+	# Opening MG CM3 console..
+	# 	Use "poweroff" for powerdown CM3 and falling back to u-boot prompt
+	# 	Use "exit" falling back to u-boot prompt (CM3 still running)
+	#
+	#
+	# 	<some FreeRTOS log>
+
+.. Note::
+
+   Be aware that A8K MG's CM3 doesn't have hardware UART, therefore are emulated
+   console was prepared. After loading the CM3 firmware and using console
+   redirect (io_redirect set to 1), the emulated console of CM3 takes control
+   over A8K U-Boot's console.
+
+The logs from CM3 are not printed in real time, they are buffered in shared
+memory. To dump buffered log just:
+
+	- Press the 'Enter' key (this is needed to see logs that are buffered by
+	  FreeRTOS and they are not a direct result of entered command)
+	- Enter a command followed by 'Enter' key (this will dump log which is
+	  direct results of entered command)
+
+Falling back to u-boot console:
+
+  - To exit from it (and leave the CM3 running) do::
+
+	# MG-CM3>exit
+
+  - To exit and shutdown CM3 do::
+
+	# MG-CM3>poweroff
+
+
+mg_console command
+------------------
+
+mg_console command allows to switch console IO to CPn MG CM3. It is useful
+in cases where:
+
+- we run mg_boot without console IO redirection
+- we fall back to u-boot console but after some time we want to switch
+  back console redirection to CPn MG CM3
+
+parameters:
+- cp_nr - CPx number [0 | 1]
+
+Returning to MG CM3's console:
+
+If there is need to check status in CM3, we can return by running the command::
+
+	# Marvell>> mg_console 0
+
+Afterwards, we can dump what was buffered by FreeRTOS as described earlier by:
+
+- Pressing the 'Enter' key (this is needed to see logs that are buffered by FreeRTOS)
+- Enter new command followed by 'Enter' key (this will dump log which is direct
+  results of entered command)
+
+
+rx_training command
+-------------------
+
+RX training allows to improve link quality (for SFI/XFI mode) by running training
+sequence, this allows to reach better link quality then using static configuration.
+
+When running rx_training sequence, the user must state CP index (0/1/2) and comphy ID (0/5).
+
+If after rx training procedure the kernel will be booted (without
+resetting/rebooting the board), Linux will skip comphy power off and power on
+sequence, so the user can test the link quality in Linux.
+
+After board reset/reboot the comphy parameters for SFI/XFI are the default one
+(the training results are not valid anymore after reset).
+
+.. seealso::
+        Please refer to :ref:`porting` section: Comphy Porting.
+
+SAR (Sample at Reset) commands
+-------------------------------
+SAR commands are used to toggle the available Sample at Reset modes.
+
+.. Note::
+	- SAR commands are only relevant for Marvell boards that use EEPROM
+	  device.
+	- At first use, a reset should be done to SAR fields values with
+	  ``sar default`` command.
+	- In order to use SAR fields values a jumper should be in:
+
+		- jumper 52 in a8040-db
+		- jumper 38 in a7040-db
+
+	- After a SAR write command, a reset is required for the changes to
+	  take effect.
+
+Examples
+~~~~~~~~
+- ``sar list`` - Get the list of possible fields.
+- ``sar list <field>`` - Get the list of possible values for a specific field.
+- ``sar read`` - Get the current values of all available SAR fields.
+- ``sar read <field>`` - Get the current value of a specific SAR field.
+- ``sar write <field> <value>`` - Set the required value for a specific field.
+   A reset is required after a SAR write command for the changes to take effect.
+- ``sar default`` - Reset all writable SAR fields back to their default values.
+- ``sar default <field>`` - Reset SAR field back to his default value.
+
+The list of the Sample At Reset possible fields and values is defined in the
+device tree. For more information, please refer to
+doc/device-tree-bindings/misc/mvebu-sar.txt.
+
+
+tsen command
+-------------
+tsen command is used to display the SoC thermal sensor readout.
+When tsen command is executed, AP's and CP's temperature is sampled:
+
+Example::
+
+	Running 'tsen' on Armada-7040:
+
+	Marvell>> tsen
+	Thermal.f06f8084 = 49
+	Thermal.f2400070 = 53

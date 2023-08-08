@@ -178,6 +178,10 @@ obj-$(CONFIG_RISCV) += riscv/
 obj-$(CONFIG_X86) += x86/
 
 obj-$(CONFIG_ARCH_MVEBU) += mvebu/
+
+obj-$(CONFIG_ARCH_OCTEONTX2) += marvell/
+obj-$(CONFIG_ARCH_OCTEONTX) += marvell/
+
 endif # !CONFIG_SPL_BUILD
 
 # core command

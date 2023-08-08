@@ -88,12 +88,27 @@ static int mvebu_gpio_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct mvebu_gpio_priv *priv = dev_get_priv(dev);
+	char name[32], label[8], *str;
+	const u8 *tmp;
+	int size;
 
 	priv->regs = (struct mvebu_gpio_regs *)devfdt_get_addr(dev);
 	uc_priv->gpio_count = MVEBU_GPIOS_PER_BANK;
 	priv->name[0] = 'A' + dev->req_seq;
-	uc_priv->bank_name = priv->name;
+	tmp = dev_read_prop(dev, "label", &size);
 
+	if (tmp) {
+		memcpy(label, tmp, sizeof(label) - 1);
+		label[sizeof(label) - 1] = '\0';
+		snprintf(name, sizeof(name), "%s@", label);
+		str = strdup(name);
+		if (!str)
+			return -ENOMEM;
+		uc_priv->bank_name = str;
+
+	} else {
+		uc_priv->bank_name = priv->name;
+	}
 	return 0;
 }
 

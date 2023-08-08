@@ -1,0 +1,237 @@
+/*
+ * Copyright (C) 2019 Marvell International Ltd.
+ *
+ * SPDX-License-Identifier:    GPL-2.0
+ * https://spdx.org/licenses
+ */
+
+#include "cn9130-db.dtsi"
+
+/ {
+	model = "Marvell CN9130 development board (CP NOR) setup(C) PCIe EP";
+	compatible = "marvell,cn9130-db", "marvell,cn91xx", "marvell,cn9030-vd",
+		     "marvell,cn9030", "marvell,armada-ap806-quad",
+		     "marvell,armada-ap806";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	aliases {
+		i2c0 = &cp0_i2c0;
+		spi0 = &cp0_spi1;
+		gpio0 = &ap_gpio0;
+		gpio1 = &cp0_gpio0;
+		gpio2 = &cp0_gpio1;
+	};
+
+	memory@00000000 {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/* The PCI console memory must be reserved */
+		console_reserved: pci-console-nexus@3f000000 {
+			compatible = "marvell,pci-console-nexus-memory";
+			reg = <0 0x3f000000 0 0x1000000>;
+			no-map;
+		};
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+/*
+ * AP related configuration
+ */
+&ap_pinctl {
+	/* MPP Bus:
+	 * SDIO  [0-10, 12]
+	 * UART0 [11,19]
+	 */
+		/*   0 1 2 3 4 5 6 7 8 9 */
+	pin-func = < 1 1 1 1 1 1 1 1 1 1
+		     1 3 1 0 0 0 0 0 0 3 >;
+};
+
+/* on-board eMMC - U9 */
+&ap_sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ap_emmc_pins>;
+	bus-width = <8>;
+	status = "okay";
+};
+
+/*
+ * CP related configuration
+ */
+&cp0_pinctl {
+	/* MPP Bus:
+	 *	[0-11]	RGMII1
+	 *	[12]	GPIO GE-IN
+	 *	[13-16]	SPI1
+	 *	[17-27]	NAND
+	 *	[28]	MSS_GPIO[5] XXX:(mode nr from a3900)
+	 *	[29-30]	SATA
+	 *	[31]	MSS_GPIO[4] XXX:(mode nr from a3900)
+	 *	[32,34]	SMI
+	 *	[33]	SDIO
+	 *	[35-36]	I2C1
+	 *	[37-38]	I2C0
+	 *	[39-43]	SDIOctrl
+	 *	[44-55]	RGMII2
+	 *	[56-62]	SDIO
+	 */
+
+		/*   0   1   2   3   4   5   6   7   8   9 */
+	pin-func = < 3   3   3   3   3   3   3   3   3   3
+		     3   3   0   3   3   3   3   1   1   1
+		     1   1   1   1   1   1   1   1   3   9
+		     9   3   7   6   7   2   2   2   2   1
+		     1   1   1   1   1   1   1   1   1   1
+		     1   1   1   1   1   1   0xe 0xe 0xe 0xe
+		     0xe 0xe 0xe>;
+};
+
+&cp0_bootcmd {
+	status = "okay";
+};
+
+&cp0_i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_i2c0_pins>;
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&cp0_i2c1 {
+	status = "okay";
+};
+
+/* CON 28 */
+&cp0_sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_sdhci_pins>;
+	bus-width = <4>;
+	status = "okay";
+};
+
+/* U54 */
+&cp0_nand {
+	status = "disabled";
+};
+
+/* U55 */
+&cp0_spi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_spi0_pins>;
+	reg = <0x700680 0x50>,		/* control */
+	      <0x2000000 0x1000000>,	/* CS0 */
+	      <0 0xffffffff>,		/* CS1 */
+	      <0 0xffffffff>,		/* CS2 */
+	      <0 0xffffffff>;		/* CS3 */
+	status = "okay";
+
+	spi-flash@0 {
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		compatible = "jedec,spi-nor", "spi-flash";
+		reg = <0x0>;
+		/* On-board MUX does not allow higher frequencies */
+		spi-max-frequency = <40000000>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "U-Boot";
+				reg = <0x0 0x200000>;
+			};
+
+			partition@400000 {
+				label = "Filesystem";
+				reg = <0x200000 0xe00000>;
+			};
+		};
+	};
+};
+
+&cp0_comphy {
+
+	phy0 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+
+	phy1 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+
+	phy2 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+
+	phy3 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+
+	phy4 {
+		phy-type = <COMPHY_TYPE_SFI0>;
+		phy-speed = <COMPHY_SPEED_10_3125G>;
+	};
+
+	phy5 {
+		phy-type = <COMPHY_TYPE_SATA1>;
+	};
+};
+
+&cp0_mdio {
+	status = "okay";
+	phy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+	phy1: ethernet-phy@1 {
+		reg = <1>;
+	};
+};
+
+&cp0_ethernet {
+	status = "okay";
+};
+
+/* SLM-1521-V2, CON9 */
+&cp0_eth0 {
+	status = "okay";
+	phy-mode = "sfi";
+};
+
+/* CON56 */
+&cp0_eth1 {
+	status = "okay";
+	phy = <&phy0>;
+	phy-mode = "rgmii-id";
+};
+
+/* CON57 */
+&cp0_eth2 {
+	status = "okay";
+	phy = <&phy1>;
+	phy-mode = "rgmii-id";
+};
+
+/* SLM-1521-V2, CON2 */
+&cp0_sata0 {
+	status = "okay";
+};
+
+&cp0_pcie0{
+	status = "disabled";
+};

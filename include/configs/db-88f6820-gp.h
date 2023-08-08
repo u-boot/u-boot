@@ -24,6 +24,12 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /*
+ * SPI Flash configuration for the environemnt access
+ */
+#define CONFIG_ENV_SPI_BUS		0
+#define CONFIG_ENV_SPI_CS		0
+
+/*
  * SDIO/MMC Card Configuration
  */
 #define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE
@@ -52,10 +58,8 @@
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
-/* Keep device tree and initrd in lower memory so the kernel can access them */
-#define CONFIG_EXTRA_ENV_SETTINGS	\
-	"fdt_high=0x10000000\0"		\
-	"initrd_high=0x10000000\0"
+#define CONFIG_DEFAULT_CONSOLE		"console=ttyS0,115200 "\
+					"earlyprintk=ttyS0,115200"
 
 /* SPL */
 /*

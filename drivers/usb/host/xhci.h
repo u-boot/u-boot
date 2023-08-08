@@ -1230,6 +1230,16 @@ struct xhci_ctrl {
 	struct xhci_scratchpad *scratchpad;
 	struct xhci_virt_device *devs[MAX_HC_SLOTS];
 	int rootdev;
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	/* The Marvell OcteonTX2 SOCs have a problem where if the receive
+	 * buffer crosses a 64K boundary then the response events get
+	 * corrupted.  In this case, a 64K bounce buffer is used instead,
+	 * guaranteeing that this case will never happen.  It introduces
+	 * a slight performance penalty since all received data must be
+	 * copied from the bounce buffer to the user-supplied buffer.
+	 */
+	void *rx_bounce_buffer;
+#endif
 };
 
 unsigned long trb_addr(struct xhci_segment *seg, union xhci_trb *trb);

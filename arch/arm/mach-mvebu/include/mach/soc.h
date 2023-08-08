@@ -36,7 +36,33 @@
 
 /* SOC specific definations */
 #define INTREG_BASE		0xd0000000
+
+#if defined(CONFIG_ARMADA_8K_PLUS)
+/*=============== A8K+ =================*/
+#define MVEBU_REGS_BASE_AP(ap)		(0xe8000000ULL - (ap) * 0x04000000)
+#define MVEBU_REGS_BASE_CP(ap, cp)	(0x8100000000ULL + \
+						(ap) * 0x1d00000000ULL + \
+						(cp) * 0x700000000ULL)
+#define MVEBU_CCU_MAX_WINS		(5)
+#define MVEBU_IO_WIN_MAX_WINS		(11)
+#define MVEBU_IO_WIN_GCR_OFFSET		(0xF0)
+#define MVEBU_GWIN_MAX_WINS		(16)
+#elif defined(CONFIG_ARMADA_8K)
+/*=============== A8K =================*/
+#define MVEBU_REGS_BASE_AP(ap)		(0xf0000000ULL)
+#define MVEBU_REGS_BASE_CP(ap, cp)	(0xf2000000ULL + (cp) * 0x02000000)
+#define MVEBU_CCU_MAX_WINS		(8)
+#define MVEBU_IO_WIN_MAX_WINS		(7)
+#define MVEBU_IO_WIN_GCR_OFFSET		(0x70)
+#endif
+
 #define INTREG_BASE_ADDR_REG	(INTREG_BASE + 0x20080)
+
+#if defined(CONFIG_ARMADA_8K)
+/*=============== A8K =================*/
+#define MVEBU_REGS_BASE_AP(ap)		(0xf0000000ULL)
+#endif
+
 #if defined(CONFIG_SPL_BUILD) || defined(CONFIG_ARMADA_3700)
 /*
  * The SPL U-Boot version still runs with the default
@@ -159,6 +185,7 @@
 #define BOOT_DEV_SEL_MASK	(0x3f << BOOT_DEV_SEL_OFFS)
 
 #define BOOT_FROM_NAND		0x0A
+#define BOOT_FROM_NAND_ALT	0x0E
 #define BOOT_FROM_SATA		0x22
 #define BOOT_FROM_UART		0x28
 #define BOOT_FROM_SATA_ALT	0x2A
@@ -203,4 +230,31 @@
 #define BOOT_FROM_SPI		0x3
 #endif
 
+/* FW related definitions */
+#define MV_SIP_DFX			0x82000014
+#define MV_SIP_DDR_PHY_WRITE		0x82000015
+#define MV_SIP_DDR_PHY_READ		0x82000016
+
+#define MV_SIP_DFX_THERMAL_INIT		1
+#define MV_SIP_DFX_THERMAL_READ		2
+#define MV_SIP_DFX_THERMAL_IS_VALID	3
+
+#define MV_SIP_DFX_SREAD		20
+#define MV_SIP_DFX_SWRITE		21
+
+#ifndef __ASSEMBLY__
+#include <asm/types.h>
+
+int mvebu_dfx_smc(u32 subfid, u32 *reg, u32 addr, u32 val);
+void soc_print_device_info(void);
+int soc_get_ap_cp_num(void *ap_num, void *cp_num);
+void soc_print_system_cache_info(void);
+
+#define mvebu_dfx_smc_thermal(subfid, preg)	\
+				mvebu_dfx_smc(subfid, preg, 0, 0)
+#define mvebu_dfx_sread(preg, addr)		\
+				mvebu_dfx_smc(MV_SIP_DFX_SREAD, preg, addr, 0)
+#define mvebu_dfx_swrite(addr, val)		\
+				mvebu_dfx_smc(MV_SIP_DFX_SWRITE, 0, addr, val)
+#endif /* __ASSEMBLY__ */
 #endif /* _MVEBU_SOC_H */

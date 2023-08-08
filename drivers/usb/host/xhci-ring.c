@@ -575,6 +575,10 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	int ret;
 	u32 trb_fields[4];
 	u64 val_64 = (uintptr_t)buffer;
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	void *orig_buffer = buffer;
+	bool use_rx_bounce = false;
+#endif
 
 	debug("dev=%p, pipe=%lx, buffer=%p, length=%d\n",
 		udev, pipe, buffer, length);
@@ -594,6 +598,21 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	 * that the buffer should not span 64KB boundary. if so
 	 * we send request in more than 1 TRB by chaining them.
 	 */
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	/* There is a bug in the designware core used in the OcteonTX2 where
+	 * buffers that cross TRB boundaries cause an extra event to be
+	 * generated and the lengths reported by those events are corrupt.
+	 * In order to work around this, a 64K bounce buffer is used.
+	 */
+	if (usb_pipein(pipe) && (length <= TRB_MAX_BUFF_SIZE) &&
+	    (((uintptr_t)buffer & ~(TRB_MAX_BUFF_SIZE - 1)) !=
+	     (((uintptr_t)buffer + length) & ~(TRB_MAX_BUFF_SIZE - 1)))) {
+		use_rx_bounce = true;
+		orig_buffer = buffer;
+		buffer = ctrl->rx_bounce_buffer;
+		val_64 = (uintptr_t)buffer;
+	}
+#endif
 	running_total = TRB_MAX_BUFF_SIZE -
 			(lower_32_bits(val_64) & (TRB_MAX_BUFF_SIZE - 1));
 	trb_buff_len = running_total;
@@ -730,6 +749,10 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	xhci_acknowledge_event(ctrl);
 	xhci_inval_cache((uintptr_t)buffer, length);
 
+#if defined(CONFIG_ARCH_OCTEONTX2)
+	if (use_rx_bounce)
+		memcpy(orig_buffer, buffer, udev->act_len);
+#endif
 	return (udev->status != USB_ST_NOT_PROC) ? 0 : -1;
 }
 

@@ -171,20 +171,49 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-3720-db.dtb			\
+	armada-3720-ddr3-db-v2-B.dtb		\
+	armada-3720-ddr3-db-v2-C.dtb		\
+	armada-3720-ddr3-db-v1-A.dtb		\
+	armada-3720-ddr3-db-v1-B.dtb		\
+	armada-3720-ddr3-db-v1-C.dtb		\
+	armada-3720-ddr4-db-v3-A.dtb		\
+	armada-3720-ddr4-db-v3-B.dtb		\
+	armada-3720-ddr4-db-v3-C.dtb		\
+	armada-3720-ddr4-db-v1-A.dtb		\
+	armada-3720-ddr4-db-v1-B.dtb		\
 	armada-3720-espressobin.dtb		\
+	armada-3720-espressobin-emmc.dtb	\
 	armada-3720-turris-mox.dtb		\
 	armada-3720-uDPU.dtb			\
 	armada-375-db.dtb			\
 	armada-388-clearfog.dtb			\
 	armada-388-gp.dtb			\
+	armada-385-ap.dtb			\
 	armada-388-helios4.dtb			\
 	armada-385-db-88f6820-amc.dtb		\
 	armada-385-turris-omnia.dtb		\
+	armada-7020-amc.dtb			\
+	armada-7020-comexp.dtb                  \
+	armada-7040-pcac.dtb	                \
 	armada-7040-db.dtb			\
-	armada-7040-db-nand.dtb			\
+	armada-7040-db-B.dtb			\
+	armada-7040-db-C.dtb                    \
+	armada-7040-db-D.dtb			\
+	armada-7040-db-E.dtb			\
+	armada-7040-db-F.dtb			\
 	armada-8040-db.dtb			\
+	armada-8040-db-B.dtb			\
+	armada-8040-db-C.dtb			\
+	armada-8040-db-D.dtb			\
+	armada-8040-db-E.dtb			\
+	armada-8040-db-F.dtb			\
+	armada-8040-db-G.dtb			\
+	armada-8040-db-H.dtb			\
 	armada-8040-mcbin.dtb			\
+	armada-8040-mcbin-single-shot.dtb	\
 	armada-8040-clearfog-gt-8k.dtb		\
+	armada-8040-ocp.dtb			\
+	armada-8040-ucpe.dtb			\
 	armada-xp-gp.dtb			\
 	armada-xp-maxbcm.dtb			\
 	armada-xp-synology-ds414.dtb		\
@@ -193,7 +222,22 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-385-atl-x530.dtb			\
 	armada-385-atl-x530DP.dtb		\
 	armada-xp-db-xc3-24g4xg.dtb		\
-	armada-xp-crs305-1g-4s.dtb
+	armada-xp-crs305-1g-4s.dtb		\
+	cn9130-crb-A.dtb			\
+	cn9130-crb-B.dtb			\
+	cn9130-crb-C.dtb			\
+	cn9130-crb-r1p3-A.dtb			\
+	cn9130-crb-r1p3-B.dtb			\
+	cn9130-crb-r1p3-C.dtb			\
+	cn9130-db-A.dtb				\
+	cn9130-db-B.dtb				\
+	cn9130-db-C.dtb				\
+	cn9131-db-A.dtb				\
+	cn9131-db-B.dtb				\
+	cn9131-db-C.dtb                         \
+	cn9132-db-A.dtb				\
+	cn9132-db-B.dtb				\
+	cn9132-db-C.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
 	uniphier-ld11-global.dtb \
@@ -306,7 +350,7 @@ dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb	\
 	am437x-cm-t43.dtb
 dtb-$(CONFIG_TARGET_AM3517_EVM) += am3517-evm.dtb
 dtb-$(CONFIG_TI816X) += dm8168-evm.dtb
-dtb-$(CONFIG_THUNDERX) += thunderx-88xx.dtb
+dtb-$(CONFIG_OCTEONTX) += octeontx-88xx.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_arria5_socdk.dtb			\

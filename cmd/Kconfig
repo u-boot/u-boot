@@ -188,6 +188,13 @@ comment "Commands"
 
 menu "Info commands"
 
+config CMD_MVEBU_SAR
+	bool "sar"
+	depends on MVEBU_SAR
+	default n
+	help
+	  sar - Modify SOC's sample at reset (SAR) values
+
 config CMD_BDI
 	bool "bdinfo"
 	default y
@@ -1379,6 +1386,15 @@ config BOOTP_PREFER_SERVERIP
 	  takes precedence over DHCP server IP and will only be set by the DHCP
 	  server if not already set in the environment.
 
+config BOOTP_TFTP_SERVERIP
+	bool "Allow DHCP server to specify tftp server address"
+	depends on CMD_BOOTP
+	default y
+	help
+	  With this option enabled, the DHCP server can specify the IP address
+	  of a TFTP server to load images from by using option 150 as specified
+	  in RFC5859.
+
 config BOOTP_SUBNETMASK
 	bool "Request & store 'netmask' from BOOTP/DHCP server"
 	default y
@@ -1666,6 +1682,7 @@ config CMD_QFW
 	  via -kernel / -initrd
 
 source "cmd/mvebu/Kconfig"
+source "cmd/marvell/Kconfig"
 
 config CMD_TERMINAL
 	bool "terminal - provides a way to attach a serial terminal"

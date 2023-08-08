@@ -1,0 +1,24 @@
+#
+# EFUSE infrastructure and drivers
+#
+
+menu "EFUSE Support"
+
+config MVEBU_EFUSE
+	bool "Enable eFuse support"
+	default n
+	depends on HAVE_MVEBU_EFUSE
+	help
+	  This enable mvebu efuse driver.
+	  It supports for reading and writing eFuses.
+	  This efuse driver supports marvell
+	  a38x and a7k/8k SoC chips.
+
+config MVEBU_EFUSE_READ_ONLY
+	bool "eFuse read only access"
+	default n
+	depends on MVEBU_EFUSE
+	help
+	  This enables a "read only" mode. Write attempt
+          will result in an error message.
+endmenu

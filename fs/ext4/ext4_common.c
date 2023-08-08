@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include <linux/stat.h>
 #include <linux/time.h>
+#include <u-boot/crc.h>
 #include <asm/byteorder.h>
 #include "ext4_common.h"
 
@@ -100,6 +101,15 @@ static inline void ext4fs_bg_itable_unused_dec
 		free_inodes += le16_to_cpu(bg->bg_itable_unused_high) << 16;
 	free_inodes--;
 
+	bg->bg_itable_unused = cpu_to_le16(free_inodes & 0xffff);
+	if (fs->gdsize == 64)
+		bg->bg_itable_unused_high = cpu_to_le16(free_inodes >> 16);
+}
+
+static inline void ext4fs_bg_itable_unused_set(struct ext2_block_group *bg,
+					       const struct ext_filesystem *fs,
+					       uint32_t free_inodes)
+{
 	bg->bg_itable_unused = cpu_to_le16(free_inodes & 0xffff);
 	if (fs->gdsize == 64)
 		bg->bg_itable_unused_high = cpu_to_le16(free_inodes >> 16);
@@ -413,27 +423,48 @@ void ext4fs_reset_inode_bmap(int inode_no, unsigned char *buffer, int index)
 		*ptr = *ptr & ~(operand);
 }
 
+static inline uint32_t ext4_chksum(uint32_t crc, const void *address,
+				   uint32_t length)
+{
+	return crc32(crc, address, length);
+}
+
 uint16_t ext4fs_checksum_update(uint32_t i)
 {
 	struct ext2_block_group *desc;
 	struct ext_filesystem *fs = get_fs();
 	uint16_t crc = 0;
 	__le32 le32_i = cpu_to_le32(i);
+	int offset = offsetof(struct ext2_block_group, bg_checksum);
 
 	desc = ext4fs_get_group_descriptor(fs, i);
 	if (le32_to_cpu(fs->sb->feature_ro_compat) & EXT4_FEATURE_RO_COMPAT_GDT_CSUM) {
-		int offset = offsetof(struct ext2_block_group, bg_checksum);
 
 		crc = ext2fs_crc16(~0, fs->sb->unique_id,
 				   sizeof(fs->sb->unique_id));
 		crc = ext2fs_crc16(crc, &le32_i, sizeof(le32_i));
 		crc = ext2fs_crc16(crc, desc, offset);
 		offset += sizeof(desc->bg_checksum);	/* skip checksum */
-		assert(offset == sizeof(*desc));
+		/*assert(offset == sizeof(*desc));*/
 		if (offset < fs->gdsize) {
 			crc = ext2fs_crc16(crc, (__u8 *)desc + offset,
 					   fs->gdsize - offset);
 		}
+	} else if (le32_to_cpu(fs->sb->feature_ro_compat) &
+		   EXT4_FEATURE_RO_COMPAT_METADATA_CSUM) {
+		uint32_t crc32;
+		uint16_t dummy_csum = 0;
+
+		crc32 = ext4_chksum(~0, fs->sb->unique_id,
+				    sizeof(fs->sb->unique_id));
+		crc32 = ext4_chksum(crc32, &le32_i, sizeof(le32_i));
+		crc32 = ext4_chksum(crc32, desc, offset);
+		offset += sizeof(dummy_csum);
+		crc32 = ext4_chksum(crc32, &dummy_csum, sizeof(dummy_csum));
+		if (offset < fs->gdsize)
+			crc32 = ext4_chksum(crc32, (uint8_t *)desc + offset,
+					    fs->gdsize - offset);
+		crc = crc32 & 0xffff;
 	}
 
 	return crc;
@@ -763,7 +794,8 @@ int ext4fs_get_parent_inode_num(const char *dirname, char *dname, int flags)
 	struct ext2_inode temp_inode;
 
 	if (*dirname != '/') {
-		printf("Please supply Absolute path\n");
+		printf("Please supply Absolute path, \"%s\" invalid\n",
+		       dirname);
 		return -1;
 	}
 
@@ -1110,7 +1142,8 @@ int ext4fs_get_new_inode_no(void)
 				uint64_t i_bitmap_blk =
 					ext4fs_bg_get_inode_id(bgd, fs);
 				if (has_gdt_chksum)
-					bgd->bg_itable_unused = free_inodes;
+					ext4fs_bg_itable_unused_set(bgd, fs,
+								free_inodes);
 				if (bg_flags & EXT4_BG_INODE_UNINIT) {
 					put_ext4(i_bitmap_blk * fs->blksz,
 						 zero_buffer, fs->blksz);

@@ -68,7 +68,12 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(ALTERA_SOCFPGA_F2SDR2, "altr,socfpga-fpga2sdram2-bridge"),
 	COMPAT(ALTERA_SOCFPGA_FPGA0, "altr,socfpga-a10-fpga-mgr"),
 	COMPAT(ALTERA_SOCFPGA_NOC, "altr,socfpga-a10-noc"),
-	COMPAT(ALTERA_SOCFPGA_CLK_INIT, "altr,socfpga-a10-clk-init")
+	COMPAT(ALTERA_SOCFPGA_CLK_INIT, "altr,socfpga-a10-clk-init"),
+	COMPAT(MVEBU_SAR, "marvell,sample-at-reset"),
+	COMPAT(MVEBU_SAR_REG_COMMON, "marvell,sample-at-reset-common"),
+	COMPAT(MVEBU_SAR_REG_AP806, "marvell,sample-at-reset-ap806"),
+	COMPAT(MVEBU_SAR_REG_CP110, "marvell,sample-at-reset-cp110"),
+
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
@@ -291,6 +296,23 @@ int fdtdec_get_pci_bar32(struct udevice *dev, struct fdt_pci_addr *addr,
 
 	return 0;
 }
+
+int fdtdec_get_pci_bus_range(const void *blob, int node,
+			     struct fdt_resource *res)
+{
+	const u32 *values;
+	int len;
+
+	values = fdt_getprop(blob, node, "bus-range", &len);
+	if (!values || len < sizeof(*values) * 2)
+		return -EINVAL;
+
+	res->start = be32_to_cpup(values++);
+	res->end = be32_to_cpup(values);
+
+	return 0;
+}
+
 #endif
 
 uint64_t fdtdec_get_uint64(const void *blob, int node, const char *prop_name,

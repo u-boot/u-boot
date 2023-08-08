@@ -36,6 +36,7 @@ Optional properties:
 - regulator-always-on: regulator should never be disabled
 - regulator-boot-on: enabled by bootloader/firmware
 - regulator-ramp-delay: ramp delay for regulator (in uV/us)
+- regulator-force-boot-off: disabled during the boot stage
 
 Note
 The "regulator-name" constraint is used for setting the device's uclass

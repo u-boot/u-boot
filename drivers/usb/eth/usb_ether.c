@@ -240,6 +240,7 @@ static void probe_valid_drivers(struct usb_device *dev)
 			if (eth_write_hwaddr(eth, "usbeth",
 					usb_max_eth_dev - 1))
 				puts("Warning: failed to set MAC address\n");
+			printf("	%s ", eth->name);
 			break;
 			}
 		}

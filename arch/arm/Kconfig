@@ -1599,6 +1599,22 @@ config ARCH_ROCKCHIP
 	imply TPL_SYSRESET
 	imply USB_FUNCTION_FASTBOOT
 
+config ARCH_OCTEONTX
+	bool "Support OcteonTX SoCs"
+	select DM
+	select ARM64
+	select OF_CONTROL
+	select BOARD_LATE_INIT
+	select SYS_CACHE_SHIFT_7
+
+config ARCH_OCTEONTX2
+	bool "Support OcteonTX2 SoCs"
+	select DM
+	select ARM64
+	select OF_CONTROL
+	select BOARD_LATE_INIT
+	select SYS_CACHE_SHIFT_7
+
 config TARGET_THUNDERX_88XX
 	bool "Support ThunderX 88xx"
 	select ARM64
@@ -1675,6 +1691,10 @@ source "arch/arm/mach-kirkwood/Kconfig"
 source "arch/arm/cpu/arm926ejs/lpc32xx/Kconfig"
 
 source "arch/arm/mach-mvebu/Kconfig"
+
+source "arch/arm/mach-octeontx/Kconfig"
+
+source "arch/arm/mach-octeontx2/Kconfig"
 
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
 
@@ -1753,6 +1773,8 @@ source "board/bosch/guardian/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
+source "board/Marvell/octeontx/Kconfig"
+source "board/Marvell/octeontx2/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
@@ -1763,7 +1785,6 @@ source "board/broadcom/bcm968580xref/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"
 source "board/broadcom/bcmns2/Kconfig"
-source "board/cavium/thunderx/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/eets/pdu001/Kconfig"
 source "board/emulation/qemu-arm/Kconfig"
@@ -1794,6 +1815,7 @@ source "board/hisilicon/hikey/Kconfig"
 source "board/hisilicon/hikey960/Kconfig"
 source "board/hisilicon/poplar/Kconfig"
 source "board/isee/igep003x/Kconfig"
+source "board/Marvell/common/Kconfig"
 source "board/phytec/pcm051/Kconfig"
 source "board/silica/pengwyn/Kconfig"
 source "board/spear/spear300/Kconfig"

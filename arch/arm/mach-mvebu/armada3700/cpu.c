@@ -12,6 +12,8 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/armv8/mmu.h>
+#include <mach/fw_info.h>
+#include <mach/clock.h>
 
 /* Armada 3700 */
 #define MVEBU_GPIO_NB_REG_BASE		(MVEBU_REGISTER(0x13800))
@@ -30,6 +32,15 @@ static struct mm_region mvebu_mem_map[] = {
 		/* RAM */
 		.phys = 0x0UL,
 		.virt = 0x0UL,
+		.size = ATF_REGION_START,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	},
+	/* ATF and TEE region 0x4000000-0x5400000 not mapped */
+	{
+		/* RAM */
+		.phys = ATF_REGION_END,
+		.virt = ATF_REGION_END,
 		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
@@ -84,3 +95,12 @@ u32 get_ref_clk(void)
 	else
 		return 40;
 }
+
+#if defined(CONFIG_DISPLAY_BOARDINFO)
+int print_cpuinfo(void)
+{
+	soc_print_clock_info();
+
+	return 0;
+}
+#endif

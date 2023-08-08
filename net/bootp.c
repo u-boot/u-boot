@@ -596,6 +596,10 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	*e++  = 42;
 	*cnt += 1;
 #endif
+#if defined(CONFIG_BOOTP_TFTP_SERVERIP)
+	*e++ = 150;
+	*cnt += 1;
+#endif
 	/* no options, so back up to avoid sending an empty request list */
 	if (*cnt == 0)
 		e -= 2;
@@ -904,6 +908,11 @@ static void dhcp_process_options(uchar *popt, uchar *end)
 				net_boot_file_name[size] = 0;
 			}
 			break;
+#if defined(CONFIG_BOOTP_TFTP_SERVERIP)
+		case 150:
+			net_copy_ip(&net_server_ip, (u32 *)(popt + 2));
+			break;
+#endif
 		default:
 #if defined(CONFIG_BOOTP_VENDOREX)
 			if (dhcp_vendorex_proc(popt))

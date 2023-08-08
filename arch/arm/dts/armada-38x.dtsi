@@ -590,6 +590,14 @@
 				clocks = <&gateclk 10>;
 				status = "disabled";
 			};
+
+			efuse: efuse@f9000 {
+				compatible = "marvell,mvebu-fuse-hd";
+				reg = <0xe4008 0x4>;
+				otp-mem = <0xf9000>;
+				rows-count = <64>;
+				status = "disabled";
+			};
 		};
 
 		crypto_sram0: sa-sram0 {

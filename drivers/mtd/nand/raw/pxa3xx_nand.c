@@ -21,6 +21,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define MVEBU_RAW_READ_DISABLE	1
+
 #define TIMEOUT_DRAIN_FIFO	5	/* in ms */
 #define	CHIP_DELAY_TIMEOUT	200
 #define NAND_STOP_DELAY		40
@@ -146,108 +148,6 @@ enum {
 	STATE_PIO_WRITING,
 	STATE_CMD_DONE,
 	STATE_READY,
-};
-
-enum pxa3xx_nand_variant {
-	PXA3XX_NAND_VARIANT_PXA,
-	PXA3XX_NAND_VARIANT_ARMADA370,
-};
-
-struct pxa3xx_nand_host {
-	struct nand_chip	chip;
-	void			*info_data;
-
-	/* page size of attached chip */
-	int			use_ecc;
-	int			cs;
-
-	/* calculated from pxa3xx_nand_flash data */
-	unsigned int		col_addr_cycles;
-	unsigned int		row_addr_cycles;
-};
-
-struct pxa3xx_nand_info {
-	struct nand_hw_control	controller;
-	struct pxa3xx_nand_platform_data *pdata;
-
-	struct clk		*clk;
-	void __iomem		*mmio_base;
-	unsigned long		mmio_phys;
-	int			cmd_complete, dev_ready;
-
-	unsigned int		buf_start;
-	unsigned int		buf_count;
-	unsigned int		buf_size;
-	unsigned int		data_buff_pos;
-	unsigned int		oob_buff_pos;
-
-	unsigned char		*data_buff;
-	unsigned char		*oob_buff;
-
-	struct pxa3xx_nand_host *host[NUM_CHIP_SELECT];
-	unsigned int		state;
-
-	/*
-	 * This driver supports NFCv1 (as found in PXA SoC)
-	 * and NFCv2 (as found in Armada 370/XP SoC).
-	 */
-	enum pxa3xx_nand_variant variant;
-
-	int			cs;
-	int			use_ecc;	/* use HW ECC ? */
-	int			force_raw;	/* prevent use_ecc to be set */
-	int			ecc_bch;	/* using BCH ECC? */
-	int			use_spare;	/* use spare ? */
-	int			need_wait;
-
-	/* Amount of real data per full chunk */
-	unsigned int		chunk_size;
-
-	/* Amount of spare data per full chunk */
-	unsigned int		spare_size;
-
-	/* Number of full chunks (i.e chunk_size + spare_size) */
-	unsigned int            nfullchunks;
-
-	/*
-	 * Total number of chunks. If equal to nfullchunks, then there
-	 * are only full chunks. Otherwise, there is one last chunk of
-	 * size (last_chunk_size + last_spare_size)
-	 */
-	unsigned int            ntotalchunks;
-
-	/* Amount of real data in the last chunk */
-	unsigned int		last_chunk_size;
-
-	/* Amount of spare data in the last chunk */
-	unsigned int		last_spare_size;
-
-	unsigned int		ecc_size;
-	unsigned int		ecc_err_cnt;
-	unsigned int		max_bitflips;
-	int			retcode;
-
-	/*
-	 * Variables only valid during command
-	 * execution. step_chunk_size and step_spare_size is the
-	 * amount of real data and spare data in the current
-	 * chunk. cur_chunk is the current chunk being
-	 * read/programmed.
-	 */
-	unsigned int		step_chunk_size;
-	unsigned int		step_spare_size;
-	unsigned int            cur_chunk;
-
-	/* cached register value */
-	uint32_t		reg_ndcr;
-	uint32_t		ndtr0cs0;
-	uint32_t		ndtr1cs0;
-
-	/* generated NDCBx register values */
-	uint32_t		ndcb0;
-	uint32_t		ndcb1;
-	uint32_t		ndcb2;
-	uint32_t		ndcb3;
 };
 
 static struct pxa3xx_nand_timing timing[] = {
@@ -417,12 +317,19 @@ static enum pxa3xx_nand_variant pxa3xx_nand_get_variant(void)
 	return PXA3XX_NAND_VARIANT_ARMADA370;
 }
 
-static void pxa3xx_nand_set_timing(struct pxa3xx_nand_host *host,
-				   const struct pxa3xx_nand_timing *t)
+static int pxa3xx_nand_set_timing(struct pxa3xx_nand_host *host,
+				  const struct pxa3xx_nand_timing *t)
 {
 	struct pxa3xx_nand_info *info = host->info_data;
-	unsigned long nand_clk = mvebu_get_nand_clock();
+	unsigned long nand_clk;
 	uint32_t ndtr0, ndtr1;
+
+	nand_clk = mvebu_get_nand_clock(info->nand_flash_clk_ctrl_reg);
+	if (!nand_clk) {
+		dev_err(&host->info->pdev->dev,
+			"Missinig flash clock register\n");
+		return -EINVAL;
+	}
 
 	ndtr0 = NDTR0_tCH(ns2cycle(t->tCH, nand_clk)) |
 		NDTR0_tCS(ns2cycle(t->tCS, nand_clk)) |
@@ -439,14 +346,16 @@ static void pxa3xx_nand_set_timing(struct pxa3xx_nand_host *host,
 	info->ndtr1cs0 = ndtr1;
 	nand_writel(info, NDTR0CS0, ndtr0);
 	nand_writel(info, NDTR1CS0, ndtr1);
+
+	return 0;
 }
 
-static void pxa3xx_nand_set_sdr_timing(struct pxa3xx_nand_host *host,
-				       const struct nand_sdr_timings *t)
+static int pxa3xx_nand_set_sdr_timing(struct pxa3xx_nand_host *host,
+				      const struct nand_sdr_timings *t)
 {
 	struct pxa3xx_nand_info *info = host->info_data;
 	struct nand_chip *chip = &host->chip;
-	unsigned long nand_clk = mvebu_get_nand_clock();
+	unsigned long nand_clk;
 	uint32_t ndtr0, ndtr1;
 
 	u32 tCH_min = DIV_ROUND_UP(t->tCH_min, 1000);
@@ -458,6 +367,13 @@ static void pxa3xx_nand_set_sdr_timing(struct pxa3xx_nand_host *host,
 	u32 tR = chip->chip_delay * 1000;
 	u32 tWHR_min = DIV_ROUND_UP(t->tWHR_min, 1000);
 	u32 tAR_min = DIV_ROUND_UP(t->tAR_min, 1000);
+
+	nand_clk = mvebu_get_nand_clock(info->nand_flash_clk_ctrl_reg);
+	if (!nand_clk) {
+		dev_err(&host->info->pdev->dev,
+			"Missinig flash clock register\n");
+		return -EINVAL;
+	}
 
 	/* fallback to a default value if tR = 0 */
 	if (!tR)
@@ -478,6 +394,8 @@ static void pxa3xx_nand_set_sdr_timing(struct pxa3xx_nand_host *host,
 	info->ndtr1cs0 = ndtr1;
 	nand_writel(info, NDTR0CS0, ndtr0);
 	nand_writel(info, NDTR1CS0, ndtr1);
+
+	return 0;
 }
 
 static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
@@ -487,7 +405,7 @@ static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
 	struct pxa3xx_nand_info *info = host->info_data;
 	const struct pxa3xx_nand_flash *f = NULL;
 	struct mtd_info *mtd = nand_to_mtd(&host->chip);
-	int mode, id, ntypes, i;
+	int mode, id, ntypes, i, ret;
 
 	mode = onfi_get_async_timing_mode(chip);
 	if (mode == ONFI_TIMING_MODE_UNKNOWN) {
@@ -510,7 +428,9 @@ static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
 			return -EINVAL;
 		}
 
-		pxa3xx_nand_set_timing(host, f->timing);
+		ret = pxa3xx_nand_set_timing(host, f->timing);
+		if (ret)
+			return ret;
 
 		if (f->flash_width == 16) {
 			info->reg_ndcr |= NDCR_DWIDTH_M;
@@ -527,7 +447,9 @@ static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
 		if (IS_ERR(timings))
 			return PTR_ERR(timings);
 
-		pxa3xx_nand_set_sdr_timing(host, timings);
+		ret = pxa3xx_nand_set_sdr_timing(host, timings);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
@@ -1278,6 +1200,7 @@ static int pxa3xx_nand_read_page_hwecc(struct mtd_info *mtd,
 	return info->max_bitflips;
 }
 
+#ifndef MVEBU_RAW_READ_DISABLE
 static int pxa3xx_nand_read_page_raw(struct mtd_info *mtd,
 				     struct nand_chip *chip, uint8_t *buf,
 				     int oob_required, int page)
@@ -1340,6 +1263,7 @@ static int pxa3xx_nand_read_oob_raw(struct mtd_info *mtd,
 	return chip->ecc.read_page_raw(mtd, chip, chip->buffers->databuf, true,
 				       page);
 }
+#endif /* MVEBU_RAW_READ_DISABLE */
 
 static uint8_t pxa3xx_nand_read_byte(struct mtd_info *mtd)
 {
@@ -1772,8 +1696,15 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 
 		nand_set_controller_data(chip, host);
 		chip->ecc.read_page	= pxa3xx_nand_read_page_hwecc;
+#ifndef MVEBU_RAW_READ_DISABLE
+		/*
+		 * TODO: RAW read support seems to be broken in NFCv2,
+		 * reported working on NFCv1 (A38x).
+		 * The code needs further debug.
+		 */
 		chip->ecc.read_page_raw	= pxa3xx_nand_read_page_raw;
 		chip->ecc.read_oob_raw	= pxa3xx_nand_read_oob_raw;
+#endif
 		chip->ecc.write_page	= pxa3xx_nand_write_page_hwecc;
 		chip->controller        = &info->controller;
 		chip->waitfunc		= pxa3xx_nand_waitfunc;
@@ -1809,6 +1740,8 @@ static int pxa3xx_nand_probe_dt(struct pxa3xx_nand_info *info)
 	struct pxa3xx_nand_platform_data *pdata;
 	const void *blob = gd->fdt_blob;
 	int node = -1;
+	int index;
+	fdt_addr_t addr;
 
 	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
@@ -1829,6 +1762,26 @@ static int pxa3xx_nand_probe_dt(struct pxa3xx_nand_info *info)
 		info->mmio_base =
 			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
 					blob, node, "reg", 0, NULL, true);
+
+		index = fdt_stringlist_search(blob, node, "reg-names",
+					      "flash_clock");
+		if (index > 0) {
+			addr = fdtdec_get_addr_size_auto_noparent(
+					blob, node, "reg", index, NULL, true);
+			if (addr != FDT_ADDR_T_NONE)
+				info->nand_flash_clk_ctrl_reg =
+					(void __iomem *)addr;
+		}
+
+		index = fdt_stringlist_search(blob, node, "reg-names",
+					      "dev_mux");
+		if (index > 0) {
+			addr = fdtdec_get_addr_size_auto_noparent(
+					blob, node, "reg", index, NULL, true);
+			if (addr != FDT_ADDR_T_NONE)
+				info->soc_dev_multiplex_reg =
+					(void __iomem *)addr;
+		}
 
 		pdata->num_cs = fdtdec_get_int(blob, node, "num-cs", 1);
 		if (pdata->num_cs != 1) {
@@ -1875,6 +1828,14 @@ static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
 		return ret;
 
 	pdata = info->pdata;
+
+	/* If the NAND flash is enabled in DT, but the boot image is not
+	 * running from NAND, it may be needed to enable NAND on SOC
+	 * DEVBUS MUX level.
+	 * When the boot device is NAND, such configuration is done
+	 * in the BootROM.
+	 */
+	mvebu_nand_select(info->soc_dev_multiplex_reg);
 
 	ret = alloc_nand_resource(info);
 	if (ret) {

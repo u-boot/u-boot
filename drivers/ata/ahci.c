@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Copyright (C) 2018 Marvell International Ltd.
+ *
  * Copyright (C) Freescale Semiconductor, Inc. 2006.
  * Author: Jason Jin<Jason.jin@freescale.com>
  *         Zhang Wei<wei.zhang@freescale.com>
@@ -25,6 +27,10 @@
 #include <ahci.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+
+#if defined(CONFIG_ARCH_OCTEONTX)
+#include <asm/arch/board.h>
+#endif
 
 static int ata_io_flush(struct ahci_uc_priv *uc_priv, u8 port);
 
@@ -259,7 +265,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 		/* Bring up SATA link. */
 		ret = ahci_link_up(uc_priv, i);
 		if (ret) {
-			printf("SATA link %d timeout.\n", i);
+			debug("SATA link %d timeout.\n", i);
 			continue;
 		} else {
 			debug("SATA link ok.\n");
@@ -292,7 +298,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 			continue;
 		}
 
-		printf("Target spinup took %d ms.\n", j);
+		debug("Target spinup took %d ms.\n", j);
 		if (j == WAIT_MS_SPINUP)
 			debug("timeout.\n");
 		else
@@ -386,38 +392,38 @@ static void ahci_print_info(struct ahci_uc_priv *uc_priv)
 	else
 		scc_s = "unknown";
 #endif
-	printf("AHCI %02x%02x.%02x%02x "
-	       "%u slots %u ports %s Gbps 0x%x impl %s mode\n",
-	       (vers >> 24) & 0xff,
-	       (vers >> 16) & 0xff,
-	       (vers >> 8) & 0xff,
-	       vers & 0xff,
-	       ((cap >> 8) & 0x1f) + 1, (cap & 0x1f) + 1, speed_s, impl, scc_s);
+	debug("AHCI %02x%02x.%02x%02x "
+	      "%u slots %u ports %s Gbps 0x%x impl %s mode\n",
+	      (vers >> 24) & 0xff,
+	      (vers >> 16) & 0xff,
+	      (vers >> 8) & 0xff,
+	      vers & 0xff,
+	      ((cap >> 8) & 0x1f) + 1, (cap & 0x1f) + 1, speed_s, impl, scc_s);
 
-	printf("flags: "
-	       "%s%s%s%s%s%s%s"
-	       "%s%s%s%s%s%s%s"
-	       "%s%s%s%s%s%s\n",
-	       cap & (1 << 31) ? "64bit " : "",
-	       cap & (1 << 30) ? "ncq " : "",
-	       cap & (1 << 28) ? "ilck " : "",
-	       cap & (1 << 27) ? "stag " : "",
-	       cap & (1 << 26) ? "pm " : "",
-	       cap & (1 << 25) ? "led " : "",
-	       cap & (1 << 24) ? "clo " : "",
-	       cap & (1 << 19) ? "nz " : "",
-	       cap & (1 << 18) ? "only " : "",
-	       cap & (1 << 17) ? "pmp " : "",
-	       cap & (1 << 16) ? "fbss " : "",
-	       cap & (1 << 15) ? "pio " : "",
-	       cap & (1 << 14) ? "slum " : "",
-	       cap & (1 << 13) ? "part " : "",
-	       cap & (1 << 7) ? "ccc " : "",
-	       cap & (1 << 6) ? "ems " : "",
-	       cap & (1 << 5) ? "sxs " : "",
-	       cap2 & (1 << 2) ? "apst " : "",
-	       cap2 & (1 << 1) ? "nvmp " : "",
-	       cap2 & (1 << 0) ? "boh " : "");
+	debug("flags: "
+	      "%s%s%s%s%s%s%s"
+	      "%s%s%s%s%s%s%s"
+	      "%s%s%s%s%s%s\n",
+	      cap & (1 << 31) ? "64bit " : "",
+	      cap & (1 << 30) ? "ncq " : "",
+	      cap & (1 << 28) ? "ilck " : "",
+	      cap & (1 << 27) ? "stag " : "",
+	      cap & (1 << 26) ? "pm " : "",
+	      cap & (1 << 25) ? "led " : "",
+	      cap & (1 << 24) ? "clo " : "",
+	      cap & (1 << 19) ? "nz " : "",
+	      cap & (1 << 18) ? "only " : "",
+	      cap & (1 << 17) ? "pmp " : "",
+	      cap & (1 << 16) ? "fbss " : "",
+	      cap & (1 << 15) ? "pio " : "",
+	      cap & (1 << 14) ? "slum " : "",
+	      cap & (1 << 13) ? "part " : "",
+	      cap & (1 << 7) ? "ccc " : "",
+	      cap & (1 << 6) ? "ems " : "",
+	      cap & (1 << 5) ? "sxs " : "",
+	      cap2 & (1 << 2) ? "apst " : "",
+	      cap2 & (1 << 1) ? "nvmp " : "",
+	      cap2 & (1 << 0) ? "boh " : "");
 }
 
 #if defined(CONFIG_DM_SCSI) || !defined(CONFIG_SCSI_AHCI_PLAT)
@@ -506,6 +512,11 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
 		ahci_sg->addr =
 		    cpu_to_le32((unsigned long) buf + i * MAX_DATA_BYTE_COUNT);
 		ahci_sg->addr_hi = 0;
+#ifdef CONFIG_PHYS_64BIT
+		ahci_sg->addr_hi =
+		    cpu_to_le32((u32)(((u64)(buf + i * MAX_DATA_BYTE_COUNT)
+					>> 16) >> 16));
+#endif
 		ahci_sg->flags_size = cpu_to_le32(0x3fffff &
 					  (buf_len < MAX_DATA_BYTE_COUNT
 					   ? (buf_len - 1)
@@ -587,7 +598,7 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	 * and its scatter-gather table
 	 */
 	pp->cmd_tbl = virt_to_phys((void *)mem);
-	debug("cmd_tbl_dma = %lx\n", pp->cmd_tbl);
+	debug("cmd_tbl_dma = %llx\n", pp->cmd_tbl);
 
 	mem += AHCI_CMD_TBL_HDR;
 	pp->cmd_tbl_sg =
@@ -595,8 +606,20 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 
 	writel_with_flush((unsigned long)pp->cmd_slot,
 			  port_mmio + PORT_LST_ADDR);
+#ifdef CONFIG_PHYS_64BIT
+	if (uc_priv->cap & HOST_64BIT)
+		writel_with_flush(
+			cpu_to_le32((u32)(((u64)(pp->cmd_slot) >> 16) >> 16)),
+			port_mmio + PORT_LST_ADDR_HI);
+#endif
 
 	writel_with_flush(pp->rx_fis, port_mmio + PORT_FIS_ADDR);
+#ifdef CONFIG_PHYS_64BIT
+	if (uc_priv->cap & HOST_64BIT)
+		writel_with_flush(
+			cpu_to_le32((u32)(((pp->rx_fis) >> 16) >> 16)),
+			port_mmio + PORT_FIS_ADDR_HI);
+#endif
 
 #ifdef CONFIG_SUNXI_AHCI
 	sunxi_dma_init(port_mmio);
@@ -607,6 +630,18 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 			  PORT_CMD_START, port_mmio + PORT_CMD);
 
 	debug("Exit start port %d\n", port);
+
+#if CONFIG_ARCH_OCTEONTX
+	/*
+	 * Skip interface busy check based on error and status
+	 * information from task file data register as these boards
+	 * have port multiplier and device is always present
+	 * U-boot lacks port multiplier support hence this ugly hack.
+	 */
+
+	if (octeontx_board_has_pmp())
+		return 0;
+#endif
 
 	/*
 	 * Make sure interface is not busy based on error and status
@@ -637,6 +672,17 @@ static int ahci_device_data_io(struct ahci_uc_priv *uc_priv, u8 port, u8 *fis,
 	if ((port_status & 0xf) != 0x03) {
 		debug("No Link on port %d!\n", port);
 		return -1;
+	}
+
+	/*
+	 * If the device was plugged after boot, the port is not initialized
+	 * Try to restart the port for supporting device hot plug-in
+	 */
+	if (pp->cmd_tbl == 0) {
+		if (ahci_port_start(uc_priv, port)) {
+			printf("Cannot restart port %d\n", port);
+			return -1;
+		}
 	}
 
 	memcpy((unsigned char *)pp->cmd_tbl, fis, fis_len);
@@ -927,6 +973,8 @@ static int ahci_scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
 #endif
 	int ret;
 
+	debug("ahci_scsi_exec: CMD %d\n", pccb->cmd[0]);
+
 	switch (pccb->cmd[0]) {
 	case SCSI_READ16:
 	case SCSI_READ10:
@@ -970,7 +1018,7 @@ static int ahci_start_ports(struct ahci_uc_priv *uc_priv)
 	for (i = 0; i < uc_priv->n_ports; i++) {
 		if (((linkmap >> i) & 0x01)) {
 			if (ahci_port_start(uc_priv, (u8) i)) {
-				printf("Can not start port %d\n", i);
+				debug("AHCI Can not start port %d\n", i);
 				continue;
 			}
 		}
@@ -1174,6 +1222,9 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 	 */
 	uc_plat->max_id = max_t(unsigned long, uc_priv->n_ports,
 				uc_plat->max_id);
+	/* If port count is less than max_id, update max_id */
+	if (uc_priv->n_ports < uc_plat->max_id)
+		uc_plat->max_id = uc_priv->n_ports;
 
 	return 0;
 }
@@ -1182,10 +1233,17 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
 int ahci_probe_scsi_pci(struct udevice *ahci_dev)
 {
 	ulong base;
+	u16 vendor, device;
 
 	base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5,
 				     PCI_REGION_MEM);
 
+	dm_pci_read_config16(ahci_dev, PCI_VENDOR_ID, &vendor);
+	dm_pci_read_config16(ahci_dev, PCI_DEVICE_ID, &device);
+
+	if (vendor == 0x177d && device == 0xa01c)
+		base = (ulong)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_0,
+					     PCI_REGION_MEM);
 	return ahci_probe_scsi(ahci_dev, base);
 }
 #endif

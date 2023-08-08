@@ -63,4 +63,7 @@
 
 #define THUNDERX_NODE_COUNT		0x43000601
 
+/* x1 - user buffer, x2 - buffer size */
+#define THUNDERX_FDT_GET                0x43000701
+
 #endif /* __THUNDERX_SVC_H__ */

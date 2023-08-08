@@ -955,7 +955,9 @@ void fdt_del_node_and_alias(void *blob, const char *alias)
 
 /* Max address size we deal with */
 #define OF_MAX_ADDR_CELLS	4
+#ifndef OF_BAD_ADDR
 #define OF_BAD_ADDR	FDT_ADDR_T_NONE
+#endif
 #define OF_CHECK_COUNTS(na, ns)	((na) > 0 && (na) <= OF_MAX_ADDR_CELLS && \
 			(ns) > 0)
 

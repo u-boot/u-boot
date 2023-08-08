@@ -1,0 +1,18 @@
+if TARGET_OCTEONTX2_95XX || TARGET_OCTEONTX2_96XX || TARGET_OCTEONTX2_LOKI || TARGET_OCTEONTX2_98XX || TARGET_OCTEONTX2_95MM
+
+config SYS_VENDOR
+	string
+	default	"Marvell"
+
+config SYS_BOARD
+	string
+	default "octeontx2"
+
+config SYS_CONFIG_NAME
+	default "octeontx2_96xx" if TARGET_OCTEONTX2_96XX
+	default "octeontx2_95xx" if TARGET_OCTEONTX2_95XX
+	default "octeontx2_loki" if TARGET_OCTEONTX2_LOKI
+	default "octeontx2_98xx" if TARGET_OCTEONTX2_98XX
+	default "octeontx2_95mm" if TARGET_OCTEONTX2_95MM
+
+endif

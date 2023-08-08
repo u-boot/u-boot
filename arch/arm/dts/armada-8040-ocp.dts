@@ -1,0 +1,339 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ */
+
+#include "armada-8040.dtsi" /* include SoC device tree */
+
+/ {
+	model = "OCP-8K";	/* PCB model */
+	compatible = "marvell,armada8040-ocp",
+		     "marvell,armada8040";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	aliases {
+		i2c0 = &cp0_i2c0;
+		i2c1 = &cp0_i2c1;
+		spi0 = &cp1_spi1;
+		gpio0 = &ap_gpio0;
+		gpio1 = &cp0_gpio0;
+		gpio2 = &cp0_gpio1;
+		fuse1 = &ap_ld_efuse0;
+		fuse2 = &ap_ld_efuse1;
+		fuse3 = &cp0_ld_efuse0;
+		fuse4 = &cp0_ld_efuse1;
+		fuse5 = &cp1_ld_efuse0;
+		fuse6 = &cp1_ld_efuse1;
+	};
+
+	memory@00000000 {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+
+	simple-bus {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		reg_usb3h0_vbus: usb3-vbus0 {
+			compatible = "regulator-fixed";
+			pinctrl-names = "default";
+			pinctrl-0 = <&cp0_xhci_vbus_pins>;
+			regulator-name = "reg-usb3h0-vbus";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+			startup-delay-us = <300000>;
+			shutdown-delay-us = <500000>;
+			regulator-force-boot-off;
+			gpio = <&cp0_gpio1 15 GPIO_ACTIVE_HIGH>; /* GPIO[47] */
+		};
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/* The PCI console memory must be reserved */
+		console_reserved: pci-console-nexus@3f000000 {
+			compatible = "marvell,pci-console-nexus-memory";
+			reg = <0 0x3f000000 0 0x1000000>;
+			no-map;
+		};
+	};
+
+};
+
+/*
+ * Accessible over the front panel micro USB connector CON9 or the
+ * three pin header (default unsoldered) J27 where the pinout is as follows -
+ * 1-GND, 2-8040 SoC RX, 3-8040 SoC TX.
+ */
+&uart0 {
+	status = "okay";
+};
+
+&ap_hd_efuse0 {
+	status = "okay";
+};
+
+&ap_ld_efuse0 {
+	status = "okay";
+};
+
+&ap_ld_efuse1 {
+	status = "okay";
+};
+
+&ap_pinctl {
+	/*
+	 * MPP Bus:
+	 * eMMC [0-10]
+	 * UART0 [11,19]
+	 */
+		  /* 0 1 2 3 4 5 6 7 8 9 */
+	pin-func = < 1 1 1 1 1 1 1 1 1 1
+		     1 3 2 0 0 0 0 0 0 3 >;
+};
+
+/* on-board eMMC */
+&ap_sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ap_emmc_pins>;
+	bus-width = <8>;
+	no-1-8-v;
+	non-removable;
+	status = "okay";
+};
+
+&cp0_bootcmd {
+	status = "okay";
+};
+
+&cp0_pinctl {
+/*
+ * [0-32] = 0xff: Keep default CP1_shared_pins
+ * [32..34] Front panel LEDs (active low)
+ * [35-38] CP0 I2C1 and I2C0
+ * [39] MSS_GPIO
+ * [40-41] NC
+ * [42] LED
+ * [43] Mask system reset (active high)
+ * [47] USB VBUS EN GPIO
+ * [48-49] NC
+ * [50,51] CP0 MSS I2C
+ * [52-61] NC
+ * [62] CP1 SFI SFP FAULT
+ */
+		  /*   0    1    2    3    4    5    6    7    8    9 */
+	pin-func = < 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0    0    0    2    2    2    2    0
+		     7    7    0    0    0    0    0    0    0xff 0xff
+		     0    0    0    0    0    0    0xe  0xe  0xe  0xe
+		     0xe  0xe  0 >;
+
+	cp0_xhci_vbus_pins: cp0-xhci-vbus-pins {
+		marvell,pins = < 47 >;
+		marvell,function = <0>;
+	};
+};
+
+&cp0_i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_i2c0_pins>;
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&cp0_i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_i2c1_pins>;
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&cp0_ld_efuse0 {
+	status = "okay";
+};
+
+&cp0_ld_efuse1 {
+	status = "okay";
+};
+
+&cp0_comphy {
+	/*
+	 * CP0 Serdes Configuration:
+	 * PCIex4 is connected to CP0
+	 * Lane 0: IGNORE (x4)
+	 * Lane 1: IGNORE (x4)
+	 * Lane 2: IGNORE (x4)
+	 * Lane 3: IGNORE (x4)
+	 * Lane 4: SFI (10G)
+	 * Lane 5: UNCONNECTED
+	 */
+	phy0 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+	phy1 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+	phy2 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+	phy3 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+	phy4 {
+		phy-type = <COMPHY_TYPE_SFI0>;
+		phy-speed = <COMPHY_SPEED_10_3125G>;
+	};
+	phy5 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+};
+
+&cp0_ethernet {
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+/* 10G SFI/copper */
+&cp0_eth0 {
+	status = "okay";
+	phy-mode = "sfi";
+	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 24 GPIO_ACTIVE_HIGH>;
+};
+
+&cp1_utmi0 {
+	status = "okay";
+};
+
+&cp1_usb3_0 {
+	vbus-supply = <&reg_usb3h0_vbus>;
+	status = "okay";
+};
+
+&cp1_pinctl {
+	/*
+	 * MPP Bus:
+	 * [0-5] NC
+	 * [6,7] UART0
+	 * [8]   CP1 10G SFP LOS
+	 * [9]   NC
+	 * [10]  CP1 10G SFP TX Disable
+	 * [11]  CP1 10G SFP Mode
+	 * [12]  SPI1 CS1n
+	 * [13]  SPI1 MISO (TDM and SPI ROM shared)
+	 * [14]  SPI1 CS0n
+	 * [15]  SPI1 MOSI (TDM and SPI ROM shared)
+	 * [16]  SPI1 CLK (TDM and SPI ROM shared)
+	 * [17-23] NC
+	 * [24]  CP0_10G_SFP_TX_DISABLE
+	 * [25]  NC
+	 * [26]  CP0 10G SFP TX Fault
+	 * [27]  CP0 10G SFP Mode
+	 * [28]  CP0 10G SFP LOS
+	 * [29]  MSS_TWSI_SDA - NOTE: set as gpio, to be used
+	 *                            when MSS is used for power cooling
+	 * [30]  MSS_TWSI_SDA - NOTE: set as gpio, to be used
+	 *                            when MSS is used for power cooling
+	 * [31]  USB Over current indication
+	 * [32-62] = 0xff: Keep default CP0_shared_pins:
+	 */
+		/*     0    1    2    3    4    5    6    7    8    9 */
+	pin-func = <  0xff 0xff 0xff 0xff 0xff 0xff 0x8  0x8  0    0xff
+		      0    0    3    3    3    3    3    0xff 0xff 0xff
+		      0xff 0xff 0xff 0xff 0    0xff 0    0    0    0
+		      0    0    0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		      0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		      0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		      0xff 0xff 0xff>;
+};
+
+&cp1_spi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp1_spi1_pins>;
+	reg = <0x700680 0x50>,		/* control */
+		<0x2000000 0x1000000>,	/* CS0 */
+		<0 0xffffffff>;		/* CS1 */
+	status = "okay";
+
+	spi-flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor", "spi-flash";
+		reg = <0>;
+		spi-max-frequency = <108000000>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "U-Boot";
+				reg = <0 0x200000>;
+			};
+			partition@400000 {
+				label = "Filesystem";
+				reg = <0x200000 0xce0000>;
+			};
+		};
+	};
+};
+
+&cp1_ld_efuse0 {
+	status = "okay";
+};
+
+&cp1_ld_efuse1 {
+	status = "okay";
+};
+
+&cp1_comphy {
+	/* check if PCI is here, else none
+	 * CP1 Serdes Configuration:
+	 * Lane 0: UNCONNECTED
+	 * Lane 1: UNCONNECTED
+	 * Lane 2: UNCONNECTED
+	 * Lane 3: UNCONNECTED
+	 * Lane 4: SFI (10G)
+	 * Lane 5: UNCONNECTED
+	 */
+	phy0 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+	phy1 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+	phy2 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+	phy3 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+	phy4 {
+		phy-type = <COMPHY_TYPE_SGMII0>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
+	};
+	phy5 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+};
+
+&cp1_ethernet {
+	status = "okay";
+};
+
+/* 10G SFI/copper */
+&cp1_eth0 {
+	status = "okay";
+	phy-mode = "sgmii";
+	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 10 GPIO_ACTIVE_HIGH>;
+};

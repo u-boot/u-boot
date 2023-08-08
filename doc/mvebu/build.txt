@@ -1,0 +1,210 @@
+U-Boot Build Instructions
+=========================
+
+This document describes how to compile U-Boot and how to change U-Boot
+configuration. The are 2 methods to compile u-boot:
+
+1. Using prepared scripts
+
+2. Manual compilation
+
+Both methods will be described in this documents.
+
+System preparations (for both methods)
+--------------------------------------
+1. Install required packages::
+
+		> sudo apt-get install libssl-dev
+		> sudo apt-get install device-tree-compiler
+		> sudo apt-get install swig libpython-dev
+
+2. Set the cross compiler::
+
+		> export CROSS_COMPILE=/path/to/toolchain/aarch64-linux-gnu
+
+Build with scripts
+------------------
+The script is located in the u-boot tree **./scripts/ci/**
+
+Script usage::
+
+		> ./scripts/ci/compile.sh --help
+
+		Usage: compile [--no_configure] [--echo_only] BUILD_NAME
+		 or:   compile --list
+		 or:   compile --help
+
+		Compiles u-boot similar to the given CI build
+
+		 -N, --no_configure   Skip configuration steps (mrproper, make defconfig)
+		 -e, --echo_only      Print out the compilation sequence but do not execute it
+		 -l, --list           List all supported BUILD_NAME values and exit
+		 -h, --help           Display this help and exit
+
+		Prerequisites:       CROSS_COMPILE must point to the cross compiler
+
+Examples::
+
+		MacchiatoBin build: ./scripts/ci/compile.sh uboot_2018_a80x0_mcbin
+
+Manual build procedure
+----------------------
+1. Clean-up old residuals::
+
+		> make mrproper
+
+2. Configure the U-Boot::
+
+		> make <defconfig_file>
+
+   - For the ARMADA 70x0/80x0/3900 DB board and ARMADA 7020 AMC use
+     "make mvebu_db_armada8k_defconfig"
+   - For the ARMADA 80x0 MacchiatoBin use "make mvebu_mcbin-88f8040_defconfig"
+   - For the ARMADA 3700 DB board use "make mvebu_db-88f3720_defconfig"
+   - For the ARMADA 3700 EsspressoBin use "make mvebu_espressobin-88f3720_defconfig"
+   - For the OcteonTX2 CN913x DB board use "make mvebu_db_cn91xx_defconfig"
+
+3. Configure the device-tree and build the U-Boot image:
+
+	All device-tree files are located in ./arch/arm/dts/ folder.
+	Information about the different configuration available for the
+	development board is located in:
+
+	- For ARMADA 37x0: ./doc/mvebu/a3700/armada-3700-db-setup.txt
+	- For ARMADA 70x0: ./doc/mvebu/a7k-a8k/armada70x0-db-setup.txt
+	- For ARMADA 80x0: ./doc/mvebu/a7k-a8k/armada80x0-db-setup.txt
+	- For ARMADA 3900: ./doc/mvebu/a7k-a8k/armada3900-db-setup.txt
+
+	In order to compile u-boot with a specific device-tree,
+	use the following::
+
+		> make DEVICE_TREE=<name>
+
+	- For the ARMADA 3900 DB use "make DEVICE_TREE=armada-3900-vd[-X]"
+	- For the ARMADA 70x0 DB use "make DEVICE_TREE=armada-7040-db[-X]"
+	- For the ARMADA 7020 AMC use "make DEVICE_TREE=armada-7020-amc"
+	- For the ARMADA 80x0 DB use "make DEVICE_TREE=armada-8040-db[-X]"
+	- For the ARMADA 37x0 DB use "make DEVICE_TREE=armada-3720-ddrX-db[-X]"
+	  (X represents possible board configuration)
+	- For the EspressoBin board without soldered eMMC device use
+	  "make DEVICE_TREE=armada-3720-espressobin"
+	- For the EspressoBin board with populated eMMC device use
+	  "make DEVICE_TREE=armada-3720-espressobin-emmc"
+	- For the ARMADA 80x0 MacchiatoBin use
+	  "make DEVICE_TREE=armada-8040-mcbin"
+	- For the ARMADA 80x0 MacchiatoBin Single Shot use
+	  "make DEVICE_TREE=armada-8040-mcbin-single-shot"
+	- For the OcteonTX2 CN913x DB use "make DEVICE_TREE=cn913[X]-A"
+
+	The U-Boot compilation generates u-boot.bin - the U-Boot image
+
+	.. Note::
+		The u-boot.bin should not be used as a stand-alone image.
+		The ARM Trusted Firmware (ATF) build process uses this image to
+		generate the flash image.
+
+
+Configuration Update
+---------------------
+To update the U-Boot configuration, refer to doc/README.kconfig
+
+
+Boot Device Selection
+---------------------
+The following options are available:
+	- Boot from SPI boot
+	- Boot from eMMC boot
+
+eMMC Boot Device
+-----------------
+The ARMADA 3700, ARMADA 7K/8K/3900 and OcteonTX2 CN913x support eMMC as the boot
+device on the target.
+The default boot device on this platform is SPI NOR flash.
+In order to change the boot device to eMMC, set the following parameter
+the default configuration::
+
+	- CONFIG_MVEBU_MMC_BOOT=y
+	- CONFIG_ENV_IS_IN_MMC=y
+	- Remove any other CONFIG_ENV_IS_IN_* occurrences in defconfig file
+
+If "menuconfig" is used, navigate to the following location::
+
+	-> Command line interface
+	  -> Misc commands
+	    -> MVEBU commands
+	      -> Flash for image
+
+and select "eMMC flash boot" for the boot device, then select the device for the
+environment location):
+
+	-> Command line interface
+	  -> Environment
+	    -> Environment in an MMC device
+
+The eMMC has 2 boot partitions (BOOT0 and BOOT1) and a user data partition
+(DATA).
+The boot partitions are numbered as partition 1 and 2 in MMC driver.
+Number 0 is used for user data partition and should not be utilized for storing
+boot images and U-Boot environment in RAW mode since it will break file system
+structures usually located here.
+
+The default boot partition is BOOT0. It is selected by the following parameter:
+CONFIG_SYS_MMC_ENV_PART=1
+Valid values for this parameter are 1 for BOOT0 and 2 for BOOT1.
+Never use partition number 0 here!
+
+If select SD card as boot device, the Macro parameter should be::
+
+	#define CONFIG_SYS_MMC_ENV_PART		0
+
+If select eMMC as boot device, the Macro parameter should be::
+
+	#define CONFIG_SYS_MMC_ENV_PART		1
+or::
+
+	#define CONFIG_SYS_MMC_ENV_PART         2
+
+The parameter CONFIG_SYS_MMC_ENV_DEV depends on total number of enabled eMMC
+interfaces on board, the AP interface is enumerated first, then CP interface.
+
+For example on board with eMMC interface on both AP and CP::
+
+If select AP's SD card/eMMC as boot device, the Macro parameter should be::
+
+	#define CONFIG_SYS_MMC_ENV_DEV         0
+
+If select CP's SD card/eMMC as boot device, the Macro parameter should be::
+
+	#define CONFIG_SYS_MMC_ENV_DEV         1
+
+Both parameters can be changed in the "include/configs/mvebu_armadacommon.h".
+
+Note that this configuration is only available when "Flash for image"
+selects "eMMC flash boot" device as described above.
+The selected partition will be used by U-Boot "bubt" and "savenv" commands
+for flashing the boot image and saving U-Boot configuration.
+
+
+Boot Device Selection for ARMADA 7K/8K/3900 and OcteonTX2 CN913x Build
+----------------------------------------------------------------------
+The following options are available for A8K, A7K, A3900 and OcteonTX2 CN913x boot:
+
+	- Boot from SPI NAND
+
+SPI NAND Boot Device
+--------------------
+The ARMADA-7K/8K/3900 and OcteonTX2 CN913x support SPI NAND flash as the boot
+device on the target.
+In order to burn the image and save environment variables to SPI NAND flash,
+please enable SPI NAND driver at first by set the following parameter to <Y>::
+
+	CONFIG_MVEBU_NAND_BOOT=y
+
+If "menuconfig" is used, navigate to the following location::
+
+	-> Command line interface
+	  -> Misc commands
+	    -> MVEBU commands
+	      -> Flash for image
+
+and select "NAND flash boot".

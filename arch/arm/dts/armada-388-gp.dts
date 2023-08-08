@@ -55,6 +55,7 @@
 		ethernet0 = &eth0;
 		ethernet1 = &eth1;
 		spi0 = &spi0;
+		fuse0 = &efuse;
 	};
 
 	memory {
@@ -66,23 +67,26 @@
 		ranges = <MBUS_ID(0xf0, 0x01) 0 0xf1000000 0x100000
 			  MBUS_ID(0x01, 0x1d) 0 0xfff00000 0x100000>;
 
-		internal-regs {
-			spi@10600 {
-				pinctrl-names = "default";
-				pinctrl-0 = <&spi0_pins>;
-				status = "okay";
-				u-boot,dm-pre-reloc;
+		spi0: spi@10600 {
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi0_pins>;
+			status = "okay";
+			u-boot,dm-pre-reloc;
 
-				spi-flash@0 {
-					u-boot,dm-pre-reloc;
-					#address-cells = <1>;
-					#size-cells = <1>;
-					compatible = "st,m25p128", "jedec,spi-nor";
-					reg = <0>; /* Chip select 0 */
-					spi-max-frequency = <50000000>;
-					m25p,fast-read;
-				};
+			spi-flash@0 {
+				u-boot,dm-pre-reloc;
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "st,m25p128",
+					   "jedec,spi-nor", "spi-flash";
+				reg = <0>; /* Chip select 0 */
+				spi-max-frequency = <50000000>;
+				m25p,fast-read;
 			};
+		};
+
+		internal-regs {
+
 
 			i2c@11000 {
 				pinctrl-names = "default";
@@ -232,6 +236,11 @@
 				vcc-supply = <&reg_usb3_vbus>;
 				status = "okay";
 			};
+
+			efuse@f9000 {
+				status = "okay";
+			};
+
 		};
 
 		pcie {

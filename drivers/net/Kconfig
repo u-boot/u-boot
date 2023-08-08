@@ -297,6 +297,8 @@ config MVNETA
 config MVPP2
 	bool "Marvell Armada 375/7K/8K network interface support"
 	depends on ARMADA_375 || ARMADA_8K
+	select DM_MDIO
+	select MVMDIO
 	select PHYLIB
 	help
 	  This driver supports the network interface units in the
@@ -325,6 +327,36 @@ config MT7628_ETH
 	help
 	  The MediaTek MT7628 ethernet interface is used on MT7628 and
 	  MT7688 based boards.
+
+config NET_OCTEONTX
+	bool "OcteonTX Ethernet support"
+	depends on ARCH_OCTEONTX
+	help
+	  You must select Y to enable network device support for
+	  OcteonTX SoCs. If unsure, say n
+
+config NET_OCTEONTX2
+	bool "OcteonTX2 Ethernet support"
+	depends on ARCH_OCTEONTX2
+	select OCTEONTX2_CGX_INTF
+	help
+	  You must select Y to enable network device support for
+	  OcteonTX2 SoCs. If unsure, say n
+
+config OCTEONTX_SMI
+	bool "OcteonTX SMI Device support"
+	depends on ARCH_OCTEONTX || ARCH_OCTEONTX2
+	help
+	  You must select Y to enable SMI controller support for
+	  OcteonTX or OcteonTX2 SoCs. If unsure, say n
+
+config OCTEONTX2_CGX_INTF
+	bool "OcteonTX2 CGX ATF interface support"
+	depends on ARCH_OCTEONTX2
+	default y if ARCH_OCTEONTX2
+	help
+	  You must select Y to enable CGX ATF interface support for
+	  OcteonTX2 SoCs. If unsure, say n
 
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"

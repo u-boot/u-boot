@@ -108,17 +108,17 @@
 
 &comphy {
 	phy0 {
-		phy-type = <PHY_TYPE_SGMII1>;
-		phy-speed = <PHY_SPEED_1_25G>;
+		phy-type = <COMPHY_TYPE_SGMII1>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
 	};
         phy1 {
-                phy-type = <PHY_TYPE_SGMII0>;
-                phy-speed = <PHY_SPEED_1_25G>;
+                phy-type = <COMPHY_TYPE_SGMII0>;
+                phy-speed = <COMPHY_SPEED_1_25G>;
         };
 
         phy2 {
-                phy-type = <PHY_TYPE_USB3_HOST1>;
-                phy-speed = <PHY_SPEED_5G>;
+                phy-type = <COMPHY_TYPE_USB3_HOST1>;
+                phy-speed = <COMPHY_SPEED_5G>;
         };
 };
 

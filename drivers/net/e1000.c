@@ -4571,11 +4571,21 @@ e1000_get_phy_cfg_done(struct e1000_hw *hw)
 			mdelay(1);
 			timeout--;
 		}
+
 		if (!timeout) {
 			DEBUGOUT("MNG configuration cycle has not "
 					"completed.\n");
-			return -E1000_ERR_RESET;
+			/*
+			 * Temporarely WA for PHY HW reset timeout on
+			 * MACCHIATOBin board.
+			 * The reason for the timeout is unknown, adding
+			 * delays before and after PCIe reset line release
+			 * did not help to solve the issue.
+			 *
+			 * return -E1000_ERR_RESET;
+			 */
 		}
+
 		break;
 	}
 
@@ -5139,7 +5149,7 @@ fill_rx(struct e1000_hw *hw)
 	rd = rx_base + rx_tail;
 	rx_tail = (rx_tail + 1) % 8;
 	memset(rd, 0, 16);
-	rd->buffer_addr = cpu_to_le64((unsigned long)packet);
+	rd->buffer_addr = cpu_to_le64((uintptr_t)packet);
 
 	/*
 	 * Make sure there are no stale data in WB over this area, which
@@ -5228,7 +5238,6 @@ e1000_configure_tx(struct e1000_hw *hw)
 		E1000_WRITE_REG(hw, TARC1, tarc);
 	}
 
-
 	e1000_config_collision_dist(hw);
 	/* Setup Transmit Descriptor Settings for eop descriptor */
 	hw->txd_cmd = E1000_TXD_CMD_EOP | E1000_TXD_CMD_IFCS;
@@ -5239,7 +5248,6 @@ e1000_configure_tx(struct e1000_hw *hw)
 	else
 		hw->txd_cmd |= E1000_TXD_CMD_RS;
 
-
 	if (hw->mac_type == e1000_igb) {
 		E1000_WRITE_REG(hw, TCTL_EXT, 0x42 << 10);
 
@@ -5249,11 +5257,7 @@ e1000_configure_tx(struct e1000_hw *hw)
 		mdelay(20);
 	}
 
-
-
 	E1000_WRITE_REG(hw, TCTL, tctl);
-
-
 }
 
 /**
@@ -5358,7 +5362,7 @@ _e1000_poll(struct e1000_hw *hw)
 
 	if (!(rd->status & E1000_RXD_STAT_DD))
 		return 0;
-	/* DEBUGOUT("recv: packet len=%d\n", rd->length); */
+	DEBUGOUT("recv: packet len=%d\n", rd->length);
 	/* Packet received, make sure the data are re-loaded from RAM. */
 	len = le16_to_cpu(rd->length);
 	invalidate_dcache_range((unsigned long)packet,
@@ -5551,8 +5555,7 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
 	hw->eeprom_semaphore_present = true;
 #endif
 #ifdef CONFIG_DM_ETH
-	hw->hw_addr = dm_pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
-						PCI_REGION_MEM);
+	hw->hw_addr = dm_pci_map_bar(devno, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
 #else
 	hw->hw_addr = pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
 						PCI_REGION_MEM);

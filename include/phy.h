@@ -16,6 +16,10 @@
 #include <linux/mdio.h>
 #include <phy_interface.h>
 
+#ifdef CONFIG_DM_ETH
+#include <dm/device.h>
+#endif
+
 #define PHY_FIXED_ID		0xa5a55a5a
 
 #define PHY_MAX_ADDR 32
@@ -46,7 +50,7 @@
 				SUPPORTED_10000baseT_Full)
 
 #ifndef PHY_ANEG_TIMEOUT
-#define PHY_ANEG_TIMEOUT	4000
+#define PHY_ANEG_TIMEOUT	8000
 #endif
 
 
@@ -241,7 +245,10 @@ extern struct phy_driver gen10g_driver;
 /* For now, XGMII is the only 10G interface */
 static inline int is_10g_interface(phy_interface_t interface)
 {
-	return interface == PHY_INTERFACE_MODE_XGMII;
+	return (interface == PHY_INTERFACE_MODE_XGMII) ||
+	       (interface == PHY_INTERFACE_MODE_XAUI)  ||
+	       (interface == PHY_INTERFACE_MODE_XLAUI) ||
+	       (interface == PHY_INTERFACE_MODE_RXAUI);
 }
 
 #endif

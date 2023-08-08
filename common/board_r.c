@@ -579,6 +579,14 @@ static int initr_net(void)
 }
 #endif
 
+#ifdef CONFIG_MV88E6XXX_SWITCH
+static int initr_mv88e6xxx(void)
+{
+	mv88e6xxx_initialize(gd->fdt_blob);
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_POST
 static int initr_post(void)
 {
@@ -751,8 +759,12 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 	initr_secondary_cpu,
-#if defined(CONFIG_ID_EEPROM) || defined(CONFIG_SYS_I2C_MAC_OFFSET)
+#if defined(CONFIG_ID_EEPROM) || defined(CONFIG_SYS_I2C_MAC_OFFSET) || \
+    defined(CONFIG_SYS_EEPROM_LOAD_ENV_MAC)
 	mac_read_from_eeprom,
+#endif
+#ifdef CONFIG_POPULATE_SERIAL_NUMBER
+	populate_serial_number,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 #if defined(CONFIG_PCI) && !defined(CONFIG_SYS_EARLY_PCI_INIT)
@@ -812,6 +824,11 @@ static init_fnc_t init_sequence_r[] = {
 	INIT_FUNC_WATCHDOG_RESET
 	initr_net,
 #endif
+
+#ifdef CONFIG_MV88E6XXX_SWITCH
+	initr_mv88e6xxx,
+#endif
+
 #ifdef CONFIG_POST
 	initr_post,
 #endif
@@ -826,6 +843,10 @@ static init_fnc_t init_sequence_r[] = {
 	 * keyboard).
 	 */
 	last_stage_init,
+#endif
+#ifdef CONFIG_ENV_WRITE_DEFAULT_IF_CRC_BAD
+	INIT_FUNC_WATCHDOG_RESET
+	env_write_default_if_crc_bad,
 #endif
 #ifdef CONFIG_CMD_BEDBUG
 	INIT_FUNC_WATCHDOG_RESET

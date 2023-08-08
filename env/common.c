@@ -15,6 +15,7 @@
 #include <search.h>
 #include <errno.h>
 #include <malloc.h>
+#include <spi_flash.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -85,6 +86,18 @@ void env_set_default(const char *s, int flags)
 
 	gd->flags |= GD_FLG_ENV_READY;
 	gd->flags |= GD_FLG_ENV_DEFAULT;
+
+#ifdef CONFIG_CMD_MVEBU_HW_INFO
+		/* load the HW configuration from EEPROM to env variables and
+		 * saveenv.
+		 * This is because when the env varibles are reset, need to
+		 * recover the HW configuration related env varibles from
+		 * EEPROM.
+		 * The only generic U-Boot env variable that will be overwrote
+		 * here will be the Marvell specific variables
+		 */
+		cmd_hw_info_load(NULL, 1);
+#endif /* CONFIG_CMD_MVEBU_HW_INFO */
 }
 
 
@@ -314,5 +327,54 @@ int env_complete(char *var, int maxv, char *cmdv[], int bufsz, char *buf,
 
 	cmdv[found] = NULL;
 	return found;
+}
+#endif
+
+#ifdef CONFIG_ENV_WRITE_DEFAULT_IF_CRC_BAD
+#if !defined(CONFIG_CMD_SAVEENV) || !defined(CONFIG_CMD_FLASH)
+#error CONFIG_CMD_SAVEENV and CONFIG_CMD_FLASH must both be enabled when CONFIG_ENV_WRITE_DEFAULT_IF_CRC_BAD is enabled.
+#endif
+/*
+** Called by board_init_r() after last_stage_init().
+**
+** If the env in flash is corrupt then write the default env with a
+** valid CRC.
+**
+*/
+int env_write_default_if_crc_bad(void)
+{
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+	int ret;
+	struct spi_flash *env_flash = NULL;
+	env_t *env_ptr = (env_t *)malloc(sizeof(env_t));
+	memset(env_ptr, '\0', sizeof(env_t));
+
+	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS,
+			CONFIG_ENV_SPI_CS,
+			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
+	if (!env_flash) {
+		env_set_default("!spi_flash_probe() failed", 0);
+		goto free_and_exit;
+	}
+
+	ret = spi_flash_read(env_flash, CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE, (char *)env_ptr);
+	if (ret) {
+		printf("SPI Read Fail!\n");
+		goto free_and_exit;
+	}
+#else
+	env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
+#endif
+
+	if (crc32(0, env_ptr->data, ENV_SIZE) != env_ptr->crc) {
+		puts("Writing default environment\n");
+		env_save();
+	}
+
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+free_and_exit:
+	free(env_ptr);
+#endif
+	return 0;
 }
 #endif

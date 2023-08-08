@@ -47,6 +47,7 @@ static u32 get_boot_device(void)
 	switch (boot_device) {
 #if defined(CONFIG_ARMADA_38X)
 	case BOOT_FROM_NAND:
+	case BOOT_FROM_NAND_ALT:
 		return BOOT_DEVICE_NAND;
 #endif
 #ifdef CONFIG_SPL_MMC_SUPPORT

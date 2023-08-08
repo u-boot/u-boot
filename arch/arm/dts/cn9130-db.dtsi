@@ -1,0 +1,153 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ */
+
+#include "cn9130.dtsi" /* include SoC device tree */
+#include "cn9130-db-dev-info.dtsi"
+
+/ {
+	model = "DB-CN-9130";
+	compatible = "marvell,cn9030", "marvell,armada-ap806-quad",
+		     "marvell,armada-ap806";
+
+	cp0 {
+		config-space {
+			i2c@701000 {
+				/* U36 */
+				expander0: pca953x@21 {
+					compatible = "nxp,pca9555";
+					#gpio-cells = <2>;
+					reg = <0x21>;
+					status = "okay";
+				};
+			};
+			sdhci@780000 {
+				vqmmc-supply = <&cp0_reg_sd_vccq>;
+				vmmc-supply = <&cp0_reg_sd_vcc>;
+			};
+
+			ap_reg_mmc_vccq: ap_mmc_vccq@0 {
+				compatible = "regulator-gpio";
+				regulator-name = "ap_mmc_vccq";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <3300000>;
+				gpios = <&expander0 8 GPIO_ACTIVE_HIGH>;
+				states = <1800000 0x1
+					  3300000 0x0>;
+			};
+			cp0_reg_usb3_vbus0: cp0_usb3_vbus@0 {
+				compatible = "regulator-fixed";
+				regulator-name = "cp0-xhci0-vbus";
+				regulator-min-microvolt = <5000000>;
+				regulator-max-microvolt = <5000000>;
+				startup-delay-us = <100000>;
+				regulator-force-boot-off;
+				gpio = <&expander0 0 GPIO_ACTIVE_HIGH>;
+			};
+
+			cp0_reg_usb3_vbus1: cp0_usb3_vbus@1 {
+				compatible = "regulator-fixed";
+				regulator-name = "cp0-xhci1-vbus";
+				regulator-min-microvolt = <5000000>;
+				regulator-max-microvolt = <5000000>;
+				startup-delay-us = <100000>;
+				regulator-force-boot-off;
+				gpio = <&expander0 1 GPIO_ACTIVE_HIGH>;
+			};
+			cp0_reg_sd_vccq: cp0_sd_vccq@0 {
+				compatible = "regulator-gpio";
+				regulator-name = "cp0_sd_vccq";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <3300000>;
+				gpios = <&expander0 15 GPIO_ACTIVE_HIGH>;
+				states = <1800000 0x1
+					  3300000 0x0>;
+			};
+			cp0_reg_sd_vcc: cp0_sd_vcc@0 {
+				compatible = "regulator-fixed";
+				regulator-name = "cp0_sd_vcc";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				gpio = <&expander0 14 GPIO_ACTIVE_HIGH>;
+				enable-active-high;
+				regulator-always-on;
+			};
+			cp0_reg_usb3_current_lim0:cp0_usb3_current_limiter@0 {
+				compatible = "regulator-fixed";
+				regulator-min-microamp = <900000>;
+				regulator-max-microamp = <900000>;
+				regulator-force-boot-off;
+				gpio = <&expander0 4 GPIO_ACTIVE_HIGH>;
+			};
+
+			cp0_reg_usb3_current_lim1: cp0_usb3_current_limiter@1 {
+				compatible = "regulator-fixed";
+				regulator-min-microamp = <900000>;
+				regulator-max-microamp = <900000>;
+				regulator-force-boot-off;
+				gpio = <&expander0 5 GPIO_ACTIVE_HIGH>;
+			};
+		};
+	};
+};
+
+&ap_hd_efuse0 {
+	status = "okay";
+};
+
+&ap_ld_efuse0 {
+	status = "okay";
+};
+
+&ap_ld_efuse1 {
+	status = "okay";
+};
+
+/* on-board eMMC - U9 */
+&ap_sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ap_emmc_pins>;
+	vqmmc-supply = <&ap_reg_mmc_vccq>;
+	bus-width = <8>;
+	mmc-ddr-1_8v;
+	mmc-hs400-1_8v;
+	status = "okay";
+};
+
+/*
+ * CP0
+ */
+&cp0_ld_efuse0 {
+	status = "okay";
+};
+
+&cp0_ld_efuse1 {
+	status = "okay";
+};
+
+&cp0_utmi0 {
+	status = "okay";
+};
+
+&cp0_utmi1 {
+	status = "okay";
+};
+
+&cp0_usb3_0 {
+	status = "okay";
+	vbus-supply = <&cp0_reg_usb3_vbus0>;
+	current-limiter = <&cp0_reg_usb3_current_lim0>;
+	vbus-disable-delay = <500>;
+};
+
+&cp0_usb3_1 {
+	status = "okay";
+	vbus-supply = <&cp0_reg_usb3_vbus1>;
+	current-limiter = <&cp0_reg_usb3_current_lim1>;
+	vbus-disable-delay = <500>;
+};
+
+&cp0_pcie0 {
+	status = "okay";
+};

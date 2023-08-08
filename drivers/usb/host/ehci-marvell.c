@@ -12,6 +12,7 @@
 #include <linux/mbus.h>
 #include <asm/arch/cpu.h>
 #include <dm.h>
+#include <power/regulator.h>
 
 #if defined(CONFIG_KIRKWOOD)
 #include <asm/arch/soc.h>
@@ -103,6 +104,10 @@ static int ehci_mvebu_probe(struct udevice *dev)
 	struct ehci_mvebu_priv *priv = dev_get_priv(dev);
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
+#ifdef CONFIG_DM_REGULATOR
+	struct udevice *regulator;
+	int ret;
+#endif
 
 	/*
 	 * Get the base address for EHCI controller from the device node
@@ -125,6 +130,18 @@ static int ehci_mvebu_probe(struct udevice *dev)
 	else
 		usb_brg_adrdec_setup((void *)priv->hcd_base);
 
+	/* Enable VBUS */
+#ifdef CONFIG_DM_REGULATOR
+	ret = device_get_supply_regulator(dev, "vbus-supply", &regulator);
+	if (!ret) {
+		ret = regulator_set_enable(regulator, true);
+		if (ret) {
+			printf("Failed to turn ON the VBUS regulator\n");
+			return ret;
+		}
+	}
+#endif
+
 	hccr = (struct ehci_hccr *)(priv->hcd_base + 0x100);
 	hcor = (struct ehci_hcor *)
 		((uintptr_t)hccr + HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
@@ -135,6 +152,32 @@ static int ehci_mvebu_probe(struct udevice *dev)
 
 	return ehci_register(dev, hccr, hcor, &marvell_ehci_ops, 0,
 			     USB_INIT_HOST);
+}
+
+static int ehci_usb_remove(struct udevice *dev)
+{
+	int ret;
+#ifdef CONFIG_DM_REGULATOR
+	struct udevice *regulator;
+#endif
+
+	ret = ehci_deregister(dev);
+	if (ret)
+		return ret;
+
+	/* Disable VBUS */
+#ifdef CONFIG_DM_REGULATOR
+	ret = device_get_supply_regulator(dev, "vbus-supply", &regulator);
+	if (!ret) {
+		ret = regulator_set_enable(regulator, false);
+		if (ret) {
+			printf("Failed to turn OFF the VBUS regulator\n");
+			return ret;
+		}
+	}
+#endif
+
+	return 0;
 }
 
 static const struct udevice_id ehci_usb_ids[] = {
@@ -148,7 +191,7 @@ U_BOOT_DRIVER(ehci_mvebu) = {
 	.id	= UCLASS_USB,
 	.of_match = ehci_usb_ids,
 	.probe = ehci_mvebu_probe,
-	.remove = ehci_deregister,
+	.remove = ehci_usb_remove,
 	.ops	= &ehci_usb_ops,
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
 	.priv_auto_alloc_size = sizeof(struct ehci_mvebu_priv),

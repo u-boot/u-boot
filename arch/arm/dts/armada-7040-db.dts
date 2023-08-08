@@ -45,10 +45,10 @@
  * Boot device: SPI NOR, 0x32 (SW3)
  */
 
-#include "armada-7040.dtsi"
+#include "armada-70x0-db.dtsi"
 
 / {
-	model = "Marvell Armada 7040 DB board";
+	model = "Marvell Armada 7040 Development Board DB-88FA7040";
 	compatible = "marvell,armada7040-db", "marvell,armada7040",
 		     "marvell,armada-ap806-quad", "marvell,armada-ap806";
 
@@ -57,24 +57,63 @@
 	};
 
 	aliases {
-		i2c0 = &cpm_i2c0;
-		spi0 = &cpm_spi1;
+		i2c0 = &cp0_i2c0;
+		i2c1 = &cp0_i2c1;
+		i2c2 = &ap_i2c0;	
+		spi0 = &cp0_spi0;
+		spi1 = &ap_spi0;
 	};
 
 	memory@00000000 {
 		device_type = "memory";
 		reg = <0x0 0x0 0x0 0x80000000>;
 	};
+	simple-bus {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+	reg_i2c0: reg_i2c {
+			compatible = "regulator-fixed";
+			regulator-name = "reg-i2c";
+			enable-active-high;
+			 /*
+			  * set GPIO[44] to 1 to connect ap_i2c0 to main switch
+			  * board
+			  */
+			gpio = <&cp0_gpio1 12 GPIO_ACTIVE_HIGH>;
+		};
+	};
+	
 };
+
 
 &ap_pinctl {
 	   /* MPP Bus:
 	    * SDIO  [0-5]
 	    * UART0 [11,19]
 	    */
-		  /* 0 1 2 3 4 5 6 7 8 9 */
+        
+	/* 0 1 2 3 4 5 6 7 8 9 */
+        /*
 	pin-func = < 1 1 1 1 1 1 0 0 0 0
 		     0 3 0 0 0 0 0 0 0 3 >;
+
+        */
+            /* WT20200217
+            * MPP Bus:
+            * SPI  [0-3]
+            * I2C  [4-5]		
+            * UART0 [11,19]
+            */
+        
+                  /* 0 1 2 3 4 5 6 7 8 9 */
+        pin-func = < 3 3 3 3 3 3 0 0 0 0
+                     0 3 0 0 0 0 0 0 0 3 >;
+
+       
+
+
+
 };
 
 &uart0 {
@@ -82,160 +121,250 @@
 };
 
 
-&cpm_pcie2 {
+&cp0_pcie0 {
 	status = "okay";
+        //ranges = <0x81000000 0x0 0xf9020000 0x0 0xf9020000 0x0 0x10000 0x82000000 0x0 0xc0000000 0x0 0xc0000000 0x0 0x30000000>;
 };
 
-&cpm_i2c0 {
+&cp0_i2c0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&cpm_i2c0_pins>;
+	pinctrl-0 = <&cp0_i2c0_pins>;
 	status = "okay";
 	clock-frequency = <100000>;
 };
 
-&cpm_pinctl {
+
+&cp0_i2c1 {
+        pinctrl-names = "default";
+        pinctrl-0 = <&cp0_i2c1_pins>;
+        status = "okay";
+        clock-frequency = <100000>;
+};
+
+&ap_i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ap_i2c0_pins>;  
+	enable_gpios = <&reg_i2c0>;
+	status = "okay";
+	fancontrol@2E {
+			compatible = "adt,adt7473arqz";
+			reg = <0x2E>;
+	};
+};
+
+
+
+&ap_spi0
+{    
+        pinctrl-names = "default";
+	pinctrl-0 = <&ap_spi0_pins>;  
+    	bus-num = <1>;
+
+	
+	tpm@0 {
+		compatible = "tcg,tpm_tis-spi";
+		reg = <1>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+                spi-max-frequency = <500000>;         
+        };
+
+        //connect to TPM;
+};
+
+
+
+&cp0_pinctl {
 		/* MPP Bus:
-		 * TDM	 [0-11]
 		 * SPI   [13-16]
 		 * SATA1 [28]
 		 * UART0 [29-30]
 		 * SMI	 [32,34]
 		 * XSMI  [35-36]
 		 * I2C	 [37-38]
-		 * RGMII1[44-55]
-		 * SD	 [56-62]
+		 * RGMII [44-55]
+		 * SD	 [56-61]
+		 * GPIO  [62]
 		 */
 		/*   0   1   2   3   4   5   6   7   8   9 */
-	pin-func = < 4   4   4   4   4   4   4   4   4   4
-		     4   4   0   3   3   3   3   0   0   0
+	/*	
+	pin-func = < 0   0   0   0   0   0   0   0   0   0
+		     0   0   0   3   3   3   3   0   0   0
 		     0   0   0   0   0   0   0   0   9   0xA
 		     0xA 0   7   0   7   7   7   2   2   0
 		     0   0   0   0   1   1   1   1   1   1
 		     1   1   1   1   1   1   0xE 0xE 0xE 0xE
-		     0xE 0xE 0xE >;
+		     0xE 0xE 0>;
+        */
+
+                 /* MPP Bus:
+                 WT20190217 
+	         * MDIO  [0-1]
+                 * STAT presetnt [9]			
+                 * SPI   [13-16]
+                 * SATA1 [28]
+                 * UART0 [29-30]
+                 * SMI   [32,34]
+                 * XSMI  [35-36]
+                 * I2C   [37-38]
+                 * RGMII [44-55]
+                 * SD    [56-61]
+                 * GPIO  [62]
+                 */
+                /*   0    1   2   3   4   5   6   7   8   9 */
+        
+        pin-func = < 0xA 0xA  0   0   0   0   0   0   0   0
+                     0    0   0   0   0   0   0   0   0   0 
+                     0    0   0   0   0   0   0   0   0   9
+                     0    0   0   0   0   2   2   2   2   0
+                     0    0   0   0   0   0   0   0   0   0
+                     0    0   0   0   0   0   6   6   6   6
+                     0    0   0>;
+         
+
 };
 
-&cpm_spi1 {
+
+&cp0_spi0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&cpm_spi0_pins>;
+	pinctrl-0 = <&cp0_spi0_grp1_pins>;
 	status = "okay";
 
 	spi-flash@0 {
 		#address-cells = <0x1>;
 		#size-cells = <0x1>;
-		compatible = "jedec,spi-nor";
+		compatible = "jedec,spi-nor", "spi-flash";
 		reg = <0x0>;
-		spi-max-frequency = <20000000>;
-
-		partitions {
-			compatible = "fixed-partitions";
-			#address-cells = <1>;
-			#size-cells = <1>;
-
-			partition@0 {
-				label = "U-Boot";
-				reg = <0x0 0x200000>;
-			};
-
-			partition@400000 {
-				label = "Filesystem";
-				reg = <0x200000 0xe00000>;
-			};
-		};
+		spi-max-frequency = <108000000>;
 	};
 };
 
-&cpm_sata0 {
+
+&cp0_sata0 {
 	status = "okay";
 };
 
-&cpm_usb3_0 {
+&cp0_usb3_0 {
 	status = "okay";
 };
 
-&cpm_usb3_1 {
+&cp0_usb3_1 {
 	status = "okay";
 };
 
-&cpm_comphy {
+&cp0_comphy {
+	/*
 	phy0 {
-		phy-type = <PHY_TYPE_SGMII1>;
-		phy-speed = <PHY_SPEED_1_25G>;
+		phy-type = <COMPHY_TYPE_SGMII1>;
+		phy-speed = <COMPHY_SPEED_1_25G>;
 	};
+	*/
+        /*WT20200217*/  
+	phy0 {
+                phy-type = <COMPHY_TYPE_PEX0>;
+                phy-speed = <COMPHY_SPEED_5G>;
 
-	phy1 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
-		phy-speed = <PHY_SPEED_5G>;
-	};
+        };
 
+	
+         
+	/*phy1 {
+	//	phy-type = <COMPHY_TYPE_USB3_HOST0>;
+	};*/
+        
+        //WT20200217 
+        phy1 {
+                phy-type = <COMPHY_TYPE_SATA0>;
+             
+               phy-speed = <COMPHY_SPEED_6G>;
+        };
+
+        /*
 	phy2 {
-		phy-type = <PHY_TYPE_SFI>;
+		phy-type = <COMPHY_TYPE_SFI0>;
+		phy-speed = <COMPHY_SPEED_10_3125G>;
 	};
+       */  
+        //WT20200217 
+        phy2 {
+                phy-type = <COMPHY_TYPE_SGMII0>;
+                phy-speed = <COMPHY_SPEED_3_125G>;
+        };
 
+        /*
 	phy3 {
-		phy-type = <PHY_TYPE_SATA1>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <COMPHY_TYPE_SATA1>;
 	};
+        */
+
+        //WT20200217 
+	 phy3 {
+                phy-type = <COMPHY_TYPE_SGMII1>;
+                phy-speed = <COMPHY_SPEED_1_25G>;
+        };
+
+
+
+
+
 
 	phy4 {
-		phy-type = <PHY_TYPE_USB3_HOST1>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
 	};
 
+        /*
 	phy5 {
-		phy-type = <PHY_TYPE_PEX2>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <COMPHY_TYPE_PEX2>;
+	};
+	*/
+        //WT20200217 
+         phy5{
+                phy-type = <COMPHY_TYPE_SGMII2>;
+                phy-speed = <COMPHY_SPEED_1_25G>;
+        };
+
+
+	
+};
+
+
+&cp0_utmi0 {
+	status = "okay";
+};
+
+&cp0_mdio {
+	status = "okay";
+/*	enable_gpios = <&reg_smi0>;*/
+	OOB_E1512_PHY: ethernet-phy@1 {
+		reg = <0x0>;
 	};
 };
 
-&cpm_utmi0 {
+&cp0_ethernet {
 	status = "okay";
 };
 
-&cpm_utmi1 {
-	status = "okay";
-};
-
-&ap_sdhci0 {
-	status = "okay";
-	bus-width = <4>;
-	no-1-8-v;
-	non-removable;
-};
-
-&cpm_sdhci0 {
-	status = "okay";
-	bus-width = <4>;
-	no-1-8-v;
-	non-removable;
-};
-
-&cpm_mdio {
-	phy0: ethernet-phy@0 {
-		reg = <0>;
-	};
-	phy1: ethernet-phy@1 {
-		reg = <1>;
+&cp0_eth0 {
+	status = "disable";
+	phy-mode = "2500base-x";
+	phy-speed = <2500>;
+	fixed-link {
+	speed = <2500>;
+	full-duplex;
 	};
 };
 
-&cpm_ethernet {
-	status = "okay";
+&cp0_eth1 {
+	status = "disable";
+	phy-mode = "1000base-x";
+	fixed-link {
+	      speed = <1000>;
+	      full-duplex;
+	};
 };
 
-&cpm_eth0 {
+&cp0_eth2 {
 	status = "okay";
-	phy-mode = "sfi"; /* lane-2 */
-};
-
-&cpm_eth1 {
-	status = "okay";
-	phy = <&phy0>;
 	phy-mode = "sgmii";
-};
-
-&cpm_eth2 {
-	status = "okay";
-	phy = <&phy1>;
-	phy-mode = "rgmii-id";
+	phy = <&OOB_E1512_PHY>;
 };

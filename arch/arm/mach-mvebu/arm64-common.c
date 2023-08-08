@@ -14,6 +14,8 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/armv8/mmu.h>
+#include <power/regulator.h>
+#include <mach/fw_info.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -84,10 +86,44 @@ static void a8k_dram_init_banksize(void)
 	}
 }
 
+static u64 a3700_dram_scan_ap_sz(void)
+{
+	struct pt_regs pregs;
+
+	pregs.regs[0] = MV_SIP_DRAM_SIZE;
+	smc_call(&pregs);
+
+	return pregs.regs[0];
+}
+
+static void a3700_dram_init_banksize(void)
+{
+	/* If ddr size is below 2GB there is only one ddr bank used */
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	if (gd->ram_size <= SZ_2G) {
+		gd->bd->bi_dram[0].size = gd->ram_size;
+		return;
+	}
+
+	/*
+	 * If ddr size is above 2GB there is only one case 4GB but the firmware
+	 * uses 4 decoding windows for describing it in way reflected below.
+	 */
+	gd->bd->bi_dram[0].size = SZ_2G;
+	gd->bd->bi_dram[1].start = SZ_2G;
+	gd->bd->bi_dram[1].size = SZ_1G;
+	gd->bd->bi_dram[2].start = SZ_2G + SZ_1G;
+	gd->bd->bi_dram[2].size = SZ_256M;
+	gd->bd->bi_dram[3].start = 0xe0000000;
+	gd->bd->bi_dram[3].size = SZ_128M;
+}
+
 __weak int dram_init_banksize(void)
 {
 	if (CONFIG_IS_ENABLED(ARMADA_8K))
 		a8k_dram_init_banksize();
+	else if (CONFIG_IS_ENABLED(ARMADA_3700))
+		a3700_dram_init_banksize();
 	else
 		fdtdec_setup_memory_banksize();
 
@@ -96,11 +132,13 @@ __weak int dram_init_banksize(void)
 
 __weak int dram_init(void)
 {
-	if (CONFIG_IS_ENABLED(ARMADA_8K)) {
+	if (CONFIG_IS_ENABLED(ARMADA_8K))
 		gd->ram_size = a8k_dram_scan_ap_sz();
-		if (gd->ram_size != 0)
-			return 0;
-	}
+	else if (CONFIG_IS_ENABLED(ARMADA_3700))
+		gd->ram_size = a3700_dram_scan_ap_sz();
+
+	if (gd->ram_size != 0)
+		return 0;
 
 	if (fdtdec_setup_mem_size_base() != 0)
 		return -EINVAL;
@@ -120,6 +158,8 @@ int arch_early_init_r(void)
 	int ret;
 	int i;
 
+	printf("Running in RAM - U-Boot at: 0x%08lx\n", gd->relocaddr);
+	printf("                 Env at:    0x%08lx\n", gd->env_addr);
 	/*
 	 * Loop over all MISC uclass drivers to call the comphy code
 	 * and init all CP110 devices enabled in the DT
@@ -128,6 +168,16 @@ int arch_early_init_r(void)
 	while (1) {
 		/* Call the comphy code via the MISC uclass driver */
 		ret = uclass_get_device(UCLASS_MISC, i++, &dev);
+
+		/* We're done, once no further CP110 device is found */
+		if (ret)
+			break;
+	}
+
+	i = 0;
+	while (1) {
+		/* Call the pinctrl code via the PINCTRL uclass driver */
+		ret = uclass_get_device(UCLASS_PINCTRL, i++, &dev);
 
 		/* We're done, once no further CP110 device is found */
 		if (ret)
@@ -143,4 +193,25 @@ int arch_early_init_r(void)
 #endif
 
 	return 0;
+}
+
+void plat_do_sync(void)
+{
+	u32 far, el;
+
+	el = current_el();
+
+	if (el == 1)
+		asm volatile("mrs %0, far_el1" : "=r" (far));
+	else if (el == 2)
+		asm volatile("mrs %0, far_el2" : "=r" (far));
+	else
+		asm volatile("mrs %0, far_el3" : "=r" (far));
+
+	if (far >= ATF_REGION_START && far <= ATF_REGION_END) {
+		pr_err("\n\tAttempt to access RT service or TEE region (addr: 0x%x, el%d)\n",
+		       far, el);
+		pr_err("\tDo not use address range 0x%x-0x%x\n\n",
+		       ATF_REGION_START, ATF_REGION_END);
+	}
 }

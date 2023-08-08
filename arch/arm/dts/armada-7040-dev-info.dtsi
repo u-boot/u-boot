@@ -1,0 +1,73 @@
+/*
+ * ***************************************************************************
+ * Copyright (C) 2017 Marvell International Ltd.
+ * ***************************************************************************
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 2 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ***************************************************************************
+ */
+
+/ {
+	/* This should go only into devel boards */
+	compatible = "marvell,cp110";
+	sar {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		sar_fields {
+			compatible = "marvell,sample-at-reset";
+			reg = <0x4c 0x4e>;
+			chip_count = <2>;
+			bit_width = <5>;
+
+			freq {
+				key = "freq";
+				description = "CPU/DDR frequencies";
+				start-bit = <0>;
+				bit-length = <3>;
+				option-cnt = <7>;
+				options = "0x0", "1600/800 Mhz",
+					  "0x2", "1000/650 Mhz",
+					  "0x3", "1200/800 Mhz",
+					  "0x4", "1400/800 Mhz",
+					  "0x5", "600/800 Mhz",
+					  "0x6", "800/800 Mhz",
+					  "0x7", "1000/800 Mhz";
+				default = <0x3>;
+				status = "okay";
+			};
+			boot_mode {
+				key = "boot_mode";
+				description = "Boot mode options";
+				start-bit = <4>;
+				bit-length = <6>;
+				option-cnt = <14>;
+				options = "0xE", "NAND IHB BW-8bit, PS-4KB, ECC-4bit",
+					  "0xF", "NAND IHB BW-8bit, PS-4KB, ECC-8bit",
+					  "0x28", "AP_SD",
+					  "0x29", "CP_SD",
+					  "0x2A", "AP_EMMC",
+					  "0x2B", "CP_EMMC",
+					  "0x30", "AP_SPI 24bits",
+					  "0x31", "AP SPI BR-Disabled 24bits",
+					  "0x32", "CP_SPI_1 24bits",
+					  "0x33", "CP_SPI_1 32bits",
+					  "0x34", "CP_SPI_0 24bits",
+					  "0x35", "CP_SPI_0 32bits",
+					  "0x36", "CP_SPI_1 BR-Disabled 24bits",
+					  "0x37", "CP_SPI_1 BR-Disabled 32bits";
+				default = <0x32>;
+				status = "okay";
+			};
+		};
+	};
+};

@@ -249,6 +249,9 @@ int cli_simple_run_command(const char *cmd, int flag)
 		if (cmd_process(flag, argc, argv, &repeatable, NULL))
 			rc = -1;
 
+#ifdef CONFIG_SYS_NO_REPEATABLE
+		repeatable = 0;
+#endif
 		/* Did the user stop this? */
 		if (had_ctrlc())
 			return -1;	/* if stopped then not repeatable */

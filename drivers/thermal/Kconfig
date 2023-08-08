@@ -8,6 +8,37 @@ config DM_THERMAL
 
 if DM_THERMAL
 
+menu "Thermal Sensor driver"
+
+config MVEBU_THERMAL_SENSOR
+        bool "Enable Thermal Sensor Core driver"
+	depends on MVEBU_THERMAL_SENSOR_28NM || MVEBU_THERMAL_EXT_SENSOR_28NM
+        help
+          This config enables thermal sensor core driver.
+          This driver scans for thermal sensor units,
+          and initializes them.
+	  The config is enabled once one of the thermal
+	  sensors drive is enabled.
+
+config MVEBU_THERMAL_SENSOR_28NM
+	bool "Enable Thermal Sensor 28NM driver"
+	select MVEBU_THERMAL_SENSOR
+	help
+	  Choose this option to add support for
+	  thermal sensor 28nm driver.
+	  This driver init the thermal sensor unit,
+	  and read the tempreture from the unit.
+
+config MVEBU_THERMAL_EXT_SENSOR_28NM
+	bool "Enable Thermal External Sensor 28NM driver"
+	select MVEBU_THERMAL_SENSOR
+	help
+	  Choose this option to add support for
+	  thermal external sensor 28nm driver.
+	  This driver init the External thermal sensor unit,
+	  and read the tempreture from the unit.
+endmenu
+
 config IMX_THERMAL
 	bool "Temperature sensor driver for Freescale i.MX SoCs"
 	depends on MX6 || MX7

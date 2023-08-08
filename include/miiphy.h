@@ -187,4 +187,8 @@ struct mdio_mux_ops {
 
 #endif
 
+#ifdef CONFIG_CMD_MVEBU_PHY_FW_DOWNLOAD
+u32 mvebu_phy_firmware_download(u16 port, u8 app_data[], u32 app_size,
+				u8 salve_data[], u32 slave_size);
+#endif
 #endif

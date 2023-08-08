@@ -272,6 +272,19 @@ static void mvebu_pcie_setup_wins(struct mvebu_pcie *pcie)
 	       pcie->base + PCIE_BAR_CTRL_OFF(1));
 }
 
+static void mvebu_pci_fixup_classid(struct mvebu_pcie *pcie)
+{
+	/* Setting pci class id to "bridge other" together with defining flag
+	 * CONFIG_PCIAUTO_SKIP_HOST_BRIDGE allows to skip autoconfiguration
+	 * of BDF=0.0.0 during pci enumeration. Thanks to that the driver
+	 * settings will not be overwritten as it happen with defaults
+	 * configuration where the pcie under BDF 0.0.0 introduce itself as
+	 * Memory controller with classid "0x0580" and in reality is pointing to
+	 * RC itself.
+	 */
+	writew(PCI_CLASS_BRIDGE_OTHER, pcie->base + PCI_CLASS_DEVICE);
+}
+
 static int mvebu_pcie_probe(struct udevice *dev)
 {
 	struct mvebu_pcie *pcie = dev_get_platdata(dev);
@@ -312,6 +325,9 @@ static int mvebu_pcie_probe(struct udevice *dev)
 	reg |= PCI_COMMAND_MASTER;
 	reg |= BIT(10);		/* disable interrupts */
 	writel(reg, pcie->base + PCIE_CMD_OFF);
+
+	/* Fixup classid */
+	mvebu_pci_fixup_classid(pcie);
 
 	/* PCI memory space */
 	pci_set_region(hose->regions + 0, pcie->mem.start,

@@ -140,7 +140,8 @@ unsigned int mvebu_sdram_bs(enum memory_bank bank);
 void mvebu_sdram_size_adjust(enum memory_bank bank);
 int mvebu_mbus_probe(struct mbus_win windows[], int count);
 int mvebu_soc_family(void);
-u32 mvebu_get_nand_clock(void);
+u32 mvebu_get_nand_clock(void __iomem *maybe_unused);
+void mvebu_nand_select(void __iomem *maybe_unused);
 
 void return_to_bootrom(void);
 

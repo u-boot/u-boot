@@ -253,6 +253,11 @@ void mmu_change_region_attr(phys_addr_t start, size_t size, u64 attrs);
  */
 void smc_call(struct pt_regs *args);
 
+/* Return codes defined in ARM DEN 0070A */
+#define SMCCC_RET_SUCCESS			0
+#define SMCCC_RET_NOT_SUPPORTED			-1
+#define SMCCC_RET_NOT_REQUIRED			-2
+
 void __noreturn psci_system_reset(void);
 void __noreturn psci_system_off(void);
 

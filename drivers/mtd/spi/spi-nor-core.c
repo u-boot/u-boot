@@ -612,18 +612,26 @@ static void stm_get_locked_range(struct spi_nor *nor, u8 sr, loff_t *ofs,
 	int shift = ffs(mask) - 1;
 	int pow;
 
+	if (!strcmp(mtd->name, "mt25ql02g"))
+		mask |= SR_BP3;
+
 	if (!(sr & mask)) {
 		/* No protection */
 		*ofs = 0;
 		*len = 0;
 	} else {
 		pow = ((sr & mask) ^ mask) >> shift;
-		*len = mtd->size >> pow;
+		*len = mtd->size >> (pow - 2);
 		if (nor->flags & SNOR_F_HAS_SR_TB && sr & SR_TB)
 			*ofs = 0;
 		else
 			*ofs = mtd->size - *len;
+		if (!strcmp(mtd->name, "mt25ql02g"))
+			*ofs = 0;
+		debug("%s sr %x shift %x mask %x xor %x pow %x\n", __func__,
+		      sr, shift, mask, (sr & mask) ^ mask, pow);
 	}
+	debug("%s ofs %llx len %llx\n", __func__, *ofs, *len);
 }
 
 /*
@@ -640,7 +648,9 @@ static int stm_check_lock_status_sr(struct spi_nor *nor, loff_t ofs, u64 len,
 		return 1;
 
 	stm_get_locked_range(nor, sr, &lock_offs, &lock_len);
-
+	debug("%s ofs %llx len %llx\n", __func__, ofs, len);
+	debug("%s lock_offs %llx lock_len %llx\n", __func__, lock_offs,
+	      lock_len);
 	if (locked)
 		/* Requested range is a sub-range of locked range */
 		return (ofs + len <= lock_offs + lock_len) && (ofs >= lock_offs);
@@ -707,6 +717,16 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	if (status_old < 0)
 		return status_old;
 
+	/* For this flash device, BP3 of status is in position 6 instead of 5
+	 * so move it to fall inline with mask
+	 */
+	if (!strcmp(mtd->name, "mt25ql02g")) {
+		u8 reg = status_old;
+
+		mask |= SR_BP3;
+		status_old = ((reg & BIT(6)) >> 1) | (reg & ~BIT(5));
+		debug("%s SRO %x\n", __func__, status_old);
+	}
 	/* If nothing in our range is unlocked, we don't need to do anything */
 	if (stm_is_locked_sr(nor, ofs, len, status_old))
 		return 0;
@@ -715,6 +735,9 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	if (!stm_is_locked_sr(nor, 0, ofs, status_old))
 		can_be_bottom = false;
 
+	debug("%s ofs %llx len %llx\n", __func__, ofs, len);
+	debug("%s 1ofs %llx 1len %llx\n", __func__, ofs + len,
+	      mtd->size - ofs - len);
 	/* If anything above us is unlocked, we can't use 'top' protection */
 	if (!stm_is_locked_sr(nor, ofs + len, mtd->size - (ofs + len),
 			      status_old))
@@ -725,6 +748,8 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	/* Prefer top, if both are valid */
 	use_top = can_be_top;
+	if (!strcmp(mtd->name, "mt25ql02g"))
+		use_top = false;
 
 	/* lock_len: length of region that should end up locked */
 	if (use_top)
@@ -742,29 +767,56 @@ static int stm_lock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	 *   pow = ceil(log2(size / len)) = log2(size) - floor(log2(len))
 	 */
 	pow = ilog2(mtd->size) - ilog2(lock_len);
-	val = mask - (pow << shift);
+	val = mask - ((pow + 1) << shift);
 	if (val & ~mask)
 		return -EINVAL;
+	debug("%s val %x mask %x pow %x shift %x\n", __func__, val, mask, pow,
+	      shift);
+
 	/* Don't "lock" with no region! */
 	if (!(val & mask))
 		return -EINVAL;
 
-	status_new = (status_old & ~mask & ~SR_TB) | val;
+	/* For this flash device, BP3 of mask is in position 5 instead of 6
+	 * so move it to fall inline with register bits
+	 */
+	if (!strcmp(mtd->name, "mt25ql02g")) {
+		u8 reg;
 
-	/* Disallow further writes if WP pin is asserted */
-	status_new |= SR_SRWD;
+		status_new = (status_old & ~mask) | val;
 
-	if (!use_top)
-		status_new |= SR_TB;
+		/* Only modify protection if it will not unlock other areas */
+		if ((status_new & mask) < (status_old & mask))
+			return -EINVAL;
 
-	/* Don't bother if they're the same */
-	if (status_new == status_old)
-		return 0;
+		reg = status_new;
+		status_new = ((reg & BIT(5)) << 1) | (reg & ~BIT(6));
 
-	/* Only modify protection if it will not unlock other areas */
-	if ((status_new & mask) < (status_old & mask))
-		return -EINVAL;
+		/* Disallow further writes if WP pin is asserted */
+		status_new |= SR_SRWD;
 
+		if (!use_top)
+			status_new |= SR_TB;
+
+		mask = BIT(6) | SR_BP2 | SR_BP1 | SR_BP0;
+	} else {
+		status_new = (status_old & ~mask & ~SR_TB) | val;
+
+		/* Disallow further writes if WP pin is asserted */
+		status_new |= SR_SRWD;
+
+		if (!use_top)
+			status_new |= SR_TB;
+
+		/* Don't bother if they're the same */
+		if (status_new == status_old)
+			return 0;
+
+		/* Only modify protection if it will not unlock other areas */
+		if ((status_new & mask) < (status_old & mask))
+			return -EINVAL;
+	}
+	debug("%s SRN %x mask %x\n", __func__, status_new, mask);
 	return write_sr_and_check(nor, status_new, mask);
 }
 
@@ -787,6 +839,17 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	if (status_old < 0)
 		return status_old;
 
+	/* For this flash device, BP3 of status is in position 6 instead of 5
+	 * so move it to fall inline with mask
+	 */
+	if (!strcmp(mtd->name, "mt25ql02g")) {
+		u8 reg = status_old;
+
+		mask |= SR_BP3;
+		status_old = ((reg & BIT(6)) >> 1) | (reg & ~BIT(5));
+		debug("%s SRO %x\n", __func__, status_old);
+	}
+
 	/* If nothing in our range is locked, we don't need to do anything */
 	if (stm_is_unlocked_sr(nor, ofs, len, status_old))
 		return 0;
@@ -805,6 +868,8 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 
 	/* Prefer top, if both are valid */
 	use_top = can_be_top;
+	if (!strcmp(mtd->name, "mt25ql02g"))
+		use_top = false;
 
 	/* lock_len: length of region that should remain locked */
 	if (use_top)
@@ -822,32 +887,63 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 	 *   pow = floor(log2(size / len)) = log2(size) - ceil(log2(len))
 	 */
 	pow = ilog2(mtd->size) - order_base_2(lock_len);
+	debug("%s il1 %x il2 %x\n", __func__, ilog2(mtd->size),
+	      order_base_2(lock_len));
 	if (lock_len == 0) {
 		val = 0; /* fully unlocked */
 	} else {
 		val = mask - (pow << shift);
+		debug("%s val %x mask %x po %x\n", __func__, val, mask,
+		      pow << shift);
 		/* Some power-of-two sizes are not supported */
 		if (val & ~mask)
 			return -EINVAL;
 	}
+	debug("%s val %x mask %x\n", __func__, val, mask);
+	/* For this flash device, BP3 of mask is in position 5 instead of 6
+	 * so move it to fall inline with register bits
+	 */
+	if (!strcmp(mtd->name, "mt25ql02g")) {
+		u8 reg;
 
-	status_new = (status_old & ~mask & ~SR_TB) | val;
+		status_new = (status_old & ~mask) | val;
 
-	/* Don't protect status register if we're fully unlocked */
-	if (lock_len == 0)
-		status_new &= ~SR_SRWD;
+		/* Only modify protection if it will not unlock other areas */
+		if ((status_new & mask) > (status_old & mask))
+			return -EINVAL;
 
-	if (!use_top)
-		status_new |= SR_TB;
+		reg = status_new;
+		status_new = ((reg & BIT(5)) << 1) | (reg & ~BIT(6));
+		status_new &= ~SR_TB;
 
-	/* Don't bother if they're the same */
-	if (status_new == status_old)
-		return 0;
+		/* Don't protect status register if we're fully unlocked */
+		if (lock_len == 0)
+			status_new &= ~SR_SRWD;
 
-	/* Only modify protection if it will not lock other areas */
-	if ((status_new & mask) > (status_old & mask))
-		return -EINVAL;
+		if (!use_top)
+			status_new |= SR_TB;
 
+		mask = BIT(6) | SR_BP2 | SR_BP1 | SR_BP0;
+	} else {
+		status_new = (status_old & ~mask & ~SR_TB) | val;
+
+		/* Don't protect status register if we're fully unlocked */
+		if (lock_len == 0)
+			status_new &= ~SR_SRWD;
+
+		if (!use_top)
+			status_new |= SR_TB;
+
+		/* Don't bother if they're the same */
+		if (status_new == status_old)
+			return 0;
+
+		/* Only modify protection if it will not lock other areas */
+		if ((status_new & mask) > (status_old & mask))
+			return -EINVAL;
+	}
+
+	debug("%s SRN %x mask %x\n", __func__, status_new, mask);
 	return write_sr_and_check(nor, status_new, mask);
 }
 
@@ -861,10 +957,17 @@ static int stm_unlock(struct spi_nor *nor, loff_t ofs, uint64_t len)
 static int stm_is_locked(struct spi_nor *nor, loff_t ofs, uint64_t len)
 {
 	int status;
+	struct mtd_info *mtd = &nor->mtd;
 
 	status = read_sr(nor);
 	if (status < 0)
 		return status;
+
+	/* For this flash device, BP3 is in position 6 instead of 5
+	 * so move it to fall inline with mask
+	 */
+	if (!strcmp(mtd->name, "mt25ql02g"))
+		status = ((status & BIT(6)) >> 1) | (status & ~BIT(5));
 
 	return stm_is_locked_sr(nor, ofs, len, status);
 }

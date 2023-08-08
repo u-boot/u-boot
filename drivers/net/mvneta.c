@@ -519,7 +519,16 @@ static void mvneta_rxq_desc_num_update(struct mvneta_port *pp,
 static struct mvneta_rx_desc *
 mvneta_rxq_next_desc_get(struct mvneta_rx_queue *rxq)
 {
+	struct mvneta_rx_desc *curr;
 	int rx_desc = rxq->next_desc_to_proc;
+
+	/* validate RX descriptor */
+	curr = rxq->descs + rx_desc;
+	if (curr->data_size == 0) {
+		/* do it to read real descriptor next time */
+		DSB;
+		return NULL;
+	}
 
 	rxq->next_desc_to_proc = MVNETA_QUEUE_NEXT_DESC(rxq, rx_desc);
 	return rxq->descs + rx_desc;
@@ -1647,11 +1656,15 @@ static int mvneta_recv(struct udevice *dev, int flags, uchar **packetp)
 		 */
 		rx_desc = mvneta_rxq_next_desc_get(rxq);
 
+		if (!rx_desc)
+			return 0;
+
 		rx_status = rx_desc->status;
 		if (!mvneta_rxq_desc_is_first_last(rx_status) ||
 		    (rx_status & MVNETA_RXD_ERR_SUMMARY)) {
 			mvneta_rx_error(pp, rx_desc);
-			/* leave the descriptor untouched */
+			/* invalidate the descriptor */
+			rx_desc->data_size = 0;
 			return -EIO;
 		}
 
@@ -1671,6 +1684,8 @@ static int mvneta_recv(struct udevice *dev, int flags, uchar **packetp)
 		 * since only one was processed
 		 */
 		mvneta_rxq_desc_num_update(pp, rxq, 1, 1);
+		/* invalidate the descriptor */
+		rx_desc->data_size = 0;
 	}
 
 	return rx_bytes;

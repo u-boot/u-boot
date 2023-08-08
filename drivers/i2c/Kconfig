@@ -366,6 +366,13 @@ config SYS_I2C_SANDBOX
 	  bus. Devices can be attached to the bus using the device tree
 	  which specifies the driver to use.  See sandbox.dts as an example.
 
+config SYS_I2C_OCTEONTX
+	bool "OcteonTX I2C driver"
+	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2) && DM_I2C
+	default y
+	help
+	 Enable I2C support for OcteonTX/TX2 line of processors.
+
 config SYS_I2C_S3C24X0
 	bool "Samsung I2C driver"
 	depends on ARCH_EXYNOS4 && DM_I2C

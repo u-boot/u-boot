@@ -238,6 +238,7 @@ static int __i2c_read(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
 		      uchar *buffer, int len)
 {
 	struct mv_i2c_msg msg;
+	int i = 0;
 
 	debug("i2c_read(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
 	      "len=0x%02x)\n", chip, *addr, alen, len);
@@ -269,7 +270,7 @@ static int __i2c_read(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
 		msg.condition = I2C_COND_NORMAL;
 		msg.acknack   = I2C_ACKNAK_WAITACK;
 		msg.direction = I2C_WRITE;
-		msg.data      = addr[alen];
+		msg.data      = addr[i++];
 		if (i2c_transfer(base, &msg))
 			return -1;
 	}
@@ -314,6 +315,7 @@ static int __i2c_write(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
 		       uchar *buffer, int len)
 {
 	struct mv_i2c_msg msg;
+	int i = 0;
 
 	debug("i2c_write(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
 	      "len=0x%02x)\n", chip, *addr, alen, len);
@@ -340,7 +342,7 @@ static int __i2c_write(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
 		msg.condition = I2C_COND_NORMAL;
 		msg.acknack   = I2C_ACKNAK_WAITACK;
 		msg.direction = I2C_WRITE;
-		msg.data      = addr[alen];
+		msg.data      = addr[i++];
 		if (i2c_transfer(base, &msg))
 			return -1;
 	}
@@ -565,10 +567,18 @@ static int mv_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	struct mv_i2c_priv *priv = dev_get_priv(bus);
 	u32 val;
 
-	if (speed > 100000)
-		val = ICR_FM;
-	else
+	switch (speed) {
+	case 100000:
 		val = ICR_SM;
+		break;
+	case 400000:
+		val = ICR_FM;
+		break;
+	default:
+		printf("Only 100k and 400k modes supported\n");
+		return -EOPNOTSUPP;
+	}
+
 	clrsetbits_le32(&priv->base->icr, ICR_MODE_MASK, val);
 
 	return 0;
@@ -583,9 +593,18 @@ static int mv_i2c_probe(struct udevice *bus)
 	return 0;
 }
 
+static int mv_i2c_reset(struct udevice *bus)
+{
+	struct mv_i2c_priv *priv = dev_get_priv(bus);
+
+	i2c_reset(priv->base);
+	return 0;
+}
+
 static const struct dm_i2c_ops mv_i2c_ops = {
 	.xfer		= mv_i2c_xfer,
 	.set_bus_speed	= mv_i2c_set_bus_speed,
+	.deblock	= mv_i2c_reset,
 };
 
 static const struct udevice_id mv_i2c_ids[] = {

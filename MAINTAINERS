@@ -170,6 +170,22 @@ F:	board/CZ.NIC/
 F:	configs/turris_*_defconfig
 F:	include/configs/turris_*.h
 
+ARM OCTEONTX
+M:	Aaron Williams <aaron.williams@cavium.com>
+M:	Suneel Garapati <sgarapati@caviumnetworks.com>
+S:	Maintained
+F:	arch/arm/mach-octeontx/
+F:	arch/arm/include/asm/arch-octeontx/
+F:	board/Marvell/octeontx/
+
+ARM OCTEONTX2
+M:	Aaron Williams <aaron.williams@cavium.com>
+M:	Suneel Garapati <sgarapati@caviumnetworks.com>
+S:	Maintained
+F:	arch/arm/mach-octeontx2/
+F:	arch/arm/include/asm/arch-octeontx2/
+F:	board/Marvell/octeontx2/
+
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
 M:	Fabio Estevam <festevam@gmail.com>

@@ -1,0 +1,46 @@
+* Marvell Xenon MMC controller
+This file documents the properties used by the sdhci-xenon drivers.
+
+Required properties:
+- compatible: Should be "marvell,armada-3700-sdhci".
+- reg: Base register offset for the SDHCI registers and pad control registers.
+- status: Enable or disable this node
+
+Optional properties:
+- bus-width: Number of data lines, can be <1>, <4>, or <8>.  The default
+  will be <1> if the property is absent.
+- vqmmc-supply: The signal voltage supplier for SDIO if needed. For example,
+  on port0 it needs a gpio regulator to supply signal voltage.
+- marvell,pad-type: The property indicates the pad tye for sdio port, for example,
+  the port1 is emmc and the pad type is fixed with voltage of 1.8V.
+
+Example:
+sdhci0: sdhci@d0000 {
+       compatible = "marvell,armada-3700-sdhci",
+       reg = <0xd0000 0x300
+              0x1e808 0x4>;
+       bus-width = <4>;
+       vqmmc-supply = <&vcc_sd_reg0>;
+       status = "disabled";
+};
+
+sdhci1: sdhci@d8000 {
+       compatible = "marvell,armada-3700-sdhci",
+       reg = <0xd8000 0x300
+              0x17808 0x4>;
+       bus-width = <8>;
+       marvell,pad-type = "fixed-1-8v";
+       status = "disabled";
+};
+
+The vqmmc-supply example on sdio port0:
+vcc_sd_reg0: regulator@0 {
+       compatible = "regulator-gpio";
+       regulator-name = "vcc_sd0";
+       regulator-min-microvolt = <1800000>;
+       regulator-max-microvolt = <3300000>;
+       regulator-type = "voltage";
+       states = <1800000 0x1
+                 3300000 0x0>;
+       gpios = <&gpio1 23 GPIO_ACTIVE_HIGH>;
+};

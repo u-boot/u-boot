@@ -1125,6 +1125,89 @@ static int do_random(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif
 
+#ifdef CONFIG_ARCH_MVEBU
+int do_ir(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	u32 offset = 0x0;
+	u32 reg, tmp_val, residue;
+	char binary[40];
+	char cmd[40];
+	int i, j = 0;
+	int is_modified = 0;
+	u8 *regs_base = (u8 *)INTREG_BASE;
+
+	/* using base command, the u-boot can change the base address */
+	if (base_address != 0)
+		regs_base = (u8 *)base_address;
+
+	if (argc == 2) {
+		offset = simple_strtoul(argv[1], NULL, 16);
+	} else {
+		printf("Usage:\n%s\n", cmdtp->usage);
+		return 0;
+	}
+
+	reg = readl(regs_base + offset);
+	tmp_val = reg;
+	printf("Internal register 0x%x value : 0x%x\n", offset, reg);
+	printf("\n    31      24        16         8         0");
+	printf("\n     |       |         |         |         |\nOLD: ");
+
+	/* Convert the value to binary string */
+	/* Be endianes safe so don't use shifts */
+	for (i = 31; i >= 0; i--) {
+		if (tmp_val > 0) {
+			residue = tmp_val % 2;
+			tmp_val = (tmp_val - residue) / 2;
+			if (residue == 0)
+				binary[i] = '0';
+			else
+				binary[i] = '1';
+		} else {
+			binary[i] = '0';
+		}
+	}
+
+	/* Print the binary string */
+	for (i = 0; i < 32; i++) {
+		printf("%c", binary[i]);
+		if ((((i+1) % 4) == 0) && (i > 1) && (i < 31))
+			printf("-");
+	}
+
+	cli_readline("\nNEW: ");
+	strcpy(cmd, console_buffer);
+	if ((cmd[0] == '0') && (cmd[1] == 'x')) {
+		reg = simple_strtoul(cmd, NULL, 16);
+		is_modified = 1;
+	} else {
+		/* Read binary input */
+		for (i = 0; i < 40; i++) {
+			if (cmd[i] == '\0')
+				break;
+			if (i == 4 || i == 9 || i == 14 || i == 19 ||
+			    i == 24 || i == 29 || i == 34)
+				continue;
+			if (cmd[i] == '1') {
+				reg = reg | (0x80000000 >> j);
+				is_modified = 1;
+			} else if (cmd[i] == '0') {
+				reg = reg & (~(0x80000000 >> j));
+				is_modified = 1;
+			}
+			j++;
+		}
+	}
+
+	/* Update the register value if modified */
+	if (is_modified == 1) {
+		writel(reg, regs_base + offset);
+		printf("\nNew value = 0x%x\n\n", readl(regs_base + offset));
+	}
+	return 0;
+}
+#endif
+
 /**************************************************/
 U_BOOT_CMD(
 	md,	3,	1,	do_mem_md,
@@ -1300,5 +1383,17 @@ U_BOOT_CMD(
 	"fill memory with random pattern",
 	"<addr> <len> [<seed>]\n"
 	"   - Fill 'len' bytes of memory starting at 'addr' with random data\n"
+);
+#endif
+
+#ifdef CONFIG_ARCH_MVEBU
+U_BOOT_CMD(
+	ir,      2,     1,      do_ir,
+	"ir	- Reading and changing internal register values.\n",
+	" Address - offset inside internal registers space\n"
+	"\tDisplays the contents of the internal register in 2 forms, hex and binary.\n"
+	"\tIt's possible to change the value by writing a hex value beginning with 0x\n"
+	"\tor by writing 0 or 1 in the required place.\n"
+	"\tPressing enter without any value keeps the value unchanged.\n"
 );
 #endif

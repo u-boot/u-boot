@@ -1,0 +1,382 @@
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ *
+ * SPDX-License-Identifier:	GPL-2.0
+ * https://spdx.org/licenses
+ */
+
+#include "armada-8040.dtsi" /* include SoC device tree */
+
+/ {
+	model = "Marvell Armada 8040 uCPE";
+	compatible = "marvell,armada-8040-ucpe",
+		     "marvell,armada8040";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	aliases {
+		i2c0 = &cp0_i2c0;
+		i2c1 = &cp0_i2c1;
+		spi0 = &cp1_spi1;
+		gpio0 = &ap_gpio0;
+		gpio1 = &cp0_gpio0;
+		gpio2 = &cp0_gpio1;
+	};
+
+	memory@00000000 {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+
+	simple-bus {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cp0_reg_usb3h0_vbus: usb3-right-port-vbus {
+			compatible = "regulator-fixed";
+			pinctrl-names = "default";
+			pinctrl-0 = <&cp0_xhci_vbus_pins0>;
+			regulator-name = "cp0_reg-usb3h0-vbus";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+			startup-delay-us = <300000>;
+			shutdown-delay-us = <500000>;
+			gpio = <&cp0_gpio1 10 GPIO_ACTIVE_LOW>; /* GPIO[42] */
+		};
+
+		cp0_reg_usb3h1_vbus: usb3-left-port-vbus {
+			compatible = "regulator-fixed";
+			pinctrl-names = "default";
+			pinctrl-0 = <&cp0_xhci_vbus_pins1>;
+			regulator-name = "cp0_reg-usb3h1-vbus";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+			startup-delay-us = <300000>;
+			shutdown-delay-us = <500000>;
+			gpio = <&cp0_gpio1 11 GPIO_ACTIVE_LOW>; /* GPIO[43] */
+		};
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&ap_pinctl {
+	/*
+	 * MPP Bus:
+	 * AP_SD_CLK    [0]
+	 * AP_SD_CMD    [1]
+	 * AP_SD_D[0~7] [2-10]
+	 * UART0        [11,19]
+	 * AP_SD_HW_RST [12]
+	 */
+		  /* 0 1 2 3 4 5 6 7 8 9 */
+	pin-func = < 1 1 1 1 1 1 1 1 1 1
+		     1 3 2 0 0 0 0 0 0 3 >;
+};
+
+/* on-board eMMC, KLM8G1GEME-B041 */
+&ap_sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&ap_emmc_pins>;
+	bus-width = <8>;
+	status = "okay";
+};
+
+&cp0_pinctl {
+	/*
+	 * MPP Bus:
+	 * [0-31] = 0xff: Keep default CP0_shared_pins:
+	 * [32] CP1_PCIE1_CLKREQn
+	 * [33] 10_SFP_LED
+	 * [34] CP1_PCIE0_CLKREQn
+	 * [35-36] CP0 I2C1
+	 * [37-38] CP0 I2C0
+	 * [39] PWM IC enable
+	 * [40,41] CP0 SMI
+	 * [42] USB3 PWR EN Port1
+	 * [43] USB3 PWR EN Port2
+	 * [44] CP0_PCIe0_clk_en
+	 * [45] CP0 PCIe0 and PCIe1 RSTOUTn
+	 * [46] CP0_PCIe0_waken
+	 * [47] CP0_PCIe1_waken
+	 * [48] CP0_PCIe1_clk_en / SFP 1G LED SW4
+	 * [49] CP0 PCIe0 wifi disable
+	 * [50-51] CP0_UA2
+	 * [52] TP31 --> CP0_LED_CLK ?
+	 * [53] TP32 --> CP0_LED_STB ?
+	 * [54] CP0 LED data
+	 * [55] Micro SD card detect
+	 * [56-61] Micro SD
+	 * [62] CP0 PCIe1 wifi disable
+	 */
+		/*   0    1    2    3    4    5    6    7    8    9 */
+	pin-func = < 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0    0x9  0x0  0x9  0x2  0x2  0x2  0x2  0x0
+		     0x8  0x8  0x0  0x0  0x0  0x9  0x0  0x0  0x0  0x0
+		     0x6  0x6  0x8  0x8  0x0  0x0  0xe  0xe  0xe  0xe
+		     0xe  0xe  0x0 >;
+
+	cp0_xhci_vbus_pins0: cpm-xhci-vbus-pins {
+		marvell,pins = < 42 >;
+		marvell,function = <0>;
+	};
+
+	cp0_xhci_vbus_pins1: cpm-xhci-vbus-pins {
+		marvell,pins = < 43 >;
+		marvell,function = <0>;
+	};
+};
+
+&cp0_pcie0 {
+	status = "okay";
+	reset-gpios = <&cp0_gpio1 13 GPIO_ACTIVE_HIGH>;
+	gpio = <&cp0_gpio1 12 GPIO_ACTIVE_HIGH>; /* MPP[44] clock enable*/
+};
+
+&cp0_pcie1 {
+	status = "okay";
+	reset-gpios = <&cp0_gpio1 13 GPIO_ACTIVE_HIGH>;
+	gpio = <&cp0_gpio1 16 GPIO_ACTIVE_HIGH>; /* MPP[48] clock enable*/
+};
+
+&cp0_pcie2 {
+	status = "disabled";
+};
+
+&cp0_i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_i2c0_pins>;
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&cp0_i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_i2c1_pins>;
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+/* uSD slot */
+&cp0_sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp0_sdhci_pins>;
+	bus-width = <4>;
+	status = "okay";
+};
+
+&cp0_usb3_0 {
+	status = "okay";
+	/* MPP[42] for USB3 port0 vbus on/off*/
+	vbus-supply = <&cp0_reg_usb3h0_vbus>;
+};
+
+&cp0_usb3_1 {
+	status = "okay";
+	/* MPP[43] for USB3 port0 vbus on/off*/
+	vbus-supply = <&cp0_reg_usb3h1_vbus>;
+};
+
+&cp0_utmi0 {
+	status = "okay";
+};
+
+&cp0_utmi1 {
+	status = "okay";
+};
+
+&cp0_comphy {
+	/*
+	 * CP0 Serdes Configuration:
+	 * Lane 0: PCIE0
+	 * Lane 1: USB3 HOST0
+	 * Lane 2: SFI
+	 * Lane 3: USB3 HOST1
+	 * Lane 4: PCIE1
+	 * Lane 5: NC
+	 */
+	phy0 {
+		phy-type = <COMPHY_TYPE_PEX0>;
+	};
+	phy1 {
+		phy-type = <COMPHY_TYPE_USB3_HOST0>;
+	};
+	phy2 {
+		phy-type = <COMPHY_TYPE_SFI0>;
+	};
+	phy3 {
+		phy-type = <COMPHY_TYPE_USB3_HOST1>;
+	};
+	phy4 {
+		phy-type = <COMPHY_TYPE_PEX1>;
+	};
+	phy5 {
+		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+	};
+};
+
+&cp0_mdio {
+	status = "okay";
+
+	mvswitch: switch@0{
+		compatible = "marvell,mv88e6xxx";
+		status = "okay";
+		phy-addr = <0x0>;
+		cpu-port = <0xa>;
+		port-mask = <0x7FF>;
+	};
+};
+
+&cp0_ethernet {
+	status = "okay";
+};
+
+/* 10G SFI/copper */
+&cp0_eth0 {
+	status = "okay";
+	phy-mode = "sfi";
+};
+
+&cp1_sata0 {
+	status = "okay";
+	gpio = <&cp1_gpio0 17 GPIO_ACTIVE_LOW>;
+};
+
+&cp1_usb3_0 {
+	status = "okay";
+};
+
+&cp1_utmi0 {
+	status = "okay";
+};
+
+&cp1_pinctl {
+	/*
+	 * MPP Bus:
+	 * [0-5] TDM
+	 * [6,7] CP1_UART 0
+	 * [8]   CP1 10G SFP LOS
+	 * [9]   CP1 10G TX FAULT
+	 * [10]  CP1 10G SFP TX Disable
+	 * [11]  CP1 10G SFP Mode
+	 * [12]  SPI1 CS1n
+	 * [13]  SPI1 MISO (TDM and SPI ROM shared)
+	 * [14]  SPI1 CS0n
+	 * [15]  SPI1 MOSI (TDM and SPI ROM shared)
+	 * [16]  SPI1 CLK (TDM and SPI ROM shared)
+	 * [17]  SSD DEV SLEEP (pull down to wake up SSD)
+	 * [18]  FAN PWM
+	 * [19]  PWM Sense
+	 * [20]  SFP 1G LED SW1
+	 * [21]  SFP 1G LED SW2
+	 * [22]  USB3 Port1 PWR overcurrent ?
+	 * [23]  USB3 Port2 PWR overcurrent ?
+	 * [24]  TP33
+	 * [25-28] LTE
+	 * [29]  PCA9535 int
+	 * [30]  E6390 int
+	 * [31]  E6390 RESETn
+	 * [32-62] = 0xff: Keep default CP1_shared_pins:
+	 */
+		/*   0    1    2    3    4    5    6    7    8    9 */
+	pin-func = < 0x4  0x4  0x4  0x4  0x4  0x4  0x8  0x8  0x0  0x0
+		     0x0  0x0  0x3  0x3  0x3  0x3  0x3  0x0  0x0  0x0
+		     0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0  0x0
+		     0x0  0x0  0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+		     0xff 0xff 0xff>;
+};
+
+&cp1_spi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cp1_spi1_pins>;
+	status = "okay";
+
+	spi-flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <10000000>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "U-Boot";
+				reg = <0 0x200000>;
+			};
+			partition@400000 {
+				label = "Filesystem";
+				reg = <0x200000 0xce0000>;
+			};
+		};
+	};
+};
+
+&cp1_comphy {
+	/*
+	 * CP1 Serdes Configuration:
+	 * Lane 0: SATA 1
+	 * Lane 1: SATA 0
+	 * Lane 2: USB HOST 0
+	 * Lane 3: HS-SGMII
+	 * Lane 4: RXAUI0
+	 * Lane 5: RXAUI1
+	 */
+	phy0 {
+		phy-type = <COMPHY_TYPE_SATA1>;
+	};
+	phy1 {
+		phy-type = <COMPHY_TYPE_SATA0>;
+	};
+	phy2 {
+		phy-type = <COMPHY_TYPE_USB3_HOST0>;
+	};
+	phy3 {
+		phy-type = <COMPHY_TYPE_SGMII1>;
+		phy-speed = <COMPHY_SPEED_3_125G>;
+	};
+	phy4 {
+		phy-type = <COMPHY_TYPE_RXAUI0>;
+	};
+	phy5 {
+		phy-type = <COMPHY_TYPE_RXAUI1>;
+	};
+};
+
+&cp1_ethernet {
+	status = "okay";
+};
+
+/* 10G RXAUI to E6390X port9 - CP1 SRDS[4:5] */
+&cp1_eth0 {
+	status = "disabled";
+	phy-mode = "rxaui";
+};
+
+/* 2.5G SGMii to E6390X port10 - CP1 SRDS[3] */
+&cp1_eth1 {
+	status = "okay";
+	phy-mode = "sgmii-2500";
+	phy = <&mvswitch>;
+	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 24 GPIO_ACTIVE_HIGH>;
+	fixed-link {
+		speed = <2500>;
+		full-duplex;
+	};
+};
+
+&cp1_eth2 {
+	status = "disabled";
+};

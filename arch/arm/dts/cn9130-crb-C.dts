@@ -1,0 +1,67 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2019 Marvell International Ltd.
+ */
+
+#include "cn9130-crb.dtsi"
+
+/ {
+	model = "CN9130-CRB-C (PCIe EP)";
+	compatible = "marvell,cn9130-crb-C",
+		"marvell,cn9130",
+		"marvell,armada-ap806-quad",
+		"marvell,armada-ap806";
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/* The PCI console memory must be reserved */
+		console_reserved: pci-console-nexus@3f000000 {
+			compatible = "marvell,pci-console-nexus-memory";
+			reg = <0 0x3f000000 0 0x1000000>;
+			no-map;
+		};
+	};
+};
+
+&cp0_comphy {
+	phy0 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+
+	phy1 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+
+	phy2 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+
+	phy3 {
+		phy-type = <COMPHY_TYPE_IGNORE>;
+	};
+
+	phy4 {
+		phy-type = <COMPHY_TYPE_SFI0>;
+		phy-speed = <COMPHY_SPEED_10_3125G>;
+	};
+
+	phy5 {
+		phy-type = <COMPHY_TYPE_SGMII2>;
+		phy-speed = <COMPHY_SPEED_3_125G>;
+	};
+};
+
+&cp0_bootcmd {
+	status = "okay";
+};
+
+&cp0_usb3_0 {
+	status = "okay";
+};
+
+&cp0_usb3_1 {
+	status = "okay";
+};

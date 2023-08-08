@@ -286,6 +286,22 @@ config NAND_ZYNQ_USE_BOOTLOADER1_TIMINGS
 	  This flag prevent U-boot reconfigure NAND flash controller and reuse
 	  the NAND timing from 1st stage bootloader.
 
+config NAND_OCTEONTX
+	bool "Support for OcteonTX NAND controller"
+	select SYS_NAND_SELF_INIT
+	imply CMD_NAND
+	help
+	 This enables Nand flash controller hardware found on the OcteonTX
+	 processors.
+
+config NAND_OCTEONTX_HW_ECC
+	bool "Support Hardware ECC for OcteonTX NAND controller"
+	depends on NAND_OCTEONTX
+	default y
+	help
+	 This enables Hardware BCH engine found on the OcteonTX processors to
+	 support ECC for NAND flash controller.
+
 config NAND_STM32_FMC2
 	bool "Support for NAND controller on STM32MP SoCs"
 	depends on ARCH_STM32MP

@@ -1,0 +1,63 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ */
+
+#include "armada-3720-ddr4-db-v3-A.dts"
+
+/* detail board setup:
+ * Pcie Jumper slot	:	DB-88F3720-PCIe-mPCIe-Jumper
+ * SGMII module slot	:	DB-88F3720-SerDes-Jumper
+ * RGMII module slot	:	DB-88F3720-PHY module
+ * eMMC slot		:	DB-88F3720-eMMC_NAND module
+ * SDIO slot		:	DB-88F3720-SDcard module
+ *
+ * PHY0 (USB3/SGMII1)	:	SGMII1 via SFP2.5G (1 Lane)
+ * PHY1 (PCIe/SGMII0)	:	PCIe (WiFi via mini_PCIe module)
+ * PHY2 (SATA)		:	SATA
+ * RGMII-0		:	Ethernet via PHY (1 Lane)
+ * USB2 Port 0		:	USB2 as part USB3
+ * USB2 Port 1		:	USB2 Host
+ * eMMC*		:	eMMC NAND,
+				connected to SD / eMMC Host 1 in North Bridge
+ * SDIO*		:	SD card,
+				connected to SDIO Host 0 in South Bridge
+ */
+
+/ {
+	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR4-V3-C";
+	compatible = "marvell,armada-3720-db-v3",
+		     "marvell,armada3720",
+		     "marvell,armada3710";
+
+	soc {
+		internal-regs {
+			comphy: comphy@18300 {
+				phy0 {
+					phy-type = <COMPHY_TYPE_SGMII1>;
+					phy-speed = <COMPHY_SPEED_3_125G>;
+				};
+			};
+			eth1: neta@40000 {
+				status = "okay";
+				phy-mode = "sgmii";
+				fixed-link {
+					/* Here "speed" is set to 1000, GBE MAC
+					 * is running in 1G mode, but the
+					 * actuall PHY speed may be 1 Gbps or
+					 * 2.5 Gbps, it's up to the
+					 * corresponding SERDES speed in comphy
+					 * node.
+					 * If SERDES speed is set to 3.125G, it
+					 * implies sgmii 2.5 Gbps;
+					 * if SERDES speed is set to 1.25G, it
+					 * implies sgmii 1 Gbps.
+					 */
+					speed = <1000>;
+					full-duplex;
+				};
+			};
+		};
+	};
+
+};

@@ -710,6 +710,31 @@ config OWL_SERIAL
 	  serial port, say Y to this option. If unsure, say N.
 	  Single baudrate is supported in current implementation (115200).
 
+config OCTEONTX_SERIAL_BOOTCMD
+	bool "OcteonTX/OcteonTX2 PCI remote bootcmd input"
+	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2 || ARCH_MVEBU)
+	depends on DM_SERIAL
+	select SYS_IS_IN_ENV
+	select CONSOLE_MUX
+	help
+	 This driver supports remote input over the PCIe bus from a host
+	 to U-Boot for entering commands.  It is utilized by the host
+	 commands cavm-remote-load and mrvl-remote-bootcmd.  This driver
+	 should be used in addition to the standard PL011 serial driver.
+
+config OCTEONTX_SERIAL_PCIE_CONSOLE
+	bool "OcteonTX/OcteonTX2 PCIE remote console"
+	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	depends on DM_SERIAL
+	select SYS_STDIO_DEREGISTER
+	select SYS_CONSOLE_IS_IN_ENV
+	select CONSOLE_MUX
+	help
+	 This driver supports remote console over the PCIe bus when the
+	 OcteonTX is running in PCIe target mode.  The host program
+	 mrvl-remote-console can be used to connect to this console.  The
+	 console number will likely be 0 or 1.
+
 config PXA_SERIAL
 	bool "PXA serial port support"
 	help

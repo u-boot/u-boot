@@ -15,6 +15,8 @@ Optional properties:
  - clocks: phandle to system controller clock driving this unit
  - vbus-supply : If present, specifies the fixed regulator to be turned on
    for providing power to the USB VBUS rail.
+ - current-limiter : If present, specifies the fixed regulator to be turned on
+   for providing current limitation to the USB.
 
 Example:
 	cpm_usb3_0: usb3@500000 {
@@ -24,5 +26,6 @@ Example:
 		interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&cpm_syscon0 1 22>;
 		vbus-supply = <&reg_usb3h0_vbus>;
+		current-limiter = <&reg_usb3h0_current_limiter>;
 		status = "disabled";
 	};

@@ -1,0 +1,12 @@
+menu "eFuse support"
+
+config MVEBU_EFUSE_SUPPORT
+	bool "eFuse support"
+	depends on TARGET_MVEBU_ARMADA_37XX && CMD_MVEBU_EFUSE
+	default n
+	help
+	  Choose this option to add support
+	  for eFuse access driver and enable
+	  mailbox for eFuse read/write actions
+
+endmenu

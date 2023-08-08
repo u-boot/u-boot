@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Device Tree file for Marvell Armada 3720 community board
  * (ESPRESSOBin)
@@ -5,53 +6,15 @@
  *
  * Gregory CLEMENT <gregory.clement@free-electrons.com>
  * Konstantin Porotchkin <kostap@marvell.com>
- *
- * This file is dual-licensed: you can use it either under the terms
- * of the GPL or the X11 license, at your option. Note that this dual
- * licensing only applies to this file, and not this project as a
- * whole.
- *
- *  a) This file is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU General Public License as
- *     published by the Free Software Foundation; either version 2 of the
- *     License, or (at your option) any later version.
- *
- *     This file is distributed in the hope that it will be useful
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- * Or, alternatively
- *
- *  b) Permission is hereby granted, free of charge, to any person
- *     obtaining a copy of this software and associated documentation
- *     files (the "Software"), to deal in the Software without
- *     restriction, including without limitation the rights to use
- *     copy, modify, merge, publish, distribute, sublicense, and/or
- *     sell copies of the Software, and to permit persons to whom the
- *     Software is furnished to do so, subject to the following
- *     conditions:
- *
- *     The above copyright notice and this permission notice shall be
- *     included in all copies or substantial portions of the Software.
- *
- *     THE SOFTWARE IS PROVIDED , WITHOUT WARRANTY OF ANY KIND
- *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY
- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- *     OTHER DEALINGS IN THE SOFTWARE.
  */
-
 /dts-v1/;
 
 #include "armada-372x.dtsi"
 
 / {
 	model = "Marvell Armada 3720 Community Board ESPRESSOBin";
-	compatible = "marvell,armada-3720-espressobin", "marvell,armada3720", "marvell,armada3710";
+	compatible = "marvell,armada-3720-espressobin",
+		     "marvell,armada3720", "marvell,armada3710";
 
 	chosen {
 		stdout-path = "serial0:115200n8";
@@ -67,23 +30,48 @@
 		device_type = "memory";
 		reg = <0x00000000 0x00000000 0x00000000 0x20000000>;
 	};
+
+	vcc_sd_reg0: regulator@0 {
+		compatible = "regulator-gpio";
+		regulator-name = "vcc_sd0";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-type = "voltage";
+		states = <1800000 0x1
+			  3300000 0x0>;
+		gpios = <&gpionb 4 GPIO_ACTIVE_HIGH>;
+	};
+
+	mdio@32004 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "okay";
+
+		mvswitch: switch@000000{
+			compatible = "marvell,mv88e6xxx";
+			status = "okay";
+			phy-addr = <1>;
+			cpu-port = <0x0>;
+			port-mask = <0xf>;
+		};
+	};
 };
 
 &comphy {
 	max-lanes = <3>;
 	phy0 {
-		phy-type = <PHY_TYPE_PEX0>;
-		phy-speed = <PHY_SPEED_2_5G>;
+		phy-type = <COMPHY_TYPE_USB3>;
+		phy-speed = <COMPHY_SPEED_5G>;
 	};
 
 	phy1 {
-		phy-type = <PHY_TYPE_USB3_HOST0>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <COMPHY_TYPE_PEX0>;
+		phy-speed = <COMPHY_SPEED_2_5G>;
 	};
 
 	phy2 {
-		phy-type = <PHY_TYPE_SATA0>;
-		phy-speed = <PHY_SPEED_5G>;
+		phy-type = <COMPHY_TYPE_SATA0>;
+		phy-speed = <COMPHY_SPEED_6G>;
 	};
 };
 
@@ -93,6 +81,8 @@
 	pinctrl-0 = <&rgmii_pins>, <&smi_pins>;
 	phy-mode = "rgmii";
 	phy_addr = <0x1>;
+	phy = <&mvswitch>;
+
 	fixed-link {
 		speed = <1000>;
 		full-duplex;
@@ -108,6 +98,34 @@
 /* CON3 */
 &sata {
 	status = "okay";
+};
+
+/* J1 */
+&sdhci0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdio_pins>;
+	bus-width = <4>;
+	vqmmc-supply = <&vcc_sd_reg0>;
+	status = "okay";
+};
+
+/* U11 */
+&sdhci1 {
+	non-removable;
+	bus-width = <8>;
+	mmc-ddr-1_8v;
+	mmc-hs400-1_8v;
+	marvell,pad-type = "fixed-1-8v";
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc_pins>;
+	status = "disabled";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+	mmccard: mmccard@0 {
+		compatible = "mmc-card";
+		reg = <0>;
+	};
 };
 
 &spi0 {

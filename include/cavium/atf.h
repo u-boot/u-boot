@@ -17,5 +17,5 @@ ssize_t atf_dram_size(unsigned int node);
 ssize_t atf_node_count(void);
 ssize_t atf_env_count(void);
 ssize_t atf_env_string(size_t index, char *str);
-
+ssize_t atf_get_bdk_fdt(void *buffer, size_t buffer_size);
 #endif

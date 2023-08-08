@@ -1049,6 +1049,9 @@ static void get_user_input(struct in_str *i)
 	if (had_ctrlc()) flag_repeat = 0;
 	clear_ctrlc();
 	do_repeat = 0;
+#ifdef CONFIG_SYS_NO_REPEATABLE
+	flag_repeat = 0;
+#endif
 	if (i->promptmode == 1) {
 		if (console_buffer[0] == '\n'&& flag_repeat == 0) {
 			strcpy(the_command,console_buffer);

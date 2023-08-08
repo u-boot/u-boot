@@ -40,6 +40,9 @@ static int pl01x_putc(struct pl01x_regs *regs, char c)
 	/* Send the character */
 	writel(c, &regs->dr);
 
+	while (!(readl(&regs->fr) & UART_PL01x_FR_TXFE))
+		WATCHDOG_RESET();
+
 	return 0;
 }
 

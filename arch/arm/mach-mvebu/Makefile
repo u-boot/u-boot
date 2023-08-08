@@ -26,13 +26,15 @@ obj-$(CONFIG_ARMADA_375) += ../../../drivers/ddr/marvell/axp/xor.o
 obj-$(CONFIG_ARMADA_38X) += ../../../drivers/ddr/marvell/a38x/xor.o
 obj-$(CONFIG_ARMADA_XP) += ../../../drivers/ddr/marvell/axp/xor.o
 obj-$(CONFIG_ARMADA_MSYS) += ../../../drivers/ddr/marvell/axp/xor.o
-obj-$(CONFIG_MVEBU_EFUSE) += efuse.o
 
 extra-y += kwbimage.cfg
 
 KWB_REPLACE += BOOT_FROM
 ifneq ($(CONFIG_MVEBU_SPL_BOOT_DEVICE_SPI),)
 	KWB_CFG_BOOT_FROM=spi
+endif
+ifneq ($(CONFIG_MVEBU_SPL_BOOT_DEVICE_NAND),)
+	KWB_CFG_BOOT_FROM=nand
 endif
 ifneq ($(CONFIG_MVEBU_SPL_BOOT_DEVICE_MMC),)
 	KWB_CFG_BOOT_FROM=sdio

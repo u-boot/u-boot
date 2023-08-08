@@ -1,0 +1,64 @@
+/*
+ * ***************************************************************************
+ * Copyright (C) 2017 Marvell International Ltd.
+ * ***************************************************************************
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 2 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ***************************************************************************
+ */
+
+/ {
+	/* This should go only into devel boards */
+	compatible = "marvell,cp110";
+	sar {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		sar_fields {
+
+			compatible = "marvell,sample-at-reset";
+			reg = <0x4c 0x4e>;
+			chip_count = <2>;
+			bit_width = <5>;
+
+			freq {
+				key = "freq";
+				description = "CPU/DDR and PIDI frequencies";
+				start-bit = <0>;
+				bit-length = <4>;
+				option-cnt = <4>;
+				options = "0x1", "CPU/DDR = 0x1:  2000/1050 Mhz, PIDI = 0: 1Ghz",
+					  "0x3", "CPU/DDR = 0x3:  1800/1050 Mhz, PIDI = 0: 1Ghz",
+					  "0x4", "CPU/DDR = 0x4:  1600/1050 Mhz, PIDI = 0: 1Ghz",
+					  "0xe", "CPU/DDR = 0x34: 1300/800 Mhz,  PIDI = 1: 500Mhz";
+				default = <0x1>;
+				status = "okay";
+			};
+			boot_mode {
+				key = "boot_mode";
+				description = "Boot mode options";
+				start-bit = <4>;
+				bit-length = <6>;
+				option-cnt = <7>;
+				options = "0xE", "CP1_NAND IHB BW-8bit, PS-4KB, ECC-4bit\t(supported configuration: D)",
+					  "0xF", "CP1_NAND IHB BW-8bit, PS-4KB, ECC-8bit\t(supported configuration: D)",
+					  "0x29", "CP0_SD\t\t\t\t\t(supported configurations: C, D and E)",
+					  "0x2A", "AP_EMMC\t\t\t\t\t(supported configurations: A, B, C and D)",
+					  "0x2B", "CP0_EMMC\t\t\t\t\t(supported configurations: A and B)",
+					  "0x30", "AP_SPI 24bits\t\t\t\t(supported configurations: E and A0)",
+					  "0x32", "CP1_SPI_1 24bits\t\t\t\t(supported configurations: A, B, C and E)";
+				default = <0x32>;
+				status = "okay";
+			};
+		};
+	};
+};

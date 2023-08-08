@@ -1,0 +1,128 @@
+U-Boot Porting Guide
+====================
+
+This document provide instructions for porting the Marvell U-Boot package to a customer board.
+
+Relevant Devices
+----------------
+- ARMADA 80x0
+- ARMADA 70x0
+- ARMADA 37x0
+- ARMADA 3900
+- Octeon-TX2 CN913x
+
+Introduction
+------------
+	U-Boot configuration is based on three elements:
+
+	- defconfig file:
+	  This file includes compile-time options for U-Boot, and is used to
+	  enable / disable U-Boot device drivers and features.
+	- include/configs/mv-common.h, include/configs/mvebu_<soc-name>.h (e.g. armada8k.h)
+	  These files include low-level control over U-Boot definitions,
+	  and is likely not to be changed when porting to a new board.
+	- device-tree files
+	  These files are located under arch/arm/dts, and include the runtime
+	  configuration of U-Boot, and enables passing configuration parameters for
+	  each of the drivers/units in U-Boot.
+	  The majority of the porting should be done in the device-tree.
+	  For more information about device-tree syntax, refer to the various examples
+	  under arch/arm/dts/ or visit http://devicetree.org/Device_Tree_Usage
+
+	For the sake of simplicity, all examples below will use the armada-80x0-db board, and the new
+	board will be called "my_board".
+
+
+Customer Board Porting Procedure
+--------------------------------
+
+defconfig & DT file
+~~~~~~~~~~~~~~~~~~~
+
+   1. defconfig
+
+	- Find the defconfig file that matches the SoC flavor being used (e.g. armada-3700, armada-70x0...)
+	- Create a new defconfig to hold U-Boot compile time configuration::
+
+		> cp configs/mvebu_db_armada8k_defconfig configs/my_board_defconfig
+
+   2. device-tree
+
+	- Create a new DT file to hold U-Boot runtime configuration for your board.
+	- Some example DT files already exist in U-Boot, it's possible to use them as-is or
+	  rename to match your system's name::
+
+		> cp arch/arm/dts/armada-8040-db.dts arch/arm/dts/armada-70x0-my_board.dts
+
+	- Add new DT file to arch/arm/dts/Makefile under CONFIG_ARCH_MVEBU::
+
+		dtb-$(CONFIG_ARCH_MVEBU) +=                     \
+			armada-70x0-my_board.dtb                \
+			armada-3720-db.dtb                      \
+
+Basic defconfig setup
+~~~~~~~~~~~~~~~~~~~~~
+
+   1. Update my_board defconfig::
+
+		> make my_board_defconfig
+		> make menuconfig
+
+	- Update device tree file name:
+		-> Device Tree Control -> Default Device Tree for DT control -> "armada-80x0-my_board"
+
+	- Save and exit::
+
+		> make savedefconfig
+		> cp defconfig configs/my_board_defconfig
+
+   2. Compilation sanity
+
+      Compile U-Boot to make sure that everything was set properly.
+      (Refer to doc/mvebu/build.txt for detailed build instructions)::
+
+		> export CROSS_COMPILE=/path/to/toolchain/aarch64-linux-gnu
+		> make
+
+You are ready to start porting U-Boot to match "my_board" configuration.
+
+
+Device-tree porting
+~~~~~~~~~~~~~~~~~~~
+
+   This is the actual porting of U-Boot to make it work properly on "my_board":
+
+	- Edit the "my_board" dts file under arch/arm/dts/<name of dts given in section 2 above>
+	- For each of the (configurable) U-Boot drivers/units, a device tree binding
+	  description file exists, which explains the different configuration options
+	  for the relevant driver.
+
+   Below is a list of drivers/units, and their relevant DT binding description file:
+   (all file paths are relative to "doc/device-tree-bindings/")
+
+   1. Common for all SoCs:
+
+	- COMPHY - phy/mvebu_comphy.txt
+	- SATA - scsi/mvebu-ahci.txt & scsi/marvell,mvebu-scsi.txt
+	- USB3 - xHCI - usb/marvell.xhci-usb.txt
+	- MMC/SDIO - mmc/xenon-mmc.txt
+
+   2. ARMADA 7K/8K/3900 and OcteonTX2 CN913x SoC family:
+
+	- MPPs - pinctrl/marvell,mvebu-pinctrl.txt
+	- GPIO - gpio/mvebu-gpio.txt
+	- MDIO (SMI) - net/mvebu-mdio.txt
+	- NAND - nand/marvell-pxa3xx-nand.txt
+	- SPI - spi/mvebu-spi.txt
+	- Serial - serial/snps-dw-apb-uart.txt
+	- PCIe - pci/armada8k-pcie.txt
+	- I2C - i2c/mvebu-i2c.txt
+	- PPv2 - net/marvell-pp2x.txt
+	- Efuse - fuse/fuse-a7k.txt
+
+   3. ARMADA 3700 SoC family:
+
+	- Serial - serial/mvebu-serial.txt
+	- MPPs & GPIO - pinctrl/marvell,armada-37xx-pinctrl.txt
+	- SPI - spi/mvebu-a3700-spi.txt
+	- PCIe - pci/armada37xx-pcie.txt

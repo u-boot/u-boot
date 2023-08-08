@@ -1,0 +1,22 @@
+Marvell SOC USB controllers
+
+This controller is integrated in Armada 3700.
+It uses the same properties as a generic EHCI host controller
+
+Required properties :
+ - compatible: should be one or more of:
+   - "marvell,armada3700-ehci", "marvell,orion-ehci"
+ - reg: should contain address and length of the standard EHCI
+   register set for the device.
+
+Optional properties:
+ - vbus-supply : If present, specifies the fixed regulator to be turned on
+   for providing power to the USB VBUS rail.
+
+Example:
+	usb2: usb@5e000 {
+		compatible = "marvell,armada3700-ehci";
+		reg = <0x5e000 0x450>;
+		vbus-supply = <&reg_usb2_vbus>;
+		status = "disabled";
+	};

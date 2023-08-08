@@ -43,6 +43,15 @@ config PCI_PNP
 	help
 	  Enable PCI memory and I/O space resource allocation and assignment.
 
+config PCI_REGION_MULTI_ENTRY
+	bool "Enable Multiple entries of MEMORY region for PCI"
+	depends on PCI || DM_PCI
+	default n
+	help
+	  Enable PCI memory regions to be of multiple entry. This helps to
+	  add support for SoC's like OcteonTX/TX2 where every peripheral is
+	  on PCI bus.
+
 config PCIE_ECAM_GENERIC
 	bool "Generic ECAM-based PCI host controller support"
 	default n
@@ -105,6 +114,14 @@ config PCI_TEGRA
 	  3 root ports with a total of 6 lanes and Tegra124 has 2 root ports
 	  with a total of 5 lanes. Some boards require this for Ethernet
 	  support to work (e.g. beaver, jetson-tk1).
+
+config PCI_OCTEONTX
+	bool "OcteonTX PCI support"
+	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+	help
+	  Enable support for the OcteonTX/TX2 SoC family ECAM/PEM controllers.
+	  These controllers provide PCI configuration access to all on-board
+	  peripherals so it should only be disabled for testing purposes
 
 config PCI_XILINX
 	bool "Xilinx AXI Bridge for PCI Express"

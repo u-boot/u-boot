@@ -476,3 +476,22 @@ U_BOOT_CMD(
 	"mii dump   <addr> <reg>               - pretty-print <addr> <reg> (0-5 only)\n"
 	"Addr and/or reg may be ranges, e.g. 2-7."
 );
+
+#ifdef CONFIG_CMD_MVEBU_PHY_FW_DOWNLOAD
+int phy_fw_down_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	return mvebu_phy_firmware_download(
+			(u8)simple_strtoul(argv[5], NULL, 10),
+			(u8 *)simple_strtoul(argv[1], NULL, 16),
+			(u32)simple_strtoul(argv[2], NULL, 10),
+			(u8 *)simple_strtoul(argv[3], NULL, 16),
+			(u32)simple_strtoul(argv[4], NULL, 10));
+}
+
+U_BOOT_CMD(
+	phy_fw_down,      6,     0,      phy_fw_down_cmd,
+	"phy_fw_down - Downloads x3220/3310 Ethernet transceiver PHY firmware.\n",
+	"\t<FW Image Addr, Hex> <FW Image Size, Bytes> <Slave Image Addr, Hex> <Slave Image Size, Bytes> <XSMI Port Number>\n"
+	"\t(Marvell>> phy_fw_down 0x2010000 167972 0x2000000 9948 8\n"
+);
+#endif

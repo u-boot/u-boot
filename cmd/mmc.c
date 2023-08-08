@@ -92,6 +92,7 @@ static void print_mmcinfo(struct mmc *mmc)
 		}
 	}
 }
+
 static struct mmc *init_mmc_device(int dev, bool force_init)
 {
 	struct mmc *mmc;
@@ -510,7 +511,8 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 		printf("mmc%d is current device\n", curr_device);
 	else
 		printf("mmc%d(part %d) is current device\n",
-		       curr_device, mmc_get_blk_desc(mmc)->hwpart);
+		       curr_device,
+		       mmc_get_blk_desc(mmc)->hwpart);
 
 	return CMD_RET_SUCCESS;
 }

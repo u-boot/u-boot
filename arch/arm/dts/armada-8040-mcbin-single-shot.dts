@@ -1,0 +1,28 @@
+/*
+ * Copyright (C) 2018 Marvell International Ltd.
+ *
+ * SPDX-License-Identifier:	GPL-2.0
+ * https://spdx.org/licenses
+ */
+
+#include "armada-8040-mcbin.dts"
+
+/{
+	model = "Marvell 8040 MACHIATOBin SingleShot";
+	compatible = "marvell,armada8040-mcbin-single-shot",
+		     "marvell,armada8040-mcbin",
+		     "marvell,armada8040";
+};
+
+/* 10G SFI/copper */
+&cp0_eth0 {
+	/delete-property/phy;
+};
+
+/* 10G SFI/copper */
+&cp1_eth0 {
+	/delete-property/phy;
+};
+
+/delete-node/ &sfi_phy0;
+/delete-node/ &sfi_phy8;

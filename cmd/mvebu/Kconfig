@@ -9,6 +9,51 @@ config CMD_MVEBU_BUBT
 	  For details about bubt command please see the documentation
 	  in doc/mvebu/cmd/bubt.txt
 
+config CMD_MV88E6XXX_UTIL
+	bool "mvswitch"
+	depends on MV88E6XXX_SWITCH
+	default y
+	help
+	  mvswitch command handle mv88e6xxx
+	  assist with switch init
+	  display switch info and link state
+
+config CMD_MVEBU_MV_FW_INFO
+	bool "mv_fw_info"
+	depends on TARGET_MVEBU_ARMADA_8K || TARGET_OCTEONTX2_CN913x
+	default y
+	help
+	  mv_fw_info command prints FreeRTOS version and firmware information
+	  for the FW running on CM3 CPUs of AP and connected CPs.
+
+config CMD_MVEBU_PHY_FW_DOWNLOAD
+	bool "phy_fw_down"
+	depends on MVMDIO
+	default n
+	help
+	  phy_fw_down - This command download
+	  PHY firmware header to the PHY flash.
+	  This command is used for Marvell PHYs
+	  88X3220/88X3310
+
+config CMD_MVEBU_TSEN
+	bool "tsen"
+	depends on MVEBU_THERMAL_SENSOR
+	default y
+	help
+	  tsen - Display the SoC temperature
+	  as read from the on chip thermal sensor
+
+config CMD_MVEBU_HW_INFO
+	bool "hw_info"
+	select BOARD_CONFIG_EEPROM
+	default n
+	help
+	  hw_info - load HW information such as board ID, PCB SLM number,
+	  MAC addresses from EEPROM and apply them to environment variables.
+	  And update the MAC address in FDT file for Linux.
+	  When save the box information, it will be saved to EEPROM.
+
 choice
 	prompt "Flash for image"
 	default MVEBU_SPI_BOOT
@@ -33,7 +78,7 @@ config MVEBU_SPI_BOOT
 
 config MVEBU_MMC_BOOT
 	bool "eMMC flash boot"
-	depends on MVEBU_MMC
+	depends on (MVEBU_MMC || MMC_SDHCI_XENON)
 	help
 	  Enable boot from eMMC boot partition
 	  Allow usage of eMMC/SD device as a target for "bubt" command
@@ -42,11 +87,111 @@ config MVEBU_MMC_BOOT
 
 endchoice
 
+config MVEBU_BOOT_PART
+	int "boot partition"
+	default 0
+	help
+	  sets boot partition, and sets a specific
+	  partition as a target for "bubt" command.
+	  For details about bubt command please see the documentation
+	  in doc/mvebu/cmd/bubt.txt
+
+config MVEBU_BOOT_DEVICE
+	int "boot device id"
+	default 0
+	help
+	  Used for setting boot device id.
+
 config MVEBU_UBOOT_DFLT_NAME
 	string "Default image name for bubt command"
 	default "flash-image.bin"
 	help
 	  This option should contain a default file name to be used with
 	  MVEBU "bubt" command if the source file name is omitted
+
+config CMD_MVEBU_EFUSE
+	bool "efuse"
+	depends on TARGET_MVEBU_ARMADA_37XX
+	select MVEBU_EFUSE_SUPPORT
+	default n
+	help
+	  eFuse - allow access to SoC eFuse entries
+	  eFuse commands to support efuse list/dump/read/write
+	  For details about eFuse command please see help of eFuse
+	  in uboot
+
+config CMD_MVEBU_DDR_PHY
+	bool "enable ddr_phy register access"
+	depends on TARGET_OCTEONTX2_CN913x
+	default y
+	help
+	  Write/Read Phy registers
+
+config CMD_MVEBU_RX_TRAINING
+	bool "rx_training"
+	depends on TARGET_MVEBU_ARMADA_8K || TARGET_OCTEONTX2_CN913x
+	default n
+	help
+	  Perform RX training sequence
+
+config CMD_MVEBU_AVS
+	bool "avs"
+	depends on TARGET_MVEBU_ARMADA_8K || TARGET_OCTEONTX2_CN913x
+	default y
+	help
+	  Set/Get the Adaptive Voltage Scaling (AVS) value
+
+config CMD_MVEBU_MAP
+	bool "map"
+	depends on TARGET_MVEBU_ARMADA_8K || TARGET_OCTEONTX2_CN913x
+	default y
+	help
+	  Dump address translation tables
+
+config CMD_MVEBU_NAND_OEM
+	bool "nand"
+	depends on (TARGET_MVEBU_ARMADA_8K || TARGET_DB_88F6820_AP || TARGET_OCTEONTX2_CN913x) && CMD_NAND
+	default y
+	help
+	  Introduction: NAND vendors conducts tests to verify if all blocks are
+	  OK. In case of failure block, the NAND manufacturer will mark this
+	  block as bad (BBM) by setting 0x00 somewhere in the spare area.
+	  Moreover NAND manufacturer can pre-programmed the chip with provided
+	  image using external burner.
+
+	  Issue: Marvell NFC employ optimized cost/performance ECC mechanism.
+	  This results in an unique ECC layout implementation. Marvell NFC sets
+	  different layouts according to page size/ECC strength combinations.
+
+	  Therefore after preparing image for the NAND manufacturer for board
+	  with Marvell NFC, due to the layout differences used by Marvell NFC
+	  and physical NAND chip layout, some valid data will be put on BBM
+	  position.  This will result on false bad block indicator and will
+	  affect the BBT which is created automatically (by U-Boot or Linux)
+	  during first run.
+
+	  To prevent from that kind of situations, the NAND oem command was
+	  introduced.
+
+	  The "prepare" part of the command runs once per device data partition
+	  in NAND and prepares image which is next send to manufacturer. It
+	  checks if under BBM position there is no data which could be then
+	  mistakenly taken as a BBM. If so the data together with tracking
+	  information is copied to "meta-data" partition and BBM position is
+	  overwritten with good indicator.
+
+	  The "restore" part of the command runs once per "prepared" partition
+	  and restores its original data. It supposed to run on new boards, on
+	  which the NAND manufacturer pre-programmed earlier prepared image.
+
+config CMD_MVEBU_MV_GET_COUNTERS
+	bool "mv_get_counters"
+	depends on TARGET_MVEBU_ARMADA_8K || TARGET_OCTEONTX2_CN913x
+	default y
+	help
+	  mv_get_counters print MIB Counters.
+	  First argument select eth port to print.
+	  When no argument is given default port is Ethact.
+	  Wrong port being selected could cause crash.
 
 endmenu

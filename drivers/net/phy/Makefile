@@ -7,6 +7,7 @@ obj-$(CONFIG_BITBANGMII) += miiphybb.o
 obj-$(CONFIG_B53_SWITCH) += b53.o
 obj-$(CONFIG_MV88E61XX_SWITCH) += mv88e61xx.o
 obj-$(CONFIG_MV88E6352_SWITCH) += mv88e6352.o
+obj-$(CONFIG_MV88E6XXX_SWITCH) += mv88e6xxx.o
 
 obj-$(CONFIG_PHYLIB) += phy.o
 obj-$(CONFIG_PHYLIB_10G) += generic_10g.o
@@ -30,3 +31,4 @@ obj-$(CONFIG_PHY_XILINX) += xilinx_phy.o
 obj-$(CONFIG_PHY_VITESSE) += vitesse.o
 obj-$(CONFIG_PHY_MSCC) += mscc.o
 obj-$(CONFIG_PHY_FIXED) += fixed.o
+obj-$(CONFIG_CMD_MVEBU_PHY_FW_DOWNLOAD) += mvebu_fw_download.o
