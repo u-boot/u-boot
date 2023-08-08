@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+
 #include "imx7s-u-boot.dtsi"
 
 &fec2 {
