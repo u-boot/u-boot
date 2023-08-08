@@ -29,6 +29,7 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/of_extra.h>
+#include <linux/bitfield.h>
 #include <linux/delay.h>
 #include <miiphy.h>
 #include <net/dsa.h>
@@ -110,20 +111,20 @@
  */
 #define SMI_BUSY			BIT(15)
 #define SMI_CMD_CLAUSE_22		BIT(12)
-#define SMI_CMD_CLAUSE_22_OP_READ	(2 << 10)
-#define SMI_CMD_CLAUSE_22_OP_WRITE	(1 << 10)
-#define SMI_CMD_ADDR_SHIFT		5
-#define SMI_CMD_ADDR_MASK		0x1f
-#define SMI_CMD_REG_SHIFT		0
-#define SMI_CMD_REG_MASK		0x1f
+#define SMI_CMD_OP_MASK			GENMASK(11, 10)
+#define SMI_CMD_CLAUSE_22_OP_WRITE	0x1
+#define SMI_CMD_CLAUSE_22_OP_READ	0x2
+
+#define SMI_CMD_ADDR_MASK		GENMASK(9, 5)
+#define SMI_CMD_REG_MASK		GENMASK(4, 0)
 #define SMI_CMD_READ(addr, reg) \
-	(SMI_BUSY | SMI_CMD_CLAUSE_22 | SMI_CMD_CLAUSE_22_OP_READ) | \
-	(((addr) & SMI_CMD_ADDR_MASK) << SMI_CMD_ADDR_SHIFT) | \
-	(((reg) & SMI_CMD_REG_MASK) << SMI_CMD_REG_SHIFT)
+	(SMI_BUSY | SMI_CMD_CLAUSE_22 | FIELD_PREP(SMI_CMD_OP_MASK, SMI_CMD_CLAUSE_22_OP_READ)) | \
+	(FIELD_PREP(SMI_CMD_ADDR_MASK, addr)) | \
+	(FIELD_PREP(SMI_CMD_REG_MASK, reg))
 #define SMI_CMD_WRITE(addr, reg) \
-	(SMI_BUSY | SMI_CMD_CLAUSE_22 | SMI_CMD_CLAUSE_22_OP_WRITE) | \
-	(((addr) & SMI_CMD_ADDR_MASK) << SMI_CMD_ADDR_SHIFT) | \
-	(((reg) & SMI_CMD_REG_MASK) << SMI_CMD_REG_SHIFT)
+	(SMI_BUSY | SMI_CMD_CLAUSE_22 | FIELD_PREP(SMI_CMD_OP_MASK, SMI_CMD_CLAUSE_22_OP_WRITE)) | \
+	(FIELD_PREP(SMI_CMD_ADDR_MASK, addr)) | \
+	(FIELD_PREP(SMI_CMD_REG_MASK, reg))
 
 /* ID register values for different switch models */
 #define PORT_SWITCH_ID_6020		0x0200
