@@ -9,6 +9,7 @@ General
 .. toctree::
    :maxdepth: 1
 
+   board_best_practices
    codingstyle
    designprinciples
    docstyle
