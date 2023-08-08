@@ -55,12 +55,49 @@ config EFI_VARIABLE_FILE_STORE
 	  stored as file /ubootefi.var on the EFI system partition.
 
 config EFI_MM_COMM_TEE
-	bool "UEFI variables storage service via OP-TEE"
+	bool "UEFI variables storage service via the trusted world"
 	depends on OPTEE
 	help
+	  Allowing access to the MM SP services (SPs such as  StandAlonneMM, smm-gateway).
+	  When using the u-boot OP-TEE driver, StandAlonneMM is supported.
+	  When using the u-boot FF-A  driver any MM SP is supported.
+
 	  If OP-TEE is present and running StandAloneMM, dispatch all UEFI
 	  variable related operations to that. The application will verify,
 	  authenticate and store the variables on an RPMB.
+
+	  When ARM_FFA_TRANSPORT is used, dispatch all UEFI variable related
+	  operations to the MM SP running in the secure world.
+	  A door bell mechanism is used to notify the SP when there is data in the shared
+	  MM buffer. The data is copied by u-boot to the shared buffer before issuing
+	  the door bell event.
+
+config FFA_SHARED_MM_BUF_SIZE
+	int "Memory size of the shared MM communication buffer"
+	depends on EFI_MM_COMM_TEE && ARM_FFA_TRANSPORT
+	help
+	  This defines the size in bytes of the memory area reserved for the shared
+	  buffer used for communication between the MM feature in U-Boot and
+	  the MM SP in secure world.
+	  The size of the memory region must be a multiple of the size of the maximum
+	  translation granule size that is specified in the ID_AA64MMFR0_EL1 System register.
+	  It is assumed that the MM SP knows the size of the shared MM communication buffer.
+
+config FFA_SHARED_MM_BUF_OFFSET
+	int "Data offset in the shared MM communication buffer"
+	depends on EFI_MM_COMM_TEE && ARM_FFA_TRANSPORT
+	help
+	  This defines the offset in bytes of the data read or written to in the shared
+	  buffer by the MM SP.
+
+config FFA_SHARED_MM_BUF_ADDR
+	hex "Define the address of the shared MM communication buffer"
+	depends on EFI_MM_COMM_TEE && ARM_FFA_TRANSPORT
+	help
+	  This defines the address of the shared MM communication buffer
+	  used for communication between the MM feature in U-Boot and
+	  the MM SP in secure world.
+	  It is assumed that the MM SP knows the address of the shared MM communication buffer.
 
 config EFI_VARIABLE_NO_STORE
 	bool "Don't persist non-volatile UEFI variables"

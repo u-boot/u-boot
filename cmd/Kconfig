@@ -952,6 +952,16 @@ endmenu
 
 menu "Device access commands"
 
+config CMD_ARMFFA
+	bool "Arm FF-A test command"
+	depends on ARM_FFA_TRANSPORT
+	help
+	  Provides a test command for the FF-A support
+	  supported options:
+		- Listing the partition(s) info
+		- Sending a data pattern to the specified partition
+		- Displaying the arm_ffa device info
+
 config CMD_ARMFLASH
 	#depends on FLASH_CFI_DRIVER
 	bool "armflash"
