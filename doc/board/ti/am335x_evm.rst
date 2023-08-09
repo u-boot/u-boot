@@ -201,3 +201,65 @@ booting and mtdparts have been configured correctly for the board:
 	U-Boot # spl export fdt ${loadaddr} - ${fdtaddr}
 	U-Boot # nand erase.part u-boot-spl-os
 	U-Boot # nand write ${fdtaddr} u-boot-spl-os
+
+USB device
+----------
+
+The platform code for am33xx based designs is legacy in the sense that
+it is not fully compliant with the driver model in its management of the
+various resources. This is particularly true for the USB Ethernet gadget
+which will automatically be bound to the first USB Device Controller
+(UDC). This make the USB Ethernet gadget work out of the box on common
+boards like the Beagle Bone Blacks and by default will prevents other
+gadgets to be used.
+
+The output of the 'dm tree' command shows which driver is bound to which
+device, so the user can easily configure their platform differently from
+the command line:
+
+.. code-block:: text
+
+	=> dm tree
+	 Class     Index  Probed  Driver                Name
+	-----------------------------------------------------------
+	[...]
+	misc          0  [ + ]   ti-musb-wrapper       |   |-- usb@47400000
+	usb           0  [ + ]   ti-musb-peripheral    |   |   |-- usb@47401000
+	ethernet      1  [ + ]   usb_ether             |   |   |   `-- usb_ether
+	bootdev       3  [   ]   eth_bootdev           |   |   |       `-- usb_ether.bootdev
+	usb           0  [   ]   ti-musb-host          |   |   `-- usb@47401800
+
+Typically here any network command performed using the usb_ether
+interface would work, while using other gadgets would fail:
+
+.. code-block:: text
+
+	=> fastboot usb 0
+	All UDC in use (1 available), use the unbind command
+	g_dnl_register: failed!, error: -19
+	exit not allowed from main input shell.
+
+As hinted by the primary error message, the only controller available
+(usb@47401000) is currently bound to the usb_ether driver, which makes
+it impossible for the fastboot command to bind with this device (at
+least from a bootloader point of view). The solution here would be to
+use the unbind command specifying the class and index parameters (as
+shown above in the 'dm tree' output) to target the driver to unbind:
+
+.. code-block:: text
+
+	=> unbind ethernet 1
+
+The output of the 'dm tree' command now shows the availability of the
+first USB device controller, the fastboot gadget will now be able to
+bind with it:
+
+.. code-block:: text
+
+	=> dm tree
+	 Class     Index  Probed  Driver                Name
+	-----------------------------------------------------------
+	[...]
+	misc          0  [ + ]   ti-musb-wrapper       |   |-- usb@47400000
+	usb           0  [   ]   ti-musb-peripheral    |   |   |-- usb@47401000
+	usb           0  [   ]   ti-musb-host          |   |   `-- usb@47401800
