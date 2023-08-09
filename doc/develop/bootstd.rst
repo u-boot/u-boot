@@ -306,7 +306,7 @@ media device::
 
 The bootdev device is typically created automatically in the media uclass'
 `post_bind()` method by calling `bootdev_setup_for_dev()` or
-`bootdev_setup_sibling_blk()`. The code typically something like this::
+`bootdev_setup_for_sibling_blk()`. The code typically something like this::
 
     /* dev is the Ethernet device */
     ret = bootdev_setup_for_dev(dev, "eth_bootdev");
@@ -316,7 +316,7 @@ The bootdev device is typically created automatically in the media uclass'
 or::
 
     /* blk is the block device (child of MMC device)
-    ret = bootdev_setup_sibling_blk(blk, "mmc_bootdev");
+    ret = bootdev_setup_for_sibling_blk(blk, "mmc_bootdev");
     if (ret)
         return log_msg_ret("bootdev", ret);
 

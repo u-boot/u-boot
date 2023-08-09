@@ -27,6 +27,7 @@
 #include <asm/mtrr.h>
 #include <asm/pci.h>
 #include <asm/processor.h>
+#include <asm/qemu.h>
 #include <asm/spl.h>
 #include <asm-generic/sections.h>
 
@@ -137,7 +138,6 @@ static int x86_spl_init(void)
 	}
 
 #ifndef CONFIG_SYS_COREBOOT
-	log_debug("bss\n");
 	debug("BSS clear from %lx to %lx len %lx\n", (ulong)&__bss_start,
 	      (ulong)&__bss_end, (ulong)&__bss_end - (ulong)&__bss_start);
 	memset(&__bss_start, 0, (ulong)&__bss_end - (ulong)&__bss_start);
@@ -292,6 +292,8 @@ void spl_board_init(void)
 #ifndef CONFIG_TPL
 	preloader_console_init();
 #endif
+	if (IS_ENABLED(CONFIG_QEMU))
+		qemu_chipset_init();
 
 	if (CONFIG_IS_ENABLED(VIDEO)) {
 		struct udevice *dev;

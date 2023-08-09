@@ -135,7 +135,7 @@
 	"fdtaddr=0xc0600000\0" \
 	"scriptaddr=0xc0600000\0"
 
-#include <environment/ti/mmc.h>
+#include <env/ti/mmc.h>
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \

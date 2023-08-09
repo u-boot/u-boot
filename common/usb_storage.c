@@ -246,7 +246,7 @@ static int usb_stor_probe_device(struct usb_device *udev)
 		if (ret)
 			return ret;
 
-		ret = bootdev_setup_sibling_blk(dev, "usb_bootdev");
+		ret = bootdev_setup_for_sibling_blk(dev, "usb_bootdev");
 		if (ret) {
 			int ret2;
 

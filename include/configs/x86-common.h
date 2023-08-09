@@ -5,20 +5,8 @@
  * Graeme Russ, graeme.russ@gmail.com.
  */
 
-#include <asm/ibmpc.h>
-
 #ifndef __CONFIG_X86_COMMON_H
 #define __CONFIG_X86_COMMON_H
-
-/*-----------------------------------------------------------------------
- * CPU Features
- */
-
-#define CFG_SYS_STACK_SIZE			(32 * 1024)
-
-/*-----------------------------------------------------------------------
- * Environment configuration
- */
 
 /*-----------------------------------------------------------------------
  * USB configuration
@@ -32,18 +20,11 @@
 #define CFG_OTHBOOTARGS	"othbootargs=acpi=off\0"
 #endif
 
-#if defined(CONFIG_DISTRO_DEFAULTS)
-#define DISTRO_BOOTENV		BOOTENV
-#else
-#define DISTRO_BOOTENV
-#endif
-
 #ifndef SPLASH_SETTINGS
 #define SPLASH_SETTINGS
 #endif
 
 #define CFG_EXTRA_ENV_SETTINGS			\
-	DISTRO_BOOTENV					\
 	CFG_STD_DEVICES_SETTINGS			\
 	SPLASH_SETTINGS					\
 	"pciconfighost=1\0"				\

@@ -56,7 +56,7 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
-#include <environment/ti/mmc.h>
+#include <env/ti/mmc.h>
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \

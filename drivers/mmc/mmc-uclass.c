@@ -421,7 +421,7 @@ int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
 	mmc->cfg = cfg;
 	mmc->priv = dev;
 
-	ret = bootdev_setup_sibling_blk(bdev, "mmc_bootdev");
+	ret = bootdev_setup_for_sibling_blk(bdev, "mmc_bootdev");
 	if (ret)
 		return log_msg_ret("bootdev", ret);
 

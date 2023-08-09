@@ -48,7 +48,7 @@ static void enable_pm_ich9(void)
 	pci_write_config32(ICH9_PM, PMBA, CONFIG_ACPI_PM1_BASE | 1);
 }
 
-static void qemu_chipset_init(void)
+void qemu_chipset_init(void)
 {
 	u16 device, xbcs;
 	int pam, i;

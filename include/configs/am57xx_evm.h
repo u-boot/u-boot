@@ -11,7 +11,7 @@
 #ifndef __CONFIG_AM57XX_EVM_H
 #define __CONFIG_AM57XX_EVM_H
 
-#include <environment/ti/dfu.h>
+#include <env/ti/dfu.h>
 #include <linux/sizes.h>
 
 #define CFG_SYS_NS16550_COM1		UART1_BASE	/* Base EVM has UART0 */
