@@ -20,6 +20,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/arch-mx7ulp/gpio.h>
 #include <asm/mach-imx/syscounter.h>
+#include <asm/sections.h>
 #include <dm/uclass.h>
 #include <dm/device.h>
 #include <dm/uclass-internal.h>

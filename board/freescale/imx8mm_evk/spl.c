@@ -19,6 +19,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/arch/ddr.h>
+#include <asm/sections.h>
 
 #include <dm/uclass.h>
 #include <dm/device.h>

@@ -469,7 +469,7 @@ config ROCKCHIP_STIMER_BASE
 
 config ROCKCHIP_SPL_RESERVE_IRAM
 	hex "Size of IRAM reserved in SPL"
-	default 0
+	default 0x0
 	help
 	  SPL may need reserve memory for firmware loaded by SPL, whose load
 	  address is in IRAM and may overlay with SPL text area if not

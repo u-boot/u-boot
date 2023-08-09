@@ -77,8 +77,8 @@ void harts_early_init(void)
 	 * If it is not cleared, the ECC part is invalid, and an ECC error
 	 * will be reported when reading data.
 	 */
-	ptr = (ulong *)&__bss_end;
-	len = L2_LIM_MEM_END - (ulong)&__bss_end;
+	ptr = (ulong *)__bss_end;
+	len = L2_LIM_MEM_END - (ulong)__bss_end;
 	remain = len % sizeof(ulong);
 	len /= sizeof(ulong);
 

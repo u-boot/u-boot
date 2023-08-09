@@ -66,7 +66,7 @@ config VIDEO_PCI_DEFAULT_FB_SIZE
 	hex "Default framebuffer size to use if no drivers request it"
 	default 0x1000000 if X86
 	default 0x800000 if !X86 && VIDEO_BOCHS
-	default 0 if !X86 && !VIDEO_BOCHS
+	default 0x0 if !X86 && !VIDEO_BOCHS
 	help
 	  Generally, video drivers request the amount of memory they need for
 	  the frame buffer when they are bound, by setting the size field in
@@ -1039,7 +1039,7 @@ config SPL_VIDEO_PCI_DEFAULT_FB_SIZE
 	hex "Default framebuffer size to use if no drivers request it at SPL"
 	default 0x1000000 if X86
 	default 0x800000 if !X86 && VIDEO_BOCHS
-	default 0 if !X86 && !VIDEO_BOCHS
+	default 0x0 if !X86 && !VIDEO_BOCHS
 	help
 	  Generally, video drivers request the amount of memory they need for
 	  the frame buffer when they are bound, by setting the size field in

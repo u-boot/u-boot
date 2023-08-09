@@ -12,6 +12,7 @@
 #include <asm/arch/mx6-ddr.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/sections.h>
 #include <fsl_esdhc_imx.h>
 
 #define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |		\

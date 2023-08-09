@@ -16,6 +16,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
+#include <asm/sections.h>
 #include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>

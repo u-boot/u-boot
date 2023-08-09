@@ -94,7 +94,7 @@ config SYS_SIUMCR
 
 config SYS_SYPCR
 	hex "SYPCR register" if !WDT_MPC8xxx
-	default 0
+	default 0x0
 	help
 	  System Protection Control (11-9)
 

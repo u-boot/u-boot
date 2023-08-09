@@ -6,32 +6,27 @@
 #include <common.h>
 #include <elf.h>
 #include <log.h>
-#include <asm-generic/sections.h>
+#include <asm/sections.h>
 #include <asm/global_data.h>
-
-extern ulong __image_copy_start;
-extern ulong __ivt_start;
-extern ulong __ivt_end;
-extern ulong __text_end;
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int copy_uboot_to_ram(void)
 {
-	size_t len = (size_t)&__image_copy_end - (size_t)&__image_copy_start;
+	size_t len = (size_t)__image_copy_end - (size_t)__image_copy_start;
 
 	if (gd->flags & GD_FLG_SKIP_RELOC)
 		return 0;
 
-	memcpy((void *)gd->relocaddr, (void *)&__image_copy_start, len);
+	memcpy((void *)gd->relocaddr, (void *)__image_copy_start, len);
 
 	return 0;
 }
 
 int clear_bss(void)
 {
-	ulong dst_addr = (ulong)&__bss_start + gd->reloc_off;
-	size_t len = (size_t)&__bss_end - (size_t)&__bss_start;
+	ulong dst_addr = (ulong)__bss_start + gd->reloc_off;
+	size_t len = (size_t)__bss_end - (size_t)__bss_start;
 
 	memset((void *)dst_addr, 0x00, len);
 
@@ -43,8 +38,8 @@ int clear_bss(void)
  */
 int do_elf_reloc_fixups(void)
 {
-	Elf32_Rela *re_src = (Elf32_Rela *)(&__rel_dyn_start);
-	Elf32_Rela *re_end = (Elf32_Rela *)(&__rel_dyn_end);
+	Elf32_Rela *re_src = (Elf32_Rela *)__rel_dyn_start;
+	Elf32_Rela *re_end = (Elf32_Rela *)__rel_dyn_end;
 
 	if (gd->flags & GD_FLG_SKIP_RELOC)
 		return 0;
@@ -60,8 +55,8 @@ int do_elf_reloc_fixups(void)
 		offset_ptr_rom = (Elf32_Addr *)re_src->r_offset;
 
 		/* Check that the location of the relocation is in .text */
-		if (offset_ptr_rom >= (Elf32_Addr *)&__image_copy_start &&
-		    offset_ptr_rom < (Elf32_Addr *)&__image_copy_end) {
+		if (offset_ptr_rom >= (Elf32_Addr *)__image_copy_start &&
+		    offset_ptr_rom < (Elf32_Addr *)__image_copy_end) {
 			unsigned int val, do_swap = 0;
 			/* Switch to the in-RAM version */
 			offset_ptr_ram = (Elf32_Addr *)((ulong)offset_ptr_rom +
@@ -69,11 +64,11 @@ int do_elf_reloc_fixups(void)
 
 #ifdef __LITTLE_ENDIAN__
 			/* If location in ".text" section swap value */
-			if (((u32)offset_ptr_rom >= (u32)&__text_start &&
-			     (u32)offset_ptr_rom <= (u32)&__text_end)
+			if (((u32)offset_ptr_rom >= (u32)__text_start &&
+			     (u32)offset_ptr_rom <= (u32)__text_end)
 #if defined(__ARC700__) || defined(__ARC600__)
-			    || ((u32)offset_ptr_rom >= (u32)&__ivt_start &&
-				(u32)offset_ptr_rom <= (u32)&__ivt_end)
+			    || ((u32)offset_ptr_rom >= (u32)__ivt_start &&
+				(u32)offset_ptr_rom <= (u32)__ivt_end)
 #endif
 			   )
 				do_swap = 1;
@@ -96,8 +91,8 @@ int do_elf_reloc_fixups(void)
 				val = (val << 16) | (val >> 16);
 
 			/* Check that the target points into executable */
-			if (val < (unsigned int)&__image_copy_start ||
-			    val > (unsigned int)&__image_copy_end) {
+			if (val < (unsigned int)__image_copy_start ||
+			    val > (unsigned int)__image_copy_end) {
 				/* TODO: Use panic() instead of debug()
 				 *
 				 * For some reason GCC might generate
@@ -106,7 +101,7 @@ int do_elf_reloc_fixups(void)
 				 * ----------------------->8--------------------
 				 * static int setup_mon_len(void)
 				 * {
-				 *         gd->mon_len = (ulong)&__bss_end - CONFIG_SYS_MONITOR_BASE;
+				 *         gd->mon_len = (ulong)__bss_end - CONFIG_SYS_MONITOR_BASE;
 				 *         return 0;
 				 * }
 				 * ----------------------->8--------------------
