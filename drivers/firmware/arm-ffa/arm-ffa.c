@@ -42,7 +42,7 @@ static bool arm_ffa_discover(struct udevice *dev)
 {
 	int ret;
 
-	log_info("Arm FF-A framework discovery\n");
+	log_debug("Arm FF-A framework discovery\n");
 
 	ret = ffa_get_version_hdlr(dev);
 	if (ret)
