@@ -111,6 +111,18 @@ call_board_init_f:
  * It's essential before any function call, otherwise, we get data-race.
  */
 
+/* clear stack if necessary */
+#if CONFIG_IS_ENABLED(ZERO_MEM_BEFORE_USE)
+clear_stack:
+	li	t1, 1
+	slli	t1, t1, CONFIG_STACK_SIZE_SHIFT
+	sub	t1, sp, t1
+clear_stack_loop:
+	SREG	zero, 0(t1)		/* t1 is always 16 byte aligned */
+	addi	t1, t1, REGBYTES
+	blt	t1, sp, clear_stack_loop
+#endif
+
 call_board_init_f_0:
 	/* find top of reserve space */
 #if CONFIG_IS_ENABLED(SMP)
