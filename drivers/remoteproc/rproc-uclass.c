@@ -689,7 +689,7 @@ static int alloc_vring(struct udevice *dev, struct fw_rsc_vdev *rsc, int i)
 	debug("alloc_mem(%#x, %d): %p\n", size, order, pa);
 	vring->da = (uintptr_t)pa;
 
-	return !pa;
+	return 0;
 }
 
 static int handle_vdev(struct udevice *dev, struct fw_rsc_vdev *rsc,

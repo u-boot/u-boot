@@ -43,11 +43,11 @@ static int do_test_strlcat(struct unit_test_state *uts, int line, size_t align1,
 		s2[i] = 32 + 23 * i % (127 - 32);
 	s2[len2 - 1] = '\0';
 
-	expected = len2 < n ? min(len1 + len2 - 1, n) : n;
+	expected = min(strlen(s2), n) + strlen(s1);
 	actual = strlcat(s2, s1, n);
 	if (expected != actual) {
 		ut_failf(uts, __FILE__, line, __func__,
-			 "strlcat(s2, s1, 2) == len2 < n ? min(len1 + len2, n) : n",
+			 "strlcat(s2, s1, n) == min(len2, n) + len1",
 			 "Expected %#zx (%zd), got %#zx (%zd)",
 			 expected, expected, actual, actual);
 		return CMD_RET_FAILURE;

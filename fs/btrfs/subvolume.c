@@ -199,6 +199,7 @@ static int list_subvolums(struct btrfs_fs_info *fs_info)
 			ret = PTR_ERR(root);
 			if (ret == -ENOENT)
 				goto next;
+			goto out;
 		}
 		ret = list_one_subvol(root, result);
 		if (ret < 0)

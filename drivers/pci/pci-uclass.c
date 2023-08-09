@@ -1446,7 +1446,7 @@ phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t bus_addr,
 		return res->phys_start + offset;
 	}
 
-	puts("pci_hose_bus_to_phys: invalid physical address\n");
+	puts("dm_pci_bus_to_phys: invalid physical address\n");
 	return 0;
 }
 
@@ -1486,7 +1486,7 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
 		return res->bus_start + offset;
 	}
 
-	puts("pci_hose_phys_to_bus: invalid physical address\n");
+	puts("dm_pci_phys_to_bus: invalid physical address\n");
 	return 0;
 }
 

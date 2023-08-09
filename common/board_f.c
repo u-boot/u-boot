@@ -148,11 +148,12 @@ static int print_resetinfo(void)
 	bool status_printed = false;
 	int ret;
 
-	/* Not all boards have sysreset drivers available during early
+	/*
+	 * Not all boards have sysreset drivers available during early
 	 * boot, so don't fail if one can't be found.
 	 */
 	for (ret = uclass_first_device_check(UCLASS_SYSRESET, &dev); dev;
-			ret = uclass_next_device_check(&dev)) {
+	     ret = uclass_next_device_check(&dev)) {
 		if (ret) {
 			debug("%s: %s sysreset device (error: %d)\n",
 			      __func__, dev->name, ret);

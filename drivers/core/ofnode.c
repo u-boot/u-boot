@@ -103,7 +103,7 @@ void *ofnode_lookup_fdt(ofnode node)
 	if (gd->flags & GD_FLG_RELOC) {
 		uint i = OFTREE_TREE_ID(node.of_offset);
 
-		if (i > oftree_count) {
+		if (i >= oftree_count) {
 			log_debug("Invalid tree ID %x\n", i);
 			return NULL;
 		}

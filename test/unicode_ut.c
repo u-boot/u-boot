@@ -807,28 +807,28 @@ static int unicode_test_u16_strlcat(struct unit_test_state *uts)
 
 	/* dest and src are empty string */
 	memset(buf, 0, sizeof(buf));
-	ret = u16_strlcat(buf, &null_src, sizeof(buf));
-	ut_asserteq(1, ret);
+	ret = u16_strlcat(buf, &null_src, ARRAY_SIZE(buf));
+	ut_asserteq(0, ret);
 
 	/* dest is empty string */
 	memset(buf, 0, sizeof(buf));
-	ret = u16_strlcat(buf, src, sizeof(buf));
-	ut_asserteq(5, ret);
+	ret = u16_strlcat(buf, src, ARRAY_SIZE(buf));
+	ut_asserteq(4, ret);
 	ut_assert(!unicode_test_u16_strcmp(buf, src, 40));
 
 	/* src is empty string */
 	memset(buf, 0xCD, (sizeof(buf) - sizeof(u16)));
 	buf[39] = 0;
 	memcpy(buf, dest, sizeof(dest));
-	ret = u16_strlcat(buf, &null_src, sizeof(buf));
-	ut_asserteq(6, ret);
+	ret = u16_strlcat(buf, &null_src, ARRAY_SIZE(buf));
+	ut_asserteq(5, ret);
 	ut_assert(!unicode_test_u16_strcmp(buf, dest, 40));
 
 	for (i = 0; i <= 40; i++) {
 		memset(buf, 0xCD, (sizeof(buf) - sizeof(u16)));
 		buf[39] = 0;
 		memcpy(buf, dest, sizeof(dest));
-		expected = 10;
+		expected = min(5, i) + 4;
 		ret = u16_strlcat(buf, src, i);
 		ut_asserteq(expected, ret);
 		if (i <= 6) {

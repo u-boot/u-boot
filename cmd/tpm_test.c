@@ -294,8 +294,8 @@ static int test_readonly(struct udevice *dev)
 	 */
 	index_0 += 1;
 	if (tpm_nv_write_value(dev, INDEX0, (uint8_t *)&index_0,
-			       sizeof(index_0) !=
-		TPM_SUCCESS)) {
+			       sizeof(index_0)) !=
+		TPM_SUCCESS) {
 		pr_err("\tcould not write index 0\n");
 	}
 	tpm_nv_write_value_lock(dev, INDEX0);
