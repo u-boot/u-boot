@@ -27,6 +27,8 @@ static struct sbi_imp implementations[] = {
 	{ 4, "RustSBI" },
 	{ 5, "Diosix" },
 	{ 6, "Coffer" },
+	{ 7, "Xen Project" },
+	{ 8, "PolarFire Hart Software Services" },
 };
 
 static struct sbi_ext extensions[] = {
@@ -49,6 +51,8 @@ static struct sbi_ext extensions[] = {
 	{ SBI_EXT_DBCN,			      "Debug Console Extension" },
 	{ SBI_EXT_SUSP,			      "System Suspend Extension" },
 	{ SBI_EXT_CPPC,			      "Collaborative Processor Performance Control Extension" },
+	{ SBI_EXT_NACL,			      "Nested Acceleration Extension" },
+	{ SBI_EXT_STA,			      "Steal-time Accounting Extension" },
 };
 
 static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,

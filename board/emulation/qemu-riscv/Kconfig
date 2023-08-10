@@ -57,6 +57,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply NVME
 	imply PCI
 	imply PCIE_ECAM_GENERIC
+	imply DM_RNG
 	imply SCSI
 	imply DM_SCSI
 	imply SYS_NS16550

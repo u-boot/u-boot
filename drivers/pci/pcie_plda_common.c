@@ -36,8 +36,8 @@ static int plda_pcie_conf_address(const struct udevice *udev, pci_dev_t bdf,
 				  uint offset, void **paddr)
 {
 	struct pcie_plda *priv = dev_get_priv(udev);
-	int where = PCIE_ECAM_OFFSET(PCI_BUS(bdf), PCI_DEV(bdf),
-				     PCI_FUNC(bdf), offset);
+	int where = PCIE_ECAM_OFFSET(PCI_BUS(bdf) - dev_seq(udev),
+				     PCI_DEV(bdf), PCI_FUNC(bdf), offset);
 
 	if (!plda_pcie_addr_valid(priv, bdf))
 		return -ENODEV;
@@ -71,6 +71,7 @@ int plda_pcie_config_write(struct udevice *udev, pci_dev_t bdf,
 	    (offset == PCI_PRIMARY_BUS && size != PCI_SIZE_8))) {
 		priv->sec_busno =
 			((offset == PCI_PRIMARY_BUS) ? (value >> 8) : value) & 0xff;
+		priv->sec_busno += dev_seq(udev);
 		debug("Secondary bus number was changed to %d\n",
 		      priv->sec_busno);
 	}

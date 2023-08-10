@@ -311,7 +311,7 @@
 
 &pcie0 {
 	reset-gpios = <&sysgpio 26 GPIO_ACTIVE_LOW>;
-	status = "disabled";
+	status = "okay";
 };
 
 &pcie1 {
