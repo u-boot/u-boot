@@ -1849,3 +1849,7 @@
 #endif
 
 #include "cedit.dtsi"
+
+#ifdef CONFIG_EFI_CAPSULE_AUTHENTICATE
+#include "sandbox_capsule.dtsi"
+#endif
