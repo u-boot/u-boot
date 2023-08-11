@@ -1850,3 +1850,5 @@
 #endif
 
 #include "cedit.dtsi"
+
+#include "sandbox_capsule.dtsi"
