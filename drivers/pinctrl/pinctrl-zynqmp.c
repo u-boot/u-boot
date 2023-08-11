@@ -158,6 +158,12 @@ static int zynqmp_pm_pinctrl_set_config(const u32 pin, const u32 param, u32 valu
 {
 	int ret;
 
+	if (param == PM_PINCTRL_CONFIG_TRI_STATE) {
+		ret = zynqmp_pm_feature(PM_PINCTRL_CONFIG_PARAM_SET);
+		if (ret < PM_PINCTRL_PARAM_SET_VERSION)
+			return -EOPNOTSUPP;
+	}
+
 	/* Request the pin first */
 	ret = xilinx_pm_request(PM_PINCTRL_REQUEST, pin, 0, 0, 0, NULL);
 	if (ret) {
