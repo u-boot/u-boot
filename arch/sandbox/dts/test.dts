@@ -67,6 +67,7 @@
 	};
 
 	binman: binman {
+		multiple-images;
 	};
 
 	config {
