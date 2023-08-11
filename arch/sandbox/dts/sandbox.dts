@@ -22,6 +22,7 @@
 	};
 
 	binman: binman {
+		multiple-images;
 	};
 
 	memory {
