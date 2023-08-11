@@ -4,6 +4,11 @@
  */
 
 &binman {
+	image: image {
+	};
+};
+
+&image {
 	u-boot-tpl-elf {
 		no-expanded;
 	};
