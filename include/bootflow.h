@@ -353,6 +353,17 @@ void bootflow_free(struct bootflow *bflow);
 int bootflow_boot(struct bootflow *bflow);
 
 /**
+ * bootflow_read_all() - Read all bootflow files
+ *
+ * Some bootmeths delay reading of large files until booting is requested. This
+ * causes those files to be read.
+ *
+ * @bflow: Bootflow to read
+ * Return: result of trying to read
+ */
+int bootflow_read_all(struct bootflow *bflow);
+
+/**
  * bootflow_run_boot() - Try to boot a bootflow
  *
  * @iter: Current iteration (or NULL if none). Used to disable a bootmeth if the

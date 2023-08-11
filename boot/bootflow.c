@@ -445,6 +445,22 @@ void bootflow_remove(struct bootflow *bflow)
 	free(bflow);
 }
 
+#if CONFIG_IS_ENABLED(BOOTSTD_FULL)
+int bootflow_read_all(struct bootflow *bflow)
+{
+	int ret;
+
+	if (bflow->state != BOOTFLOWST_READY)
+		return log_msg_ret("rd", -EPROTO);
+
+	ret = bootmeth_read_all(bflow->method, bflow);
+	if (ret)
+		return log_msg_ret("rd2", ret);
+
+	return 0;
+}
+#endif /* BOOTSTD_FULL */
+
 int bootflow_boot(struct bootflow *bflow)
 {
 	int ret;

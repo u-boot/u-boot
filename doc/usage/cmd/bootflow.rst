@@ -12,6 +12,7 @@ Synopis
     bootflow list [-e]
     bootflow select [<num|name>]
     bootflow info [-ds]
+    bootflow read
     bootflow boot
     bootflow cmdline [set|get|clear|delete|auto] <param> [<value>]
 
@@ -194,10 +195,26 @@ Use the `-d` flag to dump out the contents of the bootfile file.
 The `-s` flag shows any x86 setup block, instead of the above.
 
 
+bootflow read
+~~~~~~~~~~~~~
+
+This reads any files related to the bootflow. Some bootflows with large files
+avoid doing this when the bootflow is scanned, since it uses a lot of memory
+and takes extra time. The files are then automatically read when `bootflow boot`
+is used.
+
+This command reads these files immediately. Typically this fills in the bootflow
+`buf` property, which can be used to examine the bootflow.
+
+Note that reading the files does not result in any extra parsing, nor loading of
+images in the files. This is purely used to read in the data ready for
+booting, or examination.
+
+
 bootflow boot
 ~~~~~~~~~~~~~
 
-This boots the current bootflow.
+This boots the current bootflow, reading any required files first.
 
 
 bootflow cmdline
@@ -579,6 +596,67 @@ This shows looking at x86 setup information::
     Pref address        : 1000000
     Init size           : 1383000
     Handover offset     : 0
+
+This shows reading a bootflow to examine the kernel::
+
+    => bootfl i 0
+    Name:
+    Device:    emmc@1c,0.bootdev
+    Block dev: emmc@1c,0.blk
+    Method:    cros
+    State:     ready
+    Partition: 2
+    Subdir:    (none)
+    Filename:  <NULL>
+    Buffer:    0
+    Size:      63ee00 (6548992 bytes)
+    OS:        ChromeOS
+    Cmdline:   console= loglevel=7 init=/sbin/init cros_secure oops=panic panic=-1 root=PARTUUID=35c775e7-3735-d745-93e5-d9e0238f7ed0/PARTNROFF=1 rootwait rw dm_verity.error_behavior=3 dm_verity.max_bios=-1 dm_verity.dev_wait=0 dm="1 vroot none rw 1,0 3788800 verity payload=ROOT_DEV hashtree=HASH_DEV hashstart=3788800 alg=sha1 root_hexdigest=55052b629d3ac889f25a9583ea12cdcd3ea15ff8 salt=a2d4d9e574069f4fed5e3961b99054b7a4905414b60a25d89974a7334021165c" noinitrd vt.global_cursor_default=0 kern_guid=35c775e7-3735-d745-93e5-d9e0238f7ed0 add_efi_memmap boot=local noresume noswap i915.modeset=1 tpm_tis.force=1 tpm_tis.interrupts=0 nmi_watchdog=panic,lapic disablevmx=off
+    X86 setup: 77b56010
+    Logo:      (none)
+    FDT:       <NULL>
+    Error:     0
+
+Note that `Buffer` is 0 so it has not be read yet. Using `bootflow read`::
+
+    => bootfl read
+    => bootfl info
+    Name:
+    Device:    emmc@1c,0.bootdev
+    Block dev: emmc@1c,0.blk
+    Method:    cros
+    State:     ready
+    Partition: 2
+    Subdir:    (none)
+    Filename:  <NULL>
+    Buffer:    77b7e400
+    Size:      63ee00 (6548992 bytes)
+    OS:        ChromeOS
+    Cmdline:   console= loglevel=7 init=/sbin/init cros_secure oops=panic panic=-1 root=PARTUUID=35c775e7-3735-d745-93e5-d9e0238f7ed0/PARTNROFF=1 rootwait rw dm_verity.error_behavior=3 dm_verity.max_bios=-1 dm_verity.dev_wait=0 dm="1 vroot none rw 1,0 3788800 verity payload=ROOT_DEV hashtree=HASH_DEV hashstart=3788800 alg=sha1 root_hexdigest=55052b629d3ac889f25a9583ea12cdcd3ea15ff8 salt=a2d4d9e574069f4fed5e3961b99054b7a4905414b60a25d89974a7334021165c" noinitrd vt.global_cursor_default=0 kern_guid=35c775e7-3735-d745-93e5-d9e0238f7ed0 add_efi_memmap boot=local noresume noswap i915.modeset=1 tpm_tis.force=1 tpm_tis.interrupts=0 nmi_watchdog=panic,lapic disablevmx=off
+    X86 setup: 781b4400
+    Logo:      (none)
+    FDT:       <NULL>
+    Error:     0
+
+Now the buffer can be accessed::
+
+    => md 77b7e400
+    77b7e400: 1186f6fc 40000002 b8fa0c75 00000018  .......@u.......
+    77b7e410: c08ed88e a68dd08e 000001e8 000000e8  ................
+    77b7e420: ed815d00 00000021 62c280b8 89e80100  .]..!......b....
+    77b7e430: 22f7e8c4 c0850061 22ec850f eb890061  ..."a......"a...
+    77b7e440: 0230868b 01480000 21d0f7c3 00fb81c3  ..0...H....!....
+    77b7e450: 7d010000 0000bb05 c3810100 00d4f000  ...}............
+    77b7e460: 8130858d 85890061 00618132 3095010f  ..0.a...2.a....0
+    77b7e470: 0f006181 c883e020 e0220f20 e000bb8d  .a.. ... .".....
+    77b7e480: c0310062 001800b9 8dabf300 62e000bb  b.1............b
+    77b7e490: 07878d00 89000010 00bb8d07 8d0062f0  .............b..
+    77b7e4a0: 00100787 0004b900 07890000 00100005  ................
+    77b7e4b0: 08c78300 8df37549 630000bb 0183b800  ....Iu.....c....
+    77b7e4c0: 00b90000 89000008 00000507 c7830020  ............ ...
+    77b7e4d0: f3754908 e000838d 220f0062 0080b9d8  .Iu.....b.."....
+    77b7e4e0: 320fc000 08e8ba0f c031300f b8d0000f  ...2.....01.....
+    77b7e4f0: 00000020 6ad8000f 00858d10 50000002   ......j.......P
 
 
 Return value
