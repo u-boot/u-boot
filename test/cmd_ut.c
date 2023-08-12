@@ -201,7 +201,7 @@ static char ut_help_text[] =
 	"\nfdt - fdt command"
 #endif
 #ifdef CONFIG_CONSOLE_TRUETYPE
-	"\nut font - font command"
+	"\nfont - font command"
 #endif
 #ifdef CONFIG_CMD_LOADM
 	"\nloadm - loadm command parameters and loading memory blob"
