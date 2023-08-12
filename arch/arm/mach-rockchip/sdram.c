@@ -216,7 +216,7 @@ int dram_init(void)
 	return 0;
 }
 
-phys_size_t board_get_usable_ram_top(phys_size_t total_size)
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	unsigned long top = CFG_SYS_SDRAM_BASE + SDRAM_MAX_SIZE;
 

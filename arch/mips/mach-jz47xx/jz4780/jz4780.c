@@ -76,7 +76,7 @@ void board_init_f(ulong dummy)
 }
 #endif /* CONFIG_SPL_BUILD */
 
-phys_size_t board_get_usable_ram_top(phys_size_t total_size)
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	return CFG_SYS_SDRAM_BASE + (256 * 1024 * 1024);
 }

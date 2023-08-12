@@ -309,7 +309,7 @@ int show_board_info(void);
  * @total_size:	monitor length in bytes (size of U-Boot code)
  * Return:	uppermost address for U-Boot relocation
  */
-phys_size_t board_get_usable_ram_top(phys_size_t total_size);
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size);
 
 int board_early_init_f(void);
 

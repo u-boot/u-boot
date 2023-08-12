@@ -37,7 +37,7 @@ int dram_init(void)
 /*
  * Avoid relocated U-Boot clash with Linux reserved-memory on 512 MB SoM
  */
-phys_size_t board_get_usable_ram_top(phys_size_t total_size)
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	return 0x9C000000;
 }
