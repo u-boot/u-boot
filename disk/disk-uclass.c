@@ -149,25 +149,6 @@ U_BOOT_DRIVER(blk_partition) = {
 /*
  * BLOCK IO APIs
  */
-static struct blk_desc *dev_get_blk(struct udevice *dev)
-{
-	struct blk_desc *desc;
-
-	switch (device_get_uclass_id(dev)) {
-	/*
-	 * We won't support UCLASS_BLK with dev_* interfaces.
-	 */
-	case UCLASS_PARTITION:
-		desc = dev_get_uclass_plat(dev_get_parent(dev));
-		break;
-	default:
-		desc = NULL;
-		break;
-	}
-
-	return desc;
-}
-
 /**
  * disk_blk_read() - Read from a block device partition
  *
@@ -190,42 +171,41 @@ unsigned long disk_blk_read(struct udevice *dev, lbaint_t start,
 			blkcnt, buffer);
 }
 
+/**
+ * disk_blk_write() - Write to a block device
+ *
+ * @dev: Device to write to
+ * @start: Start block for the write
+ * @blkcnt: Number of blocks to write
+ * @buffer: Data to write
+ * @return number of blocks written (which may be less than @blkcnt),
+ * or -ve on error. This never returns 0 unless @blkcnt is 0
+ */
 unsigned long disk_blk_write(struct udevice *dev, lbaint_t start,
 			     lbaint_t blkcnt, const void *buffer)
 {
-	struct blk_desc *desc;
-	const struct blk_ops *ops;
-
-	desc = dev_get_blk(dev);
-	if (!desc)
+	if (device_get_uclass_id(dev) != UCLASS_PARTITION)
 		return -ENOSYS;
 
-	ops = blk_get_ops(dev);
-	if (!ops->write)
-		return -ENOSYS;
-
-	blkcache_invalidate(desc->uclass_id, desc->devnum);
-
-	return ops->write(dev, start, blkcnt, buffer);
+	return blk_write(dev_get_parent(dev), start, blkcnt, buffer);
 }
 
+/**
+ * disk_blk_erase() - Erase part of a block device
+ *
+ * @dev: Device to erase
+ * @start: Start block for the erase
+ * @blkcnt: Number of blocks to erase
+ * @return number of blocks erased (which may be less than @blkcnt),
+ * or -ve on error. This never returns 0 unless @blkcnt is 0
+ */
 unsigned long disk_blk_erase(struct udevice *dev, lbaint_t start,
 			     lbaint_t blkcnt)
 {
-	struct blk_desc *desc;
-	const struct blk_ops *ops;
-
-	desc = dev_get_blk(dev);
-	if (!desc)
+	if (device_get_uclass_id(dev) != UCLASS_PARTITION)
 		return -ENOSYS;
 
-	ops = blk_get_ops(dev);
-	if (!ops->erase)
-		return -ENOSYS;
-
-	blkcache_invalidate(desc->uclass_id, desc->devnum);
-
-	return ops->erase(dev, start, blkcnt);
+	return blk_erase(dev_get_parent(dev), start, blkcnt);
 }
 
 UCLASS_DRIVER(partition) = {
