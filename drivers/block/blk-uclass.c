@@ -17,6 +17,8 @@
 #include <dm/uclass-internal.h>
 #include <linux/err.h>
 
+#define blk_get_ops(dev)	((struct blk_ops *)(dev)->driver->ops)
+
 static struct {
 	enum uclass_id id;
 	const char *name;

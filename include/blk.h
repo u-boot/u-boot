@@ -262,8 +262,6 @@ struct blk_ops {
 	int (*select_hwpart)(struct udevice *dev, int hwpart);
 };
 
-#define blk_get_ops(dev)	((struct blk_ops *)(dev)->driver->ops)
-
 /*
  * These functions should take struct udevice instead of struct blk_desc,
  * but this is convenient for migration to driver model. Add a 'd' prefix
