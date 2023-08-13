@@ -168,36 +168,26 @@ static struct blk_desc *dev_get_blk(struct udevice *dev)
 	return desc;
 }
 
+/**
+ * disk_blk_read() - Read from a block device partition
+ *
+ * @dev: Device to read from (partition udevice)
+ * @start: Start block for the read (from start of partition)
+ * @blkcnt: Number of blocks to read (within the partition)
+ * @buffer: Place to put the data
+ * @return number of blocks read (which may be less than @blkcnt),
+ * or -ve on error. This never returns 0 unless @blkcnt is 0
+ */
 unsigned long disk_blk_read(struct udevice *dev, lbaint_t start,
 			    lbaint_t blkcnt, void *buffer)
 {
-	struct blk_desc *desc;
-	const struct blk_ops *ops;
-	struct disk_part *part;
-	lbaint_t start_in_disk;
-	ulong blks_read;
+	struct disk_part *part = dev_get_uclass_plat(dev);
 
-	desc = dev_get_blk(dev);
-	if (!desc)
+	if (device_get_uclass_id(dev) != UCLASS_PARTITION)
 		return -ENOSYS;
 
-	ops = blk_get_ops(dev);
-	if (!ops->read)
-		return -ENOSYS;
-
-	start_in_disk = start;
-	part = dev_get_uclass_plat(dev);
-	start_in_disk += part->gpt_part_info.start;
-
-	if (blkcache_read(desc->uclass_id, desc->devnum, start_in_disk, blkcnt,
-			  desc->blksz, buffer))
-		return blkcnt;
-	blks_read = ops->read(dev, start, blkcnt, buffer);
-	if (blks_read == blkcnt)
-		blkcache_fill(desc->uclass_id, desc->devnum, start_in_disk,
-			      blkcnt, desc->blksz, buffer);
-
-	return blks_read;
+	return blk_read(dev_get_parent(dev), start + part->gpt_part_info.start,
+			blkcnt, buffer);
 }
 
 unsigned long disk_blk_write(struct udevice *dev, lbaint_t start,
