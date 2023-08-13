@@ -27,8 +27,16 @@
  */
 static int disk_blk_part_validate(struct udevice *dev, lbaint_t start, lbaint_t blkcnt)
 {
+	struct disk_part *part = dev_get_uclass_plat(dev);
+
 	if (device_get_uclass_id(dev) != UCLASS_PARTITION)
 		return -ENOSYS;
+
+	if (start >= part->gpt_part_info.size)
+		return -E2BIG;
+
+	if ((start + blkcnt) > part->gpt_part_info.size)
+		return -ERANGE;
 
 	return 0;
 }
