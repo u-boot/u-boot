@@ -186,10 +186,8 @@ unsigned long disk_blk_read(struct udevice *dev, lbaint_t start,
 		return -ENOSYS;
 
 	start_in_disk = start;
-	if (device_get_uclass_id(dev) == UCLASS_PARTITION) {
-		part = dev_get_uclass_plat(dev);
-		start_in_disk += part->gpt_part_info.start;
-	}
+	part = dev_get_uclass_plat(dev);
+	start_in_disk += part->gpt_part_info.start;
 
 	if (blkcache_read(desc->uclass_id, desc->devnum, start_in_disk, blkcnt,
 			  desc->blksz, buffer))
