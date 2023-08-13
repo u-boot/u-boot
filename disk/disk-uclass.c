@@ -103,87 +103,6 @@ int part_create_block_devices(struct udevice *blk_dev)
 	return 0;
 }
 
-static ulong part_blk_read(struct udevice *dev, lbaint_t start,
-			   lbaint_t blkcnt, void *buffer)
-{
-	struct udevice *parent;
-	struct disk_part *part;
-	const struct blk_ops *ops;
-
-	parent = dev_get_parent(dev);
-	ops = blk_get_ops(parent);
-	if (!ops->read)
-		return -ENOSYS;
-
-	part = dev_get_uclass_plat(dev);
-	if (start >= part->gpt_part_info.size)
-		return 0;
-
-	if ((start + blkcnt) > part->gpt_part_info.size)
-		blkcnt = part->gpt_part_info.size - start;
-	start += part->gpt_part_info.start;
-
-	return ops->read(parent, start, blkcnt, buffer);
-}
-
-static ulong part_blk_write(struct udevice *dev, lbaint_t start,
-			    lbaint_t blkcnt, const void *buffer)
-{
-	struct udevice *parent;
-	struct disk_part *part;
-	const struct blk_ops *ops;
-
-	parent = dev_get_parent(dev);
-	ops = blk_get_ops(parent);
-	if (!ops->write)
-		return -ENOSYS;
-
-	part = dev_get_uclass_plat(dev);
-	if (start >= part->gpt_part_info.size)
-		return 0;
-
-	if ((start + blkcnt) > part->gpt_part_info.size)
-		blkcnt = part->gpt_part_info.size - start;
-	start += part->gpt_part_info.start;
-
-	return ops->write(parent, start, blkcnt, buffer);
-}
-
-static ulong part_blk_erase(struct udevice *dev, lbaint_t start,
-			    lbaint_t blkcnt)
-{
-	struct udevice *parent;
-	struct disk_part *part;
-	const struct blk_ops *ops;
-
-	parent = dev_get_parent(dev);
-	ops = blk_get_ops(parent);
-	if (!ops->erase)
-		return -ENOSYS;
-
-	part = dev_get_uclass_plat(dev);
-	if (start >= part->gpt_part_info.size)
-		return 0;
-
-	if ((start + blkcnt) > part->gpt_part_info.size)
-		blkcnt = part->gpt_part_info.size - start;
-	start += part->gpt_part_info.start;
-
-	return ops->erase(parent, start, blkcnt);
-}
-
-static const struct blk_ops blk_part_ops = {
-	.read	= part_blk_read,
-	.write	= part_blk_write,
-	.erase	= part_blk_erase,
-};
-
-U_BOOT_DRIVER(blk_partition) = {
-	.name		= "blk_partition",
-	.id		= UCLASS_PARTITION,
-	.ops		= &blk_part_ops,
-};
-
 /*
  * BLOCK IO APIs
  */
@@ -256,4 +175,16 @@ UCLASS_DRIVER(partition) = {
 	.id		= UCLASS_PARTITION,
 	.per_device_plat_auto	= sizeof(struct disk_part),
 	.name		= "partition",
+};
+
+static const struct blk_ops blk_part_ops = {
+	.read	= disk_blk_read,
+	.write	= disk_blk_write,
+	.erase	= disk_blk_erase,
+};
+
+U_BOOT_DRIVER(blk_partition) = {
+	.name		= "blk_partition",
+	.id		= UCLASS_PARTITION,
+	.ops		= &blk_part_ops,
 };
