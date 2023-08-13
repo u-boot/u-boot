@@ -766,6 +766,54 @@ int blk_unbind_all(int uclass_id)
 	return 0;
 }
 
+static int part_create_block_devices(struct udevice *blk_dev)
+{
+	int part, count;
+	struct blk_desc *desc = dev_get_uclass_plat(blk_dev);
+	struct disk_partition info;
+	struct disk_part *part_data;
+	char devname[32];
+	struct udevice *dev;
+	int ret;
+
+	if (!CONFIG_IS_ENABLED(PARTITIONS) || !blk_enabled())
+		return 0;
+
+	if (device_get_uclass_id(blk_dev) != UCLASS_BLK)
+		return 0;
+
+	/* Add devices for each partition */
+	for (count = 0, part = 1; part <= MAX_SEARCH_PARTITIONS; part++) {
+		if (part_get_info(desc, part, &info))
+			continue;
+		snprintf(devname, sizeof(devname), "%s:%d", blk_dev->name,
+			 part);
+
+		ret = device_bind_driver(blk_dev, "blk_partition",
+					 strdup(devname), &dev);
+		if (ret)
+			return ret;
+
+		part_data = dev_get_uclass_plat(dev);
+		part_data->partnum = part;
+		part_data->gpt_part_info = info;
+		count++;
+
+		ret = device_probe(dev);
+		if (ret) {
+			debug("Can't probe\n");
+			count--;
+			device_unbind(dev);
+
+			continue;
+		}
+	}
+	debug("%s: %d partitions found in %s\n", __func__, count,
+	      blk_dev->name);
+
+	return 0;
+}
+
 static int blk_post_probe(struct udevice *dev)
 {
 	if (CONFIG_IS_ENABLED(PARTITIONS) && blk_enabled()) {
