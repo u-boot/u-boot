@@ -17,6 +17,36 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 
+/**
+ * disk_blk_part_validate() - Check whether access to partition is within limits
+ *
+ * @dev: Device (partition udevice)
+ * @start: Start block for the access(from start of partition)
+ * @blkcnt: Number of blocks to access (within the partition)
+ * @return 0 on valid block range, or -ve on error.
+ */
+static int disk_blk_part_validate(struct udevice *dev, lbaint_t start, lbaint_t blkcnt)
+{
+	if (device_get_uclass_id(dev) != UCLASS_PARTITION)
+		return -ENOSYS;
+
+	return 0;
+}
+
+/**
+ * disk_blk_part_offset() - Compute offset from start of block device
+ *
+ * @dev: Device (partition udevice)
+ * @start: Start block for the access (from start of partition)
+ * @return Start block for the access (from start of block device)
+ */
+static lbaint_t disk_blk_part_offset(struct udevice *dev, lbaint_t start)
+{
+	struct disk_part *part = dev_get_uclass_plat(dev);
+
+	return start + part->gpt_part_info.start;
+}
+
 int part_create_block_devices(struct udevice *blk_dev)
 {
 	int part, count;
@@ -162,21 +192,21 @@ U_BOOT_DRIVER(blk_partition) = {
 unsigned long disk_blk_read(struct udevice *dev, lbaint_t start,
 			    lbaint_t blkcnt, void *buffer)
 {
-	struct disk_part *part = dev_get_uclass_plat(dev);
+	int ret = disk_blk_part_validate(dev, start, blkcnt);
 
-	if (device_get_uclass_id(dev) != UCLASS_PARTITION)
-		return -ENOSYS;
+	if (ret)
+		return ret;
 
-	return blk_read(dev_get_parent(dev), start + part->gpt_part_info.start,
+	return blk_read(dev_get_parent(dev), disk_blk_part_offset(dev, start),
 			blkcnt, buffer);
 }
 
 /**
  * disk_blk_write() - Write to a block device
  *
- * @dev: Device to write to
- * @start: Start block for the write
- * @blkcnt: Number of blocks to write
+ * @dev: Device to write to (partition udevice)
+ * @start: Start block for the write (from start of partition)
+ * @blkcnt: Number of blocks to write (within the partition)
  * @buffer: Data to write
  * @return number of blocks written (which may be less than @blkcnt),
  * or -ve on error. This never returns 0 unless @blkcnt is 0
@@ -184,28 +214,34 @@ unsigned long disk_blk_read(struct udevice *dev, lbaint_t start,
 unsigned long disk_blk_write(struct udevice *dev, lbaint_t start,
 			     lbaint_t blkcnt, const void *buffer)
 {
-	if (device_get_uclass_id(dev) != UCLASS_PARTITION)
-		return -ENOSYS;
+	int ret = disk_blk_part_validate(dev, start, blkcnt);
 
-	return blk_write(dev_get_parent(dev), start, blkcnt, buffer);
+	if (ret)
+		return ret;
+
+	return blk_write(dev_get_parent(dev), disk_blk_part_offset(dev, start),
+			 blkcnt, buffer);
 }
 
 /**
  * disk_blk_erase() - Erase part of a block device
  *
- * @dev: Device to erase
- * @start: Start block for the erase
- * @blkcnt: Number of blocks to erase
+ * @dev: Device to erase (partition udevice)
+ * @start: Start block for the erase (from start of partition)
+ * @blkcnt: Number of blocks to erase (within the partition)
  * @return number of blocks erased (which may be less than @blkcnt),
  * or -ve on error. This never returns 0 unless @blkcnt is 0
  */
 unsigned long disk_blk_erase(struct udevice *dev, lbaint_t start,
 			     lbaint_t blkcnt)
 {
-	if (device_get_uclass_id(dev) != UCLASS_PARTITION)
-		return -ENOSYS;
+	int ret = disk_blk_part_validate(dev, start, blkcnt);
 
-	return blk_erase(dev_get_parent(dev), start, blkcnt);
+	if (ret)
+		return ret;
+
+	return blk_erase(dev_get_parent(dev), disk_blk_part_offset(dev, start),
+			 blkcnt);
 }
 
 UCLASS_DRIVER(partition) = {
