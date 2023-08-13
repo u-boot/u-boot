@@ -207,8 +207,9 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 				  struct disk_partition *info, uint disksig)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
+	struct disk_partition wdinfo = { 0 };
 	dos_partition_t *pt;
-	int i;
+	int i, ret;
 	int dos_type;
 
 	/* set a maximum recursion level */
@@ -236,6 +237,10 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 		disksig = get_unaligned_le32(&buffer[DOS_PART_DISKSIG_OFFSET]);
 #endif
 
+	ret = part_get_info_whole_disk(dev_desc, &wdinfo);
+	if (ret)
+		return ret;
+
 	/* Print all primary/logical partitions */
 	pt = (dos_partition_t *) (buffer + DOS_PART_TBL_OFFSET);
 	for (i = 0; i < 4; i++, pt++) {
@@ -247,7 +252,10 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 		    (pt->sys_ind != 0) &&
 		    (part_num == which_part) &&
 		    (ext_part_sector == 0 || is_extended(pt->sys_ind) == 0)) {
-			info->blksz = DOS_PART_DEFAULT_SECTOR;
+			if (wdinfo.blksz > DOS_PART_DEFAULT_SECTOR)
+				info->blksz = wdinfo.blksz;
+			else
+				info->blksz = DOS_PART_DEFAULT_SECTOR;
 			info->start = (lbaint_t)(ext_part_sector +
 					get_unaligned_le32(pt->start4));
 			info->size  = (lbaint_t)get_unaligned_le32(pt->size4);
@@ -289,7 +297,10 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 	if (dos_type == DOS_PBR) {
 		info->start = 0;
 		info->size = dev_desc->lba;
-		info->blksz = DOS_PART_DEFAULT_SECTOR;
+		if (wdinfo.blksz > DOS_PART_DEFAULT_SECTOR)
+			info->blksz = wdinfo.blksz;
+		else
+			info->blksz = DOS_PART_DEFAULT_SECTOR;
 		info->bootable = 0;
 		strcpy((char *)info->type, "U-Boot");
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
