@@ -446,6 +446,26 @@ int blk_get_device(int uclass_id, int devnum, struct udevice **devp)
 	return device_probe(*devp);
 }
 
+struct blk_bounce_buffer {
+	struct udevice		*dev;
+	struct bounce_buffer	state;
+};
+
+static int blk_buffer_aligned(struct bounce_buffer *state)
+{
+#if IS_ENABLED(CONFIG_BOUNCE_BUFFER)
+	struct blk_bounce_buffer *bbstate =
+		container_of(state, struct blk_bounce_buffer, state);
+	struct udevice *dev = bbstate->dev;
+	const struct blk_ops *ops = blk_get_ops(dev);
+
+	if (ops->buffer_aligned)
+		return ops->buffer_aligned(dev, state);
+#endif	/* CONFIG_BOUNCE_BUFFER */
+
+	return 1;	/* Default, any buffer is OK */
+}
+
 long blk_read(struct udevice *dev, lbaint_t start, lbaint_t blkcnt, void *buf)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
@@ -458,7 +478,25 @@ long blk_read(struct udevice *dev, lbaint_t start, lbaint_t blkcnt, void *buf)
 	if (blkcache_read(desc->uclass_id, desc->devnum,
 			  start, blkcnt, desc->blksz, buf))
 		return blkcnt;
-	blks_read = ops->read(dev, start, blkcnt, buf);
+
+	if (IS_ENABLED(CONFIG_BOUNCE_BUFFER)) {
+		struct blk_bounce_buffer bbstate = { .dev = dev };
+		int ret;
+
+		ret = bounce_buffer_start_extalign(&bbstate.state, buf,
+						   blkcnt * desc->blksz,
+						   GEN_BB_WRITE, desc->blksz,
+						   blk_buffer_aligned);
+		if (ret)
+			return ret;
+
+		blks_read = ops->read(dev, start, blkcnt, bbstate.state.bounce_buffer);
+
+		bounce_buffer_stop(&bbstate.state);
+	} else {
+		blks_read = ops->read(dev, start, blkcnt, buf);
+	}
+
 	if (blks_read == blkcnt)
 		blkcache_fill(desc->uclass_id, desc->devnum, start, blkcnt,
 			      desc->blksz, buf);
@@ -471,13 +509,33 @@ long blk_write(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 {
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	const struct blk_ops *ops = blk_get_ops(dev);
+	long blks_written;
 
 	if (!ops->write)
 		return -ENOSYS;
 
 	blkcache_invalidate(desc->uclass_id, desc->devnum);
 
-	return ops->write(dev, start, blkcnt, buf);
+	if (IS_ENABLED(CONFIG_BOUNCE_BUFFER)) {
+		struct blk_bounce_buffer bbstate = { .dev = dev };
+		int ret;
+
+		ret = bounce_buffer_start_extalign(&bbstate.state, (void *)buf,
+						   blkcnt * desc->blksz,
+						   GEN_BB_READ, desc->blksz,
+						   blk_buffer_aligned);
+		if (ret)
+			return ret;
+
+		blks_written = ops->write(dev, start, blkcnt,
+					  bbstate.state.bounce_buffer);
+
+		bounce_buffer_stop(&bbstate.state);
+	} else {
+		blks_written = ops->write(dev, start, blkcnt, buf);
+	}
+
+	return blks_written;
 }
 
 long blk_erase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt)
