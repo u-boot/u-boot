@@ -13,6 +13,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <fdt_support.h>
 #include <timer.h>
 #include <asm/csr.h>
 
@@ -53,9 +54,26 @@ u64 notrace timer_early_get_count(void)
 static int riscv_timer_probe(struct udevice *dev)
 {
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	u32 rate;
 
-	/* clock frequency was passed from the cpu driver as driver data */
-	uc_priv->clock_rate = dev->driver_data;
+	/*  When this function was called from the CPU driver, clock
+	 *  frequency is passed as driver data.
+	 */
+	rate = dev->driver_data;
+
+	/* When called from an FDT match, the rate needs to be looked up. */
+	if (!rate && gd->fdt_blob) {
+		rate = fdt_getprop_u32_default(gd->fdt_blob,
+					       "/cpus", "timebase-frequency", 0);
+	}
+
+	uc_priv->clock_rate = rate;
+
+	/* With rate==0, timer uclass post_probe might later fail with -EINVAL.
+	 * Give a hint at the cause for debugging.
+	 */
+	if (!rate)
+		log_err("riscv_timer_probe with invalid clock rate 0!\n");
 
 	return 0;
 }
@@ -64,9 +82,15 @@ static const struct timer_ops riscv_timer_ops = {
 	.get_count = riscv_timer_get_count,
 };
 
+static const struct udevice_id riscv_timer_ids[] = {
+	{ .compatible = "riscv,timer", },
+	{ }
+};
+
 U_BOOT_DRIVER(riscv_timer) = {
 	.name = "riscv_timer",
 	.id = UCLASS_TIMER,
+	.of_match = of_match_ptr(riscv_timer_ids),
 	.probe = riscv_timer_probe,
 	.ops = &riscv_timer_ops,
 	.flags = DM_FLAG_PRE_RELOC,
