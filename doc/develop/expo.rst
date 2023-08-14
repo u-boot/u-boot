@@ -358,6 +358,9 @@ The `expo_arrange()` function can be called to arrange the expo objects in a
 suitable manner. For each scene it puts the title at the top, the prompt at the
 bottom and the objects in order from top to bottom.
 
+
+.. _expo_example:
+
 Expo format example
 ~~~~~~~~~~~~~~~~~~~
 

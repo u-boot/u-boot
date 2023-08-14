@@ -22,6 +22,8 @@ It makes use of the expo subsystem.
 The description is in the form of a devicetree file, as documented at
 :ref:`expo_format`.
 
+See :doc:`../../develop/cedit` for information about the configuration editor.
+
 Example
 -------
 
