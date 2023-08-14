@@ -39,6 +39,7 @@ enum {
  * @mask: Mask bits for the CMOS RAM. If a bit is set the byte containing it
  * will be written
  * @value: Value bits for CMOS RAM. This is the actual value written
+ * @dev: RTC device to write to
  */
 struct cedit_iter_priv {
 	struct abuf *buf;
@@ -46,6 +47,7 @@ struct cedit_iter_priv {
 	bool verbose;
 	u8 *mask;
 	u8 *value;
+	struct udevice *dev;
 };
 
 int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
@@ -611,6 +613,103 @@ int cedit_write_settings_cmos(struct expo *exp, struct udevice *dev,
 	}
 	if (verbose) {
 		printf("Write %d bytes from offset %x to %x\n", count, first,
+		       last);
+	}
+
+done:
+	free(priv.mask);
+	free(priv.value);
+	return ret;
+}
+
+static int h_read_settings_cmos(struct scene_obj *obj, void *vpriv)
+{
+	struct cedit_iter_priv *priv = vpriv;
+	const struct scene_menitem *mi;
+	struct scene_obj_menu *menu;
+	int val, ret;
+	uint i;
+
+	if (obj->type != SCENEOBJT_MENU)
+		return 0;
+
+	menu = (struct scene_obj_menu *)obj;
+
+	/* figure out where to place this item */
+	if (!obj->bit_length)
+		return log_msg_ret("len", -EINVAL);
+	if (obj->start_bit + obj->bit_length > CMOS_MAX_BITS)
+		return log_msg_ret("bit", -E2BIG);
+
+	val = 0;
+	for (i = 0; i < obj->bit_length; i++) {
+		uint bitnum = obj->start_bit + i;
+		uint offset = CMOS_BYTE(bitnum);
+
+		/* read the byte if not already read */
+		if (!priv->mask[offset]) {
+			ret = rtc_read8(priv->dev, offset);
+			if (ret < 0)
+				return  log_msg_ret("rea", ret);
+			priv->value[offset] = ret;
+
+			/* mark it as read */
+			priv->mask[offset] = 0xff;
+		}
+
+		if (priv->value[offset] & BIT(CMOS_BIT(bitnum)))
+			val |= BIT(i);
+		log_debug("bit %x %x\n", bitnum, val);
+	}
+
+	/* update the current item */
+	mi = scene_menuitem_find_seq(menu, val);
+	if (!mi)
+		return log_msg_ret("seq", -ENOENT);
+
+	menu->cur_item_id = mi->id;
+	log_debug("Update menu %d cur_item_id %d\n", menu->obj.id, mi->id);
+
+	return 0;
+}
+
+int cedit_read_settings_cmos(struct expo *exp, struct udevice *dev,
+			     bool verbose)
+{
+	struct cedit_iter_priv priv;
+	int ret, i, count, first, last;
+
+	/* read in the items */
+	priv.mask = calloc(1, CMOS_MAX_BYTES);
+	if (!priv.mask)
+		return log_msg_ret("mas", -ENOMEM);
+	priv.value = calloc(1, CMOS_MAX_BYTES);
+	if (!priv.value) {
+		free(priv.mask);
+		return log_msg_ret("val", -ENOMEM);
+	}
+	priv.dev = dev;
+
+	ret = expo_iter_scene_objs(exp, h_read_settings_cmos, &priv);
+	if (ret) {
+		log_debug("Failed to read CMOS (err=%d)\n", ret);
+		ret = log_msg_ret("set", ret);
+		goto done;
+	}
+
+	/* read the data to the RTC */
+	first = CMOS_MAX_BYTES;
+	last = -1;
+	for (i = 0, count = 0; i < CMOS_MAX_BYTES; i++) {
+		if (priv.mask[i]) {
+			log_debug("Read byte %x: %x\n", i, priv.value[i]);
+			count++;
+			first = min(first, i);
+			last = max(last, i);
+		}
+	}
+	if (verbose) {
+		printf("Read %d bytes from offset %x to %x\n", count, first,
 		       last);
 	}
 

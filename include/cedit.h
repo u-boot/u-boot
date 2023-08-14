@@ -110,4 +110,16 @@ int cedit_read_settings_env(struct expo *exp, bool verbose);
 int cedit_write_settings_cmos(struct expo *exp, struct udevice *dev,
 			      bool verbose);
 
+/**
+ * cedit_read_settings_cmos() - Read settings from CMOS RAM
+ *
+ * Read settings from the defined places in CMO RAM
+ *
+ * @exp: Expo to read settings into
+ * @dev: RTC device to read settings from
+ * @verbose: true to print a summary at the end
+ */
+int cedit_read_settings_cmos(struct expo *exp, struct udevice *dev,
+			     bool verbose);
+
 #endif /* __CEDIT_H */

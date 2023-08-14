@@ -182,6 +182,17 @@ static int cedit_cmos(struct unit_test_state *uts)
 	ut_assert_nextlinen("Write 2 bytes from offset 80 to 84");
 	ut_assert_console_end();
 
+	/* reset the expo */
+	menu->cur_item_id = ID_CPU_SPEED_1;
+	menu2->cur_item_id = ID_AC_OFF;
+
+	ut_assertok(run_command("cedit read_cmos -v", 0));
+	ut_assert_nextlinen("Read 2 bytes from offset 80 to 84");
+	ut_assert_console_end();
+
+	ut_asserteq(ID_CPU_SPEED_2, menu->cur_item_id);
+	ut_asserteq(ID_AC_MEMORY, menu2->cur_item_id);
+
 	return 0;
 }
 BOOTSTD_TEST(cedit_cmos, 0);

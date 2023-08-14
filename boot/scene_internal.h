@@ -234,4 +234,16 @@ int expo_iter_scene_objs(struct expo *exp, expo_scene_obj_iterator iter,
 struct scene_menitem *scene_menuitem_find(const struct scene_obj_menu *menu,
 					  int id);
 
+/**
+ * scene_menuitem_find_seq() - Find the menu item at a sequential position
+ *
+ * This numbers the items from 0 and returns the seq'th one
+ *
+ * @menu: Menu to check
+ * @seq: Sequence number to look for
+ * Return: menu item if found, else NULL
+ */
+struct scene_menitem *scene_menuitem_find_seq(const struct scene_obj_menu *menu,
+					      uint seq);
+
 #endif /* __SCENE_INTERNAL_H */

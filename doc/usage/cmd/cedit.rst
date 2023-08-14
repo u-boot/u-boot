@@ -135,7 +135,14 @@ This shows writing to CMOS RAM. Notice that the bytes at 80 and 84 change::
 
     => rtc read 80 8
     00000080: 00 00 00 00 00 2f 2a 08                          ...../*.
-    =>  cedit write_cmos
+    =>  cedit write_cmos -v
     Write 2 bytes from offset 80 to 84
     => rtc read 80 8
     00000080: 01 00 00 00 08 2f 2a 08                          ...../*.
+    => cedit read_cmos -v
+    Read 2 bytes from offset 80 to 84
+
+Here is an example with the device specified::
+
+    => cedit write_cmos rtc@43
+    =>
