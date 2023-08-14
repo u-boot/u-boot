@@ -6,6 +6,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY LOGC_EXPO
+
 #include <common.h>
 #include <cedit.h>
 #include <cli.h>
@@ -47,17 +49,14 @@ int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
 	return 0;
 }
 
-int cedit_run(struct expo *exp)
+int cedit_prepare(struct expo *exp, struct video_priv **vid_privp,
+		  struct scene **scnp)
 {
-	struct cli_ch_state s_cch, *cch = &s_cch;
 	struct video_priv *vid_priv;
-	uint scene_id;
 	struct udevice *dev;
 	struct scene *scn;
-	bool done;
+	uint scene_id;
 	int ret;
-
-	cli_ch_init(cch);
 
 	/* For now we only support a video console */
 	ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
@@ -92,6 +91,27 @@ int cedit_run(struct expo *exp)
 	ret = expo_calc_dims(exp);
 	if (ret)
 		return log_msg_ret("dim", ret);
+
+	*vid_privp = vid_priv;
+	*scnp = scn;
+
+	return scene_id;
+}
+
+int cedit_run(struct expo *exp)
+{
+	struct cli_ch_state s_cch, *cch = &s_cch;
+	struct video_priv *vid_priv;
+	uint scene_id;
+	struct scene *scn;
+	bool done;
+	int ret;
+
+	cli_ch_init(cch);
+	ret = cedit_prepare(exp, &vid_priv, &scn);
+	if (ret < 0)
+		return log_msg_ret("prep", ret);
+	scene_id = ret;
 
 	done = false;
 	do {
