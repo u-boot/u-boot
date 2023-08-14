@@ -89,4 +89,12 @@ int cedit_read_settings(struct expo *exp, oftree tree);
  */
 int cedit_write_settings_env(struct expo *exp, bool verbose);
 
+/*
+ * cedit_read_settings_env() - Read settings from the environment
+ *
+ * @exp: Expo to read settings into
+ * @verbose: true to print each var before it is read
+ */
+int cedit_read_settings_env(struct expo *exp, bool verbose);
+
 #endif /* __CEDIT_H */

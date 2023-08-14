@@ -439,3 +439,48 @@ int cedit_write_settings_env(struct expo *exp, bool verbose)
 
 	return 0;
 }
+
+static int h_read_settings_env(struct scene_obj *obj, void *vpriv)
+{
+	struct cedit_iter_priv *priv = vpriv;
+	struct scene_obj_menu *menu;
+	char var[60];
+	int val, ret;
+
+	if (obj->type != SCENEOBJT_MENU)
+		return 0;
+
+	menu = (struct scene_obj_menu *)obj;
+	val = menu->cur_item_id;
+	snprintf(var, sizeof(var), "c.%s", obj->name);
+
+	val = env_get_ulong(var, 10, 0);
+	if (priv->verbose)
+		printf("%s=%d\n", var, val);
+	if (!val)
+		return log_msg_ret("get", -ENOENT);
+
+	/*
+	 * note that no validation is done here, to make sure the ID is valid
+	 * and actually points to a menu item
+	 */
+	menu->cur_item_id = val;
+
+	return 0;
+}
+
+int cedit_read_settings_env(struct expo *exp, bool verbose)
+{
+	struct cedit_iter_priv priv;
+	int ret;
+
+	/* write out the items */
+	priv.verbose = verbose;
+	ret = expo_iter_scene_objs(exp, h_read_settings_env, &priv);
+	if (ret) {
+		log_debug("Failed to read settings from env (err=%d)\n", ret);
+		return log_msg_ret("set", ret);
+	}
+
+	return 0;
+}

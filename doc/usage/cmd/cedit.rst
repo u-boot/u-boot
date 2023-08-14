@@ -13,6 +13,7 @@ Synopis
     cedit write_fdt <dev[:part]> <filename>
     cedit read_fdt <dev[:part]> <filename>
     cedit write_env [-v]
+    cedit read_env [-v]
 
 Description
 -----------
@@ -53,6 +54,16 @@ cedit read_fdt
 Reads the user settings from a devicetree file and updates the cedit with those
 settings.
 
+cedit read_env
+~~~~~~~~~~~~~~
+
+Reads the settings from the environment variables. For each menu item `<name>`,
+cedit looks for a variable called `c.<name>` with the ID of the selected menu
+item.
+
+The `-v` flag enables verbose mode, where each variable is printed after it is
+read.
+
 cedit write_env
 ~~~~~~~~~~~~~~~
 
@@ -91,6 +102,10 @@ That results in::
 This shows settings being stored in the environment::
 
     => cedit write_env -v
+    c.cpu-speed=7
+    c.cpu-speed-str=2.5 GHz
+    c.power-loss=12
+    c.power-loss-str=Memory
     => print
     ...
     c.cpu-speed=6
@@ -98,3 +113,7 @@ This shows settings being stored in the environment::
     c.power-loss=10
     c.power-loss-str=Always Off
     ...
+
+    => cedit read_env -v
+    c.cpu-speed=7
+    c.power-loss=12

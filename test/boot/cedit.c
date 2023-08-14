@@ -114,7 +114,7 @@ static int cedit_fdt(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(cedit_fdt, 0);
 
-/* Check the cedit write_env command */
+/* Check the cedit write_env and read_env commands */
 static int cedit_env(struct unit_test_state *uts)
 {
 	struct video_priv *vid_priv;
@@ -141,6 +141,16 @@ static int cedit_env(struct unit_test_state *uts)
 
 	ut_asserteq(7, env_get_ulong("c.cpu-speed", 10, 0));
 	ut_asserteq_str("2.5 GHz", env_get("c.cpu-speed-str"));
+
+	/* reset the expo */
+	menu->cur_item_id = ID_CPU_SPEED_1;
+
+	ut_assertok(run_command("cedit read_env -v", 0));
+	ut_assert_nextlinen("c.cpu-speed=7");
+	ut_assert_nextlinen("c.power-loss=10");
+	ut_assert_console_end();
+
+	ut_asserteq(ID_CPU_SPEED_2, menu->cur_item_id);
 
 	return 0;
 }
