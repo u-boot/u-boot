@@ -12,6 +12,7 @@ Synopis
     cedit run
     cedit write_fdt <dev[:part]> <filename>
     cedit read_fdt <dev[:part]> <filename>
+    cedit write_env [-v]
 
 Description
 -----------
@@ -52,6 +53,19 @@ cedit read_fdt
 Reads the user settings from a devicetree file and updates the cedit with those
 settings.
 
+cedit write_env
+~~~~~~~~~~~~~~~
+
+Writes the settings to environment variables. For each menu item the selected
+ID and its text string are written, similar to:
+
+   setenv c.<name> <selected_id>
+   setenv c.<name>-str <selected_id's text string>
+
+The `-v` flag enables verbose mode, where each variable is printed before it is
+set.
+
+
 Example
 -------
 
@@ -73,3 +87,14 @@ That results in::
     }
 
     => cedit read_fdt hostfs - settings.dtb
+
+This shows settings being stored in the environment::
+
+    => cedit write_env -v
+    => print
+    ...
+    c.cpu-speed=6
+    c.cpu-speed-str=2 GHz
+    c.power-loss=10
+    c.power-loss-str=Always Off
+    ...

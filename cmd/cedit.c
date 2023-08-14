@@ -136,6 +136,26 @@ static int do_cedit_read_fdt(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_cedit_write_env(struct cmd_tbl *cmdtp, int flag, int argc,
+			      char *const argv[])
+{
+	bool verbose;
+	int ret;
+
+	if (check_cur_expo())
+		return CMD_RET_FAILURE;
+
+	verbose = argc > 1 && !strcmp(argv[1], "-v");
+
+	ret = cedit_write_settings_env(cur_exp, verbose);
+	if (ret) {
+		printf("Failed to write settings to environment: %dE\n", ret);
+		return CMD_RET_FAILURE;
+	}
+
+	return 0;
+}
+
 static int do_cedit_run(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
@@ -167,6 +187,7 @@ static char cedit_help_text[] =
 	"load <interface> <dev[:part]> <filename>   - load config editor\n"
 	"cedit read_fdt <i/f> <dev[:part]> <filename>     - read settings\n"
 	"cedit write_fdt <i/f> <dev[:part]> <filename>    - write settings\n"
+	"cedit write_env [-v]                             - write settings to env vars\n"
 	"cedit run                                        - run config editor";
 #endif /* CONFIG_SYS_LONGHELP */
 
@@ -174,5 +195,6 @@ U_BOOT_CMD_WITH_SUBCMDS(cedit, "Configuration editor", cedit_help_text,
 	U_BOOT_SUBCMD_MKENT(load, 5, 1, do_cedit_load),
 	U_BOOT_SUBCMD_MKENT(read_fdt, 5, 1, do_cedit_read_fdt),
 	U_BOOT_SUBCMD_MKENT(write_fdt, 5, 1, do_cedit_write_fdt),
+	U_BOOT_SUBCMD_MKENT(write_env, 2, 1, do_cedit_write_env),
 	U_BOOT_SUBCMD_MKENT(run, 1, 1, do_cedit_run),
 );

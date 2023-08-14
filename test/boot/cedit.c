@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cedit.h>
+#include <env.h>
 #include <expo.h>
 #include <mapmem.h>
 #include <dm/ofnode.h>
@@ -112,3 +113,35 @@ static int cedit_fdt(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(cedit_fdt, 0);
+
+/* Check the cedit write_env command */
+static int cedit_env(struct unit_test_state *uts)
+{
+	struct video_priv *vid_priv;
+	extern struct expo *cur_exp;
+	struct scene_obj_menu *menu;
+	struct scene *scn;
+
+	console_record_reset_enable();
+	ut_assertok(run_command("cedit load hostfs - cedit.dtb", 0));
+
+	ut_asserteq(ID_SCENE1, cedit_prepare(cur_exp, &vid_priv, &scn));
+
+	/* get a menu to fiddle with */
+	menu = scene_obj_find(scn, ID_CPU_SPEED, SCENEOBJT_MENU);
+	ut_assertnonnull(menu);
+	menu->cur_item_id = ID_CPU_SPEED_2;
+
+	ut_assertok(run_command("cedit write_env -v", 0));
+	ut_assert_nextlinen("c.cpu-speed=7");
+	ut_assert_nextlinen("c.cpu-speed-str=2.5 GHz");
+	ut_assert_nextlinen("c.power-loss=10");
+	ut_assert_nextlinen("c.power-loss-str=Always Off");
+	ut_assert_console_end();
+
+	ut_asserteq(7, env_get_ulong("c.cpu-speed", 10, 0));
+	ut_asserteq_str("2.5 GHz", env_get("c.cpu-speed-str"));
+
+	return 0;
+}
+BOOTSTD_TEST(cedit_env, 0);

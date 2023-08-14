@@ -13,6 +13,7 @@
 #include <cedit.h>
 #include <cli.h>
 #include <dm.h>
+#include <env.h>
 #include <expo.h>
 #include <menu.h>
 #include <video.h>
@@ -24,10 +25,12 @@
  *
  * @buf: Buffer to use when writing settings to the devicetree
  * @node: Node to read from when reading settings from devicetree
+ * @verbose: true to show writing to environment variables
  */
 struct cedit_iter_priv {
 	struct abuf *buf;
 	ofnode node;
+	bool verbose;
 };
 
 int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
@@ -209,6 +212,30 @@ static int check_space(int ret, struct abuf *buf)
 	return 0;
 }
 
+static int get_cur_menuitem_text(const struct scene_obj_menu *menu,
+				 const char **strp)
+{
+	struct scene *scn = menu->obj.scene;
+	const struct scene_menitem *mi;
+	const struct scene_obj_txt *txt;
+	const char *str;
+
+	mi = scene_menuitem_find(menu, menu->cur_item_id);
+	if (!mi)
+		return log_msg_ret("mi", -ENOENT);
+
+	txt = scene_obj_find(scn, mi->label_id, SCENEOBJT_TEXT);
+	if (!txt)
+		return log_msg_ret("txt", -ENOENT);
+
+	str = expo_get_str(scn->expo, txt->str_id);
+	if (!str)
+		return log_msg_ret("str", -ENOENT);
+	*strp = str;
+
+	return 0;
+}
+
 static int h_write_settings(struct scene_obj *obj, void *vpriv)
 {
 	struct cedit_iter_priv *priv = vpriv;
@@ -221,9 +248,6 @@ static int h_write_settings(struct scene_obj *obj, void *vpriv)
 		break;
 	case SCENEOBJT_MENU: {
 		const struct scene_obj_menu *menu;
-		const struct scene_obj_txt *txt;
-		struct scene *scn = obj->scene;
-		const struct scene_menitem *mi;
 		const char *str;
 		char name[80];
 		int ret, i;
@@ -243,17 +267,9 @@ static int h_write_settings(struct scene_obj *obj, void *vpriv)
 		if (ret)
 			return log_msg_ret("wrt", -EFAULT);
 
-		mi = scene_menuitem_find(menu, menu->cur_item_id);
-		if (!mi)
-			return log_msg_ret("mi", -ENOENT);
-
-		txt = scene_obj_find(scn, mi->label_id, SCENEOBJT_TEXT);
-		if (!txt)
-			return log_msg_ret("txt", -ENOENT);
-
-		str = expo_get_str(scn->expo, txt->str_id);
-		if (!str)
-			return log_msg_ret("str", -ENOENT);
+		ret = get_cur_menuitem_text(menu, &str);
+		if (ret)
+			return log_msg_ret("mis", ret);
 
 		snprintf(name, sizeof(name), "%s-str", obj->name);
 		ret = -EAGAIN;
@@ -365,6 +381,59 @@ int cedit_read_settings(struct expo *exp, oftree tree)
 	ret = expo_iter_scene_objs(exp, h_read_settings, &priv);
 	if (ret) {
 		log_debug("Failed to read settings (err=%d)\n", ret);
+		return log_msg_ret("set", ret);
+	}
+
+	return 0;
+}
+
+static int h_write_settings_env(struct scene_obj *obj, void *vpriv)
+{
+	const struct scene_obj_menu *menu;
+	struct cedit_iter_priv *priv = vpriv;
+	char name[80], var[60];
+	const char *str;
+	int val, ret;
+
+	if (obj->type != SCENEOBJT_MENU)
+		return 0;
+
+	menu = (struct scene_obj_menu *)obj;
+	val = menu->cur_item_id;
+	snprintf(var, sizeof(var), "c.%s", obj->name);
+
+	if (priv->verbose)
+		printf("%s=%d\n", var, val);
+
+	ret = env_set_ulong(var, val);
+	if (ret)
+		return log_msg_ret("set", ret);
+
+	ret = get_cur_menuitem_text(menu, &str);
+	if (ret)
+		return log_msg_ret("mis", ret);
+
+	snprintf(name, sizeof(name), "c.%s-str", obj->name);
+	if (priv->verbose)
+		printf("%s=%s\n", name, str);
+
+	ret = env_set(name, str);
+	if (ret)
+		return log_msg_ret("st2", ret);
+
+	return 0;
+}
+
+int cedit_write_settings_env(struct expo *exp, bool verbose)
+{
+	struct cedit_iter_priv priv;
+	int ret;
+
+	/* write out the items */
+	priv.verbose = verbose;
+	ret = expo_iter_scene_objs(exp, h_write_settings_env, &priv);
+	if (ret) {
+		log_debug("Failed to write settings to env (err=%d)\n", ret);
 		return log_msg_ret("set", ret);
 	}
 

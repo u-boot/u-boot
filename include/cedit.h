@@ -80,4 +80,13 @@ int cedit_write_settings(struct expo *exp, struct abuf *buf);
  */
 int cedit_read_settings(struct expo *exp, oftree tree);
 
+/**
+ * cedit_write_settings_env() - Write settings to envrionment variables
+ *
+ * @exp: Expo to write settings from
+ * @verbose: true to print each var as it is set
+ * Return: 0 if OK, -ve on error
+ */
+int cedit_write_settings_env(struct expo *exp, bool verbose);
+
 #endif /* __CEDIT_H */
