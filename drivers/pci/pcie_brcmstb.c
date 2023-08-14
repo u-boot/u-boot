@@ -223,6 +223,10 @@ static int brcm_pcie_config_address(const struct udevice *dev, pci_dev_t bdf,
 		return 0;
 	}
 
+	/* An access to our HW w/o link-up will cause a CPU Abort */
+	if (!brcm_pcie_link_up(pcie))
+		return -EINVAL;
+
 	/* For devices, write to the config space index register */
 	idx = PCIE_ECAM_OFFSET(pci_bus, pci_dev, pci_func, 0);
 
@@ -504,6 +508,12 @@ static int brcm_pcie_probe(struct udevice *dev)
 	/* Unassert the fundamental reset */
 	clrbits_le32(pcie->base + PCIE_RGR1_SW_INIT_1,
 		     RGR1_SW_INIT_1_PERST_MASK);
+
+	/*
+	 * Wait for 100ms after PERST# deassertion; see PCIe CEM specification
+	 * sections 2.2, PCIe r5.0, 6.6.1.
+	 */
+	mdelay(100);
 
 	/* Give the RC/EP time to wake up, before trying to configure RC.
 	 * Intermittently check status for link-up, up to a total of 100ms.
