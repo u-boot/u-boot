@@ -485,7 +485,6 @@ Some ideas for future work:
 - Support unicode
 - Support curses for proper serial-terminal menus
 - Add support for large menus which need to scroll
-- Add support for reading and writing configuration settings with cedit
 - Update expo.py tool to check for overlapping names and CMOS locations
 
 .. Simon Glass <sjg@chromium.org>

@@ -152,3 +152,18 @@ Themes
 
 The configuration editor uses simple expo themes. The theme is read from
 `/bootstd/cedit-theme` in the devicetree.
+
+
+Reading and writing settings
+----------------------------
+
+Cedit provides several options for persistent settings:
+
+- Writing an FDT file to a filesystem
+- Writing to U-Boot's environment variables, which are then typically stored in
+  a persistent manner
+- Writing to CMOS RAM registers (common on x86 machines)
+
+For now, reading and writing settings is not automatic. See the
+:doc:`../usage/cmd/cedit` for how to do this on the command line or in a
+script.
