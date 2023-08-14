@@ -7,6 +7,8 @@
 #ifndef __CEDIT_H
 #define __CEDIT_H
 
+#include <dm/ofnode_decl.h>
+
 struct abuf;
 struct expo;
 struct scene;
@@ -66,5 +68,16 @@ int cedit_prepare(struct expo *exp, struct video_priv **vid_privp,
  * Return: 0 if OK, -ve on error
  */
 int cedit_write_settings(struct expo *exp, struct abuf *buf);
+
+/**
+ * cedit_read_settings() - Read settings in FDT format
+ *
+ * Read an FDT with the settings
+ *
+ * @exp: Expo to read settings into
+ * @tree: Tree to read from
+ * Return: 0 if OK, -ve on error
+ */
+int cedit_read_settings(struct expo *exp, oftree tree);
 
 #endif /* __CEDIT_H */

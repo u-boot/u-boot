@@ -11,6 +11,7 @@ Synopis
     cedit load <interface> <dev[:part]> <filename>
     cedit run
     cedit write_fdt <dev[:part]> <filename>
+    cedit read_fdt <dev[:part]> <filename>
 
 Description
 -----------
@@ -45,6 +46,11 @@ cedit write_fdt
 Writes the current user settings to a devicetree file. For each menu item the
 selected ID and its text string are written.
 
+cedit read_fdt
+~~~~~~~~~~~~~~
+
+Reads the user settings from a devicetree file and updates the cedit with those
+settings.
 
 Example
 -------
@@ -65,3 +71,5 @@ That results in::
             power-loss-str = "Always Off";
         };
     }
+
+    => cedit read_fdt hostfs - settings.dtb

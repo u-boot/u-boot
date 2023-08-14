@@ -23,9 +23,11 @@
  * struct cedit_iter_priv - private data for cedit operations
  *
  * @buf: Buffer to use when writing settings to the devicetree
+ * @node: Node to read from when reading settings from devicetree
  */
 struct cedit_iter_priv {
 	struct abuf *buf;
+	ofnode node;
 };
 
 int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
@@ -314,6 +316,56 @@ int cedit_write_settings(struct expo *exp, struct abuf *buf)
 	if (ret) {
 		log_debug("Failed to finish FDT (err=%d)\n", ret);
 		return log_msg_ret("fin", -EINVAL);
+	}
+
+	return 0;
+}
+
+static int h_read_settings(struct scene_obj *obj, void *vpriv)
+{
+	struct cedit_iter_priv *priv = vpriv;
+	ofnode node = priv->node;
+
+	switch (obj->type) {
+	case SCENEOBJT_NONE:
+	case SCENEOBJT_IMAGE:
+	case SCENEOBJT_TEXT:
+		break;
+	case SCENEOBJT_MENU: {
+		struct scene_obj_menu *menu;
+		uint val;
+
+		if (ofnode_read_u32(node, obj->name, &val))
+			return log_msg_ret("rd", -ENOENT);
+		menu = (struct scene_obj_menu *)obj;
+		menu->cur_item_id = val;
+
+		break;
+	}
+	}
+
+	return 0;
+}
+
+int cedit_read_settings(struct expo *exp, oftree tree)
+{
+	struct cedit_iter_priv priv;
+	ofnode root, node;
+	int ret;
+
+	root = oftree_root(tree);
+	if (!ofnode_valid(root))
+		return log_msg_ret("roo", -ENOENT);
+	node = ofnode_find_subnode(root, CEDIT_NODE_NAME);
+	if (!ofnode_valid(node))
+		return log_msg_ret("pat", -ENOENT);
+
+	/* read in the items */
+	priv.node = node;
+	ret = expo_iter_scene_objs(exp, h_read_settings, &priv);
+	if (ret) {
+		log_debug("Failed to read settings (err=%d)\n", ret);
+		return log_msg_ret("set", ret);
 	}
 
 	return 0;

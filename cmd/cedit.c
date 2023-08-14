@@ -99,6 +99,43 @@ static int do_cedit_write_fdt(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_cedit_read_fdt(struct cmd_tbl *cmdtp, int flag, int argc,
+			     char *const argv[])
+{
+	const char *fname;
+	void *buf;
+	oftree tree;
+	ulong size;
+	int ret;
+
+	if (argc < 4)
+		return CMD_RET_USAGE;
+	fname = argv[3];
+
+	ret = fs_load_alloc(argv[1], argv[2], argv[3], SZ_1M, 0, &buf, &size);
+	if (ret) {
+		printf("File not found\n");
+		return CMD_RET_FAILURE;
+	}
+
+	tree = oftree_from_fdt(buf);
+	if (!oftree_valid(tree)) {
+		free(buf);
+		printf("Cannot create oftree\n");
+		return CMD_RET_FAILURE;
+	}
+
+	ret = cedit_read_settings(cur_exp, tree);
+	oftree_dispose(tree);
+	free(buf);
+	if (ret) {
+		printf("Failed to read settings: %dE\n", ret);
+		return CMD_RET_FAILURE;
+	}
+
+	return 0;
+}
+
 static int do_cedit_run(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
@@ -128,12 +165,14 @@ static int do_cedit_run(struct cmd_tbl *cmdtp, int flag, int argc,
 #ifdef CONFIG_SYS_LONGHELP
 static char cedit_help_text[] =
 	"load <interface> <dev[:part]> <filename>   - load config editor\n"
+	"cedit read_fdt <i/f> <dev[:part]> <filename>     - read settings\n"
 	"cedit write_fdt <i/f> <dev[:part]> <filename>    - write settings\n"
 	"cedit run                                        - run config editor";
 #endif /* CONFIG_SYS_LONGHELP */
 
 U_BOOT_CMD_WITH_SUBCMDS(cedit, "Configuration editor", cedit_help_text,
 	U_BOOT_SUBCMD_MKENT(load, 5, 1, do_cedit_load),
+	U_BOOT_SUBCMD_MKENT(read_fdt, 5, 1, do_cedit_read_fdt),
 	U_BOOT_SUBCMD_MKENT(write_fdt, 5, 1, do_cedit_write_fdt),
 	U_BOOT_SUBCMD_MKENT(run, 1, 1, do_cedit_run),
 );

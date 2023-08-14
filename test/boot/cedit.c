@@ -54,11 +54,12 @@ static int cedit_base(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(cedit_base, 0);
 
-/* Check the cedit write_fdt commands */
+/* Check the cedit write_fdt and read_fdt commands */
 static int cedit_fdt(struct unit_test_state *uts)
 {
 	struct video_priv *vid_priv;
 	extern struct expo *cur_exp;
+	struct scene_obj_menu *menu;
 	ulong addr = 0x1000;
 	struct ofprop prop;
 	struct scene *scn;
@@ -72,6 +73,11 @@ static int cedit_fdt(struct unit_test_state *uts)
 
 	ut_asserteq(ID_SCENE1, cedit_prepare(cur_exp, &vid_priv, &scn));
 
+	/* get a menu to fiddle with */
+	menu = scene_obj_find(scn, ID_CPU_SPEED, SCENEOBJT_MENU);
+	ut_assertnonnull(menu);
+	menu->cur_item_id = ID_CPU_SPEED_2;
+
 	ut_assertok(run_command("cedit write_fdt hostfs - settings.dtb", 0));
 	ut_assertok(run_commandf("load hostfs - %lx settings.dtb", addr));
 	ut_assert_nextlinen("1024 bytes read");
@@ -80,9 +86,9 @@ static int cedit_fdt(struct unit_test_state *uts)
 	tree = oftree_from_fdt(fdt);
 	node = ofnode_find_subnode(oftree_root(tree), CEDIT_NODE_NAME);
 
-	ut_asserteq(ID_CPU_SPEED_1,
+	ut_asserteq(ID_CPU_SPEED_2,
 		    ofnode_read_u32_default(node, "cpu-speed", 0));
-	ut_asserteq_str("2 GHz", ofnode_read_string(node, "cpu-speed-str"));
+	ut_asserteq_str("2.5 GHz", ofnode_read_string(node, "cpu-speed-str"));
 	ut_assert(ofnode_valid(node));
 
 	/* There should only be 4 properties */
@@ -91,6 +97,16 @@ static int cedit_fdt(struct unit_test_state *uts)
 		;
 	ut_asserteq(4, i);
 
+	ut_assert_console_end();
+
+	/* reset the expo */
+	menu->cur_item_id = ID_CPU_SPEED_1;
+
+	/* load in the settings and make sure they update */
+	ut_assertok(run_command("cedit read_fdt hostfs - settings.dtb", 0));
+	ut_asserteq(ID_CPU_SPEED_2, menu->cur_item_id);
+
+	ut_assertnonnull(menu);
 	ut_assert_console_end();
 
 	return 0;
