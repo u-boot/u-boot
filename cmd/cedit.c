@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <cedit.h>
 #include <command.h>
 #include <expo.h>
 #include <fs.h>
