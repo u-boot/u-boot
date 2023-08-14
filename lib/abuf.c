@@ -82,6 +82,11 @@ bool abuf_realloc(struct abuf *abuf, size_t new_size)
 	}
 }
 
+bool abuf_realloc_inc(struct abuf *abuf, size_t inc)
+{
+	return abuf_realloc(abuf, abuf->size + inc);
+}
+
 void *abuf_uninit_move(struct abuf *abuf, size_t *sizep)
 {
 	void *ptr;

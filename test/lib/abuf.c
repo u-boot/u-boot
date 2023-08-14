@@ -155,6 +155,31 @@ static int lib_test_abuf_realloc_size(struct unit_test_state *uts)
 }
 LIB_TEST(lib_test_abuf_realloc_size, 0);
 
+/* Test abuf_realloc_inc() */
+static int lib_test_abuf_realloc_inc(struct unit_test_state *uts)
+{
+	struct abuf buf;
+	ulong start;
+
+	start = ut_check_free();
+
+	abuf_init(&buf);
+	ut_asserteq(0, buf.size);
+	ut_asserteq(false, buf.alloced);
+
+	abuf_realloc_inc(&buf, 20);
+	ut_asserteq(20, buf.size);
+	ut_asserteq(true, buf.alloced);
+
+	abuf_uninit(&buf);
+
+	/* Check for memory leaks */
+	ut_assertok(ut_check_delta(start));
+
+	return 0;
+}
+LIB_TEST(lib_test_abuf_realloc_inc, 0);
+
 /* Test handling of buffers that are too large */
 static int lib_test_abuf_large(struct unit_test_state *uts)
 {
