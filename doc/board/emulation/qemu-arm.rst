@@ -67,6 +67,10 @@ Additional persistent U-Boot environment support can be added as follows:
 Additional peripherals that have been tested to work in both U-Boot and Linux
 can be enabled with the following command line parameters:
 
+- To add a video console, remove "-nographic" and add e.g.::
+
+    -serial stdio -device VGA
+
 - To add a Serial ATA disk via an Intel ICH9 AHCI controller, pass e.g.::
 
     -drive if=none,file=disk.img,format=raw,id=mydisk \
