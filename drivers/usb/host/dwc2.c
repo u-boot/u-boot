@@ -194,8 +194,8 @@ static int dwc_vbus_supply_init(struct udevice *dev)
 		return 0;
 	}
 
-	ret = regulator_set_enable(priv->vbus_supply, true);
-	if (ret) {
+	ret = regulator_set_enable_if_allowed(priv->vbus_supply, true);
+	if (ret && ret != -ENOSYS) {
 		dev_err(dev, "Error enabling vbus supply\n");
 		return ret;
 	}
@@ -208,12 +208,10 @@ static int dwc_vbus_supply_exit(struct udevice *dev)
 	struct dwc2_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	if (priv->vbus_supply) {
-		ret = regulator_set_enable(priv->vbus_supply, false);
-		if (ret) {
-			dev_err(dev, "Error disabling vbus supply\n");
-			return ret;
-		}
+	ret = regulator_set_enable_if_allowed(priv->vbus_supply, false);
+	if (ret && ret != -ENOSYS) {
+		dev_err(dev, "Error disabling vbus supply\n");
+		return ret;
 	}
 
 	return 0;
