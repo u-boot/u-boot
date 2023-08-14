@@ -54,7 +54,7 @@
 };
 
 &spi0 {
-	spi_flash: spiflash@0 {
+	spi_flash: flash@0 {
 		bootph-all;
 	};
 };

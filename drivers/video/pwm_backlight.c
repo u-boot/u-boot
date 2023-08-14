@@ -14,6 +14,7 @@
 #include <pwm.h>
 #include <asm/gpio.h>
 #include <linux/delay.h>
+#include <linux/math64.h>
 #include <power/regulator.h>
 
 /**
@@ -59,12 +60,14 @@ struct pwm_backlight_priv {
 
 static int set_pwm(struct pwm_backlight_priv *priv)
 {
+	u64 width;
 	uint duty_cycle;
 	int ret;
 
 	if (priv->period_ns) {
-		duty_cycle = (u64)priv->period_ns * (priv->cur_level - priv->min_level) /
-			(priv->max_level - priv->min_level);
+		width = priv->period_ns * (priv->cur_level - priv->min_level);
+		duty_cycle = div_u64(width,
+				     (priv->max_level - priv->min_level));
 		ret = pwm_set_config(priv->pwm, priv->channel, priv->period_ns,
 				     duty_cycle);
 	} else {

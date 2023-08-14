@@ -178,6 +178,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3568) += \
 	rk3566-soquartz-cm4.dtb \
 	rk3566-soquartz-model-a.dtb \
 	rk3568-evb.dtb \
+	rk3568-lubancat-2.dtb \
 	rk3568-nanopi-r5c.dtb \
 	rk3568-nanopi-r5s.dtb \
 	rk3568-odroid-m1.dtb \

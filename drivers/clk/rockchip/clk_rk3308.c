@@ -150,7 +150,7 @@ static ulong rk3308_i2c_get_clk(struct clk *clk)
 	}
 
 	con = readl(&cru->clksel_con[con_id]);
-	div = con >> CLK_I2C_DIV_CON_SHIFT & CLK_I2C_DIV_CON_MASK;
+	div = (con & CLK_I2C_DIV_CON_MASK) >> CLK_I2C_DIV_CON_SHIFT;
 
 	return DIV_TO_RATE(priv->dpll_hz, div);
 }
@@ -314,7 +314,7 @@ static ulong rk3308_saradc_get_clk(struct clk *clk)
 	u32 div, con;
 
 	con = readl(&cru->clksel_con[34]);
-	div = con >> CLK_SARADC_DIV_CON_SHIFT & CLK_SARADC_DIV_CON_MASK;
+	div = (con & CLK_SARADC_DIV_CON_MASK) >> CLK_SARADC_DIV_CON_SHIFT;
 
 	return DIV_TO_RATE(OSC_HZ, div);
 }
@@ -342,7 +342,7 @@ static ulong rk3308_tsadc_get_clk(struct clk *clk)
 	u32 div, con;
 
 	con = readl(&cru->clksel_con[33]);
-	div = con >> CLK_SARADC_DIV_CON_SHIFT & CLK_SARADC_DIV_CON_MASK;
+	div = (con & CLK_SARADC_DIV_CON_MASK) >> CLK_SARADC_DIV_CON_SHIFT;
 
 	return DIV_TO_RATE(OSC_HZ, div);
 }
@@ -385,7 +385,7 @@ static ulong rk3308_spi_get_clk(struct clk *clk)
 	}
 
 	con = readl(&cru->clksel_con[con_id]);
-	div = con >> CLK_SPI_DIV_CON_SHIFT & CLK_SPI_DIV_CON_MASK;
+	div = (con & CLK_SPI_DIV_CON_MASK) >> CLK_SPI_DIV_CON_SHIFT;
 
 	return DIV_TO_RATE(priv->dpll_hz, div);
 }
@@ -429,7 +429,7 @@ static ulong rk3308_pwm_get_clk(struct clk *clk)
 	u32 div, con;
 
 	con = readl(&cru->clksel_con[29]);
-	div = con >> CLK_PWM_DIV_CON_SHIFT & CLK_PWM_DIV_CON_MASK;
+	div = (con & CLK_PWM_DIV_CON_MASK) >> CLK_PWM_DIV_CON_SHIFT;
 
 	return DIV_TO_RATE(priv->dpll_hz, div);
 }
@@ -449,6 +449,58 @@ static ulong rk3308_pwm_set_clk(struct clk *clk, uint hz)
 		     (src_clk_div - 1) << CLK_PWM_DIV_CON_SHIFT);
 
 	return rk3308_pwm_get_clk(clk);
+}
+
+static ulong rk3308_uart_get_clk(struct clk *clk)
+{
+	struct rk3308_clk_priv *priv = dev_get_priv(clk->dev);
+	struct rk3308_cru *cru = priv->cru;
+	u32 div, pll_sel, con, con_id, parent;
+
+	switch (clk->id) {
+	case SCLK_UART0:
+		con_id = 10;
+		break;
+	case SCLK_UART1:
+		con_id = 13;
+		break;
+	case SCLK_UART2:
+		con_id = 16;
+		break;
+	case SCLK_UART3:
+		con_id = 19;
+		break;
+	case SCLK_UART4:
+		con_id = 22;
+		break;
+	default:
+		printf("do not support this uart interface\n");
+		return -EINVAL;
+	}
+
+	con = readl(&cru->clksel_con[con_id]);
+	pll_sel = (con & CLK_UART_PLL_SEL_MASK) >> CLK_UART_PLL_SEL_SHIFT;
+	div = (con & CLK_UART_DIV_CON_MASK) >> CLK_UART_DIV_CON_SHIFT;
+
+	switch (pll_sel) {
+	case CLK_UART_PLL_SEL_DPLL:
+		parent = priv->dpll_hz;
+		break;
+	case CLK_UART_PLL_SEL_VPLL0:
+		parent = priv->vpll0_hz;
+		break;
+	case CLK_UART_PLL_SEL_VPLL1:
+		parent = priv->vpll0_hz;
+		break;
+	case CLK_UART_PLL_SEL_24M:
+		parent = OSC_HZ;
+		break;
+	default:
+		printf("do not support this uart pll sel\n");
+		return -EINVAL;
+	}
+
+	return DIV_TO_RATE(parent, div);
 }
 
 static ulong rk3308_vop_get_clk(struct clk *clk)
@@ -812,6 +864,13 @@ static ulong rk3308_clk_get_rate(struct clk *clk)
 	case SCLK_EMMC:
 	case SCLK_EMMC_SAMPLE:
 		rate = rk3308_mmc_get_clk(clk);
+		break;
+	case SCLK_UART0:
+	case SCLK_UART1:
+	case SCLK_UART2:
+	case SCLK_UART3:
+	case SCLK_UART4:
+		rate = rk3308_uart_get_clk(clk);
 		break;
 	case SCLK_I2C0:
 	case SCLK_I2C1:
