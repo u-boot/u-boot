@@ -294,7 +294,7 @@ static int obj_build(struct build_info *info, ofnode node, struct scene *scn)
 {
 	struct scene_obj *obj;
 	const char *type;
-	u32 id;
+	u32 id, val;
 	int ret;
 
 	log_debug("- object %s\n", ofnode_get_name(node));
@@ -312,6 +312,11 @@ static int obj_build(struct build_info *info, ofnode node, struct scene *scn)
 		ret = -EINVAL;
 	if (ret)
 		return log_msg_ret("bld", ret);
+
+	if (!ofnode_read_u32(node, "start-bit", &val))
+		obj->start_bit = val;
+	if (!ofnode_read_u32(node, "bit-length", &val))
+		obj->bit_length = val;
 
 	return 0;
 }

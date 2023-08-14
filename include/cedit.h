@@ -97,4 +97,17 @@ int cedit_write_settings_env(struct expo *exp, bool verbose);
  */
 int cedit_read_settings_env(struct expo *exp, bool verbose);
 
+/**
+ * cedit_write_settings_cmos() - Write settings to CMOS RAM
+ *
+ * Write settings to the defined places in CMOS RAM
+ *
+ * @exp: Expo to write settings from
+ * @dev: UCLASS_RTC device containing space for this information
+ * Returns 0 if OK, -ve on error
+ * @verbose: true to print a summary at the end
+ */
+int cedit_write_settings_cmos(struct expo *exp, struct udevice *dev,
+			      bool verbose);
+
 #endif /* __CEDIT_H */

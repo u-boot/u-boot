@@ -15,10 +15,20 @@
 #include <dm.h>
 #include <env.h>
 #include <expo.h>
+#include <malloc.h>
 #include <menu.h>
+#include <rtc.h>
 #include <video.h>
 #include <linux/delay.h>
 #include "scene_internal.h"
+
+enum {
+	CMOS_MAX_BITS	= 2048,
+	CMOS_MAX_BYTES	= CMOS_MAX_BITS / 8,
+};
+
+#define CMOS_BYTE(bit)	((bit) / 8)
+#define CMOS_BIT(bit)	((bit) % 8)
 
 /**
  * struct cedit_iter_priv - private data for cedit operations
@@ -26,11 +36,16 @@
  * @buf: Buffer to use when writing settings to the devicetree
  * @node: Node to read from when reading settings from devicetree
  * @verbose: true to show writing to environment variables
+ * @mask: Mask bits for the CMOS RAM. If a bit is set the byte containing it
+ * will be written
+ * @value: Value bits for CMOS RAM. This is the actual value written
  */
 struct cedit_iter_priv {
 	struct abuf *buf;
 	ofnode node;
 	bool verbose;
+	u8 *mask;
+	u8 *value;
 };
 
 int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
@@ -445,7 +460,7 @@ static int h_read_settings_env(struct scene_obj *obj, void *vpriv)
 	struct cedit_iter_priv *priv = vpriv;
 	struct scene_obj_menu *menu;
 	char var[60];
-	int val, ret;
+	int val;
 
 	if (obj->type != SCENEOBJT_MENU)
 		return 0;
@@ -483,4 +498,124 @@ int cedit_read_settings_env(struct expo *exp, bool verbose)
 	}
 
 	return 0;
+}
+
+/**
+ * get_cur_menuitem_seq() - Get the sequence number of a menu's current item
+ *
+ * Enumerates the items of a menu (0, 1, 2) and returns the sequence number of
+ * the currently selected item. If the first item is selected, this returns 0;
+ * if the second, 1; etc.
+ *
+ * @menu: Menu to check
+ * Return: Sequence number on success, else -ve error value
+ */
+static int get_cur_menuitem_seq(const struct scene_obj_menu *menu)
+{
+	const struct scene_menitem *mi;
+	int seq, found;
+
+	seq = 0;
+	found = -1;
+	list_for_each_entry(mi, &menu->item_head, sibling) {
+		if (mi->id == menu->cur_item_id) {
+			found = seq;
+			break;
+		}
+		seq++;
+	}
+
+	if (found == -1)
+		return log_msg_ret("nf", -ENOENT);
+
+	return found;
+}
+
+static int h_write_settings_cmos(struct scene_obj *obj, void *vpriv)
+{
+	const struct scene_obj_menu *menu;
+	struct cedit_iter_priv *priv = vpriv;
+	int val, ret;
+	uint i, seq;
+
+	if (obj->type != SCENEOBJT_MENU)
+		return 0;
+
+	menu = (struct scene_obj_menu *)obj;
+	val = menu->cur_item_id;
+
+	ret = get_cur_menuitem_seq(menu);
+	if (ret < 0)
+		return log_msg_ret("cur", ret);
+	seq = ret;
+	log_debug("%s: seq=%d\n", menu->obj.name, seq);
+
+	/* figure out where to place this item */
+	if (!obj->bit_length)
+		return log_msg_ret("len", -EINVAL);
+	if (obj->start_bit + obj->bit_length > CMOS_MAX_BITS)
+		return log_msg_ret("bit", -E2BIG);
+
+	for (i = 0; i < obj->bit_length; i++, seq >>= 1) {
+		uint bitnum = obj->start_bit + i;
+
+		priv->mask[CMOS_BYTE(bitnum)] |= 1 << CMOS_BIT(bitnum);
+		if (seq & 1)
+			priv->value[CMOS_BYTE(bitnum)] |= BIT(CMOS_BIT(bitnum));
+		log_debug("bit %x %x %x\n", bitnum,
+			  priv->mask[CMOS_BYTE(bitnum)],
+			  priv->value[CMOS_BYTE(bitnum)]);
+	}
+
+	return 0;
+}
+
+int cedit_write_settings_cmos(struct expo *exp, struct udevice *dev,
+			      bool verbose)
+{
+	struct cedit_iter_priv priv;
+	int ret, i, count, first, last;
+
+	/* write out the items */
+	priv.mask = calloc(1, CMOS_MAX_BYTES);
+	if (!priv.mask)
+		return log_msg_ret("mas", -ENOMEM);
+	priv.value = calloc(1, CMOS_MAX_BYTES);
+	if (!priv.value) {
+		free(priv.mask);
+		return log_msg_ret("val", -ENOMEM);
+	}
+
+	ret = expo_iter_scene_objs(exp, h_write_settings_cmos, &priv);
+	if (ret) {
+		log_debug("Failed to write CMOS (err=%d)\n", ret);
+		ret = log_msg_ret("set", ret);
+		goto done;
+	}
+
+	/* write the data to the RTC */
+	first = CMOS_MAX_BYTES;
+	last = -1;
+	for (i = 0, count = 0; i < CMOS_MAX_BYTES; i++) {
+		if (priv.mask[i]) {
+			log_debug("Write byte %x: %x\n", i, priv.value[i]);
+			ret = rtc_write8(dev, i, priv.value[i]);
+			if (ret) {
+				ret = log_msg_ret("wri", ret);
+				goto done;
+			}
+			count++;
+			first = min(first, i);
+			last = max(last, i);
+		}
+	}
+	if (verbose) {
+		printf("Write %d bytes from offset %x to %x\n", count, first,
+		       last);
+	}
+
+done:
+	free(priv.mask);
+	free(priv.value);
+	return ret;
 }

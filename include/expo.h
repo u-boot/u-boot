@@ -187,6 +187,8 @@ enum scene_obj_flags_t {
  * @type: Type of this object
  * @dim: Dimensions for this object
  * @flags: Flags for this object
+ * @bit_length: Number of bits used for this object in CMOS RAM
+ * @start_bit: Start bit to use for this object in CMOS RAM
  * @sibling: Node to link this object to its siblings
  */
 struct scene_obj {
@@ -195,7 +197,9 @@ struct scene_obj {
 	uint id;
 	enum scene_obj_t type;
 	struct scene_dim dim;
-	int flags;
+	u8 flags;
+	u8 bit_length;
+	u16 start_bit;
 	struct list_head sibling;
 };
 

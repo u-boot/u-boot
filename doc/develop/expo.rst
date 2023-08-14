@@ -317,6 +317,18 @@ id
 
     Specifies the ID of the object. This is used when referring to the object.
 
+Where CMOS RAM is used for reading and writing settings, the following
+additional properties are required:
+
+start-bit
+    Specifies the first bit in the CMOS RAM to use for this setting. For a RAM
+    with 0x100 bytes, there are 0x800 bit locations. For example, register 0x80
+    holds bits 0x400 to 0x407.
+
+bit-length
+    Specifies the number of CMOS RAM bits to use for this setting. The bits
+    extend from `start-bit` to `start-bit + bit-length - 1`. Note that the bits
+    must be contiguous.
 
 Menu nodes have the following additional properties:
 
@@ -474,6 +486,7 @@ Some ideas for future work:
 - Support curses for proper serial-terminal menus
 - Add support for large menus which need to scroll
 - Add support for reading and writing configuration settings with cedit
+- Update expo.py tool to check for overlapping names and CMOS locations
 
 .. Simon Glass <sjg@chromium.org>
 .. 7-Oct-22

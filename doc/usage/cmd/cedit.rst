@@ -14,6 +14,7 @@ Synopis
     cedit read_fdt <dev[:part]> <filename>
     cedit write_env [-v]
     cedit read_env [-v]
+    cedit write_cmos [-v] [dev]
 
 Description
 -----------
@@ -76,6 +77,18 @@ ID and its text string are written, similar to:
 The `-v` flag enables verbose mode, where each variable is printed before it is
 set.
 
+cedit write_cmos
+~~~~~~~~~~~~~~~~
+
+Writes the settings to locations in the CMOS RAM. The locations used are
+specified by the schema. See `expo_format_`.
+
+The `-v` flag enables verbose mode, which shows which CMOS locations were
+updated.
+
+Normally the first RTC device is used to hold the data. You can specify a
+different device by name using the `dev` parameter.
+
 
 Example
 -------
@@ -117,3 +130,12 @@ This shows settings being stored in the environment::
     => cedit read_env -v
     c.cpu-speed=7
     c.power-loss=12
+
+This shows writing to CMOS RAM. Notice that the bytes at 80 and 84 change::
+
+    => rtc read 80 8
+    00000080: 00 00 00 00 00 2f 2a 08                          ...../*.
+    =>  cedit write_cmos
+    Write 2 bytes from offset 80 to 84
+    => rtc read 80 8
+    00000080: 01 00 00 00 08 2f 2a 08                          ...../*.

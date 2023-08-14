@@ -38,6 +38,9 @@
 				/* IDs for the menu items */
 				item-id = <ID_CPU_SPEED_1 ID_CPU_SPEED_2
 					ID_CPU_SPEED_3>;
+
+				start-bit = <0x400>;
+				bit-length = <2>;
 			};
 
 			power-loss {
@@ -49,6 +52,8 @@
 					"Memory";
 
 				item-id = <ID_AC_OFF ID_AC_ON ID_AC_MEMORY>;
+				start-bit = <0x422>;
+				bit-length = <2>;
 			};
 		};
 	};

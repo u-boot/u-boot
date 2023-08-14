@@ -155,3 +155,33 @@ static int cedit_env(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(cedit_env, 0);
+
+/* Check the cedit write_cmos and read_cmos commands */
+static int cedit_cmos(struct unit_test_state *uts)
+{
+	struct scene_obj_menu *menu, *menu2;
+	struct video_priv *vid_priv;
+	extern struct expo *cur_exp;
+	struct scene *scn;
+
+	console_record_reset_enable();
+	ut_assertok(run_command("cedit load hostfs - cedit.dtb", 0));
+
+	ut_asserteq(ID_SCENE1, cedit_prepare(cur_exp, &vid_priv, &scn));
+
+	/* get the menus to fiddle with */
+	menu = scene_obj_find(scn, ID_CPU_SPEED, SCENEOBJT_MENU);
+	ut_assertnonnull(menu);
+	menu->cur_item_id = ID_CPU_SPEED_2;
+
+	menu2 = scene_obj_find(scn, ID_POWER_LOSS, SCENEOBJT_MENU);
+	ut_assertnonnull(menu2);
+	menu2->cur_item_id = ID_AC_MEMORY;
+
+	ut_assertok(run_command("cedit write_cmos -v", 0));
+	ut_assert_nextlinen("Write 2 bytes from offset 80 to 84");
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(cedit_cmos, 0);
