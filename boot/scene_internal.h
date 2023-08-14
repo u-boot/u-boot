@@ -9,6 +9,8 @@
 #ifndef __SCENE_INTERNAL_H
 #define __SCENE_INTERNAL_H
 
+typedef int (*expo_scene_obj_iterator)(struct scene_obj *obj, void *priv);
+
 /**
  * expo_lookup_scene_id() - Look up a scene ID
  *
@@ -197,5 +199,27 @@ int scene_menu_render_deps(struct scene *scn, struct scene_obj_menu *menu);
  * Returns 0 if OK, -ENOTSUPP if there is no graphical console
  */
 int scene_menu_calc_dims(struct scene_obj_menu *menu);
+
+/**
+ * scene_iter_objs() - Iterate through all scene objects
+ *
+ * @scn: Scene to process
+ * @iter: Iterator to call on each object
+ * @priv: Private data to pass to the iterator, in addition to the object
+ * Return: 0 if OK, -ve on error
+ */
+int scene_iter_objs(struct scene *scn, expo_scene_obj_iterator iter,
+		    void *priv);
+
+/**
+ * expo_iter_scene_objects() - Iterate through all scene objects
+ *
+ * @exp: Expo to process
+ * @iter: Iterator to call on each object
+ * @priv: Private data to pass to the iterator, in addition to the object
+ * Return: 0 if OK, -ve on error
+ */
+int expo_iter_scene_objs(struct expo *exp, expo_scene_obj_iterator iter,
+			 void *priv);
 
 #endif /* __SCENE_INTERNAL_H */

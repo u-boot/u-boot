@@ -681,3 +681,19 @@ int scene_set_open(struct scene *scn, uint id, bool open)
 
 	return 0;
 }
+
+int scene_iter_objs(struct scene *scn, expo_scene_obj_iterator iter,
+		    void *priv)
+{
+	struct scene_obj *obj;
+
+	list_for_each_entry(obj, &scn->obj_head, sibling) {
+		int ret;
+
+		ret = iter(obj, priv);
+		if (ret)
+			return log_msg_ret("itr", ret);
+	}
+
+	return 0;
+}

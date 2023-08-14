@@ -289,6 +289,33 @@ static int expo_object_attr(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(expo_object_attr, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 
+/**
+ * struct test_iter_priv - private data for expo-iterator test
+ *
+ * @count: number of scene objects
+ * @menu_count: number of menus
+ * @fail_at: item ID at which to return an error
+ */
+struct test_iter_priv {
+	int count;
+	int menu_count;
+	int fail_at;
+};
+
+int h_test_iter(struct scene_obj *obj, void *vpriv)
+{
+	struct test_iter_priv *priv = vpriv;
+
+	if (priv->fail_at == obj->id)
+		return -EINVAL;
+
+	priv->count++;
+	if (obj->type == SCENEOBJT_MENU)
+		priv->menu_count++;
+
+	return 0;
+}
+
 /* Check creating a scene with a menu */
 static int expo_object_menu(struct unit_test_state *uts)
 {
@@ -296,6 +323,7 @@ static int expo_object_menu(struct unit_test_state *uts)
 	struct scene_menitem *item;
 	int id, label_id, desc_id, key_id, pointer_id, preview_id;
 	struct scene_obj_txt *ptr, *name1, *desc1, *key1, *tit, *prev1;
+	struct test_iter_priv priv;
 	struct scene *scn;
 	struct expo *exp;
 	ulong start_mem;
@@ -381,6 +409,23 @@ static int expo_object_menu(struct unit_test_state *uts)
 	ut_asserteq(-4, prev1->obj.dim.x);
 	ut_asserteq(menu->obj.dim.y + 32, prev1->obj.dim.y);
 	ut_asserteq(true, prev1->obj.flags & SCENEOF_HIDE);
+
+	/* check iterating through scene items */
+	memset(&priv, '\0', sizeof(priv));
+	ut_assertok(expo_iter_scene_objs(exp, h_test_iter, &priv));
+	ut_asserteq(7, priv.count);
+	ut_asserteq(1, priv.menu_count);
+
+	/* check the iterator failing part way through iteration */
+	memset(&priv, '\0', sizeof(priv));
+	priv.fail_at = key_id;
+	ut_asserteq(-EINVAL, expo_iter_scene_objs(exp, h_test_iter, &priv));
+
+	/* 2 items (preview_id and the menuitem) are after key_id, 7 - 2 = 5 */
+	ut_asserteq(5, priv.count);
+
+	/* menu is first, so is still processed */
+	ut_asserteq(1, priv.menu_count);
 
 	expo_destroy(exp);
 
