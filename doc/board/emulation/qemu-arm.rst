@@ -98,6 +98,74 @@ can be enabled with the following command line parameters:
 
 These have been tested in QEMU 2.9.0 but should work in at least 2.5.0 as well.
 
+Booting distros
+---------------
+
+It is possible to install and boot a standard Linux distribution using
+qemu_arm64 by setting up a root disk::
+
+    qemu-img create root.img 20G
+
+then using the installer to install. For example, with Debian 12::
+
+    qemu-system-aarch64 \
+      -machine virt -cpu cortex-a53 -m 4G -smp 4 \
+      -bios u-boot.bin \
+      -serial stdio -device VGA \
+      -nic user,model=virtio-net-pci \
+      -device virtio-rng-pci \
+      -device qemu-xhci,id=xhci \
+      -device usb-kbd -device usb-tablet \
+      -drive if=virtio,file=debian-12.0.0-arm64-netinst.iso,format=raw,readonly=on,media=cdrom \
+      -drive if=virtio,file=root.img,format=raw,media=disk
+
+The output will be something like this::
+
+    U-Boot 2023.10-rc2-00075-gbe8fbe718e35 (Aug 11 2023 - 08:38:49 +0000)
+
+    DRAM:  4 GiB
+    Core:  51 devices, 14 uclasses, devicetree: board
+    Flash: 64 MiB
+    Loading Environment from Flash... *** Warning - bad CRC, using default environment
+
+    In:    serial,usbkbd
+    Out:   serial,vidconsole
+    Err:   serial,vidconsole
+    Bus xhci_pci: Register 8001040 NbrPorts 8
+    Starting the controller
+    USB XHCI 1.00
+    scanning bus xhci_pci for devices... 3 USB Device(s) found
+    Net:   eth0: virtio-net#32
+    Hit any key to stop autoboot:  0
+    Scanning for bootflows in all bootdevs
+    Seq  Method       State   Uclass    Part  Name                      Filename
+    ---  -----------  ------  --------  ----  ------------------------  ----------------
+    Scanning global bootmeth 'efi_mgr':
+    Scanning bootdev 'fw-cfg@9020000.bootdev':
+    fatal: no kernel available
+    scanning bus for devices...
+    Scanning bootdev 'virtio-blk#34.bootdev':
+      0  efi          ready   virtio       2  virtio-blk#34.bootdev.par efi/boot/bootaa64.efi
+    ** Booting bootflow 'virtio-blk#34.bootdev.part_2' with efi
+    Using prior-stage device tree
+    Failed to load EFI variables
+    Error: writing contents
+    ** Unable to write file ubootefi.var **
+    Failed to persist EFI variables
+    Missing TPMv2 device for EFI_TCG_PROTOCOL
+    Booting /efi\boot\bootaa64.efi
+    Error: writing contents
+    ** Unable to write file ubootefi.var **
+    Failed to persist EFI variables
+    Welcome to GRUB!
+
+Standard boot looks through various available devices and finds the virtio
+disks, then boots from the first one. After a second or so the grub menu appears
+and you can work through the installer flow normally.
+
+After the installation, you can boot into the installed system by running QEMU
+again without the drive argument corresponding to the installer CD image.
+
 Enabling TPMv2 support
 ----------------------
 
