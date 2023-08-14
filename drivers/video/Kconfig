@@ -1115,7 +1115,7 @@ config SPL_VIDEO_REMOVE
 	bool "Remove video driver after SPL stage"
 	help
 	  if this  option is enabled video driver will be removed at the end of
-	  SPL stage, beforeloading the next stage.
+	  SPL stage, before loading the next stage.
 
 if SPL_SPLASH_SCREEN
 

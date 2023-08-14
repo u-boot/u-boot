@@ -561,6 +561,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	node = fdt_node_offset_by_compatible(blob, -1, "simple-framebuffer");
 	if (node < 0)
 		fdt_simplefb_add_node(blob);
+	else
+		fdt_simplefb_enable_and_mem_rsv(blob);
 
 #ifdef CONFIG_EFI_LOADER
 	/* Reserve the spin table */
