@@ -214,22 +214,21 @@ static void list_strings(struct build_info *info)
  * @info: Build information
  * @node: Node containing the menu description
  * @scn: Scene to add the menu to
+ * @id: ID for the menu
+ * @objp: Returns the object pointer
  * Returns: 0 if OK, -ENOMEM if out of memory, -EINVAL if there is a format
  * error, -ENOENT if there is a references to a non-existent string
  */
-static int menu_build(struct build_info *info, ofnode node, struct scene *scn)
+static int menu_build(struct build_info *info, ofnode node, struct scene *scn,
+		      uint id, struct scene_obj **objp)
 {
 	struct scene_obj_menu *menu;
 	uint title_id, menu_id;
 	const u32 *item_ids;
 	int ret, size, i;
 	const char *name;
-	u32 id;
 
 	name = ofnode_get_name(node);
-	ret = ofnode_read_u32(node, "id", &id);
-	if (ret)
-		return log_msg_ret("id", -EINVAL);
 
 	ret = scene_menu(scn, name, id, &menu);
 	if (ret < 0)
@@ -275,12 +274,13 @@ static int menu_build(struct build_info *info, ofnode node, struct scene *scn)
 		if (ret < 0)
 			return log_msg_ret("mi", ret);
 	}
+	*objp = &menu->obj;
 
 	return 0;
 }
 
 /**
- * menu_build() - Build an expo object and add it to a scene
+ * obj_build() - Build an expo object and add it to a scene
  *
  * See doc/developer/expo.rst for a description of the format
  *
@@ -292,6 +292,7 @@ static int menu_build(struct build_info *info, ofnode node, struct scene *scn)
  */
 static int obj_build(struct build_info *info, ofnode node, struct scene *scn)
 {
+	struct scene_obj *obj;
 	const char *type;
 	u32 id;
 	int ret;
@@ -306,7 +307,7 @@ static int obj_build(struct build_info *info, ofnode node, struct scene *scn)
 		return log_msg_ret("typ", -EINVAL);
 
 	if (!strcmp("menu", type))
-		ret = menu_build(info, node, scn);
+		ret = menu_build(info, node, scn, id, &obj);
 	 else
 		ret = -EINVAL;
 	if (ret)
