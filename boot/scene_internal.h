@@ -222,4 +222,16 @@ int scene_iter_objs(struct scene *scn, expo_scene_obj_iterator iter,
 int expo_iter_scene_objs(struct expo *exp, expo_scene_obj_iterator iter,
 			 void *priv);
 
+/**
+ * scene_menuitem_find() - Find the menu item for an ID
+ *
+ * Looks up the menu to find the item with the given ID
+ *
+ * @menu: Menu to check
+ * @id: ID to look for
+ * Return: Menu item, or NULL if not found
+ */
+struct scene_menitem *scene_menuitem_find(const struct scene_obj_menu *menu,
+					  int id);
+
 #endif /* __SCENE_INTERNAL_H */

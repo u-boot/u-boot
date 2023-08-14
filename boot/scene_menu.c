@@ -33,8 +33,8 @@ void scene_menu_destroy(struct scene_obj_menu *menu)
 		scene_menuitem_destroy(item);
 }
 
-static struct scene_menitem *scene_menuitem_find(struct scene_obj_menu *menu,
-						 int id)
+struct scene_menitem *scene_menuitem_find(const struct scene_obj_menu *menu,
+					  int id)
 {
 	struct scene_menitem *item;
 
