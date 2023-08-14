@@ -10,6 +10,7 @@ Synopis
 
     cedit load <interface> <dev[:part]> <filename>
     cedit run
+    cedit write_fdt <dev[:part]> <filename>
 
 Description
 -----------
@@ -38,6 +39,12 @@ Runs the default configuration-editor event loop. This is very simple, just
 accepting character input and moving through the objects under user control.
 The implementation is at `cedit_run()`.
 
+cedit write_fdt
+~~~~~~~~~~~~~~~
+
+Writes the current user settings to a devicetree file. For each menu item the
+selected ID and its text string are written.
+
 
 Example
 -------
@@ -46,3 +53,15 @@ Example
 
     => cedit load hostfs - fred.dtb
     => cedit run
+    => cedit write_fdt hostfs - settings.dtb
+
+That results in::
+
+    / {
+        cedit-values {
+            cpu-speed = <0x00000006>;
+            cpu-speed-str = "2 GHz";
+            power-loss = <0x0000000a>;
+            power-loss-str = "Always Off";
+        };
+    }

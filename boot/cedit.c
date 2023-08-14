@@ -9,6 +9,7 @@
 #define LOG_CATEGORY LOGC_EXPO
 
 #include <common.h>
+#include <abuf.h>
 #include <cedit.h>
 #include <cli.h>
 #include <dm.h>
@@ -17,6 +18,15 @@
 #include <video.h>
 #include <linux/delay.h>
 #include "scene_internal.h"
+
+/**
+ * struct cedit_iter_priv - private data for cedit operations
+ *
+ * @buf: Buffer to use when writing settings to the devicetree
+ */
+struct cedit_iter_priv {
+	struct abuf *buf;
+};
 
 int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
 {
@@ -179,6 +189,132 @@ int cedit_run(struct expo *exp)
 
 	if (ret)
 		return log_msg_ret("end", ret);
+
+	return 0;
+}
+
+static int check_space(int ret, struct abuf *buf)
+{
+	if (ret == -FDT_ERR_NOSPACE) {
+		if (!abuf_realloc_inc(buf, CEDIT_SIZE_INC))
+			return log_msg_ret("spc", -ENOMEM);
+		ret = fdt_resize(abuf_data(buf), abuf_data(buf),
+				 abuf_size(buf));
+		if (ret)
+			return log_msg_ret("res", -EFAULT);
+	}
+
+	return 0;
+}
+
+static int h_write_settings(struct scene_obj *obj, void *vpriv)
+{
+	struct cedit_iter_priv *priv = vpriv;
+	struct abuf *buf = priv->buf;
+
+	switch (obj->type) {
+	case SCENEOBJT_NONE:
+	case SCENEOBJT_IMAGE:
+	case SCENEOBJT_TEXT:
+		break;
+	case SCENEOBJT_MENU: {
+		const struct scene_obj_menu *menu;
+		const struct scene_obj_txt *txt;
+		struct scene *scn = obj->scene;
+		const struct scene_menitem *mi;
+		const char *str;
+		char name[80];
+		int ret, i;
+
+		menu = (struct scene_obj_menu *)obj;
+		ret = -EAGAIN;
+		for (i = 0; ret && i < 2; i++) {
+			ret = fdt_property_u32(abuf_data(buf), obj->name,
+					       menu->cur_item_id);
+			if (!i) {
+				ret = check_space(ret, buf);
+				if (ret)
+					return log_msg_ret("res", -ENOMEM);
+			}
+		}
+		/* this should not happen */
+		if (ret)
+			return log_msg_ret("wrt", -EFAULT);
+
+		mi = scene_menuitem_find(menu, menu->cur_item_id);
+		if (!mi)
+			return log_msg_ret("mi", -ENOENT);
+
+		txt = scene_obj_find(scn, mi->label_id, SCENEOBJT_TEXT);
+		if (!txt)
+			return log_msg_ret("txt", -ENOENT);
+
+		str = expo_get_str(scn->expo, txt->str_id);
+		if (!str)
+			return log_msg_ret("str", -ENOENT);
+
+		snprintf(name, sizeof(name), "%s-str", obj->name);
+		ret = -EAGAIN;
+		for (i = 0; ret && i < 2; i++) {
+			ret = fdt_property_string(abuf_data(buf), name, str);
+			if (!i) {
+				ret = check_space(ret, buf);
+				if (ret)
+					return log_msg_ret("rs2", -ENOMEM);
+			}
+		}
+
+		/* this should not happen */
+		if (ret)
+			return log_msg_ret("wr2", -EFAULT);
+
+		break;
+	}
+	}
+
+	return 0;
+}
+
+int cedit_write_settings(struct expo *exp, struct abuf *buf)
+{
+	struct cedit_iter_priv priv;
+	void *fdt;
+	int ret;
+
+	abuf_init(buf);
+	if (!abuf_realloc(buf, CEDIT_SIZE_INC))
+		return log_msg_ret("buf", -ENOMEM);
+
+	fdt = abuf_data(buf);
+	ret = fdt_create(fdt, abuf_size(buf));
+	if (!ret)
+		ret = fdt_finish_reservemap(fdt);
+	if (!ret)
+		ret = fdt_begin_node(fdt, "");
+	if (!ret)
+		ret = fdt_begin_node(fdt, CEDIT_NODE_NAME);
+	if (ret) {
+		log_debug("Failed to start FDT (err=%d)\n", ret);
+		return log_msg_ret("sta", -EINVAL);
+	}
+
+	/* write out the items */
+	priv.buf = buf;
+	ret = expo_iter_scene_objs(exp, h_write_settings, &priv);
+	if (ret) {
+		log_debug("Failed to write settings (err=%d)\n", ret);
+		return log_msg_ret("set", ret);
+	}
+
+	ret = fdt_end_node(fdt);
+	if (!ret)
+		ret = fdt_end_node(fdt);
+	if (!ret)
+		ret = fdt_finish(fdt);
+	if (ret) {
+		log_debug("Failed to finish FDT (err=%d)\n", ret);
+		return log_msg_ret("fin", -EINVAL);
+	}
 
 	return 0;
 }
