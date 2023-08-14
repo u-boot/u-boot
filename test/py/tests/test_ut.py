@@ -285,10 +285,12 @@ label Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
 def setup_cedit_file(cons):
     infname = os.path.join(cons.config.source_dir,
                            'test/boot/files/expo_layout.dts')
+    inhname = os.path.join(cons.config.source_dir,
+                           'test/boot/files/expo_ids.h')
     expo_tool = os.path.join(cons.config.source_dir, 'tools/expo.py')
     outfname = 'cedit.dtb'
     u_boot_utils.run_and_log(
-        cons, f'{expo_tool} -e {infname} -l {infname} -o {outfname}')
+        cons, f'{expo_tool} -e {inhname} -l {infname} -o {outfname}')
 
 
 @pytest.mark.buildconfigspec('ut_dm')

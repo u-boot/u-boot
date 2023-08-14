@@ -367,22 +367,27 @@ strings are provided inline in the nodes where they are used.
 
 ::
 
-    #define ID_PROMPT           1
-    #define ID_SCENE1           2
-    #define ID_SCENE1_TITLE     3
+    /* this comment is parsed by the expo.py tool to insert the values below
 
-    #define ID_CPU_SPEED        4
-    #define ID_CPU_SPEED_TITLE  5
-    #define ID_CPU_SPEED_1      6
-    #define ID_CPU_SPEED_2      7
-    #define ID_CPU_SPEED_3      8
+    enum {
+        ZERO,
+        ID_PROMPT,
+        ID_SCENE1,
+        ID_SCENE1_TITLE,
 
-    #define ID_POWER_LOSS       9
-    #define ID_AC_OFF           10
-    #define ID_AC_ON            11
-    #define ID_AC_MEMORY        12
+        ID_CPU_SPEED,
+        ID_CPU_SPEED_TITLE,
+        ID_CPU_SPEED_1,
+        ID_CPU_SPEED_2,
+        ID_CPU_SPEED_3,
 
-    #define ID_DYNAMIC_START    13
+        ID_POWER_LOSS,
+        ID_AC_OFF,
+        ID_AC_ON,
+        ID_AC_MEMORY,
+
+        ID_DYNAMIC_START,
+    */
 
     &cedit {
         dynamic-start = <ID_DYNAMIC_START>;
