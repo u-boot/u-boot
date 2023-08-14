@@ -84,6 +84,10 @@ can be enabled with the following command line parameters:
 
     -device usb-ehci,id=ehci
 
+- To add a USB keyboard attached to an emulated xHCI controller, pass e.g.::
+
+    -device qemu-xhci,id=xhci -device usb-kbd,bus=xhci.0
+
 - To add an NVMe disk, pass e.g.::
 
     -drive if=none,file=disk.img,id=mydisk -device nvme,drive=mydisk,serial=foo

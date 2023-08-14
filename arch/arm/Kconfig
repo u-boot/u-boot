@@ -1042,6 +1042,11 @@ config ARCH_QEMU
 	imply SYS_WHITE_ON_BLACK
 	imply SYS_CONSOLE_IS_IN_ENV
 	imply PRE_CONSOLE_BUFFER
+	imply USB
+	imply USB_XHCI_HCD
+	imply USB_XHCI_PCI
+	imply USB_KEYBOARD
+	imply CMD_USB
 
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"
