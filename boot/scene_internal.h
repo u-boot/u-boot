@@ -38,7 +38,7 @@ uint resolve_id(struct expo *exp, uint id);
  * @type: Type of the object, or SCENEOBJT_NONE to match any type
  * Returns: Object found, or NULL if not found
  */
-void *scene_obj_find(struct scene *scn, uint id, enum scene_obj_t type);
+void *scene_obj_find(const struct scene *scn, uint id, enum scene_obj_t type);
 
 /**
  * scene_obj_find_by_name() - Find an object in a scene by name

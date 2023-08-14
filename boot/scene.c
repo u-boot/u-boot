@@ -79,7 +79,7 @@ int scene_obj_count(struct scene *scn)
 	return count;
 }
 
-void *scene_obj_find(struct scene *scn, uint id, enum scene_obj_t type)
+void *scene_obj_find(const struct scene *scn, uint id, enum scene_obj_t type)
 {
 	struct scene_obj *obj;
 
