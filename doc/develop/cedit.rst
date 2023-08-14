@@ -145,3 +145,10 @@ Multiple scenes
 Expo supports multiple scenes but has no pre-determined way of moving between
 them. You could use selection of a menu item as a signal to change the scene,
 but this is not currently implemented in the cedit code (see `cedit_run()`).
+
+
+Themes
+------
+
+The configuration editor uses simple expo themes. The theme is read from
+`/bootstd/cedit-theme` in the devicetree.

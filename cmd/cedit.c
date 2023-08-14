@@ -65,7 +65,7 @@ static int do_cedit_run(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	node = ofnode_path("/cedit-theme");
+	node = ofnode_path("/bootstd/cedit-theme");
 	if (ofnode_valid(node)) {
 		ret = expo_apply_theme(cur_exp, node);
 		if (ret)
