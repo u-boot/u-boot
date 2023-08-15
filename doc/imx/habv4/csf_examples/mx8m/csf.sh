@@ -11,7 +11,6 @@
 
 # 1) Build U-Boot (e.g. for i.MX8MM)
 #
-# export ATF_LOAD_ADDR=0x920000
 # cp -Lv /path/to/arm-trusted-firmware/build/imx8mm/release/bl31.bin .
 # cp -Lv /path/to/firmware-imx-8.14/firmware/ddr/synopsys/ddr3* .
 # make -j imx8mm_board_defconfig
