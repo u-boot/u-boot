@@ -83,6 +83,7 @@ enum bootflow_flags_t {
  * @flags: Flags for the bootflow (see enum bootflow_flags_t)
  * @cmdline: OS command line, or NULL if not known (allocated)
  * @x86_setup: Pointer to x86 setup block inside @buf, NULL if not present
+ * @bootmeth_priv: Private data for the bootmeth
  */
 struct bootflow {
 	struct list_head bm_node;
@@ -107,7 +108,8 @@ struct bootflow {
 	ulong fdt_addr;
 	int flags;
 	char *cmdline;
-	char *x86_setup;
+	void *x86_setup;
+	void *bootmeth_priv;
 };
 
 /**
@@ -349,6 +351,17 @@ void bootflow_free(struct bootflow *bflow);
  *	be tried again unless something changes
  */
 int bootflow_boot(struct bootflow *bflow);
+
+/**
+ * bootflow_read_all() - Read all bootflow files
+ *
+ * Some bootmeths delay reading of large files until booting is requested. This
+ * causes those files to be read.
+ *
+ * @bflow: Bootflow to read
+ * Return: result of trying to read
+ */
+int bootflow_read_all(struct bootflow *bflow);
 
 /**
  * bootflow_run_boot() - Try to boot a bootflow

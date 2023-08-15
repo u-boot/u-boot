@@ -823,6 +823,43 @@ err:
 	return ret;
 }
 
+int bootm_boot_start(ulong addr, const char *cmdline)
+{
+	static struct cmd_tbl cmd = {"bootm"};
+	char addr_str[30];
+	char *argv[] = {addr_str, NULL};
+	int states;
+	int ret;
+
+	/*
+	 * TODO(sjg@chromium.org): This uses the command-line interface, but
+	 * should not. To clean this up, the various bootm states need to be
+	 * passed an info structure instead of cmdline flags. Then this can
+	 * set up the required info and move through the states without needing
+	 * the command line.
+	 */
+	states = BOOTM_STATE_START | BOOTM_STATE_FINDOS | BOOTM_STATE_PRE_LOAD |
+		BOOTM_STATE_FINDOTHER | BOOTM_STATE_LOADOS |
+		BOOTM_STATE_OS_PREP | BOOTM_STATE_OS_FAKE_GO |
+		BOOTM_STATE_OS_GO;
+	if (IS_ENABLED(CONFIG_SYS_BOOT_RAMDISK_HIGH))
+		states |= BOOTM_STATE_RAMDISK;
+	if (IS_ENABLED(CONFIG_PPC) || IS_ENABLED(CONFIG_MIPS))
+		states |= BOOTM_STATE_OS_CMDLINE;
+	images.state |= states;
+
+	snprintf(addr_str, sizeof(addr_str), "%lx", addr);
+
+	ret = env_set("bootargs", cmdline);
+	if (ret) {
+		printf("Failed to set cmdline\n");
+		return ret;
+	}
+	ret = do_bootm_states(&cmd, 0, 1, argv, states, &images, 1);
+
+	return ret;
+}
+
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 /**
  * image_get_kernel - verify legacy format kernel image

@@ -432,6 +432,7 @@ void bootflow_free(struct bootflow *bflow)
 	free(bflow->buf);
 	free(bflow->os_name);
 	free(bflow->fdt_fname);
+	free(bflow->bootmeth_priv);
 }
 
 void bootflow_remove(struct bootflow *bflow)
@@ -443,6 +444,22 @@ void bootflow_remove(struct bootflow *bflow)
 	bootflow_free(bflow);
 	free(bflow);
 }
+
+#if CONFIG_IS_ENABLED(BOOTSTD_FULL)
+int bootflow_read_all(struct bootflow *bflow)
+{
+	int ret;
+
+	if (bflow->state != BOOTFLOWST_READY)
+		return log_msg_ret("rd", -EPROTO);
+
+	ret = bootmeth_read_all(bflow->method, bflow);
+	if (ret)
+		return log_msg_ret("rd2", ret);
+
+	return 0;
+}
+#endif /* BOOTSTD_FULL */
 
 int bootflow_boot(struct bootflow *bflow)
 {
