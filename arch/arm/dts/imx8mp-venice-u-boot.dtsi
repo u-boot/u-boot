@@ -73,6 +73,14 @@
 	bootph-pre-ram;
 };
 
+&i2c3 {
+	bootph-pre-ram;
+};
+
+&pinctrl_i2c3 {
+	bootph-pre-ram;
+};
+
 &wdog1 {
 	bootph-pre-ram;
 };
