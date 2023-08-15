@@ -116,16 +116,31 @@ phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align,
 			     phys_addr_t max_addr);
 phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base, phys_size_t size);
 phys_size_t lmb_get_free_size(struct lmb *lmb, phys_addr_t addr);
-int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr);
+
 /**
- * lmb_is_reserved_flags - test if tha address is in reserved region with a bitfield flag
+ * lmb_is_reserved() - test if address is in reserved region
+ *
+ * The function checks if a reserved region comprising @addr exists.
  *
  * @lmb:	the logical memory block struct
  * @addr:	address to be tested
- * @flags:	flags bitfied to be tested
- * Return:	if not reserved or reserved without the requested flag else 1
+ * Return:	1 if reservation exists, 0 otherwise
+ */
+int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr);
+
+/**
+ * lmb_is_reserved_flags() - test if address is in reserved region with flag bits set
+ *
+ * The function checks if a reserved region comprising @addr exists which has
+ * all flag bits set which are set in @flags.
+ *
+ * @lmb:	the logical memory block struct
+ * @addr:	address to be tested
+ * @flags:	bitmap with bits to be tested
+ * Return:	1 if matching reservation exists, 0 otherwise
  */
 int lmb_is_reserved_flags(struct lmb *lmb, phys_addr_t addr, int flags);
+
 long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size);
 
 void lmb_dump_all(struct lmb *lmb);

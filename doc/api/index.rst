@@ -15,6 +15,7 @@ U-Boot API documentation
    lmb
    logging
    nvmem
+   part
    pinctrl
    rng
    sandbox

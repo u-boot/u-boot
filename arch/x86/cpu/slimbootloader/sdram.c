@@ -48,7 +48,7 @@ static struct sbl_memory_map_info *get_memory_map_info(void)
  * @total_size: The memory size that u-boot occupies
  * Return:    : The top available memory address lower than 4GB
  */
-phys_size_t board_get_usable_ram_top(phys_size_t total_size)
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	struct sbl_memory_map_info *data;
 	int i;

@@ -333,7 +333,7 @@ phys_size_t get_effective_memsize(void)
 	}
 }
 
-phys_size_t board_get_usable_ram_top(phys_size_t total_size)
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	ulong top_addr;
 

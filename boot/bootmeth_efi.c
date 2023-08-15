@@ -409,7 +409,7 @@ static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	return 0;
 }
 
-int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
+static int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 {
 	ulong kernel, fdt;
 	char cmd[50];

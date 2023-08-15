@@ -11,7 +11,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-phys_size_t board_get_usable_ram_top(phys_size_t total_size)
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	return (ulong)efi_get_ram_base() + gd->ram_size;
 }

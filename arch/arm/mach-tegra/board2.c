@@ -403,7 +403,7 @@ int dram_init_banksize(void)
  * This function is called before dram_init_banksize(), so we can't simply
  * return gd->bd->bi_dram[1].start + gd->bd->bi_dram[1].size.
  */
-phys_size_t board_get_usable_ram_top(phys_size_t total_size)
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	ulong ram_top;
 
