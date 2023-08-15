@@ -49,33 +49,19 @@ def efi_capsule_data(request, u_boot_config):
             check_call('cp %s/capsule_pub_key_bad.crt %s/SIGNER2.crt'
                        % (key_dir, data_dir), shell=True)
 
-            # Update dtb adding capsule certificate
+        if capsule_auth_enabled:
             check_call('cd %s; '
-                       'cp %s/test/py/tests/test_efi_capsule/signature.dts .'
-                       % (data_dir, u_boot_config.source_dir), shell=True)
-            check_call('cd %s; '
-                       'dtc -@ -I dts -O dtb -o signature.dtbo signature.dts; '
-                       'fdtoverlay -i %s/arch/sandbox/dts/test.dtb '
-                            '-o test_sig.dtb signature.dtbo'
+                       'cp %s/arch/sandbox/dts/test.dtb test_sig.dtb'
                        % (data_dir, u_boot_config.build_dir), shell=True)
-
         # Update dtb to add the version information
         check_call('cd %s; '
                    'cp %s/test/py/tests/test_efi_capsule/version.dts .'
                    % (data_dir, u_boot_config.source_dir), shell=True)
-        if capsule_auth_enabled:
-            check_call('cd %s; '
-                       'dtc -@ -I dts -O dtb -o version.dtbo version.dts; '
-                       'fdtoverlay -i test_sig.dtb '
-                            '-o test_ver.dtb version.dtbo'
-                       % (data_dir), shell=True)
-        else:
-            check_call('cd %s; '
-                       'dtc -@ -I dts -O dtb -o version.dtbo version.dts; '
-                       'fdtoverlay -i %s/arch/sandbox/dts/test.dtb '
-                            '-o test_ver.dtb version.dtbo'
-                       % (data_dir, u_boot_config.build_dir), shell=True)
-
+        check_call('cd %s; '
+                   'dtc -@ -I dts -O dtb -o version.dtbo version.dts; '
+                   'fdtoverlay -i %s/arch/sandbox/dts/test.dtb '
+                   '-o test_ver.dtb version.dtbo'
+                   % (data_dir, u_boot_config.build_dir), shell=True)
 
         check_call('cp %s/u-boot_bin_env.itb %s ' % (u_boot_config.build_dir, data_dir), shell=True)
         check_call('cp %s/Test* %s ' % (u_boot_config.build_dir, data_dir), shell=True)
