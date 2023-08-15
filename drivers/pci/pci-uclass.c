@@ -541,14 +541,13 @@ int pci_auto_config_devices(struct udevice *bus)
 	struct pci_child_plat *pplat;
 	unsigned int sub_bus;
 	struct udevice *dev;
-	int ret;
 
 	sub_bus = dev_seq(bus);
 	debug("%s: start\n", __func__);
 	pciauto_config_init(hose);
-	for (ret = device_find_first_child(bus, &dev);
-	     !ret && dev;
-	     ret = device_find_next_child(&dev)) {
+	for (device_find_first_child(bus, &dev);
+	     dev;
+	     device_find_next_child(&dev)) {
 		unsigned int max_bus;
 		int ret;
 
