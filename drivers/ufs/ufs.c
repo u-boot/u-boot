@@ -8,6 +8,7 @@
  * Copyright (C) 2019 Texas Instruments Incorporated - http://www.ti.com
  */
 
+#include <bouncebuf.h>
 #include <charset.h>
 #include <common.h>
 #include <dm.h>
@@ -1889,6 +1890,8 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 
 	/* Read capabilties registers */
 	hba->capabilities = ufshcd_readl(hba, REG_CONTROLLER_CAPABILITIES);
+	if (hba->quirks & UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS)
+		hba->capabilities &= ~MASK_64_ADDRESSING_SUPPORT;
 
 	/* Get UFS version supported by the controller */
 	hba->version = ufshcd_get_ufs_version(hba);
@@ -1942,8 +1945,31 @@ int ufs_scsi_bind(struct udevice *ufs_dev, struct udevice **scsi_devp)
 	return ret;
 }
 
+#if IS_ENABLED(CONFIG_BOUNCE_BUFFER)
+static int ufs_scsi_buffer_aligned(struct udevice *scsi_dev, struct bounce_buffer *state)
+{
+#ifdef CONFIG_PHYS_64BIT
+	struct ufs_hba *hba = dev_get_uclass_priv(scsi_dev->parent);
+	uintptr_t ubuf = (uintptr_t)state->user_buffer;
+	size_t len = state->len_aligned;
+
+	/* Check if below 32bit boundary */
+	if ((hba->quirks & UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS) &&
+	    ((ubuf >> 32) || (ubuf + len) >> 32)) {
+		dev_dbg(scsi_dev, "Buffer above 32bit boundary %lx-%lx\n",
+			ubuf, ubuf + len);
+		return 0;
+	}
+#endif
+	return 1;
+}
+#endif	/* CONFIG_BOUNCE_BUFFER */
+
 static struct scsi_ops ufs_ops = {
 	.exec		= ufs_scsi_exec,
+#if IS_ENABLED(CONFIG_BOUNCE_BUFFER)
+	.buffer_aligned	= ufs_scsi_buffer_aligned,
+#endif	/* CONFIG_BOUNCE_BUFFER */
 };
 
 int ufs_probe_dev(int index)
