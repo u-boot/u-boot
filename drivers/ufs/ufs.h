@@ -725,6 +725,12 @@ struct ufs_hba {
  */
 #define UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS		BIT(1)
 
+/*
+ * This quirk needs to be enabled if the host controller has
+ * auto-hibernate capability but it's FASTAUTO only.
+ */
+#define UFSHCD_QUIRK_HIBERN_FASTAUTO			BIT(2)
+
 	/* Virtual memory reference */
 	struct utp_transfer_cmd_desc *ucdl;
 	struct utp_transfer_req_desc *utrdl;
