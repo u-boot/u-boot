@@ -696,10 +696,11 @@ static inline u8 ufshcd_get_upmcrs(struct ufs_hba *hba)
  * ufshcd_prepare_req_desc_hdr() - Fills the requests header
  * descriptor according to request
  */
-static void ufshcd_prepare_req_desc_hdr(struct utp_transfer_req_desc *req_desc,
+static void ufshcd_prepare_req_desc_hdr(struct ufs_hba *hba,
 					u32 *upiu_flags,
 					enum dma_data_direction cmd_dir)
 {
+	struct utp_transfer_req_desc *req_desc = hba->utrdl;
 	u32 data_direction;
 	u32 dword_0;
 
@@ -793,11 +794,10 @@ static int ufshcd_comp_devman_upiu(struct ufs_hba *hba,
 {
 	u32 upiu_flags;
 	int ret = 0;
-	struct utp_transfer_req_desc *req_desc = hba->utrdl;
 
 	hba->dev_cmd.type = cmd_type;
 
-	ufshcd_prepare_req_desc_hdr(req_desc, &upiu_flags, DMA_NONE);
+	ufshcd_prepare_req_desc_hdr(hba, &upiu_flags, DMA_NONE);
 	switch (cmd_type) {
 	case DEV_CMD_TYPE_QUERY:
 		ufshcd_prepare_utp_query_req_upiu(hba, upiu_flags);
@@ -1449,12 +1449,11 @@ static void prepare_prdt_table(struct ufs_hba *hba, struct scsi_cmd *pccb)
 static int ufs_scsi_exec(struct udevice *scsi_dev, struct scsi_cmd *pccb)
 {
 	struct ufs_hba *hba = dev_get_uclass_priv(scsi_dev->parent);
-	struct utp_transfer_req_desc *req_desc = hba->utrdl;
 	u32 upiu_flags;
 	int ocs, result = 0;
 	u8 scsi_status;
 
-	ufshcd_prepare_req_desc_hdr(req_desc, &upiu_flags, pccb->dma_dir);
+	ufshcd_prepare_req_desc_hdr(hba, &upiu_flags, pccb->dma_dir);
 	ufshcd_prepare_utp_scsi_cmd_upiu(hba, pccb, upiu_flags);
 	prepare_prdt_table(hba, pccb);
 
