@@ -717,7 +717,7 @@ struct ufs_hba {
  * the LCC transmission on UFS device (by clearing TX_LCC_ENABLE
  * attribute of device to 0).
  */
-#define UFSHCD_QUIRK_BROKEN_LCC				0x1
+#define UFSHCD_QUIRK_BROKEN_LCC				BIT(0)
 
 	/* Virtual memory reference */
 	struct utp_transfer_cmd_desc *ucdl;
