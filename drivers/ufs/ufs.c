@@ -1903,7 +1903,8 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 	if (hba->version != UFSHCI_VERSION_10 &&
 	    hba->version != UFSHCI_VERSION_11 &&
 	    hba->version != UFSHCI_VERSION_20 &&
-	    hba->version != UFSHCI_VERSION_21)
+	    hba->version != UFSHCI_VERSION_21 &&
+	    hba->version != UFSHCI_VERSION_30)
 		dev_err(hba->dev, "invalid UFS version 0x%x\n",
 			hba->version);
 
