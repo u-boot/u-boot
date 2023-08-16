@@ -858,7 +858,9 @@ static inline int ufshcd_get_req_rsp(struct utp_upiu_rsp *ucd_rsp_ptr)
  */
 static inline int ufshcd_get_tr_ocs(struct ufs_hba *hba)
 {
-	return le32_to_cpu(hba->utrdl->header.dword_2) & MASK_OCS;
+	struct utp_transfer_req_desc *req_desc = hba->utrdl;
+
+	return le32_to_cpu(req_desc->header.dword_2) & MASK_OCS;
 }
 
 static inline int ufshcd_get_rsp_upiu_result(struct utp_upiu_rsp *ucd_rsp_ptr)
