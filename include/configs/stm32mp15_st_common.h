@@ -10,7 +10,9 @@
 
 #define STM32MP_BOARD_EXTRA_ENV \
 	"usb_pgood_delay=2000\0" \
-	"console=ttySTM0\0"
+	"console=ttySTM0\0" \
+	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
+	"splashpos=m,m\0"
 
 #include <configs/stm32mp15_common.h>
 

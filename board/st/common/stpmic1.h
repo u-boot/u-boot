@@ -3,4 +3,4 @@
  * Copyright (C) 2020, STMicroelectronics - All Rights Reserved
  */
 
-void stpmic1_init(u32 voltage_mv);
+struct udevice *stpmic1_init(u32 voltage_mv);

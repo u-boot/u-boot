@@ -22,6 +22,14 @@
 #include "serial_stm32.h"
 #include <dm/device_compat.h>
 
+/*
+ * At 115200 bits/s
+ * 1 bit = 1 / 115200 = 8,68 us
+ * 8 bits = 69,444 us
+ * 10 bits are needed for worst case (8 bits + 1 start + 1 stop) = 86.806 us
+ */
+#define ONE_BYTE_B115200_US		87
+
 static void _stm32_serial_setbrg(fdt_addr_t base,
 				 struct stm32_uart_info *uart_info,
 				 u32 clock_rate,
@@ -209,12 +217,10 @@ static int stm32_serial_probe(struct udevice *dev)
 	 * before uart initialization, wait for TC bit (Transmission Complete)
 	 * in case there is still chars from previous bootstage to transmit
 	 */
-	ret = read_poll_timeout(readl, isr, isr & USART_ISR_TC, 10, 150,
-				plat->base + ISR_OFFSET(stm32f4));
-	if (ret) {
-		clk_disable(&clk);
-		return ret;
-	}
+	ret = read_poll_timeout(readl, isr, isr & USART_ISR_TC, 50,
+				16 * ONE_BYTE_B115200_US, plat->base + ISR_OFFSET(stm32f4));
+	if (ret)
+		dev_dbg(dev, "FIFO not empty, some character can be lost (%d)\n", ret);
 
 	ret = reset_get_by_index(dev, 0, &reset);
 	if (!ret) {

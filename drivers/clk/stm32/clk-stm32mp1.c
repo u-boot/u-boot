@@ -881,7 +881,8 @@ static int stm32mp1_clk_get_parent(struct stm32mp1_clk_priv *priv,
 		return sel[s].parent[p];
 	}
 
-	log_err("no parents defined for clk id %d\n", (u32)id);
+	/* clock is DISABLED when the clock src is not in clk_parent[] range */
+	log_debug("no parents defined for clk id %d\n", (u32)id);
 
 	return -EINVAL;
 }

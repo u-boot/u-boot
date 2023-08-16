@@ -729,7 +729,7 @@ void __secure psci_system_suspend(u32 __always_unused function_id,
 	setbits_le32(STM32_RCC_BASE + RCC_MP_CIER, RCC_MP_CIFR_WKUPF);
 
 	setbits_le32(STM32_PWR_BASE + PWR_MPUCR,
-		     PWR_MPUCR_CSSF | PWR_MPUCR_CSTDBYDIS | PWR_MPUCR_PDDS);
+		     PWR_MPUCR_CSSF | PWR_MPUCR_CSTDBYDIS);
 
 	saved_mcudivr = readl(STM32_RCC_BASE + RCC_MCUDIVR);
 	saved_pll3cr = readl(STM32_RCC_BASE + RCC_PLL3CR);
