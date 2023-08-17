@@ -233,6 +233,7 @@ config PMIC_QCOM
 
 config PMIC_RK8XX
 	bool "Enable support for Rockchip PMIC RK8XX"
+	select SYSRESET_CMD_POWEROFF if SYSRESET && CMD_POWEROFF
 	---help---
 	The Rockchip RK808 PMIC provides four buck DC-DC convertors, 8 LDOs,
 	an RTC and two low Rds (resistance (drain to source)) switches. It is
