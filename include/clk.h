@@ -223,9 +223,11 @@ struct clk *devm_clk_get(struct udevice *dev, const char *id);
 static inline struct clk *devm_clk_get_optional(struct udevice *dev,
 						const char *id)
 {
+	int ret;
 	struct clk *clk = devm_clk_get(dev, id);
 
-	if (PTR_ERR(clk) == -ENODATA)
+	ret = PTR_ERR(clk);
+	if (ret == -ENODATA || ret == -ENOENT)
 		return NULL;
 
 	return clk;
@@ -335,7 +337,7 @@ static inline int clk_get_by_name_optional(struct udevice *dev,
 	int ret;
 
 	ret = clk_get_by_name(dev, name, clk);
-	if (ret == -ENODATA)
+	if (ret == -ENODATA || ret == -ENOENT)
 		return 0;
 
 	return ret;
@@ -359,7 +361,7 @@ static inline int clk_get_by_name_nodev_optional(ofnode node, const char *name,
 	int ret;
 
 	ret = clk_get_by_name_nodev(node, name, clk);
-	if (ret == -ENODATA)
+	if (ret == -ENODATA || ret == -ENOENT)
 		return 0;
 
 	return ret;
