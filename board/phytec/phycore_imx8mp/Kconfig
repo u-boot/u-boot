@@ -12,4 +12,5 @@ config SYS_CONFIG_NAME
 config IMX_CONFIG
 	default "board/phytec/phycore_imx8mp/imximage-8mp-sd.cfg"
 
+source "board/phytec/common/Kconfig"
 endif
