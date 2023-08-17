@@ -91,7 +91,7 @@ List of mainline supported Rockchip boards:
      - Theobroma Systems RK3399-Q7 SoM - Puma (puma_rk3399)
 
 * rk3566
-     - Anbernic RGxx3 (anbernic-rgxx3)
+     - Anbernic RGxx3 (anbernic-rgxx3-rk3566)
      - Pine64 Quartz64-A Board (quartz64-a-rk3566)
      - Pine64 Quartz64-B Board (quartz64-b-rk3566)
      - Pine64 SOQuartz on Blade (soquartz-blade-rk3566)
