@@ -186,3 +186,18 @@ char * __maybe_unused phytec_get_opt(struct phytec_eeprom_data *data)
 
 	return opt;
 }
+
+u8 __maybe_unused phytec_get_rev(struct phytec_eeprom_data *data)
+{
+	struct phytec_api2_data *api2;
+
+	if (!data)
+		data = &eeprom_data;
+
+	if (data->api_rev < PHYTEC_API_REV2)
+		return PHYTEC_EEPROM_INVAL;
+
+	api2 = &data->data.data_api2;
+
+	return api2->pcb_rev;
+}

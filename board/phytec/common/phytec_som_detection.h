@@ -68,6 +68,7 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 void __maybe_unused phytec_print_som_info(struct phytec_eeprom_data *data);
 
 char * __maybe_unused phytec_get_opt(struct phytec_eeprom_data *data);
+u8 __maybe_unused phytec_get_rev(struct phytec_eeprom_data *data);
 
 #else
 
@@ -99,6 +100,10 @@ inline char *__maybe_unused phytec_get_opt(struct phytec_eeprom_data *data)
 	return NULL;
 }
 
+u8 __maybe_unused phytec_get_rev(struct phytec_eeprom_data *data)
+{
+	return PHYTEC_EEPROM_INVAL;
+}
 #endif /* IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION) */
 
 #endif /* _PHYTEC_SOM_DETECTION_H */
