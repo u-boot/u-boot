@@ -695,7 +695,7 @@ int ffa_emul_find(struct udevice *dev, struct udevice **emulp)
 		return ret;
 	}
 
-	log_info("FF-A emulator ready to use\n");
+	log_debug("FF-A emulator ready to use\n");
 
 	return 0;
 }

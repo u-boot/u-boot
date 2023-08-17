@@ -30,7 +30,7 @@ static int sandbox_ffa_discover(struct udevice *dev)
 	int ret;
 	struct udevice *emul;
 
-	log_info("Emulated FF-A framework discovery\n");
+	log_debug("Emulated FF-A framework discovery\n");
 
 	ret = ffa_emul_find(dev, &emul);
 	if (ret) {

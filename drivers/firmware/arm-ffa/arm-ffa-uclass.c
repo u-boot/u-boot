@@ -201,11 +201,11 @@ int ffa_get_version_hdlr(struct udevice *dev)
 	major = GET_FFA_MAJOR_VERSION(res.a0);
 	minor = GET_FFA_MINOR_VERSION(res.a0);
 
-	log_info("FF-A driver %d.%d\nFF-A framework %d.%d\n",
+	log_debug("FF-A driver %d.%d\nFF-A framework %d.%d\n",
 		 FFA_MAJOR_VERSION, FFA_MINOR_VERSION, major, minor);
 
 	if (major == FFA_MAJOR_VERSION && minor >= FFA_MINOR_VERSION) {
-		log_info("FF-A versions are compatible\n");
+		log_debug("FF-A versions are compatible\n");
 
 		if (dev) {
 			uc_priv = dev_get_uclass_priv(dev);

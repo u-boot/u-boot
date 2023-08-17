@@ -231,7 +231,7 @@ Please refer the command documentation at :doc:`../usage/cmd/armffa`
 Example of boot logs with FF-A enabled
 --------------------------------------
 
-For example, when using FF-A with Corstone-1000 the logs are as follows:
+For example, when using FF-A with Corstone-1000, debug logs enabled, the output is as follows:
 
 ::
 
