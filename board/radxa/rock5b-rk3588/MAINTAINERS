@@ -1,5 +1,6 @@
 ROCK5B-RK3588
 M:	Eugen Hristev <eugen.hristev@collabora.com>
+R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	board/radxa/rock5b-rk3588
 F:	include/configs/rock5b-rk3588.h

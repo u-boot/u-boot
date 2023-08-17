@@ -16,6 +16,7 @@ F:	arch/arm/dts/rk3568-lubancat-2-u-boot.dtsi
 
 NANOPI-R5C
 M:	Tianling Shen <cnsztl@gmail.com>
+R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	configs/nanopi-r5c-rk3568_defconfig
 F:	arch/arm/dts/rk3568-nanopi-r5c.dts
@@ -23,6 +24,7 @@ F:	arch/arm/dts/rk3568-nanopi-r5c-u-boot.dtsi
 
 NANOPI-R5S
 M:	Tianling Shen <cnsztl@gmail.com>
+R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	configs/nanopi-r5s-rk3568_defconfig
 F:	arch/arm/dts/rk3568-nanopi-r5s.dts
@@ -31,6 +33,7 @@ F:	arch/arm/dts/rk3568-nanopi-r5s-u-boot.dtsi
 
 RADXA-CM3-IO
 M:	Jagan Teki <jagan@amarulasolutions.com>
+R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	configs/radxa-cm3-io-rk3566_defconfig
 F:	arch/arm/dts/rk3566-radxa-cm3.dtsi
@@ -47,6 +50,7 @@ F:	arch/arm/dts/rk3568-radxa-e25-u-boot.dtsi
 
 ROCK-3A
 M:	Akash Gajjar <gajjar04akash@gmail.com>
+R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	configs/rock-3a-rk3568_defconfig
 F:	arch/arm/dts/rk3568-rock-3a.dts
