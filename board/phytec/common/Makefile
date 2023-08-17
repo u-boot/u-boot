@@ -8,3 +8,4 @@ obj- := __dummy__.o
 endif
 
 obj-$(CONFIG_PHYTEC_SOM_DETECTION) += phytec_som_detection.o
+obj-$(CONFIG_PHYTEC_IMX8M_SOM_DETECTION) += imx8m_som_detection.o
