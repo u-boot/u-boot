@@ -91,18 +91,22 @@ List of mainline supported Rockchip boards:
      - Theobroma Systems RK3399-Q7 SoM - Puma (puma_rk3399)
 
 * rk3566
-     - Anbernic RGxx3 (rgxx3-rk3566)
+     - Anbernic RGxx3 (anbernic-rgxx3)
+     - Pine64 Quartz64-A Board (quartz64-a-rk3566)
+     - Pine64 Quartz64-B Board (quartz64-b-rk3566)
+     - Pine64 SOQuartz on Blade (soquartz-blade-rk3566)
+     - Pine64 SOQuartz on CM4-IO (soquartz-cm4-rk3566)
+     - Pine64 SOQuartz on Model A (soquartz-model-a-rk3566)
+     - Radxa CM3 IO Board (radxa-cm3-io-rk3566)
 
 * rk3568
      - Rockchip Evb-RK3568 (evb-rk3568)
-     - EmbedFire Lubancat 2 (lubancat-2-rk3568_defconfig)
+     - EmbedFire LubanCat 2 (lubancat-2-rk3568)
+     - FriendlyElec NanoPi R5C (nanopi-r5c-rk3568)
+     - FriendlyElec NanoPi R5S (nanopi-r5s-rk3568)
      - Hardkernel ODROID-M1 (odroid-m1-rk3568)
-     - Pine64 Quartz64-A Board (quartz64-a-rk3566_defconfig)
-     - Pine64 Quartz64-B Board (quartz64-b-rk3566_defconfig)
-     - Pine64 SOQuartz on Blade (soquartz-blade-rk3566_defconfig)
-     - Pine64 SOQuartz on CM4-IO (soquartz-cm4-rk3566_defconfig)
-     - Pine64 SOQuartz on Model A (soquartz-model-a-rk3566_defconfig)
-     - Radxa E25 Carrier Board (radxa-e25-rk3568_defconfig)
+     - Radxa E25 Carrier Board (radxa-e25-rk3568)
+     - Radxa ROCK 3 Model A (rock-3a-rk3568)
 
 * rk3588
      - Rockchip EVB (evb-rk3588)
