@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra30-asus-transformer.dtsi"
+
+/ {
+	model = "ASUS Transformer Pad TF300T";
+	compatible = "asus,tf300t", "nvidia,tegra30";
+
+	gpio@6000d000 {
+		volume-buttons-hog {
+			gpio-hog;
+			gpios = <TEGRA_GPIO(R, 0) GPIO_ACTIVE_HIGH>,
+				<TEGRA_GPIO(K, 7) GPIO_ACTIVE_HIGH>;
+			output-low;
+		};
+	};
+};

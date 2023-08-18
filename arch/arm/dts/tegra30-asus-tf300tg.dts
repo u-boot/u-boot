@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra30-asus-transformer.dtsi"
+
+/ {
+	model = "ASUS Transformer Pad 3G TF300TG";
+	compatible = "asus,tf300tg", "nvidia,tegra30";
+};
