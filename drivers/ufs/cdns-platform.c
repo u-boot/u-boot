@@ -119,7 +119,7 @@ static const struct udevice_id cdns_ufs_pltfm_ids[] = {
 
 U_BOOT_DRIVER(cdns_ufs_pltfm) = {
 	.name		= "cdns-ufs-pltfm",
-	.id		=  UCLASS_UFS,
+	.id		= UCLASS_UFS,
 	.of_match	= cdns_ufs_pltfm_ids,
 	.probe		= cdns_ufs_pltfm_probe,
 	.bind		= cdns_ufs_pltfm_bind,
