@@ -710,3 +710,59 @@ static int dm_test_video_copy(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_video_copy, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
+/* Test video damage tracking */
+static int dm_test_video_damage(struct unit_test_state *uts)
+{
+	struct sandbox_sdl_plat *plat;
+	struct udevice *dev, *con;
+	struct video_priv *priv;
+	const char *test_string_1 = "Criticism may not be agreeable, ";
+	const char *test_string_2 = "but it is necessary.";
+	const char *test_string_3 = "It fulfils the same function as pain in the human body.";
+
+	if (!IS_ENABLED(CONFIG_VIDEO_DAMAGE))
+		return -EAGAIN;
+
+	ut_assertok(uclass_find_device(UCLASS_VIDEO, 0, &dev));
+	ut_assert(!device_active(dev));
+	plat = dev_get_plat(dev);
+	plat->font_size = 32;
+
+	ut_assertok(video_get_nologo(uts, &dev));
+	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+	priv = dev_get_uclass_priv(dev);
+
+	vidconsole_position_cursor(con, 14, 10);
+	vidconsole_put_string(con, test_string_2);
+	ut_asserteq(449, priv->damage.xstart);
+	ut_asserteq(325, priv->damage.ystart);
+	ut_asserteq(661, priv->damage.xend);
+	ut_asserteq(350, priv->damage.yend);
+
+	vidconsole_position_cursor(con, 7, 5);
+	vidconsole_put_string(con, test_string_1);
+	ut_asserteq(225, priv->damage.xstart);
+	ut_asserteq(164, priv->damage.ystart);
+	ut_asserteq(661, priv->damage.xend);
+	ut_asserteq(350, priv->damage.yend);
+
+	vidconsole_position_cursor(con, 21, 15);
+	vidconsole_put_string(con, test_string_3);
+	ut_asserteq(225, priv->damage.xstart);
+	ut_asserteq(164, priv->damage.ystart);
+	ut_asserteq(1280, priv->damage.xend);
+	ut_asserteq(510, priv->damage.yend);
+
+	video_sync(dev, true);
+	ut_asserteq(priv->xsize, priv->damage.xstart);
+	ut_asserteq(priv->ysize, priv->damage.ystart);
+	ut_asserteq(0, priv->damage.xend);
+	ut_asserteq(0, priv->damage.yend);
+
+	ut_asserteq(7339, compress_frame_buffer(uts, dev, false));
+	ut_assertok(check_copy_frame_buffer(uts, dev));
+
+	return 0;
+}
+DM_TEST(dm_test_video_damage, UTF_SCAN_PDATA | UTF_SCAN_FDT);
