@@ -656,3 +656,57 @@ static int dm_test_video_truetype_bs(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_video_truetype_bs, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+
+/* Test partial rendering onto hardware frame buffer */
+static int dm_test_video_copy(struct unit_test_state *uts)
+{
+	struct sandbox_sdl_plat *plat;
+	struct video_uc_plat *uc_plat;
+	struct udevice *dev, *con;
+	struct video_priv *priv;
+	const char *test_string = "\n\tCriticism may not be agreeable, but it is necessary.\t";
+	ulong addr;
+
+	if (!IS_ENABLED(CONFIG_VIDEO_COPY))
+		return -EAGAIN;
+
+	ut_assertok(uclass_find_first_device(UCLASS_VIDEO, &dev));
+	ut_assertnonnull(dev);
+	uc_plat = dev_get_uclass_plat(dev);
+	uc_plat->hide_logo = true;
+	plat = dev_get_plat(dev);
+	plat->font_size = 32;
+	ut_assert(!device_active(dev));
+	ut_assertok(uclass_first_device_err(UCLASS_VIDEO, &dev));
+	ut_assertnonnull(dev);
+	priv = dev_get_uclass_priv(dev);
+
+	ut_assertok(read_file(uts, "tools/logos/denx.bmp", &addr));
+	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
+
+	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+	vidconsole_put_string(con, "\n\n\n\n\n");
+	vidconsole_put_string(con, test_string);
+	vidconsole_put_string(con, test_string);
+
+	ut_asserteq(6678, compress_frame_buffer(uts, dev, false));
+	ut_assertok(check_copy_frame_buffer(uts, dev));
+
+	/*
+	 * Secretly clear the hardware frame buffer, but in a different
+	 * color (black) to see which parts will be overwritten.
+	 */
+	memset(priv->copy_fb, 0, priv->fb_size);
+
+	/*
+	 * We should have the full content on the main buffer, but only
+	 * the new content should have been copied to the copy buffer.
+	 */
+	vidconsole_put_string(con, test_string);
+	vidconsole_put_string(con, test_string);
+	ut_asserteq(7589, compress_frame_buffer(uts, dev, false));
+	ut_asserteq(5278, compress_frame_buffer(uts, dev, true));
+
+	return 0;
+}
+DM_TEST(dm_test_video_copy, UTF_SCAN_PDATA | UTF_SCAN_FDT);
