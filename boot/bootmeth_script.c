@@ -243,7 +243,8 @@ static const struct udevice_id script_bootmeth_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(bootmeth_script) = {
+/* Put an number before 'script' to provide a default ordering */
+U_BOOT_DRIVER(bootmeth_2script) = {
 	.name		= "bootmeth_script",
 	.id		= UCLASS_BOOTMETH,
 	.of_match	= script_bootmeth_ids,

@@ -132,6 +132,9 @@ above bootdev scanning.
 Controlling ordering
 --------------------
 
+By default, faster bootdevs (or those which are assumed to be faster) are used
+first, since they are more likely to be able to boot the device quickly.
+
 Several options are available to control the ordering of boot scanning:
 
 
@@ -151,6 +154,10 @@ bootdevs and their sequence numbers.
 bootmeths
 ~~~~~~~~~
 
+By default bootmeths are checked in name order. Use `bootmeth list` to see the
+ordering. Note that the `extlinux` and `script` bootmeth is first, to preserve the behaviour
+used by the old distro scripts.
+
 This environment variable can be used to control the list of bootmeths used and
 their ordering for example::
 
@@ -163,7 +170,6 @@ controlled by aliases.
 
 The :ref:`usage/cmd/bootmeth:bootmeth command` (`bootmeth order`) operates in
 the same way as setting this variable.
-
 
 Bootdev uclass
 --------------
