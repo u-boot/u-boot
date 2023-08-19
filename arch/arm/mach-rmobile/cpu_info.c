@@ -83,14 +83,15 @@ static const struct {
 
 static int rmobile_cpuinfo_idx(void)
 {
-	int i = 0;
 	u32 cpu_type = rmobile_get_cpu_type();
+	int i;
 
-	for (; i < ARRAY_SIZE(rmobile_cpuinfo) - 1; i++)
+	for (i = 0; i < ARRAY_SIZE(rmobile_cpuinfo) - 1; i++)
 		if (rmobile_cpuinfo[i].cpu_type == cpu_type)
-			break;
+			return i;
 
-	return i;
+	/* Unknown "CPU" entry */
+	return ARRAY_SIZE(rmobile_cpuinfo) - 1;
 }
 
 static const u8 *get_cpu_name(int idx)
