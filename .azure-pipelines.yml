@@ -126,7 +126,7 @@ stages:
           ./tools/buildman/buildman --maintainer-check || exit 0
 
   - job: tools_only
-    displayName: 'Ensure host tools build'
+    displayName: 'Ensure host tools and env tools build'
     pool:
       vmImage: $(ubuntu_vm)
     container:
@@ -135,16 +135,7 @@ stages:
     steps:
       - script: |
           make tools-only_config tools-only -j$(nproc)
-
-  - job: envtools
-    displayName: 'Ensure env tools build'
-    pool:
-      vmImage: $(ubuntu_vm)
-    container:
-      image: $(ci_runner_image)
-      options: $(container_option)
-    steps:
-      - script: |
+          make mrproper
           make tools-only_config envtools -j$(nproc)
 
   - job: utils

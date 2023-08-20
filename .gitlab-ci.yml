@@ -190,16 +190,12 @@ Check for configs without MAINTAINERS entry:
     - ./tools/buildman/buildman --maintainer-check || exit 0
 
 # Ensure host tools build
-Build tools-only:
+Build tools-only and envtools:
   stage: testsuites
   script:
-    - make tools-only_config tools-only -j$(nproc)
-
-# Ensure env tools build
-Build envtools:
-  stage: testsuites
-  script:
-    - make tools-only_config envtools -j$(nproc)
+    - make tools-only_config tools-only -j$(nproc);
+      make mrproper;
+      make tools-only_config envtools -j$(nproc)
 
 Run binman, buildman, dtoc, Kconfig and patman testsuites:
   stage: testsuites
