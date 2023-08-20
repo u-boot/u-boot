@@ -86,7 +86,7 @@ static int rmobile_cpuinfo_idx(void)
 	int i = 0;
 	u32 cpu_type = rmobile_get_cpu_type();
 
-	for (; i < ARRAY_SIZE(rmobile_cpuinfo); i++)
+	for (; i < ARRAY_SIZE(rmobile_cpuinfo) - 1; i++)
 		if (rmobile_cpuinfo[i].cpu_type == cpu_type)
 			break;
 
