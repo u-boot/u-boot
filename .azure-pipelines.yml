@@ -67,16 +67,6 @@ stages:
                   :^doc/ :^arch/arm/dts/ :^scripts/kconfig/lkc.h
                   :^include/linux/kconfig.h :^tools/ && exit 1 || exit 0
 
-  - job: cppcheck
-    displayName: 'Static code analysis with cppcheck'
-    pool:
-      vmImage: $(ubuntu_vm)
-    container:
-      image: $(ci_runner_image)
-      options: $(container_option)
-    steps:
-      - script: cppcheck -j$(nproc) --force --quiet --inline-suppr .
-
   - job: docs
     displayName: 'Build documentation'
     pool:
@@ -91,28 +81,6 @@ stages:
           pip install -r doc/sphinx/requirements.txt
           make htmldocs KDOC_WERROR=1
           make infodocs
-
-  - job: todo
-    displayName: 'Search for TODO within source tree'
-    pool:
-      vmImage: $(ubuntu_vm)
-    container:
-      image: $(ci_runner_image)
-      options: $(container_option)
-    steps:
-      - script: grep -r TODO .
-      - script: grep -r FIXME .
-      - script: grep -r HACK . | grep -v HACKKIT
-
-  - job: sloccount
-    displayName: 'Some statistics about the code base'
-    pool:
-      vmImage: $(ubuntu_vm)
-    container:
-      image: $(ci_runner_image)
-      options: $(container_option)
-    steps:
-      - script: sloccount .
 
   - job: maintainers
     displayName: 'Ensure all configs have MAINTAINERS entries'
