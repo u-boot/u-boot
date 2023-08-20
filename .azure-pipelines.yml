@@ -254,9 +254,17 @@ stages:
       matrix:
         sandbox:
           TEST_PY_BD: "sandbox"
+        sandbox_asan:
+          TEST_PY_BD: "sandbox"
+          OVERRIDE: "-a ASAN"
+          TEST_PY_TEST_SPEC: "version"
         sandbox_clang:
           TEST_PY_BD: "sandbox"
           OVERRIDE: "-O clang-16"
+        sandbox_clang_asan:
+          TEST_PY_BD: "sandbox"
+          OVERRIDE: "-O clang-16 -a ASAN"
+          TEST_PY_TEST_SPEC: "version"
         sandbox_nolto:
           TEST_PY_BD: "sandbox"
           BUILD_ENV: "NO_LTO=1"
@@ -476,84 +484,26 @@ stages:
       # Use almost the same target division in .travis.yml, only merged
       # 3 small build jobs (arc/microblaze/xtensa) into one.
       matrix:
-        arc_nios2_m68k_microblaze_xtensa:
-          BUILDMAN: "arc nios2 microblaze m68k xtensa"
-        amlogic:
-          BUILDMAN: "amlogic"
-        arm11_arm7_arm920t_arm946es:
-          BUILDMAN: "arm11 arm7 arm920t arm946es"
-        arm926ejs:
-          BUILDMAN: "arm926ejs -x freescale,siemens,at91,kirkwood,omap"
-        at91_non_armv7:
-          BUILDMAN: "at91 -x armv7"
-        at91_non_arm926ejs:
-          BUILDMAN: "at91 -x arm926ejs"
-        boundary_engicam_toradex:
-          BUILDMAN: "boundary engicam toradex"
-        arm_bcm:
-          BUILDMAN: "bcm -x mips"
-        nxp_arm32:
-          BUILDMAN: "freescale -x powerpc,m68k,aarch64,ls101,ls102,ls104,ls108,ls20,lx216"
-        nxp_ls101x_ls108x:
-          BUILDMAN: "freescale&ls101 freescale&ls108"
-        nxp_ls102x:
-          BUILDMAN: "freescale&ls102 -x keymile"
-        nxp_ls104x:
-          BUILDMAN: "freescale&ls104"
-        nxp_ls20xx_lx216x:
-          BUILDMAN: "freescale&ls20 freescale&lx216"
-        imx6:
-          BUILDMAN: "mx6 -x boundary,engicam,freescale,technexion,toradex"
+        am33xx_at91_kirkwood_mvebu_omap:
+          BUILDMAN: "am33xx at91_kirkwood mvebu omap -x siemens"
+        amlogic_bcm_boundary_engicam_siemens_technexion_oradex:
+          BUILDMAN: "amlogic bcm boundary engicam siemens technexion toradex -x mips"
+        arm_nxp_minus_imx:
+          BUILDMAN: "freescale -x powerpc,m68k,imx,mx"
         imx:
-          BUILDMAN: "mx -x mx6,imx8,freescale,technexion,toradex"
-        imx8_imx9:
-          BUILDMAN: "imx8 imx9 -x engicam,technexion,toradex"
-        keymiles_siemens_technexion:
-          BUILDMAN: "keymile siemens technexion"
-        keystone2_keystone3:
-          BUILDMAN: "k2 k3 -x siemens,toradex"
-        sandbox_asan:
-          BUILDMAN: "sandbox"
-          OVERRIDE: "-a ASAN"
-        sandbox_clang_asan:
-          BUILDMAN: "sandbox"
-          OVERRIDE: "-O clang-16 -a ASAN"
-        samsung_socfpga_renesas:
-          BUILDMAN: "samsung socfpga renesas"
-        sun4i_sun9i:
-          BUILDMAN: "sun4i sun9i"
-        sun5i_sun6i:
-          BUILDMAN: "sun5i sun6i"
-        sun7i:
-          BUILDMAN: "sun7i"
-        sun8i:
-          BUILDMAN: "sun8i"
-        sun50i:
-          BUILDMAN: "sun50i"
-        arm_catch_all:
-          BUILDMAN: "arm -x arm11,arm7,arm9,aarch64,at91,bcm,freescale,kirkwood,mvebu,renesas,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,toradex,socfpga,k2,k3,zynq"
-        sandbox_x86:
-          BUILDMAN: "sandbox x86"
-        kirkwood_mvebu_uniphier:
-          BUILDMAN: "kirkwood mvebu uniphier"
-        mips:
-          BUILDMAN: "mips"
+          BUILDMAN: "mx imx -x boundary,engicam,technexion,toradex"
+        rk:
+          BUILDMAN: "rk"
+        sunxi:
+          BUILDMAN: "sunxi"
         powerpc:
-          BUILDMAN: "powerpc -x keymile"
-        tegra:
-          BUILDMAN: "tegra -x toradex"
-        am33xx_omap:
-          BUILDMAN: "am33xx omap -x siemens"
+          BUILDMAN: "powerpc"
+        arm_catch_all:
+          BUILDMAN: "arm -x aarch64,am33xx,at91,bcm,ls1,kirkwood,mvebu,omap,rk,siemens,mx,sunxi,technexion,toradex"
         aarch64_catch_all:
-          BUILDMAN: "aarch64 -x amlogic,bcm,imx8,imx9,k3,tegra,ls1,ls2,lx216,mvebu,uniphier,renesas,sunxi,samsung,socfpga,rk,versal,zynq"
-        rk_non_rockchip_64bit:
-          BUILDMAN: "rk&aarch64 -x rockchip"
-        rk_rockchip_64bit:
-          BUILDMAN: "rk&aarch64&rockchip"
-        zynq_zynqmp_versal:
-          BUILDMAN: "zynq&armv7 versal zynqmp&aarch64"
-        riscv:
-          BUILDMAN: "riscv"
+          BUILDMAN: "aarch64 -x amlogic,bcm,engicam,imx,ls1,ls2,lx216,mvebu,rk,siemens,sunxi,toradex"
+        everything_but_arm_and_powerpc:
+          BUILDMAN: "-x arm,powerpc"
     steps:
       - script: |
           cat << EOF > build.sh
