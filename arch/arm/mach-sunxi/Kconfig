@@ -836,6 +836,7 @@ config VIDEO_SUNXI
 	depends on !SUNXI_GEN_NCAT2
 	select VIDEO
 	select DISPLAY
+	imply VIDEO_DAMAGE
 	imply VIDEO_DT_SIMPLEFB
 	default y
 	---help---

@@ -8,6 +8,7 @@
 menuconfig VIDEO_STM32
 	bool "Enable STM32 video support"
 	depends on VIDEO
+	imply VIDEO_DAMAGE
 	help
 	  STM32 supports many video output options including RGB and
 	  DSI. This option enables these supports which can be used on
