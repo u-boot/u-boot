@@ -68,7 +68,7 @@ For the next scheduled release, release candidates were made on::
 
 * U-Boot v2023.10-rc2 was released on Mon 07 August 2023.
 
-.. * U-Boot v2023.10-rc3 was released on Mon 21 August 2023.
+* U-Boot v2023.10-rc3 was released on Mon 21 August 2023.
 
 .. * U-Boot v2023.10-rc4 was released on Mon 04 September 2023.
 
