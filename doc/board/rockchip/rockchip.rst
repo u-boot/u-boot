@@ -104,6 +104,7 @@ List of mainline supported Rockchip boards:
      - EmbedFire LubanCat 2 (lubancat-2-rk3568)
      - FriendlyElec NanoPi R5C (nanopi-r5c-rk3568)
      - FriendlyElec NanoPi R5S (nanopi-r5s-rk3568)
+     - Generic RK3566/RK3568 (generic-rk3568)
      - Hardkernel ODROID-M1 (odroid-m1-rk3568)
      - Radxa E25 Carrier Board (radxa-e25-rk3568)
      - Radxa ROCK 3 Model A (rock-3a-rk3568)
