@@ -44,7 +44,6 @@ int spl_blk_load_image(struct spl_image_info *spl_image,
 		       enum uclass_id uclass_id, int devnum, int partnum)
 {
 	const char *filename = CONFIG_SPL_FS_LOAD_PAYLOAD_NAME;
-	struct disk_partition part_info = {};
 	struct legacy_img_hdr *header;
 	struct blk_desc *blk_desc;
 	loff_t actlen, filesize;
@@ -59,11 +58,6 @@ int spl_blk_load_image(struct spl_image_info *spl_image,
 
 	blk_show_device(uclass_id, devnum);
 	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
-	ret = part_get_info(blk_desc, 1, &part_info);
-	if (ret) {
-		printf("spl: no partition table found. Err - %d\n", ret);
-		goto out;
-	}
 
 	dev.ifname = blk_get_uclass_name(uclass_id);
 	snprintf(dev.dev_part_str, sizeof(dev.dev_part_str) - 1, "%x:%x",

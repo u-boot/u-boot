@@ -45,4 +45,5 @@ config ARM_SMCCC_FEATURES
 	  the PSCI driver is always probed and binds dirvers registered to the Arm SMCCC
 	  services if any and reported as supported by the SMCCC firmware.
 
+source "drivers/firmware/arm-ffa/Kconfig"
 source "drivers/firmware/scmi/Kconfig"

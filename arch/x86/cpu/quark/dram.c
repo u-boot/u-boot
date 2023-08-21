@@ -184,7 +184,7 @@ int dram_init_banksize(void)
  * the relocation address, and how far U-Boot is moved by relocation are
  * set in the global data structure.
  */
-phys_size_t board_get_usable_ram_top(phys_size_t total_size)
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	return gd->ram_size;
 }

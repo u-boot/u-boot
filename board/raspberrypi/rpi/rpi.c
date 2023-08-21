@@ -334,7 +334,7 @@ static void set_fdt_addr(void)
 /*
  * Prevent relocation from stomping on a firmware provided FDT blob.
  */
-phys_size_t board_get_usable_ram_top(phys_size_t total_size)
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	if ((gd->ram_top - fw_dtb_pointer) > SZ_64M)
 		return gd->ram_top;
@@ -561,6 +561,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	node = fdt_node_offset_by_compatible(blob, -1, "simple-framebuffer");
 	if (node < 0)
 		fdt_simplefb_add_node(blob);
+	else
+		fdt_simplefb_enable_and_mem_rsv(blob);
 
 #ifdef CONFIG_EFI_LOADER
 	/* Reserve the spin table */

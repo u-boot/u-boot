@@ -680,8 +680,10 @@ repeat:
 			break;
 
 		case 'd':
-			if (fmt[1] == 'E')
+			if (fmt[1] == 'E') {
 				flags |= ERRSTR;
+				fmt++;
+			}
 		/* fallthrough */
 		case 'i':
 			flags |= SIGN;
@@ -725,7 +727,6 @@ repeat:
 			ADDCH(str, ' ');
 			for (p = errno_str(num); *p; p++)
 				ADDCH(str, *p);
-			fmt++;
 		}
 	}
 

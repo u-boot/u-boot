@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra30-lg-x3.dtsi"
+
+/ {
+	model = "LG Optimus 4X HD";
+	compatible = "lge,p880", "nvidia,tegra30";
+
+	aliases {
+		mmc1 = &sdmmc3; /* uSD slot */
+	};
+
+	sdmmc3: sdhci@78000400  {
+		status = "okay";
+		bus-width = <4>;
+
+		cd-gpios = <&gpio TEGRA_GPIO(W, 5) GPIO_ACTIVE_LOW>;
+
+		vmmc-supply = <&vdd_usd>;
+		vqmmc-supply = <&vdd_1v8_vio>;
+	};
+
+	gpio-keys {
+		key-volume-up {
+			label = "Volume Up";
+			gpios = <&gpio TEGRA_GPIO(O, 7) GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_UP>;
+		};
+	};
+
+	panel: panel {
+		compatible = "jdi,dx12d100vm0eaa";
+
+		enable-gpios = <&gpio TEGRA_GPIO(Y, 0) GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio TEGRA_GPIO(W, 0) GPIO_ACTIVE_HIGH>;
+
+		backlight = <&backlight>;
+	};
+};

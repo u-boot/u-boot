@@ -113,11 +113,9 @@ static int rk3568_set_mux(struct rockchip_pin_bank *bank, int pin, int mux)
 	struct rockchip_pinctrl_priv *priv = bank->priv;
 	int iomux_num = (pin / 8);
 	struct regmap *regmap;
-	int reg, ret, mask;
+	int reg, mask;
 	u8 bit;
-	u32 data;
-
-	debug("setting mux of GPIO%d-%d to %d\n", bank->bank_num, pin, mux);
+	u32 data, rmask;
 
 	if (bank->iomux[iomux_num].type & IOMUX_SOURCE_PMU)
 		regmap = priv->regmap_pmu;
@@ -131,10 +129,10 @@ static int rk3568_set_mux(struct rockchip_pin_bank *bank, int pin, int mux)
 	mask = 0xf;
 
 	data = (mask << (bit + 16));
+	rmask = data | (data >> 16);
 	data |= (mux & mask) << bit;
-	ret = regmap_write(regmap, reg, data);
 
-	return ret;
+	return regmap_update_bits(regmap, reg, rmask, data);
 }
 
 #define RK3568_PULL_PMU_OFFSET		0x20
@@ -225,7 +223,7 @@ static int rk3568_set_pull(struct rockchip_pin_bank *bank,
 	struct regmap *regmap;
 	int reg, ret;
 	u8 bit, type;
-	u32 data;
+	u32 data, rmask;
 
 	if (pull == PIN_CONFIG_BIAS_PULL_PIN_DEFAULT)
 		return -ENOTSUPP;
@@ -249,52 +247,59 @@ static int rk3568_set_pull(struct rockchip_pin_bank *bank,
 
 	/* enable the write to the equivalent lower bits */
 	data = ((1 << ROCKCHIP_PULL_BITS_PER_PIN) - 1) << (bit + 16);
-
+	rmask = data | (data >> 16);
 	data |= (ret << bit);
-	ret = regmap_write(regmap, reg, data);
 
-	return ret;
+	return regmap_update_bits(regmap, reg, rmask, data);
 }
+
+#define GRF_GPIO1C5_DS		0x0840
+#define GRF_GPIO2A2_DS		0x0844
+#define GRF_GPIO2B0_DS		0x0848
+#define GRF_GPIO3A0_DS		0x084c
+#define GRF_GPIO3A6_DS		0x0850
+#define GRF_GPIO4A0_DS		0x0854
 
 static int rk3568_set_drive(struct rockchip_pin_bank *bank,
 			    int pin_num, int strength)
 {
 	struct regmap *regmap;
-	int reg;
-	u32 data;
+	int reg, ret;
+	u32 data, rmask;
 	u8 bit;
 	int drv = (1 << (strength + 1)) - 1;
-	int ret = 0;
 
 	rk3568_calc_drv_reg_and_bit(bank, pin_num, &regmap, &reg, &bit);
 
 	/* enable the write to the equivalent lower bits */
 	data = ((1 << RK3568_DRV_BITS_PER_PIN) - 1) << (bit + 16);
+	rmask = data | (data >> 16);
 	data |= (drv << bit);
 
-	ret = regmap_write(regmap, reg, data);
+	ret = regmap_update_bits(regmap, reg, rmask, data);
 	if (ret)
 		return ret;
 
 	if (bank->bank_num == 1 && pin_num == 21)
-		reg = 0x0840;
+		reg = GRF_GPIO1C5_DS;
 	else if (bank->bank_num == 2 && pin_num == 2)
-		reg = 0x0844;
+		reg = GRF_GPIO2A2_DS;
 	else if (bank->bank_num == 2 && pin_num == 8)
-		reg = 0x0848;
+		reg = GRF_GPIO2B0_DS;
 	else if (bank->bank_num == 3 && pin_num == 0)
-		reg = 0x084c;
+		reg = GRF_GPIO3A0_DS;
 	else if (bank->bank_num == 3 && pin_num == 6)
-		reg = 0x0850;
+		reg = GRF_GPIO3A6_DS;
 	else if (bank->bank_num == 4 && pin_num == 0)
-		reg = 0x0854;
+		reg = GRF_GPIO4A0_DS;
 	else
 		return 0;
 
 	data = ((1 << RK3568_DRV_BITS_PER_PIN) - 1) << 16;
-	data |= drv;
+	rmask = data | (data >> 16);
+	data |= drv >> 6;
 
-	return regmap_write(regmap, reg, data);
+	return regmap_update_bits(regmap, reg, rmask, data);
 }
 
 static int rk3568_set_schmitt(struct rockchip_pin_bank *bank,
@@ -302,16 +307,17 @@ static int rk3568_set_schmitt(struct rockchip_pin_bank *bank,
 {
 	struct regmap *regmap;
 	int reg;
-	u32 data;
+	u32 data, rmask;
 	u8 bit;
 
 	rk3568_calc_schmitt_reg_and_bit(bank, pin_num, &regmap, &reg, &bit);
 
 	/* enable the write to the equivalent lower bits */
 	data = ((1 << RK3568_SCHMITT_BITS_PER_PIN) - 1) << (bit + 16);
-	data |= (enable << bit);
+	rmask = data | (data >> 16);
+	data |= ((enable ? 0x2 : 0x1) << bit);
 
-	return regmap_write(regmap, reg, data);
+	return regmap_update_bits(regmap, reg, rmask, data);
 }
 
 static struct rockchip_pin_bank rk3568_pin_banks[] = {

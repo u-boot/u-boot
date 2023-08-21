@@ -11,7 +11,7 @@
 #ifndef __CONFIG_DRA7XX_EVM_H
 #define __CONFIG_DRA7XX_EVM_H
 
-#include <environment/ti/dfu.h>
+#include <env/ti/dfu.h>
 
 #define CFG_MAX_MEM_MAPPED		0x80000000
 

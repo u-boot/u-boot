@@ -41,3 +41,6 @@ Example: Bundles both peripheral bitstream and core bitstream into FIT image
 		resets = <&rst FPGAMGR_RESET>;
 		altr,bitstream = "fit_spl_fpga.itb";
 	};
+
+- The .its related documentations can be found here
+	- Appendix - Reducing Arria 10 Fabric Configuration Time - https://rocketboards.org/foswiki/Documentation/BuildingBootloaderCycloneVAndArria10

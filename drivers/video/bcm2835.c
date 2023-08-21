@@ -54,6 +54,9 @@ static const struct udevice_id bcm2835_video_ids[] = {
 	{ .compatible = "brcm,bcm2835-hdmi" },
 	{ .compatible = "brcm,bcm2711-hdmi0" },
 	{ .compatible = "brcm,bcm2708-fb" },
+#if !IS_ENABLED(CONFIG_VIDEO_DT_SIMPLEFB)
+	{ .compatible = "simple-framebuffer" },
+#endif
 	{ }
 };
 

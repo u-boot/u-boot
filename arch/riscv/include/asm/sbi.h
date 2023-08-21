@@ -31,6 +31,8 @@ enum sbi_ext_id {
 	SBI_EXT_DBCN = 0x4442434E,
 	SBI_EXT_SUSP = 0x53555350,
 	SBI_EXT_CPPC = 0x43505043,
+	SBI_EXT_NACL = 0x4E41434C,
+	SBI_EXT_STA = 0x535441,
 };
 
 enum sbi_ext_base_fid {

@@ -77,7 +77,7 @@ static int do_cyclic_list(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 static char cyclic_help_text[] =
-	"cyclic demo <cycletime_ms> <delay_us> - register cyclic demo function\n"
+	"demo <cycletime_ms> <delay_us> - register cyclic demo function\n"
 	"cyclic list - list cyclic functions\n";
 
 U_BOOT_CMD_WITH_SUBCMDS(cyclic, "Cyclic", cyclic_help_text,

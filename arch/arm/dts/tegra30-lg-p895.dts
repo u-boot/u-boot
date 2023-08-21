@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra30-lg-x3.dtsi"
+
+/ {
+	model = "LG Optimus Vu";
+	compatible = "lge,p895", "nvidia,tegra30";
+
+	gpio-keys {
+		key-volume-up {
+			label = "Volume Up";
+			gpios = <&gpio TEGRA_GPIO(I, 6) GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_UP>;
+		};
+	};
+
+	panel: panel {
+		compatible = "hitachi,tx13d100vm0eaa";
+
+		reset-gpios = <&gpio TEGRA_GPIO(W, 0) GPIO_ACTIVE_HIGH>;
+
+		renesas,gamma = <3>;
+		renesas,inversion;
+		renesas,contrast;
+
+		vcc-supply = <&vcc_3v0_lcd>;
+		iovcc-supply = <&iovcc_1v8_lcd>;
+
+		backlight = <&backlight>;
+	};
+
+	vcc_3v0_lcd: regulator-lcd {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_3v0_lcd";
+		regulator-min-microvolt = <3000000>;
+		regulator-max-microvolt = <3000000>;
+		gpio = <&gpio TEGRA_GPIO(BB, 0) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	iovcc_1v8_lcd: regulator-lcdvio {
+		compatible = "regulator-fixed";
+		regulator-name = "iovcc_1v8_lcd";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&gpio TEGRA_GPIO(Y, 0) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};

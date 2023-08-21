@@ -296,15 +296,20 @@ int checkboard(void);
 int show_board_info(void);
 
 /**
- * Get the uppermost pointer that is valid to access
+ * board_get_usable_ram_top() - get uppermost address for U-Boot relocation
  *
- * Some systems may not map all of their address space. This function allows
- * boards to indicate what their highest support pointer value is for DRAM
- * access.
+ * Some systems have reserved memory areas in high memory. By implementing this
+ * function boards can indicate the highest address value to be used when
+ * relocating U-Boot. The returned address is exclusive (i.e. 1 byte above the
+ * last usable address).
  *
- * @param total_size	Size of U-Boot (unused?)
+ * Due to overflow on systems with 32bit phys_addr_t a value 0 is used instead
+ * of 4GiB.
+ *
+ * @total_size:	monitor length in bytes (size of U-Boot code)
+ * Return:	uppermost address for U-Boot relocation
  */
-phys_size_t board_get_usable_ram_top(phys_size_t total_size);
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size);
 
 int board_early_init_f(void);
 

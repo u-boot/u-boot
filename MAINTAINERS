@@ -133,6 +133,7 @@ M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-arm.git
 F:	arch/arm/
+F:	arch/arm/dts/Makefile
 F:	cmd/arm/
 
 ARM ALTERA SOCFPGA
@@ -266,6 +267,19 @@ F:	drivers/net/cortina_ni.c
 F:	drivers/net/cortina_ni.h
 F:	drivers/net/phy/ca_phy.c
 F:	configs/cortina_presidio-asic-pnand_defconfig
+
+ARM FF-A
+M:	Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
+S:	Maintained
+F:	arch/sandbox/include/asm/sandbox_arm_ffa.h
+F:	arch/sandbox/include/asm/sandbox_arm_ffa_priv.h
+F:	cmd/armffa.c
+F:	doc/arch/arm64.ffa.rst
+F:	doc/usage/cmd/armffa.rst
+F:	drivers/firmware/arm-ffa/
+F:	include/arm_ffa.h
+F:	test/cmd/armffa.c
+F:	test/dm/ffa.c
 
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
@@ -621,6 +635,7 @@ F:	include/dt-bindings/clock/stm32mp*
 F:	include/dt-bindings/pinctrl/stm32-pinfunc.h
 F:	include/dt-bindings/reset/stm32mp*
 F:	include/stm32_rcc.h
+F:	tools/logos/st.bmp
 F:	tools/stm32image.c
 N:	stm
 N:	stm32
@@ -1585,7 +1600,8 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-ubi.git
 F:	drivers/mtd/ubi/
 
 UFS
-M:	Faiz Abbas <faiz_abbas@ti.com>
+M:	Bhupesh Sharma <bhupesh.sharma@linaro.org>
+M:	Neha Malcom Francis <n-francis@ti.com>
 S:	Maintained
 F:	drivers/ufs/
 
@@ -1605,6 +1621,11 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-usb.git topic-xhci
 F:	drivers/usb/host/xhci*
 F:	include/usb/xhci.h
+
+UUID testing
+M:	Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
+S:	Maintained
+F:	test/lib/uuid.c
 
 VIDEO
 M:	Anatolij Gustschin <agust@denx.de>

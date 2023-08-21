@@ -59,8 +59,8 @@
 	func(NAND, nand, 0)
 
 #include <config_distro_bootcmd.h>
-#include <environment/ti/dfu.h>
-#include <environment/ti/mmc.h>
+#include <env/ti/dfu.h>
+#include <env/ti/mmc.h>
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_MMC_TI_ARGS \

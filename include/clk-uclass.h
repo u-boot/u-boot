@@ -64,7 +64,7 @@ int of_xlate(struct clk *clock, struct ofnode_phandle_args *args);
 
 /**
  * request() - Request a translated clock.
- * @clock:	The clock struct to request; this has been fille in by
+ * @clock:	The clock struct to request; this has been filled in by
  *		a previoux xxx_xlate() function call, or by the caller
  *		of clk_request().
  *

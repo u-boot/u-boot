@@ -113,7 +113,87 @@ sure the specified CPU supports 64-bit like '-cpu core2duo'. Conversely
 '-cpu pentium' won't work for obvious reasons that the processor only
 supports 32-bit.
 
-Note 64-bit support is very preliminary at this point. Lots of features
-are missing in the 64-bit world. One notable feature is the VGA console
-support which is currently missing, so that you must specify '-nographic'
-to get 64-bit U-Boot up and running.
+Booting distros
+---------------
+
+It is possible to install and boot a standard Linux distribution using
+qemu-x86_64 by setting up a root disk::
+
+   qemu-img create root.img 10G
+
+then using the installer to install. For example, with Ubuntu 2023.04::
+
+   qemu-system-x86_64 -m 8G -smp 4 -bios /tmp/b/qemu-x86_64/u-boot.rom \
+     -drive file=root.img,if=virtio,driver=raw \
+     -drive file=ubuntu-23.04-desktop-amd64.iso,if=virtio,driver=raw
+
+You can also add `-serial mon:stdio` if you want the serial console to show as
+well as the video.
+
+The output will be something like this::
+
+   U-Boot SPL 2023.07 (Jul 23 2023 - 08:00:12 -0600)
+   Trying to boot from SPI
+   Jumping to 64-bit U-Boot: Note many features are missing
+
+
+   U-Boot 2023.07 (Jul 23 2023 - 08:00:12 -0600)
+
+   CPU:   QEMU Virtual CPU version 2.5+
+   DRAM:  8 GiB
+   Core:  20 devices, 13 uclasses, devicetree: separate
+   Loading Environment from nowhere... OK
+   Model: QEMU x86 (I440FX)
+   Net:   e1000: 52:54:00:12:34:56
+          eth0: e1000#0
+   Hit any key to stop autoboot:  0
+   Scanning for bootflows in all bootdevs
+   Seq  Method       State   Uclass    Part  Name                      Filename
+   ---  -----------  ------  --------  ----  ------------------------  ----------------
+   Scanning global bootmeth 'efi_mgr':
+   Hunting with: nvme
+   Hunting with: qfw
+   Hunting with: scsi
+   scanning bus for devices...
+   Hunting with: virtio
+   Scanning bootdev 'qfw_pio.bootdev':
+   fatal: no kernel available
+   Scanning bootdev 'virtio-blk#0.bootdev':
+   Scanning bootdev 'virtio-blk#1.bootdev':
+     0  efi          ready   virtio       2  virtio-blk#1.bootdev.part efi/boot/bootx64.efi
+   ** Booting bootflow 'virtio-blk#1.bootdev.part_2' with efi
+   EFI using ACPI tables at f0060
+        efi_install_fdt() WARNING: Can't have ACPI table and device tree - ignoring DT.
+          efi_run_image() Booting /efi\boot\bootx64.efi
+   error: file `/boot/' not found.
+
+Standard boot looks through various available devices and finds the virtio
+disks, then boots from the first one. After a second or so the grub menu appears
+and you can work through the installer flow normally.
+
+Note that standard boot will not find 32-bit distros, since it looks for a
+different filename.
+
+Current limitations
+-------------------
+
+Only qemu-x86-64 can be used for booting distros, since qemu-x86 (the 32-bit
+version of U-Boot) seems to have an EFI bug leading to the boot handing after
+Linux is selected from grub, e.g. with `debian-12.1.0-i386-netinst.iso`::
+
+   ** Booting bootflow 'virtio-blk#1.bootdev.part_2' with efi
+   EFI using ACPI tables at f0180
+        efi_install_fdt() WARNING: Can't have ACPI table and device tree - ignoring DT.
+          efi_run_image() Booting /efi\boot\bootia32.efi
+   Failed to open efi\boot\root=/dev/sdb3 - Not Found
+   Failed to load image 큀緃: Not Found
+   start_image() returned Not Found, falling back to default loader
+   Welcome to GRUB!
+
+The bochs video driver also seems to cause problems before the OS is able to
+show a display.
+
+Finally, the use of `-M accel=kvm` is intended to use the native CPU's
+virtual-machine features to accelerate operation, but this causes U-Boot to hang
+when jumping 64-bit mode, at least on AMD machines. This may be a bug in U-Boot
+or something else.

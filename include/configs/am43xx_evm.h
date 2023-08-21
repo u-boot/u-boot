@@ -64,7 +64,7 @@
 #include <config_distro_bootcmd.h>
 
 #ifndef CONFIG_SPL_BUILD
-#include <environment/ti/dfu.h>
+#include <env/ti/dfu.h>
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \

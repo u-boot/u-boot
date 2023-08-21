@@ -106,6 +106,8 @@ struct rk3568_cru {
 	unsigned int emmc_con[2];/* Address Offset: 0x0598 */
 };
 
+#define rockchip_cru rk3568_cru
+
 check_member(rk3568_cru, mode_con00, 0xc0);
 check_member(rk3568_cru, softrst_con[0], 0x400);
 
@@ -493,7 +495,7 @@ enum {
 
 	/* CRU_CLK_SEL81_CON */
 	CPLL_25M_DIV_SHIFT		= 8,
-	CPLL_25M_DIV_MASK		= 0x1f << CPLL_25M_DIV_SHIFT,
+	CPLL_25M_DIV_MASK		= 0x3f << CPLL_25M_DIV_SHIFT,
 	CPLL_50M_DIV_SHIFT		= 0,
 	CPLL_50M_DIV_MASK		= 0x1f << CPLL_50M_DIV_SHIFT,
 

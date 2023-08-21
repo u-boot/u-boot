@@ -139,7 +139,7 @@ There is a -f option available to select a function graph:
 
 .. code-block:: console
 
-    $ ./sandbox/tools/proftool -m sandbox/System.map -t trace -f funcgraph dump-ftrace >trace.dat
+    $ ./sandbox/tools/proftool -m sandbox/System.map -t trace -f funcgraph dump-ftrace -o trace.dat
 
 Again, you can use kernelshark or trace-cmd to look at the output. In this case
 you will see the time taken by each function shown against its exit record.
@@ -171,7 +171,7 @@ command:
 
 .. code-block:: console
 
-    $ ./sandbox/tools/proftool -m sandbox/System.map -t trace dump-flamegraph >trace.fg
+    $ ./sandbox/tools/proftool -m sandbox/System.map -t trace dump-flamegraph -o trace.fg
     $ flamegraph.pl trace.fg >trace.svg
 
 You can load the .svg file into a viewer. If you use Chrome (and some other
@@ -191,7 +191,7 @@ spend in each call stack:
 
 .. code-block:: console
 
-    $ ./sandbox/tools/proftool -m sandbox/System.map -t trace dump-flamegraph -f timing >trace.fg
+    $ ./sandbox/tools/proftool -m sandbox/System.map -t trace dump-flamegraph -f timing -o trace.fg
     $ flamegraph.pl trace.fg >trace.svg
 
 Note that trace collection does slow down execution so the timings will be

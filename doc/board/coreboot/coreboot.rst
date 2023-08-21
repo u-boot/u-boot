@@ -51,6 +51,40 @@ can be useful for running UEFI applications, for example.
 
 This has only been lightly tested.
 
+CBFS access
+-----------
+
+You can use the 'cbfs' commands to access the Coreboot filesystem::
+
+   => cbfsinit
+   => cbfsinfo
+
+   CBFS version: 0x31313132
+   ROM size: 0x100000
+   Boot block size: 0x4
+   CBFS size: 0xffdfc
+   Alignment: 64
+   Offset: 0x200
+
+   => cbfsls
+        size              type  name
+   ------------------------------------------
+          32       cbfs header  cbfs master header
+       16720                17  fallback/romstage
+       53052                17  fallback/ramstage
+         398               raw  config
+         715               raw  revision
+         117               raw  build_info
+        4044               raw  fallback/dsdt.aml
+         640       cmos layout  cmos_layout.bin
+       17804                17  fallback/postcar
+      335797           payload  fallback/payload
+      607000              null  (empty)
+       10752         bootblock  bootblock
+
+   12 file(s)
+
+   =>
 
 Memory map
 ----------
@@ -100,3 +134,23 @@ input clock is 1843200. So you can add the following CONFIG options::
    CONFIG_DEBUG_UART_CLOCK=1843200
    CONFIG_DEBUG_UART_SHIFT=2
    CONFIG_DEBUG_UART_ANNOUNCE=y
+
+coreboot in CI
+--------------
+
+CI runs tests using a pre-built coreboot image. This ensures that U-Boot can
+boot as a coreboot payload, based on a known-good build of coreboot.
+
+To update the `coreboot.rom` file which is used:
+
+#. Build coreboot with `CONFIG_LINEAR_FRAMEBUFFER=y`. If using `make menuconfig`
+   this is under
+   `Devices ->Display->Framebuffer mode->Linear "high resolution" framebuffer`.
+
+#. Compress the resulting `coreboot.rom`::
+
+      xz -c /path/to/coreboot/build/coreboot.rom >coreboot.rom.xz
+
+#. Upload the file to Google drive
+
+#. Send a patch to change the file ID used by wget in the CI yaml files.

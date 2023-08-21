@@ -37,21 +37,22 @@ Build U-Boot
 
 .. code-block:: bash
 
+Note: builddir is U-Boot build directory (source directory for in-tree builds).
+
    $ export CROSS_COMPILE=aarch64-poky-linux-
    $ make O=build imx8mp_evk_defconfig
-   $ cp ../imx-atf/build/imx8mp/release/bl31.bin ./build/bl31.bin
-   $ cp ../firmware-imx-8.10/firmware/ddr/synopsys/lpddr4_pmu_train_1d_dmem_202006.bin ./build/
-   $ cp ../firmware-imx-8.10/firmware/ddr/synopsys/lpddr4_pmu_train_1d_imem_202006.bin ./build/
-   $ cp ../firmware-imx-8.10/firmware/ddr/synopsys/lpddr4_pmu_train_2d_dmem_202006.bin ./build/
-   $ cp ../firmware-imx-8.10/firmware/ddr/synopsys/lpddr4_pmu_train_2d_imem_202006.bin ./build/
-   $ export ATF_LOAD_ADDR=0x970000
-   $ make O=build
+   $ cp ../imx-atf/build/imx8mp/release/bl31.bin $(builddir)
+   $ cp ../firmware-imx-8.10/firmware/ddr/synopsys/lpddr4_pmu_train_1d_dmem_202006.bin $(builddir)
+   $ cp ../firmware-imx-8.10/firmware/ddr/synopsys/lpddr4_pmu_train_1d_imem_202006.bin $(builddir)
+   $ cp ../firmware-imx-8.10/firmware/ddr/synopsys/lpddr4_pmu_train_2d_dmem_202006.bin $(builddir)
+   $ cp ../firmware-imx-8.10/firmware/ddr/synopsys/lpddr4_pmu_train_2d_imem_202006.bin $(builddir)
+   $ make
 
 Burn the flash.bin to the MicroSD card at offset 32KB:
 
 .. code-block:: bash
 
-   $sudo dd if=build/flash.bin of=/dev/sd[x] bs=1K seek=32 conv=notrunc; sync
+   $ sudo dd if=flash.bin of=/dev/sd[x] bs=1K seek=32 conv=notrunc; sync
 
 Boot
 ----

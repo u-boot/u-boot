@@ -653,7 +653,7 @@ static int do_ubi(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	if (strcmp(argv[1], "list") == 0) {
 		int numeric = 0;
-		if (argc >= 2 && argv[2][0] == '-') {
+		if (argc >= 3 && argv[2][0] == '-') {
 			if (strcmp(argv[2], "-numeric") == 0)
 				numeric = 1;
 			else

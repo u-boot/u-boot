@@ -12,6 +12,31 @@
 
 &uart0 {
 	bootph-all;
-	clock-frequency = <24000000>;
-	status = "okay";
+};
+
+&pinctrl {
+	bootph-some-ram;
+
+	uart0 {
+		bootph-some-ram;
+	};
+	rtc {
+		bootph-some-ram;
+	};
+};
+
+&uart0_xfer {
+	bootph-some-ram;
+};
+
+&uart0_cts {
+	bootph-some-ram;
+};
+
+&uart0_rts {
+	bootph-some-ram;
+};
+
+&rtc_32k {
+	bootph-some-ram;
 };

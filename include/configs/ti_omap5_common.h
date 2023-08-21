@@ -39,8 +39,8 @@
 #define DFUARGS
 #endif
 
-#include <environment/ti/mmc.h>
-#include <environment/ti/nand.h>
+#include <env/ti/mmc.h>
+#include <env/ti/nand.h>
 
 #ifndef CONSOLEDEV
 #define CONSOLEDEV "ttyS2"

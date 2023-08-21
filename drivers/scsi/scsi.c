@@ -608,7 +608,7 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 		/* TODO: undo create */
 		return log_msg_ret("pro", ret);
 
-	ret = bootdev_setup_sibling_blk(bdev, "scsi_bootdev");
+	ret = bootdev_setup_for_sibling_blk(bdev, "scsi_bootdev");
 	if (ret)
 		return log_msg_ret("bd", ret);
 

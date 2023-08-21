@@ -575,11 +575,6 @@ int get_core_volt_from_fuse(void)
 	return vdd;
 }
 
-__weak int board_switch_core_volt(u32 vdd)
-{
-	return 0;
-}
-
 static int setup_core_volt(u32 vdd)
 {
 	return board_setup_core_volt(vdd);

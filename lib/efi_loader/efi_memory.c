@@ -877,7 +877,7 @@ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
  */
 __weak void efi_add_known_memory(void)
 {
-	u64 ram_top = board_get_usable_ram_top(0) & ~EFI_PAGE_MASK;
+	u64 ram_top = gd->ram_top & ~EFI_PAGE_MASK;
 	int i;
 
 	/*

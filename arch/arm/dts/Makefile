@@ -178,6 +178,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3568) += \
 	rk3566-soquartz-cm4.dtb \
 	rk3566-soquartz-model-a.dtb \
 	rk3568-evb.dtb \
+	rk3568-lubancat-2.dtb \
 	rk3568-nanopi-r5c.dtb \
 	rk3568-nanopi-r5s.dtb \
 	rk3568-odroid-m1.dtb \
@@ -254,9 +255,22 @@ dtb-$(CONFIG_ARCH_TEGRA) += tegra20-harmony.dtb \
 	tegra20-ventana.dtb \
 	tegra20-colibri.dtb \
 	tegra30-apalis.dtb \
+	tegra30-asus-nexus7-grouper-PM269.dtb \
+	tegra30-asus-nexus7-grouper-E1565.dtb \
+	tegra30-asus-nexus7-tilapia-E1565.dtb \
+	tegra30-asus-p1801-t.dtb \
+	tegra30-asus-tf201.dtb \
+	tegra30-asus-tf300t.dtb \
+	tegra30-asus-tf300tg.dtb \
+	tegra30-asus-tf300tl.dtb \
+	tegra30-asus-tf600t.dtb \
+	tegra30-asus-tf700t.dtb \
 	tegra30-beaver.dtb \
 	tegra30-cardhu.dtb \
 	tegra30-colibri.dtb \
+	tegra30-htc-endeavoru.dtb \
+	tegra30-lg-p880.dtb \
+	tegra30-lg-p895.dtb \
 	tegra30-tec-ng.dtb \
 	tegra114-dalmore.dtb \
 	tegra124-apalis.dtb \

@@ -262,7 +262,7 @@ static int bootdev_get_suffix_start(struct udevice *dev, const char *suffix)
 	return len;
 }
 
-int bootdev_setup_sibling_blk(struct udevice *blk, const char *drv_name)
+int bootdev_setup_for_sibling_blk(struct udevice *blk, const char *drv_name)
 {
 	struct udevice *parent, *dev;
 	char dev_name[50];
@@ -305,7 +305,9 @@ int bootdev_get_sibling_blk(struct udevice *dev, struct udevice **blkp)
 	if (device_get_uclass_id(dev) != UCLASS_BOOTDEV)
 		return -EINVAL;
 
-	/* This should always work if bootdev_setup_sibling_blk() was used */
+	/*
+	 * This should always work if bootdev_setup_for_sibling_blk() was used
+	 */
 	len = bootdev_get_suffix_start(dev, ".bootdev");
 	ret = device_find_child_by_namelen(parent, dev->name, len, &blk);
 	if (ret) {
@@ -335,7 +337,7 @@ static int bootdev_get_from_blk(struct udevice *blk, struct udevice **bootdevp)
 	if (device_get_uclass_id(blk) != UCLASS_BLK)
 		return -EINVAL;
 
-	/* This should always work if bootdev_setup_sibling_blk() was used */
+	/* This should always work if bootdev_setup_for_sibling_blk() was used */
 	len = bootdev_get_suffix_start(blk, ".blk");
 	snprintf(dev_name, sizeof(dev_name), "%.*s.%s", len, blk->name,
 		 "bootdev");
@@ -535,6 +537,8 @@ static int default_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
 	int ret;
 
 	ret = bootdev_get_sibling_blk(dev, &blk);
+	log_debug("sibling_blk ret=%d, blk=%s\n", ret,
+		  ret ? "(none)" : blk->name);
 	/*
 	 * If there is no media, indicate that no more partitions should be
 	 * checked
@@ -660,7 +664,8 @@ int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp)
 				ret = bootdev_hunt_prio(iter->cur_prio,
 							iter->flags &
 							BOOTFLOWIF_SHOW);
-				log_debug("- hunt ret %d\n", ret);
+				log_debug("- bootdev_hunt_prio() ret %d\n",
+					  ret);
 				if (ret)
 					return log_msg_ret("hun", ret);
 			}
@@ -696,6 +701,7 @@ int bootdev_setup_iter(struct bootflow_iter *iter, const char *label,
 	/* hunt for any pre-scan devices */
 	if (iter->flags & BOOTFLOWIF_HUNT) {
 		ret = bootdev_hunt_prio(BOOTDEVP_1_PRE_SCAN, show);
+		log_debug("- bootdev_hunt_prio() ret %d\n", ret);
 		if (ret)
 			return log_msg_ret("pre", ret);
 	}
@@ -766,6 +772,7 @@ static int bootdev_hunt_drv(struct bootdev_hunter *info, uint seq, bool show)
 		log_debug("Hunting with: %s\n", name);
 		if (info->hunt) {
 			ret = info->hunt(info, show);
+			log_debug("  - hunt result %d\n", ret);
 			if (ret)
 				return ret;
 		}
@@ -831,9 +838,11 @@ int bootdev_hunt_prio(enum bootdev_prio_t prio, bool show)
 		if (prio != info->prio)
 			continue;
 		ret = bootdev_hunt_drv(info, i, show);
+		log_debug("bootdev_hunt_drv() return %d\n", ret);
 		if (ret && ret != -ENOENT)
 			result = ret;
 	}
+	log_debug("exit %d\n", result);
 
 	return result;
 }

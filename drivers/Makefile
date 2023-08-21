@@ -39,6 +39,8 @@ obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm/
 obj-$(CONFIG_$(SPL_)NVME) += nvme/
 obj-$(CONFIG_XEN) += xen/
 obj-$(CONFIG_$(SPL_)FPGA) += fpga/
+obj-$(CONFIG_$(SPL_)VIDEO) += video/
+
 obj-y += bus/
 
 ifndef CONFIG_TPL_BUILD
@@ -64,7 +66,6 @@ obj-$(CONFIG_SPL_USB_HOST) += usb/host/
 obj-$(CONFIG_SPL_SATA) += ata/ scsi/
 obj-$(CONFIG_SPL_LEGACY_BLOCK) += block/
 obj-$(CONFIG_SPL_THERMAL) += thermal/
-obj-$(CONFIG_SPL_VIDEO) +=video/
 
 endif
 endif
@@ -99,7 +100,6 @@ obj-y += rtc/
 obj-y += scsi/
 obj-y += sound/
 obj-y += spmi/
-obj-y += video/
 obj-y += watchdog/
 obj-$(CONFIG_QE) += qe/
 obj-$(CONFIG_U_QE) += qe/
@@ -115,6 +115,7 @@ obj-y += iommu/
 obj-y += smem/
 obj-y += thermal/
 obj-$(CONFIG_TEE) += tee/
+obj-$(CONFIG_ARM_FFA_TRANSPORT) += firmware/arm-ffa/
 obj-y += axi/
 obj-y += ufs/
 obj-$(CONFIG_W1) += w1/

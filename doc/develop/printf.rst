@@ -105,19 +105,19 @@ for the individual integer types.
 =================== ==================
 Type                Format specifier
 =================== ==================
-bool		    %d, %x
+bool                %d, %x
 char                %d, %x
 unsigned char       %u, %x
 short               %d, %x
 unsigned short      %u, %x
 int                 %d, %x
-unsigned int        %d, %x
+unsigned int        %u, %x
 long                %ld, %lx
 unsigned long       %lu, %lx
 long long           %lld, %llx
 unsigned long long  %llu, %llx
 off_t               %llu, %llx
-ptr_diff_t	    %td, %tx
+ptr_diff_t          %td, %tx
 fdt_addr_t          %pa, see pointers
 fdt_size_t          %pa, see pointers
 phys_addr_t         %pa, see pointers
