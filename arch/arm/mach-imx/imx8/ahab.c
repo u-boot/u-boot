@@ -340,6 +340,32 @@ static int do_ahab_status(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+int ahab_close(void)
+{
+	int err;
+	u16 lc;
+
+	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
+	if (err != SC_ERR_NONE) {
+		printf("Error in get lifecycle\n");
+		return -EIO;
+	}
+
+	if (lc != 0x20) {
+		puts("Current lifecycle is NOT NXP closed, can't move to OEM closed\n");
+		display_life_cycle(lc);
+		return -EPERM;
+	}
+
+	err = sc_seco_forward_lifecycle(-1, 16);
+	if (err != SC_ERR_NONE) {
+		printf("Error in forward lifecycle to OEM closed\n");
+		return -EIO;
+	}
+
+	return 0;
+}
+
 static int confirm_close(void)
 {
 	puts("Warning: Please ensure your sample is in NXP closed state, "
@@ -361,27 +387,14 @@ static int do_ahab_close(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	int confirmed = argc >= 2 && !strcmp(argv[1], "-y");
 	int err;
-	u16 lc;
 
 	if (!confirmed && !confirm_close())
 		return -EACCES;
 
-	err = sc_seco_chip_info(-1, &lc, NULL, NULL, NULL);
+	err = ahab_close();
 	if (err) {
-		printf("Error in get lifecycle\n");
-		return -EIO;
-	}
-
-	if (lc != 0x20) {
-		puts("Current lifecycle is NOT NXP closed, can't move to OEM closed\n");
-		display_life_cycle(lc);
-		return -EPERM;
-	}
-
-	err = sc_seco_forward_lifecycle(-1, 16);
-	if (err) {
-		printf("Error in forward lifecycle to OEM closed\n");
-		return -EIO;
+		printf("Change to OEM closed failed\n");
+		return err;
 	}
 
 	printf("Change to OEM closed successfully\n");
