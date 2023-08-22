@@ -103,13 +103,13 @@ Set the variables corresponding to this platform:
 
 3. U-Boot:
 
-* 4.1 R5:
+* 3.1 R5:
 
 .. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_build_steps_spl_r5
     :end-before: .. k3_rst_include_end_build_steps_spl_r5
 
-* 4.2 A53:
+* 3.2 A53:
 
 .. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_build_steps_uboot
