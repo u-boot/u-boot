@@ -109,4 +109,4 @@ static int bootmeth_vbe_simple_ft_fixup(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_FT_FIXUP, bootmeth_vbe_simple_ft_fixup);
+EVENT_SPY_FULL(EVT_FT_FIXUP, bootmeth_vbe_simple_ft_fixup);
