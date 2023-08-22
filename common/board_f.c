@@ -836,11 +836,6 @@ __weak int clear_bss(void)
 	return 0;
 }
 
-static int misc_init_f(void)
-{
-	return event_notify_null(EVT_MISC_INIT_F);
-}
-
 static const init_fnc_t init_sequence_f[] = {
 	setup_mon_len,
 #ifdef CONFIG_OF_CONTROL
@@ -899,7 +894,7 @@ static const init_fnc_t init_sequence_f[] = {
 	show_board_info,
 #endif
 	INIT_FUNC_WATCHDOG_INIT
-	misc_init_f,
+	INITCALL_EVENT(EVT_MISC_INIT_F),
 	INIT_FUNC_WATCHDOG_RESET
 #if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	init_func_i2c,
