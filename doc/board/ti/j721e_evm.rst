@@ -40,6 +40,7 @@ Boot flow is similar to that of AM65x SoC and extending it with remoteproc
 support. Below is the pictorial representation of boot flow:
 
 .. image:: img/boot_diagram_j721e.svg
+  :alt: Boot flow diagram
 
 - Here DMSC acts as master and provides all the critical services. R5/A72
   requests DMSC to get these services done as shown in the above diagram.
@@ -136,14 +137,17 @@ Image formats:
 - tiboot3.bin
 
 .. image:: img/no_multi_cert_tiboot3.bin.svg
+  :alt: tiboot3.bin image format
 
 - tispl.bin
 
 .. image:: img/dm_tispl.bin.svg
+  :alt: tispl.bin image format
 
 - sysfw.itb
 
 .. image:: img/sysfw.itb.svg
+  :alt: sysfw.itb image format
 
 R5 Memory Map:
 --------------
@@ -213,6 +217,7 @@ addresses.
 Flash layout for OSPI:
 
 .. image:: img/ospi_sysfw.svg
+  :alt: OSPI flash partition layout
 
 Firmwares:
 ----------
