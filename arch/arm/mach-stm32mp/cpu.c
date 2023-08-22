@@ -91,10 +91,10 @@ static void early_enable_caches(void)
 	if (CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
 		return;
 
-	if (!(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))) {
+#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
 		gd->arch.tlb_size = PGTABLE_SIZE;
 		gd->arch.tlb_addr = (unsigned long)&early_tlb;
-	}
+#endif
 
 	/* enable MMU (default configuration) */
 	dcache_enable();
