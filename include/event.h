@@ -24,6 +24,7 @@ enum event_t {
 
 	/* Events related to driver model */
 	EVT_DM_POST_INIT_F,
+	EVT_DM_POST_INIT_R,
 	EVT_DM_PRE_PROBE,
 	EVT_DM_POST_PROBE,
 	EVT_DM_PRE_REMOVE,
