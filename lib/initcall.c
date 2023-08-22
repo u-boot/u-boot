@@ -11,6 +11,20 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static ulong calc_reloc_ofs(void)
+{
+#ifdef CONFIG_EFI_APP
+	return (ulong)image_base;
+#endif
+	/*
+	 * Sandbox is relocated by the OS, so symbols always appear at
+	 * the relocated address.
+	 */
+	if (IS_ENABLED(CONFIG_SANDBOX) || (gd->flags & GD_FLG_RELOC))
+		return gd->reloc_off;
+
+	return 0;
+}
 /*
  * To enable debugging. add #define DEBUG at the top of the including file.
  *
@@ -18,21 +32,12 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int initcall_run_list(const init_fnc_t init_sequence[])
 {
+	ulong reloc_ofs = calc_reloc_ofs();
 	const init_fnc_t *init_fnc_ptr;
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
-		unsigned long reloc_ofs = 0;
 		int ret;
 
-		/*
-		 * Sandbox is relocated by the OS, so symbols always appear at
-		 * the relocated address.
-		 */
-		if (IS_ENABLED(CONFIG_SANDBOX) || (gd->flags & GD_FLG_RELOC))
-			reloc_ofs = gd->reloc_off;
-#ifdef CONFIG_EFI_APP
-		reloc_ofs = (unsigned long)image_base;
-#endif
 		if (reloc_ofs)
 			debug("initcall: %p (relocated to %p)\n",
 			      (char *)*init_fnc_ptr - reloc_ofs,
