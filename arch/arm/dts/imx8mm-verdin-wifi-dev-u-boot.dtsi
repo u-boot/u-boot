@@ -34,6 +34,10 @@
 	bootph-pre-ram;
 };
 
+&aips4 {
+	bootph-pre-ram;
+};
+
 &binman_uboot {
 	offset = <0x5fc00>;
 };
@@ -121,6 +125,19 @@
 };
 
 &uart1 {
+	bootph-pre-ram;
+};
+
+&usbmisc1 {
+	bootph-pre-ram;
+};
+
+/* Verdin USB_1 */
+&usbotg1 {
+	bootph-pre-ram;
+};
+
+&usbphynop1 {
 	bootph-pre-ram;
 };
 
