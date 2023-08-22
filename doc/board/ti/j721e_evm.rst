@@ -97,13 +97,13 @@ Set the variables corresponding to this platform:
 
 3. U-Boot:
 
-* 4.1 R5:
+* 3.1 R5:
 
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_build_steps_spl_r5
     :end-before: .. k3_rst_include_end_build_steps_spl_r5
 
-* 4.2 A72:
+* 3.2 A72:
 
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_build_steps_uboot
@@ -118,18 +118,18 @@ files.
 
  - GP
 
-        * tiboot3-j721e-gp-evm.bin, sysfw-j721e-gp-evm.itb from step 4.1
-        * tispl.bin_unsigned, u-boot.img_unsigned from step 4.2
+        * tiboot3-j721e-gp-evm.bin, sysfw-j721e-gp-evm.itb from step 3.1
+        * tispl.bin_unsigned, u-boot.img_unsigned from step 3.2
 
  - HS-FS
 
-        * tiboot3-j721e_sr2-hs-fs-evm.bin, sysfw-j721e_sr2-hs-fs-evm.itb from step 4.1
-        * tispl.bin, u-boot.img from step 4.2
+        * tiboot3-j721e_sr2-hs-fs-evm.bin, sysfw-j721e_sr2-hs-fs-evm.itb from step 3.1
+        * tispl.bin, u-boot.img from step 3.2
 
  - HS-SE
 
-        * tiboot3-j721e_sr2-hs-evm.bin, sysfw-j721e_sr2-hs-evm.itb from step 4.1
-        * tispl.bin, u-boot.img from step 4.2
+        * tiboot3-j721e_sr2-hs-evm.bin, sysfw-j721e_sr2-hs-evm.itb from step 3.1
+        * tispl.bin, u-boot.img from step 3.2
 
 Image formats:
 --------------
