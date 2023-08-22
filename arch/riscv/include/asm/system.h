@@ -26,6 +26,6 @@ struct event;
     } while (0)
 
 /* Hook to set up the CPU (called from SPL too) */
-int riscv_cpu_setup(void *ctx, struct event *event);
+int riscv_cpu_setup(void);
 
 #endif	/* __ASM_RISCV_SYSTEM_H */

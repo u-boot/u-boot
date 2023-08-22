@@ -248,22 +248,16 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-static int quark_init_pcie(void *ctx, struct event *event)
-{
-	/*
-	 * Initialize PCIe controller
-	 *
-	 * Quark SoC holds the PCIe controller in reset following a power on.
-	 * U-Boot needs to release the PCIe controller from reset. The PCIe
-	 * controller (D23:F0/F1) will not be visible in PCI configuration
-	 * space and any access to its PCI configuration registers will cause
-	 * system hang while it is held in reset.
-	 */
-	quark_pcie_early_init();
-
-	return 0;
-}
-EVENT_SPY(EVT_DM_POST_INIT_F, quark_init_pcie);
+/*
+ * Initialize PCIe controller
+ *
+ * Quark SoC holds the PCIe controller in reset following a power on.
+ * U-Boot needs to release the PCIe controller from reset. The PCIe
+ * controller (D23:F0/F1) will not be visible in PCI configuration
+ * space and any access to its PCI configuration registers will cause
+ * system hang while it is held in reset.
+ */
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, quark_pcie_early_init);
 
 int checkcpu(void)
 {

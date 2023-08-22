@@ -527,7 +527,7 @@ void board_init_f(ulong dummy)
 
 #endif
 
-static int am33xx_dm_post_init(void *ctx, struct event *event)
+static int am33xx_dm_post_init(void)
 {
 	hw_data_init();
 #if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
@@ -535,4 +535,4 @@ static int am33xx_dm_post_init(void *ctx, struct event *event)
 #endif
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT_F, am33xx_dm_post_init);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, am33xx_dm_post_init);

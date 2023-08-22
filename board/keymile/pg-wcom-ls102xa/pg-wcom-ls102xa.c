@@ -110,14 +110,14 @@ int board_early_init_f(void)
 	return 0;
 }
 
-static int pg_wcom_misc_init_f(void *ctx, struct event *event)
+static int pg_wcom_misc_init_f(void)
 {
 	if (IS_ENABLED(CONFIG_PG_WCOM_UBOOT_UPDATE_SUPPORTED))
 		check_for_uboot_update();
 
 	return 0;
 }
-EVENT_SPY(EVT_MISC_INIT_F, pg_wcom_misc_init_f);
+EVENT_SPY_SIMPLE(EVT_MISC_INIT_F, pg_wcom_misc_init_f);
 
 int board_init(void)
 {

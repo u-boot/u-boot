@@ -803,12 +803,7 @@ int imx8ulp_dm_post_init(void)
 
 	return 0;
 }
-
-static int imx8ulp_evt_dm_post_init(void *ctx, struct event *event)
-{
-	return imx8ulp_dm_post_init();
-}
-EVENT_SPY(EVT_DM_POST_INIT_F, imx8ulp_evt_dm_post_init);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, imx8ulp_dm_post_init);
 
 #if defined(CONFIG_SPL_BUILD)
 __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)

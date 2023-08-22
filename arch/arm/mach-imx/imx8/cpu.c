@@ -69,7 +69,7 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-static int imx8_init_mu(void *ctx, struct event *event)
+static int imx8_init_mu(void)
 {
 	struct udevice *devp;
 	int node, ret;
@@ -91,7 +91,7 @@ static int imx8_init_mu(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT_F, imx8_init_mu);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, imx8_init_mu);
 
 #if defined(CONFIG_ARCH_MISC_INIT)
 int arch_misc_init(void)

@@ -19,7 +19,7 @@
 #include <dm/uclass-internal.h>
 #include <asm/fsp2/fsp_internal.h>
 
-int fsp_setup_pinctrl(void *ctx, struct event *event)
+int fsp_setup_pinctrl(void)
 {
 	struct udevice *dev;
 	ofnode node;
@@ -42,7 +42,7 @@ int fsp_setup_pinctrl(void *ctx, struct event *event)
 
 	return ret;
 }
-EVENT_SPY(EVT_DM_POST_INIT_F, fsp_setup_pinctrl);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, fsp_setup_pinctrl);
 
 #if !defined(CONFIG_TPL_BUILD)
 binman_sym_declare(ulong, intel_fsp_m, image_pos);

@@ -25,7 +25,7 @@
 #include <asm/arch/pch.h>
 #include <asm/arch/rcb.h>
 
-static int broadwell_init_cpu(void *ctx, struct event *event)
+static int broadwell_init_cpu(void)
 {
 	struct udevice *dev;
 	int ret;
@@ -40,7 +40,7 @@ static int broadwell_init_cpu(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT_F, broadwell_init_cpu);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, broadwell_init_cpu);
 
 void set_max_freq(void)
 {

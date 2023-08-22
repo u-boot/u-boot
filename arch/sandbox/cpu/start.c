@@ -119,12 +119,7 @@ int sandbox_early_getopt_check(void)
 
 	os_exit(0);
 }
-
-static int sandbox_misc_init_f(void *ctx, struct event *event)
-{
-	return sandbox_early_getopt_check();
-}
-EVENT_SPY(EVT_MISC_INIT_F, sandbox_misc_init_f);
+EVENT_SPY_SIMPLE(EVT_MISC_INIT_F, sandbox_early_getopt_check);
 
 static int sandbox_cmdline_cb_help(struct sandbox_state *state, const char *arg)
 {

@@ -28,7 +28,7 @@ __weak void board_init_f(ulong dummy)
 	if (ret)
 		panic("spl_early_init() failed: %d\n", ret);
 
-	riscv_cpu_setup(NULL, NULL);
+	riscv_cpu_setup();
 
 	preloader_console_init();
 
