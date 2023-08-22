@@ -92,13 +92,13 @@ Set the variables corresponding to this platform:
 
 3. U-Boot:
 
-* 4.1 R5:
+* 3.1 R5:
 
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_build_steps_spl_r5
     :end-before: .. k3_rst_include_end_build_steps_spl_r5
 
-* 4.2 A72:
+* 3.2 A72:
 
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_build_steps_uboot
@@ -112,18 +112,18 @@ variant (GP, HS-FS, HS-SE) requires a different source for these files.
 
  - GP
 
-        * tiboot3-j7200-gp-evm.bin from step 4.1
-        * tispl.bin_unsigned, u-boot.img_unsigned from step 4.2
+        * tiboot3-j7200-gp-evm.bin from step 3.1
+        * tispl.bin_unsigned, u-boot.img_unsigned from step 3.2
 
  - HS-FS
 
-        * tiboot3-j7200_sr2-hs-fs-evm.bin from step 4.1
-        * tispl.bin, u-boot.img from step 4.2
+        * tiboot3-j7200_sr2-hs-fs-evm.bin from step 3.1
+        * tispl.bin, u-boot.img from step 3.2
 
  - HS-SE
 
-        * tiboot3-j7200_sr2-hs-evm.bin from step 4.1
-        * tispl.bin, u-boot.img from step 4.2
+        * tiboot3-j7200_sr2-hs-evm.bin from step 3.1
+        * tispl.bin, u-boot.img from step 3.2
 
 Image formats:
 --------------
