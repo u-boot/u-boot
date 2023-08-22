@@ -389,7 +389,7 @@
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
-					blob {
+					spl_am625_sk_dtb_unsigned: blob {
 						filename = SPL_AM625_SK_DTB;
 					};
 				};
@@ -438,7 +438,7 @@
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
-					blob {
+					am625_sk_dtb_unsigned: blob {
 						filename = AM625_SK_DTB;
 					};
 					hash {
