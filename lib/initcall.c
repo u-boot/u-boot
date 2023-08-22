@@ -46,11 +46,13 @@ int initcall_run_list(const init_fnc_t init_sequence[])
 		}
 
 		ret = func();
-		if (ret) {
-			printf("initcall sequence %p failed at call %p (err=%d)\n",
-			       init_sequence, (char *)func - reloc_ofs, ret);
-			return -1;
-		}
+	}
+
+	if (ret) {
+		printf("initcall failed at call %p (err=%dE)\n",
+		       (char *)func - reloc_ofs, ret);
+
+		return ret;
 	}
 
 	return 0;
