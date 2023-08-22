@@ -19,8 +19,10 @@ from u_boot_pylib import tools
 
 # A typical symbol looks like this:
 #   _u_boot_list_2_evspy_info_2_EVT_MISC_INIT_F_3_sandbox_misc_init_f
-PREFIX = '_u_boot_list_2_evspy_info_2_'
-RE_EVTYPE = re.compile('%s(.*)_3_.*' % PREFIX)
+PREFIX_FULL = '_u_boot_list_2_evspy_info_2_'
+PREFIX_SIMPLE = '_u_boot_list_2_evspy_info_simple_2_'
+RE_EVTYPE_FULL = re.compile('%s(.*)_3_.*' % PREFIX_FULL)
+RE_EVTYPE_SIMPLE = re.compile('%s(.*)_3_.*' % PREFIX_SIMPLE)
 
 def show_sym(fname, data, endian, evtype, sym):
     """Show information about an evspy entry
@@ -88,12 +90,14 @@ def show_event_spy_list(fname, endian):
         fname (str): Filename of ELF file
         endian (str): Endianness to use ('little', 'big', 'auto')
     """
-    syms = elf.GetSymbolFileOffset(fname, [PREFIX])
+    syms = elf.GetSymbolFileOffset(fname, [PREFIX_FULL, PREFIX_SIMPLE])
     data = tools.read_file(fname)
     print('%-20s  %-30s  %s' % ('Event type', 'Id', 'Source location'))
     print('%-20s  %-30s  %s' % ('-' * 20, '-' * 30, '-' * 30))
     for name, sym in syms.items():
-        m_evtype = RE_EVTYPE.search(name)
+        m_evtype = RE_EVTYPE_FULL.search(name)
+        if not m_evtype:
+            m_evtype = RE_EVTYPE_SIMPLE.search(name)
         evtype = m_evtype .group(1)
         show_sym(fname, data, endian, evtype, sym)
 
