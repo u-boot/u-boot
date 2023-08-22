@@ -276,9 +276,6 @@ int set_cpu_clk_info(void);
 int update_flash_size(int flash_size);
 int arch_early_init_r(void);
 int misc_init_r(void);
-#if defined(CONFIG_VID)
-int init_func_vid(void);
-#endif
 
 /* common/board_info.c */
 int checkboard(void);

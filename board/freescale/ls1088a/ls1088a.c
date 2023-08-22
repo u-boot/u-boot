@@ -181,13 +181,14 @@ unsigned long long get_qixis_addr(void)
 #endif
 
 #if defined(CONFIG_VID)
-int init_func_vid(void)
+static int setup_core_voltage(void)
 {
 	if (adjust_vdd(0) < 0)
 		printf("core voltage not adjusted\n");
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_MISC_INIT_F, setup_core_voltage);
 
 u16 soc_get_fuse_vid(int vid_index)
 {
