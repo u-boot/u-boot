@@ -35,4 +35,11 @@ typedef int (*init_fnc_t)(void);
  */
 int initcall_run_list(const init_fnc_t init_sequence[]);
 
+/**
+ * initcall_manual_reloc() - Do manual relocation on an initcall sequence
+ *
+ * @init_sequence: NULL-terminated init sequence to relocate
+ */
+void initcall_manual_reloc(init_fnc_t init_sequence[]);
+
 #endif

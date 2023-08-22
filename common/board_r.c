@@ -813,10 +813,8 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 #endif
 	gd->flags &= ~GD_FLG_LOG_READY;
 
-	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)) {
-		for (int i = 0; i < ARRAY_SIZE(init_sequence_r); i++)
-			MANUAL_RELOC(init_sequence_r[i]);
-	}
+	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC))
+		initcall_manual_reloc(init_sequence_r);
 
 	if (initcall_run_list(init_sequence_r))
 		hang();
