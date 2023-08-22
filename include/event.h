@@ -32,6 +32,15 @@ enum event_t {
 	/* Init hooks */
 	EVT_MISC_INIT_F,
 
+	/*
+	 * Emitted before relocation to set up Firmware Support Package
+	 *
+	 * Where U-Boot relies on binary blobs to handle part of the system
+	 * init, this event can be used to set up the blobs. This is used on
+	 * some Intel platforms
+	 */
+	EVT_FSP_INIT_F,
+
 	/* Fpga load hook */
 	EVT_FPGA_LOAD,
 

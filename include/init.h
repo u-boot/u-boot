@@ -58,17 +58,6 @@ int arch_cpu_init(void);
 int mach_cpu_init(void);
 
 /**
- * arch_fsp_init() - perform firmware support package init
- *
- * Where U-Boot relies on binary blobs to handle part of the system init, this
- * function can be used to set up the blobs. This is used on some Intel
- * platforms.
- *
- * Return: 0
- */
-int arch_fsp_init(void);
-
-/**
  * arch_fsp_init() - perform post-relocation firmware support package init
  *
  * Where U-Boot relies on binary blobs to handle part of the system init, this
