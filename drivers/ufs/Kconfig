@@ -21,4 +21,13 @@ config TI_J721E_UFS
 	  This selects the glue layer driver for Cadence controller
 	  present on TI's J721E devices.
 
+config UFS_RENESAS
+	bool "Renesas specific hooks to UFS controller platform driver"
+	depends on UFS
+	select BOUNCE_BUFFER
+	help
+	  This selects the Renesas specific additions to UFSHCD platform driver.
+	  UFS host on Renesas needs some vendor specific configuration before
+	  accessing the hardware.
+
 endmenu
