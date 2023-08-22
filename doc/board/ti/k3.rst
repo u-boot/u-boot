@@ -123,10 +123,29 @@ online
   | **source:** https://github.com/OP-TEE/optee_os.git
   | **branch:** master
 
-* **TI Firmware (TIFS, DM, DSMC)**
+* **TI Firmware (TIFS, DM, SYSFW)**
 
   | **source:** https://git.ti.com/git/processor-firmware/ti-linux-firmware.git
   | **branch:** ti-linux-firmware
+
+.. note::
+
+  The TI Firmware required for functionality of the system can be
+  one of the following combination (see platform specific boot diagram for
+  further information as to which component runs on which processor):
+
+  * **TIFS** - TI Foundational Security Firmware - Consists of purely firmware
+    meant to run on the security enclave.
+  * **DM** - Device Management firmware also called TI System Control Interface
+    server (TISCI Server) - This component purely plays the role of managing
+    device resources such as power, clock, interrupts, dma etc. This firmware
+    runs on a dedicated or multi-use microcontroller outside the security
+    enclave.
+
+ OR
+
+  * **SYSFW** - System firmware - consists of both TIFS and DM both running on
+    the security enclave.
 
 .. k3_rst_include_end_boot_sources
 
