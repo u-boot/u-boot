@@ -48,6 +48,7 @@ obj-$(CONFIG_FTGMAC100) += ftgmac100.o
 obj-$(CONFIG_FTMAC100) += ftmac100.o
 obj-$(CONFIG_GMAC_ROCKCHIP) += gmac_rockchip.o
 obj-$(CONFIG_HIFEMAC_ETH) += hifemac.o
+obj-$(CONFIG_HIFEMAC_MDIO) += hifemac_mdio.o
 obj-$(CONFIG_HIGMACV300_ETH) += higmacv300.o
 obj-$(CONFIG_KS8851_MLL) += ks8851_mll.o
 obj-$(CONFIG_KSZ9477) += ksz9477.o

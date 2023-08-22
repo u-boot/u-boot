@@ -912,6 +912,14 @@ config HIFEMAC_ETH
 	  This driver supports HIFEMAC Ethernet controller found on
 	  HiSilicon SoCs.
 
+config HIFEMAC_MDIO
+	bool "HiSilicon Fast Ethernet Controller MDIO interface"
+	depends on DM_MDIO
+	select DM_CLK
+	help
+	  This driver supports the internal MDIO interface of HIFEMAC
+	  Ethernet controller.
+
 config HIGMACV300_ETH
 	bool "HiSilicon Gigabit Ethernet Controller"
 	select DM_RESET
