@@ -600,7 +600,7 @@ correctly to ensure a sane system.
   $ cd openocd
   # Copy the udev rules to the correct system location
   $ sudo cp ./contrib/60-openocd.rules \
-      ./src/JTAG/drivers/libjaylink/contrib/99-libjaylink.rules \
+      ./src/jtag/drivers/libjaylink/contrib/99-libjaylink.rules \
       /etc/udev/rules.d/
   # Get Udev to load the new rules up
   $ sudo udevadm control --reload-rules
@@ -791,7 +791,7 @@ Code modification
   In this example, we will debug ``board_init_f`` inside
   ``arch/arm/mach-k3/{soc}_init.c``. Since some sections of U-Boot
   will be executed multiple times during the bootup process of K3
-  devices, we will need to include either ``CONFIG_CPU_ARM64`` or
+  devices, we will need to include either ``CONFIG_ARM64`` or
   ``CONFIG_CPU_V7R`` to catch the CPU at the desired place during the
   bootup process (Main or Wakeup domains). For example, modify the
   file as follows (depending on need):
@@ -809,7 +809,7 @@ Code modification
       }
       ...
       /* Code to run on the ARMV8 (Main Domain) */
-      if (IS_ENABLED(CONFIG_CPU_ARM64)) {
+      if (IS_ENABLED(CONFIG_ARM64)) {
           volatile int x = 1;
           while(x) {};
       }
