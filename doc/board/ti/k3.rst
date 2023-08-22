@@ -488,6 +488,7 @@ generation device.
 The overall structure of this setup is in the following figure.
 
 .. image:: img/openocd-overview.svg
+  :alt: Overview of OpenOCD setup.
 
 .. note::
 
