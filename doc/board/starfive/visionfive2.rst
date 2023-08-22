@@ -20,6 +20,8 @@ The support for following drivers are already enabled:
 3. StarFive JH7110 reset Driver.
 4. Cadence QSPI controller Driver.
 5. MMC SPI Driver for MMC/SD support.
+6. PLDA PCIE controller driver.
+7. On-board VL805 PCIE-USB controller driver.
 
 Booting from MMC using U-Boot SPL
 ---------------------------------
