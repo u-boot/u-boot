@@ -270,7 +270,6 @@ void board_init_r(struct global_data *id, ulong dest_addr)
 	__attribute__ ((noreturn));
 
 int cpu_init_r(void);
-int last_stage_init(void);
 int mac_read_from_eeprom(void);
 int set_cpu_clk_info(void);
 int update_flash_size(int flash_size);

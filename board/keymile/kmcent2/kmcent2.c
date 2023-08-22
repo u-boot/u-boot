@@ -261,7 +261,7 @@ int hush_init_var(void)
 	return 0;
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 	const char *kmem;
 	/* DIP switch support on BFTIC */
@@ -287,6 +287,7 @@ int last_stage_init(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 
 void fdt_fixup_fman_mac_addresses(void *blob)
 {

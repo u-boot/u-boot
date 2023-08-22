@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <event.h>
 #include <fdtdec.h>
 #include <init.h>
 #include <usb.h>
@@ -74,8 +75,11 @@ static void board_final_init(void)
 	}
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		return 0;
+
 	/* start usb so that usb keyboard can be used as input device */
 	if (IS_ENABLED(CONFIG_USB_KEYBOARD))
 		usb_init();
@@ -84,3 +88,4 @@ int last_stage_init(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);

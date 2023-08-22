@@ -215,8 +215,4 @@ int hush_init_var(void)
 	return 0;
 }
 
-int last_stage_init(void)
-{
-	set_km_env();
-	return 0;
-}
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, set_km_env);

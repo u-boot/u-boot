@@ -57,7 +57,7 @@ static ulong clk_get_cpu_rate(void)
 }
 
 /* initialize prefetch module related to cpu_clk */
-static void prefetch_init(void)
+static int prefetch_init(void)
 {
 	struct pic32_reg_atomic *regs;
 	const void __iomem *base;
@@ -93,6 +93,8 @@ static void prefetch_init(void)
 	/* Enable prefetch for all */
 	writel(0x30, &regs->set);
 	iounmap(regs);
+
+	return 0;
 }
 
 /* arch-specific CPU init after DM: flash prefetch */

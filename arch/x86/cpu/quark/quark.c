@@ -107,7 +107,7 @@ static void quark_setup_bars(void)
 		       CONFIG_PCIE_ECAM_BASE | MEM_BAR_EN);
 }
 
-static void quark_pcie_early_init(void)
+static int quark_pcie_early_init(void)
 {
 	/*
 	 * Step1: Assert PCIe signal PERST#
@@ -146,6 +146,8 @@ static void quark_pcie_early_init(void)
 	/* Mixer Load Lane 1 */
 	msg_port_io_clrbits(MSG_PORT_PCIE_AFE, PCIE_RXPICTRL0_L1,
 			    (1 << 6) | (1 << 7));
+
+	return 0;
 }
 
 static void quark_usb_early_init(void)

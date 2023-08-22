@@ -26,6 +26,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>
+#include <event.h>
 #include <init.h>
 #include <irq.h>
 #include <log.h>
@@ -185,7 +186,8 @@ void show_boot_progress(int val)
 }
 #endif
 
-#if !defined(CONFIG_SYS_COREBOOT) && !defined(CONFIG_EFI_STUB)
+#if !defined(CONFIG_SYS_COREBOOT) && !defined(CONFIG_EFI_STUB) && \
+	!defined(CONFIG_SPL_BUILD)
 /*
  * Implement a weak default function for boards that need to do some final init
  * before the system is ready.
@@ -202,7 +204,7 @@ __weak void board_final_cleanup(void)
 {
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 	struct acpi_fadt __maybe_unused *fadt;
 	int ret;
@@ -245,7 +247,9 @@ int last_stage_init(void)
 
 	return 0;
 }
-#endif
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
+
+#endif  /* !SYS_COREBOOT && !EFI_STUB && !SPL_BUILD */
 
 static int x86_init_cpus(void)
 {

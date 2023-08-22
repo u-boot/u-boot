@@ -773,15 +773,8 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_POST
 	initr_post,
 #endif
-#ifdef CONFIG_LAST_STAGE_INIT
 	INIT_FUNC_WATCHDOG_RESET
-	/*
-	 * Some parts can be only initialized if all others (like
-	 * Interrupts) are up and running (i.e. the PC-style ISA
-	 * keyboard).
-	 */
-	last_stage_init,
-#endif
+	INITCALL_EVENT(EVT_LAST_STAGE_INIT),
 #if defined(CFG_PRAM)
 	initr_mem,
 #endif

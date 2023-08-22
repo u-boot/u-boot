@@ -4,6 +4,7 @@
  *
  */
 #include <common.h>
+#include <event.h>
 #include <init.h>
 #include <malloc.h>
 #include <errno.h>
@@ -121,7 +122,7 @@ void reset_cpu(void)
 }
 
 #ifdef CONFIG_LAST_STAGE_INIT
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 	u32 val;
 
@@ -134,4 +135,5 @@ int last_stage_init(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 #endif
