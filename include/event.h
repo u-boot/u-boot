@@ -231,6 +231,14 @@ void event_show_spy_list(void);
 int event_manual_reloc(void);
 
 /**
+ * event_type_name() - Get the name of an event type
+ *
+ * @type: Type to check
+ * Return: Name of event, or "(unknown)" if not known
+ */
+const char *event_type_name(enum event_t type);
+
+/**
  * event_notify() - notify spies about an event
  *
  * It is possible to pass in union event_data here but that may not be

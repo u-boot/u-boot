@@ -49,7 +49,7 @@ const char *const type_name[] = {
 _Static_assert(ARRAY_SIZE(type_name) == EVT_COUNT, "event type_name size");
 #endif
 
-static const char *event_type_name(enum event_t type)
+const char *event_type_name(enum event_t type)
 {
 #if CONFIG_IS_ENABLED(EVENT_DEBUG)
 	return type_name[type];
