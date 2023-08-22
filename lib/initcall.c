@@ -33,25 +33,25 @@ static ulong calc_reloc_ofs(void)
 int initcall_run_list(const init_fnc_t init_sequence[])
 {
 	ulong reloc_ofs = calc_reloc_ofs();
-	const init_fnc_t *init_fnc_ptr;
+	const init_fnc_t *ptr;
+	init_fnc_t func;
+	int ret = 0;
 
-	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
-		int ret;
-
-		if (reloc_ofs)
+	for (ptr = init_sequence; func = *ptr, !ret && func; ptr++) {
+		if (reloc_ofs) {
 			debug("initcall: %p (relocated to %p)\n",
-			      (char *)*init_fnc_ptr - reloc_ofs,
-			      (char *)*init_fnc_ptr);
-		else
-			debug("initcall: %p\n", (char *)*init_fnc_ptr - reloc_ofs);
+			      (char *)func - reloc_ofs, func);
+		} else {
+			debug("initcall: %p\n", (char *)func - reloc_ofs);
+		}
 
-		ret = (*init_fnc_ptr)();
+		ret = func();
 		if (ret) {
 			printf("initcall sequence %p failed at call %p (err=%d)\n",
-			       init_sequence,
-			       (char *)*init_fnc_ptr - reloc_ofs, ret);
+			       init_sequence, (char *)func - reloc_ofs, ret);
 			return -1;
 		}
 	}
+
 	return 0;
 }
