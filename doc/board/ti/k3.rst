@@ -47,6 +47,7 @@ including a 32bit U-Boot SPL, (called the wakup SPL) that ROM will jump
 to after it has finished loading everything into internal SRAM.
 
 .. image:: img/boot_flow_01.svg
+  :alt: Boot flow up to wakeup domain SPL
 
 The wakeup SPL, running on a wakeup domain core, will initialize DDR and
 any peripherals needed load the larger binaries inside the `tispl.bin`
@@ -56,6 +57,7 @@ starting with Trusted Firmware-A (TF-A), before moving on to start
 OP-TEE and the main domain's U-Boot SPL.
 
 .. image:: img/boot_flow_02.svg
+  :alt: Boot flow up to main domain SPL
 
 The main domain's SPL, running on a 64bit application core, has
 virtually unlimited space (billions of bytes now that DDR is working) to
@@ -64,6 +66,7 @@ which loads more firmware into the micro-controller & wakeup domains and
 finally prepare the main domain to run Linux.
 
 .. image:: img/boot_flow_03.svg
+  :alt: Complete boot flow up to Linux
 
 This is the typical boot flow for all K3 based SoCs, however this flow
 offers quite a lot in the terms of flexibility, especially on High
