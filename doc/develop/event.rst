@@ -21,16 +21,31 @@ Declaring a spy
 
 To declare a spy, use something like this::
 
-    static int snow_setup_cpus(void *ctx, struct event *event)
+    static int snow_check_temperature(void)
     {
         /* do something */
         return 0;
     }
-    EVENT_SPY(EVT_DM_POST_INIT_F, snow_setup_cpus);
+    EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, snow_check_temperature);
 
 This function is called when EVT_DM_POST_INIT_F is emitted, i.e. after the
 driver model is initialized (in U-Boot proper before and after relocation).
 
+If you need access to the event data, use `EVENT_SPY_FULL`, like this::
+
+    static int snow_setup_cpus(void *ctx, struct event *event)
+    {
+        /* do something that uses event->data*/
+        return 0;
+    }
+    EVENT_SPY_FULL(EVT_DM_POST_INIT_F, snow_setup_cpus);
+
+Note that the context is always NULL for a static spy. See below for information
+about how to use a dynamic spy.
+
+The return value is handled by the event emitter. If non-zero, then the error
+is returned to the function which emitted the event, i.e. the one that called
+`event_notify()`.
 
 Debugging
 ---------
@@ -79,6 +94,10 @@ to be notified when a particular device is probed or removed.
 
 This can be handled by enabling `CONFIG_EVENT_DYNAMIC`. It is then possible to
 call `event_register()` to register a new handler for a particular event.
+
+If some context is need for the spy, you can pass a pointer to
+`event_register()` to provide that. Note that the context is only passed to
+a spy registered with `EVENT_SPY_FULL`.
 
 Dynamic event handlers are called after all the static event spy handlers have
 been processed. Of course, since dynamic event handlers are created at runtime
