@@ -5,6 +5,17 @@ Building documentation
 
 The U-Boot documentation is based on the Sphinx documentation generator.
 
+In addition to the Python packages listed in ``doc/sphinx/requirements.txt``,
+the following dependencies are needed to build the documentation:
+
+* fontconfig
+
+* graphviz
+
+* imagemagick
+
+* texinfo (if building the `Infodoc documentation`_)
+
 HTML documentation
 ------------------
 
