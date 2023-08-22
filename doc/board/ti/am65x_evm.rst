@@ -46,6 +46,7 @@ applications. This should happen before running Linux.
 instead use Falcon boot flow to reduce boot time.
 
 .. image:: img/boot_diagram_am65.svg
+  :alt: Boot flow diagram
 
 - Here DMSC acts as master and provides all the critical services. R5/A53
   requests DMSC to get these services done as shown in the above diagram.
@@ -136,14 +137,17 @@ Image formats:
 - tiboot3.bin
 
 .. image:: img/no_multi_cert_tiboot3.bin.svg
+  :alt: tiboot3.bin image format
 
 - tispl.bin
 
 .. image:: img/nodm_tispl.bin.svg
+  :alt: tispl.bin image format
 
 - sysfw.itb
 
 .. image:: img/sysfw.itb.svg
+  :alt: sysfw.itb image format
 
 eMMC:
 -----
@@ -185,6 +189,7 @@ used:
 eMMC layout:
 
 .. image:: img/emmc_am65x_evm_boot0.svg
+  :alt: emmc boot partition layout
 
 Kernel image and DT are expected to be present in the /boot folder of rootfs.
 To boot kernel from eMMC, use the following commands:
@@ -220,6 +225,7 @@ addresses.
 Flash layout for OSPI:
 
 .. image:: img/ospi_sysfw.svg
+  :alt: OSPI flash partition layout
 
 Kernel Image and DT are expected to be present in the /boot folder of UBIFS
 ospi.rootfs just like in SD card case. U-Boot looks for UBI volume named
