@@ -1015,7 +1015,6 @@ F:	tools/mkeficapsule.c
 
 ENVIRONMENT
 M:	Joe Hershberger <joe.hershberger@ni.com>
-R:	Wolfgang Denk <wd@denx.de>
 S:	Maintained
 F:	env/
 F:	include/env*
@@ -1025,7 +1024,6 @@ F:	tools/mkenvimage.c
 
 ENVIRONMENT AS TEXT
 M:	Simon Glass <sjg@chromium.org>
-R:	Wolfgang Denk <wd@denx.de>
 S:	Maintained
 F:	doc/usage/environment.rst
 F:	scripts/env2string.awk
@@ -1343,8 +1341,7 @@ F:	drivers/power/
 F:	include/power/
 
 POWERPC
-M:	Wolfgang Denk <wd@denx.de>
-S:	Maintained
+S:	Orphan (Since 2022-10-21)
 F:	arch/powerpc/
 
 POWERPC MPC8XX
