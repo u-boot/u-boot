@@ -623,16 +623,16 @@ static int fwu_boottime_checks(void *ctx, struct event *event)
 	int ret;
 	u32 boot_idx, active_idx;
 
-	/* Don't have boot time checks on sandbox */
-	if (IS_ENABLED(CONFIG_SANDBOX)) {
-		boottime_check = 1;
-		return 0;
-	}
-
 	ret = uclass_first_device_err(UCLASS_FWU_MDATA, &g_dev);
 	if (ret) {
 		log_debug("Cannot find fwu device\n");
 		return ret;
+	}
+
+	/* Don't have boot time checks on sandbox */
+	if (IS_ENABLED(CONFIG_SANDBOX)) {
+		boottime_check = 1;
+		return 0;
 	}
 
 	ret = fwu_get_mdata(NULL);
