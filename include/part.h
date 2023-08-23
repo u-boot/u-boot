@@ -316,15 +316,6 @@ int part_get_bootable(struct blk_desc *desc);
 
 struct udevice;
 /**
- * part_create_block_devices - Create block devices for disk partitions
- *
- * Create UCLASS_PARTITION udevices for each of disk partitions in @parent
- *
- * @blk_dev:	Whole disk device
- */
-int part_create_block_devices(struct udevice *blk_dev);
-
-/**
  * disk_blk_read() - read blocks from a disk partition
  *
  * @dev:	Device to read from (UCLASS_PARTITION)

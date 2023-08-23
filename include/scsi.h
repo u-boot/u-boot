@@ -7,6 +7,7 @@
  #define _SCSI_H
 
 #include <asm/cache.h>
+#include <bouncebuf.h>
 #include <linux/dma-direction.h>
 
 /* Fix this to the maximum */
@@ -298,6 +299,24 @@ struct scsi_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*bus_reset)(struct udevice *dev);
+
+#if IS_ENABLED(CONFIG_BOUNCE_BUFFER)
+	/**
+	 * buffer_aligned() - test memory alignment of block operation buffer
+	 *
+	 * Some devices have limited DMA capabilities and require that the
+	 * buffers passed to them fit specific properties. This optional
+	 * callback can be used to indicate whether a buffer alignment is
+	 * suitable for the device DMA or not, and trigger use of generic
+	 * bounce buffer implementation to help use of unsuitable buffers
+	 * at the expense of performance degradation.
+	 *
+	 * @dev:	Block device associated with the request
+	 * @state:	Bounce buffer state
+	 * @return 1 if OK, 0 if unaligned
+	 */
+	int (*buffer_aligned)(struct udevice *dev, struct bounce_buffer *state);
+#endif	/* CONFIG_BOUNCE_BUFFER */
 };
 
 #define scsi_get_ops(dev)        ((struct scsi_ops *)(dev)->driver->ops)

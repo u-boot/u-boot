@@ -79,7 +79,7 @@ int bounce_buffer_stop(struct bounce_buffer *state)
 {
 	if (state->flags & GEN_BB_WRITE) {
 		/* Invalidate cache so that CPU can see any newly DMA'd data */
-		dma_unmap_single((dma_addr_t)state->bounce_buffer,
+		dma_unmap_single((dma_addr_t)(uintptr_t)state->bounce_buffer,
 				 state->len_aligned,
 				 DMA_BIDIRECTIONAL);
 	}

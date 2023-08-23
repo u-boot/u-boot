@@ -274,6 +274,18 @@ static ulong scsi_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	      __func__, start, smallblks, buf_addr);
 	return blkcnt;
 }
+
+#if IS_ENABLED(CONFIG_BOUNCE_BUFFER)
+static int scsi_buffer_aligned(struct udevice *dev, struct bounce_buffer *state)
+{
+	struct scsi_ops *ops = scsi_get_ops(dev->parent);
+
+	if (ops->buffer_aligned)
+		return ops->buffer_aligned(dev->parent, state);
+
+	return 1;
+}
+#endif	/* CONFIG_BOUNCE_BUFFER */
 #endif
 
 #if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT) && \
@@ -720,6 +732,9 @@ int scsi_scan(bool verbose)
 static const struct blk_ops scsi_blk_ops = {
 	.read	= scsi_read,
 	.write	= scsi_write,
+#if IS_ENABLED(CONFIG_BOUNCE_BUFFER)
+	.buffer_aligned	= scsi_buffer_aligned,
+#endif	/* CONFIG_BOUNCE_BUFFER */
 };
 
 U_BOOT_DRIVER(scsi_blk) = {

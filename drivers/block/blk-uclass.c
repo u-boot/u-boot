@@ -17,6 +17,8 @@
 #include <dm/uclass-internal.h>
 #include <linux/err.h>
 
+#define blk_get_ops(dev)	((struct blk_ops *)(dev)->driver->ops)
+
 static struct {
 	enum uclass_id id;
 	const char *name;
@@ -444,6 +446,26 @@ int blk_get_device(int uclass_id, int devnum, struct udevice **devp)
 	return device_probe(*devp);
 }
 
+struct blk_bounce_buffer {
+	struct udevice		*dev;
+	struct bounce_buffer	state;
+};
+
+static int blk_buffer_aligned(struct bounce_buffer *state)
+{
+#if IS_ENABLED(CONFIG_BOUNCE_BUFFER)
+	struct blk_bounce_buffer *bbstate =
+		container_of(state, struct blk_bounce_buffer, state);
+	struct udevice *dev = bbstate->dev;
+	const struct blk_ops *ops = blk_get_ops(dev);
+
+	if (ops->buffer_aligned)
+		return ops->buffer_aligned(dev, state);
+#endif	/* CONFIG_BOUNCE_BUFFER */
+
+	return 1;	/* Default, any buffer is OK */
+}
+
 long blk_read(struct udevice *dev, lbaint_t start, lbaint_t blkcnt, void *buf)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
@@ -456,7 +478,25 @@ long blk_read(struct udevice *dev, lbaint_t start, lbaint_t blkcnt, void *buf)
 	if (blkcache_read(desc->uclass_id, desc->devnum,
 			  start, blkcnt, desc->blksz, buf))
 		return blkcnt;
-	blks_read = ops->read(dev, start, blkcnt, buf);
+
+	if (IS_ENABLED(CONFIG_BOUNCE_BUFFER)) {
+		struct blk_bounce_buffer bbstate = { .dev = dev };
+		int ret;
+
+		ret = bounce_buffer_start_extalign(&bbstate.state, buf,
+						   blkcnt * desc->blksz,
+						   GEN_BB_WRITE, desc->blksz,
+						   blk_buffer_aligned);
+		if (ret)
+			return ret;
+
+		blks_read = ops->read(dev, start, blkcnt, bbstate.state.bounce_buffer);
+
+		bounce_buffer_stop(&bbstate.state);
+	} else {
+		blks_read = ops->read(dev, start, blkcnt, buf);
+	}
+
 	if (blks_read == blkcnt)
 		blkcache_fill(desc->uclass_id, desc->devnum, start, blkcnt,
 			      desc->blksz, buf);
@@ -469,13 +509,33 @@ long blk_write(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 {
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
 	const struct blk_ops *ops = blk_get_ops(dev);
+	long blks_written;
 
 	if (!ops->write)
 		return -ENOSYS;
 
 	blkcache_invalidate(desc->uclass_id, desc->devnum);
 
-	return ops->write(dev, start, blkcnt, buf);
+	if (IS_ENABLED(CONFIG_BOUNCE_BUFFER)) {
+		struct blk_bounce_buffer bbstate = { .dev = dev };
+		int ret;
+
+		ret = bounce_buffer_start_extalign(&bbstate.state, (void *)buf,
+						   blkcnt * desc->blksz,
+						   GEN_BB_READ, desc->blksz,
+						   blk_buffer_aligned);
+		if (ret)
+			return ret;
+
+		blks_written = ops->write(dev, start, blkcnt,
+					  bbstate.state.bounce_buffer);
+
+		bounce_buffer_stop(&bbstate.state);
+	} else {
+		blks_written = ops->write(dev, start, blkcnt, buf);
+	}
+
+	return blks_written;
 }
 
 long blk_erase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt)
@@ -762,6 +822,54 @@ int blk_unbind_all(int uclass_id)
 				return ret;
 		}
 	}
+
+	return 0;
+}
+
+static int part_create_block_devices(struct udevice *blk_dev)
+{
+	int part, count;
+	struct blk_desc *desc = dev_get_uclass_plat(blk_dev);
+	struct disk_partition info;
+	struct disk_part *part_data;
+	char devname[32];
+	struct udevice *dev;
+	int ret;
+
+	if (!CONFIG_IS_ENABLED(PARTITIONS) || !blk_enabled())
+		return 0;
+
+	if (device_get_uclass_id(blk_dev) != UCLASS_BLK)
+		return 0;
+
+	/* Add devices for each partition */
+	for (count = 0, part = 1; part <= MAX_SEARCH_PARTITIONS; part++) {
+		if (part_get_info(desc, part, &info))
+			continue;
+		snprintf(devname, sizeof(devname), "%s:%d", blk_dev->name,
+			 part);
+
+		ret = device_bind_driver(blk_dev, "blk_partition",
+					 strdup(devname), &dev);
+		if (ret)
+			return ret;
+
+		part_data = dev_get_uclass_plat(dev);
+		part_data->partnum = part;
+		part_data->gpt_part_info = info;
+		count++;
+
+		ret = device_probe(dev);
+		if (ret) {
+			debug("Can't probe\n");
+			count--;
+			device_unbind(dev);
+
+			continue;
+		}
+	}
+	debug("%s: %d partitions found in %s\n", __func__, count,
+	      blk_dev->name);
 
 	return 0;
 }

@@ -221,7 +221,8 @@ static int dm_test_acpi_create_dmar(struct unit_test_state *uts)
 	ut_assertnonnull(cpu);
 	ut_assertok(acpi_create_dmar(&dmar, DMAR_INTR_REMAP));
 	ut_asserteq(DMAR_INTR_REMAP, dmar.flags);
-	ut_asserteq(32 - 1, dmar.host_address_width);
+	ut_asserteq((IS_ENABLED(CONFIG_PHYS_64BIT) ? 64 : 32) - 1,
+		    dmar.host_address_width);
 
 	return 0;
 }
@@ -277,13 +278,16 @@ static int dm_test_acpi_write_tables(struct unit_test_state *uts)
 	 */
 	ut_asserteq_ptr(dmar + 3, ctx.current);
 	ut_asserteq(DMAR_INTR_REMAP, dmar->flags);
-	ut_asserteq(32 - 1, dmar->host_address_width);
+	ut_asserteq((IS_ENABLED(CONFIG_PHYS_64BIT) ? 64 : 32) - 1,
+		    dmar->host_address_width);
 
 	ut_asserteq(DMAR_INTR_REMAP, dmar[1].flags);
-	ut_asserteq(32 - 1, dmar[1].host_address_width);
+	ut_asserteq((IS_ENABLED(CONFIG_PHYS_64BIT) ? 64 : 32) - 1,
+		    dmar[1].host_address_width);
 
 	ut_asserteq(DMAR_INTR_REMAP, dmar[2].flags);
-	ut_asserteq(32 - 1, dmar[2].host_address_width);
+	ut_asserteq((IS_ENABLED(CONFIG_PHYS_64BIT) ? 64 : 32) - 1,
+		    dmar[2].host_address_width);
 
 	/* Check that the pointers were added correctly */
 	for (i = 0; i < 3; i++) {
