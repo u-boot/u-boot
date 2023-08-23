@@ -7,6 +7,7 @@
  * Author: Durai Manickam KR <durai.manickamkr@microchip.com>
  */
 /dts-v1/;
+#include <dt-bindings/input/input.h>
 #include <dt-bindings/mfd/atmel-flexcom.h>
 #include "sam9x60.dtsi"
 
@@ -30,6 +31,19 @@
 
 		main_xtal: main_xtal {
 			clock-frequency = <24000000>;
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_key_gpio_default>;
+
+		button-user {
+			label = "PB_USER";
+			gpios = <&pioA 29 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_PROG1>;
+			wakeup-source;
 		};
 	};
 
@@ -186,6 +200,12 @@
 			atmel,pins =
 				<AT91_PIOA 0 AT91_PERIPH_A AT91_PINCTRL_NONE
 				 AT91_PIOA 1 AT91_PERIPH_A AT91_PINCTRL_NONE>;
+		};
+	};
+
+	gpio-keys {
+		pinctrl_key_gpio_default: pinctrl-key-gpio {
+			atmel,pins = <AT91_PIOA 29 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
 		};
 	};
 
