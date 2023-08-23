@@ -59,11 +59,26 @@ static int do_dm_dump_static_driver_info(struct cmd_tbl *cmdtp, int flag,
 static int do_dm_dump_tree(struct cmd_tbl *cmdtp, int flag, int argc,
 			   char *const argv[])
 {
-	bool sort;
+	bool extended = false, sort = false;
+	char *device = NULL;
 
-	sort = argc > 1 && !strcmp(argv[1], "-s");
+	for (; argc > 1; argc--, argv++) {
+		if (argv[1][0] != '-')
+			break;
 
-	dm_dump_tree(sort);
+		if (!strcmp(argv[1], "-e")) {
+			extended = true;
+		} else if (!strcmp(argv[1], "-s")) {
+			sort = true;
+		} else {
+			printf("Unknown parameter: %s\n", argv[1]);
+			return 0;
+		}
+	}
+	if (argc > 1)
+		device = argv[1];
+
+	dm_dump_tree(device, extended, sort);
 
 	return 0;
 }
@@ -71,7 +86,20 @@ static int do_dm_dump_tree(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_dm_dump_uclass(struct cmd_tbl *cmdtp, int flag, int argc,
 			     char *const argv[])
 {
-	dm_dump_uclass();
+	bool extended = false;
+	char *uclass = NULL;
+
+	if (argc > 1) {
+		if (!strcmp(argv[1], "-e")) {
+			extended = true;
+			argc--;
+			argv++;
+		}
+		if (argc > 1)
+			uclass = argv[1];
+	}
+
+	dm_dump_uclass(uclass, extended);
 
 	return 0;
 }
@@ -91,8 +119,8 @@ static char dm_help_text[] =
 	"dm drivers       Dump list of drivers with uclass and instances\n"
 	DM_MEM_HELP
 	"dm static        Dump list of drivers with static platform data\n"
-	"dm tree [-s]     Dump tree of driver model devices (-s=sort)\n"
-	"dm uclass        Dump list of instances for each uclass"
+	"dm tree [-s][-e][name]   Dump tree of driver model devices (-s=sort)\n"
+	"dm uclass [-e][name]     Dump list of instances for each uclass"
 	;
 #endif
 
@@ -102,5 +130,5 @@ U_BOOT_CMD_WITH_SUBCMDS(dm, "Driver model low level access", dm_help_text,
 	U_BOOT_SUBCMD_MKENT(drivers, 1, 1, do_dm_dump_drivers),
 	DM_MEM
 	U_BOOT_SUBCMD_MKENT(static, 1, 1, do_dm_dump_static_driver_info),
-	U_BOOT_SUBCMD_MKENT(tree, 2, 1, do_dm_dump_tree),
-	U_BOOT_SUBCMD_MKENT(uclass, 1, 1, do_dm_dump_uclass));
+	U_BOOT_SUBCMD_MKENT(tree, 4, 1, do_dm_dump_tree),
+	U_BOOT_SUBCMD_MKENT(uclass, 3, 1, do_dm_dump_uclass));

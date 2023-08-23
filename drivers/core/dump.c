@@ -85,29 +85,65 @@ static void show_devices(struct udevice *dev, int depth, int last_flag,
 	}
 }
 
-void dm_dump_tree(bool sort)
+static void dm_dump_tree_single(struct udevice *dev, bool sort)
+{
+	int dev_count, uclasses;
+	struct udevice **devs = NULL;
+
+	dm_get_stats(&dev_count, &uclasses);
+
+	if (sort) {
+		devs = calloc(dev_count, sizeof(struct udevice *));
+		if (!devs) {
+			printf("(out of memory)\n");
+			return;
+		}
+	}
+	show_devices(dev, -1, 0, devs);
+	free(devs);
+}
+
+static void dm_dump_tree_recursive(struct udevice *dev, char *dev_name,
+				   bool extended, bool sort)
+{
+	struct udevice *child;
+	size_t len;
+
+	len = strlen(dev_name);
+
+	device_foreach_child(child, dev) {
+		if (extended) {
+			if (!strncmp(child->name, dev_name, len)) {
+				dm_dump_tree_single(child, sort);
+				continue;
+			}
+		} else {
+			if (!strcmp(child->name, dev_name)) {
+				dm_dump_tree_single(child, sort);
+				continue;
+			}
+		}
+		dm_dump_tree_recursive(child, dev_name, extended, sort);
+	}
+}
+
+void dm_dump_tree(char *dev_name, bool extended, bool sort)
 {
 	struct udevice *root;
 
+	printf(" Class     Index  Probed  Driver                Name\n");
+	printf("-----------------------------------------------------------\n");
+
 	root = dm_root();
-	if (root) {
-		int dev_count, uclasses;
-		struct udevice **devs = NULL;
+	if (!root)
+		return;
 
-		dm_get_stats(&dev_count, &uclasses);
-
-		printf(" Class     Index  Probed  Driver                Name\n");
-		printf("-----------------------------------------------------------\n");
-		if (sort) {
-			devs = calloc(dev_count, sizeof(struct udevice *));
-			if (!devs) {
-				printf("(out of memory)\n");
-				return;
-			}
-		}
-		show_devices(root, -1, 0, devs);
-		free(devs);
+	if (!dev_name || !strcmp(dev_name, "root")) {
+		dm_dump_tree_single(root, sort);
+		return;
 	}
+
+	dm_dump_tree_recursive(root, dev_name, extended, sort);
 }
 
 /**
@@ -127,26 +163,50 @@ static void dm_display_line(struct udevice *dev, int index)
 	puts("\n");
 }
 
-void dm_dump_uclass(void)
+static void dm_dump_uclass_single(enum uclass_id id)
 {
 	struct uclass *uc;
+	struct udevice *dev;
+	int i = 0, ret;
+
+	ret = uclass_get(id, &uc);
+	if (ret)
+		return;
+
+	printf("uclass %d: %s\n", id, uc->uc_drv->name);
+	uclass_foreach_dev(dev, uc) {
+		dm_display_line(dev, i);
+		i++;
+	}
+	puts("\n");
+}
+
+void dm_dump_uclass(char *uclass, bool extended)
+{
+	struct uclass *uc;
+	enum uclass_id id;
+	bool matching;
 	int ret;
-	int id;
+
+	matching = !!(uclass && strcmp(uclass, "root"));
 
 	for (id = 0; id < UCLASS_COUNT; id++) {
-		struct udevice *dev;
-		int i = 0;
-
 		ret = uclass_get(id, &uc);
 		if (ret)
 			continue;
 
-		printf("uclass %d: %s\n", id, uc->uc_drv->name);
-		uclass_foreach_dev(dev, uc) {
-			dm_display_line(dev, i);
-			i++;
+		if (matching) {
+			if (extended) {
+				if (!strncmp(uc->uc_drv->name, uclass,
+					     strlen(uclass)))
+					dm_dump_uclass_single(id);
+			} else {
+				if (!strcmp(uc->uc_drv->name, uclass))
+					dm_dump_uclass_single(id);
+			}
+		} else {
+			dm_dump_uclass_single(id);
 		}
-		puts("\n");
 	}
 }
 
