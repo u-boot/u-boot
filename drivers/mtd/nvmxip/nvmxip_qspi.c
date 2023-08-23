@@ -66,5 +66,6 @@ U_BOOT_DRIVER(nvmxip_qspi) = {
 	.id = UCLASS_NVMXIP,
 	.of_match = nvmxip_qspi_ids,
 	.of_to_plat = nvmxip_qspi_of_to_plat,
+	.probe = nvmxip_probe,
 	.plat_auto = sizeof(struct nvmxip_plat),
 };

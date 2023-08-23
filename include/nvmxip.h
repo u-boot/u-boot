@@ -29,4 +29,16 @@ struct nvmxip_plat {
 	lbaint_t lba;
 };
 
+/**
+ * nvmxip_bind() - post binding treatments
+ * @dev:	the NVMXIP device
+ *
+ * Create and probe a child block device.
+ *
+ * Return:
+ *
+ * 0 on success. Otherwise, failure
+ */
+int nvmxip_probe(struct udevice *udev);
+
 #endif /* __DRIVER_NVMXIP_H__ */
