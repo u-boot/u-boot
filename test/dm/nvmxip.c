@@ -103,6 +103,8 @@ static int dm_test_nvmxip(struct unit_test_state *uts)
 	void *buffer = NULL;
 	unsigned long flashsz;
 
+	sandbox_set_enable_memio(true);
+
 	/* set the flash content first for both devices */
 	dm_nvmxip_flash_sanity(uts, 0, NULL);
 	dm_nvmxip_flash_sanity(uts, 1, NULL);

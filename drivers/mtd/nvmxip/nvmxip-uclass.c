@@ -29,10 +29,6 @@ int nvmxip_probe(struct udevice *udev)
 	char bdev_name[NVMXIP_BLKDEV_NAME_SZ + 1];
 	int devnum;
 
-#if CONFIG_IS_ENABLED(SANDBOX64)
-	sandbox_set_enable_memio(true);
-#endif
-
 	devnum = uclass_id_count(UCLASS_NVMXIP);
 	snprintf(bdev_name, NVMXIP_BLKDEV_NAME_SZ, "blk#%d", devnum);
 
