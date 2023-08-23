@@ -22,7 +22,6 @@
 #include <fsl-mc/fsl_mc.h>
 #include <env_internal.h>
 #include <asm/arch-fsl-layerscape/soc.h>
-#include <asm/arch/ppa.h>
 #include <hwconfig.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
@@ -819,10 +818,6 @@ int board_init(void)
 #if defined(CONFIG_TARGET_LS1088ARDB) && defined(CONFIG_FSL_MC_ENET)
 	/* invert AQR105 IRQ pins polarity */
 	out_le32(irq_ccsr + IRQCR_OFFSET / 4, AQR105_IRQ_MASK);
-#endif
-
-#ifdef CONFIG_FSL_LS_PPA
-	ppa_init();
 #endif
 
 #if !defined(CONFIG_SYS_EARLY_PCI_INIT)

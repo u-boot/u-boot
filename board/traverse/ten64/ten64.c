@@ -26,7 +26,6 @@
 #include <fsl-mc/fsl_mc.h>
 #include <env_internal.h>
 #include <asm/arch-fsl-layerscape/soc.h>
-#include <asm/arch/ppa.h>
 #include <hwconfig.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>

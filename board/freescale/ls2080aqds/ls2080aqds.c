@@ -23,7 +23,6 @@
 #include <rtc.h>
 #include <asm/arch/soc.h>
 #include <hwconfig.h>
-#include <asm/arch/ppa.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
 #include "../common/i2c_mux.h"
 
@@ -221,10 +220,6 @@ int board_init(void)
 #else
 	rtc_enable_32khz_output();
 #endif
-#endif
-
-#ifdef CONFIG_FSL_LS_PPA
-	ppa_init();
 #endif
 
 #if !defined(CONFIG_SYS_EARLY_PCI_INIT)

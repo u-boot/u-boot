@@ -390,66 +390,6 @@ config HAS_FEATURE_ENHANCED_MSI
 	bool
 	default y if ARCH_LS1043A
 
-menu "Layerscape PPA"
-config FSL_LS_PPA
-	bool "FSL Layerscape PPA firmware support"
-	depends on !ARMV8_PSCI
-	select ARMV8_SEC_FIRMWARE_SUPPORT
-	select SEC_FIRMWARE_ARMV8_PSCI
-	select ARMV8_SEC_FIRMWARE_ERET_ADDR_REVERT if FSL_LSCH2
-	help
-	  The FSL Primary Protected Application (PPA) is a software component
-	  which is loaded during boot stage, and then remains resident in RAM
-	  and runs in the TrustZone after boot.
-	  Say y to enable it.
-
-config SPL_FSL_LS_PPA
-	bool "FSL Layerscape PPA firmware support for SPL build"
-	depends on !ARMV8_PSCI
-	select SPL_ARMV8_SEC_FIRMWARE_SUPPORT
-	select SEC_FIRMWARE_ARMV8_PSCI
-	select ARMV8_SEC_FIRMWARE_ERET_ADDR_REVERT if FSL_LSCH2
-	help
-	  The FSL Primary Protected Application (PPA) is a software component
-	  which is loaded during boot stage, and then remains resident in RAM
-	  and runs in the TrustZone after boot. This is to load PPA during SPL
-	  stage instead of the RAM version of U-Boot. Once PPA is initialized,
-	  the rest of U-Boot (including RAM version) runs at EL2.
-choice
-	prompt "FSL Layerscape PPA firmware loading-media select"
-	depends on FSL_LS_PPA
-	default SYS_LS_PPA_FW_IN_MMC if SD_BOOT
-	default SYS_LS_PPA_FW_IN_NAND if NAND_BOOT
-	default SYS_LS_PPA_FW_IN_XIP
-
-config SYS_LS_PPA_FW_IN_XIP
-	bool "XIP"
-	help
-	  Say Y here if the PPA firmware locate at XIP flash, such
-	  as NOR or QSPI flash.
-
-config SYS_LS_PPA_FW_IN_MMC
-	bool "eMMC or SD Card"
-	help
-	  Say Y here if the PPA firmware locate at eMMC/SD card.
-
-config SYS_LS_PPA_FW_IN_NAND
-	bool "NAND"
-	help
-	  Say Y here if the PPA firmware locate at NAND flash.
-
-endchoice
-
-config LS_PPA_ESBC_HDR_SIZE
-	hex "Length of PPA ESBC header"
-	depends on FSL_LS_PPA && CHAIN_OF_TRUST && !SYS_LS_PPA_FW_IN_XIP
-	default 0x2000
-	help
-	  Length (in bytes) of PPA ESBC header to be copied from MMC/SD or
-	  NAND to memory to validate PPA image.
-
-endmenu
-
 config SYS_FSL_ERRATUM_A008997
 	bool "Workaround for USB PHY erratum A008997"
 
