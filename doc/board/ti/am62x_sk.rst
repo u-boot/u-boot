@@ -47,6 +47,7 @@ Boot Flow:
 Below is the pictorial representation of boot flow:
 
 .. image:: img/boot_diagram_k3_current.svg
+  :alt: Boot flow diagram
 
 - Here TIFS acts as master and provides all the critical services. R5/A53
   requests TIFS to get these services done as shown in the above diagram.
@@ -102,13 +103,13 @@ Set the variables corresponding to this platform:
 
 3. U-Boot:
 
-* 4.1 R5:
+* 3.1 R5:
 
 .. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_build_steps_spl_r5
     :end-before: .. k3_rst_include_end_build_steps_spl_r5
 
-* 4.2 A53:
+* 3.2 A53:
 
 .. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_build_steps_uboot
@@ -141,10 +142,12 @@ Image formats:
 - tiboot3.bin
 
 .. image:: img/multi_cert_tiboot3.bin.svg
+  :alt: tiboot3.bin image format
 
 - tispl.bin
 
 .. image:: img/dm_tispl.bin.svg
+  :alt: tispl.bin image format
 
 A53 SPL DDR Memory Layout
 -------------------------

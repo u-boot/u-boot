@@ -47,6 +47,7 @@ including a 32bit U-Boot SPL, (called the wakup SPL) that ROM will jump
 to after it has finished loading everything into internal SRAM.
 
 .. image:: img/boot_flow_01.svg
+  :alt: Boot flow up to wakeup domain SPL
 
 The wakeup SPL, running on a wakeup domain core, will initialize DDR and
 any peripherals needed load the larger binaries inside the `tispl.bin`
@@ -56,6 +57,7 @@ starting with Trusted Firmware-A (TF-A), before moving on to start
 OP-TEE and the main domain's U-Boot SPL.
 
 .. image:: img/boot_flow_02.svg
+  :alt: Boot flow up to main domain SPL
 
 The main domain's SPL, running on a 64bit application core, has
 virtually unlimited space (billions of bytes now that DDR is working) to
@@ -64,6 +66,7 @@ which loads more firmware into the micro-controller & wakeup domains and
 finally prepare the main domain to run Linux.
 
 .. image:: img/boot_flow_03.svg
+  :alt: Complete boot flow up to Linux
 
 This is the typical boot flow for all K3 based SoCs, however this flow
 offers quite a lot in the terms of flexibility, especially on High
@@ -120,10 +123,29 @@ online
   | **source:** https://github.com/OP-TEE/optee_os.git
   | **branch:** master
 
-* **TI Firmware (TIFS, DM, DSMC)**
+* **TI Firmware (TIFS, DM, SYSFW)**
 
   | **source:** https://git.ti.com/git/processor-firmware/ti-linux-firmware.git
   | **branch:** ti-linux-firmware
+
+.. note::
+
+  The TI Firmware required for functionality of the system can be
+  one of the following combination (see platform specific boot diagram for
+  further information as to which component runs on which processor):
+
+  * **TIFS** - TI Foundational Security Firmware - Consists of purely firmware
+    meant to run on the security enclave.
+  * **DM** - Device Management firmware also called TI System Control Interface
+    server (TISCI Server) - This component purely plays the role of managing
+    device resources such as power, clock, interrupts, dma etc. This firmware
+    runs on a dedicated or multi-use microcontroller outside the security
+    enclave.
+
+ OR
+
+  * **SYSFW** - System firmware - consists of both TIFS and DM both running on
+    the security enclave.
 
 .. k3_rst_include_end_boot_sources
 
@@ -485,6 +507,7 @@ generation device.
 The overall structure of this setup is in the following figure.
 
 .. image:: img/openocd-overview.svg
+  :alt: Overview of OpenOCD setup.
 
 .. note::
 
@@ -577,7 +600,7 @@ correctly to ensure a sane system.
   $ cd openocd
   # Copy the udev rules to the correct system location
   $ sudo cp ./contrib/60-openocd.rules \
-      ./src/JTAG/drivers/libjaylink/contrib/99-libjaylink.rules \
+      ./src/jtag/drivers/libjaylink/contrib/99-libjaylink.rules \
       /etc/udev/rules.d/
   # Get Udev to load the new rules up
   $ sudo udevadm control --reload-rules
@@ -768,7 +791,7 @@ Code modification
   In this example, we will debug ``board_init_f`` inside
   ``arch/arm/mach-k3/{soc}_init.c``. Since some sections of U-Boot
   will be executed multiple times during the bootup process of K3
-  devices, we will need to include either ``CONFIG_CPU_ARM64`` or
+  devices, we will need to include either ``CONFIG_ARM64`` or
   ``CONFIG_CPU_V7R`` to catch the CPU at the desired place during the
   bootup process (Main or Wakeup domains). For example, modify the
   file as follows (depending on need):
@@ -786,7 +809,7 @@ Code modification
       }
       ...
       /* Code to run on the ARMV8 (Main Domain) */
-      if (IS_ENABLED(CONFIG_CPU_ARM64)) {
+      if (IS_ENABLED(CONFIG_ARM64)) {
           volatile int x = 1;
           while(x) {};
       }

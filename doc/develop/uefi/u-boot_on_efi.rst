@@ -254,6 +254,90 @@ This shows running with serial enabled (see `include/configs/efi-x86_app.h`)::
 
    => QEMU: Terminated
 
+Run on VirtualBox (x86_64)
+--------------------------
+
+Enable EFI
+~~~~~~~~~~
+At settings for virtual machine the flag at **System->Motherboard->Enable EFI
+(special OSes only)** has to be enabled.
+
+Installation
+~~~~~~~~~~~~
+Provide the preinstalled Linux system as a Virtual Disk Image (VDI) and assign
+it to a SATA controller (type AHCI) using the settings for the virtual machine
+at menu item **System->Storage->Controller:SATA**.
+
+For the following description three GPT partitions are assumed:
+
+- Partition 1: formatted as FAT file-system and marked as EFI system partition
+  (partition type 0xEF00) used for the U-Boot EFI binary. (If VirtualBox is UEFI
+  compliant, it should recognize the ESP as the boot partition.)
+
+- Partition 2: formatted as **ext4**, used for root file system
+
+Create an extlinux.conf or a boot script
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Following files are assumed to be located at system for boot configuration::
+
+ Partition  File                    Comment
+ 1          EFI/BOOT/BOOTX64.efi    # renamed U-Boot EFI image
+ 1          Image                   # Linux image
+ 1          Initrd                  # Initramfs of Linux
+
+**EFI/BOOT/BOOTX64.efi** is a renamed build result **u-boot-payload.efi**, built with
+**efi-x86_payload64_defconfig** configuration.
+
+Boot script
+~~~~~~~~~~~
+
+The boot script **boot.scr** is assumed to be located at::
+
+ Partition  File        Comment
+ 1          boot.scr    # Boot script, generated with mkimage from template
+
+Content of **boot.scr**:
+
+.. code-block:: bash
+
+  ext4load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} ${prefix}Image
+  setenv kernel_size ${filesize}
+  ext4load ${devtype} ${devnum}:${distro_bootpart} ${ramdisk_addr_r} ${prefix}Initrd
+  setenv initrd_size ${filesize}
+  zboot  ${kernel_addr_r} ${kernel_size} ${ramdisk_addr_r} ${initrd_size}
+
+Extlinux configuration
+~~~~~~~~~~~~~~~~~~~~~~
+
+Alternatively a configuration **extlinux.conf** can be used. **extlinux.conf**
+is assumed to be located at::
+
+ Partition  File                        Comment
+ 1          extlinux/extlinux.conf      # Extlinux boot configuration
+
+Content of **extlinux.conf**:
+
+.. code-block:: bash
+
+  default l0
+  menu title U-Boot menu
+  prompt 0
+  timeout 50
+
+  label l0
+    menu label Linux
+    linux /Image
+    initrd /Initrd
+
+
+Additionally something like (sda is assumed as disk device):
+
+.. code-block:: bash
+
+	append  root=/dev/sda2 console=tty0 console=ttyS0,115200n8 rootwait rw
+
+
 
 Future work
 -----------
