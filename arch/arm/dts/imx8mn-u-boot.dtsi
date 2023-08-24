@@ -8,12 +8,14 @@
 		multiple-images;
 	};
 
+#ifdef CONFIG_OPTEE
 	firmware {
 		optee {
 			compatible = "linaro,optee-tz";
 			method = "smc";
 		};
 	};
+#endif
 
 	wdt-reboot {
 		compatible = "wdt-reboot";
