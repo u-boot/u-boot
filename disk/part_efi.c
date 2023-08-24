@@ -9,6 +9,9 @@
  *   when CONFIG_SYS_64BIT_LBA is not defined, lbaint_t is 32 bits; this
  *   limits the maximum size of addressable storage to < 2 tebibytes
  */
+
+#define LOG_CATEGORY LOGC_FS
+
 #include <common.h>
 #include <blk.h>
 #include <log.h>
@@ -976,17 +979,23 @@ static int pmbr_part_valid(struct partition *part)
 /*
  * is_pmbr_valid(): test Protective MBR for validity
  *
+ * @mbr: Pointer to Master Boot-Record data
+ *
  * Returns: 1 if PMBR is valid, 0 otherwise.
  * Validity depends on two things:
  *  1) MSDOS signature is in the last two bytes of the MBR
  *  2) One partition of type 0xEE is found, checked by pmbr_part_valid()
  */
-static int is_pmbr_valid(legacy_mbr * mbr)
+static int is_pmbr_valid(legacy_mbr *mbr)
 {
+	uint sig = le16_to_cpu(mbr->signature);
 	int i = 0;
 
-	if (!mbr || le16_to_cpu(mbr->signature) != MSDOS_MBR_SIGNATURE)
+	if (sig != MSDOS_MBR_SIGNATURE) {
+		log_debug("Invalid signature %x\n", sig);
 		return 0;
+	}
+	log_debug("Signature %x valid\n", sig);
 
 	for (i = 0; i < 4; i++) {
 		if (pmbr_part_valid(&mbr->partition_record[i])) {
