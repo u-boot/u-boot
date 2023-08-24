@@ -46,10 +46,20 @@
 	"fdt_board=dev\0" \
 	"setup=setenv setupargs console=tty1 console=${console},${baudrate} " \
 		"consoleblank=0 earlycon=ns16550a,mmio32,0x02800000\0" \
-	"update_uboot=askenv confirm Did you load flash.bin (y/N)?; " \
+	"update_tiboot3=askenv confirm Did you load tiboot3.bin (y/N)?; " \
 		"if test \"$confirm\" = \"y\"; then " \
 		"setexpr blkcnt ${filesize} + 0x1ff && setexpr blkcnt " \
 		"${blkcnt} / 0x200; mmc dev 0 1; mmc write ${loadaddr} 0x0 " \
+		"${blkcnt}; fi\0" \
+	"update_tispl=askenv confirm Did you load tispl.bin (y/N)?; " \
+		"if test \"$confirm\" = \"y\"; then " \
+		"setexpr blkcnt ${filesize} + 0x1ff && setexpr blkcnt " \
+		"${blkcnt} / 0x200; mmc dev 0 1; mmc write ${loadaddr} 0x400 " \
+		"${blkcnt}; fi\0" \
+	"update_uboot=askenv confirm Did you load u-boot.img (y/N)?; " \
+		"if test \"$confirm\" = \"y\"; then " \
+		"setexpr blkcnt ${filesize} + 0x1ff && setexpr blkcnt " \
+		"${blkcnt} / 0x200; mmc dev 0 1; mmc write ${loadaddr} 0x1400 " \
 		"${blkcnt}; fi\0"
 
 #endif /* __VERDIN_AM62_H */
