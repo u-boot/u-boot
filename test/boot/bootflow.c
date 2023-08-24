@@ -508,21 +508,24 @@ static int bootflow_cmd_boot(struct unit_test_state *uts)
 BOOTSTD_TEST(bootflow_cmd_boot, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 
 /**
- * prep_mmc4_bootdev() - Set up the mmc4 bootdev so we can access a fake Armbian
+ * prep_mmc_bootdev() - Set up an mmc bootdev so we can access other distros
  *
  * @uts: Unit test state
+ * @mmc_dev: MMC device to use, e.g. "mmc4"
  * Returns 0 on success, -ve on failure
  */
-static int prep_mmc4_bootdev(struct unit_test_state *uts)
+static int prep_mmc_bootdev(struct unit_test_state *uts, const char *mmc_dev)
 {
-	static const char *order[] = {"mmc2", "mmc1", "mmc4", NULL};
+	const char *order[] = {"mmc2", "mmc1", mmc_dev, NULL};
 	struct udevice *dev, *bootstd;
 	struct bootstd_priv *std;
 	const char **old_order;
-	ofnode node;
+	ofnode root, node;
 
 	/* Enable the mmc4 node since we need a second bootflow */
-	node = ofnode_path("/mmc4");
+	root = oftree_root(oftree_default());
+	node = ofnode_find_subnode(root, mmc_dev);
+	ut_assert(ofnode_valid(node));
 	ut_assertok(lists_bind_fdt(gd->dm_root, node, &dev, NULL, false));
 
 	/* Enable the script bootmeth too */
@@ -530,7 +533,7 @@ static int prep_mmc4_bootdev(struct unit_test_state *uts)
 	ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_script),
 				"bootmeth_script", 0, ofnode_null(), &dev));
 
-	/* Change the order to include mmc4 */
+	/* Change the order to include the device */
 	std = dev_get_priv(bootstd);
 	old_order = std->bootdev_order;
 	std->bootdev_order = order;
@@ -541,6 +544,19 @@ static int prep_mmc4_bootdev(struct unit_test_state *uts)
 
 	/* Restore the order used by the device tree */
 	std->bootdev_order = old_order;
+
+	return 0;
+}
+
+/**
+ * prep_mmc4_bootdev() - Set up the mmc4 bootdev so we can access a fake Armbian
+ *
+ * @uts: Unit test state
+ * Returns 0 on success, -ve on failure
+ */
+static int prep_mmc4_bootdev(struct unit_test_state *uts)
+{
+	ut_assertok(prep_mmc_bootdev(uts, "mmc4"));
 
 	return 0;
 }
