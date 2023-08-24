@@ -27,6 +27,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern U_BOOT_DRIVER(bootmeth_cros);
 extern U_BOOT_DRIVER(bootmeth_script);
 
 static int inject_response(struct unit_test_state *uts)
@@ -514,7 +515,8 @@ BOOTSTD_TEST(bootflow_cmd_boot, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
  * @mmc_dev: MMC device to use, e.g. "mmc4"
  * Returns 0 on success, -ve on failure
  */
-static int prep_mmc_bootdev(struct unit_test_state *uts, const char *mmc_dev)
+static int prep_mmc_bootdev(struct unit_test_state *uts, const char *mmc_dev,
+			    bool bind_cros)
 {
 	const char *order[] = {"mmc2", "mmc1", mmc_dev, NULL};
 	struct udevice *dev, *bootstd;
@@ -532,6 +534,13 @@ static int prep_mmc_bootdev(struct unit_test_state *uts, const char *mmc_dev)
 	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
 	ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_script),
 				"bootmeth_script", 0, ofnode_null(), &dev));
+
+	/* Enable the cros bootmeth if needed */
+	if (bind_cros) {
+		ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
+		ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_cros),
+					"cros", 0, ofnode_null(), &dev));
+	}
 
 	/* Change the order to include the device */
 	std = dev_get_priv(bootstd);
@@ -556,7 +565,7 @@ static int prep_mmc_bootdev(struct unit_test_state *uts, const char *mmc_dev)
  */
 static int prep_mmc4_bootdev(struct unit_test_state *uts)
 {
-	ut_assertok(prep_mmc_bootdev(uts, "mmc4"));
+	ut_assertok(prep_mmc_bootdev(uts, "mmc4", false));
 
 	return 0;
 }
@@ -963,3 +972,23 @@ static int bootflow_cmdline(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootflow_cmdline, 0);
+
+/* Test ChromiumOS bootmeth */
+static int bootflow_cros(struct unit_test_state *uts)
+{
+	ut_assertok(prep_mmc_bootdev(uts, "mmc5", true));
+	ut_assertok(run_command("bootflow list", 0));
+
+	ut_assert_nextlinen("Showing all");
+	ut_assert_nextlinen("Seq");
+	ut_assert_nextlinen("---");
+	ut_assert_nextlinen("  0  extlinux");
+	ut_assert_nextlinen("  1  cros         ready   mmc          2  mmc5.bootdev.whole       ");
+	ut_assert_nextlinen("---");
+	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_cros, 0);

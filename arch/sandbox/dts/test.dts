@@ -39,6 +39,8 @@
 		mmc1 = "/mmc1";
 		mmc2 = "/mmc2";
 		mmc3 = "/mmc3";
+		mmc4 = "/mmc4";
+		mmc5 = "/mmc5";
 		pci0 = &pci0;
 		pci1 = &pci1;
 		pci2 = &pci2;
@@ -1053,6 +1055,13 @@
 		status = "disabled";
 		compatible = "sandbox,mmc";
 		filename = "mmc4.img";
+	};
+
+	/* This is used for ChromiumOS tests */
+	mmc5 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "mmc5.img";
 	};
 
 	pch {
