@@ -39,6 +39,7 @@ RUN apt-get update && apt-get install -y \
 	binutils-dev \
 	bison \
 	build-essential \
+	cgpt \
 	clang-16 \
 	coreutils \
 	cpio \
@@ -115,6 +116,8 @@ RUN apt-get update && apt-get install -y \
 	util-linux \
 	uuid-dev \
 	virtualenv \
+	vboot-kernel-utils \
+	vboot-utils \
 	xxd \
 	zip \
 	&& rm -rf /var/lib/apt/lists/*
