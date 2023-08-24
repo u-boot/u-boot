@@ -21,10 +21,6 @@
 	bootph-pre-ram;
 };
 
-&crypto {
-	bootph-pre-ram;
-};
-
 &eqos {
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
@@ -129,18 +125,6 @@
 &reg_usdhc2_vmmc {
 	bootph-pre-ram;
 	u-boot,off-on-delay-us = <20000>;
-};
-
-&sec_jr0 {
-	bootph-pre-ram;
-};
-
-&sec_jr1 {
-	bootph-pre-ram;
-};
-
-&sec_jr2 {
-	bootph-pre-ram;
 };
 
 &tpm {

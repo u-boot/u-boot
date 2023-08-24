@@ -28,10 +28,6 @@
 
 };
 
-&crypto {
-	bootph-pre-ram;
-};
-
 &gpio1 {
 	bootph-pre-ram;
 };
@@ -137,18 +133,6 @@
 };
 
 &reg_usdhc2_vmmc {
-	bootph-pre-ram;
-};
-
-&sec_jr0 {
-	bootph-pre-ram;
-};
-
-&sec_jr1 {
-	bootph-pre-ram;
-};
-
-&sec_jr2 {
 	bootph-pre-ram;
 };
 
