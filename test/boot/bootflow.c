@@ -983,9 +983,10 @@ static int bootflow_cros(struct unit_test_state *uts)
 	ut_assert_nextlinen("Seq");
 	ut_assert_nextlinen("---");
 	ut_assert_nextlinen("  0  extlinux");
-	ut_assert_nextlinen("  1  cros         ready   mmc          2  mmc5.bootdev.whole       ");
+	ut_assert_nextlinen("  1  cros         ready   mmc          2  mmc5.bootdev.part_2       ");
+	ut_assert_nextlinen("  2  cros         ready   mmc          4  mmc5.bootdev.part_4       ");
 	ut_assert_nextlinen("---");
-	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	ut_assert_skip_to_line("(3 bootflows, 3 valid)");
 
 	ut_assert_console_end();
 
