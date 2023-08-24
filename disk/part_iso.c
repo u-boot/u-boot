@@ -46,7 +46,7 @@ unsigned long iso_dread(struct blk_desc *block_dev, lbaint_t start,
 }
 
 /* only boot records will be listed as valid partitions */
-int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
+int part_get_info_iso_verb(struct blk_desc *desc, int part_num,
 			   struct disk_partition *info, int verb)
 {
 	int i,offset,entry_num;
@@ -58,23 +58,23 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	iso_val_entry_t *pve = (iso_val_entry_t *)tmpbuf;
 	iso_init_def_entry_t *pide;
 
-	if ((dev_desc->blksz != CD_SECTSIZE) && (dev_desc->blksz != 512))
+	if (desc->blksz != CD_SECTSIZE && desc->blksz != 512)
 		return -1;
 
 	/* the first sector (sector 0x10) must be a primary volume desc */
 	blkaddr=PVD_OFFSET;
-	if (iso_dread(dev_desc, PVD_OFFSET, 1, (ulong *)tmpbuf) != 1)
+	if (iso_dread(desc, PVD_OFFSET, 1, (ulong *)tmpbuf) != 1)
 		return -1;
 	if(ppr->desctype!=0x01) {
 		if(verb)
 			printf ("** First descriptor is NOT a primary desc on %d:%d **\n",
-				dev_desc->devnum, part_num);
+				desc->devnum, part_num);
 		return (-1);
 	}
 	if(strncmp((char *)ppr->stand_ident,"CD001",5)!=0) {
 		if(verb)
 			printf ("** Wrong ISO Ident: %s on %d:%d **\n",
-				ppr->stand_ident, dev_desc->devnum, part_num);
+				ppr->stand_ident, desc->devnum, part_num);
 		return (-1);
 	}
 	lastsect = le32_to_cpu(ppr->firstsek_LEpathtab1_LE);
@@ -83,14 +83,14 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	PRINTF(" Lastsect:%08lx\n",lastsect);
 	for(i=blkaddr;i<lastsect;i++) {
 		PRINTF("Reading block %d\n", i);
-		if (iso_dread(dev_desc, i, 1, (ulong *)tmpbuf) != 1)
+		if (iso_dread(desc, i, 1, (ulong *)tmpbuf) != 1)
 			return -1;
 		if(ppr->desctype==0x00)
 			break; /* boot entry found */
 		if(ppr->desctype==0xff) {
 			if(verb)
 				printf ("** No valid boot catalog found on %d:%d **\n",
-					dev_desc->devnum, part_num);
+					desc->devnum, part_num);
 			return (-1);
 		}
 	}
@@ -98,15 +98,15 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	if(strncmp(pbr->ident_str,"EL TORITO SPECIFICATION",23)!=0) {
 		if(verb)
 			printf ("** Wrong El Torito ident: %s on %d:%d **\n",
-				pbr->ident_str, dev_desc->devnum, part_num);
+				pbr->ident_str, desc->devnum, part_num);
 		return (-1);
 	}
 	bootaddr = get_unaligned_le32(pbr->pointer);
 	PRINTF(" Boot Entry at: %08lX\n",bootaddr);
-	if (iso_dread(dev_desc, bootaddr, 1, (ulong *)tmpbuf) != 1) {
+	if (iso_dread(desc, bootaddr, 1, (ulong *)tmpbuf) != 1) {
 		if(verb)
 			printf ("** Can't read Boot Entry at %lX on %d:%d **\n",
-				bootaddr, dev_desc->devnum, part_num);
+				bootaddr, desc->devnum, part_num);
 		return (-1);
 	}
 	chksum=0;
@@ -116,20 +116,20 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	if(chksum!=0) {
 		if(verb)
 			printf("** Checksum Error in booting catalog validation entry on %d:%d **\n",
-			       dev_desc->devnum, part_num);
+			       desc->devnum, part_num);
 		return (-1);
 	}
 	if((pve->key[0]!=0x55)||(pve->key[1]!=0xAA)) {
 		if(verb)
 			printf ("** Key 0x55 0xAA error on %d:%d **\n",
-				dev_desc->devnum, part_num);
+				desc->devnum, part_num);
 		return(-1);
 	}
 #ifdef CHECK_FOR_POWERPC_PLATTFORM
 	if(pve->platform!=0x01) {
 		if(verb)
 			printf ("** No PowerPC platform CD on %d:%d **\n",
-				dev_desc->devnum, part_num);
+				desc->devnum, part_num);
 		return(-1);
 	}
 #endif
@@ -137,7 +137,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	entry_num=1;
 	offset=0x20;
 	strcpy((char *)info->type, "U-Boot");
-	part_set_generic_name(dev_desc, part_num, (char *)info->name);
+	part_set_generic_name(desc, part_num, (char *)info->name);
 	/* the bootcatalog (including validation Entry) is limited to 2048Bytes
 	 * (63 boot entries + validation entry) */
 	 while(offset<2048) {
@@ -159,7 +159,7 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 		else {
 			if(verb)
 				printf ("** Partition %d not found on device %d **\n",
-					part_num, dev_desc->devnum);
+					part_num, desc->devnum);
 			return(-1);
 		}
 	}
@@ -167,13 +167,13 @@ int part_get_info_iso_verb(struct blk_desc *dev_desc, int part_num,
 	 * searched w/o succsess */
 	if(verb)
 		printf ("** Partition %d not found on device %d **\n",
-			part_num, dev_desc->devnum);
+			part_num, desc->devnum);
 	return(-1);
 found:
 	if(pide->boot_ind!=0x88) {
 		if(verb)
 			printf("** Partition %d is not bootable on device %d **\n",
-			       part_num, dev_desc->devnum);
+			       part_num, desc->devnum);
 		return (-1);
 	}
 	switch(pide->boot_media) {
@@ -189,7 +189,7 @@ found:
 	newblkaddr = get_unaligned_le32(pide->rel_block_addr);
 	info->start=newblkaddr;
 
-	if (dev_desc->blksz == 512) {
+	if (desc->blksz == 512) {
 		info->size *= 4;
 		info->start *= 4;
 		info->blksz = 512;
@@ -199,20 +199,20 @@ found:
 	return 0;
 }
 
-static int part_get_info_iso(struct blk_desc *dev_desc, int part_num,
+static int part_get_info_iso(struct blk_desc *desc, int part_num,
 			     struct disk_partition *info)
 {
-	return part_get_info_iso_verb(dev_desc, part_num, info, 0);
+	return part_get_info_iso_verb(desc, part_num, info, 0);
 }
 
-static void part_print_iso(struct blk_desc *dev_desc)
+static void part_print_iso(struct blk_desc *desc)
 {
 	struct disk_partition info;
 	int i;
 
-	if (part_get_info_iso_verb(dev_desc, 1, &info, 0) == -1) {
+	if (part_get_info_iso_verb(desc, 1, &info, 0) == -1) {
 		printf("** No boot partition found on device %d **\n",
-		       dev_desc->devnum);
+		       desc->devnum);
 		return;
 	}
 	printf("Part   Start     Sect x Size Type\n");
@@ -221,14 +221,14 @@ static void part_print_iso(struct blk_desc *dev_desc)
 		printf(" %2d %8" LBAFlength "u %8" LBAFlength "u %6ld %.32s\n",
 		       i, info.start, info.size, info.blksz, info.type);
 		i++;
-	} while (part_get_info_iso_verb(dev_desc, i, &info, 0) != -1);
+	} while (part_get_info_iso_verb(desc, i, &info, 0) != -1);
 }
 
-static int part_test_iso(struct blk_desc *dev_desc)
+static int part_test_iso(struct blk_desc *desc)
 {
 	struct disk_partition info;
 
-	return part_get_info_iso_verb(dev_desc, 1, &info, 0);
+	return part_get_info_iso_verb(desc, 1, &info, 0);
 }
 
 U_BOOT_PART_TYPE(iso) = {
