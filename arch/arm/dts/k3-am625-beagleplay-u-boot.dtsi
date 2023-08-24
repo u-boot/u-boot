@@ -1,0 +1,195 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * https://beagleboard.org/play
+ *
+ * Copyright (C) 2022-2023 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2022-2023 Robert Nelson, BeagleBoard.org Foundation
+ */
+
+#include "k3-am625-sk-binman.dtsi"
+
+/ {
+	chosen {
+		tick-timer = &main_timer0;
+	};
+
+	memory@80000000 {
+		bootph-pre-ram;
+	};
+
+	/* Keep the LEDs on by default to indicate life */
+	leds {
+		bootph-pre-ram;
+		led-0 {
+			default-state = "on";
+			bootph-pre-ram;
+		};
+
+		led-1 {
+			default-state = "on";
+			bootph-pre-ram;
+		};
+
+		led-2 {
+			default-state = "on";
+			bootph-pre-ram;
+		};
+
+		led-3 {
+			default-state = "on";
+			bootph-pre-ram;
+		};
+
+		led-4 {
+			default-state = "on";
+			bootph-pre-ram;
+		};
+	};
+};
+
+&cbass_main {
+	bootph-pre-ram;
+};
+
+&main_timer0 {
+	clock-frequency = <25000000>;
+	bootph-pre-ram;
+};
+
+&dmss {
+	bootph-pre-ram;
+};
+
+&secure_proxy_main {
+	bootph-pre-ram;
+};
+
+&dmsc {
+	bootph-pre-ram;
+};
+
+&k3_pds {
+	bootph-pre-ram;
+};
+
+&k3_clks {
+	bootph-pre-ram;
+};
+
+&k3_reset {
+	bootph-pre-ram;
+};
+
+&dmsc {
+	bootph-pre-ram;
+	k3_sysreset: sysreset-controller {
+		compatible = "ti,sci-sysreset";
+		bootph-pre-ram;
+	};
+};
+
+&wkup_conf {
+	bootph-pre-ram;
+};
+
+&chipid {
+	bootph-pre-ram;
+};
+
+&main_pmx0 {
+	bootph-pre-ram;
+};
+
+&main_uart0 {
+	bootph-pre-ram;
+};
+
+&console_pins_default {
+	bootph-pre-ram;
+};
+
+&cbass_mcu {
+	bootph-pre-ram;
+};
+
+&cbass_wakeup {
+	bootph-pre-ram;
+};
+
+&mcu_pmx0 {
+	bootph-pre-ram;
+};
+
+&main_i2c0 {
+	bootph-pre-ram;
+};
+
+&local_i2c_pins_default {
+	bootph-pre-ram;
+};
+
+&gpio0_pins_default {
+	bootph-pre-ram;
+};
+
+&main_gpio0 {
+	bootph-pre-ram;
+};
+
+&main_gpio1 {
+	bootph-pre-ram;
+};
+
+&sdhci0 {
+	/* EMMC */
+	bootph-pre-ram;
+};
+
+&emmc_pins_default {
+	bootph-pre-ram;
+};
+
+&sd_pins_default {
+	bootph-pre-ram;
+	/* Force to use SDCD card detect pin */
+	pinctrl-single,pins = <
+		AM62X_IOPAD(0x023c, PIN_INPUT, 0) /* (A21) MMC1_CMD */
+		AM62X_IOPAD(0x0234, PIN_INPUT, 0) /* (B22) MMC1_CLK */
+		AM62X_IOPAD(0x0230, PIN_INPUT, 0) /* (A22) MMC1_DAT0 */
+		AM62X_IOPAD(0x022c, PIN_INPUT, 0) /* (B21) MMC1_DAT1 */
+		AM62X_IOPAD(0x0228, PIN_INPUT, 0) /* (C21) MMC1_DAT2 */
+		AM62X_IOPAD(0x0224, PIN_INPUT, 0) /* (D22) MMC1_DAT3 */
+		AM62X_IOPAD(0x0240, PIN_INPUT, 0) /* (D17) MMC1_SDCD.MMC1_SDCD */
+	>;
+};
+
+&tps65219 {
+	bootph-pre-ram;
+};
+
+&sdhci1 {
+	bootph-pre-ram;
+};
+
+#ifdef CONFIG_TARGET_AM625_A53_EVM
+
+#define SPL_AM625_BEAGLEPLAY_DTB "spl/dts/k3-am625-beagleplay.dtb"
+#define AM625_BEAGLEPLAY_DTB "arch/arm/dts/k3-am625-beagleplay.dtb"
+
+&spl_am625_sk_dtb {
+	filename = SPL_AM625_BEAGLEPLAY_DTB;
+};
+
+&am625_sk_dtb {
+	filename = AM625_BEAGLEPLAY_DTB;
+};
+
+&spl_am625_sk_dtb_unsigned {
+	filename = SPL_AM625_BEAGLEPLAY_DTB;
+};
+
+&am625_sk_dtb_unsigned {
+	filename = AM625_BEAGLEPLAY_DTB;
+};
+
+#endif
