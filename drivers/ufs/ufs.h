@@ -717,7 +717,19 @@ struct ufs_hba {
  * the LCC transmission on UFS device (by clearing TX_LCC_ENABLE
  * attribute of device to 0).
  */
-#define UFSHCD_QUIRK_BROKEN_LCC				0x1
+#define UFSHCD_QUIRK_BROKEN_LCC				BIT(0)
+
+/*
+ * This quirk needs to be enabled if the host controller has
+ * 64-bit addressing supported capability but it doesn't work.
+ */
+#define UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS		BIT(1)
+
+/*
+ * This quirk needs to be enabled if the host controller has
+ * auto-hibernate capability but it's FASTAUTO only.
+ */
+#define UFSHCD_QUIRK_HIBERN_FASTAUTO			BIT(2)
 
 	/* Virtual memory reference */
 	struct utp_transfer_cmd_desc *ucdl;
@@ -769,6 +781,7 @@ enum {
 	UFSHCI_VERSION_11 = 0x00010100, /* 1.1 */
 	UFSHCI_VERSION_20 = 0x00000200, /* 2.0 */
 	UFSHCI_VERSION_21 = 0x00000210, /* 2.1 */
+	UFSHCI_VERSION_30 = 0x00000300, /* 3.0 */
 };
 
 /* Interrupt disable masks */
