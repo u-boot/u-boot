@@ -204,7 +204,7 @@
 			configurations {
 				default = "@config-DEFAULT-SEQ";
 
-				binman_configuration: @config-SEQ {
+				@config-SEQ {
 					description = "NAME";
 					fdt = "fdt-SEQ";
 					firmware = "uboot";

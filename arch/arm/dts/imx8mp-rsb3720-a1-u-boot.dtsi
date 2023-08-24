@@ -162,6 +162,8 @@
 	};
 };
 
+/* This cannot work since it refers to a template node
 &binman_configuration {
 	loadables = "atf", "fip";
 };
+*/
