@@ -26,6 +26,12 @@
 /* Check all partition types */
 #define PART_TYPE_ALL		-1
 
+/**
+ * part_driver_get_type() - Get a driver given its type
+ *
+ * @part_type: Partition type to find the driver for
+ * Return: Driver for that type, or NULL if none
+ */
 static struct part_driver *part_driver_get_type(int part_type)
 {
 	struct part_driver *drv =
@@ -42,6 +48,22 @@ static struct part_driver *part_driver_get_type(int part_type)
 	return NULL;
 }
 
+/**
+ * part_driver_lookup_type() - Look up the partition driver for a blk device
+ *
+ * If @desc->part_type is PART_TYPE_UNKNOWN, this checks each parition driver
+ * against the blk device to see if there is a valid partition table acceptable
+ * to that driver.
+ *
+ * If @desc->part_type is already set, it just returns the driver for that
+ * type, without testing if the driver can find a valid partition on the
+ * descriptor.
+ *
+ * On success it updates @desc->part_type if set to PART_TYPE_UNKNOWN on entry
+ *
+ * @dev_desc: Device descriptor
+ * Return: Driver found, or NULL if none
+ */
 static struct part_driver *part_driver_lookup_type(struct blk_desc *desc)
 {
 	struct part_driver *drv =
@@ -83,6 +105,16 @@ int part_get_type_by_name(const char *name)
 	return PART_TYPE_UNKNOWN;
 }
 
+/**
+ * get_dev_hwpart() - Get the descriptor for a device with hardware partitions
+ *
+ * @ifname:	Interface name (e.g. "ide", "scsi")
+ * @dev:	Device number (0 for first device on that interface, 1 for
+ *		second, etc.
+ * @hwpart: Hardware partition, or 0 if none (used for MMC)
+ * Return: pointer to the block device, or NULL if not available, or an
+ *	   error occurred.
+ */
 static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
 	struct blk_desc *desc;
