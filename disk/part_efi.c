@@ -294,10 +294,11 @@ int part_get_info_efi(struct blk_desc *desc, int part,
 				(char *)disk_partition_uuid(info),
 				UUID_STR_FORMAT_GUID);
 	}
-#ifdef CONFIG_PARTITION_TYPE_GUID
-	uuid_bin_to_str(gpt_pte[part - 1].partition_type_guid.b,
-			info->type_guid, UUID_STR_FORMAT_GUID);
-#endif
+	if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID)) {
+		uuid_bin_to_str(gpt_pte[part - 1].partition_type_guid.b,
+				(char *)disk_partition_type_uuid(info),
+				UUID_STR_FORMAT_GUID);
+	}
 
 	log_debug("start 0x" LBAF ", size 0x" LBAF ", name %s\n", info->start,
 		  info->size, info->name);

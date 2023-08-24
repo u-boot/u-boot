@@ -107,6 +107,34 @@ static inline void disk_partition_clr_uuid(struct disk_partition *info)
 #endif
 }
 
+/* Accessors for struct disk_partition field ->type_guid */
+extern char *__invalid_use_of_disk_partition_type_uuid;
+
+static inline const
+char *disk_partition_type_uuid(const struct disk_partition *info)
+{
+#ifdef CONFIG_PARTITION_TYPE_GUID
+	return info->type_guid;
+#else
+	return __invalid_use_of_disk_partition_type_uuid;
+#endif
+}
+
+static inline void disk_partition_set_type_guid(struct disk_partition *info,
+						const char *val)
+{
+#ifdef CONFIG_PARTITION_TYPE_GUID
+	strlcpy(info->type_guid, val, UUID_STR_LEN + 1);
+#endif
+}
+
+static inline void disk_partition_clr_type_guid(struct disk_partition *info)
+{
+#ifdef CONFIG_PARTITION_TYPE_GUID
+	*info->type_guid = '\0';
+#endif
+}
+
 struct disk_part {
 	int partnum;
 	struct disk_partition gpt_part_info;
