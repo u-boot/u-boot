@@ -319,10 +319,8 @@ def test_ut_dm_init(u_boot_console):
         u_boot_utils.run_and_log(
             u_boot_console, f'sfdisk {fn}', stdin=b'type=83')
 
-    fs_helper.mk_fs(u_boot_console.config, 'ext2', 0x200000, '2MB',
-                    use_src_dir=True)
-    fs_helper.mk_fs(u_boot_console.config, 'fat32', 0x100000, '1MB',
-                    use_src_dir=True)
+    fs_helper.mk_fs(u_boot_console.config, 'ext2', 0x200000, '2MB')
+    fs_helper.mk_fs(u_boot_console.config, 'fat32', 0x100000, '1MB')
 
 @pytest.mark.buildconfigspec('cmd_bootflow')
 def test_ut_dm_init_bootstd(u_boot_console):
