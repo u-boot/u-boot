@@ -121,10 +121,10 @@ void board_init_f(ulong dummy)
 	struct udevice *dev;
 	int ret;
 
-#if defined(CONFIG_CPU_V7R)
-	setup_k3_mpu_regions();
-	rtc_erratumi2327_init();
-#endif
+	if (IS_ENABLED(CONFIG_CPU_V7R)) {
+		setup_k3_mpu_regions();
+		rtc_erratumi2327_init();
+	}
 
 	/*
 	 * Cannot delay this further as there is a chance that
@@ -156,29 +156,28 @@ void board_init_f(ulong dummy)
 
 	preloader_console_init();
 
-#ifdef CONFIG_K3_EARLY_CONS
 	/*
 	 * Allow establishing an early console as required for example when
 	 * doing a UART-based boot. Note that this console may not "survive"
 	 * through a SYSFW PM-init step and will need a re-init in some way
 	 * due to changing module clock frequencies.
 	 */
-	early_console_init();
-#endif
+	if (IS_ENABLED(CONFIG_K3_EARLY_CONS))
+		early_console_init();
 
-#if defined(CONFIG_K3_LOAD_SYSFW)
 	/*
 	 * Configure and start up system controller firmware. Provide
 	 * the U-Boot console init function to the SYSFW post-PM configuration
 	 * callback hook, effectively switching on (or over) the console
 	 * output.
 	 */
-	ret = is_rom_loaded_sysfw(&bootdata);
-	if (!ret)
-		panic("ROM has not loaded TIFS firmware\n");
+	if (IS_ENABLED(CONFIG_K3_LOAD_SYSFW)) {
+		ret = is_rom_loaded_sysfw(&bootdata);
+		if (!ret)
+			panic("ROM has not loaded TIFS firmware\n");
 
-	k3_sysfw_loader(true, NULL, NULL);
-#endif
+		k3_sysfw_loader(true, NULL, NULL);
+	}
 
 	/*
 	 * Force probe of clk_k3 driver here to ensure basic default clock
@@ -209,11 +208,11 @@ void board_init_f(ulong dummy)
 		enable_mcu_esm_reset();
 	}
 
-#if defined(CONFIG_K3_AM64_DDRSS)
-	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
-	if (ret)
-		panic("DRAM init failed: %d\n", ret);
-#endif
+	if (IS_ENABLED(CONFIG_K3_AM64_DDRSS)) {
+		ret = uclass_get_device(UCLASS_RAM, 0, &dev);
+		if (ret)
+			panic("DRAM init failed: %d\n", ret);
+	}
 	spl_enable_dcache();
 }
 
