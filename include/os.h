@@ -98,6 +98,16 @@ int os_close(int fd);
  */
 int os_unlink(const char *pathname);
 
+/** os_persistent_fname() - Find the path to a test file
+ *
+ * @buf: Buffer to hold path
+ * @maxsize: Maximum size of buffer
+ * @fname: Leaf filename to find
+ * Returns: 0 on success, -ENOENT if file is not found, -ENOSPC if the buffer is
+ * too small
+ */
+int os_persistent_file(char *buf, int maxsize, const char *fname);
+
 /**
  * os_exit() - access to the OS exit() system call
  *
