@@ -80,6 +80,33 @@ struct disk_partition {
 #endif
 };
 
+/* Accessors for struct disk_partition field ->uuid */
+extern char *__invalid_use_of_disk_partition_uuid;
+
+static inline const char *disk_partition_uuid(const struct disk_partition *info)
+{
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
+	return info->uuid;
+#else
+	return __invalid_use_of_disk_partition_uuid;
+#endif
+}
+
+static inline void disk_partition_set_uuid(struct disk_partition *info,
+					   const char *val)
+{
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
+	strlcpy(info->uuid, val, UUID_STR_LEN + 1);
+#endif
+}
+
+static inline void disk_partition_clr_uuid(struct disk_partition *info)
+{
+#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
+	*info->uuid = '\0';
+#endif
+}
+
 struct disk_part {
 	int partnum;
 	struct disk_partition gpt_part_info;

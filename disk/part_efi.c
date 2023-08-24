@@ -289,10 +289,11 @@ int part_get_info_efi(struct blk_desc *desc, int part,
 		 print_efiname(&gpt_pte[part - 1]));
 	strcpy((char *)info->type, "U-Boot");
 	info->bootable = get_bootable(&gpt_pte[part - 1]);
-#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
-	uuid_bin_to_str(gpt_pte[part - 1].unique_partition_guid.b, info->uuid,
-			UUID_STR_FORMAT_GUID);
-#endif
+	if (CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
+		uuid_bin_to_str(gpt_pte[part - 1].unique_partition_guid.b,
+				(char *)disk_partition_uuid(info),
+				UUID_STR_FORMAT_GUID);
+	}
 #ifdef CONFIG_PARTITION_TYPE_GUID
 	uuid_bin_to_str(gpt_pte[part - 1].partition_type_guid.b,
 			info->type_guid, UUID_STR_FORMAT_GUID);
@@ -415,10 +416,7 @@ int gpt_fill_pte(struct blk_desc *desc,
 			le64_to_cpu(gpt_h->last_usable_lba);
 	int i, k;
 	size_t efiname_len, dosname_len;
-#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
-	char *str_uuid;
 	unsigned char *bin_uuid;
-#endif
 #ifdef CONFIG_PARTITION_TYPE_GUID
 	char *str_type_guid;
 	unsigned char *bin_type_guid;
@@ -487,16 +485,19 @@ int gpt_fill_pte(struct blk_desc *desc,
 			&partition_basic_data_guid, 16);
 #endif
 
-#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
-		str_uuid = partitions[i].uuid;
-		bin_uuid = gpt_e[i].unique_partition_guid.b;
+		if (CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
+			const char *str_uuid;
 
-		if (uuid_str_to_bin(str_uuid, bin_uuid, UUID_STR_FORMAT_GUID)) {
-			log_debug("Partition no. %d: invalid guid: %s\n",
-				  i, str_uuid);
-			return -EINVAL;
+			str_uuid = disk_partition_uuid(&partitions[i]);
+			bin_uuid = gpt_e[i].unique_partition_guid.b;
+
+			if (uuid_str_to_bin(str_uuid, bin_uuid,
+					    UUID_STR_FORMAT_GUID)) {
+				log_debug("Partition no. %d: invalid guid: %s\n",
+					  i, str_uuid);
+				return -EINVAL;
+			}
 		}
-#endif
 
 		/* partition attributes */
 		memset(&gpt_e[i].attributes, 0,

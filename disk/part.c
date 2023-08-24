@@ -368,10 +368,8 @@ int part_get_info_by_type(struct blk_desc *desc, int part, int part_type,
 	struct part_driver *drv;
 
 	if (blk_enabled()) {
-#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
 		/* The common case is no UUID support */
-		info->uuid[0] = 0;
-#endif
+		disk_partition_clr_uuid(info);
 #ifdef CONFIG_PARTITION_TYPE_GUID
 		info->type_guid[0] = 0;
 #endif
@@ -416,9 +414,7 @@ int part_get_info_whole_disk(struct blk_desc *desc,
 	info->bootable = 0;
 	strcpy((char *)info->type, BOOT_PART_TYPE);
 	strcpy((char *)info->name, "Whole Disk");
-#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
-	info->uuid[0] = 0;
-#endif
+	disk_partition_clr_uuid(info);
 #ifdef CONFIG_PARTITION_TYPE_GUID
 	info->type_guid[0] = 0;
 #endif
