@@ -135,6 +135,18 @@ static inline void disk_partition_clr_type_guid(struct disk_partition *info)
 #endif
 }
 
+/* Accessors for struct disk_partition field ->sys_ind */
+extern int __invalid_use_of_disk_partition_sys_ind;
+
+static inline uint disk_partition_sys_ind(const struct disk_partition *info)
+{
+#ifdef CONFIG_DOS_PARTITION
+	return info->sys_ind;
+#else
+	return __invalid_use_of_disk_partition_sys_ind;
+#endif
+}
+
 struct disk_part {
 	int partnum;
 	struct disk_partition gpt_part_info;
