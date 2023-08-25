@@ -80,8 +80,6 @@ static __maybe_unused void enable_mcu_esm_reset(void)
 	writel(stat, CTRLMMR_MCU_RST_CTRL);
 }
 
-#if defined(CONFIG_CPU_V7R)
-
 /*
  * RTC Erratum i2327 Workaround for Silicon Revision 1
  *
@@ -94,7 +92,7 @@ static __maybe_unused void enable_mcu_esm_reset(void)
  *
  * https://www.ti.com/lit/er/sprz487c/sprz487c.pdf
  */
-void rtc_erratumi2327_init(void)
+static __maybe_unused void rtc_erratumi2327_init(void)
 {
 	u32 counter;
 
@@ -112,9 +110,7 @@ void rtc_erratumi2327_init(void)
 	 */
 	writel(K3RTC_KICK0_UNLOCK_VALUE, REG_K3RTC_KICK0);
 	writel(K3RTC_KICK1_UNLOCK_VALUE, REG_K3RTC_KICK1);
-	return;
 }
-#endif
 
 void board_init_f(ulong dummy)
 {
