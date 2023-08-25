@@ -145,7 +145,8 @@ static int dwc3_generic_remove(struct udevice *dev,
 	struct dwc3 *dwc3 = &priv->dwc3;
 
 	if (CONFIG_IS_ENABLED(DM_GPIO) &&
-	    device_is_compatible(dev->parent, "xlnx,zynqmp-dwc3")) {
+	    device_is_compatible(dev->parent, "xlnx,zynqmp-dwc3") &&
+	    priv->ulpi_reset) {
 		struct gpio_desc *ulpi_reset = priv->ulpi_reset;
 
 		dm_gpio_free(ulpi_reset->dev, ulpi_reset);

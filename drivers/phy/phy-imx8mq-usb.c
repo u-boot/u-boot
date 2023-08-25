@@ -14,6 +14,8 @@
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <clk.h>
+#include <dm/device_compat.h>
+#include <power/regulator.h>
 
 #define PHY_CTRL0			0x0
 #define PHY_CTRL0_REF_SSP_EN		BIT(2)
@@ -76,11 +78,10 @@ enum imx8mpq_phy_type {
 };
 
 struct imx8mq_usb_phy {
-#if CONFIG_IS_ENABLED(CLK)
 	struct clk phy_clk;
-#endif
 	void __iomem *base;
 	enum imx8mpq_phy_type type;
+	struct udevice *vbus_supply;
 };
 
 static const struct udevice_id imx8mq_usb_phy_of_match[] = {
@@ -173,15 +174,23 @@ static int imx8mq_usb_phy_power_on(struct phy *usb_phy)
 	struct udevice *dev = usb_phy->dev;
 	struct imx8mq_usb_phy *imx_phy = dev_get_priv(dev);
 	u32 value;
-
-#if CONFIG_IS_ENABLED(CLK)
 	int ret;
-	ret = clk_enable(&imx_phy->phy_clk);
-	if (ret) {
-		printf("Failed to enable usb phy clock\n");
-		return ret;
+
+	if (CONFIG_IS_ENABLED(CLK)) {
+		ret = clk_enable(&imx_phy->phy_clk);
+		if (ret) {
+			dev_err(dev, "Failed to enable usb phy clock: %d\n", ret);
+			return ret;
+		}
 	}
-#endif
+
+	if (CONFIG_IS_ENABLED(DM_REGULATOR) && imx_phy->vbus_supply) {
+		ret = regulator_set_enable_if_allowed(imx_phy->vbus_supply, true);
+		if (ret && ret != -ENOSYS) {
+			dev_err(dev, "Failed to enable VBUS regulator: %d\n", ret);
+			goto err;
+		}
+	}
 
 	/* Disable rx term override */
 	value = readl(imx_phy->base + PHY_CTRL6);
@@ -189,6 +198,11 @@ static int imx8mq_usb_phy_power_on(struct phy *usb_phy)
 	writel(value, imx_phy->base + PHY_CTRL6);
 
 	return 0;
+
+err:
+	if (CONFIG_IS_ENABLED(CLK))
+		clk_disable(&imx_phy->phy_clk);
+	return ret;
 }
 
 static int imx8mq_usb_phy_power_off(struct phy *usb_phy)
@@ -196,15 +210,23 @@ static int imx8mq_usb_phy_power_off(struct phy *usb_phy)
 	struct udevice *dev = usb_phy->dev;
 	struct imx8mq_usb_phy *imx_phy = dev_get_priv(dev);
 	u32 value;
+	int ret;
 
 	/* Override rx term to be 0 */
 	value = readl(imx_phy->base + PHY_CTRL6);
 	value |= PHY_CTRL6_RXTERM_OVERRIDE_SEL;
 	writel(value, imx_phy->base + PHY_CTRL6);
 
-#if CONFIG_IS_ENABLED(CLK)
-	clk_disable(&imx_phy->phy_clk);
-#endif
+	if (CONFIG_IS_ENABLED(CLK))
+		clk_disable(&imx_phy->phy_clk);
+
+	if (CONFIG_IS_ENABLED(DM_REGULATOR) && imx_phy->vbus_supply) {
+		ret = regulator_set_enable_if_allowed(imx_phy->vbus_supply, false);
+		if (ret && ret != -ENOSYS) {
+			dev_err(dev, "Failed to disable VBUS regulator: %d\n", ret);
+			return ret;
+		}
+	}
 
 	return 0;
 }
@@ -224,6 +246,7 @@ struct phy_ops imx8mq_usb_phy_ops = {
 int imx8mq_usb_phy_probe(struct udevice *dev)
 {
 	struct imx8mq_usb_phy *priv = dev_get_priv(dev);
+	int ret;
 
 	priv->type = dev_get_driver_data(dev);
 	priv->base = dev_read_addr_ptr(dev);
@@ -231,16 +254,22 @@ int imx8mq_usb_phy_probe(struct udevice *dev)
 	if (!priv->base)
 		return -EINVAL;
 
-#if CONFIG_IS_ENABLED(CLK)
-	int ret;
-
-	/* Assigned clock already set clock */
-	ret = clk_get_by_name(dev, "phy", &priv->phy_clk);
-	if (ret) {
-		printf("Failed to get usb phy clock\n");
-		return ret;
+	if (CONFIG_IS_ENABLED(CLK)) {
+		ret = clk_get_by_name(dev, "phy", &priv->phy_clk);
+		if (ret) {
+			dev_err(dev, "Failed to get usb phy clock %d\n", ret);
+			return ret;
+		}
 	}
-#endif
+
+	if (CONFIG_IS_ENABLED(DM_REGULATOR)) {
+		ret = device_get_supply_regulator(dev, "vbus-supply",
+						  &priv->vbus_supply);
+		if (ret && ret != -ENOENT) {
+			dev_err(dev, "Failed to get VBUS regulator: %d\n", ret);
+			return ret;
+		}
+	}
 
 	return 0;
 }
