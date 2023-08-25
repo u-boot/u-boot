@@ -497,7 +497,7 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 {
 	void *buf = NULL;
 	int buf_ptr;
-	int fit_size, new_size;
+	int fit_size, unpadded_size, new_size, pad_boundary;
 	int fd;
 	struct stat sbuf;
 	void *fdt;
@@ -564,9 +564,13 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	/* Pack the FDT and place the data after it */
 	fdt_pack(fdt);
 
-	new_size = fdt_totalsize(fdt);
-	new_size = ALIGN(new_size, align_size);
+	unpadded_size = fdt_totalsize(fdt);
+	new_size = ALIGN(unpadded_size, align_size);
 	fdt_set_totalsize(fdt, new_size);
+	if (unpadded_size < fit_size) {
+		pad_boundary = new_size < fit_size ? new_size : fit_size;
+		memset(fdt + unpadded_size, 0, pad_boundary - unpadded_size);
+	}
 	debug("Size reduced from %x to %x\n", fit_size, fdt_totalsize(fdt));
 	debug("External data size %x\n", buf_ptr);
 	munmap(fdt, sbuf.st_size);
