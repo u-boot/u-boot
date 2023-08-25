@@ -266,3 +266,18 @@ int expo_apply_theme(struct expo *exp, ofnode node)
 
 	return 0;
 }
+
+int expo_iter_scene_objs(struct expo *exp, expo_scene_obj_iterator iter,
+			 void *priv)
+{
+	struct scene *scn;
+	int ret;
+
+	list_for_each_entry(scn, &exp->scene_head, sibling) {
+		ret = scene_iter_objs(scn, iter, priv);
+		if (ret)
+			return log_msg_ret("wr", ret);
+	}
+
+	return 0;
+}

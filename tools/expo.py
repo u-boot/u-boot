@@ -69,7 +69,10 @@ def calc_ids(fname):
 
 def run_expo(args):
     """Run the expo program"""
-    ids = calc_ids(args.enum_fname)
+    fname = args.enum_fname or args.layout
+    ids = calc_ids(fname)
+    if not ids:
+        print(f"Warning: No enum ID values found in file '{fname}'")
 
     indata = tools.read_file(args.layout)
 
@@ -88,10 +91,10 @@ def run_expo(args):
 
     with open('/tmp/asc', 'wb') as outf:
         outf.write(data)
-    proc = subprocess.run('dtc', input=data, capture_output=True, check=True)
+    proc = subprocess.run('dtc', input=data, capture_output=True)
     edtb = proc.stdout
     if proc.stderr:
-        print(proc.stderr)
+        print(f"Devicetree compiler error:\n{proc.stderr.decode('utf-8')}")
         return 1
     tools.write_file(args.outfile, edtb)
     return 0
@@ -109,11 +112,13 @@ def parse_args(argv):
             args is a list of string arguments
     """
     parser = argparse.ArgumentParser()
+    parser.add_argument('-D', '--debug', action='store_true',
+        help='Enable full debug traceback')
     parser.add_argument('-e', '--enum-fname', type=str,
-        help='C file containing enum declaration for expo items')
-    parser.add_argument('-l', '--layout', type=str,
-        help='Devicetree file source .dts for expo layout')
-    parser.add_argument('-o', '--outfile', type=str,
+        help='.dts or C file containing enum declaration for expo items')
+    parser.add_argument('-l', '--layout', type=str, required=True,
+        help='Devicetree file source .dts for expo layout (and perhaps enums)')
+    parser.add_argument('-o', '--outfile', type=str, required=True,
         help='Filename to write expo layout dtb')
 
     return parser.parse_args(argv)
@@ -121,6 +126,9 @@ def parse_args(argv):
 def start_expo():
     """Start the expo program"""
     args = parse_args(sys.argv[1:])
+
+    if not args.debug:
+        sys.tracebacklimit = 0
 
     ret_code = run_expo(args)
     sys.exit(ret_code)

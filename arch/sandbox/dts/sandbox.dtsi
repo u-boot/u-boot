@@ -16,12 +16,6 @@
 		stdout-path = "/serial";
 	};
 
-	cedit-theme {
-		font-size = <30>;
-		menu-inset = <3>;
-		menuitem-gap-y = <1>;
-	};
-
 	alarm_wdt: alarm-wdt {
 		compatible = "sandbox,alarm-wdt";
 		timeout-sec = <5>;
@@ -36,6 +30,12 @@
 	bootstd {
 		compatible = "u-boot,boot-std";
 		filename-prefixes = "./";
+
+		cedit-theme {
+			font-size = <30>;
+			menu-inset = <3>;
+			menuitem-gap-y = <1>;
+		};
 	};
 
 	buttons {

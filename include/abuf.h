@@ -91,6 +91,15 @@ void abuf_map_sysmem(struct abuf *abuf, ulong addr, size_t size);
 bool abuf_realloc(struct abuf *abuf, size_t new_size);
 
 /**
+ * abuf_realloc_inc() - Increment abuf size by a given amount
+ *
+ * @abuf: abuf to adjust
+ * @inc: Size incrmement to use (the buffer size will be increased by this much)
+ * Return: true if OK, false if out of memory
+ */
+bool abuf_realloc_inc(struct abuf *abuf, size_t inc);
+
+/**
  * abuf_uninit_move() - Return the allocated contents and uninit the abuf
  *
  * This returns the abuf data to the caller, allocating it if necessary, so that
