@@ -131,6 +131,13 @@
 		dr_mode = "otg";
 	};
 
+	usb-phy@7d000000 {
+		status = "okay";
+		nvidia,hssync-start-delay = <0>;
+		nvidia,xcvr-lsfslew = <2>;
+		nvidia,xcvr-lsrslew = <2>;
+	};
+
 	/* Dock's USB port */
 	usb3: usb@7d008000 {
 		status = "okay";
