@@ -781,9 +781,7 @@ To do
 
 Some things that need to be done to completely replace the distro-boot scripts:
 
-- add bootdev drivers for dhcp, sata, scsi, ide, virtio
-- PXE boot for EFI
-- support for loading U-Boot scripts
+- implement extensions (devicetree overlays with add-on boards)
 
 Other ideas:
 
