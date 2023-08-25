@@ -435,6 +435,18 @@ int ofnode_read_u32_index(ofnode node, const char *propname, int index,
 			  u32 *outp);
 
 /**
+ * ofnode_read_u64_index() - Read a 64-bit integer from a multi-value property
+ *
+ * @node:	valid node reference to read property from
+ * @propname:	name of the property to read from
+ * @index:	index of the integer to return
+ * @outp:	place to put value (if found)
+ * Return: 0 if OK, -ve on error
+ */
+int ofnode_read_u64_index(ofnode node, const char *propname, int index,
+			  u64 *outp);
+
+/**
  * ofnode_read_s32() - Read a 32-bit integer from a property
  *
  * @node:	valid node reference to read property from

@@ -967,6 +967,14 @@ static int dm_test_ofnode_u64(struct unit_test_state *uts)
 	ut_asserteq_64(0x1111222233334444, val);
 	ut_asserteq(-EINVAL, ofnode_read_u64(node, "missing", &val));
 
+	ut_assertok(ofnode_read_u64_index(node, "int64-array", 0, &val));
+	ut_asserteq_64(0x1111222233334444, val);
+	ut_assertok(ofnode_read_u64_index(node, "int64-array", 1, &val));
+	ut_asserteq_64(0x4444333322221111, val);
+	ut_asserteq(-EOVERFLOW,
+		    ofnode_read_u64_index(node, "int64-array", 2, &val));
+	ut_asserteq(-EINVAL, ofnode_read_u64_index(node, "missing", 0, &val));
+
 	return 0;
 }
 DM_TEST(dm_test_ofnode_u64, UT_TESTF_SCAN_FDT);

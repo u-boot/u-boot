@@ -334,6 +334,25 @@ int of_read_u32_index(const struct device_node *np, const char *propname,
 		      int index, u32 *outp);
 
 /**
+ * of_read_u64_index() - Find and read a 64-bit value from a multi-value
+ *                       property
+ *
+ * @np:		device node from which the property value is to be read.
+ * @propname:	name of the property to be searched.
+ * @index:	index of the u32 in the list of values
+ * @outp:	pointer to return value, modified only if return value is 0.
+ *
+ * Search for a property in a device node and read a 64-bit value from
+ * it.
+ *
+ * Return:
+ *   0 on success, -EINVAL if the property does not exist, or -EOVERFLOW if the
+ *   property data isn't large enough.
+ */
+int of_read_u64_index(const struct device_node *np, const char *propname,
+		      int index, u64 *outp);
+
+/**
  * of_read_u64() - Find and read a 64-bit integer from a property
  *
  * Search for a property in a device node and read a 64-bit value from
