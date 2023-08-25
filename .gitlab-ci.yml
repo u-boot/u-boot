@@ -235,7 +235,7 @@ Run tests for Nokia RX-51 (aka N900):
       ln -s /opt/nokia/libc6_2.5.1-1eglibc27+0m5_armel.deb nokia_rx51_tmp/;
       ln -s /opt/nokia/busybox_1.10.2.legal-1osso30+0m5_armel.deb nokia_rx51_tmp/;
       ln -s /opt/nokia/qemu-system-arm nokia_rx51_tmp/;
-      export PATH=/opt/gcc-13.1.0-nolibc/arm-linux-gnueabi/bin:$PATH;
+      export PATH=/opt/gcc-13.2.0-nolibc/arm-linux-gnueabi/bin:$PATH;
       test/nokia_rx51_test.sh
 
 # Check for any pylint regressions
