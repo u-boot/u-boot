@@ -22,9 +22,6 @@
 #define CFG_SYS_BAUDRATE_TABLE		{ 9600, 19200, 38400, 57600, 115200, \
 					  230400, 460800, 921600 }
 
-/* SPL */
-#define CFG_SYS_UBOOT_START		CONFIG_TEXT_BASE
-
 /* Dummy value */
 #define CFG_SYS_UBOOT_BASE		0
 

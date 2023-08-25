@@ -25,10 +25,4 @@
 		"stderr=serial,vidconsole\0"
 #endif
 
-/*
- * Configuration of the external SDRAM memory
- */
-
-#define CFG_SYS_UBOOT_START		0x800023FD
-
 #endif /* __IMXRT1050_EVK_H */
