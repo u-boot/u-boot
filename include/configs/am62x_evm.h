@@ -9,8 +9,10 @@
 #ifndef __CONFIG_AM625_EVM_H
 #define __CONFIG_AM625_EVM_H
 
+#ifdef CONFIG_DISTRO_DEFAULTS
 #include <config_distro_bootcmd.h>
 #include <env/ti/mmc.h>
+#endif
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
