@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dt-structs.h>
 #include <efi_loader.h>
 #include <fwu.h>
 #include <fwu_mdata.h>
@@ -52,4 +53,8 @@ int fwu_write_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary)
 UCLASS_DRIVER(fwu_mdata) = {
 	.id		= UCLASS_FWU_MDATA,
 	.name		= "fwu-mdata",
+};
+
+DT_NON_COMPLIANT_PURGE(fwu_mdata) = {
+	.node_path	= "/fwu-mdata",
 };
