@@ -37,6 +37,7 @@ endif
 obj-y += crc8.o
 obj-y += crc16.o
 obj-y += crc16-ccitt.o
+obj-$(CONFIG_OF_LIBFDT) += dt_purge.o
 obj-$(CONFIG_ERRNO_STR) += errno_str.o
 obj-$(CONFIG_FIT) += fdtdec_common.o
 obj-$(CONFIG_TEST_FDTDEC) += fdtdec_test.o
