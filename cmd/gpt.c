@@ -211,12 +211,10 @@ static struct disk_part *allocate_disk_part(struct disk_partition *info,
 		PART_TYPE_LEN);
 	newpart->gpt_part_info.type[PART_TYPE_LEN - 1] = '\0';
 	newpart->gpt_part_info.bootable = info->bootable;
-#ifdef CONFIG_PARTITION_UUIDS
-	strncpy(newpart->gpt_part_info.uuid, (const char *)info->uuid,
-		UUID_STR_LEN);
-	/* UUID_STR_LEN is correct, as uuid[]'s length is UUID_STR_LEN+1 chars */
-	newpart->gpt_part_info.uuid[UUID_STR_LEN] = '\0';
-#endif
+	if (IS_ENABLED(CONFIG_PARTITION_UUIDS)) {
+		strlcpy(newpart->gpt_part_info.uuid, disk_partition_uuid(info),
+			UUID_STR_LEN + 1);
+	}
 	newpart->partnum = partnum;
 
 	return newpart;

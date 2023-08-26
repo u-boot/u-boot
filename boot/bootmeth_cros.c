@@ -16,16 +16,19 @@
 #include <bootmeth.h>
 #include <display_options.h>
 #include <dm.h>
+#include <efi.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <part.h>
 #include <linux/sizes.h>
 #include "bootmeth_cros.h"
 
+static const efi_guid_t cros_kern_type = PARTITION_CROS_KERNEL;
+
 /*
  * Layout of the ChromeOS kernel
  *
- * Partitions 2 and 4 contain kernels
+ * Partitions 2 and 4 contain kernels with type GUID_CROS_KERNEL
  *
  * Contents are:
  *
@@ -145,12 +148,24 @@ static int scan_part(struct udevice *blk, int partnum,
 {
 	struct blk_desc *desc = dev_get_uclass_plat(blk);
 	struct vb2_keyblock *hdr;
+	struct uuid type;
 	ulong num_blks;
 	int ret;
+
+	if (!partnum)
+		return log_msg_ret("efi", -ENOENT);
 
 	ret = part_get_info(desc, partnum, info);
 	if (ret)
 		return log_msg_ret("part", ret);
+
+	/* Check for kernel partition type */
+	log_debug("part %x: type=%s\n", partnum, info->type_guid);
+	if (uuid_str_to_bin(info->type_guid, (u8 *)&type, UUID_STR_FORMAT_GUID))
+		return log_msg_ret("typ", -EINVAL);
+
+	if (memcmp(&cros_kern_type, &type, sizeof(type)))
+		return log_msg_ret("typ", -ENOEXEC);
 
 	/* Make a buffer for the header information */
 	num_blks = PROBE_SIZE >> desc->log2blksz;
@@ -167,6 +182,7 @@ static int scan_part(struct udevice *blk, int partnum,
 
 	if (memcmp(VB2_KEYBLOCK_MAGIC, hdr->magic, VB2_KEYBLOCK_MAGIC_SIZE)) {
 		free(hdr);
+		log_debug("no magic\n");
 		return -ENOENT;
 	}
 
@@ -340,24 +356,16 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	struct vb2_keyblock *hdr;
 	const char *uuid = NULL;
 	struct cros_priv *priv;
-	int part, ret;
+	int ret;
 
-	log_debug("starting, part=%d\n", bflow->part);
+	log_debug("starting, part=%x\n", bflow->part);
 
-	/* We consider the whole disk, not any one partition */
-	if (bflow->part)
-		return log_msg_ret("max", -ENOENT);
-
-	/* Check partition 2 then 4 */
-	part = 2;
-	ret = scan_part(bflow->blk, part, &info, &hdr);
+	/* Check for kernel partitions */
+	ret = scan_part(bflow->blk, bflow->part, &info, &hdr);
 	if (ret) {
-		part = 4;
-		ret = scan_part(bflow->blk, part, &info, &hdr);
-		if (ret)
-			return log_msg_ret("scan", ret);
+		log_debug("- scan failed: err=%d\n", ret);
+		return log_msg_ret("scan", ret);
 	}
-	bflow->part = part;
 
 	priv = malloc(sizeof(struct cros_priv));
 	if (!priv) {
@@ -366,8 +374,8 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	}
 	bflow->bootmeth_priv = priv;
 
-	log_info("Selected partition %d, header at %lx\n", bflow->part,
-		 (ulong)map_to_sysmem(hdr));
+	log_debug("Selected partition %d, header at %lx\n", bflow->part,
+		  (ulong)map_to_sysmem(hdr));
 
 	/* Grab a few things from the preamble */
 	preamble = (void *)hdr + hdr->keyblock_size;
@@ -381,8 +389,11 @@ static int cros_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	ret = cros_read_info(bflow, uuid, preamble);
 	preamble = NULL;
 	free(hdr);
-	if (ret)
+	if (ret) {
+		free(priv->info_buf);
+		free(priv);
 		return log_msg_ret("inf", ret);
+	}
 	bflow->size = priv->body_size;
 	bflow->state = BOOTFLOWST_READY;
 
@@ -437,6 +448,7 @@ static int cros_bootmeth_bind(struct udevice *dev)
 	struct bootmeth_uc_plat *plat = dev_get_uclass_plat(dev);
 
 	plat->desc = "ChromiumOS boot";
+	plat->flags = BOOTMETHF_ANY_PART;
 
 	return 0;
 }

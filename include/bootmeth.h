@@ -16,9 +16,12 @@ struct udevice;
  * enum bootmeth_flags - Flags for bootmeths
  *
  * @BOOTMETHF_GLOBAL: bootmeth handles bootdev selection automatically
+ * @BOOTMETHF_ANY_PART: bootmeth is willing to check any partition, even if it
+ * has no filesystem
  */
 enum bootmeth_flags {
 	BOOTMETHF_GLOBAL	= BIT(0),
+	BOOTMETHF_ANY_PART	= BIT(1),
 };
 
 /**
