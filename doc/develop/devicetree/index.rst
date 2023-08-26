@@ -11,4 +11,5 @@ build-time and runtime configuration.
 
    intro
    control
+   dt_non_compliant_purge
    dt_qemu
