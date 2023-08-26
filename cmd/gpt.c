@@ -786,10 +786,8 @@ static int gpt_setenv(struct blk_desc *desc, const char *name)
 
 		for (i = 1; i < part_drv->max_entries; i++) {
 			ret = part_drv->get_info(desc, i, &pinfo);
-			if (ret) {
-				/* no more entries in table */
-				break;
-			}
+			if (ret)
+				continue;
 
 			if (!strcmp(name, (const char *)pinfo.name)) {
 				/* match found, setup environment variables */
