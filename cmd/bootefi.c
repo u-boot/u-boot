@@ -237,6 +237,23 @@ static void *get_config_table(const efi_guid_t *guid)
 	return NULL;
 }
 
+/**
+ * event_notify_dt_purge() - call dt_purge event
+ *
+ * @fdt:	address of the device tree to be passed to the kernel
+ *		through the configuration table
+ * Return:	None
+ */
+static void event_notify_dt_purge(void *fdt)
+{
+	int ret;
+	struct event_dt_node_prop_purge fixup = {0};
+
+	fixup.fdt = fdt;
+	ret = event_notify(EVT_DT_NODE_PROP_PURGE, &fixup, sizeof(fixup));
+	if (ret)
+		printf("Error: %d: DT Purge event failed\n", ret);
+}
 #endif /* !CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE) */
 
 /**
@@ -318,6 +335,7 @@ efi_status_t efi_install_fdt(void *fdt)
 	efi_carve_out_dt_rsv(fdt);
 
 	efi_try_purge_kaslr_seed(fdt);
+	event_notify_dt_purge(fdt);
 
 	if (CONFIG_IS_ENABLED(EFI_TCG2_PROTOCOL_MEASURE_DTB)) {
 		ret = efi_tcg2_measure_dtb(fdt);
