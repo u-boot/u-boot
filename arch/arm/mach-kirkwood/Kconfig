@@ -133,6 +133,12 @@ config TARGET_NSA310S
 	select KW88F6192
 	select KIRKWOOD_COMMON
 
+config TARGET_NSA325
+	bool "ZyXEL NSA325"
+	select FEROCEON_88FR131
+	select KW88F6281
+	select KIRKWOOD_COMMON
+
 config TARGET_SBx81LIFKW
 	bool "Allied Telesis SBx81GS24/SBx81GT40/SBx81XS6/SBx81XS16"
 	select FEROCEON_88FR131
@@ -177,6 +183,7 @@ source "board/Seagate/dockstar/Kconfig"
 source "board/Seagate/goflexhome/Kconfig"
 source "board/Seagate/nas220/Kconfig"
 source "board/zyxel/nsa310s/Kconfig"
+source "board/zyxel/nsa325/Kconfig"
 source "board/alliedtelesis/SBx81LIFKW/Kconfig"
 source "board/alliedtelesis/SBx81LIFXCAT/Kconfig"
 
