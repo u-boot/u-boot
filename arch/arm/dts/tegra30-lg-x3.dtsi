@@ -110,6 +110,7 @@
 					regulator-name = "vdd_ddr_rx";
 					regulator-min-microvolt = <2850000>;
 					regulator-max-microvolt = <2850000>;
+					regulator-boot-on;
 				};
 			};
 		};
