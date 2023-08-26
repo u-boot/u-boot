@@ -84,12 +84,14 @@
 					regulator-name = "vdd_1v2_backlight";
 					regulator-min-microvolt = <1200000>;
 					regulator-max-microvolt = <1200000>;
+					regulator-boot-on;
 				};
 
 				vcore_lcd: vdd2 {
 					regulator-name = "vcore_lcd";
 					regulator-min-microvolt = <1500000>;
 					regulator-max-microvolt = <1500000>;
+					regulator-boot-on;
 				};
 
 				vdd_1v8_vio: vddio {
@@ -105,6 +107,7 @@
 					regulator-name = "vdd_emmc_core";
 					regulator-min-microvolt = <3300000>;
 					regulator-max-microvolt = <3300000>;
+					regulator-boot-on;
 				};
 
 				/* uSD slot VDDIO */
@@ -119,6 +122,7 @@
 					regulator-name = "avdd_dsi_csi";
 					regulator-min-microvolt = <1200000>;
 					regulator-max-microvolt = <1200000>;
+					regulator-boot-on;
 				};
 			};
 		};
