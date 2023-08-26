@@ -9,6 +9,7 @@
 #define LOG_CATEGORY LOGC_EFI
 
 #include <common.h>
+#include <dt-structs.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <env.h>
@@ -403,6 +404,12 @@ out:
 
 	return status;
 }
+
+DT_NON_COMPLIANT_PURGE(capsule_key) = {
+	.node_path	= "/signature",
+	.prop		= "capsule-key",
+};
+
 #endif /* CONFIG_EFI_CAPSULE_AUTHENTICATE */
 
 static __maybe_unused bool fwu_empty_capsule(struct efi_capsule_header *capsule)
