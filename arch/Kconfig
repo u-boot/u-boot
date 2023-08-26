@@ -68,7 +68,6 @@ config M68K
 	bool "M68000 architecture"
 	select HAVE_PRIVATE_LIBGCC
 	select USE_PRIVATE_LIBGCC
-	select NEEDS_MANUAL_RELOC
 	select SYS_BOOT_GET_CMDLINE
 	select SYS_BOOT_GET_KBD
 	select SYS_CACHE_SHIFT_4
