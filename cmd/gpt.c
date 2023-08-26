@@ -744,7 +744,7 @@ static int gpt_setenv_part_variables(struct disk_partition *pinfo, int i)
 	if (ret)
 		goto fail;
 
-	ret = env_set_ulong("gpt_partition_entry", i);
+	ret = env_set_hex("gpt_partition_entry", i);
 	if (ret)
 		goto fail;
 
