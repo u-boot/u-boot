@@ -671,7 +671,7 @@ Create the fitImage::
 Sign the fitImage with the hardware key::
 
     $ ./tools/mkimage -F -k \
-    "model=PKCS%2315%20emulated;manufacturer=ZeitControl;serial=000xxxxxxxxx;token=OpenPGP%20card%20%28User%20PIN%20%28sig%29%29" \
+    "pkcs11:model=PKCS%2315%20emulated;manufacturer=ZeitControl;serial=000xxxxxxxxx;token=OpenPGP%20card%20%28User%20PIN%20%28sig%29%29" \
     -K u-boot.dtb -N pkcs11 -r fitImage
 
 
