@@ -691,12 +691,13 @@ static int gpt_enumerate(struct blk_desc *desc)
 		int ret;
 		int i;
 
+		if (part_drv->test(desc))
+			continue;
+
 		for (i = 1; i < part_drv->max_entries; i++) {
 			ret = part_drv->get_info(desc, i, &pinfo);
-			if (ret) {
-				/* no more entries in table */
-				break;
-			}
+			if (ret)
+				continue;
 
 			ptr = &part_list[str_len];
 			tmp_len = strlen((const char *)pinfo.name);
@@ -711,9 +712,10 @@ static int gpt_enumerate(struct blk_desc *desc)
 			/* One byte for space(" ") delimiter */
 			ptr[tmp_len] = ' ';
 		}
+		if (*part_list)
+			part_list[strlen(part_list) - 1] = 0;
+		break;
 	}
-	if (*part_list)
-		part_list[strlen(part_list) - 1] = 0;
 	debug("setenv gpt_partition_list %s\n", part_list);
 
 	return env_set("gpt_partition_list", part_list);
@@ -742,7 +744,7 @@ static int gpt_setenv_part_variables(struct disk_partition *pinfo, int i)
 	if (ret)
 		goto fail;
 
-	ret = env_set_ulong("gpt_partition_entry", i);
+	ret = env_set_hex("gpt_partition_entry", i);
 	if (ret)
 		goto fail;
 
@@ -786,10 +788,8 @@ static int gpt_setenv(struct blk_desc *desc, const char *name)
 
 		for (i = 1; i < part_drv->max_entries; i++) {
 			ret = part_drv->get_info(desc, i, &pinfo);
-			if (ret) {
-				/* no more entries in table */
-				break;
-			}
+			if (ret)
+				continue;
 
 			if (!strcmp(name, (const char *)pinfo.name)) {
 				/* match found, setup environment variables */

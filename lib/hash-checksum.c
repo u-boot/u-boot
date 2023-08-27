@@ -23,8 +23,10 @@ int hash_calculate(const char *name,
 	struct hash_algo *algo;
 	int ret = 0;
 	void *ctx;
-	uint32_t i;
-	i = 0;
+	int i;
+
+	if (region_count < 1)
+		return -EINVAL;
 
 	ret = hash_progressive_lookup_algo(name, &algo);
 	if (ret)

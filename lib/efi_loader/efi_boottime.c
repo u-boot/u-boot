@@ -61,7 +61,7 @@ static volatile gd_t *efi_gd, *app_gd;
 
 static efi_status_t efi_uninstall_protocol
 			(efi_handle_t handle, const efi_guid_t *protocol,
-			 void *protocol_interface);
+			 void *protocol_interface, bool preserve);
 
 /* 1 if inside U-Boot code, 0 if inside EFI payload code */
 static int entry_count = 1;
@@ -205,6 +205,36 @@ const char *__efi_nesting_dec(void)
 static bool efi_event_is_queued(struct efi_event *event)
 {
 	return !!event->queue_link.next;
+}
+
+/**
+ * efi_purge_handle() - Clean the deleted handle from the various lists
+ * @handle: handle to remove
+ *
+ * Return: status code
+ */
+static efi_status_t efi_purge_handle(efi_handle_t handle)
+{
+	struct efi_register_notify_event *item;
+
+	if (!list_empty(&handle->protocols))
+		return EFI_ACCESS_DENIED;
+	/* The handle is about to be freed. Remove it from events */
+	list_for_each_entry(item, &efi_register_notify_events, link) {
+		struct efi_protocol_notification *hitem, *hnext;
+
+		list_for_each_entry_safe(hitem, hnext, &item->handles, link) {
+			if (handle == hitem->handle) {
+				list_del(&hitem->link);
+				free(hitem);
+			}
+		}
+	}
+	/* The last protocol has been removed, delete the handle. */
+	list_del(&handle->link);
+	free(handle);
+
+	return EFI_SUCCESS;
 }
 
 /**
@@ -615,7 +645,7 @@ static efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
 		efi_status_t ret;
 
 		ret = efi_uninstall_protocol(handle, &protocol->guid,
-					     protocol->protocol_interface);
+					     protocol->protocol_interface, true);
 		if (ret != EFI_SUCCESS)
 			return ret;
 	}
@@ -639,10 +669,7 @@ efi_status_t efi_delete_handle(efi_handle_t handle)
 		return ret;
 	}
 
-	list_del(&handle->link);
-	free(handle);
-
-	return ret;
+	return efi_purge_handle(handle);
 }
 
 /**
@@ -1356,6 +1383,8 @@ reconnect:
  * @handle:             handle from which the protocol shall be removed
  * @protocol:           GUID of the protocol to be removed
  * @protocol_interface: interface to be removed
+ * @preserve:		preserve or delete the handle and remove it from any
+ *			list it participates if no protocols remain
  *
  * This function DOES NOT delete a handle without installed protocol.
  *
@@ -1363,7 +1392,7 @@ reconnect:
  */
 static efi_status_t efi_uninstall_protocol
 			(efi_handle_t handle, const efi_guid_t *protocol,
-			 void *protocol_interface)
+			 void *protocol_interface, bool preserve)
 {
 	struct efi_handler *handler;
 	struct efi_open_protocol_info_item *item;
@@ -1397,6 +1426,14 @@ static efi_status_t efi_uninstall_protocol
 		goto out;
 	}
 	r = efi_remove_protocol(handle, protocol, protocol_interface);
+	if (r != EFI_SUCCESS)
+		return r;
+	/*
+	 * We don't care about the return value here since the
+	 * handle might have more protocols installed
+	 */
+	if (!preserve)
+		efi_purge_handle(handle);
 out:
 	return r;
 }
@@ -1422,15 +1459,10 @@ static efi_status_t EFIAPI efi_uninstall_protocol_interface
 
 	EFI_ENTRY("%p, %pUs, %p", handle, protocol, protocol_interface);
 
-	ret = efi_uninstall_protocol(handle, protocol, protocol_interface);
+	ret = efi_uninstall_protocol(handle, protocol, protocol_interface, false);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	/* If the last protocol has been removed, delete the handle. */
-	if (list_empty(&handle->protocols)) {
-		list_del(&handle->link);
-		free(handle);
-	}
 out:
 	return EFI_EXIT(ret);
 }
@@ -2785,7 +2817,7 @@ static efi_status_t EFIAPI
 efi_uninstall_multiple_protocol_interfaces_int(efi_handle_t handle,
 					       efi_va_list argptr)
 {
-	const efi_guid_t *protocol;
+	const efi_guid_t *protocol, *next_protocol;
 	void *protocol_interface;
 	efi_status_t ret = EFI_SUCCESS;
 	size_t i = 0;
@@ -2795,25 +2827,34 @@ efi_uninstall_multiple_protocol_interfaces_int(efi_handle_t handle,
 		return EFI_INVALID_PARAMETER;
 
 	efi_va_copy(argptr_copy, argptr);
+	protocol = efi_va_arg(argptr, efi_guid_t*);
 	for (;;) {
-		protocol = efi_va_arg(argptr, efi_guid_t*);
+		/*
+		 * If efi_uninstall_protocol() fails we need to be able to
+		 * reinstall the previously uninstalled protocols on the same
+		 * handle.
+		 * Instead of calling efi_uninstall_protocol(...,..., false)
+		 * and potentially removing the handle, only allow the handle
+		 * removal on the last protocol that we requested to uninstall.
+		 * That way we can preserve  the handle in case the latter fails
+		 */
+		bool preserve = true;
+
 		if (!protocol)
 			break;
 		protocol_interface = efi_va_arg(argptr, void*);
+		next_protocol = efi_va_arg(argptr, efi_guid_t*);
+		if (!next_protocol)
+			preserve = false;
 		ret = efi_uninstall_protocol(handle, protocol,
-					     protocol_interface);
+					     protocol_interface, preserve);
 		if (ret != EFI_SUCCESS)
 			break;
 		i++;
+		protocol = next_protocol;
 	}
-	if (ret == EFI_SUCCESS) {
-		/* If the last protocol has been removed, delete the handle. */
-		if (list_empty(&handle->protocols)) {
-			list_del(&handle->link);
-			free(handle);
-		}
+	if (ret == EFI_SUCCESS)
 		goto out;
-	}
 
 	/* If an error occurred undo all changes. */
 	for (; i; --i) {
@@ -3712,7 +3753,7 @@ static efi_status_t EFIAPI efi_reinstall_protocol_interface(
 		  new_interface);
 
 	/* Uninstall protocol but do not delete handle */
-	ret = efi_uninstall_protocol(handle, protocol, old_interface);
+	ret = efi_uninstall_protocol(handle, protocol, old_interface, true);
 	if (ret != EFI_SUCCESS)
 		goto out;
 

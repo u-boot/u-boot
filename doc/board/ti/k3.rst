@@ -194,13 +194,13 @@ All of that to say you will need both a 32bit and 64bit cross compiler
 .. k3_rst_include_end_common_env_vars_desc
 
 .. k3_rst_include_start_common_env_vars_defn
-.. code-block:: bash
+.. prompt:: bash
 
- $ export CC32=arm-linux-gnueabihf-
- $ export CC64=aarch64-linux-gnu-
- $ export LNX_FW_PATH=path/to/ti-linux-firmware
- $ export TFA_PATH=path/to/trusted-firmware-a
- $ export OPTEE_PATH=path/to/optee_os
+ export CC32=arm-linux-gnueabihf-
+ export CC64=aarch64-linux-gnu-
+ export LNX_FW_PATH=path/to/ti-linux-firmware
+ export TFA_PATH=path/to/trusted-firmware-a
+ export OPTEE_PATH=path/to/optee_os
 .. k3_rst_include_end_common_env_vars_defn
 
 We will also need some common environment variables set up for the various
@@ -244,11 +244,11 @@ Building tiboot3.bin
    uses the split binary flow)
 
 .. k3_rst_include_start_build_steps_spl_r5
-.. code-block:: bash
+.. prompt:: bash
 
- $ # inside u-boot source
- $ make $UBOOT_CFG_CORTEXR
- $ make CROSS_COMPILE=$CC32 BINMAN_INDIRS=$LNX_FW_PATH
+ # inside u-boot source
+ make $UBOOT_CFG_CORTEXR
+ make CROSS_COMPILE=$CC32 BINMAN_INDIRS=$LNX_FW_PATH
 .. k3_rst_include_end_build_steps_spl_r5
 
 At this point you should have all the needed binaries to boot the wakeup
@@ -280,11 +280,11 @@ firmware if your device using a split firmware.
    application cores on the main domain.
 
 .. k3_rst_include_start_build_steps_tfa
-.. code-block:: bash
+.. prompt:: bash
 
- $ # inside trusted-firmware-a source
- $ make CROSS_COMPILE=$CC64 ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS \
-        TARGET_BOARD=$TFA_BOARD
+ # inside trusted-firmware-a source
+ make CROSS_COMPILE=$CC64 ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS \
+      TARGET_BOARD=$TFA_BOARD
 .. k3_rst_include_end_build_steps_tfa
 
 Typically all `j7*` devices will use `TARGET_BOARD=generic` or `TARGET_BOARD
@@ -296,11 +296,11 @@ use the `lite` option.
    using the TrustZone technology built into the core.
 
 .. k3_rst_include_start_build_steps_optee
-.. code-block:: bash
+.. prompt:: bash
 
- $ # inside optee_os source
- $ make CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFG_ARM64_core=y $OPTEE_EXTRA_ARGS \
-         PLATFORM=$OPTEE_PLATFORM
+ # inside optee_os source
+ make CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFG_ARM64_core=y $OPTEE_EXTRA_ARGS \
+       PLATFORM=$OPTEE_PLATFORM
 .. k3_rst_include_end_build_steps_optee
 
 4. Finally, after TF-A has initialized the main domain and OP-TEE has
@@ -308,11 +308,11 @@ use the `lite` option.
    64bit core in the main domain.
 
 .. k3_rst_include_start_build_steps_uboot
-.. code-block:: bash
+.. prompt:: bash
 
- $ # inside u-boot source
- $ make $UBOOT_CFG_CORTEXA
- $ make CROSS_COMPILE=$CC64 BINMAN_INDIRS=$LNX_FW_PATH \
+ # inside u-boot source
+ make $UBOOT_CFG_CORTEXA
+ make CROSS_COMPILE=$CC64 BINMAN_INDIRS=$LNX_FW_PATH \
         BL31=$TFA_PATH/build/k3/$TFA_BOARD/release/bl31.bin \
         TEE=$OPTEE_PATH/out/arm-plat-k3/core/tee-raw.bin
 .. k3_rst_include_end_build_steps_uboot
@@ -407,14 +407,14 @@ and the same can be extended to other platforms
   be passing to mkimage for signing the fitImage and embedding the key in
   the u-boot dtb.
 
-  .. code-block:: bash
+  .. prompt:: bash
 
     mkimage -r -f fitImage.its -k $UBOOT_PATH/board/ti/keys -K
     $UBOOT_PATH/build/a72/dts/dt.dtb
 
   For signing a secondary platform, pass the -K parameter to that DTB
 
-  .. code-block:: bash
+  .. prompt:: bash
 
     mkimage -f fitImage.its -k $UBOOT_PATH/board/ti/keys -K
     $UBOOT_PATH/build/a72/arch/arm/dts/k3-j721e-sk.dtb
@@ -473,10 +473,11 @@ then the saveenv command and can be used across various bootmodes too.
 
 **Writing to MMC/EMMC**
 
-.. code-block::
+.. prompt:: bash
+  :prompts: =>
 
-  => env export -t $loadaddr <list of variables>
-  => fatwrite mmc ${mmcdev} ${loadaddr} ${bootenvfile} ${filesize}
+  env export -t $loadaddr <list of variables>
+  fatwrite mmc ${mmcdev} ${loadaddr} ${bootenvfile} ${filesize}
 
 **Reading from MMC/EMMC**
 
@@ -486,10 +487,11 @@ mmcdev) and set the environments.
 If manually needs to be done then the environment can be read from the
 filesystem and then imported
 
-.. code-block::
+.. prompt:: bash
+  :prompts: =>
 
-  => fatload mmc ${mmcdev} ${loadaddr} ${bootenvfile}
-  => env import -t ${loadaddr} ${filesize}
+  fatload mmc ${mmcdev} ${loadaddr} ${bootenvfile}
+  env import -t ${loadaddr} ${filesize}
 
 .. _k3_rst_refer_openocd:
 
@@ -546,7 +548,7 @@ Refer to the release notes corresponding to the `OpenOCD version
   box support by OpenOCD. The board-specific documentation will
   cover the details and any adapter/dongle recommendations.
 
-.. code-block:: bash
+.. prompt:: bash
 
  openocd -v
 
@@ -564,21 +566,21 @@ systems, but equivalent instructions should exist for systems with
 other package managers. Please refer to the `OpenOCD Documentation
 <https://openocd.org/>`_ for more recent installation steps.
 
-.. code-block:: bash
+.. prompt:: bash
 
-  $ # Check the packages to be installed: needs deb-src in sources.list
-  $ sudo apt build-dep openocd
-  $ # The following list is NOT complete - please check the latest
-  $ sudo apt-get install libtool pkg-config texinfo libusb-dev \
+  # Check the packages to be installed: needs deb-src in sources.list
+  sudo apt build-dep openocd
+  # The following list is NOT complete - please check the latest
+  sudo apt-get install libtool pkg-config texinfo libusb-dev \
     libusb-1.0.0-dev libftdi-dev libhidapi-dev autoconf automake
-  $ git clone https://github.com/openocd-org/openocd.git openocd
-  $ cd openocd
-  $ git submodule init
-  $ git submodule update
-  $ ./bootstrap
-  $ ./configure --prefix=/usr/local/
-  $ make -j`nproc`
-  $ sudo make install
+  git clone https://github.com/openocd-org/openocd.git openocd
+  cd openocd
+  git submodule init
+  git submodule update
+  ./bootstrap
+  ./configure --prefix=/usr/local/
+  make -j`nproc`
+  sudo make install
 
 .. note::
 
@@ -594,28 +596,28 @@ The step is not necessary if the distribution supports the OpenOCD, but
 if building from a source, ensure that the udev rules are installed
 correctly to ensure a sane system.
 
-.. code-block:: bash
+.. prompt:: bash
 
   # Go to the OpenOCD source directory
-  $ cd openocd
-  # Copy the udev rules to the correct system location
-  $ sudo cp ./contrib/60-openocd.rules \
+  cd openocd
+  Copy the udev rules to the correct system location
+  sudo cp ./contrib/60-openocd.rules \
       ./src/jtag/drivers/libjaylink/contrib/99-libjaylink.rules \
       /etc/udev/rules.d/
   # Get Udev to load the new rules up
-  $ sudo udevadm control --reload-rules
+  sudo udevadm control --reload-rules
   # Use the new rules on existing connected devices
-  $ sudo udevadm trigger
+  sudo udevadm trigger
 
 Step 2: Setup GDB
 ^^^^^^^^^^^^^^^^^
 
 Most systems come with gdb-multiarch package.
 
-.. code-block:: bash
+.. prompt:: bash
 
   # Install gdb-multiarch package
-  $ sudo apt-get install gdb-multiarch
+  sudo apt-get install gdb-multiarch
 
 Though using GDB natively is normal, developers with interest in using IDE
 may find a few of these interesting:
@@ -828,7 +830,7 @@ Startup OpenOCD to debug the platform as follows:
 
 .. k3_rst_include_start_openocd_cfg_XDS110
 
-.. code-block:: bash
+.. prompt:: bash
 
   openocd -f board/{board_of_choice}.cfg
 
@@ -842,7 +844,7 @@ Startup OpenOCD to debug the platform as follows:
   <https://github.com/openocd-org/openocd/blob/master/tcl/target/ti_k3.cfg#L59>`_
   to decide if the SoC is supported or not.
 
-.. code-block:: bash
+.. prompt:: bash
 
   openocd -f openocd_connect.cfg
 
@@ -917,7 +919,7 @@ To debug using this server, use GDB directly or your preferred
 GDB-based IDE. To start up GDB in the terminal, run the following
 command.
 
-.. code-block:: bash
+.. prompt:: bash
 
   gdb-multiarch
 
