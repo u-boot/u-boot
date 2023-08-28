@@ -82,6 +82,7 @@ if SPI_FLASH
 
 config BOOTDEV_SPI_FLASH
 	bool "SPI Flash bootdev support"
+	depends on BOOTSTD
 	help
 	  Enable a boot device for SPI flash. This allows reading a script
 	  from SPI flash so that it can be used to boot an Operating System.
