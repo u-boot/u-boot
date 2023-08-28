@@ -13,8 +13,7 @@
 
 /* DDR Configuration */
 #define CFG_SYS_SDRAM_BASE	0x80000000
-#define CFG_SYS_SDRAM_BASE1	0x880000000
-#define CFG_SYS_SDRAM_SIZE	SZ_2G /* Maximum supported size */
+#define CFG_SYS_SDRAM_SIZE	SZ_2G /* Maximum supported size, auto-detection is used */
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"fdt_addr_r=0x90200000\0" \
