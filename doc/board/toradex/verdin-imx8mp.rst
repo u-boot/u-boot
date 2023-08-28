@@ -46,6 +46,7 @@ Get the DDR Firmware
 
 Build U-Boot
 ------------
+
 .. code-block:: bash
 
     $ export CROSS_COMPILE=aarch64-linux-gnu-
@@ -61,7 +62,7 @@ Flash to eMMC
     > setexpr blkcnt ${filesize} + 0x1ff && setexpr blkcnt ${blkcnt} / 0x200
     > mmc dev 2 1 && mmc write ${loadaddr} 0x0 ${blkcnt}
 
-As a convenience, instead of the last two commands one may also use the update
+As a convenience, instead of the last two commands, one may also use the update
 U-Boot wrapper:
 
 .. code-block:: bash
@@ -71,16 +72,14 @@ U-Boot wrapper:
 Boot
 ----
 
-ATF, U-Boot proper and u-boot.dtb images are packed into FIT image,
+ATF, U-Boot proper and u-boot.dtb images are packed into a FIT image,
 which is loaded and parsed by SPL.
 
 Boot sequence is:
 
 * SPL ---> ATF (TF-A) ---> U-Boot proper
 
-Output:
-
-.. code-block:: none
+Output::
 
   U-Boot SPL 2022.04-rc1-00164-g21a0312611-dirty (Feb 07 2022 - 11:34:04 +0100)
   Quad die, dual rank failed, attempting dual die, single rank configuration.

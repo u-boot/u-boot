@@ -24,12 +24,14 @@ For an overview of the TI AM62 SoC boot flow please head over to:
 
 Sources:
 --------
+
 .. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_boot_sources
     :end-before: .. k3_rst_include_end_boot_sources
 
 Build procedure:
 ----------------
+
 0. Setup the environment variables:
 
 .. include::  ../ti/k3.rst
@@ -50,7 +52,7 @@ Set the variables corresponding to this platform:
  $ export UBOOT_CFG_CORTEXR=verdin-am62_r5_defconfig
  $ export UBOOT_CFG_CORTEXA=verdin-am62_a53_defconfig
  $ export TFA_BOARD=lite
- $ # we dont use any extra TFA parameters
+ $ # we don't use any extra TFA parameters
  $ unset TFA_EXTRA_ARGS
  $ export OPTEE_PLATFORM=k3-am62x
  $ export OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
@@ -75,9 +77,7 @@ Flash to eMMC
 Boot
 ----
 
-Output:
-
-.. code-block:: none
+Output::
 
   U-Boot SPL 2023.10-rc1-00210-gb678170a34c (Aug 03 2023 - 00:09:14 +0200)
   SYSFW ABI: 3.1 (firmware rev 0x0009 '9.0.1--v09.00.01 (Kool Koala)')

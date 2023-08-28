@@ -1,7 +1,11 @@
-.. SPDX-License-Identifier: GPL-2.0+
+.. SPDX-License-Identifier: GPL-2.0-or-later
+.. sectionauthor:: Igor Opaniuk <igor.opaniuk@toradex.com>
 
-Colibri iMX7
-============
+Colibri iMX7 Modules
+====================
+
+- SoM: https://www.toradex.com/computer-on-modules/colibri-arm-family/nxp-freescale-imx7
+- Carrier board: https://www.toradex.com/products/carrier-board/colibri-evaluation-board
 
 Quick Start
 -----------
@@ -21,11 +25,11 @@ Build U-Boot
     $ make colibri_imx7_emmc_defconfig # For NAND: colibri_imx7_defconfig
     $ make
 
-After build succeeds, you will obtain final ``u-boot-dtb.imx`` IMX specific
-image, ready for flashing (but check next section for additional
+After the build succeeds, you will obtain the final ``u-boot-dtb.imx`` IMX
+specific image, ready for flashing (but check next section for additional
 adjustments).
 
-Final IMX program image includes (section ``6.6.7`` from `IMX7DRM
+The final IMX program image includes (section ``6.6.7`` from `IMX7DRM
 <https://www.nxp.com/webapp/Download?colCode=IMX7DRM>`_):
 
 * **Image vector table** (IVT) for BootROM
@@ -34,21 +38,20 @@ Final IMX program image includes (section ``6.6.7`` from `IMX7DRM
 * **Device configuration data**
 * **User image**: U-Boot image (``u-boot-dtb.bin``)
 
-
 IMX image adjustments prior to flashing
 ---------------------------------------
 
 1. U-Boot for both Colibri iMX7 NAND and eMMC versions
 is built with HABv4 support (`AN4581.pdf
 <https://www.nxp.com/docs/en/application-note/AN4581.pdf>`_)
-enabled by default, which requires to generate a proper
+enabled by default, which requires generating a proper
 Command Sequence File (CSF) by srktool from NXP (not included in the
 U-Boot tree, check additional details in introduction_habv4.txt)
 and concatenate it to the final ``u-boot-dtb.imx``.
 
-2. In case if you don't want to generate a proper ``CSF`` (for any reason),
-you still need to pad the IMX image so i has the same size as specified in
-in **Boot Data** section of IMX image.
+2. In case you don't want to generate a proper ``CSF`` (for any reason),
+you still need to pad the IMX image so it has the same size as specified in
+the **Boot Data** section of the IMX image.
 To obtain this value, run:
 
 .. code-block:: bash
@@ -78,11 +81,11 @@ and then pad the image:
     $ objcopy -I binary -O binary --pad-to 0xa7c60 --gap-fill=0x00 \
         u-boot-dtb.imx u-boot-dtb.imx.zero-padded
 
-3. Also, according to requirement from ``6.6.7.1``, the final image
-should have ``0x400`` offset for initial IVT table.
+3. Also, according to the requirement from ``6.6.7.1``, the final image
+should have ``0x400`` offset for the initial IVT table.
 
-For eMMC setup we handle this by flashing it to ``0x400``, howewer
-for NAND setup we adjust the image prior to flashing, adding padding in the
+For eMMC setup we handle this by flashing it to ``0x400``, however
+for NAND setup we adjust the image prior to flashing, adding padding at the
 beginning of the image.
 
 .. code-block:: bash
@@ -96,7 +99,6 @@ Flash the ``u-boot-dtb.imx.zero-padded`` binary to the primary eMMC hardware
 boot area partition:
 
 .. code-block:: bash
-
 
     => load mmc 1:1 $loadaddr u-boot-dtb.imx.zero-padded
     => setexpr blkcnt ${filesize} + 0x1ff && setexpr blkcnt ${blkcnt} / 0x200
@@ -117,8 +119,8 @@ Flash U-Boot IMX image to NAND
 Using update_uboot script
 -------------------------
 
-You can also usb U-Boot env update_uboot script,
-which wraps all eMMC/NAND specific command invocation:
+You can also use U-Boot env update_uboot script,
+which wraps all eMMC/NAND specific command invocations:
 
 .. code-block:: bash
 
