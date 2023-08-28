@@ -74,6 +74,20 @@ Flash to eMMC
     => fatload mmc 1 ${loadaddr} u-boot.img
     => mmc write ${loadaddr} 0x1400 0x2000
 
+As a convenience, instead of having to remember all those addresses and sizes,
+one may also use the update U-Boot wrappers:
+
+.. code-block:: bash
+
+    > tftpboot ${loadaddr} tiboot3-am62x-gp-verdin.bin
+    > run update_tiboot3
+
+    > tftpboot ${loadaddr} tispl.bin
+    > run update_tispl
+
+    > tftpboot ${loadaddr} u-boot.img
+    > run update_uboot
+
 Boot
 ----
 
