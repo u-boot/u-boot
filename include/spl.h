@@ -862,7 +862,7 @@ void __noreturn spl_optee_entry(void *arg0, void *arg1, void *arg2, void *arg3);
 /**
  * spl_invoke_opensbi - boot using a RISC-V OpenSBI image
  */
-void spl_invoke_opensbi(struct spl_image_info *spl_image);
+void __noreturn spl_invoke_opensbi(struct spl_image_info *spl_image);
 
 /**
  * board_return_to_bootrom - allow for boards to continue with the boot ROM
