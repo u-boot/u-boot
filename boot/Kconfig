@@ -1439,7 +1439,7 @@ config AUTOBOOT_MENU_SHOW
 	  This enables the boot menu, controlled by environment variables
 	  defined by the board. The menu starts after running the 'preboot'
 	  environmnent variable (if enabled) and before handling the boot delay.
-	  See README.bootmenu for more details.
+	  See doc/usage/cmd/bootmenu.rst for more details.
 
 config BOOTMENU_DISABLE_UBOOT_CONSOLE
 	bool "Disallow bootmenu to enter the U-Boot console"

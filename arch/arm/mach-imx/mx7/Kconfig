@@ -24,14 +24,6 @@ config SPL_TEXT_BASE
 	depends on SPL
 	default 0x00912000
 
-config OPTEE_TZDRAM_SIZE
-	hex "Amount of Trust-Zone RAM for the OPTEE image"
-	default 0x0000000
-	depends on OPTEE_LIB
-	help
-	  The size of pre-allocated Trust Zone DRAM to allocate for the OPTEE
-	  runtime.
-
 choice
 	prompt "MX7 board select"
 	optional

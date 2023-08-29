@@ -126,8 +126,6 @@ controlled by a description in the board device tree.'''
             help='Comma-separated list of bintools to consider missing (for testing)')
     build_parser.add_argument('-i', '--image', type=str, action='append',
             help='Image filename to build (if not specified, build all)')
-    build_parser.add_argument('--ignore-dup-phandles', action='store_true',
-            help='Temporary option to ignore duplicate phandles')
     build_parser.add_argument('-I', '--indir', action='append',
             help='Add a path to the list of directories to use for input files')
     build_parser.add_argument('-m', '--map', action='store_true',
