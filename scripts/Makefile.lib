@@ -179,9 +179,12 @@ ifdef DEVICE_TREE_DEBUG
 u_boot_dtsi_options_debug = $(warning $(u_boot_dtsi_options_raw))
 endif
 
-# We use the first match
-u_boot_dtsi = $(strip $(u_boot_dtsi_options_debug) \
+# We use the first match to be included
+dtsi_include_list = $(strip $(u_boot_dtsi_options_debug) \
 	$(notdir $(firstword $(u_boot_dtsi_options))))
+
+# The CONFIG_DEVICE_TREE_INCLUDES also need to be included
+dtsi_include_list += $(CONFIG_DEVICE_TREE_INCLUDES)
 
 # Modified for U-Boot
 dtc_cpp_flags  = -Wp,-MD,$(depfile).pre.tmp -nostdinc                    \
@@ -320,8 +323,8 @@ quiet_cmd_dtc = DTC     $@
 # Bring in any U-Boot-specific include at the end of the file
 # And finally any custom .dtsi fragments specified with CONFIG_DEVICE_TREE_INCLUDES
 cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
-	(cat $<; $(if $(u_boot_dtsi),echo '$(pound)include "$(u_boot_dtsi)"')) > $(pre-tmp); \
-	$(foreach f,$(subst $(quote),,$(CONFIG_DEVICE_TREE_INCLUDES)), \
+	(cat $< > $(pre-tmp)); \
+	$(foreach f,$(subst $(quote),,$(dtsi_include_list)), \
 	  echo '$(pound)include "$(f)"' >> $(pre-tmp);) \
 	$(HOSTCC) -E $(dtc_cpp_flags) -x assembler-with-cpp -o $(dtc-tmp) $(pre-tmp) ; \
 	$(DTC) -O dtb -o $@ -b 0 \
@@ -331,7 +334,24 @@ cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
 		; \
 	sed "s:$(pre-tmp):$(<):" $(depfile).pre.tmp $(depfile).dtc.tmp > $(depfile)
 
-$(obj)/%.dtb: $(src)/%.dts $(DTC) FORCE
+quiet_cmd_capsule_esl_gen = CAPSULE_ESL_GEN $@
+cmd_capsule_esl_gen = \
+	$(shell sed "s:ESL_BIN_FILE:$(capsule_esl_path):" $(capsule_esl_input_file) > $@)
+
+$(obj)/.capsule_esl.dtsi: FORCE
+	$(call cmd_capsule_esl_gen)
+
+capsule_esl_input_file=$(srctree)/lib/efi_loader/capsule_esl.dtsi.in
+capsule_esl_dtsi = .capsule_esl.dtsi
+capsule_esl_path=$(abspath $(srctree)/$(subst $(quote),,$(CONFIG_EFI_CAPSULE_ESL_FILE)))
+
+ifdef CONFIG_EFI_CAPSULE_AUTHENTICATE
+dtsi_include_list += $(capsule_esl_dtsi)
+endif
+
+dtsi_include_list_deps = $(addprefix $(obj)/,$(subst $(quote),,$(dtsi_include_list)))
+
+$(obj)/%.dtb: $(src)/%.dts $(DTC) $(dtsi_include_list_deps) FORCE
 	$(call if_changed_dep,dtc)
 
 pre-tmp = $(subst $(comma),_,$(dot-target).pre.tmp)

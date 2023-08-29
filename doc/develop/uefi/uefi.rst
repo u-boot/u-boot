@@ -318,6 +318,9 @@ Run the following command
       --guid <image GUID> \
       <capsule_file_name>
 
+Capsule with firmware version
+*****************************
+
 The UEFI specification does not define the firmware versioning mechanism.
 EDK II reference implementation inserts the FMP Payload Header right before
 the payload. It coutains the fw_version and lowest supported version,
@@ -344,6 +347,43 @@ add --fw-version option in mkeficapsule tool.
 
 If the --fw-version option is not set, FMP Payload Header is not inserted
 and fw_version is set as 0.
+
+Capsule Generation through binman
+*********************************
+
+Support has also been added to generate capsules during U-Boot build
+through binman. This requires the platform's DTB to be populated with
+the capsule entry nodes for binman. The capsules then can be generated
+by specifying the capsule parameters as properties in the capsule
+entry node.
+
+Check the test/py/tests/test_efi_capsule/capsule_gen_binman.dts file
+as reference for how a typical binman node for capsule generation
+looks like. For generating capsules as part of the platform's build, a
+capsule node would then have to be included into the platform's
+devicetree.
+
+A typical binman node for generating a capsule would look like::
+
+	capsule {
+		filename = "u-boot.capsule";
+		efi-capsule {
+			image-index = <0x1>;
+			image-guid = "09d7cf52-0720-4710-91d1-08469b7fe9c8";
+
+			u-boot {
+			};
+		};
+	};
+
+In the above example, a capsule file named u-boot.capsule will be
+generated with u-boot.bin as it's input payload. The capsule
+generation parameters like image-index and image-guid are being
+specified as properties. Similarly, other properties like the private
+and public key certificate can be specified for generating signed
+capsules. Refer :ref:`etype_efi_capsule` for documentation about the
+efi-capsule binman entry type, which describes all the properties that
+can be specified.
 
 Performing the update
 *********************
@@ -522,20 +562,11 @@ and used by the steps highlighted below.
             ...
     }
 
-You can do step-4 manually with
-
-.. code-block:: console
-
-    $ dtc -@ -I dts -O dtb -o signature.dtbo signature.dts
-    $ fdtoverlay -i orig.dtb -o new.dtb -v signature.dtbo
-
-where signature.dts looks like::
-
-    &{/} {
-            signature {
-                    capsule-key = /incbin/("CRT.esl");
-            };
-    };
+You can perform step-4 through the Kconfig symbol
+CONFIG_EFI_CAPSULE_ESL_FILE. This symbol points to the esl file
+generated in step-2. Once the symbol has been populated with the path
+to the esl file, it will automatically get embedded into the
+platform's dtb as part of U-Boot build.
 
 Anti-rollback Protection
 ************************
