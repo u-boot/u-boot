@@ -9,6 +9,7 @@
 #include <debug_uart.h>
 #include <fdtdec.h>
 #include <init.h>
+#include <led.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/at91_sfr.h>
@@ -18,6 +19,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
+#include <dm/ofnode.h>
 
 extern void at91_pda_detect(void);
 
@@ -27,9 +29,25 @@ void at91_prepare_cpu_var(void);
 
 static void board_leds_init(void)
 {
+#if CONFIG_IS_ENABLED(LED)
+	const char *led_name;
+	struct udevice *dev;
+	int ret;
+
+	led_name = ofnode_conf_read_str("u-boot,boot-led");
+	if (!led_name)
+		return;
+
+	ret = led_get_by_label(led_name, &dev);
+	if (ret)
+		return;
+
+	led_set_state(dev, LEDST_ON);
+#else
 	at91_set_pio_output(AT91_PIO_PORTD, 17, 0);	/* LED RED */
 	at91_set_pio_output(AT91_PIO_PORTD, 19, 0);	/* LED GREEN */
 	at91_set_pio_output(AT91_PIO_PORTD, 21, 1);	/* LED BLUE */
+#endif
 }
 
 int board_late_init(void)

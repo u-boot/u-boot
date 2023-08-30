@@ -14,15 +14,29 @@
 
 		apb {
 			bootph-all;
-
-			pinctrl {
-				bootph-all;
-			};
 		};
 	};
 
 	chosen {
 		bootph-all;
+	};
+
+	config {
+		u-boot,boot-led = "blue";
+	};
+
+	leds {
+		led-red {
+			default-state = "off";
+		};
+
+		led-green {
+			default-state = "off";
+		};
+
+		led-blue {
+			default-state = "off";
+		};
 	};
 };
 
@@ -39,6 +53,10 @@
 };
 
 &main_xtal {
+	bootph-all;
+};
+
+&pinctrl {
 	bootph-all;
 };
 

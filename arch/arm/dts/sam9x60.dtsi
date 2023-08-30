@@ -27,6 +27,18 @@
 		spi0 = &qspi;
 	};
 
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ARM9260_0: cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,arm926ej-s";
+			clocks = <&pmc PMC_TYPE_CORE 19>, <&pmc PMC_TYPE_CORE 11>, <&main_xtal>;
+			clock-names = "cpu", "master", "xtal";
+		};
+	};
+
 	clocks {
 		slow_rc_osc: slow_rc_osc {
 			compatible = "fixed-clock";
@@ -48,18 +60,6 @@
 		main_xtal: main_xtal {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
-		};
-	};
-
-	cpus {
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		ARM9260_0: cpu@0 {
-			device_type = "cpu";
-			compatible = "arm,arm926ej-s";
-			clocks = <&pmc PMC_TYPE_CORE 19>, <&pmc PMC_TYPE_CORE 11>, <&main_xtal>;
-			clock-names = "cpu", "master", "xtal";
 		};
 	};
 
@@ -149,11 +149,18 @@
 				compatible = "microchip,sam9x60-qspi";
 				reg = <0xf0014000 0x100>, <0x70000000 0x10000000>;
 				reg-names = "qspi_base", "qspi_mmap";
-				clocks =  <&pmc PMC_TYPE_PERIPHERAL 35>, <&pmc PMC_TYPE_SYSTEM 18>; /* ID_QSPI */
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 35>, <&pmc PMC_TYPE_SYSTEM 18>; /* ID_QSPI */
 				clock-names = "pclk", "qspick";
 				#address-cells = <1>;
 				#size-cells = <0>;
 				status = "disabled";
+			};
+
+			pit64b0: timer@f0028000 {
+				compatible = "microchip,sam9x60-pit64b";
+				reg = <0xf0028000 0xec>;
+				clocks = <&pmc PMC_TYPE_PERIPHERAL 37>, <&pmc PMC_TYPE_GCK 37>;
+				clock-names = "pclk", "gclk";
 			};
 
 			flx0: flexcom@f801c600 {
@@ -181,6 +188,17 @@
 				reg = <0xf8050000 0x100>;
 			};
 
+			pmecc: ecc-engine@ffffe000 {
+				compatible = "microchip,sam9x60-pmecc", "atmel,at91sam9g45-pmecc";
+				reg = <0xffffe000 0x300>,
+				      <0xffffe600 0x100>;
+			};
+
+			smc: smc@ffffea00 {
+				compatible = "microchip,sam9x60-smc", "atmel,at91sam9260-smc", "syscon";
+				reg = <0xffffea00 0x100>;
+			};
+
 			dbgu: serial@fffff200 {
 				compatible = "atmel,at91sam9260-dbgu", "atmel,at91sam9260-usart";
 				reg = <0xfffff200 0x200>;
@@ -190,7 +208,7 @@
 				clock-names = "usart";
 			};
 
-			pinctrl {
+			pinctrl: pinctrl@fffff400 {
 				#address-cells = <1>;
 				#size-cells = <1>;
 				compatible = "microchip,sam9x60-pinctrl", "simple-bus";
@@ -205,7 +223,7 @@
 					pinctrl_dbgu: dbgu-0 {
 						atmel,pins =
 							<AT91_PIOA 9 AT91_PERIPH_A AT91_PINCTRL_PULL_UP
-							AT91_PIOA 10 AT91_PERIPH_A AT91_PINCTRL_NONE>;
+							 AT91_PIOA 10 AT91_PERIPH_A AT91_PINCTRL_NONE>;
 					};
 				};
 
@@ -254,17 +272,6 @@
 							 AT91_PIOA  4 AT91_PERIPH_B (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)>;	/* PA4 DAT3 periph B with pullup */
 					};
 				};
-			};
-
-			pmecc: ecc-engine@ffffe000 {
-				compatible = "microchip,sam9x60-pmecc", "atmel,at91sam9g45-pmecc";
-				reg = <0xffffe000 0x300>,
-				      <0xffffe600 0x100>;
-			};
-
-			smc: smc@ffffea00 {
-				compatible = "microchip,sam9x60-smc", "atmel,at91sam9260-smc", "syscon";
-				reg = <0xffffea00 0x100>;
 			};
 
 			pioA: gpio@fffff400 {
@@ -318,13 +325,6 @@
 				compatible = "atmel,at91sam9260-pit";
 				reg = <0xfffffe40 0x10>;
 				clocks = <&pmc PMC_TYPE_CORE 11>; /* ID_MCK. */
-			};
-
-			pit64b0: timer@f0028000 {
-				compatible = "microchip,sam9x60-pit64b";
-				reg = <0xf0028000 0xec>;
-				clocks = <&pmc PMC_TYPE_PERIPHERAL 37>, <&pmc PMC_TYPE_GCK 37>;
-				clock-names = "pclk", "gclk";
 			};
 
 			clk32: sckc@fffffe50 {
