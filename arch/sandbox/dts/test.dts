@@ -614,6 +614,22 @@
 		clock-names = "fixed", "i2c", "spi", "uart2", "uart1";
 	};
 
+	clk-test2 {
+		compatible = "sandbox,clk-test";
+		assigned-clock-rates = <321>;
+	};
+
+	clk-test3 {
+		compatible = "sandbox,clk-test";
+		assigned-clocks = <&clk_sandbox 1>;
+	};
+
+	clk-test4 {
+		compatible = "sandbox,clk-test";
+		assigned-clock-rates = <654>, <321>;
+		assigned-clocks = <&clk_sandbox 1>;
+	};
+
 	ccf: clk-ccf {
 		compatible = "sandbox,clk-ccf";
 	};
