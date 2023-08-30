@@ -76,6 +76,12 @@ config RNG_SMCCC_TRNG
 	  Enable random number generator for platforms that support Arm
 	  SMCCC TRNG interface.
 
+config RNG_ARM_RNDR
+	bool "Generic ARMv8.5 RNDR register"
+	depends on DM_RNG && ARM64
+	help
+	  Use the ARMv8.5 RNDR register to provide random numbers.
+
 config TPM_RNG
 	bool "Enable random number generator on TPM device"
 	depends on TPM
