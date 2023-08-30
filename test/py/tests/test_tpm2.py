@@ -71,6 +71,9 @@ def test_tpm2_startup(u_boot_console):
 
     Initiate the TPM internal state machine.
     """
+    skip_test = u_boot_console.config.env.get('env__tpm_device_test_skip', False)
+    if skip_test:
+        pytest.skip('skip TPM device test')
     u_boot_console.run_command('tpm2 startup TPM2_SU_CLEAR')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
