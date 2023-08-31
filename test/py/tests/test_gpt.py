@@ -329,3 +329,22 @@ def test_gpt_write(state_disk_image, u_boot_console):
     assert '0x00001000	0x00001bff	"second"' in output
     output = u_boot_console.run_command('gpt guid host 0')
     assert '375a56f7-d6c9-4e81-b5f0-09d41ca89efe' in output
+
+@pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.buildconfigspec('cmd_gpt_rename')
+@pytest.mark.buildconfigspec('cmd_part')
+@pytest.mark.requiredtool('sgdisk')
+def test_gpt_transpose(state_disk_image, u_boot_console):
+    """Test the gpt transpose command."""
+
+    u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
+    output = u_boot_console.run_command('part list host 0')
+    assert '1\t0x00000800\t0x00000fff\t"part1"' in output
+    assert '2\t0x00001000\t0x00001bff\t"part2"' in output
+
+    output = u_boot_console.run_command('gpt transpose host 0 1 2')
+    assert 'success!' in output
+
+    output = u_boot_console.run_command('part list host 0')
+    assert '2\t0x00000800\t0x00000fff\t"part1"' in output
+    assert '1\t0x00001000\t0x00001bff\t"part2"' in output

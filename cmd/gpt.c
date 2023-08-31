@@ -856,8 +856,9 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 	u8 part_count = 0;
 	int partlistlen, ret, numparts = 0, partnum, i = 1, ctr1 = 0, ctr2 = 0;
 
-	if ((subcomm == NULL) || (name1 == NULL) || (name2 == NULL) ||
-	    (strcmp(subcomm, "swap") && (strcmp(subcomm, "rename"))))
+	if (!subcomm || !name1 || !name2 ||
+	    (strcmp(subcomm, "swap") && strcmp(subcomm, "rename") &&
+	     strcmp(subcomm, "transpose")))
 		return -EINVAL;
 
 	ret = get_disk_guid(dev_desc, disk_guid);
@@ -918,6 +919,41 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 			ret = -EINVAL;
 			goto out;
 		}
+	} else if (!strcmp(subcomm, "transpose")) {
+		int idx1, idx2;
+		struct disk_partition* first = NULL;
+		struct disk_partition* second= NULL;
+		struct disk_partition tmp_part;
+
+		idx1 = simple_strtoul(name1, NULL, 10);
+		idx2 = simple_strtoul(name2, NULL, 10);
+		if (idx1 == idx2) {
+			printf("Cannot swap partition with itself\n");
+			ret = -EINVAL;
+			goto out;
+		}
+
+		list_for_each(pos, &disk_partitions) {
+			curr = list_entry(pos, struct disk_part, list);
+			if (curr->partnum == idx1)
+				first = &curr->gpt_part_info;
+			else if (curr->partnum == idx2)
+				second = &curr->gpt_part_info;
+		}
+		if (!first) {
+			printf("Illegal partition number %s\n", name1);
+			ret = -EINVAL;
+			goto out;
+		}
+		if (!second) {
+			printf("Illegal partition number %s\n", name2);
+			ret = -EINVAL;
+			goto out;
+		}
+
+		tmp_part = *first;
+		*first = *second;
+		*second = tmp_part;
 	} else { /* rename */
 		if (strlen(name2) > PART_NAME_LEN) {
 			printf("Names longer than %d characters are truncated.\n", PART_NAME_LEN);
@@ -1121,7 +1157,8 @@ static int do_gpt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	} else if (strcmp(argv[1], "read") == 0) {
 		ret = do_get_gpt_info(blk_dev_desc, (argc == 5) ? argv[4] : NULL);
 	} else if ((strcmp(argv[1], "swap") == 0) ||
-		   (strcmp(argv[1], "rename") == 0)) {
+		   (strcmp(argv[1], "rename") == 0) ||
+		   (strcmp(argv[1], "transpose") == 0)) {
 		ret = do_rename_gpt_parts(blk_dev_desc, argv[1], argv[4], argv[5]);
 	} else if ((strcmp(argv[1], "set-bootable") == 0)) {
 		ret = gpt_set_bootable(blk_dev_desc, argv[4]);
@@ -1174,6 +1211,8 @@ U_BOOT_CMD(gpt, CONFIG_SYS_MAXARGS, 1, do_gpt,
 	" gpt swap <interface> <dev> <name1> <name2>\n"
 	"    - change all partitions named name1 to name2\n"
 	"      and vice-versa\n"
+	" gpt transpose <interface> <dev> <part1> <part2>\n"
+	"    - Swap the order of the entries for part1 and part2 in the partition table\n"
 	" gpt rename <interface> <dev> <part> <name>\n"
 	"    - rename the specified partition\n"
 	" gpt set-bootable <interface> <dev> <list>\n"
@@ -1182,5 +1221,6 @@ U_BOOT_CMD(gpt, CONFIG_SYS_MAXARGS, 1, do_gpt,
 	" gpt swap mmc 0 foo bar\n"
 	" gpt rename mmc 0 3 foo\n"
 	" gpt set-bootable mmc 0 boot_a,boot_b\n"
+	" gpt transpose mmc 0 1 2\n"
 #endif
 );

@@ -16,6 +16,7 @@ Synopsis
     gpt set-bootable <interface> <dev> <partition list>
     gpt setenv <interface> <dev> <partition name>
     gpt swap <interface> <dev> <name1> <name2>
+    gpt transpose <interface> <dev> <part1> <part2>
     gpt verify <interface> <dev> [<partition string>]
     gpt write <interface> <dev> <partition string>
 
@@ -126,6 +127,13 @@ Changes the names of all partitions that are named 'name1' to be 'name2', and
 all partitions named 'name2' to be 'name1'. CONFIG_CMD_GPT_RENAME=y is
 required.
 
+gpt transpose
+~~~~~~~~~~~~~
+
+Swaps the order of two partition table entries with indexes 'part1' and 'part2'
+in the partition table, but otherwise leaves the actual partition data
+untouched.
+
 gpt verify
 ~~~~~~~~~~
 
@@ -199,3 +207,20 @@ Get the GUID for a disk::
 Set the bootable flag for the 'boot' partition and clear it for all others::
 
     => gpt set-bootable mmc 0 boot
+
+Swap the order of the 'boot' and 'rootfs' partition table entries::
+    => gpt setenv mmc 0 rootfs
+    => echo ${gpt_partition_entry}
+    2
+    => gpt setenv mmc 0 boot
+    => echo ${gpt_partition_entry}
+    1
+
+    => gpt transpose mmc 0 1 2
+
+    => gpt setenv mmc 0 rootfs
+    => echo ${gpt_partition_entry}
+    1
+    => gpt setenv mmc 0 boot
+    => echo ${gpt_partition_entry}
+    2
