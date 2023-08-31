@@ -27,4 +27,4 @@
   Verification index = 2
   # FIXME:
   # Line 1 -- fitImage
-  Blocks = 0x401fcdc0 0x57c00 0xffff "flash.bin"
+  Blocks = CONFIG_SPL_LOAD_FIT_ADDRESS 0x57c00 0xffff "flash.bin"
