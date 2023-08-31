@@ -49,6 +49,7 @@ class GptTestDiskImage(object):
                 u_boot_utils.run_and_log(u_boot_console, cmd)
                 # part1 offset 1MB size 1MB
                 cmd = ('sgdisk', '--new=1:2048:4095', '--change-name=1:part1',
+                    '-A 1:set:2',
                     persistent)
                 # part2 offset 2MB size 1.5MB
                 u_boot_utils.run_and_log(u_boot_console, cmd)
@@ -116,6 +117,38 @@ def test_gpt_guid(state_disk_image, u_boot_console):
     u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
     output = u_boot_console.run_command('gpt guid host 0')
     assert '375a56f7-d6c9-4e81-b5f0-09d41ca89efe' in output
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.requiredtool('sgdisk')
+def test_gpt_setenv(state_disk_image, u_boot_console):
+    """Test the gpt setenv command."""
+    u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
+    output = u_boot_console.run_command('gpt setenv host 0 part1')
+    assert 'success!' in output
+    output = u_boot_console.run_command('echo ${gpt_partition_addr}')
+    assert output.rstrip() == '800'
+    output = u_boot_console.run_command('echo ${gpt_partition_size}')
+    assert output.rstrip() == '800'
+    output = u_boot_console.run_command('echo ${gpt_partition_name}')
+    assert output.rstrip() == 'part1'
+    output = u_boot_console.run_command('echo ${gpt_partition_entry}')
+    assert output.rstrip() == '1'
+    output = u_boot_console.run_command('echo ${gpt_partition_bootable}')
+    assert output.rstrip() == '1'
+
+    output = u_boot_console.run_command('gpt setenv host 0 part2')
+    assert 'success!' in output
+    output = u_boot_console.run_command('echo ${gpt_partition_addr}')
+    assert output.rstrip() == '1000'
+    output = u_boot_console.run_command('echo ${gpt_partition_size}')
+    assert output.rstrip() == 'c00'
+    output = u_boot_console.run_command('echo ${gpt_partition_name}')
+    assert output.rstrip() == 'part2'
+    output = u_boot_console.run_command('echo ${gpt_partition_entry}')
+    assert output.rstrip() == '2'
+    output = u_boot_console.run_command('echo ${gpt_partition_bootable}')
+    assert output.rstrip() == '0'
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')

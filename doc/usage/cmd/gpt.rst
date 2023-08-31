@@ -108,6 +108,9 @@ gpt_partition_name
 gpt_partition_entry
     the partition number in the table, e.g. 1, 2, 3, etc.
 
+gpt_partition_bootable
+    1 if the partition is marked as bootable, 0 if not
+
 gpt swap
 ~~~~~~~~
 
@@ -167,6 +170,8 @@ Get the information about the partition named 'rootfs'::
     rootfs
     => echo ${gpt_partition_entry}
     2
+    => echo ${gpt_partition_bootable}
+    0
 
 Get the list of partition names on the disk::
 
