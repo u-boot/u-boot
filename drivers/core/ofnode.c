@@ -1593,6 +1593,31 @@ const char *ofnode_conf_read_str(const char *prop_name)
 	return ofnode_read_string(node, prop_name);
 }
 
+int ofnode_read_bootscript_address(u64 *bootscr_address, u64 *bootscr_offset)
+{
+	int ret;
+	ofnode uboot;
+
+	*bootscr_address = 0;
+	*bootscr_offset = 0;
+
+	uboot = ofnode_path("/options/u-boot");
+	if (!ofnode_valid(uboot)) {
+		printf("%s: Missing /u-boot node\n", __func__);
+		return -EINVAL;
+	}
+
+	ret = ofnode_read_u64(uboot, "bootscr-address", bootscr_address);
+	if (ret) {
+		ret = ofnode_read_u64(uboot, "bootscr-ram-offset",
+				      bootscr_offset);
+		if (ret)
+			return -EINVAL;
+	}
+
+	return 0;
+}
+
 ofnode ofnode_get_phy_node(ofnode node)
 {
 	/* DT node properties that reference a PHY node */

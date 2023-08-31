@@ -20,6 +20,7 @@
 struct resource;
 
 #include <dm/ofnode_decl.h>
+#include <linux/errno.h>
 
 struct ofnode_phandle_args {
 	ofnode node;
@@ -1512,6 +1513,26 @@ int ofnode_conf_read_int(const char *prop_name, int default_val);
  */
 const char *ofnode_conf_read_str(const char *prop_name);
 
+/**
+ * ofnode_read_bootscript_address() - Read bootscr-address or bootscr-ram-offset
+ *
+ * @bootscr_address: pointer to 64bit address where bootscr-address property value
+ * is stored
+ * @bootscr_offset:  pointer to 64bit offset address where bootscr-ram-offset
+ * property value is stored
+ *
+ * This reads a bootscr-address or bootscr-ram-offset property from
+ * the /options/u-boot/ node of the devicetree. bootscr-address holds the full
+ * address of the boot script file. bootscr-ram-offset holds the boot script
+ * file offset from the start of the ram base address. When bootscr-address is
+ * defined, bootscr-ram-offset property is ignored.
+ *
+ * This only works with the control FDT.
+ *
+ * Return: 0 if OK, -EINVAL if property is not found.
+ */
+int ofnode_read_bootscript_address(u64 *bootscr_address, u64 *bootscr_offset);
+
 #else /* CONFIG_DM */
 static inline bool ofnode_conf_read_bool(const char *prop_name)
 {
@@ -1526,6 +1547,11 @@ static inline int ofnode_conf_read_int(const char *prop_name, int default_val)
 static inline const char *ofnode_conf_read_str(const char *prop_name)
 {
 	return NULL;
+}
+
+static inline int ofnode_read_bootscript_address(u64 *bootscr_address, u64 *bootscr_offset)
+{
+	return -EINVAL;
 }
 
 #endif /* CONFIG_DM */

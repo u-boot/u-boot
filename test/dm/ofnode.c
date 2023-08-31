@@ -583,6 +583,20 @@ static int dm_test_ofnode_conf(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_conf, 0);
 
+static int dm_test_ofnode_options(struct unit_test_state *uts)
+{
+	u64 bootscr_address;
+	u64 bootscr_offset;
+
+	ut_assertok(ofnode_read_bootscript_address(&bootscr_address,
+						   &bootscr_offset));
+	ut_asserteq_64(0, bootscr_address);
+	ut_asserteq_64(0x12345678, bootscr_offset);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_options, 0);
+
 static int dm_test_ofnode_for_each_compatible_node(struct unit_test_state *uts)
 {
 	const char compatible[] = "denx,u-boot-fdt-test";
