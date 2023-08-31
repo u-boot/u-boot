@@ -151,6 +151,7 @@ static void serial_find_console_or_panic(void)
 #ifdef CONFIG_REQUIRE_SERIAL_CONSOLE
 	panic_str("No serial driver found");
 #endif
+	gd->cur_serial_dev = NULL;
 }
 #endif /* CONFIG_SERIAL_PRESENT */
 

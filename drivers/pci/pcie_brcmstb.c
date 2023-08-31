@@ -33,6 +33,9 @@
 #define PCIE_RC_CFG_PRIV1_ID_VAL3			0x043c
 #define  CFG_PRIV1_ID_VAL3_CLASS_CODE_MASK		0xffffff
 
+#define PCIE_RC_CFG_PRIV1_LINK_CAPABILITY			0x04dc
+#define  PCIE_RC_CFG_PRIV1_LINK_CAPABILITY_ASPM_SUPPORT_MASK	0xc00
+
 #define PCIE_RC_DL_MDIO_ADDR				0x1100
 #define PCIE_RC_DL_MDIO_WR_DATA				0x1104
 #define PCIE_RC_DL_MDIO_RD_DATA				0x1108
@@ -88,7 +91,6 @@
 	 PCIE_MISC_CPU_2_PCIE_MEM_WIN0_LIMIT_HI + ((win) * 8)
 
 #define PCIE_MISC_HARD_PCIE_HARD_DEBUG			0x4204
-#define  PCIE_HARD_DEBUG_CLKREQ_DEBUG_ENABLE_MASK	0x2
 #define  PCIE_HARD_DEBUG_SERDES_IDDQ_MASK		0x08000000
 
 #define PCIE_MSI_INTR2_CLR				0x4508
@@ -222,6 +224,10 @@ static int brcm_pcie_config_address(const struct udevice *dev, pci_dev_t bdf,
 		*paddress = pcie->base + offset;
 		return 0;
 	}
+
+	/* An access to our HW w/o link-up will cause a CPU Abort */
+	if (!brcm_pcie_link_up(pcie))
+		return -EINVAL;
 
 	/* For devices, write to the config space index register */
 	idx = PCIE_ECAM_OFFSET(pci_bus, pci_dev, pci_func, 0);
@@ -505,6 +511,12 @@ static int brcm_pcie_probe(struct udevice *dev)
 	clrbits_le32(pcie->base + PCIE_RGR1_SW_INIT_1,
 		     RGR1_SW_INIT_1_PERST_MASK);
 
+	/*
+	 * Wait for 100ms after PERST# deassertion; see PCIe CEM specification
+	 * sections 2.2, PCIe r5.0, 6.6.1.
+	 */
+	mdelay(100);
+
 	/* Give the RC/EP time to wake up, before trying to configure RC.
 	 * Intermittently check status for link-up, up to a total of 100ms.
 	 */
@@ -562,12 +574,18 @@ static int brcm_pcie_probe(struct udevice *dev)
 	clrsetbits_le32(base + PCIE_RC_CFG_VENDOR_SPECIFIC_REG1,
 			VENDOR_SPECIFIC_REG1_ENDIAN_MODE_BAR2_MASK,
 			VENDOR_SPECIFIC_REG1_LITTLE_ENDIAN);
+
 	/*
-	 * Refclk from RC should be gated with CLKREQ# input when ASPM L0s,L1
-	 * is enabled => setting the CLKREQ_DEBUG_ENABLE field to 1.
+	 * We used to enable the CLKREQ# input here, but a few PCIe cards don't
+	 * attach anything to the CLKREQ# line, so we shouldn't assume that
+	 * it's connected and working. The controller does allow detecting
+	 * whether the port on the other side of our link is/was driving this
+	 * signal, so we could check before we assume. But because this signal
+	 * is for power management, which doesn't make sense in a bootloader,
+	 * let's instead just unadvertise ASPM support.
 	 */
-	setbits_le32(base + PCIE_MISC_HARD_PCIE_HARD_DEBUG,
-		     PCIE_HARD_DEBUG_CLKREQ_DEBUG_ENABLE_MASK);
+	clrbits_le32(base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY,
+		     PCIE_RC_CFG_PRIV1_LINK_CAPABILITY_ASPM_SUPPORT_MASK);
 
 	return 0;
 }

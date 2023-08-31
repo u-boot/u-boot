@@ -16,23 +16,6 @@
 #include "nvmxip.h"
 
 /**
- * nvmxip_mmio_rawread() - read from the XIP flash
- * @address:	address of the data
- * @value:	pointer to where storing the value read
- *
- * Read raw data from the XIP flash.
- *
- * Return:
- *
- * Always return 0.
- */
-static int nvmxip_mmio_rawread(const phys_addr_t address, u64 *value)
-{
-	*value = readq(address);
-	return 0;
-}
-
-/**
  * nvmxip_blk_read() - block device read operation
  * @dev:	the block device
  * @blknr:	first block number to read from
@@ -49,15 +32,14 @@ static ulong nvmxip_blk_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcn
 {
 	struct nvmxip_plat *plat = dev_get_plat(dev->parent);
 	struct blk_desc *desc = dev_get_uclass_plat(dev);
-	/* number of the u64 words to read */
-	u32 qwords = (blkcnt * desc->blksz) / sizeof(u64);
+	/* number of bytes to read */
+	u32 size = blkcnt * desc->blksz;
 	/* physical address of the first block to read */
 	phys_addr_t blkaddr = plat->phys_base + blknr * desc->blksz;
-	u64 *virt_blkaddr;
-	u64 *pdst = buffer;
+	void *virt_blkaddr;
 	uint qdata_idx;
 
-	if (!pdst)
+	if (!buffer)
 		return -EINVAL;
 
 	log_debug("[%s]: reading from blknr: %lu , blkcnt: %lu\n", dev->name, blknr, blkcnt);
@@ -66,12 +48,16 @@ static ulong nvmxip_blk_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcn
 
 	/* assumption: the data is virtually contiguous */
 
-	for (qdata_idx = 0 ; qdata_idx < qwords ; qdata_idx++)
-		nvmxip_mmio_rawread((phys_addr_t)(virt_blkaddr + qdata_idx), pdst++);
-
+#if IS_ENABLED(CONFIG_PHYS_64BIT)
+	for (qdata_idx = 0 ; qdata_idx < size; qdata_idx += sizeof(u64))
+		*(u64 *)(buffer + qdata_idx) = readq(virt_blkaddr + qdata_idx);
+#else
+	for (qdata_idx = 0 ; qdata_idx < size; qdata_idx += sizeof(u32))
+		*(u32 *)(buffer + qdata_idx) = readl(virt_blkaddr + qdata_idx);
+#endif
 	log_debug("[%s]:     src[0]: 0x%llx , dst[0]: 0x%llx , src[-1]: 0x%llx , dst[-1]: 0x%llx\n",
 		  dev->name,
-		  *virt_blkaddr,
+		  *(u64 *)virt_blkaddr,
 		  *(u64 *)buffer,
 		  *(u64 *)((u8 *)virt_blkaddr + desc->blksz * blkcnt - sizeof(u64)),
 		  *(u64 *)((u8 *)buffer + desc->blksz * blkcnt - sizeof(u64)));

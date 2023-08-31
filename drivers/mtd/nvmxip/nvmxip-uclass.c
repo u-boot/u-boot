@@ -22,26 +22,12 @@
 
 #define DEFAULT_LBA_SZ BIT(DEFAULT_LBA_SHIFT)
 
-/**
- * nvmxip_post_bind() - post binding treatments
- * @dev:	the NVMXIP device
- *
- * Create and probe a child block device.
- *
- * Return:
- *
- * 0 on success. Otherwise, failure
- */
-static int nvmxip_post_bind(struct udevice *udev)
+int nvmxip_probe(struct udevice *udev)
 {
 	int ret;
 	struct udevice *bdev = NULL;
 	char bdev_name[NVMXIP_BLKDEV_NAME_SZ + 1];
 	int devnum;
-
-#if CONFIG_IS_ENABLED(SANDBOX64)
-	sandbox_set_enable_memio(true);
-#endif
 
 	devnum = uclass_id_count(UCLASS_NVMXIP);
 	snprintf(bdev_name, NVMXIP_BLKDEV_NAME_SZ, "blk#%d", devnum);
@@ -64,6 +50,12 @@ static int nvmxip_post_bind(struct udevice *udev)
 
 	log_info("[%s]: the block device %s ready for use\n", udev->name, bdev_name);
 
+	return 0;
+}
+
+static int nvmxip_post_bind(struct udevice *udev)
+{
+	dev_or_flags(udev, DM_FLAG_PROBE_AFTER_BIND);
 	return 0;
 }
 
