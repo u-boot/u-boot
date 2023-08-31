@@ -526,7 +526,7 @@ int generic_setup_phy(struct udevice *dev, struct phy *phy, int index)
 
 		ret = generic_phy_power_on(phy);
 		if (ret)
-			ret = generic_phy_exit(phy);
+			generic_phy_exit(phy);
 	}
 
 	return ret;

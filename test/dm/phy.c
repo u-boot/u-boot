@@ -234,3 +234,27 @@ static int dm_test_phy_multi_exit(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_phy_multi_exit, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_phy_setup(struct unit_test_state *uts)
+{
+	struct phy phy;
+	struct udevice *parent;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_SIMPLE_BUS,
+					      "gen_phy_user", &parent));
+
+	/* normal */
+	ut_assertok(generic_setup_phy(parent, &phy, 0));
+	ut_assertok(generic_shutdown_phy(&phy));
+
+	/* power_off fail with -EIO */
+	ut_assertok(generic_setup_phy(parent, &phy, 1));
+	ut_asserteq(-EIO, generic_shutdown_phy(&phy));
+
+	/* power_on fail with -EIO */
+	ut_asserteq(-EIO, generic_setup_phy(parent, &phy, 2));
+	ut_assertok(generic_shutdown_phy(&phy));
+
+	return 0;
+}
+DM_TEST(dm_test_phy_setup, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
