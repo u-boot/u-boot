@@ -211,6 +211,9 @@ int generic_phy_get_by_name(struct udevice *dev, const char *phy_name,
 
 	debug("%s(dev=%p, name=%s, phy=%p)\n", __func__, dev, phy_name, phy);
 
+	assert(phy);
+	phy->dev = NULL;
+
 	index = dev_read_stringlist_search(dev, "phy-names", phy_name);
 	if (index < 0) {
 		debug("dev_read_stringlist_search() failed: %d\n", index);
