@@ -353,7 +353,7 @@ void *spl_load_simple_fit_fix_load(const void *fit)
 	debug("%s: ivt: %p offset: %lx size: %lx\n", __func__, ivt, offset, size);
 	debug("%s: ivt self: %x\n", __func__, ivt->self);
 
-	if (imx_hab_authenticate_image((uintptr_t)fit, (uintptr_t)ivt, offset))
+	if (imx_hab_authenticate_image((uintptr_t)fit, (uintptr_t)size, offset))
 		panic("spl: ERROR: image authentication unsuccessful\n");
 
 	return (void *)fit;
