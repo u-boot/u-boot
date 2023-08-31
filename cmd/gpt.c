@@ -970,6 +970,81 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
 	free(partitions_list);
 	return ret;
 }
+
+/**
+ * gpt_set_bootable() - Set bootable flags for partitions
+ *
+ * Sets the bootable flag for any partition names in the comma separated list of
+ * partition names. Any partitions not in the list have their bootable flag
+ * cleared
+ *
+ * @desc: block device descriptor
+ * @name: Comma separated list of partition names
+ *
+ * @Return: '0' on success and -ve error on failure
+ */
+static int gpt_set_bootable(struct blk_desc *blk_dev_desc, char *const part_list)
+{
+	char *name;
+	char disk_guid[UUID_STR_LEN + 1];
+	struct list_head *pos;
+	struct disk_part *curr;
+	struct disk_partition *partitions = NULL;
+	int part_count = 0;
+	int ret = get_disk_guid(blk_dev_desc, disk_guid);
+
+	if (ret < 0)
+		return ret;
+
+	ret = get_gpt_info(blk_dev_desc);
+	if (ret <= 0)
+		goto out;
+
+	part_count = ret;
+	partitions = malloc(sizeof(*partitions) * part_count);
+	if (!partitions) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	/* Copy partitions and clear bootable flag */
+	part_count = 0;
+	list_for_each(pos, &disk_partitions) {
+		curr = list_entry(pos, struct disk_part, list);
+		partitions[part_count] = curr->gpt_part_info;
+		partitions[part_count].bootable &= ~PART_BOOTABLE;
+		part_count++;
+	}
+
+	name = strtok(part_list, ",");
+	while (name) {
+		bool found = false;
+
+		for (int i = 0; i < part_count; i++) {
+			if (strcmp((char *)partitions[i].name, name) == 0) {
+				partitions[i].bootable |= PART_BOOTABLE;
+				found = true;
+			}
+		}
+
+		if (!found) {
+			printf("Warning: No partition matching '%s' found\n",
+			       name);
+		}
+
+		name = strtok(NULL, ",");
+	}
+
+	ret = gpt_restore(blk_dev_desc, disk_guid, partitions, part_count);
+
+out:
+	del_gpt_info();
+
+	if (partitions)
+		free(partitions);
+
+	return ret;
+}
 #endif
 
 /**
@@ -1029,6 +1104,8 @@ static int do_gpt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	} else if ((strcmp(argv[1], "swap") == 0) ||
 		   (strcmp(argv[1], "rename") == 0)) {
 		ret = do_rename_gpt_parts(blk_dev_desc, argv[1], argv[4], argv[5]);
+	} else if ((strcmp(argv[1], "set-bootable") == 0)) {
+		ret = gpt_set_bootable(blk_dev_desc, argv[4]);
 #endif
 	} else {
 		return CMD_RET_USAGE;
@@ -1080,8 +1157,11 @@ U_BOOT_CMD(gpt, CONFIG_SYS_MAXARGS, 1, do_gpt,
 	"      and vice-versa\n"
 	" gpt rename <interface> <dev> <part> <name>\n"
 	"    - rename the specified partition\n"
+	" gpt set-bootable <interface> <dev> <list>\n"
+	"    - make partition names in list bootable\n"
 	" Example usage:\n"
 	" gpt swap mmc 0 foo bar\n"
 	" gpt rename mmc 0 3 foo\n"
+	" gpt set-bootable mmc 0 boot_a,boot_b\n"
 #endif
 );

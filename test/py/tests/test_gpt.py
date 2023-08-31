@@ -222,6 +222,28 @@ def test_gpt_swap_partitions(state_disk_image, u_boot_console):
     assert '0x00000800	0x00000fff	"part2"' in output
     assert '0x00001000	0x00001bff	"part1"' in output
 
+@pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.buildconfigspec('cmd_gpt_rename')
+@pytest.mark.buildconfigspec('cmd_part')
+@pytest.mark.requiredtool('sgdisk')
+def test_gpt_set_bootable(state_disk_image, u_boot_console):
+    """Test the gpt set-bootable command."""
+
+    u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
+    parts = ('part2', 'part1')
+    for bootable in parts:
+        output = u_boot_console.run_command(f'gpt set-bootable host 0 {bootable}')
+        assert 'success!' in output
+
+        for p in parts:
+            output = u_boot_console.run_command(f'gpt setenv host 0 {p}')
+            assert 'success!' in output
+            output = u_boot_console.run_command('echo ${gpt_partition_bootable}')
+            if p == bootable:
+                assert output.rstrip() == '1'
+            else:
+                assert output.rstrip() == '0'
+
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
 @pytest.mark.buildconfigspec('cmd_part')

@@ -13,6 +13,7 @@ Synopsis
     gpt read <interface> <dev> [<varname>]
     gpt rename <interface> <dev> <part> <name>
     gpt repair <interface> <dev>
+    gpt set-bootable <interface> <dev> <partition list>
     gpt setenv <interface> <dev> <partition name>
     gpt swap <interface> <dev> <name1> <name2>
     gpt verify <interface> <dev> [<partition string>]
@@ -89,6 +90,13 @@ gpt repair
 ~~~~~~~~~~
 
 Repairs the GPT partition tables if it they become corrupted.
+
+gpt set-bootable
+~~~~~~~~~~~~~~~~
+
+Sets the bootable flag for all partitions in the table. If the partition name
+is in 'partition list' (separated by ','), the bootable flag is set, otherwise
+it is cleared. CONFIG_CMD_GPT_RENAME=y is required.
 
 gpt setenv
 ~~~~~~~~~~
@@ -187,3 +195,7 @@ Get the GUID for a disk::
     => gpt guid mmc gpt_disk_uuid
     => echo ${gpt_disk_uuid}
     bec9fc2a-86c1-483d-8a0e-0109732277d7
+
+Set the bootable flag for the 'boot' partition and clear it for all others::
+
+    => gpt set-bootable mmc 0 boot
