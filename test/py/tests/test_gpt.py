@@ -16,6 +16,35 @@ the test.
 # Mark all tests here as slow
 pytestmark = pytest.mark.slow
 
+def parse_gpt_parts(disk_str):
+    """Parser a partition string into a list of partitions.
+
+    Args:
+        disk_str: The disk description string, as returned by `gpt read`
+
+    Returns:
+        A list of parsed partitions. Each partition is a dictionary with the
+        string value from each specified key in the partition description, or a
+        key with with the value True for a boolean flag
+    """
+    parts = []
+    for part_str in disk_str.split(';'):
+        part = {}
+        for option in part_str.split(","):
+            if not option:
+                continue
+
+            if "=" in option:
+                key, value = option.split("=")
+                part[key] = value
+            else:
+                part[option] = True
+
+        if part:
+            parts.append(part)
+
+    return parts
+
 class GptTestDiskImage(object):
     """Disk Image used by the GPT tests."""
 
@@ -49,11 +78,13 @@ class GptTestDiskImage(object):
                 u_boot_utils.run_and_log(u_boot_console, cmd)
                 # part1 offset 1MB size 1MB
                 cmd = ('sgdisk', '--new=1:2048:4095', '--change-name=1:part1',
+                    '--partition-guid=1:33194895-67f6-4561-8457-6fdeed4f50a3',
                     '-A 1:set:2',
                     persistent)
                 # part2 offset 2MB size 1.5MB
                 u_boot_utils.run_and_log(u_boot_console, cmd)
                 cmd = ('sgdisk', '--new=2:4096:7167', '--change-name=2:part2',
+                    '--partition-guid=2:cc9c6e4a-6551-4cb5-87be-3210f96c86fb',
                     persistent)
                 u_boot_utils.run_and_log(u_boot_console, cmd)
                 cmd = ('sgdisk', '--load-backup=' + persistent)
@@ -87,6 +118,40 @@ def test_gpt_read(state_disk_image, u_boot_console):
     output = u_boot_console.run_command('part list host 0')
     assert '0x00000800	0x00000fff	"part1"' in output
     assert '0x00001000	0x00001bff	"part2"' in output
+
+@pytest.mark.boardspec('sandbox')
+@pytest.mark.buildconfigspec('cmd_gpt')
+@pytest.mark.buildconfigspec('partition_type_guid')
+@pytest.mark.requiredtool('sgdisk')
+def test_gpt_read_var(state_disk_image, u_boot_console):
+    """Test the gpt read command."""
+
+    u_boot_console.run_command('host bind 0 ' + state_disk_image.path)
+    output = u_boot_console.run_command('gpt read host 0 gpt_parts')
+    assert 'success!' in output
+
+    output = u_boot_console.run_command('echo ${gpt_parts}')
+    parts = parse_gpt_parts(output.rstrip())
+
+    assert parts == [
+        {
+            "uuid_disk": "375a56f7-d6c9-4e81-b5f0-09d41ca89efe",
+        },
+        {
+            "name": "part1",
+            "start": "0x100000",
+            "size": "0x100000",
+            "type": "0fc63daf-8483-4772-8e79-3d69d8477de4",
+            "uuid": "33194895-67f6-4561-8457-6fdeed4f50a3",
+        },
+        {
+            "name": "part2",
+            "start": "0x200000",
+            "size": "0x180000",
+            "type": "0fc63daf-8483-4772-8e79-3d69d8477de4",
+            "uuid": "cc9c6e4a-6551-4cb5-87be-3210f96c86fb",
+        },
+    ]
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_gpt')
