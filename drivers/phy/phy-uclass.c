@@ -517,8 +517,8 @@ int generic_setup_phy(struct udevice *dev, struct phy *phy, int index)
 
 	ret = generic_phy_get_by_index(dev, index, phy);
 	if (ret) {
-		if (ret != -ENOENT)
-			return ret;
+		if (ret == -ENOENT)
+			return 0;
 	} else {
 		ret = generic_phy_init(phy);
 		if (ret)

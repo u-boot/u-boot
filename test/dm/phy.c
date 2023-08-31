@@ -255,6 +255,11 @@ static int dm_test_phy_setup(struct unit_test_state *uts)
 	ut_asserteq(-EIO, generic_setup_phy(parent, &phy, 2));
 	ut_assertok(generic_shutdown_phy(&phy));
 
+	/* generic_phy_get_by_index fail with -ENOENT */
+	ut_asserteq(-ENOENT, generic_phy_get_by_index(parent, 3, &phy));
+	ut_assertok(generic_setup_phy(parent, &phy, 3));
+	ut_assertok(generic_shutdown_phy(&phy));
+
 	return 0;
 }
 DM_TEST(dm_test_phy_setup, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
