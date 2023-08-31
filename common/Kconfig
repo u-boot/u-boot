@@ -720,6 +720,7 @@ config SYS_FSL_CLK
 
 config LAST_STAGE_INIT
 	bool "Call board-specific as last setup step"
+	select EVENT
 	help
 	  Some boards need to perform initialisation immediately before control
 	  is passed to the command-line interpreter (e.g. for initializations

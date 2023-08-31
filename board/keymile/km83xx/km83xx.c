@@ -15,6 +15,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <event.h>
 #include <fdt_support.h>
 #include <init.h>
 #include <ioports.h>
@@ -184,7 +185,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 #if defined(CONFIG_TARGET_KMCOGE5NE)
 	/*
@@ -202,6 +203,7 @@ int last_stage_init(void)
 	set_km_env();
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 
 static int fixed_sdram(void)
 {

@@ -91,7 +91,7 @@ static void dummy_pending_ipi_clear(ulong hart, ulong arg0, ulong arg1)
 }
 #endif
 
-int riscv_cpu_setup(void *ctx, struct event *event)
+int riscv_cpu_setup(void)
 {
 	int ret;
 
@@ -145,7 +145,7 @@ int riscv_cpu_setup(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT_F, riscv_cpu_setup);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, riscv_cpu_setup);
 
 int arch_early_init_r(void)
 {

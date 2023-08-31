@@ -9,6 +9,7 @@
 #include <cpu_func.h>
 #include <dm.h>
 #include <env.h>
+#include <event.h>
 #include <init.h>
 #include <log.h>
 #include <net.h>
@@ -184,7 +185,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 	void *fdt = get_fdt_virt();
 	int len = 0;
@@ -204,6 +205,7 @@ int last_stage_init(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 
 static uint64_t get_linear_ram_size(void)
 {

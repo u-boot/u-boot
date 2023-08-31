@@ -618,7 +618,7 @@ int fwu_trial_state_ctr_start(void)
 	return ret;
 }
 
-static int fwu_boottime_checks(void *ctx, struct event *event)
+static int fwu_boottime_checks(void)
 {
 	int ret;
 	u32 boot_idx, active_idx;
@@ -682,4 +682,4 @@ static int fwu_boottime_checks(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_MAIN_LOOP, fwu_boottime_checks);
+EVENT_SPY_SIMPLE(EVT_MAIN_LOOP, fwu_boottime_checks);

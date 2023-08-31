@@ -280,13 +280,6 @@ static int init_func_i2c(void)
 }
 #endif
 
-#if defined(CONFIG_VID)
-__weak int init_func_vid(void)
-{
-	return 0;
-}
-#endif
-
 static int setup_mon_len(void)
 {
 #if defined(__ARM__) || defined(__MICROBLAZE__)
@@ -836,11 +829,6 @@ __weak int clear_bss(void)
 	return 0;
 }
 
-static int misc_init_f(void)
-{
-	return event_notify_null(EVT_MISC_INIT_F);
-}
-
 static const init_fnc_t init_sequence_f[] = {
 	setup_mon_len,
 #ifdef CONFIG_OF_CONTROL
@@ -860,9 +848,7 @@ static const init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_CONSOLE_RECORD_INIT_F)
 	console_record_init,
 #endif
-#if defined(CONFIG_HAVE_FSP)
-	arch_fsp_init,
-#endif
+	INITCALL_EVENT(EVT_FSP_INIT_F),
 	arch_cpu_init,		/* basic arch cpu dependent setup */
 	mach_cpu_init,		/* SoC/machine dependent CPU setup */
 	initf_dm,
@@ -899,13 +885,10 @@ static const init_fnc_t init_sequence_f[] = {
 	show_board_info,
 #endif
 	INIT_FUNC_WATCHDOG_INIT
-	misc_init_f,
+	INITCALL_EVENT(EVT_MISC_INIT_F),
 	INIT_FUNC_WATCHDOG_RESET
 #if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 	init_func_i2c,
-#endif
-#if defined(CONFIG_VID) && !defined(CONFIG_SPL)
-	init_func_vid,
 #endif
 	announce_dram_init,
 	dram_init,		/* configure available RAM banks */

@@ -35,6 +35,8 @@ const char *const type_name[] = {
 
 	/* init hooks */
 	"misc_init_f",
+	"fsp_init_r",
+	"last_stage_init",
 
 	/* Fpga load hook */
 	"fpga_load",
@@ -49,7 +51,7 @@ const char *const type_name[] = {
 _Static_assert(ARRAY_SIZE(type_name) == EVT_COUNT, "event type_name size");
 #endif
 
-static const char *event_type_name(enum event_t type)
+const char *event_type_name(enum event_t type)
 {
 #if CONFIG_IS_ENABLED(EVENT_DEBUG)
 	return type_name[type];
@@ -71,7 +73,14 @@ static int notify_static(struct event *ev)
 
 			log_debug("Sending event %x/%s to spy '%s'\n", ev->type,
 				  event_type_name(ev->type), event_spy_id(spy));
-			ret = spy->func(NULL, ev);
+			if (spy->flags & EVSPYF_SIMPLE) {
+				const struct evspy_info_simple *simple;
+
+				simple = (struct evspy_info_simple *)spy;
+				ret = simple->func();
+			} else {
+				ret = spy->func(NULL, ev);
+			}
 
 			/*
 			 * TODO: Handle various return codes to

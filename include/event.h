@@ -32,6 +32,27 @@ enum event_t {
 	/* Init hooks */
 	EVT_MISC_INIT_F,
 
+	/*
+	 * Emitted before relocation to set up Firmware Support Package
+	 *
+	 * Where U-Boot relies on binary blobs to handle part of the system
+	 * init, this event can be used to set up the blobs. This is used on
+	 * some Intel platforms
+	 */
+	EVT_FSP_INIT_F,
+
+	/*
+	 * Emitted just before jumping to the main loop
+	 *
+	 * Some boards need to perform initialisation immediately before control
+	 * is passed to the command-line interpreter (e.g. for init that depend
+	 * on later phases in the init sequence).
+	 *
+	 * Some parts can be only initialized if all others (like Interrupts)
+	 * are up and running (e.g. the PC-style ISA keyboard).
+	 */
+	EVT_LAST_STAGE_INIT,
+
 	/* Fpga load hook */
 	EVT_FPGA_LOAD,
 
@@ -99,19 +120,48 @@ struct event {
 	union event_data data;
 };
 
+/* Flags for event spy */
+enum evspy_flags {
+	EVSPYF_SIMPLE	= 1 << 0,
+};
+
 /** Function type for event handlers */
 typedef int (*event_handler_t)(void *ctx, struct event *event);
+
+/** Function type for simple event handlers */
+typedef int (*event_handler_simple_t)(void);
 
 /**
  * struct evspy_info - information about an event spy
  *
  * @func: Function to call when the event is activated (must be first)
  * @type: Event type
+ * @flag: Flags for this spy
  * @id: Event id string
  */
 struct evspy_info {
 	event_handler_t func;
-	enum event_t type;
+	u8 type;
+	u8 flags;
+#if CONFIG_IS_ENABLED(EVENT_DEBUG)
+	const char *id;
+#endif
+};
+
+/**
+ * struct evspy_info_simple - information about an event spy
+ *
+ * THis is the 'simple' record, the only difference being the handler function
+ *
+ * @func: Function to call when the event is activated (must be first)
+ * @type: Event type
+ * @flag: Flags for this spy
+ * @id: Event id string
+ */
+struct evspy_info_simple {
+	event_handler_simple_t func;
+	u8 type;
+	u8 flags;
 #if CONFIG_IS_ENABLED(EVENT_DEBUG)
 	const char *id;
 #endif
@@ -119,9 +169,11 @@ struct evspy_info {
 
 /* Declare a new event spy */
 #if CONFIG_IS_ENABLED(EVENT_DEBUG)
-#define _ESPY_REC(_type, _func)   { _func, _type, #_func, }
+#define _ESPY_REC(_type, _func)   { _func, _type, 0, #_func, }
+#define _ESPY_REC_SIMPLE(_type, _func)  { _func, _type, EVSPYF_SIMPLE, #_func, }
 #else
 #define _ESPY_REC(_type, _func)   { _func, _type, }
+#define _ESPY_REC_SIMPLE(_type, _func)  { _func, _type, EVSPYF_SIMPLE }
 #endif
 
 static inline const char *event_spy_id(struct evspy_info *spy)
@@ -164,9 +216,15 @@ static inline const char *event_spy_id(struct evspy_info *spy)
  * away the linker-list entry sometimes, e.g. with the EVT_FT_FIXUP entry in
  * vbe_simple.c - so for now, make it global.
  */
-#define EVENT_SPY(_type, _func) \
+#define EVENT_SPY_FULL(_type, _func) \
 	__used ll_entry_declare(struct evspy_info, _type ## _3_ ## _func, \
 		evspy_info) = _ESPY_REC(_type, _func)
+
+/* Simple spy with no function arguemnts */
+#define EVENT_SPY_SIMPLE(_type, _func) \
+	__used ll_entry_declare(struct evspy_info_simple, \
+		_type ## _3_ ## _func, \
+		evspy_info) = _ESPY_REC_SIMPLE(_type, _func)
 
 /**
  * event_register - register a new spy
@@ -192,6 +250,14 @@ void event_show_spy_list(void);
  * Return: 0 if OK
  */
 int event_manual_reloc(void);
+
+/**
+ * event_type_name() - Get the name of an event type
+ *
+ * @type: Type to check
+ * Return: Name of event, or "(unknown)" if not known
+ */
+const char *event_type_name(enum event_t type);
 
 /**
  * event_notify() - notify spies about an event

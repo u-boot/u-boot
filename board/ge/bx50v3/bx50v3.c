@@ -5,6 +5,7 @@
  * Copyright 2012 Freescale Semiconductor, Inc.
  */
 
+#include <event.h>
 #include <image.h>
 #include <init.h>
 #include <asm/arch/clock.h>
@@ -531,7 +532,7 @@ static void remove_ethaddr_env_var(int index)
 	env_set(env_var_name, NULL);
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 	int i;
 
@@ -544,6 +545,7 @@ int last_stage_init(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 
 int checkboard(void)
 {
