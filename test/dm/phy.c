@@ -49,11 +49,21 @@ static int dm_test_phy_base(struct unit_test_state *uts)
 	ut_assert(phy2.dev != phy3.dev);
 
 	/* Try to get a non-existing phy */
-	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_PHY, 4, &dev));
+	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_PHY, 5, &dev));
 	ut_asserteq(-ENODATA, generic_phy_get_by_name(parent,
 					"phy_not_existing", &phy1_method1));
 	ut_assert(!generic_phy_valid(&phy1_method1));
 	ut_asserteq(-ENOENT, generic_phy_get_by_index(parent, 3,
+						      &phy1_method2));
+	ut_assert(!generic_phy_valid(&phy1_method2));
+
+	/* Try to get a phy where of_xlate fail */
+	ut_assertok(uclass_get_device_by_name(UCLASS_SIMPLE_BUS,
+					      "gen_phy_user2", &parent));
+	ut_asserteq(-EINVAL, generic_phy_get_by_name(parent, "phy1",
+						     &phy1_method1));
+	ut_assert(!generic_phy_valid(&phy1_method1));
+	ut_asserteq(-EINVAL, generic_phy_get_by_index(parent, 0,
 						      &phy1_method2));
 	ut_assert(!generic_phy_valid(&phy1_method2));
 

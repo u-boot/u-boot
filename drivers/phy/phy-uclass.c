@@ -195,6 +195,7 @@ int generic_phy_get_by_index_nodev(ofnode node, int index, struct phy *phy)
 	return 0;
 
 err:
+	phy->dev = NULL;
 	return ret;
 }
 
