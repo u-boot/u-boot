@@ -143,6 +143,7 @@ def test_gpt_read_var(state_disk_image, u_boot_console):
             "size": "0x100000",
             "type": "0fc63daf-8483-4772-8e79-3d69d8477de4",
             "uuid": "33194895-67f6-4561-8457-6fdeed4f50a3",
+            "bootable": True,
         },
         {
             "name": "part2",
