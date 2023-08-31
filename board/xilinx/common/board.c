@@ -411,6 +411,7 @@ int board_late_init_xilinx(void)
 	int i, id, macid = 0;
 	struct xilinx_board_description *desc;
 	phys_size_t bootm_size = gd->ram_top - gd->ram_base;
+	u64 bootscr_flash_offset, bootscr_flash_size;
 
 	if (!IS_ENABLED(CONFIG_MICROBLAZE)) {
 		ulong scriptaddr;
@@ -435,10 +436,18 @@ int board_late_init_xilinx(void)
 		}
 	}
 
+	if (!ofnode_read_bootscript_flash(&bootscr_flash_offset,
+					  &bootscr_flash_size)) {
+		ret |= env_set_hex("script_offset_f", bootscr_flash_offset);
+		ret |= env_set_hex("script_size_f", bootscr_flash_size);
+	} else {
+		debug("!!! Please define bootscr-flash-offset via DT !!!\n");
+		ret |= env_set_hex("script_offset_f",
+				   CONFIG_BOOT_SCRIPT_OFFSET);
+	}
+
 	if (IS_ENABLED(CONFIG_ARCH_ZYNQ) || IS_ENABLED(CONFIG_MICROBLAZE))
 		bootm_size = min(bootm_size, (phys_size_t)(SZ_512M + SZ_256M));
-
-	ret |= env_set_hex("script_offset_f", CONFIG_BOOT_SCRIPT_OFFSET);
 
 	ret |= env_set_addr("bootm_low", (void *)gd->ram_base);
 	ret |= env_set_addr("bootm_size", (void *)bootm_size);
