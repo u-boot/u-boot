@@ -585,13 +585,18 @@ DM_TEST(dm_test_ofnode_conf, 0);
 
 static int dm_test_ofnode_options(struct unit_test_state *uts)
 {
-	u64 bootscr_address;
-	u64 bootscr_offset;
+	u64 bootscr_address, bootscr_offset;
+	u64 bootscr_flash_offset, bootscr_flash_size;
 
 	ut_assertok(ofnode_read_bootscript_address(&bootscr_address,
 						   &bootscr_offset));
 	ut_asserteq_64(0, bootscr_address);
 	ut_asserteq_64(0x12345678, bootscr_offset);
+
+	ut_assertok(ofnode_read_bootscript_flash(&bootscr_flash_offset,
+						 &bootscr_flash_size));
+	ut_asserteq_64(0, bootscr_flash_offset);
+	ut_asserteq_64(0x2000, bootscr_flash_size);
 
 	return 0;
 }

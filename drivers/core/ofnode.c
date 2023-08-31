@@ -1618,6 +1618,40 @@ int ofnode_read_bootscript_address(u64 *bootscr_address, u64 *bootscr_offset)
 	return 0;
 }
 
+int ofnode_read_bootscript_flash(u64 *bootscr_flash_offset,
+				 u64 *bootscr_flash_size)
+{
+	int ret;
+	ofnode uboot;
+
+	*bootscr_flash_offset = 0;
+	*bootscr_flash_size = 0;
+
+	uboot = ofnode_path("/options/u-boot");
+	if (!ofnode_valid(uboot)) {
+		printf("%s: Missing /u-boot node\n", __func__);
+		return -EINVAL;
+	}
+
+	ret = ofnode_read_u64(uboot, "bootscr-flash-offset",
+			      bootscr_flash_offset);
+	if (ret)
+		return -EINVAL;
+
+	ret = ofnode_read_u64(uboot, "bootscr-flash-size",
+			      bootscr_flash_size);
+	if (ret)
+		return -EINVAL;
+
+	if (!bootscr_flash_size) {
+		debug("bootscr-flash-size is zero. Ignoring properties!\n");
+		*bootscr_flash_offset = 0;
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 ofnode ofnode_get_phy_node(ofnode node)
 {
 	/* DT node properties that reference a PHY node */

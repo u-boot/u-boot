@@ -85,6 +85,8 @@
 		u-boot {
 			compatible = "u-boot,config";
 			bootscr-ram-offset = /bits/ 64 <0x12345678>;
+			bootscr-flash-offset = /bits/ 64 <0>;
+			bootscr-flash-size = /bits/ 64 <0x2000>;
 		};
 	};
 

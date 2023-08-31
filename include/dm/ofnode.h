@@ -1533,6 +1533,27 @@ const char *ofnode_conf_read_str(const char *prop_name);
  */
 int ofnode_read_bootscript_address(u64 *bootscr_address, u64 *bootscr_offset);
 
+/**
+ * ofnode_read_bootscript_flash() - Read bootscr-flash-offset/size
+ *
+ * @bootscr_flash_offset: pointer to 64bit offset where bootscr-flash-offset
+ * property value is stored
+ * @bootscr_flash_size: pointer to 64bit size where bootscr-flash-size property
+ * value is stored
+ *
+ * This reads a bootscr-flash-offset and bootscr-flash-size properties from
+ * the /options/u-boot/ node of the devicetree. bootscr-flash-offset holds
+ * the offset of the boot script file from start of flash. bootscr-flash-size
+ * holds the boot script size in flash. When bootscr-flash-size is not defined,
+ * bootscr-flash-offset property is cleaned.
+ *
+ * This only works with the control FDT.
+ *
+ * Return: 0 if OK, -EINVAL if property is not found or incorrect.
+ */
+int ofnode_read_bootscript_flash(u64 *bootscr_flash_offset,
+				 u64 *bootscr_flash_size);
+
 #else /* CONFIG_DM */
 static inline bool ofnode_conf_read_bool(const char *prop_name)
 {
@@ -1550,6 +1571,12 @@ static inline const char *ofnode_conf_read_str(const char *prop_name)
 }
 
 static inline int ofnode_read_bootscript_address(u64 *bootscr_address, u64 *bootscr_offset)
+{
+	return -EINVAL;
+}
+
+static inline int ofnode_read_bootscript_flash(u64 *bootscr_flash_offset,
+					       u64 *bootscr_flash_size)
 {
 	return -EINVAL;
 }
