@@ -14,6 +14,37 @@
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)
 #define MAX_UDC_DEVICES 4
 static struct udevice *dev_array[MAX_UDC_DEVICES];
+
+int udc_device_get_by_index(int index, struct udevice **udev)
+{
+	struct udevice *dev = NULL;
+	int ret;
+
+	ret = uclass_get_device_by_seq(UCLASS_USB_GADGET_GENERIC, index, &dev);
+	if (!ret && dev) {
+		*udev = dev;
+		return 0;
+	}
+
+	ret = uclass_get_device(UCLASS_USB_GADGET_GENERIC, index, &dev);
+	if (!ret && dev) {
+		*udev = dev;
+		return 0;
+	}
+
+	pr_err("No USB device found\n");
+	return -ENODEV;
+}
+
+int udc_device_put(struct udevice *udev)
+{
+#if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
+	return device_remove(udev, DM_REMOVE_NORMAL);
+#else
+	return -ENOSYS;
+#endif
+}
+
 int usb_gadget_initialize(int index)
 {
 	int ret;
@@ -23,13 +54,10 @@ int usb_gadget_initialize(int index)
 		return -EINVAL;
 	if (dev_array[index])
 		return 0;
-	ret = uclass_get_device_by_seq(UCLASS_USB_GADGET_GENERIC, index, &dev);
+	ret = udc_device_get_by_index(index, &dev);
 	if (!dev || ret) {
-		ret = uclass_get_device(UCLASS_USB_GADGET_GENERIC, index, &dev);
-		if (!dev || ret) {
-			pr_err("No USB device found\n");
-			return -ENODEV;
-		}
+		pr_err("No USB device found\n");
+		return -ENODEV;
 	}
 	dev_array[index] = dev;
 	return 0;
@@ -42,7 +70,7 @@ int usb_gadget_release(int index)
 	if (index < 0 || index >= ARRAY_SIZE(dev_array))
 		return -EINVAL;
 
-	ret = device_remove(dev_array[index], DM_REMOVE_NORMAL);
+	ret = device_remove(dev_array[index]);
 	if (!ret)
 		dev_array[index] = NULL;
 	return ret;
@@ -57,10 +85,25 @@ int usb_gadget_handle_interrupts(int index)
 		return -EINVAL;
 	return dm_usb_gadget_handle_interrupts(dev_array[index]);
 }
+#else
+/* Backwards hardware compatibility -- switch to DM_USB_GADGET */
+static int legacy_index;
+int udc_device_get_by_index(int index, struct udevice **udev)
+{
+	legacy_index = index;
+	return board_usb_init(index, USB_INIT_DEVICE);
+}
+
+int udc_device_put(struct udevice *udev)
+{
+	return board_usb_cleanup(legacy_index, USB_INIT_DEVICE);
+}
 #endif
 
+#if CONFIG_IS_ENABLED(DM)
 UCLASS_DRIVER(usb_gadget_generic) = {
 	.id		= UCLASS_USB_GADGET_GENERIC,
 	.name		= "usb",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
+#endif

@@ -970,6 +970,23 @@ extern void usb_ep_autoconfig_reset(struct usb_gadget *);
 
 extern int usb_gadget_handle_interrupts(int index);
 
+/**
+ * udc_device_get_by_index() - Get UDC udevice by index
+ * @index: UDC device index
+ * @udev: UDC udevice matching the index (if found)
+ *
+ * Return: 0 if Ok, -ve on error
+ */
+int udc_device_get_by_index(int index, struct udevice **udev);
+
+/**
+ * udc_device_put() - Put UDC udevice
+ * @udev: UDC udevice
+ *
+ * Return: 0 if Ok, -ve on error
+ */
+int udc_device_put(struct udevice *udev);
+
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)
 int usb_gadget_initialize(int index);
 int usb_gadget_release(int index);
