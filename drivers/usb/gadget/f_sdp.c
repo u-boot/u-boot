@@ -702,7 +702,7 @@ static int sdp_bind_config(struct usb_configuration *c)
 	return status;
 }
 
-int sdp_init(int controller_index)
+int sdp_init(struct udevice *udc)
 {
 	printf("SDP: initialize...\n");
 	while (!sdp_func->configuration_done) {
@@ -712,7 +712,7 @@ int sdp_init(int controller_index)
 		}
 
 		schedule();
-		usb_gadget_handle_interrupts(controller_index);
+		dm_usb_gadget_handle_interrupts(udc);
 	}
 
 	return 0;
@@ -911,9 +911,9 @@ static void sdp_handle_out_ep(void)
 }
 
 #ifndef CONFIG_SPL_BUILD
-int sdp_handle(int controller_index)
+int sdp_handle(struct udevice *udc)
 #else
-int spl_sdp_handle(int controller_index, struct spl_image_info *spl_image,
+int spl_sdp_handle(struct udevice *udc, struct spl_image_info *spl_image,
 		   struct spl_boot_device *bootdev)
 #endif
 {
@@ -929,7 +929,7 @@ int spl_sdp_handle(int controller_index, struct spl_image_info *spl_image,
 			return 0;
 
 		schedule();
-		usb_gadget_handle_interrupts(controller_index);
+		dm_usb_gadget_handle_interrupts(udc);
 
 #ifdef CONFIG_SPL_BUILD
 		flag = sdp_handle_in_ep(spl_image, bootdev);
