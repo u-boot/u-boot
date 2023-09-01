@@ -34,7 +34,8 @@ int run_usb_dnl_gadget(int usbctrl_index, char *usb_dnl_gadget)
 	ret = g_dnl_register(usb_dnl_gadget);
 	if (ret) {
 		pr_err("g_dnl_register failed");
-		return CMD_RET_FAILURE;
+		ret = CMD_RET_FAILURE;
+		goto err_detach;
 	}
 
 #ifdef CONFIG_DFU_TIMEOUT
@@ -106,6 +107,7 @@ int run_usb_dnl_gadget(int usbctrl_index, char *usb_dnl_gadget)
 	}
 exit:
 	g_dnl_unregister();
+err_detach:
 	usb_gadget_release(usbctrl_index);
 
 	if (dfu_reset)
