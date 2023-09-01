@@ -1429,7 +1429,7 @@ static const struct at91_udc_caps at91sam9261_udc_caps = {
 };
 #endif
 
-int usb_gadget_handle_interrupts(int index)
+int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 {
 	struct at91_udc *udc = controller;
 

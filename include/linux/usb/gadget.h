@@ -968,7 +968,7 @@ extern struct usb_ep *usb_ep_autoconfig(struct usb_gadget *,
 
 extern void usb_ep_autoconfig_reset(struct usb_gadget *);
 
-extern int usb_gadget_handle_interrupts(int index);
+extern int dm_usb_gadget_handle_interrupts(struct udevice *);
 
 /**
  * udc_device_get_by_index() - Get UDC udevice by index

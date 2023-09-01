@@ -41,18 +41,6 @@ int udc_device_put(struct udevice *udev)
 	return -ENOSYS;
 #endif
 }
-
-int usb_gadget_handle_interrupts(int index)
-{
-	struct udevice *udc;
-	int ret;
-
-	ret = udc_device_get_by_index(index, &udc);
-	if (ret)
-		return ret;
-
-	return dm_usb_gadget_handle_interrupts(udc);
-}
 #else
 /* Backwards hardware compatibility -- switch to DM_USB_GADGET */
 static int legacy_index;

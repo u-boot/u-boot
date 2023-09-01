@@ -130,11 +130,6 @@ int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 	return 0;
 }
 #else
-int usb_gadget_handle_interrupts(int index)
-{
-	return 0;
-}
-
 int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 {
 	struct sandbox_udc *dev = this_controller;
