@@ -280,10 +280,10 @@ stages:
         displayName: 'Publish test.sh'
         artifact: testsh
 
-- stage: test_py
+- stage: test_py_sandbox
   jobs:
-  - job: test_py
-    displayName: 'test.py'
+  - job: test_py_sandbox
+    displayName: 'test.py for sandbox'
     pool:
       vmImage: $(ubuntu_vm)
     strategy:
@@ -320,6 +320,47 @@ stages:
           BUILD_ENV: "FTRACE=1 NO_LTO=1"
           TEST_PY_TEST_SPEC: "trace"
           OVERRIDE: "-a CONFIG_TRACE=y -a CONFIG_TRACE_EARLY=y -a CONFIG_TRACE_EARLY_SIZE=0x01000000 -a CONFIG_TRACE_BUFFER_SIZE=0x02000000"
+    steps:
+      - download: current
+        artifact: testsh
+      - script: |
+          # make current directory writeable to uboot user inside the container
+          # as sandbox testing need create files like spi flash images, etc.
+          # (TODO: clean up this in the future)
+          chmod 777 .
+          chmod 755 $(Pipeline.Workspace)/testsh/test.sh
+          # Filesystem tests need extra docker args to run
+          set --
+          # mount -o loop needs the loop devices
+          if modprobe loop; then
+              for d in $(find /dev -maxdepth 1 -name 'loop*'); do
+                  set -- "$@" --device $d:$d
+              done
+          fi
+          # Needed for mount syscall (for guestmount as well)
+          set -- "$@" --cap-add SYS_ADMIN
+          # Default apparmor profile denies mounts
+          set -- "$@" --security-opt apparmor=unconfined
+          # Some tests using libguestfs-tools need the fuse device to run
+          docker run "$@" --device /dev/fuse:/dev/fuse \
+                         -v $PWD:$(work_dir) \
+                         -v $(Pipeline.Workspace):$(Pipeline.Workspace) \
+                         -e WORK_DIR="${WORK_DIR}" \
+                         -e TEST_PY_BD="${TEST_PY_BD}" \
+                         -e TEST_PY_ID="${TEST_PY_ID}" \
+                         -e TEST_PY_TEST_SPEC="${TEST_PY_TEST_SPEC}" \
+                         -e OVERRIDE="${OVERRIDE}" \
+                         -e BUILD_ENV="${BUILD_ENV}" $(ci_runner_image) \
+                         $(Pipeline.Workspace)/testsh/test.sh
+
+- stage: test_py_qemu
+  jobs:
+  - job: test_py_qemu
+    displayName: 'test.py for QEMU platforms'
+    pool:
+      vmImage: $(ubuntu_vm)
+    strategy:
+      matrix:
         coreboot:
           TEST_PY_BD: "coreboot"
           TEST_PY_ID: "--id qemu"
@@ -424,20 +465,6 @@ stages:
           # (TODO: clean up this in the future)
           chmod 777 .
           chmod 755 $(Pipeline.Workspace)/testsh/test.sh
-          # Filesystem tests need extra docker args to run
-          set --
-          if [[ "${TEST_PY_BD}" == "sandbox" ]]; then
-              # mount -o loop needs the loop devices
-              if modprobe loop; then
-                  for d in $(find /dev -maxdepth 1 -name 'loop*'); do
-                      set -- "$@" --device $d:$d
-                  done
-              fi
-              # Needed for mount syscall (for guestmount as well)
-              set -- "$@" --cap-add SYS_ADMIN
-              # Default apparmor profile denies mounts
-              set -- "$@" --security-opt apparmor=unconfined
-          fi
           # Some tests using libguestfs-tools need the fuse device to run
           docker run "$@" --device /dev/fuse:/dev/fuse \
                          -v $PWD:$(work_dir) \
