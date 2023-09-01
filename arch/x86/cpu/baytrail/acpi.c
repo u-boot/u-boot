@@ -142,11 +142,7 @@ static int baytrail_write_fadt(struct acpi_ctx *ctx,
 
 	header->checksum = table_compute_checksum(fadt, header->length);
 
-	acpi_add_table(ctx, fadt);
-
-	acpi_inc(ctx, sizeof(struct acpi_fadt));
-
-	return 0;
+	return acpi_add_fadt(ctx, fadt);
 }
 ACPI_WRITER(5fadt, "FADT", baytrail_write_fadt, 0);
 
