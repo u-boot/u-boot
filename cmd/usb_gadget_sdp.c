@@ -14,13 +14,13 @@
 
 static int do_sdp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	int controller_index;
 	int ret;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	char *usb_controller = argv[1];
-	int controller_index = simple_strtoul(usb_controller, NULL, 0);
+	controller_index = simple_strtoul(argv[1], NULL, 0);
 	usb_gadget_initialize(controller_index);
 
 	g_dnl_clear_detach();
