@@ -203,6 +203,83 @@ stages:
     steps:
       - script: make pip
 
+  - job: create_test_py_wrapper_script
+    displayName: 'Create and stage a wrapper for test.py runs'
+    pool:
+      vmImage: $(ubuntu_vm)
+    steps:
+      - checkout: none
+      - script: |
+          cat << EOF > test.sh
+          #!/bin/bash
+          set -ex
+          # the below corresponds to .gitlab-ci.yml "before_script"
+          cd \${WORK_DIR}
+          git config --global --add safe.directory \${WORK_DIR}
+          git clone --depth=1 https://source.denx.de/u-boot/u-boot-test-hooks /tmp/uboot-test-hooks
+          ln -s travis-ci /tmp/uboot-test-hooks/bin/\`hostname\`
+          ln -s travis-ci /tmp/uboot-test-hooks/py/\`hostname\`
+          grub-mkimage --prefix=\"\" -o ~/grub_x86.efi -O i386-efi normal echo lsefimmap lsefi lsefisystab efinet tftp minicmd
+          grub-mkimage --prefix=\"\" -o ~/grub_x64.efi -O x86_64-efi normal echo lsefimmap lsefi lsefisystab efinet tftp minicmd
+          if [[ "\${TEST_PY_BD}" == "qemu-riscv32_spl" ]]; then
+              wget -O - https://github.com/riscv-software-src/opensbi/releases/download/v1.2/opensbi-1.2-rv-bin.tar.xz | tar -C /tmp -xJ;
+              export OPENSBI=/tmp/opensbi-1.2-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin;
+          fi
+          if [[ "\${TEST_PY_BD}" == "qemu-riscv64_spl" ]] || [[ "\${TEST_PY_BD}" == "sifive_unleashed" ]]; then
+              wget -O - https://github.com/riscv-software-src/opensbi/releases/download/v1.2/opensbi-1.2-rv-bin.tar.xz | tar -C /tmp -xJ;
+              export OPENSBI=/tmp/opensbi-1.2-rv-bin/share/opensbi/lp64/generic/firmware/fw_dynamic.bin;
+          fi
+          # the below corresponds to .gitlab-ci.yml "script"
+          cd \${WORK_DIR}
+          export UBOOT_TRAVIS_BUILD_DIR=/tmp/\${TEST_PY_BD}
+          if [ -n "\${BUILD_ENV}" ]; then
+              export \${BUILD_ENV};
+          fi
+          pip install -r tools/buildman/requirements.txt
+          tools/buildman/buildman -o \${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e --board \${TEST_PY_BD} \${OVERRIDE}
+          cp ~/grub_x86.efi \${UBOOT_TRAVIS_BUILD_DIR}/
+          cp ~/grub_x64.efi \${UBOOT_TRAVIS_BUILD_DIR}/
+          cp /opt/grub/grubriscv64.efi \${UBOOT_TRAVIS_BUILD_DIR}/grub_riscv64.efi
+          cp /opt/grub/grubaa64.efi \${UBOOT_TRAVIS_BUILD_DIR}/grub_arm64.efi
+          cp /opt/grub/grubarm.efi \${UBOOT_TRAVIS_BUILD_DIR}/grub_arm.efi
+          # create sdcard / spi-nor images for sifive unleashed using genimage
+          if [[ "\${TEST_PY_BD}" == "sifive_unleashed" ]]; then
+              mkdir -p root;
+              cp \${UBOOT_TRAVIS_BUILD_DIR}/spl/u-boot-spl.bin .;
+              cp \${UBOOT_TRAVIS_BUILD_DIR}/u-boot.itb .;
+              rm -rf tmp;
+              genimage --inputpath . --config board/sifive/unleashed/genimage_sdcard.cfg;
+              cp images/sdcard.img \${UBOOT_TRAVIS_BUILD_DIR}/;
+              rm -rf tmp;
+              genimage --inputpath . --config board/sifive/unleashed/genimage_spi-nor.cfg;
+              cp images/spi-nor.img \${UBOOT_TRAVIS_BUILD_DIR}/;
+          fi
+          if [[ "\${TEST_PY_BD}" == "coreboot" ]]; then
+              wget -O - "https://drive.google.com/uc?id=1uJ2VkUQ8czWFZmhJQ90Tp8V_zrJ6BrBH&export=download" |xz -dc >\${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom;
+              wget -O - "https://drive.google.com/uc?id=149Cz-5SZXHNKpi9xg6R_5XITWohu348y&export=download" >cbfstool;
+              chmod a+x cbfstool;
+              ./cbfstool \${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom add-flat-binary -f \${UBOOT_TRAVIS_BUILD_DIR}/u-boot.bin -n fallback/payload -c LZMA -l 0x1110000 -e 0x1110000;
+          fi
+          virtualenv -p /usr/bin/python3 /tmp/venv
+          . /tmp/venv/bin/activate
+          pip install -r test/py/requirements.txt
+          pip install pytest-azurepipelines
+          export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:\${PATH}
+          export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci
+          # "\${var:+"-k \$var"}" expands to "" if \$var is empty, "-k \$var" if not
+          ./test/py/test.py -ra -o cache_dir="\$UBOOT_TRAVIS_BUILD_DIR"/.pytest_cache --bd \${TEST_PY_BD} \${TEST_PY_ID} \${TEST_PY_TEST_SPEC:+"-k \${TEST_PY_TEST_SPEC}"} --build-dir "\$UBOOT_TRAVIS_BUILD_DIR" --report-dir "\$UBOOT_TRAVIS_BUILD_DIR"
+          # the below corresponds to .gitlab-ci.yml "after_script"
+          rm -rf /tmp/uboot-test-hooks /tmp/venv
+          EOF
+      - task: CopyFiles@2
+        displayName: 'Copy test.sh for later usage'
+        inputs:
+          contents: 'test.sh'
+          targetFolder: '$(Build.ArtifactStagingDirectory)'
+      - publish: '$(Build.ArtifactStagingDirectory)/test.sh'
+        displayName: 'Publish test.sh'
+        artifact: testsh
+
 - stage: test_py
   jobs:
   - job: test_py
@@ -339,81 +416,14 @@ stages:
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
     steps:
+      - download: current
+        artifact: testsh
       - script: |
-          cat << EOF > test.sh
-          set -ex
-          # make environment variables available as tests are running inside a container
-          export WORK_DIR="${WORK_DIR}"
-          export TEST_PY_BD="${TEST_PY_BD}"
-          export TEST_PY_ID="${TEST_PY_ID}"
-          export TEST_PY_TEST_SPEC="${TEST_PY_TEST_SPEC}"
-          export OVERRIDE="${OVERRIDE}"
-          export BUILD_ENV="${BUILD_ENV}"
-          EOF
-          cat << "EOF" >> test.sh
-          # the below corresponds to .gitlab-ci.yml "before_script"
-          cd ${WORK_DIR}
-          git config --global --add safe.directory ${WORK_DIR}
-          git clone --depth=1 https://source.denx.de/u-boot/u-boot-test-hooks /tmp/uboot-test-hooks
-          ln -s travis-ci /tmp/uboot-test-hooks/bin/`hostname`
-          ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
-          grub-mkimage --prefix=\"\" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
-          grub-mkimage --prefix=\"\" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
-          if [[ "${TEST_PY_BD}" == "qemu-riscv32_spl" ]]; then
-              wget -O - https://github.com/riscv-software-src/opensbi/releases/download/v1.2/opensbi-1.2-rv-bin.tar.xz | tar -C /tmp -xJ;
-              export OPENSBI=/tmp/opensbi-1.2-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin;
-          fi
-          if [[ "${TEST_PY_BD}" == "qemu-riscv64_spl" ]] || [[ "${TEST_PY_BD}" == "sifive_unleashed" ]]; then
-              wget -O - https://github.com/riscv-software-src/opensbi/releases/download/v1.2/opensbi-1.2-rv-bin.tar.xz | tar -C /tmp -xJ;
-              export OPENSBI=/tmp/opensbi-1.2-rv-bin/share/opensbi/lp64/generic/firmware/fw_dynamic.bin;
-          fi
-          # the below corresponds to .gitlab-ci.yml "script"
-          cd ${WORK_DIR}
-          export UBOOT_TRAVIS_BUILD_DIR=/tmp/${TEST_PY_BD};
-          if [ -n "${BUILD_ENV}" ]; then
-              export ${BUILD_ENV};
-          fi
-          pip install -r tools/buildman/requirements.txt
-          tools/buildman/buildman -o ${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e --board ${TEST_PY_BD} ${OVERRIDE}
-          cp ~/grub_x86.efi ${UBOOT_TRAVIS_BUILD_DIR}/
-          cp ~/grub_x64.efi ${UBOOT_TRAVIS_BUILD_DIR}/
-          cp /opt/grub/grubriscv64.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_riscv64.efi
-          cp /opt/grub/grubaa64.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_arm64.efi
-          cp /opt/grub/grubarm.efi ${UBOOT_TRAVIS_BUILD_DIR}/grub_arm.efi
-          # create sdcard / spi-nor images for sifive unleashed using genimage
-          if [[ "${TEST_PY_BD}" == "sifive_unleashed" ]]; then
-              mkdir -p root;
-              cp ${UBOOT_TRAVIS_BUILD_DIR}/spl/u-boot-spl.bin .;
-              cp ${UBOOT_TRAVIS_BUILD_DIR}/u-boot.itb .;
-              rm -rf tmp;
-              genimage --inputpath . --config board/sifive/unleashed/genimage_sdcard.cfg;
-              cp images/sdcard.img ${UBOOT_TRAVIS_BUILD_DIR}/;
-              rm -rf tmp;
-              genimage --inputpath . --config board/sifive/unleashed/genimage_spi-nor.cfg;
-              cp images/spi-nor.img ${UBOOT_TRAVIS_BUILD_DIR}/;
-          fi
-          if [[ "${TEST_PY_BD}" == "coreboot" ]]; then
-              wget -O - "https://drive.google.com/uc?id=1uJ2VkUQ8czWFZmhJQ90Tp8V_zrJ6BrBH&export=download" |xz -dc >${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom;
-              wget -O - "https://drive.google.com/uc?id=149Cz-5SZXHNKpi9xg6R_5XITWohu348y&export=download" >cbfstool;
-              chmod a+x cbfstool;
-              ./cbfstool ${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom add-flat-binary -f ${UBOOT_TRAVIS_BUILD_DIR}/u-boot.bin -n fallback/payload -c LZMA -l 0x1110000 -e 0x1110000;
-          fi
-          virtualenv -p /usr/bin/python3 /tmp/venv
-          . /tmp/venv/bin/activate
-          pip install -r test/py/requirements.txt
-          pip install pytest-azurepipelines
-          export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:${PATH};
-          export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
-          # "${var:+"-k $var"}" expands to "" if $var is empty, "-k $var" if not
-          ./test/py/test.py -ra -o cache_dir="$UBOOT_TRAVIS_BUILD_DIR"/.pytest_cache --bd ${TEST_PY_BD} ${TEST_PY_ID} ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"} --build-dir "$UBOOT_TRAVIS_BUILD_DIR" --report-dir "$UBOOT_TRAVIS_BUILD_DIR";
-          # the below corresponds to .gitlab-ci.yml "after_script"
-          rm -rf /tmp/uboot-test-hooks /tmp/venv
-          EOF
-          cat test.sh
           # make current directory writeable to uboot user inside the container
           # as sandbox testing need create files like spi flash images, etc.
           # (TODO: clean up this in the future)
           chmod 777 .
+          chmod 755 $(Pipeline.Workspace)/testsh/test.sh
           # Filesystem tests need extra docker args to run
           set --
           if [[ "${TEST_PY_BD}" == "sandbox" ]]; then
@@ -429,7 +439,16 @@ stages:
               set -- "$@" --security-opt apparmor=unconfined
           fi
           # Some tests using libguestfs-tools need the fuse device to run
-          docker run "$@" --device /dev/fuse:/dev/fuse -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/test.sh
+          docker run "$@" --device /dev/fuse:/dev/fuse \
+                         -v $PWD:$(work_dir) \
+                         -v $(Pipeline.Workspace):$(Pipeline.Workspace) \
+                         -e WORK_DIR="${WORK_DIR}" \
+                         -e TEST_PY_BD="${TEST_PY_BD}" \
+                         -e TEST_PY_ID="${TEST_PY_ID}" \
+                         -e TEST_PY_TEST_SPEC="${TEST_PY_TEST_SPEC}" \
+                         -e OVERRIDE="${OVERRIDE}" \
+                         -e BUILD_ENV="${BUILD_ENV}" $(ci_runner_image) \
+                         $(Pipeline.Workspace)/testsh/test.sh
         retryCountOnTaskFailure: 2 # QEMU may be too slow, etc.
 
 - stage: world_build
