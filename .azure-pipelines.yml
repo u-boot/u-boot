@@ -301,6 +301,11 @@ stages:
           TEST_PY_BD: "sandbox"
           OVERRIDE: "-O clang-16 -a ASAN"
           TEST_PY_TEST_SPEC: "version"
+        sandbox64:
+          TEST_PY_BD: "sandbox64"
+        sandbox64_clang:
+          TEST_PY_BD: "sandbox64"
+          OVERRIDE: "-O clang-16"
         sandbox_nolto:
           TEST_PY_BD: "sandbox"
           BUILD_ENV: "NO_LTO=1"
