@@ -12,9 +12,6 @@
 #include <linux/usb/gadget.h>
 
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)
-#define MAX_UDC_DEVICES 4
-static struct udevice *dev_array[MAX_UDC_DEVICES];
-
 int udc_device_get_by_index(int index, struct udevice **udev)
 {
 	struct udevice *dev = NULL;
@@ -45,45 +42,16 @@ int udc_device_put(struct udevice *udev)
 #endif
 }
 
-int usb_gadget_initialize(int index)
-{
-	int ret;
-	struct udevice *dev = NULL;
-
-	if (index < 0 || index >= ARRAY_SIZE(dev_array))
-		return -EINVAL;
-	if (dev_array[index])
-		return 0;
-	ret = udc_device_get_by_index(index, &dev);
-	if (!dev || ret) {
-		pr_err("No USB device found\n");
-		return -ENODEV;
-	}
-	dev_array[index] = dev;
-	return 0;
-}
-
-int usb_gadget_release(int index)
-{
-#if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
-	int ret;
-	if (index < 0 || index >= ARRAY_SIZE(dev_array))
-		return -EINVAL;
-
-	ret = device_remove(dev_array[index]);
-	if (!ret)
-		dev_array[index] = NULL;
-	return ret;
-#else
-	return -ENOSYS;
-#endif
-}
-
 int usb_gadget_handle_interrupts(int index)
 {
-	if (index < 0 || index >= ARRAY_SIZE(dev_array))
-		return -EINVAL;
-	return dm_usb_gadget_handle_interrupts(dev_array[index]);
+	struct udevice *udc;
+	int ret;
+
+	ret = udc_device_get_by_index(index, &udc);
+	if (ret)
+		return ret;
+
+	return dm_usb_gadget_handle_interrupts(udc);
 }
 #else
 /* Backwards hardware compatibility -- switch to DM_USB_GADGET */

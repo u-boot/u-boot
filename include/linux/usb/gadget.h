@@ -987,21 +987,4 @@ int udc_device_get_by_index(int index, struct udevice **udev);
  */
 int udc_device_put(struct udevice *udev);
 
-#if CONFIG_IS_ENABLED(DM_USB_GADGET)
-int usb_gadget_initialize(int index);
-int usb_gadget_release(int index);
-int dm_usb_gadget_handle_interrupts(struct udevice *dev);
-#else
-#include <usb.h>
-static inline int usb_gadget_initialize(int index)
-{
-	return board_usb_init(index, USB_INIT_DEVICE);
-}
-
-static inline int usb_gadget_release(int index)
-{
-	return board_usb_cleanup(index, USB_INIT_DEVICE);
-}
-#endif
-
 #endif	/* __LINUX_USB_GADGET_H */
