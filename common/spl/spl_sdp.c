@@ -25,13 +25,13 @@ static int spl_sdp_load_image(struct spl_image_info *spl_image,
 	ret = g_dnl_register("usb_dnl_sdp");
 	if (ret) {
 		pr_err("SDP dnl register failed: %d\n", ret);
-		return ret;
+		goto err_detach;
 	}
 
 	ret = sdp_init(controller_index);
 	if (ret) {
 		pr_err("SDP init failed: %d\n", ret);
-		return -ENODEV;
+		goto err_unregister;
 	}
 
 	/*
@@ -42,6 +42,9 @@ static int spl_sdp_load_image(struct spl_image_info *spl_image,
 	ret = spl_sdp_handle(controller_index, spl_image, bootdev);
 	debug("SDP ended\n");
 
+err_unregister:
+	g_dnl_unregister();
+err_detach:
 	usb_gadget_release(controller_index);
 	return ret;
 }
