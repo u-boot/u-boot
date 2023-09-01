@@ -23,7 +23,7 @@ classifiers = [
 "Bug Tracker" = "https://source.denx.de/groups/u-boot/-/issues"
 
 [project.scripts]
-patman = "patman.__main__:run_patman"
+patman = "patman.__main__"
 
 [tool.setuptools.package-data]
 patman = ["*.rst"]
