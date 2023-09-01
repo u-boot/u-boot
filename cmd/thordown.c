@@ -15,22 +15,23 @@
 
 int do_thor_down(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	char *interface, *devstring;
+	int controller_index;
+	int ret;
+
 	if (argc < 4)
 		return CMD_RET_USAGE;
 
-	char *usb_controller = argv[1];
-	char *interface = argv[2];
-	char *devstring = argv[3];
-
-	int ret;
-
 	puts("TIZEN \"THOR\" Downloader\n");
+
+	interface = argv[2];
+	devstring = argv[3];
 
 	ret = dfu_init_env_entities(interface, devstring);
 	if (ret)
 		goto done;
 
-	int controller_index = simple_strtoul(usb_controller, NULL, 0);
+	controller_index = simple_strtoul(argv[1], NULL, 0);
 	ret = usb_gadget_initialize(controller_index);
 	if (ret) {
 		pr_err("USB init failed: %d\n", ret);
