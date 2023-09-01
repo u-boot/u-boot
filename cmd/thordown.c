@@ -17,6 +17,7 @@ int do_thor_down(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *interface, *devstring;
 	int controller_index;
+	struct udevice *udc;
 	int ret;
 
 	if (argc < 4)
@@ -32,7 +33,7 @@ int do_thor_down(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		goto done;
 
 	controller_index = simple_strtoul(argv[1], NULL, 0);
-	ret = usb_gadget_initialize(controller_index);
+	ret = udc_device_get_by_index(controller_index, &udc);
 	if (ret) {
 		pr_err("USB init failed: %d\n", ret);
 		ret = CMD_RET_FAILURE;
@@ -46,7 +47,7 @@ int do_thor_down(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		goto exit;
 	}
 
-	ret = thor_init();
+	ret = thor_init(udc);
 	if (ret) {
 		pr_err("THOR DOWNLOAD failed: %d\n", ret);
 		ret = CMD_RET_FAILURE;
@@ -54,7 +55,7 @@ int do_thor_down(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	do {
-		ret = thor_handle();
+		ret = thor_handle(udc);
 		if (ret == THOR_DFU_REINIT_NEEDED) {
 			dfu_free_entities();
 			ret = dfu_init_env_entities(interface, devstring);
@@ -67,7 +68,7 @@ int do_thor_down(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	} while (ret == 0);
 exit:
 	g_dnl_unregister();
-	usb_gadget_release(controller_index);
+	udc_device_put(udc);
 done:
 	dfu_free_entities();
 
