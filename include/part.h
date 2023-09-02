@@ -108,18 +108,38 @@ static inline void disk_partition_clr_uuid(struct disk_partition *info)
 }
 
 /* Accessors for struct disk_partition field ->type_guid */
-extern char *__invalid_use_of_disk_partition_type_uuid;
+extern char *__invalid_use_of_disk_partition_type_guid;
 
+/**
+ * disk_partition_type_guid() - get partition type GUID
+ *
+ * By using this function to get the partition type GUID we can use
+ * 'if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID))' instead of
+ * '#ifdef CONFIG_PARTITION_TYPE_GUID'.
+ *
+ * @info:	partition information
+ * Return:	partition type GUID
+ */
 static inline const
-char *disk_partition_type_uuid(const struct disk_partition *info)
+char *disk_partition_type_guid(const struct disk_partition *info)
 {
 #ifdef CONFIG_PARTITION_TYPE_GUID
 	return info->type_guid;
 #else
-	return __invalid_use_of_disk_partition_type_uuid;
+	return __invalid_use_of_disk_partition_type_guid;
 #endif
 }
 
+/**
+ * disk_partition_set_type_guid() - set partition type GUID
+ *
+ * By using this function to set the partition type GUID we can use
+ * 'if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID))' instead of
+ * '#ifdef CONFIG_PARTITION_TYPE_GUID'.
+ *
+ * @info:	partition information
+ * @val:	partition type GUID as string
+ */
 static inline void disk_partition_set_type_guid(struct disk_partition *info,
 						const char *val)
 {

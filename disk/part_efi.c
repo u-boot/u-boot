@@ -299,7 +299,7 @@ int part_get_info_efi(struct blk_desc *desc, int part,
 	}
 	if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID)) {
 		uuid_bin_to_str(gpt_pte[part - 1].partition_type_guid.b,
-				(char *)disk_partition_type_uuid(info),
+				(char *)disk_partition_type_guid(info),
 				UUID_STR_FORMAT_GUID);
 	}
 
