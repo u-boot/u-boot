@@ -181,11 +181,10 @@ static int calc_parts_list_len(int numparts)
 	/* see part.h for definition of struct disk_partition */
 	partlistlen += numparts * (strlen("start=0x,") + lbaint_size);
 	partlistlen += numparts * (strlen("size=0x,") + lbaint_size);
-#ifdef CONFIG_PARTITION_TYPE_GUID
-	partlistlen += numparts * (strlen("type=,") + UUID_STR_LEN + 1);
-#endif
 	if (IS_ENABLED(CONFIG_PARTITION_UUIDS))
-		partlistlen += numparts * (strlen("uuid=;") + UUID_STR_LEN);
+		partlistlen += numparts * (strlen("uuid=,") + UUID_STR_LEN);
+	if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID))
+		partlistlen += numparts * (strlen("type=;") + UUID_STR_LEN);
 	debug("Length of partitions_list is %d for %d partitions\n",
 	      partlistlen, numparts);
 	return partlistlen;
@@ -221,14 +220,12 @@ static struct disk_part *allocate_disk_part(struct disk_partition *info,
 		PART_TYPE_LEN);
 	newpart->gpt_part_info.type[PART_TYPE_LEN - 1] = '\0';
 	newpart->gpt_part_info.bootable = info->bootable;
-#ifdef CONFIG_PARTITION_TYPE_GUID
-	strncpy(newpart->gpt_part_info.type_guid, (const char *)info->type_guid,
-		UUID_STR_LEN);
-	newpart->gpt_part_info.type_guid[UUID_STR_LEN] = '\0';
-#endif
 	if (IS_ENABLED(CONFIG_PARTITION_UUIDS))
 		disk_partition_set_uuid(&newpart->gpt_part_info,
 					disk_partition_uuid(info));
+	if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID))
+		disk_partition_set_type_guid(&newpart->gpt_part_info,
+					     disk_partition_type_guid(info));
 	newpart->partnum = partnum;
 
 	return newpart;
@@ -264,12 +261,12 @@ static void print_gpt_info(void)
 		       curr->gpt_part_info.name);
 		printf("Type %s, bootable %d\n", curr->gpt_part_info.type,
 		       curr->gpt_part_info.bootable & PART_BOOTABLE);
-#ifdef CONFIG_PARTITION_TYPE_GUID
-		printf("Type GUID %s\n", curr->gpt_part_info.type_guid);
-#endif
 		if (CONFIG_IS_ENABLED(PARTITION_UUIDS))
 			printf("UUID %s\n",
 			       disk_partition_uuid(&curr->gpt_part_info));
+		if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID))
+			printf("Type GUID %s\n",
+			       disk_partition_type_guid(&curr->gpt_part_info));
 		printf("\n");
 	}
 }
@@ -314,11 +311,12 @@ static int create_gpt_partitions_list(int numparts, const char *guid,
 					    curr->gpt_part_info.blksz);
 		strncat(partitions_list, partstr, PART_NAME_LEN + 1);
 
-#ifdef CONFIG_PARTITION_TYPE_GUID
-		strcat(partitions_list, ",type=");
-		strncat(partitions_list, curr->gpt_part_info.type_guid,
-			UUID_STR_LEN + 1);
-#endif
+		if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID)) {
+			strcat(partitions_list, ",type=");
+			strncat(partitions_list,
+				disk_partition_type_guid(&curr->gpt_part_info),
+				UUID_STR_LEN + 1);
+		}
 		if (CONFIG_IS_ENABLED(PARTITION_UUIDS)) {
 			strcat(partitions_list, ",uuid=");
 			strncat(partitions_list,
