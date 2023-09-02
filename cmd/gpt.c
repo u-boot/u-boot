@@ -162,26 +162,32 @@ static bool found_key(const char *str, const char *key)
 	return result;
 }
 
+/**
+ * calc_parts_list_len() - get size of partition table description
+ *
+ * @numparts:	number of partitions
+ * Return:	string size including terminating NUL
+ */
 static int calc_parts_list_len(int numparts)
 {
-	int partlistlen = UUID_STR_LEN + 1 + strlen("uuid_disk=");
-	/* for the comma */
-	partlistlen++;
+	/* number of hexadecimal digits of the lbaint_t representation */
+	const int lbaint_size = 2 * sizeof(lbaint_t);
+	int partlistlen;
 
-	/* per-partition additions; numparts starts at 1, so this should be correct */
-	partlistlen += numparts * (strlen("name=,") + PART_NAME_LEN + 1);
+	/* media description including terminating NUL */
+	partlistlen = strlen("uuid_disk=;") + UUID_STR_LEN + 1;
+	/* per-partition descriptions; numparts */
+	partlistlen += numparts * (strlen("name=,") + PART_NAME_LEN);
 	/* see part.h for definition of struct disk_partition */
-	partlistlen += numparts * (strlen("start=MiB,") + sizeof(lbaint_t) + 1);
-	partlistlen += numparts * (strlen("size=MiB,") + sizeof(lbaint_t) + 1);
+	partlistlen += numparts * (strlen("start=0x,") + lbaint_size);
+	partlistlen += numparts * (strlen("size=0x,") + lbaint_size);
 #ifdef CONFIG_PARTITION_TYPE_GUID
 	partlistlen += numparts * (strlen("type=,") + UUID_STR_LEN + 1);
 #endif
-	partlistlen += numparts * strlen("bootable,");
-	partlistlen += numparts * (strlen("uuid=;") + UUID_STR_LEN + 1);
-	/* for the terminating null */
-	partlistlen++;
-	debug("Length of partitions_list is %d for %d partitions\n", partlistlen,
-	      numparts);
+	if (IS_ENABLED(CONFIG_PARTITION_UUIDS))
+		partlistlen += numparts * (strlen("uuid=;") + UUID_STR_LEN);
+	debug("Length of partitions_list is %d for %d partitions\n",
+	      partlistlen, numparts);
 	return partlistlen;
 }
 
