@@ -19,29 +19,114 @@
  * @EVT_DM_PRE_PROBE: Device is about to be probed
  */
 enum event_t {
-	EVT_NONE,
+	/**
+	 * @EVT_NONE: This zero value is not used for events.
+	 */
+	EVT_NONE = 0,
+
+	/**
+	 * @EVT_TEST: This event is used in unit tests.
+	 */
 	EVT_TEST,
 
-	/* Events related to driver model */
+	/**
+	 * @EVT_DM_POST_INIT_F:
+	 * This event is triggered after pre-relocation initialization of the
+	 * driver model. Its parameter is NULL.
+	 * A non-zero return code from the event handler let's the boot process
+	 * fail.
+	 */
 	EVT_DM_POST_INIT_F,
+
+	/**
+	 * @EVT_DM_POST_INIT_R:
+	 * This event is triggered after post-relocation initialization of the
+	 * driver model. Its parameter is NULL.
+	 * A non-zero return code from the event handler let's the boot process
+	 * fail.
+	 */
 	EVT_DM_POST_INIT_R,
+
+	/**
+	 * @EVT_DM_PRE_PROBE:
+	 * This event is triggered before probing a device. Its parameter is the
+	 * device to be probed.
+	 * A non-zero return code from the event handler lets the device not
+	 * being probed.
+	 */
 	EVT_DM_PRE_PROBE,
+
+	/**
+	 * @EVT_DM_POST_PROBE:
+	 * This event is triggered after probing a device. Its parameter is the
+	 * device that was probed.
+	 * A non-zero return code from the event handler leaves the device in
+	 * the unprobed state and therefore not usable.
+	 */
 	EVT_DM_POST_PROBE,
+
+	/**
+	 * @EVT_DM_PRE_REMOVE:
+	 * This event is triggered after removing a device. Its parameter is
+	 * the device to be removed.
+	 * A non-zero return code from the event handler stops the removal of
+	 * the device before any changes.
+	 */
 	EVT_DM_PRE_REMOVE,
+
+	/**
+	 * @EVT_DM_POST_REMOVE:
+	 * This event is triggered before removing a device. Its parameter is
+	 * the device that was removed.
+	 * A non-zero return code stops from the event handler the removal of
+	 * the device after all removal changes. The previous state is not
+	 * restored. All children will be gone and the device may not be
+	 * functional.
+	 */
 	EVT_DM_POST_REMOVE,
 
-	/* Init hooks */
+	/**
+	 * @EVT_MISC_INIT_F:
+	 * This event is triggered during the initialization sequence before
+	 * relocation. Its parameter is NULL.
+	 * A non-zero return code from the event handler let's the boot process
+	 * fail.
+	 */
 	EVT_MISC_INIT_F,
 
-	/* Fpga load hook */
+	/**
+	 * @EVT_FPGA_LOAD:
+	 * The FPGA load hook is called after loading an FPGA with a new binary.
+	 * Its parameter is of type struct event_fpga_load and contains
+	 * information about the loaded image.
+	 */
 	EVT_FPGA_LOAD,
 
-	/* Device tree fixups before booting */
+	/**
+	 * @EVT_FT_FIXUP:
+	 * This event is triggered during device-tree fix up after all
+	 * other device-tree fixups have been executed.
+	 * Its parameter is of type struct event_ft_fixup which contains
+	 * the address of the device-tree to fix up and the list of images to be
+	 * booted.
+	 * A non-zero return code from the event handler let's booting the
+	 * images fail.
+	 */
 	EVT_FT_FIXUP,
 
-	/* To be called once, before calling main_loop() */
+	/**
+	 * @EVT_MAIN_LOOP:
+	 * This event is triggered immediately before calling main_loop() which
+	 * is the entry point of the command line. Its parameter is NULL.
+	 * A non-zero return value causes the boot to fail.
+	 */
 	EVT_MAIN_LOOP,
 
+	/**
+	 * @EVT_COUNT:
+	 * This constants holds the maximum event number + 1 and is used when
+	 * looping over all event classes.
+	 */
 	EVT_COUNT
 };
 
