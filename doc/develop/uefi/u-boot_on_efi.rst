@@ -31,14 +31,12 @@ Only x86 is supported at present. If you are using EFI on another architecture
 you may want to reconsider. However, much of the code is generic so could be
 ported.
 
-U-Boot supports running as an EFI application for 32-bit EFI only. This is
-not very useful since only a serial port is provided. You can look around at
-memory and type 'help' but that is about it.
+U-Boot supports running as an EFI application for both 32- and 64-bit EFI.
 
-More usefully, U-Boot supports building itself as a payload for either 32-bit
-or 64-bit EFI. U-Boot is packaged up and loaded in its entirety by EFI. Once
-started, U-Boot changes to 32-bit mode (currently) and takes over the
-machine. You can use devices, boot a kernel, etc.
+U-Boot supports building itself as a payload for either 32-bit or 64-bit EFI.
+U-Boot is packaged up and loaded in its entirety by EFI. Once started, U-Boot
+changes to 32-bit mode (currently) and takes over the machine. You can use
+devices, boot a kernel, etc.
 
 
 Build Instructions
@@ -47,9 +45,9 @@ First choose a board that has EFI support and obtain an EFI implementation
 for that board. It will be either 32-bit or 64-bit. Alternatively, you can
 opt for using QEMU [1] and the OVMF [2], as detailed below.
 
-To build U-Boot as an EFI application (32-bit EFI required), enable CONFIG_EFI
-and CONFIG_EFI_APP. The efi-x86_app config (efi-x86_app32_defconfig) is set up
-for this. Just build U-Boot as normal, e.g.::
+To build U-Boot as an EFI application, enable CONFIG_EFI and CONFIG_EFI_APP.
+The efi-x86_app32 and efi-x86_app64 configs are set up for this. Just build
+U-Boot as normal, e.g.::
 
    make efi-x86_app32_defconfig
    make
@@ -189,9 +187,9 @@ interrupts disabled at present.
 
 32/64-bit
 ~~~~~~~~~
-While the EFI application can in principle be built as either 32- or 64-bit,
-only 32-bit is currently supported. This means that the application can only
-be used with 32-bit EFI.
+While the EFI application can be built as either 32- or 64-bit, you need to be
+careful to build the correct one so that your UEFI firmware can start it. Most
+UEFI images are 64-bit at present.
 
 The payload stub can be build as either 32- or 64-bits. Only a small amount
 of code is built this way (see the extra- line in lib/efi/Makefile).
@@ -344,8 +342,6 @@ Future work
 This work could be extended in a number of ways:
 
 - Add ARM support
-
-- Add 64-bit application support (in progress)
 
 - Figure out how to solve the interrupt problem
 
