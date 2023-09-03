@@ -63,19 +63,13 @@
 			};
 		};
 	};
+};
 
-	soc {
-		ltdc: display-controller@40016800 {
-			compatible = "st,stm32-ltdc";
-			reg = <0x40016800 0x200>;
-			resets = <&rcc STM32F7_APB2_RESET(LTDC)>;
-			clocks = <&rcc 0 STM32F7_APB2_CLOCK(LTDC)>;
-			pinctrl-0 = <&ltdc_pins>;
-
-			status = "okay";
-			bootph-all;
-		};
-	};
+&ltdc {
+	clocks = <&rcc 0 STM32F7_APB2_CLOCK(LTDC)>;
+	pinctrl-0 = <&ltdc_pins>;
+	status = "okay";
+	bootph-all;
 };
 
 &fmc {
