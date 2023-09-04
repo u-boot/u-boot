@@ -94,11 +94,7 @@ static void dummy_pending_ipi_clear(ulong hart, ulong arg0, ulong arg1)
 
 int riscv_cpu_setup(void)
 {
-	int ret;
-
-	ret = riscv_cpu_probe(ctx, event);
-	if (ret)
-		return ret;
+	int __maybe_unused ret;
 
 	/* Enable FPU */
 	if (supports_extension('d') || supports_extension('f')) {
