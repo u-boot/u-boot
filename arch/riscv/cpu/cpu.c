@@ -66,7 +66,7 @@ static inline bool supports_extension(char ext)
 #endif /* CONFIG_CPU */
 }
 
-static int riscv_cpu_probe(void *ctx, struct event *event)
+static int riscv_cpu_probe(void)
 {
 #ifdef CONFIG_CPU
 	int ret;
@@ -79,7 +79,7 @@ static int riscv_cpu_probe(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT_R, riscv_cpu_probe);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_R, riscv_cpu_probe);
 
 /*
  * This is called on secondary harts just after the IPI is init'd. Currently
