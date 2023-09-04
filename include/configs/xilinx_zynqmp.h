@@ -29,7 +29,7 @@
 
 /* Miscellaneous configurable options */
 
-#if defined(CONFIG_ZYNQMP_USB)
+#if defined(CONFIG_USB_STORAGE)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
 # define PARTS_DEFAULT \
@@ -77,7 +77,7 @@
 # define BOOT_TARGET_DEVICES_SCSI(func)
 #endif
 
-#if defined(CONFIG_ZYNQMP_USB)
+#if defined(CONFIG_USB_STORAGE)
 # define BOOT_TARGET_DEVICES_USB(func)	func(USB, usb, 0) func(USB, usb, 1)
 #else
 # define BOOT_TARGET_DEVICES_USB(func)
