@@ -94,18 +94,19 @@ enum event_t {
 	 */
 	EVT_MISC_INIT_F,
 
-	/*
-	 * Emitted before relocation to set up Firmware Support Package
-	 *
+	/**
+	 * @EVT_FSP_INIT_F:
+	 * This event is triggered before relocation to set up Firmware Support
+	 * Package.
 	 * Where U-Boot relies on binary blobs to handle part of the system
 	 * init, this event can be used to set up the blobs. This is used on
 	 * some Intel platforms
 	 */
 	EVT_FSP_INIT_F,
 
-	/*
-	 * Emitted just before jumping to the main loop
-	 *
+	/**
+	 * @EVT_LAST_STAGE_INIT:
+	 * This event is triggered just before jumping to the main loop.
 	 * Some boards need to perform initialisation immediately before control
 	 * is passed to the command-line interpreter (e.g. for init that depend
 	 * on later phases in the init sequence).
@@ -222,7 +223,7 @@ typedef int (*event_handler_simple_t)(void);
  *
  * @func: Function to call when the event is activated (must be first)
  * @type: Event type
- * @flag: Flags for this spy
+ * @flags: Flags for this spy
  * @id: Event id string
  */
 struct evspy_info {
@@ -241,7 +242,7 @@ struct evspy_info {
  *
  * @func: Function to call when the event is activated (must be first)
  * @type: Event type
- * @flag: Flags for this spy
+ * @flags: Flags for this spy
  * @id: Event id string
  */
 struct evspy_info_simple {
