@@ -170,5 +170,6 @@ int sbi_get_mvendorid(long *mvendorid);
 int sbi_get_marchid(long *marchid);
 int sbi_get_mimpid(long *mimpid);
 void sbi_srst_reset(unsigned long type, unsigned long reason);
+int sbi_dbcn_write_byte(unsigned char ch);
 
 #endif
