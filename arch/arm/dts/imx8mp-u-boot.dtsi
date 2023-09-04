@@ -146,7 +146,7 @@
 					type = "flat_dt";
 					compression = "none";
 
-					uboot_fdt_blob: blob-ext {
+					blob-ext {
 						filename = "u-boot.dtb";
 					};
 				};
@@ -155,7 +155,7 @@
 			configurations {
 				default = "@config-DEFAULT-SEQ";
 
-				binman_configuration: @config-SEQ {
+				@config-SEQ {
 					description = "NAME";
 					fdt = "fdt-SEQ";
 					firmware = "uboot";

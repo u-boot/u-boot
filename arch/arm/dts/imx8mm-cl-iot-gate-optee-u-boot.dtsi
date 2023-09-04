@@ -41,9 +41,11 @@
 	};
 };
 
+/* This cannot work since it refers to a template node
 &binman_configuration {
 	loadables = "atf", "fip";
 };
+*/
 
 &fec1 {
 	phy-reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;

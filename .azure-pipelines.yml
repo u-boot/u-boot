@@ -468,6 +468,7 @@ stages:
 - stage: world_build
   jobs:
   - job: build_the_world
+    timeoutInMinutes: 0 # Use the maximum allowed
     displayName: 'Build the World'
     pool:
       vmImage: $(ubuntu_vm)

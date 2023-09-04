@@ -28,7 +28,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 extern U_BOOT_DRIVER(bootmeth_cros);
-extern U_BOOT_DRIVER(bootmeth_script);
+extern U_BOOT_DRIVER(bootmeth_2script);
 
 static int inject_response(struct unit_test_state *uts)
 {
@@ -532,7 +532,7 @@ static int prep_mmc_bootdev(struct unit_test_state *uts, const char *mmc_dev,
 
 	/* Enable the script bootmeth too */
 	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
-	ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_script),
+	ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_2script),
 				"bootmeth_script", 0, ofnode_null(), &dev));
 
 	/* Enable the cros bootmeth if needed */

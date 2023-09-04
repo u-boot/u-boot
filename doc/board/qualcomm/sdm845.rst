@@ -38,9 +38,10 @@ and FIT image instead of ``initramfs``. Android bootloader expect gzipped kernel
 with appended dtb, so let's mimic linux to satisfy stock bootloader.
 
 Boards
-------------
+------
+
 starqlte
-^^^^^^^^^^^^
+^^^^^^^^
 
 The starqltechn is a production board for Samsung S9 (SM-G9600) phone,
 based on the Qualcomm SDM845 SoC.
@@ -149,7 +150,11 @@ Steps:
 	mkbootimg --kernel u-boot.bin.gz-dtb --ramdisk db845c.itb \
 	--output boot.img --pagesize 4096 --base 0x80000000
 
-- Flash boot.img using db845c fastboot method.
+- Flash boot.img using db845c fastboot method:
+
+  .. code-block:: bash
+
+      sudo fastboot flash boot boot.img
 
 More information can be found on the `DragonBoard 845c page`_.
 

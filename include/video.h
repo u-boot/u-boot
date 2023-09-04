@@ -260,7 +260,7 @@ int video_fill_part(struct udevice *dev, int xstart, int ystart, int xend,
 int video_sync(struct udevice *vid, bool force);
 
 /**
- * video_sync_all() - Sync all devices' frame buffers with there hardware
+ * video_sync_all() - Sync all devices' frame buffers with their hardware
  *
  * This calls video_sync() on all active video devices.
  */

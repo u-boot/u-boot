@@ -41,7 +41,7 @@
 					os = "arm-trusted-firmware";
 					load = <CONFIG_K3_ATF_LOAD_ADDR>;
 					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
-					atf: atf-bl31 {
+					atf-bl31 {
 					};
 				};
 
@@ -53,7 +53,7 @@
 					os = "tee";
 					load = <0x9e800000>;
 					entry = <0x9e800000>;
-					tee: tee-os {
+					tee-os {
 					};
 				};
 
@@ -78,7 +78,7 @@
 					compression = "none";
 					load = <CONFIG_SPL_TEXT_BASE>;
 					entry = <CONFIG_SPL_TEXT_BASE>;
-					u_boot_spl_nodtb: blob-ext {
+					blob-ext {
 						filename = "spl/u-boot-spl-nodtb.bin";
 					};
 				};
@@ -88,7 +88,7 @@
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
-					spl_am65x_evm_dtb: blob-ext {
+					blob-ext {
 						filename = "spl/dts/k3-am65-iot2050-spl.dtb";
 					};
 				};

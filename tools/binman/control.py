@@ -22,7 +22,6 @@ from binman import bintool
 from binman import cbfs_util
 from binman import elf
 from binman import entry
-from dtoc import fdt
 from dtoc import fdt_util
 from u_boot_pylib import command
 from u_boot_pylib import tools
@@ -816,10 +815,6 @@ def Binman(args):
         elf.debug = args.debug
         cbfs_util.VERBOSE = args.verbosity > 2
         state.use_fake_dtb = args.fake_dtb
-
-        # Temporary hack
-        if args.ignore_dup_phandles: # pragma: no cover
-            fdt.IGNORE_DUP_PHANDLES = True
 
         # Normally we replace the 'u-boot' etype with 'u-boot-expanded', etc.
         # When running tests this can be disabled using this flag. When not

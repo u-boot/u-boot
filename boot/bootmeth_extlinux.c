@@ -184,7 +184,8 @@ static const struct udevice_id extlinux_bootmeth_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(bootmeth_extlinux) = {
+/* Put an number before 'extlinux' to provide a default ordering */
+U_BOOT_DRIVER(bootmeth_1extlinux) = {
 	.name		= "bootmeth_extlinux",
 	.id		= UCLASS_BOOTMETH,
 	.of_match	= extlinux_bootmeth_ids,
