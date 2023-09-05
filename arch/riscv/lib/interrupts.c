@@ -60,6 +60,40 @@ static void show_regs(struct pt_regs *regs)
 #endif
 }
 
+#if defined(CONFIG_FRAMEPOINTER) || defined(CONFIG_SPL_FRAMEPOINTER)
+static void show_backtrace(struct pt_regs *regs)
+{
+	uintptr_t *fp = (uintptr_t *)regs->s0;
+	unsigned count = 0;
+	ulong ra;
+
+	printf("backtrace:\n");
+
+	/* there are a few entry points where the s0 register is
+	 * set to gd, so to avoid changing those, just abort if
+	 * the value is the same */
+	while (fp != NULL && fp != (uintptr_t *)gd) {
+		ra = fp[-1];
+		printf("backtrace %2d: FP: " REG_FMT " RA: " REG_FMT,
+		       count, (ulong)fp, ra);
+
+		if (gd && gd->flags & GD_FLG_RELOC)
+			printf(" - RA: " REG_FMT " reloc adjusted\n",
+			ra - gd->reloc_off);
+		else
+			printf("\n");
+
+		fp = (uintptr_t *)fp[-2];
+		count++;
+	}
+}
+#else
+static void show_backtrace(struct pt_regs *regs)
+{
+	printf("No backtrace support enabled\n");
+}
+#endif
+
 /**
  * instr_len() - get instruction length
  *
@@ -131,6 +165,7 @@ static void _exit_trap(ulong code, ulong epc, ulong tval, struct pt_regs *regs)
 		       epc - gd->reloc_off, regs->ra - gd->reloc_off);
 
 	show_regs(regs);
+	show_backtrace(regs);
 	show_code(epc);
 	show_efi_loaded_images(epc);
 	panic("\n");
