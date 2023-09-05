@@ -43,6 +43,8 @@
 	"ramdisk_addr_r=0x02100000\0" \
 	"script_size_f=0x80000\0"
 
+#if defined(CONFIG_DISTRO_DEFAULTS)
+
 #if defined(CONFIG_MMC_SDHCI_ZYNQ)
 # define BOOT_TARGET_DEVICES_MMC(func)	func(MMC, mmc, 0) func(MMC, mmc, 1)
 #else
@@ -123,6 +125,10 @@
 	BOOT_TARGET_DEVICES_DHCP(func)
 
 #include <config_distro_bootcmd.h>
+
+#else /* CONFIG_DISTRO_DEFAULTS */
+# define BOOTENV
+#endif /* CONFIG_DISTRO_DEFAULTS */
 
 /* Initial environment variables */
 #ifndef CFG_EXTRA_ENV_SETTINGS

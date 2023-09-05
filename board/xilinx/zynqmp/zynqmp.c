@@ -384,7 +384,7 @@ static int set_fdtfile(void)
 	return 0;
 }
 
-int board_late_init(void)
+static int boot_targets_setup(void)
 {
 	u8 bootmode;
 	struct udevice *dev;
@@ -394,27 +394,6 @@ int board_late_init(void)
 	const char *mode = NULL;
 	char *new_targets;
 	char *env_targets;
-	int ret, multiboot;
-
-#if defined(CONFIG_USB_ETHER) && !defined(CONFIG_USB_GADGET_DOWNLOAD)
-	usb_ether_init();
-#endif
-
-	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
-		debug("Saved variables - Skipping\n");
-		return 0;
-	}
-
-	if (!IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG))
-		return 0;
-
-	ret = set_fdtfile();
-	if (ret)
-		return ret;
-
-	multiboot = multi_boot();
-	if (multiboot >= 0)
-		env_set_hex("multiboot", multiboot);
 
 	bootmode = zynqmp_get_bootmode();
 
@@ -523,6 +502,39 @@ int board_late_init(void)
 
 		env_set("boot_targets", new_targets);
 		free(new_targets);
+	}
+
+	return 0;
+}
+
+int board_late_init(void)
+{
+	int ret, multiboot;
+
+#if defined(CONFIG_USB_ETHER) && !defined(CONFIG_USB_GADGET_DOWNLOAD)
+	usb_ether_init();
+#endif
+
+	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
+		debug("Saved variables - Skipping\n");
+		return 0;
+	}
+
+	if (!IS_ENABLED(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG))
+		return 0;
+
+	ret = set_fdtfile();
+	if (ret)
+		return ret;
+
+	multiboot = multi_boot();
+	if (multiboot >= 0)
+		env_set_hex("multiboot", multiboot);
+
+	if (IS_ENABLED(CONFIG_DISTRO_DEFAULTS)) {
+		ret = boot_targets_setup();
+		if (ret)
+			return ret;
 	}
 
 	reset_reason();
