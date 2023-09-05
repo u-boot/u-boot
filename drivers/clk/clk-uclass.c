@@ -656,7 +656,7 @@ int clk_enable(struct clk *clk)
 		}
 
 		if (ops->enable) {
-			ret = ops->enable(clk);
+			ret = ops->enable(clkp ? clkp : clk);
 			if (ret) {
 				printf("Enable %s failed\n", clk->dev->name);
 				return ret;
@@ -713,7 +713,7 @@ int clk_disable(struct clk *clk)
 		}
 
 		if (ops->disable) {
-			ret = ops->disable(clk);
+			ret = ops->disable(clkp ? clkp : clk);
 			if (ret)
 				return ret;
 		}
