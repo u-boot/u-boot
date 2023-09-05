@@ -179,25 +179,6 @@ stages:
           # seems to hang forever with pre-configured "container" environment
           docker run -v $PWD:$(work_dir) $(ci_runner_image) /bin/bash $(work_dir)/build.sh
 
-  - job: nokia_rx51_test
-    displayName: 'Run tests for Nokia RX-51 (aka N900)'
-    pool:
-      vmImage: $(ubuntu_vm)
-    container:
-      image: $(ci_runner_image)
-      options: $(container_option)
-    steps:
-      - script: |
-          mkdir nokia_rx51_tmp
-          ln -s /opt/nokia/u-boot-gen-combined nokia_rx51_tmp/
-          ln -s /opt/nokia/qemu-n900.tar.gz nokia_rx51_tmp/
-          ln -s /opt/nokia/kernel_2.6.28-20103103+0m5_armel.deb nokia_rx51_tmp/
-          ln -s /opt/nokia/libc6_2.5.1-1eglibc27+0m5_armel.deb nokia_rx51_tmp/
-          ln -s /opt/nokia/busybox_1.10.2.legal-1osso30+0m5_armel.deb nokia_rx51_tmp/
-          ln -s /opt/nokia/qemu-system-arm nokia_rx51_tmp/
-          export PATH=/opt/gcc-13.1.0-nolibc/arm-linux-gnueabi/bin:$PATH
-          test/nokia_rx51_test.sh
-
   - job: pylint
     displayName: Check for any pylint regressions
     pool:

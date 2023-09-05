@@ -185,27 +185,6 @@ RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 	make -j$(nproc) all install && \
 	rm -rf /tmp/qemu
 
-# Build QEMU supporting Nokia n900 emulation
-RUN mkdir -p /opt/nokia && \
-	cd /tmp && \
-	git clone https://git.linaro.org/qemu/qemu-linaro.git && \
-	cd /tmp/qemu-linaro && \
-	git checkout 8f8d8e0796efe1a6f34cdd83fb798f3c41217ec1 && \
-	./configure --enable-system --target-list=arm-softmmu \
-	--python=/usr/bin/python2.7 --disable-sdl --disable-gtk \
-	--disable-curses --audio-drv-list= --audio-card-list= \
-	--disable-werror --disable-xen --disable-xen-pci-passthrough \
-	--disable-brlapi --disable-vnc --disable-curl --disable-slirp \
-	--disable-kvm --disable-user --disable-linux-user --disable-bsd-user \
-	--disable-guest-base --disable-uuid --disable-vde --disable-linux-aio \
-	--disable-cap-ng --disable-attr --disable-blobs --disable-docs \
-	--disable-spice --disable-libiscsi --disable-smartcard-nss \
-	--disable-usb-redir --disable-guest-agent --disable-seccomp \
-	--disable-glusterfs --disable-nptl --disable-fdt && \
-	make -j$(nproc) && \
-	cp /tmp/qemu-linaro/arm-softmmu/qemu-system-arm /opt/nokia && \
-	rm -rf /tmp/qemu-linaro
-
 # Build genimage (required by some targets to generate disk images)
 RUN wget -O - https://github.com/pengutronix/genimage/releases/download/v14/genimage-14.tar.xz | tar -C /tmp -xJ && \
 	cd /tmp/genimage-14 && \
@@ -248,16 +227,6 @@ RUN mkdir /tmp/trace && \
     make -j$(nproc) && \
     sudo make install && \
     rm -rf /tmp/trace
-
-# Files to run Nokia RX-51 (aka N900) tests
-RUN mkdir -p /opt/nokia && \
-	cd /opt/nokia && \
-	wget https://raw.githubusercontent.com/pali/u-boot-maemo/master/debian/u-boot-gen-combined && \
-	chmod 0755 u-boot-gen-combined && \
-	wget http://repository.maemo.org/qemu-n900/qemu-n900.tar.gz && \
-	wget http://repository.maemo.org/pool/maemo5.0/free/k/kernel/kernel_2.6.28-20103103+0m5_armel.deb && \
-	wget http://repository.maemo.org/pool/maemo5.0/free/g/glibc/libc6_2.5.1-1eglibc27+0m5_armel.deb && \
-	wget http://repository.maemo.org/pool/maemo5.0/free/b/busybox/busybox_1.10.2.legal-1osso30+0m5_armel.deb
 
 # Create our user/group
 RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot

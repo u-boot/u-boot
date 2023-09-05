@@ -225,19 +225,6 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
       ./tools/patman/patman test;
       make testconfig
 
-Run tests for Nokia RX-51 (aka N900):
-  stage: testsuites
-  script:
-    - mkdir nokia_rx51_tmp;
-      ln -s /opt/nokia/u-boot-gen-combined nokia_rx51_tmp/;
-      ln -s /opt/nokia/qemu-n900.tar.gz nokia_rx51_tmp/;
-      ln -s /opt/nokia/kernel_2.6.28-20103103+0m5_armel.deb nokia_rx51_tmp/;
-      ln -s /opt/nokia/libc6_2.5.1-1eglibc27+0m5_armel.deb nokia_rx51_tmp/;
-      ln -s /opt/nokia/busybox_1.10.2.legal-1osso30+0m5_armel.deb nokia_rx51_tmp/;
-      ln -s /opt/nokia/qemu-system-arm nokia_rx51_tmp/;
-      export PATH=/opt/gcc-13.1.0-nolibc/arm-linux-gnueabi/bin:$PATH;
-      test/nokia_rx51_test.sh
-
 # Check for any pylint regressions
 Run pylint:
   stage: testsuites
