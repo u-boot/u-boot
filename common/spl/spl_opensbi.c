@@ -43,11 +43,12 @@ static int spl_opensbi_find_uboot_node(void *blob, int *uboot_node)
 	return -ENODEV;
 }
 
-void spl_invoke_opensbi(struct spl_image_info *spl_image)
+void __noreturn spl_invoke_opensbi(struct spl_image_info *spl_image)
 {
 	int ret, uboot_node;
 	ulong uboot_entry;
-	void (*opensbi_entry)(ulong hartid, ulong dtb, ulong info);
+	typedef void __noreturn (*opensbi_entry_t)(ulong hartid, ulong dtb, ulong info);
+	opensbi_entry_t opensbi_entry;
 
 	if (!spl_image->fdt_addr) {
 		pr_err("No device tree specified in SPL image\n");
@@ -74,7 +75,7 @@ void spl_invoke_opensbi(struct spl_image_info *spl_image)
 	opensbi_info.options = CONFIG_SPL_OPENSBI_SCRATCH_OPTIONS;
 	opensbi_info.boot_hart = gd->arch.boot_hart;
 
-	opensbi_entry = (void (*)(ulong, ulong, ulong))spl_image->entry_point;
+	opensbi_entry = (opensbi_entry_t)spl_image->entry_point;
 	invalidate_icache_all();
 
 #ifdef CONFIG_SPL_SMP

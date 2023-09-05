@@ -218,6 +218,7 @@ config DEBUG_UART
 choice
 	prompt "Select which UART will provide the debug UART"
 	depends on DEBUG_UART
+	default DEBUG_SBI_CONSOLE if RISCV_SMODE
 	default DEBUG_UART_NS16550
 
 config DEBUG_UART_ALTERA_JTAGUART
@@ -289,11 +290,13 @@ config DEBUG_EFI_CONSOLE
 
 config DEBUG_SBI_CONSOLE
 	bool "SBI"
-	depends on SBI_V01
+	depends on RISCV_SMODE
 	help
 	  Select this to enable a debug console which calls back to SBI to
 	  output to the console. This can be useful for early debugging of
 	  U-Boot when running on top of SBI (Supervisor Binary Interface).
+	  This implementation of the debug UART is not available while in
+	  M-mode (e.g. during SPL).
 
 config DEBUG_UART_S5P
 	bool "Samsung S5P"

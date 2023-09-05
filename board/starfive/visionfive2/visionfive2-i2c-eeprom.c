@@ -504,7 +504,7 @@ int mac_read_from_eeprom(void)
 	}
 
 	// 1, setup ethaddr env
-	eth_env_set_enetaddr("eth0addr", pbuf.eeprom.atom4.data.mac0_addr);
+	eth_env_set_enetaddr("ethaddr", pbuf.eeprom.atom4.data.mac0_addr);
 	eth_env_set_enetaddr("eth1addr", pbuf.eeprom.atom4.data.mac1_addr);
 
 	/**

@@ -204,6 +204,22 @@ void sbi_srst_reset(unsigned long type, unsigned long reason)
 		  0, 0, 0, 0);
 }
 
+/**
+ * sbi_dbcn_write_byte() - write byte to debug console
+ *
+ * @ch:		byte to be written
+ * Return:	SBI error code (SBI_SUCCESS = 0 on success)
+ */
+int sbi_dbcn_write_byte(unsigned char ch)
+{
+	struct sbiret ret;
+
+	ret = sbi_ecall(SBI_EXT_DBCN,
+			SBI_EXT_DBCN_CONSOLE_WRITE_BYTE,
+			ch, 0, 0, 0, 0, 0);
+	return ret.error;
+}
+
 #ifdef CONFIG_SBI_V01
 
 /**

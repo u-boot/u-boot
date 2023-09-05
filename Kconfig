@@ -372,6 +372,17 @@ if EXPERT
 	  When disabling this, please check if malloc calls, maybe
 	  should be replaced by calloc - if one expects zeroed memory.
 
+config SPL_SYS_MALLOC_CLEAR_ON_INIT
+	bool "Init with zeros the memory reserved for malloc (slow) in SPL"
+	depends on SPL
+	default SYS_MALLOC_CLEAR_ON_INIT
+	help
+	  Same as SYS_MALLOC_CLEAR_ON_INIT, but for SPL. It's possible to
+	  Enable it without SYS_MALLOC_CLEAR_ON_INIT. It's useful for boards
+	  that must have particular memory regions zero'ed before first use.
+	  If SYS_SPL_MALLOC_START is configured to be in such region, this
+	  option should be enabled.
+
 config SYS_MALLOC_DEFAULT_TO_INIT
 	bool "Default malloc to init while reserving the memory for it"
 	help
