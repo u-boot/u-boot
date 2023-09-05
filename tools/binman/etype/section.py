@@ -40,7 +40,7 @@ class Entry_section(Entry):
     For example code, see etypes which subclass `Entry_section`, or `cbfs.py`
     for a more involved example::
 
-       $ grep -l \(Entry_section tools/binman/etype/*.py
+       $ grep -l \\(Entry_section tools/binman/etype/*.py
 
     ReadNode()
         Call `super().ReadNode()`, then read any special properties for the
