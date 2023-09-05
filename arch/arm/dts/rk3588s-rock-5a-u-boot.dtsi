@@ -10,25 +10,13 @@
 #include <dt-bindings/usb/pd.h>
 
 / {
-	aliases {
-		mmc1 = &sdmmc;
-	};
-
 	chosen {
 		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &sdhci;
 	};
-};
-
-&sdmmc {
-	bus-width = <4>;
-	status = "okay";
 };
 
 &sdhci {
 	cap-mmc-highspeed;
 	mmc-ddr-1_8v;
 	mmc-hs200-1_8v;
-	pinctrl-names = "default";
-	pinctrl-0 = <&emmc_bus8 &emmc_clk &emmc_cmd &emmc_data_strobe &emmc_rstnout>;
 };
-
