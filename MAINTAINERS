@@ -365,7 +365,6 @@ F:	drivers/watchdog/orion_wdt.c
 F:	include/configs/mv-common.h
 
 ARM MARVELL PCIE CONTROLLER DRIVERS
-M:	Pali Rohár <pali@kernel.org>
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git

@@ -1,6 +1,5 @@
 TURRIS MOX BOARD
 M:	Marek Behún <kabel@kernel.org>
-M:	Pali Rohár <pali@kernel.org>
 S:	Maintained
 F:	arch/arm/dts/armada-3720-turris-mox*.dts*
 F:	board/CZ.NIC/turris_mox/
