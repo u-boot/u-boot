@@ -575,19 +575,6 @@ static mbinptr av_[NAV * 2 + 2] = {
  IAV(120), IAV(121), IAV(122), IAV(123), IAV(124), IAV(125), IAV(126), IAV(127)
 };
 
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-static void malloc_bin_reloc(void)
-{
-	mbinptr *p = &av_[2];
-	size_t i;
-
-	for (i = 2; i < ARRAY_SIZE(av_); ++i, ++p)
-		*p = (mbinptr)((ulong)*p + gd->reloc_off);
-}
-#else
-static inline void malloc_bin_reloc(void) {}
-#endif
-
 #ifdef CONFIG_SYS_MALLOC_DEFAULT_TO_INIT
 static void malloc_init(void);
 #endif
@@ -634,7 +621,6 @@ void mem_malloc_init(ulong start, ulong size)
 #ifdef CONFIG_SYS_MALLOC_CLEAR_ON_INIT
 	memset((void *)mem_malloc_start, 0x0, size);
 #endif
-	malloc_bin_reloc();
 }
 
 /* field-extraction macros */
