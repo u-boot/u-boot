@@ -196,38 +196,6 @@ static int spi_post_probe(struct udevice *bus)
 
 		spi->max_hz = dev_read_u32_default(bus, "spi-max-frequency", 0);
 	}
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	struct dm_spi_ops *ops = spi_get_ops(bus);
-	static int reloc_done;
-
-	if (!reloc_done) {
-		if (ops->claim_bus)
-			ops->claim_bus += gd->reloc_off;
-		if (ops->release_bus)
-			ops->release_bus += gd->reloc_off;
-		if (ops->set_wordlen)
-			ops->set_wordlen += gd->reloc_off;
-		if (ops->xfer)
-			ops->xfer += gd->reloc_off;
-		if (ops->set_speed)
-			ops->set_speed += gd->reloc_off;
-		if (ops->set_mode)
-			ops->set_mode += gd->reloc_off;
-		if (ops->cs_info)
-			ops->cs_info += gd->reloc_off;
-		if (ops->mem_ops) {
-			struct spi_controller_mem_ops *mem_ops =
-				(struct spi_controller_mem_ops *)ops->mem_ops;
-			if (mem_ops->adjust_op_size)
-				mem_ops->adjust_op_size += gd->reloc_off;
-			if (mem_ops->supports_op)
-				mem_ops->supports_op += gd->reloc_off;
-			if (mem_ops->exec_op)
-				mem_ops->exec_op += gd->reloc_off;
-		}
-		reloc_done++;
-	}
-#endif
 
 	return 0;
 }
