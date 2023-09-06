@@ -42,7 +42,7 @@ static void announce_and_cleanup(int fake)
 #ifdef CONFIG_BOOTSTAGE_FDT
 	bootstage_fdt_add_report();
 #endif
-#ifdef CONFIG_BOOTSTAGE_REPORT
+#if CONFIG_IS_ENABLED(BOOTSTAGE_REPORT)
 	bootstage_report();
 #endif
 
