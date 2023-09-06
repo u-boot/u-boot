@@ -18,10 +18,6 @@
 #include <miiphy.h>
 #include <asm/global_data.h>
 
-#define BB_MII_RELOCATE(v,off) (v += (v?off:0))
-
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifndef CONFIG_BITBANGMII_MULTI
 
 /*
@@ -110,21 +106,9 @@ int bb_miiphy_init(void)
 {
 	int i;
 
-	for (i = 0; i < bb_miiphy_buses_num; i++) {
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-		/* Relocate the hook pointers*/
-		BB_MII_RELOCATE(bb_miiphy_buses[i].init, gd->reloc_off);
-		BB_MII_RELOCATE(bb_miiphy_buses[i].mdio_active, gd->reloc_off);
-		BB_MII_RELOCATE(bb_miiphy_buses[i].mdio_tristate, gd->reloc_off);
-		BB_MII_RELOCATE(bb_miiphy_buses[i].set_mdio, gd->reloc_off);
-		BB_MII_RELOCATE(bb_miiphy_buses[i].get_mdio, gd->reloc_off);
-		BB_MII_RELOCATE(bb_miiphy_buses[i].set_mdc, gd->reloc_off);
-		BB_MII_RELOCATE(bb_miiphy_buses[i].delay, gd->reloc_off);
-#endif
-		if (bb_miiphy_buses[i].init != NULL) {
+	for (i = 0; i < bb_miiphy_buses_num; i++)
+		if (bb_miiphy_buses[i].init != NULL)
 			bb_miiphy_buses[i].init(&bb_miiphy_buses[i]);
-		}
-	}
 
 	return 0;
 }
