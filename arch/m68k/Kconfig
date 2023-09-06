@@ -4,8 +4,8 @@ menu "M68000 architecture"
 config SYS_ARCH
 	default "m68k"
 
-config NEEDS_MANUAL_RELOC
-	def_bool y
+config STATIC_RELA
+	default y
 
 # processor family
 config MCF520x
