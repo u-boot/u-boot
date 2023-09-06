@@ -53,7 +53,7 @@ int spl_blk_load_image(struct spl_image_info *spl_image,
 	blk_desc = blk_get_devnum_by_uclass_id(uclass_id, devnum);
 	if (!blk_desc) {
 		printf("blk desc for %d %d not found\n", uclass_id, devnum);
-		goto out;
+		return -ENODEV;
 	}
 
 	blk_show_device(uclass_id, devnum);
