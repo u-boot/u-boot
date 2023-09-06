@@ -329,16 +329,6 @@ int event_register(const char *id, enum event_t type, event_handler_t func,
 void event_show_spy_list(void);
 
 /**
- * event_manual_reloc() - Relocate event handler pointers
- *
- * Relocate event handler pointers for all static event spies. It is called
- * during the generic board init sequence, after relocation.
- *
- * Return: 0 if OK
- */
-int event_manual_reloc(void);
-
-/**
  * event_type_name() - Get the name of an event type
  *
  * @type: Type to check
