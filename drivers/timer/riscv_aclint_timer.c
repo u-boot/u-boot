@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <div64.h>
 #include <dm.h>
 #include <timer.h>
 #include <asm/io.h>
@@ -41,6 +42,28 @@ u64 notrace timer_early_get_count(void)
 {
 	return readq((void __iomem *)MTIME_REG(RISCV_MMODE_TIMERBASE,
 					       RISCV_MMODE_TIMEROFF));
+}
+#endif
+
+#if CONFIG_IS_ENABLED(RISCV_MMODE) && CONFIG_IS_ENABLED(BOOTSTAGE)
+ulong timer_get_boot_us(void)
+{
+	int ret;
+	u64 ticks = 0;
+	u32 rate;
+
+	ret = dm_timer_init();
+	if (!ret) {
+		rate = timer_get_rate(gd->timer);
+		timer_get_count(gd->timer, &ticks);
+	} else {
+		rate = RISCV_MMODE_TIMER_FREQ;
+		ticks = readq((void __iomem *)MTIME_REG(RISCV_MMODE_TIMERBASE,
+							RISCV_MMODE_TIMEROFF));
+	}
+
+	/* Below is converted from time(us) = (tick / rate) * 10000000 */
+	return lldiv(ticks * 1000, (rate / 1000));
 }
 #endif
 
