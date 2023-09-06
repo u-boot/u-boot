@@ -357,14 +357,6 @@ char *env_get_default(const char *name);
 void env_set_default(const char *s, int flags);
 
 /**
- * env_reloc() - Relocate the 'env' sub-commands
- *
- * This is used for those unfortunate archs with crappy toolchains
- */
-void env_reloc(void);
-
-
-/**
  * env_import_fdt() - Import environment values from device tree blob
  *
  * This uses the value of the environment variable "env_fdt_path" as a
