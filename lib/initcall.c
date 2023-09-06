@@ -97,13 +97,3 @@ int initcall_run_list(const init_fnc_t init_sequence[])
 
 	return 0;
 }
-
-void initcall_manual_reloc(init_fnc_t init_sequence[])
-{
-	init_fnc_t *ptr;
-
-	for (ptr = init_sequence; *ptr; ptr++) {
-		if (!initcall_is_event(*ptr))
-			MANUAL_RELOC(*ptr);
-	}
-}
