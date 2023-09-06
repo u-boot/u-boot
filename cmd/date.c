@@ -20,12 +20,6 @@ static const char * const weekdays[] = {
 	"Sun", "Mon", "Tues", "Wednes", "Thurs", "Fri", "Satur",
 };
 
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-#define RELOC(a)	((typeof(a))((unsigned long)(a) + gd->reloc_off))
-#else
-#define RELOC(a)	a
-#endif
-
 int mk_date (const char *, struct rtc_time *);
 
 static struct rtc_time default_tm = { 0, 0, 0, 1, 1, 2000, 6, 0, 0 };
@@ -113,7 +107,7 @@ static int do_date(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf ("Date: %4d-%02d-%02d (%sday)    Time: %2d:%02d:%02d\n",
 			tm.tm_year, tm.tm_mon, tm.tm_mday,
 			(tm.tm_wday<0 || tm.tm_wday>6) ?
-				"unknown " : RELOC(weekdays[tm.tm_wday]),
+				"unknown " : weekdays[tm.tm_wday],
 			tm.tm_hour, tm.tm_min, tm.tm_sec);
 
 		break;
