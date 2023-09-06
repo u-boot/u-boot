@@ -43,7 +43,6 @@ RUN apt-get update && apt-get install -y \
 	clang-16 \
 	coreutils \
 	cpio \
-	cppcheck \
 	curl \
 	device-tree-compiler \
 	dosfstools \
@@ -105,7 +104,6 @@ RUN apt-get update && apt-get install -y \
 	python3-virtualenv \
 	rpm2cpio \
 	sbsigntool \
-	sloccount \
 	socat \
 	softhsm2 \
 	sparse \

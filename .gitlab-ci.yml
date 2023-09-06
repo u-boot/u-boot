@@ -151,22 +151,6 @@ check for new CONFIG symbols outside Kconfig:
         :^doc/ :^arch/arm/dts/ :^scripts/kconfig/lkc.h
         :^include/linux/kconfig.h :^tools/ && exit 1 || exit 0
 
-# QA jobs for code analytics
-# static code analysis with cppcheck (we can add --enable=all later)
-cppcheck:
-  stage: testsuites
-  script:
-    - cppcheck -j$(nproc) --force --quiet --inline-suppr .
-
-# search for TODO within source tree
-grep TODO/FIXME/HACK:
-  stage: testsuites
-  script:
-    - grep -r TODO .
-    - grep -r FIXME .
-    # search for HACK within source tree and ignore HACKKIT board
-    - grep -r HACK . | grep -v HACKKIT
-
 # build documentation
 docs:
   stage: testsuites
@@ -177,12 +161,6 @@ docs:
     - make htmldocs KDOC_WERROR=1
     - make infodocs
 
-# some statistics about the code base
-sloccount:
-  stage: testsuites
-  script:
-    - sloccount .
-
 # ensure all configs have MAINTAINERS entries
 Check for configs without MAINTAINERS entry:
   stage: testsuites
@@ -190,16 +168,12 @@ Check for configs without MAINTAINERS entry:
     - ./tools/buildman/buildman --maintainer-check || exit 0
 
 # Ensure host tools build
-Build tools-only:
+Build tools-only and envtools:
   stage: testsuites
   script:
-    - make tools-only_config tools-only -j$(nproc)
-
-# Ensure env tools build
-Build envtools:
-  stage: testsuites
-  script:
-    - make tools-only_config envtools -j$(nproc)
+    - make tools-only_config tools-only -j$(nproc);
+      make mrproper;
+      make tools-only_config envtools -j$(nproc)
 
 Run binman, buildman, dtoc, Kconfig and patman testsuites:
   stage: testsuites
@@ -288,6 +262,23 @@ sandbox with clang test.py:
 sandbox without LTO test.py:
   variables:
     TEST_PY_BD: "sandbox"
+    BUILD_ENV: "NO_LTO=1"
+  <<: *buildman_and_testpy_dfn
+
+sandbox64 test.py:
+  variables:
+    TEST_PY_BD: "sandbox64"
+  <<: *buildman_and_testpy_dfn
+
+sandbox64 with clang test.py:
+  variables:
+    TEST_PY_BD: "sandbox64"
+    OVERRIDE: "-O clang-16"
+  <<: *buildman_and_testpy_dfn
+
+sandbox64 without LTO test.py:
+  variables:
+    TEST_PY_BD: "sandbox64"
     BUILD_ENV: "NO_LTO=1"
   <<: *buildman_and_testpy_dfn
 
