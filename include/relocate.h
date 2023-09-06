@@ -39,18 +39,4 @@ int clear_bss(void);
  */
 int do_elf_reloc_fixups(void);
 
-/**
- * manual_reloc() - Manually relocate a pointer if needed
- *
- * This is a nop in almost all cases, except for the systems with a broken gcc
- * which need to manually relocate some things.
- *
- * @ptr: Pointer to relocate
- * Return: new pointer value
- */
-static inline void *manual_reloc(void *ptr)
-{
-	return ptr;
-}
-
 #endif	/* _RELOCATE_H_ */

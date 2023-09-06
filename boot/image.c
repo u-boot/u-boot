@@ -571,7 +571,7 @@ const char *genimg_get_cat_name(enum ih_category category, uint id)
 	entry = get_table_entry(table_info[category].table, id);
 	if (!entry)
 		return unknown_msg(category);
-	return manual_reloc(entry->lname);
+	return entry->lname;
 }
 
 /**
@@ -591,7 +591,7 @@ const char *genimg_get_cat_short_name(enum ih_category category, uint id)
 	entry = get_table_entry(table_info[category].table, id);
 	if (!entry)
 		return unknown_msg(category);
-	return manual_reloc(entry->sname);
+	return entry->sname;
 }
 
 int genimg_get_cat_count(enum ih_category category)
@@ -641,7 +641,7 @@ char *get_table_entry_name(const table_entry_t *table, char *msg, int id)
 	table = get_table_entry(table, id);
 	if (!table)
 		return msg;
-	return manual_reloc(table->lname);
+	return table->lname;
 }
 
 const char *genimg_get_os_name(uint8_t os)
@@ -676,7 +676,7 @@ static const char *genimg_get_short_name(const table_entry_t *table, int val)
 	table = get_table_entry(table, val);
 	if (!table)
 		return "unknown";
-	return manual_reloc(table->sname);
+	return table->sname;
 }
 
 const char *genimg_get_type_short_name(uint8_t type)
@@ -719,7 +719,7 @@ int get_table_entry_id(const table_entry_t *table,
 	const table_entry_t *t;
 
 	for (t = table; t->id >= 0; ++t) {
-		if (t->sname && !strcasecmp(manual_reloc(t->sname), name))
+		if (t->sname && !strcasecmp(t->sname, name))
 			return t->id;
 	}
 	debug("Invalid %s Type: %s\n", table_name, name);
