@@ -81,13 +81,6 @@ struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
 	return bmp;
 }
 
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-void bmp_reloc(void)
-{
-	fixup_cmdtable(cmd_bmp_sub, ARRAY_SIZE(cmd_bmp_sub));
-}
-#endif
-
 int bmp_info(ulong addr)
 {
 	struct bmp_image *bmp = (struct bmp_image *)map_sysmem(addr, 0);
