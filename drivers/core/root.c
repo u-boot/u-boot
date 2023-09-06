@@ -55,81 +55,6 @@ void dm_fixup_for_gd_move(struct global_data *new_gd)
 	}
 }
 
-void fix_drivers(void)
-{
-	struct driver *drv =
-		ll_entry_start(struct driver, driver);
-	const int n_ents = ll_entry_count(struct driver, driver);
-	struct driver *entry;
-
-	for (entry = drv; entry != drv + n_ents; entry++) {
-		if (entry->of_match)
-			entry->of_match = (const struct udevice_id *)
-				((ulong)entry->of_match + gd->reloc_off);
-		if (entry->bind)
-			entry->bind += gd->reloc_off;
-		if (entry->probe)
-			entry->probe += gd->reloc_off;
-		if (entry->remove)
-			entry->remove += gd->reloc_off;
-		if (entry->unbind)
-			entry->unbind += gd->reloc_off;
-		if (entry->of_to_plat)
-			entry->of_to_plat += gd->reloc_off;
-		if (entry->child_post_bind)
-			entry->child_post_bind += gd->reloc_off;
-		if (entry->child_pre_probe)
-			entry->child_pre_probe += gd->reloc_off;
-		if (entry->child_post_remove)
-			entry->child_post_remove += gd->reloc_off;
-		/* OPS are fixed in every uclass post_probe function */
-		if (entry->ops)
-			entry->ops += gd->reloc_off;
-	}
-}
-
-void fix_uclass(void)
-{
-	struct uclass_driver *uclass =
-		ll_entry_start(struct uclass_driver, uclass_driver);
-	const int n_ents = ll_entry_count(struct uclass_driver, uclass_driver);
-	struct uclass_driver *entry;
-
-	for (entry = uclass; entry != uclass + n_ents; entry++) {
-		if (entry->post_bind)
-			entry->post_bind += gd->reloc_off;
-		if (entry->pre_unbind)
-			entry->pre_unbind += gd->reloc_off;
-		if (entry->pre_probe)
-			entry->pre_probe += gd->reloc_off;
-		if (entry->post_probe)
-			entry->post_probe += gd->reloc_off;
-		if (entry->pre_remove)
-			entry->pre_remove += gd->reloc_off;
-		if (entry->child_post_bind)
-			entry->child_post_bind += gd->reloc_off;
-		if (entry->child_pre_probe)
-			entry->child_pre_probe += gd->reloc_off;
-		if (entry->init)
-			entry->init += gd->reloc_off;
-		if (entry->destroy)
-			entry->destroy += gd->reloc_off;
-	}
-}
-
-void fix_devices(void)
-{
-	struct driver_info *dev =
-		ll_entry_start(struct driver_info, driver_info);
-	const int n_ents = ll_entry_count(struct driver_info, driver_info);
-	struct driver_info *entry;
-
-	for (entry = dev; entry != dev + n_ents; entry++) {
-		if (entry->plat)
-			entry->plat += gd->reloc_off;
-	}
-}
-
 static int dm_setup_inst(void)
 {
 	DM_ROOT_NON_CONST = DM_DEVICE_GET(root);
@@ -179,12 +104,6 @@ int dm_init(bool of_live)
 	} else {
 		gd->uclass_root = &DM_UCLASS_ROOT_S_NON_CONST;
 		INIT_LIST_HEAD(DM_UCLASS_ROOT_NON_CONST);
-	}
-
-	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)) {
-		fix_drivers();
-		fix_uclass();
-		fix_devices();
 	}
 
 	if (CONFIG_IS_ENABLED(OF_PLATDATA_INST)) {
