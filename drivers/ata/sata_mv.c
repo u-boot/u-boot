@@ -34,6 +34,7 @@
 #include <common.h>
 #include <ahci.h>
 #include <blk.h>
+#include <bootdev.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <log.h>
@@ -1105,6 +1106,12 @@ static int sata_mv_probe(struct udevice *dev)
 			/* TODO: undo create */
 			continue;
 
+		ret = bootdev_setup_for_sibling_blk(blk, "sata_bootdev");
+		if (ret) {
+			printf("%s: Failed to create bootdev\n", __func__);
+			continue;
+		}
+
 		/* If we got here, the current SATA port was probed
 		 * successfully, so set the probe status to successful.
 		 */
@@ -1117,7 +1124,6 @@ static int sata_mv_probe(struct udevice *dev)
 static int sata_mv_scan(struct udevice *dev)
 {
 	/* Nothing to do here */
-
 	return 0;
 }
 
