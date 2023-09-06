@@ -1939,16 +1939,6 @@ static struct cmd_tbl cmd_i2c_sub[] = {
 	U_BOOT_CMD_MKENT(speed, 1, 1, do_i2c_bus_speed, "", ""),
 };
 
-static __maybe_unused void i2c_reloc(void)
-{
-	static int relocated;
-
-	if (!relocated) {
-		fixup_cmdtable(cmd_i2c_sub, ARRAY_SIZE(cmd_i2c_sub));
-		relocated = 1;
-	};
-}
-
 /**
  * do_i2c() - Handle the "i2c" command-line command
  * @cmdtp:	Command data struct pointer
@@ -1962,10 +1952,6 @@ static __maybe_unused void i2c_reloc(void)
 static int do_i2c(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct cmd_tbl *c;
-
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	i2c_reloc();
-#endif
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
