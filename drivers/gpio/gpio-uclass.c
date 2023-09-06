@@ -1498,36 +1498,6 @@ void devm_gpiod_put(struct udevice *dev, struct gpio_desc *desc)
 
 static int gpio_post_bind(struct udevice *dev)
 {
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	struct dm_gpio_ops *ops = (struct dm_gpio_ops *)device_get_ops(dev);
-	static int reloc_done;
-
-	if (!reloc_done) {
-		if (ops->request)
-			ops->request += gd->reloc_off;
-		if (ops->rfree)
-			ops->rfree += gd->reloc_off;
-		if (ops->direction_input)
-			ops->direction_input += gd->reloc_off;
-		if (ops->direction_output)
-			ops->direction_output += gd->reloc_off;
-		if (ops->get_value)
-			ops->get_value += gd->reloc_off;
-		if (ops->set_value)
-			ops->set_value += gd->reloc_off;
-		if (ops->get_function)
-			ops->get_function += gd->reloc_off;
-		if (ops->xlate)
-			ops->xlate += gd->reloc_off;
-		if (ops->set_flags)
-			ops->set_flags += gd->reloc_off;
-		if (ops->get_flags)
-			ops->get_flags += gd->reloc_off;
-
-		reloc_done++;
-	}
-#endif
-
 	if (CONFIG_IS_ENABLED(GPIO_HOG) && dev_has_ofnode(dev)) {
 		struct udevice *child;
 		ofnode node;
