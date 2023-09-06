@@ -138,11 +138,6 @@ The POST layer will export the following interface routines:
      mode the test is executed in (power-on, normal, power-fail,
      manual).
 
-  o) void post_reloc(ulong offset);
-
-     This routine will be called from board_init_r() and will
-     relocate the POST test table.
-
   o) int post_info(char *name);
 
      This routine will print the list of all POST tests that can be
