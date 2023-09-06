@@ -556,32 +556,6 @@ static int eth_post_probe(struct udevice *dev)
 	unsigned char env_enetaddr[ARP_HLEN];
 	char *source = "DT";
 
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	struct eth_ops *ops = eth_get_ops(dev);
-	static int reloc_done;
-
-	if (!reloc_done) {
-		if (ops->start)
-			ops->start += gd->reloc_off;
-		if (ops->send)
-			ops->send += gd->reloc_off;
-		if (ops->recv)
-			ops->recv += gd->reloc_off;
-		if (ops->free_pkt)
-			ops->free_pkt += gd->reloc_off;
-		if (ops->stop)
-			ops->stop += gd->reloc_off;
-		if (ops->mcast)
-			ops->mcast += gd->reloc_off;
-		if (ops->write_hwaddr)
-			ops->write_hwaddr += gd->reloc_off;
-		if (ops->read_rom_hwaddr)
-			ops->read_rom_hwaddr += gd->reloc_off;
-
-		reloc_done++;
-	}
-#endif
-
 	priv->state = ETH_STATE_INIT;
 	priv->running = false;
 
