@@ -20,6 +20,7 @@ Options:
 	-A, --fw-accept  firmware accept capsule, requires GUID, no image blob
 	-R, --fw-revert  firmware revert capsule, takes no GUID, no image blob
 	-o, --capoemflag Capsule OEM Flag, an integer between 0x0000 and 0xffff
+	-f, --cfg-file <config file> config file with capsule parameters
 	-h, --help                  print a help message
 """
 
@@ -79,6 +80,21 @@ class Bintoolmkeficapsule(bintool.Bintool):
         ]
 
         return self.run_cmd(*args)
+
+    def generate_capsule_cfg_file(self, cfg_file):
+        """Generate a capsule reading parameters from config file
+
+        Args:
+            cfg_file (str): Path to the config file
+
+        Returns:
+            None
+        """
+        args = [
+            f'--cfg-file={cfg_file}'
+        ]
+
+        self.run_cmd(*args)
 
     def fetch(self, method):
         """Fetch handler for mkeficapsule
