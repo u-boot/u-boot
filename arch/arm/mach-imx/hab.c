@@ -715,7 +715,7 @@ U_BOOT_CMD(
 U_BOOT_CMD(
 		hab_auth_img_or_fail, 4, 0,
 		do_authenticate_image_or_failover,
-		"authenticate image via HAB on failure drop to USB BootROM mode",
+		"authenticate image via HAB. Switch to USB BootROM mode on failure",
 		"addr length ivt_offset\n"
 		"addr - image hex address\n"
 		"length - image hex length\n"
