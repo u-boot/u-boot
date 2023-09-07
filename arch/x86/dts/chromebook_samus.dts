@@ -266,6 +266,7 @@
 			board-id-gpios = <&gpio_c 5 0>, <&gpio_c 4 0>,
 					<&gpio_c 3 0>, <&gpio_c 1 0>;
 			bootph-all;
+			fspm,training-delay = <7>;
 			spd {
 				#address-cells = <1>;
 				#size-cells = <0>;

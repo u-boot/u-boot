@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <init.h>
 #include <log.h>
+#include <spl.h>
 #include <syscon.h>
 #include <asm/cpu.h>
 #include <asm/global_data.h>
@@ -251,13 +252,28 @@ static int sdram_initialise(struct udevice *dev, struct udevice *me_dev,
 int mrc_common_init(struct udevice *dev, void *pei_data, bool use_asm_linkage)
 {
 	struct udevice *me_dev;
-	int ret;
+	int ret, delay;
 
 	ret = syscon_get_by_driver_data(X86_SYSCON_ME, &me_dev);
 	if (ret)
 		return ret;
 
+	delay = dev_read_u32_default(dev, "fspm,training-delay", 0);
+	if (spl_phase() == PHASE_SPL) {
+		if (delay)
+			printf("SDRAM training (%d seconds)...", delay);
+		else
+			log_debug("SDRAM init...");
+	} else {
+		if (delay)
+			printf("(%d seconds)...", delay);
+	}
+
 	ret = sdram_initialise(dev, me_dev, pei_data, use_asm_linkage);
+	if (delay)
+		printf("done\n");
+	else
+		log_debug("done\n");
 	if (ret)
 		return ret;
 	quick_ram_check();
