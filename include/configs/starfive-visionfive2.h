@@ -18,6 +18,8 @@
 /* Environment options */
 
 #define BOOT_TARGET_DEVICES(func) \
+	func(NVME, nvme, 0) \
+	func(USB, usb, 0) \
 	func(MMC, mmc, 1) \
 	func(DHCP, dhcp, na)
 
