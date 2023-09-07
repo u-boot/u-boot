@@ -25,12 +25,13 @@ are supported:
    - Bayley Bay CRB
    - Cherry Hill CRB
    - Congatec QEVAL 2.0 & conga-QA3/E3845
+   - Coral (Apollo Lake - Chromebook 2017)
    - Cougar Canyon 2 CRB
    - Crown Bay CRB
    - Galileo
-   - Link (Chromebook Pixel)
+   - Link (Ivy Bridge - Chromebook Pixel)
    - Minnowboard MAX
-   - Samus (Chromebook Pixel 2015)
+   - Samus (Broadwell - Chromebook Pixel 2015)
    - QEMU x86 (32-bit & 64-bit)
 
 As for loading an OS, U-Boot supports directly booting a 32-bit or 64-bit
