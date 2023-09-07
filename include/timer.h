@@ -55,10 +55,10 @@ u64 timer_conv_64(u32 count);
 int timer_get_count(struct udevice *dev, u64 *count);
 
 /**
- * timer_get_rate() - Get the timer input clock frequency
+ * timer_get_rate() - Get the timer input clock frequency in Hz
  * @dev: The timer device
  *
- * Return: the timer input clock frequency
+ * Return: the timer input clock frequency in Hz
  */
 unsigned long timer_get_rate(struct udevice *dev);
 
@@ -87,7 +87,7 @@ struct timer_ops {
 /**
  * struct timer_dev_priv - information about a device used by the uclass
  *
- * @clock_rate: the timer input clock frequency
+ * @clock_rate: the timer input clock frequency in Hz
  */
 struct timer_dev_priv {
 	unsigned long clock_rate;
