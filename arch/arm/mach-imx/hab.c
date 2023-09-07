@@ -662,7 +662,7 @@ static int do_authenticate_image_or_failover(struct cmd_tbl *cmdtp, int flag,
 {
 	int ret = CMD_RET_FAILURE;
 
-	if (argc != 4) {
+	if (argc < 3) {
 		ret = CMD_RET_USAGE;
 		goto error;
 	}
