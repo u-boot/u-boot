@@ -7334,5 +7334,34 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertIn("entry is missing properties: image-guid",
                       str(e.exception))
 
+    def _SetupTmpOutDir(self, outfname):
+        self.tmpdir = tempfile.mkdtemp(prefix='binman.')
+        self.capsule_fname = os.path.join(self.tmpdir, outfname)
+
+    def _BuildCapsuleCfgFile(self):
+        cfg_file = self._MakeInputFile('capsule_cfg_file.txt', b'')
+        payload_fname = self._MakeInputFile('capsule_input.bin', EFI_CAPSULE_DATA)
+        self._SetupTmpOutDir('image.bin')
+
+        with open(f'{cfg_file}', 'w') as fd:
+            fd.write('{\n')
+            fd.write('\timage-index: 0x1\n')
+            fd.write('\timage-guid: 09d7cf52-0720-4710-91d1-08469b7fe9c8\n')
+            fd.write(f'\tpayload: {payload_fname}\n')
+            fd.write(f'\tcapsule: {self.capsule_fname}\n')
+            fd.write('}\n')
+
+    def testCapsuleGenCfgFile(self):
+        """Test generation of EFI capsule through config file"""
+        self._BuildCapsuleCfgFile()
+
+        self._DoReadFile('319_capsule_cfg.dts')
+
+        data = tools.read_file(self.capsule_fname)
+        self._CheckCapsule(data)
+
+        if not self.preserve_outdirs:
+            shutil.rmtree(self.tmpdir)
+
 if __name__ == "__main__":
     unittest.main()

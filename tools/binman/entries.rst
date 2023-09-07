@@ -532,6 +532,41 @@ payload using the blob-ext subnode.
 
 
 
+.. _etype_efi_capsule_cfg_file:
+
+Entry: capsule: Entry for generating EFI Capsule files through config file
+--------------------------------------------------------------------------
+
+This is an entry for generating EFI capsules through a config
+file. The parameters needed for generation of the capsules are
+provided through a config file. This results in generation of one or
+multiple capsules, corresponding to the entries in the config file.
+
+Properties / Entry arguments:
+    - cfg-file: Config file for providing capsule parameters. These are
+      parameters needed for generating the capsules. The parameters can
+      be listed by running the './tools/mkeficapsule -h' command.
+
+For more details on the description of the capsule format, and the capsule
+update functionality, refer Section 8.5 and Chapter 23 in the `UEFI
+specification`_.
+
+A typical capsule entry node would then look something like this::
+
+    capsule {
+            type = "efi-capsule-cfg-file";
+            cfg-file = "path/to/the/config/file";
+    };
+
+In the above example, the entry only contains the path to the config file.
+All parameters needed for generation of the capsule, including the input
+payload image and the output capsule file are specified through the entries
+in the config file.
+
+.. _`UEFI specification`: https://uefi.org/sites/default/files/resources/UEFI_Spec_2_10_Aug29.pdf
+
+
+
 .. _etype_encrypted:
 
 Entry: encrypted: Externally built encrypted binary blob
