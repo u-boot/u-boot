@@ -241,61 +241,39 @@ static const u8 phy_init[] = {
 #endif
 };
 
+#define MASK_BYTE(reg, nr) (((reg) >> ((nr) * 8)) & 0x1f)
 static void mctl_phy_configure_odt(const struct dram_para *para)
 {
-	unsigned int val;
+	uint32_t val_lo, val_hi;
 
-	val = para->dx_dri & 0x1f;
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x388);
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x38c);
+	val_lo = para->dx_dri;
+	val_hi = para->dx_dri;
+	writel_relaxed(MASK_BYTE(val_lo, 0), SUNXI_DRAM_PHY0_BASE + 0x388);
+	writel_relaxed(MASK_BYTE(val_hi, 0), SUNXI_DRAM_PHY0_BASE + 0x38c);
+	writel_relaxed(MASK_BYTE(val_lo, 1), SUNXI_DRAM_PHY0_BASE + 0x3c8);
+	writel_relaxed(MASK_BYTE(val_hi, 1), SUNXI_DRAM_PHY0_BASE + 0x3cc);
+	writel_relaxed(MASK_BYTE(val_lo, 2), SUNXI_DRAM_PHY0_BASE + 0x408);
+	writel_relaxed(MASK_BYTE(val_hi, 2), SUNXI_DRAM_PHY0_BASE + 0x40c);
+	writel_relaxed(MASK_BYTE(val_lo, 3), SUNXI_DRAM_PHY0_BASE + 0x448);
+	writel_relaxed(MASK_BYTE(val_hi, 3), SUNXI_DRAM_PHY0_BASE + 0x44c);
 
-	val = (para->dx_dri >> 8) & 0x1f;
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x3c8);
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x3cc);
+	val_lo = para->ca_dri;
+	val_hi = para->ca_dri;
+	writel_relaxed(MASK_BYTE(val_lo, 0), SUNXI_DRAM_PHY0_BASE + 0x340);
+	writel_relaxed(MASK_BYTE(val_hi, 0), SUNXI_DRAM_PHY0_BASE + 0x344);
+	writel_relaxed(MASK_BYTE(val_lo, 1), SUNXI_DRAM_PHY0_BASE + 0x348);
+	writel_relaxed(MASK_BYTE(val_hi, 1), SUNXI_DRAM_PHY0_BASE + 0x34c);
 
-	val = (para->dx_dri >> 16) & 0x1f;
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x408);
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x40c);
-
-	val = (para->dx_dri >> 24) & 0x1f;
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x448);
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x44c);
-
-	val = para->ca_dri & 0x1f;
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x340);
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x344);
-
-	val = (para->ca_dri >> 8) & 0x1f;
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x348);
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x34c);
-
-	val = para->dx_odt & 0x1f;
-	if (para->type == SUNXI_DRAM_TYPE_LPDDR3)
-		writel_relaxed(0, SUNXI_DRAM_PHY0_BASE + 0x380);
-	else
-		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x380);
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x384);
-
-	val = (para->dx_odt >> 8) & 0x1f;
-	if (para->type == SUNXI_DRAM_TYPE_LPDDR3)
-		writel_relaxed(0, SUNXI_DRAM_PHY0_BASE + 0x3c0);
-	else
-		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x3c0);
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x3c4);
-
-	val = (para->dx_odt >> 16) & 0x1f;
-	if (para->type == SUNXI_DRAM_TYPE_LPDDR3)
-		writel_relaxed(0, SUNXI_DRAM_PHY0_BASE + 0x400);
-	else
-		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x400);
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x404);
-
-	val = (para->dx_odt >> 24) & 0x1f;
-	if (para->type == SUNXI_DRAM_TYPE_LPDDR3)
-		writel_relaxed(0, SUNXI_DRAM_PHY0_BASE + 0x440);
-	else
-		writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x440);
-	writel_relaxed(val, SUNXI_DRAM_PHY0_BASE + 0x444);
+	val_lo = (para->type == SUNXI_DRAM_TYPE_LPDDR3) ? 0 : para->dx_odt;
+	val_hi = para->dx_odt;
+	writel_relaxed(MASK_BYTE(val_lo, 0), SUNXI_DRAM_PHY0_BASE + 0x380);
+	writel_relaxed(MASK_BYTE(val_hi, 0), SUNXI_DRAM_PHY0_BASE + 0x384);
+	writel_relaxed(MASK_BYTE(val_lo, 1), SUNXI_DRAM_PHY0_BASE + 0x3c0);
+	writel_relaxed(MASK_BYTE(val_hi, 1), SUNXI_DRAM_PHY0_BASE + 0x3c4);
+	writel_relaxed(MASK_BYTE(val_lo, 2), SUNXI_DRAM_PHY0_BASE + 0x400);
+	writel_relaxed(MASK_BYTE(val_hi, 2), SUNXI_DRAM_PHY0_BASE + 0x404);
+	writel_relaxed(MASK_BYTE(val_lo, 3), SUNXI_DRAM_PHY0_BASE + 0x440);
+	writel_relaxed(MASK_BYTE(val_hi, 3), SUNXI_DRAM_PHY0_BASE + 0x444);
 
 	dmb();
 }
