@@ -3,6 +3,8 @@
  * Copyright (c) 2018 Google, Inc
  */
 
+#define LOG_CATEGORY	LOGC_BOOT
+
 #include <common.h>
 #include <debug_uart.h>
 #include <dm.h>
