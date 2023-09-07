@@ -76,15 +76,25 @@ def efi_capsule_data(request, u_boot_config):
         check_call('cd %s; echo -n u-boot:Old > u-boot.bin.old; echo -n u-boot:New > u-boot.bin.new; echo -n u-boot-env:Old > u-boot.env.old; echo -n u-boot-env:New > u-boot.env.new' % data_dir,
                    shell=True)
 
+        capsule_cfg_file_gen = u_boot_config.buildconfig.get('config_efi_use_capsule_cfg_file')
+        capsule_cfg_file_flag=""
+        if capsule_cfg_file_gen:
+            capsule_cfg_flag="-DCONFIG_EFI_USE_CAPSULE_CFG_FILE"
+            check_call('cd %s; '
+                       'cp u-boot.bin.* %s; cp u-boot.env.* %s'
+                       % (data_dir, u_boot_config.build_dir, u_boot_config.build_dir), shell=True)
+            check_call('cp %s/test/py/tests/test_efi_capsule/sandbox_capsule_cfg.txt %s'
+                       % (u_boot_config.source_dir, data_dir), shell=True)
+
         pythonpath = os.environ.get('PYTHONPATH', '')
         os.environ['PYTHONPATH'] = pythonpath + ':' + '%s/scripts/dtc/pylibfdt' % u_boot_config.build_dir
         check_call('cd %s; '
-                   'cc -E -I %s/include -x assembler-with-cpp -o capsule_gen_tmp.dts %s/test/py/tests/test_efi_capsule/capsule_gen_binman.dts; '
+                   'cc -E -I %s/include -x assembler-with-cpp %s -o capsule_gen_tmp.dts %s/test/py/tests/test_efi_capsule/capsule_gen_binman.dts; '
                    'dtc -I dts -O dtb capsule_gen_tmp.dts -o capsule_binman.dtb;'
-                   % (data_dir, u_boot_config.source_dir, u_boot_config.source_dir), shell=True)
+                   % (data_dir, u_boot_config.source_dir, capsule_cfg_file_flag, u_boot_config.source_dir), shell=True)
         check_call('cd %s; '
-                   './tools/binman/binman --toolpath %s/tools build -u -d %s/capsule_binman.dtb -O %s -m --allow-missing -I %s -I ./board/sandbox -I ./arch/sandbox/dts'
-                   % (u_boot_config.source_dir, u_boot_config.build_dir, data_dir, data_dir, data_dir), shell=True)
+                   '%s/tools/binman/binman --toolpath %s/tools build -u -d capsule_binman.dtb -O . -m --allow-missing -I . -I %s/board/sandbox -I %s/arch/sandbox/dts'
+                   % (data_dir, u_boot_config.source_dir, u_boot_config.build_dir, u_boot_config.source_dir, u_boot_config.source_dir), shell=True)
         os.environ['PYTHONPATH'] = pythonpath
 
         # Create a disk image with EFI system partition

@@ -54,6 +54,13 @@
 		};
 	};
 
+#ifdef CONFIG_EFI_USE_CAPSULE_CFG_FILE
+	capsule {
+		efi-capsule-cfg-file {
+			cfg-file = "sandbox_capsule_cfg.txt";
+		};
+	};
+#else
 	capsule1 {
 		filename = "Test01";
 		efi-capsule {
@@ -318,4 +325,5 @@
 			};
 		};
 	};
+#endif /* !CONFIG_EFI_USE_CAPSULE_CFG_FILE */
 };
