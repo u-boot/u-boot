@@ -39,12 +39,12 @@ Update image
 ------------
 
 After the build finished, there will be an update image called
-u-boot.update. This can either be used in the DFU mode (which isn't
+u-boot-update.bin. This can either be used in the DFU mode (which isn't
 supported yet) or encapsulated in an EFI UpdateCapsule.
 
 To build the capsule use the following command
 
- $ tools/mkeficapsule -f u-boot.update -i 1 UpdateUboot
+ $ tools/mkeficapsule -f u-boot-update.bin -i 1 UpdateUboot
 
 Afterward you can copy this file to your ESP into the /EFI/UpdateCapsule/
 folder. On the next EFI boot this will automatically update your
