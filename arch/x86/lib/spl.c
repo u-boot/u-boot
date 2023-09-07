@@ -230,6 +230,9 @@ void board_init_f_r(void)
 	mtrr_commit(false);
 	init_cache();
 	gd->flags &= ~GD_FLG_SERIAL_READY;
+
+	/* make sure driver model is not accessed from now on */
+	gd->flags |= GD_FLG_DM_DEAD;
 	debug("cache status %d\n", dcache_status());
 	board_init_r(gd, 0);
 }
