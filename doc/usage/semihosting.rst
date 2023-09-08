@@ -23,7 +23,7 @@ eMMC or other NV media are available.
 There are two main ARM virtual Fixed Virtual Platform (FVP) models,
 `Versatile Express (VE) FVP and BASE FVP
 <http://www.arm.com/products/tools/models/fast-models/foundation-model.php>`_.
-The initial vexpress64 u-boot board created here runs on the VE virtual
+The initial vexpress64 U-Boot board created here runs on the VE virtual
 platform using the license-free Foundation_v8 simulator. Fortunately,
 the Foundation_v8 simulator also supports the BASE_FVP model which
 companies can purchase licenses for and contain much more functionality.

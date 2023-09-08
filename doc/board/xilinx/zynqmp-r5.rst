@@ -26,7 +26,7 @@ configure and build armv7 toolchain::
 Notes
 ^^^^^
 
-Output fragment is u-boot.
+Output fragment is U-Boot.
 
 Loading
 -------
@@ -38,7 +38,7 @@ Bootgen
 ^^^^^^^
 
 The first way is to use Xilinx FSBL (First stage
-bootloader) to load u-boot and start it. The following bif can be used for boot
+bootloader) to load U-Boot and start it. The following bif can be used for boot
 image generation via Xilinx bootgen utility::
 
 

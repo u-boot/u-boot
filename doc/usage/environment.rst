@@ -216,7 +216,7 @@ fdt_high
     0xffffffffffffffff (64-bit machines) then
     the fdt will not be copied at all on boot.  For this
     to work it must reside in writable memory, have
-    sufficient padding on the end of it for u-boot to
+    sufficient padding on the end of it for U-Boot to
     add the information it needs into it, and the memory
     must be accessible by the kernel. This usage is strongly discouraged
     however as it also stops U-Boot from ensuring the device tree starting

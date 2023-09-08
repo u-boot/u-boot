@@ -83,7 +83,7 @@ Mainline status
 ---------------
 
 - Added basic board configurations support.
-- Added zynq u-boot bsp code - arch/arm/mach-zynq
+- Added zynq U-Boot bsp code - arch/arm/mach-zynq
 - Added zynq boards named - zc70x, zed, microzed, zc770_xm010/xm011/xm012/xm013
 - Added zynq drivers:
 
