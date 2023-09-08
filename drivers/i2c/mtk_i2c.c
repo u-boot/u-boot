@@ -621,7 +621,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c_priv *priv,
 	i2c_writel(priv, REG_INTR_MASK, ~(restart_flag | I2C_HS_NACKERR |
 		  I2C_ACKERR | I2C_TRANSAC_COMP));
 
-	if (!tmo && trans_error != 0) {
+	if (tmo || trans_error != 0) {
 		if (tmo) {
 			ret = -ETIMEDOUT;
 			if (!priv->filter_msg)
