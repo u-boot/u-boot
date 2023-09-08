@@ -187,10 +187,10 @@ static inline void raw_write_daif(unsigned int daif)
 	__asm__ __volatile__("msr DAIF, %x0\n\t" : : "r" (daif) : "memory");
 }
 
-typedef void (*atf_entry_t)(struct bl31_params *params, void *plat_params);
+typedef void __noreturn (*atf_entry_t)(struct bl31_params *params, void *plat_params);
 
-static void bl31_entry(uintptr_t bl31_entry, uintptr_t bl32_entry,
-		       uintptr_t bl33_entry, uintptr_t fdt_addr)
+static void __noreturn bl31_entry(uintptr_t bl31_entry, uintptr_t bl32_entry,
+				  uintptr_t bl33_entry, uintptr_t fdt_addr)
 {
 	atf_entry_t  atf_entry = (atf_entry_t)bl31_entry;
 	void *bl31_params;
@@ -251,7 +251,7 @@ uintptr_t spl_fit_images_get_entry(void *blob, int node)
 	return val;
 }
 
-void spl_invoke_atf(struct spl_image_info *spl_image)
+void __noreturn spl_invoke_atf(struct spl_image_info *spl_image)
 {
 	uintptr_t  bl32_entry = 0;
 	uintptr_t  bl33_entry = CONFIG_TEXT_BASE;
