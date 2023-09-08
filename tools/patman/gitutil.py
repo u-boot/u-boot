@@ -651,7 +651,7 @@ def get_default_user_name():
     Returns:
         User name found in .gitconfig file, or None if none
     """
-    uname = command.output_one_line('git', 'config', '--global', 'user.name')
+    uname = command.output_one_line('git', 'config', '--global', '--includes', 'user.name')
     return uname
 
 
@@ -661,7 +661,7 @@ def get_default_user_email():
     Returns:
         User's email found in .gitconfig file, or None if none
     """
-    uemail = command.output_one_line('git', 'config', '--global', 'user.email')
+    uemail = command.output_one_line('git', 'config', '--global', '--includes', 'user.email')
     return uemail
 
 
