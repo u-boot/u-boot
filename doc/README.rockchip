@@ -38,16 +38,8 @@ Building
     (or you can use another cross compiler if you prefer)
 
 2. To build RK3308 board:
-   - Get the rkbin
-     => git clone https://github.com/rockchip-linux/rkbin.git
 
-   - Compile U-Boot
-     => cd /path/to/u-boot
-     => export BL31=/path/to/rkbin/bin/rk33/rk3308_bl31_v2.22.elf
-     => make roc-cc-rk3308_defconfig
-     => make CROSS_COMPILE=aarch64-linux-gnu- all
-     => ./tools/mkimage -n rk3308 -T rksd -d /path/to/rkbin/bin/rk33/rk3308_ddr_589MHz_uart2_m0_v1.26.bin idbloader.img
-     => cat spl/u-boot-spl.bin  >> idbloader.img
+   See doc/board/rockchip/rockchip.rst
 
 3. To build RK3399 board:
 
