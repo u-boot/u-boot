@@ -21,8 +21,8 @@ important that the dtc used has support for binary includes -- refer to::
 for its latest version. mkimage (together with dtc) takes as input
 an image source file, which describes the contents of the image and defines
 its various properties used during booting. By convention, image source file
-has the ".its" extension, also, the details of its format are given in
-doc/uImage.FIT/source_file_format.txt. The actual data that is to be included in
+has the ".its" extension, also, the details of its format are provided in
+:doc:`source_file_format`. The actual data that is to be included in
 the uImage (kernel, ramdisk, etc.) is specified in the image source file in the
 form of paths to appropriate data files. The outcome of the image creation
 process is a binary file (by convention with the ".itb" extension) that
