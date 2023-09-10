@@ -5,27 +5,37 @@
 
 #include <common.h>
 #include <console.h>
-#ifndef CONFIG_SYS_COREBOOT
-#error This driver requires coreboot
-#endif
-
 #include <asm/cb_sysinfo.h>
-
-struct cbmem_console {
-	u32 buffer_size;
-	u32 buffer_cursor;
-	u8  buffer_body[0];
-}  __attribute__ ((__packed__));
-
-static struct cbmem_console *cbmem_console_p;
 
 void cbmemc_putc(struct stdio_dev *dev, char data)
 {
-	int cursor;
+	const struct sysinfo_t *sysinfo = cb_get_sysinfo();
+	struct cbmem_console *cons;
+	uint pos, flags;
 
-	cursor = cbmem_console_p->buffer_cursor++;
-	if (cursor < cbmem_console_p->buffer_size)
-		cbmem_console_p->buffer_body[cursor] = data;
+	if (!sysinfo)
+		return;
+	cons = sysinfo->cbmem_cons;
+	if (!cons)
+		return;
+
+	pos = cons->cursor & CBMC_CURSOR_MASK;
+
+	/* preserve the overflow flag if present */
+	flags = cons->cursor & ~CBMC_CURSOR_MASK;
+
+	cons->body[pos++] = data;
+
+	/*
+	 * Deal with overflow - the flag may be cleared by another program which
+	 * reads the buffer out later, e.g. Linux
+	 */
+	if (pos >= cons->size) {
+		pos = 0;
+		flags |= CBMC_OVERFLOW;
+	}
+
+	cons->cursor = flags | pos;
 }
 
 void cbmemc_puts(struct stdio_dev *dev, const char *str)
@@ -40,7 +50,6 @@ int cbmemc_init(void)
 {
 	int rc;
 	struct stdio_dev cons_dev;
-	cbmem_console_p = lib_sysinfo.cbmem_cons;
 
 	memset(&cons_dev, 0, sizeof(cons_dev));
 
