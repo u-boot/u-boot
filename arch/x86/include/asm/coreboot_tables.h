@@ -299,11 +299,24 @@ struct cb_vdat {
 #define CB_TAG_TIMESTAMPS		0x0016
 #define CB_TAG_CBMEM_CONSOLE		0x0017
 
+#define CBMC_CURSOR_MASK	((1 << 28) - 1)
+#define CBMC_OVERFLOW		BIT(31)
+
+/*
+ * struct cbmem_console - In-memory console buffer for coreboot
+ *
+ * Structure describing console buffer. It is overlaid on a flat memory area,
+ * with body covering the extent of the memory. Once the buffer is full,
+ * output will wrap back around to the start of the buffer. The high bit of the
+ * cursor field gets set to indicate that this happened. If the underlying
+ * storage allows this, the buffer will persist across multiple boots and append
+ * to the previous log.
+ */
 struct cbmem_console {
 	u32 size;
 	u32 cursor;
-	char body[0];
-} __packed;
+	u8  body[0];
+};
 
 #define CB_TAG_MRC_CACHE		0x0018
 
