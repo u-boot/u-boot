@@ -1603,7 +1603,7 @@ int ofnode_read_bootscript_address(u64 *bootscr_address, u64 *bootscr_offset)
 
 	uboot = ofnode_path("/options/u-boot");
 	if (!ofnode_valid(uboot)) {
-		printf("%s: Missing /u-boot node\n", __func__);
+		debug("%s: Missing /u-boot node\n", __func__);
 		return -EINVAL;
 	}
 
@@ -1629,7 +1629,7 @@ int ofnode_read_bootscript_flash(u64 *bootscr_flash_offset,
 
 	uboot = ofnode_path("/options/u-boot");
 	if (!ofnode_valid(uboot)) {
-		printf("%s: Missing /u-boot node\n", __func__);
+		debug("%s: Missing /u-boot node\n", __func__);
 		return -EINVAL;
 	}
 
