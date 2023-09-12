@@ -1,3 +1,5 @@
+#include "imx7s-u-boot.dtsi"
+
 &fec2 {
 	status = "disable";
 };

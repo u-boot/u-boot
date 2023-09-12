@@ -1,3 +1,5 @@
+#include "imx7s-u-boot.dtsi"
+
 /{
     aliases {
         mmc0 = &usdhc3;
