@@ -890,7 +890,8 @@ static int zynq_gem_probe(struct udevice *dev)
 	if (ret)
 		goto err3;
 
-	if (priv->interface == PHY_INTERFACE_MODE_SGMII && phy.dev) {
+	if (priv->interface == PHY_INTERFACE_MODE_SGMII &&
+	    generic_phy_valid(&phy)) {
 		if (IS_ENABLED(CONFIG_DM_ETH_PHY)) {
 			if (device_is_compatible(dev, "cdns,zynqmp-gem") ||
 			    device_is_compatible(dev, "xlnx,zynqmp-gem")) {

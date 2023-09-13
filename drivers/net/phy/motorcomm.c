@@ -11,6 +11,7 @@
 #include <phy.h>
 #include <linux/bitfield.h>
 
+#define PHY_ID_YT8511				0x0000010a
 #define PHY_ID_YT8531				0x4f51e91b
 #define PHY_ID_MASK				GENMASK(31, 0)
 
@@ -25,6 +26,31 @@
 #define YTPHY_DTS_OUTPUT_CLK_DIS		0
 #define YTPHY_DTS_OUTPUT_CLK_25M		25000000
 #define YTPHY_DTS_OUTPUT_CLK_125M		125000000
+
+#define YT8511_EXT_CLK_GATE	0x0c
+#define YT8511_EXT_DELAY_DRIVE	0x0d
+#define YT8511_EXT_SLEEP_CTRL	0x27
+
+/* 2b00 25m from pll
+ * 2b01 25m from xtl *default*
+ * 2b10 62.m from pll
+ * 2b11 125m from pll
+ */
+#define YT8511_CLK_125M		(BIT(2) | BIT(1))
+#define YT8511_PLLON_SLP	BIT(14)
+
+/* RX Delay enabled = 1.8ns 1000T, 8ns 10/100T */
+#define YT8511_DELAY_RX		BIT(0)
+
+/* TX Gig-E Delay is bits 7:4, default 0x5
+ * TX Fast-E Delay is bits 15:12, default 0xf
+ * Delay = 150ps * N - 250ps
+ * On = 2000ps, off = 50ps
+ */
+#define YT8511_DELAY_GE_TX_EN	(0xf << 4)
+#define YT8511_DELAY_GE_TX_DIS	(0x2 << 4)
+#define YT8511_DELAY_FE_TX_EN	(0xf << 12)
+#define YT8511_DELAY_FE_TX_DIS	(0x2 << 12)
 
 #define YT8531_SCR_SYNCE_ENABLE		BIT(6)
 /* 1b0 output 25m clock   *default*
@@ -347,6 +373,58 @@ static void ytphy_dt_parse(struct phy_device *phydev)
 		priv->flag |= TX_CLK_1000_INVERTED;
 }
 
+static int yt8511_config(struct phy_device *phydev)
+{
+	u32 ge, fe;
+	int ret;
+
+	ret = genphy_config_aneg(phydev);
+	if (ret < 0)
+		return ret;
+
+	switch (phydev->interface) {
+	case PHY_INTERFACE_MODE_RGMII:
+		ge = YT8511_DELAY_GE_TX_DIS;
+		fe = YT8511_DELAY_FE_TX_DIS;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+		ge = YT8511_DELAY_RX | YT8511_DELAY_GE_TX_DIS;
+		fe = YT8511_DELAY_FE_TX_DIS;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		ge = YT8511_DELAY_GE_TX_EN;
+		fe = YT8511_DELAY_FE_TX_EN;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_ID:
+		ge = YT8511_DELAY_RX | YT8511_DELAY_GE_TX_EN;
+		fe = YT8511_DELAY_FE_TX_EN;
+		break;
+	default: /* do not support other modes */
+		return -EOPNOTSUPP;
+	}
+
+	ret = ytphy_modify_ext(phydev, YT8511_EXT_CLK_GATE,
+			       (YT8511_DELAY_RX | YT8511_DELAY_GE_TX_EN), ge);
+	if (ret < 0)
+		return ret;
+	/* set clock mode to 125m */
+	ret = ytphy_modify_ext(phydev, YT8511_EXT_CLK_GATE,
+			       YT8511_CLK_125M, YT8511_CLK_125M);
+	if (ret < 0)
+		return ret;
+	ret = ytphy_modify_ext(phydev, YT8511_EXT_DELAY_DRIVE,
+			       YT8511_DELAY_FE_TX_EN, fe);
+	if (ret < 0)
+		return ret;
+	/* sleep control, disable PLL in sleep for now */
+	ret = ytphy_modify_ext(phydev, YT8511_EXT_SLEEP_CTRL, YT8511_PLLON_SLP,
+			       0);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
 static int yt8531_config(struct phy_device *phydev)
 {
 	struct ytphy_plat_priv	*priv = phydev->priv;
@@ -424,6 +502,16 @@ static int yt8531_probe(struct phy_device *phydev)
 
 	return 0;
 }
+
+U_BOOT_PHY_DRIVER(motorcomm8511) = {
+	.name          = "YT8511 Gigabit Ethernet",
+	.uid           = PHY_ID_YT8511,
+	.mask          = PHY_ID_MASK,
+	.features      = PHY_GBIT_FEATURES,
+	.config        = &yt8511_config,
+	.startup       = &genphy_startup,
+	.shutdown      = &genphy_shutdown,
+};
 
 U_BOOT_PHY_DRIVER(motorcomm8531) = {
 	.name          = "YT8531 Gigabit Ethernet",

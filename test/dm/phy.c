@@ -29,7 +29,9 @@ static int dm_test_phy_base(struct unit_test_state *uts)
 	 * Get the same phy port in 2 different ways and compare.
 	 */
 	ut_assertok(generic_phy_get_by_name(parent, "phy1", &phy1_method1));
+	ut_assert(generic_phy_valid(&phy1_method1));
 	ut_assertok(generic_phy_get_by_index(parent, 0, &phy1_method2));
+	ut_assert(generic_phy_valid(&phy1_method2));
 	ut_asserteq(phy1_method1.id, phy1_method2.id);
 
 	/*
@@ -47,9 +49,23 @@ static int dm_test_phy_base(struct unit_test_state *uts)
 	ut_assert(phy2.dev != phy3.dev);
 
 	/* Try to get a non-existing phy */
-	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_PHY, 4, &dev));
+	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_PHY, 5, &dev));
 	ut_asserteq(-ENODATA, generic_phy_get_by_name(parent,
 					"phy_not_existing", &phy1_method1));
+	ut_assert(!generic_phy_valid(&phy1_method1));
+	ut_asserteq(-ENOENT, generic_phy_get_by_index(parent, 3,
+						      &phy1_method2));
+	ut_assert(!generic_phy_valid(&phy1_method2));
+
+	/* Try to get a phy where of_xlate fail */
+	ut_assertok(uclass_get_device_by_name(UCLASS_SIMPLE_BUS,
+					      "gen_phy_user2", &parent));
+	ut_asserteq(-EINVAL, generic_phy_get_by_name(parent, "phy1",
+						     &phy1_method1));
+	ut_assert(!generic_phy_valid(&phy1_method1));
+	ut_asserteq(-EINVAL, generic_phy_get_by_index(parent, 0,
+						      &phy1_method2));
+	ut_assert(!generic_phy_valid(&phy1_method2));
 
 	return 0;
 }
@@ -218,3 +234,32 @@ static int dm_test_phy_multi_exit(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_phy_multi_exit, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+static int dm_test_phy_setup(struct unit_test_state *uts)
+{
+	struct phy phy;
+	struct udevice *parent;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_SIMPLE_BUS,
+					      "gen_phy_user", &parent));
+
+	/* normal */
+	ut_assertok(generic_setup_phy(parent, &phy, 0));
+	ut_assertok(generic_shutdown_phy(&phy));
+
+	/* power_off fail with -EIO */
+	ut_assertok(generic_setup_phy(parent, &phy, 1));
+	ut_asserteq(-EIO, generic_shutdown_phy(&phy));
+
+	/* power_on fail with -EIO */
+	ut_asserteq(-EIO, generic_setup_phy(parent, &phy, 2));
+	ut_assertok(generic_shutdown_phy(&phy));
+
+	/* generic_phy_get_by_index fail with -ENOENT */
+	ut_asserteq(-ENOENT, generic_phy_get_by_index(parent, 3, &phy));
+	ut_assertok(generic_setup_phy(parent, &phy, 3));
+	ut_assertok(generic_shutdown_phy(&phy));
+
+	return 0;
+}
+DM_TEST(dm_test_phy_setup, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);

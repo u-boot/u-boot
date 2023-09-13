@@ -433,6 +433,11 @@
 		#phy-cells = <0>;
 	};
 
+	phy_provider3: gen_phy@3 {
+		compatible = "sandbox,phy";
+		#phy-cells = <2>;
+	};
+
 	gen_phy_user: gen_phy_user {
 		compatible = "simple-bus";
 		phys = <&phy_provider0 0>, <&phy_provider0 1>, <&phy_provider1>;
@@ -443,6 +448,12 @@
 		compatible = "simple-bus";
 		phys = <&phy_provider0 0>, <&phy_provider2>;
 		phy-names = "phy1", "phy2";
+	};
+
+	gen_phy_user2: gen_phy_user2 {
+		compatible = "simple-bus";
+		phys = <&phy_provider3 0 0>;
+		phy-names = "phy1";
 	};
 
 	some-bus {
