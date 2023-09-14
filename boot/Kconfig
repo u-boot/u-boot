@@ -372,8 +372,8 @@ config BOOT_DEFAULTS
 	  of U-Boot to boot various images. Currently much functionality is
 	  tied to enabling the command that exercises it.
 
-config BOOTSTD
-	bool "Standard boot support"
+menuconfig BOOTSTD
+	bool "Standard boot"
 	default y
 	depends on DM && OF_CONTROL && BLK
 	help
@@ -392,6 +392,8 @@ config BOOTSTD
 	    - bootmeth - a method to scan a bootdev to find bootflows (owned by
 	        U-Boot)
 	    - bootflow - a description of how to boot (owned by the distro)
+
+if BOOTSTD
 
 config SPL_BOOTSTD
 	bool "Standard boot support in SPL"
@@ -412,8 +414,6 @@ config VPL_BOOTSTD
 	  (Verified Boot for Embedded) can be used, since it depends on standard
 	  boot. It is enabled by default since the main purpose of VPL is to
 	  handle the firmware part of VBE.
-
-if BOOTSTD
 
 config BOOTSTD_FULL
 	bool "Enhanced features for standard boot"
@@ -673,7 +673,7 @@ config BOOTMETH_SCRIPT
 	  This provides a way to try out standard boot on an existing boot flow.
 	  It is not enabled by default to save space.
 
-endif
+endif # BOOTSTD
 
 config LEGACY_IMAGE_FORMAT
 	bool "Enable support for the legacy image format"
