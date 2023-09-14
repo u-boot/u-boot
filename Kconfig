@@ -585,9 +585,9 @@ config MP
 	  This provides an option to bringup different processors
 	  in multiprocessor cases.
 
-endmenu		# General setup
-
 source "api/Kconfig"
+
+endmenu		# General setup
 
 source "boot/Kconfig"
 
