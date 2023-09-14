@@ -127,36 +127,9 @@ static int uclass_cpu_init(struct uclass *uc)
 	return ret;
 }
 
-static int uclass_cpu_post_bind(struct udevice *dev)
-{
-	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC) &&
-	    (gd->flags & GD_FLG_RELOC)) {
-		struct cpu_ops *ops = cpu_get_ops(dev);
-		static int reloc_done;
-
-		if (!reloc_done) {
-			if (ops->get_desc)
-				MANUAL_RELOC(ops->get_desc);
-			if (ops->get_info)
-				MANUAL_RELOC(ops->get_info);
-			if (ops->get_count)
-				MANUAL_RELOC(ops->get_count);
-			if (ops->get_vendor)
-				MANUAL_RELOC(ops->get_vendor);
-			if (ops->is_current)
-				MANUAL_RELOC(ops->is_current);
-
-			reloc_done++;
-		}
-	}
-
-	return 0;
-}
-
 UCLASS_DRIVER(cpu) = {
 	.id		= UCLASS_CPU,
 	.name		= "cpu",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.init		= uclass_cpu_init,
-	.post_bind	= uclass_cpu_post_bind,
 };

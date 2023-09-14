@@ -151,13 +151,6 @@ static int initr_reloc_global_data(void)
 	 */
 	gd->env_addr += gd->reloc_off;
 #endif
-	/*
-	 * The fdt_blob needs to be moved to new relocation address
-	 * incase of FDT blob is embedded with in image
-	 */
-	if (IS_ENABLED(CONFIG_OF_EMBED) && IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC))
-		gd->fdt_blob += gd->reloc_off;
-
 #ifdef CONFIG_EFI_LOADER
 	/*
 	 * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
@@ -294,15 +287,6 @@ static int initr_announce(void)
 	debug("Now running in RAM - U-Boot at: %08lx\n", gd->relocaddr);
 	return 0;
 }
-
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-static int initr_manual_reloc_cmdtable(void)
-{
-	fixup_cmdtable(ll_entry_start(struct cmd_tbl, cmd),
-		       ll_entry_count(struct cmd_tbl, cmd));
-	return 0;
-}
-#endif
 
 static int initr_binman(void)
 {
@@ -606,9 +590,6 @@ static init_fnc_t init_sequence_r[] = {
 	 */
 #endif
 	initr_reloc_global_data,
-#if IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC) && CONFIG_IS_ENABLED(EVENT)
-	event_manual_reloc,
-#endif
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 	initr_unlock_ram_in_cache,
 #endif
@@ -657,12 +638,6 @@ static init_fnc_t init_sequence_r[] = {
 	initr_watchdog,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_NEEDS_MANUAL_RELOC) && defined(CONFIG_BLOCK_CACHE)
-	blkcache_init,
-#endif
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	initr_manual_reloc_cmdtable,
-#endif
 	arch_initr_trap,
 #if defined(CONFIG_BOARD_EARLY_INIT_R)
 	board_early_init_r,
@@ -805,9 +780,6 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	gd = new_gd;
 #endif
 	gd->flags &= ~GD_FLG_LOG_READY;
-
-	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC))
-		initcall_manual_reloc(init_sequence_r);
 
 	if (initcall_run_list(init_sequence_r))
 		hang();

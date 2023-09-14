@@ -168,20 +168,6 @@ void event_show_spy_list(void)
 	}
 }
 
-#if IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)
-int event_manual_reloc(void)
-{
-	struct evspy_info *spy, *end;
-
-	spy = ll_entry_start(struct evspy_info, evspy_info);
-	end = ll_entry_end(struct evspy_info, evspy_info);
-	for (; spy < end; spy++)
-		MANUAL_RELOC(spy->func);
-
-	return 0;
-}
-#endif
-
 #if CONFIG_IS_ENABLED(EVENT_DYNAMIC)
 static void spy_free(struct event_spy *spy)
 {

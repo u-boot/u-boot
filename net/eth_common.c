@@ -36,10 +36,6 @@ void eth_common_init(void)
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 	miiphy_init();
 #endif
-
-#if defined(CONFIG_NEEDS_MANUAL_RELOC) && defined(CONFIG_PHYLIB)
-	phy_init();
-#endif
 #endif
 }
 

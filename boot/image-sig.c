@@ -57,20 +57,6 @@ struct checksum_algo *image_get_checksum_algo(const char *full_name)
 	int i;
 	const char *name;
 
-	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)) {
-		static bool done;
-
-		if (!done) {
-			done = true;
-			for (i = 0; i < ARRAY_SIZE(checksum_algos); i++) {
-				struct checksum_algo *algo = &checksum_algos[i];
-
-				MANUAL_RELOC(algo->name);
-				MANUAL_RELOC(algo->calculate);
-			}
-		}
-	}
-
 	for (i = 0; i < ARRAY_SIZE(checksum_algos); i++) {
 		name = checksum_algos[i].name;
 		/* Make sure names match and next char is a comma */
@@ -86,20 +72,6 @@ struct crypto_algo *image_get_crypto_algo(const char *full_name)
 {
 	struct crypto_algo *crypto, *end;
 	const char *name;
-
-	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)) {
-		static bool done;
-
-		if (!done) {
-			done = true;
-			crypto = ll_entry_start(struct crypto_algo, cryptos);
-			end = ll_entry_end(struct crypto_algo, cryptos);
-			for (; crypto < end; crypto++) {
-				MANUAL_RELOC(crypto->name);
-				MANUAL_RELOC(crypto->verify);
-			}
-		}
-	}
 
 	/* Move name to after the comma */
 	name = strchr(full_name, ',');

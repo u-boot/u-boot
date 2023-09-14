@@ -407,11 +407,7 @@ static int print_active_callback(struct env_entry *entry)
 	for (i = 0, clbkp = ll_entry_start(struct env_clbk_tbl, env_clbk);
 	     i < num_callbacks;
 	     i++, clbkp++) {
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-		if (entry->callback == clbkp->callback + gd->reloc_off)
-#else
 		if (entry->callback == clbkp->callback)
-#endif
 			break;
 	}
 
@@ -1221,13 +1217,6 @@ static struct cmd_tbl cmd_env_sub[] = {
 	U_BOOT_CMD_MKENT(exists, 2, 0, do_env_exists, "", ""),
 #endif
 };
-
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-void env_reloc(void)
-{
-	fixup_cmdtable(cmd_env_sub, ARRAY_SIZE(cmd_env_sub));
-}
-#endif
 
 static int do_env(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

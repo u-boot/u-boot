@@ -46,24 +46,11 @@ static struct cmd_tbl cmd_blkc_sub[] = {
 	U_BOOT_CMD_MKENT(configure, 3, 0, blkc_configure, "", ""),
 };
 
-static __maybe_unused void blkc_reloc(void)
-{
-	static int relocated;
-
-	if (!relocated) {
-		fixup_cmdtable(cmd_blkc_sub, ARRAY_SIZE(cmd_blkc_sub));
-		relocated = 1;
-	};
-}
-
 static int do_blkcache(struct cmd_tbl *cmdtp, int flag,
 		       int argc, char *const argv[])
 {
 	struct cmd_tbl *c;
 
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	blkc_reloc();
-#endif
 	if (argc < 2)
 		return CMD_RET_USAGE;
 

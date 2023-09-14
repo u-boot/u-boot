@@ -318,32 +318,12 @@ int cmd_source_script(ulong addr, const char *fit_uname, const char *confname);
 # define _CMD_HELP(x)
 #endif
 
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-#define U_BOOT_SUBCMDS_RELOC(_cmdname)					\
-	static void _cmdname##_subcmds_reloc(void)			\
-	{								\
-		static int relocated;					\
-									\
-		if (relocated)						\
-			return;						\
-									\
-		fixup_cmdtable(_cmdname##_subcmds,			\
-			       ARRAY_SIZE(_cmdname##_subcmds));		\
-		relocated = 1;						\
-	}
-#else
-#define U_BOOT_SUBCMDS_RELOC(_cmdname)					\
-	static void _cmdname##_subcmds_reloc(void) { }
-#endif
-
 #define U_BOOT_SUBCMDS_DO_CMD(_cmdname)					\
 	static int do_##_cmdname(struct cmd_tbl *cmdtp, int flag,	\
 				 int argc, char *const argv[],		\
 				 int *repeatable)			\
 	{								\
 		struct cmd_tbl *subcmd;					\
-									\
-		_cmdname##_subcmds_reloc();				\
 									\
 		/* We need at least the cmd and subcmd names. */	\
 		if (argc < 2 || argc > CONFIG_SYS_MAXARGS)		\
@@ -379,7 +359,6 @@ int cmd_source_script(ulong addr, const char *fit_uname, const char *confname);
 
 #define U_BOOT_SUBCMDS(_cmdname, ...)					\
 	static struct cmd_tbl _cmdname##_subcmds[] = { __VA_ARGS__ };	\
-	U_BOOT_SUBCMDS_RELOC(_cmdname)					\
 	U_BOOT_SUBCMDS_DO_CMD(_cmdname)					\
 	U_BOOT_SUBCMDS_COMPLETE(_cmdname)
 

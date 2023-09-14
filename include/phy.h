@@ -172,14 +172,6 @@ struct fixed_link {
 };
 
 /**
- * phy_init() - Initializes the PHY drivers
- * This function registers all available PHY drivers
- *
- * @return: 0 if OK, -ve on error
- */
-int phy_init(void);
-
-/**
  * phy_reset() - Resets the specified PHY
  * Issues a reset of the PHY and waits for it to complete
  *

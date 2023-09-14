@@ -9,10 +9,6 @@
 #include <env_internal.h>
 #include <asm/global_data.h>
 
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-DECLARE_GLOBAL_DATA_PTR;
-#endif
-
 /*
  * Look up a callback function pointer by name
  */
@@ -71,11 +67,7 @@ void env_callback_init(struct env_entry *var_entry)
 	if (!ret && strlen(callback_name)) {
 		clbkp = find_env_callback(callback_name);
 		if (clbkp != NULL)
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-			var_entry->callback = clbkp->callback + gd->reloc_off;
-#else
 			var_entry->callback = clbkp->callback;
-#endif
 	}
 }
 
@@ -112,11 +104,7 @@ static int set_callback(const char *name, const char *value, void *priv)
 			/* assign the requested callback */
 			clbkp = find_env_callback(value);
 			if (clbkp != NULL)
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-				ep->callback = clbkp->callback + gd->reloc_off;
-#else
 				ep->callback = clbkp->callback;
-#endif
 		}
 	}
 
