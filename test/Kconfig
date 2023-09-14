@@ -1,9 +1,4 @@
-config POST
-	bool "Power On Self Test support"
-	help
-	  See doc/README.POST for more details
-
-menu "Unit tests"
+menu "Testing"
 
 config UNIT_TEST
 	bool "Unit tests"
@@ -109,5 +104,10 @@ source "test/env/Kconfig"
 source "test/lib/Kconfig"
 source "test/optee/Kconfig"
 source "test/overlay/Kconfig"
+
+config POST
+	bool "Power On Self Test support"
+	help
+	  See doc/README.POST for more details
 
 endmenu
