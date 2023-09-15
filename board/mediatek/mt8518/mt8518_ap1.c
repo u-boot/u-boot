@@ -8,6 +8,7 @@
 #include <init.h>
 #include <log.h>
 #include <asm/global_data.h>
+#include <linux/printk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

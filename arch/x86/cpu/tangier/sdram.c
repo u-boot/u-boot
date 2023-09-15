@@ -9,6 +9,7 @@
 #include <asm/e820.h>
 #include <asm/global_data.h>
 #include <asm/sfi.h>
+#include <linux/printk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

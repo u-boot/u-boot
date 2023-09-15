@@ -19,6 +19,7 @@
 #include <g_dnl.h>
 #include <usb.h>
 #include <net.h>
+#include <linux/printk.h>
 
 int run_usb_dnl_gadget(int usbctrl_index, char *usb_dnl_gadget)
 {

@@ -15,6 +15,7 @@
 #include <linux/fips.h>
 #endif
 #include <crypto/internal/rsa.h>
+#include <linux/printk.h>
 #include "rsapubkey.asn1.h"
 #ifndef __UBOOT__
 #include "rsaprivkey.asn1.h"

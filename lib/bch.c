@@ -61,6 +61,7 @@
 #include <dm/devres.h>
 
 #include <linux/bitops.h>
+#include <linux/printk.h>
 #else
 #include <errno.h>
 #if defined(__FreeBSD__)

@@ -22,6 +22,7 @@
 #include <power-domain.h>
 #include <reset.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 
 #include <asm/io.h>
 #include <asm/gpio.h>

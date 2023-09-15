@@ -25,6 +25,7 @@
 #include <asm/arch/nic301.h>
 #include <asm/arch/scu.h>
 #include <asm/pl310.h>
+#include <linux/printk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

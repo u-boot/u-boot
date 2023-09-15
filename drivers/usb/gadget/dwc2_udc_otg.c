@@ -28,6 +28,7 @@
 #include <dm/devres.h>
 #include <linux/bug.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 
 #include <linux/errno.h>
 #include <linux/list.h>

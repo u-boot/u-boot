@@ -29,6 +29,7 @@
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
 #include <linux/list.h>
+#include <linux/printk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

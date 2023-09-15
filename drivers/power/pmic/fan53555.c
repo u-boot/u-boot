@@ -10,6 +10,7 @@
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <i2c.h>
+#include <linux/printk.h>
 #include <power/fan53555.h>
 #include <power/pmic.h>
 #include <power/regulator.h>

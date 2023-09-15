@@ -16,6 +16,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 #include "pcie_fsl.h"
 #include <dm/device_compat.h>
 

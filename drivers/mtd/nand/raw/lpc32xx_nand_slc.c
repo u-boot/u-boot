@@ -23,6 +23,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/dma.h>
 #include <asm/arch/cpu.h>
+#include <linux/printk.h>
 
 struct lpc32xx_nand_slc_regs {
 	u32 data;

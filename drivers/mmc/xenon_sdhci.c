@@ -23,6 +23,7 @@
 #include <linux/libfdt.h>
 #include <malloc.h>
 #include <sdhci.h>
+#include <linux/printk.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;

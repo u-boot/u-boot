@@ -12,6 +12,7 @@
 #include <dm/devres.h>
 #include <generic-phy.h>
 #include <linux/list.h>
+#include <linux/printk.h>
 #include <power/regulator.h>
 
 /**

@@ -11,6 +11,7 @@
 #include <hexdump.h>
 #include <linux/bitops.h>
 #include <linux/bug.h>
+#include <linux/printk.h>
 
 /**
  * Descriptor header, present in all types of descriptors

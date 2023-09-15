@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch-tegra/ivc.h>
 #include <linux/bug.h>
+#include <linux/printk.h>
 
 #define TEGRA_IVC_ALIGN 64
 

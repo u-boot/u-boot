@@ -28,6 +28,7 @@
 #include <linux/errno.h>
 #include <linux/ioport.h>
 #include <linux/mbus.h>
+#include <linux/printk.h>
 #include <linux/sizes.h>
 
 /* PCIe unit register offsets */

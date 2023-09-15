@@ -28,6 +28,7 @@
 #include <syscon.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 #include <linux/soc/ti/ti-udma.h>
 
 #include "cpsw_mdio.h"

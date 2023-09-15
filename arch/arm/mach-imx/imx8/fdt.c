@@ -11,6 +11,7 @@
 #include <dm/ofnode.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
+#include <linux/printk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

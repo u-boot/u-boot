@@ -7,6 +7,7 @@
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/io.h>
+#include <linux/printk.h>
 
 #include "../init.h"
 #include "../sc-regs.h"

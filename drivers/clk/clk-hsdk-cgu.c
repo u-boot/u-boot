@@ -19,6 +19,7 @@
 #include <linux/delay.h>
 #include <linux/io.h>
 #include <asm/arcregs.h>
+#include <linux/printk.h>
 
 #include <dt-bindings/clock/snps,hsdk-cgu.h>
 

@@ -14,6 +14,7 @@
 #include <log.h>
 #include <linux/build_bug.h>
 #include <linux/compat.h>
+#include <linux/printk.h>
 
 /*
  * Define a new identifier which can be tested on by C code. A similar

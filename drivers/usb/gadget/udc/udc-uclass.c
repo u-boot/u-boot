@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
+#include <linux/printk.h>
 #include <linux/usb/gadget.h>
 
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)

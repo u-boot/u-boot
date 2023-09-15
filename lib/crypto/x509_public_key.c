@@ -13,6 +13,7 @@
 #include <linux/compat.h>
 #include <linux/err.h>
 #include <linux/errno.h>
+#include <linux/printk.h>
 #else
 #include <linux/module.h>
 #endif

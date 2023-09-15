@@ -12,6 +12,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <asm/global_data.h>
+#include <linux/printk.h>
 #include <linux/usb/otg.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>

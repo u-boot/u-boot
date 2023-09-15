@@ -15,6 +15,7 @@
 #include <asm/smp.h>
 #include <opensbi.h>
 #include <linux/libfdt.h>
+#include <linux/printk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -18,6 +18,7 @@
 #include <asm/arch/sys_proto.h>
 #include <dm.h>
 #include <nand.h>
+#include <linux/printk.h>
 
 struct nand_config {
 	u32 page;

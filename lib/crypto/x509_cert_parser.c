@@ -16,6 +16,7 @@
 #include <linux/err.h>
 #include <linux/oid_registry.h>
 #ifdef __UBOOT__
+#include <linux/printk.h>
 #include <linux/string.h>
 #endif
 #include <crypto/public_key.h>

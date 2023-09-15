@@ -15,6 +15,7 @@
 #if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 #include <asm/arch/imx-regs.h>
 #endif
+#include <linux/printk.h>
 #include "mxc_nand.h"
 
 #define DRIVER_NAME "mxc_nand"

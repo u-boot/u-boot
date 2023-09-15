@@ -21,6 +21,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/hardware.h>
+#include <linux/printk.h>
 #include <mach/at91_matrix.h>
 #include <linux/list.h>
 #include <linux/usb/ch9.h>

@@ -11,6 +11,7 @@
 #include <g_dnl.h>
 #include <sdp.h>
 #include <usb.h>
+#include <linux/printk.h>
 
 static int do_sdp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

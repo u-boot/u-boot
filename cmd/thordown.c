@@ -12,6 +12,7 @@
 #include <dfu.h>
 #include <g_dnl.h>
 #include <usb.h>
+#include <linux/printk.h>
 
 int do_thor_down(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

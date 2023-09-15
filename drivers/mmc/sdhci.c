@@ -19,6 +19,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/dma-mapping.h>
+#include <linux/printk.h>
 #include <phys2bus.h>
 #include <power/regulator.h>
 

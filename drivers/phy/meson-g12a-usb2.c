@@ -17,6 +17,7 @@
 #include <generic-phy.h>
 #include <regmap.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 #include <power/regulator.h>
 #include <reset.h>
 #include <clk.h>

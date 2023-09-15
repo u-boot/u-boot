@@ -16,6 +16,7 @@
 #ifndef __UBOOT__
 #include <linux/slab.h>
 #endif
+#include <linux/printk.h>
 
 /**
  * nanddev_bbt_init() - Initialize the BBT (Bad Block Table)

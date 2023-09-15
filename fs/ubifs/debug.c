@@ -18,6 +18,7 @@
 #include <hexdump.h>
 #include <log.h>
 #include <dm/devres.h>
+#include <linux/printk.h>
 
 #ifndef __UBOOT__
 #include <linux/module.h>

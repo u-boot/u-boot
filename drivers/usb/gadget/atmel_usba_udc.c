@@ -13,6 +13,7 @@
 #include <asm/gpio.h>
 #include <asm/hardware.h>
 #include <linux/list.h>
+#include <linux/printk.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/atmel_usba_udc.h>

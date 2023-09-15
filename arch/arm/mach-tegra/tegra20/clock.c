@@ -19,6 +19,7 @@
 #include <div64.h>
 #include <fdtdec.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 
 #include <dt-bindings/clock/tegra20-car.h>
 

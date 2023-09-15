@@ -15,6 +15,7 @@
 #include <time.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 
 /* Microsemi PHY ID's */
 #define PHY_ID_VSC8530                  0x00070560

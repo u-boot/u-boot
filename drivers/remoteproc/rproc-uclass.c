@@ -20,6 +20,7 @@
 #include <dm/uclass.h>
 #include <dm/uclass-internal.h>
 #include <linux/compat.h>
+#include <linux/printk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

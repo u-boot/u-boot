@@ -23,6 +23,7 @@
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3368-cru.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 #include <linux/stringify.h>
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)

@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <adc.h>
 #include <sandbox-adc.h>
+#include <linux/printk.h>
 
 /**
  * struct sandbox_adc_priv - sandbox ADC device's operation status and data

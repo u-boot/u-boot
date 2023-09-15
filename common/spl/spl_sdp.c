@@ -10,6 +10,7 @@
 #include <usb.h>
 #include <g_dnl.h>
 #include <sdp.h>
+#include <linux/printk.h>
 
 static int spl_sdp_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)

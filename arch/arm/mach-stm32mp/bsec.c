@@ -18,6 +18,7 @@
 #include <dm/device_compat.h>
 #include <linux/arm-smccc.h>
 #include <linux/iopoll.h>
+#include <linux/printk.h>
 
 #define BSEC_OTP_MAX_VALUE		95
 #define BSEC_OTP_UPPER_START		32

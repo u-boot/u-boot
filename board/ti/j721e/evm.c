@@ -22,6 +22,7 @@
 #include <spl.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
+#include <linux/printk.h>
 
 #include "../common/board_detect.h"
 

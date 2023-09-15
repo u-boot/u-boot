@@ -14,6 +14,7 @@
 #include <net.h>
 #include <usb.h>
 #include <watchdog.h>
+#include <linux/printk.h>
 #include <linux/stringify.h>
 
 static int do_fastboot_udp(int argc, char *const argv[],

@@ -12,6 +12,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 
 #include "comphy_core.h"
 #include "sata.h"

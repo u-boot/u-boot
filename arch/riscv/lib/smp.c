@@ -10,6 +10,7 @@
 #include <asm/barrier.h>
 #include <asm/global_data.h>
 #include <asm/smp.h>
+#include <linux/printk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

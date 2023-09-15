@@ -13,6 +13,7 @@
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm-generic/gpio.h>
+#include <linux/printk.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/pca9450.h>

@@ -11,6 +11,7 @@
 #include <asm/arch/bsec.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
+#include <linux/printk.h>
 
 /*
  * Closed device: OTP0

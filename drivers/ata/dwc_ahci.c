@@ -18,6 +18,7 @@
 #endif
 #include <asm/io.h>
 #include <generic-phy.h>
+#include <linux/printk.h>
 
 struct dwc_ahci_priv {
 	void *base;

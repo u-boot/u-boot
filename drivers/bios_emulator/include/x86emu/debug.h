@@ -43,6 +43,7 @@
 
 /* checks to be enabled for "runtime" */
 
+#include <linux/printk.h>
 #define CHECK_IP_FETCH_F		0x1
 #define CHECK_SP_ACCESS_F		0x2
 #define CHECK_MEM_ACCESS_F		0x4	/*using regular linear pointer */

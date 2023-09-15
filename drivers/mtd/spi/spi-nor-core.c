@@ -21,6 +21,7 @@
 #include <linux/errno.h>
 #include <linux/log2.h>
 #include <linux/math64.h>
+#include <linux/printk.h>
 #include <linux/sizes.h>
 #include <linux/bitfield.h>
 #include <linux/delay.h>

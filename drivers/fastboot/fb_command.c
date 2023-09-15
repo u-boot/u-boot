@@ -12,6 +12,7 @@
 #include <fb_nand.h>
 #include <part.h>
 #include <stdlib.h>
+#include <linux/printk.h>
 
 /**
  * image_size - final fastboot image size

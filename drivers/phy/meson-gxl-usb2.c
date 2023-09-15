@@ -11,12 +11,13 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <bitfield.h>
+#include <clk.h>
 #include <dm.h>
 #include <errno.h>
 #include <generic-phy.h>
 #include <regmap.h>
 #include <linux/delay.h>
-#include <clk.h>
+#include <linux/printk.h>
 #include <linux/usb/otg.h>
 
 #include <asm/arch/usb-gx.h>

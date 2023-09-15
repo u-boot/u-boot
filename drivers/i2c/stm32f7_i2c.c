@@ -19,6 +19,7 @@
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/io.h>
+#include <linux/printk.h>
 
 /* STM32 I2C registers */
 struct stm32_i2c_regs {

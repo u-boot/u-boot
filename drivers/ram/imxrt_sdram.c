@@ -15,6 +15,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/err.h>
+#include <linux/printk.h>
 
 /* SDRAM Command Code */
 #define SD_CC_ARD		0x0     /* Master Bus (AXI) command - Read */

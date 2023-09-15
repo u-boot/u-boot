@@ -10,6 +10,7 @@
 #include <console.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 
 #include <dm.h>
 #include <dm/lists.h>
