@@ -1493,7 +1493,8 @@ static int write_pages(struct twriter *tw, enum out_format_t out_format,
 static int write_flyrecord(struct twriter *tw, enum out_format_t out_format,
 			   int *missing_countp, int *skip_countp)
 {
-	int start, ret, len;
+	unsigned long long start, len;
+	int ret;
 	FILE *fout = tw->fout;
 	char str[200];
 
