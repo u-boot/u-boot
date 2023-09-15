@@ -1500,6 +1500,10 @@ static int write_flyrecord(struct twriter *tw, enum out_format_t out_format,
 
 	tw->ptr += fprintf(fout, "flyrecord%c", 0);
 
+	snprintf(str, sizeof(str),
+		 "[local] global counter uptime perf mono mono_raw boot x86-tsc\n");
+	len = strlen(str);
+
 	/* trace data */
 	start = ALIGN(tw->ptr + 16, TRACE_PAGE_SIZE);
 	tw->ptr += tputq(fout, start);
@@ -1510,9 +1514,6 @@ static int write_flyrecord(struct twriter *tw, enum out_format_t out_format,
 		return -1;
 	tw->ptr += ret;
 
-	snprintf(str, sizeof(str),
-		 "[local] global counter uptime perf mono mono_raw boot x86-tsc\n");
-	len = strlen(str);
 	tw->ptr += tputq(fout, len);
 	tw->ptr += tputs(fout, str);
 
