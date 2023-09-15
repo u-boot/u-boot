@@ -40,7 +40,7 @@ bytes
 pos
     number of bytes to skip
 
-addr, bytes, pos are hexadecimal numbers.
+part, addr, bytes, pos are hexadecimal numbers.
 
 Example
 -------
