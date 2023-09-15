@@ -707,6 +707,8 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 			return -ETIMEDOUT;
 		}
 
+		invalidate_dcache_range(addr, addr + size);
+
 		writel(GQSPI_DMA_DST_I_STS_DONE, &dma_regs->dmaisr);
 
 		debug("buf:0x%lx, rxbuf:0x%lx, *buf:0x%x len: 0x%x\n",
