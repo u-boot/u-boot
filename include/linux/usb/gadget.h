@@ -968,23 +968,23 @@ extern struct usb_ep *usb_ep_autoconfig(struct usb_gadget *,
 
 extern void usb_ep_autoconfig_reset(struct usb_gadget *);
 
-extern int usb_gadget_handle_interrupts(int index);
+extern int dm_usb_gadget_handle_interrupts(struct udevice *);
 
-#if CONFIG_IS_ENABLED(DM_USB_GADGET)
-int usb_gadget_initialize(int index);
-int usb_gadget_release(int index);
-int dm_usb_gadget_handle_interrupts(struct udevice *dev);
-#else
-#include <usb.h>
-static inline int usb_gadget_initialize(int index)
-{
-	return board_usb_init(index, USB_INIT_DEVICE);
-}
+/**
+ * udc_device_get_by_index() - Get UDC udevice by index
+ * @index: UDC device index
+ * @udev: UDC udevice matching the index (if found)
+ *
+ * Return: 0 if Ok, -ve on error
+ */
+int udc_device_get_by_index(int index, struct udevice **udev);
 
-static inline int usb_gadget_release(int index)
-{
-	return board_usb_cleanup(index, USB_INIT_DEVICE);
-}
-#endif
+/**
+ * udc_device_put() - Put UDC udevice
+ * @udev: UDC udevice
+ *
+ * Return: 0 if Ok, -ve on error
+ */
+int udc_device_put(struct udevice *udev);
 
 #endif	/* __LINUX_USB_GADGET_H */

@@ -869,10 +869,10 @@ void udc_irq(void)
 	}
 }
 
-int usb_gadget_handle_interrupts(int index)
+int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 {
-	u32 value;
 	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
+	u32 value;
 
 	value = readl(&udc->usbsts);
 	if (value)

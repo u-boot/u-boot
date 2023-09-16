@@ -15,6 +15,7 @@ static int do_rockusb(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	int controller_index, dev_index;
 	char *usb_controller;
+	struct udevice *udc;
 	char *devtype;
 	char *devnum;
 	int ret;
@@ -34,7 +35,7 @@ static int do_rockusb(struct cmd_tbl *cmdtp, int flag, int argc,
 	dev_index = simple_strtoul(devnum, NULL, 0);
 	rockusb_dev_init(devtype, dev_index);
 
-	ret = usb_gadget_initialize(controller_index);
+	ret = udc_device_get_by_index(controller_index, &udc);
 	if (ret) {
 		printf("USB init failed: %d\n", ret);
 		return CMD_RET_FAILURE;
@@ -56,14 +57,14 @@ static int do_rockusb(struct cmd_tbl *cmdtp, int flag, int argc,
 			break;
 		if (ctrlc())
 			break;
-		usb_gadget_handle_interrupts(controller_index);
+		dm_usb_gadget_handle_interrupts(udc);
 	}
 	ret = CMD_RET_SUCCESS;
 
 exit:
 	g_dnl_unregister();
 	g_dnl_clear_detach();
-	usb_gadget_release(controller_index);
+	udc_device_put(udc);
 
 	return ret;
 }

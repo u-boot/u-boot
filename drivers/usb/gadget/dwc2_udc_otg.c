@@ -941,26 +941,18 @@ int dwc2_udc_handle_interrupt(void)
 	return 0;
 }
 
-#if !CONFIG_IS_ENABLED(DM_USB_GADGET)
-
-int usb_gadget_handle_interrupts(int index)
+int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 {
 	return dwc2_udc_handle_interrupt();
 }
 
-#else /* CONFIG_IS_ENABLED(DM_USB_GADGET) */
-
+#if CONFIG_IS_ENABLED(DM_USB_GADGET)
 struct dwc2_priv_data {
 	struct clk_bulk		clks;
 	struct reset_ctl_bulk	resets;
 	struct phy_bulk phys;
 	struct udevice *usb33d_supply;
 };
-
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	return dwc2_udc_handle_interrupt();
-}
 
 static int dwc2_phy_setup(struct udevice *dev, struct phy_bulk *phys)
 {
