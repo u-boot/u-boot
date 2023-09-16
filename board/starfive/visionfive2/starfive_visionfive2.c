@@ -9,8 +9,10 @@
 #include <asm/sections.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <fdt_support.h>
 #include <linux/bitops.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 #define JH7110_L2_PREFETCHER_BASE_ADDR		0x2030000
 #define JH7110_L2_PREFETCHER_HART_OFFSET	0x2000
 
@@ -50,4 +52,9 @@ void *board_fdt_blob_setup(int *err)
 	}
 
 	return (ulong *)&_end;
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	return fdt_fixup_memory(blob, 0x40000000, gd->ram_size);
 }
