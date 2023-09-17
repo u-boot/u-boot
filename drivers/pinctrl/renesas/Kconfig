@@ -131,7 +131,7 @@ config PINCTRL_PFC_R8A779G0
 	help
 	  Support pin multiplexing control on Renesas RCar Gen4 R8A779G0 SoCs.
 
-config PINCTRL_PFC_R7S72100
+config PINCTRL_RZA1
 	bool "Renesas RZ/A1 R7S72100 pin control driver"
 	depends on CPU_RZA1
 	default y if CPU_RZA1
