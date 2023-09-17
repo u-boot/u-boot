@@ -897,4 +897,14 @@ struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size);
 
 void board_boot_order(u32 *spl_boot_list);
 void spl_save_restore_data(void);
+
+/*
+ * spl_decompression_enabled() - check decompression support is enabled for SPL build
+ *
+ * Returns  true  if decompression support is enabled, else False
+ */
+static inline bool spl_decompression_enabled(void)
+{
+	return IS_ENABLED(CONFIG_SPL_GZIP);
+}
 #endif

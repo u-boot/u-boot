@@ -240,14 +240,14 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	bool external_data = false;
 
 	if (IS_ENABLED(CONFIG_SPL_FPGA) ||
-	    (IS_ENABLED(CONFIG_SPL_OS_BOOT) && IS_ENABLED(CONFIG_SPL_GZIP))) {
+	    (IS_ENABLED(CONFIG_SPL_OS_BOOT) && spl_decompression_enabled())) {
 		if (fit_image_get_type(fit, node, &type))
 			puts("Cannot get image type.\n");
 		else
 			debug("%s ", genimg_get_type_name(type));
 	}
 
-	if (IS_ENABLED(CONFIG_SPL_GZIP)) {
+	if (spl_decompression_enabled()) {
 		fit_image_get_comp(fit, node, &image_comp);
 		debug("%s ", genimg_get_comp_name(image_comp));
 	}
@@ -282,7 +282,10 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 			return 0;
 		}
 
-		src_ptr = map_sysmem(ALIGN(load_addr, ARCH_DMA_MINALIGN), len);
+		if (spl_decompression_enabled() && image_comp == IH_COMP_GZIP)
+			src_ptr = map_sysmem(ALIGN(CONFIG_SYS_LOAD_ADDR, ARCH_DMA_MINALIGN), len);
+		else
+			src_ptr = map_sysmem(ALIGN(load_addr, ARCH_DMA_MINALIGN), len);
 		length = len;
 
 		overhead = get_aligned_image_overhead(info, offset);
