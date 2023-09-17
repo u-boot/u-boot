@@ -282,7 +282,8 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 			return 0;
 		}
 
-		if (spl_decompression_enabled() && image_comp == IH_COMP_GZIP)
+		if (spl_decompression_enabled() &&
+		    (image_comp == IH_COMP_GZIP || image_comp == IH_COMP_LZMA))
 			src_ptr = map_sysmem(ALIGN(CONFIG_SYS_LOAD_ADDR, ARCH_DMA_MINALIGN), len);
 		else
 			src_ptr = map_sysmem(ALIGN(load_addr, ARCH_DMA_MINALIGN), len);
@@ -330,6 +331,16 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 			return -EIO;
 		}
 		length = size;
+	} else if (IS_ENABLED(CONFIG_SPL_LZMA) && image_comp == IH_COMP_LZMA) {
+		size = CONFIG_SYS_BOOTM_LEN;
+		ulong loadEnd;
+
+		if (image_decomp(IH_COMP_LZMA, CONFIG_SYS_LOAD_ADDR, 0, 0,
+				 load_ptr, src, length, size, &loadEnd)) {
+			puts("Uncompressing error\n");
+			return -EIO;
+		}
+		length = loadEnd - CONFIG_SYS_LOAD_ADDR;
 	} else {
 		memcpy(load_ptr, src, length);
 	}

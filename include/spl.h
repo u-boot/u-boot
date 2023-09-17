@@ -905,6 +905,6 @@ void spl_save_restore_data(void);
  */
 static inline bool spl_decompression_enabled(void)
 {
-	return IS_ENABLED(CONFIG_SPL_GZIP);
+	return IS_ENABLED(CONFIG_SPL_GZIP) || IS_ENABLED(CONFIG_SPL_LZMA);
 }
 #endif
