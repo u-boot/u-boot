@@ -50,7 +50,7 @@ enum clk_ids {
 	MOD_CLK_BASE
 };
 
-static const struct cpg_core_clk r8a7795_core_clks[] = {
+static struct cpg_core_clk r8a7795_core_clks[] __initdata = {
 	/* External Clock Inputs */
 	DEF_INPUT("extal",      CLK_EXTAL),
 	DEF_INPUT("extalr",     CLK_EXTALR),
@@ -126,8 +126,7 @@ static const struct cpg_core_clk r8a7795_core_clks[] = {
 	DEF_BASE("r",           R8A7795_CLK_R,     CLK_TYPE_GEN3_R, CLK_RINT),
 };
 
-static const struct mssr_mod_clk r8a7795_mod_clks[] = {
-	DEF_MOD("fdp1-2",		 117,	R8A7795_CLK_S2D1), /* ES1.x */
+static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
 	DEF_MOD("fdp1-1",		 118,	R8A7795_CLK_S0D1),
 	DEF_MOD("fdp1-0",		 119,	R8A7795_CLK_S0D1),
 	DEF_MOD("tmu4",			 121,	R8A7795_CLK_S0D6),
@@ -161,7 +160,6 @@ static const struct mssr_mod_clk r8a7795_mod_clks[] = {
 	DEF_MOD("pcie1",		 318,	R8A7795_CLK_S3D1),
 	DEF_MOD("pcie0",		 319,	R8A7795_CLK_S3D1),
 	DEF_MOD("usb-dmac30",		 326,	R8A7795_CLK_S3D1),
-	DEF_MOD("usb3-if1",		 327,	R8A7795_CLK_S3D1), /* ES1.x */
 	DEF_MOD("usb3-if0",		 328,	R8A7795_CLK_S3D1),
 	DEF_MOD("usb-dmac31",		 329,	R8A7795_CLK_S3D1),
 	DEF_MOD("usb-dmac0",		 330,	R8A7795_CLK_S3D1),
@@ -186,28 +184,21 @@ static const struct mssr_mod_clk r8a7795_mod_clks[] = {
 	DEF_MOD("hscif0",		 520,	R8A7795_CLK_S3D1),
 	DEF_MOD("thermal",		 522,	R8A7795_CLK_CP),
 	DEF_MOD("pwm",			 523,	R8A7795_CLK_S0D12),
-	DEF_MOD("fcpvd3",		 600,	R8A7795_CLK_S2D1), /* ES1.x */
 	DEF_MOD("fcpvd2",		 601,	R8A7795_CLK_S0D2),
 	DEF_MOD("fcpvd1",		 602,	R8A7795_CLK_S0D2),
 	DEF_MOD("fcpvd0",		 603,	R8A7795_CLK_S0D2),
 	DEF_MOD("fcpvb1",		 606,	R8A7795_CLK_S0D1),
 	DEF_MOD("fcpvb0",		 607,	R8A7795_CLK_S0D1),
-	DEF_MOD("fcpvi2",		 609,	R8A7795_CLK_S2D1), /* ES1.x */
 	DEF_MOD("fcpvi1",		 610,	R8A7795_CLK_S0D1),
 	DEF_MOD("fcpvi0",		 611,	R8A7795_CLK_S0D1),
-	DEF_MOD("fcpf2",		 613,	R8A7795_CLK_S2D1), /* ES1.x */
 	DEF_MOD("fcpf1",		 614,	R8A7795_CLK_S0D1),
 	DEF_MOD("fcpf0",		 615,	R8A7795_CLK_S0D1),
-	DEF_MOD("fcpci1",		 616,	R8A7795_CLK_S2D1), /* ES1.x */
-	DEF_MOD("fcpci0",		 617,	R8A7795_CLK_S2D1), /* ES1.x */
 	DEF_MOD("fcpcs",		 619,	R8A7795_CLK_S0D1),
-	DEF_MOD("vspd3",		 620,	R8A7795_CLK_S2D1), /* ES1.x */
 	DEF_MOD("vspd2",		 621,	R8A7795_CLK_S0D2),
 	DEF_MOD("vspd1",		 622,	R8A7795_CLK_S0D2),
 	DEF_MOD("vspd0",		 623,	R8A7795_CLK_S0D2),
 	DEF_MOD("vspbc",		 624,	R8A7795_CLK_S0D1),
 	DEF_MOD("vspbd",		 626,	R8A7795_CLK_S0D1),
-	DEF_MOD("vspi2",		 629,	R8A7795_CLK_S2D1), /* ES1.x */
 	DEF_MOD("vspi1",		 630,	R8A7795_CLK_S0D1),
 	DEF_MOD("vspi0",		 631,	R8A7795_CLK_S0D1),
 	DEF_MOD("ehci3",		 700,	R8A7795_CLK_S3D2),
@@ -220,7 +211,6 @@ static const struct mssr_mod_clk r8a7795_mod_clks[] = {
 	DEF_MOD("cmm2",			 709,	R8A7795_CLK_S2D1),
 	DEF_MOD("cmm1",			 710,	R8A7795_CLK_S2D1),
 	DEF_MOD("cmm0",			 711,	R8A7795_CLK_S2D1),
-	DEF_MOD("csi21",		 713,	R8A7795_CLK_CSI0), /* ES1.x */
 	DEF_MOD("csi20",		 714,	R8A7795_CLK_CSI0),
 	DEF_MOD("csi41",		 715,	R8A7795_CLK_CSI0),
 	DEF_MOD("csi40",		 716,	R8A7795_CLK_CSI0),
@@ -324,7 +314,7 @@ static const struct mssr_mod_clk r8a7795_mod_clks[] = {
 					 (((md) & BIT(19)) >> 18) | \
 					 (((md) & BIT(17)) >> 17))
 
-static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[16] = {
+static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[16] __initconst = {
 	/* EXTAL div	PLL1 mult/div	PLL3 mult/div	OSC prediv */
 	{ 1,		192,	1,	192,	1,	16,	},
 	{ 1,		192,	1,	128,	1,	16,	},
