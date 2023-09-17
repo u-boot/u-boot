@@ -271,6 +271,8 @@ typedef int	wait_queue_head_t;
 #define __devinit
 #define __devinitdata
 #define __devinitconst
+#define __initconst
+#define __initdata
 
 #define kthread_create(...)	__builtin_return_address(0)
 #define kthread_stop(...)	do { } while (0)
