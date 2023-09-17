@@ -495,8 +495,8 @@ the cmdline is word-wrapped here and some parts of the command line are elided::
           root_hexdigest=78cc462cd45aecbcd49ca476587b4dee59aa1b00ba5ece58e2c29ec9acd914ab
           salt=8dec4dc80a75dd834a9b3175c674405e15b16a253fdfe05c79394ae5fd76f66a"
         noinitrd vt.global_cursor_default=0
-        kern_guid=799c935b-ae62-d143-8493-816fa936eef7 add_efi_memmap boot=local
-        noresume noswap i915.modeset=1 ramoops.ecc=1 tpm_tis.force=0
+        kern_guid=799c935b-ae62-d143-8493-816fa936eef7 add_efi_memmap
+        noresume i915.modeset=1 ramoops.ecc=1 tpm_tis.force=0
         intel_pmc_core.warn_on_s0ix_failures=1 i915.enable_guc=3 i915.enable_dc=4
         xdomain=0 swiotlb=65536 intel_iommu=on i915.enable_psr=1
         usb-storage.quirks=13fe:6500:u

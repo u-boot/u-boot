@@ -209,7 +209,7 @@ static void list_strings(struct build_info *info)
 /**
  * menu_build() - Build a menu and add it to a scene
  *
- * See doc/developer/expo.rst for a description of the format
+ * See doc/develop/expo.rst for a description of the format
  *
  * @info: Build information
  * @node: Node containing the menu description
@@ -282,7 +282,7 @@ static int menu_build(struct build_info *info, ofnode node, struct scene *scn)
 /**
  * menu_build() - Build an expo object and add it to a scene
  *
- * See doc/developer/expo.rst for a description of the format
+ * See doc/develop/expo.rst for a description of the format
  *
  * @info: Build information
  * @node: Node containing the object description
@@ -318,7 +318,7 @@ static int obj_build(struct build_info *info, ofnode node, struct scene *scn)
 /**
  * scene_build() - Build a scene and all its objects
  *
- * See doc/developer/expo.rst for a description of the format
+ * See doc/develop/expo.rst for a description of the format
  *
  * @info: Build information
  * @node: Node containing the scene description

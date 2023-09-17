@@ -667,7 +667,7 @@ int expo_apply_theme(struct expo *exp, ofnode node);
  *
  * Build a complete expo from a description in the provided devicetree.
  *
- * See doc/developer/expo.rst for a description of the format
+ * See doc/develop/expo.rst for a description of the format
  *
  * @root: Root node for expo description
  * @expp: Returns the new expo
