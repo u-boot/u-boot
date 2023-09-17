@@ -47,7 +47,7 @@ enum clk_ids {
 	MOD_CLK_BASE
 };
 
-static const struct cpg_core_clk r8a779f0_core_clks[] = {
+static const struct cpg_core_clk r8a779f0_core_clks[] __initconst = {
 	/* External Clock Inputs */
 	DEF_INPUT("extal",	CLK_EXTAL),
 	DEF_INPUT("extalr",	CLK_EXTALR),
@@ -123,7 +123,7 @@ static const struct cpg_core_clk r8a779f0_core_clks[] = {
 	DEF_GEN4_MDSEL("r",	R8A779F0_CLK_R, 29, CLK_EXTALR, 1, CLK_OCO, 1),
 };
 
-static const struct mssr_mod_clk r8a779f0_mod_clks[] = {
+static const struct mssr_mod_clk r8a779f0_mod_clks[] __initconst = {
 	DEF_MOD("hscif0",	514,	R8A779F0_CLK_SASYNCPERD1),
 	DEF_MOD("hscif1",	515,	R8A779F0_CLK_SASYNCPERD1),
 	DEF_MOD("hscif2",	516,	R8A779F0_CLK_SASYNCPERD1),
