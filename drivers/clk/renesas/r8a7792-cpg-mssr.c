@@ -37,7 +37,7 @@ enum clk_ids {
 	MOD_CLK_BASE
 };
 
-static const struct cpg_core_clk r8a7792_core_clks[] = {
+static const struct cpg_core_clk r8a7792_core_clks[] __initconst = {
 	/* External Clock Inputs */
 	DEF_INPUT("extal",     CLK_EXTAL),
 
@@ -76,7 +76,7 @@ static const struct cpg_core_clk r8a7792_core_clks[] = {
 	DEF_FIXED("osc",    R8A7792_CLK_OSC,   CLK_PLL1,      12288, 1),
 };
 
-static const struct mssr_mod_clk r8a7792_mod_clks[] = {
+static const struct mssr_mod_clk r8a7792_mod_clks[] __initconst = {
 	DEF_MOD("msiof0",		   0,	R8A7792_CLK_MP),
 	DEF_MOD("jpu",			 106,	R8A7792_CLK_M2),
 	DEF_MOD("tmu1",			 111,	R8A7792_CLK_P),
@@ -174,7 +174,7 @@ static const struct mssr_mod_clk r8a7792_mod_clks[] = {
 #define CPG_PLL_CONFIG_INDEX(md)	((((md) & BIT(14)) >> 12) | \
 					 (((md) & BIT(13)) >> 12) | \
 					 (((md) & BIT(19)) >> 19))
-static const struct rcar_gen2_cpg_pll_config cpg_pll_configs[8] = {
+static const struct rcar_gen2_cpg_pll_config cpg_pll_configs[8] __initconst = {
 	{ 1, 208, 106, 200 },
 	{ 1, 208,  88, 200 },
 	{ 1, 156,  80, 150 },
