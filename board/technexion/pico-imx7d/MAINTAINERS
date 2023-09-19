@@ -1,5 +1,4 @@
 TechNexion PICO-IMX7D board
-M:	Vanessa Maegima <vanessa.maegima@nxp.com>
 M:	Otavio Salvador <otavio@ossystems.com.br>
 S:	Maintained
 F:	board/technexion/pico-imx7d/
