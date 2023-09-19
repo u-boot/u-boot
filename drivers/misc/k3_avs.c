@@ -382,6 +382,8 @@ static struct vd_config am654_vd_config = {
 static const struct udevice_id k3_avs_ids[] = {
 	{ .compatible = "ti,am654-avs", .data = (ulong)&am654_vd_config },
 	{ .compatible = "ti,j721e-avs", .data = (ulong)&j721e_vd_config },
+	{ .compatible = "ti,j721e-vtm", .data = (ulong)&j721e_vd_config },
+	{ .compatible = "ti,j7200-vtm", .data = (ulong)&j721e_vd_config },
 	{}
 };
 
