@@ -32,6 +32,8 @@
 
 #define RNG_DR		0x08
 
+#define RNG_NB_RECOVER_TRIES	3
+
 /*
  * struct stm32_rng_data - RNG compat data
  *
@@ -52,45 +54,160 @@ struct stm32_rng_plat {
 	bool ced;
 };
 
+/*
+ * Extracts from the STM32 RNG specification when RNG supports CONDRST.
+ *
+ * When a noise source (or seed) error occurs, the RNG stops generating
+ * random numbers and sets to “1” both SEIS and SECS bits to indicate
+ * that a seed error occurred. (...)
+ *
+ * 1. Software reset by writing CONDRST at 1 and at 0 (see bitfield
+ * description for details). This step is needed only if SECS is set.
+ * Indeed, when SEIS is set and SECS is cleared it means RNG performed
+ * the reset automatically (auto-reset).
+ * 2. If SECS was set in step 1 (no auto-reset) wait for CONDRST
+ * to be cleared in the RNG_CR register, then confirm that SEIS is
+ * cleared in the RNG_SR register. Otherwise just clear SEIS bit in
+ * the RNG_SR register.
+ * 3. If SECS was set in step 1 (no auto-reset) wait for SECS to be
+ * cleared by RNG. The random number generation is now back to normal.
+ */
+static int stm32_rng_conceal_seed_error_cond_reset(struct stm32_rng_plat *pdata)
+{
+	u32 sr = readl_relaxed(pdata->base + RNG_SR);
+	u32 cr = readl_relaxed(pdata->base + RNG_CR);
+	int err;
+
+	if (sr & RNG_SR_SECS) {
+		/* Conceal by resetting the subsystem (step 1.) */
+		writel_relaxed(cr | RNG_CR_CONDRST, pdata->base + RNG_CR);
+		writel_relaxed(cr & ~RNG_CR_CONDRST, pdata->base + RNG_CR);
+	} else {
+		/* RNG auto-reset (step 2.) */
+		writel_relaxed(sr & ~RNG_SR_SEIS, pdata->base + RNG_SR);
+		return 0;
+	}
+
+	err = readl_relaxed_poll_timeout(pdata->base + RNG_SR, sr, !(sr & RNG_CR_CONDRST), 100000);
+	if (err) {
+		log_err("%s: timeout %x\n", __func__, sr);
+		return err;
+	}
+
+	/* Check SEIS is cleared (step 2.) */
+	if (readl_relaxed(pdata->base + RNG_SR) & RNG_SR_SEIS)
+		return -EINVAL;
+
+	err = readl_relaxed_poll_timeout(pdata->base + RNG_SR, sr, !(sr & RNG_SR_SECS), 100000);
+	if (err) {
+		log_err("%s: timeout %x\n", __func__, sr);
+		return err;
+	}
+
+	return 0;
+}
+
+/*
+ * Extracts from the STM32 RNG specification, when CONDRST is not supported
+ *
+ * When a noise source (or seed) error occurs, the RNG stops generating
+ * random numbers and sets to “1” both SEIS and SECS bits to indicate
+ * that a seed error occurred. (...)
+ *
+ * The following sequence shall be used to fully recover from a seed
+ * error after the RNG initialization:
+ * 1. Clear the SEIS bit by writing it to “0”.
+ * 2. Read out 12 words from the RNG_DR register, and discard each of
+ * them in order to clean the pipeline.
+ * 3. Confirm that SEIS is still cleared. Random number generation is
+ * back to normal.
+ */
+static int stm32_rng_conceal_seed_error_sw_reset(struct stm32_rng_plat *pdata)
+{
+	uint i = 0;
+	u32 sr = readl_relaxed(pdata->base + RNG_SR);
+
+	writel_relaxed(sr & ~RNG_SR_SEIS, pdata->base + RNG_SR);
+
+	for (i = 12; i != 0; i--)
+		(void)readl_relaxed(pdata->base + RNG_DR);
+
+	if (readl_relaxed(pdata->base + RNG_SR) & RNG_SR_SEIS)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int stm32_rng_conceal_seed_error(struct stm32_rng_plat *pdata)
+{
+	log_debug("Concealing RNG seed error\n");
+
+	if (pdata->data->has_cond_reset)
+		return stm32_rng_conceal_seed_error_cond_reset(pdata);
+	else
+		return stm32_rng_conceal_seed_error_sw_reset(pdata);
+};
+
 static int stm32_rng_read(struct udevice *dev, void *data, size_t len)
 {
-	int retval, i;
-	u32 sr, count, reg;
+	int retval;
+	u32 sr, reg;
 	size_t increment;
 	struct stm32_rng_plat *pdata = dev_get_plat(dev);
+	uint tries = 0;
 
 	while (len > 0) {
 		retval = readl_poll_timeout(pdata->base + RNG_SR, sr,
-					    sr & RNG_SR_DRDY, 10000);
-		if (retval)
+					    sr, 10000);
+		if (retval) {
+			log_err("%s: Timeout RNG no data",  __func__);
 			return retval;
+		}
 
-		if (sr & (RNG_SR_SEIS | RNG_SR_SECS)) {
-			/* As per SoC TRM */
-			clrbits_le32(pdata->base + RNG_SR, RNG_SR_SEIS);
-			for (i = 0; i < 12; i++)
-				readl(pdata->base + RNG_DR);
-			if (readl(pdata->base + RNG_SR) & RNG_SR_SEIS) {
-				log_err("RNG Noise");
-				return -EIO;
+		if (sr != RNG_SR_DRDY) {
+			if (sr & RNG_SR_SEIS) {
+				retval = stm32_rng_conceal_seed_error(pdata);
+				tries++;
+				if (retval || tries > RNG_NB_RECOVER_TRIES) {
+					log_err("%s: Couldn't recover from seed error",  __func__);
+					return -ENOTRECOVERABLE;
+				}
+
+				/* Start again */
+				continue;
 			}
-			/* start again */
-			continue;
+
+			if (sr & RNG_SR_CEIS) {
+				log_info("RNG clock too slow");
+				writel_relaxed(0, pdata->base + RNG_SR);
+			}
 		}
 
 		/*
 		 * Once the DRDY bit is set, the RNG_DR register can
-		 * be read four consecutive times.
+		 * be read up to four consecutive times.
 		 */
-		count = 4;
-		while (len && count) {
-			reg = readl(pdata->base + RNG_DR);
-			memcpy(data, &reg, min(len, sizeof(u32)));
-			increment = min(len, sizeof(u32));
-			data += increment;
-			len -= increment;
-			count--;
+		reg = readl(pdata->base + RNG_DR);
+		/* Late seed error case: DR being 0 is an error status */
+		if (!reg) {
+			retval = stm32_rng_conceal_seed_error(pdata);
+			tries++;
+
+			if (retval || tries > RNG_NB_RECOVER_TRIES) {
+				log_err("%s: Couldn't recover from seed error",  __func__);
+				return -ENOTRECOVERABLE;
+			}
+
+			/* Start again */
+			continue;
 		}
+
+		increment = min(len, sizeof(u32));
+		memcpy(data, &reg, increment);
+		data += increment;
+		len -= increment;
+
+		tries = 0;
 	}
 
 	return 0;
