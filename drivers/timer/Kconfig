@@ -326,4 +326,11 @@ config XILINX_TIMER
 	  Select this to enable support for the timer found on
 	  any Xilinx boards (axi timer).
 
+config STARFIVE_TIMER
+	bool "Starfive timer support"
+	depends on TIMER
+	help
+	  Select this to enable support for the timer found on
+	  Starfive SoC.
+
 endmenu
