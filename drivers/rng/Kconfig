@@ -48,11 +48,11 @@ config RNG_OPTEE
 	  accessible to normal world but reserved and used by the OP-TEE
 	  to avoid the weakness of a software PRNG.
 
-config RNG_STM32MP1
-	bool "Enable random number generator for STM32MP1"
-	depends on ARCH_STM32MP
+config RNG_STM32
+	bool "Enable random number generator for STM32"
+	depends on ARCH_STM32 || ARCH_STM32MP
 	help
-	  Enable STM32MP1 rng driver.
+	  Enable STM32 rng driver.
 
 config RNG_ROCKCHIP
 	bool "Enable random number generator for rockchip crypto rng"
