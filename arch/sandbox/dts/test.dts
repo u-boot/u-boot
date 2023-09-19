@@ -732,6 +732,11 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 
+			pwrdom_scmi: protocol@11 {
+				reg = <0x11>;
+				#power-domain-cells = <1>;
+			};
+
 			clk_scmi: protocol@14 {
 				reg = <0x14>;
 				#clock-cells = <1>;
@@ -1635,6 +1640,7 @@
 
 	sandbox_scmi {
 		compatible = "sandbox,scmi-devices";
+		power-domains = <&pwrdom_scmi 2>;
 		clocks = <&clk_scmi 2>, <&clk_scmi 0>;
 		resets = <&reset_scmi 3>;
 		regul0-supply = <&regul0_scmi>;

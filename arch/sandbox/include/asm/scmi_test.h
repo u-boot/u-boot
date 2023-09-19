@@ -6,9 +6,21 @@
 #ifndef __SANDBOX_SCMI_TEST_H
 #define __SANDBOX_SCMI_TEST_H
 
+#include <power-domain.h>
+
 struct udevice;
 struct sandbox_scmi_agent;
 struct sandbox_scmi_service;
+
+/**
+ * struct sandbox_scmi_pwd
+ * @id:		Identifier of the power domain used in the SCMI protocol
+ * @pstate::	Power state of the domain
+ */
+struct sandbox_scmi_pwd {
+	uint id;
+	u32 pstate;
+};
 
 /**
  * struct sandbox_scmi_clk - Simulated clock exposed by SCMI
@@ -45,6 +57,8 @@ struct sandbox_scmi_voltd {
 
 /**
  * struct sandbox_scmi_agent - Simulated SCMI service seen by SCMI agent
+ * @pwdom_version: Implemented power domain protocol version
+ * @pwdom_count:   Simulated power domains array size
  * @clk:	Simulated clocks
  * @clk_count:	Simulated clocks array size
  * @reset:	Simulated reset domains
@@ -53,6 +67,9 @@ struct sandbox_scmi_voltd {
  * @voltd_count: Simulated voltage domains array size
  */
 struct sandbox_scmi_agent {
+	int pwdom_version;
+	struct sandbox_scmi_pwd *pwdom;
+	size_t pwdom_count;
 	struct sandbox_scmi_clk *clk;
 	size_t clk_count;
 	struct sandbox_scmi_reset *reset;
@@ -71,6 +88,8 @@ struct sandbox_scmi_service {
 
 /**
  * struct sandbox_scmi_devices - Reference to devices probed through SCMI
+ * @pwdom:		Array of power domains
+ * @pwdom_count:	Number of power domains probed
  * @clk:		Array the clock devices
  * @clk_count:		Number of clock devices probed
  * @reset:		Array the reset controller devices
@@ -79,6 +98,8 @@ struct sandbox_scmi_service {
  * @regul_count:	Number of regulator devices probed
  */
 struct sandbox_scmi_devices {
+	struct power_domain *pwdom;
+	size_t pwdom_count;
 	struct clk *clk;
 	size_t clk_count;
 	struct reset_ctl *reset;
