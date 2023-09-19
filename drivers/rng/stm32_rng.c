@@ -21,8 +21,15 @@
 #define RNG_CR			0x00
 #define RNG_CR_RNGEN		BIT(2)
 #define RNG_CR_CED		BIT(5)
+#define RNG_CR_CONFIG1		GENMASK(11, 8)
+#define RNG_CR_NISTC		BIT(12)
+#define RNG_CR_CONFIG2		GENMASK(15, 13)
 #define RNG_CR_CLKDIV_SHIFT	16
+#define RNG_CR_CLKDIV		GENMASK(19, 16)
+#define RNG_CR_CONFIG3		GENMASK(25, 20)
 #define RNG_CR_CONDRST		BIT(30)
+#define RNG_CR_ENTROPY_SRC_MASK	(RNG_CR_CONFIG1 | RNG_CR_NISTC | RNG_CR_CONFIG2 | RNG_CR_CONFIG3)
+#define RNG_CR_CONFIG_MASK	(RNG_CR_ENTROPY_SRC_MASK | RNG_CR_CED | RNG_CR_CLKDIV)
 
 #define RNG_SR		0x04
 #define RNG_SR_SEIS	BIT(6)
@@ -32,17 +39,28 @@
 
 #define RNG_DR		0x08
 
+#define RNG_NSCR		0x0C
+#define RNG_NSCR_MASK		GENMASK(17, 0)
+
+#define RNG_HTCR	0x10
+
 #define RNG_NB_RECOVER_TRIES	3
 
 /*
  * struct stm32_rng_data - RNG compat data
  *
  * @max_clock_rate:	Max RNG clock frequency, in Hertz
+ * @cr:			Entropy source configuration
+ * @nscr:		Noice sources control configuration
+ * @htcr:		Health tests configuration
  * @has_cond_reset:	True if conditionnal reset is supported
  *
  */
 struct stm32_rng_data {
 	uint max_clock_rate;
+	u32 cr;
+	u32 nscr;
+	u32 htcr;
 	bool has_cond_reset;
 };
 
@@ -244,27 +262,47 @@ static int stm32_rng_init(struct stm32_rng_plat *pdata)
 
 	cr = readl(pdata->base + RNG_CR);
 
-	if (pdata->data->has_cond_reset) {
+	/*
+	 * Keep default RNG configuration if none was specified, that is when conf.cr is set to 0.
+	 */
+	if (pdata->data->has_cond_reset && pdata->data->cr) {
 		uint clock_div = stm32_rng_clock_freq_restrain(pdata);
 
-		cr |= RNG_CR_CONDRST | (clock_div << RNG_CR_CLKDIV_SHIFT);
+		cr &= ~RNG_CR_CONFIG_MASK;
+		cr |= RNG_CR_CONDRST | (pdata->data->cr & RNG_CR_ENTROPY_SRC_MASK) |
+		      (clock_div << RNG_CR_CLKDIV_SHIFT);
 		if (pdata->ced)
 			cr &= ~RNG_CR_CED;
 		else
 			cr |= RNG_CR_CED;
 		writel(cr, pdata->base + RNG_CR);
+
+		/* Health tests and noise control registers */
+		writel_relaxed(pdata->data->htcr, pdata->base + RNG_HTCR);
+		writel_relaxed(pdata->data->nscr & RNG_NSCR_MASK, pdata->base + RNG_NSCR);
+
 		cr &= ~RNG_CR_CONDRST;
 		cr |= RNG_CR_RNGEN;
 		writel(cr, pdata->base + RNG_CR);
 		err = readl_poll_timeout(pdata->base + RNG_CR, cr,
 					 (!(cr & RNG_CR_CONDRST)), 10000);
-		if (err)
+		if (err) {
+			log_err("%s: Timeout!",  __func__);
 			return err;
+		}
 	} else {
+		if (pdata->data->has_cond_reset)
+			cr |= RNG_CR_CONDRST;
+
 		if (pdata->ced)
 			cr &= ~RNG_CR_CED;
 		else
 			cr |= RNG_CR_CED;
+
+		writel(cr, pdata->base + RNG_CR);
+
+		if (pdata->data->has_cond_reset)
+			cr &= ~RNG_CR_CONDRST;
 
 		cr |= RNG_CR_RNGEN;
 
@@ -276,6 +314,9 @@ static int stm32_rng_init(struct stm32_rng_plat *pdata)
 
 	err = readl_poll_timeout(pdata->base + RNG_SR, sr,
 				 sr & RNG_SR_DRDY, 10000);
+	if (err)
+		log_err("%s: Timeout!",  __func__);
+
 	return err;
 }
 
@@ -335,11 +376,18 @@ static const struct dm_rng_ops stm32_rng_ops = {
 static const struct stm32_rng_data stm32mp13_rng_data = {
 	.has_cond_reset = true,
 	.max_clock_rate = 48000000,
+	.htcr = 0x969D,
+	.nscr = 0x2B5BB,
+	.cr = 0xF00D00,
 };
 
 static const struct stm32_rng_data stm32_rng_data = {
 	.has_cond_reset = false,
 	.max_clock_rate = 3000000,
+	/* Not supported */
+	.htcr = 0,
+	.nscr = 0,
+	.cr = 0,
 };
 
 static const struct udevice_id stm32_rng_match[] = {
