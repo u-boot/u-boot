@@ -40,6 +40,7 @@ struct stm32_rng_plat {
 	struct clk clk;
 	struct reset_ctl rst;
 	const struct stm32_rng_data *data;
+	bool ced;
 };
 
 static int stm32_rng_read(struct udevice *dev, void *data, size_t len)
@@ -97,24 +98,33 @@ static int stm32_rng_init(struct stm32_rng_plat *pdata)
 
 	cr = readl(pdata->base + RNG_CR);
 
-	/* Disable CED */
-	cr |= RNG_CR_CED;
 	if (pdata->data->has_cond_reset) {
 		cr |= RNG_CR_CONDRST;
+		if (pdata->ced)
+			cr &= ~RNG_CR_CED;
+		else
+			cr |= RNG_CR_CED;
 		writel(cr, pdata->base + RNG_CR);
 		cr &= ~RNG_CR_CONDRST;
+		cr |= RNG_CR_RNGEN;
 		writel(cr, pdata->base + RNG_CR);
 		err = readl_poll_timeout(pdata->base + RNG_CR, cr,
 					 (!(cr & RNG_CR_CONDRST)), 10000);
 		if (err)
 			return err;
+	} else {
+		if (pdata->ced)
+			cr &= ~RNG_CR_CED;
+		else
+			cr |= RNG_CR_CED;
+
+		cr |= RNG_CR_RNGEN;
+
+		writel(cr, pdata->base + RNG_CR);
 	}
 
 	/* clear error indicators */
 	writel(0, pdata->base + RNG_SR);
-
-	cr |= RNG_CR_RNGEN;
-	writel(cr, pdata->base + RNG_CR);
 
 	err = readl_poll_timeout(pdata->base + RNG_SR, sr,
 				 sr & RNG_SR_DRDY, 10000);
@@ -164,6 +174,8 @@ static int stm32_rng_of_to_plat(struct udevice *dev)
 	err = reset_get_by_index(dev, 0, &pdata->rst);
 	if (err)
 		return err;
+
+	pdata->ced = dev_read_bool(dev, "clock-error-detect");
 
 	return 0;
 }
