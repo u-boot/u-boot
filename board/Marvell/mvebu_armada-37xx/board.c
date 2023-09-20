@@ -307,7 +307,8 @@ static int last_stage_init(void)
 	struct udevice *bus;
 	ofnode node;
 
-	if (!of_machine_is_compatible("globalscale,espressobin"))
+	if (!CONFIG_IS_ENABLED(DM_MDIO) ||
+	    !of_machine_is_compatible("globalscale,espressobin"))
 		return 0;
 
 	node = ofnode_by_compatible(ofnode_null(), "marvell,orion-mdio");

@@ -1049,6 +1049,7 @@ config SMBIOS
 	bool "SMBIOS support"
 	depends on X86 || EFI_LOADER
 	default y
+	select LAST_STAGE_INIT
 	help
 	  Indicates that this platform can support System Management BIOS
 	  (SMBIOS) tables. These provide various pieces of information about
