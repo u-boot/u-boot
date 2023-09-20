@@ -32,6 +32,9 @@ struct arch_global_data {
 	ulong available_harts;
 #endif
 #endif
+#ifdef CONFIG_SMBIOS
+	ulong smbios_start;		/* Start address of SMBIOS table */
+#endif
 };
 
 #include <asm-generic/global_data.h>
