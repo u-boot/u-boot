@@ -9,6 +9,7 @@
 #define LOG_CATEGORY UCLASS_USB
 
 #include <common.h>
+#include <bootdev.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
@@ -208,6 +209,13 @@ int usb_stop(void)
 #ifdef CONFIG_USB_STORAGE
 	usb_stor_reset();
 #endif
+	if (CONFIG_IS_ENABLED(BOOTSTD)) {
+		int ret;
+
+		ret = bootdev_unhunt(UCLASS_USB);
+		if (IS_ENABLED(CONFIG_BOOTSTD_FULL) && ret && ret != -EALREADY)
+			printf("failed to unhunt USB (err=%dE)\n", ret);
+	}
 	uc_priv->companion_device_count = 0;
 	usb_started = 0;
 
