@@ -366,7 +366,7 @@ static int do_spi_flash_erase(int argc, char *const argv[])
 	}
 
 	if (flash->flash_is_unlocked &&
-	    !flash->flash_is_unlocked(flash, offset, len)) {
+	    !flash->flash_is_unlocked(flash, offset, size)) {
 		printf("ERROR: flash area is locked\n");
 		return CMD_RET_FAILURE;
 	}
