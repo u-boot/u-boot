@@ -90,9 +90,8 @@ static void dm_dump_tree_single(struct udevice *dev, bool sort)
 	int dev_count, uclasses;
 	struct udevice **devs = NULL;
 
-	dm_get_stats(&dev_count, &uclasses);
-
 	if (sort) {
+		dm_get_stats(&dev_count, &uclasses);
 		devs = calloc(dev_count, sizeof(struct udevice *));
 		if (!devs) {
 			printf("(out of memory)\n");
