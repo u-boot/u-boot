@@ -82,6 +82,8 @@ build in `$CBDIR`::
       -device ahci,id=ahci \
       -device ide-hd,drive=disk,bus=ahci.0 \
 
+This allows booting and installing various distros, many of which are
+64-bit-only, so cannot work with the 32-bit 'coreboot' build.
 
 USB keyboard
 ------------
