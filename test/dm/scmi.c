@@ -206,6 +206,109 @@ static int dm_test_scmi_base(struct unit_test_state *uts)
 
 DM_TEST(dm_test_scmi_base, UT_TESTF_SCAN_FDT);
 
+static int dm_test_scmi_power_domains(struct unit_test_state *uts)
+{
+	struct sandbox_scmi_agent *agent;
+	struct sandbox_scmi_devices *scmi_devices;
+	struct udevice *agent_dev, *pwd, *dev;
+	u32 version, count, attributes, pstate;
+	u64 stats_addr;
+	size_t stats_len;
+	u8 *name;
+	int ret;
+
+	/* preparation */
+	ut_assertok(load_sandbox_scmi_test_devices(uts, &agent, &dev));
+	ut_assertnonnull(agent);
+	scmi_devices = sandbox_scmi_devices_ctx(dev);
+	ut_assertnonnull(scmi_devices);
+	ut_asserteq(2, scmi_devices->pwdom->id); /* in test.dts */
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_SCMI_AGENT, "scmi",
+					      &agent_dev));
+	ut_assertnonnull(agent_dev);
+	pwd = scmi_get_protocol(agent_dev, SCMI_PROTOCOL_ID_POWER_DOMAIN);
+	ut_assertnonnull(pwd);
+
+	/*
+	 * SCMI Power domain management protocol interfaces
+	 */
+	/* version */
+	ret = scmi_generic_protocol_version(pwd, SCMI_PROTOCOL_ID_POWER_DOMAIN,
+					    &version);
+	ut_assertok(ret);
+	ut_asserteq(agent->pwdom_version, version);
+
+	/* protocol attributes */
+	ret = scmi_pwd_protocol_attrs(pwd, &count, &stats_addr, &stats_len);
+	ut_assertok(ret);
+	ut_asserteq(agent->pwdom_count, count);
+	ut_asserteq(0, stats_len);
+
+	/* protocol message attributes */
+	ret = scmi_pwd_protocol_message_attrs(pwd, SCMI_PWD_STATE_SET,
+					      &attributes);
+	ut_assertok(ret);
+	ret = scmi_pwd_protocol_message_attrs(pwd, SCMI_PWD_STATE_NOTIFY,
+					      &attributes);
+	ut_asserteq(-ENOENT, ret); /* the protocol not supported */
+
+	/* power domain attributes */
+	ret = scmi_pwd_attrs(pwd, 0, &attributes, &name);
+	ut_assertok(ret);
+	ut_asserteq_str("power-domain--0", name);
+	free(name);
+
+	ret = scmi_pwd_attrs(pwd, 10, &attributes, &name);
+	ut_asserteq(-ENOENT, ret); /* domain-10 doesn't exist */
+
+	/* power domain state set/get */
+	ret = scmi_pwd_state_set(pwd, 0, 0, 0);
+	ut_assertok(ret);
+	ret = scmi_pwd_state_get(pwd, 0, &pstate);
+	ut_assertok(ret);
+	ut_asserteq(0, pstate); /* ON */
+
+	ret = scmi_pwd_state_set(pwd, 0, 0, SCMI_PWD_PSTATE_TYPE_LOST);
+	ut_assertok(ret);
+	ret = scmi_pwd_state_get(pwd, 0, &pstate);
+	ut_assertok(ret);
+	ut_asserteq(SCMI_PWD_PSTATE_TYPE_LOST, pstate); /* OFF */
+
+	ret = scmi_pwd_state_set(pwd, 0, 10, 0);
+	ut_asserteq(-ENOENT, ret);
+
+	/* power domain name get */
+	ret = scmi_pwd_name_get(pwd, 0, &name);
+	ut_assertok(ret);
+	ut_asserteq_str("power-domain--0-extended", name);
+	free(name);
+
+	ret = scmi_pwd_name_get(pwd, 10, &name);
+	ut_asserteq(-ENOENT, ret); /* domain-10 doesn't exist */
+
+	/*
+	 * U-Boot driver model interfaces
+	 */
+	/* power_domain_on */
+	ret = power_domain_on(scmi_devices->pwdom);
+	ut_assertok(ret);
+	ret = scmi_pwd_state_get(pwd, scmi_devices->pwdom->id, &pstate);
+	ut_assertok(ret);
+	ut_asserteq(0, pstate); /* ON */
+
+	/* power_domain_off */
+	ret = power_domain_off(scmi_devices->pwdom);
+	ut_assertok(ret);
+	ret = scmi_pwd_state_get(pwd, scmi_devices->pwdom->id, &pstate);
+	ut_assertok(ret);
+	ut_asserteq(SCMI_PWD_PSTATE_TYPE_LOST, pstate); /* OFF */
+
+	return release_sandbox_scmi_test_devices(uts, dev);
+}
+
+DM_TEST(dm_test_scmi_power_domains, UT_TESTF_SCAN_FDT);
+
 static int dm_test_scmi_clocks(struct unit_test_state *uts)
 {
 	struct sandbox_scmi_agent *agent;
