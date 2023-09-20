@@ -9,3 +9,4 @@ x86
    :maxdepth: 2
 
    x86
+   manual_boot
