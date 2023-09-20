@@ -159,6 +159,129 @@
 
 		fit {
 			images {
+				atf {
+					ti-secure {
+						auth-in-place = <0xa02>;
+
+						firewall-257-0 {
+							/* cpu_0_cpu_0_msmc Background Firewall */
+							insert-template = <&firewall_bg_1>;
+							id = <257>;
+							region = <0>;
+						};
+
+						firewall-257-1 {
+							/* cpu_0_cpu_0_msmc Foreground Firewall */
+							insert-template = <&firewall_armv8_atf_fg>;
+							id = <257>;
+							region = <1>;
+						};
+
+						firewall-284-0 {
+							/* dru_0_msmc Background Firewall */
+							insert-template = <&firewall_bg_3>;
+							id = <284>;
+							region = <0>;
+						};
+
+						firewall-284-1 {
+							/* dru_0_msmc Foreground Firewall */
+							insert-template = <&firewall_armv8_atf_fg>;
+							id = <284>;
+							region = <1>;
+						};
+
+						/*	firewall-5140-0 {
+						 *		nb_slv0__mem0 Background Firewall
+						 *		Already configured by the secure entity
+						 *	};
+						 */
+
+						firewall-5140-1 {
+							/* nb_slv0__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_atf_fg>;
+							id = <5140>;
+							region = <1>;
+						};
+
+						/*	firewall-5140-0 {
+						 *		nb_slv1__mem0 Background Firewall
+						 *		Already configured by the secure entity
+						 *	};
+						 */
+
+						firewall-5141-1 {
+							/* nb_slv1__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_atf_fg>;
+							id = <5141>;
+							region = <1>;
+						};
+
+					};
+				};
+
+				tee {
+					ti-secure {
+						auth-in-place = <0xa02>;
+
+						firewall-257-2 {
+							/* cpu_0_cpu_0_msmc Foreground Firewall */
+							insert-template = <&firewall_armv8_optee_fg>;
+							id = <257>;
+							region = <2>;
+						};
+
+						firewall-284-2 {
+							/* dru_0_msmc Foreground Firewall */
+							insert-template = <&firewall_armv8_optee_fg>;
+							id = <284>;
+							region = <2>;
+						};
+
+						firewall-5142-0 {
+							/* nb_slv2__mem0 Background Firewall - 0 */
+							insert-template = <&firewall_bg_3>;
+							id = <5142>;
+							region = <0>;
+						};
+
+						firewall-5142-1 {
+							/* nb_slv2__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_optee_fg>;
+							id = <5142>;
+							region = <1>;
+						};
+
+						firewall-5143-0 {
+							/* nb_slv3__mem0 Background Firewall - 0 */
+							insert-template = <&firewall_bg_3>;
+							id = <5143>;
+							region = <0>;
+						};
+
+						firewall-5143-1 {
+							/* nb_slv3__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_optee_fg>;
+							id = <5143>;
+							region = <1>;
+						};
+
+						firewall-5144-0 {
+							/* nb_slv4__mem0 Background Firewall - 0 */
+							insert-template = <&firewall_bg_3>;
+							id = <5144>;
+							region = <0>;
+						};
+
+						firewall-5144-1 {
+							/* nb_slv4__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_optee_fg>;
+							id = <5144>;
+							region = <1>;
+						};
+
+					};
+				};
 				dm {
 					ti-secure {
 						content = <&dm>;
