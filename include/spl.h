@@ -918,6 +918,22 @@ void spl_perform_fixups(struct spl_image_info *spl_image);
  */
 struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size);
 
+/**
+ * board_spl_fit_append_fdt_skip(): test whether DTO application should be skipped
+ * @name:	DTO node name within fitImage images node
+ *
+ * A board-specific function used to indicate whether a DTO from fitImage
+ * configuration node 'fdt' property DT and DTO list should be applied onto
+ * the base DT or not applied.
+ *
+ * This is useful in case of DTOs which implement e.g. different board revision
+ * details, where such DTO should be applied on one board revision, and should
+ * not be applied on another board revision.
+ *
+ * Return:	0 to indicate DTO is not skipped, all else to indicate DTO is skipped.
+ */
+int board_spl_fit_append_fdt_skip(const char *name);
+
 void board_boot_order(u32 *spl_boot_list);
 void spl_save_restore_data(void);
 

@@ -372,6 +372,11 @@ static bool os_takes_devicetree(uint8_t os)
 	}
 }
 
+__weak int board_spl_fit_append_fdt_skip(const char *name)
+{
+	return 0;	/* Do not skip */
+}
+
 static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 			      struct spl_load_info *info, ulong sector,
 			      const struct spl_fit_info *ctx)
@@ -414,11 +419,23 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 		void *tmpbuffer = NULL;
 
 		for (; ; index++) {
-			node = spl_fit_get_image_node(ctx, FIT_FDT_PROP, index);
-			if (node == -E2BIG) {
+			const char *str;
+
+			ret = spl_fit_get_image_name(ctx, FIT_FDT_PROP, index, &str);
+			if (ret == -E2BIG) {
 				debug("%s: No additional FDT node\n", __func__);
+				ret = 0;
 				break;
-			} else if (node < 0) {
+			} else if (ret < 0) {
+				continue;
+			}
+
+			ret = board_spl_fit_append_fdt_skip(str);
+			if (ret)
+				continue;
+
+			node = fdt_subnode_offset(ctx->fit, ctx->images_node, str);
+			if (node < 0) {
 				debug("%s: unable to find FDT node %d\n",
 				      __func__, index);
 				continue;
