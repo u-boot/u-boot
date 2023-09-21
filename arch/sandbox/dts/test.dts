@@ -81,6 +81,15 @@
 		};
 	};
 
+	options {
+		u-boot {
+			compatible = "u-boot,config";
+			bootscr-ram-offset = /bits/ 64 <0x12345678>;
+			bootscr-flash-offset = /bits/ 64 <0>;
+			bootscr-flash-size = /bits/ 64 <0x2000>;
+		};
+	};
+
 	bootstd {
 		bootph-verify;
 		compatible = "u-boot,boot-std";
@@ -301,6 +310,7 @@
 		uint-value = <(-1234)>;
 		int64-value = /bits/ 64 <0x1111222233334444>;
 		int-array = <5678 9123 4567>;
+		int64-array = /bits/ 64 <0x1111222233334444 0x4444333322221111>;
 		str-value = "test string";
 		interrupts-extended = <&irq 3 0>;
 		acpi,name = "GHIJ";
@@ -611,6 +621,22 @@
 			 <&clk_sandbox 3>,
 			 <&clk_sandbox 2>;
 		clock-names = "fixed", "i2c", "spi", "uart2", "uart1";
+	};
+
+	clk-test2 {
+		compatible = "sandbox,clk-test";
+		assigned-clock-rates = <321>;
+	};
+
+	clk-test3 {
+		compatible = "sandbox,clk-test";
+		assigned-clocks = <&clk_sandbox 1>;
+	};
+
+	clk-test4 {
+		compatible = "sandbox,clk-test";
+		assigned-clock-rates = <654>, <321>;
+		assigned-clocks = <&clk_sandbox 1>;
 	};
 
 	ccf: clk-ccf {

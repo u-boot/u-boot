@@ -807,7 +807,10 @@ static struct phy_device *phy_connect_gmii2rgmii(struct mii_dev *bus,
 	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
 		node = ofnode_by_compatible(node, "xlnx,gmii-to-rgmii-1.0");
 		if (ofnode_valid(node)) {
-			phydev = phy_device_create(bus, 0,
+			int gmiirgmii_phyaddr;
+
+			gmiirgmii_phyaddr = ofnode_read_u32_default(node, "reg", 0);
+			phydev = phy_device_create(bus, gmiirgmii_phyaddr,
 						   PHY_GMII2RGMII_ID, false);
 			if (phydev)
 				phydev->node = node;

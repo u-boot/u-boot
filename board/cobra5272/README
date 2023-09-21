@@ -1,6 +1,6 @@
 File:		README.COBRA5272
 Author:		Florian Schlote for Sentec elektronik (linux@sentec-elektronik.de)
-Contents:	This is the README of u-boot (Universal bootloader) for our
+Contents:	This is the README of U-Boot (Universal bootloader) for our
 		COBRA5272 board.
 Version:	v01.00
 Date:		Tue Mar 30 00:28:33 CEST 2004
@@ -31,7 +31,7 @@ Please refer to u-boot README (general info, u-boot-x-x-x/README),
 to u-boot-x-x-x/board/cobra5272/README and
 to the comments in u-boot-x-x-x/include/configs/cobra5272.h
 
-Configuring u-boot is done by commenting/uncommenting preprocessor defines.
+Configuring U-Boot is done by commenting/uncommenting preprocessor defines.
 
 Default configuration is
 
@@ -48,10 +48,10 @@ Default configuration is
 
 
 #-----------------------------------
-# u-boot FLASH version & RAM version
+# U-Boot FLASH version & RAM version
 #-----------------------------------
 
-The u-boot bootloader for Coldfire processors can be configured
+The U-Boot bootloader for Coldfire processors can be configured
 
 	1. as a standalone bootloader residing in flash & relocating itself to RAM on
 	startup automatically => "FLASH version"
@@ -60,7 +60,7 @@ The u-boot bootloader for Coldfire processors can be configured
 	prestage bootloader ("chainloading") & is running only from the RAM address it
 	is linked to => "RAM version"
 
-	This version may be very helpful when installing u-boot for the first time
+	This version may be very helpful when installing U-Boot for the first time
 	since it can be used to make available s. th. like a "bootstrap
 	mechanism".
 
@@ -71,7 +71,7 @@ How to build the different images:
 Flash version
 ------------------------------
 
-Compile u-boot
+Compile U-Boot
 
 in dir ./u-boot-x-x-x/
 
@@ -81,14 +81,14 @@ please first check:
 
 		CONFIG_MONITOR_IS_IN_RAM has to be not present in the file
 
-	=> u-boot as single bootloader starting from flash
+	=> U-Boot as single bootloader starting from flash
 
 
 	in configs/cobra5272_defconfig CONFIG_TEXT_BASE should be
 
 		CONFIG_TEXT_BASE=0xffe00000
 
-	=> linking address for u-boot as single bootloader stored in flash
+	=> linking address for U-Boot as single bootloader stored in flash
 
 then:
 
@@ -116,7 +116,7 @@ please modify the settings:
 
 		CONFIG_MONITOR_IS_IN_RAM=y
 
-	=> u-boot as RAM version, chainloaded by another bootloader or using bdm cable
+	=> U-Boot as RAM version, chainloaded by another bootloader or using bdm cable
 
 
 	in configs/cobra5272_defconfig CONFIG_TEXT_BASE should be

@@ -329,7 +329,13 @@ static int clk_set_default_rates(struct udevice *dev,
 			dev_dbg(dev,
 				"could not get assigned clock %d (err = %d)\n",
 				index, ret);
-			continue;
+			/* Skip if it is empty */
+			if (ret == -ENOENT) {
+				ret = 0;
+				continue;
+			}
+
+			return ret;
 		}
 
 		/* This is clk provider device trying to program itself

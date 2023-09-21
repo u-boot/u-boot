@@ -2,7 +2,8 @@
 /*
  * dts file for Xilinx Versal a2197 RevA System Controller
  *
- * (C) Copyright 2019 - 2021, Xilinx, Inc.
+ * (C) Copyright 2019 - 2022, Xilinx, Inc.
+ * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -460,10 +461,10 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <6>;
-			si570_user1: clock-generator@5d { /* u205 */
+			si570_user1: clock-generator@5f { /* u205 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
-				reg = <0x5d>;
+				reg = <0x5f>;
 				temperature-stability = <50>;
 				factory-fout = <100000000>;
 				clock-frequency = <100000000>;
