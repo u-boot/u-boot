@@ -115,6 +115,7 @@ obj-$(CONFIG_DM_SPI) += spi.o
 obj-$(CONFIG_SPMI) += spmi.o
 obj-y += syscon.o
 obj-$(CONFIG_RESET_SYSCON) += syscon-reset.o
+obj-$(CONFIG_SM) += sm.o
 obj-$(CONFIG_SYSINFO) += sysinfo.o
 obj-$(CONFIG_SYSINFO_GPIO) += sysinfo-gpio.o
 obj-$(CONFIG_UT_DM) += tag.o
