@@ -44,6 +44,7 @@ static const iomux_v3_cfg_t wdog_pads[] = {
 };
 
 static bool dh_gigabit_eqos, dh_gigabit_fec;
+static u8 dh_som_rev;
 
 static void dh_imx8mp_early_init_f(void)
 {
@@ -166,6 +167,15 @@ int board_spl_fit_append_fdt_skip(const char *name)
 		}
 	}
 
+	if (dh_som_rev == 0x0) { /* Prototype SoM rev.100 */
+		if (!strcmp(name, "fdt-dto-imx8mp-dhcom-som-overlay-rev100"))
+			return 0;
+
+		if (!strcmp(name, "fdt-dto-imx8mp-dhcom-pdk3-overlay-rev100") &&
+		    of_machine_is_compatible("dh,imx8mp-dhcom-pdk3"))
+			return 0;
+	}
+
 	return 1;	/* Skip this DTO */
 }
 
@@ -175,6 +185,9 @@ static void dh_imx8mp_board_cache_config(void)
 	const u32 mux_sion[] = {
 		FIELD_GET(MUX_CTRL_OFS_MASK, MX8MP_PAD_ENET_RX_CTL__GPIO1_IO24),
 		FIELD_GET(MUX_CTRL_OFS_MASK, MX8MP_PAD_SAI1_TXFS__GPIO4_IO10),
+		FIELD_GET(MUX_CTRL_OFS_MASK, MX8MP_PAD_NAND_DQS__GPIO3_IO14),
+		FIELD_GET(MUX_CTRL_OFS_MASK, MX8MP_PAD_SAI1_TXD7__GPIO4_IO19),
+		FIELD_GET(MUX_CTRL_OFS_MASK, MX8MP_PAD_SAI5_MCLK__GPIO3_IO25),
 	};
 	int i;
 
@@ -183,6 +196,9 @@ static void dh_imx8mp_board_cache_config(void)
 
 	dh_gigabit_eqos = !(readl(GPIO1_BASE_ADDR) & BIT(24));
 	dh_gigabit_fec = !(readl(GPIO4_BASE_ADDR) & BIT(10));
+	dh_som_rev = !!(readl(GPIO3_BASE_ADDR) & BIT(14));
+	dh_som_rev |= !!(readl(GPIO4_BASE_ADDR) & BIT(19)) << 1;
+	dh_som_rev |= !!(readl(GPIO3_BASE_ADDR) & BIT(25)) << 2;
 
 	for (i = 0; i < ARRAY_SIZE(mux_sion); i++)
 		clrbits_le32(mux_base + mux_sion[i], IOMUX_CONFIG_SION);
