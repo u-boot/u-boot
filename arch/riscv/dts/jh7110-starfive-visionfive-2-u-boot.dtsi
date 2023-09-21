@@ -103,4 +103,15 @@
 			};
 		};
 	};
+
+	spl-img {
+		filename = "spl/u-boot-spl.bin.normal.out";
+
+		mkimage {
+			args = "-T sfspl";
+
+			u-boot-spl {
+			};
+	};
+};
 };

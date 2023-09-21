@@ -123,6 +123,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			pblimage.o \
 			pbl_crc32.o \
 			renesas_spkgimage.o \
+			sfspl.o \
 			vybridimage.o \
 			stm32image.o \
 			$(ROCKCHIP_OBS) \

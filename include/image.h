@@ -231,6 +231,7 @@ enum image_type_t {
 	IH_TYPE_SUNXI_TOC0,		/* Allwinner TOC0 Boot Image */
 	IH_TYPE_FDT_LEGACY,		/* Binary Flat Device Tree Blob	in a Legacy Image */
 	IH_TYPE_RENESAS_SPKG,		/* Renesas SPKG image */
+	IH_TYPE_STARFIVE_SPL,		/* StarFive SPL image */
 
 	IH_TYPE_COUNT,			/* Number of image types */
 };
