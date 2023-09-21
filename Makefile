@@ -886,7 +886,7 @@ libs-$(CONFIG_UT_ENV) += test/env/
 libs-$(CONFIG_UT_OPTEE) += test/optee/
 libs-$(CONFIG_UT_OVERLAY) += test/overlay/
 
-libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
+libs-y += $(if $(wildcard $(srctree)/board/$(BOARDDIR)/Makefile),board/$(BOARDDIR)/)
 
 libs-y := $(sort $(libs-y))
 
