@@ -133,3 +133,52 @@
 &wdog1 {
 	bootph-pre-ram;
 };
+
+&binman {
+	itb {
+		fit {
+			images {
+				fdt-dto-imx8mp-dhcom-som-overlay-eth1xfast {
+					description = "imx8mp-dhcom-som-overlay-eth1xfast";
+					type = "flat_dt";
+					compression = "none";
+
+					blob-ext {
+						filename = "imx8mp-dhcom-som-overlay-eth1xfast.dtbo";
+					};
+				};
+
+				fdt-dto-imx8mp-dhcom-som-overlay-eth2xfast {
+					description = "imx8mp-dhcom-som-overlay-eth2xfast";
+					type = "flat_dt";
+					compression = "none";
+
+					blob-ext {
+						filename = "imx8mp-dhcom-som-overlay-eth2xfast.dtbo";
+					};
+				};
+
+				fdt-dto-imx8mp-dhcom-pdk-overlay-eth2xfast {
+					description = "imx8mp-dhcom-pdk-overlay-eth2xfast";
+					type = "flat_dt";
+					compression = "none";
+
+					blob-ext {
+						filename = "imx8mp-dhcom-pdk-overlay-eth2xfast.dtbo";
+					};
+				};
+			};
+
+			configurations {
+				default = "@config-DEFAULT-SEQ";
+
+				@config-SEQ {
+					fdt = "fdt-1",
+					      "fdt-dto-imx8mp-dhcom-som-overlay-eth1xfast",
+					      "fdt-dto-imx8mp-dhcom-som-overlay-eth2xfast",
+					      "fdt-dto-imx8mp-dhcom-pdk-overlay-eth2xfast";
+				};
+			};
+		};
+	};
+};

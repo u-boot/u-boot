@@ -22,6 +22,8 @@
 #include <dm/uclass-internal.h>
 #include <dm/device-internal.h>
 
+#include <linux/bitfield.h>
+
 #include <power/pmic.h>
 #include <power/pca9450.h>
 
@@ -40,6 +42,8 @@ static const iomux_v3_cfg_t uart_pads[] = {
 static const iomux_v3_cfg_t wdog_pads[] = {
 	MX8MP_PAD_GPIO1_IO02__WDOG1_WDOG_B  | MUX_PAD_CTRL(WDOG_PAD_CTRL),
 };
+
+static bool dh_gigabit_eqos, dh_gigabit_fec;
 
 static void dh_imx8mp_early_init_f(void)
 {
@@ -144,6 +148,46 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 	return BOOT_DEVICE_BOOTROM;
 }
 
+int board_spl_fit_append_fdt_skip(const char *name)
+{
+	if (!dh_gigabit_eqos) {		/* 1x or 2x RMII PHY SoM */
+		if (dh_gigabit_fec) {	/* 1x RMII PHY SoM */
+			if (!strcmp(name, "fdt-dto-imx8mp-dhcom-som-overlay-eth1xfast"))
+				return 0;
+		} else {		/* 2x RMII PHY SoM */
+			if (!strcmp(name, "fdt-dto-imx8mp-dhcom-som-overlay-eth2xfast"))
+				return 0;
+			if (!strcmp(name, "fdt-dto-imx8mp-dhcom-pdk-overlay-eth2xfast")) {
+				/* 2x RMII PHY SoM on PDK2 or PDK3 */
+				if (of_machine_is_compatible("dh,imx8mp-dhcom-pdk2") ||
+				    of_machine_is_compatible("dh,imx8mp-dhcom-pdk3"))
+					return 0;
+			}
+		}
+	}
+
+	return 1;	/* Skip this DTO */
+}
+
+static void dh_imx8mp_board_cache_config(void)
+{
+	const void __iomem *mux_base = (void __iomem *)IOMUXC_BASE_ADDR;
+	const u32 mux_sion[] = {
+		FIELD_GET(MUX_CTRL_OFS_MASK, MX8MP_PAD_ENET_RX_CTL__GPIO1_IO24),
+		FIELD_GET(MUX_CTRL_OFS_MASK, MX8MP_PAD_SAI1_TXFS__GPIO4_IO10),
+	};
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(mux_sion); i++)
+		setbits_le32(mux_base + mux_sion[i], IOMUX_CONFIG_SION);
+
+	dh_gigabit_eqos = !(readl(GPIO1_BASE_ADDR) & BIT(24));
+	dh_gigabit_fec = !(readl(GPIO4_BASE_ADDR) & BIT(10));
+
+	for (i = 0; i < ARRAY_SIZE(mux_sion); i++)
+		clrbits_le32(mux_base + mux_sion[i], IOMUX_CONFIG_SION);
+}
+
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
@@ -180,6 +224,8 @@ void board_init_f(ulong dummy)
 
 	/* DDR initialization */
 	spl_dram_init();
+
+	dh_imx8mp_board_cache_config();
 
 	board_init_r(NULL, 0);
 }
