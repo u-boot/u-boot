@@ -83,6 +83,13 @@ build in `$CBDIR`::
       -device ide-hd,drive=disk,bus=ahci.0 \
 
 
+USB keyboard
+------------
+
+The `CONFIG_USE_PREBOOT` option is enabled by default, meaning that USB starts
+up just before the command-line starts. This allows user interaction on
+non-laptop devices which use a USB keyboard.
+
 CBFS access
 -----------
 
