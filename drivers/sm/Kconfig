@@ -1,2 +1,9 @@
 config SM
 	bool "Enable Secure Monitor driver support"
+
+config MESON_SM
+	bool "Amlogic Secure Monitor driver"
+	select SM
+	default n
+	help
+	  Say y here to enable the Amlogic secure monitor driver.
