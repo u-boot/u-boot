@@ -8,6 +8,15 @@
 #include <common.h>
 #include <command.h>
 
+static int do_compressed(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
+{
+	/* c.li a0, 0; c.li a0, 0 */
+	asm volatile (".long 0x45014501\n");
+	printf("The system supports compressed instructions.\n");
+	return CMD_RET_SUCCESS;
+}
+
 static int do_ebreak(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
@@ -35,6 +44,8 @@ static int do_undefined(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 static struct cmd_tbl cmd_sub[] = {
+	U_BOOT_CMD_MKENT(compressed, CONFIG_SYS_MAXARGS, 1, do_compressed,
+			 "", ""),
 	U_BOOT_CMD_MKENT(ebreak, CONFIG_SYS_MAXARGS, 1, do_ebreak,
 			 "", ""),
 	U_BOOT_CMD_MKENT(unaligned, CONFIG_SYS_MAXARGS, 1, do_unaligned,
@@ -46,9 +57,10 @@ static struct cmd_tbl cmd_sub[] = {
 static char exception_help_text[] =
 	"<ex>\n"
 	"  The following exceptions are available:\n"
-	"  ebreak    - breakpoint\n"
-	"  undefined - illegal instruction\n"
-	"  unaligned - load address misaligned\n"
+	"  compressed - compressed instruction\n"
+	"  ebreak     - breakpoint\n"
+	"  undefined  - illegal instruction\n"
+	"  unaligned  - load address misaligned\n"
 	;
 
 #include <exception.h>
