@@ -1,0 +1,2 @@
+config SM
+	bool "Enable Secure Monitor driver support"
