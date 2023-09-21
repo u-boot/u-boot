@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <soc.h>
 #include <clk-uclass.h>
+#include <k3-avs.h>
 #include "k3-clk.h"
 
 #define PLL_MIN_FREQ	800000000
@@ -242,7 +243,11 @@ static ulong ti_clk_set_rate(struct clk *clk, ulong rate)
 	const struct clk_ops *ops;
 	ulong new_rate, rem;
 	ulong diff, new_diff;
+	int freq_scale_up = rate >= ti_clk_get_rate(clk) ? 1 : 0;
 
+	if (IS_ENABLED(CONFIG_K3_AVS0) && freq_scale_up)
+		k3_avs_notify_freq(data->map[clk->id].dev_id,
+				   data->map[clk->id].clk_id, rate);
 	/*
 	 * We must propagate rate change to parent if current clock type
 	 * does not allow setting it.
@@ -338,6 +343,10 @@ static ulong ti_clk_set_rate(struct clk *clk, ulong rate)
 			      __func__, new_rate, new_diff);
 		}
 	}
+
+	if (IS_ENABLED(CONFIG_K3_AVS0) && !freq_scale_up)
+		k3_avs_notify_freq(data->map[clk->id].dev_id,
+				   data->map[clk->id].clk_id, rate);
 
 	return new_rate;
 }
