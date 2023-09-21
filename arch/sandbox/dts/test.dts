@@ -767,6 +767,10 @@
 				};
 			};
 		};
+
+		sm: secure-monitor {
+			compatible = "sandbox,sm";
+		};
 	};
 
 	fpga {
