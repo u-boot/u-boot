@@ -40,16 +40,7 @@ u32 get_board_rev(void)
 }
 #endif
 
-static void check_hw_revision(void);
 struct dwc2_plat_otg_data s5pc210_otg_data;
-
-int exynos_init(void)
-{
-	check_hw_revision();
-	printf("HW Revision:\t0x%x\n", board_rev);
-
-	return 0;
-}
 
 #if !CONFIG_IS_ENABLED(DM_I2C) /* TODO(maintainer): Convert to driver model */
 static void trats_low_power_mode(void)
@@ -215,6 +206,11 @@ static void check_hw_revision(void)
 	board_rev |= hwrev;
 }
 
+void exynos_init(void)
+{
+	check_hw_revision();
+	printf("HW Revision:\t0x%x\n", board_rev);
+}
 
 #ifdef CONFIG_USB_GADGET
 static int s5pc210_phy_control(int on)

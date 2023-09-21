@@ -11,7 +11,7 @@
  * Exynos baord specific changes for
  * board_init
  */
-int exynos_init(void);
+void exynos_init(void);
 
 /*
  * Exynos board specific changes for
