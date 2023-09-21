@@ -91,18 +91,21 @@ static ulong ti_sci_clk_set_rate(struct clk *clk, ulong rate)
 	const struct ti_sci_handle *sci = data->sci;
 	const struct ti_sci_clk_ops *cops = &sci->ops.clk_ops;
 	int ret;
+	int freq_scale_up = rate >= ti_sci_clk_get_rate(clk) ? 1 : 0;
 
 	debug("%s(clk=%p, rate=%lu)\n", __func__, clk, rate);
 
-#ifdef CONFIG_K3_AVS0
-	k3_avs_notify_freq(clk->id, clk->data, rate);
-#endif
+	if (IS_ENABLED(CONFIG_K3_AVS0) && freq_scale_up)
+		k3_avs_notify_freq(clk->id, clk->data, rate);
 
 	ret = cops->set_freq(sci, clk->id, clk->data, 0, rate, ULONG_MAX);
 	if (ret) {
 		dev_err(clk->dev, "%s: set_freq failed (%d)\n", __func__, ret);
 		return ret;
 	}
+
+	if (IS_ENABLED(CONFIG_K3_AVS0) && !freq_scale_up)
+		k3_avs_notify_freq(clk->id, clk->data, rate);
 
 	return rate;
 }
