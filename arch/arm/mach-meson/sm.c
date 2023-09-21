@@ -6,7 +6,10 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <log.h>
+#include <regmap.h>
+#include <syscon.h>
 #include <asm/arch/sm.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -14,10 +17,7 @@
 #include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
-#include <dm.h>
 #include <linux/bitfield.h>
-#include <regmap.h>
-#include <syscon.h>
 
 #define FN_GET_SHARE_MEM_INPUT_BASE	0x82000020
 #define FN_GET_SHARE_MEM_OUTPUT_BASE	0x82000021
