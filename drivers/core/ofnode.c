@@ -991,6 +991,24 @@ ofnode ofnode_get_chosen_node(const char *name)
 	return ofnode_path(prop);
 }
 
+int ofnode_read_baud(void)
+{
+	const char *str, *p;
+	u32 baud;
+
+	str = ofnode_read_chosen_string("stdout-path");
+	if (!str)
+		return -EINVAL;
+
+	/* Parse string serial0:115200n8 */
+	p = strchr(str, ':');
+	if (!p)
+		return -EINVAL;
+
+	baud = dectoul(p + 1, NULL);
+	return baud;
+}
+
 const void *ofnode_read_aliases_prop(const char *propname, int *sizep)
 {
 	ofnode node;
