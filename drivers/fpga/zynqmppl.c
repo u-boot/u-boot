@@ -2,7 +2,7 @@
 /*
  * (C) Copyright 2015 - 2016, Xilinx, Inc,
  * Michal Simek <michal.simek@amd.com>
- * Siva Durga Prasad <siva.durga.prasad.paladugu@amd.com>>
+ * Siva Durga Prasad Paladugu <siva.durga.prasad.paladugu@amd.com>
  */
 
 #include <console.h>
