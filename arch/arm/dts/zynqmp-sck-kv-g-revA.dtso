@@ -156,7 +156,7 @@
 	disable-wp;
 	xlnx,mio-bank = <1>;
 	assigned-clock-rates = <187498123>;
-	bus-width = <8>;
+	bus-width = <4>;
 };
 
 &gem3 {
