@@ -321,17 +321,48 @@ static int zynq_gem_setup_mac(struct udevice *dev)
 	return 0;
 }
 
+static u32 gem_mdc_clk_div(struct zynq_gem_priv *priv)
+{
+	u32 config;
+	unsigned long pclk_hz;
+
+	pclk_hz = clk_get_rate(&priv->pclk);
+	if (pclk_hz <= 20000000)
+		config = GEM_MDC_SET(GEM_CLK_DIV8);
+	else if (pclk_hz <= 40000000)
+		config = GEM_MDC_SET(GEM_CLK_DIV16);
+	else if (pclk_hz <= 80000000)
+		config = GEM_MDC_SET(GEM_CLK_DIV32);
+	else if (pclk_hz <= 120000000)
+		config = GEM_MDC_SET(GEM_CLK_DIV48);
+	else if (pclk_hz <= 160000000)
+		config = GEM_MDC_SET(GEM_CLK_DIV64);
+	else if (pclk_hz <= 240000000)
+		config = GEM_MDC_SET(GEM_CLK_DIV96);
+	else if (pclk_hz <= 320000000)
+		config = GEM_MDC_SET(GEM_CLK_DIV128);
+	else
+		config = GEM_MDC_SET(GEM_CLK_DIV224);
+
+	return config;
+}
+
 static int zynq_phy_init(struct udevice *dev)
 {
-	int ret;
+	int ret, val;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
 	struct zynq_gem_regs *regs_mdio = priv->mdiobase;
+	struct zynq_gem_regs *regs = priv->iobase;
 	const u32 supported = SUPPORTED_10baseT_Half |
 			SUPPORTED_10baseT_Full |
 			SUPPORTED_100baseT_Half |
 			SUPPORTED_100baseT_Full |
 			SUPPORTED_1000baseT_Half |
 			SUPPORTED_1000baseT_Full;
+
+	val = gem_mdc_clk_div(priv);
+	if (val)
+		writel(val, &regs->nwcfg);
 
 	/* Enable only MDIO bus */
 	writel(ZYNQ_GEM_NWCTRL_MDEN_MASK, &regs_mdio->nwctrl);
@@ -360,35 +391,10 @@ static int zynq_phy_init(struct udevice *dev)
 	return phy_config(priv->phydev);
 }
 
-static u32 gem_mdc_clk_div(struct zynq_gem_priv *priv)
-{
-	u32 config;
-	unsigned long pclk_hz;
-
-	pclk_hz = clk_get_rate(&priv->pclk);
-	if (pclk_hz <= 20000000)
-		config = GEM_MDC_SET(GEM_CLK_DIV8);
-	else if (pclk_hz <= 40000000)
-		config = GEM_MDC_SET(GEM_CLK_DIV16);
-	else if (pclk_hz <= 80000000)
-		config = GEM_MDC_SET(GEM_CLK_DIV32);
-	else if (pclk_hz <= 120000000)
-		config = GEM_MDC_SET(GEM_CLK_DIV48);
-	else if (pclk_hz <= 160000000)
-		config = GEM_MDC_SET(GEM_CLK_DIV64);
-	else if (pclk_hz <= 240000000)
-		config = GEM_MDC_SET(GEM_CLK_DIV96);
-	else if (pclk_hz <= 320000000)
-		config = GEM_MDC_SET(GEM_CLK_DIV128);
-	else
-		config = GEM_MDC_SET(GEM_CLK_DIV224);
-
-	return config;
-}
 
 static int zynq_gem_init(struct udevice *dev)
 {
-	u32 i, nwconfig;
+	u32 i, nwconfig, nwcfg;
 	int ret;
 	unsigned long clk_rate = 0;
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
@@ -494,8 +500,7 @@ static int zynq_gem_init(struct udevice *dev)
 		return -1;
 	}
 
-	nwconfig = gem_mdc_clk_div(priv);
-	nwconfig |= ZYNQ_GEM_NWCFG_INIT;
+	nwconfig = ZYNQ_GEM_NWCFG_INIT;
 
 	/*
 	 * Set SGMII enable PCS selection only if internal PCS/PMA
@@ -509,19 +514,21 @@ static int zynq_gem_init(struct udevice *dev)
 
 	switch (priv->phydev->speed) {
 	case SPEED_1000:
-		writel(nwconfig | ZYNQ_GEM_NWCFG_SPEED1000,
-		       &regs->nwcfg);
+		nwconfig |= ZYNQ_GEM_NWCFG_SPEED1000;
 		clk_rate = ZYNQ_GEM_FREQUENCY_1000;
 		break;
 	case SPEED_100:
-		writel(nwconfig | ZYNQ_GEM_NWCFG_SPEED100,
-		       &regs->nwcfg);
+		nwconfig |= ZYNQ_GEM_NWCFG_SPEED100;
 		clk_rate = ZYNQ_GEM_FREQUENCY_100;
 		break;
 	case SPEED_10:
 		clk_rate = ZYNQ_GEM_FREQUENCY_10;
 		break;
 	}
+	nwcfg = readl(&regs->nwcfg);
+	nwcfg |= nwconfig;
+	if (nwcfg)
+		writel(nwcfg, &regs->nwcfg);
 
 #ifdef CONFIG_ARM64
 	if (priv->interface == PHY_INTERFACE_MODE_SGMII &&
