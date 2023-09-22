@@ -321,6 +321,15 @@ int bootdev_hunt(const char *spec, bool show);
 int bootdev_hunt_prio(enum bootdev_prio_t prio, bool show);
 
 /**
+ * bootdev_unhunt() - Mark a device as needing to be hunted again
+ *
+ * @id: uclass ID to update
+ * Return: 0 if done, -EALREADY if already in this state, -ENOENT if no hunter
+ * found for that uclass
+ */
+int bootdev_unhunt(enum uclass_id id);
+
+/**
  * bootdev_hunt_and_find_by_label() - Hunt for bootdevs by label
  *
  * Runs the hunter for the label, then tries to find the bootdev, possible

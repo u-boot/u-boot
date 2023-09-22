@@ -102,6 +102,9 @@ struct arch_global_data {
 #ifdef CONFIG_ARCH_IMX8ULP
 	bool m33_handshake_done;
 #endif
+#ifdef CONFIG_SMBIOS
+	ulong smbios_start;		/* Start address of SMBIOS table */
+#endif
 };
 
 #include <asm-generic/global_data.h>

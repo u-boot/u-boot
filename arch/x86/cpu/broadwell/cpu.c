@@ -11,6 +11,7 @@
 #include <event.h>
 #include <init.h>
 #include <log.h>
+#include <spl.h>
 #include <asm/cpu.h>
 #include <asm/cpu_x86.h>
 #include <asm/cpu_common.h>
@@ -67,12 +68,11 @@ int arch_cpu_init(void)
 {
 	post_code(POST_CPU_INIT);
 
-#ifdef CONFIG_TPL
 	/* Do a mini-init if TPL has already done the full init */
-	return x86_cpu_reinit_f();
-#else
-	return x86_cpu_init_f();
-#endif
+	if (IS_ENABLED(CONFIG_TPL) && spl_phase() != PHASE_TPL)
+		return x86_cpu_reinit_f();
+	else
+		return x86_cpu_init_f();
 }
 
 int checkcpu(void)

@@ -146,16 +146,21 @@ void fill_fadt(struct acpi_fadt *fadt)
 	fadt->x_pm_tmr_blk.addrl = IOMAP_ACPI_BASE + PM1_TMR;
 }
 
-void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
-		      void *dsdt)
+static int apl_write_fadt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 {
-	struct acpi_table_header *header = &fadt->header;
+	struct acpi_table_header *header;
+	struct acpi_fadt *fadt;
 
-	acpi_fadt_common(fadt, facs, dsdt);
+	fadt = ctx->current;
+	acpi_fadt_common(fadt, ctx->facs, ctx->dsdt);
 	intel_acpi_fill_fadt(fadt);
 	fill_fadt(fadt);
+	header = &fadt->header;
 	header->checksum = table_compute_checksum(fadt, header->length);
+
+	return acpi_add_fadt(ctx, fadt);
 }
+ACPI_WRITER(5fadt, "FADT", apl_write_fadt, 0);
 
 int apl_acpi_fill_dmar(struct acpi_ctx *ctx)
 {

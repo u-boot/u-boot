@@ -485,6 +485,15 @@ export RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o    \
 export RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn \
 			 --exclude CVS --exclude .pc --exclude .hg --exclude .git
 
+export PYTHON_ENABLE
+
+# This is y if U-Boot should not build any Python tools or libraries. Typically
+# you would need to set this if those tools/libraries (typically binman and
+# pylibfdt) cannot be built by your environment and are provided separately.
+ifeq ($(NO_PYTHON),)
+PYTHON_ENABLE=y
+endif
+
 # ===========================================================================
 # Rules shared between *config targets and build targets
 

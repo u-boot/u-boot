@@ -10,20 +10,24 @@
 #include <asm/arch/global_nvs.h>
 #include <asm/arch/iomap.h>
 
-void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
-		      void *dsdt)
+static int quark_write_fadt(struct acpi_ctx *ctx,
+			    const struct acpi_writer *entry)
 {
-	struct acpi_table_header *header = &(fadt->header);
 	u16 pmbase = ACPI_PM1_BASE_ADDRESS;
+	struct acpi_table_header *header;
+	struct acpi_fadt *fadt;
 
-	memset((void *)fadt, 0, sizeof(struct acpi_fadt));
+	fadt = ctx->current;
+	header = &fadt->header;
+
+	memset(fadt, '\0', sizeof(struct acpi_fadt));
 
 	acpi_fill_header(header, "FACP");
 	header->length = sizeof(struct acpi_fadt);
 	header->revision = 4;
 
-	fadt->firmware_ctrl = (u32)facs;
-	fadt->dsdt = (u32)dsdt;
+	fadt->firmware_ctrl = (u32)ctx->facs;
+	fadt->dsdt = (u32)ctx->dsdt;
 	fadt->preferred_pm_profile = ACPI_PM_UNSPECIFIED;
 	fadt->sci_int = 9;
 	fadt->smi_cmd = 0;
@@ -70,9 +74,9 @@ void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 	fadt->reset_reg.addrh = 0;
 	fadt->reset_value = SYS_RST | RST_CPU | FULL_RST;
 
-	fadt->x_firmware_ctl_l = (u32)facs;
+	fadt->x_firmware_ctl_l = (u32)ctx->facs;
 	fadt->x_firmware_ctl_h = 0;
-	fadt->x_dsdt_l = (u32)dsdt;
+	fadt->x_dsdt_l = (u32)ctx->dsdt;
 	fadt->x_dsdt_h = 0;
 
 	fadt->x_pm1a_evt_blk.space_id = ACPI_ADDRESS_SPACE_IO;
@@ -132,7 +136,10 @@ void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 	fadt->x_gpe1_blk.addrh = 0x0;
 
 	header->checksum = table_compute_checksum(fadt, header->length);
+
+	return acpi_add_fadt(ctx, fadt);
 }
+ACPI_WRITER(5fadt, "FADT", quark_write_fadt, 0);
 
 int acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 {

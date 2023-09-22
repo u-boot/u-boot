@@ -830,6 +830,33 @@ int bootdev_hunt(const char *spec, bool show)
 	return result;
 }
 
+int bootdev_unhunt(enum uclass_id id)
+{
+	struct bootdev_hunter *start;
+	int n_ent, i;
+
+	start = ll_entry_start(struct bootdev_hunter, bootdev_hunter);
+	n_ent = ll_entry_count(struct bootdev_hunter, bootdev_hunter);
+	for (i = 0; i < n_ent; i++) {
+		struct bootdev_hunter *info = start + i;
+
+		if (info->uclass == id) {
+			struct bootstd_priv *std;
+			int ret;
+
+			ret = bootstd_get_priv(&std);
+			if (ret)
+				return log_msg_ret("std", ret);
+			if (!(std->hunters_used & BIT(i)))
+				return -EALREADY;
+			std->hunters_used &= ~BIT(i);
+			return 0;
+		}
+	}
+
+	return -ENOENT;
+}
+
 int bootdev_hunt_prio(enum bootdev_prio_t prio, bool show)
 {
 	struct bootdev_hunter *start;

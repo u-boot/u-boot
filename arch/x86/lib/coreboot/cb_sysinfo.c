@@ -471,6 +471,7 @@ int get_coreboot_info(struct sysinfo_t *info)
 		return -ENOENT;
 	gd->arch.coreboot_table = addr;
 	gd_set_acpi_start(map_to_sysmem(info->rsdp));
+	gd_set_smbios_start(info->smbios_start);
 	gd->flags |= GD_FLG_SKIP_LL_INIT;
 
 	return 0;

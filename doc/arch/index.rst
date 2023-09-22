@@ -15,5 +15,5 @@ Architecture-specific doc
    riscv
    sandbox/index
    sh
-   x86
+   x86/index
    xtensa

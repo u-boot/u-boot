@@ -24,8 +24,6 @@ struct acpi_table_header;
 
 /* These can be used by the target port */
 
-void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
-		      void *dsdt);
 int acpi_create_madt_lapics(u32 current);
 int acpi_create_madt_ioapic(struct acpi_madt_ioapic *ioapic, u8 id,
 			    u32 addr, u32 gsi_base);
