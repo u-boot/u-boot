@@ -723,7 +723,10 @@ F:	drivers/usb/musb-new/ux500.c
 F:	drivers/video/mcde_simple.c
 
 ARM UNIPHIER
-S:	Orphan (Since 2020-09)
+M:	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+R:	Dai Okamura <okamura.dai@socionext.com>
+S:	Maintained
+F:	arch/arm/dts/uniphier-*
 F:	arch/arm/mach-uniphier/
 F:	configs/uniphier_*_defconfig
 N:	uniphier

@@ -35,7 +35,8 @@ struct pkt_qd {
  * The actual packet bufers are in the kernel space, and are
  * expected to be overwritten by the downloaded image.
  */
-static struct pkt_qd pkt_q[PKTBUFSRX / 4];
+#define PKTQ_SZ (PKTBUFSRX / 4)
+static struct pkt_qd pkt_q[PKTQ_SZ];
 static int pkt_q_idx;
 static unsigned long content_length;
 static unsigned int packets;
@@ -202,6 +203,13 @@ static void wget_connected(uchar *pkt, unsigned int tcp_seq_num,
 		pkt_q[pkt_q_idx].tcp_seq_num = tcp_seq_num;
 		pkt_q[pkt_q_idx].len = len;
 		pkt_q_idx++;
+
+		if (pkt_q_idx >= PKTQ_SZ) {
+			printf("wget: Fatal error, queue overrun!\n");
+			net_set_state(NETLOOP_FAIL);
+
+			return;
+		}
 	} else {
 		debug_cond(DEBUG_WGET, "wget: Connected HTTP Header %p\n", pkt);
 		/* sizeof(http_eom) - 1 is the string length of (http_eom) */
