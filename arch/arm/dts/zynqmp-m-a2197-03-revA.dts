@@ -106,9 +106,13 @@
 	status = "okay";
 	phy-handle = <&phy0>;
 	phy-mode = "sgmii";
-	phy-reset-gpios = <&gpio 142 GPIO_ACTIVE_LOW>;
-	phy0: ethernet-phy@0 { /* marwell m88e1512 - SGMII */
-		reg = <0>;
+	mdio: mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reset-gpios = <&gpio 142 GPIO_ACTIVE_LOW>;
+		phy0: ethernet-phy@0 { /* marwell m88e1512 - SGMII */
+			reg = <0>;
+		};
 	};
 };
 
