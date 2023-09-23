@@ -11,7 +11,6 @@ See doc/develop/moveconfig.rst for documentation.
 """
 
 from argparse import ArgumentParser
-import asteval
 import collections
 from contextlib import ExitStack
 import copy
@@ -32,6 +31,7 @@ import threading
 import time
 import unittest
 
+import asteval
 from buildman import bsettings
 from buildman import kconfiglib
 from buildman import toolchain
