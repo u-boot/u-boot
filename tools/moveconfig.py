@@ -727,12 +727,6 @@ def move_config(toolchains, args, db_queue, col):
         db_queue (Queue): Queue for database updates
         col (terminal.Color): Colour object
     """
-    if args.force_sync:
-        print('Syncing defconfigs', end=' ')
-    elif args.build_db:
-        print(f'Building {CONFIG_DATABASE} database')
-    print(f'(jobs: {args.jobs})\n')
-
     if args.git_ref:
         reference_src = ReferenceSource(args.git_ref)
         reference_src_dir = reference_src.get_dir()
