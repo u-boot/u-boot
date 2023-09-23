@@ -601,11 +601,6 @@ class Slot:
         """
         return self.failed_boards
 
-    def get_suspicious_boards(self):
-        """Returns a set of boards (defconfigs) with possible misconversion.
-        """
-        return self.suspicious_boards - self.failed_boards
-
 class Slots:
 
     """Controller of the array of subprocess slots."""
@@ -680,25 +675,6 @@ class Slots:
             msg += boards
             msg += '(the list has been saved in %s)\n' % output_file
             print(color_text(self.args.color, COLOR_LIGHT_RED,
-                                            msg), file=sys.stderr)
-
-            write_file(output_file, boards)
-
-    def show_suspicious_boards(self):
-        """Display all boards (defconfigs) with possible misconversion."""
-        boards = set()
-        output_file = 'moveconfig.suspicious'
-
-        for slot in self.slots:
-            boards |= slot.get_suspicious_boards()
-
-        if boards:
-            boards = '\n'.join(boards) + '\n'
-            msg = 'The following boards might have been converted incorrectly.\n'
-            msg += 'It is highly recommended to check them manually:\n'
-            msg += boards
-            msg += '(the list has been saved in %s)\n' % output_file
-            print(color_text(self.args.color, COLOR_YELLOW,
                                             msg), file=sys.stderr)
 
             write_file(output_file, boards)
@@ -780,7 +756,6 @@ def move_config(toolchains, args, db_queue):
 
     print('')
     slots.show_failed_boards()
-    slots.show_suspicious_boards()
 
 def find_kconfig_rules(kconf, config, imply_config):
     """Check whether a config has a 'select' or 'imply' keyword
