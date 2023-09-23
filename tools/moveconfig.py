@@ -1951,9 +1951,6 @@ doc/develop/moveconfig.rst for documentation.'''
                       help='exit immediately on any error')
     parser.add_argument('-f', '--find', action='store_true', default=False,
                       help='Find boards with a given config combination')
-    parser.add_argument('-H', '--headers-only', dest='cleanup_headers_only',
-                      action='store_true', default=False,
-                      help='only cleanup the headers')
     parser.add_argument('-i', '--imply', action='store_true', default=False,
                       help='find options which imply others')
     parser.add_argument('-I', '--imply-flags', type=str, default='',
@@ -2035,14 +2032,13 @@ doc/develop/moveconfig.rst for documentation.'''
     t.setDaemon(True)
     t.start()
 
-    if not args.cleanup_headers_only:
-        check_clean_directory()
-        bsettings.setup('')
-        toolchains = toolchain.Toolchains()
-        toolchains.GetSettings()
-        toolchains.Scan(verbose=False)
-        move_config(toolchains, configs, args, db_queue)
-        db_queue.join()
+    check_clean_directory()
+    bsettings.setup('')
+    toolchains = toolchain.Toolchains()
+    toolchains.GetSettings()
+    toolchains.Scan(verbose=False)
+    move_config(toolchains, configs, args, db_queue)
+    db_queue.join()
 
     if configs:
         cleanup_headers(configs, args)
