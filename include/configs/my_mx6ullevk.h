@@ -109,7 +109,7 @@
 /* environment organization */
 
 #ifdef CONFIG_CMD_NET
-#define CFG_FEC_ENET_DEV		1
+#define CFG_FEC_ENET_DEV		0
 #endif
 
 #endif
