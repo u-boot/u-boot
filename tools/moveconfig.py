@@ -282,7 +282,8 @@ class Progress:
 
     def show(self):
         """Display the progress."""
-        print(f' {self.current} defconfigs out of {self.total}\r', end=' ')
+        if self.current != self.total:
+            print(f' {self.current} defconfigs out of {self.total}\r', end=' ')
         sys.stdout.flush()
 
 
