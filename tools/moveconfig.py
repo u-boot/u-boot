@@ -410,6 +410,10 @@ class Slot:
         self.parser = KconfigParser(args, self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = set()
+        self.defconfig = None
+        self.log = ''
+        self.current_src_dir = None
+        self.proc = None
 
     def __del__(self):
         """Delete the working directory
