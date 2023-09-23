@@ -348,48 +348,6 @@ class KconfigParser:
 
         return arch
 
-    def update_dotconfig(self):
-        """Parse files for the config options and update the .config.
-
-        This function parses the generated .config and include/autoconf.mk
-        searching the target options.
-        Move the config option(s) to the .config as needed.
-
-        Args:
-          defconfig: defconfig name.
-
-        Returns:
-          Return a tuple of (updated flag, log string).
-          The "updated flag" is True if the .config was updated, False
-          otherwise.  The "log string" shows what happend to the .config.
-        """
-        updated = False
-        suspicious = False
-
-        autoconf_path = self.autoconf
-
-        dotconfig_lines = read_file(self.dotconfig)
-
-        autoconf_lines = read_file(autoconf_path)
-
-        log = ''
-
-        return (updated, suspicious, log)
-
-    def check_defconfig(self):
-        """Check the defconfig after savedefconfig
-
-        Returns:
-          Return additional log if moved CONFIGs were removed again by
-          'make savedefconfig'.
-        """
-
-        log = ''
-
-        defconfig_lines = read_file(self.defconfig)
-
-        return log
-
 
 class DatabaseThread(threading.Thread):
     """This thread processes results from Slot threads.
@@ -452,7 +410,6 @@ class Slot:
         self.parser = KconfigParser(args, self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = set()
-        self.suspicious_boards = set()
 
     def __del__(self):
         """Delete the working directory
@@ -588,20 +545,10 @@ class Slot:
 
     def do_savedefconfig(self):
         """Update the .config and run 'make savedefconfig'."""
-
-        (updated, suspicious, log) = self.parser.update_dotconfig()
-        if suspicious:
-            self.suspicious_boards.add(self.defconfig)
-        self.log += log
-
-        if not self.args.force_sync and not updated:
+        if not self.args.force_sync:
             self.finish(True)
             return
-        if updated:
-            self.log += color_text(self.args.color, COLOR_LIGHT_GREEN,
-                                   'Syncing by savedefconfig...\n')
-        else:
-            self.log += 'Syncing by savedefconfig (forced by option)...\n'
+        self.log += 'Syncing by savedefconfig (forced by option)...\n'
 
         cmd = list(self.make_cmd)
         cmd.append('savedefconfig')
@@ -611,11 +558,6 @@ class Slot:
 
     def update_defconfig(self):
         """Update the input defconfig and go back to the idle state."""
-
-        log = self.parser.check_defconfig()
-        if log:
-            self.suspicious_boards.add(self.defconfig)
-            self.log += log
         orig_defconfig = os.path.join('configs', self.defconfig)
         new_defconfig = os.path.join(self.build_dir, 'defconfig')
         updated = not filecmp.cmp(orig_defconfig, new_defconfig)
