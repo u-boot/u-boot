@@ -5,7 +5,7 @@
 #
 
 """
-Move config options from headers to defconfig files.
+Build and query a Kconfig database for boards.
 
 See doc/develop/moveconfig.rst for documentation.
 """
@@ -900,7 +900,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
     all x86 boards will have that option, avoiding adding CONFIG_CMD_IRQ to
     each of the x86 defconfig files.
 
-    This function uses the moveconfig database to find such options. It
+    This function uses the qconfig database to find such options. It
     displays a list of things that could possibly imply those in the list.
     The algorithm ignores any that start with CONFIG_TARGET since these
     typically refer to only a few defconfigs (often one). It also does not
