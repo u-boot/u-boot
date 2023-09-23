@@ -2029,7 +2029,7 @@ doc/develop/moveconfig.rst for documentation.'''
     config_db = {}
     db_queue = queue.Queue()
     t = DatabaseThread(config_db, db_queue)
-    t.setDaemon(True)
+    t.daemon = True
     t.start()
 
     check_clean_directory()
