@@ -571,8 +571,8 @@ class Slot:
                    successfully, or False when it fails.
         """
         # output at least 30 characters to hide the "* defconfigs out of *".
+        name = self.defconfig[:-len('_defconfig')]
         if self.log:
-            name = self.defconfig[:-len('_defconfig')]
 
             # Put the first log line on the first line
             log = name.ljust(20) + ' ' + self.log[0]
@@ -588,7 +588,7 @@ class Slot:
                 sys.exit('Exit on error.')
             # If --exit-on-error flag is not set, skip this board and continue.
             # Record the failed board.
-            self.failed_boards.add(self.defconfig)
+            self.failed_boards.add(name)
 
         self.progress.inc(success)
         self.progress.show()
@@ -618,6 +618,7 @@ class Slots:
         """
         self.args = args
         self.slots = []
+        self.progress = progress
         self.col = col
         devnull = subprocess.DEVNULL
         make_cmd = get_make_cmd()
@@ -662,8 +663,8 @@ class Slots:
                 ret = False
         return ret
 
-    def show_failed_boards(self):
-        """Display all of the failed boards (defconfigs)."""
+    def show_result(self):
+        """Show the results of processing"""
         boards = set()
         output_file = 'moveconfig.failed'
 
@@ -671,14 +672,16 @@ class Slots:
             boards |= slot.get_failed_boards()
 
         if boards:
-            boards = '\n'.join(boards) + '\n'
-            msg = 'The following boards were not processed due to error:\n'
-            msg += boards
-            msg += f'(the list has been saved in {output_file})\n'
-            print(self.col.build(self.col.RED, msg, bright=True),
-                  file=sys.stderr)
-
+            print(self.col.build(
+                self.col.RED,
+                f'{len(boards)} failed (see {output_file})', True))
+            boards = '\n'.join(sorted(boards)) + '\n'
             write_file(output_file, boards)
+        else:
+            # Add enough spaces to overwrite the progress indicator
+            print(self.col.build(
+                self.col.GREEN,
+                f'{self.progress.total} processed        ', bright=True))
 
 class ReferenceSource:
 
@@ -757,8 +760,7 @@ def move_config(toolchains, args, db_queue, col):
     while not slots.empty():
         time.sleep(SLEEP_TIME)
 
-    print('')
-    slots.show_failed_boards()
+    slots.show_result()
 
 def find_kconfig_rules(kconf, config, imply_config):
     """Check whether a config has a 'select' or 'imply' keyword
