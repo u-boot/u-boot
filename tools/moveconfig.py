@@ -238,7 +238,7 @@ def read_file(fname, as_lines=True, skip_unicode=False):
         except UnicodeDecodeError as e:
             if not skip_unicode:
                 raise
-            print("Failed on file %s': %s" % (fname, e))
+            print(f"Failed on file '{fname}: {e}")
             return None
 
 def try_expand(line):
@@ -254,10 +254,10 @@ def try_expand(line):
         val= val.strip('\"')
         if re.search(r'[*+-/]|<<|SZ_+|\(([^\)]+)\)', val):
             newval = hex(aeval(val))
-            print('\tExpanded expression %s to %s' % (val, newval))
+            print(f'\tExpanded expression {val} to {newval}')
             return cfg+'='+newval
     except:
-        print('\tFailed to expand expression in %s' % line)
+        print(f'\tFailed to expand expression in {line}')
 
     return line
 
@@ -283,7 +283,7 @@ class Progress:
 
     def show(self):
         """Display the progress."""
-        print(' %d defconfigs out of %d\r' % (self.current, self.total), end=' ')
+        print(f' {self.current} defconfigs out of {self.total}\r', end=' ')
         sys.stdout.flush()
 
 
@@ -520,7 +520,7 @@ class Slot:
             toolchain = self.toolchains.Select(arch)
         except ValueError:
             self.log += color_text(self.args.color, COLOR_YELLOW,
-                    "Tool chain for '%s' is missing.  Do nothing.\n" % arch)
+                    f"Tool chain for '{arch}' is missing.  Do nothing.\n")
             self.finish(False)
             return
         env = toolchain.MakeEnvironment(False)
@@ -673,7 +673,7 @@ class Slots:
             boards = '\n'.join(boards) + '\n'
             msg = 'The following boards were not processed due to error:\n'
             msg += boards
-            msg += '(the list has been saved in %s)\n' % output_file
+            msg += f'(the list has been saved in {output_file})\n'
             print(color_text(self.args.color, COLOR_LIGHT_RED,
                                             msg), file=sys.stderr)
 
@@ -693,8 +693,9 @@ class ReferenceSource:
         print('Cloning git repo to a separate work directory...')
         subprocess.check_output(['git', 'clone', os.getcwd(), '.'],
                                 cwd=self.src_dir)
-        print("Checkout '%s' to build the original autoconf.mk." % \
-            subprocess.check_output(['git', 'rev-parse', '--short', commit]).strip())
+        rev = subprocess.check_output(['git', 'rev-parse', '--short',
+                                       commit]).strip()
+        print(f"Checkout '{rev}' to build the original autoconf.mk.")
         subprocess.check_output(['git', 'checkout', commit],
                                 stderr=subprocess.STDOUT, cwd=self.src_dir)
 
@@ -724,8 +725,8 @@ def move_config(toolchains, args, db_queue):
     if args.force_sync:
         print('Syncing defconfigs', end=' ')
     elif args.build_db:
-        print('Building %s database' % CONFIG_DATABASE)
-    print('(jobs: %d)\n' % args.jobs)
+        print(f'Building {CONFIG_DATABASE} database')
+    print(f'(jobs: {args.jobs})\n')
 
     if args.git_ref:
         reference_src = ReferenceSource(args.git_ref)
@@ -800,17 +801,17 @@ def check_imply_rule(kconf, config, imply_config):
         return 'cannot find sym'
     nodes = sym.nodes
     if len(nodes) != 1:
-        return '%d locations' % len(nodes)
+        return f'{len(nodes)} locations'
     node = nodes[0]
     fname, linenum = node.filename, node.linenr
     cwd = os.getcwd()
     if cwd and fname.startswith(cwd):
         fname = fname[len(cwd) + 1:]
-    file_line = ' at %s:%d' % (fname, linenum)
+    file_line = f' at {fname}:{linenum}'
     data = read_file(fname)
-    if data[linenum - 1] != 'config %s' % imply_config:
-        return None, 0, 'bad sym format %s%s' % (data[linenum], file_line)
-    return fname, linenum, 'adding%s' % file_line
+    if data[linenum - 1] != f'config {imply_config}':
+        return None, 0, f'bad sym format {data[linenum]}{file_line})'
+    return fname, linenum, f'adding{file_line}'
 
 def add_imply_rule(config, fname, linenum):
     """Add a new 'imply' option to a Kconfig
@@ -823,15 +824,15 @@ def add_imply_rule(config, fname, linenum):
     Returns:
         Message indicating the result
     """
-    file_line = ' at %s:%d' % (fname, linenum)
+    file_line = f' at {fname}:{linenum}'
     data = read_file(fname)
     linenum -= 1
 
     for offset, line in enumerate(data[linenum:]):
         if line.strip().startswith('help') or not line:
-            data.insert(linenum + offset, '\timply %s' % config)
+            data.insert(linenum + offset, f'\timply {config}')
             write_file(fname, data)
-            return 'added%s' % file_line
+            return f'added{file_line}'
 
     return 'could not insert%s'
 
@@ -946,15 +947,14 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
     for config in config_list:
         defconfigs = defconfig_db.get(config)
         if not defconfigs:
-            print('%s not found in any defconfig' % config)
+            print(f'{config} not found in any defconfig')
             continue
 
         # Get the set of defconfigs without this one (since a config cannot
         # imply itself)
         non_defconfigs = all_defconfigs - defconfigs
         num_defconfigs = len(defconfigs)
-        print('%s found in %d/%d defconfigs' % (config, num_defconfigs,
-                                                len(all_configs)))
+        print(f'{config} found in {num_defconfigs}/{len(all_configs)} defconfigs')
 
         # This will hold the results: key=config, value=defconfigs containing it
         imply_configs = {}
@@ -1035,7 +1035,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                         fname, linenum = nodes[0].filename, nodes[0].linenr
                         if cwd and fname.startswith(cwd):
                             fname = fname[len(cwd) + 1:]
-                        kconfig_info = '%s:%d' % (fname, linenum)
+                        kconfig_info = f'{fname}:{linenum}'
                         if skip_added:
                             show = False
                 else:
@@ -1061,8 +1061,8 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                             add_list[fname].append(linenum)
 
             if show and kconfig_info != 'skip':
-                print('%5d : %-30s%-25s %s' % (num_common, iconfig.ljust(30),
-                                              kconfig_info, missing_str))
+                print(f'{num_common:5d} : '
+                      f'{iconfig.ljust(30):-30s}{kconfig_info:-25s} {missing_str}')
 
         # Having collected a list of things to add, now we add them. We process
         # each file from the largest line number to the smallest so that
@@ -1556,11 +1556,11 @@ doc/develop/moveconfig.rst for documentation.'''
             for flag in args.imply_flags.split(','):
                 bad = flag not in IMPLY_FLAGS
                 if bad:
-                    print("Invalid flag '%s'" % flag)
+                    print(f"Invalid flag '{flag}'")
                 if flag == 'help' or bad:
                     print("Imply flags: (separate with ',')")
                     for name, info in IMPLY_FLAGS.items():
-                        print(' %-15s: %s' % (name, info[1]))
+                        print(f' {name:-15s}: {info[1]}')
                     parser.print_usage()
                     sys.exit(1)
                 imply_flags |= IMPLY_FLAGS[flag][0]
@@ -1602,9 +1602,9 @@ doc/develop/moveconfig.rst for documentation.'''
     if args.build_db:
         with open(CONFIG_DATABASE, 'w', encoding='utf-8') as fd:
             for defconfig, configs in config_db.items():
-                fd.write('%s\n' % defconfig)
+                fd.write(f'{defconfig}\n')
                 for config in sorted(configs.keys()):
-                    fd.write('   %s=%s\n' % (config, configs[config]))
+                    fd.write(f'   {config}={configs[config]}\n')
                 fd.write('\n')
 
 if __name__ == '__main__':
