@@ -44,8 +44,8 @@ STATE_AUTOCONF = 2
 STATE_SAVEDEFCONFIG = 3
 
 AUTO_CONF_PATH = 'include/config/auto.conf'
-CONFIG_DATABASE = 'moveconfig.db'
-FAILED_LIST = 'moveconfig.failed'
+CONFIG_DATABASE = 'qconfig.db'
+FAILED_LIST = 'qconfig.failed'
 
 CONFIG_LEN = len('CONFIG_')
 

@@ -107,5 +107,5 @@ __pycache__
 /pylint.cur
 /pylint.out/
 
-# moveconfig database
-/moveconfig.db
+# qconfig database
+/qconfig.db
