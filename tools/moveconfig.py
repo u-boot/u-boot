@@ -241,24 +241,36 @@ class Progress:
 
     """Progress Indicator"""
 
-    def __init__(self, total):
+    def __init__(self, col, total):
         """Create a new progress indicator.
 
         Args:
-          total: A number of defconfig files to process.
+            color_enabled (bool): True for colour output
+            total (int): A number of defconfig files to process.
         """
+        self.col = col
         self.current = 0
+        self.good = 0
         self.total = total
 
-    def inc(self):
-        """Increment the number of processed defconfig files."""
+    def inc(self, success):
+        """Increment the number of processed defconfig files.
 
+        Args:
+            success (bool): True if processing succeeded
+        """
+        self.good += success
         self.current += 1
 
     def show(self):
         """Display the progress."""
         if self.current != self.total:
-            print(f' {self.current} defconfigs out of {self.total}\r', end=' ')
+            line = self.col.build(self.col.GREEN, f'{self.good:5d}')
+            line += self.col.build(self.col.RED,
+                                   f'{self.current - self.good:5d}')
+            line += self.col.build(self.col.MAGENTA,
+                                   f'/{self.total - self.current}')
+            print(f'{line}  \r', end='')
         sys.stdout.flush()
 
 
@@ -578,7 +590,7 @@ class Slot:
             # Record the failed board.
             self.failed_boards.add(self.defconfig)
 
-        self.progress.inc()
+        self.progress.inc(success)
         self.progress.show()
         self.state = STATE_IDLE
 
@@ -729,7 +741,7 @@ def move_config(toolchains, args, db_queue, col):
     else:
         defconfigs = get_all_defconfigs()
 
-    progress = Progress(len(defconfigs))
+    progress = Progress(col, len(defconfigs))
     slots = Slots(toolchains, args, progress, reference_src_dir, db_queue, col)
 
     # Main loop to process defconfig files:
