@@ -1457,12 +1457,14 @@ def do_scan_source(path, do_update):
 
     # Write out the updated information
     if do_update:
-        with open(os.path.join(path, 'scripts', 'conf_nospl'), 'w') as out:
+        with open(os.path.join(path, 'scripts', 'conf_nospl'), 'w',
+                  encoding='utf-8') as out:
             print('# These options should not be enabled in SPL builds\n',
                   file=out)
             for item in sorted(spl_not_found):
                 print(item, file=out)
-        with open(os.path.join(path, 'scripts', 'conf_noproper'), 'w') as out:
+        with open(os.path.join(path, 'scripts', 'conf_noproper'), 'w',
+                  encoding='utf-8') as out:
             print('# These options should not be enabled in Proper builds\n',
                   file=out)
             for item in sorted(proper_not_found):
