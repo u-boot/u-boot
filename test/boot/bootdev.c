@@ -221,6 +221,16 @@ static int bootdev_test_order(struct unit_test_state *uts)
 	ut_asserteq_str("mmc2.bootdev", iter.dev_used[1]->name);
 	bootflow_iter_uninit(&iter);
 
+	/* Make sure it scans a bootdevs in each target */
+	ut_assertok(env_set("boot_targets", "mmc spi"));
+	ut_asserteq(0, bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
+	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
+	ut_asserteq(3, iter.num_devs);
+	ut_asserteq_str("mmc2.bootdev", iter.dev_used[0]->name);
+	ut_asserteq_str("mmc1.bootdev", iter.dev_used[1]->name);
+	ut_asserteq_str("mmc0.bootdev", iter.dev_used[2]->name);
+	bootflow_iter_uninit(&iter);
+
 	return 0;
 }
 BOOTSTD_TEST(bootdev_test_order, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
