@@ -410,7 +410,7 @@ class Slot:
         self.state = STATE_IDLE
         self.failed_boards = set()
         self.defconfig = None
-        self.log = ''
+        self.log = []
         self.current_src_dir = None
         self.proc = None
 
@@ -446,7 +446,7 @@ class Slot:
             return False
 
         self.defconfig = defconfig
-        self.log = ''
+        self.log = []
         self.current_src_dir = self.reference_src_dir
         self.do_defconfig()
         return True
@@ -498,11 +498,12 @@ class Slot:
     def handle_error(self):
         """Handle error cases."""
 
-        self.log += color_text(self.args.color, COLOR_LIGHT_RED,
-                               'Failed to process.\n')
+        self.log.append(color_text(self.args.color, COLOR_LIGHT_RED,
+                                   'Failed to process'))
         if self.args.verbose:
-            self.log += color_text(self.args.color, COLOR_LIGHT_CYAN,
-                                   self.proc.stderr.read().decode())
+            for line in self.proc.stderr.read().decode().splitlines():
+                self.log.append(color_text(self.args.color, COLOR_LIGHT_CYAN,
+                                           line))
         self.finish(False)
 
     def do_defconfig(self):
@@ -522,8 +523,8 @@ class Slot:
         try:
             tchain = self.toolchains.Select(arch)
         except ValueError:
-            self.log += color_text(self.args.color, COLOR_YELLOW,
-                    f"Tool chain for '{arch}' is missing.  Do nothing.\n")
+            self.log.append(color_text(self.args.color, COLOR_YELLOW,
+                    f"Tool chain for '{arch}' is missing: do nothing"))
             self.finish(False)
             return
         env = tchain.MakeEnvironment(False)
@@ -565,8 +566,8 @@ class Slot:
         updated = not filecmp.cmp(orig_defconfig, new_defconfig)
 
         if updated:
-            self.log += color_text(self.args.color, COLOR_LIGHT_BLUE,
-                                   'defconfig was updated.\n')
+            self.log.append(color_text(self.args.color, COLOR_LIGHT_BLUE,
+                                       'defconfig updated'))
 
         if not self.args.dry_run and updated:
             shutil.move(new_defconfig, orig_defconfig)
@@ -581,9 +582,13 @@ class Slot:
         """
         # output at least 30 characters to hide the "* defconfigs out of *".
         if self.log:
-            log = self.defconfig.ljust(30) + '\n'
+            name = self.defconfig[:-len('_defconfig')]
 
-            log += '\n'.join([ '    ' + s for s in self.log.split('\n') ])
+            # Put the first log line on the first line
+            log = name.ljust(20) + ' ' + self.log[0]
+
+            if len(self.log) > 1:
+                log += '\n' + '\n'.join(['    ' + s for s in self.log[1:]])
             # Some threads are running in parallel.
             # Print log atomically to not mix up logs from different threads.
             print(log, file=(sys.stdout if success else sys.stderr))
