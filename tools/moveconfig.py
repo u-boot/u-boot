@@ -1153,10 +1153,10 @@ def prefix_config(cfg):
     return op + cfg
 
 
-RE_MK_CONFIGS = re.compile('CONFIG_(\$\(SPL_(?:TPL_)?\))?([A-Za-z0-9_]*)')
-RE_IFDEF = re.compile('(ifdef|ifndef)')
-RE_C_CONFIGS = re.compile('CONFIG_([A-Za-z0-9_]*)')
-RE_CONFIG_IS = re.compile('CONFIG_IS_ENABLED\(([A-Za-z0-9_]*)\)')
+RE_MK_CONFIGS = re.compile(r'CONFIG_(\$\(SPL_(?:TPL_)?\))?([A-Za-z0-9_]*)')
+RE_IFDEF = re.compile(r'(ifdef|ifndef)')
+RE_C_CONFIGS = re.compile(r'CONFIG_([A-Za-z0-9_]*)')
+RE_CONFIG_IS = re.compile(r'CONFIG_IS_ENABLED\(([A-Za-z0-9_]*)\)')
 
 class ConfigUse:
     def __init__(self, cfg, is_spl, fname, rest):
