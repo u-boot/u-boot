@@ -620,7 +620,7 @@ class Slots:
         self.slots = []
         devnull = subprocess.DEVNULL
         make_cmd = get_make_cmd()
-        for i in range(args.jobs):
+        for _ in range(args.jobs):
             self.slots.append(Slot(toolchains, args, progress, devnull,
                                    make_cmd, reference_src_dir, db_queue))
 
@@ -772,7 +772,7 @@ def find_kconfig_rules(kconf, config, imply_config):
     """
     sym = kconf.syms.get(imply_config)
     if sym:
-        for sel, cond in (sym.selects + sym.implies):
+        for sel, _ in (sym.selects + sym.implies):
             if sel.name == config:
                 return sym
     return None
@@ -941,7 +941,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
     if add_imply and add_imply != 'all':
         add_imply = add_imply.split(',')
 
-    all_configs, all_defconfigs, config_db, defconfig_db = read_database()
+    all_configs, all_defconfigs, _, defconfig_db = read_database()
 
     # Work through each target config option in turn, independently
     for config in config_list:
@@ -1101,7 +1101,7 @@ def do_find_config(config_list):
             is preceded by a tilde (~) then it must be false, otherwise it must
             be true)
     """
-    all_configs, all_defconfigs, config_db, defconfig_db = read_database()
+    _, all_defconfigs, config_db, _ = read_database()
 
     # Start with all defconfigs
     out = all_defconfigs
@@ -1199,9 +1199,7 @@ def scan_makefiles(fnames):
     fname_uses = {}
     for fname, rest in fnames:
         m_iter = RE_MK_CONFIGS.finditer(rest)
-        found = False
         for m in m_iter:
-            found = True
             real_opt = m.group(2)
             if real_opt == '':
                 continue
@@ -1242,9 +1240,11 @@ def scan_src_files(fnames):
     >>> RE_CONFIG_IS.search('#if CONFIG_IS_ENABLED(OF_PLATDATA)').groups()
     ('OF_PLATDATA',)
     """
+    fname = None
+    rest = None
+
     def add_uses(m_iter, is_spl):
         for m in m_iter:
-            found = True
             real_opt = m.group(1)
             if real_opt == '':
                 continue
@@ -1302,7 +1302,7 @@ def do_scan_source(path, do_update):
         """
         # Make sure we know about all the options
         not_found = collections.defaultdict(list)
-        for use, rest in all_uses.items():
+        for use, _ in all_uses.items():
             name = use.cfg
             if name in IGNORE_SYMS:
                 continue
@@ -1314,7 +1314,6 @@ def do_scan_source(path, do_update):
                 # If it is an SPL symbol, try prepending all SPL_ prefixes to
                 # find at least one SPL symbol
                 if use.is_spl:
-                    add_to_dict = False
                     for prefix in SPL_PREFIXES:
                         try_name = prefix + name
                         sym = kconf.syms.get(try_name)
@@ -1332,7 +1331,6 @@ def do_scan_source(path, do_update):
                 elif not use.is_spl:
                     check = False
             else: # MODE_NORMAL
-                debug = False
                 sym = kconf.syms.get(name)
                 if not sym:
                     proper_name = is_not_proper(name)
@@ -1373,7 +1371,7 @@ def do_scan_source(path, do_update):
     print(f'Scanning source in {path}')
     args = ['git', 'grep', '-E', r'IS_ENABLED|\bCONFIG']
     with subprocess.Popen(args, stdout=subprocess.PIPE) as proc:
-        out, err = proc.communicate()
+        out, _ = proc.communicate()
     lines = out.splitlines()
     re_fname = re.compile('^([^:]*):(.*)')
     src_list = []
@@ -1407,7 +1405,7 @@ def do_scan_source(path, do_update):
             print(f'Not sure how to handle file {fname}')
 
     # Scan the Makefiles
-    all_uses, fname_uses = scan_makefiles(mk_list)
+    all_uses, _ = scan_makefiles(mk_list)
 
     spl_not_found = set()
     proper_not_found = set()
@@ -1428,7 +1426,7 @@ def do_scan_source(path, do_update):
     proper_not_found |= set([key for key in not_found.keys()])
 
     # Scan the source code
-    all_uses, fname_uses = scan_src_files(src_list)
+    all_uses, _ = scan_src_files(src_list)
 
     # Make sure we know about all the options
     print('\nCONFIG options present in source but not Kconfig:')
@@ -1529,7 +1527,7 @@ doc/develop/moveconfig.rst for documentation.'''
 
     if args.test:
         sys.argv = [sys.argv[0]]
-        fail, count = doctest.testmod()
+        fail, _ = doctest.testmod()
         if fail:
             return 1
         unittest.main()
