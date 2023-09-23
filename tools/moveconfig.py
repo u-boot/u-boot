@@ -551,7 +551,6 @@ class Slot:
         if not self.args.force_sync:
             self.finish(True)
             return
-        self.log += 'Syncing by savedefconfig (forced by option)...\n'
 
         cmd = list(self.make_cmd)
         cmd.append('savedefconfig')
@@ -581,12 +580,13 @@ class Slot:
                    successfully, or False when it fails.
         """
         # output at least 30 characters to hide the "* defconfigs out of *".
-        log = self.defconfig.ljust(30) + '\n'
+        if self.log:
+            log = self.defconfig.ljust(30) + '\n'
 
-        log += '\n'.join([ '    ' + s for s in self.log.split('\n') ])
-        # Some threads are running in parallel.
-        # Print log atomically to not mix up logs from different threads.
-        print(log, file=(sys.stdout if success else sys.stderr))
+            log += '\n'.join([ '    ' + s for s in self.log.split('\n') ])
+            # Some threads are running in parallel.
+            # Print log atomically to not mix up logs from different threads.
+            print(log, file=(sys.stdout if success else sys.stderr))
 
         if not success:
             if self.args.exit_on_error:
