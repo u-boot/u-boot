@@ -233,8 +233,7 @@ def read_file(fname, as_lines=True, skip_unicode=False):
         try:
             if as_lines:
                 return [line.rstrip('\n') for line in inf.readlines()]
-            else:
-                return inf.read()
+            return inf.read()
         except UnicodeDecodeError as exc:
             if not skip_unicode:
                 raise
@@ -426,7 +425,7 @@ class Slot:
         If the subprocess is still running, wait until it finishes.
         """
         if self.state != STATE_IDLE:
-            while self.proc.poll() == None:
+            while self.proc.poll() is None:
                 pass
         shutil.rmtree(self.build_dir)
 
@@ -471,7 +470,7 @@ class Slot:
         if self.state == STATE_IDLE:
             return True
 
-        if self.proc.poll() == None:
+        if self.proc.poll() is None:
             return False
 
         if self.proc.poll() != 0:
@@ -494,7 +493,7 @@ class Slot:
         else:
             sys.exit('Internal Error. This should not happen.')
 
-        return True if self.state == STATE_IDLE else False
+        return self.state == STATE_IDLE
 
     def handle_error(self):
         """Handle error cases."""
@@ -521,13 +520,13 @@ class Slot:
 
         arch = self.parser.get_arch()
         try:
-            toolchain = self.toolchains.Select(arch)
+            tchain = self.toolchains.Select(arch)
         except ValueError:
             self.log += color_text(self.args.color, COLOR_YELLOW,
                     f"Tool chain for '{arch}' is missing.  Do nothing.\n")
             self.finish(False)
             return
-        env = toolchain.MakeEnvironment(False)
+        env = tchain.MakeEnvironment(False)
 
         cmd = list(self.make_cmd)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
@@ -1004,7 +1003,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                             # skip imply_config because prev is a superset
                             skip = True
                             break
-                        elif count > prev_count:
+                        if count > prev_count:
                             # delete prev because imply_config is a superset
                             del imply_configs[prev]
                 if not skip:
@@ -1540,7 +1539,7 @@ doc/develop/moveconfig.rst for documentation.'''
 
     if args.scan_source:
         do_scan_source(os.getcwd(), args.update)
-        return
+        return 0
 
     if not any((args.force_sync, args.build_db, args.imply, args.find)):
         parser.print_usage()
@@ -1570,11 +1569,11 @@ doc/develop/moveconfig.rst for documentation.'''
                 imply_flags |= IMPLY_FLAGS[flag][0]
 
         do_imply_config(configs, args.add_imply, imply_flags, args.skip_added)
-        return
+        return 0
 
     if args.find:
         do_find_config(configs)
-        return
+        return 0
 
     # We are either building the database or forcing a sync of defconfigs
     config_db = {}
@@ -1610,6 +1609,8 @@ doc/develop/moveconfig.rst for documentation.'''
                 for config in sorted(configs.keys()):
                     outf.write(f'   {config}={configs[config]}\n')
                 outf.write('\n')
+    return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())
