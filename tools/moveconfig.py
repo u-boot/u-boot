@@ -218,7 +218,7 @@ def read_file(fname, as_lines=True, skip_unicode=False):
 
     Args:
         fname (str): Filename to read from
-        as_lines: Return file contents as a list of lines
+        as_lines (bool): Return file contents as a list of lines
         skip_unicode (bool): True to report unicode errors and continue
 
     Returns:
@@ -434,7 +434,7 @@ class Slot:
         the slot is occupied (i.e. the current subprocess is still running).
 
         Args:
-          defconfig: defconfig name.
+          defconfig (str): defconfig name.
 
         Returns:
           Return True on success or False on failure
@@ -574,7 +574,7 @@ class Slot:
         """Display log along with progress and go to the idle state.
 
         Args:
-          success: Should be True when the defconfig was processed
+          success (bool): Should be True when the defconfig was processed
                    successfully, or False when it fails.
         """
         # output at least 30 characters to hide the "* defconfigs out of *".
@@ -628,7 +628,7 @@ class Slots:
         """Add a new subprocess if a vacant slot is found.
 
         Args:
-          defconfig: defconfig name to be put into.
+          defconfig (str): defconfig name to be put into.
 
         Returns:
           Return True on success or False on failure
@@ -717,9 +717,9 @@ def move_config(toolchains, args, db_queue):
     """Build database or sync config options to defconfig files.
 
     Args:
-      toolchains: Toolchains to use
-      args: Program arguments
-      db_queue: Queue for database updates
+      toolchains (Toolchains): Toolchains to use
+      args (Namespace): Program arguments
+      db_queue (Queue): Queue for database updates
     """
     if args.force_sync:
         print('Syncing defconfigs', end=' ')
@@ -761,10 +761,10 @@ def find_kconfig_rules(kconf, config, imply_config):
     """Check whether a config has a 'select' or 'imply' keyword
 
     Args:
-        kconf: Kconfiglib.Kconfig object
-        config: Name of config to check (without CONFIG_ prefix)
-        imply_config: Implying config (without CONFIG_ prefix) which may or
-            may not have an 'imply' for 'config')
+        kconf (Kconfiglib.Kconfig): Kconfig object
+        config (str): Name of config to check (without CONFIG_ prefix)
+        imply_config (str): Implying config (without CONFIG_ prefix) which may
+            or may not have an 'imply' for 'config')
 
     Returns:
         Symbol object for 'config' if found, else None
@@ -783,16 +783,17 @@ def check_imply_rule(kconf, config, imply_config):
     to add an 'imply' for 'config' to that part of the Kconfig.
 
     Args:
-        kconf: Kconfiglib.Kconfig object
-        config: Name of config to check (without CONFIG_ prefix)
-        imply_config: Implying config (without CONFIG_ prefix) which may or
-            may not have an 'imply' for 'config')
+        kconf (Kconfiglib.Kconfig): Kconfig object
+        config (str): Name of config to check (without CONFIG_ prefix)
+        imply_config (str): Implying config (without CONFIG_ prefix) which may
+            or may not have an 'imply' for 'config')
 
     Returns:
         tuple:
-            filename of Kconfig file containing imply_config, or None if none
-            line number within the Kconfig file, or 0 if none
-            message indicating the result
+            str: filename of Kconfig file containing imply_config, or None if
+                none
+            int: line number within the Kconfig file, or 0 if none
+            str: message indicating the result
     """
     sym = kconf.syms.get(imply_config)
     if not sym:
@@ -815,9 +816,9 @@ def add_imply_rule(config, fname, linenum):
     """Add a new 'imply' option to a Kconfig
 
     Args:
-        config: config option to add an imply for (without CONFIG_ prefix)
-        fname: Kconfig filename to update
-        linenum: Line number to place the 'imply' before
+        config (str): config option to add an imply for (without CONFIG_ prefix)
+        fname (str): Kconfig filename to update
+        linenum (int): Line number to place the 'imply' before
 
     Returns:
         Message indicating the result
