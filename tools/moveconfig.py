@@ -1422,12 +1422,12 @@ def do_scan_source(path, do_update):
     print('\nCONFIG options present in Makefiles but not Kconfig (SPL):')
     not_found = check_not_found(all_uses, MODE_SPL)
     show_uses(not_found)
-    spl_not_found |= set([is_not_proper(key) or key for key in not_found.keys()])
+    spl_not_found |= {is_not_proper(key) or key for key in not_found.keys()}
 
     print('\nCONFIG options used as Proper in Makefiles but without a non-SPL_ variant:')
     not_found = check_not_found(all_uses, MODE_PROPER)
     show_uses(not_found)
-    proper_not_found |= set([key for key in not_found.keys()])
+    proper_not_found |= {not_found.keys()}
 
     # Scan the source code
     all_uses, _ = scan_src_files(src_list)
@@ -1440,12 +1440,12 @@ def do_scan_source(path, do_update):
     print('\nCONFIG options present in source but not Kconfig (SPL):')
     not_found = check_not_found(all_uses, MODE_SPL)
     show_uses(not_found)
-    spl_not_found |= set([is_not_proper(key) or key for key in not_found.keys()])
+    spl_not_found |= {is_not_proper(key) or key for key in not_found.keys()}
 
     print('\nCONFIG options used as Proper in source but without a non-SPL_ variant:')
     not_found = check_not_found(all_uses, MODE_PROPER)
     show_uses(not_found)
-    proper_not_found |= set([key for key in not_found.keys()])
+    proper_not_found |= {not_found.keys()}
 
     print('\nCONFIG options used as SPL but without an SPL_ variant:')
     for item in sorted(spl_not_found):
