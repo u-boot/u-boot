@@ -45,6 +45,7 @@ STATE_SAVEDEFCONFIG = 3
 
 AUTO_CONF_PATH = 'include/config/auto.conf'
 CONFIG_DATABASE = 'moveconfig.db'
+FAILED_LIST = 'moveconfig.failed'
 
 CONFIG_LEN = len('CONFIG_')
 
@@ -663,25 +664,17 @@ class Slots:
                 ret = False
         return ret
 
-    def show_result(self):
+    def write_failed_boards(self):
         """Show the results of processing"""
         boards = set()
-        output_file = 'moveconfig.failed'
 
         for slot in self.slots:
             boards |= slot.get_failed_boards()
 
         if boards:
-            print(self.col.build(
-                self.col.RED,
-                f'{len(boards)} failed (see {output_file})', True))
             boards = '\n'.join(sorted(boards)) + '\n'
-            write_file(output_file, boards)
-        else:
-            # Add enough spaces to overwrite the progress indicator
-            print(self.col.build(
-                self.col.GREEN,
-                f'{self.progress.total} processed        ', bright=True))
+            write_file(FAILED_LIST, boards)
+
 
 class ReferenceSource:
 
@@ -726,6 +719,9 @@ def move_config(toolchains, args, db_queue, col):
         args (Namespace): Program arguments
         db_queue (Queue): Queue for database updates
         col (terminal.Color): Colour object
+
+    Returns:
+        Progress: Progress indicator
     """
     if args.git_ref:
         reference_src = ReferenceSource(args.git_ref)
@@ -754,7 +750,8 @@ def move_config(toolchains, args, db_queue, col):
     while not slots.empty():
         time.sleep(SLEEP_TIME)
 
-    slots.show_result()
+    slots.write_failed_boards()
+    return progress
 
 def find_kconfig_rules(kconf, config, imply_config):
     """Check whether a config has a 'select' or 'imply' keyword
@@ -1585,7 +1582,7 @@ doc/develop/moveconfig.rst for documentation.'''
     toolchains = toolchain.Toolchains()
     toolchains.GetSettings()
     toolchains.Scan(verbose=False)
-    move_config(toolchains, args, db_queue, col)
+    progress = move_config(toolchains, args, db_queue, col)
     db_queue.join()
 
     if args.commit:
@@ -1600,6 +1597,8 @@ doc/develop/moveconfig.rst for documentation.'''
             msg += '\n\nRsync all defconfig files using moveconfig.py'
         subprocess.call(['git', 'commit', '-s', '-m', msg])
 
+    failed = progress.total - progress.good
+    failure = f'{failed} failed, ' if failed else ''
     if args.build_db:
         with open(CONFIG_DATABASE, 'w', encoding='utf-8') as outf:
             for defconfig, configs in config_db.items():
@@ -1607,6 +1606,17 @@ doc/develop/moveconfig.rst for documentation.'''
                 for config in sorted(configs.keys()):
                     outf.write(f'   {config}={configs[config]}\n')
                 outf.write('\n')
+        print(col.build(
+            col.RED if failed else col.GREEN,
+            f'{failure}{len(config_db)} boards written to {CONFIG_DATABASE}'))
+    else:
+        if failed:
+            print(col.build(col.RED, f'{failure}see {FAILED_LIST}', True))
+        else:
+            # Add enough spaces to overwrite the progress indicator
+            print(col.build(
+                col.GREEN, f'{progress.total} processed        ', bright=True))
+
     return 0
 
 
