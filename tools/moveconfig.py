@@ -235,10 +235,10 @@ def read_file(fname, as_lines=True, skip_unicode=False):
                 return [line.rstrip('\n') for line in inf.readlines()]
             else:
                 return inf.read()
-        except UnicodeDecodeError as e:
+        except UnicodeDecodeError as exc:
             if not skip_unicode:
                 raise
-            print(f"Failed on file '{fname}: {e}")
+            print(f"Failed on file '{fname}: {exc}")
             return None
 
 def try_expand(line):
@@ -331,13 +331,13 @@ class KconfigParser:
         arch = ''
         cpu = ''
         for line in read_file(self.dotconfig):
-            m = self.re_arch.match(line)
-            if m:
-                arch = m.group(1)
+            m_arch = self.re_arch.match(line)
+            if m_arch:
+                arch = m_arch.group(1)
                 continue
-            m = self.re_cpu.match(line)
-            if m:
-                cpu = m.group(1)
+            m_cpu = self.re_cpu.match(line)
+            if m_cpu:
+                cpu = m_cpu.group(1)
 
         if not arch:
             return None
@@ -422,7 +422,7 @@ class Slot:
         If the subprocess is still running, wait until it finishes.
         """
         if self.state != STATE_IDLE:
-            while self.ps.poll() == None:
+            while self.proc.poll() == None:
                 pass
         shutil.rmtree(self.build_dir)
 
@@ -467,10 +467,10 @@ class Slot:
         if self.state == STATE_IDLE:
             return True
 
-        if self.ps.poll() == None:
+        if self.proc.poll() == None:
             return False
 
-        if self.ps.poll() != 0:
+        if self.proc.poll() != 0:
             self.handle_error()
         elif self.state == STATE_DEFCONFIG:
             if self.reference_src_dir and not self.current_src_dir:
@@ -499,7 +499,7 @@ class Slot:
                                'Failed to process.\n')
         if self.args.verbose:
             self.log += color_text(self.args.color, COLOR_LIGHT_CYAN,
-                                   self.ps.stderr.read().decode())
+                                   self.proc.stderr.read().decode())
         self.finish(False)
 
     def do_defconfig(self):
@@ -507,9 +507,9 @@ class Slot:
 
         cmd = list(self.make_cmd)
         cmd.append(self.defconfig)
-        self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                   stderr=subprocess.PIPE,
-                                   cwd=self.current_src_dir)
+        self.proc = subprocess.Popen(cmd, stdout=self.devnull,
+                                     stderr=subprocess.PIPE,
+                                     cwd=self.current_src_dir)
         self.state = STATE_DEFCONFIG
 
     def do_autoconf(self):
@@ -528,9 +528,9 @@ class Slot:
         cmd = list(self.make_cmd)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
         cmd.append(AUTO_CONF_PATH)
-        self.ps = subprocess.Popen(cmd, stdout=self.devnull, env=env,
-                                   stderr=subprocess.PIPE,
-                                   cwd=self.current_src_dir)
+        self.proc = subprocess.Popen(cmd, stdout=self.devnull, env=env,
+                                     stderr=subprocess.PIPE,
+                                     cwd=self.current_src_dir)
         self.state = STATE_AUTOCONF
 
     def do_build_db(self):
@@ -552,8 +552,8 @@ class Slot:
 
         cmd = list(self.make_cmd)
         cmd.append('savedefconfig')
-        self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                   stderr=subprocess.PIPE)
+        self.proc = subprocess.Popen(cmd, stdout=self.devnull,
+                                     stderr=subprocess.PIPE)
         self.state = STATE_SAVEDEFCONFIG
 
     def update_defconfig(self):
@@ -1145,13 +1145,13 @@ def prefix_config(cfg):
     >>> prefix_config('A123')
     'CONFIG_A123'
     """
-    op = ''
+    oper = ''
     if cfg[0] == '~':
-        op = cfg[0]
+        oper = cfg[0]
         cfg = cfg[1:]
     if not cfg.startswith('CONFIG_'):
         cfg = 'CONFIG_' + cfg
-    return op + cfg
+    return oper + cfg
 
 
 RE_MK_CONFIGS = re.compile(r'CONFIG_(\$\(SPL_(?:TPL_)?\))?([A-Za-z0-9_]*)')
@@ -1199,12 +1199,12 @@ def scan_makefiles(fnames):
     fname_uses = {}
     for fname, rest in fnames:
         m_iter = RE_MK_CONFIGS.finditer(rest)
-        for m in m_iter:
-            real_opt = m.group(2)
+        for mat in m_iter:
+            real_opt = mat.group(2)
             if real_opt == '':
                 continue
             is_spl = False
-            if m.group(1):
+            if mat.group(1):
                 is_spl = True
             use = ConfigUse(real_opt, is_spl, fname, rest)
             if fname not in fname_uses:
@@ -1244,8 +1244,8 @@ def scan_src_files(fnames):
     rest = None
 
     def add_uses(m_iter, is_spl):
-        for m in m_iter:
-            real_opt = m.group(1)
+        for mat in m_iter:
+            real_opt = mat.group(1)
             if real_opt == '':
                 continue
             use = ConfigUse(real_opt, is_spl, fname, rest)
@@ -1573,9 +1573,9 @@ doc/develop/moveconfig.rst for documentation.'''
     # We are either building the database or forcing a sync of defconfigs
     config_db = {}
     db_queue = queue.Queue()
-    t = DatabaseThread(config_db, db_queue)
-    t.daemon = True
-    t.start()
+    dbt = DatabaseThread(config_db, db_queue)
+    dbt.daemon = True
+    dbt.start()
 
     check_clean_directory()
     bsettings.setup('')
@@ -1598,12 +1598,12 @@ doc/develop/moveconfig.rst for documentation.'''
         subprocess.call(['git', 'commit', '-s', '-m', msg])
 
     if args.build_db:
-        with open(CONFIG_DATABASE, 'w', encoding='utf-8') as fd:
+        with open(CONFIG_DATABASE, 'w', encoding='utf-8') as outf:
             for defconfig, configs in config_db.items():
-                fd.write(f'{defconfig}\n')
+                outf.write(f'{defconfig}\n')
                 for config in sorted(configs.keys()):
-                    fd.write(f'   {config}={configs[config]}\n')
-                fd.write('\n')
+                    outf.write(f'   {config}={configs[config]}\n')
+                outf.write('\n')
 
 if __name__ == '__main__':
     sys.exit(main())
