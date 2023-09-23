@@ -13,8 +13,6 @@ See doc/develop/moveconfig.rst for documentation.
 from argparse import ArgumentParser
 import collections
 from contextlib import ExitStack
-import copy
-import difflib
 import doctest
 import filecmp
 import fnmatch
@@ -205,102 +203,6 @@ def color_text(color_enabled, color, string):
                            for s in string.split('\n') ])
     return string
 
-def show_diff(alines, blines, file_path, color_enabled):
-    """Show unidified diff.
-
-    Args:
-       alines (list of str): A list of lines (before)
-       blines (list of str): A list of lines (after)
-       file_path (str): Path to the file
-       color_enabled (bool): Display the diff in color
-    """
-    diff = difflib.unified_diff(alines, blines,
-                                fromfile=os.path.join('a', file_path),
-                                tofile=os.path.join('b', file_path))
-
-    for line in diff:
-        if line.startswith('-') and not line.startswith('--'):
-            print(color_text(color_enabled, COLOR_RED, line))
-        elif line.startswith('+') and not line.startswith('++'):
-            print(color_text(color_enabled, COLOR_GREEN, line))
-        else:
-            print(line)
-
-def extend_matched_lines(lines, matched, pre_patterns, post_patterns,
-                         extend_pre, extend_post):
-    """Extend matched lines if desired patterns are found before/after already
-    matched lines.
-
-    Args:
-      lines (list of str): list of lines handled.
-      matched (list of int): list of line numbers that have been already
-          matched (will be updated by this function)
-      pre_patterns (list of re.Pattern): list of regular expression that should
-          be matched as preamble
-      post_patterns (list of re.Pattern): list of regular expression that should
-          be matched as postamble
-      extend_pre (bool): Add the line number of matched preamble to the matched
-          list
-      extend_post (bool): Add the line number of matched postamble to the
-          matched list
-    """
-    extended_matched = []
-
-    j = matched[0]
-
-    for i in matched:
-        if i == 0 or i < j:
-            continue
-        j = i
-        while j in matched:
-            j += 1
-        if j >= len(lines):
-            break
-
-        for pat in pre_patterns:
-            if pat.search(lines[i - 1]):
-                break
-        else:
-            # not matched
-            continue
-
-        for pat in post_patterns:
-            if pat.search(lines[j]):
-                break
-        else:
-            # not matched
-            continue
-
-        if extend_pre:
-            extended_matched.append(i - 1)
-        if extend_post:
-            extended_matched.append(j)
-
-    matched += extended_matched
-    matched.sort()
-
-def confirm(args, prompt):
-    """Ask the user to confirm something
-
-    Args:
-        args (Namespace ): program arguments
-
-    Returns:
-        bool: True to confirm, False to cancel/stop
-    """
-    if not args.yes:
-        while True:
-            choice = input(f'{prompt} [y/n]: ')
-            choice = choice.lower()
-            print(choice)
-            if choice in ('y', 'n'):
-                break
-
-        if choice == 'n':
-            return False
-
-    return True
-
 def write_file(fname, data):
     """Write data to a file
 
@@ -343,155 +245,6 @@ def read_file(fname, as_lines=True, skip_unicode=False):
                 raise
             print("Failed on file %s': %s" % (fname, e))
             return None
-
-def cleanup_empty_blocks(header_path, args):
-    """Clean up empty conditional blocks
-
-    Args:
-      header_path (str): path to the cleaned file.
-      args (Namespace): program arguments
-    """
-    pattern = re.compile(r'^\s*#\s*if.*$\n^\s*#\s*endif.*$\n*', flags=re.M)
-    data = read_file(header_path, as_lines=False, skip_unicode=True)
-    if data is None:
-        return
-
-    new_data = pattern.sub('\n', data)
-
-    show_diff(data.splitlines(True), new_data.splitlines(True), header_path,
-              args.color)
-
-    if args.dry_run:
-        return
-
-    if new_data != data:
-        write_file(header_path, new_data)
-
-def cleanup_one_header(header_path, patterns, args):
-    """Clean regex-matched lines away from a file.
-
-    Args:
-      header_path: path to the cleaned file.
-      patterns: list of regex patterns.  Any lines matching to these
-                patterns are deleted.
-      args (Namespace): program arguments
-    """
-    lines = read_file(header_path, skip_unicode=True)
-    if lines is None:
-        return
-
-    matched = []
-    for i, line in enumerate(lines):
-        if i - 1 in matched and lines[i - 1].endswith('\\'):
-            matched.append(i)
-            continue
-        for pattern in patterns:
-            if pattern.search(line):
-                matched.append(i)
-                break
-
-    if not matched:
-        return
-
-    # remove empty #ifdef ... #endif, successive blank lines
-    pattern_if = re.compile(r'#\s*if(def|ndef)?\b') #  #if, #ifdef, #ifndef
-    pattern_elif = re.compile(r'#\s*el(if|se)\b')   #  #elif, #else
-    pattern_endif = re.compile(r'#\s*endif\b')      #  #endif
-    pattern_blank = re.compile(r'^\s*$')            #  empty line
-
-    while True:
-        old_matched = copy.copy(matched)
-        extend_matched_lines(lines, matched, [pattern_if],
-                             [pattern_endif], True, True)
-        extend_matched_lines(lines, matched, [pattern_elif],
-                             [pattern_elif, pattern_endif], True, False)
-        extend_matched_lines(lines, matched, [pattern_if, pattern_elif],
-                             [pattern_blank], False, True)
-        extend_matched_lines(lines, matched, [pattern_blank],
-                             [pattern_elif, pattern_endif], True, False)
-        extend_matched_lines(lines, matched, [pattern_blank],
-                             [pattern_blank], True, False)
-        if matched == old_matched:
-            break
-
-    tolines = copy.copy(lines)
-
-    for i in reversed(matched):
-        tolines.pop(i)
-
-    show_diff(lines, tolines, header_path, args.color)
-
-    if args.dry_run:
-        return
-
-    write_file(header_path, tolines)
-
-def cleanup_headers(configs, args):
-    """Delete config defines from board headers.
-
-    Args:
-      configs: A list of CONFIGs to remove.
-      args (Namespace): program arguments
-    """
-    if not confirm(args, 'Clean up headers?'):
-        return
-
-    patterns = []
-    for config in configs:
-        patterns.append(re.compile(r'#\s*define\s+%s\b' % config))
-        patterns.append(re.compile(r'#\s*undef\s+%s\b' % config))
-
-    for dir in 'include', 'arch', 'board':
-        for (dirpath, dirnames, filenames) in os.walk(dir):
-            if dirpath == os.path.join('include', 'generated'):
-                continue
-            for filename in filenames:
-                if not filename.endswith(('~', '.dts', '.dtsi', '.bin',
-                                          '.elf','.aml','.dat')):
-                    header_path = os.path.join(dirpath, filename)
-                    # This file contains UTF-16 data and no CONFIG symbols
-                    if header_path == 'include/video_font_data.h':
-                        continue
-                    cleanup_one_header(header_path, patterns, args)
-                    cleanup_empty_blocks(header_path, args)
-
-def find_matching(patterns, line):
-    for pat in patterns:
-        if pat.search(line):
-            return True
-    return False
-
-def cleanup_readme(configs, args):
-    """Delete config description in README
-
-    Args:
-      configs: A list of CONFIGs to remove.
-      args (Namespace): program arguments
-    """
-    if not confirm(args, 'Clean up README?'):
-        return
-
-    patterns = []
-    for config in configs:
-        patterns.append(re.compile(r'^\s+%s' % config))
-
-    lines = read_file('README')
-
-    found = False
-    newlines = []
-    for line in lines:
-        if not found:
-            found = find_matching(patterns, line)
-            if found:
-                continue
-
-        if found and re.search(r'^\s+CONFIG', line):
-            found = False
-
-        if not found:
-            newlines.append(line)
-
-    write_file('README', newlines)
 
 def try_expand(line):
     """If value looks like an expression, try expanding it
@@ -2026,6 +1779,7 @@ doc/develop/moveconfig.rst for documentation.'''
         do_find_config(configs)
         return
 
+    # We are either building the database or forcing a sync of defconfigs
     config_db = {}
     db_queue = queue.Queue()
     t = DatabaseThread(config_db, db_queue)
@@ -2037,12 +1791,8 @@ doc/develop/moveconfig.rst for documentation.'''
     toolchains = toolchain.Toolchains()
     toolchains.GetSettings()
     toolchains.Scan(verbose=False)
-    move_config(toolchains, configs, args, db_queue)
+    move_config(toolchains, [], args, db_queue)
     db_queue.join()
-
-    if configs:
-        cleanup_headers(configs, args)
-        cleanup_readme(configs, args)
 
     if args.commit:
         subprocess.call(['git', 'add', '-u'])
