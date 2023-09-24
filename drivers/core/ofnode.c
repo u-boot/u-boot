@@ -1383,7 +1383,7 @@ bool ofnode_pre_reloc(ofnode node)
 	 */
 	if (ofnode_read_bool(node, "bootph-pre-ram") ||
 	    ofnode_read_bool(node, "bootph-pre-sram"))
-		return true;
+		return gd->flags & GD_FLG_RELOC;
 
 	if (IS_ENABLED(CONFIG_OF_TAG_MIGRATE)) {
 		/* detect and handle old tags */

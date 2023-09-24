@@ -621,7 +621,8 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
     if not brds:
         brds = get_boards_obj(output_dir, args.regen_board_list,
                               args.maintainer_check, args.full_check,
-                              args.threads, args.verbose)
+                              args.threads, args.verbose and
+                              not args.print_arch and not args.print_prefix)
         if isinstance(brds, int):
             return brds
 

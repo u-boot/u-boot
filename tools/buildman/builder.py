@@ -328,7 +328,7 @@ class Builder:
         self._build_period_us = None
         self._complete_delay = None
         self._next_delay_update = datetime.now()
-        self._start_time = datetime.now()
+        self._start_time = None
         self._step = step
         self._error_lines = 0
         self.no_subdirs = no_subdirs
@@ -1778,6 +1778,7 @@ class Builder:
         self._prepare_output_space()
         if not self._ide:
             tprint('\rStarting build...', newline=False)
+        self._start_time = datetime.now()
         self.setup_build(board_selected, commits)
         self.process_result(None)
         self.thread_exceptions = []

@@ -23,6 +23,9 @@ from u_boot_pylib import command
 RETURN_CODE_RETRY = -1
 BASE_ELF_FILENAMES = ['u-boot', 'spl/u-boot-spl', 'tpl/u-boot-tpl']
 
+# Common extensions for images
+COMMON_EXTS = ['.bin', '.rom', '.itb', '.img']
+
 def mkdir(dirname, parents=False):
     """Make a directory if it doesn't already exist.
 
@@ -636,10 +639,11 @@ class BuilderThread(threading.Thread):
 
             # Now write the actual build output
             if keep_outputs:
-                copy_files(
-                    result.out_dir, build_dir, '',
-                    ['u-boot*', '*.bin', '*.map', '*.img', 'MLO', 'SPL',
-                     'include/autoconf.mk', 'spl/u-boot-spl*'])
+                to_copy = ['u-boot*', '*.map', 'MLO', 'SPL',
+                           'include/autoconf.mk', 'spl/u-boot-spl*',
+                           'tpl/u-boot-tpl*', 'vpl/u-boot-vpl*']
+                to_copy += [f'*{ext}' for ext in COMMON_EXTS]
+                copy_files(result.out_dir, build_dir, '', to_copy)
 
     def _send_result(self, result):
         """Send a result to the builder for processing

@@ -64,7 +64,7 @@
 
 &binman {
 	u-boot-update {
-		filename = "u-boot.update";
+		filename = "u-boot-update.bin";
 
 		fit {
 			description = "FIT update image";
