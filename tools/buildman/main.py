@@ -7,7 +7,7 @@
 """See README for more information"""
 
 try:
-    from importlib.resources import files
+    import importlib.resources
 except ImportError:
     # for Python 3.6
     import importlib_resources
@@ -83,7 +83,13 @@ def run_buildman():
         run_test_coverage()
 
     elif args.full_help:
-        tools.print_full_help(str(files('buildman').joinpath('README.rst')))
+        if hasattr(importlib.resources, 'files'):
+            dirpath = importlib.resources.files('buildman')
+            tools.print_full_help(str(dirpath.joinpath('README.rst')))
+        else:
+            with importlib.resources.path('buildman', 'README.rst') as readme:
+                tools.print_full_help(str(readme))
+
 
     # Build selected commits for selected boards
     else:

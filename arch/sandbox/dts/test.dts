@@ -103,7 +103,7 @@
 		/*
 		 * This is used for the VBE OS-request tests. A FAT filesystem
 		 * created in a partition with the VBE information appearing
-		 * before the parititon starts
+		 * before the partition starts
 		 */
 		firmware0 {
 			bootph-verify;

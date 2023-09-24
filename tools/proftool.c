@@ -1493,14 +1493,43 @@ static int write_pages(struct twriter *tw, enum out_format_t out_format,
 static int write_flyrecord(struct twriter *tw, enum out_format_t out_format,
 			   int *missing_countp, int *skip_countp)
 {
-	int start, ret, len;
+	unsigned long long start, start_ofs, len;
+	int ret;
 	FILE *fout = tw->fout;
 	char str[200];
 
+	/* Record start pointer */
+	start_ofs = tw->ptr;
+	debug("Start of flyrecord header at: 0x%llx\n", start_ofs);
+
 	tw->ptr += fprintf(fout, "flyrecord%c", 0);
 
+	/* flyrecord\0 - allocated 10 bytes */
+	start_ofs += 10;
+
+	/*
+	 * 8 bytes that are a 64-bit word containing the offset into the file
+	 * that holds the data for the CPU.
+	 *
+	 * 8 bytes that are a 64-bit word containing the size of the CPU
+	 * data at that offset.
+	 */
+	start_ofs += 16;
+
+	snprintf(str, sizeof(str),
+		 "[local] global counter uptime perf mono mono_raw boot x86-tsc\n");
+	len = strlen(str);
+
+	/* trace clock length - 8 bytes */
+	start_ofs += 8;
+	/* trace clock data */
+	start_ofs += len;
+
+	debug("Calculated flyrecord header end at: 0x%llx, trace clock len: 0x%llx\n",
+	      start_ofs, len);
+
 	/* trace data */
-	start = ALIGN(tw->ptr + 16, TRACE_PAGE_SIZE);
+	start = ALIGN(start_ofs, TRACE_PAGE_SIZE);
 	tw->ptr += tputq(fout, start);
 
 	/* use a placeholder for the size */
@@ -1509,11 +1538,11 @@ static int write_flyrecord(struct twriter *tw, enum out_format_t out_format,
 		return -1;
 	tw->ptr += ret;
 
-	snprintf(str, sizeof(str),
-		 "[local] global counter uptime perf mono mono_raw boot x86-tsc\n");
-	len = strlen(str);
 	tw->ptr += tputq(fout, len);
 	tw->ptr += tputs(fout, str);
+
+	debug("End of flyrecord header at: 0x%x, offset: 0x%llx\n",
+	      tw->ptr, start);
 
 	debug("trace text base %lx, map file %lx\n", text_base, text_offset);
 
