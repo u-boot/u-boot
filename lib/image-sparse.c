@@ -289,8 +289,8 @@ int write_sparse_image(struct sparse_storage *info,
 
 		case CHUNK_TYPE_CRC32:
 			if (chunk_header->total_sz !=
-			    sparse_header->chunk_hdr_sz) {
-				info->mssg("Bogus chunk size for chunk type Dont Care",
+			    sparse_header->chunk_hdr_sz + sizeof(uint32_t)) {
+				info->mssg("Bogus chunk size for chunk type CRC32",
 					   response);
 				return -1;
 			}
