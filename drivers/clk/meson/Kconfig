@@ -21,3 +21,11 @@ config CLK_MESON_G12A
 	help
 	  Enable clock support for the Amlogic G12A SoC family, such as
 	  the S905X/D2
+
+config CLK_MESON_A1
+	bool "Enable clock support for Amlogic A1"
+	depends on CLK && ARCH_MESON
+	default MESON_A1
+	help
+	  Enable clock support for the Amlogic A1 SoC family, such as
+	  the A113L
