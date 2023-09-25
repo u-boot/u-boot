@@ -33,6 +33,26 @@
  * various uclass devices, as clocks and reset controllers.
  */
 
+/**
+ * struct sandbox_channel - Description of sandbox transport
+ * @channel_id:		Channel identifier
+ *
+ * Dummy channel. This will be used to test if a protocol-specific
+ * channel is properly used.
+ * Id 0 means a channel for the sandbox agent.
+ */
+struct sandbox_channel {
+	unsigned int channel_id;
+};
+
+/**
+ * struct scmi_channel - Channel instance referenced in SCMI drivers
+ * @ref: Reference to local channel instance
+ **/
+struct scmi_channel {
+	struct sandbox_channel ref;
+};
+
 static struct sandbox_scmi_clk scmi_clk[] = {
 	{ .rate = 333 },
 	{ .rate = 200 },
@@ -470,6 +490,73 @@ static int sandbox_scmi_voltd_level_get(struct udevice *dev,
 	return 0;
 }
 
+/**
+ * sandbox_scmi_of_get_channel - assigne a channel
+ * @dev:	SCMI agent device
+ * @protocol:	SCMI protocol device
+ * @channel:	Pointer to channel info
+ *
+ * Assign a channel for the protocol, @protocol, in @channel,
+ * based on a device tree's property.
+ *
+ * Return: 0 on success, error code on failure
+ */
+static int sandbox_scmi_of_get_channel(struct udevice *dev,
+				       struct udevice *protocol,
+				       struct scmi_channel **channel)
+{
+	struct sandbox_channel *agent_chan = dev_get_plat(dev);
+	struct sandbox_channel *chan;
+	u32 channel_id;
+
+	if (dev_read_u32(protocol, "linaro,sandbox-channel-id", &channel_id)) {
+		/* Uses agent channel */
+		*channel = container_of(agent_chan, struct scmi_channel, ref);
+
+		return 0;
+	}
+
+	/* Setup a dedicated channel */
+	chan = calloc(1, sizeof(*chan));
+	if (!chan)
+		return -ENOMEM;
+
+	chan->channel_id = channel_id;
+
+	*channel = container_of(chan, struct scmi_channel, ref);
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_of_to_plat - assigne a channel to agent
+ * @dev:	SCMI agent device
+ *
+ * Assign a channel for the agent, @protocol.
+ *
+ * Return: always 0
+ */
+static int sandbox_scmi_of_to_plat(struct udevice *dev)
+{
+	struct sandbox_channel *chan = dev_get_plat(dev);
+
+	/* The channel for agent is always 0 */
+	chan->channel_id = 0;
+
+	return 0;
+}
+
+unsigned int sandbox_scmi_channel_id(struct udevice *dev)
+{
+	struct scmi_agent_proto_priv *priv;
+	struct sandbox_channel *chan;
+
+	priv = dev_get_parent_priv(dev);
+	chan = (struct sandbox_channel *)&priv->channel->ref;
+
+	return chan->channel_id;
+}
+
 static int sandbox_scmi_test_process_msg(struct udevice *dev,
 					 struct scmi_channel *channel,
 					 struct scmi_msg *msg)
@@ -584,6 +671,7 @@ static const struct udevice_id sandbox_scmi_test_ids[] = {
 };
 
 struct scmi_agent_ops sandbox_scmi_test_ops = {
+	.of_get_channel = sandbox_scmi_of_get_channel,
 	.process_msg = sandbox_scmi_test_process_msg,
 };
 
@@ -592,6 +680,8 @@ U_BOOT_DRIVER(sandbox_scmi_agent) = {
 	.id = UCLASS_SCMI_AGENT,
 	.of_match = sandbox_scmi_test_ids,
 	.priv_auto	= sizeof(struct sandbox_scmi_agent),
+	.plat_auto	= sizeof(struct sandbox_channel),
+	.of_to_plat	= sandbox_scmi_of_to_plat,
 	.probe = sandbox_scmi_test_probe,
 	.remove = sandbox_scmi_test_remove,
 	.ops = &sandbox_scmi_test_ops,

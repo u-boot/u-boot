@@ -89,6 +89,14 @@ struct sandbox_scmi_devices {
 
 #ifdef CONFIG_SCMI_FIRMWARE
 /**
+ * sandbox_scmi_channel_id - Get the channel id
+ * @dev:	Reference to the SCMI protocol device
+ *
+ * Return:	Channel id
+ */
+unsigned int sandbox_scmi_channel_id(struct udevice *dev);
+
+/**
  * sandbox_scmi_service_ctx - Get the simulated SCMI services context
  * @return:	Reference to backend simulated resources state
  */
@@ -101,6 +109,11 @@ struct sandbox_scmi_service *sandbox_scmi_service_ctx(void);
  */
 struct sandbox_scmi_devices *sandbox_scmi_devices_ctx(struct udevice *dev);
 #else
+inline unsigned int sandbox_scmi_channel_id(struct udevice *dev);
+{
+	return 0;
+}
+
 static inline struct sandbox_scmi_service *sandbox_scmi_service_ctx(void)
 {
 	return NULL;
