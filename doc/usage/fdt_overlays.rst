@@ -43,7 +43,7 @@ traditional binary device-tree. For example:
 
 	$ dtc -@ -I dts -O dtb -o base.dtb base.dts
 
-**overlay.dts**
+**overlay.dtso**
 
 ::
 
@@ -63,7 +63,7 @@ traditional binary device-tree. For example:
 
 .. code-block:: console
 
-	$ dtc -@ -I dts -O dtb -o overlay.dtbo overlay.dts
+	$ dtc -@ -I dts -O dtb -o overlay.dtbo overlay.dtso
 
 Ways to Utilize Overlays in U-Boot
 ----------------------------------
