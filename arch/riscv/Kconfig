@@ -8,8 +8,8 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_AE350
-	bool "Support ae350"
+config TARGET_ANDES_AE350
+	bool "Support Andes ae350"
 
 config TARGET_MICROCHIP_ICICLE
 	bool "Support Microchip PolarFire-SoC Icicle Board"
