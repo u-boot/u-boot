@@ -513,6 +513,7 @@ int state_uninit(void)
 			printf("Failed to write RAM buffer\n");
 			return err;
 		}
+		log_debug("Wrote RAM to file '%s'\n", state->ram_buf_fname);
 	}
 
 	if (state->write_state) {
