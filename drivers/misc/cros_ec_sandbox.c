@@ -81,6 +81,7 @@ struct ec_pwm_channel {
 /**
  * struct ec_state - Information about the EC state
  *
+ * @valid: true if this struct contains valid state data
  * @vbnv_context: Vboot context data stored by EC
  * @ec_config: FDT config information about the EC (e.g. flashmap)
  * @flash_data: Contents of flash memory
@@ -95,6 +96,7 @@ struct ec_pwm_channel {
  * @pwm: Information per PWM channel
  */
 struct ec_state {
+	bool valid;
 	u8 vbnv_context[EC_VBNV_BLOCK_SIZE_V2];
 	struct fdt_cros_ec ec_config;
 	uint8_t *flash_data;
@@ -145,6 +147,7 @@ static int cros_ec_read_state(const void *blob, int node)
 		memcpy(ec->flash_data, prop, len);
 		debug("%s: Loaded EC flash data size %#x\n", __func__, len);
 	}
+	ec->valid = true;
 
 	return 0;
 }
@@ -589,6 +592,7 @@ static int process_cmd(struct ec_state *ec,
 		printf("   ** Unknown EC command %#02x\n", req_hdr->command);
 		return -1;
 	}
+	debug(" - EC command %#0x, result %d\n", req_hdr->command, len);
 
 	return len;
 }
@@ -675,7 +679,10 @@ int cros_ec_probe(struct udevice *dev)
 	ofnode node;
 	int err;
 
-	memcpy(ec, &s_state, sizeof(*ec));
+	if (s_state.valid)
+		memcpy(ec, &s_state, sizeof(*ec));
+	else
+		ec->current_image = EC_IMAGE_RO;
 	err = cros_ec_decode_ec_flash(dev, &ec->ec_config);
 	if (err) {
 		debug("%s: Cannot device EC flash\n", __func__);
