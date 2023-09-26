@@ -35,9 +35,16 @@
 #define BOOT_TARGET_MMC1(func)
 #endif
 
+#ifdef CONFIG_CMD_USB
+#define BOOT_TARGET_USB(func)	func(USB, usb, 0)
+#else
+#define BOOT_TARGET_USB(func)
+#endif
+
 #define BOOT_TARGET_DEVICES(func)	\
 	BOOT_TARGET_MMC1(func)		\
-	BOOT_TARGET_MMC0(func)
+	BOOT_TARGET_MMC0(func)		\
+	BOOT_TARGET_USB(func)
 
 /*
  * default bootcmd for stm32mp13:
