@@ -1153,13 +1153,15 @@ const uint8_t *ofnode_read_u8_array_ptr(ofnode node, const char *propname,
  * @type:	pci address type (FDT_PCI_SPACE_xxx)
  * @propname:	name of property to find
  * @addr:	returns pci address in the form of fdt_pci_addr
+ * @size:	if non-null, returns register-space size
  * Return:
  * 0 if ok, -ENOENT if the property did not exist, -EINVAL if the
  * format of the property was invalid, -ENXIO if the requested
  * address type was not found
  */
 int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
-			 const char *propname, struct fdt_pci_addr *addr);
+			 const char *propname, struct fdt_pci_addr *addr,
+			 fdt_size_t *size);
 
 /**
  * ofnode_read_pci_vendev() - look up PCI vendor and device id

@@ -301,10 +301,12 @@ static int dm_test_pci_addr_flat(struct unit_test_state *uts)
 {
 	struct udevice *swap1f, *swap1;
 	ulong io_addr, mem_addr;
+	fdt_addr_t size;
 
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap1f));
 	io_addr = dm_pci_read_bar32(swap1f, 0);
-	ut_asserteq(io_addr, dev_read_addr_pci(swap1f));
+	ut_asserteq(io_addr, dev_read_addr_pci(swap1f, &size));
+	ut_asserteq(0, size);
 
 	/*
 	 * This device has both I/O and MEM spaces but the MEM space appears
@@ -312,7 +314,8 @@ static int dm_test_pci_addr_flat(struct unit_test_state *uts)
 	 */
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1, 0), &swap1));
 	mem_addr = dm_pci_read_bar32(swap1, 1);
-	ut_asserteq(mem_addr, dev_read_addr_pci(swap1));
+	ut_asserteq(mem_addr, dev_read_addr_pci(swap1, &size));
+	ut_asserteq(0, size);
 
 	return 0;
 }
@@ -329,12 +332,15 @@ DM_TEST(dm_test_pci_addr_flat, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT |
 static int dm_test_pci_addr_live(struct unit_test_state *uts)
 {
 	struct udevice *swap1f, *swap1;
+	fdt_size_t size;
 
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1f, 0), &swap1f));
-	ut_asserteq_64(FDT_ADDR_T_NONE, dev_read_addr_pci(swap1f));
+	ut_asserteq_64(FDT_ADDR_T_NONE, dev_read_addr_pci(swap1f, &size));
+	ut_asserteq(0, size);
 
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(0, 0x1, 0), &swap1));
-	ut_asserteq_64(FDT_ADDR_T_NONE, dev_read_addr_pci(swap1));
+	ut_asserteq_64(FDT_ADDR_T_NONE, dev_read_addr_pci(swap1, &size));
+	ut_asserteq(0, size);
 
 	return 0;
 }

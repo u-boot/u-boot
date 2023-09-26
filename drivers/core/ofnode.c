@@ -1270,7 +1270,8 @@ const uint8_t *ofnode_read_u8_array_ptr(ofnode node, const char *propname,
 }
 
 int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
-			 const char *propname, struct fdt_pci_addr *addr)
+			 const char *propname, struct fdt_pci_addr *addr,
+			 fdt_size_t *size)
 {
 	const fdt32_t *cell;
 	int len;
@@ -1298,14 +1299,18 @@ int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
 			      (ulong)fdt32_to_cpu(cell[1]),
 			      (ulong)fdt32_to_cpu(cell[2]));
 			if ((fdt32_to_cpu(*cell) & type) == type) {
+				const unaligned_fdt64_t *ptr;
+
 				addr->phys_hi = fdt32_to_cpu(cell[0]);
 				addr->phys_mid = fdt32_to_cpu(cell[1]);
 				addr->phys_lo = fdt32_to_cpu(cell[2]);
+				ptr = (const unaligned_fdt64_t *)(cell + 3);
+				if (size)
+					*size = fdt64_to_cpu(*ptr);
 				break;
 			}
 
-			cell += (FDT_PCI_ADDR_CELLS +
-				 FDT_PCI_SIZE_CELLS);
+			cell += FDT_PCI_ADDR_CELLS + FDT_PCI_SIZE_CELLS;
 		}
 
 		if (i == num) {
