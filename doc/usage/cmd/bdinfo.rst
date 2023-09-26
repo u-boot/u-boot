@@ -106,7 +106,7 @@ sp start
 
 Early malloc usage
     amount of memory used in the early malloc memory and its maximum size
-    as defined by CONFIGSYS_MALLOC_F_LEN
+    as defined by CONFIG_SYS_MALLOC_F_LEN
 
 Configuration
 -------------

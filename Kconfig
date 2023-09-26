@@ -277,10 +277,17 @@ config SYS_MALLOC_F_LEN
 	default 0x10000 if ARCH_IMX8 || ARCH_IMX8M
 	default 0x2000
 	help
-	  Before relocation, memory is very limited on many platforms. Still,
-	  we can provide a small malloc() pool if needed. Driver model in
-	  particular needs this to operate, so that it can allocate the
-	  initial serial device and any others that are needed.
+		Size of the malloc() pool for use before relocation. If
+		this is defined, then a very simple malloc() implementation
+		will become available before relocation. The address is just
+		below the global data, and the stack is moved down to make
+		space.
+
+		This feature allocates regions with increasing addresses
+		within the region. calloc() is supported, but realloc()
+		is not available. free() is supported but does nothing.
+		The memory will be freed (or in fact just forgotten) when
+		U-Boot relocates itself.
 
 config SYS_MALLOC_LEN
 	hex "Define memory for Dynamic allocation"
