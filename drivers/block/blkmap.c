@@ -171,11 +171,11 @@ int blkmap_map_linear(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 
 	bd = dev_get_uclass_plat(bm->blk);
 	lbd = dev_get_uclass_plat(lblk);
-	if (lbd->blksz != bd->blksz)
-		/* We could support block size translation, but we
-		 * don't yet.
-		 */
-		return -EINVAL;
+	if (lbd->blksz != bd->blksz) {
+		/* update to match the mapped device */
+		bd->blksz = lbd->blksz;
+		bd->log2blksz = LOG2(bd->blksz);
+	}
 
 	linear = malloc(sizeof(*linear));
 	if (!linear)
