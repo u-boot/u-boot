@@ -24,9 +24,14 @@
  */
 #ifdef CONFIG_SPL_HAS_CUSTOM_MALLOC_START
 #define SPL_SYS_MALLOC_START		CONFIG_SPL_CUSTOM_SYS_MALLOC_ADDR
-#else
+#elif defined(CONFIG_SPL_BSS_START_ADDR)
 #define SPL_SYS_MALLOC_START		(CONFIG_SPL_BSS_START_ADDR + \
 					 CONFIG_SPL_BSS_MAX_SIZE)
+#else
+/* feature not enabled: this value avoids compiler errors but is not used */
+#define SPL_SYS_MALLOC_START	0
 #endif
+#define SPL_SYS_MALLOC_SIZE	\
+	IF_ENABLED_INT(CONFIG_SPL_SYS_MALLOC, CONFIG_SPL_SYS_MALLOC_SIZE)
 
 #endif
