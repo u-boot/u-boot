@@ -228,6 +228,9 @@ static int dm_test_ofnode_read(struct unit_test_state *uts)
 	ofnode node;
 	int size;
 
+	node = oftree_path(oftree_default(), "/");
+	ut_assert(ofnode_valid(node));
+
 	node = ofnode_path("/a-test");
 	ut_assert(ofnode_valid(node));
 
@@ -255,6 +258,9 @@ static int dm_test_ofnode_read_ot(struct unit_test_state *uts)
 	const char *val;
 	ofnode node;
 	int size;
+
+	node = oftree_path(otree, "/");
+	ut_assert(ofnode_valid(node));
 
 	node = oftree_path(otree, "/node/subnode");
 	ut_assert(ofnode_valid(node));
