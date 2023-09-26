@@ -59,10 +59,10 @@ static int do_host_bind(struct cmd_tbl *cmdtp, int flag, int argc,
 		argv++;
 	}
 
-	if (argc > 2)
+	if (argc != 2)
 		return CMD_RET_USAGE;
 	label = argv[0];
-	file = argc > 1 ? argv[1] : NULL;
+	file = argv[1];
 
 	ret = host_create_attach_file(label, file, removable, &dev);
 	if (ret) {
@@ -253,7 +253,7 @@ U_BOOT_CMD(
 	"host save hostfs - <addr> <filename> <bytes> [<offset>] - "
 		"save a file to host\n"
 	"host size hostfs - <filename> - determine size of file on host\n"
-	"host bind [-r] <label> [<filename>] - bind \"host\" device to file\n"
+	"host bind [-r] <label> <filename> - bind \"host\" device to file\n"
 	"     -r = mark as removable\n"
 	"host unbind <label>     - unbind file from \"host\" device\n"
 	"host info [<label>]     - show device binding & info\n"
