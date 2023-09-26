@@ -120,7 +120,7 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 
 	/* first check 'host info' with binding */
 	ut_assertok(run_command("host info", 0));
-	ut_assert_nextline("dev       blocks label           path");
+	ut_assert_nextline("dev       blocks  blksz label           path");
 	ut_assert_console_end();
 
 	ut_assertok(os_persistent_file(fname, sizeof(fname), "2MB.ext2.img"));
@@ -133,8 +133,8 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 	ut_asserteq(true, desc->removable);
 
 	ut_assertok(run_command("host info", 0));
-	ut_assert_nextline("dev       blocks label           path");
-	ut_assert_nextlinen("  0         4096 test2");
+	ut_assert_nextline("dev       blocks  blksz label           path");
+	ut_assert_nextlinen("  0         4096    512 test2");
 	ut_assert_console_end();
 
 	ut_assertok(os_persistent_file(fname, sizeof(fname), "1MB.fat32.img"));
@@ -147,9 +147,9 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 	ut_asserteq(false, desc->removable);
 
 	ut_assertok(run_command("host info", 0));
-	ut_assert_nextline("dev       blocks label           path");
-	ut_assert_nextlinen("  0         4096 test2");
-	ut_assert_nextlinen("  1         2048 fat");
+	ut_assert_nextline("dev       blocks  blksz label           path");
+	ut_assert_nextlinen("  0         4096    512 test2");
+	ut_assert_nextlinen("  1         2048    512 fat");
 	ut_assert_console_end();
 
 	ut_asserteq(1, run_command("host info test", 0));
@@ -157,8 +157,8 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	ut_assertok(run_command("host info fat", 0));
-	ut_assert_nextline("dev       blocks label           path");
-	ut_assert_nextlinen("  1         2048 fat");
+	ut_assert_nextline("dev       blocks  blksz label           path");
+	ut_assert_nextlinen("  1         2048    512 fat");
 	ut_assert_console_end();
 
 	/* check 'host dev' */
@@ -194,8 +194,8 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	ut_assertok(run_command("host info", 0));
-	ut_assert_nextline("dev       blocks label           path");
-	ut_assert_nextlinen("  1         2048 fat");
+	ut_assert_nextline("dev       blocks  blksz label           path");
+	ut_assert_nextlinen("  1         2048    512 fat");
 	ut_assert_console_end();
 
 	return 0;

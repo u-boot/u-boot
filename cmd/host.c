@@ -160,8 +160,8 @@ static void show_host_dev(struct udevice *dev)
 		return;
 
 	desc = dev_get_uclass_plat(blk);
-	printf("%12lu %-15s %s\n", (unsigned long)desc->lba, plat->label,
-	       plat->filename);
+	printf("%12lu %6lu %-15s %s\n", (unsigned long)desc->lba, desc->blksz,
+	       plat->label, plat->filename);
 }
 
 static int do_host_info(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -179,7 +179,8 @@ static int do_host_info(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_FAILURE;
 	}
 
-	printf("%3s %12s %-15s %s\n", "dev", "blocks", "label", "path");
+	printf("%3s %12s %6s %-15s %s\n",
+	       "dev", "blocks", "blksz", "label", "path");
 	if (dev) {
 		show_host_dev(dev);
 	} else {
