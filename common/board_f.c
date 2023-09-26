@@ -794,7 +794,7 @@ static int initf_bootstage(void)
 
 static int initf_dm(void)
 {
-#if defined(CONFIG_DM) && CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if defined(CONFIG_DM) && CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	int ret;
 
 	bootstage_start(BOOTSTAGE_ID_ACCUM_DM_F, "dm_f");

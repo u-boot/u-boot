@@ -307,7 +307,7 @@ struct global_data {
 #if CONFIG_IS_ENABLED(CMD_BDINFO_EXTRA)
 	unsigned long malloc_start;
 #endif
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	/**
 	 * @malloc_base: base address of early malloc()
 	 */

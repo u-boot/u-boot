@@ -307,8 +307,7 @@ config SPL_SYS_MALLOC_F
 
 config SPL_SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool in SPL"
-	depends on SYS_MALLOC_F && SPL
-	default 0x0 if !SPL_FRAMEWORK
+	depends on SPL_SYS_MALLOC_F
 	default 0x2800 if RCAR_GEN3
 	default 0x2000 if IMX8MQ
 	default SYS_MALLOC_F_LEN
@@ -332,7 +331,7 @@ config TPL_SYS_MALLOC_F
 
 config TPL_SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool in TPL"
-	depends on SYS_MALLOC_F && TPL
+	depends on TPL_SYS_MALLOC_F
 	default SPL_SYS_MALLOC_F_LEN
 	help
 	  Sets the size of the malloc() pool in TPL. This is used for
@@ -366,8 +365,8 @@ config VPL_SYS_MALLOC_F
 
 config VPL_SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool in VPL before relocation"
-	depends on SYS_MALLOC_F && VPL
-	default SYS_MALLOC_F_LEN
+	depends on VPL_SYS_MALLOC_F
+	default SPL_SYS_MALLOC_F_LEN
 	help
 	  Sets the size of the malloc() pool in VPL. This is used for
 	  driver model and other features, which must allocate memory for

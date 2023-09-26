@@ -523,7 +523,7 @@ static int spl_common_init(bool setup_malloc)
 {
 	int ret;
 
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	if (setup_malloc) {
 #ifdef CFG_MALLOC_F_ADDR
 		gd->malloc_base = CFG_MALLOC_F_ADDR;
@@ -860,7 +860,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	} else {
 		debug("Unsupported OS image.. Jumping nevertheless..\n");
 	}
-#if CONFIG_VAL(SYS_MALLOC_F_LEN) && !defined(CONFIG_SPL_SYS_MALLOC_SIZE)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F) && !defined(CONFIG_SPL_SYS_MALLOC_SIZE)
 	debug("SPL malloc() used 0x%lx bytes (%ld KB)\n", gd->malloc_ptr,
 	      gd->malloc_ptr / 1024);
 #endif
@@ -961,7 +961,7 @@ ulong spl_relocate_stack_gd(void)
 	if (CONFIG_IS_ENABLED(SYS_REPORT_STACK_F_USAGE))
 		spl_relocate_stack_check();
 
-#if defined(CONFIG_SPL_SYS_MALLOC_SIMPLE) && CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if defined(CONFIG_SPL_SYS_MALLOC_SIMPLE) && CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	if (CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN) {
 		debug("SPL malloc() before relocation used 0x%lx bytes (%ld KB)\n",
 		      gd->malloc_ptr, gd->malloc_ptr / 1024);
