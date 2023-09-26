@@ -1731,7 +1731,7 @@ int ofnode_add_subnode(ofnode node, const char *name, ofnode *subnodep)
 	return ret;	/* 0 or -EEXIST */
 }
 
-int ofnode_copy_props(ofnode src, ofnode dst)
+int ofnode_copy_props(ofnode dst, ofnode src)
 {
 	struct ofprop prop;
 
