@@ -326,7 +326,7 @@ static int k3_sec_proxy_of_to_priv(struct udevice *dev,
 	}
 
 	spm->scfg = devfdt_get_addr_name(dev, "scfg");
-	if (spm->rt == FDT_ADDR_T_NONE) {
+	if (spm->scfg == FDT_ADDR_T_NONE) {
 		dev_err(dev, "No reg property for Secure Cfg base\n");
 		return -EINVAL;
 	}
