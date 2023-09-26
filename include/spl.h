@@ -132,6 +132,16 @@ static inline enum u_boot_phase spl_phase(void)
 #endif
 }
 
+/* returns true if in U-Boot proper, false if in SPL */
+static inline bool spl_in_proper(void)
+{
+#ifdef CONFIG_SPL_BUILD
+	return false;
+#endif
+
+	return true;
+}
+
 /**
  * spl_prev_phase() - Figure out the previous U-Boot phase
  *
