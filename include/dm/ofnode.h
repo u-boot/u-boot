@@ -128,6 +128,15 @@ static inline ofnode noffset_to_ofnode(ofnode other_node, int of_offset)
 #endif /* OFNODE_MULTI_TREE */
 
 /**
+ * oftree_new() - Create a new, empty tree
+ *
+ * @treep: Returns a pointer to the tree, on success
+ * Returns: 0 on success, -ENOMEM if out of memory, -E2BIG if !OF_LIVE and
+ * there are too many (flattrees) already
+ */
+int oftree_new(oftree *treep);
+
+/**
  * ofnode_to_np() - convert an ofnode to a live DT node pointer
  *
  * This cannot be called if the reference contains an offset.

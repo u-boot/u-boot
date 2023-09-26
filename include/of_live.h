@@ -46,4 +46,12 @@ int unflatten_device_tree(const void *blob, struct device_node **mynodes);
  */
 void of_live_free(struct device_node *root);
 
+/**
+ * of_live_create_empty() - Create a new, empty tree
+ *
+ * @rootp: Returns the root node of the created tree
+ * Return: 0 if OK, -ENOMEM if out of memory
+ */
+int of_live_create_empty(struct device_node **rootp);
+
 #endif
