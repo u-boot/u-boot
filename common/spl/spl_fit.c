@@ -208,7 +208,7 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
 }
 
 /**
- * spl_load_fit_image(): load the image described in a certain FIT node
+ * load_simple_fit(): load the image described in a certain FIT node
  * @info:	points to information about the device to load data from
  * @sector:	the start sector of the FIT image on the device
  * @ctx:	points to the FIT context structure
@@ -221,9 +221,9 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
  *
  * Return:	0 on success or a negative error number.
  */
-static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
-			      const struct spl_fit_info *ctx, int node,
-			      struct spl_image_info *image_info)
+static int load_simple_fit(struct spl_load_info *info, ulong sector,
+			   const struct spl_fit_info *ctx, int node,
+			   struct spl_image_info *image_info)
 {
 	int offset;
 	size_t length;
@@ -386,8 +386,7 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 		else
 			return node;
 	} else {
-		ret = spl_load_fit_image(info, sector, ctx, node,
-					 &image_info);
+		ret = load_simple_fit(info, sector, ctx, node, &image_info);
 		if (ret < 0)
 			return ret;
 	}
@@ -426,8 +425,8 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 					      __func__);
 			}
 			image_info.load_addr = (ulong)tmpbuffer;
-			ret = spl_load_fit_image(info, sector, ctx,
-						 node, &image_info);
+			ret = load_simple_fit(info, sector, ctx, node,
+					      &image_info);
 			if (ret < 0)
 				break;
 
@@ -617,7 +616,7 @@ static int spl_fit_load_fpga(struct spl_fit_info *ctx,
 	warn_deprecated("'fpga' property in config node. Use 'loadables'");
 
 	/* Load the image and set up the fpga_image structure */
-	ret = spl_load_fit_image(info, sector, ctx, node, &fpga_image);
+	ret = load_simple_fit(info, sector, ctx, node, &fpga_image);
 	if (ret) {
 		printf("%s: Cannot load the FPGA: %i\n", __func__, ret);
 		return ret;
@@ -742,7 +741,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 	}
 
 	/* Load the image and set up the spl_image structure */
-	ret = spl_load_fit_image(info, sector, &ctx, node, spl_image);
+	ret = load_simple_fit(info, sector, &ctx, node, spl_image);
 	if (ret)
 		return ret;
 
@@ -783,7 +782,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 			continue;
 
 		image_info.load_addr = 0;
-		ret = spl_load_fit_image(info, sector, &ctx, node, &image_info);
+		ret = load_simple_fit(info, sector, &ctx, node, &image_info);
 		if (ret < 0) {
 			printf("%s: can't load image loadables index %d (ret = %d)\n",
 			       __func__, index, ret);
