@@ -906,7 +906,7 @@ int nvme_init(struct udevice *udev)
 
 		/* The real blksz and size will be set by nvme_blk_probe() */
 		ret = blk_create_devicef(udev, "nvme-blk", name, UCLASS_NVME,
-					 -1, 512, 0, &ns_udev);
+					 -1, DEFAULT_BLKSZ, 0, &ns_udev);
 		if (ret)
 			goto free_id;
 

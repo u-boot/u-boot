@@ -105,7 +105,7 @@ static int host_sb_bind(struct udevice *dev)
 	int ret;
 
 	ret = blk_create_devicef(dev, "sandbox_host_blk", "blk", UCLASS_HOST,
-				 dev_seq(dev), 512, 0, &blk);
+				 dev_seq(dev), DEFAULT_BLKSZ, 0, &blk);
 	if (ret)
 		return log_msg_ret("blk", ret);
 

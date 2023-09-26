@@ -21,6 +21,8 @@ typedef ulong lbaint_t;
 #define LBAF "%" LBAFlength "x"
 #define LBAFU "%" LBAFlength "u"
 
+#define DEFAULT_BLKSZ		512
+
 struct udevice;
 
 static inline bool blk_enabled(void)
