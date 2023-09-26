@@ -263,6 +263,15 @@ struct spl_image_info {
 #endif
 };
 
+static inline void *spl_image_fdt_addr(struct spl_image_info *info)
+{
+#if CONFIG_IS_ENABLED(LOAD_FIT) || CONFIG_IS_ENABLED(LOAD_FIT_FULL)
+	return info->fdt_addr;
+#else
+	return 0;
+#endif
+}
+
 /**
  * Information required to load data from a device
  *
