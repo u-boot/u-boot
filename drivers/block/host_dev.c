@@ -73,7 +73,7 @@ err_fname:
 	return ret;
 }
 
-int host_sb_detach_file(struct udevice *dev)
+static int host_sb_detach_file(struct udevice *dev)
 {
 	struct host_sb_plat *plat = dev_get_plat(dev);
 	int ret;
@@ -123,7 +123,7 @@ static int host_sb_bind(struct udevice *dev)
 	return 0;
 }
 
-struct host_ops host_sb_ops = {
+static struct host_ops host_sb_ops = {
 	.attach_file	= host_sb_attach_file,
 	.detach_file	= host_sb_detach_file,
 };
