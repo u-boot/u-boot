@@ -67,15 +67,19 @@ int blk_common_cmd(int argc, char *const argv[], enum uclass_id uclass_id,
 			phys_addr_t paddr = hextoul(argv[2], NULL);
 			lbaint_t blk = hextoul(argv[3], NULL);
 			ulong cnt = hextoul(argv[4], NULL);
+			struct blk_desc *desc;
 			void *vaddr;
 			ulong n;
+			int ret;
 
 			printf("\n%s read: device %d block # "LBAFU", count %lu ... ",
 			       if_name, *cur_devnump, blk, cnt);
 
-			vaddr = map_sysmem(paddr, 512 * cnt);
-			n = blk_read_devnum(uclass_id, *cur_devnump, blk, cnt,
-					    vaddr);
+			ret = blk_get_desc(uclass_id, *cur_devnump, &desc);
+			if (ret)
+				return CMD_RET_FAILURE;
+			vaddr = map_sysmem(paddr, desc->blksz * cnt);
+			n = blk_dread(desc, blk, cnt, vaddr);
 			unmap_sysmem(vaddr);
 
 			printf("%ld blocks read: %s\n", n,
@@ -85,15 +89,19 @@ int blk_common_cmd(int argc, char *const argv[], enum uclass_id uclass_id,
 			phys_addr_t paddr = hextoul(argv[2], NULL);
 			lbaint_t blk = hextoul(argv[3], NULL);
 			ulong cnt = hextoul(argv[4], NULL);
+			struct blk_desc *desc;
 			void *vaddr;
 			ulong n;
+			int ret;
 
 			printf("\n%s write: device %d block # "LBAFU", count %lu ... ",
 			       if_name, *cur_devnump, blk, cnt);
 
-			vaddr = map_sysmem(paddr, 512 * cnt);
-			n = blk_write_devnum(uclass_id, *cur_devnump, blk, cnt,
-					     vaddr);
+			ret = blk_get_desc(uclass_id, *cur_devnump, &desc);
+			if (ret)
+				return CMD_RET_FAILURE;
+			vaddr = map_sysmem(paddr, desc->blksz * cnt);
+			n = blk_dwrite(desc, blk, cnt, vaddr);
 			unmap_sysmem(vaddr);
 
 			printf("%ld blocks written: %s\n", n,
