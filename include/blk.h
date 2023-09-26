@@ -515,6 +515,18 @@ const char *blk_get_devtype(struct udevice *dev);
  */
 struct blk_desc *blk_get_by_device(struct udevice *dev);
 
+/**
+ * blk_get_desc() - Get the block device descriptor for the given device number
+ *
+ * @uclass_id:	Interface type
+ * @devnum:	Device number (0 = first)
+ * @descp:	Returns block device descriptor on success
+ * Return: 0 on success, -ENODEV if there is no such device and no device
+ * with a higher device number, -ENOENT if there is no such device but there
+ * is one with a higher number, or other -ve on other error.
+ */
+int blk_get_desc(enum uclass_id uclass_id, int devnum, struct blk_desc **descp);
+
 #else
 #include <errno.h>
 /*
