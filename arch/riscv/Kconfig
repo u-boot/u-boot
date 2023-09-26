@@ -26,6 +26,7 @@ config TARGET_SIFIVE_UNMATCHED
 
 config TARGET_STARFIVE_VISIONFIVE2
 	bool "Support StarFive VisionFive2 Board"
+	select BOARD_LATE_INIT
 
 config TARGET_TH1520_LPI4A
 	bool "Support Sipeed's TH1520 Lichee PI 4A Board"
