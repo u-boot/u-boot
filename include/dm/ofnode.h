@@ -1462,6 +1462,16 @@ int ofnode_write_string(ofnode node, const char *propname, const char *value);
 int ofnode_write_u32(ofnode node, const char *propname, u32 value);
 
 /**
+ * ofnode_write_u64() - Set an integer property of an ofnode
+ *
+ * @node:	The node for whose string property should be set
+ * @propname:	The name of the string property to set
+ * @value:	The new value of the 64-bit integer property
+ * Return: 0 if successful, -ve on error
+ */
+int ofnode_write_u64(ofnode node, const char *propname, u64 value);
+
+/**
  * ofnode_write_bool() - Set a boolean property of an ofnode
  *
  * This either adds or deleted a property with a zero-length value
