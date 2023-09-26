@@ -383,7 +383,7 @@ U_BOOT_DRIVER(blkmap_blk) = {
 	.ops		= &blkmap_blk_ops,
 };
 
-int blkmap_dev_bind(struct udevice *dev)
+static int blkmap_dev_bind(struct udevice *dev)
 {
 	struct blkmap *bm = dev_get_plat(dev);
 	struct blk_desc *bd;
@@ -410,7 +410,7 @@ int blkmap_dev_bind(struct udevice *dev)
 	return 0;
 }
 
-int blkmap_dev_unbind(struct udevice *dev)
+static int blkmap_dev_unbind(struct udevice *dev)
 {
 	struct blkmap *bm = dev_get_plat(dev);
 	struct blkmap_slice *bms, *tmp;
