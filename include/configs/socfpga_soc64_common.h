@@ -112,7 +112,7 @@ unsigned int cm_get_l4_sys_free_clk_hz(void);
  * SDRAM
  * 0x0000_0000 ...... Start of SDRAM_1
  * unused / empty space for image loading
- * Size 64MB   ...... MALLOC (size CONFIG_SYS_SPL_MALLOC_SIZE)
+ * Size 64MB   ...... MALLOC (size CONFIG_SPL_SYS_MALLOC_SIZE)
  * Size 1MB    ...... BSS (size CONFIG_SPL_BSS_MAX_SIZE)
  * 0x8000_0000 ...... End of SDRAM_1 (assume 2GB)
  *

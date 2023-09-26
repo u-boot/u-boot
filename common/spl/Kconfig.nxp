@@ -59,7 +59,7 @@ config SPL_RELOC_TEXT_BASE
 config SPL_RELOC_STACK
 	hex "Address of the start of the stack SPL will use after relocation."
 	help
-	  If unspecified, this is equal to CFG_SYS_SPL_MALLOC_START.  Starting
+	  If unspecified, this is equal to CFG_SPL_SYS_MALLOC_START.  Starting
 	  address of the malloc pool used in SPL.  When this option is set the full
 	  malloc is used in SPL and it is set up by spl_init() and before that, the
 	  simple malloc() can be used if CONFIG_SYS_MALLOC_F is defined.

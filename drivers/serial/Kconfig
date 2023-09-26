@@ -160,7 +160,7 @@ config SERIAL_PROBE_ALL
 config SPL_DM_SERIAL
 	bool "Enable Driver Model for serial drivers in SPL"
 	depends on DM_SERIAL && SPL_DM
-	select SYS_SPL_MALLOC_F
+	select SPL_SYS_MALLOC_F
 	default y
 	help
 	  Enable driver model for serial in SPL. This replaces

@@ -1297,7 +1297,7 @@ Configuration Settings:
 - CONFIG_SYS_MALLOC_SIMPLE
 		Provides a simple and small malloc() and calloc() for those
 		boards which do not use the full malloc in SPL (which is
-		enabled with CONFIG_SYS_SPL_MALLOC).
+		enabled with CONFIG_SPL_SYS_MALLOC).
 
 - CFG_SYS_BOOTMAPSZ:
 		Maximum size of memory mapped by the startup code of
