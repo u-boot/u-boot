@@ -203,6 +203,17 @@ config BOARD_HUAWEI_HG556A
 	  ethernet ports, 3 USB ports, 1 UART, GPIO buttons and LEDs, and
 	  a RT3062F/AR9223 (PCI).
 
+config BOARD_INTENO_XG6846
+	bool "Inteno XG6846"
+	depends on SOC_BMIPS_BCM6328
+	select BMIPS_SUPPORTS_BOOT_RAM
+	help
+	  Inteno XG6846 boards have a BCM6328 SoC with 64 MB of RAM and 16
+	  MB of flash (SPI).
+	  Between its different peripherals there's an integrated switch with 4
+	  ethernet ports, 1 UART, GPIO buttons and LEDs, and a Marvell
+	  DSA switch connected to a fiber SFP.
+
 config BOARD_NETGEAR_CG3100D
 	bool "Netgear CG3100D"
 	depends on SOC_BMIPS_BCM3380
@@ -272,6 +283,7 @@ source "board/comtrend/ct5361/Kconfig"
 source "board/comtrend/vr3032u/Kconfig"
 source "board/comtrend/wap5813n/Kconfig"
 source "board/huawei/hg556a/Kconfig"
+source "board/inteno/xg6846/Kconfig"
 source "board/netgear/cg3100d/Kconfig"
 source "board/netgear/dgnd3700v2/Kconfig"
 source "board/sagem/f@st1704/Kconfig"
