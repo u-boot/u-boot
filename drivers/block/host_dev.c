@@ -58,6 +58,11 @@ static int host_sb_attach_file(struct udevice *dev, const char *filename)
 
 	size = os_filesize(fd);
 	desc = dev_get_uclass_plat(blk);
+	if (size % desc->blksz) {
+		printf("The size of host backing file '%s' is not multiple of "
+		       "the device block size\n", filename);
+		goto err_fname;
+	}
 	desc->lba = size / desc->blksz;
 
 	/* write this in last, when nothing can go wrong */
