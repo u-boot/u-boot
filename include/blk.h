@@ -730,32 +730,6 @@ int blk_print_device_num(enum uclass_id uclass_id, int devnum);
 int blk_print_part_devnum(enum uclass_id uclass_id, int devnum);
 
 /**
- * blk_read_devnum() - read blocks from a device
- *
- * @uclass_id:	Block device type
- * @devnum:	Device number
- * @start:	Start block number to read (0=first)
- * @blkcnt:	Number of blocks to read
- * @buffer:	Address to write data to
- * Return: number of blocks read, or -ve error number on error
- */
-ulong blk_read_devnum(enum uclass_id uclass_id, int devnum, lbaint_t start,
-		      lbaint_t blkcnt, void *buffer);
-
-/**
- * blk_write_devnum() - write blocks to a device
- *
- * @uclass_id:	Block device type
- * @devnum:	Device number
- * @start:	Start block number to write (0=first)
- * @blkcnt:	Number of blocks to write
- * @buffer:	Address to read data from
- * Return: number of blocks written, or -ve error number on error
- */
-ulong blk_write_devnum(enum uclass_id uclass_id, int devnum, lbaint_t start,
-		       lbaint_t blkcnt, const void *buffer);
-
-/**
  * blk_select_hwpart_devnum() - select a hardware partition
  *
  * This is similar to blk_dselect_hwpart() but it looks up the interface and

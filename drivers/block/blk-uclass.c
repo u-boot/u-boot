@@ -317,35 +317,6 @@ int blk_show_device(enum uclass_id uclass_id, int devnum)
 	return 0;
 }
 
-ulong blk_read_devnum(enum uclass_id uclass_id, int devnum, lbaint_t start,
-		      lbaint_t blkcnt, void *buffer)
-{
-	struct blk_desc *desc;
-	ulong n;
-	int ret;
-
-	ret = blk_get_desc(uclass_id, devnum, &desc);
-	if (ret)
-		return ret;
-	n = blk_dread(desc, start, blkcnt, buffer);
-	if (IS_ERR_VALUE(n))
-		return n;
-
-	return n;
-}
-
-ulong blk_write_devnum(enum uclass_id uclass_id, int devnum, lbaint_t start,
-		       lbaint_t blkcnt, const void *buffer)
-{
-	struct blk_desc *desc;
-	int ret;
-
-	ret = blk_get_desc(uclass_id, devnum, &desc);
-	if (ret)
-		return ret;
-	return blk_dwrite(desc, start, blkcnt, buffer);
-}
-
 int blk_select_hwpart(struct udevice *dev, int hwpart)
 {
 	const struct blk_ops *ops = blk_get_ops(dev);
