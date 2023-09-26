@@ -693,6 +693,10 @@ enum gd_flags {
 	 * the memory used to holds its tables has been mapped out.
 	 */
 	GD_FLG_DM_DEAD = 0x400000,
+	/**
+	 * @GD_FLG_BLOBLIST_READY: bloblist is ready for use
+	 */
+	GD_FLG_BLOBLIST_READY = 0x800000,
 };
 
 #endif /* __ASSEMBLY__ */
