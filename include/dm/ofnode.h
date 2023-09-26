@@ -1635,4 +1635,17 @@ int ofnode_copy_props(ofnode dst, ofnode src);
 int ofnode_copy_node(ofnode dst_parent, const char *name, ofnode src,
 		     ofnode *nodep);
 
+/**
+ * ofnode_delete() - Delete a node
+ *
+ * Delete a node from the tree
+ *
+ * @nodep: Pointer to node to delete (set to ofnode_null() on success)
+ * Return: 0 if OK, -ENOENT if the node does not exist, -EPERM if it is the root
+ * node (wWhich cannot be removed), -EFAULT if the tree is broken (to_remove is
+ * not a child of its parent),
+ *
+ */
+int ofnode_delete(ofnode *nodep);
+
 #endif
