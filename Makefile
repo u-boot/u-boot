@@ -1287,7 +1287,7 @@ binary_size_check: u-boot-nodtb.bin FORCE
 	fi
 
 ifeq ($(CONFIG_INIT_SP_RELATIVE)$(CONFIG_OF_SEPARATE),yy)
-ifneq ($(CONFIG_SYS_MALLOC_F_LEN),)
+ifneq ($(CONFIG_SYS_MALLOC_F),)
 subtract_sys_malloc_f_len = space=$$(($${space} - $(CONFIG_SYS_MALLOC_F_LEN)))
 else
 subtract_sys_malloc_f_len = true
