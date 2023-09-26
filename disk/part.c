@@ -336,6 +336,9 @@ static void print_part_header(const char *type, struct blk_desc *desc)
 	case UCLASS_EFI_MEDIA:
 		puts("EFI");
 		break;
+	case UCLASS_BLKMAP:
+		puts("BLKMAP");
+		break;
 	default:
 		printf("UNKNOWN(%d)", desc->uclass_id);
 		break;
