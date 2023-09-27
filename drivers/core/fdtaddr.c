@@ -145,7 +145,7 @@ fdt_addr_t devfdt_get_addr_name(const struct udevice *dev, const char *name)
 	index = fdt_stringlist_search(gd->fdt_blob, dev_of_offset(dev),
 				      "reg-names", name);
 	if (index < 0)
-		return index;
+		return FDT_ADDR_T_NONE;
 
 	return devfdt_get_addr_index(dev, index);
 #else
@@ -162,7 +162,7 @@ fdt_addr_t devfdt_get_addr_size_name(const struct udevice *dev,
 	index = fdt_stringlist_search(gd->fdt_blob, dev_of_offset(dev),
 				      "reg-names", name);
 	if (index < 0)
-		return index;
+		return FDT_ADDR_T_NONE;
 
 	return devfdt_get_addr_size_index(dev, index, size);
 #else

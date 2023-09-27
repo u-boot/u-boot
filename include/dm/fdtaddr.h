@@ -142,7 +142,7 @@ void *devfdt_get_addr_size_index_ptr(const struct udevice *dev, int index,
  *	  'reg-names' property providing named-based identification. @name
  *	  indicates the value to search for in 'reg-names'.
  *
- * Return: addr
+ * Return: Address, or FDT_ADDR_T_NONE if there is no such property
  */
 fdt_addr_t devfdt_get_addr_name(const struct udevice *dev, const char *name);
 
@@ -159,7 +159,7 @@ fdt_addr_t devfdt_get_addr_name(const struct udevice *dev, const char *name);
  * @size: Pointer to size variable - this function returns the size
  *        specified in the 'reg' property here
  *
- * Return: addr
+ * Return: Address, or FDT_ADDR_T_NONE if there is no such property
  */
 fdt_addr_t devfdt_get_addr_size_name(const struct udevice *dev,
 				     const char *name, fdt_size_t *size);
