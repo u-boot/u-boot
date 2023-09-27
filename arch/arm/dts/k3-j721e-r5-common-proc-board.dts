@@ -5,10 +5,10 @@
 
 /dts-v1/;
 
-#include "k3-j721e-som-p0.dtsi"
+#include "k3-j721e-common-proc-board.dts"
 #include "k3-j721e-ddr-evm-lp4-4266.dtsi"
 #include "k3-j721e-ddr.dtsi"
-#include "k3-j721e-binman.dtsi"
+#include "k3-j721e-common-proc-board-u-boot.dtsi"
 #include <dt-bindings/phy/phy-cadence.h>
 
 / {
@@ -198,27 +198,6 @@
 		>;
 	};
 
-	main_usbss0_pins_default: main_usbss0_pins_default {
-		pinctrl-single,pins = <
-			J721E_IOPAD(0x290, PIN_OUTPUT, 0) /* (U6) USB0_DRVVBUS */
-			J721E_IOPAD(0x210, PIN_INPUT, 7) /* (W3) MCAN1_RX.GPIO1_3 */
-		>;
-	};
-
-	main_mmc1_pins_default: main_mmc1_pins_default {
-		pinctrl-single,pins = <
-			J721E_IOPAD(0x254, PIN_INPUT, 0) /* (R29) MMC1_CMD */
-			J721E_IOPAD(0x250, PIN_INPUT, 0) /* (P25) MMC1_CLK */
-			J721E_IOPAD(0x2ac, PIN_INPUT, 0) /* (P25) MMC1_CLKLB */
-			J721E_IOPAD(0x24c, PIN_INPUT, 0) /* (R24) MMC1_DAT0 */
-			J721E_IOPAD(0x248, PIN_INPUT, 0) /* (P24) MMC1_DAT1 */
-			J721E_IOPAD(0x244, PIN_INPUT, 0) /* (R25) MMC1_DAT2 */
-			J721E_IOPAD(0x240, PIN_INPUT, 0) /* (R26) MMC1_DAT3 */
-			J721E_IOPAD(0x258, PIN_INPUT, 0) /* (P23) MMC1_SDCD */
-			J721E_IOPAD(0x25c, PIN_INPUT, 0) /* (R28) MMC1_SDWP */
-		>;
-	};
-
 	main_i2c0_pins_default: main-i2c0-pins-default {
 		pinctrl-single,pins = <
 			J721E_IOPAD(0x220, PIN_INPUT_PULLUP, 0) /* (AC5) I2C0_SCL */
@@ -299,6 +278,11 @@
 				regulator-boot-on;
 				bootph-pre-ram;
 			};
+		};
+
+		esm: esm {
+			compatible = "ti,tps659413-esm";
+			bootph-pre-ram;
 		};
 	};
 };
@@ -423,14 +407,6 @@
 &serdes0 {
 	assigned-clocks = <&serdes0 CDNS_SIERRA_PLL_CMNLC>, <&serdes0 CDNS_SIERRA_PLL_CMNLC1>;
 	assigned-clock-parents = <&wiz0_pll1_refclk>, <&wiz0_pll1_refclk>;
-
-	serdes0_pcie_link: link@0 {
-		reg = <0>;
-		cdns,num-lanes = <1>;
-		#phy-cells = <0>;
-		cdns,phy-type = <PHY_TYPE_PCIE>;
-		resets = <&serdes_wiz0 1>;
-	};
 
 	serdes0_qsgmii_link: phy@1 {
 		reg = <1>;
