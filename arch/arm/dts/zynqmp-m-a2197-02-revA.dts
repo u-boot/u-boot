@@ -67,7 +67,6 @@
 
 &qspi {
 	status = "okay";
-	is-dual = <1>;
 	flash@0 {
 		compatible = "m25p80", "jedec,spi-nor"; /* 32MB */
 		#address-cells = <1>;
