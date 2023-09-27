@@ -285,6 +285,19 @@ void *dev_remap_addr_index(const struct udevice *dev, int index);
 fdt_addr_t dev_read_addr_name(const struct udevice *dev, const char *name);
 
 /**
+ * dev_read_addr_name_ptr() - Get the reg property of a device as a pointer,
+ *                            indexed by name
+ *
+ * @dev: Device to read from
+ * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
+ *	  'reg-names' property providing named-based identification. @name
+ *	  indicates the value to search for in 'reg-names'.
+ *
+ * Return: pointer or NULL if not found
+ */
+void *dev_read_addr_name_ptr(const struct udevice *dev, const char *name);
+
+/**
  * dev_read_addr_size_name() - Get the reg property of a device, indexed by name
  *
  * @dev: Device to read from
@@ -297,6 +310,21 @@ fdt_addr_t dev_read_addr_name(const struct udevice *dev, const char *name);
  */
 fdt_addr_t dev_read_addr_size_name(const struct udevice *dev, const char *name,
 				   fdt_size_t *size);
+
+/**
+ * dev_read_addr_size_name_ptr() - Get the reg property of a device as a pointer,
+ *                                 indexed by name
+ *
+ * @dev: Device to read from
+ * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
+ *	  'reg-names' property providing named-based identification. @name
+ *	  indicates the value to search for in 'reg-names'.
+ *  @size: place to put size value (on success)
+ *
+ * Return: pointer or NULL if not found
+ */
+void *dev_read_addr_size_name_ptr(const struct udevice *dev, const char *name,
+				  fdt_size_t *size);
 
 /**
  * dev_remap_addr_name() - Get the reg property of a device, indexed by name,
@@ -980,11 +1008,24 @@ static inline fdt_addr_t dev_read_addr_name(const struct udevice *dev,
 	return devfdt_get_addr_name(dev, name);
 }
 
+static inline void *dev_read_addr_name_ptr(const struct udevice *dev,
+					   const char *name)
+{
+	return devfdt_get_addr_name_ptr(dev, name);
+}
+
 static inline fdt_addr_t dev_read_addr_size_name(const struct udevice *dev,
 						 const char *name,
 						 fdt_size_t *size)
 {
 	return devfdt_get_addr_size_name(dev, name, size);
+}
+
+static inline void *dev_read_addr_size_name_ptr(const struct udevice *dev,
+						const char *name,
+						fdt_size_t *size)
+{
+	return devfdt_get_addr_size_name_ptr(dev, name, size);
 }
 
 static inline fdt_addr_t dev_read_addr(const struct udevice *dev)

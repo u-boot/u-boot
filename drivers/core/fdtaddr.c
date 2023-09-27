@@ -153,6 +153,16 @@ fdt_addr_t devfdt_get_addr_name(const struct udevice *dev, const char *name)
 #endif
 }
 
+void *devfdt_get_addr_name_ptr(const struct udevice *dev, const char *name)
+{
+	fdt_addr_t addr = devfdt_get_addr_name(dev, name);
+
+	if (addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	return map_sysmem(addr, 0);
+}
+
 fdt_addr_t devfdt_get_addr_size_name(const struct udevice *dev,
 				     const char *name, fdt_size_t *size)
 {
@@ -168,6 +178,17 @@ fdt_addr_t devfdt_get_addr_size_name(const struct udevice *dev,
 #else
 	return FDT_ADDR_T_NONE;
 #endif
+}
+
+void *devfdt_get_addr_size_name_ptr(const struct udevice *dev,
+				    const char *name, fdt_size_t *size)
+{
+	fdt_addr_t addr = devfdt_get_addr_size_name(dev, name, size);
+
+	if (addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	return map_sysmem(addr, 0);
 }
 
 fdt_addr_t devfdt_get_addr(const struct udevice *dev)
