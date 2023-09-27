@@ -16,24 +16,6 @@
 		clocks = <&zynqmp_clk PL0_REF>;
 	};
 
-	fclk1: fclk1 {
-		status = "okay";
-		compatible = "xlnx,fclk";
-		clocks = <&zynqmp_clk PL1_REF>;
-	};
-
-	fclk2: fclk2 {
-		status = "okay";
-		compatible = "xlnx,fclk";
-		clocks = <&zynqmp_clk PL2_REF>;
-	};
-
-	fclk3: fclk3 {
-		status = "okay";
-		compatible = "xlnx,fclk";
-		clocks = <&zynqmp_clk PL3_REF>;
-	};
-
 	pss_ref_clk: pss_ref_clk {
 		bootph-all;
 		compatible = "fixed-clock";
