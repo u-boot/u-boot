@@ -472,9 +472,9 @@ static int sun4i_usb_phy_probe(struct udevice *dev)
 	if (!data->cfg)
 		return -EINVAL;
 
-	data->base = (void __iomem *)devfdt_get_addr_name(dev, "phy_ctrl");
-	if (IS_ERR(data->base))
-		return PTR_ERR(data->base);
+	data->base = (void __iomem *)dev_read_addr_name_ptr(dev, "phy_ctrl");
+	if (!data->base)
+		return -EINVAL;
 
 	device_get_supply_regulator(dev, "usb0_vbus_power-supply",
 				    &data->vbus_power_supply);
@@ -555,9 +555,9 @@ static int sun4i_usb_phy_probe(struct udevice *dev)
 
 		if (i || data->cfg->phy0_dual_route) {
 			snprintf(name, sizeof(name), "pmu%d", i);
-			phy->pmu = (void __iomem *)devfdt_get_addr_name(dev, name);
-			if (IS_ERR(phy->pmu))
-				return PTR_ERR(phy->pmu);
+			phy->pmu = (void __iomem *)dev_read_addr_name_ptr(dev, name);
+			if (!phy->pmu)
+				return -EINVAL;
 		}
 
 		phy->id = i;

@@ -1287,7 +1287,7 @@ static int udma_get_mmrs(struct udevice *dev)
 	u32 cap2, cap3, cap4;
 	int i;
 
-	ud->mmrs[MMR_GCFG] = (uint32_t *)devfdt_get_addr_name(dev, mmr_names[MMR_GCFG]);
+	ud->mmrs[MMR_GCFG] = dev_read_addr_name_ptr(dev, mmr_names[MMR_GCFG]);
 	if (!ud->mmrs[MMR_GCFG])
 		return -EINVAL;
 
@@ -1325,8 +1325,7 @@ static int udma_get_mmrs(struct udevice *dev)
 		if (i == MMR_RCHANRT && ud->rchan_cnt == 0)
 			continue;
 
-		ud->mmrs[i] = (uint32_t *)devfdt_get_addr_name(dev,
-				mmr_names[i]);
+		ud->mmrs[i] = dev_read_addr_name_ptr(dev, mmr_names[i]);
 		if (!ud->mmrs[i])
 			return -EINVAL;
 	}
