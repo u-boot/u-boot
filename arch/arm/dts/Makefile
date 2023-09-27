@@ -412,6 +412,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-mini-nand.dtb			\
 	zynqmp-mini-qspi.dtb			\
 	zynqmp-sc-revB.dtb			\
+	zynqmp-sc-revC.dtb			\
 	zynqmp-sm-k24-revA.dtb			\
 	zynqmp-smk-k24-revA.dtb			\
 	zynqmp-sm-k26-revA.dtb			\
