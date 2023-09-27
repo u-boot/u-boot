@@ -431,6 +431,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-sck-kv-g-revB.dtbo		\
 	zynqmp-topic-miamimp-xilinx-xdp-v1r1.dtb	\
 	zynqmp-vpk120-revA.dtb			\
+	zynqmp-vp-x-a2785-00-revA.dtb		\
 	zynqmp-zcu100-revC.dtb			\
 	zynqmp-zcu102-revA.dtb			\
 	zynqmp-zcu102-revB.dtb			\
