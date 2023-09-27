@@ -413,6 +413,13 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-mini-qspi.dtb			\
 	zynqmp-sc-revB.dtb			\
 	zynqmp-sc-revC.dtb			\
+	zynqmp-sc-vek280-revA.dtbo		\
+	zynqmp-sc-vek280-revB.dtbo		\
+	zynqmp-sc-vhk158-revA.dtbo		\
+	zynqmp-sc-vpk120-revB.dtbo		\
+	zynqmp-sc-vpk180-revA.dtbo		\
+	zynqmp-sc-vpk180-revB.dtbo		\
+	zynqmp-sc-vn-p-b2197-00-revA.dtbo	\
 	zynqmp-sm-k24-revA.dtb			\
 	zynqmp-smk-k24-revA.dtb			\
 	zynqmp-sm-k26-revA.dtb			\
