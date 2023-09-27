@@ -277,7 +277,7 @@ void *dev_remap_addr_index(const struct udevice *dev, int index);
  *
  * @dev: Device to read from
  * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
- *	  'reg-names' property providing named-based identification. @index
+ *	  'reg-names' property providing named-based identification. @name
  *	  indicates the value to search for in 'reg-names'.
  *
  * Return: address or FDT_ADDR_T_NONE if not found
@@ -289,7 +289,7 @@ fdt_addr_t dev_read_addr_name(const struct udevice *dev, const char *name);
  *
  * @dev: Device to read from
  * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
- *	  'reg-names' property providing named-based identification. @index
+ *	  'reg-names' property providing named-based identification. @name
  *	  indicates the value to search for in 'reg-names'.
  *  @size: place to put size value (on success)
  *
@@ -304,7 +304,7 @@ fdt_addr_t dev_read_addr_size_name(const struct udevice *dev, const char *name,
  *
  * @dev: Device to read from
  * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
- *	  'reg-names' property providing named-based identification. @index
+ *	  'reg-names' property providing named-based identification. @name
  *	  indicates the value to search for in 'reg-names'.
  *
  * Return: pointer or NULL if not found
