@@ -836,6 +836,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fsl_mc_fixup_iommu_map_entry(blob);
 	fdt_fixup_board_enet(blob);
+	fdt_reserve_mc_mem(blob, 0x4000);
 #endif
 	fdt_fixup_icid(blob);
 
