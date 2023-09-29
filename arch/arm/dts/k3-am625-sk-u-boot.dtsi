@@ -21,6 +21,10 @@
 	};
 };
 
+&main_conf {
+	bootph-all;
+};
+
 &cbass_main {
 	bootph-all;
 };
@@ -118,8 +122,43 @@
 	};
 };
 
+&inta_main_dmss {
+	bootph-all;
+};
+
+&main_pktdma {
+	bootph-all;
+};
+
+&cpsw3g_mdio {
+	bootph-all;
+};
+
+&cpsw3g_phy0 {
+	bootph-all;
+};
+
+&cpsw3g_phy1 {
+	bootph-all;
+};
+
+&main_rgmii1_pins_default {
+	bootph-all;
+};
+
+&main_rgmii2_pins_default {
+	bootph-all;
+};
+
+&phy_gmii_sel {
+	bootph-all;
+};
+
 &cpsw3g {
 	bootph-all;
+	ethernet-ports {
+		bootph-all;
+	};
 };
 
 &cpsw_port1 {
