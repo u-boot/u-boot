@@ -17,6 +17,7 @@
 #define DEV_FLAGS_INPUT	 0x00000001	/* Device can be used as input	console */
 #define DEV_FLAGS_OUTPUT 0x00000002	/* Device can be used as output console */
 #define DEV_FLAGS_DM     0x00000004	/* Device priv is a struct udevice * */
+#define STDIO_NAME_LEN 32
 
 int stdio_file_to_flags(const int file);
 
@@ -24,7 +25,7 @@ int stdio_file_to_flags(const int file);
 struct stdio_dev {
 	int	flags;			/* Device flags: input/output/system	*/
 	int	ext;			/* Supported extensions			*/
-	char	name[32];		/* Device name				*/
+	char	name[STDIO_NAME_LEN];	/* Device name				*/
 
 /* GENERAL functions */
 
