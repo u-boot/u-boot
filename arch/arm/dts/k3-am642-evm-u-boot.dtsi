@@ -51,6 +51,10 @@
 	bootph-all;
 };
 
+&main_usb0_pins_default {
+	bootph-all;
+};
+
 &usb0 {
 	dr_mode="peripheral";
 	bootph-all;
@@ -100,11 +104,55 @@
 	bootph-all;
 };
 
+&main_mmc1_pins_default {
+	bootph-all;
+};
+
 &sdhci1 {
 	bootph-all;
 };
 
+&inta_main_dmss {
+	bootph-all;
+};
+
+&main_pktdma {
+	bootph-all;
+};
+
+&mdio1_pins_default {
+	bootph-all;
+};
+
+&cpsw3g_mdio {
+	bootph-all;
+};
+
+&cpsw3g_phy0 {
+	bootph-all;
+};
+
+&rgmii1_pins_default {
+	bootph-all;
+};
+
+&rgmii2_pins_default {
+	bootph-all;
+};
+
 &cpsw3g {
+	bootph-all;
+
+	ethernet-ports {
+		bootph-all;
+	};
+};
+
+&phy_gmii_sel {
+	bootph-all;
+};
+
+&cpsw_port1 {
 	bootph-all;
 };
 

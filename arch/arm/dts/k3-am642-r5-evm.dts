@@ -74,6 +74,14 @@
 	ti,secure-host;
 };
 
+&vtt_supply {
+	bootph-pre-ram;
+};
+
+&memorycontroller {
+	vtt-supply = <&vtt_supply>;
+};
+
 &sdhci0 {
 	clocks = <&clk_200mhz>;
 	clock-names = "clk_xin";
