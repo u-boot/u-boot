@@ -59,7 +59,14 @@ config ALTERA_TIMER
 
 config ANDES_PLMT_TIMER
 	bool
-	depends on RISCV_MMODE || SPL_RISCV_MMODE
+	depends on RISCV_MMODE
+	help
+	  The Andes PLMT block holds memory-mapped mtime register
+	  associated with timer tick.
+
+config SPL_ANDES_PLMT_TIMER
+	bool
+	depends on SPL_RISCV_MMODE
 	help
 	  The Andes PLMT block holds memory-mapped mtime register
 	  associated with timer tick.
