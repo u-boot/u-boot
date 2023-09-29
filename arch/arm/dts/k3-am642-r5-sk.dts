@@ -53,6 +53,10 @@
 	bootph-pre-ram;
 };
 
+&cbass_mcu {
+	bootph-pre-ram;
+};
+
 &mcu_esm {
 	bootph-pre-ram;
 };
