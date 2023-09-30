@@ -424,7 +424,7 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			prog_eeprom();
 			break;
 		default:
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 		}
 
 		return 0;
@@ -624,9 +624,8 @@ unsigned int get_cpu_board_revision(void)
 }
 #endif
 
-U_BOOT_CMD(
-	mac, 3, 1,  do_mac,
-	"display and program the system ID and MAC addresses in EEPROM",
+#ifdef CONFIG_SYS_LONGHELP
+static char booti_help_text[] =
 	"[read|save|id|num|errata|date|ports|port_number]\n"
 	"mac read\n"
 	"    - read EEPROM content into memory data structure\n"
@@ -643,5 +642,12 @@ U_BOOT_CMD(
 	"mac ports N\n"
 	"    - program the number of network ports to integer N\n"
 	"mac X string\n"
-	"    - program MAC addr for port X [X=0,1..] to colon separated string"
-);
+	"    - program MAC addr for port X [X=0,1..] to colon separated string";
+#else
+	"";
+#endif
+
+U_BOOT_CMD(
+	mac, 3, 1,  do_mac,
+	"display and program the system ID and MAC addresses in EEPROM",
+	booti_help_text);
