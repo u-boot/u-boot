@@ -404,29 +404,6 @@ static void set_product_id(char *string)
 	update_crc();
 }
 
-static int print_usage(void)
-{
-	printf("display and program the system ID and MAC addresses in EEPROM\n"
-	"[read_eeprom|initialize|write_eeprom|mac_address|pcb_revision|bom_revision|product_id]\n"
-	"mac read_eeprom\n"
-	"    - read EEPROM content into memory data structure\n"
-	"mac write_eeprom\n"
-	"    - save memory data structure to the EEPROM\n"
-	"mac initialize\n"
-	"    - initialize the in-memory EEPROM copy with default data\n"
-	"mac mac0_address <xx:xx:xx:xx:xx:xx>\n"
-	"    - stores a MAC0 address into the local EEPROM copy\n"
-	"mac mac1_address <xx:xx:xx:xx:xx:xx>\n"
-	"    - stores a MAC1 address into the local EEPROM copy\n"
-	"mac pcb_revision <?>\n"
-	"    - stores a StarFive PCB revision into the local EEPROM copy\n"
-	"mac bom_revision <A>\n"
-	"    - stores a StarFive BOM revision into the local EEPROM copy\n"
-	"mac product_id <VF7110A1-2228-D008E000-xxxxxxxx>\n"
-	"    - stores a StarFive product ID into the local EEPROM copy\n");
-	return 0;
-}
-
 int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *cmd;
@@ -437,7 +414,7 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	if (argc > 3)
-		return print_usage();
+		return CMD_RET_USAGE;
 
 	cmd = argv[1];
 
@@ -453,7 +430,7 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	if (argc != 3)
-		return print_usage();
+		return CMD_RET_USAGE;
 
 	if (is_match_magic()) {
 		printf("Please read the EEPROM ('read_eeprom') and/or initialize the EEPROM ('initialize') first.\n");
@@ -477,7 +454,7 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 0;
 	}
 
-	return print_usage();
+	return CMD_RET_USAGE;
 }
 
 /**
@@ -559,3 +536,36 @@ u32 get_ddr_size_from_eeprom(void)
 
 	return hextoul(&pbuf.eeprom.atom1.data.pstr[14], NULL);
 }
+
+#ifndef CONFIG_SPL_BUILD
+
+#ifdef CONFIG_SYS_LONGHELP
+static char booti_help_text[] =
+	"\n"
+	"    - display EEPROM content\n"
+	"mac read_eeprom\n"
+	"    - read EEPROM content into memory data structure\n"
+	"mac write_eeprom\n"
+	"    - save memory data structure to the EEPROM\n"
+	"mac initialize\n"
+	"    - initialize the in-memory EEPROM copy with default data\n"
+	"mac mac0_address <xx:xx:xx:xx:xx:xx>\n"
+	"    - stores a MAC0 address into the local EEPROM copy\n"
+	"mac mac1_address <xx:xx:xx:xx:xx:xx>\n"
+	"    - stores a MAC1 address into the local EEPROM copy\n"
+	"mac pcb_revision <?>\n"
+	"    - stores a StarFive PCB revision into the local EEPROM copy\n"
+	"mac bom_revision <A>\n"
+	"    - stores a StarFive BOM revision into the local EEPROM copy\n"
+	"mac product_id <VF7110A1-2228-D008E000-xxxxxxxx>\n"
+	"    - stores a StarFive product ID into the local EEPROM copy\n";
+#else
+	"";
+#endif
+
+U_BOOT_CMD(
+	mac, 3, 1,  do_mac,
+	"display and program the board revision and MAC address in EEPROM",
+	booti_help_text);
+
+#endif /* CONFIG_SPL_BUILD */
