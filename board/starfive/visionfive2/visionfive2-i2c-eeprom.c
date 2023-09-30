@@ -428,6 +428,9 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 0;
 	} else if (!strcmp(cmd, "write_eeprom")) {
 		return prog_eeprom(STARFIVE_EEPROM_HATS_SIZE_MAX);
+	} else if (!strcmp(cmd, "raw")) {
+		dump_raw_eeprom();
+		return 0;
 	}
 
 	if (argc != 3)
@@ -550,6 +553,8 @@ static char booti_help_text[] =
 	"    - save memory data structure to the EEPROM\n"
 	"mac initialize\n"
 	"    - initialize the in-memory EEPROM copy with default data\n"
+	"mac raw\n"
+	"    - hexdump memory data structure\n"
 	"mac mac0_address <xx:xx:xx:xx:xx:xx>\n"
 	"    - stores a MAC0 address into the local EEPROM copy\n"
 	"mac mac1_address <xx:xx:xx:xx:xx:xx>\n"
