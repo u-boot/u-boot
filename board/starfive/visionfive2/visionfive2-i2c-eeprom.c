@@ -190,6 +190,7 @@ static void show_eeprom(void)
 		       pbuf.eeprom.atom4.data.mac1_addr[4], pbuf.eeprom.atom4.data.mac1_addr[5]);
 	} else {
 		printf("Custom data v%d is not Supported\n", pbuf.eeprom.atom4.data.version);
+		dump_raw_eeprom();
 	}
 	printf("--------EEPROM INFO--------\n\n");
 }
