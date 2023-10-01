@@ -109,3 +109,6 @@ __pycache__
 
 # qconfig database
 /qconfig.db
+
+# Clang's compilation database file
+/compile_commands.json
