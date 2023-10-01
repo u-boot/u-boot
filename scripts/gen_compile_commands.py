@@ -37,10 +37,10 @@ def parse_arguments():
         output: Where to write the compile-commands JSON file.
         paths: The list of files/directories to handle to find .cmd files.
     """
-    usage = 'Creates a compile_commands.json database from kernel .cmd files'
+    usage = 'Creates a compile_commands.json database from U-Boot .cmd files'
     parser = argparse.ArgumentParser(description=usage)
 
-    directory_help = ('specify the output directory used for the kernel build '
+    directory_help = ('specify the output directory used for the U-Boot build '
                       '(defaults to the working directory)')
     parser.add_argument('-d', '--directory', type=str, default='.',
                         help=directory_help)
