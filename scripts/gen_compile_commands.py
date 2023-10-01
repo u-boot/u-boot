@@ -4,6 +4,7 @@
 # Copyright (C) Google LLC, 2018
 #
 # Author: Tom Roeder <tmroeder@google.com>
+# Ported and modified for U-Boot by Joao Marcos Costa <jmcosta944@gmail.com>
 #
 """A tool for generating compile_commands.json in U-Boot."""
 
