@@ -812,6 +812,7 @@ static int eqos_start(struct udevice *dev)
 
 		if (!eqos->phy) {
 			pr_err("phy_connect() failed");
+			ret = -ENODEV;
 			goto err_stop_resets;
 		}
 
@@ -839,6 +840,7 @@ static int eqos_start(struct udevice *dev)
 
 	if (!eqos->phy->link) {
 		pr_err("No link");
+		ret = -EAGAIN;
 		goto err_shutdown_phy;
 	}
 
