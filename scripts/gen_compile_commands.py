@@ -5,6 +5,7 @@
 #
 # Author: Tom Roeder <tmroeder@google.com>
 # Ported and modified for U-Boot by Joao Marcos Costa <jmcosta944@gmail.com>
+# Briefly documented at doc/build/gen_compile_commands.rst
 #
 """A tool for generating compile_commands.json in U-Boot."""
 
