@@ -601,7 +601,27 @@ config TEXT_BASE
 	default 0x42e00000 if SUNXI_MINIMUM_DRAM_MB >= 64
 	hex "Text Base"
 	help
-	  The address in memory that U-Boot will be running from, initially.
+	  The address in memory that U-Boot will be copied and executed from
+	  initially.
+
+config HAVE_SYS_UBOOT_START
+	bool "Use custom U-Boot Start"
+	depends on HAVE_TEXT_BASE
+	help
+	  By default, the address in memory that U-Boot will be copied from
+	  (TEXT_BASE) and the entry point are the same. Select this to start the
+	  execution of U-Boot from a different address.
+	  This may be required if a header or vector table needs to be copied
+	  but not executed.
+
+config SYS_UBOOT_START
+	hex
+	depends on HAVE_TEXT_BASE
+	default TEXT_BASE
+	prompt "U-Boot entry" if HAVE_SYS_UBOOT_START
+	help
+	  If TEXT_BASE differs from the start of execution, this sets the
+	  address in memory that U-Boot will start execution from initially.
 
 config HAVE_SYS_MONITOR_BASE
 	bool

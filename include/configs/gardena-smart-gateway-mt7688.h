@@ -11,10 +11,6 @@
 
 #define CFG_SYS_INIT_SP_OFFSET	0x400000
 
-/* SPL */
-
-#define CFG_SYS_UBOOT_START		CONFIG_TEXT_BASE
-
 /* Dummy value */
 #define CFG_SYS_UBOOT_BASE		0
 
