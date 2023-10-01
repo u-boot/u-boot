@@ -1315,22 +1315,12 @@ static int eqos_probe_resources_core(struct udevice *dev)
 	}
 	debug("%s: rx_dma_buf=%p\n", __func__, eqos->rx_dma_buf);
 
-	eqos->rx_pkt = malloc(EQOS_MAX_PACKET_SIZE);
-	if (!eqos->rx_pkt) {
-		debug("%s: malloc(rx_pkt) failed\n", __func__);
-		ret = -ENOMEM;
-		goto err_free_rx_dma_buf;
-	}
-	debug("%s: rx_pkt=%p\n", __func__, eqos->rx_pkt);
-
 	eqos->config->ops->eqos_inval_buffer(eqos->rx_dma_buf,
 			EQOS_MAX_PACKET_SIZE * EQOS_DESCRIPTORS_RX);
 
 	debug("%s: OK\n", __func__);
 	return 0;
 
-err_free_rx_dma_buf:
-	free(eqos->rx_dma_buf);
 err_free_tx_dma_buf:
 	free(eqos->tx_dma_buf);
 err_free_descs:
@@ -1349,7 +1339,6 @@ static int eqos_remove_resources_core(struct udevice *dev)
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
-	free(eqos->rx_pkt);
 	free(eqos->rx_dma_buf);
 	free(eqos->tx_dma_buf);
 	eqos_free_descs(eqos->rx_descs);
