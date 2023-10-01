@@ -21,6 +21,8 @@ stages:
 .buildman_and_testpy_template: &buildman_and_testpy_dfn
   stage: test.py
   retry: 2 # QEMU may be too slow, etc.
+  rules:
+    - when: always
   before_script:
     # Clone uboot-test-hooks
     - git config --global --add safe.directory "${CI_PROJECT_DIR}"
@@ -93,8 +95,13 @@ stages:
       - "*.css"
     expire_in: 1 week
 
-build all 32bit ARM platforms:
+.world_build:
   stage: world build
+  rules:
+    - when: always
+
+build all 32bit ARM platforms:
+  extends: .world_build
   script:
     - ret=0;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
@@ -106,7 +113,7 @@ build all 32bit ARM platforms:
       fi;
 
 build all 64bit ARM platforms:
-  stage: world build
+  extends: .world_build
   script:
     - virtualenv -p /usr/bin/python3 /tmp/venv
     - . /tmp/venv/bin/activate
@@ -120,7 +127,7 @@ build all 64bit ARM platforms:
       fi;
 
 build all PowerPC platforms:
-  stage: world build
+  extends: .world_build
   script:
     - ret=0;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
@@ -131,7 +138,7 @@ build all PowerPC platforms:
       fi;
 
 build all other platforms:
-  stage: world build
+  extends: .world_build
   script:
     - ret=0;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
@@ -141,8 +148,13 @@ build all other platforms:
         exit $ret;
       fi;
 
-check for new CONFIG symbols outside Kconfig:
+.testsuites:
   stage: testsuites
+  rules:
+    - when: always
+
+check for new CONFIG symbols outside Kconfig:
+  extends: .testsuites
   script:
     - git config --global --add safe.directory "${CI_PROJECT_DIR}"
     # If grep succeeds and finds a match the test fails as we should
@@ -153,7 +165,7 @@ check for new CONFIG symbols outside Kconfig:
 
 # build documentation
 docs:
-  stage: testsuites
+  extends: .testsuites
   script:
     - virtualenv -p /usr/bin/python3 /tmp/venvhtml
     - . /tmp/venvhtml/bin/activate
@@ -163,20 +175,20 @@ docs:
 
 # ensure all configs have MAINTAINERS entries
 Check for configs without MAINTAINERS entry:
-  stage: testsuites
+  extends: .testsuites
   script:
     - ./tools/buildman/buildman --maintainer-check || exit 0
 
 # Ensure host tools build
 Build tools-only and envtools:
-  stage: testsuites
+  extends: .testsuites
   script:
     - make tools-only_config tools-only -j$(nproc);
       make mrproper;
       make tools-only_config envtools -j$(nproc)
 
 Run binman, buildman, dtoc, Kconfig and patman testsuites:
-  stage: testsuites
+  extends: .testsuites
   script:
     - git config --global user.name "GitLab CI Runner";
       git config --global user.email trini@konsulko.com;
@@ -200,7 +212,7 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
       make testconfig
 
 Run tests for Nokia RX-51 (aka N900):
-  stage: testsuites
+  extends: .testsuites
   script:
     - mkdir nokia_rx51_tmp;
       ln -s /opt/nokia/u-boot-gen-combined nokia_rx51_tmp/;
@@ -214,7 +226,7 @@ Run tests for Nokia RX-51 (aka N900):
 
 # Check for any pylint regressions
 Run pylint:
-  stage: testsuites
+  extends: .testsuites
   script:
     - git config --global --add safe.directory "${CI_PROJECT_DIR}"
     - pip install -r test/py/requirements.txt
@@ -234,7 +246,7 @@ Run pylint:
 
 # Check for pre-schema driver model tags
 Check for pre-schema tags:
-  stage: testsuites
+  extends: .testsuites
   script:
     - git config --global --add safe.directory "${CI_PROJECT_DIR}";
     # If grep succeeds and finds a match the test fails as we should
@@ -243,7 +255,7 @@ Check for pre-schema tags:
 
 # Check we can package the Python tools
 Check packing of Python tools:
-  stage: testsuites
+  extends: .testsuites
   script:
     - make pip
 
