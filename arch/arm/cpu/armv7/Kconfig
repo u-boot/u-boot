@@ -58,6 +58,16 @@ config ARMV7_SECURE_MAX_SIZE
 	default 0x3c00 if MACH_SUN8I && MACH_SUN8I_H3
 	default 0x10000
 
+config ARM_GIC_BASE_ADDRESS
+	hex
+	depends on ARMV7_NONSEC
+	depends on ARCH_EXYNOS5
+	default 0x10480000 if ARCH_EXYNOS5
+	help
+	  Override the GIC base address if the Arm Cortex defined
+	  CBAR/PERIPHBASE system register holds the wrong value.
+	  Used by the PSCI code to configure the secure side of the GIC.
+
 config ARMV7_VIRT
 	bool "Enable support for hardware virtualization" if EXPERT
 	depends on CPU_V7_HAS_VIRT && ARMV7_NONSEC
