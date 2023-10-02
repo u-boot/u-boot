@@ -287,6 +287,49 @@ static int menu_build(struct build_info *info, ofnode node, struct scene *scn,
 	return 0;
 }
 
+static int textline_build(struct build_info *info, ofnode node,
+			  struct scene *scn, uint id, struct scene_obj **objp)
+{
+	struct scene_obj_textline *ted;
+	uint ted_id, edit_id;
+	const char *name;
+	u32 max_chars;
+	int ret;
+
+	name = ofnode_get_name(node);
+
+	info->err_prop = "max-chars";
+	ret = ofnode_read_u32(node, "max-chars", &max_chars);
+	if (ret)
+		return log_msg_ret("max", -ENOENT);
+
+	ret = scene_textline(scn, name, id, max_chars, &ted);
+	if (ret < 0)
+		return log_msg_ret("ted", ret);
+	ted_id = ret;
+
+	/* Set the title */
+	ret = add_txt_str(info, node, scn, "title", 0);
+	if (ret < 0)
+		return log_msg_ret("tit", ret);
+	ted->label_id = ret;
+
+	/* Setup the editor */
+	info->err_prop = "edit-id";
+	ret = ofnode_read_u32(node, "edit-id", &id);
+	if (ret)
+		return log_msg_ret("id", -ENOENT);
+	edit_id = ret;
+
+	ret = scene_txt_str(scn, "edit", edit_id, 0, abuf_data(&ted->buf),
+			    NULL);
+	if (ret < 0)
+		return log_msg_ret("add", ret);
+	ted->edit_id = ret;
+
+	return 0;
+}
+
 /**
  * obj_build() - Build an expo object and add it to a scene
  *
@@ -316,6 +359,8 @@ static int obj_build(struct build_info *info, ofnode node, struct scene *scn)
 
 	if (!strcmp("menu", type))
 		ret = menu_build(info, node, scn, id, &obj);
+	else if (!strcmp("textline", type))
+		ret = textline_build(info, node, scn, id, &obj);
 	else
 		ret = -EOPNOTSUPP;
 	if (ret)
