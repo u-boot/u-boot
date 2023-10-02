@@ -292,162 +292,161 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 			ichar = cli_ch_process(cch, ichar);
 		}
 
-		/* ichar=0x0 when error occurs in U-Boot getc */
-		if (!ichar)
-			continue;
+	/* ichar=0x0 when error occurs in U-Boot getc */
+	if (!ichar)
+		continue;
 
-		if (ichar == '\n') {
-			putc('\n');
-			break;
+	if (ichar == '\n') {
+		putc('\n');
+		break;
+	}
+
+	switch (ichar) {
+	case CTL_CH('a'):
+		BEGINNING_OF_LINE();
+		break;
+	case CTL_CH('c'):	/* ^C - break */
+		*buf = '\0';	/* discard input */
+		return -1;
+	case CTL_CH('f'):
+		if (cls->num < cls->eol_num) {
+			getcmd_putch(buf[cls->num]);
+			cls->num++;
 		}
+		break;
+	case CTL_CH('b'):
+		if (cls->num) {
+			getcmd_putch(CTL_BACKSPACE);
+			cls->num--;
+		}
+		break;
+	case CTL_CH('d'):
+		if (cls->num < cls->eol_num) {
+			uint wlen;
 
-		switch (ichar) {
-		case CTL_CH('a'):
-			BEGINNING_OF_LINE();
-			break;
-		case CTL_CH('c'):	/* ^C - break */
-			*buf = '\0';	/* discard input */
-			return -1;
-		case CTL_CH('f'):
-			if (cls->num < cls->eol_num) {
-				getcmd_putch(buf[cls->num]);
-				cls->num++;
-			}
-			break;
-		case CTL_CH('b'):
-			if (cls->num) {
-				getcmd_putch(CTL_BACKSPACE);
-				cls->num--;
-			}
-			break;
-		case CTL_CH('d'):
-			if (cls->num < cls->eol_num) {
-				uint wlen;
-
-				wlen = cls->eol_num - cls->num - 1;
-				if (wlen) {
-					memmove(&buf[cls->num],
-						&buf[cls->num + 1], wlen);
-					putnstr(buf + cls->num, wlen);
-				}
-
-				getcmd_putch(' ');
-				do {
-					getcmd_putch(CTL_BACKSPACE);
-				} while (wlen--);
-				cls->eol_num--;
-			}
-			break;
-		case CTL_CH('k'):
-			ERASE_TO_EOL();
-			break;
-		case CTL_CH('e'):
-			REFRESH_TO_EOL();
-			break;
-		case CTL_CH('o'):
-			cls->insert = !cls->insert;
-			break;
-		case CTL_CH('w'):
-			if (cls->num) {
-				uint base, wlen;
-
-				for (base = cls->num - 1;
-				     base >= 0 && buf[base] == ' ';)
-					base--;
-				for (; base > 0 && buf[base - 1] != ' ';)
-					base--;
-
-				/* now delete chars from base to cls->num */
-				wlen = cls->num - base;
-				cls->eol_num -= wlen;
-				memmove(&buf[base], &buf[cls->num],
-					cls->eol_num - base + 1);
-				cls->num = base;
-				getcmd_putchars(wlen, CTL_BACKSPACE);
-				puts(buf + base);
-				getcmd_putchars(wlen, ' ');
-				getcmd_putchars(wlen + cls->eol_num - cls->num,
-						CTL_BACKSPACE);
-			}
-			break;
-		case CTL_CH('x'):
-		case CTL_CH('u'):
-			BEGINNING_OF_LINE();
-			ERASE_TO_EOL();
-			break;
-		case DEL:
-		case DEL7:
-		case 8:
-			if (cls->num) {
-				uint wlen;
-
-				wlen = cls->eol_num - cls->num;
-				cls->num--;
+			wlen = cls->eol_num - cls->num - 1;
+			if (wlen) {
 				memmove(&buf[cls->num], &buf[cls->num + 1],
 					wlen);
-				getcmd_putch(CTL_BACKSPACE);
 				putnstr(buf + cls->num, wlen);
-				getcmd_putch(' ');
-				do {
-					getcmd_putch(CTL_BACKSPACE);
-				} while (wlen--);
-				cls->eol_num--;
-			}
-			break;
-		case CTL_CH('p'):
-		case CTL_CH('n'):
-		{
-			char *hline;
-
-			if (ichar == CTL_CH('p'))
-				hline = hist_prev();
-			else
-				hline = hist_next();
-
-			if (!hline) {
-				getcmd_cbeep();
-				continue;
 			}
 
-			/* nuke the current line */
-			/* first, go home */
-			BEGINNING_OF_LINE();
+			getcmd_putch(' ');
+			do {
+				getcmd_putch(CTL_BACKSPACE);
+			} while (wlen--);
+			cls->eol_num--;
+		}
+		break;
+	case CTL_CH('k'):
+		ERASE_TO_EOL();
+		break;
+	case CTL_CH('e'):
+		REFRESH_TO_EOL();
+		break;
+	case CTL_CH('o'):
+		cls->insert = !cls->insert;
+		break;
+	case CTL_CH('w'):
+		if (cls->num) {
+			uint base, wlen;
 
-			/* erase to end of line */
-			ERASE_TO_EOL();
+			for (base = cls->num - 1;
+			     base >= 0 && buf[base] == ' ';)
+				base--;
+			for (; base > 0 && buf[base - 1] != ' ';)
+				base--;
 
-			/* copy new line into place and display */
-			strcpy(buf, hline);
-			cls->eol_num = strlen(buf);
-			REFRESH_TO_EOL();
+			/* now delete chars from base to cls->num */
+			wlen = cls->num - base;
+			cls->eol_num -= wlen;
+			memmove(&buf[base], &buf[cls->num],
+				cls->eol_num - base + 1);
+			cls->num = base;
+			getcmd_putchars(wlen, CTL_BACKSPACE);
+			puts(buf + base);
+			getcmd_putchars(wlen, ' ');
+			getcmd_putchars(wlen + cls->eol_num - cls->num,
+					CTL_BACKSPACE);
+		}
+		break;
+	case CTL_CH('x'):
+	case CTL_CH('u'):
+		BEGINNING_OF_LINE();
+		ERASE_TO_EOL();
+		break;
+	case DEL:
+	case DEL7:
+	case 8:
+		if (cls->num) {
+			uint wlen;
+
+			wlen = cls->eol_num - cls->num;
+			cls->num--;
+			memmove(&buf[cls->num], &buf[cls->num + 1], wlen);
+			getcmd_putch(CTL_BACKSPACE);
+			putnstr(buf + cls->num, wlen);
+			getcmd_putch(' ');
+			do {
+				getcmd_putch(CTL_BACKSPACE);
+			} while (wlen--);
+			cls->eol_num--;
+		}
+		break;
+	case CTL_CH('p'):
+	case CTL_CH('n'):
+	{
+		char *hline;
+
+		if (ichar == CTL_CH('p'))
+			hline = hist_prev();
+		else
+			hline = hist_next();
+
+		if (!hline) {
+			getcmd_cbeep();
 			continue;
 		}
-		case '\t':
-			if (IS_ENABLED(CONFIG_AUTO_COMPLETE)) {
-				int num2, col;
 
-				/* do not autocomplete when in the middle */
-				if (cls->num < cls->eol_num) {
-					getcmd_cbeep();
-					break;
-				}
+		/* nuke the current line */
+		/* first, go home */
+		BEGINNING_OF_LINE();
 
-				buf[cls->num] = '\0';
-				col = strlen(prompt) + cls->eol_num;
-				num2 = cls->num;
-				if (cmd_auto_complete(prompt, buf, &num2, &col)) {
-					col = num2 - cls->num;
-					cls->num += col;
-					cls->eol_num += col;
-				}
+		/* erase to end of line */
+		ERASE_TO_EOL();
+
+		/* copy new line into place and display */
+		strcpy(buf, hline);
+		cls->eol_num = strlen(buf);
+		REFRESH_TO_EOL();
+		continue;
+	}
+	case '\t':
+		if (IS_ENABLED(CONFIG_AUTO_COMPLETE)) {
+			int num2, col;
+
+			/* do not autocomplete when in the middle */
+			if (cls->num < cls->eol_num) {
+				getcmd_cbeep();
 				break;
 			}
-			fallthrough;
-		default:
-			cread_add_char(ichar, cls->insert, &cls->num,
-				       &cls->eol_num, buf, *len);
+
+			buf[cls->num] = '\0';
+			col = strlen(prompt) + cls->eol_num;
+			num2 = cls->num;
+			if (cmd_auto_complete(prompt, buf, &num2, &col)) {
+				col = num2 - cls->num;
+				cls->num += col;
+				cls->eol_num += col;
+			}
 			break;
 		}
+		fallthrough;
+	default:
+		cread_add_char(ichar, cls->insert, &cls->num, &cls->eol_num,
+			       buf, *len);
+		break;
+	}
 	}
 	*len = cls->eol_num;
 	buf[cls->eol_num] = '\0';	/* lose the newline */
