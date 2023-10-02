@@ -97,6 +97,34 @@ static int console_putc_xy(struct udevice *dev, uint x_frac, uint y, char ch)
 	return VID_TO_POS(fontdata->width);
 }
 
+static int console_set_cursor_visible(struct udevice *dev, bool visible,
+				      uint x, uint y, uint index)
+{
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
+	struct udevice *vid = dev->parent;
+	struct video_priv *vid_priv = dev_get_uclass_priv(vid);
+	struct console_simple_priv *priv = dev_get_priv(dev);
+	struct video_fontdata *fontdata = priv->fontdata;
+	int pbytes = VNBYTES(vid_priv->bpix);
+	void *start, *line;
+
+	/* for now, this is not used outside expo */
+	if (!IS_ENABLED(CONFIG_EXPO))
+		return -ENOSYS;
+
+	x += index * fontdata->width;
+	start = vid_priv->fb + y * vid_priv->line_length + x * pbytes;
+
+	/* place the cursor 1 pixel before the start of the next char */
+	x -= 1;
+
+	line = start;
+	draw_cursor_vertically(&line, vid_priv, vc_priv->y_charsize,
+			       NORMAL_DIRECTION);
+
+	return 0;
+}
+
 struct vidconsole_ops console_ops = {
 	.putc_xy	= console_putc_xy,
 	.move_rows	= console_move_rows,
@@ -104,6 +132,7 @@ struct vidconsole_ops console_ops = {
 	.get_font_size	= console_simple_get_font_size,
 	.get_font	= console_simple_get_font,
 	.select_font	= console_simple_select_font,
+	.set_cursor_visible	= console_set_cursor_visible,
 };
 
 U_BOOT_DRIVER(vidconsole_normal) = {

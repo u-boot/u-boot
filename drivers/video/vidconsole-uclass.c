@@ -672,6 +672,21 @@ int vidconsole_entry_restore(struct udevice *dev, struct abuf *buf)
 	return 0;
 }
 
+int vidconsole_set_cursor_visible(struct udevice *dev, bool visible,
+				  uint x, uint y, uint index)
+{
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+	int ret;
+
+	if (ops->set_cursor_visible) {
+		ret = ops->set_cursor_visible(dev, visible, x, y, index);
+		if (ret != -ENOSYS)
+			return ret;
+	}
+
+	return 0;
+}
+
 void vidconsole_push_colour(struct udevice *dev, enum colour_idx fg,
 			    enum colour_idx bg, struct vidconsole_colour *old)
 {

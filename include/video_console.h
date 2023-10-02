@@ -16,6 +16,11 @@ struct video_priv;
 #define VID_TO_PIXEL(x)	((x) / VID_FRAC_DIV)
 #define VID_TO_POS(x)	((x) * VID_FRAC_DIV)
 
+enum {
+	/* cursor width in pixels */
+	VIDCONSOLE_CURSOR_WIDTH		= 2,
+};
+
 /**
  * struct vidconsole_priv - uclass-private data about a console device
  *
@@ -264,6 +269,21 @@ struct vidconsole_ops {
 	 * Return: 0 if OK, -ve on error
 	 */
 	int (*entry_restore)(struct udevice *dev, struct abuf *buf);
+
+	/**
+	 * set_cursor_visible() - Show or hide the cursor
+	 *
+	 * Shows or hides a cursor at the current position
+	 *
+	 * @dev: Console device to use
+	 * @visible: true to show the cursor, false to hide it
+	 * @x: X position in pixels
+	 * @y: Y position in pixels
+	 * @index: Character position (0 = at start)
+	 * Return: 0 if OK, -ve on error
+	 */
+	int (*set_cursor_visible)(struct udevice *dev, bool visible,
+				  uint x, uint y, uint index);
 };
 
 /* Get a pointer to the driver operations for a video console device */
@@ -341,6 +361,21 @@ int vidconsole_entry_save(struct udevice *dev, struct abuf *buf);
  * Return: 0 if OK, -ve on error
  */
 int vidconsole_entry_restore(struct udevice *dev, struct abuf *buf);
+
+/**
+ * vidconsole_set_cursor_visible() - Show or hide the cursor
+ *
+ * Shows or hides a cursor at the current position
+ *
+ * @dev: Console device to use
+ * @visible: true to show the cursor, false to hide it
+ * @x: X position in pixels
+ * @y: Y position in pixels
+ * @index: Character position (0 = at start)
+ * Return: 0 if OK, -ve on error
+ */
+int vidconsole_set_cursor_visible(struct udevice *dev, bool visible,
+				  uint x, uint y, uint index);
 
 /**
  * vidconsole_push_colour() - Temporarily change the font colour

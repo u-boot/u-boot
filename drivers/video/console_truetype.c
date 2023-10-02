@@ -831,6 +831,108 @@ static int truetype_entry_restore(struct udevice *dev, struct abuf *buf)
 	return 0;
 }
 
+static int truetype_set_cursor_visible(struct udevice *dev, bool visible,
+				       uint x, uint y, uint index)
+{
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
+	struct udevice *vid = dev->parent;
+	struct video_priv *vid_priv = dev_get_uclass_priv(vid);
+	struct console_tt_priv *priv = dev_get_priv(dev);
+	struct console_tt_metrics *met = priv->cur_met;
+	uint row, width, height, xoff;
+	void *start, *line;
+	uint out, val;
+	int ret;
+
+	if (!visible)
+		return 0;
+
+	/*
+	 * figure out where to place the cursor. This driver ignores the
+	 * passed-in values, since an entry_restore() must have been done before
+	 * calling this function.
+	 */
+	if (index < priv->pos_ptr)
+		x = VID_TO_PIXEL(priv->pos[index].xpos_frac);
+	else
+		x = VID_TO_PIXEL(vc_priv->xcur_frac);
+
+	y = vc_priv->ycur;
+	height = met->font_size;
+	xoff = 0;
+
+	val = vid_priv->colour_bg ? 0 : 255;
+	width = VIDCONSOLE_CURSOR_WIDTH;
+
+	/* Figure out where to write the cursor in the frame buffer */
+	start = vid_priv->fb + y * vid_priv->line_length +
+		x * VNBYTES(vid_priv->bpix);
+	line = start;
+
+	/* draw a vertical bar in the correct position */
+	for (row = 0; row < height; row++) {
+		switch (vid_priv->bpix) {
+		case VIDEO_BPP8:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+				u8 *dst = line + xoff;
+				int i;
+
+				out = val;
+				for (i = 0; i < width; i++) {
+					if (vid_priv->colour_fg)
+						*dst++ |= out;
+					else
+						*dst++ &= out;
+				}
+			}
+			break;
+		case VIDEO_BPP16: {
+			u16 *dst = (u16 *)line + xoff;
+			int i;
+
+			if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+				for (i = 0; i < width; i++) {
+					out = val >> 3 |
+						(val >> 2) << 5 |
+						(val >> 3) << 11;
+					if (vid_priv->colour_fg)
+						*dst++ |= out;
+					else
+						*dst++ &= out;
+				}
+			}
+			break;
+		}
+		case VIDEO_BPP32: {
+			u32 *dst = (u32 *)line + xoff;
+			int i;
+
+			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+				for (i = 0; i < width; i++) {
+					int out;
+
+					out = val | val << 8 | val << 16;
+					if (vid_priv->colour_fg)
+						*dst++ |= out;
+					else
+						*dst++ &= out;
+				}
+			}
+			break;
+		}
+		default:
+			return -ENOSYS;
+		}
+
+		line += vid_priv->line_length;
+	}
+	ret = vidconsole_sync_copy(dev, start, line);
+	if (ret)
+		return ret;
+
+	return video_sync(vid, true);
+}
+
 const char *console_truetype_get_font_size(struct udevice *dev, uint *sizep)
 {
 	struct console_tt_priv *priv = dev_get_priv(dev);
@@ -886,6 +988,7 @@ struct vidconsole_ops console_truetype_ops = {
 	.nominal	= truetype_nominal,
 	.entry_save	= truetype_entry_save,
 	.entry_restore	= truetype_entry_restore,
+	.set_cursor_visible	= truetype_set_cursor_visible
 };
 
 U_BOOT_DRIVER(vidconsole_truetype) = {
