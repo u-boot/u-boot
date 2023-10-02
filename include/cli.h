@@ -32,7 +32,8 @@ struct cli_ch_state {
  * @eol_num: Number of characters in the buffer
  * @insert: true if in 'insert' mode
  * @history: true if history should be accessible
- * @cmd_complete: true if tab completion should be enabled
+ * @cmd_complete: true if tab completion should be enabled (requires @prompt to
+ *	be set)
  * @buf: Buffer containing line
  * @prompt: Prompt for the line
  */
@@ -261,6 +262,20 @@ int cli_ch_process(struct cli_ch_state *cch, int ichar);
  * cancelled with Ctrl-C, -EAGAIN if more characters are needed
  */
 int cread_line_process_ch(struct cli_line_state *cls, char ichar);
+
+/**
+ * cli_cread_init() - Set up a new cread struct
+ *
+ * Sets up a new cread state, with history and cmd_complete set to false
+ *
+ * After calling this, you can use cread_line_process_ch() to process characters
+ * received from the user.
+ *
+ * @cls: CLI line state
+ * @buf: Text buffer containing the initial text
+ * @buf_size: Buffer size, including nul terminator
+ */
+void cli_cread_init(struct cli_line_state *cls, char *buf, uint buf_size);
 
 /** cread_print_hist_list() - Print the command-line history list */
 void cread_print_hist_list(void);
