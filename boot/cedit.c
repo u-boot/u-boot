@@ -176,7 +176,7 @@ int cedit_run(struct expo *exp)
 		key = 0;
 		if (ichar) {
 			key = bootmenu_conv_key(ichar);
-			if (key == BKEY_NONE)
+			if (key == BKEY_NONE || key >= BKEY_FIRST_EXTRA)
 				key = ichar;
 		}
 		if (!key)
