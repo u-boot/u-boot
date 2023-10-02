@@ -618,6 +618,28 @@ int vidconsole_measure(struct udevice *dev, const char *name, uint size,
 	return 0;
 }
 
+int vidconsole_nominal(struct udevice *dev, const char *name, uint size,
+		       uint num_chars, struct vidconsole_bbox *bbox)
+{
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+	int ret;
+
+	if (ops->measure) {
+		ret = ops->nominal(dev, name, size, num_chars, bbox);
+		if (ret != -ENOSYS)
+			return ret;
+	}
+
+	bbox->valid = true;
+	bbox->x0 = 0;
+	bbox->y0 = 0;
+	bbox->x1 = priv->x_charsize * num_chars;
+	bbox->y1 = priv->y_charsize;
+
+	return 0;
+}
+
 void vidconsole_push_colour(struct udevice *dev, enum colour_idx fg,
 			    enum colour_idx bg, struct vidconsole_colour *old)
 {

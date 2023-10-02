@@ -750,6 +750,36 @@ int truetype_measure(struct udevice *dev, const char *name, uint size,
 	return 0;
 }
 
+static int truetype_nominal(struct udevice *dev, const char *name, uint size,
+			    uint num_chars, struct vidconsole_bbox *bbox)
+{
+	struct console_tt_metrics *met;
+	stbtt_fontinfo *font;
+	int lsb, advance;
+	int width;
+	int ret;
+
+	ret = get_metrics(dev, name, size, &met);
+	if (ret)
+		return log_msg_ret("sel", ret);
+
+	font = &met->font;
+	width = 0;
+
+	/* First get some basic metrics about this character */
+	stbtt_GetCodepointHMetrics(font, 'W', &advance, &lsb);
+
+	width = advance;
+
+	bbox->valid = true;
+	bbox->x0 = 0;
+	bbox->y0 = 0;
+	bbox->x1 = tt_ceil((double)width * num_chars * met->scale);
+	bbox->y1 = met->font_size;
+
+	return 0;
+}
+
 const char *console_truetype_get_font_size(struct udevice *dev, uint *sizep)
 {
 	struct console_tt_priv *priv = dev_get_priv(dev);
@@ -802,6 +832,7 @@ struct vidconsole_ops console_truetype_ops = {
 	.get_font_size	= console_truetype_get_font_size,
 	.select_font	= truetype_select_font,
 	.measure	= truetype_measure,
+	.nominal	= truetype_nominal,
 };
 
 U_BOOT_DRIVER(vidconsole_truetype) = {
