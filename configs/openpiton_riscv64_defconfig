@@ -5,7 +5,6 @@ CONFIG_NR_DRAM_BANKS=1
 CONFIG_HAS_CUSTOM_SYS_INIT_SP_ADDR=y
 CONFIG_CUSTOM_SYS_INIT_SP_ADDR=0x82000000
 CONFIG_DEFAULT_DEVICE_TREE="openpiton-riscv64"
-CONFIG_SYS_PROMPT="openpiton$ "
 CONFIG_OF_LIBFDT_OVERLAY=y
 CONFIG_SYS_LOAD_ADDR=0x87000000
 CONFIG_TARGET_OPENPITON_RISCV64=y
@@ -20,6 +19,7 @@ CONFIG_ENV_VARS_UBOOT_CONFIG=y
 # CONFIG_ARCH_FIXUP_FDT_MEMORY is not set
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="fdt addr ${fdtcontroladdr}; fdt move ${fdtcontroladdr} ${fdt_addr_r}; load mmc ${mmcdev}:${mmcpart} ${kernel_addr_r} ${image}; booti ${kernel_addr_r} - ${fdt_addr_r}; "
+CONFIG_SYS_PROMPT="openpiton$ "
 CONFIG_SYS_CBSIZE=256
 CONFIG_SYS_PBSIZE=284
 # CONFIG_CMD_CPU is not set
