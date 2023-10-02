@@ -440,41 +440,22 @@ int cli_readline(const char *const prompt)
 	return cli_readline_into_buffer(prompt, console_buffer, 0);
 }
 
-
-int cli_readline_into_buffer(const char *const prompt, char *buffer,
-			     int timeout)
+/**
+ * cread_line_simple() - Simple (small) command-line reader
+ *
+ * This supports only basic editing, with no cursor movement
+ *
+ * @prompt: Prompt to display
+ * @p: Text buffer to edit
+ * Return: length of text buffer, or -1 if input was cannncelled (Ctrl-C)
+ */
+static int cread_line_simple(const char *const prompt, char *p)
 {
-	char *p = buffer;
-#ifdef CONFIG_CMDLINE_EDITING
-	unsigned int len = CONFIG_SYS_CBSIZE;
-	int rc;
-	static int initted;
-
-	/*
-	 * History uses a global array which is not
-	 * writable until after relocation to RAM.
-	 * Revert to non-history version if still
-	 * running from flash.
-	 */
-	if (gd->flags & GD_FLG_RELOC) {
-		if (!initted) {
-			hist_init();
-			initted = 1;
-		}
-
-		if (prompt)
-			puts(prompt);
-
-		rc = cread_line(prompt, p, &len, timeout);
-		return rc < 0 ? rc : len;
-
-	} else {
-#endif	/* CONFIG_CMDLINE_EDITING */
 	char *p_buf = p;
-	int	n = 0;				/* buffer index		*/
-	int	plen = 0;			/* prompt length	*/
-	int	col;				/* output column cnt	*/
-	char	c;
+	int n = 0;		/* buffer index */
+	int plen = 0;		/* prompt length */
+	int col;		/* output column cnt */
+	char c;
 
 	/* print prompt */
 	if (prompt) {
@@ -567,6 +548,38 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 			}
 		}
 	}
+}
+
+int cli_readline_into_buffer(const char *const prompt, char *buffer,
+			     int timeout)
+{
+	char *p = buffer;
+#ifdef CONFIG_CMDLINE_EDITING
+	unsigned int len = CONFIG_SYS_CBSIZE;
+	int rc;
+	static int initted;
+
+	/*
+	 * History uses a global array which is not
+	 * writable until after relocation to RAM.
+	 * Revert to non-history version if still
+	 * running from flash.
+	 */
+	if (gd->flags & GD_FLG_RELOC) {
+		if (!initted) {
+			hist_init();
+			initted = 1;
+		}
+
+		if (prompt)
+			puts(prompt);
+
+		rc = cread_line(prompt, p, &len, timeout);
+		return rc < 0 ? rc : len;
+
+	} else {
+#endif	/* CONFIG_CMDLINE_EDITING */
+		return cread_line_simple(prompt, p);
 #ifdef CONFIG_CMDLINE_EDITING
 	}
 #endif
