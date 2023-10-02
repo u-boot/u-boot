@@ -146,6 +146,8 @@ enum scene_obj_t {
 	SCENEOBJT_NONE		= 0,
 	SCENEOBJT_IMAGE,
 	SCENEOBJT_TEXT,
+
+	/* types from here on can be highlighted */
 	SCENEOBJT_MENU,
 };
 
@@ -202,6 +204,12 @@ struct scene_obj {
 	u16 start_bit;
 	struct list_head sibling;
 };
+
+/* object can be highlighted when moving around expo */
+static inline bool scene_obj_can_highlight(const struct scene_obj *obj)
+{
+	return obj->type >= SCENEOBJT_MENU;
+}
 
 /**
  * struct scene_obj_img - information about an image object in a scene

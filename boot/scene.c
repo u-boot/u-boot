@@ -516,7 +516,7 @@ static void send_key_obj(struct scene *scn, struct scene_obj *obj, int key,
 					       sibling)) {
 			obj = list_entry(obj->sibling.prev,
 					 struct scene_obj, sibling);
-			if (obj->type == SCENEOBJT_MENU) {
+			if (scene_obj_can_highlight(obj)) {
 				event->type = EXPOACT_POINT_OBJ;
 				event->select.id = obj->id;
 				log_debug("up to obj %d\n", event->select.id);
@@ -528,7 +528,7 @@ static void send_key_obj(struct scene *scn, struct scene_obj *obj, int key,
 		while (!list_is_last(&obj->sibling, &scn->obj_head)) {
 			obj = list_entry(obj->sibling.next, struct scene_obj,
 					 sibling);
-			if (obj->type == SCENEOBJT_MENU) {
+			if (scene_obj_can_highlight(obj)) {
 				event->type = EXPOACT_POINT_OBJ;
 				event->select.id = obj->id;
 				log_debug("down to obj %d\n", event->select.id);
@@ -537,7 +537,7 @@ static void send_key_obj(struct scene *scn, struct scene_obj *obj, int key,
 		}
 		break;
 	case BKEY_SELECT:
-		if (obj->type == SCENEOBJT_MENU) {
+		if (scene_obj_can_highlight(obj)) {
 			event->type = EXPOACT_OPEN;
 			event->select.id = obj->id;
 			log_debug("open obj %d\n", event->select.id);
@@ -685,12 +685,9 @@ void scene_highlight_first(struct scene *scn)
 	struct scene_obj *obj;
 
 	list_for_each_entry(obj, &scn->obj_head, sibling) {
-		switch (obj->type) {
-		case SCENEOBJT_MENU:
+		if (scene_obj_can_highlight(obj)) {
 			scene_set_highlight_id(scn, obj->id);
 			return;
-		default:
-			break;
 		}
 	}
 }
