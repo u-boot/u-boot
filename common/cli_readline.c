@@ -253,52 +253,17 @@ static void cread_add_str(char *str, int strsize, int insert,
 	}
 }
 
-static int cread_line(const char *const prompt, char *buf, unsigned int *len,
-		int timeout)
+int cread_line_process_ch(struct cli_line_state *cls, char ichar)
 {
-	struct cli_ch_state s_cch, *cch = &s_cch;
-	struct cli_line_state s_cls, *cls = &s_cls;
-	char ichar;
-	int init_len = strlen(buf);
-	int first = 1;
-
-	cli_ch_init(cch);
-	memset(cls, '\0', sizeof(struct cli_line_state));
-	cls->insert = true;
-
-	if (init_len)
-		cread_add_str(buf, init_len, 1, &cls->num, &cls->eol_num, buf,
-			      *len);
-
-	while (1) {
-		/* Check for saved characters */
-		ichar = cli_ch_process(cch, 0);
-
-		if (!ichar) {
-			if (bootretry_tstc_timeout())
-				return -2;	/* timed out */
-			if (first && timeout) {
-				u64 etime = endtick(timeout);
-
-				while (!tstc()) {	/* while no incoming data */
-					if (get_ticks() >= etime)
-						return -2;	/* timed out */
-					schedule();
-				}
-				first = 0;
-			}
-
-			ichar = getcmd_getch();
-			ichar = cli_ch_process(cch, ichar);
-		}
+	char *buf = cls->buf;
 
 	/* ichar=0x0 when error occurs in U-Boot getc */
 	if (!ichar)
-		continue;
+		return -EAGAIN;
 
 	if (ichar == '\n') {
 		putc('\n');
-		break;
+		return 0;
 	}
 
 	switch (ichar) {
@@ -307,7 +272,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 		break;
 	case CTL_CH('c'):	/* ^C - break */
 		*buf = '\0';	/* discard input */
-		return -1;
+		return -EINTR;
 	case CTL_CH('f'):
 		if (cls->num < cls->eol_num) {
 			getcmd_putch(buf[cls->num]);
@@ -405,7 +370,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 
 		if (!hline) {
 			getcmd_cbeep();
-			continue;
+			break;
 		}
 
 		/* nuke the current line */
@@ -419,7 +384,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 		strcpy(buf, hline);
 		cls->eol_num = strlen(buf);
 		REFRESH_TO_EOL();
-		continue;
+		break;
 	}
 	case '\t':
 		if (IS_ENABLED(CONFIG_AUTO_COMPLETE)) {
@@ -432,9 +397,9 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 			}
 
 			buf[cls->num] = '\0';
-			col = strlen(prompt) + cls->eol_num;
+			col = strlen(cls->prompt) + cls->eol_num;
 			num2 = cls->num;
-			if (cmd_auto_complete(prompt, buf, &num2, &col)) {
+			if (cmd_auto_complete(cls->prompt, buf, &num2, &col)) {
 				col = num2 - cls->num;
 				cls->num += col;
 				cls->eol_num += col;
@@ -444,9 +409,62 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 		fallthrough;
 	default:
 		cread_add_char(ichar, cls->insert, &cls->num, &cls->eol_num,
-			       buf, *len);
+			       buf, cls->len);
 		break;
 	}
+
+	return -EAGAIN;
+}
+
+static int cread_line(const char *const prompt, char *buf, unsigned int *len,
+		      int timeout)
+{
+	struct cli_ch_state s_cch, *cch = &s_cch;
+	struct cli_line_state s_cls, *cls = &s_cls;
+	char ichar;
+	int init_len = strlen(buf);
+	int first = 1;
+
+	cli_ch_init(cch);
+	memset(cls, '\0', sizeof(struct cli_line_state));
+	cls->insert = true;
+	cls->len = *len;
+	cls->prompt = prompt;
+	cls->buf = buf;
+
+	if (init_len)
+		cread_add_str(buf, init_len, 1, &cls->num, &cls->eol_num, buf,
+			      *len);
+
+	while (1) {
+		int ret;
+
+		/* Check for saved characters */
+		ichar = cli_ch_process(cch, 0);
+
+		if (!ichar) {
+			if (bootretry_tstc_timeout())
+				return -2;	/* timed out */
+			if (first && timeout) {
+				u64 etime = endtick(timeout);
+
+				while (!tstc()) {	/* while no incoming data */
+					if (get_ticks() >= etime)
+						return -2;	/* timed out */
+					schedule();
+				}
+				first = 0;
+			}
+
+			ichar = getcmd_getch();
+			ichar = cli_ch_process(cch, ichar);
+		}
+
+		ret = cread_line_process_ch(cls, ichar);
+		if (ret == -EINTR)
+			return -1;
+		else if (!ret)
+			break;
 	}
 	*len = cls->eol_num;
 	buf[cls->eol_num] = '\0';	/* lose the newline */

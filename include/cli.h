@@ -31,11 +31,16 @@ struct cli_ch_state {
  * @num: Current cursor position, where 0 is the start
  * @eol_num: Number of characters in the buffer
  * @insert: true if in 'insert' mode
+ * @buf: Buffer containing line
+ * @prompt: Prompt for the line
  */
 struct cli_line_state {
 	uint num;
 	uint eol_num;
+	uint len;
 	bool insert;
+	char *buf;
+	const char *prompt;
 };
 
 /**
@@ -242,6 +247,16 @@ void cli_ch_init(struct cli_ch_state *cch);
  * an existing escape sequence was cancelled
  */
 int cli_ch_process(struct cli_ch_state *cch, int ichar);
+
+/**
+ * cread_line_process_ch() - Process a character for line input
+ *
+ * @cls: CLI line state
+ * @ichar: Character to process
+ * Return: 0 if input is complete, with line in cls->buf, -EINTR if input was
+ * cancelled with Ctrl-C, -EAGAIN if more characters are needed
+ */
+int cread_line_process_ch(struct cli_line_state *cls, char ichar);
 
 /** cread_print_hist_list() - Print the command-line history list */
 void cread_print_hist_list(void);
