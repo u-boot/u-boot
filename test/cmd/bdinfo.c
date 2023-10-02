@@ -136,8 +136,8 @@ static int lmb_test_dump_region(struct unit_test_state *uts,
 static int lmb_test_dump_all(struct unit_test_state *uts, struct lmb *lmb)
 {
 	ut_assert_nextline("lmb_dump_all:");
-	lmb_test_dump_region(uts, &lmb->memory, "memory");
-	lmb_test_dump_region(uts, &lmb->reserved, "reserved");
+	ut_assertok(lmb_test_dump_region(uts, &lmb->memory, "memory"));
+	ut_assertok(lmb_test_dump_region(uts, &lmb->reserved, "reserved"));
 
 	return 0;
 }
@@ -191,7 +191,7 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 	ut_assertok(test_num_l(uts, "fdt_size", (ulong)gd->fdt_size));
 
 	if (IS_ENABLED(CONFIG_VIDEO))
-		test_video_info(uts);
+		ut_assertok(test_video_info(uts));
 
 	/* The gd->multi_dtb_fit may not be available, hence, #if below. */
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
@@ -202,7 +202,7 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 		struct lmb lmb;
 
 		lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
-		lmb_test_dump_all(uts, &lmb);
+		ut_assertok(lmb_test_dump_all(uts, &lmb));
 		if (IS_ENABLED(CONFIG_OF_REAL))
 			ut_assert_nextline("devicetree  = %s", fdtdec_get_srcname());
 	}
@@ -226,6 +226,9 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 					(unsigned long long)gd->ram_top));
 		ut_assertok(test_num_l(uts, "malloc base", gd_malloc_start()));
 	}
+
+	if (IS_ENABLED(CONFIG_X86))
+		ut_check_skip_to_linen(uts, " high end   =");
 
 	return 0;
 }
