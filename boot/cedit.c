@@ -71,10 +71,16 @@ int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
 
 	y = 100;
 	list_for_each_entry(obj, &scn->obj_head, sibling) {
-		if (obj->type == SCENEOBJT_MENU) {
+		switch (obj->type) {
+		case SCENEOBJT_NONE:
+		case SCENEOBJT_IMAGE:
+		case SCENEOBJT_TEXT:
+			break;
+		case SCENEOBJT_MENU:
 			scene_obj_set_pos(scn, obj->id, 50, y);
 			scene_menu_arrange(scn, (struct scene_obj_menu *)obj);
 			y += 50;
+			break;
 		}
 	}
 
@@ -422,31 +428,37 @@ static int h_write_settings_env(struct scene_obj *obj, void *vpriv)
 	const char *str;
 	int val, ret;
 
-	if (obj->type != SCENEOBJT_MENU)
-		return 0;
-
-	menu = (struct scene_obj_menu *)obj;
-	val = menu->cur_item_id;
 	snprintf(var, sizeof(var), "c.%s", obj->name);
 
-	if (priv->verbose)
-		printf("%s=%d\n", var, val);
+	switch (obj->type) {
+	case SCENEOBJT_NONE:
+	case SCENEOBJT_IMAGE:
+	case SCENEOBJT_TEXT:
+		break;
+	case SCENEOBJT_MENU:
+		menu = (struct scene_obj_menu *)obj;
+		val = menu->cur_item_id;
 
-	ret = env_set_ulong(var, val);
-	if (ret)
-		return log_msg_ret("set", ret);
+		if (priv->verbose)
+			printf("%s=%d\n", var, val);
 
-	ret = get_cur_menuitem_text(menu, &str);
-	if (ret)
-		return log_msg_ret("mis", ret);
+		ret = env_set_ulong(var, val);
+		if (ret)
+			return log_msg_ret("set", ret);
 
-	snprintf(name, sizeof(name), "c.%s-str", obj->name);
-	if (priv->verbose)
-		printf("%s=%s\n", name, str);
+		ret = get_cur_menuitem_text(menu, &str);
+		if (ret)
+			return log_msg_ret("mis", ret);
 
-	ret = env_set(name, str);
-	if (ret)
-		return log_msg_ret("st2", ret);
+		snprintf(name, sizeof(name), "c.%s-str", obj->name);
+		if (priv->verbose)
+			printf("%s=%s\n", name, str);
+
+		ret = env_set(name, str);
+		if (ret)
+			return log_msg_ret("st2", ret);
+		break;
+	}
 
 	return 0;
 }
@@ -474,24 +486,28 @@ static int h_read_settings_env(struct scene_obj *obj, void *vpriv)
 	char var[60];
 	int val;
 
-	if (obj->type != SCENEOBJT_MENU)
-		return 0;
-
-	menu = (struct scene_obj_menu *)obj;
-	val = menu->cur_item_id;
 	snprintf(var, sizeof(var), "c.%s", obj->name);
 
-	val = env_get_ulong(var, 10, 0);
-	if (priv->verbose)
-		printf("%s=%d\n", var, val);
-	if (!val)
-		return log_msg_ret("get", -ENOENT);
+	switch (obj->type) {
+	case SCENEOBJT_NONE:
+	case SCENEOBJT_IMAGE:
+	case SCENEOBJT_TEXT:
+		break;
+	case SCENEOBJT_MENU:
+		menu = (struct scene_obj_menu *)obj;
+		val = env_get_ulong(var, 10, 0);
+		if (priv->verbose)
+			printf("%s=%d\n", var, val);
+		if (!val)
+			return log_msg_ret("get", -ENOENT);
 
-	/*
-	 * note that no validation is done here, to make sure the ID is valid
-	 * and actually points to a menu item
-	 */
-	menu->cur_item_id = val;
+		/*
+		 * note that no validation is done here, to make sure the ID is
+		 * valid * and actually points to a menu item
+		 */
+		menu->cur_item_id = val;
+		break;
+	}
 
 	return 0;
 }
