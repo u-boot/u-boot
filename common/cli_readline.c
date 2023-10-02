@@ -263,6 +263,7 @@ int cread_line_process_ch(struct cli_line_state *cls, char ichar)
 
 	if (ichar == '\n') {
 		putc('\n');
+		buf[cls->eol_num] = '\0';	/* terminate the string */
 		return 0;
 	}
 
@@ -413,6 +414,12 @@ int cread_line_process_ch(struct cli_line_state *cls, char ichar)
 		break;
 	}
 
+	/*
+	 * keep the string terminated...if we added a char at the end then we
+	 * want a \0 after it
+	 */
+	buf[cls->eol_num] = '\0';
+
 	return -EAGAIN;
 }
 
@@ -467,7 +474,6 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 			break;
 	}
 	*len = cls->eol_num;
-	buf[cls->eol_num] = '\0';	/* lose the newline */
 
 	if (buf[0] && buf[0] != CREAD_HIST_CHAR)
 		cread_add_to_hist(buf);
