@@ -389,7 +389,7 @@ int cread_line_process_ch(struct cli_line_state *cls, char ichar)
 		}
 		break;
 	case '\t':
-		if (IS_ENABLED(CONFIG_AUTO_COMPLETE)) {
+		if (IS_ENABLED(CONFIG_AUTO_COMPLETE) && cls->cmd_complete) {
 			int num2, col;
 
 			/* do not autocomplete when in the middle */
@@ -440,6 +440,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 	cls->prompt = prompt;
 	cls->buf = buf;
 	cls->history = true;
+	cls->cmd_complete = true;
 
 	if (init_len)
 		cread_add_str(buf, init_len, 1, &cls->num, &cls->eol_num, buf,

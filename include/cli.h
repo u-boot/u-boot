@@ -32,6 +32,7 @@ struct cli_ch_state {
  * @eol_num: Number of characters in the buffer
  * @insert: true if in 'insert' mode
  * @history: true if history should be accessible
+ * @cmd_complete: true if tab completion should be enabled
  * @buf: Buffer containing line
  * @prompt: Prompt for the line
  */
@@ -41,6 +42,7 @@ struct cli_line_state {
 	uint len;
 	bool insert;
 	bool history;
+	bool cmd_complete;
 	char *buf;
 	const char *prompt;
 };
