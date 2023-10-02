@@ -185,7 +185,7 @@ int scene_render_deps(struct scene *scn, uint id);
  * Renders the menu and all of its attached objects
  *
  * @scn: Scene to render
- * @menu: Menu render
+ * @menu: Menu to render
  * Returns: 0 if OK, -ve on error
  */
 int scene_menu_render_deps(struct scene *scn, struct scene_obj_menu *menu);

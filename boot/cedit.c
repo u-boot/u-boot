@@ -229,6 +229,16 @@ static int check_space(int ret, struct abuf *buf)
 	return 0;
 }
 
+/**
+ * get_cur_menuitem_text() - Get the text of the currently selected item
+ *
+ * Looks up the object for the current item, finds text object for it and looks
+ * up the string for that text
+ *
+ * @menu: Menu to look at
+ * @strp: Returns a pointer to the next
+ * Return: 0 if OK, -ENOENT if something was not found
+ */
 static int get_cur_menuitem_text(const struct scene_obj_menu *menu,
 				 const char **strp)
 {

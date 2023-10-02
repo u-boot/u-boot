@@ -505,7 +505,7 @@ int scene_txt(struct scene *scn, const char *name, uint id, uint str_id,
 	      struct scene_obj_txt **txtp);
 
 /**
- * scene_txt_str() - add a new string to expr and text object to a scene
+ * scene_txt_str() - add a new string to expo and text object to a scene
  *
  * @scn: Scene to update
  * @name: Name to use (this is allocated by this call)
