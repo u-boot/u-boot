@@ -67,6 +67,7 @@ Shell commands
    cmd/fwu_mdata
    cmd/gpio
    cmd/gpt
+   cmd/history
    cmd/host
    cmd/imxtract
    cmd/load

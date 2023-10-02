@@ -229,4 +229,7 @@ void cli_ch_init(struct cli_ch_state *cch);
  */
 int cli_ch_process(struct cli_ch_state *cch, int ichar);
 
+/** cread_print_hist_list() - Print the command-line history list */
+void cread_print_hist_list(void);
+
 #endif

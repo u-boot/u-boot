@@ -160,8 +160,7 @@ static char *hist_next(void)
 	return ret;
 }
 
-#ifndef CONFIG_CMDLINE_EDITING
-static void cread_print_hist_list(void)
+void cread_print_hist_list(void)
 {
 	int i;
 	unsigned long n;
@@ -179,7 +178,6 @@ static void cread_print_hist_list(void)
 		i++;
 	}
 }
-#endif /* CONFIG_CMDLINE_EDITING */
 
 #define BEGINNING_OF_LINE() {			\
 	while (num) {				\
