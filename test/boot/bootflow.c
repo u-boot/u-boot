@@ -637,6 +637,88 @@ static int bootflow_cmd_menu(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootflow_cmd_menu, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 
+/* Check 'bootflow scan -m' to select a bootflow using a menu */
+static int bootflow_scan_menu(struct unit_test_state *uts)
+{
+	struct bootstd_priv *std;
+	const char **old_order, **new_order;
+	char prev[3];
+
+	/* get access to the current bootflow */
+	ut_assertok(bootstd_get_priv(&std));
+
+	ut_assertok(prep_mmc_bootdev(uts, "mmc4", false, &old_order));
+
+	/* Add keypresses to move to and select the second one in the list */
+	prev[0] = CTL_CH('n');
+	prev[1] = '\r';
+	prev[2] = '\0';
+	ut_asserteq(2, console_in_puts(prev));
+
+	ut_assertok(run_command("bootflow scan -lm", 0));
+	new_order = std->bootdev_order;
+	std->bootdev_order = old_order;
+
+	ut_assert_skip_to_line("No more bootdevs");
+	ut_assert_nextlinen("--");
+	ut_assert_nextline("(2 bootflows, 2 valid)");
+
+	ut_assert_nextline("Selected: Armbian");
+	ut_assertnonnull(std->cur_bootflow);
+	ut_assert_console_end();
+
+	/* Check not selecting anything */
+	prev[0] = '\e';
+	prev[1] = '\0';
+	ut_asserteq(1, console_in_puts(prev));
+
+	std->bootdev_order = new_order; /* Blue Monday */
+	ut_assertok(run_command("bootflow scan -lm", 0));
+	std->bootdev_order = old_order;
+
+	ut_assertnull(std->cur_bootflow);
+	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	ut_assert_nextline("Nothing chosen");
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_scan_menu,
+	     UT_TESTF_DM | UT_TESTF_SCAN_FDT | UT_TESTF_CONSOLE_REC);
+
+/* Check 'bootflow scan -mb' to select and boot a bootflow using a menu */
+static int bootflow_scan_menu_boot(struct unit_test_state *uts)
+{
+	struct bootstd_priv *std;
+	const char **old_order;
+	char prev[3];
+
+	/* get access to the current bootflow */
+	ut_assertok(bootstd_get_priv(&std));
+
+	ut_assertok(prep_mmc_bootdev(uts, "mmc4", false, &old_order));
+
+	/* Add keypresses to move to and select the second one in the list */
+	prev[0] = CTL_CH('n');
+	prev[1] = '\r';
+	prev[2] = '\0';
+	ut_asserteq(2, console_in_puts(prev));
+
+	ut_assertok(run_command("bootflow scan -lmb", 0));
+	std->bootdev_order = old_order;
+
+	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+
+	ut_assert_nextline("Selected: Armbian");
+	ut_assert_skip_to_line("Boot failed (err=-14)");
+	ut_assertnonnull(std->cur_bootflow);
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_scan_menu_boot,
+	     UT_TESTF_DM | UT_TESTF_SCAN_FDT | UT_TESTF_CONSOLE_REC);
+
 /* Check searching for a single bootdev using the hunters */
 static int bootflow_cmd_hunt_single(struct unit_test_state *uts)
 {
