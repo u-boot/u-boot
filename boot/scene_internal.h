@@ -9,6 +9,8 @@
 #ifndef __SCENE_INTERNAL_H
 #define __SCENE_INTERNAL_H
 
+struct vidconsole_bbox;
+
 typedef int (*expo_scene_obj_iterator)(struct scene_obj *obj, void *priv);
 
 /**
@@ -245,5 +247,42 @@ struct scene_menitem *scene_menuitem_find(const struct scene_obj_menu *menu,
  */
 struct scene_menitem *scene_menuitem_find_seq(const struct scene_obj_menu *menu,
 					      uint seq);
+
+/**
+ * scene_bbox_union() - update bouding box with the demensions of an object
+ *
+ * Updates @bbox so that it encompasses the bounding box of object @id
+ *
+ * @snd: Scene containing object
+ * @id: Object id
+ * @inset: Amount of inset to use for width
+ * @bbox: Bounding box to update
+ * Return: 0 if OK, -ve on error
+ */
+int scene_bbox_union(struct scene *scn, uint id, int inset,
+		     struct vidconsole_bbox *bbox);
+
+/**
+ * scene_menu_calc_bbox() - Calculate bounding boxes for the menu
+ *
+ * @menu: Menu to process
+ * @bbox: Returns bounding box of menu including prompts
+ * @label_bbox: Returns bounding box of labels
+ * Return: 0 if OK, -ve on error
+ */
+void scene_menu_calc_bbox(struct scene_obj_menu *menu,
+			  struct vidconsole_bbox *bbox,
+			  struct vidconsole_bbox *label_bbox);
+
+/**
+ * scene_obj_calc_bbox() - Calculate bounding boxes for an object
+ *
+ * @obj: Object to process
+ * @bbox: Returns bounding box of object including prompts
+ * @label_bbox: Returns bounding box of labels (active area)
+ * Return: 0 if OK, -ve on error
+ */
+int scene_obj_calc_bbox(struct scene_obj *obj, struct vidconsole_bbox *bbox,
+			struct vidconsole_bbox *label_bbox);
 
 #endif /* __SCENE_INTERNAL_H */

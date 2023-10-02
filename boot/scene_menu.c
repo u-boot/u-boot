@@ -114,42 +114,9 @@ static void menu_point_to_item(struct scene_obj_menu *menu, uint item_id)
 	update_pointers(menu, item_id, true);
 }
 
-static int scene_bbox_union(struct scene *scn, uint id, int inset,
-			    struct vidconsole_bbox *bbox)
-{
-	struct scene_obj *obj;
-
-	if (!id)
-		return 0;
-	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
-	if (!obj)
-		return log_msg_ret("obj", -ENOENT);
-	if (bbox->valid) {
-		bbox->x0 = min(bbox->x0, obj->dim.x - inset);
-		bbox->y0 = min(bbox->y0, obj->dim.y);
-		bbox->x1 = max(bbox->x1, obj->dim.x + obj->dim.w + inset);
-		bbox->y1 = max(bbox->y1, obj->dim.y + obj->dim.h);
-	} else {
-		bbox->x0 = obj->dim.x - inset;
-		bbox->y0 = obj->dim.y;
-		bbox->x1 = obj->dim.x + obj->dim.w + inset;
-		bbox->y1 = obj->dim.y + obj->dim.h;
-		bbox->valid = true;
-	}
-
-	return 0;
-}
-
-/**
- * scene_menu_calc_bbox() - Calculate bounding boxes for the menu
- *
- * @menu: Menu to process
- * @bbox: Returns bounding box of menu including prompts
- * @label_bbox: Returns bounding box of labels
- */
-static void scene_menu_calc_bbox(struct scene_obj_menu *menu,
-				 struct vidconsole_bbox *bbox,
-				 struct vidconsole_bbox *label_bbox)
+void scene_menu_calc_bbox(struct scene_obj_menu *menu,
+			  struct vidconsole_bbox *bbox,
+			  struct vidconsole_bbox *label_bbox)
 {
 	const struct expo_theme *theme = &menu->obj.scene->expo->theme;
 	const struct scene_menitem *item;
