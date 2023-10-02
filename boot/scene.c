@@ -137,7 +137,7 @@ int scene_img(struct scene *scn, const char *name, uint id, char *data,
 			    sizeof(struct scene_obj_img),
 			    (struct scene_obj **)&img);
 	if (ret < 0)
-		return log_msg_ret("obj", -ENOMEM);
+		return log_msg_ret("obj", ret);
 
 	img->data = data;
 
@@ -157,7 +157,7 @@ int scene_txt(struct scene *scn, const char *name, uint id, uint str_id,
 			    sizeof(struct scene_obj_txt),
 			    (struct scene_obj **)&txt);
 	if (ret < 0)
-		return log_msg_ret("obj", -ENOMEM);
+		return log_msg_ret("obj", ret);
 
 	txt->str_id = str_id;
 
@@ -183,7 +183,7 @@ int scene_txt_str(struct scene *scn, const char *name, uint id, uint str_id,
 			    sizeof(struct scene_obj_txt),
 			    (struct scene_obj **)&txt);
 	if (ret < 0)
-		return log_msg_ret("obj", -ENOMEM);
+		return log_msg_ret("obj", ret);
 
 	txt->str_id = str_id;
 
