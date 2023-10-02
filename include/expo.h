@@ -7,10 +7,13 @@
 #ifndef __EXPO_H
 #define __EXPO_H
 
+#include <abuf.h>
 #include <dm/ofnode_decl.h>
 #include <linux/list.h>
 
 struct udevice;
+
+#include <cli.h>
 
 /**
  * enum expoact_type - types of actions reported by the expo
@@ -121,6 +124,9 @@ struct expo_string {
  * @id: ID number of the scene
  * @title_id: String ID of title of the scene (allocated)
  * @highlight_id: ID of highlighted object, if any
+ * @cls: cread state to use for input
+ * @buf: Buffer for input
+ * @entry_save: Buffer to hold vidconsole text-entry information
  * @sibling: Node to link this scene to its siblings
  * @obj_head: List of objects in the scene
  */
@@ -130,6 +136,9 @@ struct scene {
 	uint id;
 	uint title_id;
 	uint highlight_id;
+	struct cli_line_state cls;
+	struct abuf buf;
+	struct abuf entry_save;
 	struct list_head sibling;
 	struct list_head obj_head;
 };
@@ -178,6 +187,11 @@ enum scene_obj_flags_t {
 	SCENEOF_HIDE	= 1 << 0,
 	SCENEOF_POINT	= 1 << 1,
 	SCENEOF_OPEN	= 1 << 2,
+};
+
+enum {
+	/* Maximum number of characters allowed in an line editor */
+	EXPO_MAX_CHARS		= 250,
 };
 
 /**
