@@ -61,6 +61,9 @@ static struct cmd_tbl cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(bootstd, CONFIG_SYS_MAXARGS, 1, do_ut_bootstd,
 			 "", ""),
 #endif
+#ifdef CONFIG_CMDLINE
+	U_BOOT_CMD_MKENT(cmd, CONFIG_SYS_MAXARGS, 1, do_ut_cmd, "", ""),
+#endif
 	U_BOOT_CMD_MKENT(common, CONFIG_SYS_MAXARGS, 1, do_ut_common, "", ""),
 #if defined(CONFIG_UT_DM)
 	U_BOOT_CMD_MKENT(dm, CONFIG_SYS_MAXARGS, 1, do_ut_dm, "", ""),
@@ -194,6 +197,9 @@ U_BOOT_LONGHELP(ut,
 #endif
 #ifdef CONFIG_BOOTSTD
 	"\nbootstd - standard boot implementation"
+#endif
+#ifdef CONFIG_CMDLINE
+	"\ncmd - test various commands"
 #endif
 #ifdef CONFIG_SANDBOX
 	"\ncompression - compressors and bootm decompression"
