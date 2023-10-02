@@ -89,6 +89,14 @@ static char hist_lines[HIST_MAX][HIST_SIZE + 1];	/* Save room for NULL */
 
 #define add_idx_minus_one() ((hist_add_idx == 0) ? hist_max : hist_add_idx-1)
 
+static void getcmd_putchars(int count, int ch)
+{
+	int i;
+
+	for (i = 0; i < count; i++)
+		getcmd_putch(ch);
+}
+
 static void hist_init(void)
 {
 	int i;
@@ -336,6 +344,29 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 			break;
 		case CTL_CH('o'):
 			insert = !insert;
+			break;
+		case CTL_CH('w'):
+			if (num) {
+				uint base;
+
+				for (base = num - 1;
+				     base >= 0 && buf[base] == ' ';)
+					base--;
+				for (; base > 0 && buf[base - 1] != ' ';)
+					base--;
+
+				/* now delete chars from base to num */
+				wlen = num - base;
+				eol_num -= wlen;
+				memmove(&buf[base], &buf[num],
+					eol_num - base + 1);
+				num = base;
+				getcmd_putchars(wlen, CTL_BACKSPACE);
+				puts(buf + base);
+				getcmd_putchars(wlen, ' ');
+				getcmd_putchars(wlen + eol_num - num,
+						CTL_BACKSPACE);
+			}
 			break;
 		case CTL_CH('x'):
 		case CTL_CH('u'):
