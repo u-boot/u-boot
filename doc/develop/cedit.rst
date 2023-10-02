@@ -162,7 +162,8 @@ Cedit provides several options for persistent settings:
 - Writing an FDT file to a filesystem
 - Writing to U-Boot's environment variables, which are then typically stored in
   a persistent manner
-- Writing to CMOS RAM registers (common on x86 machines)
+- Writing to CMOS RAM registers (common on x86 machines). Note that textline
+  objects do not appear in CMOS RAM registers
 
 For now, reading and writing settings is not automatic. See the
 :doc:`../usage/cmd/cedit` for how to do this on the command line or in a
