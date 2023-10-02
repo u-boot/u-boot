@@ -280,6 +280,7 @@ int scene_obj_get_hw(struct scene *scn, uint id, int *widthp)
 	switch (obj->type) {
 	case SCENEOBJT_NONE:
 	case SCENEOBJT_MENU:
+	case SCENEOBJT_TEXTLINE:
 		break;
 	case SCENEOBJT_IMAGE: {
 		struct scene_obj_img *img = (struct scene_obj_img *)obj;
@@ -328,8 +329,10 @@ int scene_obj_get_hw(struct scene *scn, uint id, int *widthp)
  * scene_render_background() - Render the background for an object
  *
  * @obj: Object to render
+ * @box_only: true to show a box around the object, but keep the normal
+ * background colour inside
  */
-static void scene_render_background(struct scene_obj *obj)
+static void scene_render_background(struct scene_obj *obj, bool box_only)
 {
 	struct expo *exp = obj->scene->expo;
 	const struct expo_theme *theme = &exp->theme;
@@ -360,6 +363,11 @@ static void scene_render_background(struct scene_obj *obj)
 			label_bbox.x1 + inset, label_bbox.y1 + inset,
 			vid_priv->colour_fg);
 	vidconsole_pop_colour(cons, &old);
+	if (box_only) {
+		video_fill_part(dev, label_bbox.x0, label_bbox.y0,
+				label_bbox.x1, label_bbox.y1,
+				vid_priv->colour_bg);
+	}
 }
 
 /**
@@ -445,7 +453,7 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 				return -ENOTSUPP;
 
 			/* draw a background behind the menu items */
-			scene_render_background(obj);
+			scene_render_background(obj, false);
 		}
 		/*
 		 * With a vidconsole, the text and item pointer are rendered as
@@ -461,6 +469,10 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 
 		break;
 	}
+	case SCENEOBJT_TEXTLINE:
+		if (obj->flags & SCENEOF_OPEN)
+			scene_render_background(obj, true);
+		break;
 	}
 
 	return 0;
@@ -482,6 +494,15 @@ int scene_arrange(struct scene *scn)
 
 			menu = (struct scene_obj_menu *)obj,
 			ret = scene_menu_arrange(scn, menu);
+			if (ret)
+				return log_msg_ret("arr", ret);
+			break;
+		}
+		case SCENEOBJT_TEXTLINE: {
+			struct scene_obj_textline *tline;
+
+			tline = (struct scene_obj_textline *)obj,
+			ret = scene_textline_arrange(scn, tline);
 			if (ret)
 				return log_msg_ret("arr", ret);
 			break;
@@ -516,6 +537,10 @@ int scene_render_deps(struct scene *scn, uint id)
 		case SCENEOBJT_MENU:
 			scene_menu_render_deps(scn,
 					       (struct scene_obj_menu *)obj);
+			break;
+		case SCENEOBJT_TEXTLINE:
+			scene_textline_render_deps(scn,
+					(struct scene_obj_textline *)obj);
 			break;
 		}
 	}
@@ -637,6 +662,15 @@ int scene_send_key(struct scene *scn, int key, struct expo_action *event)
 				return log_msg_ret("key", ret);
 			break;
 		}
+		case SCENEOBJT_TEXTLINE: {
+			struct scene_obj_textline *tline;
+
+			tline = (struct scene_obj_textline *)obj,
+			ret = scene_textline_send_key(scn, tline, key, event);
+			if (ret)
+				return log_msg_ret("key", ret);
+			break;
+		}
 		}
 		return 0;
 	}
@@ -668,6 +702,13 @@ int scene_obj_calc_bbox(struct scene_obj *obj, struct vidconsole_bbox *bbox,
 		struct scene_obj_menu *menu = (struct scene_obj_menu *)obj;
 
 		scene_menu_calc_bbox(menu, bbox, label_bbox);
+		break;
+	}
+	case SCENEOBJT_TEXTLINE: {
+		struct scene_obj_textline *tline;
+
+		tline = (struct scene_obj_textline *)obj;
+		scene_textline_calc_bbox(tline, bbox, label_bbox);
 		break;
 	}
 	}
@@ -708,6 +749,16 @@ int scene_calc_dims(struct scene *scn, bool do_menus)
 			}
 			break;
 		}
+		case SCENEOBJT_TEXTLINE: {
+			struct scene_obj_textline *tline;
+
+			tline = (struct scene_obj_textline *)obj;
+			ret = scene_textline_calc_dims(tline);
+			if (ret)
+				return log_msg_ret("men", ret);
+
+			break;
+		}
 		}
 	}
 
@@ -727,6 +778,7 @@ int scene_apply_theme(struct scene *scn, struct expo_theme *theme)
 		case SCENEOBJT_NONE:
 		case SCENEOBJT_IMAGE:
 		case SCENEOBJT_MENU:
+		case SCENEOBJT_TEXTLINE:
 			break;
 		case SCENEOBJT_TEXT:
 			scene_txt_set_font(scn, obj->id, NULL,
