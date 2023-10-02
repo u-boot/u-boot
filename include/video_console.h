@@ -8,6 +8,7 @@
 
 #include <video.h>
 
+struct abuf;
 struct video_priv;
 
 #define VID_FRAC_DIV	256
@@ -239,6 +240,30 @@ struct vidconsole_ops {
 	 */
 	int (*nominal)(struct udevice *dev, const char *name, uint size,
 		       uint num_chars, struct vidconsole_bbox *bbox);
+
+	/**
+	 * entry_save() - Save any text-entry information for later use
+	 *
+	 * Saves text-entry context such as a list of positions for each
+	 * character in the string.
+	 *
+	 * @dev: Console device to use
+	 * @buf: Buffer to hold saved data
+	 * Return: 0 if OK, -ENOMEM if out of memory
+	 */
+	int (*entry_save)(struct udevice *dev, struct abuf *buf);
+
+	/**
+	 * entry_restore() - Restore text-entry information for current use
+	 *
+	 * Restores text-entry context such as a list of positions for each
+	 * character in the string.
+	 *
+	 * @dev: Console device to use
+	 * @buf: Buffer containing data to restore
+	 * Return: 0 if OK, -ve on error
+	 */
+	int (*entry_restore)(struct udevice *dev, struct abuf *buf);
 };
 
 /* Get a pointer to the driver operations for a video console device */
@@ -292,6 +317,30 @@ int vidconsole_measure(struct udevice *dev, const char *name, uint size,
  */
 int vidconsole_nominal(struct udevice *dev, const char *name, uint size,
 		       uint num_chars, struct vidconsole_bbox *bbox);
+
+/**
+ * vidconsole_entry_save() - Save any text-entry information for later use
+ *
+ * Saves text-entry context such as a list of positions for each
+ * character in the string.
+ *
+ * @dev: Console device to use
+ * @buf: Buffer to hold saved data
+ * Return: 0 if OK, -ENOMEM if out of memory
+ */
+int vidconsole_entry_save(struct udevice *dev, struct abuf *buf);
+
+/**
+ * entry_restore() - Restore text-entry information for current use
+ *
+ * Restores text-entry context such as a list of positions for each
+ * character in the string.
+ *
+ * @dev: Console device to use
+ * @buf: Buffer containing data to restore
+ * Return: 0 if OK, -ve on error
+ */
+int vidconsole_entry_restore(struct udevice *dev, struct abuf *buf);
 
 /**
  * vidconsole_push_colour() - Temporarily change the font colour

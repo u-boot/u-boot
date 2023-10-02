@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <abuf.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
@@ -173,6 +174,17 @@ struct console_tt_priv {
 	int num_metrics;
 	struct pos_info pos[POS_HISTORY_SIZE];
 	int pos_ptr;
+};
+
+/**
+ * struct console_tt_store - Format used for save/restore of entry information
+ *
+ * @priv: Private data
+ * @cur: Current cursor position
+ */
+struct console_tt_store {
+	struct console_tt_priv priv;
+	struct pos_info cur;
 };
 
 static int console_truetype_set_row(struct udevice *dev, uint row, int clr)
@@ -780,6 +792,45 @@ static int truetype_nominal(struct udevice *dev, const char *name, uint size,
 	return 0;
 }
 
+static int truetype_entry_save(struct udevice *dev, struct abuf *buf)
+{
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
+	struct console_tt_priv *priv = dev_get_priv(dev);
+	struct console_tt_store store;
+	const uint size = sizeof(store);
+
+	/*
+	 * store the whole priv structure as it is simpler that picking out
+	 * what we need
+	 */
+	if (!abuf_realloc(buf, size))
+		return log_msg_ret("sav", -ENOMEM);
+
+	store.priv = *priv;
+	store.cur.xpos_frac = vc_priv->xcur_frac;
+	store.cur.ypos  = vc_priv->ycur;
+	memcpy(abuf_data(buf), &store, size);
+
+	return 0;
+}
+
+static int truetype_entry_restore(struct udevice *dev, struct abuf *buf)
+{
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
+	struct console_tt_priv *priv = dev_get_priv(dev);
+	struct console_tt_store store;
+
+	memcpy(&store, abuf_data(buf), sizeof(store));
+
+	vc_priv->xcur_frac = store.cur.xpos_frac;
+	vc_priv->ycur = store.cur.ypos;
+	priv->pos_ptr = store.priv.pos_ptr;
+	memcpy(priv->pos, store.priv.pos,
+	       store.priv.pos_ptr * sizeof(struct pos_info));
+
+	return 0;
+}
+
 const char *console_truetype_get_font_size(struct udevice *dev, uint *sizep)
 {
 	struct console_tt_priv *priv = dev_get_priv(dev);
@@ -833,6 +884,8 @@ struct vidconsole_ops console_truetype_ops = {
 	.select_font	= truetype_select_font,
 	.measure	= truetype_measure,
 	.nominal	= truetype_nominal,
+	.entry_save	= truetype_entry_save,
+	.entry_restore	= truetype_entry_restore,
 };
 
 U_BOOT_DRIVER(vidconsole_truetype) = {

@@ -10,6 +10,7 @@
 #define LOG_CATEGORY UCLASS_VIDEO_CONSOLE
 
 #include <common.h>
+#include <abuf.h>
 #include <command.h>
 #include <console.h>
 #include <log.h>
@@ -636,6 +637,37 @@ int vidconsole_nominal(struct udevice *dev, const char *name, uint size,
 	bbox->y0 = 0;
 	bbox->x1 = priv->x_charsize * num_chars;
 	bbox->y1 = priv->y_charsize;
+
+	return 0;
+}
+
+int vidconsole_entry_save(struct udevice *dev, struct abuf *buf)
+{
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+	int ret;
+
+	if (ops->measure) {
+		ret = ops->entry_save(dev, buf);
+		if (ret != -ENOSYS)
+			return ret;
+	}
+
+	/* no data so make sure the buffer is empty */
+	abuf_realloc(buf, 0);
+
+	return 0;
+}
+
+int vidconsole_entry_restore(struct udevice *dev, struct abuf *buf)
+{
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+	int ret;
+
+	if (ops->measure) {
+		ret = ops->entry_restore(dev, buf);
+		if (ret != -ENOSYS)
+			return ret;
+	}
 
 	return 0;
 }
