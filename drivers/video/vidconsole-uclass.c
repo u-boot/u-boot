@@ -48,7 +48,7 @@ int vidconsole_set_row(struct udevice *dev, uint row, int clr)
 	return ops->set_row(dev, row, clr);
 }
 
-static int vidconsole_entry_start(struct udevice *dev)
+int vidconsole_entry_start(struct udevice *dev)
 {
 	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
 

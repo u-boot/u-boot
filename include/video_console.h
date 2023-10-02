@@ -400,6 +400,15 @@ int vidconsole_move_rows(struct udevice *dev, uint rowdst, uint rowsrc,
 int vidconsole_set_row(struct udevice *dev, uint row, int clr);
 
 /**
+ * vidconsole_entry_start() - Set the start position of a vidconsole line
+ *
+ * Marks the current cursor position as the start of a line
+ *
+ * @dev:	Device to adjust
+ */
+int vidconsole_entry_start(struct udevice *dev);
+
+/**
  * vidconsole_put_char() - Output a character to the current console position
  *
  * Outputs a character to the console and advances the cursor. This function
