@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- *  Copyright (C) 2019 Texas Instruments Incorporated - http://www.ti.com
+ *  Copyright (C) 2019-2023 Texas Instruments Incorporated - https://www.ti.com
  *  Author: Peter Ujfalusi <peter.ujfalusi@ti.com>
  */
 
@@ -21,13 +21,15 @@
 
 /* PSI-L source thread IDs, used for RX (DMA_DEV_TO_MEM) */
 static struct psil_ep j721e_src_ep_map[] = {
-	/* CPSW0 */
+	/* MCU_CPSW0 */
 	PSIL_ETHERNET(0x7000),
+	/* MAIN_CPSW0 */
+	PSIL_ETHERNET(0x4a00),
 };
 
 /* PSI-L destination thread IDs, used for TX (DMA_MEM_TO_DEV) */
 static struct psil_ep j721e_dst_ep_map[] = {
-	/* CPSW0 */
+	/* MCU_CPSW0 */
 	PSIL_ETHERNET(0xf000),
 	PSIL_ETHERNET(0xf001),
 	PSIL_ETHERNET(0xf002),
@@ -36,6 +38,15 @@ static struct psil_ep j721e_dst_ep_map[] = {
 	PSIL_ETHERNET(0xf005),
 	PSIL_ETHERNET(0xf006),
 	PSIL_ETHERNET(0xf007),
+	/* MAIN_CPSW0 */
+	PSIL_ETHERNET(0xca00),
+	PSIL_ETHERNET(0xca01),
+	PSIL_ETHERNET(0xca02),
+	PSIL_ETHERNET(0xca03),
+	PSIL_ETHERNET(0xca04),
+	PSIL_ETHERNET(0xca05),
+	PSIL_ETHERNET(0xca06),
+	PSIL_ETHERNET(0xca07),
 };
 
 struct psil_ep_map j721e_ep_map = {

@@ -23,6 +23,7 @@
 #include <div64.h>
 #include <linux/bug.h>
 #include <linux/compat.h>
+#include <linux/printk.h>
 #endif
 
 #include <linux/mtd/mtd.h>

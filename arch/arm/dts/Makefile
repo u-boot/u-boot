@@ -1201,6 +1201,9 @@ dtb-$(CONFIG_TARGET_SAMA5D27_WLSOM1_EK) += \
 dtb-$(CONFIG_TARGET_SAMA5D2_ICP) += \
 	at91-sama5d2_icp.dtb
 
+dtb-$(CONFIG_TARGET_SAMA5D29_CURIOSITY) += \
+	at91-sama5d29_curiosity.dtb
+
 dtb-$(CONFIG_TARGET_SAMA5D3XEK) += \
 	sama5d31ek.dtb \
 	sama5d33ek.dtb \
@@ -1334,6 +1337,8 @@ dtb-$(CONFIG_SOC_K3_AM642) += k3-am642-evm.dtb \
 
 dtb-$(CONFIG_SOC_K3_AM625) += k3-am625-sk.dtb \
 			      k3-am625-r5-sk.dtb \
+			      k3-am625-beagleplay.dtb \
+			      k3-am625-r5-beagleplay.dtb \
 			      k3-am625-verdin-wifi-dev.dtb \
 			      k3-am625-verdin-r5.dtb
 

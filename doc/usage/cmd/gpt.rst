@@ -13,8 +13,10 @@ Synopsis
     gpt read <interface> <dev> [<varname>]
     gpt rename <interface> <dev> <part> <name>
     gpt repair <interface> <dev>
+    gpt set-bootable <interface> <dev> <partition list>
     gpt setenv <interface> <dev> <partition name>
     gpt swap <interface> <dev> <name1> <name2>
+    gpt transpose <interface> <dev> <part1> <part2>
     gpt verify <interface> <dev> [<partition string>]
     gpt write <interface> <dev> <partition string>
 
@@ -90,6 +92,13 @@ gpt repair
 
 Repairs the GPT partition tables if it they become corrupted.
 
+gpt set-bootable
+~~~~~~~~~~~~~~~~
+
+Sets the bootable flag for all partitions in the table. If the partition name
+is in 'partition list' (separated by ','), the bootable flag is set, otherwise
+it is cleared. CONFIG_CMD_GPT_RENAME=y is required.
+
 gpt setenv
 ~~~~~~~~~~
 
@@ -108,12 +117,22 @@ gpt_partition_name
 gpt_partition_entry
     the partition number in the table, e.g. 1, 2, 3, etc.
 
+gpt_partition_bootable
+    1 if the partition is marked as bootable, 0 if not
+
 gpt swap
 ~~~~~~~~
 
 Changes the names of all partitions that are named 'name1' to be 'name2', and
 all partitions named 'name2' to be 'name1'. CONFIG_CMD_GPT_RENAME=y is
 required.
+
+gpt transpose
+~~~~~~~~~~~~~
+
+Swaps the order of two partition table entries with indexes 'part1' and 'part2'
+in the partition table, but otherwise leaves the actual partition data
+untouched.
 
 gpt verify
 ~~~~~~~~~~
@@ -167,6 +186,8 @@ Get the information about the partition named 'rootfs'::
     rootfs
     => echo ${gpt_partition_entry}
     2
+    => echo ${gpt_partition_bootable}
+    0
 
 Get the list of partition names on the disk::
 
@@ -182,3 +203,24 @@ Get the GUID for a disk::
     => gpt guid mmc gpt_disk_uuid
     => echo ${gpt_disk_uuid}
     bec9fc2a-86c1-483d-8a0e-0109732277d7
+
+Set the bootable flag for the 'boot' partition and clear it for all others::
+
+    => gpt set-bootable mmc 0 boot
+
+Swap the order of the 'boot' and 'rootfs' partition table entries::
+    => gpt setenv mmc 0 rootfs
+    => echo ${gpt_partition_entry}
+    2
+    => gpt setenv mmc 0 boot
+    => echo ${gpt_partition_entry}
+    1
+
+    => gpt transpose mmc 0 1 2
+
+    => gpt setenv mmc 0 rootfs
+    => echo ${gpt_partition_entry}
+    1
+    => gpt setenv mmc 0 boot
+    => echo ${gpt_partition_entry}
+    2

@@ -568,7 +568,7 @@ config DRAM_EMR1
 
 config DRAM_TPR3
 	hex "sunxi dram tpr3 value"
-	default 0
+	default 0x0
 	---help---
 	Set the dram controller tpr3 parameter. This parameter configures
 	the delay on the command lane and also phase shifts, which are
@@ -579,7 +579,7 @@ config DRAM_TPR3
 
 config DRAM_DQS_GATING_DELAY
 	hex "sunxi dram dqs_gating_delay value"
-	default 0
+	default 0x0
 	---help---
 	Set the dram controller dqs_gating_delay parmeter. Each byte
 	encodes the DQS gating delay for each byte lane. The delay

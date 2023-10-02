@@ -45,7 +45,7 @@ static void hsuart_clock_set(void *base)
  * Configure the internal clock of both SIO HS-UARTs, if they are enabled
  * via FSP
  */
-static int baytrail_uart_init(void *ctx, struct event *event)
+static int baytrail_uart_init(void)
 {
 	struct udevice *dev;
 	void *base;
@@ -64,7 +64,7 @@ static int baytrail_uart_init(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT_F, baytrail_uart_init);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, baytrail_uart_init);
 
 static void set_max_freq(void)
 {

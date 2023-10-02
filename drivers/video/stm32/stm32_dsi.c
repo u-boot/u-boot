@@ -26,6 +26,7 @@
 #include <dm/lists.h>
 #include <linux/bitops.h>
 #include <linux/iopoll.h>
+#include <linux/printk.h>
 #include <power/regulator.h>
 
 #define HWVER_130			0x31333000	/* IP version 1.30 */

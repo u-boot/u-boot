@@ -52,6 +52,7 @@
 #include <asm/mach-imx/sys_proto.h>
 #endif
 #include <linux/delay.h>
+#include <linux/printk.h>
 
 #include "dwc_eth_qos.h"
 

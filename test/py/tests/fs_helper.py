@@ -9,7 +9,7 @@ import re
 import os
 from subprocess import call, check_call, check_output, CalledProcessError
 
-def mk_fs(config, fs_type, size, prefix, use_src_dir=False):
+def mk_fs(config, fs_type, size, prefix):
     """Create a file system volume
 
     Args:
@@ -17,14 +17,12 @@ def mk_fs(config, fs_type, size, prefix, use_src_dir=False):
         fs_type (str): File system type, e.g. 'ext4'
         size (int): Size of file system in bytes
         prefix (str): Prefix string of volume's file name
-        use_src_dir (bool): true to put the file in the source directory
 
     Raises:
         CalledProcessError: if any error occurs when creating the filesystem
     """
     fs_img = f'{prefix}.{fs_type}.img'
-    fs_img = os.path.join(config.source_dir if use_src_dir
-                          else config.persistent_data_dir, fs_img)
+    fs_img = os.path.join(config.persistent_data_dir, fs_img)
 
     if fs_type == 'fat16':
         mkfs_opt = '-F 16'

@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <sysreset.h>
 #include <wdt.h>
+#include <linux/printk.h>
 
 struct wdt_reboot_plat {
 	struct udevice *wdt;

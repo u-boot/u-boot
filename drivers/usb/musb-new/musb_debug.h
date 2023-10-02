@@ -10,6 +10,7 @@
 #ifndef __MUSB_LINUX_DEBUG_H__
 #define __MUSB_LINUX_DEBUG_H__
 
+#include <linux/printk.h>
 #define yprintk(facility, format, args...) \
 	do { printk(facility "%s %d: " format , \
 	__func__, __LINE__ , ## args); } while (0)

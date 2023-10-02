@@ -11,6 +11,7 @@
 #include <fastboot.h>
 #include <image-sparse.h>
 
+#include <linux/printk.h>
 #include <linux/mtd/mtd.h>
 #include <jffs2/jffs2.h>
 #include <nand.h>

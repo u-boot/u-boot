@@ -12,6 +12,7 @@
 #include <asm/global_data.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
+#include <asm/sections.h>
 #include <hang.h>
 #include <init.h>
 #include <log.h>

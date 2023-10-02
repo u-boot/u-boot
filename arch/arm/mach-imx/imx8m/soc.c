@@ -533,7 +533,7 @@ static void imx_set_wdog_powerdown(bool enable)
 	writew(enable, &wdog3->wmcr);
 }
 
-static int imx8m_check_clock(void *ctx, struct event *event)
+static int imx8m_check_clock(void)
 {
 	struct udevice *dev;
 	int ret;
@@ -550,7 +550,7 @@ static int imx8m_check_clock(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT_F, imx8m_check_clock);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, imx8m_check_clock);
 
 static void imx8m_setup_snvs(void)
 {

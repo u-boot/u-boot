@@ -9,6 +9,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <image.h>
+#include <linux/printk.h>
 
 #include <command.h>
 #include <env.h>

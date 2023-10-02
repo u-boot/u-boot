@@ -42,6 +42,7 @@
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/compiler.h>
+#include <linux/printk.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/musb.h>
@@ -270,11 +271,7 @@ int arch_misc_init(void)
 		return ret;
 
 #if defined(CONFIG_DM_ETH) && defined(CONFIG_USB_ETHER)
-	ret = usb_ether_init();
-	if (ret) {
-		pr_err("USB ether init failed\n");
-		return ret;
-	}
+	usb_ether_init();
 #endif
 
 	return 0;
@@ -527,7 +524,7 @@ void board_init_f(ulong dummy)
 
 #endif
 
-static int am33xx_dm_post_init(void *ctx, struct event *event)
+static int am33xx_dm_post_init(void)
 {
 	hw_data_init();
 #if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
@@ -535,4 +532,4 @@ static int am33xx_dm_post_init(void *ctx, struct event *event)
 #endif
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT_F, am33xx_dm_post_init);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, am33xx_dm_post_init);

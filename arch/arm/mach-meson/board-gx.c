@@ -15,6 +15,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/armv8/mmu.h>
+#include <linux/printk.h>
 #include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;

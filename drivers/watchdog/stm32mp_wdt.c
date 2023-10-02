@@ -15,6 +15,7 @@
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/iopoll.h>
+#include <linux/printk.h>
 
 /* IWDG registers */
 #define IWDG_KR		0x00	/* Key register */

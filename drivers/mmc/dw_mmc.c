@@ -509,6 +509,10 @@ static int dwmci_set_ios(struct mmc *mmc)
 	if (mmc->vqmmc_supply) {
 		int ret;
 
+		ret = regulator_set_enable_if_allowed(mmc->vqmmc_supply, false);
+		if (ret)
+			return ret;
+
 		if (mmc->signal_voltage == MMC_SIGNAL_VOLTAGE_180)
 			regulator_set_value(mmc->vqmmc_supply, 1800000);
 		else

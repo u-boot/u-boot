@@ -15,6 +15,7 @@
 #include <lmb.h>
 #include <misc.h>
 #include <net.h>
+#include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
@@ -22,7 +23,7 @@
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <linux/bitops.h>
-#include <spl.h>
+#include <linux/printk.h>
 
 /*
  * early TLB into the .data section so that it not get cleared

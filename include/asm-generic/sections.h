@@ -61,39 +61,17 @@ static inline int arch_is_kernel_data(unsigned long addr)
 /* Start of U-Boot text region */
 extern char __text_start[];
 
-/* This marks the end of the text region which must be relocated */
-extern char __image_copy_end[];
+/* This marks the text region which must be relocated */
+extern char __image_copy_start[], __image_copy_end[];
+
+extern char __bss_end[];
+extern char __rel_dyn_start[], __rel_dyn_end[];
+extern char _image_binary_end[];
 
 /*
  * This is the U-Boot entry point - prior to relocation it should be same
  * as __text_start
  */
 extern void _start(void);
-
-/*
- * ARM defines its symbols as char[]. Other arches define them as ulongs.
- */
-#ifdef CONFIG_ARM
-
-extern char __bss_start[];
-extern char __bss_end[];
-extern char __image_copy_start[];
-extern char __image_copy_end[];
-extern char _image_binary_end[];
-extern char __rel_dyn_start[];
-extern char __rel_dyn_end[];
-
-#else /* don't use offsets: */
-
-/* Exports from the Linker Script */
-extern ulong __data_end;
-extern ulong __rel_dyn_start;
-extern ulong __rel_dyn_end;
-extern ulong __bss_end;
-extern ulong _image_binary_end;
-
-extern ulong _TEXT_BASE;	/* code start */
-
-#endif
 
 #endif /* _ASM_GENERIC_SECTIONS_H_ */

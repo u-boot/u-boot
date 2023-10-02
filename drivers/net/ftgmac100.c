@@ -25,6 +25,7 @@
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
+#include <linux/printk.h>
 
 #include "ftgmac100.h"
 

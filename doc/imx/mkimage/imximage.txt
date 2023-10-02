@@ -213,7 +213,7 @@ Disk identifier: 0xb712a870
 	Device Boot	 Start	       End	Blocks	 Id  System
 /dev/mmcblk0p1		     3		16	112455	 83  Linux
 
-I have set 100MB, leaving the first 2 sectors free. I will copy u-boot
+I have set 100MB, leaving the first 2 sectors free. I will copy U-Boot
 there.
 
 8. Write the partition table and exit.

@@ -6,6 +6,8 @@
 #ifndef _STM32PROG_H_
 #define _STM32PROG_H_
 
+#include <linux/printk.h>
+
 /* - phase defines ------------------------------------------------*/
 #define PHASE_FLASHLAYOUT	0x00
 #define PHASE_FIRST_USER	0x10

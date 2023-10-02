@@ -172,12 +172,10 @@
 /* Default environment */
 #ifndef CFG_EXTRA_ENV_SETTINGS
 #define CFG_EXTRA_ENV_SETTINGS	\
-	"scriptaddr=0x20000\0"	\
 	"script_size_f=0x40000\0"	\
 	"fdt_addr_r=0x1f00000\0"        \
 	"pxefile_addr_r=0x2000000\0"    \
 	"kernel_addr_r=0x2000000\0"     \
-	"scriptaddr=0x3000000\0"        \
 	"ramdisk_addr_r=0x3100000\0"    \
 	BOOTENV
 #endif

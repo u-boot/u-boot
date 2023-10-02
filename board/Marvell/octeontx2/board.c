@@ -12,6 +12,7 @@
 #include <asm/global_data.h>
 #include <dm/uclass-internal.h>
 #include <env.h>
+#include <event.h>
 #include <init.h>
 #include <malloc.h>
 #include <net.h>
@@ -213,11 +214,12 @@ void board_acquire_flash_arb(bool acquire)
 	}
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 	(void)smc_flsf_fw_booted();
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 
 static int do_go_uboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])

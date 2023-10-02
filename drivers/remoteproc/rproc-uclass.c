@@ -20,6 +20,7 @@
 #include <dm/uclass.h>
 #include <dm/uclass-internal.h>
 #include <linux/compat.h>
+#include <linux/printk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -689,7 +690,7 @@ static int alloc_vring(struct udevice *dev, struct fw_rsc_vdev *rsc, int i)
 	debug("alloc_mem(%#x, %d): %p\n", size, order, pa);
 	vring->da = (uintptr_t)pa;
 
-	return !pa;
+	return 0;
 }
 
 static int handle_vdev(struct udevice *dev, struct fw_rsc_vdev *rsc,

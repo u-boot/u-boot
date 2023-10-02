@@ -96,22 +96,6 @@ static int spi_flash_post_bind(struct udevice *dev)
 			return log_msg_ret("bd", ret);
 	}
 
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	struct dm_spi_flash_ops *ops = sf_get_ops(dev);
-	static int reloc_done;
-
-	if (!reloc_done) {
-		if (ops->read)
-			ops->read += gd->reloc_off;
-		if (ops->write)
-			ops->write += gd->reloc_off;
-		if (ops->erase)
-			ops->erase += gd->reloc_off;
-
-		reloc_done++;
-	}
-#endif
-
 	return 0;
 }
 

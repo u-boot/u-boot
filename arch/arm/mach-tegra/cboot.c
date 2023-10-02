@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <asm/global_data.h>
+#include <linux/printk.h>
 
 #include <linux/ctype.h>
 #include <linux/sizes.h>

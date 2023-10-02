@@ -19,4 +19,6 @@ HOSTCFLAGS_dtc-parser.tab.o := -I$(src)
 $(obj)/dtc-lexer.lex.o: $(obj)/dtc-parser.tab.h
 
 # Added for U-Boot
+ifeq ($(PYTHON_ENABLE),y)
 subdir-$(CONFIG_PYLIBFDT) += pylibfdt
+endif

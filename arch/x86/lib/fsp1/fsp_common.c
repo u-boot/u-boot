@@ -101,3 +101,4 @@ int arch_fsp_init(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_FSP_INIT_F, arch_fsp_init);

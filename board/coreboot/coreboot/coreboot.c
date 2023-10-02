@@ -10,6 +10,8 @@
 #include <asm/cb_sysinfo.h>
 #include <asm/global_data.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int board_early_init_r(void)
 {
 	/*
@@ -54,14 +56,12 @@ int show_board_info(void)
 	return 0;
 
 fallback:
-#ifdef CONFIG_OF_CONTROL
-	DECLARE_GLOBAL_DATA_PTR;
+	if (IS_ENABLED(CONFIG_OF_CONTROL)) {
+		model = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
 
-	model = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
-
-	if (model)
-		printf("Model: %s\n", model);
-#endif
+		if (model)
+			printf("Model: %s\n", model);
+	}
 
 	return checkboard();
 }

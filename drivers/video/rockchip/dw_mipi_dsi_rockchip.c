@@ -377,7 +377,7 @@ static int dsi_phy_init(void *priv_data)
 	struct dw_rockchip_dsi_priv *dsi = dev_get_priv(dev);
 	int ret, i, vco;
 
-	if (dsi->phy.dev) {
+	if (generic_phy_valid(&dsi->phy)) {
 		ret = generic_phy_configure(&dsi->phy, &dsi->phy_opts);
 		if (ret) {
 			dev_err(dsi->dsi_host,
@@ -559,7 +559,7 @@ dw_mipi_dsi_get_lane_mbps(void *priv_data, struct display_timing *timings,
 	}
 
 	/* for external phy only the mipi_dphy_config is necessary */
-	if (dsi->phy.dev) {
+	if (generic_phy_valid(&dsi->phy)) {
 		phy_mipi_dphy_get_default_config(timings->pixelclock.typ  * 10 / 8,
 						 bpp, lanes,
 						 &dsi->phy_opts);
@@ -859,7 +859,7 @@ static int dw_mipi_dsi_rockchip_probe(struct udevice *dev)
 	}
 
 	/* Get a ref clock only if not using an external phy. */
-	if (priv->phy.dev) {
+	if (generic_phy_valid(&priv->phy)) {
 		dev_dbg(dev, "setting priv->ref to NULL\n");
 		priv->ref = NULL;
 

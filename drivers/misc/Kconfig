@@ -122,6 +122,14 @@ config VEXPRESS_CONFIG
 	  configuration bus on the Arm Versatile Express boards via
 	  a sysreg driver.
 
+config CBMEM_CONSOLE
+	bool "Write console output to coreboot cbmem"
+	depends on X86
+	help
+	  Enables console output to the cbmem console, which is a memory
+	  region set up by coreboot to hold a record of all console output.
+	  Enable this only if booting from coreboot.
+
 config CMD_CROS_EC
 	bool "Enable crosec command"
 	depends on CROS_EC
@@ -555,7 +563,7 @@ config SPL_I2C_EEPROM
 config SYS_I2C_EEPROM_ADDR
 	hex "Chip address of the EEPROM device"
 	depends on ID_EEPROM || I2C_EEPROM || SPL_I2C_EEPROM || CMD_EEPROM || ENV_IS_IN_EEPROM
-	default 0
+	default 0x0
 
 if I2C_EEPROM
 

@@ -293,18 +293,6 @@ int stdio_deregister_dev(struct stdio_dev *dev, int force)
 
 int stdio_init_tables(void)
 {
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	/* already relocated for current ARM implementation */
-	ulong relocation_offset = gd->reloc_off;
-	int i;
-
-	/* relocate device name pointers */
-	for (i = 0; i < (sizeof (stdio_names) / sizeof (char *)); ++i) {
-		stdio_names[i] = (char *) (((ulong) stdio_names[i]) +
-						relocation_offset);
-	}
-#endif /* CONFIG_NEEDS_MANUAL_RELOC */
-
 	/* Initialize the list */
 	INIT_LIST_HEAD(&devs.list);
 

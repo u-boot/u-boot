@@ -103,7 +103,7 @@ static void mxs_spl_fixup_vectors(void)
 	 */
 
 	/* cppcheck-suppress nullPointer */
-	memcpy(0x0, &_start, 0x60);
+	memcpy(0x0, _start, 0x60);
 }
 
 static void mxs_spl_console_init(void)

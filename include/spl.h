@@ -484,7 +484,7 @@ unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
  * spl_set_header_raw_uboot() - Set up a standard SPL image structure
  *
  * This sets up the given spl_image which the standard values obtained from
- * config options: CONFIG_SYS_MONITOR_LEN, CFG_SYS_UBOOT_START,
+ * config options: CONFIG_SYS_MONITOR_LEN, CONFIG_SYS_UBOOT_START,
  * CONFIG_TEXT_BASE.
  *
  * @spl_image: Image description to set up

@@ -27,6 +27,7 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/iomux-v3.h>
+#include <asm/sections.h>
 #include <usb.h>
 #include <usb/ehci-ci.h>
 #include <fuse.h>

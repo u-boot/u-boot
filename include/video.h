@@ -58,7 +58,7 @@ enum video_log2_bpp {
  * Convert enum video_log2_bpp to bytes and bits. Note we omit the outer
  * brackets to allow multiplication by fractional pixels.
  */
-#define VNBYTES(bpix)	(1 << (bpix)) / 8
+#define VNBYTES(bpix)	((1 << (bpix)) / 8)
 
 #define VNBITS(bpix)	(1 << (bpix))
 

@@ -12,6 +12,7 @@
 #include <asm/arch-rockchip/boot_mode.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
+#include <linux/printk.h>
 
 #if (CONFIG_ROCKCHIP_BOOT_MODE_REG == 0)
 

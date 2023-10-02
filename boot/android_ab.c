@@ -12,7 +12,6 @@
 #include <memalign.h>
 #include <linux/err.h>
 #include <u-boot/crc.h>
-#include <u-boot/crc.h>
 
 /**
  * Compute the CRC-32 of the bootloader control struct.

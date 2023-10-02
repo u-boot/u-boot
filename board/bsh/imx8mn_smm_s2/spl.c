@@ -13,6 +13,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/gpio.h>
+#include <asm/sections.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 

@@ -26,6 +26,7 @@
 #include <linux/ioport.h>
 #include <linux/mdio.h>
 #include <linux/mii.h>
+#include <linux/printk.h>
 
 #include "mtk_eth.h"
 

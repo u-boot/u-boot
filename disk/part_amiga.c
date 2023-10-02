@@ -125,7 +125,7 @@ static void print_part_info(struct partition_block *p)
  * the ID AMIGA_ID_RDISK ('RDSK') and needs to have a valid
  * sum-to-zero checksum
  */
-struct rigid_disk_block *get_rdisk(struct blk_desc *dev_desc)
+struct rigid_disk_block *get_rdisk(struct blk_desc *desc)
 {
     int i;
     int limit;
@@ -139,7 +139,7 @@ struct rigid_disk_block *get_rdisk(struct blk_desc *dev_desc)
 
     for (i=0; i<limit; i++)
     {
-	ulong res = blk_dread(dev_desc, i, 1, (ulong *)block_buffer);
+	ulong res = blk_dread(desc, i, 1, (ulong *)block_buffer);
 	if (res == 1)
 	{
 	    struct rigid_disk_block *trdb = (struct rigid_disk_block *)block_buffer;
@@ -165,7 +165,7 @@ struct rigid_disk_block *get_rdisk(struct blk_desc *dev_desc)
  * Ridgid disk block
  */
 
-struct bootcode_block *get_bootcode(struct blk_desc *dev_desc)
+struct bootcode_block *get_bootcode(struct blk_desc *desc)
 {
     int i;
     int limit;
@@ -181,7 +181,7 @@ struct bootcode_block *get_bootcode(struct blk_desc *dev_desc)
 
     for (i = 0; i < limit; i++)
     {
-	ulong res = blk_dread(dev_desc, i, 1, (ulong *)block_buffer);
+	ulong res = blk_dread(desc, i, 1, (ulong *)block_buffer);
 	if (res == 1)
 	{
 	    struct bootcode_block *boot = (struct bootcode_block *)block_buffer;
@@ -206,17 +206,17 @@ struct bootcode_block *get_bootcode(struct blk_desc *dev_desc)
  * Test if the given partition has an Amiga partition table/Rigid
  * Disk block
  */
-static int part_test_amiga(struct blk_desc *dev_desc)
+static int part_test_amiga(struct blk_desc *desc)
 {
     struct rigid_disk_block *rdb;
     struct bootcode_block *bootcode;
 
     PRINTF("part_test_amiga: Testing for an Amiga RDB partition\n");
 
-    rdb = get_rdisk(dev_desc);
+	rdb = get_rdisk(desc);
     if (rdb)
     {
-	bootcode = get_bootcode(dev_desc);
+	bootcode = get_bootcode(desc);
 	if (bootcode)
 	    PRINTF("part_test_amiga: bootable Amiga disk\n");
 	else
@@ -235,7 +235,7 @@ static int part_test_amiga(struct blk_desc *dev_desc)
 /*
  * Find partition number partnum on the given drive.
  */
-static struct partition_block *find_partition(struct blk_desc *dev_desc,
+static struct partition_block *find_partition(struct blk_desc *desc,
 					      int partnum)
 {
     struct rigid_disk_block *rdb;
@@ -243,7 +243,7 @@ static struct partition_block *find_partition(struct blk_desc *dev_desc,
     u32 block;
 
     PRINTF("Trying to find partition block %d\n", partnum);
-    rdb = get_rdisk(dev_desc);
+	rdb = get_rdisk(desc);
     if (!rdb)
     {
 	PRINTF("find_partition: no rdb found\n");
@@ -257,7 +257,7 @@ static struct partition_block *find_partition(struct blk_desc *dev_desc,
 
     while (block != 0xFFFFFFFF)
     {
-	ulong res = blk_dread(dev_desc, block, 1, (ulong *)block_buffer);
+	ulong res = blk_dread(desc, block, 1, (ulong *)block_buffer);
 	if (res == 1)
 	{
 	    p = (struct partition_block *)block_buffer;
@@ -289,10 +289,10 @@ static struct partition_block *find_partition(struct blk_desc *dev_desc,
 /*
  * Get info about a partition
  */
-static int part_get_info_amiga(struct blk_desc *dev_desc, int part,
-				    struct disk_partition *info)
+static int part_get_info_amiga(struct blk_desc *desc, int part,
+			       struct disk_partition *info)
 {
-    struct partition_block *p = find_partition(dev_desc, part-1);
+	struct partition_block *p = find_partition(desc, part - 1);
     struct amiga_part_geometry *g;
     u32 disk_type;
 
@@ -317,7 +317,7 @@ static int part_get_info_amiga(struct blk_desc *dev_desc, int part,
     return 0;
 }
 
-static void part_print_amiga(struct blk_desc *dev_desc)
+static void part_print_amiga(struct blk_desc *desc)
 {
     struct rigid_disk_block *rdb;
     struct bootcode_block *boot;
@@ -325,7 +325,7 @@ static void part_print_amiga(struct blk_desc *dev_desc)
     u32 block;
     int i = 1;
 
-    rdb = get_rdisk(dev_desc);
+	rdb = get_rdisk(desc);
     if (!rdb)
     {
 	PRINTF("part_print_amiga: no rdb found\n");
@@ -353,7 +353,7 @@ static void part_print_amiga(struct blk_desc *dev_desc)
 
 	PRINTF("Trying to load block #0x%X\n", block);
 
-	res = blk_dread(dev_desc, block, 1, (ulong *)block_buffer);
+	res = blk_dread(desc, block, 1, (ulong *)block_buffer);
 	if (res == 1)
 	{
 	    p = (struct partition_block *)block_buffer;
@@ -370,7 +370,7 @@ static void part_print_amiga(struct blk_desc *dev_desc)
 	} else block = 0xFFFFFFFF;
     }
 
-    boot = get_bootcode(dev_desc);
+	boot = get_bootcode(desc);
     if (boot)
     {
 	printf("Disk is bootable\n");

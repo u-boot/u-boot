@@ -22,8 +22,5 @@
 #define DMAMEM_SZ_ALL			(1 * 1024 * 1024)
 #define DMAMEM_BASE			(PHYS_SDRAM + PHYS_SDRAM_SIZE - \
 					 DMAMEM_SZ_ALL)
-/* For SPL */
-#define CFG_SYS_UBOOT_START		0x202403FD
-/* For SPL ends */
 
 #endif /* __IMXRT1170_EVK_H */

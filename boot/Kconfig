@@ -3,14 +3,25 @@ menu "Boot options"
 menu "Boot images"
 
 config ANDROID_BOOT_IMAGE
-	bool "Enable support for Android Boot Images"
+	bool "Android Boot Images"
 	default y if FASTBOOT
 	help
 	  This enables support for booting images which use the Android
 	  image format header.
 
-config FIT
-	bool "Support Flattened Image Tree"
+config TIMESTAMP
+	bool "Show image date and time when displaying image information"
+	default y if CMD_DATE
+	help
+	  When CONFIG_TIMESTAMP is selected, the timestamp (date and time) of
+	  an image is printed by image commands like bootm or iminfo. This
+	  is shown as 'Timestamp: xxx' and 'Created: xxx'. If this option is
+	  enabled, then U-Boot requires FITs to have a timestamp. If a FIT is
+	  loaded that does not, the message 'Wrong FIT format: no timestamp'
+	  is shown.
+
+menuconfig FIT
+	bool "Flattened Image Tree (FIT)"
 	select HASH
 	select MD5
 	select SHA1
@@ -25,20 +36,10 @@ config FIT
 	  multiple configurations, verification through hashing and also
 	  verified boot (secure boot using RSA).
 
-config TIMESTAMP
-	bool "Show image date and time when displaying image information"
-	default y if CMD_DATE
-	help
-	  When CONFIG_TIMESTAMP is selected, the timestamp (date and time) of
-	  an image is printed by image commands like bootm or iminfo. This
-	  is shown as 'Timestamp: xxx' and 'Created: xxx'. If this option is
-	  enabled, then U-Boot requires FITs to have a timestamp. If a FIT is
-	  loaded that does not, the message 'Wrong FIT format: no timestamp'
-	  is shown.
+if FIT
 
 config FIT_EXTERNAL_OFFSET
 	hex "FIT external data offset"
-	depends on FIT
 	default 0x0
 	help
 	  This specifies a data offset in fit image.
@@ -49,7 +50,6 @@ config FIT_EXTERNAL_OFFSET
 
 config FIT_FULL_CHECK
 	bool "Do a full check of the FIT before using it"
-	depends on FIT
 	default y
 	help
 	  Enable this do a full check of the FIT to make sure it is valid. This
@@ -59,7 +59,7 @@ config FIT_FULL_CHECK
 
 config FIT_SIGNATURE
 	bool "Enable signature verification of FIT uImages"
-	depends on DM && FIT
+	depends on DM
 	select HASH
 	imply RSA
 	imply RSA_VERIFY
@@ -97,7 +97,7 @@ config FIT_RSASSA_PSS
 
 config FIT_CIPHER
 	bool "Enable ciphering data in a FIT uImages"
-	depends on DM && FIT
+	depends on DM
 	select AES
 	help
 	  Enable the feature of data ciphering/unciphering in the tool mkimage
@@ -105,7 +105,6 @@ config FIT_CIPHER
 
 config FIT_VERBOSE
 	bool "Show verbose messages when FIT images fail"
-	depends on FIT
 	help
 	  Generally a system will have valid FIT images so debug messages
 	  are a waste of code space. If you are debugging your images then
@@ -114,7 +113,6 @@ config FIT_VERBOSE
 
 config FIT_BEST_MATCH
 	bool "Select the best match for the kernel device tree"
-	depends on FIT
 	help
 	  When no configuration is explicitly selected, default to the
 	  one whose fdt's compatibility field best matches that of
@@ -124,7 +122,6 @@ config FIT_BEST_MATCH
 
 config FIT_IMAGE_POST_PROCESS
 	bool "Enable post-processing of FIT artifacts after loading by U-Boot"
-	depends on FIT
 	depends on SOCFPGA_SECURE_VAB_AUTH
 	help
 	  Allows doing any sort of manipulation to blobs after they got extracted
@@ -139,14 +136,13 @@ config FIT_IMAGE_POST_PROCESS
 
 config FIT_PRINT
         bool "Support FIT printing"
-	depends on FIT
         default y
         help
           Support printing the content of the fitImage in a verbose manner.
 
 config SPL_FIT
 	bool "Support Flattened Image Tree within SPL"
-	depends on SPL && FIT
+	depends on SPL
 	select SPL_HASH
 	select SPL_OF_LIBFDT
 
@@ -197,7 +193,7 @@ config SPL_FIT_RSASSA_PSS
 
 config SPL_LOAD_FIT
 	bool "Enable SPL loading U-Boot as a FIT (basic fitImage features)"
-	depends on SPL && FIT
+	depends on SPL
 	select SPL_FIT
 	help
 	  Normally with the SPL framework a legacy image is generated as part
@@ -219,7 +215,7 @@ config SPL_LOAD_FIT
 
 config SPL_LOAD_FIT_ADDRESS
 	hex "load address of fit image"
-	depends on SPL_LOAD_FIT || SPL_RAM_SUPPORT || TPL_RAM_SUPPORT
+	depends on SPL_LOAD_FIT
 	default 0x0
 	help
 	  Specify the load address of the fit image that will be loaded
@@ -245,7 +241,6 @@ config SPL_LOAD_FIT_APPLY_OVERLAY_BUF_SZ
 
 config SPL_LOAD_FIT_FULL
 	bool "Enable SPL loading U-Boot as a FIT (full fitImage features)"
-	depends on FIT
 	select SPL_FIT
 	help
 	  Normally with the SPL framework a legacy image is generated as part
@@ -343,6 +338,8 @@ config VPL_FIT_SIGNATURE_MAX_SIZE
 
 endif # VPL
 
+endif # FIT
+
 config PXE_UTILS
 	bool
 	select MENU
@@ -375,8 +372,8 @@ config BOOT_DEFAULTS
 	  of U-Boot to boot various images. Currently much functionality is
 	  tied to enabling the command that exercises it.
 
-config BOOTSTD
-	bool "Standard boot support"
+menuconfig BOOTSTD
+	bool "Standard boot"
 	default y
 	depends on DM && OF_CONTROL && BLK
 	help
@@ -395,6 +392,8 @@ config BOOTSTD
 	    - bootmeth - a method to scan a bootdev to find bootflows (owned by
 	        U-Boot)
 	    - bootflow - a description of how to boot (owned by the distro)
+
+if BOOTSTD
 
 config SPL_BOOTSTD
 	bool "Standard boot support in SPL"
@@ -415,8 +414,6 @@ config VPL_BOOTSTD
 	  (Verified Boot for Embedded) can be used, since it depends on standard
 	  boot. It is enabled by default since the main purpose of VPL is to
 	  handle the firmware part of VBE.
-
-if BOOTSTD
 
 config BOOTSTD_FULL
 	bool "Enhanced features for standard boot"
@@ -464,8 +461,11 @@ config BOOTMETH_GLOBAL
 
 config BOOTMETH_CROS
 	bool "Bootdev support for Chromium OS"
-	depends on X86 || SANDBOX
-	default y
+	depends on X86 || ARM || SANDBOX
+	default y if !ARM
+	select EFI_PARTITION
+	select PARTITION_TYPE_GUID
+	select PARTITION_UUIDS
 	help
 	  Enables support for booting Chromium OS using bootdevs. This uses the
 	  kernel A slot and obtains the kernel command line from the parameters
@@ -673,7 +673,7 @@ config BOOTMETH_SCRIPT
 	  This provides a way to try out standard boot on an existing boot flow.
 	  It is not enabled by default to save space.
 
-endif
+endif # BOOTSTD
 
 config LEGACY_IMAGE_FORMAT
 	bool "Enable support for the legacy image format"
@@ -692,108 +692,6 @@ config SUPPORT_RAW_INITRD
 	  kernel with raw initrd images. The syntax is slightly different, the
 	  address of the initrd must be augmented by it's size, in the following
 	  format: "<initrd address>:<initrd size>".
-
-config OF_BOARD_SETUP
-	bool "Set up board-specific details in device tree before boot"
-	depends on OF_LIBFDT
-	help
-	  This causes U-Boot to call ft_board_setup() before booting into
-	  the Operating System. This function can set up various
-	  board-specific information in the device tree for use by the OS.
-	  The device tree is then passed to the OS.
-
-config OF_SYSTEM_SETUP
-	bool "Set up system-specific details in device tree before boot"
-	depends on OF_LIBFDT
-	help
-	  This causes U-Boot to call ft_system_setup() before booting into
-	  the Operating System. This function can set up various
-	  system-specific information in the device tree for use by the OS.
-	  The device tree is then passed to the OS.
-
-config OF_STDOUT_VIA_ALIAS
-	bool "Update the device-tree stdout alias from U-Boot"
-	depends on OF_LIBFDT
-	help
-	  This uses U-Boot's serial alias from the aliases node to update
-	  the device tree passed to the OS. The "linux,stdout-path" property
-	  in the chosen node is set to point to the correct serial node.
-	  This option currently references CONFIG_CONS_INDEX, which is
-	  incorrect when used with device tree as this option does not
-	  exist / should not be used.
-
-config HAVE_TEXT_BASE
-	bool
-	depends on !NIOS2 && !XTENSA
-	depends on !EFI_APP
-	default y
-
-config TEXT_BASE
-	depends on HAVE_TEXT_BASE
-	default 0x0 if POSITION_INDEPENDENT
-	default 0x80800000 if ARCH_OMAP2PLUS || ARCH_K3
-	default 0x81700000 if MACH_SUNIV
-	default 0x2a000000 if MACH_SUN9I
-	default 0x4a000000 if SUNXI_MINIMUM_DRAM_MB >= 256
-	default 0x42e00000 if SUNXI_MINIMUM_DRAM_MB >= 64
-	hex "Text Base"
-	help
-	  The address in memory that U-Boot will be running from, initially.
-
-config HAVE_SYS_MONITOR_BASE
-	bool
-	depends on ARC || MIPS || M68K || NIOS2 || PPC || XTENSA || X86 \
-		|| ENV_IS_IN_FLASH || MTD_NOR_FLASH
-	depends on !EFI_APP
-	default y
-
-config SYS_MONITOR_BASE
-	depends on HAVE_SYS_MONITOR_BASE
-	hex "Physical start address of boot monitor code"
-	default TEXT_BASE
-	help
-	  The physical start address of boot monitor code (which is the same as
-	  CONFIG_TEXT_BASE when linking) and the same as CFG_SYS_FLASH_BASE
-	  when booting from flash.
-
-config SPL_SYS_MONITOR_BASE
-	depends on MPC85xx && SPL && HAVE_SYS_MONITOR_BASE
-	hex "Physical start address of SPL monitor code"
-	default SPL_TEXT_BASE
-
-config TPL_SYS_MONITOR_BASE
-	depends on MPC85xx && TPL && HAVE_SYS_MONITOR_BASE
-	hex "Physical start address of TPL monitor code"
-
-config DYNAMIC_SYS_CLK_FREQ
-	bool "Determine CPU clock frequency at run-time"
-	help
-	  Implement a get_board_sys_clk function that will determine the CPU
-	  clock frequency at run time, rather than define it statically.
-
-config SYS_CLK_FREQ
-	depends on !DYNAMIC_SYS_CLK_FREQ
-	int "CPU clock frequency"
-	default 125000000 if ARCH_LS1012A
-	default 100000000 if ARCH_P2020 || ARCH_T1024 || ARCH_T1042 || \
-			     ARCH_LS1021A || FSL_LSCH2 || FSL_LSCH3
-	default 66666666 if ARCH_P1010 || ARCH_P1020 || ARCH_T4240
-	default 66660000 if ARCH_T2080
-	default 33333333 if RCAR_GEN3
-	default 24000000 if ARCH_EXYNOS
-	default 20000000 if RCAR_GEN2
-	default 0
-	help
-	  A static value for the CPU frequency.  Note that if not required
-	  for a given SoC, this can be left at 0.
-
-config ARCH_FIXUP_FDT_MEMORY
-	bool "Enable arch_fixup_memory_banks() call"
-	default y
-	help
-	  Enable FDT memory map syncup before OS boot. This feature can be
-	  used for booting OS with different memory setup where the part of
-	  the memory location should be used for different purpose.
 
 config CHROMEOS
 	bool "Support booting Chrome OS"
@@ -878,7 +776,7 @@ config SYS_BOOT_RAMDISK_HIGH
 endmenu		# Boot images
 
 config DISTRO_DEFAULTS
-	bool "Select defaults suitable for booting general purpose Linux distributions"
+	bool "(deprecated) Script-based booting of Linux distributions"
 	select BOOT_DEFAULTS
 	select AUTO_COMPLETE
 	select CMDLINE_EDITING
@@ -886,6 +784,10 @@ config DISTRO_DEFAULTS
 	select HUSH_PARSER
 	select SYS_LONGHELP
 	help
+	  Note: These scripts have been replaced by Standard Boot. Do not use
+	  them on new boards. See 'Migrating from distro_boot' at
+	  doc/develop/bootstd.rst
+
 	  Select this to enable various options and commands which are suitable
 	  for building u-boot for booting general purpose Linux distributions.
 
@@ -1007,7 +909,7 @@ config BOOTSTAGE_STASH
 
 config BOOTSTAGE_STASH_ADDR
 	hex "Address to stash boot timing information"
-	default 0
+	default 0x0
 	help
 	  Provide an address which will not be overwritten by the OS when it
 	  starts, so that it can read this information when ready.
@@ -1534,6 +1436,63 @@ config SPL_IMAGE_PRE_LOAD_SIG
 	  u-boot.
 
 endmenu
+
+if OF_LIBFDT
+
+menu "Devicetree fixup"
+
+config OF_BOARD_SETUP
+	bool "Set up board-specific details in device tree before boot"
+	help
+	  This causes U-Boot to call ft_board_setup() before booting into
+	  the Operating System. This function can set up various
+	  board-specific information in the device tree for use by the OS.
+	  The device tree is then passed to the OS.
+
+config OF_SYSTEM_SETUP
+	bool "Set up system-specific details in device tree before boot"
+	help
+	  This causes U-Boot to call ft_system_setup() before booting into
+	  the Operating System. This function can set up various
+	  system-specific information in the device tree for use by the OS.
+	  The device tree is then passed to the OS.
+
+config OF_STDOUT_VIA_ALIAS
+	bool "Update the device-tree stdout alias from U-Boot"
+	help
+	  This uses U-Boot's serial alias from the aliases node to update
+	  the device tree passed to the OS. The "linux,stdout-path" property
+	  in the chosen node is set to point to the correct serial node.
+	  This option currently references CONFIG_CONS_INDEX, which is
+	  incorrect when used with device tree as this option does not
+	  exist / should not be used.
+
+config FDT_FIXUP_PARTITIONS
+	bool "Overwrite MTD partitions in DTS through defined in 'mtdparts'"
+	help
+	  Allow overwriting defined partitions in the device tree blob
+	  using partition info defined in the 'mtdparts' environment
+	  variable.
+
+config FDT_SIMPLEFB
+	bool "FDT tools for simplefb support"
+	help
+	  Enable the fdt tools to manage the simple fb nodes in device tree.
+	  These functions can be used by board to indicate to the OS
+	  the presence of the simple frame buffer with associated reserved
+	  memory
+
+config ARCH_FIXUP_FDT_MEMORY
+	bool "Enable arch_fixup_memory_banks() call"
+	default y
+	help
+	  Enable FDT memory map syncup before OS boot. This feature can be
+	  used for booting OS with different memory setup where the part of
+	  the memory location should be used for different purpose.
+
+endmenu
+
+endif # OF_LIBFDT
 
 config USE_BOOTARGS
 	bool "Enable boot arguments"

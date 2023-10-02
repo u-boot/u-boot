@@ -720,6 +720,7 @@ config SYS_FSL_CLK
 
 config LAST_STAGE_INIT
 	bool "Call board-specific as last setup step"
+	select EVENT
 	help
 	  Some boards need to perform initialisation immediately before control
 	  is passed to the command-line interpreter (e.g. for initializations
@@ -1031,7 +1032,7 @@ config BLOBLIST_SIZE
 config BLOBLIST_SIZE_RELOC
 	hex "Size of bloblist after relocation"
 	default BLOBLIST_SIZE if BLOBLIST_FIXED || BLOBLIST_ALLOC
-	default 0 if BLOBLIST_PASSAGE
+	default 0x0 if BLOBLIST_PASSAGE
 	help
 	  Sets the size of the bloblist in bytes after relocation. Since U-Boot
 	  has a lot more memory available then, it is possible to use a larger
@@ -1156,25 +1157,5 @@ config VPL_IMAGE_SIGN_INFO
 
 endif
 
-config FDT_SIMPLEFB
-	bool "FDT tools for simplefb support"
-	depends on OF_LIBFDT
-	help
-	  Enable the fdt tools to manage the simple fb nodes in device tree.
-	  These functions can be used by board to indicate to the OS
-	  the presence of the simple frame buffer with associated reserved
-	  memory
-
 config IO_TRACE
 	bool
-
-config BMP
-	bool "Enable bmp image display"
-	help
-	  Enable bmp functions to display bmp image and get bmp info.
-
-config SPL_BMP
-	bool "Enable bmp image display at SPL"
-	depends on SPL_VIDEO
-	help
-	  Enable bmp functions to display bmp image and get bmp info at SPL.

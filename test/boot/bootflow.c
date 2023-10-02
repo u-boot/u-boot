@@ -27,6 +27,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern U_BOOT_DRIVER(bootmeth_cros);
 extern U_BOOT_DRIVER(bootmeth_2script);
 
 static int inject_response(struct unit_test_state *uts)
@@ -167,21 +168,22 @@ static int bootflow_cmd_scan_e(struct unit_test_state *uts)
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("Scanning bootdev 'mmc2.bootdev':");
-	ut_assert_nextline("  0  extlinux     media   mmc          0  mmc2.bootdev.whole        <NULL>");
+	ut_assert_nextline("  0  extlinux     media   mmc          0  mmc2.bootdev.whole        ");
 	ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
-	ut_assert_nextline("  1  efi          media   mmc          0  mmc2.bootdev.whole        <NULL>");
+	ut_assert_nextline("  1  efi          media   mmc          0  mmc2.bootdev.whole        ");
 	ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
 
 	ut_assert_nextline("Scanning bootdev 'mmc1.bootdev':");
-	ut_assert_nextline("  2  extlinux     media   mmc          0  mmc1.bootdev.whole        <NULL>");
+	ut_assert_nextline("  2  extlinux     media   mmc          0  mmc1.bootdev.whole        ");
 	ut_assert_nextline("     ** No partition found, err=-2: No such file or directory");
-	ut_assert_nextline("  3  efi          media   mmc          0  mmc1.bootdev.whole        <NULL>");
+	ut_assert_nextline("  3  efi          media   mmc          0  mmc1.bootdev.whole        ");
 	ut_assert_nextline("     ** No partition found, err=-2: No such file or directory");
 	ut_assert_nextline("  4  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
 	ut_assert_nextline("  5  efi          fs      mmc          1  mmc1.bootdev.part_1       efi/boot/bootsbox.efi");
 
 	ut_assert_skip_to_line("Scanning bootdev 'mmc0.bootdev':");
-	ut_assert_skip_to_line(" 3f  efi          media   mmc          0  mmc0.bootdev.whole        <NULL>");
+	ut_assert_skip_to_line(
+		" 3f  efi          media   mmc          0  mmc0.bootdev.whole        ");
 	ut_assert_nextline("     ** No partition found, err=-93: Protocol not supported");
 	ut_assert_nextline("No more bootdevs");
 	ut_assert_nextlinen("---");
@@ -192,10 +194,11 @@ static int bootflow_cmd_scan_e(struct unit_test_state *uts)
 	ut_assert_nextline("Showing all bootflows");
 	ut_assert_nextline("Seq  Method       State   Uclass    Part  Name                      Filename");
 	ut_assert_nextlinen("---");
-	ut_assert_nextline("  0  extlinux     media   mmc          0  mmc2.bootdev.whole        <NULL>");
-	ut_assert_nextline("  1  efi          media   mmc          0  mmc2.bootdev.whole        <NULL>");
-	ut_assert_skip_to_line("  4  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
-	ut_assert_skip_to_line(" 3f  efi          media   mmc          0  mmc0.bootdev.whole        <NULL>");
+	ut_assert_nextline("  0  extlinux     media   mmc          0  mmc2.bootdev.whole        ");
+	ut_assert_nextline("  1  efi          media   mmc          0  mmc2.bootdev.whole        ");
+	ut_assert_skip_to_line(
+		"  4  extlinux     ready   mmc          1  mmc1.bootdev.part_1       /extlinux/extlinux.conf");
+	ut_assert_skip_to_line(" 3f  efi          media   mmc          0  mmc0.bootdev.whole        ");
 	ut_assert_nextlinen("---");
 	ut_assert_nextline("(64 bootflows, 1 valid)");
 	ut_assert_console_end();
@@ -384,7 +387,7 @@ static int bootflow_system(struct unit_test_state *uts)
 	console_record_reset_enable();
 	ut_assertok(run_command("bootflow scan -lH", 0));
 	ut_assert_skip_to_line(
-		"  0  efi_mgr      ready   (none)       0  <NULL>                    <NULL>");
+		"  0  efi_mgr      ready   (none)       0  <NULL>                    ");
 	ut_assert_skip_to_line("No more bootdevs");
 	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
 	ut_assert_console_end();
@@ -506,21 +509,25 @@ static int bootflow_cmd_boot(struct unit_test_state *uts)
 BOOTSTD_TEST(bootflow_cmd_boot, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
 
 /**
- * prep_mmc4_bootdev() - Set up the mmc4 bootdev so we can access a fake Armbian
+ * prep_mmc_bootdev() - Set up an mmc bootdev so we can access other distros
  *
  * @uts: Unit test state
+ * @mmc_dev: MMC device to use, e.g. "mmc4"
  * Returns 0 on success, -ve on failure
  */
-static int prep_mmc4_bootdev(struct unit_test_state *uts)
+static int prep_mmc_bootdev(struct unit_test_state *uts, const char *mmc_dev,
+			    bool bind_cros)
 {
-	static const char *order[] = {"mmc2", "mmc1", "mmc4", NULL};
+	const char *order[] = {"mmc2", "mmc1", mmc_dev, NULL};
 	struct udevice *dev, *bootstd;
 	struct bootstd_priv *std;
 	const char **old_order;
-	ofnode node;
+	ofnode root, node;
 
 	/* Enable the mmc4 node since we need a second bootflow */
-	node = ofnode_path("/mmc4");
+	root = oftree_root(oftree_default());
+	node = ofnode_find_subnode(root, mmc_dev);
+	ut_assert(ofnode_valid(node));
 	ut_assertok(lists_bind_fdt(gd->dm_root, node, &dev, NULL, false));
 
 	/* Enable the script bootmeth too */
@@ -528,7 +535,14 @@ static int prep_mmc4_bootdev(struct unit_test_state *uts)
 	ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_2script),
 				"bootmeth_script", 0, ofnode_null(), &dev));
 
-	/* Change the order to include mmc4 */
+	/* Enable the cros bootmeth if needed */
+	if (bind_cros) {
+		ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
+		ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_cros),
+					"cros", 0, ofnode_null(), &dev));
+	}
+
+	/* Change the order to include the device */
 	std = dev_get_priv(bootstd);
 	old_order = std->bootdev_order;
 	std->bootdev_order = order;
@@ -539,6 +553,19 @@ static int prep_mmc4_bootdev(struct unit_test_state *uts)
 
 	/* Restore the order used by the device tree */
 	std->bootdev_order = old_order;
+
+	return 0;
+}
+
+/**
+ * prep_mmc4_bootdev() - Set up the mmc4 bootdev so we can access a fake Armbian
+ *
+ * @uts: Unit test state
+ * Returns 0 on success, -ve on failure
+ */
+static int prep_mmc4_bootdev(struct unit_test_state *uts)
+{
+	ut_assertok(prep_mmc_bootdev(uts, "mmc4", false));
 
 	return 0;
 }
@@ -945,3 +972,24 @@ static int bootflow_cmdline(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootflow_cmdline, 0);
+
+/* Test ChromiumOS bootmeth */
+static int bootflow_cros(struct unit_test_state *uts)
+{
+	ut_assertok(prep_mmc_bootdev(uts, "mmc5", true));
+	ut_assertok(run_command("bootflow list", 0));
+
+	ut_assert_nextlinen("Showing all");
+	ut_assert_nextlinen("Seq");
+	ut_assert_nextlinen("---");
+	ut_assert_nextlinen("  0  extlinux");
+	ut_assert_nextlinen("  1  cros         ready   mmc          2  mmc5.bootdev.part_2       ");
+	ut_assert_nextlinen("  2  cros         ready   mmc          4  mmc5.bootdev.part_4       ");
+	ut_assert_nextlinen("---");
+	ut_assert_skip_to_line("(3 bootflows, 3 valid)");
+
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_cros, 0);

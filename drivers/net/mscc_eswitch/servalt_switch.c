@@ -16,6 +16,7 @@
 #include <miiphy.h>
 #include <net.h>
 #include <wait_bit.h>
+#include <linux/printk.h>
 
 #include "mscc_xfer.h"
 #include "mscc_miim.h"

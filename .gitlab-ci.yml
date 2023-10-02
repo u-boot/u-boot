@@ -10,7 +10,7 @@ default:
 
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20230624-20Jul2023
+image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20230804-25Aug2023
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -21,6 +21,8 @@ stages:
 .buildman_and_testpy_template: &buildman_and_testpy_dfn
   stage: test.py
   retry: 2 # QEMU may be too slow, etc.
+  rules:
+    - when: always
   before_script:
     # Clone uboot-test-hooks
     - git config --global --add safe.directory "${CI_PROJECT_DIR}"
@@ -93,8 +95,13 @@ stages:
       - "*.css"
     expire_in: 1 week
 
-build all 32bit ARM platforms:
+.world_build:
   stage: world build
+  rules:
+    - when: always
+
+build all 32bit ARM platforms:
+  extends: .world_build
   script:
     - ret=0;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
@@ -106,7 +113,7 @@ build all 32bit ARM platforms:
       fi;
 
 build all 64bit ARM platforms:
-  stage: world build
+  extends: .world_build
   script:
     - virtualenv -p /usr/bin/python3 /tmp/venv
     - . /tmp/venv/bin/activate
@@ -120,7 +127,7 @@ build all 64bit ARM platforms:
       fi;
 
 build all PowerPC platforms:
-  stage: world build
+  extends: .world_build
   script:
     - ret=0;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
@@ -131,7 +138,7 @@ build all PowerPC platforms:
       fi;
 
 build all other platforms:
-  stage: world build
+  extends: .world_build
   script:
     - ret=0;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
@@ -141,8 +148,13 @@ build all other platforms:
         exit $ret;
       fi;
 
-check for new CONFIG symbols outside Kconfig:
+.testsuites:
   stage: testsuites
+  rules:
+    - when: always
+
+check for new CONFIG symbols outside Kconfig:
+  extends: .testsuites
   script:
     - git config --global --add safe.directory "${CI_PROJECT_DIR}"
     # If grep succeeds and finds a match the test fails as we should
@@ -151,25 +163,9 @@ check for new CONFIG symbols outside Kconfig:
         :^doc/ :^arch/arm/dts/ :^scripts/kconfig/lkc.h
         :^include/linux/kconfig.h :^tools/ && exit 1 || exit 0
 
-# QA jobs for code analytics
-# static code analysis with cppcheck (we can add --enable=all later)
-cppcheck:
-  stage: testsuites
-  script:
-    - cppcheck -j$(nproc) --force --quiet --inline-suppr .
-
-# search for TODO within source tree
-grep TODO/FIXME/HACK:
-  stage: testsuites
-  script:
-    - grep -r TODO .
-    - grep -r FIXME .
-    # search for HACK within source tree and ignore HACKKIT board
-    - grep -r HACK . | grep -v HACKKIT
-
 # build documentation
 docs:
-  stage: testsuites
+  extends: .testsuites
   script:
     - virtualenv -p /usr/bin/python3 /tmp/venvhtml
     - . /tmp/venvhtml/bin/activate
@@ -177,32 +173,22 @@ docs:
     - make htmldocs KDOC_WERROR=1
     - make infodocs
 
-# some statistics about the code base
-sloccount:
-  stage: testsuites
-  script:
-    - sloccount .
-
 # ensure all configs have MAINTAINERS entries
 Check for configs without MAINTAINERS entry:
-  stage: testsuites
+  extends: .testsuites
   script:
     - ./tools/buildman/buildman --maintainer-check || exit 0
 
 # Ensure host tools build
-Build tools-only:
-  stage: testsuites
+Build tools-only and envtools:
+  extends: .testsuites
   script:
-    - make tools-only_config tools-only -j$(nproc)
-
-# Ensure env tools build
-Build envtools:
-  stage: testsuites
-  script:
-    - make tools-only_config envtools -j$(nproc)
+    - make tools-only_config tools-only -j$(nproc);
+      make mrproper;
+      make tools-only_config envtools -j$(nproc)
 
 Run binman, buildman, dtoc, Kconfig and patman testsuites:
-  stage: testsuites
+  extends: .testsuites
   script:
     - git config --global user.name "GitLab CI Runner";
       git config --global user.email trini@konsulko.com;
@@ -212,12 +198,12 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
       . /tmp/venv/bin/activate;
       pip install -r test/py/requirements.txt;
       pip install -r tools/buildman/requirements.txt;
-      export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl;
+      export UBOOT_TRAVIS_BUILD_DIR=/tmp/tools-only;
       export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
       export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
       set +e;
       ./tools/buildman/buildman -T0 -o ${UBOOT_TRAVIS_BUILD_DIR} -w
-        --board sandbox_spl;
+        --board tools-only;
       set -e;
       ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test;
       ./tools/buildman/buildman -t;
@@ -227,7 +213,7 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
 
 # Check for any pylint regressions
 Run pylint:
-  stage: testsuites
+  extends: .testsuites
   script:
     - git config --global --add safe.directory "${CI_PROJECT_DIR}"
     - pip install -r test/py/requirements.txt
@@ -236,10 +222,10 @@ Run pylint:
     - export PATH=${PATH}:~/.local/bin
     - echo "[MASTER]" >> .pylintrc
     - echo "load-plugins=pylint.extensions.docparams" >> .pylintrc
-    - export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl
+    - export UBOOT_TRAVIS_BUILD_DIR=/tmp/tools-only
     - set +e
     - ./tools/buildman/buildman -T0 -o ${UBOOT_TRAVIS_BUILD_DIR} -w
-        --board sandbox_spl
+        --board tools-only
     - set -e
     - pylint --version
     - export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt"
@@ -247,7 +233,7 @@ Run pylint:
 
 # Check for pre-schema driver model tags
 Check for pre-schema tags:
-  stage: testsuites
+  extends: .testsuites
   script:
     - git config --global --add safe.directory "${CI_PROJECT_DIR}";
     # If grep succeeds and finds a match the test fails as we should
@@ -256,7 +242,7 @@ Check for pre-schema tags:
 
 # Check we can package the Python tools
 Check packing of Python tools:
-  stage: testsuites
+  extends: .testsuites
   script:
     - make pip
 
@@ -275,6 +261,23 @@ sandbox with clang test.py:
 sandbox without LTO test.py:
   variables:
     TEST_PY_BD: "sandbox"
+    BUILD_ENV: "NO_LTO=1"
+  <<: *buildman_and_testpy_dfn
+
+sandbox64 test.py:
+  variables:
+    TEST_PY_BD: "sandbox64"
+  <<: *buildman_and_testpy_dfn
+
+sandbox64 with clang test.py:
+  variables:
+    TEST_PY_BD: "sandbox64"
+    OVERRIDE: "-O clang-16"
+  <<: *buildman_and_testpy_dfn
+
+sandbox64 without LTO test.py:
+  variables:
+    TEST_PY_BD: "sandbox64"
     BUILD_ENV: "NO_LTO=1"
   <<: *buildman_and_testpy_dfn
 
@@ -302,7 +305,7 @@ sandbox trace_test.py:
     TEST_PY_BD: "sandbox"
     BUILD_ENV: "FTRACE=1 NO_LTO=1"
     TEST_PY_TEST_SPEC: "trace"
-    OVERRIDE: "-a CONFIG_TRACE=y -a CONFIG_TRACE_EARLY=y -a CONFIG_TRACE_EARLY_SIZE=0x01000000"
+    OVERRIDE: "-a CONFIG_TRACE=y -a CONFIG_TRACE_EARLY=y -a CONFIG_TRACE_EARLY_SIZE=0x01000000 -a CONFIG_TRACE_BUFFER_SIZE=0x02000000"
   <<: *buildman_and_testpy_dfn
 
 evb-ast2500 test.py:

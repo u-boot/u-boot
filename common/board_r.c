@@ -126,9 +126,9 @@ static int initr_reloc_global_data(void)
 #ifdef __ARM__
 	monitor_flash_len = _end - __image_copy_start;
 #elif defined(CONFIG_RISCV)
-	monitor_flash_len = (ulong)&_end - (ulong)&_start;
+	monitor_flash_len = (ulong)_end - (ulong)_start;
 #elif !defined(CONFIG_SANDBOX) && !defined(CONFIG_NIOS2)
-	monitor_flash_len = (ulong)&__init_end - gd->relocaddr;
+	monitor_flash_len = (ulong)__init_end - gd->relocaddr;
 #endif
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	/*
@@ -151,13 +151,6 @@ static int initr_reloc_global_data(void)
 	 */
 	gd->env_addr += gd->reloc_off;
 #endif
-	/*
-	 * The fdt_blob needs to be moved to new relocation address
-	 * incase of FDT blob is embedded with in image
-	 */
-	if (IS_ENABLED(CONFIG_OF_EMBED) && IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC))
-		gd->fdt_blob += gd->reloc_off;
-
 #ifdef CONFIG_EFI_LOADER
 	/*
 	 * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
@@ -294,15 +287,6 @@ static int initr_announce(void)
 	debug("Now running in RAM - U-Boot at: %08lx\n", gd->relocaddr);
 	return 0;
 }
-
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-static int initr_manual_reloc_cmdtable(void)
-{
-	fixup_cmdtable(ll_entry_start(struct cmd_tbl, cmd),
-		       ll_entry_count(struct cmd_tbl, cmd));
-	return 0;
-}
-#endif
 
 static int initr_binman(void)
 {
@@ -583,7 +567,10 @@ static int run_main_loop(void)
 }
 
 /*
- * We hope to remove most of the driver-related init and do it if/when
+ * Over time we hope to remove these functions with code fragments and
+ * stub functions, and instead call the relevant function directly.
+ *
+ * We also hope to remove most of the driver-related init and do it if/when
  * the driver is later used.
  *
  * TODO: perhaps reset the watchdog in the initcall function after each call?
@@ -603,9 +590,6 @@ static init_fnc_t init_sequence_r[] = {
 	 */
 #endif
 	initr_reloc_global_data,
-#if IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC) && CONFIG_IS_ENABLED(EVENT)
-	event_manual_reloc,
-#endif
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 	initr_unlock_ram_in_cache,
 #endif
@@ -654,12 +638,6 @@ static init_fnc_t init_sequence_r[] = {
 	initr_watchdog,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_NEEDS_MANUAL_RELOC) && defined(CONFIG_BLOCK_CACHE)
-	blkcache_init,
-#endif
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	initr_manual_reloc_cmdtable,
-#endif
 	arch_initr_trap,
 #if defined(CONFIG_BOARD_EARLY_INIT_R)
 	board_early_init_r,
@@ -770,15 +748,8 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_POST
 	initr_post,
 #endif
-#ifdef CONFIG_LAST_STAGE_INIT
 	INIT_FUNC_WATCHDOG_RESET
-	/*
-	 * Some parts can be only initialized if all others (like
-	 * Interrupts) are up and running (i.e. the PC-style ISA
-	 * keyboard).
-	 */
-	last_stage_init,
-#endif
+	INITCALL_EVENT(EVT_LAST_STAGE_INIT),
 #if defined(CFG_PRAM)
 	initr_mem,
 #endif
@@ -809,11 +780,6 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	gd = new_gd;
 #endif
 	gd->flags &= ~GD_FLG_LOG_READY;
-
-	if (IS_ENABLED(CONFIG_NEEDS_MANUAL_RELOC)) {
-		for (int i = 0; i < ARRAY_SIZE(init_sequence_r); i++)
-			MANUAL_RELOC(init_sequence_r[i]);
-	}
 
 	if (initcall_run_list(init_sequence_r))
 		hang();

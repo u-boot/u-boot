@@ -272,6 +272,14 @@ config EFI_CAPSULE_MAX
 	  Select the max capsule index value used for capsule report
 	  variables. This value is used to create CapsuleMax variable.
 
+config EFI_CAPSULE_ESL_FILE
+	string "Path to the EFI Signature List File"
+	depends on EFI_CAPSULE_AUTHENTICATE
+	help
+	  Provides the path to the EFI Signature List file which will
+	  be embedded in the platform's device tree and used for
+	  capsule authentication at the time of capsule update.
+
 config EFI_DEVICE_PATH_TO_TEXT
 	bool "Device path to text protocol"
 	default y

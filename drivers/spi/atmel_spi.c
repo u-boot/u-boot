@@ -17,6 +17,7 @@
 #include <asm/gpio.h>
 #endif
 #include <linux/bitops.h>
+#include <linux/printk.h>
 
 /*
  * Register definitions for the Atmel AT32/AT91 SPI Controller

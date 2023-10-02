@@ -1474,7 +1474,6 @@ static void atmel_nand_init(struct atmel_nand_controller *nc,
 
 	mtd->dev->parent = nc->dev;
 	nand->controller = &nc->base;
-	nand->controller = &nc->base;
 
 	chip->cmd_ctrl = atmel_nand_cmd_ctrl;
 	chip->read_byte = atmel_nand_read_byte;

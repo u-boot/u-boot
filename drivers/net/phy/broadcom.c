@@ -30,9 +30,86 @@
 #define MIIM_BCM54XX_EXP_SEL_ER		0x0f00	/* Expansion register select */
 
 #define MIIM_BCM_AUXCNTL_SHDWSEL_MISC	0x0007
-#define MIIM_BCM_AUXCNTL_ACTL_SMDSP_EN	0x0800
+#define MIIM_BCM_AUXCNTL_SHDWSEL_MISC_WIRESPEED_EN	0x0010
+#define MIIM_BCM_AUXCNTL_SHDWSEL_MISC_RGMII_EN		0x0080
+#define MIIM_BCM_AUXCNTL_SHDWSEL_MISC_RGMII_SKEW_EN	0x0100
+#define MIIM_BCM_AUXCNTL_MISC_FORCE_AMDIX		0x0200
+#define MIIM_BCM_AUXCNTL_ACTL_SMDSP_EN			0x0800
+#define MIIM_BCM_AUXCNTL_MISC_WREN			0x8000
 
 #define MIIM_BCM_CHANNEL_WIDTH    0x2000
+
+#define BCM54810_SHD_CLK_CTL				0x3
+#define BCM54810_SHD_CLK_CTL_GTXCLK_EN			BIT(9)
+
+static int bcm54xx_auxctl_read(struct phy_device *phydev, u16 regnum)
+{
+	/* The register must be written to both the Shadow Register Select and
+	 * the Shadow Read Register Selector
+	 */
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54xx_AUXCNTL,
+		  MIIM_BCM54xx_AUXCNTL_ENCODE(regnum));
+	return phy_read(phydev, MDIO_DEVAD_NONE, MIIM_BCM54xx_AUXCNTL);
+}
+
+static int bcm54xx_auxctl_write(struct phy_device *phydev, u16 regnum, u16 val)
+{
+	return phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54xx_AUXCNTL, regnum | val);
+}
+
+static int bcm_phy_read_shadow(struct phy_device *phydev, u16 shadow)
+{
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_SHD,
+		  MIIM_BCM54XX_SHD_VAL(shadow));
+	return MIIM_BCM54XX_SHD_DATA(phy_read(phydev, MDIO_DEVAD_NONE,
+					      MIIM_BCM54XX_SHD));
+}
+
+static int bcm_phy_write_shadow(struct phy_device *phydev, u16 shadow, u16 val)
+{
+	return phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_SHD,
+			 MIIM_BCM54XX_SHD_WR_ENCODE(shadow, val));
+}
+
+static int bcm54xx_config_clock_delay(struct phy_device *phydev)
+{
+	int rc, val;
+
+	/* handling PHY's internal RX clock delay */
+	val = bcm54xx_auxctl_read(phydev, MIIM_BCM_AUXCNTL_SHDWSEL_MISC);
+	val |= MIIM_BCM_AUXCNTL_MISC_WREN;
+	if (phydev->interface == PHY_INTERFACE_MODE_RGMII ||
+	    phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
+		/* Disable RGMII RXC-RXD skew */
+		val &= ~MIIM_BCM_AUXCNTL_SHDWSEL_MISC_RGMII_SKEW_EN;
+	}
+	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
+	    phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID) {
+		/* Enable RGMII RXC-RXD skew */
+		val |= MIIM_BCM_AUXCNTL_SHDWSEL_MISC_RGMII_SKEW_EN;
+	}
+	rc = bcm54xx_auxctl_write(phydev, MIIM_BCM_AUXCNTL_SHDWSEL_MISC, val);
+	if (rc < 0)
+		return rc;
+
+	/* handling PHY's internal TX clock delay */
+	val = bcm_phy_read_shadow(phydev, BCM54810_SHD_CLK_CTL);
+	if (phydev->interface == PHY_INTERFACE_MODE_RGMII ||
+	    phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID) {
+		/* Disable internal TX clock delay */
+		val &= ~BCM54810_SHD_CLK_CTL_GTXCLK_EN;
+	}
+	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
+	    phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
+		/* Enable internal TX clock delay */
+		val |= BCM54810_SHD_CLK_CTL_GTXCLK_EN;
+	}
+	rc = bcm_phy_write_shadow(phydev, BCM54810_SHD_CLK_CTL, val);
+	if (rc < 0)
+		return rc;
+
+	return 0;
+}
 
 static void bcm_phy_write_misc(struct phy_device *phydev,
 			       u16 reg, u16 chl, u16 value)
@@ -60,6 +137,18 @@ static int bcm5461_config(struct phy_device *phydev)
 	phy_reset(phydev);
 
 	return 0;
+}
+
+/* Broadcom BCM54210E */
+static int bcm54210e_config(struct phy_device *phydev)
+{
+	int ret;
+
+	ret = bcm54xx_config_clock_delay(phydev);
+	if (ret < 0)
+		return ret;
+
+	return bcm5461_config(phydev);
 }
 
 static int bcm54xx_parse_status(struct phy_device *phydev)
@@ -310,6 +399,16 @@ static int bcm5482_startup(struct phy_device *phydev)
 	/* Parse BCM54xx copper aux status register */
 	return bcm54xx_parse_status(phydev);
 }
+
+U_BOOT_PHY_DRIVER(bcm54210e) = {
+	.name = "Broadcom BCM54210E",
+	.uid = 0x600d84a0,
+	.mask = 0xfffffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &bcm54210e_config,
+	.startup = &bcm54xx_startup,
+	.shutdown = &genphy_shutdown,
+};
 
 U_BOOT_PHY_DRIVER(bcm5461s) = {
 	.name = "Broadcom BCM5461S",

@@ -49,7 +49,7 @@ static struct mux_control *cmd_mux_find(char *const argv[])
 
 	chip = dev_get_uclass_priv(dev);
 	if (!chip)
-		return ERR_PTR(ret);
+		return ERR_PTR(-EINVAL);
 
 	if (id >= chip->controllers)
 		return ERR_PTR(-EINVAL);

@@ -151,6 +151,7 @@ static void serial_find_console_or_panic(void)
 #ifdef CONFIG_REQUIRE_SERIAL_CONSOLE
 	panic_str("No serial driver found");
 #endif
+	gd->cur_serial_dev = NULL;
 }
 #endif /* CONFIG_SERIAL_PRESENT */
 
@@ -507,28 +508,6 @@ static int serial_post_probe(struct udevice *dev)
 #endif
 	int ret;
 
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	if (ops->setbrg)
-		ops->setbrg += gd->reloc_off;
-	if (ops->getc)
-		ops->getc += gd->reloc_off;
-	if (ops->putc)
-		ops->putc += gd->reloc_off;
-	if (ops->pending)
-		ops->pending += gd->reloc_off;
-	if (ops->clear)
-		ops->clear += gd->reloc_off;
-	if (ops->getconfig)
-		ops->getconfig += gd->reloc_off;
-	if (ops->setconfig)
-		ops->setconfig += gd->reloc_off;
-#if CFG_POST & CFG_SYS_POST_UART
-	if (ops->loop)
-		ops->loop += gd->reloc_off;
-#endif
-	if (ops->getinfo)
-		ops->getinfo += gd->reloc_off;
-#endif
 	/* Set the baud rate */
 	if (ops->setbrg) {
 		ret = ops->setbrg(dev, gd->baudrate);

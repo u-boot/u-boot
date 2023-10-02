@@ -135,8 +135,8 @@ int dm_check_devices(struct unit_test_state *uts, int num_devices)
 		 * want to test the code that sets that up
 		 * (testfdt_drv_probe()).
 		 */
-		base = fdtdec_get_addr(gd->fdt_blob, dev_of_offset(dev),
-				       "ping-expect");
+		base = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+				      "ping-expect", -1);
 		debug("dev=%d, base=%d: %s\n", i, base,
 		      fdt_get_name(gd->fdt_blob, dev_of_offset(dev), NULL));
 

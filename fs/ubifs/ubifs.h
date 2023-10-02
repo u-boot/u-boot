@@ -35,6 +35,7 @@
 #include <asm-generic/atomic-long.h>
 #include <ubi_uboot.h>
 #include <ubifs_uboot.h>
+#include <linux/printk.h>
 
 #include <linux/ctype.h>
 #include <linux/time.h>

@@ -195,6 +195,19 @@ int zynqmp_pm_set_sd_config(u32 node, enum pm_sd_config_type config, u32 value)
 	return ret;
 }
 
+int zynqmp_pm_feature(const u32 api_id)
+{
+	int ret;
+	u32 ret_payload[PAYLOAD_ARG_CNT];
+
+	/* Check feature check API version */
+	ret = xilinx_pm_request(PM_FEATURE_CHECK, api_id, 0, 0, 0,
+				ret_payload);
+
+	/* Return feature check version */
+	return ret_payload[1] & FIRMWARE_VERSION_MASK;
+}
+
 int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id)
 {
 	int ret;

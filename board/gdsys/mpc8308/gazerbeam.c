@@ -9,6 +9,7 @@
 #include <command.h>
 #include <dm.h>
 #include <env.h>
+#include <event.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
 #include <init.h>
@@ -124,7 +125,7 @@ static void display_osd_info(struct udevice *osd,
 	       osd_info->width, osd_info->height);
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 	int fpga_hw_rev = 0;
 	int i;
@@ -179,6 +180,7 @@ int last_stage_init(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)

@@ -20,6 +20,7 @@
 #include <linux/list.h>
 #include <linux/list_sort.h>
 #include <linux/mtd/mtd.h>
+#include <linux/printk.h>
 #include <linux/sizes.h>
 
 #include "stm32prog.h"

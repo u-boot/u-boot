@@ -739,7 +739,7 @@ config HAS_FSL_XHCI_USB
 config SYS_FSL_BOOTROM_BASE
 	hex
 	depends on FSL_LSCH2
-	default 0
+	default 0x0
 
 config SYS_FSL_BOOTROM_SIZE
 	hex

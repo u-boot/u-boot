@@ -258,6 +258,30 @@ int os_unmap(void *buf, int size)
 	return 0;
 }
 
+int os_persistent_file(char *buf, int maxsize, const char *fname)
+{
+	const char *dirname = getenv("U_BOOT_PERSISTENT_DATA_DIR");
+	char *ptr;
+	int len;
+
+	len = strlen(fname) + (dirname ? strlen(dirname) + 1 : 0) + 1;
+	if (len > maxsize)
+		return -ENOSPC;
+
+	ptr = buf;
+	if (dirname) {
+		strcpy(ptr, dirname);
+		ptr += strlen(dirname);
+		*ptr++ = '/';
+	}
+	strcpy(ptr, fname);
+
+	if (access(buf, F_OK) == -1)
+		return -ENOENT;
+
+	return 0;
+}
+
 /* Restore tty state when we exit */
 static struct termios orig_term;
 static bool term_setup;

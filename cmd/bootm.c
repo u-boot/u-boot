@@ -123,20 +123,6 @@ int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	int states;
 	int ret;
 
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	static int relocated = 0;
-
-	if (!relocated) {
-		int i;
-
-		/* relocate names of sub-command table */
-		for (i = 0; i < ARRAY_SIZE(cmd_bootm_sub); i++)
-			cmd_bootm_sub[i].name += gd->reloc_off;
-
-		relocated = 1;
-	}
-#endif
-
 	/* determine if we have a sub command */
 	argc--; argv++;
 	if (argc > 0) {

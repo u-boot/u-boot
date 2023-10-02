@@ -12,6 +12,7 @@
 #include <dm/devres.h>
 #include <generic-phy.h>
 #include <linux/list.h>
+#include <linux/printk.h>
 #include <power/regulator.h>
 
 /**
@@ -195,6 +196,7 @@ int generic_phy_get_by_index_nodev(ofnode node, int index, struct phy *phy)
 	return 0;
 
 err:
+	phy->dev = NULL;
 	return ret;
 }
 
@@ -210,6 +212,9 @@ int generic_phy_get_by_name(struct udevice *dev, const char *phy_name,
 	int index;
 
 	debug("%s(dev=%p, name=%s, phy=%p)\n", __func__, dev, phy_name, phy);
+
+	assert(phy);
+	phy->dev = NULL;
 
 	index = dev_read_stringlist_search(dev, "phy-names", phy_name);
 	if (index < 0) {
@@ -506,44 +511,35 @@ int generic_phy_power_off_bulk(struct phy_bulk *bulk)
 
 int generic_setup_phy(struct udevice *dev, struct phy *phy, int index)
 {
-	int ret = 0;
-
-	if (!phy)
-		return 0;
+	int ret;
 
 	ret = generic_phy_get_by_index(dev, index, phy);
-	if (ret) {
-		if (ret != -ENOENT)
-			return ret;
-	} else {
-		ret = generic_phy_init(phy);
-		if (ret)
-			return ret;
+	if (ret)
+		return ret == -ENOENT ? 0 : ret;
 
-		ret = generic_phy_power_on(phy);
-		if (ret)
-			ret = generic_phy_exit(phy);
-	}
+	ret = generic_phy_init(phy);
+	if (ret)
+		return ret;
+
+	ret = generic_phy_power_on(phy);
+	if (ret)
+		generic_phy_exit(phy);
 
 	return ret;
 }
 
 int generic_shutdown_phy(struct phy *phy)
 {
-	int ret = 0;
+	int ret;
 
-	if (!phy)
+	if (!generic_phy_valid(phy))
 		return 0;
 
-	if (generic_phy_valid(phy)) {
-		ret = generic_phy_power_off(phy);
-		if (ret)
-			return ret;
+	ret = generic_phy_power_off(phy);
+	if (ret)
+		return ret;
 
-		ret = generic_phy_exit(phy);
-	}
-
-	return ret;
+	return generic_phy_exit(phy);
 }
 
 UCLASS_DRIVER(phy) = {

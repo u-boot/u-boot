@@ -26,6 +26,7 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
 #include <asm/arch/sromc.h>
+#include <linux/printk.h>
 #include <power/pmic.h>
 #include <power/max77686_pmic.h>
 #include <power/regulator.h>
@@ -126,9 +127,9 @@ static struct dwc3_device dwc3_device_data = {
 	.index = 0,
 };
 
-int usb_gadget_handle_interrupts(int index)
+int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 {
-	dwc3_uboot_handle_interrupt(0);
+	dwc3_uboot_handle_interrupt(dev);
 	return 0;
 }
 

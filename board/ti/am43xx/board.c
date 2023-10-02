@@ -760,13 +760,13 @@ static struct ti_usb_phy_device usb_phy2_device = {
 	.index = 1,
 };
 
-int usb_gadget_handle_interrupts(int index)
+int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 {
 	u32 status;
 
-	status = dwc3_omap_uboot_interrupt_status(index);
+	status = dwc3_omap_uboot_interrupt_status(dev);
 	if (status)
-		dwc3_uboot_handle_interrupt(index);
+		dwc3_uboot_handle_interrupt(dev);
 
 	return 0;
 }

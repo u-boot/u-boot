@@ -500,11 +500,6 @@ config CMD_XIMG
 	help
 	  Extract a part of a multi-image.
 
-config CMD_XXD
-	bool "xxd"
-	help
-	  Print file as hexdump to standard output
-
 config CMD_SPL
 	bool "spl export - Export boot information for Falcon boot"
 	depends on SPL
@@ -517,7 +512,7 @@ config CMD_SPL
 config CMD_SPL_NAND_OFS
 	hex "Offset of OS args or dtb for Falcon-mode NAND boot"
 	depends on CMD_SPL && (TPL_NAND_SUPPORT || SPL_NAND_SUPPORT)
-	default 0
+	default 0x0
 	help
 	  This provides the offset of the command line arguments for Linux
 	  when booting from NAND in Falcon mode.  See doc/README.falcon
@@ -527,7 +522,7 @@ config CMD_SPL_NAND_OFS
 config CMD_SPL_NOR_OFS
 	hex "Offset of OS args or dtb for Falcon-mode NOR boot"
 	depends on CMD_SPL && SPL_NOR_SUPPORT
-	default 0
+	default 0x0
 	help
 	  This provides the offset of the command line arguments or dtb for
 	  Linux when booting from NOR in Falcon mode.
@@ -544,6 +539,8 @@ config CMD_SPL_WRITE_SIZE
 config CMD_THOR_DOWNLOAD
 	bool "thor - TIZEN 'thor' download"
 	select DFU
+	select USB_FUNCTION_THOR
+	depends on USB_GADGET_DOWNLOAD
 	help
 	  Implements the 'thor' download protocol. This is a way of
 	  downloading a software update over USB from an attached host.
@@ -1524,7 +1521,7 @@ config DEFAULT_SPI_BUS
 config DEFAULT_SPI_MODE
 	hex "default spi mode used by sspi command (see include/spi.h)"
 	depends on CMD_SPI
-	default 0
+	default 0x0
 
 config CMD_TEMPERATURE
 	bool "temperature - display the temperature from thermal sensors"
@@ -1665,6 +1662,11 @@ config CMD_SETEXPR_FMT
 	help
 	  Evaluate format string expression and store result in an environment
 	    variable.
+
+config CMD_XXD
+	bool "xxd"
+	help
+	  Print file as hexdump to standard output
 
 endmenu
 
@@ -1815,7 +1817,7 @@ config BOOTP_PXE_CLIENTARCH
 	depends on BOOTP_PXE
 	default 0x16 if ARM64
 	default 0x15 if ARM
-	default 0 if X86
+	default 0x0 if X86
 
 config BOOTP_VCI_STRING
 	string

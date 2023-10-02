@@ -422,22 +422,6 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 {
 	struct fstype_info *info;
 	int part, i;
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	static int relocated;
-
-	if (!relocated) {
-		for (i = 0, info = fstypes; i < ARRAY_SIZE(fstypes);
-				i++, info++) {
-			info->name += gd->reloc_off;
-			info->probe += gd->reloc_off;
-			info->close += gd->reloc_off;
-			info->ls += gd->reloc_off;
-			info->read += gd->reloc_off;
-			info->write += gd->reloc_off;
-		}
-		relocated = 1;
-	}
-#endif
 
 	part = part_get_info_by_dev_and_name_or_num(ifname, dev_part_str, &fs_dev_desc,
 						    &fs_partition, 1);

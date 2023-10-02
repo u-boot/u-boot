@@ -18,6 +18,7 @@
 #include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/libfdt.h>
+#include <linux/printk.h>
 
 #include "../gpio/stm32_gpio_priv.h"
 

@@ -67,18 +67,8 @@ Now build the U-Boot SPL and U-Boot proper
 	make starfive_visionfive2_defconfig
 	make OPENSBI=$(opensbi_dir)/opensbi/build/platform/generic/firmware/fw_dynamic.bin
 
-This will generate spl/u-boot-spl.bin and FIT image (u-boot.itb)
-
-u-boot-spl.bin cannot be used directly on StarFive VisionFive2,we need
-to convert the u-boot-spl.bin to u-boot-spl.bin.normal.out with
-the below command:
-
-	./spl_tool -c -f $(Uboot_PATH)/spl/u-boot-spl.bin
-
-More detailed description of spl_tool,please refer spl_tool documenation.
-(Note: spl_tool git repo is at https://github.com/starfive-tech/Tools/tree/master/spl_tool)
-
-This will generate u-boot-spl.bin.normal.out file.
+This will generate the U-Boot SPL image (spl/u-boot-spl.bin.normal.out) as well
+as the FIT image (u-boot.itb) with OpenSBI and U-Boot.
 
 Flashing
 ~~~~~~~~

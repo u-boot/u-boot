@@ -13,6 +13,7 @@
 #include <i2c.h>
 #include <malloc.h>
 #include <errno.h>
+#include <event.h>
 #include <netdev.h>
 #include <fsl_ddr.h>
 #include <asm/io.h>
@@ -242,6 +243,7 @@ int init_func_vid(void)
 	return 0;
 }
 #endif
+EVENT_SPY_SIMPLE(EVT_MISC_INIT_F, init_func_vid);
 
 int checkboard(void)
 {

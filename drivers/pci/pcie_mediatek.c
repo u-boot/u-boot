@@ -20,6 +20,7 @@
 #include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <linux/list.h>
+#include <linux/printk.h>
 #include "pci_internal.h"
 
 /* PCIe shared registers */

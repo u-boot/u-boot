@@ -22,6 +22,7 @@
 #include <asm/arch/imx8-pins.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/sections.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

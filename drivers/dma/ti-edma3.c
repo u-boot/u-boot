@@ -16,6 +16,7 @@
 #include <linux/dma-mapping.h>
 #include <asm/omap_common.h>
 #include <asm/ti-common/ti-edma3.h>
+#include <linux/printk.h>
 
 #define EDMA3_SL_BASE(slot)			(0x4000 + ((slot) << 5))
 #define EDMA3_SL_MAX_NUM			512

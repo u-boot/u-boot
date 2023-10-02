@@ -29,7 +29,7 @@
 
 /* Miscellaneous configurable options */
 
-#if defined(CONFIG_ZYNQMP_USB)
+#if defined(CONFIG_USB_STORAGE)
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 
 # define PARTS_DEFAULT \
@@ -57,12 +57,13 @@
 	"kernel_size_r=0x10000000\0" \
 	"kernel_comp_addr_r=0x30000000\0" \
 	"kernel_comp_size=0x3C00000\0" \
-	"scriptaddr=0x20000000\0" \
 	"ramdisk_addr_r=0x02100000\0" \
 	"script_size_f=0x80000\0" \
 	"stdin=serial\0" \
 	"stdout=serial,vidconsole\0" \
 	"stderr=serial,vidconsole\0" \
+
+#if defined(CONFIG_DISTRO_DEFAULTS)
 
 #if defined(CONFIG_MMC_SDHCI_ZYNQ)
 # define BOOT_TARGET_DEVICES_MMC(func)	func(MMC, mmc, 0) func(MMC, mmc, 1)
@@ -76,7 +77,7 @@
 # define BOOT_TARGET_DEVICES_SCSI(func)
 #endif
 
-#if defined(CONFIG_ZYNQMP_USB)
+#if defined(CONFIG_USB_STORAGE)
 # define BOOT_TARGET_DEVICES_USB(func)	func(USB, usb, 0) func(USB, usb, 1)
 #else
 # define BOOT_TARGET_DEVICES_USB(func)
@@ -174,6 +175,10 @@
 	BOOT_TARGET_DEVICES_DHCP(func)
 
 #include <config_distro_bootcmd.h>
+
+#else /* CONFIG_DISTRO_DEFAULTS */
+# define BOOTENV
+#endif /* CONFIG_DISTRO_DEFAULTS */
 
 /* Initial environment variables */
 #ifndef CFG_EXTRA_ENV_SETTINGS

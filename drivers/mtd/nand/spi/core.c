@@ -30,6 +30,7 @@
 #include <linux/bitops.h>
 #include <linux/bug.h>
 #include <linux/mtd/spinand.h>
+#include <linux/printk.h>
 #endif
 
 /* SPI NAND index visible in MTD names */

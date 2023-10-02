@@ -24,6 +24,7 @@
 #include <phy.h>
 #include <asm/arch/cpu.h>
 #include <dm.h>
+#include <linux/printk.h>
 
 #include "cpsw_mdio.h"
 

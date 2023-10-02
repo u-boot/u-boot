@@ -21,6 +21,7 @@
 #include <linux/compat.h>
 #include <linux/dma-mapping.h>
 #include <linux/err.h>
+#include <linux/printk.h>
 #include <linux/soc/ti/k3-navss-ringacc.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <linux/soc/ti/cppi5.h>

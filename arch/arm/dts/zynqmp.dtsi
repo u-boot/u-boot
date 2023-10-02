@@ -22,6 +22,13 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
+	options {
+		u-boot {
+			compatible = "u-boot,config";
+			bootscr-address = /bits/ 64 <0x20000000>;
+		};
+	};
+
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -255,6 +262,7 @@
 			interrupt-parent = <&gic>;
 			tx-fifo-depth = <0x40>;
 			rx-fifo-depth = <0x40>;
+			resets = <&zynqmp_reset ZYNQMP_RESET_CAN0>;
 			power-domains = <&zynqmp_firmware PD_CAN_0>;
 		};
 
@@ -267,6 +275,7 @@
 			interrupt-parent = <&gic>;
 			tx-fifo-depth = <0x40>;
 			rx-fifo-depth = <0x40>;
+			resets = <&zynqmp_reset ZYNQMP_RESET_CAN1>;
 			power-domains = <&zynqmp_firmware PD_CAN_1>;
 		};
 
@@ -669,7 +678,7 @@
 			msi-parent = <&pcie>;
 			reg = <0x0 0xfd0e0000 0x0 0x1000>,
 			      <0x0 0xfd480000 0x0 0x1000>,
-			      <0x80 0x00000000 0x0 0x1000000>;
+			      <0x80 0x00000000 0x0 0x10000000>;
 			reg-names = "breg", "pcireg", "cfg";
 			ranges = <0x02000000 0x00000000 0xe0000000 0x00000000 0xe0000000 0x00000000 0x10000000>,/* non-prefetchable memory */
 				 <0x43000000 0x00000006 0x00000000 0x00000006 0x00000000 0x00000002 0x00000000>;/* prefetchable memory */

@@ -19,6 +19,7 @@
 #include <part.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 #include <power/regulator.h>
 #include <malloc.h>
 #include <memalign.h>
@@ -2775,9 +2776,10 @@ static int mmc_power_on(struct mmc *mmc)
 {
 #if CONFIG_IS_ENABLED(DM_MMC) && CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (mmc->vmmc_supply) {
-		int ret = regulator_set_enable(mmc->vmmc_supply, true);
+		int ret = regulator_set_enable_if_allowed(mmc->vmmc_supply,
+							  true);
 
-		if (ret && ret != -EACCES) {
+		if (ret && ret != -ENOSYS) {
 			printf("Error enabling VMMC supply : %d\n", ret);
 			return ret;
 		}
@@ -2791,9 +2793,10 @@ static int mmc_power_off(struct mmc *mmc)
 	mmc_set_clock(mmc, 0, MMC_CLK_DISABLE);
 #if CONFIG_IS_ENABLED(DM_MMC) && CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (mmc->vmmc_supply) {
-		int ret = regulator_set_enable(mmc->vmmc_supply, false);
+		int ret = regulator_set_enable_if_allowed(mmc->vmmc_supply,
+							  false);
 
-		if (ret && ret != -EACCES) {
+		if (ret && ret != -ENOSYS) {
 			pr_debug("Error disabling VMMC supply : %d\n", ret);
 			return ret;
 		}

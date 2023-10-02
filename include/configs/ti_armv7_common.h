@@ -200,7 +200,7 @@
 #define CFG_EXTRA_ENV_SETTINGS					\
 	BOOTENV
 
-#endif
+#endif /* CONFIG_DISTRO_DEFAULTS */
 
 #endif /* CONFIG_ARM64 */
 

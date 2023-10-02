@@ -224,7 +224,7 @@ config PHY_MOTORCOMM
 	tristate "Motorcomm PHYs"
 	help
 	  Enables support for Motorcomm network PHYs.
-	  Currently supports the YT8531 Gigabit Ethernet PHYs.
+	  Currently supports the YT8511 and YT8531 Gigabit Ethernet PHYs.
 
 config PHY_MSCC
 	bool "Microsemi Corp Ethernet PHYs support"

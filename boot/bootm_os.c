@@ -609,19 +609,5 @@ int boot_selected_os(int argc, char *const argv[], int state,
 
 boot_os_fn *bootm_os_get_boot_func(int os)
 {
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-	static bool relocated;
-
-	if (!relocated) {
-		int i;
-
-		/* relocate boot function table */
-		for (i = 0; i < ARRAY_SIZE(boot_os); i++)
-			if (boot_os[i] != NULL)
-				boot_os[i] += gd->reloc_off;
-
-		relocated = true;
-	}
-#endif
 	return boot_os[os];
 }

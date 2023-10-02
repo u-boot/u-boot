@@ -78,6 +78,11 @@ void tzpc_init(void)
 #endif
 }
 
+__weak int init_func_vid(void)
+{
+	return 0;
+}
+
 void board_init_f(ulong dummy)
 {
 	int ret;

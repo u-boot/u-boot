@@ -6,52 +6,33 @@
 #ifndef __INITCALL_H
 #define __INITCALL_H
 
+#include <asm/types.h>
+#include <event.h>
+
+_Static_assert(EVT_COUNT < 256, "Can only support 256 event types with 8 bits");
+
+/**
+ * init_fnc_t - Init function
+ *
+ * Return: 0 if OK -ve on error
+ */
 typedef int (*init_fnc_t)(void);
 
-#include <log.h>
-#ifdef CONFIG_EFI_APP
-#include <efi.h>
-#endif
-#include <asm/global_data.h>
+/* Top bit indicates that the initcall is an event */
+#define INITCALL_IS_EVENT	GENMASK(BITS_PER_LONG - 1, 8)
+#define INITCALL_EVENT_TYPE	GENMASK(7, 0)
 
-/*
- * To enable debugging. add #define DEBUG at the top of the including file.
+#define INITCALL_EVENT(_type)	(void *)((_type) | INITCALL_IS_EVENT)
+
+/**
+ * initcall_run_list() - Run through a list of function calls
  *
- * To find a symbol, use grep on u-boot.map
+ * This calls functions one after the other, stopping at the first error, or
+ * when NULL is obtained.
+ *
+ * @init_sequence: NULL-terminated init sequence to run
+ * Return: 0 if OK, or -ve error code from the first failure
  */
-static inline int initcall_run_list(const init_fnc_t init_sequence[])
-{
-	const init_fnc_t *init_fnc_ptr;
-
-	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
-		unsigned long reloc_ofs = 0;
-		int ret;
-
-		/*
-		 * Sandbox is relocated by the OS, so symbols always appear at
-		 * the relocated address.
-		 */
-		if (IS_ENABLED(CONFIG_SANDBOX) || (gd->flags & GD_FLG_RELOC))
-			reloc_ofs = gd->reloc_off;
-#ifdef CONFIG_EFI_APP
-		reloc_ofs = (unsigned long)image_base;
-#endif
-		if (reloc_ofs)
-			debug("initcall: %p (relocated to %p)\n",
-					(char *)*init_fnc_ptr - reloc_ofs,
-					(char *)*init_fnc_ptr);
-		else
-			debug("initcall: %p\n", (char *)*init_fnc_ptr - reloc_ofs);
-
-		ret = (*init_fnc_ptr)();
-		if (ret) {
-			printf("initcall sequence %p failed at call %p (err=%d)\n",
-			       init_sequence,
-			       (char *)*init_fnc_ptr - reloc_ofs, ret);
-			return -1;
-		}
-	}
-	return 0;
-}
+int initcall_run_list(const init_fnc_t init_sequence[]);
 
 #endif

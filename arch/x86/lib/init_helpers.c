@@ -15,7 +15,8 @@ DECLARE_GLOBAL_DATA_PTR;
 int init_cache_f_r(void)
 {
 	bool do_mtrr = CONFIG_IS_ENABLED(X86_32BIT_INIT) ||
-		 IS_ENABLED(CONFIG_FSP_VERSION2);
+		 IS_ENABLED(CONFIG_FSP_VERSION2) ||
+		 (IS_ENABLED(CONFIG_TPL) && IS_ENABLED(CONFIG_HAVE_MRC));
 	int ret;
 
 	/*
@@ -23,11 +24,9 @@ int init_cache_f_r(void)
 	 *
 	 * booting from slimbootloader - MTRRs are already set up
 	 * booting with FSPv1 - MTRRs are already set up
-	 * booting with FSPv2 - MTRRs must be set here
+	 * booting with FSPv2 or MRC - MTRRs must be set here
 	 * booting from coreboot - in this case there is no SPL, so we set up
 	 *	the MTRRs here
-	 * Note: if there is an SPL, then it has already set up MTRRs so we
-	 *	don't need to do that here
 	 */
 	do_mtrr &= !IS_ENABLED(CONFIG_FSP_VERSION1) &&
 		!IS_ENABLED(CONFIG_SYS_SLIMBOOTLOADER);

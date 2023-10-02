@@ -138,9 +138,9 @@ static int x86_spl_init(void)
 	}
 
 #ifndef CONFIG_SYS_COREBOOT
-	debug("BSS clear from %lx to %lx len %lx\n", (ulong)&__bss_start,
-	      (ulong)&__bss_end, (ulong)&__bss_end - (ulong)&__bss_start);
-	memset(&__bss_start, 0, (ulong)&__bss_end - (ulong)&__bss_start);
+	debug("BSS clear from %lx to %lx len %lx\n", (ulong)__bss_start,
+	      (ulong)__bss_end, (ulong)__bss_end - (ulong)__bss_start);
+	memset(__bss_start, 0, (ulong)__bss_end - (ulong)__bss_start);
 # ifndef CONFIG_TPL
 
 	/* TODO(sjg@chromium.org): Consider calling cpu_init_r() here */
@@ -230,6 +230,9 @@ void board_init_f_r(void)
 	mtrr_commit(false);
 	init_cache();
 	gd->flags &= ~GD_FLG_SERIAL_READY;
+
+	/* make sure driver model is not accessed from now on */
+	gd->flags |= GD_FLG_DM_DEAD;
 	debug("cache status %d\n", dcache_status());
 	board_init_r(gd, 0);
 }
@@ -258,7 +261,7 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";
 
-	if (!IS_ENABLED(CONFIG_SYS_COREBOOT)) {
+	if (spl_image->load_addr != spl_get_image_pos()) {
 		/* Copy U-Boot from ROM */
 		memcpy((void *)spl_image->load_addr,
 		       (void *)spl_get_image_pos(), spl_get_image_size());

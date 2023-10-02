@@ -103,7 +103,7 @@ void *ofnode_lookup_fdt(ofnode node)
 	if (gd->flags & GD_FLG_RELOC) {
 		uint i = OFTREE_TREE_ID(node.of_offset);
 
-		if (i > oftree_count) {
+		if (i >= oftree_count) {
 			log_debug("Invalid tree ID %x\n", i);
 			return NULL;
 		}
@@ -340,6 +340,36 @@ int ofnode_read_u32_index(ofnode node, const char *propname, int index,
 
 	*outp = fdt32_to_cpu(cell[index]);
 	debug("%#x (%d)\n", *outp, *outp);
+
+	return 0;
+}
+
+int ofnode_read_u64_index(ofnode node, const char *propname, int index,
+			  u64 *outp)
+{
+	const fdt64_t *cell;
+	int len;
+
+	assert(ofnode_valid(node));
+
+	if (ofnode_is_np(node))
+		return of_read_u64_index(ofnode_to_np(node), propname, index,
+					 outp);
+
+	cell = fdt_getprop(ofnode_to_fdt(node), ofnode_to_offset(node),
+			   propname, &len);
+	if (!cell) {
+		debug("(not found)\n");
+		return -EINVAL;
+	}
+
+	if (len < (sizeof(u64) * (index + 1))) {
+		debug("(not large enough)\n");
+		return -EOVERFLOW;
+	}
+
+	*outp = fdt64_to_cpu(cell[index]);
+	debug("%#llx (%lld)\n", *outp, *outp);
 
 	return 0;
 }
@@ -1353,7 +1383,7 @@ bool ofnode_pre_reloc(ofnode node)
 	 */
 	if (ofnode_read_bool(node, "bootph-pre-ram") ||
 	    ofnode_read_bool(node, "bootph-pre-sram"))
-		return true;
+		return gd->flags & GD_FLG_RELOC;
 
 	if (IS_ENABLED(CONFIG_OF_TAG_MIGRATE)) {
 		/* detect and handle old tags */
@@ -1561,6 +1591,65 @@ const char *ofnode_conf_read_str(const char *prop_name)
 		return NULL;
 
 	return ofnode_read_string(node, prop_name);
+}
+
+int ofnode_read_bootscript_address(u64 *bootscr_address, u64 *bootscr_offset)
+{
+	int ret;
+	ofnode uboot;
+
+	*bootscr_address = 0;
+	*bootscr_offset = 0;
+
+	uboot = ofnode_path("/options/u-boot");
+	if (!ofnode_valid(uboot)) {
+		debug("%s: Missing /u-boot node\n", __func__);
+		return -EINVAL;
+	}
+
+	ret = ofnode_read_u64(uboot, "bootscr-address", bootscr_address);
+	if (ret) {
+		ret = ofnode_read_u64(uboot, "bootscr-ram-offset",
+				      bootscr_offset);
+		if (ret)
+			return -EINVAL;
+	}
+
+	return 0;
+}
+
+int ofnode_read_bootscript_flash(u64 *bootscr_flash_offset,
+				 u64 *bootscr_flash_size)
+{
+	int ret;
+	ofnode uboot;
+
+	*bootscr_flash_offset = 0;
+	*bootscr_flash_size = 0;
+
+	uboot = ofnode_path("/options/u-boot");
+	if (!ofnode_valid(uboot)) {
+		debug("%s: Missing /u-boot node\n", __func__);
+		return -EINVAL;
+	}
+
+	ret = ofnode_read_u64(uboot, "bootscr-flash-offset",
+			      bootscr_flash_offset);
+	if (ret)
+		return -EINVAL;
+
+	ret = ofnode_read_u64(uboot, "bootscr-flash-size",
+			      bootscr_flash_size);
+	if (ret)
+		return -EINVAL;
+
+	if (!bootscr_flash_size) {
+		debug("bootscr-flash-size is zero. Ignoring properties!\n");
+		*bootscr_flash_offset = 0;
+		return -EINVAL;
+	}
+
+	return 0;
 }
 
 ofnode ofnode_get_phy_node(ofnode node)

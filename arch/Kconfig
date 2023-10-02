@@ -68,7 +68,6 @@ config M68K
 	bool "M68000 architecture"
 	select HAVE_PRIVATE_LIBGCC
 	select USE_PRIVATE_LIBGCC
-	select NEEDS_MANUAL_RELOC
 	select SYS_BOOT_GET_CMDLINE
 	select SYS_BOOT_GET_KBD
 	select SYS_CACHE_SHIFT_4
@@ -252,6 +251,7 @@ config X86
 	imply DM_SPI
 	imply DM_SPI_FLASH
 	imply DM_USB
+	imply LAST_STAGE_INIT
 	imply VIDEO
 	imply SYSRESET
 	imply SPL_SYSRESET

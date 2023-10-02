@@ -13,6 +13,7 @@
 #include <asm/gpio.h>
 #include <asm/hardware.h>
 #include <linux/list.h>
+#include <linux/printk.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/atmel_usba_udc.h>
@@ -1198,13 +1199,12 @@ static struct usba_udc controller = {
 	},
 };
 
-int usb_gadget_handle_interrupts(int index)
+int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 {
 	struct usba_udc *udc = &controller;
 
 	return usba_udc_irq(udc);
 }
-
 
 int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 {

@@ -84,9 +84,6 @@ config ZYNQMP_SPL_PM_CFG_OBJ_FILE
 	  Leave this option empty if your PMU firmware has a hard-coded
 	  configuration object or you are loading it by any other means.
 
-config ZYNQMP_USB
-	bool "Configure ZynqMP USB"
-
 config ZYNQMP_NO_DDR
 	bool "Disable DDR MMU mapping"
 	help

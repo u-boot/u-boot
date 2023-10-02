@@ -20,6 +20,7 @@
 #include <asm/arch-rockchip/grf_rk3399.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <linux/bitops.h>
+#include <linux/printk.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;

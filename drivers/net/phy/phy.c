@@ -463,37 +463,6 @@ U_BOOT_PHY_DRIVER(genphy) = {
 	.shutdown	= genphy_shutdown,
 };
 
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-int phy_init(void)
-{
-	const int ll_n_ents = ll_entry_count(struct phy_driver, phy_driver);
-	struct phy_driver *drv, *ll_entry;
-
-	/* Perform manual relocation on linker list based PHY drivers */
-	ll_entry = ll_entry_start(struct phy_driver, phy_driver);
-	for (drv = ll_entry; drv != ll_entry + ll_n_ents; drv++) {
-		if (drv->probe)
-			drv->probe += gd->reloc_off;
-		if (drv->config)
-			drv->config += gd->reloc_off;
-		if (drv->startup)
-			drv->startup += gd->reloc_off;
-		if (drv->shutdown)
-			drv->shutdown += gd->reloc_off;
-		if (drv->readext)
-			drv->readext += gd->reloc_off;
-		if (drv->writeext)
-			drv->writeext += gd->reloc_off;
-		if (drv->read_mmd)
-			drv->read_mmd += gd->reloc_off;
-		if (drv->write_mmd)
-			drv->write_mmd += gd->reloc_off;
-	}
-
-	return 0;
-}
-#endif
-
 int phy_set_supported(struct phy_device *phydev, u32 max_speed)
 {
 	/* The default values for phydev->supported are provided by the PHY
@@ -838,7 +807,10 @@ static struct phy_device *phy_connect_gmii2rgmii(struct mii_dev *bus,
 	ofnode_for_each_subnode(node, dev_ofnode(dev)) {
 		node = ofnode_by_compatible(node, "xlnx,gmii-to-rgmii-1.0");
 		if (ofnode_valid(node)) {
-			phydev = phy_device_create(bus, 0,
+			int gmiirgmii_phyaddr;
+
+			gmiirgmii_phyaddr = ofnode_read_u32_default(node, "reg", 0);
+			phydev = phy_device_create(bus, gmiirgmii_phyaddr,
 						   PHY_GMII2RGMII_ID, false);
 			if (phydev)
 				phydev->node = node;

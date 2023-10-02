@@ -93,6 +93,12 @@ static int dm_test_fwu_mdata_read(struct unit_test_state *uts)
 	struct udevice *dev;
 	struct fwu_mdata mdata = { 0 };
 
+	/*
+	 * Trigger lib/fwu_updates/fwu.c fwu_boottime_checks()
+	 * to populate g_dev global pointer in that library.
+	 */
+	event_notify_null(EVT_MAIN_LOOP);
+
 	ut_assertok(uclass_first_device_err(UCLASS_FWU_MDATA, &dev));
 	ut_assertok(setup_blk_device(uts));
 	ut_assertok(populate_mmc_disk_image(uts));
@@ -111,6 +117,12 @@ static int dm_test_fwu_mdata_write(struct unit_test_state *uts)
 	u32 active_idx;
 	struct udevice *dev;
 	struct fwu_mdata mdata = { 0 };
+
+	/*
+	 * Trigger lib/fwu_updates/fwu.c fwu_boottime_checks()
+	 * to populate g_dev global pointer in that library.
+	 */
+	event_notify_null(EVT_MAIN_LOOP);
 
 	ut_assertok(setup_blk_device(uts));
 	ut_assertok(populate_mmc_disk_image(uts));

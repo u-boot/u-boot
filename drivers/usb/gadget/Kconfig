@@ -160,7 +160,7 @@ config USB_GADGET_VBUS_DRAW
 
 config SDP_LOADADDR
 	hex "Default load address at SDP_WRITE and SDP_JUMP"
-	default 0
+	default 0x0
 
 # Selected by UDC drivers that support high-speed operation.
 config USB_GADGET_DUALSPEED

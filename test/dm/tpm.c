@@ -98,10 +98,11 @@ static int test_tpm_autostart(struct unit_test_state *uts,
 
 	if (reinit)
 		ut_assertok(tpm_init(dev));
-	 /*
-	  * tpm_auto_start will rerun tpm_init() if reinit, but handles the
-	  * -EBUSY return code internally.
-	  */
+
+	/*
+	 * tpm_auto_start will rerun tpm_init() if reinit, but handles the
+	 * -EBUSY return code internally.
+	 */
 	ut_assertok(tpm_auto_start(dev));
 
 	return 0;

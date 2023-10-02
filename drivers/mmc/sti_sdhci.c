@@ -12,6 +12,7 @@
 #include <sdhci.h>
 #include <asm/arch/sdhci.h>
 #include <asm/global_data.h>
+#include <linux/printk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

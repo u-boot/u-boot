@@ -41,15 +41,56 @@ At present it seems that for Minnowboard Max, coreboot does not pass through
 the video information correctly (it always says the resolution is 0x0). This
 works correctly for link though.
 
+You can run via QEMU using::
+
+  qemu-system-x86_64 -bios build/coreboot.rom -serial mon:stdio
+
+The `-serial mon:stdio` part shows both output in the display and on the
+console. It is optional. You can add `nographic` as well to *only* get console
+output.
+
+To run with a SATA drive called `$DISK`::
+
+  qemu-system-x86_64 -bios build/coreboot.rom -serial mon:stdio \
+	-drive id=disk,file=$DISK,if=none \
+	-device ahci,id=ahci \
+	-device ide-hd,drive=disk,bus=ahci.0
+
+Then you can scan it with `scsi scan` and access it normally.
+
+To use 4GB of memory, typically necessary for booting Linux distros, add
+`-m 4GB`.
+
 64-bit U-Boot
 -------------
 
 In addition to the 32-bit 'coreboot' build there is a 'coreboot64' build. This
 produces an image which can be booted from coreboot (32-bit). Internally it
 works by using a 32-bit SPL binary to switch to 64-bit for running U-Boot. It
-can be useful for running UEFI applications, for example.
+can be useful for running UEFI applications, for example with the coreboot
+build in `$CBDIR`::
 
-This has only been lightly tested.
+   DISK=ubuntu-23.04-desktop-amd64.iso
+   CBDIR=~/coreboot/build
+
+   cp $CBDIR/coreboot.rom.in coreboot.rom
+   cbfstool coreboot.rom add-flat-binary -f u-boot-x86-with-spl.bin \
+      -n fallback/payload -c lzma -l 0x1110000 -e 0x1110000
+
+   qemu-system-x86_64 -m 2G -smp 4 -bios coreboot.rom \
+      -drive id=disk,file=$DISK,if=none \
+      -device ahci,id=ahci \
+      -device ide-hd,drive=disk,bus=ahci.0 \
+
+This allows booting and installing various distros, many of which are
+64-bit-only, so cannot work with the 32-bit 'coreboot' build.
+
+USB keyboard
+------------
+
+The `CONFIG_USE_PREBOOT` option is enabled by default, meaning that USB starts
+up just before the command-line starts. This allows user interaction on
+non-laptop devices which use a USB keyboard.
 
 CBFS access
 -----------

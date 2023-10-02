@@ -3,31 +3,16 @@
  * Copyright (C) 2021 Texas Instruments Incorporated - https://www.ti.com/
  */
 
-/dts-v1/;
-
-#include <dt-bindings/mux/ti-serdes.h>
-#include <dt-bindings/phy/phy.h>
-#include <dt-bindings/net/ti-dp83867.h>
-#include "k3-am642.dtsi"
+#include "k3-am642-sk.dts"
 #include "k3-am64-sk-lp4-1600MTs.dtsi"
 #include "k3-am64-ddr.dtsi"
 
-/ {
-	chosen {
-		stdout-path = "serial2:115200n8";
-		tick-timer = &timer1;
-	};
+#include "k3-am642-sk-u-boot.dtsi"
 
+/ {
 	aliases {
 		remoteproc0 = &sysctrler;
 		remoteproc1 = &a53_0;
-	};
-
-	memory@80000000 {
-		device_type = "memory";
-		/* 2G RAM */
-		reg = <0x00000000 0x80000000 0x00000000 0x80000000>;
-		bootph-pre-ram;
 	};
 
 	a53_0: a53@0 {
@@ -47,18 +32,6 @@
 		bootph-pre-ram;
 	};
 
-	reserved-memory {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-
-		secure_ddr: optee@9e800000 {
-			reg = <0x00 0x9e800000 0x00 0x01800000>; /* for OP-TEE */
-			alignment = <0x1000>;
-			no-map;
-		};
-	};
-
 	clk_200mhz: dummy-clock-200mhz {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
@@ -76,108 +49,12 @@
 	};
 };
 
-&cbass_main {
-	main_esm: esm@420000 {
-		compatible = "ti,j721e-esm";
-		reg = <0x0 0x420000 0x0 0x1000>;
-		ti,esm-pins = <160>, <161>;
-		bootph-pre-ram;
-	};
+&main_esm {
+	bootph-pre-ram;
 };
 
-&cbass_mcu {
+&mcu_esm {
 	bootph-pre-ram;
-	mcu_esm: esm@4100000 {
-		compatible = "ti,j721e-esm";
-		reg = <0x0 0x4100000 0x0 0x1000>;
-		ti,esm-pins = <0>, <1>;
-		bootph-pre-ram;
-	};
-};
-
-&main_pmx0 {
-	bootph-pre-ram;
-	main_uart0_pins_default: main-uart0-pins-default {
-		bootph-pre-ram;
-		pinctrl-single,pins = <
-			AM64X_IOPAD(0x0238, PIN_INPUT, 0)		/* (B16) UART0_CTSn */
-			AM64X_IOPAD(0x023c, PIN_OUTPUT, 0)		/* (A16) UART0_RTSn */
-			AM64X_IOPAD(0x0230, PIN_INPUT, 0)		/* (D15) UART0_RXD */
-			AM64X_IOPAD(0x0234, PIN_OUTPUT, 0)		/* (C16) UART0_TXD */
-		>;
-	};
-
-	main_uart1_pins_default: main-uart1-pins-default {
-		bootph-pre-ram;
-		pinctrl-single,pins = <
-			AM64X_IOPAD(0x0248, PIN_INPUT, 0)		/* (D16) UART1_CTSn */
-			AM64X_IOPAD(0x024c, PIN_OUTPUT, 0)		/* (E16) UART1_RTSn */
-			AM64X_IOPAD(0x0240, PIN_INPUT, 0)		/* (E15) UART1_RXD */
-			AM64X_IOPAD(0x0244, PIN_OUTPUT, 0)		/* (E14) UART1_TXD */
-		>;
-	};
-
-	main_mmc1_pins_default: main-mmc1-pins-default {
-		bootph-pre-ram;
-		pinctrl-single,pins = <
-			AM64X_IOPAD(0x0294, PIN_INPUT_PULLUP, 0)	/* (J19) MMC1_CMD */
-			AM64X_IOPAD(0x028c, PIN_INPUT_PULLDOWN, 0)	/* (L20) MMC1_CLK */
-			AM64X_IOPAD(0x0288, PIN_INPUT_PULLUP, 0)	/* (K21) MMC1_DAT0 */
-			AM64X_IOPAD(0x0284, PIN_INPUT_PULLUP, 0)	/* (L21) MMC1_DAT1 */
-			AM64X_IOPAD(0x0280, PIN_INPUT_PULLUP, 0)	/* (K19) MMC1_DAT2 */
-			AM64X_IOPAD(0x027c, PIN_INPUT_PULLUP, 0)	/* (K18) MMC1_DAT3 */
-			AM64X_IOPAD(0x0298, PIN_INPUT_PULLUP, 0)	/* (D19) MMC1_SDCD */
-			AM64X_IOPAD(0x029c, PIN_INPUT_PULLUP, 0)	/* (C20) MMC1_SDWP */
-		>;
-	};
-
-	main_usb0_pins_default: main-usb0-pins-default {
-		bootph-pre-ram;
-		pinctrl-single,pins = <
-			AM64X_IOPAD(0x02a8, PIN_OUTPUT, 0) /* (E19) USB0_DRVVBUS */
-		>;
-	};
-
-	mdio1_pins_default: mdio1-pins-default {
-		pinctrl-single,pins = <
-			AM64X_IOPAD(0x01fc, PIN_OUTPUT, 4) /* (R2) PRG0_PRU1_GPO19.MDIO0_MDC */
-			AM64X_IOPAD(0x01f8, PIN_INPUT, 4) /* (P5) PRG0_PRU1_GPO18.MDIO0_MDIO */
-		>;
-	};
-
-	rgmii1_pins_default: rgmii1-pins-default {
-		pinctrl-single,pins = <
-			AM64X_IOPAD(0x011c, PIN_INPUT, 4) /* (AA13) PRG1_PRU1_GPO5.RGMII1_RD0 */
-			AM64X_IOPAD(0x0128, PIN_INPUT, 4) /* (U12) PRG1_PRU1_GPO8.RGMII1_RD1 */
-			AM64X_IOPAD(0x0150, PIN_INPUT, 4) /* (Y13) PRG1_PRU1_GPO18.RGMII1_RD2 */
-			AM64X_IOPAD(0x0154, PIN_INPUT, 4) /* (V12) PRG1_PRU1_GPO19.RGMII1_RD3 */
-			AM64X_IOPAD(0x00d8, PIN_INPUT, 4) /* (W13) PRG1_PRU0_GPO8.RGMII1_RXC */
-			AM64X_IOPAD(0x00cc, PIN_INPUT, 4) /* (V13) PRG1_PRU0_GPO5.RGMII1_RX_CTL */
-			AM64X_IOPAD(0x0124, PIN_OUTPUT, 4) /* (V15) PRG1_PRU1_GPO7.RGMII1_TD0 */
-			AM64X_IOPAD(0x012c, PIN_OUTPUT, 4) /* (V14) PRG1_PRU1_GPO9.RGMII1_TD1 */
-			AM64X_IOPAD(0x0130, PIN_OUTPUT, 4) /* (W14) PRG1_PRU1_GPO10.RGMII1_TD2 */
-			AM64X_IOPAD(0x014c, PIN_OUTPUT, 4) /* (AA14) PRG1_PRU1_GPO17.RGMII1_TD3 */
-			AM64X_IOPAD(0x00e0, PIN_OUTPUT, 4) /* (U14) PRG1_PRU0_GPO10.RGMII1_TXC */
-			AM64X_IOPAD(0x00dc, PIN_OUTPUT, 4) /* (U15) PRG1_PRU0_GPO9.RGMII1_TX_CTL */
-		>;
-	};
-
-       rgmii2_pins_default: rgmii2-pins-default {
-		pinctrl-single,pins = <
-			AM64X_IOPAD(0x0108, PIN_INPUT, 4) /* (W11) PRG1_PRU1_GPO0.RGMII2_RD0 */
-			AM64X_IOPAD(0x010c, PIN_INPUT, 4) /* (V11) PRG1_PRU1_GPO1.RGMII2_RD1 */
-			AM64X_IOPAD(0x0110, PIN_INPUT, 4) /* (AA12) PRG1_PRU1_GPO2.RGMII2_RD2 */
-			AM64X_IOPAD(0x0114, PIN_INPUT, 4) /* (Y12) PRG1_PRU1_GPO3.RGMII2_RD3 */
-			AM64X_IOPAD(0x0120, PIN_INPUT, 4) /* (U11) PRG1_PRU1_GPO6.RGMII2_RXC */
-			AM64X_IOPAD(0x0118, PIN_INPUT, 4) /* (W12) PRG1_PRU1_GPO4.RGMII2_RX_CTL */
-			AM64X_IOPAD(0x0134, PIN_OUTPUT, 4) /* (AA10) PRG1_PRU1_GPO11.RGMII2_TD0 */
-			AM64X_IOPAD(0x0138, PIN_OUTPUT, 4) /* (V10) PRG1_PRU1_GPO12.RGMII2_TD1 */
-			AM64X_IOPAD(0x013c, PIN_OUTPUT, 4) /* (U10) PRG1_PRU1_GPO13.RGMII2_TD2 */
-			AM64X_IOPAD(0x0140, PIN_OUTPUT, 4) /* (AA11) PRG1_PRU1_GPO14.RGMII2_TD3 */
-			AM64X_IOPAD(0x0148, PIN_OUTPUT, 4) /* (Y10) PRG1_PRU1_GPO16.RGMII2_TXC */
-			AM64X_IOPAD(0x0144, PIN_OUTPUT, 4) /* (Y11) PRG1_PRU1_GPO15.RGMII2_TX_CTL */
-		>;
-	};
 };
 
 &dmsc {
@@ -189,79 +66,36 @@
 	ti,secure-host;
 };
 
-&main_uart0 {
-	/delete-property/ power-domains;
-	/delete-property/ clocks;
-	/delete-property/ clock-names;
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_uart0_pins_default>;
-	status = "okay";
-};
-
-&main_uart1 {
-	bootph-pre-ram;
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_uart1_pins_default>;
-};
-
 &sdhci1 {
-	/delete-property/ power-domains;
 	clocks = <&clk_200mhz>;
 	clock-names = "clk_xin";
-	ti,driver-strength-ohm = <50>;
-	disable-wp;
-	pinctrl-0 = <&main_mmc1_pins_default>;
-};
-
-&serdes_ln_ctrl {
-	idle-states = <AM64_SERDES0_LANE0_USB>;
 };
 
 &serdes_wiz0 {
 	status = "okay";
 };
 
-&serdes0 {
-	serdes0_usb_link: link@0 {
-		reg = <0>;
-		cdns,num-lanes = <1>;
-		#phy-cells = <0>;
-		cdns,phy-type = <PHY_TYPE_USB3>;
-		resets = <&serdes_wiz0 1>;
-	};
+/* UART is initialized before SYSFW is started
+ * so we can't do any power-domain/clock operations.
+ * Delete clock/power-domain properties to avoid
+ * UART init failure
+ */
+&main_uart0 {
+	/delete-property/ power-domains;
+	/delete-property/ clocks;
+	/delete-property/ clock-names;
 };
 
-&usbss0 {
-	ti,vbus-divider;
+/* timer init is called as part of rproc_start() while
+ * starting System Firmware, so any clock/power-domain
+ * operations will fail as SYSFW is not yet up and running.
+ * Delete all clock/power-domain properties to avoid
+ * timer init failure.
+ * This is an always on timer at 20MHz.
+ */
+&main_timer0 {
+	/delete-property/ clocks;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
+	/delete-property/ power-domains;
 };
-
-&usb0 {
-	dr_mode = "host";
-	maximum-speed = "super-speed";
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_usb0_pins_default>;
-	phys = <&serdes0_usb_link>;
-	phy-names = "cdns3,usb3-phy";
-};
-
-&cpsw3g {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mdio1_pins_default
-		     &rgmii1_pins_default
-		     &rgmii2_pins_default>;
-};
-
-&cpsw_port2 {
-	phy-mode = "rgmii-rxid";
-	phy-handle = <&cpsw3g_phy1>;
-};
-
-&cpsw3g_mdio {
-	cpsw3g_phy1: ethernet-phy@1 {
-		reg = <1>;
-		ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
-		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
-	};
-};
-
-#include "k3-am642-sk-u-boot.dtsi"

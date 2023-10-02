@@ -583,6 +583,25 @@ static int dm_test_ofnode_conf(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_conf, 0);
 
+static int dm_test_ofnode_options(struct unit_test_state *uts)
+{
+	u64 bootscr_address, bootscr_offset;
+	u64 bootscr_flash_offset, bootscr_flash_size;
+
+	ut_assertok(ofnode_read_bootscript_address(&bootscr_address,
+						   &bootscr_offset));
+	ut_asserteq_64(0, bootscr_address);
+	ut_asserteq_64(0x12345678, bootscr_offset);
+
+	ut_assertok(ofnode_read_bootscript_flash(&bootscr_flash_offset,
+						 &bootscr_flash_size));
+	ut_asserteq_64(0, bootscr_flash_offset);
+	ut_asserteq_64(0x2000, bootscr_flash_size);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_options, 0);
+
 static int dm_test_ofnode_for_each_compatible_node(struct unit_test_state *uts)
 {
 	const char compatible[] = "denx,u-boot-fdt-test";
@@ -966,6 +985,14 @@ static int dm_test_ofnode_u64(struct unit_test_state *uts)
 	ut_assertok(ofnode_read_u64(node, "int64-value", &val));
 	ut_asserteq_64(0x1111222233334444, val);
 	ut_asserteq(-EINVAL, ofnode_read_u64(node, "missing", &val));
+
+	ut_assertok(ofnode_read_u64_index(node, "int64-array", 0, &val));
+	ut_asserteq_64(0x1111222233334444, val);
+	ut_assertok(ofnode_read_u64_index(node, "int64-array", 1, &val));
+	ut_asserteq_64(0x4444333322221111, val);
+	ut_asserteq(-EOVERFLOW,
+		    ofnode_read_u64_index(node, "int64-array", 2, &val));
+	ut_asserteq(-EINVAL, ofnode_read_u64_index(node, "missing", 0, &val));
 
 	return 0;
 }

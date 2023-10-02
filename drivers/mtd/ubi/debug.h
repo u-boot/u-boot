@@ -17,6 +17,7 @@ void ubi_dump_vid_hdr(const struct ubi_vid_hdr *vid_hdr);
 #endif
 
 #include <hexdump.h>
+#include <linux/printk.h>
 
 #ifndef __UBOOT__
 #define ubi_assert(expr)  do {                                               \

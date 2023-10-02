@@ -20,6 +20,7 @@
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
+#include <linux/printk.h>
 
 struct stm32_ltdc_priv {
 	void __iomem *regs;

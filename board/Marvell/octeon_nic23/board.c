@@ -5,6 +5,7 @@
 
 #include <cyclic.h>
 #include <dm.h>
+#include <event.h>
 #include <ram.h>
 #include <time.h>
 #include <asm/gpio.h>
@@ -364,7 +365,7 @@ int board_late_init(void)
 	return 0;
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 	struct gpio_desc gpio = {};
 	ofnode node;
@@ -386,3 +387,4 @@ int last_stage_init(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);

@@ -166,7 +166,7 @@ struct csu_regs {
 	u32 jtag_dap_cfg;
 	u32 idcode;
 	u32 version;
-	u32 reserved2[3055];
+	u32 reserved2[3054];
 	u32 pcap_prog;
 };
 

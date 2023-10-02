@@ -8,6 +8,7 @@
 #include <dm/device-internal.h>
 #include <env.h>
 #include <env_internal.h>
+#include <event.h>
 #include <i2c.h>
 #include <init.h>
 #include <mmc.h>
@@ -301,12 +302,13 @@ static int mii_multi_chip_mode_write(struct udevice *bus, int dev_smi_addr,
 }
 
 /* Bring-up board-specific network stuff */
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 	struct udevice *bus;
 	ofnode node;
 
-	if (!of_machine_is_compatible("globalscale,espressobin"))
+	if (!CONFIG_IS_ENABLED(DM_MDIO) ||
+	    !of_machine_is_compatible("globalscale,espressobin"))
 		return 0;
 
 	node = ofnode_by_compatible(ofnode_null(), "marvell,orion-mdio");
@@ -356,6 +358,8 @@ int last_stage_init(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
+
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP

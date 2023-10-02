@@ -33,14 +33,30 @@ void scene_menu_destroy(struct scene_obj_menu *menu)
 		scene_menuitem_destroy(item);
 }
 
-static struct scene_menitem *scene_menuitem_find(struct scene_obj_menu *menu,
-						 int id)
+struct scene_menitem *scene_menuitem_find(const struct scene_obj_menu *menu,
+					  int id)
 {
 	struct scene_menitem *item;
 
 	list_for_each_entry(item, &menu->item_head, sibling) {
 		if (item->id == id)
 			return item;
+	}
+
+	return NULL;
+}
+
+struct scene_menitem *scene_menuitem_find_seq(const struct scene_obj_menu *menu,
+					      uint seq)
+{
+	struct scene_menitem *item;
+	uint i;
+
+	i = 0;
+	list_for_each_entry(item, &menu->item_head, sibling) {
+		if (i == seq)
+			return item;
+		i++;
 	}
 
 	return NULL;
@@ -416,7 +432,7 @@ int scene_menuitem(struct scene *scn, uint menu_id, const char *name, uint id,
 	if (!scene_obj_find(scn, label_id, SCENEOBJT_TEXT))
 		return log_msg_ret("txt", -EINVAL);
 
-	item = calloc(1, sizeof(struct scene_obj_menu));
+	item = calloc(1, sizeof(struct scene_menitem));
 	if (!item)
 		return log_msg_ret("item", -ENOMEM);
 	item->name = strdup(name);

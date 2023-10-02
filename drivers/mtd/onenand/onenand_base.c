@@ -26,6 +26,7 @@
 #include <linux/bitops.h>
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>
+#include <linux/printk.h>
 #include "linux/mtd/flashchip.h"
 #include <linux/mtd/onenand.h>
 

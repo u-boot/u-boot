@@ -83,6 +83,19 @@ config CLK_COMPOSITE_CCF
 	  Enable this option if you want to (re-)use the Linux kernel's Common
 	  Clock Framework [CCF] composite code in U-Boot's clock driver.
 
+config CLK_GPIO
+	bool "GPIO-controlled clock gate driver"
+	depends on CLK
+	help
+	  Enable this option to add GPIO-controlled clock gate driver.
+
+config SPL_CLK_GPIO
+	bool "GPIO-controlled clock gate driver in SPL"
+	depends on SPL_CLK
+	help
+	  Enable this option to add GPIO-controlled clock gate driver
+	  in U-Boot SPL.
+
 config CLK_BCM6345
 	bool "Clock controller driver for BCM6345"
 	depends on CLK && ARCH_BMIPS

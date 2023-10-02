@@ -24,6 +24,7 @@
 #endif
 #include <dt-bindings/pci/pci.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 #include "pci_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -541,14 +542,13 @@ int pci_auto_config_devices(struct udevice *bus)
 	struct pci_child_plat *pplat;
 	unsigned int sub_bus;
 	struct udevice *dev;
-	int ret;
 
 	sub_bus = dev_seq(bus);
 	debug("%s: start\n", __func__);
 	pciauto_config_init(hose);
-	for (ret = device_find_first_child(bus, &dev);
-	     !ret && dev;
-	     ret = device_find_next_child(&dev)) {
+	for (device_find_first_child(bus, &dev);
+	     dev;
+	     device_find_next_child(&dev)) {
 		unsigned int max_bus;
 		int ret;
 
@@ -1446,7 +1446,7 @@ phys_addr_t dm_pci_bus_to_phys(struct udevice *dev, pci_addr_t bus_addr,
 		return res->phys_start + offset;
 	}
 
-	puts("pci_hose_bus_to_phys: invalid physical address\n");
+	puts("dm_pci_bus_to_phys: invalid physical address\n");
 	return 0;
 }
 
@@ -1486,7 +1486,7 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
 		return res->bus_start + offset;
 	}
 
-	puts("pci_hose_phys_to_bus: invalid physical address\n");
+	puts("dm_pci_phys_to_bus: invalid physical address\n");
 	return 0;
 }
 

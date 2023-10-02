@@ -5,28 +5,7 @@
 
 /dts-v1/;
 
-/*
-enum {
-	ZERO,
-	ID_PROMPT,
-
-	ID_SCENE1,
-	ID_SCENE1_TITLE,
-
-	ID_CPU_SPEED,
-	ID_CPU_SPEED_TITLE,
-	ID_CPU_SPEED_1,
-	ID_CPU_SPEED_2,
-	ID_CPU_SPEED_3,
-
-	ID_POWER_LOSS,
-	ID_AC_OFF,
-	ID_AC_ON,
-	ID_AC_MEMORY,
-
-	ID_DYNAMIC_START,
-};
-*/
+/* see expo_ids.h for the IDs */
 
 / {
 	dynamic-start = <ID_DYNAMIC_START>;
@@ -59,6 +38,9 @@ enum {
 				/* IDs for the menu items */
 				item-id = <ID_CPU_SPEED_1 ID_CPU_SPEED_2
 					ID_CPU_SPEED_3>;
+
+				start-bit = <0x400>;
+				bit-length = <2>;
 			};
 
 			power-loss {
@@ -70,6 +52,8 @@ enum {
 					"Memory";
 
 				item-id = <ID_AC_OFF ID_AC_ON ID_AC_MEMORY>;
+				start-bit = <0x422>;
+				bit-length = <2>;
 			};
 		};
 	};

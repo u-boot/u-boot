@@ -12,6 +12,7 @@
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
+#include <linux/printk.h>
 
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>
@@ -559,12 +560,6 @@ static struct cmd_tbl cmd_onenand_sub[] = {
 	U_BOOT_CMD_MKENT(dump, 2, 0, do_onenand_dump, "", ""),
 	U_BOOT_CMD_MKENT(markbad, CONFIG_SYS_MAXARGS, 0, do_onenand_markbad, "", ""),
 };
-
-#ifdef CONFIG_NEEDS_MANUAL_RELOC
-void onenand_reloc(void) {
-	fixup_cmdtable(cmd_onenand_sub, ARRAY_SIZE(cmd_onenand_sub));
-}
-#endif
 
 static int do_onenand(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])

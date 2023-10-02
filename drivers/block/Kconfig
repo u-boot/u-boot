@@ -167,7 +167,7 @@ config SYS_IDE_MAXDEVICE
 
 config SYS_ATA_BASE_ADDR
 	hex "Base address of IDE controller"
-	default 0
+	default 0x0
 	help
 	  This is the address of the IDE controller, from which other addresses
 	  are calculated. Each bus is at a fixed offset from this address,

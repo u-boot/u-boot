@@ -66,7 +66,7 @@ config VIDEO_PCI_DEFAULT_FB_SIZE
 	hex "Default framebuffer size to use if no drivers request it"
 	default 0x1000000 if X86
 	default 0x800000 if !X86 && VIDEO_BOCHS
-	default 0 if !X86 && !VIDEO_BOCHS
+	default 0x0 if !X86 && !VIDEO_BOCHS
 	help
 	  Generally, video drivers request the amount of memory they need for
 	  the frame buffer when they are bound, by setting the size field in
@@ -959,6 +959,14 @@ config SPLASH_SOURCE
 
 endif # SPLASH_SCREEN
 
+config BMP
+	bool "Enable bmp image display"
+	help
+	  Enable bmp functions to display bmp image and get bmp info.
+
+	  BMP is a simple graphics-image file format designed to store bitmap
+	  images. It is primarily used on Windows devices.
+
 config VIDEO_BMP_GZIP
 	bool "Gzip compressed BMP image support"
 	depends on BMP || SPLASH_SCREEN
@@ -1049,7 +1057,7 @@ config SPL_VIDEO_PCI_DEFAULT_FB_SIZE
 	hex "Default framebuffer size to use if no drivers request it at SPL"
 	default 0x1000000 if X86
 	default 0x800000 if !X86 && VIDEO_BOCHS
-	default 0 if !X86 && !VIDEO_BOCHS
+	default 0x0 if !X86 && !VIDEO_BOCHS
 	help
 	  Generally, video drivers request the amount of memory they need for
 	  the frame buffer when they are bound, by setting the size field in
@@ -1161,6 +1169,14 @@ config SPL_SPLASH_SOURCE
 	  default name 'splash.bmp' will be used.
 
 endif # SPL_SPLASH_SCREEN
+
+config SPL_BMP
+	bool "Enable bmp image display at SPL"
+	help
+	  Enable bmp functions to display bmp image and get bmp info in SPL.
+
+	  BMP is a simple graphics-image file format designed to store bitmap
+	  images. It is primarily used on Windows devices.
 
 config SPL_VIDEO_BMP_GZIP
 	bool "Gzip compressed BMP image support at SPL"

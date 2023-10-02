@@ -21,7 +21,6 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/errno.h>
-#include <u-boot/crc.h>
 #else
 #include "mkimage.h"
 #include <linux/compiler_attributes.h>
@@ -36,12 +35,6 @@
 #include <u-boot/sha256.h>
 #include <u-boot/sha512.h>
 #include <u-boot/md5.h>
-
-#if !defined(USE_HOSTCC) && defined(CONFIG_NEEDS_MANUAL_RELOC)
-DECLARE_GLOBAL_DATA_PTR;
-#endif
-
-static void reloc_update(void);
 
 static int __maybe_unused hash_init_sha1(struct hash_algo *algo, void **ctxp)
 {
@@ -334,30 +327,9 @@ static struct hash_algo hash_algo[] = {
 #define multi_hash()	0
 #endif
 
-static void reloc_update(void)
-{
-#if !defined(USE_HOSTCC) && defined(CONFIG_NEEDS_MANUAL_RELOC)
-	int i;
-	static bool done;
-
-	if (!done) {
-		done = true;
-		for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
-			hash_algo[i].name += gd->reloc_off;
-			hash_algo[i].hash_func_ws += gd->reloc_off;
-			hash_algo[i].hash_init += gd->reloc_off;
-			hash_algo[i].hash_update += gd->reloc_off;
-			hash_algo[i].hash_finish += gd->reloc_off;
-		}
-	}
-#endif
-}
-
 int hash_lookup_algo(const char *algo_name, struct hash_algo **algop)
 {
 	int i;
-
-	reloc_update();
 
 	for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
 		if (!strcmp(algo_name, hash_algo[i].name)) {
@@ -374,8 +346,6 @@ int hash_progressive_lookup_algo(const char *algo_name,
 				 struct hash_algo **algop)
 {
 	int i;
-
-	reloc_update();
 
 	for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
 		if (!strcmp(algo_name, hash_algo[i].name)) {

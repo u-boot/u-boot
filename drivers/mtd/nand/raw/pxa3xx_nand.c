@@ -22,6 +22,7 @@
 #include <asm/arch/cpu.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
+#include <linux/printk.h>
 #include <linux/types.h>
 #include <syscon.h>
 #include <regmap.h>

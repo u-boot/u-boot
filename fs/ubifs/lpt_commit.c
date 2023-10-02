@@ -24,6 +24,7 @@
 #include <linux/compat.h>
 #include <linux/err.h>
 #include <linux/crc16.h>
+#include <linux/printk.h>
 #endif
 #include "ubifs.h"
 

@@ -193,6 +193,9 @@ Linux is selected from grub, e.g. with `debian-12.1.0-i386-netinst.iso`::
 The bochs video driver also seems to cause problems before the OS is able to
 show a display.
 
+The QEMU `-cdrom` option is intended to work with the original ISO-format
+images, not the recently invented ISOHybrid image.
+
 Finally, the use of `-M accel=kvm` is intended to use the native CPU's
 virtual-machine features to accelerate operation, but this causes U-Boot to hang
 when jumping 64-bit mode, at least on AMD machines. This may be a bug in U-Boot

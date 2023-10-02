@@ -7,6 +7,7 @@
 #ifndef BLK_H
 #define BLK_H
 
+#include <bouncebuf.h>
 #include <dm/uclass-id.h>
 #include <efi.h>
 
@@ -104,12 +105,6 @@ struct blk_desc {
 	(PAD_SIZE(size, blk_desc->blksz))
 
 #if CONFIG_IS_ENABLED(BLOCK_CACHE)
-
-/**
- * blkcache_init() - initialize the block cache list pointers
- */
-int blkcache_init(void);
-
 /**
  * blkcache_read() - attempt to read a set of blocks from cache
  *
@@ -260,9 +255,25 @@ struct blk_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*select_hwpart)(struct udevice *dev, int hwpart);
-};
 
-#define blk_get_ops(dev)	((struct blk_ops *)(dev)->driver->ops)
+#if IS_ENABLED(CONFIG_BOUNCE_BUFFER)
+	/**
+	 * buffer_aligned() - test memory alignment of block operation buffer
+	 *
+	 * Some devices have limited DMA capabilities and require that the
+	 * buffers passed to them fit specific properties. This optional
+	 * callback can be used to indicate whether a buffer alignment is
+	 * suitable for the device DMA or not, and trigger use of generic
+	 * bounce buffer implementation to help use of unsuitable buffers
+	 * at the expense of performance degradation.
+	 *
+	 * @dev:	Block device associated with the request
+	 * @state:	Bounce buffer state
+	 * @return 1 if OK, 0 if unaligned
+	 */
+	int (*buffer_aligned)(struct udevice *dev, struct bounce_buffer *state);
+#endif	/* CONFIG_BOUNCE_BUFFER */
+};
 
 /*
  * These functions should take struct udevice instead of struct blk_desc,

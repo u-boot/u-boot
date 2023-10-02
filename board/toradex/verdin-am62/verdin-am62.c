@@ -28,8 +28,8 @@ int dram_init(void)
 {
 	gd->ram_size = get_ram_size((long *)CFG_SYS_SDRAM_BASE, CFG_SYS_SDRAM_SIZE);
 
-	if (gd->ram_size < SZ_64M)
-		puts("## WARNING: Less than 64MB RAM detected\n");
+	if (gd->ram_size < SZ_512M)
+		puts("## WARNING: Less than 512MB RAM detected\n");
 
 	return 0;
 }

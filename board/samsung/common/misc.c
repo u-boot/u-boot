@@ -10,6 +10,7 @@
 #include <libtizen.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 #include <samsung/misc.h>
 #include <errno.h>
 #include <version.h>

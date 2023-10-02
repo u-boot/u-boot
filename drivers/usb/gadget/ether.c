@@ -14,6 +14,7 @@
 #include <part.h>
 #include <linux/errno.h>
 #include <linux/netdevice.h>
+#include <linux/printk.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/cdc.h>
 #include <linux/usb/gadget.h>
@@ -1880,8 +1881,10 @@ static void eth_start(struct eth_dev *dev, gfp_t gfp_flags)
 	}
 }
 
-static int eth_stop(struct eth_dev *dev)
+static int eth_stop(struct udevice *udev)
 {
+	struct ether_priv *priv = dev_get_priv(udev);
+	struct eth_dev *dev = &priv->ethdev;
 #ifdef RNDIS_COMPLETE_SIGNAL_DISCONNECT
 	unsigned long ts;
 	unsigned long timeout = CONFIG_SYS_HZ; /* 1 sec to stop RNDIS */
@@ -1895,7 +1898,7 @@ static int eth_stop(struct eth_dev *dev)
 		/* Wait until host receives OID_GEN_MEDIA_CONNECT_STATUS */
 		ts = get_timer(0);
 		while (get_timer(ts) < timeout)
-			usb_gadget_handle_interrupts(0);
+			dm_usb_gadget_handle_interrupts(udev->parent);
 #endif
 
 		rndis_uninit(dev->rndis_config);
@@ -2300,7 +2303,7 @@ static int usb_eth_start(struct udevice *udev)
 			pr_err("The remote end did not respond in time.");
 			goto fail;
 		}
-		usb_gadget_handle_interrupts(0);
+		dm_usb_gadget_handle_interrupts(udev->parent);
 	}
 
 	packet_received = 0;
@@ -2370,7 +2373,7 @@ static int usb_eth_send(struct udevice *udev, void *packet, int length)
 			printf("timeout sending packets to usb ethernet\n");
 			return -1;
 		}
-		usb_gadget_handle_interrupts(0);
+		dm_usb_gadget_handle_interrupts(udev->parent);
 	}
 	free(rndis_pkt);
 
@@ -2400,13 +2403,13 @@ static void usb_eth_stop(struct udevice *udev)
 	 * 2) 'pullup' callback in your UDC driver can be improved to perform
 	 * this deinitialization.
 	 */
-	eth_stop(dev);
+	eth_stop(udev);
 
 	usb_gadget_disconnect(dev->gadget);
 
 	/* Clear pending interrupt */
 	if (dev->network_started) {
-		usb_gadget_handle_interrupts(0);
+		dm_usb_gadget_handle_interrupts(udev->parent);
 		dev->network_started = 0;
 	}
 }
@@ -2416,7 +2419,7 @@ static int usb_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	struct ether_priv *priv = dev_get_priv(dev);
 	struct eth_dev *ethdev = &priv->ethdev;
 
-	usb_gadget_handle_interrupts(0);
+	dm_usb_gadget_handle_interrupts(dev->parent);
 
 	if (packet_received) {
 		if (ethdev->rx_req) {
@@ -2467,7 +2470,7 @@ int usb_ether_init(void)
 		return ret;
 	}
 
-	return usb_gadget_initialize(0);
+	return 0;
 }
 
 static int usb_eth_probe(struct udevice *dev)
@@ -2528,7 +2531,7 @@ static int usb_eth_remove(struct udevice *dev)
 
 static int usb_eth_unbind(struct udevice *dev)
 {
-	usb_gadget_release(0);
+	udc_device_put(dev->parent);
 
 	return 0;
 }

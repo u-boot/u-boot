@@ -9,6 +9,7 @@
 #include <efi.h>
 #include <efi_api.h>
 #include <errno.h>
+#include <event.h>
 #include <init.h>
 #include <log.h>
 #include <usb.h>
@@ -168,7 +169,7 @@ int reserve_arch(void)
 	return 0;
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 	/* start usb so that usb keyboard can be used as input device */
 	if (IS_ENABLED(CONFIG_USB_KEYBOARD))
@@ -176,6 +177,7 @@ int last_stage_init(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 
 unsigned int install_e820_map(unsigned int max_entries,
 			      struct e820_entry *entries)

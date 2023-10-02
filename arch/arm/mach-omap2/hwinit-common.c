@@ -174,7 +174,7 @@ void __weak init_package_revision(void)
  * done in each of these cases
  * This function is called with SRAM stack.
  */
-void early_system_init(void)
+int early_system_init(void)
 {
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_MULTI_DTB_FIT)
 	int ret;
@@ -225,6 +225,8 @@ void early_system_init(void)
 	debug_uart_init();
 #endif
 	prcm_init();
+
+	return 0;
 }
 
 #ifdef CONFIG_SPL_BUILD
@@ -240,13 +242,7 @@ void board_init_f(ulong dummy)
 }
 #endif
 
-static int omap2_system_init(void *ctx, struct event *event)
-{
-	early_system_init();
-
-	return 0;
-}
-EVENT_SPY(EVT_DM_POST_INIT_F, omap2_system_init);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, early_system_init);
 
 /*
  * Routine: wait_for_command_complete

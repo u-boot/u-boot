@@ -45,3 +45,12 @@ Launch the MSYS2 shell of the MSYS2 environment, and do the following::
 
    $ make tools-only_defconfig
    $ make tools-only
+
+
+Building without Python
+-----------------------
+
+The tools-only builds bytes pylibfdt by default. To disable this, use the
+NO_PYTHON variable::
+
+   NO_PYTHON=1 make tools-only_defconfig tools-only

@@ -19,6 +19,7 @@ import time
 from buildman import board
 from buildman import kconfiglib
 
+from u_boot_pylib.terminal import print_clear, tprint
 
 ### constant variables ###
 OUTPUT_FILE = 'boards.cfg'
@@ -863,11 +864,19 @@ class Boards:
         Returns:
             bool: True if all is well, False if there were warnings
         """
-        if not force and output_is_new(output, CONFIG_DIR, '.'):
+        if not force:
             if not quiet:
-                print(f'{output} is up to date. Nothing to do.')
-            return True
+                tprint('\rChecking for Kconfig changes...', newline=False)
+            is_new = output_is_new(output, CONFIG_DIR, '.')
+            print_clear()
+            if is_new:
+                if not quiet:
+                    print(f'{output} is up to date. Nothing to do.')
+                return True
+        if not quiet:
+            tprint('\rGenerating board list...', newline=False)
         params_list, warnings = self.build_board_list(CONFIG_DIR, '.', jobs)
+        print_clear()
         for warn in warnings:
             print(warn, file=sys.stderr)
         self.format_and_output(params_list, output)

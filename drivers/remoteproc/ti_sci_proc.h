@@ -10,6 +10,7 @@
 #ifndef REMOTEPROC_TI_SCI_PROC_H
 #define REMOTEPROC_TI_SCI_PROC_H
 
+#include <linux/printk.h>
 #define TISCI_INVALID_HOST 0xff
 
 /**

@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <i2c.h>
 #include <log.h>
+#include <linux/printk.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/s5m8767.h>

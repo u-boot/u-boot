@@ -182,7 +182,7 @@ unsigned long get_serial_clock(unsigned long dummy)
 	return (gd->bus_clk / 2);
 }
 
-static int kmcent2_misc_init_f(void *ctx, struct event *event)
+static int kmcent2_misc_init_f(void)
 {
 	/* configure QRIO pis for i2c deblocking */
 	i2c_deblock_gpio_cfg();
@@ -210,7 +210,7 @@ static int kmcent2_misc_init_f(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_MISC_INIT_F, kmcent2_misc_init_f);
+EVENT_SPY_SIMPLE(EVT_MISC_INIT_F, kmcent2_misc_init_f);
 
 #define USED_SRDS_BANK 0
 #define EXPECTED_SRDS_RFCK SRDS_PLLCR0_RFCK_SEL_100
@@ -261,7 +261,7 @@ int hush_init_var(void)
 	return 0;
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 	const char *kmem;
 	/* DIP switch support on BFTIC */
@@ -287,6 +287,7 @@ int last_stage_init(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 
 void fdt_fixup_fman_mac_addresses(void *blob)
 {

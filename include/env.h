@@ -240,11 +240,6 @@ int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr);
 int eth_env_set_enetaddr(const char *name, const uint8_t *enetaddr);
 
 /**
- * env_fix_drivers() - Updates envdriver as per relocation
- */
-void env_fix_drivers(void);
-
-/**
  * env_set_default_vars() - reset variables to their default value
  *
  * This resets individual variables to their value in the default environment
@@ -355,14 +350,6 @@ char *env_get_default(const char *name);
 
 /* [re]set to the default environment */
 void env_set_default(const char *s, int flags);
-
-/**
- * env_reloc() - Relocate the 'env' sub-commands
- *
- * This is used for those unfortunate archs with crappy toolchains
- */
-void env_reloc(void);
-
 
 /**
  * env_import_fdt() - Import environment values from device tree blob

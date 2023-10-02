@@ -9,6 +9,7 @@
 
 #include <image.h>
 
+struct boot_params;
 struct cmd_tbl;
 
 #define BOOTM_ERR_RESET		(-1)
@@ -123,5 +124,51 @@ int bootm_process_cmdline(char *buf, int maxlen, int flags);
  * Return: 0 if OK, -ENOMEM if out of memory
  */
 int bootm_process_cmdline_env(int flags);
+
+/**
+ * zboot_start() - Boot a zimage
+ *
+ * Boot a zimage, given the component parts
+ *
+ * @addr: Address where the bzImage is moved before booting, either
+ *	BZIMAGE_LOAD_ADDR or ZIMAGE_LOAD_ADDR
+ * @base: Pointer to the boot parameters, typically at address
+ *	DEFAULT_SETUP_BASE
+ * @initrd: Address of the initial ramdisk, or 0 if none
+ * @initrd_size: Size of the initial ramdisk, or 0 if none
+ * @cmdline: Command line to use for booting
+ * Return: -EFAULT on error (normally it does not return)
+ */
+int zboot_start(ulong addr, ulong size, ulong initrd, ulong initrd_size,
+		ulong base, char *cmdline);
+
+/*
+ * zimage_get_kernel_version() - Get the version string from a kernel
+ *
+ * @params: boot_params pointer
+ * @kernel_base: base address of kernel
+ * Return: Kernel version as a NUL-terminated string
+ */
+const char *zimage_get_kernel_version(struct boot_params *params,
+				      void *kernel_base);
+
+/**
+ * zimage_dump() - Dump the metadata of a zimage
+ *
+ * This shows all available information in a zimage that has been loaded.
+ *
+ * @base_ptr: Pointer to the boot parameters, typically at address
+ *	DEFAULT_SETUP_BASE
+ * @show_cmdline: true to show the full command line
+ */
+void zimage_dump(struct boot_params *base_ptr, bool show_cmdline);
+
+/*
+ * bootm_boot_start() - Boot an image at the given address
+ *
+ * @addr: Image address
+ * @cmdline: Command line to set
+ */
+int bootm_boot_start(ulong addr, const char *cmdline);
 
 #endif

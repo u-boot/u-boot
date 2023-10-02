@@ -883,6 +883,13 @@ void acpi_inc_align(struct acpi_ctx *ctx, uint amount);
  */
 int acpi_add_table(struct acpi_ctx *ctx, void *table);
 
+static inline int acpi_add_fadt(struct acpi_ctx *ctx, struct acpi_fadt *fadt)
+{
+	acpi_add_table(ctx, fadt);
+	acpi_inc(ctx, sizeof(struct acpi_fadt));
+	return 0;
+}
+
 /**
  * acpi_write_rsdp() - Write out an RSDP indicating where the ACPI tables are
  *

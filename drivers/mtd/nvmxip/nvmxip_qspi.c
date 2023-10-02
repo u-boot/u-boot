@@ -50,8 +50,8 @@ static int nvmxip_qspi_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	log_debug("[%s]: XIP device base addr: 0x%llx , lba_shift: %d , lbas: %lu\n",
-		  dev->name, plat->phys_base, plat->lba_shift, plat->lba);
+	log_debug("[%s]: XIP device base addr: 0x%p , lba_shift: %d , lbas: %lu\n",
+		  dev->name, (void *)(uintptr_t)plat->phys_base, plat->lba_shift, plat->lba);
 
 	return 0;
 }
@@ -66,5 +66,6 @@ U_BOOT_DRIVER(nvmxip_qspi) = {
 	.id = UCLASS_NVMXIP,
 	.of_match = nvmxip_qspi_ids,
 	.of_to_plat = nvmxip_qspi_of_to_plat,
+	.probe = nvmxip_probe,
 	.plat_auto = sizeof(struct nvmxip_plat),
 };

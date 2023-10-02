@@ -998,6 +998,7 @@ config ARCH_APPLE
 	select OF_BOARD_SETUP
 	select OF_CONTROL
 	select PCI
+	select PHY
 	select PINCTRL
 	select POSITION_INDEPENDENT
 	select POWER_DOMAIN
@@ -1036,6 +1037,16 @@ config ARCH_QEMU
 	imply DM_RTC
 	imply RTC_PL031
 	imply OF_HAS_PRIOR_STAGE
+	imply VIDEO
+	imply VIDEO_BOCHS
+	imply SYS_WHITE_ON_BLACK
+	imply SYS_CONSOLE_IS_IN_ENV
+	imply PRE_CONSOLE_BUFFER
+	imply USB
+	imply USB_XHCI_HCD
+	imply USB_XHCI_PCI
+	imply USB_KEYBOARD
+	imply CMD_USB
 
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"

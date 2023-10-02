@@ -21,6 +21,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <dm.h>
+#include <linux/printk.h>
 
 /* The NAND flash driver defines */
 #define ZYNQ_NAND_CMD_PHASE		1

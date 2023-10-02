@@ -33,6 +33,7 @@
 #include <linux/err.h>
 #include <linux/list.h>
 #include <power-domain.h>
+#include <linux/printk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -598,9 +599,10 @@ int device_probe(struct udevice *dev)
 
 	ret = device_notify(dev, EVT_DM_POST_PROBE);
 	if (ret)
-		return ret;
+		goto fail_event;
 
 	return 0;
+fail_event:
 fail_uclass:
 	if (device_remove(dev, DM_REMOVE_NORMAL)) {
 		dm_warn("%s: Device '%s' failed to remove on error path\n",

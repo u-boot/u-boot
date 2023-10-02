@@ -25,7 +25,7 @@ struct ums {
 	struct blk_desc block_dev;
 };
 
-int fsg_init(struct ums *ums_devs, int count, unsigned int controller_idx);
+int fsg_init(struct ums *ums_devs, int count, struct udevice *udc);
 void fsg_cleanup(void);
 int fsg_main_thread(void *);
 int fsg_add(struct usb_configuration *c);

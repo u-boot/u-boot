@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <wait_bit.h>
 #include <linux/bitops.h>
+#include <linux/printk.h>
 
 #define MVMDIO_SMI_DATA_SHIFT		0
 #define MVMDIO_SMI_PHY_ADDR_SHIFT	16

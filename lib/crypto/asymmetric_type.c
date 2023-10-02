@@ -18,6 +18,7 @@
 #include <linux/compat.h>
 #include <linux/ctype.h>
 #include <linux/err.h>
+#include <linux/printk.h>
 #include <linux/string.h>
 #else
 #include <linux/seq_file.h>

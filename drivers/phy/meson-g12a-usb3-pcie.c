@@ -18,6 +18,7 @@
 #include <bitfield.h>
 #include <generic-phy.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 
 #include <linux/bitops.h>
 #include <linux/compat.h>

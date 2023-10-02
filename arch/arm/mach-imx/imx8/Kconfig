@@ -34,11 +34,11 @@ config SYS_SOC
 
 config BOOTAUX_RESERVED_MEM_BASE
 	hex "i.MX auxiliary core dram memory base"
-	default 0
+	default 0x0
 
 config BOOTAUX_RESERVED_MEM_SIZE
 	hex "i.MX auxiliary core dram memory size"
-	default 0
+	default 0x0
 
 choice
 	prompt "i.MX8 board select"

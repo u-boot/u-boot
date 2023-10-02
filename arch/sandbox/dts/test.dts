@@ -39,6 +39,8 @@
 		mmc1 = "/mmc1";
 		mmc2 = "/mmc2";
 		mmc3 = "/mmc3";
+		mmc4 = "/mmc4";
+		mmc5 = "/mmc5";
 		pci0 = &pci0;
 		pci1 = &pci1;
 		pci2 = &pci2;
@@ -79,6 +81,15 @@
 		};
 	};
 
+	options {
+		u-boot {
+			compatible = "u-boot,config";
+			bootscr-ram-offset = /bits/ 64 <0x12345678>;
+			bootscr-flash-offset = /bits/ 64 <0>;
+			bootscr-flash-size = /bits/ 64 <0x2000>;
+		};
+	};
+
 	bootstd {
 		bootph-verify;
 		compatible = "u-boot,boot-std";
@@ -95,6 +106,12 @@
 		};
 
 		theme {
+			font-size = <30>;
+			menu-inset = <3>;
+			menuitem-gap-y = <1>;
+		};
+
+		cedit-theme {
 			font-size = <30>;
 			menu-inset = <3>;
 			menuitem-gap-y = <1>;
@@ -142,12 +159,6 @@
 	};
 
 	cedit: cedit {
-	};
-
-	cedit-theme {
-		font-size = <30>;
-		menu-inset = <3>;
-		menuitem-gap-y = <1>;
 	};
 
 	fuzzing-engine {
@@ -299,6 +310,7 @@
 		uint-value = <(-1234)>;
 		int64-value = /bits/ 64 <0x1111222233334444>;
 		int-array = <5678 9123 4567>;
+		int64-array = /bits/ 64 <0x1111222233334444 0x4444333322221111>;
 		str-value = "test string";
 		interrupts-extended = <&irq 3 0>;
 		acpi,name = "GHIJ";
@@ -431,6 +443,11 @@
 		#phy-cells = <0>;
 	};
 
+	phy_provider3: gen_phy@3 {
+		compatible = "sandbox,phy";
+		#phy-cells = <2>;
+	};
+
 	gen_phy_user: gen_phy_user {
 		compatible = "simple-bus";
 		phys = <&phy_provider0 0>, <&phy_provider0 1>, <&phy_provider1>;
@@ -441,6 +458,12 @@
 		compatible = "simple-bus";
 		phys = <&phy_provider0 0>, <&phy_provider2>;
 		phy-names = "phy1", "phy2";
+	};
+
+	gen_phy_user2: gen_phy_user2 {
+		compatible = "simple-bus";
+		phys = <&phy_provider3 0 0>;
+		phy-names = "phy1";
 	};
 
 	some-bus {
@@ -598,6 +621,22 @@
 			 <&clk_sandbox 3>,
 			 <&clk_sandbox 2>;
 		clock-names = "fixed", "i2c", "spi", "uart2", "uart1";
+	};
+
+	clk-test2 {
+		compatible = "sandbox,clk-test";
+		assigned-clock-rates = <321>;
+	};
+
+	clk-test3 {
+		compatible = "sandbox,clk-test";
+		assigned-clocks = <&clk_sandbox 1>;
+	};
+
+	clk-test4 {
+		compatible = "sandbox,clk-test";
+		assigned-clock-rates = <654>, <321>;
+		assigned-clocks = <&clk_sandbox 1>;
 	};
 
 	ccf: clk-ccf {
@@ -1053,6 +1092,13 @@
 		status = "disabled";
 		compatible = "sandbox,mmc";
 		filename = "mmc4.img";
+	};
+
+	/* This is used for ChromiumOS tests */
+	mmc5 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "mmc5.img";
 	};
 
 	pch {

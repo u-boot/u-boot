@@ -17,6 +17,7 @@
 #include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
+#include <asm/sections.h>
 #include <dm.h>
 #include <env.h>
 #include <mmc.h>

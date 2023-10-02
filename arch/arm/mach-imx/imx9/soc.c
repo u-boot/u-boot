@@ -552,7 +552,7 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-int imx9_probe_mu(void *ctx, struct event *event)
+int imx9_probe_mu(void)
 {
 	struct udevice *devp;
 	int node, ret;
@@ -576,7 +576,7 @@ int imx9_probe_mu(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT_F, imx9_probe_mu);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, imx9_probe_mu);
 
 int timer_init(void)
 {

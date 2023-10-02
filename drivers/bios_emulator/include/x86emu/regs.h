@@ -41,6 +41,7 @@
 
 /*---------------------- Macros and type definitions ----------------------*/
 
+#include <linux/printk.h>
 #pragma pack(1)
 
 /*

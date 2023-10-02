@@ -61,7 +61,7 @@ def collect_trace(cons):
 
     # Read out the trace data
     addr = 0x02000000
-    size = 0x01000000
+    size = 0x02000000
     out = cons.run_command(f'trace calls {addr:x} {size:x}')
     print(out)
     fname = os.path.join(TMPDIR, 'trace')
@@ -175,7 +175,7 @@ def check_funcgraph(cons, fname, proftool, map_fname, trace_dat):
     # Then look for this:
     #  u-boot-1     [000]   282.101375: funcgraph_exit:         0.006 us   |      }
     # Then check for this:
-    #  u-boot-1     [000]   282.101375: funcgraph_entry:        0.000 us   |    event_init();
+    #  u-boot-1     [000]   282.101375: funcgraph_entry:        0.000 us   |    initcall_is_event();
 
     expected_indent = None
     found_start = False
@@ -197,8 +197,9 @@ def check_funcgraph(cons, fname, proftool, map_fname, trace_dat):
             elif found_start and indent == expected_indent and brace == '}':
                 found_end = True
 
-    # The next function after initf_bootstage() exits should be event_init()
-    assert upto == 'event_init()'
+    # The next function after initf_bootstage() exits should be
+    # initcall_is_event()
+    assert upto == 'initcall_is_event()'
 
     # Now look for initf_dm() and dm_timer_init() so we can check the bootstage
     # time
@@ -247,7 +248,7 @@ def check_flamegraph(cons, fname, proftool, map_fname, trace_fg):
     # We expect dm_timer_init() to be called twice: once before relocation and
     # once after
     look1 = 'initf_dm;dm_timer_init 1'
-    look2 = 'board_init_r;initr_dm_devices;dm_timer_init 1'
+    look2 = 'board_init_r;initcall_run_list;initr_dm_devices;dm_timer_init 1'
     found = 0
     with open(trace_fg, 'r') as fd:
         for line in fd:
@@ -272,7 +273,7 @@ def check_flamegraph(cons, fname, proftool, map_fname, trace_fg):
                 total += count
     return total
 
-
+check_flamegraph
 @pytest.mark.slow
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('trace')

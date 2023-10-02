@@ -14,6 +14,7 @@
 #include <net.h>
 #include <usb.h>
 #include <watchdog.h>
+#include <linux/printk.h>
 #include <linux/stringify.h>
 
 static int do_fastboot_udp(int argc, char *const argv[],
@@ -61,6 +62,7 @@ static int do_fastboot_usb(int argc, char *const argv[],
 {
 	int controller_index;
 	char *usb_controller;
+	struct udevice *udc;
 	char *endp;
 	int ret;
 
@@ -79,7 +81,7 @@ static int do_fastboot_usb(int argc, char *const argv[],
 		return CMD_RET_FAILURE;
 	}
 
-	ret = usb_gadget_initialize(controller_index);
+	ret = udc_device_get_by_index(controller_index, &udc);
 	if (ret) {
 		pr_err("USB init failed: %d\n", ret);
 		return CMD_RET_FAILURE;
@@ -103,13 +105,13 @@ static int do_fastboot_usb(int argc, char *const argv[],
 		if (ctrlc())
 			break;
 		schedule();
-		usb_gadget_handle_interrupts(controller_index);
+		dm_usb_gadget_handle_interrupts(udc);
 	}
 
 	ret = CMD_RET_SUCCESS;
 
 exit:
-	usb_gadget_release(controller_index);
+	udc_device_put(udc);
 	g_dnl_unregister();
 	g_dnl_clear_detach();
 

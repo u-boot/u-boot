@@ -9,6 +9,8 @@
 #ifndef __SCENE_INTERNAL_H
 #define __SCENE_INTERNAL_H
 
+typedef int (*expo_scene_obj_iterator)(struct scene_obj *obj, void *priv);
+
 /**
  * expo_lookup_scene_id() - Look up a scene ID
  *
@@ -38,7 +40,7 @@ uint resolve_id(struct expo *exp, uint id);
  * @type: Type of the object, or SCENEOBJT_NONE to match any type
  * Returns: Object found, or NULL if not found
  */
-void *scene_obj_find(struct scene *scn, uint id, enum scene_obj_t type);
+void *scene_obj_find(const struct scene *scn, uint id, enum scene_obj_t type);
 
 /**
  * scene_obj_find_by_name() - Find an object in a scene by name
@@ -197,5 +199,51 @@ int scene_menu_render_deps(struct scene *scn, struct scene_obj_menu *menu);
  * Returns 0 if OK, -ENOTSUPP if there is no graphical console
  */
 int scene_menu_calc_dims(struct scene_obj_menu *menu);
+
+/**
+ * scene_iter_objs() - Iterate through all scene objects
+ *
+ * @scn: Scene to process
+ * @iter: Iterator to call on each object
+ * @priv: Private data to pass to the iterator, in addition to the object
+ * Return: 0 if OK, -ve on error
+ */
+int scene_iter_objs(struct scene *scn, expo_scene_obj_iterator iter,
+		    void *priv);
+
+/**
+ * expo_iter_scene_objects() - Iterate through all scene objects
+ *
+ * @exp: Expo to process
+ * @iter: Iterator to call on each object
+ * @priv: Private data to pass to the iterator, in addition to the object
+ * Return: 0 if OK, -ve on error
+ */
+int expo_iter_scene_objs(struct expo *exp, expo_scene_obj_iterator iter,
+			 void *priv);
+
+/**
+ * scene_menuitem_find() - Find the menu item for an ID
+ *
+ * Looks up the menu to find the item with the given ID
+ *
+ * @menu: Menu to check
+ * @id: ID to look for
+ * Return: Menu item, or NULL if not found
+ */
+struct scene_menitem *scene_menuitem_find(const struct scene_obj_menu *menu,
+					  int id);
+
+/**
+ * scene_menuitem_find_seq() - Find the menu item at a sequential position
+ *
+ * This numbers the items from 0 and returns the seq'th one
+ *
+ * @menu: Menu to check
+ * @seq: Sequence number to look for
+ * Return: menu item if found, else NULL
+ */
+struct scene_menitem *scene_menuitem_find_seq(const struct scene_obj_menu *menu,
+					      uint seq);
 
 #endif /* __SCENE_INTERNAL_H */

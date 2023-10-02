@@ -8,6 +8,7 @@
 #include <fastboot.h>
 #include <net.h>
 #include <net/fastboot_udp.h>
+#include <linux/printk.h>
 
 enum {
 	FASTBOOT_ERROR = 0,

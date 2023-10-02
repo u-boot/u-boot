@@ -552,6 +552,14 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #define gd_set_acpi_start(addr)
 #endif
 
+#ifdef CONFIG_SMBIOS
+#define gd_smbios_start()	gd->smbios_start
+#define gd_set_smbios_start(addr)	gd->arch.smbios_start = addr
+#else
+#define gd_smbios_start()	0UL
+#define gd_set_smbios_start(addr)
+#endif
+
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 #define gd_multi_dtb_fit()	gd->multi_dtb_fit
 #define gd_set_multi_dtb_fit(_dtb)	gd->multi_dtb_fit = _dtb
@@ -573,6 +581,13 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #define gd_malloc_start()	0
 #define gd_set_malloc_start(val)
 #endif
+
+#if CONFIG_IS_ENABLED(PCI)
+#define gd_set_pci_ram_top(val)	gd->pci_ram_top = val
+#else
+#define gd_set_pci_ram_top(val)
+#endif
+
 /**
  * enum gd_flags - global data flags
  *
@@ -667,6 +682,11 @@ enum gd_flags {
 	 * @GD_FLG_OF_TAG_MIGRATE: Device tree has old u-boot,dm- tags
 	 */
 	GD_FLG_OF_TAG_MIGRATE = 0x200000,
+	/**
+	 * @GD_FLG_DM_DEAD: Driver model is not accessible. This can be set when
+	 * the memory used to holds its tables has been mapped out.
+	 */
+	GD_FLG_DM_DEAD = 0x400000,
 };
 
 #endif /* __ASSEMBLY__ */

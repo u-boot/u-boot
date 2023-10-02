@@ -11,6 +11,7 @@
 #include <event.h>
 #include <init.h>
 #include <log.h>
+#include <spl.h>
 #include <asm/cpu.h>
 #include <asm/cpu_x86.h>
 #include <asm/cpu_common.h>
@@ -25,7 +26,7 @@
 #include <asm/arch/pch.h>
 #include <asm/arch/rcb.h>
 
-static int broadwell_init_cpu(void *ctx, struct event *event)
+static int broadwell_init_cpu(void)
 {
 	struct udevice *dev;
 	int ret;
@@ -40,7 +41,7 @@ static int broadwell_init_cpu(void *ctx, struct event *event)
 
 	return 0;
 }
-EVENT_SPY(EVT_DM_POST_INIT_F, broadwell_init_cpu);
+EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, broadwell_init_cpu);
 
 void set_max_freq(void)
 {
@@ -67,12 +68,11 @@ int arch_cpu_init(void)
 {
 	post_code(POST_CPU_INIT);
 
-#ifdef CONFIG_TPL
 	/* Do a mini-init if TPL has already done the full init */
-	return x86_cpu_reinit_f();
-#else
-	return x86_cpu_init_f();
-#endif
+	if (IS_ENABLED(CONFIG_TPL) && spl_phase() != PHASE_TPL)
+		return x86_cpu_reinit_f();
+	else
+		return x86_cpu_init_f();
 }
 
 int checkcpu(void)

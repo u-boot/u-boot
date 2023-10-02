@@ -464,6 +464,28 @@ ready    File was loaded and is ready for use. In this state the bootflow is
 =======  =======================================================================
 
 
+Migrating from distro_boot
+--------------------------
+
+To migrate from distro_boot:
+
+#. Update your board header files to remove the BOOTENV and BOOT_TARGET_xxx
+   defines. Standard boot finds available boot devices automatically.
+
+#. Remove the "boot_targets" variable unless you need it. Standard boot uses a
+   default order from fastest to slowest, which generally matches the order used
+   by boards.
+
+#. Make sure that CONFIG_BOOTSTD_DEFAULTS is enabled by your board, so it can
+   boot common Linux distributions.
+
+An example patch is at migrate_patch_.
+
+If you are using custom boot scripts for your board, consider creating your
+own bootmeth to hold the logic. There are various examples at
+`boot/bootmeth_...`.
+
+
 Theory of operation
 -------------------
 
@@ -683,11 +705,12 @@ Assuming the bootmeth is happy, or at least indicates that it is willing to try
 partition. If that works it tries to detect a file system. If that works then it
 calls the bootmeth device once more, this time to read the bootflow.
 
-Note: At present a filesystem is needed for the bootmeth to be called on block
-devices, simply because we don't have any examples where this is not the case.
-This feature can be added as needed. Note that sandbox is a special case, since
-in that case the host filesystem can be accessed even though the block device
-is NULL.
+Note: Normally a filesystem is needed for the bootmeth to be called on block
+devices, but bootmeths which don't need that can set the BOOTMETHF_ANY_PART
+flag to indicate that they can scan any partition. An example is the ChromiumOS
+bootmeth which can store a kernel in a raw partition. Note also that sandbox is
+a special case, since in that case the host filesystem can be accessed even
+though the block device is NULL.
 
 If we take the example of the `bootmeth_extlinux` driver, this call ends up at
 `extlinux_read_bootflow()`. It has the filesystem ready, so tries various
@@ -774,3 +797,4 @@ Other ideas:
 .. _BootLoaderSpec: http://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/
 .. _distro_boot: https://github.com/u-boot/u-boot/blob/master/boot/distro.c
 .. _bootflow_h: https://github.com/u-boot/u-boot/blob/master/include/bootflow.h
+.. _migrate_patch: https://patchwork.ozlabs.org/project/uboot/patch/20230727215433.578830-2-sjg@chromium.org/

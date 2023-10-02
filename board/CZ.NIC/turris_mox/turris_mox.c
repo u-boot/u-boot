@@ -15,6 +15,7 @@
 #include <dm.h>
 #include <dm/of_extra.h>
 #include <env.h>
+#include <event.h>
 #include <fdt_support.h>
 #include <init.h>
 #include <led.h>
@@ -667,7 +668,7 @@ err:
 	return NULL;
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 	struct gpio_desc reset_gpio = {};
 
@@ -712,6 +713,7 @@ handle_reset_btn:
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 

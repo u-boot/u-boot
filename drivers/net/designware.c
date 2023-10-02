@@ -29,6 +29,7 @@
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <asm/io.h>
+#include <linux/printk.h>
 #include <power/regulator.h>
 #include "designware.h"
 

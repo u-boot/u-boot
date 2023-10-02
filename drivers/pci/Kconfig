@@ -121,10 +121,17 @@ config PCIE_APPLE
 	bool "Enable Apple PCIe driver"
 	depends on ARCH_APPLE
 	imply PCI_INIT_R
+	select SYS_PCI_64BIT
 	default y
 	help
 	  Say Y here if you want to enable PCIe controller support on
 	  Apple SoCs.
+
+config PCI_FTPCI100
+	bool "Enable Faraday FTPCI100 PCI Bridge Controller driver"
+	help
+	  Say Y here if you want to enable Faraday FTPCI100 PCI.
+	  FTPCI100 IP is used in SoC chip designs.
 
 config PCI_GT64120
 	bool "GT64120 PCI support"

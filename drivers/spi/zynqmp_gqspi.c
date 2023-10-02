@@ -690,7 +690,7 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 		writel(GQSPI_DMA_DST_I_STS_MASK, &dma_regs->dmaier);
 		addr = (unsigned long)buf;
 		size = roundup(priv->len, GQSPI_DMA_ALIGN);
-		flush_dcache_range(addr, addr + size);
+		invalidate_dcache_range(addr, addr + size);
 
 		while (priv->len) {
 			zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
@@ -706,6 +706,8 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 			printf("DMA Timeout:0x%x\n", readl(&dma_regs->dmaisr));
 			return -ETIMEDOUT;
 		}
+
+		invalidate_dcache_range(addr, addr + size);
 
 		writel(GQSPI_DMA_DST_I_STS_DONE, &dma_regs->dmaisr);
 

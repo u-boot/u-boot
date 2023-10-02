@@ -126,7 +126,7 @@ config TPL_POWER
 
 config TPL_TEXT_BASE
 	hex "Base address for the .text section of the TPL stage"
-	default 0
+	default 0x0
 	help
 	  The base address for the .text section of the TPL stage.
 

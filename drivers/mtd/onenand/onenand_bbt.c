@@ -20,6 +20,7 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/onenand.h>
 #include <malloc.h>
+#include <linux/printk.h>
 
 #include <linux/errno.h>
 

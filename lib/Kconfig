@@ -289,6 +289,14 @@ config ACPI
 	  not necessarily include generation of tables
 	  (see GENERATE_ACPI_TABLE), but allows for tables to be located.
 
+config SPL_ACPI
+	bool "Enable support for ACPI libraries in SPL"
+	depends on SPL && SUPPORT_ACPI
+	help
+	  Provides library functions for dealing with ACPI tables in SPL. This
+	  does not necessarily include generation of tables
+	  (see GENERATE_ACPI_TABLE), but allows for tables to be located.
+
 config GENERATE_ACPI_TABLE
 	bool "Generate an ACPI (Advanced Configuration and Power Interface) table"
 	depends on ACPI
@@ -862,7 +870,7 @@ config OF_LIBFDT
 config OF_LIBFDT_ASSUME_MASK
 	hex "Mask of conditions to assume for libfdt"
 	depends on OF_LIBFDT || FIT
-	default 0
+	default 0x0
 	help
 	  Use this to change the assumptions made by libfdt about the
 	  device tree it is working with. A value of 0 means that no assumptions
@@ -953,15 +961,6 @@ config VPL_OF_LIBFDT_ASSUME_MASK
 	  0xff means all assumptions are made and any invalid data may cause
 	  unsafe execution. See FDT_ASSUME_PERFECT, etc. in libfdt_internal.h
 
-config FDT_FIXUP_PARTITIONS
-	bool "overwrite MTD partitions in DTS through defined in 'mtdparts'"
-	depends on OF_LIBFDT
-	depends on CMD_MTDPARTS
-	help
-	  Allow overwriting defined partitions in the device tree blob
-	  using partition info defined in the 'mtdparts' environment
-	  variable.
-
 menu "System tables"
 	depends on (!EFI && !SYS_COREBOOT) || (ARM && EFI_LOADER)
 
@@ -976,8 +975,8 @@ config BLOBLIST_TABLES
 
 config GENERATE_SMBIOS_TABLE
 	bool "Generate an SMBIOS (System Management BIOS) table"
+	depends on SMBIOS
 	default y
-	depends on X86 || EFI_LOADER
 	help
 	  The System Management BIOS (SMBIOS) specification addresses how
 	  motherboard and system vendors present management information about
@@ -989,14 +988,14 @@ config GENERATE_SMBIOS_TABLE
 	  See also SMBIOS_SYSINFO which allows SMBIOS values to be provided in
 	  the devicetree.
 
+endmenu
+
 config LIB_RATIONAL
 	bool "enable continued fraction calculation routines"
 
 config SPL_LIB_RATIONAL
 	bool "enable continued fraction calculation routines for SPL"
 	depends on SPL
-
-endmenu
 
 config ASN1_COMPILER
 	bool
@@ -1045,6 +1044,20 @@ config SPL_OID_REGISTRY
 	  ISO/IEC for naming any object, concept, or "thing" with a globally
 	  unambiguous persistent name (https://en.wikipedia.org/wiki/Object_identifier).
 	  Enable fast lookup object identifier registry in the SPL.
+
+config SMBIOS
+	bool "SMBIOS support"
+	depends on X86 || EFI_LOADER
+	default y
+	select LAST_STAGE_INIT
+	help
+	  Indicates that this platform can support System Management BIOS
+	  (SMBIOS) tables. These provide various pieces of information about
+	  the board, such as the manufacturer and the model name.
+
+	  See GENERATE_SMBIOS_TABLE which controls whether U-Boot actually
+	  creates these tables, rather than them coming from a previous firmware
+	  stage.
 
 config SMBIOS_PARSER
 	bool "SMBIOS parser"
@@ -1118,8 +1131,4 @@ config PHANDLE_CHECK_SEQ
 
 endmenu
 
-menu "FWU Multi Bank Updates"
-
 source lib/fwu_updates/Kconfig
-
-endmenu
