@@ -361,32 +361,33 @@ int cread_line_process_ch(struct cli_line_state *cls, char ichar)
 		break;
 	case CTL_CH('p'):
 	case CTL_CH('n'):
-	{
-		char *hline;
+		if (cls->history) {
+			char *hline;
 
-		if (ichar == CTL_CH('p'))
-			hline = hist_prev();
-		else
-			hline = hist_next();
+			if (ichar == CTL_CH('p'))
+				hline = hist_prev();
+			else
+				hline = hist_next();
 
-		if (!hline) {
-			getcmd_cbeep();
+			if (!hline) {
+				getcmd_cbeep();
+				break;
+			}
+
+			/* nuke the current line */
+			/* first, go home */
+			BEGINNING_OF_LINE();
+
+			/* erase to end of line */
+			ERASE_TO_EOL();
+
+			/* copy new line into place and display */
+			strcpy(buf, hline);
+			cls->eol_num = strlen(buf);
+			REFRESH_TO_EOL();
 			break;
 		}
-
-		/* nuke the current line */
-		/* first, go home */
-		BEGINNING_OF_LINE();
-
-		/* erase to end of line */
-		ERASE_TO_EOL();
-
-		/* copy new line into place and display */
-		strcpy(buf, hline);
-		cls->eol_num = strlen(buf);
-		REFRESH_TO_EOL();
 		break;
-	}
 	case '\t':
 		if (IS_ENABLED(CONFIG_AUTO_COMPLETE)) {
 			int num2, col;
@@ -438,6 +439,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 	cls->len = *len;
 	cls->prompt = prompt;
 	cls->buf = buf;
+	cls->history = true;
 
 	if (init_len)
 		cread_add_str(buf, init_len, 1, &cls->num, &cls->eol_num, buf,

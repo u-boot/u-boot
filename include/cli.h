@@ -31,6 +31,7 @@ struct cli_ch_state {
  * @num: Current cursor position, where 0 is the start
  * @eol_num: Number of characters in the buffer
  * @insert: true if in 'insert' mode
+ * @history: true if history should be accessible
  * @buf: Buffer containing line
  * @prompt: Prompt for the line
  */
@@ -39,6 +40,7 @@ struct cli_line_state {
 	uint eol_num;
 	uint len;
 	bool insert;
+	bool history;
 	char *buf;
 	const char *prompt;
 };
