@@ -114,6 +114,18 @@ static int lmb_test_dump_region(struct unit_test_state *uts,
 		end = base + size - 1;
 		flags = rgn->region[i].flags;
 
+		/*
+		 * this entry includes the stack (get_sp()) on many platforms
+		 * so will different each time lmb_init_and_reserve() is called.
+		 * We could instead have the bdinfo command put its lmb region
+		 * in a known location, so we can check it directly, rather than
+		 * calling lmb_init_and_reserve() to create a new (and hopefully
+		 * identical one). But for now this seems good enough.
+		 */
+		if (!IS_ENABLED(CONFIG_SANDBOX) && i == 3) {
+			ut_assert_nextlinen(" %s[%d]\t[", name, i);
+			continue;
+		}
 		ut_assert_nextline(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: %x",
 				   name, i, base, end, size, flags);
 	}
