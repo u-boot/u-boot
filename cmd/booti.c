@@ -75,7 +75,7 @@ static int booti_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	unmap_sysmem((void *)ld);
 
 	ret = booti_setup(ld, &relocated_addr, &image_size, false);
-	if (ret != 0)
+	if (ret || IS_ENABLED(CONFIG_SANDBOX))
 		return 1;
 
 	/* Handle BOOTM_STATE_LOADOS */
