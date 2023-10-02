@@ -81,6 +81,12 @@ int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
 			scene_menu_arrange(scn, (struct scene_obj_menu *)obj);
 			y += 50;
 			break;
+		case SCENEOBJT_TEXTLINE:
+			scene_obj_set_pos(scn, obj->id, 50, y);
+			scene_textline_arrange(scn,
+					(struct scene_obj_textline *)obj);
+			y += 50;
+			break;
 		}
 	}
 
@@ -295,17 +301,27 @@ static int h_write_settings(struct scene_obj *obj, void *vpriv)
 {
 	struct cedit_iter_priv *priv = vpriv;
 	struct abuf *buf = priv->buf;
+	int ret;
 
 	switch (obj->type) {
 	case SCENEOBJT_NONE:
 	case SCENEOBJT_IMAGE:
 	case SCENEOBJT_TEXT:
 		break;
+	case SCENEOBJT_TEXTLINE: {
+		const struct scene_obj_textline *tline;
+
+		tline = (struct scene_obj_textline *)obj;
+		ret = write_dt_string(buf, obj->name, abuf_data(&tline->buf));
+		if (ret)
+			return log_msg_ret("wr2", ret);
+		break;
+	}
 	case SCENEOBJT_MENU: {
 		const struct scene_obj_menu *menu;
 		const char *str;
 		char name[80];
-		int ret, i;
+		int i;
 
 		/* write the ID of the current item */
 		menu = (struct scene_obj_menu *)obj;
@@ -394,6 +410,19 @@ static int h_read_settings(struct scene_obj *obj, void *vpriv)
 	case SCENEOBJT_IMAGE:
 	case SCENEOBJT_TEXT:
 		break;
+	case SCENEOBJT_TEXTLINE: {
+		const struct scene_obj_textline *tline;
+		const char *val;
+		int len;
+
+		tline = (struct scene_obj_textline *)obj;
+
+		val = ofnode_read_prop(node, obj->name, &len);
+		if (len >= tline->max_chars)
+			return log_msg_ret("str", -ENOSPC);
+		strcpy(abuf_data(&tline->buf), val);
+		break;
+	}
 	case SCENEOBJT_MENU: {
 		struct scene_obj_menu *menu;
 		uint val;
@@ -472,6 +501,20 @@ static int h_write_settings_env(struct scene_obj *obj, void *vpriv)
 		if (ret)
 			return log_msg_ret("st2", ret);
 		break;
+	case SCENEOBJT_TEXTLINE: {
+		const struct scene_obj_textline *tline;
+
+		tline = (struct scene_obj_textline *)obj;
+		str = abuf_data(&tline->buf);
+		ret = env_set(var, str);
+		if (ret)
+			return log_msg_ret("set", ret);
+
+		if (priv->verbose)
+			printf("%s=%s\n", var, str);
+
+		break;
+	}
 	}
 
 	return 0;
@@ -521,6 +564,21 @@ static int h_read_settings_env(struct scene_obj *obj, void *vpriv)
 		 */
 		menu->cur_item_id = val;
 		break;
+	case SCENEOBJT_TEXTLINE: {
+		const struct scene_obj_textline *tline;
+		const char *value;
+
+		tline = (struct scene_obj_textline *)obj;
+		value = env_get(var);
+		if (value && strlen(value) >= tline->max_chars)
+			return log_msg_ret("str", -ENOSPC);
+		if (!value)
+			value = "";
+		if (priv->verbose)
+			printf("%s=%s\n", var, value);
+		strcpy(abuf_data(&tline->buf), value);
+		break;
+	}
 	}
 
 	return 0;
