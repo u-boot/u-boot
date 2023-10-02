@@ -65,6 +65,11 @@ config UT_LIB_RSA
 
 endif
 
+config UT_BOOTSTD
+	bool "Unit tests for standard boot"
+	depends on UNIT_TEST && SANDBOX
+	default y
+
 config UT_COMPRESSION
 	bool "Unit test for compression"
 	depends on UNIT_TEST

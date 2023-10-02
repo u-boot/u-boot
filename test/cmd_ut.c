@@ -57,7 +57,7 @@ static struct cmd_tbl cmd_ut_sub[] = {
 #ifdef CONFIG_CMD_BDI
 	U_BOOT_CMD_MKENT(bdinfo, CONFIG_SYS_MAXARGS, 1, do_ut_bdinfo, "", ""),
 #endif
-#ifdef CONFIG_BOOTSTD
+#ifdef CONFIG_UT_BOOTSTD
 	U_BOOT_CMD_MKENT(bootstd, CONFIG_SYS_MAXARGS, 1, do_ut_bootstd,
 			 "", ""),
 #endif
