@@ -269,6 +269,28 @@ static int get_cur_menuitem_text(const struct scene_obj_menu *menu,
 	return 0;
 }
 
+static int write_dt_string(struct abuf *buf, const char *name, const char *str)
+{
+	int ret, i;
+
+	/* write the text of the current item */
+	ret = -EAGAIN;
+	for (i = 0; ret && i < 2; i++) {
+		ret = fdt_property_string(abuf_data(buf), name, str);
+		if (!i) {
+			ret = check_space(ret, buf);
+			if (ret)
+				return log_msg_ret("rs2", -ENOMEM);
+		}
+	}
+
+	/* this should not happen */
+	if (ret)
+		return log_msg_ret("str", -EFAULT);
+
+	return 0;
+}
+
 static int h_write_settings(struct scene_obj *obj, void *vpriv)
 {
 	struct cedit_iter_priv *priv = vpriv;
@@ -285,6 +307,7 @@ static int h_write_settings(struct scene_obj *obj, void *vpriv)
 		char name[80];
 		int ret, i;
 
+		/* write the ID of the current item */
 		menu = (struct scene_obj_menu *)obj;
 		ret = -EAGAIN;
 		for (i = 0; ret && i < 2; i++) {
@@ -304,20 +327,11 @@ static int h_write_settings(struct scene_obj *obj, void *vpriv)
 		if (ret)
 			return log_msg_ret("mis", ret);
 
+		/* write the text of the current item */
 		snprintf(name, sizeof(name), "%s-str", obj->name);
-		ret = -EAGAIN;
-		for (i = 0; ret && i < 2; i++) {
-			ret = fdt_property_string(abuf_data(buf), name, str);
-			if (!i) {
-				ret = check_space(ret, buf);
-				if (ret)
-					return log_msg_ret("rs2", -ENOMEM);
-			}
-		}
-
-		/* this should not happen */
+		ret = write_dt_string(buf, name, str);
 		if (ret)
-			return log_msg_ret("wr2", -EFAULT);
+			return log_msg_ret("wr2", ret);
 
 		break;
 	}
