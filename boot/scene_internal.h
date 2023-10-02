@@ -278,4 +278,26 @@ void scene_menu_calc_bbox(struct scene_obj_menu *menu,
 int scene_obj_calc_bbox(struct scene_obj *obj, struct vidconsole_bbox *bbox,
 			struct vidconsole_bbox *label_bbox);
 
+/**
+ * scene_textline_open() - Open a textline object
+ *
+ * Set up the text editor ready for use
+ *
+ * @scn: Scene containing the textline
+ * @tline: textline object
+ * Return: 0 if OK, -ve on error
+ */
+int scene_textline_open(struct scene *scn, struct scene_obj_textline *tline);
+
+/**
+ * scene_textline_close() - Close a textline object
+ *
+ * Close out the text editor after use
+ *
+ * @scn: Scene containing the textline
+ * @tline: textline object
+ * Return: 0 if OK, -ve on error
+ */
+int scene_textline_close(struct scene *scn, struct scene_obj_textline *tline);
+
 #endif /* __SCENE_INTERNAL_H */

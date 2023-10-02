@@ -759,9 +759,41 @@ void scene_highlight_first(struct scene *scn)
 	}
 }
 
-int scene_set_open(struct scene *scn, uint id, bool open)
+static int scene_obj_open(struct scene *scn, struct scene_obj *obj)
 {
 	int ret;
+
+	switch (obj->type) {
+	case SCENEOBJT_NONE:
+	case SCENEOBJT_IMAGE:
+	case SCENEOBJT_MENU:
+	case SCENEOBJT_TEXT:
+		break;
+	case SCENEOBJT_TEXTLINE:
+		ret = scene_textline_open(scn,
+					  (struct scene_obj_textline *)obj);
+		if (ret)
+			return log_msg_ret("op", ret);
+		break;
+	}
+
+	return 0;
+}
+
+int scene_set_open(struct scene *scn, uint id, bool open)
+{
+	struct scene_obj *obj;
+	int ret;
+
+	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
+	if (!obj)
+		return log_msg_ret("find", -ENOENT);
+
+	if (open) {
+		ret = scene_obj_open(scn, obj);
+		if (ret)
+			return log_msg_ret("op", ret);
+	}
 
 	ret = scene_obj_flag_clrset(scn, id, SCENEOF_OPEN,
 				    open ? SCENEOF_OPEN : 0);

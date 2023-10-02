@@ -227,8 +227,3 @@ int scene_textline_open(struct scene *scn, struct scene_obj_textline *tline)
 
 	return 0;
 }
-
-int scene_textline_close(struct scene *scn, struct scene_obj_textline *tline)
-{
-	return 0;
-}
