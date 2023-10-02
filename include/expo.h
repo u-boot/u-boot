@@ -150,6 +150,7 @@ struct scene {
  * @SCENEOBJT_IMAGE: Image data to render
  * @SCENEOBJT_TEXT: Text line to render
  * @SCENEOBJT_MENU: Menu containing items the user can select
+ * @SCENEOBJT_TEXTLINE: Line of text the user can edit
  */
 enum scene_obj_t {
 	SCENEOBJT_NONE		= 0,
@@ -158,6 +159,7 @@ enum scene_obj_t {
 
 	/* types from here on can be highlighted */
 	SCENEOBJT_MENU,
+	SCENEOBJT_TEXTLINE,
 };
 
 /**
@@ -316,6 +318,27 @@ struct scene_menitem {
 	uint preview_id;
 	uint flags;
 	struct list_head sibling;
+};
+
+/**
+ * struct scene_obj_textline - information about a textline in a scene
+ *
+ * A textline has a prompt and a line of editable text
+ *
+ * @obj: Basic object information
+ * @label_id: ID of the label text, or 0 if none
+ * @edit_id: ID of the editable text
+ * @max_chars: Maximum number of characters allowed
+ * @buf: Text buffer containing current text
+ * @pos: Cursor position
+ */
+struct scene_obj_textline {
+	struct scene_obj obj;
+	uint label_id;
+	uint edit_id;
+	uint max_chars;
+	struct abuf buf;
+	uint pos;
 };
 
 /**
@@ -551,6 +574,19 @@ int scene_txt_str(struct scene *scn, const char *name, uint id, uint str_id,
  */
 int scene_menu(struct scene *scn, const char *name, uint id,
 	       struct scene_obj_menu **menup);
+
+/**
+ *  scene_textline() - create a textline
+ *
+ * @scn: Scene to update
+ * @name: Name to use (this is allocated by this call)
+ * @id: ID to use for the new object (0 to allocate one)
+ * @max_chars: Maximum length of the textline in characters
+ * @tlinep: If non-NULL, returns the new object
+ * Returns: ID number for the object (typically @id), or -ve on error
+ */
+int scene_textline(struct scene *scn, const char *name, uint id, uint max_chars,
+		   struct scene_obj_textline **tlinep);
 
 /**
  * scene_txt_set_font() - Set the font for an object
