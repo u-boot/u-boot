@@ -24,6 +24,9 @@
 #define ID_AC_ON		11
 #define ID_AC_MEMORY		12
 
-#define ID_DYNAMIC_START	13
+#define ID_MACHINE_NAME		13
+#define ID_MACHINE_NAME_EDIT	14
+
+#define ID_DYNAMIC_START	15
 
 #endif

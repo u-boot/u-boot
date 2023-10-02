@@ -51,6 +51,14 @@
 
 				item-id = <ID_AC_OFF ID_AC_ON ID_AC_MEMORY>;
 			};
+
+			machine-name {
+				id = <ID_MACHINE_NAME>;
+				type = "textline";
+				max-chars = <20>;
+				title = "Machine name";
+				edit-id = <ID_MACHINE_NAME_EDIT>;
+			};
 		};
 	};
 
