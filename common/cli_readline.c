@@ -171,7 +171,7 @@ static char *hist_next(void)
 void cread_print_hist_list(void)
 {
 	int i;
-	unsigned long n;
+	uint n;
 
 	n = hist_num - hist_max;
 
@@ -211,10 +211,10 @@ void cread_print_hist_list(void)
 	}					\
 }
 
-static void cread_add_char(char ichar, int insert, unsigned long *num,
-	       unsigned long *eol_num, char *buf, unsigned long len)
+static void cread_add_char(char ichar, int insert, uint *num,
+			   uint *eol_num, char *buf, uint len)
 {
-	unsigned long wlen;
+	uint wlen;
 
 	/* room ??? */
 	if (insert || *num == *eol_num) {
@@ -245,8 +245,7 @@ static void cread_add_char(char ichar, int insert, unsigned long *num,
 }
 
 static void cread_add_str(char *str, int strsize, int insert,
-			  unsigned long *num, unsigned long *eol_num,
-			  char *buf, unsigned long len)
+			  uint *num, uint *eol_num, char *buf, uint len)
 {
 	while (strsize--) {
 		cread_add_char(*str, insert, num, eol_num, buf, len);
@@ -258,9 +257,9 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 		int timeout)
 {
 	struct cli_ch_state s_cch, *cch = &s_cch;
-	unsigned long num = 0;
-	unsigned long eol_num = 0;
-	unsigned long wlen;
+	uint num = 0;
+	uint eol_num = 0;
+	uint wlen;
 	char ichar;
 	int insert = 1;
 	int init_len = strlen(buf);
