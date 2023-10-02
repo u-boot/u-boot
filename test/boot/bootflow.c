@@ -604,7 +604,11 @@ static int scan_mmc4_bootdev(struct unit_test_state *uts)
 /* Check 'bootflow menu' to select a bootflow */
 static int bootflow_cmd_menu(struct unit_test_state *uts)
 {
+	struct bootstd_priv *std;
 	char prev[3];
+
+	/* get access to the current bootflow */
+	ut_assertok(bootstd_get_priv(&std));
 
 	ut_assertok(scan_mmc4_bootdev(uts));
 
@@ -616,6 +620,17 @@ static int bootflow_cmd_menu(struct unit_test_state *uts)
 
 	ut_assertok(run_command("bootflow menu", 0));
 	ut_assert_nextline("Selected: Armbian");
+	ut_assertnonnull(std->cur_bootflow);
+	ut_assert_console_end();
+
+	/* Check not selecting anything */
+	prev[0] = '\e';
+	prev[1] = '\0';
+	ut_asserteq(1, console_in_puts(prev));
+
+	ut_asserteq(1, run_command("bootflow menu", 0));
+	ut_assertnull(std->cur_bootflow);
+	ut_assert_nextline("Nothing chosen");
 	ut_assert_console_end();
 
 	return 0;

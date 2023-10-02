@@ -15,6 +15,7 @@ Synopis
     bootflow read
     bootflow boot
     bootflow cmdline [set|get|clear|delete|auto] <param> [<value>]
+    bootfloe menu [-t]
 
 Description
 -----------
@@ -24,6 +25,9 @@ locate bootflows, list them and boot them.
 
 See :doc:`../../develop/bootstd` for more information.
 
+Note that `CONFIG_BOOTSTD_FULL` (which enables `CONFIG_CMD_BOOTFLOW_FULL) must
+be enabled to obtain full functionality with this command. Otherwise, it only
+supports `bootflow scan` which scans and boots the first available bootflow.
 
 bootflow scan
 ~~~~~~~~~~~~~
@@ -246,6 +250,16 @@ add parmeters where the value is known by U-Boot. For example::
 can be used to set the early console (or console) to a suitable value so that
 output appears on the serial port. This is only supported by the 16550 serial
 driver so far.
+
+bootflow menu
+~~~~~~~~~~~~~
+
+This shows a menu with available bootflows. The user can select a particular
+bootflow, which then becomes the current one.
+
+The `-t` flag requests a text menu. Otherwise, if a display is available, a
+graphical menu is shown.
+
 
 Example
 -------
@@ -658,6 +672,56 @@ Now the buffer can be accessed::
     77b7e4e0: 320fc000 08e8ba0f c031300f b8d0000f  ...2.....01.....
     77b7e4f0: 00000020 6ad8000f 00858d10 50000002   ......j.......P
 
+This shows using a text menu to boot an OS::
+
+    => bootflow scan
+    => bootfl list
+    => bootfl menu -t
+    U-Boot    :    Boot Menu
+
+    UP and DOWN to choose, ENTER to select
+
+      >    0  mmc1        mmc1.bootdev.whole
+           1  mmc1        Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
+           2  mmc1        mmc1.bootdev.part_1
+           3  mmc4        mmc4.bootdev.whole
+           4  mmc4        Armbian
+           5  mmc4        mmc4.bootdev.part_1
+           6  mmc5        mmc5.bootdev.whole
+           7  mmc5        ChromeOS
+           8  mmc5        ChromeOS
+    U-Boot    :    Boot Menu
+
+    UP and DOWN to choose, ENTER to select
+
+           0  mmc1        mmc1.bootdev.whole
+      >    1  mmc1        Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
+           2  mmc1        mmc1.bootdev.part_1
+           3  mmc4        mmc4.bootdev.whole
+           4  mmc4        Armbian
+           5  mmc4        mmc4.bootdev.part_1
+           6  mmc5        mmc5.bootdev.whole
+           7  mmc5        ChromeOS
+           8  mmc5        ChromeOS
+    U-Boot    :    Boot Menu
+
+    Selected: Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
+    => bootfl boot
+    ** Booting bootflow 'mmc1.bootdev.part_1' with extlinux
+    Ignoring unknown command: ui
+    Ignoring malformed menu command:  autoboot
+    Ignoring malformed menu command:  hidden
+    Ignoring unknown command: totaltimeout
+    Fedora-Workstation-armhfp-31-1.9 Boot Options.
+    1:	Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
+    Enter choice: 1
+    1:	Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
+    Retrieving file: /vmlinuz-5.3.7-301.fc31.armv7hl
+    Retrieving file: /initramfs-5.3.7-301.fc31.armv7hl.img
+    append: ro root=UUID=9732b35b-4cd5-458b-9b91-80f7047e0b8a rhgb quiet LANG=en_US.UTF-8 cma=192MB cma=256MB
+    Retrieving file: /dtb-5.3.7-301.fc31.armv7hl/sandbox.dtb
+    ...
+
 
 Return value
 ------------
@@ -666,6 +730,9 @@ On success `bootflow boot` normally boots into the Operating System and does not
 return to U-Boot. If something about the U-Boot processing fails, then the
 return value $? is 1. If the boot succeeds but for some reason the Operating
 System returns, then $? is 0, indicating success.
+
+For `bootflow menu` the return value is $? is 0 (true) if an option was choses,
+else 1.
 
 For other subcommands, the return value $? is always 0 (true).
 
