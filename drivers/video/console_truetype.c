@@ -718,8 +718,8 @@ static int truetype_select_font(struct udevice *dev, const char *name,
 	return 0;
 }
 
-int truetype_measure(struct udevice *dev, const char *name, uint size,
-		     const char *text, struct vidconsole_bbox *bbox)
+static int truetype_measure(struct udevice *dev, const char *name, uint size,
+			    const char *text, struct vidconsole_bbox *bbox)
 {
 	struct console_tt_metrics *met;
 	stbtt_fontinfo *font;
