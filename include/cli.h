@@ -8,6 +8,7 @@
 #define __CLI_H
 
 #include <stdbool.h>
+#include <linux/types.h>
 
 /**
  * struct cli_ch_state - state information for reading cmdline characters
@@ -22,6 +23,19 @@ struct cli_ch_state {
 	char esc_save[8];
 	int emit_upto;
 	bool emitting;
+};
+
+/**
+ * struct cli_line_state - state of the line editor
+ *
+ * @num: Current cursor position, where 0 is the start
+ * @eol_num: Number of characters in the buffer
+ * @insert: true if in 'insert' mode
+ */
+struct cli_line_state {
+	uint num;
+	uint eol_num;
+	bool insert;
 };
 
 /**
