@@ -31,11 +31,11 @@ CONFIG_SYS_MEMTEST_START=0x80000000
 CONFIG_SYS_MEMTEST_END=0x9fffffff
 CONFIG_REMAKE_ELF=y
 CONFIG_MP=y
-CONFIG_FIT_VERBOSE=y
-CONFIG_OF_BOARD_SETUP=y
 CONFIG_DYNAMIC_SYS_CLK_FREQ=y
+CONFIG_FIT_VERBOSE=y
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTDELAY=10
+CONFIG_OF_BOARD_SETUP=y
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21c0500 mtdparts=60000000.nor:2m@0x100000(nor_bank0_uboot),40m@0x1100000(nor_bank0_fit),7m(nor_bank0_user),2m@0x4100000(nor_bank4_uboot),40m@0x5100000(nor_bank4_fit),-(nor_bank4_user);7e800000.flash:4m(nand_uboot),36m(nand_kernel),472m(nand_free);spi0.0:2m(uboot),14m(free)"
 # CONFIG_USE_BOOTCOMMAND is not set

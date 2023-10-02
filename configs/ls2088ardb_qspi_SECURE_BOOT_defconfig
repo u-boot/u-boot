@@ -24,12 +24,12 @@ CONFIG_VOL_MONITOR_IR36021_SET=y
 # CONFIG_SYS_MALLOC_F is not set
 CONFIG_REMAKE_ELF=y
 CONFIG_MP=y
-CONFIG_FIT_VERBOSE=y
-CONFIG_OF_BOARD_SETUP=y
-CONFIG_OF_STDOUT_VIA_ALIAS=y
 CONFIG_DYNAMIC_SYS_CLK_FREQ=y
+CONFIG_FIT_VERBOSE=y
 CONFIG_QSPI_BOOT=y
 CONFIG_BOOTDELAY=10
+CONFIG_OF_BOARD_SETUP=y
+CONFIG_OF_STDOUT_VIA_ALIAS=y
 CONFIG_BOOTCOMMAND="sf probe 0:0; sf read 0x806c0000 0x6c0000 0x40000; env exists mcinitcmd && env exists secureboot && esbc_validate 0x806C0000; sf read 0x80d00000 0xd00000 0x100000; env exists mcinitcmd && fsl_mc lazyapply dpl 0x80d00000; run distro_bootcmd;run qspi_bootcmd; env exists secureboot && esbc_halt;"
 CONFIG_MISC_INIT_R=y
 CONFIG_RESET_PHY_R=y

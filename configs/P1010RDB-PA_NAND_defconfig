@@ -25,12 +25,12 @@ CONFIG_TPL_SYS_MPC85XX_NO_RESETVEC=y
 CONFIG_USE_UBOOTPATH=y
 CONFIG_PCIE1=y
 CONFIG_PCIE2=y
+CONFIG_TPL_SYS_MONITOR_BASE=0xD0000000
 CONFIG_FIT=y
 CONFIG_FIT_VERBOSE=y
+CONFIG_BOOTDELAY=10
 CONFIG_OF_BOARD_SETUP=y
 CONFIG_OF_STDOUT_VIA_ALIAS=y
-CONFIG_TPL_SYS_MONITOR_BASE=0xD0000000
-CONFIG_BOOTDELAY=10
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="setenv bootargs root=/dev/ram rw console=$consoledev,$baudrate $othbootargs ramdisk_size=$ramdisk_size;tftp $ramdiskaddr $ramdiskfile;tftp $loadaddr $bootfile;tftp $fdtaddr $fdtfile;bootm $loadaddr $ramdiskaddr $fdtaddr"
 CONFIG_SYS_CONSOLE_IS_IN_ENV=y

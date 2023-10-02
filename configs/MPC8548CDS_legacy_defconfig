@@ -20,10 +20,10 @@ CONFIG_TARGET_MPC8548CDS_LEGACY=y
 CONFIG_USE_UBOOTPATH=y
 CONFIG_UBOOTPATH="8548cds/u-boot.bin"
 CONFIG_PCIE1=y
-CONFIG_OF_BOARD_SETUP=y
-CONFIG_OF_STDOUT_VIA_ALIAS=y
 CONFIG_DYNAMIC_SYS_CLK_FREQ=y
 CONFIG_BOOTDELAY=10
+CONFIG_OF_BOARD_SETUP=y
+CONFIG_OF_STDOUT_VIA_ALIAS=y
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="setenv bootargs root=/dev/nfs rw nfsroot=$serverip:$rootpath ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off console=$consoledev,$baudrate $othbootargs;tftp $loadaddr $bootfile;tftp $fdtaddr $fdtfile;bootm $loadaddr - $fdtaddr"
 # CONFIG_MISC_INIT_R is not set

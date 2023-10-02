@@ -94,11 +94,11 @@ CONFIG_SYS_BARGSIZE=1024
 CONFIG_FIT=y
 CONFIG_FIT_SIGNATURE=y
 CONFIG_FIT_VERBOSE=y
-CONFIG_OF_BOARD_SETUP=y
-CONFIG_OF_STDOUT_VIA_ALIAS=y
 CONFIG_BOOTDELAY=5
 CONFIG_AUTOBOOT_KEYED=y
 CONFIG_AUTOBOOT_STOP_STR=" "
+CONFIG_OF_BOARD_SETUP=y
+CONFIG_OF_STDOUT_VIA_ALIAS=y
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="setenv bootargs root=/dev/mmcblk0p3 rw rootwait console=$consoledev,$baudrate $othbootargs;ext2load mmc 0:2 ${kernel_addr} $bootfile;ext2load mmc 0:2 ${fdt_addr} $fdtfile;bootm ${kernel_addr} - ${fdt_addr}"
 # CONFIG_CONSOLE_MUX is not set

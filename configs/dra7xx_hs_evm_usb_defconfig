@@ -24,8 +24,8 @@ CONFIG_ARMV7_LPAE=y
 CONFIG_AHCI=y
 CONFIG_SPL_LOAD_FIT=y
 CONFIG_SPL_LOAD_FIT_ADDRESS=0x80200000
-CONFIG_OF_BOARD_SETUP=y
 CONFIG_DISTRO_DEFAULTS=y
+CONFIG_OF_BOARD_SETUP=y
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="androidboot.serialno=${serial#} console=ttyS0,115200 androidboot.console=ttyS0 androidboot.hardware=jacinto6evmboard"
 CONFIG_BOOTCOMMAND="if test ${dofastboot} -eq 1; then echo Boot fastboot requested, resetting dofastboot ...;setenv dofastboot 0; saveenv;echo Booting into fastboot ...; fastboot 1;fi;if test ${boot_fit} -eq 1; then run update_to_fit;fi;run findfdt; run finduuid; run distro_bootcmd;run emmc_android_boot; "
