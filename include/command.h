@@ -95,6 +95,12 @@ int var_complete(int argc, char *const argv[], char last_char, int maxv,
 		 char *cmdv[]);
 int cmd_auto_complete(const char *const prompt, char *buf, int *np,
 		      int *colp);
+#else
+static inline int cmd_auto_complete(const char *const prompt, char *buf,
+				    int *np, int *colp)
+{
+	return 0;
+}
 #endif
 
 /**

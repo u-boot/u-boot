@@ -386,27 +386,27 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 			REFRESH_TO_EOL();
 			continue;
 		}
-#ifdef CONFIG_AUTO_COMPLETE
-		case '\t': {
-			int num2, col;
+		case '\t':
+			if (IS_ENABLED(CONFIG_AUTO_COMPLETE)) {
+				int num2, col;
 
-			/* do not autocomplete when in the middle */
-			if (num < eol_num) {
-				getcmd_cbeep();
+				/* do not autocomplete when in the middle */
+				if (num < eol_num) {
+					getcmd_cbeep();
+					break;
+				}
+
+				buf[num] = '\0';
+				col = strlen(prompt) + eol_num;
+				num2 = num;
+				if (cmd_auto_complete(prompt, buf, &num2, &col)) {
+					col = num2 - num;
+					num += col;
+					eol_num += col;
+				}
 				break;
 			}
-
-			buf[num] = '\0';
-			col = strlen(prompt) + eol_num;
-			num2 = num;
-			if (cmd_auto_complete(prompt, buf, &num2, &col)) {
-				col = num2 - num;
-				num += col;
-				eol_num += col;
-			}
-			break;
-		}
-#endif
+			fallthrough;
 		default:
 			cread_add_char(ichar, insert, &num, &eol_num, buf,
 				       *len);
@@ -519,14 +519,15 @@ static int cread_line_simple(const char *const prompt, char *p)
 			continue;
 
 		default:
-			/*
-			 * Must be a normal character then
-			 */
-			if (n < CONFIG_SYS_CBSIZE-2) {
-				if (c == '\t') {	/* expand TABs */
-#ifdef CONFIG_AUTO_COMPLETE
+			/* Must be a normal character then */
+			if (n >= CONFIG_SYS_CBSIZE - 2) { /* Buffer full */
+				putc('\a');
+				break;
+			}
+			if (c == '\t') {	/* expand TABs */
+				if (IS_ENABLED(CONFIG_AUTO_COMPLETE)) {
 					/*
-					 * if auto completion triggered just
+					 * if auto-completion triggered just
 					 * continue
 					 */
 					*p = '\0';
@@ -536,26 +537,24 @@ static int cread_line_simple(const char *const prompt, char *p)
 						p = p_buf + n;	/* reset */
 						continue;
 					}
-#endif
-					puts(tab_seq + (col & 07));
-					col += 8 - (col & 07);
-				} else {
-					char __maybe_unused buf[2];
-
-					/*
-					 * Echo input using puts() to force an
-					 * LCD flush if we are using an LCD
-					 */
-					++col;
-					buf[0] = c;
-					buf[1] = '\0';
-					puts(buf);
 				}
-				*p++ = c;
-				++n;
-			} else {			/* Buffer full */
-				putc('\a');
+				puts(tab_seq + (col & 07));
+				col += 8 - (col & 07);
+			} else {
+				char __maybe_unused buf[2];
+
+				/*
+				 * Echo input using puts() to force an LCD
+				 * flush if we are using an LCD
+				 */
+				++col;
+				buf[0] = c;
+				buf[1] = '\0';
+				puts(buf);
 			}
+			*p++ = c;
+			++n;
+			break;
 		}
 	}
 }
