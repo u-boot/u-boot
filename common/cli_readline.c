@@ -423,6 +423,18 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 	return 0;
 }
 
+#else /* !CONFIG_CMDLINE_EDITING */
+
+static inline void hist_init(void)
+{
+}
+
+static int cread_line(const char *const prompt, char *buf, unsigned int *len,
+		      int timeout)
+{
+	return 0;
+}
+
 #endif /* CONFIG_CMDLINE_EDITING */
 
 /****************************************************************************/
@@ -552,8 +564,7 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 			     int timeout)
 {
 	char *p = buffer;
-#ifdef CONFIG_CMDLINE_EDITING
-	unsigned int len = CONFIG_SYS_CBSIZE;
+	uint len = CONFIG_SYS_CBSIZE;
 	int rc;
 	static int initted;
 
@@ -563,7 +574,7 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 	 * Revert to non-history version if still
 	 * running from flash.
 	 */
-	if (gd->flags & GD_FLG_RELOC) {
+	if (IS_ENABLED(CONFIG_CMDLINE_EDITING) && (gd->flags & GD_FLG_RELOC)) {
 		if (!initted) {
 			hist_init();
 			initted = 1;
@@ -576,9 +587,6 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 		return rc < 0 ? rc : len;
 
 	} else {
-#endif	/* CONFIG_CMDLINE_EDITING */
 		return cread_line_simple(prompt, p);
-#ifdef CONFIG_CMDLINE_EDITING
 	}
-#endif
 }
