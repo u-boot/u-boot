@@ -860,6 +860,25 @@ verify signatures is added to u\-boot.dtb with required = "conf" property.
 	\-K u\-boot.dtb -r kernel.itb
 .EE
 .RE
+.P
+Convert an existing FIT image from any of the three types of data storage
+(internal, external data-offset or external data-position) to another type
+of data storage.
+.RS
+.P
+.EX
+\fB// convert FIT from internal data to data-position
+\fBmkimage -p 0x20000 -F internal_data.itb
+.EE
+.EX
+\fB// convert FIT from data-position to data-offset
+\fBmkimage -E -F external_data-position.itb
+.EE
+.EX
+\fB// convert FIT from data-offset to internal data
+\fBmkimage -F external_data-offset.itb
+.EE
+.RE
 .
 .SH SEE ALSO
 .BR dtc (1),
