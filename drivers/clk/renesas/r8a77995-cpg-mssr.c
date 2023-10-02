@@ -50,7 +50,7 @@ enum clk_ids {
 	MOD_CLK_BASE
 };
 
-static const struct cpg_core_clk r8a77995_core_clks[] = {
+static const struct cpg_core_clk r8a77995_core_clks[] __initconst = {
 	/* External Clock Inputs */
 	DEF_INPUT("extal",     CLK_EXTAL),
 
@@ -118,7 +118,7 @@ static const struct cpg_core_clk r8a77995_core_clks[] = {
 	DEF_GEN3_RCKSEL("r",   R8A77995_CLK_R, CLK_RINT, 1, CLK_OCO, 61 * 4),
 };
 
-static const struct mssr_mod_clk r8a77995_mod_clks[] = {
+static const struct mssr_mod_clk r8a77995_mod_clks[] __initconst = {
 	DEF_MOD("tmu4",			 121,	R8A77995_CLK_S1D4C),
 	DEF_MOD("tmu3",			 122,	R8A77995_CLK_S3D2C),
 	DEF_MOD("tmu2",			 123,	R8A77995_CLK_S3D2C),
@@ -167,7 +167,7 @@ static const struct mssr_mod_clk r8a77995_mod_clks[] = {
 	DEF_MOD("du0",			 724,	R8A77995_CLK_S1D1),
 	DEF_MOD("lvds",			 727,	R8A77995_CLK_S2D1),
 	DEF_MOD("mlp",			 802,	R8A77995_CLK_S2D1),
-	DEF_MOD("vin4",			 807,	R8A77995_CLK_S1D2),
+	DEF_MOD("vin4",			 807,	R8A77995_CLK_S3D1),
 	DEF_MOD("etheravb",		 812,	R8A77995_CLK_S3D2),
 	DEF_MOD("imr0",			 823,	R8A77995_CLK_S1D2),
 	DEF_MOD("gpio6",		 906,	R8A77995_CLK_S3D4),
@@ -209,7 +209,7 @@ static const struct mssr_mod_clk r8a77995_mod_clks[] = {
  */
 #define CPG_PLL_CONFIG_INDEX(md)	(((md) & BIT(19)) >> 19)
 
-static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[2] = {
+static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[2] __initconst = {
 	/* EXTAL div	PLL1 mult/div	PLL3 mult/div */
 	{ 1,		100,	3,	100,	3,	},
 	{ 1,		100,	3,	58,	3,	},

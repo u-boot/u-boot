@@ -27,7 +27,6 @@
 /delete-node/ &hdmi0;
 /delete-node/ &lvds0;
 /delete-node/ &rcar_sound;
-/delete-node/ &sdhi2;
 /delete-node/ &sound_card;
 /delete-node/ &vin0;
 /delete-node/ &vin1;

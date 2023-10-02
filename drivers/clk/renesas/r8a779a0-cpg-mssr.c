@@ -56,7 +56,7 @@ enum clk_ids {
 	DEF_BASE(_name, _id, CLK_TYPE_GEN4_PLL2X_3X, CLK_MAIN, \
 		 .offset = _offset)
 
-static const struct cpg_core_clk r8a779a0_core_clks[] = {
+static const struct cpg_core_clk r8a779a0_core_clks[] __initconst = {
 	/* External Clock Inputs */
 	DEF_INPUT("extal",  CLK_EXTAL),
 	DEF_INPUT("extalr", CLK_EXTALR),
@@ -127,7 +127,7 @@ static const struct cpg_core_clk r8a779a0_core_clks[] = {
 	DEF_GEN4_MDSEL("r",	R8A779A0_CLK_R, 29, CLK_EXTALR, 1, CLK_OCO, 1),
 };
 
-static const struct mssr_mod_clk r8a779a0_mod_clks[] = {
+static const struct mssr_mod_clk r8a779a0_mod_clks[] __initconst = {
 	DEF_MOD("avb0",		211,	R8A779A0_CLK_S3D2),
 	DEF_MOD("avb1",		212,	R8A779A0_CLK_S3D2),
 	DEF_MOD("avb2",		213,	R8A779A0_CLK_S3D2),
@@ -165,14 +165,15 @@ static const struct mssr_mod_clk r8a779a0_mod_clks[] = {
 	DEF_MOD("msi3",		621,	R8A779A0_CLK_MSO),
 	DEF_MOD("msi4",		622,	R8A779A0_CLK_MSO),
 	DEF_MOD("msi5",		623,	R8A779A0_CLK_MSO),
+	DEF_MOD("pwm0",		628,	R8A779A0_CLK_S1D8),
 	DEF_MOD("rpc-if",	629,	R8A779A0_CLK_RPCD2),
 	DEF_MOD("scif0",	702,	R8A779A0_CLK_S1D8),
 	DEF_MOD("scif1",	703,	R8A779A0_CLK_S1D8),
 	DEF_MOD("scif3",	704,	R8A779A0_CLK_S1D8),
 	DEF_MOD("scif4",	705,	R8A779A0_CLK_S1D8),
 	DEF_MOD("sdhi0",	706,	R8A779A0_CLK_SD0),
-	DEF_MOD("sydm1",	709,	R8A779A0_CLK_S1D2),
-	DEF_MOD("sydm2",	710,	R8A779A0_CLK_S1D2),
+	DEF_MOD("sys-dmac1",	709,	R8A779A0_CLK_S1D2),
+	DEF_MOD("sys-dmac2",	710,	R8A779A0_CLK_S1D2),
 	DEF_MOD("tmu0",		713,	R8A779A0_CLK_CL16MCK),
 	DEF_MOD("tmu1",		714,	R8A779A0_CLK_S1D4),
 	DEF_MOD("tmu2",		715,	R8A779A0_CLK_S1D4),

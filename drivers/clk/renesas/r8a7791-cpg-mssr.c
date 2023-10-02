@@ -1,10 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Renesas R8A7791 CPG MSSR driver
- *
- * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
- *
- * Based on the following driver from Linux kernel:
  * r8a7791 Clock Pulse Generator / Module Standby and Software Reset
  *
  * Copyright (C) 2015-2017 Glider bvba
@@ -43,7 +38,7 @@ enum clk_ids {
 	MOD_CLK_BASE
 };
 
-static const struct cpg_core_clk r8a7791_core_clks[] = {
+static struct cpg_core_clk r8a7791_core_clks[] __initdata = {
 	/* External Clock Inputs */
 	DEF_INPUT("extal",     CLK_EXTAL),
 	DEF_INPUT("usb_extal", CLK_USB_EXTAL),
@@ -89,7 +84,7 @@ static const struct cpg_core_clk r8a7791_core_clks[] = {
 	DEF_DIV6P1("ssprs", R8A7791_CLK_SSPRS, CLK_PLL1_DIV2, 0x24c),
 };
 
-static const struct mssr_mod_clk r8a7791_mod_clks[] = {
+static const struct mssr_mod_clk r8a7791_mod_clks[] __initconst = {
 	DEF_MOD("msiof0",		   0,	R8A7791_CLK_MP),
 	DEF_MOD("vcp0",			 101,	R8A7791_CLK_ZS),
 	DEF_MOD("vpc0",			 103,	R8A7791_CLK_ZS),
@@ -232,7 +227,7 @@ static const struct mssr_mod_clk r8a7791_mod_clks[] = {
 #define CPG_PLL_CONFIG_INDEX(md)	((((md) & BIT(14)) >> 12) | \
 					 (((md) & BIT(13)) >> 12) | \
 					 (((md) & BIT(19)) >> 19))
-static const struct rcar_gen2_cpg_pll_config cpg_pll_configs[8] = {
+static const struct rcar_gen2_cpg_pll_config cpg_pll_configs[8] __initconst = {
 	{ 1, 208, 106 }, { 1, 208,  88 }, { 1, 156,  80 }, { 1, 156,  66 },
 	{ 2, 240, 122 }, { 2, 240, 102 }, { 2, 208, 106 }, { 2, 208,  88 },
 };
