@@ -121,9 +121,11 @@ COMP_BINTOOLS = ['bzip2', 'gzip', 'lz4', 'lzma_alone', 'lzop', 'xz', 'zstd']
 TEE_ADDR = 0x5678
 
 # Firmware Management Protocol(FMP) GUID
-FW_MGMT_GUID = 'edd5cb6d2de8444cbda17194199ad92a'
+FW_MGMT_GUID = '6DCBD5ED-E82D-4C44-BDA1-7194199AD92A'
 # Image GUID specified in the DTS
-CAPSULE_IMAGE_GUID = '52cfd7092007104791d108469b7fe9c8'
+CAPSULE_IMAGE_GUID = '09D7CF52-0720-4710-91D1-08469B7FE9C8'
+# Windows cert GUID
+WIN_CERT_TYPE_EFI_GUID = '4AAFD29D-68DF-49EE-8AA9-347D375665A7'
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -7223,52 +7225,63 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertRegex(err,
                          "Image 'image'.*missing bintools.*: bootgen")
 
+    def _GetCapsuleHeaders(self, data):
+        capsule_file = os.path.join(self._indir, 'test.capsule')
+        tools.write_file(capsule_file, data)
+
+        out = tools.run('mkeficapsule', '--dump-capsule', capsule_file)
+        lines = out.splitlines()
+
+        re_line = re.compile(r'^([^:\-\t]*)(?:\t*\s*:\s*(.*))?$')
+        vals = collections.defaultdict(list)
+        for line in lines:
+            mat = re_line.match(line)
+            if mat:
+                vals[mat.group(1)] = mat.group(2)
+
+        return vals
+
     def _CheckCapsule(self, data, signed_capsule=False, version_check=False,
                       capoemflags=False):
-        fmp_signature = "4d535331" # 'M', 'S', 'S', '1'
-        fmp_size = "10"
-        fmp_fw_version = "02"
-        oemflag = "0080"
+        fmp_signature = "3153534D" # 'M', 'S', 'S', '1'
+        fmp_size = "00000010"
+        fmp_fw_version = "00000002"
+        capsule_image_index = "00000001"
+        oemflag = "00018000"
+        auth_hdr_revision = "00000200"
+        auth_hdr_cert_type = "00000EF1"
 
-        payload_data = EFI_CAPSULE_DATA
+        payload_data_len = len(EFI_CAPSULE_DATA)
 
-        # TODO - Currently, these offsets for capsule fields are hardcoded.
-        # There are plans to add support to the mkeficapsule tool to dump
-        # the capsule contents which can then be used for capsule
-        # verification.
+        hdr = self._GetCapsuleHeaders(data)
 
-        # Firmware Management Protocol(FMP) GUID - offset(0 - 32)
-        self.assertEqual(FW_MGMT_GUID, data.hex()[:32])
-        # Image GUID - offset(96 - 128)
-        self.assertEqual(CAPSULE_IMAGE_GUID, data.hex()[96:128])
+        self.assertEqual(FW_MGMT_GUID, hdr['EFI_CAPSULE_HDR.CAPSULE_GUID'])
+
+        self.assertEqual(CAPSULE_IMAGE_GUID,
+                         hdr['FMP_CAPSULE_IMAGE_HDR.UPDATE_IMAGE_TYPE_ID'])
+        self.assertEqual(capsule_image_index,
+                         hdr['FMP_CAPSULE_IMAGE_HDR.UPDATE_IMAGE_INDEX'])
 
         if capoemflags:
-            # OEM Flags - offset(40 - 44)
-            self.assertEqual(oemflag, data.hex()[40:44])
-        if signed_capsule and version_check:
-            # FMP header signature - offset(4770 - 4778)
-            self.assertEqual(fmp_signature, data.hex()[4770:4778])
-            # FMP header size - offset(4778 - 4780)
-            self.assertEqual(fmp_size, data.hex()[4778:4780])
-            # firmware version - offset(4786 - 4788)
-            self.assertEqual(fmp_fw_version, data.hex()[4786:4788])
-            # payload offset signed capsule(4802 - 4808)
-            self.assertEqual(payload_data.hex(), data.hex()[4802:4808])
-        elif signed_capsule:
-            # payload offset signed capsule(4770 - 4776)
-            self.assertEqual(payload_data.hex(), data.hex()[4770:4776])
-        elif version_check:
-            # FMP header signature - offset(184 - 192)
-            self.assertEqual(fmp_signature, data.hex()[184:192])
-            # FMP header size - offset(192 - 194)
-            self.assertEqual(fmp_size, data.hex()[192:194])
-            # firmware version - offset(200 - 202)
-            self.assertEqual(fmp_fw_version, data.hex()[200:202])
-            # payload offset for non-signed capsule with version header(216 - 222)
-            self.assertEqual(payload_data.hex(), data.hex()[216:222])
-        else:
-            # payload offset for non-signed capsule with no version header(184 - 190)
-            self.assertEqual(payload_data.hex(), data.hex()[184:190])
+            self.assertEqual(oemflag, hdr['EFI_CAPSULE_HDR.FLAGS'])
+
+        if signed_capsule:
+            self.assertEqual(auth_hdr_revision,
+                             hdr['EFI_FIRMWARE_IMAGE_AUTH.AUTH_INFO.HDR.wREVISION'])
+            self.assertEqual(auth_hdr_cert_type,
+                             hdr['EFI_FIRMWARE_IMAGE_AUTH.AUTH_INFO.HDR.wCERTTYPE'])
+            self.assertEqual(WIN_CERT_TYPE_EFI_GUID,
+                             hdr['EFI_FIRMWARE_IMAGE_AUTH.AUTH_INFO.CERT_TYPE'])
+
+        if version_check:
+            self.assertEqual(fmp_signature,
+                             hdr['FMP_PAYLOAD_HDR.SIGNATURE'])
+            self.assertEqual(fmp_size,
+                             hdr['FMP_PAYLOAD_HDR.HEADER_SIZE'])
+            self.assertEqual(fmp_fw_version,
+                             hdr['FMP_PAYLOAD_HDR.FW_VERSION'])
+
+        self.assertEqual(payload_data_len, int(hdr['Payload Image Size']))
 
     def testCapsuleGen(self):
         """Test generation of EFI capsule"""
