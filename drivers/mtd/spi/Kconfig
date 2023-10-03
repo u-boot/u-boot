@@ -134,6 +134,13 @@ config SPI_FLASH_BAR
 	  Bank/Extended address registers are used to access the flash
 	  which has size > 16MiB in 3-byte addressing.
 
+config SPI_FLASH_LOCK
+	bool "Enable the Locking feature"
+	default y
+	help
+	 Enable the SPI flash lock support. By default this is set to y.
+	 If you intend not to use the lock support you should say n here.
+
 config SPI_FLASH_UNLOCK_ALL
 	bool "Unlock the entire SPI flash on u-boot startup"
 	default y
