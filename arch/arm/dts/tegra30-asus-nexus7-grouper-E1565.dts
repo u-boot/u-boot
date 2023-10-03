@@ -22,7 +22,7 @@
 			gpio-controller;
 
 			regulators {
-				vdd_1v8: sd2 {
+				vdd_1v8_vio: sd2 {
 					regulator-name = "vdd_1v8_gen";
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
@@ -34,8 +34,7 @@
 				vcore_emmc: ldo3 {
 					regulator-name = "vcore_emmc";
 					regulator-min-microvolt = <2850000>;
-					regulator-max-microvolt = <3100000>;
-					regulator-always-on;
+					regulator-max-microvolt = <2850000>;
 				};
 			};
 		};
