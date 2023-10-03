@@ -37,6 +37,9 @@ struct tegra_mmc_priv {
 	unsigned int version;	/* SDHCI spec. version */
 	unsigned int clock;	/* Current clock (MHz) */
 	int mmc_id;		/* peripheral id */
+
+	int tap_value;
+	int trim_value;
 };
 
 static void tegra_mmc_set_power(struct tegra_mmc_priv *priv,
@@ -526,31 +529,6 @@ static void tegra_mmc_pad_init(struct tegra_mmc_priv *priv)
 		printf("%s: Warning: Autocal timed out!\n", __func__);
 		/* TBD: Set CFG2TMC_SDMMC1_PAD_CAL_DRV* regs here */
 	}
-
-#if defined(CONFIG_TEGRA210)
-	u32 tap_value, trim_value;
-
-	/* Set tap/trim values for SDMMC1/3 @ <48MHz here */
-	val = readl(&priv->reg->venspictl);	/* aka VENDOR_SYS_SW_CNTL */
-	val &= IO_TRIM_BYPASS_MASK;
-	if (id == PERIPH_ID_SDMMC1) {
-		tap_value = 4;			/* default */
-		if (val)
-			tap_value = 3;
-		trim_value = 2;
-	} else {				/* SDMMC3 */
-		tap_value = 3;
-		trim_value = 3;
-	}
-
-	val = readl(&priv->reg->venclkctl);
-	val &= ~TRIM_VAL_MASK;
-	val |= (trim_value << TRIM_VAL_SHIFT);
-	val &= ~TAP_VAL_MASK;
-	val |= (tap_value << TAP_VAL_SHIFT);
-	writel(val, &priv->reg->venclkctl);
-	debug("%s: VENDOR_CLOCK_CNTRL = 0x%08X\n", __func__, val);
-#endif	/* T210 */
 #endif	/* T30/T210 */
 }
 
@@ -588,6 +566,22 @@ static void tegra_mmc_reset(struct tegra_mmc_priv *priv, struct mmc *mmc)
 
 	/* Make sure SDIO pads are set up */
 	tegra_mmc_pad_init(priv);
+
+	if (!IS_ERR_VALUE(priv->tap_value) ||
+	    !IS_ERR_VALUE(priv->trim_value)) {
+		u32 val;
+
+		val = readl(&priv->reg->venclkctl);
+
+		val &= ~TRIM_VAL_MASK;
+		val |= (priv->trim_value << TRIM_VAL_SHIFT);
+
+		val &= ~TAP_VAL_MASK;
+		val |= (priv->tap_value << TAP_VAL_SHIFT);
+
+		writel(val, &priv->reg->venclkctl);
+		debug("%s: VENDOR_CLOCK_CNTRL = 0x%08X\n", __func__, val);
+	}
 }
 
 static int tegra_mmc_init(struct udevice *dev)
@@ -741,6 +735,14 @@ static int tegra_mmc_probe(struct udevice *dev)
 			     GPIOD_IS_OUT);
 	if (dm_gpio_is_valid(&priv->pwr_gpio))
 		dm_gpio_set_value(&priv->pwr_gpio, 1);
+
+	ret = dev_read_u32(dev, "nvidia,default-tap", &priv->tap_value);
+	if (ret)
+		priv->tap_value = ret;
+
+	ret = dev_read_u32(dev, "nvidia,default-trim", &priv->trim_value);
+	if (ret)
+		priv->trim_value = ret;
 
 	upriv->mmc = &plat->mmc;
 
