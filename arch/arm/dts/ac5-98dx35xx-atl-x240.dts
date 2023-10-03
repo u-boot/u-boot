@@ -16,7 +16,7 @@
 		gpio0 = &gpio0;
 		gpio1 = &gpio1;
 		spi0 = &spi0;
-		i2c0 = &i2cgpio;
+		i2c0 = &i2c0;
 		usb0 = &usb0;
 		pinctrl0 = &pinctrl0;
 	};
@@ -40,19 +40,6 @@
 			default-state = "on";
 		};
 	};
-
-	i2cgpio: i2c-gpio-0 {
-			compatible = "i2c-gpio";
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			pinctrl-names = "default";
-			pinctrl-0 =  <&i2c0_gpio>;
-			scl-gpios = <&gpio0 26 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-			sda-gpios = <&gpio0 27 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-			i2c-gpio,delay-us = <2>;
-			status = "okay";
-		 };
 };
 
 &nand {
@@ -83,7 +70,9 @@
 	status = "okay";
 };
 
-&i2cgpio {
+&i2c0 {
+	status = "okay";
+
 	mux@71 {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -188,8 +177,8 @@
 	 * LED_OE_N              [23]
 	 * USB_PWR_FLT_N         [24]
 	 * SFP_INT_N             [25]
-	 * I2C0_SCL              [26] (GPIO)
-	 * I2C0_SDA              [27] (GPIO)
+	 * I2C0_SCL              [26]
+	 * I2C0_SDA              [27]
 	 * USB_EN                [28]
 	 * MONITOR_INT_N         [29]
 	 * XM1_MDC               [30]
@@ -212,17 +201,12 @@
 	/*	     0    1    2    3    4    5    6    7    8    9 */
 	pin-func = < 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
 		     0xff 0xff 1    1    1    1    0xff 0xff 0    0
-		     0    0    0    0    0    0    0xff 0xff 0    0
+		     0    0    0    0    0    0    1    1    0    0
 		     1    1    1    1    0    0    0    0    0    0
 		     0    0    0    1    1    1    >;
 
 	nand_pins: nand-pins {
 		marvell,pins = <0 1 2 3 4 5 6 7 8 9 10 11 16 17>;
 		marvell,function = <2>;
-	};
-
-	i2c0_gpio: i2c0-gpio-pins {
-		marvell,pins = <26 27>;
-		marvell,function = <0>;
 	};
 };
