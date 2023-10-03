@@ -99,6 +99,8 @@ def test_net_pre_commands(u_boot_console):
     if init_pci:
         u_boot_console.run_command('pci enum')
 
+    u_boot_console.run_command('net list')
+
 @pytest.mark.buildconfigspec('cmd_dhcp')
 def test_net_dhcp(u_boot_console):
     """Test the dhcp command.
