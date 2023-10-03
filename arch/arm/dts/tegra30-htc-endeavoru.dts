@@ -5,7 +5,6 @@
 /* CPU Speedo ID 4, Soc Speedo ID 1, CPU Process: 1, Core Process: 0 */
 
 #include <dt-bindings/input/input.h>
-
 #include "tegra30.dtsi"
 
 / {
@@ -66,13 +65,22 @@
 			compatible = "ti,tps80032";
 			reg = <0x48>;
 
+			ti,system-power-controller;
+
 			regulators {
+				vdd_1v8_vio: smps5 {
+					regulator-name = "vdd_1v8_gen";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
 				/* DSI VDD */
 				avdd_dsi_csi: ldo1 {
 					regulator-name = "avdd_dsi_csi";
 					regulator-min-microvolt = <1200000>;
 					regulator-max-microvolt = <1200000>;
-					regulator-always-on;
 				};
 			};
 		};
@@ -82,6 +90,9 @@
 		status = "okay";
 		bus-width = <8>;
 		non-removable;
+
+		vmmc-supply = <&vcore_emmc>;
+		vqmmc-supply = <&vdd_1v8_vio>;
 	};
 
 	micro_usb: usb@7d000000 {
