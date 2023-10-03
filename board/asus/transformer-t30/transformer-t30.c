@@ -33,11 +33,6 @@
 #define TPS65911_LDO5			0x32
 #define TPS65911_LDO6			0x35
 
-#define TPS65911_GPIO0			0x60
-#define TPS65911_GPIO6			0x66
-#define TPS65911_GPIO7			0x67
-#define TPS65911_GPIO8			0x68
-
 #define TPS65911_DEVCTRL		0x3F
 #define   DEVCTRL_PWR_OFF_MASK		BIT(7)
 #define   DEVCTRL_DEV_ON_MASK		BIT(2)
@@ -146,26 +141,6 @@ static void tps65911_voltage_init(void)
 		if (ret)
 			log_debug("vddio_usd set failed: %d\n", ret);
 	}
-
-	/* TPS659110: GPIO0_REG output high to VDD_5V0_SBY */
-	ret = dm_i2c_reg_write(dev, TPS65911_GPIO0, 0x07);
-	if (ret)
-		log_debug("vdd_5v0_sby set failed: %d\n", ret);
-
-	/* TPS659110: GPIO6_REG output high to VDD_3V3_SYS */
-	ret = dm_i2c_reg_write(dev, TPS65911_GPIO6, 0x07);
-	if (ret)
-		log_debug("vdd_3v3_sys set failed: %d\n", ret);
-
-	/* TPS659110: GPIO7_REG output high to VDD_1V5_DDR */
-	ret = dm_i2c_reg_write(dev, TPS65911_GPIO7, 0x07);
-	if (ret)
-		log_debug("vdd_1v5_ddr set failed: %d\n", ret);
-
-	/* TPS659110: GPIO8_REG pull_down output high to VDD_5V0_SYS */
-	ret = dm_i2c_reg_write(dev, TPS65911_GPIO8, 0x0f);
-	if (ret)
-		log_debug("vdd_5v0_sys set failed: %d\n", ret);
 }
 
 /*
