@@ -6,3 +6,4 @@ F:	board/xen/xenguest_arm64/
 F:	doc/board/xen/
 F:	include/configs/xenguest_arm64.h
 F:	configs/xenguest_arm64_defconfig
+F:	configs/xenguest_arm64_virtio_defconfig
