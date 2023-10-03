@@ -9,7 +9,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <env.h>
 #include <fdt_support.h>
 #include <i2c.h>
 #include <log.h>
@@ -164,13 +163,3 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 #endif
-
-void nvidia_board_late_init(void)
-{
-	char serialno_str[17];
-
-	/* Set chip id as serialno */
-	sprintf(serialno_str, "%016llx", tegra_chip_uid());
-	env_set("serial#", serialno_str);
-	env_set("platform", "Tegra 3 T30");
-}

@@ -9,14 +9,12 @@
 
 #include <common.h>
 #include <dm.h>
-#include <env.h>
 #include <fdt_support.h>
 #include <i2c.h>
 #include <log.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/gp_padctrl.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch-tegra/fuse.h>
 #include <asm/gpio.h>
 #include <linux/delay.h>
 #include "pinmux-config-grouper.h"
@@ -190,13 +188,3 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 #endif
-
-void nvidia_board_late_init(void)
-{
-	char serialno_str[17];
-
-	/* Set chip id as serialno */
-	sprintf(serialno_str, "%016llx", tegra_chip_uid());
-	env_set("serial#", serialno_str);
-	env_set("platform", "Tegra 3 T30");
-}
