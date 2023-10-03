@@ -26,6 +26,10 @@
 #include <asm/arch-tegra/gpu.h>
 #include <asm/arch-tegra/usb.h>
 #include <asm/arch-tegra/xusb-padctl.h>
+#ifndef CONFIG_TEGRA186
+#include <asm/arch-tegra/fuse.h>
+#include <asm/arch/gp_padctrl.h>
+#endif
 #if IS_ENABLED(CONFIG_TEGRA_CLKRST)
 #include <asm/arch/clock.h>
 #endif
@@ -256,6 +260,37 @@ int board_early_init_f(void)
 }
 #endif	/* EARLY_INIT */
 
+#ifndef CONFIG_TEGRA186
+static void nvidia_board_late_init_generic(void)
+{
+	char serialno_str[17];
+
+	/* Set chip id as serialno */
+	sprintf(serialno_str, "%016llx", tegra_chip_uid());
+	env_set("serial#", serialno_str);
+
+	switch (tegra_get_chip()) {
+	case CHIPID_TEGRA20:
+		env_set("platform", "tegra20");
+		break;
+	case CHIPID_TEGRA30:
+		env_set("platform", "tegra30");
+		break;
+	case CHIPID_TEGRA114:
+		env_set("platform", "tegra114");
+		break;
+	case CHIPID_TEGRA124:
+		env_set("platform", "tegra124");
+		break;
+	case CHIPID_TEGRA210:
+		env_set("platform", "tegra210");
+		break;
+	default:
+		return;
+	}
+}
+#endif
+
 int board_late_init(void)
 {
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
@@ -268,6 +303,14 @@ int board_late_init(void)
 #endif
 	start_cpu_fan();
 	cboot_late_init();
+
+	/*
+	 * Perform generic env setup in case
+	 * vendor does not provide it.
+	 */
+#ifndef CONFIG_TEGRA186
+	nvidia_board_late_init_generic();
+#endif
 	nvidia_board_late_init();
 
 	return 0;
