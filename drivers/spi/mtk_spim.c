@@ -409,7 +409,7 @@ static int mtk_spim_transfer_wait(struct spi_slave *slave,
 {
 	struct udevice *bus = dev_get_parent(slave->dev);
 	struct mtk_spim_priv *priv = dev_get_priv(bus);
-	u32 sck_l, sck_h, clk_count, reg;
+	u32 pll_clk, sck_l, sck_h, clk_count, reg;
 	ulong us = 1;
 	int ret = 0;
 
@@ -418,11 +418,12 @@ static int mtk_spim_transfer_wait(struct spi_slave *slave,
 	else
 		clk_count = op->data.nbytes;
 
+	pll_clk = priv->pll_clk_rate;
 	sck_l = readl(priv->base + SPI_CFG2_REG) >> SPI_CFG2_SCK_LOW_OFFSET;
 	sck_h = readl(priv->base + SPI_CFG2_REG) & SPI_CFG2_SCK_HIGH_MASK;
-	do_div(priv->pll_clk_rate, sck_l + sck_h + 2);
+	do_div(pll_clk, sck_l + sck_h + 2);
 
-	us = CLK_TO_US(priv->pll_clk_rate, clk_count * 8);
+	us = CLK_TO_US(pll_clk, clk_count * 8);
 	us += 1000 * 1000; /* 1s tolerance */
 
 	if (us > UINT_MAX)
