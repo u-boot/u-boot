@@ -123,6 +123,10 @@
 		status = "okay";
 	};
 
+	usb-phy@7d008000 {
+		status = "okay";
+	};
+
 	backlight: backlight {
 		compatible = "pwm-backlight";
 
