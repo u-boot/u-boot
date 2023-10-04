@@ -8,6 +8,7 @@
 		compatible = "wdt-reboot";
 		wdt = <&wdog3>;
 		bootph-pre-ram;
+		bootph-some-ram;
 	};
 
 	firmware {
@@ -30,19 +31,23 @@
 
 &aips2 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &aips3 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &iomuxc {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &reg_usdhc2_vmmc {
 	u-boot,off-on-delay-us = <20000>;
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &pinctrl_reg_usdhc2_vmmc {
@@ -51,59 +56,73 @@
 
 &pinctrl_uart1 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &pinctrl_usdhc2_gpio {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &pinctrl_usdhc2 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &gpio1 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &gpio2 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &gpio3 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &gpio4 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &lpuart1 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &usdhc1 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &usdhc2 {
 	bootph-pre-ram;
+	bootph-some-ram;
 	fsl,signal-voltage-switch-extra-delay-ms = <8>;
 };
 
 &lpi2c2 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &{/soc@0/bus@44000000/i2c@44350000/pmic@25} {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &{/soc@0/bus@44000000/i2c@44350000/pmic@25/regulators} {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &pinctrl_lpi2c2 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &fec {
@@ -124,6 +143,7 @@
 
 &s4muap {
 	bootph-pre-ram;
+	bootph-some-ram;
 	status = "okay";
 };
 
