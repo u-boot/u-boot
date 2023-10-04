@@ -109,6 +109,6 @@ class Bintoolfiptool(bintool.Bintool):
             return None
         result = self.build_from_git(
             'https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git',
-            'fiptool',
+            ['fiptool'],
             'tools/fiptool/fiptool')
         return result
