@@ -127,7 +127,8 @@ static int stm32mp1_ddr_setup(struct udevice *dev)
 		dev_dbg(dev, "no st,mem-name\n");
 		return -EINVAL;
 	}
-	printf("RAM: %s\n", config.info.name);
+	if (CONFIG_IS_ENABLED(DISPLAY_PRINT))
+		printf("RAM: %s\n", config.info.name);
 
 	for (idx = 0; idx < ARRAY_SIZE(param); idx++) {
 		ret = ofnode_read_u32_array(node, param[idx].name,

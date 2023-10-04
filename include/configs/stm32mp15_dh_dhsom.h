@@ -20,7 +20,26 @@
 
 #define STM32MP_BOARD_EXTRA_ENV \
 	"usb_pgood_delay=1000\0" \
-	"update_sf=" /* Erase SPI NOR and install U-Boot from SD */	\
+	"dh_update_sd_to_emmc=" /* Install U-Boot from SD to eMMC */	\
+		"setexpr loadaddr1 ${loadaddr} + 0x1000000 && "		\
+		"load mmc 0:4 ${loadaddr1} boot/u-boot-spl.stm32 && "	\
+		"setexpr sblkcnt ${filesize} + 0x1ff && "		\
+		"setexpr sblkcnt ${sblkcnt} / 0x200 && "		\
+		"load mmc 0:4 ${loadaddr} boot/u-boot.itb && "		\
+		"setexpr ublkcnt ${filesize} + 0x1ff && "		\
+		"setexpr ublkcnt ${ublkcnt} / 0x200 && "		\
+		"mmc partconf 1 1 1 1 && mmc dev 1 1 && "		\
+		"mmc write ${loadaddr1} 0 ${sblkcnt} && "		\
+		"mmc dev 1 2 && "					\
+		"mmc write ${loadaddr1} 0 ${sblkcnt} && "		\
+		"mmc dev 1 && "						\
+		"gpt write mmc 1 'name=ssbl,size=2MiB' && "		\
+		"mmc write ${loadaddr} 0x22 ${ublkcnt} && "		\
+		"mmc partconf 1 1 1 0 && "				\
+		"setenv loadaddr1 && "					\
+		"setenv sblkcnt && "					\
+		"setenv ublkcnt\0"					\
+	"dh_update_sd_to_sf=" /* Erase SPI NOR and install U-Boot from SD */ \
 		"setexpr loadaddr1 ${loadaddr} + 0x1000000 && "		\
 		"load mmc 0:4 ${loadaddr1} /boot/u-boot-spl.stm32 && "	\
 		"env set filesize1 ${filesize} && "			\
@@ -29,7 +48,9 @@
 		"sf update ${loadaddr1} 0 ${filesize1} && "		\
 		"sf update ${loadaddr1} 0x40000 ${filesize1} && "	\
 		"sf update ${loadaddr} 0x80000 ${filesize} && "		\
-		"env set filesize1 && env set loadaddr1\0"
+		"env set filesize1 && env set loadaddr1\0"		\
+	"update_sf=run dh_update_sd_to_sf\0"
+
 
 #include <configs/stm32mp15_common.h>
 

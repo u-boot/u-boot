@@ -23,6 +23,10 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0)
 
+#define STM32F746_BOARD_EXTRA_ENV \
+	"splashimage=0xC0448000\0" \
+	"splashpos=m,m\0"
+
 #include <config_distro_bootcmd.h>
 #define CFG_EXTRA_ENV_SETTINGS				\
 			"kernel_addr_r=0xC0008000\0"		\
@@ -31,7 +35,8 @@
 			"scriptaddr=0xC0418000\0"		\
 			"pxefile_addr_r=0xC0428000\0" \
 			"ramdisk_addr_r=0xC0438000\0"		\
-			BOOTENV
+			BOOTENV	\
+			STM32F746_BOARD_EXTRA_ENV
 
 #define CFG_SYS_UBOOT_BASE		(CFG_SYS_FLASH_BASE + \
 					 CONFIG_SPL_PAD_TO)
