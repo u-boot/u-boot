@@ -1,3 +1,10 @@
+BANANAPI-BPI-R2-PRO
+M:	Frank Wunderlich <frank-w@public-files.de>
+S:	Maintained
+F:	configs/bpi-r2-pro-rk3568_defconfig
+F:	arch/arm/dts/rk3568-bpi-r2-pro.dts
+F:	arch/arm/dts/rk3568-bpi-r2-pro-u-boot.dtsi
+
 EVB-RK3568
 M:	Joseph Chen <chenjh@rock-chips.com>
 S:	Maintained
