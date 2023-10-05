@@ -6,27 +6,27 @@
 #include "k3-j721e-binman.dtsi"
 
 &cbass_main {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_navss {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &cbass_mcu_wakeup {
-	bootph-pre-ram;
+	bootph-all;
 
 	chipid@43000014 {
-		bootph-pre-ram;
+		bootph-all;
 	};
 };
 
 &mcu_navss {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &mcu_ringacc {
-		bootph-pre-ram;
+		bootph-all;
 };
 
 &mcu_udmap {
@@ -38,120 +38,120 @@
 		<0x0 0x28400000 0x0 0x2000>;
 		reg-names = "gcfg", "rchan", "rchanrt", "tchan",
 			    "tchanrt", "rflow";
-		bootph-pre-ram;
+		bootph-all;
 };
 
 &secure_proxy_main {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &dmsc {
-	bootph-pre-ram;
+	bootph-all;
 	k3_sysreset: sysreset-controller {
 		compatible = "ti,sci-sysreset";
-		bootph-pre-ram;
+		bootph-all;
 	};
 };
 
 &k3_pds {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &k3_clks {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &k3_reset {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &wkup_pmx0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_pmx0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_uart0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &mcu_uart0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_sdhci1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_uart0_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_usbss0_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &usbss0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &usb0 {
 	dr_mode = "host";
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_usbss1_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &usbss1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &usb1 {
 	dr_mode = "host";
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_mmc1_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &wkup_i2c0_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &wkup_i2c0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &wkup_uart0 {
-	bootph-pre-ram;
+	bootph-all;
 	status = "okay";
 };
 
 &mcu_fss0_ospi0_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &fss {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_esm {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &ospi0 {
-	bootph-pre-ram;
+	bootph-all;
 
 	flash@0 {
-		bootph-pre-ram;
+		bootph-all;
 
 		partition@3fc0000 {
-			bootph-pre-ram;
+			bootph-all;
 		};
 	};
 };
