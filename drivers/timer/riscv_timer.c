@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <div64.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdt_support.h>
@@ -48,6 +49,27 @@ unsigned long notrace timer_early_get_rate(void)
 u64 notrace timer_early_get_count(void)
 {
 	return riscv_timer_get_count(NULL);
+}
+#endif
+
+#if CONFIG_IS_ENABLED(RISCV_SMODE) && CONFIG_IS_ENABLED(BOOTSTAGE)
+ulong timer_get_boot_us(void)
+{
+	int ret;
+	u64 ticks = 0;
+	u32 rate;
+
+	ret = dm_timer_init();
+	if (!ret) {
+		rate = timer_get_rate(gd->timer);
+		timer_get_count(gd->timer, &ticks);
+	} else {
+		rate = RISCV_SMODE_TIMER_FREQ;
+		ticks = riscv_timer_get_count(NULL);
+	}
+
+	/* Below is converted from time(us) = (tick / rate) * 10000000 */
+	return lldiv(ticks * 1000, (rate / 1000));
 }
 #endif
 

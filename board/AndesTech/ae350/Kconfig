@@ -1,4 +1,4 @@
-if TARGET_AE350
+if TARGET_ANDES_AE350
 
 config SYS_CPU
 	default "andesv5"

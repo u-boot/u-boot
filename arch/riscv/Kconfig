@@ -8,8 +8,8 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_AE350
-	bool "Support ae350"
+config TARGET_ANDES_AE350
+	bool "Support Andes ae350"
 
 config TARGET_MICROCHIP_ICICLE
 	bool "Support Microchip PolarFire-SoC Icicle Board"
@@ -141,6 +141,7 @@ config RISCV_MMODE
 
 config RISCV_SMODE
 	bool "Supervisor"
+	imply DEBUG_UART
 	help
 	  Choose this option to build U-Boot for RISC-V S-Mode.
 
