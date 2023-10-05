@@ -1,200 +1,210 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2020 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2020-2023 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include "k3-j7200-binman.dtsi"
 
 / {
 	chosen {
-		stdout-path = "serial2:115200n8";
-		tick-timer = &timer1;
-	};
-
-	aliases {
-		ethernet0 = &cpsw_port1;
-		i2c0 = &wkup_i2c0;
-		i2c1 = &mcu_i2c0;
-		i2c2 = &mcu_i2c1;
-		i2c3 = &main_i2c0;
+		tick-timer = &mcu_timer0;
 	};
 };
 
 &cbass_main {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_navss {
-	bootph-pre-ram;
+	bootph-all;
+};
+
+&main_esm {
+	bootph-all;
 };
 
 &cbass_mcu_wakeup {
-	bootph-pre-ram;
-
-	timer1: timer@40400000 {
-		compatible = "ti,omap5430-timer";
-		reg = <0x0 0x40400000 0x0 0x80>;
-		ti,timer-alwon;
-		clock-frequency = <250000000>;
-		bootph-pre-ram;
-	};
+	bootph-all;
 
 	chipid@43000014 {
-		bootph-pre-ram;
+		bootph-all;
 	};
+};
 
-	mcu_navss: bus@28380000 {
-		bootph-pre-ram;
-		#address-cells = <2>;
-		#size-cells = <2>;
+&mcu_navss {
+	bootph-all;
+};
 
-		ringacc@2b800000 {
-			reg =	<0x0 0x2b800000 0x0 0x400000>,
-				<0x0 0x2b000000 0x0 0x400000>,
-				<0x0 0x28590000 0x0 0x100>,
-				<0x0 0x2a500000 0x0 0x40000>,
-				<0x0 0x28440000 0x0 0x40000>;
-			reg-names = "rt", "fifos", "proxy_gcfg", "proxy_target", "cfg";
-			bootph-pre-ram;
-		};
+&mcu_ringacc {
+	bootph-all;
+};
 
-		dma-controller@285c0000 {
-			reg =	<0x0 0x285c0000 0x0 0x100>,
-				<0x0 0x284c0000 0x0 0x4000>,
-				<0x0 0x2a800000 0x0 0x40000>,
-				<0x0 0x284a0000 0x0 0x4000>,
-				<0x0 0x2aa00000 0x0 0x40000>,
-				<0x0 0x28400000 0x0 0x2000>;
-			reg-names = "gcfg", "rchan", "rchanrt", "tchan",
-					    "tchanrt", "rflow";
-			bootph-pre-ram;
-		};
-	};
+&mcu_udmap {
+	reg = <0x0 0x285c0000 0x0 0x100>,
+		<0x0 0x284c0000 0x0 0x4000>,
+		<0x0 0x2a800000 0x0 0x40000>,
+		<0x0 0x284a0000 0x0 0x4000>,
+		<0x0 0x2aa00000 0x0 0x40000>,
+		<0x0 0x28400000 0x0 0x2000>;
+	reg-names = "gcfg", "rchan", "rchanrt", "tchan",
+			    "tchanrt", "rflow";
+	bootph-all;
 };
 
 &secure_proxy_main {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &dmsc {
-	bootph-pre-ram;
+	bootph-all;
 	k3_sysreset: sysreset-controller {
 		compatible = "ti,sci-sysreset";
-		bootph-pre-ram;
+		bootph-all;
 	};
 };
 
 &k3_pds {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &k3_clks {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &k3_reset {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &wkup_pmx0 {
-	bootph-pre-ram;
+	bootph-all;
+};
+
+&wkup_pmx2 {
+	bootph-all;
 };
 
 &main_pmx0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_uart0 {
-	bootph-pre-ram;
+	bootph-all;
+};
+
+&main_uart2 {
+	bootph-all;
 };
 
 &mcu_uart0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_sdhci0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_sdhci1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &wkup_i2c0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_i2c0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
-&main_i2c0_pins_default {
-	bootph-pre-ram;
+&exp1 {
+	bootph-all;
 };
 
 &exp2 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &mcu_cpsw {
-	reg = <0x0 0x46000000 0x0 0x200000>,
-	      <0x0 0x40f00200 0x0 0x8>;
-	reg-names = "cpsw_nuss", "mac_efuse";
-	/delete-property/ ranges;
+	bootph-all;
+};
 
-	cpsw-phy-sel@40f04040 {
-		compatible = "ti,am654-cpsw-phy-sel";
-		reg= <0x0 0x40f04040 0x0 0x4>;
-		reg-names = "gmii-sel";
+&mcu_uart0 {
+	bootph-all;
+};
+
+&wkup_i2c0 {
+	bootph-all;
+};
+
+&wkup_uart0 {
+	bootph-all;
+};
+
+&fss {
+	bootph-all;
+};
+
+&main_uart0_pins_default {
+	bootph-all;
+};
+
+&main_mmc1_pins_default {
+	bootph-all;
+};
+
+&main_i2c0_pins_default {
+	bootph-all;
+};
+
+&wkup_i2c0_pins_default {
+	bootph-all;
+};
+
+&wkup_uart0_pins_default {
+	bootph-all;
+};
+
+&wkup_gpio_pins_default {
+	bootph-all;
+};
+
+&wkup_gpio0 {
+	bootph-all;
+};
+
+&hbmc {
+	bootph-all;
+
+	flash@0,0 {
+		bootph-all;
 	};
 };
 
-&main_usbss0_pins_default {
-	bootph-pre-ram;
+&hbmc_mux {
+	bootph-all;
 };
 
 &usbss0 {
-	bootph-pre-ram;
+	bootph-all;
 	ti,usb2-only;
 };
 
 &usb0 {
 	dr_mode = "peripheral";
-	bootph-pre-ram;
+	bootph-all;
 };
 
-&mcu_fss0_hpb0_pins_default {
-	bootph-pre-ram;
-};
-
-&fss {
-	bootph-pre-ram;
-};
-
-&hbmc {
-	bootph-pre-ram;
-
-	flash@0,0 {
-		bootph-pre-ram;
-	};
-};
-
-&hbmc_mux {
-	bootph-pre-ram;
+&ospi0 {
+	bootph-all;
 };
 
 &serdes_ln_ctrl {
-	u-boot,mux-autoprobe;
+	bootph-all;
 };
 
 &usb_serdes_mux {
-	u-boot,mux-autoprobe;
+	bootph-all;
 };
 
 &serdes0 {
-	bootph-pre-ram;
-};
-
-&main_r5fss0 {
-	ti,cluster-mode = <0>;
+	bootph-all;
 };
