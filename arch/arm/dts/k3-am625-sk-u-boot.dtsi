@@ -17,113 +17,152 @@
 	};
 
 	memory@80000000 {
-		bootph-pre-ram;
+		bootph-all;
 	};
 };
 
+&main_conf {
+	bootph-all;
+};
+
 &cbass_main {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_timer0 {
 	clock-frequency = <25000000>;
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &dmss {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &secure_proxy_main {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &dmsc {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &k3_pds {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &k3_clks {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &k3_reset {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &wkup_conf {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &chipid {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_pmx0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_uart0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_uart0_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &cbass_mcu {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &cbass_wakeup {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &mcu_pmx0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &sdhci1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_mmc1_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &fss {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &ospi0_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &ospi0 {
-	bootph-pre-ram;
+	bootph-all;
 
 	flash@0 {
-		bootph-pre-ram;
+		bootph-all;
 
 		partitions {
-			bootph-pre-ram;
+			bootph-all;
 
 			partition@3fc0000 {
-				bootph-pre-ram;
+				bootph-all;
 			};
 		};
 	};
 };
 
+&inta_main_dmss {
+	bootph-all;
+};
+
+&main_pktdma {
+	bootph-all;
+};
+
+&cpsw3g_mdio {
+	bootph-all;
+};
+
+&cpsw3g_phy0 {
+	bootph-all;
+};
+
+&cpsw3g_phy1 {
+	bootph-all;
+};
+
+&main_rgmii1_pins_default {
+	bootph-all;
+};
+
+&main_rgmii2_pins_default {
+	bootph-all;
+};
+
+&phy_gmii_sel {
+	bootph-all;
+};
+
 &cpsw3g {
-	bootph-pre-ram;
+	bootph-all;
+	ethernet-ports {
+		bootph-all;
+	};
 };
 
 &cpsw_port1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &cpsw_port2 {

@@ -2690,6 +2690,8 @@ static void ti_sci_setup_ops(struct ti_sci_info *info)
 const
 struct ti_sci_handle *ti_sci_get_handle_from_sysfw(struct udevice *sci_dev)
 {
+	int ret;
+
 	if (!sci_dev)
 		return ERR_PTR(-EINVAL);
 
@@ -2701,6 +2703,11 @@ struct ti_sci_handle *ti_sci_get_handle_from_sysfw(struct udevice *sci_dev)
 	struct ti_sci_handle *handle = &info->handle;
 
 	if (!handle)
+		return ERR_PTR(-EINVAL);
+
+	ret = ti_sci_cmd_get_revision(handle);
+
+	if (ret)
 		return ERR_PTR(-EINVAL);
 
 	return handle;
@@ -2825,11 +2832,9 @@ static int ti_sci_probe(struct udevice *dev)
 	list_add_tail(&info->list, &ti_sci_list);
 	ti_sci_setup_ops(info);
 
-	ret = ti_sci_cmd_get_revision(&info->handle);
-
 	INIT_LIST_HEAD(&info->dev_list);
 
-	return ret;
+	return 0;
 }
 
 /**

@@ -11,109 +11,149 @@
 	};
 
 	memory@80000000 {
-		bootph-pre-ram;
+		bootph-all;
 	};
 };
 
-&vtt_supply {
-	bootph-pre-ram;
-};
-
 &cbass_main {
-	bootph-pre-ram;
-};
-
-&cbass_mcu {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_timer0 {
-	bootph-pre-ram;
+	bootph-all;
 	clock-frequency = <200000000>;
 };
 
 &main_conf {
-	bootph-pre-ram;
+	bootph-all;
 	chipid@14 {
-		bootph-pre-ram;
+		bootph-all;
 	};
 };
 
 &main_pmx0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_i2c0_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_i2c0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_uart0_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_uart0 {
-	bootph-pre-ram;
+	bootph-all;
+};
+
+&main_usb0_pins_default {
+	bootph-all;
 };
 
 &usb0 {
 	dr_mode="peripheral";
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &usbss0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_mmc1_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_usb0_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &dmss {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &secure_proxy_main {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &dmsc {
-	bootph-pre-ram;
+	bootph-all;
 	k3_sysreset: sysreset-controller {
 		compatible = "ti,sci-sysreset";
-		bootph-pre-ram;
+		bootph-all;
 	};
 };
 
 &k3_pds {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &k3_clks {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &k3_reset {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &sdhci0 {
-	bootph-pre-ram;
+	bootph-all;
+};
+
+&main_mmc1_pins_default {
+	bootph-all;
 };
 
 &sdhci1 {
-	bootph-pre-ram;
+	bootph-all;
+};
+
+&inta_main_dmss {
+	bootph-all;
+};
+
+&main_pktdma {
+	bootph-all;
+};
+
+&mdio1_pins_default {
+	bootph-all;
+};
+
+&cpsw3g_mdio {
+	bootph-all;
+};
+
+&cpsw3g_phy0 {
+	bootph-all;
+};
+
+&rgmii1_pins_default {
+	bootph-all;
+};
+
+&rgmii2_pins_default {
+	bootph-all;
 };
 
 &cpsw3g {
-	bootph-pre-ram;
+	bootph-all;
+
+	ethernet-ports {
+		bootph-all;
+	};
+};
+
+&phy_gmii_sel {
+	bootph-all;
+};
+
+&cpsw_port1 {
+	bootph-all;
 };
 
 &cpsw_port2 {

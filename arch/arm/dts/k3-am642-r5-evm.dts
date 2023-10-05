@@ -40,6 +40,10 @@
 	};
 };
 
+&vtt_supply {
+	bootph-pre-ram;
+};
+
 &cbass_main {
 	sysctrler: sysctrler {
 		compatible = "ti,am654-system-controller";
@@ -50,6 +54,10 @@
 };
 
 &main_esm {
+	bootph-pre-ram;
+};
+
+&cbass_mcu {
 	bootph-pre-ram;
 };
 
@@ -64,6 +72,14 @@
 	mbox-names = "rx", "tx", "notify";
 	ti,host-id = <35>;
 	ti,secure-host;
+};
+
+&vtt_supply {
+	bootph-pre-ram;
+};
+
+&memorycontroller {
+	vtt-supply = <&vtt_supply>;
 };
 
 &sdhci0 {

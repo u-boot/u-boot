@@ -3,83 +3,42 @@
  * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
  */
 
-#include <dt-bindings/net/ti-dp83867.h>
 #include "k3-j721e-binman.dtsi"
 
-/ {
-	chosen {
-		stdout-path = "serial2:115200n8";
-		tick-timer = &timer1;
-	};
-
-	aliases {
-		ethernet0 = &cpsw_port1;
-		spi0 = &ospi0;
-		spi1 = &ospi1;
-		remoteproc0 = &mcu_r5fss0_core0;
-		remoteproc1 = &mcu_r5fss0_core1;
-		remoteproc2 = &main_r5fss0_core0;
-		remoteproc3 = &main_r5fss0_core1;
-		remoteproc4 = &main_r5fss1_core0;
-		remoteproc5 = &main_r5fss1_core1;
-		remoteproc6 = &c66_0;
-		remoteproc7 = &c66_1;
-		remoteproc8 = &c71_0;
-		i2c0 = &wkup_i2c0;
-		i2c1 = &mcu_i2c0;
-		i2c2 = &mcu_i2c1;
-		i2c3 = &main_i2c0;
-	};
+&cbass_main {
+	bootph-pre-ram;
 };
 
-&cbass_main{
+&main_navss {
 	bootph-pre-ram;
-
-	main_navss: bus@30000000 {
-		bootph-pre-ram;
-	};
 };
 
 &cbass_mcu_wakeup {
 	bootph-pre-ram;
 
-	timer1: timer@40400000 {
-		compatible = "ti,omap5430-timer";
-		reg = <0x0 0x40400000 0x0 0x80>;
-		ti,timer-alwon;
-		clock-frequency = <250000000>;
-		bootph-pre-ram;
-	};
-
-	mcu_navss: bus@28380000 {
-		bootph-pre-ram;
-
-		ringacc@2b800000 {
-			reg =	<0x0 0x2b800000 0x0 0x400000>,
-				<0x0 0x2b000000 0x0 0x400000>,
-				<0x0 0x28590000 0x0 0x100>,
-				<0x0 0x2a500000 0x0 0x40000>,
-				<0x0 0x28440000 0x0 0x40000>;
-			reg-names = "rt", "fifos", "proxy_gcfg", "proxy_target", "cfg";
-			bootph-pre-ram;
-		};
-
-		dma-controller@285c0000 {
-			reg =	<0x0 0x285c0000 0x0 0x100>,
-				<0x0 0x284c0000 0x0 0x4000>,
-				<0x0 0x2a800000 0x0 0x40000>,
-				<0x0 0x284a0000 0x0 0x4000>,
-				<0x0 0x2aa00000 0x0 0x40000>,
-				<0x0 0x28400000 0x0 0x2000>;
-			reg-names = "gcfg", "rchan", "rchanrt", "tchan",
-					    "tchanrt", "rflow";
-			bootph-pre-ram;
-		};
-	};
-
 	chipid@43000014 {
 		bootph-pre-ram;
 	};
+};
+
+&mcu_navss {
+	bootph-pre-ram;
+};
+
+&mcu_ringacc {
+	bootph-pre-ram;
+};
+
+&mcu_udmap {
+	reg =	<0x0 0x285c0000 0x0 0x100>,
+		<0x0 0x284c0000 0x0 0x4000>,
+		<0x0 0x2a800000 0x0 0x40000>,
+		<0x0 0x284a0000 0x0 0x4000>,
+		<0x0 0x2aa00000 0x0 0x40000>,
+		<0x0 0x28400000 0x0 0x2000>;
+	reg-names = "gcfg", "rchan", "rchanrt", "tchan",
+		    "tchanrt", "rflow";
+	bootph-pre-ram;
 };
 
 &secure_proxy_main {
@@ -130,9 +89,8 @@
 	bootph-pre-ram;
 };
 
-&wiz3_pll1_refclk {
-	assigned-clocks = <&wiz3_pll1_refclk>, <&wiz3_pll0_refclk>;
-	assigned-clock-parents = <&k3_clks 295 0>, <&k3_clks 295 9>;
+&main_uart0_pins_default {
+	bootph-pre-ram;
 };
 
 &main_usbss0_pins_default {
@@ -148,19 +106,6 @@
 	bootph-pre-ram;
 };
 
-&mcu_cpsw {
-	reg = <0x0 0x46000000 0x0 0x200000>,
-	      <0x0 0x40f00200 0x0 0x2>;
-	reg-names = "cpsw_nuss", "mac_efuse";
-	/delete-property/ ranges;
-
-	cpsw-phy-sel@40f04040 {
-		compatible = "ti,am654-cpsw-phy-sel";
-		reg= <0x0 0x40f04040 0x0 0x4>;
-		reg-names = "gmii-sel";
-	};
-};
-
 &main_mmc1_pins_default {
 	bootph-pre-ram;
 };
@@ -169,8 +114,14 @@
 	bootph-pre-ram;
 };
 
+&wkup_uart0 {
+	bootph-pre-ram;
+	status = "okay";
+};
+
 &wkup_i2c0 {
 	bootph-pre-ram;
+	status = "okay";
 };
 
 &main_i2c0 {
@@ -178,6 +129,10 @@
 };
 
 &main_i2c0_pins_default {
+	bootph-pre-ram;
+};
+
+&main_esm {
 	bootph-pre-ram;
 };
 
@@ -190,18 +145,6 @@
 };
 
 &fss {
-	bootph-pre-ram;
-};
-
-&hbmc {
-	bootph-pre-ram;
-
-	flash@0,0 {
-		bootph-pre-ram;
-	};
-};
-
-&hbmc_mux {
 	bootph-pre-ram;
 };
 
@@ -235,40 +178,4 @@
 
 &mcu_fss0_ospi1_pins_default {
 	bootph-pre-ram;
-};
-
-&main_r5fss0 {
-	ti,cluster-mode = <0>;
-};
-
-&main_r5fss1 {
-	ti,cluster-mode = <0>;
-};
-
-&wiz3_pll1_refclk {
-	assigned-clocks = <&wiz3_pll1_refclk>, <&wiz3_pll0_refclk>;
-	assigned-clock-parents = <&k3_clks 295 0>, <&k3_clks 295 9>;
-};
-
-&serdes_ln_ctrl {
-	u-boot,mux-autoprobe;
-};
-
-&usb_serdes_mux {
-	u-boot,mux-autoprobe;
-};
-
-&serdes0 {
-	/delete-property/ assigned-clocks;
-	/delete-property/ assigned-clock-parents;
-};
-
-&serdes0_pcie_link {
-	assigned-clocks = <&serdes0 CDNS_SIERRA_PLL_CMNLC>;
-	assigned-clock-parents = <&wiz0_pll1_refclk>;
-};
-
-&serdes0_qsgmii_link {
-	assigned-clocks = <&serdes0 CDNS_SIERRA_PLL_CMNLC1>;
-	assigned-clock-parents = <&wiz0_pll1_refclk>;
 };

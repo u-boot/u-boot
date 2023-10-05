@@ -229,6 +229,18 @@ void board_init_f(ulong dummy)
 		pinctrl_select_state(dev, "default");
 
 	/*
+	 * Force probe of clk_k3 driver here to ensure basic default clock
+	 * configuration is always done.
+	 */
+	if (IS_ENABLED(CONFIG_SPL_CLK_K3)) {
+		ret = uclass_get_device_by_driver(UCLASS_CLK,
+						  DM_DRIVER_GET(ti_clk),
+						  &dev);
+		if (ret)
+			panic("Failed to initialize clk-k3!\n");
+	}
+
+	/*
 	 * Load, start up, and configure system controller firmware. Provide
 	 * the U-Boot console init function to the SYSFW post-PM configuration
 	 * callback hook, effectively switching on (or over) the console
@@ -240,18 +252,6 @@ void board_init_f(ulong dummy)
 #ifdef CONFIG_SPL_OF_LIST
 	do_dt_magic();
 #endif
-
-	/*
-	 * Force probe of clk_k3 driver here to ensure basic default clock
-	 * configuration is always done.
-	 */
-	if (IS_ENABLED(CONFIG_SPL_CLK_K3)) {
-		ret = uclass_get_device_by_driver(UCLASS_CLK,
-						  DM_DRIVER_GET(ti_clk),
-						  &dev);
-		if (ret)
-			panic("Failed to initialize clk-k3!\n");
-	}
 
 	/* Prepare console output */
 	preloader_console_init();
