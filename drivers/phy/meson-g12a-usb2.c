@@ -161,6 +161,14 @@ static int phy_meson_g12a_usb2_init(struct phy *phy)
 	struct phy_meson_g12a_usb2_priv *priv = dev_get_priv(dev);
 	int ret;
 
+#if CONFIG_IS_ENABLED(CLK)
+	ret = clk_enable(&priv->clk);
+	if (ret && ret != -ENOSYS && ret != -ENOTSUPP) {
+		pr_err("failed to enable PHY clock\n");
+		return ret;
+	}
+#endif
+
 	ret = reset_assert(&priv->reset);
 	udelay(1);
 	ret |= reset_deassert(&priv->reset);
@@ -253,6 +261,10 @@ static int phy_meson_g12a_usb2_exit(struct phy *phy)
 	struct phy_meson_g12a_usb2_priv *priv = dev_get_priv(dev);
 	int ret;
 
+#if CONFIG_IS_ENABLED(CLK)
+	clk_disable(&priv->clk);
+#endif
+
 	ret = reset_assert(&priv->reset);
 	if (ret)
 		return ret;
@@ -290,13 +302,6 @@ int meson_g12a_usb2_phy_probe(struct udevice *dev)
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret < 0)
 		return ret;
-
-	ret = clk_enable(&priv->clk);
-	if (ret && ret != -ENOSYS && ret != -ENOTSUPP) {
-		pr_err("failed to enable PHY clock\n");
-		clk_free(&priv->clk);
-		return ret;
-	}
 #endif
 
 	return 0;
