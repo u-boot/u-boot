@@ -1057,7 +1057,8 @@ F:	test/common/event.c
 F:	test/py/tests/test_event_dump.py
 
 FASTBOOT
-S:	Orphaned
+M:	Mattijs Korpershoek <mkorpershoek@baylibre.com>
+S:	Maintained
 F:	cmd/fastboot.c
 F:	doc/android/fastboot*.rst
 F:	include/fastboot.h
