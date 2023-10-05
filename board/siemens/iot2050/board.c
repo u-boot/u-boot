@@ -160,7 +160,7 @@ static bool board_is_sr1(void)
 	struct iot2050_info *info = IOT2050_INFO_DATA;
 
 	return info->magic == IOT2050_INFO_MAGIC &&
-		strstr((char *)info->name, "-PG2") != NULL;
+		strstr((char *)info->name, "-PG2") == NULL;
 }
 
 static bool board_is_m2(void)
