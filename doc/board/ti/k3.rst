@@ -37,6 +37,7 @@ K3 Based SoCs
    am65x_evm
    j7200_evm
    j721e_evm
+   j721s2_evm
 
 Boot Flow Overview
 ------------------
