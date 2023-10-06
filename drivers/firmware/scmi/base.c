@@ -481,6 +481,7 @@ static int scmi_base_reset_agent_configuration_int(struct udevice *dev,
  */
 static int scmi_base_probe(struct udevice *dev)
 {
+	u32 version;
 	int ret;
 
 	ret = devm_scmi_of_get_channel(dev);
@@ -488,6 +489,13 @@ static int scmi_base_probe(struct udevice *dev)
 		dev_err(dev, "get_channel failed\n");
 		return ret;
 	}
+	ret = scmi_base_protocol_version_int(dev, &version);
+	if (ret) {
+		dev_err(dev, "getting protocol version failed\n");
+		return ret;
+	}
+	if (version < SCMI_BASE_PROTOCOL_VERSION)
+		return -EINVAL;
 
 	return ret;
 }
