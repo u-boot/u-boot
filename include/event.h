@@ -145,6 +145,17 @@ enum event_t {
 	EVT_MAIN_LOOP,
 
 	/**
+	 * @EVT_DT_NODE_PROP_PURGE:
+	 * This event is triggered before booting into the OS to remove all
+	 * the non-compliant device-tree nodes and properties that need to
+	 * be removed before passing the device-tree to the OS.
+	 * Its parameter is the struct event_dt_node_prop_purge which contains
+	 * the address of the device-tree from which the nodes and properties
+	 * are to be removed.
+	 */
+	EVT_DT_NODE_PROP_PURGE,
+
+	/**
 	 * @EVT_COUNT:
 	 * This constants holds the maximum event number + 1 and is used when
 	 * looping over all event classes.
@@ -194,6 +205,17 @@ union event_data {
 		oftree tree;
 		struct bootm_headers *images;
 	} ft_fixup;
+
+	/**
+	 * struct event_dt_node_prop_purge - Remove nodes and properties
+	 * from device-tree
+	 *
+	 * @fdt: pointer to the device-tree
+	 */
+	struct event_dt_node_prop_purge {
+		void *fdt;
+	} dt_purge;
+
 };
 
 /**
