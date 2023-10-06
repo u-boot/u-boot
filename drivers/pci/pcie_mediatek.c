@@ -661,7 +661,7 @@ static int mtk_pcie_probe(struct udevice *dev)
 		if (!ofnode_is_enabled(subnode))
 			continue;
 
-		err = ofnode_read_pci_addr(subnode, 0, "reg", &addr);
+		err = ofnode_read_pci_addr(subnode, 0, "reg", &addr, NULL);
 		if (err)
 			return err;
 
@@ -700,7 +700,7 @@ static int mtk_pcie_probe_v2(struct udevice *dev)
 		if (!ofnode_is_enabled(subnode))
 			continue;
 
-		err = ofnode_read_pci_addr(subnode, 0, "reg", &addr);
+		err = ofnode_read_pci_addr(subnode, 0, "reg", &addr, NULL);
 		if (err)
 			return err;
 

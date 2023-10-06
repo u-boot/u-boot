@@ -1123,8 +1123,8 @@
 		pci@1,0 {
 			compatible = "pci-generic";
 			/* reg 0 is at 0x14, using FDT_PCI_SPACE_MEM32 */
-			reg = <0x02000814 0 0 0 0
-			       0x01000810 0 0 0 0>;
+			reg = <0x02000814 0 0 0x80 0
+			       0x01000810 0 0 0xc0 0>;
 			sandbox,emul = <&swap_case_emul0_1>;
 		};
 		p2sb-pci@2,0 {
@@ -1151,7 +1151,7 @@
 		pci@1f,0 {
 			compatible = "pci-generic";
 			/* reg 0 is at 0x10, using FDT_PCI_SPACE_IO */
-			reg = <0x0100f810 0 0 0 0>;
+			reg = <0x0100f810 0 0 0x100 0>;
 			sandbox,emul = <&swap_case_emul0_1f>;
 		};
 	};

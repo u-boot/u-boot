@@ -641,7 +641,8 @@ static int mvebu_pcie_port_parse_dt(ofnode node, ofnode parent, struct mvebu_pci
 		pcie->is_x4 = true;
 
 	/* devfn is in bits [15:8], see PCI_DEV usage */
-	ret = ofnode_read_pci_addr(node, FDT_PCI_SPACE_CONFIG, "reg", &pci_addr);
+	ret = ofnode_read_pci_addr(node, FDT_PCI_SPACE_CONFIG, "reg", &pci_addr,
+				   NULL);
 	if (ret < 0) {
 		printf("%s: property \"reg\" is invalid\n", pcie->name);
 		goto err;

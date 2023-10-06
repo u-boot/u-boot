@@ -58,6 +58,7 @@ enum ns16550_flags {
  * struct ns16550_plat - information about a NS16550 port
  *
  * @base:		Base register address
+ * @size:		Size of register area in bytes
  * @reg_width:		IO accesses size of registers (in bytes, 1 or 4)
  * @reg_shift:		Shift size of registers (0=byte, 1=16bit, 2=32bit...)
  * @reg_offset:		Offset to start of registers (normally 0)
@@ -67,7 +68,8 @@ enum ns16550_flags {
  * @bdf:		PCI slot/function (pci_dev_t)
  */
 struct ns16550_plat {
-	unsigned long base;
+	ulong base;
+	ulong size;
 	int reg_width;
 	int reg_shift;
 	int reg_offset;

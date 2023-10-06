@@ -137,6 +137,7 @@ enum adr_space_type {
  * @type:	type of the UART chip
  * @addr_space:	address space to access the registers
  * @addr:	physical address of the registers
+ * @size:	size of the register area in bytes
  * @reg_width:	size (in bytes) of the IO accesses to the registers
  * @reg_offset:	offset to apply to the @addr from the start of the registers
  * @reg_shift:	quantity to shift the register offsets by
@@ -147,6 +148,7 @@ struct serial_device_info {
 	enum serial_chip_type type;
 	enum adr_space_type addr_space;
 	ulong addr;
+	ulong size;
 	u8 reg_width;
 	u8 reg_offset;
 	u8 reg_shift;

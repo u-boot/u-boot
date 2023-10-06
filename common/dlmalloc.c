@@ -1291,7 +1291,7 @@ Void_t* mALLOc(bytes) size_t bytes;
 
   INTERNAL_SIZE_T nb;
 
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT))
 		return malloc_simple(bytes);
 #endif
@@ -1572,7 +1572,7 @@ void fREe(mem) Void_t* mem;
   mchunkptr fwd;       /* misc temp for linking */
   int       islr;      /* track whether merging with last_remainder */
 
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	/* free() is a no-op - all the memory will be freed on relocation */
 	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
 		VALGRIND_FREELIKE_BLOCK(mem, SIZE_SZ);
@@ -1735,7 +1735,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
   /* realloc of null is supposed to be same as malloc */
   if (oldmem == NULL) return mALLOc(bytes);
 
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
 		/* This is harder to support and should not be needed */
 		panic("pre-reloc realloc() is not supported");
@@ -1957,7 +1957,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
 
   if ((long)bytes < 0) return NULL;
 
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
 		return memalign_simple(alignment, bytes);
 	}
@@ -2153,7 +2153,7 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
     return NULL;
   else
   {
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
 		memset(mem, 0, sz);
 		return mem;
@@ -2455,7 +2455,7 @@ int mALLOPt(param_number, value) int param_number; int value;
 
 int initf_malloc(void)
 {
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	assert(gd->malloc_base);	/* Set up by crt0.S */
 	gd->malloc_limit = CONFIG_VAL(SYS_MALLOC_F_LEN);
 	gd->malloc_ptr = 0;

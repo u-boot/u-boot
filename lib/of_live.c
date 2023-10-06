@@ -8,13 +8,21 @@
  * Copyright (c) 2017 Google, Inc
  */
 
+#define LOG_CATEGORY	LOGC_DT
+
 #include <common.h>
+#include <abuf.h>
 #include <log.h>
 #include <linux/libfdt.h>
 #include <of_live.h>
 #include <malloc.h>
 #include <dm/of_access.h>
 #include <linux/err.h>
+#include <linux/sizes.h>
+
+enum {
+	BUF_STEP	= SZ_64K,
+};
 
 static void *unflatten_dt_alloc(void **mem, unsigned long size,
 				unsigned long align)
@@ -335,4 +343,137 @@ void of_live_free(struct device_node *root)
 {
 	/* the tree is stored as a contiguous block of memory */
 	free(root);
+}
+
+int of_live_create_empty(struct device_node **rootp)
+{
+	struct device_node *root;
+
+	root = calloc(1, sizeof(struct device_node));
+	if (!root)
+		return -ENOMEM;
+	root->name = strdup("");
+	if (!root->name) {
+		free(root);
+		return -ENOMEM;
+	}
+	root->type = "<NULL>";
+	root->full_name = "";
+	*rootp = root;
+
+	return 0;
+}
+
+static int check_space(int ret, struct abuf *buf)
+{
+	if (ret == -FDT_ERR_NOSPACE) {
+		if (!abuf_realloc_inc(buf, BUF_STEP))
+			return log_msg_ret("spc", -ENOMEM);
+		ret = fdt_resize(abuf_data(buf), abuf_data(buf),
+				 abuf_size(buf));
+		if (ret)
+			return log_msg_ret("res", -EFAULT);
+
+		return -EAGAIN;
+	}
+
+	return 0;
+}
+
+/**
+ * flatten_node() - Write out the node and its properties into a flat tree
+ */
+static int flatten_node(struct abuf *buf, const struct device_node *node)
+{
+	const struct device_node *np;
+	const struct property *pp;
+	int ret;
+
+	ret = fdt_begin_node(abuf_data(buf), node->name);
+	ret = check_space(ret, buf);
+	if (ret == -EAGAIN) {
+		ret = fdt_begin_node(abuf_data(buf), node->name);
+		if (ret) {
+			log_debug("Internal error a %d\n", ret);
+			return -EFAULT;
+		}
+	}
+	if (ret)
+		return log_msg_ret("beg", ret);
+
+	/* First write out the properties */
+	for (pp = node->properties; !ret && pp; pp = pp->next) {
+		ret = fdt_property(abuf_data(buf), pp->name, pp->value,
+				   pp->length);
+		ret = check_space(ret, buf);
+		if (ret == -EAGAIN) {
+			ret = fdt_property(abuf_data(buf), pp->name, pp->value,
+					   pp->length);
+		}
+	}
+
+	/* Next write out the subnodes */
+	for (np = node->child; np; np = np->sibling) {
+		ret = flatten_node(buf, np);
+		if (ret)
+			return log_msg_ret("sub", ret);
+	}
+
+	ret = fdt_end_node(abuf_data(buf));
+	ret = check_space(ret, buf);
+	if (ret == -EAGAIN) {
+		ret = fdt_end_node(abuf_data(buf));
+		if (ret) {
+			log_debug("Internal error b %d\n", ret);
+			return -EFAULT;
+		}
+	}
+	if (ret)
+		return log_msg_ret("end", ret);
+
+	return 0;
+}
+
+int of_live_flatten(const struct device_node *root, struct abuf *buf)
+{
+	int ret;
+
+	abuf_init(buf);
+	if (!abuf_realloc(buf, BUF_STEP))
+		return log_msg_ret("ini", -ENOMEM);
+
+	ret = fdt_create(abuf_data(buf), abuf_size(buf));
+	if (!ret)
+		ret = fdt_finish_reservemap(abuf_data(buf));
+	if (ret) {
+		log_debug("Failed to start FDT (err=%d)\n", ret);
+		return log_msg_ret("sta", -EINVAL);
+	}
+
+	ret = flatten_node(buf, root);
+	if (ret)
+		return log_msg_ret("flt", ret);
+
+	ret = fdt_finish(abuf_data(buf));
+	ret = check_space(ret, buf);
+	if (ret == -EAGAIN) {
+		ret = fdt_finish(abuf_data(buf));
+		if (ret) {
+			log_debug("Internal error c %d\n", ret);
+			return -EFAULT;
+		}
+	}
+	if (ret)
+		return log_msg_ret("fin", ret);
+
+	ret = fdt_pack(abuf_data(buf));
+	if (ret) {
+		log_debug("Failed to pack (err=%d)\n", ret);
+		return log_msg_ret("pac", -EFAULT);
+	}
+
+	if (!abuf_realloc(buf, fdt_totalsize(abuf_data(buf))))
+		return log_msg_ret("abu", -EFAULT);
+
+	return 0;
 }

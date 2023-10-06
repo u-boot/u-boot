@@ -53,7 +53,7 @@ _start:
 
 	mov.l	._gd_init, r13		/* global data */
 	mov.l	._stack_init, r15	/* stack */
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	mov.l	._gd_malloc_base, r14
 	mov.l	r15, @r14
 #endif
@@ -73,7 +73,7 @@ loop:
 ._bss_start:		.long	bss_start
 ._bss_end:		.long	bss_end
 ._gd_init:		.long	(_start - GENERATED_GBL_DATA_SIZE)
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 ._gd_malloc_base:	.long	(_start - GENERATED_GBL_DATA_SIZE + GD_MALLOC_BASE)
 #endif
 ._stack_init:		.long	(_start - GENERATED_GBL_DATA_SIZE - CONFIG_SYS_MALLOC_LEN - 16)

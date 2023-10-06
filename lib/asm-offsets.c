@@ -32,7 +32,7 @@ int main(void)
 
 	DEFINE(GD_FLAGS, offsetof(struct global_data, flags));
 
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	DEFINE(GD_MALLOC_BASE, offsetof(struct global_data, malloc_base));
 #endif
 

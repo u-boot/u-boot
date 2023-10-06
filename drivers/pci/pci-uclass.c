@@ -123,7 +123,7 @@ static void pci_dev_find_ofnode(struct udevice *bus, phys_addr_t bdf,
 
 	dev_for_each_subnode(node, bus) {
 		ret = ofnode_read_pci_addr(node, FDT_PCI_SPACE_CONFIG, "reg",
-					   &addr);
+					   &addr, NULL);
 		if (ret)
 			continue;
 

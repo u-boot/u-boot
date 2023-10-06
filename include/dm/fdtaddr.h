@@ -168,8 +168,9 @@ fdt_addr_t devfdt_get_addr_size_name(const struct udevice *dev,
  * devfdt_get_addr_pci() - Read an address and handle PCI address translation
  *
  * @dev: Device to read from
+ * @sizep: If non-NULL, returns size of address space
  * Return: address or FDT_ADDR_T_NONE if not found
  */
-fdt_addr_t devfdt_get_addr_pci(const struct udevice *dev);
+fdt_addr_t devfdt_get_addr_pci(const struct udevice *dev, fdt_size_t *sizep);
 
 #endif

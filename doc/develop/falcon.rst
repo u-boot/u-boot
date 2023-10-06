@@ -63,7 +63,7 @@ CONFIG_CMD_SPL
     Enable the "spl export" command.
     The command "spl export" is then available in U-Boot mode.
 
-CONFIG_SYS_SPL_ARGS_ADDR
+CONFIG_SPL_PAYLOAD_ARGS_ADDR
     Address in RAM where the parameters must be copied by SPL.
     In most cases, it is <start_of_ram> + 0x100.
 

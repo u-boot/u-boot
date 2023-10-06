@@ -25,6 +25,10 @@
 #endif
 
 #ifndef	__ASSEMBLY__
+
+/* For ARRAY_SIZE() */
+#include <linux/kernel.h>
+
 /*
  * Monitor Command Table
  */

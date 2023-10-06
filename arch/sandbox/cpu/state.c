@@ -513,6 +513,7 @@ int state_uninit(void)
 			printf("Failed to write RAM buffer\n");
 			return err;
 		}
+		log_debug("Wrote RAM to file '%s'\n", state->ram_buf_fname);
 	}
 
 	if (state->write_state) {
@@ -520,6 +521,7 @@ int state_uninit(void)
 			printf("Failed to write sandbox state\n");
 			return -1;
 		}
+		log_debug("Wrote state to file '%s'\n", state->ram_buf_fname);
 	}
 
 	/* Delete this at the last moment so as not to upset gdb too much */

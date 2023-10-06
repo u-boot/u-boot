@@ -413,8 +413,26 @@ void bloblist_reloc(void *to, uint to_size, void *from, uint from_size);
  * standard passage. The size is detected automatically so CONFIG_BLOBLIST_SIZE
  * can be 0.
  *
+ * Sets GD_FLG_BLOBLIST_READY in global_data flags on success
+ *
  * Return: 0 if OK, -ve on error
  */
 int bloblist_init(void);
+
+#if CONFIG_IS_ENABLED(BLOBLIST)
+/**
+ * bloblist_maybe_init() - Init the bloblist system if not already done
+ *
+ * Calls bloblist_init() if the GD_FLG_BLOBLIST_READY flag is not et
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int bloblist_maybe_init(void);
+#else
+static inline int bloblist_maybe_init(void)
+{
+	return 0;
+}
+#endif /* BLOBLIST */
 
 #endif /* __BLOBLIST_H */

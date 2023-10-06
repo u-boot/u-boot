@@ -187,7 +187,7 @@ static int bootmeth_vbe_ft_fixup(void *ctx, struct event *event)
 		ret = ofnode_add_subnode(dest_parent, name, &dest);
 		if (ret && ret != -EEXIST)
 			return log_msg_ret("add", ret);
-		ret = ofnode_copy_props(node, dest);
+		ret = ofnode_copy_props(dest, node);
 		if (ret)
 			return log_msg_ret("cp", ret);
 

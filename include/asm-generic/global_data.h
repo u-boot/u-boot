@@ -307,7 +307,7 @@ struct global_data {
 #if CONFIG_IS_ENABLED(CMD_BDINFO_EXTRA)
 	unsigned long malloc_start;
 #endif
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	/**
 	 * @malloc_base: base address of early malloc()
 	 */
@@ -588,6 +588,12 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #define gd_set_pci_ram_top(val)
 #endif
 
+#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#define gd_malloc_ptr()		gd->malloc_ptr
+#else
+#define gd_malloc_ptr()		0L
+#endif
+
 /**
  * enum gd_flags - global data flags
  *
@@ -687,6 +693,10 @@ enum gd_flags {
 	 * the memory used to holds its tables has been mapped out.
 	 */
 	GD_FLG_DM_DEAD = 0x400000,
+	/**
+	 * @GD_FLG_BLOBLIST_READY: bloblist is ready for use
+	 */
+	GD_FLG_BLOBLIST_READY = 0x800000,
 };
 
 #endif /* __ASSEMBLY__ */

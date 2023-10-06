@@ -14,7 +14,7 @@ config SPL_DM
 	help
 	  Enable driver model in SPL. You will need to provide a
 	  suitable malloc() implementation. If you are not using the
-	  full malloc() enabled by CFG_SYS_SPL_MALLOC_START,
+	  full malloc() enabled by CFG_SPL_SYS_MALLOC_START,
 	  consider using CONFIG_SPL_SYS_MALLOC_SIMPLE. In that case you
 	  must provide CONFIG_SPL_SYS_MALLOC_F_LEN to set the size.
 	  In most cases driver model will only allocate a few uclasses
@@ -27,12 +27,12 @@ config TPL_DM
 	help
 	  Enable driver model in TPL. You will need to provide a
 	  suitable malloc() implementation. If you are not using the
-	  full malloc() enabled by CFG_SYS_SPL_MALLOC_START,
+	  full malloc() enabled by CFG_TPL_SYS_MALLOC_START,
 	  consider using CONFIG_TPL_SYS_MALLOC_SIMPLE. In that case you
-	  must provide CONFIG_SPL_SYS_MALLOC_F_LEN to set the size.
+	  must provide CONFIG_TPL_SYS_MALLOC_F_LEN to set the size.
 	  In most cases driver model will only allocate a few uclasses
-	  and devices in SPL, so 1KB should be enough. See
-	  CONFIG_SPL_SYS_MALLOC_F_LEN for more details on how to enable it.
+	  and devices in TPL, so 1KB should be enough. See
+	  CONFIG_TPL_SYS_MALLOC_F_LEN for more details on how to enable it.
 	  Disable this for very small implementations.
 
 config VPL_DM
@@ -42,8 +42,8 @@ config VPL_DM
 	help
 	  Enable driver model in VPL. You will need to provide a
 	  suitable malloc() implementation. If you are not using the
-	  full malloc() enabled by CFG_SYS_SPL_MALLOC_START,
-	  consider using CONFIG_SPL_SYS_MALLOC_SIMPLE.
+	  full malloc() enabled by CFG_TPL_SYS_MALLOC_START,
+	  consider using CONFIG_TPL_SYS_MALLOC_SIMPLE.
 
 config DM_WARN
 	bool "Enable warnings in driver model"

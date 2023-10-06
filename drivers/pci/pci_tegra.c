@@ -462,7 +462,7 @@ static int tegra_pcie_parse_port_info(ofnode node, uint *index, uint *lanes)
 
 	*lanes = err;
 
-	err = ofnode_read_pci_addr(node, 0, "reg", &addr);
+	err = ofnode_read_pci_addr(node, 0, "reg", &addr, NULL);
 	if (err < 0) {
 		pr_err("failed to parse \"reg\" property\n");
 		return err;

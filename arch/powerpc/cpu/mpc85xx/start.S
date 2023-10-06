@@ -1233,7 +1233,7 @@ _start_cont:
 	lis	r3,(CFG_SYS_INIT_RAM_ADDR)@h
 	ori	r3,r3,((CFG_SYS_INIT_SP_OFFSET-16)&~0xf)@l /* Align to 16 */
 
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 #if CONFIG_VAL(SYS_MALLOC_F_LEN) + GENERATED_GBL_DATA_SIZE > CFG_SYS_INIT_RAM_SIZE
 #error "SYS_MALLOC_F_LEN too large to fit into initial RAM."
 #endif
@@ -1253,7 +1253,7 @@ _start_cont:
 	cmplw	r4,r3
 	bne	1b
 
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	lis	r4,SYS_INIT_SP_ADDR@h
 	ori	r4,r4,SYS_INIT_SP_ADDR@l
 

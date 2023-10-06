@@ -17,6 +17,7 @@
  */
 
 #include <common.h>
+#include <abuf.h>
 #include <dm.h>
 #include <log.h>
 #include <of_live.h>
@@ -26,6 +27,7 @@
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
+#include <linux/sizes.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -91,6 +93,7 @@ void free_oftree(oftree tree)
 		free(tree.np);
 }
 
+/* test ofnode_device_is_compatible() */
 static int dm_test_ofnode_compatible(struct unit_test_state *uts)
 {
 	ofnode root_node = ofnode_path("/");
@@ -114,7 +117,7 @@ static int dm_test_ofnode_compatible_ot(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_compatible_ot, UT_TESTF_OTHER_FDT);
+DM_TEST(dm_test_ofnode_compatible_ot, UT_TESTF_SCAN_FDT | UT_TESTF_OTHER_FDT);
 
 static int dm_test_ofnode_get_by_phandle(struct unit_test_state *uts)
 {
@@ -134,6 +137,7 @@ static int dm_test_ofnode_get_by_phandle(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_get_by_phandle, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+/* test oftree_get_by_phandle() with a the 'other' oftree */
 static int dm_test_ofnode_get_by_phandle_ot(struct unit_test_state *uts)
 {
 	oftree otree = get_other_oftree(uts);
@@ -146,7 +150,8 @@ static int dm_test_ofnode_get_by_phandle_ot(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_get_by_phandle_ot, UT_TESTF_OTHER_FDT);
+DM_TEST(dm_test_ofnode_get_by_phandle_ot,
+	UT_TESTF_SCAN_FDT | UT_TESTF_OTHER_FDT);
 
 static int check_prop_values(struct unit_test_state *uts, ofnode start,
 			     const char *propname, const char *propval,
@@ -187,6 +192,7 @@ static int dm_test_ofnode_by_prop_value(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_by_prop_value, UT_TESTF_SCAN_FDT);
 
+/* test ofnode_by_prop_value() with a the 'other' oftree */
 static int dm_test_ofnode_by_prop_value_ot(struct unit_test_state *uts)
 {
 	oftree otree = get_other_oftree(uts);
@@ -196,8 +202,10 @@ static int dm_test_ofnode_by_prop_value_ot(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_by_prop_value_ot, UT_TESTF_OTHER_FDT);
+DM_TEST(dm_test_ofnode_by_prop_value_ot,
+	UT_TESTF_SCAN_FDT | UT_TESTF_OTHER_FDT);
 
+/* test ofnode_read_fmap_entry() */
 static int dm_test_ofnode_fmap(struct unit_test_state *uts)
 {
 	struct fmap_entry entry;
@@ -213,11 +221,15 @@ static int dm_test_ofnode_fmap(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_fmap, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+/* test ofnode_read_prop() */
 static int dm_test_ofnode_read(struct unit_test_state *uts)
 {
 	const u32 *val;
 	ofnode node;
 	int size;
+
+	node = oftree_path(oftree_default(), "/");
+	ut_assert(ofnode_valid(node));
 
 	node = ofnode_path("/a-test");
 	ut_assert(ofnode_valid(node));
@@ -237,14 +249,18 @@ static int dm_test_ofnode_read(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_read, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_ofnode_read, UT_TESTF_SCAN_FDT);
 
+/* test ofnode_read_prop() with the 'other' tree */
 static int dm_test_ofnode_read_ot(struct unit_test_state *uts)
 {
 	oftree otree = get_other_oftree(uts);
 	const char *val;
 	ofnode node;
 	int size;
+
+	node = oftree_path(otree, "/");
+	ut_assert(ofnode_valid(node));
 
 	node = oftree_path(otree, "/node/subnode");
 	ut_assert(ofnode_valid(node));
@@ -256,8 +272,9 @@ static int dm_test_ofnode_read_ot(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_read_ot, UT_TESTF_OTHER_FDT);
+DM_TEST(dm_test_ofnode_read_ot, UT_TESTF_SCAN_FDT | UT_TESTF_OTHER_FDT);
 
+/* test ofnode_count_/parse_phandle_with_args() */
 static int dm_test_ofnode_phandle(struct unit_test_state *uts)
 {
 	struct ofnode_phandle_args args;
@@ -333,6 +350,7 @@ static int dm_test_ofnode_phandle(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_phandle, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+/* test ofnode_count_/parse_phandle_with_args() with 'other' tree */
 static int dm_test_ofnode_phandle_ot(struct unit_test_state *uts)
 {
 	oftree otree = get_other_oftree(uts);
@@ -361,6 +379,7 @@ static int dm_test_ofnode_phandle_ot(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_phandle_ot, UT_TESTF_OTHER_FDT);
 
+/* test ofnode_read_chosen_string/node/prop() */
 static int dm_test_ofnode_read_chosen(struct unit_test_state *uts)
 {
 	const char *str;
@@ -390,6 +409,7 @@ static int dm_test_ofnode_read_chosen(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_read_chosen, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+/* test ofnode_get_aliases_node/prop() */
 static int dm_test_ofnode_read_aliases(struct unit_test_state *uts)
 {
 	const void *val;
@@ -433,6 +453,7 @@ static int dm_test_ofnode_get_child_count(struct unit_test_state *uts)
 DM_TEST(dm_test_ofnode_get_child_count,
 	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+/* test ofnode_get_child_count() with 'other' tree */
 static int dm_test_ofnode_get_child_count_ot(struct unit_test_state *uts)
 {
 	oftree otree = get_other_oftree(uts);
@@ -452,7 +473,8 @@ static int dm_test_ofnode_get_child_count_ot(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_get_child_count_ot, UT_TESTF_OTHER_FDT);
+DM_TEST(dm_test_ofnode_get_child_count_ot,
+	UT_TESTF_SCAN_FDT | UT_TESTF_OTHER_FDT);
 
 static int dm_test_ofnode_is_enabled(struct unit_test_state *uts)
 {
@@ -466,6 +488,7 @@ static int dm_test_ofnode_is_enabled(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_is_enabled, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+/* test ofnode_is_enabled() with 'other' tree */
 static int dm_test_ofnode_is_enabled_ot(struct unit_test_state *uts)
 {
 	oftree otree = get_other_oftree(uts);
@@ -479,6 +502,7 @@ static int dm_test_ofnode_is_enabled_ot(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_is_enabled_ot, UT_TESTF_OTHER_FDT);
 
+/* test ofnode_get_addr/size() */
 static int dm_test_ofnode_get_reg(struct unit_test_state *uts)
 {
 	ofnode node;
@@ -515,6 +539,7 @@ static int dm_test_ofnode_get_reg(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_get_reg, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+/* test ofnode_get_addr() with 'other' tree */
 static int dm_test_ofnode_get_reg_ot(struct unit_test_state *uts)
 {
 	oftree otree = get_other_oftree(uts);
@@ -526,7 +551,7 @@ static int dm_test_ofnode_get_reg_ot(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_get_reg_ot, UT_TESTF_OTHER_FDT);
+DM_TEST(dm_test_ofnode_get_reg_ot, UT_TESTF_SCAN_FDT | UT_TESTF_OTHER_FDT);
 
 static int dm_test_ofnode_get_path(struct unit_test_state *uts)
 {
@@ -549,6 +574,7 @@ static int dm_test_ofnode_get_path(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_get_path, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+/* test ofnode_get_path() with 'other' tree */
 static int dm_test_ofnode_get_path_ot(struct unit_test_state *uts)
 {
 	oftree otree = get_other_oftree(uts);
@@ -566,8 +592,9 @@ static int dm_test_ofnode_get_path_ot(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_get_path_ot, UT_TESTF_OTHER_FDT);
+DM_TEST(dm_test_ofnode_get_path_ot, UT_TESTF_SCAN_FDT | UT_TESTF_OTHER_FDT);
 
+/* test ofnode_conf_read_bool/int/str() */
 static int dm_test_ofnode_conf(struct unit_test_state *uts)
 {
 	ut_assert(!ofnode_conf_read_bool("missing"));
@@ -581,7 +608,7 @@ static int dm_test_ofnode_conf(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_conf, 0);
+DM_TEST(dm_test_ofnode_conf, UT_TESTF_SCAN_FDT);
 
 static int dm_test_ofnode_options(struct unit_test_state *uts)
 {
@@ -620,6 +647,7 @@ static int dm_test_ofnode_for_each_compatible_node(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_for_each_compatible_node, UT_TESTF_SCAN_FDT);
 
+/* test dm_test_ofnode_string_count/index/list() */
 static int dm_test_ofnode_string(struct unit_test_state *uts)
 {
 	const char **val;
@@ -665,8 +693,9 @@ static int dm_test_ofnode_string(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_string, 0);
+DM_TEST(dm_test_ofnode_string, UT_TESTF_SCAN_FDT);
 
+/* test error returns from ofnode_read_string_count/index/list() */
 static int dm_test_ofnode_string_err(struct unit_test_state *uts)
 {
 	const char **val;
@@ -716,7 +745,7 @@ static int dm_test_ofnode_string_err(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_string_err, UT_TESTF_LIVE_TREE);
 
-static int dm_test_ofnode_get_phy(struct unit_test_state *uts)
+static int dm_test_ofnode_read_phy_mode(struct unit_test_state *uts)
 {
 	ofnode eth_node, phy_node;
 	phy_interface_t mode;
@@ -736,7 +765,7 @@ static int dm_test_ofnode_get_phy(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_get_phy, 0);
+DM_TEST(dm_test_ofnode_read_phy_mode, UT_TESTF_SCAN_FDT);
 
 /**
  * make_ofnode_fdt() - Create an FDT for testing with ofnode
@@ -770,11 +799,11 @@ static int make_ofnode_fdt(struct unit_test_state *uts, void *fdt, int size,
 	return 0;
 }
 
-static int dm_test_ofnode_root(struct unit_test_state *uts)
+/* Check that aliases work on the control FDT */
+static int dm_test_ofnode_aliases(struct unit_test_state *uts)
 {
 	ofnode node;
 
-	/* Check that aliases work on the control FDT */
 	node = ofnode_get_aliases_node("ethernet3");
 	ut_assert(ofnode_valid(node));
 	ut_asserteq_str("sbe5", ofnode_get_name(node));
@@ -783,8 +812,15 @@ static int dm_test_ofnode_root(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_root, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_ofnode_aliases, UT_TESTF_SCAN_FDT);
 
+/**
+ * dm_test_ofnode_root_mult() - Check aliaes on control and 'other' tree
+ *
+ * Check that aliases work only with the control FDT, not with 'other' tree.
+ * This is not actually the desired behaviour. If aliases are implemented for
+ * any tree, then this test should be changed.
+ */
 static int dm_test_ofnode_root_mult(struct unit_test_state *uts)
 {
 	char fdt[256];
@@ -817,6 +853,7 @@ static int dm_test_ofnode_root_mult(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_root_mult, UT_TESTF_SCAN_FDT);
 
+/* test ofnode_set_enabled(), ofnode_write_prop() on a livetree */
 static int dm_test_ofnode_livetree_writing(struct unit_test_state *uts)
 {
 	struct udevice *dev;
@@ -906,6 +943,7 @@ static int dm_test_ofnode_write_copy(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_write_copy, UT_TESTF_SCAN_FDT);
 
+/* test writing a property to the 'other' tree */
 static int dm_test_ofnode_write_copy_ot(struct unit_test_state *uts)
 {
 	oftree otree = get_other_oftree(uts);
@@ -920,8 +958,9 @@ static int dm_test_ofnode_write_copy_ot(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_write_copy_ot, UT_TESTF_OTHER_FDT);
+DM_TEST(dm_test_ofnode_write_copy_ot, UT_TESTF_SCAN_FDT | UT_TESTF_OTHER_FDT);
 
+/* test ofnode_read_u32_index/default() */
 static int dm_test_ofnode_u32(struct unit_test_state *uts)
 {
 	ofnode node;
@@ -949,6 +988,7 @@ static int dm_test_ofnode_u32(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_u32, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+/* test ofnode_read_u32_array() */
 static int dm_test_ofnode_u32_array(struct unit_test_state *uts)
 {
 	ofnode node;
@@ -975,6 +1015,7 @@ static int dm_test_ofnode_u32_array(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_u32_array, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
+/* test ofnode_read_u64() and ofnode_write_u64() */
 static int dm_test_ofnode_u64(struct unit_test_state *uts)
 {
 	ofnode node;
@@ -984,6 +1025,10 @@ static int dm_test_ofnode_u64(struct unit_test_state *uts)
 	ut_assert(ofnode_valid(node));
 	ut_assertok(ofnode_read_u64(node, "int64-value", &val));
 	ut_asserteq_64(0x1111222233334444, val);
+	ut_assertok(ofnode_write_u64(node, "new-int64-value", 0x9876543210));
+	ut_assertok(ofnode_read_u64(node, "new-int64-value", &val));
+	ut_asserteq_64(0x9876543210, val);
+
 	ut_asserteq(-EINVAL, ofnode_read_u64(node, "missing", &val));
 
 	ut_assertok(ofnode_read_u64_index(node, "int64-array", 0, &val));
@@ -993,6 +1038,12 @@ static int dm_test_ofnode_u64(struct unit_test_state *uts)
 	ut_asserteq(-EOVERFLOW,
 		    ofnode_read_u64_index(node, "int64-array", 2, &val));
 	ut_asserteq(-EINVAL, ofnode_read_u64_index(node, "missing", 0, &val));
+
+	ut_assertok(ofnode_write_u64(node, "int64-array", 0x9876543210));
+	ut_assertok(ofnode_read_u64_index(node, "int64-array", 0, &val));
+	ut_asserteq_64(0x9876543210, val);
+	ut_asserteq(-EOVERFLOW,
+		    ofnode_read_u64_index(node, "int64-array", 1, &val));
 
 	return 0;
 }
@@ -1107,6 +1158,7 @@ static int dm_test_ofnode_by_compatible(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_by_compatible, UT_TESTF_SCAN_FDT);
 
+/* check ofnode_by_compatible() on the 'other' tree */
 static int dm_test_ofnode_by_compatible_ot(struct unit_test_state *uts)
 {
 	const char *compat = "sandbox-other2";
@@ -1122,7 +1174,7 @@ static int dm_test_ofnode_by_compatible_ot(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ofnode_by_compatible_ot, UT_TESTF_OTHER_FDT);
+DM_TEST(dm_test_ofnode_by_compatible_ot, UT_TESTF_SCAN_FDT | UT_TESTF_OTHER_FDT);
 
 static int dm_test_ofnode_find_subnode(struct unit_test_state *uts)
 {
@@ -1141,6 +1193,7 @@ static int dm_test_ofnode_find_subnode(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_find_subnode, UT_TESTF_SCAN_FDT);
 
+/* test ofnode_find_subnode() on the 'other' tree */
 static int dm_test_ofnode_find_subnode_ot(struct unit_test_state *uts)
 {
 	oftree otree = get_other_oftree(uts);
@@ -1209,12 +1262,11 @@ static int dm_test_ofnode_too_many(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_too_many, UT_TESTF_SCAN_FDT);
 
-static int check_copy_props(struct unit_test_state *uts, ofnode src,
-			    ofnode dst)
+static int check_copy_props(struct unit_test_state *uts, ofnode dst, ofnode src)
 {
 	u32 reg[2], val;
 
-	ut_assertok(ofnode_copy_props(src, dst));
+	ut_assertok(ofnode_copy_props(dst, src));
 
 	ut_assertok(ofnode_read_u32(dst, "ping-expect", &val));
 	ut_asserteq(3, val);
@@ -1246,7 +1298,7 @@ static int dm_test_ofnode_copy_props(struct unit_test_state *uts)
 	src = ofnode_path("/b-test");
 	dst = ofnode_path("/some-bus");
 
-	ut_assertok(check_copy_props(uts, src, dst));
+	ut_assertok(check_copy_props(uts, dst, src));
 
 	/* check a property that is in the destination already */
 	ut_asserteq_str("mux0", ofnode_read_string(dst, "mux-control-names"));
@@ -1255,6 +1307,7 @@ static int dm_test_ofnode_copy_props(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_copy_props, UT_TESTF_SCAN_FDT);
 
+/* test ofnode_copy_props() with the 'other' tree */
 static int dm_test_ofnode_copy_props_ot(struct unit_test_state *uts)
 {
 	ofnode src, dst;
@@ -1262,7 +1315,7 @@ static int dm_test_ofnode_copy_props_ot(struct unit_test_state *uts)
 
 	src = ofnode_path("/b-test");
 	dst = oftree_path(otree, "/node/subnode2");
-	ut_assertok(check_copy_props(uts, src, dst));
+	ut_assertok(check_copy_props(uts, dst, src));
 
 	return 0;
 }
@@ -1292,7 +1345,7 @@ static int dm_test_livetree_align(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_livetree_align, UT_TESTF_LIVE_TREE);
+DM_TEST(dm_test_livetree_align, UT_TESTF_SCAN_FDT | UT_TESTF_LIVE_TREE);
 
 /* check that it is possible to load an arbitrary livetree */
 static int dm_test_livetree_ensure(struct unit_test_state *uts)
@@ -1311,4 +1364,161 @@ static int dm_test_livetree_ensure(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_livetree_ensure, 0);
+DM_TEST(dm_test_livetree_ensure, UT_TESTF_SCAN_FDT);
+
+static int dm_test_oftree_new(struct unit_test_state *uts)
+{
+	ofnode node, subnode, check;
+	oftree tree;
+
+	ut_assertok(oftree_new(&tree));
+	node = oftree_root(tree);
+	ut_assert(ofnode_valid(node));
+	ut_assertok(ofnode_add_subnode(node, "edmund", &subnode));
+	check = ofnode_find_subnode(node, "edmund");
+	ut_asserteq(check.of_offset, subnode.of_offset);
+
+	return 0;
+}
+DM_TEST(dm_test_oftree_new, UT_TESTF_SCAN_FDT);
+
+static int check_copy_node(struct unit_test_state *uts, ofnode dst, ofnode src,
+			   ofnode *nodep)
+{
+	u32 reg[2], val;
+	ofnode node;
+
+	ut_assertok(ofnode_copy_node(dst, "copy-test", src, &node));
+
+	ut_assertok(ofnode_read_u32(node, "ping-expect", &val));
+	ut_asserteq(3, val);
+
+	ut_asserteq_str("denx,u-boot-fdt-test",
+			ofnode_read_string(node, "compatible"));
+
+	/* check that a property with the same name is overwritten */
+	ut_assertok(ofnode_read_u32_array(node, "reg", reg, ARRAY_SIZE(reg)));
+	ut_asserteq(3, reg[0]);
+	ut_asserteq(1, reg[1]);
+
+	/* reset the compatible so the live tree does not change */
+	ut_assertok(ofnode_write_string(node, "compatible", "nothing"));
+	*nodep = node;
+
+	return 0;
+}
+
+static int dm_test_ofnode_copy_node(struct unit_test_state *uts)
+{
+	ofnode src, dst, node, try;
+
+	/*
+	 * These nodes are chosen so that the src node is before the destination
+	 * node in the tree. This doesn't matter with livetree, but with
+	 * flattree any attempt to insert a property earlier in the tree will
+	 * mess up the offsets after it.
+	 */
+	src = ofnode_path("/b-test");
+	dst = ofnode_path("/some-bus");
+
+	ut_assertok(check_copy_node(uts, dst, src, &node));
+
+	/* check trying to copy over an existing node */
+	ut_asserteq(-EEXIST, ofnode_copy_node(dst, "copy-test", src, &try));
+	ut_asserteq(try.of_offset, node.of_offset);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_copy_node, UT_TESTF_SCAN_FDT);
+
+/* test ofnode_copy_node() with the 'other' tree */
+static int dm_test_ofnode_copy_node_ot(struct unit_test_state *uts)
+{
+	oftree otree = get_other_oftree(uts);
+	ofnode src, dst, node;
+
+	src = ofnode_path("/b-test");
+	dst = oftree_path(otree, "/node/subnode2");
+	ut_assertok(check_copy_node(uts, dst, src, &node));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_copy_node_ot, UT_TESTF_SCAN_FDT | UT_TESTF_OTHER_FDT);
+
+static int dm_test_ofnode_delete(struct unit_test_state *uts)
+{
+	ofnode node;
+
+	/*
+	 * At present the livetree is not restored after changes made in tests.
+	 * See test_pre_run() for how this is done with the other FDT and
+	 * dm_test_pre_run() where it sets up the root-tree pointer. So use
+	 * nodes which don't matter to other tests.
+	 *
+	 * We could fix this by detecting livetree changes and regenerating it
+	 * before the next test if needed.
+	 */
+	node = ofnode_path("/leds/iracibble");
+	ut_assert(ofnode_valid(node));
+	ut_assertok(ofnode_delete(&node));
+	ut_assert(!ofnode_valid(node));
+	ut_assert(!ofnode_valid(ofnode_path("/leds/iracibble")));
+
+	node = ofnode_path("/leds/default_on");
+	ut_assert(ofnode_valid(node));
+	ut_assertok(ofnode_delete(&node));
+	ut_assert(!ofnode_valid(node));
+	ut_assert(!ofnode_valid(ofnode_path("/leds/default_on")));
+
+	ut_asserteq(2, ofnode_get_child_count(ofnode_path("/leds")));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_delete, UT_TESTF_SCAN_FDT);
+
+static int dm_test_oftree_to_fdt(struct unit_test_state *uts)
+{
+	oftree tree, check;
+	struct abuf buf, buf2;
+
+	tree = oftree_default();
+	ut_assertok(oftree_to_fdt(tree, &buf));
+	ut_assert(abuf_size(&buf) > SZ_16K);
+
+	/* convert it back to a tree and see if it looks OK */
+	check = oftree_from_fdt(abuf_data(&buf));
+	ut_assert(oftree_valid(check));
+
+	ut_assertok(oftree_to_fdt(check, &buf2));
+	ut_assert(abuf_size(&buf2) > SZ_16K);
+	ut_asserteq(abuf_size(&buf), abuf_size(&buf2));
+	ut_asserteq_mem(abuf_data(&buf), abuf_data(&buf2), abuf_size(&buf));
+
+	return 0;
+}
+DM_TEST(dm_test_oftree_to_fdt, UT_TESTF_SCAN_FDT);
+
+/* test ofnode_read_bool() and ofnode_write_bool() */
+static int dm_test_bool(struct unit_test_state *uts)
+{
+	const char *propname = "missing-bool-value";
+	ofnode node;
+
+	node = ofnode_path("/a-test");
+	ut_assert(ofnode_read_bool(node, "bool-value"));
+	ut_assert(!ofnode_read_bool(node, propname));
+	ut_assert(!ofnode_has_property(node, propname));
+
+	ut_assertok(ofnode_write_bool(node, propname, true));
+	ut_assert(ofnode_read_bool(node, propname));
+	ut_assert(ofnode_has_property(node, propname));
+	ut_assert(ofnode_read_bool(node, "bool-value"));
+
+	ut_assertok(ofnode_write_bool(node, propname, false));
+	ut_assert(!ofnode_read_bool(node, propname));
+	ut_assert(!ofnode_has_property(node, propname));
+	ut_assert(ofnode_read_bool(node, "bool-value"));
+
+	return 0;
+}
+DM_TEST(dm_test_bool, UT_TESTF_SCAN_FDT);

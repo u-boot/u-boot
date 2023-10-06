@@ -132,6 +132,16 @@ static inline enum u_boot_phase spl_phase(void)
 #endif
 }
 
+/* returns true if in U-Boot proper, false if in SPL */
+static inline bool spl_in_proper(void)
+{
+#ifdef CONFIG_SPL_BUILD
+	return false;
+#endif
+
+	return true;
+}
+
 /**
  * spl_prev_phase() - Figure out the previous U-Boot phase
  *
@@ -262,6 +272,15 @@ struct spl_image_info {
 	ulong dcrc;
 #endif
 };
+
+static inline void *spl_image_fdt_addr(struct spl_image_info *info)
+{
+#if CONFIG_IS_ENABLED(LOAD_FIT) || CONFIG_IS_ENABLED(LOAD_FIT_FULL)
+	return info->fdt_addr;
+#else
+	return 0;
+#endif
+}
 
 /**
  * Information required to load data from a device
@@ -707,9 +726,13 @@ int spl_early_init(void);
  */
 int spl_init(void);
 
-#ifdef CONFIG_SPL_BOARD_INIT
+/*
+ * spl_board_init() - Do board-specific init in SPL
+ *
+ * If xPL_BOARD_INIT is enabled, this is called from board_init_r() before
+ * jumping to the next phase.
+ */
 void spl_board_init(void);
-#endif
 
 /**
  * spl_was_boot_source() - check if U-Boot booted from SPL
@@ -897,4 +920,15 @@ struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size);
 
 void board_boot_order(u32 *spl_boot_list);
 void spl_save_restore_data(void);
+
+/**
+ * spl_load_fit_image() - Fully parse and a FIT image in SPL
+ *
+ * @spl_image: SPL Image data to fill in
+ * @header: Pointer to FIT image
+ * Return 0 if OK, -ve on error
+ */
+int spl_load_fit_image(struct spl_image_info *spl_image,
+		       const struct legacy_img_hdr *header);
+
 #endif

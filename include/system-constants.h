@@ -22,11 +22,23 @@
 /*
  * Typically, we have the SPL malloc pool at the end of the BSS area.
  */
-#ifdef CONFIG_HAS_CUSTOM_SPL_MALLOC_START
-#define SYS_SPL_MALLOC_START		CONFIG_CUSTOM_SYS_SPL_MALLOC_ADDR
-#else
-#define SYS_SPL_MALLOC_START		(CONFIG_SPL_BSS_START_ADDR + \
+#ifdef CONFIG_SPL_HAS_CUSTOM_MALLOC_START
+#define SPL_SYS_MALLOC_START		CONFIG_SPL_CUSTOM_SYS_MALLOC_ADDR
+#elif defined(CONFIG_SPL_BSS_START_ADDR)
+#define SPL_SYS_MALLOC_START		(CONFIG_SPL_BSS_START_ADDR + \
 					 CONFIG_SPL_BSS_MAX_SIZE)
+#else
+/* feature not enabled: this value avoids compiler errors but is not used */
+#define SPL_SYS_MALLOC_START	0
+#endif
+#define SPL_SYS_MALLOC_SIZE	\
+	IF_ENABLED_INT(CONFIG_SPL_SYS_MALLOC, CONFIG_SPL_SYS_MALLOC_SIZE)
+
+/* deal with an optional value */
+#ifdef CONFIG_SPL_OS_BOOT
+#define SPL_PAYLOAD_ARGS_ADDR	CONFIG_SPL_PAYLOAD_ARGS_ADDR
+#else
+#define SPL_PAYLOAD_ARGS_ADDR	0
 #endif
 
 #endif

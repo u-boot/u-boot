@@ -244,7 +244,7 @@ in_flash:
 	cmplw	r3, r4
 	bne	1b
 
-#if CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN) + GENERATED_GBL_DATA_SIZE > CFG_SYS_INIT_RAM_SIZE
 #error "SYS_MALLOC_F_LEN too large to fit into initial RAM."

@@ -346,9 +346,10 @@ void *dev_read_addr_ptr(const struct udevice *dev);
  *    fdtdec_get_addr() and friends.
  *
  * @dev: Device to read from
+ * @sizep: If non-NULL, returns size of address space found
  * Return: address or FDT_ADDR_T_NONE if not found
  */
-fdt_addr_t dev_read_addr_pci(const struct udevice *dev);
+fdt_addr_t dev_read_addr_pci(const struct udevice *dev, fdt_size_t *sizep);
 
 /**
  * dev_remap_addr() - Get the reg property of a device as a
@@ -996,9 +997,10 @@ static inline void *dev_read_addr_ptr(const struct udevice *dev)
 	return devfdt_get_addr_ptr(dev);
 }
 
-static inline fdt_addr_t dev_read_addr_pci(const struct udevice *dev)
+static inline fdt_addr_t dev_read_addr_pci(const struct udevice *dev,
+					   fdt_size_t *sizep)
 {
-	return devfdt_get_addr_pci(dev);
+	return devfdt_get_addr_pci(dev, sizep);
 }
 
 static inline void *dev_remap_addr(const struct udevice *dev)

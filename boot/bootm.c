@@ -8,6 +8,7 @@
 #include <common.h>
 #include <bootstage.h>
 #include <cli.h>
+#include <command.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <errno.h>
@@ -29,7 +30,6 @@
 #include "mkimage.h"
 #endif
 
-#include <command.h>
 #include <bootm.h>
 #include <image.h>
 

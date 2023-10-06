@@ -51,6 +51,7 @@ static struct tag_name {
 
 	/* BLOBLISTT_PROJECT_AREA */
 	{ BLOBLISTT_U_BOOT_SPL_HANDOFF, "SPL hand-off" },
+	{ BLOBLISTT_VBE, "VBE" },
 	{ BLOBLISTT_U_BOOT_VIDEO, "SPL video handoff" },
 
 	/* BLOBLISTT_VENDOR_AREA */
@@ -476,6 +477,17 @@ int bloblist_init(void)
 		log_debug("Found existing bloblist size %lx at %lx\n", size,
 			  addr);
 	}
+	if (ret)
+		return log_msg_ret("ini", ret);
+	gd->flags |= GD_FLG_BLOBLIST_READY;
 
-	return ret;
+	return 0;
+}
+
+int bloblist_maybe_init(void)
+{
+	if (CONFIG_IS_ENABLED(BLOBLIST) && !(gd->flags & GD_FLG_BLOBLIST_READY))
+		return bloblist_init();
+
+	return 0;
 }

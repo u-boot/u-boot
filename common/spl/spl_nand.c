@@ -159,11 +159,11 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 			CONFIG_CMD_SPL_WRITE_SIZE,
 			(void *)CONFIG_TEXT_BASE);
 		/* copy to destintion */
-		for (dst = (int *)CONFIG_SYS_SPL_ARGS_ADDR,
-				src = (int *)CONFIG_TEXT_BASE;
-				src < (int *)(CONFIG_TEXT_BASE +
-				CONFIG_CMD_SPL_WRITE_SIZE);
-				src++, dst++) {
+		for (dst = (int *)CONFIG_SPL_PAYLOAD_ARGS_ADDR,
+		     src = (int *)CONFIG_TEXT_BASE;
+			src < (int *)(CONFIG_TEXT_BASE +
+				      CONFIG_CMD_SPL_WRITE_SIZE);
+		     src++, dst++) {
 			writel(readl(src), dst);
 		}
 

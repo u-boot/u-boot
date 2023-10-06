@@ -794,7 +794,7 @@ static int initf_bootstage(void)
 
 static int initf_dm(void)
 {
-#if defined(CONFIG_DM) && CONFIG_VAL(SYS_MALLOC_F_LEN)
+#if defined(CONFIG_DM) && CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	int ret;
 
 	bootstage_start(BOOTSTAGE_ID_ACCUM_DM_F, "dm_f");
@@ -841,9 +841,7 @@ static const init_fnc_t init_sequence_f[] = {
 	log_init,
 	initf_bootstage,	/* uses its own timer, so does not need DM */
 	event_init,
-#ifdef CONFIG_BLOBLIST
-	bloblist_init,
-#endif
+	bloblist_maybe_init,
 	setup_spl_handoff,
 #if defined(CONFIG_CONSOLE_RECORD_INIT_F)
 	console_record_init,

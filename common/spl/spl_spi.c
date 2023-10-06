@@ -47,7 +47,7 @@ static int spi_load_image_os(struct spl_image_info *spl_image,
 	/* Read device tree. */
 	spi_flash_read(flash, CFG_SYS_SPI_ARGS_OFFS,
 		       CFG_SYS_SPI_ARGS_SIZE,
-		       (void *)CONFIG_SYS_SPL_ARGS_ADDR);
+		       (void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR);
 
 	return 0;
 }

@@ -30,7 +30,7 @@ to understand the device tree in FIT image should be the one actually used, or
 leave it absent to favor the stored sectors. It is easier to deploy the FIT
 image with embedded static device tree to multiple boards.
 
-Macro CONFIG_SYS_SPL_ARGS_ADDR serves two purposes. One is the pointer to load
+Macro CONFIG_SPL_PAYLOAD_ARGS_ADDR serves two purposes. One is the pointer to load
 the stored sectors to. Normally this is the static device tree. The second
 purpose is the memory location of signature header for secure boot. After the
 FIT image is loaded into memory, it is validated against the signature header
