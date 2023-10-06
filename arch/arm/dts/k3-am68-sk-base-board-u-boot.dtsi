@@ -1,69 +1,36 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2022-2023 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include "k3-j721s2-binman.dtsi"
 
-/ {
-	chosen {
-		stdout-path = "serial2:115200n8";
-		tick-timer = &timer1;
-	};
-
-	aliases {
-		serial0 = &wkup_uart0;
-		serial1 = &mcu_uart0;
-		serial2 = &main_uart8;
-		i2c0 = &wkup_i2c0;
-		i2c1 = &mcu_i2c0;
-		i2c2 = &mcu_i2c1;
-		i2c3 = &main_i2c0;
-		ethernet0 = &cpsw_port1;
-		mmc1 = &main_sdhci1;
-	};
-};
-
 &wkup_i2c0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &cbass_main {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_navss {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &cbass_mcu_wakeup {
-	bootph-pre-ram;
-
-	timer1: timer@40400000 {
-		compatible = "ti,omap5430-timer";
-		reg = <0x0 0x40400000 0x0 0x80>;
-		ti,timer-alwon;
-		clock-frequency = <250000000>;
-		bootph-pre-ram;
-	};
+	bootph-all;
 
 	chipid@43000014 {
-		bootph-pre-ram;
+		bootph-all;
 	};
 };
 
 &mcu_navss {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &mcu_ringacc {
-	reg =   <0x0 0x2b800000 0x0 0x400000>,
-		<0x0 0x2b000000 0x0 0x400000>,
-		<0x0 0x28590000 0x0 0x100>,
-		<0x0 0x2a500000 0x0 0x40000>,
-		<0x0 0x28440000 0x0 0x40000>;
-	reg-names = "rt", "fifos", "proxy_gcfg", "proxy_target", "cfg";
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &mcu_udmap {
@@ -75,78 +42,94 @@
 		<0x0 0x28400000 0x0 0x2000>;
 	reg-names = "gcfg", "rchan", "rchanrt", "tchan",
 		    "tchanrt", "rflow";
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &secure_proxy_main {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &sms {
-	bootph-pre-ram;
+	bootph-all;
 	k3_sysreset: sysreset-controller {
 		compatible = "ti,sci-sysreset";
-		bootph-pre-ram;
+		bootph-all;
 	};
 };
 
 &main_pmx0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_uart8_pins_default {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_mmc1_pins_default {
-	bootph-pre-ram;
+	bootph-all;
+};
+
+&main_usbss0_pins_default {
+	bootph-all;
 };
 
 &wkup_pmx0 {
-	bootph-pre-ram;
+	bootph-all;
+};
+
+&wkup_pmx1 {
+	bootph-all;
+};
+
+&wkup_pmx2 {
+	bootph-all;
+};
+
+&wkup_pmx3 {
+	bootph-all;
 };
 
 &k3_pds {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &k3_clks {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &k3_reset {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &main_uart8 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &mcu_uart0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &wkup_uart0 {
-	bootph-pre-ram;
-};
-
-&mcu_cpsw {
-	reg = <0x0 0x46000000 0x0 0x200000>,
-	      <0x0 0x40f00200 0x0 0x8>;
-	reg-names = "cpsw_nuss", "mac_efuse";
-	/delete-property/ ranges;
-
-	cpsw-phy-sel@40f04040 {
-		compatible = "ti,am654-cpsw-phy-sel";
-		reg= <0x0 0x40f04040 0x0 0x4>;
-		reg-names = "gmii-sel";
-	};
-};
-
-&main_sdhci0 {
-	status = "disabled";
+	bootph-all;
 };
 
 &main_sdhci1 {
-	bootph-pre-ram;
+	bootph-all;
+};
+
+&ospi0 {
+	status = "disabled";
+};
+
+&ospi1 {
+	status = "disabled";
+};
+
+&usbss0 {
+	bootph-all;
+};
+
+&usb0 {
+	dr_mode = "peripheral";
+	bootph-all;
 };

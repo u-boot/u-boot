@@ -1,29 +1,23 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2022-2023 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 /dts-v1/;
 
-#include "k3-am68-sk-som.dtsi"
+#include "k3-am68-sk-base-board.dts"
 #include "k3-j721s2-ddr-evm-lp4-4266.dtsi"
 #include "k3-j721s2-ddr.dtsi"
+#include "k3-am68-sk-base-board-u-boot.dtsi"
 
 / {
 	chosen {
-		firmware-loader = &fs_loader0;
-		stdout-path = &main_uart8;
-		tick-timer = &timer1;
+		tick-timer = &mcu_timer0;
 	};
 
 	aliases {
 		remoteproc0 = &sysctrler;
 		remoteproc1 = &a72_0;
-	};
-
-	fs_loader0: fs_loader@0 {
-		compatible = "u-boot,fs-loader";
-		bootph-all;
 	};
 
 	a72_0: a72@0 {
@@ -42,145 +36,44 @@
 		bootph-pre-ram;
 	};
 
-	clk_200mhz: dummy_clock_200mhz {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <200000000>;
-		bootph-pre-ram;
-	};
-
-	clk_19_2mhz: dummy_clock_19_2mhz {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <19200000>;
-		bootph-pre-ram;
-	};
-};
-
-&cbass_mcu_wakeup {
-	sa3_secproxy: secproxy@44880000 {
-		bootph-pre-ram;
-		compatible = "ti,am654-secure-proxy";
-		reg = <0x0 0x44880000 0x0 0x20000>,
-		      <0x0 0x44860000 0x0 0x20000>,
-		      <0x0 0x43600000 0x0 0x10000>;
-		reg-names = "rt", "scfg", "target_data";
-		#mbox-cells = <1>;
-	};
-
-	mcu_secproxy: secproxy@2a380000 {
-		compatible = "ti,am654-secure-proxy";
-		reg = <0x0 0x2a380000 0x0 0x80000>,
-		      <0x0 0x2a400000 0x0 0x80000>,
-		      <0x0 0x2a480000 0x0 0x80000>;
-		reg-names = "rt", "scfg", "target_data";
-		#mbox-cells = <1>;
-		bootph-pre-ram;
-	};
-
-	sysctrler: sysctrler {
-		compatible = "ti,am654-system-controller";
-		mboxes= <&mcu_secproxy 4>, <&mcu_secproxy 5>, <&sa3_secproxy 5>;
-		mbox-names = "tx", "rx", "boot_notify";
-		bootph-pre-ram;
-	};
-
 	dm_tifs: dm-tifs {
 		compatible = "ti,j721e-dm-sci";
 		ti,host-id = <3>;
 		ti,secure-host;
 		mbox-names = "rx", "tx";
-		mboxes= <&mcu_secproxy 21>,
-			<&mcu_secproxy 23>;
+		mboxes= <&secure_proxy_mcu 21>,
+			<&secure_proxy_mcu 23>;
 		bootph-pre-ram;
 	};
 };
 
-&main_pmx0 {
-	main_uart8_pins_default: main-uart8-pins-default {
-		pinctrl-single,pins = <
-			J721S2_IOPAD(0x0d0, PIN_INPUT, 11) /* (AF26) SPI0_CS1.UART8_RXD */
-			J721S2_IOPAD(0x0d4, PIN_OUTPUT, 11) /* (AH27) SPI0_CLK.UART8_TXD */
-		>;
-	};
-
-	main_mmc1_pins_default: main-mmc1-pins-default {
-		pinctrl-single,pins = <
-			J721S2_IOPAD(0x104, PIN_INPUT, 0) /* (P23) MMC1_CLK */
-			J721S2_IOPAD(0x108, PIN_INPUT, 0) /* (N24) MMC1_CMD */
-			J721S2_IOPAD(0x100, PIN_INPUT, 0) /* (###) MMC1_CLKLB */
-			J721S2_IOPAD(0x0fc, PIN_INPUT, 0) /* (M23) MMC1_DAT0 */
-			J721S2_IOPAD(0x0f8, PIN_INPUT, 0) /* (P24) MMC1_DAT1 */
-			J721S2_IOPAD(0x0f4, PIN_INPUT, 0) /* (R24) MMC1_DAT2 */
-			J721S2_IOPAD(0x0f0, PIN_INPUT, 0) /* (R22) MMC1_DAT3 */
-			J721S2_IOPAD(0x0e8, PIN_INPUT, 8) /* (AE25) TIMER_IO0.MMC1_SDCD */
-		>;
-	};
-
-	main_usbss0_pins_default: main-usbss0-pins-default {
-		pinctrl-single,pins = <
-			J721S2_IOPAD(0x0ec, PIN_OUTPUT, 6) /* (AG25) TIMER_IO1.USB0_DRVVBUS */
-		>;
-	};
-};
-
-&wkup_pmx0 {
-	mcu_uart0_pins_default: mcu-uart0-pins-default {
-		bootph-pre-ram;
-		pinctrl-single,pins = <
-			J721S2_WKUP_IOPAD(0x0f4, PIN_INPUT, 0) /*(C24) WKUP_GPIO0_13.MCU_UART0_RXD*/
-			J721S2_WKUP_IOPAD(0x0f0, PIN_OUTPUT, 0) /*(C25) WKUP_GPIO0_12.MCU_UART0_TXD*/
-		>;
-	};
-
-	wkup_uart0_pins_default: wkup-uart0-pins-default {
-		bootph-pre-ram;
-		pinctrl-single,pins = <
-			J721S2_WKUP_IOPAD(0x0d8, PIN_INPUT, 0) /*(E25) WKUP_GPIO0_6.WKUP_UART0_CTSn*/
-			J721S2_WKUP_IOPAD(0x0dc, PIN_OUTPUT, 0) /*(F28) WKUP_GPIO0_7.WKUP_UART0_RTSn*/
-			J721S2_WKUP_IOPAD(0x0b0, PIN_INPUT, 0) /* (D28) WKUP_UART0_RXD */
-			J721S2_WKUP_IOPAD(0x0b4, PIN_OUTPUT, 0) /* (D27) WKUP_UART0_TXD */
-		>;
-	};
-
-};
-
-&sms {
-	mboxes= <&mcu_secproxy 8>, <&mcu_secproxy 6>, <&mcu_secproxy 5>;
-	mbox-names = "tx", "rx", "notify";
-	ti,host-id = <4>;
-	ti,secure-host;
+&mcu_timer0 {
+	clock-frequency = <250000000>;
 	bootph-pre-ram;
 };
 
-&wkup_uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&wkup_uart0_pins_default>;
+&secure_proxy_mcu {
+	bootph-pre-ram;
 };
 
-&mcu_uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mcu_uart0_pins_default>;
+&secure_proxy_sa3 {
+	bootph-pre-ram;
 };
 
-&main_uart8 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_uart8_pins_default>;
+&cbass_mcu_wakeup {
+	sysctrler: sysctrler {
+		compatible = "ti,am654-system-controller";
+		mboxes= <&secure_proxy_mcu 4>, <&secure_proxy_mcu 5>, <&secure_proxy_sa3 5>;
+		mbox-names = "tx", "rx", "boot_notify";
+		bootph-pre-ram;
+	};
 };
 
-&main_sdhci0 {
-	status = "disabled";
-};
-
-&main_sdhci1 {
-	/delete-property/ power-domains;
-	/delete-property/ assigned-clocks;
-	/delete-property/ assigned-clock-parents;
-	pinctrl-0 = <&main_mmc1_pins_default>;
-	pinctrl-names = "default";
-	clock-names = "clk_xin";
-	clocks = <&clk_200mhz>;
-	ti,driver-strength-ohm = <50>;
+&sms {
+	mboxes= <&secure_proxy_mcu 8>, <&secure_proxy_mcu 6>, <&secure_proxy_mcu 5>;
+	mbox-names = "tx", "rx", "notify";
+	ti,host-id = <4>;
+	ti,secure-host;
 };
 
 &mcu_ringacc {
@@ -190,5 +83,3 @@
 &mcu_udmap {
 	ti,sci = <&dm_tifs>;
 };
-
-#include "k3-am68-sk-base-board-u-boot.dtsi"
