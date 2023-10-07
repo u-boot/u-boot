@@ -193,10 +193,13 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return bdinfo_print_all(bd);
 
 	getopt_init_state(&gs);
-	while ((opt = getopt(&gs, argc, argv, "a")) > 0) {
+	while ((opt = getopt(&gs, argc, argv, "am")) > 0) {
 		switch (opt) {
 		case 'a':
 			return bdinfo_print_all(bd);
+		case 'm':
+			print_bi_dram(bd);
+			return CMD_RET_SUCCESS;
 		default:
 			return CMD_RET_USAGE;
 		}
