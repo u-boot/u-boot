@@ -130,14 +130,10 @@ static int lmb_test_dump_all(struct unit_test_state *uts, struct lmb *lmb)
 	return 0;
 }
 
-static int bdinfo_test_full(struct unit_test_state *uts)
+static int bdinfo_test_all(struct unit_test_state *uts)
 {
 	struct bd_info *bd = gd->bd;
 	int i;
-
-	/* Test moving the working BDINFO to a new location */
-	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("bdinfo"));
 
 	ut_assertok(test_num_l(uts, "boot_params", 0));
 
@@ -212,6 +208,17 @@ static int bdinfo_test_full(struct unit_test_state *uts)
 		ut_assertok(test_num_l(uts, "malloc base", gd_malloc_start()));
 	}
 
+	return 0;
+}
+
+static int bdinfo_test_full(struct unit_test_state *uts)
+{
+	/* Test BDINFO full print */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("bdinfo"));
+	ut_assertok(bdinfo_test_all(uts));
+	ut_assertok(run_commandf("bdinfo -a"));
+	ut_assertok(bdinfo_test_all(uts));
 	ut_assertok(ut_check_console_end(uts));
 
 	return 0;
