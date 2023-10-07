@@ -130,7 +130,7 @@ static int lmb_test_dump_all(struct unit_test_state *uts, struct lmb *lmb)
 	return 0;
 }
 
-static int bdinfo_test_move(struct unit_test_state *uts)
+static int bdinfo_test_full(struct unit_test_state *uts)
 {
 	struct bd_info *bd = gd->bd;
 	int i;
@@ -217,7 +217,7 @@ static int bdinfo_test_move(struct unit_test_state *uts)
 	return 0;
 }
 
-BDINFO_TEST(bdinfo_test_move, UT_TESTF_CONSOLE_REC);
+BDINFO_TEST(bdinfo_test_full, UT_TESTF_CONSOLE_REC);
 
 int do_ut_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
