@@ -263,6 +263,20 @@ static int bdinfo_test_memory(struct unit_test_state *uts)
 
 BDINFO_TEST(bdinfo_test_memory, UT_TESTF_CONSOLE_REC);
 
+static int bdinfo_test_eth(struct unit_test_state *uts)
+{
+	/* Test BDINFO ethernet settings only print */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("bdinfo -e"));
+	if (IS_ENABLED(CONFIG_CMD_NET))
+		ut_assertok(test_eth(uts));
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+BDINFO_TEST(bdinfo_test_eth, UT_TESTF_CONSOLE_REC);
+
 int do_ut_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(bdinfo_test);
