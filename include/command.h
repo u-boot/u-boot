@@ -328,6 +328,9 @@ int cmd_source_script(ulong addr, const char *fit_uname, const char *confname);
 # define _CMD_HELP(x)
 #endif
 
+#define U_BOOT_LONGHELP(_cmdname, text)					\
+	static __maybe_unused const char _cmdname##_help_text[] = text
+
 #define U_BOOT_SUBCMDS_DO_CMD(_cmdname)					\
 	static int do_##_cmdname(struct cmd_tbl *cmdtp, int flag,	\
 				 int argc, char *const argv[],		\
