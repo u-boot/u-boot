@@ -130,12 +130,10 @@ static int lmb_test_dump_all(struct unit_test_state *uts, struct lmb *lmb)
 	return 0;
 }
 
-static int bdinfo_test_all(struct unit_test_state *uts)
+static int bdinfo_check_mem(struct unit_test_state *uts)
 {
 	struct bd_info *bd = gd->bd;
 	int i;
-
-	ut_assertok(test_num_l(uts, "boot_params", 0));
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
 		if (bd->bi_dram[i].size) {
@@ -146,6 +144,15 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 						bd->bi_dram[i].size));
 		}
 	}
+
+	return 0;
+}
+
+static int bdinfo_test_all(struct unit_test_state *uts)
+{
+	ut_assertok(test_num_l(uts, "boot_params", 0));
+
+	ut_assertok(bdinfo_check_mem(uts));
 
 	/* CONFIG_SYS_HAS_SRAM testing not supported */
 	ut_assertok(test_num_l(uts, "flashstart", 0));
@@ -242,6 +249,19 @@ static int bdinfo_test_help(struct unit_test_state *uts)
 }
 
 BDINFO_TEST(bdinfo_test_help, UT_TESTF_CONSOLE_REC);
+
+static int bdinfo_test_memory(struct unit_test_state *uts)
+{
+	/* Test BDINFO memory layout only print */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("bdinfo -m"));
+	ut_assertok(bdinfo_check_mem(uts));
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+BDINFO_TEST(bdinfo_test_memory, UT_TESTF_CONSOLE_REC);
 
 int do_ut_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
