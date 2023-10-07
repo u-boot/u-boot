@@ -79,6 +79,12 @@ int sata_rescan(bool verbose)
 
 	ret = uclass_probe_all(UCLASS_AHCI);
 
+	if (ret == -ENODEV) {
+		if (verbose)
+			printf("No SATA block device found\n");
+		return 0;
+	}
+
 	return ret;
 }
 
