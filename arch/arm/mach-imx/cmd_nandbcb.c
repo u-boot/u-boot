@@ -1561,8 +1561,7 @@ usage:
 	return CMD_RET_USAGE;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char nandbcb_help_text[] =
+U_BOOT_LONGHELP(nandbcb,
 	"init addr off|partition len - update 'len' bytes starting at\n"
 	"       'off|part' to memory address 'addr', skipping  bad blocks\n"
 	"nandbcb bcbonly off|partition fw1-off fw1-size [fw2-off fw2-size]\n"
@@ -1572,8 +1571,7 @@ static char nandbcb_help_text[] =
 	"       FIY, BCB isn't erased automatically, so mtd erase should\n"
 	"       be called in advance before writing new BCB:\n"
 	"           > mtd erase mx7-bcb\n"
-	"nandbcb dump off|partition - dump/verify boot structures\n";
-#endif
+	"nandbcb dump off|partition - dump/verify boot structures\n");
 
 U_BOOT_CMD(nandbcb, 7, 1, do_nandbcb,
 	   "i.MX NAND Boot Control Blocks write",

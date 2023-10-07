@@ -1484,8 +1484,7 @@ static int do_efidebug(struct cmd_tbl *cmdtp, int flag,
 	return cp->cmd(cmdtp, flag, argc, argv);
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char efidebug_help_text[] =
+U_BOOT_LONGHELP(efidebug,
 	"  - UEFI Shell-like interface to configure UEFI environment\n"
 	"\n"
 	"efidebug boot add - set UEFI BootXXXX variable\n"
@@ -1532,8 +1531,7 @@ static char efidebug_help_text[] =
 	"  - run simple bootmgr for test\n"
 #endif
 	"efidebug query [-nv][-bs][-rt][-at]\n"
-	"  - show size of UEFI variables store\n";
-#endif
+	"  - show size of UEFI variables store\n");
 
 U_BOOT_CMD(
 	efidebug, CONFIG_SYS_MAXARGS, 0, do_efidebug,

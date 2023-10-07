@@ -188,13 +188,13 @@ static int do_ffa_devlist(struct cmd_tbl *cmdtp, int flag, int argc, char *const
 	return CMD_RET_SUCCESS;
 }
 
-static char armffa_help_text[] =
+U_BOOT_LONGHELP(armffa,
 	"getpart <partition UUID>\n"
 	"       - lists the partition(s) info\n"
 	"ping <partition ID>\n"
 	"       - sends a data pattern to the specified partition\n"
 	"devlist\n"
-	"       - displays information about the FF-A device/driver\n";
+	"       - displays information about the FF-A device/driver\n");
 
 U_BOOT_CMD_WITH_SUBCMDS(armffa, "Arm FF-A test command", armffa_help_text,
 			U_BOOT_SUBCMD_MKENT(getpart, 2, 1, do_ffa_getpart),

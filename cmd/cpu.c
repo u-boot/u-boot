@@ -83,12 +83,9 @@ static int do_cpu_detail(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-#if IS_ENABLED(CONFIG_SYS_LONGHELP)
-static char cpu_help_text[] =
+U_BOOT_LONGHELP(cpu,
 	"list	- list available CPUs\n"
-	"cpu detail	- show CPU detail"
-	;
-#endif
+	"cpu detail	- show CPU detail");
 
 U_BOOT_CMD_WITH_SUBCMDS(cpu, "display information about CPUs", cpu_help_text,
 	U_BOOT_SUBCMD_MKENT(list, 1, 1, do_cpu_list),

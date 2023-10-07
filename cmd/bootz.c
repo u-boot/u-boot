@@ -88,8 +88,7 @@ int do_bootz(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return ret;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char bootz_help_text[] =
+U_BOOT_LONGHELP(bootz,
 	"[addr [initrd[:size]] [fdt]]\n"
 	"    - boot Linux zImage stored in memory\n"
 	"\tThe argument 'initrd' is optional and specifies the address\n"
@@ -102,8 +101,7 @@ static char bootz_help_text[] =
 	"\tuse a '-' for the second argument. If you do not pass a third\n"
 	"\ta bd_info struct will be passed instead\n"
 #endif
-	"";
-#endif
+	);
 
 U_BOOT_CMD(
 	bootz,	CONFIG_SYS_MAXARGS,	1,	do_bootz,

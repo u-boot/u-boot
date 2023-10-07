@@ -1969,8 +1969,7 @@ static int do_i2c(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 }
 
 /***************************************************/
-#ifdef CONFIG_SYS_LONGHELP
-static char i2c_help_text[] =
+U_BOOT_LONGHELP(i2c,
 #if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || CONFIG_IS_ENABLED(DM_I2C)
 	"bus [muxtype:muxaddr:muxchannel] - show I2C bus info\n"
 	"i2c " /* That's the prefix for the crc32 command below. */
@@ -1999,8 +1998,7 @@ static char i2c_help_text[] =
 #if defined(CONFIG_CMD_SDRAM)
 	"i2c sdram chip - print SDRAM configuration information\n"
 #endif
-	"i2c speed [speed] - show or set I2C bus speed";
-#endif
+	"i2c speed [speed] - show or set I2C bus speed");
 
 U_BOOT_CMD(
 	i2c, 7, 1, do_i2c,

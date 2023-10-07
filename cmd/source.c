@@ -54,19 +54,18 @@ static int do_source(struct cmd_tbl *cmdtp, int flag, int argc,
 	return rcode;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char source_help_text[] =
+U_BOOT_LONGHELP(source,
 #if defined(CONFIG_FIT)
 	"[<addr>][:[<image>]|#[<config>]]\n"
 	"\t- Run script starting at addr\n"
 	"\t- A FIT config name or subimage name may be specified with : or #\n"
 	"\t  (like bootm). If the image or config name is omitted, the\n"
-	"\t  default is used.";
+	"\t  default is used."
 #else
 	"[<addr>]\n"
-	"\t- Run script starting at addr";
+	"\t- Run script starting at addr"
 #endif
-#endif
+	);
 
 U_BOOT_CMD(
 	source, 2, 0,	do_source,

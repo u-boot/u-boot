@@ -270,8 +270,7 @@ static int do_cedit_run(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char cedit_help_text[] =
+U_BOOT_LONGHELP(cedit,
 	"load <interface> <dev[:part]> <filename>   - load config editor\n"
 	"cedit read_fdt <i/f> <dev[:part]> <filename>     - read settings\n"
 	"cedit write_fdt <i/f> <dev[:part]> <filename>    - write settings\n"
@@ -279,8 +278,7 @@ static char cedit_help_text[] =
 	"cedit write_env [-v]                             - write settings to env vars\n"
 	"cedit read_cmos [-v] [dev]                       - read settings from CMOS RAM\n"
 	"cedit write_cmos [-v] [dev]                      - write settings to CMOS RAM\n"
-	"cedit run                                        - run config editor";
-#endif /* CONFIG_SYS_LONGHELP */
+	"cedit run                                        - run config editor");
 
 U_BOOT_CMD_WITH_SUBCMDS(cedit, "Configuration editor", cedit_help_text,
 	U_BOOT_SUBCMD_MKENT(load, 5, 1, do_cedit_load),

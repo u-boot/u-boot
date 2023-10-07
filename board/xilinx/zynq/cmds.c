@@ -527,8 +527,7 @@ static int do_zynq(struct cmd_tbl *cmdtp, int flag, int argc,
 	return cmd_process_error(zynq_cmd, ret);
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char zynq_help_text[] =
+U_BOOT_LONGHELP(zynq,
 	""
 #ifdef CONFIG_CMD_ZYNQ_RSA
 	"rsa <baseaddr>  - Verifies the authenticated and encrypted\n"
@@ -545,8 +544,7 @@ static char zynq_help_text[] =
 	"       if operation type is load or loadp, it loads the encrypted\n"
 	"       full or partial bitstream on to PL respectively.\n"
 #endif
-	;
-#endif
+	);
 
 U_BOOT_CMD(zynq,	6,	0,	do_zynq,
 	   "Zynq specific commands", zynq_help_text

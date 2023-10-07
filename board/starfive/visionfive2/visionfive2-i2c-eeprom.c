@@ -541,10 +541,7 @@ u32 get_ddr_size_from_eeprom(void)
 	return hextoul(&pbuf.eeprom.atom1.data.pstr[14], NULL);
 }
 
-#ifndef CONFIG_SPL_BUILD
-
-#ifdef CONFIG_SYS_LONGHELP
-static char booti_help_text[] =
+U_BOOT_LONGHELP(mac,
 	"\n"
 	"    - display EEPROM content\n"
 	"mac read_eeprom\n"
@@ -564,14 +561,9 @@ static char booti_help_text[] =
 	"mac bom_revision <A>\n"
 	"    - stores a StarFive BOM revision into the local EEPROM copy\n"
 	"mac product_id <VF7110A1-2228-D008E000-xxxxxxxx>\n"
-	"    - stores a StarFive product ID into the local EEPROM copy\n";
-#else
-	"";
-#endif
+	"    - stores a StarFive product ID into the local EEPROM copy\n");
 
 U_BOOT_CMD(
 	mac, 3, 1,  do_mac,
 	"display and program the board revision and MAC address in EEPROM",
-	booti_help_text);
-
-#endif /* CONFIG_SPL_BUILD */
+	mac_help_text);

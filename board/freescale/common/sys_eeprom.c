@@ -624,8 +624,7 @@ unsigned int get_cpu_board_revision(void)
 }
 #endif
 
-#ifdef CONFIG_SYS_LONGHELP
-static char booti_help_text[] =
+U_BOOT_LONGHELP(mac,
 	"[read|save|id|num|errata|date|ports|port_number]\n"
 	"mac read\n"
 	"    - read EEPROM content into memory data structure\n"
@@ -642,12 +641,9 @@ static char booti_help_text[] =
 	"mac ports N\n"
 	"    - program the number of network ports to integer N\n"
 	"mac X string\n"
-	"    - program MAC addr for port X [X=0,1..] to colon separated string";
-#else
-	"";
-#endif
+	"    - program MAC addr for port X [X=0,1..] to colon separated string");
 
 U_BOOT_CMD(
 	mac, 3, 1,  do_mac,
 	"display and program the system ID and MAC addresses in EEPROM",
-	booti_help_text);
+	mac_help_text);

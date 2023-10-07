@@ -552,10 +552,7 @@ u8 get_pcb_revision_from_eeprom(void)
 	return be.pcb_revision;
 }
 
-#ifndef CONFIG_SPL_BUILD
-
-#ifdef CONFIG_SYS_LONGHELP
-static char booti_help_text[] =
+U_BOOT_LONGHELP(mac,
 	"- displays memory copy of EEPROM\n"
 	"mac read_eeprom - reads EEPROM into memory\n"
 	"mac initialize - initializes memory copy with magic number\n"
@@ -564,14 +561,9 @@ static char booti_help_text[] =
 	"mac_address <addr> - sets MAC address in memory\n"
 	"mac pcb_revision <rev> - sets PCB revision in memory\n"
 	"mac bom_variant <var> - sets BOM variant in memory\n"
-	"mac bom_revision <rev> - sets BOM revision in memory\n";
-#else
-	"";
-#endif
+	"mac bom_revision <rev> - sets BOM revision in memory\n");
 
 U_BOOT_CMD(
 	mac, 3, 1,  do_mac,
 	"display and program the board revision and MAC address in EEPROM",
-	booti_help_text);
-
-#endif /* CONFIG_SPL_BUILD */
+	mac_help_text);

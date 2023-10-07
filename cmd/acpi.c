@@ -171,13 +171,11 @@ static int do_acpi_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char acpi_help_text[] =
+U_BOOT_LONGHELP(acpi,
 	"list  - list ACPI tables\n"
 	"acpi items [-d]   - List/dump each piece of ACPI data from devices\n"
 	"acpi set [<addr>] - Set or show address of ACPI tables\n"
-	"acpi dump <name>  - Dump ACPI table";
-#endif
+	"acpi dump <name>  - Dump ACPI table");
 
 U_BOOT_CMD_WITH_SUBCMDS(acpi, "ACPI tables", acpi_help_text,
 	U_BOOT_SUBCMD_MKENT(list, 1, 1, do_acpi_list),

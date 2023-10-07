@@ -152,10 +152,8 @@ static int do_clk(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char clk_help_text[] =
+U_BOOT_LONGHELP(clk,
 	"dump - Print clock frequencies\n"
-	"clk setfreq [clk] [freq] - Set clock frequency";
-#endif
+	"clk setfreq [clk] [freq] - Set clock frequency");
 
 U_BOOT_CMD(clk, 4, 1, do_clk, "CLK sub-system", clk_help_text);
