@@ -226,6 +226,23 @@ static int bdinfo_test_full(struct unit_test_state *uts)
 
 BDINFO_TEST(bdinfo_test_full, UT_TESTF_CONSOLE_REC);
 
+static int bdinfo_test_help(struct unit_test_state *uts)
+{
+	/* Test BDINFO unknown option help text print */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_commandf("bdinfo -h"));
+	ut_assert_nextlinen("bdinfo: invalid option -- h");
+	ut_assert_nextlinen("bdinfo - print Board Info structure");
+	ut_assert_nextline_empty();
+	ut_assert_nextlinen("Usage:");
+	ut_assert_nextlinen("bdinfo");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+BDINFO_TEST(bdinfo_test_help, UT_TESTF_CONSOLE_REC);
+
 int do_ut_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(bdinfo_test);
