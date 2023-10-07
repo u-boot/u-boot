@@ -2,6 +2,7 @@ menu "TI specific command line interface"
 
 config CMD_DDR3
 	bool "command for verifying DDR features"
+	depends on ARCH_KEYSTONE || DRA7XX
 	help
 	   Support for testing ddr3 on TI platforms. This command
 	   supports memory verification, memory comapre and ecc
