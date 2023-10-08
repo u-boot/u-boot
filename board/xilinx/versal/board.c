@@ -174,6 +174,9 @@ static int boot_targets_setup(void)
 		mode = "mmc";
 		bootseq = dev_seq(dev);
 		break;
+	case SELECTMAP_MODE:
+		puts("SELECTMAP_MODE\n");
+		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
 		if (uclass_get_device_by_name(UCLASS_MMC,
@@ -312,6 +315,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 			return ENVL_SPI_FLASH;
 		return ENVL_NOWHERE;
 	case JTAG_MODE:
+	case SELECTMAP_MODE:
 	default:
 		return ENVL_NOWHERE;
 	}
