@@ -396,7 +396,7 @@ static int spl_mmc_get_mmc_devnum(struct mmc *mmc)
 #if !CONFIG_IS_ENABLED(BLK)
 	block_dev = &mmc->block_dev;
 #else
-	block_dev = dev_get_uclass_plat(mmc->dev);
+	block_dev = mmc_get_blk_desc(mmc);
 #endif
 	return block_dev->devnum;
 }
