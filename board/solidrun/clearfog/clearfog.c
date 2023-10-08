@@ -159,6 +159,9 @@ struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
 	cf_read_tlv_data();
 
 	switch (cf_tlv_data.ram_size) {
+	case 2:
+		ifp->memory_size = MV_DDR_DIE_CAP_2GBIT;
+		break;
 	case 4:
 	default:
 		ifp->memory_size = MV_DDR_DIE_CAP_4GBIT;
