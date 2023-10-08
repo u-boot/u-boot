@@ -10,6 +10,7 @@ struct tlv_data {
 	/* Store product name of both SOM and carrier */
 	char tlv_product_name[2][32];
 	unsigned int ram_size;
+	uint8_t ram_channels;
 };
 
 void read_tlv_data(struct tlv_data *td);
