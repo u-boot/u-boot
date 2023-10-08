@@ -53,55 +53,10 @@
 		};
 	};
 
-	usb_host0_ehci: usb@fc800000 {
-		compatible = "generic-ehci";
-		reg = <0x0 0xfc800000 0x0 0x40000>;
-		interrupts = <GIC_SPI 215 IRQ_TYPE_LEVEL_HIGH 0>;
-		clocks = <&cru HCLK_HOST0>, <&cru HCLK_HOST_ARB0>;
-		clock-names = "usbhost", "arbiter";
-		power-domains = <&power RK3588_PD_USB>;
-		status = "disabled";
-	};
-
-	usb_host0_ohci: usb@fc840000 {
-		compatible = "generic-ohci";
-		reg = <0x0 0xfc840000 0x0 0x40000>;
-		interrupts = <GIC_SPI 216 IRQ_TYPE_LEVEL_HIGH 0>;
-		clocks = <&cru HCLK_HOST0>, <&cru HCLK_HOST_ARB0>;
-		clock-names = "usbhost", "arbiter";
-		power-domains = <&power RK3588_PD_USB>;
-		status = "disabled";
-	};
-
-	usb_host1_ehci: usb@fc880000 {
-		compatible = "generic-ehci";
-		reg = <0x0 0xfc880000 0x0 0x40000>;
-		interrupts = <GIC_SPI 218 IRQ_TYPE_LEVEL_HIGH 0>;
-		clocks = <&cru HCLK_HOST1>, <&cru HCLK_HOST_ARB1>;
-		clock-names = "usbhost", "arbiter";
-		power-domains = <&power RK3588_PD_USB>;
-		status = "disabled";
-	};
-
-	usb_host1_ohci: usb@fc8c0000 {
-		compatible = "generic-ohci";
-		reg = <0x0 0xfc8c0000 0x0 0x40000>;
-		interrupts = <GIC_SPI 219 IRQ_TYPE_LEVEL_HIGH 0>;
-		clocks = <&cru HCLK_HOST1>, <&cru HCLK_HOST_ARB1>;
-		clock-names = "usbhost", "arbiter";
-		power-domains = <&power RK3588_PD_USB>;
-		status = "disabled";
-	};
-
 	pmu1_grf: syscon@fd58a000 {
 		bootph-all;
 		compatible = "rockchip,rk3588-pmu1-grf", "syscon";
 		reg = <0x0 0xfd58a000 0x0 0x2000>;
-	};
-
-	pipe_phy0_grf: syscon@fd5bc000 {
-		compatible = "rockchip,pipe-phy-grf", "syscon";
-		reg = <0x0 0xfd5bc000 0x0 0x100>;
 	};
 
 	usb2phy0_grf: syscon@fd5d0000 {
@@ -131,29 +86,6 @@
 		};
 	};
 
-	usb2phy2_grf: syscon@fd5d8000 {
-		compatible = "rockchip,rk3588-usb2phy-grf", "syscon",
-			     "simple-mfd";
-		reg = <0x0 0xfd5d8000 0x0 0x4000>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		u2phy2: usb2-phy@8000 {
-			compatible = "rockchip,rk3588-usb2phy";
-			reg = <0x8000 0x10>;
-			interrupts = <GIC_SPI 391 IRQ_TYPE_LEVEL_HIGH 0>;
-			clocks = <&cru CLK_USB2PHY_HDPTXRXPHY_REF>;
-			clock-names = "phyclk";
-			#clock-cells = <0>;
-			status = "disabled";
-
-			u2phy2_host: host-port {
-				#phy-cells = <0>;
-				status = "disabled";
-			};
-		};
-	};
-
 	vo0_grf: syscon@fd5a6000 {
 		compatible = "rockchip,rk3588-vo-grf", "syscon";
 		reg = <0x0 0xfd5a6000 0x0 0x2000>;
@@ -165,87 +97,9 @@
 		reg = <0x0 0xfd5ac000 0x0 0x4000>;
 	};
 
-	usb2phy3_grf: syscon@fd5dc000 {
-		compatible = "rockchip,rk3588-usb2phy-grf", "syscon",
-			     "simple-mfd";
-		reg = <0x0 0xfd5dc000 0x0 0x4000>;
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		u2phy3: usb2-phy@c000 {
-			compatible = "rockchip,rk3588-usb2phy";
-			reg = <0xc000 0x10>;
-			interrupts = <GIC_SPI 392 IRQ_TYPE_LEVEL_HIGH 0>;
-			clocks = <&cru CLK_USB2PHY_HDPTXRXPHY_REF>;
-			clock-names = "phyclk";
-			#clock-cells = <0>;
-			status = "disabled";
-
-			u2phy3_host: host-port {
-				#phy-cells = <0>;
-				status = "disabled";
-			};
-		};
-	};
-
 	usbdpphy0_grf: syscon@fd5c8000 {
 		compatible = "rockchip,rk3588-usbdpphy-grf", "syscon";
 		reg = <0x0 0xfd5c8000 0x0 0x4000>;
-	};
-
-	pcie2x1l2: pcie@fe190000 {
-		compatible = "rockchip,rk3588-pcie", "snps,dw-pcie";
-		#address-cells = <3>;
-		#size-cells = <2>;
-		bus-range = <0x40 0x4f>;
-		clocks = <&cru ACLK_PCIE_1L2_MSTR>, <&cru ACLK_PCIE_1L2_SLV>,
-			 <&cru ACLK_PCIE_1L2_DBI>, <&cru PCLK_PCIE_1L2>,
-			 <&cru CLK_PCIE_AUX4>, <&cru CLK_PCIE1L2_PIPE>;
-		clock-names = "aclk_mst", "aclk_slv",
-			      "aclk_dbi", "pclk",
-			      "aux", "pipe";
-		device_type = "pci";
-		interrupts = <GIC_SPI 253 IRQ_TYPE_LEVEL_HIGH 0>,
-			     <GIC_SPI 252 IRQ_TYPE_LEVEL_HIGH 0>,
-			     <GIC_SPI 251 IRQ_TYPE_LEVEL_HIGH 0>,
-			     <GIC_SPI 250 IRQ_TYPE_LEVEL_HIGH 0>,
-			     <GIC_SPI 249 IRQ_TYPE_LEVEL_HIGH 0>;
-		interrupt-names = "sys", "pmc", "msg", "legacy", "err";
-		#interrupt-cells = <1>;
-		interrupt-map-mask = <0 0 0 7>;
-		interrupt-map = <0 0 0 1 &pcie2x1l2_intc 0>,
-				<0 0 0 2 &pcie2x1l2_intc 1>,
-				<0 0 0 3 &pcie2x1l2_intc 2>,
-				<0 0 0 4 &pcie2x1l2_intc 3>;
-		linux,pci-domain = <4>;
-		num-ib-windows = <8>;
-		num-ob-windows = <8>;
-		num-viewport = <4>;
-		max-link-speed = <2>;
-		msi-map = <0x4000 &gic 0x4000 0x1000>;
-		num-lanes = <1>;
-		phys = <&combphy0_ps PHY_TYPE_PCIE>;
-		phy-names = "pcie-phy";
-		power-domains = <&power RK3588_PD_PCIE>;
-		ranges = <0x01000000 0x0 0xf4100000 0x0 0xf4100000 0x0 0x00100000>,
-			 <0x02000000 0x0 0xf4200000 0x0 0xf4200000 0x0 0x00e00000>,
-			 <0x03000000 0x0 0x40000000 0xa 0x00000000 0x0 0x40000000>;
-		reg = <0xa 0x41000000 0x0 0x00400000>,
-		      <0x0 0xfe190000 0x0 0x00010000>,
-		      <0x0 0xf4000000 0x0 0x00100000>;
-		reg-names = "dbi", "apb", "config";
-		resets = <&cru SRST_PCIE4_POWER_UP>, <&cru SRST_P_PCIE4>;
-		reset-names = "pcie", "periph";
-		rockchip,pipe-grf = <&php_grf>;
-		status = "disabled";
-
-		pcie2x1l2_intc: legacy-interrupt-controller {
-			interrupt-controller;
-			#address-cells = <0>;
-			#interrupt-cells = <1>;
-			interrupt-parent = <&gic>;
-			interrupts = <GIC_SPI 250 IRQ_TYPE_EDGE_RISING 0>;
-		};
 	};
 
 	sfc: spi@fe2b0000 {
@@ -292,22 +146,6 @@
 			#phy-cells = <0>;
 			status = "disabled";
 		};
-	};
-
-	combphy0_ps: phy@fee00000 {
-		compatible = "rockchip,rk3588-naneng-combphy";
-		reg = <0x0 0xfee00000 0x0 0x100>;
-		#phy-cells = <1>;
-		clocks = <&cru CLK_REF_PIPE_PHY0>, <&cru PCLK_PCIE_COMBO_PIPE_PHY0>,
-			 <&cru PCLK_PHP_ROOT>;
-		clock-names = "refclk", "apbclk", "phpclk";
-		assigned-clocks = <&cru CLK_REF_PIPE_PHY0>;
-		assigned-clock-rates = <100000000>;
-		resets = <&cru SRST_P_PCIE2_PHY0>, <&cru SRST_REF_PIPE_PHY0>;
-		reset-names = "combphy-apb", "combphy";
-		rockchip,pipe-grf = <&php_grf>;
-		rockchip,pipe-phy-grf = <&pipe_phy0_grf>;
-		status = "disabled";
 	};
 };
 

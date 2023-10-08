@@ -293,6 +293,9 @@ int regulator_autoset(struct udevice *dev)
 
 	uc_pdata = dev_get_uclass_plat(dev);
 
+	if (uc_pdata->flags & REGULATOR_FLAG_AUTOSET_DONE)
+		return -EALREADY;
+
 	ret = regulator_set_suspend_enable(dev, uc_pdata->suspend_on);
 	if (ret == -ENOSYS)
 		ret = 0;
@@ -306,11 +309,15 @@ int regulator_autoset(struct udevice *dev)
 			return ret;
 	}
 
-	if (!uc_pdata->always_on && !uc_pdata->boot_on)
-		return -EMEDIUMTYPE;
+	if (!uc_pdata->always_on && !uc_pdata->boot_on) {
+		ret = -EMEDIUMTYPE;
+		goto out;
+	}
 
-	if (uc_pdata->type == REGULATOR_TYPE_FIXED)
-		return regulator_set_enable(dev, true);
+	if (uc_pdata->type == REGULATOR_TYPE_FIXED) {
+		ret = regulator_set_enable(dev, true);
+		goto out;
+	}
 
 	if (uc_pdata->flags & REGULATOR_FLAG_AUTOSET_UV)
 		ret = regulator_set_value(dev, uc_pdata->min_uV);
@@ -321,6 +328,9 @@ int regulator_autoset(struct udevice *dev)
 
 	if (!ret)
 		ret = regulator_set_enable(dev, true);
+
+out:
+	uc_pdata->flags |= REGULATOR_FLAG_AUTOSET_DONE;
 
 	return ret;
 }

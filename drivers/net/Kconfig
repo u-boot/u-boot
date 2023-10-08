@@ -225,6 +225,14 @@ config DWC_ETH_QOS_IMX
 	  The Synopsys Designware Ethernet QOS IP block with the specific
 	  configuration used in IMX soc.
 
+config DWC_ETH_QOS_ROCKCHIP
+	bool "Synopsys DWC Ethernet QOS device support for Rockchip SoCs"
+	depends on DWC_ETH_QOS
+	select DM_ETH_PHY
+	help
+	  The Synopsys Designware Ethernet QOS IP block with specific
+	  configuration used in Rockchip SoCs.
+
 config DWC_ETH_QOS_STM32
 	bool "Synopsys DWC Ethernet QOS device support for STM32"
 	depends on DWC_ETH_QOS

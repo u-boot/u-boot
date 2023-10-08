@@ -240,14 +240,14 @@ static int load_simple_fit(struct spl_load_info *info, ulong sector,
 	bool external_data = false;
 
 	if (IS_ENABLED(CONFIG_SPL_FPGA) ||
-	    (IS_ENABLED(CONFIG_SPL_OS_BOOT) && IS_ENABLED(CONFIG_SPL_GZIP))) {
+	    (IS_ENABLED(CONFIG_SPL_OS_BOOT) && spl_decompression_enabled())) {
 		if (fit_image_get_type(fit, node, &type))
 			puts("Cannot get image type.\n");
 		else
 			debug("%s ", genimg_get_type_name(type));
 	}
 
-	if (IS_ENABLED(CONFIG_SPL_GZIP)) {
+	if (spl_decompression_enabled()) {
 		fit_image_get_comp(fit, node, &image_comp);
 		debug("%s ", genimg_get_comp_name(image_comp));
 	}
@@ -282,7 +282,11 @@ static int load_simple_fit(struct spl_load_info *info, ulong sector,
 			return 0;
 		}
 
-		src_ptr = map_sysmem(ALIGN(load_addr, ARCH_DMA_MINALIGN), len);
+		if (spl_decompression_enabled() &&
+		    (image_comp == IH_COMP_GZIP || image_comp == IH_COMP_LZMA))
+			src_ptr = map_sysmem(ALIGN(CONFIG_SYS_LOAD_ADDR, ARCH_DMA_MINALIGN), len);
+		else
+			src_ptr = map_sysmem(ALIGN(load_addr, ARCH_DMA_MINALIGN), len);
 		length = len;
 
 		overhead = get_aligned_image_overhead(info, offset);
@@ -327,6 +331,16 @@ static int load_simple_fit(struct spl_load_info *info, ulong sector,
 			return -EIO;
 		}
 		length = size;
+	} else if (IS_ENABLED(CONFIG_SPL_LZMA) && image_comp == IH_COMP_LZMA) {
+		size = CONFIG_SYS_BOOTM_LEN;
+		ulong loadEnd;
+
+		if (image_decomp(IH_COMP_LZMA, CONFIG_SYS_LOAD_ADDR, 0, 0,
+				 load_ptr, src, length, size, &loadEnd)) {
+			puts("Uncompressing error\n");
+			return -EIO;
+		}
+		length = loadEnd - CONFIG_SYS_LOAD_ADDR;
 	} else {
 		memcpy(load_ptr, src, length);
 	}

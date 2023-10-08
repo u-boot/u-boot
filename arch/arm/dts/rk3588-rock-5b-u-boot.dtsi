@@ -10,10 +10,6 @@
 #include <dt-bindings/usb/pd.h>
 
 / {
-	aliases {
-		mmc1 = &sdmmc;
-	};
-
 	chosen {
 		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &sdhci;
 	};
@@ -27,6 +23,19 @@
 		regulator-max-microvolt = <12000000>;
 	};
 
+	vcc3v3_pcie30: vcc3v3-pcie30-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc3v3_pcie30";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		enable-active-high;
+		gpios = <&gpio1 RK_PA4 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <5000>;
+		vin-supply = <&vcc5v0_sys>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pcie3_vcc3v3_en>;
+	};
+
 	vcc5v0_usbdcin: vcc5v0-usbdcin {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc5v0_usbdcin";
@@ -35,18 +44,6 @@
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 		vin-supply = <&vcc12v_dcin>;
-	};
-
-	vcc5v0_host: vcc5v0-host-regulator {
-		compatible = "regulator-fixed";
-		regulator-name = "vcc5v0_host";
-		regulator-min-microvolt = <5000000>;
-		regulator-max-microvolt = <5000000>;
-		enable-active-high;
-		gpio = <&gpio4 RK_PB0 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&vcc5v0_host_en>;
-		vin-supply = <&vcc5v0_sys>;
 	};
 
 	vcc5v0_usb: vcc5v0-usb {
@@ -87,6 +84,18 @@
 	status = "okay";
 };
 
+&pcie30phy {
+	status = "okay";
+};
+
+&pcie3x4 {
+	reset-gpios = <&gpio4 RK_PB6 GPIO_ACTIVE_HIGH>;
+	vpcie3v3-supply = <&vcc3v3_pcie30>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie3_rst>;
+	status = "okay";
+};
+
 &pinctrl {
 	pcie {
 		pcie_reset_h: pcie-reset-h {
@@ -97,11 +106,13 @@
 			rockchip,pins = <3 RK_PC7 4 &pcfg_pull_none>,
 					<3 RK_PD0 4 &pcfg_pull_none>;
 		};
-	};
 
-	usb {
-		vcc5v0_host_en: vcc5v0-host-en {
-			rockchip,pins = <4 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
+		pcie3_rst: pcie3-rst {
+			rockchip,pins = <4 RK_PB6 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		pcie3_vcc3v3_en: pcie3-vcc3v3-en {
+			rockchip,pins = <1 RK_PA4 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 
@@ -116,17 +127,10 @@
 	};
 };
 
-&sdmmc {
-	bus-width = <4>;
-	status = "okay";
-};
-
 &sdhci {
 	cap-mmc-highspeed;
 	mmc-ddr-1_8v;
 	mmc-hs200-1_8v;
-	pinctrl-names = "default";
-	pinctrl-0 = <&emmc_bus8 &emmc_clk &emmc_cmd &emmc_data_strobe &emmc_rstnout>;
 };
 
 &sfc {
@@ -148,23 +152,6 @@
 	};
 };
 
-&usb_host0_ehci {
-	companion = <&usb_host0_ohci>;
-	phys = <&u2phy2_host>;
-	phy-names = "usb2-phy";
-	status = "okay";
-};
-
-&usb_host0_ohci {
-	phys = <&u2phy2_host>;
-	phy-names = "usb2-phy";
-	status = "okay";
-};
-
-&usb2phy2_grf {
-	status = "okay";
-};
-
 &u2phy0 {
 	status = "okay";
 };
@@ -174,28 +161,15 @@
 	status = "okay";
 };
 
-&u2phy2 {
-	resets = <&cru SRST_OTGPHY_U2_0>, <&cru SRST_P_USB2PHY_U2_0_GRF0>;
-	reset-names = "phy", "apb";
-	clock-output-names = "usb480m_phy2";
+&u2phy1 {
 	status = "okay";
 };
 
-&u2phy2_host {
-	phy-supply = <&vcc5v0_host>;
+&u2phy1_otg {
 	status = "okay";
 };
 
-&usb_host1_ehci {
-	companion = <&usb_host1_ohci>;
-	phys = <&u2phy3_host>;
-	phy-names = "usb2-phy";
-	status = "okay";
-};
-
-&usb_host1_ohci {
-	phys = <&u2phy3_host>;
-	phy-names = "usb2-phy";
+&usb2phy2_grf {
 	status = "okay";
 };
 
@@ -203,16 +177,12 @@
 	status = "okay";
 };
 
-&u2phy3 {
-	resets = <&cru SRST_OTGPHY_U2_1>, <&cru SRST_P_USB2PHY_U2_1_GRF0>;
-	reset-names = "phy", "apb";
-	clock-output-names = "usb480m_phy3";
-	status = "okay";
+&usb_host0_ehci {
+	companion = <&usb_host0_ohci>;
 };
 
-&u2phy3_host {
-	phy-supply = <&vcc5v0_host>;
-	status = "okay";
+&usb_host1_ehci {
+	companion = <&usb_host1_ohci>;
 };
 
 &usbdp_phy0 {
@@ -241,12 +211,24 @@
 	status = "okay";
 };
 
+&usbdp_phy1 {
+	rockchip,dp-lane-mux = <2 3>;
+	status = "okay";
+};
+
+&usbdp_phy1_u3 {
+	status = "okay";
+};
+
 &usbdrd3_0 {
 	status = "okay";
 };
 
+&usbdrd3_1 {
+	status = "okay";
+};
+
 &usbdrd_dwc3_0 {
-	dr_mode = "otg";
 	usb-role-switch;
 
 	port {
@@ -257,27 +239,6 @@
 			remote-endpoint = <&usbc0_role_sw>;
 		};
 	};
-};
-
-&usbdp_phy1 {
-	rockchip,dp-lane-mux = <2 3>;
-	status = "okay";
-};
-
-&usbdp_phy1_u3 {
-	status = "okay";
-};
-
-&usbdrd3_1 {
-	status = "okay";
-};
-
-&u2phy1 {
-	status = "okay";
-};
-
-&u2phy1_otg {
-	status = "okay";
 };
 
 &i2c4 {
@@ -350,4 +311,3 @@
 		};
 	};
 };
-

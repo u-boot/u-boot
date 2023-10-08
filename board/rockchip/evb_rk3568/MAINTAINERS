@@ -1,3 +1,10 @@
+BANANAPI-BPI-R2-PRO
+M:	Frank Wunderlich <frank-w@public-files.de>
+S:	Maintained
+F:	configs/bpi-r2-pro-rk3568_defconfig
+F:	arch/arm/dts/rk3568-bpi-r2-pro.dts
+F:	arch/arm/dts/rk3568-bpi-r2-pro-u-boot.dtsi
+
 EVB-RK3568
 M:	Joseph Chen <chenjh@rock-chips.com>
 S:	Maintained
@@ -6,6 +13,13 @@ F:	include/configs/evb_rk3568.h
 F:	configs/evb-rk3568_defconfig
 F:	arch/arm/dts/rk3568-evb-u-boot.dtsi
 F:	arch/arm/dts/rk3568-evb.dts
+
+GENERIC-RK3568
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	configs/generic-rk3568_defconfig
+F:	arch/arm/dts/rk3568-generic.dts
+F:	arch/arm/dts/rk3568-generic-u-boot.dtsi
 
 LUBANCAT-2
 M:	Andy Yan <andyshrk@163.com>

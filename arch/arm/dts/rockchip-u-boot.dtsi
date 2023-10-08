@@ -56,10 +56,21 @@
 #else
 					arch = "arm";
 #endif
+#if defined(CONFIG_SPL_GZIP)
+					compression = "gzip";
+#elif defined(CONFIG_SPL_LZMA)
+					compression = "lzma";
+#else
 					compression = "none";
+#endif
 					load = <CONFIG_TEXT_BASE>;
 					entry = <CONFIG_TEXT_BASE>;
 					u-boot-nodtb {
+#if defined(CONFIG_SPL_GZIP)
+					compress = "gzip";
+#elif defined(CONFIG_SPL_LZMA)
+					compress = "lzma";
+#endif
 					};
 #ifdef CONFIG_SPL_FIT_SIGNATURE
 					hash {
