@@ -466,7 +466,7 @@ int layout_mbr_partitions(struct disk_partition *p, int count,
 			ext = &p[i];
 	}
 
-	if (count < 4)
+	if (count <= 4)
 		return 0;
 
 	if (!ext) {

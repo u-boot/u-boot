@@ -208,6 +208,8 @@ config SANDBOX
 	imply PHYSMEM
 	imply GENERATE_ACPI_TABLE
 	imply BINMAN
+	imply CMD_MBR
+	imply CMD_MMC
 
 config SH
 	bool "SuperH architecture"
