@@ -111,18 +111,3 @@ uint mmc_get_env_part(struct mmc *mmc)
 	return part;
 }
 
-enum env_location env_get_location(enum env_operation op, int prio)
-{
-	if (op == ENVOP_SAVE || op == ENVOP_ERASE)
-		return ENVL_MMC;
-
-	switch (prio) {
-	case 0:
-		return ENVL_NOWHERE;
-
-	case 1:
-		return ENVL_MMC;
-	}
-
-	return ENVL_UNKNOWN;
-}
