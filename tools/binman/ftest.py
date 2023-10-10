@@ -126,6 +126,9 @@ FW_MGMT_GUID = '6dcbd5ed-e82d-4c44-bda1-7194199ad92a'
 CAPSULE_IMAGE_GUID = '09d7cf52-0720-4710-91d1-08469b7fe9c8'
 # Windows cert GUID
 WIN_CERT_TYPE_EFI_GUID = '4aafd29d-68df-49ee-8aa9-347d375665a7'
+# Empty capsule GUIDs
+EMPTY_CAPSULE_ACCEPT_GUID = '0c996046-bcc0-4d04-85ec-e1fcedf1c6f8'
+EMPTY_CAPSULE_REVERT_GUID = 'acd58b4b-c0e8-475f-99b5-6b3f7e07aaf0'
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -7293,6 +7296,27 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         self.assertEqual(payload_data_len, int(hdr['Payload Image Size']))
 
+    def _CheckEmptyCapsule(self, data, accept_capsule=False):
+        if accept_capsule:
+            capsule_hdr_guid = EMPTY_CAPSULE_ACCEPT_GUID
+        else:
+            capsule_hdr_guid = EMPTY_CAPSULE_REVERT_GUID
+
+        hdr = self._GetCapsuleHeaders(data)
+
+        self.assertEqual(capsule_hdr_guid.upper(),
+                         hdr['EFI_CAPSULE_HDR.CAPSULE_GUID'])
+
+        if accept_capsule:
+            capsule_size = "0000002C"
+        else:
+            capsule_size = "0000001C"
+        self.assertEqual(capsule_size,
+                         hdr['EFI_CAPSULE_HDR.CAPSULE_IMAGE_SIZE'])
+
+        if accept_capsule:
+            self.assertEqual(CAPSULE_IMAGE_GUID.upper(), hdr['ACCEPT_IMAGE_GUID'])
+
     def testCapsuleGen(self):
         """Test generation of EFI capsule"""
         data = self._DoReadFile('311_capsule.dts')
@@ -7356,6 +7380,39 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
         self.assertIn("entry is missing properties: image-guid",
                       str(e.exception))
+
+    def testCapsuleGenAcceptCapsule(self):
+        """Test generationg of accept EFI capsule"""
+        data = self._DoReadFile('319_capsule_accept.dts')
+
+        self._CheckEmptyCapsule(data, accept_capsule=True)
+
+    def testCapsuleGenRevertCapsule(self):
+        """Test generationg of revert EFI capsule"""
+        data = self._DoReadFile('320_capsule_revert.dts')
+
+        self._CheckEmptyCapsule(data)
+
+    def testCapsuleGenAcceptGuidMissing(self):
+        """Test that binman errors out on missing image GUID for accept capsule"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('321_capsule_accept_missing_guid.dts')
+
+        self.assertIn("Image GUID needed for generating accept capsule",
+                      str(e.exception))
+
+    def testCapsuleGenEmptyCapsuleTypeMissing(self):
+        """Test that capsule-type is specified"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('322_empty_capsule_type_missing.dts')
+
+        self.assertIn("entry is missing properties: capsule-type",
+                      str(e.exception))
+
+    def testCapsuleGenAcceptOrRevertMissing(self):
+        """Test that both accept and revert capsule are not specified"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('323_capsule_accept_revert_missing.dts')
 
 if __name__ == "__main__":
     unittest.main()
