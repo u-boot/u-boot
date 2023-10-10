@@ -107,7 +107,7 @@ int exynos_early_init_f(void)
 	return 0;
 }
 
-int exynos_init(void)
+void exynos_init(void)
 {
 	struct exynos4_power *pwr =
 		(struct exynos4_power *)samsung_get_base_power();
@@ -124,8 +124,6 @@ int exynos_init(void)
 	 */
 	writel(0, &pwr->inform4);
 	writel(0, &pwr->inform5);
-
-	return 0;
 }
 
 int exynos_power_init(void)

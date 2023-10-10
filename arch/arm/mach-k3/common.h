@@ -38,7 +38,7 @@ void remove_fwl_configs(struct fwl_data *fwl_data, size_t fwl_data_size);
 int load_firmware(char *name_fw, char *name_loadaddr, u32 *loadaddr);
 void k3_sysfw_print_ver(void);
 void spl_enable_dcache(void);
-void mmr_unlock(phys_addr_t base, u32 partition);
+void mmr_unlock(uintptr_t base, u32 partition);
 bool is_rom_loaded_sysfw(struct rom_extended_boot_data *data);
 enum k3_device_type get_device_type(void);
 void ti_secure_image_post_process(void **p_image, size_t *p_size);

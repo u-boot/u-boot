@@ -74,6 +74,16 @@ static long lmb_addrs_adjacent(phys_addr_t base1, phys_size_t size1,
 	return 0;
 }
 
+static long lmb_regions_overlap(struct lmb_region *rgn, unsigned long r1,
+				unsigned long r2)
+{
+	phys_addr_t base1 = rgn->region[r1].base;
+	phys_size_t size1 = rgn->region[r1].size;
+	phys_addr_t base2 = rgn->region[r2].base;
+	phys_size_t size2 = rgn->region[r2].size;
+
+	return lmb_addrs_overlap(base1, size1, base2, size2);
+}
 static long lmb_regions_adjacent(struct lmb_region *rgn, unsigned long r1,
 				 unsigned long r2)
 {
@@ -81,7 +91,6 @@ static long lmb_regions_adjacent(struct lmb_region *rgn, unsigned long r1,
 	phys_size_t size1 = rgn->region[r1].size;
 	phys_addr_t base2 = rgn->region[r2].base;
 	phys_size_t size2 = rgn->region[r2].size;
-
 	return lmb_addrs_adjacent(base1, size1, base2, size2);
 }
 
@@ -102,6 +111,23 @@ static void lmb_coalesce_regions(struct lmb_region *rgn, unsigned long r1,
 				 unsigned long r2)
 {
 	rgn->region[r1].size += rgn->region[r2].size;
+	lmb_remove_region(rgn, r2);
+}
+
+/*Assumption : base addr of region 1 < base addr of region 2*/
+static void lmb_fix_over_lap_regions(struct lmb_region *rgn, unsigned long r1,
+				     unsigned long r2)
+{
+	phys_addr_t base1 = rgn->region[r1].base;
+	phys_size_t size1 = rgn->region[r1].size;
+	phys_addr_t base2 = rgn->region[r2].base;
+	phys_size_t size2 = rgn->region[r2].size;
+
+	if (base1 + size1 > base2 + size2) {
+		printf("This will not be a case any time\n");
+		return;
+	}
+	rgn->region[r1].size = base2 + size2 - base1;
 	lmb_remove_region(rgn, r2);
 }
 
@@ -249,7 +275,6 @@ static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 		phys_size_t rgnflags = rgn->region[i].flags;
 		phys_addr_t end = base + size - 1;
 		phys_addr_t rgnend = rgnbase + rgnsize - 1;
-
 		if (rgnbase <= base && end <= rgnend) {
 			if (flags == rgnflags)
 				/* Already have this region, so we're done */
@@ -278,9 +303,13 @@ static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 		}
 	}
 
-	if ((i < rgn->cnt - 1) && lmb_regions_adjacent(rgn, i, i + 1)) {
-		if (rgn->region[i].flags == rgn->region[i + 1].flags) {
+	if (i < rgn->cnt - 1 && rgn->region[i].flags == rgn->region[i + 1].flags)  {
+		if (lmb_regions_adjacent(rgn, i, i + 1)) {
 			lmb_coalesce_regions(rgn, i, i + 1);
+			coalesced++;
+		} else if (lmb_regions_overlap(rgn, i, i + 1)) {
+			/* fix overlapping area */
+			lmb_fix_over_lap_regions(rgn, i, i + 1);
 			coalesced++;
 		}
 	}

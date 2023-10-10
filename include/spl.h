@@ -793,7 +793,7 @@ int spl_ymodem_load_image(struct spl_image_info *spl_image,
 /**
  * spl_invoke_atf - boot using an ARM trusted firmware image
  */
-void spl_invoke_atf(struct spl_image_info *spl_image);
+void __noreturn spl_invoke_atf(struct spl_image_info *spl_image);
 
 /**
  * bl2_plat_get_bl31_params() - return params for bl31.
