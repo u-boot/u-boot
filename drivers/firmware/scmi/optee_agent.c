@@ -149,7 +149,7 @@ static int open_channel(struct udevice *dev, struct scmi_optee_channel *chan,
 	struct tee_param param[1] = { };
 	int ret;
 
-	memset(sess, 0, sizeof(sess));
+	memset(sess, 0, sizeof(*sess));
 
 	sess->tee = tee_find_device(NULL, NULL, NULL, NULL);
 	if (!sess->tee)
