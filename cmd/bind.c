@@ -246,6 +246,8 @@ U_BOOT_CMD(
 	"Bind a device to a driver",
 	"<node path> <driver>\n"
 	"bind <class> <index> <driver>\n"
+	"Use 'dm tree' to list all devices registered in the driver model,\n"
+	"their path, class, index and current driver.\n"
 );
 
 U_BOOT_CMD(
@@ -254,4 +256,6 @@ U_BOOT_CMD(
 	"<node path>\n"
 	"unbind <class> <index>\n"
 	"unbind <class> <index> <driver>\n"
+	"Use 'dm tree' to list all devices registered in the driver model,\n"
+	"their path, class, index and current driver.\n"
 );
