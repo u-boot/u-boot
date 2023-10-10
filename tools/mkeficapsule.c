@@ -29,7 +29,7 @@ static const char *tool_name = "mkeficapsule";
 efi_guid_t efi_guid_fm_capsule = EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
 efi_guid_t efi_guid_cert_type_pkcs7 = EFI_CERT_TYPE_PKCS7_GUID;
 
-static const char *opts_short = "g:i:I:v:p:c:m:o:dhAR";
+static const char *opts_short = "g:i:I:v:p:c:m:o:dhARD";
 
 enum {
 	CAPSULE_NORMAL_BLOB = 0,
@@ -49,6 +49,7 @@ static struct option options[] = {
 	{"fw-accept", no_argument, NULL, 'A'},
 	{"fw-revert", no_argument, NULL, 'R'},
 	{"capoemflag", required_argument, NULL, 'o'},
+	{"dump-capsule", no_argument, NULL, 'D'},
 	{"help", no_argument, NULL, 'h'},
 	{NULL, 0, NULL, 0},
 };
@@ -69,6 +70,7 @@ static void print_usage(void)
 		"\t-A, --fw-accept  firmware accept capsule, requires GUID, no image blob\n"
 		"\t-R, --fw-revert  firmware revert capsule, takes no GUID, no image blob\n"
 		"\t-o, --capoemflag Capsule OEM Flag, an integer between 0x0000 and 0xffff\n"
+		"\t-D, --dump-capsule          dump the contents of the capsule headers\n"
 		"\t-h, --help                  print a help message\n",
 		tool_name);
 }
@@ -647,6 +649,215 @@ err:
 	return ret;
 }
 
+static void print_guid(void *ptr)
+{
+	int i;
+	efi_guid_t *guid = ptr;
+	const uint8_t seq[] = {
+		3, 2, 1, 0, '-', 5, 4, '-', 7, 6,
+		'-', 8, 9, '-', 10, 11, 12, 13, 14, 15 };
+
+	for (i = 0; i < ARRAY_SIZE(seq); i++) {
+		if (seq[i] == '-')
+			putchar(seq[i]);
+		else
+			printf("%02X", guid->b[seq[i]]);
+	}
+
+	printf("\n");
+}
+
+static uint32_t dump_fmp_payload_header(
+	struct fmp_payload_header *fmp_payload_hdr)
+{
+	if (fmp_payload_hdr->signature == FMP_PAYLOAD_HDR_SIGNATURE) {
+		printf("--------\n");
+		printf("FMP_PAYLOAD_HDR.SIGNATURE\t\t\t: %08X\n",
+		       FMP_PAYLOAD_HDR_SIGNATURE);
+		printf("FMP_PAYLOAD_HDR.HEADER_SIZE\t\t\t: %08X\n",
+		       fmp_payload_hdr->header_size);
+		printf("FMP_PAYLOAD_HDR.FW_VERSION\t\t\t: %08X\n",
+		       fmp_payload_hdr->fw_version);
+		printf("FMP_PAYLOAD_HDR.LOWEST_SUPPORTED_VERSION\t: %08X\n",
+		       fmp_payload_hdr->lowest_supported_version);
+		return fmp_payload_hdr->header_size;
+	}
+
+	return 0;
+}
+
+static void dump_capsule_auth_header(
+	struct efi_firmware_image_authentication *capsule_auth_hdr)
+{
+	printf("EFI_FIRMWARE_IMAGE_AUTH.MONOTONIC_COUNT\t\t: %08lX\n",
+	       capsule_auth_hdr->monotonic_count);
+	printf("EFI_FIRMWARE_IMAGE_AUTH.AUTH_INFO.HDR.dwLENGTH\t: %08X\n",
+	       capsule_auth_hdr->auth_info.hdr.dwLength);
+	printf("EFI_FIRMWARE_IMAGE_AUTH.AUTH_INFO.HDR.wREVISION\t: %08X\n",
+	       capsule_auth_hdr->auth_info.hdr.wRevision);
+	printf("EFI_FIRMWARE_IMAGE_AUTH.AUTH_INFO.HDR.wCERTTYPE\t: %08X\n",
+	       capsule_auth_hdr->auth_info.hdr.wCertificateType);
+	printf("EFI_FIRMWARE_IMAGE_AUTH.AUTH_INFO.CERT_TYPE\t: ");
+	print_guid(&capsule_auth_hdr->auth_info.cert_type);
+}
+
+static void dump_fmp_capsule_image_header(
+	struct efi_firmware_management_capsule_image_header *image_hdr)
+{
+	void *capsule_auth_hdr;
+	void *fmp_payload_hdr;
+	uint64_t signature_size = 0;
+	uint32_t payload_size = 0;
+	uint32_t fmp_payload_hdr_size = 0;
+	struct efi_firmware_image_authentication *auth_hdr;
+
+	printf("--------\n");
+	printf("FMP_CAPSULE_IMAGE_HDR.VERSION\t\t\t: %08X\n",
+	       image_hdr->version);
+	printf("FMP_CAPSULE_IMAGE_HDR.UPDATE_IMAGE_TYPE_ID\t: ");
+	print_guid(&image_hdr->update_image_type_id);
+	printf("FMP_CAPSULE_IMAGE_HDR.UPDATE_IMAGE_INDEX\t: %08X\n",
+	       image_hdr->update_image_index);
+	printf("FMP_CAPSULE_IMAGE_HDR.UPDATE_IMAGE_SIZE\t\t: %08X\n",
+	       image_hdr->update_image_size);
+	printf("FMP_CAPSULE_IMAGE_HDR.UPDATE_VENDOR_CODE_SIZE\t: %08X\n",
+	       image_hdr->update_vendor_code_size);
+	printf("FMP_CAPSULE_IMAGE_HDR.UPDATE_HARDWARE_INSTANCE\t: %08lX\n",
+	       image_hdr->update_hardware_instance);
+	printf("FMP_CAPSULE_IMAGE_HDR.IMAGE_CAPSULE_SUPPORT\t: %08lX\n",
+	       image_hdr->image_capsule_support);
+
+	printf("--------\n");
+	if (image_hdr->image_capsule_support & CAPSULE_SUPPORT_AUTHENTICATION) {
+		capsule_auth_hdr = (char *)image_hdr + sizeof(*image_hdr);
+		dump_capsule_auth_header(capsule_auth_hdr);
+
+		auth_hdr = capsule_auth_hdr;
+		signature_size = sizeof(auth_hdr->monotonic_count) +
+			auth_hdr->auth_info.hdr.dwLength;
+		fmp_payload_hdr = (char *)capsule_auth_hdr + signature_size;
+	} else {
+		printf("Capsule Authentication Not Enabled\n");
+		fmp_payload_hdr = (char *)image_hdr + sizeof(*image_hdr);
+	}
+
+	fmp_payload_hdr_size = dump_fmp_payload_header(fmp_payload_hdr);
+
+	payload_size = image_hdr->update_image_size - signature_size -
+		fmp_payload_hdr_size;
+	printf("--------\n");
+	printf("Payload Image Size\t\t\t\t: %08X\n", payload_size);
+}
+
+static void dump_fmp_header(
+	struct efi_firmware_management_capsule_header *fmp_hdr)
+{
+	int i;
+	void *capsule_image_hdr;
+
+	printf("EFI_FMP_HDR.VERSION\t\t\t\t: %08X\n", fmp_hdr->version);
+	printf("EFI_FMP_HDR.EMBEDDED_DRIVER_COUNT\t\t: %08X\n",
+	       fmp_hdr->embedded_driver_count);
+	printf("EFI_FMP_HDR.PAYLOAD_ITEM_COUNT\t\t\t: %08X\n",
+	       fmp_hdr->payload_item_count);
+
+	/*
+	 * We currently don't support Embedded Drivers.
+	 * Only worry about the payload items.
+	 */
+	for (i = 0; i < fmp_hdr->payload_item_count; i++) {
+		capsule_image_hdr = (char *)fmp_hdr +
+			fmp_hdr->item_offset_list[i];
+		dump_fmp_capsule_image_header(capsule_image_hdr);
+	}
+}
+
+static void dump_capsule_header(struct efi_capsule_header *capsule_hdr)
+{
+	printf("EFI_CAPSULE_HDR.CAPSULE_GUID\t\t\t: ");
+	print_guid((void *)&capsule_hdr->capsule_guid);
+	printf("EFI_CAPSULE_HDR.HEADER_SIZE\t\t\t: %08X\n",
+	       capsule_hdr->header_size);
+	printf("EFI_CAPSULE_HDR.FLAGS\t\t\t\t: %08X\n", capsule_hdr->flags);
+	printf("EFI_CAPSULE_HDR.CAPSULE_IMAGE_SIZE\t\t: %08X\n",
+	       capsule_hdr->capsule_image_size);
+}
+
+static void normal_capsule_dump(void *capsule_buf)
+{
+	void *fmp_hdr;
+	struct efi_capsule_header *hdr = capsule_buf;
+
+	dump_capsule_header(hdr);
+	printf("--------\n");
+
+	fmp_hdr = (char *)capsule_buf + sizeof(*hdr);
+	dump_fmp_header(fmp_hdr);
+}
+
+static void empty_capsule_dump(void *capsule_buf)
+{
+	efi_guid_t *accept_image_guid;
+	struct efi_capsule_header *hdr = capsule_buf;
+	efi_guid_t efi_empty_accept_capsule = FW_ACCEPT_OS_GUID;
+
+	dump_capsule_header(hdr);
+
+	if (!memcmp(&efi_empty_accept_capsule, &hdr->capsule_guid,
+		    sizeof(efi_guid_t))) {
+		accept_image_guid = (void *)(char *)capsule_buf +
+			sizeof(struct efi_capsule_header);
+		printf("--------\n");
+		printf("ACCEPT_IMAGE_GUID\t\t\t\t: ");
+		print_guid(accept_image_guid);
+	}
+}
+
+static void dump_capsule_contents(char *capsule_file)
+{
+	int fd;
+	char *ptr;
+	efi_guid_t efi_fmp_guid = EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
+	efi_guid_t efi_empty_accept_capsule = FW_ACCEPT_OS_GUID;
+	efi_guid_t efi_empty_revert_capsule = FW_REVERT_OS_GUID;
+	struct stat sbuf;
+
+	if (!capsule_file) {
+		fprintf(stderr, "No capsule file provided\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if ((fd = open(capsule_file, O_RDONLY)) < 0) {
+		fprintf(stderr, "Error opening capsule file: %s\n",
+			capsule_file);
+		exit(EXIT_FAILURE);
+	}
+
+	if (fstat(fd, &sbuf) < 0) {
+		fprintf(stderr, "Can't stat capsule file: %s\n", capsule_file);
+		exit(EXIT_FAILURE);
+	}
+
+	if ((ptr = mmap(0, sbuf.st_size, PROT_READ, MAP_SHARED, fd, 0))
+	    == MAP_FAILED) {
+		fprintf(stderr, "Can't mmap capsule file: %s\n", capsule_file);
+		exit(EXIT_FAILURE);
+	}
+
+	if (!memcmp(&efi_fmp_guid, ptr, sizeof(efi_guid_t))) {
+		normal_capsule_dump(ptr);
+	} else if (!memcmp(&efi_empty_accept_capsule, ptr,
+		   sizeof(efi_guid_t)) ||
+		   !memcmp(&efi_empty_revert_capsule, ptr,
+			   sizeof(efi_guid_t))) {
+		empty_capsule_dump(ptr);
+	} else {
+		fprintf(stderr, "Unable to decode the capsule file: %s\n",
+			capsule_file);
+		exit(EXIT_FAILURE);
+	}
+}
+
 /**
  * main - main entry function of mkeficapsule
  * @argc:	Number of arguments
@@ -666,6 +877,7 @@ int main(int argc, char **argv)
 	unsigned long index, instance;
 	uint64_t mcount;
 	unsigned long oemflags;
+	bool capsule_dump;
 	char *privkey_file, *cert_file;
 	int c, idx;
 	struct fmp_payload_header_params fmp_ph_params = { 0 };
@@ -676,6 +888,7 @@ int main(int argc, char **argv)
 	mcount = 0;
 	privkey_file = NULL;
 	cert_file = NULL;
+	capsule_dump = false;
 	dump_sig = 0;
 	capsule_type = CAPSULE_NORMAL_BLOB;
 	oemflags = 0;
@@ -754,10 +967,22 @@ int main(int argc, char **argv)
 				exit(1);
 			}
 			break;
+		case 'D':
+			capsule_dump = true;
+			break;
 		default:
 			print_usage();
 			exit(EXIT_SUCCESS);
 		}
+	}
+
+	if (capsule_dump) {
+		if (argc != optind + 1) {
+			fprintf(stderr, "Must provide the capsule file to parse\n");
+			exit(EXIT_FAILURE);
+		}
+		dump_capsule_contents(argv[argc - 1]);
+		exit(EXIT_SUCCESS);
 	}
 
 	/* check necessary parameters */
