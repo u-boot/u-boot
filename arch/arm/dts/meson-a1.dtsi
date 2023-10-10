@@ -129,6 +129,12 @@
 				compatible = "amlogic,meson-rng";
 				reg = <0x0 0x5118 0x0 0x4>;
 			};
+
+			sec_AO: ao-secure@5a20 {
+				compatible = "amlogic,meson-gx-ao-secure", "syscon";
+				reg = <0x0 0x5a20 0x0 0x140>;
+				amlogic,has-chip-id;
+			};
 		};
 
 		gic: interrupt-controller@ff901000 {
