@@ -13,17 +13,8 @@
 #include <asm/types.h>
 #include <linux/clk-provider.h>
 
-/**
- * struct scmi_clk_priv - Private data for SCMI clocks
- * @channel: Reference to the SCMI channel to use
- */
-struct scmi_clk_priv {
-	struct scmi_channel *channel;
-};
-
 static int scmi_clk_get_num_clock(struct udevice *dev, size_t *num_clocks)
 {
-	struct scmi_clk_priv *priv = dev_get_priv(dev);
 	struct scmi_clk_protocol_attr_out out;
 	struct scmi_msg msg = {
 		.protocol_id = SCMI_PROTOCOL_ID_CLOCK,
@@ -33,7 +24,7 @@ static int scmi_clk_get_num_clock(struct udevice *dev, size_t *num_clocks)
 	};
 	int ret;
 
-	ret = devm_scmi_process_msg(dev, priv->channel, &msg);
+	ret = devm_scmi_process_msg(dev, &msg);
 	if (ret)
 		return ret;
 
@@ -44,7 +35,6 @@ static int scmi_clk_get_num_clock(struct udevice *dev, size_t *num_clocks)
 
 static int scmi_clk_get_attibute(struct udevice *dev, int clkid, char **name)
 {
-	struct scmi_clk_priv *priv = dev_get_priv(dev);
 	struct scmi_clk_attribute_in in = {
 		.clock_id = clkid,
 	};
@@ -59,7 +49,7 @@ static int scmi_clk_get_attibute(struct udevice *dev, int clkid, char **name)
 	};
 	int ret;
 
-	ret = devm_scmi_process_msg(dev, priv->channel, &msg);
+	ret = devm_scmi_process_msg(dev, &msg);
 	if (ret)
 		return ret;
 
@@ -70,7 +60,6 @@ static int scmi_clk_get_attibute(struct udevice *dev, int clkid, char **name)
 
 static int scmi_clk_gate(struct clk *clk, int enable)
 {
-	struct scmi_clk_priv *priv = dev_get_priv(clk->dev);
 	struct scmi_clk_state_in in = {
 		.clock_id = clk->id,
 		.attributes = enable,
@@ -81,7 +70,7 @@ static int scmi_clk_gate(struct clk *clk, int enable)
 					  in, out);
 	int ret;
 
-	ret = devm_scmi_process_msg(clk->dev, priv->channel, &msg);
+	ret = devm_scmi_process_msg(clk->dev, &msg);
 	if (ret)
 		return ret;
 
@@ -100,7 +89,6 @@ static int scmi_clk_disable(struct clk *clk)
 
 static ulong scmi_clk_get_rate(struct clk *clk)
 {
-	struct scmi_clk_priv *priv = dev_get_priv(clk->dev);
 	struct scmi_clk_rate_get_in in = {
 		.clock_id = clk->id,
 	};
@@ -110,7 +98,7 @@ static ulong scmi_clk_get_rate(struct clk *clk)
 					  in, out);
 	int ret;
 
-	ret = devm_scmi_process_msg(clk->dev, priv->channel, &msg);
+	ret = devm_scmi_process_msg(clk->dev, &msg);
 	if (ret < 0)
 		return ret;
 
@@ -123,7 +111,6 @@ static ulong scmi_clk_get_rate(struct clk *clk)
 
 static ulong scmi_clk_set_rate(struct clk *clk, ulong rate)
 {
-	struct scmi_clk_priv *priv = dev_get_priv(clk->dev);
 	struct scmi_clk_rate_set_in in = {
 		.clock_id = clk->id,
 		.flags = SCMI_CLK_RATE_ROUND_CLOSEST,
@@ -136,7 +123,7 @@ static ulong scmi_clk_set_rate(struct clk *clk, ulong rate)
 					  in, out);
 	int ret;
 
-	ret = devm_scmi_process_msg(clk->dev, priv->channel, &msg);
+	ret = devm_scmi_process_msg(clk->dev, &msg);
 	if (ret < 0)
 		return ret;
 
@@ -149,12 +136,11 @@ static ulong scmi_clk_set_rate(struct clk *clk, ulong rate)
 
 static int scmi_clk_probe(struct udevice *dev)
 {
-	struct scmi_clk_priv *priv = dev_get_priv(dev);
 	struct clk *clk;
 	size_t num_clocks, i;
 	int ret;
 
-	ret = devm_scmi_of_get_channel(dev, &priv->channel);
+	ret = devm_scmi_of_get_channel(dev);
 	if (ret)
 		return ret;
 
@@ -205,5 +191,4 @@ U_BOOT_DRIVER(scmi_clock) = {
 	.id = UCLASS_CLK,
 	.ops = &scmi_clk_ops,
 	.probe = scmi_clk_probe,
-	.priv_auto = sizeof(struct scmi_clk_priv *),
 };

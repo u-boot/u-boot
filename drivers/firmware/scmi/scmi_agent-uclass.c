@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <scmi_agent.h>
 #include <scmi_agent-uclass.h>
 #include <scmi_protocols.h>
 #include <dm/device_compat.h>
@@ -110,18 +111,23 @@ static int scmi_bind_protocols(struct udevice *dev)
 	return ret;
 }
 
-static struct udevice *find_scmi_transport_device(struct udevice *dev)
+static struct udevice *find_scmi_protocol_device(struct udevice *dev)
 {
-	struct udevice *parent = dev;
+	struct udevice *parent = NULL, *protocol;
 
-	do {
-		parent = dev_get_parent(parent);
-	} while (parent && device_get_uclass_id(parent) != UCLASS_SCMI_AGENT);
+	for (protocol = dev; protocol; protocol = parent) {
+		parent = dev_get_parent(protocol);
+		if (!parent ||
+		    device_get_uclass_id(parent) == UCLASS_SCMI_AGENT)
+			break;
+	}
 
-	if (!parent)
+	if (!parent) {
 		dev_err(dev, "Invalid SCMI device, agent not found\n");
+		return NULL;
+	}
 
-	return parent;
+	return protocol;
 }
 
 static const struct scmi_agent_ops *transport_dev_ops(struct udevice *dev)
@@ -129,43 +135,90 @@ static const struct scmi_agent_ops *transport_dev_ops(struct udevice *dev)
 	return (const struct scmi_agent_ops *)dev->driver->ops;
 }
 
-int devm_scmi_of_get_channel(struct udevice *dev, struct scmi_channel **channel)
-{
-	struct udevice *parent;
-
-	parent = find_scmi_transport_device(dev);
-	if (!parent)
-		return -ENODEV;
-
-	if (transport_dev_ops(parent)->of_get_channel)
-		return transport_dev_ops(parent)->of_get_channel(parent, channel);
-
-	/* Drivers without a get_channel operator don't need a channel ref */
-	*channel = NULL;
-
-	return 0;
-}
-
-int devm_scmi_process_msg(struct udevice *dev, struct scmi_channel *channel,
-			  struct scmi_msg *msg)
+/**
+ * scmi_of_get_channel() - Get SCMI channel handle
+ *
+ * @dev:	SCMI agent device
+ * @channel:	Output reference to the SCMI channel upon success
+ *
+ * On return, @channel will be set.
+ * Return	0 on success and a negative errno on failure
+ */
+static int scmi_of_get_channel(struct udevice *dev, struct scmi_channel **channel)
 {
 	const struct scmi_agent_ops *ops;
-	struct udevice *parent;
 
-	parent = find_scmi_transport_device(dev);
-	if (!parent)
+	ops = transport_dev_ops(dev);
+	if (ops->of_get_channel)
+		return ops->of_get_channel(dev, channel);
+	else
+		return -EPROTONOSUPPORT;
+}
+
+int devm_scmi_of_get_channel(struct udevice *dev)
+{
+	struct udevice *protocol;
+	struct scmi_agent_proto_priv *priv;
+	int ret;
+
+	protocol = find_scmi_protocol_device(dev);
+	if (!protocol)
 		return -ENODEV;
 
-	ops = transport_dev_ops(parent);
+	priv = dev_get_parent_priv(protocol);
+	ret = scmi_of_get_channel(protocol->parent, &priv->channel);
+	if (ret == -EPROTONOSUPPORT) {
+		/* Drivers without a get_channel operator don't need a channel ref */
+		priv->channel = NULL;
 
+		return 0;
+	}
+
+	return ret;
+}
+
+/**
+ * scmi_process_msg() - Send and process an SCMI message
+ *
+ * Send a message to an SCMI server.
+ * Caller sets scmi_msg::out_msg_sz to the output message buffer size.
+ *
+ * @dev:	SCMI agent device
+ * @channel:	Communication channel for the device
+ * @msg:	Message structure reference
+ *
+ * On return, scmi_msg::out_msg_sz stores the response payload size.
+ * Return:	0 on success and a negative errno on failure
+ */
+static int scmi_process_msg(struct udevice *dev, struct scmi_channel *channel,
+			    struct scmi_msg *msg)
+{
+	const struct scmi_agent_ops *ops;
+
+	ops = transport_dev_ops(dev);
 	if (ops->process_msg)
-		return ops->process_msg(parent, channel, msg);
+		return ops->process_msg(dev, channel, msg);
+	else
+		return -EPROTONOSUPPORT;
+}
 
-	return -EPROTONOSUPPORT;
+int devm_scmi_process_msg(struct udevice *dev, struct scmi_msg *msg)
+{
+	struct udevice *protocol;
+	struct scmi_agent_proto_priv *priv;
+
+	protocol = find_scmi_protocol_device(dev);
+	if (!protocol)
+		return -ENODEV;
+
+	priv = dev_get_parent_priv(protocol);
+
+	return scmi_process_msg(protocol->parent, priv->channel, msg);
 }
 
 UCLASS_DRIVER(scmi_agent) = {
 	.id		= UCLASS_SCMI_AGENT,
 	.name		= "scmi_agent",
 	.post_bind	= scmi_bind_protocols,
+	.per_child_auto	= sizeof(struct scmi_agent_proto_priv),
 };
