@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /**
- * ufs.c - Universal Flash Subsystem (UFS) driver
+ * ufs.c - Universal Flash Storage (UFS) driver
  *
  * Taken from Linux Kernel v5.2 (drivers/scsi/ufs/ufshcd.c) and ported
  * to u-boot.
