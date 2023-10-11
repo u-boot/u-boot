@@ -14,3 +14,4 @@ Build U-Boot
    tools
    buildman
    documentation
+   gen_compile_commands

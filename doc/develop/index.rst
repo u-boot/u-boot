@@ -19,6 +19,7 @@ General
    security
    sending_patches
    system_configuration
+   ide_integration
 
 Implementation
 --------------
