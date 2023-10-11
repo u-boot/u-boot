@@ -30,6 +30,8 @@
 #include <fsl-mc/fsl_qbman_portal.h>
 #include <fsl-mc/ldpaa_wriop.h>
 #include <net/ldpaa_eth.h>
+#include <asm/arch/cpu.h>
+#include <asm/arch-fsl-layerscape/fsl_icid.h>
 
 #define MC_RAM_BASE_ADDR_ALIGNMENT  (512UL * 1024 * 1024)
 #define MC_RAM_BASE_ADDR_ALIGNMENT_MASK	(~(MC_RAM_BASE_ADDR_ALIGNMENT - 1))
@@ -927,6 +929,114 @@ unsigned long mc_get_dram_block_size(void)
 	}
 
 	return dram_block_size;
+}
+
+/**
+ * Populate the device tree with MC reserved memory ranges.
+ */
+void fdt_reserve_mc_mem(void *blob, u32 mc_icid)
+{
+	u32 phandle, mc_ph;
+	int noff, ret, i;
+	char mem_name[16];
+	struct fdt_memory mc_mem_ranges[] = {
+		{
+			.start = 0,
+			.end = 0
+		},
+		{
+			.start = CFG_SYS_FSL_MC_BASE,
+			.end = CFG_SYS_FSL_MC_BASE + CFG_SYS_FSL_MC_SIZE - 1
+		},
+		{
+			.start = CFG_SYS_FSL_NI_BASE,
+			.end = CFG_SYS_FSL_NI_BASE + CFG_SYS_FSL_NI_SIZE - 1
+		},
+		{
+			.start = CFG_SYS_FSL_QBMAN_BASE,
+			.end = CFG_SYS_FSL_QBMAN_BASE +
+					CFG_SYS_FSL_QBMAN_SIZE - 1
+		},
+		{
+			.start = CFG_SYS_FSL_PEBUF_BASE,
+			.end = CFG_SYS_FSL_PEBUF_BASE +
+					CFG_SYS_FSL_PEBUF_SIZE - 1
+		},
+		{
+			.start = CFG_SYS_FSL_CCSR_BASE,
+			.end = CFG_SYS_FSL_CCSR_BASE + CFG_SYS_FSL_CCSR_SIZE - 1
+		}
+	};
+
+	mc_mem_ranges[0].start = gd->arch.resv_ram;
+	mc_mem_ranges[0].end = mc_mem_ranges[0].start +
+				mc_get_dram_block_size() - 1;
+
+	for (i = 0; i < ARRAY_SIZE(mc_mem_ranges); i++) {
+		noff = fdt_node_offset_by_compatible(blob, -1, "fsl,qoriq-mc");
+		if (noff < 0) {
+			printf("WARN: failed to get MC node: %d\n", noff);
+			return;
+		}
+		mc_ph = fdt_get_phandle(blob, noff);
+		if (!mc_ph) {
+			mc_ph = fdt_create_phandle(blob, noff);
+			if (!mc_ph) {
+				printf("WARN: failed to get MC node phandle\n");
+				return;
+			}
+		}
+
+		sprintf(mem_name, "mc-mem%d", i);
+		ret = fdtdec_add_reserved_memory(blob, mem_name,
+						 &mc_mem_ranges[i], NULL, 0,
+						 &phandle, 0);
+		if (ret < 0) {
+			printf("ERROR: failed to reserve MC memory: %d\n", ret);
+			return;
+		}
+
+		noff = fdt_node_offset_by_phandle(blob, phandle);
+		if (noff < 0) {
+			printf("ERROR: failed get resvmem node offset: %d\n",
+			       noff);
+			return;
+		}
+		ret = fdt_setprop_u32(blob, noff, "iommu-addresses", mc_ph);
+		if (ret < 0) {
+			printf("ERROR: failed to set 'iommu-addresses': %d\n",
+			       ret);
+			return;
+		}
+		ret = fdt_appendprop_u64(blob, noff, "iommu-addresses",
+					 mc_mem_ranges[i].start);
+		if (ret < 0) {
+			printf("ERROR: failed to set 'iommu-addresses': %d\n",
+			       ret);
+			return;
+		}
+		ret = fdt_appendprop_u64(blob, noff, "iommu-addresses",
+					 mc_mem_ranges[i].end -
+						mc_mem_ranges[i].start + 1);
+		if (ret < 0) {
+			printf("ERROR: failed to set 'iommu-addresses': %d\n",
+			       ret);
+			return;
+		}
+
+		noff = fdt_node_offset_by_phandle(blob, mc_ph);
+		if (noff < 0) {
+			printf("ERROR: failed get MC node offset: %d\n", noff);
+			return;
+		}
+		ret = fdt_appendprop_u32(blob, noff, "memory-region", phandle);
+		if (ret < 0) {
+			printf("ERROR: failed to set 'memory-region': %d\n",
+			       ret);
+		}
+	}
+
+	fdt_set_iommu_prop(blob, noff, fdt_get_smmu_phandle(blob), &mc_icid, 1);
 }
 
 int fsl_mc_ldpaa_init(struct bd_info *bis)

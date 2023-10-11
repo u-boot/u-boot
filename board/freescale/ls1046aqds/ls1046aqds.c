@@ -14,7 +14,6 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
-#include <asm/arch/ppa.h>
 #include <asm/arch/fdt.h>
 #include <asm/arch/mmu.h>
 #include <asm/arch/cpu.h>
@@ -401,10 +400,6 @@ int board_init(void)
 
 	if (adjust_vdd(0))
 		printf("Warning: Adjusting core voltage failed.\n");
-
-#ifdef CONFIG_FSL_LS_PPA
-	ppa_init();
-#endif
 
 #ifdef CONFIG_NXP_ESBC
 	/*

@@ -15,7 +15,6 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
-#include <asm/arch/ppa.h>
 #include <asm/arch/fdt.h>
 #include <asm/arch/mmu.h>
 #include <asm/arch/cpu.h>
@@ -531,10 +530,6 @@ int board_init(void)
 
 #ifdef CFG_SYS_FSL_SERDES
 	config_serdes_mux();
-#endif
-
-#ifdef CONFIG_FSL_LS_PPA
-	ppa_init();
 #endif
 
 	return 0;
