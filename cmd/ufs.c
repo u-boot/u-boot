@@ -32,6 +32,6 @@ static int do_ufs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 }
 
 U_BOOT_CMD(ufs, 3, 1, do_ufs,
-	   "UFS  sub system",
+	   "UFS sub-system",
 	   "init [dev] - init UFS subsystem\n"
 );
