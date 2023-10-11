@@ -14,11 +14,14 @@
 #include <asm/io.h>
 #include <asm/scmi_test.h>
 #include <dm/device_compat.h>
+#include <linux/bitfield.h>
+#include <linux/kernel.h>
 
 /*
  * The sandbox SCMI agent driver simulates to some extend a SCMI message
  * processing. It simulates few of the SCMI services for some of the
  * SCMI protocols embedded in U-Boot. Currently:
+ * - SCMI base protocol
  * - SCMI clock protocol emulates an agent exposing 2 clocks
  * - SCMI reset protocol emulates an agent exposing a reset controller
  * - SCMI voltage domain protocol emulates an agent exposing 2 regulators
@@ -32,6 +35,13 @@
  * check back-end device state reflects the request send through the
  * various uclass devices, as clocks and reset controllers.
  */
+
+#define SANDBOX_SCMI_BASE_PROTOCOL_VERSION SCMI_BASE_PROTOCOL_VERSION
+#define SANDBOX_SCMI_VENDOR "U-Boot"
+#define SANDBOX_SCMI_SUB_VENDOR "Sandbox"
+#define SANDBOX_SCMI_IMPL_VERSION 0x1
+#define SANDBOX_SCMI_AGENT_NAME "OSPM"
+#define SANDBOX_SCMI_PLATFORM_NAME "platform"
 
 /**
  * struct sandbox_channel - Description of sandbox transport
@@ -52,6 +62,14 @@ struct sandbox_channel {
 struct scmi_channel {
 	struct sandbox_channel ref;
 };
+
+static u8 protocols[] = {
+	SCMI_PROTOCOL_ID_CLOCK,
+	SCMI_PROTOCOL_ID_RESET_DOMAIN,
+	SCMI_PROTOCOL_ID_VOLTAGE_DOMAIN,
+};
+
+#define NUM_PROTOCOLS ARRAY_SIZE(protocols)
 
 static struct sandbox_scmi_clk scmi_clk[] = {
 	{ .rate = 333 },
@@ -133,6 +151,316 @@ static struct sandbox_scmi_voltd *get_scmi_voltd_state(uint domain_id)
 /*
  * Sandbox SCMI agent ops
  */
+
+/* Base Protocol */
+
+/**
+ * sandbox_scmi_base_protocol_version - implement SCMI_BASE_PROTOCOL_VERSION
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_BASE_PROTOCOL_VERSION command.
+ */
+static int sandbox_scmi_base_protocol_version(struct udevice *dev,
+					      struct scmi_msg *msg)
+{
+	struct scmi_protocol_version_out *out = NULL;
+
+	if (!msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	out = (struct scmi_protocol_version_out *)msg->out_msg;
+	out->version = SANDBOX_SCMI_BASE_PROTOCOL_VERSION;
+	out->status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_base_protocol_attrs - implement SCMI_BASE_PROTOCOL_ATTRIBUTES
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_BASE_PROTOCOL_ATTRIBUTES command.
+ */
+static int sandbox_scmi_base_protocol_attrs(struct udevice *dev,
+					    struct scmi_msg *msg)
+{
+	struct scmi_protocol_attrs_out *out = NULL;
+
+	if (!msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	out = (struct scmi_protocol_attrs_out *)msg->out_msg;
+	out->attributes = FIELD_PREP(0xff00, 2) | NUM_PROTOCOLS;
+	out->status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_base_message_attrs - implement
+ *					SCMI_BASE_PROTOCOL_MESSAGE_ATTRIBUTES
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_BASE_PROTOCOL_MESSAGE_ATTRIBUTES command.
+ */
+static int sandbox_scmi_base_message_attrs(struct udevice *dev,
+					   struct scmi_msg *msg)
+{
+	u32 message_id;
+	struct scmi_protocol_msg_attrs_out *out = NULL;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(message_id) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	message_id = *(u32 *)msg->in_msg;
+	out = (struct scmi_protocol_msg_attrs_out *)msg->out_msg;
+
+	if (message_id >= SCMI_PROTOCOL_VERSION &&
+	    message_id <= SCMI_BASE_RESET_AGENT_CONFIGURATION &&
+	    message_id != SCMI_BASE_NOTIFY_ERRORS) {
+		out->attributes = 0;
+		out->status = SCMI_SUCCESS;
+	} else {
+		out->status = SCMI_NOT_FOUND;
+	}
+
+		return 0;
+}
+
+/**
+ * sandbox_scmi_base_discover_vendor - implement SCMI_BASE_DISCOVER_VENDOR
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_BASE_DISCOVER_VENDOR command
+ */
+static int sandbox_scmi_base_discover_vendor(struct udevice *dev,
+					     struct scmi_msg *msg)
+{
+	struct scmi_base_discover_vendor_out *out = NULL;
+
+	if (!msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	out = (struct scmi_base_discover_vendor_out *)msg->out_msg;
+	strcpy(out->vendor_identifier, SANDBOX_SCMI_VENDOR);
+	out->status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_base_discover_sub_vendor - implement
+ *						SCMI_BASE_DISCOVER_SUB_VENDOR
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_BASE_DISCOVER_SUB_VENDOR command
+ */
+static int sandbox_scmi_base_discover_sub_vendor(struct udevice *dev,
+						 struct scmi_msg *msg)
+{
+	struct scmi_base_discover_vendor_out *out = NULL;
+
+	if (!msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	out = (struct scmi_base_discover_vendor_out *)msg->out_msg;
+	strcpy(out->vendor_identifier, SANDBOX_SCMI_SUB_VENDOR);
+	out->status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_base_discover_impl_version - implement
+ *				SCMI_BASE_DISCOVER_IMPLEMENTATION_VERSION
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_BASE_DISCOVER_IMPLEMENTATION_VERSION command
+ */
+static int sandbox_scmi_base_discover_impl_version(struct udevice *dev,
+						   struct scmi_msg *msg)
+{
+	struct scmi_base_discover_impl_version_out *out = NULL;
+
+	if (!msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	out = (struct scmi_base_discover_impl_version_out *)msg->out_msg;
+	out->impl_version = SANDBOX_SCMI_IMPL_VERSION;
+	out->status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_base_discover_list_protocols - implement
+ *					SCMI_BASE_DISCOVER_LIST_PROTOCOLS
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_BASE_DISCOVER_LIST_PROTOCOLS command
+ */
+static int sandbox_scmi_base_discover_list_protocols(struct udevice *dev,
+						     struct scmi_msg *msg)
+{
+	struct scmi_base_discover_list_protocols_out *out = NULL;
+
+	if (!msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	out = (struct scmi_base_discover_list_protocols_out *)msg->out_msg;
+	memcpy(out->protocols, protocols, sizeof(protocols));
+	out->num_protocols = NUM_PROTOCOLS;
+	out->status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_base_discover_agent - implement SCMI_BASE_DISCOVER_AGENT
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_BASE_DISCOVER_AGENT command
+ */
+static int sandbox_scmi_base_discover_agent(struct udevice *dev,
+					    struct scmi_msg *msg)
+{
+	u32 agent_id;
+	struct scmi_base_discover_agent_out *out = NULL;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(agent_id) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	agent_id = *(u32 *)msg->in_msg;
+	out = (struct scmi_base_discover_agent_out *)msg->out_msg;
+	out->status = SCMI_SUCCESS;
+	if (agent_id == 0xffffffff || agent_id == 1) {
+		out->agent_id = 1;
+		strcpy(out->name, SANDBOX_SCMI_AGENT_NAME);
+	} else if (!agent_id) {
+		out->agent_id = agent_id;
+		strcpy(out->name, SANDBOX_SCMI_PLATFORM_NAME);
+	} else {
+		out->status = SCMI_NOT_FOUND;
+	}
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_base_set_device_permissions - implement
+ *						SCMI_BASE_SET_DEVICE_PERMISSIONS
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_BASE_SET_DEVICE_PERMISSIONS command
+ */
+static int sandbox_scmi_base_set_device_permissions(struct udevice *dev,
+						    struct scmi_msg *msg)
+{
+	struct scmi_base_set_device_permissions_in *in = NULL;
+	u32 *status;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(*in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*status))
+		return -EINVAL;
+
+	in = (struct scmi_base_set_device_permissions_in *)msg->in_msg;
+	status = (u32 *)msg->out_msg;
+
+	if (in->agent_id != 1 || in->device_id != 0)
+		*status = SCMI_NOT_FOUND;
+	else if (in->flags & ~SCMI_BASE_SET_DEVICE_PERMISSIONS_ACCESS)
+		*status = SCMI_INVALID_PARAMETERS;
+	else if (in->flags & SCMI_BASE_SET_DEVICE_PERMISSIONS_ACCESS)
+		*status = SCMI_SUCCESS;
+	else
+		/* unset not allowed */
+		*status = SCMI_DENIED;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_base_set_protocol_permissions - implement
+ *					SCMI_BASE_SET_PROTOCOL_PERMISSIONS
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_BASE_SET_PROTOCOL_PERMISSIONS command
+ */
+static int sandbox_scmi_base_set_protocol_permissions(struct udevice *dev,
+						      struct scmi_msg *msg)
+{
+	struct scmi_base_set_protocol_permissions_in *in = NULL;
+	u32 *status;
+	int i;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(*in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*status))
+		return -EINVAL;
+
+	in = (struct scmi_base_set_protocol_permissions_in *)msg->in_msg;
+	status = (u32 *)msg->out_msg;
+
+	for (i = 0; i < ARRAY_SIZE(protocols); i++)
+		if (protocols[i] == in->command_id)
+			break;
+	if (in->agent_id != 1 || in->device_id != 0 ||
+	    i == ARRAY_SIZE(protocols))
+		*status = SCMI_NOT_FOUND;
+	else if (in->flags & ~SCMI_BASE_SET_PROTOCOL_PERMISSIONS_ACCESS)
+		*status = SCMI_INVALID_PARAMETERS;
+	else if (in->flags & SCMI_BASE_SET_PROTOCOL_PERMISSIONS_ACCESS)
+		*status = SCMI_SUCCESS;
+	else
+		/* unset not allowed */
+		*status = SCMI_DENIED;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_base_reset_agent_configuration - implement
+ *					SCMI_BASE_RESET_AGENT_CONFIGURATION
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_BASE_RESET_AGENT_CONFIGURATION command
+ */
+static int sandbox_scmi_base_reset_agent_configuration(struct udevice *dev,
+						       struct scmi_msg *msg)
+{
+	struct scmi_base_reset_agent_configuration_in *in = NULL;
+	u32 *status;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(*in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*status))
+		return -EINVAL;
+
+	in = (struct scmi_base_reset_agent_configuration_in *)msg->in_msg;
+	status = (u32 *)msg->out_msg;
+
+	if (in->agent_id != 1)
+		*status = SCMI_NOT_FOUND;
+	else if (in->flags & ~SCMI_BASE_RESET_ALL_ACCESS_PERMISSIONS)
+		*status = SCMI_INVALID_PARAMETERS;
+	else
+		*status = SCMI_DENIED;
+
+	return 0;
+}
+
+/* Clock Protocol */
 
 static int sandbox_scmi_clock_protocol_attribs(struct udevice *dev,
 					       struct scmi_msg *msg)
@@ -562,6 +890,36 @@ static int sandbox_scmi_test_process_msg(struct udevice *dev,
 					 struct scmi_msg *msg)
 {
 	switch (msg->protocol_id) {
+	case SCMI_PROTOCOL_ID_BASE:
+		switch (msg->message_id) {
+		case SCMI_PROTOCOL_VERSION:
+			return sandbox_scmi_base_protocol_version(dev, msg);
+		case SCMI_PROTOCOL_ATTRIBUTES:
+			return sandbox_scmi_base_protocol_attrs(dev, msg);
+		case SCMI_PROTOCOL_MESSAGE_ATTRIBUTES:
+			return sandbox_scmi_base_message_attrs(dev, msg);
+		case SCMI_BASE_DISCOVER_VENDOR:
+			return sandbox_scmi_base_discover_vendor(dev, msg);
+		case SCMI_BASE_DISCOVER_SUB_VENDOR:
+			return sandbox_scmi_base_discover_sub_vendor(dev, msg);
+		case SCMI_BASE_DISCOVER_IMPL_VERSION:
+			return sandbox_scmi_base_discover_impl_version(dev, msg);
+		case SCMI_BASE_DISCOVER_LIST_PROTOCOLS:
+			return sandbox_scmi_base_discover_list_protocols(dev, msg);
+		case SCMI_BASE_DISCOVER_AGENT:
+			return sandbox_scmi_base_discover_agent(dev, msg);
+		case SCMI_BASE_NOTIFY_ERRORS:
+			break;
+		case SCMI_BASE_SET_DEVICE_PERMISSIONS:
+			return sandbox_scmi_base_set_device_permissions(dev, msg);
+		case SCMI_BASE_SET_PROTOCOL_PERMISSIONS:
+			return sandbox_scmi_base_set_protocol_permissions(dev, msg);
+		case SCMI_BASE_RESET_AGENT_CONFIGURATION:
+			return sandbox_scmi_base_reset_agent_configuration(dev, msg);
+		default:
+			break;
+		}
+		break;
 	case SCMI_PROTOCOL_ID_CLOCK:
 		switch (msg->message_id) {
 		case SCMI_PROTOCOL_ATTRIBUTES:
@@ -604,7 +962,6 @@ static int sandbox_scmi_test_process_msg(struct udevice *dev,
 			break;
 		}
 		break;
-	case SCMI_PROTOCOL_ID_BASE:
 	case SCMI_PROTOCOL_ID_POWER_DOMAIN:
 	case SCMI_PROTOCOL_ID_SYSTEM:
 	case SCMI_PROTOCOL_ID_PERF:
