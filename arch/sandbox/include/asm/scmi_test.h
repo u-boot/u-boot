@@ -98,9 +98,11 @@ unsigned int sandbox_scmi_channel_id(struct udevice *dev);
 
 /**
  * sandbox_scmi_service_ctx - Get the simulated SCMI services context
+ * sandbox_scmi_agent_ctx - Get the simulated SCMI agent context
+ * @dev:	Reference to the test agent
  * @return:	Reference to backend simulated resources state
  */
-struct sandbox_scmi_service *sandbox_scmi_service_ctx(void);
+struct sandbox_scmi_agent *sandbox_scmi_agent_ctx(struct udevice *dev);
 
 /**
  * sandbox_scmi_devices_ctx - Get references to devices accessed through SCMI
@@ -114,7 +116,7 @@ inline unsigned int sandbox_scmi_channel_id(struct udevice *dev);
 	return 0;
 }
 
-static inline struct sandbox_scmi_service *sandbox_scmi_service_ctx(void)
+static struct sandbox_scmi_agent *sandbox_scmi_agent_ctx(struct udevice *dev)
 {
 	return NULL;
 }
