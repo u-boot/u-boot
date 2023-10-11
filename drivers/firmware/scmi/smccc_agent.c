@@ -81,6 +81,7 @@ static int setup_channel(struct udevice *dev, struct scmi_smccc_channel *chan)
 }
 
 static int scmi_smccc_get_channel(struct udevice *dev,
+				  struct udevice *protocol,
 				  struct scmi_channel **channel)
 {
 	struct scmi_smccc_channel *base_chan = dev_get_plat(dev);
@@ -88,7 +89,7 @@ static int scmi_smccc_get_channel(struct udevice *dev,
 	u32 func_id;
 	int ret;
 
-	if (dev_read_u32(dev, "arm,smc-id", &func_id)) {
+	if (dev_read_u32(protocol, "arm,smc-id", &func_id)) {
 		/* Uses agent base channel */
 		*channel = container_of(base_chan, struct scmi_channel, ref);
 
@@ -100,7 +101,7 @@ static int scmi_smccc_get_channel(struct udevice *dev,
 	if (!chan)
 		return -ENOMEM;
 
-	ret = setup_channel(dev, chan);
+	ret = setup_channel(protocol, chan);
 	if (ret) {
 		free(chan);
 		return ret;

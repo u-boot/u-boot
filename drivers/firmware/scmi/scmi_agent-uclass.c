@@ -144,13 +144,14 @@ static const struct scmi_agent_ops *transport_dev_ops(struct udevice *dev)
  * On return, @channel will be set.
  * Return	0 on success and a negative errno on failure
  */
-static int scmi_of_get_channel(struct udevice *dev, struct scmi_channel **channel)
+static int scmi_of_get_channel(struct udevice *dev, struct udevice *protocol,
+			       struct scmi_channel **channel)
 {
 	const struct scmi_agent_ops *ops;
 
 	ops = transport_dev_ops(dev);
 	if (ops->of_get_channel)
-		return ops->of_get_channel(dev, channel);
+		return ops->of_get_channel(dev, protocol, channel);
 	else
 		return -EPROTONOSUPPORT;
 }
@@ -166,7 +167,7 @@ int devm_scmi_of_get_channel(struct udevice *dev)
 		return -ENODEV;
 
 	priv = dev_get_parent_priv(protocol);
-	ret = scmi_of_get_channel(protocol->parent, &priv->channel);
+	ret = scmi_of_get_channel(protocol->parent, protocol, &priv->channel);
 	if (ret == -EPROTONOSUPPORT) {
 		/* Drivers without a get_channel operator don't need a channel ref */
 		priv->channel = NULL;

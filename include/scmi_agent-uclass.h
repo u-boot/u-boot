@@ -16,16 +16,18 @@ struct scmi_agent_ops {
 	/*
 	 * of_get_channel - Get SCMI channel from SCMI agent device tree node
 	 *
-	 * @dev:		SCMI protocol device using the transport
+	 * @dev:		SCMI agent device using the transport
+	 * @protocol:		SCMI protocol device using the transport
 	 * @channel:		Output reference to SCMI channel upon success
 	 * Return 0 upon success and a negative errno on failure
 	 */
-	int (*of_get_channel)(struct udevice *dev, struct scmi_channel **channel);
+	int (*of_get_channel)(struct udevice *dev, struct udevice *protocol,
+			      struct scmi_channel **channel);
 
 	/*
 	 * process_msg - Request transport to get the SCMI message processed
 	 *
-	 * @dev:		SCMI protocol device using the transport
+	 * @dev:		SCMI agent device using the transport
 	 * @msg:		SCMI message to be transmitted
 	 */
 	int (*process_msg)(struct udevice *dev, struct scmi_channel *channel,
