@@ -15,6 +15,8 @@
 #include <dm.h>
 #include <part.h>
 #include <sata.h>
+#include <dm/device-internal.h>
+#include <dm/uclass-internal.h>
 
 #ifndef CONFIG_AHCI
 struct blk_desc sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
@@ -48,6 +50,36 @@ int sata_scan(struct udevice *dev)
 		return -ENOSYS;
 
 	return ops->scan(dev);
+}
+
+int sata_rescan(bool verbose)
+{
+	int ret;
+	struct udevice *dev;
+
+	if (verbose)
+		printf("Removing devices on SATA bus...\n");
+
+	blk_unbind_all(UCLASS_AHCI);
+
+	ret = uclass_find_first_device(UCLASS_AHCI, &dev);
+	if (ret || !dev) {
+		printf("Cannot find SATA device (err=%d)\n", ret);
+		return -ENOSYS;
+	}
+
+	ret = device_remove(dev, DM_REMOVE_NORMAL);
+	if (ret) {
+		printf("Cannot remove SATA device '%s' (err=%d)\n", dev->name, ret);
+		return -ENOSYS;
+	}
+
+	if (verbose)
+		printf("Rescanning SATA bus for devices...\n");
+
+	ret = uclass_probe_all(UCLASS_AHCI);
+
+	return ret;
 }
 
 #ifndef CONFIG_AHCI
