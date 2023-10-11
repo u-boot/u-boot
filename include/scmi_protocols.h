@@ -50,6 +50,501 @@ enum scmi_discovery_id {
 };
 
 /*
+ * SCMI Base Protocol
+ */
+#define SCMI_BASE_PROTOCOL_VERSION 0x20000
+
+enum scmi_base_message_id {
+	SCMI_BASE_DISCOVER_VENDOR = 0x3,
+	SCMI_BASE_DISCOVER_SUB_VENDOR = 0x4,
+	SCMI_BASE_DISCOVER_IMPL_VERSION = 0x5,
+	SCMI_BASE_DISCOVER_LIST_PROTOCOLS = 0x6,
+	SCMI_BASE_DISCOVER_AGENT = 0x7,
+	SCMI_BASE_NOTIFY_ERRORS = 0x8,
+	SCMI_BASE_SET_DEVICE_PERMISSIONS = 0x9,
+	SCMI_BASE_SET_PROTOCOL_PERMISSIONS = 0xa,
+	SCMI_BASE_RESET_AGENT_CONFIGURATION = 0xb,
+};
+
+#define SCMI_BASE_NAME_LENGTH_MAX 16
+
+/**
+ * struct scmi_protocol_version_out - Response for SCMI_PROTOCOL_VERSION
+ *					command
+ * @status:	SCMI command status
+ * @version:	Protocol version
+ */
+struct scmi_protocol_version_out {
+	s32 status;
+	u32 version;
+};
+
+/**
+ * struct scmi_protocol_attrs_out - Response for SCMI_PROTOCOL_ATTRIBUTES
+ *					command
+ * @status:	SCMI command status
+ * @attributes:	Protocol attributes or implementation details
+ */
+struct scmi_protocol_attrs_out {
+	s32 status;
+	u32 attributes;
+};
+
+#define SCMI_PROTOCOL_ATTRS_NUM_AGENTS(attributes) \
+				(((attributes) & GENMASK(15, 8)) >> 8)
+#define SCMI_PROTOCOL_ATTRS_NUM_PROTOCOLS(attributes) \
+				((attributes) & GENMASK(7, 0))
+
+/**
+ * struct scmi_protocol_msg_attrs_out - Response for
+ *					SCMI_PROTOCOL_MESSAGE_ATTRIBUTES command
+ * @status:	SCMI command status
+ * @attributes:	Message-specific attributes
+ */
+struct scmi_protocol_msg_attrs_out {
+	s32 status;
+	u32 attributes;
+};
+
+/**
+ * struct scmi_base_discover_vendor_out - Response for
+ *					  SCMI_BASE_DISCOVER_VENDOR or
+ *					  SCMI_BASE_DISCOVER_SUB_VENDOR command
+ * @status:		SCMI command status
+ * @vendor_identifier:	Name of vendor or sub-vendor in string
+ */
+struct scmi_base_discover_vendor_out {
+	s32 status;
+	u8 vendor_identifier[SCMI_BASE_NAME_LENGTH_MAX];
+};
+
+/**
+ * struct scmi_base_discover_impl_version_out - Response for
+ *					SCMI_BASE_DISCOVER_IMPL_VERSION command
+ * @status:		SCMI command status
+ * @impl_version:	Vendor-specific implementation version
+ */
+struct scmi_base_discover_impl_version_out {
+	s32 status;
+	u32 impl_version;
+};
+
+/**
+ * struct scmi_base_discover_list_protocols_out - Response for
+ *				SCMI_BASE_DISCOVER_LIST_PROTOCOLS command
+ * @status:		SCMI command status
+ * @num_protocols:	Number of SCMI protocols in @protocol
+ * @protocols:		Array of packed SCMI protocol ID's
+ */
+struct scmi_base_discover_list_protocols_out {
+	s32 status;
+	u32 num_protocols;
+	u32 protocols[3];
+};
+
+/**
+ * struct scmi_base_discover_agent_out - Response for
+ *					 SCMI_BASE_DISCOVER_AGENT command
+ * @status:	SCMI command status
+ * @agent_id:	SCMI agent ID
+ * @name:	Name of agent in string
+ */
+struct scmi_base_discover_agent_out {
+	s32 status;
+	u32 agent_id;
+	u8 name[SCMI_BASE_NAME_LENGTH_MAX];
+};
+
+#define SCMI_BASE_NOTIFY_ERRORS_ENABLE BIT(0)
+
+/**
+ * struct scmi_base_set_device_permissions_in - Parameters for
+ *					SCMI_BASE_SET_DEVICE_PERMISSIONS command
+ * @agent_id:	SCMI agent ID
+ * @device_id:	device ID
+ * @flags:	A set of flags
+ */
+struct scmi_base_set_device_permissions_in {
+	u32 agent_id;
+	u32 device_id;
+	u32 flags;
+};
+
+#define SCMI_BASE_SET_DEVICE_PERMISSIONS_ACCESS BIT(0)
+
+/**
+ * struct scmi_base_set_protocol_permissions_in - Parameters for
+ *				SCMI_BASE_SET_PROTOCOL_PERMISSIONS command
+ * @agent_id:		SCMI agent ID
+ * @device_id:		device ID
+ * @command_id:		command ID
+ * @flags:		A set of flags
+ */
+struct scmi_base_set_protocol_permissions_in {
+	u32 agent_id;
+	u32 device_id;
+	u32 command_id;
+	u32 flags;
+};
+
+#define SCMI_BASE_SET_PROTOCOL_PERMISSIONS_COMMAND GENMASK(7, 0)
+#define SCMI_BASE_SET_PROTOCOL_PERMISSIONS_ACCESS BIT(0)
+
+/**
+ * struct scmi_base_reset_agent_configuration_in - Parameters for
+ *				SCMI_BASE_RESET_AGENT_CONFIGURATION command
+ * @agent_id:	SCMI agent ID
+ * @flags:	A set of flags
+ */
+struct scmi_base_reset_agent_configuration_in {
+	u32 agent_id;
+	u32 flags;
+};
+
+#define SCMI_BASE_RESET_ALL_ACCESS_PERMISSIONS BIT(0)
+
+/**
+ * struct scmi_base_ops - SCMI base protocol interfaces
+ */
+struct scmi_base_ops {
+	/**
+	 * protocol_version - get Base protocol version
+	 * @dev:	SCMI protocol device
+	 * @version:	Pointer to SCMI protocol version
+	 *
+	 * Obtain the protocol version number in @version for Base protocol.
+	 *
+	 * Return: 0 on success, error code on failure
+	 */
+	int (*protocol_version)(struct udevice *dev, u32 *version);
+	/**
+	 * protocol_attrs - get protocol attributes
+	 * @dev:		SCMI protocol device
+	 * @num_agents:		Number of SCMI agents
+	 * @num_protocols:	Number of SCMI protocols
+	 *
+	 * Obtain the protocol attributes, the number of agents and the number
+	 * of protocols, in @num_agents and @num_protocols respectively, that
+	 * the device provides.
+	 *
+	 * Return: 0 on success, error code on failure
+	 */
+	int (*protocol_attrs)(struct udevice *dev, u32 *num_agents,
+			      u32 *num_protocols);
+	/**
+	 * protocol_message_attrs - get message-specific attributes
+	 * @dev:		SCMI protocol device
+	 * @message_id:		SCMI message ID
+	 * @attributes:		Message-specific attributes
+	 *
+	 * Obtain the message-specific attributes in @attributes.
+	 * This command succeeds if the message is implemented and available.
+	 *
+	 * Return: 0 on success, error code on failure
+	 */
+	int (*protocol_message_attrs)(struct udevice *dev, u32 message_id,
+				      u32 *attributes);
+	/**
+	 * base_discover_vendor - get vendor name
+	 * @dev:	SCMI protocol device
+	 * @vendor:	Pointer to vendor name
+	 *
+	 * Obtain the vendor's name in @vendor.
+	 * It is a caller's responsibility to free @vendor.
+	 *
+	 * Return: 0 on success, error code on failure
+	 */
+	int (*base_discover_vendor)(struct udevice *dev, u8 **vendor);
+	/**
+	 * base_discover_sub_vendor - get sub-vendor name
+	 * @dev:	SCMI protocol device
+	 * @sub_vendor:	Pointer to sub-vendor name
+	 *
+	 * Obtain the sub-vendor's name in @sub_vendor.
+	 * It is a caller's responsibility to free @sub_vendor.
+	 *
+	 * Return: 0 on success, error code on failure
+	 */
+	int (*base_discover_sub_vendor)(struct udevice *dev, u8 **sub_vendor);
+	/**
+	 * base_discover_impl_version - get implementation version
+	 * @dev:		SCMI protocol device
+	 * @impl_version:	Pointer to implementation version
+	 *
+	 * Obtain the implementation version number in @impl_version.
+	 *
+	 * Return: 0 on success, error code on failure
+	 */
+	int (*base_discover_impl_version)(struct udevice *dev,
+					  u32 *impl_version);
+	/**
+	 * base_discover_list_protocols - get list of protocols
+	 * @dev:	SCMI protocol device
+	 * @protocols:	Pointer to array of SCMI protocols
+	 *
+	 * Obtain the list of protocols provided in @protocols.
+	 * The number of elements in @protocols always match to the number of
+	 * protocols returned by smci_protocol_attrs() when this function
+	 * succeeds.
+	 * It is a caller's responsibility to free @protocols.
+	 *
+	 * Return: the number of protocols in @protocols on success,
+	 * error code on failure
+	 */
+	int (*base_discover_list_protocols)(struct udevice *dev,
+					    u8 **protocols);
+	/**
+	 * base_discover_agent - identify agent
+	 * @dev:		SCMI protocol device
+	 * @agent_id:		SCMI agent ID
+	 * @ret_agent_id:	Pointer to SCMI agent ID
+	 * @name:		Pointer to SCMI agent name
+	 *
+	 * Obtain the agent's name in @name. If @agent_id is equal to
+	 * 0xffffffff, * this function returns the caller's agent id in
+	 * @ret_agent_id.
+	 * It is a caller's responsibility to free @name.
+	 *
+	 * Return: 0 on success, error code on failure
+	 */
+	int (*base_discover_agent)(struct udevice *dev, u32 agent_id,
+				   u32 *ret_agent_id, u8 **name);
+	/**
+	 * base_notify_errors - configure error notification
+	 * @dev:	SCMI protocol device
+	 * @enable:	Operation
+	 *
+	 * Enable or disable error notification from SCMI firmware.
+	 *
+	 * Return: 0 on success, error code on failure
+	 */
+	int (*base_notify_errors)(struct udevice *dev, u32 enable);
+	/**
+	 * base_set_device_permissions - configure access permission to device
+	 * @dev:	SCMI protocol device
+	 * @agent_id:	SCMI agent ID
+	 * @device_id:	ID of device to access
+	 * @flags:	A set of flags
+	 *
+	 * Ask for allowing or denying access permission to the device,
+	 * @device_id. The meaning of @flags is defined in SCMI specification.
+	 *
+	 * Return: 0 on success, error code on failure
+	 */
+	int (*base_set_device_permissions)(struct udevice *dev, u32 agent_id,
+					   u32 device_id, u32 flags);
+	/**
+	 * base_set_protocol_permissions - configure access permission to
+	 *				   protocol on device
+	 * @dev:	SCMI protocol device
+	 * @agent_id:	SCMI agent ID
+	 * @device_id:	ID of device to access
+	 * @command_id:	command ID
+	 * @flags:	A set of flags
+	 *
+	 * Ask for allowing or denying access permission to the protocol,
+	 * @command_id, on the device, @device_id.
+	 * The meaning of @flags is defined in SCMI specification.
+	 *
+	 * Return: 0 on success, error code on failure
+	 */
+	int (*base_set_protocol_permissions)(struct udevice *dev, u32 agent_id,
+					     u32 device_id, u32 command_id,
+					     u32 flags);
+	/**
+	 * base_reset_agent_configuration - reset resource settings
+	 * @dev:	SCMI protocol device
+	 * @agent_id:	SCMI agent ID
+	 * @flags:	A set of flags
+	 *
+	 * Reset all the resource settings against @agent_id.
+	 * The meaning of @flags is defined in SCMI specification.
+	 *
+	 * Return: 0 on success, error code on failure
+	 */
+	int (*base_reset_agent_configuration)(struct udevice *dev, u32 agent_id,
+					      u32 flags);
+};
+
+/**
+ * scmi_generic_protocol_version - get protocol version
+ * @dev:	SCMI protocol device
+ * @id:		SCMI protocol ID
+ * @version:	Pointer to SCMI protocol version
+ *
+ * Obtain the protocol version number in @version.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_generic_protocol_version(struct udevice *dev,
+				  enum scmi_std_protocol id, u32 *version);
+
+/**
+ * scmi_base_protocol_version - get Base protocol version
+ * @dev:	SCMI protocol device
+ * @version:	Pointer to SCMI protocol version
+ *
+ * Obtain the protocol version number in @version for Base protocol.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_base_protocol_version(struct udevice *dev, u32 *version);
+
+/**
+ * scmi_protocol_attrs - get protocol attributes
+ * @dev:		SCMI protocol device
+ * @num_agents:		Number of SCMI agents
+ * @num_protocols:	Number of SCMI protocols
+ *
+ * Obtain the protocol attributes, the number of agents and the number
+ * of protocols, in @num_agents and @num_protocols respectively, that
+ * the device provides.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_base_protocol_attrs(struct udevice *dev, u32 *num_agents,
+			     u32 *num_protocols);
+
+/**
+ * scmi_protocol_message_attrs - get message-specific attributes
+ * @dev:		SCMI protocol device
+ * @message_id:		SCMI message ID
+ * @attributes:		Message-specific attributes
+ *
+ * Obtain the message-specific attributes in @attributes.
+ * This command succeeds if the message is implemented and available.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_base_protocol_message_attrs(struct udevice *dev, u32 message_id,
+				     u32 *attributes);
+
+/**
+ * scmi_base_discover_vendor - get vendor name
+ * @dev:	SCMI protocol device
+ * @vendor:	Pointer to vendor name
+ *
+ * Obtain the vendor's name in @vendor.
+ * It is a caller's responsibility to free @vendor.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_base_discover_vendor(struct udevice *dev, u8 **vendor);
+
+/**
+ * scmi_base_discover_sub_vendor - get sub-vendor name
+ * @dev:	SCMI protocol device
+ * @sub_vendor:	Pointer to sub-vendor name
+ *
+ * Obtain the sub-vendor's name in @sub_vendor.
+ * It is a caller's responsibility to free @sub_vendor.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_base_discover_sub_vendor(struct udevice *dev, u8 **sub_vendor);
+
+/**
+ * scmi_base_discover_impl_version - get implementation version
+ * @dev:		SCMI protocol device
+ * @impl_version:	Pointer to implementation version
+ *
+ * Obtain the implementation version number in @impl_version.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_base_discover_impl_version(struct udevice *dev, u32 *impl_version);
+
+/**
+ * scmi_base_discover_list_protocols - get list of protocols
+ * @dev:	SCMI protocol device
+ * @protocols:	Pointer to array of SCMI protocols
+ *
+ * Obtain the list of protocols provided in @protocols.
+ * The number of elements in @protocols always match to the number of
+ * protocols returned by smci_protocol_attrs() when this function succeeds.
+ * It is a caller's responsibility to free @protocols.
+ *
+ * Return: the number of protocols in @protocols on success, error code on
+ * failure
+ */
+int scmi_base_discover_list_protocols(struct udevice *dev, u8 **protocols);
+
+/**
+ * scmi_base_discover_agent - identify agent
+ * @dev:		SCMI protocol device
+ * @agent_id:		SCMI agent ID
+ * @ret_agent_id:	Pointer to SCMI agent ID
+ * @name:		Pointer to SCMI agent name
+ *
+ * Obtain the agent's name in @name. If @agent_id is equal to 0xffffffff,
+ * this function returns the caller's agent id in @ret_agent_id.
+ * It is a caller's responsibility to free @name.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_base_discover_agent(struct udevice *dev, u32 agent_id,
+			     u32 *ret_agent_id, u8 **name);
+
+/**
+ * scmi_base_notify_errors - configure error notification
+ * @dev:	SCMI protocol device
+ * @enable:	Operation
+ *
+ * Enable or disable error notification from SCMI firmware.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_base_notify_errors(struct udevice *dev, u32 enable);
+
+/**
+ * scmi_base_set_device_permissions - configure access permission to device
+ * @dev:	SCMI protocol device
+ * @agent_id:	SCMI agent ID
+ * @device_id:	ID of device to access
+ * @flags:	A set of flags
+ *
+ * Ask for allowing or denying access permission to the device, @device_id.
+ * The meaning of @flags is defined in SCMI specification.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_base_set_device_permissions(struct udevice *dev, u32 agent_id,
+				     u32 device_id, u32 flags);
+
+/**
+ * scmi_base_set_protocol_permissions - configure access permission to
+ *					protocol on device
+ * @dev:	SCMI protocol device
+ * @agent_id:	SCMI agent ID
+ * @device_id:	ID of device to access
+ * @command_id:	SCMI command ID
+ * @flags:	A set of flags
+ *
+ * Ask for allowing or denying access permission to the protocol, @command_id,
+ * on the device, @device_id.
+ * The meaning of @flags is defined in SCMI specification.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_base_set_protocol_permissions(struct udevice *dev,
+				       u32 agent_id, u32 device_id,
+				       u32 command_id, u32 flags);
+
+/**
+ * scmi_base_reset_agent_configuration - reset resource settings
+ * @dev:	SCMI protocol device
+ * @agent_id:	SCMI agent ID
+ * @flags:	A set of flags
+ *
+ * Reset all the resource settings against @agent_id.
+ * The meaning of @flags is defined in SCMI specification.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_base_reset_agent_configuration(struct udevice *dev, u32 agent_id,
+					u32 flags);
+
+/*
  * SCMI Clock Protocol
  */
 
