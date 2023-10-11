@@ -18,7 +18,4 @@
 
 #define CFG_SMP_PEN_ADDR	0x02020000
 
-/* The PERIPHBASE in the CBAR register is wrong on the Arndale, so override it */
-#define CFG_ARM_GIC_BASE_ADDRESS	0x10480000
-
 #endif	/* __CONFIG_H */

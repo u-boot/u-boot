@@ -23,6 +23,7 @@ previously done by NXP [4]:
 - PV block device frontend driver with XenStore based device enumeration and
   UCLASS_PVBLOCK class;
 - PV serial console device frontend driver;
+- Virtio block device support;
 - Xen hypervisor support with minimal set of the essential headers adapted from
   the Linux kernel;
 - Xen grant table support;
@@ -34,6 +35,7 @@ previously done by NXP [4]:
   define any start addresses at compile time which is up to Xen to choose at
   run-time;
 - new defconfig introduced: xenguest_arm64_defconfig.
+- new defconfig introduced: xenguest_arm64_virtio_defconfig.
 
 
 Board limitations

@@ -594,10 +594,10 @@ To insert the lowest supported version into a dtb
 
 .. code-block:: console
 
-    $ dtc -@ -I dts -O dtb -o version.dtbo version.dts
+    $ dtc -@ -I dts -O dtb -o version.dtbo version.dtso
     $ fdtoverlay -i orig.dtb -o new.dtb -v version.dtbo
 
-where version.dts looks like::
+where version.dtso looks like::
 
     /dts-v1/;
     /plugin/;

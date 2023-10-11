@@ -669,17 +669,22 @@ int input_stdio_register(struct stdio_dev *dev)
 	int error;
 
 	error = stdio_register(dev);
-#if !defined(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(ENV_SUPPORT)
-	/* check if this is the standard input device */
-	if (!error && strcmp(env_get("stdin"), dev->name) == 0) {
-		/* reassign the console */
-		if (OVERWRITE_CONSOLE ||
-				console_assign(stdin, dev->name))
-			return -1;
+
+	if (!CONFIG_IS_ENABLED(ENV_SUPPORT))
+		return 0;
+
+	if (!error) {
+		const char *cstdin;
+
+		/* check if this is the standard input device */
+		cstdin = env_get("stdin");
+		if (cstdin && !strcmp(cstdin, dev->name)) {
+			/* reassign the console */
+			if (OVERWRITE_CONSOLE ||
+			    console_assign(stdin, dev->name))
+				return -1;
+		}
 	}
-#else
-	error = error;
-#endif
 
 	return 0;
 }

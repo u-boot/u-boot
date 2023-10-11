@@ -2606,8 +2606,8 @@ sub u_boot_line {
 		     "Possible new uclass - make sure to add a sandbox driver, plus a test in test/dm/<name>.c\n" . $herecurr);
 	}
 
-	# try to get people to use the livetree API
-	if ($line =~ /^\+.*fdtdec_/) {
+	# try to get people to use the livetree API, except when changing tooling
+	if ($line =~ /^\+.*fdtdec_/ && $realfile !~ /^tools\//) {
 		WARN("LIVETREE",
 		     "Use the livetree API (dev_read_...)\n" . $herecurr);
 	}

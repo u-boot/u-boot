@@ -145,11 +145,25 @@ int dram_init(void)
 {
 	struct draminfo *synquacer_draminfo = (void *)SQ_DRAMINFO_BASE;
 	struct draminfo_entry *ent = synquacer_draminfo->entry;
+	unsigned long size = 0;
+	int i;
 
-	gd->ram_size = ent[0].size;
+	for (i = 0; i < synquacer_draminfo->nr_regions; i++)
+		size += ent[i].size;
+
+	gd->ram_size = size;
 	gd->ram_base = ent[0].base;
 
 	return 0;
+}
+
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
+{
+	struct draminfo *synquacer_draminfo = (void *)SQ_DRAMINFO_BASE;
+	struct draminfo_entry *ent = synquacer_draminfo->entry;
+
+	return ent[synquacer_draminfo->nr_regions - 1].base +
+	       ent[synquacer_draminfo->nr_regions - 1].size;
 }
 
 int dram_init_banksize(void)

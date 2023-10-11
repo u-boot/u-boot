@@ -576,7 +576,12 @@ config ENV_OFFSET
 	default 0x260000 if ARCH_OMAP2PLUS
 	default 0x1080000 if MICROBLAZE && ENV_IS_IN_SPI_FLASH
 	help
-	  Offset from the start of the device (or partition)
+	  Offset from the start of the device (or partition).
+
+	  This offset may be interpreted differently depending on the chosen
+	  ENV_IS_IN_* options. For example, for ENV_IS_IN_MMC=y, this offset may
+	  be negative to indicate an offset backwards from the end of the
+	  partition. See the relevant help messages for more details.
 
 config ENV_OFFSET_REDUND
 	hex "Redundant environment offset"
@@ -587,6 +592,11 @@ config ENV_OFFSET_REDUND
 	help
 	  Offset from the start of the device (or partition) of the redundant
 	  environment location.
+
+	  This offset may be interpreted differently depending on the chosen
+	  ENV_IS_IN_* options. For example, for ENV_IS_IN_MMC=y, this offset may
+	  be negative to indicate an offset backwards from the end of the
+	  partition. See the relevant help messages for more details.
 
 config ENV_SIZE
 	hex "Environment Size"

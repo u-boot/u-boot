@@ -497,7 +497,7 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 {
 	void *buf = NULL;
 	int buf_ptr;
-	int fit_size, new_size;
+	int fit_size, unpadded_size, new_size, pad_boundary;
 	int fd;
 	struct stat sbuf;
 	void *fdt;
@@ -564,9 +564,13 @@ static int fit_extract_data(struct image_tool_params *params, const char *fname)
 	/* Pack the FDT and place the data after it */
 	fdt_pack(fdt);
 
-	new_size = fdt_totalsize(fdt);
-	new_size = ALIGN(new_size, align_size);
+	unpadded_size = fdt_totalsize(fdt);
+	new_size = ALIGN(unpadded_size, align_size);
 	fdt_set_totalsize(fdt, new_size);
+	if (unpadded_size < fit_size) {
+		pad_boundary = new_size < fit_size ? new_size : fit_size;
+		memset(fdt + unpadded_size, 0, pad_boundary - unpadded_size);
+	}
 	debug("Size reduced from %x to %x\n", fit_size, fdt_totalsize(fdt));
 	debug("External data size %x\n", buf_ptr);
 	munmap(fdt, sbuf.st_size);
@@ -616,6 +620,8 @@ err:
 static int fit_import_data(struct image_tool_params *params, const char *fname)
 {
 	void *fdt, *old_fdt;
+	void *data = NULL;
+	const char *ext_data_prop = NULL;
 	int fit_size, new_size, size, data_base;
 	int fd;
 	struct stat sbuf;
@@ -659,14 +665,28 @@ static int fit_import_data(struct image_tool_params *params, const char *fname)
 		int buf_ptr;
 		int len;
 
-		buf_ptr = fdtdec_get_int(fdt, node, "data-offset", -1);
-		len = fdtdec_get_int(fdt, node, "data-size", -1);
-		if (buf_ptr == -1 || len == -1)
+		/*
+		 * FIT_DATA_OFFSET_PROP and FIT_DATA_POSITION_PROP are never both present,
+		 *  but if they are, prefer FIT_DATA_OFFSET_PROP as it was there first
+		 */
+		buf_ptr = fdtdec_get_int(fdt, node, FIT_DATA_POSITION_PROP, -1);
+		if (buf_ptr != -1) {
+			ext_data_prop = FIT_DATA_POSITION_PROP;
+			data = old_fdt + buf_ptr;
+		}
+		buf_ptr = fdtdec_get_int(fdt, node, FIT_DATA_OFFSET_PROP, -1);
+		if (buf_ptr != -1) {
+			ext_data_prop = FIT_DATA_OFFSET_PROP;
+			data = old_fdt + data_base + buf_ptr;
+		}
+		len = fdtdec_get_int(fdt, node, FIT_DATA_SIZE_PROP, -1);
+		if (!data || len == -1)
 			continue;
 		debug("Importing data size %x\n", len);
 
-		ret = fdt_setprop(fdt, node, "data",
-				  old_fdt + data_base + buf_ptr, len);
+		ret = fdt_setprop(fdt, node, FIT_DATA_PROP, data, len);
+		ret = fdt_delprop(fdt, node, ext_data_prop);
+
 		if (ret) {
 			debug("%s: Failed to write property: %s\n", __func__,
 			      fdt_strerror(ret));

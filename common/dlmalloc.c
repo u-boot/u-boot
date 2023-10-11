@@ -8,13 +8,13 @@
  * as file malloc-2.6.6.c.
  */
 
-#include <common.h>
-#include <log.h>
-#include <asm/global_data.h>
-
 #if CONFIG_IS_ENABLED(UNIT_TEST)
 #define DEBUG
 #endif
+
+#include <common.h>
+#include <log.h>
+#include <asm/global_data.h>
 
 #include <malloc.h>
 #include <asm/io.h>

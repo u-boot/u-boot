@@ -787,6 +787,7 @@ config ARCH_K3
 	select FIT
 	select REGEX
 	select FIT_SIGNATURE if ARM64
+	imply TI_SECURE_DEVICE
 
 config ARCH_OMAP2PLUS
 	bool "TI OMAP2+"

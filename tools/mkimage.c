@@ -112,7 +112,7 @@ static void usage(const char *msg)
 		"          -f => input filename for FIT source\n"
 		"          -i => input filename for ramdisk file\n"
 		"          -E => place data outside of the FIT structure\n"
-		"          -B => align size in hex for FIT structure and header\n"
+		"          -B => align size in hex for FIT structure and, with -E, for the external data\n"
 		"          -b => append the device tree binary to the FIT\n"
 		"          -t => update the timestamp in the FIT\n");
 #ifdef CONFIG_FIT_SIGNATURE

@@ -282,9 +282,9 @@ static inline const char *event_spy_id(struct evspy_info *spy)
  * {
  *    return sandbox_early_getopt_check();
  * }
- * EVENT_SPY(EVT_MISC_INIT_F, sandbox_misc_init_f);
+ * EVENT_SPY_FULL(EVT_MISC_INIT_F, sandbox_misc_init_f);
  *
- * where EVENT_SPY uses ll_entry_declare()
+ * where EVENT_SPY_FULL uses ll_entry_declare()
  *
  * In this case, LTO decides to drop the sandbox_misc_init_f() function
  * (which is fine) but then drops the linker-list entry too. This means

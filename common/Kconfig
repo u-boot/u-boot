@@ -620,7 +620,7 @@ config EVENT_DYNAMIC
 	bool
 	help
 	  Enable this to support adding an event spy at runtime, without adding
-	  it to the EVENT_SPY() linker list. This increases code size slightly
+	  it to the EVENT_SPY*() linker list. This increases code size slightly
 	  but provides more flexibility for boards and subsystems that need it.
 
 config EVENT_DEBUG
@@ -648,7 +648,7 @@ config SPL_EVENT_DYNAMIC
 	depends on SPL_EVENT && EVENT_DYNAMIC
 	help
 	  Enable this to support adding an event spy at runtime, without adding
-	  it to the EVENT_SPY() linker list. This increases code size slightly
+	  it to the EVENT_SPY*() linker list. This increases code size slightly
 	  but provides more flexibility for boards and subsystems that need it.
 
 endif # EVENT
