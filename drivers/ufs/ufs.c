@@ -1914,6 +1914,7 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 	struct ufs_hba *hba = dev_get_uclass_priv(ufs_dev);
 	struct scsi_plat *scsi_plat;
 	struct udevice *scsi_dev;
+	void __iomem *mmio_base;
 	int err;
 
 	device_find_first_child(ufs_dev, &scsi_dev);
@@ -1927,7 +1928,14 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 
 	hba->dev = ufs_dev;
 	hba->ops = hba_ops;
-	hba->mmio_base = dev_read_addr_ptr(ufs_dev);
+
+	if (device_is_on_pci_bus(ufs_dev)) {
+		mmio_base = dm_pci_map_bar(ufs_dev, PCI_BASE_ADDRESS_0, 0, 0,
+					   PCI_REGION_TYPE, PCI_REGION_MEM);
+	} else {
+		mmio_base = dev_read_addr_ptr(ufs_dev);
+	}
+	hba->mmio_base = mmio_base;
 
 	/* Set descriptor lengths to specification defaults */
 	ufshcd_def_desc_sizes(hba);
