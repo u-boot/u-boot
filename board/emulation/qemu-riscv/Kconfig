@@ -82,5 +82,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply USB_XHCI_PCI
 	imply USB_KEYBOARD
 	imply CMD_USB
+	imply UFS
+	imply UFS_PCI
 
 endif
