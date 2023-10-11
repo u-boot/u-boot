@@ -38,6 +38,38 @@ static const struct error_code scmi_linux_errmap[] = {
 	{ .scmi = SCMI_PROTOCOL_ERROR, .errno = -EPROTO, },
 };
 
+/**
+ * scmi_protocol_is_supported - check availability of protocol
+ * @dev:	SCMI agent device
+ * @proto_id:	Identifier of protocol
+ *
+ * check if the protocol, @proto_id, is provided by the SCMI agent,
+ * @dev.
+ *
+ * Return:	0 on success, error code otherwise
+ */
+static bool scmi_protocol_is_supported(struct udevice *dev,
+				       enum scmi_std_protocol proto_id)
+{
+	struct scmi_agent_priv *priv;
+	int i;
+
+	if (proto_id == SCMI_PROTOCOL_ID_BASE)
+		return true;
+
+	priv = dev_get_uclass_plat(dev);
+	if (!priv) {
+		dev_err(dev, "No priv data found\n");
+		return false;
+	}
+
+	for (i = 0; i < priv->num_protocols; i++)
+		if (priv->protocols[i] == proto_id)
+			return true;
+
+	return false;
+}
+
 struct udevice *scmi_get_protocol(struct udevice *dev,
 				  enum scmi_std_protocol id)
 {
@@ -374,15 +406,18 @@ static int scmi_bind_protocols(struct udevice *dev)
 		name = ofnode_get_name(node);
 		switch (protocol_id) {
 		case SCMI_PROTOCOL_ID_CLOCK:
-			if (CONFIG_IS_ENABLED(CLK_SCMI))
+			if (CONFIG_IS_ENABLED(CLK_SCMI) &&
+			    scmi_protocol_is_supported(dev, protocol_id))
 				drv = DM_DRIVER_GET(scmi_clock);
 			break;
 		case SCMI_PROTOCOL_ID_RESET_DOMAIN:
-			if (IS_ENABLED(CONFIG_RESET_SCMI))
+			if (IS_ENABLED(CONFIG_RESET_SCMI) &&
+			    scmi_protocol_is_supported(dev, protocol_id))
 				drv = DM_DRIVER_GET(scmi_reset_domain);
 			break;
 		case SCMI_PROTOCOL_ID_VOLTAGE_DOMAIN:
-			if (IS_ENABLED(CONFIG_DM_REGULATOR_SCMI)) {
+			if (IS_ENABLED(CONFIG_DM_REGULATOR_SCMI) &&
+			    scmi_protocol_is_supported(dev, protocol_id)) {
 				node = ofnode_find_subnode(node, "regulators");
 				if (!ofnode_valid(node)) {
 					dev_err(dev, "no regulators node\n");
