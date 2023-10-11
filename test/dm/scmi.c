@@ -17,6 +17,7 @@
 #include <dm.h>
 #include <reset.h>
 #include <scmi_agent.h>
+#include <scmi_agent-uclass.h>
 #include <scmi_protocols.h>
 #include <asm/scmi_test.h>
 #include <dm/device-internal.h>
@@ -96,6 +97,114 @@ static int dm_test_scmi_sandbox_agent(struct unit_test_state *uts)
 	return ret;
 }
 DM_TEST(dm_test_scmi_sandbox_agent, UT_TESTF_SCAN_FDT);
+
+static int dm_test_scmi_base(struct unit_test_state *uts)
+{
+	struct udevice *agent_dev, *base;
+	struct scmi_agent_priv *priv;
+	u32 version, num_agents, num_protocols, impl_version;
+	u32 attributes, agent_id;
+	u8 *vendor, *agent_name, *protocols;
+	int ret;
+
+	/* preparation */
+	ut_assertok(uclass_get_device_by_name(UCLASS_SCMI_AGENT, "scmi",
+					      &agent_dev));
+	ut_assertnonnull(agent_dev);
+	ut_assertnonnull(priv = dev_get_uclass_plat(agent_dev));
+	ut_assertnonnull(base = scmi_get_protocol(agent_dev,
+						  SCMI_PROTOCOL_ID_BASE));
+
+	/* version */
+	ret = scmi_base_protocol_version(base, &version);
+	ut_assertok(ret);
+	ut_asserteq(priv->version, version);
+
+	/* protocol attributes */
+	ret = scmi_base_protocol_attrs(base, &num_agents, &num_protocols);
+	ut_assertok(ret);
+	ut_asserteq(priv->num_agents, num_agents);
+	ut_asserteq(priv->num_protocols, num_protocols);
+
+	/* discover vendor */
+	ret = scmi_base_discover_vendor(base, &vendor);
+	ut_assertok(ret);
+	ut_asserteq_str(priv->vendor, vendor);
+	free(vendor);
+
+	/* message attributes */
+	ret = scmi_base_protocol_message_attrs(base,
+					       SCMI_BASE_DISCOVER_SUB_VENDOR,
+					       &attributes);
+	ut_assertok(ret);
+	ut_assertok(attributes);
+
+	/* discover sub vendor */
+	ret = scmi_base_discover_sub_vendor(base, &vendor);
+	ut_assertok(ret);
+	ut_asserteq_str(priv->sub_vendor, vendor);
+	free(vendor);
+
+	/* impl version */
+	ret = scmi_base_discover_impl_version(base, &impl_version);
+	ut_assertok(ret);
+	ut_asserteq(priv->impl_version, impl_version);
+
+	/* discover agent (my self) */
+	ret = scmi_base_discover_agent(base, 0xffffffff, &agent_id,
+				       &agent_name);
+	ut_assertok(ret);
+	ut_asserteq(priv->agent_id, agent_id);
+	ut_asserteq_str(priv->agent_name, agent_name);
+	free(agent_name);
+
+	/* discover protocols */
+	ret = scmi_base_discover_list_protocols(base, &protocols);
+	ut_asserteq(num_protocols, ret);
+	ut_asserteq_mem(priv->protocols, protocols, sizeof(u8) * num_protocols);
+	free(protocols);
+
+	/*
+	 * NOTE: Sandbox SCMI driver handles device-0 only. It supports setting
+	 * access and protocol permissions, but doesn't allow unsetting them nor
+	 * resetting the configurations.
+	 */
+	/* set device permissions */
+	ret = scmi_base_set_device_permissions(base, agent_id, 0,
+					       SCMI_BASE_SET_DEVICE_PERMISSIONS_ACCESS);
+	ut_assertok(ret); /* SCMI_SUCCESS */
+	ret = scmi_base_set_device_permissions(base, agent_id, 1,
+					       SCMI_BASE_SET_DEVICE_PERMISSIONS_ACCESS);
+	ut_asserteq(-ENOENT, ret); /* SCMI_NOT_FOUND */
+	ret = scmi_base_set_device_permissions(base, agent_id, 0, 0);
+	ut_asserteq(-EACCES, ret); /* SCMI_DENIED */
+
+	/* set protocol permissions */
+	ret = scmi_base_set_protocol_permissions(base, agent_id, 0,
+						 SCMI_PROTOCOL_ID_CLOCK,
+						 SCMI_BASE_SET_PROTOCOL_PERMISSIONS_ACCESS);
+	ut_assertok(ret); /* SCMI_SUCCESS */
+	ret = scmi_base_set_protocol_permissions(base, agent_id, 1,
+						 SCMI_PROTOCOL_ID_CLOCK,
+						 SCMI_BASE_SET_PROTOCOL_PERMISSIONS_ACCESS);
+	ut_asserteq(-ENOENT, ret); /* SCMI_NOT_FOUND */
+	ret = scmi_base_set_protocol_permissions(base, agent_id, 0,
+						 SCMI_PROTOCOL_ID_CLOCK, 0);
+	ut_asserteq(-EACCES, ret); /* SCMI_DENIED */
+
+	/* reset agent configuration */
+	ret = scmi_base_reset_agent_configuration(base, agent_id, 0);
+	ut_asserteq(-EACCES, ret); /* SCMI_DENIED */
+	ret = scmi_base_reset_agent_configuration(base, agent_id,
+						  SCMI_BASE_RESET_ALL_ACCESS_PERMISSIONS);
+	ut_asserteq(-EACCES, ret); /* SCMI_DENIED */
+	ret = scmi_base_reset_agent_configuration(base, agent_id, 0);
+	ut_asserteq(-EACCES, ret); /* SCMI_DENIED */
+
+	return 0;
+}
+
+DM_TEST(dm_test_scmi_base, UT_TESTF_SCAN_FDT);
 
 static int dm_test_scmi_clocks(struct unit_test_state *uts)
 {
