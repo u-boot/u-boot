@@ -51,6 +51,9 @@ struct udevice *scmi_get_protocol(struct udevice *dev,
 	}
 
 	switch (id) {
+	case SCMI_PROTOCOL_ID_BASE:
+		proto = priv->base_dev;
+		break;
 	case SCMI_PROTOCOL_ID_CLOCK:
 		proto = priv->clock_dev;
 		break;
@@ -95,6 +98,9 @@ static int scmi_add_protocol(struct udevice *dev,
 	}
 
 	switch (proto_id) {
+	case SCMI_PROTOCOL_ID_BASE:
+		priv->base_dev = proto;
+		break;
 	case SCMI_PROTOCOL_ID_CLOCK:
 		priv->clock_dev = proto;
 		break;
@@ -232,6 +238,83 @@ int devm_scmi_process_msg(struct udevice *dev, struct scmi_msg *msg)
 	return scmi_process_msg(protocol->parent, priv->channel, msg);
 }
 
+/**
+ * scmi_fill_base_info - get base information about SCMI server
+ * @agent:	SCMI agent device
+ * @dev:	SCMI protocol device
+ *
+ * By using Base protocol commands, collect the base information
+ * about SCMI server.
+ *
+ * Return: 0 on success, error code on failure
+ */
+static int scmi_fill_base_info(struct udevice *agent, struct udevice *dev)
+{
+	struct scmi_agent_priv *priv = dev_get_uclass_plat(agent);
+	int ret;
+
+	ret = scmi_base_protocol_version(dev, &priv->version);
+	if (ret) {
+		dev_err(dev, "protocol_version() failed (%d)\n", ret);
+		return ret;
+	}
+	/* check for required version */
+	if (priv->version < SCMI_BASE_PROTOCOL_VERSION) {
+		dev_err(dev, "base protocol version (%d) lower than expected\n",
+			priv->version);
+		return -EPROTO;
+	}
+
+	ret = scmi_base_protocol_attrs(dev, &priv->num_agents,
+				       &priv->num_protocols);
+	if (ret) {
+		dev_err(dev, "protocol_attrs() failed (%d)\n", ret);
+		return ret;
+	}
+	ret = scmi_base_discover_vendor(dev, &priv->vendor);
+	if (ret) {
+		dev_err(dev, "base_discover_vendor() failed (%d)\n", ret);
+		return ret;
+	}
+	ret = scmi_base_discover_sub_vendor(dev, &priv->sub_vendor);
+	if (ret) {
+		if (ret != -EOPNOTSUPP) {
+			dev_err(dev, "base_discover_sub_vendor() failed (%d)\n",
+				ret);
+			return ret;
+		}
+		priv->sub_vendor = "NA";
+	}
+	ret = scmi_base_discover_impl_version(dev, &priv->impl_version);
+	if (ret) {
+		dev_err(dev, "base_discover_impl_version() failed (%d)\n",
+			ret);
+		return ret;
+	}
+
+	ret = scmi_base_discover_agent(dev, 0xffffffff,
+				       &priv->agent_id, &priv->agent_name);
+	if (ret) {
+		if (ret != -EOPNOTSUPP) {
+			dev_err(dev,
+				"base_discover_agent() failed for myself (%d)\n",
+				ret);
+			return ret;
+		}
+		priv->agent_id = 0xffffffff;
+		priv->agent_name = "NA";
+	}
+
+	ret = scmi_base_discover_list_protocols(dev, &priv->protocols);
+	if (ret != priv->num_protocols) {
+		dev_err(dev, "base_discover_list_protocols() failed (%d)\n",
+			ret);
+		return -EPROTO;
+	}
+
+	return 0;
+}
+
 /*
  * SCMI agent devices binds devices of various uclasses depending on
  * the FDT description. scmi_bind_protocol() is a generic bind sequence
@@ -243,7 +326,40 @@ static int scmi_bind_protocols(struct udevice *dev)
 	ofnode node;
 	const char *name;
 	struct driver *drv;
-	struct udevice *proto;
+	struct udevice *agent, *proto;
+
+	if (!uclass_get_device(UCLASS_SCMI_AGENT, 1, &agent)) {
+		/* This is a second SCMI agent */
+		dev_err(dev, "Cannot have more than one SCMI agent\n");
+		return -EEXIST;
+	}
+
+	/* initialize the device from device tree */
+	drv = DM_DRIVER_GET(scmi_base_drv);
+	name = "scmi-base.0";
+	ret = device_bind(dev, drv, name, NULL, ofnode_null(), &proto);
+	if (ret) {
+		dev_err(dev, "failed to bind base protocol\n");
+		return ret;
+	}
+	ret = scmi_add_protocol(dev, SCMI_PROTOCOL_ID_BASE, proto);
+	if (ret) {
+		dev_err(dev, "failed to add protocol: %s, ret: %d\n",
+			proto->name, ret);
+		return ret;
+	}
+
+	ret = device_probe(proto);
+	if (ret) {
+		dev_err(dev, "failed to probe base protocol\n");
+		return ret;
+	}
+
+	ret = scmi_fill_base_info(dev, proto);
+	if (ret) {
+		dev_err(dev, "failed to get base information\n");
+		return ret;
+	}
 
 	dev_for_each_subnode(node, dev) {
 		u32 protocol_id;
