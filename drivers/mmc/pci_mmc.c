@@ -50,8 +50,8 @@ static int pci_mmc_probe(struct udevice *dev)
 	desc = mmc_get_blk_desc(&plat->mmc);
 	desc->removable = !(plat->cfg.host_caps & MMC_CAP_NONREMOVABLE);
 
-	host->ioaddr = (void *)dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE,
-					      PCI_REGION_MEM);
+	host->ioaddr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0,
+				      PCI_REGION_TYPE, PCI_REGION_MEM);
 	host->name = dev->name;
 	host->cd_gpio = priv->cd_gpio;
 	host->mmc = &plat->mmc;
