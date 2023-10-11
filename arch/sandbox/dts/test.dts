@@ -732,10 +732,6 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 
-			protocol@10 {
-				reg = <0x10>;
-			};
-
 			clk_scmi: protocol@14 {
 				reg = <0x14>;
 				#clock-cells = <1>;
