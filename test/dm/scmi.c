@@ -16,6 +16,8 @@
 #include <clk.h>
 #include <dm.h>
 #include <reset.h>
+#include <scmi_agent.h>
+#include <scmi_protocols.h>
 #include <asm/scmi_test.h>
 #include <dm/device-internal.h>
 #include <dm/test.h>
@@ -109,7 +111,7 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 	struct sandbox_scmi_devices *scmi_devices;
 	struct sandbox_scmi_service *scmi_ctx;
 	struct sandbox_scmi_agent *agent;
-	struct udevice *dev;
+	struct udevice *agent_dev, *clock_dev, *dev;
 	int ret_dev;
 	int ret;
 
@@ -123,6 +125,14 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 	ut_assertnonnull(scmi_ctx);
 	agent = scmi_ctx->agent;
 	ut_assertnonnull(agent);
+
+	/* Sandbox SCMI clock protocol has its own channel */
+	ut_assertok(uclass_get_device_by_name(UCLASS_SCMI_AGENT, "scmi",
+					      &agent_dev));
+	ut_assertnonnull(agent_dev);
+	clock_dev = scmi_get_protocol(agent_dev, SCMI_PROTOCOL_ID_CLOCK);
+	ut_assertnonnull(clock_dev);
+	ut_asserteq(0x14, sandbox_scmi_channel_id(clock_dev));
 
 	/* Test SCMI clocks rate manipulation */
 	ut_asserteq(333, agent->clk[0].rate);
@@ -172,7 +182,7 @@ static int dm_test_scmi_resets(struct unit_test_state *uts)
 	struct sandbox_scmi_devices *scmi_devices;
 	struct sandbox_scmi_service *scmi_ctx;
 	struct sandbox_scmi_agent *agent;
-	struct udevice *dev = NULL;
+	struct udevice *agent_dev, *reset_dev, *dev = NULL;
 	int ret;
 
 	ret = load_sandbox_scmi_test_devices(uts, &dev);
@@ -185,6 +195,14 @@ static int dm_test_scmi_resets(struct unit_test_state *uts)
 	ut_assertnonnull(scmi_ctx);
 	agent = scmi_ctx->agent;
 	ut_assertnonnull(agent);
+
+	/* Sandbox SCMI reset protocol doesn't have its own channel */
+	ut_assertok(uclass_get_device_by_name(UCLASS_SCMI_AGENT, "scmi",
+					      &agent_dev));
+	ut_assertnonnull(agent_dev);
+	reset_dev = scmi_get_protocol(agent_dev, SCMI_PROTOCOL_ID_RESET_DOMAIN);
+	ut_assertnonnull(reset_dev);
+	ut_asserteq(0x0, sandbox_scmi_channel_id(reset_dev));
 
 	/* Test SCMI resect controller manipulation */
 	ut_assert(!agent->reset[0].asserted);

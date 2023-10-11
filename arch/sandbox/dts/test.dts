@@ -739,6 +739,7 @@
 			clk_scmi: protocol@14 {
 				reg = <0x14>;
 				#clock-cells = <1>;
+				linaro,sandbox-channel-id = <0x14>;
 			};
 
 			reset_scmi: protocol@16 {
