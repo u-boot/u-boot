@@ -31,7 +31,7 @@ static int dm_test_host(struct unit_test_state *uts)
 	ut_asserteq(-ENODEV, uclass_first_device_err(UCLASS_PARTITION, &part));
 
 	mem_start = ut_check_delta(0);
-	ut_assertok(host_create_device(label, true, &dev));
+	ut_assertok(host_create_device(label, true, DEFAULT_BLKSZ, &dev));
 
 	/* Check that the plat data has been allocated */
 	plat = dev_get_plat(dev);
@@ -83,7 +83,7 @@ static int dm_test_host_dup(struct unit_test_state *uts)
 	char fname[256];
 
 	ut_asserteq(0, uclass_id_count(UCLASS_HOST));
-	ut_assertok(host_create_device(label, true, &dev));
+	ut_assertok(host_create_device(label, true, DEFAULT_BLKSZ, &dev));
 
 	/* Attach a file created in test_ut_dm_init */
 	ut_assertok(os_persistent_file(fname, sizeof(fname), "2MB.ext2.img"));
@@ -93,7 +93,7 @@ static int dm_test_host_dup(struct unit_test_state *uts)
 	ut_asserteq(1, uclass_id_count(UCLASS_HOST));
 
 	/* Create another device with the same label (should remove old one) */
-	ut_assertok(host_create_device(label, true, &dev));
+	ut_assertok(host_create_device(label, true, DEFAULT_BLKSZ, &dev));
 
 	/* Attach a different file created in test_ut_dm_init */
 	ut_assertok(os_persistent_file(fname, sizeof(fname), "1MB.fat32.img"));
@@ -120,7 +120,7 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 
 	/* first check 'host info' with binding */
 	ut_assertok(run_command("host info", 0));
-	ut_assert_nextline("dev       blocks label           path");
+	ut_assert_nextline("dev       blocks  blksz label           path");
 	ut_assert_console_end();
 
 	ut_assertok(os_persistent_file(fname, sizeof(fname), "2MB.ext2.img"));
@@ -133,8 +133,8 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 	ut_asserteq(true, desc->removable);
 
 	ut_assertok(run_command("host info", 0));
-	ut_assert_nextline("dev       blocks label           path");
-	ut_assert_nextlinen("  0         4096 test2");
+	ut_assert_nextline("dev       blocks  blksz label           path");
+	ut_assert_nextlinen("  0         4096    512 test2");
 	ut_assert_console_end();
 
 	ut_assertok(os_persistent_file(fname, sizeof(fname), "1MB.fat32.img"));
@@ -147,9 +147,9 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 	ut_asserteq(false, desc->removable);
 
 	ut_assertok(run_command("host info", 0));
-	ut_assert_nextline("dev       blocks label           path");
-	ut_assert_nextlinen("  0         4096 test2");
-	ut_assert_nextlinen("  1         2048 fat");
+	ut_assert_nextline("dev       blocks  blksz label           path");
+	ut_assert_nextlinen("  0         4096    512 test2");
+	ut_assert_nextlinen("  1         2048    512 fat");
 	ut_assert_console_end();
 
 	ut_asserteq(1, run_command("host info test", 0));
@@ -157,8 +157,8 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	ut_assertok(run_command("host info fat", 0));
-	ut_assert_nextline("dev       blocks label           path");
-	ut_assert_nextlinen("  1         2048 fat");
+	ut_assert_nextline("dev       blocks  blksz label           path");
+	ut_assert_nextlinen("  1         2048    512 fat");
 	ut_assert_console_end();
 
 	/* check 'host dev' */
@@ -194,8 +194,8 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	ut_assertok(run_command("host info", 0));
-	ut_assert_nextline("dev       blocks label           path");
-	ut_assert_nextlinen("  1         2048 fat");
+	ut_assert_nextline("dev       blocks  blksz label           path");
+	ut_assert_nextlinen("  1         2048    512 fat");
 	ut_assert_console_end();
 
 	return 0;

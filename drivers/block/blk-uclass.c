@@ -178,17 +178,7 @@ struct blk_desc *blk_get_by_device(struct udevice *dev)
 	return NULL;
 }
 
-/**
- * get_desc() - Get the block device descriptor for the given device number
- *
- * @uclass_id:	Interface type
- * @devnum:	Device number (0 = first)
- * @descp:	Returns block device descriptor on success
- * Return: 0 on success, -ENODEV if there is no such device and no device
- * with a higher device number, -ENOENT if there is no such device but there
- * is one with a higher number, or other -ve on other error.
- */
-static int get_desc(enum uclass_id uclass_id, int devnum, struct blk_desc **descp)
+int blk_get_desc(enum uclass_id uclass_id, int devnum, struct blk_desc **descp)
 {
 	bool found_more = false;
 	struct udevice *dev;
@@ -240,7 +230,7 @@ int blk_list_part(enum uclass_id uclass_id)
 	int ret;
 
 	for (ok = 0, devnum = 0;; ++devnum) {
-		ret = get_desc(uclass_id, devnum, &desc);
+		ret = blk_get_desc(uclass_id, devnum, &desc);
 		if (ret == -ENODEV)
 			break;
 		else if (ret)
@@ -263,7 +253,7 @@ int blk_print_part_devnum(enum uclass_id uclass_id, int devnum)
 	struct blk_desc *desc;
 	int ret;
 
-	ret = get_desc(uclass_id, devnum, &desc);
+	ret = blk_get_desc(uclass_id, devnum, &desc);
 	if (ret)
 		return ret;
 	if (desc->type == DEV_TYPE_UNKNOWN)
@@ -280,7 +270,7 @@ void blk_list_devices(enum uclass_id uclass_id)
 	int i;
 
 	for (i = 0;; ++i) {
-		ret = get_desc(uclass_id, i, &desc);
+		ret = blk_get_desc(uclass_id, i, &desc);
 		if (ret == -ENODEV)
 			break;
 		else if (ret)
@@ -297,7 +287,7 @@ int blk_print_device_num(enum uclass_id uclass_id, int devnum)
 	struct blk_desc *desc;
 	int ret;
 
-	ret = get_desc(uclass_id, devnum, &desc);
+	ret = blk_get_desc(uclass_id, devnum, &desc);
 	if (ret)
 		return ret;
 	printf("\nIDE device %d: ", devnum);
@@ -312,7 +302,7 @@ int blk_show_device(enum uclass_id uclass_id, int devnum)
 	int ret;
 
 	printf("\nDevice %d: ", devnum);
-	ret = get_desc(uclass_id, devnum, &desc);
+	ret = blk_get_desc(uclass_id, devnum, &desc);
 	if (ret == -ENODEV || ret == -ENOENT) {
 		printf("unknown device\n");
 		return -ENODEV;
@@ -325,35 +315,6 @@ int blk_show_device(enum uclass_id uclass_id, int devnum)
 		return -ENOENT;
 
 	return 0;
-}
-
-ulong blk_read_devnum(enum uclass_id uclass_id, int devnum, lbaint_t start,
-		      lbaint_t blkcnt, void *buffer)
-{
-	struct blk_desc *desc;
-	ulong n;
-	int ret;
-
-	ret = get_desc(uclass_id, devnum, &desc);
-	if (ret)
-		return ret;
-	n = blk_dread(desc, start, blkcnt, buffer);
-	if (IS_ERR_VALUE(n))
-		return n;
-
-	return n;
-}
-
-ulong blk_write_devnum(enum uclass_id uclass_id, int devnum, lbaint_t start,
-		       lbaint_t blkcnt, const void *buffer)
-{
-	struct blk_desc *desc;
-	int ret;
-
-	ret = get_desc(uclass_id, devnum, &desc);
-	if (ret)
-		return ret;
-	return blk_dwrite(desc, start, blkcnt, buffer);
 }
 
 int blk_select_hwpart(struct udevice *dev, int hwpart)

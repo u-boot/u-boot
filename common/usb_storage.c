@@ -219,8 +219,8 @@ static int usb_stor_probe_device(struct usb_device *udev)
 
 		snprintf(str, sizeof(str), "lun%d", lun);
 		ret = blk_create_devicef(udev->dev, "usb_storage_blk", str,
-					 UCLASS_USB, usb_max_devs, 512, 0,
-					 &dev);
+					 UCLASS_USB, usb_max_devs,
+					 DEFAULT_BLKSZ, 0, &dev);
 		if (ret) {
 			debug("Cannot bind driver\n");
 			return ret;

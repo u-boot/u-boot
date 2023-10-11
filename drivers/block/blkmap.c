@@ -171,11 +171,11 @@ int blkmap_map_linear(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 
 	bd = dev_get_uclass_plat(bm->blk);
 	lbd = dev_get_uclass_plat(lblk);
-	if (lbd->blksz != bd->blksz)
-		/* We could support block size translation, but we
-		 * don't yet.
-		 */
-		return -EINVAL;
+	if (lbd->blksz != bd->blksz) {
+		/* update to match the mapped device */
+		bd->blksz = lbd->blksz;
+		bd->log2blksz = LOG2(bd->blksz);
+	}
 
 	linear = malloc(sizeof(*linear));
 	if (!linear)
@@ -383,14 +383,14 @@ U_BOOT_DRIVER(blkmap_blk) = {
 	.ops		= &blkmap_blk_ops,
 };
 
-int blkmap_dev_bind(struct udevice *dev)
+static int blkmap_dev_bind(struct udevice *dev)
 {
 	struct blkmap *bm = dev_get_plat(dev);
 	struct blk_desc *bd;
 	int err;
 
 	err = blk_create_devicef(dev, "blkmap_blk", "blk", UCLASS_BLKMAP,
-				 dev_seq(dev), 512, 0, &bm->blk);
+				 dev_seq(dev), DEFAULT_BLKSZ, 0, &bm->blk);
 	if (err)
 		return log_msg_ret("blk", err);
 
@@ -410,7 +410,7 @@ int blkmap_dev_bind(struct udevice *dev)
 	return 0;
 }
 
-int blkmap_dev_unbind(struct udevice *dev)
+static int blkmap_dev_unbind(struct udevice *dev)
 {
 	struct blkmap *bm = dev_get_plat(dev);
 	struct blkmap_slice *bms, *tmp;

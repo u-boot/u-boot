@@ -21,6 +21,8 @@ typedef ulong lbaint_t;
 #define LBAF "%" LBAFlength "x"
 #define LBAFU "%" LBAFlength "u"
 
+#define DEFAULT_BLKSZ		512
+
 struct udevice;
 
 static inline bool blk_enabled(void)
@@ -513,6 +515,18 @@ const char *blk_get_devtype(struct udevice *dev);
  */
 struct blk_desc *blk_get_by_device(struct udevice *dev);
 
+/**
+ * blk_get_desc() - Get the block device descriptor for the given device number
+ *
+ * @uclass_id:	Interface type
+ * @devnum:	Device number (0 = first)
+ * @descp:	Returns block device descriptor on success
+ * Return: 0 on success, -ENODEV if there is no such device and no device
+ * with a higher device number, -ENOENT if there is no such device but there
+ * is one with a higher number, or other -ve on other error.
+ */
+int blk_get_desc(enum uclass_id uclass_id, int devnum, struct blk_desc **descp);
+
 #else
 #include <errno.h>
 /*
@@ -714,32 +728,6 @@ int blk_print_device_num(enum uclass_id uclass_id, int devnum);
  * the interface type is not supported, other -ve on other error
  */
 int blk_print_part_devnum(enum uclass_id uclass_id, int devnum);
-
-/**
- * blk_read_devnum() - read blocks from a device
- *
- * @uclass_id:	Block device type
- * @devnum:	Device number
- * @start:	Start block number to read (0=first)
- * @blkcnt:	Number of blocks to read
- * @buffer:	Address to write data to
- * Return: number of blocks read, or -ve error number on error
- */
-ulong blk_read_devnum(enum uclass_id uclass_id, int devnum, lbaint_t start,
-		      lbaint_t blkcnt, void *buffer);
-
-/**
- * blk_write_devnum() - write blocks to a device
- *
- * @uclass_id:	Block device type
- * @devnum:	Device number
- * @start:	Start block number to write (0=first)
- * @blkcnt:	Number of blocks to write
- * @buffer:	Address to read data from
- * Return: number of blocks written, or -ve error number on error
- */
-ulong blk_write_devnum(enum uclass_id uclass_id, int devnum, lbaint_t start,
-		       lbaint_t blkcnt, const void *buffer);
 
 /**
  * blk_select_hwpart_devnum() - select a hardware partition

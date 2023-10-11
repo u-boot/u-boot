@@ -13,6 +13,7 @@
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <linux/errno.h>
+#include <linux/log2.h>
 
 static int do_host_load(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
@@ -45,6 +46,7 @@ static int do_host_bind(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct udevice *dev;
 	const char *label;
 	char *file;
+	unsigned long blksz = DEFAULT_BLKSZ;
 	int ret;
 
 	/* Skip 'bind' */
@@ -59,12 +61,19 @@ static int do_host_bind(struct cmd_tbl *cmdtp, int flag, int argc,
 		argv++;
 	}
 
-	if (argc > 2)
+	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
 	label = argv[0];
-	file = argc > 1 ? argv[1] : NULL;
+	file = argv[1];
+	if (argc > 2) {
+		blksz = dectoul(argv[2], NULL);
+		if (blksz < DEFAULT_BLKSZ || !is_power_of_2(blksz)) {
+			printf("blksz must be >= 512 and power of 2\n");
+			return CMD_RET_FAILURE;
+		}
+	}
 
-	ret = host_create_attach_file(label, file, removable, &dev);
+	ret = host_create_attach_file(label, file, removable, blksz, &dev);
 	if (ret) {
 		printf("Cannot create device / bind file\n");
 		return CMD_RET_FAILURE;
@@ -151,8 +160,8 @@ static void show_host_dev(struct udevice *dev)
 		return;
 
 	desc = dev_get_uclass_plat(blk);
-	printf("%12lu %-15s %s\n", (unsigned long)desc->lba, plat->label,
-	       plat->filename);
+	printf("%12lu %6lu %-15s %s\n", (unsigned long)desc->lba, desc->blksz,
+	       plat->label, plat->filename);
 }
 
 static int do_host_info(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -170,7 +179,8 @@ static int do_host_info(struct cmd_tbl *cmdtp, int flag, int argc,
 			return CMD_RET_FAILURE;
 	}
 
-	printf("%3s %12s %-15s %s\n", "dev", "blocks", "label", "path");
+	printf("%3s %12s %6s %-15s %s\n",
+	       "dev", "blocks", "blksz", "label", "path");
 	if (dev) {
 		show_host_dev(dev);
 	} else {
@@ -253,7 +263,8 @@ U_BOOT_CMD(
 	"host save hostfs - <addr> <filename> <bytes> [<offset>] - "
 		"save a file to host\n"
 	"host size hostfs - <filename> - determine size of file on host\n"
-	"host bind [-r] <label> [<filename>] - bind \"host\" device to file\n"
+	"host bind [-r] <label> <filename> [<blksz>] - bind \"host\" device to file,\n"
+	"     and optionally set the device's logical block size\n"
 	"     -r = mark as removable\n"
 	"host unbind <label>     - unbind file from \"host\" device\n"
 	"host info [<label>]     - show device binding & info\n"

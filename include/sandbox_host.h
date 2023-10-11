@@ -74,10 +74,11 @@ int host_detach_file(struct udevice *dev);
  * @label: Label of the attachment, e.g. "test1"
  * @removable: true if the device should be marked as removable, false
  *	if it is fixed. See enum blk_flag_t
+ * @blksz: logical block size of the device
  * @devp: Returns the device created, on success
  * Returns: 0 if OK, -ve on error
  */
-int host_create_device(const char *label, bool removable,
+int host_create_device(const char *label, bool removable, unsigned long blksz,
 		       struct udevice **devp);
 
 /**
@@ -87,11 +88,13 @@ int host_create_device(const char *label, bool removable,
  * @filename: Name of the file, e.g. "/path/to/disk.img"
  * @removable: true if the device should be marked as removable, false
  *	if it is fixed. See enum blk_flag_t
+ * @blksz: logical block size of the device
  * @devp: Returns the device created, on success
  * Returns: 0 if OK, -ve on error
  */
 int host_create_attach_file(const char *label, const char *filename,
-			    bool removable, struct udevice **devp);
+			    bool removable, unsigned long blksz,
+			    struct udevice **devp);
 
 /**
  * host_find_by_label() - Find a host by label

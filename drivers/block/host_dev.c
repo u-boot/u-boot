@@ -58,6 +58,11 @@ static int host_sb_attach_file(struct udevice *dev, const char *filename)
 
 	size = os_filesize(fd);
 	desc = dev_get_uclass_plat(blk);
+	if (size % desc->blksz) {
+		printf("The size of host backing file '%s' is not multiple of "
+		       "the device block size\n", filename);
+		goto err_fname;
+	}
 	desc->lba = size / desc->blksz;
 
 	/* write this in last, when nothing can go wrong */
@@ -73,7 +78,7 @@ err_fname:
 	return ret;
 }
 
-int host_sb_detach_file(struct udevice *dev)
+static int host_sb_detach_file(struct udevice *dev)
 {
 	struct host_sb_plat *plat = dev_get_plat(dev);
 	int ret;
@@ -105,7 +110,7 @@ static int host_sb_bind(struct udevice *dev)
 	int ret;
 
 	ret = blk_create_devicef(dev, "sandbox_host_blk", "blk", UCLASS_HOST,
-				 dev_seq(dev), 512, 0, &blk);
+				 dev_seq(dev), DEFAULT_BLKSZ, 0, &blk);
 	if (ret)
 		return log_msg_ret("blk", ret);
 
@@ -123,7 +128,7 @@ static int host_sb_bind(struct udevice *dev)
 	return 0;
 }
 
-struct host_ops host_sb_ops = {
+static struct host_ops host_sb_ops = {
 	.attach_file	= host_sb_attach_file,
 	.detach_file	= host_sb_detach_file,
 };

@@ -888,7 +888,8 @@ static int fsl_ata_probe(struct udevice *dev)
 	for (i = 0; i < nr_ports; i++) {
 		snprintf(sata_name, sizeof(sata_name), "fsl_sata%d", i);
 		ret = blk_create_devicef(dev, "sata_fsl_blk", sata_name,
-					 UCLASS_AHCI, -1, 512, 0, &blk);
+					 UCLASS_AHCI, -1, DEFAULT_BLKSZ,
+					 0, &blk);
 		if (ret) {
 			debug("Can't create device\n");
 			return ret;

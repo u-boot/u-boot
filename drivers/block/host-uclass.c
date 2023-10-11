@@ -13,6 +13,7 @@
 #include <blk.h>
 #include <dm.h>
 #include <malloc.h>
+#include <part.h>
 #include <sandbox_host.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -29,7 +30,8 @@ struct host_priv {
 	struct udevice *cur_dev;
 };
 
-int host_create_device(const char *label, bool removable, struct udevice **devp)
+int host_create_device(const char *label, bool removable, unsigned long blksz,
+		       struct udevice **devp)
 {
 	char dev_name[30], *str, *label_new;
 	struct host_sb_plat *plat;
@@ -68,6 +70,12 @@ int host_create_device(const char *label, bool removable, struct udevice **devp)
 		struct blk_desc *desc = dev_get_uclass_plat(blk);
 
 		desc->removable = removable;
+
+		/* update blk device's block size with the provided one */
+		if (blksz != desc->blksz) {
+			desc->blksz = blksz;
+			desc->log2blksz = LOG2(desc->blksz);
+		}
 	}
 
 	plat = dev_get_plat(dev);
@@ -95,12 +103,13 @@ int host_attach_file(struct udevice *dev, const char *filename)
 }
 
 int host_create_attach_file(const char *label, const char *filename,
-			    bool removable, struct udevice **devp)
+			    bool removable, unsigned long blksz,
+			    struct udevice **devp)
 {
 	struct udevice *dev;
 	int ret;
 
-	ret = host_create_device(label, removable, &dev);
+	ret = host_create_device(label, removable, blksz, &dev);
 	if (ret)
 		return log_msg_ret("cre", ret);
 

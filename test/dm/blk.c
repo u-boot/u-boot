@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <blk.h>
 #include <dm.h>
 #include <part.h>
 #include <sandbox_host.h>
@@ -22,8 +23,8 @@ static int dm_test_blk_base(struct unit_test_state *uts)
 	struct udevice *blk0, *blk1, *dev0, *dev1, *dev, *chk0, *chk1;
 
 	/* Create two, one the parent of the other */
-	ut_assertok(host_create_device("test0", false, &dev0));
-	ut_assertok(host_create_device("test1", false, &dev1));
+	ut_assertok(host_create_device("test0", false, DEFAULT_BLKSZ, &dev0));
+	ut_assertok(host_create_device("test1", false, DEFAULT_BLKSZ, &dev1));
 
 	/* Check we can find them */
 	ut_assertok(blk_get_device(UCLASS_HOST, 0, &blk0));
@@ -99,7 +100,7 @@ static int dm_test_blk_find(struct unit_test_state *uts)
 {
 	struct udevice *blk, *chk, *dev;
 
-	ut_assertok(host_create_device("test0", false, &dev));
+	ut_assertok(host_create_device("test0", false, DEFAULT_BLKSZ, &dev));
 
 	ut_assertok(blk_find_device(UCLASS_HOST, 0, &chk));
 	ut_assertok(device_find_first_child_by_uclass(dev, UCLASS_BLK, &blk));
