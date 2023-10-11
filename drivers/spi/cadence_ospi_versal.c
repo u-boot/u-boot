@@ -44,8 +44,10 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 		       priv->regbase + CQSPI_REG_INDIR_TRIG_ADDR_RANGE);
 		writel(CQSPI_DFLT_DMA_PERIPH_CFG,
 		       priv->regbase + CQSPI_REG_DMA_PERIPH_CFG);
-		writel((unsigned long)rxbuf, priv->regbase +
+		writel(lower_32_bits((unsigned long)rxbuf), priv->regbase +
 		       CQSPI_DMA_DST_ADDR_REG);
+		writel(upper_32_bits((unsigned long)rxbuf), priv->regbase +
+		       CQSPI_DMA_DST_ADDR_MSB_REG);
 		writel(priv->trigger_address, priv->regbase +
 		       CQSPI_DMA_SRC_RD_ADDR_REG);
 		writel(bytes_to_dma, priv->regbase +
