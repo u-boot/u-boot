@@ -1130,13 +1130,23 @@ static ulong rk3588_dclk_vop_set_clk(struct rk3588_clk_priv *priv,
 	}
 
 	if (sel == DCLK_VOP_SRC_SEL_V0PLL) {
-		div = DIV_ROUND_UP(RK3588_VOP_PLL_LIMIT_FREQ, rate);
-		rk_clrsetreg(&cru->clksel_con[conid],
-			     mask,
-			     DCLK_VOP_SRC_SEL_V0PLL << sel_shift |
-			     ((div - 1) << div_shift));
-		rockchip_pll_set_rate(&rk3588_pll_clks[V0PLL],
-				      priv->cru, V0PLL, div * rate);
+		pll_rate = rockchip_pll_get_rate(&rk3588_pll_clks[V0PLL],
+						 priv->cru, V0PLL);
+		if (pll_rate >= RK3588_VOP_PLL_LIMIT_FREQ && pll_rate % rate == 0) {
+			div = DIV_ROUND_UP(pll_rate, rate);
+			rk_clrsetreg(&cru->clksel_con[conid],
+				     mask,
+				     DCLK_VOP_SRC_SEL_V0PLL << sel_shift |
+				     ((div - 1) << div_shift));
+		} else {
+			div = DIV_ROUND_UP(RK3588_VOP_PLL_LIMIT_FREQ, rate);
+			rk_clrsetreg(&cru->clksel_con[conid],
+				     mask,
+				     DCLK_VOP_SRC_SEL_V0PLL << sel_shift |
+				     ((div - 1) << div_shift));
+			rockchip_pll_set_rate(&rk3588_pll_clks[V0PLL],
+					      priv->cru, V0PLL, div * rate);
+		}
 	} else {
 		for (i = 0; i <= DCLK_VOP_SRC_SEL_AUPLL; i++) {
 			switch (i) {
