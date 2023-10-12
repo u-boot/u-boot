@@ -2,7 +2,6 @@
 /*
  * Copyright (C) 2022, Ovidiu Panait <ovpanait@gmail.com>
  */
-#include <common.h>
 #include <asm/asm.h>
 #include <asm/pvr.h>
 
