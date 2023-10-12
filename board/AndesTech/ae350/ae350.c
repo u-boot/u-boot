@@ -4,7 +4,7 @@
  * Rick Chen, Andes Technology Corporation <rick@andestech.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <flash.h>
 #include <image.h>

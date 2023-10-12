@@ -7,6 +7,8 @@
 #ifndef _ASM_RISCV_EEPROM_H
 #define _ASM_RISCV_EEPROM_H
 
+#include <linux/types.h>
+
 u8 get_pcb_revision_from_eeprom(void);
 u32 get_ddr_size_from_eeprom(void);
 

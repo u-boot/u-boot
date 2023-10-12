@@ -3,7 +3,6 @@
  * Copyright (C) 2019 Fraunhofer AISEC,
  * Lukas Auer <lukas.auer@aisec.fraunhofer.de>
  */
-#include <common.h>
 #include <cpu_func.h>
 #include <hang.h>
 #include <init.h>

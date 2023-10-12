@@ -7,6 +7,7 @@
 #define _ASM_ANDES_CSR_H
 
 #include <asm/asm.h>
+#include <linux/bitops.h>
 #include <linux/const.h>
 
 #define CSR_MCACHE_CTL 0x7ca

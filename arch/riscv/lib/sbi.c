@@ -7,7 +7,7 @@
  * Taken from Linux arch/riscv/kernel/sbi.c
  */
 
-#include <common.h>
+#include <errno.h>
 #include <asm/encoding.h>
 #include <asm/sbi.h>
 

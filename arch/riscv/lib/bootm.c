@@ -6,7 +6,6 @@
  * Rick Chen, Andes Technology Corporation <rick@andestech.com>
  */
 
-#include <common.h>
 #include <bootstage.h>
 #include <command.h>
 #include <dm.h>

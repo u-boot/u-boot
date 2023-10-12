@@ -8,7 +8,6 @@
  * assembly language modules.
  */
 
-#include <common.h>
 #include <asm/global_data.h>
 #include <linux/kbuild.h>
 

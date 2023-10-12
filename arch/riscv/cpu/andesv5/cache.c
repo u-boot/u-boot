@@ -6,7 +6,6 @@
 
 #include <asm/csr.h>
 #include <asm/asm.h>
-#include <common.h>
 #include <cache.h>
 #include <cpu_func.h>
 #include <dm.h>

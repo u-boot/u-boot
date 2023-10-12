@@ -4,7 +4,6 @@
  * Lukas Auer <lukas.auer@aisec.fraunhofer.de>
  */
 
-#include <common.h>
 #include <asm/encoding.h>
 #include <asm/sbi.h>
 

@@ -11,7 +11,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#include <common.h>
 #include <elf.h>
 #include <system-constants.h>
 #include <asm/encoding.h>
