@@ -3,7 +3,6 @@
  * (C) Copyright 2014 Pierrick Hascoet, Abilis Systems
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <net.h>
 #include <netdev.h>

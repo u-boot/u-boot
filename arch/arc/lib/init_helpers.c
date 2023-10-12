@@ -5,7 +5,6 @@
 
 #include <init.h>
 #include <asm/cache.h>
-#include <common.h>
 
 int init_cache_f_r(void)
 {
