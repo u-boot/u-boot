@@ -17,7 +17,7 @@
  * Copyright (C) 2008 Arthur Shipkowski (art@videon-central.com)
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <watchdog.h>
@@ -25,7 +25,6 @@
 #include <asm/io.h>
 
 #if defined(CONFIG_CMD_NET)
-#include <config.h>
 #include <net.h>
 #include <asm/fec.h>
 #endif

@@ -9,6 +9,7 @@
 #ifndef __IMMAP_H
 #define __IMMAP_H
 
+#include <config.h>
 #if defined(CONFIG_MCF520x)
 #include <asm/immap_520x.h>
 #include <asm/m520x.h>

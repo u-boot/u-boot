@@ -36,6 +36,7 @@
 #define MMAP_GPIO	(CFG_SYS_MBAR + 0x000A4000)
 #define MMAP_SDRAM	(CFG_SYS_MBAR + 0x000A8000)
 
+#include <linux/types.h>
 #include <asm/coldfire/crossbar.h>
 #include <asm/coldfire/edma.h>
 #include <asm/coldfire/eport.h>

@@ -27,6 +27,7 @@
 #define MMAP_FEC	(CFG_SYS_MBAR + 0x00000840)
 #define MMAP_USB	(CFG_SYS_MBAR + 0x00001000)
 
+#include <linux/types.h>
 #include <asm/coldfire/pwm.h>
 
 /* System configuration registers */

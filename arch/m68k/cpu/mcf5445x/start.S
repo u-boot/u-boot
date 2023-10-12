@@ -7,7 +7,6 @@
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  */
 
-#include <common.h>
 #include <asm-offsets.h>
 #include <config.h>
 #include <asm/cache.h>

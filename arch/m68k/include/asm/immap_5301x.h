@@ -50,6 +50,7 @@
 #define MMAP_IIM	(CFG_SYS_MBAR + 0x000C8000)
 #define MMAP_ESDHC	(CFG_SYS_MBAR + 0x000CC000)
 
+#include <linux/types.h>
 #include <asm/coldfire/crossbar.h>
 #include <asm/coldfire/dspi.h>
 #include <asm/coldfire/edma.h>
