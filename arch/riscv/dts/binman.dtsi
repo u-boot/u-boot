@@ -16,7 +16,12 @@
 
 &binman {
 	itb {
+
+#ifndef CONFIG_SPL_LOAD_FIT_OPENSBI_OS_BOOT
 		filename = "u-boot.itb";
+#else
+		filename = "linux.itb";
+#endif
 
 		fit {
 			description = "Configuration to load OpenSBI before U-Boot";
@@ -24,6 +29,7 @@
 			fit,fdt-list = "of-list";
 
 			images {
+#ifndef CONFIG_SPL_LOAD_FIT_OPENSBI_OS_BOOT
 				uboot {
 					description = "U-Boot";
 					type = "standalone";
@@ -37,6 +43,20 @@
 						filename = "u-boot-nodtb.bin";
 					};
 				};
+#else
+				linux {
+					description = "Linux";
+					type = "standalone";
+					os = "Linux";
+					arch = "riscv";
+					compression = "none";
+					load = <CONFIG_TEXT_BASE>;
+
+					linux_blob: blob-ext {
+						filename = "Image";
+					};
+				};
+#endif
 
 				opensbi {
 					description = "OpenSBI fw_dynamic Firmware";
@@ -74,7 +94,11 @@
 #endif
 					description = "NAME";
 					firmware = "opensbi";
+#ifndef CONFIG_SPL_LOAD_FIT_OPENSBI_OS_BOOT
 					loadables = "uboot";
+#else
+					loadables = "linux";
+#endif
 #ifndef CONFIG_OF_BOARD
 					fdt = "fdt-SEQ";
 #endif
