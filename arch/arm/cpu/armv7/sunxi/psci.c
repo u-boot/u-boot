@@ -76,11 +76,8 @@ static void __secure __mdelay(u32 ms)
 	isb();
 }
 
-static void __secure clamp_release(u32 __maybe_unused *clamp)
+static void __secure clamp_release(u32 *clamp)
 {
-#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || \
-	defined(CONFIG_MACH_SUN8I_H3) || \
-	defined(CONFIG_MACH_SUN8I_R40)
 	u32 tmp = 0x1ff;
 	do {
 		tmp >>= 1;
@@ -88,24 +85,57 @@ static void __secure clamp_release(u32 __maybe_unused *clamp)
 	} while (tmp);
 
 	__mdelay(10);
-#endif
 }
 
-static void __secure clamp_set(u32 __maybe_unused *clamp)
+static void __secure clamp_set(u32 *clamp)
 {
-#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || \
-	defined(CONFIG_MACH_SUN8I_H3) || \
-	defined(CONFIG_MACH_SUN8I_R40)
 	writel(0xff, clamp);
-#endif
 }
 
-static void __secure sunxi_power_switch(u32 *clamp, u32 *pwroff, bool on,
-					int cpu)
+static void __secure sunxi_set_entry_address(void *entry)
 {
+	/* secondary core entry address is programmed differently on R40 */
+	if (IS_ENABLED(CONFIG_MACH_SUN8I_R40)) {
+		writel((u32)entry,
+		       SUNXI_SRAMC_BASE + SUN8I_R40_SRAMC_SOFT_ENTRY_REG0);
+	} else {
+		struct sunxi_cpucfg_reg *cpucfg =
+			(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
+
+		writel((u32)entry, &cpucfg->priv0);
+	}
+}
+
+static void __secure sunxi_cpu_set_power(int cpu, bool on)
+{
+	u32 *clamp = NULL;
+	u32 *pwroff;
+	struct sunxi_cpucfg_reg *cpucfg =
+		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
+
+	/* sun7i (A20) is different from other single cluster SoCs */
+	if (IS_ENABLED(CONFIG_MACH_SUN7I)) {
+		clamp = &cpucfg->cpu1_pwr_clamp;
+		pwroff = &cpucfg->cpu1_pwroff;
+		cpu = 0;
+	} else if (IS_ENABLED(CONFIG_MACH_SUN8I_R40)) {
+		clamp = (void *)cpucfg + SUN8I_R40_PWR_CLAMP(cpu);
+		pwroff = (void *)cpucfg + SUN8I_R40_PWROFF;
+	} else {
+		struct sunxi_prcm_reg *prcm =
+			(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
+
+		if (IS_ENABLED(CONFIG_MACH_SUN6I) ||
+		    IS_ENABLED(CONFIG_MACH_SUN8I_H3))
+			clamp = &prcm->cpu_pwr_clamp[cpu];
+
+		pwroff = &prcm->cpu_pwroff;
+	}
+
 	if (on) {
 		/* Release power clamp */
-		clamp_release(clamp);
+		if (clamp)
+			clamp_release(clamp);
 
 		/* Clear power gating */
 		clrbits_le32(pwroff, BIT(cpu));
@@ -114,57 +144,10 @@ static void __secure sunxi_power_switch(u32 *clamp, u32 *pwroff, bool on,
 		setbits_le32(pwroff, BIT(cpu));
 
 		/* Activate power clamp */
-		clamp_set(clamp);
+		if (clamp)
+			clamp_set(clamp);
 	}
 }
-
-#ifdef CONFIG_MACH_SUN8I_R40
-/* secondary core entry address is programmed differently on R40 */
-static void __secure sunxi_set_entry_address(void *entry)
-{
-	writel((u32)entry,
-	       SUNXI_SRAMC_BASE + SUN8I_R40_SRAMC_SOFT_ENTRY_REG0);
-}
-#else
-static void __secure sunxi_set_entry_address(void *entry)
-{
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
-
-	writel((u32)entry, &cpucfg->priv0);
-}
-#endif
-
-#ifdef CONFIG_MACH_SUN7I
-/* sun7i (A20) is different from other single cluster SoCs */
-static void __secure sunxi_cpu_set_power(int __always_unused cpu, bool on)
-{
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
-
-	sunxi_power_switch(&cpucfg->cpu1_pwr_clamp, &cpucfg->cpu1_pwroff,
-			   on, 0);
-}
-#elif defined CONFIG_MACH_SUN8I_R40
-static void __secure sunxi_cpu_set_power(int cpu, bool on)
-{
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
-
-	sunxi_power_switch((void *)cpucfg + SUN8I_R40_PWR_CLAMP(cpu),
-			   (void *)cpucfg + SUN8I_R40_PWROFF,
-			   on, cpu);
-}
-#else /* ! CONFIG_MACH_SUN7I && ! CONFIG_MACH_SUN8I_R40 */
-static void __secure sunxi_cpu_set_power(int cpu, bool on)
-{
-	struct sunxi_prcm_reg *prcm =
-		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
-
-	sunxi_power_switch(&prcm->cpu_pwr_clamp[cpu], &prcm->cpu_pwroff,
-			   on, cpu);
-}
-#endif /* CONFIG_MACH_SUN7I */
 
 void __secure sunxi_cpu_power_off(u32 cpuid)
 {
