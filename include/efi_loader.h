@@ -149,8 +149,8 @@ static inline efi_status_t efi_launch_capsules(void)
 
 /* GUID for the auto generated boot menu entry */
 #define EFICONFIG_AUTO_GENERATED_ENTRY_GUID \
-	EFI_GUID(0x38c1acc1, 0x9fc0, 0x41f0, \
-		 0xb9, 0x01, 0xfa, 0x74, 0xd6, 0xd6, 0xe4, 0xde)
+	EFI_GUID(0x8108ac4e, 0x9f11, 0x4d59, \
+		 0x85, 0x0e, 0xe2, 0x1a, 0x52, 0x2c, 0x59, 0xb2)
 
 /* Use internal device tree when starting UEFI application */
 #define EFI_FDT_USE_INTERNAL NULL
