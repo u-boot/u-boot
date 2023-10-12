@@ -11,6 +11,7 @@
 #ifndef _BOOTSTAGE_H
 #define _BOOTSTAGE_H
 
+#include <linux/types.h>
 #include <linux/kconfig.h>
 
 /* Flags for each bootstage record */
