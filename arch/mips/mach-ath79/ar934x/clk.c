@@ -3,7 +3,6 @@
  * Copyright (C) 2016 Marek Vasut <marex@denx.de>
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <command.h>
 #include <hang.h>

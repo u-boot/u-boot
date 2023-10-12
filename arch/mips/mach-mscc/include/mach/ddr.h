@@ -6,6 +6,7 @@
 #ifndef __ASM_MACH_DDR_H
 #define __ASM_MACH_DDR_H
 
+#include <config.h>
 #include <asm/cacheops.h>
 #include <asm/io.h>
 #include <asm/reboot.h>

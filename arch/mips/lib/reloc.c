@@ -26,7 +26,6 @@
  * terminating R_MIPS_NONE reloc includes no offset.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <asm/relocs.h>

@@ -4,7 +4,6 @@
  * Copyright (C) 2018-2019 Rosy Song <rosysong@rosinson.com>
  */
 
-#include <common.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
