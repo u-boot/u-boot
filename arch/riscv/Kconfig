@@ -424,4 +424,12 @@ config TPL_USE_ARCH_MEMSET
 
 endmenu
 
+config SPL_LOAD_FIT_OPENSBI_OS_BOOT
+	bool "Enable SPL (OpenSBI OS boot mode) applying linux from FIT"
+	depends on SPL_LOAD_FIT
+	help
+	  Use fw_dynamic from the FIT image, and u-boot SPL will invoke it directly.
+	  This is a shortcut boot flow, from u-boot SPL -> OpenSBI -> u-boot proper
+	  -> linux to u-boot SPL -> OpenSBI -> linux.
+
 endmenu
