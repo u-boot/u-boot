@@ -10,6 +10,7 @@
 #define LOG_CATEGORY UCLASS_VIDEO_CONSOLE
 
 #include <common.h>
+#include <abuf.h>
 #include <command.h>
 #include <console.h>
 #include <log.h>
@@ -47,7 +48,7 @@ int vidconsole_set_row(struct udevice *dev, uint row, int clr)
 	return ops->set_row(dev, row, clr);
 }
 
-static int vidconsole_entry_start(struct udevice *dev)
+int vidconsole_entry_start(struct udevice *dev)
 {
 	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
 
@@ -614,6 +615,74 @@ int vidconsole_measure(struct udevice *dev, const char *name, uint size,
 	bbox->y0 = 0;
 	bbox->x1 = priv->x_charsize * strlen(text);
 	bbox->y1 = priv->y_charsize;
+
+	return 0;
+}
+
+int vidconsole_nominal(struct udevice *dev, const char *name, uint size,
+		       uint num_chars, struct vidconsole_bbox *bbox)
+{
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+	int ret;
+
+	if (ops->measure) {
+		ret = ops->nominal(dev, name, size, num_chars, bbox);
+		if (ret != -ENOSYS)
+			return ret;
+	}
+
+	bbox->valid = true;
+	bbox->x0 = 0;
+	bbox->y0 = 0;
+	bbox->x1 = priv->x_charsize * num_chars;
+	bbox->y1 = priv->y_charsize;
+
+	return 0;
+}
+
+int vidconsole_entry_save(struct udevice *dev, struct abuf *buf)
+{
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+	int ret;
+
+	if (ops->measure) {
+		ret = ops->entry_save(dev, buf);
+		if (ret != -ENOSYS)
+			return ret;
+	}
+
+	/* no data so make sure the buffer is empty */
+	abuf_realloc(buf, 0);
+
+	return 0;
+}
+
+int vidconsole_entry_restore(struct udevice *dev, struct abuf *buf)
+{
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+	int ret;
+
+	if (ops->measure) {
+		ret = ops->entry_restore(dev, buf);
+		if (ret != -ENOSYS)
+			return ret;
+	}
+
+	return 0;
+}
+
+int vidconsole_set_cursor_visible(struct udevice *dev, bool visible,
+				  uint x, uint y, uint index)
+{
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+	int ret;
+
+	if (ops->set_cursor_visible) {
+		ret = ops->set_cursor_visible(dev, visible, x, y, index);
+		if (ret != -ENOSYS)
+			return ret;
+	}
 
 	return 0;
 }

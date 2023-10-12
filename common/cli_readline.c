@@ -89,6 +89,14 @@ static char hist_lines[HIST_MAX][HIST_SIZE + 1];	/* Save room for NULL */
 
 #define add_idx_minus_one() ((hist_add_idx == 0) ? hist_max : hist_add_idx-1)
 
+static void getcmd_putchars(int count, int ch)
+{
+	int i;
+
+	for (i = 0; i < count; i++)
+		getcmd_putch(ch);
+}
+
 static void hist_init(void)
 {
 	int i;
@@ -160,11 +168,10 @@ static char *hist_next(void)
 	return ret;
 }
 
-#ifndef CONFIG_CMDLINE_EDITING
-static void cread_print_hist_list(void)
+void cread_print_hist_list(void)
 {
 	int i;
-	unsigned long n;
+	uint n;
 
 	n = hist_num - hist_max;
 
@@ -179,36 +186,35 @@ static void cread_print_hist_list(void)
 		i++;
 	}
 }
-#endif /* CONFIG_CMDLINE_EDITING */
 
 #define BEGINNING_OF_LINE() {			\
-	while (num) {				\
+	while (cls->num) {			\
 		getcmd_putch(CTL_BACKSPACE);	\
-		num--;				\
+		cls->num--;			\
 	}					\
 }
 
 #define ERASE_TO_EOL() {				\
-	if (num < eol_num) {				\
-		printf("%*s", (int)(eol_num - num), ""); \
+	if (cls->num < cls->eol_num) {		\
+		printf("%*s", (int)(cls->eol_num - cls->num), ""); \
 		do {					\
 			getcmd_putch(CTL_BACKSPACE);	\
-		} while (--eol_num > num);		\
+		} while (--cls->eol_num > cls->num);	\
 	}						\
 }
 
-#define REFRESH_TO_EOL() {			\
-	if (num < eol_num) {			\
-		wlen = eol_num - num;		\
-		putnstr(buf + num, wlen);	\
-		num = eol_num;			\
-	}					\
+#define REFRESH_TO_EOL() {				\
+	if (cls->num < cls->eol_num) {			\
+		uint wlen = cls->eol_num - cls->num;	\
+		putnstr(buf + cls->num, wlen);		\
+		cls->num = cls->eol_num;		\
+	}						\
 }
 
-static void cread_add_char(char ichar, int insert, unsigned long *num,
-	       unsigned long *eol_num, char *buf, unsigned long len)
+static void cread_add_char(char ichar, int insert, uint *num,
+			   uint *eol_num, char *buf, uint len)
 {
-	unsigned long wlen;
+	uint wlen;
 
 	/* room ??? */
 	if (insert || *num == *eol_num) {
@@ -239,8 +245,7 @@ static void cread_add_char(char ichar, int insert, unsigned long *num,
 }
 
 static void cread_add_str(char *str, int strsize, int insert,
-			  unsigned long *num, unsigned long *eol_num,
-			  char *buf, unsigned long len)
+			  uint *num, uint *eol_num, char *buf, uint len)
 {
 	while (strsize--) {
 		cread_add_char(*str, insert, num, eol_num, buf, len);
@@ -248,24 +253,208 @@ static void cread_add_str(char *str, int strsize, int insert,
 	}
 }
 
+int cread_line_process_ch(struct cli_line_state *cls, char ichar)
+{
+	char *buf = cls->buf;
+
+	/* ichar=0x0 when error occurs in U-Boot getc */
+	if (!ichar)
+		return -EAGAIN;
+
+	if (ichar == '\n') {
+		putc('\n');
+		buf[cls->eol_num] = '\0';	/* terminate the string */
+		return 0;
+	}
+
+	switch (ichar) {
+	case CTL_CH('a'):
+		BEGINNING_OF_LINE();
+		break;
+	case CTL_CH('c'):	/* ^C - break */
+		*buf = '\0';	/* discard input */
+		return -EINTR;
+	case CTL_CH('f'):
+		if (cls->num < cls->eol_num) {
+			getcmd_putch(buf[cls->num]);
+			cls->num++;
+		}
+		break;
+	case CTL_CH('b'):
+		if (cls->num) {
+			getcmd_putch(CTL_BACKSPACE);
+			cls->num--;
+		}
+		break;
+	case CTL_CH('d'):
+		if (cls->num < cls->eol_num) {
+			uint wlen;
+
+			wlen = cls->eol_num - cls->num - 1;
+			if (wlen) {
+				memmove(&buf[cls->num], &buf[cls->num + 1],
+					wlen);
+				putnstr(buf + cls->num, wlen);
+			}
+
+			getcmd_putch(' ');
+			do {
+				getcmd_putch(CTL_BACKSPACE);
+			} while (wlen--);
+			cls->eol_num--;
+		}
+		break;
+	case CTL_CH('k'):
+		ERASE_TO_EOL();
+		break;
+	case CTL_CH('e'):
+		REFRESH_TO_EOL();
+		break;
+	case CTL_CH('o'):
+		cls->insert = !cls->insert;
+		break;
+	case CTL_CH('w'):
+		if (cls->num) {
+			uint base, wlen;
+
+			for (base = cls->num - 1;
+			     base >= 0 && buf[base] == ' ';)
+				base--;
+			for (; base > 0 && buf[base - 1] != ' ';)
+				base--;
+
+			/* now delete chars from base to cls->num */
+			wlen = cls->num - base;
+			cls->eol_num -= wlen;
+			memmove(&buf[base], &buf[cls->num],
+				cls->eol_num - base + 1);
+			cls->num = base;
+			getcmd_putchars(wlen, CTL_BACKSPACE);
+			puts(buf + base);
+			getcmd_putchars(wlen, ' ');
+			getcmd_putchars(wlen + cls->eol_num - cls->num,
+					CTL_BACKSPACE);
+		}
+		break;
+	case CTL_CH('x'):
+	case CTL_CH('u'):
+		BEGINNING_OF_LINE();
+		ERASE_TO_EOL();
+		break;
+	case DEL:
+	case DEL7:
+	case 8:
+		if (cls->num) {
+			uint wlen;
+
+			wlen = cls->eol_num - cls->num;
+			cls->num--;
+			memmove(&buf[cls->num], &buf[cls->num + 1], wlen);
+			getcmd_putch(CTL_BACKSPACE);
+			putnstr(buf + cls->num, wlen);
+			getcmd_putch(' ');
+			do {
+				getcmd_putch(CTL_BACKSPACE);
+			} while (wlen--);
+			cls->eol_num--;
+		}
+		break;
+	case CTL_CH('p'):
+	case CTL_CH('n'):
+		if (cls->history) {
+			char *hline;
+
+			if (ichar == CTL_CH('p'))
+				hline = hist_prev();
+			else
+				hline = hist_next();
+
+			if (!hline) {
+				getcmd_cbeep();
+				break;
+			}
+
+			/* nuke the current line */
+			/* first, go home */
+			BEGINNING_OF_LINE();
+
+			/* erase to end of line */
+			ERASE_TO_EOL();
+
+			/* copy new line into place and display */
+			strcpy(buf, hline);
+			cls->eol_num = strlen(buf);
+			REFRESH_TO_EOL();
+			break;
+		}
+		break;
+	case '\t':
+		if (IS_ENABLED(CONFIG_AUTO_COMPLETE) && cls->cmd_complete) {
+			int num2, col;
+
+			/* do not autocomplete when in the middle */
+			if (cls->num < cls->eol_num) {
+				getcmd_cbeep();
+				break;
+			}
+
+			buf[cls->num] = '\0';
+			col = strlen(cls->prompt) + cls->eol_num;
+			num2 = cls->num;
+			if (cmd_auto_complete(cls->prompt, buf, &num2, &col)) {
+				col = num2 - cls->num;
+				cls->num += col;
+				cls->eol_num += col;
+			}
+			break;
+		}
+		fallthrough;
+	default:
+		cread_add_char(ichar, cls->insert, &cls->num, &cls->eol_num,
+			       buf, cls->len);
+		break;
+	}
+
+	/*
+	 * keep the string terminated...if we added a char at the end then we
+	 * want a \0 after it
+	 */
+	buf[cls->eol_num] = '\0';
+
+	return -EAGAIN;
+}
+
+void cli_cread_init(struct cli_line_state *cls, char *buf, uint buf_size)
+{
+	int init_len = strlen(buf);
+
+	memset(cls, '\0', sizeof(struct cli_line_state));
+	cls->insert = true;
+	cls->buf = buf;
+	cls->len = buf_size;
+
+	if (init_len)
+		cread_add_str(buf, init_len, 0, &cls->num, &cls->eol_num, buf,
+			      buf_size);
+}
+
 static int cread_line(const char *const prompt, char *buf, unsigned int *len,
-		int timeout)
+		      int timeout)
 {
 	struct cli_ch_state s_cch, *cch = &s_cch;
-	unsigned long num = 0;
-	unsigned long eol_num = 0;
-	unsigned long wlen;
+	struct cli_line_state s_cls, *cls = &s_cls;
 	char ichar;
-	int insert = 1;
-	int init_len = strlen(buf);
 	int first = 1;
 
 	cli_ch_init(cch);
-
-	if (init_len)
-		cread_add_str(buf, init_len, 1, &num, &eol_num, buf, *len);
+	cli_cread_init(cls, buf, *len);
+	cls->prompt = prompt;
+	cls->history = true;
+	cls->cmd_complete = true;
 
 	while (1) {
+		int ret;
+
 		/* Check for saved characters */
 		ichar = cli_ch_process(cch, 0);
 
@@ -287,141 +476,30 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 			ichar = cli_ch_process(cch, ichar);
 		}
 
-		/* ichar=0x0 when error occurs in U-Boot getc */
-		if (!ichar)
-			continue;
-
-		if (ichar == '\n') {
-			putc('\n');
-			break;
-		}
-
-		switch (ichar) {
-		case CTL_CH('a'):
-			BEGINNING_OF_LINE();
-			break;
-		case CTL_CH('c'):	/* ^C - break */
-			*buf = '\0';	/* discard input */
+		ret = cread_line_process_ch(cls, ichar);
+		if (ret == -EINTR)
 			return -1;
-		case CTL_CH('f'):
-			if (num < eol_num) {
-				getcmd_putch(buf[num]);
-				num++;
-			}
+		else if (!ret)
 			break;
-		case CTL_CH('b'):
-			if (num) {
-				getcmd_putch(CTL_BACKSPACE);
-				num--;
-			}
-			break;
-		case CTL_CH('d'):
-			if (num < eol_num) {
-				wlen = eol_num - num - 1;
-				if (wlen) {
-					memmove(&buf[num], &buf[num+1], wlen);
-					putnstr(buf + num, wlen);
-				}
-
-				getcmd_putch(' ');
-				do {
-					getcmd_putch(CTL_BACKSPACE);
-				} while (wlen--);
-				eol_num--;
-			}
-			break;
-		case CTL_CH('k'):
-			ERASE_TO_EOL();
-			break;
-		case CTL_CH('e'):
-			REFRESH_TO_EOL();
-			break;
-		case CTL_CH('o'):
-			insert = !insert;
-			break;
-		case CTL_CH('x'):
-		case CTL_CH('u'):
-			BEGINNING_OF_LINE();
-			ERASE_TO_EOL();
-			break;
-		case DEL:
-		case DEL7:
-		case 8:
-			if (num) {
-				wlen = eol_num - num;
-				num--;
-				memmove(&buf[num], &buf[num+1], wlen);
-				getcmd_putch(CTL_BACKSPACE);
-				putnstr(buf + num, wlen);
-				getcmd_putch(' ');
-				do {
-					getcmd_putch(CTL_BACKSPACE);
-				} while (wlen--);
-				eol_num--;
-			}
-			break;
-		case CTL_CH('p'):
-		case CTL_CH('n'):
-		{
-			char *hline;
-
-			if (ichar == CTL_CH('p'))
-				hline = hist_prev();
-			else
-				hline = hist_next();
-
-			if (!hline) {
-				getcmd_cbeep();
-				continue;
-			}
-
-			/* nuke the current line */
-			/* first, go home */
-			BEGINNING_OF_LINE();
-
-			/* erase to end of line */
-			ERASE_TO_EOL();
-
-			/* copy new line into place and display */
-			strcpy(buf, hline);
-			eol_num = strlen(buf);
-			REFRESH_TO_EOL();
-			continue;
-		}
-#ifdef CONFIG_AUTO_COMPLETE
-		case '\t': {
-			int num2, col;
-
-			/* do not autocomplete when in the middle */
-			if (num < eol_num) {
-				getcmd_cbeep();
-				break;
-			}
-
-			buf[num] = '\0';
-			col = strlen(prompt) + eol_num;
-			num2 = num;
-			if (cmd_auto_complete(prompt, buf, &num2, &col)) {
-				col = num2 - num;
-				num += col;
-				eol_num += col;
-			}
-			break;
-		}
-#endif
-		default:
-			cread_add_char(ichar, insert, &num, &eol_num, buf,
-				       *len);
-			break;
-		}
 	}
-	*len = eol_num;
-	buf[eol_num] = '\0';	/* lose the newline */
+	*len = cls->eol_num;
 
 	if (buf[0] && buf[0] != CREAD_HIST_CHAR)
 		cread_add_to_hist(buf);
 	hist_cur = hist_add_idx;
 
+	return 0;
+}
+
+#else /* !CONFIG_CMDLINE_EDITING */
+
+static inline void hist_init(void)
+{
+}
+
+static int cread_line(const char *const prompt, char *buf, unsigned int *len,
+		      int timeout)
+{
 	return 0;
 }
 
@@ -440,41 +518,22 @@ int cli_readline(const char *const prompt)
 	return cli_readline_into_buffer(prompt, console_buffer, 0);
 }
 
-
-int cli_readline_into_buffer(const char *const prompt, char *buffer,
-			     int timeout)
+/**
+ * cread_line_simple() - Simple (small) command-line reader
+ *
+ * This supports only basic editing, with no cursor movement
+ *
+ * @prompt: Prompt to display
+ * @p: Text buffer to edit
+ * Return: length of text buffer, or -1 if input was cannncelled (Ctrl-C)
+ */
+static int cread_line_simple(const char *const prompt, char *p)
 {
-	char *p = buffer;
-#ifdef CONFIG_CMDLINE_EDITING
-	unsigned int len = CONFIG_SYS_CBSIZE;
-	int rc;
-	static int initted;
-
-	/*
-	 * History uses a global array which is not
-	 * writable until after relocation to RAM.
-	 * Revert to non-history version if still
-	 * running from flash.
-	 */
-	if (gd->flags & GD_FLG_RELOC) {
-		if (!initted) {
-			hist_init();
-			initted = 1;
-		}
-
-		if (prompt)
-			puts(prompt);
-
-		rc = cread_line(prompt, p, &len, timeout);
-		return rc < 0 ? rc : len;
-
-	} else {
-#endif	/* CONFIG_CMDLINE_EDITING */
 	char *p_buf = p;
-	int	n = 0;				/* buffer index		*/
-	int	plen = 0;			/* prompt length	*/
-	int	col;				/* output column cnt	*/
-	char	c;
+	int n = 0;		/* buffer index */
+	int plen = 0;		/* prompt length */
+	int col;		/* output column cnt */
+	char c;
 
 	/* print prompt */
 	if (prompt) {
@@ -528,14 +587,15 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 			continue;
 
 		default:
-			/*
-			 * Must be a normal character then
-			 */
-			if (n < CONFIG_SYS_CBSIZE-2) {
-				if (c == '\t') {	/* expand TABs */
-#ifdef CONFIG_AUTO_COMPLETE
+			/* Must be a normal character then */
+			if (n >= CONFIG_SYS_CBSIZE - 2) { /* Buffer full */
+				putc('\a');
+				break;
+			}
+			if (c == '\t') {	/* expand TABs */
+				if (IS_ENABLED(CONFIG_AUTO_COMPLETE)) {
 					/*
-					 * if auto completion triggered just
+					 * if auto-completion triggered just
 					 * continue
 					 */
 					*p = '\0';
@@ -545,29 +605,55 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 						p = p_buf + n;	/* reset */
 						continue;
 					}
-#endif
-					puts(tab_seq + (col & 07));
-					col += 8 - (col & 07);
-				} else {
-					char __maybe_unused buf[2];
-
-					/*
-					 * Echo input using puts() to force an
-					 * LCD flush if we are using an LCD
-					 */
-					++col;
-					buf[0] = c;
-					buf[1] = '\0';
-					puts(buf);
 				}
-				*p++ = c;
-				++n;
-			} else {			/* Buffer full */
-				putc('\a');
+				puts(tab_seq + (col & 07));
+				col += 8 - (col & 07);
+			} else {
+				char __maybe_unused buf[2];
+
+				/*
+				 * Echo input using puts() to force an LCD
+				 * flush if we are using an LCD
+				 */
+				++col;
+				buf[0] = c;
+				buf[1] = '\0';
+				puts(buf);
 			}
+			*p++ = c;
+			++n;
+			break;
 		}
 	}
-#ifdef CONFIG_CMDLINE_EDITING
+}
+
+int cli_readline_into_buffer(const char *const prompt, char *buffer,
+			     int timeout)
+{
+	char *p = buffer;
+	uint len = CONFIG_SYS_CBSIZE;
+	int rc;
+	static int initted;
+
+	/*
+	 * History uses a global array which is not
+	 * writable until after relocation to RAM.
+	 * Revert to non-history version if still
+	 * running from flash.
+	 */
+	if (IS_ENABLED(CONFIG_CMDLINE_EDITING) && (gd->flags & GD_FLG_RELOC)) {
+		if (!initted) {
+			hist_init();
+			initted = 1;
+		}
+
+		if (prompt)
+			puts(prompt);
+
+		rc = cread_line(prompt, p, &len, timeout);
+		return rc < 0 ? rc : len;
+
+	} else {
+		return cread_line_simple(prompt, p);
 	}
-#endif
 }

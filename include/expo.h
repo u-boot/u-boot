@@ -7,10 +7,13 @@
 #ifndef __EXPO_H
 #define __EXPO_H
 
+#include <abuf.h>
 #include <dm/ofnode_decl.h>
 #include <linux/list.h>
 
 struct udevice;
+
+#include <cli.h>
 
 /**
  * enum expoact_type - types of actions reported by the expo
@@ -121,6 +124,9 @@ struct expo_string {
  * @id: ID number of the scene
  * @title_id: String ID of title of the scene (allocated)
  * @highlight_id: ID of highlighted object, if any
+ * @cls: cread state to use for input
+ * @buf: Buffer for input
+ * @entry_save: Buffer to hold vidconsole text-entry information
  * @sibling: Node to link this scene to its siblings
  * @obj_head: List of objects in the scene
  */
@@ -130,6 +136,9 @@ struct scene {
 	uint id;
 	uint title_id;
 	uint highlight_id;
+	struct cli_line_state cls;
+	struct abuf buf;
+	struct abuf entry_save;
 	struct list_head sibling;
 	struct list_head obj_head;
 };
@@ -141,12 +150,16 @@ struct scene {
  * @SCENEOBJT_IMAGE: Image data to render
  * @SCENEOBJT_TEXT: Text line to render
  * @SCENEOBJT_MENU: Menu containing items the user can select
+ * @SCENEOBJT_TEXTLINE: Line of text the user can edit
  */
 enum scene_obj_t {
 	SCENEOBJT_NONE		= 0,
 	SCENEOBJT_IMAGE,
 	SCENEOBJT_TEXT,
+
+	/* types from here on can be highlighted */
 	SCENEOBJT_MENU,
+	SCENEOBJT_TEXTLINE,
 };
 
 /**
@@ -178,6 +191,11 @@ enum scene_obj_flags_t {
 	SCENEOF_OPEN	= 1 << 2,
 };
 
+enum {
+	/* Maximum number of characters allowed in an line editor */
+	EXPO_MAX_CHARS		= 250,
+};
+
 /**
  * struct scene_obj - information about an object in a scene
  *
@@ -202,6 +220,12 @@ struct scene_obj {
 	u16 start_bit;
 	struct list_head sibling;
 };
+
+/* object can be highlighted when moving around expo */
+static inline bool scene_obj_can_highlight(const struct scene_obj *obj)
+{
+	return obj->type >= SCENEOBJT_MENU;
+}
 
 /**
  * struct scene_obj_img - information about an image object in a scene
@@ -294,6 +318,27 @@ struct scene_menitem {
 	uint preview_id;
 	uint flags;
 	struct list_head sibling;
+};
+
+/**
+ * struct scene_obj_textline - information about a textline in a scene
+ *
+ * A textline has a prompt and a line of editable text
+ *
+ * @obj: Basic object information
+ * @label_id: ID of the label text, or 0 if none
+ * @edit_id: ID of the editable text
+ * @max_chars: Maximum number of characters allowed
+ * @buf: Text buffer containing current text
+ * @pos: Cursor position
+ */
+struct scene_obj_textline {
+	struct scene_obj obj;
+	uint label_id;
+	uint edit_id;
+	uint max_chars;
+	struct abuf buf;
+	uint pos;
 };
 
 /**
@@ -505,7 +550,7 @@ int scene_txt(struct scene *scn, const char *name, uint id, uint str_id,
 	      struct scene_obj_txt **txtp);
 
 /**
- * scene_txt_str() - add a new string to expr and text object to a scene
+ * scene_txt_str() - add a new string to expo and text object to a scene
  *
  * @scn: Scene to update
  * @name: Name to use (this is allocated by this call)
@@ -529,6 +574,19 @@ int scene_txt_str(struct scene *scn, const char *name, uint id, uint str_id,
  */
 int scene_menu(struct scene *scn, const char *name, uint id,
 	       struct scene_obj_menu **menup);
+
+/**
+ *  scene_textline() - create a textline
+ *
+ * @scn: Scene to update
+ * @name: Name to use (this is allocated by this call)
+ * @id: ID to use for the new object (0 to allocate one)
+ * @max_chars: Maximum length of the textline in characters
+ * @tlinep: If non-NULL, returns the new object
+ * Returns: ID number for the object (typically @id), or -ve on error
+ */
+int scene_textline(struct scene *scn, const char *name, uint id, uint max_chars,
+		   struct scene_obj_textline **tlinep);
 
 /**
  * scene_txt_set_font() - Set the font for an object

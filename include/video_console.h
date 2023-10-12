@@ -8,12 +8,18 @@
 
 #include <video.h>
 
+struct abuf;
 struct video_priv;
 
 #define VID_FRAC_DIV	256
 
 #define VID_TO_PIXEL(x)	((x) / VID_FRAC_DIV)
 #define VID_TO_POS(x)	((x) * VID_FRAC_DIV)
+
+enum {
+	/* cursor width in pixels */
+	VIDCONSOLE_CURSOR_WIDTH		= 2,
+};
 
 /**
  * struct vidconsole_priv - uclass-private data about a console device
@@ -224,6 +230,60 @@ struct vidconsole_ops {
 	 */
 	int (*measure)(struct udevice *dev, const char *name, uint size,
 		       const char *text, struct vidconsole_bbox *bbox);
+
+	/**
+	 * nominal() - Measure the expected width of a line of text
+	 *
+	 * Uses an average font width and nominal height
+	 *
+	 * @dev: Console device to use
+	 * @name: Font name, NULL for default
+	 * @size: Font size, ignored if @name is NULL
+	 * @num_chars: Number of characters to use
+	 * @bbox: Returns nounding box of @num_chars characters
+	 * Returns: 0 if OK, -ve on error
+	 */
+	int (*nominal)(struct udevice *dev, const char *name, uint size,
+		       uint num_chars, struct vidconsole_bbox *bbox);
+
+	/**
+	 * entry_save() - Save any text-entry information for later use
+	 *
+	 * Saves text-entry context such as a list of positions for each
+	 * character in the string.
+	 *
+	 * @dev: Console device to use
+	 * @buf: Buffer to hold saved data
+	 * Return: 0 if OK, -ENOMEM if out of memory
+	 */
+	int (*entry_save)(struct udevice *dev, struct abuf *buf);
+
+	/**
+	 * entry_restore() - Restore text-entry information for current use
+	 *
+	 * Restores text-entry context such as a list of positions for each
+	 * character in the string.
+	 *
+	 * @dev: Console device to use
+	 * @buf: Buffer containing data to restore
+	 * Return: 0 if OK, -ve on error
+	 */
+	int (*entry_restore)(struct udevice *dev, struct abuf *buf);
+
+	/**
+	 * set_cursor_visible() - Show or hide the cursor
+	 *
+	 * Shows or hides a cursor at the current position
+	 *
+	 * @dev: Console device to use
+	 * @visible: true to show the cursor, false to hide it
+	 * @x: X position in pixels
+	 * @y: Y position in pixels
+	 * @index: Character position (0 = at start)
+	 * Return: 0 if OK, -ve on error
+	 */
+	int (*set_cursor_visible)(struct udevice *dev, bool visible,
+				  uint x, uint y, uint index);
 };
 
 /* Get a pointer to the driver operations for a video console device */
@@ -262,6 +322,60 @@ int vidconsole_select_font(struct udevice *dev, const char *name, uint size);
  */
 int vidconsole_measure(struct udevice *dev, const char *name, uint size,
 		       const char *text, struct vidconsole_bbox *bbox);
+
+/**
+ * vidconsole_nominal() - Measure the expected width of a line of text
+ *
+ * Uses an average font width and nominal height
+ *
+ * @dev: Console device to use
+ * @name: Font name, NULL for default
+ * @size: Font size, ignored if @name is NULL
+ * @num_chars: Number of characters to use
+ * @bbox: Returns nounding box of @num_chars characters
+ * Returns: 0 if OK, -ve on error
+ */
+int vidconsole_nominal(struct udevice *dev, const char *name, uint size,
+		       uint num_chars, struct vidconsole_bbox *bbox);
+
+/**
+ * vidconsole_entry_save() - Save any text-entry information for later use
+ *
+ * Saves text-entry context such as a list of positions for each
+ * character in the string.
+ *
+ * @dev: Console device to use
+ * @buf: Buffer to hold saved data
+ * Return: 0 if OK, -ENOMEM if out of memory
+ */
+int vidconsole_entry_save(struct udevice *dev, struct abuf *buf);
+
+/**
+ * entry_restore() - Restore text-entry information for current use
+ *
+ * Restores text-entry context such as a list of positions for each
+ * character in the string.
+ *
+ * @dev: Console device to use
+ * @buf: Buffer containing data to restore
+ * Return: 0 if OK, -ve on error
+ */
+int vidconsole_entry_restore(struct udevice *dev, struct abuf *buf);
+
+/**
+ * vidconsole_set_cursor_visible() - Show or hide the cursor
+ *
+ * Shows or hides a cursor at the current position
+ *
+ * @dev: Console device to use
+ * @visible: true to show the cursor, false to hide it
+ * @x: X position in pixels
+ * @y: Y position in pixels
+ * @index: Character position (0 = at start)
+ * Return: 0 if OK, -ve on error
+ */
+int vidconsole_set_cursor_visible(struct udevice *dev, bool visible,
+				  uint x, uint y, uint index);
 
 /**
  * vidconsole_push_colour() - Temporarily change the font colour
@@ -319,6 +433,15 @@ int vidconsole_move_rows(struct udevice *dev, uint rowdst, uint rowsrc,
  * Return: 0 if OK, -ve on error
  */
 int vidconsole_set_row(struct udevice *dev, uint row, int clr);
+
+/**
+ * vidconsole_entry_start() - Set the start position of a vidconsole line
+ *
+ * Marks the current cursor position as the start of a line
+ *
+ * @dev:	Device to adjust
+ */
+int vidconsole_entry_start(struct udevice *dev);
 
 /**
  * vidconsole_put_char() - Output a character to the current console position

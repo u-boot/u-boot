@@ -23,10 +23,14 @@
  *	if there is nothing for this ID. Since ID 0 is never used, the first
  *	element of this array is always NULL
  * @str_count: Number of entries in @str_for_id
+ * @err_node: Node being processed (for error reporting)
+ * @err_prop: Property being processed (for error reporting)
  */
 struct build_info {
 	const char **str_for_id;
 	int str_count;
+	ofnode err_node;
+	const char *err_prop;
 };
 
 /**
@@ -46,6 +50,7 @@ int add_txt_str(struct build_info *info, ofnode node, struct scene *scn,
 	uint str_id;
 	int ret;
 
+	info->err_prop = find_name;
 	text = ofnode_read_string(node, find_name);
 	if (!text) {
 		char name[40];
@@ -54,7 +59,7 @@ int add_txt_str(struct build_info *info, ofnode node, struct scene *scn,
 		snprintf(name, sizeof(name), "%s-id", find_name);
 		ret = ofnode_read_u32(node, name, &id);
 		if (ret)
-			return log_msg_ret("id", -EINVAL);
+			return log_msg_ret("id", -ENOENT);
 
 		if (id >= info->str_count)
 			return log_msg_ret("id", -E2BIG);
@@ -164,9 +169,10 @@ static int read_strings(struct build_info *info, ofnode root)
 		int ret;
 		u32 id;
 
+		info->err_node = node;
 		ret = ofnode_read_u32(node, "id", &id);
 		if (ret)
-			return log_msg_ret("id", -EINVAL);
+			return log_msg_ret("id", -ENOENT);
 		val = ofnode_read_string(node, "value");
 		if (!val)
 			return log_msg_ret("val", -EINVAL);
@@ -241,6 +247,8 @@ static int menu_build(struct build_info *info, ofnode node, struct scene *scn,
 		return log_msg_ret("tit", ret);
 	title_id = ret;
 	ret = scene_menu_set_title(scn, menu_id, title_id);
+	if (ret)
+		return log_msg_ret("set", ret);
 
 	item_ids = ofnode_read_prop(node, "item-id", &size);
 	if (!item_ids)
@@ -279,6 +287,49 @@ static int menu_build(struct build_info *info, ofnode node, struct scene *scn,
 	return 0;
 }
 
+static int textline_build(struct build_info *info, ofnode node,
+			  struct scene *scn, uint id, struct scene_obj **objp)
+{
+	struct scene_obj_textline *ted;
+	uint ted_id, edit_id;
+	const char *name;
+	u32 max_chars;
+	int ret;
+
+	name = ofnode_get_name(node);
+
+	info->err_prop = "max-chars";
+	ret = ofnode_read_u32(node, "max-chars", &max_chars);
+	if (ret)
+		return log_msg_ret("max", -ENOENT);
+
+	ret = scene_textline(scn, name, id, max_chars, &ted);
+	if (ret < 0)
+		return log_msg_ret("ted", ret);
+	ted_id = ret;
+
+	/* Set the title */
+	ret = add_txt_str(info, node, scn, "title", 0);
+	if (ret < 0)
+		return log_msg_ret("tit", ret);
+	ted->label_id = ret;
+
+	/* Setup the editor */
+	info->err_prop = "edit-id";
+	ret = ofnode_read_u32(node, "edit-id", &id);
+	if (ret)
+		return log_msg_ret("id", -ENOENT);
+	edit_id = ret;
+
+	ret = scene_txt_str(scn, "edit", edit_id, 0, abuf_data(&ted->buf),
+			    NULL);
+	if (ret < 0)
+		return log_msg_ret("add", ret);
+	ted->edit_id = ret;
+
+	return 0;
+}
+
 /**
  * obj_build() - Build an expo object and add it to a scene
  *
@@ -300,7 +351,7 @@ static int obj_build(struct build_info *info, ofnode node, struct scene *scn)
 	log_debug("- object %s\n", ofnode_get_name(node));
 	ret = ofnode_read_u32(node, "id", &id);
 	if (ret)
-		return log_msg_ret("id", -EINVAL);
+		return log_msg_ret("id", -ENOENT);
 
 	type = ofnode_read_string(node, "type");
 	if (!type)
@@ -308,8 +359,10 @@ static int obj_build(struct build_info *info, ofnode node, struct scene *scn)
 
 	if (!strcmp("menu", type))
 		ret = menu_build(info, node, scn, id, &obj);
-	 else
-		ret = -EINVAL;
+	else if (!strcmp("textline", type))
+		ret = textline_build(info, node, scn, id, &obj);
+	else
+		ret = -EOPNOTSUPP;
 	if (ret)
 		return log_msg_ret("bld", ret);
 
@@ -341,11 +394,12 @@ static int scene_build(struct build_info *info, ofnode scn_node,
 	ofnode node;
 	int ret;
 
+	info->err_node = scn_node;
 	name = ofnode_get_name(scn_node);
 	log_debug("Building scene %s\n", name);
 	ret = ofnode_read_u32(scn_node, "id", &id);
 	if (ret)
-		return log_msg_ret("id", -EINVAL);
+		return log_msg_ret("id", -ENOENT);
 
 	ret = scene_new(exp, name, id, &scn);
 	if (ret < 0)
@@ -362,6 +416,7 @@ static int scene_build(struct build_info *info, ofnode scn_node,
 		return log_msg_ret("pr", ret);
 
 	ofnode_for_each_subnode(node, scn_node) {
+		info->err_node = node;
 		ret = obj_build(info, node, scn);
 		if (ret < 0)
 			return log_msg_ret("mit", ret);
@@ -370,20 +425,19 @@ static int scene_build(struct build_info *info, ofnode scn_node,
 	return 0;
 }
 
-int expo_build(ofnode root, struct expo **expp)
+int build_it(struct build_info *info, ofnode root, struct expo **expp)
 {
-	struct build_info info;
 	ofnode scenes, node;
 	struct expo *exp;
 	u32 dyn_start;
 	int ret;
 
-	memset(&info, '\0', sizeof(info));
-	ret = read_strings(&info, root);
+	ret = read_strings(info, root);
 	if (ret)
 		return log_msg_ret("str", ret);
 	if (_DEBUG)
-		list_strings(&info);
+		list_strings(info);
+	info->err_node = root;
 
 	ret = expo_new("name", NULL, &exp);
 	if (ret)
@@ -397,9 +451,33 @@ int expo_build(ofnode root, struct expo **expp)
 		return log_msg_ret("sno", -EINVAL);
 
 	ofnode_for_each_subnode(node, scenes) {
-		ret = scene_build(&info, node, exp);
+		ret = scene_build(info, node, exp);
 		if (ret < 0)
 			return log_msg_ret("scn", ret);
+	}
+	*expp = exp;
+
+	return 0;
+}
+
+int expo_build(ofnode root, struct expo **expp)
+{
+	struct build_info info;
+	struct expo *exp;
+	int ret;
+
+	memset(&info, '\0', sizeof(info));
+	ret = build_it(&info, root, &exp);
+	if (ret) {
+		char buf[120];
+		int node_ret;
+
+		node_ret = ofnode_get_path(info.err_node, buf, sizeof(buf));
+		log_warning("Build failed at node %s, property %s\n",
+			    node_ret ? ofnode_get_name(info.err_node) : buf,
+			    info.err_prop);
+
+		return log_msg_ret("bui", ret);
 	}
 	*expp = exp;
 

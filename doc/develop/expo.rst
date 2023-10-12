@@ -63,9 +63,12 @@ select the item), label and description. All three are shown in a single line
 within the menu. Items can also have a preview image, which is shown when the
 item is highlighted.
 
-All components have a name. This is purely for debugging, so it is easy to see
-what object is referred to. Of course the ID numbers can help as well, but they
-are less easy to distinguish.
+A `textline object` contains a label and an editable string.
+
+All components have a name. This is mostly for debugging, so it is easy to see
+what object is referred to, although the name is also used for saving values.
+Of course the ID numbers can help as well, but they are less easy to
+distinguish.
 
 While the expo implementation provides support for handling keypresses and
 rendering on the display or serial port, it does not actually deal with reading
@@ -136,7 +139,9 @@ this is to use `cli_ch_process()`, since it handles conversion of escape
 sequences into keys. However, expo has some special menu-key codes for
 navigating the interface. These are defined in `enum bootmenu_key` and include
 `BKEY_UP` for moving up and `BKEY_SELECT` for selecting an item. You can use
-`bootmenu_conv_key()` to convert an ASCII key into one of these.
+`bootmenu_conv_key()` to convert an ASCII key into one of these, but if it
+returns a value >= `BKEY_FIRST_EXTRA` then you should pass the unmodified ASCII
+key to the expo, since it may be used by textline objects.
 
 Once a keypress is decoded, call `expo_send_key()` to send it to the expo. This
 may cause an update to the expo state and may produce an action.
@@ -312,6 +317,9 @@ type
     "menu"
         Menu containing items which can be selected by the user
 
+    "textline"
+        A line of text which can be edited
+
 id
     type: u32, required
 
@@ -362,6 +370,26 @@ desc-label / desc-label-id
     Specifies the description for each item in the menu. These are currently
     only intended for use in simple mode.
 
+Textline nodes have the following additional properties:
+
+label / label-id
+    type: string / u32, required
+
+    Specifies the label of the textline. This is shown to the left of the area
+    for this textline.
+
+edit-id
+    type: u32, required
+
+    Specifies the ID of the of the editable text object. This can be used to
+    obtain the text from the textline
+
+max-chars:
+    type: u32, required
+
+    Specifies the maximum number of characters permitted to be in the textline.
+    The user will be prevented from adding more.
+
 
 Expo layout
 ~~~~~~~~~~~
@@ -400,6 +428,9 @@ strings are provided inline in the nodes where they are used.
         ID_AC_OFF,
         ID_AC_ON,
         ID_AC_MEMORY,
+
+        ID_MACHINE_NAME,
+        ID_MACHINE_NAME_EDIT,
 
         ID_DYNAMIC_START,
     */
@@ -447,6 +478,13 @@ strings are provided inline in the nodes where they are used.
 
                     item-id = <ID_AC_OFF ID_AC_ON ID_AC_MEMORY>;
                 };
+
+            machine-name {
+                id = <ID_MACHINE_NAME>;
+                type = "textline";
+                max-chars = <20>;
+                title = "Machine name";
+                edit-id = <ID_MACHINE_NAME_EDIT>;
             };
         };
 
@@ -474,7 +512,7 @@ Some ideas for future work:
 - Image formats other than BMP
 - Use of ANSI sequences to control a serial terminal
 - Colour selection
-- Support for more widgets, e.g. text, numeric, radio/option
+- Support for more widgets, e.g. numeric, radio/option
 - Mouse support
 - Integrate Nuklear, NxWidgets or some other library for a richer UI
 - Optimise rendering by only updating the display with changes since last render

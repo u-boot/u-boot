@@ -55,6 +55,14 @@
 				start-bit = <0x422>;
 				bit-length = <2>;
 			};
+
+			machine-name {
+				id = <ID_MACHINE_NAME>;
+				type = "textline";
+				max-chars = <20>;
+				title = "Machine name";
+				edit-id = <ID_MACHINE_NAME_EDIT>;
+			};
 		};
 	};
 

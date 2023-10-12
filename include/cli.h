@@ -8,6 +8,7 @@
 #define __CLI_H
 
 #include <stdbool.h>
+#include <linux/types.h>
 
 /**
  * struct cli_ch_state - state information for reading cmdline characters
@@ -22,6 +23,29 @@ struct cli_ch_state {
 	char esc_save[8];
 	int emit_upto;
 	bool emitting;
+};
+
+/**
+ * struct cli_line_state - state of the line editor
+ *
+ * @num: Current cursor position, where 0 is the start
+ * @eol_num: Number of characters in the buffer
+ * @insert: true if in 'insert' mode
+ * @history: true if history should be accessible
+ * @cmd_complete: true if tab completion should be enabled (requires @prompt to
+ *	be set)
+ * @buf: Buffer containing line
+ * @prompt: Prompt for the line
+ */
+struct cli_line_state {
+	uint num;
+	uint eol_num;
+	uint len;
+	bool insert;
+	bool history;
+	bool cmd_complete;
+	char *buf;
+	const char *prompt;
 };
 
 /**
@@ -228,5 +252,32 @@ void cli_ch_init(struct cli_ch_state *cch);
  * an existing escape sequence was cancelled
  */
 int cli_ch_process(struct cli_ch_state *cch, int ichar);
+
+/**
+ * cread_line_process_ch() - Process a character for line input
+ *
+ * @cls: CLI line state
+ * @ichar: Character to process
+ * Return: 0 if input is complete, with line in cls->buf, -EINTR if input was
+ * cancelled with Ctrl-C, -EAGAIN if more characters are needed
+ */
+int cread_line_process_ch(struct cli_line_state *cls, char ichar);
+
+/**
+ * cli_cread_init() - Set up a new cread struct
+ *
+ * Sets up a new cread state, with history and cmd_complete set to false
+ *
+ * After calling this, you can use cread_line_process_ch() to process characters
+ * received from the user.
+ *
+ * @cls: CLI line state
+ * @buf: Text buffer containing the initial text
+ * @buf_size: Buffer size, including nul terminator
+ */
+void cli_cread_init(struct cli_line_state *cls, char *buf, uint buf_size);
+
+/** cread_print_hist_list() - Print the command-line history list */
+void cread_print_hist_list(void);
 
 #endif

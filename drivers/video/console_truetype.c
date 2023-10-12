@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <abuf.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
@@ -173,6 +174,17 @@ struct console_tt_priv {
 	int num_metrics;
 	struct pos_info pos[POS_HISTORY_SIZE];
 	int pos_ptr;
+};
+
+/**
+ * struct console_tt_store - Format used for save/restore of entry information
+ *
+ * @priv: Private data
+ * @cur: Current cursor position
+ */
+struct console_tt_store {
+	struct console_tt_priv priv;
+	struct pos_info cur;
 };
 
 static int console_truetype_set_row(struct udevice *dev, uint row, int clr)
@@ -706,8 +718,8 @@ static int truetype_select_font(struct udevice *dev, const char *name,
 	return 0;
 }
 
-int truetype_measure(struct udevice *dev, const char *name, uint size,
-		     const char *text, struct vidconsole_bbox *bbox)
+static int truetype_measure(struct udevice *dev, const char *name, uint size,
+			    const char *text, struct vidconsole_bbox *bbox)
 {
 	struct console_tt_metrics *met;
 	stbtt_fontinfo *font;
@@ -748,6 +760,177 @@ int truetype_measure(struct udevice *dev, const char *name, uint size,
 	bbox->y1 = met->font_size;
 
 	return 0;
+}
+
+static int truetype_nominal(struct udevice *dev, const char *name, uint size,
+			    uint num_chars, struct vidconsole_bbox *bbox)
+{
+	struct console_tt_metrics *met;
+	stbtt_fontinfo *font;
+	int lsb, advance;
+	int width;
+	int ret;
+
+	ret = get_metrics(dev, name, size, &met);
+	if (ret)
+		return log_msg_ret("sel", ret);
+
+	font = &met->font;
+	width = 0;
+
+	/* First get some basic metrics about this character */
+	stbtt_GetCodepointHMetrics(font, 'W', &advance, &lsb);
+
+	width = advance;
+
+	bbox->valid = true;
+	bbox->x0 = 0;
+	bbox->y0 = 0;
+	bbox->x1 = tt_ceil((double)width * num_chars * met->scale);
+	bbox->y1 = met->font_size;
+
+	return 0;
+}
+
+static int truetype_entry_save(struct udevice *dev, struct abuf *buf)
+{
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
+	struct console_tt_priv *priv = dev_get_priv(dev);
+	struct console_tt_store store;
+	const uint size = sizeof(store);
+
+	/*
+	 * store the whole priv structure as it is simpler that picking out
+	 * what we need
+	 */
+	if (!abuf_realloc(buf, size))
+		return log_msg_ret("sav", -ENOMEM);
+
+	store.priv = *priv;
+	store.cur.xpos_frac = vc_priv->xcur_frac;
+	store.cur.ypos  = vc_priv->ycur;
+	memcpy(abuf_data(buf), &store, size);
+
+	return 0;
+}
+
+static int truetype_entry_restore(struct udevice *dev, struct abuf *buf)
+{
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
+	struct console_tt_priv *priv = dev_get_priv(dev);
+	struct console_tt_store store;
+
+	memcpy(&store, abuf_data(buf), sizeof(store));
+
+	vc_priv->xcur_frac = store.cur.xpos_frac;
+	vc_priv->ycur = store.cur.ypos;
+	priv->pos_ptr = store.priv.pos_ptr;
+	memcpy(priv->pos, store.priv.pos,
+	       store.priv.pos_ptr * sizeof(struct pos_info));
+
+	return 0;
+}
+
+static int truetype_set_cursor_visible(struct udevice *dev, bool visible,
+				       uint x, uint y, uint index)
+{
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
+	struct udevice *vid = dev->parent;
+	struct video_priv *vid_priv = dev_get_uclass_priv(vid);
+	struct console_tt_priv *priv = dev_get_priv(dev);
+	struct console_tt_metrics *met = priv->cur_met;
+	uint row, width, height, xoff;
+	void *start, *line;
+	uint out, val;
+	int ret;
+
+	if (!visible)
+		return 0;
+
+	/*
+	 * figure out where to place the cursor. This driver ignores the
+	 * passed-in values, since an entry_restore() must have been done before
+	 * calling this function.
+	 */
+	if (index < priv->pos_ptr)
+		x = VID_TO_PIXEL(priv->pos[index].xpos_frac);
+	else
+		x = VID_TO_PIXEL(vc_priv->xcur_frac);
+
+	y = vc_priv->ycur;
+	height = met->font_size;
+	xoff = 0;
+
+	val = vid_priv->colour_bg ? 0 : 255;
+	width = VIDCONSOLE_CURSOR_WIDTH;
+
+	/* Figure out where to write the cursor in the frame buffer */
+	start = vid_priv->fb + y * vid_priv->line_length +
+		x * VNBYTES(vid_priv->bpix);
+	line = start;
+
+	/* draw a vertical bar in the correct position */
+	for (row = 0; row < height; row++) {
+		switch (vid_priv->bpix) {
+		case VIDEO_BPP8:
+			if (IS_ENABLED(CONFIG_VIDEO_BPP8)) {
+				u8 *dst = line + xoff;
+				int i;
+
+				out = val;
+				for (i = 0; i < width; i++) {
+					if (vid_priv->colour_fg)
+						*dst++ |= out;
+					else
+						*dst++ &= out;
+				}
+			}
+			break;
+		case VIDEO_BPP16: {
+			u16 *dst = (u16 *)line + xoff;
+			int i;
+
+			if (IS_ENABLED(CONFIG_VIDEO_BPP16)) {
+				for (i = 0; i < width; i++) {
+					out = val >> 3 |
+						(val >> 2) << 5 |
+						(val >> 3) << 11;
+					if (vid_priv->colour_fg)
+						*dst++ |= out;
+					else
+						*dst++ &= out;
+				}
+			}
+			break;
+		}
+		case VIDEO_BPP32: {
+			u32 *dst = (u32 *)line + xoff;
+			int i;
+
+			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
+				for (i = 0; i < width; i++) {
+					int out;
+
+					out = val | val << 8 | val << 16;
+					if (vid_priv->colour_fg)
+						*dst++ |= out;
+					else
+						*dst++ &= out;
+				}
+			}
+			break;
+		}
+		default:
+			return -ENOSYS;
+		}
+
+		line += vid_priv->line_length;
+	}
+	ret = vidconsole_sync_copy(dev, start, line);
+	if (ret)
+		return ret;
+
+	return video_sync(vid, true);
 }
 
 const char *console_truetype_get_font_size(struct udevice *dev, uint *sizep)
@@ -802,6 +985,10 @@ struct vidconsole_ops console_truetype_ops = {
 	.get_font_size	= console_truetype_get_font_size,
 	.select_font	= truetype_select_font,
 	.measure	= truetype_measure,
+	.nominal	= truetype_nominal,
+	.entry_save	= truetype_entry_save,
+	.entry_restore	= truetype_entry_restore,
+	.set_cursor_visible	= truetype_set_cursor_visible
 };
 
 U_BOOT_DRIVER(vidconsole_truetype) = {

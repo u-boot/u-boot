@@ -654,7 +654,7 @@ static int expo_test_build(struct unit_test_state *uts)
 
 	ut_asserteq_str("name", exp->name);
 	ut_asserteq(0, exp->scene_id);
-	ut_asserteq(ID_DYNAMIC_START + 20, exp->next_id);
+	ut_asserteq(ID_DYNAMIC_START + 24, exp->next_id);
 	ut_asserteq(false, exp->popup);
 
 	/* check the scene */

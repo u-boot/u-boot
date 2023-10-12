@@ -91,6 +91,7 @@ obj-$(CONFIG_CMD_FUSE) += fuse.o
 obj-$(CONFIG_CMD_FWU_METADATA) += fwu_mdata.o
 obj-$(CONFIG_CMD_GETTIME) += gettime.o
 obj-$(CONFIG_CMD_GPIO) += gpio.o
+obj-$(CONFIG_CMD_HISTORY) += history.o
 obj-$(CONFIG_CMD_HVC) += smccc.o
 obj-$(CONFIG_CMD_I2C) += i2c.o
 obj-$(CONFIG_CMD_IOTRACE) += iotrace.o

@@ -93,6 +93,30 @@ int fill_char_horizontally(uchar *pfont, void **line, struct video_priv *vid_pri
 			   struct video_fontdata *fontdata, bool direction);
 
 /**
+ * draw_cursor_vertically() - Draw a simple vertical cursor
+ *
+ * @line: pointer to framebuffer buffer: upper left cursor corner
+ * @vid_priv: driver private data
+ * @height: height of the cursor in pixels
+ * @param direction	controls cursor orientation. Can be normal or flipped.
+ * When normal:               When flipped:
+ *|-----------------------------------------------|
+ *|               *        |   line stepping      |
+ *|    ^  * * * * *        |   |                  |
+ *|    |    *     *        |   v   *     *        |
+ *|    |                   |       * * * * *      |
+ *|  line stepping         |       *              |
+ *|                        |                      |
+ *|  stepping ->           |        <<- stepping  |
+ *|---!!we're starting from upper left char corner|
+ *|-----------------------------------------------|
+ *
+ * Return: 0, if success, or else error code.
+ */
+int draw_cursor_vertically(void **line, struct video_priv *vid_priv,
+			   uint height, bool direction);
+
+/**
  * console probe function.
  *
  * @param dev	a pointer to device.

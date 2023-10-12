@@ -32,6 +32,14 @@ int scene_new(struct expo *exp, const char *name, uint id, struct scene **scnp)
 		return log_msg_ret("name", -ENOMEM);
 	}
 
+	abuf_init(&scn->buf);
+	if (!abuf_realloc(&scn->buf, EXPO_MAX_CHARS + 1)) {
+		free(scn->name);
+		free(scn);
+		return log_msg_ret("buf", -ENOMEM);
+	}
+	abuf_init(&scn->entry_save);
+
 	INIT_LIST_HEAD(&scn->obj_head);
 	scn->id = resolve_id(exp, id);
 	scn->expo = exp;
@@ -57,6 +65,8 @@ void scene_destroy(struct scene *scn)
 	list_for_each_entry_safe(obj, next, &scn->obj_head, sibling)
 		scene_obj_destroy(obj);
 
+	abuf_uninit(&scn->entry_save);
+	abuf_uninit(&scn->buf);
 	free(scn->name);
 	free(scn);
 }
@@ -137,7 +147,7 @@ int scene_img(struct scene *scn, const char *name, uint id, char *data,
 			    sizeof(struct scene_obj_img),
 			    (struct scene_obj **)&img);
 	if (ret < 0)
-		return log_msg_ret("obj", -ENOMEM);
+		return log_msg_ret("obj", ret);
 
 	img->data = data;
 
@@ -157,7 +167,7 @@ int scene_txt(struct scene *scn, const char *name, uint id, uint str_id,
 			    sizeof(struct scene_obj_txt),
 			    (struct scene_obj **)&txt);
 	if (ret < 0)
-		return log_msg_ret("obj", -ENOMEM);
+		return log_msg_ret("obj", ret);
 
 	txt->str_id = str_id;
 
@@ -176,14 +186,15 @@ int scene_txt_str(struct scene *scn, const char *name, uint id, uint str_id,
 	ret = expo_str(scn->expo, name, str_id, str);
 	if (ret < 0)
 		return log_msg_ret("str", ret);
-	else if (ret != str_id)
+	if (str_id && ret != str_id)
 		return log_msg_ret("id", -EEXIST);
+	str_id = ret;
 
 	ret = scene_obj_add(scn, name, id, SCENEOBJT_TEXT,
 			    sizeof(struct scene_obj_txt),
 			    (struct scene_obj **)&txt);
 	if (ret < 0)
-		return log_msg_ret("obj", -ENOMEM);
+		return log_msg_ret("obj", ret);
 
 	txt->str_id = str_id;
 
@@ -269,6 +280,7 @@ int scene_obj_get_hw(struct scene *scn, uint id, int *widthp)
 	switch (obj->type) {
 	case SCENEOBJT_NONE:
 	case SCENEOBJT_MENU:
+	case SCENEOBJT_TEXTLINE:
 		break;
 	case SCENEOBJT_IMAGE: {
 		struct scene_obj_img *img = (struct scene_obj_img *)obj;
@@ -311,6 +323,51 @@ int scene_obj_get_hw(struct scene *scn, uint id, int *widthp)
 	}
 
 	return 0;
+}
+
+/**
+ * scene_render_background() - Render the background for an object
+ *
+ * @obj: Object to render
+ * @box_only: true to show a box around the object, but keep the normal
+ * background colour inside
+ */
+static void scene_render_background(struct scene_obj *obj, bool box_only)
+{
+	struct expo *exp = obj->scene->expo;
+	const struct expo_theme *theme = &exp->theme;
+	struct vidconsole_bbox bbox, label_bbox;
+	struct udevice *dev = exp->display;
+	struct video_priv *vid_priv;
+	struct udevice *cons = exp->cons;
+	struct vidconsole_colour old;
+	enum colour_idx fore, back;
+	uint inset = theme->menu_inset;
+
+	/* draw a background for the object */
+	if (CONFIG_IS_ENABLED(SYS_WHITE_ON_BLACK)) {
+		fore = VID_BLACK;
+		back = VID_WHITE;
+	} else {
+		fore = VID_LIGHT_GRAY;
+		back = VID_BLACK;
+	}
+
+	/* see if this object wants to render a background */
+	if (scene_obj_calc_bbox(obj, &bbox, &label_bbox))
+		return;
+
+	vidconsole_push_colour(cons, fore, back, &old);
+	vid_priv = dev_get_uclass_priv(dev);
+	video_fill_part(dev, label_bbox.x0 - inset, label_bbox.y0 - inset,
+			label_bbox.x1 + inset, label_bbox.y1 + inset,
+			vid_priv->colour_fg);
+	vidconsole_pop_colour(cons, &old);
+	if (box_only) {
+		video_fill_part(dev, label_bbox.x0, label_bbox.y0,
+				label_bbox.x1, label_bbox.y1,
+				vid_priv->colour_bg);
+	}
 }
 
 /**
@@ -396,7 +453,7 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 				return -ENOTSUPP;
 
 			/* draw a background behind the menu items */
-			scene_menu_render(menu);
+			scene_render_background(obj, false);
 		}
 		/*
 		 * With a vidconsole, the text and item pointer are rendered as
@@ -412,6 +469,10 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 
 		break;
 	}
+	case SCENEOBJT_TEXTLINE:
+		if (obj->flags & SCENEOF_OPEN)
+			scene_render_background(obj, true);
+		break;
 	}
 
 	return 0;
@@ -423,13 +484,29 @@ int scene_arrange(struct scene *scn)
 	int ret;
 
 	list_for_each_entry(obj, &scn->obj_head, sibling) {
-		if (obj->type == SCENEOBJT_MENU) {
+		switch (obj->type) {
+		case SCENEOBJT_NONE:
+		case SCENEOBJT_IMAGE:
+		case SCENEOBJT_TEXT:
+			break;
+		case SCENEOBJT_MENU: {
 			struct scene_obj_menu *menu;
 
 			menu = (struct scene_obj_menu *)obj,
 			ret = scene_menu_arrange(scn, menu);
 			if (ret)
 				return log_msg_ret("arr", ret);
+			break;
+		}
+		case SCENEOBJT_TEXTLINE: {
+			struct scene_obj_textline *tline;
+
+			tline = (struct scene_obj_textline *)obj,
+			ret = scene_textline_arrange(scn, tline);
+			if (ret)
+				return log_msg_ret("arr", ret);
+			break;
+		}
 		}
 	}
 
@@ -452,9 +529,20 @@ int scene_render_deps(struct scene *scn, uint id)
 		if (ret && ret != -ENOTSUPP)
 			return log_msg_ret("ren", ret);
 
-		if (obj->type == SCENEOBJT_MENU)
+		switch (obj->type) {
+		case SCENEOBJT_NONE:
+		case SCENEOBJT_IMAGE:
+		case SCENEOBJT_TEXT:
+			break;
+		case SCENEOBJT_MENU:
 			scene_menu_render_deps(scn,
 					       (struct scene_obj_menu *)obj);
+			break;
+		case SCENEOBJT_TEXTLINE:
+			scene_textline_render_deps(scn,
+					(struct scene_obj_textline *)obj);
+			break;
+		}
 	}
 
 	return 0;
@@ -501,7 +589,7 @@ static void send_key_obj(struct scene *scn, struct scene_obj *obj, int key,
 					       sibling)) {
 			obj = list_entry(obj->sibling.prev,
 					 struct scene_obj, sibling);
-			if (obj->type == SCENEOBJT_MENU) {
+			if (scene_obj_can_highlight(obj)) {
 				event->type = EXPOACT_POINT_OBJ;
 				event->select.id = obj->id;
 				log_debug("up to obj %d\n", event->select.id);
@@ -513,7 +601,7 @@ static void send_key_obj(struct scene *scn, struct scene_obj *obj, int key,
 		while (!list_is_last(&obj->sibling, &scn->obj_head)) {
 			obj = list_entry(obj->sibling.next, struct scene_obj,
 					 sibling);
-			if (obj->type == SCENEOBJT_MENU) {
+			if (scene_obj_can_highlight(obj)) {
 				event->type = EXPOACT_POINT_OBJ;
 				event->select.id = obj->id;
 				log_debug("down to obj %d\n", event->select.id);
@@ -522,7 +610,7 @@ static void send_key_obj(struct scene *scn, struct scene_obj *obj, int key,
 		}
 		break;
 	case BKEY_SELECT:
-		if (obj->type == SCENEOBJT_MENU) {
+		if (scene_obj_can_highlight(obj)) {
 			event->type = EXPOACT_OPEN;
 			event->select.id = obj->id;
 			log_debug("open obj %d\n", event->select.id);
@@ -537,7 +625,6 @@ static void send_key_obj(struct scene *scn, struct scene_obj *obj, int key,
 
 int scene_send_key(struct scene *scn, int key, struct expo_action *event)
 {
-	struct scene_obj_menu *menu;
 	struct scene_obj *obj;
 	int ret;
 
@@ -561,10 +648,30 @@ int scene_send_key(struct scene *scn, int key, struct expo_action *event)
 			return 0;
 		}
 
-		menu = (struct scene_obj_menu *)obj,
-		ret = scene_menu_send_key(scn, menu, key, event);
-		if (ret)
-			return log_msg_ret("key", ret);
+		switch (obj->type) {
+		case SCENEOBJT_NONE:
+		case SCENEOBJT_IMAGE:
+		case SCENEOBJT_TEXT:
+			break;
+		case SCENEOBJT_MENU: {
+			struct scene_obj_menu *menu;
+
+			menu = (struct scene_obj_menu *)obj,
+			ret = scene_menu_send_key(scn, menu, key, event);
+			if (ret)
+				return log_msg_ret("key", ret);
+			break;
+		}
+		case SCENEOBJT_TEXTLINE: {
+			struct scene_obj_textline *tline;
+
+			tline = (struct scene_obj_textline *)obj,
+			ret = scene_textline_send_key(scn, tline, key, event);
+			if (ret)
+				return log_msg_ret("key", ret);
+			break;
+		}
+		}
 		return 0;
 	}
 
@@ -578,6 +685,32 @@ int scene_send_key(struct scene *scn, int key, struct expo_action *event)
 				return log_msg_ret("key", ret);
 			break;
 		}
+	}
+
+	return 0;
+}
+
+int scene_obj_calc_bbox(struct scene_obj *obj, struct vidconsole_bbox *bbox,
+			struct vidconsole_bbox *label_bbox)
+{
+	switch (obj->type) {
+	case SCENEOBJT_NONE:
+	case SCENEOBJT_IMAGE:
+	case SCENEOBJT_TEXT:
+		return -ENOSYS;
+	case SCENEOBJT_MENU: {
+		struct scene_obj_menu *menu = (struct scene_obj_menu *)obj;
+
+		scene_menu_calc_bbox(menu, bbox, label_bbox);
+		break;
+	}
+	case SCENEOBJT_TEXTLINE: {
+		struct scene_obj_textline *tline;
+
+		tline = (struct scene_obj_textline *)obj;
+		scene_textline_calc_bbox(tline, bbox, label_bbox);
+		break;
+	}
 	}
 
 	return 0;
@@ -616,6 +749,16 @@ int scene_calc_dims(struct scene *scn, bool do_menus)
 			}
 			break;
 		}
+		case SCENEOBJT_TEXTLINE: {
+			struct scene_obj_textline *tline;
+
+			tline = (struct scene_obj_textline *)obj;
+			ret = scene_textline_calc_dims(tline);
+			if (ret)
+				return log_msg_ret("men", ret);
+
+			break;
+		}
 		}
 	}
 
@@ -635,6 +778,7 @@ int scene_apply_theme(struct scene *scn, struct expo_theme *theme)
 		case SCENEOBJT_NONE:
 		case SCENEOBJT_IMAGE:
 		case SCENEOBJT_MENU:
+		case SCENEOBJT_TEXTLINE:
 			break;
 		case SCENEOBJT_TEXT:
 			scene_txt_set_font(scn, obj->id, NULL,
@@ -660,19 +804,48 @@ void scene_highlight_first(struct scene *scn)
 	struct scene_obj *obj;
 
 	list_for_each_entry(obj, &scn->obj_head, sibling) {
-		switch (obj->type) {
-		case SCENEOBJT_MENU:
+		if (scene_obj_can_highlight(obj)) {
 			scene_set_highlight_id(scn, obj->id);
 			return;
-		default:
-			break;
 		}
 	}
 }
 
-int scene_set_open(struct scene *scn, uint id, bool open)
+static int scene_obj_open(struct scene *scn, struct scene_obj *obj)
 {
 	int ret;
+
+	switch (obj->type) {
+	case SCENEOBJT_NONE:
+	case SCENEOBJT_IMAGE:
+	case SCENEOBJT_MENU:
+	case SCENEOBJT_TEXT:
+		break;
+	case SCENEOBJT_TEXTLINE:
+		ret = scene_textline_open(scn,
+					  (struct scene_obj_textline *)obj);
+		if (ret)
+			return log_msg_ret("op", ret);
+		break;
+	}
+
+	return 0;
+}
+
+int scene_set_open(struct scene *scn, uint id, bool open)
+{
+	struct scene_obj *obj;
+	int ret;
+
+	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
+	if (!obj)
+		return log_msg_ret("find", -ENOENT);
+
+	if (open) {
+		ret = scene_obj_open(scn, obj);
+		if (ret)
+			return log_msg_ret("op", ret);
+	}
 
 	ret = scene_obj_flag_clrset(scn, id, SCENEOF_OPEN,
 				    open ? SCENEOF_OPEN : 0);
@@ -693,6 +866,32 @@ int scene_iter_objs(struct scene *scn, expo_scene_obj_iterator iter,
 		ret = iter(obj, priv);
 		if (ret)
 			return log_msg_ret("itr", ret);
+	}
+
+	return 0;
+}
+
+int scene_bbox_union(struct scene *scn, uint id, int inset,
+		     struct vidconsole_bbox *bbox)
+{
+	struct scene_obj *obj;
+
+	if (!id)
+		return 0;
+	obj = scene_obj_find(scn, id, SCENEOBJT_NONE);
+	if (!obj)
+		return log_msg_ret("obj", -ENOENT);
+	if (bbox->valid) {
+		bbox->x0 = min(bbox->x0, obj->dim.x - inset);
+		bbox->y0 = min(bbox->y0, obj->dim.y);
+		bbox->x1 = max(bbox->x1, obj->dim.x + obj->dim.w + inset);
+		bbox->y1 = max(bbox->y1, obj->dim.y + obj->dim.h);
+	} else {
+		bbox->x0 = obj->dim.x - inset;
+		bbox->y0 = obj->dim.y;
+		bbox->x1 = obj->dim.x + obj->dim.w + inset;
+		bbox->y1 = obj->dim.y + obj->dim.h;
+		bbox->valid = true;
 	}
 
 	return 0;

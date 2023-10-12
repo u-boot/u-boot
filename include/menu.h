@@ -50,12 +50,17 @@ enum bootmenu_key {
 	BKEY_DOWN,
 	BKEY_SELECT,
 	BKEY_QUIT,
+	BKEY_SAVE,
+
+	/* 'extra' keys, which are used by menus but not cedit */
 	BKEY_PLUS,
 	BKEY_MINUS,
 	BKEY_SPACE,
-	BKEY_SAVE,
 
 	BKEY_COUNT,
+
+	/* Keys from here on are not used by cedit */
+	BKEY_FIRST_EXTRA = BKEY_PLUS,
 };
 
 /**
