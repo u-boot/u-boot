@@ -59,9 +59,14 @@ void __noreturn spl_invoke_opensbi(struct spl_image_info *spl_image)
 
 	/*
 	 * Find next os image in /fit-images
-	 * The next os image default is u-boot proper
+	 * The next os image default is u-boot proper, once enable
+	 * OpenSBI OS boot mode, the OS image should be linux.
 	 */
-	os_type = IH_OS_U_BOOT;
+	if (CONFIG_IS_ENABLED(LOAD_FIT_OPENSBI_OS_BOOT))
+		os_type = IH_OS_LINUX;
+	else
+		os_type = IH_OS_U_BOOT;
+
 	ret = spl_opensbi_find_os_node(spl_image->fdt_addr, &os_node, os_type);
 	if (ret) {
 		pr_err("Can't find %s node for opensbi, %d\n",
