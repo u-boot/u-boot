@@ -11,8 +11,6 @@
 #include <asm/cache.h>
 
 #include <asm/arch/cpu.h>
-#include <asm/arch/cpucfg.h>
-#include <asm/arch/prcm.h>
 #include <asm/armv7.h>
 #include <asm/gic.h>
 #include <asm/io.h>
@@ -26,6 +24,17 @@
 
 #define	GICD_BASE	(SUNXI_GIC400_BASE + GIC_DIST_OFFSET)
 #define	GICC_BASE	(SUNXI_GIC400_BASE + GIC_CPU_OFFSET_A15)
+
+/*
+ * Offsets into the CPUCFG block applicable to most SUNXIs.
+ */
+#define SUNXI_CPU_RST(cpu)			(0x40 + (cpu) * 0x40 + 0x0)
+#define SUNXI_CPU_STATUS(cpu)			(0x40 + (cpu) * 0x40 + 0x8)
+#define SUNXI_GEN_CTRL				(0x184)
+#define SUNXI_PRIV0				(0x1a4)
+#define SUN7I_CPU1_PWR_CLAMP			(0x1b0)
+#define SUN7I_CPU1_PWROFF			(0x1b4)
+#define SUNXI_DBG_CTRL1				(0x1e4)
 
 /*
  * R40 is different from other single cluster SoCs.
@@ -99,10 +108,7 @@ static void __secure sunxi_cpu_set_entry(int __always_unused cpu, void *entry)
 		writel((u32)entry,
 		       SUNXI_SRAMC_BASE + SUN8I_R40_SRAMC_SOFT_ENTRY_REG0);
 	} else {
-		struct sunxi_cpucfg_reg *cpucfg =
-			(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
-
-		writel((u32)entry, &cpucfg->priv0);
+		writel((u32)entry, SUNXI_CPUCFG_BASE + SUNXI_PRIV0);
 	}
 }
 
@@ -110,26 +116,21 @@ static void __secure sunxi_cpu_set_power(int cpu, bool on)
 {
 	u32 *clamp = NULL;
 	u32 *pwroff;
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
 
 	/* sun7i (A20) is different from other single cluster SoCs */
 	if (IS_ENABLED(CONFIG_MACH_SUN7I)) {
-		clamp = &cpucfg->cpu1_pwr_clamp;
-		pwroff = &cpucfg->cpu1_pwroff;
+		clamp = (void *)SUNXI_CPUCFG_BASE + SUN7I_CPU1_PWR_CLAMP;
+		pwroff = (void *)SUNXI_CPUCFG_BASE + SUN7I_CPU1_PWROFF;
 		cpu = 0;
 	} else if (IS_ENABLED(CONFIG_MACH_SUN8I_R40)) {
-		clamp = (void *)cpucfg + SUN8I_R40_PWR_CLAMP(cpu);
-		pwroff = (void *)cpucfg + SUN8I_R40_PWROFF;
+		clamp = (void *)SUNXI_CPUCFG_BASE + SUN8I_R40_PWR_CLAMP(cpu);
+		pwroff = (void *)SUNXI_CPUCFG_BASE + SUN8I_R40_PWROFF;
 	} else {
-		struct sunxi_prcm_reg *prcm =
-			(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
-
 		if (IS_ENABLED(CONFIG_MACH_SUN6I) ||
 		    IS_ENABLED(CONFIG_MACH_SUN8I_H3))
-			clamp = &prcm->cpu_pwr_clamp[cpu];
+			clamp = (void *)SUNXI_PRCM_BASE + 0x140 + cpu * 0x4;
 
-		pwroff = &prcm->cpu_pwroff;
+		pwroff = (void *)SUNXI_PRCM_BASE + 0x100;
 	}
 
 	if (on) {
@@ -151,37 +152,25 @@ static void __secure sunxi_cpu_set_power(int cpu, bool on)
 
 static void __secure sunxi_cpu_set_reset(int cpu, bool reset)
 {
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
-
-	writel(reset ? 0b00 : 0b11, &cpucfg->cpu[cpu].rst);
+	writel(reset ? 0b00 : 0b11, SUNXI_CPUCFG_BASE + SUNXI_CPU_RST(cpu));
 }
 
 static void __secure sunxi_cpu_set_locking(int cpu, bool lock)
 {
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
-
 	if (lock)
-		clrbits_le32(&cpucfg->dbg_ctrl1, BIT(cpu));
+		clrbits_le32(SUNXI_CPUCFG_BASE + SUNXI_DBG_CTRL1, BIT(cpu));
 	else
-		setbits_le32(&cpucfg->dbg_ctrl1, BIT(cpu));
+		setbits_le32(SUNXI_CPUCFG_BASE + SUNXI_DBG_CTRL1, BIT(cpu));
 }
 
 static bool __secure sunxi_cpu_poll_wfi(int cpu)
 {
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
-
-	return !!(readl(&cpucfg->cpu[cpu].status) & BIT(2));
+	return !!(readl(SUNXI_CPUCFG_BASE + SUNXI_CPU_STATUS(cpu)) & BIT(2));
 }
 
 static void __secure sunxi_cpu_invalidate_cache(int cpu)
 {
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
-
-	clrbits_le32(&cpucfg->gen_ctrl, BIT(cpu));
+	clrbits_le32(SUNXI_CPUCFG_BASE + SUNXI_GEN_CTRL, BIT(cpu));
 }
 
 static void __secure sunxi_cpu_power_off(u32 cpuid)
