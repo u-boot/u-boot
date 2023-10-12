@@ -21,7 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct fw_dynamic_info opensbi_info;
 
-static int spl_opensbi_find_uboot_node(void *blob, int *uboot_node)
+static int spl_opensbi_find_os_node(void *blob, int *uboot_node, int os_type)
 {
 	int fit_images_node, node;
 	const char *fit_os;
@@ -35,7 +35,7 @@ static int spl_opensbi_find_uboot_node(void *blob, int *uboot_node)
 		if (!fit_os)
 			continue;
 
-		if (genimg_get_os_id(fit_os) == IH_OS_U_BOOT) {
+		if (genimg_get_os_id(fit_os) == os_type) {
 			*uboot_node = node;
 			return 0;
 		}
@@ -46,8 +46,9 @@ static int spl_opensbi_find_uboot_node(void *blob, int *uboot_node)
 
 void __noreturn spl_invoke_opensbi(struct spl_image_info *spl_image)
 {
-	int ret, uboot_node;
-	ulong uboot_entry;
+	int ret, os_node;
+	ulong os_entry;
+	int os_type;
 	typedef void __noreturn (*opensbi_entry_t)(ulong hartid, ulong dtb, ulong info);
 	opensbi_entry_t opensbi_entry;
 
@@ -56,22 +57,27 @@ void __noreturn spl_invoke_opensbi(struct spl_image_info *spl_image)
 		hang();
 	}
 
-	/* Find U-Boot image in /fit-images */
-	ret = spl_opensbi_find_uboot_node(spl_image->fdt_addr, &uboot_node);
+	/*
+	 * Find next os image in /fit-images
+	 * The next os image default is u-boot proper
+	 */
+	os_type = IH_OS_U_BOOT;
+	ret = spl_opensbi_find_os_node(spl_image->fdt_addr, &os_node, os_type);
 	if (ret) {
-		pr_err("Can't find U-Boot node, %d\n", ret);
+		pr_err("Can't find %s node for opensbi, %d\n",
+		       genimg_get_os_name(os_type), ret);
 		hang();
 	}
 
 	/* Get U-Boot entry point */
-	ret = fit_image_get_entry(spl_image->fdt_addr, uboot_node, &uboot_entry);
+	ret = fit_image_get_entry(spl_image->fdt_addr, os_node, &os_entry);
 	if (ret)
-		ret = fit_image_get_load(spl_image->fdt_addr, uboot_node, &uboot_entry);
+		ret = fit_image_get_load(spl_image->fdt_addr, os_node, &os_entry);
 
 	/* Prepare opensbi_info object */
 	opensbi_info.magic = FW_DYNAMIC_INFO_MAGIC_VALUE;
 	opensbi_info.version = FW_DYNAMIC_INFO_VERSION;
-	opensbi_info.next_addr = uboot_entry;
+	opensbi_info.next_addr = os_entry;
 	opensbi_info.next_mode = FW_DYNAMIC_INFO_NEXT_MODE_S;
 	opensbi_info.options = CONFIG_SPL_OPENSBI_SCRATCH_OPTIONS;
 	opensbi_info.boot_hart = gd->arch.boot_hart;
