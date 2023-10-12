@@ -219,7 +219,7 @@ void k3_mem_init(void)
 	struct udevice *dev;
 	int ret;
 
-	if (IS_ENABLED(CONFIG_TARGET_J721S2_R5_EVM)) {
+	if (IS_ENABLED(CONFIG_K3_J721E_DDRSS)) {
 		ret = uclass_get_device_by_name(UCLASS_MISC, "msmc", &dev);
 		if (ret)
 			panic("Probe of msmc failed: %d\n", ret);

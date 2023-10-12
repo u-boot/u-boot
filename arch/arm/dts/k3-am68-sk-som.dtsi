@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2023 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 /dts-v1/;
@@ -16,7 +16,6 @@
 		      <0x08 0x80000000 0x03 0x80000000>;
 	};
 
-	/* Reserving memory regions still pending */
 	reserved_memory: reserved-memory {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -24,104 +23,29 @@
 
 		secure_ddr: optee@9e800000 {
 			reg = <0x00 0x9e800000 0x00 0x01800000>;
-			alignment = <0x1000>;
 			no-map;
 		};
 	};
 };
 
-&mailbox0_cluster0 {
-	status = "disabled";
+&wkup_pmx2 {
+	wkup_i2c0_pins_default: wkup-i2c0-default-pins {
+		pinctrl-single,pins = <
+			J721S2_WKUP_IOPAD(0x098, PIN_INPUT, 0) /* (H24) WKUP_I2C0_SCL */
+			J721S2_WKUP_IOPAD(0x09c, PIN_INPUT, 0) /* (H27) WKUP_I2C0_SDA */
+		>;
+	};
 };
 
-&mailbox0_cluster1 {
-	status = "disabled";
-};
+&wkup_i2c0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&wkup_i2c0_pins_default>;
+	clock-frequency = <400000>;
 
-&mailbox0_cluster2 {
-	status = "disabled";
-};
-
-&mailbox0_cluster3 {
-	status = "disabled";
-};
-
-&mailbox0_cluster4 {
-	status = "disabled";
-};
-
-&mailbox0_cluster5 {
-	status = "disabled";
-};
-
-&mailbox0_cluster6 {
-	status = "disabled";
-};
-
-&mailbox0_cluster7 {
-	status = "disabled";
-};
-
-&mailbox0_cluster8 {
-	status = "disabled";
-};
-
-&mailbox0_cluster9 {
-	status = "disabled";
-};
-
-&mailbox0_cluster10 {
-	status = "disabled";
-};
-
-&mailbox0_cluster11 {
-	status = "disabled";
-};
-
-&mailbox1_cluster0 {
-	status = "disabled";
-};
-
-&mailbox1_cluster1 {
-	status = "disabled";
-};
-
-&mailbox1_cluster2 {
-	status = "disabled";
-};
-
-&mailbox1_cluster3 {
-	status = "disabled";
-};
-
-&mailbox1_cluster4 {
-	status = "disabled";
-};
-
-&mailbox1_cluster5 {
-	status = "disabled";
-};
-
-&mailbox1_cluster6 {
-	status = "disabled";
-};
-
-&mailbox1_cluster7 {
-	status = "disabled";
-};
-
-&mailbox1_cluster8 {
-	status = "disabled";
-};
-
-&mailbox1_cluster9 {
-	status = "disabled";
-};
-
-&mailbox1_cluster10 {
-	status = "disabled";
-};
-
-&mailbox1_cluster11 {
-	status = "disabled";
+	eeprom@51 {
+		/* AT24C512C-MAHM-T */
+		compatible = "atmel,24c512";
+		reg = <0x51>;
+	};
 };
