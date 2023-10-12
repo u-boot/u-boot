@@ -955,7 +955,6 @@
 				snps,quirk-frame-length-adjustment = <0x20>;
 				clock-names = "ref";
 				snps,enable_guctl1_ipd_quirk;
-				snps,xhci-stream-quirk;
 				snps,resume-hs-terminations;
 				/* dma-coherent; */
 			};
@@ -988,7 +987,6 @@
 				snps,quirk-frame-length-adjustment = <0x20>;
 				clock-names = "ref";
 				snps,enable_guctl1_ipd_quirk;
-				snps,xhci-stream-quirk;
 				snps,resume-hs-terminations;
 				/* dma-coherent; */
 			};
