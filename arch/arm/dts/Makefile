@@ -191,6 +191,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3588) += \
 	rk3588-edgeble-neu6a-io.dtb \
 	rk3588-edgeble-neu6b-io.dtb \
 	rk3588-evb1-v10.dtb \
+	rk3588-nanopc-t6.dtb \
 	rk3588s-rock-5a.dtb \
 	rk3588-rock-5b.dtb
 
