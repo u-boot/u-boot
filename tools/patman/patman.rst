@@ -371,11 +371,12 @@ Series-process-log: sort, uniq
     Separate each tag with a comma.
 
 Change-Id:
-    This tag is stripped out but is used to generate the Message-Id
-    of the emails that will be sent. When you keep the Change-Id the
-    same you are asserting that this is a slightly different version
-    (but logically the same patch) as other patches that have been
-    sent out with the same Change-Id.
+    This tag is used to generate the Message-Id of the emails that
+    will be sent. When you keep the Change-Id the same you are
+    asserting that this is a slightly different version (but logically
+    the same patch) as other patches that have been sent out with the
+    same Change-Id. The Change-Id tag line is removed from outgoing
+    patches, unless the `keep_change_id` settings is set to `True`.
 
 Various other tags are silently removed, like these Chrome OS and
 Gerrit tags::

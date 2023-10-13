@@ -209,6 +209,22 @@ Signed-off-by: Simon Glass <sjg@chromium.org>
 
         rc = os.system('diff -u %s %s' % (inname, expname))
         self.assertEqual(rc, 0)
+        os.remove(inname)
+
+        # Test whether the keep_change_id settings works.
+        inhandle, inname = tempfile.mkstemp()
+        infd = os.fdopen(inhandle, 'w', encoding='utf-8')
+        infd.write(data)
+        infd.close()
+
+        patchstream.fix_patch(None, inname, series.Series(), com,
+                              keep_change_id=True)
+
+        with open(inname, 'r') as f:
+            content = f.read()
+            self.assertIn(
+                'Change-Id: I80fe1d0c0b7dd10aa58ce5bb1d9290b6664d5413',
+                content)
 
         os.remove(inname)
         os.remove(expname)
