@@ -14,6 +14,12 @@
 #define HEIGHT	120
 #define DEPTH	 60
 
+struct pos {
+	efi_uintn_t x;
+	efi_uintn_t y;
+	int redrawn;
+};
+
 static const struct efi_gop_pixel BLACK =	{  0,   0,   0, 0};
 static const struct efi_gop_pixel RED =		{  0,   0, 255, 0};
 static const struct efi_gop_pixel ORANGE =	{  0, 128, 255, 0};
@@ -27,7 +33,7 @@ static efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
 static struct efi_gop *gop;
 static struct efi_gop_pixel *bitmap;
 static struct efi_event *event;
-static efi_uintn_t xpos;
+static struct pos pos;
 
 static void ellipse(efi_uintn_t x, efi_uintn_t y,
 		    efi_uintn_t x0, efi_uintn_t y0,
@@ -62,31 +68,33 @@ static void rectangle(efi_uintn_t x, efi_uintn_t y,
  */
 static void EFIAPI notify(struct efi_event *event, void *context)
 {
-	efi_uintn_t *pos = context;
+	struct pos *pos = context;
 	efi_uintn_t dx, sx, width;
 
 	if (!pos)
 		return;
 
 	/* Increment position */
-	*pos += 5;
-	if (*pos >= WIDTH + gop->mode->info->width)
-		*pos = 0;
+	pos->x += 5;
+	if (pos->x >= WIDTH + gop->mode->info->width)
+		pos->x = 0;
 
 	width = WIDTH;
-	dx = *pos - WIDTH;
+	dx = pos->x - WIDTH;
 	sx = 0;
-	if (*pos >= gop->mode->info->width) {
-		width = WIDTH +  gop->mode->info->width - *pos;
-	} else if (*pos < WIDTH) {
+	if (pos->x >= gop->mode->info->width) {
+		width = WIDTH +  gop->mode->info->width - pos->x;
+	} else if (pos->x < WIDTH) {
 		dx = 0;
-		sx = WIDTH - *pos;
-		width = *pos;
+		sx = WIDTH - pos->x;
+		width = pos->x;
 	}
 
 	/* Copy image to video */
-	gop->blt(gop, bitmap, EFI_BLT_BUFFER_TO_VIDEO, sx, 0, dx, DEPTH,
+	gop->blt(gop, bitmap, EFI_BLT_BUFFER_TO_VIDEO, sx, 0, dx, pos->y,
 		 width, HEIGHT, WIDTH * sizeof(struct efi_gop_pixel));
+
+	pos->redrawn = 1;
 }
 
 /*
@@ -107,7 +115,7 @@ static int setup(const efi_handle_t handle,
 
 	/* Create event */
 	ret = boottime->create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL,
-				     TPL_CALLBACK, notify, (void *)&xpos,
+				     TPL_CALLBACK, notify, (void *)&pos,
 				     &event);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("could not create event\n");
@@ -247,6 +255,9 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 
+	con_out->set_attribute(con_out, EFI_WHITE | EFI_BACKGROUND_BLUE);
+	con_out->clear_screen(con_out);
+
 	/* Fill background */
 	ret = gop->blt(gop, bitmap, EFI_BLT_VIDEO_FILL, 0, 0, 0, 0,
 		       info->width, info->height, 0);
@@ -281,21 +292,53 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 
-	/* Set 250ms timer */
-	xpos = WIDTH;
+	/* Set 25ms timer */
+	pos.x = WIDTH;
+	pos.y = DEPTH;
 	ret = boottime->set_timer(event, EFI_TIMER_PERIODIC, 250000);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Could not set timer\n");
 		return EFI_ST_FAILURE;
 	}
 
-	con_out->set_cursor_position(con_out, 0, 0);
-	con_out->set_attribute(con_out, EFI_WHITE | EFI_BACKGROUND_BLUE);
 	efi_st_printf("The submarine should have three yellow port holes.\n");
-	efi_st_printf("Press any key to continue");
-	efi_st_get_key();
+	efi_st_printf("UP, DOWN to navigate, any other key to quit");
+	for (;;) {
+		struct efi_input_key input_key;
+
+		ret = boottime->check_event(con_in->wait_for_key);
+		if (ret == EFI_NOT_READY)
+			continue;
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("CheckEvent failed %x\n",
+				     (unsigned int)ret);
+			return EFI_ST_FAILURE;
+		}
+		ret = con_in->read_key_stroke(con_in, &input_key);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("Key not available %x\n",
+				     (unsigned int)ret);
+			return EFI_ST_FAILURE;
+		}
+		switch (input_key.scan_code) {
+		case 0x01: /* UP */
+			if (pos.redrawn && pos.y >= 5) {
+				pos.y -= 5;
+				pos.redrawn = 0;
+			}
+			continue;
+		case 0x02: /* DOWN */
+			if (pos.redrawn &&
+			    pos.y + HEIGHT + 5 < gop->mode->info->height) {
+				pos.y += 5;
+				pos.redrawn = 0;
+			}
+			continue;
+		}
+		break;
+	}
 	con_out->set_attribute(con_out, EFI_LIGHTGRAY);
-	efi_st_printf("\n");
+	con_out->clear_screen(con_out);
 
 	return EFI_ST_SUCCESS;
 }

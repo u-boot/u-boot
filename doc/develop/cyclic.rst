@@ -8,11 +8,11 @@ execute code, e.g. every 100ms. Examples for such functions might be LED
 blinking etc. The functions that are hooked into this cyclic list should
 be small timewise as otherwise the execution of the other code that relies
 on a high frequent polling (e.g. UART rx char ready check) might be
-delayed too much. To detect cyclic functions with a too long execution
-time, the Kconfig option `CONFIG_CYCLIC_MAX_CPU_TIME_US` is introduced,
-which configures the max allowed time for such a cyclic function. If it's
-execution time exceeds this time, this cyclic function will get removed
-from the cyclic list.
+delayed too much. To detect cyclic functions with an excessive execution
+time, the Kconfig option `CONFIG_CYCLIC_MAX_CPU_TIME_US` was introduced.
+It defines the maximum allowable execution time for such a cyclic function. The
+first time the execution of a cyclic function exceeds this interval, a warning
+will be displayed indicating the problem to the user.
 
 Registering a cyclic function
 -----------------------------

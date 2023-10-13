@@ -15,6 +15,9 @@ learn a bit about U-Boot:
   <https://www.youtube.com/watch?v=YlJBsVZJkDI>`__
   from Embedded Linux Conference 2023.
 
+* `Introduction to U-Boot for beginners
+  <https://www.youtube.com/watch?v=rVaiLgXccSE>`__
+
 See elinux_talks_ for a more comprehensive list.
 
 .. _elinux_talks: https://elinux.org/Boot_Loaders#U-Boot
