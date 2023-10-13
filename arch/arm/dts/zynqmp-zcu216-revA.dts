@@ -57,7 +57,7 @@
 
 	leds {
 		compatible = "gpio-leds";
-		heartbeat_led {
+		heartbeat-led {
 			label = "heartbeat";
 			gpios = <&gpio 23 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
@@ -653,12 +653,13 @@
 
 &qspi {
 	status = "okay";
-	is-dual = <1>;
+	num-cs = <2>;
 	flash@0 {
 		compatible = "m25p80", "jedec,spi-nor"; /* U11 and U12 MT25QU02GCBBE12 1Gb */
 		#address-cells = <1>;
 		#size-cells = <1>;
-		reg = <0x0>;
+		reg = <0>, <1>;
+		parallel-memories = /bits/ 64 <0x10000000 0x10000000>; /* 256MB */
 		spi-tx-bus-width = <4>;
 		spi-rx-bus-width = <4>; /* FIXME also DUAL configuration possible */
 		spi-max-frequency = <108000000>; /* Based on DC1 spec */

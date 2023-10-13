@@ -67,7 +67,6 @@
 
 &qspi {
 	status = "okay";
-	is-dual = <1>;
 	flash@0 {
 		compatible = "m25p80", "jedec,spi-nor"; /* 32MB */
 		#address-cells = <1>;
@@ -106,9 +105,13 @@
 	status = "okay";
 	phy-handle = <&phy0>;
 	phy-mode = "sgmii";
-	phy-reset-gpios = <&gpio 142 GPIO_ACTIVE_LOW>;
-	phy0: ethernet-phy@0 { /* marwell m88e1512 - SGMII */
-		reg = <0>;
+	mdio: mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reset-gpios = <&gpio 142 GPIO_ACTIVE_LOW>;
+		phy0: ethernet-phy@0 { /* marwell m88e1512 - SGMII */
+			reg = <0>;
+		};
 	};
 };
 
@@ -362,25 +365,25 @@
 				#gpio-cells = <2>;
 				gpio-line-names = "sw4_1", "sw4_2", "sw4_3", "sw4_4",
 						  "", "", "", "";
-				gtr_sel0 {
+				gtr-sel0 {
 					gpio-hog;
 					gpios = <0 0>;
 					input; /* FIXME add meaning */
 					line-name = "sw4_1";
 				};
-				gtr_sel1 {
+				gtr-sel1 {
 					gpio-hog;
 					gpios = <1 0>;
 					input; /* FIXME add meaning */
 					line-name = "sw4_2";
 				};
-				gtr_sel2 {
+				gtr-sel2 {
 					gpio-hog;
 					gpios = <2 0>;
 					input; /* FIXME add meaning */
 					line-name = "sw4_3";
 				};
-				gtr_sel3 {
+				gtr-sel3 {
 					gpio-hog;
 					gpios = <3 0>;
 					input; /* FIXME add meaning */

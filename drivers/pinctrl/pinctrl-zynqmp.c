@@ -548,6 +548,8 @@ static int zynqmp_pinctrl_get_pin_muxing(struct udevice *dev,
 				     &pinmux.drive_strength);
 	zynqmp_pm_pinctrl_get_config(selector, PM_PINCTRL_CONFIG_VOLTAGE_STATUS,
 				     &pinmux.volt_sts);
+	zynqmp_pm_pinctrl_get_config(selector, PM_PINCTRL_CONFIG_TRI_STATE,
+				     &pinmux.tri_state);
 
 	switch (pinmux.drive_strength) {
 	case PM_PINCTRL_DRIVE_STRENGTH_2MA:
@@ -568,13 +570,15 @@ static int zynqmp_pinctrl_get_pin_muxing(struct udevice *dev,
 		return -EINVAL;
 	}
 
-	snprintf(buf, size, "slew:%s\tbias:%s\tpull:%s\tinput:%s\tdrive:%dmA\tvolt:%s",
+	snprintf(buf, size,
+		 "slew:%s\tbias:%s\tpull:%s\tinput:%s\tdrive:%dmA\tvolt:%s\ttri_state:%s",
 		 pinmux.slew ? "slow" : "fast",
 		 pinmux.bias ? "enabled" : "disabled",
 		 pinmux.pull_ctrl ? "up" : "down",
 		 pinmux.input_type ? "schmitt" : "cmos",
 		 pinmux.drive_strength,
-		 pinmux.volt_sts ? "1.8" : "3.3");
+		 pinmux.volt_sts ? "1.8" : "3.3",
+		 pinmux.tri_state ? "enabled" : "disabled");
 
 	return 0;
 }

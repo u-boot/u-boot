@@ -82,6 +82,7 @@ struct crp_regs {
 #define EMMC_MODE	0x00000006
 #define USB_MODE	0x00000007
 #define OSPI_MODE	0x00000008
+#define SELECTMAP_MODE	0x0000000A
 #define SD1_LSHFT_MODE	0x0000000E /* SD1 Level shifter */
 #define JTAG_MODE	0x00000000
 #define BOOT_MODE_USE_ALT	0x100

@@ -2,7 +2,8 @@
 /*
  * dts file for KV260 revA Carrier Card
  *
- * (C) Copyright 2020 - 2021, Xilinx, Inc.
+ * (C) Copyright 2020 - 2022, Xilinx, Inc.
+ * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -144,7 +145,7 @@
 	clk-phase-uhs-sdr25 = <120>, <60>;
 	clk-phase-uhs-ddr50 = <126>, <48>;
 	assigned-clock-rates = <187498123>;
-	bus-width = <8>;
+	bus-width = <4>;
 };
 
 &gem3 {

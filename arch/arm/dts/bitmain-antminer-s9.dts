@@ -52,6 +52,9 @@
 
 &nfc0 {
 	status = "okay";
+	nand@0 {
+		reg = <0>;
+	};
 };
 
 &smcc {

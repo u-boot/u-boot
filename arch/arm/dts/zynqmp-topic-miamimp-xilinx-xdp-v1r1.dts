@@ -56,7 +56,6 @@
 
 &qspi {
 	status = "okay";
-	is-dual = <1>;
 	flash@0 {
 		compatible = "st,m25p80", "n25q256a", "jedec,spi-nor";
 		m25p,fast-read;
@@ -66,7 +65,6 @@
 		spi-max-frequency = <166000000>;
 		#address-cells = <1>;
 		#size-cells = <1>;
-		is-dual = <1>;
 		partition@0 {
 			label = "qspi-boot-bin";
 			reg = <0x00000 0x60000>;

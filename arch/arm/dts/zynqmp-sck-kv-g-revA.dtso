@@ -2,12 +2,13 @@
 /*
  * dts file for KV260 revA Carrier Card
  *
- * (C) Copyright 2020 - 2021, Xilinx, Inc.
+ * (C) Copyright 2020 - 2022, Xilinx, Inc.
+ * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
  *
  * SD level shifter:
- * "A" – A01 board un-modified (NXP)
- * "Y" – A01 board modified with legacy interposer (Nexperia)
- * "Z" – A01 board modified with Diode interposer
+ * "A" - A01 board un-modified (NXP)
+ * "Y" - A01 board modified with legacy interposer (Nexperia)
+ * "Z" - A01 board modified with Diode interposer
  *
  * Michal Simek <michal.simek@amd.com>
  */
@@ -156,7 +157,7 @@
 	disable-wp;
 	xlnx,mio-bank = <1>;
 	assigned-clock-rates = <187498123>;
-	bus-width = <8>;
+	bus-width = <4>;
 };
 
 &gem3 {
