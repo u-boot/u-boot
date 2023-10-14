@@ -657,6 +657,7 @@ config SPL_ETH
 
 config SPL_FS_EXT4
 	bool "Support EXT filesystems"
+	select SPL_CRC16 if EXT4_WRITE
 	help
 	  Enable support for EXT2/3/4 filesystems with SPL. This permits
 	  U-Boot (or Linux in Falcon mode) to be loaded from an EXT
