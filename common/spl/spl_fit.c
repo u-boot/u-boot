@@ -901,8 +901,9 @@ int spl_load_fit_image(struct spl_image_info *spl_image,
 		return ret;
 
 	spl_image->size = fw_len;
-	spl_image->entry_point = fw_data;
 	spl_image->load_addr = fw_data;
+	if (fit_image_get_entry(header, ret, &spl_image->entry_point))
+		spl_image->entry_point = fw_data;
 	if (fit_image_get_os(header, ret, &spl_image->os))
 		spl_image->os = IH_OS_INVALID;
 	spl_image->name = genimg_get_os_name(spl_image->os);
