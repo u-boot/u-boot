@@ -58,10 +58,8 @@ static int spl_test_load(struct unit_test_state *uts)
 	load.read = read_fit_image;
 
 	ret = sandbox_find_next_phase(fname, sizeof(fname), true);
-	if (ret) {
-		printf("(%s not found, error %d)\n", fname, ret);
-		return ret;
-	}
+	if (ret)
+		ut_assertf(0, "%s not found, error %d\n", fname, ret);
 	load.filename = fname;
 
 	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
