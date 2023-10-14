@@ -674,6 +674,18 @@ static inline const char *spl_loader_name(const struct spl_image_loader *loader)
 #endif
 
 /* SPL FAT image functions */
+
+/**
+ * spl_fat_force_reregister() - Force reregistration of FAT block devices
+ *
+ * To avoid repeatedly looking up block devices, spl_load_image_fat keeps track
+ * of whether it has already registered a block device. This is fine for most
+ * cases, but when running unit tests all devices are removed and recreated
+ * in-between tests. This function will force re-registration of any block
+ * devices, ensuring that we don't try to use an invalid block device.
+ */
+void spl_fat_force_reregister(void);
+
 int spl_load_image_fat(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev,
 		       struct blk_desc *block_dev, int partition,
@@ -752,6 +764,16 @@ bool spl_was_boot_source(void);
  * Return: 0 on success, otherwise error code
  */
 int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr);
+
+/**
+ * spl_mmc_clear_cache() - Clear cached MMC devices
+ *
+ * To avoid reinitializing MMCs, spl_mmc_load caches the most-recently-used MMC
+ * device. This is fine for most cases, but when running unit tests all devices
+ * are removed and recreated in-between tests. This function will clear any
+ * cached state, ensuring that we don't try to use an invalid MMC.
+ */
+void spl_mmc_clear_cache(void);
 
 int spl_mmc_load_image(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev);

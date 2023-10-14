@@ -20,6 +20,11 @@
 
 static int fat_registered;
 
+void spl_fat_force_reregister(void)
+{
+	fat_registered = 0;
+}
+
 static int spl_register_fat_device(struct blk_desc *block_dev, int partition)
 {
 	int err = 0;

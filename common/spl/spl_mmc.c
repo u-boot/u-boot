@@ -403,13 +403,19 @@ static int spl_mmc_get_mmc_devnum(struct mmc *mmc)
 	return block_dev->devnum;
 }
 
+static struct mmc *mmc;
+
+void spl_mmc_clear_cache(void)
+{
+	mmc = NULL;
+}
+
 int spl_mmc_load(struct spl_image_info *spl_image,
 		 struct spl_boot_device *bootdev,
 		 const char *filename,
 		 int raw_part,
 		 unsigned long raw_sect)
 {
-	static struct mmc *mmc;
 	u32 boot_mode;
 	int err = 0;
 	__maybe_unused int part = 0;
