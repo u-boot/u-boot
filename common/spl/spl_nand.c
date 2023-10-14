@@ -7,6 +7,7 @@
 #include <config.h>
 #include <fdt_support.h>
 #include <image.h>
+#include <imx_container.h>
 #include <log.h>
 #include <spl.h>
 #include <asm/io.h>
@@ -99,7 +100,8 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		load.bl_len = bl_len;
 		load.read = spl_nand_fit_read;
 		return spl_load_simple_fit(spl_image, &load, offset / bl_len, header);
-	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER)) {
+	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
+		   valid_container_hdr((void *)header)) {
 		struct spl_load_info load;
 
 		load.dev = NULL;

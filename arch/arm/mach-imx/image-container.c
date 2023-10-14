@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <imx_container.h>
 #include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
@@ -12,7 +13,6 @@
 #include <spi_flash.h>
 #include <spl.h>
 #include <nand.h>
-#include <asm/mach-imx/image.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
 

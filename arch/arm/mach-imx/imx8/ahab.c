@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <errno.h>
+#include <imx_container.h>
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -13,7 +14,6 @@
 #include <asm/mach-imx/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/mach-imx/image.h>
 #include <console.h>
 #include <cpu_func.h>
 #include "u-boot/sha256.h"

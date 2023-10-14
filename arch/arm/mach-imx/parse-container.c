@@ -7,9 +7,9 @@
 #include <common.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <imx_container.h>
 #include <log.h>
 #include <spl.h>
-#include <asm/mach-imx/image.h>
 #ifdef CONFIG_AHAB_BOOT
 #include <asm/mach-imx/ahab.h>
 #endif

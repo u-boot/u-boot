@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <image.h>
+#include <imx_container.h>
 #include <log.h>
 #include <spl.h>
 
@@ -102,7 +103,8 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 					   (void *)header);
 	}
 #endif
-	if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER)) {
+	if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
+	    valid_container_hdr((void *)header)) {
 		load.bl_len = 1;
 		load.read = spl_nor_load_read;
 		return spl_load_imx_container(spl_image, &load,

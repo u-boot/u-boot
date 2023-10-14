@@ -6,11 +6,11 @@
 #include <common.h>
 #include <errno.h>
 #include <image.h>
+#include <imx_container.h>
 #include <log.h>
 #include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <spl.h>
-#include <asm/mach-imx/image.h>
 #include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -111,7 +111,8 @@ static int spl_romapi_load_image_seekable(struct spl_image_info *spl_image,
 		load.read = spl_romapi_read_seekable;
 		load.priv = &pagesize;
 		return spl_load_simple_fit(spl_image, &load, offset / pagesize, header);
-	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER)) {
+	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
+		   valid_container_hdr((void *)header)) {
 		struct spl_load_info load;
 
 		memset(&load, 0, sizeof(load));

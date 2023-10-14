@@ -6,7 +6,7 @@
 #ifndef __IMX_AHAB_H__
 #define __IMX_AHAB_H__
 
-#include <asm/mach-imx/image.h>
+#include <imx_container.h>
 
 int ahab_auth_cntr_hdr(struct container_hdr *container, u16 length);
 int ahab_auth_release(void);

@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <image.h>
+#include <imx_container.h>
 #include <log.h>
 #include <spi.h>
 #include <spi_flash.h>
@@ -153,7 +154,8 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 			err = spl_load_simple_fit(spl_image, &load,
 						  payload_offs,
 						  header);
-		} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER)) {
+		} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
+			   valid_container_hdr((void *)header)) {
 			struct spl_load_info load;
 
 			load.dev = flash;

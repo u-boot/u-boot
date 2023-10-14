@@ -34,6 +34,7 @@
 #include <spl.h>
 #include <image.h>
 #include <imximage.h>
+#include <imx_container.h>
 #include <watchdog.h>
 
 #define HID_REPORT_ID_MASK	0x000000ff
@@ -852,7 +853,8 @@ static int sdp_handle_in_ep(struct spl_image_info *spl_image,
 				return SDP_EXIT;
 			}
 #endif
-			if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER)) {
+			if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
+			    valid_container_hdr((void *)header)) {
 				struct spl_load_info load;
 
 				load.dev = header;
