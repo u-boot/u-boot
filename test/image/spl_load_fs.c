@@ -10,6 +10,7 @@
 #include <fat.h>
 #include <fs.h>
 #include <memalign.h>
+#include <spl.h>
 #include <asm/io.h>
 #include <linux/stat.h>
 #include <test/spl.h>
@@ -304,3 +305,65 @@ static int spl_test_fat(struct unit_test_state *uts)
 	return spl_test_fs(uts, __func__, create_fat);
 }
 SPL_TEST(spl_test_fat, DM_FLAGS);
+
+static int spl_test_mmc_fs(struct unit_test_state *uts, const char *test_name,
+			   enum spl_test_image type, create_fs_t create_fs)
+{
+	const char *filename = CONFIG_SPL_FS_LOAD_PAYLOAD_NAME;
+	struct blk_desc *dev_desc;
+	size_t fs_size, fs_data, img_size, img_data,
+	       data_size = SPL_TEST_DATA_SIZE;
+	struct spl_image_info info_write = {
+		.name = test_name,
+		.size = data_size,
+	}, info_read = { };
+	struct disk_partition part = {
+		.start = 1,
+		.sys_ind = 0x83,
+	};
+	struct spl_boot_device bootdev = { };
+	void *fs;
+	char *data;
+
+	img_size = create_image(NULL, type, &info_write, &img_data);
+	ut_assert(img_size);
+	fs_size = create_fs(NULL, img_size, filename, &fs_data);
+	ut_assert(fs_size);
+	fs = calloc(fs_size, 1);
+	ut_assertnonnull(fs);
+
+	data = fs + fs_data + img_data;
+	generate_data(data, data_size, test_name);
+	ut_asserteq(img_size, create_image(fs + fs_data, type, &info_write,
+					   NULL));
+	ut_asserteq(fs_size, create_fs(fs, img_size, filename, NULL));
+
+	dev_desc = blk_get_devnum_by_uclass_id(UCLASS_MMC, 0);
+	ut_assertnonnull(dev_desc);
+
+	ut_asserteq(512, dev_desc->blksz);
+	part.size = fs_size / dev_desc->blksz;
+	ut_assertok(write_mbr_partitions(dev_desc, &part, 1, 0));
+	ut_asserteq(part.size, blk_dwrite(dev_desc, part.start, part.size, fs));
+
+	ut_assertok(spl_blk_load_image(&info_read, &bootdev, UCLASS_MMC, 0, 1));
+	if (check_image_info(uts, &info_write, &info_read))
+		return CMD_RET_FAILURE;
+	ut_asserteq_mem(data, phys_to_virt(info_write.load_addr), data_size);
+
+	free(fs);
+	return 0;
+}
+
+static int spl_test_blk(struct unit_test_state *uts, const char *test_name,
+			enum spl_test_image type)
+{
+	spl_fat_force_reregister();
+	if (spl_test_mmc_fs(uts, test_name, type, create_fat))
+		return CMD_RET_FAILURE;
+
+	return spl_test_mmc_fs(uts, test_name, type, create_ext2);
+}
+SPL_IMG_TEST(spl_test_blk, LEGACY, DM_FLAGS);
+SPL_IMG_TEST(spl_test_blk, FIT_EXTERNAL, DM_FLAGS);
+SPL_IMG_TEST(spl_test_blk, FIT_INTERNAL, DM_FLAGS);

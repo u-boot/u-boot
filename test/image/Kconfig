@@ -14,12 +14,13 @@ config SPL_UT_LOAD_FS
 	bool "Unit tests for filesystems"
 	depends on SANDBOX && SPL_OF_REAL
 	depends on FS_LOADER
+	depends on SPL_BLK_FS
 	depends on SPL_FS_FAT
 	depends on SPL_FS_EXT4
 	depends on SPL_MMC_WRITE
 	default y
 	help
-	  Test filesystems in SPL.
+	  Test filesystems and the various load methods which use them.
 
 config SPL_UT_LOAD_OS
 	bool "Test loading from the host OS"
