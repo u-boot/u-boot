@@ -15,6 +15,9 @@
 
 /**********************************************************************/
 
+#define PORT_BOOTPS	67		/* BOOTP server UDP port */
+#define PORT_BOOTPC	68		/* BOOTP client UDP port */
+
 /*
  *	BOOTP header.
  */
