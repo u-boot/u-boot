@@ -391,7 +391,7 @@ class TestCbfs(unittest.TestCase):
             cbfs_util.DEBUG = True
             with test_util.capture_sys_output() as (stdout, _stderr):
                 cbfs_util.CbfsReader(data)
-            self.assertEqual('name u-boot\ndata %s\n' % U_BOOT_DATA,
+            self.assertEqual('name u-boot\nftype 50\ndata %s\n' % U_BOOT_DATA,
                              stdout.getvalue())
         finally:
             cbfs_util.DEBUG = False
@@ -475,7 +475,7 @@ class TestCbfs(unittest.TestCase):
         self._compare_expected_cbfs(data, cbfs_fname)
 
     def test_cbfs_stage(self):
-        """Tests handling of a Coreboot Filesystem (CBFS)"""
+        """Tests handling of a CBFS stage"""
         if not elf.ELF_TOOLS:
             self.skipTest('Python elftools not available')
         elf_fname = os.path.join(self._indir, 'cbfs-stage.elf')
@@ -490,8 +490,7 @@ class TestCbfs(unittest.TestCase):
         load = 0xfef20000
         entry = load + 2
 
-        cfile = self._check_uboot(cbfs, cbfs_util.TYPE_LEGACY_STAGE,
-                                  offset=0x20,
+        cfile = self._check_uboot(cbfs, cbfs_util.TYPE_STAGE, offset=0x38,
                                   data=U_BOOT_DATA + U_BOOT_DTB_DATA)
 
         self.assertEqual(entry, cfile.entry)

@@ -44,10 +44,10 @@ FILE_HEADER_LEN    = 0x18
 FILE_MAGIC         = b'LARCHIVE'
 ATTRIBUTE_ALIGN    = 4   # All attribute sizes must be divisible by this
 
-# A stage header containing information about 'stage' files
+# A stage-header attribute containing information about 'stage' files
 # Yes this is correct: this header is in litte-endian format
-STAGE_FORMAT       = '<IQQII'
-STAGE_LEN          = 0x1c
+ATTR_STAGE_FORMAT       = '>IIQII'
+ATTR_STAGE_LEN          = 0x18
 
 # An attribute describring the compression used in a file
 ATTR_COMPRESSION_FORMAT = '>IIII'
@@ -59,6 +59,7 @@ FILE_ATTR_TAG_HASH          = 0x68736148
 FILE_ATTR_TAG_POSITION      = 0x42435350  # PSCB
 FILE_ATTR_TAG_ALIGNMENT     = 0x42434c41  # ALCB
 FILE_ATTR_TAG_PADDING       = 0x47444150  # PDNG
+FILE_ATTR_TAG_STAGEHEADER   = 0x53746748  # StgH
 
 # This is 'the size of bootblock reserved in firmware image (cbfs.txt)'
 # Not much more info is available, but we set it to 4, due to this comment in
@@ -97,6 +98,7 @@ ARCH_NAMES = {
 # File types. Only supported ones are included here
 TYPE_CBFSHEADER     = 0x02   # Master header, HEADER_FORMAT
 TYPE_LEGACY_STAGE   = 0x10   # Stage, holding an executable
+TYPE_STAGE          = 0x11   # New-type stage with ATTR_STAGE_FORMAT
 TYPE_RAW            = 0x50   # Raw file, possibly compressed
 TYPE_EMPTY          = 0xffffffff     # Empty data
 
@@ -265,7 +267,7 @@ class CbfsFile(object):
         Returns:
             CbfsFile object containing the file information
         """
-        cfile = CbfsFile(name, TYPE_LEGACY_STAGE, data, cbfs_offset)
+        cfile = CbfsFile(name, TYPE_STAGE, data, cbfs_offset)
         cfile.base_address = base_address
         return cfile
 
@@ -326,8 +328,8 @@ class CbfsFile(object):
         """
         name = _pack_string(self.name)
         hdr_len = len(name) + FILE_HEADER_LEN
-        if self.ftype == TYPE_LEGACY_STAGE:
-            pass
+        if self.ftype == TYPE_STAGE:
+            hdr_len += ATTR_STAGE_LEN
         elif self.ftype == TYPE_RAW:
             if self.compress:
                 hdr_len += ATTR_COMPRESSION_LEN
@@ -354,11 +356,11 @@ class CbfsFile(object):
         attr = b''
         pad = b''
         data = self.data
-        if self.ftype == TYPE_LEGACY_STAGE:
+        if self.ftype == TYPE_STAGE:
             elf_data = elf.DecodeElf(data, self.base_address)
-            content = struct.pack(STAGE_FORMAT, self.compress,
-                                  elf_data.entry, elf_data.load,
-                                  len(elf_data.data), elf_data.memsize)
+            attr = struct.pack(ATTR_STAGE_FORMAT, FILE_ATTR_TAG_STAGEHEADER,
+                               ATTR_STAGE_LEN, elf_data.load,
+                               elf_data.entry - elf_data.load, elf_data.memsize)
             data = elf_data.data
         elif self.ftype == TYPE_RAW:
             orig_data = data
@@ -639,7 +641,7 @@ class CbfsReader(object):
         files: Ordered list of CbfsFile objects
         align: Alignment to use for files, typically ENTRT_ALIGN
         stage_base_address: Base address to use when mapping ELF files into the
-            CBFS for TYPE_LEGACY_STAGE files. If this is larger than the code address
+            CBFS for TYPE_STAGE files. If this is larger than the code address
             of the ELF file, then data at the start of the ELF file will not
             appear in the CBFS. Currently there are no tests for behaviour as
             documentation is sparse
@@ -740,26 +742,28 @@ class CbfsReader(object):
             print('name', name)
 
         # If there are attribute headers present, read those
-        compress = self._read_attr(fd, file_pos, attr, offset)
-        if compress is None:
+        attrs = self._read_attr(fd, file_pos, attr, offset)
+        if attrs is None:
             return False
 
         # Create the correct CbfsFile object depending on the type
         cfile = None
         cbfs_offset = file_pos + offset
         fd.seek(cbfs_offset, io.SEEK_SET)
+        if DEBUG:
+            print(f'ftype {ftype:x}')
         if ftype == TYPE_CBFSHEADER:
             self._read_header(fd)
-        elif ftype == TYPE_LEGACY_STAGE:
-            data = fd.read(STAGE_LEN)
+        elif ftype == TYPE_STAGE:
             cfile = CbfsFile.stage(self.stage_base_address, name, b'',
                                    cbfs_offset)
-            (cfile.compress, cfile.entry, cfile.load, cfile.data_len,
-             cfile.memlen) = struct.unpack(STAGE_FORMAT, data)
-            cfile.data = fd.read(cfile.data_len)
+            cfile.load, entry_offset, cfile.memlen = attrs
+            cfile.entry = cfile.load + entry_offset
+            cfile.data = fd.read(cfile.memlen)
+            cfile.data_len = cfile.memlen
         elif ftype == TYPE_RAW:
             data = fd.read(size)
-            cfile = CbfsFile.raw(name, data, cbfs_offset, compress)
+            cfile = CbfsFile.raw(name, data, cbfs_offset, attrs)
             cfile.decompress()
             if DEBUG:
                 print('data', data)
@@ -783,8 +787,8 @@ class CbfsReader(object):
         """Read attributes from the file
 
         CBFS files can have attributes which are things that cannot fit into the
-        header. The only attributes currently supported are compression and the
-        unused tag.
+        header. The only attributes currently supported are compression, stage
+        header and the unused tag
 
         Args:
             fd: File to read from
@@ -794,11 +798,16 @@ class CbfsReader(object):
                                          attributes)
 
         Returns:
-            Compression to use for the file (COMPRESS_...)
+            Either:
+                Compression to use for the file (COMPRESS_...)
+                tuple containing stage info:
+                    load address
+                    entry offset
+                    memory size
         """
-        compress = COMPRESS_NONE
+        attrs = None
         if not attr:
-            return compress
+            return COMPRESS_NONE
         attr_size = offset - attr
         fd.seek(file_pos + attr, io.SEEK_SET)
         while attr_size:
@@ -813,10 +822,15 @@ class CbfsReader(object):
                 # We don't currently use this information
                 atag, alen, compress, _decomp_size = struct.unpack(
                     ATTR_COMPRESSION_FORMAT, data)
+                attrs = compress
+            elif atag == FILE_ATTR_TAG_STAGEHEADER:
+                atag, alen, load, entry_offset, memsize = struct.unpack(
+                    ATTR_STAGE_FORMAT, data)
+                attrs = (load, entry_offset, memsize)
             else:
                 print('Unknown attribute tag %x' % atag)
             attr_size -= len(data)
-        return compress
+        return attrs
 
     def _read_header(self, fd):
         """Read the master header
