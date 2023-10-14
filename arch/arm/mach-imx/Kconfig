@@ -194,19 +194,6 @@ config IMX_DCD_ADDR
 	  This information is shared with the user via mkimage -l just so the
 	  image can be signed.
 
-config SPL_LOAD_IMX_CONTAINER
-	bool "Enable SPL loading U-Boot as a i.MX Container image"
-	depends on SPL
-	help
-	  This is to let SPL could load i.MX Container image
-
-config IMX_CONTAINER_CFG
-	string "i.MX Container config file"
-	depends on SPL
-	help
-	  This is to specific the cfg file for generating container
-	  image which will be loaded by SPL.
-
 config IOMUX_LPSR
 	bool
 

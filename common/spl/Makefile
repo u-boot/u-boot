@@ -28,6 +28,7 @@ obj-$(CONFIG_$(SPL_TPL_)OPENSBI) += spl_opensbi.o
 obj-$(CONFIG_$(SPL_TPL_)USB_STORAGE) += spl_usb.o
 obj-$(CONFIG_$(SPL_TPL_)FS_FAT) += spl_fat.o
 obj-$(CONFIG_$(SPL_TPL_)FS_EXT4) += spl_ext.o
+obj-$(CONFIG_$(SPL_TPL_)LOAD_IMX_CONTAINER) += spl_imx_container.o
 obj-$(CONFIG_$(SPL_TPL_)SATA) += spl_sata.o
 obj-$(CONFIG_$(SPL_TPL_)NVME) += spl_nvme.o
 obj-$(CONFIG_$(SPL_TPL_)SEMIHOSTING) += spl_semihosting.o
