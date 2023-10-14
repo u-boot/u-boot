@@ -149,7 +149,7 @@ static int open_channel(struct udevice *dev, struct scmi_optee_channel *chan,
 	struct tee_param param[1] = { };
 	int ret;
 
-	memset(sess, 0, sizeof(sess));
+	memset(sess, 0, sizeof(*sess));
 
 	sess->tee = tee_find_device(NULL, NULL, NULL, NULL);
 	if (!sess->tee)
@@ -324,6 +324,7 @@ static int setup_channel(struct udevice *dev, struct scmi_optee_channel *chan)
 }
 
 static int scmi_optee_get_channel(struct udevice *dev,
+				  struct udevice *protocol,
 				  struct scmi_channel **channel)
 {
 	struct scmi_optee_channel *base_chan = dev_get_plat(dev);
@@ -331,7 +332,7 @@ static int scmi_optee_get_channel(struct udevice *dev,
 	u32 channel_id;
 	int ret;
 
-	if (dev_read_u32(dev, "linaro,optee-channel-id", &channel_id)) {
+	if (dev_read_u32(protocol, "linaro,optee-channel-id", &channel_id)) {
 		/* Uses agent base channel */
 		*channel = container_of(base_chan, struct scmi_channel, ref);
 
@@ -343,7 +344,7 @@ static int scmi_optee_get_channel(struct udevice *dev,
 	if (!chan)
 		return -ENOMEM;
 
-	ret = setup_channel(dev, chan);
+	ret = setup_channel(protocol, chan);
 	if (ret) {
 		free(chan);
 		return ret;

@@ -1,4 +1,5 @@
 obj-y	+= scmi_agent-uclass.o
+obj-y	+= base.o
 obj-y	+= smt.o
 obj-$(CONFIG_SCMI_AGENT_SMCCC)		+= smccc_agent.o
 obj-$(CONFIG_SCMI_AGENT_MAILBOX)	+= mailbox_agent.o
