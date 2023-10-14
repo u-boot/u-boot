@@ -18,4 +18,7 @@
 #define CFG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
 
+/* Unused but necessary to build */
+#define CFG_SYS_UBOOT_BASE	CONFIG_TEXT_BASE
+
 #endif
