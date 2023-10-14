@@ -80,6 +80,36 @@ int check_image_info(struct unit_test_state *uts, struct spl_image_info *info1,
 		     struct spl_image_info *info2);
 
 /**
+ * typedef write_image_t - Callback for writing an image
+ * @uts: Current unit test state
+ * @img: Image to write
+ * @size: Size of @img
+ *
+ * Write @img to a location which will be read by a &struct spl_image_loader.
+ *
+ * Return: 0 on success or 1 on failure
+ */
+typedef int write_image_t(struct unit_test_state *its, void *img, size_t size);
+
+/**
+ * do_spl_test_load() - Test loading with an SPL image loader
+ * @uts: Current unit test state
+ * @test_name: Name of the current test
+ * @type: Type of image to try loading
+ * @loader: The loader to test
+ * @write_image: Callback to write the image to the backing storage
+ *
+ * Test @loader, performing the common tasks of setting up the image and
+ * checking it was loaded correctly. The caller must supply a @write_image
+ * callback to write the image to a location which will be read by @loader.
+ *
+ * Return: 0 on success or 1 on failure
+ */
+int do_spl_test_load(struct unit_test_state *uts, const char *test_name,
+		     enum spl_test_image type, struct spl_image_loader *loader,
+		     write_image_t write_image);
+
+/**
  * image_supported() - Determine whether an image type is supported
  * @type: The image type to check
  *

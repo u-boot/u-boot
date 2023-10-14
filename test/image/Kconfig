@@ -18,6 +18,7 @@ config SPL_UT_LOAD_FS
 	depends on SPL_FS_FAT
 	depends on SPL_FS_EXT4
 	depends on SPL_MMC_WRITE
+	depends on SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
 	default y
 	help
 	  Test filesystems and the various load methods which use them.

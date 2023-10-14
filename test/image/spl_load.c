@@ -365,3 +365,39 @@ SPL_IMG_TEST(spl_test_image, LEGACY, 0);
 SPL_IMG_TEST(spl_test_image, IMX8, 0);
 SPL_IMG_TEST(spl_test_image, FIT_INTERNAL, 0);
 SPL_IMG_TEST(spl_test_image, FIT_EXTERNAL, 0);
+
+int do_spl_test_load(struct unit_test_state *uts, const char *test_name,
+		     enum spl_test_image type, struct spl_image_loader *loader,
+		     int (*write_image)(struct unit_test_state *, void *, size_t))
+{
+	size_t img_size, img_data, plain_size = SPL_TEST_DATA_SIZE;
+	struct spl_image_info info_write = {
+		.name = test_name,
+		.size = plain_size,
+	}, info_read = { };
+	struct spl_boot_device bootdev = {
+		.boot_device = loader->boot_device,
+	};
+	char *plain;
+	void *img;
+
+	img_size = create_image(NULL, type, &info_write, &img_data);
+	ut_assert(img_size);
+	img = calloc(img_size, 1);
+	ut_assertnonnull(img);
+
+	plain = img + img_data;
+	generate_data(plain, plain_size, test_name);
+	ut_asserteq(img_size, create_image(img, type, &info_write, NULL));
+
+	if (write_image(uts, img, img_size))
+		return CMD_RET_FAILURE;
+
+	ut_assertok(loader->load_image(&info_read, &bootdev));
+	if (check_image_info(uts, &info_write, &info_read))
+		return CMD_RET_FAILURE;
+	ut_asserteq_mem(plain, phys_to_virt(info_write.load_addr), plain_size);
+
+	free(img);
+	return 0;
+}

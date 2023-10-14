@@ -306,8 +306,16 @@ static int spl_test_fat(struct unit_test_state *uts)
 }
 SPL_TEST(spl_test_fat, DM_FLAGS);
 
+static bool spl_mmc_raw;
+
+u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
+{
+	return spl_mmc_raw ? MMCSD_MODE_RAW : MMCSD_MODE_FS;
+}
+
 static int spl_test_mmc_fs(struct unit_test_state *uts, const char *test_name,
-			   enum spl_test_image type, create_fs_t create_fs)
+			   enum spl_test_image type, create_fs_t create_fs,
+			   bool blk_mode)
 {
 	const char *filename = CONFIG_SPL_FS_LOAD_PAYLOAD_NAME;
 	struct blk_desc *dev_desc;
@@ -321,7 +329,11 @@ static int spl_test_mmc_fs(struct unit_test_state *uts, const char *test_name,
 		.start = 1,
 		.sys_ind = 0x83,
 	};
-	struct spl_boot_device bootdev = { };
+	struct spl_image_loader *loader =
+		SPL_LOAD_IMAGE_GET(0, BOOT_DEVICE_MMC1, spl_mmc_load_image);
+	struct spl_boot_device bootdev = {
+		.boot_device = loader->boot_device,
+	};
 	void *fs;
 	char *data;
 
@@ -346,7 +358,12 @@ static int spl_test_mmc_fs(struct unit_test_state *uts, const char *test_name,
 	ut_assertok(write_mbr_partitions(dev_desc, &part, 1, 0));
 	ut_asserteq(part.size, blk_dwrite(dev_desc, part.start, part.size, fs));
 
-	ut_assertok(spl_blk_load_image(&info_read, &bootdev, UCLASS_MMC, 0, 1));
+	spl_mmc_raw = false;
+	if (blk_mode)
+		ut_assertok(spl_blk_load_image(&info_read, &bootdev, UCLASS_MMC,
+					       0, 1));
+	else
+		ut_assertok(loader->load_image(&info_read, &bootdev));
 	if (check_image_info(uts, &info_write, &info_read))
 		return CMD_RET_FAILURE;
 	ut_asserteq_mem(data, phys_to_virt(info_write.load_addr), data_size);
@@ -359,11 +376,53 @@ static int spl_test_blk(struct unit_test_state *uts, const char *test_name,
 			enum spl_test_image type)
 {
 	spl_fat_force_reregister();
-	if (spl_test_mmc_fs(uts, test_name, type, create_fat))
+	if (spl_test_mmc_fs(uts, test_name, type, create_fat, true))
 		return CMD_RET_FAILURE;
 
-	return spl_test_mmc_fs(uts, test_name, type, create_ext2);
+	return spl_test_mmc_fs(uts, test_name, type, create_ext2, true);
 }
 SPL_IMG_TEST(spl_test_blk, LEGACY, DM_FLAGS);
 SPL_IMG_TEST(spl_test_blk, FIT_EXTERNAL, DM_FLAGS);
 SPL_IMG_TEST(spl_test_blk, FIT_INTERNAL, DM_FLAGS);
+
+static int spl_test_mmc_write_image(struct unit_test_state *uts, void *img,
+				    size_t img_size)
+{
+	struct blk_desc *dev_desc;
+	size_t img_blocks;
+
+	dev_desc = blk_get_devnum_by_uclass_id(UCLASS_MMC, 0);
+	ut_assertnonnull(dev_desc);
+
+	img_blocks = DIV_ROUND_UP(img_size, dev_desc->blksz);
+	ut_asserteq(img_blocks, blk_dwrite(dev_desc,
+					   CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR,
+					   img_blocks, img));
+
+	spl_mmc_raw = true;
+	return 0;
+}
+
+static int spl_test_mmc(struct unit_test_state *uts, const char *test_name,
+			enum spl_test_image type)
+{
+	spl_mmc_clear_cache();
+	spl_fat_force_reregister();
+
+	if (type == LEGACY &&
+	    spl_test_mmc_fs(uts, test_name, type, create_ext2, false))
+		return CMD_RET_FAILURE;
+
+	if (type != IMX8 &&
+	    spl_test_mmc_fs(uts, test_name, type, create_fat, false))
+		return CMD_RET_FAILURE;
+
+	return do_spl_test_load(uts, test_name, type,
+				SPL_LOAD_IMAGE_GET(0, BOOT_DEVICE_MMC1,
+						   spl_mmc_load_image),
+				spl_test_mmc_write_image);
+}
+SPL_IMG_TEST(spl_test_mmc, LEGACY, DM_FLAGS);
+SPL_IMG_TEST(spl_test_mmc, IMX8, DM_FLAGS);
+SPL_IMG_TEST(spl_test_mmc, FIT_EXTERNAL, DM_FLAGS);
+SPL_IMG_TEST(spl_test_mmc, FIT_INTERNAL, DM_FLAGS);

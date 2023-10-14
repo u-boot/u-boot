@@ -673,6 +673,10 @@ static inline const char *spl_loader_name(const struct spl_image_loader *loader)
 	}
 #endif
 
+#define SPL_LOAD_IMAGE_GET(_priority, _boot_device, _method) \
+	ll_entry_get(struct spl_image_loader, \
+		     _boot_device ## _priority ## _method, spl_image_loader)
+
 /* SPL FAT image functions */
 
 /**
