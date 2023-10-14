@@ -2,4 +2,5 @@
 #
 # Copyright 2021 Google LLC
 
-obj-$(CONFIG_SPL_BUILD) += spl_load.o
+obj-y += spl_load.o
+obj-$(CONFIG_SPL_UT_LOAD_OS) += spl_load_os.o
