@@ -13,6 +13,7 @@
 #include <log.h>
 #include <os.h>
 #include <sort.h>
+#include <spl.h>
 #include <asm/getopt.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -202,10 +203,14 @@ static int sandbox_cmdline_cb_test_fdt(struct sandbox_state *state,
 {
 	char buf[256];
 	char *fname;
+	char *relname;
 	int len;
 
-	len = state_get_rel_filename("arch/sandbox/dts/test.dtb", buf,
-				     sizeof(buf));
+	if (spl_phase() <= PHASE_SPL)
+		relname = "../arch/sandbox/dts/test.dtb";
+	else
+		relname = "arch/sandbox/dts/test.dtb";
+	len = state_get_rel_filename(relname, buf, sizeof(buf));
 	if (len < 0)
 		return len;
 
