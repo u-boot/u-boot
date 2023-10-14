@@ -114,4 +114,7 @@ SPL_TEST(func##_##type, flags)
 /* More than a couple blocks, and will not be aligned to anything */
 #define SPL_TEST_DATA_SIZE	4099
 
+/* Flags necessary for accessing DM devices */
+#define DM_FLAGS (UT_TESTF_DM | UT_TESTF_SCAN_FDT)
+
 #endif /* TEST_SPL_H */
