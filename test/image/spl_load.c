@@ -9,6 +9,7 @@
 #include <mapmem.h>
 #include <memalign.h>
 #include <rand.h>
+#include <spi_flash.h>
 #include <spl.h>
 #include <test/spl.h>
 #include <test/ut.h>

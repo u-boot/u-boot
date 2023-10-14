@@ -5,6 +5,16 @@
 import os.path
 import pytest
 
+@pytest.mark.buildconfigspec('spl_unit_test')
+def test_ut_spl_init(u_boot_console):
+    """Initialize data for ut spl tests."""
+
+    fn = u_boot_console.config.source_dir + '/spi.bin'
+    if not os.path.exists(fn):
+        data = b'\x00' * (2 * 1024 * 1024)
+        with open(fn, 'wb') as fh:
+            fh.write(data)
+
 def test_spl(u_boot_console, ut_spl_subtest):
     """Execute a "ut" subtest.
 

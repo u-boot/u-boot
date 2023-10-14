@@ -416,6 +416,16 @@ int spl_load_imx_container(struct spl_image_info *spl_image,
 void preloader_console_init(void);
 u32 spl_boot_device(void);
 
+struct spi_flash;
+
+/**
+ * spl_spi_get_uboot_offs() - Lookup function for the SPI boot offset
+ * @flash: The spi flash to boot from
+ *
+ * Return: The offset of U-Boot within the SPI flash
+ */
+unsigned int spl_spi_get_uboot_offs(struct spi_flash *flash);
+
 /**
  * spl_spi_boot_bus() - Lookup function for the SPI boot bus source.
  *

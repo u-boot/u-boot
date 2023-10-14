@@ -32,6 +32,14 @@ config SPL_UT_LOAD_NET
 	help
 	  Test loading images over TFTP using the NET image load method.
 
+config SPL_UT_LOAD_SPI
+	bool "Test loading from SPI Flash"
+	depends on SANDBOX && SPL_OF_REAL
+	depends on SPL_SPI_LOAD
+	default y
+	help
+	  Test the SPI flash image load metod.
+
 config SPL_UT_LOAD_OS
 	bool "Test loading from the host OS"
 	depends on SANDBOX && SPL_LOAD_FIT
