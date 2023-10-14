@@ -202,7 +202,8 @@ static u8 *search_container_header(u8 *p, int size)
 
 	for (i = 0; i < size; i += 4) {
 		hdr = p + i;
-		if (*(hdr + 3) == 0x87 && *hdr == 0 && (*(hdr + 1) != 0 || *(hdr + 2) != 0))
+		if (valid_container_hdr((void *)hdr) &&
+		    (*(hdr + 1) != 0 || *(hdr + 2) != 0))
 			return p + i;
 	}
 

@@ -85,7 +85,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 		goto end;
 	}
 
-	if (container->tag != 0x87 && container->version != 0x0) {
+	if (!valid_container_hdr(container)) {
 		log_err("Wrong container header\n");
 		ret = -ENOENT;
 		goto end;

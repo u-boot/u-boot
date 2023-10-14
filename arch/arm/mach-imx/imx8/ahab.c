@@ -146,7 +146,7 @@ int authenticate_os_container(ulong addr)
 	}
 
 	phdr = (struct container_hdr *)addr;
-	if (phdr->tag != 0x87 && phdr->version != 0x0) {
+	if (!valid_container_hdr(phdr)) {
 		printf("Error: Wrong container header\n");
 		return -EFAULT;
 	}
