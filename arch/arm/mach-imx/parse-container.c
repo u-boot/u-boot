@@ -85,13 +85,13 @@ static int read_auth_container(struct spl_image_info *spl_image,
 	}
 
 	if (container->tag != 0x87 && container->version != 0x0) {
-		printf("Wrong container header");
+		printf("Wrong container header\n");
 		ret = -ENOENT;
 		goto end;
 	}
 
 	if (!container->num_images) {
-		printf("Wrong container, no image found");
+		printf("Wrong container, no image found\n");
 		ret = -ENOENT;
 		goto end;
 	}
