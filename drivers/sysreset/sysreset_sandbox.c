@@ -132,7 +132,7 @@ U_BOOT_DRIVER(warm_sysreset_sandbox) = {
 	.ops		= &sandbox_warm_sysreset_ops,
 };
 
-#if CONFIG_IS_ENABLED(OF_REAL)
+#if CONFIG_IS_ENABLED(OF_REAL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 /* This is here in case we don't have a device tree */
 U_BOOT_DRVINFO(sysreset_sandbox_non_fdt) = {
 	.name = "sysreset_sandbox",

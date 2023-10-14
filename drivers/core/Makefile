@@ -15,6 +15,7 @@ obj-$(CONFIG_$(SPL_)OF_LIVE) += of_access.o of_addr.o
 ifndef CONFIG_DM_DEV_READ_INLINE
 obj-$(CONFIG_OF_CONTROL) += read.o
 endif
+obj-$(CONFIG_$(SPL_)OF_PLATDATA) += read.o
 obj-$(CONFIG_OF_CONTROL) += of_extra.o ofnode.o read_extra.o
 
 ccflags-$(CONFIG_DM_DEBUG) += -DDEBUG
