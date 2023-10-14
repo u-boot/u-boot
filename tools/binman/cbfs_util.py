@@ -96,7 +96,7 @@ ARCH_NAMES = {
 
 # File types. Only supported ones are included here
 TYPE_CBFSHEADER     = 0x02   # Master header, HEADER_FORMAT
-TYPE_STAGE          = 0x10   # Stage, holding an executable, see STAGE_FORMAT
+TYPE_LEGACY_STAGE   = 0x10   # Stage, holding an executable
 TYPE_RAW            = 0x50   # Raw file, possibly compressed
 TYPE_EMPTY          = 0xffffffff     # Empty data
 
@@ -265,7 +265,7 @@ class CbfsFile(object):
         Returns:
             CbfsFile object containing the file information
         """
-        cfile = CbfsFile(name, TYPE_STAGE, data, cbfs_offset)
+        cfile = CbfsFile(name, TYPE_LEGACY_STAGE, data, cbfs_offset)
         cfile.base_address = base_address
         return cfile
 
@@ -326,7 +326,7 @@ class CbfsFile(object):
         """
         name = _pack_string(self.name)
         hdr_len = len(name) + FILE_HEADER_LEN
-        if self.ftype == TYPE_STAGE:
+        if self.ftype == TYPE_LEGACY_STAGE:
             pass
         elif self.ftype == TYPE_RAW:
             if self.compress:
@@ -354,7 +354,7 @@ class CbfsFile(object):
         attr = b''
         pad = b''
         data = self.data
-        if self.ftype == TYPE_STAGE:
+        if self.ftype == TYPE_LEGACY_STAGE:
             elf_data = elf.DecodeElf(data, self.base_address)
             content = struct.pack(STAGE_FORMAT, self.compress,
                                   elf_data.entry, elf_data.load,
@@ -639,7 +639,7 @@ class CbfsReader(object):
         files: Ordered list of CbfsFile objects
         align: Alignment to use for files, typically ENTRT_ALIGN
         stage_base_address: Base address to use when mapping ELF files into the
-            CBFS for TYPE_STAGE files. If this is larger than the code address
+            CBFS for TYPE_LEGACY_STAGE files. If this is larger than the code address
             of the ELF file, then data at the start of the ELF file will not
             appear in the CBFS. Currently there are no tests for behaviour as
             documentation is sparse
@@ -750,7 +750,7 @@ class CbfsReader(object):
         fd.seek(cbfs_offset, io.SEEK_SET)
         if ftype == TYPE_CBFSHEADER:
             self._read_header(fd)
-        elif ftype == TYPE_STAGE:
+        elif ftype == TYPE_LEGACY_STAGE:
             data = fd.read(STAGE_LEN)
             cfile = CbfsFile.stage(self.stage_base_address, name, b'',
                                    cbfs_offset)

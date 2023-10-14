@@ -118,7 +118,7 @@ static int do_cbfs_ls(struct cmd_tbl *cmdtp, int flag, int argc,
 		case CBFS_TYPE_CBFSHEADER:
 			type_name = "cbfs header";
 			break;
-		case CBFS_TYPE_STAGE:
+		case CBFS_TYPE_LEGACY_STAGE:
 			type_name = "stage";
 			break;
 		case CBFS_TYPE_PAYLOAD:

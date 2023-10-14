@@ -490,7 +490,8 @@ class TestCbfs(unittest.TestCase):
         load = 0xfef20000
         entry = load + 2
 
-        cfile = self._check_uboot(cbfs, cbfs_util.TYPE_STAGE, offset=0x20,
+        cfile = self._check_uboot(cbfs, cbfs_util.TYPE_LEGACY_STAGE,
+                                  offset=0x20,
                                   data=U_BOOT_DATA + U_BOOT_DTB_DATA)
 
         self.assertEqual(entry, cfile.entry)
