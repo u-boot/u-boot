@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <imx_container.h>
 #include <log.h>
+#include <mapmem.h>
 #include <spl.h>
 #ifdef CONFIG_AHAB_BOOT
 #include <asm/mach-imx/ahab.h>
@@ -46,7 +47,8 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 	debug("%s: container: %p sector: %lu sectors: %u\n", __func__,
 	      container, sector, sectors);
 	if (info->read(info, sector, sectors,
-		       (void *)images[image_index].dst) != sectors) {
+		       map_sysmem(images[image_index].dst,
+				  images[image_index].size)) != sectors) {
 		printf("%s wrong\n", __func__);
 		return NULL;
 	}

@@ -11,6 +11,7 @@
 #include <common.h>
 #include <env.h>
 #include <log.h>
+#include <mapmem.h>
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <fat.h>
@@ -79,11 +80,13 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 
 	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT_FULL) &&
 	    image_get_magic(header) == FDT_MAGIC) {
-		err = file_fat_read(filename, (void *)CONFIG_SYS_LOAD_ADDR, 0);
+		err = file_fat_read(filename,
+				    map_sysmem(CONFIG_SYS_LOAD_ADDR, 0), 0);
 		if (err <= 0)
 			goto end;
 		err = spl_parse_image_header(spl_image, bootdev,
-				(struct legacy_img_hdr *)CONFIG_SYS_LOAD_ADDR);
+					     map_sysmem(CONFIG_SYS_LOAD_ADDR,
+							err));
 		if (err == -EAGAIN)
 			return err;
 		if (err == 0)
@@ -104,8 +107,8 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 		if (err)
 			goto end;
 
-		err = file_fat_read(filename,
-				    (u8 *)(uintptr_t)spl_image->load_addr, 0);
+		err = file_fat_read(filename, map_sysmem(spl_image->load_addr,
+							 spl_image->size), 0);
 	}
 
 end:

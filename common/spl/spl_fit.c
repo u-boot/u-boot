@@ -16,6 +16,7 @@
 #include <sysinfo.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
+#include <asm/io.h>
 #include <linux/libfdt.h>
 #include <linux/printk.h>
 
@@ -393,25 +394,32 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 	/* Figure out which device tree the board wants to use */
 	node = spl_fit_get_image_node(ctx, FIT_FDT_PROP, index++);
 	if (node < 0) {
+		size_t size;
+
 		debug("%s: cannot find FDT node\n", __func__);
 
 		/*
 		 * U-Boot did not find a device tree inside the FIT image. Use
 		 * the U-Boot device tree instead.
 		 */
-		if (gd->fdt_blob)
-			memcpy((void *)image_info.load_addr, gd->fdt_blob,
-			       fdt_totalsize(gd->fdt_blob));
-		else
+		if (!gd->fdt_blob)
 			return node;
+
+		/*
+		 * Make the load-address of the FDT available for the SPL
+		 * framework
+		 */
+		size = fdt_totalsize(gd->fdt_blob);
+		spl_image->fdt_addr = map_sysmem(image_info.load_addr, size);
+		memcpy(spl_image->fdt_addr, gd->fdt_blob, size);
 	} else {
 		ret = load_simple_fit(info, sector, ctx, node, &image_info);
 		if (ret < 0)
 			return ret;
+
+		spl_image->fdt_addr = phys_to_virt(image_info.load_addr);
 	}
 
-	/* Make the load-address of the FDT available for the SPL framework */
-	spl_image->fdt_addr = map_sysmem(image_info.load_addr, 0);
 	if (CONFIG_IS_ENABLED(FIT_IMAGE_TINY))
 		return 0;
 
@@ -876,7 +884,7 @@ int spl_load_fit_image(struct spl_image_info *spl_image,
 #ifdef CONFIG_SPL_FIT_SIGNATURE
 	images.verify = 1;
 #endif
-	ret = fit_image_load(&images, (ulong)header,
+	ret = fit_image_load(&images, virt_to_phys((void *)header),
 			     NULL, &fit_uname_config,
 			     IH_ARCH_DEFAULT, IH_TYPE_STANDALONE, -1,
 			     FIT_LOAD_OPTIONAL, &fw_data, &fw_len);
@@ -884,15 +892,15 @@ int spl_load_fit_image(struct spl_image_info *spl_image,
 		printf("DEPRECATED: 'standalone = ' property.");
 		printf("Please use either 'firmware =' or 'kernel ='\n");
 	} else {
-		ret = fit_image_load(&images, (ulong)header, NULL,
-				     &fit_uname_config, IH_ARCH_DEFAULT,
+		ret = fit_image_load(&images, virt_to_phys((void *)header),
+				     NULL, &fit_uname_config, IH_ARCH_DEFAULT,
 				     IH_TYPE_FIRMWARE, -1, FIT_LOAD_OPTIONAL,
 				     &fw_data, &fw_len);
 	}
 
 	if (ret < 0) {
-		ret = fit_image_load(&images, (ulong)header, NULL,
-				     &fit_uname_config, IH_ARCH_DEFAULT,
+		ret = fit_image_load(&images, virt_to_phys((void *)header),
+				     NULL, &fit_uname_config, IH_ARCH_DEFAULT,
 				     IH_TYPE_KERNEL, -1, FIT_LOAD_OPTIONAL,
 				     &fw_data, &fw_len);
 	}
@@ -914,9 +922,9 @@ int spl_load_fit_image(struct spl_image_info *spl_image,
 #ifdef CONFIG_SPL_FIT_SIGNATURE
 	images.verify = 1;
 #endif
-	ret = fit_image_load(&images, (ulong)header, NULL, &fit_uname_config,
-			     IH_ARCH_DEFAULT, IH_TYPE_FLATDT, -1,
-			     FIT_LOAD_OPTIONAL, &dt_data, &dt_len);
+	ret = fit_image_load(&images, virt_to_phys((void *)header), NULL,
+			     &fit_uname_config, IH_ARCH_DEFAULT, IH_TYPE_FLATDT,
+			     -1, FIT_LOAD_OPTIONAL, &dt_data, &dt_len);
 	if (ret >= 0) {
 		spl_image->fdt_addr = (void *)dt_data;
 

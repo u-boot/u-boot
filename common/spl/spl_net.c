@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <image.h>
 #include <log.h>
+#include <mapmem.h>
 #include <spl.h>
 #include <net.h>
 #include <linux/libfdt.h>
@@ -21,14 +22,15 @@ static ulong spl_net_load_read(struct spl_load_info *load, ulong sector,
 {
 	debug("%s: sector %lx, count %lx, buf %lx\n",
 	      __func__, sector, count, (ulong)buf);
-	memcpy(buf, (void *)(image_load_addr + sector), count);
+	memcpy(buf, map_sysmem(image_load_addr + sector, count), count);
 	return count;
 }
 
 static int spl_net_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {
-	struct legacy_img_hdr *header = (struct legacy_img_hdr *)image_load_addr;
+	struct legacy_img_hdr *header = map_sysmem(image_load_addr,
+						   sizeof(*header));
 	int rv;
 
 	env_init();
@@ -62,7 +64,9 @@ static int spl_net_load_image(struct spl_image_info *spl_image,
 		if (rv)
 			return rv;
 
-		memcpy((void *)spl_image->load_addr, header, spl_image->size);
+		memcpy(map_sysmem(spl_image->load_addr, spl_image->size),
+		       map_sysmem(image_load_addr, spl_image->size),
+		       spl_image->size);
 	}
 
 	return rv;

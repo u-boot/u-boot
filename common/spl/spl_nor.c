@@ -7,6 +7,7 @@
 #include <image.h>
 #include <imx_container.h>
 #include <log.h>
+#include <mapmem.h>
 #include <spl.h>
 
 static ulong spl_nor_load_read(struct spl_load_info *load, ulong sector,
@@ -14,7 +15,7 @@ static ulong spl_nor_load_read(struct spl_load_info *load, ulong sector,
 {
 	debug("%s: sector %lx, count %lx, buf %p\n",
 	      __func__, sector, count, buf);
-	memcpy(buf, (void *)sector, count);
+	memcpy(buf, map_sysmem(sector, count), count);
 
 	return count;
 }
@@ -92,7 +93,7 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 	 * Load real U-Boot from its location in NOR flash to its
 	 * defined location in SDRAM
 	 */
-	header = (const struct legacy_img_hdr *)spl_nor_get_uboot_base();
+	header = map_sysmem(spl_nor_get_uboot_base(), sizeof(*header));
 #ifdef CONFIG_SPL_LOAD_FIT
 	if (image_get_magic(header) == FDT_MAGIC) {
 		debug("Found FIT format U-Boot\n");

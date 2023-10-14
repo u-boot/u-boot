@@ -8,6 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <log.h>
+#include <mapmem.h>
 #include <part.h>
 #include <spl.h>
 #include <linux/compiler.h>
@@ -46,7 +47,8 @@ static int mmc_load_legacy(struct spl_image_info *spl_image,
 	count = blk_dread(mmc_get_blk_desc(mmc),
 			  sector + image_offset_sectors,
 			  image_size_sectors,
-			  (void *)(ulong)spl_image->load_addr);
+			  map_sysmem(spl_image->load_addr,
+				     image_size_sectors * mmc->read_bl_len));
 	debug("read %x sectors to %lx\n", image_size_sectors,
 	      spl_image->load_addr);
 	if (count != image_size_sectors)
