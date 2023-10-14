@@ -45,7 +45,7 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 	debug("%s: container: %p sector: %lu sectors: %u\n", __func__,
 	      container, sector, sectors);
 	if (info->read(info, sector, sectors,
-		       (void *)images[image_index].entry) != sectors) {
+		       (void *)images[image_index].dst) != sectors) {
 		printf("%s wrong\n", __func__);
 		return NULL;
 	}
