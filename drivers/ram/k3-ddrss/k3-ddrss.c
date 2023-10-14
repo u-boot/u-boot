@@ -331,32 +331,29 @@ static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 {
 	struct k3_ddrss_desc *ddrss = dev_get_priv(dev);
 	struct k3_ddrss_data *ddrss_data = (struct k3_ddrss_data *)dev_get_driver_data(dev);
-	phys_addr_t reg;
+	void *reg;
 	int ret;
 
 	debug("%s(dev=%p)\n", __func__, dev);
 
-	reg = dev_read_addr_name(dev, "cfg");
-	if (reg == FDT_ADDR_T_NONE) {
+	reg = dev_read_addr_name_ptr(dev, "cfg");
+	if (!reg) {
 		dev_err(dev, "No reg property for DDRSS wrapper logic\n");
 		return -EINVAL;
 	}
-	ddrss->ddrss_ctl_cfg = (void *)reg;
+	ddrss->ddrss_ctl_cfg = reg;
 
-	reg = dev_read_addr_name(dev, "ctrl_mmr_lp4");
-	if (reg == FDT_ADDR_T_NONE) {
+	reg = dev_read_addr_name_ptr(dev, "ctrl_mmr_lp4");
+	if (!reg) {
 		dev_err(dev, "No reg property for CTRL MMR\n");
 		return -EINVAL;
 	}
-	ddrss->ddrss_ctrl_mmr = (void *)reg;
+	ddrss->ddrss_ctrl_mmr = reg;
 
-	reg = dev_read_addr_name(dev, "ss_cfg");
-	if (reg == FDT_ADDR_T_NONE) {
+	reg = dev_read_addr_name_ptr(dev, "ss_cfg");
+	if (!reg)
 		dev_dbg(dev, "No reg property for SS Config region, but this is optional so continuing.\n");
-		ddrss->ddrss_ss_cfg = NULL;
-	} else {
-		ddrss->ddrss_ss_cfg = (void *)reg;
-	}
+	ddrss->ddrss_ss_cfg = reg;
 
 	ret = power_domain_get_by_index(dev, &ddrss->ddrcfg_pwrdmn, 0);
 	if (ret) {

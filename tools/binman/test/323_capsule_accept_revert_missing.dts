@@ -4,15 +4,10 @@
 
 / {
 	binman {
-		efi-capsule {
-			image-index = <0x1>;
+		efi-empty-capsule {
 			/* Image GUID for testing capsule update */
 			image-guid = "binman-test";
-			hardware-instance = <0x0>;
-
-			blob {
-				filename = "capsule_input.bin";
-			};
+			capsule-type = "foo";
 		};
 	};
 };

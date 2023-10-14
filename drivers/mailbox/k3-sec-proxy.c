@@ -84,9 +84,9 @@ struct k3_sec_proxy_mbox {
 	struct mbox_chan chan;
 	struct k3_sec_proxy_desc *desc;
 	struct k3_sec_proxy_thread *chans;
-	phys_addr_t target_data;
-	phys_addr_t scfg;
-	phys_addr_t rt;
+	void *target_data;
+	void *scfg;
+	void *rt;
 };
 
 static inline u32 sp_readl(void __iomem *addr, unsigned int offset)
@@ -319,20 +319,20 @@ static int k3_sec_proxy_of_to_priv(struct udevice *dev,
 		return -ENODEV;
 	}
 
-	spm->target_data = devfdt_get_addr_name(dev, "target_data");
-	if (spm->target_data == FDT_ADDR_T_NONE) {
+	spm->target_data = dev_read_addr_name_ptr(dev, "target_data");
+	if (!spm->target_data) {
 		dev_err(dev, "No reg property for target data base\n");
 		return -EINVAL;
 	}
 
-	spm->scfg = devfdt_get_addr_name(dev, "scfg");
-	if (spm->scfg == FDT_ADDR_T_NONE) {
+	spm->scfg = dev_read_addr_name_ptr(dev, "scfg");
+	if (!spm->scfg) {
 		dev_err(dev, "No reg property for Secure Cfg base\n");
 		return -EINVAL;
 	}
 
-	spm->rt = devfdt_get_addr_name(dev, "rt");
-	if (spm->rt == FDT_ADDR_T_NONE) {
+	spm->rt = dev_read_addr_name_ptr(dev, "rt");
+	if (!spm->rt) {
 		dev_err(dev, "No reg property for Real Time Cfg base\n");
 		return -EINVAL;
 	}

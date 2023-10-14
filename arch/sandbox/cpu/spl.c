@@ -126,6 +126,9 @@ void spl_board_init(void)
 {
 	struct sandbox_state *state = state_get_current();
 
+	if (!CONFIG_IS_ENABLED(UNIT_TEST))
+		return;
+
 	if (state->run_unittests) {
 		struct unit_test *tests = UNIT_TEST_ALL_START();
 		const int count = UNIT_TEST_ALL_COUNT();

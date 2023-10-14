@@ -11,6 +11,24 @@ from binman.etype.section import Entry_section
 from dtoc import fdt_util
 from u_boot_pylib import tools
 
+def get_binman_test_guid(type_str):
+    """Get the test image GUID for binman
+
+    Based on the string passed to the function, return
+    the corresponding GUID.
+
+    Args:
+        type_str: Key value of the type of GUID to look for
+
+    Returns:
+        The actual GUID value (str)
+    """
+    TYPE_TO_GUID = {
+        'binman-test' : '09d7cf52-0720-4710-91d1-08469b7fe9c8'
+    }
+
+    return TYPE_TO_GUID[type_str]
+
 class Entry_efi_capsule(Entry_section):
     """Generate EFI capsules
 
@@ -104,12 +122,6 @@ class Entry_efi_capsule(Entry_section):
             self.auth = 1
 
     def BuildSectionData(self, required):
-        def get_binman_test_guid(type_str):
-            TYPE_TO_GUID = {
-                'binman-test' : '09d7cf52-0720-4710-91d1-08469b7fe9c8'
-            }
-            return TYPE_TO_GUID[type_str]
-
         private_key = ''
         public_key_cert = ''
         if self.auth:

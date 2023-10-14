@@ -260,8 +260,25 @@ static int iter_incr(struct bootflow_iter *iter)
 		} else {
 			log_debug("labels %p\n", iter->labels);
 			if (iter->labels) {
-				ret = bootdev_next_label(iter, &dev,
-							 &method_flags);
+				/*
+				 * when the label is "mmc" we want to scan all
+				 * mmc bootdevs, not just the first. See
+				 * bootdev_find_by_label() where this flag is
+				 * set up
+				 */
+				if (iter->method_flags & BOOTFLOW_METHF_SINGLE_UCLASS) {
+					uclass_next_device(&dev);
+					log_debug("looking for next device %s: %s\n",
+						  iter->dev->name,
+						  dev ? dev->name : "<none>");
+				} else {
+					dev = NULL;
+				}
+				if (!dev) {
+					log_debug("looking at next label\n");
+					ret = bootdev_next_label(iter, &dev,
+								 &method_flags);
+				}
 			} else {
 				ret = bootdev_next_prio(iter, &dev);
 				method_flags = 0;

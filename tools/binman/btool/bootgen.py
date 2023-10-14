@@ -132,6 +132,6 @@ class Bintoolbootgen(bintool.Bintool):
 
         result = self.build_from_git(
             'https://github.com/Xilinx/bootgen',
-            'all',
+            ['all'],
             'bootgen')
         return result

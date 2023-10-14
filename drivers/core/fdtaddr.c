@@ -145,12 +145,22 @@ fdt_addr_t devfdt_get_addr_name(const struct udevice *dev, const char *name)
 	index = fdt_stringlist_search(gd->fdt_blob, dev_of_offset(dev),
 				      "reg-names", name);
 	if (index < 0)
-		return index;
+		return FDT_ADDR_T_NONE;
 
 	return devfdt_get_addr_index(dev, index);
 #else
 	return FDT_ADDR_T_NONE;
 #endif
+}
+
+void *devfdt_get_addr_name_ptr(const struct udevice *dev, const char *name)
+{
+	fdt_addr_t addr = devfdt_get_addr_name(dev, name);
+
+	if (addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	return map_sysmem(addr, 0);
 }
 
 fdt_addr_t devfdt_get_addr_size_name(const struct udevice *dev,
@@ -162,12 +172,23 @@ fdt_addr_t devfdt_get_addr_size_name(const struct udevice *dev,
 	index = fdt_stringlist_search(gd->fdt_blob, dev_of_offset(dev),
 				      "reg-names", name);
 	if (index < 0)
-		return index;
+		return FDT_ADDR_T_NONE;
 
 	return devfdt_get_addr_size_index(dev, index, size);
 #else
 	return FDT_ADDR_T_NONE;
 #endif
+}
+
+void *devfdt_get_addr_size_name_ptr(const struct udevice *dev,
+				    const char *name, fdt_size_t *size)
+{
+	fdt_addr_t addr = devfdt_get_addr_size_name(dev, name, size);
+
+	if (addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	return map_sysmem(addr, 0);
 }
 
 fdt_addr_t devfdt_get_addr(const struct udevice *dev)

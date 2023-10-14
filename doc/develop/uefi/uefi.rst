@@ -385,6 +385,23 @@ capsules. Refer :ref:`etype_efi_capsule` for documentation about the
 efi-capsule binman entry type, which describes all the properties that
 can be specified.
 
+Dumping capsule headers
+***********************
+
+The mkeficapsule tool also provides a command-line option to dump the
+contents of the capsule header. This is a useful functionality when
+trying to understand the structure of a capsule and is also used in
+capsule verification. This feature is used in testing the capsule
+contents in binman's test framework.
+
+To check the contents of the capsule headers, the mkeficapsule command
+can be used.
+
+.. code-block:: console
+
+    $ mkeficapsule --dump-capsule \
+      <capsule_file_name>
+
 Performing the update
 *********************
 

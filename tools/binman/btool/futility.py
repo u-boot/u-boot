@@ -170,7 +170,7 @@ class Bintoolfutility(bintool.Bintool):
         # .gitcookies file. So use a mirror instead.
         result = self.build_from_git(
             'https://github.com/sjg20/vboot_reference.git',
-            'all',
+            ['all'],
             'build/futility/futility',
             flags=['USE_FLASHROM=0'])
         return result

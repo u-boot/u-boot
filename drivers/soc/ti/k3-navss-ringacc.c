@@ -987,10 +987,10 @@ static int k3_nav_ringacc_init(struct udevice *dev, struct k3_nav_ringacc *ringa
 	if (!base_cfg)
 		return -EINVAL;
 
-	base_rt = (uint32_t *)devfdt_get_addr_name(dev, "rt");
+	base_rt = dev_read_addr_name_ptr(dev, "rt");
 	pr_debug("rt %p\n", base_rt);
-	if (IS_ERR(base_rt))
-		return PTR_ERR(base_rt);
+	if (!base_rt)
+		return -EINVAL;
 
 	ringacc->rings = devm_kzalloc(dev,
 				      sizeof(*ringacc->rings) *
@@ -1045,9 +1045,9 @@ struct k3_nav_ringacc *k3_ringacc_dmarings_init(struct udevice *dev,
 	ringacc->tisci = data->tisci;
 	ringacc->tisci_dev_id = data->tisci_dev_id;
 
-	base_rt = (uint32_t *)devfdt_get_addr_name(dev, "ringrt");
-	if (IS_ERR(base_rt))
-		return base_rt;
+	base_rt = dev_read_addr_name_ptr(dev, "ringrt");
+	if (!base_rt)
+		return ERR_PTR(-EINVAL);
 
 	ringacc->rings = devm_kzalloc(dev,
 				      sizeof(*ringacc->rings) *

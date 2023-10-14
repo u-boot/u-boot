@@ -532,6 +532,50 @@ payload using the blob-ext subnode.
 
 
 
+.. _etype_efi_empty_capsule:
+
+Entry: efi-empty-capsule: Entry for generating EFI Empty Capsule files
+----------------------------------------------------------------------
+
+The parameters needed for generation of the empty capsules can
+be provided as properties in the entry.
+
+Properties / Entry arguments:
+    - image-guid: Image GUID which will be used for identifying the
+      updatable image on the board. Mandatory for accept capsule.
+    - capsule-type - String to indicate type of capsule to generate. Valid
+      values are 'accept' and 'revert'.
+
+For more details on the description of the capsule format, and the capsule
+update functionality, refer Section 8.5 and Chapter 23 in the `UEFI
+specification`_. For more information on the empty capsule, refer the
+sections 2.3.2 and 2.3.3 in the `Dependable Boot specification`_.
+
+A typical accept empty capsule entry node would then look something
+like this::
+
+    empty-capsule {
+            type = "efi-empty-capsule";
+            /* GUID of the image being accepted */
+            image-type-id = SANDBOX_UBOOT_IMAGE_GUID;
+            capsule-type = "accept";
+    };
+
+A typical revert empty capsule entry node would then look something
+like this::
+
+    empty-capsule {
+            type = "efi-empty-capsule";
+            capsule-type = "revert";
+    };
+
+The empty capsules do not have any input payload image.
+
+.. _`UEFI specification`: https://uefi.org/sites/default/files/resources/UEFI_Spec_2_10_Aug29.pdf
+.. _`Dependable Boot specification`: https://git.codelinaro.org/linaro/dependable-boot/mbfw/uploads/6f7ddfe3be24e18d4319e108a758d02e/mbfw.pdf
+
+
+
 .. _etype_encrypted:
 
 Entry: encrypted: Externally built encrypted binary blob

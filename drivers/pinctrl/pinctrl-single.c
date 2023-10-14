@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <mapmem.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
@@ -24,7 +25,7 @@
  * @bits_per_mux: true if one register controls more than one pin
  */
 struct single_pdata {
-	fdt_addr_t base;
+	void *base;
 	int offset;
 	u32 mask;
 	u32 width;
@@ -97,7 +98,7 @@ struct single_fdt_bits_cfg {
 
 #if (!IS_ENABLED(CONFIG_SANDBOX))
 
-static unsigned int single_read(struct udevice *dev, fdt_addr_t reg)
+static unsigned int single_read(struct udevice *dev, void *reg)
 {
 	struct single_pdata *pdata = dev_get_plat(dev);
 
@@ -113,7 +114,7 @@ static unsigned int single_read(struct udevice *dev, fdt_addr_t reg)
 	return readb(reg);
 }
 
-static void single_write(struct udevice *dev, unsigned int val, fdt_addr_t reg)
+static void single_write(struct udevice *dev, unsigned int val, void *reg)
 {
 	struct single_pdata *pdata = dev_get_plat(dev);
 
@@ -131,18 +132,18 @@ static void single_write(struct udevice *dev, unsigned int val, fdt_addr_t reg)
 
 #else /* CONFIG_SANDBOX  */
 
-static unsigned int single_read(struct udevice *dev, fdt_addr_t reg)
+static unsigned int single_read(struct udevice *dev, void *reg)
 {
 	struct single_priv *priv = dev_get_priv(dev);
 
-	return priv->sandbox_regs[reg];
+	return priv->sandbox_regs[map_to_sysmem(reg)];
 }
 
-static void single_write(struct udevice *dev, unsigned int val, fdt_addr_t reg)
+static void single_write(struct udevice *dev, unsigned int val, void *reg)
 {
 	struct single_priv *priv = dev_get_priv(dev);
 
-	priv->sandbox_regs[reg] = val;
+	priv->sandbox_regs[map_to_sysmem(reg)] = val;
 }
 
 #endif /* CONFIG_SANDBOX  */
@@ -214,7 +215,8 @@ static int single_get_pin_muxing(struct udevice *dev, unsigned int pin,
 {
 	struct single_pdata *pdata = dev_get_plat(dev);
 	struct single_priv *priv = dev_get_priv(dev);
-	fdt_addr_t reg;
+	phys_addr_t phys_reg;
+	void *reg;
 	const char *fname;
 	unsigned int val;
 	int offset, pin_shift = 0;
@@ -226,13 +228,15 @@ static int single_get_pin_muxing(struct udevice *dev, unsigned int pin,
 	reg = pdata->base + offset;
 	val = single_read(dev, reg);
 
+	phys_reg = map_to_sysmem(reg);
+
 	if (pdata->bits_per_mux)
 		pin_shift = pin % (pdata->width / priv->bits_per_pin) *
 			priv->bits_per_pin;
 
 	val &= (pdata->mask << pin_shift);
 	fname = single_get_pin_function(dev, pin);
-	snprintf(buf, size, "%pa 0x%08x %s", &reg, val,
+	snprintf(buf, size, "%pa 0x%08x %s", &phys_reg, val,
 		 fname ? fname : "UNCLAIMED");
 	return 0;
 }
@@ -243,7 +247,7 @@ static int single_request(struct udevice *dev, int pin, int flags)
 	struct single_pdata *pdata = dev_get_plat(dev);
 	struct single_gpiofunc_range *frange = NULL;
 	struct list_head *pos, *tmp;
-	phys_addr_t reg;
+	void *reg;
 	int mux_bytes = 0;
 	u32 data;
 
@@ -321,7 +325,7 @@ static int single_configure_pins(struct udevice *dev,
 	int stride = pdata->args_count + 1;
 	int n, pin, count = size / sizeof(u32);
 	struct single_func *func;
-	phys_addr_t reg;
+	void *reg;
 	u32 offset, val, mux;
 
 	/* If function mask is null, needn't enable it. */
@@ -379,7 +383,7 @@ static int single_configure_bits(struct udevice *dev,
 	int n, pin, count = size / sizeof(struct single_fdt_bits_cfg);
 	int npins_in_reg, pin_num_from_lsb;
 	struct single_func *func;
-	phys_addr_t reg;
+	void *reg;
 	u32 offset, val, mask, bit_pos, val_pos, mask_pos, submask;
 
 	/* If function mask is null, needn't enable it. */
@@ -570,7 +574,7 @@ static int single_probe(struct udevice *dev)
 
 static int single_of_to_plat(struct udevice *dev)
 {
-	fdt_addr_t addr;
+	void *addr;
 	fdt_size_t size;
 	struct single_pdata *pdata = dev_get_plat(dev);
 	int ret;
@@ -591,8 +595,8 @@ static int single_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	addr = dev_read_addr_size_index(dev, 0, &size);
-	if (addr == FDT_ADDR_T_NONE) {
+	addr = dev_read_addr_size_index_ptr(dev, 0, &size);
+	if (!addr) {
 		dev_err(dev, "failed to get base register address\n");
 		return -EINVAL;
 	}

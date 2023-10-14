@@ -3,9 +3,6 @@
 /dts-v1/;
 
 / {
-	#address-cells = <1>;
-	#size-cells = <1>;
-
 	binman {
 		efi-capsule {
 			image-index = <0x1>;
