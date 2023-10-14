@@ -3,6 +3,7 @@
  * Copyright 2018-2021 NXP
  */
 
+#define LOG_CATEGORY LOGC_ARCH
 #include <common.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -85,13 +86,13 @@ static int read_auth_container(struct spl_image_info *spl_image,
 	}
 
 	if (container->tag != 0x87 && container->version != 0x0) {
-		printf("Wrong container header\n");
+		log_err("Wrong container header\n");
 		ret = -ENOENT;
 		goto end;
 	}
 
 	if (!container->num_images) {
-		printf("Wrong container, no image found\n");
+		log_err("Wrong container, no image found\n");
 		ret = -ENOENT;
 		goto end;
 	}
