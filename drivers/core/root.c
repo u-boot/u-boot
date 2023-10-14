@@ -426,7 +426,7 @@ void dm_get_mem(struct dm_stats *stats)
 		stats->tag_size;
 }
 
-#ifdef CONFIG_ACPIGEN
+#if CONFIG_IS_ENABLED(ACPIGEN)
 static int root_acpi_get_name(const struct udevice *dev, char *out_name)
 {
 	return acpi_copy_name(out_name, "\\_SB");
