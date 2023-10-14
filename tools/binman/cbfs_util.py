@@ -333,7 +333,8 @@ class CbfsFile(object):
         if self.ftype == TYPE_STAGE:
             pass
         elif self.ftype == TYPE_RAW:
-            hdr_len += ATTR_COMPRESSION_LEN
+            if self.compress:
+                hdr_len += ATTR_COMPRESSION_LEN
         elif self.ftype == TYPE_EMPTY:
             pass
         else:
@@ -369,9 +370,11 @@ class CbfsFile(object):
                 data = self.comp_bintool.compress(orig_data)
             self.memlen = len(orig_data)
             self.data_len = len(data)
-            attr = struct.pack(ATTR_COMPRESSION_FORMAT,
-                               FILE_ATTR_TAG_COMPRESSION, ATTR_COMPRESSION_LEN,
-                               self.compress, self.memlen)
+            if self.compress:
+                attr = struct.pack(ATTR_COMPRESSION_FORMAT,
+                                   FILE_ATTR_TAG_COMPRESSION,
+                                   ATTR_COMPRESSION_LEN, self.compress,
+                                   self.memlen)
         elif self.ftype == TYPE_EMPTY:
             data = tools.get_bytes(self.erase_byte, self.size)
         else:
@@ -405,7 +408,7 @@ class CbfsFile(object):
         if expected_len != actual_len:  # pragma: no cover
             # Test coverage of this is not available since this should never
             # happen. It probably indicates that get_header_len() is broken.
-            raise ValueError("Internal error: CBFS file '%s': Expected headers of %#x bytes, got %#d" %
+            raise ValueError("Internal error: CBFS file '%s': Expected headers of %#x bytes, got %#x" %
                              (self.name, expected_len, actual_len))
         return hdr + name + attr + pad + content + data, hdr_len
 

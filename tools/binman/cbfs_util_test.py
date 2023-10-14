@@ -96,7 +96,7 @@ class TestCbfs(unittest.TestCase):
         self.assertEqual(arch, cbfs.arch)
         return cbfs
 
-    def _check_uboot(self, cbfs, ftype=cbfs_util.TYPE_RAW, offset=0x38,
+    def _check_uboot(self, cbfs, ftype=cbfs_util.TYPE_RAW, offset=0x28,
                      data=U_BOOT_DATA, cbfs_offset=None):
         """Check that the U-Boot file is as expected
 
@@ -122,7 +122,7 @@ class TestCbfs(unittest.TestCase):
         self.assertEqual(len(data), cfile.memlen)
         return cfile
 
-    def _check_dtb(self, cbfs, offset=0x38, data=U_BOOT_DTB_DATA,
+    def _check_dtb(self, cbfs, offset=0x28, data=U_BOOT_DTB_DATA,
                    cbfs_offset=None):
         """Check that the U-Boot dtb file is as expected
 
@@ -598,8 +598,8 @@ class TestCbfs(unittest.TestCase):
         data = cbw.get_data()
 
         cbfs = cbfs_util.CbfsReader(data)
-        self.assertEqual(0x38, cbfs.files['u-boot'].cbfs_offset)
-        self.assertEqual(0x78, cbfs.files['u-boot-dtb'].cbfs_offset)
+        self.assertEqual(0x28, cbfs.files['u-boot'].cbfs_offset)
+        self.assertEqual(0x68, cbfs.files['u-boot-dtb'].cbfs_offset)
 
 
 if __name__ == '__main__':
