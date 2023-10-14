@@ -23,6 +23,15 @@ config SPL_UT_LOAD_FS
 	help
 	  Test filesystems and the various load methods which use them.
 
+config SPL_UT_LOAD_NET
+	bool "Test loading over TFTP"
+	depends on SANDBOX && SPL_OF_REAL
+	depends on SPL_ETH
+	depends on USE_BOOTFILE
+	default y
+	help
+	  Test loading images over TFTP using the NET image load method.
+
 config SPL_UT_LOAD_OS
 	bool "Test loading from the host OS"
 	depends on SANDBOX && SPL_LOAD_FIT
