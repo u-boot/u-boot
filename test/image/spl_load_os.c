@@ -8,10 +8,8 @@
 #include <image.h>
 #include <os.h>
 #include <spl.h>
+#include <test/spl.h>
 #include <test/ut.h>
-
-/* Declare a new SPL test */
-#define SPL_TEST(_name, _flags)		UNIT_TEST(_name, _flags, spl_test)
 
 /* Context used for this test */
 struct text_ctx {
