@@ -42,6 +42,7 @@
 };
 
 &gpio3 {
+	bootph-all;
 	bootph-pre-ram;
 };
 
