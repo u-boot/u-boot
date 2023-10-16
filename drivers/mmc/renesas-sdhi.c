@@ -20,6 +20,7 @@
 #include <linux/io.h>
 #include <linux/sizes.h>
 #include <power/regulator.h>
+#include <reset.h>
 #include <asm/unaligned.h>
 #include "tmio-common.h"
 
@@ -958,6 +959,74 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 		priv->needs_clkh_fallback = false;
 }
 
+static int rzg2l_sdhi_setup(struct udevice *dev)
+{
+	struct tmio_sd_priv *priv = dev_get_priv(dev);
+	struct clk imclk2, aclk;
+	struct reset_ctl rst;
+	int ret;
+
+	/*
+	 * On members of the RZ/G2L SoC family, we need to enable
+	 * additional chip detect and bus clocks, then release the SDHI
+	 * module from reset.
+	 */
+	ret = clk_get_by_name(dev, "cd", &imclk2);
+	if (ret < 0) {
+		dev_err(dev, "failed to get imclk2 (chip detect clk)\n");
+		goto err_get_imclk2;
+	}
+
+	ret = clk_get_by_name(dev, "aclk", &aclk);
+	if (ret < 0) {
+		dev_err(dev, "failed to get aclk\n");
+		goto err_get_aclk;
+	}
+
+	ret = clk_enable(&imclk2);
+	if (ret < 0) {
+		dev_err(dev, "failed to enable imclk2 (chip detect clk)\n");
+		goto err_imclk2;
+	}
+
+	ret = clk_enable(&aclk);
+	if (ret < 0) {
+		dev_err(dev, "failed to enable aclk\n");
+		goto err_aclk;
+	}
+
+	ret = reset_get_by_index(dev, 0, &rst);
+	if (ret < 0) {
+		dev_err(dev, "failed to get reset line\n");
+		goto err_reset;
+	}
+
+	ret = reset_deassert(&rst);
+	if (ret < 0) {
+		dev_err(dev, "failed to de-assert reset line\n");
+		goto err_reset;
+	}
+
+	ret = tmio_sd_probe(dev, priv->quirks);
+	if (ret)
+		goto err_tmio_probe;
+
+	return 0;
+
+err_tmio_probe:
+	reset_assert(&rst);
+err_reset:
+	clk_disable(&aclk);
+err_aclk:
+	clk_disable(&imclk2);
+err_imclk2:
+	clk_free(&aclk);
+err_get_aclk:
+	clk_free(&imclk2);
+err_get_imclk2:
+	return ret;
+}
+
 static int renesas_sdhi_probe(struct udevice *dev)
 {
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
@@ -1012,7 +1081,10 @@ static int renesas_sdhi_probe(struct udevice *dev)
 		goto err_clkh;
 	}
 
-	ret = tmio_sd_probe(dev, priv->quirks);
+	if (device_is_compatible(dev, "renesas,sdhi-r9a07g044"))
+		ret = rzg2l_sdhi_setup(dev);
+	else
+		ret = tmio_sd_probe(dev, priv->quirks);
 	if (ret)
 		goto err_tmio_probe;
 
