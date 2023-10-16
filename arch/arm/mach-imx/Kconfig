@@ -71,7 +71,7 @@ config CSF_SIZE
 config CMD_BMODE
 	bool "Support the 'bmode' command"
 	default y
-	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5
+	depends on ARCH_IMX8M || ARCH_MX7 || ARCH_MX6 || ARCH_MX5
 	help
 	  This enables the 'bmode' (bootmode) command for forcing
 	  a boot from specific media.

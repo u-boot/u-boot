@@ -727,6 +727,11 @@ int spl_mmc_emmc_boot_partition(struct mmc *mmc)
 
 	return part;
 }
+
+int boot_mode_getprisec(void)
+{
+	return !!imx8m_detect_secondary_image_boot();
+}
 #endif
 
 #if defined(CONFIG_IMX8MN) || defined(CONFIG_IMX8MP)
