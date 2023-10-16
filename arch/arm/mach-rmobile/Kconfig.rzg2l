@@ -3,6 +3,11 @@
 
 if RZG2L
 
+config R9A07G044L
+	bool "Renesas R9A07G044L SoC"
+	help
+	  Enable support for the Renesas R9A07G044L (RZ/G2L) SoC.
+
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
 	default 0x80000 if TARGET_RZG2L_SMARC_EVK
 
