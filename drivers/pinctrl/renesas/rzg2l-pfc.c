@@ -566,8 +566,10 @@ static int rzg2l_pfc_bind(struct udevice *parent)
 {
 	struct rzg2l_pfc_driver_data *driver_data;
 	struct rzg2l_pfc_data *data;
+	struct udevice *pinctrl_dev;
 	struct driver *drv;
 	unsigned int i;
+	int ret;
 
 	driver_data =
 		(struct rzg2l_pfc_driver_data *)dev_get_driver_data(parent);
@@ -594,9 +596,25 @@ static int rzg2l_pfc_bind(struct udevice *parent)
 	if (!drv)
 		return -ENOENT;
 
-	return device_bind_with_driver_data(parent, drv, parent->name,
-					    (ulong)data, dev_ofnode(parent),
-					    NULL);
+	ret = device_bind_with_driver_data(parent, drv, parent->name,
+					   (ulong)data, dev_ofnode(parent),
+					   &pinctrl_dev);
+
+	if (!ret && IS_ENABLED(CONFIG_RZG2L_GPIO)) {
+		drv = lists_driver_lookup_name("rzg2l-pfc-gpio");
+		if (!drv) {
+			device_unbind(pinctrl_dev);
+			return -ENOENT;
+		}
+
+		ret = device_bind_with_driver_data(parent, drv, parent->name,
+						   (ulong)data,
+						   dev_ofnode(parent), NULL);
+		if (ret)
+			device_unbind(pinctrl_dev);
+	}
+
+	return ret;
 }
 
 U_BOOT_DRIVER(rzg2l_pfc) = {
