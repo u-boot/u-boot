@@ -20,14 +20,7 @@
  */
 #include "mv-common.h"
 
-/* Include the common distro boot environment */
 #ifndef CONFIG_SPL_BUILD
-
-#define BOOT_TARGET_DEVICES(func) \
-	func(USB, usb, 0) \
-	func(SCSI, scsi, 0) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
 
 #define KERNEL_ADDR_R	__stringify(0x1000000)
 #define FDT_ADDR_R	__stringify(0x2000000)
@@ -42,14 +35,11 @@
 	"scriptaddr=" SCRIPT_ADDR_R "\0" \
 	"pxefile_addr_r=" PXEFILE_ADDR_R "\0"
 
-#include <config_distro_bootcmd.h>
-
 #define CFG_EXTRA_ENV_SETTINGS \
 	RELOCATION_LIMITS_ENV_SETTINGS \
 	LOAD_ADDRESS_ENV_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
-	"console=ttyS0,115200\0" \
-	BOOTENV
+	"console=ttyS0,115200\0"
 
 #endif /* CONFIG_SPL_BUILD */
 

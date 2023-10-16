@@ -183,7 +183,7 @@
 /* U55 */
 &cp0_spi1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&cp0_spi0_pins>;
+	pinctrl-0 = <&cp0_spi1_pins>;
 	reg = <0x700680 0x50>,		/* control */
 	      <0x2000000 0x1000000>,	/* CS0 */
 	      <0 0xffffffff>,		/* CS1 */

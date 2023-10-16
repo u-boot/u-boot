@@ -89,6 +89,7 @@ int board_early_init_f(void)
 	kw_gpio_set_blink(DNS325_GPIO_LED_POWER , 1);
 
 	kw_gpio_set_value(DNS325_GPIO_SATA0_EN , 1);
+	kw_gpio_set_value(DNS325_GPIO_SATA1_EN , 1);
 	return 0;
 }
 

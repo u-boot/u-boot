@@ -45,9 +45,14 @@ static void parse_tlv_vendor_ext(struct tlvinfo_tlv *tlv_entry,
 
 	if (val[4] != SR_TLV_CODE_RAM_SIZE)
 		return;
-	if (tlv_entry->length != 6)
+	if (tlv_entry->length < 6)
 		return;
 	td->ram_size = val[5];
+
+	/* extension with additional data field for number of ddr channels */
+	if (tlv_entry->length >= 7) {
+		td->ram_channels = val[6];
+	}
 }
 
 static void parse_tlv_data(u8 *eeprom, struct tlvinfo_header *hdr,

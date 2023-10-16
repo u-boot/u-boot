@@ -66,7 +66,7 @@
 		marvell,pins = < 56 57 58 59 60 61 >;
 		marvell,function = <14>;
 	};
-	cp0_spi0_pins: cp0-spi-pins-0 {
+	cp0_spi1_pins: cp0-spi-pins-1 {
 		marvell,pins = < 13 14 15 16 >;
 		marvell,function = <3>;
 	};

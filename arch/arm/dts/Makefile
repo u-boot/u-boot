@@ -66,6 +66,7 @@ dtb-$(CONFIG_ARCH_KIRKWOOD) += \
 	kirkwood-ns2max.dtb \
 	kirkwood-ns2mini.dtb \
 	kirkwood-nsa310s.dtb \
+	kirkwood-nsa325.dtb \
 	kirkwood-openrd-base.dtb \
 	kirkwood-openrd-client.dtb \
 	kirkwood-openrd-ultimate.dtb \

@@ -125,11 +125,6 @@
 		marvell,function = <0>;
 	};
 
-	cp0_spi1_pins_crb: cp0-spi-pins-crb {
-		marvell,pins = < 13 14 15 16 >;
-		marvell,function = <3>;
-	};
-
 	cp0_smi_pins_crb: cp0-smi-pins-crb {
 		marvell,pins = < 40 41 >;
 		marvell,function = <8>;
@@ -170,7 +165,7 @@
 
 &cp0_spi1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&cp0_spi1_pins_crb>;
+	pinctrl-0 = <&cp0_spi1_pins>;
 	reg = <0x700680 0x50>,		/* control */
 	      <0x2000000 0x1000000>,	/* CS0 */
 	      <0 0xffffffff>,		/* CS1 */

@@ -36,7 +36,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BOARD_GPP_POL_LOW	0x0
 #define BOARD_GPP_POL_MID	0x0
 
-static struct tlv_data cf_tlv_data;
+static struct tlv_data cf_tlv_data = { 0 };
 
 static void cf_read_tlv_data(void)
 {
@@ -159,12 +159,27 @@ struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
 	cf_read_tlv_data();
 
 	switch (cf_tlv_data.ram_size) {
+	case 2:
+		ifp->memory_size = MV_DDR_DIE_CAP_2GBIT;
+		break;
 	case 4:
 	default:
 		ifp->memory_size = MV_DDR_DIE_CAP_4GBIT;
 		break;
 	case 8:
 		ifp->memory_size = MV_DDR_DIE_CAP_8GBIT;
+		break;
+	}
+
+	switch (cf_tlv_data.ram_channels) {
+	default:
+	case 1:
+		for (uint8_t i = 0; i < 5; i++)
+			ifp->as_bus_params[i].cs_bitmask = 0x1;
+		break;
+	case 2:
+		for (uint8_t i = 0; i < 5; i++)
+			ifp->as_bus_params[i].cs_bitmask = 0x3;
 		break;
 	}
 
