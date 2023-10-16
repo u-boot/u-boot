@@ -17,6 +17,7 @@
 #endif
 #include <asm/gpio.h>
 #include <linux/err.h>
+#include <dm/device_compat.h>
 
 __weak int name_to_gpio(const char *name)
 {
@@ -69,7 +70,8 @@ static void gpio_get_description(struct udevice *dev, const char *bank_name,
 	printf("%s\n", buf);
 	return;
 err:
-	printf("Error %d\n", ret);
+	if (ret != -ENOENT)
+		printf("Error %d\n", ret);
 }
 
 static int do_gpio_status(bool all, const char *gpio_name)
