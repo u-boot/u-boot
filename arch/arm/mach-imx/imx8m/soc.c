@@ -648,19 +648,17 @@ struct rom_api *g_rom_api = (struct rom_api *)0x980;
 
 #if defined(CONFIG_IMX8M)
 #include <spl.h>
-int spl_mmc_emmc_boot_partition(struct mmc *mmc)
+int imx8m_detect_secondary_image_boot(void)
 {
 	u32 *rom_log_addr = (u32 *)0x9e0;
 	u32 *rom_log;
 	u8 event_id;
-	int i, part;
-
-	part = default_spl_mmc_emmc_boot_partition(mmc);
+	int i, boot_secondary = 0;
 
 	/* If the ROM event log pointer is not valid. */
 	if (*rom_log_addr < 0x900000 || *rom_log_addr >= 0xb00000 ||
 	    *rom_log_addr & 0x3)
-		return part;
+		return -EINVAL;
 
 	/* Parse the ROM event ID version 2 log */
 	rom_log = (u32 *)(uintptr_t)(*rom_log_addr);
@@ -668,7 +666,7 @@ int spl_mmc_emmc_boot_partition(struct mmc *mmc)
 		event_id = rom_log[i] >> 24;
 		switch (event_id) {
 		case 0x00: /* End of list */
-			return part;
+			return boot_secondary;
 		/* Log entries with 1 parameter, skip 1 */
 		case 0x80: /* Start to perform the device initialization */
 		case 0x81: /* The boot device initialization completes */
@@ -686,22 +684,43 @@ int spl_mmc_emmc_boot_partition(struct mmc *mmc)
 			continue;
 		/* Boot from the secondary boot image */
 		case 0x51:
-			/*
-			 * Swap the eMMC boot partitions in case there was a
-			 * fallback event (i.e. primary image was corrupted
-			 * and that corruption was recognized by the BootROM),
-			 * so the SPL loads the rest of the U-Boot from the
-			 * correct eMMC boot partition, since the BootROM
-			 * leaves the boot partition set to the corrupted one.
-			 */
-			if (part == 1)
-				part = 2;
-			else if (part == 2)
-				part = 1;
+			boot_secondary = 1;
 			continue;
 		default:
 			continue;
 		}
+	}
+
+	return boot_secondary;
+}
+
+int spl_mmc_emmc_boot_partition(struct mmc *mmc)
+{
+	int part, ret;
+
+	part = default_spl_mmc_emmc_boot_partition(mmc);
+	if (part == 0)
+		return part;
+
+	ret = imx8m_detect_secondary_image_boot();
+	if (ret < 0) {
+		printf("Could not get boot partition! Using %d\n", part);
+		return part;
+	}
+
+	if (ret == 1) {
+		/*
+		 * Swap the eMMC boot partitions in case there was a
+		 * fallback event (i.e. primary image was corrupted
+		 * and that corruption was recognized by the BootROM),
+		 * so the SPL loads the rest of the U-Boot from the
+		 * correct eMMC boot partition, since the BootROM
+		 * leaves the boot partition set to the corrupted one.
+		 */
+		if (part == 1)
+			part = 2;
+		else if (part == 2)
+			part = 1;
 	}
 
 	return part;
