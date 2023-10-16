@@ -173,10 +173,10 @@ static int do_mux_deselect(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static char mux_help_text[] =
+U_BOOT_LONGHELP(mux,
 	"list - List all Muxes and their states\n"
 	"select <chip> <id> <state> - Select the given mux state\n"
-	"deselect <chip> <id> - Deselect the given mux and reset it to its idle state";
+	"deselect <chip> <id> - Deselect the given mux and reset it to its idle state");
 
 U_BOOT_CMD_WITH_SUBCMDS(mux, "List, select, and deselect muxes", mux_help_text,
 			U_BOOT_SUBCMD_MKENT(list, 1, 1, do_mux_list),

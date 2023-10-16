@@ -56,11 +56,9 @@ static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return ret;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char rng_help_text[] =
+U_BOOT_LONGHELP(rng,
 	"[dev [n]]\n"
-	"  - print n random bytes(max 64) read from dev\n";
-#endif
+	"  - print n random bytes(max 64) read from dev\n");
 
 U_BOOT_CMD(
 	rng, 3, 0, do_rng,

@@ -293,12 +293,10 @@ static int do_max6957aax(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 1;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char max6957aax_help_text[] =
+U_BOOT_LONGHELP(max6957aax,
 	"max6957aax - write or read display register:\n"
 		"\tmax6957aax R|r reg - read display register;\n"
-		"\tmax6957aax reg val - write display register.";
-#endif
+		"\tmax6957aax reg val - write display register.");
 
 U_BOOT_CMD(
 	max6957aax, 6, 1, do_max6957aax,
@@ -337,13 +335,11 @@ static int do_hd44780(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char hd44780_help_text[] =
+U_BOOT_LONGHELP(hd44780,
 	"hd44780 - control LCD driver:\n"
 		"\thd44780 cmd <val> - send command <val> to driver;\n"
 		"\thd44780 data <val> - send data <val> to driver;\n"
-		"\thd44780 str \"<text>\" - send \"<text>\" to driver.";
-#endif
+		"\thd44780 str \"<text>\" - send \"<text>\" to driver.");
 
 U_BOOT_CMD(
 	hd44780, 6, 1, do_hd44780,

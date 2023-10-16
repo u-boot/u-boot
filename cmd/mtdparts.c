@@ -2079,8 +2079,7 @@ U_BOOT_CMD(
 	"    - change active partition (e.g. part-id = nand0,1) of a MTD device"
 );
 
-#ifdef CONFIG_SYS_LONGHELP
-static char mtdparts_help_text[] =
+U_BOOT_LONGHELP(mtdparts,
 	"\n"
 	"    - list partition table\n"
 	"mtdparts delall\n"
@@ -2122,8 +2121,7 @@ static char mtdparts_help_text[] =
 	"<size>     := standard linux memsize OR '-' to denote all remaining space\n"
 	"<offset>   := partition start offset within the device\n"
 	"<name>     := '(' NAME ')'\n"
-	"<ro-flag>  := when set to 'ro' makes partition read-only (not used, passed to kernel)";
-#endif
+	"<ro-flag>  := when set to 'ro' makes partition read-only (not used, passed to kernel)");
 
 U_BOOT_CMD(
 	mtdparts,	6,	0,	do_mtdparts,

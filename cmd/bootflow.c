@@ -541,8 +541,7 @@ static int do_bootflow_cmdline(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 #endif /* CONFIG_CMD_BOOTFLOW_FULL */
 
-#ifdef CONFIG_SYS_LONGHELP
-static char bootflow_help_text[] =
+U_BOOT_LONGHELP(bootflow,
 #ifdef CONFIG_CMD_BOOTFLOW_FULL
 	"scan [-abeGl] [bdev]  - scan for valid bootflows (-l list, -a all, -e errors, -b boot, -G no global)\n"
 	"bootflow list [-e]             - list scanned bootflows (-e errors)\n"
@@ -551,11 +550,11 @@ static char bootflow_help_text[] =
 	"bootflow read                  - read all current-bootflow files\n"
 	"bootflow boot                  - boot current bootflow\n"
 	"bootflow menu [-t]             - show a menu of available bootflows\n"
-	"bootflow cmdline [set|get|clear|delete|auto] <param> [<value>] - update cmdline";
+	"bootflow cmdline [set|get|clear|delete|auto] <param> [<value>] - update cmdline"
 #else
-	"scan - boot first available bootflow\n";
+	"scan - boot first available bootflow\n"
 #endif
-#endif /* CONFIG_SYS_LONGHELP */
+	);
 
 U_BOOT_CMD_WITH_SUBCMDS(bootflow, "Boot flows", bootflow_help_text,
 	U_BOOT_SUBCMD_MKENT(scan, 3, 1, do_bootflow_scan),

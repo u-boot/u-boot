@@ -614,8 +614,7 @@ static int do_spi_flash(struct cmd_tbl *cmdtp, int flag, int argc,
 	return ret;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static const char long_help[] =
+U_BOOT_LONGHELP(sf,
 	"probe [[bus:]cs] [hz] [mode]	- init flash device on given SPI bus\n"
 	"				  and chip select\n"
 	"sf read addr offset|partition len	- read `len' bytes starting at\n"
@@ -635,10 +634,9 @@ static const char long_help[] =
 #ifdef CONFIG_CMD_SF_TEST
 	"\nsf test offset len		- run a very basic destructive test"
 #endif
-#endif /* CONFIG_SYS_LONGHELP */
-	;
+	);
 
 U_BOOT_CMD(
 	sf,	5,	1,	do_spi_flash,
-	"SPI flash sub-system", long_help
+	"SPI flash sub-system", sf_help_text
 );

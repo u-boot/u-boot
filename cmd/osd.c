@@ -278,12 +278,12 @@ static int do_osd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_USAGE;
 }
 
-static char osd_help_text[] =
+U_BOOT_LONGHELP(osd,
 	"show  - show OSD info\n"
 	"osd dev [dev] - show or set current OSD\n"
 	"write [pos_x] [pos_y] [buffer] [count] - write 8-bit hex encoded buffer to osd memory at a given position\n"
 	"print [pos_x] [pos_y] [color] [text] - write ASCII buffer (given by text data and driver-specific color information) to osd memory\n"
-	"size [size_x] [size_y] - set OSD XY size in characters\n";
+	"size [size_x] [size_y] - set OSD XY size in characters\n");
 
 U_BOOT_CMD(
 	osd, 6, 1, do_osd,

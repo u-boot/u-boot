@@ -119,11 +119,8 @@ static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char sbi_help_text[] =
-	"- display SBI spec version, implementation, and available extensions";
-
-#endif
+U_BOOT_LONGHELP(sbi,
+	"- display SBI spec version, implementation, and available extensions");
 
 U_BOOT_CMD_COMPLETE(
 	sbi, 1, 0, do_sbi,

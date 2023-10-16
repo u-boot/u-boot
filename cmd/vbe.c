@@ -104,13 +104,11 @@ static int do_vbe_state(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char vbe_help_text[] =
+U_BOOT_LONGHELP(vbe,
 	"list   - list VBE bootmeths\n"
 	"vbe select - select a VBE bootmeth by sequence or name\n"
 	"vbe info   - show information about a VBE bootmeth\n"
-	"vbe state  - show VBE state";
-#endif
+	"vbe state  - show VBE state");
 
 U_BOOT_CMD_WITH_SUBCMDS(vbe, "Verified Boot for Embedded", vbe_help_text,
 	U_BOOT_SUBCMD_MKENT(list, 1, 1, do_vbe_list),

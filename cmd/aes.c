@@ -88,8 +88,7 @@ static int do_aes(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 }
 
 /***************************************************/
-#ifdef CONFIG_SYS_LONGHELP
-static char aes_help_text[] =
+U_BOOT_LONGHELP(aes,
 	"[.128,.192,.256] enc key iv src dst len - Encrypt block of data $len bytes long\n"
 	"                             at address $src using a key at address\n"
 	"                             $key with initialization vector at address\n"
@@ -101,8 +100,7 @@ static char aes_help_text[] =
 	"                             $key with initialization vector at address\n"
 	"                             $iv. Store the result at address $dst.\n"
 	"                             The $len size must be multiple of 16 bytes.\n"
-	"                             The $key and $iv must be 16 bytes long.";
-#endif
+	"                             The $key and $iv must be 16 bytes long.");
 
 U_BOOT_CMD(
 	aes, 7, 1, do_aes,

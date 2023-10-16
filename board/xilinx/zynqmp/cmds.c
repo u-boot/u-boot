@@ -381,8 +381,7 @@ static int do_zynqmp(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 /***************************************************/
-#ifdef CONFIG_SYS_LONGHELP
-static char zynqmp_help_text[] =
+U_BOOT_LONGHELP(zynqmp,
 	"secure src len [key_addr] - verifies secure images of $len bytes\n"
 	"                            long at address $src. Optional key_addr\n"
 	"                            can be specified if user key needs to\n"
@@ -422,8 +421,7 @@ static char zynqmp_help_text[] =
 	"	48 bytes hash value into srcaddr\n"
 	"	Optional key_addr can be specified for saving sha3 hash value\n"
 	"	Note: srcaddr/srclen should not be 0\n"
-	;
-#endif
+	);
 
 U_BOOT_CMD(
 	zynqmp, 9, 1, do_zynqmp,

@@ -112,17 +112,14 @@ static int do_dm_dump_uclass(struct cmd_tbl *cmdtp, int flag, int argc,
 #define DM_MEM
 #endif
 
-#if IS_ENABLED(CONFIG_SYS_LONGHELP)
-static char dm_help_text[] =
+U_BOOT_LONGHELP(dm,
 	"compat        Dump list of drivers with compatibility strings\n"
 	"dm devres        Dump list of device resources for each device\n"
 	"dm drivers       Dump list of drivers with uclass and instances\n"
 	DM_MEM_HELP
 	"dm static        Dump list of drivers with static platform data\n"
 	"dm tree [-s][-e][name]   Dump tree of driver model devices (-s=sort)\n"
-	"dm uclass [-e][name]     Dump list of instances for each uclass"
-	;
-#endif
+	"dm uclass [-e][name]     Dump list of instances for each uclass");
 
 U_BOOT_CMD_WITH_SUBCMDS(dm, "Driver model low level access", dm_help_text,
 	U_BOOT_SUBCMD_MKENT(compat, 1, 1, do_dm_dump_driver_compat),

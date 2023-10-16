@@ -1238,8 +1238,7 @@ static int do_env(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return CMD_RET_USAGE;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char env_help_text[] =
+U_BOOT_LONGHELP(env,
 #if defined(CONFIG_CMD_ASKENV)
 	"ask name [message] [size] - ask for environment variable\nenv "
 #endif
@@ -1304,8 +1303,7 @@ static char env_help_text[] =
 	"env set -e [-nv][-bs][-rt][-at][-a][-i addr:size][-v] name [arg ...]\n"
 	"    - set UEFI variable; unset if '-i' or 'arg' not specified\n"
 #endif
-	"env set [-f] name [arg ...]\n";
-#endif
+	"env set [-f] name [arg ...]\n");
 
 U_BOOT_CMD(
 	env, CONFIG_SYS_MAXARGS, 1, do_env,

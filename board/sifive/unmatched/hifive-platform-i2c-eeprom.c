@@ -426,7 +426,7 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	if (argc > 3)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	cmd = argv[1];
 
@@ -443,7 +443,7 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	if (argc != 3)
-		return cmd_usage(cmdtp);
+		return CMD_RET_USAGE;
 
 	if (!is_match_magic()) {
 		printf("Please read the EEPROM ('read_eeprom') and/or initialize the EEPROM ('initialize') first.\n");
@@ -470,7 +470,7 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 0;
 	}
 
-	return cmd_usage(cmdtp);
+	return CMD_RET_USAGE;
 }
 
 /**
@@ -551,3 +551,19 @@ u8 get_pcb_revision_from_eeprom(void)
 
 	return be.pcb_revision;
 }
+
+U_BOOT_LONGHELP(mac,
+	"- displays memory copy of EEPROM\n"
+	"mac read_eeprom - reads EEPROM into memory\n"
+	"mac initialize - initializes memory copy with magic number\n"
+	"mac write_eeprom -  writes the EEPROM from memory\n"
+	"mac manuf_test_status [unknown|pass|fail] - sets test status in memory\n"
+	"mac_address <addr> - sets MAC address in memory\n"
+	"mac pcb_revision <rev> - sets PCB revision in memory\n"
+	"mac bom_variant <var> - sets BOM variant in memory\n"
+	"mac bom_revision <rev> - sets BOM revision in memory\n");
+
+U_BOOT_CMD(
+	mac, 3, 1,  do_mac,
+	"display and program the board revision and MAC address in EEPROM",
+	mac_help_text);

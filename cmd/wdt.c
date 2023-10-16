@@ -157,13 +157,13 @@ static int do_wdt_expire(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static char wdt_help_text[] =
+U_BOOT_LONGHELP(wdt,
 	"list - list watchdog devices\n"
 	"wdt dev [<name>] - get/set current watchdog device\n"
 	"wdt start <timeout ms> [flags] - start watchdog timer\n"
 	"wdt stop - stop watchdog timer\n"
 	"wdt reset - reset watchdog timer\n"
-	"wdt expire [flags] - expire watchdog timer immediately\n";
+	"wdt expire [flags] - expire watchdog timer immediately\n");
 
 U_BOOT_CMD_WITH_SUBCMDS(wdt, "Watchdog sub-system", wdt_help_text,
 	U_BOOT_SUBCMD_MKENT(list, 1, 1, do_wdt_list),

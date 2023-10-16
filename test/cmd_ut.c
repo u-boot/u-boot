@@ -166,8 +166,7 @@ static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return CMD_RET_USAGE;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char ut_help_text[] =
+U_BOOT_LONGHELP(ut,
 	"[-r] [-f] [<suite>] - run unit tests\n"
 	"   -r<runs>   Number of times to run each test\n"
 	"   -f         Force 'manual' tests to run as well\n"
@@ -237,8 +236,7 @@ static char ut_help_text[] =
 	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
 	"\nunicode - Unicode functions"
 #endif
-	;
-#endif /* CONFIG_SYS_LONGHELP */
+	);
 
 U_BOOT_CMD(
 	ut, CONFIG_SYS_MAXARGS, 1, do_ut,

@@ -152,13 +152,11 @@ usage:
 
 /***************************************************/
 
-#ifdef CONFIG_SYS_LONGHELP
-static char pci_mps_help_text[] =
+U_BOOT_LONGHELP(pci_mps,
 	"safe\n"
 	"    - Set PCI Express MPS of all devices to safe values\n"
 	"pci_mps peer2peer\n"
-	"    - Set PCI Express MPS of all devices to support hotplug and peer-to-peer DMA\n";
-#endif
+	"    - Set PCI Express MPS of all devices to support hotplug and peer-to-peer DMA\n");
 
 U_BOOT_CMD(pci_mps, 2, 0, do_pci_mps,
 	   "configure PCI Express MPS", pci_mps_help_text);

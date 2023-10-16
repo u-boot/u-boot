@@ -620,8 +620,7 @@ static int do_pci(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 /***************************************************/
 
-#ifdef CONFIG_SYS_LONGHELP
-static char pci_help_text[] =
+U_BOOT_LONGHELP(pci,
 	"[bus|*] [long]\n"
 	"    - short or long list of PCI devices on bus 'bus'\n"
 	"pci enum\n"
@@ -639,8 +638,7 @@ static char pci_help_text[] =
 	"pci modify[.b, .w, .l] b.d.f address\n"
 	"    -  modify, auto increment CFG address\n"
 	"pci write[.b, .w, .l] b.d.f address value\n"
-	"    - write to CFG address";
-#endif
+	"    - write to CFG address");
 
 U_BOOT_CMD(
 	pci,	5,	1,	do_pci,

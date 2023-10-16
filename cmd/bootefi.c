@@ -698,8 +698,7 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 	return ret;
 }
 
-#ifdef CONFIG_SYS_LONGHELP
-static char bootefi_help_text[] =
+U_BOOT_LONGHELP(bootefi,
 	"<image address>[:<image size>] [<fdt address>]\n"
 	"  - boot EFI payload\n"
 #ifdef CONFIG_CMD_BOOTEFI_HELLO
@@ -719,8 +718,7 @@ static char bootefi_help_text[] =
 	"    If specified, the device tree located at <fdt address> gets\n"
 	"    exposed as EFI configuration table.\n"
 #endif
-	;
-#endif
+	);
 
 U_BOOT_CMD(
 	bootefi, 4, 0, do_bootefi,
