@@ -361,10 +361,22 @@ int __weak spl_mmc_boot_partition(const u32 boot_device)
 }
 #endif
 
+unsigned long __weak arch_spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+						       unsigned long raw_sect)
+{
+	return raw_sect;
+}
+
+unsigned long __weak board_spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+						  unsigned long raw_sect)
+{
+	return arch_spl_mmc_get_uboot_raw_sector(mmc, raw_sect);
+}
+
 unsigned long __weak spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
 						  unsigned long raw_sect)
 {
-	return raw_sect;
+	return board_spl_mmc_get_uboot_raw_sector(mmc, raw_sect);
 }
 
 int default_spl_mmc_emmc_boot_partition(struct mmc *mmc)

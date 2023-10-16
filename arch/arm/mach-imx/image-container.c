@@ -276,8 +276,8 @@ unsigned long spl_spi_get_uboot_offs(struct spi_flash *flash)
 #endif
 
 #ifdef CONFIG_SPL_MMC
-unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
-					   unsigned long raw_sect)
+unsigned long arch_spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+						unsigned long raw_sect)
 {
 	int end;
 
