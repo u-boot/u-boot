@@ -43,6 +43,8 @@
 #define SANDBOX_SCMI_AGENT_NAME "OSPM"
 #define SANDBOX_SCMI_PLATFORM_NAME "platform"
 
+#define SANDBOX_SCMI_PWD_PROTOCOL_VERSION SCMI_PWD_PROTOCOL_VERSION
+
 /**
  * struct sandbox_channel - Description of sandbox transport
  * @channel_id:		Channel identifier
@@ -64,12 +66,19 @@ struct scmi_channel {
 };
 
 static u8 protocols[] = {
+	SCMI_PROTOCOL_ID_POWER_DOMAIN,
 	SCMI_PROTOCOL_ID_CLOCK,
 	SCMI_PROTOCOL_ID_RESET_DOMAIN,
 	SCMI_PROTOCOL_ID_VOLTAGE_DOMAIN,
 };
 
 #define NUM_PROTOCOLS ARRAY_SIZE(protocols)
+
+static struct sandbox_scmi_pwd scmi_pwdom[] = {
+	{ .id = 0 },
+	{ .id = 1 },
+	{ .id = 2 },
+};
 
 static struct sandbox_scmi_clk scmi_clk[] = {
 	{ .rate = 333 },
@@ -454,6 +463,238 @@ static int sandbox_scmi_base_reset_agent_configuration(struct udevice *dev,
 		*status = SCMI_INVALID_PARAMETERS;
 	else
 		*status = SCMI_DENIED;
+
+	return 0;
+}
+
+/* Power Domain Management Protocol */
+
+/**
+ * sandbox_scmi_pwd_protocol_version - implement SCMI_PROTOCOL_VERSION
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_PROTOCOL_VERSION command.
+ *
+ * Return:	0 on success, error code on failure
+ */
+static int sandbox_scmi_pwd_protocol_version(struct udevice *dev,
+					     struct scmi_msg *msg)
+{
+	struct scmi_protocol_version_out *out = NULL;
+
+	if (!msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	out = (struct scmi_protocol_version_out *)msg->out_msg;
+	out->version = SANDBOX_SCMI_PWD_PROTOCOL_VERSION;
+	out->status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_pwd_protocol_attribs - implement SCMI_PWD_PROTOCOL_ATTRS
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_PWD_PROTOCOL_ATTRS command.
+ *
+ * Return:	0 on success, error code on failure
+ */
+static int sandbox_scmi_pwd_protocol_attribs(struct udevice *dev,
+					     struct scmi_msg *msg)
+{
+	struct scmi_pwd_protocol_attrs_out *out;
+
+	if (!msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	out = (struct scmi_pwd_protocol_attrs_out *)msg->out_msg;
+
+	out->attributes = ARRAY_SIZE(scmi_pwdom);
+	out->stats_addr_low = 0;
+	out->stats_addr_high = 0;
+	out->stats_len = 0;
+	out->status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_pwd_protocol_msg_attribs - implement
+					SCMI_PWD_PROTOCOL_MESSAGE_ATTRS
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_PWD_PROTOCOL_MESSAGE_ATTRS command.
+ *
+ * Return:	0 on success, error code on failure
+ */
+static int sandbox_scmi_pwd_protocol_msg_attribs(struct udevice *dev,
+						 struct scmi_msg *msg)
+{
+	u32 message_id;
+	struct scmi_pwd_protocol_msg_attrs_out *out;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(message_id) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	message_id = *(u32 *)msg->in_msg;
+
+	out = (struct scmi_pwd_protocol_msg_attrs_out *)msg->out_msg;
+	if (message_id <= SCMI_PWD_STATE_GET ||
+	    message_id == SCMI_PWD_NAME_GET) {
+		out->attributes = 0;
+		out->status = SCMI_SUCCESS;
+	} else {
+		out->status = SCMI_NOT_FOUND;
+	}
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_pwd_attribs - implement SCMI_PWD_ATTRS
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_PWD_ATTRS command.
+ *
+ * Return:	0 on success, error code on failure
+ */
+static int sandbox_scmi_pwd_attribs(struct udevice *dev, struct scmi_msg *msg)
+{
+	u32 domain_id;
+	struct scmi_pwd_attrs_out *out;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(domain_id) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	domain_id = *(u32 *)msg->in_msg;
+	out = (struct scmi_pwd_attrs_out *)msg->out_msg;
+
+	if (domain_id > ARRAY_SIZE(scmi_pwdom)) {
+		out->status = SCMI_NOT_FOUND;
+
+		return 0;
+	}
+
+	out->attributes =
+		SCMI_PWD_ATTR_PSTATE_SYNC | SCMI_PWD_ATTR_EXTENDED_NAME;
+	/* just 15-char + NULL */
+	snprintf(out->name, SCMI_PWD_NAME_LENGTH_MAX, "power-domain--%d",
+		 domain_id);
+	out->status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_pwd_state_set - implement SCMI_PWD_STATE_SET
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_PWD_STATE_SET command.
+ *
+ * Return:	0 on success, error code on failure
+ */
+static int sandbox_scmi_pwd_state_set(struct udevice *dev, struct scmi_msg *msg)
+{
+	struct scmi_pwd_state_set_in *in;
+	s32 *status;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(in) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*status))
+		return -EINVAL;
+
+	in = (struct scmi_pwd_state_set_in *)msg->in_msg;
+	status = (s32 *)msg->out_msg;
+
+	if (in->domain_id > ARRAY_SIZE(scmi_pwdom)) {
+		*status = SCMI_NOT_FOUND;
+
+		return 0;
+	}
+
+	if ((in->flags & SCMI_PWD_SET_FLAGS_ASYNC) ||
+	    (in->pstate != SCMI_PWD_PSTATE_TYPE_LOST && in->pstate)) {
+		*status = SCMI_INVALID_PARAMETERS;
+
+		return 0;
+	}
+
+	scmi_pwdom[in->domain_id].pstate = in->pstate;
+	*status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_pwd_state_get - implement SCMI_PWD_STATE_GET
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_PWD_STATE_GET command.
+ *
+ * Return:	0 on success, error code on failure
+ */
+static int sandbox_scmi_pwd_state_get(struct udevice *dev, struct scmi_msg *msg)
+{
+	u32 domain_id;
+	struct scmi_pwd_state_get_out *out;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(domain_id) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	domain_id = *(u32 *)msg->in_msg;
+	out = (struct scmi_pwd_state_get_out *)msg->out_msg;
+
+	if (domain_id > ARRAY_SIZE(scmi_pwdom)) {
+		out->status = SCMI_NOT_FOUND;
+
+		return 0;
+	}
+
+	out->pstate = scmi_pwdom[domain_id].pstate;
+	out->status = SCMI_SUCCESS;
+
+	return 0;
+}
+
+/**
+ * sandbox_scmi_pwd_name_get - implement SCMI_PWD_NAME_GET
+ * @dev:	SCMI device
+ * @msg:	SCMI message
+ *
+ * Implement SCMI_PWD_NAME_GET command.
+ *
+ * Return:	0 on success, error code on failure
+ */
+static int sandbox_scmi_pwd_name_get(struct udevice *dev, struct scmi_msg *msg)
+{
+	u32 domain_id;
+	struct scmi_pwd_name_get_out *out;
+
+	if (!msg->in_msg || msg->in_msg_sz < sizeof(domain_id) ||
+	    !msg->out_msg || msg->out_msg_sz < sizeof(*out))
+		return -EINVAL;
+
+	domain_id = *(u32 *)msg->in_msg;
+	out = (struct scmi_pwd_name_get_out *)msg->out_msg;
+
+	if (domain_id > ARRAY_SIZE(scmi_pwdom)) {
+		out->status = SCMI_NOT_FOUND;
+
+		return 0;
+	}
+
+	snprintf(out->extended_name, SCMI_PWD_EXTENDED_NAME_MAX,
+		 "power-domain--%d-extended", domain_id);
+	out->status = SCMI_SUCCESS;
 
 	return 0;
 }
@@ -918,6 +1159,26 @@ static int sandbox_scmi_test_process_msg(struct udevice *dev,
 			break;
 		}
 		break;
+	case SCMI_PROTOCOL_ID_POWER_DOMAIN:
+		switch (msg->message_id) {
+		case SCMI_PROTOCOL_VERSION:
+			return sandbox_scmi_pwd_protocol_version(dev, msg);
+		case SCMI_PROTOCOL_ATTRIBUTES:
+			return sandbox_scmi_pwd_protocol_attribs(dev, msg);
+		case SCMI_PROTOCOL_MESSAGE_ATTRIBUTES:
+			return sandbox_scmi_pwd_protocol_msg_attribs(dev, msg);
+		case SCMI_PWD_ATTRIBUTES:
+			return sandbox_scmi_pwd_attribs(dev, msg);
+		case SCMI_PWD_STATE_SET:
+			return sandbox_scmi_pwd_state_set(dev, msg);
+		case SCMI_PWD_STATE_GET:
+			return sandbox_scmi_pwd_state_get(dev, msg);
+		case SCMI_PWD_NAME_GET:
+			return sandbox_scmi_pwd_name_get(dev, msg);
+		default:
+			break;
+		}
+		break;
 	case SCMI_PROTOCOL_ID_CLOCK:
 		switch (msg->message_id) {
 		case SCMI_PROTOCOL_ATTRIBUTES:
@@ -960,7 +1221,6 @@ static int sandbox_scmi_test_process_msg(struct udevice *dev,
 			break;
 		}
 		break;
-	case SCMI_PROTOCOL_ID_POWER_DOMAIN:
 	case SCMI_PROTOCOL_ID_SYSTEM:
 	case SCMI_PROTOCOL_ID_PERF:
 	case SCMI_PROTOCOL_ID_SENSOR:
@@ -993,6 +1253,9 @@ static int sandbox_scmi_test_probe(struct udevice *dev)
 	struct sandbox_scmi_agent *agent = dev_get_priv(dev);
 
 	*agent = (struct sandbox_scmi_agent){
+		.pwdom_version = SANDBOX_SCMI_PWD_PROTOCOL_VERSION,
+		.pwdom = scmi_pwdom,
+		.pwdom_count = ARRAY_SIZE(scmi_pwdom),
 		.clk = scmi_clk,
 		.clk_count = ARRAY_SIZE(scmi_clk),
 		.reset = scmi_reset,
