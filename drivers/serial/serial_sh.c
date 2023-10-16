@@ -7,16 +7,16 @@
  */
 
 #include <common.h>
-#include <errno.h>
-#include <clk.h>
-#include <dm.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/processor.h>
-#include <serial.h>
-#include <linux/compiler.h>
+#include <clk.h>
+#include <dm.h>
 #include <dm/platform_data/serial_sh.h>
+#include <errno.h>
+#include <linux/compiler.h>
 #include <linux/delay.h>
+#include <serial.h>
 #include "serial_sh.h"
 
 DECLARE_GLOBAL_DATA_PTR;
