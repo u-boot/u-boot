@@ -45,6 +45,8 @@
 #define RMOBILE_CPU_TYPE_R8A779G0	0x5C
 
 #ifndef __ASSEMBLY__
+#include <asm/types.h>
+
 const u8 *rzg_get_cpu_name(void);
 u32 rmobile_get_cpu_type(void);
 u32 rmobile_get_cpu_rev_integer(void);
