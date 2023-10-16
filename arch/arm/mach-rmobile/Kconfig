@@ -70,6 +70,7 @@ config RZG2L
 	prompt "Renesas RZ/G2L Family ARM SoCs"
 	select GICV3
 	select RCAR_64
+	imply CLK_RZG2L
 	imply MULTI_DTB_FIT
 	imply MULTI_DTB_FIT_USER_DEFINED_AREA
 	imply RENESAS_SDHI
