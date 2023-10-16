@@ -53,12 +53,21 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define USB_CDET_GPIO	IMX_GPIO_NR(7, 14)
 
+#define FLASH_DETECTION_CTRL (PAD_CTL_HYS | PAD_CTL_PUE)
+#define FLASH_DET_GPIO IMX_GPIO_NR(6, 11)
+
+static bool is_emmc;
+
 int dram_init(void)
 {
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, imx_ddr_size());
 
 	return 0;
 }
+
+static iomux_v3_cfg_t const flash_detection_pads[] = {
+	MX7D_PAD_SD3_RESET_B__GPIO6_IO11 | MUX_PAD_CTRL(FLASH_DETECTION_CTRL),
+};
 
 static iomux_v3_cfg_t const uart1_pads[] = {
 	MX7D_PAD_UART1_RX_DATA__UART1_DTE_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
@@ -182,6 +191,16 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+
+	/*
+	 * Enable GPIO on NAND_WE_B/eMMC_RST with 100k pull-down. eMMC_RST
+	 * is pulled high with 4.7k for eMMC devices. This allows to reliably
+	 * detect eMMC/NAND flash
+	 */
+	imx_iomux_v3_setup_multiple_pads(flash_detection_pads, ARRAY_SIZE(flash_detection_pads));
+	gpio_request(FLASH_DET_GPIO, "flash-detection-gpio");
+	is_emmc = gpio_get_value(FLASH_DET_GPIO);
+	gpio_free(FLASH_DET_GPIO);
 
 #ifdef CONFIG_FEC_MXC
 	setup_fec();
@@ -348,6 +367,11 @@ int board_late_init(void)
 		env_set("bootcmd", "sdp 0");
 	}
 #endif
+	if (is_emmc)
+		env_set("variant", "-emmc");
+	else
+		env_set("variant", "");
+
 	return 0;
 }
 #endif /* CONFIG_BOARD_LATE_INIT */

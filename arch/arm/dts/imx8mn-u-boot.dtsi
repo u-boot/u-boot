@@ -8,12 +8,14 @@
 		multiple-images;
 	};
 
+#ifdef CONFIG_OPTEE
 	firmware {
 		optee {
 			compatible = "linaro,optee-tz";
 			method = "smc";
 		};
 	};
+#endif
 
 	wdt-reboot {
 		compatible = "wdt-reboot";
@@ -52,6 +54,12 @@
 	/delete-property/ assigned-clock-rates;
 };
 
+#ifdef CONFIG_FSL_CAAM
+&crypto {
+	bootph-pre-ram;
+};
+#endif
+
 &iomuxc {
 	bootph-pre-ram;
 };
@@ -60,6 +68,20 @@
 	bootph-pre-ram;
 	bootph-all;
 };
+
+#ifdef CONFIG_FSL_CAAM
+&sec_jr0 {
+	bootph-pre-ram;
+};
+
+&sec_jr1 {
+	bootph-pre-ram;
+};
+
+&sec_jr2 {
+	bootph-pre-ram;
+};
+#endif
 
 &spba1 {
 	bootph-pre-ram;

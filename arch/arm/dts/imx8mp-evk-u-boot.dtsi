@@ -11,12 +11,6 @@
 		wdt = <&wdog1>;
 		bootph-pre-ram;
 	};
-	firmware {
-		optee {
-			compatible = "linaro,optee-tz";
-			method = "smc";
-		};
-	};
 };
 
 &reg_usdhc2_vmmc {
@@ -71,22 +65,6 @@
 	bootph-pre-ram;
 };
 
-&crypto {
-	bootph-pre-ram;
-};
-
-&sec_jr0 {
-	bootph-pre-ram;
-};
-
-&sec_jr1 {
-	bootph-pre-ram;
-};
-
-&sec_jr2 {
-	bootph-pre-ram;
-};
-
 &i2c1 {
 	bootph-pre-ram;
 };
@@ -109,6 +87,19 @@
 
 &i2c6 {
 	bootph-pre-ram;
+};
+
+&usb_dwc3_0 {
+	dr_mode = "peripheral";
+	status = "okay";
+};
+
+&usb3_0 {
+	status = "okay";
+};
+
+&usb3_phy0 {
+	status = "okay";
 };
 
 &usdhc1 {

@@ -36,20 +36,13 @@
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 
-#if defined(CONFIG_TDX_EASY_INSTALLER)
-#  define BOOT_SCRIPT	"boot-tezi.scr"
-#else
-#  define BOOT_SCRIPT	"boot.scr"
-#endif
-
 /* Initial environment variables */
 #define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
-	"bootcmd_mfg=fastboot 0\0" \
 	"boot_file=Image\0" \
-	"boot_scripts=" BOOT_SCRIPT "\0" \
-	"boot_script_dhcp=" BOOT_SCRIPT "\0" \
+	"boot_scripts=boot.scr\0" \
+	"boot_script_dhcp=boot.scr\0" \
 	"console=ttymxc2\0" \
 	"fdt_board=dev\0" \
 	"initrd_addr=0x43800000\0" \

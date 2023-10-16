@@ -59,7 +59,7 @@ static inline unsigned long long us_to_tick(unsigned long long usec)
 	return usec;
 }
 
-#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
+#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT) || IS_ENABLED(CONFIG_SPL_BUILD)
 int timer_init(void)
 {
 	struct sctr_regs *sctr = (struct sctr_regs *)SCTR_BASE_ADDR;

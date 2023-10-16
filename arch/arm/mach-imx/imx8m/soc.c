@@ -1246,6 +1246,82 @@ static int fixup_thermal_trips(void *blob, const char *name)
 	return 0;
 }
 
+#define OPTEE_SHM_SIZE 0x00400000
+static int ft_add_optee_node(void *fdt, struct bd_info *bd)
+{
+	struct fdt_memory carveout;
+	const char *path, *subpath;
+	phys_addr_t optee_start;
+	size_t optee_size;
+	int offs;
+	int ret;
+
+	/*
+	 * No TEE space allocated indicating no TEE running, so no
+	 * need to add optee node in dts
+	 */
+	if (!rom_pointer[1])
+		return 0;
+
+	optee_start = (phys_addr_t)rom_pointer[0];
+	optee_size = rom_pointer[1] - OPTEE_SHM_SIZE;
+
+	offs = fdt_increase_size(fdt, 512);
+	if (offs) {
+		printf("No Space for dtb\n");
+		return 1;
+	}
+
+	path = "/firmware";
+	offs = fdt_path_offset(fdt, path);
+	if (offs < 0) {
+		path = "/";
+		offs = fdt_path_offset(fdt, path);
+
+		if (offs < 0) {
+			printf("Could not find root node.\n");
+			return offs;
+		}
+
+		subpath = "firmware";
+		offs = fdt_add_subnode(fdt, offs, subpath);
+		if (offs < 0) {
+			printf("Could not create %s node.\n", subpath);
+			return offs;
+		}
+	}
+
+	subpath = "optee";
+	offs = fdt_add_subnode(fdt, offs, subpath);
+	if (offs < 0) {
+		printf("Could not create %s node.\n", subpath);
+		return offs;
+	}
+
+	fdt_setprop_string(fdt, offs, "compatible", "linaro,optee-tz");
+	fdt_setprop_string(fdt, offs, "method", "smc");
+
+	carveout.start = optee_start,
+	carveout.end = optee_start + optee_size - 1,
+	ret = fdtdec_add_reserved_memory(fdt, "optee_core", &carveout, NULL, 0,
+					 NULL, FDTDEC_RESERVED_MEMORY_NO_MAP);
+	if (ret < 0) {
+		printf("Could not create optee_core node.\n");
+		return ret;
+	}
+
+	carveout.start = optee_start + optee_size;
+	carveout.end = optee_start + optee_size + OPTEE_SHM_SIZE - 1;
+	ret = fdtdec_add_reserved_memory(fdt, "optee_shm", &carveout, NULL, 0,
+					 NULL, FDTDEC_RESERVED_MEMORY_NO_MAP);
+	if (ret < 0) {
+		printf("Could not create optee_shm node.\n");
+		return ret;
+	}
+
+	return 0;
+}
+
 int ft_system_setup(void *blob, struct bd_info *bd)
 {
 #ifdef CONFIG_IMX8MQ
@@ -1395,7 +1471,7 @@ usb_modify_speed:
 	    fixup_thermal_trips(blob, "soc-thermal"))
 		printf("Failed to update soc-thermal trip(s)");
 
-	return 0;
+	return ft_add_optee_node(blob, bd);
 }
 #endif
 

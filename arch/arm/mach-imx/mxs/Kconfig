@@ -18,9 +18,6 @@ config TARGET_MX23EVK
 	select PL01X_SERIAL
 	select BOARD_EARLY_INIT_F
 
-config TARGET_XFI3
-	bool "Support xfi3"
-
 endchoice
 
 config SYS_SOC

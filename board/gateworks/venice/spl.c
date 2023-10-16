@@ -159,9 +159,9 @@ static int power_init_board(void)
 	}
 
 	else if (!strncmp(model, "GW74", 4)) {
-		ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &bus);
+		ret = uclass_get_device_by_seq(UCLASS_I2C, 2, &bus);
 		if (ret) {
-			printf("PMIC    : failed I2C1 probe: %d\n", ret);
+			printf("PMIC    : failed I2C3 probe: %d\n", ret);
 			return ret;
 		}
 		ret = dm_i2c_probe(bus, 0x25, 0, &dev);

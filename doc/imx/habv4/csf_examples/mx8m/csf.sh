@@ -75,5 +75,18 @@ dd if=ivt.bin of=flash.bin bs=1 seek=${ivt_block_offset} conv=notrunc
 
 # Generate CSF blob
 cst -i csf_fit.tmp -o csf_fit.bin
+
+# When loading flash.bin via USB, we must ensure that the file being
+# served is as large as the target expects (see
+# board_spl_fit_size_align()), otherwise the target will hang in
+# rom_api_download_image() waiting for the remaining bytes.
+#
+# Note that in order for dd to actually extend the file, one must not
+# pass conv=notrunc here. With a non-zero seek= argument, dd is
+# documented to preserve the contents of the file seeked past; in
+# particular, dd does not open the file with O_TRUNC.
+CSF_SIZE=$(sed -n "/CONFIG_CSF_SIZE=/ s@.*=@@p" .config)
+dd if=/dev/null of=csf_fit.bin bs=1 seek=$((CSF_SIZE - 0x20)) count=0
+
 # Patch CSF blob into flash.bin
 dd if=csf_fit.bin of=flash.bin bs=1 seek=${csf_block_offset} conv=notrunc

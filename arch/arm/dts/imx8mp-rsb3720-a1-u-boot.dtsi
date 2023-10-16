@@ -12,13 +12,6 @@
 		wdt = <&wdog1>;
 		bootph-pre-ram;
 	};
-
-	firmware {
-		optee {
-			compatible = "linaro,optee-tz";
-			method = "smc";
-		};
-	};
 };
 
 &iomuxc {

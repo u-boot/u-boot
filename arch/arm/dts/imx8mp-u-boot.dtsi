@@ -8,7 +8,22 @@
 	binman: binman {
 		multiple-images;
 	};
+
+#ifdef CONFIG_OPTEE
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+#endif
 };
+
+#ifdef CONFIG_FSL_CAAM
+&crypto {
+	bootph-pre-ram;
+};
+#endif
 
 &soc {
 	bootph-all;
@@ -52,6 +67,20 @@
 &iomuxc {
 	bootph-pre-ram;
 };
+
+#ifdef CONFIG_FSL_CAAM
+&sec_jr0 {
+	bootph-pre-ram;
+};
+
+&sec_jr1 {
+	bootph-pre-ram;
+};
+
+&sec_jr2 {
+	bootph-pre-ram;
+};
+#endif
 
 &binman {
 	 u-boot-spl-ddr {
@@ -171,14 +200,16 @@
 		filename = "flash.bin";
 		pad-byte = <0x00>;
 
-		spl: blob-ext@1 {
+		spl {
 			filename = "spl.bin";
 			offset = <0x0>;
+			type = "blob-ext";
 		};
 
-		uboot: blob-ext@2 {
+		binman_uboot: uboot {
 			filename = "u-boot.itb";
 			offset = <0x58000>;
+			type = "blob-ext";
 		};
 	};
 };
