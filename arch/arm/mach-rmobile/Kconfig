@@ -9,7 +9,6 @@ config RCAR_64
 	select PHY
 	select PINCONF
 	select PINCTRL
-	select PINCTRL_PFC
 	select POSITION_INDEPENDENT
 	imply CMD_FS_UUID
 	imply CMD_GPT
@@ -29,6 +28,7 @@ config RCAR_GEN3
 	bool "Renesas ARM SoCs R-Car Gen3 (64bit)"
 	select RCAR_64
 	select SUPPORT_SPL
+	select PINCTRL_PFC
 	imply SPL
 	imply SPL_BOARD_INIT
 	imply SPL_GZIP
@@ -43,6 +43,7 @@ config RCAR_GEN3
 config RCAR_GEN4
 	bool "Renesas ARM SoCs R-Car Gen4 (64bit)"
 	select RCAR_64
+	select PINCTRL_PFC
 
 config RZA1
 	prompt "Renesas ARM SoCs RZ/A1 (32bit)"
