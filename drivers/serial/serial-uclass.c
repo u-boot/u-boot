@@ -182,6 +182,18 @@ int serial_initialize(void)
 	return serial_init();
 }
 
+#ifdef CONFIG_CONSOLE_FLUSH_SUPPORT
+static void _serial_flush(struct udevice *dev)
+{
+	struct dm_serial_ops *ops = serial_get_ops(dev);
+
+	if (!ops->pending)
+		return;
+	while (ops->pending(dev, false) > 0)
+		;
+}
+#endif
+
 static void _serial_putc(struct udevice *dev, char ch)
 {
 	struct dm_serial_ops *ops = serial_get_ops(dev);
@@ -234,18 +246,6 @@ static void _serial_puts(struct udevice *dev, const char *str)
 		str += len + !!*newline;
 	} while (*str);
 }
-
-#ifdef CONFIG_CONSOLE_FLUSH_SUPPORT
-static void _serial_flush(struct udevice *dev)
-{
-	struct dm_serial_ops *ops = serial_get_ops(dev);
-
-	if (!ops->pending)
-		return;
-	while (ops->pending(dev, false) > 0)
-		;
-}
-#endif
 
 static int __serial_getc(struct udevice *dev)
 {
