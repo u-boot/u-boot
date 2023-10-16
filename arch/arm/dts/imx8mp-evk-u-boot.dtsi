@@ -89,6 +89,19 @@
 	bootph-pre-ram;
 };
 
+&usb_dwc3_0 {
+	dr_mode = "peripheral";
+	status = "okay";
+};
+
+&usb3_0 {
+	status = "okay";
+};
+
+&usb3_phy0 {
+	status = "okay";
+};
+
 &usdhc1 {
 	bootph-pre-ram;
 };
