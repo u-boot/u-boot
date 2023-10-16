@@ -28,8 +28,10 @@
 #include <errno.h>
 #include <fdt_support.h>
 #include <fsl_wdog.h>
+#include <fuse.h>
 #include <imx_sip.h>
 #include <linux/bitops.h>
+#include <linux/bitfield.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -724,6 +726,43 @@ int spl_mmc_emmc_boot_partition(struct mmc *mmc)
 	}
 
 	return part;
+}
+#endif
+
+#if defined(CONFIG_IMX8MN) || defined(CONFIG_IMX8MP)
+#define IMG_CNTN_SET1_OFFSET	GENMASK(22, 19)
+unsigned long arch_spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+						unsigned long raw_sect)
+{
+	u32 val, offset;
+
+	if (fuse_read(2, 1, &val)) {
+		debug("Error reading fuse!\n");
+		return raw_sect;
+	}
+
+	val = FIELD_GET(IMG_CNTN_SET1_OFFSET, val);
+	if (val > 10) {
+		debug("Secondary image boot disabled!\n");
+		return raw_sect;
+	}
+
+	if (val == 0)
+		offset = SZ_4M;
+	else if (val == 1)
+		offset = SZ_2M;
+	else if (val == 2)
+		offset = SZ_1M;
+	else	/* flash.bin offset = 1 MiB * 2^n */
+		offset = SZ_1M << val;
+
+	offset /= 512;
+	offset -= CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET;
+
+	if (imx8m_detect_secondary_image_boot())
+		raw_sect += offset;
+
+	return raw_sect;
 }
 #endif
 
