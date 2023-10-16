@@ -11,6 +11,7 @@ config MESON64_COMMON
 	select PWRSEQ
 	select MMC_PWRSEQ
 	select BOARD_LATE_INIT
+	select MESON_SM
 	imply CMD_DM
 
 config MESON_GX

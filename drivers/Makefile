@@ -35,6 +35,7 @@ obj-$(CONFIG_$(SPL_TPL_)VIRTIO) += virtio/
 obj-$(CONFIG_$(SPL_)DM_MAILBOX) += mailbox/
 obj-$(CONFIG_$(SPL_)REMOTEPROC) += remoteproc/
 obj-$(CONFIG_$(SPL_)SYSINFO) += sysinfo/
+obj-$(CONFIG_$(SPL_TPL_)SM) += sm/
 obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm/
 obj-$(CONFIG_$(SPL_)NVME) += nvme/
 obj-$(CONFIG_XEN) += xen/

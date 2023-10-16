@@ -161,6 +161,7 @@ F:	drivers/net/phy/meson-gxl.c
 F:	drivers/adc/meson-saradc.c
 F:	drivers/phy/meson*
 F:	drivers/mmc/meson_gx_mmc.c
+F:	drivers/sm/meson-sm.c
 F:	drivers/spi/meson_spifc.c
 F:	drivers/pinctrl/meson/
 F:	drivers/power/domain/meson-gx-pwrc-vpu.c

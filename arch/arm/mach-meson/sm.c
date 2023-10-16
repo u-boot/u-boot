@@ -6,7 +6,11 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <log.h>
+#include <regmap.h>
+#include <sm.h>
+#include <syscon.h>
 #include <asm/arch/sm.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -14,74 +18,63 @@
 #include <linux/bitops.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
-#include <dm.h>
 #include <linux/bitfield.h>
-#include <regmap.h>
-#include <syscon.h>
+#include <meson/sm.h>
 
-#define FN_GET_SHARE_MEM_INPUT_BASE	0x82000020
-#define FN_GET_SHARE_MEM_OUTPUT_BASE	0x82000021
-#define FN_EFUSE_READ			0x82000030
-#define FN_EFUSE_WRITE			0x82000031
-#define FN_CHIP_ID			0x82000044
-#define FN_PWRDM_SET			0x82000093
-
-static void *shmem_input;
-static void *shmem_output;
-
-static void meson_init_shmem(void)
+static inline struct udevice *meson_get_sm_device(void)
 {
-	struct pt_regs regs;
+	struct udevice *dev;
+	int err;
 
-	if (shmem_input && shmem_output)
-		return;
+	err = uclass_first_device_err(UCLASS_SM, &dev);
+	if (err) {
+		pr_err("Mesom SM device not found\n");
+		return ERR_PTR(err);
+	}
 
-	regs.regs[0] = FN_GET_SHARE_MEM_INPUT_BASE;
-	smc_call(&regs);
-	shmem_input = (void *)regs.regs[0];
-
-	regs.regs[0] = FN_GET_SHARE_MEM_OUTPUT_BASE;
-	smc_call(&regs);
-	shmem_output = (void *)regs.regs[0];
-
-	debug("Secure Monitor shmem: 0x%p 0x%p\n", shmem_input, shmem_output);
+	return dev;
 }
 
 ssize_t meson_sm_read_efuse(uintptr_t offset, void *buffer, size_t size)
 {
-	struct pt_regs regs;
+	struct udevice *dev;
+	struct pt_regs regs = { 0 };
+	int err;
 
-	meson_init_shmem();
+	dev = meson_get_sm_device();
+	if (IS_ERR(dev))
+		return PTR_ERR(dev);
 
-	regs.regs[0] = FN_EFUSE_READ;
 	regs.regs[1] = offset;
 	regs.regs[2] = size;
 
-	smc_call(&regs);
+	err = sm_call_read(dev, buffer, size,
+			   MESON_SMC_CMD_EFUSE_READ, &regs);
+	if (err < 0)
+		pr_err("Failed to read efuse memory (%d)\n", err);
 
-	if (regs.regs[0] == 0)
-		return -1;
-
-	memcpy(buffer, shmem_output, min(size, regs.regs[0]));
-
-	return regs.regs[0];
+	return err;
 }
 
 ssize_t meson_sm_write_efuse(uintptr_t offset, void *buffer, size_t size)
 {
-	struct pt_regs regs;
+	struct udevice *dev;
+	struct pt_regs regs = { 0 };
+	int err;
 
-	meson_init_shmem();
+	dev = meson_get_sm_device();
+	if (IS_ERR(dev))
+		return PTR_ERR(dev);
 
-        memcpy(shmem_input, buffer, size);
-
-	regs.regs[0] = FN_EFUSE_WRITE;
 	regs.regs[1] = offset;
 	regs.regs[2] = size;
 
-	smc_call(&regs);
+	err = sm_call_write(dev, buffer, size,
+			    MESON_SMC_CMD_EFUSE_WRITE, &regs);
+	if (err < 0)
+		pr_err("Failed to write efuse memory (%d)\n", err);
 
-	return regs.regs[0];
+	return err;
 }
 
 #define SM_CHIP_ID_LENGTH	119
@@ -90,18 +83,21 @@ ssize_t meson_sm_write_efuse(uintptr_t offset, void *buffer, size_t size)
 
 int meson_sm_get_serial(void *buffer, size_t size)
 {
-	struct pt_regs regs;
+	struct udevice *dev;
+	struct pt_regs regs = { 0 };
+	u8 id_buffer[SM_CHIP_ID_LENGTH];
+	int err;
 
-	meson_init_shmem();
+	dev = meson_get_sm_device();
+	if (IS_ERR(dev))
+		return PTR_ERR(dev);
 
-	regs.regs[0] = FN_CHIP_ID;
-	regs.regs[1] = 0;
-	regs.regs[2] = 0;
+	err = sm_call_read(dev, id_buffer, SM_CHIP_ID_LENGTH,
+			   MESON_SMC_CMD_CHIP_ID_GET, &regs);
+	if (err < 0)
+		pr_err("Failed to read serial number (%d)\n", err);
 
-	smc_call(&regs);
-
-	memcpy(buffer, shmem_output + SM_CHIP_ID_OFFSET,
-	       min_t(size_t, size, SM_CHIP_ID_SIZE));
+	memcpy(buffer, id_buffer + SM_CHIP_ID_OFFSET, size);
 
 	return 0;
 }
@@ -141,13 +137,21 @@ int meson_sm_get_reboot_reason(void)
 
 int meson_sm_pwrdm_set(size_t index, int cmd)
 {
-	struct pt_regs regs;
+	struct udevice *dev;
+	struct pt_regs regs = { 0 };
+	int err;
 
-	regs.regs[0] = FN_PWRDM_SET;
+	dev = meson_get_sm_device();
+	if (IS_ERR(dev))
+		return PTR_ERR(dev);
+
 	regs.regs[1] = index;
 	regs.regs[2] = cmd;
 
-	smc_call(&regs);
+	err = sm_call(dev, MESON_SMC_CMD_PWRDM_SET, NULL, &regs);
+	if (err)
+		pr_err("Failed to %s power domain ind=%zu (%d)\n", cmd == PWRDM_ON ?
+				"enable" : "disable", index, err);
 
-	return regs.regs[0];
+	return err;
 }
