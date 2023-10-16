@@ -224,6 +224,16 @@ config CONSOLE_FLUSH_SUPPORT
 	help
 	  This enables compilation of flush() function for console flush support.
 
+config CONSOLE_FLUSH_ON_NEWLINE
+	bool "Flush console buffer on every newline character"
+	depends on DM_SERIAL
+	help
+	  This makes the serial core code flush the console device
+	  whenever a newline (\n) character has been emitted. This can
+	  be especially useful when "printf debugging", as otherwise
+	  lots of output could still be in the UART's FIFO by the time
+	  one hits the code which causes the CPU to hang or reset.
+
 config CONSOLE_MUX
 	bool "Enable console multiplexing"
 	default y if VIDEO || LCD
