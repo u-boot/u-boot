@@ -19,6 +19,8 @@
 #elif defined(CONFIG_RCAR_GEN4)
 #include <asm/arch/rcar-gen4-base.h>
 #elif defined(CONFIG_R7S72100)
+#elif defined(CONFIG_RZG2L)
+#include <asm/arch/rzg2l.h>
 #else
 #error "SOC Name not defined"
 #endif

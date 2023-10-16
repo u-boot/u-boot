@@ -66,6 +66,20 @@ config RZN1
 	select SYSRESET_SYSCON
 	imply CMD_DM
 
+config RZG2L
+	prompt "Renesas RZ/G2L Family ARM SoCs"
+	select GICV3
+	select RCAR_64
+	imply MULTI_DTB_FIT
+	imply MULTI_DTB_FIT_USER_DEFINED_AREA
+	imply RENESAS_SDHI
+	imply SYS_MALLOC_F
+	help
+	  Enable support for the Renesas RZ/G2L family of SoCs. Currently
+	  support is only included for the RZ/G2L itself (based on the R9A07G044
+	  SoC). Support for additional SoCs in this family (RZ/G2LC, RZ/G2UL,
+	  RZ/V2L & RZ/Five) is not yet available.
+
 endchoice
 
 config SYS_SOC
@@ -75,5 +89,6 @@ source "arch/arm/mach-rmobile/Kconfig.32"
 source "arch/arm/mach-rmobile/Kconfig.64"
 source "arch/arm/mach-rmobile/Kconfig.rza1"
 source "arch/arm/mach-rmobile/Kconfig.rzn1"
+source "arch/arm/mach-rmobile/Kconfig.rzg2l"
 
 endif
