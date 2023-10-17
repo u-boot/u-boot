@@ -256,7 +256,7 @@ config TARGET_PICO_IMX8MQ
 	select IMX8M_LPDDR4
 
 config TARGET_IMX8MN_VAR_SOM
-	bool "imx8mn_var_som"
+	bool "Variscite imx8mn_var_som"
 	select BINMAN
 	select IMX8MN
 	select SUPPORT_SPL
