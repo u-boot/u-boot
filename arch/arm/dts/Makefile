@@ -1130,6 +1130,9 @@ dtb-$(CONFIG_RCAR_GEN4) += \
 	r8a779f0-spider-u-boot.dtb \
 	r8a779g0-white-hawk-u-boot.dtb
 
+dtb-$(CONFIG_TARGET_RZG2L) += \
+	r9a07g044l2-smarc.dts
+
 ifdef CONFIG_RCAR_64
 DTC_FLAGS += -R 4 -p 0x1000
 endif

@@ -138,6 +138,15 @@ config PINCTRL_RZA1
 	help
 	  Support pin multiplexing control on Renesas RZ/A1 R7S72100 SoCs.
 
+config PINCTRL_RZG2L
+	bool "Renesas RZ/G2L family pin control driver"
+	depends on PINCTRL
+	depends on PINCTRL_GENERIC
+	depends on PINCONF
+	help
+	  Support the pinctrl functionality of the pin function controller (PFC)
+	  on the Renesas RZ/G2L SoC family.
+
 endif
 
 config PINCTRL_RZN1

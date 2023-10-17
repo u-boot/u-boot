@@ -10,8 +10,11 @@ obj-$(CONFIG_DISPLAY_BOARDINFO) += board.o
 obj-$(CONFIG_TMU_TIMER) += ../../sh/lib/time.o
 obj-$(CONFIG_R8A7740) += lowlevel_init.o cpu_info-r8a7740.o pfc-r8a7740.o
 obj-$(CONFIG_RCAR_GEN2) += lowlevel_init_ca15.o cpu_info-rcar.o
-obj-$(CONFIG_RCAR_64) += lowlevel_init_gen3.o cpu_info-rcar.o memmap-gen3.o
+obj-$(CONFIG_RCAR_64) += lowlevel_init_gen3.o
+obj-$(CONFIG_RCAR_GEN3) += cpu_info-rcar.o memmap-gen3.o
+obj-$(CONFIG_RCAR_GEN4) += cpu_info-rcar.o memmap-gen3.o
 obj-$(CONFIG_RZ_G2) += cpu_info-rzg.o
+obj-$(CONFIG_RZG2L) += cpu_info-rzg2l.o memmap-rzg2l.o
 
 ifneq ($(CONFIG_R8A779A0),)
 obj-$(CONFIG_ARMV8_PSCI) += psci-r8a779a0.o

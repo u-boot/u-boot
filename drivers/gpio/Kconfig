@@ -659,4 +659,11 @@ config ADP5585_GPIO
 	help
 	  Support ADP5585 GPIO expander.
 
+config RZG2L_GPIO
+	bool "Renesas RZ/G2L family GPIO driver"
+	depends on DM_GPIO && PINCTRL_RZG2L
+	help
+	  Support the gpio functionality of the pin function controller (PFC)
+	  on the Renesas RZ/G2L SoC family.
+
 endif

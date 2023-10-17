@@ -7,16 +7,16 @@
  */
 
 #include <common.h>
-#include <errno.h>
-#include <clk.h>
-#include <dm.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/processor.h>
-#include <serial.h>
-#include <linux/compiler.h>
+#include <clk.h>
+#include <dm.h>
 #include <dm/platform_data/serial_sh.h>
+#include <errno.h>
+#include <linux/compiler.h>
 #include <linux/delay.h>
+#include <serial.h>
 #include "serial_sh.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -58,8 +58,10 @@ static void sh_serial_init_generic(struct uart_port *port)
 	sci_out(port, SCSPTR, 0x0003);
 #endif
 
+#if IS_ENABLED(CONFIG_RCAR_GEN2) || IS_ENABLED(CONFIG_RCAR_GEN3) || IS_ENABLED(CONFIG_RCAR_GEN4)
 	if (port->type == PORT_HSCIF)
 		sci_out(port, HSSRR, HSSRR_SRE | HSSRR_SRCYC8);
+#endif
 }
 
 static void
