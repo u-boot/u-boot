@@ -735,15 +735,10 @@ static ulong zynqmp_clk_set_rate(struct clk *clk, ulong rate)
 	}
 }
 
-int soc_clk_dump(void)
+#if IS_ENABLED(CONFIG_CMD_CLK)
+static void zynqmp_clk_dump(struct udevice *dev)
 {
-	struct udevice *dev;
 	int i, ret;
-
-	ret = uclass_get_device_by_driver(UCLASS_CLK,
-		DM_DRIVER_GET(zynqmp_clk), &dev);
-	if (ret)
-		return ret;
 
 	printf("clk\t\tfrequency\n");
 	for (i = 0; i < clk_max; i++) {
@@ -754,8 +749,11 @@ int soc_clk_dump(void)
 
 			clk.id = i;
 			ret = clk_request(dev, &clk);
-			if (ret < 0)
-				return ret;
+			if (ret < 0) {
+				printf("%s clk_request() failed: %d\n",
+				       __func__, ret);
+				break;
+			}
 
 			rate = clk_get_rate(&clk);
 
@@ -769,9 +767,8 @@ int soc_clk_dump(void)
 				printf("%10s%20lu\n", name, rate);
 		}
 	}
-
-	return 0;
 }
+#endif
 
 static int zynqmp_get_freq_by_name(char *name, struct udevice *dev, ulong *freq)
 {
@@ -871,6 +868,9 @@ static struct clk_ops zynqmp_clk_ops = {
 	.set_rate = zynqmp_clk_set_rate,
 	.get_rate = zynqmp_clk_get_rate,
 	.enable = zynqmp_clk_enable,
+#if IS_ENABLED(CONFIG_CMD_CLK)
+	.dump = zynqmp_clk_dump,
+#endif
 };
 
 static const struct udevice_id zynqmp_clk_ids[] = {
