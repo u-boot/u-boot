@@ -21,41 +21,58 @@
 		status = "okay";
 	};
 
-	usbdrd3_0: usbdrd3_0 {
-		compatible = "rockchip,rk3588-dwc3", "rockchip,rk3399-dwc3";
+	usb_host0_xhci: usb@fc000000 {
+		compatible = "rockchip,rk3588-dwc3", "rockchip,rk3568-dwc3", "snps,dwc3";
+		reg = <0x0 0xfc000000 0x0 0x400000>;
+		interrupts = <GIC_SPI 220 IRQ_TYPE_LEVEL_HIGH 0>;
 		clocks = <&cru REF_CLK_USB3OTG0>, <&cru SUSPEND_CLK_USB3OTG0>,
 			 <&cru ACLK_USB3OTG0>;
-		clock-names = "ref", "suspend", "bus";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
+		clock-names = "ref_clk", "suspend_clk", "bus_clk";
+		dr_mode = "otg";
+		phys = <&u2phy0_otg>, <&usbdp_phy0_u3>;
+		phy-names = "usb2-phy", "usb3-phy";
+		phy_type = "utmi_wide";
+		power-domains = <&power RK3588_PD_USB>;
+		resets = <&cru SRST_A_USB3OTG0>;
+		snps,dis_enblslpm_quirk;
+		snps,dis-u1-entry-quirk;
+		snps,dis-u2-entry-quirk;
+		snps,dis-u2-freeclk-exists-quirk;
+		snps,dis-del-phy-power-chg-quirk;
+		snps,dis-tx-ipgap-linecheck-quirk;
 		status = "disabled";
+	};
 
-		usbdrd_dwc3_0: usb@fc000000 {
-			compatible = "snps,dwc3";
-			reg = <0x0 0xfc000000 0x0 0x400000>;
-			interrupts = <GIC_SPI 220 IRQ_TYPE_LEVEL_HIGH 0>;
-			power-domains = <&power RK3588_PD_USB>;
-			resets = <&cru SRST_A_USB3OTG0>;
-			reset-names = "usb3-otg";
-			dr_mode = "otg";
-			phys = <&u2phy0_otg>, <&usbdp_phy0_u3>;
-			phy-names = "usb2-phy", "usb3-phy";
-			phy_type = "utmi_wide";
-			snps,dis_enblslpm_quirk;
-			snps,dis-u1-entry-quirk;
-			snps,dis-u2-entry-quirk;
-			snps,dis-u2-freeclk-exists-quirk;
-			snps,dis-del-phy-power-chg-quirk;
-			snps,dis-tx-ipgap-linecheck-quirk;
-			quirk-skip-phy-init;
-		};
+	usb_host2_xhci: usb@fcd00000 {
+		compatible = "rockchip,rk3588-dwc3", "rockchip,rk3568-dwc3", "snps,dwc3";
+		reg = <0x0 0xfcd00000 0x0 0x400000>;
+		interrupts = <GIC_SPI 222 IRQ_TYPE_LEVEL_HIGH 0>;
+		clocks = <&cru REF_CLK_USB3OTG2>, <&cru SUSPEND_CLK_USB3OTG2>,
+			 <&cru ACLK_USB3OTG2>, <&cru CLK_UTMI_OTG2>,
+			 <&cru CLK_PIPEPHY2_PIPE_U3_G>;
+		clock-names = "ref_clk", "suspend_clk", "bus_clk", "utmi", "pipe";
+		dr_mode = "host";
+		phys = <&combphy2_psu PHY_TYPE_USB3>;
+		phy-names = "usb3-phy";
+		phy_type = "utmi_wide";
+		resets = <&cru SRST_A_USB3OTG2>;
+		snps,dis_enblslpm_quirk;
+		snps,dis-u2-freeclk-exists-quirk;
+		snps,dis-del-phy-power-chg-quirk;
+		snps,dis-tx-ipgap-linecheck-quirk;
+		snps,dis_rxdet_inp3_quirk;
+		status = "disabled";
 	};
 
 	pmu1_grf: syscon@fd58a000 {
 		bootph-all;
 		compatible = "rockchip,rk3588-pmu1-grf", "syscon";
 		reg = <0x0 0xfd58a000 0x0 0x2000>;
+	};
+
+	usbdpphy0_grf: syscon@fd5c8000 {
+		compatible = "rockchip,rk3588-usbdpphy-grf", "syscon";
+		reg = <0x0 0xfd5c8000 0x0 0x4000>;
 	};
 
 	usb2phy0_grf: syscon@fd5d0000 {
@@ -75,7 +92,6 @@
 			clock-names = "phyclk";
 			clock-output-names = "usb480m_phy0";
 			#clock-cells = <0>;
-			rockchip,usbctrl-grf = <&usb_grf>;
 			status = "disabled";
 
 			u2phy0_otg: otg-port {
