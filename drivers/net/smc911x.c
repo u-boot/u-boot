@@ -403,7 +403,7 @@ static int smc911x_send(struct udevice *dev, void *packet, int length)
 
 	ret = smc911x_send_common(priv, packet, length);
 
-	return ret ? 0 : -ETIMEDOUT;
+	return ret ? -ETIMEDOUT : 0;
 }
 
 static int smc911x_recv(struct udevice *dev, int flags, uchar **packetp)
