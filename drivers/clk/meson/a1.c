@@ -601,14 +601,6 @@ static int meson_clk_set_parent(struct clk *clk, struct clk *parent_clk)
 	return meson_mux_set_parent_by_id(clk, parent_clk->id);
 }
 
-static struct clk_ops meson_clk_ops = {
-	.disable	= meson_clk_disable,
-	.enable		= meson_clk_enable,
-	.get_rate	= meson_clk_get_rate,
-	.set_rate	= meson_clk_set_rate,
-	.set_parent	= meson_clk_set_parent,
-};
-
 static int meson_clk_probe(struct udevice *dev)
 {
 	struct meson_clk *priv = dev_get_priv(dev);
@@ -636,15 +628,6 @@ static const struct udevice_id meson_clk_ids[] = {
 		.data = (ulong)&meson_a1_pll_info,
 	},
 	{ }
-};
-
-U_BOOT_DRIVER(meson_clk) = {
-	.name		= "meson-clk-a1",
-	.id		= UCLASS_CLK,
-	.of_match	= meson_clk_ids,
-	.priv_auto	= sizeof(struct meson_clk),
-	.ops		= &meson_clk_ops,
-	.probe		= meson_clk_probe,
 };
 
 static const char *meson_clk_get_name(struct clk *clk, int id)
@@ -727,3 +710,20 @@ int soc_clk_dump(void)
 
 	return 0;
 }
+
+static struct clk_ops meson_clk_ops = {
+	.disable	= meson_clk_disable,
+	.enable		= meson_clk_enable,
+	.get_rate	= meson_clk_get_rate,
+	.set_rate	= meson_clk_set_rate,
+	.set_parent	= meson_clk_set_parent,
+};
+
+U_BOOT_DRIVER(meson_clk) = {
+	.name		= "meson-clk-a1",
+	.id		= UCLASS_CLK,
+	.of_match	= meson_clk_ids,
+	.priv_auto	= sizeof(struct meson_clk),
+	.ops		= &meson_clk_ops,
+	.probe		= meson_clk_probe,
+};
