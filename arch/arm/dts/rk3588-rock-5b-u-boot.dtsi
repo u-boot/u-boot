@@ -4,9 +4,6 @@
  */
 
 #include "rk3588-u-boot.dtsi"
-#include <dt-bindings/pinctrl/rockchip.h>
-#include <dt-bindings/input/input.h>
-#include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/usb/pd.h>
 
 / {
@@ -21,19 +18,6 @@
 		regulator-boot-on;
 		regulator-min-microvolt = <12000000>;
 		regulator-max-microvolt = <12000000>;
-	};
-
-	vcc3v3_pcie30: vcc3v3-pcie30-regulator {
-		compatible = "regulator-fixed";
-		regulator-name = "vcc3v3_pcie30";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		enable-active-high;
-		gpios = <&gpio1 RK_PA4 GPIO_ACTIVE_HIGH>;
-		startup-delay-us = <5000>;
-		vin-supply = <&vcc5v0_sys>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&pcie3_vcc3v3_en>;
 	};
 
 	vcc5v0_usbdcin: vcc5v0-usbdcin {
@@ -69,53 +53,11 @@
 	};
 };
 
-&combphy0_ps {
-	status = "okay";
-};
-
 &fspim2_pins {
 	bootph-all;
 };
 
-&pcie2x1l2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pcie2x1l2_pins &pcie_reset_h>;
-	reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_HIGH>;
-	status = "okay";
-};
-
-&pcie30phy {
-	status = "okay";
-};
-
-&pcie3x4 {
-	reset-gpios = <&gpio4 RK_PB6 GPIO_ACTIVE_HIGH>;
-	vpcie3v3-supply = <&vcc3v3_pcie30>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pcie3_rst>;
-	status = "okay";
-};
-
 &pinctrl {
-	pcie {
-		pcie_reset_h: pcie-reset-h {
-			rockchip,pins = <3 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
-		};
-
-		pcie2x1l2_pins: pcie2x1l2-pins {
-			rockchip,pins = <3 RK_PC7 4 &pcfg_pull_none>,
-					<3 RK_PD0 4 &pcfg_pull_none>;
-		};
-
-		pcie3_rst: pcie3-rst {
-			rockchip,pins = <4 RK_PB6 RK_FUNC_GPIO &pcfg_pull_none>;
-		};
-
-		pcie3_vcc3v3_en: pcie3-vcc3v3-en {
-			rockchip,pins = <1 RK_PA4 RK_FUNC_GPIO &pcfg_pull_none>;
-		};
-	};
-
 	usb-typec {
 		usbc0_int: usbc0-int {
 			rockchip,pins = <3 RK_PB4 RK_FUNC_GPIO &pcfg_pull_up>;
@@ -138,8 +80,6 @@
 	u-boot,spl-sfc-no-dma;
 	pinctrl-names = "default";
 	pinctrl-0 = <&fspim2_pins>;
-	#address-cells = <1>;
-	#size-cells = <0>;
 	status = "okay";
 
 	flash@0 {
