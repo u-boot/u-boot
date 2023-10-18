@@ -92,7 +92,7 @@ static struct misc_ops vexpress_config_ops = {
 static int vexpress_config_probe(struct udevice *dev)
 {
 	struct ofnode_phandle_args args;
-	struct vexpress_config_sysreg *priv;
+	struct vexpress_config_sysreg *priv = dev_get_priv(dev);
 	const char *prop;
 	int err, prop_size;
 
@@ -105,11 +105,9 @@ static int vexpress_config_probe(struct udevice *dev)
 	if (!prop || (strncmp(prop, "arm,vexpress-sysreg", 19) != 0))
 		return -ENOENT;
 
-	priv = calloc(1, sizeof(*priv));
 	if (!priv)
 		return -ENOMEM;
 
-	dev_get_uclass_priv(dev) = priv;
 	priv->addr = ofnode_get_addr(args.node);
 
 	return dev_read_u32(dev, "arm,vexpress,site", &priv->site);
@@ -127,4 +125,5 @@ U_BOOT_DRIVER(vexpress_config_drv) = {
 	.bind = dm_scan_fdt_dev,
 	.probe = vexpress_config_probe,
 	.ops = &vexpress_config_ops,
+	.priv_auto = sizeof(struct vexpress_config_sysreg),
 };
