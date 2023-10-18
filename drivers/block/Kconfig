@@ -262,3 +262,10 @@ config SYS_64BIT_LBA
 	help
 	  Make the block subsystem use 64bit sector addresses, rather than the
 	  default of 32bit.
+
+config RKMTD
+	bool "Rockchip rkmtd virtual block device"
+	help
+	  Enable "rkmtd" class and driver to create a virtual block device
+	  to transfer Rockchip boot block data to and from NAND with block
+	  orientate tools like "ums" and "rockusb".
