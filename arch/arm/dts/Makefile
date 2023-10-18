@@ -1232,6 +1232,9 @@ dtb-$(CONFIG_TARGET_SAMA5D27_SOM1_EK) += \
 dtb-$(CONFIG_TARGET_SAMA5D27_WLSOM1_EK) += \
 	at91-sama5d27_wlsom1_ek.dtb
 
+dtb-$(CONFIG_TARGET_KSTR_SAMA5D27) += \
+	at91-kstr-sama5d27.dtb
+
 dtb-$(CONFIG_TARGET_SAMA5D2_ICP) += \
 	at91-sama5d2_icp.dtb
 

@@ -204,6 +204,17 @@ config TARGET_SAMA5D27_WLSOM1_EK
 	  processor-based SAMA5D2 MPU with 2 Gbit LPDDR2-SDRAM
 	  in a single package.
 
+config TARGET_KSTR_SAMA5D27
+	bool "Conclusive KSTR-SAMA5D27 board"
+	select BOARD_EARLY_INIT_F
+	select SAMA5D2
+	help
+	  The KSTR-SAMA5D27 embeds SAMA5D27 SoC, together with
+	  256 MiB SDRAM, 10/100 Mbit/s Ethernet, 96 Mbit/s Wi-Fi b/g/n,
+	  Bluetooth 4.1 LE, USB OTG controller w/ type-C USB connector
+	  and stackable GPIO headers in an all-in-one SBC form factor:
+	  https://conclusive.pl/products/kstr-sama5d27-sbc/
+
 config TARGET_SAMA5D2_ICP
 	bool "SAMA5D2 Industrial Connectivity Platform (ICP)"
 	select SAMA5D2
@@ -364,6 +375,7 @@ source "board/atmel/sama5d4_xplained/Kconfig"
 source "board/atmel/sama5d4ek/Kconfig"
 source "board/bluewater/gurnard/Kconfig"
 source "board/calao/usb_a9263/Kconfig"
+source "board/conclusive/kstr-sama5d27/Kconfig"
 source "board/egnite/ethernut5/Kconfig"
 source "board/esd/meesc/Kconfig"
 source "board/gardena/smart-gateway-at91sam/Kconfig"
