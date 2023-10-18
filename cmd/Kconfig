@@ -1568,6 +1568,14 @@ config CMD_USB_SDP
 	  Enables the command "sdp" which is used to have U-Boot emulating the
 	  Serial Download Protocol (SDP) via USB.
 
+config CMD_RKMTD
+	bool "rkmtd"
+	select RKMTD
+	help
+	  Enable the command "rkmtd" to create a virtual block device to transfer
+	  Rockchip boot block data to and from NAND with block orientated tools
+	  like "ums" and "rockusb".
+
 config CMD_ROCKUSB
 	bool "rockusb"
 	depends on USB_FUNCTION_ROCKUSB
