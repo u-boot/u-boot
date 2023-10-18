@@ -238,12 +238,12 @@ int ft_board_setup(void *fdt, struct bd_info *bd)
 	if (!strncmp(base_model, "GW73", 4)) {
 		pcbrev = get_pcb_rev(base_model);
 
-		if (pcbrev > 'B') {
+		if (pcbrev > 'B' && pcbrev < 'E') {
 			printf("adjusting dt for %s\n", base_model);
 
 			/*
-			 * revC replaced PCIe 5-port switch with 4-port
-			 * which changed ethernet1 PCIe GbE
+			 * revC/D/E has PCIe 4-port switch which changes
+			 * ethernet1 PCIe GbE:
 			 * from: pcie@0,0/pcie@1,0/pcie@2,4/pcie@6.0
 			 *   to: pcie@0,0/pcie@1,0/pcie@2,3/pcie@5.0
 			 */
