@@ -459,6 +459,9 @@ static void scsi_init_dev_desc_priv(struct blk_desc *dev_desc)
 	dev_desc->product[0] = 0;
 	dev_desc->revision[0] = 0;
 	dev_desc->removable = false;
+#if IS_ENABLED(CONFIG_BOUNCE_BUFFER)
+	dev_desc->bb = true;
+#endif	/* CONFIG_BOUNCE_BUFFER */
 }
 
 #if !defined(CONFIG_DM_SCSI)
@@ -606,6 +609,7 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 	bdesc->lun = lun;
 	bdesc->removable = bd.removable;
 	bdesc->type = bd.type;
+	bdesc->bb = bd.bb;
 	memcpy(&bdesc->vendor, &bd.vendor, sizeof(bd.vendor));
 	memcpy(&bdesc->product, &bd.product, sizeof(bd.product));
 	memcpy(&bdesc->revision, &bd.revision,	sizeof(bd.revision));
