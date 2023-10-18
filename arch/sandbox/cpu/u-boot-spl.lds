@@ -26,6 +26,8 @@ SECTIONS
 		KEEP(*(_u_boot_sandbox_getopt))
 		*(_u_boot_sandbox_getopt_end)
 	}
+
+	_image_binary_end = .;
 }
 
 INSERT AFTER .data;

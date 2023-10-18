@@ -18,6 +18,9 @@
 #define CONTAINER_HDR_QSPI_OFFSET SZ_4K
 #define CONTAINER_HDR_NAND_OFFSET SZ_128M
 
+#define CONTAINER_HDR_TAG 0x87
+#define CONTAINER_HDR_VERSION 0
+
 struct container_hdr {
 	u8 version;
 	u8 length_lsb;
@@ -66,4 +69,10 @@ struct generate_key_blob_hdr {
 } __packed;
 
 int get_container_size(ulong addr, u16 *header_length);
+
+static inline bool valid_container_hdr(struct container_hdr *container)
+{
+	return container->tag == CONTAINER_HDR_TAG &&
+	       container->version == CONTAINER_HDR_VERSION;
+}
 #endif

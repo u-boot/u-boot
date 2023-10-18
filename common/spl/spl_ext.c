@@ -2,6 +2,7 @@
 
 #include <common.h>
 #include <env.h>
+#include <mapmem.h>
 #include <part.h>
 #include <spl.h>
 #include <asm/u-boot.h>
@@ -53,7 +54,8 @@ int spl_load_image_ext(struct spl_image_info *spl_image,
 		goto end;
 	}
 
-	err = ext4fs_read((char *)spl_image->load_addr, 0, filelen, &actlen);
+	err = ext4fs_read(map_sysmem(spl_image->load_addr, filelen), 0, filelen,
+			  &actlen);
 
 end:
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT

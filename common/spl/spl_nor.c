@@ -5,7 +5,9 @@
 
 #include <common.h>
 #include <image.h>
+#include <imx_container.h>
 #include <log.h>
+#include <mapmem.h>
 #include <spl.h>
 
 static ulong spl_nor_load_read(struct spl_load_info *load, ulong sector,
@@ -13,7 +15,7 @@ static ulong spl_nor_load_read(struct spl_load_info *load, ulong sector,
 {
 	debug("%s: sector %lx, count %lx, buf %p\n",
 	      __func__, sector, count, buf);
-	memcpy(buf, (void *)sector, count);
+	memcpy(buf, map_sysmem(sector, count), count);
 
 	return count;
 }
@@ -26,7 +28,7 @@ unsigned long __weak spl_nor_get_uboot_base(void)
 static int spl_nor_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
 {
-	__maybe_unused const struct legacy_img_hdr *header;
+	struct legacy_img_hdr *header;
 	__maybe_unused struct spl_load_info load;
 
 	/*
@@ -41,7 +43,7 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 		 * Load Linux from its location in NOR flash to its defined
 		 * location in SDRAM
 		 */
-		header = (const struct legacy_img_hdr *)CONFIG_SYS_OS_BASE;
+		header = (void *)CONFIG_SYS_OS_BASE;
 #ifdef CONFIG_SPL_LOAD_FIT
 		if (image_get_magic(header) == FDT_MAGIC) {
 			int ret;
@@ -91,8 +93,8 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 	 * Load real U-Boot from its location in NOR flash to its
 	 * defined location in SDRAM
 	 */
+	header = map_sysmem(spl_nor_get_uboot_base(), sizeof(*header));
 #ifdef CONFIG_SPL_LOAD_FIT
-	header = (const struct legacy_img_hdr *)spl_nor_get_uboot_base();
 	if (image_get_magic(header) == FDT_MAGIC) {
 		debug("Found FIT format U-Boot\n");
 		load.bl_len = 1;
@@ -102,7 +104,8 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 					   (void *)header);
 	}
 #endif
-	if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER)) {
+	if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
+	    valid_container_hdr((void *)header)) {
 		load.bl_len = 1;
 		load.read = spl_nor_load_read;
 		return spl_load_imx_container(spl_image, &load,
@@ -111,14 +114,11 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 
 	/* Legacy image handling */
 	if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_FORMAT)) {
-		struct legacy_img_hdr hdr;
-
 		load.bl_len = 1;
 		load.read = spl_nor_load_read;
-		spl_nor_load_read(&load, spl_nor_get_uboot_base(), sizeof(hdr), &hdr);
 		return spl_load_legacy_img(spl_image, bootdev, &load,
 					   spl_nor_get_uboot_base(),
-					   &hdr);
+					   header);
 	}
 
 	return -EINVAL;

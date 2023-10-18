@@ -3,12 +3,14 @@
  * Copyright 2018-2021 NXP
  */
 
+#define LOG_CATEGORY LOGC_ARCH
 #include <common.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <imx_container.h>
 #include <log.h>
+#include <mapmem.h>
 #include <spl.h>
-#include <asm/mach-imx/image.h>
 #ifdef CONFIG_AHAB_BOOT
 #include <asm/mach-imx/ahab.h>
 #endif
@@ -45,7 +47,8 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 	debug("%s: container: %p sector: %lu sectors: %u\n", __func__,
 	      container, sector, sectors);
 	if (info->read(info, sector, sectors,
-		       (void *)images[image_index].entry) != sectors) {
+		       map_sysmem(images[image_index].dst,
+				  images[image_index].size)) != sectors) {
 		printf("%s wrong\n", __func__);
 		return NULL;
 	}
@@ -84,14 +87,14 @@ static int read_auth_container(struct spl_image_info *spl_image,
 		goto end;
 	}
 
-	if (container->tag != 0x87 && container->version != 0x0) {
-		printf("Wrong container header");
+	if (!valid_container_hdr(container)) {
+		log_err("Wrong container header\n");
 		ret = -ENOENT;
 		goto end;
 	}
 
 	if (!container->num_images) {
-		printf("Wrong container, no image found");
+		log_err("Wrong container, no image found\n");
 		ret = -ENOENT;
 		goto end;
 	}

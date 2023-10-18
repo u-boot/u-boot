@@ -9,6 +9,7 @@
 #include <spl.h>
 #include <image.h>
 #include <fs.h>
+#include <asm/io.h>
 
 struct blk_dev {
 	const char *ifname;
@@ -29,7 +30,8 @@ static ulong spl_fit_read(struct spl_load_info *load, ulong file_offset,
 		return ret;
 	}
 
-	ret = fs_read(load->filename, (ulong)buf, file_offset, size, &actlen);
+	ret = fs_read(load->filename, virt_to_phys(buf), file_offset, size,
+		      &actlen);
 	if (ret < 0) {
 		printf("spl: error reading image %s. Err - %d\n",
 		       load->filename, ret);
@@ -69,7 +71,7 @@ int spl_blk_load_image(struct spl_image_info *spl_image,
 		goto out;
 	}
 
-	ret = fs_read(filename, (ulong)header, 0,
+	ret = fs_read(filename, virt_to_phys(header), 0,
 		      sizeof(struct legacy_img_hdr), &actlen);
 	if (ret) {
 		printf("spl: unable to read file %s. Err - %d\n", filename,

@@ -7,6 +7,7 @@
 #include <image.h>
 #include <log.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <asm/sections.h>
 #include <spl.h>
 
@@ -19,7 +20,7 @@
 static void spl_parse_legacy_validate(uintptr_t start, uintptr_t size)
 {
 	uintptr_t spl_start = (uintptr_t)_start;
-	uintptr_t spl_end = (uintptr_t)_image_binary_end;
+	uintptr_t spl_end = (uintptr_t)&_image_binary_end;
 	uintptr_t end = start + size;
 
 	if ((start >= spl_start && start < spl_end) ||
@@ -129,7 +130,7 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
 			dataptr += sizeof(*hdr);
 
 		load->read(load, dataptr, spl_image->size,
-			   (void *)(unsigned long)spl_image->load_addr);
+			   map_sysmem(spl_image->load_addr, spl_image->size));
 		break;
 
 	case IH_COMP_LZMA:
@@ -148,7 +149,8 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
 		}
 
 		load->read(load, dataptr, spl_image->size, src);
-		ret = lzmaBuffToBuffDecompress((void *)spl_image->load_addr,
+		ret = lzmaBuffToBuffDecompress(map_sysmem(spl_image->load_addr,
+							  spl_image->size),
 					       &lzma_len, src, spl_image->size);
 		if (ret) {
 			printf("LZMA decompression error: %d\n", ret);

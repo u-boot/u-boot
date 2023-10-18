@@ -687,6 +687,12 @@ config SPL_CRC8
 	  checksum with feedback to produce an 8-bit result. The code is small
 	  and it does not require a lookup table (unlike CRC32).
 
+config SPL_CRC16
+	bool "Support CRC16 in SPL"
+	depends on SPL
+	help
+	  Enables CRC16 support in SPL. This is not normally required.
+
 config CRC32
 	def_bool y
 	help

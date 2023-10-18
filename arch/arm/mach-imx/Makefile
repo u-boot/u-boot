@@ -79,7 +79,7 @@ obj-$(CONFIG_CMD_NANDBCB) += cmd_nandbcb.o
 endif
 
 ifeq ($(CONFIG_SPL_BUILD),y)
-obj-$(CONFIG_SPL_LOAD_IMX_CONTAINER) += image-container.o parse-container.o
+obj-$(CONFIG_SPL_LOAD_IMX_CONTAINER) += image-container.o
 endif
 
 ifeq ($(SOC),$(filter $(SOC),imx8ulp imx9))

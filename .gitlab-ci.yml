@@ -293,6 +293,13 @@ sandbox_noinst_test.py:
     TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
   <<: *buildman_and_testpy_dfn
 
+sandbox_noinst with LOAD_FIT_FULL test.py:
+  variables:
+    TEST_PY_BD: "sandbox_noinst"
+    TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
+    OVERRIDE: "-a CONFIG_SPL_LOAD_FIT_FULL=y"
+  <<: *buildman_and_testpy_dfn
+
 sandbox_vpl test.py:
   variables:
     TEST_PY_BD: "sandbox_vpl"

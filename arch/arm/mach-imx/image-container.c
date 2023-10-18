@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <imx_container.h>
 #include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
@@ -12,7 +13,6 @@
 #include <spi_flash.h>
 #include <spl.h>
 #include <nand.h>
-#include <asm/mach-imx/image.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
 
@@ -50,7 +50,7 @@ int get_container_size(ulong addr, u16 *header_length)
 	u32 max_offset = 0, img_end;
 
 	phdr = (struct container_hdr *)addr;
-	if (phdr->tag != 0x87 || phdr->version != 0x0) {
+	if (!valid_container_hdr(phdr)) {
 		debug("Wrong container header\n");
 		return -EFAULT;
 	}

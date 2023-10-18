@@ -18,12 +18,12 @@
 #include <mapmem.h>
 #include <tee.h>
 #ifdef CONFIG_IMX_SECO_DEK_ENCAP
+#include <imx_container.h>
 #include <firmware/imx/sci/sci.h>
-#include <asm/mach-imx/image.h>
 #endif
 #ifdef CONFIG_IMX_ELE_DEK_ENCAP
+#include <imx_container.h>
 #include <asm/mach-imx/ele_api.h>
-#include <asm/mach-imx/image.h>
 #endif
 
 #include <cpu_func.h>

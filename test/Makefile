@@ -3,9 +3,6 @@
 # (C) Copyright 2012 The Chromium Authors
 
 obj-y += test-main.o
-ifdef CONFIG_SPL_LOAD_FIT
-obj-$(CONFIG_SANDBOX) += image/
-endif
 
 ifneq ($(CONFIG_$(SPL_)BLOBLIST),)
 obj-$(CONFIG_$(SPL_)CMDLINE) += bloblist.o
@@ -30,4 +27,6 @@ obj-$(CONFIG_UNIT_TEST) += boot/
 obj-$(CONFIG_UNIT_TEST) += common/
 obj-y += log/
 obj-$(CONFIG_$(SPL_)UT_UNICODE) += unicode_ut.o
+else
+obj-$(CONFIG_SPL_UT_LOAD) += image/
 endif

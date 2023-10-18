@@ -41,9 +41,6 @@
  */
 #define TIMEOUT_MS	((3 + (CONFIG_NET_RETRY_COUNT * 5)) * 1000)
 
-#define PORT_BOOTPS	67		/* BOOTP server UDP port */
-#define PORT_BOOTPC	68		/* BOOTP client UDP port */
-
 #ifndef CFG_DHCP_MIN_EXT_LEN		/* minimal length of extension list */
 #define CFG_DHCP_MIN_EXT_LEN 64
 #endif
@@ -1076,6 +1073,11 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			    CONFIG_SYS_BOOTFILE_PREFIX,
 			    strlen(CONFIG_SYS_BOOTFILE_PREFIX)) == 0) {
 #endif	/* CONFIG_SYS_BOOTFILE_PREFIX */
+			if (CONFIG_IS_ENABLED(UNIT_TEST) &&
+			    dhcp_message_type((u8 *)bp->bp_vend) == -1) {
+				debug("got BOOTP response; transitioning to BOUND\n");
+				goto dhcp_got_bootp;
+			}
 			dhcp_packet_process_options(bp);
 			if (CONFIG_IS_ENABLED(EFI_LOADER) &&
 			    IS_ENABLED(CONFIG_NETDEVICES))
@@ -1102,6 +1104,7 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		debug("DHCP State: REQUESTING\n");
 
 		if (dhcp_message_type((u8 *)bp->bp_vend) == DHCP_ACK) {
+dhcp_got_bootp:
 			dhcp_packet_process_options(bp);
 			/* Store net params from reply */
 			store_net_params(bp);
