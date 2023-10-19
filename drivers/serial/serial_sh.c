@@ -79,10 +79,22 @@ sh_serial_setbrg_generic(struct uart_port *port, int clk, int baudrate)
 
 static void handle_error(struct uart_port *port)
 {
-	sci_in(port, SCxSR);
-	sci_out(port, SCxSR, SCxSR_ERROR_CLEAR(port));
+	/*
+	 * Most errors are cleared by resetting the relevant error bits to zero
+	 * in the FSR & LSR registers. For each register, a read followed by a
+	 * write is needed according to the relevant datasheets.
+	 */
+	unsigned short status = sci_in(port, SCxSR);
+	sci_out(port, SCxSR, status & ~SCxSR_ERRORS(port));
 	sci_in(port, SCLSR);
 	sci_out(port, SCLSR, 0x00);
+
+	/*
+	 * To clear framing errors, we also need to read and discard a
+	 * character.
+	 */
+	if ((port->type != PORT_SCI) && (status & SCIF_FER))
+		sci_in(port, SCxRDR);
 }
 
 static int serial_raw_putc(struct uart_port *port, const char c)
