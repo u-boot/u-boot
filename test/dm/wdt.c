@@ -54,7 +54,7 @@ static int dm_test_wdt_gpio_toggle(struct unit_test_state *uts)
 	 */
 	struct udevice *wdt, *gpio;
 	const u64 timeout = 42;
-	const int offset = 7;
+	const int offset = 8;
 	int val;
 
 	ut_assertok(uclass_get_device_by_name(UCLASS_WDT,
@@ -115,7 +115,7 @@ static int dm_test_wdt_watchdog_reset(struct unit_test_state *uts)
 	struct udevice *gpio_wdt, *sandbox_wdt;
 	struct udevice *gpio;
 	const u64 timeout = 42;
-	const int offset = 7;
+	const int offset = 8;
 	uint reset_count;
 	int val;
 

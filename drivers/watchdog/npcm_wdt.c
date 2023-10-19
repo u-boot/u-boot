@@ -69,15 +69,21 @@ static int npcm_wdt_stop(struct udevice *dev)
 static int npcm_wdt_reset(struct udevice *dev)
 {
 	struct npcm_wdt_priv *priv = dev_get_priv(dev);
+	u32 val;
 
-	writel(NPCM_WTR | NPCM_WTRE | NPCM_WTE, priv->regs);
+	val = readl(priv->regs);
+	writel(val | NPCM_WTR, priv->regs);
 
 	return 0;
 }
 
 static int npcm_wdt_expire_now(struct udevice *dev, ulong flags)
 {
-	return npcm_wdt_reset(dev);
+	struct npcm_wdt_priv *priv = dev_get_priv(dev);
+
+	writel(NPCM_WTR | NPCM_WTRE | NPCM_WTE, priv->regs);
+
+	return 0;
 }
 
 static int npcm_wdt_of_to_plat(struct udevice *dev)
