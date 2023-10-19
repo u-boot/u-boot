@@ -367,7 +367,8 @@ static bool os_takes_devicetree(uint8_t os)
 	case IH_OS_U_BOOT:
 		return true;
 	case IH_OS_LINUX:
-		return IS_ENABLED(CONFIG_SPL_OS_BOOT);
+		return IS_ENABLED(CONFIG_SPL_OS_BOOT) ||
+		       IS_ENABLED(CONFIG_SPL_OPENSBI);
 	default:
 		return false;
 	}

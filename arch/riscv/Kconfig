@@ -187,6 +187,97 @@ config RISCV_ISA_D
 	  riscv32 ABI from ilp32 to ilp32d and the riscv64 ABI from lp64 to
 	  lp64d.
 
+config RISCV_ISA_ZBB
+	bool "Zbb extension support for bit manipulation instructions"
+	help
+	  Adds ZBB extension (basic bit manipulation) to the ISA subsets
+	  that the toolchain is allowed to emit when building U-Boot.
+	  The Zbb extension provides instructions to accelerate a number
+	  of bit-specific operations (count bit population, sign extending,
+	  bitrotation, etc) and enables optimized string routines.
+
+menu "Use assembly optimized implementation of string routines"
+
+config USE_ARCH_STRLEN
+	bool "Use an assembly optimized implementation of strlen"
+	default y
+	depends on RISCV_ISA_ZBB
+	help
+	  Enable the generation of an optimized version of strlen using
+	  Zbb extension.
+
+config SPL_USE_ARCH_STRLEN
+	bool "Use an assembly optimized implementation of strlen for SPL"
+	default y if USE_ARCH_STRLEN
+	depends on RISCV_ISA_ZBB
+	depends on SPL
+	help
+	  Enable the generation of an optimized version of strlen using
+	  Zbb extension.
+
+config TPL_USE_ARCH_STRLEN
+	bool "Use an assembly optimized implementation of strlen for TPL"
+	default y if USE_ARCH_STRLEN
+	depends on RISCV_ISA_ZBB
+	depends on TPL
+	help
+	  Enable the generation of an optimized version of strlen using
+	  Zbb extension.
+
+config USE_ARCH_STRCMP
+	bool "Use an assembly optimized implementation of strcmp"
+	default y
+	depends on RISCV_ISA_ZBB
+	help
+	  Enable the generation of an optimized version of strcmp using
+	  Zbb extension.
+
+config SPL_USE_ARCH_STRCMP
+	bool "Use an assembly optimized implementation of strcmp for SPL"
+	default y if USE_ARCH_STRCMP
+	depends on RISCV_ISA_ZBB
+	depends on SPL
+	help
+	  Enable the generation of an optimized version of strcmp using
+	  Zbb extension.
+
+config TPL_USE_ARCH_STRCMP
+	bool "Use an assembly optimized implementation of strcmp for TPL"
+	default y if USE_ARCH_STRCMP
+	depends on RISCV_ISA_ZBB
+	depends on TPL
+	help
+	  Enable the generation of an optimized version of strcmp using
+	  Zbb extension.
+
+config USE_ARCH_STRNCMP
+	bool "Use an assembly optimized implementation of strncmp"
+	default y
+	depends on RISCV_ISA_ZBB
+	help
+	  Enable the generation of an optimized version of strncmp using
+	  Zbb extension.
+
+config SPL_USE_ARCH_STRNCMP
+	bool "Use an assembly optimized implementation of strncmp for SPL"
+	default y if USE_ARCH_STRNCMP
+	depends on RISCV_ISA_ZBB
+	depends on SPL
+	help
+	  Enable the generation of an optimized version of strncmp using
+	  Zbb extension.
+
+config TPL_USE_ARCH_STRNCMP
+	bool "Use an assembly optimized implementation of strncmp for TPL"
+	default y if USE_ARCH_STRNCMP
+	depends on RISCV_ISA_ZBB
+	depends on TPL
+	help
+	  Enable the generation of an optimized version of strncmp using
+	  Zbb extension.
+
+endmenu
+
 config RISCV_ISA_A
 	def_bool y
 
@@ -423,5 +514,13 @@ config TPL_USE_ARCH_MEMSET
 	  but may increase the binary size.
 
 endmenu
+
+config SPL_LOAD_FIT_OPENSBI_OS_BOOT
+	bool "Enable SPL (OpenSBI OS boot mode) applying linux from FIT"
+	depends on SPL_LOAD_FIT
+	help
+	  Use fw_dynamic from the FIT image, and u-boot SPL will invoke it directly.
+	  This is a shortcut boot flow, from u-boot SPL -> OpenSBI -> u-boot proper
+	  -> linux to u-boot SPL -> OpenSBI -> linux.
 
 endmenu

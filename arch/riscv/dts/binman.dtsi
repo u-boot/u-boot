@@ -5,6 +5,9 @@
 
 #include <config.h>
 
+#define U64_TO_U32_H(addr)		(((addr) >> 32) & 0xffffffff)
+#define U64_TO_U32_L(addr)		((addr) & 0xffffffff)
+
 / {
 	binman: binman {
 		multiple-images;
@@ -13,26 +16,47 @@
 
 &binman {
 	itb {
+
+#ifndef CONFIG_SPL_LOAD_FIT_OPENSBI_OS_BOOT
 		filename = "u-boot.itb";
+#else
+		filename = "linux.itb";
+#endif
 
 		fit {
 			description = "Configuration to load OpenSBI before U-Boot";
-			#address-cells = <1>;
+			#address-cells = <2>;
 			fit,fdt-list = "of-list";
 
 			images {
+#ifndef CONFIG_SPL_LOAD_FIT_OPENSBI_OS_BOOT
 				uboot {
 					description = "U-Boot";
 					type = "standalone";
 					os = "U-Boot";
 					arch = "riscv";
 					compression = "none";
-					load = <CONFIG_TEXT_BASE>;
+					load = <U64_TO_U32_H(CONFIG_TEXT_BASE)
+						U64_TO_U32_L(CONFIG_TEXT_BASE)>;
 
 					uboot_blob: blob-ext {
 						filename = "u-boot-nodtb.bin";
 					};
 				};
+#else
+				linux {
+					description = "Linux";
+					type = "standalone";
+					os = "Linux";
+					arch = "riscv";
+					compression = "none";
+					load = <CONFIG_TEXT_BASE>;
+
+					linux_blob: blob-ext {
+						filename = "Image";
+					};
+				};
+#endif
 
 				opensbi {
 					description = "OpenSBI fw_dynamic Firmware";
@@ -40,8 +64,10 @@
 					os = "opensbi";
 					arch = "riscv";
 					compression = "none";
-					load = <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
-					entry = <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+					load = <U64_TO_U32_H(CONFIG_SPL_OPENSBI_LOAD_ADDR)
+						U64_TO_U32_L(CONFIG_SPL_OPENSBI_LOAD_ADDR)>;
+					entry = <U64_TO_U32_H(CONFIG_SPL_OPENSBI_LOAD_ADDR)
+						U64_TO_U32_L(CONFIG_SPL_OPENSBI_LOAD_ADDR)>;
 
 					opensbi_blob: opensbi {
 						filename = "fw_dynamic.bin";
@@ -68,7 +94,11 @@
 #endif
 					description = "NAME";
 					firmware = "opensbi";
+#ifndef CONFIG_SPL_LOAD_FIT_OPENSBI_OS_BOOT
 					loadables = "uboot";
+#else
+					loadables = "linux";
+#endif
 #ifndef CONFIG_OF_BOARD
 					fdt = "fdt-SEQ";
 #endif
