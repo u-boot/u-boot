@@ -1211,12 +1211,13 @@ efi_tcg2_get_active_pcr_banks(struct efi_tcg2_protocol *this,
 {
 	efi_status_t ret;
 
+	EFI_ENTRY("%p, %p", this, active_pcr_banks);
+
 	if (!this || !active_pcr_banks) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
 
-	EFI_ENTRY("%p, %p", this, active_pcr_banks);
 	ret = __get_active_pcr_banks(active_pcr_banks);
 
 out:
