@@ -15,6 +15,7 @@
 #include <k3-avs.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
+#include <linux/delay.h>
 #include <power/regulator.h>
 
 #define AM6_VTM_DEVINFO(i)	(priv->base + 0x100 + 0x20 * (i))
@@ -25,11 +26,28 @@
 #define AM6_VTM_OPP_SHIFT(opp)	(8 * (opp))
 #define AM6_VTM_OPP_MASK	0xff
 
+#define K3_VTM_DEVINFO_PWR0_OFFSET		0x4
+#define K3_VTM_DEVINFO_PWR0_TEMPSENS_CT_MASK	0xf0
+#define K3_VTM_TMPSENS0_CTRL_OFFSET		0x300
+#define K3_VTM_TMPSENS_STAT_OFFSET		0x8
+#define K3_VTM_ANYMAXT_OUTRG_ALERT_EN		0x1
+#define K3_VTM_LOW_TEMP_OFFSET			0x10
+#define K3_VTM_MISC_CTRL2_OFFSET		0x10
+#define K3_VTM_MISC_CTRL1_OFFSET		0xc
+#define K3_VTM_TMPSENS_CTRL1_SOC		BIT(5)
+#define K3_VTM_TMPSENS_CTRL_CLRZ		BIT(6)
+#define K3_VTM_TMPSENS_CTRL_MAXT_OUTRG_EN	BIT(11)
+#define K3_VTM_ADC_COUNT_FOR_123C		0x2f8
+#define K3_VTM_ADC_COUNT_FOR_105C		0x288
+#define K3_VTM_ADC_WA_VALUE			0x2c
+#define K3_VTM_FUSE_MASK			0xc0000000
+
 #define VD_FLAG_INIT_DONE	BIT(0)
 
 struct k3_avs_privdata {
 	void *base;
 	struct vd_config *vd_config;
+	struct udevice *dev;
 };
 
 struct opp {
@@ -237,6 +255,88 @@ static int k3_avs_configure(struct udevice *dev, struct k3_avs_privdata *priv)
 	return 0;
 }
 
+/* k3_avs_program_tshut : Program thermal shutdown value for SOC
+ * set the values corresponding to thresholds to ~123C and 105C
+ * This is optional feature, Few times OS driver takes care of
+ * tshut programing.
+ */
+
+static void k3_avs_program_tshut(struct k3_avs_privdata *priv)
+{
+	int cnt, id, val;
+	int workaround_needed = 0;
+	u32 ctrl_offset;
+	void __iomem *cfg2_base;
+	void __iomem *fuse_base;
+
+	cfg2_base = (void __iomem *)devfdt_get_addr_index(priv->dev, 1);
+	if (IS_ERR(cfg2_base)) {
+		dev_err(priv->dev, "cfg base is not defined\n");
+		return;
+	}
+
+	/*
+	 * Some of TI's J721E SoCs require a software trimming procedure
+	 * for the temperature monitors to function properly. To determine
+	 * if this particular SoC is NOT affected, both bits in the
+	 * WKUP_SPARE_FUSE0[31:30] will be set (0xC0000000) indicating
+	 * when software trimming should NOT be applied.
+	 *
+	 * https://www.ti.com/lit/er/sprz455c/sprz455c.pdf
+	 * This routine checks if workaround_needed to be applied or not
+	 * based upon workaround_needed, adjust fixed value of tshut high and low
+	 */
+
+	if (device_is_compatible(priv->dev, "ti,j721e-vtm")) {
+		fuse_base = (void __iomem *)devfdt_get_addr_index(priv->dev, 2);
+		if (IS_ERR(fuse_base)) {
+			dev_err(priv->dev, "fuse-base is not defined for J721E Soc\n");
+			return;
+		}
+
+		if (!((readl(fuse_base) & K3_VTM_FUSE_MASK) == K3_VTM_FUSE_MASK))
+			workaround_needed = 1;
+	}
+
+	dev_dbg(priv->dev, "Work around %sneeded\n", workaround_needed ? "" : "not ");
+
+	/* Get the sensor count in the VTM */
+	val = readl(priv->base + K3_VTM_DEVINFO_PWR0_OFFSET);
+	cnt = val & K3_VTM_DEVINFO_PWR0_TEMPSENS_CT_MASK;
+	cnt >>= __ffs(K3_VTM_DEVINFO_PWR0_TEMPSENS_CT_MASK);
+
+	/* Program the thermal sensors */
+	for (id = 0; id < cnt; id++) {
+		ctrl_offset = K3_VTM_TMPSENS0_CTRL_OFFSET + id * 0x20;
+
+		val = readl(cfg2_base + ctrl_offset);
+		val |= (K3_VTM_TMPSENS_CTRL_MAXT_OUTRG_EN |
+			K3_VTM_TMPSENS_CTRL1_SOC |
+			K3_VTM_TMPSENS_CTRL_CLRZ | BIT(4));
+		writel(val, cfg2_base + ctrl_offset);
+	}
+
+	/*
+	 * Program TSHUT thresholds
+	 * Step 1: set the thresholds to ~123C and 105C WKUP_VTM_MISC_CTRL2
+	 * Step 2: WKUP_VTM_TMPSENS_CTRL_j set the MAXT_OUTRG_EN  bit
+	 *         This is already taken care as per of init
+	 * Step 3: WKUP_VTM_MISC_CTRL set the ANYMAXT_OUTRG_ALERT_EN  bit
+	 */
+
+	/* Low thresholds for tshut*/
+	val = (K3_VTM_ADC_COUNT_FOR_105C - workaround_needed * K3_VTM_ADC_WA_VALUE)
+		<< K3_VTM_LOW_TEMP_OFFSET;
+	/* high thresholds */
+	val |= K3_VTM_ADC_COUNT_FOR_123C - workaround_needed * K3_VTM_ADC_WA_VALUE;
+
+	writel(val, cfg2_base + K3_VTM_MISC_CTRL2_OFFSET);
+	/* ramp-up delay from Linux code */
+	mdelay(100);
+	val = readl(cfg2_base + K3_VTM_MISC_CTRL1_OFFSET) | K3_VTM_ANYMAXT_OUTRG_ALERT_EN;
+	writel(val, cfg2_base + K3_VTM_MISC_CTRL1_OFFSET);
+}
+
 /**
  * k3_avs_probe: parses VD info from VTM, and re-configures the OPP data
  *
@@ -255,6 +355,7 @@ static int k3_avs_probe(struct udevice *dev)
 	int ret;
 
 	priv = dev_get_priv(dev);
+	priv->dev = dev;
 
 	k3_avs_priv = priv;
 
@@ -293,6 +394,9 @@ static int k3_avs_probe(struct udevice *dev)
 
 		k3_avs_program_voltage(priv, vd, vd->opp);
 	}
+
+	if (!device_is_compatible(priv->dev, "ti,am654-avs"))
+		k3_avs_program_tshut(priv);
 
 	return 0;
 }
