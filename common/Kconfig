@@ -28,26 +28,26 @@ config CONSOLE_RECORD_OUT_SIZE
 	depends on CONSOLE_RECORD
 	default 0x400 if CONSOLE_RECORD
 	help
-	  Set the size of the console output buffer. When this fills up, no
-	  more data will be recorded until some is removed. The buffer is
-	  allocated immediately after the malloc() region is ready.
+	  Set the size of the console recording output buffer. When this fills
+	  up, no more data will be recorded until some is removed. The buffer
+	  is allocated immediately after the malloc() region is ready.
 
 config CONSOLE_RECORD_OUT_SIZE_F
 	hex "Output buffer size before relocation"
 	depends on CONSOLE_RECORD
 	default 0x400 if CONSOLE_RECORD
 	help
-	  Set the size of the console output buffer before relocation. When
-	  this fills up, no more data will be recorded until some is removed.
-	  The buffer is allocated immediately after the early malloc() region is
-	  ready.
+	  Set the size of the console recording output buffer before
+	  relocation. When this fills up, no more data will be recorded until
+	  some is removed.  The buffer is allocated immediately after the early
+	  malloc() region is ready.
 
 config CONSOLE_RECORD_IN_SIZE
 	hex "Input buffer size"
 	depends on CONSOLE_RECORD
 	default 0x100 if CONSOLE_RECORD
 	help
-	  Set the size of the console input buffer. When this contains data,
+	  Set the size of the console recording input buffer. When this contains data,
 	  tstc() and getc() will use this in preference to real device input.
 	  The buffer is allocated immediately after the malloc() region is
 	  ready.
