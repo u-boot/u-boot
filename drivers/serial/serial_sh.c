@@ -12,10 +12,12 @@
 #include <asm/processor.h>
 #include <clk.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <dm/platform_data/serial_sh.h>
 #include <errno.h>
 #include <linux/compiler.h>
 #include <linux/delay.h>
+#include <reset.h>
 #include <serial.h>
 #include "serial_sh.h"
 
@@ -199,11 +201,23 @@ static int sh_serial_probe(struct udevice *dev)
 {
 	struct sh_serial_plat *plat = dev_get_plat(dev);
 	struct uart_port *priv = dev_get_priv(dev);
+	struct reset_ctl rst;
+	int ret;
 
 	priv->membase	= (unsigned char *)plat->base;
 	priv->mapbase	= plat->base;
 	priv->type	= plat->type;
 	priv->clk_mode	= plat->clk_mode;
+
+	/* De-assert the module reset if it is defined. */
+	ret = reset_get_by_index(dev, 0, &rst);
+	if (!ret) {
+		ret = reset_deassert(&rst);
+		if (ret < 0) {
+			dev_err(dev, "failed to de-assert reset line\n");
+			return ret;
+		}
+	}
 
 	sh_serial_init_generic(priv);
 
@@ -221,6 +235,7 @@ static const struct dm_serial_ops sh_serial_ops = {
 static const struct udevice_id sh_serial_id[] ={
 	{.compatible = "renesas,sci", .data = PORT_SCI},
 	{.compatible = "renesas,scif", .data = PORT_SCIF},
+	{.compatible = "renesas,scif-r9a07g044", .data = PORT_SCIFA},
 	{.compatible = "renesas,scifa", .data = PORT_SCIFA},
 	{.compatible = "renesas,hscif", .data = PORT_HSCIF},
 	{}

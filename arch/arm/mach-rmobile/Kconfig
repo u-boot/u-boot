@@ -77,6 +77,7 @@ config RZG2L
 	imply PINCTRL_RZG2L
 	imply RENESAS_SDHI
 	imply RZG2L_GPIO
+	imply SCIF_CONSOLE
 	imply SYS_MALLOC_F
 	help
 	  Enable support for the Renesas RZ/G2L family of SoCs. Currently
