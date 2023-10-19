@@ -137,17 +137,3 @@
 &wdog1 {
 	bootph-pre-ram;
 };
-
-&ethphy0 {
-	reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
-	reset-delay-us = <15000>;
-	reset-post-delay-us = <100000>;
-};
-
-&fec {
-	phy-reset-gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
-	phy-reset-duration = <15>;
-	phy-reset-post-delay = <100>;
-};
-
-
