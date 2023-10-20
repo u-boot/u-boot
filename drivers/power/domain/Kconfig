@@ -83,6 +83,13 @@ config SANDBOX_POWER_DOMAIN
 	  simply accepts requests to power on/off various HW modules without
 	  actually doing anything beyond a little error checking.
 
+config SCMI_POWER_DOMAIN
+	bool "Enable SCMI power domain driver"
+	depends on POWER_DOMAIN && SCMI_FIRMWARE
+	help
+	  Enable power domain implementation based on SCMI power domain
+	  management protocol.
+
 config TEGRA186_POWER_DOMAIN
 	bool "Enable Tegra186 BPMP-based power domain driver"
 	depends on TEGRA186_BPMP

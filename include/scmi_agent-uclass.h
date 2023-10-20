@@ -23,6 +23,7 @@ struct scmi_channel;
  * @agent_name:		Agent name
  * @agent_id:		Identifier of agent
  * @base_dev:		SCMI base protocol device
+ * @pwdom_dev:		SCMI power domain management protocol device
  * @clock_dev:		SCMI clock protocol device
  * @resetdom_dev:	SCMI reset domain protocol device
  * @voltagedom_dev:	SCMI voltage domain protocol device
@@ -38,6 +39,7 @@ struct scmi_agent_priv {
 	u8 *agent_name;
 	u32 agent_id;
 	struct udevice *base_dev;
+	struct udevice *pwdom_dev;
 	struct udevice *clock_dev;
 	struct udevice *resetdom_dev;
 	struct udevice *voltagedom_dev;

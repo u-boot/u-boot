@@ -29,12 +29,14 @@
 
 /*
  * struct sandbox_scmi_device_priv - Storage for device handles used by test
+ * @pwdom:		Power domain device
  * @clk:		Array of clock instances used by tests
  * @reset_clt:		Array of the reset controller instances used by tests
  * @regulators:		Array of regulator device references used by the tests
  * @devices:		Resources exposed by sandbox_scmi_devices_ctx()
  */
 struct sandbox_scmi_device_priv {
+	struct power_domain pwdom;
 	struct clk clk[SCMI_TEST_DEVICES_CLK_COUNT];
 	struct reset_ctl reset_ctl[SCMI_TEST_DEVICES_RD_COUNT];
 	struct udevice *regulators[SCMI_TEST_DEVICES_VOLTD_COUNT];
@@ -77,6 +79,8 @@ static int sandbox_scmi_devices_probe(struct udevice *dev)
 	size_t n;
 
 	priv->devices = (struct sandbox_scmi_devices){
+		.pwdom = &priv->pwdom,
+		.pwdom_count = 1,
 		.clk = priv->clk,
 		.clk_count = SCMI_TEST_DEVICES_CLK_COUNT,
 		.reset = priv->reset_ctl,
@@ -84,6 +88,12 @@ static int sandbox_scmi_devices_probe(struct udevice *dev)
 		.regul = priv->regulators,
 		.regul_count = SCMI_TEST_DEVICES_VOLTD_COUNT,
 	};
+
+	ret = power_domain_get_by_index(dev, priv->devices.pwdom, 0);
+	if (ret) {
+		dev_err(dev, "%s: Failed on power domain\n", __func__);
+		return ret;
+	}
 
 	for (n = 0; n < SCMI_TEST_DEVICES_CLK_COUNT; n++) {
 		ret = clk_get_by_index(dev, n, priv->devices.clk + n);
