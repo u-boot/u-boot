@@ -9,6 +9,7 @@
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/system.h>
+#include <asm/arch/cpu.h>
 
 #ifdef CONFIG_TARGET_ESPRESSO7420
 /*
