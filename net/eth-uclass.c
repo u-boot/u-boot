@@ -598,7 +598,7 @@ static int eth_post_probe(struct udevice *dev)
 		eth_env_set_enetaddr_by_index("eth", dev_seq(dev),
 					      pdata->enetaddr);
 #else
-		printf("\nError: %s address not set.\n",
+		printf("\nError: %s No valid MAC address found.\n",
 		       dev->name);
 		return -EINVAL;
 #endif
