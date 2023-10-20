@@ -65,6 +65,9 @@ int sandbox_eth_arp_req_to_reply(struct udevice *dev, void *packet,
 	struct ethernet_hdr *eth_recv;
 	struct arp_hdr *arp_recv;
 
+	if (!priv)
+		return -EAGAIN;
+
 	if (ntohs(eth->et_protlen) != PROT_ARP)
 		return -EAGAIN;
 
