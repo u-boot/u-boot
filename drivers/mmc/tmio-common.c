@@ -759,7 +759,8 @@ int tmio_sd_probe(struct udevice *dev, u32 quirks)
 	dev_dbg(dev, "version %x\n", priv->version);
 	if (priv->version >= 0x10) {
 		priv->caps |= TMIO_SD_CAP_DMA_INTERNAL;
-		priv->caps |= TMIO_SD_CAP_DIV1024;
+		if (!(priv->caps & TMIO_SD_CAP_RCAR))
+			priv->caps |= TMIO_SD_CAP_DIV1024;
 	}
 
 	if (fdt_get_property(gd->fdt_blob, dev_of_offset(dev), "non-removable",
