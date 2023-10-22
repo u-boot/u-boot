@@ -15,6 +15,15 @@
 
 #include <configs/ti_armv7_common.h>
 
+/* allow up to 3 USB storage devices */
+#ifdef CONFIG_CMD_USB
+#undef BOOT_TARGET_USB
+#define BOOT_TARGET_USB(func) \
+	func(USB, usb, 0) \
+	func(USB, usb, 1) \
+	func(USB, usb, 2)
+#endif
+
 /*
  * This defines all MMC devices, even if the basic variant has no mmc1.
  * The non-supported device will be removed from the boot targets during
