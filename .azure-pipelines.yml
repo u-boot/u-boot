@@ -91,7 +91,7 @@ stages:
       options: $(container_option)
     steps:
       - script: |
-          ./tools/buildman/buildman --maintainer-check || exit 0
+          ./tools/buildman/buildman --maintainer-check
 
   - job: tools_only
     displayName: 'Ensure host tools and env tools build'

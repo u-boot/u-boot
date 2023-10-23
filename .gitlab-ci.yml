@@ -177,7 +177,7 @@ docs:
 Check for configs without MAINTAINERS entry:
   extends: .testsuites
   script:
-    - ./tools/buildman/buildman --maintainer-check || exit 0
+    - ./tools/buildman/buildman --maintainer-check
 
 # Ensure host tools build
 Build tools-only and envtools:
