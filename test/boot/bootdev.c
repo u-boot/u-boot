@@ -190,11 +190,20 @@ static int bootdev_test_any(struct unit_test_state *uts)
 BOOTSTD_TEST(bootdev_test_any, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
 	     UT_TESTF_ETH_BOOTDEV);
 
-/* Check bootdev ordering with the bootdev-order property */
+/*
+ * Check bootdev ordering with the bootdev-order property and boot_targets
+ * environment variable
+ */
 static int bootdev_test_order(struct unit_test_state *uts)
 {
 	struct bootflow_iter iter;
 	struct bootflow bflow;
+
+	test_set_skip_delays(true);
+
+	/* Start up USB which gives us three additional bootdevs */
+	usb_started = false;
+	ut_assertok(run_command("usb start", 0));
 
 	/*
 	 * First try the order set by the bootdev-order property
@@ -213,12 +222,14 @@ static int bootdev_test_order(struct unit_test_state *uts)
 	bootflow_iter_uninit(&iter);
 
 	/* Use the environment variable to override it */
-	ut_assertok(env_set("boot_targets", "mmc1 mmc2"));
+	ut_assertok(env_set("boot_targets", "mmc1 mmc2 usb"));
 	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
-	ut_asserteq(2, iter.num_devs);
+	ut_asserteq(3, iter.num_devs);
 	ut_asserteq_str("mmc1.bootdev", iter.dev_used[0]->name);
 	ut_asserteq_str("mmc2.bootdev", iter.dev_used[1]->name);
+	ut_asserteq_str("usb_mass_storage.lun0.bootdev",
+			iter.dev_used[2]->name);
 	bootflow_iter_uninit(&iter);
 
 	return 0;
