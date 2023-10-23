@@ -309,10 +309,11 @@
 &qspi {
 	bootph-all;
 	status = "okay";
-	num-cs = <1>;
+	num-cs = <2>;
 	flash@0 {
 		compatible = "n25q128a11", "jedec,spi-nor";
-		reg = <0x0>;
+		reg = <0>, <1>;
+		parallel-memories = /bits/ 64 <0x1000000 0x1000000>; /* 16MB */
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;
 		spi-max-frequency = <50000000>;
