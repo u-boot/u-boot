@@ -1088,19 +1088,7 @@ int mac_read_from_eeprom(void)
 	return 0;
 }
 
-/**
- *  populate_serial_number - read the serial number from EEPROM
- *
- *  This function reads the serial number from the EEPROM and sets the
- *  appropriate environment variable.
- *
- *  The environment variable is only set if it has not been set
- *  already.  This ensures that any user-saved variables are never
- *  overwritten.
- *
- *  This function must be called after relocation.
- */
-int populate_serial_number(int devnum)
+int serial_read_from_eeprom(int devnum)
 {
 	char serialstr[257];
 	int eeprom_index;

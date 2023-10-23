@@ -271,6 +271,20 @@ void board_init_r(struct global_data *id, ulong dest_addr)
 
 int cpu_init_r(void);
 int mac_read_from_eeprom(void);
+
+/**
+ *  serial_read_from_eeprom - read the serial number from EEPROM
+ *
+ *  This function reads the serial number from the EEPROM and sets the
+ *  appropriate environment variable.
+ *
+ *  The environment variable is only set if it has not been set
+ *  already. This ensures that any user-saved variables are never
+ *  overwritten.
+ *
+ *  This function must be called after relocation.
+ */
+int serial_read_from_eeprom(int devnum);
 int set_cpu_clk_info(void);
 int update_flash_size(int flash_size);
 int arch_early_init_r(void);
