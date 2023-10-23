@@ -232,6 +232,19 @@ static int bootdev_test_order(struct unit_test_state *uts)
 			iter.dev_used[2]->name);
 	bootflow_iter_uninit(&iter);
 
+	/* Try a single uclass */
+	ut_assertok(env_set("boot_targets", NULL));
+	ut_assertok(bootflow_scan_first(NULL, "mmc", &iter, 0, &bflow));
+	ut_asserteq(2, iter.num_devs);
+
+	/* Now scan pass mmc1 and make sure that only mmc0 shows up */
+	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
+	ut_asserteq(3, iter.num_devs);
+	ut_asserteq_str("mmc2.bootdev", iter.dev_used[0]->name);
+	ut_asserteq_str("mmc1.bootdev", iter.dev_used[1]->name);
+	ut_asserteq_str("mmc0.bootdev", iter.dev_used[2]->name);
+	bootflow_iter_uninit(&iter);
+
 	return 0;
 }
 BOOTSTD_TEST(bootdev_test_order, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
