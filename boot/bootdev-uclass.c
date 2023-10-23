@@ -469,10 +469,11 @@ int bootdev_find_by_label(const char *label, struct udevice **devp,
 			 * if no sequence number was provided, we must scan all
 			 * bootdevs for this media uclass
 			 */
-			if (IS_ENABLED(CONFIG_BOOTSTD_FULL) && seq == -1)
+			if (seq == -1)
 				method_flags |= BOOTFLOW_METHF_SINGLE_UCLASS;
 			if (method_flagsp)
 				*method_flagsp = method_flags;
+			log_debug("method flags %x\n", method_flags);
 			return 0;
 		}
 		log_debug("- no device in %s\n", media->name);
