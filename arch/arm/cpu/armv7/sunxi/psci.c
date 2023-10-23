@@ -11,8 +11,6 @@
 #include <asm/cache.h>
 
 #include <asm/arch/cpu.h>
-#include <asm/arch/cpucfg.h>
-#include <asm/arch/prcm.h>
 #include <asm/armv7.h>
 #include <asm/gic.h>
 #include <asm/io.h>
@@ -28,6 +26,17 @@
 #define	GICC_BASE	(SUNXI_GIC400_BASE + GIC_CPU_OFFSET_A15)
 
 /*
+ * Offsets into the CPUCFG block applicable to most SUNXIs.
+ */
+#define SUNXI_CPU_RST(cpu)			(0x40 + (cpu) * 0x40 + 0x0)
+#define SUNXI_CPU_STATUS(cpu)			(0x40 + (cpu) * 0x40 + 0x8)
+#define SUNXI_GEN_CTRL				(0x184)
+#define SUNXI_PRIV0				(0x1a4)
+#define SUN7I_CPU1_PWR_CLAMP			(0x1b0)
+#define SUN7I_CPU1_PWROFF			(0x1b4)
+#define SUNXI_DBG_CTRL1				(0x1e4)
+
+/*
  * R40 is different from other single cluster SoCs.
  *
  * The power clamps are located in the unused space after the per-core
@@ -37,6 +46,24 @@
 #define SUN8I_R40_PWROFF			(0x110)
 #define SUN8I_R40_PWR_CLAMP(cpu)		(0x120 + (cpu) * 0x4)
 #define SUN8I_R40_SRAMC_SOFT_ENTRY_REG0		(0xbc)
+
+/*
+ * R528 is also different, as it has both cores powered up (but held in reset
+ * state) after the SoC is reset. Like the R40, it uses a "soft" entry point
+ * address register, but unlike the R40, it uses a newer "CPUX" block to manage
+ * CPU state, rather than the older CPUCFG system.
+ */
+#define SUN8I_R528_SOFT_ENTRY			(0x1c8)
+#define SUN8I_R528_C0_RST_CTRL			(0x0000)
+#define SUN8I_R528_C0_CTRL_REG0			(0x0010)
+#define SUN8I_R528_C0_CPU_STATUS		(0x0080)
+
+#define SUN8I_R528_C0_STATUS_STANDBYWFI		(16)
+
+/* Only newer cores have this additional IP block. */
+#ifndef SUNXI_R_CPUCFG_BASE
+#define SUNXI_R_CPUCFG_BASE			0
+#endif
 
 static void __secure cp15_write_cntp_tval(u32 tval)
 {
@@ -76,11 +103,8 @@ static void __secure __mdelay(u32 ms)
 	isb();
 }
 
-static void __secure clamp_release(u32 __maybe_unused *clamp)
+static void __secure clamp_release(u32 *clamp)
 {
-#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || \
-	defined(CONFIG_MACH_SUN8I_H3) || \
-	defined(CONFIG_MACH_SUN8I_R40)
 	u32 tmp = 0x1ff;
 	do {
 		tmp >>= 1;
@@ -88,24 +112,54 @@ static void __secure clamp_release(u32 __maybe_unused *clamp)
 	} while (tmp);
 
 	__mdelay(10);
-#endif
 }
 
-static void __secure clamp_set(u32 __maybe_unused *clamp)
+static void __secure clamp_set(u32 *clamp)
 {
-#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || \
-	defined(CONFIG_MACH_SUN8I_H3) || \
-	defined(CONFIG_MACH_SUN8I_R40)
 	writel(0xff, clamp);
-#endif
 }
 
-static void __secure sunxi_power_switch(u32 *clamp, u32 *pwroff, bool on,
-					int cpu)
+static void __secure sunxi_cpu_set_entry(int __always_unused cpu, void *entry)
 {
+	if (IS_ENABLED(CONFIG_MACH_SUN8I_R40)) {
+		writel((u32)entry,
+		       SUNXI_SRAMC_BASE + SUN8I_R40_SRAMC_SOFT_ENTRY_REG0);
+	} else if (IS_ENABLED(CONFIG_MACH_SUN8I_R528)) {
+		writel((u32)entry,
+		       SUNXI_R_CPUCFG_BASE + SUN8I_R528_SOFT_ENTRY);
+	} else {
+		writel((u32)entry, SUNXI_CPUCFG_BASE + SUNXI_PRIV0);
+	}
+}
+
+static void __secure sunxi_cpu_set_power(int cpu, bool on)
+{
+	u32 *clamp = NULL;
+	u32 *pwroff;
+
+	/* sun7i (A20) is different from other single cluster SoCs */
+	if (IS_ENABLED(CONFIG_MACH_SUN7I)) {
+		clamp = (void *)SUNXI_CPUCFG_BASE + SUN7I_CPU1_PWR_CLAMP;
+		pwroff = (void *)SUNXI_CPUCFG_BASE + SUN7I_CPU1_PWROFF;
+		cpu = 0;
+	} else if (IS_ENABLED(CONFIG_MACH_SUN8I_R40)) {
+		clamp = (void *)SUNXI_CPUCFG_BASE + SUN8I_R40_PWR_CLAMP(cpu);
+		pwroff = (void *)SUNXI_CPUCFG_BASE + SUN8I_R40_PWROFF;
+	} else if (IS_ENABLED(CONFIG_MACH_SUN8I_R528)) {
+		/* R528 leaves both cores powered up, manages them via reset */
+		return;
+	} else {
+		if (IS_ENABLED(CONFIG_MACH_SUN6I) ||
+		    IS_ENABLED(CONFIG_MACH_SUN8I_H3))
+			clamp = (void *)SUNXI_PRCM_BASE + 0x140 + cpu * 0x4;
+
+		pwroff = (void *)SUNXI_PRCM_BASE + 0x100;
+	}
+
 	if (on) {
 		/* Release power clamp */
-		clamp_release(clamp);
+		if (clamp)
+			clamp_release(clamp);
 
 		/* Clear power gating */
 		clrbits_le32(pwroff, BIT(cpu));
@@ -114,82 +168,80 @@ static void __secure sunxi_power_switch(u32 *clamp, u32 *pwroff, bool on,
 		setbits_le32(pwroff, BIT(cpu));
 
 		/* Activate power clamp */
-		clamp_set(clamp);
+		if (clamp)
+			clamp_set(clamp);
 	}
 }
 
-#ifdef CONFIG_MACH_SUN8I_R40
-/* secondary core entry address is programmed differently on R40 */
-static void __secure sunxi_set_entry_address(void *entry)
+static void __secure sunxi_cpu_set_reset(int cpu, bool reset)
 {
-	writel((u32)entry,
-	       SUNXI_SRAMC_BASE + SUN8I_R40_SRAMC_SOFT_ENTRY_REG0);
+	if (IS_ENABLED(CONFIG_MACH_SUN8I_R528)) {
+		if (reset)
+			clrbits_le32(SUNXI_CPUCFG_BASE + SUN8I_R528_C0_RST_CTRL,
+				     BIT(cpu));
+		else
+			setbits_le32(SUNXI_CPUCFG_BASE + SUN8I_R528_C0_RST_CTRL,
+				     BIT(cpu));
+
+		return;
+	}
+
+	writel(reset ? 0b00 : 0b11, SUNXI_CPUCFG_BASE + SUNXI_CPU_RST(cpu));
 }
-#else
-static void __secure sunxi_set_entry_address(void *entry)
-{
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
 
-	writel((u32)entry, &cpucfg->priv0);
+static void __secure sunxi_cpu_set_locking(int cpu, bool lock)
+{
+	if (IS_ENABLED(CONFIG_MACH_SUN8I_R528)) {
+		/* Not required on R528 */
+		return;
+	}
+
+	if (lock)
+		clrbits_le32(SUNXI_CPUCFG_BASE + SUNXI_DBG_CTRL1, BIT(cpu));
+	else
+		setbits_le32(SUNXI_CPUCFG_BASE + SUNXI_DBG_CTRL1, BIT(cpu));
 }
-#endif
 
-#ifdef CONFIG_MACH_SUN7I
-/* sun7i (A20) is different from other single cluster SoCs */
-static void __secure sunxi_cpu_set_power(int __always_unused cpu, bool on)
+static bool __secure sunxi_cpu_poll_wfi(int cpu)
 {
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
+	if (IS_ENABLED(CONFIG_MACH_SUN8I_R528)) {
+		return !!(readl(SUNXI_CPUCFG_BASE + SUN8I_R528_C0_CPU_STATUS) &
+			  BIT(SUN8I_R528_C0_STATUS_STANDBYWFI + cpu));
+	}
 
-	sunxi_power_switch(&cpucfg->cpu1_pwr_clamp, &cpucfg->cpu1_pwroff,
-			   on, 0);
+	return !!(readl(SUNXI_CPUCFG_BASE + SUNXI_CPU_STATUS(cpu)) & BIT(2));
 }
-#elif defined CONFIG_MACH_SUN8I_R40
-static void __secure sunxi_cpu_set_power(int cpu, bool on)
-{
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
 
-	sunxi_power_switch((void *)cpucfg + SUN8I_R40_PWR_CLAMP(cpu),
-			   (void *)cpucfg + SUN8I_R40_PWROFF,
-			   on, cpu);
+static void __secure sunxi_cpu_invalidate_cache(int cpu)
+{
+	if (IS_ENABLED(CONFIG_MACH_SUN8I_R528)) {
+		clrbits_le32(SUNXI_CPUCFG_BASE + SUN8I_R528_C0_CTRL_REG0,
+			     BIT(cpu));
+		return;
+	}
+
+	clrbits_le32(SUNXI_CPUCFG_BASE + SUNXI_GEN_CTRL, BIT(cpu));
 }
-#else /* ! CONFIG_MACH_SUN7I && ! CONFIG_MACH_SUN8I_R40 */
-static void __secure sunxi_cpu_set_power(int cpu, bool on)
-{
-	struct sunxi_prcm_reg *prcm =
-		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
 
-	sunxi_power_switch(&prcm->cpu_pwr_clamp[cpu], &prcm->cpu_pwroff,
-			   on, cpu);
-}
-#endif /* CONFIG_MACH_SUN7I */
-
-void __secure sunxi_cpu_power_off(u32 cpuid)
+static void __secure sunxi_cpu_power_off(u32 cpuid)
 {
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
 	u32 cpu = cpuid & 0x3;
 
 	/* Wait for the core to enter WFI */
-	while (1) {
-		if (readl(&cpucfg->cpu[cpu].status) & BIT(2))
-			break;
+	while (!sunxi_cpu_poll_wfi(cpu))
 		__mdelay(1);
-	}
 
 	/* Assert reset on target CPU */
-	writel(0, &cpucfg->cpu[cpu].rst);
+	sunxi_cpu_set_reset(cpu, true);
 
 	/* Lock CPU (Disable external debug access) */
-	clrbits_le32(&cpucfg->dbg_ctrl1, BIT(cpu));
+	sunxi_cpu_set_locking(cpu, true);
 
 	/* Power down CPU */
 	sunxi_cpu_set_power(cpuid, false);
 
-	/* Unlock CPU (Disable external debug access) */
-	setbits_le32(&cpucfg->dbg_ctrl1, BIT(cpu));
+	/* Unlock CPU (Reenable external debug access) */
+	sunxi_cpu_set_locking(cpu, false);
 }
 
 static u32 __secure cp15_read_scr(void)
@@ -246,33 +298,31 @@ out:
 int __secure psci_cpu_on(u32 __always_unused unused, u32 mpidr, u32 pc,
 			 u32 context_id)
 {
-	struct sunxi_cpucfg_reg *cpucfg =
-		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
 	u32 cpu = (mpidr & 0x3);
 
 	/* store target PC and context id */
 	psci_save(cpu, pc, context_id);
 
 	/* Set secondary core power on PC */
-	sunxi_set_entry_address(&psci_cpu_entry);
+	sunxi_cpu_set_entry(cpu, &psci_cpu_entry);
 
 	/* Assert reset on target CPU */
-	writel(0, &cpucfg->cpu[cpu].rst);
+	sunxi_cpu_set_reset(cpu, true);
 
 	/* Invalidate L1 cache */
-	clrbits_le32(&cpucfg->gen_ctrl, BIT(cpu));
+	sunxi_cpu_invalidate_cache(cpu);
 
 	/* Lock CPU (Disable external debug access) */
-	clrbits_le32(&cpucfg->dbg_ctrl1, BIT(cpu));
+	sunxi_cpu_set_locking(cpu, true);
 
 	/* Power up target CPU */
 	sunxi_cpu_set_power(cpu, true);
 
 	/* De-assert reset on target CPU */
-	writel(BIT(1) | BIT(0), &cpucfg->cpu[cpu].rst);
+	sunxi_cpu_set_reset(cpu, false);
 
-	/* Unlock CPU (Disable external debug access) */
-	setbits_le32(&cpucfg->dbg_ctrl1, BIT(cpu));
+	/* Unlock CPU (Reenable external debug access) */
+	sunxi_cpu_set_locking(cpu, false);
 
 	return ARM_PSCI_RET_SUCCESS;
 }

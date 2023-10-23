@@ -3,13 +3,29 @@
  * (C) Copyright 2007-2012
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
  * Tom Cubie <tangliang@allwinnertech.com>
+ *
+ * Definitions that are shared between the Allwinner pinctrl and GPIO drivers,
+ * also used by some non-DM SPL code directly.
  */
 
 #ifndef _SUNXI_GPIO_H
 #define _SUNXI_GPIO_H
 
 #include <linux/types.h>
-#include <asm/arch/cpu.h>
+
+#if defined(CONFIG_MACH_SUN9I)
+#define SUNXI_PIO_BASE		0x06000800
+#define SUNXI_R_PIO_BASE	0x08002c00
+#elif defined(CONFIG_SUN50I_GEN_H6)
+#define SUNXI_PIO_BASE		0x0300b000
+#define SUNXI_R_PIO_BASE	0x07022000
+#elif defined(CONFIG_SUNXI_GEN_NCAT2)
+#define SUNXI_PIO_BASE		0x02000000
+#define SUNXI_R_PIO_BASE	0x07022000
+#else
+#define SUNXI_PIO_BASE		0x01c20800
+#define SUNXI_R_PIO_BASE	0x01f02c00
+#endif
 
 /*
  * sunxi has 9 banks of gpio, they are:
@@ -29,13 +45,6 @@
 #define SUNXI_GPIO_I	8
 
 /*
- * This defines the number of GPIO banks for the _main_ GPIO controller.
- * You should fix up the padding in struct sunxi_gpio_reg below if you
- * change this.
- */
-#define SUNXI_GPIO_BANKS 9
-
-/*
  * sun6i/sun8i and later SoCs have an additional GPIO controller (R_PIO)
  * at a different register offset.
  *
@@ -52,47 +61,9 @@
 #define SUNXI_GPIO_M	12
 #define SUNXI_GPIO_N	13
 
-struct sunxi_gpio {
-	u32 cfg[4];
-	u32 dat;
-	u32 drv[2];
-	u32 pull[2];
-};
-
-/* gpio interrupt control */
-struct sunxi_gpio_int {
-	u32 cfg[3];
-	u32 ctl;
-	u32 sta;
-	u32 deb;		/* interrupt debounce */
-};
-
-struct sunxi_gpio_reg {
-	struct sunxi_gpio gpio_bank[SUNXI_GPIO_BANKS];
-	u8 res[0xbc];
-	struct sunxi_gpio_int gpio_int;
-};
-
 #define SUN50I_H6_GPIO_POW_MOD_SEL	0x340
 #define SUN50I_H6_GPIO_POW_MOD_VAL	0x348
 
-#define BANK_TO_GPIO(bank)	(((bank) < SUNXI_GPIO_L) ? \
-	&((struct sunxi_gpio_reg *)SUNXI_PIO_BASE)->gpio_bank[bank] : \
-	&((struct sunxi_gpio_reg *)SUNXI_R_PIO_BASE)->gpio_bank[(bank) - SUNXI_GPIO_L])
-
-#define GPIO_BANK(pin)		((pin) >> 5)
-#define GPIO_NUM(pin)		((pin) & 0x1f)
-
-#define GPIO_CFG_INDEX(pin)	(((pin) & 0x1f) >> 3)
-#define GPIO_CFG_OFFSET(pin)	((((pin) & 0x1f) & 0x7) << 2)
-
-#define GPIO_DRV_INDEX(pin)	(((pin) & 0x1f) >> 4)
-#define GPIO_DRV_OFFSET(pin)	((((pin) & 0x1f) & 0xf) << 1)
-
-#define GPIO_PULL_INDEX(pin)	(((pin) & 0x1f) >> 4)
-#define GPIO_PULL_OFFSET(pin)	((((pin) & 0x1f) & 0xf) << 1)
-
-/* GPIO bank sizes */
 #define SUNXI_GPIOS_PER_BANK	32
 
 #define SUNXI_GPIO_NEXT(__gpio) \
@@ -133,7 +104,6 @@ enum sunxi_gpio_number {
 /* GPIO pin function config */
 #define SUNXI_GPIO_INPUT	0
 #define SUNXI_GPIO_OUTPUT	1
-#define SUNXI_GPIO_DISABLE	7
 
 #define SUN8I_H3_GPA_UART0	2
 #define SUN8I_H3_GPA_UART2	2
@@ -202,6 +172,14 @@ enum sunxi_gpio_number {
 
 #define SUN9I_GPN_R_RSB		3
 
+#ifdef CONFIG_SUNXI_NEW_PINCTRL
+	#define SUNXI_PINCTRL_BANK_SIZE	0x30
+	#define SUNXI_GPIO_DISABLE	0xf
+#else
+	#define SUNXI_PINCTRL_BANK_SIZE	0x24
+	#define SUNXI_GPIO_DISABLE	0x7
+#endif
+
 /* GPIO pin pull-up/down config */
 #define SUNXI_GPIO_PULL_DISABLE	0
 #define SUNXI_GPIO_PULL_UP	1
@@ -213,18 +191,19 @@ enum sunxi_gpio_number {
 #define SUNXI_GPIO_AXP0_GPIO_COUNT	6
 
 struct sunxi_gpio_plat {
-	struct sunxi_gpio	*regs;
+	void			*regs;
 	char			bank_name[3];
 };
 
-void sunxi_gpio_set_cfgbank(struct sunxi_gpio *pio, int bank_offset, u32 val);
+/* prototypes for the non-DM GPIO/pinctrl functions, used in the SPL */
+void sunxi_gpio_set_cfgbank(void *bank_base, int pin_offset, u32 val);
 void sunxi_gpio_set_cfgpin(u32 pin, u32 val);
-int sunxi_gpio_get_cfgbank(struct sunxi_gpio *pio, int bank_offset);
+int sunxi_gpio_get_cfgbank(void *bank_base, int pin_offset);
 int sunxi_gpio_get_cfgpin(u32 pin);
 void sunxi_gpio_set_drv(u32 pin, u32 val);
-void sunxi_gpio_set_drv_bank(struct sunxi_gpio *pio, u32 bank_offset, u32 val);
+void sunxi_gpio_set_drv_bank(void *bank_base, u32 pin_offset, u32 val);
 void sunxi_gpio_set_pull(u32 pin, u32 val);
-void sunxi_gpio_set_pull_bank(struct sunxi_gpio *pio, int bank_offset, u32 val);
+void sunxi_gpio_set_pull_bank(void *bank_base, int pin_offset, u32 val);
 int sunxi_name_to_gpio(const char *name);
 
 #if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO

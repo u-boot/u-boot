@@ -29,6 +29,7 @@
 #include <net.h>
 #include <reset.h>
 #include <wait_bit.h>
+#include <power/regulator.h>
 
 #define MDIO_CMD_MII_BUSY		BIT(0)
 #define MDIO_CMD_MII_WRITE		BIT(1)
@@ -170,6 +171,7 @@ struct emac_eth_dev {
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc reset_gpio;
 #endif
+	struct udevice *phy_reg;
 };
 
 
@@ -720,6 +722,9 @@ static int sun8i_emac_eth_probe(struct udevice *dev)
 
 	sun8i_emac_set_syscon(sun8i_pdata, priv);
 
+	if (priv->phy_reg)
+		regulator_set_enable(priv->phy_reg, true);
+
 	sun8i_mdio_init(dev->name, dev);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
 
@@ -828,6 +833,8 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 	}
 
 	priv->sysctl_reg = (void *)syscon_base + priv->variant->syscon_offset;
+
+	device_get_supply_regulator(dev, "phy-supply", &priv->phy_reg);
 
 	pdata->phy_interface = -1;
 	priv->phyaddr = -1;

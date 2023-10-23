@@ -20,10 +20,10 @@
 #include <errno.h>
 #include <i2c.h>
 #include <reset.h>
+#include <sunxi_gpio.h>
 #include <time.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/p2wi.h>
 #include <asm/arch/prcm.h>
 #include <asm/arch/sys_proto.h>

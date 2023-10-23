@@ -9,6 +9,7 @@
 #define _SUNXI_CLOCK_H
 
 #include <linux/types.h>
+#include <asm/arch/cpu.h>
 
 #define CLK_GATE_OPEN			0x1
 #define CLK_GATE_CLOSE			0x0
@@ -16,7 +17,7 @@
 /* clock control module regs definition */
 #if defined(CONFIG_MACH_SUN8I_A83T)
 #include <asm/arch/clock_sun8i_a83t.h>
-#elif defined(CONFIG_SUN50I_GEN_H6)
+#elif defined(CONFIG_SUN50I_GEN_H6) || defined(CONFIG_SUNXI_GEN_NCAT2)
 #include <asm/arch/clock_sun50i_h6.h>
 #elif defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I) || \
       defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUNIV)

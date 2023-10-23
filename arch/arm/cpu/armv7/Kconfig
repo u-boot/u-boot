@@ -61,8 +61,9 @@ config ARMV7_SECURE_MAX_SIZE
 config ARM_GIC_BASE_ADDRESS
 	hex
 	depends on ARMV7_NONSEC
-	depends on ARCH_EXYNOS5
+	depends on ARCH_EXYNOS5 || MACH_SUN8I_R528
 	default 0x10480000 if ARCH_EXYNOS5
+	default 0x03020000 if MACH_SUN8I_R528
 	help
 	  Override the GIC base address if the Arm Cortex defined
 	  CBAR/PERIPHBASE system register holds the wrong value.

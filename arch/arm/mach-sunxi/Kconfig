@@ -121,7 +121,7 @@ config AXP_PMIC_BUS
 config SUNXI_SRAM_ADDRESS
 	hex
 	default 0x10000 if MACH_SUN9I || MACH_SUN50I || MACH_SUN50I_H5
-	default 0x20000 if SUN50I_GEN_H6
+	default 0x20000 if SUN50I_GEN_H6 || SUNXI_GEN_NCAT2
 	default 0x0
 	---help---
 	Older Allwinner SoCs have their mask boot ROM mapped just below 4GB,
@@ -181,6 +181,14 @@ config SUN50I_GEN_H6
 	select SUPPORT_SPL
 	---help---
 	Select this for sunxi SoCs which have H6 like peripherals, clocks
+	and memory map.
+
+config SUNXI_GEN_NCAT2
+	bool
+	select MMC_SUNXI_HAS_NEW_MODE
+	select SUPPORT_SPL
+	---help---
+	Select this for sunxi SoCs which have D1 like peripherals, clocks
 	and memory map.
 
 config SUNXI_DRAM_DW
@@ -337,6 +345,19 @@ config MACH_SUN8I_R40
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT
 	imply SPL_SYS_I2C_LEGACY
+
+config MACH_SUN8I_R528
+	bool "sun8i (Allwinner R528)"
+	select CPU_V7A
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select ARCH_SUPPORT_PSCI
+	select SPL_ARMV7_SET_CORTEX_SMPEN
+	select SUNXI_GEN_NCAT2
+	select SUNXI_NEW_PINCTRL
+	select MMC_SUNXI_HAS_NEW_MODE
+	select SUPPORT_SPL
+	select DRAM_SUN20I_D1
 
 config MACH_SUN8I_V3S
 	bool "sun8i (Allwinner V3/V3s/S3/S3L)"
@@ -648,6 +669,7 @@ config SYS_CLK_FREQ
 	default 1008000000 if MACH_SUN9I
 	default 888000000 if MACH_SUN50I_H6
 	default 1008000000 if MACH_SUN50I_H616
+	default 1008000000 if MACH_SUN8I_R528
 
 config SYS_CONFIG_NAME
 	default "suniv" if MACH_SUNIV
@@ -656,6 +678,7 @@ config SYS_CONFIG_NAME
 	default "sun6i" if MACH_SUN6I
 	default "sun7i" if MACH_SUN7I
 	default "sun8i" if MACH_SUN8I
+	default "sun8i" if MACH_SUN8I_R528
 	default "sun9i" if MACH_SUN9I
 	default "sun50i" if MACH_SUN50I
 	default "sun50i" if MACH_SUN50I_H6
@@ -694,13 +717,6 @@ config OLD_SUNXI_KERNEL_COMPAT
 	---help---
 	Set this to enable various workarounds for old kernels, this results in
 	sub-optimal settings for newer kernels, only enable if needed.
-
-config MACPWR
-	string "MAC power pin"
-	default ""
-	help
-	  Set the pin used to power the MAC. This takes a string in the format
-	  understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
 config MMC1_PINS_PH
 	bool "Pins for mmc1 are on Port H"
@@ -811,6 +827,7 @@ config VIDEO_SUNXI
 	depends on !MACH_SUN9I
 	depends on !MACH_SUN50I
 	depends on !SUN50I_GEN_H6
+	depends on !SUNXI_GEN_NCAT2
 	select VIDEO
 	select DISPLAY
 	imply VIDEO_DT_SIMPLEFB
@@ -1008,14 +1025,6 @@ config VIDEO_LCD_TL059WV5C0
 
 endchoice
 
-config SATAPWR
-	string "SATA power pin"
-	default ""
-	help
-	  Set the pins used to power the SATA. This takes a string in the
-	  format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of
-	  port H.
-
 config GMAC_TX_DELAY
 	int "GMAC Transmit Clock Delay Chain"
 	default 0
@@ -1032,6 +1041,7 @@ config SPL_STACK_R_ADDR
 	default 0x2fe00000 if MACH_SUN9I
 	default 0x4fe00000 if MACH_SUN50I
 	default 0x4fe00000 if SUN50I_GEN_H6
+	default 0x4fe00000 if SUNXI_GEN_NCAT2
 
 config SPL_SPI_SUNXI
 	bool "Support for SPI Flash on Allwinner SoCs in SPL"

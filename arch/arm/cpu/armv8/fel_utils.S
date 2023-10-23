@@ -10,6 +10,7 @@
 #include <config.h>
 #include <asm/system.h>
 #include <linux/linkage.h>
+#include <asm/arch/cpu.h>
 
 /*
  * We don't overwrite save_boot_params() here, to save the FEL state upon

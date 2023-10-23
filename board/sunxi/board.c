@@ -38,6 +38,7 @@
 #include <asm/armv7.h>
 #endif
 #include <asm/gpio.h>
+#include <sunxi_gpio.h>
 #include <asm/io.h>
 #include <u-boot/crc.h>
 #include <env_internal.h>
@@ -187,7 +188,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 /* add board specific code here */
 int board_init(void)
 {
-	__maybe_unused int id_pfr1, ret, satapwr_pin, macpwr_pin;
+	__maybe_unused int id_pfr1, ret;
 
 	gd->bd->bi_boot_params = (PHYS_SDRAM_0 + 0x100);
 
@@ -224,29 +225,6 @@ int board_init(void)
 	if (ret)
 		return ret;
 
-	/* strcmp() would look better, but doesn't get optimised away. */
-	if (CONFIG_SATAPWR[0]) {
-		satapwr_pin = sunxi_name_to_gpio(CONFIG_SATAPWR);
-		if (satapwr_pin >= 0) {
-			gpio_request(satapwr_pin, "satapwr");
-			gpio_direction_output(satapwr_pin, 1);
-
-			/*
-			 * Give the attached SATA device time to power-up
-			 * to avoid link timeouts
-			 */
-			mdelay(500);
-		}
-	}
-
-	if (CONFIG_MACPWR[0]) {
-		macpwr_pin = sunxi_name_to_gpio(CONFIG_MACPWR);
-		if (macpwr_pin >= 0) {
-			gpio_request(macpwr_pin, "macpwr");
-			gpio_direction_output(macpwr_pin, 1);
-		}
-	}
-
 #if CONFIG_IS_ENABLED(DM_I2C)
 	/*
 	 * Temporary workaround for enabling I2C clocks until proper sunxi DM
@@ -254,7 +232,6 @@ int board_init(void)
 	 */
 	i2c_init_board();
 #endif
-
 	eth_init_board();
 
 	return 0;
@@ -482,6 +459,13 @@ static void mmc_pinmux_setup(int sdc)
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
+#elif defined(CONFIG_MACH_SUN8I_R528)
+                /* SDC2: PC2-PC7 */
+                for (pin = SUNXI_GPC(2); pin <= SUNXI_GPC(7); pin++) {
+                        sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
+                        sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+                        sunxi_gpio_set_drv(pin, 2);
+                }
 #else
 		puts("ERROR: No pinmux setup defined for MMC2!\n");
 #endif

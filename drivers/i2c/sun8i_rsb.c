@@ -14,10 +14,10 @@
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>
+#include <sunxi_gpio.h>
 #include <reset.h>
 #include <time.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/prcm.h>
 #include <asm/arch/rsb.h>
 

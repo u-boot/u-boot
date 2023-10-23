@@ -12,7 +12,6 @@
 #ifndef _SUNXI_COMMON_CONFIG_H
 #define _SUNXI_COMMON_CONFIG_H
 
-#include <asm/arch/cpu.h>
 #include <linux/stringify.h>
 
 /* Serial & console */
@@ -24,6 +23,7 @@
 #define CFG_SYS_NS16550_CLK		24000000
 #endif
 #if !CONFIG_IS_ENABLED(DM_SERIAL)
+#include <asm/arch/serial.h>
 # define CFG_SYS_NS16550_COM1		SUNXI_UART0_BASE
 # define CFG_SYS_NS16550_COM2		SUNXI_UART1_BASE
 # define CFG_SYS_NS16550_COM3		SUNXI_UART2_BASE

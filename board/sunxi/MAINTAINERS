@@ -291,6 +291,11 @@ M:	Aleksei Mamlin <mamlinav@gmail.com>
 S:	Maintained
 F:	configs/Marsboard_A10_defconfig
 
+MANGOPI MQ-R BOARD
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/mangopi_mq_r_defconfig
+
 MELE I7 BOARD
 M:	Marcus Cooper <codekipper@gmail.com>
 S:	Maintained
