@@ -9,6 +9,7 @@
 	binman {
 		ti-secure-rom {
 			content = <&unsecure_binary>;
+			core-opts = <2>;
 		};
 		unsecure_binary: blob-ext {
 			filename = "ti_unsecure.bin";
