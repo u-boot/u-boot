@@ -13,6 +13,8 @@
 #define CFG_SYS_BOOTMAPSZ            (0x30 << 20)
 #define CFG_SYS_SDRAM_BASE           0x0
 
+#define CFG_SYS_BAUDRATE_TABLE	{ 57600, 115200, 230400, 460800 }
+
 /* Default environemnt variables */
 #define CFG_EXTRA_ENV_SETTINGS   "uimage_flash_addr=80200000\0"   \
 		"stdin=serial\0"   \
