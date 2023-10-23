@@ -53,6 +53,30 @@
 #define BOOTENV_DEV_NAME_ROMUSB(devtypeu, devtypel, instance)	\
 		"romusb "
 
+/*
+ * Fallback to "USB DFU" boot if script is not at scriptaddr
+ *
+ * DFU will expose the kernel_addr_r memory range as DFU entry,
+ * then with `dfu-util --detach`, booting the uploaded image
+ * will be attempted:
+ * $ dfu-util -a 0 -D fitImage
+ * $ dfu-util -a 0 -e
+ */
+#if CONFIG_IS_ENABLED(USB_GADGET) && CONFIG_IS_ENABLED(DFU_RAM)
+	#define BOOTENV_DEV_USB_DFU(devtypeu, devtypel, instance) \
+		"bootcmd_usbdfu=" \
+			"if test \"${boot_source}\" = \"usb\"; then " \
+				"dfu 0 ram 0 60;" \
+				"bootm ${kernel_addr_r};" \
+			"fi\0"
+
+	#define BOOTENV_DEV_NAME_USB_DFU(devtypeu, devtypel, instance) \
+		"usbdfu "
+#else
+	#define BOOTENV_DEV_USB_DFU(devtypeu, devtypel, instance)
+	#define BOOTENV_DEV_NAME_USB_DFU(devtypeu, devtypel, instance)
+#endif
+
 #ifdef CONFIG_CMD_USB
 #define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
 #else
@@ -74,6 +98,7 @@
 #ifndef BOOT_TARGET_DEVICES
 #define BOOT_TARGET_DEVICES(func) \
 	func(ROMUSB, romusb, na)  \
+	func(USB_DFU, usbdfu, na)  \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 2) \
@@ -109,6 +134,7 @@
 	"fdtoverlay_addr_r=" FDTOVERLAY_ADDR_R "\0" \
 	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
 	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+	"dfu_alt_info=fitimage ram " KERNEL_ADDR_R " 0x4000000 \0" \
 	BOOTENV
 #endif
 
