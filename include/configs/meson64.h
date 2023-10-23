@@ -84,6 +84,15 @@
 	func(DHCP, dhcp, na)
 #endif
 
+#define BOOTM_SIZE		__stringify(0x1700000)
+#define KERNEL_ADDR_R		__stringify(0x08080000)
+#define KERNEL_COMP_ADDR_R	__stringify(0x0d080000)
+#define FDT_ADDR_R		__stringify(0x08008000)
+#define SCRIPT_ADDR_R		__stringify(0x08000000)
+#define PXEFILE_ADDR_R		__stringify(0x01080000)
+#define FDTOVERLAY_ADDR_R	__stringify(0x01000000)
+#define RAMDISK_ADDR_R		__stringify(0x13000000)
+
 #include <config_distro_bootcmd.h>
 
 #ifndef CFG_EXTRA_ENV_SETTINGS
@@ -91,14 +100,14 @@
 	"stdin=" STDIN_CFG "\0" \
 	"stdout=" STDOUT_CFG "\0" \
 	"stderr=" STDOUT_CFG "\0" \
-	"kernel_comp_addr_r=0x0d080000\0" \
+	"kernel_comp_addr_r=" KERNEL_COMP_ADDR_R "\0" \
 	"kernel_comp_size=0x2000000\0" \
-	"fdt_addr_r=0x08008000\0" \
-	"scriptaddr=0x08000000\0" \
-	"kernel_addr_r=0x08080000\0" \
-	"pxefile_addr_r=0x01080000\0" \
-	"fdtoverlay_addr_r=0x01000000\0" \
-	"ramdisk_addr_r=0x13000000\0" \
+	"fdt_addr_r=" FDT_ADDR_R "\0" \
+	"scriptaddr=" SCRIPT_ADDR_R "\0" \
+	"kernel_addr_r=" KERNEL_ADDR_R "\0" \
+	"pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
+	"fdtoverlay_addr_r=" FDTOVERLAY_ADDR_R "\0" \
+	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
 	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	BOOTENV
 #endif
