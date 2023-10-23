@@ -232,6 +232,7 @@ static const struct dm_serial_ops meson_serial_ops = {
 static const struct udevice_id meson_serial_ids[] = {
 	{ .compatible = "amlogic,meson-uart" },
 	{ .compatible = "amlogic,meson-gx-uart" },
+	{ .compatible = "amlogic,meson-a1-uart" },
 	{ }
 };
 

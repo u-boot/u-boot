@@ -328,12 +328,12 @@ int meson_g12a_usb2_phy_probe(struct udevice *dev)
 
 #if CONFIG_IS_ENABLED(POWER_DOMAIN)
 	ret = power_domain_get(dev, &priv->pwrdm);
-	if (ret < 0 && ret != -ENODEV) {
-		pr_err("failed to get power domain\n");
+	if (ret < 0 && ret != -ENODEV && ret != -ENOENT) {
+		pr_err("failed to get power domain : %d\n", ret);
 		return ret;
 	}
 
-	if (ret != -ENODEV) {
+	if (ret != -ENODEV && ret != -ENOENT) {
 		ret = power_domain_on(&priv->pwrdm);
 		if (ret < 0) {
 			pr_err("failed to enable power domain\n");
