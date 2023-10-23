@@ -156,6 +156,27 @@ static void bootflow_iter_set_dev(struct bootflow_iter *iter,
 }
 
 /**
+ * scan_next_in_uclass() - Scan for the next bootdev in the same media uclass
+ *
+ * Move through the following bootdevs until we find another in this media
+ * uclass, or run out
+ *
+ * @devp: On entry, the device to check, on exit the new device, or NULL if
+ * there is none
+ */
+static void scan_next_in_uclass(struct udevice **devp)
+{
+	struct udevice *dev = *devp;
+	enum uclass_id cur_id = device_get_uclass_id(dev->parent);
+
+	do {
+		uclass_find_next_device(&dev);
+	} while (dev && cur_id != device_get_uclass_id(dev->parent));
+
+	*devp = dev;
+}
+
+/**
  * iter_incr() - Move to the next item (method, part, bootdev)
  *
  * Return: 0 if OK, BF_NO_MORE_DEVICES if there are no more bootdevs
@@ -230,8 +251,7 @@ static int iter_incr(struct bootflow_iter *iter)
 						 &method_flags);
 		} else if (IS_ENABLED(CONFIG_BOOTSTD_FULL) &&
 			   (iter->flags & BOOTFLOWIF_SINGLE_UCLASS)) {
-			/* Move to the next bootdev in this uclass */
-			uclass_find_next_device(&dev);
+			scan_next_in_uclass(&dev);
 			if (!dev) {
 				log_debug("finished uclass %s\n",
 					  dev_get_uclass_name(dev));
@@ -266,8 +286,9 @@ static int iter_incr(struct bootflow_iter *iter)
 				 * bootdev_find_by_label() where this flag is
 				 * set up
 				 */
-				if (iter->method_flags & BOOTFLOW_METHF_SINGLE_UCLASS) {
-					uclass_next_device(&dev);
+				if (iter->method_flags &
+				    BOOTFLOW_METHF_SINGLE_UCLASS) {
+					scan_next_in_uclass(&dev);
 					log_debug("looking for next device %s: %s\n",
 						  iter->dev->name,
 						  dev ? dev->name : "<none>");

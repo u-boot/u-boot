@@ -188,12 +188,20 @@ static int script_boot(struct udevice *dev, struct bootflow *bflow)
 {
 	struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
 	ulong addr;
-	int ret;
+	int ret = 0;
 
-	if (desc->uclass_id == UCLASS_USB)
+	if (desc->uclass_id == UCLASS_USB) {
 		ret = env_set("devtype", "usb");
-	else
-		ret = env_set("devtype", blk_get_devtype(bflow->blk));
+	} else {
+		/* If the uclass is AHCI, but the driver is ATA
+		 * (not scsi), set devtype to sata
+		 */
+		if (IS_ENABLED(CONFIG_SATA) &&
+		    desc->uclass_id == UCLASS_AHCI)
+			ret = env_set("devtype", "sata");
+		else
+			ret = env_set("devtype", blk_get_devtype(bflow->blk));
+	}
 	if (!ret)
 		ret = env_set_hex("devnum", desc->devnum);
 	if (!ret)
