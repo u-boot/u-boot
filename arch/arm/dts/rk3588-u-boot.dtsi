@@ -3,36 +3,27 @@
  * Copyright (c) 2022 Edgeble AI Technologies Pvt. Ltd.
  */
 
-#include "rockchip-u-boot.dtsi"
 #include "rk3588s-u-boot.dtsi"
 
 / {
-	usbdrd3_1: usbdrd3_1 {
-		compatible = "rockchip,rk3588-dwc3", "rockchip,rk3399-dwc3";
+	usb_host1_xhci: usb@fc400000 {
+		compatible = "rockchip,rk3588-dwc3", "rockchip,rk3568-dwc3", "snps,dwc3";
+		reg = <0x0 0xfc400000 0x0 0x400000>;
+		interrupts = <GIC_SPI 221 IRQ_TYPE_LEVEL_HIGH 0>;
 		clocks = <&cru REF_CLK_USB3OTG1>, <&cru SUSPEND_CLK_USB3OTG1>,
 			 <&cru ACLK_USB3OTG1>;
-		clock-names = "ref", "suspend", "bus";
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
+		clock-names = "ref_clk", "suspend_clk", "bus_clk";
+		dr_mode = "host";
+		phys = <&u2phy1_otg>, <&usbdp_phy1_u3>;
+		phy-names = "usb2-phy", "usb3-phy";
+		phy_type = "utmi_wide";
+		power-domains = <&power RK3588_PD_USB>;
+		resets = <&cru SRST_A_USB3OTG1>;
+		snps,dis_enblslpm_quirk;
+		snps,dis-u2-freeclk-exists-quirk;
+		snps,dis-del-phy-power-chg-quirk;
+		snps,dis-tx-ipgap-linecheck-quirk;
 		status = "disabled";
-
-		usbdrd_dwc3_1: usb@fc400000 {
-			compatible = "snps,dwc3";
-			reg = <0x0 0xfc400000 0x0 0x400000>;
-			interrupts = <GIC_SPI 221 IRQ_TYPE_LEVEL_HIGH 0>;
-			power-domains = <&power RK3588_PD_USB>;
-			resets = <&cru SRST_A_USB3OTG1>;
-			reset-names = "usb3-otg";
-			dr_mode = "host";
-			phys = <&u2phy1_otg>, <&usbdp_phy1_u3>;
-			phy-names = "usb2-phy", "usb3-phy";
-			phy_type = "utmi_wide";
-			snps,dis_enblslpm_quirk;
-			snps,dis-u2-freeclk-exists-quirk;
-			snps,dis-del-phy-power-chg-quirk;
-			snps,dis-tx-ipgap-linecheck-quirk;
-		};
 	};
 
 	usbdpphy1_grf: syscon@fd5cc000 {
@@ -57,7 +48,6 @@
 			clock-names = "phyclk";
 			clock-output-names = "usb480m_phy1";
 			#clock-cells = <0>;
-			rockchip,usbctrl-grf = <&usb_grf>;
 			status = "disabled";
 
 			u2phy1_otg: otg-port {

@@ -197,6 +197,7 @@ void dev_print(struct blk_desc *desc)
 	case UCLASS_PVBLOCK:
 	case UCLASS_HOST:
 	case UCLASS_BLKMAP:
+	case UCLASS_RKMTD:
 		printf ("Vendor: %s Rev: %s Prod: %s\n",
 			desc->vendor,
 			desc->revision,
@@ -329,6 +330,9 @@ static void print_part_header(const char *type, struct blk_desc *desc)
 		break;
 	case UCLASS_PVBLOCK:
 		puts("PV BLOCK");
+		break;
+	case UCLASS_RKMTD:
+		puts("RKMTD");
 		break;
 	case UCLASS_VIRTIO:
 		puts("VirtIO");

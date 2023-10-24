@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
-/*
- * Copyright (c) 2023 Collabora Ltd.
- */
 
-#include "rk3588s-u-boot.dtsi"
+#include "rk3588-u-boot.dtsi"
 
 / {
 	chosen {
@@ -11,8 +8,20 @@
 	};
 };
 
+&fspim1_pins {
+	bootph-all;
+};
+
 &sdhci {
 	cap-mmc-highspeed;
-	mmc-ddr-1_8v;
 	mmc-hs200-1_8v;
+};
+
+&sfc {
+	bootph-pre-ram;
+	u-boot,spl-sfc-no-dma;
+
+	flash@0 {
+		bootph-pre-ram;
+	};
 };

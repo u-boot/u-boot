@@ -168,13 +168,71 @@ rockchip_pll_clk_set_by_auto(ulong fin_hz,
 	return rate_table;
 }
 
+static u32
+rockchip_rk3588_pll_k_get(u32 m, u32 p, u32 s, u64 fin_hz, u64 fvco)
+{
+	u64 fref, fout, ffrac;
+	u32 k = 0;
+
+	fref = fin_hz / p;
+	ffrac = fvco - (m * fref);
+	fout = ffrac * 65536;
+	k = fout / fref;
+	if (k > 32767) {
+		fref = fin_hz / p;
+		ffrac = ((m + 1) * fref) - fvco;
+		fout = ffrac * 65536;
+		k = ((fout * 10 / fref) + 7) / 10;
+		if (k > 32767)
+			k = 0;
+		else
+			k = ~k + 1;
+	}
+	return k;
+}
+
+static struct rockchip_pll_rate_table *
+rockchip_rk3588_pll_frac_by_auto(unsigned long fin_hz, unsigned long fout_hz)
+{
+	struct rockchip_pll_rate_table *rate_table = &rockchip_auto_table;
+	u32 p, m, s, k;
+	u64 fvco;
+
+	for (s = 0; s <= 6; s++) {
+		fvco = (u64)fout_hz << s;
+		if (fvco < RK3588_VCO_MIN_HZ || fvco > RK3588_VCO_MAX_HZ)
+			continue;
+		for (p = 1; p <= 4; p++) {
+			for (m = 64; m <= 1023; m++) {
+				if ((fvco >= m * fin_hz / p) &&
+				    (fvco < (m + 1) * fin_hz / p)) {
+					k = rockchip_rk3588_pll_k_get(m, p, s,
+								      fin_hz,
+								      fvco);
+					if (!k)
+						continue;
+					rate_table->p = p;
+					rate_table->s = s;
+					rate_table->k = k;
+					if (k > 32767)
+						rate_table->m = m + 1;
+					else
+						rate_table->m = m;
+					return rate_table;
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
 static struct rockchip_pll_rate_table *
 rk3588_pll_clk_set_by_auto(unsigned long fin_hz,
 			   unsigned long fout_hz)
 {
 	struct rockchip_pll_rate_table *rate_table = &rockchip_auto_table;
 	u32 p, m, s;
-	ulong fvco, fref, fout, ffrac;
+	ulong fvco;
 
 	if (fin_hz == 0 || fout_hz == 0 || fout_hz == fin_hz)
 		return NULL;
@@ -202,27 +260,12 @@ rk3588_pll_clk_set_by_auto(unsigned long fin_hz,
 		}
 		pr_err("CANNOT FIND Fout by auto,fout = %lu\n", fout_hz);
 	} else {
-		for (s = 0; s <= 6; s++) {
-			fvco = fout_hz << s;
-			if (fvco < RK3588_VCO_MIN_HZ ||
-			    fvco > RK3588_VCO_MAX_HZ)
-				continue;
-			for (p = 1; p <= 4; p++) {
-				for (m = 64; m <= 1023; m++) {
-					if ((fvco >= m * fin_hz / p) && (fvco < (m + 1) * fin_hz / p)) {
-						rate_table->p = p;
-						rate_table->m = m;
-						rate_table->s = s;
-						fref = fin_hz / p;
-						ffrac = fvco - (m * fref);
-						fout = ffrac * 65536;
-						rate_table->k = fout / fref;
-						return rate_table;
-					}
-				}
-			}
-		}
-		pr_err("CANNOT FIND Fout by auto,fout = %lu\n", fout_hz);
+		rate_table = rockchip_rk3588_pll_frac_by_auto(fin_hz, fout_hz);
+		if (!rate_table)
+			pr_err("CANNOT FIND Fout by auto,fout = %lu\n",
+			       fout_hz);
+		else
+			return rate_table;
 	}
 	return NULL;
 }
@@ -533,11 +576,22 @@ static ulong rk3588_pll_get_rate(struct rockchip_pll_clock *pll,
 
 		rate = OSC_HZ / p;
 		rate *= m;
-		if (k) {
+		if (k & BIT(15)) {
+			/* fractional mode */
+			u64 frac_rate64;
+
+			k = (~(k - 1)) & RK3588_PLLCON2_K_MASK;
+			frac_rate64 = OSC_HZ * k;
+			postdiv = p;
+			postdiv *= 65536;
+			do_div(frac_rate64, postdiv);
+			rate -= frac_rate64;
+		} else {
 			/* fractional mode */
 			u64 frac_rate64 = OSC_HZ * k;
 
-			postdiv = p * 65536;
+			postdiv = p;
+			postdiv *= 65536;
 			do_div(frac_rate64, postdiv);
 			rate += frac_rate64;
 		}

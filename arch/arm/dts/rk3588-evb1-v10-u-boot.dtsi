@@ -6,16 +6,7 @@
 #include "rk3588-u-boot.dtsi"
 
 / {
-	aliases {
-		mmc0 = &sdmmc;
-		mmc1 = &sdhci;
-	};
-
 	chosen {
-		u-boot,spl-boot-order = &sdhci;
+		u-boot,spl-boot-order = "same-as-spl", &sdhci;
 	};
-};
-
-&sdhci {
-	bootph-all;
 };

@@ -11,6 +11,7 @@ endif
 
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_IDE) += ide.o
+obj-$(CONFIG_RKMTD) += rkmtd.o
 endif
 obj-$(CONFIG_SANDBOX) += sandbox.o host-uclass.o host_dev.o
 obj-$(CONFIG_$(SPL_TPL_)BLOCK_CACHE) += blkcache.o
@@ -19,3 +20,4 @@ obj-$(CONFIG_BLKMAP) += blkmap.o
 obj-$(CONFIG_EFI_MEDIA) += efi-media-uclass.o
 obj-$(CONFIG_EFI_MEDIA_SANDBOX) += sb_efi_media.o
 obj-$(CONFIG_EFI_MEDIA_BLK) += efi_blk.o
+

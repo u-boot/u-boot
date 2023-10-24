@@ -8,3 +8,4 @@ Rockchip
    :maxdepth: 2
 
    rockchip
+   rkmtd

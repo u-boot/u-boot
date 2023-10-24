@@ -36,6 +36,7 @@ static struct {
 	{ UCLASS_VIRTIO, "virtio" },
 	{ UCLASS_PVBLOCK, "pvblock" },
 	{ UCLASS_BLKMAP, "blkmap" },
+	{ UCLASS_RKMTD, "rkmtd" },
 };
 
 static enum uclass_id uclass_name_to_iftype(const char *uclass_idname)
@@ -440,7 +441,7 @@ long blk_read(struct udevice *dev, lbaint_t start, lbaint_t blkcnt, void *buf)
 			  start, blkcnt, desc->blksz, buf))
 		return blkcnt;
 
-	if (IS_ENABLED(CONFIG_BOUNCE_BUFFER)) {
+	if (IS_ENABLED(CONFIG_BOUNCE_BUFFER) && desc->bb) {
 		struct blk_bounce_buffer bbstate = { .dev = dev };
 		int ret;
 
@@ -477,7 +478,7 @@ long blk_write(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 
 	blkcache_invalidate(desc->uclass_id, desc->devnum);
 
-	if (IS_ENABLED(CONFIG_BOUNCE_BUFFER)) {
+	if (IS_ENABLED(CONFIG_BOUNCE_BUFFER) && desc->bb) {
 		struct blk_bounce_buffer bbstate = { .dev = dev };
 		int ret;
 

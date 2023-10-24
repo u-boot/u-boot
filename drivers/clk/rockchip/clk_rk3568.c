@@ -1838,7 +1838,7 @@ static ulong rk3568_dclk_vop_set_clk(struct rk3568_clk_priv *priv,
 		rockchip_pll_set_rate(&rk3568_pll_clks[VPLL],
 				      priv->cru, VPLL, div * rate);
 	} else {
-		for (i = 0; i <= DCLK_VOP_SEL_CPLL; i++) {
+		for (i = sel; i <= DCLK_VOP_SEL_CPLL; i++) {
 			switch (i) {
 			case DCLK_VOP_SEL_GPLL:
 				pll_rate = priv->gpll_hz;
@@ -2785,9 +2785,15 @@ static int rk3568_dclk_vop_set_parent(struct clk *clk, struct clk *parent)
 	if (parent->id == PLL_VPLL) {
 		rk_clrsetreg(&cru->clksel_con[con_id], DCLK0_VOP_SEL_MASK,
 			     DCLK_VOP_SEL_VPLL << DCLK0_VOP_SEL_SHIFT);
-	} else {
+	} else if (parent->id == PLL_HPLL) {
 		rk_clrsetreg(&cru->clksel_con[con_id], DCLK0_VOP_SEL_MASK,
 			     DCLK_VOP_SEL_HPLL << DCLK0_VOP_SEL_SHIFT);
+	} else if (parent->id == PLL_CPLL) {
+		rk_clrsetreg(&cru->clksel_con[con_id], DCLK0_VOP_SEL_MASK,
+			     DCLK_VOP_SEL_CPLL << DCLK0_VOP_SEL_SHIFT);
+	} else {
+		rk_clrsetreg(&cru->clksel_con[con_id], DCLK0_VOP_SEL_MASK,
+			     DCLK_VOP_SEL_GPLL << DCLK0_VOP_SEL_SHIFT);
 	}
 
 	return 0;

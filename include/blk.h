@@ -68,6 +68,7 @@ struct blk_desc {
 	/* device can use 48bit addr (ATA/ATAPI v7) */
 	bool	lba48;
 	unsigned char	atapi;		/* Use ATAPI protocol */
+	unsigned char	bb;		/* Use bounce buffer */
 	lbaint_t	lba;		/* number of blocks */
 	unsigned long	blksz;		/* block size */
 	int		log2blksz;	/* for convenience: log2(blksz) */
