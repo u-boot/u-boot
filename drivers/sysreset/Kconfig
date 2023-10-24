@@ -109,6 +109,13 @@ config SYSRESET_SPL_AT91
 	  This enables the system reset driver support for Microchip/Atmel
 	  SoCs in SPL.
 
+config SYSRESET_PALMAS
+	bool "Enable support for PALMAS System Reset"
+	depends on PMIC_PALMAS
+	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
+	help
+	  Enable system power management functions found in PLAMAS PMIC family.
+
 config SYSRESET_PSCI
 	bool "Enable support for PSCI System Reset"
 	depends on ARM_PSCI_FW
