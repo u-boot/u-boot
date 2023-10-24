@@ -7,6 +7,8 @@
 #ifndef __CPU_H
 #define __CPU_H
 
+#include <linux/types.h>
+
 struct udevice;
 
 /**

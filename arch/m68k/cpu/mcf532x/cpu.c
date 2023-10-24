@@ -8,7 +8,6 @@
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  */
 
-#include <common.h>
 #include <init.h>
 #include <net.h>
 #include <vsprintf.h>

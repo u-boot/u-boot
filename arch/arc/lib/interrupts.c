@@ -3,8 +3,8 @@
  * Copyright (C) 2013-2014 Synopsys, Inc. All rights reserved.
  */
 
-#include <common.h>
 #include <irq_func.h>
+#include <vsprintf.h>
 #include <asm/arcregs.h>
 #include <asm/ptrace.h>
 

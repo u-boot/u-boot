@@ -13,7 +13,6 @@
  * Copyright (C) 2012 Freescale Semiconductor, Inc. All Rights Reserved.
  */
 
-#include <common.h>
 #include <init.h>
 #include <net.h>
 #include <vsprintf.h>

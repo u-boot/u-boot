@@ -7,7 +7,8 @@
  * Yasushi SHOJI <yashi@atmark-techno.com>
  */
 
-#include <common.h>
+#include <log.h>
+#include <vsprintf.h>
 #include <asm/asm.h>
 
 void enable_interrupts(void)

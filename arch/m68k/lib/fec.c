@@ -3,8 +3,8 @@
  * (C) 2019 Angelo Dureghello <angelo.dureghello@timesys.com>
  */
 
-#include <common.h>
 #include <asm/global_data.h>
+#include <linux/errno.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 

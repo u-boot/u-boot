@@ -9,7 +9,6 @@
 #ifndef __ASM_RISCV_DMA_MAPPING_H
 #define __ASM_RISCV_DMA_MAPPING_H
 
-#include <common.h>
 #include <linux/types.h>
 #include <asm/cache.h>
 #include <cpu_func.h>

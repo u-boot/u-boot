@@ -2636,10 +2636,16 @@ sub u_boot_line {
 		      "All CONFIG symbols are managed by Kconfig\n" . $herecurr);
 	}
 
-	# Don't put common.h and dm.h in header files
-	if ($realfile =~ /\.h$/ && $rawline =~ /^\+#include\s*<(common|dm)\.h>*/) {
+	# Don't put dm.h in header files
+	if ($realfile =~ /\.h$/ && $rawline =~ /^\+#include\s*<dm\.h>*/) {
 		ERROR("BARRED_INCLUDE_IN_HDR",
 		      "Avoid including common.h and dm.h in header files\n" . $herecurr);
+	}
+
+	# Don't add common.h to files
+	if ($rawline =~ /^\+#include\s*<common\.h>*/) {
+		ERROR("BARRED_INCLUDE_COMMON_H",
+		      "Do not add common.h to files\n" . $herecurr);
 	}
 
 	# Do not disable fdt / initrd relocation

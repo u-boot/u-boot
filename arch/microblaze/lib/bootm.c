@@ -7,7 +7,6 @@
  * Yasushi SHOJI <yashi@atmark-techno.com>
  */
 
-#include <common.h>
 #include <bootstage.h>
 #include <command.h>
 #include <cpu_func.h>

@@ -87,6 +87,10 @@ static struct cmd_tbl cmd_ut_sub[] = {
 #ifdef CONFIG_UT_LOG
 	U_BOOT_CMD_MKENT(log, CONFIG_SYS_MAXARGS, 1, do_ut_log, "", ""),
 #endif
+#if defined(CONFIG_SANDBOX) && defined(CONFIG_CMD_MBR) && defined(CONFIG_CMD_MMC) \
+        && defined(CONFIG_MMC_SANDBOX) && defined(CONFIG_MMC_WRITE)
+	U_BOOT_CMD_MKENT(mbr, CONFIG_SYS_MAXARGS, 1, do_ut_mbr, "", ""),
+#endif
 	U_BOOT_CMD_MKENT(mem, CONFIG_SYS_MAXARGS, 1, do_ut_mem, "", ""),
 #if defined(CONFIG_SANDBOX) && defined(CONFIG_CMD_SETEXPR)
 	U_BOOT_CMD_MKENT(setexpr, CONFIG_SYS_MAXARGS, 1, do_ut_setexpr, "",

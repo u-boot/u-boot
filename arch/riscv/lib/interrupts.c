@@ -10,7 +10,6 @@
  */
 
 #include <linux/compat.h>
-#include <common.h>
 #include <efi_loader.h>
 #include <hang.h>
 #include <irq_func.h>

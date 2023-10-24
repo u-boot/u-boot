@@ -8,7 +8,6 @@
  * associated with software and timer interrupts.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <regmap.h>
 #include <syscon.h>

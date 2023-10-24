@@ -49,6 +49,7 @@
 #define MMAP_USB	(CFG_SYS_MBAR + 0x001C0000)
 #define MMAP_PWM0	(CFG_SYS_MBAR + 0x001D0000)
 
+#include <linux/types.h>
 #include <asm/coldfire/eport.h>
 #include <asm/coldfire/flexbus.h>
 #include <asm/coldfire/intctrl.h>

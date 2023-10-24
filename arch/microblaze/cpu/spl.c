@@ -5,7 +5,6 @@
  * Michal Simek <michal.simek@amd.com>
  */
 
-#include <common.h>
 #include <command.h>
 #include <image.h>
 #include <log.h>

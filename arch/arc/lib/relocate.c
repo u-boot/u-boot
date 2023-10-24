@@ -3,7 +3,6 @@
  * Copyright (C) 2013-2014 Synopsys, Inc. All rights reserved.
  */
 
-#include <common.h>
 #include <elf.h>
 #include <log.h>
 #include <asm/sections.h>

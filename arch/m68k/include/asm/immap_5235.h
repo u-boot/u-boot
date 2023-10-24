@@ -46,6 +46,7 @@
 #define MMAP_ETPU	(CFG_SYS_MBAR + 0x001D0000)
 #define MMAP_CAN2	(CFG_SYS_MBAR + 0x001F0000)
 
+#include <linux/types.h>
 #include <asm/coldfire/eport.h>
 #include <asm/coldfire/flexbus.h>
 #include <asm/coldfire/flexcan.h>

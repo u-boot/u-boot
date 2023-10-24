@@ -3,9 +3,9 @@
  * Copyright (C) 2021 SiFive, Inc
  */
 
-#include <common.h>
 #include <cache.h>
 #include <cpu_func.h>
+#include <log.h>
 #include <dm.h>
 
 void enable_caches(void)

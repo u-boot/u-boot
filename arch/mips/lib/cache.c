@@ -4,7 +4,6 @@
  * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <malloc.h>
 #include <asm/cache.h>

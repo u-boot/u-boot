@@ -6,7 +6,6 @@
  *   Pragnesh Patel <pragnesh.patel@sifive.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <asm/sections.h>

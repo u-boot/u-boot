@@ -433,7 +433,6 @@ def setup_cedit_file(cons):
     u_boot_utils.run_and_log(
         cons, f'{expo_tool} -e {inhname} -l {infname} -o {outfname}')
 
-
 @pytest.mark.buildconfigspec('ut_dm')
 def test_ut_dm_init(u_boot_console):
     """Initialize data for ut dm tests."""
@@ -462,6 +461,12 @@ def test_ut_dm_init(u_boot_console):
 
     fs_helper.mk_fs(u_boot_console.config, 'ext2', 0x200000, '2MB')
     fs_helper.mk_fs(u_boot_console.config, 'fat32', 0x100000, '1MB')
+
+    mmc_dev = 6
+    fn = os.path.join(u_boot_console.config.source_dir, f'mmc{mmc_dev}.img')
+    data = b'\x00' * (12 * 1024 * 1024)
+    with open(fn, 'wb') as fh:
+        fh.write(data)
 
 @pytest.mark.buildconfigspec('cmd_bootflow')
 def test_ut_dm_init_bootstd(u_boot_console):

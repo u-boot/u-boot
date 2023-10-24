@@ -7,7 +7,6 @@
 #ifndef __BOARD_CLK_LIB_H
 #define __BOARD_CLK_LIB_H
 
-#include <common.h>
 #include <linux/bitops.h>
 
 enum clk_ctl_ops {

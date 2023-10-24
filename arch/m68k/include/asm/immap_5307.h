@@ -17,6 +17,8 @@
 #define MMAP_UART1	(CFG_SYS_MBAR + 0x00000200)
 #define MMAP_GPIO	(CFG_SYS_MBAR + 0x00000244)
 
+#include <linux/types.h>
+
 typedef struct sim {
 	u8  rsr;
 	u8  sypcr;

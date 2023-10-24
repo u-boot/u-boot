@@ -4,7 +4,6 @@
  * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
  */
 
-#include <common.h>
 #include <irq_func.h>
 
 int interrupt_init(void)

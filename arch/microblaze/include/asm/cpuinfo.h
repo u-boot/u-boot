@@ -6,6 +6,8 @@
 #ifndef __ASM_MICROBLAZE_CPUINFO_H
 #define __ASM_MICROBLAZE_CPUINFO_H
 
+#include <linux/types.h>
+
 /**
  * struct microblaze_cpuinfo - CPU info for microblaze processor core.
  *

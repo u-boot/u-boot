@@ -86,6 +86,9 @@ struct udevice *scmi_get_protocol(struct udevice *dev,
 	case SCMI_PROTOCOL_ID_BASE:
 		proto = priv->base_dev;
 		break;
+	case SCMI_PROTOCOL_ID_POWER_DOMAIN:
+		proto = priv->pwdom_dev;
+		break;
 	case SCMI_PROTOCOL_ID_CLOCK:
 		proto = priv->clock_dev;
 		break;
@@ -132,6 +135,9 @@ static int scmi_add_protocol(struct udevice *dev,
 	switch (proto_id) {
 	case SCMI_PROTOCOL_ID_BASE:
 		priv->base_dev = proto;
+		break;
+	case SCMI_PROTOCOL_ID_POWER_DOMAIN:
+		priv->pwdom_dev = proto;
 		break;
 	case SCMI_PROTOCOL_ID_CLOCK:
 		priv->clock_dev = proto;
@@ -405,6 +411,11 @@ static int scmi_bind_protocols(struct udevice *dev)
 		drv = NULL;
 		name = ofnode_get_name(node);
 		switch (protocol_id) {
+		case SCMI_PROTOCOL_ID_POWER_DOMAIN:
+			if (CONFIG_IS_ENABLED(SCMI_POWER_DOMAIN) &&
+			    scmi_protocol_is_supported(dev, protocol_id))
+				drv = DM_DRIVER_GET(scmi_power_domain);
+			break;
 		case SCMI_PROTOCOL_ID_CLOCK:
 			if (CONFIG_IS_ENABLED(CLK_SCMI) &&
 			    scmi_protocol_is_supported(dev, protocol_id))

@@ -3,7 +3,6 @@
  * Copyright (C) 2020 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <asm/global_data.h>

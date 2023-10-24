@@ -545,6 +545,184 @@ int scmi_base_reset_agent_configuration(struct udevice *dev, u32 agent_id,
 					u32 flags);
 
 /*
+ * SCMI Power Domain Management Protocol
+ */
+
+#define SCMI_PWD_PROTOCOL_VERSION 0x30000
+#define SCMI_PWD_PSTATE_TYPE_LOST BIT(30)
+#define SCMI_PWD_PSTATE_ID GENMASK(27, 0)
+
+enum scmi_power_domain_message_id {
+	SCMI_PWD_ATTRIBUTES = 0x3,
+	SCMI_PWD_STATE_SET = 0x4,
+	SCMI_PWD_STATE_GET = 0x5,
+	SCMI_PWD_STATE_NOTIFY = 0x6,
+	SCMI_PWD_STATE_CHANGE_REQUESTED_NOTIFY = 0x7,
+	SCMI_PWD_NAME_GET = 0x8,
+};
+
+/**
+ * struct scmi_pwd_protocol_attrs_out
+ * @status:		SCMI command status
+ * @attributes:		Protocol attributes
+ * @stats_addr_low:	Lower 32 bits of address of statistics memory region
+ * @stats_addr_high:	Higher 32 bits of address of statistics memory region
+ * @stats_len:		Length of statistics memory region
+ */
+struct scmi_pwd_protocol_attrs_out {
+	s32 status;
+	u32 attributes;
+	u32 stats_addr_low;
+	u32 stats_addr_high;
+	u32 stats_len;
+};
+
+#define SCMI_PWD_PROTO_ATTRS_NUM_PWD(attributes) ((attributes) & GENMASK(15, 0))
+
+/**
+ * struct scmi_pwd_protocol_msg_attrs_out
+ * @status:		SCMI command status
+ * @attributes:		Message-specific attributes
+ */
+struct scmi_pwd_protocol_msg_attrs_out {
+	s32 status;
+	u32 attributes;
+};
+
+#define SCMI_PWD_NAME_LENGTH_MAX 16
+
+/**
+ * struct scmi_pwd_attrs_out
+ * @status:	SCMI command status
+ * @attributes:	Power domain attributes
+ * @name:	Name of power domain
+ */
+struct scmi_pwd_attrs_out {
+	s32 status;
+	u32 attributes;
+	u8 name[SCMI_PWD_NAME_LENGTH_MAX];
+};
+
+#define SCMI_PWD_ATTR_PSTATE_CHANGE_NOTIFY	BIT(31)
+#define SCMI_PWD_ATTR_PSTATE_ASYNC		BIT(30)
+#define SCMI_PWD_ATTR_PSTATE_SYNC		BIT(29)
+#define SCMI_PWD_ATTR_PSTATE_CHANGE_RQ_NOTIFY	BIT(28)
+#define SCMI_PWD_ATTR_EXTENDED_NAME		BIT(27)
+
+/**
+ * struct scmi_pwd_state_set_in
+ * @flags:	Flags
+ * @domain_id:	Identifier of power domain
+ * @pstate:	Power state of the domain
+ */
+struct scmi_pwd_state_set_in {
+	u32 flags;
+	u32 domain_id;
+	u32 pstate;
+};
+
+#define SCMI_PWD_SET_FLAGS_ASYNC BIT(0)
+
+/**
+ * struct scmi_pwd_state_get_out
+ * @status:	SCMI command status
+ * @pstate:	Power state of the domain
+ */
+struct scmi_pwd_state_get_out {
+	s32 status;
+	u32 pstate;
+};
+
+#define SCMI_PWD_EXTENDED_NAME_MAX 64
+/**
+ * struct scmi_pwd_name_get_out
+ * @status:		SCMI command status
+ * @flags:		Parameter flags
+ * @extended_name:	Extended name of power domain
+ */
+struct scmi_pwd_name_get_out {
+	s32 status;
+	u32 flags;
+	u8 extended_name[SCMI_PWD_EXTENDED_NAME_MAX];
+};
+
+/**
+ * scmi_pwd_protocol_attrs - get protocol attributes
+ * @dev:	SCMI protocol device
+ * @num_pwdoms:	Number of power domains
+ * @stats_addr:	Address of statistics memory region
+ * @stats_len:	Length of statistics memory region
+ *
+ * Obtain the protocol attributes, the number of power domains and
+ * the information of statistics memory region.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pwd_protocol_attrs(struct udevice *dev, int *num_pwdoms,
+			    u64 *stats_addr, size_t *stats_len);
+/**
+ * scmi_pwd_protocol_message_attrs - get message-specific attributes
+ * @dev:		SCMI protocol device
+ * @message_id:		SCMI message ID
+ * @attributes:		Message-specific attributes
+ *
+ * Obtain the message-specific attributes in @attributes.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pwd_protocol_message_attrs(struct udevice *dev, s32 message_id,
+				    u32 *attributes);
+/**
+ * scmi_pwd_attrs - get power domain attributes
+ * @dev:	SCMI protocol device
+ * @domain_id:	Identifier of power domain
+ * @attributes:	Power domain attributes
+ * @name:	Name of power domain
+ *
+ * Obtain the attributes of the given power domain, @domain_id, in @attributes
+ * as well as its name in @name.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pwd_attrs(struct udevice *dev, u32 message_id, u32 *attributes,
+		   u8 **name);
+/**
+ * scmi_pwd_state_set - set power state
+ * @dev:	SCMI protocol device
+ * @flags:	Parameter flags
+ * @domain_id:	Identifier of power domain
+ * @pstate:	Power state
+ *
+ * Change the power state of the given power domain, @domain_id.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pwd_state_set(struct udevice *dev, u32 flags, u32 domain_id,
+		       u32 pstate);
+/**
+ * scmi_pwd_state_get - get power state
+ * @dev:	SCMI protocol device
+ * @domain_id:	Identifier of power domain
+ * @pstate:	Power state
+ *
+ * Obtain the power state of the given power domain, @domain_id.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pwd_state_get(struct udevice *dev, u32 domain_id, u32 *pstate);
+/**
+ * scmi_pwd_name_get - get extended name
+ * @dev:	SCMI protocol device
+ * @domain_id:	Identifier of power domain
+ * @name:	Extended name of the domain
+ *
+ * Obtain the extended name of the given power domain, @domain_id, in @name.
+ *
+ * Return: 0 on success, error code on failure
+ */
+int scmi_pwd_name_get(struct udevice *dev, u32 domain_id, u8 **name);
+
+/*
  * SCMI Clock Protocol
  */
 

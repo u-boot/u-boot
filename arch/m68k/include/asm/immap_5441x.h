@@ -76,6 +76,7 @@
 #define MMAP_CCM	0xEC090000
 #define MMAP_GPIO	0xEC094000
 
+#include <linux/types.h>
 #include <asm/coldfire/crossbar.h>
 #include <asm/coldfire/dspi.h>
 #include <asm/coldfire/edma.h>

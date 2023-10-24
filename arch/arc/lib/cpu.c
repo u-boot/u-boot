@@ -3,7 +3,6 @@
  * Copyright (C) 2013-2014, 2018 Synopsys, Inc. All rights reserved.
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <init.h>
 #include <malloc.h>

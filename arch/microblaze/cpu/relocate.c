@@ -4,8 +4,9 @@
  * Michal Simek <michal.simek@amd.com>
  */
 
-#include <common.h>
 #include <elf.h>
+#include <log.h>
+#include <linux/types.h>
 
 #define R_MICROBLAZE_NONE	0
 #define R_MICROBLAZE_32		1

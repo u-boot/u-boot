@@ -7,6 +7,8 @@
 #ifndef _ASM_RISCV_SMP_H
 #define _ASM_RISCV_SMP_H
 
+#include <linux/types.h>
+
 /**
  * struct ipi_data - Inter-processor interrupt (IPI) data structure
  *

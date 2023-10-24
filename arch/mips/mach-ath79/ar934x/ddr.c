@@ -5,7 +5,6 @@
  * Based on RAM init sequence by Piotr Dymacz <pepe2k@gmail.com>
  */
 
-#include <common.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/addrspace.h>

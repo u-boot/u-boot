@@ -3,7 +3,6 @@
  * Copyright (C) 2018 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
 #include <event.h>
 #include <init.h>
 #include <malloc.h>

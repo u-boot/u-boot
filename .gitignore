@@ -44,8 +44,10 @@ fit-dtb.blob*
 /MLO*
 /SPL*
 /System.map
-/u-boot*
 /boards.cfg
+/mkimage-in-simple-bin*
+/simple-bin*
+/u-boot*
 /*.log
 
 #
@@ -59,12 +61,15 @@ fit-dtb.blob*
 # Generated files
 #
 /spl/
+/tools/generated/
 /tpl/
 /defconfig
 
 #
 # Generated include files
 #
+/include/autoconf.mk*
+/include/config.h
 /include/config/
 /include/generated/
 

@@ -3,7 +3,6 @@
  * Copyright (C) 2023 Andes Technology Corporation
  * Rick Chen, Andes Technology Corporation <rick@andestech.com>
  */
-#include <common.h>
 #include <cpu_func.h>
 #include <hang.h>
 #include <init.h>
