@@ -9,6 +9,7 @@
 
 /dts-v1/;
 
+#include <config.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/gpio/sandbox-gpio.h>
 #include <dt-bindings/input/input.h>
@@ -66,6 +67,17 @@
 		usb2 = &usb_2;
 		axi0 = &axi;
 		osd0 = "/osd";
+	};
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		event_log: tcg_event_log {
+			no-map;
+			reg = <(CFG_SYS_SDRAM_SIZE - 0x2000) 0x2000>;
+		};
 	};
 
 	binman: binman {
@@ -1422,6 +1434,7 @@
 
 	tpm2 {
 		compatible = "sandbox,tpm2";
+		memory-region = <&event_log>;
 	};
 
 	tpm {

@@ -4,6 +4,7 @@
 
 obj-$(CONFIG_BOOTSTD) += bootdev.o bootstd_common.o bootflow.o bootmeth.o
 obj-$(CONFIG_FIT) += image.o
+obj-$(CONFIG_MEASURED_BOOT) += measurement.o
 
 obj-$(CONFIG_EXPO) += expo.o
 obj-$(CONFIG_CEDIT) += cedit.o
