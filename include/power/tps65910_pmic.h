@@ -17,6 +17,12 @@
 #define TPS65910_SUPPLY_STATE_OFF	0x0
 #define TPS65910_SUPPLY_STATE_ON	0x1
 
+/* TPS65910 DEVICE_CTRL bits */
+#define   PWR_OFF_SEQ			BIT(7)
+#define   DEV_OFF_RST			BIT(3)
+#define   DEV_ON			BIT(2)
+#define   DEV_OFF			BIT(0)
+
 /* i2c registers */
 enum {
 	TPS65910_REG_RTC_SEC			= 0x00,
@@ -125,6 +131,7 @@ struct tps65910_regulator_pdata {
 #define TPS65910_BUCK_DRIVER	"tps65910_buck"
 #define TPS65910_BOOST_DRIVER	"tps65910_boost"
 #define TPS65910_LDO_DRIVER	"tps65910_ldo"
+#define TPS65910_RST_DRIVER	"tps65910_rst"
 
 /* tps65911 i2c registers */
 enum {

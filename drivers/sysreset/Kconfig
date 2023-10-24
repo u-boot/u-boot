@@ -157,6 +157,14 @@ config SYSRESET_TI_SCI
 	  This enables the system reset driver support over TI System Control
 	  Interface available on some new TI's SoCs.
 
+config SYSRESET_TPS65910
+	bool "Enable support for TPS65910/TPS65911 PMIC System Reset"
+	depends on DM_PMIC_TPS65910
+	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
+	help
+	  Enable system power management functions found in TPS65910/TPS65911
+	  PMICs.
+
 config SYSRESET_TPS80031
 	bool "Enable support for TPS80031/TPS80032 PMIC System Reset"
 	depends on DM_PMIC_TPS80031
