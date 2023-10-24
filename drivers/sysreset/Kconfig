@@ -137,6 +137,12 @@ config SYSRESET_SOCFPGA_SOC64
 	  This enables the system reset driver support for Intel SOCFPGA
 	  SoC64 SoCs.
 
+config SYSRESET_TEGRA
+	bool "Tegra PMC system reset driver"
+	depends on ARCH_TEGRA
+	help
+	  This enables the system reset ability of PMC used in Tegra SoCs.
+
 config SYSRESET_TI_SCI
 	bool "TI System Control Interface (TI SCI) system reset driver"
 	depends on TI_SCI_PROTOCOL
