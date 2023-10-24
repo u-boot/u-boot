@@ -60,6 +60,9 @@ config TEGRA_COMMON
 	select MISC
 	select OF_CONTROL
 	select SPI
+	select SYSRESET
+	select SPL_SYSRESET if SPL
+	select SYSRESET_TEGRA
 	imply CMD_DM
 	imply CRC32_VERIFY
 
