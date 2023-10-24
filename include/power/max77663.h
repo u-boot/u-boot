@@ -12,6 +12,7 @@
 /* Drivers name */
 #define MAX77663_LDO_DRIVER		"max77663_ldo"
 #define MAX77663_SD_DRIVER		"max77663_sd"
+#define MAX77663_RST_DRIVER		"max77663_rst"
 
 /* Step-Down (SD) Regulator calculations */
 #define SD_STATUS_MASK			0x30
@@ -38,5 +39,9 @@
 #define LDO_VOLT_MAX			3950000
 
 #define LDO_VOLT_BASE			800000
+
+#define MAX77663_REG_ONOFF_CFG1		0x41
+#define   ONOFF_SFT_RST			BIT(7)
+#define   ONOFF_PWR_OFF			BIT(1)
 
 #endif /* _MAX77663_H_ */
