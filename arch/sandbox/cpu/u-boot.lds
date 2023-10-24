@@ -15,7 +15,7 @@ SECTIONS
 
 	_u_boot_sandbox_getopt : {
 		*(_u_boot_sandbox_getopt_start)
-		*(_u_boot_sandbox_getopt)
+		KEEP(*(_u_boot_sandbox_getopt))
 		*(_u_boot_sandbox_getopt_end)
 	}
 
