@@ -156,6 +156,7 @@ read', 'gpt swap' and 'gpt rename', you must specify CONFIG_CMD_GPT_RENAME=y.
 
 Examples
 ~~~~~~~~
+
 Create 6 partitions on a disk::
 
     => setenv gpt_parts 'uuid_disk=bec9fc2a-86c1-483d-8a0e-0109732277d7;
@@ -192,9 +193,8 @@ Get the information about the partition named 'rootfs'::
 Get the list of partition names on the disk::
 
     => gpt enumerate
-    => echo gpt_partition_list
+    => echo ${gpt_partition_list}
     boot rootfs system-data [ext] user modules ramdisk
-
 
 Get the GUID for a disk::
 
@@ -209,6 +209,7 @@ Set the bootable flag for the 'boot' partition and clear it for all others::
     => gpt set-bootable mmc 0 boot
 
 Swap the order of the 'boot' and 'rootfs' partition table entries::
+
     => gpt setenv mmc 0 rootfs
     => echo ${gpt_partition_entry}
     2
