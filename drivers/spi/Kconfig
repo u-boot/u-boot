@@ -251,6 +251,15 @@ config MICROCHIP_COREQSPI
 	  Enable the QSPI driver for Microchip FPGA QSPI controllers.
 	  This driver can be used on Polarfire SoC.
 
+config MESON_SPIFC_A1
+	bool "Amlogic Meson A1 SPI Flash Controller driver"
+	depends on ARCH_MESON
+	help
+	  Enable the Amlogic A1 SPI Flash Controller (SPIFC) driver.
+	  This driver can be used to access the SPI NOR/NAND flash chips
+	  with STR mode frequency up to 98MHz. Dual and quad modes are
+	  supported by controller.
+
 config MPC8XX_SPI
 	bool "MPC8XX SPI Driver"
 	depends on MPC8xx
