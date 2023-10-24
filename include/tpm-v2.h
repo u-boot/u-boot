@@ -169,7 +169,7 @@ struct tcg_pcr_event {
 /**
  * Definition of TPMU_HA Union
  */
-union tmpu_ha {
+union tpmu_ha {
 	u8 sha1[TPM2_SHA1_DIGEST_SIZE];
 	u8 sha256[TPM2_SHA256_DIGEST_SIZE];
 	u8 sm3_256[TPM2_SM3_256_DIGEST_SIZE];
@@ -185,7 +185,7 @@ union tmpu_ha {
  */
 struct tpmt_ha {
 	u16 hash_alg;
-	union tmpu_ha digest;
+	union tpmu_ha digest;
 } __packed;
 
 /**
