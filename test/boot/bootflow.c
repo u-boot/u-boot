@@ -973,6 +973,26 @@ static int bootflow_cmdline(struct unit_test_state *uts)
 }
 BOOTSTD_TEST(bootflow_cmdline, 0);
 
+/* test a few special changes to a long command line */
+static int bootflow_cmdline_special(struct unit_test_state *uts)
+{
+	char buf[500];
+	int pos;
+
+	/*
+	 * check handling of an argument which has an embedded '=', as well as
+	 * handling of a argument which partially matches ("ro" and "root")
+	 */
+	ut_asserteq(32, cmdline_set_arg(
+		buf, sizeof(buf),
+		"loglevel=7 root=PARTUUID=d68352e3 rootwait ro noinitrd",
+		"root", NULL, &pos));
+	ut_asserteq_str("loglevel=7 rootwait ro noinitrd", buf);
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_cmdline_special, 0);
+
 /* Test ChromiumOS bootmeth */
 static int bootflow_cros(struct unit_test_state *uts)
 {
