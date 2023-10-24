@@ -99,7 +99,7 @@ static int sfspl_image_extract_subimage(void *ptr,
 {
 	struct spl_hdr *hdr = (void *)ptr;
 	unsigned char *buf = ptr;
-	int fd;
+	int fd, ret = EXIT_SUCCESS;
 	unsigned int hdr_size = le32_to_cpu(hdr->hdr_size);
 	unsigned int file_size = le32_to_cpu(hdr->file_size);
 
@@ -110,16 +110,16 @@ static int sfspl_image_extract_subimage(void *ptr,
 
 	fd = open(params->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1) {
-		perror("Can write file");
+		perror("Cannot open file");
 		return EXIT_FAILURE;
 	}
 	if (write(fd, &buf[hdr_size], file_size) != file_size) {
 		perror("Cannot write file");
-		return EXIT_FAILURE;
+		ret = EXIT_FAILURE;
 	}
 	close(fd);
 
-	return EXIT_SUCCESS;
+	return ret;
 }
 
 static int sfspl_check_image_type(uint8_t type)
