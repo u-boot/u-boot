@@ -717,16 +717,16 @@ efi_tcg2_get_active_pcr_banks(struct efi_tcg2_protocol *this,
 	struct udevice *dev;
 	efi_status_t ret;
 
+	EFI_ENTRY("%p, %p", this, active_pcr_banks);
+
 	if (!this || !active_pcr_banks) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
-
 	ret = tcg2_platform_get_tpm2(&dev);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	EFI_ENTRY("%p, %p", this, active_pcr_banks);
 	ret = tcg2_get_active_pcr_banks(dev, active_pcr_banks);
 
 out:
