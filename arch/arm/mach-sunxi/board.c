@@ -338,8 +338,8 @@ uint32_t sunxi_get_spl_size(void)
  * Also U-Boot proper is located at least 32KB after the SPL, but will
  * immediately follow the SPL if that is bigger than that.
  */
-unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
-					   unsigned long raw_sect)
+unsigned long board_spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+						 unsigned long raw_sect)
 {
 	unsigned long spl_size = sunxi_get_spl_size();
 	unsigned long sector;

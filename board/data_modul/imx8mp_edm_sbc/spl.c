@@ -107,7 +107,7 @@ void board_boot_order(u32 *spl_boot_list)
 	spl_boot_list[4] = BOOT_DEVICE_NONE;
 }
 
-unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc, unsigned long sect)
+unsigned long board_spl_mmc_get_uboot_raw_sector(struct mmc *mmc, unsigned long sect)
 {
 	const u32 boot_dev = spl_boot_device();
 	int part;

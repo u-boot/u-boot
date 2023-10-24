@@ -24,6 +24,14 @@
 	pagesize = <16>;
 };
 
+&eeprom0wl {
+	status = "disabled";
+};
+
+&eeprom1wl {
+	status = "disabled";
+};
+
 &ethphy0f { /* SMSC LAN8740Ai */
 	pinctrl-0 = <&pinctrl_ethphy0 &pinctrl_ioexp>;
 	reset-gpios = <&gpio3 20 GPIO_ACTIVE_LOW>;

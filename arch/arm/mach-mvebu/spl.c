@@ -123,8 +123,8 @@ u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 {
 	return IS_SD(mmc) ? MMCSD_MODE_RAW : MMCSD_MODE_EMMCBOOT;
 }
-unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
-					   unsigned long raw_sect)
+unsigned long arch_spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
+						unsigned long raw_sect)
 {
 	return IS_SD(mmc) ? 1 : 0;
 }

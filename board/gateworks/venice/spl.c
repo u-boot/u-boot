@@ -346,7 +346,7 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 	}
 }
 
-unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc, unsigned long raw_sect)
+unsigned long board_spl_mmc_get_uboot_raw_sector(struct mmc *mmc, unsigned long raw_sect)
 {
 	if (!IS_SD(mmc)) {
 		switch (EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config)) {
