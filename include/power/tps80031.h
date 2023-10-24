@@ -12,6 +12,7 @@
 /* Drivers name */
 #define TPS80031_LDO_DRIVER		"tps80031_ldo"
 #define TPS80031_SMPS_DRIVER		"tps80031_smps"
+#define TPS80031_RST_DRIVER		"tps80031_rst"
 
 #define TPS80031_SMPS_OFFSET		0xe0
 #define TPS80031_OFFSET_FLAG		BIT(0)
@@ -34,6 +35,10 @@
 #define LDO_VOLT_MAX			3360000
 #define LDO_VOLT_MIN			1018000
 #define LDO_VOLT_BASE			916000
+
+#define TPS80031_PHOENIX_DEV_ON		0x25
+#define   SW_RESET			BIT(6)
+#define   DEVOFF			BIT(0)
 
 /* register groups */
 enum {
