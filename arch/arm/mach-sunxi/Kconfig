@@ -457,6 +457,9 @@ config MACH_SUN50I_H616
 	select SUN50I_GEN_H6
 	imply OF_UPSTREAM
 
+config MACH_SUN50I_A133
+	bool "sun50i (Allwinner A133)"
+
 endchoice
 
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
