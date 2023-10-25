@@ -61,7 +61,7 @@ def test_tpm2_init(u_boot_console):
     skip_test = u_boot_console.config.env.get('env__tpm_device_test_skip', False)
     if skip_test:
         pytest.skip('skip TPM device test')
-    u_boot_console.run_command('tpm2 init')
+    u_boot_console.run_command('tpm2 autostart')
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
 
@@ -100,7 +100,7 @@ def test_tpm2_sandbox_self_test_full(u_boot_console):
     """
     if is_sandbox(u_boot_console):
         u_boot_console.restart_uboot()
-        u_boot_console.run_command('tpm2 init')
+        u_boot_console.run_command('tpm2 autostart')
         output = u_boot_console.run_command('echo $?')
         assert output.endswith('0')
 
