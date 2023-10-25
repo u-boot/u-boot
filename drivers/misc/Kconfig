@@ -375,7 +375,6 @@ config SPL_MXC_OCOTP
 config NPCM_OTP
 	bool "Nnvoton NPCM BMC On-Chip OTP Memory Support"
 	depends on (ARM && ARCH_NPCM)
-	default n
 	help
 	  Support NPCM BMC OTP memory (fuse).
 	  To compile this driver as a module, choose M here: the module

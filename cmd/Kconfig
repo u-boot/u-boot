@@ -246,7 +246,6 @@ config CMD_BOOTM_PRE_LOAD
        bool "enable pre-load on bootm"
        depends on CMD_BOOTM
        depends on IMAGE_PRE_LOAD
-       default n
        help
          Enable support of stage pre-load for the bootm command.
 	 This stage allow to check or modify the image provided
@@ -2360,7 +2359,6 @@ config CMD_VIDCONSOLE
 config CMD_SELECT_FONT
 	bool "select font size"
 	depends on VIDEO
-	default n
 	help
 	  Enabling this will provide 'font' command.
 	  Allows font selection at runtime.
@@ -2880,7 +2878,6 @@ config CMD_UBIFS
 config MMC_SPEED_MODE_SET
 	bool "set speed mode using mmc command"
 	depends on CMD_MMC
-	default n
 	help
 	  Enable setting speed mode using mmc rescan and mmc dev commands.
 	  The speed mode is provided as the last argument in these commands

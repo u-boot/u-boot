@@ -61,7 +61,6 @@ config TI_GPMC
 if TI_GPMC
 config TI_GPMC_DEBUG
 	bool "Debug Texas Instruments GPMC timings"
-	default n
 	help
 	  Enable this to print GPMC timings before and after the GPMC registers
 	  are programmed. This should not be left enabled on production systems.

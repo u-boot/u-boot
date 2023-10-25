@@ -14,7 +14,6 @@ config TRANSFORMER_SPI_BOOT
 	select TEGRA20_SLINK
 	select DM_SPI_FLASH
 	select SPI_FLASH_WINBOND
-	default n
 	help
 	  Tegra 3 based Transformers with Windows RT have core
 	  boot sequence (BCT and EBT) on separate SPI FLASH

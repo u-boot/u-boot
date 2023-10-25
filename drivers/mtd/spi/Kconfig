@@ -107,7 +107,6 @@ config SPI_FLASH_SMART_HWCAPS
 
 config SPI_NOR_BOOT_SOFT_RESET_EXT_INVERT
 	bool "Command extension type is INVERT for Software Reset on boot"
-	default n
 	help
 	 Because of SFDP information can not be get before boot.
 	 So define command extension type is INVERT when Software Reset on boot only.

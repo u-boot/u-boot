@@ -77,7 +77,6 @@ endif
 config FSL_DCP_RNG
 	bool "Enable Random Number Generator support"
 	depends on DM_RNG
-	default n
 	help
 	  Enable support for the hardware based random number generator
 	  module of the DCP. It uses the True Random Number Generator (TRNG)

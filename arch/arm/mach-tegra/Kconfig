@@ -18,7 +18,6 @@ config TEGRA_CLKRST
 config TEGRA_CRYPTO
 	bool "Tegra AES128 crypto module"
 	select AES
-	default n
 
 config TEGRA_GP_PADCTRL
 	bool

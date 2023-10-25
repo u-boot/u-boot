@@ -12,11 +12,9 @@ config SYS_CONFIG_NAME
 config GROUPER_TPS65911
 	bool "Enable support TI TPS65911 PMIC"
 	select CMD_POWEROFF
-	default n
 
 config GROUPER_MAX77663
 	bool "Enable support MAXIM MAX77663 PMIC"
 	select CMD_POWEROFF
-	default n
 
 endif

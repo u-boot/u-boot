@@ -68,7 +68,6 @@ config SPL_SYS_DCACHE_OFF
 config SPL_ZERO_MEM_BEFORE_USE
 	bool "Zero memory before use"
 	depends on SPL
-	default n
 	help
 	  Zero stack/GD/malloc area in SPL before using them, this is needed for
 	  Sifive core devices that uses L2 cache to store SPL.

@@ -125,7 +125,6 @@ config SYS_IVM_EEPROM_PAGE_LEN
 config PG_WCOM_UBOOT_UPDATE_SUPPORTED
 	bool "Enable U-Boot Field Fail-Safe Update Functionality"
 	select EVENT
-	default n
 	help
 	  Indicates that field fail-safe u-boot update is supported.
 	  This functionality works only for designs that are booting
@@ -133,7 +132,6 @@ config PG_WCOM_UBOOT_UPDATE_SUPPORTED
 
 config PG_WCOM_UBOOT_BOOTPACKAGE
 	bool "U-Boot Is Part Of Factory Boot-Package Image"
-	default n
 	help
 	  Indicates that u-boot will be a part of the factory programmed
 	  boot-package image.
@@ -149,7 +147,6 @@ config PG_WCOM_UBOOT_UPDATE_TEXT_BASE
 
 config PG_WCOM_UBOOT_UPDATE
 	bool "U-Boot Is Part Of Factory Boot-Package Image"
-	default n
 	help
 	  Indicates that u-boot will be a part of the embedded software and
 	  programmed at field.
