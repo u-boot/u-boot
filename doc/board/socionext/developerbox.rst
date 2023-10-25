@@ -42,9 +42,10 @@ Compile from source
 You can build U-Boot without any additinal source code.::
 
   cd u-boot
+  git checkout v2023.07
   export ARCH=arm64
   export CROSS_COMPILE=aarch64-linux-gnu-
-  make SynQuacer_defconfig
+  make synquacer_developerbox_defconfig
   make -j `noproc`
 
 Then, expand the binary to 1MB for preparing flash.::
