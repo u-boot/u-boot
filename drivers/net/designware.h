@@ -241,6 +241,7 @@ struct dw_eth_dev {
 	int clock_count;	/* number of clock in clock list */
 #endif
 
+	struct udevice *dev;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 };

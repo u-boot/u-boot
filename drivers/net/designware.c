@@ -19,6 +19,7 @@
 #include <net.h>
 #include <pci.h>
 #include <reset.h>
+#include <phys2bus.h>
 #include <asm/cache.h>
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>
@@ -232,8 +233,10 @@ static void tx_descs_init(struct dw_eth_dev *priv)
 
 	for (idx = 0; idx < CFG_TX_DESCR_NUM; idx++) {
 		desc_p = &desc_table_p[idx];
-		desc_p->dmamac_addr = (ulong)&txbuffs[idx * CFG_ETH_BUFSIZE];
-		desc_p->dmamac_next = (ulong)&desc_table_p[idx + 1];
+		desc_p->dmamac_addr = dev_phys_to_bus(priv->dev,
+				(ulong)&txbuffs[idx * CFG_ETH_BUFSIZE]);
+		desc_p->dmamac_next = dev_phys_to_bus(priv->dev,
+				(ulong)&desc_table_p[idx + 1]);
 
 #if defined(CONFIG_DW_ALTDESCRIPTOR)
 		desc_p->txrx_status &= ~(DESC_TXSTS_TXINT | DESC_TXSTS_TXLAST |
@@ -251,14 +254,15 @@ static void tx_descs_init(struct dw_eth_dev *priv)
 	}
 
 	/* Correcting the last pointer of the chain */
-	desc_p->dmamac_next = (ulong)&desc_table_p[0];
+	desc_p->dmamac_next = dev_phys_to_bus(priv->dev, (ulong)&desc_table_p[0]);
 
 	/* Flush all Tx buffer descriptors at once */
 	flush_dcache_range((ulong)priv->tx_mac_descrtable,
 			   (ulong)priv->tx_mac_descrtable +
 			   sizeof(priv->tx_mac_descrtable));
 
-	writel((ulong)&desc_table_p[0], &dma_p->txdesclistaddr);
+	writel(dev_phys_to_bus(priv->dev, (ulong)&desc_table_p[0]),
+			&dma_p->txdesclistaddr);
 	priv->tx_currdescnum = 0;
 }
 
@@ -280,8 +284,10 @@ static void rx_descs_init(struct dw_eth_dev *priv)
 
 	for (idx = 0; idx < CFG_RX_DESCR_NUM; idx++) {
 		desc_p = &desc_table_p[idx];
-		desc_p->dmamac_addr = (ulong)&rxbuffs[idx * CFG_ETH_BUFSIZE];
-		desc_p->dmamac_next = (ulong)&desc_table_p[idx + 1];
+		desc_p->dmamac_addr = dev_phys_to_bus(priv->dev,
+				(ulong)&rxbuffs[idx * CFG_ETH_BUFSIZE]);
+		desc_p->dmamac_next = dev_phys_to_bus(priv->dev,
+				(ulong)&desc_table_p[idx + 1]);
 
 		desc_p->dmamac_cntl =
 			(MAC_MAX_FRAME_SZ & DESC_RXCTRL_SIZE1MASK) |
@@ -291,14 +297,15 @@ static void rx_descs_init(struct dw_eth_dev *priv)
 	}
 
 	/* Correcting the last pointer of the chain */
-	desc_p->dmamac_next = (ulong)&desc_table_p[0];
+	desc_p->dmamac_next = dev_phys_to_bus(priv->dev, (ulong)&desc_table_p[0]);
 
 	/* Flush all Rx buffer descriptors at once */
 	flush_dcache_range((ulong)priv->rx_mac_descrtable,
 			   (ulong)priv->rx_mac_descrtable +
 			   sizeof(priv->rx_mac_descrtable));
 
-	writel((ulong)&desc_table_p[0], &dma_p->rxdesclistaddr);
+	writel(dev_phys_to_bus(priv->dev, (ulong)&desc_table_p[0]),
+			&dma_p->rxdesclistaddr);
 	priv->rx_currdescnum = 0;
 }
 
@@ -448,7 +455,7 @@ static int _dw_eth_send(struct dw_eth_dev *priv, void *packet, int length)
 	ulong desc_start = (ulong)desc_p;
 	ulong desc_end = desc_start +
 		roundup(sizeof(*desc_p), ARCH_DMA_MINALIGN);
-	ulong data_start = desc_p->dmamac_addr;
+	ulong data_start = dev_bus_to_phys(priv->dev, desc_p->dmamac_addr);
 	ulong data_end = data_start + roundup(length, ARCH_DMA_MINALIGN);
 	/*
 	 * Strictly we only need to invalidate the "txrx_status" field
@@ -515,7 +522,7 @@ static int _dw_eth_recv(struct dw_eth_dev *priv, uchar **packetp)
 	ulong desc_start = (ulong)desc_p;
 	ulong desc_end = desc_start +
 		roundup(sizeof(*desc_p), ARCH_DMA_MINALIGN);
-	ulong data_start = desc_p->dmamac_addr;
+	ulong data_start = dev_bus_to_phys(priv->dev, desc_p->dmamac_addr);
 	ulong data_end;
 
 	/* Invalidate entire buffer descriptor */
@@ -532,7 +539,8 @@ static int _dw_eth_recv(struct dw_eth_dev *priv, uchar **packetp)
 		/* Invalidate received data */
 		data_end = data_start + roundup(length, ARCH_DMA_MINALIGN);
 		invalidate_dcache_range(data_start, data_end);
-		*packetp = (uchar *)(ulong)desc_p->dmamac_addr;
+		*packetp = (uchar *)(ulong)dev_bus_to_phys(priv->dev,
+				desc_p->dmamac_addr);
 	}
 
 	return length;
@@ -757,6 +765,7 @@ int designware_eth_probe(struct udevice *dev)
 		goto mdio_err;
 	}
 	priv->bus = miiphy_get_dev_by_name(dev->name);
+	priv->dev = dev;
 
 	ret = dw_phy_init(priv, dev);
 	debug("%s, ret=%d\n", __func__, ret);
