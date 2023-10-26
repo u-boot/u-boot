@@ -60,6 +60,17 @@ static int i2c_eeprom_std_read(struct udevice *dev, int offset, uint8_t *buf,
 	return dm_i2c_read(dev, offset, buf, size);
 }
 
+static int i2c_eeprom_len(int offset, int len, int pagesize)
+{
+	int page_offset = offset & (pagesize - 1);
+	int maxlen = pagesize - page_offset;
+
+	if (len > maxlen)
+		len = maxlen;
+
+	return len;
+}
+
 static int i2c_eeprom_std_write(struct udevice *dev, int offset,
 				const uint8_t *buf, int size)
 {
@@ -67,7 +78,7 @@ static int i2c_eeprom_std_write(struct udevice *dev, int offset,
 	int ret;
 
 	while (size > 0) {
-		int write_size = min_t(int, size, priv->pagesize);
+		int write_size = i2c_eeprom_len(offset, size, priv->pagesize);
 
 		ret = dm_i2c_write(dev, offset, buf, write_size);
 		if (ret)
