@@ -61,7 +61,6 @@ fit-dtb.blob*
 # Generated files
 #
 /spl/
-/tools/generated/
 /tpl/
 /defconfig
 
