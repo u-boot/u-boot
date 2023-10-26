@@ -7,20 +7,11 @@
 #include <common.h>
 #include <command.h>
 #include <display_options.h>
-#include <timestamp.h>
-#include <version.h>
 #include <version_string.h>
 #include <linux/compiler.h>
 #ifdef CONFIG_SYS_COREBOOT
 #include <asm/cb_sysinfo.h>
 #endif
-
-#define U_BOOT_VERSION_STRING U_BOOT_VERSION " (" U_BOOT_DATE " - " \
-	U_BOOT_TIME " " U_BOOT_TZ ")" CONFIG_IDENT_STRING
-
-const char version_string[] = U_BOOT_VERSION_STRING;
-const unsigned short version_num = U_BOOT_VERSION_NUM;
-const unsigned char version_num_patch = U_BOOT_VERSION_NUM_PATCH;
 
 static int do_version(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
