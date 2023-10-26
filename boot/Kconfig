@@ -1590,6 +1590,7 @@ config BOOTARGS_SUBST
 
 config USE_BOOTCOMMAND
 	bool "Enable a default value for bootcmd"
+	depends on CMDLINE
 	help
 	  Provide a default value for the bootcmd entry in the environment.  If
 	  autoboot is enabled this is what will be run automatically.  Enable
@@ -1609,6 +1610,7 @@ config BOOTCOMMAND
 
 config USE_PREBOOT
 	bool "Enable preboot"
+	depends on CMDLINE
 	help
 	  When this option is enabled, the existence of the environment
 	  variable "preboot" will be checked immediately before starting the
