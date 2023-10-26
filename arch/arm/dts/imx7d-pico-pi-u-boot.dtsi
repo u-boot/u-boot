@@ -6,6 +6,12 @@
         usb0 = &usbotg1;
         display0 = &lcdif;
     };
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		bootph-pre-ram;
+	};
 };
 
 &usbotg1 {
@@ -43,6 +49,10 @@
 			};
 		};
 	};
+};
+
+&wdog1 {
+	bootph-pre-ram;
 };
 
 &iomuxc {
