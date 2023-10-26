@@ -480,7 +480,14 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-mini-emmc0.dtb \
 	versal-mini-emmc1.dtb \
 	versal-mini-ospi-single.dtb \
+	versal-mini-ospi-stacked.dtb \
+	versal-mini-qspi-parallel.dtb \
 	versal-mini-qspi-single.dtb \
+	versal-mini-qspi-stacked.dtb \
+	versal-mini-qspi-x1-single.dtb \
+	versal-mini-qspi-x1-stacked.dtb \
+	versal-mini-qspi-x2-single.dtb \
+	versal-mini-qspi-x2-stacked.dtb \
 	xilinx-versal-virt.dtb
 dtb-$(CONFIG_ARCH_VERSAL_NET) += \
 	versal-net-mini.dtb \
