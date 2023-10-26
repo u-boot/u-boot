@@ -285,7 +285,7 @@ static int spl_romapi_load_image_stream(struct spl_image_info *spl_image,
 		ret = rom_api_download_image(p, 0, pg);
 
 		if (ret != ROM_API_OKAY) {
-			puts("Steam(USB) download failure\n");
+			puts("Stream(USB) download failure\n");
 			return -1;
 		}
 
@@ -305,7 +305,7 @@ static int spl_romapi_load_image_stream(struct spl_image_info *spl_image,
 		ret = rom_api_download_image(p, 0, pg);
 
 		if (ret != ROM_API_OKAY) {
-			puts("Steam(USB) download failure\n");
+			puts("Stream(USB) download failure\n");
 			return -1;
 		}
 
