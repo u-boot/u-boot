@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * (C) Copyright 2022 ARM Limited
+ * Copyright 2022-2023 Arm Limited and/or its affiliates <open-source-office@arm.com>
  * (C) Copyright 2022 Linaro
  * Rui Miguel Silva <rui.silva@linaro.org>
  * Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
@@ -29,5 +29,6 @@
 
 #include <config_distro_bootcmd.h>
 
+#define CFG_EXTRA_ENV_SETTINGS BOOTENV
 
 #endif
