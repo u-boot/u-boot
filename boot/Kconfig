@@ -543,7 +543,7 @@ config BOOTMETH_VBE
 
 config BOOTMETH_DISTRO
 	bool  # Options needed to boot any distro
-	select BOOTMETH_SCRIPT  # E.g. Armbian uses scripts
+	select BOOTMETH_SCRIPT if CMDLINE # E.g. Armbian uses scripts
 	select BOOTMETH_EXTLINUX  # E.g. Debian uses these
 	select BOOTMETH_EXTLINUX_PXE if CMD_PXE && CMD_NET && DM_ETH
 	select BOOTMETH_EFILOADER if CMD_BOOTEFI # E.g. Ubuntu uses this
@@ -671,6 +671,7 @@ config BOOTMETH_SANDBOX
 config BOOTMETH_SCRIPT
 	bool "Bootdev support for U-Boot scripts"
 	default y if BOOTSTD_FULL
+	depends on CMDLINE
 	select HUSH_PARSER
 	help
 	  Enables support for booting a distro via a U-Boot script. This makes
