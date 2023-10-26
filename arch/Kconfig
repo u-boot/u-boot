@@ -210,6 +210,9 @@ config SANDBOX
 	imply BINMAN
 	imply CMD_MBR
 	imply CMD_MMC
+	imply BOOTSTD_DEFAULTS if BOOTSTD_FULL && CMDLINE
+	imply BOOTMETH_DISTRO if BOOTSTD_FULL && CMDLINE
+	imply CMD_SYSBOOT if BOOTSTD_FULL
 
 config SH
 	bool "SuperH architecture"
