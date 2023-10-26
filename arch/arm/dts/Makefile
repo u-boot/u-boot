@@ -493,7 +493,14 @@ dtb-$(CONFIG_ARCH_VERSAL_NET) += \
 	versal-net-mini.dtb \
 	versal-net-mini-emmc.dtb \
 	versal-net-mini-ospi-single.dtb \
+	versal-net-mini-ospi-stacked.dtb \
 	versal-net-mini-qspi-single.dtb \
+	versal-net-mini-qspi-parallel.dtb \
+	versal-net-mini-qspi-stacked.dtb \
+	versal-net-mini-qspi-x1-single.dtb \
+	versal-net-mini-qspi-x1-stacked.dtb \
+	versal-net-mini-qspi-x2-single.dtb \
+	versal-net-mini-qspi-x2-stacked.dtb \
 	xilinx-versal-net-virt.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb
