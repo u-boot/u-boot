@@ -378,6 +378,15 @@ config CMD_BOOTEFI
 	help
 	  Boot an EFI image from memory.
 
+config CMD_BOOTEFI_BOOTMGR
+	bool "UEFI Boot Manager command"
+	depends on BOOTEFI_BOOTMGR && CMD_BOOTEFI
+	default y
+	help
+	  Select this option to enable the 'bootmgr' subcommand of 'bootefi'.
+	  This subcommand will allow you to select the UEFI binary to be booted
+	  via UEFI variables Boot####, BootOrder, and BootNext.
+
 config CMD_BOOTEFI_HELLO_COMPILE
 	bool "Compile a standard EFI hello world binary for testing"
 	depends on CMD_BOOTEFI && !CPU_V7M
@@ -2128,7 +2137,7 @@ config CMD_EFIDEBUG
 config CMD_EFICONFIG
 	bool "eficonfig - provide menu-driven uefi variables maintenance interface"
 	default y if !HAS_BOARD_SIZE_LIMIT
-	depends on CMD_BOOTEFI_BOOTMGR
+	depends on BOOTEFI_BOOTMGR
 	select MENU
 	help
 	  Enable the 'eficonfig' command which provides the menu-driven UEFI
