@@ -162,7 +162,7 @@ static ulong spl_romapi_read_stream(struct spl_load_info *load, ulong sector,
 			return 0;
 		}
 
-		ss->end = end;
+		ss->end += bytes;
 	}
 
 	memcpy(buf, (void *)(sector), count);
