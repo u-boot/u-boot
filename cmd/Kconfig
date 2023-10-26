@@ -1131,13 +1131,6 @@ config CMD_GPT
 	  Enable the 'gpt' command to ready and write GPT style partition
 	  tables.
 
-config RANDOM_UUID
-	bool "GPT Random UUID generation"
-	select LIB_UUID
-	help
-	  Enable the generation of partitions with random UUIDs if none
-	  are provided.
-
 config CMD_GPT_RENAME
 	bool "GPT partition renaming commands"
 	depends on CMD_GPT
