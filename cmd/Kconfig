@@ -2257,6 +2257,8 @@ config CMD_SYSBOOT
 config CMD_QFW
 	bool "qfw"
 	select QFW
+	default y if TARGET_QEMU_ARM_32BIT || TARGET_QEMU_ARM_64BIT || \
+		TARGET_QEMU_X86 || TARGET_QEMU_X86_64
 	help
 	  This provides access to the QEMU firmware interface.  The main
 	  feature is to allow easy loading of files passed to qemu-system
