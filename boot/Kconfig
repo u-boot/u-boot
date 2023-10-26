@@ -346,8 +346,16 @@ config PXE_UTILS
 	help
 	  Utilities for parsing PXE file formats.
 
-config BOOT_DEFAULTS
-	bool  # Common defaults for standard boot and distroboot
+config BOOT_DEFAULTS_FEATURES
+	bool
+	select SUPPORT_RAW_INITRD
+	select ENV_VARS_UBOOT_CONFIG
+	imply USB_STORAGE
+	imply EFI_PARTITION
+	imply ISO_PARTITION
+
+config BOOT_DEFAULTS_CMDS
+	bool
 	imply USE_BOOTCOMMAND
 	select CMD_ENV_EXISTS
 	select CMD_EXT2
@@ -358,14 +366,14 @@ config BOOT_DEFAULTS
 	select CMD_DHCP if CMD_NET
 	select CMD_PING if CMD_NET
 	select CMD_PXE if CMD_NET
-	select SUPPORT_RAW_INITRD
-	select ENV_VARS_UBOOT_CONFIG
 	select CMD_BOOTI if ARM64
 	select CMD_BOOTZ if ARM && !ARM64
 	imply CMD_MII if NET
-	imply USB_STORAGE
-	imply EFI_PARTITION
-	imply ISO_PARTITION
+
+config BOOT_DEFAULTS
+	bool  # Common defaults for standard boot and distroboot
+	select BOOT_DEFAULTS_FEATURES
+	select BOOT_DEFAULTS_CMDS if CMDLINE
 	help
 	  These are not required but are commonly needed to support a good
 	  selection of booting methods. Enable this to improve the capability
@@ -431,7 +439,6 @@ config BOOTSTD_FULL
 config BOOTSTD_DEFAULTS
 	bool "Select some common defaults for standard boot"
 	depends on BOOTSTD
-	imply USE_BOOTCOMMAND
 	select BOOT_DEFAULTS
 	select BOOTMETH_DISTRO
 	help
