@@ -36,7 +36,7 @@
 	"name=system,size=-,bootable,type=${type_guid_gpt_system};"
 
 #define CFG_EXTRA_ENV_SETTINGS \
-	"kernel_addr_r=0x84000000\0" \
+	"kernel_addr_r=0x80200000\0" \
 	"kernel_comp_addr_r=0x88000000\0" \
 	"kernel_comp_size=0x4000000\0" \
 	"fdt_addr_r=0x8c000000\0" \
