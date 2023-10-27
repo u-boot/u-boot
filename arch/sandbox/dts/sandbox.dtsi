@@ -4,11 +4,23 @@
  * and sandbox64 builds.
  */
 
+#include <config.h>
 #include <dt-bindings/input/input.h>
 
 #define USB_CLASS_HUB			9
 
 / {
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		event_log: tcg_event_log {
+			no-map;
+			reg = <(CFG_SYS_SDRAM_SIZE - 0x2000) 0x2000>;
+		};
+	};
+
 	binman {
 	};
 
@@ -342,6 +354,7 @@
 
 	tpm2 {
 		compatible = "sandbox,tpm2";
+		memory-region = <&event_log>;
 	};
 
 	triangle {

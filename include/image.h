@@ -409,6 +409,7 @@ struct bootm_headers {
 #define BOOTM_STATE_OS_FAKE_GO	0x00000200	/* 'Almost' run the OS */
 #define BOOTM_STATE_OS_GO	0x00000400
 #define BOOTM_STATE_PRE_LOAD	0x00000800
+#define BOOTM_STATE_MEASURE	0x00001000
 	int		state;
 
 #if defined(CONFIG_LMB) && !defined(USE_HOSTCC)

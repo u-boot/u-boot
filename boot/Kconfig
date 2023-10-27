@@ -685,6 +685,38 @@ config LEGACY_IMAGE_FORMAT
 	  loaded. If a board needs the legacy image format support in this
 	  case, enable it here.
 
+config MEASURED_BOOT
+	bool "Measure boot images and configuration when booting without EFI"
+	depends on HASH && TPM_V2
+	help
+	  This option enables measurement of the boot process when booting
+	  without UEFI . Measurement involves creating cryptographic hashes
+	  of the binary images that are booting and storing them in the TPM.
+	  In addition, a log of these hashes is stored in memory for the OS
+	  to verify the booted images and configuration. Enable this if the
+	  OS has configured some memory area for the event log and you intend
+	  to use some attestation tools on your system.
+
+if MEASURED_BOOT
+	config MEASURE_DEVICETREE
+	bool "Measure the devicetree image"
+	default y if MEASURED_BOOT
+	help
+	  On some platforms, the devicetree is not static as it may contain
+	  random MAC addresses or other such data that changes each boot.
+	  Therefore, it should not be measured into the TPM. In that case,
+	  disable the measurement here.
+
+	config MEASURE_IGNORE_LOG
+	bool "Ignore the existing event log"
+	default n
+	help
+	  On platforms that use an event log memory region that persists
+	  through system resets and are the first stage bootloader, then
+	  this option should be enabled to ignore any existing data in the
+	  event log memory region.
+endif # MEASURED_BOOT
+
 config SUPPORT_RAW_INITRD
 	bool "Enable raw initrd images"
 	help

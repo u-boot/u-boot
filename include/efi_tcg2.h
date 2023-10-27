@@ -129,50 +129,6 @@ struct efi_tcg2_boot_service_capability {
 #define BOOT_SERVICE_CAPABILITY_MIN \
 	offsetof(struct efi_tcg2_boot_service_capability, number_of_pcr_banks)
 
-#define TCG_EFI_SPEC_ID_EVENT_SIGNATURE_03 "Spec ID Event03"
-#define TCG_EFI_SPEC_ID_EVENT_SPEC_VERSION_MAJOR_TPM2 2
-#define TCG_EFI_SPEC_ID_EVENT_SPEC_VERSION_MINOR_TPM2 0
-#define TCG_EFI_SPEC_ID_EVENT_SPEC_VERSION_ERRATA_TPM2 2
-
-/**
- *  struct TCG_EfiSpecIdEventAlgorithmSize - hashing algorithm information
- *
- *  @algorithm_id:	algorithm defined in enum tpm2_algorithms
- *  @digest_size:	size of the algorithm
- */
-struct tcg_efi_spec_id_event_algorithm_size {
-	u16      algorithm_id;
-	u16      digest_size;
-} __packed;
-
-/**
- * struct TCG_EfiSpecIDEventStruct - content of the event log header
- *
- * @signature:			signature, set to Spec ID Event03
- * @platform_class:		class defined in TCG ACPI Specification
- *				Client  Common Header.
- * @spec_version_minor:		minor version
- * @spec_version_major:		major version
- * @spec_version_errata:	major version
- * @uintn_size:			size of the efi_uintn_t fields used in various
- *				data structures used in this specification.
- *				0x01 indicates u32  and 0x02  indicates u64
- * @number_of_algorithms:	hashing algorithms used in this event log
- * @digest_sizes:		array of number_of_algorithms pairs
- *				1st member defines the algorithm id
- *				2nd member defines the algorithm size
- */
-struct tcg_efi_spec_id_event {
-	u8 signature[16];
-	u32 platform_class;
-	u8 spec_version_minor;
-	u8 spec_version_major;
-	u8 spec_errata;
-	u8 uintn_size;
-	u32 number_of_algorithms;
-	struct tcg_efi_spec_id_event_algorithm_size digest_sizes[];
-} __packed;
-
 /**
  * struct tdEFI_TCG2_FINAL_EVENTS_TABLE - log entries after Get Event Log
  * @version:		version number for this structure

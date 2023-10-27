@@ -56,6 +56,17 @@ ulong bootm_disable_interrupts(void);
 int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 		      ulong size);
 
+/*
+ * Measure the boot images. Measurement is the process of hashing some binary
+ * data and storing it into secure memory, i.e. TPM PCRs. In addition, each
+ * measurement is logged into the platform event log such that the operating
+ * system can access it and perform attestation of the boot.
+ *
+ * @images:	The structure containing the various images to boot (linux,
+ *		initrd, dts, etc.)
+ */
+int bootm_measure(struct bootm_headers *images);
+
 int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[], int states, struct bootm_headers *images,
 		    int boot_progress);

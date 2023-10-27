@@ -22,11 +22,6 @@ enum tpm2_hierarchy {
 	TPM2_HIERARCHY_NB,
 };
 
-/* Subset of supported capabilities */
-enum tpm2_capability {
-	TPM_CAP_TPM_PROPERTIES = 0x6,
-};
-
 /* Subset of supported properties */
 #define TPM2_PROPERTIES_OFFSET 0x0000020E
 
@@ -38,7 +33,8 @@ enum tpm2_cap_tpm_property {
 	TPM2_PROPERTY_NB,
 };
 
-#define SANDBOX_TPM_PCR_NB 1
+#define SANDBOX_TPM_PCR_NB TPM2_MAX_PCRS
+#define SANDBOX_TPM_PCR_SELECT_MAX	((SANDBOX_TPM_PCR_NB + 7) / 8)
 
 /*
  * Information about our TPM emulation. This is preserved in the sandbox
@@ -433,7 +429,7 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 	int i, j;
 
 	/* TPM2_GetProperty */
-	u32 capability, property, property_count;
+	u32 capability, property, property_count, val;
 
 	/* TPM2_PCR_Read/Extend variables */
 	int pcr_index = 0;
@@ -542,19 +538,32 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 	case TPM2_CC_GET_CAPABILITY:
 		capability = get_unaligned_be32(sent);
 		sent += sizeof(capability);
-		if (capability != TPM_CAP_TPM_PROPERTIES) {
-			printf("Sandbox TPM only support TPM_CAPABILITIES\n");
-			return TPM2_RC_HANDLE;
-		}
-
 		property = get_unaligned_be32(sent);
 		sent += sizeof(property);
-		property -= TPM2_PROPERTIES_OFFSET;
-
 		property_count = get_unaligned_be32(sent);
 		sent += sizeof(property_count);
-		if (!property_count ||
-		    property + property_count > TPM2_PROPERTY_NB) {
+
+		switch (capability) {
+		case TPM2_CAP_PCRS:
+			break;
+		case TPM2_CAP_TPM_PROPERTIES:
+			if (!property_count) {
+				rc = TPM2_RC_HANDLE;
+				return sandbox_tpm2_fill_buf(recv, recv_len,
+							     tag, rc);
+			}
+
+			if (property >= TPM2_PROPERTIES_OFFSET &&
+			    ((property - TPM2_PROPERTIES_OFFSET) +
+			     property_count > TPM2_PROPERTY_NB)) {
+				rc = TPM2_RC_HANDLE;
+				return sandbox_tpm2_fill_buf(recv, recv_len,
+							     tag, rc);
+			}
+			break;
+		default:
+			printf("Sandbox TPM2 only supports TPM2_CAP_PCRS or "
+			       "TPM2_CAP_TPM_PROPERTIES\n");
 			rc = TPM2_RC_HANDLE;
 			return sandbox_tpm2_fill_buf(recv, recv_len, tag, rc);
 		}
@@ -578,18 +587,53 @@ static int sandbox_tpm2_xfer(struct udevice *dev, const u8 *sendbuf,
 		put_unaligned_be32(capability, recv);
 		recv += sizeof(capability);
 
-		/* Give the number of properties that follow */
-		put_unaligned_be32(property_count, recv);
-		recv += sizeof(property_count);
+		switch (capability) {
+		case TPM2_CAP_PCRS:
+			/* Give the number of algorithms supported - just SHA256 */
+			put_unaligned_be32(1, recv);
+			recv += sizeof(u32);
 
-		/* Fill with the properties */
-		for (i = 0; i < property_count; i++) {
-			put_unaligned_be32(TPM2_PROPERTIES_OFFSET + property +
-					   i, recv);
-			recv += sizeof(property);
-			put_unaligned_be32(tpm->properties[property + i],
-					   recv);
-			recv += sizeof(property);
+			/* Give SHA256 algorithm */
+			put_unaligned_be16(TPM2_ALG_SHA256, recv);
+			recv += sizeof(u16);
+
+			/* Select the PCRs supported */
+			*recv = SANDBOX_TPM_PCR_SELECT_MAX;
+			recv++;
+
+			/* Activate all the PCR bits */
+			for (i = 0; i < SANDBOX_TPM_PCR_SELECT_MAX; ++i) {
+				*recv = 0xff;
+				recv++;
+			}
+			break;
+		case TPM2_CAP_TPM_PROPERTIES:
+			/* Give the number of properties that follow */
+			put_unaligned_be32(property_count, recv);
+			recv += sizeof(property_count);
+
+			/* Fill with the properties */
+			for (i = 0; i < property_count; i++) {
+				put_unaligned_be32(property + i, recv);
+				recv += sizeof(property);
+				if (property >= TPM2_PROPERTIES_OFFSET) {
+					val = tpm->properties[(property -
+						TPM2_PROPERTIES_OFFSET) + i];
+				} else {
+					switch (property) {
+					case TPM2_PT_PCR_COUNT:
+						val = SANDBOX_TPM_PCR_NB;
+						break;
+					default:
+						val = 0xffffffff;
+						break;
+					}
+				}
+
+				put_unaligned_be32(val, recv);
+				recv += sizeof(property);
+			}
+			break;
 		}
 
 		/* Add trailing \0 */
