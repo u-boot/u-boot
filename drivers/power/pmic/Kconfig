@@ -351,6 +351,17 @@ config DM_PMIC_TPS65910
 	DC-DC converter, 8 LDOs and a RTC. This driver binds the SMPS and LDO
 	pmic children.
 
+config DM_PMIC_TPS80031
+	bool "Enable driver for Texas Instruments TPS80031/TPS80032 PMIC"
+	---help---
+	This config enables implementation of driver-model pmic uclass features
+	for TPS80031/TPS80032 PMICs. The driver implements read/write operations.
+	This is a Power Management IC with a decent set of peripherals from which
+	5 Buck Converters refered as Switched-mode power supply (SMPS), 11 General-
+	Purpose Low-Dropout Voltage Regulators (LDO), USB OTG Module, Real-Time
+	Clock (RTC) with Timer and Alarm Wake-Up, Two Digital PWM Outputs and more
+	with I2C Compatible Interface. PMIC occupies 4 I2C addresses.
+
 config PMIC_STPMIC1
 	bool "Enable support for STMicroelectronics STPMIC1 PMIC"
 	depends on DM_I2C
