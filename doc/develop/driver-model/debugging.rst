@@ -49,7 +49,7 @@ to see errors. Common ones are:
      of_to_plat() method in the driver.
 
 If there is no error, you should check if the device is actually bound. Call
-dm_dump_all() just before you locate the device to make sure it exists.
+dm_dump_tree() just before you locate the device to make sure it exists.
 
 If it does not exist, check your device tree compatible strings match up with
 what the driver expects (in the struct udevice_id array).

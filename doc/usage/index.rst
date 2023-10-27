@@ -37,8 +37,8 @@ Shell commands
    cmd/bootm
    cmd/bootmenu
    cmd/bootmeth
-   cmd/button
    cmd/bootz
+   cmd/button
    cmd/cat
    cmd/cbsysinfo
    cmd/cedit
@@ -56,8 +56,8 @@ Shell commands
    cmd/env
    cmd/event
    cmd/exception
-   cmd/extension
    cmd/exit
+   cmd/extension
    cmd/false
    cmd/fatinfo
    cmd/fatload
@@ -93,15 +93,15 @@ Shell commands
    cmd/rng
    cmd/saves
    cmd/sbi
-   cmd/sf
    cmd/scp03
    cmd/seama
    cmd/setexpr
+   cmd/sf
    cmd/size
    cmd/sleep
+   cmd/sm
    cmd/sound
    cmd/source
-   cmd/sm
    cmd/temperature
    cmd/tftpput
    cmd/trace
