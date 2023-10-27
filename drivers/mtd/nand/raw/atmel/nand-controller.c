@@ -352,40 +352,6 @@ static int atmel_nfc_wait(struct atmel_hsmc_nand_controller *nc, bool poll,
 	return ret;
 }
 
-static void iowrite8_rep(void *addr, const uint8_t *buf, int len)
-{
-	int i;
-
-	for (i = 0; i < len; i++)
-		writeb(buf[i], addr);
-}
-
-static void ioread8_rep(void *addr, uint8_t *buf, int len)
-{
-	int i;
-
-	for (i = 0; i < len; i++)
-		buf[i] = readb(addr);
-}
-
-static void ioread16_rep(void *addr, void *buf, int len)
-{
-	int i;
-	u16 *p = (u16 *)buf;
-
-	for (i = 0; i < len; i++)
-		p[i] = readw(addr);
-}
-
-static void iowrite16_rep(void *addr, const void *buf, int len)
-{
-	int i;
-	u16 *p = (u16 *)buf;
-
-	for (i = 0; i < len; i++)
-		writew(p[i], addr);
-}
-
 static u8 atmel_nand_read_byte(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd_to_nand(mtd);
