@@ -301,19 +301,23 @@ static int palmas_ldo_probe(struct udevice *dev)
 
 	uc_pdata->type = REGULATOR_TYPE_LDO;
 
-	if (dev->driver_data) {
+	/* check for ldoln and ldousb cases */
+	if (!strcmp("ldoln", dev->name)) {
+		uc_pdata->ctrl_reg = palmas_ldo_ctrl[type][9];
+		uc_pdata->volt_reg = palmas_ldo_volt[type][9];
+		return 0;
+	}
+
+	if (!strcmp("ldousb", dev->name)) {
+		uc_pdata->ctrl_reg = palmas_ldo_ctrl[type][10];
+		uc_pdata->volt_reg = palmas_ldo_volt[type][10];
+		return 0;
+	}
+
+	if (dev->driver_data > 0) {
 		u8 idx = dev->driver_data - 1;
 		uc_pdata->ctrl_reg = palmas_ldo_ctrl[type][idx];
 		uc_pdata->volt_reg = palmas_ldo_volt[type][idx];
-	} else {
-		/* check for ldoln and ldousb cases */
-		if (!strcmp("ldoln", dev->name)) {
-			uc_pdata->ctrl_reg = palmas_ldo_ctrl[type][9];
-			uc_pdata->volt_reg = palmas_ldo_volt[type][9];
-		} else if (!strcmp("ldousb", dev->name)) {
-			uc_pdata->ctrl_reg = palmas_ldo_ctrl[type][10];
-			uc_pdata->volt_reg = palmas_ldo_volt[type][10];
-		}
 	}
 
 	return 0;
