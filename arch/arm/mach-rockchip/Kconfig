@@ -403,7 +403,7 @@ config SPL_ROCKCHIP_BACK_TO_BROM
 config TPL_ROCKCHIP_BACK_TO_BROM
 	bool "TPL returns to bootrom"
 	default y
-	select ROCKCHIP_BROM_HELPER
+	select ROCKCHIP_BROM_HELPER if !ROCKCHIP_RK3066
 	select TPL_BOOTROM_SUPPORT
 	depends on TPL
 	help
