@@ -317,13 +317,6 @@ static int do_bootm_vxworks_legacy(int flag, int argc, char *const argv[],
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
 
-#if defined(CONFIG_FIT)
-	if (!images->legacy_hdr_valid) {
-		fit_unsupported_reset("VxWorks");
-		return 1;
-	}
-#endif
-
 	do_bootvx_fdt(images);
 
 	return 1;
