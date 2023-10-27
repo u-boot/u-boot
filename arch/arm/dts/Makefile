@@ -1352,6 +1352,9 @@ dtb-$(CONFIG_STM32MP15x) += \
 	stm32mp15xx-dhcor-drc-compact.dtb \
 	stm32mp15xx-dhcor-testbench.dtb
 
+dtb-$(CONFIG_STM32MP25X) += \
+	stm32mp257f-ev1.dtb
+
 dtb-$(CONFIG_SOC_K3_AM654) += \
 	k3-am654-base-board.dtb \
 	k3-am654-r5-base-board.dtb \
