@@ -8,12 +8,66 @@
 
 #ifndef __ASSEMBLY__
 #include <linux/bitops.h>
+
+enum boot_device {
+	BOOT_FLASH_SD = 0x10,
+	BOOT_FLASH_SD_1 = 0x11,
+	BOOT_FLASH_SD_2 = 0x12,
+	BOOT_FLASH_SD_3 = 0x13,
+
+	BOOT_FLASH_EMMC = 0x20,
+	BOOT_FLASH_EMMC_1 = 0x21,
+	BOOT_FLASH_EMMC_2 = 0x22,
+	BOOT_FLASH_EMMC_3 = 0x23,
+
+	BOOT_FLASH_NAND = 0x30,
+	BOOT_FLASH_NAND_FMC = 0x31,
+
+	BOOT_FLASH_NOR = 0x40,
+	BOOT_FLASH_NOR_QSPI = 0x41,
+
+	BOOT_SERIAL_UART = 0x50,
+	BOOT_SERIAL_UART_1 = 0x51,
+	BOOT_SERIAL_UART_2 = 0x52,
+	BOOT_SERIAL_UART_3 = 0x53,
+	BOOT_SERIAL_UART_4 = 0x54,
+	BOOT_SERIAL_UART_5 = 0x55,
+	BOOT_SERIAL_UART_6 = 0x56,
+	BOOT_SERIAL_UART_7 = 0x57,
+	BOOT_SERIAL_UART_8 = 0x58,
+
+	BOOT_SERIAL_USB = 0x60,
+	BOOT_SERIAL_USB_OTG = 0x62,
+
+	BOOT_FLASH_SPINAND = 0x70,
+	BOOT_FLASH_SPINAND_1 = 0x71,
+};
+
+#define TAMP_BOOT_MODE_MASK		GENMASK(15, 8)
+#define TAMP_BOOT_MODE_SHIFT		8
+#define TAMP_BOOT_DEVICE_MASK		GENMASK(7, 4)
+#define TAMP_BOOT_INSTANCE_MASK		GENMASK(3, 0)
+#define TAMP_BOOT_FORCED_MASK		GENMASK(7, 0)
+#define TAMP_BOOT_DEBUG_ON		BIT(16)
+
+enum forced_boot_mode {
+	BOOT_NORMAL = 0x00,
+	BOOT_FASTBOOT = 0x01,
+	BOOT_RECOVERY = 0x02,
+	BOOT_STM32PROG = 0x03,
+	BOOT_UMS_MMC0 = 0x10,
+	BOOT_UMS_MMC1 = 0x11,
+	BOOT_UMS_MMC2 = 0x12,
+};
+
 #endif
 
 /*
  * Peripheral memory map
  * only address used before device tree parsing
  */
+
+#if defined(CONFIG_STM32MP15x) || defined(CONFIG_STM32MP13x)
 #define STM32_RCC_BASE			0x50000000
 #define STM32_PWR_BASE			0x50001000
 #define STM32_SYSCFG_BASE		0x50020000
@@ -58,12 +112,6 @@
 #define STM32_DDR_SIZE			SZ_1G
 
 #ifndef __ASSEMBLY__
-/* enumerated used to identify the SYSCON driver instance */
-enum {
-	STM32MP_SYSCON_UNKNOWN,
-	STM32MP_SYSCON_SYSCFG,
-};
-
 /*
  * enumerated for boot interface from Bootrom, used in TAMP_BOOT_CONTEXT
  * - boot device = bit 8:4
@@ -73,40 +121,6 @@ enum {
 #define BOOT_TYPE_SHIFT		4
 #define BOOT_INSTANCE_MASK	0x0F
 #define BOOT_INSTANCE_SHIFT	0
-
-enum boot_device {
-	BOOT_FLASH_SD = 0x10,
-	BOOT_FLASH_SD_1 = 0x11,
-	BOOT_FLASH_SD_2 = 0x12,
-	BOOT_FLASH_SD_3 = 0x13,
-
-	BOOT_FLASH_EMMC = 0x20,
-	BOOT_FLASH_EMMC_1 = 0x21,
-	BOOT_FLASH_EMMC_2 = 0x22,
-	BOOT_FLASH_EMMC_3 = 0x23,
-
-	BOOT_FLASH_NAND = 0x30,
-	BOOT_FLASH_NAND_FMC = 0x31,
-
-	BOOT_FLASH_NOR = 0x40,
-	BOOT_FLASH_NOR_QSPI = 0x41,
-
-	BOOT_SERIAL_UART = 0x50,
-	BOOT_SERIAL_UART_1 = 0x51,
-	BOOT_SERIAL_UART_2 = 0x52,
-	BOOT_SERIAL_UART_3 = 0x53,
-	BOOT_SERIAL_UART_4 = 0x54,
-	BOOT_SERIAL_UART_5 = 0x55,
-	BOOT_SERIAL_UART_6 = 0x56,
-	BOOT_SERIAL_UART_7 = 0x57,
-	BOOT_SERIAL_UART_8 = 0x58,
-
-	BOOT_SERIAL_USB = 0x60,
-	BOOT_SERIAL_USB_OTG = 0x62,
-
-	BOOT_FLASH_SPINAND = 0x70,
-	BOOT_FLASH_SPINAND_1 = 0x71,
-};
 
 /* TAMP registers */
 #define TAMP_BACKUP_REGISTER(x)		(STM32_TAMP_BASE + 0x100 + 4 * x)
@@ -123,7 +137,6 @@ enum boot_device {
 #define TAMP_FWU_BOOT_IDX_MASK		GENMASK(3, 0)
 
 #define TAMP_FWU_BOOT_IDX_OFFSET	0
-
 #define TAMP_COPRO_STATE_OFF		0
 #define TAMP_COPRO_STATE_INIT		1
 #define TAMP_COPRO_STATE_CRUN		2
@@ -137,21 +150,23 @@ enum boot_device {
 #define TAMP_BOOT_CONTEXT		TAMP_BACKUP_REGISTER(30)
 #endif
 
-#define TAMP_BOOT_MODE_MASK		GENMASK(15, 8)
-#define TAMP_BOOT_MODE_SHIFT		8
-#define TAMP_BOOT_DEVICE_MASK		GENMASK(7, 4)
-#define TAMP_BOOT_INSTANCE_MASK		GENMASK(3, 0)
-#define TAMP_BOOT_FORCED_MASK		GENMASK(7, 0)
+#endif /* __ASSEMBLY__ */
+#endif /* CONFIG_STM32MP15X || CONFIG_STM32MP13X */
 
-enum forced_boot_mode {
-	BOOT_NORMAL = 0x00,
-	BOOT_FASTBOOT = 0x01,
-	BOOT_RECOVERY = 0x02,
-	BOOT_STM32PROG = 0x03,
-	BOOT_UMS_MMC0 = 0x10,
-	BOOT_UMS_MMC1 = 0x11,
-	BOOT_UMS_MMC2 = 0x12,
-};
+#if CONFIG_STM32MP25X
+#define STM32_RCC_BASE			0x44200000
+#define STM32_TAMP_BASE			0x46010000
+
+#define STM32_DDR_BASE			0x80000000
+
+#define STM32_DDR_SIZE			SZ_4G
+
+/* TAMP registers x = 0 to 127 : hardcoded description, waiting NVMEM node in DT */
+#define TAMP_BACKUP_REGISTER(x)		(STM32_TAMP_BASE + 0x100 + 4 * (x))
+
+/* TAMP registers zone 3 RIF 1 (RW) at 96*/
+#define TAMP_BOOT_CONTEXT		TAMP_BACKUP_REGISTER(96)
+#endif /* STM32MP25X */
 
 /* offset used for BSEC driver: misc_read and misc_write */
 #define STM32_BSEC_SHADOW_OFFSET	0x0
@@ -175,6 +190,20 @@ enum forced_boot_mode {
 #define BSEC_OTP_MAC	57
 #define BSEC_OTP_BOARD	60
 #endif
+#ifdef CONFIG_STM32MP25X
+#define BSEC_OTP_SERIAL	5
+#define BSEC_OTP_RPN	9
+#define BSEC_OTP_PKG	246
+#endif
 
-#endif /* __ASSEMBLY__ */
+#ifndef __ASSEMBLY__
+#include <asm/types.h>
+
+/* enumerated used to identify the SYSCON driver instance */
+enum {
+	STM32MP_SYSCON_UNKNOWN,
+	STM32MP_SYSCON_SYSCFG,
+};
+#endif /* __ASSEMBLY__*/
+
 #endif /* _MACH_STM32_H_ */

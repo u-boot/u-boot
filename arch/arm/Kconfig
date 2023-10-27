@@ -1944,7 +1944,7 @@ config ARCH_STM32MP
 	select REGMAP
 	select SYSCON
 	select SYSRESET
-	select SYS_THUMB_BUILD
+	select SYS_THUMB_BUILD if !ARM64
 	imply SPL_SYSRESET
 	imply CMD_DM
 	imply CMD_POWEROFF
