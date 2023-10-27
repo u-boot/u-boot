@@ -24,8 +24,11 @@ int dram_init(void)
 	int ret;
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
-	if (ret) {
-		log_debug("RAM init failed: %d\n", ret);
+	/* in case there is no RAM driver, retrieve DDR size from DT */
+	if (ret == -ENODEV) {
+		return fdtdec_setup_mem_size_base();
+	} else if (ret) {
+		log_err("RAM init failed: %d\n", ret);
 		return ret;
 	}
 	ret = ram_get_info(dev, &ram);
