@@ -339,7 +339,12 @@ cmd_capsule_esl_gen = \
 	$(shell sed "s:ESL_BIN_FILE:$(capsule_esl_path):" $(capsule_esl_input_file) > $@)
 
 $(obj)/.capsule_esl.dtsi: FORCE
+ifeq ($(CONFIG_EFI_CAPSULE_ESL_FILE),"")
+	$(error "CONFIG_EFI_CAPSULE_ESL_FILE is empty, EFI capsule authentication \
+	public key must be specified when CONFIG_EFI_CAPSULE_AUTHENTICATE is enabled")
+else
 	$(call cmd_capsule_esl_gen)
+endif
 
 capsule_esl_input_file=$(srctree)/lib/efi_loader/capsule_esl.dtsi.in
 capsule_esl_dtsi = .capsule_esl.dtsi
