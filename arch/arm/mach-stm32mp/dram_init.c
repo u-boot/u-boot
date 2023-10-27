@@ -36,7 +36,7 @@ int dram_init(void)
 		log_debug("Cannot get RAM size: %d\n", ret);
 		return ret;
 	}
-	log_debug("RAM init base=%lx, size=%x\n", ram.base, ram.size);
+	log_debug("RAM init base=%p, size=%zx\n", (void *)ram.base, ram.size);
 
 	gd->ram_size = ram.size;
 
