@@ -322,6 +322,7 @@ else
 dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-3720-db.dtb			\
 	armada-3720-espressobin.dtb		\
+	armada-3720-ripe-atlas.dtb		\
 	armada-3720-turris-mox.dtb		\
 	armada-3720-eDPU.dtb			\
 	armada-3720-uDPU.dtb			\

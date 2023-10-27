@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright (C) 2014-2022 Tony Dinh <mibodhi@gmail.com>
+ * Copyright (C) 2014-2023 Tony Dinh <mibodhi@gmail.com>
  *
  * Based on
  * Copyright (C) 2012
@@ -21,33 +21,6 @@
  */
 #include "mv-common.h"
 
-/* Include the common distro boot environment */
-#ifndef CONFIG_SPL_BUILD
-
-#ifdef CONFIG_MMC
-#define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0)
-#else
-#define BOOT_TARGET_DEVICES_MMC(func)
-#endif
-
-#ifdef CONFIG_SATA
-#define BOOT_TARGET_DEVICES_SATA(func) func(SATA, sata, 0)
-#else
-#define BOOT_TARGET_DEVICES_SATA(func)
-#endif
-
-#ifdef CONFIG_USB_STORAGE
-#define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
-#else
-#define BOOT_TARGET_DEVICES_USB(func)
-#endif
-
-#define BOOT_TARGET_DEVICES(func) \
-	BOOT_TARGET_DEVICES_MMC(func) \
-	BOOT_TARGET_DEVICES_USB(func) \
-	BOOT_TARGET_DEVICES_SATA(func) \
-	func(DHCP, dhcp, na)
-
 #define KERNEL_ADDR_R	__stringify(0x800000)
 #define FDT_ADDR_R	__stringify(0x2c00000)
 #define RAMDISK_ADDR_R	__stringify(0x01100000)
@@ -59,14 +32,10 @@
 	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
 	"scriptaddr=" SCRIPT_ADDR_R "\0"
 
-#include <config_distro_bootcmd.h>
-
 #define CFG_EXTRA_ENV_SETTINGS \
 	LOAD_ADDRESS_ENV_SETTINGS \
 	"fdtfile=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
-	"console=ttyS0,115200\0" \
-	BOOTENV
-#endif /* CONFIG_SPL_BUILD */
+	"console=ttyS0,115200\0"
 
 #endif /* _CONFIG_POGO_V4_H */

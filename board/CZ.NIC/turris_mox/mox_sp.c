@@ -10,6 +10,8 @@
 #include <linux/delay.h>
 #include <mach/mbox.h>
 
+#include "mox_sp.h"
+
 const char *mox_sp_get_ecdsa_public_key(void)
 {
 	static char public_key[135];
@@ -42,12 +44,13 @@ static inline void res_to_mac(u8 *mac, u32 t1, u32 t2)
 	mac[5] = t2;
 }
 
-int mbox_sp_get_board_info(u64 *sn, u8 *mac1, u8 *mac2, int *bv, int *ram)
+int mbox_sp_get_board_info(u64 *sn, u8 *mac1, u8 *mac2, int *bv, int *ram,
+			   enum cznic_a3720_board *board)
 {
-	u32 out[8];
+	u32 out[9];
 	int res;
 
-	res = mbox_do_cmd(MBOX_CMD_BOARD_INFO, NULL, 0, out, 8);
+	res = mbox_do_cmd(MBOX_CMD_BOARD_INFO, NULL, 0, out, 9);
 	if (res < 0)
 		return res;
 
@@ -68,6 +71,9 @@ int mbox_sp_get_board_info(u64 *sn, u8 *mac1, u8 *mac2, int *bv, int *ram)
 
 	if (mac2)
 		res_to_mac(mac2, out[6], out[7]);
+
+	if (board)
+		*board = out[8] + 1;
 
 	return 0;
 }

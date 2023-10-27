@@ -144,8 +144,12 @@ config TARGET_TURRIS_OMNIA
 	select ATSHA204A
 
 config TARGET_TURRIS_MOX
-	bool "Support Turris Mox"
+	bool "Support CZ.NIC's Turris Mox / RIPE Atlas Probe"
 	select ARMADA_3700
+	select BOARD_TYPES
+	select ENV_IS_IN_MMC
+	select ENV_IS_IN_SPI_FLASH
+	select MULTI_DTB_FIT
 
 config TARGET_MVEBU_ARMADA_8K
 	bool "Support Armada 7k/8k platforms"
