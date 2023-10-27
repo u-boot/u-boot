@@ -275,6 +275,13 @@ software_interrupt:
 	get_bad_stack_swi
 	bad_save_user_regs
 	bl	do_software_interrupt
+#if CONFIG_IS_ENABLED(SEMIHOSTING_FALLBACK)
+	ldmia	sp, {r0 - lr}^			@ Calling r0 - lr
+	mov	r0, r0
+	ldr	lr, [sp, #S_PC]			@ Get PC
+	add	sp, sp, #S_FRAME_SIZE
+	movs	pc, lr		@ return & move spsr_svc into cpsr
+#endif
 
 	.align	5
 prefetch_abort:
