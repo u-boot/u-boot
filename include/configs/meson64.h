@@ -53,6 +53,30 @@
 #define BOOTENV_DEV_NAME_ROMUSB(devtypeu, devtypel, instance)	\
 		"romusb "
 
+/*
+ * Fallback to "USB DFU" boot if script is not at scriptaddr
+ *
+ * DFU will expose the kernel_addr_r memory range as DFU entry,
+ * then with `dfu-util --detach`, booting the uploaded image
+ * will be attempted:
+ * $ dfu-util -a 0 -D fitImage
+ * $ dfu-util -a 0 -e
+ */
+#if CONFIG_IS_ENABLED(USB_GADGET) && CONFIG_IS_ENABLED(DFU_RAM)
+	#define BOOTENV_DEV_USB_DFU(devtypeu, devtypel, instance) \
+		"bootcmd_usbdfu=" \
+			"if test \"${boot_source}\" = \"usb\"; then " \
+				"dfu 0 ram 0 60;" \
+				"bootm ${kernel_addr_r};" \
+			"fi\0"
+
+	#define BOOTENV_DEV_NAME_USB_DFU(devtypeu, devtypel, instance) \
+		"usbdfu "
+#else
+	#define BOOTENV_DEV_USB_DFU(devtypeu, devtypel, instance)
+	#define BOOTENV_DEV_NAME_USB_DFU(devtypeu, devtypel, instance)
+#endif
+
 #ifdef CONFIG_CMD_USB
 #define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
 #else
@@ -74,6 +98,7 @@
 #ifndef BOOT_TARGET_DEVICES
 #define BOOT_TARGET_DEVICES(func) \
 	func(ROMUSB, romusb, na)  \
+	func(USB_DFU, usbdfu, na)  \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 2) \
@@ -84,6 +109,15 @@
 	func(DHCP, dhcp, na)
 #endif
 
+#define BOOTM_SIZE		__stringify(0x1700000)
+#define KERNEL_ADDR_R		__stringify(0x08080000)
+#define KERNEL_COMP_ADDR_R	__stringify(0x0d080000)
+#define FDT_ADDR_R		__stringify(0x08008000)
+#define SCRIPT_ADDR_R		__stringify(0x08000000)
+#define PXEFILE_ADDR_R		__stringify(0x01080000)
+#define FDTOVERLAY_ADDR_R	__stringify(0x01000000)
+#define RAMDISK_ADDR_R		__stringify(0x13000000)
+
 #include <config_distro_bootcmd.h>
 
 #ifndef CFG_EXTRA_ENV_SETTINGS
@@ -91,15 +125,16 @@
 	"stdin=" STDIN_CFG "\0" \
 	"stdout=" STDOUT_CFG "\0" \
 	"stderr=" STDOUT_CFG "\0" \
-	"kernel_comp_addr_r=0x0d080000\0" \
+	"kernel_comp_addr_r=" KERNEL_COMP_ADDR_R "\0" \
 	"kernel_comp_size=0x2000000\0" \
-	"fdt_addr_r=0x08008000\0" \
-	"scriptaddr=0x08000000\0" \
-	"kernel_addr_r=0x08080000\0" \
-	"pxefile_addr_r=0x01080000\0" \
-	"fdtoverlay_addr_r=0x01000000\0" \
-	"ramdisk_addr_r=0x13000000\0" \
+	"fdt_addr_r=" FDT_ADDR_R "\0" \
+	"scriptaddr=" SCRIPT_ADDR_R "\0" \
+	"kernel_addr_r=" KERNEL_ADDR_R "\0" \
+	"pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
+	"fdtoverlay_addr_r=" FDTOVERLAY_ADDR_R "\0" \
+	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
 	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+	"dfu_alt_info=fitimage ram " KERNEL_ADDR_R " 0x4000000 \0" \
 	BOOTENV
 #endif
 
