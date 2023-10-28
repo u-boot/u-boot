@@ -70,7 +70,7 @@ Set the variables corresponding to this platform:
     :end-before: .. am62x_evm_rst_include_end_build_steps
 
 Target Images
---------------
+-------------
 Copy the below images to an SD card and boot:
 
 * tiboot3-am62x-gp-evm.bin from R5 build as tiboot3.bin
@@ -109,7 +109,7 @@ There are multiple storage media options on BeaglePlay, but primarily:
   depends on the SD card quality.
 
 Flash to uSD card or how to deal with "bricked" Board
---------------------------------------------------------
+-----------------------------------------------------
 
 When deploying or working on Linux, it's common to use the onboard
 eMMC. However, avoiding the eMMC and using the uSD card is safer when

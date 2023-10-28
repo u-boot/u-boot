@@ -4,7 +4,8 @@ StarFive VisionFive2
 ====================
 
 JH7110 RISC-V SoC
----------------------
+-----------------
+
 The JH7110 is 4+1 64-bit RISC-V SoC from StarFive.
 
 The StarFive VisionFive2 development platform is based on JH7110 and capable

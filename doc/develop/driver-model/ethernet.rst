@@ -1,5 +1,5 @@
 Ethernet Driver Guide
-=======================
+=====================
 
 The networking stack in Das U-Boot is designed for multiple network devices
 to be easily added and controlled at runtime.  This guide is meant for people
@@ -14,7 +14,7 @@ Some drivers are still using the old Ethernet interface, differences between
 the two and hints about porting will be handled at the end.
 
 Driver framework
-------------------
+----------------
 
 A network driver following the driver model must declare itself using
 the UCLASS_ETH .id field in the U-Boot driver struct:
@@ -67,7 +67,7 @@ bus. Also it would take care of any special PHY setup (power rails, enable
 bits for internal PHYs, etc.).
 
 Driver methods
-----------------
+--------------
 
 The real work will be done in the driver method functions the driver provides
 by defining the members of struct eth_ops:
@@ -158,7 +158,7 @@ So the call graph at this stage would look something like:
 
 
 CONFIG_PHYLIB / CONFIG_CMD_MII
---------------------------------
+------------------------------
 
 If your device supports banging arbitrary values on the MII bus (pretty much
 every device does), you should add support for the mii command.  Doing so is
@@ -193,7 +193,7 @@ should logically follow.
 ................................................................
 
 Legacy network drivers
-------------------------
+----------------------
 
 !!! WARNING !!!
 
@@ -221,7 +221,7 @@ instructions on how to port this over. For the records, the old way of
 initialising a network driver is as follows:
 
 Old network driver registration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When U-Boot initializes, it will call the common function eth_initialize().
 This will in turn call the board-specific board_eth_init() (or if that fails,

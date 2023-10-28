@@ -54,7 +54,7 @@ LS1046ARDB board Overview
 - ARM JTAG support
 
 Memory map from core's view
-----------------------------
+---------------------------
 
 ================== ================== ================ =====
 Start Address      End Address        Description      Size

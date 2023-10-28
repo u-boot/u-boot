@@ -1,7 +1,7 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
 Measured Boot
-=====================
+=============
 
 U-Boot can perform a measured boot, the process of hashing various components
 of the boot process, extending the results in the TPM and logging the
@@ -16,7 +16,7 @@ TPM PCRs match the contents of the event log. This can further be checked
 against the hash results of previous boots.
 
 Requirements
----------------------
+------------
 
 * A hardware TPM 2.0 supported by the U-Boot drivers
 * CONFIG_TPM=y

@@ -111,7 +111,8 @@ Set the variables corresponding to this platform:
 .. j721e_evm_rst_include_end_build_steps
 
 Target Images
---------------
+-------------
+
 In order to boot we need tiboot3.bin, sysfw.itb, tispl.bin and u-boot.img.
 Each SoC variant (GP, HS-FS and HS-SE) requires a different source for these
 files.

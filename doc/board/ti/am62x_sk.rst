@@ -2,7 +2,7 @@
 .. sectionauthor:: Vignesh Raghavendra <vigneshr@ti.com>
 
 AM62 Platforms
-===============
+==============
 
 Introduction:
 -------------
@@ -117,7 +117,8 @@ Set the variables corresponding to this platform:
 .. am62x_evm_rst_include_end_build_steps
 
 Target Images
---------------
+-------------
+
 In order to boot we need tiboot3.bin, tispl.bin and u-boot.img.  Each SoC
 variant (GP, HS-FS, HS-SE) requires a different source for these files.
 

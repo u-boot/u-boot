@@ -6,6 +6,7 @@ J721S2 and AM68 Platforms
 
 Introduction:
 -------------
+
 The J721S2 family of SoCs are part of K3 Multicore SoC architecture platform
 targeting automotive applications. They are designed as a low power, high
 performance and highly integrated device architecture, adding significant
@@ -38,6 +39,7 @@ Platform information:
 
 Boot Flow:
 ----------
+
 Below is the pictorial representation of boot flow:
 
 .. image:: img/boot_diagram_k3_current.svg
@@ -60,6 +62,7 @@ Sources:
 
 Build procedure:
 ----------------
+
 0. Setup the environment variables:
 
 .. include::  k3.rst
@@ -120,7 +123,8 @@ Set the variables corresponding to this platform:
 .. j721s2_evm_rst_include_end_build_steps
 
 Target Images
---------------
+-------------
+
 In order to boot we need tiboot3.bin, tispl.bin and u-boot.img. Each SoC
 variant (GP, HS-FS, HS-SE) requires a different source for these files.
 

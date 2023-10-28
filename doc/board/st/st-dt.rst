@@ -2,7 +2,7 @@
 .. sectionauthor:: Patrick Delaunay <patrick.delaunay@foss.st.com>
 
 U-Boot device tree bindings
-----------------------------
+---------------------------
 
 The U-Boot specific bindings are defined in the U-Boot directory:
 doc/device-tree-bindings

@@ -1,7 +1,7 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
 Samsung
-========
+=======
 
 .. toctree::
    :maxdepth: 2

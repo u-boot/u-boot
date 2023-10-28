@@ -2,7 +2,7 @@
 ..  (C) Copyright 2019 Xilinx, Inc.
 
 U-Boot device tree bindings
-----------------------------
+---------------------------
 
 All the device tree bindings used in U-Boot are specified in Linux
 kernel. Please refer dt bindings from below specified paths in Linux
