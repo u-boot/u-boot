@@ -148,6 +148,12 @@
 #define FUNC_VIRTIO(func)
 #endif
 
+#ifdef CONFIG_CMD_MMC
+#define FUNC_MMC(func)	func(MMC, mmc, 0)
+#else
+#define FUNC_MMC(func)
+#endif
+
 /*
  * Boot by loading an Android image, or kernel, initrd and FDT through
  * semihosting into DRAM.
@@ -204,6 +210,7 @@
 	func(SMH, smh, na)		\
 	func(MEM, mem, na)		\
 	FUNC_VIRTIO(func)		\
+	FUNC_MMC(func)			\
 	func(PXE, pxe, na)		\
 	func(DHCP, dhcp, na)
 

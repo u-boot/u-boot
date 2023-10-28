@@ -155,19 +155,20 @@ static bool board_is_advanced(void)
 		strstr((char *)info->name, "IOT2050-ADVANCED") != NULL;
 }
 
-static bool board_is_sr1(void)
+static bool board_is_pg1(void)
 {
 	struct iot2050_info *info = IOT2050_INFO_DATA;
 
 	return info->magic == IOT2050_INFO_MAGIC &&
-		strstr((char *)info->name, "-PG2") == NULL;
+		(strcmp((char *)info->name, "IOT2050-BASIC") == 0 ||
+		 strcmp((char *)info->name, "IOT2050-ADVANCED") == 0);
 }
 
 static bool board_is_m2(void)
 {
 	struct iot2050_info *info = IOT2050_INFO_DATA;
 
-	return !board_is_sr1() && info->magic == IOT2050_INFO_MAGIC &&
+	return info->magic == IOT2050_INFO_MAGIC &&
 		strcmp((char *)info->name, "IOT2050-ADVANCED-M2") == 0;
 }
 
@@ -217,14 +218,14 @@ void set_board_info_env(void)
 	}
 
 	if (board_is_advanced()) {
-		if (board_is_sr1())
+		if (board_is_pg1())
 			fdtfile = "ti/k3-am6548-iot2050-advanced.dtb";
 		else if(board_is_m2())
 			fdtfile = "ti/k3-am6548-iot2050-advanced-m2.dtb";
 		else
 			fdtfile = "ti/k3-am6548-iot2050-advanced-pg2.dtb";
 	} else {
-		if (board_is_sr1())
+		if (board_is_pg1())
 			fdtfile = "ti/k3-am6528-iot2050-basic.dtb";
 		else
 			fdtfile = "ti/k3-am6528-iot2050-basic-pg2.dtb";

@@ -1617,7 +1617,7 @@ relocate_code:
 	mr	r10,r5		/* Save copy of Destination Address	*/
 
 	GET_GOT
-#ifndef CONFIG_SPL_SKIP_RELOCATE
+#if !defined(CONFIG_SPL_SKIP_RELOCATE) || !defined(CONFIG_SPL_BUILD)
 	mr	r3,r5				/* Destination Address	*/
 	lis	r4,CONFIG_VAL(SYS_MONITOR_BASE)@h		/* Source      Address	*/
 	ori	r4,r4,CONFIG_VAL(SYS_MONITOR_BASE)@l
