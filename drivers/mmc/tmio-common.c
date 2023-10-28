@@ -122,7 +122,10 @@ static int tmio_sd_wait_for_irq(struct udevice *dev, struct mmc_cmd *cmd,
 	long wait = 1000000;
 	int ret;
 
-	while (!(tmio_sd_readl(priv, reg) & flag)) {
+	while (true) {
+		if (tmio_sd_readl(priv, reg) & flag)
+			return tmio_sd_check_error(dev, cmd);
+
 		if (wait-- < 0) {
 			dev_err(dev, "timeout\n");
 			return -ETIMEDOUT;
@@ -756,7 +759,8 @@ int tmio_sd_probe(struct udevice *dev, u32 quirks)
 	dev_dbg(dev, "version %x\n", priv->version);
 	if (priv->version >= 0x10) {
 		priv->caps |= TMIO_SD_CAP_DMA_INTERNAL;
-		priv->caps |= TMIO_SD_CAP_DIV1024;
+		if (!(priv->caps & TMIO_SD_CAP_RCAR))
+			priv->caps |= TMIO_SD_CAP_DIV1024;
 	}
 
 	if (fdt_get_property(gd->fdt_blob, dev_of_offset(dev), "non-removable",

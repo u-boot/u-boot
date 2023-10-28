@@ -998,7 +998,7 @@ static int rzg2l_sdhi_setup(struct udevice *dev)
 	ret = reset_get_by_index(dev, 0, &rst);
 	if (ret < 0) {
 		dev_err(dev, "failed to get reset line\n");
-		goto err_reset;
+		goto err_get_reset;
 	}
 
 	ret = reset_deassert(&rst);
@@ -1016,6 +1016,8 @@ static int rzg2l_sdhi_setup(struct udevice *dev)
 err_tmio_probe:
 	reset_assert(&rst);
 err_reset:
+	reset_free(&rst);
+err_get_reset:
 	clk_disable(&aclk);
 err_aclk:
 	clk_disable(&imclk2);
