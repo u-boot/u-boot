@@ -1133,7 +1133,6 @@ config ARCH_SUNXI
 	select DM_SPI_FLASH if SPI
 	select DM_KEYBOARD
 	select DM_MMC if MMC
-	select DM_SCSI if SCSI
 	select DM_SERIAL
 	select OF_BOARD_SETUP
 	select OF_CONTROL
@@ -1838,7 +1837,7 @@ config TARGET_SL28
 	select PCI
 	select DM_RNG
 	select DM_RTC
-	select DM_SCSI
+	select SCSI
 	select DM_SERIAL
 	select DM_SPI
 	select GPIO_EXTRA_HEADER
@@ -2053,7 +2052,6 @@ config TARGET_POMELO
 	select PCI
 	select DM_PCI
 	select SCSI
-	select DM_SCSI
 	select DM_SERIAL
 	imply CMD_PCI
 	help

@@ -251,7 +251,7 @@ config X86
 	imply DM_KEYBOARD
 	imply DM_MMC
 	imply DM_RTC
-	imply DM_SCSI
+	imply SCSI
 	imply DM_SERIAL
 	imply DM_SPI
 	imply DM_SPI_FLASH

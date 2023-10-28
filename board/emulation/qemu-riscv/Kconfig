@@ -59,7 +59,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply PCIE_ECAM_GENERIC
 	imply DM_RNG
 	imply SCSI
-	imply DM_SCSI
 	imply SYS_NS16550
 	imply SIFIVE_SERIAL
 	imply HTIF_CONSOLE if 64BIT

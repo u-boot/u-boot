@@ -485,9 +485,6 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l4per_gpio6_clkctrl,
 		(*prcm)->cm_l4per_gpio7_clkctrl,
 		(*prcm)->cm_l4per_gpio8_clkctrl,
-#ifdef CONFIG_SCSI_AHCI_PLAT
-		(*prcm)->cm_l3init_ocp2scp3_clkctrl,
-#endif
 		0
 	};
 
@@ -506,9 +503,6 @@ void enable_basic_clocks(void)
 
 #ifdef CONFIG_TI_QSPI
 		(*prcm)->cm_l4per_qspi_clkctrl,
-#endif
-#ifdef CONFIG_SCSI_AHCI_PLAT
-		(*prcm)->cm_l3init_sata_clkctrl,
 #endif
 		0
 	};
@@ -540,12 +534,6 @@ void enable_basic_clocks(void)
 
 #ifdef CONFIG_TI_QSPI
 	setbits_le32((*prcm)->cm_l4per_qspi_clkctrl, (1<<24));
-#endif
-
-#ifdef CONFIG_SCSI_AHCI_PLAT
-	/* Enable optional functional clock for SATA */
-	setbits_le32((*prcm)->cm_l3init_sata_clkctrl,
-		     SATA_CLKCTRL_OPTFCLKEN_MASK);
 #endif
 
 	/* Enable SCRM OPT clocks for PER and CORE dpll */

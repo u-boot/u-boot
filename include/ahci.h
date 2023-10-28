@@ -223,9 +223,6 @@ int sata_dm_port_status(struct udevice *dev, int port);
  */
 int sata_scan(struct udevice *dev);
 
-int ahci_init(void __iomem *base);
-int ahci_reset(void __iomem *base);
-
 /**
  * ahci_init_one_dm() - set up a single AHCI port
  *
