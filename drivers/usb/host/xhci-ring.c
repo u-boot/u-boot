@@ -494,8 +494,9 @@ union xhci_trb *xhci_wait_for_event(struct xhci_ctrl *ctrl, trb_type expected)
 	if (expected == TRB_TRANSFER)
 		return NULL;
 
-	printf("XHCI timeout on event type %d... cannot recover.\n", expected);
-	BUG();
+	printf("XHCI timeout on event type %d...\n", expected);
+
+	return NULL;
 }
 
 /*
