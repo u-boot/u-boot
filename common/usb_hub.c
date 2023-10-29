@@ -395,6 +395,13 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 		break;
 	}
 
+	/*
+	 * USB 2.0 7.1.7.5: devices must be able to accept a SetAddress()
+	 * request (refer to Section 11.24.2 and Section 9.4 respectively)
+	 * after the reset recovery time 10 ms
+	 */
+	mdelay(10);
+
 #if CONFIG_IS_ENABLED(DM_USB)
 	struct udevice *child;
 
