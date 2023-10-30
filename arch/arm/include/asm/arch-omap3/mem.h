@@ -475,7 +475,7 @@ enum {
 #ifndef __ASSEMBLY__
 
 /* Function prototypes */
-void mem_init(void);
+void omap3_mem_init(void);
 
 u32 is_mem_sdr(void);
 u32 mem_ok(u32 cs);
