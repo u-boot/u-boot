@@ -26,15 +26,15 @@
 };
 
 &grf {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pmu {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pmugrf {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &xin24m {
