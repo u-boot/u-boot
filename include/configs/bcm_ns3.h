@@ -45,11 +45,11 @@
 #define PCIE_ARGS "pcie_args=pci=pcie_bus_safe pcie_ports=native vfio_pci.disable_idle_d3=1\0"
 
 #ifdef CONFIG_BCM_SF2_ETH
-#define ETH_ADDR "ethaddr=00:0A:F7:95:65:A4\0"
+#define BCM_ETH_ADDR "ethaddr=00:0A:F7:95:65:A4\0"
 #define NET_ARGS "bgmac_platform.ethaddr=${ethaddr} " \
 	"ip=${ipaddr}::${gatewayip}:${netmask}::${ethif}:off"
 #else
-#define ETH_ADDR
+#define BMC_ETH_ADDR
 #define NET_ARGS
 #endif
 
@@ -749,7 +749,7 @@
 	OS_LOG_LEVEL \
 	EXTRA_ARGS \
 	PCIE_ARGS \
-	ETH_ADDR \
+	BMC_ETH_ADDR \
 	RESERVED_MEM \
 	SETBOOTARGS \
 	UPDATEME_FLASH_PARAMS \
