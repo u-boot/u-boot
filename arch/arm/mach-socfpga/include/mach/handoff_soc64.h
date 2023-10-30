@@ -78,12 +78,6 @@
 
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
-enum endianness {
-	LITTLE_ENDIAN = 0,
-	BIG_ENDIAN,
-	UNKNOWN_ENDIANNESS
-};
-
 int socfpga_get_handoff_size(void *handoff_address);
 int socfpga_handoff_read(void *handoff_address, void *table, u32 table_len);
 #endif
