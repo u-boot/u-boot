@@ -614,7 +614,6 @@ config ROCKCHIP_NAND
 config ROCKCHIP_NAND_SKIP_BBTSCAN
 	bool "Skip the automatic BBT scan with Rockchip NAND controllers"
 	depends on ROCKCHIP_NAND
-	default n
 	help
 	  Skip the automatic BBT scan with the NAND_SKIP_BBTSCAN
 	  option when data content is not in MTD format or

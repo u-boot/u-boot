@@ -231,7 +231,6 @@ config USB_EHCI_MXS
 config USB_EHCI_NPCM
 	bool "Support for Nuvoton NPCM on-chip EHCI USB controller"
 	depends on ARCH_NPCM
-	default n
 	---help---
 	  Enables support for the on-chip EHCI controller on
 	  Nuvoton NPCM chips.
@@ -368,7 +367,6 @@ config USB_OHCI_DA8XX
 config USB_OHCI_NPCM
 	bool "Support for Nuvoton NPCM on-chip OHCI USB controller"
 	depends on ARCH_NPCM
-	default n
 	---help---
 	  Enables support for the on-chip OHCI controller on
 	  Nuvoton NPCM chips.

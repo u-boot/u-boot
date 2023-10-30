@@ -59,7 +59,7 @@ void *addrmap_phys_to_virt(phys_addr_t paddr)
 void addrmap_set_entry(unsigned long vaddr, phys_addr_t paddr,
 			phys_size_t size, int idx)
 {
-	if (idx > CONFIG_SYS_NUM_ADDR_MAP)
+	if (idx >= CONFIG_SYS_NUM_ADDR_MAP)
 		return;
 
 	address_map[idx].vaddr = vaddr;
