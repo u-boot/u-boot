@@ -538,6 +538,18 @@ int i2c_get_chip_for_busnum(int busnum, int chip_addr, uint offset_len,
 			    struct udevice **devp);
 
 /**
+ * i2c_get_chip_by_phandle() - get a device to use to access a chip
+ *			       based on a phandle property pointing to it
+ *
+ * @parent: Parent device containing the phandle pointer
+ * @name:   Name of phandle property in the parent device node
+ * @devp:   Returns pointer to new device or NULL if not found
+ * Return:  0 on success, -ve on failure
+ */
+int i2c_get_chip_by_phandle(const struct udevice *parent, const char *prop_name,
+			    struct udevice **devp);
+
+/**
  * i2c_chip_of_to_plat() - Decode standard I2C platform data
  *
  * This decodes the chip address from a device tree node and puts it into

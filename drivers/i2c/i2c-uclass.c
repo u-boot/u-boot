@@ -388,6 +388,81 @@ int i2c_get_chip_for_busnum(int busnum, int chip_addr, uint offset_len,
 	return 0;
 }
 
+/* Find and probe I2C bus based on a chip attached to it */
+static int i2c_get_parent_bus(ofnode chip, struct udevice **devp)
+{
+	ofnode node;
+	struct udevice *dev;
+	int ret;
+
+	node = ofnode_get_parent(chip);
+	if (!ofnode_valid(node))
+		return -ENODEV;
+
+	ret = uclass_get_device_by_ofnode(UCLASS_I2C, node, &dev);
+	if (ret) {
+		*devp = NULL;
+		return ret;
+	}
+
+	*devp = dev;
+	return 0;
+}
+
+int i2c_get_chip_by_phandle(const struct udevice *parent, const char *prop_name,
+			    struct udevice **devp)
+{
+	ofnode node;
+	uint phandle;
+	struct udevice *bus, *chip;
+	char *dev_name;
+	int ret;
+
+	debug("%s: Searching I2C chip for phandle \"%s\"\n",
+	      __func__, prop_name);
+
+	dev_name = strdup(prop_name);
+	if (!dev_name) {
+		ret = -ENOMEM;
+		goto err_exit;
+	}
+
+	ret = dev_read_u32(parent, "i2cbcdev", &phandle);
+	if (ret)
+		goto err_exit;
+
+	node = ofnode_get_by_phandle(phandle);
+	if (!ofnode_valid(node)) {
+		ret = -ENODEV;
+		goto err_exit;
+	}
+
+	ret = i2c_get_parent_bus(node, &bus);
+	if (ret)
+		goto err_exit;
+
+	ret = device_bind_driver_to_node(bus, "i2c_generic_chip_drv",
+					 dev_name, node, &chip);
+	if (ret)
+		goto err_exit;
+
+	ret = device_probe(chip);
+	if (ret) {
+		device_unbind(chip);
+		goto err_exit;
+	}
+
+	debug("%s succeeded\n", __func__);
+	*devp = chip;
+	return 0;
+
+err_exit:
+	free(dev_name);
+	debug("%s failed, ret = %d\n", __func__, ret);
+	*devp = NULL;
+	return ret;
+}
+
 int dm_i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
 		 struct udevice **devp)
 {
