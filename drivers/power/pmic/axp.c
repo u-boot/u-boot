@@ -51,6 +51,7 @@ static const struct pmic_child_info axp_pmic_child_info[] = {
 	{ "cldo",	"axp_regulator" },
 	{ "dc",		"axp_regulator" },
 	{ "dldo",	"axp_regulator" },
+	{ "drivevbus",	"axp_drivevbus" },
 	{ "eldo",	"axp_regulator" },
 	{ "fldo",	"axp_regulator" },
 	{ "ldo",	"axp_regulator" },
