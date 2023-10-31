@@ -705,13 +705,13 @@ static const struct udevice_id sunxi_mmc_ids[] = {
 	{ .compatible = "allwinner,sun7i-a20-mmc" },
 	{ .compatible = "allwinner,sun8i-a83t-emmc" },
 	{ .compatible = "allwinner,sun9i-a80-mmc" },
+	{ .compatible = "allwinner,sun20i-d1-mmc" },
 	{ .compatible = "allwinner,sun50i-a64-mmc" },
 	{ .compatible = "allwinner,sun50i-a64-emmc" },
 	{ .compatible = "allwinner,sun50i-h6-mmc" },
 	{ .compatible = "allwinner,sun50i-h6-emmc" },
 	{ .compatible = "allwinner,sun50i-a100-mmc" },
 	{ .compatible = "allwinner,sun50i-a100-emmc" },
-	{ .compatible = "allwinner,sun20i-d1-mmc" },
 	{ /* sentinel */ }
 };
 
