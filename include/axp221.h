@@ -53,10 +53,6 @@
 #ifdef CONFIG_AXP221_POWER
 #define AXP_POWER_STATUS		0x00
 #define AXP_POWER_STATUS_ALDO_IN		BIT(0)
-#define AXP_VBUS_IPSOUT			0x30
-#define AXP_VBUS_IPSOUT_DRIVEBUS		(1 << 2)
-#define AXP_MISC_CTRL			0x8f
-#define AXP_MISC_CTRL_N_VBUSEN_FUNC		(1 << 4)
 #define AXP_GPIO0_CTRL			0x90
 #define AXP_GPIO1_CTRL			0x92
 #define AXP_GPIO_CTRL_OUTPUT_LOW		0x00 /* Drive pin low */
