@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <asm/arch/eeprom.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/regs.h>
 #include <asm/arch/spl.h>
 #include <asm/io.h>
@@ -172,9 +173,31 @@ void spl_perform_fixups(struct spl_image_info *spl_image)
 	/* Update the memory size which read form eeprom or DT */
 	fdt_fixup_memory(spl_image->fdt_addr, 0x40000000, gd->ram_size);
 }
+
+static void jh7110_jtag_init(void)
+{
+	/* nTRST: GPIO36 */
+	SYS_IOMUX_DOEN(36, HIGH);
+	SYS_IOMUX_DIN(36, 4);
+	/* TDI: GPIO61 */
+	SYS_IOMUX_DOEN(61, HIGH);
+	SYS_IOMUX_DIN(61, 19);
+	/* TMS: GPIO63 */
+	SYS_IOMUX_DOEN(63, HIGH);
+	SYS_IOMUX_DIN(63, 20);
+	/* TCK: GPIO60 */
+	SYS_IOMUX_DOEN(60, HIGH);
+	SYS_IOMUX_DIN(60, 29);
+	/* TDO: GPIO44 */
+	SYS_IOMUX_DOEN(44, 8);
+	SYS_IOMUX_DOUT(44, 22);
+}
+
 int spl_board_init_f(void)
 {
 	int ret;
+
+	jh7110_jtag_init();
 
 	ret = spl_soc_init();
 	if (ret) {
