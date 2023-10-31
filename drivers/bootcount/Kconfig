@@ -109,6 +109,16 @@ config DM_BOOTCOUNT_RTC
 	  Accesses to the backing store are performed using the write16
 	  and read16 ops of DM RTC devices.
 
+config DM_BOOTCOUNT_I2C
+	bool "Driver Model boot counter on I2C device"
+	depends on DM_I2C
+	help
+	  Enable support for the bootcounter on a generic i2c device, like a RTC
+	  or PMIC. The bootcounter is configured in the device tree using the
+	  "u-boot,bootcount-i2c" compatible string. It requires a phandle
+	  'i2cbcdev' for the i2c device and an 'offset' property used within the
+	  device.
+
 config DM_BOOTCOUNT_I2C_EEPROM
 	bool "Support i2c eeprom devices as a backing store for bootcount"
 	depends on I2C_EEPROM
