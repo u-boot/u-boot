@@ -14,6 +14,9 @@ config TARGET_ANDES_AE350
 config TARGET_MICROCHIP_ICICLE
 	bool "Support Microchip PolarFire-SoC Icicle Board"
 
+config TARGET_OPENPITON_RISCV64
+	bool "Support RISC-V cores on OpenPiton SoC"
+
 config TARGET_QEMU_VIRT
 	bool "Support QEMU Virt Board"
 
@@ -24,6 +27,10 @@ config TARGET_SIFIVE_UNMATCHED
 	bool "Support SiFive Unmatched Board"
 	select SYS_CACHE_SHIFT_6
 
+config TARGET_SIPEED_MAIX
+	bool "Support Sipeed Maix Board"
+	select SYS_CACHE_SHIFT_6
+
 config TARGET_STARFIVE_VISIONFIVE2
 	bool "Support StarFive VisionFive2 Board"
 	select BOARD_LATE_INIT
@@ -31,13 +38,6 @@ config TARGET_STARFIVE_VISIONFIVE2
 config TARGET_TH1520_LPI4A
 	bool "Support Sipeed's TH1520 Lichee PI 4A Board"
 	select SYS_CACHE_SHIFT_6
-
-config TARGET_SIPEED_MAIX
-	bool "Support Sipeed Maix Board"
-	select SYS_CACHE_SHIFT_6
-
-config TARGET_OPENPITON_RISCV64
-	bool "Support RISC-V cores on OpenPiton SoC"
 
 endchoice
 
@@ -76,12 +76,12 @@ config SPL_ZERO_MEM_BEFORE_USE
 source "board/AndesTech/ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_icicle/Kconfig"
+source "board/openpiton/riscv64/Kconfig"
 source "board/sifive/unleashed/Kconfig"
 source "board/sifive/unmatched/Kconfig"
-source "board/thead/th1520_lpi4a/Kconfig"
-source "board/openpiton/riscv64/Kconfig"
 source "board/sipeed/maix/Kconfig"
 source "board/starfive/visionfive2/Kconfig"
+source "board/thead/th1520_lpi4a/Kconfig"
 
 # platform-specific options below
 source "arch/riscv/cpu/andesv5/Kconfig"
