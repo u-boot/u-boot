@@ -161,6 +161,23 @@ config SUNXI_RVBAR_ALTERNATIVE
 	for all other SoCs, so the content of the SRAM_VER_REG becomes
 	irrelevant there, and we can use the same code.
 
+config SUNXI_BL31_BASE
+	hex
+	default 0x00044000 if MACH_SUN50I || MACH_SUN50I_H5
+	default 0x00104000 if MACH_SUN50I_H6
+	default 0x40000000 if MACH_SUN50I_H616
+	default 0x0
+	help
+	  Address where BL31 (TF-A) is loaded, or zero if BL31 is not used.
+
+config SUNXI_SCP_BASE
+	hex
+	default 0x00050000 if MACH_SUN50I || MACH_SUN50I_H5
+	default 0x00114000 if MACH_SUN50I_H6
+	default 0x0
+	help
+	  Address where SCP firmware is loaded, or zero if it is not used.
+
 config SUNXI_A64_TIMER_ERRATUM
 	bool
 

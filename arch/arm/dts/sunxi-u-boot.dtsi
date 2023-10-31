@@ -1,15 +1,5 @@
 #include <config.h>
 
-#ifdef CONFIG_MACH_SUN50I_H6
-#define BL31_ADDR 0x104000
-#define  SCP_ADDR 0x114000
-#elif defined(CONFIG_MACH_SUN50I_H616)
-#define BL31_ADDR 0x40000000
-#else
-#define BL31_ADDR  0x44000
-#define  SCP_ADDR  0x50000
-#endif
-
 / {
 	aliases {
 		mmc0 = &mmc0;
@@ -69,8 +59,8 @@
 					os = "arm-trusted-firmware";
 					arch = "arm64";
 					compression = "none";
-					load = <BL31_ADDR>;
-					entry = <BL31_ADDR>;
+					load = <CONFIG_SUNXI_BL31_BASE>;
+					entry = <CONFIG_SUNXI_BL31_BASE>;
 
 					atf-bl31 {
 						filename = "bl31.bin";
@@ -78,13 +68,13 @@
 					};
 				};
 
-#ifdef SCP_ADDR
+#if CONFIG_SUNXI_SCP_BASE
 				scp {
 					description = "SCP firmware";
 					type = "firmware";
 					arch = "or1k";
 					compression = "none";
-					load = <SCP_ADDR>;
+					load = <CONFIG_SUNXI_SCP_BASE>;
 
 					scp {
 						filename = "scp.bin";
@@ -106,10 +96,10 @@
 				@config-SEQ {
 					description = "NAME";
 					firmware = "atf";
-#ifndef SCP_ADDR
-					loadables = "uboot";
-#else
+#if CONFIG_SUNXI_SCP_BASE
 					loadables = "scp", "uboot";
+#else
+					loadables = "uboot";
 #endif
 					fdt = "fdt-SEQ";
 				};
