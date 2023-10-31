@@ -567,7 +567,9 @@ S:	Supported
 F:	arch/arm/dts/am335x-sancloud*
 
 ARM SNAPDRAGON
-M:	Ramon Fried <rfried.dev@gmail.com>
+M:	Caleb Connolly <caleb.connolly@linaro.org>
+M:	Neil Armstrong <neil.armstrong@linaro.org>
+R:	Sumit Garg <sumit.garg@linaro.org>
 S:	Maintained
 F:	arch/arm/mach-snapdragon/
 F:	drivers/gpio/msm_gpio.c
