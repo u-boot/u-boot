@@ -1313,6 +1313,13 @@ config CMD_BKOPS_ENABLE
 	  on a eMMC device. The feature is optionally available on eMMC devices
 	  conforming to standard >= 4.41.
 
+config CMD_MMC_REG
+	bool "Enable support for reading card registers in the mmc command"
+	depends on CMD_MMC
+	help
+	  Enable the commands for reading card registers. This is useful
+	  mostly for debugging or extracting details from the card.
+
 config CMD_MMC_RPMB
 	bool "Enable support for RPMB in the mmc command"
 	depends on SUPPORT_EMMC_RPMB
