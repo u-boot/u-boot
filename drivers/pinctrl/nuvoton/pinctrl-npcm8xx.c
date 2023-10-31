@@ -329,6 +329,7 @@ struct group_info {
 
 static const struct group_info npcm8xx_groups[] = {
 	FUNC_LIST
+	{FN_gpio, "GPIO", NULL, 0, 0, 0}
 };
 
 /* Pin flags */

@@ -25,6 +25,23 @@
 #define PLL_16FFT_FREQ_CTRL0		0x30
 #define PLL_16FFT_FREQ_CTRL1		0x34
 #define PLL_16FFT_DIV_CTRL		0x38
+#define PLL_16FFT_CAL_CTRL		0x60
+#define PLL_16FFT_CAL_STAT		0x64
+
+/* CAL STAT register bits */
+#define PLL_16FFT_CAL_STAT_CAL_LOCK	BIT(31)
+
+/* CFG register bits */
+#define PLL_16FFT_CFG_PLL_TYPE_SHIFT	(0)
+#define PLL_16FFT_CFG_PLL_TYPE_MASK	(0x3 << 0)
+#define PLL_16FFT_CFG_PLL_TYPE_FRACF	1
+
+/* CAL CTRL register bits */
+#define PLL_16FFT_CAL_CTRL_CAL_EN               BIT(31)
+#define PLL_16FFT_CAL_CTRL_FAST_CAL             BIT(20)
+#define PLL_16FFT_CAL_CTRL_CAL_BYP              BIT(15)
+#define PLL_16FFT_CAL_CTRL_CAL_CNT_SHIFT        16
+#define PLL_16FFT_CAL_CTRL_CAL_CNT_MASK         (0x7 << 16)
 
 /* CTRL register bits */
 #define PLL_16FFT_CTRL_BYPASS_EN	BIT(31)
@@ -40,8 +57,13 @@
 /* DIV CTRL register bits */
 #define PLL_16FFT_DIV_CTRL_REF_DIV_MASK		0x3f
 
-#define PLL_16FFT_FREQ_CTRL1_FB_DIV_FRAC_BITS	24
+/* HSDIV register bits*/
 #define PLL_16FFT_HSDIV_CTRL_CLKOUT_EN          BIT(15)
+
+/* FREQ_CTRL1 bits */
+#define PLL_16FFT_FREQ_CTRL1_FB_DIV_FRAC_BITS	24
+#define PLL_16FFT_FREQ_CTRL1_FB_DIV_FRAC_MASK	0xffffff
+#define PLL_16FFT_FREQ_CTRL1_FB_DIV_FRAC_SHIFT	0
 
 /* KICK register magic values */
 #define PLL_KICK0_VALUE				0x68ef3490
@@ -63,18 +85,65 @@ static int ti_pll_wait_for_lock(struct clk *clk)
 {
 	struct ti_pll_clk *pll = to_clk_pll(clk);
 	u32 stat;
+	u32 cfg;
+	u32 cal;
+	u32 freq_ctrl1;
 	int i;
+	u32 pllfm;
+	u32 pll_type;
+	int success;
 
 	for (i = 0; i < 100000; i++) {
 		stat = readl(pll->reg + PLL_16FFT_STAT);
-		if (stat & PLL_16FFT_STAT_LOCK)
-			return 0;
+		if (stat & PLL_16FFT_STAT_LOCK) {
+			success = 1;
+			break;
+		}
 	}
 
-	printf("%s: pll (%s) failed to lock\n", __func__,
-	       clk->dev->name);
+	/* Enable calibration if not in fractional mode of the FRACF PLL */
+	freq_ctrl1 = readl(pll->reg + PLL_16FFT_FREQ_CTRL1);
+	pllfm = freq_ctrl1 & PLL_16FFT_FREQ_CTRL1_FB_DIV_FRAC_MASK;
+	pllfm >>= PLL_16FFT_FREQ_CTRL1_FB_DIV_FRAC_SHIFT;
+	cfg = readl(pll->reg + PLL_16FFT_CFG);
+	pll_type = (cfg & PLL_16FFT_CFG_PLL_TYPE_MASK) >> PLL_16FFT_CFG_PLL_TYPE_SHIFT;
 
-	return -EBUSY;
+	if (success && pll_type == PLL_16FFT_CFG_PLL_TYPE_FRACF && pllfm == 0) {
+		cal = readl(pll->reg + PLL_16FFT_CAL_CTRL);
+
+		/* Enable calibration for FRACF */
+		cal |= PLL_16FFT_CAL_CTRL_CAL_EN;
+
+		/* Enable fast cal mode */
+		cal |= PLL_16FFT_CAL_CTRL_FAST_CAL;
+
+		/* Disable calibration bypass */
+		cal &= ~PLL_16FFT_CAL_CTRL_CAL_BYP;
+
+		/* Set CALCNT to 2 */
+		cal &= ~PLL_16FFT_CAL_CTRL_CAL_CNT_MASK;
+		cal |= 2 << PLL_16FFT_CAL_CTRL_CAL_CNT_SHIFT;
+
+		/* Note this register does not readback the written value. */
+		writel(cal, pll->reg + PLL_16FFT_CAL_CTRL);
+
+		success = 0;
+		for (i = 0; i < 100000; i++) {
+			stat = readl(pll->reg + PLL_16FFT_CAL_STAT);
+			if (stat & PLL_16FFT_CAL_STAT_CAL_LOCK) {
+				success = 1;
+				break;
+			}
+		}
+	}
+
+	if (success == 0) {
+		printf("%s: pll (%s) failed to lock\n", __func__,
+		       clk->dev->name);
+		return -EBUSY;
+	} else {
+		return 0;
+	}
 }
 
 static ulong ti_pll_clk_get_rate(struct clk *clk)

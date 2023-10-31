@@ -14,7 +14,7 @@ CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyAMA0 loglevel=9 ip=dhcp earlyprintk"
-CONFIG_BOOTCOMMAND="echo Loading kernel from $kernel_addr to memory ... ; loadm $kernel_addr $kernel_addr_r 0xc00000; usb start; usb reset; run distro_bootcmd; bootefi $kernel_addr_r $fdtcontroladdr;"
+CONFIG_BOOTCOMMAND="echo Loading kernel from $kernel_addr to memory ... ; unzip $kernel_addr 0x90000000; loadm 0x90000000 $kernel_addr_r $filesize; usb start; usb reset; run distro_bootcmd; bootefi $kernel_addr_r $fdtcontroladdr;"
 CONFIG_CONSOLE_RECORD=y
 CONFIG_LOGLEVEL=7
 # CONFIG_DISPLAY_CPUINFO is not set
@@ -55,6 +55,7 @@ CONFIG_DM_RTC=y
 CONFIG_RTC_EMULATION=y
 CONFIG_DM_SERIAL=y
 CONFIG_SYSRESET=y
+CONFIG_SYSRESET_PSCI=y
 CONFIG_TEE=y
 CONFIG_OPTEE=y
 CONFIG_USB=y

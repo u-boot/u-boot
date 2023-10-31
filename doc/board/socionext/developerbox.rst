@@ -42,9 +42,10 @@ Compile from source
 You can build U-Boot without any additinal source code.::
 
   cd u-boot
+  git checkout v2023.07
   export ARCH=arm64
   export CROSS_COMPILE=aarch64-linux-gnu-
-  make SynQuacer_defconfig
+  make synquacer_developerbox_defconfig
   make -j `noproc`
 
 Then, expand the binary to 1MB for preparing flash.::
@@ -211,8 +212,8 @@ can be installed via NOR flash writer.
 Once the flasher tool is running we are ready to flash the images.::
 Write the FIP image to the Bank-0 & 1 at 6MB and 10MB offset.::
 
-  flash rawwrite 600000 180000
-  flash rawwrite a00000 180000
+  flash rawwrite 600000 400000
+  flash rawwrite a00000 400000
   >> Send SPI_NOR_NEWFIP.fd via XMODEM (Control-A S in minicom) <<
 
   flash rawwrite 500000 1000
