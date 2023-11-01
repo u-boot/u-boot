@@ -236,6 +236,11 @@ M:	Stefan Roese <sr@denx.de>
 S:	Maintained
 F:	configs/icnova-a20-swac_defconfig
 
+ICnova-A20-ADB4006 BOARD
+M:	Ludwig Kormann <ludwig.kormann@ict42.de>
+S:	Maintained
+F:	configs/icnova-a20-adb4006_defconfig
+
 ITEAD IBOX BOARD
 M:	Marcus Cooper <codekipper@gmail.com>
 S:	Maintained
