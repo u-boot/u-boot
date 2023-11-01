@@ -8,7 +8,6 @@
 #ifndef __FSL_SEC_MON_H
 #define __FSL_SEC_MON_H
 
-#include <common.h>
 #include <asm/io.h>
 
 #ifdef CONFIG_SYS_FSL_SEC_MON_LE

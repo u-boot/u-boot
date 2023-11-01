@@ -8,7 +8,6 @@
 #ifndef _EFI_SELFTEST_H
 #define _EFI_SELFTEST_H
 
-#include <common.h>
 #include <efi.h>
 #include <efi_api.h>
 #include <efi_loader.h>

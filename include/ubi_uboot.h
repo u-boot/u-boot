@@ -14,7 +14,6 @@
 #ifndef __UBOOT_UBI_H
 #define __UBOOT_UBI_H
 
-#include <common.h>
 #include <compiler.h>
 #include <linux/compat.h>
 #include <malloc.h>
