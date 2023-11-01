@@ -1110,6 +1110,93 @@ static int do_mmc_boot_wp(struct cmd_tbl *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
+#if CONFIG_IS_ENABLED(CMD_MMC_REG)
+static int do_mmc_reg(struct cmd_tbl *cmdtp, int flag,
+		      int argc, char *const argv[])
+{
+	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
+	struct mmc *mmc;
+	int i, ret;
+	u32 off;
+
+	if (argc < 3 || argc > 5)
+		return CMD_RET_USAGE;
+
+	mmc = find_mmc_device(curr_device);
+	if (!mmc) {
+		printf("no mmc device at slot %x\n", curr_device);
+		return CMD_RET_FAILURE;
+	}
+
+	if (IS_SD(mmc)) {
+		printf("SD registers are not supported\n");
+		return CMD_RET_FAILURE;
+	}
+
+	off = simple_strtoul(argv[3], NULL, 10);
+	if (!strcmp(argv[2], "cid")) {
+		if (off > 3)
+			return CMD_RET_USAGE;
+		printf("CID[%i]: 0x%08x\n", off, mmc->cid[off]);
+		if (argv[4])
+			env_set_hex(argv[4], mmc->cid[off]);
+		return CMD_RET_SUCCESS;
+	}
+	if (!strcmp(argv[2], "csd")) {
+		if (off > 3)
+			return CMD_RET_USAGE;
+		printf("CSD[%i]: 0x%08x\n", off, mmc->csd[off]);
+		if (argv[4])
+			env_set_hex(argv[4], mmc->csd[off]);
+		return CMD_RET_SUCCESS;
+	}
+	if (!strcmp(argv[2], "dsr")) {
+		printf("DSR: 0x%08x\n", mmc->dsr);
+		if (argv[4])
+			env_set_hex(argv[4], mmc->dsr);
+		return CMD_RET_SUCCESS;
+	}
+	if (!strcmp(argv[2], "ocr")) {
+		printf("OCR: 0x%08x\n", mmc->ocr);
+		if (argv[4])
+			env_set_hex(argv[4], mmc->ocr);
+		return CMD_RET_SUCCESS;
+	}
+	if (!strcmp(argv[2], "rca")) {
+		printf("RCA: 0x%08x\n", mmc->rca);
+		if (argv[4])
+			env_set_hex(argv[4], mmc->rca);
+		return CMD_RET_SUCCESS;
+	}
+	if (!strcmp(argv[2], "extcsd") &&
+	    mmc->version >= MMC_VERSION_4_41) {
+		ret = mmc_send_ext_csd(mmc, ext_csd);
+		if (ret)
+			return CMD_RET_FAILURE;
+		if (!strcmp(argv[3], "all")) {
+			/* Dump the entire register */
+			printf("EXT_CSD:");
+			for (i = 0; i < MMC_MAX_BLOCK_LEN; i++) {
+				if (!(i % 10))
+					printf("\n%03i: ", i);
+				printf(" %02x", ext_csd[i]);
+			}
+			printf("\n");
+			return CMD_RET_SUCCESS;
+		}
+		off = simple_strtoul(argv[3], NULL, 10);
+		if (off > 512)
+			return CMD_RET_USAGE;
+		printf("EXT_CSD[%i]: 0x%02x\n", off, ext_csd[off]);
+		if (argv[4])
+			env_set_hex(argv[4], ext_csd[off]);
+		return CMD_RET_SUCCESS;
+	}
+
+	return CMD_RET_FAILURE;
+}
+#endif
+
 static struct cmd_tbl cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(info, 1, 0, do_mmcinfo, "", ""),
 	U_BOOT_CMD_MKENT(read, 4, 1, do_mmc_read, "", ""),
@@ -1141,6 +1228,9 @@ static struct cmd_tbl cmd_mmc[] = {
 #ifdef CONFIG_CMD_BKOPS_ENABLE
 	U_BOOT_CMD_MKENT(bkops-enable, 2, 0, do_mmc_bkops_enable, "", ""),
 	U_BOOT_CMD_MKENT(bkops, 4, 0, do_mmc_bkops, "", ""),
+#endif
+#if CONFIG_IS_ENABLED(CMD_MMC_REG)
+	U_BOOT_CMD_MKENT(reg, 5, 0, do_mmc_reg, "", ""),
 #endif
 };
 
@@ -1229,6 +1319,12 @@ U_BOOT_CMD(
 	"   WARNING: This is a write-once setting.\n"
 	"mmc bkops <dev> [auto|manual] [enable|disable]\n"
 	" - configure background operations handshake on device\n"
+#endif
+#if CONFIG_IS_ENABLED(CMD_MMC_REG)
+	"mmc reg read <reg> <offset> [env] - read card register <reg> offset <offset>\n"
+	"                                    (optionally into [env] variable)\n"
+	" - reg: cid/csd/dsr/ocr/rca/extcsd\n"
+	" - offset: for cid/csd [0..3], for extcsd [0..511,all]\n"
 #endif
 	);
 

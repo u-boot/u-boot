@@ -46,6 +46,7 @@ config SPL_DM_MMC
 	depends on SPL_DM && DM_MMC
 	default n if ARCH_MVEBU && !MVEBU_SPL_BOOT_DEVICE_MMC
 	default y
+	select SPL_BLK
 	help
 	  This enables the MultiMediaCard (MMC) uclass which supports MMC and
 	  Secure Digital I/O (SDIO) cards. Both removable (SD, micro-SD, etc.)
