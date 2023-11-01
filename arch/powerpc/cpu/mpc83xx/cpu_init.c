@@ -3,7 +3,6 @@
  * Copyright (C) 2004-2009 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <asm-offsets.h>
 #include <mpc83xx.h>
 #include <system-constants.h>

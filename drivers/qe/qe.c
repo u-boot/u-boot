@@ -6,7 +6,6 @@
  * based on source code of Shlomi Gridish
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <command.h>
 #include <asm/global_data.h>
