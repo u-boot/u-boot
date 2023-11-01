@@ -87,7 +87,6 @@ endif
 
 config DMA_LEGACY
 	bool "Legacy DMA support"
-	default y if FSLDMAFEC
 	help
 	  Enable legacy DMA support. This does not use driver model and should
 	  be migrated to the new API.

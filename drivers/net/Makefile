@@ -37,7 +37,6 @@ obj-$(CONFIG_ETH_SANDBOX_RAW) += sandbox-raw.o
 obj-$(CONFIG_FEC_MXC) += fec_mxc.o
 obj-$(CONFIG_FMAN_ENET) += fm/
 obj-$(CONFIG_FMAN_ENET) += fsl_mdio.o
-obj-$(CONFIG_FSLDMAFEC) += fsl_mcdmafec.o mcfmii.o
 obj-$(CONFIG_FSL_ENETC) += fsl_enetc.o fsl_enetc_mdio.o
 obj-$(CONFIG_FSL_LS_MDIO) += fsl_ls_mdio.o
 obj-$(CONFIG_FSL_MC_ENET) += fsl-mc/
