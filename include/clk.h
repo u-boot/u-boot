@@ -223,9 +223,11 @@ struct clk *devm_clk_get(struct udevice *dev, const char *id);
 static inline struct clk *devm_clk_get_optional(struct udevice *dev,
 						const char *id)
 {
+	int ret;
 	struct clk *clk = devm_clk_get(dev, id);
 
-	if (PTR_ERR(clk) == -ENODATA)
+	ret = PTR_ERR(clk);
+	if (ret == -ENODATA || ret == -ENOENT)
 		return NULL;
 
 	return clk;
@@ -243,7 +245,7 @@ static inline struct clk *devm_clk_get_optional(struct udevice *dev,
  *
  * Return: zero on success, or -ve error code.
  */
-int clk_release_all(struct clk *clk, int count);
+int clk_release_all(struct clk *clk, unsigned int count);
 
 /**
  * devm_clk_put	- "free" a managed clock source
@@ -307,7 +309,7 @@ clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 	return -ENOSYS;
 }
 
-static inline int clk_release_all(struct clk *clk, int count)
+static inline int clk_release_all(struct clk *clk, unsigned int count)
 {
 	return -ENOSYS;
 }
@@ -335,7 +337,7 @@ static inline int clk_get_by_name_optional(struct udevice *dev,
 	int ret;
 
 	ret = clk_get_by_name(dev, name, clk);
-	if (ret == -ENODATA)
+	if (ret == -ENODATA || ret == -ENOENT)
 		return 0;
 
 	return ret;
@@ -359,7 +361,7 @@ static inline int clk_get_by_name_nodev_optional(ofnode node, const char *name,
 	int ret;
 
 	ret = clk_get_by_name_nodev(node, name, clk);
-	if (ret == -ENODATA)
+	if (ret == -ENODATA || ret == -ENOENT)
 		return 0;
 
 	return ret;
