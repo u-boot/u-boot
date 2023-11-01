@@ -9,7 +9,7 @@
 #define __ASM_GBL_DATA_H
 
 #include <config.h>
-#include "asm/types.h"
+#include <linux/types.h>
 
 /* Architecture-specific global data */
 struct arch_global_data {
