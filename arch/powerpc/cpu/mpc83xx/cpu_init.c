@@ -18,6 +18,8 @@
 #ifdef CONFIG_QE
 #include <fsl_qe.h>
 #endif
+#include <asm/ppc.h>
+#include <asm/fsl_lbc.h>
 
 #include "lblaw/lblaw.h"
 #include "elbc/elbc.h"
