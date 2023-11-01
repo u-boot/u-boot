@@ -5,6 +5,7 @@
 
 choice
 	prompt "TI K3 AM62Ax based boards"
+	depends on SOC_K3_AM62A7
 	optional
 
 config TARGET_AM62A7_A53_EVM

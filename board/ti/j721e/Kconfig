@@ -5,6 +5,7 @@
 
 choice
 	prompt "K3 J721E based boards"
+	depends on SOC_K3_J721E
 	optional
 
 config TARGET_J721E_A72_EVM

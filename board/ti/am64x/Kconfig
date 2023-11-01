@@ -4,6 +4,7 @@
 
 choice
 	prompt "K3 AM64 based boards"
+	depends on SOC_K3_AM642
 	optional
 
 config TARGET_AM642_A53_EVM

@@ -5,6 +5,7 @@
 
 choice
 	prompt "Toradex Verdin AM62 based boards"
+	depends on SOC_K3_AM625
 	optional
 
 config TARGET_VERDIN_AM62_A53
