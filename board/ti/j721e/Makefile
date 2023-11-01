@@ -6,3 +6,4 @@
 #
 
 obj-y	+= evm.o
+obj-${CONFIG_TI_I2C_BOARD_DETECT} += board-variants.o
