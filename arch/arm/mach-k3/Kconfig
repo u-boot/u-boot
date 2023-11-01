@@ -190,7 +190,7 @@ config K3_X509_SWRV
 source "arch/arm/mach-k3/am65x/Kconfig"
 source "arch/arm/mach-k3/am64x/Kconfig"
 source "arch/arm/mach-k3/am62x/Kconfig"
-source "board/ti/am62ax/Kconfig"
+source "arch/arm/mach-k3/am62ax/Kconfig"
 source "arch/arm/mach-k3/j721e/Kconfig"
 source "board/ti/j721s2/Kconfig"
 
