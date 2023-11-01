@@ -4,6 +4,7 @@
  */
 
 #include <log.h>
+#include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/immap_85xx.h>
 #include "sleep.h"
