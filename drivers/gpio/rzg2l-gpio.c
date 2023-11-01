@@ -5,7 +5,6 @@
  * Copyright (C) 2021-2023 Renesas Electronics Corp.
  */
 
-#include <common.h>
 #include <asm-generic/gpio.h>
 #include <asm/io.h>
 #include <dm/device.h>
