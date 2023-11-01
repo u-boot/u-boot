@@ -2,7 +2,7 @@
 /*
  * Texas Instruments K3 clock driver
  *
- * Copyright (C) 2020-2021 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2020-2021 Texas Instruments Incorporated - https://www.ti.com/
  *	Tero Kristo <t-kristo@ti.com>
  */
 

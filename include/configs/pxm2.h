@@ -7,7 +7,7 @@
  * Based on:
  * U-Boot file:/include/configs/am335x_evm.h
  *
- * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #ifndef __CONFIG_PXM2_H

@@ -2,7 +2,7 @@
 /*
  * mux_am43xx.h
  *
- * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #ifndef _MUX_AM43XX_H_

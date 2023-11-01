@@ -2,7 +2,7 @@
 /*
  * DDR Configuration for AM33xx devices.
  *
- * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include <common.h>

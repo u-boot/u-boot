@@ -2,7 +2,7 @@
 /*
  * Texas Instruments System Control Interface (TI SCI) reset driver
  *
- * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018 Texas Instruments Incorporated - https://www.ti.com/
  *	Andreas Dannenberg <dannenberg@ti.com>
  *
  * Loosely based on Linux kernel reset-ti-sci.c...

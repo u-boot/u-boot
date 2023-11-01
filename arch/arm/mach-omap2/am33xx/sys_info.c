@@ -4,7 +4,7 @@
  *
  * System information functions
  *
- * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
+ * Copyright (C) 2011, Texas Instruments, Incorporated - https://www.ti.com/
  *
  * Derived from Beagle Board and 3430 SDP code by
  *      Richard Woodruff <r-woodruff2@ti.com>

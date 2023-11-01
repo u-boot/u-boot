@@ -2,7 +2,7 @@
 /*
  * Configuration settings for the TI OMAP3 EVM board.
  *
- * Copyright (C) 2006-2011 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2006-2011 Texas Instruments Incorporated - https://www.ti.com/
  *
  * Author :
  *	Manikandan Pillai <mani.pillai@ti.com>

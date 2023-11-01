@@ -2,7 +2,7 @@
 /*
  * CPPI5 descriptors interface
  *
- * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com
+ * Copyright (C) 2018 Texas Instruments Incorporated - https://www.ti.com
  */
 
 #ifndef __TI_CPPI5_H__

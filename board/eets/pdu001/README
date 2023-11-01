@@ -14,7 +14,7 @@ Hardware
 The PDU-001 (Processor and Display Unit) is a plugin card for 19" racks. It is
 manufactured by EETS GmbH (https://www.eets.ch). The core of the board is a m2
 SOM from bytes at work (https://www.bytesatwork.ch) which in turn is based on
-AM3352 SOC from TI (http://www.ti.com).
+AM3352 SOC from TI (https://www.ti.com).
 
 Customization
 =============

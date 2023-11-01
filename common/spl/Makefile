@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2012
-# Texas Instruments Incorporated - http://www.ti.com/
+# Texas Instruments Incorporated - https://www.ti.com/
 # Aneesh V <aneesh@ti.com>
 # Based on common/Makefile.
 #

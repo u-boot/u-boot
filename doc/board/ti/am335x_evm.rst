@@ -59,7 +59,7 @@ from Texas Instruments. The tools used to generate boot images for secure
 devices are part of a secure development package (SECDEV) that can be
 downloaded from:
 
-	http://www.ti.com/mysecuresoftware (login required)
+	https://www.ti.com/mysecuresoftware (login required)
 
 The secure development package is access controlled due to NDA and export
 control restrictions. Access must be requested and granted by TI before the

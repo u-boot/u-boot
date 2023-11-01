@@ -4,7 +4,7 @@
  *       Vaibhav Hiremath <hvaibhav@ti.com>
  *
  * Copyright (C) 2010
- * Texas Instruments Incorporated - http://www.ti.com/
+ * Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #ifndef _EMIF_H_

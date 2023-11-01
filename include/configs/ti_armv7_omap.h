@@ -2,7 +2,7 @@
 /*
  * ti_armv7_omap.h
  *
- * Copyright (C) 2015 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2015 Texas Instruments Incorporated - https://www.ti.com/
  *
  * The various ARMv7 SoCs from TI all share a number of IP blocks when
  * implementing a given feature. This is meant to isolate the features

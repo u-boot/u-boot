@@ -27,7 +27,7 @@ specific processing cores and peripherals:
         * 2 x C66x Digital signal processor sub system
         * C71x Digital signal processor sub-system with MMA.
 
-More info can be found in TRM: http://www.ti.com/lit/pdf/spruil1
+More info can be found in TRM: https://www.ti.com/lit/pdf/spruil1
 
 Platform information:
 

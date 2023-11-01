@@ -2,7 +2,7 @@
 /*
  * Library to support early TI EVM EEPROM handling
  *
- * Copyright (C) 2015-2016 Texas Instruments Incorporated - http://www.ti.com
+ * Copyright (C) 2015-2016 Texas Instruments Incorporated - https://www.ti.com
  */
 
 #ifndef __BOARD_DETECT_H

@@ -2,7 +2,7 @@
 /*
  * Texas Instruments CDCE913/925/937/949 clock synthesizer driver
  *
- * Copyright (C) 2019 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2019 Texas Instruments Incorporated - https://www.ti.com/
  *	Tero Kristo <t-kristo@ti.com>
  *
  * Based on Linux kernel clk-cdce925.c.

@@ -22,7 +22,7 @@ cores, voltage domains and peripherals:
 3. MAIN domain:
         * Quad core 64-bit ARM Cortex-A53
 
-More info can be found in TRM: http://www.ti.com/lit/pdf/spruid7
+More info can be found in TRM: https://www.ti.com/lit/pdf/spruid7
 
 Platform information:
 

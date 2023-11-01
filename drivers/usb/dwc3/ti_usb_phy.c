@@ -2,7 +2,7 @@
 /**
  * ti_usb_phy.c - USB3 and USB3 PHY programming for dwc3
  *
- * Copyright (C) 2015 Texas Instruments Incorporated - http://www.ti.com
+ * Copyright (C) 2015 Texas Instruments Incorporated - https://www.ti.com
  *
  * Author: Kishon Vijay Abraham I <kishon@ti.com>
  *
