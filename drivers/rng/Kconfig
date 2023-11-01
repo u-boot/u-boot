@@ -99,4 +99,10 @@ config TPM_RNG
 	  functionality. Enable random number generator on TPM
 	  devices.
 
+config RNG_JH7110
+	bool "StarFive JH7110 Random Number Generator support"
+	depends on DM_RNG && STARFIVE_JH7110
+	help
+	  Enable True Random Number Generator in StarFive JH7110 SoCs.
+
 endif
