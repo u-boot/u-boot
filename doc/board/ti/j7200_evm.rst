@@ -71,7 +71,7 @@ Set the variables corresponding to this platform:
  $ export TFA_BOARD=generic
  $ # we dont use any extra TFA parameters
  $ unset TFA_EXTRA_ARGS
- $ export OPTEE_PLATFORM=k3-j7200
+ $ export OPTEE_PLATFORM=k3-j721e
  $ # we dont use any extra OP-TEE parameters
  $ unset OPTEE_EXTRA_ARGS
 
