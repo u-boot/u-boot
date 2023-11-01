@@ -7,7 +7,6 @@
  *	Dave Gerlach <d-gerlach@ti.com>
  */
 
-#include <common.h>
 #include <fdt_support.h>
 #include <spl.h>
 #include <asm/io.h>

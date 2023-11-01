@@ -6,7 +6,6 @@
  *	Lokesh Vutla <lokeshvutla@ti.com>
  */
 
-#include <common.h>
 #include <fdt_support.h>
 #include <init.h>
 #include <asm/global_data.h>

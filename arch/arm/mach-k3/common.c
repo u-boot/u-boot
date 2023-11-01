@@ -6,7 +6,6 @@
  *	Lokesh Vutla <lokeshvutla@ti.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <image.h>
 #include <init.h>

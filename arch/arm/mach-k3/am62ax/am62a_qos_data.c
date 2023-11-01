@@ -5,7 +5,6 @@
  *
  * Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
  */
-#include <common.h>
 #include <asm/arch/hardware.h>
 #include "common.h"
 
