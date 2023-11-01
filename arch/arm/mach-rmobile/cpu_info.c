@@ -3,7 +3,7 @@
  * (C) Copyright 2012 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  * (C) Copyright 2012-2021 Renesas Solutions Corp.
  */
-#include <common.h>
+
 #include <cpu_func.h>
 #include <asm/cache.h>
 #include <init.h>

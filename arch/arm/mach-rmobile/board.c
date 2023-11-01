@@ -3,7 +3,7 @@
  * (C) Copyright 2012 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  * (C) Copyright 2012 Renesas Solutions Corp.
  */
-#include <common.h>
+
 #include <init.h>
 #include <asm/io.h>
 

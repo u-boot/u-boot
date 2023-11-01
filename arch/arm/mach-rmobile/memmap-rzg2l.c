@@ -6,9 +6,9 @@
  * Copyright (C) 2023 Renesas Electronics Corp.
  */
 
-#include <common.h>
 #include <asm/armv8/mmu.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 #include <cpu_func.h>
 
 #define RZG2L_NR_REGIONS 16

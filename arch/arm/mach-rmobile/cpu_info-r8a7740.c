@@ -3,7 +3,7 @@
  * (C) Copyright 2012 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  * (C) Copyright 2012 Renesas Solutions Corp.
  */
-#include <common.h>
+
 #include <asm/io.h>
 
 u32 rmobile_get_cpu_type(void)
