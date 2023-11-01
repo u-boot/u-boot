@@ -6,8 +6,6 @@
 #ifndef __SANDBOX_POWER_DOMAIN_H
 #define __SANDBOX_POWER_DOMAIN_H
 
-#include <common.h>
-
 struct udevice;
 
 int sandbox_power_domain_query(struct udevice *dev, unsigned long id);
