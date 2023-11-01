@@ -5,7 +5,6 @@
  * Copyright (C) 2021-2023 Renesas Electronics Corp.
  */
 
-#include <common.h>
 #include <dm/device.h>
 #include <dt-bindings/clock/r9a07g044-cpg.h>
 #include <linux/clk-provider.h>
