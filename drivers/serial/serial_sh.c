@@ -6,7 +6,6 @@
  * Copyright (C) 2002 - 2008  Paul Mundt
  */
 
-#include <common.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/processor.h>
