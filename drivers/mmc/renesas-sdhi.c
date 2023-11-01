@@ -3,7 +3,6 @@
  * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
  */
 
-#include <common.h>
 #include <bouncebuf.h>
 #include <clk.h>
 #include <fdtdec.h>
