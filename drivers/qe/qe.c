@@ -23,6 +23,9 @@
 #include <asm/armv8/mmu.h>
 #include <asm/arch/cpu.h>
 #endif
+#ifdef CONFIG_PPC
+#include <asm/ppc.h>
+#endif
 
 #define MPC85xx_DEVDISR_QE_DISABLE	0x1
 
