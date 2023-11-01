@@ -193,6 +193,7 @@ U_BOOT_DRIVER(meson_sm) = {
 	.id = UCLASS_SM,
 	.of_match = meson_sm_ids,
 	.probe = meson_sm_probe,
+	.bind = dm_scan_fdt_dev,
 	.priv_auto = sizeof(struct meson_sm_priv),
 	.ops = &sm_ops,
 };
