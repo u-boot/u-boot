@@ -75,15 +75,15 @@ Set the variables corresponding to this platform:
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_common_env_vars_defn
     :end-before: .. k3_rst_include_end_common_env_vars_defn
-.. code-block:: bash
+.. prompt:: bash $
 
- $ export UBOOT_CFG_CORTEXR=j721s2_evm_r5_defconfig
- $ export UBOOT_CFG_CORTEXA=j721s2_evm_a72_defconfig
- $ export TFA_BOARD=generic
- $ export TFA_EXTRA_ARGS="K3_USART=0x8"
- $ # The following is not a typo, j784s4 is the OP-TEE platform for j721s2
- $ export OPTEE_PLATFORM=k3-j784s4
- $ export OPTEE_EXTRA_ARGS="CFG_CONSOLE_UART=0x8"
+  export UBOOT_CFG_CORTEXR=j721s2_evm_r5_defconfig
+  export UBOOT_CFG_CORTEXA=j721s2_evm_a72_defconfig
+  export TFA_BOARD=generic
+  export TFA_EXTRA_ARGS="K3_USART=0x8"
+  # The following is not a typo, j784s4 is the OP-TEE platform for j721s2
+  export OPTEE_PLATFORM=k3-j784s4
+  export OPTEE_EXTRA_ARGS="CFG_CONSOLE_UART=0x8"
 
 .. j721s2_evm_rst_include_start_build_steps
 
@@ -296,7 +296,7 @@ Debugging U-Boot on J721S2-EVM
 
 To start OpenOCD and connect to the board
 
-.. code-block:: bash
+.. prompt:: bash $
 
   openocd -f board/ti_j721s2evm.cfg
 

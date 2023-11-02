@@ -55,15 +55,15 @@ Set the variables corresponding to this platform:
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_common_env_vars_defn
     :end-before: .. k3_rst_include_end_common_env_vars_defn
-.. code-block:: bash
+.. prompt:: bash $
 
- $ export UBOOT_CFG_CORTEXR="am62x_evm_r5_defconfig beagleplay_r5.config"
- $ export UBOOT_CFG_CORTEXA="am62x_evm_a53_defconfig beagleplay_a53.config"
- $ export TFA_BOARD=lite
- $ # we dont use any extra TFA parameters
- $ unset TFA_EXTRA_ARGS
- $ export OPTEE_PLATFORM=k3-am62x
- $ export OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
+  export UBOOT_CFG_CORTEXR="am62x_evm_r5_defconfig beagleplay_r5.config"
+  export UBOOT_CFG_CORTEXA="am62x_evm_a53_defconfig beagleplay_a53.config"
+  export TFA_BOARD=lite
+  # we dont use any extra TFA parameters
+  unset TFA_EXTRA_ARGS
+  export OPTEE_PLATFORM=k3-am62x
+  export OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
 
 .. include::  am62x_sk.rst
     :start-after: .. am62x_evm_rst_include_start_build_steps
@@ -174,24 +174,24 @@ boot1 partition depends on A/B update requirements.
 
 The following are the steps from Linux shell to program eMMC:
 
-.. code-block:: bash
+.. prompt:: bash #
 
-  # # Enable Boot0 boot
-  # mmc bootpart enable 1 2 /dev/mmcblk0
-  # mmc bootbus set single_backward x1 x8 /dev/mmcblk0
-  # mmc hwreset enable /dev/mmcblk0
+  # Enable Boot0 boot
+  mmc bootpart enable 1 2 /dev/mmcblk0
+  mmc bootbus set single_backward x1 x8 /dev/mmcblk0
+  mmc hwreset enable /dev/mmcblk0
 
-  # # Clear eMMC boot0
-  # echo '0' >> /sys/class/block/mmcblk0boot0/force_ro
-  # dd if=/dev/zero of=/dev/mmcblk0boot0 count=32 bs=128k
-  # # Write tiboot3.bin
-  # dd if=tiboot3.bin of=/dev/mmcblk0boot0 bs=128k
+  # Clear eMMC boot0
+  echo '0' >> /sys/class/block/mmcblk0boot0/force_ro
+  dd if=/dev/zero of=/dev/mmcblk0boot0 count=32 bs=128k
+  # Write tiboot3.bin
+  dd if=tiboot3.bin of=/dev/mmcblk0boot0 bs=128k
 
-  # # Copy the rest of the boot binaries
-  # mount /dev/mmcblk0p1 /boot/firmware
-  # cp tispl.bin /boot/firmware
-  # cp u-boot.img /boot/firmware
-  # sync
+  # Copy the rest of the boot binaries
+  mount /dev/mmcblk0p1 /boot/firmware
+  cp tispl.bin /boot/firmware
+  cp u-boot.img /boot/firmware
+  sync
 
 .. warning ::
 
