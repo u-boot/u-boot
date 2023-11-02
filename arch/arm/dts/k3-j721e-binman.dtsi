@@ -296,11 +296,14 @@
 
 #define SPL_NODTB "spl/u-boot-spl-nodtb.bin"
 #define SPL_J721E_EVM_DTB "spl/dts/k3-j721e-common-proc-board.dtb"
-#define SPL_J721E_SK_DTB "spl/dts/k3-j721e-sk.dtb"
 
 #define UBOOT_NODTB "u-boot-nodtb.bin"
 #define J721E_EVM_DTB "u-boot.dtb"
+
+#ifdef DUAL_DTB_BINMAN
+#define SPL_J721E_SK_DTB "spl/dts/k3-j721e-sk.dtb"
 #define J721E_SK_DTB "arch/arm/dts/k3-j721e-sk.dtb"
+#endif
 
 &binman {
 	ti-dm {
@@ -400,6 +403,7 @@
 					};
 				};
 
+#ifdef DUAL_DTB_BINMAN
 				fdt-1 {
 					description = "k3-j721e-sk";
 					type = "flat_dt";
@@ -414,6 +418,7 @@
 						filename = SPL_J721E_SK_DTB;
 					};
 				};
+#endif
 			};
 
 			configurations {
@@ -426,12 +431,14 @@
 					fdt = "fdt-0";
 				};
 
+#ifdef DUAL_DTB_BINMAN
 				conf-1 {
 					description = "k3-j721e-sk";
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
 					fdt = "fdt-1";
 				};
+#endif
 			};
 		};
 	};
@@ -482,6 +489,7 @@
 					};
 				};
 
+#ifdef DUAL_DTB_BINMAN
 				fdt-1 {
 					description = "k3-j721e-sk";
 					type = "flat_dt";
@@ -499,6 +507,7 @@
 						algo = "crc32";
 					};
 				};
+#endif
 			};
 
 			configurations {
@@ -511,12 +520,14 @@
 					fdt = "fdt-0";
 				};
 
+#ifdef DUAL_DTB_BINMAN
 				conf-1 {
 					description = "k3-j721e-sk";
 					firmware = "uboot";
 					loadables = "uboot";
 					fdt = "fdt-1";
 				};
+#endif
 			};
 		};
 	};
@@ -595,6 +606,7 @@
 					};
 				};
 
+#ifdef DUAL_DTB_BINMAN
 				fdt-1 {
 					description = "k3-j721e-sk";
 					type = "flat_dt";
@@ -604,6 +616,7 @@
 						filename = SPL_J721E_SK_DTB;
 					};
 				};
+#endif
 			};
 
 			configurations {
@@ -616,12 +629,14 @@
 					fdt = "fdt-0";
 				};
 
+#ifdef DUAL_DTB_BINMAN
 				conf-1 {
 					description = "k3-j721e-sk";
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
 					fdt = "fdt-1";
 				};
+#endif
 			};
 		};
 	};
@@ -664,6 +679,7 @@
 					};
 				};
 
+#ifdef DUAL_DTB_BINMAN
 				fdt-1 {
 					description = "k3-j721e-sk";
 					type = "flat_dt";
@@ -676,6 +692,7 @@
 						algo = "crc32";
 					};
 				};
+#endif
 			};
 
 			configurations {
@@ -688,12 +705,14 @@
 					fdt = "fdt-0";
 				};
 
+#ifdef DUAL_DTB_BINMAN
 				conf-1 {
 					description = "k3-j721e-sk";
 					firmware = "uboot";
 					loadables = "uboot";
 					fdt = "fdt-1";
 				};
+#endif
 			};
 		};
 	};

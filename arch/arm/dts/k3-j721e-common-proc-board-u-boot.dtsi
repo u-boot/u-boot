@@ -3,6 +3,8 @@
  * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
  */
 
+#define DUAL_DTB_BINMAN 1
+
 #include "k3-j721e-binman.dtsi"
 
 &cbass_main {
