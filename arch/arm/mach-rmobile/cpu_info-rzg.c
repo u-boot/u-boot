@@ -3,7 +3,7 @@
  * Copyright (C) 2021 Renesas Electronics Corporation
  *
  */
-#include <common.h>
+
 #include <linux/libfdt.h>
 
 /* If the firmware passed a device tree, use it for soc identification. */

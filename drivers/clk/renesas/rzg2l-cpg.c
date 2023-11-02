@@ -11,7 +11,6 @@
  * Copyright (C) 2015 Renesas Electronics Corp.
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <clk-uclass.h>
 #include <dm.h>

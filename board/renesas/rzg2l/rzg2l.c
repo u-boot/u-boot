@@ -4,7 +4,6 @@
  * Copyright (C) 2023 Renesas Electronics Corporation
  */
 
-#include <common.h>
 #include <fdtdec.h>
 #include <linux/libfdt.h>
 

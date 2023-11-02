@@ -118,6 +118,8 @@
 #define HCR_EL2_E2H_BIT		34
 
 #ifndef __ASSEMBLY__
+#include <linux/types.h>
+
 static inline void set_ttbr_tcr_mair(int el, u64 table, u64 tcr, u64 attr)
 {
 	asm volatile("dsb sy");

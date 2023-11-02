@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2013,2014 Renesas Electronics Corporation
  */
-#include <common.h>
+
 #include <asm/io.h>
 
 #define PRR_MASK		0x7fff
