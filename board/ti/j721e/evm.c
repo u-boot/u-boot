@@ -8,21 +8,13 @@
  */
 
 #include <common.h>
-#include <env.h>
-#include <fdt_support.h>
 #include <generic-phy.h>
 #include <image.h>
-#include <init.h>
-#include <log.h>
 #include <net.h>
 #include <asm/arch/hardware.h>
-#include <asm/global_data.h>
 #include <asm/gpio.h>
-#include <asm/io.h>
 #include <spl.h>
 #include <dm.h>
-#include <dm/uclass-internal.h>
-#include <linux/printk.h>
 
 #include "../common/board_detect.h"
 
