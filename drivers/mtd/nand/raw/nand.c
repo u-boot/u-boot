@@ -41,8 +41,11 @@ int nand_mtd_to_devnum(struct mtd_info *mtd)
 {
 	int i;
 
+	if (!mtd)
+		return -ENODEV;
+
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++) {
-		if (mtd && get_nand_dev_by_index(i) == mtd)
+		if (get_nand_dev_by_index(i) == mtd)
 			return i;
 	}
 
