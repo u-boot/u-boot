@@ -295,14 +295,26 @@
 #ifdef CONFIG_TARGET_J721E_A72_EVM
 
 #define SPL_NODTB "spl/u-boot-spl-nodtb.bin"
+#ifndef SPL_J721E_EVM_DTB
 #define SPL_J721E_EVM_DTB "spl/dts/k3-j721e-common-proc-board.dtb"
+#endif
 
 #define UBOOT_NODTB "u-boot-nodtb.bin"
+
+#ifndef J721E_EVM_DTB
 #define J721E_EVM_DTB "u-boot.dtb"
+#endif
 
 #ifdef DUAL_DTB_BINMAN
+
+#ifndef SPL_J721E_SK_DTB
 #define SPL_J721E_SK_DTB "spl/dts/k3-j721e-sk.dtb"
+#endif
+
+#ifndef J721E_SK_DTB
 #define J721E_SK_DTB "arch/arm/dts/k3-j721e-sk.dtb"
+#endif
+
 #endif
 
 &binman {
