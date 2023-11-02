@@ -359,9 +359,6 @@ void configure_serdes_torrent(void)
 	struct phy serdes;
 	int ret;
 
-	if (!IS_ENABLED(CONFIG_PHY_CADENCE_TORRENT))
-		return;
-
 	ret = uclass_get_device_by_driver(UCLASS_PHY,
 					  DM_DRIVER_GET(torrent_phy_provider),
 					  &dev);
@@ -392,9 +389,6 @@ void configure_serdes_sierra(void)
 	struct phy link;
 	int ret, count, i;
 	int link_count = 0;
-
-	if (!IS_ENABLED(CONFIG_PHY_CADENCE_SIERRA))
-		return;
 
 	ret = uclass_get_device_by_driver(UCLASS_MISC,
 					  DM_DRIVER_GET(sierra_phy_provider),
@@ -477,10 +471,10 @@ int board_late_init(void)
 			probe_daughtercards();
 	}
 
-	if (board_is_j7200_som())
+	if (IS_ENABLED(CONFIG_PHY_CADENCE_TORRENT))
 		configure_serdes_torrent();
 
-	if (board_is_j721e_som())
+	if (IS_ENABLED(CONFIG_PHY_CADENCE_SIERRA))
 		configure_serdes_sierra();
 
 	return 0;
