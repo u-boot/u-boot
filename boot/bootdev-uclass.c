@@ -784,7 +784,7 @@ static int bootdev_hunt_drv(struct bootdev_hunter *info, uint seq, bool show)
 		if (info->hunt) {
 			ret = info->hunt(info, show);
 			log_debug("  - hunt result %d\n", ret);
-			if (ret)
+			if (ret && ret != -ENOENT)
 				return ret;
 		}
 		std->hunters_used |= BIT(seq);

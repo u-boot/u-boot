@@ -65,7 +65,7 @@ int sata_rescan(bool verbose)
 	ret = uclass_find_first_device(UCLASS_AHCI, &dev);
 	if (ret || !dev) {
 		printf("Cannot find SATA device (err=%d)\n", ret);
-		return -ENOSYS;
+		return -ENOENT;
 	}
 
 	ret = device_remove(dev, DM_REMOVE_NORMAL);

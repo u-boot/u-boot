@@ -65,7 +65,7 @@ struct bootdev_hunter;
  *
  * @info: Info structure describing this hunter
  * @show: true to show information from the hunter
- * Returns: 0 if OK, -ve on error
+ * Returns: 0 if OK, -ENOENT on device not found, otherwise -ve on error
  */
 typedef int (*bootdev_hunter_func)(struct bootdev_hunter *info, bool show);
 
