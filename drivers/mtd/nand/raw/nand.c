@@ -52,7 +52,7 @@ int nand_mtd_to_devnum(struct mtd_info *mtd)
 /* Register an initialized NAND mtd device with the U-Boot NAND command. */
 int nand_register(int devnum, struct mtd_info *mtd)
 {
-	if (devnum >= CONFIG_SYS_MAX_NAND_DEVICE)
+	if (!mtd || devnum >= CONFIG_SYS_MAX_NAND_DEVICE)
 		return -EINVAL;
 
 	nand_info[devnum] = mtd;
