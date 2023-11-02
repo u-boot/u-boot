@@ -13,13 +13,12 @@
 #include <dm.h>
 #include <errno.h>
 #include <linux/delay.h>
+#include <linux/time.h>
 #include <misc.h>
 #include <serial.h>
 
 #define UART_OVERSAMPLING	32
 #define STALE_TIMEOUT	160
-
-#define USEC_PER_SEC	1000000L
 
 /* Registers*/
 #define GENI_FORCE_DEFAULT_REG	0x20

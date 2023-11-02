@@ -64,14 +64,13 @@
 #include <linux/mfd/syscon/atmel-smc.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/mtd.h>
+#include <linux/time.h>
 #include <mach/at91_sfr.h>
 #include <nand.h>
 #include <regmap.h>
 #include <syscon.h>
 
 #include "pmecc.h"
-
-#define NSEC_PER_SEC    1000000000L
 
 #define ATMEL_HSMC_NFC_CFG			0x0
 #define ATMEL_HSMC_NFC_CFG_SPARESIZE(x)		(((x) / 4) << 24)
