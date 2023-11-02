@@ -539,6 +539,16 @@ static int jh7110_stgcrg_init(struct udevice *dev)
 				 "pcie1_tl", "stg_axiahb",
 				 OFFSET(JH7110_STGCLK_PCIE1_TL)));
 
+	/* Security clocks */
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_SEC_HCLK),
+	       starfive_clk_gate(priv->reg,
+				 "sec_ahb", "stg_axiahb",
+				 OFFSET(JH7110_STGCLK_SEC_HCLK)));
+	clk_dm(JH7110_STG_ID_TRANS(JH7110_STGCLK_SEC_MISCAHB),
+	       starfive_clk_gate(priv->reg,
+				 "sec_misc_ahb", "stg_axiahb",
+				 OFFSET(JH7110_STGCLK_SEC_MISCAHB)));
+
 	return 0;
 }
 

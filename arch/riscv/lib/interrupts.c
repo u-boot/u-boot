@@ -12,6 +12,7 @@
 #include <linux/compat.h>
 #include <efi_loader.h>
 #include <hang.h>
+#include <interrupt.h>
 #include <irq_func.h>
 #include <asm/global_data.h>
 #include <asm/ptrace.h>
@@ -20,6 +21,13 @@
 #include <semihosting.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static struct resume_data *resume;
+
+void set_resume(struct resume_data *data)
+{
+	resume = data;
+}
 
 static void show_efi_loaded_images(uintptr_t epc)
 {
@@ -104,6 +112,11 @@ static void _exit_trap(ulong code, ulong epc, ulong tval, struct pt_regs *regs)
 		"Reserved",
 		"Store/AMO page fault",
 	};
+
+	if (resume) {
+		resume->code = code;
+		longjmp(resume->jump, 1);
+	}
 
 	if (code < ARRAY_SIZE(exception_code))
 		printf("Unhandled exception: %s\n", exception_code[code]);

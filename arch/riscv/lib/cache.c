@@ -19,7 +19,7 @@ __weak void flush_dcache_range(unsigned long start, unsigned long end)
 {
 }
 
-void invalidate_icache_range(unsigned long start, unsigned long end)
+__weak void invalidate_icache_range(unsigned long start, unsigned long end)
 {
 	/*
 	 * RISC-V does not have an instruction for invalidating parts of the

@@ -48,6 +48,14 @@ config RNG_OPTEE
 	  accessible to normal world but reserved and used by the OP-TEE
 	  to avoid the weakness of a software PRNG.
 
+config RNG_RISCV_ZKR
+	bool "RISC-V Zkr random number generator"
+	depends on RISCV_SMODE
+	help
+	  This driver provides a Random Number Generator based on the
+	  Zkr RISC-V ISA extension which provides an interface to an
+	  NIST SP 800-90B or BSI AIS-31 compliant physical entropy source.
+
 config RNG_STM32
 	bool "Enable random number generator for STM32"
 	depends on ARCH_STM32 || ARCH_STM32MP
@@ -90,5 +98,11 @@ config TPM_RNG
 	  The TPM device has an inbuilt random number generator
 	  functionality. Enable random number generator on TPM
 	  devices.
+
+config RNG_JH7110
+	bool "StarFive JH7110 Random Number Generator support"
+	depends on DM_RNG && STARFIVE_JH7110
+	help
+	  Enable True Random Number Generator in StarFive JH7110 SoCs.
 
 endif

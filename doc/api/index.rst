@@ -12,6 +12,7 @@ U-Boot API documentation
    efi
    event
    getopt
+   interrupt
    linker_lists
    lmb
    logging
