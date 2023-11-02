@@ -79,14 +79,6 @@ config BOOTCOUNT_RAM
 	  Store the bootcount in DRAM protected against bit errors
 	  due to short power loss or holding a system in RESET.
 
-config BOOTCOUNT_I2C
-	bool "Boot counter on I2C device"
-	help
-	  Enable support for the bootcounter on an i2c (like RTC) device.
-	  CFG_SYS_I2C_RTC_ADDR = i2c chip address
-	  CONFIG_SYS_BOOTCOUNT_ADDR = i2c addr which is used for
-	                              the bootcounter.
-
 config BOOTCOUNT_AT91
 	bool "Boot counter for Atmel AT91SAM9XE"
 	depends on AT91SAM9XE
@@ -116,6 +108,16 @@ config DM_BOOTCOUNT_RTC
 
 	  Accesses to the backing store are performed using the write16
 	  and read16 ops of DM RTC devices.
+
+config DM_BOOTCOUNT_I2C
+	bool "Driver Model boot counter on I2C device"
+	depends on DM_I2C
+	help
+	  Enable support for the bootcounter on a generic i2c device, like a RTC
+	  or PMIC. The bootcounter is configured in the device tree using the
+	  "u-boot,bootcount-i2c" compatible string. It requires a phandle
+	  'i2cbcdev' for the i2c device and an 'offset' property used within the
+	  device.
 
 config DM_BOOTCOUNT_I2C_EEPROM
 	bool "Support i2c eeprom devices as a backing store for bootcount"
@@ -175,14 +177,6 @@ config BOOTCOUNT_BOOTLIMIT
 	  counter being cleared.
 	  If set to 0, do not set a boot limit in the environment.
 
-config BOOTCOUNT_ALEN
-	int "I2C address length"
-	default 1
-	depends on BOOTCOUNT_I2C
-	help
-	  Length of the the I2C address at SYS_BOOTCOUNT_ADDR for storing
-	  the boot counter.
-
 config SYS_BOOTCOUNT_SINGLEWORD
 	bool "Use single word to pack boot count and magic value"
 	depends on BOOTCOUNT_GENERIC
@@ -218,7 +212,7 @@ config SYS_BOOTCOUNT_ADDR
 	default 0x44E3E000 if BOOTCOUNT_AM33XX || BOOTCOUNT_AM33XX_NVMEM
 	default 0xE0115FF8 if ARCH_LS1043A || ARCH_LS1021A
 	depends on BOOTCOUNT_AM33XX || BOOTCOUNT_GENERIC || BOOTCOUNT_EXT || \
-		   BOOTCOUNT_I2C || BOOTCOUNT_AM33XX_NVMEM
+		   BOOTCOUNT_AM33XX_NVMEM
 	help
 	  Set the address used for reading and writing the boot counter.
 
@@ -226,13 +220,11 @@ config SYS_BOOTCOUNT_MAGIC
 	hex "Magic value for the boot counter"
 	default 0xB001C041 if BOOTCOUNT_GENERIC || BOOTCOUNT_EXT || \
 			      BOOTCOUNT_AM33XX || BOOTCOUNT_ENV || \
-			      BOOTCOUNT_RAM || BOOTCOUNT_I2C || \
-			      BOOTCOUNT_AT91 || DM_BOOTCOUNT
+			      BOOTCOUNT_RAM || BOOTCOUNT_AT91 || DM_BOOTCOUNT
 	default 0xB0 if BOOTCOUNT_AM33XX_NVMEM
 	depends on BOOTCOUNT_GENERIC || BOOTCOUNT_EXT || \
 		   BOOTCOUNT_AM33XX || BOOTCOUNT_ENV || \
-		   BOOTCOUNT_RAM || BOOTCOUNT_I2C || \
-		   BOOTCOUNT_AT91 || DM_BOOTCOUNT || \
+		   BOOTCOUNT_RAM || BOOTCOUNT_AT91 || DM_BOOTCOUNT || \
 		   BOOTCOUNT_AM33XX_NVMEM
 	help
 	  Set the magic value used for the boot counter.

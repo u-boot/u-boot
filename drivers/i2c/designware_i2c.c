@@ -24,6 +24,17 @@
  */
 #define DW_I2C_COMP_TYPE	0x44570140
 
+/*
+ * This constant is used to calculate when during the clock high phase the data
+ * bit shall be read. The value was copied from the Linux v6.5 function
+ * i2c_dw_scl_hcnt() which provides the following explanation:
+ *
+ * "This is just an experimental rule: the tHD;STA period turned out to be
+ * proportinal to (_HCNT + 3). With this setting, we could meet both tHIGH and
+ * tHD;STA timing specs."
+ */
+#define T_HD_STA_OFFSET 3
+
 static int dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
 {
 	u32 ena = enable ? IC_ENABLE_0B : 0;
@@ -155,10 +166,10 @@ static int dw_i2c_calc_timing(struct dw_i2c *priv, enum i2c_speed_mode mode,
 
 	/*
 	 * Back-solve for hcnt and lcnt according to the following equations:
-	 * SCL_High_time = [(HCNT + IC_*_SPKLEN + 7) * ic_clk] + SCL_Fall_time
+	 * SCL_High_time = [(HCNT + IC_*_SPKLEN + T_HD_STA_OFFSET) * ic_clk] + SCL_Fall_time
 	 * SCL_Low_time = [(LCNT + 1) * ic_clk] - SCL_Fall_time + SCL_Rise_time
 	 */
-	hcnt = min_thigh_cnt - fall_cnt - 7 - spk_cnt;
+	hcnt = min_thigh_cnt - fall_cnt - T_HD_STA_OFFSET - spk_cnt;
 	lcnt = min_tlow_cnt - rise_cnt + fall_cnt - 1;
 
 	if (hcnt < 0 || lcnt < 0) {
@@ -170,13 +181,13 @@ static int dw_i2c_calc_timing(struct dw_i2c *priv, enum i2c_speed_mode mode,
 	 * Now add things back up to ensure the period is hit. If it is off,
 	 * split the difference and bias to lcnt for remainder
 	 */
-	tot = hcnt + lcnt + 7 + spk_cnt + rise_cnt + 1;
+	tot = hcnt + lcnt + T_HD_STA_OFFSET + spk_cnt + rise_cnt + 1;
 
 	if (tot < period_cnt) {
 		diff = (period_cnt - tot) / 2;
 		hcnt += diff;
 		lcnt += diff;
-		tot = hcnt + lcnt + 7 + spk_cnt + rise_cnt + 1;
+		tot = hcnt + lcnt + T_HD_STA_OFFSET + spk_cnt + rise_cnt + 1;
 		lcnt += period_cnt - tot;
 	}
 
