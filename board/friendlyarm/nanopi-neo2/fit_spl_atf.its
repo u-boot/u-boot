@@ -1,0 +1,42 @@
+/dts-v1/;
+
+/ {
+    description = "Configuration to load ATF before U-Boot";
+    #address-cells = <1>;
+
+    images {
+        uboot {
+            description = "U-Boot (64-bit)";
+            data = /incbin/("u-boot-nodtb.bin");
+            type = "standalone";
+            arch = "arm64";
+            compression = "none";
+            load = <0x4a000000>;
+        };
+        atf {
+            description = "ARM Trusted Firmware";
+            data = /incbin/("bl31.bin");
+            type = "firmware";
+            arch = "arm64";
+            compression = "none";
+            load = <0x44000>;
+            entry = <0x44000>;
+        };
+        fdt_1 {
+            description = "sun50i-h5-nanopi-neo2";
+            data = /incbin/("arch/arm/dts/sun50i-h5-nanopi-neo2.dtb");
+            type = "flat_dt";
+            compression = "none";
+        };
+    };
+    configurations {
+        default = "config_1";
+
+        config_1 {
+            description = "sun50i-h5-nanopi-neo2";
+            firmware = "uboot";
+            loadables = "atf";
+            fdt = "fdt_1";
+        };
+    };
+};
