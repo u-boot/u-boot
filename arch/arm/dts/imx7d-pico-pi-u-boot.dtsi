@@ -1,11 +1,11 @@
 #include "imx7s-u-boot.dtsi"
 
 /{
-    aliases {
-        mmc0 = &usdhc3;
-        usb0 = &usbotg1;
-        display0 = &lcdif;
-    };
+	aliases {
+		mmc0 = &usdhc3;
+		usb0 = &usbotg1;
+		display0 = &lcdif;
+	};
 };
 
 &usbotg1 {
