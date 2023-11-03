@@ -86,7 +86,7 @@ Within the SECDEV package exists an image creation script:
 
 .. prompt:: bash $
 
-   ${TI_SECURE_DEV_PKG}/scripts/create-boot-image.sh
+  ${TI_SECURE_DEV_PKG}/scripts/create-boot-image.sh
 
 This is called as part of the SPL/u-boot build process. As the secure
 boot image formats and requirements differ between secure SOC from TI,
@@ -98,7 +98,7 @@ package for creating a bootable SPL image for secure TI devices.
 
 .. prompt:: bash $
 
-   create-boot-image.sh \
+  create-boot-image.sh \
 		<IMAGE_FLAG> <INPUT_FILE> <OUTPUT_FILE> <SPL_LOAD_ADDR>
 
 .. secure_boot_include_end_spl_boot
@@ -184,7 +184,7 @@ an input binary image:
 
 .. prompt:: bash $
 
-   ${TI_SECURE_DEV_PKG}/scripts/secure-binary-image.sh
+  ${TI_SECURE_DEV_PKG}/scripts/secure-binary-image.sh
 
 This is called as part of the u-boot build process. As the secure
 image formats and requirements can differ between the various secure
@@ -205,7 +205,7 @@ Invoking the secure-binary-image script for Secure Devices
 
 .. prompt:: bash $
 
-   secure-binary-image.sh <INPUT_FILE> <OUTPUT_FILE>
+  secure-binary-image.sh <INPUT_FILE> <OUTPUT_FILE>
 
 <INPUT_FILE> is the full path and filename of the input binary image
 
@@ -245,27 +245,27 @@ into memory, then written to NAND.
 
 .. prompt:: bash =>
 
-   # select BOOTSEL to MMC/SD boot and boot from MMC/SD card
-   mmc rescan
-   # erase flash
-   nand erase.chip
-   env default -f -a
-   saveenv
-   # flash MLO. Redundant copies of MLO are kept for failsafe
-   load mmc 0 0x82000000 MLO
-   nand write 0x82000000 0x00000 0x20000
-   nand write 0x82000000 0x20000 0x20000
-   nand write 0x82000000 0x40000 0x20000
-   nand write 0x82000000 0x60000 0x20000
-   # flash u-boot.img
-   load mmc 0 0x82000000 u-boot.img
-   nand write 0x82000000 0x80000 0x60000
-   # flash kernel image
-   load mmc 0 0x82000000 uImage
-   nand write 0x82000000 ${nandsrcaddr} ${nandimgsize}
-   # flash filesystem image
-   load mmc 0 0x82000000 filesystem.img
-   nand write 0x82000000 ${loadaddress} 0x300000
+  # select BOOTSEL to MMC/SD boot and boot from MMC/SD card
+  mmc rescan
+  # erase flash
+  nand erase.chip
+  env default -f -a
+  saveenv
+  # flash MLO. Redundant copies of MLO are kept for failsafe
+  load mmc 0 0x82000000 MLO
+  nand write 0x82000000 0x00000 0x20000
+  nand write 0x82000000 0x20000 0x20000
+  nand write 0x82000000 0x40000 0x20000
+  nand write 0x82000000 0x60000 0x20000
+  # flash u-boot.img
+  load mmc 0 0x82000000 u-boot.img
+  nand write 0x82000000 0x80000 0x60000
+  # flash kernel image
+  load mmc 0 0x82000000 uImage
+  nand write 0x82000000 ${nandsrcaddr} ${nandimgsize}
+  # flash filesystem image
+  load mmc 0 0x82000000 filesystem.img
+  nand write 0x82000000 ${loadaddress} 0x300000
 
 3. Set BOOTSEL pin to select NAND boot, and POR the device.
 	The device should boot from images flashed on NAND device.
@@ -331,25 +331,25 @@ first.
 
 .. prompt:: bash =>
 
-   # Ensure we are able to talk with this mmc device
-   mmc rescan
-   tftp 81000000 am335x/MLO
-   # Write to two of the backup locations ROM uses
-   mmc write 81000000 100 100
-   mmc write 81000000 200 100
-   # Write U-Boot to the location set in the config
-   tftp 81000000 am335x/u-boot.img
-   mmc write 81000000 300 400
-   # Load kernel and device tree into memory, perform export
-   tftp 81000000 am335x/uImage
-   run findfdt
-   tftp ${fdtaddr} am335x/${fdtfile}
-   run mmcargs
-   spl export fdt 81000000 - ${fdtaddr}
-   # Write the updated device tree to MMC
-   mmc write ${fdtaddr} 80 80
-   # Write the uImage to MMC
-   mmc write 81000000 900 2000
+  # Ensure we are able to talk with this mmc device
+  mmc rescan
+  tftp 81000000 am335x/MLO
+  # Write to two of the backup locations ROM uses
+  mmc write 81000000 100 100
+  mmc write 81000000 200 100
+  # Write U-Boot to the location set in the config
+  tftp 81000000 am335x/u-boot.img
+  mmc write 81000000 300 400
+  # Load kernel and device tree into memory, perform export
+  tftp 81000000 am335x/uImage
+  run findfdt
+  tftp ${fdtaddr} am335x/${fdtfile}
+  run mmcargs
+  spl export fdt 81000000 - ${fdtaddr}
+  # Write the updated device tree to MMC
+  mmc write ${fdtaddr} 80 80
+  # Write the uImage to MMC
+  mmc write 81000000 900 2000
 
 Falcon Mode: FAT SD cards
 -------------------------
@@ -362,13 +362,13 @@ already been created and marked bootable:
 
 .. prompt:: bash =>
 
-   mmc rescan
-   # Load kernel and device tree into memory, perform export
-   load mmc 0:1 ${loadaddr} uImage
-   run findfdt
-   load mmc 0:1 ${fdtaddr} ${fdtfile}
-   run mmcargs
-   spl export fdt ${loadaddr} - ${fdtaddr}
+  mmc rescan
+  # Load kernel and device tree into memory, perform export
+  load mmc 0:1 ${loadaddr} uImage
+  run findfdt
+  load mmc 0:1 ${fdtaddr} ${fdtfile}
+  run mmcargs
+  spl export fdt ${loadaddr} - ${fdtaddr}
 
 This will print a number of lines and then end with something like:
 
@@ -381,7 +381,7 @@ So then you:
 
 .. prompt:: bash =>
 
-   fatwrite mmc 0:1 0x80f80000 args 8928
+  fatwrite mmc 0:1 0x80f80000 args 8928
 
 Falcon Mode: NAND
 -----------------
@@ -394,12 +394,12 @@ booting and mtdparts have been configured correctly for the board:
 
 .. prompt:: bash =>
 
-   nand read ${loadaddr} kernel
-   load nand rootfs ${fdtaddr} /boot/am335x-evm.dtb
-   run nandargs
-   spl export fdt ${loadaddr} - ${fdtaddr}
-   nand erase.part u-boot-spl-os
-   nand write ${fdtaddr} u-boot-spl-os
+  nand read ${loadaddr} kernel
+  load nand rootfs ${fdtaddr} /boot/am335x-evm.dtb
+  run nandargs
+  spl export fdt ${loadaddr} - ${fdtaddr}
+  nand erase.part u-boot-spl-os
+  nand write ${fdtaddr} u-boot-spl-os
 
 USB device
 ----------
@@ -418,7 +418,7 @@ the command line:
 
 .. prompt:: bash =>
 
-   dm tree
+  dm tree
 
 .. code-block:: text
 
@@ -436,7 +436,7 @@ interface would work, while using other gadgets would fail:
 
 .. prompt:: bash =>
 
-   fastboot usb 0
+  fastboot usb 0
 
 .. code-block:: text
 
@@ -453,7 +453,7 @@ shown above in the 'dm tree' output) to target the driver to unbind:
 
 .. prompt:: bash =>
 
-   unbind ethernet 1
+  unbind ethernet 1
 
 The output of the 'dm tree' command now shows the availability of the
 first USB device controller, the fastboot gadget will now be able to
@@ -461,7 +461,7 @@ bind with it:
 
 .. prompt:: bash =>
 
-   dm tree
+  dm tree
 
 .. code-block:: text
 

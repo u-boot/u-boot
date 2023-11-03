@@ -199,11 +199,11 @@ All of that to say you will need both a 32bit and 64bit cross compiler
 .. k3_rst_include_start_common_env_vars_defn
 .. prompt:: bash $
 
- export CC32=arm-linux-gnueabihf-
- export CC64=aarch64-linux-gnu-
- export LNX_FW_PATH=path/to/ti-linux-firmware
- export TFA_PATH=path/to/trusted-firmware-a
- export OPTEE_PATH=path/to/optee_os
+  export CC32=arm-linux-gnueabihf-
+  export CC64=aarch64-linux-gnu-
+  export LNX_FW_PATH=path/to/ti-linux-firmware
+  export TFA_PATH=path/to/trusted-firmware-a
+  export OPTEE_PATH=path/to/optee_os
 .. k3_rst_include_end_common_env_vars_defn
 
 We will also need some common environment variables set up for the various
@@ -249,9 +249,9 @@ Building tiboot3.bin
 .. k3_rst_include_start_build_steps_spl_r5
 .. prompt:: bash $
 
- # inside u-boot source
- make $UBOOT_CFG_CORTEXR
- make CROSS_COMPILE=$CC32 BINMAN_INDIRS=$LNX_FW_PATH
+  # inside u-boot source
+  make $UBOOT_CFG_CORTEXR
+  make CROSS_COMPILE=$CC32 BINMAN_INDIRS=$LNX_FW_PATH
 .. k3_rst_include_end_build_steps_spl_r5
 
 At this point you should have all the needed binaries to boot the wakeup
@@ -285,8 +285,8 @@ firmware if your device using a split firmware.
 .. k3_rst_include_start_build_steps_tfa
 .. prompt:: bash $
 
- # inside trusted-firmware-a source
- make CROSS_COMPILE=$CC64 ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS \
+  # inside trusted-firmware-a source
+  make CROSS_COMPILE=$CC64 ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS \
       TARGET_BOARD=$TFA_BOARD
 .. k3_rst_include_end_build_steps_tfa
 
@@ -301,8 +301,8 @@ use the `lite` option.
 .. k3_rst_include_start_build_steps_optee
 .. prompt:: bash $
 
- # inside optee_os source
- make CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFG_ARM64_core=y $OPTEE_EXTRA_ARGS \
+  # inside optee_os source
+  make CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFG_ARM64_core=y $OPTEE_EXTRA_ARGS \
        PLATFORM=$OPTEE_PLATFORM
 .. k3_rst_include_end_build_steps_optee
 
@@ -313,9 +313,9 @@ use the `lite` option.
 .. k3_rst_include_start_build_steps_uboot
 .. prompt:: bash $
 
- # inside u-boot source
- make $UBOOT_CFG_CORTEXA
- make CROSS_COMPILE=$CC64 BINMAN_INDIRS=$LNX_FW_PATH \
+  # inside u-boot source
+  make $UBOOT_CFG_CORTEXA
+  make CROSS_COMPILE=$CC64 BINMAN_INDIRS=$LNX_FW_PATH \
         BL31=$TFA_PATH/build/k3/$TFA_BOARD/release/bl31.bin \
         TEE=$OPTEE_PATH/out/arm-plat-k3/core/tee-raw.bin
 .. k3_rst_include_end_build_steps_uboot
@@ -412,14 +412,15 @@ and the same can be extended to other platforms
 
   .. prompt:: bash $
 
-    mkimage -r -f fitImage.its -k $UBOOT_PATH/board/ti/keys -K
+    mkimage -r -f fitImage.its -k $UBOOT_PATH/board/ti/keys -K \
     $UBOOT_PATH/build/a72/dts/dt.dtb
+
 
   For signing a secondary platform, pass the -K parameter to that DTB
 
   .. prompt:: bash $
 
-    mkimage -f fitImage.its -k $UBOOT_PATH/board/ti/keys -K
+    mkimage -f fitImage.its -k $UBOOT_PATH/board/ti/keys -K \
     $UBOOT_PATH/build/a72/arch/arm/dts/k3-j721e-sk.dtb
 
   .. note::
@@ -551,7 +552,7 @@ Refer to the release notes corresponding to the `OpenOCD version
 
 .. prompt:: bash $
 
- openocd -v
+  openocd -v
 
 .. note::
 
