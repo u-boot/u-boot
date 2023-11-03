@@ -197,7 +197,7 @@ All of that to say you will need both a 32bit and 64bit cross compiler
 .. k3_rst_include_end_common_env_vars_desc
 
 .. k3_rst_include_start_common_env_vars_defn
-.. prompt:: bash
+.. prompt:: bash $
 
  export CC32=arm-linux-gnueabihf-
  export CC64=aarch64-linux-gnu-
@@ -247,7 +247,7 @@ Building tiboot3.bin
    uses the split binary flow)
 
 .. k3_rst_include_start_build_steps_spl_r5
-.. prompt:: bash
+.. prompt:: bash $
 
  # inside u-boot source
  make $UBOOT_CFG_CORTEXR
@@ -283,7 +283,7 @@ firmware if your device using a split firmware.
    application cores on the main domain.
 
 .. k3_rst_include_start_build_steps_tfa
-.. prompt:: bash
+.. prompt:: bash $
 
  # inside trusted-firmware-a source
  make CROSS_COMPILE=$CC64 ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS \
@@ -299,7 +299,7 @@ use the `lite` option.
    using the TrustZone technology built into the core.
 
 .. k3_rst_include_start_build_steps_optee
-.. prompt:: bash
+.. prompt:: bash $
 
  # inside optee_os source
  make CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFG_ARM64_core=y $OPTEE_EXTRA_ARGS \
@@ -311,7 +311,7 @@ use the `lite` option.
    64bit core in the main domain.
 
 .. k3_rst_include_start_build_steps_uboot
-.. prompt:: bash
+.. prompt:: bash $
 
  # inside u-boot source
  make $UBOOT_CFG_CORTEXA
@@ -410,14 +410,14 @@ and the same can be extended to other platforms
   be passing to mkimage for signing the fitImage and embedding the key in
   the u-boot dtb.
 
-  .. prompt:: bash
+  .. prompt:: bash $
 
     mkimage -r -f fitImage.its -k $UBOOT_PATH/board/ti/keys -K
     $UBOOT_PATH/build/a72/dts/dt.dtb
 
   For signing a secondary platform, pass the -K parameter to that DTB
 
-  .. prompt:: bash
+  .. prompt:: bash $
 
     mkimage -f fitImage.its -k $UBOOT_PATH/board/ti/keys -K
     $UBOOT_PATH/build/a72/arch/arm/dts/k3-j721e-sk.dtb
@@ -476,8 +476,7 @@ then the saveenv command and can be used across various bootmodes too.
 
 **Writing to MMC/EMMC**
 
-.. prompt:: bash
-  :prompts: =>
+.. prompt:: bash =>
 
   env export -t $loadaddr <list of variables>
   fatwrite mmc ${mmcdev} ${loadaddr} ${bootenvfile} ${filesize}
@@ -490,8 +489,7 @@ mmcdev) and set the environments.
 If manually needs to be done then the environment can be read from the
 filesystem and then imported
 
-.. prompt:: bash
-  :prompts: =>
+.. prompt:: bash =>
 
   fatload mmc ${mmcdev} ${loadaddr} ${bootenvfile}
   env import -t ${loadaddr} ${filesize}
@@ -551,7 +549,7 @@ Refer to the release notes corresponding to the `OpenOCD version
   box support by OpenOCD. The board-specific documentation will
   cover the details and any adapter/dongle recommendations.
 
-.. prompt:: bash
+.. prompt:: bash $
 
  openocd -v
 
@@ -569,7 +567,7 @@ systems, but equivalent instructions should exist for systems with
 other package managers. Please refer to the `OpenOCD Documentation
 <https://openocd.org/>`_ for more recent installation steps.
 
-.. prompt:: bash
+.. prompt:: bash $
 
   # Check the packages to be installed: needs deb-src in sources.list
   sudo apt build-dep openocd
@@ -599,7 +597,7 @@ The step is not necessary if the distribution supports the OpenOCD, but
 if building from a source, ensure that the udev rules are installed
 correctly to ensure a sane system.
 
-.. prompt:: bash
+.. prompt:: bash $
 
   # Go to the OpenOCD source directory
   cd openocd
@@ -617,7 +615,7 @@ Step 2: Setup GDB
 
 Most systems come with gdb-multiarch package.
 
-.. prompt:: bash
+.. prompt:: bash $
 
   # Install gdb-multiarch package
   sudo apt-get install gdb-multiarch
@@ -833,7 +831,7 @@ Startup OpenOCD to debug the platform as follows:
 
 .. k3_rst_include_start_openocd_cfg_XDS110
 
-.. prompt:: bash
+.. prompt:: bash $
 
   openocd -f board/{board_of_choice}.cfg
 
@@ -847,7 +845,7 @@ Startup OpenOCD to debug the platform as follows:
   <https://github.com/openocd-org/openocd/blob/master/tcl/target/ti_k3.cfg#L59>`_
   to decide if the SoC is supported or not.
 
-.. prompt:: bash
+.. prompt:: bash $
 
   openocd -f openocd_connect.cfg
 
@@ -922,13 +920,13 @@ To debug using this server, use GDB directly or your preferred
 GDB-based IDE. To start up GDB in the terminal, run the following
 command.
 
-.. prompt:: bash
+.. prompt:: bash $
 
   gdb-multiarch
 
 To connect to your desired core, run the following command within GDB:
 
-.. code-block:: bash
+.. prompt:: bash (gdb)
 
   target extended-remote localhost:{port for desired core}
 
@@ -945,13 +943,13 @@ To load symbols:
 
 * Prior to relocation:
 
-.. code-block:: bash
+.. prompt:: bash (gdb)
 
   symbol-file {path to elf file}
 
 * After relocation:
 
-.. code-block:: bash
+.. prompt:: bash (gdb)
 
   # Drop old symbol file
   symbol-file
@@ -962,7 +960,7 @@ To load symbols:
 
 In the above example of AM625,
 
-.. code-block:: bash
+.. prompt:: bash (gdb)
 
   target extended-remote localhost:3338     <- R5F (Wakeup Domain)
   target extended-remote localhost:3334     <- A53 (Main Domain)
@@ -982,7 +980,7 @@ breakpoints. To exit the debug loop added above, add any breakpoints
 needed and run the following GDB commands to step out of the debug
 loop set in the ``board_init_f`` function.
 
-.. code-block:: bash
+.. prompt:: bash (gdb)
 
   set x = 0
   continue
