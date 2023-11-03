@@ -54,6 +54,10 @@ config TARGET_SEABOARD
 	select TEGRA_LP0
 	select TEGRA_PMU
 
+config TARGET_STAR
+	bool "LG Tegra20 Star board"
+	select BOARD_LATE_INIT
+
 config TARGET_TEC
 	bool "Avionic Design Tamonten Evaluation Carrier"
 	select BOARD_LATE_INIT
@@ -88,6 +92,7 @@ source "board/compal/paz00/Kconfig"
 source "board/acer/picasso/Kconfig"
 source "board/avionic-design/plutux/Kconfig"
 source "board/nvidia/seaboard/Kconfig"
+source "board/lg/star/Kconfig"
 source "board/avionic-design/tec/Kconfig"
 source "board/asus/transformer-t20/Kconfig"
 source "board/compulab/trimslice/Kconfig"
