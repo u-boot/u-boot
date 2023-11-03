@@ -105,9 +105,7 @@ def run_pipe(pipe_list, infile=None, outfile=None,
                 last_pipe.communicate_filter(output_func))
         if result.stdout and oneline:
             result.output = result.stdout.rstrip(b'\r\n')
-        result.return_code = last_pipe.wait()
-    else:
-        result.return_code = os.waitpid(last_pipe.pid, 0)[1]
+    result.return_code = last_pipe.wait()
     if raise_on_error and result.return_code:
         raise Exception("Error running '%s'" % user_pipestr)
     return result.to_output(binary)

@@ -42,27 +42,24 @@ HEADER_VERSION2    = 0x31313132
 FILE_HEADER_FORMAT = b'>8sIIII'
 FILE_HEADER_LEN    = 0x18
 FILE_MAGIC         = b'LARCHIVE'
-FILENAME_ALIGN     = 16  # Filename lengths are aligned to this
+ATTRIBUTE_ALIGN    = 4   # All attribute sizes must be divisible by this
 
-# A stage header containing information about 'stage' files
+# A stage-header attribute containing information about 'stage' files
 # Yes this is correct: this header is in litte-endian format
-STAGE_FORMAT       = '<IQQII'
-STAGE_LEN          = 0x1c
+ATTR_STAGE_FORMAT       = '>IIQII'
+ATTR_STAGE_LEN          = 0x18
 
 # An attribute describring the compression used in a file
 ATTR_COMPRESSION_FORMAT = '>IIII'
 ATTR_COMPRESSION_LEN = 0x10
 
 # Attribute tags
-# Depending on how the header was initialised, it may be backed with 0x00 or
-# 0xff. Support both.
-FILE_ATTR_TAG_UNUSED        = 0
-FILE_ATTR_TAG_UNUSED2       = 0xffffffff
 FILE_ATTR_TAG_COMPRESSION   = 0x42435a4c
 FILE_ATTR_TAG_HASH          = 0x68736148
 FILE_ATTR_TAG_POSITION      = 0x42435350  # PSCB
 FILE_ATTR_TAG_ALIGNMENT     = 0x42434c41  # ALCB
 FILE_ATTR_TAG_PADDING       = 0x47444150  # PDNG
+FILE_ATTR_TAG_STAGEHEADER   = 0x53746748  # StgH
 
 # This is 'the size of bootblock reserved in firmware image (cbfs.txt)'
 # Not much more info is available, but we set it to 4, due to this comment in
@@ -100,7 +97,8 @@ ARCH_NAMES = {
 
 # File types. Only supported ones are included here
 TYPE_CBFSHEADER     = 0x02   # Master header, HEADER_FORMAT
-TYPE_STAGE          = 0x10   # Stage, holding an executable, see STAGE_FORMAT
+TYPE_LEGACY_STAGE   = 0x10   # Stage, holding an executable
+TYPE_STAGE          = 0x11   # New-type stage with ATTR_STAGE_FORMAT
 TYPE_RAW            = 0x50   # Raw file, possibly compressed
 TYPE_EMPTY          = 0xffffffff     # Empty data
 
@@ -190,7 +188,7 @@ def _pack_string(instr):
         String with required padding (at least one 0x00 byte) at the end
     """
     val = tools.to_bytes(instr)
-    pad_len = align_int(len(val) + 1, FILENAME_ALIGN)
+    pad_len = align_int(len(val) + 1, ATTRIBUTE_ALIGN)
     return val + tools.get_bytes(0, pad_len - len(val))
 
 
@@ -304,7 +302,7 @@ class CbfsFile(object):
             CbfsFile object containing the file information
         """
         cfile = CbfsFile('', TYPE_EMPTY, b'', None)
-        cfile.size = space_to_use - FILE_HEADER_LEN - FILENAME_ALIGN
+        cfile.size = space_to_use - FILE_HEADER_LEN - ATTRIBUTE_ALIGN
         cfile.erase_byte = erase_byte
         return cfile
 
@@ -331,9 +329,10 @@ class CbfsFile(object):
         name = _pack_string(self.name)
         hdr_len = len(name) + FILE_HEADER_LEN
         if self.ftype == TYPE_STAGE:
-            pass
+            hdr_len += ATTR_STAGE_LEN
         elif self.ftype == TYPE_RAW:
-            hdr_len += ATTR_COMPRESSION_LEN
+            if self.compress:
+                hdr_len += ATTR_COMPRESSION_LEN
         elif self.ftype == TYPE_EMPTY:
             pass
         else:
@@ -359,9 +358,9 @@ class CbfsFile(object):
         data = self.data
         if self.ftype == TYPE_STAGE:
             elf_data = elf.DecodeElf(data, self.base_address)
-            content = struct.pack(STAGE_FORMAT, self.compress,
-                                  elf_data.entry, elf_data.load,
-                                  len(elf_data.data), elf_data.memsize)
+            attr = struct.pack(ATTR_STAGE_FORMAT, FILE_ATTR_TAG_STAGEHEADER,
+                               ATTR_STAGE_LEN, elf_data.load,
+                               elf_data.entry - elf_data.load, elf_data.memsize)
             data = elf_data.data
         elif self.ftype == TYPE_RAW:
             orig_data = data
@@ -369,9 +368,11 @@ class CbfsFile(object):
                 data = self.comp_bintool.compress(orig_data)
             self.memlen = len(orig_data)
             self.data_len = len(data)
-            attr = struct.pack(ATTR_COMPRESSION_FORMAT,
-                               FILE_ATTR_TAG_COMPRESSION, ATTR_COMPRESSION_LEN,
-                               self.compress, self.memlen)
+            if self.compress:
+                attr = struct.pack(ATTR_COMPRESSION_FORMAT,
+                                   FILE_ATTR_TAG_COMPRESSION,
+                                   ATTR_COMPRESSION_LEN, self.compress,
+                                   self.memlen)
         elif self.ftype == TYPE_EMPTY:
             data = tools.get_bytes(self.erase_byte, self.size)
         else:
@@ -391,6 +392,8 @@ class CbfsFile(object):
                 raise ValueError("Internal error: CBFS file '%s': Requested offset %#x but current output position is %#x" %
                                  (self.name, self.cbfs_offset, offset))
             pad = tools.get_bytes(pad_byte, pad_len)
+            if attr_pos:
+                attr_pos += pad_len
             hdr_len += pad_len
 
         # This is the offset of the start of the file's data,
@@ -405,9 +408,9 @@ class CbfsFile(object):
         if expected_len != actual_len:  # pragma: no cover
             # Test coverage of this is not available since this should never
             # happen. It probably indicates that get_header_len() is broken.
-            raise ValueError("Internal error: CBFS file '%s': Expected headers of %#x bytes, got %#d" %
+            raise ValueError("Internal error: CBFS file '%s': Expected headers of %#x bytes, got %#x" %
                              (self.name, expected_len, actual_len))
-        return hdr + name + attr + pad + content + data, hdr_len
+        return hdr + name + pad + attr + content + data, hdr_len
 
 
 class CbfsWriter(object):
@@ -453,6 +456,9 @@ class CbfsWriter(object):
         self._arch = arch
         self._bootblock_size = 0
         self._erase_byte = 0xff
+
+        # Small padding to align a file uses 0
+        self._small_pad_byte = 0
         self._align = ENTRY_ALIGN
         self._add_fileheader = False
         if self._arch == ARCHITECTURE_X86:
@@ -474,7 +480,7 @@ class CbfsWriter(object):
                                               self._bootblock_size, self._align)
             self._hdr_at_start = True
 
-    def _skip_to(self, fd, offset):
+    def _skip_to(self, fd, offset, pad_byte):
         """Write out pad bytes until a given offset
 
         Args:
@@ -484,16 +490,16 @@ class CbfsWriter(object):
         if fd.tell() > offset:
             raise ValueError('No space for data before offset %#x (current offset %#x)' %
                              (offset, fd.tell()))
-        fd.write(tools.get_bytes(self._erase_byte, offset - fd.tell()))
+        fd.write(tools.get_bytes(pad_byte, offset - fd.tell()))
 
-    def _pad_to(self, fd, offset):
+    def _pad_to(self, fd, offset, pad_byte):
         """Write out pad bytes and/or an empty file until a given offset
 
         Args:
             fd: File objext to write to
             offset: Offset to write to
         """
-        self._align_to(fd, self._align)
+        self._align_to(fd, self._align, pad_byte)
         upto = fd.tell()
         if upto > offset:
             raise ValueError('No space for data before pad offset %#x (current offset %#x)' %
@@ -502,9 +508,9 @@ class CbfsWriter(object):
         if todo:
             cbf = CbfsFile.empty(todo, self._erase_byte)
             fd.write(cbf.get_data_and_offset()[0])
-        self._skip_to(fd, offset)
+        self._skip_to(fd, offset, pad_byte)
 
-    def _align_to(self, fd, align):
+    def _align_to(self, fd, align, pad_byte):
         """Write out pad bytes until a given alignment is reached
 
         This only aligns if the resulting output would not reach the end of the
@@ -518,7 +524,7 @@ class CbfsWriter(object):
         """
         offset = align_int(fd.tell(), align)
         if offset < self._size:
-            self._skip_to(fd, offset)
+            self._skip_to(fd, offset, pad_byte)
 
     def add_file_stage(self, name, data, cbfs_offset=None):
         """Add a new stage file to the CBFS
@@ -568,7 +574,7 @@ class CbfsWriter(object):
             raise ValueError('No space for header at offset %#x (current offset %#x)' %
                              (self._header_offset, fd.tell()))
         if not add_fileheader:
-            self._pad_to(fd, self._header_offset)
+            self._pad_to(fd, self._header_offset, self._erase_byte)
         hdr = struct.pack(HEADER_FORMAT, HEADER_MAGIC, HEADER_VERSION2,
                           self._size, self._bootblock_size, self._align,
                           self._contents_offset, self._arch, 0xffffffff)
@@ -580,7 +586,7 @@ class CbfsWriter(object):
             fd.write(name)
             self._header_offset = fd.tell()
             fd.write(hdr)
-            self._align_to(fd, self._align)
+            self._align_to(fd, self._align, self._erase_byte)
         else:
             fd.write(hdr)
 
@@ -597,24 +603,26 @@ class CbfsWriter(object):
         # THe header can go at the start in some cases
         if self._hdr_at_start:
             self._write_header(fd, add_fileheader=self._add_fileheader)
-        self._skip_to(fd, self._contents_offset)
+        self._skip_to(fd, self._contents_offset, self._erase_byte)
 
         # Write out each file
         for cbf in self._files.values():
             # Place the file at its requested place, if any
             offset = cbf.calc_start_offset()
             if offset is not None:
-                self._pad_to(fd, align_int_down(offset, self._align))
+                self._pad_to(fd, align_int_down(offset, self._align),
+                             self._erase_byte)
             pos = fd.tell()
-            data, data_offset = cbf.get_data_and_offset(pos, self._erase_byte)
+            data, data_offset = cbf.get_data_and_offset(pos,
+                                                        self._small_pad_byte)
             fd.write(data)
-            self._align_to(fd, self._align)
+            self._align_to(fd, self._align, self._erase_byte)
             cbf.calced_cbfs_offset = pos + data_offset
         if not self._hdr_at_start:
             self._write_header(fd, add_fileheader=self._add_fileheader)
 
         # Pad to the end and write a pointer to the CBFS master header
-        self._pad_to(fd, self._base_address or self._size - 4)
+        self._pad_to(fd, self._base_address or self._size - 4, self._erase_byte)
         rel_offset = self._header_offset - self._size
         fd.write(struct.pack('<I', rel_offset & 0xffffffff))
 
@@ -734,26 +742,28 @@ class CbfsReader(object):
             print('name', name)
 
         # If there are attribute headers present, read those
-        compress = self._read_attr(fd, file_pos, attr, offset)
-        if compress is None:
+        attrs = self._read_attr(fd, file_pos, attr, offset)
+        if attrs is None:
             return False
 
         # Create the correct CbfsFile object depending on the type
         cfile = None
         cbfs_offset = file_pos + offset
         fd.seek(cbfs_offset, io.SEEK_SET)
+        if DEBUG:
+            print(f'ftype {ftype:x}')
         if ftype == TYPE_CBFSHEADER:
             self._read_header(fd)
         elif ftype == TYPE_STAGE:
-            data = fd.read(STAGE_LEN)
             cfile = CbfsFile.stage(self.stage_base_address, name, b'',
                                    cbfs_offset)
-            (cfile.compress, cfile.entry, cfile.load, cfile.data_len,
-             cfile.memlen) = struct.unpack(STAGE_FORMAT, data)
-            cfile.data = fd.read(cfile.data_len)
+            cfile.load, entry_offset, cfile.memlen = attrs
+            cfile.entry = cfile.load + entry_offset
+            cfile.data = fd.read(cfile.memlen)
+            cfile.data_len = cfile.memlen
         elif ftype == TYPE_RAW:
             data = fd.read(size)
-            cfile = CbfsFile.raw(name, data, cbfs_offset, compress)
+            cfile = CbfsFile.raw(name, data, cbfs_offset, attrs)
             cfile.decompress()
             if DEBUG:
                 print('data', data)
@@ -777,8 +787,8 @@ class CbfsReader(object):
         """Read attributes from the file
 
         CBFS files can have attributes which are things that cannot fit into the
-        header. The only attributes currently supported are compression and the
-        unused tag.
+        header. The only attributes currently supported are compression, stage
+        header and the unused tag
 
         Args:
             fd: File to read from
@@ -788,11 +798,16 @@ class CbfsReader(object):
                                          attributes)
 
         Returns:
-            Compression to use for the file (COMPRESS_...)
+            Either:
+                Compression to use for the file (COMPRESS_...)
+                tuple containing stage info:
+                    load address
+                    entry offset
+                    memory size
         """
-        compress = COMPRESS_NONE
+        attrs = None
         if not attr:
-            return compress
+            return COMPRESS_NONE
         attr_size = offset - attr
         fd.seek(file_pos + attr, io.SEEK_SET)
         while attr_size:
@@ -807,12 +822,15 @@ class CbfsReader(object):
                 # We don't currently use this information
                 atag, alen, compress, _decomp_size = struct.unpack(
                     ATTR_COMPRESSION_FORMAT, data)
-            elif atag == FILE_ATTR_TAG_UNUSED2:
-                break
+                attrs = compress
+            elif atag == FILE_ATTR_TAG_STAGEHEADER:
+                atag, alen, load, entry_offset, memsize = struct.unpack(
+                    ATTR_STAGE_FORMAT, data)
+                attrs = (load, entry_offset, memsize)
             else:
                 print('Unknown attribute tag %x' % atag)
             attr_size -= len(data)
-        return compress
+        return attrs
 
     def _read_header(self, fd):
         """Read the master header
@@ -843,7 +861,8 @@ class CbfsReader(object):
     def _read_string(cls, fd):
         """Read a string from a file
 
-        This reads a string and aligns the data to the next alignment boundary
+        This reads a string and aligns the data to the next alignment boundary.
+        The string must be nul-terminated
 
         Args:
             fd: File to read from
@@ -854,8 +873,8 @@ class CbfsReader(object):
         """
         val = b''
         while True:
-            data = fd.read(FILENAME_ALIGN)
-            if len(data) < FILENAME_ALIGN:
+            data = fd.read(ATTRIBUTE_ALIGN)
+            if len(data) < ATTRIBUTE_ALIGN:
                 return None
             pos = data.find(b'\0')
             if pos == -1:

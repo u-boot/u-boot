@@ -16,11 +16,14 @@ from patman import gitutil
 from patman import patchstream
 from u_boot_pylib import terminal
 
+
 def setup():
     """Do required setup before doing anything"""
     gitutil.setup()
 
-def prepare_patches(col, branch, count, start, end, ignore_binary, signoff):
+
+def prepare_patches(col, branch, count, start, end, ignore_binary, signoff,
+                    keep_change_id=False):
     """Figure out what patches to generate, then generate them
 
     The patch files are written to the current directory, e.g. 0001_xxx.patch
@@ -35,6 +38,7 @@ def prepare_patches(col, branch, count, start, end, ignore_binary, signoff):
         end (int): End patch to use (0=last one in series, 1=one before that,
             etc.)
         ignore_binary (bool): Don't generate patches for binary files
+        keep_change_id (bool): Preserve the Change-Id tag.
 
     Returns:
         Tuple:
@@ -59,10 +63,11 @@ def prepare_patches(col, branch, count, start, end, ignore_binary, signoff):
         branch, start, to_do, ignore_binary, series, signoff)
 
     # Fix up the patch files to our liking, and insert the cover letter
-    patchstream.fix_patches(series, patch_files)
+    patchstream.fix_patches(series, patch_files, keep_change_id)
     if cover_fname and series.get('cover'):
         patchstream.insert_cover_letter(cover_fname, series, to_do)
     return series, cover_fname, patch_files
+
 
 def check_patches(series, patch_files, run_checkpatch, verbose, use_tree):
     """Run some checks on a set of patches
@@ -166,7 +171,8 @@ def send(args):
     col = terminal.Color()
     series, cover_fname, patch_files = prepare_patches(
         col, args.branch, args.count, args.start, args.end,
-        args.ignore_binary, args.add_signoff)
+        args.ignore_binary, args.add_signoff,
+        keep_change_id=args.keep_change_id)
     ok = check_patches(series, patch_files, args.check_patch,
                        args.verbose, args.check_patch_use_tree)
 

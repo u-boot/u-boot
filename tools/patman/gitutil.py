@@ -147,8 +147,9 @@ def get_upstream(git_dir, branch):
     if remote == '.':
         return merge, None
     elif remote and merge:
-        leaf = merge.split('/')[-1]
-        return '%s/%s' % (remote, leaf), None
+        # Drop the initial refs/heads from merge
+        leaf = merge.split('/', maxsplit=2)[2:]
+        return '%s/%s' % (remote, '/'.join(leaf)), None
     else:
         raise ValueError("Cannot determine upstream branch for branch "
                          "'%s' remote='%s', merge='%s'"

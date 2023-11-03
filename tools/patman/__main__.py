@@ -103,6 +103,8 @@ send.add_argument('--no-signoff', action='store_false', dest='add_signoff',
                   default=True, help="Don't add Signed-off-by to patches")
 send.add_argument('--smtp-server', type=str,
                   help="Specify the SMTP server to 'git send-email'")
+send.add_argument('--keep-change-id', action='store_true',
+                  help='Preserve Change-Id tags in patches to send.')
 
 send.add_argument('patchfiles', nargs='*')
 

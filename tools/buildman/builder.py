@@ -35,6 +35,10 @@ from u_boot_pylib.terminal import tprint
 # which indicates that BREAK_ME has an empty default
 RE_NO_DEFAULT = re.compile(b'\((\w+)\) \[] \(NEW\)')
 
+# Symbol types which appear in the bloat feature (-B). Others are silently
+# dropped when reading in the 'nm' output
+NM_SYMBOL_TYPES = 'tTdDbBr'
+
 """
 Theory of Operation
 
@@ -693,7 +697,7 @@ class Builder:
             parts = line.split()
             if line and len(parts) == 3:
                     size, type, name = line.split()
-                    if type in 'tTdDbB':
+                    if type in NM_SYMBOL_TYPES:
                         # function names begin with '.' on 64-bit powerpc
                         if '.' in name[1:]:
                             name = 'static.' + name.split('.')[0]

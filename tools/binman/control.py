@@ -858,6 +858,8 @@ def Binman(args):
                 data = state.GetFdtForEtype('u-boot-dtb').GetContents()
                 elf.UpdateFile(*elf_params, data)
 
+            bintool.Bintool.set_missing_list(None)
+
             # This can only be True if -M is provided, since otherwise binman
             # would have raised an error already
             if invalid:
