@@ -20,7 +20,7 @@
 	ti-degenerate-key {
 		filename = "ti-degenerate-key.pem";
 		dkey_pem: blob-ext {
-			filename = "../keys/ti-degenerate-key.pem";
+			filename = "arch/arm/mach-k3/keys/ti-degenerate-key.pem";
 		};
 	};
 };

@@ -9,10 +9,6 @@
 	filename = "../../ti/keys/custMpk.pem";
 };
 
-&dkey_pem {
-	filename = "../../ti/keys/ti-degenerate-key.pem";
-};
-
 #ifdef CONFIG_TARGET_VERDIN_AM62_R5
 
 &binman {
