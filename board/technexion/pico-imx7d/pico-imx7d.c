@@ -101,32 +101,6 @@ static int setup_fec(void)
 
 	return set_clk_enet(ENET_125MHZ);
 }
-
-int board_phy_config(struct phy_device *phydev)
-{
-	unsigned short val;
-
-	/* To enable AR8035 ouput a 125MHz clk from CLK_25M */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x7);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x8016);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x4007);
-
-	val = phy_read(phydev, MDIO_DEVAD_NONE, 0xe);
-	val &= 0xffe7;
-	val |= 0x18;
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, val);
-
-	/* introduce tx clock delay */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x5);
-	val = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
-	val |= 0x0100;
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, val);
-
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
-	return 0;
-}
 #endif
 
 static void setup_iomux_uart(void)
