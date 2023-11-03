@@ -121,6 +121,11 @@ mmc
 
     with
 
+    offset
+        is the offset in the device (hexadecimal without "0x")
+    size
+        is the size of the access area (hexadecimal without "0x")
+        or 0 which means whole device
     partid
         being the GPT or DOS partition index,
     num

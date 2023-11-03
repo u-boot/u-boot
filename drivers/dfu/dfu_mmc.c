@@ -387,6 +387,16 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char **argv, int a
 		dfu->data.mmc.lba_blk_size	= mmc->read_bl_len;
 
 		/*
+		 * In case the size is zero (i.e. mmc raw 0x10 0),
+		 * assume the user intends to use whole device.
+		 */
+		if (third_arg == 0) {
+			struct blk_desc *blk_dev = mmc_get_blk_desc(mmc);
+
+			dfu->data.mmc.lba_size = blk_dev->lba;
+		}
+
+		/*
 		 * Check for an extra entry at dfu_alt_info env variable
 		 * specifying the mmc HW defined partition number
 		 */
