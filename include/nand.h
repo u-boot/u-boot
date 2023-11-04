@@ -22,6 +22,7 @@ int nand_mtd_to_devnum(struct mtd_info *mtd);
 #if CONFIG_IS_ENABLED(SYS_NAND_SELF_INIT)
 void board_nand_init(void);
 int nand_register(int devnum, struct mtd_info *mtd);
+void nand_unregister(struct mtd_info *mtd);
 #else
 struct nand_chip;
 

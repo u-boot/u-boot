@@ -74,6 +74,23 @@ int nand_register(int devnum, struct mtd_info *mtd)
 	return 0;
 }
 
+void nand_unregister(struct mtd_info *mtd)
+{
+	int devnum = nand_mtd_to_devnum(mtd);
+
+	if (devnum < 0)
+		return;
+
+	if (nand_curr_device == devnum)
+		nand_curr_device = -1;
+
+	total_nand_size -= mtd->size / 1024;
+
+	del_mtd_device(nand_info[devnum]);
+
+	nand_info[devnum] = NULL;
+}
+
 #if !CONFIG_IS_ENABLED(SYS_NAND_SELF_INIT)
 static void nand_init_chip(int i)
 {
