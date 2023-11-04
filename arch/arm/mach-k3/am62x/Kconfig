@@ -43,6 +43,7 @@ config TARGET_VERDIN_AM62_R5
 
 endchoice
 
+source "board/beagle/beagleplay/Kconfig"
 source "board/ti/am62x/Kconfig"
 source "board/toradex/verdin-am62/Kconfig"
 
