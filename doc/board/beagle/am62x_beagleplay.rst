@@ -23,7 +23,7 @@ Boot Flow:
 ----------
 Below is the pictorial representation of boot flow:
 
-.. image:: img/boot_diagram_k3_current.svg
+.. image:: ../ti/img/boot_diagram_k3_current.svg
   :alt: Boot flow diagram
 
 - On this platform, 'TI Foundational Security' (TIFS) functions as the
@@ -34,7 +34,7 @@ Below is the pictorial representation of boot flow:
 
 Sources:
 --------
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_boot_sources
     :end-before: .. k3_rst_include_end_boot_sources
 
@@ -42,17 +42,17 @@ Build procedure:
 ----------------
 0. Setup the environment variables:
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_common_env_vars_desc
     :end-before: .. k3_rst_include_end_common_env_vars_desc
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_board_env_vars_desc
     :end-before: .. k3_rst_include_end_board_env_vars_desc
 
 Set the variables corresponding to this platform:
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_common_env_vars_defn
     :end-before: .. k3_rst_include_end_common_env_vars_defn
 .. prompt:: bash $
@@ -65,7 +65,7 @@ Set the variables corresponding to this platform:
   export OPTEE_PLATFORM=k3-am62x
   export OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
 
-.. include::  am62x_sk.rst
+.. include::  ../ti/am62x_sk.rst
     :start-after: .. am62x_evm_rst_include_start_build_steps
     :end-before: .. am62x_evm_rst_include_end_build_steps
 
@@ -82,12 +82,12 @@ Image formats
 
 - tiboot3.bin
 
-.. image:: img/multi_cert_tiboot3.bin.svg
+.. image:: ../ti/img/multi_cert_tiboot3.bin.svg
   :alt: tiboot3.bin image format
 
 - tispl.bin
 
-.. image:: img/dm_tispl.bin.svg
+.. image:: ../ti/img/dm_tispl.bin.svg
   :alt: tispl.bin image format
 
 Additional hardware for U-Boot development
@@ -240,7 +240,7 @@ LED patterns during boot
 A53 SPL DDR Memory Layout
 -------------------------
 
-.. include::  am62x_sk.rst
+.. include::  ../ti/am62x_sk.rst
     :start-after: .. am62x_evm_rst_include_start_ddr_mem_layout
     :end-before: .. am62x_evm_rst_include_end_ddr_mem_layout
 
@@ -284,11 +284,11 @@ detailed setup and debugging information.
   environment's distribution needs to be updated, it might be necessary to
   build OpenOCD from the source.
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_openocd_connect_tag_connect
     :end-before: .. k3_rst_include_end_openocd_connect_tag_connect
 
-.. include::  k3.rst
+.. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_openocd_cfg_external_intro
     :end-before: .. k3_rst_include_end_openocd_cfg_external_intro
 

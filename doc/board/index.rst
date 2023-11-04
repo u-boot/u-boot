@@ -17,6 +17,7 @@ Board-specific doc
    asus/index
    atmel/index
    beacon/index
+   beagle/index
    broadcom/index
    bsh/index
    cloos/index
