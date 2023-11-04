@@ -60,13 +60,11 @@ int nand_register(int devnum, struct mtd_info *mtd)
 	sprintf(dev_name[devnum], "nand%d", devnum);
 	mtd->name = dev_name[devnum];
 
-#ifdef CONFIG_MTD
 	/*
 	 * Add MTD device so that we can reference it later
 	 * via the mtdcore infrastructure (e.g. ubi).
 	 */
 	add_mtd_device(mtd);
-#endif
 
 	total_nand_size += mtd->size / 1024;
 
