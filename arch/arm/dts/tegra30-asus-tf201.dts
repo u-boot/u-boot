@@ -6,4 +6,9 @@
 / {
 	model = "ASUS Transformer Prime TF201";
 	compatible = "asus,tf201", "nvidia,tegra30";
+
+	usb-phy@7d008000 {
+		/delete-property/ nvidia,xcvr-setup-use-fuses;
+		nvidia,xcvr-setup = <5>;      /* Based on TF201 fuse value - 48 */
+	};
 };

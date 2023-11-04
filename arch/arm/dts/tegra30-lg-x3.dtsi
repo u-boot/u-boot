@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 
 #include <dt-bindings/input/input.h>
-
 #include "tegra30.dtsi"
 
 / {
@@ -91,6 +90,14 @@
 					regulator-boot-on;
 				};
 
+				avdd_3v3_periph: ldo2 {
+					regulator-name = "avdd_usb";
+					regulator-min-microvolt = <3300000>;
+					regulator-max-microvolt = <3300000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
 				vdd_usd: ldo3 {
 					regulator-name = "vdd_sdmmc3";
 					regulator-min-microvolt = <3000000>;
@@ -103,8 +110,6 @@
 					regulator-name = "vdd_ddr_rx";
 					regulator-min-microvolt = <2850000>;
 					regulator-max-microvolt = <2850000>;
-					regulator-always-on;
-					regulator-boot-on;
 				};
 			};
 		};

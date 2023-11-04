@@ -74,6 +74,13 @@ config SYSRESET_GPIO
 	  example on Microblaze where reset logic can be controlled via GPIO
 	  pin which triggers cpu reset.
 
+config SYSRESET_MAX77663
+	bool "Enable support for MAX77663 PMIC System Reset"
+	depends on DM_PMIC_MAX77663
+	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
+	help
+	  Enable system power management functions found in MAX77663 PMIC.
+
 config SYSRESET_MICROBLAZE
 	bool "Enable support for Microblaze soft reset"
 	depends on MICROBLAZE
@@ -101,6 +108,13 @@ config SYSRESET_SPL_AT91
 	help
 	  This enables the system reset driver support for Microchip/Atmel
 	  SoCs in SPL.
+
+config SYSRESET_PALMAS
+	bool "Enable support for PALMAS System Reset"
+	depends on PMIC_PALMAS
+	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
+	help
+	  Enable system power management functions found in PLAMAS PMIC family.
 
 config SYSRESET_PSCI
 	bool "Enable support for PSCI System Reset"
@@ -137,12 +151,34 @@ config SYSRESET_SOCFPGA_SOC64
 	  This enables the system reset driver support for Intel SOCFPGA
 	  SoC64 SoCs.
 
+config SYSRESET_TEGRA
+	bool "Tegra PMC system reset driver"
+	depends on ARCH_TEGRA
+	help
+	  This enables the system reset ability of PMC used in Tegra SoCs.
+
 config SYSRESET_TI_SCI
 	bool "TI System Control Interface (TI SCI) system reset driver"
 	depends on TI_SCI_PROTOCOL
 	help
 	  This enables the system reset driver support over TI System Control
 	  Interface available on some new TI's SoCs.
+
+config SYSRESET_TPS65910
+	bool "Enable support for TPS65910/TPS65911 PMIC System Reset"
+	depends on DM_PMIC_TPS65910
+	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
+	help
+	  Enable system power management functions found in TPS65910/TPS65911
+	  PMICs.
+
+config SYSRESET_TPS80031
+	bool "Enable support for TPS80031/TPS80032 PMIC System Reset"
+	depends on DM_PMIC_TPS80031
+	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
+	help
+	  Enable system power management functions found in TPS80031/TPS80032
+	  PMICs.
 
 config SYSRESET_SYSCON
 	bool "Enable support for mfd syscon reboot driver"

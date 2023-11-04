@@ -141,6 +141,15 @@ config SPL_REGULATOR_PWM
 	  This config enables implementation of driver-model regulator uclass
 	  features for PWM regulators in SPL.
 
+config DM_REGULATOR_MAX77663
+	bool "Enable Driver Model for REGULATOR MAX77663"
+	depends on DM_REGULATOR && DM_PMIC_MAX77663
+	---help---
+	This config enables implementation of driver-model regulator uclass
+	features for REGULATOR MAX77663. The driver supports both DC-to-DC
+	Step-Down (SD) Regulators and Low-Dropout Linear (LDO) Regulators
+	found in MAX77663 PMIC and implements get/set api for value and enable.
+
 config DM_REGULATOR_MAX77686
 	bool "Enable Driver Model for REGULATOR MAX77686"
 	depends on DM_REGULATOR && DM_PMIC_MAX77686
@@ -337,6 +346,17 @@ config DM_REGULATOR_TPS65910
 	regulator types of the TPS65910 (BUCK, BOOST and LDO). It implements
 	the get/set api for value and enable.
 
+config DM_REGULATOR_TPS65911
+	bool "Enable driver for TPS65911 PMIC regulators"
+	depends on DM_PMIC_TPS65910
+	---help---
+	This config enables implementation of driver-model regulator
+	uclass features for the TPS65911 PMIC. The driver supports Step-Down
+	DC-DC Converters for Processor Cores (VDD1 and VDD2), Step-Down DC-DC
+	Converter for I/O Power (VIO), Controller for External FETs (VDDCtrl)
+	and LDO Voltage Regulators found in TPS65911 PMIC and implements
+	get/set api for value and enable.
+
 config DM_REGULATOR_TPS62360
 	bool "Enable driver for TPS6236x Power Regulator"
 	depends on DM_REGULATOR
@@ -346,6 +366,14 @@ config DM_REGULATOR_TPS62360
 	variants of the chip (TPS62360, TPS62361, TPS62362, TPS62363). It
 	implements the get/set api for value only, as the power line is
 	always on.
+
+config DM_REGULATOR_TPS80031
+	bool "Enable driver for TPS80031/TPS80032 PMIC regulators"
+	depends on DM_PMIC_TPS80031
+	---help---
+	This enables implementation of driver-model regulator uclass
+	features for TPS80031/TPS80032 PMICs. The driver implements
+	get/set api for: value and enable.
 
 config DM_REGULATOR_STPMIC1
 	bool "Enable driver for STPMIC1 regulators"

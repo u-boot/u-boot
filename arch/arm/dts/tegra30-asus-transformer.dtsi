@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 
 #include <dt-bindings/input/input.h>
-
 #include "tegra30.dtsi"
 
 / {
@@ -70,12 +69,19 @@
 			gpio-controller;
 
 			regulators {
+				vdd_1v8_vio: vddio {
+					regulator-name = "vdd_1v8_gen";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
 				/* eMMC VDD */
 				vcore_emmc: ldo1 {
 					regulator-name = "vdd_emmc_core";
-					regulator-min-microvolt = <1000000>;
+					regulator-min-microvolt = <3300000>;
 					regulator-max-microvolt = <3300000>;
-					regulator-always-on;
 				};
 
 				/* uSD slot VDD */
@@ -88,8 +94,10 @@
 				/* uSD slot VDDIO */
 				vddio_usd: ldo3 {
 					regulator-name = "vddio_usd";
-					regulator-min-microvolt = <1800000>;
+					regulator-min-microvolt = <3100000>;
 					regulator-max-microvolt = <3100000>;
+					regulator-always-on;
+					regulator-boot-on;
 				};
 			};
 		};
@@ -110,6 +118,9 @@
 		status = "okay";
 		bus-width = <8>;
 		non-removable;
+
+		vmmc-supply = <&vcore_emmc>;
+		vqmmc-supply = <&vdd_1v8_vio>;
 	};
 
 	/* USB via ASUS connector */
@@ -120,6 +131,10 @@
 
 	/* Dock's USB port */
 	usb3: usb@7d008000 {
+		status = "okay";
+	};
+
+	usb-phy@7d008000 {
 		status = "okay";
 	};
 
@@ -204,7 +219,6 @@
 		regulator-name = "vdd_5v0_bl";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
-		regulator-boot-on;
 		gpio = <&gpio TEGRA_GPIO(H, 3) GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};

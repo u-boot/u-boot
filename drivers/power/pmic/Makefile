@@ -6,6 +6,7 @@
 obj-$(CONFIG_$(SPL_TPL_)DM_PMIC) += pmic-uclass.o
 obj-$(CONFIG_$(SPL_)DM_PMIC_FAN53555) += fan53555.o
 obj-$(CONFIG_$(SPL_)DM_PMIC_DA9063) += da9063.o
+obj-$(CONFIG_$(SPL_)DM_PMIC_MAX77663) += max77663.o
 obj-$(CONFIG_DM_PMIC_MAX77686) += max77686.o
 obj-$(CONFIG_DM_PMIC_MAX8998) += max8998.o
 obj-$(CONFIG_DM_PMIC_MC34708) += mc34708.o
@@ -26,6 +27,7 @@ obj-$(CONFIG_$(SPL_)PMIC_RN5T567) += rn5t567.o
 obj-$(CONFIG_PMIC_TPS65090) += tps65090.o
 obj-$(CONFIG_PMIC_S5M8767) += s5m8767.o
 obj-$(CONFIG_DM_PMIC_TPS65910) += pmic_tps65910_dm.o
+obj-$(CONFIG_$(SPL_)DM_PMIC_TPS80031) += tps80031.o
 obj-$(CONFIG_$(SPL_)PMIC_PALMAS) += palmas.o
 obj-$(CONFIG_$(SPL_)PMIC_LP873X) += lp873x.o
 obj-$(CONFIG_$(SPL_)PMIC_LP87565) += lp87565.o
