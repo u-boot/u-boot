@@ -24,6 +24,11 @@ config SOC_K3_AM62A7
 
 endchoice
 
+if SOC_K3_J721E
+config SOC_K3_J721E_J7200
+	bool "TI's K3 based J7200 SoC variant Family Support"
+endif
+
 config SYS_SOC
 	default "k3"
 
