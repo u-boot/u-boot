@@ -11,6 +11,7 @@
 #include <config.h>
 
 extern void nand_init(void);
+void nand_reinit(void);
 unsigned long nand_size(void);
 unsigned int nand_page_size(void);
 
