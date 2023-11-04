@@ -24,7 +24,6 @@ sys.path.append(os.path.join(our_path, '..'))
 # Our modules
 from patman import cmdline
 from patman import control
-from patman import func_test
 from u_boot_pylib import terminal
 from u_boot_pylib import test_util
 from u_boot_pylib import tools
