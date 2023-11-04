@@ -218,6 +218,11 @@ void nand_init(void)
 	nand_command(0, 0, 0, NAND_CMD_RESET);
 }
 
+unsigned int nand_page_size(void)
+{
+	return nand_to_mtd(&nand_chip)->writesize;
+}
+
 /* Unselect after operation */
 void nand_deselect(void)
 {

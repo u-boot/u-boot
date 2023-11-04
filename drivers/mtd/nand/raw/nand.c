@@ -174,3 +174,10 @@ void nand_init(void)
 
 	create_mtd_concat();
 }
+
+unsigned int nand_page_size(void)
+{
+	struct mtd_info *mtd = get_nand_dev_by_index(nand_curr_device);
+
+	return mtd ? mtd->writesize : 1;
+}

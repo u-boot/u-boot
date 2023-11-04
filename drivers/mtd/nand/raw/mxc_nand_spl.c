@@ -351,3 +351,8 @@ __used void nand_boot(void)
 
 void nand_init(void) {}
 void nand_deselect(void) {}
+
+unsigned int nand_page_size(void)
+{
+	return CONFIG_SYS_NAND_PAGE_SIZE;
+}

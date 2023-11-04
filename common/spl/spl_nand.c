@@ -72,23 +72,18 @@ static ulong spl_nand_legacy_read(struct spl_load_info *load, ulong offs,
 	return size;
 }
 
-struct mtd_info * __weak nand_get_mtd(void)
-{
-	return NULL;
-}
-
 static int spl_nand_load_element(struct spl_image_info *spl_image,
 				 struct spl_boot_device *bootdev,
 				 int offset, struct legacy_img_hdr *header)
 {
-	struct mtd_info *mtd = nand_get_mtd();
-	int bl_len = mtd ? mtd->writesize : 1;
+	int bl_len;
 	int err;
 
 	err = nand_spl_load_image(offset, sizeof(*header), (void *)header);
 	if (err)
 		return err;
 
+	bl_len = nand_page_size();
 	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
 	    image_get_magic(header) == FDT_MAGIC) {
 		struct spl_load_info load;
@@ -118,7 +113,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		load.dev = NULL;
 		load.priv = NULL;
 		load.filename = NULL;
-		load.bl_len = 1;
+		load.bl_len = IS_ENABLED(CONFIG_SPL_LZMA) ? bl_len : 1;
 		load.read = spl_nand_legacy_read;
 
 		return spl_load_legacy_img(spl_image, bootdev, &load, offset, header);

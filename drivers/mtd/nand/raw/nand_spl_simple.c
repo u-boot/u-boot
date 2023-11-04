@@ -227,6 +227,11 @@ void nand_init(void)
 		nand_chip.select_chip(mtd, 0);
 }
 
+unsigned int nand_page_size(void)
+{
+	return nand_to_mtd(&nand_chip)->writesize;
+}
+
 /* Unselect after operation */
 void nand_deselect(void)
 {
