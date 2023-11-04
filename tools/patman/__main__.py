@@ -7,10 +7,10 @@
 """See README for more information"""
 
 try:
-    import importlib.resources
+    from importlib import resources
 except ImportError:
     # for Python 3.6
-    import importlib_resources
+    import importlib_resources as resources
 import os
 import re
 import sys
@@ -69,7 +69,7 @@ def run_patman():
                                 print(cca)
 
         elif args.full_help:
-            with importlib.resources.path('patman', 'README.rst') as readme:
+            with resources.path('patman', 'README.rst') as readme:
                 tools.print_full_help(str(readme))
         else:
             # If we are not processing tags, no need to warning about bad ones
