@@ -11,6 +11,7 @@
 #include <log.h>
 #include <spl.h>
 #include <asm/io.h>
+#include <mapmem.h>
 #include <nand.h>
 #include <linux/libfdt_env.h>
 #include <fdt.h>
@@ -32,7 +33,8 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 
 	nand_spl_load_image(spl_nand_get_uboot_raw_page(),
 			    CFG_SYS_NAND_U_BOOT_SIZE,
-			    (void *)CFG_SYS_NAND_U_BOOT_DST);
+			    map_sysmem(CFG_SYS_NAND_U_BOOT_DST,
+				       CFG_SYS_NAND_U_BOOT_SIZE));
 	spl_set_header_raw_uboot(spl_image);
 	nand_deselect();
 
@@ -122,7 +124,8 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		if (err)
 			return err;
 		return nand_spl_load_image(offset, spl_image->size,
-					   (void *)(ulong)spl_image->load_addr);
+					   map_sysmem(spl_image->load_addr,
+						      spl_image->size));
 	}
 }
 
