@@ -52,6 +52,7 @@ config TARGET_J7200_R5_EVM
 
 endchoice
 
+source "board/beagle/beagleboneai64/Kconfig"
 source "board/ti/j721e/Kconfig"
 
 endif
