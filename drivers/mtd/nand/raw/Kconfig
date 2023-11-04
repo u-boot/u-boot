@@ -447,6 +447,20 @@ config NAND_PXA3XX
 	  This enables the driver for the NAND flash device found on
 	  PXA3xx processors (NFCv1) and also on Armada 370/XP (NFCv2).
 
+config NAND_SANDBOX
+	bool "Support for NAND in sandbox"
+	depends on SANDBOX
+	select SYS_NAND_SELF_INIT
+	select SYS_NAND_SOFT_ECC
+	select BCH
+	select NAND_ECC_BCH
+	imply CMD_NAND
+	help
+	  Enable a dummy NAND driver for sandbox. It simulates any number of
+	  arbitrary NAND chips with a RAM buffer. It will also inject errors to
+	  test ECC. At the moment, only 8-bit busses and single-chip devices are
+	  supported.
+
 config NAND_SUNXI
 	bool "Support for NAND on Allwinner SoCs"
 	default ARCH_SUNXI
