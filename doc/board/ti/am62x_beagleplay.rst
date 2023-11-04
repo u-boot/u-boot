@@ -57,8 +57,8 @@ Set the variables corresponding to this platform:
     :end-before: .. k3_rst_include_end_common_env_vars_defn
 .. prompt:: bash $
 
-  export UBOOT_CFG_CORTEXR="am62x_evm_r5_defconfig beagleplay_r5.config"
-  export UBOOT_CFG_CORTEXA="am62x_evm_a53_defconfig beagleplay_a53.config"
+  export UBOOT_CFG_CORTEXR=am62x_beagleplay_r5_defconfig
+  export UBOOT_CFG_CORTEXA=am62x_beagleplay_a53_defconfig
   export TFA_BOARD=lite
   # we dont use any extra TFA parameters
   unset TFA_EXTRA_ARGS
