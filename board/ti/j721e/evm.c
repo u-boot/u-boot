@@ -522,10 +522,8 @@ err_free_gpio:
 
 void spl_board_init(void)
 {
-#if defined(CONFIG_ESM_K3) || defined(CONFIG_ESM_PMIC)
 	struct udevice *dev;
 	int ret;
-#endif
 
 	if ((IS_ENABLED(CONFIG_TARGET_J721E_A72_EVM) ||
 	     IS_ENABLED(CONFIG_TARGET_J7200_A72_EVM)) &&
@@ -534,24 +532,20 @@ void spl_board_init(void)
 			probe_daughtercards();
 	}
 
-#ifdef CONFIG_ESM_K3
-	if (board_ti_k3_is("J721EX-PM2-SOM")) {
+	if (IS_ENABLED(CONFIG_ESM_K3)) {
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
 						  DM_DRIVER_GET(k3_esm), &dev);
 		if (ret)
 			printf("ESM init failed: %d\n", ret);
 	}
-#endif
 
-#ifdef CONFIG_ESM_PMIC
-	if (board_ti_k3_is("J721EX-PM2-SOM")) {
+	if (IS_ENABLED(CONFIG_ESM_PMIC)) {
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
 						  DM_DRIVER_GET(pmic_esm),
 						  &dev);
 		if (ret)
 			printf("ESM PMIC init failed: %d\n", ret);
 	}
-#endif
 	if ((IS_ENABLED(CONFIG_TARGET_J7200_A72_EVM) || IS_ENABLED(CONFIG_TARGET_J721E_A72_EVM)) &&
 	    IS_ENABLED(CONFIG_HBMC_AM654)) {
 		struct udevice *dev;
