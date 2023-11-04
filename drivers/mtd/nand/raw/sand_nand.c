@@ -10,6 +10,8 @@
 #include <nand.h>
 #include <os.h>
 #include <rand.h>
+#include <spl.h>
+#include <system-constants.h>
 #include <dm/device_compat.h>
 #include <dm/read.h>
 #include <dm/uclass.h>
@@ -599,6 +601,7 @@ static int sand_nand_probe(struct udevice *dev)
 		}
 
 		nand = &chip->nand;
+		nand->options = spl_in_proper() ? 0 : NAND_SKIP_BBTSCAN;
 		nand->flash_node = np;
 		nand->dev_ready = sand_nand_dev_ready;
 		nand->cmdfunc = sand_nand_command;
@@ -676,3 +679,29 @@ void board_nand_init(void)
 	if (err && err != -ENODEV)
 		log_info("Failed to get sandbox NAND: %d\n", err);
 }
+
+#if IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_SPL_NAND_INIT)
+void nand_deselect(void)
+{
+	nand_chip->select_chip(nand_to_mtd(nand_chip), -1);
+}
+
+static int nand_is_bad_block(int block)
+{
+	struct mtd_info *mtd = nand_to_mtd(nand_chip);
+
+	return mtd_block_isbad(mtd, block << mtd->erasesize_shift);
+}
+
+static int nand_read_page(int block, int page, uchar *dst)
+{
+	struct mtd_info *mtd = nand_to_mtd(nand_chip);
+	loff_t ofs = ((loff_t)block << mtd->erasesize_shift) +
+		     ((loff_t)page << mtd->writesize_shift);
+	size_t len = mtd->writesize;
+
+	return nand_read(mtd, ofs, &len, dst);
+}
+
+#include "nand_spl_loaders.c"
+#endif /* CONFIG_SPL_NAND_INIT */

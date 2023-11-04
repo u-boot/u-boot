@@ -451,6 +451,8 @@ config NAND_SANDBOX
 	bool "Support for NAND in sandbox"
 	depends on SANDBOX
 	select SYS_NAND_SELF_INIT
+	select SPL_SYS_NAND_SELF_INIT
+	select SPL_NAND_INIT
 	select SYS_NAND_SOFT_ECC
 	select BCH
 	select NAND_ECC_BCH
@@ -678,7 +680,8 @@ config SYS_NAND_PAGE_SIZE
 	depends on ARCH_SUNXI || NAND_OMAP_GPMC || NAND_LPC32XX_SLC || \
 		SPL_NAND_SIMPLE || (NAND_MXC && SPL_NAND_SUPPORT) || \
 		MVEBU_SPL_BOOT_DEVICE_NAND || \
-		(NAND_ATMEL && SPL_NAND_SUPPORT) || SPL_GENERATE_ATMEL_PMECC_HEADER
+		(NAND_ATMEL && SPL_NAND_SUPPORT) || \
+		SPL_GENERATE_ATMEL_PMECC_HEADER || NAND_SANDBOX
 	depends on !NAND_MXS && !NAND_DENALI_DT && !NAND_LPC32XX_MLC && !NAND_MT7621
 	help
 	  Number of data bytes in one page for the NAND chip on the
