@@ -5,10 +5,6 @@
 
 #include "k3-binman.dtsi"
 
-&custmpk_pem {
-	filename = "../../ti/keys/custMpk.pem";
-};
-
 #ifdef CONFIG_TARGET_VERDIN_AM62_R5
 
 &binman {
