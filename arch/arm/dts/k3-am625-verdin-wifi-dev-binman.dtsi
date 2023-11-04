@@ -5,10 +5,6 @@
 
 #include "k3-binman.dtsi"
 
-&custmpk_pem {
-	filename = "../../ti/keys/custMpk.pem";
-};
-
 #ifndef CONFIG_ARM64
 
 &bcfg_yaml {
