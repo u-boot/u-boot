@@ -299,53 +299,54 @@ static int probe_daughtercards(void)
 		printf("Detected: %s rev %s\n", ep.name, ep.version);
 		daughter_card_detect_flags[i] = true;
 
-#ifndef CONFIG_SPL_BUILD
-		int j;
-		/*
-		 * Populate any MAC addresses from daughtercard into the U-Boot
-		 * environment, starting with a card-specific offset so we can
-		 * have multiple ext_cards contribute to the MAC pool in a well-
-		 * defined manner.
-		 */
-		for (j = 0; j < mac_addr_cnt; j++) {
-			if (!is_valid_ethaddr((u8 *)mac_addr[j]))
+		if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
+			int j;
+			/*
+			 * Populate any MAC addresses from daughtercard into the U-Boot
+			 * environment, starting with a card-specific offset so we can
+			 * have multiple ext_cards contribute to the MAC pool in a well-
+			 * defined manner.
+			 */
+			for (j = 0; j < mac_addr_cnt; j++) {
+				if (!is_valid_ethaddr((u8 *)mac_addr[j]))
+					continue;
+
+				eth_env_set_enetaddr_by_index("eth",
+							      ext_cards[i].eth_offset + j,
+							      (uchar *)mac_addr[j]);
+			}
+		}
+	}
+
+	if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
+		char name_overlays[1024] = { 0 };
+
+		for (i = 0; i < ARRAY_SIZE(ext_cards); i++) {
+			if (!daughter_card_detect_flags[i])
 				continue;
 
-			eth_env_set_enetaddr_by_index("eth",
-						      ext_cards[i].eth_offset + j,
-						      (uchar *)mac_addr[j]);
+			/* Skip if no overlays are to be added */
+			if (!strlen(ext_cards[i].dtbo_name))
+				continue;
+
+			/*
+			 * Make sure we are not running out of buffer space by checking
+			 * if we can fit the new overlay, a trailing space to be used
+			 * as a separator, plus the terminating zero.
+			 */
+			if (strlen(name_overlays) + strlen(ext_cards[i].dtbo_name) + 2 >
+			    sizeof(name_overlays))
+				return -ENOMEM;
+
+			/* Append to our list of overlays */
+			strcat(name_overlays, ext_cards[i].dtbo_name);
+			strcat(name_overlays, " ");
 		}
-#endif
+
+		/* Apply device tree overlay(s) to the U-Boot environment, if any */
+		if (strlen(name_overlays))
+			return env_set("name_overlays", name_overlays);
 	}
-#ifndef CONFIG_SPL_BUILD
-	char name_overlays[1024] = { 0 };
-
-	for (i = 0; i < ARRAY_SIZE(ext_cards); i++) {
-		if (!daughter_card_detect_flags[i])
-			continue;
-
-		/* Skip if no overlays are to be added */
-		if (!strlen(ext_cards[i].dtbo_name))
-			continue;
-
-		/*
-		 * Make sure we are not running out of buffer space by checking
-		 * if we can fit the new overlay, a trailing space to be used
-		 * as a separator, plus the terminating zero.
-		 */
-		if (strlen(name_overlays) + strlen(ext_cards[i].dtbo_name) + 2 >
-		    sizeof(name_overlays))
-			return -ENOMEM;
-
-		/* Append to our list of overlays */
-		strcat(name_overlays, ext_cards[i].dtbo_name);
-		strcat(name_overlays, " ");
-	}
-
-	/* Apply device tree overlay(s) to the U-Boot environment, if any */
-	if (strlen(name_overlays))
-		return env_set("name_overlays", name_overlays);
-#endif
 
 	return 0;
 }
