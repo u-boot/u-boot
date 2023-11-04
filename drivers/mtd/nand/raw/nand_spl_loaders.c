@@ -12,7 +12,7 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 	while (block <= lastblock) {
 		if (!nand_is_bad_block(block)) {
 			/* Skip bad blocks */
-			while (page < CONFIG_SYS_NAND_PAGE_COUNT) {
+			while (page < SYS_NAND_BLOCK_PAGES) {
 				nand_read_page(block, page, dst);
 				/*
 				 * When offs is not aligned to page address the

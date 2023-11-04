@@ -41,4 +41,8 @@
 #define SPL_PAYLOAD_ARGS_ADDR	0
 #endif
 
+/* Number of pages per block */
+#define SYS_NAND_BLOCK_PAGES \
+	(CONFIG_SYS_NAND_BLOCK_SIZE / CONFIG_SYS_NAND_PAGE_SIZE)
+
 #endif

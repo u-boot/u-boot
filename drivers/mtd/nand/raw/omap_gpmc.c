@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <log.h>
+#include <system-constants.h>
 #include <asm/io.h>
 #include <dm/uclass.h>
 #include <linux/errno.h>
@@ -1298,7 +1299,7 @@ static int nand_is_bad_block(int block)
 
 static int nand_read_page(int block, int page, uchar *dst)
 {
-	int page_addr = block * CONFIG_SYS_NAND_PAGE_COUNT + page;
+	int page_addr = block * SYS_NAND_BLOCK_PAGES + page;
 	loff_t ofs = page_addr * CONFIG_SYS_NAND_PAGE_SIZE;
 	int ret;
 	size_t len = CONFIG_SYS_NAND_PAGE_SIZE;

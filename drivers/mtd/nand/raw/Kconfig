@@ -659,14 +659,6 @@ config SYS_NAND_ONFI_DETECTION
 	  And fetching device parameters flashed on device, by parsing
 	  ONFI parameter page.
 
-config SYS_NAND_PAGE_COUNT
-	hex "NAND chip page count"
-	depends on SPL_NAND_SUPPORT && (NAND_ATMEL || NAND_MXC || \
-		SPL_NAND_AM33XX_BCH || SPL_NAND_LOAD || SPL_NAND_SIMPLE || \
-		NAND_OMAP_GPMC)
-	help
-	  Number of pages in the NAND chip.
-
 config SYS_NAND_PAGE_SIZE
 	hex "NAND chip page size"
 	depends on ARCH_SUNXI || NAND_OMAP_GPMC || NAND_LPC32XX_SLC || \
