@@ -318,7 +318,7 @@ static unsigned int renesas_sdhi_init_tuning(struct tmio_sd_priv *priv)
 		RENESAS_SDHI_SCC_DTCNTL_TAPNUM_MASK;
 }
 
-static void renesas_sdhi_reset_tuning(struct tmio_sd_priv *priv)
+static void renesas_sdhi_reset_tuning(struct tmio_sd_priv *priv, bool clk_disable)
 {
 	u32 reg;
 
@@ -350,6 +350,12 @@ static void renesas_sdhi_reset_tuning(struct tmio_sd_priv *priv)
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSCNTL);
 	reg &= ~RENESAS_SDHI_SCC_RVSCNTL_RVSEN;
 	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_RVSCNTL);
+
+	if (clk_disable) {
+		reg = tmio_sd_readl(priv, TMIO_SD_CLKCTL);
+		reg &= ~TMIO_SD_CLKCTL_SCLKEN;
+		tmio_sd_writel(priv, reg, TMIO_SD_CLKCTL);
+	}
 }
 
 static int renesas_sdhi_hs400(struct udevice *dev)
@@ -629,7 +635,7 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 out:
 	if (ret < 0) {
 		dev_warn(dev, "Tuning procedure failed\n");
-		renesas_sdhi_reset_tuning(priv);
+		renesas_sdhi_reset_tuning(priv, true);
 	}
 
 	return ret;
@@ -668,7 +674,7 @@ static int renesas_sdhi_set_ios(struct udevice *dev)
 	    (mmc->selected_mode != UHS_SDR104) &&
 	    (mmc->selected_mode != MMC_HS_200) &&
 	    (mmc->selected_mode != MMC_HS_400)) {
-		renesas_sdhi_reset_tuning(priv);
+		renesas_sdhi_reset_tuning(priv, mmc->clk_disable);
 	}
 #endif
 
@@ -1095,7 +1101,7 @@ static int renesas_sdhi_probe(struct udevice *dev)
     CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 	if (priv->caps & TMIO_SD_CAP_RCAR_UHS)
-		renesas_sdhi_reset_tuning(priv);
+		renesas_sdhi_reset_tuning(priv, true);
 #endif
 	return 0;
 
