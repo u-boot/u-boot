@@ -568,6 +568,7 @@ config ARCH_AT91
 	select GPIO_EXTRA_HEADER
 	select SPL_BOARD_INIT if SPL && !TARGET_SMARTWEB
 	select SPL_SEPARATE_BSS if SPL
+	imply SYS_THUMB_BUILD
 
 config ARCH_DAVINCI
 	bool "TI DaVinci"
