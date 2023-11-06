@@ -66,7 +66,7 @@ For the next scheduled release, release candidates were made on::
 
 * U-Boot v2024.01-rc1 was released on Mon 23 October 2023.
 
-.. * U-Boot v2024.01-rc2 was released on Mon 06 November 2023.
+* U-Boot v2024.01-rc2 was released on Mon 06 November 2023.
 
 .. * U-Boot v2024.01-rc3 was released on Mon 20 November 2023.
 
