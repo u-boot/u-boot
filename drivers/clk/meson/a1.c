@@ -241,6 +241,12 @@ static const struct meson_clk_info *meson_clocks[] = {
 	[CLKID_USB_PHY_IN] = CLK_GATE("usb_phy_in", A1_SYS_OSCIN_CTRL, 2,
 		EXTERNAL_XTAL
 	),
+	[CLKID_USB_CTRL_IN] = CLK_GATE("usb_ctrl_in", A1_SYS_OSCIN_CTRL, 3,
+		EXTERNAL_XTAL
+	),
+	[CLKID_USB_CTRL] = CLK_GATE("usb_ctrl", A1_SYS_CLK_EN0, 28,
+		CLKID_SYS
+	),
 	[CLKID_USB_PHY] = CLK_GATE("usb_phy", A1_SYS_CLK_EN0, 27,
 		CLKID_SYS
 	),
