@@ -13,6 +13,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <reset.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <log.h>
@@ -91,6 +92,7 @@ struct ftgmac100_data {
 	u32 max_speed;
 
 	struct clk_bulk clks;
+	struct reset_ctl *reset_ctl;
 
 	/* End of RX/TX ring buffer bits. Depend on model */
 	u32 rxdes0_edorr_mask;
@@ -569,6 +571,8 @@ static int ftgmac100_of_to_plat(struct udevice *dev)
 		priv->txdes0_edotr_mask = BIT(15);
 	}
 
+	priv->reset_ctl = devm_reset_control_get_optional(dev, NULL);
+
 	return clk_get_bulk(dev, &priv->clks);
 }
 
@@ -593,6 +597,12 @@ static int ftgmac100_probe(struct udevice *dev)
 	ret = clk_enable_bulk(&priv->clks);
 	if (ret)
 		goto out;
+
+	if (priv->reset_ctl) {
+		ret = reset_deassert(priv->reset_ctl);
+		if (ret)
+			goto out;
+	}
 
 	/*
 	 * If DM MDIO is enabled, the MDIO bus will be initialized later in
@@ -629,6 +639,8 @@ static int ftgmac100_remove(struct udevice *dev)
 	free(priv->phydev);
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
+	if (priv->reset_ctl)
+		reset_assert(priv->reset_ctl);
 	clk_release_bulk(&priv->clks);
 
 	return 0;

@@ -29,6 +29,7 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/of_extra.h>
+#include <linux/bitfield.h>
 #include <linux/delay.h>
 #include <miiphy.h>
 #include <net/dsa.h>
@@ -110,20 +111,35 @@
  */
 #define SMI_BUSY			BIT(15)
 #define SMI_CMD_CLAUSE_22		BIT(12)
-#define SMI_CMD_CLAUSE_22_OP_READ	(2 << 10)
-#define SMI_CMD_CLAUSE_22_OP_WRITE	(1 << 10)
-#define SMI_CMD_ADDR_SHIFT		5
-#define SMI_CMD_ADDR_MASK		0x1f
-#define SMI_CMD_REG_SHIFT		0
-#define SMI_CMD_REG_MASK		0x1f
+#define SMI_CMD_OP_MASK			GENMASK(11, 10)
+#define SMI_CMD_CLAUSE_22_OP_WRITE	0x1
+#define SMI_CMD_CLAUSE_22_OP_READ	0x2
+#define SMI_CMD_CLAUSE_45_OP_WRITE_ADDR	0x0
+#define SMI_CMD_CLAUSE_45_OP_WRITE	0x1
+#define SMI_CMD_CLAUSE_45_OP_READ	0x3
+
+#define SMI_CMD_ADDR_MASK		GENMASK(9, 5)
+#define SMI_CMD_REG_MASK		GENMASK(4, 0)
 #define SMI_CMD_READ(addr, reg) \
-	(SMI_BUSY | SMI_CMD_CLAUSE_22 | SMI_CMD_CLAUSE_22_OP_READ) | \
-	(((addr) & SMI_CMD_ADDR_MASK) << SMI_CMD_ADDR_SHIFT) | \
-	(((reg) & SMI_CMD_REG_MASK) << SMI_CMD_REG_SHIFT)
+	(SMI_BUSY | SMI_CMD_CLAUSE_22 | FIELD_PREP(SMI_CMD_OP_MASK, SMI_CMD_CLAUSE_22_OP_READ)) | \
+	(FIELD_PREP(SMI_CMD_ADDR_MASK, addr)) | \
+	(FIELD_PREP(SMI_CMD_REG_MASK, reg))
 #define SMI_CMD_WRITE(addr, reg) \
-	(SMI_BUSY | SMI_CMD_CLAUSE_22 | SMI_CMD_CLAUSE_22_OP_WRITE) | \
-	(((addr) & SMI_CMD_ADDR_MASK) << SMI_CMD_ADDR_SHIFT) | \
-	(((reg) & SMI_CMD_REG_MASK) << SMI_CMD_REG_SHIFT)
+	(SMI_BUSY | SMI_CMD_CLAUSE_22 | FIELD_PREP(SMI_CMD_OP_MASK, SMI_CMD_CLAUSE_22_OP_WRITE)) | \
+	(FIELD_PREP(SMI_CMD_ADDR_MASK, addr)) | \
+	(FIELD_PREP(SMI_CMD_REG_MASK, reg))
+#define SMI_CMD_SET_C45_ADDR(phyad, devad) \
+	(SMI_BUSY | FIELD_PREP(SMI_CMD_OP_MASK, SMI_CMD_CLAUSE_45_OP_WRITE_ADDR)) | \
+	(FIELD_PREP(SMI_CMD_ADDR_MASK, phyad)) | \
+	(FIELD_PREP(SMI_CMD_REG_MASK, devad))
+#define SMI_CMD_READ_C45(phyad, devad) \
+	(SMI_BUSY | FIELD_PREP(SMI_CMD_OP_MASK, SMI_CMD_CLAUSE_45_OP_READ)) | \
+	(FIELD_PREP(SMI_CMD_ADDR_MASK, phyad)) | \
+	(FIELD_PREP(SMI_CMD_REG_MASK, devad))
+#define SMI_CMD_WRITE_C45(phyad, devad) \
+	(SMI_BUSY | FIELD_PREP(SMI_CMD_OP_MASK, SMI_CMD_CLAUSE_45_OP_WRITE)) | \
+	(FIELD_PREP(SMI_CMD_ADDR_MASK, phyad)) | \
+	(FIELD_PREP(SMI_CMD_REG_MASK, devad))
 
 /* ID register values for different switch models */
 #define PORT_SWITCH_ID_6020		0x0200
@@ -272,12 +288,37 @@ static int mv88e6xxx_phy_wait(struct udevice *dev)
 static int mv88e6xxx_phy_read_indirect(struct udevice *dev, int phyad, int devad, int reg)
 {
 	struct mv88e6xxx_priv *priv = dev_get_priv(dev);
+	u16 smi_cmd;
 	int res;
+
+	if (devad >= 0) {
+		/*
+		 * For C45 we need to write the register address into the
+		 * PHY Data register first and then call the Write Address
+		 * Register OP in the PHY command register.
+		 */
+		res = mv88e6xxx_reg_write(dev, priv->global2,
+					  GLOBAL2_REG_PHY_DATA,
+					  reg);
+
+		res = mv88e6xxx_reg_write(dev, priv->global2,
+					  GLOBAL2_REG_PHY_CMD,
+					  SMI_CMD_SET_C45_ADDR(phyad, devad));
+
+		/* Wait for busy bit to clear */
+		res = mv88e6xxx_phy_wait(dev);
+		if (res < 0)
+			return res;
+
+		/* Set the actual C45 or C22 OP-s */
+		smi_cmd = SMI_CMD_READ_C45(phyad, devad);
+	} else
+		smi_cmd = SMI_CMD_READ(phyad, reg);
 
 	/* Issue command to read */
 	res = mv88e6xxx_reg_write(dev, priv->global2,
 				  GLOBAL2_REG_PHY_CMD,
-				  SMI_CMD_READ(phyad, reg));
+				  smi_cmd);
 
 	/* Wait for data to be read */
 	res = mv88e6xxx_phy_wait(dev);
@@ -293,7 +334,32 @@ static int mv88e6xxx_phy_write_indirect(struct udevice *dev, int phyad,
 					int devad, int reg, u16 data)
 {
 	struct mv88e6xxx_priv *priv = dev_get_priv(dev);
+	u16 smi_cmd;
 	int res;
+
+	if (devad >= 0) {
+		/*
+		 * For C45 we need to write the register address into the
+		 * PHY Data register first and then call the Write Address
+		 * Register OP in the PHY command register.
+		 */
+		res = mv88e6xxx_reg_write(dev, priv->global2,
+					  GLOBAL2_REG_PHY_DATA,
+					  reg);
+
+		res = mv88e6xxx_reg_write(dev, priv->global2,
+					  GLOBAL2_REG_PHY_CMD,
+					  SMI_CMD_SET_C45_ADDR(phyad, devad));
+
+		/* Wait for busy bit to clear */
+		res = mv88e6xxx_phy_wait(dev);
+		if (res < 0)
+			return res;
+
+		/* Set the actual C45 or C22 OP-s */
+		smi_cmd = SMI_CMD_WRITE_C45(phyad, devad);
+	} else
+		smi_cmd = SMI_CMD_WRITE(phyad, reg);
 
 	/* Set the data to write */
 	res = mv88e6xxx_reg_write(dev, priv->global2,
@@ -303,7 +369,7 @@ static int mv88e6xxx_phy_write_indirect(struct udevice *dev, int phyad,
 	/* Issue the write command */
 	res = mv88e6xxx_reg_write(dev, priv->global2,
 				  GLOBAL2_REG_PHY_CMD,
-				  SMI_CMD_WRITE(phyad, reg));
+				  smi_cmd);
 	if (res < 0)
 		return res;
 

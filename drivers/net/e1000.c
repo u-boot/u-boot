@@ -5718,15 +5718,9 @@ static const struct eth_ops e1000_eth_ops = {
 	.write_hwaddr = e1000_write_hwaddr,
 };
 
-static const struct udevice_id e1000_eth_ids[] = {
-	{ .compatible = "intel,e1000" },
-	{ }
-};
-
 U_BOOT_DRIVER(eth_e1000) = {
 	.name	= "eth_e1000",
 	.id	= UCLASS_ETH,
-	.of_match = e1000_eth_ids,
 	.bind	= e1000_eth_bind,
 	.probe	= e1000_eth_probe,
 	.ops	= &e1000_eth_ops,

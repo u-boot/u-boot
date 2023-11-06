@@ -81,7 +81,10 @@
 
 /* RGMIIDCTL bits */
 #define DP83869_RGMII_TX_CLK_DELAY_SHIFT	4
-#define DP83869_CLK_DELAY_DEF				7
+#define DP83869_CLK_DELAY_STEP			250
+#define DP83869_CLK_DELAY_MIN			250
+#define DP83869_CLK_DELAY_MAX			4000
+#define DP83869_CLK_DELAY_DEFAULT		2000
 
 /* CFG2 bits */
 #define MII_DP83869_CFG2_SPEEDOPT_10EN		0x0040
@@ -157,10 +160,6 @@ static int dp83869_config_port_mirroring(struct phy_device *phydev)
 	return 0;
 }
 
-static const int dp83869_internal_delay[] = {250, 500, 750, 1000, 1250, 1500,
-					     1750, 2000, 2250, 2500, 2750, 3000,
-					     3250, 3500, 3750, 4000};
-
 static int dp83869_set_strapped_mode(struct phy_device *phydev)
 {
 	struct dp83869_private *dp83869 = phydev->priv;
@@ -183,7 +182,6 @@ static int dp83869_set_strapped_mode(struct phy_device *phydev)
 static int dp83869_of_init(struct phy_device *phydev)
 {
 	struct dp83869_private * const dp83869 = phydev->priv;
-	const int delay_entries = ARRAY_SIZE(dp83869_internal_delay);
 	int ret;
 	ofnode node;
 
@@ -238,32 +236,45 @@ static int dp83869_of_init(struct phy_device *phydev)
 	dp83869->tx_fifo_depth = ofnode_read_s32_default(node, "tx-fifo-depth",
 							 DP83869_PHYCR_FIFO_DEPTH_4_B_NIB);
 
+	/* Internal clock delay values can be configured in steps of
+	 * 250ps (0.25ns). The register field for clock delay is 4-bits wide,
+	 * the values range from 0b0000 for 0.25ns to 0b1111 for 4ns.
+	 */
+
 	/* RX delay *must* be specified if internal delay of RX is used. */
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID) {
-		dp83869->rx_int_delay = ofnode_read_u32_default(node, "rx-internal-delay-ps",
-								DP83869_CLK_DELAY_DEF);
-		if (dp83869->rx_int_delay > delay_entries) {
-			dp83869->rx_int_delay = DP83869_CLK_DELAY_DEF;
-			pr_debug("rx-internal-delay-ps not set/invalid, default to %ups\n",
-				 dp83869_internal_delay[dp83869->rx_int_delay]);
+		dp83869->rx_int_delay = ofnode_read_u32_default(node,
+			"rx-internal-delay-ps", DP83869_CLK_DELAY_DEFAULT);
+		if (dp83869->rx_int_delay > DP83869_CLK_DELAY_MAX ||
+		    dp83869->rx_int_delay < DP83869_CLK_DELAY_MIN ||
+		    dp83869->rx_int_delay % DP83869_CLK_DELAY_STEP) {
+			dp83869->rx_int_delay = DP83869_CLK_DELAY_DEFAULT;
+			pr_warn("rx-internal-delay-ps not set/invalid, default"
+				" to %ups\n", DP83869_CLK_DELAY_DEFAULT);
 		}
 
-		dp83869->rx_int_delay = dp83869_internal_delay[dp83869->rx_int_delay];
+		dp83869->rx_int_delay =
+			(dp83869->rx_int_delay - DP83869_CLK_DELAY_STEP)
+			/ DP83869_CLK_DELAY_STEP;
 	}
 
-	/* TX delay *must* be specified if internal delay of RX is used. */
+	/* TX delay *must* be specified if internal delay of TX is used. */
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
-		dp83869->tx_int_delay = ofnode_read_u32_default(node, "tx-internal-delay-ps",
-								DP83869_CLK_DELAY_DEF);
-		if (dp83869->tx_int_delay > delay_entries) {
-			dp83869->tx_int_delay = DP83869_CLK_DELAY_DEF;
-			pr_debug("tx-internal-delay-ps not set/invalid, default to %ups\n",
-				 dp83869_internal_delay[dp83869->tx_int_delay]);
+		dp83869->tx_int_delay = ofnode_read_u32_default(node,
+			"tx-internal-delay-ps", DP83869_CLK_DELAY_DEFAULT);
+		if (dp83869->tx_int_delay > DP83869_CLK_DELAY_MAX ||
+		    dp83869->tx_int_delay < DP83869_CLK_DELAY_MIN ||
+		    dp83869->tx_int_delay % DP83869_CLK_DELAY_STEP) {
+			dp83869->tx_int_delay = DP83869_CLK_DELAY_DEFAULT;
+			pr_warn("tx-internal-delay-ps not set/invalid, default"
+				" to %ups\n", DP83869_CLK_DELAY_DEFAULT);
 		}
 
-		dp83869->tx_int_delay = dp83869_internal_delay[dp83869->tx_int_delay];
+		dp83869->tx_int_delay =
+			(dp83869->tx_int_delay - DP83869_CLK_DELAY_STEP)
+			/ DP83869_CLK_DELAY_STEP;
 	}
 
 	return 0;
