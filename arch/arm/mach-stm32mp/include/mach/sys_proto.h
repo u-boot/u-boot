@@ -66,6 +66,9 @@ void get_soc_name(char name[SOC_NAME_SIZE]);
 /* return boot mode */
 u32 get_bootmode(void);
 
+/* return auth status and partition */
+u32 get_bootauth(void);
+
 int get_eth_nb(void);
 int setup_mac_address(void);
 
