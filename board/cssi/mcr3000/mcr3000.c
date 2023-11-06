@@ -7,7 +7,6 @@
  * Board specific routines for the MCR3000 board
  */
 
-#include <common.h>
 #include <env.h>
 #include <hwconfig.h>
 #include <init.h>
