@@ -18,6 +18,10 @@
 #include <u-boot/zlib.h>
 #endif
 
+#if IS_ENABLED(CONFIG_LZ4)
+#include <u-boot/lz4.h>
+#endif
+
 #if IS_ENABLED(CONFIG_ZSTD)
 #include <linux/zstd.h>
 #endif
@@ -36,6 +40,10 @@ int sqfs_decompressor_init(struct squashfs_ctxt *ctxt)
 #endif
 #if IS_ENABLED(CONFIG_ZLIB)
 	case SQFS_COMP_ZLIB:
+		break;
+#endif
+#if IS_ENABLED(CONFIG_LZ4)
+	case SQFS_COMP_LZ4:
 		break;
 #endif
 #if IS_ENABLED(CONFIG_ZSTD)
@@ -64,6 +72,10 @@ void sqfs_decompressor_cleanup(struct squashfs_ctxt *ctxt)
 #endif
 #if IS_ENABLED(CONFIG_ZLIB)
 	case SQFS_COMP_ZLIB:
+		break;
+#endif
+#if IS_ENABLED(CONFIG_LZ4)
+	case SQFS_COMP_LZ4:
 		break;
 #endif
 #if IS_ENABLED(CONFIG_ZSTD)
@@ -137,6 +149,17 @@ int sqfs_decompress(struct squashfs_ctxt *ctxt, void *dest,
 			return -EINVAL;
 		}
 
+		break;
+#endif
+#if IS_ENABLED(CONFIG_LZ4)
+	case SQFS_COMP_LZ4:
+		ret = LZ4_decompress_safe(source, dest, src_len, *dest_len);
+		if (ret < 0) {
+			printf("LZ4 decompression failed.\n");
+			return -EINVAL;
+		}
+
+		ret = 0;
 		break;
 #endif
 #if IS_ENABLED(CONFIG_ZSTD)
