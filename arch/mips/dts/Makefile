@@ -14,6 +14,7 @@ dtb-$(CONFIG_BOARD_COMTREND_CT5361) += comtrend,ct-5361.dtb
 dtb-$(CONFIG_BOARD_COMTREND_VR3032U) += comtrend,vr-3032u.dtb
 dtb-$(CONFIG_BOARD_COMTREND_WAP5813N) += comtrend,wap-5813n.dtb
 dtb-$(CONFIG_BOARD_HUAWEI_HG556A) += huawei,hg556a.dtb
+dtb-$(CONFIG_BOARD_INTENO_XG6846) += inteno,xg6846.dtb
 dtb-$(CONFIG_BOARD_MT7620_RFB) += mediatek,mt7620-rfb.dtb
 dtb-$(CONFIG_BOARD_MT7620_MT7530_RFB) += mediatek,mt7620-mt7530-rfb.dtb
 dtb-$(CONFIG_BOARD_MT7621_RFB) += mediatek,mt7621-rfb.dtb
