@@ -83,7 +83,7 @@ void clk_bcr_update(phys_addr_t apps_cmd_rcgr)
 
 /* root set rate for clocks with half integer and MND divider */
 void clk_rcg_set_rate_mnd(phys_addr_t base, const struct bcr_regs *regs,
-			  int div, int m, int n, int source)
+			  int div, int m, int n, int source, u8 mnd_width)
 {
 	u32 cfg;
 	/* M value for MND divider. */
@@ -92,11 +92,14 @@ void clk_rcg_set_rate_mnd(phys_addr_t base, const struct bcr_regs *regs,
 	u32 n_val = ~((n) - (m)) * !!(n);
 	/* NOT 2D value for MND divider. */
 	u32 d_val = ~(n);
+	u32 mask = BIT(mnd_width) - 1;
+
+	debug("m %#x n %#x d %#x div %#x mask %#x\n", m_val, n_val, d_val, div, mask);
 
 	/* Program MND values */
-	writel(m_val, base + regs->M);
-	writel(n_val, base + regs->N);
-	writel(d_val, base + regs->D);
+	writel(m_val & mask, base + regs->M);
+	writel(n_val & mask, base + regs->N);
+	writel(d_val & mask, base + regs->D);
 
 	/* setup src select and divider */
 	cfg  = readl(base + regs->cfg_rcgr);

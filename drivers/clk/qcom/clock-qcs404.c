@@ -195,7 +195,7 @@ static ulong qcs404_clk_set_rate(struct clk *clk, ulong rate)
 	case GCC_BLSP1_UART2_APPS_CLK:
 		/* UART: 115200 */
 		clk_rcg_set_rate_mnd(priv->base, &uart2_regs, 0, 12, 125,
-				     CFG_CLK_SRC_CXO);
+				     CFG_CLK_SRC_CXO, 16);
 		clk_enable_cbc(priv->base + BLSP1_UART2_APPS_CBCR);
 		break;
 	case GCC_BLSP1_AHB_CLK:
@@ -204,7 +204,7 @@ static ulong qcs404_clk_set_rate(struct clk *clk, ulong rate)
 	case GCC_SDCC1_APPS_CLK:
 		/* SDCC1: 200MHz */
 		clk_rcg_set_rate_mnd(priv->base, &sdc_regs, 4, 0, 0,
-				     CFG_CLK_SRC_GPLL0);
+				     CFG_CLK_SRC_GPLL0, 8);
 		clk_enable_gpll0(priv->base, &gpll0_vote_clk);
 		clk_enable_cbc(priv->base + SDCC_APPS_CBCR(1));
 		break;
@@ -214,16 +214,16 @@ static ulong qcs404_clk_set_rate(struct clk *clk, ulong rate)
 	case GCC_ETH_RGMII_CLK:
 		if (rate == 250000000)
 			clk_rcg_set_rate_mnd(priv->base, &emac_regs, 2, 0, 0,
-					     CFG_CLK_SRC_GPLL1);
+					     CFG_CLK_SRC_GPLL1, 8);
 		else if (rate == 125000000)
 			clk_rcg_set_rate_mnd(priv->base, &emac_regs, 4, 0, 0,
-					     CFG_CLK_SRC_GPLL1);
+					     CFG_CLK_SRC_GPLL1, 8);
 		else if (rate == 50000000)
 			clk_rcg_set_rate_mnd(priv->base, &emac_regs, 10, 0, 0,
-					     CFG_CLK_SRC_GPLL1);
+					     CFG_CLK_SRC_GPLL1, 8);
 		else if (rate == 5000000)
 			clk_rcg_set_rate_mnd(priv->base, &emac_regs, 2, 1, 50,
-					     CFG_CLK_SRC_GPLL1);
+					     CFG_CLK_SRC_GPLL1, 8);
 		break;
 	default:
 		return 0;
@@ -240,7 +240,7 @@ static int qcs404_clk_enable(struct clk *clk)
 	case GCC_USB30_MASTER_CLK:
 		clk_enable_cbc(priv->base + USB30_MASTER_CBCR);
 		clk_rcg_set_rate_mnd(priv->base, &usb30_master_regs, 4, 0, 0,
-				     CFG_CLK_SRC_GPLL0);
+				     CFG_CLK_SRC_GPLL0, 8);
 		break;
 	case GCC_SYS_NOC_USB3_CLK:
 		clk_enable_cbc(priv->base + SYS_NOC_USB3_CBCR);
@@ -262,14 +262,14 @@ static int qcs404_clk_enable(struct clk *clk)
 		clk_enable_cbc(priv->base + ETH_PTP_CBCR);
 		clk_enable_gpll0(priv->base, &gpll1_vote_clk);
 		clk_rcg_set_rate_mnd(priv->base, &emac_ptp_regs, 2, 0, 0,
-				     CFG_CLK_SRC_GPLL1);
+				     CFG_CLK_SRC_GPLL1, 8);
 		break;
 	case GCC_ETH_RGMII_CLK:
 		/* SPEED_1000: freq -> 250MHz */
 		clk_enable_cbc(priv->base + ETH_RGMII_CBCR);
 		clk_enable_gpll0(priv->base, &gpll1_vote_clk);
 		clk_rcg_set_rate_mnd(priv->base, &emac_regs, 2, 0, 0,
-				     CFG_CLK_SRC_GPLL1);
+				     CFG_CLK_SRC_GPLL1, 8);
 		break;
 	case GCC_ETH_SLAVE_AHB_CLK:
 		clk_enable_cbc(priv->base + ETH_SLAVE_AHB_CBCR);
