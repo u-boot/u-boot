@@ -99,3 +99,19 @@ int msm_enable(struct clk *clk)
 {
 	return 0;
 }
+
+static const struct udevice_id gcc_apq8096_of_match[] = {
+	{
+		.compatible = "qcom,gcc-apq8096",
+		/* TODO: add reset map */
+	},
+	{ }
+};
+
+U_BOOT_DRIVER(gcc_apq8096) = {
+	.name		= "gcc_apq8096",
+	.id		= UCLASS_NOP,
+	.of_match	= gcc_apq8096_of_match,
+	.bind		= qcom_cc_bind,
+	.flags		= DM_FLAG_PRE_RELOC,
+};

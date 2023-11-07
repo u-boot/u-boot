@@ -1,8 +1,13 @@
-// SPDX-License-Identifier: BSD-3-Clause
+// SPDX-License-Identifier: BSD-3-Clause AND GPL-2.0
 /*
- * Clock drivers for Qualcomm APQ8016, APQ8096
+ * Clock and reset drivers for Qualcomm platforms Global Clock
+ * Controller (GCC).
  *
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
+ * (C) Copyright 2020 Sartura Ltd. (reset driver)
+ *     Author: Robert Marko <robert.marko@sartura.hr>
+ * (C) Copyright 2022 Linaro Ltd. (reset driver)
+ *     Author: Sumit Garg <sumit.garg@linaro.org>
  *
  * Based on Little Kernel driver, simplified
  */
@@ -10,9 +15,13 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <errno.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <reset-uclass.h>
+
 #include "clock-qcom.h"
 
 /* CBCR register fields */
@@ -137,11 +146,14 @@ void clk_rcg_set_rate(phys_addr_t base, const struct bcr_regs *regs, int div,
 
 static int msm_clk_probe(struct udevice *dev)
 {
+	struct msm_clk_data *data = (struct msm_clk_data *)dev_get_driver_data(dev);
 	struct msm_clk_priv *priv = dev_get_priv(dev);
 
 	priv->base = dev_read_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
+
+	priv->data = data;
 
 	return 0;
 }
@@ -161,22 +173,97 @@ static struct clk_ops msm_clk_ops = {
 	.enable = msm_clk_enable,
 };
 
-static const struct udevice_id msm_clk_ids[] = {
-	{ .compatible = "qcom,gcc-msm8916" },
-	{ .compatible = "qcom,gcc-apq8016" },
-	{ .compatible = "qcom,gcc-msm8996" },
-	{ .compatible = "qcom,gcc-apq8096" },
-	{ .compatible = "qcom,gcc-ipq4019" },
-	{ .compatible = "qcom,gcc-sdm845" },
-	{ .compatible = "qcom,gcc-qcs404" },
-	{ }
-};
-
-U_BOOT_DRIVER(clk_msm) = {
-	.name		= "clk_msm",
+U_BOOT_DRIVER(qcom_clk) = {
+	.name		= "qcom_clk",
 	.id		= UCLASS_CLK,
-	.of_match	= msm_clk_ids,
 	.ops		= &msm_clk_ops,
 	.priv_auto	= sizeof(struct msm_clk_priv),
 	.probe		= msm_clk_probe,
+};
+
+int qcom_cc_bind(struct udevice *parent)
+{
+	struct msm_clk_data *data = (struct msm_clk_data *)dev_get_driver_data(parent);
+	struct udevice *clkdev, *rstdev;
+	struct driver *drv;
+	int ret;
+
+	/* Get a handle to the common clk handler */
+	drv = lists_driver_lookup_name("qcom_clk");
+	if (!drv)
+		return -ENOENT;
+
+	/* Register the clock controller */
+	ret = device_bind_with_driver_data(parent, drv, "qcom_clk", (ulong)data,
+					   dev_ofnode(parent), &clkdev);
+	if (ret)
+		return ret;
+
+	/* Bail out early if resets are not specified for this platform */
+	if (!data->resets)
+		return ret;
+
+	/* Get a handle to the common reset handler */
+	drv = lists_driver_lookup_name("qcom_reset");
+	if (!drv)
+		return -ENOENT;
+
+	/* Register the reset controller */
+	ret = device_bind_with_driver_data(parent, drv, "qcom_reset", (ulong)data,
+					   dev_ofnode(parent), &rstdev);
+	if (ret)
+		device_unbind(clkdev);
+
+	return ret;
+}
+
+static int qcom_reset_set(struct reset_ctl *rst, bool assert)
+{
+	struct msm_clk_data *data = (struct msm_clk_data *)dev_get_driver_data(rst->dev);
+	void __iomem *base = dev_get_priv(rst->dev);
+	const struct qcom_reset_map *map;
+	u32 value;
+
+	map = &data->resets[rst->id];
+
+	value = readl(base + map->reg);
+
+	if (assert)
+		value |= BIT(map->bit);
+	else
+		value &= ~BIT(map->bit);
+
+	writel(value, base + map->reg);
+
+	return 0;
+}
+
+static int qcom_reset_assert(struct reset_ctl *rst)
+{
+	return qcom_reset_set(rst, true);
+}
+
+static int qcom_reset_deassert(struct reset_ctl *rst)
+{
+	return qcom_reset_set(rst, false);
+}
+
+static const struct reset_ops qcom_reset_ops = {
+	.rst_assert = qcom_reset_assert,
+	.rst_deassert = qcom_reset_deassert,
+};
+
+static int qcom_reset_probe(struct udevice *dev)
+{
+	/* Set our priv pointer to the base address */
+	dev_set_priv(dev, (void *)dev_read_addr(dev));
+
+	return 0;
+}
+
+U_BOOT_DRIVER(qcom_reset) = {
+	.name = "qcom_reset",
+	.id = UCLASS_RESET,
+	.ops = &qcom_reset_ops,
+	.probe = qcom_reset_probe,
 };

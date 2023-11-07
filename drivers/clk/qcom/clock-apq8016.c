@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+
 #include "clock-qcom.h"
 
 /* GPLL0 clock control registers */
@@ -116,3 +117,19 @@ int msm_enable(struct clk *clk)
 {
 	return 0;
 }
+
+static const struct udevice_id gcc_apq8016_of_match[] = {
+	{
+		.compatible = "qcom,gcc-apq8016",
+		/* TODO: add reset map */
+	},
+	{ }
+};
+
+U_BOOT_DRIVER(gcc_apq8016) = {
+	.name		= "gcc_apq8016",
+	.id		= UCLASS_NOP,
+	.of_match	= gcc_apq8016_of_match,
+	.bind		= qcom_cc_bind,
+	.flags		= DM_FLAG_PRE_RELOC,
+};

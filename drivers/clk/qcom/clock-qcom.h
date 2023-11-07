@@ -1,11 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Qualcomm APQ8016, APQ8096, SDM845
- *
  * (C) Copyright 2017 Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
  */
-#ifndef _CLOCK_SNAPDRAGON_H
-#define _CLOCK_SNAPDRAGON_H
+#ifndef _CLOCK_QCOM_H
+#define _CLOCK_QCOM_H
 
 #define CFG_CLK_SRC_CXO   (0 << 8)
 #define CFG_CLK_SRC_GPLL0 (1 << 8)
@@ -32,10 +30,22 @@ struct bcr_regs {
 	uintptr_t D;
 };
 
-struct msm_clk_priv {
-	phys_addr_t base;
+struct qcom_reset_map {
+	unsigned int reg;
+	u8 bit;
 };
 
+struct msm_clk_data {
+	const struct qcom_reset_map	*resets;
+	unsigned long			num_resets;
+};
+
+struct msm_clk_priv {
+	phys_addr_t		base;
+	struct msm_clk_data	*data;
+};
+
+int qcom_cc_bind(struct udevice *parent);
 void clk_enable_gpll0(phys_addr_t base, const struct pll_vote_clk *gpll0);
 void clk_bcr_update(phys_addr_t apps_cmd_rgcr);
 void clk_enable_cbc(phys_addr_t cbcr);
