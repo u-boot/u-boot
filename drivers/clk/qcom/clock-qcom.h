@@ -5,6 +5,8 @@
 #ifndef _CLOCK_QCOM_H
 #define _CLOCK_QCOM_H
 
+#include <asm/io.h>
+
 #define CFG_CLK_SRC_CXO   (0 << 8)
 #define CFG_CLK_SRC_GPLL0 (1 << 8)
 #define CFG_CLK_SRC_GPLL0_EVEN (6 << 8)
@@ -30,6 +32,18 @@ struct bcr_regs {
 	uintptr_t D;
 };
 
+struct gate_clk {
+	uintptr_t reg;
+	u32 en_val;
+	const char *name;
+};
+
+#ifdef DEBUG
+#define GATE_CLK(clk, reg, val) [clk] = { reg, val, #clk }
+#else
+#define GATE_CLK(clk, reg, val) [clk] = { reg, val, NULL }
+#endif
+
 struct qcom_reset_map {
 	unsigned int reg;
 	u8 bit;
@@ -38,6 +52,8 @@ struct qcom_reset_map {
 struct msm_clk_data {
 	const struct qcom_reset_map	*resets;
 	unsigned long			num_resets;
+	const struct gate_clk		*clks;
+	unsigned long			num_clks;
 };
 
 struct msm_clk_priv {
@@ -54,5 +70,15 @@ void clk_rcg_set_rate_mnd(phys_addr_t base, const struct bcr_regs *regs,
 			  int div, int m, int n, int source);
 void clk_rcg_set_rate(phys_addr_t base, const struct bcr_regs *regs, int div,
 		      int source);
+
+static inline void qcom_gate_clk_en(const struct msm_clk_priv *priv, unsigned long id)
+{
+	u32 val;
+	if (id >= priv->data->num_clks || priv->data->clks[id].reg == 0)
+		return;
+
+	val = readl(priv->base + priv->data->clks[id].reg);
+	writel(val | priv->data->clks[id].en_val, priv->base + priv->data->clks[id].reg);
+}
 
 #endif
