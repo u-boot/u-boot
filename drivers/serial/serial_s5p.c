@@ -7,7 +7,6 @@
  * based on drivers/serial/s3c64xx.c
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
