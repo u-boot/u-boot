@@ -20,8 +20,6 @@
 #include <serial.h>
 #include <clk.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum {
 	PORT_S5P = 0,
 	PORT_S5L
@@ -220,8 +218,7 @@ static int s5p_serial_of_to_plat(struct udevice *dev)
 
 	plat->reg = (struct s5p_uart *)addr;
 	plat->reg_width = dev_read_u32_default(dev, "reg-io-width", 1);
-	plat->port_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					"id", dev_seq(dev));
+	plat->port_id = dev_read_u8_default(dev, "id", dev_seq(dev));
 
 	if (port_type == PORT_S5L) {
 		plat->rx_fifo_count_shift = S5L_RX_FIFO_COUNT_SHIFT;
