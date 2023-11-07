@@ -327,6 +327,7 @@ struct fsg_common {
 	unsigned int		short_packet_received:1;
 	unsigned int		bad_lun_okay:1;
 	unsigned int		running:1;
+	unsigned int		eject:1;
 
 	int			thread_wakeup_needed;
 	struct completion	thread_notifier;
@@ -669,6 +670,10 @@ static int sleep_thread(struct fsg_common *common)
 		}
 
 		if (k == 10) {
+			/* Handle START-STOP UNIT */
+			if (common->eject)
+				return -EPIPE;
+
 			/* Handle CTRL+C */
 			if (ctrlc())
 				return -EPIPE;
@@ -1324,6 +1329,8 @@ static int do_start_stop(struct fsg_common *common)
 		curlun->sense_data = SS_INVALID_COMMAND;
 		return -EINVAL;
 	}
+
+	common->eject = 1;
 
 	return 0;
 }
