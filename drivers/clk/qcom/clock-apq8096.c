@@ -65,7 +65,7 @@ static struct vote_clk gcc_blsp2_ahb_clk = {
 
 static int clk_init_sdc(struct msm_clk_priv *priv, uint rate)
 {
-	int div = 3;
+	int div = 5;
 
 	clk_enable_cbc(priv->base + SDCC2_AHB_CBCR);
 	clk_rcg_set_rate_mnd(priv->base, &sdc_regs, div, 0, 0,

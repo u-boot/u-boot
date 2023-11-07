@@ -78,7 +78,7 @@ static struct vote_clk gcc_blsp1_ahb_clk = {
 /* SDHCI */
 static int clk_init_sdc(struct msm_clk_priv *priv, int slot, uint rate)
 {
-	int div = 8; /* 100MHz default */
+	int div = 15; /* 100MHz default */
 
 	if (rate == 200000000)
 		div = 4;

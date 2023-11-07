@@ -19,6 +19,8 @@
 #include <dm/lists.h>
 #include <errno.h>
 #include <asm/io.h>
+#include <linux/bug.h>
+#include <linux/delay.h>
 #include <linux/bitops.h>
 #include <reset-uclass.h>
 
@@ -68,30 +70,42 @@ void clk_enable_vote_clk(phys_addr_t base, const struct vote_clk *vclk)
 /* Update clock command via CMD_RCGR */
 void clk_bcr_update(phys_addr_t apps_cmd_rcgr)
 {
+	u32 count;
 	setbits_le32(apps_cmd_rcgr, APPS_CMD_RCGR_UPDATE);
 
 	/* Wait for frequency to be updated. */
-	while (readl(apps_cmd_rcgr) & APPS_CMD_RCGR_UPDATE)
-		;
+	for (count = 0; count < 50000; count++) {
+		if (!(readl(apps_cmd_rcgr) & APPS_CMD_RCGR_UPDATE))
+			break;
+		udelay(1);
+	}
+	WARN(count == 50000, "WARNING: RCG @ %#llx [%#010x] stuck at off\n",
+	     apps_cmd_rcgr, readl(apps_cmd_rcgr));
 }
 
-#define CFG_MODE_DUAL_EDGE (0x2 << 12) /* Counter mode */
+#define CFG_SRC_DIV_MASK	0b11111
+#define CFG_SRC_SEL_SHIFT	8
+#define CFG_SRC_SEL_MASK	(0x7 << CFG_SRC_SEL_SHIFT)
+#define CFG_MODE_SHIFT		12
+#define CFG_MODE_MASK		(0x3 << CFG_MODE_SHIFT)
+#define CFG_MODE_DUAL_EDGE	(0x2 << CFG_MODE_SHIFT)
+#define CFG_HW_CLK_CTRL_MASK	BIT(20)
 
-#define CFG_MASK 0x3FFF
-
-#define CFG_DIVIDER_MASK 0x1F
-
-/* root set rate for clocks with half integer and MND divider */
+/*
+ * root set rate for clocks with half integer and MND divider
+ * div should be pre-calculated ((div * 2) - 1)
+ */
 void clk_rcg_set_rate_mnd(phys_addr_t base, const struct bcr_regs *regs,
 			  int div, int m, int n, int source, u8 mnd_width)
 {
 	u32 cfg;
 	/* M value for MND divider. */
 	u32 m_val = m;
+	u32 n_minus_m = n - m;
 	/* NOT(N-M) value for MND divider. */
-	u32 n_val = ~((n) - (m)) * !!(n);
+	u32 n_val = ~n_minus_m * !!(n);
 	/* NOT 2D value for MND divider. */
-	u32 d_val = ~(n);
+	u32 d_val = ~(clamp_t(u32, n, m, n_minus_m));
 	u32 mask = BIT(mnd_width) - 1;
 
 	debug("m %#x n %#x d %#x div %#x mask %#x\n", m_val, n_val, d_val, div, mask);
@@ -103,15 +117,13 @@ void clk_rcg_set_rate_mnd(phys_addr_t base, const struct bcr_regs *regs,
 
 	/* setup src select and divider */
 	cfg  = readl(base + regs->cfg_rcgr);
-	cfg &= ~CFG_MASK;
-	cfg |= source & CFG_CLK_SRC_MASK; /* Select clock source */
+	cfg &= ~(CFG_SRC_SEL_MASK | CFG_MODE_MASK | CFG_HW_CLK_CTRL_MASK);
+	cfg |= source & CFG_SRC_SEL_MASK; /* Select clock source */
 
-	/* Set the divider; HW permits fraction dividers (+0.5), but
-	   for simplicity, we will support integers only */
 	if (div)
-		cfg |= (2 * div - 1) & CFG_DIVIDER_MASK;
+		cfg |= div & CFG_SRC_DIV_MASK;
 
-	if (n_val)
+	if (n && n != m)
 		cfg |= CFG_MODE_DUAL_EDGE;
 
 	writel(cfg, base + regs->cfg_rcgr); /* Write new clock configuration */
@@ -128,7 +140,7 @@ void clk_rcg_set_rate(phys_addr_t base, const struct bcr_regs *regs, int div,
 
 	/* setup src select and divider */
 	cfg  = readl(base + regs->cfg_rcgr);
-	cfg &= ~CFG_MASK;
+	cfg &= ~(CFG_SRC_SEL_MASK | CFG_MODE_MASK | CFG_HW_CLK_CTRL_MASK);
 	cfg |= source & CFG_CLK_SRC_MASK; /* Select clock source */
 
 	/*
@@ -136,12 +148,28 @@ void clk_rcg_set_rate(phys_addr_t base, const struct bcr_regs *regs, int div,
 	 * for simplicity, we will support integers only
 	 */
 	if (div)
-		cfg |= (2 * div - 1) & CFG_DIVIDER_MASK;
+		cfg |= (2 * div - 1) & CFG_SRC_DIV_MASK;
 
 	writel(cfg, base + regs->cfg_rcgr); /* Write new clock configuration */
 
 	/* Inform h/w to start using the new config. */
 	clk_bcr_update(base + regs->cmd_rcgr);
+}
+
+const struct freq_tbl *qcom_find_freq(const struct freq_tbl *f, uint rate)
+{
+	if (!f)
+		return NULL;
+
+	if (!f->freq)
+		return f;
+
+	for (; f->freq; f++)
+		if (rate <= f->freq)
+			return f;
+
+	/* Default to our fastest rate */
+	return f - 1;
 }
 
 static int msm_clk_probe(struct udevice *dev)

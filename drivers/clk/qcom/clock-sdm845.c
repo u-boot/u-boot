@@ -27,16 +27,6 @@
 #define SE9_UART_APPS_N		0x18154
 #define SE9_UART_APPS_D		0x18158
 
-#define F(f, s, h, m, n) { (f), (s), (2 * (h) - 1), (m), (n) }
-
-struct freq_tbl {
-	uint freq;
-	uint src;
-	u8 pre_div;
-	u16 m;
-	u16 n;
-};
-
 static const struct freq_tbl ftbl_gcc_qupv3_wrap0_s0_clk_src[] = {
 	F(7372800, CFG_CLK_SRC_GPLL0_EVEN, 1, 384, 15625),
 	F(14745600, CFG_CLK_SRC_GPLL0_EVEN, 1, 768, 15625),
@@ -63,22 +53,6 @@ static const struct bcr_regs uart2_regs = {
 	.N = SE9_UART_APPS_N,
 	.D = SE9_UART_APPS_D,
 };
-
-const struct freq_tbl *qcom_find_freq(const struct freq_tbl *f, uint rate)
-{
-	if (!f)
-		return NULL;
-
-	if (!f->freq)
-		return f;
-
-	for (; f->freq; f++)
-		if (rate <= f->freq)
-			return f;
-
-	/* Default to our fastest rate */
-	return f - 1;
-}
 
 static ulong sdm845_clk_set_rate(struct clk *clk, ulong rate)
 {
