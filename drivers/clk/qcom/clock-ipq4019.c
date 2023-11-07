@@ -12,12 +12,9 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-
 #include <dt-bindings/clock/qcom,ipq4019-gcc.h>
 
-struct msm_clk_priv {
-	phys_addr_t base;
-};
+#include "clock-qcom.h"
 
 ulong msm_set_rate(struct clk *clk, ulong rate)
 {
@@ -30,23 +27,7 @@ ulong msm_set_rate(struct clk *clk, ulong rate)
 	}
 }
 
-static int msm_clk_probe(struct udevice *dev)
-{
-	struct msm_clk_priv *priv = dev_get_priv(dev);
-
-	priv->base = dev_read_addr(dev);
-	if (priv->base == FDT_ADDR_T_NONE)
-		return -EINVAL;
-
-	return 0;
-}
-
-static ulong msm_clk_set_rate(struct clk *clk, ulong rate)
-{
-	return msm_set_rate(clk, rate);
-}
-
-static int msm_enable(struct clk *clk)
+int msm_enable(struct clk *clk)
 {
 	switch (clk->id) {
 	case GCC_BLSP1_QUP1_SPI_APPS_CLK: /*SPI1*/
@@ -68,21 +49,3 @@ static int msm_enable(struct clk *clk)
 	}
 }
 
-static struct clk_ops msm_clk_ops = {
-	.set_rate = msm_clk_set_rate,
-	.enable = msm_enable,
-};
-
-static const struct udevice_id msm_clk_ids[] = {
-	{ .compatible = "qcom,gcc-ipq4019" },
-	{ }
-};
-
-U_BOOT_DRIVER(clk_msm) = {
-	.name		= "clk_msm",
-	.id		= UCLASS_CLK,
-	.of_match	= msm_clk_ids,
-	.ops		= &msm_clk_ops,
-	.priv_auto	= sizeof(struct msm_clk_priv),
-	.probe		= msm_clk_probe,
-};
