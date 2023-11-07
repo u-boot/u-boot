@@ -50,9 +50,9 @@ enum {
 
 /* Information about a serial port */
 struct s5p_serial_plat {
-	struct s5p_uart *reg;  /* address of registers in physical memory */
-	u8 reg_width;	/* register width */
-	u8 port_id;     /* uart port number */
+	struct s5p_uart *reg;	/* address of registers in physical memory */
+	u8 reg_width;		/* register width */
+	u8 port_id;		/* uart port number */
 	u8 rx_fifo_count_shift;
 	u8 tx_fifo_count_shift;
 	u32 rx_fifo_count_mask;
@@ -65,7 +65,7 @@ struct s5p_serial_plat {
  * The coefficient, used to calculate the baudrate on S5P UARTs is
  * calculated as
  * C = UBRDIV * 16 + number_of_set_bits_in_UDIVSLOT
- * however, section 31.6.11 of the datasheet doesn't recomment using 1 for 1,
+ * however, section 31.6.11 of the datasheet doesn't recommend using 1 for 1,
  * 3 for 2, ... (2^n - 1) for n, instead, they suggest using these constants:
  */
 static const int udivslot[] = {
@@ -251,10 +251,10 @@ static int s5p_serial_of_to_plat(struct udevice *dev)
 }
 
 static const struct dm_serial_ops s5p_serial_ops = {
-	.putc = s5p_serial_putc,
-	.pending = s5p_serial_pending,
-	.getc = s5p_serial_getc,
-	.setbrg = s5p_serial_setbrg,
+	.putc		= s5p_serial_putc,
+	.pending	= s5p_serial_pending,
+	.getc		= s5p_serial_getc,
+	.setbrg		= s5p_serial_setbrg,
 };
 
 static const struct udevice_id s5p_serial_ids[] = {
@@ -264,13 +264,13 @@ static const struct udevice_id s5p_serial_ids[] = {
 };
 
 U_BOOT_DRIVER(serial_s5p) = {
-	.name	= "serial_s5p",
-	.id	= UCLASS_SERIAL,
-	.of_match = s5p_serial_ids,
-	.of_to_plat = s5p_serial_of_to_plat,
+	.name		= "serial_s5p",
+	.id		= UCLASS_SERIAL,
+	.of_match	= s5p_serial_ids,
+	.of_to_plat	= s5p_serial_of_to_plat,
 	.plat_auto	= sizeof(struct s5p_serial_plat),
-	.probe = s5p_serial_probe,
-	.ops	= &s5p_serial_ops,
+	.probe		= s5p_serial_probe,
+	.ops		= &s5p_serial_ops,
 };
 #endif
 
@@ -298,10 +298,12 @@ static inline void _debug_uart_putc(int ch)
 	struct s5p_uart *uart = (struct s5p_uart *)CONFIG_VAL(DEBUG_UART_BASE);
 
 #if IS_ENABLED(CONFIG_ARCH_APPLE)
-	while (readl(&uart->ufstat) & S5L_TX_FIFO_FULL);
+	while (readl(&uart->ufstat) & S5L_TX_FIFO_FULL)
+		;
 	writel(ch, &uart->utxh);
 #else
-	while (readl(&uart->ufstat) & S5P_TX_FIFO_FULL);
+	while (readl(&uart->ufstat) & S5P_TX_FIFO_FULL)
+		;
 	writeb(ch, &uart->utxh);
 #endif
 }
