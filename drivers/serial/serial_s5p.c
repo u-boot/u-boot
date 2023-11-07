@@ -221,13 +221,11 @@ static int s5p_serial_of_to_plat(struct udevice *dev)
 {
 	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	const ulong port_type = dev_get_driver_data(dev);
-	fdt_addr_t addr;
 
-	addr = dev_read_addr(dev);
-	if (addr == FDT_ADDR_T_NONE)
+	plat->reg = dev_read_addr_ptr(dev);
+	if (!plat->reg)
 		return -EINVAL;
 
-	plat->reg = (struct s5p_uart *)addr;
 	plat->reg_width = dev_read_u32_default(dev, "reg-io-width", 1);
 	plat->port_id = dev_read_u8_default(dev, "id", dev_seq(dev));
 
