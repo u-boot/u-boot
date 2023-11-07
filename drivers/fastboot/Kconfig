@@ -1,4 +1,5 @@
 menu "Fastboot support"
+	depends on CMDLINE
 
 config FASTBOOT
 	bool

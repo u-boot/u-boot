@@ -11,7 +11,6 @@
 #define _POST_H
 
 #ifndef	__ASSEMBLY__
-#include <common.h>
 #include <asm/io.h>
 
 #if defined(CONFIG_POST)

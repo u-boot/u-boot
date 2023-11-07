@@ -10,7 +10,6 @@
 #ifndef __DFU_ENTITY_H_
 #define __DFU_ENTITY_H_
 
-#include <common.h>
 #include <linux/list.h>
 #include <mmc.h>
 #include <spi_flash.h>

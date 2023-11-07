@@ -9,7 +9,6 @@
 #ifndef __QE_H__
 #define __QE_H__
 
-#include "common.h"
 #ifdef CONFIG_U_QE
 #include <linux/immap_qe.h>
 #endif

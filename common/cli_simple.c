@@ -22,44 +22,6 @@
 #define debug_parser(fmt, args...)		\
 	debug_cond(DEBUG_PARSER, fmt, ##args)
 
-
-int cli_simple_parse_line(char *line, char *argv[])
-{
-	int nargs = 0;
-
-	debug_parser("%s: \"%s\"\n", __func__, line);
-	while (nargs < CONFIG_SYS_MAXARGS) {
-		/* skip any white space */
-		while (isblank(*line))
-			++line;
-
-		if (*line == '\0') {	/* end of line, no more args	*/
-			argv[nargs] = NULL;
-			debug_parser("%s: nargs=%d\n", __func__, nargs);
-			return nargs;
-		}
-
-		argv[nargs++] = line;	/* begin of argument string	*/
-
-		/* find end of string */
-		while (*line && !isblank(*line))
-			++line;
-
-		if (*line == '\0') {	/* end of line, no more args	*/
-			argv[nargs] = NULL;
-			debug_parser("parse_line: nargs=%d\n", nargs);
-			return nargs;
-		}
-
-		*line++ = '\0';		/* terminate current arg	 */
-	}
-
-	printf("** Too many args (max. %d) **\n", CONFIG_SYS_MAXARGS);
-
-	debug_parser("%s: nargs=%d\n", __func__, nargs);
-	return nargs;
-}
-
 int cli_simple_process_macros(const char *input, char *output, int max_size)
 {
 	char c, prev;
@@ -170,6 +132,44 @@ int cli_simple_process_macros(const char *input, char *output, int max_size)
 		     strlen(output_start), output_start);
 
 	return ret;
+}
+
+#ifdef CONFIG_CMDLINE
+int cli_simple_parse_line(char *line, char *argv[])
+{
+	int nargs = 0;
+
+	debug_parser("%s: \"%s\"\n", __func__, line);
+	while (nargs < CONFIG_SYS_MAXARGS) {
+		/* skip any white space */
+		while (isblank(*line))
+			++line;
+
+		if (*line == '\0') {	/* end of line, no more args	*/
+			argv[nargs] = NULL;
+			debug_parser("%s: nargs=%d\n", __func__, nargs);
+			return nargs;
+		}
+
+		argv[nargs++] = line;	/* begin of argument string	*/
+
+		/* find end of string */
+		while (*line && !isblank(*line))
+			++line;
+
+		if (*line == '\0') {	/* end of line, no more args	*/
+			argv[nargs] = NULL;
+			debug_parser("parse_line: nargs=%d\n", nargs);
+			return nargs;
+		}
+
+		*line++ = '\0';		/* terminate current arg	 */
+	}
+
+	printf("** Too many args (max. %d) **\n", CONFIG_SYS_MAXARGS);
+
+	debug_parser("%s: nargs=%d\n", __func__, nargs);
+	return nargs;
 }
 
  /*
@@ -346,3 +346,4 @@ int cli_simple_run_command_list(char *cmd, int flag)
 
 	return rcode;
 }
+#endif

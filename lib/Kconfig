@@ -74,6 +74,13 @@ config HAVE_PRIVATE_LIBGCC
 config LIB_UUID
 	bool
 
+config RANDOM_UUID
+	bool "GPT Random UUID generation"
+	select LIB_UUID
+	help
+	  Enable the generation of partitions with random UUIDs if none
+	  are provided.
+
 config SPL_LIB_UUID
 	depends on SPL
 	bool

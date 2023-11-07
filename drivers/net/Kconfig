@@ -471,14 +471,6 @@ config SYS_UNIFY_CACHE
 	depends on MCFFEC
 	bool "Invalidate icache during ethernet operations"
 
-config FSLDMAFEC
-        bool "ColdFire DMA Ethernet Support"
-	select PHYLIB
-	select SYS_DISCOVER_PHY
-	help
-	  This driver supports the network interface units in the
-	  ColdFire family.
-
 config KS8851_MLL
 	bool "Microchip KS8851-MLL controller driver"
 	help

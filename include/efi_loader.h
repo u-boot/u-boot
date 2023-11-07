@@ -8,7 +8,6 @@
 #ifndef _EFI_LOADER_H
 #define _EFI_LOADER_H 1
 
-#include <common.h>
 #include <blk.h>
 #include <event.h>
 #include <log.h>

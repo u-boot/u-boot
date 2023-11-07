@@ -7,7 +7,6 @@
 #ifndef __ASM_X86_DMA_MAPPING_H
 #define __ASM_X86_DMA_MAPPING_H
 
-#include <common.h>
 #include <asm/cache.h>
 #include <cpu_func.h>
 #include <linux/dma-direction.h>

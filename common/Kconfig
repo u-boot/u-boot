@@ -52,6 +52,29 @@ config CONSOLE_RECORD_IN_SIZE
 	  The buffer is allocated immediately after the malloc() region is
 	  ready.
 
+config SYS_CBSIZE
+	int "Console input buffer size"
+	default 2048 if ARCH_TEGRA || ARCH_VERSAL || ARCH_ZYNQ || ARCH_ZYNQMP || \
+		RCAR_GEN3 || TARGET_SOCFPGA_SOC64
+	default 512 if ARCH_MX5 || ARCH_MX6 || ARCH_MX7 || FSL_LSCH2 || \
+		FSL_LSCH3 || X86
+	default 256 if M68K || PPC
+	default 1024
+	help
+	  Set the size of the console input buffer. This is used both in the
+	  case of reading input literally from the user in some manner as well
+	  as when we need to construct or modify that type of input, for
+	  example when constructing "bootargs" for the OS.
+
+config SYS_PBSIZE
+	int "Console output buffer size"
+	default 1024 if ARCH_SUNXI
+	default 1044
+	help
+	  Set the size of the console output buffer. This is used when we need
+	  to work with some form of a buffer while providing output in some
+	  form to the user.
+
 config DISABLE_CONSOLE
 	bool "Add functionality to disable console completely"
 	help

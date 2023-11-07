@@ -7,7 +7,6 @@
  *
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <dm/uclass.h>
 #include <k3-ddrss.h>

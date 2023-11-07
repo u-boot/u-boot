@@ -1,7 +1,5 @@
-menu "Command line interface"
-
-config CMDLINE
-	bool "Support U-Boot commands"
+menuconfig CMDLINE
+	bool "Command line interface"
 	default y
 	help
 	  Enable U-Boot's command-line functions. This provides a means
@@ -11,9 +9,10 @@ config CMDLINE
 	  Depending on the number of commands enabled, this can add
 	  substantially to the size of U-Boot.
 
+if CMDLINE
+
 config HUSH_PARSER
 	bool "Use hush shell"
-	depends on CMDLINE
 	help
 	  This option enables the "hush" shell (from Busybox) as command line
 	  interpreter, thus enabling powerful command line syntax like
@@ -25,7 +24,6 @@ config HUSH_PARSER
 
 config CMDLINE_EDITING
 	bool "Enable command line editing"
-	depends on CMDLINE
 	default y
 	help
 	  Enable editing and History functions for interactive command line
@@ -40,15 +38,13 @@ config CMDLINE_PS_SUPPORT
 
 config AUTO_COMPLETE
 	bool "Enable auto complete using TAB"
-	depends on CMDLINE
 	default y
 	help
 	  Enable auto completion of commands using TAB.
 
 config SYS_LONGHELP
 	bool "Enable long help messages"
-	depends on CMDLINE
-	default y if CMDLINE
+	default y
 	help
 	  Defined when you want long help messages included
 	  Do not set this option when short of memory.
@@ -75,24 +71,9 @@ config SYS_MAXARGS
 	int "Maximum number arguments accepted by commands"
 	default 16
 
-config SYS_CBSIZE
-	int "Console input buffer size"
-	default 2048 if ARCH_TEGRA || ARCH_VERSAL || ARCH_ZYNQ || ARCH_ZYNQMP || \
-		RCAR_GEN3 || TARGET_SOCFPGA_SOC64
-	default 512 if ARCH_MX5 || ARCH_MX6 || ARCH_MX7 || FSL_LSCH2 || \
-		FSL_LSCH3 || X86
-	default 256 if M68K || PPC
-	default 1024
-
-config SYS_PBSIZE
-	int "Buffer size for console output"
-	default 1024 if ARCH_SUNXI
-	default 1044
-
 config SYS_XTRACE
 	bool "Command execution tracer"
-	depends on CMDLINE
-	default y if CMDLINE
+	default y
 	help
 	  This option enables the possiblity to print all commands before
 	  executing them and after all variables are evaluated (similar
@@ -374,23 +355,21 @@ config BOOTM_VXWORKS
 	help
 	  Support booting VxWorks images via the bootm command.
 
-config SYS_BOOTM_LEN
-	hex "Maximum size of a decompresed OS image"
-	depends on CMD_BOOTM || CMD_BOOTI || CMD_BOOTZ || \
-		   LEGACY_IMAGE_FORMAT || SPL_LEGACY_IMAGE_FORMAT
-	default 0x4000000 if PPC || ARM64
-	default 0x1000000 if X86 || ARCH_MX6 || ARCH_MX7
-	default 0x800000
-	help
-	  This is the maximum size of the buffer that is used to decompress the OS
-	  image in to, if passing a compressed image to bootm/booti/bootz.
-
 config CMD_BOOTEFI
 	bool "bootefi"
 	depends on EFI_LOADER
 	default y
 	help
 	  Boot an EFI image from memory.
+
+config CMD_BOOTEFI_BOOTMGR
+	bool "UEFI Boot Manager command"
+	depends on BOOTEFI_BOOTMGR && CMD_BOOTEFI
+	default y
+	help
+	  Select this option to enable the 'bootmgr' subcommand of 'bootefi'.
+	  This subcommand will allow you to select the UEFI binary to be booted
+	  via UEFI variables Boot####, BootOrder, and BootNext.
 
 config CMD_BOOTEFI_HELLO_COMPILE
 	bool "Compile a standard EFI hello world binary for testing"
@@ -1151,13 +1130,6 @@ config CMD_GPT
 	help
 	  Enable the 'gpt' command to ready and write GPT style partition
 	  tables.
-
-config RANDOM_UUID
-	bool "GPT Random UUID generation"
-	select LIB_UUID
-	help
-	  Enable the generation of partitions with random UUIDs if none
-	  are provided.
 
 config CMD_GPT_RENAME
 	bool "GPT partition renaming commands"
@@ -2142,7 +2114,7 @@ config CMD_EFIDEBUG
 config CMD_EFICONFIG
 	bool "eficonfig - provide menu-driven uefi variables maintenance interface"
 	default y if !HAS_BOARD_SIZE_LIMIT
-	depends on CMD_BOOTEFI_BOOTMGR
+	depends on BOOTEFI_BOOTMGR
 	select MENU
 	help
 	  Enable the 'eficonfig' command which provides the menu-driven UEFI
@@ -2257,6 +2229,8 @@ config CMD_SYSBOOT
 config CMD_QFW
 	bool "qfw"
 	select QFW
+	default y if TARGET_QEMU_ARM_32BIT || TARGET_QEMU_ARM_64BIT || \
+		TARGET_QEMU_X86 || TARGET_QEMU_X86_64
 	help
 	  This provides access to the QEMU firmware interface.  The main
 	  feature is to allow easy loading of files passed to qemu-system
@@ -2370,6 +2344,7 @@ config CMD_VIDCONSOLE
 config CMD_SELECT_FONT
 	bool "select font size"
 	depends on VIDEO
+	default y if CONSOLE_TRUETYPE
 	help
 	  Enabling this will provide 'font' command.
 	  Allows font selection at runtime.
@@ -2902,4 +2877,5 @@ config CMD_MESON
 	default y
 	help
 	  Enable useful commands for the Meson Soc family developed by Amlogic Inc.
-endmenu
+
+endif

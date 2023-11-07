@@ -16,6 +16,7 @@
 #include <dt-bindings/mfd/k210-sysctl.h>
 #include <k210/pll.h>
 #include <linux/bitfield.h>
+#include <asm/barrier.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

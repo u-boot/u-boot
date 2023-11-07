@@ -194,6 +194,18 @@ struct env_driver {
 extern struct hsearch_data env_htab;
 
 /**
+ * env_do_env_set() - Perform the actual setting of an environment variable
+ *
+ * Due to the number of places we may need to set an environmental variable
+ * from we have an exposed internal function that performs the real work and
+ * then call this from both the command line function as well as other
+ * locations.
+ *
+ * Return: 0 on success or 1 on failure
+ */
+int env_do_env_set(int flag, int argc, char *const argv[], int env_flag);
+
+/**
  * env_ext4_get_intf() - Provide the interface for env in EXT4
  *
  * It is a weak function allowing board to overidde the default interface for

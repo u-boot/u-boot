@@ -3,7 +3,6 @@
  * Copyright (C) 2004-2009 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <asm-offsets.h>
 #include <mpc83xx.h>
 #include <system-constants.h>
@@ -19,6 +18,8 @@
 #ifdef CONFIG_QE
 #include <fsl_qe.h>
 #endif
+#include <asm/ppc.h>
+#include <asm/fsl_lbc.h>
 
 #include "lblaw/lblaw.h"
 #include "elbc/elbc.h"

@@ -8,7 +8,6 @@
 #ifndef _KEY_MATRIX_H
 #define _KEY_MATRIX_H
 
-#include <common.h>
 
 /* Information about a matrix keyboard */
 struct key_matrix {

@@ -258,12 +258,6 @@ sandbox with clang test.py:
     OVERRIDE: "-O clang-16"
   <<: *buildman_and_testpy_dfn
 
-sandbox without LTO test.py:
-  variables:
-    TEST_PY_BD: "sandbox"
-    BUILD_ENV: "NO_LTO=1"
-  <<: *buildman_and_testpy_dfn
-
 sandbox64 test.py:
   variables:
     TEST_PY_BD: "sandbox64"
@@ -273,12 +267,6 @@ sandbox64 with clang test.py:
   variables:
     TEST_PY_BD: "sandbox64"
     OVERRIDE: "-O clang-16"
-  <<: *buildman_and_testpy_dfn
-
-sandbox64 without LTO test.py:
-  variables:
-    TEST_PY_BD: "sandbox64"
-    BUILD_ENV: "NO_LTO=1"
   <<: *buildman_and_testpy_dfn
 
 sandbox_spl test.py:
