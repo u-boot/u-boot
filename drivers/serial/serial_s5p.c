@@ -25,19 +25,28 @@ enum {
 	PORT_S5L
 };
 
+#define UFCON_FIFO_EN		BIT(0)
+#define UFCON_RX_FIFO_RESET	BIT(1)
+#define UMCON_RESET_VAL		0x0
+#define ULCON_WORD_8_BIT	0x3
+#define UCON_RX_IRQ_OR_POLLING	BIT(0)
+#define UCON_TX_IRQ_OR_POLLING	BIT(2)
+#define UCON_RX_ERR_IRQ_EN	BIT(6)
+#define UCON_TX_IRQ_LEVEL	BIT(9)
+
 #define S5L_RX_FIFO_COUNT_SHIFT	0
 #define S5L_RX_FIFO_COUNT_MASK	(0xf << S5L_RX_FIFO_COUNT_SHIFT)
-#define S5L_RX_FIFO_FULL	(1 << 8)
+#define S5L_RX_FIFO_FULL	BIT(8)
 #define S5L_TX_FIFO_COUNT_SHIFT	4
 #define S5L_TX_FIFO_COUNT_MASK	(0xf << S5L_TX_FIFO_COUNT_SHIFT)
-#define S5L_TX_FIFO_FULL	(1 << 9)
+#define S5L_TX_FIFO_FULL	BIT(9)
 
 #define S5P_RX_FIFO_COUNT_SHIFT	0
 #define S5P_RX_FIFO_COUNT_MASK	(0xff << S5P_RX_FIFO_COUNT_SHIFT)
-#define S5P_RX_FIFO_FULL	(1 << 8)
+#define S5P_RX_FIFO_FULL	BIT(8)
 #define S5P_TX_FIFO_COUNT_SHIFT	16
 #define S5P_TX_FIFO_COUNT_MASK	(0xff << S5P_TX_FIFO_COUNT_SHIFT)
-#define S5P_TX_FIFO_FULL	(1 << 24)
+#define S5P_TX_FIFO_FULL	BIT(24)
 
 /* Information about a serial port */
 struct s5p_serial_plat {
@@ -80,13 +89,15 @@ static const int udivslot[] = {
 
 static void __maybe_unused s5p_serial_init(struct s5p_uart *uart)
 {
-	/* enable FIFOs, auto clear Rx FIFO */
-	writel(0x3, &uart->ufcon);
-	writel(0, &uart->umcon);
-	/* 8N1 */
-	writel(0x3, &uart->ulcon);
+	/* Enable FIFOs, auto clear Rx FIFO */
+	writel(UFCON_FIFO_EN | UFCON_RX_FIFO_RESET, &uart->ufcon);
+	/* No auto flow control, disable nRTS signal */
+	writel(UMCON_RESET_VAL, &uart->umcon);
+	/* 8N1, no parity bit */
+	writel(ULCON_WORD_8_BIT, &uart->ulcon);
 	/* No interrupts, no DMA, pure polling */
-	writel(0x245, &uart->ucon);
+	writel(UCON_RX_IRQ_OR_POLLING | UCON_TX_IRQ_OR_POLLING |
+	       UCON_RX_ERR_IRQ_EN | UCON_TX_IRQ_LEVEL, &uart->ucon);
 }
 
 static void __maybe_unused s5p_serial_baud(struct s5p_uart *uart, u8 reg_width,
