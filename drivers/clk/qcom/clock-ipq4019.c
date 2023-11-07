@@ -16,7 +16,7 @@
 
 #include "clock-qcom.h"
 
-ulong msm_set_rate(struct clk *clk, ulong rate)
+static ulong ipq4019_clk_set_rate(struct clk *clk, ulong rate)
 {
 	switch (clk->id) {
 	case GCC_BLSP1_UART1_APPS_CLK: /*UART1*/
@@ -27,7 +27,7 @@ ulong msm_set_rate(struct clk *clk, ulong rate)
 	}
 }
 
-int msm_enable(struct clk *clk)
+static int ipq4019_clk_enable(struct clk *clk)
 {
 	switch (clk->id) {
 	case GCC_BLSP1_QUP1_SPI_APPS_CLK: /*SPI1*/
@@ -123,7 +123,9 @@ static const struct qcom_reset_map gcc_ipq4019_resets[] = {
 	[GCC_SPDM_BCR] = {0x25000, 0},
 };
 
-static struct msm_clk_data ipq4019_data = {
+static struct msm_clk_data ipq4019_clk_data = {
+	.enable = ipq4019_clk_enable,
+	.set_rate = ipq4019_clk_set_rate,
 	.resets = gcc_ipq4019_resets,
 	.num_resets = ARRAY_SIZE(gcc_ipq4019_resets),
 };
@@ -131,7 +133,7 @@ static struct msm_clk_data ipq4019_data = {
 static const struct udevice_id gcc_ipq4019_of_match[] = {
 	{
 		.compatible = "qcom,gcc-ipq4019",
-		.data = (ulong)&ipq4019_data,
+		.data = (ulong)&ipq4019_clk_data,
 	},
 	{ }
 };

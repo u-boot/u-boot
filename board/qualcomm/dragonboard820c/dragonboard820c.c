@@ -7,7 +7,6 @@
 
 #include <cpu_func.h>
 #include <init.h>
-#include <asm/arch/sysmap-apq8096.h>
 #include <env.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -19,6 +18,11 @@
 #include <linux/bitops.h>
 #include <asm/psci.h>
 #include <asm/gpio.h>
+
+#define TLMM_BASE_ADDR                  (0x1010000)
+
+/* Strength (sdc1) */
+#define SDC1_HDRV_PULL_CTL_REG          (TLMM_BASE_ADDR + 0x0012D000)
 
 DECLARE_GLOBAL_DATA_PTR;
 
