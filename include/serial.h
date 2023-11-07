@@ -339,6 +339,13 @@ int serial_setconfig(struct udevice *dev, uint config);
  */
 int serial_getinfo(struct udevice *dev, struct serial_device_info *info);
 
+/**
+ * fetch_baud_from_dtb() - Fetch the baudrate value from DT
+ *
+ * Return: baudrate if OK, -ve on error
+ */
+int fetch_baud_from_dtb(void);
+
 void atmel_serial_initialize(void);
 void mcf_serial_initialize(void);
 void mpc85xx_serial_initialize(void);

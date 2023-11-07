@@ -10,12 +10,6 @@
 
 #include <dt-bindings/clock/xlnx-zynqmp-clk.h>
 / {
-	fclk0: fclk0 {
-		status = "okay";
-		compatible = "xlnx,fclk";
-		clocks = <&zynqmp_clk PL0_REF>;
-	};
-
 	pss_ref_clk: pss_ref_clk {
 		bootph-all;
 		compatible = "fixed-clock";
