@@ -944,8 +944,11 @@ static efi_status_t efi_init_event_log(void)
 	 * Add SCRTM version to the log if previous firmmware
 	 * doesn't pass an eventlog.
 	 */
-	if (!elog.found)
+	if (!elog.found) {
 		ret = efi_append_scrtm_version(dev);
+		if (ret != EFI_SUCCESS)
+			goto free_pool;
+	}
 
 	ret = create_final_event();
 	if (ret != EFI_SUCCESS)
