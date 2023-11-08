@@ -287,12 +287,10 @@ static inline void *spl_image_fdt_addr(struct spl_image_info *info)
  *
  * @priv: Private data for the device
  * @bl_len: Block length for reading in bytes
- * @filename: Name of the fit image file.
  * @read: Function to call to read from the device
  */
 struct spl_load_info {
 	void *priv;
-	const char *filename;
 	/**
 	 * read() - Read from device
 	 *

@@ -14,6 +14,7 @@
 
 struct blk_dev {
 	const char *ifname;
+	const char *filename;
 	char dev_part_str[8];
 };
 
@@ -31,11 +32,11 @@ static ulong spl_fit_read(struct spl_load_info *load, ulong file_offset,
 		return ret;
 	}
 
-	ret = fs_read(load->filename, virt_to_phys(buf), file_offset, size,
+	ret = fs_read(dev->filename, virt_to_phys(buf), file_offset, size,
 		      &actlen);
 	if (ret < 0) {
 		printf("spl: error reading image %s. Err - %d\n",
-		       load->filename, ret);
+		       dev->filename, ret);
 		return ret;
 	}
 
@@ -87,8 +88,8 @@ int spl_blk_load_image(struct spl_image_info *spl_image,
 		debug("Found FIT\n");
 		load.read = spl_fit_read;
 		load.bl_len = ARCH_DMA_MINALIGN;
-		load.filename = (void *)filename;
 		load.priv = &dev;
+		dev.filename = filename;
 
 		return spl_load_simple_fit(spl_image, &load, 0, header);
 	}

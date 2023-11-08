@@ -51,7 +51,7 @@ static ulong spl_fit_read(struct spl_load_info *load, ulong file_offset,
 {
 	loff_t actread;
 	int ret;
-	char *filename = (char *)load->filename;
+	char *filename = load->priv;
 
 	ret = fat_read_file(filename, buf, file_offset, size, &actread);
 	if (ret)
@@ -98,7 +98,7 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 		debug("Found FIT\n");
 		load.read = spl_fit_read;
 		load.bl_len = ARCH_DMA_MINALIGN;
-		load.filename = (void *)filename;
+		load.priv = (void *)filename;
 
 		return spl_load_simple_fit(spl_image, &load, 0, header);
 	} else {

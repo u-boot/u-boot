@@ -152,7 +152,6 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 
 			debug("Found FIT\n");
 			load.priv = flash;
-			load.filename = NULL;
 			load.bl_len = 1;
 			load.read = spl_spi_fit_read;
 			err = spl_load_simple_fit(spl_image, &load,
@@ -163,7 +162,6 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 			struct spl_load_info load;
 
 			load.priv = flash;
-			load.filename = NULL;
 			load.bl_len = 1;
 			load.read = spl_spi_fit_read;
 

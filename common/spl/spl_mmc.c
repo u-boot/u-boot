@@ -108,7 +108,6 @@ int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 
 		debug("Found FIT\n");
 		load.priv = bd;
-		load.filename = NULL;
 		load.bl_len = bd->blksz;
 		load.read = h_spl_load_read;
 		ret = spl_load_simple_fit(spl_image, &load,
@@ -118,7 +117,6 @@ int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		load.priv = bd;
-		load.filename = NULL;
 		load.bl_len = bd->blksz;
 		load.read = h_spl_load_read;
 

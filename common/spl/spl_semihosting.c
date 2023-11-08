@@ -69,7 +69,6 @@ static int spl_smh_load_image(struct spl_image_info *spl_image,
 		debug("Found FIT\n");
 		load.read = smh_fit_read;
 		load.bl_len = 1;
-		load.filename = NULL;
 		load.priv = &fd;
 
 		ret = spl_load_simple_fit(spl_image, &load, 0, header);
