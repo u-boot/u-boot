@@ -354,8 +354,6 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		debug("Found FIT image\n");
-		load.dev = NULL;
-		load.priv = NULL;
 		load.filename = NULL;
 		load.bl_len = 1;
 		load.read = spi_load_read;

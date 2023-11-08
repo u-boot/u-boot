@@ -99,7 +99,6 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 		load.read = spl_fit_read;
 		load.bl_len = 1;
 		load.filename = (void *)filename;
-		load.priv = NULL;
 
 		return spl_load_simple_fit(spl_image, &load, 0, header);
 	} else {

@@ -91,7 +91,6 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		debug("Found FIT\n");
-		load.dev = NULL;
 		load.priv = &offset;
 		load.filename = NULL;
 		load.bl_len = bl_len;
@@ -101,7 +100,6 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		   valid_container_hdr((void *)header)) {
 		struct spl_load_info load;
 
-		load.dev = NULL;
 		load.priv = &offset;
 		load.filename = NULL;
 		load.bl_len = bl_len;
@@ -112,8 +110,6 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		debug("Found legacy image\n");
-		load.dev = NULL;
-		load.priv = NULL;
 		load.filename = NULL;
 		load.bl_len = IS_ENABLED(CONFIG_SPL_LZMA) ? bl_len : 1;
 		load.read = spl_nand_legacy_read;
