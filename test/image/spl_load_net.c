@@ -248,5 +248,7 @@ static int spl_test_net(struct unit_test_state *uts, const char *test_name,
 	return ret;
 }
 SPL_IMG_TEST(spl_test_net, LEGACY, DM_FLAGS);
+SPL_IMG_TEST(spl_test_net, LEGACY_LZMA, DM_FLAGS);
+SPL_IMG_TEST(spl_test_net, IMX8, DM_FLAGS);
 SPL_IMG_TEST(spl_test_net, FIT_INTERNAL, DM_FLAGS);
 SPL_IMG_TEST(spl_test_net, FIT_EXTERNAL, DM_FLAGS);
