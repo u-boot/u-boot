@@ -11,8 +11,8 @@
 #include <common.h>
 #include <env.h>
 #include <log.h>
-#include <mapmem.h>
 #include <spl.h>
+#include <spl_load.h>
 #include <asm/u-boot.h>
 #include <fat.h>
 #include <errno.h>
@@ -66,58 +66,38 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 		       const char *filename)
 {
 	int err;
-	struct legacy_img_hdr *header;
+	loff_t size;
+	struct spl_load_info load;
 
 	err = spl_register_fat_device(block_dev, partition);
 	if (err)
 		goto end;
 
-	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
-
-	err = file_fat_read(filename, header, sizeof(struct legacy_img_hdr));
-	if (err <= 0)
-		goto end;
-
-	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT_FULL) &&
-	    image_get_magic(header) == FDT_MAGIC) {
-		err = file_fat_read(filename,
-				    map_sysmem(CONFIG_SYS_LOAD_ADDR, 0), 0);
-		if (err <= 0)
-			goto end;
-		err = spl_parse_image_header(spl_image, bootdev,
-					     map_sysmem(CONFIG_SYS_LOAD_ADDR,
-							err));
-		if (err == -EAGAIN)
-			return err;
-		if (err == 0)
-			err = 1;
-	} else if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
-	    image_get_magic(header) == FDT_MAGIC) {
-		struct spl_load_info load;
-
-		debug("Found FIT\n");
-		load.read = spl_fit_read;
-		spl_set_bl_len(&load, ARCH_DMA_MINALIGN);
-		load.priv = (void *)filename;
-
-		return spl_load_simple_fit(spl_image, &load, 0, header);
-	} else {
-		err = spl_parse_image_header(spl_image, bootdev, header);
+	/*
+	 * Avoid pulling in this function for other image types since we are
+	 * very short on space on some boards.
+	 */
+	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT_FULL)) {
+		err = fat_size(filename, &size);
 		if (err)
 			goto end;
-
-		err = file_fat_read(filename, map_sysmem(spl_image->load_addr,
-							 spl_image->size), 0);
+	} else {
+		size = 0;
 	}
+
+	load.read = spl_fit_read;
+	spl_set_bl_len(&load, ARCH_DMA_MINALIGN);
+	load.priv = (void *)filename;
+	err = spl_load(spl_image, bootdev, &load, size, 0);
 
 end:
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-	if (err <= 0)
+	if (err < 0)
 		printf("%s: error reading image %s, err - %d\n",
 		       __func__, filename, err);
 #endif
 
-	return (err <= 0);
+	return err;
 }
 
 #if CONFIG_IS_ENABLED(OS_BOOT)

@@ -96,6 +96,7 @@ static inline int _spl_load(struct spl_image_info *spl_image,
  */
 #define SPL_LOAD_USERS \
 	IS_ENABLED(CONFIG_SPL_FS_EXT4) + \
+	IS_ENABLED(CONFIG_SPL_FS_FAT) + \
 	0
 
 #if SPL_LOAD_USERS > 1

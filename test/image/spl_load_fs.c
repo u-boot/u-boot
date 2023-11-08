@@ -425,8 +425,7 @@ static int spl_test_mmc(struct unit_test_state *uts, const char *test_name,
 	if (spl_test_mmc_fs(uts, test_name, type, create_ext2, false))
 		return CMD_RET_FAILURE;
 
-	if (type != IMX8 && type != LEGACY_LZMA &&
-	    spl_test_mmc_fs(uts, test_name, type, create_fat, false))
+	if (spl_test_mmc_fs(uts, test_name, type, create_fat, false))
 		return CMD_RET_FAILURE;
 
 	if (type == LEGACY_LZMA)
