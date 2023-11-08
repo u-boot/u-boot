@@ -29,7 +29,7 @@ int spl_load_image_ext(struct spl_image_info *spl_image,
 
 	ext4fs_set_blk_dev(block_dev, &part_info);
 
-	err = ext4fs_mount(part_info.size);
+	err = ext4fs_mount();
 	if (!err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: ext4fs mount err - %d\n", __func__, err);
@@ -84,7 +84,7 @@ int spl_load_image_ext_os(struct spl_image_info *spl_image,
 
 	ext4fs_set_blk_dev(block_dev, &part_info);
 
-	err = ext4fs_mount(part_info.size);
+	err = ext4fs_mount();
 	if (!err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: ext4fs mount err - %d\n", __func__, err);
