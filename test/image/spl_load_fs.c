@@ -422,13 +422,15 @@ static int spl_test_mmc(struct unit_test_state *uts, const char *test_name,
 	spl_mmc_clear_cache();
 	spl_fat_force_reregister();
 
-	if (type == LEGACY &&
-	    spl_test_mmc_fs(uts, test_name, type, create_ext2, false))
+	if (spl_test_mmc_fs(uts, test_name, type, create_ext2, false))
 		return CMD_RET_FAILURE;
 
-	if (type != IMX8 &&
+	if (type != IMX8 && type != LEGACY_LZMA &&
 	    spl_test_mmc_fs(uts, test_name, type, create_fat, false))
 		return CMD_RET_FAILURE;
+
+	if (type == LEGACY_LZMA)
+		return 0;
 
 	return do_spl_test_load(uts, test_name, type,
 				SPL_LOAD_IMAGE_GET(0, BOOT_DEVICE_MMC1,
@@ -436,6 +438,7 @@ static int spl_test_mmc(struct unit_test_state *uts, const char *test_name,
 				spl_test_mmc_write_image);
 }
 SPL_IMG_TEST(spl_test_mmc, LEGACY, DM_FLAGS);
+SPL_IMG_TEST(spl_test_mmc, LEGACY_LZMA, DM_FLAGS);
 SPL_IMG_TEST(spl_test_mmc, IMX8, DM_FLAGS);
 SPL_IMG_TEST(spl_test_mmc, FIT_EXTERNAL, DM_FLAGS);
 SPL_IMG_TEST(spl_test_mmc, FIT_INTERNAL, DM_FLAGS);
