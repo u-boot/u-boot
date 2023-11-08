@@ -171,12 +171,12 @@ static int spl_fit_get_image_node(const struct spl_fit_info *ctx,
 
 static int get_aligned_image_offset(struct spl_load_info *info, int offset)
 {
-	return ALIGN_DOWN(offset, info->bl_len);
+	return ALIGN_DOWN(offset, spl_get_bl_len(info));
 }
 
 static int get_aligned_image_overhead(struct spl_load_info *info, int offset)
 {
-	return offset & (info->bl_len - 1);
+	return offset & (spl_get_bl_len(info) - 1);
 }
 
 static int get_aligned_image_size(struct spl_load_info *info, int data_size,
@@ -184,7 +184,7 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
 {
 	data_size = data_size + get_aligned_image_overhead(info, offset);
 
-	return ALIGN(data_size, info->bl_len);
+	return ALIGN(data_size, spl_get_bl_len(info));
 }
 
 /**

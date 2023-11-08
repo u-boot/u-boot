@@ -342,12 +342,11 @@ static int spl_test_image(struct unit_test_state *uts, const char *test_name,
 		if (check_image_info(uts, &info_write, &info_read))
 			return CMD_RET_FAILURE;
 	} else {
-		struct spl_load_info load = {
-			.bl_len = 1,
-			.priv = img,
-			.read = spl_test_read,
-		};
+		struct spl_load_info load;
 
+		spl_set_bl_len(&load, 1);
+		load.priv = img;
+		load.read = spl_test_read;
 		if (type == IMX8)
 			ut_assertok(spl_load_imx_container(&info_read, &load,
 							   0));

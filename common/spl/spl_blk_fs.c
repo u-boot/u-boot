@@ -87,7 +87,7 @@ int spl_blk_load_image(struct spl_image_info *spl_image,
 
 		debug("Found FIT\n");
 		load.read = spl_fit_read;
-		load.bl_len = ARCH_DMA_MINALIGN;
+		spl_set_bl_len(&load, ARCH_DMA_MINALIGN);
 		load.priv = &dev;
 		dev.filename = filename;
 

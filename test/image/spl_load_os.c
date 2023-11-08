@@ -51,7 +51,7 @@ static int spl_test_load(struct unit_test_state *uts)
 	int fd;
 
 	memset(&load, '\0', sizeof(load));
-	load.bl_len = 512;
+	spl_set_bl_len(&load, 512);
 	load.read = read_fit_image;
 
 	ret = sandbox_find_next_phase(fname, sizeof(fname), true);

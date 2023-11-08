@@ -139,9 +139,9 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
 		lzma_len = LZMA_LEN;
 
 		/* dataptr points to compressed payload  */
-		dataptr = ALIGN_DOWN(sizeof(*hdr), load->bl_len);
+		dataptr = ALIGN_DOWN(sizeof(*hdr), spl_get_bl_len(load));
 		overhead = sizeof(*hdr) - dataptr;
-		size = ALIGN(spl_image->size + overhead, load->bl_len);
+		size = ALIGN(spl_image->size + overhead, spl_get_bl_len(load));
 		dataptr += offset;
 
 		debug("LZMA: Decompressing %08lx to %08lx\n",

@@ -280,8 +280,15 @@ config SPL_BOARD_INIT
 	  spl_board_init() from board_init_r(). This function should be
 	  provided by the board.
 
+config SPL_LOAD_BLOCK
+	bool
+	help
+	  Support loading images from block devices. This adds a bl_len member
+	  to struct spl_load_info.
+
 config SPL_BOOTROM_SUPPORT
 	bool "Support returning to the BOOTROM"
+	select SPL_LOAD_BLOCK if MACH_IMX
 	help
 	  Some platforms (e.g. the Rockchip RK3368) provide support in their
 	  ROM for loading the next boot-stage after performing basic setup
@@ -482,6 +489,7 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
 		     ARCH_AT91 || ARCH_ZYNQ || ARCH_KEYSTONE || OMAP34XX || \
 		     OMAP44XX || OMAP54XX || AM33XX || AM43XX || \
 		     TARGET_SIFIVE_UNLEASHED || TARGET_SIFIVE_UNMATCHED
+	select SPL_LOAD_BLOCK if SPL_MMC
 	help
 	  Use sector number for specifying U-Boot location on MMC/SD in
 	  raw mode.
@@ -518,6 +526,7 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET
 
 config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 	bool "MMC Raw mode: by partition"
+	select SPL_LOAD_BLOCK if SPL_MMC
 	help
 	  Use a partition for loading U-Boot when using MMC/SD in raw mode.
 
@@ -678,6 +687,7 @@ config SPL_FS_SQUASHFS
 config SPL_FS_FAT
 	bool "Support FAT filesystems"
 	select FS_FAT
+	select SPL_LOAD_BLOCK
 	help
 	  Enable support for FAT and VFAT filesystems with SPL. This
 	  permits U-Boot (or Linux in Falcon mode) to be loaded from a FAT
@@ -877,6 +887,7 @@ config SPL_MUSB_NEW
 
 config SPL_NAND_SUPPORT
 	bool "Support NAND flash"
+	select SPL_LOAD_BLOCK
 	help
 	  Enable support for NAND (Negative AND) flash in SPL. NAND flash
 	  can be used to allow SPL to load U-Boot from supported devices.
@@ -1102,6 +1113,7 @@ config SYS_OS_BASE
 config SPL_FALCON_BOOT_MMCSD
 	bool "Enable Falcon boot from MMC or SD media"
 	depends on SPL_OS_BOOT && SPL_MMC
+	select SPL_LOAD_BLOCK
 	help
 	  Select this if the Falcon mode OS image mode is on MMC or SD media.
 
@@ -1260,9 +1272,9 @@ config SPL_SATA_RAW_U_BOOT_SECTOR
 config SPL_NVME
 	bool "NVM Express device support"
 	depends on BLK
-	select HAVE_BLOCK_DEVICE
 	select FS_LOADER
 	select SPL_BLK_FS
+	select SPL_LOAD_BLOCK
 	help
 	  This option enables support for NVM Express devices.
 	  It supports basic functions of NVMe (read/write).

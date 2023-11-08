@@ -304,8 +304,33 @@ struct spl_load_info {
 	 */
 	ulong (*read)(struct spl_load_info *load, ulong sector, ulong count,
 		      void *buf);
+#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK)
 	int bl_len;
 };
+
+static inline int spl_get_bl_len(struct spl_load_info *info)
+{
+	return info->bl_len;
+}
+
+static inline void spl_set_bl_len(struct spl_load_info *info, int bl_len)
+{
+	info->bl_len = bl_len;
+}
+#else
+};
+
+static inline int spl_get_bl_len(struct spl_load_info *info)
+{
+	return 1;
+}
+
+static inline void spl_set_bl_len(struct spl_load_info *info, int bl_len)
+{
+	if (bl_len != 1)
+		panic("CONFIG_SPL_LOAD_BLOCK not enabled");
+}
+#endif
 
 /*
  * We need to know the position of U-Boot in memory so we can jump to it. We

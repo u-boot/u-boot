@@ -90,7 +90,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 
 		debug("Found FIT\n");
 		load.priv = &offset;
-		load.bl_len = bl_len;
+		spl_set_bl_len(&load, bl_len);
 		load.read = spl_nand_fit_read;
 		return spl_load_simple_fit(spl_image, &load, offset, header);
 	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
@@ -98,7 +98,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		load.priv = &offset;
-		load.bl_len = bl_len;
+		spl_set_bl_len(&load, bl_len);
 		load.read = spl_nand_fit_read;
 		return spl_load_imx_container(spl_image, &load, offset);
 	} else if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_FORMAT) &&
@@ -106,7 +106,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		debug("Found legacy image\n");
-		load.bl_len = IS_ENABLED(CONFIG_SPL_LZMA) ? bl_len : 1;
+		spl_set_bl_len(&load, IS_ENABLED(CONFIG_SPL_LZMA) ? bl_len : 1);
 		load.read = spl_nand_legacy_read;
 
 		return spl_load_legacy_img(spl_image, bootdev, &load, offset, header);

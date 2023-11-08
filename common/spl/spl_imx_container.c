@@ -32,13 +32,13 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 	images = (struct boot_img_t *)((u8 *)container +
 				       sizeof(struct container_hdr));
 
-	if (!IS_ALIGNED(images[image_index].offset, info->bl_len)) {
+	if (!IS_ALIGNED(images[image_index].offset, spl_get_bl_len(info))) {
 		printf("%s: image%d offset not aligned to %u\n",
-		       __func__, image_index, info->bl_len);
+		       __func__, image_index, spl_get_bl_len(info));
 		return NULL;
 	}
 
-	size = ALIGN(images[image_index].size, info->bl_len);
+	size = ALIGN(images[image_index].size, spl_get_bl_len(info));
 	offset = images[image_index].offset + container_offset;
 
 	debug("%s: container: %p offset: %lu size: %lu\n", __func__,
@@ -66,7 +66,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 	u16 length;
 	int i, size, ret = 0;
 
-	size = ALIGN(CONTAINER_HDR_ALIGNMENT, info->bl_len);
+	size = ALIGN(CONTAINER_HDR_ALIGNMENT, spl_get_bl_len(info));
 
 	/*
 	 * It will not override the ATF code, so safe to use it here,
@@ -100,7 +100,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 	debug("Container length %u\n", length);
 
 	if (length > CONTAINER_HDR_ALIGNMENT) {
-		size = ALIGN(length, info->bl_len);
+		size = ALIGN(length, spl_get_bl_len(info));
 
 		free(container);
 		container = malloc(size);

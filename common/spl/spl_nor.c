@@ -49,7 +49,7 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 			int ret;
 
 			debug("Found FIT\n");
-			load.bl_len = 1;
+			spl_set_bl_len(&load, 1);
 			load.read = spl_nor_load_read;
 
 			ret = spl_load_simple_fit(spl_image, &load,
@@ -97,7 +97,7 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 #ifdef CONFIG_SPL_LOAD_FIT
 	if (image_get_magic(header) == FDT_MAGIC) {
 		debug("Found FIT format U-Boot\n");
-		load.bl_len = 1;
+		spl_set_bl_len(&load, 1);
 		load.read = spl_nor_load_read;
 		return spl_load_simple_fit(spl_image, &load,
 					   spl_nor_get_uboot_base(),
@@ -106,7 +106,7 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 #endif
 	if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
 	    valid_container_hdr((void *)header)) {
-		load.bl_len = 1;
+		spl_set_bl_len(&load, 1);
 		load.read = spl_nor_load_read;
 		return spl_load_imx_container(spl_image, &load,
 					      spl_nor_get_uboot_base());
@@ -114,7 +114,7 @@ static int spl_nor_load_image(struct spl_image_info *spl_image,
 
 	/* Legacy image handling */
 	if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_FORMAT)) {
-		load.bl_len = 1;
+		spl_set_bl_len(&load, 1);
 		load.read = spl_nor_load_read;
 		return spl_load_legacy_img(spl_image, bootdev, &load,
 					   spl_nor_get_uboot_base(),

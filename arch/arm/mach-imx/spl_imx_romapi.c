@@ -101,7 +101,7 @@ static int spl_romapi_load_image_seekable(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		memset(&load, 0, sizeof(load));
-		load.bl_len = pagesize;
+		spl_set_bl_len(&load, pagesize);
 		load.read = spl_romapi_read_seekable;
 		return spl_load_simple_fit(spl_image, &load, offset, header);
 	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
@@ -109,7 +109,7 @@ static int spl_romapi_load_image_seekable(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		memset(&load, 0, sizeof(load));
-		load.bl_len = pagesize;
+		spl_set_bl_len(&load, pagesize);
 		load.read = spl_romapi_read_seekable;
 
 		ret = spl_load_imx_container(spl_image, &load, offset);
@@ -334,7 +334,7 @@ static int spl_romapi_load_image_stream(struct spl_image_info *spl_image,
 		ss.pagesize = pagesize;
 
 		memset(&load, 0, sizeof(load));
-		load.bl_len = 1;
+		spl_set_bl_len(&load, 1);
 		load.read = spl_romapi_read_stream;
 		load.priv = &ss;
 
@@ -358,7 +358,7 @@ static int spl_romapi_load_image_stream(struct spl_image_info *spl_image,
 		printf("ROM download failure %d\n", imagesize);
 
 	memset(&load, 0, sizeof(load));
-	load.bl_len = 1;
+	spl_set_bl_len(&load, 1);
 	load.read = spl_ram_load_read;
 
 	if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER))
