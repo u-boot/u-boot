@@ -42,29 +42,22 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 }
 #else
 
-static ulong spl_nand_fit_read(struct spl_load_info *load, ulong offs,
-			       ulong size, void *dst)
+__weak u32 nand_spl_adjust_offset(u32 sector, u32 offs)
+{
+	return offs;
+}
+
+static ulong spl_nand_read(struct spl_load_info *load, ulong offs, ulong size,
+			   void *dst)
 {
 	int err;
 	ulong sector;
 
-	sector = *(int *)load->priv;
-	offs = sector + nand_spl_adjust_offset(sector, offs - sector);
-	err = nand_spl_load_image(offs, size, dst);
-	if (err)
-		return 0;
-
-	return size;
-}
-
-static ulong spl_nand_legacy_read(struct spl_load_info *load, ulong offs,
-				  ulong size, void *dst)
-{
-	int err;
-
 	debug("%s: offs %lx, size %lx, dst %p\n",
 	      __func__, offs, size, dst);
 
+	sector = *(int *)load->priv;
+	offs = sector + nand_spl_adjust_offset(sector, offs - sector);
 	err = nand_spl_load_image(offs, size, dst);
 	if (err)
 		return 0;
@@ -91,7 +84,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		debug("Found FIT\n");
 		load.priv = &offset;
 		spl_set_bl_len(&load, bl_len);
-		load.read = spl_nand_fit_read;
+		load.read = spl_nand_read;
 		return spl_load_simple_fit(spl_image, &load, offset, header);
 	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
 		   valid_container_hdr((void *)header)) {
@@ -99,16 +92,16 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 
 		load.priv = &offset;
 		spl_set_bl_len(&load, bl_len);
-		load.read = spl_nand_fit_read;
+		load.read = spl_nand_read;
 		return spl_load_imx_container(spl_image, &load, offset);
 	} else if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_FORMAT) &&
 		   image_get_magic(header) == IH_MAGIC) {
 		struct spl_load_info load;
 
 		debug("Found legacy image\n");
+		load.priv = &offset;
 		spl_set_bl_len(&load, IS_ENABLED(CONFIG_SPL_LZMA) ? bl_len : 1);
-		load.read = spl_nand_legacy_read;
-
+		load.read = spl_nand_read;
 		return spl_load_legacy_img(spl_image, bootdev, &load, offset, header);
 	} else {
 		err = spl_parse_image_header(spl_image, bootdev, header);
