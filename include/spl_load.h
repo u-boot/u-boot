@@ -95,6 +95,7 @@ static inline int _spl_load(struct spl_image_info *spl_image,
  * inline if there is one caller, and extern otherwise.
  */
 #define SPL_LOAD_USERS \
+	IS_ENABLED(CONFIG_SPL_BLK_FS) + \
 	IS_ENABLED(CONFIG_SPL_FS_EXT4) + \
 	IS_ENABLED(CONFIG_SPL_FS_FAT) + \
 	IS_ENABLED(CONFIG_SPL_SYS_MMCSD_RAW_MODE) + \

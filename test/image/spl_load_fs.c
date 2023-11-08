@@ -395,6 +395,8 @@ static int spl_test_blk(struct unit_test_state *uts, const char *test_name,
 	return spl_test_mmc_fs(uts, test_name, type, create_ext2, true);
 }
 SPL_IMG_TEST(spl_test_blk, LEGACY, DM_FLAGS);
+SPL_IMG_TEST(spl_test_blk, LEGACY_LZMA, DM_FLAGS);
+SPL_IMG_TEST(spl_test_blk, IMX8, DM_FLAGS);
 SPL_IMG_TEST(spl_test_blk, FIT_EXTERNAL, DM_FLAGS);
 SPL_IMG_TEST(spl_test_blk, FIT_INTERNAL, DM_FLAGS);
 
