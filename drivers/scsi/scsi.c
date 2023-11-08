@@ -450,15 +450,12 @@ static void scsi_setup_test_unit_ready(struct scsi_cmd *pccb)
  */
 static void scsi_init_dev_desc_priv(struct blk_desc *dev_desc)
 {
+	memset(dev_desc, 0, sizeof(struct blk_desc));
 	dev_desc->target = 0xff;
 	dev_desc->lun = 0xff;
 	dev_desc->log2blksz =
 		LOG2_INVALID(typeof(dev_desc->log2blksz));
 	dev_desc->type = DEV_TYPE_UNKNOWN;
-	dev_desc->vendor[0] = 0;
-	dev_desc->product[0] = 0;
-	dev_desc->revision[0] = 0;
-	dev_desc->removable = false;
 #if IS_ENABLED(CONFIG_BOUNCE_BUFFER)
 	dev_desc->bb = true;
 #endif	/* CONFIG_BOUNCE_BUFFER */
