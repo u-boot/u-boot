@@ -59,7 +59,7 @@ static int spi_load_image_os(struct spl_image_info *spl_image,
 static ulong spl_spi_fit_read(struct spl_load_info *load, ulong sector,
 			      ulong count, void *buf)
 {
-	struct spi_flash *flash = load->dev;
+	struct spi_flash *flash = load->priv;
 	ulong ret;
 
 	ret = spi_flash_read(flash, sector, count, buf);
@@ -151,7 +151,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 			struct spl_load_info load;
 
 			debug("Found FIT\n");
-			load.dev = flash;
+			load.priv = flash;
 			load.filename = NULL;
 			load.bl_len = 1;
 			load.read = spl_spi_fit_read;
@@ -162,7 +162,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 			   valid_container_hdr((void *)header)) {
 			struct spl_load_info load;
 
-			load.dev = flash;
+			load.priv = flash;
 			load.filename = NULL;
 			load.bl_len = 1;
 			load.read = spl_spi_fit_read;

@@ -65,7 +65,7 @@ static int mmc_load_legacy(struct spl_image_info *spl_image,
 static ulong h_spl_load_read(struct spl_load_info *load, ulong sector,
 			     ulong count, void *buf)
 {
-	struct mmc *mmc = load->dev;
+	struct mmc *mmc = load->priv;
 
 	return blk_dread(mmc_get_blk_desc(mmc), sector, count, buf);
 }
@@ -105,7 +105,7 @@ int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		debug("Found FIT\n");
-		load.dev = mmc;
+		load.priv = mmc;
 		load.filename = NULL;
 		load.bl_len = mmc->read_bl_len;
 		load.read = h_spl_load_read;
@@ -114,7 +114,7 @@ int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 		   valid_container_hdr((void *)header)) {
 		struct spl_load_info load;
 
-		load.dev = mmc;
+		load.priv = mmc;
 		load.filename = NULL;
 		load.bl_len = mmc->read_bl_len;
 		load.read = h_spl_load_read;
