@@ -24,18 +24,14 @@ static int smh_read_full(long fd, void *memp, size_t len)
 static ulong smh_fit_read(struct spl_load_info *load, ulong file_offset,
 			  ulong size, void *buf)
 {
-	long fd;
+	long fd = *(long *)load->priv;
 	ulong ret;
 
-	fd = smh_open(load->filename, MODE_READ | MODE_BINARY);
-	if (fd < 0) {
-		log_debug("could not open %s: %ld\n", load->filename, fd);
+	if (smh_seek(fd, file_offset))
 		return 0;
-	}
-	ret = smh_read(fd, buf, size);
-	smh_close(fd);
 
-	return ret;
+	ret = smh_read(fd, buf, size);
+	return ret < 0 ? 0 : ret;
 }
 
 static int spl_smh_load_image(struct spl_image_info *spl_image,
@@ -73,11 +69,11 @@ static int spl_smh_load_image(struct spl_image_info *spl_image,
 		debug("Found FIT\n");
 		load.read = smh_fit_read;
 		load.bl_len = 1;
-		load.filename = filename;
-		load.priv = NULL;
-		smh_close(fd);
+		load.filename = NULL;
+		load.priv = &fd;
 
-		return spl_load_simple_fit(spl_image, &load, 0, header);
+		ret = spl_load_simple_fit(spl_image, &load, 0, header);
+		goto out;
 	}
 
 	ret = spl_parse_image_header(spl_image, bootdev, header);
