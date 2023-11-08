@@ -481,6 +481,11 @@ config SPL_DISPLAY_PRINT
 	  banner ("U-Boot SPL ..."). This function should be provided by
 	  the board.
 
+config SPL_SYS_MMCSD_RAW_MODE
+	bool
+	help
+	  Support booting from an MMC without a filesystem.
+
 config SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
 	bool "MMC raw mode: by sector"
 	default y if ARCH_SUNXI || ARCH_DAVINCI || ARCH_UNIPHIER || \
@@ -490,6 +495,7 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
 		     OMAP44XX || OMAP54XX || AM33XX || AM43XX || \
 		     TARGET_SIFIVE_UNLEASHED || TARGET_SIFIVE_UNMATCHED
 	select SPL_LOAD_BLOCK if SPL_MMC
+	select SPL_SYS_MMCSD_RAW_MODE if SPL_MMC
 	help
 	  Use sector number for specifying U-Boot location on MMC/SD in
 	  raw mode.
@@ -527,6 +533,7 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET
 config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 	bool "MMC Raw mode: by partition"
 	select SPL_LOAD_BLOCK if SPL_MMC
+	select SPL_SYS_MMCSD_RAW_MODE if SPL_MMC
 	help
 	  Use a partition for loading U-Boot when using MMC/SD in raw mode.
 
@@ -1114,6 +1121,7 @@ config SPL_FALCON_BOOT_MMCSD
 	bool "Enable Falcon boot from MMC or SD media"
 	depends on SPL_OS_BOOT && SPL_MMC
 	select SPL_LOAD_BLOCK
+	select SPL_SYS_MMCSD_RAW_MODE
 	help
 	  Select this if the Falcon mode OS image mode is on MMC or SD media.
 
