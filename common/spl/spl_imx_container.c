@@ -33,13 +33,13 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 	images = (struct boot_img_t *)((u8 *)container +
 				       sizeof(struct container_hdr));
 
-	if (images[image_index].offset % info->bl_len) {
+	if (!IS_ALIGNED(images[image_index].offset, info->bl_len)) {
 		printf("%s: image%d offset not aligned to %u\n",
 		       __func__, image_index, info->bl_len);
 		return NULL;
 	}
 
-	sectors = roundup(images[image_index].size, info->bl_len) /
+	sectors = ALIGN(images[image_index].size, info->bl_len) /
 		info->bl_len;
 	sector = images[image_index].offset / info->bl_len +
 		container_sector;
@@ -69,7 +69,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 	u32 sectors;
 	int i, size, ret = 0;
 
-	size = roundup(CONTAINER_HDR_ALIGNMENT, info->bl_len);
+	size = ALIGN(CONTAINER_HDR_ALIGNMENT, info->bl_len);
 	sectors = size / info->bl_len;
 
 	/*
@@ -103,7 +103,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 	debug("Container length %u\n", length);
 
 	if (length > CONTAINER_HDR_ALIGNMENT) {
-		size = roundup(length, info->bl_len);
+		size = ALIGN(length, info->bl_len);
 		sectors = size / info->bl_len;
 
 		free(container);
