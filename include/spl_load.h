@@ -102,6 +102,7 @@ static inline int _spl_load(struct spl_image_info *spl_image,
 	(IS_ENABLED(CONFIG_SPL_NAND_SUPPORT) && !IS_ENABLED(CONFIG_SPL_UBI)) + \
 	IS_ENABLED(CONFIG_SPL_NET) + \
 	IS_ENABLED(CONFIG_SPL_NOR_SUPPORT) + \
+	IS_ENABLED(CONFIG_SPL_SEMIHOSTING) + \
 	0
 
 #if SPL_LOAD_USERS > 1
