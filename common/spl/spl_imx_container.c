@@ -19,11 +19,10 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 					  struct spl_load_info *info,
 					  struct container_hdr *container,
 					  int image_index,
-					  u32 container_sector)
+					  ulong container_offset)
 {
 	struct boot_img_t *images;
-	ulong sector;
-	u32 sectors;
+	ulong offset, overhead, size;
 
 	if (image_index > container->num_images) {
 		debug("Invalid image number\n");
@@ -39,16 +38,14 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 		return NULL;
 	}
 
-	sectors = ALIGN(images[image_index].size, info->bl_len) /
-		info->bl_len;
-	sector = images[image_index].offset / info->bl_len +
-		container_sector;
+	size = ALIGN(images[image_index].size, info->bl_len);
+	offset = images[image_index].offset + container_offset;
 
-	debug("%s: container: %p sector: %lu sectors: %u\n", __func__,
-	      container, sector, sectors);
-	if (info->read(info, sector, sectors,
-		       map_sysmem(images[image_index].dst,
-				  images[image_index].size)) != sectors) {
+	debug("%s: container: %p offset: %lu size: %lu\n", __func__,
+	      container, offset, size);
+	if (info->read(info, offset, size,
+		       map_sysmem(images[image_index].dst - overhead,
+				  images[image_index].size)) != size) {
 		printf("%s wrong\n", __func__);
 		return NULL;
 	}
@@ -62,15 +59,13 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 }
 
 static int read_auth_container(struct spl_image_info *spl_image,
-			       struct spl_load_info *info, ulong sector)
+			       struct spl_load_info *info, ulong offset)
 {
 	struct container_hdr *container = NULL;
 	u16 length;
-	u32 sectors;
 	int i, size, ret = 0;
 
 	size = ALIGN(CONTAINER_HDR_ALIGNMENT, info->bl_len);
-	sectors = size / info->bl_len;
 
 	/*
 	 * It will not override the ATF code, so safe to use it here,
@@ -80,9 +75,9 @@ static int read_auth_container(struct spl_image_info *spl_image,
 	if (!container)
 		return -ENOMEM;
 
-	debug("%s: container: %p sector: %lu sectors: %u\n", __func__,
-	      container, sector, sectors);
-	if (info->read(info, sector, sectors, container) != sectors) {
+	debug("%s: container: %p offset: %lu size: %u\n", __func__,
+	      container, offset, size);
+	if (info->read(info, offset, size, container) != size) {
 		ret = -EIO;
 		goto end;
 	}
@@ -104,17 +99,15 @@ static int read_auth_container(struct spl_image_info *spl_image,
 
 	if (length > CONTAINER_HDR_ALIGNMENT) {
 		size = ALIGN(length, info->bl_len);
-		sectors = size / info->bl_len;
 
 		free(container);
 		container = malloc(size);
 		if (!container)
 			return -ENOMEM;
 
-		debug("%s: container: %p sector: %lu sectors: %u\n",
-		      __func__, container, sector, sectors);
-		if (info->read(info, sector, sectors, container) !=
-		    sectors) {
+		debug("%s: container: %p offset: %lu size: %u\n",
+		      __func__, container, offset, size);
+		if (info->read(info, offset, size, container) != size) {
 			ret = -EIO;
 			goto end;
 		}
@@ -129,7 +122,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 	for (i = 0; i < container->num_images; i++) {
 		struct boot_img_t *image = read_auth_image(spl_image, info,
 							   container, i,
-							   sector);
+							   offset);
 
 		if (!image) {
 			ret = -EINVAL;
@@ -154,7 +147,7 @@ end:
 }
 
 int spl_load_imx_container(struct spl_image_info *spl_image,
-			   struct spl_load_info *info, ulong sector)
+			   struct spl_load_info *info, ulong offset)
 {
-	return read_auth_container(spl_image, info, sector);
+	return read_auth_container(spl_image, info, offset);
 }

@@ -49,14 +49,12 @@ static ulong spl_nand_fit_read(struct spl_load_info *load, ulong offs,
 	ulong sector;
 
 	sector = *(int *)load->priv;
-	offs *= load->bl_len;
-	size *= load->bl_len;
 	offs = sector + nand_spl_adjust_offset(sector, offs - sector);
 	err = nand_spl_load_image(offs, size, dst);
 	if (err)
 		return 0;
 
-	return size / load->bl_len;
+	return size;
 }
 
 static ulong spl_nand_legacy_read(struct spl_load_info *load, ulong offs,
@@ -95,7 +93,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		load.filename = NULL;
 		load.bl_len = bl_len;
 		load.read = spl_nand_fit_read;
-		return spl_load_simple_fit(spl_image, &load, offset / bl_len, header);
+		return spl_load_simple_fit(spl_image, &load, offset, header);
 	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
 		   valid_container_hdr((void *)header)) {
 		struct spl_load_info load;
@@ -104,7 +102,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		load.filename = NULL;
 		load.bl_len = bl_len;
 		load.read = spl_nand_fit_read;
-		return spl_load_imx_container(spl_image, &load, offset / bl_len);
+		return spl_load_imx_container(spl_image, &load, offset);
 	} else if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_FORMAT) &&
 		   image_get_magic(header) == IH_MAGIC) {
 		struct spl_load_info load;

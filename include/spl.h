@@ -297,10 +297,12 @@ struct spl_load_info {
 	 * read() - Read from device
 	 *
 	 * @load: Information about the load state
-	 * @sector: Sector number to read from (each @load->bl_len bytes)
-	 * @count: Number of sectors to read
+	 * @offset: Offset to read from in bytes. This must be a multiple of
+	 *          @load->bl_len.
+	 * @count: Number of bytes to read. This must be a multiple of
+	 *         @load->bl_len.
 	 * @buf: Buffer to read into
-	 * @return number of sectors read, 0 on error
+	 * @return number of bytes read, 0 on error
 	 */
 	ulong (*read)(struct spl_load_info *load, ulong sector, ulong count,
 		      void *buf);
@@ -368,7 +370,8 @@ void *spl_load_simple_fit_fix_load(const void *fit);
  * spl_load_simple_fit() - Loads a fit image from a device.
  * @spl_image:	Image description to set up
  * @info:	Structure containing the information required to load data.
- * @sector:	Sector number where FIT image is located in the device
+ * @offset:	Offset where FIT image is located in the device. Must be aligned
+ *              to the device's bl_len.
  * @fdt:	Pointer to the copied FIT header.
  *
  * Reads the FIT image @sector in the device. Loads u-boot image to
@@ -376,7 +379,7 @@ void *spl_load_simple_fit_fix_load(const void *fit);
  * Returns 0 on success.
  */
 int spl_load_simple_fit(struct spl_image_info *spl_image,
-			struct spl_load_info *info, ulong sector, void *fdt);
+			struct spl_load_info *info, ulong offset, void *fdt);
 
 #define SPL_COPY_PAYLOAD_ONLY	1
 #define SPL_FIT_FOUND		2
@@ -402,13 +405,14 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
  * spl_load_imx_container() - Loads a imx container image from a device.
  * @spl_image:	Image description to set up
  * @info:	Structure containing the information required to load data.
- * @sector:	Sector number where container image is located in the device
+ * @sector:	Offset where container image is located in the device. Must be
+ *              aligned to the device block size.
  *
  * Reads the container image @sector in the device. Loads u-boot image to
  * specified load address.
  */
 int spl_load_imx_container(struct spl_image_info *spl_image,
-			   struct spl_load_info *info, ulong sector);
+			   struct spl_load_info *info, ulong offset);
 
 /* SPL common functions */
 void preloader_console_init(void);

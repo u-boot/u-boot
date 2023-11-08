@@ -62,12 +62,14 @@ static int mmc_load_legacy(struct spl_image_info *spl_image,
 	return 0;
 }
 
-static ulong h_spl_load_read(struct spl_load_info *load, ulong sector,
-			     ulong count, void *buf)
+static ulong h_spl_load_read(struct spl_load_info *load, ulong off,
+			     ulong size, void *buf)
 {
-	struct mmc *mmc = load->priv;
+	struct blk_desc *bd = load->priv;
+	lbaint_t sector = off >> bd->log2blksz;
+	lbaint_t count = size >> bd->log2blksz;
 
-	return blk_dread(mmc_get_blk_desc(mmc), sector, count, buf);
+	return blk_dread(bd, sector, count, buf) << bd->log2blksz;
 }
 
 static __maybe_unused unsigned long spl_mmc_raw_uboot_offset(int part)
@@ -105,21 +107,23 @@ int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		debug("Found FIT\n");
-		load.priv = mmc;
+		load.priv = bd;
 		load.filename = NULL;
-		load.bl_len = mmc->read_bl_len;
+		load.bl_len = bd->blksz;
 		load.read = h_spl_load_read;
-		ret = spl_load_simple_fit(spl_image, &load, sector, header);
+		ret = spl_load_simple_fit(spl_image, &load,
+					  sector << bd->log2blksz, header);
 	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
 		   valid_container_hdr((void *)header)) {
 		struct spl_load_info load;
 
-		load.priv = mmc;
+		load.priv = bd;
 		load.filename = NULL;
-		load.bl_len = mmc->read_bl_len;
+		load.bl_len = bd->blksz;
 		load.read = h_spl_load_read;
 
-		ret = spl_load_imx_container(spl_image, &load, sector);
+		ret = spl_load_imx_container(spl_image, &load,
+					     sector << bd->log2blksz);
 	} else {
 		ret = mmc_load_legacy(spl_image, bootdev, mmc, sector, header);
 	}
