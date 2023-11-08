@@ -82,6 +82,43 @@ int spl_parse_legacy_header(struct spl_image_info *spl_image,
 	return 0;
 }
 
+int spl_load_legacy_lzma(struct spl_image_info *spl_image,
+			 struct spl_load_info *load, ulong offset)
+{
+	SizeT lzma_len = LZMA_LEN;
+	void *src;
+	ulong dataptr, overhead, size;
+	int ret;
+
+	/* dataptr points to compressed payload  */
+	dataptr = ALIGN_DOWN(sizeof(struct legacy_img_hdr),
+			     spl_get_bl_len(load));
+	overhead = sizeof(struct legacy_img_hdr) - dataptr;
+	size = ALIGN(spl_image->size + overhead, spl_get_bl_len(load));
+	dataptr += offset;
+
+	debug("LZMA: Decompressing %08lx to %08lx\n",
+	      dataptr, spl_image->load_addr);
+	src = malloc(size);
+	if (!src) {
+		printf("Unable to allocate %d bytes for LZMA\n",
+		       spl_image->size);
+		return -ENOMEM;
+	}
+
+	load->read(load, dataptr, size, src);
+	ret = lzmaBuffToBuffDecompress(map_sysmem(spl_image->load_addr,
+						  spl_image->size), &lzma_len,
+				       src + overhead, spl_image->size);
+	if (ret) {
+		printf("LZMA decompression error: %d\n", ret);
+		return ret;
+	}
+
+	spl_image->size = lzma_len;
+	return 0;
+}
+
 /*
  * This function is added explicitly to avoid code size increase, when
  * no compression method is enabled. The compiler will optimize the
@@ -101,8 +138,6 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
 			struct spl_load_info *load, ulong offset,
 			struct legacy_img_hdr *hdr)
 {
-	__maybe_unused SizeT lzma_len;
-	__maybe_unused void *src;
 	ulong dataptr;
 	int ret;
 
@@ -133,39 +168,9 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
 			   map_sysmem(spl_image->load_addr, spl_image->size));
 		break;
 
-	case IH_COMP_LZMA: {
-		ulong overhead, size;
+	case IH_COMP_LZMA:
+		return spl_load_legacy_lzma(spl_image, load, offset);
 
-		lzma_len = LZMA_LEN;
-
-		/* dataptr points to compressed payload  */
-		dataptr = ALIGN_DOWN(sizeof(*hdr), spl_get_bl_len(load));
-		overhead = sizeof(*hdr) - dataptr;
-		size = ALIGN(spl_image->size + overhead, spl_get_bl_len(load));
-		dataptr += offset;
-
-		debug("LZMA: Decompressing %08lx to %08lx\n",
-		      dataptr, spl_image->load_addr);
-		src = malloc(size);
-		if (!src) {
-			printf("Unable to allocate %d bytes for LZMA\n",
-			       spl_image->size);
-			return -ENOMEM;
-		}
-
-		load->read(load, dataptr, size, src);
-		ret = lzmaBuffToBuffDecompress(map_sysmem(spl_image->load_addr,
-							  spl_image->size),
-					       &lzma_len, src + overhead,
-					       spl_image->size);
-		if (ret) {
-			printf("LZMA decompression error: %d\n", ret);
-			return ret;
-		}
-
-		spl_image->size = lzma_len;
-		break;
-	}
 	default:
 		debug("Compression method %s is not supported\n",
 		      genimg_get_comp_short_name(image_get_comp(hdr)));

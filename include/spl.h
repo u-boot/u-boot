@@ -408,6 +408,19 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 #define SPL_FIT_FOUND		2
 
 /**
+ * spl_load_legacy_lzma() - Load an LZMA-compressed legacy image
+ * @spl_image:	Image description (already set up)
+ * @load:	Structure containing the information required to load data.
+ * @offset:	Pointer to image
+ *
+ * Load/decompress an LZMA-compressed legacy image from the device.
+ *
+ * Return: 0 on success, or a negative error on failure
+ */
+int spl_load_legacy_lzma(struct spl_image_info *spl_image,
+			 struct spl_load_info *load, ulong offset);
+
+/**
  * spl_load_legacy_img() - Loads a legacy image from a device.
  * @spl_image:	Image description to set up
  * @load:	Structure containing the information required to load data.
