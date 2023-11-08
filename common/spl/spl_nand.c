@@ -10,6 +10,7 @@
 #include <imx_container.h>
 #include <log.h>
 #include <spl.h>
+#include <spl_load.h>
 #include <asm/io.h>
 #include <mapmem.h>
 #include <nand.h>
@@ -59,6 +60,7 @@ static ulong spl_nand_read(struct spl_load_info *load, ulong offs, ulong size,
 	sector = *(int *)load->priv;
 	offs = sector + nand_spl_adjust_offset(sector, offs - sector);
 	err = nand_spl_load_image(offs, size, dst);
+	spl_set_bl_len(load, nand_page_size());
 	if (err)
 		return 0;
 
@@ -66,60 +68,20 @@ static ulong spl_nand_read(struct spl_load_info *load, ulong offs, ulong size,
 }
 
 static int spl_nand_load_element(struct spl_image_info *spl_image,
-				 struct spl_boot_device *bootdev,
-				 int offset, struct legacy_img_hdr *header)
+				 struct spl_boot_device *bootdev, int offset)
 {
-	int bl_len;
-	int err;
+	struct spl_load_info load;
 
-	err = nand_spl_load_image(offset, sizeof(*header), (void *)header);
-	if (err)
-		return err;
-
-	bl_len = nand_page_size();
-	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
-	    image_get_magic(header) == FDT_MAGIC) {
-		struct spl_load_info load;
-
-		debug("Found FIT\n");
-		load.priv = &offset;
-		spl_set_bl_len(&load, bl_len);
-		load.read = spl_nand_read;
-		return spl_load_simple_fit(spl_image, &load, offset, header);
-	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
-		   valid_container_hdr((void *)header)) {
-		struct spl_load_info load;
-
-		load.priv = &offset;
-		spl_set_bl_len(&load, bl_len);
-		load.read = spl_nand_read;
-		return spl_load_imx_container(spl_image, &load, offset);
-	} else if (IS_ENABLED(CONFIG_SPL_LEGACY_IMAGE_FORMAT) &&
-		   image_get_magic(header) == IH_MAGIC) {
-		struct spl_load_info load;
-
-		debug("Found legacy image\n");
-		load.priv = &offset;
-		spl_set_bl_len(&load, IS_ENABLED(CONFIG_SPL_LZMA) ? bl_len : 1);
-		load.read = spl_nand_read;
-		return spl_load_legacy_img(spl_image, bootdev, &load, offset, header);
-	} else {
-		err = spl_parse_image_header(spl_image, bootdev, header);
-		if (err)
-			return err;
-		return nand_spl_load_image(offset, spl_image->size,
-					   map_sysmem(spl_image->load_addr,
-						      spl_image->size));
-	}
+	load.priv = &offset;
+	spl_set_bl_len(&load, 1);
+	load.read = spl_nand_read;
+	return spl_load(spl_image, bootdev, &load, 0, offset);
 }
 
 static int spl_nand_load_image(struct spl_image_info *spl_image,
 			       struct spl_boot_device *bootdev)
 {
 	int err;
-	struct legacy_img_hdr *header;
-	int *src __attribute__((unused));
-	int *dst __attribute__((unused));
 
 #ifdef CONFIG_SPL_NAND_SOFTECC
 	debug("spl: nand - using sw ecc\n");
@@ -128,10 +90,12 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 #endif
 	nand_init();
 
-	header = spl_get_load_buffer(0, sizeof(*header));
-
 #if CONFIG_IS_ENABLED(OS_BOOT)
 	if (!spl_start_uboot()) {
+		int *src, *dst;
+		struct legacy_img_hdr *header =
+			spl_get_load_buffer(0, sizeof(*header));
+
 		/*
 		 * load parameter image
 		 * load to temp position since nand_spl_load_image reads
@@ -174,20 +138,18 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 	}
 #endif
 #ifdef CONFIG_NAND_ENV_DST
-	spl_nand_load_element(spl_image, bootdev, CONFIG_ENV_OFFSET, header);
+	spl_nand_load_element(spl_image, bootdev, CONFIG_ENV_OFFSET);
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	spl_nand_load_element(spl_image, bootdev, CONFIG_ENV_OFFSET_REDUND, header);
+	spl_nand_load_element(spl_image, bootdev, CONFIG_ENV_OFFSET_REDUND);
 #endif
 #endif
 	/* Load u-boot */
-	err = spl_nand_load_element(spl_image, bootdev, spl_nand_get_uboot_raw_page(),
-				    header);
+	err = spl_nand_load_element(spl_image, bootdev, spl_nand_get_uboot_raw_page());
 #ifdef CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND
 #if CONFIG_SYS_NAND_U_BOOT_OFFS != CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND
 	if (err)
 		err = spl_nand_load_element(spl_image, bootdev,
-					    CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND,
-					    header);
+					    CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND);
 #endif
 #endif
 	nand_deselect();
