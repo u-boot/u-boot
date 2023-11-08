@@ -87,7 +87,7 @@ static int x86_sysreset_request(struct udevice *dev, enum sysreset_t type)
 			return ret;
 		return -EINPROGRESS;
 	default:
-		return -ENOSYS;
+		return -EPROTONOSUPPORT;
 	}
 
 	outb(value, IO_PORT_RESET);
