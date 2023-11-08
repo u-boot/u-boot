@@ -8,6 +8,7 @@
 #ifndef __TQMA6_H
 #define __TQMA6_H
 
+const char *tqma6_get_fdt_configuration(void);
 int tqma6_has_enet_workaround(void);
 
 #endif /* __TQMA6_H */
