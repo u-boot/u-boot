@@ -9,6 +9,7 @@
 #include <spl.h>
 #include <image.h>
 #include <fs.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 
 struct blk_dev {
@@ -85,7 +86,7 @@ int spl_blk_load_image(struct spl_image_info *spl_image,
 
 		debug("Found FIT\n");
 		load.read = spl_fit_read;
-		load.bl_len = 1;
+		load.bl_len = ARCH_DMA_MINALIGN;
 		load.filename = (void *)filename;
 		load.priv = &dev;
 

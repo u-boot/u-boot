@@ -45,7 +45,8 @@ static struct boot_img_t *read_auth_image(struct spl_image_info *spl_image,
 	      container, offset, size);
 	if (info->read(info, offset, size,
 		       map_sysmem(images[image_index].dst - overhead,
-				  images[image_index].size)) != size) {
+				  images[image_index].size)) <
+	    images[image_index].size) {
 		printf("%s wrong\n", __func__);
 		return NULL;
 	}
@@ -77,7 +78,8 @@ static int read_auth_container(struct spl_image_info *spl_image,
 
 	debug("%s: container: %p offset: %lu size: %u\n", __func__,
 	      container, offset, size);
-	if (info->read(info, offset, size, container) != size) {
+	if (info->read(info, offset, size, container) <
+	    CONTAINER_HDR_ALIGNMENT) {
 		ret = -EIO;
 		goto end;
 	}
@@ -107,7 +109,7 @@ static int read_auth_container(struct spl_image_info *spl_image,
 
 		debug("%s: container: %p offset: %lu size: %u\n",
 		      __func__, container, offset, size);
-		if (info->read(info, offset, size, container) != size) {
+		if (info->read(info, offset, size, container) < length) {
 			ret = -EIO;
 			goto end;
 		}

@@ -14,7 +14,6 @@
 #include <mapmem.h>
 #include <spl.h>
 #include <sysinfo.h>
-#include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/libfdt.h>
@@ -172,28 +171,11 @@ static int spl_fit_get_image_node(const struct spl_fit_info *ctx,
 
 static int get_aligned_image_offset(struct spl_load_info *info, int offset)
 {
-	/*
-	 * If it is a FS read, get the first address before offset which is
-	 * aligned to ARCH_DMA_MINALIGN. If it is raw read return the
-	 * block number to which offset belongs.
-	 */
-	if (info->filename)
-		return offset & ~(ARCH_DMA_MINALIGN - 1);
-
 	return ALIGN_DOWN(offset, info->bl_len);
 }
 
 static int get_aligned_image_overhead(struct spl_load_info *info, int offset)
 {
-	/*
-	 * If it is a FS read, get the difference between the offset and
-	 * the first address before offset which is aligned to
-	 * ARCH_DMA_MINALIGN. If it is raw read return the offset within the
-	 * block.
-	 */
-	if (info->filename)
-		return offset & (ARCH_DMA_MINALIGN - 1);
-
 	return offset & (info->bl_len - 1);
 }
 
@@ -201,9 +183,6 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
 				  int offset)
 {
 	data_size = data_size + get_aligned_image_overhead(info, offset);
-
-	if (info->filename)
-		return data_size;
 
 	return ALIGN(data_size, info->bl_len);
 }
@@ -295,7 +274,7 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 		if (info->read(info,
 			       fit_offset +
 			       get_aligned_image_offset(info, offset), size,
-			       src_ptr) != size)
+			       src_ptr) < length)
 			return -EIO;
 
 		debug("External data: dst=%p, offset=%x, size=%lx\n",
