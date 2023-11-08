@@ -718,8 +718,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	ret = boot_from_devices(&spl_image, spl_boot_list,
 				ARRAY_SIZE(spl_boot_list));
 	if (ret) {
-		if (CONFIG_IS_ENABLED(SHOW_ERRORS) &&
-		    CONFIG_IS_ENABLED(LIBCOMMON_SUPPORT))
+		if (CONFIG_IS_ENABLED(SHOW_ERRORS))
 			printf(SPL_TPL_PROMPT "failed to boot from all boot devices (err=%d)\n",
 			       ret);
 		else
