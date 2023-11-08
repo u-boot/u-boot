@@ -86,7 +86,10 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 	}
 
 	load.read = spl_fit_read;
-	spl_set_bl_len(&load, ARCH_DMA_MINALIGN);
+	if (IS_ENABLED(CONFIG_SPL_FS_FAT_DMA_ALIGN))
+		spl_set_bl_len(&load, ARCH_DMA_MINALIGN);
+	else
+		spl_set_bl_len(&load, 1);
 	load.priv = (void *)filename;
 	err = spl_load(spl_image, bootdev, &load, size, 0);
 

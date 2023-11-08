@@ -694,12 +694,27 @@ config SPL_FS_SQUASHFS
 config SPL_FS_FAT
 	bool "Support FAT filesystems"
 	select FS_FAT
-	select SPL_LOAD_BLOCK
 	help
 	  Enable support for FAT and VFAT filesystems with SPL. This
 	  permits U-Boot (or Linux in Falcon mode) to be loaded from a FAT
 	  filesystem from within SPL. Support for the underlying block
 	  device (e.g. MMC or USB) must be enabled separately.
+
+config SPL_FS_FAT_DMA_ALIGN
+	bool "Use DMA-aligned buffers with FAT"
+	depends on SPL_FS_FAT
+	select SPL_LOAD_BLOCK
+	default y if SPL_LOAD_FIT
+	help
+	  The FAT filesystem driver tries to ensure that the reads it issues to
+	  the block subsystem use DMA-aligned buffers. If the supplied buffer is
+	  not DMA-aligned, the FAT driver will use a bounce-buffer and read
+	  block-by-block. This is separate from the bounce-buffer used by the
+	  block subsystem (CONFIG_BOUNCE_BUFFER).
+
+	  Enable this config to align buffers passed to the FAT filesystem
+	  driver. This will speed up reads, but will increase the size of U-Boot
+	  by around 60 bytes.
 
 config SPL_FS_LOAD_PAYLOAD_NAME
 	string "File to load for U-Boot from the filesystem"
@@ -1282,7 +1297,6 @@ config SPL_NVME
 	depends on BLK
 	select FS_LOADER
 	select SPL_BLK_FS
-	select SPL_LOAD_BLOCK
 	help
 	  This option enables support for NVM Express devices.
 	  It supports basic functions of NVMe (read/write).
