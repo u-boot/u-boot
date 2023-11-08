@@ -50,7 +50,7 @@ int spl_blk_load_image(struct spl_image_info *spl_image,
 	struct blk_desc *blk_desc;
 	loff_t actlen, filesize;
 	struct blk_dev dev;
-	int ret;
+	int ret = -ENODEV;
 
 	blk_desc = blk_get_devnum_by_uclass_id(uclass_id, devnum);
 	if (!blk_desc) {
