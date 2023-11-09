@@ -921,6 +921,15 @@ void acpi_fill_header(struct acpi_table_header *header, char *signature);
 int acpi_fill_csrt(struct acpi_ctx *ctx);
 
 /**
+ * acpi_get_rsdp_addr() - get ACPI RSDP table address
+ *
+ * This routine returns the ACPI RSDP table address in the system memory.
+ *
+ * @return:	ACPI RSDP table address
+ */
+ulong acpi_get_rsdp_addr(void);
+
+/**
  * write_acpi_tables() - Write out the ACPI tables
  *
  * This writes all ACPI tables to the given address
