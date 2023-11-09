@@ -11,15 +11,12 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/pwm.h>
 #include <i2c.h>
+#include <linux/time.h>
 
 #include <irq_func.h>
 
 #include <asm/arch/nexell.h>
 #include <asm/arch/nx_gpio.h>
-
-#ifndef NSEC_PER_SEC
-#define NSEC_PER_SEC	1000000000L
-#endif
 
 #define SAMPLE_BPS		9600
 #define SAMPLE_IN_US	101		/* (1000000 / BPS) */

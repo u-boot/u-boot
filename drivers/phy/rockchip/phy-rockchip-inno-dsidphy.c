@@ -15,6 +15,7 @@
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
 #include <linux/math64.h>
+#include <linux/time.h>
 #include <phy-mipi-dphy.h>
 #include <reset.h>
 
@@ -185,8 +186,6 @@
 #define PHY_ENABLECLK				BIT(2)
 #define DSI_PHY_STATUS				0xb0
 #define PHY_LOCK				BIT(0)
-
-#define PSEC_PER_SEC				1000000000000LL
 
 #define msleep(a)				udelay(a * 1000)
 

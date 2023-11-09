@@ -17,6 +17,7 @@
 #include <linux/clk/at91_pmc.h>
 #include <linux/delay.h>
 #include <linux/io.h>
+#include <linux/time.h>
 #include "pmc.h"
 
 #define UBOOT_DM_CLK_AT91_MAIN_RC		"at91-main-rc-clk"
@@ -25,7 +26,6 @@
 #define UBOOT_DM_CLK_AT91_SAM9X5_MAIN		"at91-sam9x5-main-clk"
 
 #define MOR_KEY_MASK		GENMASK(23, 16)
-#define USEC_PER_SEC		1000000UL
 #define SLOW_CLOCK_FREQ		32768
 
 #define clk_main_parent_select(s)	(((s) & \

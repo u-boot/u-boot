@@ -14,8 +14,7 @@
 #include <dm/device_compat.h>
 #include <pwm.h>
 #include <asm/io.h>
-
-#define NSEC_PER_SEC			        1000000000L
+#include <linux/time.h>
 
 /* Time base module registers */
 #define TI_EHRPWM_TBCTL				0x00
