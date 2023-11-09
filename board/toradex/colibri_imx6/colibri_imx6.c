@@ -621,13 +621,16 @@ int board_late_init(void)
 	env_set("board_rev", env_str);
 #endif
 
-#ifdef CONFIG_CMD_USB_SDP
-	if (is_boot_from_usb()) {
-		printf("Serial Downloader recovery mode, using sdp command\n");
+	if (IS_ENABLED(CONFIG_USB) && is_boot_from_usb()) {
 		env_set("bootdelay", "0");
-		env_set("bootcmd", "sdp 0");
+		if (IS_ENABLED(CONFIG_CMD_USB_SDP)) {
+			printf("Serial Downloader recovery mode, using sdp command\n");
+			env_set("bootcmd", "sdp 0");
+		} else if (IS_ENABLED(CONFIG_CMD_FASTBOOT)) {
+			printf("Fastboot recovery mode, using fastboot command\n");
+			env_set("bootcmd", "fastboot usb 0");
+		}
 	}
-#endif /* CONFIG_CMD_USB_SDP */
 
 	return 0;
 }
