@@ -636,6 +636,7 @@ static const struct udevice_id meson_clk_ids[] = {
 	{ }
 };
 
+#if IS_ENABLED(CONFIG_CMD_CLK)
 static const char *meson_clk_get_name(struct clk *clk, int id)
 {
 	const struct meson_clk_info *info;
@@ -645,7 +646,7 @@ static const char *meson_clk_get_name(struct clk *clk, int id)
 	return IS_ERR(info) ? "unknown" : info->name;
 }
 
-static int meson_clk_dump(struct clk *clk)
+static int meson_clk_dump_single(struct clk *clk)
 {
 	const struct meson_clk_info *info;
 	struct meson_clk *priv;
@@ -680,7 +681,7 @@ static int meson_clk_dump(struct clk *clk)
 	return 0;
 }
 
-static int meson_clk_dump_dev(struct udevice *dev)
+static void meson_clk_dump(struct udevice *dev)
 {
 	int i;
 	struct meson_clk_data *data;
@@ -693,29 +694,13 @@ static int meson_clk_dump_dev(struct udevice *dev)
 
 	data = (struct meson_clk_data *)dev_get_driver_data(dev);
 	for (i = 0; i < data->num_clocks; i++) {
-		meson_clk_dump(&(struct clk){
+		meson_clk_dump_single(&(struct clk){
 			.dev = dev,
 			.id = i
 		});
 	}
-
-	return 0;
 }
-
-int soc_clk_dump(void)
-{
-	struct udevice *dev;
-	int i = 0;
-
-	while (!uclass_get_device(UCLASS_CLK, i++, &dev)) {
-		if (dev->driver == DM_DRIVER_GET(meson_clk)) {
-			meson_clk_dump_dev(dev);
-			printf("\n");
-		}
-	}
-
-	return 0;
-}
+#endif
 
 static struct clk_ops meson_clk_ops = {
 	.disable	= meson_clk_disable,
@@ -723,6 +708,9 @@ static struct clk_ops meson_clk_ops = {
 	.get_rate	= meson_clk_get_rate,
 	.set_rate	= meson_clk_set_rate,
 	.set_parent	= meson_clk_set_parent,
+#if IS_ENABLED(CONFIG_CMD_CLK)
+	.dump		= meson_clk_dump,
+#endif
 };
 
 U_BOOT_DRIVER(meson_clk) = {
