@@ -7,7 +7,6 @@
 #include <common.h>
 #include <clk.h>
 #include <log.h>
-#include <asm-generic/io.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>
@@ -17,6 +16,7 @@
 #include <dm/device_compat.h>
 #include <linux/err.h>
 #include <linux/errno.h>
+#include <linux/io.h>
 #include <linux/sizes.h>
 #include <zynqmp_firmware.h>
 #include "cadence_qspi.h"
