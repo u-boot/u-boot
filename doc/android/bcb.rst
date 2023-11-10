@@ -41,23 +41,25 @@ requirements enumerated above. Below is the command's help message::
    bcb - Load/set/clear/test/dump/store Android BCB fields
 
    Usage:
-   bcb load  <dev> <part>       - load  BCB from mmc <dev>:<part>
-   bcb set   <field> <val>      - set   BCB <field> to <val>
-   bcb clear [<field>]          - clear BCB <field> or all fields
-   bcb test  <field> <op> <val> - test  BCB <field> against <val>
-   bcb dump  <field>            - dump  BCB <field>
-   bcb store                    - store BCB back to mmc
+   bcb load <interface> <dev> <part>  - load  BCB from <interface> <dev>:<part>
+   load <dev> <part>              - load  BCB from mmc <dev>:<part>
+   bcb set   <field> <val>        - set   BCB <field> to <val>
+   bcb clear [<field>]            - clear BCB <field> or all fields
+   bcb test  <field> <op> <val>   - test  BCB <field> against <val>
+   bcb dump  <field>              - dump  BCB <field>
+   bcb store                      - store BCB back to <interface>
 
    Legend:
-   <dev>   - MMC device index containing the BCB partition
-   <part>  - MMC partition index or name containing the BCB
-   <field> - one of {command,status,recovery,stage,reserved}
-   <op>    - the binary operator used in 'bcb test':
-             '=' returns true if <val> matches the string stored in <field>
-             '~' returns true if <val> matches a subset of <field>'s string
-   <val>   - string/text provided as input to bcb {set,test}
-             NOTE: any ':' character in <val> will be replaced by line feed
-             during 'bcb set' and used as separator by upper layers
+   <interface> - storage device interface (virtio, mmc, etc)
+   <dev>       - storage device index containing the BCB partition
+   <part>      - partition index or name containing the BCB
+   <field>     - one of {command,status,recovery,stage,reserved}
+   <op>        - the binary operator used in 'bcb test':
+                 '=' returns true if <val> matches the string stored in <field>
+                 '~' returns true if <val> matches a subset of <field>'s string
+   <val>       - string/text provided as input to bcb {set,test}
+                 NOTE: any ':' character in <val> will be replaced by line feed
+                 during 'bcb set' and used as separator by upper layers
 
 
 'bcb'. Example of getting reboot reason
@@ -91,7 +93,7 @@ The following Kconfig options must be enabled::
 
    CONFIG_PARTITIONS=y
    CONFIG_MMC=y
-   CONFIG_BCB=y
+   CONFIG_CMD_BCB=y
 
 .. [1] https://android.googlesource.com/platform/bootable/recovery
 .. [2] https://source.android.com/devices/bootloader

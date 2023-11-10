@@ -9,10 +9,11 @@
 #define __BCB_H__
 
 #if IS_ENABLED(CONFIG_CMD_BCB)
-int bcb_write_reboot_reason(int devnum, char *partp, const char *reasonp);
+int bcb_write_reboot_reason(const char *iface, int devnum, char *partp, const char *reasonp);
 #else
 #include <linux/errno.h>
-static inline int bcb_write_reboot_reason(int devnum, char *partp, const char *reasonp)
+static inline int bcb_write_reboot_reason(const char *iface, int devnum,
+					  char *partp, const char *reasonp)
 {
 	return -EOPNOTSUPP;
 }

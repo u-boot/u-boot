@@ -105,7 +105,7 @@ int __weak fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 	if (reason >= FASTBOOT_REBOOT_REASONS_COUNT)
 		return -EINVAL;
 
-	return bcb_write_reboot_reason(mmc_dev, "misc", boot_cmds[reason]);
+	return bcb_write_reboot_reason("mmc", mmc_dev, "misc", boot_cmds[reason]);
 }
 
 /**
