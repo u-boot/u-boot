@@ -10,6 +10,14 @@ config TARGET_MK808
 config ROCKCHIP_BOOT_MODE_REG
 	default 0x20004040
 
+config ROCKCHIP_BOOT_LR_REG
+	hex
+	default 0x00001058
+
+config ROCKCHIP_BOOT_RETURN_REG
+	hex
+	default 0x00001100
+
 config SYS_SOC
 	default "rk3066"
 

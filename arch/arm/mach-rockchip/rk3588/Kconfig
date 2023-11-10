@@ -125,6 +125,13 @@ config TARGET_ROCK5B_RK3588
 	  USB PD over USB Type-C
 	  Size: 100mm x 72mm (Pico-ITX form factor)
 
+config TARGET_QUARTZPRO64_RK3588
+	bool "Pine64 QuartzPro64 RK3588 board"
+	select BOARD_LATE_INIT
+	help
+	  Pine64 QuartzPro64 is a Rockchip RK3588 based SBC (Single Board
+	  Computer) by Pine64.
+
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xfd588080
 
@@ -139,6 +146,7 @@ config SYS_MALLOC_F_LEN
 
 source board/edgeble/neural-compute-module-6/Kconfig
 source board/friendlyelec/nanopc-t6-rk3588/Kconfig
+source board/pine64/quartzpro64-rk3588/Kconfig
 source board/rockchip/evb_rk3588/Kconfig
 source board/radxa/rock5a-rk3588s/Kconfig
 source board/radxa/rock5b-rk3588/Kconfig
