@@ -6,7 +6,7 @@
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
  * Based on:
- * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include <common.h>

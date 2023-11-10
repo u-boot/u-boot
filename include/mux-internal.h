@@ -5,7 +5,7 @@
  * Copyright (C) 2017 Axentia Technologies AB
  * Author: Peter Rosin <peda@axentia.se>
  *
- * Copyright (C) 2017-2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2017-2018 Texas Instruments Incorporated - https://www.ti.com/
  * Jean-Jacques Hiblot <jjhiblot@ti.com>
  */
 

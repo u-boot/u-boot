@@ -2,7 +2,7 @@
 /*
  * K3: AM6 SoC definitions, structures etc.
  *
- * (C) Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ * (C) Copyright (C) 2018 Texas Instruments Incorporated - https://www.ti.com/
  */
 #ifndef __ASM_ARCH_AM6_HARDWARE_H
 #define __ASM_ARCH_AM6_HARDWARE_H

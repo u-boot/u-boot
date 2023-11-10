@@ -2,7 +2,7 @@
 /**
  * linux-compat.h - DesignWare USB3 Linux Compatibiltiy Adapter  Header
  *
- * Copyright (C) 2015 Texas Instruments Incorporated - http://www.ti.com
+ * Copyright (C) 2015 Texas Instruments Incorporated - https://www.ti.com
  *
  * Authors: Kishon Vijay Abraham I <kishon@ti.com>
  *

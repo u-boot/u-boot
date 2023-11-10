@@ -2,7 +2,7 @@
 /*
  * TI K3 AM65x NAVSS Ring accelerator Manager (RA) subsystem driver
  *
- * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com
+ * Copyright (C) 2018 Texas Instruments Incorporated - https://www.ti.com
  */
 
 #ifndef __SOC_TI_K3_NAVSS_RINGACC_API_H_

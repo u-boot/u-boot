@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /* include/linux/usb/otg.h
  *
- * Copyright (c) 2015 Texas Instruments Incorporated - http://www.ti.com
+ * Copyright (c) 2015 Texas Instruments Incorporated - https://www.ti.com
  *
  * USB OTG (On The Go) defines
  */

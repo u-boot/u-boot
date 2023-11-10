@@ -3,7 +3,7 @@
  * Texas Instruments System Control Interface Protocol Driver
  * Based on drivers/firmware/ti_sci.c from Linux.
  *
- * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018 Texas Instruments Incorporated - https://www.ti.com/
  *	Lokesh Vutla <lokeshvutla@ti.com>
  */
 

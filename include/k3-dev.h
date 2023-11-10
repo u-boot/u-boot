@@ -2,7 +2,7 @@
 /*
  * Texas Instruments K3 Device Platform Data
  *
- * Copyright (C) 2020 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2020 Texas Instruments Incorporated - https://www.ti.com/
  */
 #ifndef __K3_DEV_H__
 #define __K3_DEV_H__

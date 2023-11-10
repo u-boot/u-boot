@@ -2,7 +2,7 @@
 /*
  * CPSW Ethernet Switch Driver
  *
- * Copyright (C) 2010-2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2010-2018 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include <common.h>

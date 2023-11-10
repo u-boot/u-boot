@@ -2095,7 +2095,7 @@ int fdt_overlay_apply_verbose(void *fdt, void *fdto)
 		printf("failed on fdt_overlay_apply(): %s\n",
 				fdt_strerror(err));
 		if (!has_symbols) {
-			printf("base fdt does did not have a /__symbols__ node\n");
+			printf("base fdt does not have a /__symbols__ node\n");
 			printf("make sure you've compiled with -@\n");
 		}
 	}

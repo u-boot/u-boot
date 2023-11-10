@@ -2,7 +2,7 @@
 /*
  * K3: Security functions
  *
- * Copyright (C) 2018-2022 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018-2022 Texas Instruments Incorporated - https://www.ti.com/
  *	Andrew F. Davis <afd@ti.com>
  */
 

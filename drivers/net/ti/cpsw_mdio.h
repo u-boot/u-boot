@@ -2,7 +2,7 @@
 /*
  * CPSW MDIO generic driver API for TI AMxx/K2x/EMAC devices.
  *
- * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #ifndef CPSW_MDIO_H_

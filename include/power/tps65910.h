@@ -3,7 +3,7 @@
  * (C) Copyright 2011-2013
  * Texas Instruments, <www.ti.com>
  *
- * For more details, please see the TRM at http://www.ti.com/product/tps65910
+ * For more details, please see the TRM at https://www.ti.com/product/tps65910
  */
 #ifndef __POWER_TPS65910_H__
 #define __POWER_TPS65910_H__

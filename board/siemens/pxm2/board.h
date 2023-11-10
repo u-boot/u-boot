@@ -9,7 +9,7 @@
  * TI AM335x boards information header
  * u-boot:/board/ti/am335x/board.h
  *
- * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
+ * Copyright (C) 2011, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
 #ifndef _BOARD_H_

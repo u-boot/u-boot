@@ -58,7 +58,7 @@ F:	lib/acpi/
 
 ANDROID AB
 M:	Igor Opaniuk <igor.opaniuk@gmail.com>
-R:	Sam Protsenko <joe.skb7@gmail.com>
+R:	Sam Protsenko <semen.protsenko@linaro.org>
 S:	Maintained
 F:	cmd/ab_select.c
 F:	common/android_ab.c

@@ -4,7 +4,7 @@
  *
  * Based on da850evm.h
  *
- * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2010 Texas Instruments Incorporated - https://www.ti.com/
  *
  * Based on davinci_dvevm.h. Original Copyrights follow:
  *

@@ -7,7 +7,7 @@
  * Based on ti/evm/evm.h
  *
  * Copyright (C) 2010
- * Texas Instruments Incorporated - http://www.ti.com/
+ * Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #ifndef _AM3517EVM_H_

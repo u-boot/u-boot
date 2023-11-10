@@ -2,7 +2,7 @@
 /*
  * Test for the SOC uclass
  *
- * (C) Copyright 2020 - Texas Instruments Incorporated - http://www.ti.com/
+ * (C) Copyright 2020 - Texas Instruments Incorporated - https://www.ti.com/
  *	Dave Gerlach <d-gerlach@ti.com>
  */
 

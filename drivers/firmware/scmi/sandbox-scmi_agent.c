@@ -576,7 +576,7 @@ static int sandbox_scmi_pwd_attribs(struct udevice *dev, struct scmi_msg *msg)
 	domain_id = *(u32 *)msg->in_msg;
 	out = (struct scmi_pwd_attrs_out *)msg->out_msg;
 
-	if (domain_id > ARRAY_SIZE(scmi_pwdom)) {
+	if (domain_id >= ARRAY_SIZE(scmi_pwdom)) {
 		out->status = SCMI_NOT_FOUND;
 
 		return 0;
@@ -613,7 +613,7 @@ static int sandbox_scmi_pwd_state_set(struct udevice *dev, struct scmi_msg *msg)
 	in = (struct scmi_pwd_state_set_in *)msg->in_msg;
 	status = (s32 *)msg->out_msg;
 
-	if (in->domain_id > ARRAY_SIZE(scmi_pwdom)) {
+	if (in->domain_id >= ARRAY_SIZE(scmi_pwdom)) {
 		*status = SCMI_NOT_FOUND;
 
 		return 0;
@@ -653,7 +653,7 @@ static int sandbox_scmi_pwd_state_get(struct udevice *dev, struct scmi_msg *msg)
 	domain_id = *(u32 *)msg->in_msg;
 	out = (struct scmi_pwd_state_get_out *)msg->out_msg;
 
-	if (domain_id > ARRAY_SIZE(scmi_pwdom)) {
+	if (domain_id >= ARRAY_SIZE(scmi_pwdom)) {
 		out->status = SCMI_NOT_FOUND;
 
 		return 0;
@@ -686,7 +686,7 @@ static int sandbox_scmi_pwd_name_get(struct udevice *dev, struct scmi_msg *msg)
 	domain_id = *(u32 *)msg->in_msg;
 	out = (struct scmi_pwd_name_get_out *)msg->out_msg;
 
-	if (domain_id > ARRAY_SIZE(scmi_pwdom)) {
+	if (domain_id >= ARRAY_SIZE(scmi_pwdom)) {
 		out->status = SCMI_NOT_FOUND;
 
 		return 0;

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /* include/dwc3_omap_uboot.h
  *
- * Copyright (c) 2015 Texas Instruments Incorporated - http://www.ti.com
+ * Copyright (c) 2015 Texas Instruments Incorporated - https://www.ti.com
  *
  * Designware SuperSpeed OMAP Glue uboot init
  */

@@ -3,7 +3,7 @@
  * ET1011C PHY driver
  *
  * Derived from Linux kernel driver by Chaithrika U S
- * Copyright (C) 2013, Texas Instruments, Incorporated - http://www.ti.com/
+ * Copyright (C) 2013, Texas Instruments, Incorporated - https://www.ti.com/
  */
 #include <config.h>
 #include <phy.h>

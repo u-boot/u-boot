@@ -4,6 +4,6 @@
 #
 # Based on ti/evm/Makefile
 #
-# Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
+# Copyright (C) 2010 Texas Instruments Incorporated - https://www.ti.com/
 
 obj-y	:= am3517evm.o

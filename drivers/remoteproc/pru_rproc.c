@@ -2,7 +2,7 @@
 /*
  * PRU-RTU remoteproc driver for various SoCs
  *
- * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2018 Texas Instruments Incorporated - https://www.ti.com/
  *	Keerthy <j-keerthy@ti.com>
  */
 

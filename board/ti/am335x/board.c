@@ -4,7 +4,7 @@
  *
  * Board functions for TI AM335X based boards
  *
- * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
+ * Copyright (C) 2011, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
 #include <common.h>

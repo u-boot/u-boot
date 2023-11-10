@@ -17,17 +17,17 @@ Documentation for this board can be found at:
 The K2HK board is based on Texas Instruments Keystone2 family of SoCs: K2H, K2K.
 More details on these SoCs are available at company websites:
 
-K2K: http://www.ti.com/product/tci6638k2k
-K2H: http://www.ti.com/product/tci6638k2h
+K2K: https://www.ti.com/product/tci6638k2k
+K2H: https://www.ti.com/product/tci6638k2h
 
 The K2E SoC details are available at
- http://www.ti.com/lit/ds/symlink/66ak2e05.pdf
+ https://www.ti.com/lit/ds/symlink/66ak2e05.pdf
 
 The K2L SoC details are available at
- http://www.ti.com/lit/ds/symlink/tci6630k2l.pdf
+ https://www.ti.com/lit/ds/symlink/tci6630k2l.pdf
 
 The K2G SoC details are available at
- http://www.ti.com/lit/ds/symlink/66ak2g02.pdf
+ https://www.ti.com/lit/ds/symlink/66ak2g02.pdf
 
 Board Configuration
 -------------------

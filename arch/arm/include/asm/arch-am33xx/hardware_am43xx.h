@@ -4,7 +4,7 @@
  *
  * AM43xx hardware specific header
  *
- * Copyright (C) 2013, Texas Instruments, Incorporated - http://www.ti.com/
+ * Copyright (C) 2013, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
 #ifndef __AM43XX_HARDWARE_AM43XX_H
