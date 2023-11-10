@@ -40,6 +40,13 @@ u32 get_bootmode(void)
 		    TAMP_BOOT_MODE_SHIFT;
 }
 
+u32 get_bootauth(void)
+{
+	/* read boot auth status and partition from TAMP backup register */
+	return (readl(TAMP_BOOT_CONTEXT) & TAMP_BOOT_AUTH_MASK) >>
+		    TAMP_BOOT_AUTH_SHIFT;
+}
+
 /*
  * weak function overidde: set the DDR/SYSRAM executable before to enable the
  * MMU and configure DACR, for early early_enable_caches (SPL or pre-reloc)
@@ -91,10 +98,10 @@ static void early_enable_caches(void)
 	if (CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
 		return;
 
-	if (!(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))) {
+#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
 		gd->arch.tlb_size = PGTABLE_SIZE;
 		gd->arch.tlb_addr = (unsigned long)&early_tlb;
-	}
+#endif
 
 	/* enable MMU (default configuration) */
 	dcache_enable();
@@ -371,8 +378,24 @@ __weak void stm32mp_misc_init(void)
 {
 }
 
+static int setup_boot_auth_info(void)
+{
+	char buf[10];
+	u32 bootauth = get_bootauth();
+
+	snprintf(buf, sizeof(buf), "%d", bootauth >> 4);
+	env_set("boot_auth", buf);
+
+	snprintf(buf, sizeof(buf), "%d", bootauth &
+		 (u32)TAMP_BOOT_PARTITION_MASK);
+	env_set("boot_part", buf);
+
+	return 0;
+}
+
 int arch_misc_init(void)
 {
+	setup_boot_auth_info();
 	setup_boot_mode();
 	setup_mac_address();
 	setup_serial_number();

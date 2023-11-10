@@ -134,20 +134,14 @@
 
 &qspi_bk1_pins_a {
 	bootph-pre-ram;
-	pins1 {
-		bootph-pre-ram;
-	};
-	pins2 {
+	pins {
 		bootph-pre-ram;
 	};
 };
 
-&qspi_bk2_pins_a {
+&qspi_cs1_pins_a {
 	bootph-pre-ram;
-	pins1 {
-		bootph-pre-ram;
-	};
-	pins2 {
+	pins {
 		bootph-pre-ram;
 	};
 };
