@@ -712,7 +712,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
-			      void *notify_context, efi_guid_t *group,
+			      void *notify_context, const efi_guid_t *group,
 			      struct efi_event **event)
 {
 	struct efi_event *evt;
@@ -790,7 +790,7 @@ efi_status_t EFIAPI efi_create_event_ex(uint32_t type, efi_uintn_t notify_tpl,
 							struct efi_event *event,
 							void *context),
 					void *notify_context,
-					efi_guid_t *event_group,
+					const efi_guid_t *event_group,
 					struct efi_event **event)
 {
 	efi_status_t ret;
