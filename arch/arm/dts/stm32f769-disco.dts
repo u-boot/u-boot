@@ -86,6 +86,10 @@
 	status = "okay";
 };
 
+&ltdc {
+	status = "okay";
+};
+
 &rtc {
 	status = "okay";
 };
