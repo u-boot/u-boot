@@ -530,7 +530,8 @@ static ulong stm32_set_rate(struct clk *clk, ulong rate)
 			/* set pll_saidivr with found value */
 			clrsetbits_le32(&regs->dckcfgr,
 					RCC_DCKCFGR_PLLSAIDIVR_MASK,
-					pllsaidivr_table[i]);
+					pllsaidivr_table[i] <<
+					RCC_DCKCFGR_PLLSAIDIVR_SHIFT);
 			return rate;
 		}
 
