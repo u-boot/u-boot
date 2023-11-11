@@ -86,7 +86,7 @@ c. You will now have a U-Boot image::
 
 
 Step 2: Build Linux
---------------------
+-------------------
 
 a. Find the kernel image ('Image') and device tree (.dtb) file you plan to
    use. In our case it is am335x-boneblack.dtb and it is built with the kernel.

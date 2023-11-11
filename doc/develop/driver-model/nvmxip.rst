@@ -1,7 +1,7 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
 NVM XIP Block Storage Emulation Driver
-=======================================
+======================================
 
 Summary
 -------
@@ -54,12 +54,12 @@ The NVMXIP Uclass provides the following drivers:
 The implementation is generic and can be used by different platforms.
 
 Supported hardware
---------------------------------
+------------------
 
 Any plaform supporting readq().
 
 Configuration
-----------------------
+-------------
 
 config NVMXIP
 	  This option allows the emulation of a block storage device
@@ -77,7 +77,7 @@ config NVMXIP_QSPI
 	  write their own driver (same as nvmxip_qspi in addition to the custom settings).
 
 Device Tree nodes
---------------------
+-----------------
 
 Multiple QSPI XIP flash devices can be used at the same time by describing them through DT
 nodes.

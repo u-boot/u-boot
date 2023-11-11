@@ -218,7 +218,7 @@ DM tells you. The name is not quite right. So in this case we would use:
 
 
 Write of_to_plat() [for device tree only]
--------------------------------------------------
+-----------------------------------------
 
 This method will convert information in the device tree node into a C
 structure in your driver (called platform data). If you are not using

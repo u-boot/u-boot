@@ -40,7 +40,7 @@ The U-Boot FF-A support provides the following parts:
 - Sandbox FF-A test cases.
 
 FF-A and SMC specifications
--------------------------------------------
+---------------------------
 
 The current implementation of the U-Boot FF-A support relies on
 `FF-A v1.0 specification`_ and uses SMC32 calling convention which
@@ -56,12 +56,12 @@ Hypervisors are supported if they are configured to trap SMC calls.
 The FF-A support uses 64-bit registers as per `SMC Calling Convention v1.2 specification`_.
 
 Supported hardware
---------------------------------
+------------------
 
 Aarch64 plaforms
 
 Configuration
-----------------------
+-------------
 
 CONFIG_ARM_FFA_TRANSPORT
     Enables the FF-A support. Turn this on if you want to use FF-A
@@ -70,7 +70,7 @@ CONFIG_ARM_FFA_TRANSPORT
     When using sandbox, the sandbox FF-A emulator and FF-A sandbox driver will be used.
 
 FF-A ABIs under the hood
----------------------------------------
+------------------------
 
 Invoking an FF-A ABI involves providing to the secure world/hypervisor the
 expected arguments from the ABI.
@@ -89,7 +89,7 @@ The driver reads the response and processes it accordingly.
 This methodology applies to all the FF-A ABIs.
 
 FF-A bus discovery on Arm 64-bit platforms
----------------------------------------------
+------------------------------------------
 
 When CONFIG_ARM_FFA_TRANSPORT is enabled, the FF-A bus is considered as
 an architecture feature and discovered using ARM_SMCCC_FEATURES mechanism.
@@ -136,7 +136,7 @@ When one of the above actions fails, probing fails and the driver stays not acti
 and can be probed again if needed.
 
 Requirements for clients
--------------------------------------
+------------------------
 
 When using the FF-A bus with EFI, clients must query the SPs they are looking for
 during EFI boot-time mode using the service UUID.
@@ -159,13 +159,13 @@ the 32-bit or 64-bit version of FFA_MSG_SEND_DIRECT_{REQ, RESP}.
 The calling convention between U-Boot and the secure world stays the same: SMC32.
 
 Requirements for user drivers
--------------------------------------
+-----------------------------
 
 Users who want to implement their custom FF-A device driver while reusing the FF-A Uclass can do so
 by implementing their own invoke_ffa_fn() in the user driver.
 
 The bus driver layer
-------------------------------
+--------------------
 
 FF-A support comes on top of the SMCCC layer and is implemented by the FF-A Uclass drivers/firmware/arm-ffa/arm-ffa-uclass.c
 
@@ -210,7 +210,7 @@ The following features are provided:
 - FF-A bus can be compiled and used without EFI
 
 Relationship between the sandbox emulator and the FF-A device
----------------------------------------------------------------
+-------------------------------------------------------------
 
 ::
 
@@ -222,7 +222,7 @@ Relationship between the sandbox emulator and the FF-A device
     ffa                  0  [    ]   sandbox_arm_ffa               `-- sandbox-arm-ffa
 
 The armffa command
------------------------------------
+------------------
 
 armffa is a command showcasing how to use the FF-A bus and how to invoke the driver operations.
 

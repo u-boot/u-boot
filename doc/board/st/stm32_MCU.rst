@@ -2,7 +2,7 @@
 .. sectionauthor:: Patrice Chotard <patrice.chotardy@foss.st.com>
 
 STM32 MCU boards
-=================
+================
 
 This is a quick instruction for setup STM32 MCU boards.
 

@@ -64,16 +64,16 @@ Set the variables corresponding to this platform:
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_common_env_vars_defn
     :end-before: .. k3_rst_include_end_common_env_vars_defn
-.. code-block:: bash
+.. prompt:: bash $
 
- $ export UBOOT_CFG_CORTEXR=j7200_evm_r5_defconfig
- $ export UBOOT_CFG_CORTEXA=j7200_evm_a72_defconfig
- $ export TFA_BOARD=generic
- $ # we dont use any extra TFA parameters
- $ unset TFA_EXTRA_ARGS
- $ export OPTEE_PLATFORM=k3-j7200
- $ # we dont use any extra OP-TEE parameters
- $ unset OPTEE_EXTRA_ARGS
+  export UBOOT_CFG_CORTEXR=j7200_evm_r5_defconfig
+  export UBOOT_CFG_CORTEXA=j7200_evm_a72_defconfig
+  export TFA_BOARD=generic
+  # we dont use any extra TFA parameters
+  unset TFA_EXTRA_ARGS
+  export OPTEE_PLATFORM=k3-j7200
+  # we dont use any extra OP-TEE parameters
+  unset OPTEE_EXTRA_ARGS
 
 .. j7200_evm_rst_include_start_build_steps
 
@@ -106,7 +106,8 @@ Set the variables corresponding to this platform:
 .. j7200_evm_rst_include_end_build_steps
 
 Target Images
---------------
+-------------
+
 In order to boot we need tiboot3.bin, tispl.bin and u-boot.img. Each SoC
 variant (GP, HS-FS, HS-SE) requires a different source for these files.
 
@@ -225,6 +226,6 @@ detailed setup information.
 
 To start OpenOCD and connect to the board
 
-.. code-block:: bash
+.. prompt:: bash $
 
   openocd -f board/ti_j7200evm.cfg

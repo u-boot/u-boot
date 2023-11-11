@@ -1,7 +1,7 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
 Librem5
-==========
+=======
 
 U-Boot for the Purism Librem5 phone
 

@@ -66,7 +66,7 @@ For building U-Boot on Alpine Linux at least the following packages are needed:
 Depending on the build target further packages may be needed:
 
 * sandbox with lcd: sdl2-dev
-* riscv64 S-mode targests: opensbi
+* riscv64 S-mode targets: opensbi
 * some arm64 targets: arm-trusted-firmware
 
 Prerequisites

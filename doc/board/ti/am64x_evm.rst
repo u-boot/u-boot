@@ -65,16 +65,16 @@ Set the variables corresponding to this platform:
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_common_env_vars_defn
     :end-before: .. k3_rst_include_end_common_env_vars_defn
-.. code-block:: bash
+.. prompt:: bash $
 
- $ export UBOOT_CFG_CORTEXR=am64x_evm_r5_defconfig
- $ export UBOOT_CFG_CORTEXA=am64x_evm_a53_defconfig
- $ export TFA_BOARD=lite
- $ # we dont use any extra TFA parameters
- $ unset TFA_EXTRA_ARGS
- $ export OPTEE_PLATFORM=k3-am64x
- $ # we dont use any extra TFA parameters
- $ unset OPTEE_EXTRA_ARGS
+  export UBOOT_CFG_CORTEXR=am64x_evm_r5_defconfig
+  export UBOOT_CFG_CORTEXA=am64x_evm_a53_defconfig
+  export TFA_BOARD=lite
+  # we dont use any extra TFA parameters
+  unset TFA_EXTRA_ARGS
+  export OPTEE_PLATFORM=k3-am64x
+  # we dont use any extra TFA parameters
+  unset OPTEE_EXTRA_ARGS
 
 .. am64x_evm_rst_include_start_build_steps
 
@@ -107,7 +107,8 @@ Set the variables corresponding to this platform:
 .. am64x_evm_rst_include_end_build_steps
 
 Target Images
---------------
+-------------
+
 In order to boot we need tiboot3.bin, tispl.bin and u-boot.img.  Each SoC
 variant (GP, HS-FS, HS-SE) requires a different source for these files.
 

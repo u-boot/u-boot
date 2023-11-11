@@ -1,5 +1,5 @@
 Obtaining the source
-=====================
+====================
 
 The source of the U-Boot project is maintained in a Git repository.
 

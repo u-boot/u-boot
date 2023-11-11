@@ -36,7 +36,7 @@ Get the ddr firmware
    $ cp firmware-imx-8.9/firmware/ddr/synopsys/lpddr4*.bin $(builddir)
 
 Build U-Boot for sd card
---------------------------
+------------------------
 
 .. code-block:: bash
 
@@ -54,8 +54,8 @@ Boot
 ----
 Set Boot switch to SD boot
 
-Build U-Boot for qspi flash  card
-------------------------------------
+Build U-Boot for qspi flash card
+--------------------------------
 
 .. code-block:: bash
 
@@ -81,7 +81,8 @@ From sd card to memory
    $ sf write $loadaddr 0x00 <size_of_flash.bin_in_hex>
 
 Boot from QSPI Flash
------------------------
+--------------------
+
 Set Boot Switch to QSPI Flash
 
 Pin configuration for imx8mm_revC evk to boot from qspi flash

@@ -76,7 +76,7 @@ name is provided, all hunters are run.
 
 
 bootdev select
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 Use this to select a particular bootdev. You can select it by the sequence
 number or name, as shown in `bootdev list`.
@@ -89,7 +89,7 @@ unselected.
 
 
 bootdev info
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
 
 This shows information on the current bootdev, with the format looking like
 this:

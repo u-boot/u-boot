@@ -220,7 +220,7 @@ setting the GPIO (on twister GPIO 55 is used) to kernel mode.
 The kernel is loaded directly by the SPL without passing through U-Boot.
 
 Example with FDT: a3m071 board
--------------------------------
+------------------------------
 
 To boot the Linux kernel from the SPL, the DT blob (fdt) needs to get
 prepared/patched first. U-Boot usually inserts some dynamic values into
