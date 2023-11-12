@@ -24,9 +24,6 @@
 #include <dm/ofnode.h>
 #include <tee/optee.h>
 
-/* adding a ramdisk needs 0x44 bytes in version 2008.10 */
-#define FDT_RAMDISK_OVERHEAD	0x80
-
 DECLARE_GLOBAL_DATA_PTR;
 
 static void fdt_error(const char *msg)
@@ -663,10 +660,6 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 		goto err;
 	of_size = ret;
 
-	if (*initrd_start && *initrd_end) {
-		of_size += FDT_RAMDISK_OVERHEAD;
-		fdt_set_totalsize(blob, of_size);
-	}
 	/* Create a new LMB reservation */
 	if (lmb)
 		lmb_reserve(lmb, (ulong)blob, of_size);
