@@ -55,7 +55,17 @@ int fdt_chosen(void *fdt);
 /**
  * Add initrd information to the FDT before booting the OS.
  *
- * @param fdt		FDT address in memory
+ * Adds linux,initrd-start and linux,initrd-end properties to the /chosen node,
+ * creating it if necessary.
+ *
+ * A memory reservation for the ramdisk is added to the FDT, or an existing one
+ * (with matching @initrd_start) updated.
+ *
+ * If @initrd_start == @initrd_end this function does nothing and returns 0.
+ *
+ * @fdt: Pointer to FDT in memory
+ * @initrd_start: Start of ramdisk
+ * @initrd_end: End of ramdisk
  * Return: 0 if ok, or -FDT_ERR_... on error
  */
 int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end);

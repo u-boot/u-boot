@@ -635,6 +635,10 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 			goto err;
 		}
 	}
+
+	if (fdt_initrd(blob, *initrd_start, *initrd_end))
+		goto err;
+
 	if (!of_live_active() && CONFIG_IS_ENABLED(EVENT)) {
 		struct event_ft_fixup fixup;
 
@@ -664,7 +668,6 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 	if (lmb)
 		lmb_reserve(lmb, (ulong)blob, of_size);
 
-	fdt_initrd(blob, *initrd_start, *initrd_end);
 	if (!ft_verify_fdt(blob))
 		goto err;
 
