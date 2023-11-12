@@ -17,10 +17,8 @@ void efi_show_tables(struct efi_system_table *systab)
 
 	for (i = 0; i < systab->nr_tables; i++) {
 		struct efi_configuration_table *tab = &systab->tables[i];
-		char guid_str[37];
 
-		uuid_bin_to_str(tab->guid.b, guid_str, 1);
-		printf("%p  %pUl  %s\n", tab->table, guid_str,
+		printf("%p  %pUl  %s\n", tab->table, tab->guid.b,
 		       uuid_guid_get_str(tab->guid.b) ?: "(unknown)");
 	}
 }
