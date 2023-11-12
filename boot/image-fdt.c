@@ -575,12 +575,13 @@ __weak int arch_fixup_fdt(void *blob)
 }
 
 int image_setup_libfdt(struct bootm_headers *images, void *blob,
-		       int of_size, struct lmb *lmb)
+		       struct lmb *lmb)
 {
 	ulong *initrd_start = &images->initrd_start;
 	ulong *initrd_end = &images->initrd_end;
 	int ret = -EPERM;
 	int fdt_ret;
+	int of_size;
 
 	if (fdt_root(blob) < 0) {
 		printf("ERROR: root node setup failed\n");
