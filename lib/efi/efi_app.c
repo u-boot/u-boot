@@ -12,18 +12,21 @@
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <dm.h>
+#include <efi.h>
+#include <efi_api.h>
 #include <errno.h>
 #include <init.h>
 #include <malloc.h>
+#include <sysreset.h>
+#include <uuid.h>
 #include <asm/global_data.h>
 #include <linux/err.h>
 #include <linux/types.h>
-#include <efi.h>
-#include <efi_api.h>
-#include <sysreset.h>
+#include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/root.h>
+#include <mapmem.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -320,6 +323,19 @@ int dm_scan_other(bool pre_reloc_only)
 	return 0;
 }
 
+static void scan_tables(struct efi_system_table *sys_table)
+{
+	efi_guid_t acpi = EFI_ACPI_TABLE_GUID;
+	uint i;
+
+	for (i = 0; i < sys_table->nr_tables; i++) {
+		struct efi_configuration_table *tab = &sys_table->tables[i];
+
+		if (!memcmp(&tab->guid, &acpi, sizeof(efi_guid_t)))
+			gd_set_acpi_start(map_to_sysmem(tab->table));
+	}
+}
+
 /**
  * efi_main() - Start an EFI image
  *
@@ -353,6 +369,8 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 		printf("Failed to set up memory: ret=%lx\n", ret);
 		return ret;
 	}
+
+	scan_tables(priv->sys_table);
 
 	/*
 	 * We could store the EFI memory map here, but it changes all the time,
