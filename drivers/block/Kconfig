@@ -13,7 +13,7 @@ config BLK
 
 config SPL_LEGACY_BLOCK
 	bool # "Enable Legacy Block Device"
-	depends on SPL && !DM_SPL
+	depends on SPL
 	default y if SPL_MMC || SPL_USB_STORAGE || SCSI || NVME || IDE
 	default y if SPL_AHCI_PCI
 	help
