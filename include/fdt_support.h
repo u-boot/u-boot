@@ -232,13 +232,23 @@ int ft_system_setup(void *blob, struct bd_info *bd);
 void set_working_fdt_addr(ulong addr);
 
 /**
- * shrink down the given blob to minimum size + some extrasize if required
+ * fdt_shrink_to_minimum() - shrink FDT while allowing for some margin
+ *
+ * Shrink down the given blob to 'minimum' size + some extrasize.
+ *
+ * The new size is enough to hold the existing contents plus @extrasize bytes,
+ * plus 5 memory reservations. Also, the end of the FDT is aligned to a 4KB
+ * boundary, so it might end up up to 4KB larger than needed.
+ *
+ * If there is an existing memory reservation for @blob in the FDT, it is
+ * updated for the new size.
  *
  * @param blob		FDT blob to update
  * @param extrasize	additional bytes needed
  * Return: 0 if ok, or -FDT_ERR_... on error
  */
 int fdt_shrink_to_minimum(void *blob, uint extrasize);
+
 int fdt_increase_size(void *fdt, int add_len);
 
 int fdt_delete_disabled_nodes(void *blob);
