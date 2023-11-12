@@ -85,6 +85,12 @@ config DRAM_SUN50I_H616_TPR2
 	help
 	  TPR2 value from vendor DRAM settings.
 
+config DRAM_SUN50I_H616_TPR6
+	hex "H616 DRAM TPR6 parameter"
+	default 0x3300c080
+	help
+	  TPR6 value from vendor DRAM settings.
+
 config DRAM_SUN50I_H616_TPR10
 	hex "H616 DRAM TPR10 parameter"
 	help
@@ -462,6 +468,9 @@ config SUNXI_DRAM_DDR2
 config SUNXI_DRAM_LPDDR3
 	bool
 
+config SUNXI_DRAM_LPDDR4
+	bool
+
 choice
 	prompt "DRAM Type and Timing"
 	default SUNXI_DRAM_DDR3_1333 if !MACH_SUN8I_V3S
@@ -503,6 +512,14 @@ config SUNXI_DRAM_H616_LPDDR3
 	depends on DRAM_SUN50I_H616
 	help
 	  This option is the LPDDR3 timing used by the stock boot0 by
+	  Allwinner.
+
+config SUNXI_DRAM_H616_LPDDR4
+	bool "LPDDR4 DRAM chips on the H616 DRAM controller"
+	select SUNXI_DRAM_LPDDR4
+	depends on DRAM_SUN50I_H616
+	help
+	  This option is the LPDDR4 timing used by the stock boot0 by
 	  Allwinner.
 
 config SUNXI_DRAM_H616_DDR3_1333

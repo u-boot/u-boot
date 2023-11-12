@@ -130,6 +130,7 @@ check_member(sunxi_mctl_ctl_reg, unk_0x4240, 0x4240);
 #define MSTR_DEVICETYPE_LPDDR2	BIT(2)
 #define MSTR_DEVICETYPE_LPDDR3	BIT(3)
 #define MSTR_DEVICETYPE_DDR4	BIT(4)
+#define MSTR_DEVICETYPE_LPDDR4	BIT(5)
 #define MSTR_DEVICETYPE_MASK	GENMASK(5, 0)
 #define MSTR_2TMODE		BIT(10)
 #define MSTR_BUSWIDTH_FULL	(0 << 12)
@@ -154,6 +155,7 @@ struct dram_para {
 	u32 odt_en;
 	u32 tpr0;
 	u32 tpr2;
+	u32 tpr6;
 	u32 tpr10;
 	u32 tpr11;
 	u32 tpr12;
