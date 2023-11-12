@@ -639,6 +639,10 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 	if (fdt_initrd(blob, *initrd_start, *initrd_end))
 		goto err;
 
+	if (!ft_verify_fdt(blob))
+		goto err;
+
+	/* after here we are using a livetree */
 	if (!of_live_active() && CONFIG_IS_ENABLED(EVENT)) {
 		struct event_ft_fixup fixup;
 
@@ -666,9 +670,6 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 	/* Create a new LMB reservation */
 	if (lmb)
 		lmb_reserve(lmb, map_to_sysmem(blob), of_size);
-
-	if (!ft_verify_fdt(blob))
-		goto err;
 
 #if defined(CONFIG_ARCH_KEYSTONE)
 	if (IS_ENABLED(CONFIG_OF_BOARD_SETUP))
