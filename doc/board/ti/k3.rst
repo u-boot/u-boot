@@ -30,6 +30,7 @@ K3 Based SoCs
 .. toctree::
    :maxdepth: 1
 
+   am62ax_sk
    am62x_sk
    ../beagle/am62x_beagleplay
    ../toradex/verdin-am62
