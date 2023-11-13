@@ -962,7 +962,7 @@ int board_late_init(void)
 	return 0;
 }
 
-int show_board_info(void)
+int checkboard(void)
 {
 	char serial[17];
 	int err;
