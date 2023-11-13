@@ -11,3 +11,4 @@
 # Daniel Engström, Omicron Ceti AB, daniel@omicron.se.
 
 obj-y	+= coreboot.o
+obj-$(CONFIG_$(SPL_TPL_)SMBIOS_PARSER)	+= sysinfo.o
