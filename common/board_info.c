@@ -15,7 +15,7 @@ int __weak checkboard(void)
 	return 0;
 }
 
-int __weak show_board_info(void)
+int show_board_info(void)
 {
 	if (IS_ENABLED(CONFIG_OF_CONTROL)) {
 		struct udevice *dev;
