@@ -204,8 +204,11 @@ efi_status_t efi_var_restore(struct efi_var_file *buf, bool safe)
  * File ubootefi.var is read from the EFI system partitions and the variables
  * stored in the file are created.
  *
- * In case the file does not exist yet or a variable cannot be set EFI_SUCCESS
- * is returned.
+ * On first boot the file ubootefi.var does not exist yet. This is why we must
+ * return EFI_SUCCESS in this case.
+ *
+ * If the variable file is corrupted, e.g. incorrect CRC32, we do not want to
+ * stop the boot process. We deliberately return EFI_SUCCESS in this case, too.
  *
  * Return:	status code
  */
