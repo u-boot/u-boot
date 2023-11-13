@@ -15,12 +15,6 @@ int __weak checkboard(void)
 	return 0;
 }
 
-/*
- * Check sysinfo for board information. Failing that if the root node of the DTB
- * has a "model" property, show it.
- *
- * Then call checkboard().
- */
 int __weak show_board_info(void)
 {
 	if (IS_ENABLED(CONFIG_OF_CONTROL)) {
