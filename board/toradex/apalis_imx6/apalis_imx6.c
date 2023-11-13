@@ -730,7 +730,8 @@ int checkboard(void)
 	       is_cpu_type(MXC_CPU_MX6D) ? "Dual" : "Quad",
 	       (gd->ram_size == 0x80000000) ? "2GB" :
 	       (gd->ram_size == 0x40000000) ? "1GB" : "512MB", it);
-	return 0;
+
+	return tdx_checkboard();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

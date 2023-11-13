@@ -77,7 +77,7 @@ int checkboard(void)
 	       (get_nand_dev_by_index(0)->erasesize >> 10 == 512) ?
 	       ((gd->ram_size == 0x10000000) ? "1.1B" : "1.1C") : "1.2A");
 
-	return 0;
+	return tdx_checkboard();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
