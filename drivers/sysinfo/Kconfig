@@ -8,6 +8,13 @@ menuconfig SYSINFO
 
 if SYSINFO
 
+config SYSINFO_EXTRA
+	bool "Show extra information on startup"
+	help
+	  Enable this to see extra information on startup. Normally only the
+	  model is shown, but with this option the vendor and any prior-stage
+	  firmware's version and date are shown as well.
+
 config SPL_SYSINFO
 	depends on SPL_DM
 	bool "Enable board driver support in SPL"
