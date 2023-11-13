@@ -374,6 +374,7 @@ static int scsi_read_capacity(struct udevice *dev, struct scsi_cmd *pccb,
 	pccb->cmd[0] = SCSI_RD_CAPAC10;
 	pccb->cmd[1] = pccb->lun << 5;
 	pccb->cmdlen = 10;
+	pccb->dma_dir = DMA_FROM_DEVICE;
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 
 	pccb->datalen = 8;
@@ -538,6 +539,7 @@ static int scsi_detect_dev(struct udevice *dev, int target, int lun,
 
 	for (count = 0; count < 3; count++) {
 		pccb->datalen = 0;
+		pccb->dma_dir = DMA_NONE;
 		scsi_setup_test_unit_ready(pccb);
 		err = scsi_exec(dev, pccb);
 		if (!err)
