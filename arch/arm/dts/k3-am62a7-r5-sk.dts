@@ -7,7 +7,6 @@
 #include "k3-am62a7-sk.dts"
 #include "k3-am62a-ddr-1866mhz-32bit.dtsi"
 #include "k3-am62a-ddr.dtsi"
-#include "k3-am62a-sk-binman.dtsi"
 
 #include "k3-am62a7-sk-u-boot.dtsi"
 
@@ -15,33 +14,6 @@
 	aliases {
 		remoteproc0 = &sysctrler;
 		remoteproc1 = &a53_0;
-		serial0 = &wkup_uart0;
-		serial3 = &main_uart1;
-	};
-
-	chosen {
-		stdout-path = "serial2:115200n8";
-		tick-timer = &timer1;
-	};
-
-	memory@80000000 {
-		device_type = "memory";
-		/* 4G RAM */
-		reg = <0x00000000 0x80000000 0x00000000 0x80000000>,
-		      <0x00000008 0x80000000 0x00000000 0x80000000>;
-		bootph-pre-ram;
-	};
-
-	reserved-memory {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
-
-		secure_ddr: optee@9e800000 {
-			reg = <0x00 0x9e800000 0x00 0x01800000>; /* for OP-TEE */
-			alignment = <0x1000>;
-			no-map;
-		};
 	};
 
 	a53_0: a53@0 {
@@ -81,67 +53,39 @@
 	ti,secure-host;
 };
 
-&cbass_main {
-	sa3_secproxy: secproxy@44880000 {
-		compatible = "ti,am654-secure-proxy";
-		#mbox-cells = <1>;
-		reg = <0x00 0x44880000 0x00 0x20000>,
-		      <0x0 0x44860000 0x0 0x20000>,
-		      <0x0 0x43600000 0x0 0x10000>;
-		reg-names = "rt", "scfg", "target_data";
-		bootph-pre-ram;
-	};
+&secure_proxy_sa3 {
+	/* Needed for initial handshake with ROM */
+	status = "okay";
+	bootph-pre-ram;
+};
 
+&cbass_main {
 	sysctrler: sysctrler {
 		compatible = "ti,am654-system-controller";
 		mboxes= <&secure_proxy_main 1>,
 			<&secure_proxy_main 0>,
-			<&sa3_secproxy 0>;
+			<&secure_proxy_sa3 0>;
 		mbox-names = "tx", "rx", "boot_notify";
 		bootph-pre-ram;
 	};
 };
 
-&mcu_pmx0 {
-	status = "okay";
+&wkup_uart0_pins_default {
 	bootph-pre-ram;
-
-	wkup_uart0_pins_default: wkup-uart0-pins-default {
-		pinctrl-single,pins = <
-			AM62X_MCU_IOPAD(0x02c, PIN_INPUT, 0)	/* (C6) WKUP_UART0_CTSn */
-			AM62X_MCU_IOPAD(0x030, PIN_OUTPUT, 0)	/* (A4) WKUP_UART0_RTSn */
-			AM62X_MCU_IOPAD(0x024, PIN_INPUT, 0)	/* (B4) WKUP_UART0_RXD */
-			AM62X_MCU_IOPAD(0x028, PIN_OUTPUT, 0)	/* (C5) WKUP_UART0_TXD */
-		>;
-		bootph-pre-ram;
-	};
 };
 
-&main_pmx0 {
+&main_uart1_pins_default {
 	bootph-pre-ram;
-	main_uart1_pins_default: main-uart1-pins-default {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x194, PIN_INPUT, 2)	/* (B19) MCASP0_AXR3.UART1_CTSn */
-			AM62X_IOPAD(0x198, PIN_OUTPUT, 2)	/* (A19) MCASP0_AXR2.UART1_RTSn */
-			AM62X_IOPAD(0x1ac, PIN_INPUT, 2)	/* (E19) MCASP0_AFSR.UART1_RXD */
-			AM62X_IOPAD(0x1b0, PIN_OUTPUT, 2)	/* (A20) MCASP0_ACLKR.UART1_TXD */
-		>;
-		bootph-pre-ram;
-	};
 };
 
 /* WKUP UART0 is used for DM firmware logs */
 &wkup_uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&wkup_uart0_pins_default>;
 	status = "okay";
 	bootph-pre-ram;
 };
 
 /* Main UART1 is used for TIFS firmware logs */
 &main_uart1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_uart1_pins_default>;
 	status = "okay";
 	bootph-pre-ram;
 };
