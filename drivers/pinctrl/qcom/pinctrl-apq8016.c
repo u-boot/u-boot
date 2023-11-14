@@ -55,7 +55,7 @@ static unsigned int apq8016_get_function_mux(unsigned int selector)
 }
 
 static const struct msm_pinctrl_data apq8016_data = {
-	.pin_count = 133,
+	.pin_data = { .pin_count = 133, },
 	.functions_count = ARRAY_SIZE(msm_pinctrl_functions),
 	.get_function_name = apq8016_get_function_name,
 	.get_function_mux = apq8016_get_function_mux,

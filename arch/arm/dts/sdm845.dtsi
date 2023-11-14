@@ -26,23 +26,13 @@
 			#power-domain-cells = <1>;
 		};
 
-		gpio_north: gpio_north@3900000 {
-			#gpio-cells = <2>;
+		tlmm: pinctrl@3400000 {
 			compatible = "qcom,sdm845-pinctrl";
-			reg = <0x3900000 0x400000>;
-			gpio-count = <150>;
-			gpio-controller;
-			gpio-ranges = <&gpio_north 0 0 150>;
-			gpio-bank-name = "soc_north.";
-		};
-
-		tlmm_north: pinctrl_north@3900000 {
-			compatible = "qcom,sdm845-pinctrl";
-			reg = <0x3900000 0x400000>;
+			reg = <0x3400000 0xc00000>;
 			gpio-count = <150>;
 			gpio-controller;
 			#gpio-cells = <2>;
-			gpio-ranges = <&tlmm_north 0 0 150>;
+			gpio-ranges = <&tlmm 0 0 150>;
 
 			/* DEBUG UART */
 			qup_uart9: qup-uart9-default {

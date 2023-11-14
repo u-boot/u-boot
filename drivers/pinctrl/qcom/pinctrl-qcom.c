@@ -13,8 +13,11 @@
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <asm/gpio.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
+#include <mach/gpio.h>
+
 #include "pinctrl-qcom.h"
 
 struct msm_pinctrl_priv {
@@ -22,7 +25,9 @@ struct msm_pinctrl_priv {
 	struct msm_pinctrl_data *data;
 };
 
-#define GPIO_CONFIG_OFFSET(x)         ((x) * 0x1000)
+#define GPIO_CONFIG_REG(priv, x) \
+	(qcom_pin_offset((priv)->data->pin_data.pin_offsets, x))
+
 #define TLMM_GPIO_PULL_MASK GENMASK(1, 0)
 #define TLMM_FUNC_SEL_MASK GENMASK(5, 2)
 #define TLMM_DRV_STRENGTH_MASK GENMASK(8, 6)
@@ -45,7 +50,7 @@ static int msm_get_pins_count(struct udevice *dev)
 {
 	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
 
-	return priv->data->pin_count;
+	return priv->data->pin_data.pin_count;
 }
 
 static const char *msm_get_function_name(struct udevice *dev,
@@ -61,7 +66,7 @@ static int msm_pinctrl_probe(struct udevice *dev)
 	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
 
 	priv->base = dev_read_addr(dev);
-	priv->data = (struct msm_pinctrl_data *)dev->driver_data;
+	priv->data = (struct msm_pinctrl_data *)dev_get_driver_data(dev);
 
 	return priv->base == FDT_ADDR_T_NONE ? -EINVAL : 0;
 }
@@ -78,7 +83,7 @@ static int msm_pinmux_set(struct udevice *dev, unsigned int pin_selector,
 {
 	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
 
-	clrsetbits_le32(priv->base + GPIO_CONFIG_OFFSET(pin_selector),
+	clrsetbits_le32(priv->base + GPIO_CONFIG_REG(priv, pin_selector),
 			TLMM_FUNC_SEL_MASK | TLMM_GPIO_DISABLE,
 			priv->data->get_function_mux(func_selector) << 2);
 	return 0;
@@ -92,15 +97,15 @@ static int msm_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 	switch (param) {
 	case PIN_CONFIG_DRIVE_STRENGTH:
 		argument = (argument / 2) - 1;
-		clrsetbits_le32(priv->base + GPIO_CONFIG_OFFSET(pin_selector),
+		clrsetbits_le32(priv->base + GPIO_CONFIG_REG(priv, pin_selector),
 				TLMM_DRV_STRENGTH_MASK, argument << 6);
 		break;
 	case PIN_CONFIG_BIAS_DISABLE:
-		clrbits_le32(priv->base + GPIO_CONFIG_OFFSET(pin_selector),
+		clrbits_le32(priv->base + GPIO_CONFIG_REG(priv, pin_selector),
 			     TLMM_GPIO_PULL_MASK);
 		break;
 	case PIN_CONFIG_BIAS_PULL_UP:
-		clrsetbits_le32(priv->base + GPIO_CONFIG_OFFSET(pin_selector),
+		clrsetbits_le32(priv->base + GPIO_CONFIG_REG(priv, pin_selector),
 				TLMM_GPIO_PULL_MASK, argument);
 		break;
 	default:
@@ -149,9 +154,15 @@ int msm_pinctrl_bind(struct udevice *dev)
 	if (!name)
 		return -EINVAL;
 
-	/* Bind gpio node */
-	ret = device_bind_driver_to_node(dev, "gpio_msm",
-					 name, node, NULL);
+	drv = lists_driver_lookup_name("gpio_msm");
+	if (!drv) {
+		printf("Can't find gpio_msm driver\n");
+		return -ENODEV;
+	}
+
+	/* Bind gpio device as a child of the pinctrl device */
+	ret = device_bind_with_driver_data(pinctrl_dev, drv,
+					   name, (ulong)&data->pin_data, node, NULL);
 	if (ret) {
 		device_unbind(pinctrl_dev);
 		return ret;

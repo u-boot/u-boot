@@ -19,10 +19,7 @@
 		clock-controller@100000 {
 			bootph-all;
 		};
-		gpio_north@3900000 {
-			bootph-all;
-		};
-		pinctrl_north@3900000 {
+		pinctrl@3400000 {
 			bootph-all;
 		};
 	};

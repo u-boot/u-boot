@@ -8,10 +8,13 @@
 #ifndef _PINCTRL_QCOM_H
 #define _PINCTRL_QCOM_H
 
+#include <asm/types.h>
+#include <mach/gpio.h>
+
 struct udevice;
 
 struct msm_pinctrl_data {
-	int pin_count;
+	struct msm_pin_data pin_data;
 	int functions_count;
 	const char *(*get_function_name)(struct udevice *dev,
 					 unsigned int selector);
