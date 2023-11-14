@@ -405,7 +405,8 @@ static inline void writes##bwlq(volatile void __iomem *mem,		\
 	}								\
 }									\
 									\
-static inline void reads##bwlq(volatile void __iomem *mem, void *addr,	\
+static inline void reads##bwlq(const volatile void __iomem *mem,	\
+				void *addr,				\
 			       unsigned int count)			\
 {									\
 	volatile type *__addr = addr;					\
