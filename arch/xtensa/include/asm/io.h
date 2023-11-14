@@ -76,6 +76,12 @@ void insl(unsigned long port, void *dst, unsigned long count);
 void outsb(unsigned long port, const void *src, unsigned long count);
 void outsw(unsigned long port, const void *src, unsigned long count);
 void outsl(unsigned long port, const void *src, unsigned long count);
+#define insb insb
+#define insw insw
+#define insl insl
+#define outsb outsb
+#define outsw outsw
+#define outsl outsl
 
 #define IO_SPACE_LIMIT ~0
 
