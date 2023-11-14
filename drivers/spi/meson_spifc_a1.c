@@ -129,7 +129,7 @@ static void amlogic_spifc_a1_drain_buffer(struct amlogic_spifc_a1 *spifc,
 
 	writel(SPIFC_A1_DBUF_AUTO_UPDATE_ADDR,
 	       spifc->base + SPIFC_A1_DBUF_CTRL_REG);
-	readsl(spifc->base + SPIFC_A1_DBUF_DATA_REG, buf, count);
+	ioread32_rep(spifc->base + SPIFC_A1_DBUF_DATA_REG, buf, count);
 
 	if (pad) {
 		data = readl(spifc->base + SPIFC_A1_DBUF_DATA_REG);
@@ -146,7 +146,7 @@ static void amlogic_spifc_a1_fill_buffer(struct amlogic_spifc_a1 *spifc,
 
 	writel(SPIFC_A1_DBUF_DIR | SPIFC_A1_DBUF_AUTO_UPDATE_ADDR,
 	       spifc->base + SPIFC_A1_DBUF_CTRL_REG);
-	writesl(spifc->base + SPIFC_A1_DBUF_DATA_REG, buf, count);
+	iowrite32_rep(spifc->base + SPIFC_A1_DBUF_DATA_REG, buf, count);
 
 	if (pad) {
 		memcpy(&data, buf + len - pad, pad);
