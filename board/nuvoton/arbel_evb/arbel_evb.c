@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/gcr.h>
+#include "../common/uart.h"
 
 #define SR_MII_CTRL_SWR_BIT15	15
 
@@ -90,3 +91,9 @@ int dram_init_banksize(void)
 	return 0;
 }
 
+int last_stage_init(void)
+{
+	board_set_console();
+
+	return 0;
+}
