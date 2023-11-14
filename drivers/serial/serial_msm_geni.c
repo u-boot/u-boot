@@ -188,8 +188,8 @@ static int geni_serial_set_clock_rate(struct udevice *dev, u64 rate)
 	int ret;
 
 	clk = devm_clk_get(dev, NULL);
-	if (!clk)
-		return -EINVAL;
+	if (IS_ERR(clk))
+		return PTR_ERR(clk);
 
 	ret = clk_set_rate(clk, rate);
 	return ret;
@@ -248,11 +248,16 @@ static int msm_serial_setbrg(struct udevice *dev, int baud)
 	struct msm_serial_data *priv = dev_get_priv(dev);
 	u64 clk_rate;
 	u32 clk_div;
+	int ret;
 
 	priv->baud = baud;
 
 	clk_rate = get_clk_div_rate(baud, priv->oversampling, &clk_div);
-	geni_serial_set_clock_rate(dev, clk_rate);
+	ret = geni_serial_set_clock_rate(dev, clk_rate);
+	if (ret < 0) {
+		pr_err("%s: Couldn't set clock rate: %d\n", __func__, ret);
+		return ret;
+	}
 	geni_serial_baud(priv->base, clk_div, baud);
 
 	return 0;
