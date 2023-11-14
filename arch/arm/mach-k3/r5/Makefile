@@ -11,3 +11,7 @@ obj-$(CONFIG_SOC_K3_AM62A7) += am62ax/
 
 obj-y += lowlevel_init.o
 obj-y += r5_mpu.o
+
+ifeq ($(CONFIG_SPL_BUILD),y)
+obj-$(CONFIG_K3_LOAD_SYSFW) += sysfw-loader.o
+endif

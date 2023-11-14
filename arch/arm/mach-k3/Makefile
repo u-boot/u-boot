@@ -20,6 +20,5 @@ obj-$(CONFIG_SOC_K3_J721S2) += j721s2_init.o
 obj-$(CONFIG_SOC_K3_AM642) += am642_init.o
 obj-$(CONFIG_SOC_K3_AM625) += am625_init.o
 obj-$(CONFIG_SOC_K3_AM62A7) += am62a7_init.o
-obj-$(CONFIG_K3_LOAD_SYSFW) += sysfw-loader.o
 endif
 obj-y += common.o security.o
