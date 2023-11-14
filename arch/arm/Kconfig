@@ -777,6 +777,7 @@ config ARCH_IPQ40XX
 	select SMEM
 	select OF_CONTROL
 	select CLK_QCOM_IPQ4019
+	select PINCTRL_QCOM_IPQ4019
 	imply CMD_DM
 
 config ARCH_KEYSTONE
