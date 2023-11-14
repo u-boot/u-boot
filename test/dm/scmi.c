@@ -217,6 +217,9 @@ static int dm_test_scmi_power_domains(struct unit_test_state *uts)
 	u8 *name;
 	int ret;
 
+	if (!CONFIG_IS_ENABLED(SCMI_POWER_DOMAIN))
+		return -EAGAIN;
+
 	/* preparation */
 	ut_assertok(load_sandbox_scmi_test_devices(uts, &agent, &dev));
 	ut_assertnonnull(agent);
@@ -317,6 +320,9 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 	int ret_dev;
 	int ret;
 
+	if (!CONFIG_IS_ENABLED(CLK_SCMI))
+		return -EAGAIN;
+
 	ret = load_sandbox_scmi_test_devices(uts, &agent, &dev);
 	if (ret)
 		return ret;
@@ -382,6 +388,9 @@ static int dm_test_scmi_resets(struct unit_test_state *uts)
 	struct udevice *agent_dev, *reset_dev, *dev = NULL;
 	int ret;
 
+	if (!CONFIG_IS_ENABLED(RESET_SCMI))
+		return -EAGAIN;
+
 	ret = load_sandbox_scmi_test_devices(uts, &agent, &dev);
 	if (ret)
 		return ret;
@@ -417,6 +426,9 @@ static int dm_test_scmi_voltage_domains(struct unit_test_state *uts)
 	struct dm_regulator_uclass_plat *uc_pdata;
 	struct udevice *dev;
 	struct udevice *regul0_dev;
+
+	if (!CONFIG_IS_ENABLED(DM_REGULATOR_SCMI))
+		return -EAGAIN;
 
 	ut_assertok(load_sandbox_scmi_test_devices(uts, &agent, &dev));
 
