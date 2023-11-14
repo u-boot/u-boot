@@ -33,6 +33,8 @@
 /* Section 5.3.3 - MaxPorts */
 #define MAX_HC_PORTS            255
 
+#define SOFT_RESET_ATTEMPTS	3
+
 /* Up to 16 ms to halt an HC */
 #define XHCI_MAX_HALT_USEC	(16*1000)
 

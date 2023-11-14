@@ -1156,6 +1156,7 @@ static int _xhci_submit_control_msg(struct usb_device *udev, unsigned long pipe,
 {
 	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	int ret = 0;
+	int soft_reset_attempt = SOFT_RESET_ATTEMPTS;
 
 	if (usb_pipetype(pipe) != PIPE_CONTROL) {
 		printf("non-control pipe (type=%lu)", usb_pipetype(pipe));
@@ -1178,7 +1179,16 @@ static int _xhci_submit_control_msg(struct usb_device *udev, unsigned long pipe,
 		}
 	}
 
-	return xhci_ctrl_tx(udev, pipe, setup, length, buffer);
+	while(soft_reset_attempt > 0)
+	{
+		ret = xhci_ctrl_tx(udev, pipe, setup, length, buffer);
+		if (ret == -EAGAIN)
+			soft_reset_attempt--;
+		else
+			return ret;
+	}
+	printf("control transfer is unsuccessful after %d attempts\n", SOFT_RESET_ATTEMPTS);
+	return ret;
 }
 
 static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
