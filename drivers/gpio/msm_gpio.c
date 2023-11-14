@@ -46,7 +46,7 @@ static int msm_gpio_direction_input(struct udevice *dev, unsigned int gpio)
 	return 0;
 }
 
-static int msm_gpio_set_value(struct udevice *dev, unsigned gpio, int value)
+static int msm_gpio_set_value(struct udevice *dev, unsigned int gpio, int value)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
@@ -57,7 +57,7 @@ static int msm_gpio_set_value(struct udevice *dev, unsigned gpio, int value)
 	return 0;
 }
 
-static int msm_gpio_direction_output(struct udevice *dev, unsigned gpio,
+static int msm_gpio_direction_output(struct udevice *dev, unsigned int gpio,
 				     int value)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
@@ -72,14 +72,14 @@ static int msm_gpio_direction_output(struct udevice *dev, unsigned gpio,
 	return 0;
 }
 
-static int msm_gpio_get_value(struct udevice *dev, unsigned gpio)
+static int msm_gpio_get_value(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
 	return !!(readl(priv->base + GPIO_IN_OUT_REG(dev, gpio)) >> GPIO_IN);
 }
 
-static int msm_gpio_get_function(struct udevice *dev, unsigned gpio)
+static int msm_gpio_get_function(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
