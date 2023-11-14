@@ -53,6 +53,7 @@
 	      <0x00 0x484c2000 0x00 0x2000>;
 	reg-names = "gcfg", "bchanrt", "rchanrt", "tchanrt",
 		    "ringrt" , "cfg", "tchan", "rchan";
+	bootph-all;
 };
 
 &main_pktdma {
