@@ -13,6 +13,7 @@ obj-$(CONFIG_ARCH_ATH79) += ath79/
 obj-$(CONFIG_PINCTRL_INTEL) += intel/
 obj-$(CONFIG_ARCH_MTMIPS) += mtmips/
 obj-$(CONFIG_ARCH_NPCM)         += nuvoton/
+obj-$(CONFIG_PINCTRL_QCOM) += qcom/
 obj-$(CONFIG_ARCH_RMOBILE) += renesas/
 obj-$(CONFIG_ARCH_RZN1) += renesas/
 obj-$(CONFIG_PINCTRL_SANDBOX)	+= pinctrl-sandbox.o

@@ -11,10 +11,11 @@
 #include <errno.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
-#include "pinctrl-snapdragon.h"
+#include "pinctrl-qcom.h"
 
 struct msm_pinctrl_priv {
 	phys_addr_t base;
@@ -109,7 +110,7 @@ static int msm_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 	return 0;
 }
 
-static struct pinctrl_ops msm_pinctrl_ops = {
+struct pinctrl_ops msm_pinctrl_ops = {
 	.get_pins_count = msm_get_pins_count,
 	.get_pin_name = msm_get_pin_name,
 	.set_state = pinctrl_generic_set_state,
@@ -121,11 +122,23 @@ static struct pinctrl_ops msm_pinctrl_ops = {
 	.get_function_name = msm_get_function_name,
 };
 
-static int msm_pinctrl_bind(struct udevice *dev)
+int msm_pinctrl_bind(struct udevice *dev)
 {
 	ofnode node = dev_ofnode(dev);
+	struct msm_pinctrl_data *data = (struct msm_pinctrl_data *)dev_get_driver_data(dev);
+	struct driver *drv;
+	struct udevice *pinctrl_dev;
 	const char *name;
 	int ret;
+
+	drv = lists_driver_lookup_name("pinctrl_qcom");
+	if (!drv)
+		return -ENOENT;
+
+	ret = device_bind_with_driver_data(dev_get_parent(dev), drv, ofnode_get_name(node), (ulong)data,
+					   dev_ofnode(dev), &pinctrl_dev);
+	if (ret)
+		return ret;
 
 	ofnode_get_property(node, "gpio-controller", &ret);
 	if (ret < 0)
@@ -139,28 +152,18 @@ static int msm_pinctrl_bind(struct udevice *dev)
 	/* Bind gpio node */
 	ret = device_bind_driver_to_node(dev, "gpio_msm",
 					 name, node, NULL);
-	if (ret)
+	if (ret) {
+		device_unbind(pinctrl_dev);
 		return ret;
-
-	dev_dbg(dev, "bind %s\n", name);
+	}
 
 	return 0;
 }
 
-static const struct udevice_id msm_pinctrl_ids[] = {
-	{ .compatible = "qcom,msm8916-pinctrl", .data = (ulong)&apq8016_data },
-	{ .compatible = "qcom,msm8996-pinctrl", .data = (ulong)&apq8096_data },
-	{ .compatible = "qcom,sdm845-pinctrl", .data = (ulong)&sdm845_data },
-	{ .compatible = "qcom,qcs404-pinctrl", .data = (ulong)&qcs404_data },
-	{ }
-};
-
-U_BOOT_DRIVER(pinctrl_snapdraon) = {
-	.name		= "pinctrl_msm",
+U_BOOT_DRIVER(pinctrl_qcom) = {
+	.name		= "pinctrl_qcom",
 	.id		= UCLASS_PINCTRL,
-	.of_match	= msm_pinctrl_ids,
 	.priv_auto	= sizeof(struct msm_pinctrl_priv),
 	.ops		= &msm_pinctrl_ops,
 	.probe		= msm_pinctrl_probe,
-	.bind		= msm_pinctrl_bind,
 };

@@ -5,8 +5,8 @@
  * (C) Copyright 2018 Ramon Fried <ramon.fried@gmail.com>
  *
  */
-#ifndef _PINCTRL_SNAPDRAGON_H
-#define _PINCTRL_SNAPDRAGON_H
+#ifndef _PINCTRL_QCOM_H
+#define _PINCTRL_QCOM_H
 
 struct udevice;
 
@@ -25,9 +25,8 @@ struct pinctrl_function {
 	int val;
 };
 
-extern struct msm_pinctrl_data apq8016_data;
-extern struct msm_pinctrl_data apq8096_data;
-extern struct msm_pinctrl_data sdm845_data;
-extern struct msm_pinctrl_data qcs404_data;
+extern struct pinctrl_ops msm_pinctrl_ops;
+
+int msm_pinctrl_bind(struct udevice *dev);
 
 #endif
