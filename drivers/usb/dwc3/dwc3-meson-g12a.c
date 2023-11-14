@@ -8,13 +8,13 @@
 
 #include <common.h>
 #include <log.h>
-#include <asm-generic/io.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dwc3-uboot.h>
 #include <generic-phy.h>
 #include <linux/delay.h>
+#include <linux/io.h>
 #include <linux/printk.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
