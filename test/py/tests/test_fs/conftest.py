@@ -12,9 +12,9 @@ import u_boot_utils as util
 from tests import fs_helper
 
 supported_fs_basic = ['fat16', 'fat32', 'ext4']
-supported_fs_ext = ['fat16', 'fat32']
-supported_fs_mkdir = ['fat16', 'fat32']
-supported_fs_unlink = ['fat16', 'fat32']
+supported_fs_ext = ['fat12', 'fat16', 'fat32']
+supported_fs_mkdir = ['fat12', 'fat16', 'fat32']
+supported_fs_unlink = ['fat12', 'fat16', 'fat32']
 supported_fs_symlink = ['ext4']
 
 #
