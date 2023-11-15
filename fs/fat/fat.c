@@ -26,6 +26,9 @@
 #include <linux/compiler.h>
 #include <linux/ctype.h>
 
+/* maximum number of clusters for FAT12 */
+#define MAX_FAT12	0xFF4
+
 /*
  * Convert a string to lowercase.  Converts at most 'len' characters,
  * 'len' may be larger than the length of 'str' if 'str' is NULL
@@ -485,6 +488,27 @@ static __u8 mkcksum(struct nameext *nameext)
 }
 
 /*
+ * Determine if the FAT type is FAT12 or FAT16
+ *
+ * Based on fat_fill_super() from the Linux kernel's fs/fat/inode.c
+ */
+static int determine_legacy_fat_bits(const boot_sector *bs)
+{
+	u16 fat_start = bs->reserved;
+	u32 dir_start = fat_start + bs->fats * bs->fat_length;
+	u32 rootdir_sectors = get_unaligned_le16(bs->dir_entries) *
+			      sizeof(dir_entry) /
+			      get_unaligned_le16(bs->sector_size);
+	u32 data_start = dir_start + rootdir_sectors;
+	u16 sectors = get_unaligned_le16(bs->sectors);
+	u32 total_sectors = sectors ? sectors : bs->total_sect;
+	u32 total_clusters = (total_sectors - data_start) /
+			     bs->cluster_size;
+
+	return (total_clusters > MAX_FAT12) ? 16 : 12;
+}
+
+/*
  * Read boot sector and volume info from a FAT filesystem
  */
 static int
@@ -518,7 +542,7 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 	bs->total_sect = FAT2CPU32(bs->total_sect);
 
 	/* FAT32 entries */
-	if (bs->fat_length == 0) {
+	if (!bs->fat_length && bs->fat32_length) {
 		/* Assume FAT32 */
 		bs->fat32_length = FAT2CPU32(bs->fat32_length);
 		bs->flags = FAT2CPU16(bs->flags);
@@ -529,25 +553,10 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 		*fatsize = 32;
 	} else {
 		vistart = (volume_info *)&(bs->fat32_length);
-		*fatsize = 0;
+		*fatsize = determine_legacy_fat_bits(bs);
 	}
 	memcpy(volinfo, vistart, sizeof(volume_info));
-
-	if (*fatsize == 32) {
-		if (strncmp(FAT32_SIGN, vistart->fs_type, SIGNLEN) == 0)
-			goto exit;
-	} else {
-		if (strncmp(FAT12_SIGN, vistart->fs_type, SIGNLEN) == 0) {
-			*fatsize = 12;
-			goto exit;
-		}
-		if (strncmp(FAT16_SIGN, vistart->fs_type, SIGNLEN) == 0) {
-			*fatsize = 16;
-			goto exit;
-		}
-	}
-
-	debug("Error: broken fs_type sign\n");
+	goto exit;
 fail:
 	ret = -1;
 exit:
@@ -1157,9 +1166,8 @@ int file_fat_detectfs(void)
 
 	memcpy(vol_label, volinfo.volume_label, 11);
 	vol_label[11] = '\0';
-	volinfo.fs_type[5] = '\0';
 
-	printf("Filesystem: %s \"%s\"\n", volinfo.fs_type, vol_label);
+	printf("Filesystem: FAT%d \"%s\"\n", fatsize, vol_label);
 
 	return 0;
 }
