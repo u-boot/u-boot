@@ -69,22 +69,14 @@
 	};
 };
 
-&wkup_uart0_pins_default {
-	bootph-pre-ram;
-};
-
-&main_uart1_pins_default {
-	bootph-pre-ram;
-};
-
 /* WKUP UART0 is used for DM firmware logs */
 &wkup_uart0 {
-	bootph-pre-ram;
+	status = "okay";
 };
 
 /* Main UART1 is used for TIFS firmware logs */
 &main_uart1 {
-	bootph-pre-ram;
+	status = "okay";
 };
 
 &ospi0 {
