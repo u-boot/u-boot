@@ -25,6 +25,7 @@
 #include <asm/cache.h>
 #include <linux/compiler.h>
 #include <linux/ctype.h>
+#include <linux/log2.h>
 
 /* maximum number of clusters for FAT12 */
 #define MAX_FAT12	0xFF4
@@ -509,6 +510,52 @@ static int determine_legacy_fat_bits(const boot_sector *bs)
 }
 
 /*
+ * Determines if the boot sector's media field is valid
+ *
+ * Based on fat_valid_media() from Linux kernel's include/linux/msdos_fs.h
+ */
+static int fat_valid_media(u8 media)
+{
+	return media >= 0xf8 || media == 0xf0;
+}
+
+/*
+ * Determines if the given boot sector is valid
+ *
+ * Based on fat_read_bpb() from the Linux kernel's fs/fat/inode.c
+ */
+static int is_bootsector_valid(const boot_sector *bs)
+{
+	u16 sector_size = get_unaligned_le16(bs->sector_size);
+	u16 dir_per_block = sector_size / sizeof(dir_entry);
+
+	if (!bs->reserved)
+		return 0;
+
+	if (!bs->fats)
+		return 0;
+
+	if (!fat_valid_media(bs->media))
+		return 0;
+
+	if (!is_power_of_2(sector_size) ||
+	    sector_size < 512 ||
+	    sector_size > 4096)
+		return 0;
+
+	if (!is_power_of_2(bs->cluster_size))
+		return 0;
+
+	if (!bs->fat_length && !bs->fat32_length)
+		return 0;
+
+	if (get_unaligned_le16(bs->dir_entries) & (dir_per_block - 1))
+		return 0;
+
+	return 1;
+}
+
+/*
  * Read boot sector and volume info from a FAT filesystem
  */
 static int
@@ -541,6 +588,12 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 	bs->secs_track = FAT2CPU16(bs->secs_track);
 	bs->heads = FAT2CPU16(bs->heads);
 	bs->total_sect = FAT2CPU32(bs->total_sect);
+
+	if (!is_bootsector_valid(bs)) {
+		debug("Error: bootsector is invalid\n");
+		ret = -1;
+		goto out_free;
+	}
 
 	/* FAT32 entries */
 	if (!bs->fat_length && bs->fat32_length) {
