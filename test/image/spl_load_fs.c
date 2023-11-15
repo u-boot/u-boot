@@ -220,7 +220,7 @@ static size_t create_fat(void *dst, size_t size, const char *filename,
 	bs->root_cluster = cpu_to_le32(root_sector);
 
 	vi->ext_boot_sign = 0x29;
-	memcpy(vi->fs_type, FAT32_SIGN, sizeof(vi->fs_type));
+	memcpy(vi->fs_type, "FAT32   ", sizeof(vi->fs_type));
 
 	memcpy(dst + 0x1fe, "\x55\xAA", 2);
 
