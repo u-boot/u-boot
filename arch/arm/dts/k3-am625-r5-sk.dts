@@ -55,18 +55,9 @@
 	ti,secure-host;
 };
 
-&mcu_esm {
-	bootph-pre-ram;
-};
-
 &secure_proxy_sa3 {
-	bootph-pre-ram;
 	/* We require this for boot handshake */
 	status = "okay";
-};
-
-&main_esm {
-	bootph-pre-ram;
 };
 
 &cbass_main {

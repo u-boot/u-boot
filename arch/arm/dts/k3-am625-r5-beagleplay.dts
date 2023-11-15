@@ -54,12 +54,7 @@
 	ti,secure-host;
 };
 
-&mcu_esm {
-	bootph-pre-ram;
-};
-
 &secure_proxy_sa3 {
-	bootph-pre-ram;
 	/* We require this for boot handshake */
 	status = "okay";
 };
@@ -71,10 +66,6 @@
 		mbox-names = "tx", "rx", "boot_notify";
 		bootph-pre-ram;
 	};
-};
-
-&main_esm {
-	bootph-pre-ram;
 };
 
 &main_pktdma {
