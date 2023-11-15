@@ -18,6 +18,7 @@
 #include <fs.h>
 #include <log.h>
 #include <asm/byteorder.h>
+#include <asm/unaligned.h>
 #include <part.h>
 #include <malloc.h>
 #include <memalign.h>
@@ -571,7 +572,7 @@ static int get_fs_info(fsdata *mydata)
 		mydata->total_sect = bs.total_sect;
 	} else {
 		mydata->fatlength = bs.fat_length;
-		mydata->total_sect = (bs.sectors[1] << 8) + bs.sectors[0];
+		mydata->total_sect = get_unaligned_le16(bs.sectors);
 		if (!mydata->total_sect)
 			mydata->total_sect = bs.total_sect;
 	}
@@ -583,7 +584,7 @@ static int get_fs_info(fsdata *mydata)
 
 	mydata->rootdir_sect = mydata->fat_sect + mydata->fatlength * bs.fats;
 
-	mydata->sect_size = (bs.sector_size[1] << 8) + bs.sector_size[0];
+	mydata->sect_size = get_unaligned_le16(bs.sector_size);
 	mydata->clust_size = bs.cluster_size;
 	if (mydata->sect_size != cur_part_info.blksz) {
 		log_err("FAT sector size mismatch (fs=%u, dev=%lu)\n",
@@ -607,8 +608,7 @@ static int get_fs_info(fsdata *mydata)
 					(mydata->clust_size * 2);
 		mydata->root_cluster = bs.root_cluster;
 	} else {
-		mydata->rootdir_size = ((bs.dir_entries[1]  * (int)256 +
-					 bs.dir_entries[0]) *
+		mydata->rootdir_size = (get_unaligned_le16(bs.dir_entries) *
 					 sizeof(dir_entry)) /
 					 mydata->sect_size;
 		mydata->data_begin = mydata->rootdir_sect +
