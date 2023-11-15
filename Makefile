@@ -750,6 +750,7 @@ endif
 
 ifeq ($(CONFIG_STACKPROTECTOR),y)
 KBUILD_CFLAGS += $(call cc-option,-fstack-protector-strong)
+KBUILD_CFLAGS += $(call cc-option,-mstack-protector-guard=global)
 CFLAGS_EFI += $(call cc-option,-fno-stack-protector)
 else
 KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
