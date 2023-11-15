@@ -531,7 +531,8 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 
 	if (disk_read(0, 1, block) < 0) {
 		debug("Error: reading block\n");
-		goto fail;
+		ret = -1;
+		goto out_free;
 	}
 
 	memcpy(bs, block, sizeof(boot_sector));
@@ -556,10 +557,8 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 		*fatsize = determine_legacy_fat_bits(bs);
 	}
 	memcpy(volinfo, vistart, sizeof(volume_info));
-	goto exit;
-fail:
-	ret = -1;
-exit:
+
+out_free:
 	free(block);
 	return ret;
 }
