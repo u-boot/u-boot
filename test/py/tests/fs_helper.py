@@ -24,7 +24,9 @@ def mk_fs(config, fs_type, size, prefix):
     fs_img = f'{prefix}.{fs_type}.img'
     fs_img = os.path.join(config.persistent_data_dir, fs_img)
 
-    if fs_type == 'fat16':
+    if fs_type == 'fat12':
+        mkfs_opt = '-F 12'
+    elif fs_type == 'fat16':
         mkfs_opt = '-F 16'
     elif fs_type == 'fat32':
         mkfs_opt = '-F 32'
