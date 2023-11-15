@@ -21,9 +21,12 @@ struct udevice;
  * @align: Frame-buffer alignment, indicating the memory boundary the frame
  *	buffer should start on. If 0, 1MB is assumed
  * @size: Frame-buffer size, in bytes
- * @base: Base address of frame buffer, 0 if not yet known
- * @copy_base: Base address of a hardware copy of the frame buffer. See
- *	CONFIG_VIDEO_COPY.
+ * @base: Base address of frame buffer, 0 if not yet known. If CONFIG_VIDEO_COPY
+ *	is enabled, this is the software copy, so writes to this will not be
+ *	visible until vidconsole_sync_copy() is called. If CONFIG_VIDEO_COPY is
+ *	disabled, this is the hardware framebuffer.
+ * @copy_base: Base address of a hardware copy of the frame buffer. If
+ *	CONFIG_VIDEO_COPY is disabled, this is not used.
  * @copy_size: Size of copy framebuffer, used if @size is 0
  * @hide_logo: Hide the logo (used for testing)
  */

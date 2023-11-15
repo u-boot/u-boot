@@ -219,7 +219,7 @@ int os_map_file(const char *pathname, int os_flags, void **bufp, int *sizep)
 {
 	void *ptr;
 	off_t size;
-	int ifd;
+	int ifd, ret = 0;
 
 	ifd = os_open(pathname, os_flags);
 	if (ifd < 0) {
@@ -229,23 +229,28 @@ int os_map_file(const char *pathname, int os_flags, void **bufp, int *sizep)
 	size = os_filesize(ifd);
 	if (size < 0) {
 		printf("Cannot get file size of '%s'\n", pathname);
-		return -EIO;
+		ret = -EIO;
+		goto out;
 	}
 	if ((unsigned long long)size > (unsigned long long)SIZE_MAX) {
 		printf("File '%s' too large to map\n", pathname);
-		return -EIO;
+		ret = -EIO;
+		goto out;
 	}
 
 	ptr = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, ifd, 0);
 	if (ptr == MAP_FAILED) {
 		printf("Can't map file '%s': %s\n", pathname, strerror(errno));
-		return -EPERM;
+		ret = -EPERM;
+		goto out;
 	}
 
 	*bufp = ptr;
 	*sizep = size;
 
-	return 0;
+out:
+	os_close(ifd);
+	return ret;
 }
 
 int os_unmap(void *buf, int size)

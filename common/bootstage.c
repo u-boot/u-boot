@@ -137,7 +137,7 @@ ulong bootstage_add_record(enum bootstage_id id, const char *name,
 			rec->flags = flags;
 			rec->id = id;
 		} else {
-			log_warning("Bootstage space exhasuted\n");
+			log_warning("Bootstage space exhausted\n");
 		}
 	}
 

@@ -89,6 +89,44 @@ static void show_footer(int count, int num_valid)
 	       num_valid);
 }
 
+/**
+ * bootflow_handle_menu() - Handle running the menu and updating cur bootflow
+ *
+ * This shows the menu, allows the user to select something and then prints
+ * what happened
+ *
+ * @std: bootstd information
+ * @text_mode: true to run the menu in text mode
+ * @bflowp: Returns selected bootflow, on success
+ * Return: 0 on success (a bootflow was selected), -EAGAIN if nothing was
+ *	chosen, other -ve value on other error
+ */
+__maybe_unused static int bootflow_handle_menu(struct bootstd_priv *std,
+					       bool text_mode,
+					       struct bootflow **bflowp)
+{
+	struct bootflow *bflow;
+	int ret;
+
+	ret = bootflow_menu_run(std, text_mode, &bflow);
+	if (ret) {
+		if (ret == -EAGAIN) {
+			printf("Nothing chosen\n");
+			std->cur_bootflow = NULL;
+		} else {
+			printf("Menu failed (err=%d)\n", ret);
+		}
+
+		return ret;
+	}
+
+	printf("Selected: %s\n", bflow->os_name ? bflow->os_name : bflow->name);
+	std->cur_bootflow = bflow;
+	*bflowp = bflow;
+
+	return 0;
+}
+
 static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 			    char *const argv[])
 {
@@ -455,18 +493,9 @@ static int do_bootflow_menu(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (ret)
 		return CMD_RET_FAILURE;
 
-	ret = bootflow_menu_run(std, text_mode, &bflow);
-	if (ret) {
-		if (ret == -EAGAIN)
-			printf("Nothing chosen\n");
-		else {
-			printf("Menu failed (err=%d)\n", ret);
-			return CMD_RET_FAILURE;
-		}
-	}
-
-	printf("Selected: %s\n", bflow->os_name ? bflow->os_name : bflow->name);
-	std->cur_bootflow = bflow;
+	ret = bootflow_handle_menu(std, text_mode, &bflow);
+	if (ret)
+		return CMD_RET_FAILURE;
 
 	return 0;
 }
