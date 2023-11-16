@@ -903,12 +903,11 @@ static int axi_emac_of_to_plat(struct udevice *dev)
 
 	ret = dev_read_phandle_with_args(dev, "axistream-connected", NULL, 0, 0,
 					 &axistream_node);
-	if (ret) {
-		printf("%s: axistream is not found\n", __func__);
-		return -EINVAL;
-	}
+	if (!ret)
+		plat->dmatx = (struct axidma_reg *)ofnode_get_addr(axistream_node.node);
+	else
+		plat->dmatx = (struct axidma_reg *)dev_read_addr_index(dev, 1);
 
-	plat->dmatx = (struct axidma_reg *)ofnode_get_addr(axistream_node.node);
 	if (!plat->dmatx) {
 		printf("%s: axi_dma register space not found\n", __func__);
 		return -EINVAL;
