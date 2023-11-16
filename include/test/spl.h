@@ -81,6 +81,10 @@ size_t create_image(void *dst, enum spl_test_image type,
 int check_image_info(struct unit_test_state *uts, struct spl_image_info *info1,
 		     struct spl_image_info *info2);
 
+/* Some compressed data and it size */
+extern const char lzma_compressed[];
+extern const size_t lzma_compressed_size;
+
 /**
  * typedef write_image_t - Callback for writing an image
  * @uts: Current unit test state

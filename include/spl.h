@@ -285,29 +285,52 @@ static inline void *spl_image_fdt_addr(struct spl_image_info *info)
 /**
  * Information required to load data from a device
  *
- * @dev: Pointer to the device, e.g. struct mmc *
  * @priv: Private data for the device
  * @bl_len: Block length for reading in bytes
- * @filename: Name of the fit image file.
  * @read: Function to call to read from the device
  */
 struct spl_load_info {
-	void *dev;
 	void *priv;
-	int bl_len;
-	const char *filename;
 	/**
 	 * read() - Read from device
 	 *
 	 * @load: Information about the load state
-	 * @sector: Sector number to read from (each @load->bl_len bytes)
-	 * @count: Number of sectors to read
+	 * @offset: Offset to read from in bytes. This must be a multiple of
+	 *          @load->bl_len.
+	 * @count: Number of bytes to read. This must be a multiple of
+	 *         @load->bl_len.
 	 * @buf: Buffer to read into
-	 * @return number of sectors read, 0 on error
+	 * @return number of bytes read, 0 on error
 	 */
 	ulong (*read)(struct spl_load_info *load, ulong sector, ulong count,
 		      void *buf);
+#if IS_ENABLED(CONFIG_SPL_LOAD_BLOCK)
+	int bl_len;
 };
+
+static inline int spl_get_bl_len(struct spl_load_info *info)
+{
+	return info->bl_len;
+}
+
+static inline void spl_set_bl_len(struct spl_load_info *info, int bl_len)
+{
+	info->bl_len = bl_len;
+}
+#else
+};
+
+static inline int spl_get_bl_len(struct spl_load_info *info)
+{
+	return 1;
+}
+
+static inline void spl_set_bl_len(struct spl_load_info *info, int bl_len)
+{
+	if (bl_len != 1)
+		panic("CONFIG_SPL_LOAD_BLOCK not enabled");
+}
+#endif
 
 /*
  * We need to know the position of U-Boot in memory so we can jump to it. We
@@ -370,7 +393,8 @@ void *spl_load_simple_fit_fix_load(const void *fit);
  * spl_load_simple_fit() - Loads a fit image from a device.
  * @spl_image:	Image description to set up
  * @info:	Structure containing the information required to load data.
- * @sector:	Sector number where FIT image is located in the device
+ * @offset:	Offset where FIT image is located in the device. Must be aligned
+ *              to the device's bl_len.
  * @fdt:	Pointer to the copied FIT header.
  *
  * Reads the FIT image @sector in the device. Loads u-boot image to
@@ -378,10 +402,23 @@ void *spl_load_simple_fit_fix_load(const void *fit);
  * Returns 0 on success.
  */
 int spl_load_simple_fit(struct spl_image_info *spl_image,
-			struct spl_load_info *info, ulong sector, void *fdt);
+			struct spl_load_info *info, ulong offset, void *fdt);
 
 #define SPL_COPY_PAYLOAD_ONLY	1
 #define SPL_FIT_FOUND		2
+
+/**
+ * spl_load_legacy_lzma() - Load an LZMA-compressed legacy image
+ * @spl_image:	Image description (already set up)
+ * @load:	Structure containing the information required to load data.
+ * @offset:	Pointer to image
+ *
+ * Load/decompress an LZMA-compressed legacy image from the device.
+ *
+ * Return: 0 on success, or a negative error on failure
+ */
+int spl_load_legacy_lzma(struct spl_image_info *spl_image,
+			 struct spl_load_info *load, ulong offset);
 
 /**
  * spl_load_legacy_img() - Loads a legacy image from a device.
@@ -404,13 +441,14 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
  * spl_load_imx_container() - Loads a imx container image from a device.
  * @spl_image:	Image description to set up
  * @info:	Structure containing the information required to load data.
- * @sector:	Sector number where container image is located in the device
+ * @sector:	Offset where container image is located in the device. Must be
+ *              aligned to the device block size.
  *
  * Reads the container image @sector in the device. Loads u-boot image to
  * specified load address.
  */
 int spl_load_imx_container(struct spl_image_info *spl_image,
-			   struct spl_load_info *info, ulong sector);
+			   struct spl_load_info *info, ulong offset);
 
 /* SPL common functions */
 void preloader_console_init(void);
