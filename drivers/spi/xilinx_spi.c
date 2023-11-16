@@ -278,6 +278,18 @@ static void xilinx_spi_startup_block(struct udevice *dev)
 	spi_cs_deactivate(dev);
 }
 
+static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+			   const void *dout, void *din, unsigned long flags)
+{
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
+	int ret;
+
+	spi_cs_activate(dev, slave_plat->cs);
+	ret = start_transfer(dev, dout, din, bitlen / 8);
+	spi_cs_deactivate(dev);
+	return ret;
+}
+
 static int xilinx_spi_mem_exec_op(struct spi_slave *spi,
 				  const struct spi_mem_op *op)
 {
@@ -427,6 +439,7 @@ static const struct spi_controller_mem_ops xilinx_spi_mem_ops = {
 static const struct dm_spi_ops xilinx_spi_ops = {
 	.claim_bus	= xilinx_spi_claim_bus,
 	.release_bus	= xilinx_spi_release_bus,
+	.xfer           = xilinx_spi_xfer,
 	.set_speed	= xilinx_spi_set_speed,
 	.set_mode	= xilinx_spi_set_mode,
 	.mem_ops	= &xilinx_spi_mem_ops,
