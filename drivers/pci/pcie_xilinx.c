@@ -24,6 +24,8 @@ struct xilinx_pcie {
 /* Register definitions */
 #define XILINX_PCIE_REG_PSCR		0x144
 #define XILINX_PCIE_REG_PSCR_LNKUP	BIT(11)
+#define XILINX_PCIE_REG_RPSC		0x148
+#define XILINX_PCIE_REG_RPSC_BEN	BIT(0)
 
 /**
  * pcie_xilinx_link_up() - Check whether the PCIe link is up
@@ -141,6 +143,7 @@ static int pcie_xilinx_of_to_plat(struct udevice *dev)
 	struct xilinx_pcie *pcie = dev_get_priv(dev);
 	fdt_addr_t addr;
 	fdt_size_t size;
+	u32 rpsc;
 
 	addr = dev_read_addr_size(dev, &size);
 	if (addr == FDT_ADDR_T_NONE)
@@ -149,6 +152,11 @@ static int pcie_xilinx_of_to_plat(struct udevice *dev)
 	pcie->cfg_base = devm_ioremap(dev, addr, size);
 	if (IS_ERR(pcie->cfg_base))
 		return PTR_ERR(pcie->cfg_base);
+
+	/* Enable the Bridge enable bit */
+	rpsc = __raw_readl(pcie->cfg_base + XILINX_PCIE_REG_RPSC);
+	rpsc |= XILINX_PCIE_REG_RPSC_BEN;
+	__raw_writel(rpsc, pcie->cfg_base + XILINX_PCIE_REG_RPSC);
 
 	return 0;
 }
