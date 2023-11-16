@@ -109,6 +109,27 @@ struct xilinx_spi_priv {
 	u8 startup;
 };
 
+static int xilinx_spi_find_buffer_size(struct xilinx_spi_regs *regs)
+{
+	u8 sr;
+	int n_words = 0;
+
+	/*
+	 * Before the buffer_size detection reset the core
+	 * to make sure to start with a clean state.
+	 */
+	writel(SPISSR_RESET_VALUE, &regs->srr);
+
+	/* Fill the Tx FIFO with as many words as possible */
+	do {
+		writel(0, &regs->spidtr);
+		sr = readl(&regs->spisr);
+		n_words++;
+	} while (!(sr & SPISR_TX_FULL));
+
+	return n_words;
+}
+
 static int xilinx_spi_probe(struct udevice *bus)
 {
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
@@ -116,6 +137,8 @@ static int xilinx_spi_probe(struct udevice *bus)
 
 	regs = priv->regs = dev_read_addr_ptr(bus);
 	priv->fifo_depth = dev_read_u32_default(bus, "fifo-size", 0);
+	if (!priv->fifo_depth)
+		priv->fifo_depth = xilinx_spi_find_buffer_size(regs);
 
 	writel(SPISSR_RESET_VALUE, &regs->srr);
 
