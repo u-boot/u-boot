@@ -54,8 +54,8 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply SCSI_AHCI
 	imply AHCI_PCI
 	imply E1000
-	imply NVME
 	imply PCI
+	imply NVME_PCI
 	imply PCIE_ECAM_GENERIC
 	imply DM_RNG
 	imply SCSI
