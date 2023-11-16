@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <nand.h>
+#include <system-constants.h>
 #include <asm/io.h>
 #include <linux/delay.h>
 #include <linux/mtd/nand_ecc.h>
@@ -32,7 +33,7 @@ static int nand_command(int block, int page, uint32_t offs,
 	u8 cmd)
 {
 	struct nand_chip *this = mtd_to_nand(mtd);
-	int page_addr = page + block * CONFIG_SYS_NAND_PAGE_COUNT;
+	int page_addr = page + block * SYS_NAND_BLOCK_PAGES;
 	void (*hwctrl)(struct mtd_info *mtd, int cmd,
 			unsigned int ctrl) = this->cmd_ctrl;
 
@@ -215,6 +216,11 @@ void nand_init(void)
 
 	/* NAND chip may require reset after power-on */
 	nand_command(0, 0, 0, NAND_CMD_RESET);
+}
+
+unsigned int nand_page_size(void)
+{
+	return nand_to_mtd(&nand_chip)->writesize;
 }
 
 /* Unselect after operation */

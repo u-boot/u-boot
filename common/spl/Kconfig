@@ -857,7 +857,7 @@ config SPL_MPC8XXX_INIT_DDR
 	  allows DRAM to be set up before loading U-Boot into that DRAM,
 	  where it can run.
 
-config SPL_MTD_SUPPORT
+config SPL_MTD
 	bool "Support MTD drivers"
 	help
 	  Enable support for MTD (Memory Technology Device) within SPL. MTD

@@ -203,6 +203,11 @@ unsigned long nand_size(void)
 	return SZ_2G;
 }
 
+unsigned int nand_page_size(void)
+{
+	return nfc_dev.nand.mtd.writesize;
+}
+
 void nand_deselect(void)
 {
 }

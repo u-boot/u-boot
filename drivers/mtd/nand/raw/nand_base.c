@@ -4462,17 +4462,14 @@ ident_done:
 	else if (chip->jedec_version)
 		pr_info("%s %s\n", manufacturer_desc->name,
 			chip->jedec_params.model);
-	else
+	else if (manufacturer_desc)
 		pr_info("%s %s\n", manufacturer_desc->name, type->name);
 #else
 	if (chip->jedec_version)
 		pr_info("%s %s\n", manufacturer_desc->name,
 			chip->jedec_params.model);
-	else
+	else if (manufacturer_desc)
 		pr_info("%s %s\n", manufacturer_desc->name, type->name);
-
-	pr_info("%s %s\n", manufacturer_desc->name,
-		type->name);
 #endif
 
 	pr_info("%d MiB, %s, erase size: %d KiB, page size: %d, OOB size: %d\n",

@@ -11,6 +11,7 @@
 #include <log.h>
 #include <spl.h>
 #include <asm/io.h>
+#include <mapmem.h>
 #include <nand.h>
 #include <linux/libfdt_env.h>
 #include <fdt.h>
@@ -32,7 +33,8 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 
 	nand_spl_load_image(spl_nand_get_uboot_raw_page(),
 			    CFG_SYS_NAND_U_BOOT_SIZE,
-			    (void *)CFG_SYS_NAND_U_BOOT_DST);
+			    map_sysmem(CFG_SYS_NAND_U_BOOT_DST,
+				       CFG_SYS_NAND_U_BOOT_SIZE));
 	spl_set_header_raw_uboot(spl_image);
 	nand_deselect();
 
@@ -72,23 +74,18 @@ static ulong spl_nand_legacy_read(struct spl_load_info *load, ulong offs,
 	return size;
 }
 
-struct mtd_info * __weak nand_get_mtd(void)
-{
-	return NULL;
-}
-
 static int spl_nand_load_element(struct spl_image_info *spl_image,
 				 struct spl_boot_device *bootdev,
 				 int offset, struct legacy_img_hdr *header)
 {
-	struct mtd_info *mtd = nand_get_mtd();
-	int bl_len = mtd ? mtd->writesize : 1;
+	int bl_len;
 	int err;
 
 	err = nand_spl_load_image(offset, sizeof(*header), (void *)header);
 	if (err)
 		return err;
 
+	bl_len = nand_page_size();
 	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
 	    image_get_magic(header) == FDT_MAGIC) {
 		struct spl_load_info load;
@@ -105,7 +102,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		load.dev = NULL;
-		load.priv = NULL;
+		load.priv = &offset;
 		load.filename = NULL;
 		load.bl_len = bl_len;
 		load.read = spl_nand_fit_read;
@@ -118,7 +115,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		load.dev = NULL;
 		load.priv = NULL;
 		load.filename = NULL;
-		load.bl_len = 1;
+		load.bl_len = IS_ENABLED(CONFIG_SPL_LZMA) ? bl_len : 1;
 		load.read = spl_nand_legacy_read;
 
 		return spl_load_legacy_img(spl_image, bootdev, &load, offset, header);
@@ -127,7 +124,8 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		if (err)
 			return err;
 		return nand_spl_load_image(offset, spl_image->size,
-					   (void *)(ulong)spl_image->load_addr);
+					   map_sysmem(spl_image->load_addr,
+						      spl_image->size));
 	}
 }
 
