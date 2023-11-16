@@ -67,7 +67,7 @@
 /* SPI Slave Select Register (spissr), [1] p13, [2] p13 */
 #define SPISSR_MASK(cs)		(1 << (cs))
 #define SPISSR_ACT(cs)		~SPISSR_MASK(cs)
-#define SPISSR_OFF		~0UL
+#define SPISSR_OFF		(~0U)
 
 /* SPI Software Reset Register (ssr) */
 #define SPISSR_RESET_VALUE	0x0a
@@ -217,9 +217,9 @@ static u32 xilinx_spi_read_rxfifo(struct udevice *bus, u8 *rxp, u32 rxbytes)
 	return i;
 }
 
-static int start_transfer(struct spi_slave *spi, const void *dout, void *din, u32 len)
+static int start_transfer(struct udevice *dev, const void *dout, void *din, u32 len)
 {
-	struct udevice *bus = spi->dev->parent;
+	struct udevice *bus = dev->parent;
 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
 	struct xilinx_spi_regs *regs = priv->regs;
 	u32 count, txbytes, rxbytes;
@@ -259,10 +259,9 @@ static int start_transfer(struct spi_slave *spi, const void *dout, void *din, u3
 	return 0;
 }
 
-static void xilinx_spi_startup_block(struct spi_slave *spi)
+static void xilinx_spi_startup_block(struct udevice *dev)
 {
-	struct dm_spi_slave_plat *slave_plat =
-				dev_get_parent_plat(spi->dev);
+	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	unsigned char txp;
 	unsigned char rxp[8];
 
@@ -270,13 +269,13 @@ static void xilinx_spi_startup_block(struct spi_slave *spi)
 	 * Perform a dummy read as a work around for
 	 * the startup block issue.
 	 */
-	spi_cs_activate(spi->dev, slave_plat->cs);
+	spi_cs_activate(dev, slave_plat->cs);
 	txp = 0x9f;
-	start_transfer(spi, (void *)&txp, NULL, 1);
+	start_transfer(dev, (void *)&txp, NULL, 1);
 
-	start_transfer(spi, NULL, (void *)rxp, 6);
+	start_transfer(dev, NULL, (void *)rxp, 6);
 
-	spi_cs_deactivate(spi->dev);
+	spi_cs_deactivate(dev);
 }
 
 static int xilinx_spi_mem_exec_op(struct spi_slave *spi,
@@ -294,14 +293,15 @@ static int xilinx_spi_mem_exec_op(struct spi_slave *spi,
 	 * as QSPI provides command. So first command fails.
 	 */
 	if (!startup) {
-		xilinx_spi_startup_block(spi);
+		xilinx_spi_startup_block(spi->dev);
 		startup++;
 	}
 
 	spi_cs_activate(spi->dev, slave_plat->cs);
 
 	if (op->cmd.opcode) {
-		ret = start_transfer(spi, (void *)&op->cmd.opcode, NULL, 1);
+		ret = start_transfer(spi->dev, (void *)&op->cmd.opcode,
+				     NULL, 1);
 		if (ret)
 			goto done;
 	}
@@ -313,7 +313,7 @@ static int xilinx_spi_mem_exec_op(struct spi_slave *spi,
 			addr_buf[i] = op->addr.val >>
 			(8 * (op->addr.nbytes - i - 1));
 
-		ret = start_transfer(spi, (void *)addr_buf, NULL,
+		ret = start_transfer(spi->dev, (void *)addr_buf, NULL,
 				     op->addr.nbytes);
 		if (ret)
 			goto done;
@@ -322,16 +322,16 @@ static int xilinx_spi_mem_exec_op(struct spi_slave *spi,
 		dummy_len = (op->dummy.nbytes * op->data.buswidth) /
 			     op->dummy.buswidth;
 
-		ret = start_transfer(spi, NULL, NULL, dummy_len);
+		ret = start_transfer(spi->dev, NULL, NULL, dummy_len);
 		if (ret)
 			goto done;
 	}
 	if (op->data.nbytes) {
 		if (op->data.dir == SPI_MEM_DATA_IN) {
-			ret = start_transfer(spi, NULL,
+			ret = start_transfer(spi->dev, NULL,
 					     op->data.buf.in, op->data.nbytes);
 		} else {
-			ret = start_transfer(spi, op->data.buf.out,
+			ret = start_transfer(spi->dev, op->data.buf.out,
 					     NULL, op->data.nbytes);
 		}
 		if (ret)
