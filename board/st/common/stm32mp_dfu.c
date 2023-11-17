@@ -123,24 +123,9 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		/* probe all MTD devices */
 		mtd_probe_devices();
 
-		/* probe SPI flash device on a bus */
-		if (!uclass_get_device(UCLASS_SPI_FLASH, 0, &dev)) {
-			mtd = get_mtd_device_nm("nor0");
-			if (!IS_ERR_OR_NULL(mtd))
+		mtd_for_each_device(mtd)
+			if (!mtd_is_partition(mtd))
 				board_get_alt_info_mtd(mtd, buf);
-
-			mtd = get_mtd_device_nm("nor1");
-			if (!IS_ERR_OR_NULL(mtd))
-				board_get_alt_info_mtd(mtd, buf);
-		}
-
-		mtd = get_mtd_device_nm("nand0");
-		if (!IS_ERR_OR_NULL(mtd))
-			board_get_alt_info_mtd(mtd, buf);
-
-		mtd = get_mtd_device_nm("spi-nand0");
-		if (!IS_ERR_OR_NULL(mtd))
-			board_get_alt_info_mtd(mtd, buf);
 	}
 
 	if (IS_ENABLED(CONFIG_DFU_VIRT)) {
