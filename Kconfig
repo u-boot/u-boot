@@ -327,7 +327,7 @@ config SPL_SYS_MALLOC_F_LEN
 	  malloc() region in SDRAM once it is inited.
 
 config TPL_SYS_MALLOC_F
-	bool "Enable malloc() pool in SPL"
+	bool "Enable malloc() pool in TPL"
 	depends on SYS_MALLOC_F && TPL
 	default y if SPL_SYS_MALLOC_F
 	help

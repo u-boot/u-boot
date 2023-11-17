@@ -467,7 +467,8 @@ void bootflow_free(struct bootflow *bflow)
 	free(bflow->name);
 	free(bflow->subdir);
 	free(bflow->fname);
-	free(bflow->buf);
+	if (!(bflow->flags & BOOTFLOWF_STATIC_BUF))
+		free(bflow->buf);
 	free(bflow->os_name);
 	free(bflow->fdt_fname);
 	free(bflow->bootmeth_priv);
