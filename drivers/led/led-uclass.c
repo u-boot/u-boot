@@ -74,7 +74,7 @@ static int led_post_bind(struct udevice *dev)
 	if (!uc_plat->label)
 		uc_plat->label = dev_read_string(dev, "label");
 
-	if (!uc_plat->label)
+	if (!uc_plat->label && !dev_read_string(dev, "compatible"))
 		uc_plat->label = ofnode_get_name(dev_ofnode(dev));
 
 	uc_plat->default_state = LEDST_COUNT;
