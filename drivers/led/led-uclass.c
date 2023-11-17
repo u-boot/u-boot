@@ -71,7 +71,9 @@ static int led_post_bind(struct udevice *dev)
 	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	const char *default_state;
 
-	uc_plat->label = dev_read_string(dev, "label");
+	if (!uc_plat->label)
+		uc_plat->label = dev_read_string(dev, "label");
+
 	if (!uc_plat->label)
 		uc_plat->label = ofnode_get_name(dev_ofnode(dev));
 
