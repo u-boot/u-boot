@@ -22,6 +22,7 @@
 #include <linux/ioport.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/printk.h>
+#include <linux/time.h>
 
 /* Bad block marker length */
 #define FMC2_BBM_LEN			2
@@ -126,8 +127,6 @@
 /* Register: FMC2_BCHDSR4 */
 #define FMC2_BCHDSR4_EBP7		GENMASK(12, 0)
 #define FMC2_BCHDSR4_EBP8		GENMASK(28, 16)
-
-#define FMC2_NSEC_PER_SEC		1000000000L
 
 #define FMC2_TIMEOUT_5S			5000000
 
@@ -603,7 +602,7 @@ static void stm32_fmc2_nfc_calc_timings(struct nand_chip *chip,
 	struct stm32_fmc2_nand *nand = to_fmc2_nand(chip);
 	struct stm32_fmc2_timings *tims = &nand->timings;
 	unsigned long hclk = clk_get_rate(&nfc->clk);
-	unsigned long hclkp = FMC2_NSEC_PER_SEC / (hclk / 1000);
+	unsigned long hclkp = NSEC_PER_SEC / (hclk / 1000);
 	unsigned long timing, tar, tclr, thiz, twait;
 	unsigned long tset_mem, tset_att, thold_mem, thold_att;
 

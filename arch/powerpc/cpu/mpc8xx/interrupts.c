@@ -4,7 +4,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
+#include <stdio.h>
 #include <irq_func.h>
 #include <mpc8xx.h>
 #include <mpc8xx_irq.h>

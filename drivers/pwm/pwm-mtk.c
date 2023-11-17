@@ -12,6 +12,7 @@
 #include <div64.h>
 #include <linux/bitops.h>
 #include <linux/io.h>
+#include <linux/time.h>
 
 /* PWM registers and bits definitions */
 #define PWMCON			0x00
@@ -26,8 +27,6 @@
 
 #define PWM_CLK_DIV_MAX		7
 #define MAX_PWM_NUM		8
-
-#define NSEC_PER_SEC 1000000000L
 
 enum mtk_pwm_reg_ver {
 	PWM_REG_V1,

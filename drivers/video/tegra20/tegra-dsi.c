@@ -14,6 +14,7 @@
 #include <panel.h>
 #include <linux/delay.h>
 #include <linux/err.h>
+#include <linux/time.h>
 #include <power/regulator.h>
 
 #include <asm/gpio.h>
@@ -23,9 +24,6 @@
 #include <asm/arch-tegra30/dsi.h>
 
 #include "mipi-phy.h"
-
-#define USEC_PER_SEC	1000000L
-#define NSEC_PER_SEC	1000000000L
 
 struct tegra_dsi_priv {
 	struct mipi_dsi_host host;

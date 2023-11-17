@@ -960,7 +960,6 @@ config CMD_ADC
 
 config CMD_BCB
 	bool "bcb"
-	depends on MMC
 	depends on PARTITIONS
 	help
 	  Read/modify/write the fields of Bootloader Control Block, usually
