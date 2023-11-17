@@ -73,7 +73,6 @@ static void board_get_alt_info_mmc(struct udevice *dev, char *buf)
 static void board_get_alt_info_mtd(struct mtd_info *mtd, char *buf)
 {
 	struct mtd_info *part;
-	bool first = true;
 	const char *name;
 	int len, partnum = 0;
 
@@ -86,17 +85,13 @@ static void board_get_alt_info_mtd(struct mtd_info *mtd, char *buf)
 			"mtd %s=", name);
 
 	len += snprintf(buf + len, DFU_ALT_BUF_LEN - len,
-			"%s raw 0x0 0x%llx ",
+			"%s raw 0x0 0x%llx",
 			name, mtd->size);
 
 	list_for_each_entry(part, &mtd->partitions, node) {
 		partnum++;
-		if (!first)
-			len += snprintf(buf + len, DFU_ALT_BUF_LEN - len, ";");
-		first = false;
-
 		len += snprintf(buf + len, DFU_ALT_BUF_LEN - len,
-				"%s_%s part %d",
+				";%s_%s part %d",
 				name, part->name, partnum);
 	}
 }
