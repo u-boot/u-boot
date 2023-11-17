@@ -52,7 +52,6 @@
 #include <configs/ti_armv7_common.h>
 
 /* we may include files below only after all above definitions */
-#include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>
 #ifndef CONFIG_SOC_K2G
 #define CFG_SYS_HZ_CLOCK		ks_clk_get_rate(KS2_CLK1_6)
