@@ -11,3 +11,4 @@ obj-$(CONFIG_LED_BCM6858) += led_bcm6858.o
 obj-$(CONFIG_LED_PWM) += led_pwm.o
 obj-$(CONFIG_$(SPL_)LED_GPIO) += led_gpio.o
 obj-$(CONFIG_LED_CORTINA) += led_cortina.o
+obj-$(CONFIG_LED_LP5562) += led_lp5562.o

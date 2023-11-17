@@ -49,6 +49,14 @@ config LED_CORTINA
 	  This option enables support for LEDs connected to the Cortina
 	  Access CAxxxx SOCs.
 
+config LED_LP5562
+	bool "LED Support for LP5562"
+	depends on LED && DM_I2C
+	help
+	  This option enables support for LEDs connected to the TI LP5562
+	  4 channel I2C LED controller.  Driver fully supports blink on the
+	  B/G/R LEDs.  White LED can blink, but re-uses the period from blue.
+
 config LED_PWM
 	bool "LED PWM"
 	depends on LED && DM_PWM
