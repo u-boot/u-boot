@@ -580,11 +580,11 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 static int bootm_find_other(struct cmd_tbl *cmdtp, int flag, int argc,
 			    char *const argv[])
 {
-	if (((images.os.type == IH_TYPE_KERNEL) ||
-	     (images.os.type == IH_TYPE_KERNEL_NOLOAD) ||
-	     (images.os.type == IH_TYPE_MULTI)) &&
-	    (images.os.os == IH_OS_LINUX ||
-		 images.os.os == IH_OS_VXWORKS))
+	if ((images.os.type == IH_TYPE_KERNEL ||
+	     images.os.type == IH_TYPE_KERNEL_NOLOAD ||
+	     images.os.type == IH_TYPE_MULTI) &&
+	    (images.os.os == IH_OS_LINUX || images.os.os == IH_OS_VXWORKS ||
+	     images.os.os == IH_OS_EFI))
 		return bootm_find_images(flag, argc, argv, 0, 0);
 
 	return 0;

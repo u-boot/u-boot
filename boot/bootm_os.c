@@ -486,17 +486,11 @@ static int do_bootm_tee(int flag, int argc, char *const argv[],
 static int do_bootm_efi(int flag, int argc, char *const argv[],
 			struct bootm_headers *images)
 {
-	int ret;
 	efi_status_t efi_ret;
 	void *image_buf;
 
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
-
-	/* Locate FDT, if provided */
-	ret = bootm_find_images(flag, argc, argv, 0, 0);
-	if (ret)
-		return ret;
 
 	/* Initialize EFI drivers */
 	efi_ret = efi_init_obj_list();
