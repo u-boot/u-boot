@@ -233,7 +233,7 @@ static int boot_get_kernel(const char *cmd_name, const char *addr_fit,
 #endif
 	default:
 		printf("Wrong Image Format for %s command\n", cmd_name);
-		bootstage_error(BOOTSTAGE_ID_FIT_KERNEL_INFO);
+		bootstage_error(BOOTSTAGE_ID_CHECK_IMAGETYPE);
 		return -EBADF;
 	}
 
