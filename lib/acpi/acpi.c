@@ -16,18 +16,30 @@ struct acpi_table_header *acpi_find_table(const char *sig)
 {
 	struct acpi_rsdp *rsdp;
 	struct acpi_rsdt *rsdt;
+	struct acpi_xsdt *xsdt;
 	int len, i, count;
 
 	rsdp = map_sysmem(gd_acpi_start(), 0);
 	if (!rsdp)
 		return NULL;
-	rsdt = map_sysmem(rsdp->rsdt_address, 0);
-	len = rsdt->header.length - sizeof(rsdt->header);
-	count = len / sizeof(u32);
+	if (rsdp->xsdt_address) {
+		xsdt = map_sysmem(rsdp->xsdt_address, 0);
+		len = xsdt->header.length - sizeof(xsdt->header);
+		count = len / sizeof(u64);
+	} else {
+		if (!rsdp->rsdt_address)
+			return NULL;
+		rsdt = map_sysmem(rsdp->rsdt_address, 0);
+		len = rsdt->header.length - sizeof(rsdt->header);
+		count = len / sizeof(u32);
+	}
 	for (i = 0; i < count; i++) {
 		struct acpi_table_header *hdr;
 
-		hdr = map_sysmem(rsdt->entry[i], 0);
+		if (rsdp->xsdt_address)
+			hdr = map_sysmem(xsdt->entry[i], 0);
+		else
+			hdr = map_sysmem(rsdt->entry[i], 0);
 		if (!memcmp(hdr->signature, sig, ACPI_NAME_LEN))
 			return hdr;
 		if (!memcmp(hdr->signature, "FACP", ACPI_NAME_LEN)) {
