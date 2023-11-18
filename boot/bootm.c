@@ -490,15 +490,20 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 		      ulong size)
 {
 	const char *select = NULL;
+	char addr_str[17];
 	ulong img_addr;
 	void *buf;
 	int ret;
 
+	img_addr = argc ? hextoul(argv[0], NULL) : image_load_addr;
+
 	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
 		/* Look for an Android boot image */
 		buf = map_sysmem(images.os.start, 0);
-		if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
-			select = argc ? argv[0] : env_get("loadaddr");
+		if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID) {
+			strcpy(addr_str, simple_xtoa(img_addr));
+			select = addr_str;
+		}
 	}
 
 	if (argc >= 2)
@@ -525,7 +530,6 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 	}
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT)) {
-		img_addr = argc ? hextoul(argv[0], NULL) : image_load_addr;
 		buf = map_sysmem(img_addr, 0);
 
 		/* find flattened device tree */
