@@ -222,12 +222,12 @@ static int boot_get_kernel(const char *cmd_name, const char *addr_fit,
 		printf("## Booting Android Image at 0x%08lx ...\n", img_addr);
 		ret = android_image_get_kernel(boot_img, vendor_boot_img,
 					       images->verify, os_data, os_len);
-		if (ret)
-			return ret;
 		if (IS_ENABLED(CONFIG_CMD_ABOOTIMG)) {
 			unmap_sysmem(vendor_boot_img);
 			unmap_sysmem(boot_img);
 		}
+		if (ret)
+			return ret;
 		break;
 	}
 #endif
