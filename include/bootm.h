@@ -52,9 +52,29 @@ int boot_selected_os(int argc, char *const argv[], int state,
 
 ulong bootm_disable_interrupts(void);
 
-/* This is a special function used by booti/bootz */
-int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
-		      ulong size);
+/**
+ * bootm_find_images() - find and locate various images
+ *
+ * @img_addr: Address of image being loaded
+ * @conf_ramdisk: Indicates the ramdisk to use (typically second arg of bootm)
+ * @conf_fdt: Indicates the FDT to use (typically third arg of bootm)
+ * @start: OS image start address
+ * @size: OS image size
+ *
+ * boot_find_images() will attempt to load an available ramdisk,
+ * flattened device tree, as well as specifically marked
+ * "loadable" images (loadables are FIT only)
+ *
+ * Note: bootm_find_images will skip an image if it is not found
+ *
+ * This is a special function used by booti/bootz
+ *
+ * Return:
+ *     0, if all existing images were loaded correctly
+ *     1, if an image is found but corrupted, or invalid
+ */
+int bootm_find_images(ulong img_addr, const char *conf_ramdisk,
+		      const char *conf_fdt, ulong start, ulong size);
 
 /*
  * Measure the boot images. Measurement is the process of hashing some binary

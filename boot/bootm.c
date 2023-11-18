@@ -468,34 +468,13 @@ static int bootm_find_os(const char *cmd_name, const char *addr_fit)
 	return 0;
 }
 
-/**
- * bootm_find_images - wrapper to find and locate various images
- * @flag: Ignored Argument
- * @argc: command argument count
- * @argv: command argument list
- * @start: OS image start address
- * @size: OS image size
- *
- * boot_find_images() will attempt to load an available ramdisk,
- * flattened device tree, as well as specifically marked
- * "loadable" images (loadables are FIT only)
- *
- * Note: bootm_find_images will skip an image if it is not found
- *
- * @return:
- *     0, if all existing images were loaded correctly
- *     1, if an image is found but corrupted, or invalid
- */
-int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
-		      ulong size)
+int bootm_find_images(ulong img_addr, const char *conf_ramdisk,
+		      const char *conf_fdt, ulong start, ulong size)
 {
-	const char *select = NULL;
+	const char *select = conf_ramdisk;
 	char addr_str[17];
-	ulong img_addr;
 	void *buf;
 	int ret;
-
-	img_addr = argc ? hextoul(argv[0], NULL) : image_load_addr;
 
 	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
 		/* Look for an Android boot image */
@@ -506,8 +485,8 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 		}
 	}
 
-	if (argc >= 2)
-		select = argv[1];
+	if (conf_ramdisk)
+		select = conf_ramdisk;
 
 	/* find ramdisk */
 	ret = boot_get_ramdisk(select, &images, IH_INITRD_ARCH,
@@ -533,9 +512,8 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 		buf = map_sysmem(img_addr, 0);
 
 		/* find flattened device tree */
-		ret = boot_get_fdt(buf, argc > 2 ? argv[2] : NULL,
-				   IH_ARCH_DEFAULT, &images, &images.ft_addr,
-				   &images.ft_len);
+		ret = boot_get_fdt(buf, conf_fdt, IH_ARCH_DEFAULT, &images,
+				   &images.ft_addr, &images.ft_len);
 		if (ret) {
 			puts("Could not find a valid device tree\n");
 			return 1;
@@ -584,8 +562,13 @@ static int bootm_find_other(struct cmd_tbl *cmdtp, int flag, int argc,
 	     images.os.type == IH_TYPE_KERNEL_NOLOAD ||
 	     images.os.type == IH_TYPE_MULTI) &&
 	    (images.os.os == IH_OS_LINUX || images.os.os == IH_OS_VXWORKS ||
-	     images.os.os == IH_OS_EFI || images.os.os == IH_OS_TEE))
-		return bootm_find_images(flag, argc, argv, 0, 0);
+	     images.os.os == IH_OS_EFI || images.os.os == IH_OS_TEE)) {
+		ulong img_addr;
+
+		img_addr = argc ? hextoul(argv[0], NULL) : image_load_addr;
+		return bootm_find_images(img_addr, argc > 1 ? argv[1] : NULL,
+					 argc > 2 ? argv[2] : NULL, 0, 0);
+	}
 
 	return 0;
 }
