@@ -718,8 +718,7 @@ static void fit_loadable_process(u8 img_type,
 			fit_loadable_handler->handler(img_data, img_len);
 }
 
-int boot_get_loadable(int argc, char *const argv[], struct bootm_headers *images,
-		      u8 arch, const ulong *ld_start, ulong * const ld_len)
+int boot_get_loadable(struct bootm_headers *images)
 {
 	/*
 	 * These variables are used to hold the current image location
@@ -765,7 +764,8 @@ int boot_get_loadable(int argc, char *const argv[], struct bootm_headers *images
 			fit_img_result = fit_image_load(images, tmp_img_addr,
 							&uname,
 							&images->fit_uname_cfg,
-							arch, IH_TYPE_LOADABLE,
+							IH_ARCH_DEFAULT,
+							IH_TYPE_LOADABLE,
 							BOOTSTAGE_ID_FIT_LOADABLE_START,
 							FIT_LOAD_OPTIONAL_NON_ZERO,
 							&img_data, &img_len);

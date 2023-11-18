@@ -563,8 +563,7 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 	}
 
 	/* find all of the loadables */
-	ret = boot_get_loadable(argc, argv, &images, IH_ARCH_DEFAULT,
-			       NULL, NULL);
+	ret = boot_get_loadable(&images);
 	if (ret) {
 		printf("Loadable(s) is corrupt or invalid\n");
 		return 1;

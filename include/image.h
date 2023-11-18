@@ -676,28 +676,22 @@ int boot_get_ramdisk(char const *select, struct bootm_headers *images,
 		     uint arch, ulong *rd_start, ulong *rd_end);
 
 /**
- * boot_get_loadable - routine to load a list of binaries to memory
- * @argc: Ignored Argument
- * @argv: Ignored Argument
+ * boot_get_loadable() - load a list of binaries to memory
+ *
  * @images: pointer to the bootm images structure
- * @arch: expected architecture for the image
- * @ld_start: Ignored Argument
- * @ld_len: Ignored Argument
  *
- * boot_get_loadable() will take the given FIT configuration, and look
- * for a field named "loadables".  Loadables, is a list of elements in
- * the FIT given as strings.  exe:
+ * Takes the given FIT configuration, then looks for a field named
+ * "loadables", a list of elements in the FIT given as strings, e.g.:
  *   loadables = "linux_kernel", "fdt-2";
- * this function will attempt to parse each string, and load the
- * corresponding element from the FIT into memory.  Once placed,
- * no aditional actions are taken.
  *
- * @return:
+ * Each string is parsed, loading the corresponding element from the FIT into
+ * memory.  Once placed, no additional actions are taken.
+ *
+ * Return:
  *     0, if only valid images or no images are found
  *     error code, if an error occurs during fit_image_load
  */
-int boot_get_loadable(int argc, char *const argv[], struct bootm_headers *images,
-		      uint8_t arch, const ulong *ld_start, ulong *const ld_len);
+int boot_get_loadable(struct bootm_headers *images);
 
 int boot_get_setup_fit(struct bootm_headers *images, uint8_t arch,
 		       ulong *setup_start, ulong *setup_len);
