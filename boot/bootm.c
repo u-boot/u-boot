@@ -110,6 +110,7 @@ static struct legacy_img_hdr *image_get_kernel(ulong img_addr, int verify)
  * @os_len: pointer to a ulong variable, will hold os data length
  *     address and length, otherwise NULL
  *     pointer to image header if valid image was found, plus kernel start
+ * @kernp: image header if valid image was found, otherwise NULL
  *
  * boot_get_kernel() tries to find a kernel image, verifies its integrity
  * and locates kernel data.
@@ -118,9 +119,9 @@ static struct legacy_img_hdr *image_get_kernel(ulong img_addr, int verify)
  *     pointer to image header if valid image was found, plus kernel start
  *     address and length, otherwise NULL
  */
-static const void *boot_get_kernel(const char *cmd_name, const char *addr_fit,
-				   struct bootm_headers *images,
-				   ulong *os_data, ulong *os_len)
+static int boot_get_kernel(const char *cmd_name, const char *addr_fit,
+			   struct bootm_headers *images, ulong *os_data,
+			   ulong *os_len, const void **kernp)
 {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	struct legacy_img_hdr	*hdr;
@@ -154,7 +155,7 @@ static const void *boot_get_kernel(const char *cmd_name, const char *addr_fit,
 		       img_addr);
 		hdr = image_get_kernel(img_addr, images->verify);
 		if (!hdr)
-			return NULL;
+			return -EINVAL;
 		bootstage_mark(BOOTSTAGE_ID_CHECK_IMAGETYPE);
 
 		/* get os_data and os_len */
@@ -175,7 +176,7 @@ static const void *boot_get_kernel(const char *cmd_name, const char *addr_fit,
 			printf("Wrong Image Type for %s command\n",
 			       cmd_name);
 			bootstage_error(BOOTSTAGE_ID_CHECK_IMAGETYPE);
-			return NULL;
+			return -EPROTOTYPE;
 		}
 
 		/*
@@ -200,7 +201,7 @@ static const void *boot_get_kernel(const char *cmd_name, const char *addr_fit,
 				BOOTSTAGE_ID_FIT_KERNEL_START,
 				FIT_LOAD_IGNORED, os_data, os_len);
 		if (os_noffset < 0)
-			return NULL;
+			return -ENOENT;
 
 		images->fit_hdr_os = map_sysmem(img_addr, 0);
 		images->fit_uname_os = fit_uname_kernel;
@@ -209,7 +210,9 @@ static const void *boot_get_kernel(const char *cmd_name, const char *addr_fit,
 		break;
 #endif
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
-	case IMAGE_FORMAT_ANDROID:
+	case IMAGE_FORMAT_ANDROID: {
+		int ret;
+
 		boot_img = buf;
 		vendor_boot_img = NULL;
 		if (IS_ENABLED(CONFIG_CMD_ABOOTIMG)) {
@@ -217,25 +220,28 @@ static const void *boot_get_kernel(const char *cmd_name, const char *addr_fit,
 			vendor_boot_img = map_sysmem(get_avendor_bootimg_addr(), 0);
 		}
 		printf("## Booting Android Image at 0x%08lx ...\n", img_addr);
-		if (android_image_get_kernel(boot_img, vendor_boot_img, images->verify,
-					     os_data, os_len))
-			return NULL;
+		ret = android_image_get_kernel(boot_img, vendor_boot_img,
+					       images->verify, os_data, os_len);
+		if (ret)
+			return ret;
 		if (IS_ENABLED(CONFIG_CMD_ABOOTIMG)) {
 			unmap_sysmem(vendor_boot_img);
 			unmap_sysmem(boot_img);
 		}
 		break;
+	}
 #endif
 	default:
 		printf("Wrong Image Format for %s command\n", cmd_name);
 		bootstage_error(BOOTSTAGE_ID_FIT_KERNEL_INFO);
-		return NULL;
+		return -EBADF;
 	}
 
 	debug("   kernel data at 0x%08lx, len = 0x%08lx (%ld)\n",
 	      *os_data, *os_len, *os_len);
+	*kernp = buf;
 
-	return buf;
+	return 0;
 }
 
 #ifdef CONFIG_LMB
@@ -316,8 +322,9 @@ static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	/* get kernel image header, start address and length */
-	os_hdr = boot_get_kernel(cmdtp->name, argv[0], &images,
-				 &images.os.image_start, &images.os.image_len);
+	ret = boot_get_kernel(cmdtp->name, argv[0], &images,
+			      &images.os.image_start, &images.os.image_len,
+		       &os_hdr);
 	if (images.os.image_len == 0) {
 		puts("ERROR: can't get kernel image!\n");
 		return 1;
