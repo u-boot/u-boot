@@ -728,7 +728,13 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
  * @param load_op	Decribes what to do with the load address
  * @param datap		Returns address of loaded image
  * @param lenp		Returns length of loaded image
- * Return: node offset of image, or -ve error code on error
+ * Return: node offset of image, or -ve error code on error:
+ *   -ENOEXEC - unsupported architecture
+ *   -ENOENT - could not find image / subimage
+ *   -EACCES - hash, signature or decryptions failure
+ *   -EBADF - invalid OS or image type, or cannot get image load-address
+ *   -EXDEV - memory overwritten / overlap
+ *   -NOEXEC - image decompression error, or invalid FDT
  */
 int fit_image_load(struct bootm_headers *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
