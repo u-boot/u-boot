@@ -651,3 +651,99 @@ static int dm_test_acpi_cmd_set(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_cmd_set, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/**
+ * dm_test_write_test_table() - create test ACPI table
+ *
+ * Create an ACPI table TSTn, where n is given by @index.
+ *
+ * @ctx:	ACPI table writing context
+ * @index:	table index
+ * Return:	generated table
+ */
+static struct acpi_table_header
+*dm_test_write_test_table(struct acpi_ctx *ctx, int index)
+{
+	struct acpi_table_header *tbl = ctx->current;
+	char signature[5];
+
+	snprintf(signature, sizeof(signature), "TST%1d", index);
+	memset(tbl, 0, sizeof(*tbl));
+	acpi_fill_header(tbl, signature);
+	acpi_inc(ctx, sizeof(struct acpi_table_header));
+	tbl->length = (u8 *)ctx->current - (u8 *)tbl;
+	tbl->checksum = table_compute_checksum(tbl, tbl->length);
+	acpi_add_table(ctx, tbl);
+
+	return tbl;
+}
+
+/* Test acpi_find_table() */
+static int dm_test_acpi_find_table(struct unit_test_state *uts)
+{
+	struct acpi_ctx ctx;
+	ulong acpi_start, addr;
+	void *buf;
+	struct acpi_table_header *table, *table1, *table2, *table3;
+	struct acpi_rsdp *rsdp;
+	ulong rsdt;
+	ulong xsdt;
+
+	/* Keep reference to original ACPI tables */
+	acpi_start = gd_acpi_start();
+
+	/* Setup new ACPI tables */
+	buf = memalign(16, BUF_SIZE);
+	ut_assertnonnull(buf);
+	addr = map_to_sysmem(buf);
+	ut_assertok(setup_ctx_and_base_tables(uts, &ctx, addr));
+	table3 = dm_test_write_test_table(&ctx, 3);
+	table1 = dm_test_write_test_table(&ctx, 1);
+	table2 = dm_test_write_test_table(&ctx, 2);
+
+	/* Retrieve RSDP, RSDT, XSDT */
+	rsdp = map_sysmem(gd_acpi_start(), 0);
+	ut_assertnonnull(rsdp);
+	rsdt = rsdp->rsdt_address;
+	ut_assert(rsdt);
+	xsdt = rsdp->xsdt_address;
+	ut_assert(xsdt);
+
+	/* Find with both RSDT and XSDT */
+	table = acpi_find_table("TST1");
+	ut_asserteq_ptr(table1, table);
+	ut_asserteq_strn("TST1", table->signature);
+	table = acpi_find_table("TST2");
+	ut_asserteq_ptr(table2, table);
+	ut_asserteq_strn("TST2", table->signature);
+	table = acpi_find_table("TST3");
+	ut_asserteq_ptr(table3, table);
+	ut_asserteq_strn("TST3", table->signature);
+
+	/* Find with XSDT only */
+	rsdp->rsdt_address = 0;
+	table = acpi_find_table("TST1");
+	ut_asserteq_ptr(table1, table);
+	table = acpi_find_table("TST2");
+	ut_asserteq_ptr(table2, table);
+	table = acpi_find_table("TST3");
+	ut_asserteq_ptr(table3, table);
+	rsdp->rsdt_address = rsdt;
+
+	/* Find with RSDT only */
+	rsdp->xsdt_address = 0;
+	table = acpi_find_table("TST1");
+	ut_asserteq_ptr(table1, table);
+	table = acpi_find_table("TST2");
+	ut_asserteq_ptr(table2, table);
+	table = acpi_find_table("TST3");
+	ut_asserteq_ptr(table3, table);
+	rsdp->xsdt_address = xsdt;
+
+	/* Restore previous ACPI tables */
+	gd_set_acpi_start(acpi_start);
+	free(buf);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_find_table, 0);
