@@ -555,8 +555,7 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 #if CONFIG_IS_ENABLED(FIT)
 	if (IS_ENABLED(CONFIG_FPGA)) {
 		/* find bitstreams */
-		ret = boot_get_fpga(argc, argv, &images, IH_ARCH_DEFAULT,
-				    NULL, NULL);
+		ret = boot_get_fpga(&images);
 		if (ret) {
 			printf("FPGA image is corrupted or invalid\n");
 			return 1;

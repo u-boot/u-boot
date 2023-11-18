@@ -642,8 +642,13 @@ ulong genimg_get_kernel_addr(char * const img_addr);
 int genimg_get_format(const void *img_addr);
 int genimg_has_config(struct bootm_headers *images);
 
-int boot_get_fpga(int argc, char *const argv[], struct bootm_headers *images,
-		  uint8_t arch, const ulong *ld_start, ulong * const ld_len);
+/**
+ * boot_get_fpga() - Locate the FPGA image
+ *
+ * @images: Information about images being loaded
+ * Return 0 if OK, non-zero on failure
+ */
+int boot_get_fpga(struct bootm_headers *images);
 
 /**
  * boot_get_ramdisk() - Locate the ramdisk

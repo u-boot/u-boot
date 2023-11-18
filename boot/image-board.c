@@ -616,8 +616,7 @@ int boot_get_setup(struct bootm_headers *images, u8 arch,
 	return boot_get_setup_fit(images, arch, setup_start, setup_len);
 }
 
-int boot_get_fpga(int argc, char *const argv[], struct bootm_headers *images,
-		  u8 arch, const ulong *ld_start, ulong * const ld_len)
+int boot_get_fpga(struct bootm_headers *images)
 {
 	ulong tmp_img_addr, img_data, img_len;
 	void *buf;
@@ -659,7 +658,7 @@ int boot_get_fpga(int argc, char *const argv[], struct bootm_headers *images,
 						tmp_img_addr,
 						(const char **)&uname,
 						&images->fit_uname_cfg,
-						arch,
+						IH_ARCH_DEFAULT,
 						IH_TYPE_FPGA,
 						BOOTSTAGE_ID_FPGA_INIT,
 						FIT_LOAD_OPTIONAL_NON_ZERO,
