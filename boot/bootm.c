@@ -82,22 +82,31 @@ static int bootm_start(void)
 	return 0;
 }
 
-static ulong bootm_data_addr(int argc, char *const argv[])
+static ulong bootm_data_addr(const char *addr_str)
 {
 	ulong addr;
 
-	if (argc > 0)
-		addr = simple_strtoul(argv[0], NULL, 16);
+	if (addr_str)
+		addr = hextoul(addr_str, NULL);
 	else
 		addr = image_load_addr;
 
 	return addr;
 }
 
-static int bootm_pre_load(struct cmd_tbl *cmdtp, int flag, int argc,
-			  char *const argv[])
+/**
+ * bootm_pre_load() - Handle the pre-load processing
+ *
+ * This can be used to do a full signature check of the image, for example.
+ * It calls image_pre_load() with the data address of the image to check.
+ *
+ * @addr_str: String containing load address in hex, or NULL to use
+ * image_load_addr
+ * Return: 0 if OK, CMD_RET_FAILURE on failure
+ */
+static int bootm_pre_load(const char *addr_str)
 {
-	ulong data_addr = bootm_data_addr(argc, argv);
+	ulong data_addr = bootm_data_addr(addr_str);
 	int ret = 0;
 
 	if (IS_ENABLED(CONFIG_CMD_BOOTM_PRE_LOAD))
@@ -785,7 +794,7 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 		ret = bootm_start();
 
 	if (!ret && (states & BOOTM_STATE_PRE_LOAD))
-		ret = bootm_pre_load(cmdtp, flag, argc, argv);
+		ret = bootm_pre_load(argv[0]);
 
 	if (!ret && (states & BOOTM_STATE_FINDOS))
 		ret = bootm_find_os(cmdtp, flag, argc, argv);
