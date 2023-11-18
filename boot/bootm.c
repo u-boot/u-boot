@@ -69,8 +69,7 @@ static void boot_start_lmb(struct bootm_headers *images)
 static inline void boot_start_lmb(struct bootm_headers *images) { }
 #endif
 
-static int bootm_start(struct cmd_tbl *cmdtp, int flag, int argc,
-		       char *const argv[])
+static int bootm_start(void)
 {
 	memset((void *)&images, 0, sizeof(images));
 	images.verify = env_get_yesno("verify");
@@ -783,7 +782,7 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	 * any error.
 	 */
 	if (states & BOOTM_STATE_START)
-		ret = bootm_start(cmdtp, flag, argc, argv);
+		ret = bootm_start();
 
 	if (!ret && (states & BOOTM_STATE_PRE_LOAD))
 		ret = bootm_pre_load(cmdtp, flag, argc, argv);
