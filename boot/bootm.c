@@ -529,8 +529,9 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 		buf = map_sysmem(img_addr, 0);
 
 		/* find flattened device tree */
-		ret = boot_get_fdt(buf, flag, argc, argv, IH_ARCH_DEFAULT,
-				   &images, &images.ft_addr, &images.ft_len);
+		ret = boot_get_fdt(buf, argc > 2 ? argv[2] : NULL,
+				   IH_ARCH_DEFAULT, &images, &images.ft_addr,
+				   &images.ft_len);
 		if (ret) {
 			puts("Could not find a valid device tree\n");
 			return 1;

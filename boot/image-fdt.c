@@ -447,19 +447,16 @@ static int select_fdt(struct bootm_headers *images, const char *select, u8 arch,
 	return 0;
 }
 
-int boot_get_fdt(void *buf, int flag, int argc, char *const argv[], uint arch,
+int boot_get_fdt(void *buf, const char *select, uint arch,
 		 struct bootm_headers *images, char **of_flat_tree,
 		 ulong *of_size)
 {
-	ulong		fdt_addr;
-	char		*fdt_blob = NULL;
-	const char *select = NULL;
+	char *fdt_blob = NULL;
+	ulong fdt_addr;
 
 	*of_flat_tree = NULL;
 	*of_size = 0;
 
-	if (argc > 2)
-		select = argv[2];
 	if (select || genimg_has_config(images)) {
 		int ret;
 

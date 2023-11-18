@@ -812,8 +812,7 @@ int fit_get_node_from_config(struct bootm_headers *images,
  * boot_get_fdt() - locate FDT devicetree to use for booting
  *
  * @buf: Pointer to image
- * @argc: command argument count
- * @argv: command argument list
+ * @select: FDT to select (this is normally argv[2] of the bootm command)
  * @arch: architecture (IH_ARCH_...)
  * @images: pointer to the bootm images structure
  * @of_flat_tree: pointer to a char* variable, will hold fdt start address
@@ -832,7 +831,7 @@ int fit_get_node_from_config(struct bootm_headers *images,
  *     1, if fdt image is found but corrupted
  *     of_flat_tree and of_size are set to 0 if no fdt exists
  */
-int boot_get_fdt(void *buf, int flag, int argc, char *const argv[], uint arch,
+int boot_get_fdt(void *buf, const char *select, uint arch,
 		 struct bootm_headers *images, char **of_flat_tree,
 		 ulong *of_size);
 
