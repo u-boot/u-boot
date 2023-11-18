@@ -460,20 +460,10 @@ static int do_bootm_tee(int flag, int argc, char *const argv[],
 {
 	int ret;
 
-	/* Verify OS type */
-	if (images->os.os != IH_OS_TEE) {
-		return 1;
-	};
-
 	/* Validate OPTEE header */
 	ret = optee_verify_bootm_image(images->os.image_start,
 				       images->os.load,
 				       images->os.image_len);
-	if (ret)
-		return ret;
-
-	/* Locate FDT etc */
-	ret = bootm_find_images(flag, argc, argv, 0, 0);
 	if (ret)
 		return ret;
 
