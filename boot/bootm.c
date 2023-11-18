@@ -490,11 +490,11 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 		      ulong size)
 {
 	const char *select = NULL;
+	ulong img_addr;
+	void *buf;
 	int ret;
 
 	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
-		char *buf;
-
 		/* Look for an Android boot image */
 		buf = map_sysmem(images.os.start, 0);
 		if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
@@ -525,9 +525,12 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 	}
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT)) {
+		img_addr = argc ? hextoul(argv[0], NULL) : image_load_addr;
+		buf = map_sysmem(img_addr, 0);
+
 		/* find flattened device tree */
-		ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
-				   &images.ft_addr, &images.ft_len);
+		ret = boot_get_fdt(buf, flag, argc, argv, IH_ARCH_DEFAULT,
+				   &images, &images.ft_addr, &images.ft_len);
 		if (ret) {
 			puts("Could not find a valid device tree\n");
 			return 1;
