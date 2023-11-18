@@ -468,6 +468,37 @@ static int bootm_find_os(const char *cmd_name, const char *addr_fit)
 	return 0;
 }
 
+/**
+ * check_overlap() - Check if an image overlaps the OS
+ *
+ * @name: Name of image to check (used to print error)
+ * @base: Base address of image
+ * @end: End address of image (+1)
+ * @os_start: Start of OS
+ * @os_size: Size of OS in bytes
+ * Return: 0 if OK, -EXDEV if the image overlaps the OS
+ */
+static int check_overlap(const char *name, ulong base, ulong end,
+			 ulong os_start, ulong os_size)
+{
+	ulong os_end;
+
+	if (!base)
+		return 0;
+	os_end = os_start + os_size;
+
+	if ((base >= os_start && base < os_end) ||
+	    (end > os_start && end <= os_end) ||
+	    (base < os_start && end >= os_end)) {
+		printf("ERROR: %s image overlaps OS image (OS=%lx..%lx)\n",
+		       name, os_start, os_end);
+
+		return -EXDEV;
+	}
+
+	return 0;
+}
+
 int bootm_find_images(ulong img_addr, const char *conf_ramdisk,
 		      const char *conf_fdt, ulong start, ulong size)
 {
@@ -497,16 +528,8 @@ int bootm_find_images(ulong img_addr, const char *conf_ramdisk,
 	}
 
 	/* check if ramdisk overlaps OS image */
-	if (images.rd_start && (((ulong)images.rd_start >= start &&
-				 (ulong)images.rd_start < start + size) ||
-				((ulong)images.rd_end > start &&
-				 (ulong)images.rd_end <= start + size) ||
-				((ulong)images.rd_start < start &&
-				 (ulong)images.rd_end >= start + size))) {
-		printf("ERROR: RD image overlaps OS image (OS=0x%lx..0x%lx)\n",
-		       start, start + size);
+	if (check_overlap("RD", images.rd_start, images.rd_end, start, size))
 		return 1;
-	}
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT)) {
 		buf = map_sysmem(img_addr, 0);
@@ -520,15 +543,9 @@ int bootm_find_images(ulong img_addr, const char *conf_ramdisk,
 		}
 
 		/* check if FDT overlaps OS image */
-		if (images.ft_addr &&
-		    (((ulong)images.ft_addr >= start &&
-		      (ulong)images.ft_addr < start + size) ||
-		     ((ulong)images.ft_addr + images.ft_len >= start &&
-		      (ulong)images.ft_addr + images.ft_len < start + size))) {
-			printf("ERROR: FDT image overlaps OS image (OS=0x%lx..0x%lx)\n",
-			       start, start + size);
+		if (check_overlap("FDT", map_to_sysmem(images.ft_addr),
+				  images.ft_len, start, size))
 			return 1;
-		}
 
 		if (IS_ENABLED(CONFIG_CMD_FDT))
 			set_working_fdt_addr(map_to_sysmem(images.ft_addr));
