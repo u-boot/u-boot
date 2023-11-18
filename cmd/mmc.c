@@ -946,7 +946,7 @@ static int do_mmc_partconf(struct cmd_tbl *cmdtp, int flag,
 	}
 
 	if (argc == 2 || argc == 3)
-		return mmc_partconf_print(mmc, argc == 3 ? argv[2] : NULL);
+		return mmc_partconf_print(mmc, cmd_arg2(argc, argv));
 
 	ack = dectoul(argv[2], NULL);
 	part_num = dectoul(argv[3], NULL);

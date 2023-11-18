@@ -60,6 +60,39 @@ struct cmd_tbl {
 #endif
 };
 
+/**
+ * cmd_arg_get() - Get a particular argument
+ *
+ * @argc: Number of arguments
+ * @argv: Argument vector of length @argc
+ * @argnum: Argument to get (0=first)
+ * Return: Pointer to argument @argnum if it exists, else NULL
+ */
+static inline const char *cmd_arg_get(int argc, char *const argv[], int argnum)
+{
+	return argc > argnum ? argv[argnum] : NULL;
+}
+
+static inline const char *cmd_arg0(int argc, char *const argv[])
+{
+	return cmd_arg_get(argc, argv, 0);
+}
+
+static inline const char *cmd_arg1(int argc, char *const argv[])
+{
+	return cmd_arg_get(argc, argv, 1);
+}
+
+static inline const char *cmd_arg2(int argc, char *const argv[])
+{
+	return cmd_arg_get(argc, argv, 2);
+}
+
+static inline const char *cmd_arg3(int argc, char *const argv[])
+{
+	return cmd_arg_get(argc, argv, 3);
+}
+
 #if defined(CONFIG_CMD_RUN)
 int do_run(struct cmd_tbl *cmdtp, int flag, int argc,
 	   char *const argv[]);

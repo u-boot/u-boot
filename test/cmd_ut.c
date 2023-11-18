@@ -45,7 +45,7 @@ int cmd_ut_category(const char *name, const char *prefix,
 	}
 
 	ret = ut_run_list(name, prefix, tests, n_ents,
-			  argc > 1 ? argv[1] : NULL, runs_per_text, force_run,
+			  cmd_arg1(argc, argv), runs_per_text, force_run,
 			  test_insert);
 
 	return ret ? CMD_RET_FAILURE : 0;

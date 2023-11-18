@@ -1014,8 +1014,8 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 		ulong img_addr;
 
 		img_addr = argc ? hextoul(argv[0], NULL) : image_load_addr;
-		ret = bootm_find_other(img_addr, argc > 1 ? argv[1] : NULL,
-				       argc > 2 ? argv[2] : NULL);
+		ret = bootm_find_other(img_addr, cmd_arg1(argc, argv),
+				       cmd_arg2(argc, argv));
 	}
 
 	if (IS_ENABLED(CONFIG_MEASURED_BOOT) && !ret &&

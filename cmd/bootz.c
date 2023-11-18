@@ -54,8 +54,8 @@ static int bootz_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	 * Handle the BOOTM_STATE_FINDOTHER state ourselves as we do not
 	 * have a header that provide this informaiton.
 	 */
-	if (bootm_find_images(image_load_addr, argc > 1 ? argv[1] : NULL,
-			      argc > 2 ? argv[2] : NULL, images->ep,
+	if (bootm_find_images(image_load_addr, cmd_arg1(argc, argv),
+			      cmd_arg2(argc, argv), images->ep,
 			      zi_end - zi_start))
 		return 1;
 
