@@ -356,6 +356,7 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 	efi_status_t ret;
 	efi_uintn_t exit_data_size = 0;
 	u16 *exit_data = NULL;
+	struct efi_event *evt;
 
 	/* On ARM switch from EL3 or secure mode to EL2 or non-secure mode */
 	switch_to_non_secure_mode();
@@ -392,6 +393,17 @@ out:
 	if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD)) {
 		if (efi_initrd_deregister() != EFI_SUCCESS)
 			log_err("Failed to remove loadfile2 for initrd\n");
+	}
+
+	/* Notify EFI_EVENT_GROUP_RETURN_TO_EFIBOOTMGR event group. */
+	list_for_each_entry(evt, &efi_events, link) {
+		if (evt->group &&
+		    !guidcmp(evt->group,
+			     &efi_guid_event_group_return_to_efibootmgr)) {
+			efi_signal_event(evt);
+			EFI_CALL(systab.boottime->close_event(evt));
+			break;
+		}
 	}
 
 	/* Control is returned to U-Boot, disable EFI watchdog */
