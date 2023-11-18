@@ -104,7 +104,6 @@ static struct legacy_img_hdr *image_get_kernel(ulong img_addr, int verify)
 /**
  * boot_get_kernel() - find kernel image
  *
- * @cmd_name: Name of the command calling this function, e.g. "bootm"
  * @addr_fit: first argument to bootm: address, fit configuration, etc.
  * @os_data: pointer to a ulong variable, will hold os data start address
  * @os_len: pointer to a ulong variable, will hold os data length
@@ -115,13 +114,11 @@ static struct legacy_img_hdr *image_get_kernel(ulong img_addr, int verify)
  * boot_get_kernel() tries to find a kernel image, verifies its integrity
  * and locates kernel data.
  *
- * returns:
- *     pointer to image header if valid image was found, plus kernel start
- *     address and length, otherwise NULL
+ * Return: 0 on success, -ve on error. -EPROTOTYPE means that the image is in
+ * a wrong or unsupported format
  */
-static int boot_get_kernel(const char *cmd_name, const char *addr_fit,
-			   struct bootm_headers *images, ulong *os_data,
-			   ulong *os_len, const void **kernp)
+static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
+			   ulong *os_data, ulong *os_len, const void **kernp)
 {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	struct legacy_img_hdr	*hdr;
@@ -173,8 +170,6 @@ static int boot_get_kernel(const char *cmd_name, const char *addr_fit,
 			*os_len = image_get_data_size(hdr);
 			break;
 		default:
-			printf("Wrong Image Type for %s command\n",
-			       cmd_name);
 			bootstage_error(BOOTSTAGE_ID_CHECK_IMAGETYPE);
 			return -EPROTOTYPE;
 		}
@@ -232,9 +227,8 @@ static int boot_get_kernel(const char *cmd_name, const char *addr_fit,
 	}
 #endif
 	default:
-		printf("Wrong Image Format for %s command\n", cmd_name);
 		bootstage_error(BOOTSTAGE_ID_CHECK_IMAGETYPE);
-		return -EBADF;
+		return -EPROTOTYPE;
 	}
 
 	debug("   kernel data at 0x%08lx, len = 0x%08lx (%ld)\n",
@@ -322,10 +316,13 @@ static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	/* get kernel image header, start address and length */
-	ret = boot_get_kernel(cmdtp->name, argv[0], &images,
-			      &images.os.image_start, &images.os.image_len,
-			      &os_hdr);
+	ret = boot_get_kernel(argv[0], &images, &images.os.image_start,
+			      &images.os.image_len, &os_hdr);
 	if (ret) {
+		if (ret == -EPROTOTYPE)
+			printf("Wrong Image Type for %s command\n",
+			       cmdtp->name);
+
 		printf("ERROR %dE: can't get kernel image!\n", ret);
 		return 1;
 	}
