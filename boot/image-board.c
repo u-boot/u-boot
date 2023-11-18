@@ -456,48 +456,13 @@ static int select_ramdisk(struct bootm_headers *images, const char *select, u8 a
 	return 0;
 }
 
-/**
- * boot_get_ramdisk - main ramdisk handling routine
- * @argc: command argument count
- * @argv: command argument list
- * @images: pointer to the bootm images structure
- * @arch: expected ramdisk architecture
- * @rd_start: pointer to a ulong variable, will hold ramdisk start address
- * @rd_end: pointer to a ulong variable, will hold ramdisk end
- *
- * boot_get_ramdisk() is responsible for finding a valid ramdisk image.
- * Currently supported are the following ramdisk sources:
- *      - multicomponent kernel/ramdisk image,
- *      - commandline provided address of decicated ramdisk image.
- *
- * returns:
- *     0, if ramdisk image was found and valid, or skiped
- *     rd_start and rd_end are set to ramdisk start/end addresses if
- *     ramdisk image is found and valid
- *
- *     1, if ramdisk image is found but corrupted, or invalid
- *     rd_start and rd_end are set to 0 if no ramdisk exists
- */
-int boot_get_ramdisk(int argc, char *const argv[], struct bootm_headers *images,
-		     u8 arch, ulong *rd_start, ulong *rd_end)
+int boot_get_ramdisk(char const *select, struct bootm_headers *images,
+		     uint arch, ulong *rd_start, ulong *rd_end)
 {
 	ulong rd_data, rd_len;
-	const char *select = NULL;
 
 	*rd_start = 0;
 	*rd_end = 0;
-
-	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
-		char *buf;
-
-		/* Look for an Android boot image */
-		buf = map_sysmem(images->os.start, 0);
-		if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
-			select = (argc == 0) ? env_get("loadaddr") : argv[0];
-	}
-
-	if (argc >= 2)
-		select = argv[1];
 
 	/*
 	 * Look for a '-' which indicates to ignore the

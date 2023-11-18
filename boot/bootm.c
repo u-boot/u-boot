@@ -489,10 +489,23 @@ static int bootm_find_os(const char *cmd_name, const char *addr_fit)
 int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 		      ulong size)
 {
+	const char *select = NULL;
 	int ret;
 
+	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
+		char *buf;
+
+		/* Look for an Android boot image */
+		buf = map_sysmem(images.os.start, 0);
+		if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
+			select = argc ? argv[0] : env_get("loadaddr");
+	}
+
+	if (argc >= 2)
+		select = argv[1];
+
 	/* find ramdisk */
-	ret = boot_get_ramdisk(argc, argv, &images, IH_INITRD_ARCH,
+	ret = boot_get_ramdisk(select, &images, IH_INITRD_ARCH,
 			       &images.rd_start, &images.rd_end);
 	if (ret) {
 		puts("Ramdisk image is corrupt or invalid\n");

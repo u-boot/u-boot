@@ -644,8 +644,31 @@ int genimg_has_config(struct bootm_headers *images);
 
 int boot_get_fpga(int argc, char *const argv[], struct bootm_headers *images,
 		  uint8_t arch, const ulong *ld_start, ulong * const ld_len);
-int boot_get_ramdisk(int argc, char *const argv[], struct bootm_headers *images,
-		     uint8_t arch, ulong *rd_start, ulong *rd_end);
+
+/**
+ * boot_get_ramdisk() - Locate the ramdisk
+ *
+ * @select: address or name of ramdisk to use, or NULL for default
+ * @images: pointer to the bootm images structure
+ * @arch: expected ramdisk architecture
+ * @rd_start: pointer to a ulong variable, will hold ramdisk start address
+ * @rd_end: pointer to a ulong variable, will hold ramdisk end
+ *
+ * boot_get_ramdisk() is responsible for finding a valid ramdisk image.
+ * Currently supported are the following ramdisk sources:
+ *      - multicomponent kernel/ramdisk image,
+ *      - commandline provided address of decicated ramdisk image.
+ *
+ * returns:
+ *     0, if ramdisk image was found and valid, or skiped
+ *     rd_start and rd_end are set to ramdisk start/end addresses if
+ *     ramdisk image is found and valid
+ *
+ *     1, if ramdisk image is found but corrupted, or invalid
+ *     rd_start and rd_end are set to 0 if no ramdisk exists
+ */
+int boot_get_ramdisk(char const *select, struct bootm_headers *images,
+		     uint arch, ulong *rd_start, ulong *rd_end);
 
 /**
  * boot_get_loadable - routine to load a list of binaries to memory
