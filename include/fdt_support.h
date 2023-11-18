@@ -7,8 +7,7 @@
 #ifndef __FDT_SUPPORT_H
 #define __FDT_SUPPORT_H
 
-#if (defined(CONFIG_OF_LIBFDT) || defined(CONFIG_OF_CONTROL)) && \
-	!defined(USE_HOSTCC)
+#if !defined(USE_HOSTCC)
 
 #include <asm/u-boot.h>
 #include <linux/libfdt.h>
@@ -418,7 +417,7 @@ int fdt_valid(struct fdt_header **blobp);
  */
 int fdt_get_cells_len(const void *blob, char *nr_cells_name);
 
-#endif /* ifdef CONFIG_OF_LIBFDT */
+#endif /* !USE_HOSTCC */
 
 #ifdef USE_HOSTCC
 int fdtdec_get_int(const void *blob, int node, const char *prop_name,
