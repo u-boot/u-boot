@@ -572,19 +572,16 @@ int bootm_find_images(ulong img_addr, const char *conf_ramdisk,
 	return 0;
 }
 
-static int bootm_find_other(struct cmd_tbl *cmdtp, int flag, int argc,
-			    char *const argv[])
+static int bootm_find_other(ulong img_addr, const char *conf_ramdisk,
+			    const char *conf_fdt)
 {
 	if ((images.os.type == IH_TYPE_KERNEL ||
 	     images.os.type == IH_TYPE_KERNEL_NOLOAD ||
 	     images.os.type == IH_TYPE_MULTI) &&
 	    (images.os.os == IH_OS_LINUX || images.os.os == IH_OS_VXWORKS ||
 	     images.os.os == IH_OS_EFI || images.os.os == IH_OS_TEE)) {
-		ulong img_addr;
-
-		img_addr = argc ? hextoul(argv[0], NULL) : image_load_addr;
-		return bootm_find_images(img_addr, argc > 1 ? argv[1] : NULL,
-					 argc > 2 ? argv[2] : NULL, 0, 0);
+		return bootm_find_images(img_addr, conf_ramdisk, conf_fdt, 0,
+					 0);
 	}
 
 	return 0;
@@ -1013,8 +1010,13 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_FINDOS))
 		ret = bootm_find_os(cmdtp->name, argv[0]);
 
-	if (!ret && (states & BOOTM_STATE_FINDOTHER))
-		ret = bootm_find_other(cmdtp, flag, argc, argv);
+	if (!ret && (states & BOOTM_STATE_FINDOTHER)) {
+		ulong img_addr;
+
+		img_addr = argc ? hextoul(argv[0], NULL) : image_load_addr;
+		ret = bootm_find_other(img_addr, argc > 1 ? argv[1] : NULL,
+				       argc > 2 ? argv[2] : NULL);
+	}
 
 	if (IS_ENABLED(CONFIG_MEASURED_BOOT) && !ret &&
 	    (states & BOOTM_STATE_MEASURE))
