@@ -524,29 +524,29 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 		return 1;
 	}
 
-#if CONFIG_IS_ENABLED(OF_LIBFDT)
-	/* find flattened device tree */
-	ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
-			   &images.ft_addr, &images.ft_len);
-	if (ret) {
-		puts("Could not find a valid device tree\n");
-		return 1;
-	}
+	if (CONFIG_IS_ENABLED(OF_LIBFDT)) {
+		/* find flattened device tree */
+		ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
+				   &images.ft_addr, &images.ft_len);
+		if (ret) {
+			puts("Could not find a valid device tree\n");
+			return 1;
+		}
 
-	/* check if FDT overlaps OS image */
-	if (images.ft_addr &&
-	    (((ulong)images.ft_addr >= start &&
-	      (ulong)images.ft_addr < start + size) ||
-	     ((ulong)images.ft_addr + images.ft_len >= start &&
-	      (ulong)images.ft_addr + images.ft_len < start + size))) {
-		printf("ERROR: FDT image overlaps OS image (OS=0x%lx..0x%lx)\n",
-		       start, start + size);
-		return 1;
-	}
+		/* check if FDT overlaps OS image */
+		if (images.ft_addr &&
+		    (((ulong)images.ft_addr >= start &&
+		      (ulong)images.ft_addr < start + size) ||
+		     ((ulong)images.ft_addr + images.ft_len >= start &&
+		      (ulong)images.ft_addr + images.ft_len < start + size))) {
+			printf("ERROR: FDT image overlaps OS image (OS=0x%lx..0x%lx)\n",
+			       start, start + size);
+			return 1;
+		}
 
-	if (IS_ENABLED(CONFIG_CMD_FDT))
-		set_working_fdt_addr(map_to_sysmem(images.ft_addr));
-#endif
+		if (IS_ENABLED(CONFIG_CMD_FDT))
+			set_working_fdt_addr(map_to_sysmem(images.ft_addr));
+	}
 
 #if CONFIG_IS_ENABLED(FIT)
 	if (IS_ENABLED(CONFIG_FPGA)) {
