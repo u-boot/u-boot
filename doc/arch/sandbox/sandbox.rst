@@ -424,14 +424,58 @@ space. See existing code for examples.
 VPL (Verifying Program Loader)
 ------------------------------
 
-Sandbox provides an example build of vpl called `sandbox_vpl`. This can be run
-using::
+Sandbox provides an example build of vpl called `sandbox_vpl`. To build it:
 
-   /path/to/sandbox_vpl/tpl/u-boot-tpl -D
+.. code-block:: bash
+
+   make sandbox_vpl_defconfig all
+
+This can be run using:
+
+.. code-block:: bash
+
+   ./tpl/u-boot-tpl -d u-boot.dtb
 
 It starts up TPL (first-stage init), then VPL, then runs SPL and finally U-Boot
 proper, following the normal flow for a verified boot. At present, no
 verification is actually implemented.
+
+Here is an example trace::
+
+   U-Boot TPL 2024.01-rc2-00129 (Nov 19 2023 - 08:10:12 -0700)
+   Trying to boot from sandbox_image
+   Trying to boot from sandbox_file
+
+   U-Boot VPL 2024.01-rc2-00129 (Nov 19 2023 - 08:10:12 -0700)
+   Trying to boot from vbe_simple
+   Trying to boot from sandbox_image
+   Trying to boot from sandbox_file
+
+   U-Boot SPL 2024.01-rc2-00129 (Nov 19 2023 - 08:10:12 -0700)
+   Trying to boot from vbe_simple
+   Trying to boot from sandbox_image
+   Trying to boot from sandbox_file
+
+
+   U-Boot 2024.01-rc2-00129 (Nov 19 2023 - 08:10:12 -0700)
+
+   Reset Status: COLD
+   Model: sandbox
+   DRAM:  256 MiB
+   using memory 0x1b576000-0x1f578000 for malloc()
+
+   Warning: host_lo MAC addresses don't match:
+   Address in ROM is		96:cd:ef:82:78:51
+   Address in environment is	02:00:11:22:33:44
+   Core:  103 devices, 51 uclasses, devicetree: board
+   MMC:
+   Loading Environment from nowhere... OK
+   In:    serial,cros-ec-keyb,usbkbd
+   Out:   serial,vidconsole
+   Err:   serial,vidconsole
+   Model: sandbox
+   Net:   eth0: host_lo, eth1: host_enp14s0, eth2: host_eth6, eth3: host_wlp15s0, eth4: host_virbr0, eth5: host_docker0, eth6: eth@10002000
+   Hit any key to stop autoboot:  1
 
 
 Debugging the init sequence
