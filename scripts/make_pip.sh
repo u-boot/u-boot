@@ -39,7 +39,7 @@ flags="$*"
 if [[ "${tool}" =~ ^(patman|buildman|dtoc|binman|u_boot_pylib)$ ]]; then
 	echo "Building dist package for tool ${tool}"
 else
-	echo "Unknown tool ${tool}: use patman, buildman, dtoc or binman"
+	echo "Unknown tool ${tool}: use u_boot_pylib, patman, buildman, dtoc or binman"
 	exit 1
 fi
 
