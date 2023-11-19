@@ -410,6 +410,24 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	void *load_buf, *image_buf;
 	int err;
 
+	/*
+	 * For a "noload" compressed kernel we need to allocate a buffer large
+	 * enough to decompress in to and use that as the load address now.
+	 * Assume that the kernel compression is at most a factor of 4 since
+	 * zstd almost achieves that.
+	 * Use an alignment of 2MB since this might help arm64
+	 */
+	if (os.type == IH_TYPE_KERNEL_NOLOAD && os.comp != IH_COMP_NONE) {
+		ulong req_size = ALIGN(image_len * 4, SZ_1M);
+
+		load = lmb_alloc(&images->lmb, req_size, SZ_2M);
+		if (!load)
+			return 1;
+		os.load = load;
+		debug("Allocated %lx bytes at %lx for kernel (size %lx) decompression\n",
+		      req_size, load, image_len);
+	}
+
 	load_buf = map_sysmem(load, 0);
 	image_buf = map_sysmem(os.image_start, image_len);
 	err = image_decomp(os.comp, load, os.image_start, os.type,
