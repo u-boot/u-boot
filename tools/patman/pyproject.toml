@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "patch-manager"
-version = "0.0.2"
+version = "0.0.6"
 authors = [
   { name="Simon Glass", email="sjg@chromium.org" },
 ]
-dependencies = ["u_boot_pylib"]
+dependencies = ["u_boot_pylib >= 0.0.6"]
 description = "Patman patch manager"
 readme = "README.rst"
 requires-python = ">=3.7"
