@@ -160,7 +160,6 @@ static int efiload_read_file(struct bootflow *bflow, ulong addr)
 	if (ret)
 		return log_msg_ret("read", ret);
 	bflow->buf = map_sysmem(addr, bflow->size);
-	bflow->flags |= BOOTFLOWF_STATIC_BUF;
 
 	set_efi_bootdev(desc, bflow);
 
@@ -403,6 +402,12 @@ static int distro_efi_read_bootflow_net(struct bootflow *bflow)
 static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
 	int ret;
+
+	/*
+	 * bootmeth_efi doesn't allocate any buffer neither for blk nor net device
+	 * set flag to avoid freeing static buffer.
+	 */
+	bflow->flags |= BOOTFLOWF_STATIC_BUF;
 
 	if (bootmeth_uses_network(bflow)) {
 		/* we only support reading from one device, so ignore 'dev' */
