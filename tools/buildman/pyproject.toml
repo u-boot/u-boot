@@ -19,7 +19,7 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://u-boot.readthedocs.io/en/latest/build/buildman.html"
+"Homepage" = "https://docs.u-boot.org/en/latest/build/buildman.html"
 "Bug Tracker" = "https://source.denx.de/groups/u-boot/-/issues"
 
 [project.scripts]

@@ -19,7 +19,7 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://u-boot.readthedocs.io/en/latest/develop/driver-model/of-plat.html"
+"Homepage" = "https://docs.u-boot.org/en/latest/develop/driver-model/of-plat.html"
 "Bug Tracker" = "https://source.denx.de/groups/u-boot/-/issues"
 
 [project.scripts]

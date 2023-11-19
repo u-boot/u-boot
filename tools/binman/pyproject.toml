@@ -19,7 +19,7 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://u-boot.readthedocs.io/en/latest/develop/package/index.html"
+"Homepage" = "https://docs.u-boot.org/en/latest/develop/package/index.html"
 "Bug Tracker" = "https://source.denx.de/groups/u-boot/-/issues"
 
 [project.scripts]

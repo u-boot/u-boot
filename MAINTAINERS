@@ -979,7 +979,7 @@ EFI APP
 M:	Simon Glass <sjg@chromium.org>
 M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 S:	Maintained
-W:	https://u-boot.readthedocs.io/en/latest/develop/uefi/u-boot_on_efi.html
+W:	https://docs.u-boot.org/en/latest/develop/uefi/u-boot_on_efi.html
 F:	board/efi/efi-x86_app
 F:	configs/efi-x86_app*
 F:	doc/develop/uefi/u-boot_on_efi.rst
