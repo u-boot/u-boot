@@ -2,7 +2,7 @@
 /*
  * Test for the NOP uclass
  *
- * (C) Copyright 2019 - Texas Instruments Incorporated - http://www.ti.com/
+ * (C) Copyright 2019 - Texas Instruments Incorporated - https://www.ti.com/
  * Jean-Jacques Hiblot <jjhiblot@ti.com>
  */
 

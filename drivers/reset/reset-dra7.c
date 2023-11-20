@@ -2,7 +2,7 @@
 /*
  * Texas Instruments DRA7 reset driver
  *
- * Copyright (C) 2019 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2019 Texas Instruments Incorporated - https://www.ti.com/
  * Author: Keerthy <j-keerthy@ti.com>
  */
 

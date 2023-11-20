@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2018 EETS GmbH - http://www.eets.ch/
  *
- * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include <common.h>

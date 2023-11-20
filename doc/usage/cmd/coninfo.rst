@@ -21,7 +21,7 @@ environment variables stdin, stdout, stderr which contain a comma separated
 list of device names.
 
 Example
---------
+-------
 
 .. code-block:: console
 

@@ -4,7 +4,7 @@
  *
  * Clock synthesizer header
  *
- * Copyright (C) 2016, Texas Instruments, Incorporated - http://www.ti.com/
+ * Copyright (C) 2016, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
 #ifndef __CLK_SYNTHESIZER_H

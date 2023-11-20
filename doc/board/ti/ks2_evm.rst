@@ -17,17 +17,17 @@ Documentation for this board can be found at:
 The K2HK board is based on Texas Instruments Keystone2 family of SoCs: K2H, K2K.
 More details on these SoCs are available at company websites:
 
-K2K: http://www.ti.com/product/tci6638k2k
-K2H: http://www.ti.com/product/tci6638k2h
+K2K: https://www.ti.com/product/tci6638k2k
+K2H: https://www.ti.com/product/tci6638k2h
 
 The K2E SoC details are available at
- http://www.ti.com/lit/ds/symlink/66ak2e05.pdf
+ https://www.ti.com/lit/ds/symlink/66ak2e05.pdf
 
 The K2L SoC details are available at
- http://www.ti.com/lit/ds/symlink/tci6630k2l.pdf
+ https://www.ti.com/lit/ds/symlink/tci6630k2l.pdf
 
 The K2G SoC details are available at
- http://www.ti.com/lit/ds/symlink/66ak2g02.pdf
+ https://www.ti.com/lit/ds/symlink/66ak2g02.pdf
 
 Board Configuration
 -------------------
@@ -122,8 +122,7 @@ Don't forget to add CROSS_COMPILE.
 
 To build u-boot.bin, u-boot-spi.gph, MLO:
 
-.. prompt:: bash
-   :prompts: $
+.. prompt:: bash $
 
    make k2hk_evm_defconfig
    make
@@ -197,8 +196,7 @@ instructions:
 4. Free Run the target as described earlier (step 4) to get U-Boot prompt
 5. At the U-Boot console type following to setup U-Boot environment variables.
 
-.. prompt:: bash
-   :prompts: =>
+.. prompt:: bash =>
 
    setenv addr_uboot 0x87000000
    setenv filesize <size in hex of u-boot-spi.gph rounded to hex 0x10000>
@@ -226,8 +224,7 @@ instructions:
 4. Free Run the target as described earlier (step 4) to get U-Boot prompt
 5. At the U-Boot console type following to setup U-Boot environment variables.
 
-.. prompt:: bash
-   :prompts: =>
+.. prompt:: bash =>
 
    setenv filesize <size in hex of MLO rounded to hex 0x10000>
    run burn_uboot_nand
@@ -249,10 +246,10 @@ Open BMC and regular UART terminals.
 1. On the regular UART port start xmodem transfer of the u-boot.bin
 2. Using BMC terminal set the ARM-UART bootmode and reboot the EVM
 
-.. prompt:: bash
+.. prompt:: bash BMC>
 
-   BMC> bootmode #4
-   MBC> reboot
+  bootmode #4
+  reboot
 
 3. When xmodem is complete you should see the U-Boot starts on the UART port
 

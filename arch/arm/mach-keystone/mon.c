@@ -2,7 +2,7 @@
 /*
  * K2x: Secure commands file
  *
- * Copyright (C) 2012-2019 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2012-2019 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include <hang.h>

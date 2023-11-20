@@ -26,12 +26,12 @@ First get all the sources
   > git clone https://github.com/ARM-software/arm-trusted-firmware
   > git clone https://github.com/96boards-hikey/OpenPlatformPkg -b testing/hikey960_v1.3.4
   > git clone https://github.com/96boards-hikey/l-loader -b testing/hikey960_v1.2
-  > wget http://snapshots.linaro.org/96boards/reference-platform/components/uefi-staging/latest/hikey960/release/config
-  > wget http://snapshots.linaro.org/96boards/reference-platform/components/uefi-staging/latest/hikey960/release/hisi-sec_usb_xloader.img
-  > wget http://snapshots.linaro.org/96boards/reference-platform/components/uefi-staging/latest/hikey960/release/hisi-sec_uce_boot.img
-  > wget http://snapshots.linaro.org/96boards/reference-platform/components/uefi-staging/latest/hikey960/release/sec_xloader.img
-  > wget http://snapshots.linaro.org/96boards/reference-platform/components/uefi-staging/latest/hikey960/release/recovery.bin
-  > wget http://snapshots.linaro.org/96boards/reference-platform/components/uefi-staging/latest/hikey960/release/hikey_idt
+  > wget http://snapshots.linaro.org/reference-platform/components/uefi-staging/123/hikey960/release/config
+  > wget http://snapshots.linaro.org/reference-platform/components/uefi-staging/123/hikey960/release/hisi-sec_usb_xloader.img
+  > wget http://snapshots.linaro.org/reference-platform/components/uefi-staging/123/hikey960/release/hisi-sec_uce_boot.img
+  > wget http://snapshots.linaro.org/reference-platform/components/uefi-staging/123/hikey960/release/hisi-sec_xloader.img
+  > wget http://snapshots.linaro.org/reference-platform/components/uefi-staging/123/hikey960/release/recovery.bin
+  > wget http://snapshots.linaro.org/reference-platform/components/uefi-staging/123/hikey960/release/hikey_idt
 
 Get the SCP_BL2 lpm3.img binary. It is shipped as part of the UEFI source.
 The latest version can be obtained from the OpenPlatformPkg repo.
@@ -126,7 +126,7 @@ following command
 Now, the images can be flashed using fastboot:
 
   > sudo fastboot flash ptable ~/hikey960/bin/prm_ptable.img
-  > sudo fastboot flash xloader ~/hikey960/bin/sec_xloader.img
+  > sudo fastboot flash xloader ~/hikey960/bin/hisi-sec_xloader.img
   > sudo fastboot flash fastboot ~/hikey960/bin/l-loader.bin
   > sudo fastboot flash fip ~/hikey960/bin/fip.bin
 

@@ -2,7 +2,7 @@
 /*
  * J721E: SoC specific initialization
  *
- * Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2021 Texas Instruments Incorporated - https://www.ti.com/
  *	David Huang <d-huang@ti.com>
  */
 

@@ -203,6 +203,8 @@ int zynqmp_pm_feature(const u32 api_id)
 	/* Check feature check API version */
 	ret = xilinx_pm_request(PM_FEATURE_CHECK, api_id, 0, 0, 0,
 				ret_payload);
+	if (ret)
+		return ret;
 
 	/* Return feature check version */
 	return ret_payload[1] & FIRMWARE_VERSION_MASK;

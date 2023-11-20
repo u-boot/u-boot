@@ -2,7 +2,7 @@
 .. Copyright (C) 2020 Amit Singh Tomar <amittomer25@gmail.com>
 
 Actions
-========
+=======
 
 .. toctree::
    :maxdepth: 2

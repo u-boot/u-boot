@@ -10,7 +10,7 @@
  * TI OMAP5 AND DRA7XX common configuration settings
  *
  * For more details, please see the technical documents listed at
- * http://www.ti.com/product/omap5432
+ * https://www.ti.com/product/omap5432
  */
 
 #ifndef __CONFIG_TI_OMAP5_COMMON_H

@@ -22,7 +22,7 @@ cores, voltage domains and peripherals:
 3. MAIN domain:
         * Quad core 64-bit ARM Cortex-A53
 
-More info can be found in TRM: http://www.ti.com/lit/pdf/spruid7
+More info can be found in TRM: https://www.ti.com/lit/pdf/spruid7
 
 Platform information:
 
@@ -75,16 +75,16 @@ Set the variables corresponding to this platform:
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_common_env_vars_defn
     :end-before: .. k3_rst_include_end_common_env_vars_defn
-.. code-block:: bash
+.. prompt:: bash $
 
- $ export UBOOT_CFG_CORTEXR=am65x_evm_r5_defconfig
- $ export UBOOT_CFG_CORTEXA=am65x_evm_a53_defconfig
- $ export TFA_BOARD=generic
- $ # we dont use any extra TFA parameters
- $ unset TFA_EXTRA_ARGS
- $ export OPTEE_PLATFORM=k3-am65x
- $ # we dont use any extra OP-TEE parameters
- $ unset OPTEE_EXTRA_ARGS
+  export UBOOT_CFG_CORTEXR=am65x_evm_r5_defconfig
+  export UBOOT_CFG_CORTEXA=am65x_evm_a53_defconfig
+  export TFA_BOARD=generic
+  # we dont use any extra TFA parameters
+  unset TFA_EXTRA_ARGS
+  export OPTEE_PLATFORM=k3-am65x
+  # we dont use any extra OP-TEE parameters
+  unset OPTEE_EXTRA_ARGS
 
 .. am65x_evm_rst_include_start_build_steps
 
@@ -117,7 +117,8 @@ Set the variables corresponding to this platform:
 .. am65x_evm_rst_include_end_build_steps
 
 Target Images
---------------
+-------------
+
 In order to boot we need tiboot3.bin, sysfw.itb, tispl.bin and u-boot.img.
 Each SoC variant (GP and HS) requires a different source for these files.
 
@@ -159,32 +160,32 @@ The following commands can be used to download tiboot3.bin, tispl.bin,
 u-boot.img, and sysfw.itb from an SD card and write them to the eMMC boot0
 partition at respective addresses.
 
-.. code-block:: text
+.. prompt:: bash =>
 
- => mmc dev 0 1
- => fatload mmc 1 ${loadaddr} tiboot3.bin
- => mmc write ${loadaddr} 0x0 0x400
- => fatload mmc 1 ${loadaddr} tispl.bin
- => mmc write ${loadaddr} 0x400 0x1000
- => fatload mmc 1 ${loadaddr} u-boot.img
- => mmc write ${loadaddr} 0x1400 0x2000
- => fatload mmc 1 ${loadaddr} sysfw.itb
- => mmc write ${loadaddr} 0x3600 0x800
+  mmc dev 0 1
+  fatload mmc 1 ${loadaddr} tiboot3.bin
+  mmc write ${loadaddr} 0x0 0x400
+  fatload mmc 1 ${loadaddr} tispl.bin
+  mmc write ${loadaddr} 0x400 0x1000
+  fatload mmc 1 ${loadaddr} u-boot.img
+  mmc write ${loadaddr} 0x1400 0x2000
+  fatload mmc 1 ${loadaddr} sysfw.itb
+  mmc write ${loadaddr} 0x3600 0x800
 
 To give the ROM access to the boot partition, the following commands must be
 used for the first time:
 
-.. code-block:: text
+.. prompt:: bash =>
 
- => mmc partconf 0 1 1 1
- => mmc bootbus 0 1 0 0
+  mmc partconf 0 1 1 1
+  mmc bootbus 0 1 0 0
 
 To create a software partition for the rootfs, the following command can be
 used:
 
-.. code-block:: text
+.. prompt:: bash =>
 
- => gpt write mmc 0 ${partitions}
+  gpt write mmc 0 ${partitions}
 
 eMMC layout:
 
@@ -194,11 +195,11 @@ eMMC layout:
 Kernel image and DT are expected to be present in the /boot folder of rootfs.
 To boot kernel from eMMC, use the following commands:
 
-.. code-block:: text
+.. prompt:: bash =>
 
- => setenv mmcdev 0
- => setenv bootpart 0
- => boot
+  setenv mmcdev 0
+  setenv bootpart 0
+  boot
 
 OSPI:
 -----
@@ -210,17 +211,17 @@ Below commands can be used to download tiboot3.bin, tispl.bin, u-boot.img,
 and sysfw.itb over tftp and then flash those to OSPI at their respective
 addresses.
 
-.. code-block:: text
+.. prompt:: bash =>
 
- => sf probe
- => tftp ${loadaddr} tiboot3.bin
- => sf update $loadaddr 0x0 $filesize
- => tftp ${loadaddr} tispl.bin
- => sf update $loadaddr 0x80000 $filesize
- => tftp ${loadaddr} u-boot.img
- => sf update $loadaddr 0x280000 $filesize
- => tftp ${loadaddr} sysfw.itb
- => sf update $loadaddr 0x6C0000 $filesize
+  sf probe
+  tftp ${loadaddr} tiboot3.bin
+  sf update $loadaddr 0x0 $filesize
+  tftp ${loadaddr} tispl.bin
+  sf update $loadaddr 0x80000 $filesize
+  tftp ${loadaddr} u-boot.img
+  sf update $loadaddr 0x280000 $filesize
+  tftp ${loadaddr} sysfw.itb
+  sf update $loadaddr 0x6C0000 $filesize
 
 Flash layout for OSPI:
 
@@ -233,10 +234,10 @@ ospi.rootfs just like in SD card case. U-Boot looks for UBI volume named
 
 To boot kernel from OSPI, at the U-Boot prompt:
 
-.. code-block:: text
+.. prompt:: bash =>
 
- => setenv boot ubi
- => boot
+  setenv boot ubi
+  boot
 
 UART:
 -----
@@ -280,19 +281,19 @@ is fully loaded (from sysfw.itb) and started.
 Example bash script sequence for running on a Linux host PC feeding all boot
 artifacts needed to the device:
 
-.. code-block:: text
+.. prompt:: bash $
 
- MCU_DEV=/dev/ttyUSB1
- MAIN_DEV=/dev/ttyUSB0
+  MCU_DEV=/dev/ttyUSB1
+  MAIN_DEV=/dev/ttyUSB0
 
- stty -F $MCU_DEV 115200 cs8 -cstopb -parenb
- stty -F $MAIN_DEV 115200 cs8 -cstopb -parenb
+  stty -F $MCU_DEV 115200 cs8 -cstopb -parenb
+  stty -F $MAIN_DEV 115200 cs8 -cstopb -parenb
 
- sb --xmodem tiboot3.bin > $MCU_DEV < $MCU_DEV
- sb --ymodem sysfw.itb > $MCU_DEV < $MCU_DEV
- sb --ymodem tispl.bin > $MAIN_DEV < $MAIN_DEV
- sleep 1
- sb --xmodem u-boot.img > $MAIN_DEV < $MAIN_DEV
+  sb --xmodem tiboot3.bin > $MCU_DEV < $MCU_DEV
+  sb --ymodem sysfw.itb > $MCU_DEV < $MCU_DEV
+  sb --ymodem tispl.bin > $MAIN_DEV < $MAIN_DEV
+  sleep 1
+  sb --xmodem u-boot.img > $MAIN_DEV < $MAIN_DEV
 
 Debugging U-Boot
 ----------------
@@ -314,6 +315,6 @@ detailed setup information.
 
 To start OpenOCD and connect to the board
 
-.. code-block:: bash
+.. prompt:: bash $
 
   openocd -f board/ti_am654evm.cfg

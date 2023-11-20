@@ -2,7 +2,7 @@
 /*
  * K3: J721S2 SoC definitions, structures etc.
  *
- * (C) Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.com/
+ * (C) Copyright (C) 2021 Texas Instruments Incorporated - https://www.ti.com/
  */
 #ifndef __ASM_ARCH_J721S2_HARDWARE_H
 #define __ASM_ARCH_J721S2_HARDWARE_H

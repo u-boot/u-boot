@@ -27,7 +27,7 @@ specific processing cores and peripherals:
         * 2 x C66x Digital signal processor sub system
         * C71x Digital signal processor sub-system with MMA.
 
-More info can be found in TRM: http://www.ti.com/lit/pdf/spruil1
+More info can be found in TRM: https://www.ti.com/lit/pdf/spruil1
 
 Platform information:
 
@@ -69,16 +69,16 @@ Set the variables corresponding to this platform:
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_common_env_vars_defn
     :end-before: .. k3_rst_include_end_common_env_vars_defn
-.. code-block:: bash
+.. prompt:: bash $
 
- $ export UBOOT_CFG_CORTEXR=j721e_evm_r5_defconfig
- $ export UBOOT_CFG_CORTEXA=j721e_evm_a72_defconfig
- $ export TFA_BOARD=generic
- $ # we dont use any extra TFA parameters
- $ unset TFA_EXTRA_ARGS
- $ export OPTEE_PLATFORM=k3-j721e
- $ # we dont use any extra OP-TEE parameters
- $ unset OPTEE_EXTRA_ARGS
+ export UBOOT_CFG_CORTEXR=j721e_evm_r5_defconfig
+ export UBOOT_CFG_CORTEXA=j721e_evm_a72_defconfig
+ export TFA_BOARD=generic
+ # we dont use any extra TFA parameters
+ unset TFA_EXTRA_ARGS
+ export OPTEE_PLATFORM=k3-j721e
+ # we dont use any extra OP-TEE parameters
+ unset OPTEE_EXTRA_ARGS
 
 .. j721e_evm_rst_include_start_build_steps
 
@@ -111,7 +111,8 @@ Set the variables corresponding to this platform:
 .. j721e_evm_rst_include_end_build_steps
 
 Target Images
---------------
+-------------
+
 In order to boot we need tiboot3.bin, sysfw.itb, tispl.bin and u-boot.img.
 Each SoC variant (GP, HS-FS and HS-SE) requires a different source for these
 files.
@@ -202,17 +203,17 @@ Below commands can be used to download tiboot3.bin, tispl.bin, u-boot.img,
 and sysfw.itb over tftp and then flash those to OSPI at their respective
 addresses.
 
-.. code-block:: text
+.. prompt:: bash =>
 
- => sf probe
- => tftp ${loadaddr} tiboot3.bin
- => sf update $loadaddr 0x0 $filesize
- => tftp ${loadaddr} tispl.bin
- => sf update $loadaddr 0x80000 $filesize
- => tftp ${loadaddr} u-boot.img
- => sf update $loadaddr 0x280000 $filesize
- => tftp ${loadaddr} sysfw.itb
- => sf update $loadaddr 0x6C0000 $filesize
+  sf probe
+  tftp ${loadaddr} tiboot3.bin
+  sf update $loadaddr 0x0 $filesize
+  tftp ${loadaddr} tispl.bin
+  sf update $loadaddr 0x80000 $filesize
+  tftp ${loadaddr} u-boot.img
+  sf update $loadaddr 0x280000 $filesize
+  tftp ${loadaddr} sysfw.itb
+  sf update $loadaddr 0x6C0000 $filesize
 
 Flash layout for OSPI:
 
@@ -254,6 +255,6 @@ detailed setup information.
 
 To start OpenOCD and connect to the board
 
-.. code-block:: bash
+.. prompt:: bash $
 
   openocd -f board/ti_j721eevm.cfg

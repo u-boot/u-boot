@@ -50,7 +50,7 @@ static const char *sunxi_pinctrl_get_pin_name(struct udevice *dev,
 					      uint pin_selector)
 {
 	const struct sunxi_pinctrl_desc *desc = dev_get_priv(dev);
-	static char pin_name[sizeof("PN31")];
+	static char pin_name[sizeof("PN31")] __section(".data");
 
 	snprintf(pin_name, sizeof(pin_name), "P%c%d",
 		 pin_selector / SUNXI_GPIOS_PER_BANK + desc->first_bank + 'A',

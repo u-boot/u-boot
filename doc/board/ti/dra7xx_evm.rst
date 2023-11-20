@@ -71,8 +71,7 @@ example we load MLO and u-boot.img from the build into DDR and then use
 'mmc bootbus' to set the required rate (see TRM) and 'mmc partconfig' to
 set boot0 as the boot device.
 
-.. prompt:: bash
-   :prompts: =>
+.. prompt:: bash =>
 
    setenv autoload no
    usb start

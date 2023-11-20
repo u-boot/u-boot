@@ -11,9 +11,7 @@ struct dm_stats;
 #if CONFIG_IS_ENABLED(DM_WARN)
 #define dm_warn(fmt...) log(LOGC_DM, LOGL_WARNING, ##fmt)
 #else
-static inline void dm_warn(const char *fmt, ...)
-{
-}
+#define dm_warn(fmt...) log(LOGC_DM, LOGL_DEBUG, ##fmt)
 #endif
 
 struct list_head;

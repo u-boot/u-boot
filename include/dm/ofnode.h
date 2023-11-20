@@ -977,11 +977,21 @@ const char *ofnode_read_chosen_string(const char *propname);
 ofnode ofnode_get_chosen_node(const char *propname);
 
 /**
+ * ofnode_read_baud() - get the baudrate from string value of chosen property
+ *
+ * This looks for stdout-path property within the /chosen node and parses its
+ * value to return baudrate.
+ *
+ * This only works with the control FDT.
+ *
+ * Return: baudrate value if found, else -ve error code
+ */
+int ofnode_read_baud(void);
+
+/**
  * ofnode_read_aliases_prop() - get the value of a aliases property
  *
  * This looks for a property within the /aliases node and returns its value
- *
- * This only works with the control FDT.
  *
  * @propname: Property name to look for
  * @sizep: Returns size of property, or `FDT_ERR_...` error code if function

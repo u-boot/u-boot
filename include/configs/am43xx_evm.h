@@ -2,7 +2,7 @@
 /*
  * am43xx_evm.h
  *
- * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #ifndef __CONFIG_AM43XX_EVM_H

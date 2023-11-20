@@ -2,7 +2,7 @@
 /*
  * PCF8575 I2C GPIO EXPANDER DRIVER
  *
- * Copyright (C) 2016 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2016 Texas Instruments Incorporated - https://www.ti.com/
  *
  * Vignesh R <vigneshr@ti.com>
  *

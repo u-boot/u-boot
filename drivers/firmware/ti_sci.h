@@ -6,7 +6,7 @@
  * The system works in a message response protocol
  * See: http://processors.wiki.ti.com/index.php/TISCI for details
  *
- * Copyright (C)  2018 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C)  2018 Texas Instruments Incorporated - https://www.ti.com/
  * Based on drivers/firmware/ti_sci.h from Linux.
  *
  */

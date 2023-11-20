@@ -20,7 +20,7 @@ Though, one can enter ADFU mode and flash debian image(from host machine) where
 getting into u-boot prompt is easy.
 
 Enter ADFU Mode
-----------------
+---------------
 
 Before write the firmware, let the development board entering the ADFU mode: insert
 one end of the USB cable to the PC, press and hold the ADFU button, and then connect
@@ -28,7 +28,7 @@ the other end of the USB cable to the Mini USB port of the development board, re
 the ADFU button, after connecting it will enter the ADFU mode.
 
 Check whether entered ADFU Mode
---------------------------------
+-------------------------------
 
 The user needs to run the following command on the PC side to check if the ADFU
 device is detected. ID realted to "Actions Semiconductor Co., Ltd"  means that

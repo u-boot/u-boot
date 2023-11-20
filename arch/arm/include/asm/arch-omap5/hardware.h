@@ -4,7 +4,7 @@
  *
  * hardware specific header
  *
- * Copyright (C) 2013, Texas Instruments, Incorporated - http://www.ti.com/
+ * Copyright (C) 2013, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
 #ifndef __OMAP_HARDWARE_H

@@ -58,7 +58,7 @@ F:	lib/acpi/
 
 ANDROID AB
 M:	Igor Opaniuk <igor.opaniuk@gmail.com>
-R:	Sam Protsenko <joe.skb7@gmail.com>
+R:	Sam Protsenko <semen.protsenko@linaro.org>
 S:	Maintained
 F:	cmd/ab_select.c
 F:	common/android_ab.c
@@ -950,6 +950,7 @@ F:	include/cyclic.h
 
 DFU
 M:	Lukasz Majewski <lukma@denx.de>
+M:	Mattijs Korpershoek <mkorpershoek@baylibre.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-dfu.git
 F:	cmd/dfu.c
@@ -1056,7 +1057,8 @@ F:	test/common/event.c
 F:	test/py/tests/test_event_dump.py
 
 FASTBOOT
-S:	Orphaned
+M:	Mattijs Korpershoek <mkorpershoek@baylibre.com>
+S:	Maintained
 F:	cmd/fastboot.c
 F:	doc/android/fastboot*.rst
 F:	include/fastboot.h

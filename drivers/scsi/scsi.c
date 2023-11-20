@@ -292,6 +292,7 @@ static int scsi_read_capacity(struct udevice *dev, struct scsi_cmd *pccb,
 	pccb->cmd[0] = SCSI_RD_CAPAC10;
 	pccb->cmd[1] = pccb->lun << 5;
 	pccb->cmdlen = 10;
+	pccb->dma_dir = DMA_FROM_DEVICE;
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 
 	pccb->datalen = 8;
@@ -368,15 +369,12 @@ static void scsi_setup_test_unit_ready(struct scsi_cmd *pccb)
  */
 static void scsi_init_dev_desc_priv(struct blk_desc *dev_desc)
 {
+	memset(dev_desc, 0, sizeof(struct blk_desc));
 	dev_desc->target = 0xff;
 	dev_desc->lun = 0xff;
 	dev_desc->log2blksz =
 		LOG2_INVALID(typeof(dev_desc->log2blksz));
 	dev_desc->type = DEV_TYPE_UNKNOWN;
-	dev_desc->vendor[0] = 0;
-	dev_desc->product[0] = 0;
-	dev_desc->revision[0] = 0;
-	dev_desc->removable = false;
 #if IS_ENABLED(CONFIG_BOUNCE_BUFFER)
 	dev_desc->bb = true;
 #endif	/* CONFIG_BOUNCE_BUFFER */
@@ -440,6 +438,7 @@ static int scsi_detect_dev(struct udevice *dev, int target, int lun,
 
 	for (count = 0; count < 3; count++) {
 		pccb->datalen = 0;
+		pccb->dma_dir = DMA_NONE;
 		scsi_setup_test_unit_ready(pccb);
 		err = scsi_exec(dev, pccb);
 		if (!err)

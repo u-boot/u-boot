@@ -48,7 +48,6 @@ config VPL_DM
 config DM_WARN
 	bool "Enable warnings in driver model"
 	depends on DM
-	default y
 	help
 	  Enable this to see warnings related to driver model.
 

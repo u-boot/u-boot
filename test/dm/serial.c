@@ -29,6 +29,7 @@ static int dm_test_serial(struct unit_test_state *uts)
 					      &dev_serial));
 
 	ut_assertok(serial_tstc());
+	ut_asserteq(115200, fetch_baud_from_dtb());
 	/*
 	 * test with default config which is the only one supported by
 	 * sandbox_serial driver

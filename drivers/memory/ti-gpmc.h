@@ -2,7 +2,7 @@
 /*
  * Texas Instruments GPMC Driver
  *
- * Copyright (C) 2021 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2021 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 /* GPMC register offsets */

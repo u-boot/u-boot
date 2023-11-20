@@ -4,7 +4,7 @@
  *
  * Phytec phyCORE-AM335x R2 (PCL060 / PCM060) boards information header
  *
- * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
+ * Copyright (C) 2011, Texas Instruments, Incorporated - https://www.ti.com/
  * Copyright (C) 2013 Lars Poeschel, Lemonage Software GmbH
  * Copyright (C) 2019 DENX Software Engineering GmbH
  */

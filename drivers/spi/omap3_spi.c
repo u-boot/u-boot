@@ -6,7 +6,7 @@
  * Copyright (C) 2010 Dirk Behme <dirk.behme@googlemail.com>
  *
  * Driver for McSPI controller on OMAP3. Based on davinci_spi.c
- * Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2009 Texas Instruments Incorporated - https://www.ti.com/
  *
  * Copyright (C) 2007 Atmel Corporation
  *

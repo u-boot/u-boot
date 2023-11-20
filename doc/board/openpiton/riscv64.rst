@@ -11,14 +11,14 @@ OpenPiton has been verified in both ASIC and multiple Xilinx FPGA prototypes
 running full-stack Debian linux.
 
 RISC-V Standard Bootflow
--------------------------
+------------------------
 
 Currently, OpenPiton implements RISC-V standard bootflow in the following steps
 mover.S -> u-boot-spl -> opensbi -> u-boot -> Linux
 This board supports S-mode u-boot as well as M-mode SPL
 
 Building OpenPition
----------------------
+-------------------
 
 If you'd like to build OpenPiton, please go to OpenPiton github repo
 (at https://github.com/PrincetonUniversity/openpiton) to build from the latest

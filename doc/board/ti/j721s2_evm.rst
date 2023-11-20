@@ -6,6 +6,7 @@ J721S2 and AM68 Platforms
 
 Introduction:
 -------------
+
 The J721S2 family of SoCs are part of K3 Multicore SoC architecture platform
 targeting automotive applications. They are designed as a low power, high
 performance and highly integrated device architecture, adding significant
@@ -38,6 +39,7 @@ Platform information:
 
 Boot Flow:
 ----------
+
 Below is the pictorial representation of boot flow:
 
 .. image:: img/boot_diagram_k3_current.svg
@@ -60,6 +62,7 @@ Sources:
 
 Build procedure:
 ----------------
+
 0. Setup the environment variables:
 
 .. include::  k3.rst
@@ -75,15 +78,15 @@ Set the variables corresponding to this platform:
 .. include::  k3.rst
     :start-after: .. k3_rst_include_start_common_env_vars_defn
     :end-before: .. k3_rst_include_end_common_env_vars_defn
-.. code-block:: bash
+.. prompt:: bash $
 
- $ export UBOOT_CFG_CORTEXR=j721s2_evm_r5_defconfig
- $ export UBOOT_CFG_CORTEXA=j721s2_evm_a72_defconfig
- $ export TFA_BOARD=generic
- $ export TFA_EXTRA_ARGS="K3_USART=0x8"
- $ # The following is not a typo, j784s4 is the OP-TEE platform for j721s2
- $ export OPTEE_PLATFORM=k3-j784s4
- $ export OPTEE_EXTRA_ARGS="CFG_CONSOLE_UART=0x8"
+  export UBOOT_CFG_CORTEXR=j721s2_evm_r5_defconfig
+  export UBOOT_CFG_CORTEXA=j721s2_evm_a72_defconfig
+  export TFA_BOARD=generic
+  export TFA_EXTRA_ARGS="K3_USART=0x8"
+  # The following is not a typo, j784s4 is the OP-TEE platform for j721s2
+  export OPTEE_PLATFORM=k3-j784s4
+  export OPTEE_EXTRA_ARGS="CFG_CONSOLE_UART=0x8"
 
 .. j721s2_evm_rst_include_start_build_steps
 
@@ -120,7 +123,8 @@ Set the variables corresponding to this platform:
 .. j721s2_evm_rst_include_end_build_steps
 
 Target Images
---------------
+-------------
+
 In order to boot we need tiboot3.bin, tispl.bin and u-boot.img. Each SoC
 variant (GP, HS-FS, HS-SE) requires a different source for these files.
 
@@ -296,7 +300,7 @@ Debugging U-Boot on J721S2-EVM
 
 To start OpenOCD and connect to the board
 
-.. code-block:: bash
+.. prompt:: bash $
 
   openocd -f board/ti_j721s2evm.cfg
 

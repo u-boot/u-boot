@@ -2,12 +2,12 @@
 /*
  * ti_omap3_common.h
  *
- * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com/
  *
  * For more details, please see the technical documents listed at
- *   http://www.ti.com/product/omap3530
- *   http://www.ti.com/product/omap3630
- *   http://www.ti.com/product/dm3730
+ *   https://www.ti.com/product/omap3530
+ *   https://www.ti.com/product/omap3630
+ *   https://www.ti.com/product/dm3730
  */
 
 #ifndef __CONFIG_TI_OMAP3_COMMON_H__

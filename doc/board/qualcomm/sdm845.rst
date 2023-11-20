@@ -2,10 +2,11 @@
 .. sectionauthor:: Dzmitry Sankouski <dsankouski@gmail.com>
 
 Snapdragon 845
-================
+==============
 
 About this
 ----------
+
 This document describes the information about Qualcomm Snapdragon 845
 supported boards and it's usage steps.
 
@@ -17,8 +18,10 @@ Qualcomm's UEFI-based ABL (Android) Bootloader.
 
 Installation
 ------------
+
 Build
 ^^^^^
+
 Setup ``CROSS_COMPILE`` for aarch64 and build U-Boot for your board::
 
 	$ export CROSS_COMPILE=<aarch64 toolchain prefix>
@@ -29,10 +32,12 @@ This will build ``u-boot.bin`` in the configured output directory.
 
 Generate FIT image
 ^^^^^^^^^^^^^^^^^^
+
 See doc/uImage.FIT for more details
 
 Pack android boot image
 ^^^^^^^^^^^^^^^^^^^^^^^
+
 We'll assemble android boot image with ``u-boot.bin`` instead of linux kernel,
 and FIT image instead of ``initramfs``. Android bootloader expect gzipped kernel
 with appended dtb, so let's mimic linux to satisfy stock bootloader.

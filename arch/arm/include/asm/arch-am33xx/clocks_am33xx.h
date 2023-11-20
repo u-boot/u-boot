@@ -4,7 +4,7 @@
  *
  * AM33xx clock define
  *
- * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #ifndef _CLOCKS_AM33XX_H_

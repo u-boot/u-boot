@@ -205,16 +205,14 @@ static unsigned build_mbr_parts(char *buf, size_t buf_size, unsigned num_parts)
 					bytes_remaining -= cur_str_size;
 
 				}
-			else if (num_parts == 5) {
-				cur_str_size = sizeof(mbr_parts_p5);
-				if (cur_str_size + 1 > bytes_remaining)
-					return 1;
-				strcat(cur_buf, mbr_parts_p5);
-				bytes_remaining -= cur_str_size;
+				else if (num_parts == 5) {
+					cur_str_size = sizeof(mbr_parts_p5);
+					if (cur_str_size + 1 > bytes_remaining)
+						return 1;
+					strcat(cur_buf, mbr_parts_p5);
+					bytes_remaining -= cur_str_size;
 
-			}
-			else if (num_parts > 5)
-				return 1;
+				}
 			}
 		}
 	}
