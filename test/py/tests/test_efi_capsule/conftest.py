@@ -87,6 +87,13 @@ def efi_capsule_data(request, u_boot_config):
                    % (u_boot_config.source_dir, u_boot_config.build_dir, data_dir, data_dir, data_dir), shell=True)
         os.environ['PYTHONPATH'] = pythonpath
 
+        capsule_cfg_file_gen = u_boot_config.buildconfig.get('config_efi_use_capsule_cfg_file')
+        if capsule_cfg_file_gen:
+            cfg_file = u_boot_config.source_dir + '/' +  u_boot_config.buildconfig.get('config_efi_capsule_cfg_file')[1:-1]
+            check_call('cd %s; '
+                       '%s/tools/mkeficapsule -f %s'
+                       % (data_dir, u_boot_config.build_dir, cfg_file), shell=True)
+
         # Create a disk image with EFI system partition
         check_call('virt-make-fs --partition=gpt --size=+1M --type=vfat %s %s' %
                    (mnt_point, image_path), shell=True)
