@@ -90,7 +90,7 @@ config USB_XHCI_OMAP
 
 config USB_XHCI_PCI
 	bool "Support for PCI-based xHCI USB controller"
-	depends on DM_USB
+	depends on DM_USB && PCI
 	default y if X86
 	help
 	  Enables support for the PCI-based xHCI controller.
