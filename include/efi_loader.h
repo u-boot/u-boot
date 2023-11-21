@@ -90,6 +90,8 @@ efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len);
  * back to u-boot world
  */
 void efi_restore_gd(void);
+/* Call this to unset the current device name */
+void efi_clear_bootdev(void);
 /* Call this to set the current device name */
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
 		     void *buffer, size_t buffer_size);
@@ -114,6 +116,7 @@ static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 
 /* No loader configured, stub out EFI_ENTRY */
 static inline void efi_restore_gd(void) { }
+static inline void efi_clear_bootdev(void) { }
 static inline void efi_set_bootdev(const char *dev, const char *devnr,
 				   const char *path, void *buffer,
 				   size_t buffer_size) { }
@@ -527,14 +530,21 @@ efi_status_t efi_bootmgr_get_unused_bootoption(u16 *buf,
 efi_status_t efi_bootmgr_update_media_device_boot_option(void);
 /* Delete selected boot option */
 efi_status_t efi_bootmgr_delete_boot_option(u16 boot_index);
+/* Invoke EFI boot manager */
+efi_status_t efi_bootmgr_run(void *fdt);
 /* search the boot option index in BootOrder */
 bool efi_search_bootorder(u16 *bootorder, efi_uintn_t num, u32 target, u32 *index);
 /* Set up console modes */
 void efi_setup_console_size(void);
+/* Set up load options from environment variable */
+efi_status_t efi_env_set_load_options(efi_handle_t handle, const char *env_var,
+				      u16 **load_options);
 /* Install device tree */
 efi_status_t efi_install_fdt(void *fdt);
 /* Run loaded UEFI image */
 efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size);
+/* Run loaded UEFI image with given fdt */
+efi_status_t efi_binary_run(void *image, size_t size, void *fdt);
 /* Initialize variable services */
 efi_status_t efi_init_variables(void);
 /* Notify ExitBootServices() is called */
