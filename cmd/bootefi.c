@@ -438,58 +438,6 @@ static int do_efibootmgr(void)
 }
 
 /**
- * do_bootefi_image() - execute EFI binary
- *
- * Set up memory image for the binary to be loaded, prepare device path, and
- * then call do_bootefi_exec() to execute it.
- *
- * @image_opt:	string with image start address
- * @size_opt:	string with image size or NULL
- * Return:	status code
- */
-static int do_bootefi_image(const char *image_opt, const char *size_opt)
-{
-	void *image_buf;
-	unsigned long addr, size;
-	efi_status_t ret;
-
-#ifdef CONFIG_CMD_BOOTEFI_HELLO
-	if (!strcmp(image_opt, "hello")) {
-		image_buf = __efi_helloworld_begin;
-		size = __efi_helloworld_end - __efi_helloworld_begin;
-		efi_clear_bootdev();
-	} else
-#endif
-	{
-		addr = strtoul(image_opt, NULL, 16);
-		/* Check that a numeric value was passed */
-		if (!addr)
-			return CMD_RET_USAGE;
-		image_buf = map_sysmem(addr, 0);
-
-		if (size_opt) {
-			size = strtoul(size_opt, NULL, 16);
-			if (!size)
-				return CMD_RET_USAGE;
-			efi_clear_bootdev();
-		} else {
-			if (image_buf != image_addr) {
-				log_err("No UEFI binary known at %s\n",
-					image_opt);
-				return CMD_RET_FAILURE;
-			}
-			size = image_size;
-		}
-	}
-	ret = efi_run_image(image_buf, size);
-
-	if (ret != EFI_SUCCESS)
-		return CMD_RET_FAILURE;
-
-	return CMD_RET_SUCCESS;
-}
-
-/**
  * efi_run_image() - run loaded UEFI image
  *
  * @source_buffer:	memory address of the UEFI image
@@ -660,8 +608,9 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
 	efi_status_t ret;
-	char *img_addr, *img_size, *str_copy, *pos;
-	void *fdt;
+	char *p;
+	void *fdt, *image_buf;
+	unsigned long addr, size;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -696,18 +645,42 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (!strcmp(argv[1], "selftest"))
 		return do_efi_selftest();
 #endif
-	str_copy = strdup(argv[1]);
-	if (!str_copy) {
-		log_err("Out of memory\n");
-		return CMD_RET_FAILURE;
-	}
-	pos = str_copy;
-	img_addr = strsep(&pos, ":");
-	img_size = strsep(&pos, ":");
-	ret = do_bootefi_image(img_addr, img_size);
-	free(str_copy);
 
-	return ret;
+#ifdef CONFIG_CMD_BOOTEFI_HELLO
+	if (!strcmp(argv[1], "hello")) {
+		image_buf = __efi_helloworld_begin;
+		size = __efi_helloworld_end - __efi_helloworld_begin;
+		efi_clear_bootdev();
+	} else
+#endif
+	{
+		addr = strtoul(argv[1], NULL, 16);
+		/* Check that a numeric value was passed */
+		if (!addr)
+			return CMD_RET_USAGE;
+		image_buf = map_sysmem(addr, 0);
+
+		p  = strchr(argv[1], ':');
+		if (p) {
+			size = strtoul(++p, NULL, 16);
+			if (!size)
+				return CMD_RET_USAGE;
+			efi_clear_bootdev();
+		} else {
+			if (image_buf != image_addr) {
+				log_err("No UEFI binary known at %s\n",
+					argv[1]);
+				return CMD_RET_FAILURE;
+			}
+			size = image_size;
+		}
+	}
+	ret = efi_run_image(image_buf, size);
+
+	if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_LONGHELP(bootefi,
