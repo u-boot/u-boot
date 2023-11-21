@@ -476,43 +476,27 @@ static int do_bootm_tee(int flag, int argc, char *const argv[],
 static int do_bootm_efi(int flag, int argc, char *const argv[],
 			struct bootm_headers *images)
 {
-	efi_status_t efi_ret;
+	int ret;
 	void *image_buf;
 
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
-
-	/* Initialize EFI drivers */
-	efi_ret = efi_init_obj_list();
-	if (efi_ret != EFI_SUCCESS) {
-		printf("## Failed to initialize UEFI sub-system: r = %lu\n",
-		       efi_ret & ~EFI_ERROR_MASK);
-		return 1;
-	}
-
-	/* Install device tree */
-	efi_ret = efi_install_fdt(images->ft_len
-				  ? images->ft_addr : EFI_FDT_USE_INTERNAL);
-	if (efi_ret != EFI_SUCCESS) {
-		printf("## Failed to install device tree: r = %lu\n",
-		       efi_ret & ~EFI_ERROR_MASK);
-		return 1;
-	}
-
-	/* Run EFI image */
-	printf("## Transferring control to EFI (at address %08lx) ...\n",
-	       images->ep);
-	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
 	/* We expect to return */
 	images->os.type = IH_TYPE_STANDALONE;
 
 	image_buf = map_sysmem(images->ep, images->os.image_len);
 
-	efi_ret = efi_run_image(image_buf, images->os.image_len);
-	if (efi_ret != EFI_SUCCESS)
-		return 1;
-	return 0;
+	/* Run EFI image */
+	printf("## Transferring control to EFI (at address %08lx) ...\n",
+	       images->ep);
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+
+	ret = efi_binary_run(image_buf, images->os.image_len,
+			     images->ft_len
+			     ? images->ft_addr : EFI_FDT_USE_INTERNAL);
+
+	return ret;
 }
 #endif
 
