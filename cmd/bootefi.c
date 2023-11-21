@@ -29,6 +29,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static struct efi_device_path *test_image_path;
+static struct efi_device_path *test_device_path;
 static struct efi_device_path *bootefi_image_path;
 static struct efi_device_path *bootefi_device_path;
 static void *image_addr;
@@ -586,23 +588,26 @@ static efi_status_t bootefi_test_prepare
 	efi_status_t ret;
 
 	/* Construct a dummy device path */
-	bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE, 0, 0);
-	if (!bootefi_device_path)
+	test_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE, 0, 0);
+	if (!test_device_path)
 		return EFI_OUT_OF_RESOURCES;
 
-	bootefi_image_path = efi_dp_from_file(NULL, path);
-	if (!bootefi_image_path) {
+	test_image_path = efi_dp_from_file(NULL, path);
+	if (!test_image_path) {
 		ret = EFI_OUT_OF_RESOURCES;
 		goto failure;
 	}
 
-	ret = bootefi_run_prepare(load_options_path, bootefi_device_path,
-				  bootefi_image_path, image_objp,
+	ret = bootefi_run_prepare(load_options_path, test_device_path,
+				  test_image_path, image_objp,
 				  loaded_image_infop);
 	if (ret == EFI_SUCCESS)
 		return ret;
 
 failure:
+	efi_free_pool(test_device_path);
+	efi_free_pool(test_image_path);
+	/* TODO: not sure calling clear function is necessary */
 	efi_clear_bootdev();
 	return ret;
 }
@@ -627,6 +632,8 @@ static int do_efi_selftest(void)
 	ret = EFI_CALL(efi_selftest(&image_obj->header, &systab));
 	efi_restore_gd();
 	free(loaded_image_info->load_options);
+	efi_free_pool(test_device_path);
+	efi_free_pool(test_image_path);
 	if (ret != EFI_SUCCESS)
 		efi_delete_handle(&image_obj->header);
 	else
