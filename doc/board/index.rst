@@ -26,6 +26,7 @@ Board-specific doc
    gateworks/index
    google/index
    highbank/index
+   hisilicon/index
    htc/index
    intel/index
    kontron/index

@@ -247,7 +247,7 @@ fdtfile
     Name of the flattened device tree (FDT) file to load, e.g.
     "rockchip/rk3399-rockpro64.dtb"
 
-fdtaddr_addr_r
+fdt_addr_r
     Address at which to load the FDT, e.g. 0x01f00000
 
 fdtoverlay_addr_r (needed if overlays are used)

@@ -147,7 +147,8 @@ static int spkgimage_verify_header(unsigned char *ptr, int size,
 
 	/* Check the marker bytes */
 	if (memcmp(header->marker, marker, 4)) {
-		fprintf(stderr, "Error: invalid marker bytes\n");
+		if (param->type == IH_TYPE_RENESAS_SPKG)
+			fprintf(stderr, "Error: invalid marker bytes\n");
 		return -EINVAL;
 	}
 
