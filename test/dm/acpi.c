@@ -395,26 +395,26 @@ static int dm_test_acpi_cmd_list(struct unit_test_state *uts)
 
 	console_record_reset();
 	run_command("acpi list", 0);
-	ut_assert_nextline("Name      Base   Size  Detail");
-	ut_assert_nextline("----  --------  -----  ------");
-	ut_assert_nextline("RSDP  %08lx  %5zx  v02 U-BOOT", addr,
+	ut_assert_nextline("Name              Base   Size  Detail");
+	ut_assert_nextline("----  ----------------  -----  ----------------------------");
+	ut_assert_nextline("RSDP  %16lx  %5zx  v02 U-BOOT", addr,
 			   sizeof(struct acpi_rsdp));
 	addr = ALIGN(addr + sizeof(struct acpi_rsdp), 16);
-	ut_assert_nextline("RSDT  %08lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
+	ut_assert_nextline("RSDT  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
 			   addr, sizeof(struct acpi_table_header) +
 			   3 * sizeof(u32), OEM_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_rsdt), 16);
-	ut_assert_nextline("XSDT  %08lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
+	ut_assert_nextline("XSDT  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
 			   addr, sizeof(struct acpi_table_header) +
 			   3 * sizeof(u64), OEM_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_xsdt), 64);
-	ut_assert_nextline("DMAR  %08lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
+	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
 			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
-	ut_assert_nextline("DMAR  %08lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
+	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
 			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
 	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
-	ut_assert_nextline("DMAR  %08lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
+	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
 			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
 	ut_assert_console_end();
 
@@ -446,7 +446,7 @@ static int dm_test_acpi_cmd_dump(struct unit_test_state *uts)
 	console_record_reset();
 	run_command("acpi dump dmar", 0);
 	addr = ALIGN(map_to_sysmem(ctx.xsdt) + sizeof(struct acpi_xsdt), 64);
-	ut_assert_nextline("DMAR @ %08lx", addr);
+	ut_assert_nextline("DMAR @ %16lx", addr);
 	ut_assert_nextlines_are_dump(0x30);
 	ut_assert_console_end();
 
