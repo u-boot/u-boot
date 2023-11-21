@@ -362,9 +362,19 @@ config CMD_BOOTEFI
 	help
 	  Boot an EFI image from memory.
 
+if CMD_BOOTEFI
+config CMD_BOOTEFI_BINARY
+	bool "Allow booting an EFI binary directly"
+	depends on BOOTEFI_BOOTMGR
+	default y
+	help
+	  Select this option to enable direct execution of binary at 'bootefi'.
+	  This subcommand will allow you to load the UEFI binary using
+	  other U-Boot commands or external methods and then run it.
+
 config CMD_BOOTEFI_BOOTMGR
 	bool "UEFI Boot Manager command"
-	depends on BOOTEFI_BOOTMGR && CMD_BOOTEFI
+	depends on BOOTEFI_BOOTMGR
 	default y
 	help
 	  Select this option to enable the 'bootmgr' subcommand of 'bootefi'.
@@ -373,7 +383,6 @@ config CMD_BOOTEFI_BOOTMGR
 
 config CMD_BOOTEFI_HELLO_COMPILE
 	bool "Compile a standard EFI hello world binary for testing"
-	depends on CMD_BOOTEFI && !CPU_V7M
 	default y
 	help
 	  This compiles a standard EFI hello world application with U-Boot so
@@ -395,6 +404,7 @@ config CMD_BOOTEFI_HELLO
 	  up EFI support on a new architecture.
 
 source lib/efi_selftest/Kconfig
+endif
 
 config CMD_BOOTMENU
 	bool "bootmenu"

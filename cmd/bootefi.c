@@ -503,7 +503,6 @@ out:
 	return (ret != EFI_SUCCESS) ? ret : ret2;
 }
 
-#ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 static efi_status_t bootefi_run_prepare(const char *load_options_path,
 		struct efi_device_path *device_path,
 		struct efi_device_path *image_path,
@@ -593,7 +592,6 @@ static int do_efi_selftest(void)
 
 	return ret != EFI_SUCCESS;
 }
-#endif /* CONFIG_CMD_BOOTEFI_SELFTEST */
 
 /**
  * do_bootefi() - execute `bootefi` command
@@ -615,14 +613,6 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	/* Initialize EFI drivers */
-	ret = efi_init_obj_list();
-	if (ret != EFI_SUCCESS) {
-		log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
-			ret & ~EFI_ERROR_MASK);
-		return CMD_RET_FAILURE;
-	}
-
 	if (argc > 2) {
 		uintptr_t fdt_addr;
 
@@ -631,29 +621,54 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 	} else {
 		fdt = EFI_FDT_USE_INTERNAL;
 	}
-	ret = efi_install_fdt(fdt);
-	if (ret == EFI_INVALID_PARAMETER)
-		return CMD_RET_USAGE;
-	else if (ret != EFI_SUCCESS)
-		return CMD_RET_FAILURE;
 
-	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR)) {
-		if (!strcmp(argv[1], "bootmgr"))
-			return do_efibootmgr();
+	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR) &&
+	    !strcmp(argv[1], "bootmgr")) {
+		/* Initialize EFI drivers */
+		ret = efi_init_obj_list();
+		if (ret != EFI_SUCCESS) {
+			log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
+				ret & ~EFI_ERROR_MASK);
+			return CMD_RET_FAILURE;
+		}
+
+		ret = efi_install_fdt(fdt);
+		if (ret == EFI_INVALID_PARAMETER)
+			return CMD_RET_USAGE;
+		else if (ret != EFI_SUCCESS)
+			return CMD_RET_FAILURE;
+
+		return do_efibootmgr();
 	}
-#ifdef CONFIG_CMD_BOOTEFI_SELFTEST
-	if (!strcmp(argv[1], "selftest"))
-		return do_efi_selftest();
-#endif
 
-#ifdef CONFIG_CMD_BOOTEFI_HELLO
-	if (!strcmp(argv[1], "hello")) {
+	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_SELFTEST) &&
+	    !strcmp(argv[1], "selftest")) {
+		/* Initialize EFI drivers */
+		ret = efi_init_obj_list();
+		if (ret != EFI_SUCCESS) {
+			log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
+				ret & ~EFI_ERROR_MASK);
+			return CMD_RET_FAILURE;
+		}
+
+		ret = efi_install_fdt(fdt);
+		if (ret == EFI_INVALID_PARAMETER)
+			return CMD_RET_USAGE;
+		else if (ret != EFI_SUCCESS)
+			return CMD_RET_FAILURE;
+
+		return do_efi_selftest();
+	}
+
+	if (!IS_ENABLED(CONFIG_CMD_BOOTEFI_BINARY))
+		return CMD_RET_SUCCESS;
+
+	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_HELLO) &&
+	    !strcmp(argv[1], "hello")) {
 		image_buf = __efi_helloworld_begin;
 		size = __efi_helloworld_end - __efi_helloworld_begin;
 		efi_clear_bootdev();
-	} else
-#endif
-	{
+	} else {
 		addr = strtoul(argv[1], NULL, 16);
 		/* Check that a numeric value was passed */
 		if (!addr)
@@ -675,6 +690,21 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 			size = image_size;
 		}
 	}
+
+	/* Initialize EFI drivers */
+	ret = efi_init_obj_list();
+	if (ret != EFI_SUCCESS) {
+		log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
+			ret & ~EFI_ERROR_MASK);
+		return CMD_RET_FAILURE;
+	}
+
+	ret = efi_install_fdt(fdt);
+	if (ret == EFI_INVALID_PARAMETER)
+		return CMD_RET_USAGE;
+	else if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+
 	ret = efi_run_image(image_buf, size);
 
 	if (ret != EFI_SUCCESS)

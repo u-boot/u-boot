@@ -879,14 +879,12 @@ efi_status_t __efi_runtime EFIAPI efi_get_time(
 
 efi_status_t __efi_runtime EFIAPI efi_set_time(struct efi_time *time);
 
-#ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 /*
  * Entry point for the tests of the EFI API.
  * It is called by 'bootefi selftest'
  */
 efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 				 struct efi_system_table *systab);
-#endif
 
 efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 				     const efi_guid_t *vendor, u32 *attributes,
