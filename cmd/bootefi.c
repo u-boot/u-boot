@@ -413,28 +413,40 @@ out:
 }
 
 /**
- * do_efibootmgr() - execute EFI boot manager
+ * efi_bootmgr_run() - execute EFI boot manager
+ * fdt:	Flat device tree
+ *
+ * Invoke EFI boot manager and execute a binary depending on
+ * boot options. If @fdt is not NULL, it will be passed to
+ * the executed binary.
  *
  * Return:	status code
  */
-static int do_efibootmgr(void)
+static efi_status_t efi_bootmgr_run(void *fdt)
 {
 	efi_handle_t handle;
-	efi_status_t ret;
 	void *load_options;
+	efi_status_t ret;
+
+	/* Initialize EFI drivers */
+	ret = efi_init_obj_list();
+	if (ret != EFI_SUCCESS) {
+		log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
+			ret & ~EFI_ERROR_MASK);
+		return CMD_RET_FAILURE;
+	}
+
+	ret = efi_install_fdt(fdt);
+	if (ret != EFI_SUCCESS)
+		return ret;
 
 	ret = efi_bootmgr_load(&handle, &load_options);
 	if (ret != EFI_SUCCESS) {
 		log_notice("EFI boot manager: Cannot load any image\n");
-		return CMD_RET_FAILURE;
+		return ret;
 	}
 
-	ret = do_bootefi_exec(handle, load_options);
-
-	if (ret != EFI_SUCCESS)
-		return CMD_RET_FAILURE;
-
-	return CMD_RET_SUCCESS;
+	return do_bootefi_exec(handle, load_options);
 }
 
 /**
@@ -624,21 +636,14 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR) &&
 	    !strcmp(argv[1], "bootmgr")) {
-		/* Initialize EFI drivers */
-		ret = efi_init_obj_list();
-		if (ret != EFI_SUCCESS) {
-			log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
-				ret & ~EFI_ERROR_MASK);
-			return CMD_RET_FAILURE;
-		}
+		ret = efi_bootmgr_run(fdt);
 
-		ret = efi_install_fdt(fdt);
 		if (ret == EFI_INVALID_PARAMETER)
 			return CMD_RET_USAGE;
-		else if (ret != EFI_SUCCESS)
+		else if (ret)
 			return CMD_RET_FAILURE;
 
-		return do_efibootmgr();
+		return CMD_RET_SUCCESS;
 	}
 
 	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_SELFTEST) &&
