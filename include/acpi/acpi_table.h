@@ -80,7 +80,7 @@ struct acpi_rsdt {
 };
 
 /* XSDT (Extended System Description Table) */
-struct acpi_xsdt {
+struct __packed acpi_xsdt {
 	struct acpi_table_header header;
 	u64 entry[MAX_ACPI_TABLES];
 };
