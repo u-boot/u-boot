@@ -32,28 +32,28 @@
 		filename = "board-cfg.bin";
 		bcfg_yaml: ti-board-config {
 			config = "board-cfg.yaml";
-			schema = "board/ti/common/schema.yaml";
+			schema = "arch/arm/mach-k3/schema.yaml";
 		};
 	};
 	pm-cfg {
 		filename = "pm-cfg.bin";
 		pcfg_yaml: ti-board-config {
 			config = "pm-cfg.yaml";
-			schema = "board/ti/common/schema.yaml";
+			schema = "arch/arm/mach-k3/schema.yaml";
 		};
 	};
 	rm-cfg {
 		filename = "rm-cfg.bin";
 		rcfg_yaml: ti-board-config {
 			config = "rm-cfg.yaml";
-			schema = "board/ti/common/schema.yaml";
+			schema = "arch/arm/mach-k3/schema.yaml";
 		};
 	};
 	sec-cfg {
 		filename = "sec-cfg.bin";
 		scfg_yaml: ti-board-config {
 			config = "sec-cfg.yaml";
-			schema = "board/ti/common/schema.yaml";
+			schema = "arch/arm/mach-k3/schema.yaml";
 		};
 	};
 	combined-tifs-cfg {
@@ -61,19 +61,19 @@
 		ti-board-config {
 			bcfg_yaml_tifs: board-cfg {
 				config = "board-cfg.yaml";
-				schema = "board/ti/common/schema.yaml";
+				schema = "arch/arm/mach-k3/schema.yaml";
 			};
 			scfg_yaml_tifs: sec-cfg {
 				config = "sec-cfg.yaml";
-				schema = "board/ti/common/schema.yaml";
+				schema = "arch/arm/mach-k3/schema.yaml";
 			};
 			pcfg_yaml_tifs: pm-cfg {
 				config = "pm-cfg.yaml";
-				schema = "board/ti/common/schema.yaml";
+				schema = "arch/arm/mach-k3/schema.yaml";
 			};
 			rcfg_yaml_tifs: rm-cfg {
 				config = "rm-cfg.yaml";
-				schema = "board/ti/common/schema.yaml";
+				schema = "arch/arm/mach-k3/schema.yaml";
 			};
 		};
 	};
@@ -82,11 +82,11 @@
 		ti-board-config {
 			pcfg_yaml_dm: pm-cfg {
 				config = "pm-cfg.yaml";
-				schema = "board/ti/common/schema.yaml";
+				schema = "arch/arm/mach-k3/schema.yaml";
 			};
 			rcfg_yaml_dm: rm-cfg {
 				config = "rm-cfg.yaml";
-				schema = "board/ti/common/schema.yaml";
+				schema = "arch/arm/mach-k3/schema.yaml";
 			};
 		};
 	};
@@ -95,19 +95,19 @@
 		ti-board-config {
 			bcfg_yaml_sysfw: board-cfg {
 				config = "board-cfg.yaml";
-				schema = "board/ti/common/schema.yaml";
+				schema = "arch/arm/mach-k3/schema.yaml";
 			};
 			scfg_yaml_sysfw: sec-cfg {
 				config = "sec-cfg.yaml";
-				schema = "board/ti/common/schema.yaml";
+				schema = "arch/arm/mach-k3/schema.yaml";
 			};
 			pcfg_yaml_sysfw: pm-cfg {
 				config = "pm-cfg.yaml";
-				schema = "board/ti/common/schema.yaml";
+				schema = "arch/arm/mach-k3/schema.yaml";
 			};
 			rcfg_yaml_sysfw: rm-cfg {
 				config = "rm-cfg.yaml";
-				schema = "board/ti/common/schema.yaml";
+				schema = "arch/arm/mach-k3/schema.yaml";
 			};
 		};
 	};
