@@ -4,7 +4,7 @@ config SYS_BOARD
 	default "beagle"
 
 config SYS_VENDOR
-	default "ti"
+	default "beagle"
 
 config SYS_CONFIG_NAME
 	default "omap3_beagle"

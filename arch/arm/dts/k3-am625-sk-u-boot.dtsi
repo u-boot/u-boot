@@ -8,122 +8,12 @@
 
 / {
 	chosen {
-		stdout-path = "serial2:115200n8";
 		tick-timer = &main_timer0;
 	};
-
-	aliases {
-		mmc1 = &sdhci1;
-	};
-
-	memory@80000000 {
-		bootph-all;
-	};
-};
-
-&main_conf {
-	bootph-all;
-};
-
-&cbass_main {
-	bootph-all;
 };
 
 &main_timer0 {
 	clock-frequency = <25000000>;
-	bootph-all;
-};
-
-&dmss {
-	bootph-all;
-};
-
-&secure_proxy_main {
-	bootph-all;
-};
-
-&dmsc {
-	bootph-all;
-};
-
-&k3_pds {
-	bootph-all;
-};
-
-&k3_clks {
-	bootph-all;
-};
-
-&k3_reset {
-	bootph-all;
-};
-
-&wkup_conf {
-	bootph-all;
-};
-
-&chipid {
-	bootph-all;
-};
-
-&main_pmx0 {
-	bootph-all;
-};
-
-&main_uart0 {
-	bootph-all;
-};
-
-&main_uart0_pins_default {
-	bootph-all;
-};
-
-&cbass_mcu {
-	bootph-all;
-};
-
-&cbass_wakeup {
-	bootph-all;
-};
-
-&mcu_pmx0 {
-	bootph-all;
-};
-
-&sdhci1 {
-	bootph-all;
-};
-
-&main_mmc1_pins_default {
-	bootph-all;
-};
-
-&fss {
-	bootph-all;
-};
-
-&ospi0_pins_default {
-	bootph-all;
-};
-
-&ospi0 {
-	bootph-all;
-
-	flash@0 {
-		bootph-all;
-
-		partitions {
-			bootph-all;
-
-			partition@3fc0000 {
-				bootph-all;
-			};
-		};
-	};
-};
-
-&inta_main_dmss {
-	bootph-all;
 };
 
 &main_bcdma {
@@ -150,41 +40,6 @@
 	      <0x00 0x48430000 0x00 0x1000>;
 	reg-names = "gcfg", "rchanrt", "tchanrt", "ringrt",
 		    "cfg", "tchan", "rchan", "rflow";
-	bootph-all;
-};
-
-&cpsw3g_mdio {
-	bootph-all;
-};
-
-&cpsw3g_phy0 {
-	bootph-all;
-};
-
-&cpsw3g_phy1 {
-	bootph-all;
-};
-
-&main_rgmii1_pins_default {
-	bootph-all;
-};
-
-&main_rgmii2_pins_default {
-	bootph-all;
-};
-
-&phy_gmii_sel {
-	bootph-all;
-};
-
-&cpsw3g {
-	bootph-all;
-	ethernet-ports {
-		bootph-all;
-	};
-};
-
-&cpsw_port1 {
 	bootph-all;
 };
 

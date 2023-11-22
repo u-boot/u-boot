@@ -6,9 +6,10 @@
  *	Lokesh Vutla <lokeshvutla@ti.com>
  */
 
+#include <config.h>
 #include <asm/io.h>
 #include <linux/kernel.h>
-#include "common.h"
+#include <asm/armv7_mpu.h>
 
 struct mpu_region_config k3_mpu_regions[16] = {
 	/*
