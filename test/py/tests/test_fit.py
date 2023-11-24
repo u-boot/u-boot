@@ -339,6 +339,14 @@ def test_fit(u_boot_console):
                   'U-Boot loaded FDT from offset %#x, FDT is actually at %#x' %
                   (fit_offset, real_fit_offset))
 
+            # Check if bootargs strings substitution works
+            output = cons.run_command_list([
+                'env set bootargs \\\"\'my_boot_var=${foo}\'\\\"',
+                'env set foo bar',
+                'bootm prep',
+                'env print bootargs'])
+            assert 'bootargs="my_boot_var=bar"' in output, "Bootargs strings not substituted"
+
         # Now a kernel and an FDT
         with cons.log.section('Kernel + FDT load'):
             params['fdt_load'] = 'load = <%#x>;' % params['fdt_addr']
