@@ -93,7 +93,6 @@ F:	configs/rock-4se-rk3399_defconfig
 F:	arch/arm/dts/rk3399-rock-4se-u-boot.dtsi
 
 ROCK-PI-4
-M:	Akash Gajjar <akash@openedev.com>
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 F:	configs/rock-pi-4-rk3399_defconfig
