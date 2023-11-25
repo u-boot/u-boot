@@ -83,8 +83,11 @@ static int npcm_serial_setbrg(struct udevice *dev, int baudrate)
 	struct npcm_uart *uart = plat->reg;
 	u16 divisor;
 
+	if (IS_ENABLED(CONFIG_SYS_SKIP_UART_INIT))
+		return 0;
+
 	/* BaudOut = UART Clock / (16 * [Divisor + 2]) */
-	divisor = DIV_ROUND_CLOSEST(plat->uart_clk, 16 * baudrate + 2) - 2;
+	divisor = DIV_ROUND_CLOSEST(plat->uart_clk, 16 * baudrate) - 2;
 
 	setbits_8(&uart->lcr, LCR_DLAB);
 	writeb(divisor & 0xff, &uart->dll);
@@ -97,29 +100,35 @@ static int npcm_serial_setbrg(struct udevice *dev, int baudrate)
 static int npcm_serial_probe(struct udevice *dev)
 {
 	struct npcm_serial_plat *plat = dev_get_plat(dev);
-	struct npcm_uart *uart = plat->reg;
+	struct npcm_uart *uart;
 	struct clk clk, parent;
 	u32 freq;
 	int ret;
 
 	plat->reg = dev_read_addr_ptr(dev);
-	freq = dev_read_u32_default(dev, "clock-frequency", 0);
+	uart = plat->reg;
 
-	ret = clk_get_by_index(dev, 0, &clk);
-	if (ret < 0)
-		return ret;
+	if (!IS_ENABLED(CONFIG_SYS_SKIP_UART_INIT)) {
+		freq = dev_read_u32_default(dev, "clock-frequency", 24000000);
 
-	ret = clk_get_by_index(dev, 1, &parent);
-	if (!ret) {
-		ret = clk_set_parent(&clk, &parent);
-		if (ret)
+		ret = clk_get_by_index(dev, 0, &clk);
+		if (ret < 0)
 			return ret;
-	}
 
-	ret = clk_set_rate(&clk, freq);
-	if (ret < 0)
-		return ret;
-	plat->uart_clk = ret;
+		ret = clk_get_by_index(dev, 1, &parent);
+		if (!ret) {
+			ret = clk_set_parent(&clk, &parent);
+			if (ret)
+				return ret;
+		}
+
+		if (freq) {
+			ret = clk_set_rate(&clk, freq);
+			if (ret < 0)
+				return ret;
+		}
+		plat->uart_clk = clk_get_rate(&clk);
+	}
 
 	/* Disable all interrupt */
 	writeb(0, &uart->ier);

@@ -174,7 +174,7 @@
 				compatible = "nuvoton,npcm845-usb-phy";
 				#phy-cells = <1>;
 				reg = <3>;
-				resets = <&rstc3 NPCM8XX_RESET_USBPHY3>;
+				resets = <&rstc4 NPCM8XX_RESET_USBPHY3>;
 				status = "disabled";
 			};
 		};
