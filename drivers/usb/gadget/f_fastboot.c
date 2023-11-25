@@ -520,7 +520,7 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		cmdbuf[req->actual] = '\0';
 		cmd = fastboot_handle_command(cmdbuf, response);
 	} else {
-		pr_err("buffer overflow");
+		pr_err("buffer overflow\n");
 		fastboot_fail("buffer overflow", response);
 	}
 
