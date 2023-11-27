@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /**
- * ufs.c - Universal Flash Subsystem (UFS) driver
+ * ufs.c - Universal Flash Storage (UFS) driver
  *
  * Taken from Linux Kernel v5.2 (drivers/scsi/ufs/ufshcd.c) and ported
  * to u-boot.
@@ -320,7 +320,7 @@ static int ufshcd_disable_tx_lcc(struct ufs_hba *hba, bool peer)
 					UIC_ARG_MPHY_TX_GEN_SEL_INDEX(i)),
 					0);
 		if (err) {
-			dev_err(hba->dev, "%s: TX LCC Disable failed, peer = %d, lane = %d, err = %d",
+			dev_err(hba->dev, "%s: TX LCC Disable failed, peer = %d, lane = %d, err = %d\n",
 				__func__, peer, i, err);
 			break;
 		}
@@ -441,7 +441,7 @@ static int ufshcd_make_hba_operational(struct ufs_hba *hba)
 		ufshcd_enable_run_stop_reg(hba);
 	} else {
 		dev_err(hba->dev,
-			"Host controller not ready to process requests");
+			"Host controller not ready to process requests\n");
 		err = -EIO;
 		goto out;
 	}
@@ -930,7 +930,7 @@ static int ufshcd_copy_query_response(struct ufs_hba *hba)
 			memcpy(hba->dev_cmd.query.descriptor, descp, resp_len);
 		} else {
 			dev_warn(hba->dev,
-				 "%s: Response size is bigger than buffer",
+				 "%s: Response size is bigger than buffer\n",
 				 __func__);
 			return -EINVAL;
 		}
@@ -1179,11 +1179,11 @@ static int ufshcd_read_desc_length(struct ufs_hba *hba, enum desc_idn desc_id,
 					    &header_len);
 
 	if (ret) {
-		dev_err(hba->dev, "%s: Failed to get descriptor header id %d",
+		dev_err(hba->dev, "%s: Failed to get descriptor header id %d\n",
 			__func__, desc_id);
 		return ret;
 	} else if (desc_id != header[QUERY_DESC_DESC_TYPE_OFFSET]) {
-		dev_warn(hba->dev, "%s: descriptor header id %d and desc_id %d mismatch",
+		dev_warn(hba->dev, "%s: descriptor header id %d and desc_id %d mismatch\n",
 			 __func__, header[QUERY_DESC_DESC_TYPE_OFFSET],
 			 desc_id);
 		ret = -EINVAL;
@@ -1302,7 +1302,7 @@ int ufshcd_read_desc_param(struct ufs_hba *hba, enum desc_idn desc_id,
 
 	/* Sanity checks */
 	if (ret || !buff_len) {
-		dev_err(hba->dev, "%s: Failed to get full descriptor length",
+		dev_err(hba->dev, "%s: Failed to get full descriptor length\n",
 			__func__);
 		return ret;
 	}
@@ -1323,14 +1323,14 @@ int ufshcd_read_desc_param(struct ufs_hba *hba, enum desc_idn desc_id,
 					    &buff_len);
 
 	if (ret) {
-		dev_err(hba->dev, "%s: Failed reading descriptor. desc_id %d, desc_index %d, param_offset %d, ret %d",
+		dev_err(hba->dev, "%s: Failed reading descriptor. desc_id %d, desc_index %d, param_offset %d, ret %d\n",
 			__func__, desc_id, desc_index, param_offset, ret);
 		goto out;
 	}
 
 	/* Sanity check */
 	if (desc_buf[QUERY_DESC_DESC_TYPE_OFFSET] != desc_id) {
-		dev_err(hba->dev, "%s: invalid desc_id %d in descriptor header",
+		dev_err(hba->dev, "%s: invalid desc_id %d in descriptor header\n",
 			__func__, desc_buf[QUERY_DESC_DESC_TYPE_OFFSET]);
 		ret = -EINVAL;
 		goto out;
@@ -1914,6 +1914,7 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 	struct ufs_hba *hba = dev_get_uclass_priv(ufs_dev);
 	struct scsi_plat *scsi_plat;
 	struct udevice *scsi_dev;
+	void __iomem *mmio_base;
 	int err;
 
 	device_find_first_child(ufs_dev, &scsi_dev);
@@ -1927,7 +1928,14 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 
 	hba->dev = ufs_dev;
 	hba->ops = hba_ops;
-	hba->mmio_base = dev_read_addr_ptr(ufs_dev);
+
+	if (device_is_on_pci_bus(ufs_dev)) {
+		mmio_base = dm_pci_map_bar(ufs_dev, PCI_BASE_ADDRESS_0, 0, 0,
+					   PCI_REGION_TYPE, PCI_REGION_MEM);
+	} else {
+		mmio_base = dev_read_addr_ptr(ufs_dev);
+	}
+	hba->mmio_base = mmio_base;
 
 	/* Set descriptor lengths to specification defaults */
 	ufshcd_def_desc_sizes(hba);
@@ -1945,7 +1953,8 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 	    hba->version != UFSHCI_VERSION_11 &&
 	    hba->version != UFSHCI_VERSION_20 &&
 	    hba->version != UFSHCI_VERSION_21 &&
-	    hba->version != UFSHCI_VERSION_30)
+	    hba->version != UFSHCI_VERSION_30 &&
+	    hba->version != UFSHCI_VERSION_31)
 		dev_err(hba->dev, "invalid UFS version 0x%x\n",
 			hba->version);
 
