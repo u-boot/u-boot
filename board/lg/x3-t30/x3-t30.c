@@ -9,31 +9,8 @@
 
 #include <dm.h>
 #include <fdt_support.h>
-#include <asm/arch/pinmux.h>
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/fuse.h>
-
-#include "pinmux-config-x3.h"
-
-/*
- * Routine: pinmux_init
- * Description: Do individual peripheral pinmux configs
- */
-void pinmux_init(void)
-{
-	pinmux_config_pingrp_table(tegra3_x3_pinmux_common,
-		ARRAY_SIZE(tegra3_x3_pinmux_common));
-
-#ifdef CONFIG_DEVICE_P880
-	pinmux_config_pingrp_table(tegra3_p880_pinmux,
-		ARRAY_SIZE(tegra3_p880_pinmux));
-#endif
-
-#ifdef CONFIG_DEVICE_P895
-	pinmux_config_pingrp_table(tegra3_p895_pinmux,
-		ARRAY_SIZE(tegra3_p895_pinmux));
-#endif
-}
 
 int nvidia_board_init(void)
 {
