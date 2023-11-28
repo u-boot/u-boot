@@ -26,6 +26,7 @@ obj-y += onenand/
 obj-y += spi/
 obj-$(CONFIG_MTD_UBI) += ubi/
 obj-$(CONFIG_NVMXIP) += nvmxip/
+obj-$(CONFIG_BLK) += mtdblock.o
 
 #SPL/TPL build
 else
