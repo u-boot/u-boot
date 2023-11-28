@@ -13,11 +13,7 @@
 #include <asm/armv8/mmu.h>
 
 #ifdef CONFIG_SOC_K3_AM654
-/* NR_DRAM_BANKS + 32bit IO + 64bit IO + terminator */
-#define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 5)
-
-/* ToDo: Add 64bit IO */
-struct mm_region am654_mem_map[NR_MMU_REGIONS] = {
+struct mm_region am654_mem_map[] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
@@ -68,10 +64,7 @@ struct mm_region *mem_map = am654_mem_map;
 #ifdef CONFIG_SOC_K3_J721E
 
 #ifdef CONFIG_SOC_K3_J721E_J7200
-#define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 5)
-
-/* ToDo: Add 64bit IO */
-struct mm_region j7200_mem_map[NR_MMU_REGIONS] = {
+struct mm_region j7200_mem_map[] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
@@ -119,12 +112,7 @@ struct mm_region j7200_mem_map[NR_MMU_REGIONS] = {
 struct mm_region *mem_map = j7200_mem_map;
 
 #else /* CONFIG_SOC_K3_J721E_J7200 */
-
-/* NR_DRAM_BANKS + 32bit IO + 64bit IO + terminator */
-#define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 6)
-
-/* ToDo: Add 64bit IO */
-struct mm_region j721e_mem_map[NR_MMU_REGIONS] = {
+struct mm_region j721e_mem_map[] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
@@ -181,10 +169,7 @@ struct mm_region *mem_map = j721e_mem_map;
 #endif /* CONFIG_SOC_K3_J721E */
 
 #ifdef CONFIG_SOC_K3_J721S2
-#define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 3)
-
-/* ToDo: Add 64bit IO */
-struct mm_region j721s2_mem_map[NR_MMU_REGIONS] = {
+struct mm_region j721s2_mem_map[] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
@@ -223,11 +208,7 @@ struct mm_region *mem_map = j721s2_mem_map;
 
 #if defined(CONFIG_SOC_K3_AM625) || defined(CONFIG_SOC_K3_AM62A7)
 
-/* NR_DRAM_BANKS + 32bit IO + 64bit IO + terminator */
-#define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 4)
-
-/* ToDo: Add 64bit IO */
-struct mm_region am62_mem_map[NR_MMU_REGIONS] = {
+struct mm_region am62_mem_map[] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
@@ -272,11 +253,7 @@ struct mm_region *mem_map = am62_mem_map;
 
 #ifdef CONFIG_SOC_K3_AM642
 
-/* NR_DRAM_BANKS + 32bit IO + 64bit IO + terminator */
-#define NR_MMU_REGIONS	(CONFIG_NR_DRAM_BANKS + 4)
-
-/* ToDo: Add 64bit IO */
-struct mm_region am64_mem_map[NR_MMU_REGIONS] = {
+struct mm_region am64_mem_map[] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
