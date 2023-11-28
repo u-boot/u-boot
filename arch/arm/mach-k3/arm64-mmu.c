@@ -30,13 +30,7 @@ struct mm_region am654_mem_map[] = {
 	}, {
 		.virt = 0xa0000000UL,
 		.phys = 0xa0000000UL,
-		.size = 0x02100000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL_NC) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
-		.virt = 0xa2100000UL,
-		.phys = 0xa2100000UL,
-		.size = 0x5df00000UL,
+		.size = 0x60000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
@@ -81,13 +75,7 @@ struct mm_region j7200_mem_map[] = {
 	}, {
 		.virt = 0xa0000000UL,
 		.phys = 0xa0000000UL,
-		.size = 0x04800000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL_NC) |
-			 PTE_BLOCK_NON_SHARE
-	}, {
-		.virt = 0xa4800000UL,
-		.phys = 0xa4800000UL,
-		.size = 0x5b800000UL,
+		.size = 0x60000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
@@ -129,13 +117,7 @@ struct mm_region j721e_mem_map[] = {
 	}, {
 		.virt = 0xa0000000UL,
 		.phys = 0xa0000000UL,
-		.size = 0x1bc00000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL_NC) |
-			 PTE_BLOCK_NON_SHARE
-	}, {
-		.virt = 0xbbc00000UL,
-		.phys = 0xbbc00000UL,
-		.size = 0x44400000UL,
+		.size = 0x60000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
@@ -151,12 +133,6 @@ struct mm_region j721e_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		.virt = 0x4d80000000UL,
-		.phys = 0x4d80000000UL,
-		.size = 0x0002000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL_NC) |
-			 PTE_BLOCK_INNER_SHARE
 	}, {
 		/* List terminator */
 		0,
