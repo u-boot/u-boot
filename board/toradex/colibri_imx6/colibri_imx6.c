@@ -649,7 +649,8 @@ int checkboard(void)
 	printf("Model: Toradex Colibri iMX6 %s %sMB%s\n",
 	       is_cpu_type(MXC_CPU_MX6DL) ? "DualLite" : "Solo",
 	       (gd->ram_size == 0x20000000) ? "512" : "256", it);
-	return 0;
+
+	return tdx_checkboard();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

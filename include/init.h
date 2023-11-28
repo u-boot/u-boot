@@ -292,6 +292,17 @@ int misc_init_r(void);
 
 /* common/board_info.c */
 int checkboard(void);
+
+/**
+ * show_board_info() - Show board information
+ *
+ * Check sysinfo for board information. Failing that if the root node of the DTB
+ * has a "model" property, show it.
+ *
+ * Then call checkboard().
+ *
+ * Return 0 if OK, -ve on error
+ */
 int show_board_info(void);
 
 /**

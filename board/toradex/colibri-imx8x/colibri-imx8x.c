@@ -121,7 +121,7 @@ int checkboard(void)
 	build_info();
 	print_bootinfo();
 
-	return 0;
+	return tdx_checkboard();
 }
 
 static void select_dt_from_module_version(void)

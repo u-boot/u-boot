@@ -96,7 +96,7 @@ static const char *get_board_assembly(u16 ver_assembly)
 	return ver_name;
 }
 
-int show_board_info(void)
+int tdx_checkboard(void)
 {
 	unsigned char ethaddr[6];
 

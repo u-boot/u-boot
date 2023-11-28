@@ -206,7 +206,7 @@ int checkboard(void)
 {
 	printf("Model: Toradex Colibri iMX6ULL\n");
 
-	return 0;
+	return tdx_checkboard();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

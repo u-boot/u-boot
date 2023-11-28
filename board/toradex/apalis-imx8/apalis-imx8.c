@@ -215,7 +215,7 @@ int checkboard(void)
 	build_info();
 	print_bootinfo();
 
-	return 0;
+	return tdx_checkboard();
 }
 
 static enum pcb_rev_t get_pcb_revision(void)
