@@ -24,26 +24,26 @@ rm-cfg:
                     allowed_priority: 0xAAAA
                     allowed_sched_priority: 0xAA
                 - #2
-                    host_id: 30
+                    host_id: 20
                     allowed_atype: 0x2A
                     allowed_qos: 0xAAAA
                     allowed_orderid: 0xAAAAAAAA
                     allowed_priority: 0xAAAA
                     allowed_sched_priority: 0xAA
                 - #3
-                    host_id: 36
+                    host_id: 30
                     allowed_atype: 0x2A
                     allowed_qos: 0xAAAA
                     allowed_orderid: 0xAAAAAAAA
                     allowed_priority: 0xAAAA
                     allowed_sched_priority: 0xAA
                 - #4
-                    host_id: 0
-                    allowed_atype: 0
-                    allowed_qos: 0
-                    allowed_orderid: 0
-                    allowed_priority: 0
-                    allowed_sched_priority: 0
+                    host_id: 36
+                    allowed_atype: 0x2A
+                    allowed_qos: 0xAAAA
+                    allowed_orderid: 0xAAAAAAAA
+                    allowed_priority: 0xAAAA
+                    allowed_sched_priority: 0xAA
                 - #5
                     host_id: 0
                     allowed_atype: 0
@@ -244,7 +244,7 @@ rm-cfg:
             subhdr:
                 magic: 0x7B25
                 size: 8
-            resasg_entries_size: 1032
+            resasg_entries_size: 1048
             reserved: 0
     resasg_entries:
         -
@@ -323,7 +323,7 @@ rm-cfg:
                 start_resource: 18
                 num_resource: 6
                 type: 1677
-                host_id: 35
+                host_id: 20
                 reserved: 0
         -
                 start_resource: 18
@@ -353,7 +353,7 @@ rm-cfg:
                 start_resource: 72
                 num_resource: 6
                 type: 1678
-                host_id: 35
+                host_id: 20
                 reserved: 0
         -
                 start_resource: 72
@@ -383,7 +383,7 @@ rm-cfg:
                 start_resource: 44
                 num_resource: 6
                 type: 1679
-                host_id: 35
+                host_id: 20
                 reserved: 0
         -
                 start_resource: 44
@@ -413,7 +413,7 @@ rm-cfg:
                 start_resource: 18
                 num_resource: 6
                 type: 1696
-                host_id: 35
+                host_id: 20
                 reserved: 0
         -
                 start_resource: 18
@@ -443,7 +443,7 @@ rm-cfg:
                 start_resource: 18
                 num_resource: 6
                 type: 1697
-                host_id: 35
+                host_id: 20
                 reserved: 0
         -
                 start_resource: 18
@@ -473,7 +473,7 @@ rm-cfg:
                 start_resource: 12
                 num_resource: 6
                 type: 1698
-                host_id: 35
+                host_id: 20
                 reserved: 0
         -
                 start_resource: 12
@@ -495,9 +495,15 @@ rm-cfg:
                 reserved: 0
         -
                 start_resource: 6
-                num_resource: 34
+                num_resource: 26
                 type: 1802
                 host_id: 12
+                reserved: 0
+        -
+                start_resource: 32
+                num_resource: 8
+                type: 1802
+                host_id: 20
                 reserved: 0
         -
                 start_resource: 44
@@ -543,7 +549,13 @@ rm-cfg:
                 reserved: 0
         -
                 start_resource: 910
-                num_resource: 626
+                num_resource: 128
+                type: 1805
+                host_id: 20
+                reserved: 0
+        -
+                start_resource: 1038
+                num_resource: 498
                 type: 1805
                 host_id: 128
                 reserved: 0
