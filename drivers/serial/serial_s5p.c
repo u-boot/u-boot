@@ -7,7 +7,6 @@
  * based on drivers/serial/s3c64xx.c
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -21,32 +20,39 @@
 #include <serial.h>
 #include <clk.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 enum {
 	PORT_S5P = 0,
 	PORT_S5L
 };
 
+#define UFCON_FIFO_EN		BIT(0)
+#define UFCON_RX_FIFO_RESET	BIT(1)
+#define UMCON_RESET_VAL		0x0
+#define ULCON_WORD_8_BIT	0x3
+#define UCON_RX_IRQ_OR_POLLING	BIT(0)
+#define UCON_TX_IRQ_OR_POLLING	BIT(2)
+#define UCON_RX_ERR_IRQ_EN	BIT(6)
+#define UCON_TX_IRQ_LEVEL	BIT(9)
+
 #define S5L_RX_FIFO_COUNT_SHIFT	0
 #define S5L_RX_FIFO_COUNT_MASK	(0xf << S5L_RX_FIFO_COUNT_SHIFT)
-#define S5L_RX_FIFO_FULL	(1 << 8)
+#define S5L_RX_FIFO_FULL	BIT(8)
 #define S5L_TX_FIFO_COUNT_SHIFT	4
 #define S5L_TX_FIFO_COUNT_MASK	(0xf << S5L_TX_FIFO_COUNT_SHIFT)
-#define S5L_TX_FIFO_FULL	(1 << 9)
+#define S5L_TX_FIFO_FULL	BIT(9)
 
 #define S5P_RX_FIFO_COUNT_SHIFT	0
 #define S5P_RX_FIFO_COUNT_MASK	(0xff << S5P_RX_FIFO_COUNT_SHIFT)
-#define S5P_RX_FIFO_FULL	(1 << 8)
+#define S5P_RX_FIFO_FULL	BIT(8)
 #define S5P_TX_FIFO_COUNT_SHIFT	16
 #define S5P_TX_FIFO_COUNT_MASK	(0xff << S5P_TX_FIFO_COUNT_SHIFT)
-#define S5P_TX_FIFO_FULL	(1 << 24)
+#define S5P_TX_FIFO_FULL	BIT(24)
 
 /* Information about a serial port */
 struct s5p_serial_plat {
-	struct s5p_uart *reg;  /* address of registers in physical memory */
-	u8 reg_width;	/* register width */
-	u8 port_id;     /* uart port number */
+	struct s5p_uart *reg;	/* address of registers in physical memory */
+	u8 reg_width;		/* register width */
+	u8 port_id;		/* uart port number */
 	u8 rx_fifo_count_shift;
 	u8 tx_fifo_count_shift;
 	u32 rx_fifo_count_mask;
@@ -59,7 +65,7 @@ struct s5p_serial_plat {
  * The coefficient, used to calculate the baudrate on S5P UARTs is
  * calculated as
  * C = UBRDIV * 16 + number_of_set_bits_in_UDIVSLOT
- * however, section 31.6.11 of the datasheet doesn't recomment using 1 for 1,
+ * however, section 31.6.11 of the datasheet doesn't recommend using 1 for 1,
  * 3 for 2, ... (2^n - 1) for n, instead, they suggest using these constants:
  */
 static const int udivslot[] = {
@@ -83,13 +89,15 @@ static const int udivslot[] = {
 
 static void __maybe_unused s5p_serial_init(struct s5p_uart *uart)
 {
-	/* enable FIFOs, auto clear Rx FIFO */
-	writel(0x3, &uart->ufcon);
-	writel(0, &uart->umcon);
-	/* 8N1 */
-	writel(0x3, &uart->ulcon);
+	/* Enable FIFOs, auto clear Rx FIFO */
+	writel(UFCON_FIFO_EN | UFCON_RX_FIFO_RESET, &uart->ufcon);
+	/* No auto flow control, disable nRTS signal */
+	writel(UMCON_RESET_VAL, &uart->umcon);
+	/* 8N1, no parity bit */
+	writel(ULCON_WORD_8_BIT, &uart->ulcon);
 	/* No interrupts, no DMA, pure polling */
-	writel(0x245, &uart->ucon);
+	writel(UCON_RX_IRQ_OR_POLLING | UCON_TX_IRQ_OR_POLLING |
+	       UCON_RX_ERR_IRQ_EN | UCON_TX_IRQ_LEVEL, &uart->ucon);
 }
 
 static void __maybe_unused s5p_serial_baud(struct s5p_uart *uart, u8 reg_width,
@@ -118,7 +126,7 @@ int s5p_serial_setbrg(struct udevice *dev, int baudrate)
 
 #if IS_ENABLED(CONFIG_CLK_EXYNOS) || IS_ENABLED(CONFIG_ARCH_APPLE)
 	struct clk clk;
-	u32 ret;
+	int ret;
 
 	ret = clk_get_by_index(dev, 1, &clk);
 	if (ret < 0)
@@ -213,16 +221,13 @@ static int s5p_serial_of_to_plat(struct udevice *dev)
 {
 	struct s5p_serial_plat *plat = dev_get_plat(dev);
 	const ulong port_type = dev_get_driver_data(dev);
-	fdt_addr_t addr;
 
-	addr = dev_read_addr(dev);
-	if (addr == FDT_ADDR_T_NONE)
+	plat->reg = dev_read_addr_ptr(dev);
+	if (!plat->reg)
 		return -EINVAL;
 
-	plat->reg = (struct s5p_uart *)addr;
 	plat->reg_width = dev_read_u32_default(dev, "reg-io-width", 1);
-	plat->port_id = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					"id", dev_seq(dev));
+	plat->port_id = dev_read_u8_default(dev, "id", dev_seq(dev));
 
 	if (port_type == PORT_S5L) {
 		plat->rx_fifo_count_shift = S5L_RX_FIFO_COUNT_SHIFT;
@@ -244,10 +249,10 @@ static int s5p_serial_of_to_plat(struct udevice *dev)
 }
 
 static const struct dm_serial_ops s5p_serial_ops = {
-	.putc = s5p_serial_putc,
-	.pending = s5p_serial_pending,
-	.getc = s5p_serial_getc,
-	.setbrg = s5p_serial_setbrg,
+	.putc		= s5p_serial_putc,
+	.pending	= s5p_serial_pending,
+	.getc		= s5p_serial_getc,
+	.setbrg		= s5p_serial_setbrg,
 };
 
 static const struct udevice_id s5p_serial_ids[] = {
@@ -257,13 +262,13 @@ static const struct udevice_id s5p_serial_ids[] = {
 };
 
 U_BOOT_DRIVER(serial_s5p) = {
-	.name	= "serial_s5p",
-	.id	= UCLASS_SERIAL,
-	.of_match = s5p_serial_ids,
-	.of_to_plat = s5p_serial_of_to_plat,
+	.name		= "serial_s5p",
+	.id		= UCLASS_SERIAL,
+	.of_match	= s5p_serial_ids,
+	.of_to_plat	= s5p_serial_of_to_plat,
 	.plat_auto	= sizeof(struct s5p_serial_plat),
-	.probe = s5p_serial_probe,
-	.ops	= &s5p_serial_ops,
+	.probe		= s5p_serial_probe,
+	.ops		= &s5p_serial_ops,
 };
 #endif
 
@@ -291,10 +296,12 @@ static inline void _debug_uart_putc(int ch)
 	struct s5p_uart *uart = (struct s5p_uart *)CONFIG_VAL(DEBUG_UART_BASE);
 
 #if IS_ENABLED(CONFIG_ARCH_APPLE)
-	while (readl(&uart->ufstat) & S5L_TX_FIFO_FULL);
+	while (readl(&uart->ufstat) & S5L_TX_FIFO_FULL)
+		;
 	writel(ch, &uart->utxh);
 #else
-	while (readl(&uart->ufstat) & S5P_TX_FIFO_FULL);
+	while (readl(&uart->ufstat) & S5P_TX_FIFO_FULL)
+		;
 	writeb(ch, &uart->utxh);
 #endif
 }
