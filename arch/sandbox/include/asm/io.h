@@ -28,20 +28,6 @@ void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags);
 void unmap_physmem(const void *vaddr, unsigned long flags);
 #define unmap_physmem unmap_physmem
 
-#include <asm-generic/io.h>
-
-/* For sandbox, we want addresses to point into our RAM buffer */
-static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
-{
-	return map_physmem(paddr, len, MAP_WRBACK);
-}
-
-/* Remove a previous mapping */
-static inline void unmap_sysmem(const void *vaddr)
-{
-	unmap_physmem(vaddr, MAP_WRBACK);
-}
-
 /* Map from a pointer to our RAM buffer */
 phys_addr_t map_to_sysmem(const void *ptr);
 
@@ -229,5 +215,19 @@ static inline void memcpy_toio(volatile void *dst, const void *src, int count)
 
 #include <iotrace.h>
 #include <asm/types.h>
+#include <asm-generic/io.h>
+
+/* For sandbox, we want addresses to point into our RAM buffer */
+static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
+{
+	return map_physmem(paddr, len, MAP_WRBACK);
+}
+
+/* Remove a previous mapping */
+static inline void unmap_sysmem(const void *vaddr)
+{
+	unmap_physmem(vaddr, MAP_WRBACK);
+}
+
 
 #endif
