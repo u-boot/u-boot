@@ -18,12 +18,17 @@
 #include <fs.h>
 #include <log.h>
 #include <asm/byteorder.h>
+#include <asm/unaligned.h>
 #include <part.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <asm/cache.h>
 #include <linux/compiler.h>
 #include <linux/ctype.h>
+#include <linux/log2.h>
+
+/* maximum number of clusters for FAT12 */
+#define MAX_FAT12	0xFF4
 
 /*
  * Convert a string to lowercase.  Converts at most 'len' characters,
@@ -484,6 +489,73 @@ static __u8 mkcksum(struct nameext *nameext)
 }
 
 /*
+ * Determine if the FAT type is FAT12 or FAT16
+ *
+ * Based on fat_fill_super() from the Linux kernel's fs/fat/inode.c
+ */
+static int determine_legacy_fat_bits(const boot_sector *bs)
+{
+	u16 fat_start = bs->reserved;
+	u32 dir_start = fat_start + bs->fats * bs->fat_length;
+	u32 rootdir_sectors = get_unaligned_le16(bs->dir_entries) *
+			      sizeof(dir_entry) /
+			      get_unaligned_le16(bs->sector_size);
+	u32 data_start = dir_start + rootdir_sectors;
+	u16 sectors = get_unaligned_le16(bs->sectors);
+	u32 total_sectors = sectors ? sectors : bs->total_sect;
+	u32 total_clusters = (total_sectors - data_start) /
+			     bs->cluster_size;
+
+	return (total_clusters > MAX_FAT12) ? 16 : 12;
+}
+
+/*
+ * Determines if the boot sector's media field is valid
+ *
+ * Based on fat_valid_media() from Linux kernel's include/linux/msdos_fs.h
+ */
+static int fat_valid_media(u8 media)
+{
+	return media >= 0xf8 || media == 0xf0;
+}
+
+/*
+ * Determines if the given boot sector is valid
+ *
+ * Based on fat_read_bpb() from the Linux kernel's fs/fat/inode.c
+ */
+static int is_bootsector_valid(const boot_sector *bs)
+{
+	u16 sector_size = get_unaligned_le16(bs->sector_size);
+	u16 dir_per_block = sector_size / sizeof(dir_entry);
+
+	if (!bs->reserved)
+		return 0;
+
+	if (!bs->fats)
+		return 0;
+
+	if (!fat_valid_media(bs->media))
+		return 0;
+
+	if (!is_power_of_2(sector_size) ||
+	    sector_size < 512 ||
+	    sector_size > 4096)
+		return 0;
+
+	if (!is_power_of_2(bs->cluster_size))
+		return 0;
+
+	if (!bs->fat_length && !bs->fat32_length)
+		return 0;
+
+	if (get_unaligned_le16(bs->dir_entries) & (dir_per_block - 1))
+		return 0;
+
+	return 1;
+}
+
+/*
  * Read boot sector and volume info from a FAT filesystem
  */
 static int
@@ -506,7 +578,8 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 
 	if (disk_read(0, 1, block) < 0) {
 		debug("Error: reading block\n");
-		goto fail;
+		ret = -1;
+		goto out_free;
 	}
 
 	memcpy(bs, block, sizeof(boot_sector));
@@ -516,8 +589,14 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 	bs->heads = FAT2CPU16(bs->heads);
 	bs->total_sect = FAT2CPU32(bs->total_sect);
 
+	if (!is_bootsector_valid(bs)) {
+		debug("Error: bootsector is invalid\n");
+		ret = -1;
+		goto out_free;
+	}
+
 	/* FAT32 entries */
-	if (bs->fat_length == 0) {
+	if (!bs->fat_length && bs->fat32_length) {
 		/* Assume FAT32 */
 		bs->fat32_length = FAT2CPU32(bs->fat32_length);
 		bs->flags = FAT2CPU16(bs->flags);
@@ -528,28 +607,11 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 		*fatsize = 32;
 	} else {
 		vistart = (volume_info *)&(bs->fat32_length);
-		*fatsize = 0;
+		*fatsize = determine_legacy_fat_bits(bs);
 	}
 	memcpy(volinfo, vistart, sizeof(volume_info));
 
-	if (*fatsize == 32) {
-		if (strncmp(FAT32_SIGN, vistart->fs_type, SIGNLEN) == 0)
-			goto exit;
-	} else {
-		if (strncmp(FAT12_SIGN, vistart->fs_type, SIGNLEN) == 0) {
-			*fatsize = 12;
-			goto exit;
-		}
-		if (strncmp(FAT16_SIGN, vistart->fs_type, SIGNLEN) == 0) {
-			*fatsize = 16;
-			goto exit;
-		}
-	}
-
-	debug("Error: broken fs_type sign\n");
-fail:
-	ret = -1;
-exit:
+out_free:
 	free(block);
 	return ret;
 }
@@ -571,7 +633,7 @@ static int get_fs_info(fsdata *mydata)
 		mydata->total_sect = bs.total_sect;
 	} else {
 		mydata->fatlength = bs.fat_length;
-		mydata->total_sect = (bs.sectors[1] << 8) + bs.sectors[0];
+		mydata->total_sect = get_unaligned_le16(bs.sectors);
 		if (!mydata->total_sect)
 			mydata->total_sect = bs.total_sect;
 	}
@@ -583,7 +645,7 @@ static int get_fs_info(fsdata *mydata)
 
 	mydata->rootdir_sect = mydata->fat_sect + mydata->fatlength * bs.fats;
 
-	mydata->sect_size = (bs.sector_size[1] << 8) + bs.sector_size[0];
+	mydata->sect_size = get_unaligned_le16(bs.sector_size);
 	mydata->clust_size = bs.cluster_size;
 	if (mydata->sect_size != cur_part_info.blksz) {
 		log_err("FAT sector size mismatch (fs=%u, dev=%lu)\n",
@@ -607,8 +669,7 @@ static int get_fs_info(fsdata *mydata)
 					(mydata->clust_size * 2);
 		mydata->root_cluster = bs.root_cluster;
 	} else {
-		mydata->rootdir_size = ((bs.dir_entries[1]  * (int)256 +
-					 bs.dir_entries[0]) *
+		mydata->rootdir_size = (get_unaligned_le16(bs.dir_entries) *
 					 sizeof(dir_entry)) /
 					 mydata->sect_size;
 		mydata->data_begin = mydata->rootdir_sect +
@@ -1157,9 +1218,8 @@ int file_fat_detectfs(void)
 
 	memcpy(vol_label, volinfo.volume_label, 11);
 	vol_label[11] = '\0';
-	volinfo.fs_type[5] = '\0';
 
-	printf("Filesystem: %s \"%s\"\n", volinfo.fs_type, vol_label);
+	printf("Filesystem: FAT%d \"%s\"\n", fatsize, vol_label);
 
 	return 0;
 }
