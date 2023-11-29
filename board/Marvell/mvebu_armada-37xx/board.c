@@ -363,18 +363,14 @@ EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, struct bd_info *bd)
+static int espressobin_fdt_setup(void *blob)
 {
-#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 	int ret;
 	int spi_off;
 	int parts_off;
 	int part_off;
 
 	/* Fill SPI MTD partitions for Linux kernel on Espressobin */
-	if (!of_machine_is_compatible("globalscale,espressobin"))
-		return 0;
-
 	spi_off = fdt_node_offset_by_compatible(blob, -1, "jedec,spi-nor");
 	if (spi_off < 0)
 		return 0;
@@ -459,6 +455,14 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		return 0;
 	}
 
+	return 0;
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+	if (of_machine_is_compatible("globalscale,espressobin"))
+		return espressobin_fdt_setup(blob);
 #endif
 	return 0;
 }
