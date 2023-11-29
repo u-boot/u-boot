@@ -6,7 +6,6 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <ns16550.h>

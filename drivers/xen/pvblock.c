@@ -632,7 +632,8 @@ static ulong pvblock_iop(struct udevice *udev, lbaint_t blknr,
 			memcpy(blk_dev->bounce_buffer, buffer, desc->blksz);
 
 		aiocb.aio_nbytes = unaligned ? desc->blksz :
-			min((size_t)(BLKIF_MAX_SEGMENTS_PER_REQUEST * PAGE_SIZE),
+			min((size_t)((BLKIF_MAX_SEGMENTS_PER_REQUEST - 1)
+					* PAGE_SIZE),
 			    (size_t)(blocks_todo * desc->blksz));
 
 		blkfront_io(&aiocb, write);
