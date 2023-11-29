@@ -841,7 +841,7 @@ static int optee_probe(struct udevice *dev)
 	if (IS_ENABLED(CONFIG_OPTEE_SERVICE_DISCOVERY)) {
 		ret = bind_service_drivers(dev);
 		if (ret)
-			return ret;
+			dev_warn(dev, "optee service enumeration failed: %d\n", ret);
 	} else if (IS_ENABLED(CONFIG_RNG_OPTEE)) {
 		/*
 		 * Discovery of TAs on the TEE bus is not supported in U-Boot:
