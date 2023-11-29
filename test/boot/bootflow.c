@@ -1095,6 +1095,10 @@ static int bootflow_cmdline(struct unit_test_state *uts)
 	ut_asserteq(0, run_command("bootflow cmdline get mary", 0));
 	ut_assert_nextline_empty();
 
+	ut_asserteq(0, run_command("bootflow cmdline set mary abc", 0));
+	ut_asserteq(0, run_command("bootflow cmdline set mary", 0));
+	ut_assert_nextline_empty();
+
 	ut_assert_console_end();
 
 	return 0;
