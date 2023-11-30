@@ -528,7 +528,10 @@ struct efi_device_path *eficonfig_create_device_path(struct efi_device_path *dp_
 	p += fp_size;
 	*((struct efi_device_path *)p) = END;
 
-	dp = efi_dp_append(dp_volume, (struct efi_device_path *)buf);
+	dp = efi_dp_shorten(dp_volume);
+	if (!dp)
+		dp = dp_volume;
+	dp = efi_dp_append(dp, &fp->dp);
 	free(buf);
 
 	return dp;

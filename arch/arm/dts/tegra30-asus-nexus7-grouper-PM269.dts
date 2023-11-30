@@ -36,6 +36,7 @@
 					regulator-name = "vdd_emmc_core";
 					regulator-min-microvolt = <3300000>;
 					regulator-max-microvolt = <3300000>;
+					regulator-boot-on;
 				};
 			};
 		};

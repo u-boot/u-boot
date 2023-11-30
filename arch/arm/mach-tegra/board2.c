@@ -11,6 +11,7 @@
 #include <init.h>
 #include <log.h>
 #include <ns16550.h>
+#include <power/regulator.h>
 #include <usb.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -185,6 +186,10 @@ int board_init(void)
 	/* prepare the WB code to LP0 location */
 	warmboot_prepare_code(TEGRA_LP0_ADDR, TEGRA_LP0_SIZE);
 #endif
+
+	/* Set up boot-on regulators */
+	regulators_enable_boot_on(_DEBUG);
+
 	return nvidia_board_init();
 }
 

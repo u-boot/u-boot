@@ -110,6 +110,7 @@
 					regulator-name = "vdd_ddr_rx";
 					regulator-min-microvolt = <2850000>;
 					regulator-max-microvolt = <2850000>;
+					regulator-boot-on;
 				};
 			};
 		};
@@ -150,6 +151,14 @@
 	micro_usb: usb@7d000000 {
 		status = "okay";
 		dr_mode = "otg";
+	};
+
+	usb-phy@7d000000 {
+		status = "okay";
+		nvidia,hssync-start-delay = <0>;
+		nvidia,xcvr-lsfslew = <2>;
+		nvidia,xcvr-lsrslew = <2>;
+		vbus-supply = <&avdd_3v3_periph>;
 	};
 
 	/* PMIC has a built-in 32KHz oscillator which is used by PMC */

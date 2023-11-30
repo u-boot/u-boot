@@ -427,7 +427,7 @@ int i2c_get_chip_by_phandle(const struct udevice *parent, const char *prop_name,
 		goto err_exit;
 	}
 
-	ret = dev_read_u32(parent, "i2cbcdev", &phandle);
+	ret = dev_read_u32(parent, prop_name, &phandle);
 	if (ret)
 		goto err_exit;
 

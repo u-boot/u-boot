@@ -13,6 +13,7 @@
 #include <cpu_func.h>
 #include <net.h>
 #include <malloc.h>
+#include <wait_bit.h>
 #include <asm/byteorder.h>
 #include <asm/cache.h>
 #include <linux/delay.h>
@@ -354,12 +355,49 @@ static int ci_ep_enable(struct usb_ep *ep,
 	return 0;
 }
 
+static int ep_disable(int num, int in)
+{
+	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
+	unsigned int ep_bit, enable_bit;
+	int err;
+
+	if (in) {
+		ep_bit = EPT_TX(num);
+		enable_bit = CTRL_TXE;
+	} else {
+		ep_bit = EPT_RX(num);
+		enable_bit = CTRL_RXE;
+	}
+
+	/* clear primed buffers */
+	do {
+		writel(ep_bit, &udc->epflush);
+		err = wait_for_bit_le32(&udc->epflush, ep_bit, false, 1000, false);
+		if (err)
+			return err;
+	} while (readl(&udc->epstat) & ep_bit);
+
+	/* clear enable bit */
+	clrbits_le32(&udc->epctrl[num], enable_bit);
+
+	return 0;
+}
+
 static int ci_ep_disable(struct usb_ep *ep)
 {
 	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
+	int num, in, err;
+
+	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+	in = (ci_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
+
+	err = ep_disable(num, in);
+	if (err)
+		return err;
 
 	ci_ep->desc = NULL;
 	ep->desc = NULL;
+	ci_ep->req_primed = false;
 	return 0;
 }
 

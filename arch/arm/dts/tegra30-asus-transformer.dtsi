@@ -82,6 +82,7 @@
 					regulator-name = "vdd_emmc_core";
 					regulator-min-microvolt = <3300000>;
 					regulator-max-microvolt = <3300000>;
+					regulator-boot-on;
 				};
 
 				/* uSD slot VDD */
@@ -89,6 +90,7 @@
 					regulator-name = "vdd_usd";
 					regulator-min-microvolt = <3100000>;
 					regulator-max-microvolt = <3100000>;
+					regulator-boot-on;
 				};
 
 				/* uSD slot VDDIO */
@@ -127,6 +129,13 @@
 	usb1: usb@7d000000 {
 		status = "okay";
 		dr_mode = "otg";
+	};
+
+	usb-phy@7d000000 {
+		status = "okay";
+		nvidia,hssync-start-delay = <0>;
+		nvidia,xcvr-lsfslew = <2>;
+		nvidia,xcvr-lsrslew = <2>;
 	};
 
 	/* Dock's USB port */

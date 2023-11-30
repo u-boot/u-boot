@@ -81,6 +81,7 @@
 					regulator-name = "avdd_dsi_csi";
 					regulator-min-microvolt = <1200000>;
 					regulator-max-microvolt = <1200000>;
+					regulator-boot-on;
 				};
 			};
 		};
@@ -98,6 +99,13 @@
 	micro_usb: usb@7d000000 {
 		status = "okay";
 		dr_mode = "otg";
+	};
+
+	usb-phy@7d000000 {
+		status = "okay";
+		nvidia,hssync-start-delay = <0>;
+		nvidia,xcvr-lsfslew = <2>;
+		nvidia,xcvr-lsrslew = <2>;
 	};
 
 	backlight: backlight {
