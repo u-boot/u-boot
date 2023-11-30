@@ -21,6 +21,13 @@ const struct samsung_pin_bank_type bank_type_alive = {
 	.reg_offset = { 0x00, 0x04, 0x08, 0x0c, },
 };
 
+static const char * const exynos_pinctrl_props[PINCFG_TYPE_NUM] = {
+	[PINCFG_TYPE_FUNC]	= "samsung,pin-function",
+	[PINCFG_TYPE_DAT]	= "samsung,pin-val",
+	[PINCFG_TYPE_PUD]	= "samsung,pin-pud",
+	[PINCFG_TYPE_DRV]	= "samsung,pin-drv",
+};
+
 /**
  * exynos_pinctrl_setup_peri: setup pinctrl for a peripheral.
  * conf: soc specific pin configuration data array
@@ -114,7 +121,7 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(config);
 	unsigned int count, idx, pin_num;
-	unsigned int pinfunc, pinpud, pindrv;
+	unsigned int pinvals[PINCFG_TYPE_NUM];
 	unsigned long reg;
 	const char *name;
 
@@ -126,13 +133,16 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	if (count <= 0)
 		return -EINVAL;
 
-	pinfunc = fdtdec_get_int(fdt, node, "samsung,pin-function", -1);
-	pinpud = fdtdec_get_int(fdt, node, "samsung,pin-pud", -1);
-	pindrv = fdtdec_get_int(fdt, node, "samsung,pin-drv", -1);
+	for (idx = 0; idx < PINCFG_TYPE_NUM; ++idx) {
+		pinvals[idx] = fdtdec_get_int(fdt, node,
+					      exynos_pinctrl_props[idx], -1);
+	}
+	pinvals[PINCFG_TYPE_DAT] = -1; /* ignore GPIO data register */
 
 	for (idx = 0; idx < count; idx++) {
 		const struct samsung_pin_bank_data *bank;
 		char bank_name[10];
+		int pincfg;
 
 		name = fdt_stringlist_get(fdt, node, "samsung,pins", idx, NULL);
 		if (!name)
@@ -141,19 +151,12 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 		bank = get_bank(dev, bank_name);
 		reg = priv->base + bank->offset;
 
-		if (pinfunc != -1) {
-			exynos_pinctrl_set_pincfg(reg, pin_num, pinfunc,
-						  PINCFG_TYPE_FUNC, bank->type);
-		}
+		for (pincfg = 0; pincfg < PINCFG_TYPE_NUM; ++pincfg) {
+			unsigned int val = pinvals[pincfg];
 
-		if (pinpud != -1) {
-			exynos_pinctrl_set_pincfg(reg, pin_num, pinpud,
-						  PINCFG_TYPE_PUD, bank->type);
-		}
-
-		if (pindrv != -1) {
-			exynos_pinctrl_set_pincfg(reg, pin_num, pindrv,
-						  PINCFG_TYPE_DRV, bank->type);
+			if (val != -1)
+				exynos_pinctrl_set_pincfg(reg, pin_num, val,
+							  pincfg, bank->type);
 		}
 	}
 
