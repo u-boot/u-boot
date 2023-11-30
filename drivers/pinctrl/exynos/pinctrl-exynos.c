@@ -9,11 +9,8 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include "pinctrl-exynos.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* CON, DAT, PUD, DRV */
 const struct samsung_pin_bank_type bank_type_alive = {
@@ -118,8 +115,6 @@ static void exynos_pinctrl_set_pincfg(unsigned long reg_base, u32 pin_num,
 int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	struct exynos_pinctrl_priv *priv = dev_get_priv(dev);
-	const void *fdt = gd->fdt_blob;
-	int node = dev_of_offset(config);
 	unsigned int count, idx;
 	unsigned int pinvals[PINCFG_TYPE_NUM];
 
@@ -127,13 +122,13 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	 * refer to the following document for the pinctrl bindings
 	 * linux/Documentation/devicetree/bindings/pinctrl/samsung-pinctrl.txt
 	 */
-	count = fdt_stringlist_count(fdt, node, "samsung,pins");
+	count = dev_read_string_count(config, "samsung,pins");
 	if (count <= 0)
 		return -EINVAL;
 
 	for (idx = 0; idx < PINCFG_TYPE_NUM; ++idx) {
-		pinvals[idx] = fdtdec_get_int(fdt, node,
-					      exynos_pinctrl_props[idx], -1);
+		pinvals[idx] = dev_read_u32_default(config,
+						exynos_pinctrl_props[idx], -1);
 	}
 	pinvals[PINCFG_TYPE_DAT] = -1; /* ignore GPIO data register */
 
@@ -142,12 +137,13 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 		unsigned int pin_num;
 		char bank_name[10];
 		unsigned long reg;
-		const char *name;
-		int pincfg;
+		const char *name = NULL;
+		int pincfg, err;
 
-		name = fdt_stringlist_get(fdt, node, "samsung,pins", idx, NULL);
-		if (!name)
+		err = dev_read_string_index(config, "samsung,pins", idx, &name);
+		if (err || !name)
 			continue;
+
 		parse_pin(name, &pin_num, bank_name);
 		bank = get_bank(dev, bank_name);
 		reg = priv->base + bank->offset;
