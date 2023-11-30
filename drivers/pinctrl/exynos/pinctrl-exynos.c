@@ -15,6 +15,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* CON, DAT, PUD, DRV */
+const struct samsung_pin_bank_type bank_type_alive = {
+	.fld_width = { 4, 1, 2, 2, },
+	.reg_offset = { 0x00, 0x04, 0x08, 0x0c, },
+};
+
 /**
  * exynos_pinctrl_setup_peri: setup pinctrl for a peripheral.
  * conf: soc specific pin configuration data array
@@ -81,6 +87,22 @@ static const struct samsung_pin_bank_data *get_bank(struct udevice *dev,
 	return NULL;
 }
 
+static void exynos_pinctrl_set_pincfg(unsigned long reg_base, u32 pin_num,
+				      u32 val, enum pincfg_type pincfg,
+				      const struct samsung_pin_bank_type *type)
+{
+	u32 width = type->fld_width[pincfg];
+	u32 reg_offset = type->reg_offset[pincfg];
+	u32 mask = (1 << width) - 1;
+	u32 shift = pin_num * width;
+	u32 data;
+
+	data = readl(reg_base + reg_offset);
+	data &= ~(mask << shift);
+	data |= val << shift;
+	writel(data, reg_base + reg_offset);
+}
+
 /**
  * exynos_pinctrl_set_state: configure a pin state.
  * dev: the pinctrl device to be configured.
@@ -93,7 +115,7 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	int node = dev_of_offset(config);
 	unsigned int count, idx, pin_num;
 	unsigned int pinfunc, pinpud, pindrv;
-	unsigned long reg, value;
+	unsigned long reg;
 	const char *name;
 
 	/*
@@ -120,24 +142,18 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 		reg = priv->base + bank->offset;
 
 		if (pinfunc != -1) {
-			value = readl(reg + PIN_CON);
-			value &= ~(0xf << (pin_num << 2));
-			value |= (pinfunc << (pin_num << 2));
-			writel(value, reg + PIN_CON);
+			exynos_pinctrl_set_pincfg(reg, pin_num, pinfunc,
+						  PINCFG_TYPE_FUNC, bank->type);
 		}
 
 		if (pinpud != -1) {
-			value = readl(reg + PIN_PUD);
-			value &= ~(0x3 << (pin_num << 1));
-			value |= (pinpud << (pin_num << 1));
-			writel(value, reg + PIN_PUD);
+			exynos_pinctrl_set_pincfg(reg, pin_num, pinpud,
+						  PINCFG_TYPE_PUD, bank->type);
 		}
 
 		if (pindrv != -1) {
-			value = readl(reg + PIN_DRV);
-			value &= ~(0x3 << (pin_num << 1));
-			value |= (pindrv << (pin_num << 1));
-			writel(value, reg + PIN_DRV);
+			exynos_pinctrl_set_pincfg(reg, pin_num, pindrv,
+						  PINCFG_TYPE_DRV, bank->type);
 		}
 	}
 
