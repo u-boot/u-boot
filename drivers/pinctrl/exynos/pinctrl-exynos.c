@@ -50,17 +50,14 @@ static void parse_pin(const char *pin_name, u32 *pin, char *bank_name)
 	*pin = pin_name[++idx] - '0';
 }
 
-/* given a pin-name, return the address of pin config registers */
-static unsigned long pin_to_bank_base(struct udevice *dev, const char *pin_name,
-						u32 *pin)
+/* given a bank name, find out the pin bank structure */
+static const struct samsung_pin_bank_data *get_bank(struct udevice *dev,
+						    const char *bank_name)
 {
 	struct exynos_pinctrl_priv *priv = dev_get_priv(dev);
 	const struct samsung_pin_ctrl *pin_ctrl_array = priv->pin_ctrl;
 	const struct samsung_pin_bank_data *bank_data;
-	u32 nr_banks, pin_ctrl_idx = 0, idx = 0, bank_base;
-	char bank[10];
-
-	parse_pin(pin_name, pin, bank);
+	u32 nr_banks, pin_ctrl_idx = 0, idx = 0;
 
 	/* lookup the pin bank data using the pin bank name */
 	while (true) {
@@ -75,15 +72,13 @@ static unsigned long pin_to_bank_base(struct udevice *dev, const char *pin_name,
 		for (idx = 0; idx < nr_banks; idx++) {
 			debug("pinctrl[%d] bank_data[%d] name is: %s\n",
 					pin_ctrl_idx, idx, bank_data[idx].name);
-			if (!strcmp(bank, bank_data[idx].name)) {
-				bank_base = priv->base + bank_data[idx].offset;
-				break;
-			}
+			if (!strcmp(bank_name, bank_data[idx].name))
+				return &bank_data[idx];
 		}
 		pin_ctrl_idx++;
 	}
 
-	return bank_base;
+	return NULL;
 }
 
 /**
@@ -93,6 +88,7 @@ static unsigned long pin_to_bank_base(struct udevice *dev, const char *pin_name,
  */
 int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
+	struct exynos_pinctrl_priv *priv = dev_get_priv(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(config);
 	unsigned int count, idx, pin_num;
@@ -113,10 +109,15 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	pindrv = fdtdec_get_int(fdt, node, "samsung,pin-drv", -1);
 
 	for (idx = 0; idx < count; idx++) {
+		const struct samsung_pin_bank_data *bank;
+		char bank_name[10];
+
 		name = fdt_stringlist_get(fdt, node, "samsung,pins", idx, NULL);
 		if (!name)
 			continue;
-		reg = pin_to_bank_base(dev, name, &pin_num);
+		parse_pin(name, &pin_num, bank_name);
+		bank = get_bank(dev, bank_name);
+		reg = priv->base + bank->offset;
 
 		if (pinfunc != -1) {
 			value = readl(reg + PIN_CON);
