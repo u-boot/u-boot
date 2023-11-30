@@ -27,7 +27,7 @@ struct samsung_pin_bank_data {
 
 #define EXYNOS_PIN_BANK(pins, reg, id)			\
 	{						\
-		.offset	= reg,				\
+		.offset		= reg,			\
 		.nr_pins	= pins,			\
 		.name		= id			\
 	}

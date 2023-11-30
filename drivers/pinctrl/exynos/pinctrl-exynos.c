@@ -57,7 +57,8 @@ static unsigned long pin_to_bank_base(struct udevice *dev, const char *pin_name,
 
 	/* lookup the pin bank data using the pin bank name */
 	while (true) {
-		const struct samsung_pin_ctrl *pin_ctrl = &pin_ctrl_array[pin_ctrl_idx];
+		const struct samsung_pin_ctrl *pin_ctrl =
+			&pin_ctrl_array[pin_ctrl_idx];
 
 		nr_banks = pin_ctrl->nr_banks;
 		if (!nr_banks)
