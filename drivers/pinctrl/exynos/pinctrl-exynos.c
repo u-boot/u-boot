@@ -120,10 +120,8 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	struct exynos_pinctrl_priv *priv = dev_get_priv(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(config);
-	unsigned int count, idx, pin_num;
+	unsigned int count, idx;
 	unsigned int pinvals[PINCFG_TYPE_NUM];
-	unsigned long reg;
-	const char *name;
 
 	/*
 	 * refer to the following document for the pinctrl bindings
@@ -141,7 +139,10 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 
 	for (idx = 0; idx < count; idx++) {
 		const struct samsung_pin_bank_data *bank;
+		unsigned int pin_num;
 		char bank_name[10];
+		unsigned long reg;
+		const char *name;
 		int pincfg;
 
 		name = fdt_stringlist_get(fdt, node, "samsung,pins", idx, NULL);
