@@ -34,6 +34,22 @@ void exynos_pinctrl_setup_peri(struct exynos_pinctrl_config_data *conf,
 	}
 }
 
+static void parse_pin(const char *pin_name, u32 *pin, char *bank_name)
+{
+	u32 idx = 0;
+
+	/*
+	 * The format of the pin name is <bank_name name>-<pin_number>.
+	 * Example: gpa0-4 (gpa0 is the bank_name name and 4 is the pin number.
+	 */
+	while (pin_name[idx] != '-') {
+		bank_name[idx] = pin_name[idx];
+		idx++;
+	}
+	bank_name[idx] = '\0';
+	*pin = pin_name[++idx] - '0';
+}
+
 /* given a pin-name, return the address of pin config registers */
 static unsigned long pin_to_bank_base(struct udevice *dev, const char *pin_name,
 						u32 *pin)
@@ -44,16 +60,7 @@ static unsigned long pin_to_bank_base(struct udevice *dev, const char *pin_name,
 	u32 nr_banks, pin_ctrl_idx = 0, idx = 0, bank_base;
 	char bank[10];
 
-	/*
-	 * The format of the pin name is <bank name>-<pin_number>.
-	 * Example: gpa0-4 (gpa0 is the bank name and 4 is the pin number.
-	 */
-	while (pin_name[idx] != '-') {
-		bank[idx] = pin_name[idx];
-		idx++;
-	}
-	bank[idx] = '\0';
-	*pin = pin_name[++idx] - '0';
+	parse_pin(pin_name, pin, bank);
 
 	/* lookup the pin bank data using the pin bank name */
 	while (true) {
