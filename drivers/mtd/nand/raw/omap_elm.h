@@ -74,12 +74,6 @@ int elm_check_error(u8 *syndrome, enum bch_level bch_type, u32 *error_count,
 		u32 *error_locations);
 int elm_config(enum bch_level level);
 void elm_reset(void);
-#ifdef ELM_BASE
 void elm_init(void);
-#else
-static inline void elm_init(void)
-{
-}
-#endif
 #endif /* __ASSEMBLY__ */
 #endif /* __ASM_ARCH_ELM_H */
