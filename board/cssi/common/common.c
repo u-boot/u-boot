@@ -208,12 +208,44 @@ void misc_init_r_common(void)
 	}
 }
 
+static void iop_setup_fpgam_common(void)
+{
+	u8 far_id = in_8(ADDR_FPGA_R_BASE + 0x43) >> 5;
+
+	if (far_id == FAR_CASRSA) {
+		/*
+		 * PFDIR[15]  = 0 [0x01]
+		 * PFDIR[14]  = 1 [0x02]
+		 * PFDIR[13]  = 1 [0x04]
+		 */
+		clrsetbits_8(ADDR_FPGA_R_BASE + 0x37, 0x01, 0x06);
+		/*
+		 * PFODR[15]  = 1 [0x01]
+		 * PFODR[14]  = 0 [0x02]
+		 * PFODR[13]  = 0 [0x04]
+		 */
+		clrsetbits_8(ADDR_FPGA_R_BASE + 0x39, 0x06, 0x01);
+		/*
+		 * PFDAT[15]  = 0 [0x01]
+		 * PFDAT[14]  = 1 [0x02]
+		 * PFDAT[13]  = 1 [0x04]
+		 * PFDAT[12]  = 1 [0x08]
+		 */
+		clrsetbits_8(ADDR_FPGA_R_BASE + 0x3B, 0x01, 0x0E);
+
+		/* Setup TOR_OUT */
+		out_8(ADDR_FPGA_R_BASE + 0x32, 0x2A);
+	}
+}
+
 void iop_setup_common(void)
 {
 	u8 type = in_8(ADDR_FPGA_R_BASE);
 
-	if (type == TYPE_MCR)
+	if (type == TYPE_MCR) {
 		iop_setup_mcr();
-	else if (type == TYPE_MIAE)
+	} else if (type == TYPE_MIAE) {
 		iop_setup_miae();
+		iop_setup_fpgam_common();
+	}
 }
