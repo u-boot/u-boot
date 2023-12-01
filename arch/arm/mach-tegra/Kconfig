@@ -61,7 +61,6 @@ config TEGRA_COMMON
 	select OF_CONTROL
 	select SPI
 	select SYSRESET
-	select SPL_SYSRESET if SPL
 	select SYSRESET_TEGRA
 	imply CMD_DM
 	imply CRC32_VERIFY
@@ -78,7 +77,9 @@ config TEGRA_ARMV7_COMMON
 	select CPU_V7A
 	select SPL
 	select SPL_BOARD_INIT if SPL
+	select SPL_DM if SPL
 	select SPL_SKIP_LOWLEVEL_INIT_ONLY if SPL
+	select SPL_SYSRESET if SPL
 	select SUPPORT_SPL
 	select TIMER
 	select TEGRA_CLKRST
