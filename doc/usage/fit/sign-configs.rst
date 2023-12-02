@@ -22,7 +22,7 @@ Signed configurations
                 entry = <0x8>;
                 kernel-version = <1>;
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
             fdt-1 {
@@ -33,7 +33,7 @@ Signed configurations
                 compression = "none";
                 fdt-version = <1>;
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
         };
@@ -43,7 +43,7 @@ Signed configurations
                 kernel = "kernel";
                 fdt = "fdt-1";
                 signature {
-                    algo = "sha1,rsa2048";
+                    algo = "sha256,rsa2048";
                     key-name-hint = "dev";
                     sign-images = "fdt", "kernel";
                 };

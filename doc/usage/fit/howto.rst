@@ -8,7 +8,7 @@ Overview
 
 The new uImage format allows more flexibility in handling images of various
 types (kernel, ramdisk, etc.), it also enhances integrity protection of images
-with sha1 and md5 checksums.
+with cryptographic checksums.
 
 Two auxiliary tools are needed on the development host system in order to
 create an uImage in the new format: mkimage and dtc, although only one
@@ -99,7 +99,7 @@ started by ATF where SPL is loading U-Boot (as loadables) and ATF (as firmware).
                 load = <0x8 0x8000000>;
                 entry = <0x8 0x8000000>;
                 hash {
-                    algo = "md5";
+                    algo = "sha256";
                 };
             };
             atf {
@@ -112,7 +112,7 @@ started by ATF where SPL is loading U-Boot (as loadables) and ATF (as firmware).
                 load = <0xfffea000>;
                 entry = <0xfffea000>;
                 hash {
-                    algo = "md5";
+                    algo = "sha256";
                 };
             };
             fdt_1 {
@@ -123,7 +123,7 @@ started by ATF where SPL is loading U-Boot (as loadables) and ATF (as firmware).
                 compression = "none";
                 load = <0x100000>;
                 hash {
-                    algo = "md5";
+                    algo = "sha256";
                 };
             };
         };
@@ -190,8 +190,8 @@ its contents:
       Entry Point:    0x00000000
       Hash algo:    crc32
       Hash value:    2ae2bb40
-      Hash algo:    sha1
-      Hash value:    3c200f34e2c226ddc789240cca0c59fc54a67cf4
+      Hash algo:    sha256
+      Hash value:    c22f6bb5a3f96942507a37e7d6a9333ebdc7da57971bc4c082113fe082fdc40f
      Default Configuration: 'config-1'
      Configuration 0 (config-1)
       Description:    Boot Linux kernel
@@ -236,8 +236,8 @@ specific to the new image format).
          Entry Point:  0x00000000
          Hash algo:    crc32
          Hash value:   2ae2bb40
-         Hash algo:    sha1
-         Hash value:   3c200f34e2c226ddc789240cca0c59fc54a67cf4
+         Hash algo:    sha256
+         Hash value:   c22f6bb5a3f96942507a37e7d6a9333ebdc7da57971bc4c082113fe082fdc40f
         Default Configuration: 'config-1'
         Configuration 0 (config-1)
          Description:  Boot Linux kernel
@@ -258,8 +258,8 @@ specific to the new image format).
          Entry Point:  0x00000000
          Hash algo:    crc32
          Hash value:   2ae2bb40
-         Hash algo:    sha1
-         Hash value:   3c200f34e2c226ddc789240cca0c59fc54a67cf4
+         Hash algo:    sha256
+         Hash value:   c22f6bb5a3f96942507a37e7d6a9333ebdc7da57971bc4c082113fe082fdc40f
        Verifying Hash Integrity ... crc32+ sha1+ OK
        Uncompressing Kernel Image ... OK
     Memory BAT mapping: BAT2=256Mb, BAT3=0Mb, residual: 0Mb
@@ -302,8 +302,8 @@ modified to take the files from some other location if needed):
       Entry Point:    0x00000000
       Hash algo:    crc32
       Hash value:    2c0cc807
-      Hash algo:    sha1
-      Hash value:    264b59935470e42c418744f83935d44cdf59a3bb
+      Hash algo:    sha256
+      Hash value:    a3e9e18b793873827d27c97edfbca67c404a1972d9f36cf48e73ff85d69a422c
      Image 1 (fdt-1)
       Description:    Flattened Device Tree blob
       Type:        Flat Device Tree
@@ -312,8 +312,8 @@ modified to take the files from some other location if needed):
       Architecture: PowerPC
       Hash algo:    crc32
       Hash value:    0d655d71
-      Hash algo:    sha1
-      Hash value:    25ab4e15cd4b8a5144610394560d9c318ce52def
+      Hash algo:    sha256
+      Hash value:    e9b9a40c5e2e12213ac819e7ccad7271ef43eb5edf9b421f0fa0b4b51bfdb214
      Default Configuration: 'conf-1'
      Configuration 0 (conf-1)
       Description:    Boot Linux kernel with FDT blob
@@ -353,8 +353,8 @@ inspected and booted:
          Entry Point:  0x00000000
          Hash algo:    crc32
          Hash value:   2c0cc807
-         Hash algo:    sha1
-         Hash value:   264b59935470e42c418744f83935d44cdf59a3bb
+         Hash algo:    sha256
+         Hash value:   a3e9e18b793873827d27c97edfbca67c404a1972d9f36cf48e73ff85d69a422c
         Image 1 (fdt-1)
          Description:  Flattened Device Tree blob
          Type:       Flat Device Tree
@@ -364,8 +364,8 @@ inspected and booted:
          Architecture: PowerPC
          Hash algo:    crc32
          Hash value:   0d655d71
-         Hash algo:    sha1
-         Hash value:   25ab4e15cd4b8a5144610394560d9c318ce52def
+         Hash algo:    sha256
+         Hash value:   e9b9a40c5e2e12213ac819e7ccad7271ef43eb5edf9b421f0fa0b4b51bfdb214
         Default Configuration: 'conf-1'
         Configuration 0 (conf-1)
          Description:  Boot Linux kernel with FDT blob
@@ -387,7 +387,7 @@ inspected and booted:
          Hash algo:    crc32
          Hash value:   2c0cc807
          Hash algo:    sha1
-         Hash value:   264b59935470e42c418744f83935d44cdf59a3bb
+         Hash value:   a3e9e18b793873827d27c97edfbca67c404a1972d9f36cf48e73ff85d69a422c
        Verifying Hash Integrity ... crc32+ sha1+ OK
        Uncompressing Kernel Image ... OK
     ## Flattened Device Tree from FIT Image at 00900000
@@ -402,7 +402,7 @@ inspected and booted:
          Hash algo:    crc32
          Hash value:   0d655d71
          Hash algo:    sha1
-         Hash value:   25ab4e15cd4b8a5144610394560d9c318ce52def
+         Hash value:   e9b9a40c5e2e12213ac819e7ccad7271ef43eb5edf9b421f0fa0b4b51bfdb214
        Verifying Hash Integrity ... crc32+ sha1+ OK
        Booting using the fdt blob at 0xa0abdc
        Loading Device Tree to 007fc000, end 007fffff ... OK

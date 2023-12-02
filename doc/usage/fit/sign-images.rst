@@ -22,7 +22,7 @@ Signed Images
                 entry = <0x8>;
                 kernel-version = <1>;
                 signature {
-                    algo = "sha1,rsa2048";
+                    algo = "sha256,rsa2048";
                     key-name-hint = "dev";
                 };
             };
@@ -34,7 +34,7 @@ Signed Images
                 compression = "none";
                 fdt-version = <1>;
                 signature {
-                    algo = "sha1,rsa2048";
+                    algo = "sha256,rsa2048";
                     key-name-hint = "dev";
                 };
             };

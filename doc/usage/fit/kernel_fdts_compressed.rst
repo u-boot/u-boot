@@ -28,7 +28,7 @@ string to match directly.
                     algo = "crc32";
                 };
                 hash-2 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
             fdt@1 {
@@ -41,7 +41,7 @@ string to match directly.
                     algo = "crc32";
                 };
                 hash-2 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
             fdt@2 {
@@ -54,7 +54,7 @@ string to match directly.
                     algo = "crc32";
                 };
                 hash-2 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
         };
