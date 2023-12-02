@@ -685,8 +685,8 @@ int designware_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
-	u32 iobase = pdata->iobase;
-	ulong ioaddr;
+	phys_addr_t iobase = pdata->iobase;
+	void *ioaddr;
 	int ret, err;
 	struct reset_ctl_bulk reset_bulk;
 #ifdef CONFIG_CLK
@@ -746,16 +746,18 @@ int designware_eth_probe(struct udevice *dev)
 	 * or via a PCI bridge, fill in plat before we probe the hardware.
 	 */
 	if (IS_ENABLED(CONFIG_PCI) && device_is_on_pci_bus(dev)) {
-		dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &iobase);
-		iobase &= PCI_BASE_ADDRESS_MEM_MASK;
-		iobase = dm_pci_mem_to_phys(dev, iobase);
+		u32 pcibase;
 
+		dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &pcibase);
+		pcibase &= PCI_BASE_ADDRESS_MEM_MASK;
+
+		iobase = dm_pci_mem_to_phys(dev, pcibase);
 		pdata->iobase = iobase;
 		pdata->phy_interface = PHY_INTERFACE_MODE_RMII;
 	}
 
-	debug("%s, iobase=%x, priv=%p\n", __func__, iobase, priv);
-	ioaddr = iobase;
+	debug("%s, iobase=%pa, priv=%p\n", __func__, &iobase, priv);
+	ioaddr = phys_to_virt(iobase);
 	priv->mac_regs_p = (struct eth_mac_regs *)ioaddr;
 	priv->dma_regs_p = (struct eth_dma_regs *)(ioaddr + DW_DMA_BASE_OFFSET);
 	priv->interface = pdata->phy_interface;
