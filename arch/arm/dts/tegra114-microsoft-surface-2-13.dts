@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra114-microsoft-surface-2-common.dtsi"
+
+/ {
+	backlight: backlight {
+		enable-gpios = <&gpio TEGRA_GPIO(EE, 3) GPIO_ACTIVE_HIGH>;
+	};
+};
