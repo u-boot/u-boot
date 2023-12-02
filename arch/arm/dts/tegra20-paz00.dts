@@ -522,8 +522,8 @@
 		power-supply = <&vdd_bl_reg>;
 		pwms = <&pwm 0 5000000>;
 
-		brightness-levels = <0 16 32 48 64 80 96 112 128 144 160 176 192 208 224 240 255>;
-		default-brightness-level = <10>;
+		brightness-levels = <1 35 70 105 140 175 210 255>;
+		default-brightness-level = <2>;
 
 		backlight-boot-off;
 	};
