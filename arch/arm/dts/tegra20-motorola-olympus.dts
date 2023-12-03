@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra20-motorola-mot.dtsi"
+
+/ {
+	model = "Motorola Atrix 4G (MB860)";
+	compatible = "motorola,olympus", "nvidia,tegra20";
+};
