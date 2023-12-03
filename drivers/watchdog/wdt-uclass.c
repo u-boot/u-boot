@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <cyclic.h>
+#include <div64.h>
 #include <dm.h>
 #include <errno.h>
 #include <hang.h>
@@ -141,7 +142,7 @@ int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 
 		printf("WDT:   Started %s with%s servicing %s (%ds timeout)\n",
 		       dev->name, IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out",
-		       str, priv->timeout);
+		       str, (u32)lldiv(timeout_ms, 1000));
 	}
 
 	return ret;
