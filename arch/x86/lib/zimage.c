@@ -437,8 +437,8 @@ int zboot_go(void)
 	return ret;
 }
 
-int zboot_start(ulong addr, ulong size, ulong initrd, ulong initrd_size,
-		ulong base, char *cmdline)
+int zboot_run(ulong addr, ulong size, ulong initrd, ulong initrd_size,
+	      ulong base, char *cmdline)
 {
 	int ret;
 
@@ -463,7 +463,7 @@ int zboot_start(ulong addr, ulong size, ulong initrd, ulong initrd_size,
 		return log_msg_ret("set", ret);
 	ret = zboot_go();
 	if (ret)
-		return log_msg_ret("set", ret);
+		return log_msg_ret("go", ret);
 
 	return -EFAULT;
 }
