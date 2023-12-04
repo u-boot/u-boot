@@ -10,56 +10,45 @@
 #include <vsprintf.h>
 #include <asm/zimage.h>
 
-static void zboot_start(int argc, char *const argv[])
+static int zboot_start(ulong bzimage_addr, ulong bzimage_size,
+		       ulong initrd_addr, ulong initrd_size, ulong base_addr,
+		       const char *cmdline)
 {
-	const char *s;
-
 	memset(&state, '\0', sizeof(state));
-	if (argc >= 2) {
-		/* argv[1] holds the address of the bzImage */
-		s = argv[1];
+
+	state.bzimage_size = bzimage_size;
+	state.initrd_addr = initrd_addr;
+	state.initrd_size = initrd_size;
+	if (base_addr) {
+		state.base_ptr = map_sysmem(base_addr, 0);
+		state.load_address = bzimage_addr;
 	} else {
-		s = env_get("fileaddr");
+		state.bzimage_addr = bzimage_addr;
 	}
+	state.cmdline = cmdline;
 
-	if (s)
-		state.bzimage_addr = hextoul(s, NULL);
-
-	if (argc >= 3) {
-		/* argv[2] holds the size of the bzImage */
-		state.bzimage_size = hextoul(argv[2], NULL);
-	}
-
-	if (argc >= 4)
-		state.initrd_addr = hextoul(argv[3], NULL);
-	if (argc >= 5)
-		state.initrd_size = hextoul(argv[4], NULL);
-	if (argc >= 6) {
-		/*
-		 * When the base_ptr is passed in, we assume that the image is
-		 * already loaded at the address given by argv[1] and therefore
-		 * the original bzImage is somewhere else, or not accessible.
-		 * In any case, we don't need access to the bzImage since all
-		 * the processing is assumed to be done.
-		 *
-		 * So set the base_ptr to the given address, use this arg as the
-		 * load address and set bzimage_addr to 0 so we know that it
-		 * cannot be proceesed (or processed again).
-		 */
-		state.base_ptr = (void *)hextoul(argv[5], NULL);
-		state.load_address = state.bzimage_addr;
-		state.bzimage_addr = 0;
-	}
-	if (argc >= 7)
-		state.cmdline = env_get(argv[6]);
+	return 0;
 }
 
 static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
-	zboot_start(argc, argv);
+	ulong bzimage_addr = 0, bzimage_size, initrd_addr, initrd_size;
+	ulong base_addr;
+	const char *s, *cmdline;
 
-	return 0;
+	/* argv[1] holds the address of the bzImage */
+	s = cmd_arg1(argc, argv) ? : env_get("fileaddr");
+	if (s)
+		bzimage_addr = hextoul(s, NULL);
+	bzimage_size = argc > 2 ? hextoul(argv[2], NULL) : 0;
+	initrd_addr = argc > 3 ? hextoul(argv[3], NULL) : 0;
+	initrd_size = argc > 4 ? hextoul(argv[4], NULL) : 0;
+	base_addr = argc > 5 ? hextoul(argv[5], NULL) : 0;
+	cmdline = argc > 6 ? env_get(argv[6]) : NULL;
+
+	return zboot_start(bzimage_addr, bzimage_size, initrd_addr, initrd_size,
+			   base_addr, cmdline);
 }
 
 static int do_zboot_load(struct cmd_tbl *cmdtp, int flag, int argc,
