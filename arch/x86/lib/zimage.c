@@ -370,6 +370,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 int zboot_load(void)
 {
 	struct boot_params *base_ptr;
+	int ret;
 
 	if (state.base_ptr) {
 		struct boot_params *from = (struct boot_params *)state.base_ptr;
@@ -388,6 +389,12 @@ int zboot_load(void)
 		}
 	}
 	state.base_ptr = base_ptr;
+
+	ret = env_set_hex("zbootbase", map_to_sysmem(state.base_ptr));
+	if (!ret)
+		ret = env_set_hex("zbootaddr", state.load_address);
+	if (ret)
+		return ret;
 
 	return 0;
 }
