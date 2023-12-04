@@ -74,11 +74,10 @@ static int do_zboot_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int _zboot_setup(void)
+static int do_zboot_setup(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
 {
-	struct boot_params *base_ptr = state.base_ptr;
-
-	if (!base_ptr) {
+	if (!state.base_ptr) {
 		printf("base is not set: use 'zboot load' first\n");
 		return CMD_RET_FAILURE;
 	}
@@ -87,13 +86,10 @@ static int _zboot_setup(void)
 		return CMD_RET_FAILURE;
 	}
 
-	return 0;
-}
+	if (zboot_setup())
+		return CMD_RET_FAILURE;
 
-static int do_zboot_setup(struct cmd_tbl *cmdtp, int flag, int argc,
-			  char *const argv[])
-{
-	return _zboot_setup();
+	return 0;
 }
 
 static void zboot_info(void)
