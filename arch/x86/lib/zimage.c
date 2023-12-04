@@ -56,6 +56,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define COMMAND_LINE_SIZE	2048
 
+/* Current state of the boot */
 struct zboot_state state;
 
 static void build_command_line(char *command_line, int auto_boot)
@@ -366,54 +367,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	return 0;
 }
 
-static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
-			  char *const argv[])
-{
-	const char *s;
-
-	memset(&state, '\0', sizeof(state));
-	if (argc >= 2) {
-		/* argv[1] holds the address of the bzImage */
-		s = argv[1];
-	} else {
-		s = env_get("fileaddr");
-	}
-
-	if (s)
-		state.bzimage_addr = hextoul(s, NULL);
-
-	if (argc >= 3) {
-		/* argv[2] holds the size of the bzImage */
-		state.bzimage_size = hextoul(argv[2], NULL);
-	}
-
-	if (argc >= 4)
-		state.initrd_addr = hextoul(argv[3], NULL);
-	if (argc >= 5)
-		state.initrd_size = hextoul(argv[4], NULL);
-	if (argc >= 6) {
-		/*
-		 * When the base_ptr is passed in, we assume that the image is
-		 * already loaded at the address given by argv[1] and therefore
-		 * the original bzImage is somewhere else, or not accessible.
-		 * In any case, we don't need access to the bzImage since all
-		 * the processing is assumed to be done.
-		 *
-		 * So set the base_ptr to the given address, use this arg as the
-		 * load address and set bzimage_addr to 0 so we know that it
-		 * cannot be proceesed (or processed again).
-		 */
-		state.base_ptr = (void *)hextoul(argv[5], NULL);
-		state.load_address = state.bzimage_addr;
-		state.bzimage_addr = 0;
-	}
-	if (argc >= 7)
-		state.cmdline = env_get(argv[6]);
-
-	return 0;
-}
-
-static int zboot_load(void)
+int zboot_load(void)
 {
 	struct boot_params *base_ptr;
 
@@ -438,20 +392,7 @@ static int zboot_load(void)
 	return 0;
 }
 
-static int do_zboot_load(struct cmd_tbl *cmdtp, int flag, int argc,
-			 char *const argv[])
-{
-	if (zboot_load())
-		return CMD_RET_FAILURE;
-
-	if (env_set_hex("zbootbase", map_to_sysmem(state.base_ptr)) ||
-	    env_set_hex("zbootaddr", state.load_address))
-		return CMD_RET_FAILURE;
-
-	return 0;
-}
-
-static int zboot_setup(void)
+int zboot_setup(void)
 {
 	struct boot_params *base_ptr = state.base_ptr;
 	int ret;
@@ -465,33 +406,7 @@ static int zboot_setup(void)
 	return 0;
 }
 
-static int do_zboot_setup(struct cmd_tbl *cmdtp, int flag, int argc,
-			  char *const argv[])
-{
-	struct boot_params *base_ptr = state.base_ptr;
-
-	if (!base_ptr) {
-		printf("base is not set: use 'zboot load' first\n");
-		return CMD_RET_FAILURE;
-	}
-	if (zboot_setup()) {
-		puts("Setting up boot parameters failed ...\n");
-		return CMD_RET_FAILURE;
-	}
-
-	return 0;
-}
-
-static int do_zboot_info(struct cmd_tbl *cmdtp, int flag, int argc,
-			 char *const argv[])
-{
-	printf("Kernel loaded at %08lx, setup_base=%p\n",
-	       state.load_address, state.base_ptr);
-
-	return 0;
-}
-
-static int zboot_go(void)
+int zboot_go(void)
 {
 	struct boot_params *params = state.base_ptr;
 	struct setup_header *hdr = &params->hdr;
@@ -513,17 +428,6 @@ static int zboot_go(void)
 	ret = boot_linux_kernel((ulong)state.base_ptr, entry, image_64bit);
 
 	return ret;
-}
-
-static int do_zboot_go(struct cmd_tbl *cmdtp, int flag, int argc,
-		       char *const argv[])
-{
-	int ret;
-
-	ret = zboot_go();
-	printf("Kernel returned! (err=%d)\n", ret);
-
-	return CMD_RET_FAILURE;
 }
 
 int zboot_start(ulong addr, ulong size, ulong initrd, ulong initrd_size,
@@ -741,98 +645,3 @@ void zimage_dump(struct boot_params *base_ptr, bool show_cmdline)
 	if (get_boot_protocol(hdr, false) >= 0x215)
 		print_num("Kernel info offset", hdr->kernel_info_offset);
 }
-
-static int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc,
-			 char *const argv[])
-{
-	struct boot_params *base_ptr = state.base_ptr;
-
-	if (argc > 1)
-		base_ptr = (void *)hextoul(argv[1], NULL);
-	if (!base_ptr) {
-		printf("No zboot setup_base\n");
-		return CMD_RET_FAILURE;
-	}
-	zimage_dump(base_ptr, true);
-
-	return 0;
-}
-
-/* Note: This defines the complete_zboot() function */
-U_BOOT_SUBCMDS(zboot,
-	U_BOOT_CMD_MKENT(start, 8, 1, do_zboot_start, "", ""),
-	U_BOOT_CMD_MKENT(load, 1, 1, do_zboot_load, "", ""),
-	U_BOOT_CMD_MKENT(setup, 1, 1, do_zboot_setup, "", ""),
-	U_BOOT_CMD_MKENT(info, 1, 1, do_zboot_info, "", ""),
-	U_BOOT_CMD_MKENT(go, 1, 1, do_zboot_go, "", ""),
-	U_BOOT_CMD_MKENT(dump, 2, 1, do_zboot_dump, "", ""),
-)
-
-int do_zboot_states(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[], int state_mask)
-{
-	int i;
-
-	for (i = 0; i < ZBOOT_STATE_COUNT; i++) {
-		struct cmd_tbl *cmd = &zboot_subcmds[i];
-		int mask = 1 << i;
-		int ret;
-
-		if (mask & state_mask) {
-			ret = cmd->cmd(cmd, flag, argc, argv);
-			if (ret)
-				return ret;
-		}
-	}
-
-	return 0;
-}
-
-int do_zboot_parent(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[], int *repeatable)
-{
-	/* determine if we have a sub command */
-	if (argc > 1) {
-		char *endp;
-
-		hextoul(argv[1], &endp);
-		/*
-		 * endp pointing to nul means that argv[1] was just a valid
-		 * number, so pass it along to the normal processing
-		 */
-		if (*endp)
-			return do_zboot(cmdtp, flag, argc, argv, repeatable);
-	}
-
-	do_zboot_states(cmdtp, flag, argc, argv, ZBOOT_STATE_START |
-			ZBOOT_STATE_LOAD | ZBOOT_STATE_SETUP |
-			ZBOOT_STATE_INFO | ZBOOT_STATE_GO);
-
-	return CMD_RET_FAILURE;
-}
-
-U_BOOT_CMDREP_COMPLETE(
-	zboot, 8, do_zboot_parent, "Boot bzImage",
-	"[addr] [size] [initrd addr] [initrd size] [setup] [cmdline]\n"
-	"      addr -        The optional starting address of the bzimage.\n"
-	"                    If not set it defaults to the environment\n"
-	"                    variable \"fileaddr\".\n"
-	"      size -        The optional size of the bzimage. Defaults to\n"
-	"                    zero.\n"
-	"      initrd addr - The address of the initrd image to use, if any.\n"
-	"      initrd size - The size of the initrd image to use, if any.\n"
-	"      setup -       The address of the kernel setup region, if this\n"
-	"                    is not at addr\n"
-	"      cmdline -     Environment variable containing the kernel\n"
-	"                    command line, to override U-Boot's normal\n"
-	"                    cmdline generation\n"
-	"\n"
-	"Sub-commands to do part of the zboot sequence:\n"
-	"\tstart [addr [arg ...]] - specify arguments\n"
-	"\tload   - load OS image\n"
-	"\tsetup  - set up table\n"
-	"\tinfo   - show summary info\n"
-	"\tgo     - start OS\n"
-	"\tdump [addr]    - dump info (optional address of boot params)",
-	complete_zboot
-);

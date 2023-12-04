@@ -72,6 +72,37 @@ struct zboot_state {
 extern struct zboot_state state;
 
 /**
+ * zimage_dump() - Dump information about a zimage
+ *
+ * @base_ptr: Pointer to the boot parameters
+ * @show_cmdline: true to show the kernel command line
+ */
+void zimage_dump(struct boot_params *base_ptr, bool show_cmdline);
+
+/**
+ * zboot_load() - Load a zimage
+ *
+ * Load the zimage into the correct place
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int zboot_load(void);
+
+/**
+ * zboot_setup() - Set up the zboot image reeady for booting
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int zboot_setup(void);
+
+/**
+ * zboot_go() - Start the image
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int zboot_go(void);
+
+/**
  * load_zimage() - Load a zImage or bzImage
  *
  * This copies an image into the standard location ready for setup
