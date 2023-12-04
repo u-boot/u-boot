@@ -12,6 +12,7 @@
 #include <dm.h>
 #include <mailbox-uclass.h>
 #include <dm/device_compat.h>
+#include <dm/lists.h>
 #include <dm/of_access.h>
 #include <linux/arm-smccc.h>
 #include <linux/ioport.h>
@@ -157,7 +158,7 @@ static int zynqmp_ipi_recv(struct mbox_chan *chan, void *data)
 	return ret;
 };
 
-static int zynqmp_ipi_probe(struct udevice *dev)
+static int zynqmp_ipi_dest_probe(struct udevice *dev)
 {
 	struct zynqmp_ipi *zynqmp = dev_get_priv(dev);
 	struct resource res;
@@ -166,14 +167,12 @@ static int zynqmp_ipi_probe(struct udevice *dev)
 
 	debug("%s(dev=%p)\n", __func__, dev);
 
+	node = dev_ofnode(dev);
+
 	if (IS_ENABLED(CONFIG_SPL_BUILD) || of_machine_is_compatible("xlnx,zynqmp"))
 		zynqmp->el3_supported = true;
 
-	/* Get subnode where the regs are defined */
-	/* Note IPI mailbox node needs to be the first one in DT */
-	node = ofnode_first_subnode(dev_ofnode(dev));
-
-	ret = dev_read_u32(dev, "xlnx,ipi-id", &zynqmp->local_id);
+	ret = dev_read_u32(dev->parent, "xlnx,ipi-id", &zynqmp->local_id);
 	if (ret) {
 		dev_err(dev, "can't get local ipi id\n");
 		return ret;
@@ -191,6 +190,8 @@ static int zynqmp_ipi_probe(struct udevice *dev)
 	};
 	zynqmp->local_req_regs = devm_ioremap(dev, res.start,
 					      (res.start - res.end));
+	if (!zynqmp->local_req_regs)
+		return -EINVAL;
 
 	if (ofnode_read_resource_byname(node, "local_response_region", &res)) {
 		dev_err(dev, "No reg property for local_response_region\n");
@@ -198,6 +199,8 @@ static int zynqmp_ipi_probe(struct udevice *dev)
 	};
 	zynqmp->local_res_regs = devm_ioremap(dev, res.start,
 					      (res.start - res.end));
+	if (!zynqmp->local_res_regs)
+		return -EINVAL;
 
 	if (ofnode_read_resource_byname(node, "remote_request_region", &res)) {
 		dev_err(dev, "No reg property for remote_request_region\n");
@@ -205,6 +208,8 @@ static int zynqmp_ipi_probe(struct udevice *dev)
 	};
 	zynqmp->remote_req_regs = devm_ioremap(dev, res.start,
 					       (res.start - res.end));
+	if (!zynqmp->remote_req_regs)
+		return -EINVAL;
 
 	if (ofnode_read_resource_byname(node, "remote_response_region", &res)) {
 		dev_err(dev, "No reg property for remote_response_region\n");
@@ -212,8 +217,48 @@ static int zynqmp_ipi_probe(struct udevice *dev)
 	};
 	zynqmp->remote_res_regs = devm_ioremap(dev, res.start,
 					       (res.start - res.end));
+	if (!zynqmp->remote_res_regs)
+		return -EINVAL;
 
 	return 0;
+};
+
+static int zynqmp_ipi_probe(struct udevice *dev)
+{
+	struct udevice *cdev;
+	ofnode cnode;
+	int ret;
+
+	debug("%s(dev=%p)\n", __func__, dev);
+
+	dev_for_each_subnode(cnode, dev) {
+		ret = device_bind_driver_to_node(dev, "zynqmp_ipi_dest",
+						 ofnode_get_name(cnode),
+						 cnode, &cdev);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+};
+
+struct mbox_ops zynqmp_ipi_dest_mbox_ops = {
+	.send = zynqmp_ipi_send,
+	.recv = zynqmp_ipi_recv,
+};
+
+static const struct udevice_id zynqmp_ipi_dest_ids[] = {
+	{ .compatible = "xlnx,zynqmp-ipi-dest-mailbox" },
+	{ }
+};
+
+U_BOOT_DRIVER(zynqmp_ipi_dest) = {
+	.name = "zynqmp_ipi_dest",
+	.id = UCLASS_MAILBOX,
+	.of_match = zynqmp_ipi_dest_ids,
+	.probe = zynqmp_ipi_dest_probe,
+	.priv_auto = sizeof(struct zynqmp_ipi),
+	.ops = &zynqmp_ipi_dest_mbox_ops,
 };
 
 static const struct udevice_id zynqmp_ipi_ids[] = {
@@ -221,16 +266,10 @@ static const struct udevice_id zynqmp_ipi_ids[] = {
 	{ }
 };
 
-struct mbox_ops zynqmp_ipi_mbox_ops = {
-	.send = zynqmp_ipi_send,
-	.recv = zynqmp_ipi_recv,
-};
-
 U_BOOT_DRIVER(zynqmp_ipi) = {
 	.name = "zynqmp_ipi",
-	.id = UCLASS_MAILBOX,
+	.id = UCLASS_NOP,
 	.of_match = zynqmp_ipi_ids,
 	.probe = zynqmp_ipi_probe,
-	.priv_auto	= sizeof(struct zynqmp_ipi),
-	.ops = &zynqmp_ipi_mbox_ops,
+	.flags = DM_FLAG_PROBE_AFTER_BIND,
 };

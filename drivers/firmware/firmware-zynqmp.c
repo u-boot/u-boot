@@ -8,6 +8,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <log.h>
 #include <zynqmp_firmware.h>
@@ -290,9 +291,30 @@ int zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size)
 
 static int zynqmp_power_probe(struct udevice *dev)
 {
+	struct udevice *ipi_dev;
+	ofnode ipi_node;
 	int ret;
 
 	debug("%s, (dev=%p)\n", __func__, dev);
+
+	/*
+	 * Probe all IPI parent node driver. It is important to have IPI
+	 * devices available when requested by mbox_get_by* API.
+	 * If IPI device isn't available, then mailbox request fails and
+	 * that causes system boot failure.
+	 * To avoid this make sure all IPI parent drivers are probed here,
+	 * and IPI parent driver binds each child node to mailbox driver.
+	 * This way mbox_get_by_* API will have correct mailbox device
+	 * driver probed.
+	 */
+	ofnode_for_each_compatible_node(ipi_node, "xlnx,zynqmp-ipi-mailbox") {
+		ret = uclass_get_device_by_ofnode(UCLASS_NOP, ipi_node, &ipi_dev);
+		if (ret) {
+			dev_err(dev, "failed to get IPI device from node %s\n",
+				ofnode_get_name(ipi_node));
+			return ret;
+		}
+	}
 
 	ret = mbox_get_by_name(dev, "tx", &zynqmp_power.tx_chan);
 	if (ret) {
