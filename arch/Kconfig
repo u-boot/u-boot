@@ -246,7 +246,6 @@ config X86
 	imply CMD_PCI
 	imply CMD_SF
 	imply CMD_SF_TEST
-	imply CMD_ZBOOT
 	imply DM_GPIO
 	imply DM_KEYBOARD
 	imply DM_MMC
