@@ -56,41 +56,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define COMMAND_LINE_SIZE	2048
 
-/**
- * struct zboot_state - Current state of the boot
- *
- * @bzimage_addr: Address of the bzImage to boot
- * @bzimage_size: Size of the bzImage, or 0 to detect this
- * @initrd_addr: Address of the initial ramdisk, or 0 if none
- * @initrd_size: Size of the initial ramdisk, or 0 if none
- * @load_address: Address where the bzImage is moved before booting, either
- *	BZIMAGE_LOAD_ADDR or ZIMAGE_LOAD_ADDR
- * @base_ptr: Pointer to the boot parameters, typically at address
- *	DEFAULT_SETUP_BASE
- * @cmdline: Environment variable containing the 'override' command line, or
- *	NULL to use the one in the setup block
- */
-struct zboot_state {
-	ulong bzimage_addr;
-	ulong bzimage_size;
-	ulong initrd_addr;
-	ulong initrd_size;
-	ulong load_address;
-	struct boot_params *base_ptr;
-	char *cmdline;
-} state;
-
-enum {
-	ZBOOT_STATE_START	= BIT(0),
-	ZBOOT_STATE_LOAD	= BIT(1),
-	ZBOOT_STATE_SETUP	= BIT(2),
-	ZBOOT_STATE_INFO	= BIT(3),
-	ZBOOT_STATE_GO		= BIT(4),
-
-	/* This one doesn't execute automatically, so stop the count before 5 */
-	ZBOOT_STATE_DUMP	= BIT(5),
-	ZBOOT_STATE_COUNT	= 5,
-};
+struct zboot_state state;
 
 static void build_command_line(char *command_line, int auto_boot)
 {

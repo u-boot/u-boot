@@ -30,6 +30,47 @@
 #define BZIMAGE_LOAD_ADDR  0x100000
 #define ZIMAGE_LOAD_ADDR   0x10000
 
+enum {
+	ZBOOT_STATE_START	= BIT(0),
+	ZBOOT_STATE_LOAD	= BIT(1),
+	ZBOOT_STATE_SETUP	= BIT(2),
+	ZBOOT_STATE_INFO	= BIT(3),
+	ZBOOT_STATE_GO		= BIT(4),
+
+	/* This one doesn't execute automatically, so stop the count before 5 */
+	ZBOOT_STATE_DUMP	= BIT(5),
+	ZBOOT_STATE_COUNT	= 5,
+};
+
+/**
+ * struct zboot_state - Current state of the boot
+ *
+ * @bzimage_addr: Address of the bzImage to boot, or 0 if the image has already
+ *	been loaded and does not exist (as a cohesive whole) in memory
+ * @bzimage_size: Size of the bzImage, or 0 to detect this
+ * @initrd_addr: Address of the initial ramdisk, or 0 if none
+ * @initrd_size: Size of the initial ramdisk, or 0 if none
+ * @load_address: Address where the bzImage is moved before booting, either
+ *	BZIMAGE_LOAD_ADDR or ZIMAGE_LOAD_ADDR
+ *	This is set up when loading the zimage
+ * @base_ptr: Pointer to the boot parameters, typically at address
+ *	DEFAULT_SETUP_BASE
+ *	This is set up when loading the zimage
+ * @cmdline: Environment variable containing the 'override' command line, or
+ *	NULL to use the one in the setup block
+ */
+struct zboot_state {
+	ulong bzimage_addr;
+	ulong bzimage_size;
+	ulong initrd_addr;
+	ulong initrd_size;
+	ulong load_address;
+	struct boot_params *base_ptr;
+	const char *cmdline;
+};
+
+extern struct zboot_state state;
+
 /**
  * load_zimage() - Load a zImage or bzImage
  *
