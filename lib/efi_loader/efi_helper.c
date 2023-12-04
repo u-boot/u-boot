@@ -549,11 +549,6 @@ efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 out:
 	free(load_options);
 
-	if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD)) {
-		if (efi_initrd_deregister() != EFI_SUCCESS)
-			log_err("Failed to remove loadfile2 for initrd\n");
-	}
-
 	/* Notify EFI_EVENT_GROUP_RETURN_TO_EFIBOOTMGR event group. */
 	list_for_each_entry(evt, &efi_events, link) {
 		if (evt->group &&
