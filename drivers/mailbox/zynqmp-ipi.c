@@ -81,6 +81,7 @@ struct zynqmp_ipi {
 	void __iomem *remote_res_regs;
 	u32 remote_id;
 	u32 local_id;
+	bool el3_supported;
 };
 
 static int zynqmp_ipi_fw_call(struct zynqmp_ipi *ipi_mbox,
@@ -113,6 +114,12 @@ static int zynqmp_ipi_send(struct mbox_chan *chan, const void *data)
 		debug("%s, send %ld bytes\n", __func__, msg->len);
 
 		return ret;
+	}
+
+	/* Return if EL3 is not supported */
+	if (!zynqmp->el3_supported) {
+		dev_err(chan->dev, "mailbox in EL3 only supported for zynqmp");
+		return -EOPNOTSUPP;
 	}
 
 	/* Write trigger interrupt */
@@ -158,6 +165,9 @@ static int zynqmp_ipi_probe(struct udevice *dev)
 	int ret;
 
 	debug("%s(dev=%p)\n", __func__, dev);
+
+	if (IS_ENABLED(CONFIG_SPL_BUILD) || of_machine_is_compatible("xlnx,zynqmp"))
+		zynqmp->el3_supported = true;
 
 	/* Get subnode where the regs are defined */
 	/* Note IPI mailbox node needs to be the first one in DT */
