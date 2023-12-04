@@ -134,4 +134,29 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		 ulong initrd_addr, ulong initrd_size, ulong cmdline_force);
 
+/**
+ * zboot_start() - Prepare to boot a zimage
+ *
+ * Record information about a zimage so it can be booted
+ *
+ * @bzimage_addr: Address of the bzImage to boot
+ * @bzimage_size: Size of the bzImage, or 0 to detect this
+ * @initrd_addr: Address of the initial ramdisk, or 0 if none
+ * @initrd_size: Size of the initial ramdisk, or 0 if none
+ * @base_addr: If non-zero, this indicates that the boot parameters have already
+ *	been loaded by the caller to this address, so the load_zimage() call
+ *	in zboot_load() will be skipped when booting
+ * @cmdline: Environment variable containing the 'override' command line, or
+ *	NULL to use the one in the setup block
+ */
+void zboot_start(ulong bzimage_addr, ulong bzimage_size, ulong initrd_addr,
+		 ulong initrd_size, ulong base_addr, const char *cmdline);
+
+/**
+ * zboot_info() - Show simple info about a zimage
+ *
+ * Shows wherer the kernel was loaded and also the setup base
+ */
+void zboot_info(void);
+
 #endif

@@ -652,3 +652,26 @@ void zimage_dump(struct boot_params *base_ptr, bool show_cmdline)
 	if (get_boot_protocol(hdr, false) >= 0x215)
 		print_num("Kernel info offset", hdr->kernel_info_offset);
 }
+
+void zboot_start(ulong bzimage_addr, ulong bzimage_size, ulong initrd_addr,
+		 ulong initrd_size, ulong base_addr, const char *cmdline)
+{
+	memset(&state, '\0', sizeof(state));
+
+	state.bzimage_size = bzimage_size;
+	state.initrd_addr = initrd_addr;
+	state.initrd_size = initrd_size;
+	if (base_addr) {
+		state.base_ptr = map_sysmem(base_addr, 0);
+		state.load_address = bzimage_addr;
+	} else {
+		state.bzimage_addr = bzimage_addr;
+	}
+	state.cmdline = cmdline;
+}
+
+void zboot_info(void)
+{
+	printf("Kernel loaded at %08lx, setup_base=%p\n",
+	       state.load_address, state.base_ptr);
+}
