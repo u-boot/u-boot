@@ -136,19 +136,20 @@ U_BOOT_SUBCMDS(zboot,
 int do_zboot_states(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[], int state_mask)
 {
-	int i;
+	int ret;
 
-	for (i = 0; i < ZBOOT_STATE_COUNT; i++) {
-		struct cmd_tbl *cmd = &zboot_subcmds[i];
-		int mask = 1 << i;
-		int ret;
-
-		if (mask & state_mask) {
-			ret = cmd->cmd(cmd, flag, argc, argv);
-			if (ret)
-				return ret;
-		}
-	}
+	if (flag & ZBOOT_STATE_START)
+		ret = do_zboot_start(cmdtp, flag, argc, argv);
+	if (!ret && (flag & ZBOOT_STATE_LOAD))
+		ret = do_zboot_load(cmdtp, flag, argc, argv);
+	if (!ret && (flag & ZBOOT_STATE_SETUP))
+		ret = do_zboot_setup(cmdtp, flag, argc, argv);
+	if (!ret && (flag & ZBOOT_STATE_INFO))
+		ret = do_zboot_info(cmdtp, flag, argc, argv);
+	if (!ret && (flag & ZBOOT_STATE_GO))
+		ret = do_zboot_go(cmdtp, flag, argc, argv);
+	if (ret)
+		return ret;
 
 	return 0;
 }
