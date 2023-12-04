@@ -5,6 +5,7 @@
 
 #include <asm/arch/clock.h>
 #include <asm/arch/mu.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/sections.h>
 #include <hang.h>
@@ -64,6 +65,8 @@ void board_init_f(ulong dummy)
 
 	debug("SOC: 0x%x\n", gd->arch.soc_rev);
 	debug("LC: 0x%x\n", gd->arch.lifecycle);
+
+	get_reset_reason(true, false);
 
 	board_init_r(NULL, 0);
 }

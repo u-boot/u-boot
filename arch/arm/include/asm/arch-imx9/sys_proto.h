@@ -21,6 +21,7 @@ int m33_prepare(void);
 int low_drive_freq_update(void *blob);
 
 enum imx9_soc_voltage_mode soc_target_voltage_mode(void);
+int get_reset_reason(bool sys, bool lm);
 
 #define is_voltage_mode(mode) (soc_target_voltage_mode() == (mode))
 
