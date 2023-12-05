@@ -65,6 +65,15 @@ CONFIG_SPL_NAND_LOAD (drivers/mtd/nand/raw/nand_spl_load.o)
 CONFIG_SPL_SPI_LOAD (drivers/mtd/spi/spi_spl_load.o)
 CONFIG_SPL_RAM_DEVICE (common/spl/spl.c)
 CONFIG_SPL_WATCHDOG (drivers/watchdog/libwatchdog.o)
+CONFIG_SPL_SYSCON (drivers/core/syscon-uclass.o)
+CONFIG_SPL_GZIP (lib/gzip.o)
+CONFIG_SPL_VIDEO (drivers/video/video-uclass.o drivers/video/vidconsole-uclass.o)
+CONFIG_SPL_SPLASH_SCREEN (common/splash.o)
+CONFIG_SPL_SPLASH_SOURCE (common/splash_source.o)
+CONFIG_SPL_GPIO (drivers/gpio)
+CONFIG_SPL_DM_GPIO (drivers/gpio/gpio-uclass.o)
+CONFIG_SPL_BMP (drivers/video/bmp.o)
+CONFIG_SPL_BLOBLIST (common/bloblist.o)
 
 Adding SPL-specific code
 ------------------------
