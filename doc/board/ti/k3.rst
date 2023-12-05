@@ -320,6 +320,13 @@ use the `lite` option.
  make CROSS_COMPILE=$CC64 BINMAN_INDIRS=$LNX_FW_PATH \
         BL31=$TFA_PATH/build/k3/$TFA_BOARD/release/bl31.bin \
         TEE=$OPTEE_PATH/out/arm-plat-k3/core/tee-raw.bin
+
+.. note::
+   It is also possible to pick up a custom DM binary by adding TI_DM argument
+   pointing to the file. If not provided, it defaults to picking up the DM
+   binary from BINMAN_INDIRS. This is only applicable to devices that utilize
+   split firmware.
+
 .. k3_rst_include_end_build_steps_uboot
 
 At this point you should have every binary needed initialize both the
