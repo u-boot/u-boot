@@ -889,6 +889,16 @@ int spl_usb_load(struct spl_image_info *spl_image,
 
 int spl_ymodem_load_image(struct spl_image_info *spl_image,
 			  struct spl_boot_device *bootdev);
+/**
+ * spl_reserve_video_from_ram_top() - Reserve framebuffer memory from end of RAM
+ *
+ * This enforces framebuffer reservation at SPL stage from end of RAM so that
+ * next stage can directly skip this pre-reserved area before carrying out
+ * further reservations. The allocation address is stored in struct video_uc_plat.
+ *
+ * Return: 0 on success, otherwise error code
+ */
+int spl_reserve_video_from_ram_top(void);
 
 /**
  * spl_invoke_atf - boot using an ARM trusted firmware image
