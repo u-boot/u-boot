@@ -1528,7 +1528,6 @@ F:	cmd/stackprot_test.c
 F:	test/py/tests/test_stackprotector.py
 
 TARGET_BCMNS3
-M:	Bharat Gooty <bharat.gooty@broadcom.com>
 M:	Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 S:	Maintained
 F:	board/broadcom/bcmns3/
