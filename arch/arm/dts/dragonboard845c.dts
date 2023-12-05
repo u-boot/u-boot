@@ -41,4 +41,8 @@
 	};
 };
 
+&pm8998_resin {
+	status = "okay";
+};
+
 #include "dragonboard845c-uboot.dtsi"

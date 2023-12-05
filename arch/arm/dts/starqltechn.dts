@@ -45,27 +45,15 @@
 		format = "a8r8g8b8";
 	};
 
-	gpio-keys {
-		compatible = "gpio-keys";
-
-		key-pwr {
-			label = "Power";
-			linux,code = <KEY_ENTER>;
-			gpios = <&pm8998_pon 0 GPIO_ACTIVE_LOW>;
-		};
-
-		key-vol-down {
-			label = "Volume Down";
-			linux,code = <KEY_DOWN>;
-			gpios = <&pm8998_pon 1 GPIO_ACTIVE_LOW>;
-		};
-	};
-
 	soc: soc {
 		serial@a84000 {
 			status = "okay";
 		};
 	};
+};
+
+&pm8998_resin {
+	status = "okay";
 };
 
 &tlmm {
