@@ -132,9 +132,8 @@
 					compatible = "qcom,pm8994-gpio";
 					reg = <0xc000 0x400>;
 					gpio-controller;
-					gpio-count = <24>;
+					gpio-ranges = <&pm8994_gpios 0 0 22>;
 					#gpio-cells = <2>;
-					gpio-bank-name="pm8994.";
 				};
 			};
 

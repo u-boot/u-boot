@@ -378,9 +378,8 @@
 					compatible = "qcom,pms405-gpio";
 					reg = <0xc000 0x400>;
 					gpio-controller;
-					gpio-count = <12>;
+					gpio-ranges = <&pms405_gpios 0 0 12>;
 					#gpio-cells = <2>;
-					gpio-bank-name="pmic";
 				};
 			};
 		};

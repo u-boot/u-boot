@@ -103,9 +103,8 @@
 					compatible = "qcom,pm8998-gpio";
 					reg = <0xc000 0x1a00>;
 					gpio-controller;
-					gpio-count = <21>;
+					gpio-ranges = <&pm8998_gpios 0 0 26>;
 					#gpio-cells = <2>;
-					gpio-bank-name = "pm8998.";
 				};
 			};
 
