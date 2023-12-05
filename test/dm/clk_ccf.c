@@ -63,6 +63,9 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	rate = clk_get_parent_rate(clk);
 	ut_asserteq(rate, 60000000);
 
+	rate = clk_set_rate(clk, 60000000);
+	ut_asserteq(rate, -ENOSYS);
+
 	rate = clk_get_rate(clk);
 	ut_asserteq(rate, 60000000);
 
@@ -87,6 +90,9 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	ut_asserteq_str("pll3_80m", pclk->dev->name);
 	ut_asserteq(CLK_SET_RATE_PARENT, pclk->flags);
 
+	rate = clk_set_rate(clk, 80000000);
+	ut_asserteq(rate, -ENOSYS);
+
 	rate = clk_get_rate(clk);
 	ut_asserteq(rate, 80000000);
 
@@ -106,6 +112,9 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	ut_asserteq(CLK_SET_RATE_UNGATE, clk->flags);
 
 	rate = clk_get_rate(clk);
+	ut_asserteq(rate, 60000000);
+
+	rate = clk_set_rate(clk, 60000000);
 	ut_asserteq(rate, 60000000);
 
 #if CONFIG_IS_ENABLED(CLK_CCF)
