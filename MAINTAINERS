@@ -667,11 +667,14 @@ F:	drivers/video/sunxi/
 F:	tools/sunxi*
 
 ARM TEGRA
-M:	Tom Warren <twarren@nvidia.com>
+M:	Thierry Reding <treding@nvidia.com>
+M:	Svyatoslav Ryhel <clamor95@gmail.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-tegra.git
-F:	arch/arm/mach-tegra/
+F:	arch/arm/dts/tegra*
 F:	arch/arm/include/asm/arch-tegra*/
+F:	arch/arm/mach-tegra/
+F:	drivers/*/tegra*
 
 ARM TI
 M:	Tom Rini <trini@konsulko.com>
