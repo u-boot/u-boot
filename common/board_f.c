@@ -407,11 +407,15 @@ static int reserve_video_from_videoblob(void)
 {
 	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && spl_phase() > PHASE_SPL) {
 		struct video_handoff *ho;
+		int ret = 0;
 
 		ho = bloblist_find(BLOBLISTT_U_BOOT_VIDEO, sizeof(*ho));
 		if (!ho)
-			return log_msg_ret("blf", -ENOENT);
-		video_reserve_from_bloblist(ho);
+			return log_msg_ret("Missing video bloblist", -ENOENT);
+
+		ret = video_reserve_from_bloblist(ho);
+		if (ret)
+			return log_msg_ret("Invalid Video handoff info", ret);
 
 		/* Sanity check fb from blob is before current relocaddr */
 		if (likely(gd->relocaddr > (unsigned long)ho->fb))

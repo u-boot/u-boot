@@ -123,6 +123,9 @@ int video_reserve(ulong *addrp)
 	struct udevice *dev;
 	ulong size;
 
+	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && spl_phase() == PHASE_BOARD_F)
+		return 0;
+
 	gd->video_top = *addrp;
 	for (uclass_find_first_device(UCLASS_VIDEO, &dev);
 	     dev;
@@ -208,11 +211,14 @@ int video_fill_part(struct udevice *dev, int xstart, int ystart, int xend,
 
 int video_reserve_from_bloblist(struct video_handoff *ho)
 {
+	if (!ho->fb || ho->size == 0)
+		return -ENOENT;
+
 	gd->video_bottom = ho->fb;
 	gd->fb_base = ho->fb;
 	gd->video_top = ho->fb + ho->size;
-	debug("Reserving %luk for video using blob at: %08x\n",
-	      ((unsigned long)ho->size) >> 10, (u32)ho->fb);
+	debug("%s: Reserving %lx bytes at %08x as per bloblist received\n",
+	      __func__, (unsigned long)ho->size, (u32)ho->fb);
 
 	return 0;
 }
