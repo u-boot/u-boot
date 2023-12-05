@@ -27,4 +27,13 @@ config BUTTON_GPIO
 	  The GPIO driver must used driver model. Buttons are configured using
 	  the device tree.
 
+config BUTTON_QCOM_PMIC
+	bool "Qualcomm power button"
+	depends on BUTTON
+	depends on PMIC_QCOM
+	help
+	  Enable support for the power and "resin" (usually volume down) buttons
+	  on Qualcomm SoCs. These will be configured as the Enter and Down keys
+	  respectively, allowing navigation of bootmenu with buttons on device.
+
 endmenu
