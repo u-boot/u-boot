@@ -66,7 +66,7 @@ static ulong clk_composite_set_rate(struct clk *clk, unsigned long rate)
 	const struct clk_ops *rate_ops = composite->rate_ops;
 	struct clk *clk_rate = composite->rate;
 
-	if (rate && rate_ops)
+	if (rate && rate_ops && rate_ops->set_rate)
 		return rate_ops->set_rate(clk_rate, rate);
 	else
 		return clk_get_rate(clk);
