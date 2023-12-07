@@ -458,10 +458,8 @@ void board_init_f(ulong dummy)
 {
 	sunxi_sram_init();
 
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_H3
 	/* Enable non-secure access to some peripherals */
 	tzpc_init();
-#endif
 
 	clock_init();
 	timer_init();
