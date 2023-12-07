@@ -46,7 +46,6 @@ void clock_init_safe(void)
 	/* timestamp */
 	writel(1, 0x01720000);
 }
-#endif
 
 void clock_init_uart(void)
 {
@@ -70,7 +69,6 @@ void clock_init_uart(void)
 			   CONFIG_CONS_INDEX - 1));
 }
 
-#ifdef CONFIG_SPL_BUILD
 void clock_set_pll1(unsigned int clk)
 {
 	struct sunxi_ccm_reg * const ccm =
@@ -102,8 +100,9 @@ void clock_set_pll1(unsigned int clk)
 		CPU_CLK_SRC_PLL1 << C1_CPUX_CLK_SRC_SHIFT,
 	       &ccm->cpu_axi_cfg);
 }
-#endif
+#endif /* CONFIG_SPL_BUILD */
 
+/* DRAM and PLL_PERIPH0 clock (used by the MMC driver) */
 void clock_set_pll5(unsigned int clk)
 {
 	struct sunxi_ccm_reg * const ccm =
