@@ -9,11 +9,14 @@
 #include <dm.h>
 #include <env.h>
 #include <linux/stringify.h>
+#include <linux/string.h>
 #include <mapmem.h>
 #include <smbios.h>
 #include <sysinfo.h>
 #include <tables_csum.h>
 #include <version.h>
+#include <malloc.h>
+#include <dm/ofnode.h>
 #ifdef CONFIG_CPU
 #include <cpu.h>
 #include <dm/uclass-internal.h>
@@ -42,6 +45,25 @@
 #define U_BOOT_DMI_DATE U_BOOT_DMI_MONTH "/" U_BOOT_DMI_DAY "/" U_BOOT_DMI_YEAR
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/**
+ * struct map_sysinfo - Mapping of sysinfo strings to DT
+ *
+ * @sysinfo_str: sysinfo string
+ * @dt_str: DT string
+ * @max: Max index of the tokenized string to pick. Counting starts from 0
+ *
+ */
+struct map_sysinfo {
+	const char *sysinfo_str;
+	const char *dt_str;
+	int max;
+};
+
+static const struct map_sysinfo sysinfo_to_dt[] = {
+	{ .sysinfo_str = "product", .dt_str = "model", 2 },
+	{ .sysinfo_str = "manufacturer", .dt_str = "compatible", 1 },
+};
 
 /**
  * struct smbios_ctx - context for writing SMBIOS tables
@@ -87,6 +109,18 @@ struct smbios_write_method {
 	const char *subnode_name;
 };
 
+static const struct map_sysinfo *convert_sysinfo_to_dt(const char *sysinfo_str)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(sysinfo_to_dt); i++) {
+		if (!strcmp(sysinfo_str, sysinfo_to_dt[i].sysinfo_str))
+			return &sysinfo_to_dt[i];
+	}
+
+	return NULL;
+}
+
 /**
  * smbios_add_string() - add a string to the string area
  *
@@ -125,6 +159,42 @@ static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
 }
 
 /**
+ * get_str_from_dt - Get a substring from a DT property.
+ *                   After finding the property in the DT, the function
+ *                   will parse comma-separated values and return the value.
+ *                   If nprop->max exceeds the number of comma-separated
+ *                   elements, the last non NULL value will be returned.
+ *                   Counting starts from zero.
+ *
+ * @nprop: sysinfo property to use
+ * @str: pointer to fill with data
+ * @size: str buffer length
+ */
+static
+void get_str_from_dt(const struct map_sysinfo *nprop, char *str, size_t size)
+{
+	const char *dt_str;
+	int cnt = 0;
+	char *token;
+
+	memset(str, 0, size);
+	if (!nprop || !nprop->max)
+		return;
+
+	dt_str = ofnode_read_string(ofnode_root(), nprop->dt_str);
+	if (!dt_str)
+		return;
+
+	memcpy(str, dt_str, size);
+	token = strtok(str, ",");
+	while (token && cnt < nprop->max) {
+		strlcpy(str, token, strlen(token) + 1);
+		token = strtok(NULL, ",");
+		cnt++;
+	}
+}
+
+/**
  * smbios_add_prop_si() - Add a property from the devicetree or sysinfo
  *
  * Sysinfo is used if available, with a fallback to devicetree
@@ -137,6 +207,8 @@ static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
 static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
 			      int sysinfo_id, const char *dval)
 {
+	int ret;
+
 	if (!dval || !*dval)
 		dval = "Unknown";
 
@@ -145,18 +217,30 @@ static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
 
 	if (sysinfo_id && ctx->dev) {
 		char val[SMBIOS_STR_MAX];
-		int ret;
 
 		ret = sysinfo_get_str(ctx->dev, sysinfo_id, sizeof(val), val);
 		if (!ret)
 			return smbios_add_string(ctx, val);
 	}
 	if (IS_ENABLED(CONFIG_OF_CONTROL)) {
-		const char *str;
+		const char *str = NULL;
+		char str_dt[128] = { 0 };
+		/*
+		 * If the node is not valid fallback and try the entire DT
+		 * so we can at least fill in manufacturer and board type
+		 */
+		if (ofnode_valid(ctx->node)) {
+			str = ofnode_read_string(ctx->node, prop);
+		} else {
+			const struct map_sysinfo *nprop;
 
-		str = ofnode_read_string(ctx->node, prop);
+			nprop = convert_sysinfo_to_dt(prop);
+			get_str_from_dt(nprop, str_dt, sizeof(str_dt));
+			str = (const char *)str_dt;
+		}
 
-		return smbios_add_string(ctx, str ? str : dval);
+		ret = smbios_add_string(ctx, str && *str ? str : dval);
+		return ret;
 	}
 
 	return 0;
