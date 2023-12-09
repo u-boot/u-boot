@@ -9,6 +9,7 @@ import os.path
 import pytest
 
 import u_boot_utils
+# pylint: disable=E0611
 from tests import fs_helper
 
 def mkdir_cond(dirname):
