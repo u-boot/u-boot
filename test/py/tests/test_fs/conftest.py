@@ -9,6 +9,7 @@ import re
 from subprocess import call, check_call, check_output, CalledProcessError
 from fstest_defs import *
 import u_boot_utils as util
+# pylint: disable=E0611
 from tests import fs_helper
 
 supported_fs_basic = ['fat16', 'fat32', 'ext4']
