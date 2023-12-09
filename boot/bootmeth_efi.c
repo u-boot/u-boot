@@ -160,7 +160,6 @@ static int efiload_read_file(struct bootflow *bflow, ulong addr)
 	if (ret)
 		return log_msg_ret("read", ret);
 	bflow->buf = map_sysmem(addr, bflow->size);
-	bflow->flags |= BOOTFLOWF_STATIC_BUF;
 
 	set_efi_bootdev(desc, bflow);
 
@@ -313,6 +312,7 @@ static int distro_efi_try_bootflow_files(struct udevice *dev,
 		 */
 	} else {
 		log_debug("No device tree available\n");
+		bflow->flags |= BOOTFLOWF_USE_BUILTIN_FDT;
 	}
 
 	return 0;
@@ -323,7 +323,7 @@ static int distro_efi_read_bootflow_net(struct bootflow *bflow)
 	char file_addr[17], fname[256];
 	char *tftp_argv[] = {"tftp", file_addr, fname, NULL};
 	struct cmd_tbl cmdtp = {};	/* dummy */
-	const char *addr_str, *fdt_addr_str;
+	const char *addr_str, *fdt_addr_str, *bootfile_name;
 	int ret, arch, size;
 	ulong addr, fdt_addr;
 	char str[36];
@@ -339,7 +339,7 @@ static int distro_efi_read_bootflow_net(struct bootflow *bflow)
 	ret = env_set("bootp_vci", str);
 	if (ret)
 		return log_msg_ret("vcs", ret);
-	ret = env_set_ulong("bootp_arch", arch);
+	ret = env_set_hex("bootp_arch", arch);
 	if (ret)
 		return log_msg_ret("ars", ret);
 
@@ -359,6 +359,12 @@ static int distro_efi_read_bootflow_net(struct bootflow *bflow)
 	if (size <= 0)
 		return log_msg_ret("sz", -EINVAL);
 	bflow->size = size;
+
+    /* bootfile should be setup by dhcp*/
+	bootfile_name = env_get("bootfile");
+	if (!bootfile_name)
+		return log_msg_ret("bootfile_name", ret);
+	bflow->fname = strdup(bootfile_name);
 
 	/* do the hideous EFI hack */
 	efi_set_bootdev("Net", "", bflow->fname, map_sysmem(addr, 0),
@@ -385,6 +391,7 @@ static int distro_efi_read_bootflow_net(struct bootflow *bflow)
 		bflow->fdt_addr = fdt_addr;
 	} else {
 		log_debug("No device tree available\n");
+		bflow->flags |= BOOTFLOWF_USE_BUILTIN_FDT;
 	}
 
 	bflow->state = BOOTFLOWST_READY;
@@ -395,6 +402,12 @@ static int distro_efi_read_bootflow_net(struct bootflow *bflow)
 static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 {
 	int ret;
+
+	/*
+	 * bootmeth_efi doesn't allocate any buffer neither for blk nor net device
+	 * set flag to avoid freeing static buffer.
+	 */
+	bflow->flags |= BOOTFLOWF_STATIC_BUF;
 
 	if (bootmeth_uses_network(bflow)) {
 		/* we only support reading from one device, so ignore 'dev' */
@@ -423,13 +436,11 @@ static int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 			return log_msg_ret("read", ret);
 
 		/*
-		 * use the provided device tree if available, else fall back to
-		 * the control FDT
+		 * use the provided device tree if not using the built-in fdt
 		 */
-		if (bflow->fdt_fname)
+		if (bflow->flags & ~BOOTFLOWF_USE_BUILTIN_FDT)
 			fdt = bflow->fdt_addr;
-		else
-			fdt = (ulong)map_to_sysmem(gd->fdt_blob);
+
 	} else {
 		/*
 		 * This doesn't actually work for network devices:
@@ -446,7 +457,14 @@ static int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 	 * At some point we can add a real interface to bootefi so we can call
 	 * this directly. For now, go through the CLI, like distro boot.
 	 */
-	snprintf(cmd, sizeof(cmd), "bootefi %lx %lx", kernel, fdt);
+	if (bflow->flags & BOOTFLOWF_USE_BUILTIN_FDT) {
+		log_debug("Booting with built-in fdt\n");
+		snprintf(cmd, sizeof(cmd), "bootefi %lx", kernel);
+	} else {
+		log_debug("Booting with external fdt\n");
+		snprintf(cmd, sizeof(cmd), "bootefi %lx %lx", kernel, fdt);
+	}
+
 	if (run_command(cmd, 0))
 		return log_msg_ret("run", -EINVAL);
 

@@ -45,10 +45,12 @@ enum bootflow_state_t {
  *	CONFIG_OF_HAS_PRIOR_STAGE is enabled
  * @BOOTFLOWF_STATIC_BUF: Indicates that @bflow->buf is statically set, rather
  *	than being allocated by malloc().
+ * @BOOTFLOWF_USE_BUILTIN_FDT : Indicates that current bootflow uses built-in FDT
  */
 enum bootflow_flags_t {
 	BOOTFLOWF_USE_PRIOR_FDT	= 1 << 0,
 	BOOTFLOWF_STATIC_BUF	= 1 << 1,
+	BOOTFLOWF_USE_BUILTIN_FDT	= 1 << 2,
 };
 
 /**
