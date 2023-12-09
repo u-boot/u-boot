@@ -130,16 +130,10 @@ static int lmb_test_dump_all(struct unit_test_state *uts, struct lmb *lmb)
 	return 0;
 }
 
-static int bdinfo_test_move(struct unit_test_state *uts)
+static int bdinfo_check_mem(struct unit_test_state *uts)
 {
 	struct bd_info *bd = gd->bd;
 	int i;
-
-	/* Test moving the working BDINFO to a new location */
-	ut_assertok(console_record_reset_enable());
-	ut_assertok(run_commandf("bdinfo"));
-
-	ut_assertok(test_num_l(uts, "boot_params", 0));
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
 		if (bd->bi_dram[i].size) {
@@ -150,6 +144,15 @@ static int bdinfo_test_move(struct unit_test_state *uts)
 						bd->bi_dram[i].size));
 		}
 	}
+
+	return 0;
+}
+
+static int bdinfo_test_all(struct unit_test_state *uts)
+{
+	ut_assertok(test_num_l(uts, "boot_params", 0));
+
+	ut_assertok(bdinfo_check_mem(uts));
 
 	/* CONFIG_SYS_HAS_SRAM testing not supported */
 	ut_assertok(test_num_l(uts, "flashstart", 0));
@@ -212,12 +215,67 @@ static int bdinfo_test_move(struct unit_test_state *uts)
 		ut_assertok(test_num_l(uts, "malloc base", gd_malloc_start()));
 	}
 
+	return 0;
+}
+
+static int bdinfo_test_full(struct unit_test_state *uts)
+{
+	/* Test BDINFO full print */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("bdinfo"));
+	ut_assertok(bdinfo_test_all(uts));
+	ut_assertok(run_commandf("bdinfo -a"));
+	ut_assertok(bdinfo_test_all(uts));
 	ut_assertok(ut_check_console_end(uts));
 
 	return 0;
 }
 
-BDINFO_TEST(bdinfo_test_move, UT_TESTF_CONSOLE_REC);
+BDINFO_TEST(bdinfo_test_full, UT_TESTF_CONSOLE_REC);
+
+static int bdinfo_test_help(struct unit_test_state *uts)
+{
+	/* Test BDINFO unknown option help text print */
+	ut_assertok(console_record_reset_enable());
+	ut_asserteq(1, run_commandf("bdinfo -h"));
+	ut_assert_nextlinen("bdinfo: invalid option -- h");
+	ut_assert_nextlinen("bdinfo - print Board Info structure");
+	ut_assert_nextline_empty();
+	ut_assert_nextlinen("Usage:");
+	ut_assert_nextlinen("bdinfo");
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+BDINFO_TEST(bdinfo_test_help, UT_TESTF_CONSOLE_REC);
+
+static int bdinfo_test_memory(struct unit_test_state *uts)
+{
+	/* Test BDINFO memory layout only print */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("bdinfo -m"));
+	ut_assertok(bdinfo_check_mem(uts));
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+BDINFO_TEST(bdinfo_test_memory, UT_TESTF_CONSOLE_REC);
+
+static int bdinfo_test_eth(struct unit_test_state *uts)
+{
+	/* Test BDINFO ethernet settings only print */
+	ut_assertok(console_record_reset_enable());
+	ut_assertok(run_commandf("bdinfo -e"));
+	if (IS_ENABLED(CONFIG_CMD_NET))
+		ut_assertok(test_eth(uts));
+	ut_assertok(ut_check_console_end(uts));
+
+	return 0;
+}
+
+BDINFO_TEST(bdinfo_test_eth, UT_TESTF_CONSOLE_REC);
 
 int do_ut_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
