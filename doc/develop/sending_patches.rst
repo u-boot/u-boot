@@ -363,7 +363,7 @@ A Custodian has additional privileges and can:
 
    * Awaiting Upstream
 
-   * Superseeded
+   * Superseded
 
    * Deferred
 
@@ -399,7 +399,7 @@ today. Not all states are used by all custodians.
   and has not merged yet to master, or has queued the patch up to be submitted
   to be merged, but has not yet.
 
-* Superseeded: Patches are marked as 'superseeded' when the poster submits a
+* Superseded: Patches are marked as 'superseded' when the poster submits a
   new version of these patches.
 
 * Deferred: Deferred usually means the patch depends on something else that

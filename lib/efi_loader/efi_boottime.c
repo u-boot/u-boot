@@ -1339,7 +1339,7 @@ static efi_status_t efi_disconnect_all_drivers
 				 const efi_guid_t *protocol,
 				 efi_handle_t child_handle)
 {
-	efi_uintn_t number_of_drivers, tmp;
+	efi_uintn_t number_of_drivers;
 	efi_handle_t *driver_handle_buffer;
 	efi_status_t r, ret;
 
@@ -1350,27 +1350,13 @@ static efi_status_t efi_disconnect_all_drivers
 	if (!number_of_drivers)
 		return EFI_SUCCESS;
 
-	tmp = number_of_drivers;
 	while (number_of_drivers) {
-		ret = EFI_CALL(efi_disconnect_controller(
+		r = EFI_CALL(efi_disconnect_controller(
 				handle,
 				driver_handle_buffer[--number_of_drivers],
 				child_handle));
-		if (ret != EFI_SUCCESS)
-			goto reconnect;
-	}
-
-	free(driver_handle_buffer);
-	return ret;
-
-reconnect:
-	/* Reconnect all disconnected drivers */
-	for (; number_of_drivers < tmp; number_of_drivers++) {
-		r = EFI_CALL(efi_connect_controller(handle,
-						    &driver_handle_buffer[number_of_drivers],
-						    NULL, true));
 		if (r != EFI_SUCCESS)
-			EFI_PRINT("Failed to reconnect controller\n");
+			ret = r;
 	}
 
 	free(driver_handle_buffer);
@@ -1409,6 +1395,13 @@ static efi_status_t efi_uninstall_protocol
 	r = efi_disconnect_all_drivers(handle, protocol, NULL);
 	if (r != EFI_SUCCESS) {
 		r = EFI_ACCESS_DENIED;
+		/*
+		 * This will reconnect all controllers of the handle, even ones
+		 * that were not connected before. This can be done better
+		 * but we are following the EDKII implementation on this for
+		 * now
+		 */
+		EFI_CALL(efi_connect_controller(handle, NULL, NULL, true));
 		goto out;
 	}
 	/* Close protocol */
