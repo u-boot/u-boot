@@ -160,6 +160,9 @@ static int do_acpi_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 	char sig[ACPI_NAME_LEN];
 	int ret;
 
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
 	name = argv[1];
 	if (strlen(name) != ACPI_NAME_LEN) {
 		printf("Table name '%s' must be four characters\n", name);
