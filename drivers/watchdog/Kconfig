@@ -344,6 +344,13 @@ config WDT_STM32MP
 	  Enable the STM32 watchdog (IWDG) driver. Enable support to
 	  configure STM32's on-SoC watchdog.
 
+config WDT_STARFIVE
+	bool "StarFive watchdog timer support"
+	depends on WDT
+	imply WATCHDOG
+	help
+	  Enable support for the watchdog timer of StarFive JH7110 SoC.
+
 config WDT_SUNXI
 	bool "Allwinner sunxi watchdog timer support"
 	depends on WDT && ARCH_SUNXI

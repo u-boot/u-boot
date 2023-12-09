@@ -5,9 +5,6 @@
 
 #include <config.h>
 
-#define U64_TO_U32_H(addr)		(((addr) >> 32) & 0xffffffff)
-#define U64_TO_U32_L(addr)		((addr) & 0xffffffff)
-
 / {
 	binman: binman {
 		multiple-images;
@@ -36,8 +33,7 @@
 					os = "U-Boot";
 					arch = "riscv";
 					compression = "none";
-					load = <U64_TO_U32_H(CONFIG_TEXT_BASE)
-						U64_TO_U32_L(CONFIG_TEXT_BASE)>;
+					load = /bits/ 64 <CONFIG_TEXT_BASE>;
 
 					uboot_blob: blob-ext {
 						filename = "u-boot-nodtb.bin";
@@ -50,7 +46,7 @@
 					os = "Linux";
 					arch = "riscv";
 					compression = "none";
-					load = <CONFIG_TEXT_BASE>;
+					load = /bits/ 64 <CONFIG_TEXT_BASE>;
 
 					linux_blob: blob-ext {
 						filename = "Image";
@@ -64,10 +60,8 @@
 					os = "opensbi";
 					arch = "riscv";
 					compression = "none";
-					load = <U64_TO_U32_H(CONFIG_SPL_OPENSBI_LOAD_ADDR)
-						U64_TO_U32_L(CONFIG_SPL_OPENSBI_LOAD_ADDR)>;
-					entry = <U64_TO_U32_H(CONFIG_SPL_OPENSBI_LOAD_ADDR)
-						U64_TO_U32_L(CONFIG_SPL_OPENSBI_LOAD_ADDR)>;
+					load = /bits/ 64 <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
+					entry = /bits/ 64 <CONFIG_SPL_OPENSBI_LOAD_ADDR>;
 
 					opensbi_blob: opensbi {
 						filename = "fw_dynamic.bin";
