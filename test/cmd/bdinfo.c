@@ -237,12 +237,17 @@ static int bdinfo_test_help(struct unit_test_state *uts)
 {
 	/* Test BDINFO unknown option help text print */
 	ut_assertok(console_record_reset_enable());
-	ut_asserteq(1, run_commandf("bdinfo -h"));
-	ut_assert_nextlinen("bdinfo: invalid option -- h");
-	ut_assert_nextlinen("bdinfo - print Board Info structure");
-	ut_assert_nextline_empty();
-	ut_assert_nextlinen("Usage:");
-	ut_assert_nextlinen("bdinfo");
+	if (!CONFIG_IS_ENABLED(GETOPT)) {
+		ut_asserteq(0, run_commandf("bdinfo -h"));
+		ut_assertok(bdinfo_test_all(uts));
+	} else {
+		ut_asserteq(1, run_commandf("bdinfo -h"));
+		ut_assert_nextlinen("bdinfo: invalid option -- h");
+		ut_assert_nextlinen("bdinfo - print Board Info structure");
+		ut_assert_nextline_empty();
+		ut_assert_nextlinen("Usage:");
+		ut_assert_nextlinen("bdinfo");
+	}
 	ut_assertok(ut_check_console_end(uts));
 
 	return 0;
@@ -255,7 +260,10 @@ static int bdinfo_test_memory(struct unit_test_state *uts)
 	/* Test BDINFO memory layout only print */
 	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("bdinfo -m"));
-	ut_assertok(bdinfo_check_mem(uts));
+	if (!CONFIG_IS_ENABLED(GETOPT))
+		ut_assertok(bdinfo_test_all(uts));
+	else
+		ut_assertok(bdinfo_check_mem(uts));
 	ut_assertok(ut_check_console_end(uts));
 
 	return 0;
@@ -268,7 +276,9 @@ static int bdinfo_test_eth(struct unit_test_state *uts)
 	/* Test BDINFO ethernet settings only print */
 	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("bdinfo -e"));
-	if (IS_ENABLED(CONFIG_CMD_NET))
+	if (!CONFIG_IS_ENABLED(GETOPT))
+		ut_assertok(bdinfo_test_all(uts));
+	else if (IS_ENABLED(CONFIG_CMD_NET))
 		ut_assertok(test_eth(uts));
 	ut_assertok(ut_check_console_end(uts));
 
