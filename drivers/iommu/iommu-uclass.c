@@ -100,9 +100,10 @@ int dev_iommu_enable(struct udevice *dev)
 		dev->iommu = dev_iommu;
 	}
 
-	if (CONFIG_IS_ENABLED(PCI) && count < 0 &&
-	    device_is_on_pci_bus(dev))
+#if CONFIG_IS_ENABLED(PCI)
+	if (count < 0 && device_is_on_pci_bus(dev))
 		return dev_pci_iommu_enable(dev);
+#endif
 
 	return 0;
 }
