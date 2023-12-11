@@ -1514,6 +1514,15 @@ if OF_LIBFDT
 
 menu "Devicetree fixup"
 
+config OF_ENV_SETUP
+	bool "Run a command from environment to set up device tree before boot"
+	depends on CMD_FDT
+	help
+	  This causes U-Boot to run a command from the environment variable
+	  fdt_fixup before booting into the operating system, which can use the
+	  fdt command to modify the device tree. The device tree is then passed
+	  to the OS.
+
 config OF_BOARD_SETUP
 	bool "Set up board-specific details in device tree before boot"
 	help
