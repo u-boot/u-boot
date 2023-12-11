@@ -77,6 +77,7 @@ int dev_iommu_enable(struct udevice *dev)
 {
 	struct ofnode_phandle_args args;
 	struct udevice *dev_iommu;
+	const struct iommu_ops *ops;
 	int i, count, ret = 0;
 
 	count = dev_count_phandle_with_args(dev, "iommus",
@@ -98,6 +99,16 @@ int dev_iommu_enable(struct udevice *dev)
 			return ret;
 		}
 		dev->iommu = dev_iommu;
+
+		if (dev->parent && dev->parent->iommu == dev_iommu)
+			continue;
+
+		ops = device_get_ops(dev->iommu);
+		if (ops && ops->connect) {
+			ret = ops->connect(dev);
+			if (ret)
+				return ret;
+		}
 	}
 
 #if CONFIG_IS_ENABLED(PCI)
