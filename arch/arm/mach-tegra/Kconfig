@@ -178,7 +178,7 @@ config TEGRA_DISCONNECT_UDC_ON_BOOT
 
 config TEGRA_SUPPORT_NON_SECURE
 	bool "Support executing U-Boot in non-secure (NS) mode"
-	depends on TEGRA124
+	depends on TEGRA114 || TEGRA124
 	help
 	  Certain impossible actions will be skipped if the CPU is in NS mode,
 	  such as ARM architectural timer initialization.
