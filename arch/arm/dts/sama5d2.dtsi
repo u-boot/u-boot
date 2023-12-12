@@ -119,7 +119,7 @@
 				status = "disabled";
 			};
 
-			pmc: pmc@f0014000 {
+			pmc: clock-controller@f0014000 {
 				compatible = "atmel,sama5d2-pmc", "syscon";
 				reg = <0xf0014000 0x160>;
 				#address-cells = <1>;
@@ -759,13 +759,13 @@
 				reg = <0xf8030000 0x98>;
 			};
 
-			rstc@f8048000 {
+			reset_controller: reset-controller@f8048000 {
 				compatible = "atmel,sama5d3-rstc";
 				reg = <0xf8048000 0x10>;
 				clocks = <&clk32k>;
 			};
 
-			shdwc@f8048010 {
+			shutdown_controller: poweroff@f8048010 {
 				compatible = "atmel,sama5d2-shdwc";
 				reg = <0xf8048010 0x10>;
 				clocks = <&clk32k>;
@@ -780,7 +780,7 @@
 				clocks = <&h32ck>;
 			};
 
-			watchdog@f8048040 {
+			watchdog: watchdog@f8048040 {
 				compatible = "atmel,sama5d4-wdt";
 				reg = <0xf8048040 0x10>;
 				clocks = <&clk32k>;
