@@ -93,6 +93,12 @@
 
 &gpio4 {
 	bootph-some-ram;
+
+	usbh_en {
+		gpio-hog;
+		gpios = <4 GPIO_ACTIVE_HIGH>;
+		output-high;
+	};
 };
 
 &gpio5 {
