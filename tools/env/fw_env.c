@@ -1732,6 +1732,7 @@ static int find_nvmem_device(void)
 	}
 
 	while (!nvmem && (dent = readdir(dir))) {
+		struct stat s;
 		FILE *fp;
 		size_t size;
 
@@ -1749,14 +1750,22 @@ static int find_nvmem_device(void)
 			continue;
 		}
 
-		size = fread(buf, sizeof(buf), 1, fp);
+		if (fstat(fileno(fp), &s)) {
+			fprintf(stderr, "Failed to fstat %s\n", comp);
+			goto next;
+		}
+
+		if (s.st_size >= sizeof(buf)) {
+			goto next;
+		}
+
+		size = fread(buf, s.st_size, 1, fp);
 		if (size != 1) {
 			fprintf(stderr,
 				"read failed about %s\n", comp);
-			fclose(fp);
-			return -EIO;
+			goto next;
 		}
-
+		buf[s.st_size] = '\0';
 
 		if (!strcmp(buf, "u-boot,env")) {
 			bytes = asprintf(&nvmem, "%s/%s/nvmem", path, dent->d_name);
@@ -1765,6 +1774,7 @@ static int find_nvmem_device(void)
 			}
 		}
 
+next:
 		fclose(fp);
 	}
 
