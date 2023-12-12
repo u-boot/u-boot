@@ -101,7 +101,6 @@
 	UBI_BOOTCMD
 #elif defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
 #define MODULE_EXTRA_ENV_SETTINGS \
-	"variant=-emmc\0" \
 	EMMC_ANDROID_BOOTCMD
 #endif
 
