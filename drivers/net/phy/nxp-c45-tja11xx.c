@@ -14,6 +14,7 @@
 #include <phy.h>
 
 #define PHY_ID_TJA_1103			0x001BB010
+#define PHY_ID_TJA_1120			0x001BB031
 
 #define VEND1_DEVICE_CONTROL		0x0040
 #define DEVICE_CONTROL_RESET		BIT(15)
@@ -316,6 +317,8 @@ static int nxp_c45_speed(struct phy_device *phydev)
 
 	if (val & MDIO_PMA_CTRL1_SPEED100)
 		phydev->speed = SPEED_100;
+	else if (val & MDIO_PMA_CTRL1_SPEED1000)
+		phydev->speed = SPEED_1000;
 	else
 		phydev->speed = 0;
 
@@ -358,6 +361,17 @@ U_BOOT_PHY_DRIVER(nxp_c45_tja1103) = {
 	.uid  = PHY_ID_TJA_1103,
 	.mask = 0xfffff0,
 	.features = NXP_C45_COMMON_FEATURES | SUPPORTED_100baseT_Full,
+	.probe = &nxp_c45_probe,
+	.config = &nxp_c45_config,
+	.startup = &nxp_c45_startup,
+	.shutdown = &genphy_shutdown,
+};
+
+U_BOOT_PHY_DRIVER(nxp_c45_tja1120) = {
+	.name = "NXP C45 TJA1120",
+	.uid  = PHY_ID_TJA_1120,
+	.mask = 0xfffff0,
+	.features = NXP_C45_COMMON_FEATURES | SUPPORTED_1000baseT_Full,
 	.probe = &nxp_c45_probe,
 	.config = &nxp_c45_config,
 	.startup = &nxp_c45_startup,
