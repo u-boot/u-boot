@@ -11,8 +11,26 @@
 #include <errno.h>
 #include <led.h>
 #include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <dm/root.h>
 #include <dm/uclass-internal.h>
+
+int led_bind_generic(struct udevice *parent, const char *driver_name)
+{
+	struct udevice *dev;
+	ofnode node;
+	int ret;
+
+	dev_for_each_subnode(node, parent) {
+		ret = device_bind_driver_to_node(parent, driver_name,
+						 ofnode_get_name(node),
+						 node, &dev);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
 
 int led_get_by_label(const char *label, struct udevice **devp)
 {
@@ -71,8 +89,10 @@ static int led_post_bind(struct udevice *dev)
 	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	const char *default_state;
 
-	uc_plat->label = dev_read_string(dev, "label");
 	if (!uc_plat->label)
+		uc_plat->label = dev_read_string(dev, "label");
+
+	if (!uc_plat->label && !dev_read_string(dev, "compatible"))
 		uc_plat->label = ofnode_get_name(dev_ofnode(dev));
 
 	uc_plat->default_state = LEDST_COUNT;

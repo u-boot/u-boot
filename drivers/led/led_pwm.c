@@ -9,7 +9,6 @@
 #include <errno.h>
 #include <led.h>
 #include <malloc.h>
-#include <dm/lists.h>
 #include <pwm.h>
 
 #define LEDS_PWM_DRIVER_NAME	"led_pwm"
@@ -136,18 +135,7 @@ static int led_pwm_of_to_plat(struct udevice *dev)
 
 static int led_pwm_bind(struct udevice *parent)
 {
-	struct udevice *dev;
-	ofnode node;
-	int ret;
-
-	dev_for_each_subnode(node, parent) {
-		ret = device_bind_driver_to_node(parent, LEDS_PWM_DRIVER_NAME,
-						 ofnode_get_name(node),
-						 node, &dev);
-		if (ret)
-			return ret;
-	}
-	return 0;
+	return led_bind_generic(parent, LEDS_PWM_DRIVER_NAME);
 }
 
 static const struct led_ops led_pwm_ops = {
