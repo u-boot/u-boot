@@ -34,7 +34,7 @@ struct expr_arg {
 	};
 };
 
-static int get_arg(char *s, int w, struct expr_arg *argp)
+static int setexpr_get_arg(char *s, int w, struct expr_arg *argp)
 {
 	struct expr_arg arg;
 
@@ -388,7 +388,7 @@ static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	w = cmd_get_data_size(argv[0], 4);
 
-	if (get_arg(argv[2], w, &aval))
+	if (setexpr_get_arg(argv[2], w, &aval))
 		return CMD_RET_FAILURE;
 
 	/* format string assignment: "setexpr name fmt %d value" */
@@ -441,7 +441,7 @@ static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (strlen(argv[3]) != 1)
 		return CMD_RET_USAGE;
 
-	if (get_arg(argv[4], w, &bval)) {
+	if (setexpr_get_arg(argv[4], w, &bval)) {
 		if (w == CMD_DATA_SIZE_STR)
 			free(aval.sval);
 		return CMD_RET_FAILURE;
