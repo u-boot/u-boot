@@ -948,29 +948,25 @@ static int flash_read_buf(int dev, int fd, void *buf, size_t count,
 		 */
 		lseek(fd, blockstart + block_seek, SEEK_SET);
 
-		rc = read(fd, buf + processed, readlen);
-		if (rc == -1) {
-			fprintf(stderr, "Read error on %s: %s\n",
-				DEVNAME(dev), strerror(errno));
-			return -1;
-		}
+		while (readlen) {
+			rc = read(fd, buf + processed, readlen);
+			if (rc == -1) {
+				fprintf(stderr, "Read error on %s: %s\n",
+					DEVNAME(dev), strerror(errno));
+				return -1;
+			}
 #ifdef DEBUG
-		fprintf(stderr, "Read 0x%x bytes at 0x%llx on %s\n",
-			rc, (unsigned long long)blockstart + block_seek,
-			DEVNAME(dev));
+			fprintf(stderr, "Read 0x%x bytes at 0x%llx on %s\n",
+				rc, (unsigned long long)blockstart + block_seek,
+				DEVNAME(dev));
 #endif
-		processed += rc;
-		if (rc != readlen) {
-			fprintf(stderr,
-				"Warning on %s: Attempted to read %zd bytes but got %d\n",
-				DEVNAME(dev), readlen, rc);
+			processed += rc;
 			readlen -= rc;
-			block_seek += rc;
-		} else {
-			blockstart += blocklen;
-			readlen = min(blocklen, count - processed);
-			block_seek = 0;
 		}
+
+		blockstart += blocklen;
+		readlen = min(blocklen, count - processed);
+		block_seek = 0;
 	}
 
 	return processed;
