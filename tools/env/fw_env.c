@@ -1416,11 +1416,11 @@ int fw_env_open(struct env_opts *opts)
 {
 	int crc0, crc0_ok;
 	unsigned char flag0;
-	void *addr0 = NULL;
+	void *buf0 = NULL;
 
 	int crc1, crc1_ok;
 	unsigned char flag1;
-	void *addr1 = NULL;
+	void *buf1 = NULL;
 
 	int ret;
 
@@ -1430,8 +1430,8 @@ int fw_env_open(struct env_opts *opts)
 	if (parse_config(opts))	/* should fill envdevices */
 		return -EINVAL;
 
-	addr0 = calloc(1, CUR_ENVSIZE);
-	if (addr0 == NULL) {
+	buf0 = calloc(1, CUR_ENVSIZE);
+	if (buf0 == NULL) {
 		fprintf(stderr,
 			"Not enough memory for environment (%ld bytes)\n",
 			CUR_ENVSIZE);
@@ -1440,13 +1440,13 @@ int fw_env_open(struct env_opts *opts)
 	}
 
 	dev_current = 0;
-	if (flash_io(O_RDONLY, addr0, CUR_ENVSIZE)) {
+	if (flash_io(O_RDONLY, buf0, CUR_ENVSIZE)) {
 		ret = -EIO;
 		goto open_cleanup;
 	}
 
 	if (!have_redund_env) {
-		struct env_image_single *single = addr0;
+		struct env_image_single *single = buf0;
 
 		crc0 = crc32(0, (uint8_t *)single->data, ENV_SIZE);
 		crc0_ok = (crc0 == single->crc);
@@ -1458,12 +1458,12 @@ int fw_env_open(struct env_opts *opts)
 			environment.dirty = 1;
 		}
 
-		environment.image = addr0;
+		environment.image = buf0;
 		environment.crc = &single->crc;
 		environment.flags = NULL;
 		environment.data = single->data;
 	} else {
-		struct env_image_redundant *redundant0 = addr0;
+		struct env_image_redundant *redundant0 = buf0;
 		struct env_image_redundant *redundant1;
 
 		crc0 = crc32(0, (uint8_t *)redundant0->data, ENV_SIZE);
@@ -1472,17 +1472,17 @@ int fw_env_open(struct env_opts *opts)
 		flag0 = redundant0->flags;
 
 		dev_current = 1;
-		addr1 = calloc(1, CUR_ENVSIZE);
-		if (addr1 == NULL) {
+		buf1 = calloc(1, CUR_ENVSIZE);
+		if (buf1 == NULL) {
 			fprintf(stderr,
 				"Not enough memory for environment (%ld bytes)\n",
 				CUR_ENVSIZE);
 			ret = -ENOMEM;
 			goto open_cleanup;
 		}
-		redundant1 = addr1;
+		redundant1 = buf1;
 
-		if (flash_io(O_RDONLY, addr1, CUR_ENVSIZE)) {
+		if (flash_io(O_RDONLY, buf1, CUR_ENVSIZE)) {
 			ret = -EIO;
 			goto open_cleanup;
 		}
@@ -1571,17 +1571,17 @@ int fw_env_open(struct env_opts *opts)
 		 * flags before writing out
 		 */
 		if (dev_current) {
-			environment.image = addr1;
+			environment.image = buf1;
 			environment.crc = &redundant1->crc;
 			environment.flags = &redundant1->flags;
 			environment.data = redundant1->data;
-			free(addr0);
+			free(buf0);
 		} else {
-			environment.image = addr0;
+			environment.image = buf0;
 			environment.crc = &redundant0->crc;
 			environment.flags = &redundant0->flags;
 			environment.data = redundant0->data;
-			free(addr1);
+			free(buf1);
 		}
 #ifdef DEBUG
 		fprintf(stderr, "Selected env in %s\n", DEVNAME(dev_current));
@@ -1590,11 +1590,8 @@ int fw_env_open(struct env_opts *opts)
 	return 0;
 
  open_cleanup:
-	if (addr0)
-		free(addr0);
-
-	if (addr1)
-		free(addr1);
+	free(buf0);
+	free(buf1);
 
 	return ret;
 }
