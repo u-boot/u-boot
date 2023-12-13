@@ -390,10 +390,10 @@ def test_fit(u_boot_console):
 
 
     cons = u_boot_console
+    # We need to use our own device tree file. Remember to restore it
+    # afterwards.
+    old_dtb = cons.config.dtb
     try:
-        # We need to use our own device tree file. Remember to restore it
-        # afterwards.
-        old_dtb = cons.config.dtb
         mkimage = cons.config.build_dir + '/tools/mkimage'
         run_fit_test(mkimage)
     finally:

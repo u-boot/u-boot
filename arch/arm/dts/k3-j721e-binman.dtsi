@@ -151,7 +151,7 @@
 						content = <&dm>;
 						keyfile = "custMpk.pem";
 					};
-					dm: blob-ext {
+					dm: ti-dm {
 						filename = "ti-dm.bin";
 					};
 				};
@@ -282,7 +282,7 @@
 		fit {
 			images {
 				dm {
-					blob-ext {
+					ti-dm {
 						filename = "ti-dm.bin";
 					};
 				};

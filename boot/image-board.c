@@ -908,7 +908,7 @@ int image_setup_linux(struct bootm_headers *images)
 	}
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && of_size) {
-		ret = image_setup_libfdt(images, *of_flat_tree, of_size, lmb);
+		ret = image_setup_libfdt(images, *of_flat_tree, lmb);
 		if (ret)
 			return ret;
 	}

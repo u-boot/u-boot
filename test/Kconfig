@@ -32,6 +32,7 @@ if UT_LIB
 
 config UT_LIB_ASN1
 	bool "Unit test for asn1 compiler and decoder function"
+	depends on SANDBOX
 	default y
 	imply ASYMMETRIC_KEY_TYPE
 	imply ASYMMETRIC_PUBLIC_KEY_SUBTYPE
@@ -63,6 +64,11 @@ config UT_LIB_RSA
 	  only, at the 'ut lib' command.
 
 endif
+
+config UT_BOOTSTD
+	bool "Unit tests for standard boot"
+	depends on UNIT_TEST && SANDBOX
+	default y
 
 config UT_COMPRESSION
 	bool "Unit test for compression"

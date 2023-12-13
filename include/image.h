@@ -1028,12 +1028,11 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
  *
  * @images:	Images information
  * @blob:	FDT to update
- * @of_size:	Size of the FDT
  * @lmb:	Points to logical memory block structure
  * Return: 0 if ok, <0 on failure
  */
 int image_setup_libfdt(struct bootm_headers *images, void *blob,
-		       int of_size, struct lmb *lmb);
+		       struct lmb *lmb);
 
 /**
  * Set up the FDT to use for booting a kernel

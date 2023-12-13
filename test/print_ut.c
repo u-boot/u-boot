@@ -170,6 +170,10 @@ static int print_display_buffer(struct unit_test_state *uts)
 	u8 *buf;
 	int i;
 
+	/* This test requires writable memory at zero */
+	if (IS_ENABLED(CONFIG_X86))
+		return -EAGAIN;
+
 	buf = map_sysmem(0, BUF_SIZE);
 	memset(buf, '\0', BUF_SIZE);
 	for (i = 0; i < 0x11; i++)
@@ -274,6 +278,10 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 {
 	u8 *buf;
 	int i;
+
+	/* This test requires writable memory at zero */
+	if (IS_ENABLED(CONFIG_X86))
+		return -EAGAIN;
 
 	buf = map_sysmem(0, BUF_SIZE);
 	memset(buf, '\0', BUF_SIZE);

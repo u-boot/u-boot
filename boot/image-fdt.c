@@ -24,9 +24,6 @@
 #include <dm/ofnode.h>
 #include <tee/optee.h>
 
-/* adding a ramdisk needs 0x44 bytes in version 2008.10 */
-#define FDT_RAMDISK_OVERHEAD	0x80
-
 DECLARE_GLOBAL_DATA_PTR;
 
 static void fdt_error(const char *msg)
@@ -575,12 +572,13 @@ __weak int arch_fixup_fdt(void *blob)
 }
 
 int image_setup_libfdt(struct bootm_headers *images, void *blob,
-		       int of_size, struct lmb *lmb)
+		       struct lmb *lmb)
 {
 	ulong *initrd_start = &images->initrd_start;
 	ulong *initrd_end = &images->initrd_end;
 	int ret = -EPERM;
 	int fdt_ret;
+	int of_size;
 
 	if (fdt_root(blob) < 0) {
 		printf("ERROR: root node setup failed\n");
@@ -637,6 +635,14 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 			goto err;
 		}
 	}
+
+	if (fdt_initrd(blob, *initrd_start, *initrd_end))
+		goto err;
+
+	if (!ft_verify_fdt(blob))
+		goto err;
+
+	/* after here we are using a livetree */
 	if (!of_live_active() && CONFIG_IS_ENABLED(EVENT)) {
 		struct event_ft_fixup fixup;
 
@@ -654,25 +660,16 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 
 	/* Delete the old LMB reservation */
 	if (lmb)
-		lmb_free(lmb, (phys_addr_t)(u32)(uintptr_t)blob,
-			 (phys_size_t)fdt_totalsize(blob));
+		lmb_free(lmb, map_to_sysmem(blob), fdt_totalsize(blob));
 
 	ret = fdt_shrink_to_minimum(blob, 0);
 	if (ret < 0)
 		goto err;
 	of_size = ret;
 
-	if (*initrd_start && *initrd_end) {
-		of_size += FDT_RAMDISK_OVERHEAD;
-		fdt_set_totalsize(blob, of_size);
-	}
 	/* Create a new LMB reservation */
 	if (lmb)
-		lmb_reserve(lmb, (ulong)blob, of_size);
-
-	fdt_initrd(blob, *initrd_start, *initrd_end);
-	if (!ft_verify_fdt(blob))
-		goto err;
+		lmb_reserve(lmb, map_to_sysmem(blob), of_size);
 
 #if defined(CONFIG_ARCH_KEYSTONE)
 	if (IS_ENABLED(CONFIG_OF_BOARD_SETUP))

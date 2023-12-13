@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "binary-manager"
-version = "0.0.2"
+version = "0.0.6"
 authors = [
   { name="Simon Glass", email="sjg@chromium.org" },
 ]
-dependencies = ["pylibfdt", "u_boot_pylib", "dtoc"]
+dependencies = ["pylibfdt", "u_boot_pylib >= 0.0.6", "dtoc >= 0.0.6"]
 description = "Binman firmware-packaging tool"
 readme = "README.rst"
 requires-python = ">=3.7"
@@ -19,7 +19,7 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://u-boot.readthedocs.io/en/latest/develop/package/index.html"
+"Homepage" = "https://docs.u-boot.org/en/latest/develop/package/index.html"
 "Bug Tracker" = "https://source.denx.de/groups/u-boot/-/issues"
 
 [project.scripts]

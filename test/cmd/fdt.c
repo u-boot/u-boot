@@ -160,7 +160,13 @@ static int fdt_test_addr(struct unit_test_state *uts)
 	set_working_fdt_addr(0);
 	ut_assert_nextline("Working FDT set to 0");
 	ut_asserteq(CMD_RET_FAILURE, run_command("fdt addr", 0));
-	ut_assert_nextline("libfdt fdt_check_header(): FDT_ERR_BADMAGIC");
+
+	/*
+	 * sandbox fails the check for !blob since the 0 pointer is mapped to
+	 * memory somewhere other than at 0x0
+	 */
+	if (IS_ENABLED(CONFIG_SANDBOX))
+		ut_assert_nextline("libfdt fdt_check_header(): FDT_ERR_BADMAGIC");
 	ut_assertok(ut_check_console_end(uts));
 
 	/* Set up a working FDT and try again */
