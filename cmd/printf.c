@@ -517,7 +517,7 @@ static char **print_formatted(struct print_inf *inf, char *f, char **argv, int *
 					field_width = get_width_prec(*argv++);
 			} else {
 				while (isdigit(*f)) {
-					++f;
+					field_width = field_width * 10 + *(f++) - '0';
 					++direc_length;
 				}
 			}
