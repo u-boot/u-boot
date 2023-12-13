@@ -117,7 +117,7 @@ F:	drivers/mmc/snps_dw_mmc.c
 APPLE M1 SOC SUPPORT
 M:	Mark Kettenis <kettenis@openbsd.org>
 S:	Maintained
-F:	arch/arm/include/asm/arch-m1/
+F:	arch/arm/include/asm/arch-apple/
 F:	arch/arm/mach-apple/
 F:	configs/apple_m1_defconfig
 F:	drivers/iommu/apple_dart.c
@@ -1528,7 +1528,6 @@ F:	cmd/stackprot_test.c
 F:	test/py/tests/test_stackprotector.py
 
 TARGET_BCMNS3
-M:	Bharat Gooty <bharat.gooty@broadcom.com>
 M:	Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 S:	Maintained
 F:	board/broadcom/bcmns3/

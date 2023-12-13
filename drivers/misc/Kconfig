@@ -615,7 +615,7 @@ config FS_LOADER
 	  ie. the FPGA device.
 
 config SPL_FS_LOADER
-	bool "Enable loader driver for file system"
+	bool "Enable loader driver for file system in SPL"
 	depends on SPL
 	help
 	  This is file system generic loader which can be used to load
