@@ -306,13 +306,33 @@ static int nxp_c45_config(struct phy_device *phydev)
 	return nxp_c45_start_op(phydev);
 }
 
+static int nxp_c45_speed(struct phy_device *phydev)
+{
+	int val;
+
+	val = phy_read_mmd(phydev, MDIO_MMD_PMAPMD, MDIO_CTRL1);
+	if (val < 0)
+		return val;
+
+	if (val & MDIO_PMA_CTRL1_SPEED100)
+		phydev->speed = SPEED_100;
+	else
+		phydev->speed = 0;
+
+	return 0;
+}
+
 static int nxp_c45_startup(struct phy_device *phydev)
 {
 	u32 reg;
+	int ret;
 
 	reg = phy_read_mmd(phydev, MDIO_MMD_PMAPMD, MDIO_STAT1);
 	phydev->link = !!(reg & MDIO_STAT1_LSTATUS);
-	phydev->speed = SPEED_100;
+	ret = nxp_c45_speed(phydev);
+	if (ret < 0)
+		return ret;
+
 	phydev->duplex = DUPLEX_FULL;
 	return 0;
 }
