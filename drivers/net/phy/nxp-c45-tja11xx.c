@@ -353,7 +353,7 @@ static int nxp_c45_probe(struct phy_device *phydev)
 #define NXP_C45_COMMON_FEATURES	(SUPPORTED_TP | \
 	SUPPORTED_MII)
 
-U_BOOT_PHY_DRIVER(nxp_c45_tja11xx) = {
+U_BOOT_PHY_DRIVER(nxp_c45_tja1103) = {
 	.name = "NXP C45 TJA1103",
 	.uid  = PHY_ID_TJA_1103,
 	.mask = 0xfffff0,
