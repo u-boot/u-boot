@@ -330,11 +330,14 @@ static int nxp_c45_probe(struct phy_device *phydev)
 	return 0;
 }
 
+#define NXP_C45_COMMON_FEATURES	(SUPPORTED_TP | \
+	SUPPORTED_MII)
+
 U_BOOT_PHY_DRIVER(nxp_c45_tja11xx) = {
 	.name = "NXP C45 TJA1103",
 	.uid  = PHY_ID_TJA_1103,
 	.mask = 0xfffff0,
-	.features = PHY_100BT1_FEATURES,
+	.features = NXP_C45_COMMON_FEATURES | SUPPORTED_100baseT_Full,
 	.probe = &nxp_c45_probe,
 	.config = &nxp_c45_config,
 	.startup = &nxp_c45_startup,
