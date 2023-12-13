@@ -18,6 +18,7 @@
 #include <vsprintf.h>
 #include <linux/errno.h>
 #include <linux/sizes.h>
+#include <linux/err.h>
 #include "printf.h"
 
 #define MAX_STR_LEN 128
@@ -25,6 +26,8 @@
 int setexpr_get_arg(char *s, int w, struct expr_arg *argp)
 {
 	struct expr_arg arg;
+	uchar *bmap;
+	ulong val;
 
 	/*
 	 * If the parameter starts with a '*' then assume it is a pointer to
@@ -33,7 +36,6 @@ int setexpr_get_arg(char *s, int w, struct expr_arg *argp)
 	if (s[0] == '*') {
 		ulong *p;
 		ulong addr;
-		ulong val;
 		int len;
 		char *str;
 
@@ -72,17 +74,38 @@ int setexpr_get_arg(char *s, int w, struct expr_arg *argp)
 			unmap_sysmem(p);
 			arg.ival = val;
 			break;
-		default:
+#if BITS_PER_LONG == 64
+		case 8:
 			p = map_sysmem(addr, sizeof(ulong));
 			val = *p;
 			unmap_sysmem(p);
 			arg.ival = val;
 			break;
+#endif
+		default:
+			p = map_sysmem(addr, w);
+			bmap = malloc(w);
+			if (!bmap) {
+				printf("Out of memory\n");
+				return -ENOMEM;
+			}
+			memcpy(bmap, p, w);
+			arg.bmap = bmap;
+			unmap_sysmem(p);
 		}
 	} else {
 		if (w == CMD_DATA_SIZE_STR)
 			return -EINVAL;
-		arg.ival = hextoul(s, NULL);
+		if (w > sizeof(ulong)) {
+			bmap = hextobarray(s);
+			if (IS_ERR(bmap)) {
+				printf("Out of memory\n");
+				return -ENOMEM;
+			}
+			arg.bmap = bmap;
+		} else {
+			arg.ival = hextoul(s, NULL);
+		}
 	}
 	*argp = arg;
 
