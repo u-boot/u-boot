@@ -21,20 +21,7 @@
 
 #define MAX_STR_LEN 128
 
-/**
- * struct expr_arg: Holds an argument to an expression
- *
- * @ival: Integer value (if width is not CMD_DATA_SIZE_STR)
- * @sval: String value (if width is CMD_DATA_SIZE_STR)
- */
-struct expr_arg {
-	union {
-		ulong ival;
-		char *sval;
-	};
-};
-
-static int setexpr_get_arg(char *s, int w, struct expr_arg *argp)
+int setexpr_get_arg(char *s, int w, struct expr_arg *argp)
 {
 	struct expr_arg arg;
 
