@@ -95,7 +95,9 @@ static int booti_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	 * Handle the BOOTM_STATE_FINDOTHER state ourselves as we do not
 	 * have a header that provide this informaiton.
 	 */
-	if (bootm_find_images(flag, argc, argv, relocated_addr, image_size))
+	if (bootm_find_images(image_load_addr, cmd_arg1(argc, argv),
+			      cmd_arg2(argc, argv), relocated_addr,
+			      image_size))
 		return 1;
 
 	return 0;
