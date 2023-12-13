@@ -248,6 +248,33 @@ int do_env_set_efi(struct cmd_tbl *cmdtp, int flag, int argc,
 int setexpr_regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
 		      const char *r, const char *s, bool global);
 
+/**
+ * struct expr_arg: Holds an argument to an expression
+ *
+ * @ival: Integer value (if width is not CMD_DATA_SIZE_STR)
+ * @sval: String value (if width is CMD_DATA_SIZE_STR)
+ * @bmap: Bitmap value (if width is > u64)
+ */
+struct expr_arg {
+	union {
+		ulong ival;
+		char *sval;
+		uchar *bmap;
+	};
+};
+
+/**
+ * setexpr_get_arg() - Converts a string argument to it's value. If argument
+ * starts with a '*' treat it as a pointer and dereference.
+ *
+ * @s: Argument string
+ * @w: Byte width of argument
+ * @argp: Pointer where the value should be stored
+ *
+ * Return: 0 on success, -EINVAL on failure
+ */
+int setexpr_get_arg(char *s, int w, struct expr_arg *argp);
+
 /*
  * Error codes that commands return to cmd_process(). We use the standard 0
  * and 1 for success and failure, but add one more case - failure with a
