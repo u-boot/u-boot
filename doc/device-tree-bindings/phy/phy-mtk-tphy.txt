@@ -52,6 +52,15 @@ Optional properties (port (child) node):
 		  "da_ref": the reference clock of analog phy, used if the clocks
 			of analog and digital phys are separated, otherwise uses
 			"ref" clock only if needed.
+- mediatek,eye-vrt	: The selection of VRT reference voltage (U2 phy),
+		  the value is [1, 7]
+- mediatek,eye-term	: The selection of HS_TX TERM reference voltage (U2 phy),
+		  the value is [1, 7]
+- mediatek,discth	: The selection of disconnect threshold (U2 phy),
+		  the value is [1, 15]
+- mediatek,pre-emphasis	: The level of pre-emphasis which used to widen
+		  the eye opening and boost eye swing,
+		  the value is [1, 3]
 
 Example:
 
