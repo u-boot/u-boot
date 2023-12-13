@@ -17,6 +17,5 @@ enum wget_state {
 };
 
 #define DEBUG_WGET		0	/* Set to 1 for debug messages */
-#define SERVER_PORT		80
 #define WGET_RETRY_COUNT	30
 #define WGET_TIMEOUT		2000UL
