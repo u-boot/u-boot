@@ -20,7 +20,6 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/io.h>
-#include <common.h>
 #include <env.h>
 #include <fsl_esdhc_imx.h>
 #include <linux/sizes.h>
