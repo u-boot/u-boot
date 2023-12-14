@@ -7,6 +7,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#include <config.h>
 #include <init.h>
 #include <watchdog.h>
 #include <command.h>
