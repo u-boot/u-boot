@@ -13,6 +13,7 @@
 #include <malloc.h>
 #include <vsprintf.h>
 #include <linux/ctype.h>
+#include <linux/err.h>
 
 /* from lib/kstrtox.c */
 static const char *_parse_integer_fixup_radix(const char *s, uint *basep)
@@ -71,6 +72,40 @@ ulong simple_strtoul(const char *cp, char **endp, uint base)
 		*endp = (char *)cp;
 
 	return result;
+}
+
+uchar *hextobarray(const char *cp)
+{
+	int i, len;
+	__maybe_unused unsigned int base;
+	__maybe_unused const char *endptr;
+	unsigned char *array;
+
+	len = strlen(cp);
+	array = (unsigned char *)malloc(len);
+	if (!array)
+		return ERR_PTR(-ENOMEM);
+
+	memset(array, 0, len);
+
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+	endptr = (cp + len - 1);
+	for (i = 0; i < len && endptr > cp; i++) {
+		array[i] |= decode_digit(*(endptr));
+		endptr--;
+		array[i] |= decode_digit(*endptr) << 4;
+		endptr--;
+	}
+#else
+	cp = _parse_integer_fixup_radix(cp, &base);
+	for (i = 0; i < len && *cp; i++) {
+		array[i] |= decode_digit(*cp) << 4;
+		cp++;
+		array[i] |= decode_digit(*cp);
+		cp++;
+	}
+#endif
+	return array;
 }
 
 ulong hextoul(const char *cp, char **endp)
