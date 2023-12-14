@@ -199,6 +199,13 @@ config TARGET_IMX8MP_BEACON
 	select ARCH_MISC_INIT
 	select SPL_CRYPTO if SPL
 
+config TARGET_IMX8MP_DEBIX_MODEL_A
+	bool "Polyhex i.MX8M Plus Debix Model A SBC"
+	select BINMAN
+	select IMX8MP
+	select IMX8M_LPDDR4
+	select SUPPORT_SPL
+
 config TARGET_IMX8MP_DH_DHCOM_PDK2
 	bool "DH electronics DHCOM Premium Developer Kit (2) i.MX8M Plus"
 	select BINMAN
@@ -249,7 +256,7 @@ config TARGET_PICO_IMX8MQ
 	select IMX8M_LPDDR4
 
 config TARGET_IMX8MN_VAR_SOM
-	bool "imx8mn_var_som"
+	bool "Variscite imx8mn_var_som"
 	select BINMAN
 	select IMX8MN
 	select SUPPORT_SPL
@@ -384,6 +391,7 @@ source "board/msc/sm2s_imx8mp/Kconfig"
 source "board/mntre/imx8mq_reform2/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
+source "board/polyhex/imx8mp_debix_model_a/Kconfig"
 source "board/purism/librem5/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"

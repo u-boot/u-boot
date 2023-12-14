@@ -23,6 +23,7 @@ struct pass_over_info_t {
 
 extern unsigned long boot_pointer[];
 void build_info(void);
+int ahab_close(void);
 int print_bootinfo(void);
 int sc_pm_setup_uart(sc_rsrc_t uart_rsrc, sc_pm_clock_rate_t clk_rate);
 int imx8_power_domain_lookup_name(const char *name,

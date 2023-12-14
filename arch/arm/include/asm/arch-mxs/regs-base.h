@@ -60,7 +60,7 @@
  * Register base addresses for i.MX28
  */
 #elif defined(CONFIG_MX28)
-#define	MXS_ICOL_BASE		0x80000000
+#define	MXS_ICOLL_BASE		0x80000000
 #define	MXS_HSADC_BASE		0x80002000
 #define	MXS_APBH_BASE		0x80004000
 #define	MXS_PERFMON_BASE	0x80006000
