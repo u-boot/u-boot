@@ -28,7 +28,6 @@
  * iPXE uses the simple file protocol to load Grub or the Linux Kernel.
  */
 
-#include <common.h>
 #include <blk.h>
 #include <dm.h>
 #include <efi_driver.h>

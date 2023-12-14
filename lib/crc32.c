@@ -11,7 +11,6 @@
 #ifdef USE_HOSTCC
 #include <arpa/inet.h>
 #else
-#include <common.h>
 #include <efi_loader.h>
 #endif
 #include <compiler.h>

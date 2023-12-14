@@ -7,7 +7,6 @@
  */
 
 #ifndef USE_HOSTCC
-#include <common.h>
 #include <boot_fit.h>
 #include <display_options.h>
 #include <dm.h>

@@ -5,7 +5,6 @@
  * Copyright 2023 Google LLC
  */
 
-#include <common.h>
 #include <mapmem.h>
 #include <acpi/acpi_table.h>
 #include <asm/global_data.h>

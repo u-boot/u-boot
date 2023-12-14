@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /* Copyright (C) 2020 Steffen Jaeckel <jaeckel-floss@eyet-services.de> */
 
-#include <common.h>
 #include <crypt.h>
 #include "crypt-port.h"
 

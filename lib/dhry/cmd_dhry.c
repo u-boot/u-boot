@@ -3,9 +3,10 @@
  * (C) Copyright 2015 Google, Inc
  */
 
-#include <common.h>
 #include <command.h>
 #include <div64.h>
+#include <time.h>
+#include <vsprintf.h>
 #include "dhry.h"
 
 static int do_dhry(struct cmd_tbl *cmdtp, int flag, int argc,

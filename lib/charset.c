@@ -5,7 +5,6 @@
  *  Copyright (c) 2017 Rob Clark
  */
 
-#include <common.h>
 #include <charset.h>
 #include <capitalization.h>
 #include <cp437.h>

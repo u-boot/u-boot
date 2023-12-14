@@ -13,7 +13,6 @@
  * from hush: simple_itoa() was lifted from boa-0.93.15
  */
 
-#include <common.h>
 #include <charset.h>
 #include <efi_loader.h>
 #include <div64.h>

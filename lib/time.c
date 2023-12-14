@@ -4,7 +4,6 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <bootstage.h>
 #include <dm.h>

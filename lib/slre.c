@@ -21,8 +21,8 @@
 #include <string.h>
 #else
 #include <log.h>
-#include <common.h>
 #include <linux/ctype.h>
+#include <linux/string.h>
 #endif /* SLRE_TEST */
 
 #include <errno.h>

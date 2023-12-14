@@ -9,9 +9,9 @@
  * Wirzenius wrote this portably, Torvalds fucked it up :-)
  */
 
-#include <common.h>
 #include <errno.h>
 #include <malloc.h>
+#include <vsprintf.h>
 #include <linux/ctype.h>
 
 /* from lib/kstrtox.c */

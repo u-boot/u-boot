@@ -3,7 +3,6 @@
  * Copyright 2008 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <addr_map.h>
 #include <mapmem.h>
 

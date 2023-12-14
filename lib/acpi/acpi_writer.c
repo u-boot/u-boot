@@ -7,13 +7,13 @@
 
 #define LOG_CATEGORY LOGC_ACPI
 
-#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <acpi/acpi_table.h>
 #include <asm/global_data.h>
 #include <dm/acpi.h>
+#include <linux/errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

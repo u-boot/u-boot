@@ -6,7 +6,6 @@
  * Copyright (c) 1992 Simon Glass
  */
 
-#include <common.h>
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>
