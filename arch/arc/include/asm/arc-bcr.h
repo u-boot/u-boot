@@ -13,8 +13,6 @@
 #define __ARC_BCR_H
 #ifndef __ASSEMBLY__
 
-#include <config.h>
-
 union bcr_di_cache {
 	struct {
 #ifdef CONFIG_CPU_BIG_ENDIAN
