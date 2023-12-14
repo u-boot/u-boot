@@ -7,7 +7,6 @@
 #ifndef __ASM_ARCH_J721E_HARDWARE_H
 #define __ASM_ARCH_J721E_HARDWARE_H
 
-#include <config.h>
 #ifndef __ASSEMBLY__
 #include <linux/bitops.h>
 #endif

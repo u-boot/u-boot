@@ -6,6 +6,8 @@
 #ifndef __DDR3_AXP_H
 #define __DDR3_AXP_H
 
+#include <config.h>
+
 #define MV_78XX0_Z1_REV			0x0
 #define MV_78XX0_A0_REV			0x1
 #define MV_78XX0_B0_REV			0x2

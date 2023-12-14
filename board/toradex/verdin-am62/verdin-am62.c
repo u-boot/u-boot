@@ -6,6 +6,7 @@
  *
  */
 
+#include <config.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 #include <dm/uclass.h>
