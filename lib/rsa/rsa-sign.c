@@ -317,7 +317,8 @@ static int rsa_engine_init(const char *engine_id, ENGINE **pe)
 
 	e = ENGINE_by_id(engine_id);
 	if (!e) {
-		fprintf(stderr, "Engine isn't available\n");
+		fprintf(stderr, "Engine '%s' isn't available\n", engine_id);
+		ERR_print_errors_fp(stderr);
 		return -1;
 	}
 
