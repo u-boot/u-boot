@@ -17,9 +17,9 @@
 #else
 #include "fdt_host.h"
 #include "mkimage.h"
+#include <linux/kconfig.h>
 #include <fdt_support.h>
 #endif
-#include <linux/kconfig.h>
 #include <u-boot/rsa-mod-exp.h>
 #include <u-boot/rsa.h>
 

@@ -8,7 +8,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <linux/kconfig.h>
 #include <linux/stringify.h>
 
 /* place code in last 4 MiB of RAM */

@@ -15,6 +15,7 @@
 #include <time.h>
 #include <linux/libfdt.h>
 #include <u-boot/crc.h>
+#include <linux/kconfig.h>
 #else
 #include <linux/compiler.h>
 #include <linux/sizes.h>
@@ -36,7 +37,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <bootm.h>
 #include <image.h>
 #include <bootstage.h>
-#include <linux/kconfig.h>
 #include <u-boot/crc.h>
 #include <u-boot/md5.h>
 #include <u-boot/sha1.h>

@@ -15,7 +15,6 @@
 #ifndef _ENV_INTERNAL_H_
 #define _ENV_INTERNAL_H_
 
-#include <linux/kconfig.h>
 
 /**************************************************************************
  *

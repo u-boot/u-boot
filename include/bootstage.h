@@ -12,7 +12,9 @@
 #define _BOOTSTAGE_H
 
 #include <linux/types.h>
+#ifdef USE_HOSTCC
 #include <linux/kconfig.h>
+#endif
 
 /* Flags for each bootstage record */
 enum bootstage_flags {
