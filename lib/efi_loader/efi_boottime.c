@@ -5,7 +5,6 @@
  * Copyright (c) 2016 Alexander Graf
  */
 
-#include <common.h>
 #include <bootm.h>
 #include <div64.h>
 #include <dm/device.h>

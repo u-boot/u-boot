@@ -5,7 +5,6 @@
  *  Copyright (c) 2017 Heinrich Schuchardt
  */
 
-#include <common.h>
 #include <blk.h>
 #include <efi_loader.h>
 #include <malloc.h>

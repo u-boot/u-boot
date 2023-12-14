@@ -6,7 +6,6 @@
  *			Author: AKASHI Takahiro
  */
 
-#include <common.h>
 #include <charset.h>
 #include <dfu.h>
 #include <efi_loader.h>

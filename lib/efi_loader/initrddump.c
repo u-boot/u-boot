@@ -9,7 +9,6 @@
  * clearing of the screen.
  */
 
-#include <common.h>
 #include <efi_api.h>
 #include <efi_load_initrd.h>
 

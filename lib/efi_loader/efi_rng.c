@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
-#include <common.h>
 #include <dm.h>
 #include <efi_loader.h>
 #include <efi_rng.h>

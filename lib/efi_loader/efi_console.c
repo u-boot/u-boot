@@ -8,7 +8,6 @@
 #define LOG_CATEGORY LOGC_EFI
 
 #include <ansi.h>
-#include <common.h>
 #include <charset.h>
 #include <malloc.h>
 #include <time.h>
