@@ -3,8 +3,6 @@
  * Copyright (c) 2018 Microsemi Corporation
  */
 
-#include <common.h>
-
 #define ETH_LEN 6
 #define MAC_VID 1
 

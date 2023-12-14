@@ -6,7 +6,6 @@
 #ifndef __FM_H__
 #define __FM_H__
 
-#include <common.h>
 #include <phy.h>
 #include <fm_eth.h>
 #include <fsl_fman.h>

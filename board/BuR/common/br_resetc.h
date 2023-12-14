@@ -7,7 +7,6 @@
  */
 #ifndef __CONFIG_BRRESETC_H__
 #define __CONFIG_BRRESETC_H__
-#include <common.h>
 
 int br_resetc_regget(u8 reg, u8 *dst);
 int br_resetc_regset(u8 reg, u8 val);

@@ -9,7 +9,6 @@
 #ifndef __NET_RAND_H__
 #define __NET_RAND_H__
 
-#include <common.h>
 #include <dm/uclass.h>
 #include <rng.h>
 

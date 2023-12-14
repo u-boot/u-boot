@@ -6,8 +6,6 @@
 #ifndef _BOARD_CZNIC_TURRIS_MOX_MOX_SP_H_
 #define _BOARD_CZNIC_TURRIS_MOX_MOX_SP_H_
 
-#include <common.h>
-
 enum cznic_a3720_board {
 	BOARD_UNDEFINED		= 0x0,
 	BOARD_TURRIS_MOX	= 0x1,

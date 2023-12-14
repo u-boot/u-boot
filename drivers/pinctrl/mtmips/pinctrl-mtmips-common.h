@@ -8,8 +8,6 @@
 #ifndef _PINCTRL_MTMIPS_COMMON_H_
 #define _PINCTRL_MTMIPS_COMMON_H_
 
-#include <common.h>
-
 struct mtmips_pmx_func {
 	const char *name;
 	int value;
