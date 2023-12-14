@@ -184,6 +184,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 			 "mmc 0=boot.bin fat 0 1;"
 			 "%s fat 0 1", CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
 		break;
+#if defined(CONFIG_SPL_SPI_LOAD)
 	case ZYNQ_BM_QSPI:
 		snprintf(buf, DFU_ALT_BUF_LEN,
 			 "sf 0:0=boot.bin raw 0 0x1500000;"
@@ -191,6 +192,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 			 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
 			 CONFIG_SYS_SPI_U_BOOT_OFFS);
 		break;
+#endif
 	default:
 		return;
 	}
