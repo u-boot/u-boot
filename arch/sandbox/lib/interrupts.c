@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include <common.h>
 #include <efi_loader.h>
 #include <irq_func.h>
 #include <os.h>

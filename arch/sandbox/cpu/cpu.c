@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY	LOGC_SANDBOX
 
-#include <common.h>
 #include <bootstage.h>
 #include <cpu_func.h>
 #include <errno.h>
