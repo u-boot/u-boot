@@ -11,7 +11,6 @@
 
 #include <config.h>
 
-#include <asm/types.h>
 #include <linux/types.h>
 
 /* Architecture-specific global data */
