@@ -9,6 +9,8 @@
 #ifndef	__ASM_GBL_DATA_H
 #define __ASM_GBL_DATA_H
 
+#include <linux/types.h>
+
 /* Architecture-specific global data */
 struct arch_global_data {
 	uint8_t		*ram_buf;	/* emulated RAM buffer */
