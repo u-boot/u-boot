@@ -848,6 +848,7 @@ config ARCH_LPC32XX
 	select GPIO_EXTRA_HEADER
 	select SPL_DM if SPL
 	select SUPPORT_SPL
+	select BINMAN if SPL && OF_CONTROL
 	imply CMD_DM
 
 config ARCH_IMX8
