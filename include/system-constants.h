@@ -3,6 +3,8 @@
 #ifndef __SYSTEM_CONSTANTS_H__
 #define __SYSTEM_CONSTANTS_H__
 
+#include <config.h>
+
 /*
  * The most common case for our initial stack pointer address is to
  * say that we have defined a static intiial ram address location and
