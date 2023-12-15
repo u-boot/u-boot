@@ -103,13 +103,13 @@ int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason);
  */
 void fastboot_set_progress_callback(void (*progress)(const char *msg));
 
-/*
+/**
  * fastboot_init() - initialise new fastboot protocol session
  *
- * @buf_addr: Pointer to download buffer, or NULL for default
+ * @buf_addr: Address of download buffer, or 0 for default
  * @buf_size: Size of download buffer, or zero for default
  */
-void fastboot_init(void *buf_addr, u32 buf_size);
+void fastboot_init(ulong buf_addr, u32 buf_size);
 
 /**
  * fastboot_boot() - Execute fastboot boot command

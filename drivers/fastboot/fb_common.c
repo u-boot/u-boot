@@ -20,7 +20,7 @@
 /**
  * fastboot_buf_addr - base address of the fastboot download buffer
  */
-void *fastboot_buf_addr;
+ulong fastboot_buf_addr;
 
 /**
  * fastboot_buf_size - size of the fastboot download buffer
@@ -154,7 +154,7 @@ void fastboot_boot(void)
 		};
 
 		snprintf(boot_addr_start, sizeof(boot_addr_start) - 1,
-			 "0x%p", fastboot_buf_addr);
+			 "%lx", fastboot_buf_addr);
 		printf("Booting kernel at %s...\n\n\n", boot_addr_start);
 
 		do_bootm(NULL, 0, 2, bootm_args);
@@ -214,16 +214,9 @@ void fastboot_set_progress_callback(void (*progress)(const char *msg))
 	fastboot_progress_callback = progress;
 }
 
-/*
- * fastboot_init() - initialise new fastboot protocol session
- *
- * @buf_addr: Pointer to download buffer, or NULL for default
- * @buf_size: Size of download buffer, or zero for default
- */
-void fastboot_init(void *buf_addr, u32 buf_size)
+void fastboot_init(ulong buf_addr, u32 buf_size)
 {
-	fastboot_buf_addr = buf_addr ? buf_addr :
-				       (void *)CONFIG_FASTBOOT_BUF_ADDR;
+	fastboot_buf_addr = buf_addr ? buf_addr : CONFIG_FASTBOOT_BUF_ADDR;
 	fastboot_buf_size = buf_size ? buf_size : CONFIG_FASTBOOT_BUF_SIZE;
 	fastboot_set_progress_callback(NULL);
 }

@@ -10,6 +10,7 @@
 #include <fastboot-internal.h>
 #include <fb_mmc.h>
 #include <fb_nand.h>
+#include <mapmem.h>
 #include <part.h>
 #include <stdlib.h>
 #include <linux/printk.h>
@@ -243,6 +244,7 @@ void fastboot_data_download(const void *fastboot_data,
 {
 #define BYTES_PER_DOT	0x20000
 	u32 pre_dot_num, now_dot_num;
+	void *buf;
 
 	if (fastboot_data_len == 0 ||
 	    (fastboot_bytes_received + fastboot_data_len) >
@@ -252,8 +254,10 @@ void fastboot_data_download(const void *fastboot_data,
 		return;
 	}
 	/* Download data to fastboot_buf_addr */
-	memcpy(fastboot_buf_addr + fastboot_bytes_received,
+	buf = map_sysmem(fastboot_buf_addr, 0);
+	memcpy(buf + fastboot_bytes_received,
 	       fastboot_data, fastboot_data_len);
+	unmap_sysmem(buf);
 
 	pre_dot_num = fastboot_bytes_received / BYTES_PER_DOT;
 	fastboot_bytes_received += fastboot_data_len;
@@ -296,13 +300,16 @@ void fastboot_data_complete(char *response)
  */
 static void __maybe_unused flash(char *cmd_parameter, char *response)
 {
+	void *buf = map_sysmem(fastboot_buf_addr, 0);
+
 	if (IS_ENABLED(CONFIG_FASTBOOT_FLASH_MMC))
-		fastboot_mmc_flash_write(cmd_parameter, fastboot_buf_addr,
-					 image_size, response);
+		fastboot_mmc_flash_write(cmd_parameter, buf, image_size,
+					 response);
 
 	if (IS_ENABLED(CONFIG_FASTBOOT_FLASH_NAND))
-		fastboot_nand_flash_write(cmd_parameter, fastboot_buf_addr,
-					  image_size, response);
+		fastboot_nand_flash_write(cmd_parameter, buf, image_size,
+					  response);
+	unmap_sysmem(buf);
 }
 
 /**
