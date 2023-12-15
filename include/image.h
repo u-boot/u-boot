@@ -1011,7 +1011,7 @@ int image_decomp_type(const unsigned char *buf, ulong len);
  * @load:	Destination load address in U-Boot memory
  * @image_start Image start address (where we are decompressing from)
  * @type:	OS type (IH_OS_...)
- * @load_bug:	Place to decompress to
+ * @load_buf:	Place to decompress to
  * @image_buf:	Address to decompress from
  * @image_len:	Number of bytes in @image_buf to decompress
  * @unc_len:	Available space for decompression

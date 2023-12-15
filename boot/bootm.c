@@ -443,24 +443,8 @@ static int bootm_find_os(const char *cmd_name, const char *addr_fit)
 	}
 
 	if (images.os.type == IH_TYPE_KERNEL_NOLOAD) {
-		if (IS_ENABLED(CONFIG_CMD_BOOTI) &&
-		    images.os.arch == IH_ARCH_ARM64 &&
-		    images.os.os == IH_OS_LINUX) {
-			ulong image_addr;
-			ulong image_size;
-
-			ret = booti_setup(images.os.image_start, &image_addr,
-					  &image_size, true);
-			if (ret != 0)
-				return 1;
-
-			images.os.type = IH_TYPE_KERNEL;
-			images.os.load = image_addr;
-			images.ep = image_addr;
-		} else {
-			images.os.load = images.os.image_start;
-			images.ep += images.os.image_start;
-		}
+		images.os.load = images.os.image_start;
+		images.ep += images.os.image_start;
 	}
 
 	images.os.start = map_to_sysmem(os_hdr);
@@ -645,6 +629,24 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	void *load_buf, *image_buf;
 	int err;
 
+	/*
+	 * For a "noload" compressed kernel we need to allocate a buffer large
+	 * enough to decompress in to and use that as the load address now.
+	 * Assume that the kernel compression is at most a factor of 4 since
+	 * zstd almost achieves that.
+	 * Use an alignment of 2MB since this might help arm64
+	 */
+	if (os.type == IH_TYPE_KERNEL_NOLOAD && os.comp != IH_COMP_NONE) {
+		ulong req_size = ALIGN(image_len * 4, SZ_1M);
+
+		load = lmb_alloc(&images->lmb, req_size, SZ_2M);
+		if (!load)
+			return 1;
+		os.load = load;
+		debug("Allocated %lx bytes at %lx for kernel (size %lx) decompression\n",
+		      req_size, load, image_len);
+	}
+
 	load_buf = map_sysmem(load, 0);
 	image_buf = map_sysmem(os.image_start, image_len);
 	err = image_decomp(os.comp, load, os.image_start, os.type,
@@ -683,6 +685,31 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 			bootstage_error(BOOTSTAGE_ID_OVERWRITTEN);
 			return BOOTM_ERR_RESET;
 		}
+	}
+
+	if (IS_ENABLED(CONFIG_CMD_BOOTI) && images->os.arch == IH_ARCH_ARM64 &&
+	    images->os.os == IH_OS_LINUX) {
+		ulong relocated_addr;
+		ulong image_size;
+		int ret;
+
+		ret = booti_setup(load, &relocated_addr, &image_size, false);
+		if (ret) {
+			printf("Failed to prep arm64 kernel (err=%d)\n", ret);
+			return BOOTM_ERR_RESET;
+		}
+
+		/* Handle BOOTM_STATE_LOADOS */
+		if (relocated_addr != load) {
+			printf("Moving Image from 0x%lx to 0x%lx, end=%lx\n",
+			       load, relocated_addr,
+			       relocated_addr + image_size);
+			memmove((void *)relocated_addr, load_buf, image_size);
+		}
+
+		images->ep = relocated_addr;
+		images->os.start = relocated_addr;
+		images->os.end = relocated_addr + image_size;
 	}
 
 	lmb_reserve(&images->lmb, images->os.load, (load_end -
