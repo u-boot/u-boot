@@ -470,6 +470,68 @@ skip_overlay:
 #endif
 
 /**
+ * calc_fdt_fname() - Figure out the filename to use for the FDT
+ *
+ * Determine the path to the FDT filename, based on the "fdtfile" environment
+ * variable. Use <soc>-<board>.dtb as a fallback
+ *
+ * @fdtdir: Directory to use for the FDT file
+ * Return: allocated filename (including directory), or NULL if out of memory
+ */
+static char *calc_fdt_fname(const char *fdtdir)
+{
+	char *fdtfile;
+	char *f1, *f2, *f3, *f4, *slash;
+	int len;
+
+	f1 = env_get("fdtfile");
+	if (f1) {
+		f2 = "";
+		f3 = "";
+		f4 = "";
+	} else {
+		/*
+		 * For complex cases where this code doesn't generate the
+		 * correct filename, the board code should set $fdtfile during
+		 * early boot, or the boot scripts should set $fdtfile before
+		 * invoking "pxe" or "sysboot".
+		 */
+		f1 = env_get("soc");
+		f2 = "-";
+		f3 = env_get("board");
+		f4 = ".dtb";
+		if (!f1) {
+			f1 = "";
+			f2 = "";
+		}
+		if (!f3) {
+			f2 = "";
+			f3 = "";
+		}
+	}
+
+	len = strlen(fdtdir);
+	if (!len)
+		slash = "./";
+	else if (fdtdir[len - 1] != '/')
+		slash = "/";
+	else
+		slash = "";
+
+	len = strlen(fdtdir) + strlen(slash) + strlen(f1) + strlen(f2) +
+		strlen(f3) + strlen(f4) + 1;
+	fdtfile = malloc(len);
+	if (!fdtfile) {
+		printf("malloc fail (FDT filename)\n");
+		return NULL;
+	}
+
+	snprintf(fdtfile, len, "%s%s%s%s%s%s", fdtdir, slash, f1, f2, f3, f4);
+
+	return fdtfile;
+}
+
+/**
  * label_run_boot() - Run the correct boot procedure
  *
  * fdt usage is optional:
@@ -525,55 +587,9 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 		if (label->fdt) {
 			fdtfile = label->fdt;
 		} else if (label->fdtdir) {
-			char *f1, *f2, *f3, *f4, *slash;
-			int len;
-
-			f1 = env_get("fdtfile");
-			if (f1) {
-				f2 = "";
-				f3 = "";
-				f4 = "";
-			} else {
-				/*
-				 * For complex cases where this code doesn't
-				 * generate the correct filename, the board
-				 * code should set $fdtfile during early boot,
-				 * or the boot scripts should set $fdtfile
-				 * before invoking "pxe" or "sysboot".
-				 */
-				f1 = env_get("soc");
-				f2 = "-";
-				f3 = env_get("board");
-				f4 = ".dtb";
-				if (!f1) {
-					f1 = "";
-					f2 = "";
-				}
-				if (!f3) {
-					f2 = "";
-					f3 = "";
-				}
-			}
-
-			len = strlen(label->fdtdir);
-			if (!len)
-				slash = "./";
-			else if (label->fdtdir[len - 1] != '/')
-				slash = "/";
-			else
-				slash = "";
-
-			len = strlen(label->fdtdir) + strlen(slash) +
-				strlen(f1) + strlen(f2) + strlen(f3) +
-				strlen(f4) + 1;
-			fdtfilefree = malloc(len);
-			if (!fdtfilefree) {
-				printf("malloc fail (FDT filename)\n");
+			fdtfilefree = calc_fdt_fname(label->fdtdir);
+			if (!fdtfilefree)
 				return -ENOMEM;
-			}
-
-			snprintf(fdtfilefree, len, "%s%s%s%s%s%s",
-				 label->fdtdir, slash, f1, f2, f3, f4);
 			fdtfile = fdtfilefree;
 		}
 
