@@ -22,7 +22,7 @@ void write_to_env_var(char *varname, u8 *result, ulong len)
 
 	str_output = malloc(len * 2 + 1);
 	if (str_output == NULL){
-		printf("BINOP: could not allocate memory for binop");
+		printf("BINOP: could not allocate memory for binop\n");
 		return -ENOMEM;
 	}
 	str_ptr = str_output;
@@ -97,12 +97,12 @@ static int do_binop(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	src1 = malloc(len);
 	if (src1 == NULL){
-		printf("BINOP: could not allocate memory for binop");
+		printf("BINOP: could not allocate memory for binop\n");
 		return -ENOMEM;
 	}
 	src2 = malloc(len);
 	if (src2 == NULL){
-		printf("BINOP: could not allocate memory for binop");
+		printf("BINOP: could not allocate memory for binop\n");
 		return -ENOMEM;
 	}
 
