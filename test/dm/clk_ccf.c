@@ -18,11 +18,12 @@
 /* Tests for Common Clock Framework driver */
 static int dm_test_clk_ccf(struct unit_test_state *uts)
 {
-	struct clk *clk, *pclk, clk_ccf;
+	struct clk *clk, *pclk;
 	struct udevice *dev, *test_dev;
 	long long rate;
 	int ret;
 #if CONFIG_IS_ENABLED(CLK_CCF)
+	struct clk clk_ccf;
 	const char *clkname;
 	int clkid, i;
 #endif
