@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <bootm.h>
 #include <command.h>
 #include <dm.h>
 #include <env.h>
@@ -566,13 +567,16 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 			  char *kernel_addr, char *initrd_str,
 			  char *initrd_addr_str, char *initrd_filesize)
 {
-	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
+	struct bootm_info bmi;
 	char *zboot_argv[] = { "zboot", NULL, "0", NULL, NULL };
 	const char *fdt_addr;
 	ulong kernel_addr_r;
-	int bootm_argc = 2;
 	int zboot_argc = 3;
 	void *buf;
+	int ret;
+
+	if (IS_ENABLED(CONFIG_BOOTM))
+		bootm_init(&bmi);
 
 	fdt_addr = env_get("fdt_addr_r");
 
@@ -620,12 +624,11 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 		}
 	}
 
-	bootm_argv[1] = kernel_addr;
+	bmi.addr_fit = kernel_addr;
 	zboot_argv[1] = kernel_addr;
 
 	if (initrd_addr_str) {
-		bootm_argv[2] = initrd_str;
-		bootm_argc = 3;
+		bmi.conf_ramdisk = initrd_str;
 
 		zboot_argv[3] = initrd_addr_str;
 		zboot_argv[4] = initrd_filesize;
@@ -641,23 +644,18 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 	if (!fdt_addr && genimg_get_format(buf) != IMAGE_FORMAT_FIT)
 		fdt_addr = env_get("fdtcontroladdr");
 
-	if (fdt_addr) {
-		if (!bootm_argv[2])
-			bootm_argv[2] = "-";
-		bootm_argc = 4;
-	}
-	bootm_argv[3] = (char *)fdt_addr;
+	bmi.conf_fdt = fdt_addr;
 
 	/* Try bootm for legacy and FIT format image */
 	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID &&
-            IS_ENABLED(CONFIG_CMD_BOOTM))
-		do_bootm(ctx->cmdtp, 0, bootm_argc, bootm_argv);
+	    IS_ENABLED(CONFIG_BOOTM))
+		ret = bootm_run(&bmi);
 	/* Try booting an AArch64 Linux kernel image */
-	else if (IS_ENABLED(CONFIG_CMD_BOOTI))
-		do_booti(ctx->cmdtp, 0, bootm_argc, bootm_argv);
+	else if (IS_ENABLED(CONFIG_BOOTM))
+		ret = booti_run(&bmi);
 	/* Try booting a Image */
-	else if (IS_ENABLED(CONFIG_CMD_BOOTZ))
-		do_bootz(ctx->cmdtp, 0, bootm_argc, bootm_argv);
+	else if (IS_ENABLED(CONFIG_BOOTM))
+		ret = bootz_run(&bmi);
 	/* Try booting an x86_64 Linux kernel image */
 	else if (IS_ENABLED(CONFIG_CMD_ZBOOT))
 		do_zboot_parent(ctx->cmdtp, 0, zboot_argc, zboot_argv, NULL);
