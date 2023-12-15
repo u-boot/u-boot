@@ -127,6 +127,7 @@ Boot command
 
 When executing the fastboot ``boot`` command, if ``fastboot_bootcmd`` is set
 then that will be executed in place of ``bootm <CONFIG_FASTBOOT_BUF_ADDR>``.
+This is supported if CONFIG_CMDLINE is enabled, which it normally is.
 
 Partition Names
 ---------------
