@@ -11,6 +11,7 @@
  */
 
 #include <bcb.h>
+#include <bootm.h>
 #include <common.h>
 #include <command.h>
 #include <env.h>
@@ -142,22 +143,19 @@ void (*fastboot_get_progress_callback(void))(const char *)
  */
 void fastboot_boot(void)
 {
-	char *s;
+	char *s = NULL;
 
-	s = env_get("fastboot_bootcmd");
-	if (s) {
-		run_command(s, CMD_FLAG_ENV);
-	} else if (IS_ENABLED(CONFIG_CMD_BOOTM)) {
-		static char boot_addr_start[20];
-		static char *const bootm_args[] = {
-			"bootm", boot_addr_start, NULL
-		};
+	if (IS_ENABLED(CONFIG_CMDLINE)) {
+		s = env_get("fastboot_bootcmd");
+		if (s)
+			run_command(s, CMD_FLAG_ENV);
+	}
 
-		snprintf(boot_addr_start, sizeof(boot_addr_start) - 1,
-			 "%lx", fastboot_buf_addr);
-		printf("Booting kernel at %s...\n\n\n", boot_addr_start);
+	if (!s && IS_ENABLED(CONFIG_BOOTM)) {
+		int ret;
 
-		do_bootm(NULL, 0, 2, bootm_args);
+		printf("Booting kernel at %lx...\n\n\n", fastboot_buf_addr);
+		ret = bootm_boot_start(fastboot_buf_addr, NULL);
 
 		/*
 		 * This only happens if image is somehow faulty so we start
