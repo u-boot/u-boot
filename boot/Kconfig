@@ -2,24 +2,6 @@ menu "Boot options"
 
 menu "Boot images"
 
-config ANDROID_BOOT_IMAGE
-	bool "Android Boot Images"
-	default y if FASTBOOT
-	help
-	  This enables support for booting images which use the Android
-	  image format header.
-
-config TIMESTAMP
-	bool "Show image date and time when displaying image information"
-	default y if CMD_DATE
-	help
-	  When CONFIG_TIMESTAMP is selected, the timestamp (date and time) of
-	  an image is printed by image commands like bootm or iminfo. This
-	  is shown as 'Timestamp: xxx' and 'Created: xxx'. If this option is
-	  enabled, then U-Boot requires FITs to have a timestamp. If a FIT is
-	  loaded that does not, the message 'Wrong FIT format: no timestamp'
-	  is shown.
-
 menuconfig FIT
 	bool "Flattened Image Tree (FIT)"
 	select HASH
@@ -694,6 +676,24 @@ config BOOTMETH_SCRIPT
 	  It is not enabled by default to save space.
 
 endif # BOOTSTD
+
+config ANDROID_BOOT_IMAGE
+	bool "Android Boot Images"
+	default y if FASTBOOT
+	help
+	  This enables support for booting images which use the Android
+	  image format header.
+
+config TIMESTAMP
+	bool "Show image date and time when displaying image information"
+	default y if CMD_DATE
+	help
+	  When CONFIG_TIMESTAMP is selected, the timestamp (date and time) of
+	  an image is printed by image commands like bootm or iminfo. This
+	  is shown as 'Timestamp: xxx' and 'Created: xxx'. If this option is
+	  enabled, then U-Boot requires FITs to have a timestamp. If a FIT is
+	  loaded that does not, the message 'Wrong FIT format: no timestamp'
+	  is shown.
 
 config LEGACY_IMAGE_FORMAT
 	bool "Enable support for the legacy image format"
