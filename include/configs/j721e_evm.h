@@ -11,8 +11,6 @@
 
 #include <linux/sizes.h>
 
-/* DDR Configuration */
-#define CFG_SYS_SDRAM_BASE1		0x880000000
 /* FLASH Configuration */
 #define CFG_SYS_FLASH_BASE		0x000000000
 
