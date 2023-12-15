@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
 /*
- * Copyright (C) 2020-2022 Intel Corporation <www.intel.com>
+ * Copyright (C) 2020-2023 Intel Corporation <www.intel.com>
  */
 
 #ifndef	_CLK_MEM_N5X_
@@ -77,7 +77,7 @@
 #define MEMCLKMGR_PLLOUTDIV_C0CNT_MASK			GENMASK(4, 0)
 #define MEMCLKMGR_PLLOUTDIV_C0CNT_OFFSET		0
 
-#define MEMCLKMGR_EXTCNTRST_C0CNTRST			BIT(7)
+#define MEMCLKMGR_EXTCNTRST_C0CNTRST			BIT(0)
 #define MEMCLKMGR_EXTCNTRST_ALLCNTRST			\
 	(MEMCLKMGR_EXTCNTRST_C0CNTRST)
 
