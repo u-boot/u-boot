@@ -2842,12 +2842,14 @@ class TestFunctional(unittest.TestCase):
         fdt_size = entries['section'].GetEntries()['u-boot-dtb'].size
         fdtmap_offset = entries['fdtmap'].offset
 
+        tmpdir = None
         try:
             tmpdir, updated_fname = self._SetupImageInTmpdir()
             with test_util.capture_sys_output() as (stdout, stderr):
                 self._DoBinman('ls', '-i', updated_fname)
         finally:
-            shutil.rmtree(tmpdir)
+            if tmpdir:
+                shutil.rmtree(tmpdir)
         lines = stdout.getvalue().splitlines()
         expected = [
 'Name              Image-pos  Size  Entry-type    Offset  Uncomp-size',
@@ -2868,12 +2870,14 @@ class TestFunctional(unittest.TestCase):
     def testListCmdFail(self):
         """Test failing to list an image"""
         self._DoReadFile('005_simple.dts')
+        tmpdir = None
         try:
             tmpdir, updated_fname = self._SetupImageInTmpdir()
             with self.assertRaises(ValueError) as e:
                 self._DoBinman('ls', '-i', updated_fname)
         finally:
-            shutil.rmtree(tmpdir)
+            if tmpdir:
+                shutil.rmtree(tmpdir)
         self.assertIn("Cannot find FDT map in image", str(e.exception))
 
     def _RunListCmd(self, paths, expected):
@@ -3002,13 +3006,15 @@ class TestFunctional(unittest.TestCase):
         self._CheckLz4()
         self._DoReadFileRealDtb('130_list_fdtmap.dts')
         fname = os.path.join(self._indir, 'output.extact')
+        tmpdir = None
         try:
             tmpdir, updated_fname = self._SetupImageInTmpdir()
             with test_util.capture_sys_output() as (stdout, stderr):
                 self._DoBinman('extract', '-i', updated_fname, 'u-boot',
                                '-f', fname)
         finally:
-            shutil.rmtree(tmpdir)
+            if tmpdir:
+                shutil.rmtree(tmpdir)
         data = tools.read_file(fname)
         self.assertEqual(U_BOOT_DATA, data)
 
@@ -5185,12 +5191,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFileRealDtb('207_fip_ls.dts')
         hdr, fents = fip_util.decode_fip(data)
 
+        tmpdir = None
         try:
             tmpdir, updated_fname = self._SetupImageInTmpdir()
             with test_util.capture_sys_output() as (stdout, stderr):
                 self._DoBinman('ls', '-i', updated_fname)
         finally:
-            shutil.rmtree(tmpdir)
+            if tmpdir:
+                shutil.rmtree(tmpdir)
         lines = stdout.getvalue().splitlines()
         expected = [
 'Name        Image-pos  Size  Entry-type  Offset  Uncomp-size',
@@ -5395,12 +5403,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             use_real_dtb=True,
             extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])
 
+        tmpdir = None
         try:
             tmpdir, updated_fname = self._SetupImageInTmpdir()
             with test_util.capture_sys_output() as (stdout, stderr):
                 self._RunBinman('ls', '-i', updated_fname)
         finally:
-            shutil.rmtree(tmpdir)
+            if tmpdir:
+                shutil.rmtree(tmpdir)
 
     def testFitSubentryUsesBintool(self):
         """Test that binman FIT subentries can use bintools"""
