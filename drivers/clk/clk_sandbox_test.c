@@ -15,6 +15,7 @@ static const char * const sandbox_clk_test_names[] = {
 	[SANDBOX_CLK_TEST_ID_FIXED] = "fixed",
 	[SANDBOX_CLK_TEST_ID_SPI] = "spi",
 	[SANDBOX_CLK_TEST_ID_I2C] = "i2c",
+	[SANDBOX_CLK_TEST_ID_I2C_ROOT] = "i2c_root",
 };
 
 int sandbox_clk_test_get(struct udevice *dev)

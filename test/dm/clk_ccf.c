@@ -18,8 +18,8 @@
 /* Tests for Common Clock Framework driver */
 static int dm_test_clk_ccf(struct unit_test_state *uts)
 {
-	struct clk *clk, *pclk;
-	struct udevice *dev;
+	struct clk *clk, *pclk, clk_ccf;
+	struct udevice *dev, *test_dev;
 	long long rate;
 	int ret;
 #if CONFIG_IS_ENABLED(CLK_CCF)
@@ -29,6 +29,7 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 
 	/* Get the device using the clk device */
 	ut_assertok(uclass_get_device_by_name(UCLASS_CLK, "clk-ccf", &dev));
+	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "clk-test", &test_dev));
 
 	/* Test for clk_get_by_id() */
 	ret = clk_get_by_id(SANDBOX_CLK_ECSPI_ROOT, &clk);
@@ -119,11 +120,18 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 
 #if CONFIG_IS_ENABLED(CLK_CCF)
 	/* Test clk tree enable/disable */
+
+	ret = clk_get_by_index(test_dev, SANDBOX_CLK_TEST_ID_I2C_ROOT, &clk_ccf);
+	ut_assertok(ret);
+	ut_asserteq_str("clk-ccf", clk_ccf.dev->name);
+	ut_asserteq(clk_ccf.id, SANDBOX_CLK_I2C_ROOT);
+
 	ret = clk_get_by_id(SANDBOX_CLK_I2C_ROOT, &clk);
 	ut_assertok(ret);
 	ut_asserteq_str("i2c_root", clk->dev->name);
+	ut_asserteq(clk->id, SANDBOX_CLK_I2C_ROOT);
 
-	ret = clk_enable(clk);
+	ret = clk_enable(&clk_ccf);
 	ut_assertok(ret);
 
 	ret = sandbox_clk_enable_count(clk);
