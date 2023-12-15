@@ -568,10 +568,8 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 			  char *initrd_addr_str, char *initrd_filesize)
 {
 	struct bootm_info bmi;
-	char *zboot_argv[] = { "zboot", NULL, "0", NULL, NULL };
 	const char *fdt_addr;
 	ulong kernel_addr_r;
-	int zboot_argc = 3;
 	void *buf;
 	int ret;
 
@@ -625,15 +623,9 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 	}
 
 	bmi.addr_fit = kernel_addr;
-	zboot_argv[1] = kernel_addr;
 
-	if (initrd_addr_str) {
+	if (initrd_addr_str)
 		bmi.conf_ramdisk = initrd_str;
-
-		zboot_argv[3] = initrd_addr_str;
-		zboot_argv[4] = initrd_filesize;
-		zboot_argc = 5;
-	}
 
 	if (!fdt_addr)
 		fdt_addr = env_get("fdt_addr");
@@ -657,8 +649,13 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 	else if (IS_ENABLED(CONFIG_BOOTM))
 		ret = bootz_run(&bmi);
 	/* Try booting an x86_64 Linux kernel image */
-	else if (IS_ENABLED(CONFIG_CMD_ZBOOT))
-		do_zboot_parent(ctx->cmdtp, 0, zboot_argc, zboot_argv, NULL);
+	else if (IS_ENABLED(CONFIG_ZBOOT))
+		ret = zboot_run(hextoul(kernel_addr, NULL), 0,
+				initrd_addr_str ?
+					hextoul(initrd_addr_str, NULL) : 0,
+				initrd_addr_str ?
+					hextoul(initrd_filesize, NULL) : 0,
+				0, NULL);
 
 	unmap_sysmem(buf);
 
