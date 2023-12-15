@@ -1510,6 +1510,8 @@ targets += $(dtb-y)
 # Add any required device tree compiler flags here
 DTC_FLAGS += -a 0x8
 
+DTC_FLAGS_imx8mp-dhcom-pdk3-overlay-rev100 += -Wno-avoid_default_addr_size -Wno-reg_format
+
 PHONY += dtbs
 dtbs: $(addprefix $(obj)/, $(dtb-y))
 	@:
