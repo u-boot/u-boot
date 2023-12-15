@@ -506,18 +506,19 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 {
 	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
 	char *zboot_argv[] = { "zboot", NULL, "0", NULL, NULL };
+	const char *fdt_addr;
 	ulong kernel_addr_r;
 	int bootm_argc = 2;
 	int zboot_argc = 3;
 	void *buf;
 
-	bootm_argv[3] = env_get("fdt_addr_r");
+	fdt_addr = env_get("fdt_addr_r");
 
 	/* For FIT, the label can be identical to kernel one */
 	if (label->fdt && !strcmp(label->kernel_label, label->fdt)) {
-		bootm_argv[3] = kernel_addr;
+		fdt_addr = kernel_addr;
 	/* if fdt label is defined then get fdt from server */
-	} else if (bootm_argv[3]) {
+	} else if (fdt_addr) {
 		char *fdtfile = NULL;
 		char *fdtfilefree = NULL;
 
@@ -582,7 +583,7 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 
 			free(fdtfilefree);
 			if (err < 0) {
-				bootm_argv[3] = NULL;
+				fdt_addr = NULL;
 
 				if (label->fdt) {
 					printf("Skipping %s for failure retrieving FDT\n",
@@ -599,7 +600,7 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 				label_boot_fdtoverlay(ctx, label);
 #endif
 		} else {
-			bootm_argv[3] = NULL;
+			fdt_addr = NULL;
 		}
 	}
 
@@ -615,20 +616,21 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 		zboot_argc = 5;
 	}
 
-	if (!bootm_argv[3])
-		bootm_argv[3] = env_get("fdt_addr");
+	if (!fdt_addr)
+		fdt_addr = env_get("fdt_addr");
 
 	kernel_addr_r = genimg_get_kernel_addr(kernel_addr);
 	buf = map_sysmem(kernel_addr_r, 0);
 
-	if (!bootm_argv[3] && genimg_get_format(buf) != IMAGE_FORMAT_FIT)
-		bootm_argv[3] = env_get("fdtcontroladdr");
+	if (!fdt_addr && genimg_get_format(buf) != IMAGE_FORMAT_FIT)
+		fdt_addr = env_get("fdtcontroladdr");
 
-	if (bootm_argv[3]) {
+	if (fdt_addr) {
 		if (!bootm_argv[2])
 			bootm_argv[2] = "-";
 		bootm_argc = 4;
 	}
+	bootm_argv[3] = (char *)fdt_addr;
 
 	/* Try bootm for legacy and FIT format image */
 	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID &&
