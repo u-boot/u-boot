@@ -19,6 +19,7 @@ CONFIG_SYS_LOAD_ADDR=0x0
 CONFIG_REMAKE_ELF=y
 CONFIG_SYS_CUSTOM_LDSCRIPT=y
 CONFIG_SYS_LDSCRIPT="arch/arm/mach-zynq/u-boot.lds"
+# CONFIG_BOOTM is not set
 # CONFIG_AUTOBOOT is not set
 CONFIG_USE_PREBOOT=y
 # CONFIG_DISPLAY_CPUINFO is not set
@@ -43,7 +44,6 @@ CONFIG_SYS_PBSIZE=1047
 # CONFIG_CMD_BDI is not set
 # CONFIG_CMD_CONSOLE is not set
 # CONFIG_CMD_BOOTD is not set
-# CONFIG_CMD_BOOTM is not set
 # CONFIG_CMD_ELF is not set
 # CONFIG_CMD_FDT is not set
 # CONFIG_CMD_GO is not set

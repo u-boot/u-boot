@@ -677,6 +677,18 @@ config BOOTMETH_SCRIPT
 
 endif # BOOTSTD
 
+config BOOTM
+	bool "Support booting an application image from memory"
+	default y
+	help
+	  This is the main boot implementation in U-Boot, supporting a wide
+	  variety of features including FIT and legacy-image boot, kernel and
+	  FDT selection, setting up of the command line for the OS and many
+	  other features.
+
+	  This option should normally be enabled. It is used to implement the
+	  'bootm' command.
+
 config ANDROID_BOOT_IMAGE
 	bool "Android Boot Images"
 	default y if FASTBOOT

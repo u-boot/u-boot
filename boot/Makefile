@@ -6,7 +6,7 @@
 ifndef CONFIG_SPL_BUILD
 
 obj-$(CONFIG_BOOT_RETRY) += bootretry.o
-obj-$(CONFIG_CMD_BOOTM) += bootm.o bootm_os.o
+obj-$(CONFIG_BOOTM) += bootm.o bootm_os.o
 obj-$(CONFIG_CMD_BOOTZ) += bootm.o bootm_os.o
 obj-$(CONFIG_CMD_BOOTI) += bootm.o bootm_os.o
 
