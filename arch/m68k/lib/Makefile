@@ -8,7 +8,7 @@
 lib-$(CONFIG_USE_PRIVATE_LIBGCC) += lshrdi3.o muldi3.o ashldi3.o ashrdi3.o
 
 obj-y	+= bdinfo.o
-obj-$(CONFIG_CMD_BOOTM) += bootm.o
+obj-$(CONFIG_BOOTM) += bootm.o
 obj-y	+= cache.o
 obj-y	+= interrupts.o
 obj-y	+= time.o

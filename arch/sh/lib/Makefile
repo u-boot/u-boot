@@ -6,7 +6,7 @@
 extra-y	+= start.o
 
 obj-y	+= board.o
-obj-$(CONFIG_CMD_BOOTM) += bootm.o
+obj-$(CONFIG_BOOTM) += bootm.o
 obj-y	+= time.o
 obj-$(CONFIG_CMD_SH_ZIMAGEBOOT) += zimageboot.o
 

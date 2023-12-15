@@ -10,7 +10,7 @@ obj-y	+= reloc.o
 obj-y	+= stack.o
 obj-y	+= traps.o
 
-obj-$(CONFIG_CMD_BOOTM) += bootm.o
+obj-$(CONFIG_BOOTM) += bootm.o
 obj-$(CONFIG_CMD_GO) += boot.o
 obj-$(CONFIG_SPL_BUILD) += spl.o
 
