@@ -1687,7 +1687,7 @@ menu "Configuration editor"
 
 config CEDIT
 	bool "Configuration editor"
-	depends on BOOTSTD
+	depends on EXPO
 	help
 	  Provides a way to deal with board configuration and present it to
 	  the user for adjustment.
