@@ -53,9 +53,13 @@ static int dump_table_name(const char *sig)
 
 static void list_fadt(struct acpi_fadt *fadt)
 {
-	if (fadt->dsdt)
+	if (fadt->header.revision >= 3 && fadt->x_dsdt)
+		dump_hdr(nomap_sysmem(fadt->x_dsdt, 0));
+	else if (fadt->dsdt)
 		dump_hdr(nomap_sysmem(fadt->dsdt, 0));
-	if (fadt->firmware_ctrl)
+	if (fadt->header.revision >= 3 && fadt->x_firmware_ctrl)
+		dump_hdr(nomap_sysmem(fadt->x_firmware_ctrl, 0));
+	else if (fadt->firmware_ctrl)
 		dump_hdr(nomap_sysmem(fadt->firmware_ctrl, 0));
 }
 
