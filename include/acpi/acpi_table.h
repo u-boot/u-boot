@@ -228,10 +228,8 @@ struct __packed acpi_fadt {
 	u8 reset_value;
 	u16 arm_boot_arch;
 	u8 minor_revision;
-	u32 x_firmware_ctl_l;
-	u32 x_firmware_ctl_h;
-	u32 x_dsdt_l;
-	u32 x_dsdt_h;
+	u64 x_firmware_ctrl;
+	u64 x_dsdt;
 	struct acpi_gen_regaddr x_pm1a_evt_blk;
 	struct acpi_gen_regaddr x_pm1b_evt_blk;
 	struct acpi_gen_regaddr x_pm1a_cnt_blk;

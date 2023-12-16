@@ -572,13 +572,8 @@ void acpi_fadt_common(struct acpi_fadt *fadt, struct acpi_facs *facs,
 	memcpy(header->aslc_id, ASLC_ID, 4);
 	header->aslc_revision = 1;
 
-	fadt->firmware_ctrl = (unsigned long)facs;
-	fadt->dsdt = (unsigned long)dsdt;
-
-	fadt->x_firmware_ctl_l = (unsigned long)facs;
-	fadt->x_firmware_ctl_h = 0;
-	fadt->x_dsdt_l = (unsigned long)dsdt;
-	fadt->x_dsdt_h = 0;
+	fadt->x_firmware_ctrl = map_to_sysmem(facs);
+	fadt->x_dsdt = map_to_sysmem(dsdt);
 
 	fadt->preferred_pm_profile = ACPI_PM_MOBILE;
 

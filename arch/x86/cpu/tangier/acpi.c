@@ -8,6 +8,7 @@
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
+#include <mapmem.h>
 #include <acpi/acpi_table.h>
 #include <asm/ioapic.h>
 #include <asm/mpspec.h>
@@ -31,8 +32,6 @@ static int tangier_write_fadt(struct acpi_ctx *ctx,
 	header->length = sizeof(struct acpi_fadt);
 	header->revision = 6;
 
-	fadt->firmware_ctrl = (u32)ctx->facs;
-	fadt->dsdt = (u32)ctx->dsdt;
 	fadt->preferred_pm_profile = ACPI_PM_UNSPECIFIED;
 
 	fadt->iapc_boot_arch = ACPI_FADT_VGA_NOT_PRESENT |
@@ -45,10 +44,8 @@ static int tangier_write_fadt(struct acpi_ctx *ctx,
 
 	fadt->minor_revision = 2;
 
-	fadt->x_firmware_ctl_l = (u32)ctx->facs;
-	fadt->x_firmware_ctl_h = 0;
-	fadt->x_dsdt_l = (u32)ctx->dsdt;
-	fadt->x_dsdt_h = 0;
+	fadt->x_firmware_ctrl = map_to_sysmem(ctx->facs);
+	fadt->x_dsdt = map_to_sysmem(ctx->dsdt);
 
 	header->checksum = table_compute_checksum(fadt, header->length);
 
