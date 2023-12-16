@@ -151,6 +151,24 @@ int bootm_measure(struct bootm_headers *images);
 int bootm_run_states(struct bootm_info *bmi, int states);
 
 /**
+ * boot_run() - Run the entire bootm/booti/bootz process
+ *
+ * This runs through the boot process from start to finish, with a base set of
+ * states, along with the extra ones supplied.
+ *
+ * This uses bootm_run_states().
+ *
+ * Note that it is normally easier to use bootm_run(), etc. since they handle
+ * the extra states correctly.
+ *
+ * @bmi: bootm information
+ * @cmd: command being run, NULL if none
+ * @extra_states: Mask of extra states to use for the boot
+ * Return: 0 if ok, something else on error
+ */
+int boot_run(struct bootm_info *bmi, const char *cmd, int extra_states);
+
+/**
  * bootm_run() - Run the entire bootm process
  *
  * This runs through the bootm process from start to finish, using the default

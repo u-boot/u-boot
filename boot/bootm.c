@@ -1123,47 +1123,35 @@ err:
 	return ret;
 }
 
-int bootm_run(struct bootm_info *bmi)
+int boot_run(struct bootm_info *bmi, const char *cmd, int extra_states)
 {
 	int states;
 
-	bmi->cmd_name = "bootm";
-	states = BOOTM_STATE_START | BOOTM_STATE_FINDOS | BOOTM_STATE_PRE_LOAD |
-		BOOTM_STATE_FINDOTHER | BOOTM_STATE_LOADOS |
-		BOOTM_STATE_OS_PREP | BOOTM_STATE_OS_FAKE_GO |
-		BOOTM_STATE_OS_GO | BOOTM_STATE_MEASURE;
+	bmi->cmd_name = cmd;
+	states = BOOTM_STATE_MEASURE | BOOTM_STATE_OS_PREP |
+		BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO;
 	if (IS_ENABLED(CONFIG_SYS_BOOT_RAMDISK_HIGH))
 		states |= BOOTM_STATE_RAMDISK;
-	if (IS_ENABLED(CONFIG_PPC) || IS_ENABLED(CONFIG_MIPS))
-		states |= BOOTM_STATE_OS_CMDLINE;
+	states |= extra_states;
 
 	return bootm_run_states(bmi, states);
+}
+
+int bootm_run(struct bootm_info *bmi)
+{
+	return boot_run(bmi, "bootm", BOOTM_STATE_START | BOOTM_STATE_FINDOS |
+			BOOTM_STATE_PRE_LOAD | BOOTM_STATE_FINDOTHER |
+			BOOTM_STATE_LOADOS);
 }
 
 int bootz_run(struct bootm_info *bmi)
 {
-	int states;
-
-	bmi->cmd_name = "bootz";
-	states = BOOTM_STATE_MEASURE | BOOTM_STATE_OS_PREP |
-		BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO;
-	if (IS_ENABLED(CONFIG_SYS_BOOT_RAMDISK_HIGH))
-		states |= BOOTM_STATE_RAMDISK;
-
-	return bootm_run_states(bmi, states);
+	return boot_run(bmi, "bootz", 0);
 }
 
 int booti_run(struct bootm_info *bmi)
 {
-	int states;
-
-	bmi->cmd_name = "booti";
-	states = BOOTM_STATE_MEASURE | BOOTM_STATE_OS_PREP |
-		BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO;
-	if (IS_ENABLED(CONFIG_SYS_BOOT_RAMDISK_HIGH))
-		states |= BOOTM_STATE_RAMDISK;
-
-	return bootm_run_states(bmi, states);
+	return boot_run(bmi, "booti", 0);
 }
 
 int bootm_boot_start(ulong addr, const char *cmdline)
