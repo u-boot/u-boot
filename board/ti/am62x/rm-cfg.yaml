@@ -512,14 +512,14 @@ rm-cfg:
                 host_id: 12
                 reserved: 0
         -
-                start_resource: 45
-                num_resource: 35
+                start_resource: 44
+                num_resource: 36
                 type: 1802
                 host_id: 35
                 reserved: 0
         -
-                start_resource: 45
-                num_resource: 35
+                start_resource: 44
+                num_resource: 36
                 type: 1802
                 host_id: 36
                 reserved: 0
@@ -530,32 +530,32 @@ rm-cfg:
                 host_id: 30
                 reserved: 0
         -
-                start_resource: 14
+                start_resource: 13
                 num_resource: 512
                 type: 1805
                 host_id: 12
                 reserved: 0
         -
-                start_resource: 526
+                start_resource: 525
                 num_resource: 256
                 type: 1805
                 host_id: 35
                 reserved: 0
         -
-                start_resource: 526
+                start_resource: 525
                 num_resource: 256
                 type: 1805
                 host_id: 36
                 reserved: 0
         -
-                start_resource: 782
+                start_resource: 781
                 num_resource: 128
                 type: 1805
                 host_id: 30
                 reserved: 0
         -
-                start_resource: 910
-                num_resource: 626
+                start_resource: 909
+                num_resource: 627
                 type: 1805
                 host_id: 128
                 reserved: 0
