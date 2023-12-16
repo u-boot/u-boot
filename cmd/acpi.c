@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <display_options.h>
+#include <log.h>
 #include <mapmem.h>
 #include <acpi/acpi_table.h>
 #include <asm/acpi_table.h>
@@ -57,6 +58,9 @@ static void list_fadt(struct acpi_fadt *fadt)
 		dump_hdr(nomap_sysmem(fadt->x_dsdt, 0));
 	else if (fadt->dsdt)
 		dump_hdr(nomap_sysmem(fadt->dsdt, 0));
+	if (!IS_ENABLED(CONFIG_X86) &&
+	    !(fadt->flags & ACPI_FADT_HW_REDUCED_ACPI))
+		log_err("FADT not ACPI-hardware-reduced-compliant\n");
 	if (fadt->header.revision >= 3 && fadt->x_firmware_ctrl)
 		dump_hdr(nomap_sysmem(fadt->x_firmware_ctrl, 0));
 	else if (fadt->firmware_ctrl)
