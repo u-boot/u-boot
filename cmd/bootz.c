@@ -27,11 +27,20 @@ int __weak bootz_setup(ulong image, ulong *start, ulong *end)
 static int bootz_start(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[], struct bootm_headers *images)
 {
-	int ret;
 	ulong zi_start, zi_end;
+	struct bootm_info bmi;
+	int ret;
 
-	ret = do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START,
-			      images, 1);
+	bootm_init(&bmi);
+	if (argc)
+		bmi.addr_img = argv[0];
+	if (argc > 1)
+		bmi.conf_ramdisk = argv[1];
+	if (argc > 2)
+		bmi.conf_fdt = argv[2];
+	/* do not set up argc and argv[] since nothing uses them */
+
+	ret = do_bootm_states(&bmi, BOOTM_STATE_START);
 
 	/* Setup Linux kernel zImage entry point */
 	if (!argc) {
@@ -64,6 +73,7 @@ static int bootz_start(struct cmd_tbl *cmdtp, int flag, int argc,
 
 int do_bootz(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct bootm_info bmi;
 	int states, ret;
 
 	/* Consume 'bootz' */
@@ -80,12 +90,21 @@ int do_bootz(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	images.os.os = IH_OS_LINUX;
 
+	bootm_init(&bmi);
+	if (argc)
+		bmi.addr_img = argv[0];
+	if (argc > 1)
+		bmi.conf_ramdisk = argv[1];
+	if (argc > 2)
+		bmi.conf_fdt = argv[2];
+	bmi.cmd_name = "bootz";
+
 	states = BOOTM_STATE_MEASURE | BOOTM_STATE_OS_PREP |
 		BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO;
 	if (IS_ENABLED(CONFIG_SYS_BOOT_RAMDISK_HIGH))
 		states |= BOOTM_STATE_RAMDISK;
 
-	ret = do_bootm_states(cmdtp, flag, argc, argv, states, &images, 1);
+	ret = do_bootm_states(&bmi, states);
 
 	return ret;
 }

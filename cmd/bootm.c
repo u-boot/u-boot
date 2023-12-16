@@ -76,6 +76,7 @@ static ulong bootm_get_addr(int argc, char *const argv[])
 static int do_bootm_subcommand(struct cmd_tbl *cmdtp, int flag, int argc,
 			       char *const argv[])
 {
+	struct bootm_info bmi;
 	int ret = 0;
 	long state;
 	struct cmd_tbl *c;
@@ -103,7 +104,21 @@ static int do_bootm_subcommand(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 	}
 
-	ret = do_bootm_states(cmdtp, flag, argc, argv, state, &images, 0);
+	bootm_init(&bmi);
+	if (argc)
+		bmi.addr_img = argv[0];
+	if (argc > 1)
+		bmi.conf_ramdisk = argv[1];
+	if (argc > 2)
+		bmi.conf_fdt = argv[2];
+	bmi.cmd_name = "bootm";
+	bmi.boot_progress = false;
+
+	/* set up argc and argv[] since some OSes use them */
+	bmi.argc = argc;
+	bmi.argv = argv;
+
+	ret = do_bootm_states(&bmi, state);
 
 #if defined(CONFIG_CMD_BOOTM_PRE_LOAD)
 	if (!ret && (state & BOOTM_STATE_PRE_LOAD))
@@ -120,6 +135,7 @@ static int do_bootm_subcommand(struct cmd_tbl *cmdtp, int flag, int argc,
 
 int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct bootm_info bmi;
 	int states;
 	int ret;
 
@@ -151,7 +167,20 @@ int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		states |= BOOTM_STATE_MEASURE;
 	if (IS_ENABLED(CONFIG_PPC) || IS_ENABLED(CONFIG_MIPS))
 		states |= BOOTM_STATE_OS_CMDLINE;
-	ret = do_bootm_states(cmdtp, flag, argc, argv, states, &images, 1);
+
+	bootm_init(&bmi);
+	if (argc)
+		bmi.addr_img = argv[0];
+	if (argc > 1)
+		bmi.conf_ramdisk = argv[1];
+	if (argc > 2)
+		bmi.conf_fdt = argv[2];
+
+	/* set up argc and argv[] since some OSes use them */
+	bmi.argc = argc;
+	bmi.argv = argv;
+
+	ret = do_bootm_states(&bmi, states);
 
 	return ret ? CMD_RET_FAILURE : 0;
 }
