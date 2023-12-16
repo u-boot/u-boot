@@ -424,6 +424,10 @@ static inline int clk_release_bulk(struct clk_bulk *bulk)
 	return clk_release_all(bulk->clks, bulk->count);
 }
 
+static inline void clk_free(struct clk *clk)
+{
+}
+
 #if CONFIG_IS_ENABLED(CLK)
 /**
  * clk_request() - Request a clock by provider-specific ID.
@@ -440,15 +444,6 @@ static inline int clk_release_bulk(struct clk_bulk *bulk)
  * Return: 0 if OK, or a negative error code.
  */
 int clk_request(struct udevice *dev, struct clk *clk);
-
-/**
- * clk_free() - Free a previously requested clock.
- * @clk:	A clock struct that was previously successfully requested by
- *		clk_request/get_by_*().
- *
- * Free resources allocated by clk_request() (or any clk_get_* function).
- */
-void clk_free(struct clk *clk);
 
 /**
  * clk_get_rate() - Get current clock rate.
@@ -592,11 +587,6 @@ bool clk_dev_binded(struct clk *clk);
 static inline int clk_request(struct udevice *dev, struct clk *clk)
 {
 	return -ENOSYS;
-}
-
-static inline void clk_free(struct clk *clk)
-{
-	return;
 }
 
 static inline ulong clk_get_rate(struct clk *clk)

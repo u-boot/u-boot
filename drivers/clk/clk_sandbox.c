@@ -101,17 +101,6 @@ static int sandbox_clk_request(struct clk *clk)
 	return 0;
 }
 
-static void sandbox_clk_free(struct clk *clk)
-{
-	struct sandbox_clk_priv *priv = dev_get_priv(clk->dev);
-
-	if (clk->id >= SANDBOX_CLK_ID_COUNT)
-		return;
-
-	priv->requested[clk->id] = false;
-	return;
-}
-
 static struct clk_ops sandbox_clk_ops = {
 	.round_rate	= sandbox_clk_round_rate,
 	.get_rate	= sandbox_clk_get_rate,
@@ -119,7 +108,6 @@ static struct clk_ops sandbox_clk_ops = {
 	.enable		= sandbox_clk_enable,
 	.disable	= sandbox_clk_disable,
 	.request	= sandbox_clk_request,
-	.rfree		= sandbox_clk_free,
 };
 
 static int sandbox_clk_probe(struct udevice *dev)

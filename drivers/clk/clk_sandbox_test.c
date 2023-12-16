@@ -135,18 +135,6 @@ int sandbox_clk_test_disable_bulk(struct udevice *dev)
 	return clk_disable_bulk(&sbct->bulk);
 }
 
-int sandbox_clk_test_free(struct udevice *dev)
-{
-	struct sandbox_clk_test *sbct = dev_get_priv(dev);
-	int i;
-
-	devm_clk_put(dev, sbct->clkps[SANDBOX_CLK_TEST_ID_DEVM1]);
-	for (i = 0; i < SANDBOX_CLK_TEST_NON_DEVM_COUNT; i++)
-		clk_free(&sbct->clks[i]);
-
-	return 0;
-}
-
 int sandbox_clk_test_release_bulk(struct udevice *dev)
 {
 	struct sandbox_clk_test *sbct = dev_get_priv(dev);

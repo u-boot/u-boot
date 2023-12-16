@@ -18,7 +18,6 @@ struct ofnode_phandle_args;
  * struct clk_ops - The functions that a clock driver must implement.
  * @of_xlate: Translate a client's device-tree (OF) clock specifier.
  * @request: Request a translated clock.
- * @rfree: Free a previously requested clock.
  * @round_rate: Adjust a rate to the exact rate a clock can provide.
  * @get_rate: Get current clock rate.
  * @set_rate: Set current clock rate.
@@ -33,7 +32,6 @@ struct clk_ops {
 	int (*of_xlate)(struct clk *clock,
 			struct ofnode_phandle_args *args);
 	int (*request)(struct clk *clock);
-	void (*rfree)(struct clk *clock);
 	ulong (*round_rate)(struct clk *clk, ulong rate);
 	ulong (*get_rate)(struct clk *clk);
 	ulong (*set_rate)(struct clk *clk, ulong rate);
@@ -80,14 +78,6 @@ int of_xlate(struct clk *clock, struct ofnode_phandle_args *args);
  * Return: 0 if OK, or a negative error code.
  */
 int request(struct clk *clock);
-
-/**
- * rfree() - Free a previously requested clock.
- * @clock:	The clock to free.
- *
- * Free any resources allocated in request().
- */
-void rfree(struct clk *clock);
 
 /**
  * round_rate() - Adjust a rate to the exact rate a clock can provide.

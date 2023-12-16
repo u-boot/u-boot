@@ -461,20 +461,6 @@ int clk_request(struct udevice *dev, struct clk *clk)
 	return ops->request(clk);
 }
 
-void clk_free(struct clk *clk)
-{
-	const struct clk_ops *ops;
-
-	debug("%s(clk=%p)\n", __func__, clk);
-	if (!clk_valid(clk))
-		return;
-	ops = clk_dev_ops(clk->dev);
-
-	if (ops->rfree)
-		ops->rfree(clk);
-	return;
-}
-
 ulong clk_get_rate(struct clk *clk)
 {
 	const struct clk_ops *ops;
