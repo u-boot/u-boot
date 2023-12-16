@@ -136,7 +136,6 @@ static int do_bootm_subcommand(struct cmd_tbl *cmdtp, int flag, int argc,
 int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct bootm_info bmi;
-	int states;
 	int ret;
 
 	/* determine if we have a sub command */
@@ -157,17 +156,6 @@ int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return do_bootm_subcommand(cmdtp, flag, argc, argv);
 	}
 
-	states = BOOTM_STATE_START | BOOTM_STATE_FINDOS | BOOTM_STATE_PRE_LOAD |
-		BOOTM_STATE_FINDOTHER | BOOTM_STATE_LOADOS |
-		BOOTM_STATE_OS_PREP | BOOTM_STATE_OS_FAKE_GO |
-		BOOTM_STATE_OS_GO;
-	if (IS_ENABLED(CONFIG_SYS_BOOT_RAMDISK_HIGH))
-		states |= BOOTM_STATE_RAMDISK;
-	if (IS_ENABLED(CONFIG_MEASURED_BOOT))
-		states |= BOOTM_STATE_MEASURE;
-	if (IS_ENABLED(CONFIG_PPC) || IS_ENABLED(CONFIG_MIPS))
-		states |= BOOTM_STATE_OS_CMDLINE;
-
 	bootm_init(&bmi);
 	if (argc)
 		bmi.addr_img = argv[0];
@@ -180,7 +168,7 @@ int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	bmi.argc = argc;
 	bmi.argv = argv;
 
-	ret = bootm_run_states(&bmi, states);
+	ret = bootm_run(&bmi);
 
 	return ret ? CMD_RET_FAILURE : 0;
 }

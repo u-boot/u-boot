@@ -150,6 +150,19 @@ int bootm_measure(struct bootm_headers *images);
  */
 int bootm_run_states(struct bootm_info *bmi, int states);
 
+/**
+ * bootm_run() - Run the entire bootm process
+ *
+ * This runs through the bootm process from start to finish, using the default
+ * set of states.
+ *
+ * This uses bootm_run_states().
+ *
+ * @bmi: bootm information
+ * Return: 0 if ok, something else on error
+ */
+int bootm_run(struct bootm_info *bmi);
+
 void arch_preboot_os(void);
 
 /*
