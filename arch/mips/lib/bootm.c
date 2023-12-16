@@ -4,6 +4,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#include <bootm.h>
 #include <bootstage.h>
 #include <env.h>
 #include <image.h>
@@ -300,9 +301,10 @@ static void boot_jump_linux(struct bootm_headers *images)
 			linux_extra);
 }
 
-int do_bootm_linux(int flag, int argc, char *const argv[],
-		   struct bootm_headers *images)
+int do_bootm_linux(int flag, struct bootm_info *bmi)
 {
+	struct bootm_headers *images = bmi->images;
+
 	/* No need for those on MIPS */
 	if (flag & BOOTM_STATE_OS_BD_T)
 		return -1;

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <bootm.h>
 #include <bootstage.h>
 #include <image.h>
 #include <asm/io.h>
@@ -64,8 +65,10 @@ static int boot_prep_linux(struct bootm_headers *images)
 	return 0;
 }
 
-int do_bootm_linux(int flag, int argc, char *argv[], struct bootm_headers *images)
+int do_bootm_linux(int flag, struct bootm_info *bmi)
 {
+	struct bootm_headers *images = bmi->images;
+
 	if (flag & BOOTM_STATE_OS_PREP)
 		return boot_prep_linux(images);
 

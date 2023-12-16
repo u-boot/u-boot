@@ -39,16 +39,11 @@ struct bootm_info {
  *  - disabled interrupts.
  *
  * @flag: Flags indicating what to do (BOOTM_STATE_...)
- * @argc: Number of arguments. Note that the arguments are shifted down
- *	 so that 0 is the first argument not processed by U-Boot, and
- *	 argc is adjusted accordingly. This avoids confusion as to how
- *	 many arguments are available for the OS.
- * @images: Pointers to os/initrd/fdt
+ * bmi: Bootm information
  * Return: 1 on error. On success the OS boots so this function does
  * not return.
  */
-typedef int boot_os_fn(int flag, int argc, char *const argv[],
-			struct bootm_headers *images);
+typedef int boot_os_fn(int flag, struct bootm_info *bmi);
 
 extern boot_os_fn do_bootm_linux;
 extern boot_os_fn do_bootm_vxworks;

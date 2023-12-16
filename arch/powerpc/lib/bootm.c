@@ -8,6 +8,7 @@
 
 
 #include <common.h>
+#include <bootm.h>
 #include <bootstage.h>
 #include <cpu_func.h>
 #include <env.h>
@@ -223,9 +224,9 @@ static int boot_body_linux(struct bootm_headers *images)
 	return 0;
 }
 
-noinline int do_bootm_linux(int flag, int argc, char *const argv[],
-			    struct bootm_headers *images)
+int do_bootm_linux(int flag, struct bootm_info *bmi)
 {
+	struct bootm_headers *images = bmi->images;
 	int	ret;
 
 	if (flag & BOOTM_STATE_OS_CMDLINE) {

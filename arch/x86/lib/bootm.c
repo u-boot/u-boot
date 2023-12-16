@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <bootm.h>
 #include <bootstage.h>
 #include <command.h>
 #include <efi.h>
@@ -237,9 +238,10 @@ static int boot_jump_linux(struct bootm_headers *images)
 				 images->os.arch == IH_ARCH_X86_64);
 }
 
-int do_bootm_linux(int flag, int argc, char *const argv[],
-		   struct bootm_headers *images)
+int do_bootm_linux(int flag, struct bootm_info *bmi)
 {
+	struct bootm_headers *images = bmi->images;
+
 	/* No need for those on x86 */
 	if (flag & BOOTM_STATE_OS_BD_T || flag & BOOTM_STATE_OS_CMDLINE)
 		return -1;
