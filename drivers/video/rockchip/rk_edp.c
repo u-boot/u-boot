@@ -1095,20 +1095,16 @@ static int rk_edp_probe(struct udevice *dev)
 
 	if (edp_data->chip_type == RK3288_DP) {
 		ret = clk_get_by_index(dev, 1, &clk);
-		if (ret >= 0) {
+		if (ret >= 0)
 			ret = clk_set_rate(&clk, 0);
-			clk_free(&clk);
-		}
 		if (ret) {
 			debug("%s: Failed to set EDP clock: ret=%d\n", __func__, ret);
 			return ret;
 		}
 	}
 	ret = clk_get_by_index(uc_plat->src_dev, 0, &clk);
-	if (ret >= 0) {
+	if (ret >= 0)
 		ret = clk_set_rate(&clk, 192000000);
-		clk_free(&clk);
-	}
 	if (ret < 0) {
 		debug("%s: Failed to set clock in source device '%s': ret=%d\n",
 		      __func__, uc_plat->src_dev->name, ret);

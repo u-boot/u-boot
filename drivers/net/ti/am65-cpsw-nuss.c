@@ -948,7 +948,6 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 		 cpsw_common->bus_freq);
 
 out:
-	clk_free(&cpsw_common->fclk);
 	power_domain_free(&cpsw_common->pwrdmn);
 	return ret;
 }

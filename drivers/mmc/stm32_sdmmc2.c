@@ -766,10 +766,8 @@ static int stm32_sdmmc2_probe(struct udevice *dev)
 	int ret;
 
 	ret = clk_enable(&plat->clk);
-	if (ret) {
-		clk_free(&plat->clk);
+	if (ret)
 		return ret;
-	}
 
 	upriv->mmc = &plat->mmc;
 

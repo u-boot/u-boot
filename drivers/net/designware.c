@@ -702,7 +702,6 @@ int designware_eth_probe(struct udevice *dev)
 			err = clk_enable(&priv->clocks[i]);
 			if (err && err != -ENOSYS && err != -ENOTSUPP) {
 				pr_err("failed to enable clock %d\n", i);
-				clk_free(&priv->clocks[i]);
 				goto clk_err;
 			}
 			priv->clock_count++;

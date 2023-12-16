@@ -183,8 +183,6 @@ static int mpfs_i2c_init(struct mpfs_i2c_bus *bus, struct udevice *dev)
 	if (!clk_rate)
 		return -EINVAL;
 
-	clk_free(&bus->i2c_clk);
-
 	divisor = clk_rate / bus->clk_rate;
 
 	ctrl = readl(bus->base + MPFS_I2C_CTRL);

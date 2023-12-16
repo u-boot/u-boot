@@ -360,25 +360,18 @@ static int malidp_probe(struct udevice *dev)
 
 	err = malidp_setup_mode(priv, &timings);
 	if (err)
-		goto fail_timings;
+		return err;
 
 	malidp_setup_layer(priv, &timings, MALIDP_LAYER_LV1,
 			   (phys_addr_t)uc_plat->base);
 
 	err = malidp_leave_config(priv);
 	if (err)
-		goto fail_timings;
+		return err;
 
 	malidp_set_configvalid(priv);
 
 	return 0;
-
-fail_timings:
-	clk_free(&priv->aclk);
-fail_aclk:
-	clk_free(&priv->pxlclk);
-
-	return err;
 }
 
 static int malidp_bind(struct udevice *dev)

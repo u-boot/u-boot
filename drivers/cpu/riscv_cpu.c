@@ -45,7 +45,6 @@ static int riscv_cpu_get_info(const struct udevice *dev, struct cpu_info *info)
 		ret = clk_get_rate(&clk);
 		if (!IS_ERR_VALUE(ret))
 			info->cpu_freq = ret;
-		clk_free(&clk);
 	}
 
 	if (!info->cpu_freq)
@@ -145,7 +144,6 @@ static int riscv_cpu_probe(struct udevice *dev)
 		return 0;
 
 	ret = clk_enable(&clk);
-	clk_free(&clk);
 	if (ret == -ENOSYS || ret == -ENOTSUPP)
 		return 0;
 	else

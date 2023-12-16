@@ -310,8 +310,6 @@ static int atmel_pio4_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	clk_free(&clk);
-
 	addr_base = dev_read_addr(dev);
 	if (addr_base == FDT_ADDR_T_NONE)
 		return -EINVAL;

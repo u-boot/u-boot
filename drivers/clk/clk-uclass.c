@@ -437,8 +437,6 @@ int clk_release_all(struct clk *clk, unsigned int count)
 		ret = clk_disable(&clk[i]);
 		if (ret && ret != -ENOSYS)
 			return ret;
-
-		clk_free(&clk[i]);
 	}
 
 	return 0;
@@ -772,22 +770,12 @@ bool clk_is_match(const struct clk *p, const struct clk *q)
 	return false;
 }
 
-static void devm_clk_release(struct udevice *dev, void *res)
-{
-	clk_free(res);
-}
-
-static int devm_clk_match(struct udevice *dev, void *res, void *data)
-{
-	return res == data;
-}
-
 struct clk *devm_clk_get(struct udevice *dev, const char *id)
 {
 	int rc;
 	struct clk *clk;
 
-	clk = devres_alloc(devm_clk_release, sizeof(struct clk), __GFP_ZERO);
+	clk = devm_kzalloc(dev, sizeof(*clk), GFP_KERNEL);
 	if (unlikely(!clk))
 		return ERR_PTR(-ENOMEM);
 
@@ -795,19 +783,7 @@ struct clk *devm_clk_get(struct udevice *dev, const char *id)
 	if (rc)
 		return ERR_PTR(rc);
 
-	devres_add(dev, clk);
 	return clk;
-}
-
-void devm_clk_put(struct udevice *dev, struct clk *clk)
-{
-	int rc;
-
-	if (!clk)
-		return;
-
-	rc = devres_release(dev, devm_clk_release, devm_clk_match, clk);
-	WARN_ON(rc);
 }
 
 int clk_uclass_post_probe(struct udevice *dev)

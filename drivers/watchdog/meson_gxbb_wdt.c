@@ -98,10 +98,8 @@ static int amlogic_wdt_probe(struct udevice *dev)
 		return ret;
 
 	ret = clk_enable(&clk);
-	if (ret) {
-		clk_free(&clk);
+	if (ret)
 		return ret;
-	}
 
 	/* Setup with 1ms timebase */
 	writel(((clk_get_rate(&clk) / 1000) & GXBB_WDT_CTRL_DIV_MASK) |

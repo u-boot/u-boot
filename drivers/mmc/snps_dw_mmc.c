@@ -46,7 +46,7 @@ static int snps_dwmmc_clk_setup(struct udevice *dev)
 
 	ret = clk_enable(&clk_ciu);
 	if (ret && ret != -ENOSYS && ret != -ENOTSUPP)
-		goto clk_err_ciu;
+		goto clk_err;
 
 	host->bus_hz = clk_get_rate(&clk_ciu);
 	if (host->bus_hz < CLOCK_MIN) {
@@ -60,16 +60,12 @@ static int snps_dwmmc_clk_setup(struct udevice *dev)
 
 	ret = clk_enable(&clk_biu);
 	if (ret && ret != -ENOSYS && ret != -ENOTSUPP)
-		goto clk_err_biu;
+		goto clk_err_ciu_dis;
 
 	return 0;
 
-clk_err_biu:
-	clk_free(&clk_biu);
 clk_err_ciu_dis:
 	clk_disable(&clk_ciu);
-clk_err_ciu:
-	clk_free(&clk_ciu);
 clk_err:
 	dev_err(dev, "failed to setup clocks, ret %d\n", ret);
 

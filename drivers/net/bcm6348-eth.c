@@ -457,8 +457,6 @@ static int bcm6348_eth_probe(struct udevice *dev)
 			pr_err("%s: error enabling clock %d\n", __func__, i);
 			return ret;
 		}
-
-		clk_free(&clk);
 	}
 
 	/* try to perform resets */

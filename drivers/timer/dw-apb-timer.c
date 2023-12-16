@@ -74,8 +74,6 @@ static int dw_apb_timer_probe(struct udevice *dev)
 			return ret;
 
 		uc_priv->clock_rate = clk_get_rate(&clk);
-
-		clk_free(&clk);
 	}
 
 	/* init timer */

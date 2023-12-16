@@ -30,7 +30,6 @@ static ulong rate(int id)
 	int ret;
 	struct udevice *dev;
 	struct clk clk;
-	ulong rate;
 
 	ret = uclass_get_device(UCLASS_CLK, 0, &dev);
 	if (ret) {
@@ -43,11 +42,7 @@ static ulong rate(int id)
 	if (ret < 0)
 		return ret;
 
-	rate = clk_get_rate(&clk);
-
-	clk_free(&clk);
-
-	return rate;
+	return clk_get_rate(&clk);
 }
 
 static ulong clk_get_cpu_rate(void)

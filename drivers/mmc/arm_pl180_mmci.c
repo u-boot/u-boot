@@ -447,7 +447,6 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 
 	ret = clk_enable(&clk);
 	if (ret) {
-		clk_free(&clk);
 		dev_err(dev, "failed to enable clock\n");
 		return ret;
 	}

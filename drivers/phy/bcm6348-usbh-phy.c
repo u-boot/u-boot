@@ -62,8 +62,6 @@ static int bcm6348_usbh_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	clk_free(&clk);
-
 	/* perform reset */
 	ret = reset_get_by_index(dev, 0, &rst_ctl);
 	if (ret < 0)

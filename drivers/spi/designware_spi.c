@@ -319,7 +319,6 @@ __weak int dw_spi_get_clk(struct udevice *bus, ulong *rate)
 
 err_rate:
 	clk_disable(&priv->clk);
-	clk_free(&priv->clk);
 
 	return -EINVAL;
 }
@@ -741,10 +740,6 @@ static int dw_spi_remove(struct udevice *bus)
 
 #if CONFIG_IS_ENABLED(CLK)
 	ret = clk_disable(&priv->clk);
-	if (ret)
-		return ret;
-
-	clk_free(&priv->clk);
 	if (ret)
 		return ret;
 #endif

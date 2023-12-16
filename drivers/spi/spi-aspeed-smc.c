@@ -1148,7 +1148,6 @@ static int apseed_spi_of_to_plat(struct udevice *bus)
 	}
 
 	plat->hclk_rate = clk_get_rate(&hclk);
-	clk_free(&hclk);
 
 	dev_dbg(bus, "ctrl_base = 0x%x, ahb_base = 0x%p, size = 0x%llx\n",
 		(u32)priv->regs, plat->ahb_base, (fdt64_t)plat->ahb_sz);

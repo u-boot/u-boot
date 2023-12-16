@@ -98,8 +98,6 @@ static int bcm6318_usbh_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	clk_free(&clk);
-
 	/* enable power domain */
 	ret = power_domain_get(dev, &pwr_dom);
 	if (ret < 0)

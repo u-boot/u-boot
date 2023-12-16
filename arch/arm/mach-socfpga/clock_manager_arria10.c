@@ -962,7 +962,6 @@ static u32 cm_get_rate_dm(char *name)
 	struct uclass *uc;
 	struct udevice *dev = NULL;
 	struct clk clk = { 0 };
-	ulong rate;
 	int ret;
 
 	/* Device addresses start at 1 */
@@ -982,11 +981,7 @@ static u32 cm_get_rate_dm(char *name)
 	if (ret)
 		return 0;
 
-	rate = clk_get_rate(&clk);
-
-	clk_free(&clk);
-
-	return rate;
+	return clk_get_rate(&clk);
 }
 
 static u32 cm_get_rate_dm_khz(char *name)

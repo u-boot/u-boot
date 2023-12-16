@@ -691,23 +691,19 @@ static int k210_pc_probe(struct udevice *dev)
 
 	ret = clk_enable(&priv->clk);
 	if (ret && ret != -ENOSYS && ret != -ENOTSUPP)
-		goto err;
+		return ret;
 
 	ret = dev_read_phandle_with_args(dev, "canaan,k210-sysctl-power",
 					NULL, 1, 0, &args);
         if (ret)
-		goto err;
+		return ret;
 
-	if (args.args_count != 1) {
-		ret = -EINVAL;
-		goto err;
-        }
+	if (args.args_count != 1)
+		return -EINVAL;
 
 	priv->sysctl = syscon_node_to_regmap(args.node);
-	if (IS_ERR(priv->sysctl)) {
-		ret = PTR_ERR(priv->sysctl);
-		goto err;
-	}
+	if (IS_ERR(priv->sysctl))
+		return PTR_ERR(priv->sysctl);
 
 	priv->power_offset = args.args[0];
 
@@ -728,10 +724,6 @@ static int k210_pc_probe(struct udevice *dev)
 	}
 
 	return 0;
-
-err:
-	clk_free(&priv->clk);
-	return ret;
 }
 
 static const struct udevice_id k210_pc_ids[] = {

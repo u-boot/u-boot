@@ -44,8 +44,6 @@ int set_cpu_clk_info(void)
 			gd->bd->bi_arm_freq = rate;
 			gd->cpu_clk = clk_get_rate(&clk);
 		}
-
-		clk_free(&clk);
 	}
 	gd->bd->bi_dsp_freq = 0;
 

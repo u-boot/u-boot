@@ -247,19 +247,6 @@ static inline struct clk *devm_clk_get_optional(struct udevice *dev,
  */
 int clk_release_all(struct clk *clk, unsigned int count);
 
-/**
- * devm_clk_put	- "free" a managed clock source
- * @dev: device used to acquire the clock
- * @clk: clock source acquired with devm_clk_get()
- *
- * Note: drivers must ensure that all clk_enable calls made on this
- * clock source are balanced by clk_disable calls prior to calling
- * this function.
- *
- * clk_put should not be called from within interrupt context.
- */
-void devm_clk_put(struct udevice *dev, struct clk *clk);
-
 #else
 
 static inline int clk_get_by_phandle(struct udevice *dev, const
@@ -312,10 +299,6 @@ clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 static inline int clk_release_all(struct clk *clk, unsigned int count)
 {
 	return -ENOSYS;
-}
-
-static inline void devm_clk_put(struct udevice *dev, struct clk *clk)
-{
 }
 #endif
 
@@ -422,10 +405,6 @@ static inline int clk_set_defaults(struct udevice *dev, int stage)
 static inline int clk_release_bulk(struct clk_bulk *bulk)
 {
 	return clk_release_all(bulk->clks, bulk->count);
-}
-
-static inline void clk_free(struct clk *clk)
-{
 }
 
 #if CONFIG_IS_ENABLED(CLK)

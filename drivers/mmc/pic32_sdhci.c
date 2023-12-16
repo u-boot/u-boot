@@ -32,7 +32,6 @@ static int pic32_sdhci_probe(struct udevice *dev)
 		return ret;
 
 	clk_rate = clk_get_rate(&clk);
-	clk_free(&clk);
 
 	if (IS_ERR_VALUE(clk_rate))
 		return clk_rate;

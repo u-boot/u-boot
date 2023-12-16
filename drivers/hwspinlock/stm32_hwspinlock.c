@@ -69,11 +69,7 @@ static int stm32mp1_hwspinlock_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = clk_enable(&clk);
-	if (ret)
-		clk_free(&clk);
-
-	return ret;
+	return clk_enable(&clk);
 }
 
 static const struct hwspinlock_ops stm32mp1_hwspinlock_ops = {

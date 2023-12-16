@@ -70,30 +70,24 @@ static int eqos_probe_resources_imx(struct udevice *dev)
 	ret = clk_get_by_name(dev, "ptp_ref", &eqos->clk_ptp_ref);
 	if (ret) {
 		dev_dbg(dev, "clk_get_by_name(ptp_ref) failed: %d", ret);
-		goto err_free_clk_master_bus;
+		goto err_probe;
 	}
 
 	ret = clk_get_by_name(dev, "tx", &eqos->clk_tx);
 	if (ret) {
 		dev_dbg(dev, "clk_get_by_name(tx) failed: %d", ret);
-		goto err_free_clk_ptp_ref;
+		goto err_probe;
 	}
 
 	ret = clk_get_by_name(dev, "pclk", &eqos->clk_ck);
 	if (ret) {
 		dev_dbg(dev, "clk_get_by_name(pclk) failed: %d", ret);
-		goto err_free_clk_tx;
+		goto err_probe;
 	}
 
 	debug("%s: OK\n", __func__);
 	return 0;
 
-err_free_clk_tx:
-	clk_free(&eqos->clk_tx);
-err_free_clk_ptp_ref:
-	clk_free(&eqos->clk_ptp_ref);
-err_free_clk_master_bus:
-	clk_free(&eqos->clk_master_bus);
 err_probe:
 
 	debug("%s: returns %d\n", __func__, ret);
@@ -102,16 +96,7 @@ err_probe:
 
 static int eqos_remove_resources_imx(struct udevice *dev)
 {
-	struct eqos_priv *eqos = dev_get_priv(dev);
-
 	debug("%s(dev=%p):\n", __func__, dev);
-
-	clk_free(&eqos->clk_ck);
-	clk_free(&eqos->clk_tx);
-	clk_free(&eqos->clk_ptp_ref);
-	clk_free(&eqos->clk_master_bus);
-
-	debug("%s: OK\n", __func__);
 	return 0;
 }
 
