@@ -217,7 +217,7 @@ static int boot_reloc_fdt(struct bootm_headers *images)
 {
 	/*
 	 * In case of legacy uImage's, relocation of FDT is already done
-	 * by do_bootm_states() and should not repeated in 'bootm prep'.
+	 * by bootm_run_states() and should not repeated in 'bootm prep'.
 	 */
 	if (images->state & BOOTM_STATE_FDT) {
 		debug("## FDT already relocated\n");

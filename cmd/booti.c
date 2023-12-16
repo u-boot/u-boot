@@ -34,7 +34,7 @@ static int booti_start(struct bootm_info *bmi)
 	unsigned long decomp_len;
 	int ctype;
 
-	ret = do_bootm_states(bmi, BOOTM_STATE_START);
+	ret = bootm_run_states(bmi, BOOTM_STATE_START);
 
 	/* Setup Linux kernel Image entry point */
 	if (!bmi->addr_img) {
@@ -141,7 +141,7 @@ int do_booti(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (IS_ENABLED(CONFIG_SYS_BOOT_RAMDISK_HIGH))
 		states |= BOOTM_STATE_RAMDISK;
 
-	ret = do_bootm_states(&bmi, states);
+	ret = bootm_run_states(&bmi, states);
 
 	return ret;
 }

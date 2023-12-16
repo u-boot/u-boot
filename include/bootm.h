@@ -132,7 +132,7 @@ int bootm_find_images(ulong img_addr, const char *conf_ramdisk,
 int bootm_measure(struct bootm_headers *images);
 
 /**
- * do_bootm_states() - Execute selected states of the bootm command.
+ * bootm_run_states() - Execute selected states of the bootm command.
  *
  * Note that if states contains more than one flag it MUST contain
  * BOOTM_STATE_START, since this handles the addr_fit, conf_ramdisk and conf_fit
@@ -149,7 +149,7 @@ int bootm_measure(struct bootm_headers *images);
  *	then the intent is to boot an OS, so this function will not return
  *	unless the image type is standalone.
  */
-int do_bootm_states(struct bootm_info *bmi, int states);
+int bootm_run_states(struct bootm_info *bmi, int states);
 
 void arch_preboot_os(void);
 

@@ -118,7 +118,7 @@ static int do_bootm_subcommand(struct cmd_tbl *cmdtp, int flag, int argc,
 	bmi.argc = argc;
 	bmi.argv = argv;
 
-	ret = do_bootm_states(&bmi, state);
+	ret = bootm_run_states(&bmi, state);
 
 #if defined(CONFIG_CMD_BOOTM_PRE_LOAD)
 	if (!ret && (state & BOOTM_STATE_PRE_LOAD))
@@ -180,7 +180,7 @@ int do_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	bmi.argc = argc;
 	bmi.argv = argv;
 
-	ret = do_bootm_states(&bmi, states);
+	ret = bootm_run_states(&bmi, states);
 
 	return ret ? CMD_RET_FAILURE : 0;
 }

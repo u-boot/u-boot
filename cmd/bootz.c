@@ -40,7 +40,7 @@ static int bootz_start(struct cmd_tbl *cmdtp, int flag, int argc,
 		bmi.conf_fdt = argv[2];
 	/* do not set up argc and argv[] since nothing uses them */
 
-	ret = do_bootm_states(&bmi, BOOTM_STATE_START);
+	ret = bootm_run_states(&bmi, BOOTM_STATE_START);
 
 	/* Setup Linux kernel zImage entry point */
 	if (!argc) {
@@ -104,7 +104,7 @@ int do_bootz(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (IS_ENABLED(CONFIG_SYS_BOOT_RAMDISK_HIGH))
 		states |= BOOTM_STATE_RAMDISK;
 
-	ret = do_bootm_states(&bmi, states);
+	ret = bootm_run_states(&bmi, states);
 
 	return ret;
 }

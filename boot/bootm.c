@@ -990,7 +990,7 @@ unmap_image:
 	return ret;
 }
 
-int do_bootm_states(struct bootm_info *bmi, int states)
+int bootm_run_states(struct bootm_info *bmi, int states)
 {
 	struct bootm_headers *images = bmi->images;
 	boot_os_fn *boot_fn;
@@ -1152,7 +1152,7 @@ int bootm_boot_start(ulong addr, const char *cmdline)
 	bootm_init(&bmi);
 	bmi.addr_img = addr_str;
 	bmi.cmd_name = "bootm";
-	ret = do_bootm_states(&bmi, states);
+	ret = bootm_run_states(&bmi, states);
 
 	return ret;
 }
