@@ -566,20 +566,15 @@ __weak void board_preboot_os(void)
 	/* please define board specific board_preboot_os() */
 }
 
-int boot_selected_os(int argc, char *const argv[], int state,
-		     struct bootm_headers *images, boot_os_fn *boot_fn)
+int boot_selected_os(int state, struct bootm_info *bmi, boot_os_fn *boot_fn)
 {
-	struct bootm_info bmi;
 	arch_preboot_os();
 	board_preboot_os();
 
-	bmi.argc = argc;
-	bmi.argv = argv;
-	bmi.images = images;
-	boot_fn(state, &bmi);
+	boot_fn(state, bmi);
 
 	/* Stand-alone may return when 'autostart' is 'no' */
-	if (images->os.type == IH_TYPE_STANDALONE ||
+	if (bmi->images->os.type == IH_TYPE_STANDALONE ||
 	    IS_ENABLED(CONFIG_SANDBOX) ||
 	    state == BOOTM_STATE_OS_FAKE_GO) /* We expect to return */
 		return 0;

@@ -1092,8 +1092,7 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 	if (!ret && (states & BOOTM_STATE_OS_FAKE_GO)) {
 		char *cmd_list = env_get("fakegocmd");
 
-		ret = boot_selected_os(bmi->argc, bmi->argv,
-				       BOOTM_STATE_OS_FAKE_GO, images, boot_fn);
+		ret = boot_selected_os(BOOTM_STATE_OS_FAKE_GO, bmi, boot_fn);
 		if (!ret && cmd_list)
 			ret = run_command_list(cmd_list, -1, 0);
 	}
@@ -1107,8 +1106,7 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 
 	/* Now run the OS! We hope this doesn't return */
 	if (!ret && (states & BOOTM_STATE_OS_GO))
-		ret = boot_selected_os(bmi->argc, bmi->argv, BOOTM_STATE_OS_GO,
-				       images, boot_fn);
+		ret = boot_selected_os(BOOTM_STATE_OS_GO, bmi, boot_fn);
 
 	/* Deal with any fallout */
 err:
