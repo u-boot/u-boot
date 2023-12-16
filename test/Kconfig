@@ -67,7 +67,7 @@ endif
 
 config UT_BOOTSTD
 	bool "Unit tests for standard boot"
-	depends on UNIT_TEST && SANDBOX
+	depends on UNIT_TEST && BOOTSTD && SANDBOX
 	default y
 
 config UT_COMPRESSION
