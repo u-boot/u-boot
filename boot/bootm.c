@@ -1140,10 +1140,12 @@ err:
 	if (iflag)
 		enable_interrupts();
 
-	if (ret == BOOTM_ERR_UNIMPLEMENTED)
+	if (ret == BOOTM_ERR_UNIMPLEMENTED) {
 		bootstage_error(BOOTSTAGE_ID_DECOMP_UNIMPL);
-	else if (ret == BOOTM_ERR_RESET)
-		do_reset(cmdtp, flag, argc, argv);
+	} else if (ret == BOOTM_ERR_RESET) {
+		printf("Resetting the board...\n");
+		reset_cpu();
+	}
 
 	return ret;
 }
