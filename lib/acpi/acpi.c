@@ -44,11 +44,30 @@ struct acpi_table_header *acpi_find_table(const char *sig)
 		if (!memcmp(hdr->signature, "FACP", ACPI_NAME_LEN)) {
 			struct acpi_fadt *fadt = (struct acpi_fadt *)hdr;
 
-			if (!memcmp(sig, "DSDT", ACPI_NAME_LEN) && fadt->dsdt)
-				return nomap_sysmem(fadt->dsdt, 0);
-			if (!memcmp(sig, "FACS", ACPI_NAME_LEN) &&
-			    fadt->firmware_ctrl)
-				return nomap_sysmem(fadt->firmware_ctrl, 0);
+			if (!memcmp(sig, "DSDT", ACPI_NAME_LEN)) {
+				void *dsdt;
+
+				if (fadt->header.revision >= 3 && fadt->x_dsdt)
+					dsdt = nomap_sysmem(fadt->x_dsdt, 0);
+				else if (fadt->dsdt)
+					dsdt = nomap_sysmem(fadt->dsdt, 0);
+				else
+					dsdt = NULL;
+				return dsdt;
+			}
+
+			if (!memcmp(sig, "FACS", ACPI_NAME_LEN)) {
+				void *facs;
+
+				if (fadt->header.revision >= 3 &&
+				    fadt->x_firmware_ctrl)
+					facs = nomap_sysmem(fadt->x_firmware_ctrl, 0);
+				else if (fadt->firmware_ctrl)
+					facs = nomap_sysmem(fadt->firmware_ctrl, 0);
+				else
+					facs = NULL;
+				return facs;
+			}
 		}
 	}
 
