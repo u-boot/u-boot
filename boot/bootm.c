@@ -1192,6 +1192,14 @@ int bootm_boot_start(ulong addr, const char *cmdline)
 	return ret;
 }
 
+void bootm_init(struct bootm_info *bmi)
+{
+	memset(bmi, '\0', sizeof(struct bootm_info));
+	bmi->boot_progress = true;
+	if (IS_ENABLED(CONFIG_CMD_BOOTM))
+		bmi->images = &images;
+}
+
 /**
  * switch_to_non_secure_mode() - switch to non-secure mode
  *
