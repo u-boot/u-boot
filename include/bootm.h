@@ -16,6 +16,20 @@ struct cmd_tbl;
 #define BOOTM_ERR_OVERLAP		(-2)
 #define BOOTM_ERR_UNIMPLEMENTED	(-3)
 
+/**
+ * struct bootm_info() - information used when processing images to boot
+ *
+ * @images: images information
+ * @argc: Number of arguments to the command (excluding the actual command).
+ *	This is 0 if there are no arguments
+ * @argv: NULL-terminated list of arguments, or NULL if there are no arguments
+ */
+struct bootm_info {
+	struct bootm_headers *images;
+	int argc;
+	char *const *argv;
+};
+
 /*
  *  Continue booting an OS image; caller already has:
  *  - copied image header to global variable `header'
@@ -39,7 +53,7 @@ typedef int boot_os_fn(int flag, int argc, char *const argv[],
 extern boot_os_fn do_bootm_linux;
 extern boot_os_fn do_bootm_vxworks;
 
-int do_bootelf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
+int do_bootelf(struct cmd_tbl *cmdtp, int fglag, int argc, char *const argv[]);
 
 boot_os_fn *bootm_os_get_boot_func(int os);
 
