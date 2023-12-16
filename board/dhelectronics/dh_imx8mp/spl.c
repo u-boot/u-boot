@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/ddr.h>
 #include <asm/arch/imx8mp_pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
@@ -134,7 +135,34 @@ static void spl_dram_init(void)
 	}
 
 	ddr_init(dram_timing_info[memcfg]);
+
+	printf("DDR:   Inline ECC %sabled\n",
+	       (readl(DDRC_ECCCFG0(0)) & DDRC_ECCCFG0_ECC_MODE_MASK) ?
+	       "en" : "dis");
 }
+
+#if IS_ENABLED(CONFIG_IMX8M_DRAM_INLINE_ECC)
+static const scrub_func_t dram_scrub_fn[8] = {
+	NULL,					/* 512 MiB */
+	NULL,					/* 1024 MiB */
+	NULL,					/* 1536 MiB */
+	dh_imx8mp_dhcom_dram_scrub_16g_x32,	/* 2048 MiB */
+	NULL,					/* 3072 MiB */
+	dh_imx8mp_dhcom_dram_scrub_32g_x32,	/* 4096 MiB */
+	NULL,					/* 6144 MiB */
+	NULL,					/* 8192 MiB */
+};
+
+void board_dram_ecc_scrub(void)
+{
+	u8 memcfg = dh_get_memcfg();
+
+	if (!dram_scrub_fn[memcfg])
+		return;
+
+	dram_scrub_fn[memcfg]();
+}
+#endif
 
 void spl_board_init(void)
 {
