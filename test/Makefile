@@ -26,7 +26,7 @@ obj-$(CONFIG_UT_TIME) += time_ut.o
 obj-y += ut.o
 
 ifeq ($(CONFIG_SPL_BUILD),)
-obj-$(CONFIG_$(SPL_)UT_BOOTSTD) += boot/
+obj-y += boot/
 obj-$(CONFIG_UNIT_TEST) += common/
 obj-y += log/
 obj-$(CONFIG_$(SPL_)UT_UNICODE) += unicode_ut.o
