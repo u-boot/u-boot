@@ -1140,6 +1140,19 @@ int bootm_run(struct bootm_info *bmi)
 	return bootm_run_states(bmi, states);
 }
 
+int bootz_run(struct bootm_info *bmi)
+{
+	int states;
+
+	bmi->cmd_name = "bootz";
+	states = BOOTM_STATE_MEASURE | BOOTM_STATE_OS_PREP |
+		BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO;
+	if (IS_ENABLED(CONFIG_SYS_BOOT_RAMDISK_HIGH))
+		states |= BOOTM_STATE_RAMDISK;
+
+	return bootm_run_states(bmi, states);
+}
+
 int bootm_boot_start(ulong addr, const char *cmdline)
 {
 	char addr_str[30];

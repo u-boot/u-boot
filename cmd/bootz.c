@@ -74,7 +74,7 @@ static int bootz_start(struct cmd_tbl *cmdtp, int flag, int argc,
 int do_bootz(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct bootm_info bmi;
-	int states, ret;
+	int ret;
 
 	/* Consume 'bootz' */
 	argc--; argv++;
@@ -99,12 +99,7 @@ int do_bootz(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		bmi.conf_fdt = argv[2];
 	bmi.cmd_name = "bootz";
 
-	states = BOOTM_STATE_MEASURE | BOOTM_STATE_OS_PREP |
-		BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO;
-	if (IS_ENABLED(CONFIG_SYS_BOOT_RAMDISK_HIGH))
-		states |= BOOTM_STATE_RAMDISK;
-
-	ret = bootm_run_states(&bmi, states);
+	ret = bootz_run(&bmi);
 
 	return ret;
 }

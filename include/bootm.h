@@ -163,6 +163,19 @@ int bootm_run_states(struct bootm_info *bmi, int states);
  */
 int bootm_run(struct bootm_info *bmi);
 
+/**
+ * bootz_run() - Run the entire bootz process
+ *
+ * This runs through the bootz process from start to finish, using the default
+ * set of states.
+ *
+ * This uses bootm_run_states().
+ *
+ * @bmi: bootm information
+ * Return: 0 if ok, something else on error
+ */
+int bootz_run(struct bootm_info *bmi);
+
 void arch_preboot_os(void);
 
 /*
