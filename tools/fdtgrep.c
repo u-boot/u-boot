@@ -576,6 +576,40 @@ static int check_type_include(void *priv, int type, const char *data, int size)
 }
 
 /**
+ * check_props() - Check if a node has properties that we want to include
+ *
+ * Calls check_type_include() for each property in the nodn, returning 1 if
+ * that function returns 1 for any of them
+ *
+ * @disp:	Display structure, holding info about our options
+ * @fdt:	Devicetree blob to check
+ * @node:	Node offset to check
+ * @inc:	Current value of the 'include' variable (see h_include())
+ * Return: 0 to exclude, 1 to include, -1 if no information is available
+ */
+static int check_props(struct display_info *disp, const void *fdt, int node,
+		       int inc)
+{
+	int offset;
+
+	for (offset = fdt_first_property_offset(fdt, node);
+	     offset > 0 && inc != 1;
+	     offset = fdt_next_property_offset(fdt, offset)) {
+		const struct fdt_property *prop;
+		const char *str;
+
+		prop = fdt_get_property_by_offset(fdt, offset, NULL);
+		if (!prop)
+			continue;
+		str = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
+		inc = check_type_include(disp, FDT_NODE_HAS_PROP, str,
+					 strlen(str));
+	}
+
+	return inc;
+}
+
+/**
  * h_include() - Include handler function for fdt_first_region()
  *
  * This function decides whether to include or exclude a node, property or
@@ -617,19 +651,7 @@ static int h_include(void *priv, const void *fdt, int offset, int type,
 	    (disp->types_inc & FDT_NODE_HAS_PROP)) {
 		debug("   - checking node '%s'\n",
 		      fdt_get_name(fdt, offset, NULL));
-		for (offset = fdt_first_property_offset(fdt, offset);
-		     offset > 0 && inc != 1;
-		     offset = fdt_next_property_offset(fdt, offset)) {
-			const struct fdt_property *prop;
-			const char *str;
-
-			prop = fdt_get_property_by_offset(fdt, offset, NULL);
-			if (!prop)
-				continue;
-			str = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
-			inc = check_type_include(priv, FDT_NODE_HAS_PROP, str,
-						 strlen(str));
-		}
+		inc = check_props(disp, fdt, offset, inc);
 		if (inc == -1)
 			inc = 0;
 	}
