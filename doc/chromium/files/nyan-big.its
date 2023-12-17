@@ -15,7 +15,7 @@
 			load = <0>;
 			entry = <0>;
 			hash-2 {
-				algo = "sha1";
+				algo = "sha256";
 			};
 		};
 
@@ -26,7 +26,7 @@
 			arch = "arm";
 			compression = "none";
 			hash-1{
-				algo = "sha1";
+				algo = "sha256";
 			};
 		};
 	};

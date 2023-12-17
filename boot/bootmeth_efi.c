@@ -413,7 +413,6 @@ static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 static int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 {
 	ulong kernel, fdt;
-	char cmd[50];
 	int ret;
 
 	kernel = env_get_hex("kernel_addr_r", 0);
@@ -442,12 +441,7 @@ static int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 		fdt = env_get_hex("fdt_addr_r", 0);
 	}
 
-	/*
-	 * At some point we can add a real interface to bootefi so we can call
-	 * this directly. For now, go through the CLI, like distro boot.
-	 */
-	snprintf(cmd, sizeof(cmd), "bootefi %lx %lx", kernel, fdt);
-	if (run_command(cmd, 0))
+	if (efi_binary_run(map_sysmem(kernel, 0), 0, map_sysmem(fdt, 0)))
 		return log_msg_ret("run", -EINVAL);
 
 	return 0;

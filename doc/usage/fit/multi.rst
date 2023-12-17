@@ -22,10 +22,10 @@ Multiple kernels, ramdisks and FDT blobs
                 load = <00000000>;
                 entry = <00000000>;
                 hash-1 {
-                    algo = "md5";
+                    algo = "sha256";
                 };
                 hash-2 {
-                    algo = "sha1";
+                    algo = "sha512";
                 };
             };
 
@@ -39,7 +39,7 @@ Multiple kernels, ramdisks and FDT blobs
                 load = <00000000>;
                 entry = <00000000>;
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
 
@@ -53,7 +53,7 @@ Multiple kernels, ramdisks and FDT blobs
                 load = <00000000>;
                 entry = <00000000>;
                 hash-1 {
-                    algo = "md5";
+                    algo = "sha256";
                 };
             };
 
@@ -67,7 +67,7 @@ Multiple kernels, ramdisks and FDT blobs
                 load = <00000000>;
                 entry = <00000000>;
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
 
@@ -104,7 +104,7 @@ Multiple kernels, ramdisks and FDT blobs
                 compression = "none";
                 load = <00700000>;
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
 

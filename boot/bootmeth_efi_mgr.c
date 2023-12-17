@@ -87,7 +87,7 @@ static int efi_mgr_boot(struct udevice *dev, struct bootflow *bflow)
 	int ret;
 
 	/* Booting is handled by the 'bootefi bootmgr' command */
-	ret = run_command("bootefi bootmgr", 0);
+	ret = efi_bootmgr_run(EFI_FDT_USE_INTERNAL);
 
 	return 0;
 }

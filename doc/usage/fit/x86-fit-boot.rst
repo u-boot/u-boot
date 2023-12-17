@@ -207,16 +207,16 @@ You can take a look at the resulting fit file if you like::
       OS:           Linux
       Load Address: 0x01000000
       Entry Point:  0x00000000
-      Hash algo:    sha1
-      Hash value:   446b5163ebfe0fb6ee20cbb7a8501b263cd92392
+      Hash algo:    sha256
+      Hash value:   4bbf49981ade163ed089f8525236fedfe44508e9b02a21a48294a96a1518107b
      Image 1 (setup)
       Description:  Linux setup.bin
       Created:      Tue Oct  7 10:57:24 2014
       Type:         x86 setup.bin
       Compression:  uncompressed
       Data Size:    12912 Bytes = 12.61 kB = 0.01 MB
-      Hash algo:    sha1
-      Hash value:   a1f2099cf47ff9816236cd534c77af86e713faad
+      Hash algo:    sha256
+      Hash value:   6aa50c2e0392cb119cdf0971dce8339f100608ed3757c8200b0e39e889e432d2
      Default Configuration: 'config-1'
      Configuration 0 (config-1)
       Description:  Boot Linux kernel

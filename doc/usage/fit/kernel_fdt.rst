@@ -25,7 +25,7 @@ Single kernel and FDT blob
 			algo = "crc32";
 		};
 		hash-2 {
-			algo = "sha1";
+			algo = "sha256";
 		};
 		};
 		fdt-1 {
@@ -38,7 +38,7 @@ Single kernel and FDT blob
 			algo = "crc32";
 		};
 		hash-2 {
-			algo = "sha1";
+			algo = "sha256";
 		};
 		};
 	};
