@@ -375,8 +375,9 @@ static int display_fdt_by_regions(struct display_info *disp, const void *blob,
 		const char *str;
 		int str_base = fdt_off_dt_strings(blob);
 
-		for (offset = 0; offset < fdt_size_dt_strings(blob);
-				offset += strlen(str) + 1) {
+		for (offset = 0;
+		     offset < (int)fdt_size_dt_strings(blob);
+		     offset += strlen(str) + 1) {
 			str = fdt_string(blob, offset);
 			int len = strlen(str) + 1;
 			int show;
@@ -431,7 +432,7 @@ static int dump_fdt_regions(struct display_info *disp, const void *blob,
 {
 	struct fdt_header *fdt;
 	int size, struct_start;
-	int ptr;
+	unsigned int ptr;
 	int i;
 
 	/* Set up a basic header (even if we don't actually write it) */
@@ -683,10 +684,10 @@ static int fdtgrep_find_regions(const void *fdt,
 			return new_count;
 		} else if (new_count <= max_regions) {
 			/*
-			* The alias regions will now be at the end of the list.
-			* Sort the regions by offset to get things into the
-			* right order
-			*/
+			 * The alias regions will now be at the end of the list.
+			 * Sort the regions by offset to get things into the
+			 * right order
+			 */
 			count = new_count;
 			qsort(region, count, sizeof(struct fdt_region),
 			      h_cmp_region);
@@ -880,7 +881,7 @@ static int do_fdtgrep(struct display_info *disp, const char *filename)
 			size = fdt_totalsize(fdt);
 		}
 
-		if (size != fwrite(fdt, 1, size, disp->fout)) {
+		if ((size_t)size != fwrite(fdt, 1, size, disp->fout)) {
 			fprintf(stderr, "Write failure, %d bytes\n", size);
 			free(fdt);
 			ret = 1;
@@ -934,7 +935,7 @@ static const char usage_synopsis[] =
 static const char usage_short_opts[] =
 		"haAc:b:C:defg:G:HIlLmn:N:o:O:p:P:rRsStTv"
 		USAGE_COMMON_SHORT_OPTS;
-static struct option const usage_long_opts[] = {
+static const struct option usage_long_opts[] = {
 	{"show-address",	no_argument, NULL, 'a'},
 	{"colour",		no_argument, NULL, 'A'},
 	{"include-node-with-prop", a_argument, NULL, 'b'},
