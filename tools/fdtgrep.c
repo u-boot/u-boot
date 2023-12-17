@@ -63,6 +63,7 @@ struct display_info {
 	int types_inc;		/* Mask of types that we include (FDT_IS...) */
 	int types_exc;		/* Mask of types that we exclude (FDT_IS...) */
 	int invert;		/* Invert polarity of match */
+	int props_up;		/* Imply properties up to supernodes */
 	struct value_node *value_head;	/* List of values to match */
 	const char *output_fname;	/* Output filename */
 	FILE *fout;		/* File to write dts/dtb output */
@@ -606,6 +607,16 @@ static int check_props(struct display_info *disp, const void *fdt, int node,
 					 strlen(str));
 	}
 
+	/* if requested, check all subnodes for this property too */
+	if (inc != 1 && disp->props_up) {
+		int subnode;
+
+		for (subnode = fdt_first_subnode(fdt, node);
+		     subnode > 0 && inc != 1;
+		     subnode = fdt_next_subnode(fdt, subnode))
+			inc = check_props(disp, fdt, subnode, inc);
+	}
+
 	return inc;
 }
 
@@ -955,7 +966,7 @@ static const char usage_synopsis[] =
 	case '?': usage("unknown option");
 
 static const char usage_short_opts[] =
-		"haAc:b:C:defg:G:HIlLmn:N:o:O:p:P:rRsStTv"
+		"haAc:b:C:defg:G:HIlLmn:N:o:O:p:P:rRsStTuv"
 		USAGE_COMMON_SHORT_OPTS;
 static const struct option usage_long_opts[] = {
 	{"show-address",	no_argument, NULL, 'a'},
@@ -985,6 +996,7 @@ static const struct option usage_long_opts[] = {
 	{"skip-supernodes",	no_argument, NULL, 'S'},
 	{"show-stringtab",	no_argument, NULL, 't'},
 	{"show-aliases",	no_argument, NULL, 'T'},
+	{"props-up-to-supernode", no_argument, NULL, 'u'},
 	{"invert-match",	no_argument, NULL, 'v'},
 	USAGE_COMMON_LONG_OPTS,
 };
@@ -1016,6 +1028,7 @@ static const char * const usage_opts_help[] = {
 	"Don't include supernodes of matching nodes",
 	"Include string table in binary output",
 	"Include matching aliases in output",
+	"Add -p properties to supernodes too",
 	"Invert the sense of matching (select non-matching lines)",
 	USAGE_COMMON_OPTS_HELP
 };
@@ -1201,6 +1214,9 @@ static void scan_args(struct display_info *disp, int argc, char *argv[])
 			break;
 		case 'T':
 			disp->add_aliases = 1;
+			break;
+		case 'u':
+			disp->props_up = 1;
 			break;
 		case 'v':
 			disp->invert = 1;
