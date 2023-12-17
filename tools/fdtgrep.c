@@ -576,15 +576,21 @@ static int check_type_include(void *priv, int type, const char *data, int size)
 }
 
 /**
- * h_include() - Include handler function for fdtgrep_find_regions()
+ * h_include() - Include handler function for fdt_first_region()
  *
  * This function decides whether to include or exclude a node, property or
- * compatible string. The function is defined by fdtgrep_find_regions().
+ * compatible string. The function is defined by fdt_first_region().
  *
  * The algorithm is documented in the code - disp->invert is 0 for normal
  * operation, and 1 to invert the sense of all matches.
  *
- * See
+ * @priv: Private pointer as passed to fdtgrep_find_regions()
+ * @fdt: Pointer to FDT blob
+ * @offset: Offset of this node / property
+ * @type: Type of this part, FDT_IS_...
+ * @data: Pointer to data (node name, property name, compatible string)
+ * @size: Size of data, or 0 if none
+ * Return: 0 to exclude, 1 to include, -1 if no information is available
  */
 static int h_include(void *priv, const void *fdt, int offset, int type,
 		     const char *data, int size)
