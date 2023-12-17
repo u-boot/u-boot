@@ -953,6 +953,8 @@ static const struct option usage_long_opts[] = {
 	{"include-mem",		no_argument, NULL, 'm'},
 	{"include-node",	a_argument, NULL, 'n'},
 	{"exclude-node",	a_argument, NULL, 'N'},
+	{"out",			a_argument, NULL, 'o'},
+	{"out-format",		a_argument, NULL, 'O'},
 	{"include-prop",	a_argument, NULL, 'p'},
 	{"exclude-prop",	a_argument, NULL, 'P'},
 	{"remove-strings",	no_argument, NULL, 'r'},
@@ -961,8 +963,6 @@ static const struct option usage_long_opts[] = {
 	{"skip-supernodes",	no_argument, NULL, 'S'},
 	{"show-stringtab",	no_argument, NULL, 't'},
 	{"show-aliases",	no_argument, NULL, 'T'},
-	{"out",			a_argument, NULL, 'o'},
-	{"out-format",		a_argument, NULL, 'O'},
 	{"invert-match",	no_argument, NULL, 'v'},
 	USAGE_COMMON_LONG_OPTS,
 };
@@ -984,6 +984,8 @@ static const char * const usage_opts_help[] = {
 	"Include mem_rsvmap section in binary output",
 	"Node to include in grep",
 	"Node to exclude in grep",
+	"-o <output file>",
+	"-O <output format>",
 	"Property to include in grep",
 	"Property to exclude in grep",
 	"Remove unused strings from string table",
@@ -992,8 +994,6 @@ static const char * const usage_opts_help[] = {
 	"Don't include supernodes of matching nodes",
 	"Include string table in binary output",
 	"Include matching aliases in output",
-	"-o <output file>",
-	"-O <output format>",
 	"Invert the sense of matching (select non-matching lines)",
 	USAGE_COMMON_OPTS_HELP
 };
@@ -1125,6 +1125,9 @@ static void scan_args(struct display_info *disp, int argc, char *argv[])
 		case 'H':
 			disp->header = 1;
 			break;
+		case 'I':
+			disp->show_dts_version = 1;
+			break;
 		case 'l':
 			disp->region_list = 1;
 			break;
@@ -1179,9 +1182,6 @@ static void scan_args(struct display_info *disp, int argc, char *argv[])
 			break;
 		case 'v':
 			disp->invert = 1;
-			break;
-		case 'I':
-			disp->show_dts_version = 1;
 			break;
 		}
 
