@@ -634,14 +634,8 @@ static int h_include(void *priv, const void *fdt, int offset, int type,
 			inc = 0;
 	}
 
-	switch (inc) {
-	case 1:
-		inc = !disp->invert;
-		break;
-	case 0:
-		inc = disp->invert;
-		break;
-	}
+	if (inc != -1 && disp->invert)
+		inc = !inc;
 	debug("   - returning %d\n", inc);
 
 	return inc;
