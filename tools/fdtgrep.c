@@ -576,10 +576,10 @@ static int check_type_include(void *priv, int type, const char *data, int size)
 }
 
 /**
- * h_include() - Include handler function for fdt_find_regions()
+ * h_include() - Include handler function for fdtgrep_find_regions()
  *
  * This function decides whether to include or exclude a node, property or
- * compatible string. The function is defined by fdt_find_regions().
+ * compatible string. The function is defined by fdtgrep_find_regions().
  *
  * The algorithm is documented in the code - disp->invert is 0 for normal
  * operation, and 1 to invert the sense of all matches.
@@ -822,7 +822,7 @@ static int do_fdtgrep(struct display_info *disp, const char *filename)
 				region, max_regions, path, sizeof(path),
 				disp->flags);
 		if (count < 0) {
-			report_error("fdt_find_regions", count);
+			report_error("fdtgrep_find_regions", count);
 			free(region);
 			return -1;
 		}
