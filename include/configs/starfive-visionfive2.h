@@ -40,6 +40,7 @@
 	"kernel_comp_addr_r=0x88000000\0" \
 	"kernel_comp_size=0x4000000\0" \
 	"fdt_addr_r=0x46000000\0" \
+	"fdtoverlay_addr_r=0x45800000\0" \
 	"scriptaddr=0x43900000\0" \
 	"pxefile_addr_r=0x45900000\0" \
 	"ramdisk_addr_r=0x46100000\0" \

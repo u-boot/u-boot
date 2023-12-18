@@ -11,14 +11,6 @@ The ARM backend can be instructed not to use the r9 and x18 registers using
 supported inline assembly is needed to get and set the r9 or x18 value. This
 leads to larger code then strictly necessary, but at least works.
 
-**NOTE:** target compilation only work for _some_ ARM boards at the moment.
-Also AArch64 is not supported currently due to a lack of private libgcc
-support. Boards which reassign gd in c will also fail to compile, but there is
-in no strict reason to do so in the ARM world, since crt0.S takes care of this.
-These assignments can be avoided by changing the init calls but this is not in
-mainline yet.
-
-
 Debian based
 ------------
 
@@ -28,14 +20,20 @@ Required packages can be installed via apt, e.g.
 
     sudo apt-get install clang
 
-Note that we still use binutils for some tools so we must continue to set
-CROSS_COMPILE. To compile U-Boot with Clang on Linux without IAS use e.g.
+We make use of the CROSS_COMPILE variable to derive the build target which is
+passed as the --target parameter to clang.
+
+The CROSS_COMPILE variable further determines the paths to other build
+tools. As assembler we use the binary pointed to by '$(CROSS_COMPILE)as'
+instead of the LLVM integrated assembler (IAS).
+
+Here is an example demonstrating building U-Boot for the Raspberry Pi 2
+using clang:
 
 .. code-block:: bash
 
     make HOSTCC=clang rpi_2_defconfig
-    make HOSTCC=clang CROSS_COMPILE=arm-linux-gnueabi- \
-         CC="clang -target arm-linux-gnueabi" -j8
+    make HOSTCC=clang CROSS_COMPILE=arm-linux-gnueabi- CC=clang -j8
 
 It can also be used to compile sandbox:
 

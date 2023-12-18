@@ -21,41 +21,36 @@
 #include <linux/err.h>
 
 /* pending register */
-#define PENDING_REG(base)	((ulong)(base) + 0x1000)
+#define PENDING_REG(base, hart)	((ulong)(base) + 0x1000 + 4 * (((hart) + 1) / 32))
 /* enable register */
-#define ENABLE_REG(base, hart)	((ulong)(base) + 0x2000 + (hart) * 0x80)
+#define ENABLE_REG(base, hart)	((ulong)(base) + 0x2000 + (hart) * 0x80 + 4 * (((hart) + 1) / 32))
 /* claim register */
 #define CLAIM_REG(base, hart)	((ulong)(base) + 0x200004 + (hart) * 0x1000)
 /* priority register */
 #define PRIORITY_REG(base)	((ulong)(base) + PLICSW_PRIORITY_BASE)
 
 /* Bit 0 of PLIC-SW pending array is hardwired to zero, so we start from bit 1 */
-#define FIRST_AVAILABLE_BIT	0x2
-#define SEND_IPI_TO_HART(hart)	(FIRST_AVAILABLE_BIT << (hart))
 #define PLICSW_PRIORITY_BASE        0x4
-#define PLICSW_INTERRUPT_PER_HART   0x1
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static int enable_ipi(int hart)
 {
-	unsigned int en;
+	u32 enable_bit = (hart + 1) % 32;
 
-	en = FIRST_AVAILABLE_BIT << hart;
-	writel(en, (void __iomem *)ENABLE_REG(gd->arch.plicsw, hart));
+	writel(BIT(enable_bit), (void __iomem *)ENABLE_REG(gd->arch.plicsw, hart));
 
 	return 0;
 }
 
 static void init_priority_ipi(int hart_num)
 {
-    uint32_t *priority = (void *)PRIORITY_REG(gd->arch.plicsw);
+	u32 *priority = (void *)PRIORITY_REG(gd->arch.plicsw);
 
-    for (int i = 0; i < hart_num * PLICSW_INTERRUPT_PER_HART; i++) {
-        writel(1, &priority[i]);
-    }
+	for (int i = 0; i < hart_num; i++)
+		writel(1, &priority[i]);
 
-    return;
+	return;
 }
 
 int riscv_init_ipi(void)
@@ -104,9 +99,10 @@ int riscv_init_ipi(void)
 
 int riscv_send_ipi(int hart)
 {
-	unsigned int ipi = SEND_IPI_TO_HART(hart);
+	u32 interrupt_id = hart + 1;
+	u32 pending_bit  = interrupt_id % 32;
 
-	writel(ipi, (void __iomem *)PENDING_REG(gd->arch.plicsw));
+	writel(BIT(pending_bit), (void __iomem *)PENDING_REG(gd->arch.plicsw, hart));
 
 	return 0;
 }
@@ -123,10 +119,11 @@ int riscv_clear_ipi(int hart)
 
 int riscv_get_ipi(int hart, int *pending)
 {
-	unsigned int ipi = SEND_IPI_TO_HART(hart);
+	u32 interrupt_id = hart + 1;
+	u32 pending_bit  = interrupt_id % 32;
 
-	*pending = readl((void __iomem *)PENDING_REG(gd->arch.plicsw));
-	*pending = !!(*pending & ipi);
+	*pending = readl((void __iomem *)PENDING_REG(gd->arch.plicsw, hart));
+	*pending = !!(*pending & BIT(pending_bit));
 
 	return 0;
 }

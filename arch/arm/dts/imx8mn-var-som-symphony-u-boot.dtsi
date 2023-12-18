@@ -39,11 +39,11 @@
 };
 
 &i2c1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pinctrl_i2c1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pinctrl_pmic {
@@ -83,5 +83,5 @@
 };
 
 &eeprom_som {
-	bootph-pre-ram;
+	bootph-all;
 };

@@ -251,8 +251,7 @@ the SPI flash content from Linux, using the `MTD utils`_::
 
     # apt-get install mtd-utils
     # mtdinfo
-    # mtd_debug erase /dev/mtdX 0 0xf0000
-    # mtd_debug write /dev/mtdX 0 0xf0000 u-boot-sunxi-with-spl.bin
+    # flashcp -v u-boot-sunxi-with-spl.bin /dev/mtdX
 
 ``/dev/mtdX`` needs to be replaced with the respective device name, as listed
 in the output of ``mtdinfo``.

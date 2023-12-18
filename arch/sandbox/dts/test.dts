@@ -631,9 +631,10 @@
 		clocks = <&clk_fixed>,
 			 <&clk_sandbox 1>,
 			 <&clk_sandbox 0>,
+			 <&ccf 11>,
 			 <&clk_sandbox 3>,
 			 <&clk_sandbox 2>;
-		clock-names = "fixed", "i2c", "spi", "uart2", "uart1";
+		clock-names = "fixed", "i2c", "spi", "i2c_root", "uart2", "uart1";
 	};
 
 	clk-test2 {
@@ -654,6 +655,7 @@
 
 	ccf: clk-ccf {
 		compatible = "sandbox,clk-ccf";
+		#clock-cells = <1>;
 	};
 
 	efi-media {
