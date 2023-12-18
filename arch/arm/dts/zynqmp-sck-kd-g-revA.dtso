@@ -120,6 +120,8 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		phy0: ethernet-phy@8 { /* Adin u31 */
+			#phy-cells = <1>;
+			compatible = "ethernet-phy-id0283.bc30";
 			reg = <8>;
 			adi,rx-internal-delay-ps = <2000>;
 			adi,tx-internal-delay-ps = <2000>;
