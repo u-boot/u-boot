@@ -51,10 +51,11 @@ config XILINX_OF_BOARD_DTB_ADDR
 
 config BOOT_SCRIPT_OFFSET
 	hex "Boot script offset"
-	depends on ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL || ARCH_VERSAL_NET || MICROBLAZE
+	depends on ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL || ARCH_VERSAL_NET || MICROBLAZE || TARGET_XILINX_MBV
 	default 0xFC0000 if ARCH_ZYNQ || MICROBLAZE
 	default 0x3E80000 if ARCH_ZYNQMP
 	default 0x7F80000 if ARCH_VERSAL || ARCH_VERSAL_NET
+	default 0 if TARGET_XILINX_MBV
 	help
 	   Specifies distro boot script offset in NAND/QSPI/NOR flash.
 
