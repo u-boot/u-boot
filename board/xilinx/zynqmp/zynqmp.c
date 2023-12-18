@@ -670,7 +670,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		len += snprintf(buf + len, DFU_ALT_BUF_LEN,
 			       ";%s raw 0x%x 0x500000",
 			       CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
-			       CONFIG_SYS_SPI_U_BOOT_OFFS);
+			       multiboot * SZ_32K + CONFIG_SYS_SPI_U_BOOT_OFFS);
 #endif
 		break;
 	default:
