@@ -57,7 +57,7 @@ config NETCONSOLE
 	bool "NetConsole support"
 	help
 	  Support the 'nc' input/output device for networked console.
-	  See README.NetConsole for details.
+	  See doc/usage/netconsole.rst for details.
 
 config IP_DEFRAG
 	bool "Support IP datagram reassembly"
