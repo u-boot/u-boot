@@ -352,77 +352,6 @@ static int probe_daughtercards(void)
 }
 #endif
 
-void configure_serdes_torrent(void)
-{
-	struct udevice *dev;
-	struct phy serdes;
-	int ret;
-
-	if (!IS_ENABLED(CONFIG_PHY_CADENCE_TORRENT))
-		return;
-
-	ret = uclass_get_device_by_driver(UCLASS_PHY,
-					  DM_DRIVER_GET(torrent_phy_provider),
-					  &dev);
-	if (ret) {
-		printf("Torrent init failed:%d\n", ret);
-		return;
-	}
-
-	serdes.dev = dev;
-	serdes.id = 0;
-
-	ret = generic_phy_init(&serdes);
-	if (ret) {
-		printf("phy_init failed!!: %d\n", ret);
-		return;
-	}
-
-	ret = generic_phy_power_on(&serdes);
-	if (ret) {
-		printf("phy_power_on failed!!: %d\n", ret);
-		return;
-	}
-}
-
-void configure_serdes_sierra(void)
-{
-	struct udevice *dev, *link_dev;
-	struct phy link;
-	int ret, count, i;
-	int link_count = 0;
-
-	if (!IS_ENABLED(CONFIG_PHY_CADENCE_SIERRA))
-		return;
-
-	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_DRIVER_GET(sierra_phy_provider),
-					  &dev);
-	if (ret) {
-		printf("Sierra init failed:%d\n", ret);
-		return;
-	}
-
-	count = device_get_child_count(dev);
-	for (i = 0; i < count; i++) {
-		ret = device_get_child(dev, i, &link_dev);
-		if (ret) {
-			printf("probe of sierra child node %d failed: %d\n", i, ret);
-			return;
-		}
-		if (link_dev->driver->id == UCLASS_PHY) {
-			link.dev = link_dev;
-			link.id = link_count++;
-
-			ret = generic_phy_power_on(&link);
-			if (ret) {
-				printf("phy_power_on failed!!: %d\n", ret);
-				return;
-			}
-		}
-	}
-}
-
 #ifdef CONFIG_BOARD_LATE_INIT
 static void setup_board_eeprom_env(void)
 {
@@ -475,12 +404,6 @@ int board_late_init(void)
 		if (board_is_j721e_som() || board_is_j7200_som())
 			probe_daughtercards();
 	}
-
-	if (board_is_j7200_som())
-		configure_serdes_torrent();
-
-	if (board_is_j721e_som())
-		configure_serdes_sierra();
 
 	return 0;
 }
