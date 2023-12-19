@@ -411,6 +411,8 @@ F:	drivers/watchdog/mtk_wdt.c
 F:	drivers/net/mtk_eth.c
 F:	drivers/net/mtk_eth.h
 F:	drivers/reset/reset-mediatek.c
+F:	include/dt-bindings/clock/mediatek,*
+F:	include/dt-bindings/power/mediatek,*
 F:	tools/mtk_image.c
 F:	tools/mtk_image.h
 F:	tools/mtk_nand_headers.c

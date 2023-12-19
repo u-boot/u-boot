@@ -76,6 +76,14 @@ config TARGET_MT8183
 	  SD and MMC cards, UFS, PWM, I2C, I2S, S/PDIF, and several LPDDR3
 	  and LPDDR4 options.
 
+config TARGET_MT8365
+	bool "MediaTek MT8365 SoC"
+	select ARM64
+	help
+	  The MediaTek MT8365 is a ARM64-based SoC with a quad-core Cortex-A53.
+	  It is including UART, SPI, USB2.0 dual role, SD and MMC cards, NAND, PWM,
+	  I2C, I2S, S/PDIF, and several LPDDR3 and LPDDR4 options.
+
 config TARGET_MT8512
         bool "MediaTek MT8512 M1 Board"
         select ARM64
@@ -133,6 +141,7 @@ config SYS_CONFIG_NAME
 	default "mt7986" if TARGET_MT7986
 	default "mt7988" if TARGET_MT7988
 	default "mt8183" if TARGET_MT8183
+	default "mt8365" if TARGET_MT8365
 	default "mt8512" if TARGET_MT8512
 	default "mt8516" if TARGET_MT8516
 	default "mt8518" if TARGET_MT8518
