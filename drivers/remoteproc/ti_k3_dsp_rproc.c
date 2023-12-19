@@ -56,6 +56,7 @@ struct k3_dsp_boot_data {
  * @data:		Pointer to DSP specific boot data structure
  * @mem:		Array of available memories
  * @num_mem:		Number of available memories
+ * @in_use: flag to tell if the core is already in use.
  */
 struct k3_dsp_privdata {
 	struct reset_ctl dsp_rst;
@@ -63,6 +64,7 @@ struct k3_dsp_privdata {
 	struct k3_dsp_boot_data *data;
 	struct k3_dsp_mem *mem;
 	int num_mems;
+	bool in_use;
 };
 
 /*
@@ -127,6 +129,13 @@ static int k3_dsp_load(struct udevice *dev, ulong addr, ulong size)
 	struct k3_dsp_boot_data *data = dsp->data;
 	u32 boot_vector;
 	int ret;
+
+	if (dsp->in_use) {
+		dev_err(dev,
+			"Invalid op: Trying to load/start on already running core %d\n",
+			dsp->tsp.proc_id);
+		return -EINVAL;
+	}
 
 	dev_dbg(dev, "%s addr = 0x%lx, size = 0x%lx\n", __func__, addr, size);
 	ret = ti_sci_proc_request(&dsp->tsp);
@@ -195,6 +204,7 @@ static int k3_dsp_start(struct udevice *dev)
 			ti_sci_proc_power_domain_off(&dsp->tsp);
 	}
 
+	dsp->in_use = true;
 proc_release:
 	ti_sci_proc_release(&dsp->tsp);
 
@@ -207,6 +217,7 @@ static int k3_dsp_stop(struct udevice *dev)
 
 	dev_dbg(dev, "%s\n", __func__);
 
+	dsp->in_use = false;
 	ti_sci_proc_request(&dsp->tsp);
 	reset_assert(&dsp->dsp_rst);
 	ti_sci_proc_power_domain_off(&dsp->tsp);
