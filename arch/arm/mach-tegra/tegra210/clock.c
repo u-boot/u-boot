@@ -1266,6 +1266,21 @@ int tegra_plle_enable(void)
 	return 0;
 }
 
+struct clk_pll_simple *clock_get_simple_pll(enum clock_id clkid)
+{
+	struct clk_rst_ctlr *clkrst =
+			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+
+	switch (clkid) {
+	case CLOCK_ID_XCPU:
+	case CLOCK_ID_EPCI:
+	case CLOCK_ID_SFROM32KHZ:
+		return &clkrst->crc_pll_simple[clkid - CLOCK_ID_FIRST_SIMPLE];
+	default:
+		return NULL;
+	}
+}
+
 struct periph_clk_init periph_clk_init_table[] = {
 	{ PERIPH_ID_SBC1, CLOCK_ID_PERIPH },
 	{ PERIPH_ID_SBC2, CLOCK_ID_PERIPH },

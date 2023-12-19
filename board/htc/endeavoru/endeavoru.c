@@ -7,21 +7,7 @@
  *  Svyatoslav Ryhel <clamor95@gmail.com>
  */
 
-#include <dm.h>
 #include <fdt_support.h>
-#include <asm/arch/pinmux.h>
-
-#include "pinmux-config-endeavoru.h"
-
-/*
- * Routine: pinmux_init
- * Description: Do individual peripheral pinmux configs
- */
-void pinmux_init(void)
-{
-	pinmux_config_pingrp_table(endeavoru_pinmux_common,
-		ARRAY_SIZE(endeavoru_pinmux_common));
-}
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
