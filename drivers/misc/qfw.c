@@ -21,7 +21,7 @@
 #include <tables_csum.h>
 #include <asm/acpi_table.h>
 
-#if defined(CONFIG_GENERATE_ACPI_TABLE) && !defined(CONFIG_SANDBOX)
+#ifdef QFW_ACPI
 /*
  * This function allocates memory for ACPI tables
  *
@@ -259,7 +259,7 @@ ulong acpi_get_rsdp_addr(void)
 	file = qfw_find_file(dev, "etc/acpi/rsdp");
 	return file->addr;
 }
-#endif
+#endif /* QFW_ACPI */
 
 static void qfw_read_entry_io(struct qfw_dev *qdev, u16 entry, u32 size,
 			      void *address)
