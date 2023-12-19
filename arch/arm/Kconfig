@@ -79,6 +79,15 @@ config SPL_SYS_NO_VECTOR_TABLE
 	depends on SPL
 	bool
 
+config SPL_USE_SEPARATE_FAULT_HANDLERS
+	bool "Use separate fault handlers instead of a single common one"
+	depends on !SPL_SYS_NO_VECTOR_TABLE && !ARM64 && !CPU_V7M
+	help
+	  Instead of a common fault handler, generate a separate one for
+	  undefined_instruction, software_interrupt, prefetch_abort etc.
+	  This is for debugging purposes, when you want to set breakpoints
+	  on them separately.
+
 config LINUX_KERNEL_IMAGE_HEADER
 	depends on ARM64
 	bool

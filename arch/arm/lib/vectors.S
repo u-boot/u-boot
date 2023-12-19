@@ -138,11 +138,29 @@ _fiq:			.word fiq
 #if !CONFIG_IS_ENABLED(SYS_NO_VECTOR_TABLE)
 	.align	5
 undefined_instruction:
+#if CONFIG_IS_ENABLED(USE_SEPARATE_FAULT_HANDLERS)
+	b	undefined_instruction
+#endif
 software_interrupt:
+#if CONFIG_IS_ENABLED(USE_SEPARATE_FAULT_HANDLERS)
+	b	software_interrupt
+#endif
 prefetch_abort:
+#if CONFIG_IS_ENABLED(USE_SEPARATE_FAULT_HANDLERS)
+	b	prefetch_abort
+#endif
 data_abort:
+#if CONFIG_IS_ENABLED(USE_SEPARATE_FAULT_HANDLERS)
+	b	data_abort
+#endif
 not_used:
+#if CONFIG_IS_ENABLED(USE_SEPARATE_FAULT_HANDLERS)
+	b	not_used
+#endif
 irq:
+#if CONFIG_IS_ENABLED(USE_SEPARATE_FAULT_HANDLERS)
+	b	irq
+#endif
 fiq:
 1:
 	b	1b			/* hang and never return */
