@@ -9,9 +9,11 @@
 #include <acpi/acpi_table.h>
 #include <errno.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <qfw.h>
 #include <tables_csum.h>
 #include <stdio.h>
+#include <linux/sizes.h>
 #include <asm/byteorder.h>
 #include <asm/global_data.h>
 
@@ -254,3 +256,26 @@ ulong acpi_get_rsdp_addr(void)
 	file = qfw_find_file(dev, "etc/acpi/rsdp");
 	return file->addr;
 }
+
+#ifndef CONFIG_X86
+static int evt_write_acpi_tables(void)
+{
+	ulong addr, end;
+	void *ptr;
+
+	/* Reserve 64K for ACPI tables, aligned to a 4K boundary */
+	ptr = memalign(SZ_4K, SZ_64K);
+	if (!ptr)
+		return -ENOMEM;
+	addr = map_to_sysmem(ptr);
+
+	/* Generate ACPI tables */
+	end = write_acpi_tables(addr);
+	gd->arch.table_start = addr;
+	gd->arch.table_end = addr;
+
+	return 0;
+}
+
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, evt_write_acpi_tables);
+#endif
