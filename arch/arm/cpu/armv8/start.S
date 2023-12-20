@@ -370,5 +370,28 @@ ENTRY(c_runtime_cpu_setup)
 ENDPROC(c_runtime_cpu_setup)
 
 WEAK(save_boot_params)
+#if (IS_ENABLED(CONFIG_BLOBLIST))
+	/* Calculate the PC-relative address of saved_args */
+	adr	x9, saved_args_offset
+	ldr	w10, saved_args_offset
+	add	x9, x9, w10, sxtw
+
+	stp	x0, x1, [x9]
+	stp	x2, x3, [x9, #16]
+#endif
 	b	save_boot_params_ret	/* back to my caller */
 ENDPROC(save_boot_params)
+
+#if (IS_ENABLED(CONFIG_BLOBLIST))
+saved_args_offset:
+	.long	saved_args - .	/* offset from current code to save_args */
+
+	.section .data
+	.align 2
+	.global saved_args
+saved_args:
+	.rept 4
+	.dword 0
+	.endr
+END(saved_args)
+#endif
