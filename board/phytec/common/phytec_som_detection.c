@@ -161,7 +161,8 @@ void __maybe_unused phytec_print_som_info(struct phytec_eeprom_data *data)
 			sub_som_type2 = 2;
 			break;
 		default:
-			break;
+			pr_err("%s: Invalid SoM type: %i", __func__, api2->som_type);
+			return;
 		};
 
 		printf("SoM: %s-%03u-%s-%03u ",
