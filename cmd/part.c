@@ -308,9 +308,9 @@ U_BOOT_CMD(
 #ifdef CONFIG_PARTITION_TYPE_GUID
 	"part type <interface> <dev>:<part>\n"
 	"    - print partition type\n"
-#endif
 	"part type <interface> <dev>:<part> <varname>\n"
 	"    - set environment variable to partition type\n"
+#endif
 	"part set <interface> <dev> type\n"
 	"    - set partition type for a device\n"
 	"part types\n"

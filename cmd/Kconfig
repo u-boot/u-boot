@@ -495,6 +495,16 @@ config CMD_XIMG
 	help
 	  Extract a part of a multi-image.
 
+config SYS_XIMG_LEN
+	hex "imxtract max gunzip size"
+	default 0x800000
+	depends on CMD_XIMG && GZIP
+	help
+	  This provides the size of the commad-line argument area
+	  used by imxtract for extracting pieces of FIT image.
+	  It should be large enough to fit uncompressed size of
+	  FIT piece we are extracting.
+
 config CMD_SPL
 	bool "spl export - Export boot information for Falcon boot"
 	depends on SPL
