@@ -980,4 +980,11 @@ config MDIO_MUX_MESON_G12A
 	  This driver is used for the MDIO mux found on the Amlogic G12A & compatible
 	  SoCs.
 
+config MDIO_MUX_MESON_GXL
+	bool "MDIO MUX for Amlogic Meson GXL SoCs"
+	depends on DM_MDIO_MUX
+	help
+	  This driver is used for the MDIO mux found on the Amlogic GXL & compatible
+	  SoCs.
+
 endif # NETDEVICES
