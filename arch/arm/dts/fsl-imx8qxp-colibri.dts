@@ -6,7 +6,6 @@
 /dts-v1/;
 
 #include "fsl-imx8qxp.dtsi"
-#include "fsl-imx8qxp-colibri-u-boot.dtsi"
 
 / {
 	model = "Toradex Colibri iMX8X";
