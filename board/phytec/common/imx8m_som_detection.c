@@ -23,7 +23,7 @@ extern struct phytec_eeprom_data eeprom_data;
  *
  * Returns 0 in case it's a known SoM. Otherwise, returns -1.
  */
-u8 __maybe_unused phytec_imx8m_detect(struct phytec_eeprom_data *data)
+int __maybe_unused phytec_imx8m_detect(struct phytec_eeprom_data *data)
 {
 	char *opt;
 	u8 som;
