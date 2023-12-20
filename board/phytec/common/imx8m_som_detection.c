@@ -15,6 +15,8 @@
 
 extern struct phytec_eeprom_data eeprom_data;
 
+#if IS_ENABLED(CONFIG_PHYTEC_IMX8M_SOM_DETECTION)
+
 /* Check if the SoM is actually one of the following products:
  * - i.MX8MM
  * - i.MX8MN
@@ -23,17 +25,17 @@ extern struct phytec_eeprom_data eeprom_data;
  *
  * Returns 0 in case it's a known SoM. Otherwise, returns -1.
  */
-u8 __maybe_unused phytec_imx8m_detect(struct phytec_eeprom_data *data)
+int __maybe_unused phytec_imx8m_detect(struct phytec_eeprom_data *data)
 {
 	char *opt;
 	u8 som;
 
+	if (!data)
+		data = &eeprom_data;
+
 	/* We can not do the check for early API revisions */
 	if (data->api_rev < PHYTEC_API_REV2)
 		return -1;
-
-	if (!data)
-		data = &eeprom_data;
 
 	som = data->data.data_api2.som_no;
 	debug("%s: som id: %u\n", __func__, som);
@@ -166,3 +168,33 @@ u8 __maybe_unused phytec_get_imx8mp_rtc(struct phytec_eeprom_data *data)
 	debug("%s: rtc: %u\n", __func__, rtc);
 	return rtc;
 }
+
+#else
+
+inline int __maybe_unused phytec_imx8m_detect(struct phytec_eeprom_data *data)
+{
+	return -1;
+}
+
+inline u8 __maybe_unused
+phytec_get_imx8m_ddr_size(struct phytec_eeprom_data *data)
+{
+	return PHYTEC_EEPROM_INVAL;
+}
+
+inline u8 __maybe_unused phytec_get_imx8mp_rtc(struct phytec_eeprom_data *data)
+{
+	return PHYTEC_EEPROM_INVAL;
+}
+
+inline u8 __maybe_unused phytec_get_imx8m_spi(struct phytec_eeprom_data *data)
+{
+	return PHYTEC_EEPROM_INVAL;
+}
+
+inline u8 __maybe_unused phytec_get_imx8m_eth(struct phytec_eeprom_data *data)
+{
+	return PHYTEC_EEPROM_INVAL;
+}
+
+#endif /* IS_ENABLED(CONFIG_PHYTEC_IMX8M_SOM_DETECTION) */

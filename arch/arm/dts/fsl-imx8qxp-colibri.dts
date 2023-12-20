@@ -6,7 +6,6 @@
 /dts-v1/;
 
 #include "fsl-imx8qxp.dtsi"
-#include "fsl-imx8qxp-colibri-u-boot.dtsi"
 
 / {
 	model = "Toradex Colibri iMX8X";
@@ -320,8 +319,6 @@
 		gpio-controller;
 		#gpio-cells = <2>;
 		reg = <0x43>;
-		initial_io_dir = <0xff>;
-		initial_output = <0x05>;
 	};
 };
 

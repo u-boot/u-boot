@@ -16,6 +16,8 @@
 
 struct phytec_eeprom_data eeprom_data;
 
+#if IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION)
+
 int phytec_eeprom_data_setup_fallback(struct phytec_eeprom_data *data,
 				      int bus_num, int addr, int addr_fallback)
 {
@@ -83,8 +85,8 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 	}
 
 	ptr = (int *)data;
-	for (i = 0; i < sizeof(struct phytec_eeprom_data); i += sizeof(ptr))
-		if (*ptr != 0x0)
+	for (i = 0; i < sizeof(struct phytec_eeprom_data); i++)
+		if (ptr[i] != 0x0)
 			break;
 
 	if (i == sizeof(struct phytec_eeprom_data)) {
@@ -159,7 +161,8 @@ void __maybe_unused phytec_print_som_info(struct phytec_eeprom_data *data)
 			sub_som_type2 = 2;
 			break;
 		default:
-			break;
+			pr_err("%s: Invalid SoM type: %i", __func__, api2->som_type);
+			return;
 		};
 
 		printf("SoM: %s-%03u-%s-%03u ",
@@ -201,3 +204,40 @@ u8 __maybe_unused phytec_get_rev(struct phytec_eeprom_data *data)
 
 	return api2->pcb_rev;
 }
+
+#else
+
+inline int phytec_eeprom_data_setup(struct phytec_eeprom_data *data,
+				    int bus_num, int addr)
+{
+	return PHYTEC_EEPROM_INVAL;
+}
+
+inline int phytec_eeprom_data_setup_fallback(struct phytec_eeprom_data *data,
+					     int bus_num, int addr,
+					     int addr_fallback)
+{
+	return PHYTEC_EEPROM_INVAL;
+}
+
+inline int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
+				   int bus_num, int addr)
+{
+	return PHYTEC_EEPROM_INVAL;
+}
+
+inline void __maybe_unused phytec_print_som_info(struct phytec_eeprom_data *data)
+{
+}
+
+inline char *__maybe_unused phytec_get_opt(struct phytec_eeprom_data *data)
+{
+	return NULL;
+}
+
+u8 __maybe_unused phytec_get_rev(struct phytec_eeprom_data *data)
+{
+	return PHYTEC_EEPROM_INVAL;
+}
+
+#endif /* IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION) */
