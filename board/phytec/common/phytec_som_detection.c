@@ -83,8 +83,8 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 	}
 
 	ptr = (int *)data;
-	for (i = 0; i < sizeof(struct phytec_eeprom_data); i += sizeof(ptr))
-		if (*ptr != 0x0)
+	for (i = 0; i < sizeof(struct phytec_eeprom_data); i++)
+		if (ptr[i] != 0x0)
 			break;
 
 	if (i == sizeof(struct phytec_eeprom_data)) {
