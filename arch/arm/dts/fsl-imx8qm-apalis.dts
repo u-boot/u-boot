@@ -9,7 +9,6 @@
 /memreserve/ 0x80000000 0x00020000;
 
 #include "fsl-imx8qm.dtsi"
-#include "fsl-imx8qm-apalis-u-boot.dtsi"
 
 / {
 	model = "Toradex Apalis iMX8";
