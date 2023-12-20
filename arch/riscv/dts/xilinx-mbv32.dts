@@ -12,7 +12,7 @@
 	#address-cells = <1>;
 	#size-cells = <1>;
 	model = "AMD MicroBlaze V 32bit";
-	compatible = "amd,mbv";
+	compatible = "qemu,mbv", "amd,mbv";
 
 	cpus: cpus {
 		#address-cells = <1>;
