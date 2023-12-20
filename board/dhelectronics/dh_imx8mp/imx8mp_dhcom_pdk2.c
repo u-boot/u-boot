@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/ddr.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <dm.h>
@@ -30,9 +31,11 @@ int mach_cpu_init(void)
 int board_phys_sdram_size(phys_size_t *size)
 {
 	const u16 memsz[] = { 512, 1024, 1536, 2048, 3072, 4096, 6144, 8192 };
+	const u8 ecc = readl(DDRC_ECCCFG0(0)) & DDRC_ECCCFG0_ECC_MODE_MASK;
 	u8 memcfg = dh_get_memcfg();
 
-	*size = (u64)memsz[memcfg] << 20ULL;
+	/* 896 kiB, i.e. 1 MiB without 12.5% reserved for in-band ECC */
+	*size = (u64)memsz[memcfg] * (SZ_1M - (ecc ? (SZ_1M / 8) : 0));
 
 	return 0;
 }
