@@ -28,12 +28,12 @@ int __maybe_unused phytec_imx8m_detect(struct phytec_eeprom_data *data)
 	char *opt;
 	u8 som;
 
+	if (!data)
+		data = &eeprom_data;
+
 	/* We can not do the check for early API revisions */
 	if (data->api_rev < PHYTEC_API_REV2)
 		return -1;
-
-	if (!data)
-		data = &eeprom_data;
 
 	som = data->data.data_api2.som_no;
 	debug("%s: som id: %u\n", __func__, som);
