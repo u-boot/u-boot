@@ -60,8 +60,8 @@ ANDROID AB
 M:	Igor Opaniuk <igor.opaniuk@gmail.com>
 R:	Sam Protsenko <semen.protsenko@linaro.org>
 S:	Maintained
+F:	boot/android_ab.c
 F:	cmd/ab_select.c
-F:	common/android_ab.c
 F:	doc/android/ab.rst
 F:	include/android_ab.h
 F:	test/py/tests/test_android/test_ab.py
