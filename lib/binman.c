@@ -6,7 +6,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
 #include <binman.h>
 #include <dm.h>
 #include <log.h>

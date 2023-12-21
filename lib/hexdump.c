@@ -8,9 +8,9 @@
  * more details.
  */
 
-#include <common.h>
 #include <hexdump.h>
 #include <mapmem.h>
+#include <vsprintf.h>
 #include <linux/ctype.h>
 #include <linux/compat.h>
 #include <linux/log2.h>

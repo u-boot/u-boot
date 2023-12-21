@@ -8,7 +8,6 @@
 #ifndef _ORIGEN_SETUP_H
 #define _ORIGEN_SETUP_H
 
-#include <config.h>
 #include <asm/arch/cpu.h>
 
 /* Bus Configuration Register Address */

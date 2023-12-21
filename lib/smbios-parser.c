@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY	LOGC_BOOT
 
-#include <common.h>
 #include <smbios.h>
 
 static inline int verify_checksum(const struct smbios_entry *e)

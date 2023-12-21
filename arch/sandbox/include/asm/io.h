@@ -6,6 +6,8 @@
 #ifndef __SANDBOX_ASM_IO_H
 #define __SANDBOX_ASM_IO_H
 
+#include <linux/types.h>
+
 enum sandboxio_size_t {
 	SB_SIZE_8,
 	SB_SIZE_16,

@@ -3,7 +3,6 @@
  * Copyright 2015 Google Inc.
  */
 
-#include <common.h>
 #include <compiler.h>
 #include <image.h>
 #include <linux/kernel.h>

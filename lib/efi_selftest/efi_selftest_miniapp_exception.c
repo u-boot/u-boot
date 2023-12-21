@@ -7,7 +7,6 @@
  * This EFI application triggers an exception.
  */
 
-#include <common.h>
 #include <efi_api.h>
 #include <host_arch.h>
 

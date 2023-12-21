@@ -3,6 +3,7 @@
  * Copyright 2015 Freescale Semiconductor, Inc.
  */
 
+#include <config.h>
 #include <vsprintf.h>
 #include <linux/string.h>
 #include <asm/io.h>

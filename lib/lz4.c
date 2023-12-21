@@ -27,7 +27,6 @@
  *	- LZ4 homepage : http://www.lz4.org
  *	- LZ4 source repository : https://github.com/lz4/lz4
  */
-#include <common.h>
 #include <compiler.h>
 #include <linux/kernel.h>
 #include <linux/types.h>

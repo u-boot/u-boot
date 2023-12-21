@@ -5,7 +5,6 @@
  *  Copyright (c) 2016 Alexander Graf
  */
 
-#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <dm.h>

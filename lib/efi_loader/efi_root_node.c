@@ -5,7 +5,6 @@
  *  Copyright (c) 2018 Heinrich Schuchardt
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <efi_dt_fixup.h>
 #include <efi_loader.h>

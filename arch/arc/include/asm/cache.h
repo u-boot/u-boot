@@ -6,8 +6,6 @@
 #ifndef __ASM_ARC_CACHE_H
 #define __ASM_ARC_CACHE_H
 
-#include <config.h>
-
 /*
  * As of today we may handle any L1 cache line length right in software.
  * For that essentially cache line length is a variable not constant.

@@ -5,7 +5,6 @@
  * Copyright (c) 2020, Heinrich Schuchardt
  */
 
-#include <common.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <u-boot/crc.h>

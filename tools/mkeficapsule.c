@@ -16,7 +16,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <uuid/uuid.h>
-#include <linux/kconfig.h>
 
 #include <gnutls/gnutls.h>
 #include <gnutls/pkcs7.h>

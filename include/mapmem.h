@@ -13,6 +13,8 @@
 # ifdef CONFIG_ARCH_MAP_SYSMEM
 #include <asm/io.h>
 # else
+#include <linux/types.h>
+
 static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
 {
 	return (void *)(uintptr_t)paddr;

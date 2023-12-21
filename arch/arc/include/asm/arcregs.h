@@ -7,7 +7,6 @@
 #define _ASM_ARC_ARCREGS_H
 
 #include <asm/cache.h>
-#include <config.h>
 
 /*
  * ARC architecture has additional address space - auxiliary registers.

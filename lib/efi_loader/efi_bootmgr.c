@@ -11,7 +11,6 @@
 
 #include <blk.h>
 #include <blkmap.h>
-#include <common.h>
 #include <charset.h>
 #include <dm.h>
 #include <log.h>

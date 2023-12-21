@@ -7,7 +7,6 @@
  * Michael Walle <michael@walle.cc>
  */
 
-#include <common.h>
 #include <rand.h>
 
 static unsigned int y = 1U;

@@ -23,7 +23,6 @@
 #include <asm/scmi_test.h>
 #include <dm/device-internal.h>
 #include <dm/test.h>
-#include <linux/kconfig.h>
 #include <power/regulator.h>
 #include <test/ut.h>
 

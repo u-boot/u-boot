@@ -4,6 +4,7 @@
  * Charles Frey <charles.frey@c-s.fr>
  */
 
+#include <config.h>
 #include <linux/sizes.h>
 #include <linux/delay.h>
 #include <init.h>

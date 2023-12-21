@@ -10,6 +10,7 @@
 #ifndef	__ASM_GBL_DATA_H
 #define __ASM_GBL_DATA_H
 
+#include <linux/types.h>
 #include <asm/smp.h>
 #include <asm/u-boot.h>
 #include <compiler.h>

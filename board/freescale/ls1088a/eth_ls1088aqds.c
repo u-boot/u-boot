@@ -3,6 +3,7 @@
  * Copyright 2017 NXP
  */
 
+#include <config.h>
 #include <vsprintf.h>
 #include <linux/string.h>
 #include <asm/io.h>

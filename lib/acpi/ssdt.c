@@ -7,10 +7,11 @@
 
 #define LOG_CATEGORY LOGC_ACPI
 
-#include <common.h>
 #include <acpi/acpi_table.h>
 #include <dm/acpi.h>
 #include <tables_csum.h>
+#include <linux/errno.h>
+#include <linux/string.h>
 
 int acpi_write_ssdt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 {

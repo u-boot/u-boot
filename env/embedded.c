@@ -4,7 +4,9 @@
  * Erik Theisen,  Wave 7 Optics, etheisen@mindspring.com.
  */
 
+#ifdef USE_HOSTCC
 #include <linux/kconfig.h>
+#endif
 
 #ifndef __ASSEMBLY__
 #define	__ASSEMBLY__			/* Dirty trick to get only #defines */

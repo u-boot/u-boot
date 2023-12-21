@@ -8,7 +8,6 @@
 
 #include <errno.h>
 #include <image.h>
-#include <linux/kconfig.h>
 
 /**
  * crypto_algo API impementation for ECDSA;

@@ -6,7 +6,6 @@
  * to a file.
  */
 
-#include <common.h>
 #include <efi_api.h>
 #include <efi_dt_fixup.h>
 #include <part.h>

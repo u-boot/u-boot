@@ -5,7 +5,6 @@
  * Adapted from coreboot src/arch/x86/smbios.c
  */
 
-#include <common.h>
 #include <dm.h>
 #include <env.h>
 #include <linux/stringify.h>

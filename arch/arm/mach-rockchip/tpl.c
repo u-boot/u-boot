@@ -16,7 +16,6 @@
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <linux/bitops.h>
-#include <linux/kconfig.h>
 
 #if CONFIG_IS_ENABLED(BANNER_PRINT)
 #include <timestamp.h>

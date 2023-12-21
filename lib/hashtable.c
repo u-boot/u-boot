@@ -30,7 +30,6 @@
 #  endif
 # endif
 #else				/* U-Boot build */
-# include <common.h>
 # include <linux/string.h>
 # include <linux/ctype.h>
 #endif

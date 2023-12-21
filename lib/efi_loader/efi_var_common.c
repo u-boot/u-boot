@@ -6,7 +6,6 @@
  * Copyright (c) 2020 Linaro Limited, Author: AKASHI Takahiro
  */
 
-#include <common.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <stdlib.h>

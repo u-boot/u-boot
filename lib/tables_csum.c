@@ -3,8 +3,7 @@
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
-#include <linux/ctype.h>
+#include <linux/types.h>
 
 u8 table_compute_checksum(void *v, int len)
 {

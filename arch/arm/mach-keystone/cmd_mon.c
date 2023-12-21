@@ -6,6 +6,7 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  */
 
+#include <config.h>
 #include <command.h>
 #include <image.h>
 #include <mach/mon.h>

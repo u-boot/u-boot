@@ -7,8 +7,8 @@
 #ifndef	__ASM_GBL_DATA_H
 #define __ASM_GBL_DATA_H
 
+#include <linux/types.h>
 #include <asm/regdef.h>
-#include <asm/types.h>
 
 struct octeon_eeprom_mac_addr {
 	u8 mac_addr_base[6];

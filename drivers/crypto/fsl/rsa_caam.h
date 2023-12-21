@@ -6,8 +6,6 @@
 #ifndef __RSA_CAAM_H
 #define __RSA_CAAM_H
 
-#include <common.h>
-
 /**
  * struct pk_in_params - holder for input to PKHA block in CAAM
  * These parameters are required to perform Modular Exponentiation

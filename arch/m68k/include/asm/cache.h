@@ -9,6 +9,8 @@
 #ifndef __CACHE_H
 #define __CACHE_H
 
+#include <config.h>
+
 #if defined(CONFIG_MCF520x) || defined(CONFIG_MCF523x) || \
     defined(CONFIG_MCF52x2)
 #define CFG_CF_V2

@@ -5,7 +5,6 @@
  * Access to the EFI information table
  */
 
-#include <common.h>
 #include <efi.h>
 #include <errno.h>
 #include <mapmem.h>

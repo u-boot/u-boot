@@ -8,7 +8,6 @@
  * This file implements U-Boot running as an EFI application.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <dm.h>

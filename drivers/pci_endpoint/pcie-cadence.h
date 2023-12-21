@@ -11,7 +11,6 @@
 #ifndef PCIE_CADENCE_H
 #define PCIE_CADENCE_H
 
-#include <common.h>
 #include <pci_ep.h>
 #include <asm/io.h>
 #include <linux/bitops.h>

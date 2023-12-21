@@ -4,7 +4,6 @@
  * Copyright (c) 2015 Sjoerd Simons <sjoerd.simons@collabora.co.uk>
  */
 
-#include <common.h>
 #include <bootstage.h>
 #include <image.h>
 #include <asm/io.h>

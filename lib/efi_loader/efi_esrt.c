@@ -5,7 +5,6 @@
  *  Copyright (C) 2021 Arm Ltd.
  */
 
-#include <common.h>
 #include <efi_loader.h>
 #include <log.h>
 #include <efi_api.h>
