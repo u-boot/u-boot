@@ -115,7 +115,7 @@ static void usage(const char *msg)
 		"          -B => align size in hex for FIT structure and header\n"
 		"          -b => append the device tree binary to the FIT\n"
 		"          -t => update the timestamp in the FIT\n");
-#ifdef CONFIG_FIT_SIGNATURE
+#if CONFIG_IS_ENABLED(FIT_SIGNATURE)
 	fprintf(stderr,
 		"Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>] [-p addr] [-r] [-N engine]\n"
 		"          -k => set directory containing private keys\n"
@@ -130,8 +130,9 @@ static void usage(const char *msg)
 		"          -o => algorithm to use for signing\n");
 #else
 	fprintf(stderr,
-		"Signing / verified boot not supported (CONFIG_FIT_SIGNATURE undefined)\n");
+		"Signing / verified boot not supported (CONFIG_TOOLS_FIT_SIGNATURE undefined)\n");
 #endif
+
 	fprintf(stderr, "       %s -V ==> print version information and exit\n",
 		params.cmdname);
 	fprintf(stderr, "Use '-T list' to see a list of available image types\n");

@@ -1465,7 +1465,7 @@ int calculate_hash(const void *data, int data_len, const char *algo,
  * device
  */
 #if defined(USE_HOSTCC)
-# if defined(CONFIG_FIT_SIGNATURE)
+# if CONFIG_IS_ENABLED(FIT_SIGNATURE)
 #  define IMAGE_ENABLE_SIGN	1
 #  define FIT_IMAGE_ENABLE_VERIFY	1
 #  include <openssl/evp.h>
