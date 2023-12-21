@@ -1652,8 +1652,15 @@ static int check_device_config(int dev)
 		}
 		DEVTYPE(dev) = mtdinfo.type;
 		if (DEVESIZE(dev) == 0 && ENVSECTORS(dev) == 0 &&
-		    mtdinfo.type == MTD_NORFLASH)
-			DEVESIZE(dev) = mtdinfo.erasesize;
+		    mtdinfo.erasesize > 0) {
+			if (mtdinfo.type == MTD_NORFLASH)
+				DEVESIZE(dev) = mtdinfo.erasesize;
+			else if (mtdinfo.type == MTD_NANDFLASH) {
+				DEVESIZE(dev) = mtdinfo.erasesize;
+				ENVSECTORS(dev) =
+				    mtdinfo.size / mtdinfo.erasesize;
+			}
+		}
 		if (DEVESIZE(dev) == 0)
 			/* Assume the erase size is the same as the env-size */
 			DEVESIZE(dev) = ENVSIZE(dev);
