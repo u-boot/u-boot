@@ -5,6 +5,15 @@ struct udevice;
 
 struct iommu_ops {
 	/**
+	 * init() - Connect a device to it's IOMMU, called before probe()
+	 * The iommu device can be fetched through dev->iommu
+	 *
+	 * @iommu_dev:	IOMMU device
+	 * @dev:	Device to connect
+	 * @return 0 if OK, -errno on error
+	 */
+	int (*connect)(struct udevice *dev);
+	/**
 	 * map() - map DMA memory
 	 *
 	 * @dev:	device for which to map DMA memory

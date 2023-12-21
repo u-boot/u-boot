@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
 #include <env.h>
@@ -576,9 +577,22 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 {
 	ulong *initrd_start = &images->initrd_start;
 	ulong *initrd_end = &images->initrd_end;
-	int ret = -EPERM;
-	int fdt_ret;
-	int of_size;
+	int ret, fdt_ret, of_size;
+
+	if (IS_ENABLED(CONFIG_OF_ENV_SETUP)) {
+		const char *fdt_fixup;
+
+		fdt_fixup = env_get("fdt_fixup");
+		if (fdt_fixup) {
+			set_working_fdt_addr(map_to_sysmem(blob));
+			ret = run_command_list(fdt_fixup, -1, 0);
+			if (ret)
+				printf("WARNING: fdt_fixup command returned %d\n",
+				       ret);
+		}
+	}
+
+	ret = -EPERM;
 
 	if (fdt_root(blob) < 0) {
 		printf("ERROR: root node setup failed\n");

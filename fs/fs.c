@@ -256,7 +256,7 @@ static struct fstype_info fstypes[] = {
 		.ln = fs_ln_unsupported,
 	},
 #endif
-#ifdef CONFIG_SEMIHOSTING
+#if CONFIG_IS_ENABLED(SEMIHOSTING)
 	{
 		.fstype = FS_TYPE_SEMIHOSTING,
 		.name = "semihosting",
