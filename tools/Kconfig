@@ -25,6 +25,11 @@ config TOOLS_LIBCRYPTO
 	  This selection does not affect target features, such as runtime FIT
 	  signature verification.
 
+config TOOLS_KWBIMAGE
+	bool "Enable kwbimage support in host tools"
+	default y
+	select TOOLS_LIBCRYPTO
+
 config TOOLS_FIT
 	def_bool y
 	help
