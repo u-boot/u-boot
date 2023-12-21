@@ -6,6 +6,7 @@
 
 #ifndef USE_HOSTCC
 #include <common.h>
+#include <bootm.h>
 #include <bootstage.h>
 #include <cli.h>
 #include <command.h>
@@ -989,35 +990,9 @@ unmap_image:
 	return ret;
 }
 
-/**
- * Execute selected states of the bootm command.
- *
- * Note the arguments to this state must be the first argument, Any 'bootm'
- * or sub-command arguments must have already been taken.
- *
- * Note that if states contains more than one flag it MUST contain
- * BOOTM_STATE_START, since this handles and consumes the command line args.
- *
- * Also note that aside from boot_os_fn functions and bootm_load_os no other
- * functions we store the return value of in 'ret' may use a negative return
- * value, without special handling.
- *
- * @param cmdtp		Pointer to bootm command table entry
- * @param flag		Command flags (CMD_FLAG_...)
- * @param argc		Number of subcommand arguments (0 = no arguments)
- * @param argv		Arguments
- * @param states	Mask containing states to run (BOOTM_STATE_...)
- * @param images	Image header information
- * @param boot_progress 1 to show boot progress, 0 to not do this
- * Return: 0 if ok, something else on error. Some errors will cause this
- *	function to perform a reboot! If states contains BOOTM_STATE_OS_GO
- *	then the intent is to boot an OS, so this function will not return
- *	unless the image type is standalone.
- */
-int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[], int states, struct bootm_headers *images,
-		    int boot_progress)
+int bootm_run_states(struct bootm_info *bmi, int states)
 {
+	struct bootm_headers *images = bmi->images;
 	boot_os_fn *boot_fn;
 	ulong iflag = 0;
 	int ret = 0, need_boot_fn;
@@ -1032,17 +1007,18 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 		ret = bootm_start();
 
 	if (!ret && (states & BOOTM_STATE_PRE_LOAD))
-		ret = bootm_pre_load(argv[0]);
+		ret = bootm_pre_load(bmi->addr_img);
 
 	if (!ret && (states & BOOTM_STATE_FINDOS))
-		ret = bootm_find_os(cmdtp->name, argv[0]);
+		ret = bootm_find_os(bmi->cmd_name, bmi->addr_img);
 
 	if (!ret && (states & BOOTM_STATE_FINDOTHER)) {
 		ulong img_addr;
 
-		img_addr = argc ? hextoul(argv[0], NULL) : image_load_addr;
-		ret = bootm_find_other(img_addr, cmd_arg1(argc, argv),
-				       cmd_arg2(argc, argv));
+		img_addr = bmi->addr_img ? hextoul(bmi->addr_img, NULL)
+			: image_load_addr;
+		ret = bootm_find_other(img_addr, bmi->conf_ramdisk,
+				       bmi->conf_fdt);
 	}
 
 	if (IS_ENABLED(CONFIG_MEASURED_BOOT) && !ret &&
@@ -1096,12 +1072,11 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 		return 1;
 	}
 
-
 	/* Call various other states that are not generally used */
 	if (!ret && (states & BOOTM_STATE_OS_CMDLINE))
-		ret = boot_fn(BOOTM_STATE_OS_CMDLINE, argc, argv, images);
+		ret = boot_fn(BOOTM_STATE_OS_CMDLINE, bmi);
 	if (!ret && (states & BOOTM_STATE_OS_BD_T))
-		ret = boot_fn(BOOTM_STATE_OS_BD_T, argc, argv, images);
+		ret = boot_fn(BOOTM_STATE_OS_BD_T, bmi);
 	if (!ret && (states & BOOTM_STATE_OS_PREP)) {
 		int flags = 0;
 		/* For Linux OS do all substitutions at console processing */
@@ -1113,7 +1088,7 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 			ret = CMD_RET_FAILURE;
 			goto err;
 		}
-		ret = boot_fn(BOOTM_STATE_OS_PREP, argc, argv, images);
+		ret = boot_fn(BOOTM_STATE_OS_PREP, bmi);
 	}
 
 #ifdef CONFIG_TRACE
@@ -1121,10 +1096,9 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_OS_FAKE_GO)) {
 		char *cmd_list = env_get("fakegocmd");
 
-		ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_FAKE_GO,
-				images, boot_fn);
+		ret = boot_selected_os(BOOTM_STATE_OS_FAKE_GO, bmi, boot_fn);
 		if (!ret && cmd_list)
-			ret = run_command_list(cmd_list, -1, flag);
+			ret = run_command_list(cmd_list, -1, 0);
 	}
 #endif
 
@@ -1136,37 +1110,61 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	/* Now run the OS! We hope this doesn't return */
 	if (!ret && (states & BOOTM_STATE_OS_GO))
-		ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_GO,
-				images, boot_fn);
+		ret = boot_selected_os(BOOTM_STATE_OS_GO, bmi, boot_fn);
 
 	/* Deal with any fallout */
 err:
 	if (iflag)
 		enable_interrupts();
 
-	if (ret == BOOTM_ERR_UNIMPLEMENTED)
+	if (ret == BOOTM_ERR_UNIMPLEMENTED) {
 		bootstage_error(BOOTSTAGE_ID_DECOMP_UNIMPL);
-	else if (ret == BOOTM_ERR_RESET)
-		do_reset(cmdtp, flag, argc, argv);
+	} else if (ret == BOOTM_ERR_RESET) {
+		printf("Resetting the board...\n");
+		reset_cpu();
+	}
 
 	return ret;
 }
 
+int boot_run(struct bootm_info *bmi, const char *cmd, int extra_states)
+{
+	int states;
+
+	bmi->cmd_name = cmd;
+	states = BOOTM_STATE_MEASURE | BOOTM_STATE_OS_PREP |
+		BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO;
+	if (IS_ENABLED(CONFIG_SYS_BOOT_RAMDISK_HIGH))
+		states |= BOOTM_STATE_RAMDISK;
+	states |= extra_states;
+
+	return bootm_run_states(bmi, states);
+}
+
+int bootm_run(struct bootm_info *bmi)
+{
+	return boot_run(bmi, "bootm", BOOTM_STATE_START | BOOTM_STATE_FINDOS |
+			BOOTM_STATE_PRE_LOAD | BOOTM_STATE_FINDOTHER |
+			BOOTM_STATE_LOADOS);
+}
+
+int bootz_run(struct bootm_info *bmi)
+{
+	return boot_run(bmi, "bootz", 0);
+}
+
+int booti_run(struct bootm_info *bmi)
+{
+	return boot_run(bmi, "booti", 0);
+}
+
 int bootm_boot_start(ulong addr, const char *cmdline)
 {
-	static struct cmd_tbl cmd = {"bootm"};
 	char addr_str[30];
-	char *argv[] = {addr_str, NULL};
+	struct bootm_info bmi;
 	int states;
 	int ret;
 
-	/*
-	 * TODO(sjg@chromium.org): This uses the command-line interface, but
-	 * should not. To clean this up, the various bootm states need to be
-	 * passed an info structure instead of cmdline flags. Then this can
-	 * set up the required info and move through the states without needing
-	 * the command line.
-	 */
 	states = BOOTM_STATE_START | BOOTM_STATE_FINDOS | BOOTM_STATE_PRE_LOAD |
 		BOOTM_STATE_FINDOTHER | BOOTM_STATE_LOADOS |
 		BOOTM_STATE_OS_PREP | BOOTM_STATE_OS_FAKE_GO |
@@ -1184,9 +1182,20 @@ int bootm_boot_start(ulong addr, const char *cmdline)
 		printf("Failed to set cmdline\n");
 		return ret;
 	}
-	ret = do_bootm_states(&cmd, 0, 1, argv, states, &images, 1);
+	bootm_init(&bmi);
+	bmi.addr_img = addr_str;
+	bmi.cmd_name = "bootm";
+	ret = bootm_run_states(&bmi, states);
 
 	return ret;
+}
+
+void bootm_init(struct bootm_info *bmi)
+{
+	memset(bmi, '\0', sizeof(struct bootm_info));
+	bmi->boot_progress = true;
+	if (IS_ENABLED(CONFIG_CMD_BOOTM))
+		bmi->images = &images;
 }
 
 /**
