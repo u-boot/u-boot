@@ -4,3 +4,4 @@
 # Francis Laniel, Amarula Solutions, francis.laniel@amarulasolutions.com
 
 obj-y += cmd_ut_hush.o
+obj-y += if.o
