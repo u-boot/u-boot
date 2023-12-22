@@ -33,6 +33,7 @@
  */
 #define ENABLE_HUSH_INTERACTIVE	1
 #define ENABLE_FEATURE_EDITING	1
+#define ENABLE_HUSH_IF		1
 /* No MMU in U-Boot */
 #define BB_MMU			0
 #define USE_FOR_NOMMU(...)	__VA_ARGS__
@@ -124,6 +125,11 @@ static void bb_error_msg(const char *s, ...)
 	va_end(p);
 }
 
+static void bb_simple_error_msg(const char *s)
+{
+	bb_error_msg("%s", s);
+}
+
 static void *xmalloc(size_t size)
 {
 	void *p = NULL;
@@ -145,6 +151,11 @@ static void *xrealloc(void *ptr, size_t size)
 	if (!(p = realloc(ptr, size)))
 		panic("out of memory");
 	return p;
+}
+
+static void *xmemdup(const void *s, int n)
+{
+	return memcpy(xmalloc(n), s, n);
 }
 
 #define xstrdup		strdup
