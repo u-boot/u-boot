@@ -7,3 +7,4 @@ obj-y += cmd_ut_hush.o
 obj-y += if.o
 obj-y += dollar.o
 obj-y += list.o
+obj-y += loop.o
