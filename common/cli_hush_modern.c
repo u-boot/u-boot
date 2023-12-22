@@ -207,6 +207,23 @@ static const char* endofname(const char *name)
 	return name;
 }
 
+/**
+ * list_size() - returns the number of elements in char ** before NULL.
+ *
+ * Argument must contain NULL to signalize its end.
+ *
+ * @list The list to count the number of element.
+ * @return The number of element in list.
+ */
+static size_t list_size(char **list)
+{
+	size_t size;
+
+	for (size = 0; list[size] != NULL; size++);
+
+	return size;
+}
+
 struct in_str;
 static int u_boot_cli_readline(struct in_str *i);
 
