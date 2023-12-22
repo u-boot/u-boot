@@ -3456,10 +3456,10 @@ static void s25_default_init(struct spi_nor *nor)
 	nor->setup = s25_s28_setup;
 }
 
-static int s25_post_bfpt_fixup(struct spi_nor *nor,
-			       const struct sfdp_parameter_header *header,
-			       const struct sfdp_bfpt *bfpt,
-			       struct spi_nor_flash_parameter *params)
+static int s25_s28_post_bfpt_fixup(struct spi_nor *nor,
+				   const struct sfdp_parameter_header *header,
+				   const struct sfdp_bfpt *bfpt,
+				   struct spi_nor_flash_parameter *params)
 {
 	int ret;
 	u32 addr;
@@ -3533,7 +3533,7 @@ static void s25_post_sfdp_fixup(struct spi_nor *nor,
 
 static struct spi_nor_fixups s25_fixups = {
 	.default_init = s25_default_init,
-	.post_bfpt = s25_post_bfpt_fixup,
+	.post_bfpt = s25_s28_post_bfpt_fixup,
 	.post_sfdp = s25_post_sfdp_fixup,
 };
 
@@ -3649,50 +3649,10 @@ static void s28hx_t_post_sfdp_fixup(struct spi_nor *nor,
 	params->rdsr_addr_nbytes = 4;
 }
 
-static int s28hx_t_post_bfpt_fixup(struct spi_nor *nor,
-				   const struct sfdp_parameter_header *bfpt_header,
-				   const struct sfdp_bfpt *bfpt,
-				   struct spi_nor_flash_parameter *params)
-{
-	struct spi_mem_op op;
-	u8 buf;
-	u8 addr_width = 3;
-	int ret;
-
-	/*
-	 * The BFPT table advertises a 512B page size but the page size is
-	 * actually configurable (with the default being 256B). Read from
-	 * CFR3V[4] and set the correct size.
-	 */
-	op = (struct spi_mem_op)
-		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_RD_ANY_REG, 1),
-			   SPI_MEM_OP_ADDR(addr_width, SPINOR_REG_CYPRESS_CFR3V, 1),
-			   SPI_MEM_OP_NO_DUMMY,
-			   SPI_MEM_OP_DATA_IN(1, &buf, 1));
-	ret = spi_mem_exec_op(nor->spi, &op);
-	if (ret)
-		return ret;
-
-	if (buf & SPINOR_REG_CYPRESS_CFR3_PGSZ)
-		params->page_size = 512;
-	else
-		params->page_size = 256;
-
-	/*
-	 * The BFPT advertises that it supports 4k erases, and the datasheet
-	 * says the same. But 4k erases did not work when testing. So, use 256k
-	 * erases for now.
-	 */
-	nor->erase_opcode = SPINOR_OP_SE_4B;
-	nor->mtd.erasesize = 0x40000;
-
-	return 0;
-}
-
 static struct spi_nor_fixups s28hx_t_fixups = {
 	.default_init = s28hx_t_default_init,
 	.post_sfdp = s28hx_t_post_sfdp_fixup,
-	.post_bfpt = s28hx_t_post_bfpt_fixup,
+	.post_bfpt = s25_s28_post_bfpt_fixup,
 };
 #endif /* CONFIG_SPI_FLASH_S28HX_T */
 
