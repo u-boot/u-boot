@@ -752,7 +752,7 @@ static int spansion_sr_ready(struct spi_nor *nor, u32 addr_base, u8 dummy)
 		else
 			dev_dbg(nor->dev, "Programming Error occurred\n");
 
-		nor->write_reg(nor, SPINOR_OP_CLSR, NULL, 0);
+		nor->write_reg(nor, SPINOR_OP_CYPRESS_CLPEF, NULL, 0);
 		return -EIO;
 	}
 
