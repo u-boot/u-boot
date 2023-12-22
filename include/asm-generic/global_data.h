@@ -697,6 +697,10 @@ enum gd_flags {
 	 * @GD_FLG_BLOBLIST_READY: bloblist is ready for use
 	 */
 	GD_FLG_BLOBLIST_READY = 0x800000,
+	/**
+	 * @GD_FLG_HUSH_OLD_PARSER: Use hush old parser.
+	 */
+	GD_FLG_HUSH_OLD_PARSER = 0x1000000,
 };
 
 #endif /* __ASSEMBLY__ */
