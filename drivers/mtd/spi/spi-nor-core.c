@@ -3565,48 +3565,48 @@ static struct spi_nor_fixups s25fl256l_fixups = {
  */
 static int spi_nor_cypress_octal_dtr_enable(struct spi_nor *nor)
 {
-	struct spi_mem_op op;
+	u32 addr;
 	u8 buf;
-	u8 addr_width = 3;
 	int ret;
 
-	/* Use 24 dummy cycles for memory array reads. */
 	ret = write_enable(nor);
 	if (ret)
 		return ret;
 
-	buf = SPINOR_REG_CYPRESS_CFR2_MEMLAT_11_24;
-	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WR_ANY_REG, 1),
-			SPI_MEM_OP_ADDR(addr_width, SPINOR_REG_CYPRESS_CFR2V, 1),
-			SPI_MEM_OP_NO_DUMMY,
-			SPI_MEM_OP_DATA_OUT(1, &buf, 1));
-	ret = spi_mem_exec_op(nor->spi, &op);
-	if (ret) {
-		dev_warn(nor->dev,
-			 "failed to set default memory latency value: %d\n",
-			 ret);
-		return ret;
-	}
-	ret = spi_nor_wait_till_ready(nor);
-	if (ret)
-		return ret;
+	/* Use 24 dummy cycles for memory array reads. */
+	for (addr = 0; addr < nor->mtd.size; addr += SZ_128M) {
+		ret = spansion_read_any_reg(nor,
+					    addr + SPINOR_REG_CYPRESS_CFR2V, 0,
+					    &buf);
+		if (ret)
+			return ret;
 
+		buf &= ~SPINOR_REG_CYPRESS_CFR2_MEMLAT_MASK;
+		buf |= SPINOR_REG_CYPRESS_CFR2_MEMLAT_11_24;
+		ret = spansion_write_any_reg(nor,
+					     addr + SPINOR_REG_CYPRESS_CFR2V,
+					     buf);
+		if (ret) {
+			dev_warn(nor->dev, "failed to set default memory latency value: %d\n", ret);
+			return ret;
+		}
+	}
 	nor->read_dummy = 24;
 
-	/* Set the octal and DTR enable bits. */
 	ret = write_enable(nor);
 	if (ret)
 		return ret;
 
+	/* Set the octal and DTR enable bits. */
 	buf = SPINOR_REG_CYPRESS_CFR5_OCT_DTR_EN;
-	op = (struct spi_mem_op)SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WR_ANY_REG, 1),
-			SPI_MEM_OP_ADDR(addr_width, SPINOR_REG_CYPRESS_CFR5V, 1),
-			SPI_MEM_OP_NO_DUMMY,
-			SPI_MEM_OP_DATA_OUT(1, &buf, 1));
-	ret = spi_mem_exec_op(nor->spi, &op);
-	if (ret) {
-		dev_warn(nor->dev, "Failed to enable octal DTR mode\n");
-		return ret;
+	for (addr = 0; addr < nor->mtd.size; addr += SZ_128M) {
+		ret = spansion_write_any_reg(nor,
+					     addr + SPINOR_REG_CYPRESS_CFR5V,
+					     buf);
+		if (ret) {
+			dev_warn(nor->dev, "Failed to enable octal DTR mode\n");
+			return ret;
+		}
 	}
 
 	return 0;
