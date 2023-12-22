@@ -331,7 +331,7 @@ static int spansion_read_any_reg(struct spi_nor *nor, u32 addr, u8 dummy,
 				 u8 *val)
 {
 	struct spi_mem_op op =
-		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_RDAR, 1),
+		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_RD_ANY_REG, 1),
 			   SPI_MEM_OP_ADDR(nor->addr_mode_nbytes, addr, 1),
 			   SPI_MEM_OP_DUMMY(dummy / 8, 1),
 			   SPI_MEM_OP_DATA_IN(1, NULL, 1));
@@ -342,7 +342,7 @@ static int spansion_read_any_reg(struct spi_nor *nor, u32 addr, u8 dummy,
 static int spansion_write_any_reg(struct spi_nor *nor, u32 addr, u8 val)
 {
 	struct spi_mem_op op =
-		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WRAR, 1),
+		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_WR_ANY_REG, 1),
 			   SPI_MEM_OP_ADDR(nor->addr_mode_nbytes, addr, 1),
 			   SPI_MEM_OP_NO_DUMMY,
 			   SPI_MEM_OP_DATA_OUT(1, NULL, 1));
@@ -714,7 +714,7 @@ static int set_4byte(struct spi_nor *nor, const struct flash_info *info,
  */
 static int spansion_sr_ready(struct spi_nor *nor, u32 addr_base, u8 dummy)
 {
-	u32 reg_addr = addr_base + SPINOR_REG_ADDR_STR1V;
+	u32 reg_addr = addr_base + SPINOR_REG_CYPRESS_STR1V;
 	u8 sr;
 	int ret;
 
@@ -1856,7 +1856,7 @@ static int macronix_quad_enable(struct spi_nor *nor)
 static int spansion_quad_enable_volatile(struct spi_nor *nor, u32 addr_base,
 					 u8 dummy)
 {
-	u32 addr = addr_base + SPINOR_REG_ADDR_CFR1V;
+	u32 addr = addr_base + SPINOR_REG_CYPRESS_CFR1V;
 
 	u8 cr;
 	int ret;
@@ -3293,11 +3293,11 @@ static int s25fs_s_setup(struct spi_nor *nor, const struct flash_info *info,
 	 * Read CR3V to check if uniform sector is selected. If not, assign an
 	 * erase hook that supports non-uniform erase.
 	 */
-	ret = spansion_read_any_reg(nor, SPINOR_REG_ADDR_CFR3V,
+	ret = spansion_read_any_reg(nor, SPINOR_REG_CYPRESS_CFR3V,
 				    S25FS_S_RDAR_DUMMY, &cfr3v);
 	if (ret)
 		return ret;
-	if (!(cfr3v & CFR3V_UNHYSA))
+	if (!(cfr3v & SPINOR_REG_CYPRESS_CFR3_UNISECT))
 		nor->erase = s25fs_s_erase_non_uniform;
 
 	return spi_nor_default_setup(nor, info, params);
@@ -3396,7 +3396,8 @@ static int s25_setup(struct spi_nor *nor, const struct flash_info *info,
 	 * uniform 128KB only due to complexity of non-uniform layout.
 	 */
 	if (nor->info->id[4] == S25FS256T_ID4) {
-		ret = spansion_read_any_reg(nor, SPINOR_REG_ADDR_ARCFN, 8, &cr);
+		ret = spansion_read_any_reg(nor, SPINOR_REG_CYPRESS_ARCFN, 8,
+					    &cr);
 		if (ret)
 			return ret;
 
@@ -3410,10 +3411,10 @@ static int s25_setup(struct spi_nor *nor, const struct flash_info *info,
 	 * Read CFR3V to check if uniform sector is selected. If not, assign an
 	 * erase hook that supports non-uniform erase.
 	 */
-	ret = spansion_read_any_reg(nor, SPINOR_REG_ADDR_CFR3V, 0, &cr);
+	ret = spansion_read_any_reg(nor, SPINOR_REG_CYPRESS_CFR3V, 0, &cr);
 	if (ret)
 		return ret;
-	if (!(cr & CFR3V_UNHYSA))
+	if (!(cr & SPINOR_REG_CYPRESS_CFR3_UNISECT))
 		nor->erase = s25_erase_non_uniform;
 
 	/*
@@ -3474,12 +3475,13 @@ static int s25_post_bfpt_fixup(struct spi_nor *nor,
 	 * dies are configured to 512B buffer.
 	 */
 	for (addr = 0; addr < params->size; addr += SZ_128M) {
-		ret = spansion_read_any_reg(nor, addr + SPINOR_REG_ADDR_CFR3V,
-					    0, &cfr3v);
+		ret = spansion_read_any_reg(nor,
+					    addr + SPINOR_REG_CYPRESS_CFR3V, 0,
+					    &cfr3v);
 		if (ret)
 			return ret;
 
-		if (!(cfr3v & CFR3V_PGMBUF)) {
+		if (!(cfr3v & SPINOR_REG_CYPRESS_CFR3_PGSZ)) {
 			params->page_size = 256;
 			return 0;
 		}
