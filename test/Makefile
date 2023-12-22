@@ -17,6 +17,9 @@ obj-$(CONFIG_FUZZ) += fuzz/
 ifndef CONFIG_SANDBOX_VPL
 obj-$(CONFIG_UNIT_TEST) += lib/
 endif
+ifneq ($(CONFIG_HUSH_PARSER),)
+obj-$(CONFIG_$(SPL_)CMDLINE) += hush/
+endif
 obj-$(CONFIG_$(SPL_)CMDLINE) += print_ut.o
 obj-$(CONFIG_$(SPL_)CMDLINE) += str_ut.o
 obj-$(CONFIG_UT_TIME) += time_ut.o
