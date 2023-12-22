@@ -43,12 +43,15 @@ int run_command(const char *cmd, int flag)
 		return 1;
 
 	return 0;
-#else
+#elif CONFIG_IS_ENABLED(HUSH_OLD_PARSER)
 	int hush_flags = FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP;
 
 	if (flag & CMD_FLAG_ENV)
 		hush_flags |= FLAG_CONT_ON_NEWLINE;
 	return parse_string_outer(cmd, hush_flags);
+#else /* HUSH_MODERN_PARSER */
+	/* Not yet implemented. */
+	return 1;
 #endif
 }
 
@@ -108,7 +111,12 @@ int run_command_list(const char *cmd, int len, int flag)
 		buff[len] = '\0';
 	}
 #ifdef CONFIG_HUSH_PARSER
+#if CONFIG_IS_ENABLED(HUSH_OLD_PARSER)
 	rcode = parse_string_outer(buff, FLAG_PARSE_SEMICOLON);
+#else /* HUSH_MODERN_PARSER */
+	/* Not yet implemented. */
+	rcode = 1;
+#endif
 #else
 	/*
 	 * This function will overwrite any \n it sees with a \0, which
@@ -254,8 +262,13 @@ err:
 void cli_loop(void)
 {
 	bootstage_mark(BOOTSTAGE_ID_ENTER_CLI_LOOP);
-#ifdef CONFIG_HUSH_PARSER
-	parse_file_outer();
+#if CONFIG_IS_ENABLED(HUSH_PARSER)
+	if (gd->flags & GD_FLG_HUSH_MODERN_PARSER)
+		parse_and_run_file();
+	else if (gd->flags & GD_FLG_HUSH_OLD_PARSER)
+		parse_file_outer();
+
+	printf("Problem\n");
 	/* This point is never reached */
 	for (;;);
 #elif defined(CONFIG_CMDLINE)
@@ -268,10 +281,23 @@ void cli_loop(void)
 void cli_init(void)
 {
 #ifdef CONFIG_HUSH_PARSER
+	/* This if block is used to initialize hush parser gd flag. */
 	if (!(gd->flags & GD_FLG_HUSH_OLD_PARSER)
-		&& CONFIG_IS_ENABLED(HUSH_OLD_PARSER))
-		gd->flags |= GD_FLG_HUSH_OLD_PARSER;
-	u_boot_hush_start();
+		&& !(gd->flags & GD_FLG_HUSH_MODERN_PARSER)) {
+		if (CONFIG_IS_ENABLED(HUSH_OLD_PARSER))
+			gd->flags |= GD_FLG_HUSH_OLD_PARSER;
+		else if (CONFIG_IS_ENABLED(HUSH_MODERN_PARSER))
+			gd->flags |= GD_FLG_HUSH_MODERN_PARSER;
+	}
+
+	if (gd->flags & GD_FLG_HUSH_OLD_PARSER) {
+		u_boot_hush_start();
+	} else if (gd->flags & GD_FLG_HUSH_MODERN_PARSER) {
+		u_boot_hush_start_modern();
+	} else {
+		printf("No valid hush parser to use, cli will not initialized!\n");
+		return;
+	}
 #endif
 
 #if defined(CONFIG_HUSH_INIT_VAR)

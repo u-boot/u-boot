@@ -12,6 +12,8 @@ static const char *gd_flags_to_parser_name(void)
 {
 	if (gd->flags & GD_FLG_HUSH_OLD_PARSER)
 		return "old";
+	if (gd->flags & GD_FLG_HUSH_MODERN_PARSER)
+		return "modern";
 	return NULL;
 }
 
@@ -34,18 +36,31 @@ static int parser_string_to_gd_flags(const char *parser)
 {
 	if (!strcmp(parser, "old"))
 		return GD_FLG_HUSH_OLD_PARSER;
+	if (!strcmp(parser, "modern"))
+		return GD_FLG_HUSH_MODERN_PARSER;
+	return -1;
+}
+
+static int gd_flags_to_parser_config(int flag)
+{
+	if (gd->flags & GD_FLG_HUSH_OLD_PARSER)
+		return CONFIG_VAL(HUSH_OLD_PARSER);
+	if (gd->flags & GD_FLG_HUSH_MODERN_PARSER)
+		return CONFIG_VAL(HUSH_MODERN_PARSER);
 	return -1;
 }
 
 static void reset_parser_gd_flags(void)
 {
 	gd->flags &= ~GD_FLG_HUSH_OLD_PARSER;
+	gd->flags &= ~GD_FLG_HUSH_MODERN_PARSER;
 }
 
 static int do_cli_set(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
 	char *parser_name;
+	int parser_config;
 	int parser_flag;
 
 	if (argc < 2)
@@ -59,9 +74,14 @@ static int do_cli_set(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 	}
 
-	if (parser_flag == GD_FLG_HUSH_OLD_PARSER &&
-		!CONFIG_IS_ENABLED(HUSH_OLD_PARSER)) {
-		printf("Want to set current parser to old, but its code was not compiled!\n");
+	parser_config = gd_flags_to_parser_config(parser_flag);
+	switch (parser_config) {
+	case -1:
+		printf("Bad value for parser flags: %d\n", parser_flag);
+		return CMD_RET_FAILURE;
+	case 0:
+		printf("Want to set current parser to %s, but its code was not compiled!\n",
+			parser_name);
 		return CMD_RET_FAILURE;
 	}
 
@@ -102,7 +122,7 @@ static int do_cli(struct cmd_tbl *cmdtp, int flag, int argc,
 #if CONFIG_IS_ENABLED(SYS_LONGHELP)
 static char cli_help_text[] =
 	"get - print current cli\n"
-	"set - set the current cli, possible value is: old"
+	"set - set the current cli, possible value are: old, modern"
 	;
 #endif
 

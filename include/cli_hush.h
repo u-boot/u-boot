@@ -12,11 +12,58 @@
 #define FLAG_REPARSING       (1 << 2)	  /* >=2nd pass */
 #define FLAG_CONT_ON_NEWLINE (1 << 3)	  /* continue when we see \n */
 
+#if CONFIG_IS_ENABLED(HUSH_OLD_PARSER)
 extern int u_boot_hush_start(void);
-extern int parse_string_outer(const char *, int);
+extern int parse_string_outer(const char *str, int flag);
 extern int parse_file_outer(void);
-
 int set_local_var(const char *s, int flg_export);
+#else
+static inline int u_boot_hush_start(void)
+{
+	return 0;
+}
+
+static inline int parse_string_outer(const char *str, int flag)
+{
+	return 1;
+}
+
+static inline int parse_file_outer(void)
+{
+	return 0;
+}
+
+static inline int set_local_var(const char *s, int flg_export)
+{
+	return 0;
+}
+#endif
+#if CONFIG_IS_ENABLED(HUSH_MODERN_PARSER)
+extern int u_boot_hush_start_modern(void);
+extern int parse_string_outer_modern(const char *str, int flag);
+extern void parse_and_run_file(void);
+int set_local_var_modern(char *s, int flg_export);
+#else
+static inline int u_boot_hush_start_modern(void)
+{
+	return 0;
+}
+
+static inline int parse_string_outer_modern(const char *str, int flag)
+{
+	return 1;
+}
+
+static inline void parse_and_run_file(void)
+{
+}
+
+static inline int set_local_var_modern(char *s, int flg_export)
+{
+	return 0;
+}
+#endif
+
 void unset_local_var(const char *name);
 char *get_local_var(const char *s);
 
