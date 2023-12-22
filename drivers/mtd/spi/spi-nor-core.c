@@ -3405,8 +3405,8 @@ static int s25_s28_erase_non_uniform(struct spi_nor *nor, loff_t addr)
 					  SZ_128K);
 }
 
-static int s25_setup(struct spi_nor *nor, const struct flash_info *info,
-		     const struct spi_nor_flash_parameter *params)
+static int s25_s28_setup(struct spi_nor *nor, const struct flash_info *info,
+			 const struct spi_nor_flash_parameter *params)
 {
 	int ret;
 	u8 cr;
@@ -3453,7 +3453,7 @@ static int s25_setup(struct spi_nor *nor, const struct flash_info *info,
 
 static void s25_default_init(struct spi_nor *nor)
 {
-	nor->setup = s25_setup;
+	nor->setup = s25_s28_setup;
 }
 
 static int s25_post_bfpt_fixup(struct spi_nor *nor,
@@ -3612,43 +3612,10 @@ static int spi_nor_cypress_octal_dtr_enable(struct spi_nor *nor)
 	return 0;
 }
 
-static int s28hx_t_setup(struct spi_nor *nor, const struct flash_info *info,
-			 const struct spi_nor_flash_parameter *params)
-{
-	struct spi_mem_op op;
-	u8 buf;
-	u8 addr_width = 3;
-	int ret;
-
-	ret = spi_nor_wait_till_ready(nor);
-	if (ret)
-		return ret;
-
-	/*
-	 * Check CFR3V to check if non-uniform sector mode is selected. If it
-	 * is, set the erase hook to the non-uniform erase procedure.
-	 */
-	op = (struct spi_mem_op)
-		SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_RD_ANY_REG, 1),
-			   SPI_MEM_OP_ADDR(addr_width,
-					   SPINOR_REG_CYPRESS_CFR3V, 1),
-			   SPI_MEM_OP_NO_DUMMY,
-			   SPI_MEM_OP_DATA_IN(1, &buf, 1));
-
-	ret = spi_mem_exec_op(nor->spi, &op);
-	if (ret)
-		return ret;
-
-	if (!(buf & SPINOR_REG_CYPRESS_CFR3_UNISECT))
-		nor->erase = s25_s28_erase_non_uniform;
-
-	return spi_nor_default_setup(nor, info, params);
-}
-
 static void s28hx_t_default_init(struct spi_nor *nor)
 {
 	nor->octal_dtr_enable = spi_nor_cypress_octal_dtr_enable;
-	nor->setup = s28hx_t_setup;
+	nor->setup = s25_s28_setup;
 }
 
 static void s28hx_t_post_sfdp_fixup(struct spi_nor *nor,
