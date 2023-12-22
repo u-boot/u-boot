@@ -454,12 +454,12 @@ static int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 
 	if (bflow->flags & BOOTFLOWF_USE_BUILTIN_FDT) {
 		log_debug("Booting with built-in fdt\n");
-		if (efi_binary_run(map_sysmem(kernel, 0), 0,
+		if (efi_binary_run(map_sysmem(kernel, 0), bflow->size,
 				   EFI_FDT_USE_INTERNAL))
 			return log_msg_ret("run", -EINVAL);
 	} else {
 		log_debug("Booting with external fdt\n");
-		if (efi_binary_run(map_sysmem(kernel, 0), 0,
+		if (efi_binary_run(map_sysmem(kernel, 0), bflow->size,
 				   map_sysmem(fdt, 0)))
 			return log_msg_ret("run", -EINVAL);
 	}
