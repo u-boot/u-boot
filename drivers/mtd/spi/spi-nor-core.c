@@ -3370,13 +3370,13 @@ static struct spi_nor_fixups s25fs_s_fixups = {
 	.post_sfdp = s25fs_s_post_sfdp_fixup,
 };
 
-static int s25_mdp_ready(struct spi_nor *nor)
+static int s25_s28_mdp_ready(struct spi_nor *nor)
 {
 	u32 addr;
 	int ret;
 
 	for (addr = 0; addr < nor->mtd.size; addr += SZ_128M) {
-		ret = spansion_sr_ready(nor, addr, 0);
+		ret = spansion_sr_ready(nor, addr, nor->rdsr_dummy);
 		if (!ret)
 			return ret;
 	}
@@ -3446,7 +3446,7 @@ static int s25_setup(struct spi_nor *nor, const struct flash_info *info,
 	 * all dies' status via read any register.
 	 */
 	if (nor->mtd.size > SZ_128M)
-		nor->ready = s25_mdp_ready;
+		nor->ready = s25_s28_mdp_ready;
 
 	return spi_nor_default_setup(nor, info, params);
 }
