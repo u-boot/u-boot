@@ -3374,7 +3374,7 @@ static int s25_quad_enable(struct spi_nor *nor)
 	return 0;
 }
 
-static int s25_erase_non_uniform(struct spi_nor *nor, loff_t addr)
+static int s25_s28_erase_non_uniform(struct spi_nor *nor, loff_t addr)
 {
 	/* Support 32 x 4KB sectors at bottom */
 	return spansion_erase_non_uniform(nor, addr, SPINOR_OP_BE_4K_4B, 0,
@@ -3415,7 +3415,7 @@ static int s25_setup(struct spi_nor *nor, const struct flash_info *info,
 	if (ret)
 		return ret;
 	if (!(cr & SPINOR_REG_CYPRESS_CFR3_UNISECT))
-		nor->erase = s25_erase_non_uniform;
+		nor->erase = s25_s28_erase_non_uniform;
 
 	/*
 	 * For the multi-die package parts, the ready() hook is needed to check
@@ -3588,13 +3588,6 @@ static int spi_nor_cypress_octal_dtr_enable(struct spi_nor *nor)
 	return 0;
 }
 
-static int s28hx_t_erase_non_uniform(struct spi_nor *nor, loff_t addr)
-{
-	/* Factory default configuration: 32 x 4 KiB sectors at bottom. */
-	return spansion_erase_non_uniform(nor, addr, SPINOR_OP_S28_SE_4K,
-					  0, SZ_128K);
-}
-
 static int s28hx_t_setup(struct spi_nor *nor, const struct flash_info *info,
 			 const struct spi_nor_flash_parameter *params)
 {
@@ -3623,7 +3616,7 @@ static int s28hx_t_setup(struct spi_nor *nor, const struct flash_info *info,
 		return ret;
 
 	if (!(buf & SPINOR_REG_CYPRESS_CFR3_UNISECT))
-		nor->erase = s28hx_t_erase_non_uniform;
+		nor->erase = s25_s28_erase_non_uniform;
 
 	return spi_nor_default_setup(nor, info, params);
 }

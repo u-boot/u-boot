@@ -180,7 +180,6 @@
 /* For Cypress flash. */
 #define SPINOR_OP_RD_ANY_REG			0x65	/* Read any register */
 #define SPINOR_OP_WR_ANY_REG			0x71	/* Write any register */
-#define SPINOR_OP_S28_SE_4K			0x21
 #define SPINOR_REG_CYPRESS_ARCFN		0x00000006
 #define SPINOR_REG_CYPRESS_STR1V		0x00800000
 #define SPINOR_REG_CYPRESS_CFR1V		0x00800002
