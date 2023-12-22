@@ -6159,7 +6159,28 @@ static struct pipe *parse_stream(char **pstring,
 			if (parse_redirect(&ctx, redir_fd, redir_style, input))
 				goto parse_error_exitcode1;
 			continue; /* get next char */
-#endif /* !__U_BOOT__ */
+#else /* __U_BOOT__ */
+			/*
+			 * In U-Boot, '<' and '>' can be used in test command to test if
+			 * a string is, alphabetically, before or after another.
+			 * In 2021 Busybox hush, we will keep the same behavior and so not treat
+			 * them as redirection operator.
+			 *
+			 * Indeed, in U-Boot, tests are handled by the test command and not by the
+			 * shell code.
+			 * So, better to give this character as input to test command.
+			 *
+			 * NOTE In my opinion, when you use '<' or '>' I am almost sure
+			 * you wanted to use "-gt" or "-lt" in place, so thinking to
+			 * escape these will make you should check your code (sh syntax
+			 * at this level is, for me, error prone).
+			 */
+			case '>':
+				fallthrough;
+			case '<':
+				o_addQchr(&ctx.word, ch);
+				continue;
+#endif /* __U_BOOT__ */
 		case '#':
 			if (ctx.word.length == 0 && !ctx.word.has_quoted_part) {
 				/* skip "#comment" */
