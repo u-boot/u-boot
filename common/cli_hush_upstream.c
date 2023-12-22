@@ -1011,6 +1011,7 @@ struct globals {
 #ifdef __U_BOOT__
 	int flag_repeat;
 	int do_repeat;
+	int run_command_flags;
 #endif /* __U_BOOT__ */
 	char *ifs_whitespace; /* = G.ifs or malloced */
 #ifndef __U_BOOT__
@@ -3004,7 +3005,24 @@ static int i_getch(struct in_str *i)
 	if (i->p && *i->p != '\0') {
 		ch = (unsigned char)*i->p++;
 		goto out;
+#ifndef __U_BOOT__
 	}
+#else /* __U_BOOT__ */
+	/*
+	 * There are two ways for command to be called:
+	 * 1. The first one is when they are typed by the user.
+	 * 2. The second one is through run_command() (NOTE command run
+	 * internally calls run_command()).
+	 *
+	 * In the second case, we do not get input from the user, so once we
+	 * get a '\0', it means we need to stop.
+	 * NOTE G.run_command_flags is only set on run_command call stack, so
+	 * we use this to know if we come from user input or run_command().
+	 */
+	} else if (i->p && *i->p == '\0' && G.run_command_flags){
+		return EOF;
+	}
+#endif /* __U_BOOT__ */
 #endif
 #ifndef __U_BOOT__
 	/* peek_buf[] is an int array, not char. Can contain EOF. */
@@ -3163,7 +3181,6 @@ static void setup_file_in_str(struct in_str *i)
 #endif /* !__U_BOOT__ */
 }
 
-#ifndef __U_BOOT__
 static void setup_string_in_str(struct in_str *i, const char *s)
 {
 	memset(i, 0, sizeof(*i));
@@ -3171,7 +3188,6 @@ static void setup_string_in_str(struct in_str *i, const char *s)
 	i->p = s;
 }
 
-#endif /* !__U_BOOT__ */
 
 /*
  * o_string support
@@ -7910,7 +7926,11 @@ static int run_and_free_list(struct pipe *pi);
  * NUL: parse all, execute, return
  * ';': parse till ';' or newline, execute, repeat till EOF
  */
+#ifndef __U_BOOT__
 static void parse_and_run_stream(struct in_str *inp, int end_trigger)
+#else /* __U_BOOT__ */
+static int parse_and_run_stream(struct in_str *inp, int end_trigger)
+#endif /* __U_BOOT__ */
 {
 	/* Why we need empty flag?
 	 * An obscure corner case "false; ``; echo $?":
@@ -7919,7 +7939,11 @@ static void parse_and_run_stream(struct in_str *inp, int end_trigger)
 	 * this breaks "false; echo `echo $?`" case.
 	 */
 	bool empty = 1;
+#ifndef __U_BOOT__
 	while (1) {
+#else /* __U_BOOT__ */
+	do {
+#endif /* __U_BOOT__ */
 		struct pipe *pipe_list;
 
 #if ENABLE_HUSH_INTERACTIVE
@@ -7966,21 +7990,57 @@ static void parse_and_run_stream(struct in_str *inp, int end_trigger)
 		empty = 0;
 		if (G_flag_return_in_progress == 1)
 			break;
+#ifndef __U_BOOT__
 	}
+#else /* __U_BOOT__ */
+	/*
+	 * This do/while is needed by run_command to avoid looping on a command
+	 * with syntax error.
+	 */
+	} while (!(G.run_command_flags & FLAG_EXIT_FROM_LOOP));
+
+	return G.last_exitcode;
+#endif /* __U_BOOT__ */
 }
 
 #ifndef __U_BOOT__
 static void parse_and_run_string(const char *s)
+#else /* __U_BOOT__ */
+static int parse_and_run_string(const char *s)
+#endif /* __U_BOOT__ */
 {
 	struct in_str input;
 	//IF_HUSH_LINENO_VAR(unsigned sv = G.parse_lineno;)
 
 	setup_string_in_str(&input, s);
+#ifndef __U_BOOT__
 	parse_and_run_stream(&input, '\0');
+#else /* __U_BOOT__ */
+	return parse_and_run_stream(&input, '\0');
+#endif /* __U_BOOT__ */
 	//IF_HUSH_LINENO_VAR(G.parse_lineno = sv;)
 }
-#endif /* !__U_BOOT__ */
 
+#ifdef __U_BOOT__
+int parse_string_outer(const char *cmd, int flags)
+{
+	int ret;
+	int old_flags;
+
+	/*
+	 * Keep old values of run_command to be able to restore them once
+	 * command was executed.
+	 */
+	old_flags = G.run_command_flags;
+	G.run_command_flags = flags;
+
+	ret = parse_and_run_string(cmd);
+
+	G.run_command_flags = old_flags;
+
+	return ret;
+}
+#endif /* __U_BOOT__ */
 #ifndef __U_BOOT__
 static void parse_and_run_file(HFILE *fp)
 #else /* __U_BOOT__ */
