@@ -675,6 +675,7 @@ F:	arch/arm/dts/tegra*
 F:	arch/arm/include/asm/arch-tegra*/
 F:	arch/arm/mach-tegra/
 F:	drivers/*/tegra*
+F:	drivers/*/tegra*/
 
 ARM TI
 M:	Tom Rini <trini@konsulko.com>
@@ -690,6 +691,7 @@ F:	arch/arm/include/asm/arch-omap*/
 F:	arch/arm/include/asm/ti-common/
 F:	board/ti/
 F:	drivers/dma/ti*
+F:	drivers/dma/ti*/
 F:	drivers/firmware/ti_sci.*
 F:	drivers/gpio/omap_gpio.c
 F:	drivers/memory/ti-aemif.c
@@ -701,6 +703,7 @@ F:	drivers/phy/omap-usb2-phy.c
 F:	drivers/phy/phy-ti-am654.c
 F:	drivers/phy/ti-pipe3-phy.c
 F:	drivers/ram/k3*
+F:	drivers/ram/k3*/
 F:	drivers/remoteproc/ipu_rproc.c
 F:	drivers/remoteproc/k3_system_controller.c
 F:	drivers/remoteproc/pruc_rpoc.c
@@ -1029,8 +1032,10 @@ ENVIRONMENT
 M:	Joe Hershberger <joe.hershberger@ni.com>
 S:	Maintained
 F:	env/
+F:	include/env/
 F:	include/env*
 F:	test/env/
+F:	tools/env/
 F:	tools/env*
 F:	tools/mkenvimage.c
 
