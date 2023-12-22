@@ -34,6 +34,7 @@
 #define ENABLE_HUSH_INTERACTIVE	1
 #define ENABLE_FEATURE_EDITING	1
 #define ENABLE_HUSH_IF		1
+#define ENABLE_HUSH_LOOPS	1
 /* No MMU in U-Boot */
 #define BB_MMU			0
 #define USE_FOR_NOMMU(...)	__VA_ARGS__
