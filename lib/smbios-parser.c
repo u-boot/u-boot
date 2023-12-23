@@ -39,14 +39,7 @@ static u8 *find_next_header(u8 *pos)
 	return pos;
 }
 
-static struct smbios_header *get_next_header(struct smbios_header *curr)
-{
-	u8 *pos = ((u8 *)curr) + curr->length;
-
-	return (struct smbios_header *)find_next_header(pos);
-}
-
-static const struct smbios_header *next_header(const struct smbios_header *curr)
+static struct smbios_header *get_next_header(const struct smbios_header *curr)
 {
 	u8 *pos = ((u8 *)curr) + curr->length;
 
@@ -62,7 +55,7 @@ const struct smbios_header *smbios_header(const struct smbios_entry *entry, int 
 		if (header->type == type)
 			return header;
 
-		header = next_header(header);
+		header = get_next_header(header);
 	}
 
 	return NULL;
