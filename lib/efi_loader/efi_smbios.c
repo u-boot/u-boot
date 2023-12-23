@@ -60,7 +60,9 @@ static int install_smbios_table(void)
 	ulong addr;
 	void *buf;
 
-	if (!IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE) || IS_ENABLED(CONFIG_X86))
+	if (!IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE) ||
+	    IS_ENABLED(CONFIG_X86) ||
+	    IS_ENABLED(CONFIG_QFW_SMBIOS))
 		return 0;
 
 	/* Align the table to a 4KB boundary to keep EFI happy */
