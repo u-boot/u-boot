@@ -426,6 +426,7 @@ config VPL_BOOTSTD
 config BOOTSTD_FULL
 	bool "Enhanced features for standard boot"
 	default y if SANDBOX
+	imply BOOTSTD_DEFAULTS
 	help
 	  This enables various useful features for standard boot, which are not
 	  essential for operation:
