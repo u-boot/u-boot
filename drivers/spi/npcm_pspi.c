@@ -144,7 +144,7 @@ static int npcm_pspi_set_speed(struct udevice *bus, uint speed)
 	if (speed > priv->max_hz)
 		speed = priv->max_hz;
 
-	divisor = DIV_ROUND_CLOSEST(apb_clock, (2 * speed) - 1);
+	divisor = DIV_ROUND_CLOSEST(apb_clock, (2 * speed)) - 1;
 	if (divisor > MAX_DIV)
 		divisor = MAX_DIV;
 
