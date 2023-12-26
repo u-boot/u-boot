@@ -31,8 +31,11 @@ void harts_early_init(void)
 	/* Enable I/D-cache in SPL */
 	if (CONFIG_IS_ENABLED(RISCV_MMODE)) {
 		unsigned long mcache_ctl_val = csr_read(CSR_MCACHE_CTL);
+		unsigned long mmisc_ctl_val = csr_read(CSR_MMISC_CTL);
 
-		mcache_ctl_val |= MCACHE_CTL_CCTL_SUEN;
+		mcache_ctl_val |= (MCACHE_CTL_CCTL_SUEN | \
+				MCACHE_CTL_IC_PREFETCH_EN | MCACHE_CTL_DC_PREFETCH_EN | \
+				MCACHE_CTL_DC_WAROUND_EN | MCACHE_CTL_L2C_WAROUND_EN);
 
 		if (!CONFIG_IS_ENABLED(SYS_ICACHE_OFF))
 			mcache_ctl_val |= MCACHE_CTL_IC_EN;
@@ -52,5 +55,9 @@ void harts_early_init(void)
 				while (!(csr_read(CSR_MCACHE_CTL) & MCACHE_CTL_DC_COHSTA));
 			}
 		}
+
+		mmisc_ctl_val |= MMISC_CTL_NON_BLOCKING_EN;
+
+		csr_write(CSR_MMISC_CTL, mmisc_ctl_val);
 	}
 }
