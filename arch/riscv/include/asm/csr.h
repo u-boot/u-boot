@@ -142,6 +142,7 @@
 #define CSR_CYCLEH		0xc80
 #define CSR_TIMEH		0xc81
 #define CSR_INSTRETH		0xc82
+#define CSR_MARCHID		0xf12
 #define CSR_MHARTID		0xf14
 
 #ifndef __ASSEMBLY__
