@@ -102,7 +102,8 @@ void *board_fdt_blob_setup(int *err)
 void spl_board_init()
 {
 	/* enable v5l2 cache */
-	enable_caches();
+	if (!CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		enable_caches();
 }
 #endif
 
