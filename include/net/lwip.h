@@ -71,3 +71,19 @@ int ulwip_wget(ulong addr, char *url);
  * Returns: 0 for success, !0 if error
 */
 int ulwip_ping(char *ping_addr);
+
+
+/**
+ * ulwip_list - print lwip interfaces information
+ *
+ * Print information about lwip interfaces, like name
+ * MAC, state. Usefull for debugging.
+ *
+*/
+void ulwip_list(void);
+
+/**
+ * ulwip_up_down - up/down lwip interface
+ *
+*/
+void ulwip_up_down(char *name, int up);
