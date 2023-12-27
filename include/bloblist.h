@@ -330,10 +330,11 @@ int bloblist_resize(uint tag, int new_size);
  * @addr: Address of bloblist
  * @size: Initial size for bloblist
  * @flags: Flags to use for bloblist
+ * @align_log2: Log base 2 of maximum alignment provided by this bloblist
  * Return: 0 if OK, -EFAULT if addr is not aligned correctly, -ENOSPC is the
  * area is not large enough
  */
-int bloblist_new(ulong addr, uint size, uint flags);
+int bloblist_new(ulong addr, uint size, uint flags, uint align_log2);
 
 /**
  * bloblist_check() - Check if a bloblist exists
