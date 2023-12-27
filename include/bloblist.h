@@ -166,32 +166,33 @@ enum bloblist_tag_t {
  * from the last.
  *
  * @magic: BLOBLIST_MAGIC
+ * @chksum: checksum for the entire bloblist allocated area. Since any of the
+ *	blobs can be altered after being created, this checksum is only valid
+ *	when the bloblist is finalized before jumping to the next stage of boot.
+ *	This is the value needed to make all checksummed bytes sum to 0
  * @version: BLOBLIST_VERSION
  * @hdr_size: Size of this header, normally sizeof(struct bloblist_hdr). The
  *	first bloblist_rec starts at this offset from the start of the header
- * @flags: Space for BLOBLISTF... flags (none yet)
- * @size: Total size of the bloblist (non-zero if valid) including this header.
- *	The bloblist extends for this many bytes from the start of this header.
- *	When adding new records, the bloblist can grow up to this size.
- * @alloced: Total size allocated so far for this bloblist. This starts out as
+ * @align_log2: Power of two of the maximum alignment required by this list
+ * @used_size: Size allocated so far for this bloblist. This starts out as
  *	sizeof(bloblist_hdr) since we need at least that much space to store a
  *	valid bloblist
+ * @total_size: The number of total bytes that the bloblist can occupy.
+ *	Any blob producer must check if there is sufficient space before adding
+ *	a record to the bloblist.
+ * @flags: Space for BLOBLISTF... flags (none yet)
  * @spare: Spare space (for future use)
- * @chksum: checksum for the entire bloblist allocated area. Since any of the
- *	blobs can be altered after being created, this checksum is only valid
- *	when the bloblist is finalised before jumping to the next stage of boot.
- *	This is the value needed to make all checksummed bytes sum to 0
  */
 struct bloblist_hdr {
 	u32 magic;
-	u32 version;
-	u32 hdr_size;
+	u8 chksum;
+	u8 version;
+	u8 hdr_size;
+	u8 align_log2;
+	u32 used_size;
+	u32 total_size;
 	u32 flags;
-
-	u32 size;
-	u32 alloced;
 	u32 spare;
-	u32 chksum;
 };
 
 /**
@@ -363,10 +364,10 @@ int bloblist_finish(void);
  * This returns useful information about the bloblist
  *
  * @basep: Returns base address of bloblist
- * @sizep: Returns the number of bytes used in the bloblist
- * @allocedp: Returns the total space allocated to the bloblist
+ * @tsizep: Returns the total number of bytes of the bloblist
+ * @usizep: Returns the number of used bytes of the bloblist
  */
-void bloblist_get_stats(ulong *basep, ulong *sizep, ulong *allocedp);
+void bloblist_get_stats(ulong *basep, ulong *tsizep, ulong *usizep);
 
 /**
  * bloblist_get_base() - Get the base address of the bloblist
@@ -381,6 +382,13 @@ ulong bloblist_get_base(void);
  * Return: the size in bytes
  */
 ulong bloblist_get_size(void);
+
+/**
+ * bloblist_get_total_size() - Get the total size of the bloblist
+ *
+ * Return: the size in bytes
+ */
+ulong bloblist_get_total_size(void);
 
 /**
  * bloblist_show_stats() - Show information about the bloblist

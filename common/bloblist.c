@@ -80,7 +80,7 @@ const char *bloblist_tag_name(enum bloblist_tag_t tag)
 
 static struct bloblist_rec *bloblist_first_blob(struct bloblist_hdr *hdr)
 {
-	if (hdr->alloced <= hdr->hdr_size)
+	if (hdr->used_size <= hdr->hdr_size)
 		return NULL;
 	return (struct bloblist_rec *)((void *)hdr + hdr->hdr_size);
 }
@@ -119,7 +119,7 @@ static struct bloblist_rec *bloblist_next_blob(struct bloblist_hdr *hdr,
 {
 	ulong offset = bloblist_blob_end_ofs(hdr, rec);
 
-	if (offset >= hdr->alloced)
+	if (offset >= hdr->used_size)
 		return NULL;
 	return (struct bloblist_rec *)((void *)hdr + offset);
 }
@@ -156,9 +156,9 @@ static int bloblist_addrec(uint tag, int size, int align_log2,
 		align_log2 = BLOBLIST_BLOB_ALIGN_LOG2;
 
 	/* Figure out where the new data will start */
-	data_start = map_to_sysmem(hdr) + hdr->alloced + sizeof(*rec);
+	data_start = map_to_sysmem(hdr) + hdr->used_size + sizeof(*rec);
 
-	/* Align the address and then calculate the offset from ->alloced */
+	/* Align the address and then calculate the offset from used size */
 	aligned_start = ALIGN(data_start, 1U << align_log2) - data_start;
 
 	/* If we need to create a dummy record, create it */
@@ -172,19 +172,20 @@ static int bloblist_addrec(uint tag, int size, int align_log2,
 			return log_msg_ret("void", ret);
 
 		/* start the record after that */
-		data_start = map_to_sysmem(hdr) + hdr->alloced + sizeof(*vrec);
+		data_start = map_to_sysmem(hdr) + hdr->used_size + sizeof(*vrec);
 	}
 
 	/* Calculate the new allocated total */
 	new_alloced = data_start - map_to_sysmem(hdr) +
 		ALIGN(size, 1U << align_log2);
 
-	if (new_alloced > hdr->size) {
-		log_err("Failed to allocate %x bytes size=%x, need size=%x\n",
-			size, hdr->size, new_alloced);
+	if (new_alloced > hdr->total_size) {
+		log_err("Failed to allocate %x bytes\n", size);
+		log_err("Used size=%x, total size=%x\n",
+			hdr->used_size, hdr->total_size);
 		return log_msg_ret("bloblist add", -ENOSPC);
 	}
-	rec = (void *)hdr + hdr->alloced;
+	rec = (void *)hdr + hdr->used_size;
 
 	rec->tag_and_hdr_size = tag | sizeof(*rec) << BLOBLISTR_HDR_SIZE_SHIFT;
 	rec->size = size;
@@ -192,7 +193,7 @@ static int bloblist_addrec(uint tag, int size, int align_log2,
 	/* Zero the record data */
 	memset((void *)rec + rec_hdr_size(rec), '\0', rec->size);
 
-	hdr->alloced = new_alloced;
+	hdr->used_size = new_alloced;
 	*recp = rec;
 
 	return 0;
@@ -287,29 +288,30 @@ static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 			       int new_size)
 {
 	int expand_by;	/* Number of bytes to expand by (-ve to contract) */
-	int new_alloced;	/* New value for @hdr->alloced */
+	int new_alloced;
 	ulong next_ofs;	/* Offset of the record after @rec */
 
 	expand_by = ALIGN(new_size - rec->size, BLOBLIST_BLOB_ALIGN);
-	new_alloced = ALIGN(hdr->alloced + expand_by, BLOBLIST_BLOB_ALIGN);
+	new_alloced = ALIGN(hdr->used_size + expand_by, BLOBLIST_BLOB_ALIGN);
 	if (new_size < 0) {
 		log_debug("Attempt to shrink blob size below 0 (%x)\n",
 			  new_size);
 		return log_msg_ret("size", -EINVAL);
 	}
-	if (new_alloced > hdr->size) {
-		log_err("Failed to allocate %x bytes size=%x, need size=%x\n",
-			new_size, hdr->size, new_alloced);
+	if (new_alloced > hdr->total_size) {
+		log_err("Failed to allocate %x bytes\n", new_size);
+		log_err("Used size=%x, total size=%x\n",
+			hdr->used_size, hdr->total_size);
 		return log_msg_ret("alloc", -ENOSPC);
 	}
 
 	/* Move the following blobs up or down, if this is not the last */
 	next_ofs = bloblist_blob_end_ofs(hdr, rec);
-	if (next_ofs != hdr->alloced) {
+	if (next_ofs != hdr->used_size) {
 		memmove((void *)hdr + next_ofs + expand_by,
 			(void *)hdr + next_ofs, new_alloced - next_ofs);
 	}
-	hdr->alloced = new_alloced;
+	hdr->used_size = new_alloced;
 
 	/* Zero the new part of the blob */
 	if (expand_by > 0) {
@@ -343,7 +345,7 @@ static u32 bloblist_calc_chksum(struct bloblist_hdr *hdr)
 {
 	u8 chksum;
 
-	chksum = table_compute_checksum(hdr, hdr->alloced);
+	chksum = table_compute_checksum(hdr, hdr->used_size);
 	chksum += hdr->chksum;
 
 	return chksum;
@@ -363,8 +365,8 @@ int bloblist_new(ulong addr, uint size, uint flags)
 	hdr->hdr_size = sizeof(*hdr);
 	hdr->flags = flags;
 	hdr->magic = BLOBLIST_MAGIC;
-	hdr->size = size;
-	hdr->alloced = hdr->hdr_size;
+	hdr->used_size = hdr->hdr_size;
+	hdr->total_size = size;
 	hdr->chksum = 0;
 	gd->bloblist = hdr;
 
@@ -381,8 +383,13 @@ int bloblist_check(ulong addr, uint size)
 		return log_msg_ret("Bad magic", -ENOENT);
 	if (hdr->version != BLOBLIST_VERSION)
 		return log_msg_ret("Bad version", -EPROTONOSUPPORT);
-	if (size && hdr->size != size)
-		return log_msg_ret("Bad size", -EFBIG);
+	if (!hdr->total_size || (size && hdr->total_size != size))
+		return log_msg_ret("Bad total size", -EFBIG);
+	if (hdr->used_size > hdr->total_size)
+		return log_msg_ret("Bad used size", -ENOENT);
+	if (hdr->hdr_size != sizeof(struct bloblist_hdr))
+		return log_msg_ret("Bad header size", -ENOENT);
+
 	chksum = bloblist_calc_chksum(hdr);
 	if (hdr->chksum != chksum) {
 		log_err("Checksum %x != %x\n", hdr->chksum, chksum);
@@ -398,7 +405,7 @@ int bloblist_finish(void)
 	struct bloblist_hdr *hdr = gd->bloblist;
 
 	hdr->chksum = bloblist_calc_chksum(hdr);
-	log_debug("Finished bloblist size %lx at %lx\n", (ulong)hdr->size,
+	log_debug("Finished bloblist size %lx at %lx\n", (ulong)hdr->used_size,
 		  (ulong)map_to_sysmem(hdr));
 
 	return 0;
@@ -413,33 +420,40 @@ ulong bloblist_get_size(void)
 {
 	struct bloblist_hdr *hdr = gd->bloblist;
 
-	return hdr->size;
+	return hdr->used_size;
 }
 
-void bloblist_get_stats(ulong *basep, ulong *sizep, ulong *allocedp)
+ulong bloblist_get_total_size(void)
+{
+	struct bloblist_hdr *hdr = gd->bloblist;
+
+	return hdr->total_size;
+}
+
+void bloblist_get_stats(ulong *basep, ulong *tsizep, ulong *usizep)
 {
 	struct bloblist_hdr *hdr = gd->bloblist;
 
 	*basep = map_to_sysmem(gd->bloblist);
-	*sizep = hdr->size;
-	*allocedp = hdr->alloced;
+	*tsizep = hdr->total_size;
+	*usizep = hdr->used_size;
 }
 
 static void show_value(const char *prompt, ulong value)
 {
-	printf("%s:%*s %-5lx  ", prompt, 8 - (int)strlen(prompt), "", value);
+	printf("%s:%*s %-5lx  ", prompt, 10 - (int)strlen(prompt), "", value);
 	print_size(value, "\n");
 }
 
 void bloblist_show_stats(void)
 {
-	ulong base, size, alloced;
+	ulong base, tsize, usize;
 
-	bloblist_get_stats(&base, &size, &alloced);
-	printf("base:     %lx\n", base);
-	show_value("size", size);
-	show_value("alloced", alloced);
-	show_value("free", size - alloced);
+	bloblist_get_stats(&base, &tsize, &usize);
+	printf("base:       %lx\n", base);
+	show_value("total size", tsize);
+	show_value("used size", usize);
+	show_value("free", tsize - usize);
 }
 
 void bloblist_show_list(void)
@@ -463,7 +477,7 @@ void bloblist_reloc(void *to, uint to_size, void *from, uint from_size)
 
 	memcpy(to, from, from_size);
 	hdr = to;
-	hdr->size = to_size;
+	hdr->total_size = to_size;
 }
 
 int bloblist_init(void)
@@ -493,7 +507,7 @@ int bloblist_init(void)
 				    addr, ret);
 		} else {
 			/* Get the real size, if it is not what we expected */
-			size = gd->bloblist->size;
+			size = gd->bloblist->total_size;
 		}
 	}
 	if (ret) {
