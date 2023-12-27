@@ -336,7 +336,7 @@ static int bloblist_test_align(struct unit_test_state *uts)
 
 	/* Check larger alignment */
 	for (i = 0; i < 3; i++) {
-		int align = 32 << i;
+		int align = 5 - i;
 
 		data = bloblist_add(3 + i, i * 4, align);
 		ut_assertnonnull(data);
@@ -351,7 +351,7 @@ static int bloblist_test_align(struct unit_test_state *uts)
 	ut_assertok(bloblist_new(TEST_ADDR + BLOBLIST_ALIGN, TEST_BLOBLIST_SIZE,
 				 0));
 
-	data = bloblist_add(1, 5, BLOBLIST_ALIGN * 2);
+	data = bloblist_add(1, 5, BLOBLIST_ALIGN_LOG2 + 1);
 	ut_assertnonnull(data);
 	addr = map_to_sysmem(data);
 	ut_asserteq(0, addr & (BLOBLIST_ALIGN * 2 - 1));

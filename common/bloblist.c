@@ -26,8 +26,6 @@
  * start address of the data in each blob is aligned as required. Note that
  * each blob's *data* is aligned to BLOBLIST_ALIGN regardless of the alignment
  * of the bloblist itself or the blob header.
- *
- * So far, only BLOBLIST_ALIGN alignment is supported.
  */
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -128,24 +126,24 @@ static struct bloblist_rec *bloblist_findrec(uint tag)
 	return NULL;
 }
 
-static int bloblist_addrec(uint tag, int size, int align,
+static int bloblist_addrec(uint tag, int size, int align_log2,
 			   struct bloblist_rec **recp)
 {
 	struct bloblist_hdr *hdr = gd->bloblist;
 	struct bloblist_rec *rec;
 	int data_start, new_alloced;
 
-	if (!align)
-		align = BLOBLIST_ALIGN;
+	if (!align_log2)
+		align_log2 = BLOBLIST_ALIGN_LOG2;
 
 	/* Figure out where the new data will start */
 	data_start = map_to_sysmem(hdr) + hdr->alloced + sizeof(*rec);
 
 	/* Align the address and then calculate the offset from ->alloced */
-	data_start = ALIGN(data_start, align) - map_to_sysmem(hdr);
+	data_start = ALIGN(data_start, 1U << align_log2) - map_to_sysmem(hdr);
 
 	/* Calculate the new allocated total */
-	new_alloced = data_start + ALIGN(size, align);
+	new_alloced = data_start + ALIGN(size, 1U << align_log2);
 
 	if (new_alloced > hdr->size) {
 		log_err("Failed to allocate %x bytes size=%x, need size=%x\n",
@@ -169,7 +167,7 @@ static int bloblist_addrec(uint tag, int size, int align,
 }
 
 static int bloblist_ensurerec(uint tag, struct bloblist_rec **recp, int size,
-			      int align)
+			      int align_log2)
 {
 	struct bloblist_rec *rec;
 
@@ -182,7 +180,7 @@ static int bloblist_ensurerec(uint tag, struct bloblist_rec **recp, int size,
 	} else {
 		int ret;
 
-		ret = bloblist_addrec(tag, size, align, &rec);
+		ret = bloblist_addrec(tag, size, align_log2, &rec);
 		if (ret)
 			return ret;
 	}
@@ -204,22 +202,22 @@ void *bloblist_find(uint tag, int size)
 	return (void *)rec + rec->hdr_size;
 }
 
-void *bloblist_add(uint tag, int size, int align)
+void *bloblist_add(uint tag, int size, int align_log2)
 {
 	struct bloblist_rec *rec;
 
-	if (bloblist_addrec(tag, size, align, &rec))
+	if (bloblist_addrec(tag, size, align_log2, &rec))
 		return NULL;
 
 	return (void *)rec + rec->hdr_size;
 }
 
-int bloblist_ensure_size(uint tag, int size, int align, void **blobp)
+int bloblist_ensure_size(uint tag, int size, int align_log2, void **blobp)
 {
 	struct bloblist_rec *rec;
 	int ret;
 
-	ret = bloblist_ensurerec(tag, &rec, size, align);
+	ret = bloblist_ensurerec(tag, &rec, size, align_log2);
 	if (ret)
 		return ret;
 	*blobp = (void *)rec + rec->hdr_size;

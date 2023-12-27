@@ -76,7 +76,9 @@
 enum {
 	BLOBLIST_VERSION	= 0,
 	BLOBLIST_MAGIC		= 0xb00757a3,
-	BLOBLIST_ALIGN		= 16,
+
+	BLOBLIST_ALIGN_LOG2	= 3,
+	BLOBLIST_ALIGN		= 1 << BLOBLIST_ALIGN_LOG2,
 };
 
 /* Supported tags - add new ones to tag_name in bloblist.c */
@@ -254,11 +256,11 @@ void *bloblist_find(uint tag, int size);
  *
  * @tag:	Tag to add (enum bloblist_tag_t)
  * @size:	Size of the blob
- * @align:	Alignment of the blob (in bytes), 0 for default
+ * @align_log2:	Alignment of the blob (in bytes log2), 0 for default
  * Return: pointer to the newly added block, or NULL if there is not enough
  * space for the blob
  */
-void *bloblist_add(uint tag, int size, int align);
+void *bloblist_add(uint tag, int size, int align_log2);
 
 /**
  * bloblist_ensure_size() - Find or add a blob
@@ -268,11 +270,11 @@ void *bloblist_add(uint tag, int size, int align);
  * @tag:	Tag to add (enum bloblist_tag_t)
  * @size:	Size of the blob
  * @blobp:	Returns a pointer to blob on success
- * @align:	Alignment of the blob (in bytes), 0 for default
+ * @align_log2:	Alignment of the blob (in bytes log2), 0 for default
  * Return: 0 if OK, -ENOSPC if it is missing and could not be added due to lack
  * of space, or -ESPIPE it exists but has the wrong size
  */
-int bloblist_ensure_size(uint tag, int size, int align, void **blobp);
+int bloblist_ensure_size(uint tag, int size, int align_log2, void **blobp);
 
 /**
  * bloblist_ensure() - Find or add a blob
