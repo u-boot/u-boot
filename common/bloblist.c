@@ -84,13 +84,23 @@ static struct bloblist_rec *bloblist_first_blob(struct bloblist_hdr *hdr)
 	return (struct bloblist_rec *)((void *)hdr + hdr->hdr_size);
 }
 
+static inline uint rec_hdr_size(struct bloblist_rec *rec)
+{
+	return rec->hdr_size;
+}
+
+static inline uint rec_tag(struct bloblist_rec *rec)
+{
+	return rec->tag;
+}
+
 static ulong bloblist_blob_end_ofs(struct bloblist_hdr *hdr,
 				   struct bloblist_rec *rec)
 {
 	ulong offset;
 
 	offset = (void *)rec - (void *)hdr;
-	offset += rec->hdr_size + ALIGN(rec->size, BLOBLIST_ALIGN);
+	offset += rec_hdr_size(rec) + ALIGN(rec->size, BLOBLIST_ALIGN);
 
 	return offset;
 }
@@ -119,7 +129,7 @@ static struct bloblist_rec *bloblist_findrec(uint tag)
 		return NULL;
 
 	foreach_rec(rec, hdr) {
-		if (rec->tag == tag)
+		if (rec_tag(rec) == tag)
 			return rec;
 	}
 
@@ -158,7 +168,7 @@ static int bloblist_addrec(uint tag, int size, int align_log2,
 	rec->spare = 0;
 
 	/* Zero the record data */
-	memset((void *)rec + rec->hdr_size, '\0', rec->size);
+	memset((void *)rec + rec_hdr_size(rec), '\0', rec->size);
 
 	hdr->alloced = new_alloced;
 	*recp = rec;
@@ -199,7 +209,7 @@ void *bloblist_find(uint tag, int size)
 	if (size && size != rec->size)
 		return NULL;
 
-	return (void *)rec + rec->hdr_size;
+	return (void *)rec + rec_hdr_size(rec);
 }
 
 void *bloblist_add(uint tag, int size, int align_log2)
@@ -209,7 +219,7 @@ void *bloblist_add(uint tag, int size, int align_log2)
 	if (bloblist_addrec(tag, size, align_log2, &rec))
 		return NULL;
 
-	return (void *)rec + rec->hdr_size;
+	return (void *)rec + rec_hdr_size(rec);
 }
 
 int bloblist_ensure_size(uint tag, int size, int align_log2, void **blobp)
@@ -220,7 +230,7 @@ int bloblist_ensure_size(uint tag, int size, int align_log2, void **blobp)
 	ret = bloblist_ensurerec(tag, &rec, size, align_log2);
 	if (ret)
 		return ret;
-	*blobp = (void *)rec + rec->hdr_size;
+	*blobp = (void *)rec + rec_hdr_size(rec);
 
 	return 0;
 }
@@ -232,7 +242,7 @@ void *bloblist_ensure(uint tag, int size)
 	if (bloblist_ensurerec(tag, &rec, size, 0))
 		return NULL;
 
-	return (void *)rec + rec->hdr_size;
+	return (void *)rec + rec_hdr_size(rec);
 }
 
 int bloblist_ensure_size_ret(uint tag, int *sizep, void **blobp)
@@ -245,7 +255,7 @@ int bloblist_ensure_size_ret(uint tag, int *sizep, void **blobp)
 		*sizep = rec->size;
 	else if (ret)
 		return ret;
-	*blobp = (void *)rec + rec->hdr_size;
+	*blobp = (void *)rec + rec_hdr_size(rec);
 
 	return 0;
 }
@@ -281,7 +291,7 @@ static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 
 	/* Zero the new part of the blob */
 	if (expand_by > 0) {
-		memset((void *)rec + rec->hdr_size + rec->size, '\0',
+		memset((void *)rec + rec_hdr_size(rec) + rec->size, '\0',
 		       new_size - rec->size);
 	}
 
@@ -315,8 +325,9 @@ static u32 bloblist_calc_chksum(struct bloblist_hdr *hdr)
 	chksum = crc32(0, (unsigned char *)hdr,
 		       offsetof(struct bloblist_hdr, chksum));
 	foreach_rec(rec, hdr) {
-		chksum = crc32(chksum, (void *)rec, rec->hdr_size);
-		chksum = crc32(chksum, (void *)rec + rec->hdr_size, rec->size);
+		chksum = crc32(chksum, (void *)rec, rec_hdr_size(rec));
+		chksum = crc32(chksum, (void *)rec + rec_hdr_size(rec),
+			       rec->size);
 	}
 
 	return chksum;
@@ -424,8 +435,9 @@ void bloblist_show_list(void)
 	for (rec = bloblist_first_blob(hdr); rec;
 	     rec = bloblist_next_blob(hdr, rec)) {
 		printf("%08lx  %8x  %4x %s\n",
-		       (ulong)map_to_sysmem((void *)rec + rec->hdr_size),
-		       rec->size, rec->tag, bloblist_tag_name(rec->tag));
+		       (ulong)map_to_sysmem((void *)rec + rec_hdr_size(rec)),
+		       rec->size, rec_tag(rec),
+		       bloblist_tag_name(rec_tag(rec)));
 	}
 }
 
