@@ -1075,6 +1075,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-kontron-bl-osm-s.dtb \
 	imx8mm-mx8menlo.dtb \
 	imx8mm-phg.dtb \
+	imx8mm-phyboard-polis-rdk.dtb \
 	imx8mm-venice.dtb \
 	imx8mm-venice-gw71xx-0x.dtb \
 	imx8mm-venice-gw72xx-0x.dtb \
@@ -1085,7 +1086,6 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-venice-gw7904.dtb \
 	imx8mm-venice-gw7905-0x.dtb \
 	imx8mm-verdin-wifi-dev.dtb \
-	phycore-imx8mm.dtb \
 	imx8mn-bsh-smm-s2.dtb \
 	imx8mn-bsh-smm-s2pro.dtb \
 	imx8mn-ddr4-evk.dtb \
@@ -1105,6 +1105,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mp-dhcom-som-overlay-eth1xfast.dtbo \
 	imx8mp-dhcom-som-overlay-eth2xfast.dtbo \
 	imx8mp-dhcom-pdk-overlay-eth2xfast.dtbo \
+	imx8mp-debix-model-a.dtb \
 	imx8mp-dhcom-pdk2.dtb \
 	imx8mp-dhcom-pdk3.dtb \
 	imx8mp-dhcom-pdk3-overlay-rev100.dtbo \
@@ -1382,6 +1383,9 @@ dtb-$(CONFIG_STM32MP15x) += \
 	stm32mp15xx-dhcor-drc-compact.dtb \
 	stm32mp15xx-dhcor-testbench.dtb
 
+dtb-$(CONFIG_STM32MP25X) += \
+	stm32mp257f-ev1.dtb
+
 dtb-$(CONFIG_SOC_K3_AM654) += \
 	k3-am654-base-board.dtb \
 	k3-am654-r5-base-board.dtb \
@@ -1398,7 +1402,10 @@ dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-common-proc-board.dtb \
 			      k3-j7200-common-proc-board.dtb \
 			      k3-j7200-r5-common-proc-board.dtb \
 			      k3-j721e-sk.dtb \
-			      k3-j721e-r5-sk.dtb
+			      k3-j721e-r5-sk.dtb \
+			      k3-j721e-beagleboneai64.dtb \
+			      k3-j721e-r5-beagleboneai64.dtb
+
 dtb-$(CONFIG_SOC_K3_J721S2) += k3-am68-sk-base-board.dtb\
 			       k3-am68-sk-r5-base-board.dtb\
 			       k3-j721s2-common-proc-board.dtb\

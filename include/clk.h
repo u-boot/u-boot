@@ -676,8 +676,6 @@ static inline bool clk_valid(struct clk *clk)
 	return clk && !!clk->dev;
 }
 
-int soc_clk_dump(void);
-
 #endif
 
 #define clk_prepare_enable(clk) clk_enable(clk)

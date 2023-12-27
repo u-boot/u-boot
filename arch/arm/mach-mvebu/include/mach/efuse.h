@@ -6,8 +6,6 @@
 #ifndef _MVEBU_EFUSE_H
 #define _MVEBU_EFUSE_H
 
-#include <common.h>
-
 struct efuse_val {
 	union {
 		struct {

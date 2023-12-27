@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "u_boot_pylib"
-version = "0.0.2"
+version = "0.0.6"
 authors = [
   { name="Simon Glass", email="sjg@chromium.org" },
 ]
@@ -18,9 +18,8 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://u-boot.readthedocs.io"
+"Homepage" = "https://docs.u-boot.org"
 "Bug Tracker" = "https://source.denx.de/groups/u-boot/-/issues"
 
-[tool.setuptools.packages.find]
-where = [".."]
-include = ["u_boot_pylib*"]
+[tool.setuptools.package-data]
+u_boot_pylib = ["*.rst"]

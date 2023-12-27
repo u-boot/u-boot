@@ -14,6 +14,7 @@
 #include <linux/err.h>
 #include <linux/iopoll.h>
 #include <linux/ioport.h>
+#include <linux/time.h>
 
 /* FMC2 Controller Registers */
 #define FMC2_BCR1			0x0
@@ -89,8 +90,6 @@
 #define FMC2_BTR_CLKDIV_MAX		0xf
 #define FMC2_BTR_DATLAT_MAX		0xf
 #define FMC2_PCSCNTR_CSCOUNT_MAX	0xff
-
-#define FMC2_NSEC_PER_SEC		1000000000L
 
 enum stm32_fmc2_ebi_bank {
 	FMC2_EBI1 = 0,
@@ -279,7 +278,7 @@ static u32 stm32_fmc2_ebi_ns_to_clock_cycles(struct stm32_fmc2_ebi *ebi,
 					     int cs, u32 setup)
 {
 	unsigned long hclk = clk_get_rate(&ebi->clk);
-	unsigned long hclkp = FMC2_NSEC_PER_SEC / (hclk / 1000);
+	unsigned long hclkp = NSEC_PER_SEC / (hclk / 1000);
 
 	return DIV_ROUND_UP(setup * 1000, hclkp);
 }

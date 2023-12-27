@@ -317,13 +317,6 @@ static int do_bootm_vxworks_legacy(int flag, int argc, char *const argv[],
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
 
-#if defined(CONFIG_FIT)
-	if (!images->legacy_hdr_valid) {
-		fit_unsupported_reset("VxWorks");
-		return 1;
-	}
-#endif
-
 	do_bootvx_fdt(images);
 
 	return 1;
@@ -467,20 +460,10 @@ static int do_bootm_tee(int flag, int argc, char *const argv[],
 {
 	int ret;
 
-	/* Verify OS type */
-	if (images->os.os != IH_OS_TEE) {
-		return 1;
-	};
-
 	/* Validate OPTEE header */
 	ret = optee_verify_bootm_image(images->os.image_start,
 				       images->os.load,
 				       images->os.image_len);
-	if (ret)
-		return ret;
-
-	/* Locate FDT etc */
-	ret = bootm_find_images(flag, argc, argv, 0, 0);
 	if (ret)
 		return ret;
 
@@ -494,48 +477,26 @@ static int do_bootm_efi(int flag, int argc, char *const argv[],
 			struct bootm_headers *images)
 {
 	int ret;
-	efi_status_t efi_ret;
 	void *image_buf;
 
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
-
-	/* Locate FDT, if provided */
-	ret = bootm_find_images(flag, argc, argv, 0, 0);
-	if (ret)
-		return ret;
-
-	/* Initialize EFI drivers */
-	efi_ret = efi_init_obj_list();
-	if (efi_ret != EFI_SUCCESS) {
-		printf("## Failed to initialize UEFI sub-system: r = %lu\n",
-		       efi_ret & ~EFI_ERROR_MASK);
-		return 1;
-	}
-
-	/* Install device tree */
-	efi_ret = efi_install_fdt(images->ft_len
-				  ? images->ft_addr : EFI_FDT_USE_INTERNAL);
-	if (efi_ret != EFI_SUCCESS) {
-		printf("## Failed to install device tree: r = %lu\n",
-		       efi_ret & ~EFI_ERROR_MASK);
-		return 1;
-	}
-
-	/* Run EFI image */
-	printf("## Transferring control to EFI (at address %08lx) ...\n",
-	       images->ep);
-	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
 	/* We expect to return */
 	images->os.type = IH_TYPE_STANDALONE;
 
 	image_buf = map_sysmem(images->ep, images->os.image_len);
 
-	efi_ret = efi_run_image(image_buf, images->os.image_len);
-	if (efi_ret != EFI_SUCCESS)
-		return 1;
-	return 0;
+	/* Run EFI image */
+	printf("## Transferring control to EFI (at address %08lx) ...\n",
+	       images->ep);
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+
+	ret = efi_binary_run(image_buf, images->os.image_len,
+			     images->ft_len
+			     ? images->ft_addr : EFI_FDT_USE_INTERNAL);
+
+	return ret;
 }
 #endif
 

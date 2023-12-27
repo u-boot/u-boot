@@ -568,6 +568,7 @@ config ARCH_AT91
 	select GPIO_EXTRA_HEADER
 	select SPL_BOARD_INIT if SPL && !TARGET_SMARTWEB
 	select SPL_SEPARATE_BSS if SPL
+	imply SYS_THUMB_BUILD
 
 config ARCH_DAVINCI
 	bool "TI DaVinci"
@@ -1133,7 +1134,6 @@ config ARCH_SUNXI
 	select DM_SPI_FLASH if SPI
 	select DM_KEYBOARD
 	select DM_MMC if MMC
-	select DM_SCSI if SCSI
 	select DM_SERIAL
 	select OF_BOARD_SETUP
 	select OF_CONTROL
@@ -1838,7 +1838,7 @@ config TARGET_SL28
 	select PCI
 	select DM_RNG
 	select DM_RTC
-	select DM_SCSI
+	select SCSI
 	select DM_SERIAL
 	select DM_SPI
 	select GPIO_EXTRA_HEADER
@@ -1945,7 +1945,7 @@ config ARCH_STM32MP
 	select REGMAP
 	select SYSCON
 	select SYSRESET
-	select SYS_THUMB_BUILD
+	select SYS_THUMB_BUILD if !ARM64
 	imply SPL_SYSRESET
 	imply CMD_DM
 	imply CMD_POWEROFF
@@ -2053,7 +2053,6 @@ config TARGET_POMELO
 	select PCI
 	select DM_PCI
 	select SCSI
-	select DM_SCSI
 	select DM_SERIAL
 	imply CMD_PCI
 	help

@@ -192,7 +192,7 @@ struct efi_boot_services {
 					struct efi_event *event,
 					void *context),
 				void *notify_context,
-				efi_guid_t *event_group,
+				const efi_guid_t *event_group,
 				struct efi_event **event);
 };
 
@@ -404,6 +404,9 @@ struct efi_runtime_services {
 #define EFI_EVENT_GROUP_RESET_SYSTEM \
 	EFI_GUID(0x62da6a56, 0x13fb, 0x485a, 0xa8, 0xda, \
 		 0xa3, 0xdd, 0x79, 0x12, 0xcb, 0x6b)
+#define EFI_EVENT_GROUP_RETURN_TO_EFIBOOTMGR \
+	EFI_GUID(0xb4a40fe6, 0x9149, 0x4f29, 0x94, 0x47, \
+		 0x49, 0x38, 0x7a, 0x7f, 0xab, 0x87)
 
 /* EFI Configuration Table and GUID definitions */
 #define NULL_GUID \

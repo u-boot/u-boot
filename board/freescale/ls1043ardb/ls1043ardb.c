@@ -4,7 +4,6 @@
  * Copyright 2021-2022 NXP
  */
 
-#include <common.h>
 #include <i2c.h>
 #include <init.h>
 #include <asm/global_data.h>

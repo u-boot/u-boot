@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <asm-generic/io.h>
 #include <clk.h>
 #include <dm.h>
 #include <dm/device_compat.h>

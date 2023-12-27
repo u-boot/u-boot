@@ -589,15 +589,6 @@ int board_ahci_enable(void)
 	return 0;
 }
 
-#ifdef CONFIG_SCSI_AHCI_PLAT
-void scsi_init(void)
-{
-	printf("MVEBU SATA INIT\n");
-	board_ahci_enable();
-	ahci_init((void __iomem *)MVEBU_SATA0_BASE);
-}
-#endif
-
 #ifdef CONFIG_USB_XHCI_MVEBU
 #define USB3_MAX_WINDOWS        4
 #define USB3_WIN_CTRL(w)        (0x0 + ((w) * 8))

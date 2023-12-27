@@ -94,6 +94,9 @@ static inline void insl (unsigned long port, void *dst, unsigned long count)
 	unsigned long *p = dst;
 	while (count--) *p++ = inl (port);
 }
+#define insb insb
+#define insw insw
+#define insl insl
 
 static inline void outsb (unsigned long port, const void *src, unsigned long count)
 {
@@ -111,6 +114,9 @@ static inline void outsl (unsigned long port, const void *src, unsigned long cou
 	const unsigned long *p = src;
 	while (count--) outl (*p++, port);
 }
+#define outsb outsb
+#define outsw outsw
+#define outsl outsl
 
 /*
  * Clear and set bits in one shot. These macros can be used to clear and

@@ -68,7 +68,6 @@ struct page {
 void iput(struct inode *inode);
 
 /* linux/include/time.h */
-#define NSEC_PER_SEC	1000000000L
 #define get_seconds()	0
 #define CURRENT_TIME_SEC	((struct timespec) { get_seconds(), 0 })
 

@@ -109,6 +109,19 @@ int os_unlink(const char *pathname);
 int os_persistent_file(char *buf, int maxsize, const char *fname);
 
 /**
+ * os_mktemp() - Create a temporary file
+ * @fname: The template to use for the file name. This must end with 6 Xs. It
+ *         will be modified to the opened filename on success.
+ * @size: The size of the file
+ *
+ * Create a temporary file using @fname as a template, unlink it, and truncate
+ * it to @size.
+ *
+ * Return: A file descriptor, or negative errno on error
+ */
+int os_mktemp(char *fname, off_t size);
+
+/**
  * os_exit() - access to the OS exit() system call
  *
  * This exits with the supplied return code, which should be 0 to indicate

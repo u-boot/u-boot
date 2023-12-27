@@ -701,13 +701,16 @@ int board_late_init(void)
 	env_set("board_rev", env_str);
 #endif /* CONFIG_BOARD_LATE_INIT */
 
-#ifdef CONFIG_CMD_USB_SDP
-	if (is_boot_from_usb()) {
-		printf("Serial Downloader recovery mode, using sdp command\n");
+	if (IS_ENABLED(CONFIG_USB) && is_boot_from_usb()) {
 		env_set("bootdelay", "0");
-		env_set("bootcmd", "sdp 0");
+		if (IS_ENABLED(CONFIG_CMD_USB_SDP)) {
+			printf("Serial Downloader recovery mode, using sdp command\n");
+			env_set("bootcmd", "sdp 0");
+		} else if (IS_ENABLED(CONFIG_CMD_FASTBOOT)) {
+			printf("Fastboot recovery mode, using fastboot command\n");
+			env_set("bootcmd", "fastboot usb 0");
+		}
 	}
-#endif /* CONFIG_CMD_USB_SDP */
 
 	return 0;
 }
@@ -730,7 +733,8 @@ int checkboard(void)
 	       is_cpu_type(MXC_CPU_MX6D) ? "Dual" : "Quad",
 	       (gd->ram_size == 0x80000000) ? "2GB" :
 	       (gd->ram_size == 0x40000000) ? "1GB" : "512MB", it);
-	return 0;
+
+	return tdx_checkboard();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

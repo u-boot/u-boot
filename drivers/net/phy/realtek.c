@@ -446,6 +446,20 @@ U_BOOT_PHY_DRIVER(rtl8211f) = {
 	.writeext = &rtl8211f_phy_extwrite,
 };
 
+/* Support for RTL8211F-VD PHY */
+U_BOOT_PHY_DRIVER(rtl8211fvd) = {
+	.name = "RealTek RTL8211F-VD",
+	.uid = 0x1cc878,
+	.mask = 0xffffff,
+	.features = PHY_GBIT_FEATURES,
+	.probe = &rtl8211f_probe,
+	.config = &rtl8211f_config,
+	.startup = &rtl8211f_startup,
+	.shutdown = &genphy_shutdown,
+	.readext = &rtl8211f_phy_extread,
+	.writeext = &rtl8211f_phy_extwrite,
+};
+
 /* Support for RTL8201F PHY */
 U_BOOT_PHY_DRIVER(rtl8201f) = {
 	.name = "RealTek RTL8201F 10/100Mbps Ethernet",

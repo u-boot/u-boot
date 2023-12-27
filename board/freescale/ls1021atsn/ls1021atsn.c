@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /* Copyright 2016-2019, 2021 NXP
  */
-#include <common.h>
 #include <clock_legacy.h>
 #include <fdt_support.h>
 #include <init.h>

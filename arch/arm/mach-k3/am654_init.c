@@ -6,7 +6,6 @@
  *	Lokesh Vutla <lokeshvutla@ti.com>
  */
 
-#include <common.h>
 #include <fdt_support.h>
 #include <init.h>
 #include <asm/global_data.h>
@@ -259,7 +258,7 @@ void board_init_f(ulong dummy)
 	if (ret)
 		panic("DRAM init failed: %d\n", ret);
 #endif
-	spl_enable_dcache();
+	spl_enable_cache();
 }
 
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)

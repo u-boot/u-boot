@@ -21,7 +21,7 @@ Make sure the flashing addresses ('load' prop) is correct for your board!
                 type = "firmware";
                 load = <0xFFFC0000>;
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
         };

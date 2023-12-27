@@ -9,6 +9,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <dm/test.h>
+#include <test/lib.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -205,8 +206,7 @@ static int lib_test_lmb_simple(struct unit_test_state *uts)
 	/* simulate 512 MiB RAM beginning at 1.5GiB */
 	return test_multi_alloc_512mb(uts, 0xE0000000);
 }
-
-DM_TEST(lib_test_lmb_simple, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+LIB_TEST(lib_test_lmb_simple, 0);
 
 /* Create two memory regions with one reserved region and allocate */
 static int lib_test_lmb_simple_x2(struct unit_test_state *uts)
@@ -221,8 +221,7 @@ static int lib_test_lmb_simple_x2(struct unit_test_state *uts)
 	/* simulate 512 MiB RAM beginning at 3.5GiB and 1 GiB */
 	return test_multi_alloc_512mb_x2(uts, 0xE0000000, 0x40000000);
 }
-
-DM_TEST(lib_test_lmb_simple_x2,  UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+LIB_TEST(lib_test_lmb_simple_x2, 0);
 
 /* Simulate 512 MiB RAM, allocate some blocks that fit/don't fit */
 static int test_bigblock(struct unit_test_state *uts, const phys_addr_t ram)
@@ -288,8 +287,7 @@ static int lib_test_lmb_big(struct unit_test_state *uts)
 	/* simulate 512 MiB RAM beginning at 1.5GiB */
 	return test_bigblock(uts, 0xE0000000);
 }
-
-DM_TEST(lib_test_lmb_big, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+LIB_TEST(lib_test_lmb_big, 0);
 
 /* Simulate 512 MiB RAM, allocate a block without previous reservation */
 static int test_noreserved(struct unit_test_state *uts, const phys_addr_t ram,
@@ -364,7 +362,7 @@ static int lib_test_lmb_noreserved(struct unit_test_state *uts)
 	return test_noreserved(uts, 0xE0000000, 4, 1);
 }
 
-DM_TEST(lib_test_lmb_noreserved, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+LIB_TEST(lib_test_lmb_noreserved, 0);
 
 static int lib_test_lmb_unaligned_size(struct unit_test_state *uts)
 {
@@ -378,8 +376,8 @@ static int lib_test_lmb_unaligned_size(struct unit_test_state *uts)
 	/* simulate 512 MiB RAM beginning at 1.5GiB */
 	return test_noreserved(uts, 0xE0000000, 5, 8);
 }
+LIB_TEST(lib_test_lmb_unaligned_size, 0);
 
-DM_TEST(lib_test_lmb_unaligned_size, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 /*
  * Simulate a RAM that starts at 0 and allocate down to address 0, which must
  * fail as '0' means failure for the lmb_alloc functions.
@@ -421,8 +419,7 @@ static int lib_test_lmb_at_0(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(lib_test_lmb_at_0, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+LIB_TEST(lib_test_lmb_at_0, 0);
 
 /* Check that calling lmb_reserve with overlapping regions fails. */
 static int lib_test_lmb_overlapping_reserve(struct unit_test_state *uts)
@@ -470,9 +467,7 @@ static int lib_test_lmb_overlapping_reserve(struct unit_test_state *uts)
 		   0, 0, 0, 0);
 	return 0;
 }
-
-DM_TEST(lib_test_lmb_overlapping_reserve,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+LIB_TEST(lib_test_lmb_overlapping_reserve, 0);
 
 /*
  * Simulate 512 MiB RAM, reserve 3 blocks, allocate addresses in between.
@@ -601,8 +596,7 @@ static int lib_test_lmb_alloc_addr(struct unit_test_state *uts)
 	/* simulate 512 MiB RAM beginning at 1.5GiB */
 	return test_alloc_addr(uts, 0xE0000000);
 }
-
-DM_TEST(lib_test_lmb_alloc_addr, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+LIB_TEST(lib_test_lmb_alloc_addr, 0);
 
 /* Simulate 512 MiB RAM, reserve 3 blocks, check addresses in between */
 static int test_get_unreserved_size(struct unit_test_state *uts,
@@ -672,9 +666,7 @@ static int lib_test_lmb_get_free_size(struct unit_test_state *uts)
 	/* simulate 512 MiB RAM beginning at 1.5GiB */
 	return test_get_unreserved_size(uts, 0xE0000000);
 }
-
-DM_TEST(lib_test_lmb_get_free_size,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+LIB_TEST(lib_test_lmb_get_free_size, 0);
 
 #ifdef CONFIG_LMB_USE_MAX_REGIONS
 static int lib_test_lmb_max_regions(struct unit_test_state *uts)
@@ -743,10 +735,8 @@ static int lib_test_lmb_max_regions(struct unit_test_state *uts)
 
 	return 0;
 }
+LIB_TEST(lib_test_lmb_max_regions, 0);
 #endif
-
-DM_TEST(lib_test_lmb_max_regions,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 static int lib_test_lmb_flags(struct unit_test_state *uts)
 {
@@ -833,6 +823,4 @@ static int lib_test_lmb_flags(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(lib_test_lmb_flags,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+LIB_TEST(lib_test_lmb_flags, 0);

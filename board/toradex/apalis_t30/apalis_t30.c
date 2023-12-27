@@ -50,7 +50,7 @@ int checkboard(void)
 	printf("Model: Toradex Apalis T30 %dGB\n",
 	       (gd->ram_size == 0x40000000) ? 1 : 2);
 
-	return 0;
+	return tdx_checkboard();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

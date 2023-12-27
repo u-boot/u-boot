@@ -7,7 +7,6 @@
 #include <common.h>
 #include <clk.h>
 #include <log.h>
-#include <asm-generic/io.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>
@@ -17,12 +16,12 @@
 #include <dm/device_compat.h>
 #include <linux/err.h>
 #include <linux/errno.h>
+#include <linux/io.h>
 #include <linux/sizes.h>
+#include <linux/time.h>
 #include <zynqmp_firmware.h>
 #include "cadence_qspi.h"
 #include <dt-bindings/power/xlnx-versal-power.h>
-
-#define NSEC_PER_SEC			1000000000L
 
 #define CQSPI_STIG_READ			0
 #define CQSPI_STIG_WRITE		1
@@ -38,6 +37,11 @@ __weak int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 __weak int cadence_qspi_versal_flash_reset(struct udevice *dev)
 {
 	return 0;
+}
+
+__weak ofnode cadence_qspi_get_subnode(struct udevice *dev)
+{
+	return dev_read_first_subnode(dev);
 }
 
 static int cadence_spi_write_speed(struct udevice *bus, uint hz)
@@ -401,7 +405,7 @@ static int cadence_spi_of_to_plat(struct udevice *bus)
 	plat->is_dma = dev_read_bool(bus, "cdns,is-dma");
 
 	/* All other parameters are embedded in the child node */
-	subnode = dev_read_first_subnode(bus);
+	subnode = cadence_qspi_get_subnode(bus);
 	if (!ofnode_valid(subnode)) {
 		printf("Error: subnode with SPI flash config missing!\n");
 		return -ENODEV;

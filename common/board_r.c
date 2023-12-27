@@ -472,17 +472,6 @@ static int initr_status_led(void)
 }
 #endif
 
-#if defined(CONFIG_SCSI) && !defined(CONFIG_DM_SCSI)
-static int initr_scsi(void)
-{
-	puts("SCSI:  ");
-	scsi_init();
-	puts("\n");
-
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_CMD_NET
 static int initr_net(void)
 {
@@ -731,10 +720,6 @@ static init_fnc_t init_sequence_r[] = {
 	/* PPC has a udelay(20) here dating from 2002. Why? */
 #ifdef CONFIG_BOARD_LATE_INIT
 	board_late_init,
-#endif
-#if defined(CONFIG_SCSI) && !defined(CONFIG_DM_SCSI)
-	INIT_FUNC_WATCHDOG_RESET
-	initr_scsi,
 #endif
 #ifdef CONFIG_BITBANGMII
 	bb_miiphy_init,

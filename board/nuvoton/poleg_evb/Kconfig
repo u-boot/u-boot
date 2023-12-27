@@ -22,4 +22,5 @@ config TARGET_POLEG_EVB
 
 endchoice
 
+source "board/nuvoton/common/Kconfig"
 endif

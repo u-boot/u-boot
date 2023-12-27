@@ -505,6 +505,8 @@ static const struct udevice_id stm32_pinctrl_ids[] = {
 	{ .compatible = "st,stm32mp157-pinctrl" },
 	{ .compatible = "st,stm32mp157-z-pinctrl" },
 	{ .compatible = "st,stm32mp135-pinctrl" },
+	{ .compatible = "st,stm32mp257-pinctrl" },
+	{ .compatible = "st,stm32mp257-z-pinctrl" },
 	{ }
 };
 

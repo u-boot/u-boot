@@ -765,4 +765,9 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 	return 0;
 }
 
+unsigned int nand_page_size(void)
+{
+	return BYTES_PER_PAGE;
+}
+
 #endif /* CONFIG_SPL_BUILD */

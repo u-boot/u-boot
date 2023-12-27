@@ -6,8 +6,6 @@
 #ifndef __SANDBOX_MBOX_H
 #define __SANDBOX_MBOX_H
 
-#include <common.h>
-
 #define SANDBOX_MBOX_PING_XOR 0x12345678
 
 struct udevice;

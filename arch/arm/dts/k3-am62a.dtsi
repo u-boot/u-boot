@@ -8,8 +8,9 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
-#include <dt-bindings/pinctrl/k3.h>
 #include <dt-bindings/soc/ti,sci_pm_domain.h>
+
+#include "k3-pinctrl.h"
 
 / {
 	model = "Texas Instruments K3 AM62A SoC";
@@ -114,6 +115,8 @@
 				 <0x00 0x78100000 0x00 0x78100000 0x00 0x00008000>; /* DM R5 BTCM*/
 		};
 	};
+
+	#include "k3-am62a-thermal.dtsi"
 };
 
 /* Now include the peripherals for each bus segments */

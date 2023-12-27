@@ -22,6 +22,7 @@
 #include <cpu_func.h>
 #include <efi_loader.h>
 #include <irq_func.h>
+#include <semihosting.h>
 #include <asm/global_data.h>
 #include <asm/proc-armv/ptrace.h>
 #include <asm/ptrace.h>
@@ -135,6 +136,32 @@ static inline void fixup_pc(struct pt_regs *regs, int offset)
 	regs->ARM_pc = pc | (regs->ARM_pc & PCMASK);
 }
 
+/*
+ * Try to "emulate" a semihosting call in the event that we don't have a
+ * debugger attached.
+ */
+static bool smh_emulate_trap(struct pt_regs *regs)
+{
+	if (regs->ARM_cpsr & T_BIT) {
+		u16 *insn = (u16 *)(regs->ARM_pc - 2);
+
+		if (*insn != SMH_T32_SVC)
+			return false;
+	} else {
+		u32 *insn = (u32 *)(regs->ARM_pc - 4);
+
+		if (*insn != SMH_A32_SVC)
+			return false;
+	}
+
+	/* Avoid future semihosting calls */
+	disable_semihosting();
+
+	/* Just pretend the call failed */
+	regs->ARM_r0 = -1;
+	return true;
+}
+
 void do_undefined_instruction (struct pt_regs *pt_regs)
 {
 	efi_restore_gd();
@@ -147,6 +174,10 @@ void do_undefined_instruction (struct pt_regs *pt_regs)
 
 void do_software_interrupt (struct pt_regs *pt_regs)
 {
+	if (CONFIG_IS_ENABLED(SEMIHOSTING_FALLBACK) &&
+	    smh_emulate_trap(pt_regs))
+		return;
+
 	efi_restore_gd();
 	printf ("software interrupt\n");
 	fixup_pc(pt_regs, -4);

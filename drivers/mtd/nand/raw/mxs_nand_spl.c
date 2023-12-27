@@ -295,6 +295,11 @@ int nand_default_bbt(struct mtd_info *mtd)
 	return 0;
 }
 
+unsigned int nand_page_size(void)
+{
+	return nand_to_mtd(&nand_chip)->writesize;
+}
+
 void nand_deselect(void)
 {
 }

@@ -2,13 +2,25 @@
 
 #include <common.h>
 #include <env.h>
-#include <mapmem.h>
 #include <part.h>
 #include <spl.h>
+#include <spl_load.h>
 #include <asm/u-boot.h>
 #include <ext4fs.h>
 #include <errno.h>
 #include <image.h>
+
+static ulong spl_fit_read(struct spl_load_info *load, ulong file_offset,
+			  ulong size, void *buf)
+{
+	int ret;
+	loff_t actlen;
+
+	ret = ext4fs_read(buf, file_offset, size, &actlen);
+	if (ret)
+		return ret;
+	return actlen;
+}
 
 int spl_load_image_ext(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev,
@@ -16,11 +28,9 @@ int spl_load_image_ext(struct spl_image_info *spl_image,
 		       const char *filename)
 {
 	s32 err;
-	struct legacy_img_hdr *header;
-	loff_t filelen, actlen;
+	loff_t filelen;
 	struct disk_partition part_info = {};
-
-	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
+	struct spl_load_info load;
 
 	if (part_get_info(block_dev, partition, &part_info)) {
 		printf("spl: no partition table found\n");
@@ -29,7 +39,7 @@ int spl_load_image_ext(struct spl_image_info *spl_image,
 
 	ext4fs_set_blk_dev(block_dev, &part_info);
 
-	err = ext4fs_mount(part_info.size);
+	err = ext4fs_mount();
 	if (!err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: ext4fs mount err - %d\n", __func__, err);
@@ -42,20 +52,10 @@ int spl_load_image_ext(struct spl_image_info *spl_image,
 		puts("spl: ext4fs_open failed\n");
 		goto end;
 	}
-	err = ext4fs_read((char *)header, 0, sizeof(struct legacy_img_hdr), &actlen);
-	if (err < 0) {
-		puts("spl: ext4fs_read failed\n");
-		goto end;
-	}
 
-	err = spl_parse_image_header(spl_image, bootdev, header);
-	if (err < 0) {
-		puts("spl: ext: failed to parse image header\n");
-		goto end;
-	}
-
-	err = ext4fs_read(map_sysmem(spl_image->load_addr, filelen), 0, filelen,
-			  &actlen);
+	spl_set_bl_len(&load, 1);
+	load.read = spl_fit_read;
+	err = spl_load(spl_image, bootdev, &load, filelen, 0);
 
 end:
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
@@ -84,7 +84,7 @@ int spl_load_image_ext_os(struct spl_image_info *spl_image,
 
 	ext4fs_set_blk_dev(block_dev, &part_info);
 
-	err = ext4fs_mount(part_info.size);
+	err = ext4fs_mount();
 	if (!err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: ext4fs mount err - %d\n", __func__, err);

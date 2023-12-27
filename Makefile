@@ -750,6 +750,7 @@ endif
 
 ifeq ($(CONFIG_STACKPROTECTOR),y)
 KBUILD_CFLAGS += $(call cc-option,-fstack-protector-strong)
+KBUILD_CFLAGS += $(call cc-option,-mstack-protector-guard=global)
 CFLAGS_EFI += $(call cc-option,-fno-stack-protector)
 else
 KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
@@ -851,7 +852,7 @@ HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makef
 libs-$(CONFIG_API) += api/
 libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
 libs-y += boot/
-libs-y += cmd/
+libs-$(CONFIG_CMDLINE) += cmd/
 libs-y += common/
 libs-$(CONFIG_OF_EMBED) += dts/
 libs-y += env/
@@ -1153,7 +1154,6 @@ endif
 	@# is enable to tell 'deprecated' that one of these symbols exists
 	$(call deprecated,CONFIG_TIMER,Timer drivers,v2023.01,$(if $(strip $(CFG_SYS_TIMER_RATE)$(CFG_SYS_TIMER_COUNTER)),x))
 	$(call deprecated,CONFIG_DM_SERIAL,Serial drivers,v2023.04,$(CONFIG_SERIAL))
-	$(call deprecated,CONFIG_DM_SCSI,SCSI drivers,v2023.04,$(CONFIG_SCSI))
 	@# Check that this build does not override OF_HAS_PRIOR_STAGE by
 	@# disabling OF_BOARD.
 	$(call cmd,ofcheck,$(KCONFIG_CONFIG))
@@ -1349,6 +1349,7 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		$(foreach f,$(BINMAN_INDIRS),-I $(f)) \
 		-a atf-bl31-path=${BL31} \
 		-a tee-os-path=${TEE} \
+		-a ti-dm-path=${TI_DM} \
 		-a opensbi-path=${OPENSBI} \
 		-a default-dt=$(default_dt) \
 		-a scp-path=$(SCP) \

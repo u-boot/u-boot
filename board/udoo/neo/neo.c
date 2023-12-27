@@ -212,7 +212,7 @@ static char *board_string(int type)
 }
 
 /* Override the default implementation, DT model is not accurate */
-int show_board_info(void)
+int checkboard(void)
 {
 	int *board_type = (int *)OCRAM_START;
 

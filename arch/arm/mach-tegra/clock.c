@@ -128,14 +128,14 @@ unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 	struct clk_pll_simple *simple_pll = NULL;
 	u32 misc_data, data;
 
-	if (clkid < (enum clock_id)TEGRA_CLK_PLLS) {
+	if (clkid < (enum clock_id)TEGRA_CLK_PLLS)
 		pll = get_pll(clkid);
-	} else {
+	else
 		simple_pll = clock_get_simple_pll(clkid);
-		if (!simple_pll) {
-			debug("%s: Uknown simple PLL %d\n", __func__, clkid);
-			return 0;
-		}
+
+	if (!simple_pll && !pll) {
+		log_err("Unknown PLL id %d\n", clkid);
+		return 0;
 	}
 
 	/*
@@ -542,7 +542,8 @@ unsigned int __weak clk_m_get_rate(unsigned int parent_rate)
 
 unsigned clock_get_rate(enum clock_id clkid)
 {
-	struct clk_pll *pll;
+	struct clk_pll *pll = NULL;
+	struct clk_pll_simple *simple_pll = NULL;
 	u32 base, divm;
 	u64 parent_rate, rate;
 	struct clk_pll_info *pllinfo = &tegra_pll_info_table[clkid];
@@ -554,10 +555,20 @@ unsigned clock_get_rate(enum clock_id clkid)
 	if (clkid == CLOCK_ID_CLK_M)
 		return clk_m_get_rate(parent_rate);
 
-	pll = get_pll(clkid);
-	if (!pll)
+	if (clkid < (enum clock_id)TEGRA_CLK_PLLS)
+		pll = get_pll(clkid);
+	else
+		simple_pll = clock_get_simple_pll(clkid);
+
+	if (!simple_pll && !pll) {
+		log_err("Unknown PLL id %d\n", clkid);
 		return 0;
-	base = readl(&pll->pll_base);
+	}
+
+	if (pll)
+		base = readl(&pll->pll_base);
+	else
+		base = readl(&simple_pll->pll_base);
 
 	rate = parent_rate * ((base >> pllinfo->n_shift) & pllinfo->n_mask);
 	divm = (base >> pllinfo->m_shift) & pllinfo->m_mask;
@@ -599,12 +610,24 @@ unsigned clock_get_rate(enum clock_id clkid)
 int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon)
 {
 	u32 base_reg, misc_reg;
-	struct clk_pll *pll;
+	struct clk_pll *pll = NULL;
+	struct clk_pll_simple *simple_pll = NULL;
 	struct clk_pll_info *pllinfo = &tegra_pll_info_table[clkid];
 
-	pll = get_pll(clkid);
+	if (clkid < (enum clock_id)TEGRA_CLK_PLLS)
+		pll = get_pll(clkid);
+	else
+		simple_pll = clock_get_simple_pll(clkid);
 
-	base_reg = readl(&pll->pll_base);
+	if (!simple_pll && !pll) {
+		log_err("Unknown PLL id %d\n", clkid);
+		return 0;
+	}
+
+	if (pll)
+		base_reg = readl(&pll->pll_base);
+	else
+		base_reg = readl(&simple_pll->pll_base);
 
 	/* Set BYPASS, m, n and p to PLL_BASE */
 	base_reg &= ~(pllinfo->m_mask << pllinfo->m_shift);
@@ -631,21 +654,37 @@ int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon)
 	}
 
 	base_reg |= PLL_BYPASS_MASK;
-	writel(base_reg, &pll->pll_base);
+	if (pll)
+		writel(base_reg, &pll->pll_base);
+	else
+		writel(base_reg, &simple_pll->pll_base);
 
 	/* Set cpcon (KCP) to PLL_MISC */
-	misc_reg = readl(&pll->pll_misc);
+	if (pll)
+		misc_reg = readl(&pll->pll_misc);
+	else
+		misc_reg = readl(&simple_pll->pll_misc);
+
 	misc_reg &= ~(pllinfo->kcp_mask << pllinfo->kcp_shift);
 	misc_reg |= cpcon << pllinfo->kcp_shift;
-	writel(misc_reg, &pll->pll_misc);
+	if (pll)
+		writel(misc_reg, &pll->pll_misc);
+	else
+		writel(misc_reg, &simple_pll->pll_misc);
 
 	/* Enable PLL */
 	base_reg |= PLL_ENABLE_MASK;
-	writel(base_reg, &pll->pll_base);
+	if (pll)
+		writel(base_reg, &pll->pll_base);
+	else
+		writel(base_reg, &simple_pll->pll_base);
 
 	/* Disable BYPASS */
 	base_reg &= ~PLL_BYPASS_MASK;
-	writel(base_reg, &pll->pll_base);
+	if (pll)
+		writel(base_reg, &pll->pll_base);
+	else
+		writel(base_reg, &simple_pll->pll_base);
 
 	return 0;
 }
@@ -729,6 +768,9 @@ void clock_init(void)
 	pll_rate[CLOCK_ID_SFROM32KHZ] = 32768;
 	pll_rate[CLOCK_ID_OSC] = clock_get_rate(CLOCK_ID_OSC);
 	pll_rate[CLOCK_ID_CLK_M] = clock_get_rate(CLOCK_ID_CLK_M);
+#ifndef CONFIG_TEGRA20
+	pll_rate[CLOCK_ID_DISPLAY2] = clock_get_rate(CLOCK_ID_DISPLAY2);
+#endif
 
 	debug("Osc = %d\n", pll_rate[CLOCK_ID_OSC]);
 	debug("CLKM = %d\n", pll_rate[CLOCK_ID_CLK_M]);

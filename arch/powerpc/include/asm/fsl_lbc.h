@@ -6,9 +6,6 @@
 #ifndef __ASM_PPC_FSL_LBC_H
 #define __ASM_PPC_FSL_LBC_H
 
-#include <config.h>
-#include <common.h>
-
 #ifdef CONFIG_MPC85xx
 void lbc_sdram_init(void);
 #endif

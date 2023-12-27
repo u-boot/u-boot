@@ -1,19 +1,3 @@
-if TARGET_DRACO
-
-config SYS_BOARD
-	default "draco"
-
-config SYS_VENDOR
-	default "siemens"
-
-config SYS_SOC
-	default "am33xx"
-
-config SYS_CONFIG_NAME
-	default "draco"
-
-endif
-
 if TARGET_THUBAN
 
 config SYS_BOARD
@@ -26,7 +10,7 @@ config SYS_SOC
 	default "am33xx"
 
 config SYS_CONFIG_NAME
-	default "thuban"
+	default "draco-thuban"
 
 endif
 
@@ -42,7 +26,7 @@ config SYS_SOC
 	default "am33xx"
 
 config SYS_CONFIG_NAME
-	default "rastaban"
+	default "draco-rastaban"
 
 endif
 
@@ -58,7 +42,7 @@ config SYS_SOC
         default "am33xx"
 
 config SYS_CONFIG_NAME
-        default "etamin"
+        default "draco-etamin"
 
 config NAND_CS_INIT
 	def_bool y

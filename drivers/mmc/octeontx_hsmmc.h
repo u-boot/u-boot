@@ -32,8 +32,6 @@
  */
 #define MMC_TIMEOUT_SHORT		20
 
-#define NSEC_PER_SEC			1000000000L
-
 #define MAX_NO_OF_TAPS			64
 
 #define EXT_CSD_POWER_CLASS		187	/* R/W */

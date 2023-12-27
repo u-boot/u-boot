@@ -6,7 +6,6 @@
  *	David Huang <d-huang@ti.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <spl.h>
 #include <asm/io.h>
@@ -232,7 +231,7 @@ void k3_mem_init(void)
 		if (ret)
 			panic("DRAM 1 init failed: %d\n", ret);
 	}
-	spl_enable_dcache();
+	spl_enable_cache();
 }
 
 /* Support for the various EVM / SK families */

@@ -8,7 +8,6 @@
 #ifndef __DM365_LOWLEVEL_H
 #define __DM365_LOWLEVEL_H
 
-#include <common.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 

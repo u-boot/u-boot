@@ -15,7 +15,7 @@
  * This file handles the architecture-dependent parts of hardware exceptions
  */
 
-#include <common.h>
+#include <vsprintf.h>
 #include <asm/ptrace.h>
 #include <command.h>
 #include <asm/processor.h>

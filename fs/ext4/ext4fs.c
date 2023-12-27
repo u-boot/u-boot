@@ -233,7 +233,7 @@ int ext4fs_probe(struct blk_desc *fs_dev_desc,
 {
 	ext4fs_set_blk_dev(fs_dev_desc, fs_partition);
 
-	if (!ext4fs_mount(fs_partition->size)) {
+	if (!ext4fs_mount()) {
 		ext4fs_close();
 		return -1;
 	}

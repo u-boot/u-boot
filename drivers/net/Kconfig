@@ -471,14 +471,6 @@ config SYS_UNIFY_CACHE
 	depends on MCFFEC
 	bool "Invalidate icache during ethernet operations"
 
-config FSLDMAFEC
-        bool "ColdFire DMA Ethernet Support"
-	select PHYLIB
-	select SYS_DISCOVER_PHY
-	help
-	  This driver supports the network interface units in the
-	  ColdFire family.
-
 config KS8851_MLL
 	bool "Microchip KS8851-MLL controller driver"
 	help
@@ -986,6 +978,13 @@ config MDIO_MUX_MESON_G12A
 	depends on DM_MDIO_MUX
 	help
 	  This driver is used for the MDIO mux found on the Amlogic G12A & compatible
+	  SoCs.
+
+config MDIO_MUX_MESON_GXL
+	bool "MDIO MUX for Amlogic Meson GXL SoCs"
+	depends on DM_MDIO_MUX
+	help
+	  This driver is used for the MDIO mux found on the Amlogic GXL & compatible
 	  SoCs.
 
 endif # NETDEVICES

@@ -231,16 +231,10 @@ static int imx8mq_usb_phy_power_off(struct phy *usb_phy)
 	return 0;
 }
 
-static int imx8mq_usb_phy_exit(struct phy *usb_phy)
-{
-	return imx8mq_usb_phy_power_off(usb_phy);
-}
-
 struct phy_ops imx8mq_usb_phy_ops = {
 	.init = imx8mpq_usb_phy_init,
 	.power_on = imx8mq_usb_phy_power_on,
 	.power_off = imx8mq_usb_phy_power_off,
-	.exit = imx8mq_usb_phy_exit,
 };
 
 int imx8mq_usb_phy_probe(struct udevice *dev)

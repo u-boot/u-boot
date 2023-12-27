@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <asm/arch/gcr.h>
 #include <asm/mach-types.h>
+#include "../common/uart.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -50,6 +51,13 @@ int dram_init(void)
                 sprintf(value, "%ldM", (gd->ram_size / 0x100000));
                 env_set("mem", value);
         }
+
+	return 0;
+}
+
+int last_stage_init(void)
+{
+	board_set_console();
 
 	return 0;
 }

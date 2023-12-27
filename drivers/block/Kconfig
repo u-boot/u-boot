@@ -13,7 +13,7 @@ config BLK
 
 config SPL_LEGACY_BLOCK
 	bool # "Enable Legacy Block Device"
-	depends on SPL && !DM_SPL
+	depends on SPL
 	default y if SPL_MMC || SPL_USB_STORAGE || SCSI || NVME || IDE
 	default y if SPL_AHCI_PCI
 	help
@@ -265,6 +265,7 @@ config SYS_64BIT_LBA
 
 config RKMTD
 	bool "Rockchip rkmtd virtual block device"
+	select RANDOM_UUID
 	help
 	  Enable "rkmtd" class and driver to create a virtual block device
 	  to transfer Rockchip boot block data to and from NAND with block

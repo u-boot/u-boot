@@ -9,7 +9,6 @@
  */
 
 #include <env.h>
-#include <common.h>
 #include <mpc8xx.h>
 #include <asm/cpm_8xx.h>
 #include <asm/io.h>

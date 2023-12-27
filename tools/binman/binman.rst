@@ -2060,7 +2060,7 @@ don't have access to the blobs.
 If the blobs are in a different directory, you can specify this with the `-I`
 option.
 
-For U-Boot, you can use set the BINMAN_INDIRS environment variable to provide a
+For U-Boot, you can set the BINMAN_INDIRS environment variable to provide a
 space-separated list of directories to search for binary blobs::
 
    BINMAN_INDIRS="odroid-c4/fip/g12a \

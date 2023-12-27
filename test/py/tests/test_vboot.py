@@ -533,10 +533,10 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
     with open(evil_kernel, 'wb') as fd:
         fd.write(500 * b'\x01')
 
+    # We need to use our own device tree file. Remember to restore it
+    # afterwards.
+    old_dtb = cons.config.dtb
     try:
-        # We need to use our own device tree file. Remember to restore it
-        # afterwards.
-        old_dtb = cons.config.dtb
         cons.config.dtb = dtb
         if global_sign:
             test_global_sign(sha_algo, padding, sign_options)

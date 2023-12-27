@@ -17,6 +17,7 @@ menuconfig USB_GADGET
 	bool "USB Gadget Support"
 	depends on DM
 	select DM_USB
+	imply CMD_BIND
 	help
 	   USB is a master/slave protocol, organized with one master
 	   host (such as a PC) controlling up to 127 peripheral devices.

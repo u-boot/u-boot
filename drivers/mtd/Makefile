@@ -31,7 +31,7 @@ obj-$(CONFIG_NVMXIP) += nvmxip/
 else
 
 ifneq ($(mtd-y),)
-obj-$(CONFIG_SPL_MTD_SUPPORT) += mtd.o
+obj-$(CONFIG_SPL_MTD) += mtd.o
 endif
 obj-$(CONFIG_$(SPL_TPL_)NAND_SUPPORT) += nand/
 obj-$(CONFIG_SPL_ONENAND_SUPPORT) += onenand/

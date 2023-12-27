@@ -13,9 +13,10 @@ import u_boot_utils as util
 from tests import fs_helper
 
 supported_fs_basic = ['fat16', 'fat32', 'ext4']
-supported_fs_ext = ['fat16', 'fat32']
-supported_fs_mkdir = ['fat16', 'fat32']
-supported_fs_unlink = ['fat16', 'fat32']
+supported_fs_ext = ['fat12', 'fat16', 'fat32']
+supported_fs_fat = ['fat12', 'fat16']
+supported_fs_mkdir = ['fat12', 'fat16', 'fat32']
+supported_fs_unlink = ['fat12', 'fat16', 'fat32']
 supported_fs_symlink = ['ext4']
 
 #
@@ -50,6 +51,7 @@ def pytest_configure(config):
     """
     global supported_fs_basic
     global supported_fs_ext
+    global supported_fs_fat
     global supported_fs_mkdir
     global supported_fs_unlink
     global supported_fs_symlink
@@ -62,6 +64,7 @@ def pytest_configure(config):
         print('*** FS TYPE modified: %s' % supported_fs)
         supported_fs_basic =  intersect(supported_fs, supported_fs_basic)
         supported_fs_ext =  intersect(supported_fs, supported_fs_ext)
+        supported_fs_fat =  intersect(supported_fs, supported_fs_fat)
         supported_fs_mkdir =  intersect(supported_fs, supported_fs_mkdir)
         supported_fs_unlink =  intersect(supported_fs, supported_fs_unlink)
         supported_fs_symlink =  intersect(supported_fs, supported_fs_symlink)
@@ -83,6 +86,9 @@ def pytest_generate_tests(metafunc):
             indirect=True, scope='module')
     if 'fs_obj_ext' in metafunc.fixturenames:
         metafunc.parametrize('fs_obj_ext', supported_fs_ext,
+            indirect=True, scope='module')
+    if 'fs_obj_fat' in metafunc.fixturenames:
+        metafunc.parametrize('fs_obj_fat', supported_fs_fat,
             indirect=True, scope='module')
     if 'fs_obj_mkdir' in metafunc.fixturenames:
         metafunc.parametrize('fs_obj_mkdir', supported_fs_mkdir,
@@ -625,3 +631,44 @@ def fs_obj_symlink(request, u_boot_config):
     finally:
         call('rmdir %s' % mount_dir, shell=True)
         call('rm -f %s' % fs_img, shell=True)
+
+#
+# Fixture for fat test
+#
+@pytest.fixture()
+def fs_obj_fat(request, u_boot_config):
+    """Set up a file system to be used in fat test.
+
+    Args:
+        request: Pytest request object.
+        u_boot_config: U-Boot configuration.
+
+    Return:
+        A fixture for fat test, i.e. a duplet of file system type and
+        volume file name.
+    """
+
+    # the maximum size of a FAT12 filesystem resulting in 4084 clusters
+    MAX_FAT12_SIZE = 261695 * 1024
+
+    # the minimum size of a FAT16 filesystem that can be created with
+    # mkfs.vfat resulting in 4087 clusters
+    MIN_FAT16_SIZE = 8208 * 1024
+
+    fs_type = request.param
+    fs_img = ''
+
+    fs_ubtype = fstype_to_ubname(fs_type)
+    check_ubconfig(u_boot_config, fs_ubtype)
+
+    fs_size = MAX_FAT12_SIZE if fs_type == 'fat12' else MIN_FAT16_SIZE
+
+    try:
+        # the volume size depends on the filesystem
+        fs_img = fs_helper.mk_fs(u_boot_config, fs_type, fs_size, f'{fs_size}', 1024)
+    except:
+        pytest.skip('Setup failed for filesystem: ' + fs_type)
+        return
+    else:
+        yield [fs_ubtype, fs_img]
+    call('rm -f %s' % fs_img, shell=True)

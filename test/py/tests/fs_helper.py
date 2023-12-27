@@ -9,7 +9,7 @@ import re
 import os
 from subprocess import call, check_call, check_output, CalledProcessError
 
-def mk_fs(config, fs_type, size, prefix):
+def mk_fs(config, fs_type, size, prefix, size_gran = 0x100000):
     """Create a file system volume
 
     Args:
@@ -17,6 +17,7 @@ def mk_fs(config, fs_type, size, prefix):
         fs_type (str): File system type, e.g. 'ext4'
         size (int): Size of file system in bytes
         prefix (str): Prefix string of volume's file name
+        size_gran (int): Size granularity of file system image in bytes
 
     Raises:
         CalledProcessError: if any error occurs when creating the filesystem
@@ -24,7 +25,9 @@ def mk_fs(config, fs_type, size, prefix):
     fs_img = f'{prefix}.{fs_type}.img'
     fs_img = os.path.join(config.persistent_data_dir, fs_img)
 
-    if fs_type == 'fat16':
+    if fs_type == 'fat12':
+        mkfs_opt = '-F 12'
+    elif fs_type == 'fat16':
         mkfs_opt = '-F 16'
     elif fs_type == 'fat32':
         mkfs_opt = '-F 32'
@@ -36,7 +39,7 @@ def mk_fs(config, fs_type, size, prefix):
     else:
         fs_lnxtype = fs_type
 
-    count = (size + 0x100000 - 1) // 0x100000
+    count = (size + size_gran - 1) // size_gran
 
     # Some distributions do not add /sbin to the default PATH, where mkfs lives
     if '/sbin' not in os.environ["PATH"].split(os.pathsep):
@@ -44,7 +47,7 @@ def mk_fs(config, fs_type, size, prefix):
 
     try:
         check_call(f'rm -f {fs_img}', shell=True)
-        check_call(f'dd if=/dev/zero of={fs_img} bs=1M count={count}',
+        check_call(f'dd if=/dev/zero of={fs_img} bs={size_gran} count={count}',
                    shell=True)
         check_call(f'mkfs.{fs_lnxtype} {mkfs_opt} {fs_img}', shell=True)
         if fs_type == 'ext4':

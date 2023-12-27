@@ -9,6 +9,8 @@
 #ifndef __LINUX_MII_H__
 #define __LINUX_MII_H__
 
+#include <linux/types.h>
+
 /* Generic MII registers. */
 #define MII_BMCR		0x00	/* Basic mode control register */
 #define MII_BMSR		0x01	/* Basic mode status register  */

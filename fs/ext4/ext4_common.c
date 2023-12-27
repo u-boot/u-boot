@@ -2368,7 +2368,7 @@ fail:
 	return -1;
 }
 
-int ext4fs_mount(unsigned part_length)
+int ext4fs_mount(void)
 {
 	struct ext2_data *data;
 	int status;

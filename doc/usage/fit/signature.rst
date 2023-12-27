@@ -93,7 +93,7 @@ Public keys should be stored as sub-nodes in a /signature node. Required
 properties are:
 
 algo
-    Algorithm name (e.g. "sha1,rsa2048" or "sha256,ecdsa256")
+    Algorithm name (e.g. "sha256,rsa2048" or "sha512,ecdsa256")
 
 Optional properties are:
 
@@ -219,28 +219,28 @@ As an example, consider this FIT::
             kernel-1 {
                 data = <data for kernel1>
                 signature-1 {
-                    algo = "sha1,rsa2048";
+                    algo = "sha256,rsa2048";
                     value = <...kernel signature 1...>
                 };
             };
             kernel-2 {
                 data = <data for kernel2>
                 signature-1 {
-                    algo = "sha1,rsa2048";
+                    algo = "sha256,rsa2048";
                     value = <...kernel signature 2...>
                 };
             };
             fdt-1 {
                 data = <data for fdt1>;
                 signature-1 {
-                    algo = "sha1,rsa2048";
+                    algo = "sha256,rsa2048";
                     value = <...fdt signature 1...>
                 };
             };
             fdt-2 {
                 data = <data for fdt2>;
                 signature-1 {
-                    algo = "sha1,rsa2048";
+                    algo = "sha256,rsa2048";
                     value = <...fdt signature 2...>
                 };
             };
@@ -291,28 +291,28 @@ So the above example is adjusted to look like this::
             kernel-1 {
                 data = <data for kernel1>
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                     value = <...kernel hash 1...>
                 };
             };
             kernel-2 {
                 data = <data for kernel2>
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                     value = <...kernel hash 2...>
                 };
             };
             fdt-1 {
                 data = <data for fdt1>;
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                     value = <...fdt hash 1...>
                 };
             };
             fdt-2 {
                 data = <data for fdt2>;
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                     value = <...fdt hash 2...>
                 };
             };
@@ -323,7 +323,7 @@ So the above example is adjusted to look like this::
                 kernel = "kernel-1";
                 fdt = "fdt-1";
                 signature-1 {
-                    algo = "sha1,rsa2048";
+                    algo = "sha256,rsa2048";
                     value = <...conf 1 signature...>;
                 };
             };
@@ -331,7 +331,7 @@ So the above example is adjusted to look like this::
                 kernel = "kernel-2";
                 fdt = "fdt-2";
                 signature-1 {
-                    algo = "sha1,rsa2048";
+                    algo = "sha256,rsa2048";
                     value = <...conf 1 signature...>;
                 };
             };
@@ -671,7 +671,7 @@ Create the fitImage::
 Sign the fitImage with the hardware key::
 
     $ ./tools/mkimage -F -k \
-    "model=PKCS%2315%20emulated;manufacturer=ZeitControl;serial=000xxxxxxxxx;token=OpenPGP%20card%20%28User%20PIN%20%28sig%29%29" \
+    "pkcs11:model=PKCS%2315%20emulated;manufacturer=ZeitControl;serial=000xxxxxxxxx;token=OpenPGP%20card%20%28User%20PIN%20%28sig%29%29" \
     -K u-boot.dtb -N pkcs11 -r fitImage
 
 

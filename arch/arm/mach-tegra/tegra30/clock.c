@@ -438,6 +438,8 @@ struct clk_pll_info tegra_pll_info_table[CLOCK_ID_PLL_COUNT] = {
 	  .lock_ena = 9,  .lock_det = 11, .kcp_shift = 6, .kcp_mask = 3, .kvco_shift = 0, .kvco_mask = 1 },	/* PLLE */
 	{ .m_shift = 0, .m_mask = 0x0F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x07,
 	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLS (RESERVED) */
+	{ .m_shift = 0, .m_mask = 0x1F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x07,
+	  .lock_ena = 22, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLD2 */
 };
 
 /*
@@ -654,6 +656,9 @@ enum clock_id clk_id_to_pll_id(int clk_id)
 	case TEGRA30_CLK_PLL_D:
 	case TEGRA30_CLK_PLL_D_OUT0:
 		return CLOCK_ID_DISPLAY;
+	case TEGRA30_CLK_PLL_D2:
+	case TEGRA30_CLK_PLL_D2_OUT0:
+		return CLOCK_ID_DISPLAY2;
 	case TEGRA30_CLK_PLL_X:
 		return CLOCK_ID_XCPU;
 	case TEGRA30_CLK_PLL_E:
@@ -869,6 +874,23 @@ int tegra_plle_enable(void)
 	writel(value, NV_PA_CLK_RST_BASE + PLLE_SS_CNTL);
 
 	return 0;
+}
+
+struct clk_pll_simple *clock_get_simple_pll(enum clock_id clkid)
+{
+	struct clk_rst_ctlr *clkrst =
+			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+
+	switch (clkid) {
+	case CLOCK_ID_XCPU:
+	case CLOCK_ID_EPCI:
+	case CLOCK_ID_SFROM32KHZ:
+		return &clkrst->crc_pll_simple[clkid - CLOCK_ID_FIRST_SIMPLE];
+	case CLOCK_ID_DISPLAY2:
+		return &clkrst->plld2;
+	default:
+		return NULL;
+	}
 }
 
 struct periph_clk_init periph_clk_init_table[] = {

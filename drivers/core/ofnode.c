@@ -83,6 +83,11 @@ static oftree oftree_ensure(void *fdt)
 			if (check_tree_count())
 				return oftree_null();
 
+			if (fdt_check_header(fdt)) {
+				log_err("Invalid device tree blob header\n");
+				return oftree_null();
+			}
+
 			/* register the new tree */
 			i = oftree_count++;
 			oftree_list[i] = fdt;

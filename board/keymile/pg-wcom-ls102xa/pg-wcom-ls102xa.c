@@ -3,7 +3,7 @@
  * Copyright 2020 Hitachi Power Grids. All rights reserved.
  */
 
-#include <common.h>
+#include <config.h>
 #include <event.h>
 #include <i2c.h>
 #include <asm/io.h>

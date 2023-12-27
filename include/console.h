@@ -156,6 +156,16 @@ int console_announce_r(void);
  */
 void console_puts_select_stderr(bool serial_only, const char *s);
 
+/**
+ * console_clear() - Clear the console
+ *
+ * Uses an ANSI sequence to clear the display, failing back to clearing the
+ * video display directly if !CONFIG_VIDEO_ANSI
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int console_clear(void);
+
 /*
  * CONSOLE multiplexing.
  */

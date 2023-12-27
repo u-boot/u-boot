@@ -54,12 +54,7 @@
 	ti,secure-host;
 };
 
-&mcu_esm {
-	bootph-pre-ram;
-};
-
 &secure_proxy_sa3 {
-	bootph-pre-ram;
 	/* We require this for boot handshake */
 	status = "okay";
 };
@@ -73,14 +68,49 @@
 	};
 };
 
-&main_esm {
-	bootph-pre-ram;
-};
-
 &main_pktdma {
 	ti,sci = <&dm_tifs>;
 };
 
 &main_bcdma {
 	ti,sci = <&dm_tifs>;
+};
+
+&binman {
+	tiboot3-am62x-gp-evm.bin {
+		filename = "tiboot3-am62x-gp-evm.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl_unsigned>, <&ti_fs_gp>,
+				<&combined_tifs_cfg_gp>, <&combined_dm_cfg_gp>;
+			combined;
+			dm-data;
+			content-sbl = <&u_boot_spl_unsigned>;
+			load = <0x43c00000>;
+			content-sysfw = <&ti_fs_gp>;
+			load-sysfw = <0x40000>;
+			content-sysfw-data = <&combined_tifs_cfg_gp>;
+			load-sysfw-data = <0x67000>;
+			content-dm-data = <&combined_dm_cfg_gp>;
+			load-dm-data = <0x43c3a800>;
+			sw-rev = <1>;
+			keyfile = "ti-degenerate-key.pem";
+		};
+		u_boot_spl_unsigned: u-boot-spl {
+			no-expanded;
+		};
+		ti_fs_gp: ti-fs-gp.bin {
+			filename = "ti-sysfw/ti-fs-firmware-am62x-gp.bin";
+			type = "blob-ext";
+			optional;
+		};
+		combined_tifs_cfg_gp: combined-tifs-cfg-gp.bin {
+			filename = "combined-tifs-cfg.bin";
+			type = "blob-ext";
+		};
+		combined_dm_cfg_gp: combined-dm-cfg-gp.bin {
+			filename = "combined-dm-cfg.bin";
+			type = "blob-ext";
+		};
+
+	};
 };

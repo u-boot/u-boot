@@ -44,12 +44,198 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct bootm_headers images;		/* pointers to os/initrd/fdt images */
 
-static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
-				   char *const argv[], struct bootm_headers *images,
-				   ulong *os_data, ulong *os_len);
-
 __weak void board_quiesce_devices(void)
 {
+}
+
+#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
+/**
+ * image_get_kernel - verify legacy format kernel image
+ * @img_addr: in RAM address of the legacy format image to be verified
+ * @verify: data CRC verification flag
+ *
+ * image_get_kernel() verifies legacy image integrity and returns pointer to
+ * legacy image header if image verification was completed successfully.
+ *
+ * returns:
+ *     pointer to a legacy image header if valid image was found
+ *     otherwise return NULL
+ */
+static struct legacy_img_hdr *image_get_kernel(ulong img_addr, int verify)
+{
+	struct legacy_img_hdr *hdr = (struct legacy_img_hdr *)img_addr;
+
+	if (!image_check_magic(hdr)) {
+		puts("Bad Magic Number\n");
+		bootstage_error(BOOTSTAGE_ID_CHECK_MAGIC);
+		return NULL;
+	}
+	bootstage_mark(BOOTSTAGE_ID_CHECK_HEADER);
+
+	if (!image_check_hcrc(hdr)) {
+		puts("Bad Header Checksum\n");
+		bootstage_error(BOOTSTAGE_ID_CHECK_HEADER);
+		return NULL;
+	}
+
+	bootstage_mark(BOOTSTAGE_ID_CHECK_CHECKSUM);
+	image_print_contents(hdr);
+
+	if (verify) {
+		puts("   Verifying Checksum ... ");
+		if (!image_check_dcrc(hdr)) {
+			printf("Bad Data CRC\n");
+			bootstage_error(BOOTSTAGE_ID_CHECK_CHECKSUM);
+			return NULL;
+		}
+		puts("OK\n");
+	}
+	bootstage_mark(BOOTSTAGE_ID_CHECK_ARCH);
+
+	if (!image_check_target_arch(hdr)) {
+		printf("Unsupported Architecture 0x%x\n", image_get_arch(hdr));
+		bootstage_error(BOOTSTAGE_ID_CHECK_ARCH);
+		return NULL;
+	}
+	return hdr;
+}
+#endif
+
+/**
+ * boot_get_kernel() - find kernel image
+ *
+ * @addr_fit: first argument to bootm: address, fit configuration, etc.
+ * @os_data: pointer to a ulong variable, will hold os data start address
+ * @os_len: pointer to a ulong variable, will hold os data length
+ *     address and length, otherwise NULL
+ *     pointer to image header if valid image was found, plus kernel start
+ * @kernp: image header if valid image was found, otherwise NULL
+ *
+ * boot_get_kernel() tries to find a kernel image, verifies its integrity
+ * and locates kernel data.
+ *
+ * Return: 0 on success, -ve on error. -EPROTOTYPE means that the image is in
+ * a wrong or unsupported format
+ */
+static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
+			   ulong *os_data, ulong *os_len, const void **kernp)
+{
+#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
+	struct legacy_img_hdr	*hdr;
+#endif
+	ulong		img_addr;
+	const void *buf;
+	const char *fit_uname_config = NULL, *fit_uname_kernel = NULL;
+#if CONFIG_IS_ENABLED(FIT)
+	int		os_noffset;
+#endif
+
+#ifdef CONFIG_ANDROID_BOOT_IMAGE
+	const void *boot_img;
+	const void *vendor_boot_img;
+#endif
+	img_addr = genimg_get_kernel_addr_fit(addr_fit, &fit_uname_config,
+					      &fit_uname_kernel);
+
+	if (IS_ENABLED(CONFIG_CMD_BOOTM_PRE_LOAD))
+		img_addr += image_load_offset;
+
+	bootstage_mark(BOOTSTAGE_ID_CHECK_MAGIC);
+
+	/* check image type, for FIT images get FIT kernel node */
+	*os_data = *os_len = 0;
+	buf = map_sysmem(img_addr, 0);
+	switch (genimg_get_format(buf)) {
+#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
+	case IMAGE_FORMAT_LEGACY:
+		printf("## Booting kernel from Legacy Image at %08lx ...\n",
+		       img_addr);
+		hdr = image_get_kernel(img_addr, images->verify);
+		if (!hdr)
+			return -EINVAL;
+		bootstage_mark(BOOTSTAGE_ID_CHECK_IMAGETYPE);
+
+		/* get os_data and os_len */
+		switch (image_get_type(hdr)) {
+		case IH_TYPE_KERNEL:
+		case IH_TYPE_KERNEL_NOLOAD:
+			*os_data = image_get_data(hdr);
+			*os_len = image_get_data_size(hdr);
+			break;
+		case IH_TYPE_MULTI:
+			image_multi_getimg(hdr, 0, os_data, os_len);
+			break;
+		case IH_TYPE_STANDALONE:
+			*os_data = image_get_data(hdr);
+			*os_len = image_get_data_size(hdr);
+			break;
+		default:
+			bootstage_error(BOOTSTAGE_ID_CHECK_IMAGETYPE);
+			return -EPROTOTYPE;
+		}
+
+		/*
+		 * copy image header to allow for image overwrites during
+		 * kernel decompression.
+		 */
+		memmove(&images->legacy_hdr_os_copy, hdr,
+			sizeof(struct legacy_img_hdr));
+
+		/* save pointer to image header */
+		images->legacy_hdr_os = hdr;
+
+		images->legacy_hdr_valid = 1;
+		bootstage_mark(BOOTSTAGE_ID_DECOMP_IMAGE);
+		break;
+#endif
+#if CONFIG_IS_ENABLED(FIT)
+	case IMAGE_FORMAT_FIT:
+		os_noffset = fit_image_load(images, img_addr,
+				&fit_uname_kernel, &fit_uname_config,
+				IH_ARCH_DEFAULT, IH_TYPE_KERNEL,
+				BOOTSTAGE_ID_FIT_KERNEL_START,
+				FIT_LOAD_IGNORED, os_data, os_len);
+		if (os_noffset < 0)
+			return -ENOENT;
+
+		images->fit_hdr_os = map_sysmem(img_addr, 0);
+		images->fit_uname_os = fit_uname_kernel;
+		images->fit_uname_cfg = fit_uname_config;
+		images->fit_noffset_os = os_noffset;
+		break;
+#endif
+#ifdef CONFIG_ANDROID_BOOT_IMAGE
+	case IMAGE_FORMAT_ANDROID: {
+		int ret;
+
+		boot_img = buf;
+		vendor_boot_img = NULL;
+		if (IS_ENABLED(CONFIG_CMD_ABOOTIMG)) {
+			boot_img = map_sysmem(get_abootimg_addr(), 0);
+			vendor_boot_img = map_sysmem(get_avendor_bootimg_addr(), 0);
+		}
+		printf("## Booting Android Image at 0x%08lx ...\n", img_addr);
+		ret = android_image_get_kernel(boot_img, vendor_boot_img,
+					       images->verify, os_data, os_len);
+		if (IS_ENABLED(CONFIG_CMD_ABOOTIMG)) {
+			unmap_sysmem(vendor_boot_img);
+			unmap_sysmem(boot_img);
+		}
+		if (ret)
+			return ret;
+		break;
+	}
+#endif
+	default:
+		bootstage_error(BOOTSTAGE_ID_CHECK_IMAGETYPE);
+		return -EPROTOTYPE;
+	}
+
+	debug("   kernel data at 0x%08lx, len = 0x%08lx (%ld)\n",
+	      *os_data, *os_len, *os_len);
+	*kernp = buf;
+
+	return 0;
 }
 
 #ifdef CONFIG_LMB
@@ -69,8 +255,7 @@ static void boot_start_lmb(struct bootm_headers *images)
 static inline void boot_start_lmb(struct bootm_headers *images) { }
 #endif
 
-static int bootm_start(struct cmd_tbl *cmdtp, int flag, int argc,
-		       char *const argv[])
+static int bootm_start(void)
 {
 	memset((void *)&images, 0, sizeof(images));
 	images.verify = env_get_yesno("verify");
@@ -83,22 +268,31 @@ static int bootm_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static ulong bootm_data_addr(int argc, char *const argv[])
+static ulong bootm_data_addr(const char *addr_str)
 {
 	ulong addr;
 
-	if (argc > 0)
-		addr = simple_strtoul(argv[0], NULL, 16);
+	if (addr_str)
+		addr = hextoul(addr_str, NULL);
 	else
 		addr = image_load_addr;
 
 	return addr;
 }
 
-static int bootm_pre_load(struct cmd_tbl *cmdtp, int flag, int argc,
-			  char *const argv[])
+/**
+ * bootm_pre_load() - Handle the pre-load processing
+ *
+ * This can be used to do a full signature check of the image, for example.
+ * It calls image_pre_load() with the data address of the image to check.
+ *
+ * @addr_str: String containing load address in hex, or NULL to use
+ * image_load_addr
+ * Return: 0 if OK, CMD_RET_FAILURE on failure
+ */
+static int bootm_pre_load(const char *addr_str)
 {
-	ulong data_addr = bootm_data_addr(argc, argv);
+	ulong data_addr = bootm_data_addr(addr_str);
 	int ret = 0;
 
 	if (IS_ENABLED(CONFIG_CMD_BOOTM_PRE_LOAD))
@@ -110,8 +304,14 @@ static int bootm_pre_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	return ret;
 }
 
-static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
-			 char *const argv[])
+/**
+ * bootm_find_os(): Find the OS to boot
+ *
+ * @cmd_name: Command name that started this boot, e.g. "bootm"
+ * @addr_fit: Address and/or FIT specifier (first arg of bootm command)
+ * Return: 0 on success, -ve on error
+ */
+static int bootm_find_os(const char *cmd_name, const char *addr_fit)
 {
 	const void *os_hdr;
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
@@ -122,10 +322,13 @@ static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
 	int ret;
 
 	/* get kernel image header, start address and length */
-	os_hdr = boot_get_kernel(cmdtp, flag, argc, argv,
-			&images, &images.os.image_start, &images.os.image_len);
-	if (images.os.image_len == 0) {
-		puts("ERROR: can't get kernel image!\n");
+	ret = boot_get_kernel(addr_fit, &images, &images.os.image_start,
+			      &images.os.image_len, &os_hdr);
+	if (ret) {
+		if (ret == -EPROTOTYPE)
+			printf("Wrong Image Type for %s command\n", cmd_name);
+
+		printf("ERROR %dE: can't get kernel image!\n", ret);
 		return 1;
 	}
 
@@ -240,24 +443,8 @@ static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 
 	if (images.os.type == IH_TYPE_KERNEL_NOLOAD) {
-		if (IS_ENABLED(CONFIG_CMD_BOOTI) &&
-		    images.os.arch == IH_ARCH_ARM64 &&
-		    images.os.os == IH_OS_LINUX) {
-			ulong image_addr;
-			ulong image_size;
-
-			ret = booti_setup(images.os.image_start, &image_addr,
-					  &image_size, true);
-			if (ret != 0)
-				return 1;
-
-			images.os.type = IH_TYPE_KERNEL;
-			images.os.load = image_addr;
-			images.ep = image_addr;
-		} else {
-			images.os.load = images.os.image_start;
-			images.ep += images.os.image_start;
-		}
+		images.os.load = images.os.image_start;
+		images.ep += images.os.image_start;
 	}
 
 	images.os.start = map_to_sysmem(os_hdr);
@@ -266,30 +453,58 @@ static int bootm_find_os(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 /**
- * bootm_find_images - wrapper to find and locate various images
- * @flag: Ignored Argument
- * @argc: command argument count
- * @argv: command argument list
- * @start: OS image start address
- * @size: OS image size
+ * check_overlap() - Check if an image overlaps the OS
  *
- * boot_find_images() will attempt to load an available ramdisk,
- * flattened device tree, as well as specifically marked
- * "loadable" images (loadables are FIT only)
- *
- * Note: bootm_find_images will skip an image if it is not found
- *
- * @return:
- *     0, if all existing images were loaded correctly
- *     1, if an image is found but corrupted, or invalid
+ * @name: Name of image to check (used to print error)
+ * @base: Base address of image
+ * @end: End address of image (+1)
+ * @os_start: Start of OS
+ * @os_size: Size of OS in bytes
+ * Return: 0 if OK, -EXDEV if the image overlaps the OS
  */
-int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
-		      ulong size)
+static int check_overlap(const char *name, ulong base, ulong end,
+			 ulong os_start, ulong os_size)
 {
+	ulong os_end;
+
+	if (!base)
+		return 0;
+	os_end = os_start + os_size;
+
+	if ((base >= os_start && base < os_end) ||
+	    (end > os_start && end <= os_end) ||
+	    (base < os_start && end >= os_end)) {
+		printf("ERROR: %s image overlaps OS image (OS=%lx..%lx)\n",
+		       name, os_start, os_end);
+
+		return -EXDEV;
+	}
+
+	return 0;
+}
+
+int bootm_find_images(ulong img_addr, const char *conf_ramdisk,
+		      const char *conf_fdt, ulong start, ulong size)
+{
+	const char *select = conf_ramdisk;
+	char addr_str[17];
+	void *buf;
 	int ret;
 
+	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
+		/* Look for an Android boot image */
+		buf = map_sysmem(images.os.start, 0);
+		if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID) {
+			strcpy(addr_str, simple_xtoa(img_addr));
+			select = addr_str;
+		}
+	}
+
+	if (conf_ramdisk)
+		select = conf_ramdisk;
+
 	/* find ramdisk */
-	ret = boot_get_ramdisk(argc, argv, &images, IH_INITRD_ARCH,
+	ret = boot_get_ramdisk(select, &images, IH_INITRD_ARCH,
 			       &images.rd_start, &images.rd_end);
 	if (ret) {
 		puts("Ramdisk image is corrupt or invalid\n");
@@ -297,46 +512,33 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 	}
 
 	/* check if ramdisk overlaps OS image */
-	if (images.rd_start && (((ulong)images.rd_start >= start &&
-				 (ulong)images.rd_start < start + size) ||
-				((ulong)images.rd_end > start &&
-				 (ulong)images.rd_end <= start + size) ||
-				((ulong)images.rd_start < start &&
-				 (ulong)images.rd_end >= start + size))) {
-		printf("ERROR: RD image overlaps OS image (OS=0x%lx..0x%lx)\n",
-		       start, start + size);
+	if (check_overlap("RD", images.rd_start, images.rd_end, start, size))
 		return 1;
-	}
 
-#if CONFIG_IS_ENABLED(OF_LIBFDT)
-	/* find flattened device tree */
-	ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
-			   &images.ft_addr, &images.ft_len);
-	if (ret) {
-		puts("Could not find a valid device tree\n");
-		return 1;
-	}
+	if (CONFIG_IS_ENABLED(OF_LIBFDT)) {
+		buf = map_sysmem(img_addr, 0);
 
-	/* check if FDT overlaps OS image */
-	if (images.ft_addr &&
-	    (((ulong)images.ft_addr >= start &&
-	      (ulong)images.ft_addr < start + size) ||
-	     ((ulong)images.ft_addr + images.ft_len >= start &&
-	      (ulong)images.ft_addr + images.ft_len < start + size))) {
-		printf("ERROR: FDT image overlaps OS image (OS=0x%lx..0x%lx)\n",
-		       start, start + size);
-		return 1;
-	}
+		/* find flattened device tree */
+		ret = boot_get_fdt(buf, conf_fdt, IH_ARCH_DEFAULT, &images,
+				   &images.ft_addr, &images.ft_len);
+		if (ret) {
+			puts("Could not find a valid device tree\n");
+			return 1;
+		}
 
-	if (IS_ENABLED(CONFIG_CMD_FDT))
-		set_working_fdt_addr(map_to_sysmem(images.ft_addr));
-#endif
+		/* check if FDT overlaps OS image */
+		if (check_overlap("FDT", map_to_sysmem(images.ft_addr),
+				  images.ft_len, start, size))
+			return 1;
+
+		if (IS_ENABLED(CONFIG_CMD_FDT))
+			set_working_fdt_addr(map_to_sysmem(images.ft_addr));
+	}
 
 #if CONFIG_IS_ENABLED(FIT)
 	if (IS_ENABLED(CONFIG_FPGA)) {
 		/* find bitstreams */
-		ret = boot_get_fpga(argc, argv, &images, IH_ARCH_DEFAULT,
-				    NULL, NULL);
+		ret = boot_get_fpga(&images);
 		if (ret) {
 			printf("FPGA image is corrupted or invalid\n");
 			return 1;
@@ -344,8 +546,7 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 	}
 
 	/* find all of the loadables */
-	ret = boot_get_loadable(argc, argv, &images, IH_ARCH_DEFAULT,
-			       NULL, NULL);
+	ret = boot_get_loadable(&images);
 	if (ret) {
 		printf("Loadable(s) is corrupt or invalid\n");
 		return 1;
@@ -355,15 +556,17 @@ int bootm_find_images(int flag, int argc, char *const argv[], ulong start,
 	return 0;
 }
 
-static int bootm_find_other(struct cmd_tbl *cmdtp, int flag, int argc,
-			    char *const argv[])
+static int bootm_find_other(ulong img_addr, const char *conf_ramdisk,
+			    const char *conf_fdt)
 {
-	if (((images.os.type == IH_TYPE_KERNEL) ||
-	     (images.os.type == IH_TYPE_KERNEL_NOLOAD) ||
-	     (images.os.type == IH_TYPE_MULTI)) &&
-	    (images.os.os == IH_OS_LINUX ||
-		 images.os.os == IH_OS_VXWORKS))
-		return bootm_find_images(flag, argc, argv, 0, 0);
+	if ((images.os.type == IH_TYPE_KERNEL ||
+	     images.os.type == IH_TYPE_KERNEL_NOLOAD ||
+	     images.os.type == IH_TYPE_MULTI) &&
+	    (images.os.os == IH_OS_LINUX || images.os.os == IH_OS_VXWORKS ||
+	     images.os.os == IH_OS_EFI || images.os.os == IH_OS_TEE)) {
+		return bootm_find_images(img_addr, conf_ramdisk, conf_fdt, 0,
+					 0);
+	}
 
 	return 0;
 }
@@ -426,6 +629,24 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	void *load_buf, *image_buf;
 	int err;
 
+	/*
+	 * For a "noload" compressed kernel we need to allocate a buffer large
+	 * enough to decompress in to and use that as the load address now.
+	 * Assume that the kernel compression is at most a factor of 4 since
+	 * zstd almost achieves that.
+	 * Use an alignment of 2MB since this might help arm64
+	 */
+	if (os.type == IH_TYPE_KERNEL_NOLOAD && os.comp != IH_COMP_NONE) {
+		ulong req_size = ALIGN(image_len * 4, SZ_1M);
+
+		load = lmb_alloc(&images->lmb, req_size, SZ_2M);
+		if (!load)
+			return 1;
+		os.load = load;
+		debug("Allocated %lx bytes at %lx for kernel (size %lx) decompression\n",
+		      req_size, load, image_len);
+	}
+
 	load_buf = map_sysmem(load, 0);
 	image_buf = map_sysmem(os.image_start, image_len);
 	err = image_decomp(os.comp, load, os.image_start, os.type,
@@ -464,6 +685,31 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 			bootstage_error(BOOTSTAGE_ID_OVERWRITTEN);
 			return BOOTM_ERR_RESET;
 		}
+	}
+
+	if (IS_ENABLED(CONFIG_CMD_BOOTI) && images->os.arch == IH_ARCH_ARM64 &&
+	    images->os.os == IH_OS_LINUX) {
+		ulong relocated_addr;
+		ulong image_size;
+		int ret;
+
+		ret = booti_setup(load, &relocated_addr, &image_size, false);
+		if (ret) {
+			printf("Failed to prep arm64 kernel (err=%d)\n", ret);
+			return BOOTM_ERR_RESET;
+		}
+
+		/* Handle BOOTM_STATE_LOADOS */
+		if (relocated_addr != load) {
+			printf("Moving Image from 0x%lx to 0x%lx, end=%lx\n",
+			       load, relocated_addr,
+			       relocated_addr + image_size);
+			memmove((void *)relocated_addr, load_buf, image_size);
+		}
+
+		images->ep = relocated_addr;
+		images->os.start = relocated_addr;
+		images->os.end = relocated_addr + image_size;
 	}
 
 	lmb_reserve(&images->lmb, images->os.load, (load_end -
@@ -783,16 +1029,21 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	 * any error.
 	 */
 	if (states & BOOTM_STATE_START)
-		ret = bootm_start(cmdtp, flag, argc, argv);
+		ret = bootm_start();
 
 	if (!ret && (states & BOOTM_STATE_PRE_LOAD))
-		ret = bootm_pre_load(cmdtp, flag, argc, argv);
+		ret = bootm_pre_load(argv[0]);
 
 	if (!ret && (states & BOOTM_STATE_FINDOS))
-		ret = bootm_find_os(cmdtp, flag, argc, argv);
+		ret = bootm_find_os(cmdtp->name, argv[0]);
 
-	if (!ret && (states & BOOTM_STATE_FINDOTHER))
-		ret = bootm_find_other(cmdtp, flag, argc, argv);
+	if (!ret && (states & BOOTM_STATE_FINDOTHER)) {
+		ulong img_addr;
+
+		img_addr = argc ? hextoul(argv[0], NULL) : image_load_addr;
+		ret = bootm_find_other(img_addr, cmd_arg1(argc, argv),
+				       cmd_arg2(argc, argv));
+	}
 
 	if (IS_ENABLED(CONFIG_MEASURED_BOOT) && !ret &&
 	    (states & BOOTM_STATE_MEASURE))
@@ -852,7 +1103,11 @@ int do_bootm_states(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_OS_BD_T))
 		ret = boot_fn(BOOTM_STATE_OS_BD_T, argc, argv, images);
 	if (!ret && (states & BOOTM_STATE_OS_PREP)) {
-		ret = bootm_process_cmdline_env(images->os.os == IH_OS_LINUX);
+		int flags = 0;
+		/* For Linux OS do all substitutions at console processing */
+		if (images->os.os == IH_OS_LINUX)
+			flags = BOOTM_CL_ALL;
+		ret = bootm_process_cmdline_env(flags);
 		if (ret) {
 			printf("Cmdline setup failed (err=%d)\n", ret);
 			ret = CMD_RET_FAILURE;
@@ -932,193 +1187,6 @@ int bootm_boot_start(ulong addr, const char *cmdline)
 	ret = do_bootm_states(&cmd, 0, 1, argv, states, &images, 1);
 
 	return ret;
-}
-
-#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-/**
- * image_get_kernel - verify legacy format kernel image
- * @img_addr: in RAM address of the legacy format image to be verified
- * @verify: data CRC verification flag
- *
- * image_get_kernel() verifies legacy image integrity and returns pointer to
- * legacy image header if image verification was completed successfully.
- *
- * returns:
- *     pointer to a legacy image header if valid image was found
- *     otherwise return NULL
- */
-static struct legacy_img_hdr *image_get_kernel(ulong img_addr, int verify)
-{
-	struct legacy_img_hdr *hdr = (struct legacy_img_hdr *)img_addr;
-
-	if (!image_check_magic(hdr)) {
-		puts("Bad Magic Number\n");
-		bootstage_error(BOOTSTAGE_ID_CHECK_MAGIC);
-		return NULL;
-	}
-	bootstage_mark(BOOTSTAGE_ID_CHECK_HEADER);
-
-	if (!image_check_hcrc(hdr)) {
-		puts("Bad Header Checksum\n");
-		bootstage_error(BOOTSTAGE_ID_CHECK_HEADER);
-		return NULL;
-	}
-
-	bootstage_mark(BOOTSTAGE_ID_CHECK_CHECKSUM);
-	image_print_contents(hdr);
-
-	if (verify) {
-		puts("   Verifying Checksum ... ");
-		if (!image_check_dcrc(hdr)) {
-			printf("Bad Data CRC\n");
-			bootstage_error(BOOTSTAGE_ID_CHECK_CHECKSUM);
-			return NULL;
-		}
-		puts("OK\n");
-	}
-	bootstage_mark(BOOTSTAGE_ID_CHECK_ARCH);
-
-	if (!image_check_target_arch(hdr)) {
-		printf("Unsupported Architecture 0x%x\n", image_get_arch(hdr));
-		bootstage_error(BOOTSTAGE_ID_CHECK_ARCH);
-		return NULL;
-	}
-	return hdr;
-}
-#endif
-
-/**
- * boot_get_kernel - find kernel image
- * @os_data: pointer to a ulong variable, will hold os data start address
- * @os_len: pointer to a ulong variable, will hold os data length
- *
- * boot_get_kernel() tries to find a kernel image, verifies its integrity
- * and locates kernel data.
- *
- * returns:
- *     pointer to image header if valid image was found, plus kernel start
- *     address and length, otherwise NULL
- */
-static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
-				   char *const argv[], struct bootm_headers *images,
-				   ulong *os_data, ulong *os_len)
-{
-#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-	struct legacy_img_hdr	*hdr;
-#endif
-	ulong		img_addr;
-	const void *buf;
-	const char	*fit_uname_config = NULL;
-	const char	*fit_uname_kernel = NULL;
-#if CONFIG_IS_ENABLED(FIT)
-	int		os_noffset;
-#endif
-
-#ifdef CONFIG_ANDROID_BOOT_IMAGE
-	const void *boot_img;
-	const void *vendor_boot_img;
-#endif
-	img_addr = genimg_get_kernel_addr_fit(argc < 1 ? NULL : argv[0],
-					      &fit_uname_config,
-					      &fit_uname_kernel);
-
-	if (IS_ENABLED(CONFIG_CMD_BOOTM_PRE_LOAD))
-		img_addr += image_load_offset;
-
-	bootstage_mark(BOOTSTAGE_ID_CHECK_MAGIC);
-
-	/* check image type, for FIT images get FIT kernel node */
-	*os_data = *os_len = 0;
-	buf = map_sysmem(img_addr, 0);
-	switch (genimg_get_format(buf)) {
-#if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
-	case IMAGE_FORMAT_LEGACY:
-		printf("## Booting kernel from Legacy Image at %08lx ...\n",
-		       img_addr);
-		hdr = image_get_kernel(img_addr, images->verify);
-		if (!hdr)
-			return NULL;
-		bootstage_mark(BOOTSTAGE_ID_CHECK_IMAGETYPE);
-
-		/* get os_data and os_len */
-		switch (image_get_type(hdr)) {
-		case IH_TYPE_KERNEL:
-		case IH_TYPE_KERNEL_NOLOAD:
-			*os_data = image_get_data(hdr);
-			*os_len = image_get_data_size(hdr);
-			break;
-		case IH_TYPE_MULTI:
-			image_multi_getimg(hdr, 0, os_data, os_len);
-			break;
-		case IH_TYPE_STANDALONE:
-			*os_data = image_get_data(hdr);
-			*os_len = image_get_data_size(hdr);
-			break;
-		default:
-			printf("Wrong Image Type for %s command\n",
-			       cmdtp->name);
-			bootstage_error(BOOTSTAGE_ID_CHECK_IMAGETYPE);
-			return NULL;
-		}
-
-		/*
-		 * copy image header to allow for image overwrites during
-		 * kernel decompression.
-		 */
-		memmove(&images->legacy_hdr_os_copy, hdr,
-			sizeof(struct legacy_img_hdr));
-
-		/* save pointer to image header */
-		images->legacy_hdr_os = hdr;
-
-		images->legacy_hdr_valid = 1;
-		bootstage_mark(BOOTSTAGE_ID_DECOMP_IMAGE);
-		break;
-#endif
-#if CONFIG_IS_ENABLED(FIT)
-	case IMAGE_FORMAT_FIT:
-		os_noffset = fit_image_load(images, img_addr,
-				&fit_uname_kernel, &fit_uname_config,
-				IH_ARCH_DEFAULT, IH_TYPE_KERNEL,
-				BOOTSTAGE_ID_FIT_KERNEL_START,
-				FIT_LOAD_IGNORED, os_data, os_len);
-		if (os_noffset < 0)
-			return NULL;
-
-		images->fit_hdr_os = map_sysmem(img_addr, 0);
-		images->fit_uname_os = fit_uname_kernel;
-		images->fit_uname_cfg = fit_uname_config;
-		images->fit_noffset_os = os_noffset;
-		break;
-#endif
-#ifdef CONFIG_ANDROID_BOOT_IMAGE
-	case IMAGE_FORMAT_ANDROID:
-		boot_img = buf;
-		vendor_boot_img = NULL;
-		if (IS_ENABLED(CONFIG_CMD_ABOOTIMG)) {
-			boot_img = map_sysmem(get_abootimg_addr(), 0);
-			vendor_boot_img = map_sysmem(get_avendor_bootimg_addr(), 0);
-		}
-		printf("## Booting Android Image at 0x%08lx ...\n", img_addr);
-		if (android_image_get_kernel(boot_img, vendor_boot_img, images->verify,
-					     os_data, os_len))
-			return NULL;
-		if (IS_ENABLED(CONFIG_CMD_ABOOTIMG)) {
-			unmap_sysmem(vendor_boot_img);
-			unmap_sysmem(boot_img);
-		}
-		break;
-#endif
-	default:
-		printf("Wrong Image Format for %s command\n", cmdtp->name);
-		bootstage_error(BOOTSTAGE_ID_FIT_KERNEL_INFO);
-		return NULL;
-	}
-
-	debug("   kernel data at 0x%08lx, len = 0x%08lx (%ld)\n",
-	      *os_data, *os_len, *os_len);
-
-	return buf;
 }
 
 /**

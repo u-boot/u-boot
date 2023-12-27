@@ -118,6 +118,15 @@ def test_sqfs_ls(u_boot_console):
     """
     build_dir = u_boot_console.config.build_dir
 
+    # If the EFI subsystem is enabled and initialized, EFI subsystem tries to
+    # add EFI boot option when the new disk is detected. If there is no EFI
+    # System Partition exists, EFI subsystem outputs error messages and
+    # it ends up with test failure.
+    # Restart U-Boot to clear the previous state.
+    # TODO: Ideally EFI test cases need to be fixed, but it will
+    # increase the number of system reset.
+    u_boot_console.restart_uboot()
+
     # setup test environment
     check_mksquashfs_version()
     generate_sqfs_src_dir(build_dir)

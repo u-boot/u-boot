@@ -478,7 +478,7 @@ static int mx28_create_nand_image(int infd, int outfd)
 		goto err0;
 	}
 
-	memset(buf, 0, size);
+	memset(buf, 0xff, size);
 
 	fcb = mx28_nand_get_fcb(MAX_BOOTSTREAM_SIZE);
 	if (!fcb) {

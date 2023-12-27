@@ -187,6 +187,7 @@
 	func(USB, usb, 0)		\
 	func(SATA, sata, 0)		\
 	func(SATA, sata, 1)		\
+	FUNC_VIRTIO(func)		\
 	func(PXE, pxe, na)		\
 	func(DHCP, dhcp, na)		\
 	func(AFS, afs, na)

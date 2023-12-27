@@ -1,4 +1,5 @@
 i.MX8MP EVK BOARD
+M:	Fabio Estevm <festevam@gmail.com>
 M:	Peng Fan <peng.fan@nxp.com>
 S:	Maintained
 F:	board/freescale/imx8mp_evk/

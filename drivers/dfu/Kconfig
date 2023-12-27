@@ -19,6 +19,7 @@ config DFU_WRITE_ALT
 
 config DFU_TFTP
 	bool "DFU via TFTP"
+	depends on NETDEVICES
 	select UPDATE_COMMON
 	select DFU_OVER_TFTP
 	help
@@ -111,5 +112,14 @@ config SYS_DFU_MAX_FILE_SIZE
 	  the buffer once we've been given the whole file.  Define
 	  this to the maximum filesize (in bytes) for the buffer.
 	  If undefined it defaults to the CONFIG_SYS_DFU_DATA_BUF_SIZE.
+
+config DFU_NAME_MAX_SIZE
+	int "Size of the name to be added in dfu entity"
+	default 32
+	depends on DFU
+	help
+	  This value is used to maximum size. If name is longer than default size,
+	  we need to change the proper maximum size.
+
 endif
 endmenu

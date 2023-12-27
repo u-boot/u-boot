@@ -562,7 +562,7 @@ static void handle_reset_button(void)
 	}
 }
 
-int show_board_info(void)
+int checkboard(void)
 {
 	int i, ret, board_version, ram_size, is_sd;
 	const char *pub_key, *model;

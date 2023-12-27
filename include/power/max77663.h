@@ -13,6 +13,7 @@
 #define MAX77663_LDO_DRIVER		"max77663_ldo"
 #define MAX77663_SD_DRIVER		"max77663_sd"
 #define MAX77663_RST_DRIVER		"max77663_rst"
+#define MAX77663_GPIO_DRIVER		"max77663_gpio"
 
 /* Step-Down (SD) Regulator calculations */
 #define SD_STATUS_MASK			0x30

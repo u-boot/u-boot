@@ -245,39 +245,6 @@ static void nand_write_byte16(struct mtd_info *mtd, uint8_t byte)
 	chip->write_buf(mtd, (uint8_t *)&word, 2);
 }
 
-static void iowrite8_rep(void *addr, const uint8_t *buf, int len)
-{
-	int i;
-
-	for (i = 0; i < len; i++)
-		writeb(buf[i], addr);
-}
-static void ioread8_rep(void *addr, uint8_t *buf, int len)
-{
-	int i;
-
-	for (i = 0; i < len; i++)
-		buf[i] = readb(addr);
-}
-
-static void ioread16_rep(void *addr, void *buf, int len)
-{
-	int i;
-	u16 *p = (u16 *) buf;
-
-	for (i = 0; i < len; i++)
-		p[i] = readw(addr);
-}
-
-static void iowrite16_rep(void *addr, void *buf, int len)
-{
-	int i;
-        u16 *p = (u16 *) buf;
-
-        for (i = 0; i < len; i++)
-                writew(p[i], addr);
-}
-
 /**
  * nand_write_buf - [DEFAULT] write buffer to chip
  * @mtd: MTD device structure
@@ -4462,17 +4429,14 @@ ident_done:
 	else if (chip->jedec_version)
 		pr_info("%s %s\n", manufacturer_desc->name,
 			chip->jedec_params.model);
-	else
+	else if (manufacturer_desc)
 		pr_info("%s %s\n", manufacturer_desc->name, type->name);
 #else
 	if (chip->jedec_version)
 		pr_info("%s %s\n", manufacturer_desc->name,
 			chip->jedec_params.model);
-	else
+	else if (manufacturer_desc)
 		pr_info("%s %s\n", manufacturer_desc->name, type->name);
-
-	pr_info("%s %s\n", manufacturer_desc->name,
-		type->name);
 #endif
 
 	pr_info("%d MiB, %s, erase size: %d KiB, page size: %d, OOB size: %d\n",

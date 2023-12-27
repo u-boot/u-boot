@@ -199,13 +199,6 @@
 #endif
 #endif
 
-/* SATA */
-#ifndef SPL_NO_SATA
-#define SCSI_VEND_ID 0x1b4b
-#define SCSI_DEV_ID  0x9170
-#define CFG_SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
-#endif
-
 #include <asm/fsl_secure_boot.h>
 
 #endif /* __LS1043ARDB_H__ */

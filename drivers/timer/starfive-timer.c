@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2022 StarFive, Inc. All rights reserved.
- *   Author: Lee Kuan Lim <kuanlim.lee@starfivetech.com>
+ *   Author: Kuan Lim Lee <kuanlim.lee@starfivetech.com>
  */
 
 #include <common.h>
@@ -48,8 +48,8 @@ static int starfive_probe(struct udevice *dev)
 	int ret;
 
 	priv->base = dev_read_addr_ptr(dev);
-	if (IS_ERR(priv->base))
-		return PTR_ERR(priv->base);
+	if (!priv->base)
+		return -EINVAL;
 
 	timer_channel = dev_read_u32_default(dev, "channel", 0);
 	priv->base = priv->base + (0x40 * timer_channel);
@@ -64,14 +64,16 @@ static int starfive_probe(struct udevice *dev)
 		return ret;
 	uc_priv->clock_rate = clk_get_rate(&clk);
 
-	/* Initiate timer, channel 0 */
-	/* Unmask Interrupt Mask */
+	/*
+	 * Initiate timer, channel 0
+	 * Unmask Interrupt Mask
+	 */
 	writel(0, priv->base + STF_TIMER_INT_MASK);
 	/* Single run mode Setting */
 	if (dev_read_bool(dev, "single-run"))
 		writel(1, priv->base + STF_TIMER_CTL);
 	/* Set Reload value */
-	priv->timer_size = dev_read_u32_default(dev, "timer-size", 0xffffffff);
+	priv->timer_size = dev_read_u32_default(dev, "timer-size", -1U);
 	writel(priv->timer_size, priv->base + STF_TIMER_LOAD);
 	/* Enable to start timer */
 	writel(1, priv->base + STF_TIMER_ENABLE);
@@ -85,7 +87,7 @@ static const struct udevice_id starfive_ids[] = {
 };
 
 U_BOOT_DRIVER(jh8100_starfive_timer) = {
-	.name		= "jh8100_starfive_timer",
+	.name		= "starfive_timer",
 	.id		= UCLASS_TIMER,
 	.of_match	= starfive_ids,
 	.probe		= starfive_probe,

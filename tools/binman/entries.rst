@@ -1906,6 +1906,20 @@ the included board config binaries. Example::
 
 
 
+.. _etype_ti_dm:
+
+Entry: ti-dm: TI Device Manager (DM) blob
+-----------------------------------------
+
+Properties / Entry arguments:
+    - ti-dm-path: Filename of file to read into the entry, typically ti-dm.bin
+
+This entry holds the device manager responsible for resource and power management
+in K3 devices. See https://software-dl.ti.com/tisci/esd/latest/ for more information
+about TI DM.
+
+
+
 .. _etype_ti_secure:
 
 Entry: ti-secure: Entry containing a TI x509 certificate binary

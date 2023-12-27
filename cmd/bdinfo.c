@@ -10,6 +10,7 @@
 #include <command.h>
 #include <dm.h>
 #include <env.h>
+#include <getopt.h>
 #include <lmb.h>
 #include <mapmem.h>
 #include <net.h>
@@ -133,10 +134,8 @@ static void print_serial(struct udevice *dev)
 	bdinfo_print_num_l(" clock", info.clock);
 }
 
-int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+static int bdinfo_print_all(struct bd_info *bd)
 {
-	struct bd_info *bd = gd->bd;
-
 #ifdef DEBUG
 	bdinfo_print_num_l("bd address", (ulong)bd);
 #endif
@@ -184,8 +183,38 @@ int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return 0;
 }
 
+int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+{
+	struct bd_info *bd = gd->bd;
+	struct getopt_state gs;
+	int opt;
+
+	if (!CONFIG_IS_ENABLED(GETOPT) || argc == 1)
+		return bdinfo_print_all(bd);
+
+	getopt_init_state(&gs);
+	while ((opt = getopt(&gs, argc, argv, "aem")) > 0) {
+		switch (opt) {
+		case 'a':
+			return bdinfo_print_all(bd);
+		case 'e':
+			if (!IS_ENABLED(CONFIG_CMD_NET))
+				return CMD_RET_USAGE;
+			print_eth();
+			return CMD_RET_SUCCESS;
+		case 'm':
+			print_bi_dram(bd);
+			return CMD_RET_SUCCESS;
+		default:
+			return CMD_RET_USAGE;
+		}
+	}
+
+	return CMD_RET_USAGE;
+}
+
 U_BOOT_CMD(
-	bdinfo,	1,	1,	do_bdinfo,
+	bdinfo,	2,	1,	do_bdinfo,
 	"print Board Info structure",
 	""
 );

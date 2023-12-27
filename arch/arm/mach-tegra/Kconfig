@@ -33,9 +33,6 @@ config TEGRA_IVC
 config TEGRA_MC
 	bool
 
-config TEGRA_PINCTRL
-	bool
-
 config TEGRA_PMC
 	bool
 
@@ -61,7 +58,6 @@ config TEGRA_COMMON
 	select OF_CONTROL
 	select SPI
 	select SYSRESET
-	select SPL_SYSRESET if SPL
 	select SYSRESET_TEGRA
 	imply CMD_DM
 	imply CRC32_VERIFY
@@ -76,9 +72,15 @@ config TEGRA_ARMV7_COMMON
 	bool "Tegra 32-bit common options"
 	select BINMAN
 	select CPU_V7A
+	select PINCTRL
+	select PINCTRL_TEGRA
 	select SPL
 	select SPL_BOARD_INIT if SPL
+	select SPL_DM if SPL
+	select SPL_PINCTRL if SPL
+	select SPL_PINCTRL_TEGRA if SPL
 	select SPL_SKIP_LOWLEVEL_INIT_ONLY if SPL
+	select SPL_SYSRESET if SPL
 	select SUPPORT_SPL
 	select TIMER
 	select TEGRA_CLKRST
@@ -87,7 +89,6 @@ config TEGRA_ARMV7_COMMON
 	select TEGRA_GP_PADCTRL
 	select TEGRA_MC
 	select TEGRA_NO_BPMP
-	select TEGRA_PINCTRL
 	select TEGRA_PMC
 	select TEGRA_TIMER
 
@@ -134,6 +135,8 @@ config TEGRA124
 config TEGRA210
 	bool "Tegra210 family"
 	select GICV2
+	select PINCTRL
+	select PINCTRL_TEGRA
 	select TIMER
 	select TEGRA_ARMV8_COMMON
 	select TEGRA_CLKRST
@@ -141,7 +144,6 @@ config TEGRA210
 	select TEGRA_GP_PADCTRL
 	select TEGRA_MC
 	select TEGRA_NO_BPMP
-	select TEGRA_PINCTRL
 	select TEGRA_PMC
 	select TEGRA_PMC_SECURE
 	select TEGRA_TIMER
@@ -194,7 +196,7 @@ config TEGRA_SPI
 
 choice
 	prompt "UART to use for console"
-	depends on TEGRA_PINCTRL
+	depends on PINCTRL_TEGRA
 	default TEGRA_ENABLE_UARTA
 
 config TEGRA_ENABLE_UARTA

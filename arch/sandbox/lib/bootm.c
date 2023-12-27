@@ -78,3 +78,10 @@ int do_bootm_linux(int flag, int argc, char *argv[], struct bootm_headers *image
 
 	return 0;
 }
+
+/* used for testing 'booti' command */
+int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
+		bool force_reloc)
+{
+	return 0;
+}

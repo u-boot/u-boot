@@ -8,7 +8,6 @@
 
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
-#include <common.h>
 #include <dm/uclass.h>
 #include <env.h>
 #include <fdt_support.h>
