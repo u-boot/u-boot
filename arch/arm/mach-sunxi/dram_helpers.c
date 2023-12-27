@@ -33,13 +33,25 @@ void mctl_await_completion(u32 *reg, u32 mask, u32 val)
 #ifndef CONFIG_MACH_SUNIV
 bool mctl_mem_matches_base(u32 offset, ulong base)
 {
+	u32 val_base;
+	u32 val_offset;
+	bool ret;
+
+	/* Save original values */
+	val_base = readl(base);
+	val_offset = readl(base + offset);
+
 	/* Try to write different values to RAM at two addresses */
 	writel(0, base);
 	writel(0xaa55aa55, base + offset);
 	dsb();
 	/* Check if the same value is actually observed when reading back */
-	return readl(base) ==
-	       readl(base + offset);
+	ret = readl(base) == readl(base + offset);
+
+	/* Restore original values */
+	writel(val_base, base);
+	writel(val_offset, base + offset);
+	return ret;
 }
 
 /*
