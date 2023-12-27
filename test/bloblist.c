@@ -272,8 +272,8 @@ static int bloblist_test_cmd_info(struct unit_test_state *uts)
 	run_command("bloblist info", 0);
 	ut_assert_nextline("base:     %lx", (ulong)map_to_sysmem(hdr));
 	ut_assert_nextline("size:     400    1 KiB");
-	ut_assert_nextline("alloced:  70     112 Bytes");
-	ut_assert_nextline("free:     390    912 Bytes");
+	ut_assert_nextline("alloced:  58     88 Bytes");
+	ut_assert_nextline("free:     3a8    936 Bytes");
 	ut_assert_console_end();
 	ut_unsilence_console(uts);
 
@@ -331,12 +331,12 @@ static int bloblist_test_align(struct unit_test_state *uts)
 		data = bloblist_add(i, size, 0);
 		ut_assertnonnull(data);
 		addr = map_to_sysmem(data);
-		ut_asserteq(0, addr & (BLOBLIST_ALIGN - 1));
+		ut_asserteq(0, addr & (BLOBLIST_BLOB_ALIGN - 1));
 
 		/* Only the bytes in the blob data should be zeroed */
 		for (j = 0; j < size; j++)
 			ut_asserteq(0, data[j]);
-		for (; j < BLOBLIST_ALIGN; j++)
+		for (; j < BLOBLIST_BLOB_ALIGN; j++)
 			ut_asserteq(ERASE_BYTE, data[j]);
 	}
 
@@ -351,7 +351,7 @@ static int bloblist_test_align(struct unit_test_state *uts)
 	}
 
 	/* Check alignment with an bloblist starting on a smaller alignment */
-	hdr = map_sysmem(TEST_ADDR + BLOBLIST_ALIGN, TEST_BLOBLIST_SIZE);
+	hdr = map_sysmem(TEST_ADDR + BLOBLIST_BLOB_ALIGN, TEST_BLOBLIST_SIZE);
 	memset(hdr, ERASE_BYTE, TEST_BLOBLIST_SIZE);
 	memset(hdr, '\0', sizeof(*hdr));
 	ut_assertok(bloblist_new(TEST_ADDR + BLOBLIST_ALIGN, TEST_BLOBLIST_SIZE,
@@ -360,7 +360,7 @@ static int bloblist_test_align(struct unit_test_state *uts)
 	data = bloblist_add(1, 5, BLOBLIST_ALIGN_LOG2 + 1);
 	ut_assertnonnull(data);
 	addr = map_to_sysmem(data);
-	ut_asserteq(0, addr & (BLOBLIST_ALIGN * 2 - 1));
+	ut_asserteq(0, addr & (BLOBLIST_BLOB_ALIGN * 2 - 1));
 
 	return 0;
 }
@@ -448,7 +448,7 @@ static int bloblist_test_grow(struct unit_test_state *uts)
 	hdr = ptr;
 	ut_asserteq(sizeof(struct bloblist_hdr) +
 		    sizeof(struct bloblist_rec) * 2 + small_size * 2 +
-		    BLOBLIST_ALIGN,
+		    BLOBLIST_BLOB_ALIGN,
 		    hdr->alloced);
 
 	return 0;
@@ -583,7 +583,7 @@ static int bloblist_test_resize_last(struct unit_test_state *uts)
 	ut_asserteq((u8)ERASE_BYTE, *((u8 *)hdr + alloced_val + 4));
 
 	/* Check that the new top of the allocated blobs has not been touched */
-	alloced_val += BLOBLIST_ALIGN;
+	alloced_val += BLOBLIST_BLOB_ALIGN;
 	ut_asserteq(alloced_val, hdr->alloced);
 	ut_asserteq((u8)ERASE_BYTE, *((u8 *)hdr + hdr->alloced));
 

@@ -24,11 +24,11 @@
  * which would add to code size. For Thumb-2 the code size needed in SPL is
  * approximately 940 bytes (e.g. for chromebook_bob).
  *
- * 5. Bloblist uses 16-byte alignment internally and is designed to start on a
- * 16-byte boundary. Its headers are multiples of 16 bytes. This makes it easier
- * to deal with data structures which need this level of alignment, such as ACPI
- * tables. For use in SPL and TPL the alignment can be relaxed, since it can be
- * relocated to an aligned address in U-Boot proper.
+ * 5. Bloblist uses 8-byte alignment internally and is designed to start on a
+ * 8-byte boundary. Its headers are 8 bytes long. It is possible to achieve
+ * larger alignment (e.g. 16 bytes) by adding a dummy header, For use in SPL and
+ * TPL the alignment can be relaxed, since it can be relocated to an aligned
+ * address in U-Boot proper.
  *
  * 6. Bloblist is designed to be passed to Linux as reserved memory. While linux
  * doesn't understand the bloblist header, it can be passed the indivdual blobs.
@@ -76,6 +76,9 @@
 enum {
 	BLOBLIST_VERSION	= 1,
 	BLOBLIST_MAGIC		= 0x4a0fb10b,
+
+	BLOBLIST_BLOB_ALIGN_LOG2 = 3,
+	BLOBLIST_BLOB_ALIGN	 = 1 << BLOBLIST_BLOB_ALIGN_LOG2,
 
 	BLOBLIST_ALIGN_LOG2	= 3,
 	BLOBLIST_ALIGN		= 1 << BLOBLIST_ALIGN_LOG2,
@@ -199,17 +202,25 @@ struct bloblist_hdr {
  *
  * NOTE: Only exported for testing purposes. Do not use this struct.
  *
- * @tag: Tag indicating what the record contains
- * @hdr_size: Size of this header, normally sizeof(struct bloblist_rec). The
- *	record's data starts at this offset from the start of the record
+ * @tag_and_hdr_size: Tag indicating what the record contains (bottom 24 bits), and
+ *	size of this header (top 8 bits), normally sizeof(struct bloblist_rec).
+ *	The record's data starts at this offset from the start of the record
  * @size: Size of record in bytes, excluding the header size. This does not
  *	need to be aligned (e.g. 3 is OK).
  */
 struct bloblist_rec {
-	u32 tag;
-	u32 hdr_size;
+	u32 tag_and_hdr_size;
 	u32 size;
-	u32 _spare;
+};
+
+enum {
+	BLOBLISTR_TAG_SHIFT		= 0,
+	BLOBLISTR_TAG_MASK		= 0xffffffU << BLOBLISTR_TAG_SHIFT,
+	BLOBLISTR_HDR_SIZE_SHIFT	= 24,
+	BLOBLISTR_HDR_SIZE_MASK		= 0xffU << BLOBLISTR_HDR_SIZE_SHIFT,
+
+	BLOBLIST_HDR_SIZE		= sizeof(struct bloblist_hdr),
+	BLOBLIST_REC_HDR_SIZE		= sizeof(struct bloblist_rec),
 };
 
 /**

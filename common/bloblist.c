@@ -87,12 +87,14 @@ static struct bloblist_rec *bloblist_first_blob(struct bloblist_hdr *hdr)
 
 static inline uint rec_hdr_size(struct bloblist_rec *rec)
 {
-	return rec->hdr_size;
+	return (rec->tag_and_hdr_size & BLOBLISTR_HDR_SIZE_MASK) >>
+		BLOBLISTR_HDR_SIZE_SHIFT;
 }
 
 static inline uint rec_tag(struct bloblist_rec *rec)
 {
-	return rec->tag;
+	return (rec->tag_and_hdr_size & BLOBLISTR_TAG_MASK) >>
+		BLOBLISTR_TAG_SHIFT;
 }
 
 static ulong bloblist_blob_end_ofs(struct bloblist_hdr *hdr,
@@ -101,7 +103,13 @@ static ulong bloblist_blob_end_ofs(struct bloblist_hdr *hdr,
 	ulong offset;
 
 	offset = (void *)rec - (void *)hdr;
-	offset += rec_hdr_size(rec) + ALIGN(rec->size, BLOBLIST_ALIGN);
+	/*
+	 * The data section of next TE should start from an address aligned
+	 * to 1 << hdr->align_log2.
+	 */
+	offset += rec_hdr_size(rec) + rec->size;
+	offset = round_up(offset + rec_hdr_size(rec), 1 << hdr->align_log2);
+	offset -= rec_hdr_size(rec);
 
 	return offset;
 }
@@ -145,7 +153,7 @@ static int bloblist_addrec(uint tag, int size, int align_log2,
 	int data_start, aligned_start, new_alloced;
 
 	if (!align_log2)
-		align_log2 = BLOBLIST_ALIGN_LOG2;
+		align_log2 = BLOBLIST_BLOB_ALIGN_LOG2;
 
 	/* Figure out where the new data will start */
 	data_start = map_to_sysmem(hdr) + hdr->alloced + sizeof(*rec);
@@ -178,8 +186,7 @@ static int bloblist_addrec(uint tag, int size, int align_log2,
 	}
 	rec = (void *)hdr + hdr->alloced;
 
-	rec->tag = tag;
-	rec->hdr_size = sizeof(struct bloblist_rec);
+	rec->tag_and_hdr_size = tag | sizeof(*rec) << BLOBLISTR_HDR_SIZE_SHIFT;
 	rec->size = size;
 
 	/* Zero the record data */
@@ -283,8 +290,8 @@ static int bloblist_resize_rec(struct bloblist_hdr *hdr,
 	int new_alloced;	/* New value for @hdr->alloced */
 	ulong next_ofs;	/* Offset of the record after @rec */
 
-	expand_by = ALIGN(new_size - rec->size, BLOBLIST_ALIGN);
-	new_alloced = ALIGN(hdr->alloced + expand_by, BLOBLIST_ALIGN);
+	expand_by = ALIGN(new_size - rec->size, BLOBLIST_BLOB_ALIGN);
+	new_alloced = ALIGN(hdr->alloced + expand_by, BLOBLIST_BLOB_ALIGN);
 	if (new_size < 0) {
 		log_debug("Attempt to shrink blob size below 0 (%x)\n",
 			  new_size);
