@@ -66,6 +66,7 @@
  *
  * Copyright 2018 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
+ * Adjusted July 2023 to match Firmware handoff specification, Release 0.9
  */
 
 #ifndef __BLOBLIST_H
