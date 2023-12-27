@@ -165,7 +165,6 @@ static int bloblist_addrec(uint tag, int size, int align_log2,
 	rec->tag = tag;
 	rec->hdr_size = data_start - hdr->alloced;
 	rec->size = size;
-	rec->spare = 0;
 
 	/* Zero the record data */
 	memset((void *)rec + rec_hdr_size(rec), '\0', rec->size);

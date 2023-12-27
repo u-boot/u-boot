@@ -205,13 +205,12 @@ struct bloblist_hdr {
  *	record's data starts at this offset from the start of the record
  * @size: Size of record in bytes, excluding the header size. This does not
  *	need to be aligned (e.g. 3 is OK).
- * @spare: Spare space for other things
  */
 struct bloblist_rec {
 	u32 tag;
 	u32 hdr_size;
 	u32 size;
-	u32 spare;
+	u32 _spare;
 };
 
 /**
