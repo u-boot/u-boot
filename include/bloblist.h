@@ -81,7 +81,7 @@ enum {
 
 /* Supported tags - add new ones to tag_name in bloblist.c */
 enum bloblist_tag_t {
-	BLOBLISTT_NONE = 0,
+	BLOBLISTT_VOID = 0,
 
 	/*
 	 * Standard area to allocate blobs used across firmware components, for
@@ -89,42 +89,36 @@ enum bloblist_tag_t {
 	 * projects.
 	 */
 	BLOBLISTT_AREA_FIRMWARE_TOP = 0x1,
+	/*
+	 * Devicetree for use by firmware. On some platforms this is passed to
+	 * the OS also
+	 */
+	BLOBLISTT_CONTROL_FDT = 1,
+	BLOBLISTT_HOB_BLOCK = 2,
+	BLOBLISTT_HOB_LIST = 3,
+	BLOBLISTT_ACPI_TABLES = 4,
+	BLOBLISTT_TPM_EVLOG = 5,
+	BLOBLISTT_TPM_CRB_BASE = 6,
 
 	/* Standard area to allocate blobs used across firmware components */
-	BLOBLISTT_AREA_FIRMWARE = 0x100,
+	BLOBLISTT_AREA_FIRMWARE = 0x10,
+	BLOBLISTT_TPM2_TCG_LOG = 0x10,	/* TPM v2 log space */
+	BLOBLISTT_TCPA_LOG = 0x11,	/* TPM log space */
 	/*
 	 * Advanced Configuration and Power Interface Global Non-Volatile
 	 * Sleeping table. This forms part of the ACPI tables passed to Linux.
 	 */
-	BLOBLISTT_ACPI_GNVS = 0x100,
-	BLOBLISTT_INTEL_VBT = 0x101,	/* Intel Video-BIOS table */
-	BLOBLISTT_TPM2_TCG_LOG = 0x102,	/* TPM v2 log space */
-	BLOBLISTT_TCPA_LOG = 0x103,	/* TPM log space */
-	BLOBLISTT_ACPI_TABLES = 0x104,	/* ACPI tables for x86 */
-	BLOBLISTT_SMBIOS_TABLES = 0x105, /* SMBIOS tables for x86 */
-	BLOBLISTT_VBOOT_CTX = 0x106,	/* Chromium OS verified boot context */
+	BLOBLISTT_ACPI_GNVS = 0x12,
 
-	/*
-	 * Project-specific tags are permitted here. Projects can be open source
-	 * or not, but the format of the data must be fuily documented in an
-	 * open source project, including all fields, bits, etc. Naming should
-	 * be: BLOBLISTT_<project>_<purpose_here>
-	 */
-	BLOBLISTT_PROJECT_AREA = 0x8000,
-	BLOBLISTT_U_BOOT_SPL_HANDOFF = 0x8000, /* Hand-off info from SPL */
-	BLOBLISTT_VBE		= 0x8001,	/* VBE per-phase state */
-	BLOBLISTT_U_BOOT_VIDEO = 0x8002, /* Video information from SPL */
+	/* Standard area to allocate blobs used for Trusted Firmware */
+	BLOBLISTT_AREA_TF = 0x100,
+	BLOBLISTT_OPTEE_PAGABLE_PART = 0x100,
 
-	/*
-	 * Vendor-specific tags are permitted here. Projects can be open source
-	 * or not, but the format of the data must be fuily documented in an
-	 * open source project, including all fields, bits, etc. Naming should
-	 * be BLOBLISTT_<vendor>_<purpose_here>
-	 */
-	BLOBLISTT_VENDOR_AREA = 0xc000,
-
-	/* Tags after this are not allocated for now */
-	BLOBLISTT_EXPANSION = 0x10000,
+	/* Other standard area to allocate blobs */
+	BLOBLISTT_AREA_OTHER = 0x200,
+	BLOBLISTT_INTEL_VBT = 0x200,	/* Intel Video-BIOS table */
+	BLOBLISTT_SMBIOS_TABLES = 0x201, /* SMBIOS tables for x86 */
+	BLOBLISTT_VBOOT_CTX = 0x202,	/* Chromium OS verified boot context */
 
 	/*
 	 * Tags from here are on reserved for private use within a single
@@ -133,9 +127,20 @@ enum bloblist_tag_t {
 	 * implementation, but cannot be used in upstream code. Allocate a
 	 * tag in one of the areas above if you want that.
 	 *
-	 * This area may move in future.
+	 * Project-specific tags are permitted here. Projects can be open source
+	 * or not, but the format of the data must be fuily documented in an
+	 * open source project, including all fields, bits, etc. Naming should
+	 * be: BLOBLISTT_<project>_<purpose_here>
+	 *
+	 * Vendor-specific tags are also permitted. Projects can be open source
+	 * or not, but the format of the data must be fuily documented in an
+	 * open source project, including all fields, bits, etc. Naming should
+	 * be BLOBLISTT_<vendor>_<purpose_here>
 	 */
-	BLOBLISTT_PRIVATE_AREA = 0xffff0000,
+	BLOBLISTT_PRIVATE_AREA		= 0xfff000,
+	BLOBLISTT_U_BOOT_SPL_HANDOFF	= 0xfff000, /* Hand-off info from SPL */
+	BLOBLISTT_VBE			= 0xfff001, /* VBE per-phase state */
+	BLOBLISTT_U_BOOT_VIDEO		= 0xfff002, /* Video info from SPL */
 };
 
 /**
