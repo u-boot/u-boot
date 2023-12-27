@@ -237,12 +237,18 @@ static int bloblist_test_checksum(struct unit_test_state *uts)
 	*data2 -= 1;
 
 	/*
-	 * Changing data outside the range of valid data should not affect
-	 * the checksum.
+	 * Changing data outside the range of valid data should affect the
+	 * checksum.
 	 */
 	ut_assertok(bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
 	data[TEST_SIZE]++;
+	ut_asserteq(-EIO, bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
+	data[TEST_SIZE]--;
+	ut_assertok(bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
+
 	data2[TEST_SIZE2]++;
+	ut_asserteq(-EIO, bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
+	data[TEST_SIZE]--;
 	ut_assertok(bloblist_check(TEST_ADDR, TEST_BLOBLIST_SIZE));
 
 	return 0;
