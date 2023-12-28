@@ -7,7 +7,10 @@
 #include <cpu_func.h>
 #include <log.h>
 #include <dm.h>
+#include <dm/device-internal.h>
+#include <dm/uclass-internal.h>
 
+#ifndef CONFIG_SPL_BUILD
 void enable_caches(void)
 {
 	struct udevice *dev;
@@ -25,3 +28,21 @@ void enable_caches(void)
 			log_debug("ccache enable failed");
 	}
 }
+#else
+static inline void probe_cache_device(struct driver *driver, struct udevice *dev)
+{
+	for (uclass_find_first_device(UCLASS_CACHE, &dev);
+	     dev;
+	     uclass_find_next_device(&dev)) {
+		if (dev->driver == driver)
+			device_probe(dev);
+	}
+}
+
+void enable_caches(void)
+{
+	struct udevice *dev = NULL;
+
+	probe_cache_device(DM_DRIVER_GET(sifive_pl2), dev);
+}
+#endif /* !CONFIG_SPL_BUILD */
