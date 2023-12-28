@@ -98,6 +98,10 @@ static int riscv_cpu_bind(struct udevice *dev)
 
 	/* save the hart id */
 	plat->cpu_id = dev_read_addr(dev);
+	if (IS_ENABLED(CONFIG_64BIT))
+		plat->family = 0x201;
+	else
+		plat->family = 0x200;
 	/* first examine the property in current cpu node */
 	ret = dev_read_u32(dev, "timebase-frequency", &plat->timebase_freq);
 	/* if not found, then look at the parent /cpus node */
