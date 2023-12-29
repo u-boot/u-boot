@@ -5,7 +5,8 @@
 
 /dts-v1/;
 
-#include "k3-am654.dtsi"
+#include "k3-am654-base-board.dts"
+#include "k3-am654-base-board-u-boot.dtsi"
 #include "k3-am654-base-board-ddr4-1600MTs.dtsi"
 #include "k3-am654-ddr.dtsi"
 
