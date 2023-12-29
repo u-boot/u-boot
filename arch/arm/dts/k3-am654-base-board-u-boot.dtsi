@@ -5,6 +5,166 @@
 
 #include "k3-am65x-binman.dtsi"
 
+&vtt_supply {
+	bootph-pre-ram;
+};
+
+&cbass_main {
+	bootph-pre-ram;
+};
+
+&main_navss {
+	bootph-pre-ram;
+};
+
+&cbass_mcu {
+	bootph-pre-ram;
+};
+
+&mcu_navss {
+	bootph-pre-ram;
+};
+
+&mcu_ringacc {
+	bootph-pre-ram;
+};
+
+&mcu_udmap {
+	bootph-pre-ram;
+};
+
+&wkup_gpio0 {
+	bootph-pre-ram;
+};
+
+&secure_proxy_main {
+	bootph-pre-ram;
+};
+
+&cbass_wakeup {
+	bootph-pre-ram;
+
+	chipid@43000014 {
+		bootph-pre-ram;
+	};
+};
+
+&dmsc {
+	bootph-pre-ram;
+};
+
+&k3_pds {
+	bootph-pre-ram;
+};
+
+&k3_clks {
+	bootph-pre-ram;
+};
+
+&k3_reset {
+	bootph-pre-ram;
+};
+
+&main_uart0 {
+	bootph-pre-ram;
+};
+
+&wkup_vtm0 {
+	bootph-pre-ram;
+};
+
+&wkup_pmx0 {
+	bootph-pre-ram;
+};
+
+&wkup_uart0_pins_default {
+	bootph-pre-ram;
+};
+
+&wkup_vtt_pins_default {
+	bootph-pre-ram;
+};
+
+&mcu_uart0_pins_default {
+	bootph-pre-ram;
+};
+
+&wkup_i2c0_pins_default {
+	bootph-pre-ram;
+};
+
+&mcu_fss0_ospi0_pins_default {
+	bootph-pre-ram;
+};
+
+&main_pmx0 {
+	bootph-pre-ram;
+};
+
+&main_uart0_pins_default {
+	bootph-pre-ram;
+};
+
+&main_mmc0_pins_default {
+	bootph-pre-ram;
+};
+
+&main_mmc1_pins_default {
+	bootph-pre-ram;
+};
+
+&usb0_pins_default {
+	bootph-pre-ram;
+};
+
+&main_pmx1 {
+	bootph-pre-ram;
+};
+
+&sdhci0 {
+	bootph-pre-ram;
+};
+
+&sdhci1 {
+	bootph-pre-ram;
+};
+
+&wkup_i2c0 {
+	bootph-pre-ram;
+};
+
+&vdd_mpu {
+	bootph-pre-ram;
+};
+
+&ospi0 {
+	bootph-pre-ram;
+
+	flash@0 {
+		bootph-pre-ram;
+	};
+};
+
+&dwc3_0 {
+	bootph-pre-ram;
+};
+
+&usb0_phy {
+	bootph-pre-ram;
+};
+
+&usb0 {
+	bootph-pre-ram;
+};
+
+&scm_conf {
+	bootph-pre-ram;
+};
+
+&fss {
+	bootph-pre-ram;
+};
+
 &pru0_0 {
 	remoteproc-name = "pru0_0";
 };
