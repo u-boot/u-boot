@@ -11,9 +11,6 @@
 #include "k3-am654-ddr.dtsi"
 
 / {
-	compatible =  "ti,am654-evm", "ti,am654";
-	model = "Texas Instruments AM654 R5 Base Board";
-
 	aliases {
 		ethernet0 = &cpsw_port1;
 		remoteproc0 = &sysctrler;
