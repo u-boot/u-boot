@@ -12,7 +12,6 @@
 
 / {
 	aliases {
-		ethernet0 = &cpsw_port1;
 		remoteproc0 = &sysctrler;
 		remoteproc1 = &a53_0;
 	};
