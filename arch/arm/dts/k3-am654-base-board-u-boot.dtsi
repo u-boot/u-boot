@@ -125,10 +125,6 @@
 	bootph-pre-ram;
 };
 
-&usb0_pins_default {
-	bootph-pre-ram;
-};
-
 &main_pmx1 {
 	bootph-pre-ram;
 };
@@ -158,14 +154,6 @@
 };
 
 &dwc3_0 {
-	bootph-pre-ram;
-};
-
-&usb0_phy {
-	bootph-pre-ram;
-};
-
-&usb0 {
 	bootph-pre-ram;
 };
 

@@ -18,8 +18,6 @@
 		ethernet0 = &cpsw_port1;
 		remoteproc0 = &sysctrler;
 		remoteproc1 = &a53_0;
-		usb0 = &usb0;
-		usb1 = &usb1;
 	};
 
 	a53_0: a53@0 {
@@ -114,14 +112,6 @@
 	};
 };
 
-&main_pmx0 {
-	usb0_pins_default: usb0_pins_default {
-		pinctrl-single,pins = <
-			AM65X_IOPAD(0x02bc, PIN_OUTPUT, 0) /* (AD9) USB0_DRVVBUS */
-		>;
-	};
-};
-
 &memorycontroller {
 	vtt-supply = <&vtt_supply>;
 	pinctrl-names = "default";
@@ -161,31 +151,12 @@
 	      <0x0 0x50000000 0x0 0x8000000>;
 };
 
-&main_pmx0 {
-	usb0_pins_default: usb0_pins_default {
-		pinctrl-single,pins = <
-			AM65X_IOPAD(0x02bc, PIN_OUTPUT, 0) /* (AD9) USB0_DRVVBUS */
-		>;
-	};
-};
-
 &dwc3_0 {
 	status = "okay";
 	/delete-property/ clocks;
 	/delete-property/ power-domains;
 	/delete-property/ assigned-clocks;
 	/delete-property/ assigned-clock-parents;
-};
-
-&usb0_phy {
-	status = "okay";
-	/delete-property/ clocks;
-};
-
-&usb0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&usb0_pins_default>;
-	dr_mode = "peripheral";
 };
 
 &davinci_mdio {
