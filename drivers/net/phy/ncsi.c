@@ -619,9 +619,12 @@ static void ncsi_handle_aen(struct ip_udp_hdr *ip, unsigned int len)
 
 	/* Link or configuration lost - just redo the discovery process */
 	ncsi_priv->state = NCSI_PROBE_PACKAGE_SP;
-	for (i = 0; i < ncsi_priv->n_packages; i++)
+	for (i = 0; i < ncsi_priv->n_packages; i++) {
 		free(ncsi_priv->packages[i].channels);
+		ncsi_priv->packages[i].channels = NULL;
+	}
 	free(ncsi_priv->packages);
+	ncsi_priv->packages = NULL;
 	ncsi_priv->n_packages = 0;
 
 	ncsi_priv->current_package = NCSI_PACKAGE_MAX;
