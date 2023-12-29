@@ -46,15 +46,6 @@
 		ti,sci-host-id = <10>;
 		bootph-pre-ram;
 	};
-
-	vtt_supply: vtt_supply {
-		compatible = "regulator-gpio";
-		regulator-name = "vtt";
-		regulator-min-microvolt = <0>;
-		regulator-max-microvolt = <3300000>;
-		gpios = <&wkup_gpio0 28 GPIO_ACTIVE_HIGH>;
-		states = <0 0x0 3300000 0x1>;
-	};
 };
 
 &cbass_main {
