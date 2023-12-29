@@ -39,22 +39,15 @@
 	};
 };
 
-&cbass_mcu {
-	mcu_secproxy: secproxy@28380000 {
-		compatible = "ti,am654-secure-proxy";
-		reg = <0x0 0x2a380000 0x0 0x80000>,
-		      <0x0 0x2a400000 0x0 0x80000>,
-		      <0x0 0x2a480000 0x0 0x80000>;
-		reg-names = "rt", "scfg", "target_data";
-		#mbox-cells = <1>;
-		bootph-pre-ram;
-	};
+&secure_proxy_mcu {
+	status = "okay";
+	bootph-pre-ram;
 };
 
 &cbass_wakeup {
 	sysctrler: sysctrler {
 		compatible = "ti,am654-system-controller";
-		mboxes= <&mcu_secproxy 4>, <&mcu_secproxy 5>;
+		mboxes= <&secure_proxy_mcu 4>, <&secure_proxy_mcu 5>;
 		mbox-names = "tx", "rx";
 		bootph-pre-ram;
 	};
@@ -76,7 +69,9 @@
 };
 
 &dmsc {
-	mboxes= <&mcu_secproxy 8>, <&mcu_secproxy 6>, <&mcu_secproxy 5>;
+	mboxes = <&secure_proxy_mcu 8>,
+		 <&secure_proxy_mcu 6>,
+		 <&secure_proxy_mcu 5>;
 	mbox-names = "tx", "rx", "notify";
 	ti,host-id = <4>;
 	ti,secure-host;
