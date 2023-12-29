@@ -16,6 +16,7 @@
 #include <opensbi.h>
 #include <linux/libfdt.h>
 #include <linux/printk.h>
+#include <mapmem.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -56,6 +57,20 @@ void __noreturn spl_invoke_opensbi(struct spl_image_info *spl_image)
 		pr_err("No device tree specified in SPL image\n");
 		hang();
 	}
+
+	/*
+	 * Originally, u-boot-spl will place DTB directly after the kernel,
+	 * but the size of the kernel did not include the BSS section, which
+	 * means u-boot-spl will place the DTB in the kernel BSS section
+	 * causing the DTB to be cleared by kernel BSS initializtion.
+	 * Moving DTB in front of the kernel can avoid the error.
+	 */
+#if CONFIG_IS_ENABLED(LOAD_FIT_OPENSBI_OS_BOOT) && \
+    CONFIG_IS_ENABLED(PAYLOAD_ARGS_ADDR)
+	memcpy((void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR, spl_image->fdt_addr,
+	       fdt_totalsize(spl_image->fdt_addr));
+	spl_image->fdt_addr = map_sysmem(CONFIG_SPL_PAYLOAD_ARGS_ADDR, 0);
+#endif
 
 	/*
 	 * Find next os image in /fit-images
