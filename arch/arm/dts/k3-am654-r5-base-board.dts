@@ -104,18 +104,8 @@
 	vdd-supply-4 = <&vdd_mpu>;
 };
 
-&wkup_pmx0 {
-	wkup_vtt_pins_default: wkup_vtt_pins_default {
-		pinctrl-single,pins = <
-			AM65X_WKUP_IOPAD(0x0040, PIN_OUTPUT_PULLUP, 7)	/* WKUP_GPIO0_28 */
-		>;
-	};
-};
-
 &memorycontroller {
 	vtt-supply = <&vtt_supply>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&wkup_vtt_pins_default>;
 };
 
 /*

@@ -93,7 +93,7 @@
 	bootph-pre-ram;
 };
 
-&wkup_vtt_pins_default {
+&ddr_vtt_pins_default {
 	bootph-pre-ram;
 };
 
