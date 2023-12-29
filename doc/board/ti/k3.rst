@@ -104,6 +104,49 @@ firmware can be loaded on the now free core in the wakeup domain.
 For more information on the bootup process of your SoC, consult the
 device specific boot flow documentation.
 
+Secure Boot
+-----------
+
+K3 HS-SE (High Security - Security Enforced) devices enforce an
+authenticated boot flow for secure boot. HS-FS (High Security - Field
+Securable) is the state of a K3 device before it has been eFused with
+customer security keys.  In the HS-FS state the authentication still can
+function as in HS-SE but as there are no customer keys to verify the
+signatures against the authentication will pass for certificates signed
+with any key.
+
+Chain of trust
+^^^^^^^^^^^^^^
+
+1) Public ROM loads the tiboot3.bin (R5 SPL, TIFS)
+2) R5 SPL loads tispl.bin (ATF, OP-TEE, DM, SPL)
+3) SPL loads u-boot.img (U-Boot)
+4) U-Boot loads fitImage (Linux and DTBs)
+
+Steps 1-3 are all authenticated by either the Secure ROM or TIFS as the
+authenticating entity and step 4 uses U-boot standard mechanism for
+authenticating.
+
+All the authentication that are done for ROM/TIFS are done through x509
+certificates that are signed.
+
+Firewalls
+^^^^^^^^^
+
+1) Secure ROM comes up and sets up firewalls that are needed by itself
+2) TIFS will setup it's own firewalls to protect core system resources
+3) R5 SPL will remove any firewalls that are leftover from the Secure ROM stage
+   that are no longer required.
+4) Each stage beyond this: such as tispl.bin containing TFA/OPTEE uses OIDs to
+   set up firewalls to protect themselves (enforced by TIFS)
+5) TFA/OP-TEE can configure other firewalls at runtime if required as they
+   are already authenticated and firewalled off from illegal access.
+6) All later stages can setup or remove firewalls that have not been already
+   configured by previous stages, such as those created by TIFS, TFA, and OP-TEE.
+
+Futhur, firewalls have a lockdown bit in hardware that enforces the setting
+(and cannot be over-ridden) until the full system is reset.
+
 Software Sources
 ----------------
 
