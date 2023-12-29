@@ -782,7 +782,7 @@ class Node:
             for node in parent.subnodes.__reversed__():
                 dst = self.copy_node(node)
 
-            tout.debug(f'merge props from {parent.path} to {dst.path}')
+            tout.debug(f'merge props from {parent.path} to {self.path}')
             self.merge_props(parent, False)
 
 
