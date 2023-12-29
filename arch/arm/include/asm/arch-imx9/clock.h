@@ -222,6 +222,7 @@ u32 mxc_get_clock(enum mxc_clock clk);
 void dram_pll_init(ulong pll_val);
 void dram_enable_bypass(ulong clk_val);
 void dram_disable_bypass(void);
+void set_arm_core_max_clk(void);
 
 int configure_intpll(enum ccm_clk_src pll, u32 freq);
 
