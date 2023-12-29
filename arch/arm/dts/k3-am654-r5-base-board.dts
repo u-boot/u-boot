@@ -30,6 +30,13 @@
 		ti,sci-host-id = <10>;
 		bootph-pre-ram;
 	};
+
+	clk_200mhz: dummy_clock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <200000000>;
+		bootph-pre-ram;
+	};
 };
 
 &cbass_mcu {
@@ -49,13 +56,6 @@
 		compatible = "ti,am654-system-controller";
 		mboxes= <&mcu_secproxy 4>, <&mcu_secproxy 5>;
 		mbox-names = "tx", "rx";
-		bootph-pre-ram;
-	};
-
-	clk_200mhz: dummy_clock {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <200000000>;
 		bootph-pre-ram;
 	};
 };
