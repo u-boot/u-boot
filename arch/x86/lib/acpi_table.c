@@ -197,7 +197,7 @@ int acpi_write_tcpa(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 
 	tcpa->platform_class = 0;
 	tcpa->laml = size;
-	tcpa->lasa = map_to_sysmem(log);
+	tcpa->lasa = nomap_to_sysmem(log);
 
 	/* (Re)calculate length and checksum */
 	current = (u32)tcpa + sizeof(struct acpi_tcpa);
@@ -268,7 +268,7 @@ static int acpi_write_tpm2(struct acpi_ctx *ctx,
 
 	/* Fill the log area size and start address fields. */
 	tpm2->laml = tpm2_log_len;
-	tpm2->lasa = map_to_sysmem(lasa);
+	tpm2->lasa = nomap_to_sysmem(lasa);
 
 	/* Calculate checksum. */
 	header->checksum = table_compute_checksum(tpm2, header->length);
@@ -430,7 +430,7 @@ int acpi_write_gnvs(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 			u32 *gnvs = (u32 *)((u32)ctx->dsdt + i);
 
 			if (*gnvs == ACPI_GNVS_ADDR) {
-				*gnvs = map_to_sysmem(ctx->current);
+				*gnvs = nomap_to_sysmem(ctx->current);
 				log_debug("Fix up global NVS in DSDT to %#08x\n",
 					  *gnvs);
 				break;

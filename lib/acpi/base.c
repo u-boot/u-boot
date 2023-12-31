@@ -24,10 +24,10 @@ void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
 	memcpy(rsdp->oem_id, OEM_ID, 6);
 
 	if (rsdt)
-		rsdp->rsdt_address = map_to_sysmem(rsdt);
+		rsdp->rsdt_address = nomap_to_sysmem(rsdt);
 
 	if (xsdt)
-		rsdp->xsdt_address = map_to_sysmem(xsdt);
+		rsdp->xsdt_address = nomap_to_sysmem(xsdt);
 
 	rsdp->length = sizeof(struct acpi_rsdp);
 	rsdp->revision = ACPI_RSDP_REV_ACPI_2_0;

@@ -45,7 +45,7 @@ static int dump_table_name(const char *sig)
 	if (!hdr)
 		return -ENOENT;
 	printf("%.*s @ %16lx\n", ACPI_NAME_LEN, hdr->signature,
-	       (ulong)map_to_sysmem(hdr));
+	       (ulong)nomap_to_sysmem(hdr));
 	print_buffer(0, hdr, 1, hdr->length, 0);
 
 	return 0;
@@ -54,9 +54,9 @@ static int dump_table_name(const char *sig)
 static void list_fadt(struct acpi_fadt *fadt)
 {
 	if (fadt->dsdt)
-		dump_hdr(map_sysmem(fadt->dsdt, 0));
+		dump_hdr(nomap_sysmem(fadt->dsdt, 0));
 	if (fadt->firmware_ctrl)
-		dump_hdr(map_sysmem(fadt->firmware_ctrl, 0));
+		dump_hdr(nomap_sysmem(fadt->firmware_ctrl, 0));
 }
 
 static void list_rsdt(struct acpi_rsdp *rsdp)
@@ -66,11 +66,11 @@ static void list_rsdt(struct acpi_rsdp *rsdp)
 	struct acpi_xsdt *xsdt;
 
 	if (rsdp->rsdt_address) {
-		rsdt = map_sysmem(rsdp->rsdt_address, 0);
+		rsdt = nomap_sysmem(rsdp->rsdt_address, 0);
 		dump_hdr(&rsdt->header);
 	}
 	if (rsdp->xsdt_address) {
-		xsdt = map_sysmem(rsdp->xsdt_address, 0);
+		xsdt = nomap_sysmem(rsdp->xsdt_address, 0);
 		dump_hdr(&xsdt->header);
 		len = xsdt->header.length - sizeof(xsdt->header);
 		count = len / sizeof(u64);
@@ -91,7 +91,7 @@ static void list_rsdt(struct acpi_rsdp *rsdp)
 			entry = rsdt->entry[i];
 		if (!entry)
 			break;
-		hdr = map_sysmem(entry, 0);
+		hdr = nomap_sysmem(entry, 0);
 		dump_hdr(hdr);
 		if (!memcmp(hdr->signature, "FACP", ACPI_NAME_LEN))
 			list_fadt((struct acpi_fadt *)hdr);
