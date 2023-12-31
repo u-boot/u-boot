@@ -54,27 +54,25 @@ efi_status_t efi_smbios_register(void)
 
 static int install_smbios_table(void)
 {
-	u64 addr;
-	efi_status_t ret;
+	ulong addr;
+	void *buf;
 
 	if (!IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE) || IS_ENABLED(CONFIG_X86))
 		return 0;
 
-	addr = SZ_4G;
-	ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
-				 EFI_RUNTIME_SERVICES_DATA,
-				 efi_size_in_pages(TABLE_SIZE), &addr);
-	if (ret != EFI_SUCCESS)
+	/* Align the table to a 4KB boundary to keep EFI happy */
+	buf = memalign(SZ_4K, TABLE_SIZE);
+	if (!buf)
 		return log_msg_ret("mem", -ENOMEM);
 
-	addr = map_to_sysmem((void *)(uintptr_t)addr);
+	addr = map_to_sysmem(buf);
 	if (!write_smbios_table(addr)) {
 		log_err("Failed to write SMBIOS table\n");
 		return log_msg_ret("smbios", -EINVAL);
 	}
 
 	/* Make a note of where we put it */
-	log_debug("SMBIOS tables written to %llx\n", addr);
+	log_debug("SMBIOS tables written to %lx\n", addr);
 	gd->arch.smbios_start = addr;
 
 	return 0;
