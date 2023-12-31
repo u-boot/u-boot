@@ -258,12 +258,13 @@ static inline void fill_smbios_header(void *table, int type,
  *
  * This writes SMBIOS table at a given address.
  *
- * @addr:	start address to write SMBIOS table. If this is not
- *		16-byte-aligned then it will be aligned before the table is
- *		written.
+ * @addr:	start address to write SMBIOS table, 16-byte-alignment
+ * recommended. Note that while the SMBIOS tables themself have no alignment
+ * requirement, some systems may requires alignment. For example x86 systems
+ * which put tables at f0000 require 16-byte alignment
+ *
  * Return:	end address of SMBIOS table (and start address for next entry)
  *		or NULL in case of an error
- *
  */
 ulong write_smbios_table(ulong addr);
 

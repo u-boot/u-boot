@@ -563,8 +563,6 @@ ulong write_smbios_table(ulong addr)
 		ctx.dev = NULL;
 	}
 
-	/* 16 byte align the table address */
-	addr = ALIGN(addr, 16);
 	start_addr = addr;
 
 	/*
