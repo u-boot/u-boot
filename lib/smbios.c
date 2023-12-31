@@ -544,9 +544,8 @@ static struct smbios_write_method smbios_write_funcs[] = {
 ulong write_smbios_table(ulong addr)
 {
 	ofnode parent_node = ofnode_null();
-	struct smbios_entry *se;
+	ulong table_addr, start_addr;
 	struct smbios_ctx ctx;
-	ulong table_addr;
 	ulong tables;
 	int len = 0;
 	int max_struct_size = 0;
@@ -566,9 +565,7 @@ ulong write_smbios_table(ulong addr)
 
 	/* 16 byte align the table address */
 	addr = ALIGN(addr, 16);
-
-	se = map_sysmem(addr, sizeof(struct smbios_entry));
-	memset(se, 0, sizeof(struct smbios_entry));
+	start_addr = addr;
 
 	addr += sizeof(struct smbios_entry);
 	addr = ALIGN(addr, 16);
@@ -603,8 +600,11 @@ ulong write_smbios_table(ulong addr)
 		printf("WARNING: SMBIOS table_address overflow %llx\n",
 		       (unsigned long long)table_addr);
 		addr = 0;
-		goto out;
 	} else {
+		struct smbios_entry *se;
+
+		se = map_sysmem(start_addr, sizeof(struct smbios_entry));
+		memset(se, '\0', sizeof(struct smbios_entry));
 		memcpy(se->anchor, "_SM_", 4);
 		se->length = sizeof(struct smbios_entry);
 		se->major_ver = SMBIOS_MAJOR_VER;
@@ -625,9 +625,8 @@ ulong write_smbios_table(ulong addr)
 								   isize);
 		se->checksum = table_compute_checksum(se,
 					      sizeof(struct smbios_entry));
+		unmap_sysmem(se);
 	}
-out:
-	unmap_sysmem(se);
 
 	return addr;
 }
