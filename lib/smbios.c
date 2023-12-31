@@ -589,14 +589,6 @@ ulong write_smbios_table(ulong addr)
 		len += tmp;
 	}
 
-	memcpy(se->anchor, "_SM_", 4);
-	se->length = sizeof(struct smbios_entry);
-	se->major_ver = SMBIOS_MAJOR_VER;
-	se->minor_ver = SMBIOS_MINOR_VER;
-	se->max_struct_size = max_struct_size;
-	memcpy(se->intermediate_anchor, "_DMI_", 5);
-	se->struct_table_length = len;
-
 	/*
 	 * We must use a pointer here so things work correctly on sandbox. The
 	 * user of this table is not aware of the mapping of addresses to
@@ -612,16 +604,28 @@ ulong write_smbios_table(ulong addr)
 		       (unsigned long long)table_addr);
 		addr = 0;
 		goto out;
+	} else {
+		memcpy(se->anchor, "_SM_", 4);
+		se->length = sizeof(struct smbios_entry);
+		se->major_ver = SMBIOS_MAJOR_VER;
+		se->minor_ver = SMBIOS_MINOR_VER;
+		se->max_struct_size = max_struct_size;
+		memcpy(se->intermediate_anchor, "_DMI_", 5);
+		se->struct_table_length = len;
+
+		se->struct_table_address = table_addr;
+
+		se->struct_count = handle;
+
+		/* calculate checksums */
+		istart = (char *)se + SMBIOS_INTERMEDIATE_OFFSET;
+		isize = sizeof(struct smbios_entry) -
+			SMBIOS_INTERMEDIATE_OFFSET;
+		se->intermediate_checksum = table_compute_checksum(istart,
+								   isize);
+		se->checksum = table_compute_checksum(se,
+					      sizeof(struct smbios_entry));
 	}
-	se->struct_table_address = table_addr;
-
-	se->struct_count = handle;
-
-	/* calculate checksums */
-	istart = (char *)se + SMBIOS_INTERMEDIATE_OFFSET;
-	isize = sizeof(struct smbios_entry) - SMBIOS_INTERMEDIATE_OFFSET;
-	se->intermediate_checksum = table_compute_checksum(istart, isize);
-	se->checksum = table_compute_checksum(se, sizeof(struct smbios_entry));
 out:
 	unmap_sysmem(se);
 
