@@ -14,6 +14,8 @@
 #include <smbios.h>
 #include <linux/sizes.h>
 
+const efi_guid_t smbios3_guid = SMBIOS3_TABLE_GUID;
+
 enum {
 	TABLE_SIZE	= SZ_4K,
 };
@@ -25,8 +27,10 @@ enum {
  */
 efi_status_t efi_smbios_register(void)
 {
+	const efi_guid_t *guid;
 	ulong addr;
 	efi_status_t ret;
+	void *buf;
 
 	addr = gd_smbios_start();
 	if (!addr) {
@@ -42,8 +46,12 @@ efi_status_t efi_smbios_register(void)
 	log_debug("EFI using SMBIOS tables at %lx\n", addr);
 
 	/* Install SMBIOS information as configuration table */
-	return efi_install_configuration_table(&smbios_guid,
-					       map_sysmem(addr, 0));
+	buf = map_sysmem(addr, 0);
+	guid = !memcmp(buf, "_SM_", 4) ? &smbios_guid : &smbios3_guid;
+	ret = efi_install_configuration_table(guid, buf);
+	unmap_sysmem(buf);
+
+	return ret;
 }
 
 static int install_smbios_table(void)
