@@ -545,13 +545,12 @@ ulong write_smbios_table(ulong addr)
 {
 	ofnode parent_node = ofnode_null();
 	ulong table_addr, start_addr;
+	struct smbios3_entry *se;
 	struct smbios_ctx ctx;
 	ulong tables;
 	int len = 0;
 	int max_struct_size = 0;
 	int handle = 0;
-	char *istart;
-	int isize;
 	int i;
 
 	ctx.node = ofnode_null();
@@ -565,12 +564,8 @@ ulong write_smbios_table(ulong addr)
 
 	start_addr = addr;
 
-	/*
-	 * So far we don't know which struct will be used, but they both end
-	 * up using the same amount of 16-bit-aligned space
-	 */
-	addr += max(sizeof(struct smbios_entry), sizeof(struct smbios3_entry));
-	addr = ALIGN(addr, 16);
+	/* move past the (so-far-unwritten) header to start writing structs */
+	addr = ALIGN(addr + sizeof(struct smbios3_entry), 16);
 	tables = addr;
 
 	/* populate minimum required tables */
@@ -592,59 +587,22 @@ ulong write_smbios_table(ulong addr)
 	 * We must use a pointer here so things work correctly on sandbox. The
 	 * user of this table is not aware of the mapping of addresses to
 	 * sandbox's DRAM buffer.
-	 *
-	 * Check the address of the end of the tables. If it is above 4GB then
-	 * it is sensible to use SMBIOS3 even if the start of the table is below
-	 * 4GB (this case is very unlikely to happen in practice)
 	 */
 	table_addr = (ulong)map_sysmem(tables, 0);
-	if (sizeof(table_addr) > sizeof(u32) && addr >= (ulong)UINT_MAX) {
-		struct smbios3_entry *se;
-		/*
-		 * We need to put this >32-bit pointer into the table but the
-		 * field is only 32 bits wide.
-		 */
-		log_debug("WARNING: Using SMBIOS3.0 due to table-address overflow %lx\n",
-			  table_addr);
-		se = map_sysmem(start_addr, sizeof(struct smbios_entry));
-		memset(se, '\0', sizeof(struct smbios_entry));
-		memcpy(se->anchor, "_SM3_", 5);
-		se->length = sizeof(struct smbios3_entry);
-		se->major_ver = SMBIOS_MAJOR_VER;
-		se->minor_ver = SMBIOS_MINOR_VER;
-		se->doc_rev = 0;
-		se->entry_point_rev = 1;
-		se->max_struct_size = len;
-		se->struct_table_address = table_addr;
-		se->checksum = table_compute_checksum(se,
-						sizeof(struct smbios3_entry));
-	} else {
-		struct smbios_entry *se;
 
-		se = map_sysmem(start_addr, sizeof(struct smbios_entry));
-		memset(se, '\0', sizeof(struct smbios_entry));
-		memcpy(se->anchor, "_SM_", 4);
-		se->length = sizeof(struct smbios_entry);
-		se->major_ver = SMBIOS_MAJOR_VER;
-		se->minor_ver = SMBIOS_MINOR_VER;
-		se->max_struct_size = max_struct_size;
-		memcpy(se->intermediate_anchor, "_DMI_", 5);
-		se->struct_table_length = len;
-
-		se->struct_table_address = table_addr;
-
-		se->struct_count = handle;
-
-		/* calculate checksums */
-		istart = (char *)se + SMBIOS_INTERMEDIATE_OFFSET;
-		isize = sizeof(struct smbios_entry) -
-			SMBIOS_INTERMEDIATE_OFFSET;
-		se->intermediate_checksum = table_compute_checksum(istart,
-								   isize);
-		se->checksum = table_compute_checksum(se,
-					      sizeof(struct smbios_entry));
-		unmap_sysmem(se);
-	}
+	/* now go back and write the SMBIOS3 header */
+	se = map_sysmem(start_addr, sizeof(struct smbios_entry));
+	memset(se, '\0', sizeof(struct smbios_entry));
+	memcpy(se->anchor, "_SM3_", 5);
+	se->length = sizeof(struct smbios3_entry);
+	se->major_ver = SMBIOS_MAJOR_VER;
+	se->minor_ver = SMBIOS_MINOR_VER;
+	se->doc_rev = 0;
+	se->entry_point_rev = 1;
+	se->max_struct_size = len;
+	se->struct_table_address = table_addr;
+	se->checksum = table_compute_checksum(se, sizeof(struct smbios3_entry));
+	unmap_sysmem(se);
 
 	return addr;
 }
