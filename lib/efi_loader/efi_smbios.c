@@ -27,7 +27,6 @@ enum {
  */
 efi_status_t efi_smbios_register(void)
 {
-	const efi_guid_t *guid;
 	ulong addr;
 	efi_status_t ret;
 	void *buf;
@@ -47,8 +46,7 @@ efi_status_t efi_smbios_register(void)
 
 	/* Install SMBIOS information as configuration table */
 	buf = map_sysmem(addr, 0);
-	guid = !memcmp(buf, "_SM_", 4) ? &smbios_guid : &smbios3_guid;
-	ret = efi_install_configuration_table(guid, buf);
+	ret = efi_install_configuration_table(&smbios3_guid, buf);
 	unmap_sysmem(buf);
 
 	return ret;
