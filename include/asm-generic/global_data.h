@@ -553,7 +553,7 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #endif
 
 #ifdef CONFIG_SMBIOS
-#define gd_smbios_start()	gd->smbios_start
+#define gd_smbios_start()	gd->arch.smbios_start
 #define gd_set_smbios_start(addr)	gd->arch.smbios_start = addr
 #else
 #define gd_smbios_start()	0UL

@@ -28,7 +28,7 @@ efi_status_t efi_smbios_register(void)
 	ulong addr;
 	efi_status_t ret;
 
-	addr = gd->arch.smbios_start;
+	addr = gd_smbios_start();
 	if (!addr) {
 		log_err("No SMBIOS tables to install\n");
 		return EFI_NOT_FOUND;
