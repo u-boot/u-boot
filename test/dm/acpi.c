@@ -330,7 +330,7 @@ static int dm_test_acpi_basic(struct unit_test_state *uts)
 DM_TEST(dm_test_acpi_basic, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test setup_ctx_and_base_tables */
-static int dm_test_setup_ctx_and_base_tables(struct unit_test_state *uts)
+static int dm_test_acpi_ctx_and_base_tables(struct unit_test_state *uts)
 {
 	struct acpi_rsdp *rsdp;
 	struct acpi_rsdt *rsdt;
@@ -376,7 +376,7 @@ static int dm_test_setup_ctx_and_base_tables(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_setup_ctx_and_base_tables,
+DM_TEST(dm_test_acpi_ctx_and_base_tables,
 	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test 'acpi list' command */
