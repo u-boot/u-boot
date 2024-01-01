@@ -42,6 +42,12 @@
 #define BCM54810_SHD_CLK_CTL				0x3
 #define BCM54810_SHD_CLK_CTL_GTXCLK_EN			BIT(9)
 
+#define BCM54XX_SHD_LEDS1		0x0d
+#define BCM_LED_SRC_LINKSPD2		0x1
+#define BCM_LED_SRC_ACTIVITYLED		0x3
+#define BCM54XX_SHD_LEDS1_LED3(src)	(((src) & 0xf) << 4)
+#define BCM54XX_SHD_LEDS1_LED1(src)	(((src) & 0xf) << 0)
+
 static int bcm54xx_auxctl_read(struct phy_device *phydev, u16 regnum)
 {
 	/* The register must be written to both the Shadow Register Select and
@@ -148,7 +154,16 @@ static int bcm54210e_config(struct phy_device *phydev)
 	if (ret < 0)
 		return ret;
 
-	return bcm5461_config(phydev);
+	ret = bcm5461_config(phydev);
+	if (ret < 0)
+		return ret;
+
+	/* Configure LEDs to blink. */
+	bcm_phy_write_shadow(phydev, BCM54XX_SHD_LEDS1,
+			     BCM54XX_SHD_LEDS1_LED1(BCM_LED_SRC_ACTIVITYLED) |
+			     BCM54XX_SHD_LEDS1_LED3(BCM_LED_SRC_LINKSPD2));
+
+	return 0;
 }
 
 static int bcm54xx_parse_status(struct phy_device *phydev)
