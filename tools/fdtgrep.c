@@ -63,6 +63,7 @@ struct display_info {
 	int types_inc;		/* Mask of types that we include (FDT_IS...) */
 	int types_exc;		/* Mask of types that we exclude (FDT_IS...) */
 	int invert;		/* Invert polarity of match */
+	int props_up;		/* Imply properties up to supernodes */
 	struct value_node *value_head;	/* List of values to match */
 	const char *output_fname;	/* Output filename */
 	FILE *fout;		/* File to write dts/dtb output */
@@ -375,8 +376,9 @@ static int display_fdt_by_regions(struct display_info *disp, const void *blob,
 		const char *str;
 		int str_base = fdt_off_dt_strings(blob);
 
-		for (offset = 0; offset < fdt_size_dt_strings(blob);
-				offset += strlen(str) + 1) {
+		for (offset = 0;
+		     offset < (int)fdt_size_dt_strings(blob);
+		     offset += strlen(str) + 1) {
 			str = fdt_string(blob, offset);
 			int len = strlen(str) + 1;
 			int show;
@@ -431,7 +433,7 @@ static int dump_fdt_regions(struct display_info *disp, const void *blob,
 {
 	struct fdt_header *fdt;
 	int size, struct_start;
-	int ptr;
+	unsigned int ptr;
 	int i;
 
 	/* Set up a basic header (even if we don't actually write it) */
@@ -575,15 +577,65 @@ static int check_type_include(void *priv, int type, const char *data, int size)
 }
 
 /**
- * h_include() - Include handler function for fdt_find_regions()
+ * check_props() - Check if a node has properties that we want to include
+ *
+ * Calls check_type_include() for each property in the nodn, returning 1 if
+ * that function returns 1 for any of them
+ *
+ * @disp:	Display structure, holding info about our options
+ * @fdt:	Devicetree blob to check
+ * @node:	Node offset to check
+ * @inc:	Current value of the 'include' variable (see h_include())
+ * Return: 0 to exclude, 1 to include, -1 if no information is available
+ */
+static int check_props(struct display_info *disp, const void *fdt, int node,
+		       int inc)
+{
+	int offset;
+
+	for (offset = fdt_first_property_offset(fdt, node);
+	     offset > 0 && inc != 1;
+	     offset = fdt_next_property_offset(fdt, offset)) {
+		const struct fdt_property *prop;
+		const char *str;
+
+		prop = fdt_get_property_by_offset(fdt, offset, NULL);
+		if (!prop)
+			continue;
+		str = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
+		inc = check_type_include(disp, FDT_NODE_HAS_PROP, str,
+					 strlen(str));
+	}
+
+	/* if requested, check all subnodes for this property too */
+	if (inc != 1 && disp->props_up) {
+		int subnode;
+
+		for (subnode = fdt_first_subnode(fdt, node);
+		     subnode > 0 && inc != 1;
+		     subnode = fdt_next_subnode(fdt, subnode))
+			inc = check_props(disp, fdt, subnode, inc);
+	}
+
+	return inc;
+}
+
+/**
+ * h_include() - Include handler function for fdt_first_region()
  *
  * This function decides whether to include or exclude a node, property or
- * compatible string. The function is defined by fdt_find_regions().
+ * compatible string. The function is defined by fdt_first_region().
  *
  * The algorithm is documented in the code - disp->invert is 0 for normal
  * operation, and 1 to invert the sense of all matches.
  *
- * See
+ * @priv: Private pointer as passed to fdtgrep_find_regions()
+ * @fdt: Pointer to FDT blob
+ * @offset: Offset of this node / property
+ * @type: Type of this part, FDT_IS_...
+ * @data: Pointer to data (node name, property name, compatible string)
+ * @size: Size of data, or 0 if none
+ * Return: 0 to exclude, 1 to include, -1 if no information is available
  */
 static int h_include(void *priv, const void *fdt, int offset, int type,
 		     const char *data, int size)
@@ -610,31 +662,13 @@ static int h_include(void *priv, const void *fdt, int offset, int type,
 	    (disp->types_inc & FDT_NODE_HAS_PROP)) {
 		debug("   - checking node '%s'\n",
 		      fdt_get_name(fdt, offset, NULL));
-		for (offset = fdt_first_property_offset(fdt, offset);
-		     offset > 0 && inc != 1;
-		     offset = fdt_next_property_offset(fdt, offset)) {
-			const struct fdt_property *prop;
-			const char *str;
-
-			prop = fdt_get_property_by_offset(fdt, offset, NULL);
-			if (!prop)
-				continue;
-			str = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
-			inc = check_type_include(priv, FDT_NODE_HAS_PROP, str,
-						 strlen(str));
-		}
+		inc = check_props(disp, fdt, offset, inc);
 		if (inc == -1)
 			inc = 0;
 	}
 
-	switch (inc) {
-	case 1:
-		inc = !disp->invert;
-		break;
-	case 0:
-		inc = disp->invert;
-		break;
-	}
+	if (inc != -1 && disp->invert)
+		inc = !inc;
 	debug("   - returning %d\n", inc);
 
 	return inc;
@@ -683,10 +717,10 @@ static int fdtgrep_find_regions(const void *fdt,
 			return new_count;
 		} else if (new_count <= max_regions) {
 			/*
-			* The alias regions will now be at the end of the list.
-			* Sort the regions by offset to get things into the
-			* right order
-			*/
+			 * The alias regions will now be at the end of the list.
+			 * Sort the regions by offset to get things into the
+			 * right order
+			 */
 			count = new_count;
 			qsort(region, count, sizeof(struct fdt_region),
 			      h_cmp_region);
@@ -821,7 +855,7 @@ static int do_fdtgrep(struct display_info *disp, const char *filename)
 				region, max_regions, path, sizeof(path),
 				disp->flags);
 		if (count < 0) {
-			report_error("fdt_find_regions", count);
+			report_error("fdtgrep_find_regions", count);
 			free(region);
 			return -1;
 		}
@@ -880,7 +914,7 @@ static int do_fdtgrep(struct display_info *disp, const char *filename)
 			size = fdt_totalsize(fdt);
 		}
 
-		if (size != fwrite(fdt, 1, size, disp->fout)) {
+		if ((size_t)size != fwrite(fdt, 1, size, disp->fout)) {
 			fprintf(stderr, "Write failure, %d bytes\n", size);
 			free(fdt);
 			ret = 1;
@@ -932,9 +966,9 @@ static const char usage_synopsis[] =
 	case '?': usage("unknown option");
 
 static const char usage_short_opts[] =
-		"haAc:b:C:defg:G:HIlLmn:N:o:O:p:P:rRsStTv"
+		"haAc:b:C:defg:G:HIlLmn:N:o:O:p:P:rRsStTuv"
 		USAGE_COMMON_SHORT_OPTS;
-static struct option const usage_long_opts[] = {
+static const struct option usage_long_opts[] = {
 	{"show-address",	no_argument, NULL, 'a'},
 	{"colour",		no_argument, NULL, 'A'},
 	{"include-node-with-prop", a_argument, NULL, 'b'},
@@ -952,6 +986,8 @@ static struct option const usage_long_opts[] = {
 	{"include-mem",		no_argument, NULL, 'm'},
 	{"include-node",	a_argument, NULL, 'n'},
 	{"exclude-node",	a_argument, NULL, 'N'},
+	{"out",			a_argument, NULL, 'o'},
+	{"out-format",		a_argument, NULL, 'O'},
 	{"include-prop",	a_argument, NULL, 'p'},
 	{"exclude-prop",	a_argument, NULL, 'P'},
 	{"remove-strings",	no_argument, NULL, 'r'},
@@ -960,8 +996,7 @@ static struct option const usage_long_opts[] = {
 	{"skip-supernodes",	no_argument, NULL, 'S'},
 	{"show-stringtab",	no_argument, NULL, 't'},
 	{"show-aliases",	no_argument, NULL, 'T'},
-	{"out",			a_argument, NULL, 'o'},
-	{"out-format",		a_argument, NULL, 'O'},
+	{"props-up-to-supernode", no_argument, NULL, 'u'},
 	{"invert-match",	no_argument, NULL, 'v'},
 	USAGE_COMMON_LONG_OPTS,
 };
@@ -983,6 +1018,8 @@ static const char * const usage_opts_help[] = {
 	"Include mem_rsvmap section in binary output",
 	"Node to include in grep",
 	"Node to exclude in grep",
+	"-o <output file>",
+	"-O <output format>",
 	"Property to include in grep",
 	"Property to exclude in grep",
 	"Remove unused strings from string table",
@@ -991,8 +1028,7 @@ static const char * const usage_opts_help[] = {
 	"Don't include supernodes of matching nodes",
 	"Include string table in binary output",
 	"Include matching aliases in output",
-	"-o <output file>",
-	"-O <output format>",
+	"Add -p properties to supernodes too",
 	"Invert the sense of matching (select non-matching lines)",
 	USAGE_COMMON_OPTS_HELP
 };
@@ -1124,6 +1160,9 @@ static void scan_args(struct display_info *disp, int argc, char *argv[])
 		case 'H':
 			disp->header = 1;
 			break;
+		case 'I':
+			disp->show_dts_version = 1;
+			break;
 		case 'l':
 			disp->region_list = 1;
 			break;
@@ -1176,11 +1215,11 @@ static void scan_args(struct display_info *disp, int argc, char *argv[])
 		case 'T':
 			disp->add_aliases = 1;
 			break;
+		case 'u':
+			disp->props_up = 1;
+			break;
 		case 'v':
 			disp->invert = 1;
-			break;
-		case 'I':
-			disp->show_dts_version = 1;
 			break;
 		}
 

@@ -635,8 +635,19 @@ else
 fdtgrep_props := -b bootph-all -b bootph-pre-ram $(migrate_spl)
 endif
 endif
+
+# This rule produces the .dtb for an SPL build.
+#
+# The first fdtgrep keeps nodes with the above properties (with -u ensuring that
+# the properties are implied in all parents of a matching node). The root node
+# is always included, along with /chosen and /config nodes. Referenced aliases
+# (i.e. properties in /aliases which point to an incldued node) are also
+# included.
+#
+# The second fdtgrep removes all bootph properties along with unused strings
+# and any properties in CONFIG_OF_SPL_REMOVE_PROPS
 quiet_cmd_fdtgrep = FDTGREP $@
-      cmd_fdtgrep = $(objtree)/tools/fdtgrep $(fdtgrep_props) -RT $< \
+      cmd_fdtgrep = $(objtree)/tools/fdtgrep $(fdtgrep_props) -u -RT $< \
 		-n /chosen -n /config -O dtb | \
 	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
 		-P bootph-all -P bootph-pre-ram -P bootph-pre-sram \
