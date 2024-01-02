@@ -16,7 +16,6 @@
 #include <mmc.h>
 #include <panel.h>
 #include <pwm.h>
-#include <rng.h>
 #include <stdlib.h>
 #include <video_bridge.h>
 
@@ -131,34 +130,6 @@ void spl_board_init(void)
 	/* Set GPIO0_C5 and GPIO_C6 to 0 and GPIO0_C7 to 1. */
 	writel(GPIO_WRITEMASK(GPIO_C7 | GPIO_C6 | GPIO_C5) | GPIO_C7,
 	       (GPIO0_BASE + GPIO_SWPORT_DR_H));
-}
-
-/* Use hardware rng to seed Linux random. */
-int board_rng_seed(struct abuf *buf)
-{
-	struct udevice *dev;
-	size_t len = 0x8;
-	u64 *data;
-
-	data = malloc(len);
-	if (!data) {
-		printf("Out of memory\n");
-		return -ENOMEM;
-	}
-
-	if (uclass_get_device(UCLASS_RNG, 0, &dev) || !dev) {
-		printf("No RNG device\n");
-		return -ENODEV;
-	}
-
-	if (dm_rng_read(dev, data, len)) {
-		printf("Reading RNG failed\n");
-		return -EIO;
-	}
-
-	abuf_init_set(buf, data, len);
-
-	return 0;
 }
 
 /*
