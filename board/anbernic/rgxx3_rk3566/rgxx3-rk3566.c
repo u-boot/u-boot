@@ -47,9 +47,13 @@ enum rgxx3_device_id {
 	RG353P,
 	RG353V,
 	RG503,
+	RGB30,
+	RK2023,
+	RGARCD,
 	/* Devices with duplicate ADC value */
 	RG353PS,
 	RG353VS,
+	RGARCS,
 };
 
 static const struct rg3xx_model rg3xx_model_details[] = {
@@ -82,6 +86,27 @@ static const struct rg3xx_model rg3xx_model_details[] = {
 		.fdtfile = DTB_DIR "rk3566-anbernic-rg503.dtb",
 		.detect_panel = 0,
 	},
+	[RGB30] = {
+		.adc_value = 383, /* Gathered from second hand information */
+		.board = "rk3566-powkiddy-rgb30",
+		.board_name = "RGB30",
+		.fdtfile = DTB_DIR "rk3566-powkiddy-rgb30.dtb",
+		.detect_panel = 0,
+	},
+	[RK2023] = {
+		.adc_value = 635, /* Observed average from device */
+		.board = "rk3566-powkiddy-rk2023",
+		.board_name = "RK2023",
+		.fdtfile = DTB_DIR "rk3566-powkiddy-rk2023.dtb",
+		.detect_panel = 0,
+	},
+	[RGARCD] = {
+		.adc_value = 183, /* Observed average from device */
+		.board = "rk3566-anbernic-rg-arc-d",
+		.board_name = "Anbernic RG ARC-D",
+		.fdtfile = DTB_DIR "rk3566-anbernic-rg-arc-d.dtb",
+		.detect_panel = 0,
+	},
 	/* Devices with duplicate ADC value */
 	[RG353PS] = {
 		.adc_value = 860, /* Observed average from device */
@@ -96,6 +121,13 @@ static const struct rg3xx_model rg3xx_model_details[] = {
 		.board_name = "RG353VS",
 		.fdtfile = DTB_DIR "rk3566-anbernic-rg353vs.dtb",
 		.detect_panel = 1,
+	},
+	[RGARCS] = {
+		.adc_value = 183, /* Observed average from device */
+		.board = "rk3566-anbernic-rg-arc-s",
+		.board_name = "Anbernic RG ARC-S",
+		.fdtfile = DTB_DIR "rk3566-anbernic-rg-arc-s.dtb",
+		.detect_panel = 0,
 	},
 };
 
@@ -328,19 +360,21 @@ int rgxx3_detect_device(void)
 	}
 
 	/*
-	 * Try to access the eMMC on an RG353V or RG353P. If it's
-	 * missing, it's an RG353VS or RG353PS. Note we could also
-	 * check for a touchscreen at 0x1a on i2c2.
+	 * Try to access the eMMC on an RG353V, RG353P, or RG Arc D.
+	 * If it's missing, it's an RG353VS, RG353PS, or RG Arc S.
+	 * Note we could also check for a touchscreen at 0x1a on i2c2.
 	 */
-	if (board_id == RG353V || board_id == RG353P) {
+	if (board_id == RG353V || board_id == RG353P || board_id == RGARCD) {
 		mmc = find_mmc_device(0);
 		if (mmc) {
 			ret = mmc_init(mmc);
 			if (ret) {
 				if (board_id == RG353V)
 					board_id = RG353VS;
-				else
+				else if (board_id == RG353P)
 					board_id = RG353PS;
+				else
+					board_id = RGARCS;
 			}
 		}
 	}
