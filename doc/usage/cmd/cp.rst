@@ -74,7 +74,7 @@ Configuration
 -------------
 
 The cp command is available if CONFIG_CMD_MEMORY=y. Support for 64 bit words
-(cp.q) depends on CONFIG_MEM_SUPPORT_64BIT_DATA=y. Copying to flash depends on
+(cp.q) is only available on 64-bit targets. Copying to flash depends on
 CONFIG_MTD_NOR_FLASH=y.
 
 Return value
