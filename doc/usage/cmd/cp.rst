@@ -19,7 +19,8 @@ Description
 
 The cp command is used to copy *count* chunks of memory from the *source*
 address to the *target* address. If the *target* address points to NOR flash,
-the flash is programmed.
+the flash is programmed. When the *target* address points at ordinary memory,
+memmove() is used, so the two regions may overlap.
 
 The number bytes in one chunk is defined by the suffix defaulting to 4 bytes:
 
