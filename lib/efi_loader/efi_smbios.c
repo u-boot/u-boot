@@ -13,6 +13,9 @@
 #include <mapmem.h>
 #include <smbios.h>
 #include <linux/sizes.h>
+#include <asm/global_data.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 const efi_guid_t smbios3_guid = SMBIOS3_TABLE_GUID;
 

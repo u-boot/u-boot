@@ -5,8 +5,11 @@
 
 #define LOG_CATEGORY	LOGC_BOOT
 
+#include <errno.h>
 #include <smbios.h>
+#include <string.h>
 #include <tables_csum.h>
+#include <linux/kernel.h>
 
 const struct smbios_entry *smbios_entry(u64 address, u32 size)
 {
