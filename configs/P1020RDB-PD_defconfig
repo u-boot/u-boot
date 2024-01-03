@@ -26,12 +26,12 @@ CONFIG_OF_BOARD_SETUP=y
 CONFIG_OF_STDOUT_VIA_ALIAS=y
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="setenv bootargs root=/dev/$bdev rw rootdelay=30 console=$consoledev,$baudrate $othbootargs;usb start;ext2load usb 0:1 $loadaddr /boot/$bootfile;ext2load usb 0:1 $fdtaddr /boot/$fdtfile;bootm $loadaddr - $fdtaddr"
+CONFIG_SYS_PBSIZE=276
 CONFIG_BOARD_EARLY_INIT_F=y
 CONFIG_BOARD_EARLY_INIT_R=y
 # CONFIG_MISC_INIT_R is not set
 CONFIG_HUSH_PARSER=y
 # CONFIG_AUTO_COMPLETE is not set
-CONFIG_SYS_PBSIZE=276
 CONFIG_CMD_IMLS=y
 CONFIG_SYS_EEPROM_PAGE_WRITE_BITS=3
 CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS=5

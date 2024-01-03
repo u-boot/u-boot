@@ -16,19 +16,19 @@ CONFIG_OF_BOARD_FIXUP=y
 CONFIG_ENV_VARS_UBOOT_CONFIG=y
 # CONFIG_EXPERT is not set
 # CONFIG_LEGACY_IMAGE_FORMAT is not set
+CONFIG_SYS_BOOTM_LEN=0x10000000
 # CONFIG_ARCH_FIXUP_FDT_MEMORY is not set
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="fdt addr ${fdtcontroladdr}; fdt move ${fdtcontroladdr} ${fdt_addr_r}; load mmc ${mmcdev}:${mmcpart} ${kernel_addr_r} ${image}; booti ${kernel_addr_r} - ${fdt_addr_r}; "
-CONFIG_SYS_PROMPT="openpiton$ "
 CONFIG_SYS_CBSIZE=256
 CONFIG_SYS_PBSIZE=284
+CONFIG_SYS_PROMPT="openpiton$ "
 # CONFIG_CMD_CPU is not set
 CONFIG_CMD_BOOTZ=y
 # CONFIG_BOOTM_NETBSD is not set
 # CONFIG_BOOTM_PLAN9 is not set
 # CONFIG_BOOTM_RTEMS is not set
 # CONFIG_BOOTM_VXWORKS is not set
-CONFIG_SYS_BOOTM_LEN=0x10000000
 # CONFIG_CMD_RUN is not set
 # CONFIG_CMD_IMI is not set
 # CONFIG_CMD_XIMG is not set
@@ -43,7 +43,6 @@ CONFIG_CMD_MEMINFO=y
 # CONFIG_CMD_UNZIP is not set
 # CONFIG_CMD_FLASH is not set
 CONFIG_CMD_GPT=y
-# CONFIG_RANDOM_UUID is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 CONFIG_CMD_LSBLK=y
@@ -75,6 +74,7 @@ CONFIG_RAM=y
 CONFIG_DM_RTC=y
 CONFIG_SYS_NS16550=y
 CONFIG_FS_SQUASHFS=y
+# CONFIG_RANDOM_UUID is not set
 CONFIG_SHA1=y
 CONFIG_SHA256=y
 CONFIG_MD5=y

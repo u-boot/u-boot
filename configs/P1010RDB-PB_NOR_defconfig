@@ -24,12 +24,12 @@ CONFIG_OF_BOARD_SETUP=y
 CONFIG_OF_STDOUT_VIA_ALIAS=y
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="setenv bootargs root=/dev/ram rw console=$consoledev,$baudrate $othbootargs ramdisk_size=$ramdisk_size;tftp $ramdiskaddr $ramdiskfile;tftp $loadaddr $bootfile;tftp $fdtaddr $fdtfile;bootm $loadaddr $ramdiskaddr $fdtaddr"
+CONFIG_SYS_PBSIZE=276
 CONFIG_SYS_CONSOLE_IS_IN_ENV=y
 CONFIG_BOARD_EARLY_INIT_F=y
 CONFIG_BOARD_EARLY_INIT_R=y
 CONFIG_ID_EEPROM=y
 CONFIG_HUSH_PARSER=y
-CONFIG_SYS_PBSIZE=276
 CONFIG_CMD_IMLS=y
 CONFIG_SYS_EEPROM_PAGE_WRITE_BITS=3
 CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS=5
