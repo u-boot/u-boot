@@ -16,7 +16,8 @@ Description
 The wget command is used to download a file from an HTTP server.
 
 wget command will use HTTP over TCP to download files from an HTTP server.
-Currently it can only download image from an HTTP server hosted on port 80.
+By default the destination port is 80 and the source port is pseudo-random.
+The environment variable *httpdstp* can be used to set the destination port.
 
 address
     memory address for the data downloaded

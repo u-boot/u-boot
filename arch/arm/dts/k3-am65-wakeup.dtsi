@@ -12,8 +12,8 @@
 
 		mbox-names = "rx", "tx";
 
-		mboxes= <&secure_proxy_main 11>,
-			<&secure_proxy_main 13>;
+		mboxes = <&secure_proxy_main 11>,
+			 <&secure_proxy_main 13>;
 
 		reg-names = "debug_messages";
 		reg = <0x44083000 0x1000>;
@@ -54,6 +54,7 @@
 		clock-frequency = <48000000>;
 		current-speed = <115200>;
 		power-domains = <&k3_pds 150 TI_SCI_PD_EXCLUSIVE>;
+		status = "disabled";
 	};
 
 	wkup_i2c0: i2c@42120000 {
@@ -65,6 +66,7 @@
 		clock-names = "fck";
 		clocks = <&k3_clks 115 1>;
 		power-domains = <&k3_pds 115 TI_SCI_PD_EXCLUSIVE>;
+		status = "disabled";
 	};
 
 	intr_wkup_gpio: interrupt-controller@42200000 {
@@ -99,9 +101,5 @@
 		reg = <0x42050000 0x25c>;
 		power-domains = <&k3_pds 80 TI_SCI_PD_EXCLUSIVE>;
 		#thermal-sensor-cells = <1>;
-	};
-
-	thermal_zones: thermal-zones {
-		#include "k3-am654-industrial-thermal.dtsi"
 	};
 };
