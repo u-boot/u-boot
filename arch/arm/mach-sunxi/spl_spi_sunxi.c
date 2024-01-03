@@ -3,7 +3,6 @@
  * Copyright (C) 2016 Siarhei Siamashka <siarhei.siamashka@gmail.com>
  */
 
-#include <common.h>
 #include <image.h>
 #include <log.h>
 #include <spl.h>

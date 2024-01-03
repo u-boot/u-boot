@@ -9,7 +9,6 @@
  * (C) Copyright 2015 Vishnu Patekar <vishnupatekar0510@gmail.com>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/prcm.h>

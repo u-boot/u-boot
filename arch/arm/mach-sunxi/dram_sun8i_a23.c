@@ -19,7 +19,6 @@
  * This may be used as a (possible) reference for future work / cleanups.
  */
 
-#include <common.h>
 #include <errno.h>
 #include <init.h>
 #include <asm/io.h>

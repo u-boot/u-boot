@@ -9,7 +9,6 @@
  * Some init for sunxi platform.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <log.h>

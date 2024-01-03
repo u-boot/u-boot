@@ -9,7 +9,6 @@
  * (C) Copyright 2013 Luke Kenneth Casson Leighton <lkcl@lkcl.net>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/prcm.h>

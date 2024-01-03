@@ -7,7 +7,6 @@
  * (C) Copyright 2015      Vishnu Patekar <vishnupatekar0510@gmail.com>
  * (C) Copyright 2015      Hans de Goede <hdegoede@redhat.com>
  */
-#include <common.h>
 #include <errno.h>
 #include <init.h>
 #include <asm/io.h>

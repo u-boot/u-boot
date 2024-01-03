@@ -5,8 +5,9 @@
  * (C) Copyright 2015 Hans de Goede <hdegoede@redhat.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <time.h>
+#include <vsprintf.h>
 #include <asm/barriers.h>
 #include <asm/io.h>
 #include <asm/arch/dram.h>
