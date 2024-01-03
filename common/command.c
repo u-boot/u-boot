@@ -470,7 +470,7 @@ int cmd_get_data_size(const char *arg, int default_size)
 	/* Check for a size specification .b, .w or .l.
 	 */
 	int len = strlen(arg);
-	if (len > 2 && arg[len-2] == '.') {
+	if (len >= 2 && arg[len-2] == '.') {
 		switch (arg[len-1]) {
 		case 'b':
 			return 1;
