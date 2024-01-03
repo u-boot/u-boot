@@ -361,7 +361,7 @@ static int do_mem_cp(struct cmd_tbl *cmdtp, int flag, int argc,
 	}
 #endif
 
-	memcpy(dst, src, count * size);
+	memmove(dst, src, count * size);
 
 	unmap_sysmem(src);
 	unmap_sysmem(dst);
