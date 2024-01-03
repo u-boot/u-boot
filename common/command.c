@@ -465,7 +465,7 @@ int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *colp)
 #endif
 
 #ifdef CMD_DATA_SIZE
-int cmd_get_data_size(char* arg, int default_size)
+int cmd_get_data_size(const char *arg, int default_size)
 {
 	/* Check for a size specification .b, .w or .l.
 	 */
