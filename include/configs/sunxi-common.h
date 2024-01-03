@@ -14,8 +14,9 @@
 
 #include <linux/stringify.h>
 
-/* Serial & console */
-/* ns16550 reg in the low bits of cpu reg */
+/****************************************************************************
+ *                  base addresses for the SPL UART driver                  *
+ ****************************************************************************/
 #ifdef CONFIG_MACH_SUNIV
 /* suniv doesn't have apb2 and uart is connected to apb1 */
 #define CFG_SYS_NS16550_CLK		100000000
@@ -31,8 +32,9 @@
 # define CFG_SYS_NS16550_COM5		SUNXI_R_UART_BASE
 #endif
 
-/* CPU */
-
+/****************************************************************************
+ *                             DRAM base address                            *
+ ****************************************************************************/
 /*
  * The DRAM Base differs between some models. We cannot use macros for the
  * CONFIG_FOO defines which contain the DRAM base address since they end
@@ -52,16 +54,6 @@
 /* V3s do not have enough memory to place code at 0x4a000000 */
 #endif
 
-/*
- * The A80's A1 sram starts at 0x00010000 rather then at 0x00000000 and is
- * slightly bigger. Note that it is possible to map the first 32 KiB of the
- * A1 at 0x00000000 like with older SoCs by writing 0x16aa0001 to the
- * undocumented 0x008000e0 SYS_CTRL register. Where the 16aa is a key and
- * the 1 actually activates the mapping of the first 32 KiB to 0x00000000.
- * A64 and H5 also has SRAM A1 at 0x00010000, but no magic remap register
- * is known yet.
- * H6 has SRAM A1 at 0x00020000.
- */
 #define CFG_SYS_INIT_RAM_ADDR	CONFIG_SUNXI_SRAM_ADDRESS
 /* FIXME: this may be larger on some SoCs */
 #define CFG_SYS_INIT_RAM_SIZE	0x8000 /* 32 KiB */
@@ -69,36 +61,13 @@
 #define PHYS_SDRAM_0			CFG_SYS_SDRAM_BASE
 #define PHYS_SDRAM_0_SIZE		0x80000000 /* 2 GiB */
 
-/*
- * Miscellaneous configurable options
- */
-
-/* FLASH and environment organization */
-
+/****************************************************************************
+ *           environment variables holding default load addresses           *
+ ****************************************************************************/
 /*
  * We cannot use expressions here, because expressions won't be evaluated in
  * autoconf.mk.
  */
-#if CONFIG_SUNXI_SRAM_ADDRESS == 0x10000
-#ifdef CONFIG_ARM64
-/* end of SRAM A2 for now, as SRAM A1 is pretty tight for an ARM64 build */
-#define LOW_LEVEL_SRAM_STACK		0x00054000
-#else
-#define LOW_LEVEL_SRAM_STACK		0x00018000
-#endif /* !CONFIG_ARM64 */
-#elif CONFIG_SUNXI_SRAM_ADDRESS == 0x20000
-#ifdef CONFIG_MACH_SUN50I_H616
-#define LOW_LEVEL_SRAM_STACK		0x52a00		/* below FEL buffers */
-#else
-/* end of SRAM A2 on H6 for now */
-#define LOW_LEVEL_SRAM_STACK		0x00118000
-#endif
-#else
-#define LOW_LEVEL_SRAM_STACK		0x00008000	/* End of sram */
-#endif
-
-/* Ethernet support */
-
 #ifdef CONFIG_ARM64
 /*
  * Boards seem to come with at least 512MB of DRAM.
@@ -174,15 +143,11 @@
 	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0"
 
 #ifdef CONFIG_ARM64
-
 #define MEM_LAYOUT_ENV_EXTRA_SETTINGS \
 	"kernel_comp_addr_r=" KERNEL_COMP_ADDR_R "\0" \
 	"kernel_comp_size=" KERNEL_COMP_SIZE "\0"
-
 #else
-
 #define MEM_LAYOUT_ENV_EXTRA_SETTINGS ""
-
 #endif
 
 #define DFU_ALT_INFO_RAM \
@@ -191,6 +156,9 @@
 	"fdt ram " FDT_ADDR_R " 0x100000;" \
 	"ramdisk ram " RAMDISK_ADDR_R " 0x4000000\0"
 
+/****************************************************************************
+ *                  definitions for the distro boot system                  *
+ ****************************************************************************/
 #ifdef CONFIG_MMC
 #if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
 #define BOOTENV_DEV_MMC_AUTO(devtypeu, devtypel, instance)		\
