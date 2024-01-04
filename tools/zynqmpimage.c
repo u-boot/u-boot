@@ -218,6 +218,7 @@ static void print_partition(const void *ptr, const struct partition_header *ph)
 void zynqmpimage_print_header(const void *ptr, struct image_tool_params *params)
 {
 	struct zynqmp_header *zynqhdr = (struct zynqmp_header *)ptr;
+	struct partition_header *ph;
 	int i;
 
 	printf("Image Type   : Xilinx ZynqMP Boot Image support\n");
@@ -255,23 +256,8 @@ void zynqmpimage_print_header(const void *ptr, struct image_tool_params *params)
 		       le32_to_cpu(zynqhdr->register_init[i].data));
 	}
 
-	if (zynqhdr->image_header_table_offset) {
-		struct image_header_table *iht = (void *)ptr +
-			zynqhdr->image_header_table_offset;
-		struct partition_header *ph;
-		uint32_t ph_offset;
-		uint32_t next;
-		int i;
-
-		ph_offset = le32_to_cpu(iht->partition_header_offset) * 4;
-		ph = (void *)ptr + ph_offset;
-		for (i = 0; i < le32_to_cpu(iht->nr_parts); i++) {
-			next = le32_to_cpu(ph->next_partition_offset) * 4;
-
-			print_partition(ptr, ph);
-
-			ph = (void *)ptr + next;
-		}
+	for_each_zynqmp_part(zynqhdr, i, ph) {
+		print_partition(ptr, ph);
 	}
 
 	free(dynamic_header);
@@ -296,7 +282,7 @@ static int zynqmpimage_check_params(struct image_tool_params *params)
 		return -1;
 	}
 
-	return !(params->lflag || params->dflag);
+	return !(params->lflag || params->dflag || params->outfile);
 }
 
 static int zynqmpimage_check_image_types(uint8_t type)
@@ -431,6 +417,39 @@ static void zynqmpimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	zynqhdr->checksum = zynqmpimage_checksum(zynqhdr);
 }
 
+static int zynqmpimage_partition_extract(struct zynqmp_header *zynqhdr,
+					 const struct partition_header *ph,
+					 const char *filename)
+{
+	ulong data = (ulong)zynqmp_get_offset(zynqhdr, ph->offset);
+	unsigned long len = le32_to_cpu(ph->len_enc) * 4;
+
+	return imagetool_save_subimage(filename, data, len);
+}
+
+/**
+ * zynqmpimage_extract_contents - retrieve a sub-image component from the image
+ * @ptr: pointer to the image header
+ * @params: command line parameters
+ *
+ * returns:
+ *     zero in case of success or a negative value if fail.
+ */
+static int zynqmpimage_extract_contents(void *ptr, struct image_tool_params *params)
+{
+	struct zynqmp_header *zynqhdr = (struct zynqmp_header *)ptr;
+	struct partition_header *ph;
+	int i;
+
+	for_each_zynqmp_part(zynqhdr, i, ph) {
+		if (i == params->pflag)
+			return zynqmpimage_partition_extract(ptr, ph, params->outfile);
+	}
+
+	printf("No partition found\n");
+	return -1;
+}
+
 static int zynqmpimage_vrec_header(struct image_tool_params *params,
 				   struct image_type_params *tparams)
 {
@@ -484,7 +503,7 @@ U_BOOT_IMAGE_TYPE(
 	zynqmpimage_verify_header,
 	zynqmpimage_print_header,
 	zynqmpimage_set_header,
-	NULL,
+	zynqmpimage_extract_contents,
 	zynqmpimage_check_image_types,
 	NULL,
 	zynqmpimage_vrec_header
