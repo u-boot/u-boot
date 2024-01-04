@@ -4,9 +4,9 @@
 #
 ---
 
-main-branch:
-  obj:
-    a: 0x0
+main-branch :
+  obj :
+    a : 0x0
     b: 0
   arr: [0, 0, 0, 0]
   another-arr:
