@@ -189,6 +189,114 @@ static inline int mdata_crc_check(struct fwu_mdata *mdata)
 }
 
 /**
+ * fwu_mdata_copies_allocate() - Allocate memory for metadata
+ *
+ * Allocate memory for storing both the copies of the FWU metadata. The
+ * copies are then used as a cache for storing FWU metadata contents.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_mdata_copies_allocate(void)
+{
+	int err;
+	uint32_t mdata_size;
+
+	if (g_mdata)
+		return 0;
+
+	err = fwu_get_mdata_size(&mdata_size);
+	if (err)
+		return err;
+
+	/*
+	 * Now allocate the total memory that would be needed for both
+	 * the copies.
+	 */
+	g_mdata = calloc(2, mdata_size);
+	if (!g_mdata) {
+		log_err("Unable to allocate space for FWU metadata\n");
+		return -ENOMEM;
+	}
+
+	return 0;
+}
+
+/**
+ * fwu_get_mdata_size() - Get the FWU metadata size
+ *
+ * Get the size of the FWU metadata from the structure. This is later used
+ * to allocate memory for the structure.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_get_mdata_size(uint32_t *mdata_size)
+{
+	int err = 0;
+	struct fwu_mdata mdata = { 0 };
+
+	if (g_mdata && !mdata_crc_check(g_mdata)) {
+		*mdata_size = g_mdata->metadata_size;
+		return 0;
+	}
+
+	err = fwu_read_mdata(g_dev, &mdata, 1, sizeof(struct fwu_mdata));
+	if (err) {
+		log_err("FWU metadata read failed\n");
+		return err;
+	}
+
+	if (mdata.version != 0x2) {
+		log_err("FWU metadata version %u. Expected value of 2\n",
+			mdata.version);
+		return -EINVAL;
+	}
+
+	*mdata_size = mdata.metadata_size;
+	if (!*mdata_size)
+		return -EINVAL;
+
+	return 0;
+}
+
+/**
+ * fwu_get_dev() - Return the FWU metadata device
+ *
+ * Return the pointer to the FWU metadata device.
+ *
+ * Return: Pointer to the FWU metadata dev
+ */
+__maybe_unused struct udevice *fwu_get_dev(void)
+{
+	return g_dev;
+}
+
+/**
+ * fwu_get_banks_images() - Get the number of banks and images from the metadata
+ * @nbanks: Number of banks
+ * @nimages: Number of images per bank
+ *
+ * Get the values of number of banks and number of images per bank from the
+ * metadata.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+__maybe_unused int fwu_get_banks_images(u8 *nbanks, u16 *nimages)
+{
+	int ret;
+
+	if (mdata_crc_check(g_mdata)) {
+		ret = fwu_get_mdata(NULL);
+		if (ret)
+			return ret;
+	}
+
+	*nbanks = g_mdata->fw_desc[0].num_banks;
+	*nimages = g_mdata->fw_desc[0].num_images;
+
+	return 0;
+}
+
+/**
  * fwu_get_mdata() - Read, verify and return the FWU metadata
  * @mdata: Output FWU metadata read or NULL
  *
@@ -470,6 +578,40 @@ static int fwu_clrset_image_accept(efi_guid_t *img_type_id, u32 bank, u8 action)
 	ret = -ENOENT;
 
 out:
+	return ret;
+}
+
+/**
+ * fwu_bank_state_update() - Check and update the bank_state of the metadata
+ * @update_index: Bank for which the bank_state needs to be updated
+ *
+ * Check that all the images for the given bank have been accepted, and if
+ * they are, set the status of the bank to Accepted in the bank_state field
+ * of the metadata.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_bank_state_update(uint update_index)
+{
+	int ret = 0, i;
+	u16 num_images;
+	struct fwu_mdata *mdata = g_mdata;
+	struct fwu_image_entry *img_entry;
+	struct fwu_image_bank_info *img_bank_info;
+
+	img_entry = &mdata->fw_desc[0].img_entry[0];
+	num_images = mdata->fw_desc[0].num_images;
+	for (i = 0; i < num_images; i++) {
+		img_bank_info = &img_entry[i].img_bank_info[update_index];
+		if (!(img_bank_info->accepted & FWU_IMAGE_ACCEPTED))
+			return 0;
+	}
+
+	mdata->bank_state[update_index] = FWU_BANK_ACCEPTED;
+	ret = fwu_sync_mdata(mdata, BOTH_PARTS);
+	if (ret)
+		log_err("Unable to set bank_state for bank %u\n", update_index);
+
 	return ret;
 }
 
