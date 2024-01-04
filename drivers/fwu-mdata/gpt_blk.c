@@ -81,15 +81,14 @@ static int gpt_get_mdata_disk_part(struct blk_desc *desc,
 	return -ENOENT;
 }
 
-static int gpt_read_write_mdata(struct blk_desc *desc,
-				struct fwu_mdata *mdata,
-				u8 access, u32 part_num)
+static int gpt_read_write_mdata(struct blk_desc *desc, struct fwu_mdata *mdata,
+				u8 access, u32 part_num, u32 size)
 {
 	int ret;
 	u32 len, blk_start, blkcnt;
 	struct disk_partition info;
 
-	ALLOC_CACHE_ALIGN_BUFFER_PAD(struct fwu_mdata, mdata_aligned, 1,
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(u8, mdata_aligned, size,
 				     desc->blksz);
 
 	if (!mdata)
@@ -101,7 +100,7 @@ static int gpt_read_write_mdata(struct blk_desc *desc,
 		return -ENOENT;
 	}
 
-	len = sizeof(*mdata);
+	len = size;
 	blkcnt = BLOCK_CNT(len, desc);
 	if (blkcnt > info.size) {
 		log_debug("Block count exceeds FWU metadata partition size\n");
@@ -114,7 +113,7 @@ static int gpt_read_write_mdata(struct blk_desc *desc,
 			log_debug("Error reading FWU metadata from the device\n");
 			return -EIO;
 		}
-		memcpy(mdata, mdata_aligned, sizeof(struct fwu_mdata));
+		memcpy(mdata, mdata_aligned, size);
 	} else {
 		if (blk_dwrite(desc, blk_start, blkcnt, mdata) != blkcnt) {
 			log_debug("Error writing FWU metadata to the device\n");
@@ -164,7 +163,7 @@ static int fwu_mdata_gpt_blk_probe(struct udevice *dev)
 }
 
 static int fwu_gpt_read_mdata(struct udevice *dev, struct fwu_mdata *mdata,
-			      bool primary)
+			      bool primary, u32 size)
 {
 	struct fwu_mdata_gpt_blk_priv *priv = dev_get_priv(dev);
 	struct blk_desc *desc = dev_get_uclass_plat(priv->blk_dev);
@@ -177,11 +176,13 @@ static int fwu_gpt_read_mdata(struct udevice *dev, struct fwu_mdata *mdata,
 	}
 
 	return gpt_read_write_mdata(desc, mdata, MDATA_READ,
-				    primary ? g_mdata_part[0] : g_mdata_part[1]);
+				    primary ?
+				    g_mdata_part[0] : g_mdata_part[1],
+				    size);
 }
 
 static int fwu_gpt_write_mdata(struct udevice *dev, struct fwu_mdata *mdata,
-			       bool primary)
+			       bool primary, u32 size)
 {
 	struct fwu_mdata_gpt_blk_priv *priv = dev_get_priv(dev);
 	struct blk_desc *desc = dev_get_uclass_plat(priv->blk_dev);
@@ -194,7 +195,9 @@ static int fwu_gpt_write_mdata(struct udevice *dev, struct fwu_mdata *mdata,
 	}
 
 	return gpt_read_write_mdata(desc, mdata, MDATA_WRITE,
-				    primary ? g_mdata_part[0] : g_mdata_part[1]);
+				    primary ?
+				    g_mdata_part[0] : g_mdata_part[1],
+				    size);
 }
 
 static const struct fwu_mdata_ops fwu_gpt_blk_ops = {
