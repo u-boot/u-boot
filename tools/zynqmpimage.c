@@ -262,9 +262,7 @@ void zynqmpimage_print_header(const void *ptr, struct image_tool_params *params)
 		for (i = 0; i < le32_to_cpu(iht->nr_parts); i++) {
 			next = le32_to_cpu(ph->next_partition_offset) * 4;
 
-			/* Partition 0 is the base image itself */
-			if (i)
-				print_partition(ptr, ph);
+			print_partition(ptr, ph);
 
 			ph = (void *)ptr + next;
 		}
