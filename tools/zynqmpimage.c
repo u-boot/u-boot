@@ -139,6 +139,8 @@ static void print_partition(const void *ptr, const struct partition_header *ph)
 {
 	uint32_t attr = le32_to_cpu(ph->attributes);
 	unsigned long len = le32_to_cpu(ph->len) * 4;
+	unsigned long len_enc = le32_to_cpu(ph->len_enc) * 4;
+	unsigned long len_unenc = le32_to_cpu(ph->len_unenc) * 4;
 	const char *part_owner;
 	const char *dest_devs[0x8] = {
 		"none", "PS", "PL", "PMU", "unknown", "unknown", "unknown",
@@ -163,6 +165,10 @@ static void print_partition(const void *ptr, const struct partition_header *ph)
 
 	printf("    Offset     : 0x%08x\n", le32_to_cpu(ph->offset) * 4);
 	printf("    Size       : %lu (0x%lx) bytes\n", len, len);
+	if (len != len_unenc)
+		printf("    Size Data  : %lu (0x%lx) bytes\n", len_unenc, len_unenc);
+	if (len_unenc != len_enc)
+		printf("    Size Enc   : %lu (0x%lx) bytes\n", len_unenc, len_unenc);
 	printf("    Load       : 0x%08llx",
 	       (unsigned long long)le64_to_cpu(ph->load_address));
 	if (ph->load_address != ph->entry_point)
