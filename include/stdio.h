@@ -3,6 +3,7 @@
 
 #include <stdarg.h>
 #include <linux/compiler.h>
+#include <vsprintf.h>
 
 /* stdin */
 int getchar(void);
