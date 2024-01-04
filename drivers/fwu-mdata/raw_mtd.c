@@ -97,22 +97,24 @@ lock:
 	return ret;
 }
 
-static int fwu_mtd_read_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary)
+static int fwu_mtd_read_mdata(struct udevice *dev, struct fwu_mdata *mdata,
+			      bool primary, u32 size)
 {
 	struct fwu_mdata_mtd_priv *mtd_priv = dev_get_priv(dev);
 	struct mtd_info *mtd = mtd_priv->mtd;
 	u32 offs = primary ? mtd_priv->pri_offset : mtd_priv->sec_offset;
 
-	return mtd_io_data(mtd, offs, sizeof(struct fwu_mdata), mdata, FWU_MTD_READ);
+	return mtd_io_data(mtd, offs, size, mdata, FWU_MTD_READ);
 }
 
-static int fwu_mtd_write_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary)
+static int fwu_mtd_write_mdata(struct udevice *dev, struct fwu_mdata *mdata,
+			       bool primary, u32 size)
 {
 	struct fwu_mdata_mtd_priv *mtd_priv = dev_get_priv(dev);
 	struct mtd_info *mtd = mtd_priv->mtd;
 	u32 offs = primary ? mtd_priv->pri_offset : mtd_priv->sec_offset;
 
-	return mtd_io_data(mtd, offs, sizeof(struct fwu_mdata), mdata, FWU_MTD_WRITE);
+	return mtd_io_data(mtd, offs, size, mdata, FWU_MTD_WRITE);
 }
 
 static int flash_partition_offset(struct udevice *dev, const char *part_name, fdt_addr_t *offset)
