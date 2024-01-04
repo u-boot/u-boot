@@ -105,6 +105,26 @@ int fwu_write_mdata(struct udevice *dev, struct fwu_mdata *mdata,
 int fwu_get_mdata(struct fwu_mdata *mdata);
 
 /**
+ * fwu_mdata_copies_allocate() - Allocate memory for metadata
+ *
+ * Allocate memory for storing both the copies of the FWU metadata. The
+ * copies are then used as a cache for storing FWU metadata contents.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_mdata_copies_allocate(void);
+
+/**
+ * fwu_get_mdata_size() - Get the FWU metadata size
+ *
+ * Get the size of the FWU metadata from the structure. This is later used
+ * to allocate memory for the structure.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_get_mdata_size(uint32_t *mdata_size);
+
+/**
  * fwu_get_active_index() - Get active_index from the FWU metadata
  * @active_idxp: active_index value to be read
  *
@@ -152,6 +172,18 @@ int fwu_get_dfu_alt_num(u8 image_index, u8 *alt_num);
  *
  */
 int fwu_revert_boot_index(void);
+
+/**
+ * fwu_bank_state_update() - Check and update the bank_state of the metadata
+ * @update_index: Bank for which the bank_state needs to be updated
+ *
+ * Check that all the images for the given bank have been accepted, and if
+ * they are, set the status of the bank to Accepted in the bank_state field
+ * of the metadata.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_bank_state_update(uint update_index);
 
 /**
  * fwu_accept_image() - Set the Acceptance bit for the image
@@ -285,5 +317,26 @@ int fwu_gen_alt_info_from_mtd(char *buf, size_t len, struct mtd_info *mtd);
  * Return: 0 if OK, -ve on error
  */
 int fwu_mtd_get_alt_num(efi_guid_t *image_guid, u8 *alt_num, const char *mtd_dev);
+
+/**
+ * fwu_get_banks_images() - Get the number of banks and images from the metadata
+ * @nbanks: Number of banks
+ * @nimages: Number of images per bank
+ *
+ * Get the values of number of banks and number of images per bank from the
+ * metadata.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+__maybe_unused int fwu_get_banks_images(u8 *nbanks, u16 *nimages);
+
+/**
+ * fwu_get_dev() - Return the FWU metadata device
+ *
+ * Return the pointer to the FWU metadata device.
+ *
+ * Return: Pointer to the FWU metadata dev
+ */
+__maybe_unused struct udevice *fwu_get_dev(void);
 
 #endif /* _FWU_H_ */
