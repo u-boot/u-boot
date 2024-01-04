@@ -419,6 +419,10 @@ config CIRCBUF
 
 source "lib/dhry/Kconfig"
 
+menu "Alternative crypto libraries"
+source lib/mbedtls/Kconfig
+endmenu
+
 menu "Security support"
 
 config AES

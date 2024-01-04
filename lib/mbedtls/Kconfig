@@ -1,0 +1,56 @@
+choice
+	prompt "Select crypto libraries"
+	default LEGACY_CRYPTO
+	help
+	  Select crypto libraries.
+	  LEGACY_CRYPTO for legacy crypto libraries,
+	  MBEDTLS_LIB for MbedTLS libraries.
+
+config LEGACY_CRYPTO
+	bool "legacy crypto libraries"
+	select LEGACY_CRYPTO_BASIC
+	select LEGACY_CRYPTO_CERT
+
+config MBEDTLS_LIB
+	bool "MbedTLS libraries"
+	select MBEDTLS_LIB_X509
+endchoice
+
+if LEGACY_CRYPTO || MBEDTLS_LIB_CRYPTO_ALT
+
+config LEGACY_CRYPTO_BASIC
+	bool "legacy basic crypto libraries"
+	help
+	  Enable legacy basic crypto libraries.
+
+config LEGACY_CRYPTO_CERT
+	bool "legacy certificate libraries"
+	help
+	  Enable legacy certificate libraries.
+
+endif # LEGACY_CRYPTO
+
+if MBEDTLS_LIB
+
+config MBEDTLS_LIB_CRYPTO_ALT
+	bool "MbedTLS crypto alternatives"
+	depends on MBEDTLS_LIB && !MBEDTLS_LIB_CRYPTO
+	select LEGACY_CRYPTO_BASIC
+	default y if MBEDTLS_LIB && !MBEDTLS_LIB_CRYPTO
+	help
+	  Enable MbedTLS crypto alternatives.
+	  Mutually incompatible with MBEDTLS_LIB_CRYPTO.
+
+config MBEDTLS_LIB_CRYPTO
+	bool "MbedTLS crypto libraries"
+	help
+	  Enable MbedTLS crypto libraries.
+	  Mutually incompatible with MBEDTLS_LIB_CRYPTO_ALT.
+
+
+config MBEDTLS_LIB_X509
+	bool "MbedTLS certificate libraries"
+	help
+	  Enable MbedTLS certificate libraries.
+
+endif # MBEDTLS_LIB
