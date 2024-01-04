@@ -3,6 +3,8 @@
  * Copyright 2022 NXP
  */
 
+#include "imx93-u-boot.dtsi"
+
 / {
 	wdt-reboot {
 		compatible = "wdt-reboot";
