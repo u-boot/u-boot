@@ -20,7 +20,8 @@
  *
  * Return: 0 if OK, -ve on error
  */
-int fwu_read_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary)
+int fwu_read_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary,
+		   uint32_t size)
 {
 	const struct fwu_mdata_ops *ops = device_get_ops(dev);
 
@@ -29,7 +30,7 @@ int fwu_read_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary)
 		return -ENOSYS;
 	}
 
-	return ops->read_mdata(dev, mdata, primary);
+	return ops->read_mdata(dev, mdata, primary, size);
 }
 
 /**
@@ -37,7 +38,8 @@ int fwu_read_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary)
  *
  * Return: 0 if OK, -ve on error
  */
-int fwu_write_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary)
+int fwu_write_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary,
+		    uint32_t size)
 {
 	const struct fwu_mdata_ops *ops = device_get_ops(dev);
 
@@ -46,7 +48,7 @@ int fwu_write_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary)
 		return -ENOSYS;
 	}
 
-	return ops->write_mdata(dev, mdata, primary);
+	return ops->write_mdata(dev, mdata, primary, size);
 }
 
 UCLASS_DRIVER(fwu_mdata) = {
