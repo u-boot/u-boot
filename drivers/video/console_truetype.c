@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
+#include <spl.h>
 #include <video.h>
 #include <video_console.h>
 
@@ -799,6 +800,9 @@ static int truetype_entry_save(struct udevice *dev, struct abuf *buf)
 	struct console_tt_store store;
 	const uint size = sizeof(store);
 
+	if (spl_phase() <= PHASE_SPL)
+		return -ENOSYS;
+
 	/*
 	 * store the whole priv structure as it is simpler that picking out
 	 * what we need
@@ -819,6 +823,9 @@ static int truetype_entry_restore(struct udevice *dev, struct abuf *buf)
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_store store;
+
+	if (spl_phase() <= PHASE_SPL)
+		return -ENOSYS;
 
 	memcpy(&store, abuf_data(buf), sizeof(store));
 
@@ -843,6 +850,9 @@ static int truetype_set_cursor_visible(struct udevice *dev, bool visible,
 	void *start, *line;
 	uint out, val;
 	int ret;
+
+	if (spl_phase() <= PHASE_SPL)
+		return -ENOSYS;
 
 	if (!visible)
 		return 0;
