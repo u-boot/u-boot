@@ -32,20 +32,24 @@ struct fwu_mdata_ops {
 	 * @dev: FWU metadata device
 	 * @mdata: Output FWU mdata read
 	 * @primary: If primary or secondary copy of metadata is to be read
+	 * @size: Size in bytes of the metadata to be read
 	 *
 	 * Return: 0 if OK, -ve on error
 	 */
-	int (*read_mdata)(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
+	int (*read_mdata)(struct udevice *dev, struct fwu_mdata *mdata,
+			  bool primary, uint32_t size);
 
 	/**
 	 * write_mdata() - Write the given FWU metadata copy
 	 * @dev: FWU metadata device
 	 * @mdata: Copy of the FWU metadata to write
 	 * @primary: If primary or secondary copy of metadata is to be written
+	 * @size: Size in bytes of the metadata to be written
 	 *
 	 * Return: 0 if OK, -ve on error
 	 */
-	int (*write_mdata)(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
+	int (*write_mdata)(struct udevice *dev, struct fwu_mdata *mdata,
+			   bool primary, uint32_t size);
 };
 
 #define FWU_MDATA_VERSION	0x1
@@ -80,12 +84,14 @@ struct fwu_mdata_ops {
 /**
  * fwu_read_mdata() - Wrapper around fwu_mdata_ops.read_mdata()
  */
-int fwu_read_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
+int fwu_read_mdata(struct udevice *dev, struct fwu_mdata *mdata,
+		   bool primary, uint32_t size);
 
 /**
  * fwu_write_mdata() - Wrapper around fwu_mdata_ops.write_mdata()
  */
-int fwu_write_mdata(struct udevice *dev, struct fwu_mdata *mdata, bool primary);
+int fwu_write_mdata(struct udevice *dev, struct fwu_mdata *mdata,
+		    bool primary, uint32_t size);
 
 /**
  * fwu_get_mdata() - Read, verify and return the FWU metadata
