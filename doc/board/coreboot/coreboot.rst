@@ -32,10 +32,9 @@ of _x86boot_start (in arch/x86/cpu/start.S).
 If you want to use ELF as the coreboot payload, change U-Boot configuration to
 use CONFIG_OF_EMBED instead of CONFIG_OF_SEPARATE.
 
-To enable video you must enable these options in coreboot:
+To enable video you must enable CONFIG_GENERIC_LINEAR_FRAMEBUFFER in coreboot:
 
-   - Set framebuffer graphics resolution (1280x1024 32k-color (1:5:5))
-   - Keep VESA framebuffer
+   - Devices->Display->Framebuffer mode->Linear "high resolution" framebuffer
 
 At present it seems that for Minnowboard Max, coreboot does not pass through
 the video information correctly (it always says the resolution is 0x0). This
@@ -184,13 +183,13 @@ boot as a coreboot payload, based on a known-good build of coreboot.
 
 To update the `coreboot.rom` file which is used:
 
-#. Build coreboot with `CONFIG_LINEAR_FRAMEBUFFER=y`. If using `make menuconfig`
-   this is under
-   `Devices ->Display->Framebuffer mode->Linear "high resolution" framebuffer`.
+#. Build coreboot with `CONFIG_GENERIC_LINEAR_FRAMEBUFFER=y`. If using
+   `make menuconfig`, this is under
+   `Devices->Display->Framebuffer mode->Linear "high resolution" framebuffer`.
 
 #. Compress the resulting `coreboot.rom`::
 
-      xz -c /path/to/coreboot/build/coreboot.rom >coreboot.rom.xz
+      xz -c /path/to/coreboot/build/coreboot.rom > coreboot.rom.xz
 
 #. Upload the file to Google drive
 
