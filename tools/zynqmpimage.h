@@ -51,6 +51,14 @@ struct image_header_table {
 	uint32_t checksum;		  /* 0x3c */
 };
 
+struct image_header {
+	uint32_t next_image_header_offset;		/* 0x00 */
+	uint32_t corresponding_partition_header;	/* 0x04 */
+	uint32_t __reserved1;				/* 0x08 */
+	uint32_t partition_count;			/* 0x0c */
+	uint32_t image_name[];				/* 0x10 */
+};
+
 #define PART_ATTR_VEC_LOCATION		0x800000
 #define PART_ATTR_BS_BLOCK_SIZE_MASK	0x700000
 #define     PART_ATTR_BS_BLOCK_SIZE_DEFAULT	0x000000
@@ -192,5 +200,46 @@ static inline size_t zynqmp_part_count(const struct zynqmp_header *zynqhdr)
 	_for_each_zynqmp_part(_zynqhdr, _iter, _ph, \
 			zynqmp_part_first(_zynqhdr), \
 			zynqmp_part_count(_zynqhdr))
+
+static inline struct partition_header *
+zynqmp_part_in_image_first(const struct zynqmp_header *zynqhdr,
+			   const struct image_header *ih)
+{
+	return zynqmp_get_offset(zynqhdr, ih->corresponding_partition_header);
+}
+
+static inline size_t zynqmp_part_in_image_count(const struct image_header *ih)
+{
+	return le32_to_cpu(ih->partition_count);
+}
+
+#define for_each_zynqmp_part_in_image(_zynqhdr, _iter, _ph, _ih) \
+	_for_each_zynqmp_part(_zynqhdr, _iter, _ph, \
+			zynqmp_part_in_image_first(_zynqhdr, _ih), \
+			zynqmp_part_in_image_count(_ih))
+
+static inline struct image_header *
+zynqmp_image_first(const struct zynqmp_header *zynqhdr)
+{
+	struct image_header_table *iht;
+
+	iht = zynqmp_get_iht(zynqhdr);
+	if (!iht)
+		return NULL;
+
+	return zynqmp_get_offset(zynqhdr, iht->image_header_offset);
+}
+
+static inline struct image_header *
+zynqmp_image_next(const struct zynqmp_header *zynqhdr,
+		  const struct image_header *ih)
+{
+	return zynqmp_get_offset(zynqhdr, ih->next_image_header_offset);
+}
+
+#define for_each_zynqmp_image(_zynqhdr, _ih) \
+	for (_ih = zynqmp_image_first(_zynqhdr); \
+	     _ih; \
+	     _ih = zynqmp_image_next(_zynqhdr, _ih))
 
 #endif /* _ZYNQMPIMAGE_H_ */

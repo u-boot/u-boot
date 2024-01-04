@@ -135,6 +135,53 @@ static int zynqmpimage_verify_header(unsigned char *ptr, int image_size,
 	return 0;
 }
 
+static struct image_header *
+find_partition_image(const struct zynqmp_header *zynqhdr,
+		     const struct partition_header *ph)
+{
+	struct partition_header *ph_walk;
+	struct image_header *ih;
+	int i;
+
+	for_each_zynqmp_image(zynqhdr, ih) {
+		for_each_zynqmp_part_in_image(zynqhdr, i, ph_walk, ih) {
+			if (ph == ph_walk)
+				return ih;
+		}
+	}
+
+	return NULL;
+}
+
+static void print_partition_name(const struct zynqmp_header *zynqhdr,
+				 const struct partition_header *ph)
+{
+	const struct image_header *ih;
+	size_t word_len;
+	char *name;
+	int i;
+
+	ih = find_partition_image(zynqhdr, ph);
+	if (!ih)
+		return;
+
+	/* Name is stored in big-endian words, find the terminating word and
+	 * byte-swap into a new buffer
+	 */
+	word_len = strlen((char *)ih->image_name);
+	word_len = ALIGN(word_len + 1, 4);
+
+	name = calloc(1, word_len);
+	if (!name)
+		return;
+
+	for (i = 0; i < word_len / 4; i++)
+		((uint32_t *)name)[i] = uswap_32(ih->image_name[i]);
+
+	printf("    Image name : %s\n", name);
+	free(name);
+}
+
 static void print_partition(const void *ptr, const struct partition_header *ph)
 {
 	uint32_t attr = le32_to_cpu(ph->attributes);
@@ -163,6 +210,7 @@ static void print_partition(const void *ptr, const struct partition_header *ph)
 	       dest_cpus[(attr & PART_ATTR_DEST_CPU_MASK) >> 8],
 	       dest_devs[(attr & PART_ATTR_DEST_DEVICE_MASK) >> 4]);
 
+	print_partition_name(ptr, ph);
 	printf("    Offset     : 0x%08x\n", le32_to_cpu(ph->offset) * 4);
 	printf("    Size       : %lu (0x%lx) bytes\n", len, len);
 	if (len != len_unenc)
