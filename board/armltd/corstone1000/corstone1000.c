@@ -109,7 +109,7 @@ void fwu_plat_get_bootidx(uint *boot_idx)
 	 */
 	ret = fwu_get_active_index(boot_idx);
 	if (ret < 0) {
-		*boot_idx = CONFIG_FWU_NUM_BANKS;
+		*boot_idx = 0;
 		log_err("corstone1000: failed to read active index\n");
 	}
 }
