@@ -124,7 +124,7 @@ static int rsa_engine_get_pub_key(const char *keydir, const char *name,
 					 keydir, name);
 		else
 			snprintf(key_id, sizeof(key_id),
-				 "object=%s;type=public",
+				 "pkcs11:object=%s;type=public",
 				 name);
 	} else if (engine_id) {
 		if (keydir)
@@ -246,7 +246,7 @@ static int rsa_engine_get_priv_key(const char *keydir, const char *name,
 					 keydir, name);
 		else
 			snprintf(key_id, sizeof(key_id),
-				 "object=%s;type=private",
+				 "pkcs11:object=%s;type=private",
 				 name);
 	} else if (engine_id) {
 		if (keydir && name)
