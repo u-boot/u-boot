@@ -26,6 +26,15 @@ struct fwu_mtd_image_info {
 	char uuidbuf[UUID_STR_LEN + 1];
 };
 
+struct fwu_mdata_mtd_priv {
+	struct mtd_info *mtd;
+	char pri_label[50];
+	char sec_label[50];
+	u32 pri_offset;
+	u32 sec_offset;
+	struct fwu_mtd_image_info *fwu_mtd_images;
+};
+
 struct fwu_mdata_ops {
 	/**
 	 * read_mdata() - Populate the asked FWU metadata copy
