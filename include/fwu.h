@@ -297,15 +297,19 @@ u8 fwu_update_checks_pass(void);
 u8 fwu_empty_capsule_checks_pass(void);
 
 /**
- * fwu_trial_state_ctr_start() - Start the Trial State counter
+ * fwu_trial_state_start() - Put the platform in Trial State
+ * @update_index: Bank number to which images have been updated
  *
- * Start the counter to identify the platform booting in the
- * Trial State. The counter is implemented as an EFI variable.
+ * Put the platform in Trial State by starting the counter to
+ * identify the platform booting in the Trial State. The
+ * counter is implemented as an EFI variable. Secondly, set
+ * the bank_state in the metadata for the updated bank to Valid
+ * state.
  *
  * Return: 0 if OK, -ve on error
  *
  */
-int fwu_trial_state_ctr_start(void);
+int fwu_trial_state_start(uint update_index);
 
 /**
  * fwu_gen_alt_info_from_mtd() - Parse dfu_alt_info from metadata in mtd
