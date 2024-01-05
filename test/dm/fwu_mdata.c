@@ -88,10 +88,15 @@ static int write_mmc_blk_device(struct unit_test_state *uts)
 	return 0;
 }
 
-static int dm_test_fwu_mdata_read(struct unit_test_state *uts)
+static int fwu_mdata_access_setup(struct unit_test_state *uts,
+				   struct fwu_mdata **mdata)
 {
+	u32 mdata_size;
 	struct udevice *dev;
-	struct fwu_mdata mdata = { 0 };
+
+	ut_assertok(setup_blk_device(uts));
+	ut_assertok(populate_mmc_disk_image(uts));
+	ut_assertok(write_mmc_blk_device(uts));
 
 	/*
 	 * Trigger lib/fwu_updates/fwu.c fwu_boottime_checks()
@@ -100,13 +105,24 @@ static int dm_test_fwu_mdata_read(struct unit_test_state *uts)
 	event_notify_null(EVT_MAIN_LOOP);
 
 	ut_assertok(uclass_first_device_err(UCLASS_FWU_MDATA, &dev));
-	ut_assertok(setup_blk_device(uts));
-	ut_assertok(populate_mmc_disk_image(uts));
-	ut_assertok(write_mmc_blk_device(uts));
 
-	ut_assertok(fwu_get_mdata(&mdata));
+	ut_assertok(fwu_get_mdata_size(&mdata_size));
 
-	ut_asserteq(mdata.version, 0x1);
+	*mdata = malloc(mdata_size);
+	ut_assertnonnull(*mdata);
+
+	return 0;
+}
+
+static int dm_test_fwu_mdata_read(struct unit_test_state *uts)
+{
+	struct fwu_mdata *mdata = NULL;
+
+	fwu_mdata_access_setup(uts, &mdata);
+
+	ut_assertok(fwu_get_mdata(mdata));
+
+	ut_asserteq(mdata->version, 0x2);
 
 	return 0;
 }
@@ -114,29 +130,21 @@ DM_TEST(dm_test_fwu_mdata_read, UT_TESTF_SCAN_FDT);
 
 static int dm_test_fwu_mdata_write(struct unit_test_state *uts)
 {
+	u8 num_banks;
 	u32 active_idx;
-	struct udevice *dev;
-	struct fwu_mdata mdata = { 0 };
+	struct fwu_mdata *mdata = NULL;
 
-	/*
-	 * Trigger lib/fwu_updates/fwu.c fwu_boottime_checks()
-	 * to populate g_dev global pointer in that library.
-	 */
-	event_notify_null(EVT_MAIN_LOOP);
+	fwu_mdata_access_setup(uts, &mdata);
 
-	ut_assertok(setup_blk_device(uts));
-	ut_assertok(populate_mmc_disk_image(uts));
-	ut_assertok(write_mmc_blk_device(uts));
+	ut_assertok(fwu_get_mdata(mdata));
+	num_banks = mdata->fw_desc[0].num_banks;
+	ut_asserteq(2, num_banks);
 
-	ut_assertok(uclass_first_device_err(UCLASS_FWU_MDATA, &dev));
-
-	ut_assertok(fwu_get_mdata(&mdata));
-
-	active_idx = (mdata.active_index + 1) % CONFIG_FWU_NUM_BANKS;
+	active_idx = (mdata->active_index + 1) % num_banks;
 	ut_assertok(fwu_set_active_index(active_idx));
 
-	ut_assertok(fwu_get_mdata(&mdata));
-	ut_asserteq(mdata.active_index, active_idx);
+	ut_assertok(fwu_get_mdata(mdata));
+	ut_asserteq(mdata->active_index, active_idx);
 
 	return 0;
 }
