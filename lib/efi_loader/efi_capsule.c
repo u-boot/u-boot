@@ -523,7 +523,7 @@ static __maybe_unused efi_status_t fwu_post_update_process(bool fw_accept_os)
 	} else {
 		log_debug("Successfully updated the active_index\n");
 		if (fw_accept_os) {
-			status = fwu_trial_state_ctr_start();
+			status = fwu_trial_state_start(update_index);
 			if (status < 0)
 				ret = EFI_DEVICE_ERROR;
 		}
