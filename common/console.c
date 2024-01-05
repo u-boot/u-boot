@@ -853,6 +853,11 @@ int console_record_avail(void)
 	return membuff_avail((struct membuff *)&gd->console_out);
 }
 
+bool console_record_isempty(void)
+{
+	return membuff_isempty((struct membuff *)&gd->console_out);
+}
+
 int console_in_puts(const char *str)
 {
 	return membuff_put((struct membuff *)&gd->console_in, str, strlen(str));

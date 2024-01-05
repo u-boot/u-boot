@@ -85,6 +85,13 @@ int console_record_readline(char *str, int maxlen);
 int console_record_avail(void);
 
 /**
+ * console_record_isempty() - Returns if console output is empty
+ *
+ * Return: true if empty
+ */
+bool console_record_isempty(void);
+
+/**
  * console_in_puts() - Write a string to the console input buffer
  *
  * This writes the given string to the console_in buffer which will then be
@@ -129,6 +136,12 @@ static inline int console_in_puts(const char *str)
 {
 	/* There is never anything written */
 	return 0;
+}
+
+static inline bool console_record_isempty(void)
+{
+	/* Always empty */
+	return true;
 }
 
 #endif /* !CONFIG_CONSOLE_RECORD */
