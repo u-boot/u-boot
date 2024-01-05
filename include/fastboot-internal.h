@@ -19,6 +19,13 @@ extern u32 fastboot_buf_size;
 extern void (*fastboot_progress_callback)(const char *msg);
 
 /**
+ * fastboot_getvar_all() - Writes current variable being listed from "all" to response.
+ *
+ * @response: Pointer to fastboot response buffer
+ */
+void fastboot_getvar_all(char *response);
+
+/**
  * fastboot_getvar() - Writes variable indicated by cmd_parameter to response.
  *
  * @cmd_parameter: Pointer to command parameter
