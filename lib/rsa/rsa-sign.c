@@ -104,6 +104,8 @@ static int rsa_engine_get_pub_key(const char *keydir, const char *name,
 	const char *engine_id;
 	char key_id[1024];
 	EVP_PKEY *key = NULL;
+	const char *const pkcs11_schema = "pkcs11:";
+	const char *pkcs11_uri_prepend = "";
 
 	if (!evpp)
 		return -EINVAL;
@@ -113,19 +115,26 @@ static int rsa_engine_get_pub_key(const char *keydir, const char *name,
 	engine_id = ENGINE_get_id(engine);
 
 	if (engine_id && !strcmp(engine_id, "pkcs11")) {
-		if (keydir)
+		if (keydir) {
+			// Check for legacy keydir spec and prepend
+			if (strncmp(pkcs11_schema, keydir, strlen(pkcs11_schema))) {
+				pkcs11_uri_prepend = pkcs11_schema;
+				fprintf(stderr, "WARNING: Legacy URI specified. Please add '%s'.\n", pkcs11_schema);
+			}
+
 			if (strstr(keydir, "object="))
 				snprintf(key_id, sizeof(key_id),
-					 "%s;type=public",
-					 keydir);
+					 "%s%s;type=public",
+					 pkcs11_uri_prepend, keydir);
 			else
 				snprintf(key_id, sizeof(key_id),
-					 "%s;object=%s;type=public",
-					 keydir, name);
-		else
+					 "%s%s;object=%s;type=public",
+					 pkcs11_uri_prepend, keydir, name);
+		} else {
 			snprintf(key_id, sizeof(key_id),
 				 "pkcs11:object=%s;type=public",
 				 name);
+		}
 	} else if (engine_id) {
 		if (keydir)
 			snprintf(key_id, sizeof(key_id),
@@ -224,6 +233,8 @@ static int rsa_engine_get_priv_key(const char *keydir, const char *name,
 	const char *engine_id;
 	char key_id[1024];
 	EVP_PKEY *key = NULL;
+	const char *const pkcs11_schema = "pkcs11:";
+	const char *pkcs11_uri_prepend = "";
 
 	if (!evpp)
 		return -EINVAL;
@@ -235,19 +246,26 @@ static int rsa_engine_get_priv_key(const char *keydir, const char *name,
 			fprintf(stderr, "Please use 'keydir' with PKCS11\n");
 			return -EINVAL;
 		}
-		if (keydir)
+		if (keydir) {
+			// Check for legacy keydir spec and prepend
+			if (strncmp(pkcs11_schema, keydir, strlen(pkcs11_schema))) {
+				pkcs11_uri_prepend = pkcs11_schema;
+				fprintf(stderr, "WARNING: Legacy URI specified. Please add '%s'.\n", pkcs11_schema);
+			}
+
 			if (strstr(keydir, "object="))
 				snprintf(key_id, sizeof(key_id),
-					 "%s;type=private",
-					 keydir);
+					 "%s%s;type=private",
+					 pkcs11_uri_prepend, keydir);
 			else
 				snprintf(key_id, sizeof(key_id),
-					 "%s;object=%s;type=private",
-					 keydir, name);
-		else
+					 "%s%s;object=%s;type=private",
+					 pkcs11_uri_prepend, keydir, name);
+		} else {
 			snprintf(key_id, sizeof(key_id),
 				 "pkcs11:object=%s;type=private",
 				 name);
+		}
 	} else if (engine_id) {
 		if (keydir && name)
 			snprintf(key_id, sizeof(key_id),
