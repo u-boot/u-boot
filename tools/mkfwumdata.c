@@ -14,12 +14,13 @@
 #include <unistd.h>
 #include <uuid/uuid.h>
 
-/* This will dynamically allocate the fwu_mdata */
-#define CONFIG_FWU_NUM_BANKS		0
-#define CONFIG_FWU_NUM_IMAGES_PER_BANK	0
-
 /* Since we can not include fwu.h, redefine version here. */
-#define FWU_MDATA_VERSION		1
+#define FWU_MDATA_VERSION		2
+
+#define MAX_BANKS			4
+
+#define BANK_INVALID			0xFF
+#define BANK_ACCEPTED			0xFC
 
 typedef uint8_t u8;
 typedef int16_t s16;
@@ -28,8 +29,6 @@ typedef uint32_t u32;
 typedef uint64_t u64;
 
 #include <fwu_mdata.h>
-
-/* TODO: Endianness conversion may be required for some arch. */
 
 static const char *opts_short = "b:i:a:p:gh";
 
@@ -48,7 +47,7 @@ static void print_usage(void)
 	fprintf(stderr, "Usage: mkfwumdata [options] <UUIDs list> <output file>\n");
 	fprintf(stderr, "Options:\n"
 		"\t-i, --images <num>          Number of images (mandatory)\n"
-		"\t-b, --banks  <num>          Number of banks (mandatory)\n"
+		"\t-b, --banks  <num>          Number of banks(1-4) (mandatory)\n"
 		"\t-a, --active-bank  <num>    Active bank (default=0)\n"
 		"\t-p, --previous-bank  <num>  Previous active bank (default=active_bank - 1)\n"
 		"\t-g, --guid                  Use GUID instead of UUID\n"
@@ -85,6 +84,7 @@ static struct fwu_mdata_object *fwu_alloc_mdata(size_t images, size_t banks)
 		return NULL;
 
 	mobj->size = sizeof(struct fwu_mdata) +
+		sizeof(struct fwu_fw_store_desc) +
 		(sizeof(struct fwu_image_entry) +
 		 sizeof(struct fwu_image_bank_info) * banks) * images;
 	mobj->images = images;
@@ -105,6 +105,7 @@ fwu_get_image(struct fwu_mdata_object *mobj, size_t idx)
 	size_t offset;
 
 	offset = sizeof(struct fwu_mdata) +
+		sizeof(struct fwu_fw_store_desc) +
 		(sizeof(struct fwu_image_entry) +
 		 sizeof(struct fwu_image_bank_info) * mobj->banks) * idx;
 
@@ -117,6 +118,7 @@ fwu_get_bank(struct fwu_mdata_object *mobj, size_t img_idx, size_t bnk_idx)
 	size_t offset;
 
 	offset = sizeof(struct fwu_mdata) +
+		sizeof(struct fwu_fw_store_desc) +
 		(sizeof(struct fwu_image_entry) +
 		 sizeof(struct fwu_image_bank_info) * mobj->banks) * img_idx +
 		sizeof(struct fwu_image_entry) +
@@ -188,7 +190,7 @@ fwu_parse_fill_image_uuid(struct fwu_mdata_object *mobj,
 		return -EINVAL;
 
 	if (strcmp(uuid, "0") &&
-	    uuid_guid_parse(uuid, (unsigned char *)&image->location_uuid) < 0)
+	    uuid_guid_parse(uuid, (unsigned char *)&image->location_guid) < 0)
 		return -EINVAL;
 
 	/* Image type UUID */
@@ -196,7 +198,7 @@ fwu_parse_fill_image_uuid(struct fwu_mdata_object *mobj,
 	if (!uuid)
 		return -EINVAL;
 
-	if (uuid_guid_parse(uuid, (unsigned char *)&image->image_type_uuid) < 0)
+	if (uuid_guid_parse(uuid, (unsigned char *)&image->image_type_guid) < 0)
 		return -EINVAL;
 
 	/* Fill bank image-UUID */
@@ -210,7 +212,7 @@ fwu_parse_fill_image_uuid(struct fwu_mdata_object *mobj,
 			return -EINVAL;
 
 		if (strcmp(uuid, "0") &&
-		    uuid_guid_parse(uuid, (unsigned char *)&bank->image_uuid) < 0)
+		    uuid_guid_parse(uuid, (unsigned char *)&bank->image_guid) < 0)
 			return -EINVAL;
 	}
 	return 0;
@@ -225,6 +227,19 @@ static int fwu_parse_fill_uuids(struct fwu_mdata_object *mobj, char *uuids[])
 	mdata->version = FWU_MDATA_VERSION;
 	mdata->active_index = active_bank;
 	mdata->previous_active_index = previous_bank;
+	mdata->metadata_size = mobj->size;
+	mdata->desc_offset = sizeof(struct fwu_mdata);
+
+	for (i = 0; i < MAX_BANKS; i++)
+		mdata->bank_state[i] = i < mobj->banks ?
+			BANK_ACCEPTED : BANK_INVALID;
+
+	mdata->fw_desc[0].num_banks = mobj->banks;
+	mdata->fw_desc[0].num_images = mobj->images;
+	mdata->fw_desc[0].img_entry_size = sizeof(struct fwu_image_entry) +
+		(sizeof(struct fwu_image_bank_info) * mobj->banks);
+	mdata->fw_desc[0].bank_info_entry_size =
+		sizeof(struct fwu_image_bank_info);
 
 	for (i = 0; i < mobj->images; i++) {
 		ret = fwu_parse_fill_image_uuid(mobj, i, uuids[i]);
@@ -310,6 +325,12 @@ int main(int argc, char *argv[])
 
 	if (!banks || !images) {
 		fprintf(stderr, "Error: The number of banks and images must not be 0.\n");
+		return -EINVAL;
+	}
+
+	if (banks > MAX_BANKS) {
+		fprintf(stderr, "Error: The number of banks must not be more than %u.\n",
+			MAX_BANKS);
 		return -EINVAL;
 	}
 
