@@ -12,21 +12,10 @@
 #include <linux/errno.h>
 #include <linux/types.h>
 
-/* Internal helper structure to move data around */
-struct fwu_mdata_mtd_priv {
-	struct mtd_info *mtd;
-	char pri_label[50];
-	char sec_label[50];
-	u32 pri_offset;
-	u32 sec_offset;
-};
-
 enum fwu_mtd_op {
 	FWU_MTD_READ,
 	FWU_MTD_WRITE,
 };
-
-extern struct fwu_mtd_image_info fwu_mtd_images[];
 
 static bool mtd_is_aligned_with_block_size(struct mtd_info *mtd, u64 size)
 {
@@ -134,7 +123,7 @@ static int flash_partition_offset(struct udevice *dev, const char *part_name, fd
 	return (int)size;
 }
 
-static int fwu_mdata_mtd_of_to_plat(struct udevice *dev)
+static int get_fwu_mdata_dev(struct udevice *dev)
 {
 	struct fwu_mdata_mtd_priv *mtd_priv = dev_get_priv(dev);
 	const fdt32_t *phandle_p = NULL;
@@ -144,8 +133,6 @@ static int fwu_mdata_mtd_of_to_plat(struct udevice *dev)
 	fdt_addr_t offset;
 	int ret, size;
 	u32 phandle;
-	ofnode bank;
-	int off_img;
 
 	/* Find the FWU mdata storage device */
 	phandle_p = ofnode_get_property(dev_ofnode(dev),
@@ -199,8 +186,28 @@ static int fwu_mdata_mtd_of_to_plat(struct udevice *dev)
 		return ret;
 	mtd_priv->sec_offset = offset;
 
-	off_img = 0;
+	return 0;
+}
 
+static int fwu_mtd_image_info_populate(struct udevice *dev, u8 nbanks,
+				       u16 nimages)
+{
+	struct fwu_mtd_image_info *mtd_images;
+	struct fwu_mdata_mtd_priv *mtd_priv = dev_get_priv(dev);
+	struct udevice *mtd_dev = mtd_priv->mtd->dev;
+	fdt_addr_t offset;
+	ofnode bank;
+	int off_img;
+	u32 total_images;
+
+	total_images = nbanks * nimages;
+	mtd_priv->fwu_mtd_images = malloc(sizeof(struct fwu_mtd_image_info) *
+					  total_images);
+	if (!mtd_priv->fwu_mtd_images)
+		return -ENOMEM;
+
+	off_img = 0;
+	mtd_images = mtd_priv->fwu_mtd_images;
 	ofnode_for_each_subnode(bank, dev_ofnode(dev)) {
 		int bank_num, bank_offset, bank_size;
 		const char *bank_name;
@@ -219,8 +226,7 @@ static int fwu_mdata_mtd_of_to_plat(struct udevice *dev)
 			int image_num, image_offset, image_size;
 			const char *uuid;
 
-			if (off_img == CONFIG_FWU_NUM_BANKS *
-						CONFIG_FWU_NUM_IMAGES_PER_BANK) {
+			if (off_img == total_images) {
 				log_err("DT provides more images than configured!\n");
 				break;
 			}
@@ -230,11 +236,11 @@ static int fwu_mdata_mtd_of_to_plat(struct udevice *dev)
 			ofnode_read_u32(image, "offset", &image_offset);
 			ofnode_read_u32(image, "size", &image_size);
 
-			fwu_mtd_images[off_img].start = bank_offset + image_offset;
-			fwu_mtd_images[off_img].size = image_size;
-			fwu_mtd_images[off_img].bank_num = bank_num;
-			fwu_mtd_images[off_img].image_num = image_num;
-			strcpy(fwu_mtd_images[off_img].uuidbuf, uuid);
+			mtd_images[off_img].start = bank_offset + image_offset;
+			mtd_images[off_img].size = image_size;
+			mtd_images[off_img].bank_num = bank_num;
+			mtd_images[off_img].image_num = image_num;
+			strcpy(mtd_images[off_img].uuidbuf, uuid);
 			log_debug("\tImage%d: %s @0x%x\n\n",
 				  image_num, uuid, bank_offset + image_offset);
 			off_img++;
@@ -246,8 +252,24 @@ static int fwu_mdata_mtd_of_to_plat(struct udevice *dev)
 
 static int fwu_mdata_mtd_probe(struct udevice *dev)
 {
-	/* Ensure the metadata can be read. */
-	return fwu_get_mdata(NULL);
+	u8 nbanks;
+	u16 nimages;
+	int ret;
+
+	ret = get_fwu_mdata_dev(dev);
+	if (ret)
+		return ret;
+
+	/* Read the metadata to get number of banks and images */
+	ret = fwu_get_banks_images(&nbanks, &nimages);
+	if (ret)
+		return ret;
+
+	ret = fwu_mtd_image_info_populate(dev, nbanks, nimages);
+	if (ret)
+		return ret;
+
+	return 0;
 }
 
 static struct fwu_mdata_ops fwu_mtd_ops = {
@@ -266,6 +288,5 @@ U_BOOT_DRIVER(fwu_mdata_mtd) = {
 	.of_match	= fwu_mdata_ids,
 	.ops		= &fwu_mtd_ops,
 	.probe		= fwu_mdata_mtd_probe,
-	.of_to_plat	= fwu_mdata_mtd_of_to_plat,
 	.priv_auto	= sizeof(struct fwu_mdata_mtd_priv),
 };
