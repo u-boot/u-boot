@@ -590,6 +590,36 @@ out:
 	return ret;
 }
 
+static int fwu_trial_state_ctr_start(void)
+{
+	int ret;
+	u16 trial_state_ctr;
+
+	printf("%s: starting the TrialStateCtr\n", __func__);
+	trial_state_ctr = 0;
+	ret = trial_counter_update(&trial_state_ctr);
+	if (ret)
+		log_err("Unable to initialise TrialStateCtr\n");
+
+	return ret;
+}
+
+static int fwu_set_bank_state_trial(uint update_index)
+{
+	int ret;
+	struct fwu_mdata *mdata = g_mdata;
+
+	mdata->bank_state[update_index] = FWU_BANK_VALID;
+
+	ret = fwu_sync_mdata(mdata, BOTH_PARTS);
+	if (ret) {
+		log_err("Unable to set bank_state for %d bank\n", update_index);
+		return ret;
+	}
+
+	return 0;
+}
+
 /**
  * fwu_bank_state_update() - Check and update the bank_state of the metadata
  * @update_index: Bank for which the bank_state needs to be updated
@@ -743,25 +773,31 @@ u8 fwu_empty_capsule_checks_pass(void)
 }
 
 /**
- * fwu_trial_state_ctr_start() - Start the Trial State counter
+ * fwu_trial_state_start() - Put the platform in Trial State
+ * @update_index: Bank number to which images have been updated
  *
- * Start the counter to identify the platform booting in the
- * Trial State. The counter is implemented as an EFI variable.
+ * Put the platform in Trial State by starting the counter to
+ * identify the platform booting in the Trial State. The
+ * counter is implemented as an EFI variable. Secondly, set
+ * the bank_state in the metadata for the updated bank to Valid
+ * state.
  *
  * Return: 0 if OK, -ve on error
  *
  */
-int fwu_trial_state_ctr_start(void)
+int fwu_trial_state_start(uint update_index)
 {
 	int ret;
-	u16 trial_state_ctr;
 
-	trial_state_ctr = 0;
-	ret = trial_counter_update(&trial_state_ctr);
+	ret = fwu_trial_state_ctr_start();
 	if (ret)
-		log_err("Unable to initialise TrialStateCtr\n");
+		return ret;
 
-	return ret;
+	ret = fwu_set_bank_state_trial(update_index);
+	if (ret)
+		return ret;
+
+	return 0;
 }
 
 static int fwu_boottime_checks(void)
