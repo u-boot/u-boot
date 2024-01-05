@@ -481,6 +481,12 @@ static __maybe_unused efi_status_t fwu_empty_capsule_process(
 		if (ret != EFI_SUCCESS)
 			log_err("Unable to set the Accept bit for the image %pUs\n",
 				image_guid);
+
+		status = fwu_bank_state_update(active_idx);
+		ret = fwu_to_efi_error(status);
+		if (ret != EFI_SUCCESS)
+			log_err("Unable to update the bank_state for bank %u\n",
+				active_idx);
 	}
 
 	return ret;
@@ -524,6 +530,10 @@ static __maybe_unused efi_status_t fwu_post_update_process(bool fw_accept_os)
 		log_debug("Successfully updated the active_index\n");
 		if (fw_accept_os) {
 			status = fwu_trial_state_start(update_index);
+			if (status < 0)
+				ret = EFI_DEVICE_ERROR;
+		} else {
+			status = fwu_bank_state_update(update_index);
 			if (status < 0)
 				ret = EFI_DEVICE_ERROR;
 		}
