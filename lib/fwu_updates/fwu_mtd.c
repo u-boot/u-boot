@@ -15,16 +15,51 @@
 
 #include <dm/ofnode.h>
 
-struct fwu_mtd_image_info
-fwu_mtd_images[CONFIG_FWU_NUM_BANKS * CONFIG_FWU_NUM_IMAGES_PER_BANK];
+static struct fwu_mdata *mdata;
+
+static int read_mdata(void)
+{
+	int ret = 0;
+	u32 mdata_size;
+
+	ret = fwu_get_mdata_size(&mdata_size);
+	if (ret)
+		return ret;
+
+	mdata = malloc(mdata_size);
+	if (!mdata)
+		return -ENOMEM;
+
+	ret = fwu_get_mdata(mdata);
+	if (ret < 0) {
+		log_err("Failed to get the FWU mdata\n");
+		free(mdata);
+		mdata = NULL;
+	}
+
+	return ret;
+}
 
 static struct fwu_mtd_image_info *mtd_img_by_uuid(const char *uuidbuf)
 {
-	int num_images = ARRAY_SIZE(fwu_mtd_images);
+	u8 nbanks;
+	u16 nimages;
+	int num_images, ret;
+	struct fwu_mdata_mtd_priv *mtd_priv = dev_get_priv(fwu_get_dev());
+	struct fwu_mtd_image_info *image_info = mtd_priv->fwu_mtd_images;
+
+	if (!image_info)
+		return NULL;
+
+	ret = fwu_get_banks_images(&nbanks, &nimages);
+	if (ret)
+		return NULL;
+
+	num_images = nbanks * nimages;
 
 	for (int i = 0; i < num_images; i++)
-		if (!strcmp(uuidbuf, fwu_mtd_images[i].uuidbuf))
-			return &fwu_mtd_images[i];
+		if (!strcmp(uuidbuf, image_info[i].uuidbuf))
+			return &image_info[i];
 
 	return NULL;
 }
@@ -107,8 +142,9 @@ __weak int fwu_plat_get_alt_num(struct udevice *dev, efi_guid_t *image_id,
 	return fwu_mtd_get_alt_num(image_id, alt_num, "nor1");
 }
 
-static int gen_image_alt_info(char *buf, size_t len, int sidx,
-			      struct fwu_image_entry *img, struct mtd_info *mtd)
+static int gen_image_alt_info(char *buf, size_t len, int idx,
+			      struct fwu_image_entry *img,
+			      struct mtd_info *mtd, uint8_t num_banks)
 {
 	char *p = buf, *end = buf + len;
 	int i;
@@ -123,15 +159,15 @@ static int gen_image_alt_info(char *buf, size_t len, int sidx,
 	 * List the image banks in the FWU mdata and search the corresponding
 	 * partition based on partition's uuid.
 	 */
-	for (i = 0; i < CONFIG_FWU_NUM_BANKS; i++) {
+	for (i = 0; i < num_banks; i++) {
 		struct fwu_mtd_image_info *mtd_img_info;
 		struct fwu_image_bank_info *bank;
 		char uuidbuf[UUID_STR_LEN + 1];
 		u32 offset, size;
 
 		/* Query a partition by image UUID */
-		bank = &img->img_bank_info[i];
-		uuid_bin_to_str(bank->image_uuid.b, uuidbuf, UUID_STR_FORMAT_STD);
+		bank = fwu_img_bank_info_offset(mdata, idx, i);
+		uuid_bin_to_str(bank->image_guid.b, uuidbuf, UUID_STR_FORMAT_STD);
 
 		mtd_img_info = mtd_img_by_uuid(uuidbuf);
 		if (!mtd_img_info) {
@@ -150,7 +186,7 @@ static int gen_image_alt_info(char *buf, size_t len, int sidx,
 		}
 	}
 
-	if (i == CONFIG_FWU_NUM_BANKS)
+	if (i == num_banks)
 		return 0;
 
 	return -ENOENT;
@@ -158,24 +194,29 @@ static int gen_image_alt_info(char *buf, size_t len, int sidx,
 
 int fwu_gen_alt_info_from_mtd(char *buf, size_t len, struct mtd_info *mtd)
 {
-	struct fwu_mdata mdata;
+	u8 num_banks;
+	u16 num_images;
 	int i, l, ret;
+	struct fwu_image_entry *img_entry;
 
-	ret = fwu_get_mdata(&mdata);
-	if (ret < 0) {
-		log_err("Failed to get the FWU mdata.\n");
-		return ret;
+	if (!mdata) {
+		ret = read_mdata();
+		if (ret)
+			return ret;
 	}
 
-	for (i = 0; i < CONFIG_FWU_NUM_IMAGES_PER_BANK; i++) {
-		ret = gen_image_alt_info(buf, len, i * CONFIG_FWU_NUM_BANKS,
-					 &mdata.img_entry[i], mtd);
+	num_banks = fwu_get_fw_desc(mdata)->num_banks;
+	num_images = fwu_get_fw_desc(mdata)->num_images;
+	for (i = 0; i < num_images; i++) {
+		img_entry = fwu_img_entry_offset(mdata, i);
+		ret = gen_image_alt_info(buf, len, i,
+					 img_entry, mtd, num_banks);
 		if (ret)
 			break;
 
 		l = strlen(buf);
 		/* Replace the last ';' with '&' if there is another image. */
-		if (i != CONFIG_FWU_NUM_IMAGES_PER_BANK - 1 && l) {
+		if (i != num_images - 1 && l) {
 			buf[l] = '&';
 			buf++;
 		}
