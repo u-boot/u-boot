@@ -79,9 +79,3 @@ config SYS_FDT_LOAD_ADDR
 	  See `doc/arch/sandbox.rst` for more information.
 
 endmenu
-
-config FWU_NUM_BANKS
-	default 2
-
-config FWU_NUM_IMAGES_PER_BANK
-	default 2
