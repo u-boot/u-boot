@@ -821,6 +821,9 @@ int console_record_init(void)
 	ret = membuff_new((struct membuff *)&gd->console_in,
 			  CONFIG_CONSOLE_RECORD_IN_SIZE);
 
+	/* Start recording from the beginning */
+	gd->flags |= GD_FLG_RECORD;
+
 	return ret;
 }
 
