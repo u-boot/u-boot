@@ -12,17 +12,6 @@ menuconfig FWU_MULTI_BANK_UPDATE
 
 if FWU_MULTI_BANK_UPDATE
 
-config FWU_NUM_BANKS
-	int "Number of Banks defined by the platform"
-	help
-	  Define the number of banks of firmware images on a platform
-
-config FWU_NUM_IMAGES_PER_BANK
-	int "Number of firmware images per bank"
-	help
-	  Define the number of firmware images per bank. This value
-	  should be the same for all the banks.
-
 config FWU_TRIAL_STATE_CNT
 	int "Number of times system boots in Trial State"
 	default 3
