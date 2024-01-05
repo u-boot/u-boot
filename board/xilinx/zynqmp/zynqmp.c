@@ -156,9 +156,12 @@ int board_init(void)
 #if defined(CONFIG_ZYNQMP_FIRMWARE)
 	struct udevice *dev;
 
-	uclass_get_device_by_name(UCLASS_FIRMWARE, "zynqmp-power", &dev);
-	if (!dev)
-		panic("PMU Firmware device not found - Enable it");
+	uclass_get_device_by_name(UCLASS_FIRMWARE, "power-management", &dev);
+	if (!dev) {
+		uclass_get_device_by_name(UCLASS_FIRMWARE, "zynqmp-power", &dev);
+		if (!dev)
+			panic("PMU Firmware device not found - Enable it");
+	}
 #endif
 
 #if defined(CONFIG_SPL_BUILD)
