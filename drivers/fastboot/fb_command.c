@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <console.h>
 #include <env.h>
 #include <fastboot.h>
 #include <fastboot-internal.h>
@@ -150,6 +151,15 @@ int fastboot_handle_command(char *cmd_string, char *response)
 	pr_err("command %s not recognized.\n", cmd_string);
 	fastboot_fail("unrecognized command", response);
 	return -1;
+}
+
+void fastboot_multiresponse(int cmd, char *response)
+{
+	switch (cmd) {
+	default:
+		fastboot_fail("Unknown multiresponse command", response);
+		break;
+	}
 }
 
 /**
