@@ -299,7 +299,7 @@ static s8 periph_id_to_internal_id[PERIPH_ID_COUNT] = {
 	PERIPHC_UART3,
 
 	/* 56 */
-	NONE(RESERVED56),
+	NONE(MIPI_CAL),
 	PERIPHC_EMC,
 	NONE(USB2),
 	NONE(USB3),
@@ -635,7 +635,6 @@ enum periph_id clk_id_to_periph_id(int clk_id)
 	case PERIPH_ID_RESERVED35:
 	case PERIPH_ID_RESERVED43:
 	case PERIPH_ID_RESERVED45:
-	case PERIPH_ID_RESERVED56:
 	case PERIPH_ID_RESERVED76:
 	case PERIPH_ID_RESERVED77:
 	case PERIPH_ID_RESERVED78:

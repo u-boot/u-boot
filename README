@@ -300,13 +300,6 @@ The following options need to be configured:
 		different from COUNTER_FREQUENCY, and can only be determined
 		at run time.
 
-- Tegra SoC options:
-		CONFIG_TEGRA_SUPPORT_NON_SECURE
-
-		Support executing U-Boot in non-secure (NS) mode. Certain
-		impossible actions will be skipped if the CPU is in NS mode,
-		such as ARM architectural timer initialization.
-
 - Linux Kernel Interface:
 		CONFIG_OF_LIBFDT
 

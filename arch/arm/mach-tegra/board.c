@@ -77,9 +77,6 @@ bool spl_was_boot_source(void)
 }
 
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
-#if !defined(CONFIG_TEGRA124)
-#error tegra_cpu_is_non_secure has only been validated on Tegra124
-#endif
 bool tegra_cpu_is_non_secure(void)
 {
 	/*
