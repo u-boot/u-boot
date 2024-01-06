@@ -1345,7 +1345,7 @@ config ARCH_ZYNQMP
 config ARCH_TEGRA
 	bool "NVIDIA Tegra"
 	select GPIO_EXTRA_HEADER
-	imply DISTRO_DEFAULTS
+	imply BOOTSTD_DEFAULTS
 	imply FAT_WRITE
 	imply SPL_TIMER if SPL
 
