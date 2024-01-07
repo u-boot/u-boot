@@ -35,22 +35,6 @@
 				status = "okay";
 
 				nvidia,panel = <&panel>;
-
-				display-timings {
-					timing@0 {
-						/* PAZ00 has 1024x600 */
-						clock-frequency = <54030000>;
-						hactive = <1024>;
-						vactive = <600>;
-						hback-porch = <160>;
-						hfront-porch = <24>;
-						hsync-len = <136>;
-						vback-porch = <3>;
-						vfront-porch = <61>;
-						vsync-len = <6>;
-						hsync-active = <1>;
-					};
-				};
 			};
 		};
 
