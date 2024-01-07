@@ -54,7 +54,8 @@
 	"boot_block_size_r=0x200000\0" \
 	"boot_block_size=0x1000\0" \
 	"bootloader_file=u-boot-dtb-tegra.bin\0" \
-	"check_button=gpio input 116; test $? -eq 0\0" \
+	"button_cmd_0_name=Volume Down\0" \
+	"button_cmd_0=bootmenu\0" \
 	"partitions=name=emmc,start=0,size=-,uuid=${uuid_gpt_rootfs}\0" \
 	X3_BOOTMENU
 

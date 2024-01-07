@@ -71,18 +71,20 @@
 	"bootmenu_1=mount external storage=usb start && ums 0 mmc 1; bootmenu\0" \
 	"bootmenu_2=fastboot=echo Starting Fastboot protocol ...; fastboot usb 0; bootmenu\0" \
 	"bootmenu_3=update bootloader=run flash_uboot\0" \
-	"bootmenu_4=enter console=usb start; setenv skip_boot 1; exit\0" \
-	"bootmenu_5=reboot RCM=enterrcm\0" \
-	"bootmenu_6=reboot=reset\0" \
-	"bootmenu_7=power off=poweroff\0" \
+	"bootmenu_4=reboot RCM=enterrcm\0" \
+	"bootmenu_5=reboot=reset\0" \
+	"bootmenu_6=power off=poweroff\0" \
 	"bootmenu_delay=-1\0"
 
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"spi_size=0x400000\0" \
 	"boot_block_size_r=0x200000\0" \
 	"boot_block_size=0x1000\0" \
-	"check_button=gpio input ${gpio_button}; test $? -eq 0;\0" \
 	"bootloader_file=u-boot-dtb-tegra.bin\0" \
+	"button_cmd_0_name=Volume Down\0" \
+	"button_cmd_0=bootmenu\0" \
+	"button_cmd_1_name=Lid sensor\0" \
+	"button_cmd_1=poweroff\0" \
 	"partitions=name=emmc,start=0,size=-,uuid=${uuid_gpt_rootfs}\0" \
 	TRANSFORMER_BOOTMENU
 
