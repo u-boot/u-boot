@@ -27,14 +27,20 @@ static int font_test_base(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev));
 
 	ut_assertok(run_command("font list", 0));
-	ut_assert_nextline("nimbus_sans_l_regular");
+	if (IS_ENABLED(CONFIG_CONSOLE_TRUETYPE_NIMBUS))
+		ut_assert_nextline("nimbus_sans_l_regular");
+	if (IS_ENABLED(CONFIG_CONSOLE_TRUETYPE_ANKACODER))
+		ut_assert_nextline("ankacoder_c75_r");
 	if (IS_ENABLED(CONFIG_CONSOLE_TRUETYPE_CANTORAONE))
 		ut_assert_nextline("cantoraone_regular");
 	ut_assert_console_end();
 
 	ut_assertok(vidconsole_get_font_size(dev, &name, &size));
-	ut_asserteq_str("nimbus_sans_l_regular", name);
-	ut_asserteq(18, size);
+	if (IS_ENABLED(CONFIG_CONSOLE_TRUETYPE_ANKACODER))
+		ut_asserteq_str("ankacoder_c75_r", name);
+	else
+		ut_asserteq_str("nimbus_sans_l_regular", name);
+	ut_asserteq(CONFIG_CONSOLE_TRUETYPE_SIZE, size);
 
 	if (!IS_ENABLED(CONFIG_CONSOLE_TRUETYPE_CANTORAONE))
 		return 0;
