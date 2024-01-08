@@ -81,7 +81,7 @@ static int dm_test_spmi_access_peripheral(struct unit_test_state *uts)
 	int offset_count;
 
 	/* Get second pin of PMIC GPIO */
-	ut_assertok(gpio_lookup_name("spmi1", &dev, &offset, &gpio));
+	ut_assertok(gpio_lookup_name("pmic1", &dev, &offset, &gpio));
 
 	/* Check if PMIC is parent */
 	ut_asserteq(device_get_uclass_id(dev->parent), UCLASS_PMIC);
@@ -92,7 +92,7 @@ static int dm_test_spmi_access_peripheral(struct unit_test_state *uts)
 	name = gpio_get_bank_info(dev, &offset_count);
 
 	/* Check bank name */
-	ut_asserteq_str("spmi", name);
+	ut_asserteq_str("pmic", name);
 	/* Check pin count */
 	ut_asserteq(4, offset_count);
 
