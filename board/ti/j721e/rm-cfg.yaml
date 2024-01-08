@@ -16,224 +16,224 @@ rm-cfg:
                                 magic: 0x4C41
                                 size: 356
                         host_cfg_entries:
-                                - #1
+                                -  # 1
                                         host_id: 3
                                         allowed_atype: 0x2A
                                         allowed_qos: 0xAAAA
                                         allowed_orderid: 0xAAAAAAAA
                                         allowed_priority: 0xAAAA
                                         allowed_sched_priority: 0xAA
-                                - #2
+                                -  # 2
                                         host_id: 5
                                         allowed_atype: 0x2A
                                         allowed_qos: 0xAAAA
                                         allowed_orderid: 0xAAAAAAAA
                                         allowed_priority: 0xAAAA
                                         allowed_sched_priority: 0xAA
-                                - #3
+                                -  # 3
                                         host_id: 12
                                         allowed_atype: 0x2A
                                         allowed_qos: 0xAAAA
                                         allowed_orderid: 0xAAAAAAAA
                                         allowed_priority: 0xAAAA
                                         allowed_sched_priority: 0xAA
-                                - #4
+                                -  # 4
                                         host_id: 13
                                         allowed_atype: 0x2A
                                         allowed_qos: 0xAAAA
                                         allowed_orderid: 0xAAAAAAAA
                                         allowed_priority: 0xAAAA
                                         allowed_sched_priority: 0xAA
-                                - #5
+                                -  # 5
                                         host_id: 21
                                         allowed_atype: 0x2A
                                         allowed_qos: 0xAAAA
                                         allowed_orderid: 0xAAAAAAAA
                                         allowed_priority: 0xAAAA
                                         allowed_sched_priority: 0xAA
-                                - #6
+                                -  # 6
                                         host_id: 26
                                         allowed_atype: 0x2A
                                         allowed_qos: 0xAAAA
                                         allowed_orderid: 0xAAAAAAAA
                                         allowed_priority: 0xAAAA
                                         allowed_sched_priority: 0xAA
-                                - #7
+                                -  # 7
                                         host_id: 28
                                         allowed_atype: 0x2A
                                         allowed_qos: 0xAAAA
                                         allowed_orderid: 0xAAAAAAAA
                                         allowed_priority: 0xAAAA
                                         allowed_sched_priority: 0xAA
-                                - #8
+                                -  # 8
                                         host_id: 35
                                         allowed_atype: 0x2A
                                         allowed_qos: 0xAAAA
                                         allowed_orderid: 0xAAAAAAAA
                                         allowed_priority: 0xAAAA
                                         allowed_sched_priority: 0xAA
-                                - #9
+                                -  # 9
                                         host_id: 37
                                         allowed_atype: 0x2A
                                         allowed_qos: 0xAAAA
                                         allowed_orderid: 0xAAAAAAAA
                                         allowed_priority: 0xAAAA
                                         allowed_sched_priority: 0xAA
-                                - #10
+                                -  # 10
                                         host_id: 40
                                         allowed_atype: 0x2A
                                         allowed_qos: 0xAAAA
                                         allowed_orderid: 0xAAAAAAAA
                                         allowed_priority: 0xAAAA
                                         allowed_sched_priority: 0xAA
-                                - #11
+                                -  # 11
                                         host_id: 42
                                         allowed_atype: 0x2A
                                         allowed_qos: 0xAAAA
                                         allowed_orderid: 0xAAAAAAAA
                                         allowed_priority: 0xAAAA
                                         allowed_sched_priority: 0xAA
-                                - #12
+                                -  # 12
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #13
+                                -  # 13
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #14
+                                -  # 14
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #15
+                                -  # 15
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #16
+                                -  # 16
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #17
+                                -  # 17
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #18
+                                -  # 18
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #19
+                                -  # 19
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #20
+                                -  # 20
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #21
+                                -  # 21
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #22
+                                -  # 22
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #23
+                                -  # 23
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #24
+                                -  # 24
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #25
+                                -  # 25
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #26
+                                -  # 26
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #27
+                                -  # 27
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #28
+                                -  # 28
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #29
+                                -  # 29
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #30
+                                -  # 30
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #31
+                                -  # 31
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
                                         allowed_orderid: 0
                                         allowed_priority: 0
                                         allowed_sched_priority: 0
-                                - #32
+                                -  # 32
                                         host_id: 0
                                         allowed_atype: 0
                                         allowed_qos: 0
