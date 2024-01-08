@@ -12,6 +12,7 @@ config IMX9_LOW_DRIVE_MODE
 
 config IMX9
 	bool
+	select BINMAN
 	select HAS_CAAM
 	select ROM_UNIFIED_SECTIONS
 
@@ -29,12 +30,10 @@ choice
 
 config TARGET_IMX93_11X11_EVK
 	bool "imx93_11x11_evk"
-	select BINMAN
 	select IMX93
 
 config TARGET_IMX93_VAR_SOM
 	bool "imx93_var_som"
-	select BINMAN
 	select IMX93
 	select IMX9_LPDDR4X
 
