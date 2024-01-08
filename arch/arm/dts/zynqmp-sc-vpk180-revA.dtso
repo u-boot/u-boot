@@ -13,7 +13,6 @@
 /dts-v1/;
 /plugin/;
 
-
 &{/} {
 	compatible = "xlnx,zynqmp-sc-vpk180-revA", "xlnx,zynqmp-vpk180-revA",
 		     "xlnx,zynqmp-vpk180", "xlnx,zynqmp";

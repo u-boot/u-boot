@@ -155,7 +155,6 @@
 	/* u138 - TUSB320IRWBR - for USB-C */
 };
 
-
 &usb0 {
 	status = "okay";
 };
