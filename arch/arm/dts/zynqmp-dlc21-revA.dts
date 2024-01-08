@@ -43,13 +43,13 @@
 		reg = <0 0 0 0x80000000>, <0x8 0 0x3 0x80000000>;
 	};
 
-	si5332_1: si5332_1 { /* clk0_sgmii - u142 */
+	si5332_1: si5332-1 { /* clk0_sgmii - u142 */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <125000000>;
 	};
 
-	si5332_2: si5332_2 { /* clk1_usb - u142 */
+	si5332_2: si5332-2 { /* clk1_usb - u142 */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <26000000>;

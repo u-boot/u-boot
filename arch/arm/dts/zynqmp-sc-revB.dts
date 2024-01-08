@@ -71,7 +71,7 @@
 		};
 	};
 
-	si5332_2: si5332_2 { /* u42 */
+	si5332_2: si5332-2 { /* u42 */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <26000000>;

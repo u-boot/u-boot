@@ -53,7 +53,7 @@
 			#size-cells = <0>;
 		};
 
-		misc_clk: misc_clk {
+		misc_clk: misc-clk {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <125000000>;

@@ -131,7 +131,7 @@
 		clock-frequency = <48000000>;
 	};
 
-	si5381_6: si5381_6 { /* refclk_usb3 - u43 */
+	si5381_6: si5381-6 { /* refclk_usb3 - u43 */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <26000000>;

@@ -35,7 +35,7 @@
 		bootph-all;
 	};
 
-	clk_xin: clk_xin {
+	clk_xin: clk-xin {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <200000000>;
