@@ -342,6 +342,28 @@ err:
 	return ret;
 }
 
+static int fit_image_read_key_iv_data(const char *keydir, const char *key_iv_name,
+				      unsigned char *key_iv_data, int expected_size)
+{
+	char filename[PATH_MAX];
+	int ret = -1;
+
+	ret = snprintf(filename, sizeof(filename), "%s/%s%s",
+		       keydir, key_iv_name, ".bin");
+	if (ret >= sizeof(filename)) {
+		printf("Can't format the key or IV filename when setting up the cipher: insufficient buffer space\n");
+		ret = -1;
+	}
+	if (ret < 0) {
+		printf("Can't format the key or IV filename when setting up the cipher: snprintf error\n");
+		ret = -1;
+	}
+
+	ret = fit_image_read_data(filename, key_iv_data, expected_size);
+
+	return ret;
+}
+
 static int get_random_data(void *data, int size)
 {
 	unsigned char *tmp = data;
@@ -378,7 +400,6 @@ static int fit_image_setup_cipher(struct image_cipher_info *info,
 				  int noffset)
 {
 	char *algo_name;
-	char filename[128];
 	int ret = -1;
 
 	if (fit_image_cipher_get_algo(fit, noffset, &algo_name)) {
@@ -415,17 +436,17 @@ static int fit_image_setup_cipher(struct image_cipher_info *info,
 		goto out;
 	}
 
-	/* Read the key in the file */
-	snprintf(filename, sizeof(filename), "%s/%s%s",
-		 info->keydir, info->keyname, ".bin");
 	info->key = malloc(info->cipher->key_len);
 	if (!info->key) {
 		fprintf(stderr, "Can't allocate memory for key\n");
 		ret = -1;
 		goto out;
 	}
-	ret = fit_image_read_data(filename, (unsigned char *)info->key,
-				  info->cipher->key_len);
+
+	/* Read the key in the file */
+	ret = fit_image_read_key_iv_data(info->keydir, info->keyname,
+					 (unsigned char *)info->key,
+					 info->cipher->key_len);
 	if (ret < 0)
 		goto out;
 
@@ -438,10 +459,11 @@ static int fit_image_setup_cipher(struct image_cipher_info *info,
 
 	if (info->ivname) {
 		/* Read the IV in the file */
-		snprintf(filename, sizeof(filename), "%s/%s%s",
-			 info->keydir, info->ivname, ".bin");
-		ret = fit_image_read_data(filename, (unsigned char *)info->iv,
-					  info->cipher->iv_len);
+		ret = fit_image_read_key_iv_data(info->keydir, info->ivname,
+						 (unsigned char *)info->iv,
+						 info->cipher->iv_len);
+		if (ret < 0)
+			goto out;
 	} else {
 		/* Generate an ramdom IV */
 		ret = get_random_data((void *)info->iv, info->cipher->iv_len);
