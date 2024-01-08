@@ -699,8 +699,8 @@ struct efi_device_path *create_initrd_dp(const char *dev, const char *part,
 	if (!short_fp)
 		short_fp = tmp_fp;
 
-	initrd_dp = efi_dp_append((const struct efi_device_path *)&id_dp,
-				  short_fp);
+	initrd_dp = efi_dp_concat((const struct efi_device_path *)&id_dp,
+				  short_fp, false);
 
 out:
 	efi_free_pool(tmp_dp);
@@ -916,7 +916,7 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 		goto out;
 	}
 
-	final_fp = efi_dp_concat(file_path, initrd_dp);
+	final_fp = efi_dp_concat(file_path, initrd_dp, true);
 	if (!final_fp) {
 		printf("Cannot create final device path\n");
 		r = CMD_RET_FAILURE;

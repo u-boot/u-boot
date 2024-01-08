@@ -143,7 +143,7 @@ static efi_status_t try_load_from_file_path(efi_handle_t *fs_handles,
 		if (!dp)
 			continue;
 
-		dp = efi_dp_append(dp, fp);
+		dp = efi_dp_concat(dp, fp, false);
 		if (!dp)
 			continue;
 
@@ -1579,8 +1579,8 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
 			goto out;
 		msg_path = file_path;
 	} else {
-		file_path = efi_dp_append(bootefi_device_path,
-					  bootefi_image_path);
+		file_path = efi_dp_concat(bootefi_device_path,
+					  bootefi_image_path, false);
 		msg_path = bootefi_image_path;
 		log_debug("Loaded from disk\n");
 	}
