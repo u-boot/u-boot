@@ -85,7 +85,7 @@ int env_do_env_set(int flag, int argc, char *const argv[], int env_flag)
 	name = argv[1];
 
 	if (strchr(name, '=')) {
-		printf("## Error: illegal character '='"
+		printf("## Error: illegal character '=' "
 		       "in variable name \"%s\"\n", name);
 		return 1;
 	}
