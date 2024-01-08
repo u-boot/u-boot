@@ -17,6 +17,11 @@ import pytest
 @pytest.fixture
 def tmp_copy_of_builddir(u_boot_config, tmp_path):
     """For each test, provide a temporary copy of the initial build directory."""
+    if os.path.realpath(u_boot_config.source_dir) == os.path.realpath(
+        u_boot_config.build_dir
+    ):
+        pytest.skip("Leftover detection requires out of tree build.")
+        return None
     shutil.copytree(
         u_boot_config.build_dir,
         tmp_path,
