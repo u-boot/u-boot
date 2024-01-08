@@ -7,11 +7,15 @@
 #include <common.h>
 #include <backlight.h>
 #include <dm.h>
+#include <edid.h>
+#include <i2c.h>
 #include <log.h>
 #include <mipi_dsi.h>
 #include <panel.h>
 #include <asm/gpio.h>
 #include <power/regulator.h>
+
+#define EDID_I2C_ADDR	0x50
 
 struct simple_panel_priv {
 	struct udevice *reg;
@@ -49,13 +53,71 @@ static int simple_panel_set_backlight(struct udevice *dev, int percent)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(I2C_EDID) && CONFIG_IS_ENABLED(DM_I2C)
+static int simple_panel_get_edid_timing(struct udevice *dev,
+					struct display_timing *timings)
+{
+	struct udevice *panel_ddc, *panel_edid;
+	struct display_timing edid_timing;
+	u8 edid_buf[EDID_SIZE] = { 0 };
+	int ret, bpc;
+	/* Check for DDC i2c if no timings are provided */
+	ret = uclass_get_device_by_phandle(UCLASS_I2C, dev,
+					   "ddc-i2c-bus",
+					   &panel_ddc);
+	if (ret) {
+		log_debug("%s: cannot get DDC i2c bus: error %d\n",
+			  __func__, ret);
+		return ret;
+	}
+
+	ret = dm_i2c_probe(panel_ddc, EDID_I2C_ADDR, 0, &panel_edid);
+	if (ret) {
+		log_debug("%s: cannot probe EDID: error %d\n",
+			  __func__, ret);
+		return ret;
+	}
+
+	ret = dm_i2c_read(panel_edid, 0, edid_buf, sizeof(edid_buf));
+	if (ret) {
+		log_debug("%s: cannot dump EDID buffer: error %d\n",
+			  __func__, ret);
+		return ret;
+	}
+
+	ret = edid_get_timing(edid_buf, sizeof(edid_buf),
+			      &edid_timing, &bpc);
+	if (ret) {
+		log_debug("%s: cannot decode EDID info: error %d\n",
+			  __func__, ret);
+		return ret;
+	}
+
+	memcpy(timings, &edid_timing, sizeof(*timings));
+
+	return 0;
+}
+#else
+static int simple_panel_get_edid_timing(struct udevice *dev,
+					struct display_timing *timings)
+{
+	return -ENOTSUPP;
+}
+#endif
+
 static int simple_panel_get_display_timing(struct udevice *dev,
 					   struct display_timing *timings)
 {
 	const void *blob = gd->fdt_blob;
+	int ret;
 
-	return fdtdec_decode_display_timing(blob, dev_of_offset(dev),
-					    0, timings);
+	/* Check for timing subnode if panel node first */
+	ret = fdtdec_decode_display_timing(blob, dev_of_offset(dev),
+					   0, timings);
+	if (!ret)
+		return ret;
+
+	return simple_panel_get_edid_timing(dev, timings);
 }
 
 static int simple_panel_of_to_plat(struct udevice *dev)
