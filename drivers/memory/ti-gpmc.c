@@ -6,7 +6,6 @@
  */
 
 #include <asm/io.h>
-#include <asm/arch/sys_proto.h>
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
@@ -17,6 +16,7 @@
 #include <linux/mtd/omap_gpmc.h>
 #include <linux/ioport.h>
 #include <linux/io.h>
+#include <linux/sizes.h>
 #include "ti-gpmc.h"
 
 enum gpmc_clk_domain {
