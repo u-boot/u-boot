@@ -19,10 +19,10 @@
 #include <scmi_agent.h>
 #include <scmi_agent-uclass.h>
 #include <scmi_protocols.h>
+#include <vsprintf.h>
 #include <asm/scmi_test.h>
 #include <dm/device-internal.h>
 #include <dm/test.h>
-#include <linux/kconfig.h>
 #include <power/regulator.h>
 #include <test/ut.h>
 
@@ -206,6 +206,86 @@ static int dm_test_scmi_base(struct unit_test_state *uts)
 
 DM_TEST(dm_test_scmi_base, UT_TESTF_SCAN_FDT);
 
+static int dm_test_scmi_cmd(struct unit_test_state *uts)
+{
+	struct udevice *agent_dev;
+	int num_proto = 0;
+	char cmd_out[30];
+
+	if (!CONFIG_IS_ENABLED(CMD_SCMI))
+		return -EAGAIN;
+
+	/* preparation */
+	ut_assertok(uclass_get_device_by_name(UCLASS_SCMI_AGENT, "scmi",
+					      &agent_dev));
+	ut_assertnonnull(agent_dev);
+
+	/*
+	 * Estimate the number of provided protocols.
+	 * This estimation is correct as far as a corresponding
+	 * protocol support is added to sandbox fake serer.
+	 */
+	if (CONFIG_IS_ENABLED(POWER_DOMAIN))
+		num_proto++;
+	if (CONFIG_IS_ENABLED(CLK_SCMI))
+		num_proto++;
+	if (CONFIG_IS_ENABLED(RESET_SCMI))
+		num_proto++;
+	if (CONFIG_IS_ENABLED(DM_REGULATOR_SCMI))
+		num_proto++;
+
+	/* scmi info */
+	ut_assertok(run_command("scmi info", 0));
+
+	ut_assert_nextline("SCMI device: scmi");
+	snprintf(cmd_out, 30, "  protocol version: 0x%x",
+		 SCMI_BASE_PROTOCOL_VERSION);
+	ut_assert_nextline(cmd_out);
+	ut_assert_nextline("  # of agents: 2");
+	ut_assert_nextline("      0: platform");
+	ut_assert_nextline("    > 1: OSPM");
+	snprintf(cmd_out, 30, "  # of protocols: %d", num_proto);
+	ut_assert_nextline(cmd_out);
+	if (CONFIG_IS_ENABLED(SCMI_POWER_DOMAIN))
+		ut_assert_nextline("      Power domain management");
+	if (CONFIG_IS_ENABLED(CLK_SCMI))
+		ut_assert_nextline("      Clock management");
+	if (CONFIG_IS_ENABLED(RESET_SCMI))
+		ut_assert_nextline("      Reset domain management");
+	if (CONFIG_IS_ENABLED(DM_REGULATOR_SCMI))
+		ut_assert_nextline("      Voltage domain management");
+	ut_assert_nextline("  vendor: U-Boot");
+	ut_assert_nextline("  sub vendor: Sandbox");
+	ut_assert_nextline("  impl version: 0x1");
+
+	ut_assert_console_end();
+
+	/* scmi perm_dev */
+	ut_assertok(run_command("scmi perm_dev 1 0 1", 0));
+	ut_assert_console_end();
+
+	ut_assert(run_command("scmi perm_dev 1 0 0", 0));
+	ut_assert_nextline("Denying access to device:0 failed (-13)");
+	ut_assert_console_end();
+
+	/* scmi perm_proto */
+	ut_assertok(run_command("scmi perm_proto 1 0 14 1", 0));
+	ut_assert_console_end();
+
+	ut_assert(run_command("scmi perm_proto 1 0 14 0", 0));
+	ut_assert_nextline("Denying access to protocol:0x14 on device:0 failed (-13)");
+	ut_assert_console_end();
+
+	/* scmi reset */
+	ut_assert(run_command("scmi reset 1 1", 0));
+	ut_assert_nextline("Reset failed (-13)");
+	ut_assert_console_end();
+
+	return 0;
+}
+
+DM_TEST(dm_test_scmi_cmd, UT_TESTF_SCAN_FDT);
+
 static int dm_test_scmi_power_domains(struct unit_test_state *uts)
 {
 	struct sandbox_scmi_agent *agent;
@@ -216,6 +296,9 @@ static int dm_test_scmi_power_domains(struct unit_test_state *uts)
 	size_t stats_len;
 	u8 *name;
 	int ret;
+
+	if (!CONFIG_IS_ENABLED(SCMI_POWER_DOMAIN))
+		return -EAGAIN;
 
 	/* preparation */
 	ut_assertok(load_sandbox_scmi_test_devices(uts, &agent, &dev));
@@ -317,6 +400,9 @@ static int dm_test_scmi_clocks(struct unit_test_state *uts)
 	int ret_dev;
 	int ret;
 
+	if (!CONFIG_IS_ENABLED(CLK_SCMI))
+		return -EAGAIN;
+
 	ret = load_sandbox_scmi_test_devices(uts, &agent, &dev);
 	if (ret)
 		return ret;
@@ -382,6 +468,9 @@ static int dm_test_scmi_resets(struct unit_test_state *uts)
 	struct udevice *agent_dev, *reset_dev, *dev = NULL;
 	int ret;
 
+	if (!CONFIG_IS_ENABLED(RESET_SCMI))
+		return -EAGAIN;
+
 	ret = load_sandbox_scmi_test_devices(uts, &agent, &dev);
 	if (ret)
 		return ret;
@@ -417,6 +506,9 @@ static int dm_test_scmi_voltage_domains(struct unit_test_state *uts)
 	struct dm_regulator_uclass_plat *uc_pdata;
 	struct udevice *dev;
 	struct udevice *regul0_dev;
+
+	if (!CONFIG_IS_ENABLED(DM_REGULATOR_SCMI))
+		return -EAGAIN;
 
 	ut_assertok(load_sandbox_scmi_test_devices(uts, &agent, &dev));
 

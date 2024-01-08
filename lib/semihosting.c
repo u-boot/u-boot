@@ -4,9 +4,10 @@
  * Copyright 2014 Broadcom Corporation
  */
 
-#include <common.h>
 #include <log.h>
 #include <semihosting.h>
+#include <linux/errno.h>
+#include <linux/string.h>
 
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02

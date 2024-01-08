@@ -25,6 +25,8 @@ CONFIG_SPL_LOAD_FIT=y
 CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="mmc dev ${mmcdev}; if mmc rescan; then if run loadbootscript; then run bootscript; else if run loadimage; then run mmcboot; else run netboot; fi; fi; else booti ${loadaddr} - ${fdt_addr}; fi"
+CONFIG_SYS_CBSIZE=256
+CONFIG_SYS_PBSIZE=276
 CONFIG_LOG=y
 CONFIG_BOARD_EARLY_INIT_F=y
 CONFIG_SPL_MAX_SIZE=0x1f000
@@ -35,8 +37,6 @@ CONFIG_SPL_BOARD_INIT=y
 CONFIG_SPL_POWER_DOMAIN=y
 CONFIG_SPL_WATCHDOG=y
 CONFIG_HUSH_PARSER=y
-CONFIG_SYS_CBSIZE=256
-CONFIG_SYS_PBSIZE=276
 CONFIG_CMD_CPU=y
 # CONFIG_BOOTM_NETBSD is not set
 # CONFIG_CMD_IMPORTENV is not set

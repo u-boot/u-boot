@@ -13,7 +13,6 @@
 #include <part.h>
 #include <stdint.h>
 
-#define SQFS_UNCOMPRESSED_DATA 0x0002
 #define SQFS_MAGIC_NUMBER 0x73717368
 /* The three first members of squashfs_dir_index make a total of 12 bytes */
 #define SQFS_DIR_INDEX_BASE_LENGTH 12
@@ -23,7 +22,6 @@
 #define SQFS_MAX_ENTRIES 512
 /* Metadata blocks start by a 2-byte length header */
 #define SQFS_HEADER_SIZE 2
-#define SQFS_LREG_INODE_MIN_SIZE 56
 #define SQFS_DIR_HEADER_SIZE 12
 #define SQFS_MISC_ENTRY_TYPE -1
 #define SQFS_EMPTY_FILE_SIZE 3

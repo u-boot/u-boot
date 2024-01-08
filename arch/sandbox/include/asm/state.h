@@ -6,7 +6,6 @@
 #ifndef __SANDBOX_STATE_H
 #define __SANDBOX_STATE_H
 
-#include <config.h>
 #include <sysreset.h>
 #include <stdbool.h>
 #include <linux/list.h>

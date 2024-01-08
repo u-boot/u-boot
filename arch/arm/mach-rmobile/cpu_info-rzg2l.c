@@ -4,6 +4,7 @@
  *
  */
 
+#include <mach/rmobile.h>
 #include <asm/io.h>
 #include <linux/libfdt.h>
 

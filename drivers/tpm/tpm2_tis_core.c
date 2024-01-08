@@ -224,9 +224,6 @@ int tpm_tis_send(struct udevice *dev, const u8 *buf, size_t len)
 	u8 status;
 	int ret;
 
-	if (!chip)
-		return -ENODEV;
-
 	ret = tpm_tis_request_locality(dev, 0);
 	if (ret < 0)
 		return -EBUSY;

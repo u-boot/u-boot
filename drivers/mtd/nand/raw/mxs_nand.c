@@ -31,6 +31,7 @@
 #include <linux/errno.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/sizes.h>
+#include <linux/time.h>
 #include <linux/types.h>
 #include <linux/math64.h>
 
@@ -52,8 +53,6 @@
 #endif
 
 #define	MXS_NAND_BCH_TIMEOUT			10000
-#define	USEC_PER_SEC				1000000
-#define	NSEC_PER_SEC				1000000000L
 
 #define TO_CYCLES(duration, period) DIV_ROUND_UP_ULL(duration, period)
 

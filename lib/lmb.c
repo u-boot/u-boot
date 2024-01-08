@@ -6,7 +6,6 @@
  * Copyright (C) 2001 Peter Bergner.
  */
 
-#include <common.h>
 #include <efi_loader.h>
 #include <image.h>
 #include <mapmem.h>

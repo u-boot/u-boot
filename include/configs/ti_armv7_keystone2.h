@@ -9,22 +9,9 @@
 #ifndef __CONFIG_KS2_EVM_H
 #define __CONFIG_KS2_EVM_H
 
-/* U-Boot Build Configuration */
-
-/* SoC Configuration */
-
 /* Memory Configuration */
 #define CFG_SYS_LPAE_SDRAM_BASE	0x800000000
 #define CFG_MAX_RAM_BANK_SIZE	(2 << 30)       /* 2GB */
-
-#ifdef CONFIG_SYS_MALLOC_F_LEN
-#define SPL_MALLOC_F_SIZE	CONFIG_SYS_MALLOC_F_LEN
-#else
-#define SPL_MALLOC_F_SIZE	0
-#endif
-
-/* SPL SPI Loader Configuration */
-#define KEYSTONE_SPL_STACK_SIZE		(8 * 1024)
 
 /* SRAM scratch space entries  */
 #define SRAM_SCRATCH_SPACE_ADDR		0xc0c23fc
@@ -53,8 +40,6 @@
 #define CFG_KSNET_SERDES_SGMII2_BASE		KS2_SGMII_SERDES2_BASE
 #define CFG_KSNET_SERDES_LANES_PER_SGMII	KS2_LANES_PER_SGMII_SERDES
 
-/* EEPROM definitions */
-
 /* NAND Configuration */
 #define CFG_SYS_NAND_MASK_CLE		0x4000
 #define CFG_SYS_NAND_MASK_ALE		0x2000
@@ -63,18 +48,10 @@
 #define CFG_SYS_NAND_LARGEPAGE
 #define CFG_SYS_NAND_BASE_LIST		{ 0x30000000, }
 
-
-
-/* U-Boot general configuration */
-
-/* EDMA3 */
-
-
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
 
 /* we may include files below only after all above definitions */
-#include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>
 #ifndef CONFIG_SOC_K2G
 #define CFG_SYS_HZ_CLOCK		ks_clk_get_rate(KS2_CLK1_6)

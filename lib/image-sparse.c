@@ -35,7 +35,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <blk.h>
 #include <image-sparse.h>
 #include <div64.h>

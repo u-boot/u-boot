@@ -27,8 +27,8 @@ static int dm_test_sysreset_base(struct unit_test_state *uts)
 	/* Device 1 is the warm sysreset device */
 	ut_assertok(uclass_get_device(UCLASS_SYSRESET, 1, &dev));
 	ut_asserteq(-EACCES, sysreset_request(dev, SYSRESET_WARM));
-	ut_asserteq(-ENOSYS, sysreset_request(dev, SYSRESET_COLD));
-	ut_asserteq(-ENOSYS, sysreset_request(dev, SYSRESET_POWER));
+	ut_asserteq(-EPROTONOSUPPORT, sysreset_request(dev, SYSRESET_COLD));
+	ut_asserteq(-EPROTONOSUPPORT, sysreset_request(dev, SYSRESET_POWER));
 
 	state->sysreset_allowed[SYSRESET_WARM] = true;
 	ut_asserteq(-EINPROGRESS, sysreset_request(dev, SYSRESET_WARM));
@@ -36,7 +36,7 @@ static int dm_test_sysreset_base(struct unit_test_state *uts)
 
 	/* Device 2 is the cold sysreset device */
 	ut_assertok(uclass_get_device(UCLASS_SYSRESET, 2, &dev));
-	ut_asserteq(-ENOSYS, sysreset_request(dev, SYSRESET_WARM));
+	ut_asserteq(-EPROTONOSUPPORT, sysreset_request(dev, SYSRESET_WARM));
 	state->sysreset_allowed[SYSRESET_COLD] = false;
 	ut_asserteq(-EACCES, sysreset_request(dev, SYSRESET_COLD));
 	state->sysreset_allowed[SYSRESET_COLD] = true;

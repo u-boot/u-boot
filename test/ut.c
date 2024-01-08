@@ -121,6 +121,33 @@ int ut_check_skipline(struct unit_test_state *uts)
 	return 0;
 }
 
+int ut_check_skip_to_linen(struct unit_test_state *uts, const char *fmt, ...)
+{
+	va_list args;
+	int len;
+	int ret;
+
+	va_start(args, fmt);
+	len = vsnprintf(uts->expect_str, sizeof(uts->expect_str), fmt, args);
+	va_end(args);
+	if (len >= sizeof(uts->expect_str)) {
+		ut_fail(uts, __FILE__, __LINE__, __func__,
+			"unit_test_state->expect_str too small");
+		return -EOVERFLOW;
+	}
+	while (1) {
+		if (!console_record_avail())
+			return -ENOENT;
+		ret = readline_check(uts);
+		if (ret < 0)
+			return ret;
+
+		if (!strncmp(uts->expect_str, uts->actual_str,
+			     strlen(uts->expect_str)))
+			return 0;
+	}
+}
+
 int ut_check_skip_to_line(struct unit_test_state *uts, const char *fmt, ...)
 {
 	va_list args;

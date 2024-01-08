@@ -72,7 +72,7 @@ static struct sdl_info {
 static void sandbox_sdl_poll_events(void)
 {
 	/*
-	 * We don't want to include common.h in this file since it uses
+	 * We don't want to include cpu_func.h in this file since it uses
 	 * system headers. So add a declation here.
 	 */
 	extern void reset_cpu(void);

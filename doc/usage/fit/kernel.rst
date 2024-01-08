@@ -25,7 +25,7 @@ Single kernel
                     algo = "crc32";
                 };
                 hash-2 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
         };
@@ -59,7 +59,7 @@ For x86 a setup node is also required: see x86-fit-boot::
                 load = <0x01000000>;
                 entry = <0x00000000>;
                 hash-2 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
 
@@ -73,7 +73,7 @@ For x86 a setup node is also required: see x86-fit-boot::
                 load = <0x00090000>;
                 entry = <0x00090000>;
                 hash-2 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
         };

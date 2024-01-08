@@ -23,6 +23,15 @@ config SPL_UT_LOAD_FS
 	help
 	  Test filesystems and the various load methods which use them.
 
+config SPL_UT_LOAD_NAND
+	bool "Test loading from NAND flash"
+	depends on SANDBOX && SPL_OF_REAL
+	depends on SPL_NAND_SUPPORT
+	depends on SPL_MTD
+	default y
+	help
+	  Test the NAND flash load method.
+
 config SPL_UT_LOAD_NET
 	bool "Test loading over TFTP"
 	depends on SANDBOX && SPL_OF_REAL
@@ -43,6 +52,7 @@ config SPL_UT_LOAD_SPI
 config SPL_UT_LOAD_OS
 	bool "Test loading from the host OS"
 	depends on SANDBOX && SPL_LOAD_FIT
+	select SPL_LOAD_BLOCK
 	default y
 	help
 	  Smoke test to ensure that loading U-boot works in sandbox.

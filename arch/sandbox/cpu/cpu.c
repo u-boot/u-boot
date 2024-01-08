@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY	LOGC_SANDBOX
 
-#include <common.h>
 #include <bootstage.h>
 #include <cpu_func.h>
 #include <errno.h>
@@ -284,6 +283,14 @@ void sandbox_set_enable_memio(bool enable)
 void sandbox_set_enable_pci_map(int enable)
 {
 	enable_pci_map = enable;
+}
+
+void dcache_enable(void)
+{
+}
+
+void dcache_disable(void)
+{
 }
 
 int dcache_status(void)

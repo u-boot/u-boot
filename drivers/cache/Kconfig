@@ -45,4 +45,11 @@ config SIFIVE_CCACHE
 	  This driver is for SiFive Composable L2/L3 cache. It enables cache
 	  ways of composable cache.
 
+config SIFIVE_PL2
+	bool "SiFive private L2 cache"
+	select CACHE
+	help
+	  This driver is for SiFive Private L2 cache. It configures registers
+	  to enable the clock gating feature.
+
 endmenu

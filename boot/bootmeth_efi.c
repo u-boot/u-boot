@@ -426,7 +426,6 @@ static int distro_efi_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 static int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 {
 	ulong kernel, fdt;
-	char cmd[50];
 	int ret;
 
 	kernel = env_get_hex("kernel_addr_r", 0);
@@ -453,20 +452,17 @@ static int distro_efi_boot(struct udevice *dev, struct bootflow *bflow)
 		fdt = env_get_hex("fdt_addr_r", 0);
 	}
 
-	/*
-	 * At some point we can add a real interface to bootefi so we can call
-	 * this directly. For now, go through the CLI, like distro boot.
-	 */
 	if (bflow->flags & BOOTFLOWF_USE_BUILTIN_FDT) {
 		log_debug("Booting with built-in fdt\n");
-		snprintf(cmd, sizeof(cmd), "bootefi %lx", kernel);
+		if (efi_binary_run(map_sysmem(kernel, 0), bflow->size,
+				   EFI_FDT_USE_INTERNAL))
+			return log_msg_ret("run", -EINVAL);
 	} else {
 		log_debug("Booting with external fdt\n");
-		snprintf(cmd, sizeof(cmd), "bootefi %lx %lx", kernel, fdt);
+		if (efi_binary_run(map_sysmem(kernel, 0), bflow->size,
+				   map_sysmem(fdt, 0)))
+			return log_msg_ret("run", -EINVAL);
 	}
-
-	if (run_command(cmd, 0))
-		return log_msg_ret("run", -EINVAL);
 
 	return 0;
 }

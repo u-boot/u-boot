@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/hardware.h>
 #include <asm/ti-common/ti-aemif.h>
 
 #define AEMIF_WAITCYCLE_CONFIG		(KS2_AEMIF_CNTRL_BASE + 0x4)

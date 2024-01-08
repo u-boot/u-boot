@@ -95,7 +95,7 @@ int checkboard(void)
 {
 	puts("Model: Toradex Apalis TK1 2GB\n");
 
-	return 0;
+	return tdx_checkboard();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

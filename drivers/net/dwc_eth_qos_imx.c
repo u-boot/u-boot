@@ -181,6 +181,9 @@ static int eqos_set_tx_clk_speed_imx(struct udevice *dev)
 	ulong rate;
 	int ret;
 
+	if (device_is_compatible(dev, "nxp,imx93-dwmac-eqos"))
+		return 0;
+
 	debug("%s(dev=%p):\n", __func__, dev);
 
 	if (eqos->phy->interface == PHY_INTERFACE_MODE_RMII)

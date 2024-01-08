@@ -49,26 +49,10 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
-static int setup_eqos(void)
-{
-	struct blk_ctrl_wakeupmix_regs *bctrl =
-		(struct blk_ctrl_wakeupmix_regs *)BLK_CTRL_WAKEUPMIX_BASE_ADDR;
-
-	/* set INTF as RGMII, enable RGMII TXC clock */
-	clrsetbits_le32(&bctrl->eqos_gpr,
-			BCTRL_GPR_ENET_QOS_INTF_MODE_MASK,
-			BCTRL_GPR_ENET_QOS_INTF_SEL_RGMII | BCTRL_GPR_ENET_QOS_CLK_GEN_EN);
-
-	return set_clk_eqos(ENET_125MHZ);
-}
-
 int board_init(void)
 {
 	if (IS_ENABLED(CONFIG_FEC_MXC))
 		setup_fec();
-
-	if (IS_ENABLED(CONFIG_DWC_ETH_QOS))
-		setup_eqos();
 
 	return 0;
 }

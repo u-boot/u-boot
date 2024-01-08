@@ -133,7 +133,16 @@
 			ranges = <0x0 0x0 0xf0000000 0x00300000>,
 				<0xfff00000 0x0 0xfff00000 0x00016000>;
 
-			spi1: spi@201000 {
+			host_intf: host_intf@9f000 {
+				compatible = "nuvoton,npcm845-host-intf";
+				reg = <0x9f000 0x1000>;
+				type = "espi";
+				ioaddr = <0x4e>;
+				channel-support = <0xf>;
+				syscon = <&gcr>;
+			};
+
+			pspi: spi@201000 {
 				compatible = "nuvoton,npcm845-pspi";
 				reg = <0x201000 0x1000>;
 				pinctrl-names = "default";

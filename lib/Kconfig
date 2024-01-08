@@ -74,6 +74,13 @@ config HAVE_PRIVATE_LIBGCC
 config LIB_UUID
 	bool
 
+config RANDOM_UUID
+	bool "GPT Random UUID generation"
+	select LIB_UUID
+	help
+	  Enable the generation of partitions with random UUIDs if none
+	  are provided.
+
 config SPL_LIB_UUID
 	depends on SPL
 	bool
@@ -93,7 +100,7 @@ config SEMIHOSTING
 
 config SEMIHOSTING_FALLBACK
 	bool "Recover gracefully when semihosting fails"
-	depends on SEMIHOSTING && (ARM64 || RISCV)
+	depends on SEMIHOSTING
 	default y
 	help
 	  Normally, if U-Boot makes a semihosting call and no debugger is
@@ -116,7 +123,7 @@ config SPL_SEMIHOSTING
 
 config SPL_SEMIHOSTING_FALLBACK
 	bool "Recover gracefully when semihosting fails in SPL"
-	depends on SPL_SEMIHOSTING && (ARM64 || RISCV)
+	depends on SPL_SEMIHOSTING
 	select ARMV8_SPL_EXCEPTION_VECTORS if ARM64
 	default y
 	help

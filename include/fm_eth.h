@@ -7,7 +7,6 @@
 #ifndef __FM_ETH_H__
 #define __FM_ETH_H__
 
-#include <common.h>
 #include <phy.h>
 #include <asm/types.h>
 

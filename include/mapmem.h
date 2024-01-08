@@ -13,6 +13,8 @@
 # ifdef CONFIG_ARCH_MAP_SYSMEM
 #include <asm/io.h>
 # else
+#include <linux/types.h>
+
 static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
 {
 	return (void *)(uintptr_t)paddr;
@@ -26,6 +28,24 @@ static inline phys_addr_t map_to_sysmem(const void *ptr)
 {
 	return (phys_addr_t)(uintptr_t)ptr;
 }
+
+/**
+ * nomap_sysmem() - pass through an address unchanged
+ *
+ * This is used to indicate an address which should NOT be mapped, e.g. in
+ * SMBIOS tables. Using this function instead of a case shows that the sandbox
+ * conversion has been done
+ */
+static inline void *nomap_sysmem(phys_addr_t paddr, unsigned long len)
+{
+	return (void *)(uintptr_t)paddr;
+}
+
+static inline phys_addr_t nomap_to_sysmem(const void *ptr)
+{
+	return (phys_addr_t)(uintptr_t)ptr;
+}
+
 # endif
 
 #endif /* __MAPMEM_H */

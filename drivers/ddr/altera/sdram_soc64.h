@@ -6,7 +6,6 @@
 #ifndef	_SDRAM_SOC64_H_
 #define	_SDRAM_SOC64_H_
 
-#include <common.h>
 #include <linux/sizes.h>
 
 struct altera_sdram_priv {

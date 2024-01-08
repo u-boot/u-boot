@@ -44,14 +44,12 @@ void onenand_init(void)
 			puts("Flex-");
 		puts("OneNAND: ");
 
-#ifdef CONFIG_MTD
 		/*
 		 * Add MTD device so that we can reference it later
 		 * via the mtdcore infrastructure (e.g. ubi).
 		 */
 		onenand_mtd.name = dev_name;
 		add_mtd_device(&onenand_mtd);
-#endif
 	}
 	print_size(onenand_chip.chipsize, "\n");
 }

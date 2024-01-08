@@ -4,6 +4,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#include <bootm.h>
 #include <bootstage.h>
 #include <command.h>
 #include <env.h>
@@ -34,9 +35,9 @@ void arch_lmb_reserve(struct lmb *lmb)
 	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 1024);
 }
 
-int do_bootm_linux(int flag, int argc, char *const argv[],
-		   struct bootm_headers *images)
+int do_bootm_linux(int flag, struct bootm_info *bmi)
 {
+	struct bootm_headers *images = bmi->images;
 	int ret;
 	struct bd_info  *kbd;
 	void  (*kernel) (struct bd_info *, ulong, ulong, ulong, ulong);

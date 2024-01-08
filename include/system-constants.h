@@ -3,6 +3,8 @@
 #ifndef __SYSTEM_CONSTANTS_H__
 #define __SYSTEM_CONSTANTS_H__
 
+#include <config.h>
+
 /*
  * The most common case for our initial stack pointer address is to
  * say that we have defined a static intiial ram address location and
@@ -40,5 +42,9 @@
 #else
 #define SPL_PAYLOAD_ARGS_ADDR	0
 #endif
+
+/* Number of pages per block */
+#define SYS_NAND_BLOCK_PAGES \
+	(CONFIG_SYS_NAND_BLOCK_SIZE / CONFIG_SYS_NAND_PAGE_SIZE)
 
 #endif

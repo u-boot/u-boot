@@ -88,6 +88,7 @@ FSP_S_DATA            = b'fsp_s'
 FSP_T_DATA            = b'fsp_t'
 ATF_BL31_DATA         = b'bl31'
 TEE_OS_DATA           = b'this is some tee OS data'
+TI_DM_DATA            = b'tidmtidm'
 ATF_BL2U_DATA         = b'bl2u'
 OPENSBI_DATA          = b'opensbi'
 SCP_DATA              = b'scp'
@@ -221,6 +222,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('compress_big', COMPRESS_DATA_BIG)
         TestFunctional._MakeInputFile('bl31.bin', ATF_BL31_DATA)
         TestFunctional._MakeInputFile('tee-pager.bin', TEE_OS_DATA)
+        TestFunctional._MakeInputFile('dm.bin', TI_DM_DATA)
         TestFunctional._MakeInputFile('bl2u.bin', ATF_BL2U_DATA)
         TestFunctional._MakeInputFile('fw_dynamic.bin', OPENSBI_DATA)
         TestFunctional._MakeInputFile('scp.bin', SCP_DATA)
@@ -2840,12 +2842,14 @@ class TestFunctional(unittest.TestCase):
         fdt_size = entries['section'].GetEntries()['u-boot-dtb'].size
         fdtmap_offset = entries['fdtmap'].offset
 
+        tmpdir = None
         try:
             tmpdir, updated_fname = self._SetupImageInTmpdir()
             with test_util.capture_sys_output() as (stdout, stderr):
                 self._DoBinman('ls', '-i', updated_fname)
         finally:
-            shutil.rmtree(tmpdir)
+            if tmpdir:
+                shutil.rmtree(tmpdir)
         lines = stdout.getvalue().splitlines()
         expected = [
 'Name              Image-pos  Size  Entry-type    Offset  Uncomp-size',
@@ -2866,12 +2870,14 @@ class TestFunctional(unittest.TestCase):
     def testListCmdFail(self):
         """Test failing to list an image"""
         self._DoReadFile('005_simple.dts')
+        tmpdir = None
         try:
             tmpdir, updated_fname = self._SetupImageInTmpdir()
             with self.assertRaises(ValueError) as e:
                 self._DoBinman('ls', '-i', updated_fname)
         finally:
-            shutil.rmtree(tmpdir)
+            if tmpdir:
+                shutil.rmtree(tmpdir)
         self.assertIn("Cannot find FDT map in image", str(e.exception))
 
     def _RunListCmd(self, paths, expected):
@@ -3000,13 +3006,15 @@ class TestFunctional(unittest.TestCase):
         self._CheckLz4()
         self._DoReadFileRealDtb('130_list_fdtmap.dts')
         fname = os.path.join(self._indir, 'output.extact')
+        tmpdir = None
         try:
             tmpdir, updated_fname = self._SetupImageInTmpdir()
             with test_util.capture_sys_output() as (stdout, stderr):
                 self._DoBinman('extract', '-i', updated_fname, 'u-boot',
                                '-f', fname)
         finally:
-            shutil.rmtree(tmpdir)
+            if tmpdir:
+                shutil.rmtree(tmpdir)
         data = tools.read_file(fname)
         self.assertEqual(U_BOOT_DATA, data)
 
@@ -5183,12 +5191,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFileRealDtb('207_fip_ls.dts')
         hdr, fents = fip_util.decode_fip(data)
 
+        tmpdir = None
         try:
             tmpdir, updated_fname = self._SetupImageInTmpdir()
             with test_util.capture_sys_output() as (stdout, stderr):
                 self._DoBinman('ls', '-i', updated_fname)
         finally:
-            shutil.rmtree(tmpdir)
+            if tmpdir:
+                shutil.rmtree(tmpdir)
         lines = stdout.getvalue().splitlines()
         expected = [
 'Name        Image-pos  Size  Entry-type  Offset  Uncomp-size',
@@ -5393,12 +5403,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             use_real_dtb=True,
             extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])
 
+        tmpdir = None
         try:
             tmpdir, updated_fname = self._SetupImageInTmpdir()
             with test_util.capture_sys_output() as (stdout, stderr):
                 self._RunBinman('ls', '-i', updated_fname)
         finally:
-            shutil.rmtree(tmpdir)
+            if tmpdir:
+                shutil.rmtree(tmpdir)
 
     def testFitSubentryUsesBintool(self):
         """Test that binman FIT subentries can use bintools"""
@@ -5454,6 +5466,11 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test that an image with an TEE binary can be created"""
         data = self._DoReadFile('222_tee_os.dts')
         self.assertEqual(TEE_OS_DATA, data[:len(TEE_OS_DATA)])
+
+    def testPackTiDm(self):
+        """Test that an image with a TI DM binary can be created"""
+        data = self._DoReadFile('225_ti_dm.dts')
+        self.assertEqual(TI_DM_DATA, data[:len(TI_DM_DATA)])
 
     def testFitFdtOper(self):
         """Check handling of a specified FIT operation"""
@@ -7034,6 +7051,29 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFileDtb('296_ti_secure.dts',
                                    entry_args=entry_args)[0]
         self.assertGreater(len(data), len(TI_UNSECURE_DATA))
+
+    def testPackTiSecureFirewall(self):
+        """Test that an image with a TI secured binary can be created"""
+        keyfile = self.TestFile('key.key')
+        entry_args = {
+            'keyfile': keyfile,
+        }
+        data_no_firewall = self._DoReadFileDtb('296_ti_secure.dts',
+                                   entry_args=entry_args)[0]
+        data_firewall = self._DoReadFileDtb('324_ti_secure_firewall.dts',
+                                   entry_args=entry_args)[0]
+        self.assertGreater(len(data_firewall),len(data_no_firewall))
+
+    def testPackTiSecureFirewallMissingProperty(self):
+        """Test that an image with a TI secured binary can be created"""
+        keyfile = self.TestFile('key.key')
+        entry_args = {
+            'keyfile': keyfile,
+        }
+        with self.assertRaises(ValueError) as e:
+            data_firewall = self._DoReadFileDtb('325_ti_secure_firewall_missing_property.dts',
+                                       entry_args=entry_args)[0]
+        self.assertRegex(str(e.exception), "Node '/binman/ti-secure': Subnode 'firewall-0-2' is missing properties: id,region")
 
     def testPackTiSecureMissingTool(self):
         """Test that an image with a TI secured binary (non-functional) can be created

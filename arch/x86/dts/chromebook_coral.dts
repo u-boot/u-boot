@@ -369,12 +369,14 @@
 				rw-mrc-cache {
 					label = "rw-mrc-cache";
 					reg = <0x008e0000 0x00010000>;
-					bootph-all;
+					bootph-some-ram;
+					bootph-pre-ram;
 				};
 				rw-var-mrc-cache {
 					label = "rw-mrc-cache";
 					reg = <0x008f0000 0x0001000>;
-					bootph-all;
+					bootph-some-ram;
+					bootph-pre-ram;
 				};
 			};
 		};

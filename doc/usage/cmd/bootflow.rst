@@ -52,6 +52,8 @@ Flags are:
     matters, since by then the system boots in the OS and U-Boot is no-longer
     running. `bootflow scan -b` is a quick way to boot the first available OS.
     A valid bootflow is one that made it all the way to the `loaded` state.
+    Note that if `-m` is provided as well, booting is delayed until the user
+    selects a bootflow.
 
 -e
     Used with -l to also show errors for each bootflow. The shows detailed error
@@ -71,6 +73,9 @@ Flags are:
     priority or label is tried, to see if more bootdevs can be discovered, but
     this flag disables that process.
 
+-m
+    Show a menu of available bootflows for the user to select. When used with
+    -b it then boots the one that was selected, if any.
 
 The optional argument specifies a particular bootdev to scan. This can either be
 the name of a bootdev or its sequence number (both shown with `bootdev list`).

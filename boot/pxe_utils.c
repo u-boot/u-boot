@@ -700,6 +700,11 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 					       label->name);
 					goto cleanup;
 				}
+
+				if (label->fdtdir) {
+					printf("Skipping fdtdir %s for failure retrieving dts\n",
+						label->fdtdir);
+				}
 			}
 
 			if (label->kaslrseed)

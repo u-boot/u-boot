@@ -11,7 +11,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <asm/gpio.h>
-#include <dm/lists.h>
 
 struct led_gpio_priv {
 	struct gpio_desc gpio;
@@ -80,19 +79,7 @@ static int led_gpio_remove(struct udevice *dev)
 
 static int led_gpio_bind(struct udevice *parent)
 {
-	struct udevice *dev;
-	ofnode node;
-	int ret;
-
-	dev_for_each_subnode(node, parent) {
-		ret = device_bind_driver_to_node(parent, "gpio_led",
-						 ofnode_get_name(node),
-						 node, &dev);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
+	return led_bind_generic(parent, "gpio_led");
 }
 
 static const struct led_ops gpio_led_ops = {

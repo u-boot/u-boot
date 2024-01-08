@@ -108,6 +108,7 @@ config PPC
 config RISCV
 	bool "RISC-V architecture"
 	select CREATE_ARCH_SYMLINK
+	select SUPPORT_ACPI
 	select SUPPORT_OF_CONTROL
 	select OF_CONTROL
 	select DM
@@ -134,7 +135,7 @@ config SANDBOX
 	select ARCH_SUPPORTS_LTO
 	select BOARD_LATE_INIT
 	select BZIP2
-	select CMD_POWEROFF
+	select CMD_POWEROFF if CMDLINE
 	select DM
 	select DM_EVENT
 	select DM_FUZZING_ENGINE
@@ -152,10 +153,10 @@ config SANDBOX
 	select PCI_ENDPOINT
 	select SPI
 	select SUPPORT_OF_CONTROL
-	select SYSRESET_CMD_POWEROFF
+	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
 	select SYS_CACHE_SHIFT_4
 	select IRQ
-	select SUPPORT_EXTENSION_SCAN
+	select SUPPORT_EXTENSION_SCAN if CMDLINE
 	select SUPPORT_ACPI
 	imply BITREVERSE
 	select BLOBLIST
@@ -210,6 +211,9 @@ config SANDBOX
 	imply BINMAN
 	imply CMD_MBR
 	imply CMD_MMC
+	imply BOOTSTD_DEFAULTS if BOOTSTD_FULL && CMDLINE
+	imply BOOTMETH_DISTRO if BOOTSTD_FULL && CMDLINE
+	imply CMD_SYSBOOT if BOOTSTD_FULL
 
 config SH
 	bool "SuperH architecture"
@@ -248,7 +252,7 @@ config X86
 	imply DM_KEYBOARD
 	imply DM_MMC
 	imply DM_RTC
-	imply DM_SCSI
+	imply SCSI
 	imply DM_SERIAL
 	imply DM_SPI
 	imply DM_SPI_FLASH

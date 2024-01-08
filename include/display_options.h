@@ -9,6 +9,8 @@
 #ifndef __DISPLAY_OPTIONS_H
 #define __DISPLAY_OPTIONS_H
 
+#include <linux/types.h>
+
 /**
  * print_size() - Print a size with a suffix
  *
@@ -19,7 +21,6 @@
  * @size:	Size to print
  * @suffix	String to print after the size
  */
-#include <display_options.h>
 void print_size(uint64_t size, const char *suffix);
 
 /**

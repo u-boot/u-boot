@@ -11,6 +11,8 @@
 #ifndef __IMMAP_QE_H__
 #define __IMMAP_QE_H__
 
+#include <config.h>
+
 #ifdef CONFIG_MPC83xx
 #if defined(CONFIG_ARCH_MPC8360)
 #define QE_MURAM_SIZE		0xc000UL

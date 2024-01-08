@@ -10,7 +10,6 @@
 
 #define LOG_CATEGORY	LOGC_DT
 
-#include <common.h>
 #include <abuf.h>
 #include <log.h>
 #include <linux/libfdt.h>

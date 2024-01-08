@@ -8,11 +8,10 @@
 #include <common.h>
 #include <dm.h>
 #include <pci.h>
-#include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/printk.h>
-
-#include <asm/io.h>
+#include <linux/io.h>
+#include <linux/err.h>
 
 /**
  * struct xilinx_pcie - Xilinx PCIe controller state
@@ -25,6 +24,8 @@ struct xilinx_pcie {
 /* Register definitions */
 #define XILINX_PCIE_REG_PSCR		0x144
 #define XILINX_PCIE_REG_PSCR_LNKUP	BIT(11)
+#define XILINX_PCIE_REG_RPSC		0x148
+#define XILINX_PCIE_REG_RPSC_BEN	BIT(0)
 
 /**
  * pcie_xilinx_link_up() - Check whether the PCIe link is up
@@ -140,20 +141,22 @@ static int pcie_xilinx_write_config(struct udevice *bus, pci_dev_t bdf,
 static int pcie_xilinx_of_to_plat(struct udevice *dev)
 {
 	struct xilinx_pcie *pcie = dev_get_priv(dev);
-	struct fdt_resource reg_res;
-	DECLARE_GLOBAL_DATA_PTR;
-	int err;
+	fdt_addr_t addr;
+	fdt_size_t size;
+	u32 rpsc;
 
-	err = fdt_get_resource(gd->fdt_blob, dev_of_offset(dev), "reg",
-			       0, &reg_res);
-	if (err < 0) {
-		pr_err("\"reg\" resource not found\n");
-		return err;
-	}
+	addr = dev_read_addr_size(dev, &size);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
 
-	pcie->cfg_base = map_physmem(reg_res.start,
-				     fdt_resource_size(&reg_res),
-				     MAP_NOCACHE);
+	pcie->cfg_base = devm_ioremap(dev, addr, size);
+	if (IS_ERR(pcie->cfg_base))
+		return PTR_ERR(pcie->cfg_base);
+
+	/* Enable the Bridge enable bit */
+	rpsc = __raw_readl(pcie->cfg_base + XILINX_PCIE_REG_RPSC);
+	rpsc |= XILINX_PCIE_REG_RPSC_BEN;
+	__raw_writel(rpsc, pcie->cfg_base + XILINX_PCIE_REG_RPSC);
 
 	return 0;
 }

@@ -19,11 +19,14 @@
 #include <stdio_dev.h>
 #include <exports.h>
 #include <env_internal.h>
+#include <video_console.h>
 #include <watchdog.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define CSI "\x1b["
 
 static int on_console(const char *name, const char *value, enum env_op op,
 	int flags)
@@ -1006,6 +1009,34 @@ int console_init_f(void)
 	console_update_silent();
 
 	print_pre_console_buffer(PRE_CONSOLE_FLUSHPOINT1_SERIAL);
+
+	return 0;
+}
+
+int console_clear(void)
+{
+	/*
+	 * Send clear screen and home
+	 *
+	 * FIXME(Heinrich Schuchardt <xypron.glpk@gmx.de>): This should go
+	 * through an API and only be written to serial terminals, not video
+	 * displays
+	 */
+	printf(CSI "2J" CSI "1;1H");
+	if (IS_ENABLED(CONFIG_VIDEO_ANSI))
+		return 0;
+
+	if (IS_ENABLED(CONFIG_VIDEO)) {
+		struct udevice *dev;
+		int ret;
+
+		ret = uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev);
+		if (ret)
+			return ret;
+		ret = vidconsole_clear_and_reset(dev);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }

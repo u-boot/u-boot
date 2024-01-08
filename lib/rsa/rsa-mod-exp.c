@@ -4,7 +4,6 @@
  */
 
 #ifndef USE_HOSTCC
-#include <common.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <asm/types.h>

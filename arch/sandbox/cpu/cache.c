@@ -3,7 +3,6 @@
  * Copyright 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <asm/state.h>
 

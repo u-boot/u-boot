@@ -6,7 +6,6 @@
  * Mostly taken from coreboot file acpi_device.c
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

@@ -553,7 +553,7 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #endif
 
 #ifdef CONFIG_SMBIOS
-#define gd_smbios_start()	gd->smbios_start
+#define gd_smbios_start()	gd->arch.smbios_start
 #define gd_set_smbios_start(addr)	gd->arch.smbios_start = addr
 #else
 #define gd_smbios_start()	0UL
@@ -697,6 +697,14 @@ enum gd_flags {
 	 * @GD_FLG_BLOBLIST_READY: bloblist is ready for use
 	 */
 	GD_FLG_BLOBLIST_READY = 0x800000,
+	/**
+	 * @GD_FLG_HUSH_OLD_PARSER: Use hush old parser.
+	 */
+	GD_FLG_HUSH_OLD_PARSER = 0x1000000,
+	/**
+	 * @GD_FLG_HUSH_MODERN_PARSER: Use hush 2021 parser.
+	 */
+	GD_FLG_HUSH_MODERN_PARSER = 0x2000000,
 };
 
 #endif /* __ASSEMBLY__ */

@@ -24,11 +24,11 @@
  * which would add to code size. For Thumb-2 the code size needed in SPL is
  * approximately 940 bytes (e.g. for chromebook_bob).
  *
- * 5. Bloblist uses 16-byte alignment internally and is designed to start on a
- * 16-byte boundary. Its headers are multiples of 16 bytes. This makes it easier
- * to deal with data structures which need this level of alignment, such as ACPI
- * tables. For use in SPL and TPL the alignment can be relaxed, since it can be
- * relocated to an aligned address in U-Boot proper.
+ * 5. Bloblist uses 8-byte alignment internally and is designed to start on a
+ * 8-byte boundary. Its headers are 8 bytes long. It is possible to achieve
+ * larger alignment (e.g. 16 bytes) by adding a dummy header, For use in SPL and
+ * TPL the alignment can be relaxed, since it can be relocated to an aligned
+ * address in U-Boot proper.
  *
  * 6. Bloblist is designed to be passed to Linux as reserved memory. While linux
  * doesn't understand the bloblist header, it can be passed the indivdual blobs.
@@ -66,6 +66,7 @@
  *
  * Copyright 2018 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
+ * Adjusted July 2023 to match Firmware handoff specification, Release 0.9
  */
 
 #ifndef __BLOBLIST_H
@@ -74,14 +75,19 @@
 #include <mapmem.h>
 
 enum {
-	BLOBLIST_VERSION	= 0,
-	BLOBLIST_MAGIC		= 0xb00757a3,
-	BLOBLIST_ALIGN		= 16,
+	BLOBLIST_VERSION	= 1,
+	BLOBLIST_MAGIC		= 0x4a0fb10b,
+
+	BLOBLIST_BLOB_ALIGN_LOG2 = 3,
+	BLOBLIST_BLOB_ALIGN	 = 1 << BLOBLIST_BLOB_ALIGN_LOG2,
+
+	BLOBLIST_ALIGN_LOG2	= 3,
+	BLOBLIST_ALIGN		= 1 << BLOBLIST_ALIGN_LOG2,
 };
 
 /* Supported tags - add new ones to tag_name in bloblist.c */
 enum bloblist_tag_t {
-	BLOBLISTT_NONE = 0,
+	BLOBLISTT_VOID = 0,
 
 	/*
 	 * Standard area to allocate blobs used across firmware components, for
@@ -89,42 +95,36 @@ enum bloblist_tag_t {
 	 * projects.
 	 */
 	BLOBLISTT_AREA_FIRMWARE_TOP = 0x1,
+	/*
+	 * Devicetree for use by firmware. On some platforms this is passed to
+	 * the OS also
+	 */
+	BLOBLISTT_CONTROL_FDT = 1,
+	BLOBLISTT_HOB_BLOCK = 2,
+	BLOBLISTT_HOB_LIST = 3,
+	BLOBLISTT_ACPI_TABLES = 4,
+	BLOBLISTT_TPM_EVLOG = 5,
+	BLOBLISTT_TPM_CRB_BASE = 6,
 
 	/* Standard area to allocate blobs used across firmware components */
-	BLOBLISTT_AREA_FIRMWARE = 0x100,
+	BLOBLISTT_AREA_FIRMWARE = 0x10,
+	BLOBLISTT_TPM2_TCG_LOG = 0x10,	/* TPM v2 log space */
+	BLOBLISTT_TCPA_LOG = 0x11,	/* TPM log space */
 	/*
 	 * Advanced Configuration and Power Interface Global Non-Volatile
 	 * Sleeping table. This forms part of the ACPI tables passed to Linux.
 	 */
-	BLOBLISTT_ACPI_GNVS = 0x100,
-	BLOBLISTT_INTEL_VBT = 0x101,	/* Intel Video-BIOS table */
-	BLOBLISTT_TPM2_TCG_LOG = 0x102,	/* TPM v2 log space */
-	BLOBLISTT_TCPA_LOG = 0x103,	/* TPM log space */
-	BLOBLISTT_ACPI_TABLES = 0x104,	/* ACPI tables for x86 */
-	BLOBLISTT_SMBIOS_TABLES = 0x105, /* SMBIOS tables for x86 */
-	BLOBLISTT_VBOOT_CTX = 0x106,	/* Chromium OS verified boot context */
+	BLOBLISTT_ACPI_GNVS = 0x12,
 
-	/*
-	 * Project-specific tags are permitted here. Projects can be open source
-	 * or not, but the format of the data must be fuily documented in an
-	 * open source project, including all fields, bits, etc. Naming should
-	 * be: BLOBLISTT_<project>_<purpose_here>
-	 */
-	BLOBLISTT_PROJECT_AREA = 0x8000,
-	BLOBLISTT_U_BOOT_SPL_HANDOFF = 0x8000, /* Hand-off info from SPL */
-	BLOBLISTT_VBE		= 0x8001,	/* VBE per-phase state */
-	BLOBLISTT_U_BOOT_VIDEO = 0x8002, /* Video information from SPL */
+	/* Standard area to allocate blobs used for Trusted Firmware */
+	BLOBLISTT_AREA_TF = 0x100,
+	BLOBLISTT_OPTEE_PAGABLE_PART = 0x100,
 
-	/*
-	 * Vendor-specific tags are permitted here. Projects can be open source
-	 * or not, but the format of the data must be fuily documented in an
-	 * open source project, including all fields, bits, etc. Naming should
-	 * be BLOBLISTT_<vendor>_<purpose_here>
-	 */
-	BLOBLISTT_VENDOR_AREA = 0xc000,
-
-	/* Tags after this are not allocated for now */
-	BLOBLISTT_EXPANSION = 0x10000,
+	/* Other standard area to allocate blobs */
+	BLOBLISTT_AREA_OTHER = 0x200,
+	BLOBLISTT_INTEL_VBT = 0x200,	/* Intel Video-BIOS table */
+	BLOBLISTT_SMBIOS_TABLES = 0x201, /* SMBIOS tables for x86 */
+	BLOBLISTT_VBOOT_CTX = 0x202,	/* Chromium OS verified boot context */
 
 	/*
 	 * Tags from here are on reserved for private use within a single
@@ -133,9 +133,20 @@ enum bloblist_tag_t {
 	 * implementation, but cannot be used in upstream code. Allocate a
 	 * tag in one of the areas above if you want that.
 	 *
-	 * This area may move in future.
+	 * Project-specific tags are permitted here. Projects can be open source
+	 * or not, but the format of the data must be fuily documented in an
+	 * open source project, including all fields, bits, etc. Naming should
+	 * be: BLOBLISTT_<project>_<purpose_here>
+	 *
+	 * Vendor-specific tags are also permitted. Projects can be open source
+	 * or not, but the format of the data must be fuily documented in an
+	 * open source project, including all fields, bits, etc. Naming should
+	 * be BLOBLISTT_<vendor>_<purpose_here>
 	 */
-	BLOBLISTT_PRIVATE_AREA = 0xffff0000,
+	BLOBLISTT_PRIVATE_AREA		= 0xfff000,
+	BLOBLISTT_U_BOOT_SPL_HANDOFF	= 0xfff000, /* Hand-off info from SPL */
+	BLOBLISTT_VBE			= 0xfff001, /* VBE per-phase state */
+	BLOBLISTT_U_BOOT_VIDEO		= 0xfff002, /* Video info from SPL */
 };
 
 /**
@@ -156,33 +167,33 @@ enum bloblist_tag_t {
  * from the last.
  *
  * @magic: BLOBLIST_MAGIC
+ * @chksum: checksum for the entire bloblist allocated area. Since any of the
+ *	blobs can be altered after being created, this checksum is only valid
+ *	when the bloblist is finalized before jumping to the next stage of boot.
+ *	This is the value needed to make all checksummed bytes sum to 0
  * @version: BLOBLIST_VERSION
  * @hdr_size: Size of this header, normally sizeof(struct bloblist_hdr). The
  *	first bloblist_rec starts at this offset from the start of the header
- * @flags: Space for BLOBLISTF... flags (none yet)
- * @size: Total size of the bloblist (non-zero if valid) including this header.
- *	The bloblist extends for this many bytes from the start of this header.
- *	When adding new records, the bloblist can grow up to this size.
- * @alloced: Total size allocated so far for this bloblist. This starts out as
+ * @align_log2: Power of two of the maximum alignment required by this list
+ * @used_size: Size allocated so far for this bloblist. This starts out as
  *	sizeof(bloblist_hdr) since we need at least that much space to store a
  *	valid bloblist
+ * @total_size: The number of total bytes that the bloblist can occupy.
+ *	Any blob producer must check if there is sufficient space before adding
+ *	a record to the bloblist.
+ * @flags: Space for BLOBLISTF... flags (none yet)
  * @spare: Spare space (for future use)
- * @chksum: CRC32 for the entire bloblist allocated area. Since any of the
- *	blobs can be altered after being created, this checksum is only valid
- *	when the bloblist is finalised before jumping to the next stage of boot.
- *	Note that chksum is last to make it easier to exclude it from the
- *	checksum calculation.
  */
 struct bloblist_hdr {
 	u32 magic;
-	u32 version;
-	u32 hdr_size;
+	u8 chksum;
+	u8 version;
+	u8 hdr_size;
+	u8 align_log2;
+	u32 used_size;
+	u32 total_size;
 	u32 flags;
-
-	u32 size;
-	u32 alloced;
 	u32 spare;
-	u32 chksum;
 };
 
 /**
@@ -193,18 +204,25 @@ struct bloblist_hdr {
  *
  * NOTE: Only exported for testing purposes. Do not use this struct.
  *
- * @tag: Tag indicating what the record contains
- * @hdr_size: Size of this header, normally sizeof(struct bloblist_rec). The
- *	record's data starts at this offset from the start of the record
+ * @tag_and_hdr_size: Tag indicating what the record contains (bottom 24 bits), and
+ *	size of this header (top 8 bits), normally sizeof(struct bloblist_rec).
+ *	The record's data starts at this offset from the start of the record
  * @size: Size of record in bytes, excluding the header size. This does not
  *	need to be aligned (e.g. 3 is OK).
- * @spare: Spare space for other things
  */
 struct bloblist_rec {
-	u32 tag;
-	u32 hdr_size;
+	u32 tag_and_hdr_size;
 	u32 size;
-	u32 spare;
+};
+
+enum {
+	BLOBLISTR_TAG_SHIFT		= 0,
+	BLOBLISTR_TAG_MASK		= 0xffffffU << BLOBLISTR_TAG_SHIFT,
+	BLOBLISTR_HDR_SIZE_SHIFT	= 24,
+	BLOBLISTR_HDR_SIZE_MASK		= 0xffU << BLOBLISTR_HDR_SIZE_SHIFT,
+
+	BLOBLIST_HDR_SIZE		= sizeof(struct bloblist_hdr),
+	BLOBLIST_REC_HDR_SIZE		= sizeof(struct bloblist_rec),
 };
 
 /**
@@ -249,11 +267,11 @@ void *bloblist_find(uint tag, int size);
  *
  * @tag:	Tag to add (enum bloblist_tag_t)
  * @size:	Size of the blob
- * @align:	Alignment of the blob (in bytes), 0 for default
+ * @align_log2:	Alignment of the blob (in bytes log2), 0 for default
  * Return: pointer to the newly added block, or NULL if there is not enough
  * space for the blob
  */
-void *bloblist_add(uint tag, int size, int align);
+void *bloblist_add(uint tag, int size, int align_log2);
 
 /**
  * bloblist_ensure_size() - Find or add a blob
@@ -263,11 +281,11 @@ void *bloblist_add(uint tag, int size, int align);
  * @tag:	Tag to add (enum bloblist_tag_t)
  * @size:	Size of the blob
  * @blobp:	Returns a pointer to blob on success
- * @align:	Alignment of the blob (in bytes), 0 for default
+ * @align_log2:	Alignment of the blob (in bytes log2), 0 for default
  * Return: 0 if OK, -ENOSPC if it is missing and could not be added due to lack
  * of space, or -ESPIPE it exists but has the wrong size
  */
-int bloblist_ensure_size(uint tag, int size, int align, void **blobp);
+int bloblist_ensure_size(uint tag, int size, int align_log2, void **blobp);
 
 /**
  * bloblist_ensure() - Find or add a blob
@@ -313,10 +331,11 @@ int bloblist_resize(uint tag, int new_size);
  * @addr: Address of bloblist
  * @size: Initial size for bloblist
  * @flags: Flags to use for bloblist
+ * @align_log2: Log base 2 of maximum alignment provided by this bloblist
  * Return: 0 if OK, -EFAULT if addr is not aligned correctly, -ENOSPC is the
  * area is not large enough
  */
-int bloblist_new(ulong addr, uint size, uint flags);
+int bloblist_new(ulong addr, uint size, uint flags, uint align_log2);
 
 /**
  * bloblist_check() - Check if a bloblist exists
@@ -347,10 +366,10 @@ int bloblist_finish(void);
  * This returns useful information about the bloblist
  *
  * @basep: Returns base address of bloblist
- * @sizep: Returns the number of bytes used in the bloblist
- * @allocedp: Returns the total space allocated to the bloblist
+ * @tsizep: Returns the total number of bytes of the bloblist
+ * @usizep: Returns the number of used bytes of the bloblist
  */
-void bloblist_get_stats(ulong *basep, ulong *sizep, ulong *allocedp);
+void bloblist_get_stats(ulong *basep, ulong *tsizep, ulong *usizep);
 
 /**
  * bloblist_get_base() - Get the base address of the bloblist
@@ -365,6 +384,13 @@ ulong bloblist_get_base(void);
  * Return: the size in bytes
  */
 ulong bloblist_get_size(void);
+
+/**
+ * bloblist_get_total_size() - Get the total size of the bloblist
+ *
+ * Return: the size in bytes
+ */
+ulong bloblist_get_total_size(void);
 
 /**
  * bloblist_show_stats() - Show information about the bloblist

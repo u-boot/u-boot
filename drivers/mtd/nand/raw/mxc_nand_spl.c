@@ -13,6 +13,7 @@
 #include <common.h>
 #include <hang.h>
 #include <nand.h>
+#include <system-constants.h>
 #include <linux/mtd/rawnand.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/io.h>
@@ -304,13 +305,13 @@ int nand_spl_load_image(uint32_t from, unsigned int size, void *buf)
 		 * Check if we have crossed a block boundary, and if so
 		 * check for bad block.
 		 */
-		if (!(page % CONFIG_SYS_NAND_PAGE_COUNT)) {
+		if (!(page % SYS_NAND_BLOCK_PAGES)) {
 			/*
 			 * Yes, new block. See if this block is good. If not,
 			 * loop until we find a good block.
 			 */
 			while (is_badblock(page)) {
-				page = page + CONFIG_SYS_NAND_PAGE_COUNT;
+				page = page + SYS_NAND_BLOCK_PAGES;
 				/* Check i we've reached the end of flash. */
 				if (page >= maxpages)
 					return -1;
@@ -350,3 +351,8 @@ __used void nand_boot(void)
 
 void nand_init(void) {}
 void nand_deselect(void) {}
+
+unsigned int nand_page_size(void)
+{
+	return CONFIG_SYS_NAND_PAGE_SIZE;
+}

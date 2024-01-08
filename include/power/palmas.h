@@ -15,6 +15,7 @@ struct palmas_priv {
 #define PALMAS_LDO_DRIVER     "palmas_ldo"
 #define PALMAS_SMPS_DRIVER    "palmas_smps"
 #define PALMAS_RST_DRIVER     "palmas_rst"
+#define PALMAS_GPIO_DRIVER    "palmas_gpio"
 
 #define PALMAS_SMPS_VOLT_MASK		0x7F
 #define PALMAS_SMPS_RANGE_MASK		0x80
@@ -35,3 +36,14 @@ struct palmas_priv {
 #define   DEV_OFF			0x00
 #define PALMAS_INT3_MASK		0x1B
 #define   MASK_VBUS			BIT(7)
+
+/* second chip */
+#define PALMAS_GPIO_DATA_IN		0x80
+#define PALMAS_GPIO_DATA_DIR		0x81
+#define PALMAS_GPIO_DATA_OUT		0x82
+#define PALMAS_GPIO_DEBOUNCE_EN		0x83
+#define PALMAS_GPIO_CLEAR_DATA_OUT	0x84
+#define PALMAS_GPIO_SET_DATA_OUT	0x85
+#define PALMAS_PU_PD_GPIO_CTRL1		0x86
+#define PALMAS_PU_PD_GPIO_CTRL2		0x87
+#define PALMAS_OD_OUTPUT_GPIO_CTRL	0x88

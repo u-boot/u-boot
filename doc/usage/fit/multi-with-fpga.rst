@@ -20,7 +20,7 @@ This example makes use of the 'loadables' field::
                 compression = "none";
                 load = <0x10000000>;
                 hash-1 {
-                    algo = "md5";
+                    algo = "sha256";
                 };
             };
 
@@ -33,7 +33,7 @@ This example makes use of the 'loadables' field::
                 load = <0x30000000>;
                 compatible = "u-boot,fpga-legacy"
                 hash-1 {
-                    algo = "md5";
+                    algo = "sha256";
                 };
             };
 
@@ -47,7 +47,7 @@ This example makes use of the 'loadables' field::
                 load = <0x8000>;
                 entry = <0x8000>;
                 hash-1 {
-                    algo = "md5";
+                    algo = "sha256";
                 };
             };
         };

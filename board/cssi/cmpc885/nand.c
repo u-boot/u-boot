@@ -7,7 +7,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <nand.h>
 #include <linux/bitops.h>
 #include <linux/mtd/rawnand.h>

@@ -905,6 +905,13 @@ static int imx8mp_fec_interface_init(struct udevice *dev,
 
 	return 0;
 }
+#else
+static int imx8mp_fec_interface_init(struct udevice *dev,
+				     phy_interface_t interface_type,
+				     bool mx8mp)
+{
+	return 0;
+}
 #endif
 
 int board_interface_eth_init(struct udevice *dev, phy_interface_t interface_type)

@@ -13,7 +13,6 @@
 #include <reset.h>
 #include <timer.h>
 #include <dm/device_compat.h>
-#include <linux/kconfig.h>
 
 #include <asm/io.h>
 #include <asm/arch/timer.h>

@@ -6,6 +6,8 @@
 #ifndef __SANDBOX_ASM_IO_H
 #define __SANDBOX_ASM_IO_H
 
+#include <linux/types.h>
+
 enum sandboxio_size_t {
 	SB_SIZE_8,
 	SB_SIZE_16,
@@ -27,20 +29,6 @@ void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags);
  */
 void unmap_physmem(const void *vaddr, unsigned long flags);
 #define unmap_physmem unmap_physmem
-
-#include <asm-generic/io.h>
-
-/* For sandbox, we want addresses to point into our RAM buffer */
-static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
-{
-	return map_physmem(paddr, len, MAP_WRBACK);
-}
-
-/* Remove a previous mapping */
-static inline void unmap_sysmem(const void *vaddr)
-{
-	unmap_physmem(vaddr, MAP_WRBACK);
-}
 
 /* Map from a pointer to our RAM buffer */
 phys_addr_t map_to_sysmem(const void *ptr);
@@ -229,5 +217,35 @@ static inline void memcpy_toio(volatile void *dst, const void *src, int count)
 
 #include <iotrace.h>
 #include <asm/types.h>
+#include <asm-generic/io.h>
+
+/* For sandbox, we want addresses to point into our RAM buffer */
+static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
+{
+	return map_physmem(paddr, len, MAP_WRBACK);
+}
+
+/* Remove a previous mapping */
+static inline void unmap_sysmem(const void *vaddr)
+{
+	unmap_physmem(vaddr, MAP_WRBACK);
+}
+
+/**
+ * nomap_sysmem() - pass through an address unchanged
+ *
+ * This is used to indicate an address which should NOT be mapped, e.g. in
+ * SMBIOS tables. Using this function instead of a case shows that the sandbox
+ * conversion has been done
+ */
+static inline void *nomap_sysmem(phys_addr_t paddr, unsigned long len)
+{
+	return (void *)(uintptr_t)paddr;
+}
+
+static inline phys_addr_t nomap_to_sysmem(const void *ptr)
+{
+	return (phys_addr_t)(uintptr_t)ptr;
+}
 
 #endif

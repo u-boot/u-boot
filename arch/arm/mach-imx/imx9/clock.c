@@ -18,6 +18,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <log.h>
+#include <phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -830,6 +831,58 @@ u32 imx_get_eqos_csr_clk(void)
 u32 imx_get_fecclk(void)
 {
 	return ccm_clk_root_get_rate(WAKEUP_AXI_CLK_ROOT);
+}
+
+#if defined(CONFIG_IMX93) && defined(CONFIG_DWC_ETH_QOS)
+static int imx93_eqos_interface_init(struct udevice *dev, phy_interface_t interface_type)
+{
+	struct blk_ctrl_wakeupmix_regs *bctrl =
+		(struct blk_ctrl_wakeupmix_regs *)BLK_CTRL_WAKEUPMIX_BASE_ADDR;
+
+	clrbits_le32(&bctrl->eqos_gpr,
+		     BCTRL_GPR_ENET_QOS_INTF_MODE_MASK |
+		     BCTRL_GPR_ENET_QOS_CLK_GEN_EN);
+
+	switch (interface_type) {
+	case PHY_INTERFACE_MODE_MII:
+		setbits_le32(&bctrl->eqos_gpr,
+			     BCTRL_GPR_ENET_QOS_INTF_SEL_MII |
+			     BCTRL_GPR_ENET_QOS_CLK_GEN_EN);
+		break;
+	case PHY_INTERFACE_MODE_RMII:
+		setbits_le32(&bctrl->eqos_gpr,
+			     BCTRL_GPR_ENET_QOS_INTF_SEL_RMII |
+			     BCTRL_GPR_ENET_QOS_CLK_GEN_EN);
+		break;
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		setbits_le32(&bctrl->eqos_gpr,
+			     BCTRL_GPR_ENET_QOS_INTF_SEL_RGMII |
+			     BCTRL_GPR_ENET_QOS_CLK_GEN_EN);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+#else
+static int imx93_eqos_interface_init(struct udevice *dev, phy_interface_t interface_type)
+{
+	return 0;
+}
+#endif
+
+int board_interface_eth_init(struct udevice *dev, phy_interface_t interface_type)
+{
+	if (IS_ENABLED(CONFIG_IMX93) &&
+	    IS_ENABLED(CONFIG_DWC_ETH_QOS) &&
+	    device_is_compatible(dev, "nxp,imx93-dwmac-eqos"))
+		return imx93_eqos_interface_init(dev, interface_type);
+
+	return -EINVAL;
 }
 
 int set_clk_enet(enum enet_freq type)

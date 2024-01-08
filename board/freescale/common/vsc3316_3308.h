@@ -6,7 +6,6 @@
 #ifndef __VSC_CROSSBAR_H_
 #define __VSC_CROSSBAR_H_
 
-#include <common.h>
 #include <i2c.h>
 #include <errno.h>
 

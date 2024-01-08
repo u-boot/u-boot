@@ -4,8 +4,8 @@
  *
  * SDPX-License-Identifier:	GPL-2.0+
  */
-#include <common.h>
 #include <errno.h>
+#include <linux/kernel.h>
 
 #define ERRNO_MSG(errno, msg)	msg
 #define SAME_AS(x)		(const char *)&errno_message[x]

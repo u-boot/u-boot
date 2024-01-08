@@ -7,10 +7,10 @@
 
 #define LOG_CATEGORY LOGC_ACPI
 
-#include <common.h>
 #include <acpi/acpi_table.h>
 #include <dm/acpi.h>
 #include <tables_csum.h>
+#include <linux/string.h>
 
 /*
  * IASL compiles the dsdt entries and writes the hex values

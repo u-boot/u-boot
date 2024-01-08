@@ -6,7 +6,6 @@
 #ifndef _FSL_SFP_SNVS_
 #define _FSL_SFP_SNVS_
 
-#include <common.h>
 #include <config.h>
 #include <asm/io.h>
 

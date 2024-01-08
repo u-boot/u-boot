@@ -17,7 +17,7 @@
 #if IS_ENABLED(CONFIG_TEGRA_CLKRST)
 #include <asm/arch/clock.h>
 #endif
-#if IS_ENABLED(CONFIG_TEGRA_PINCTRL)
+#if CONFIG_IS_ENABLED(PINCTRL_TEGRA)
 #include <asm/arch/funcmux.h>
 #endif
 #if IS_ENABLED(CONFIG_TEGRA_MC)
@@ -77,9 +77,6 @@ bool spl_was_boot_source(void)
 }
 
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
-#if !defined(CONFIG_TEGRA124)
-#error tegra_cpu_is_non_secure has only been validated on Tegra124
-#endif
 bool tegra_cpu_is_non_secure(void)
 {
 	/*
@@ -163,7 +160,7 @@ int dram_init(void)
 	return 0;
 }
 
-#if IS_ENABLED(CONFIG_TEGRA_PINCTRL)
+#if CONFIG_IS_ENABLED(PINCTRL_TEGRA)
 static int uart_configs[] = {
 #if defined(CONFIG_TEGRA20)
  #if defined(CONFIG_TEGRA_UARTA_UAA_UAB)
@@ -235,7 +232,7 @@ static void setup_uarts(int uart_ids)
 
 void board_init_uart_f(void)
 {
-#if IS_ENABLED(CONFIG_TEGRA_PINCTRL)
+#if CONFIG_IS_ENABLED(PINCTRL_TEGRA)
 	int uart_ids = 0;	/* bit mask of which UART ids to enable */
 
 #ifdef CONFIG_TEGRA_ENABLE_UARTA

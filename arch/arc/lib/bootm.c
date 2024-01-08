@@ -3,6 +3,7 @@
  * Copyright (C) 2013-2014 Synopsys, Inc. All rights reserved.
  */
 
+#include <bootm.h>
 #include <bootstage.h>
 #include <env.h>
 #include <image.h>
@@ -78,8 +79,10 @@ static void boot_jump_linux(struct bootm_headers *images, int flag)
 		board_jump_and_run(kernel_entry, r0, 0, r2);
 }
 
-int do_bootm_linux(int flag, int argc, char *argv[], struct bootm_headers *images)
+int do_bootm_linux(int flag, struct bootm_info *bmi)
 {
+	struct bootm_headers *images = bmi->images;
+
 	/* No need for those on ARC */
 	if ((flag & BOOTM_STATE_OS_BD_T) || (flag & BOOTM_STATE_OS_CMDLINE))
 		return -1;

@@ -3,8 +3,8 @@
  * Copyright (c) 2011 The Chromium OS Authors.
  */
 
-#include <common.h>
 #include <addr_map.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <cros_ec.h>
 #include <dm.h>

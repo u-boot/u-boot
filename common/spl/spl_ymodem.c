@@ -134,10 +134,8 @@ int spl_ymodem_load_image(struct spl_image_info *spl_image,
 		struct ymodem_fit_info info;
 
 		debug("Found FIT\n");
-		load.dev = NULL;
 		load.priv = (void *)&info;
-		load.filename = NULL;
-		load.bl_len = 1;
+		spl_set_bl_len(&load, 1);
 		info.buf = buf;
 		info.image_read = BUF_SIZE;
 		load.read = ymodem_read_fit;

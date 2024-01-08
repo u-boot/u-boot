@@ -4,4 +4,4 @@
 
 obj-$(CONFIG_SPL_BUILD) += cpu.o
 
-obj-y	+= clock.o funcmux.o pinmux.o
+obj-y	+= clock.o

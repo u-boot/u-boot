@@ -287,6 +287,23 @@ int os_persistent_file(char *buf, int maxsize, const char *fname)
 	return 0;
 }
 
+int os_mktemp(char *fname, off_t size)
+{
+	int fd;
+
+	fd = mkostemp(fname, O_CLOEXEC);
+	if (fd < 0)
+		return -errno;
+
+	if (unlink(fname) < 0)
+		return -errno;
+
+	if (ftruncate(fd, size))
+		return -errno;
+
+	return fd;
+}
+
 /* Restore tty state when we exit */
 static struct termios orig_term;
 static bool term_setup;

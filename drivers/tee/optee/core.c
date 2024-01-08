@@ -139,6 +139,11 @@ static int enum_services(struct udevice *dev, struct tee_shm **shm, size_t *coun
 	if (ret)
 		return ret;
 
+	if (!shm_size) {
+		*count = 0;
+		return 0;
+	}
+
 	ret = tee_shm_alloc(dev, shm_size, 0, shm);
 	if (ret) {
 		dev_err(dev, "Failed to allocated shared memory: %d\n", ret);
@@ -185,14 +190,15 @@ static int bind_service_drivers(struct udevice *dev)
 
 	ret = enum_services(dev, &service_list, &service_count, tee_sess,
 			    PTA_CMD_GET_DEVICES);
-	if (!ret)
+	if (!ret && service_count)
 		ret = bind_service_list(dev, service_list, service_count);
 
 	tee_shm_free(service_list);
+	service_list = NULL;
 
 	ret2 = enum_services(dev, &service_list, &service_count, tee_sess,
 			     PTA_CMD_GET_DEVICES_SUPP);
-	if (!ret2)
+	if (!ret2 && service_count)
 		ret2 = bind_service_list(dev, service_list, service_count);
 
 	tee_shm_free(service_list);
@@ -841,7 +847,7 @@ static int optee_probe(struct udevice *dev)
 	if (IS_ENABLED(CONFIG_OPTEE_SERVICE_DISCOVERY)) {
 		ret = bind_service_drivers(dev);
 		if (ret)
-			return ret;
+			dev_warn(dev, "optee service enumeration failed: %d\n", ret);
 	} else if (IS_ENABLED(CONFIG_RNG_OPTEE)) {
 		/*
 		 * Discovery of TAs on the TEE bus is not supported in U-Boot:

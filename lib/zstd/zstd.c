@@ -5,10 +5,10 @@
 
 #define LOG_CATEGORY	LOGC_BOOT
 
-#include <common.h>
 #include <abuf.h>
 #include <log.h>
 #include <malloc.h>
+#include <linux/errno.h>
 #include <linux/zstd.h>
 
 int zstd_decompress(struct abuf *in, struct abuf *out)

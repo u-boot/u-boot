@@ -17,7 +17,6 @@
 #ifndef __USBDCORE_H__
 #define __USBDCORE_H__
 
-#include <common.h>
 #include "usbdescriptors.h"
 
 

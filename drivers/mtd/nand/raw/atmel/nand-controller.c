@@ -64,14 +64,13 @@
 #include <linux/mfd/syscon/atmel-smc.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/mtd/mtd.h>
+#include <linux/time.h>
 #include <mach/at91_sfr.h>
 #include <nand.h>
 #include <regmap.h>
 #include <syscon.h>
 
 #include "pmecc.h"
-
-#define NSEC_PER_SEC    1000000000L
 
 #define ATMEL_HSMC_NFC_CFG			0x0
 #define ATMEL_HSMC_NFC_CFG_SPARESIZE(x)		(((x) / 4) << 24)
@@ -350,40 +349,6 @@ static int atmel_nfc_wait(struct atmel_hsmc_nand_controller *nc, bool poll,
 	}
 
 	return ret;
-}
-
-static void iowrite8_rep(void *addr, const uint8_t *buf, int len)
-{
-	int i;
-
-	for (i = 0; i < len; i++)
-		writeb(buf[i], addr);
-}
-
-static void ioread8_rep(void *addr, uint8_t *buf, int len)
-{
-	int i;
-
-	for (i = 0; i < len; i++)
-		buf[i] = readb(addr);
-}
-
-static void ioread16_rep(void *addr, void *buf, int len)
-{
-	int i;
-	u16 *p = (u16 *)buf;
-
-	for (i = 0; i < len; i++)
-		p[i] = readw(addr);
-}
-
-static void iowrite16_rep(void *addr, const void *buf, int len)
-{
-	int i;
-	u16 *p = (u16 *)buf;
-
-	for (i = 0; i < len; i++)
-		writew(p[i], addr);
 }
 
 static u8 atmel_nand_read_byte(struct mtd_info *mtd)

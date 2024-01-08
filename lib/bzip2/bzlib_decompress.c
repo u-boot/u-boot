@@ -1,5 +1,4 @@
 #include <config.h>
-#include <common.h>
 #include <watchdog.h>
 
 /*-------------------------------------------------------------*/

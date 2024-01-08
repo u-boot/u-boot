@@ -9,8 +9,7 @@
 #include <wdt.h>
 #include <asm/io.h>
 #include <linux/delay.h>
-
-#define MSEC_PER_SEC		1000
+#include <linux/time.h>
 
 #define WDT_MAX_TIMEOUT		16
 #define WDT_TIMEOUT_MASK	0xf

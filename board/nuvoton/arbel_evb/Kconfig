@@ -15,4 +15,5 @@ config SYS_MEM_TOP_HIDE
 	help
 	  Reserve memory for ECC/GFX/OPTEE/TIP/CP.
 
+source "board/nuvoton/common/Kconfig"
 endif

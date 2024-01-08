@@ -5,7 +5,6 @@
  * Author: Miquel Raynal <miquel.raynal@bootlin.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/of_access.h>
 #include <tpm_api.h>

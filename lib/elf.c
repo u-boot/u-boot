@@ -3,7 +3,6 @@
    Copyright (c) 2001 William L. Pitts
 */
 
-#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <elf.h>

@@ -9,7 +9,6 @@
 #ifndef __BTRFS_CTREE_H__
 #define __BTRFS_CTREE_H__
 
-#include <common.h>
 #include <compiler.h>
 #include <linux/rbtree.h>
 #include <linux/bug.h>

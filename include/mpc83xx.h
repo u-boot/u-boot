@@ -6,8 +6,6 @@
 #ifndef __MPC83XX_H__
 #define __MPC83XX_H__
 
-#include <config.h>
-#include <asm/fsl_lbc.h>
 #if defined(CONFIG_E300)
 #include <asm/e300.h>
 #endif

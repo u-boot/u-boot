@@ -21,37 +21,9 @@
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
-#if !defined(CONFIG_DM_SCSI)
-# ifdef CFG_SCSI_DEV_LIST
-#  define SCSI_DEV_LIST CFG_SCSI_DEV_LIST
-# else
-#  ifdef CONFIG_SATA_ULI5288
-
-#   define SCSI_VEND_ID 0x10b9
-#   define SCSI_DEV_ID  0x5288
-
-#  elif !defined(CONFIG_SCSI_AHCI_PLAT)
-#   error no scsi device defined
-#  endif
-# define SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
-# endif
-#endif
-
-#if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT) && \
-	!defined(CONFIG_DM_SCSI)
-const struct pci_device_id scsi_device_list[] = { SCSI_DEV_LIST };
-#endif
 static struct scsi_cmd tempccb;	/* temporary scsi command buffer */
 
 DEFINE_CACHE_ALIGN_BUFFER(u8, tempbuff, 512);	/* temporary data buffer */
-
-#if !defined(CONFIG_DM_SCSI)
-static int scsi_max_devs; /* number of highest available scsi device */
-
-static int scsi_curr_dev; /* current device */
-
-static struct blk_desc scsi_dev_desc[SCSI_MAX_DEVICE];
-#endif
 
 /* almost the maximum amount of the scsi_ext command.. */
 #define SCSI_MAX_BLK 0xFFFF
@@ -107,7 +79,6 @@ static void scsi_setup_inquiry(struct scsi_cmd *pccb)
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 }
 
-#ifdef CONFIG_BLK
 static void scsi_setup_read_ext(struct scsi_cmd *pccb, lbaint_t start,
 				unsigned short blocks)
 {
@@ -286,59 +257,6 @@ static int scsi_buffer_aligned(struct udevice *dev, struct bounce_buffer *state)
 	return 1;
 }
 #endif	/* CONFIG_BOUNCE_BUFFER */
-#endif
-
-#if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT) && \
-	!defined(CONFIG_DM_SCSI)
-void scsi_init(void)
-{
-	int busdevfunc = -1;
-	int i;
-	/*
-	 * Find a device from the list, this driver will support a single
-	 * controller.
-	 */
-	for (i = 0; i < ARRAY_SIZE(scsi_device_list); i++) {
-		/* get PCI Device ID */
-		struct udevice *dev;
-		int ret;
-
-		ret = dm_pci_find_device(scsi_device_list[i].vendor,
-					 scsi_device_list[i].device, 0, &dev);
-		if (!ret) {
-			busdevfunc = dm_pci_get_bdf(dev);
-			break;
-		}
-		if (busdevfunc != -1)
-			break;
-	}
-
-	if (busdevfunc == -1) {
-		printf("Error: SCSI Controller(s) ");
-		for (i = 0; i < ARRAY_SIZE(scsi_device_list); i++) {
-			printf("%04X:%04X ",
-			       scsi_device_list[i].vendor,
-			       scsi_device_list[i].device);
-		}
-		printf("not found\n");
-		return;
-	}
-#ifdef DEBUG
-	else {
-		printf("SCSI Controller (%04X,%04X) found (%d:%d:%d)\n",
-		       scsi_device_list[i].vendor,
-		       scsi_device_list[i].device,
-		       (busdevfunc >> 16) & 0xFF,
-		       (busdevfunc >> 11) & 0x1F,
-		       (busdevfunc >> 8) & 0x7);
-	}
-#endif
-	bootstage_start(BOOTSTAGE_ID_ACCUM_SCSI, "ahci");
-	scsi_low_level_init(busdevfunc);
-	scsi_scan(true);
-	bootstage_accum(BOOTSTAGE_ID_ACCUM_SCSI);
-}
-#endif
 
 /* copy src to dest, skipping leading and trailing blanks
  * and null terminate the string
@@ -462,25 +380,6 @@ static void scsi_init_dev_desc_priv(struct blk_desc *dev_desc)
 #endif	/* CONFIG_BOUNCE_BUFFER */
 }
 
-#if !defined(CONFIG_DM_SCSI)
-/**
- * scsi_init_dev_desc - initialize all SCSI specific blk_desc properties
- *
- * @dev_desc: Block device description pointer
- * @devnum: Device number
- */
-static void scsi_init_dev_desc(struct blk_desc *dev_desc, int devnum)
-{
-	dev_desc->lba = 0;
-	dev_desc->blksz = 0;
-	dev_desc->uclass_id = UCLASS_SCSI;
-	dev_desc->devnum = devnum;
-	dev_desc->part_type = PART_TYPE_UNKNOWN;
-
-	scsi_init_dev_desc_priv(dev_desc);
-}
-#endif
-
 /**
  * scsi_detect_dev - Detect scsi device
  *
@@ -569,7 +468,6 @@ removable:
  * (re)-scan the scsi bus and reports scsi device info
  * to the user if mode = 1
  */
-#if defined(CONFIG_DM_SCSI)
 static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 {
 	int ret;
@@ -690,48 +588,7 @@ int scsi_scan(bool verbose)
 
 	return 0;
 }
-#else
-int scsi_scan(bool verbose)
-{
-	unsigned char i, lun;
-	int ret;
 
-	if (verbose)
-		printf("scanning bus for devices...\n");
-	for (i = 0; i < SCSI_MAX_DEVICE; i++)
-		scsi_init_dev_desc(&scsi_dev_desc[i], i);
-
-	scsi_max_devs = 0;
-	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
-		for (lun = 0; lun < CONFIG_SYS_SCSI_MAX_LUN; lun++) {
-			struct blk_desc *bdesc = &scsi_dev_desc[scsi_max_devs];
-
-			ret = scsi_detect_dev(NULL, i, lun, bdesc);
-			if (ret)
-				continue;
-			part_init(bdesc);
-
-			if (verbose) {
-				printf("  Device %d: ", bdesc->devnum);
-				dev_print(bdesc);
-			}
-			scsi_max_devs++;
-		} /* next LUN */
-	}
-	if (scsi_max_devs > 0)
-		scsi_curr_dev = 0;
-	else
-		scsi_curr_dev = -1;
-
-	printf("Found %d device(s).\n", scsi_max_devs);
-#ifndef CONFIG_SPL_BUILD
-	env_set_ulong("scsidevs", scsi_max_devs);
-#endif
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_BLK
 static const struct blk_ops scsi_blk_ops = {
 	.read	= scsi_read,
 	.write	= scsi_write,
@@ -745,11 +602,3 @@ U_BOOT_DRIVER(scsi_blk) = {
 	.id		= UCLASS_BLK,
 	.ops		= &scsi_blk_ops,
 };
-#else
-U_BOOT_LEGACY_BLK(scsi) = {
-	.uclass_idname	= "scsi",
-	.uclass_id	= UCLASS_SCSI,
-	.max_devs	= SCSI_MAX_DEVICE,
-	.desc		= scsi_dev_desc,
-};
-#endif

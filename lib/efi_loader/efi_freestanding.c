@@ -8,7 +8,7 @@
  * memset(), and memcmp().
  */
 
-#include <common.h>
+#include <linux/types.h>
 
 /**
  * memcmp() - compare memory areas

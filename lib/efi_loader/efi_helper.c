@@ -4,7 +4,6 @@
  */
 
 #define LOG_CATEGORY LOGC_EFI
-#include <common.h>
 #include <env.h>
 #include <malloc.h>
 #include <dm.h>

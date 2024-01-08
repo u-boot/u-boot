@@ -110,4 +110,12 @@ enum led_state_t led_get_state(struct udevice *dev);
  */
 int led_set_period(struct udevice *dev, int period_ms);
 
+/**
+ * led_bind_generic() - bind children of parent to given driver
+ *
+ * @parent:      Top-level LED device
+ * @driver_name: Driver for handling individual child nodes
+ */
+int led_bind_generic(struct udevice *parent, const char *driver_name);
+
 #endif

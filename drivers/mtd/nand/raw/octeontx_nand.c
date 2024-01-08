@@ -24,6 +24,7 @@
 #include <linux/mtd/nand_bch.h>
 #include <linux/mtd/nand_ecc.h>
 #include <linux/mtd/rawnand.h>
+#include <linux/time.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/types.h>
@@ -291,7 +292,6 @@ union ndf_cmd {
 #define OCTEONTX_NAND_DRIVER_NAME	"octeontx_nand"
 
 #define NDF_TIMEOUT		1000	/** Timeout in ms */
-#define USEC_PER_SEC		1000000	/** Linux compatibility */
 #ifndef NAND_MAX_CHIPS
 # define NAND_MAX_CHIPS		8	/** Linux compatibility */
 #endif

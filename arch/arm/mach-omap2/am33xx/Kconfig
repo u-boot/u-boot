@@ -105,15 +105,6 @@ config TARGET_CHILIBOARD
 	select DM_SERIAL
 	imply CMD_DM
 
-config TARGET_DRACO
-	bool "Support draco"
-	select BOARD_LATE_INIT
-	select DM
-	select DM_GPIO
-	select DM_SERIAL
-	select FACTORYSET
-	imply CMD_DM
-
 config TARGET_ETAMIN
 	bool "Support etamin"
 	select BOARD_LATE_INIT

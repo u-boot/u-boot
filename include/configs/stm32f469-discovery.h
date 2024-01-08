@@ -31,6 +31,8 @@
 			"scriptaddr=0x00418000\0"		\
 			"pxefile_addr_r=0x00428000\0" \
 			"ramdisk_addr_r=0x00438000\0"		\
+			"splashimage=0x00448000\0" \
+			"splashpos=m,m\0" \
 			BOOTENV
 
 #endif /* __CONFIG_H */

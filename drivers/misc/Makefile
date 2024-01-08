@@ -63,6 +63,7 @@ obj-$(CONFIG_$(SPL_)PWRSEQ) += pwrseq-uclass.o
 obj-$(CONFIG_QCOM_GENI_SE) += qcom-geni-se.o
 ifdef CONFIG_QFW
 obj-y += qfw.o
+obj-$(CONFIG_QFW_ACPI) += qfw_acpi.o
 obj-$(CONFIG_QFW_PIO) += qfw_pio.o
 obj-$(CONFIG_QFW_MMIO) += qfw_mmio.o
 obj-$(CONFIG_SANDBOX) += qfw_sandbox.o

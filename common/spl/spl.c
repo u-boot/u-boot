@@ -19,6 +19,7 @@
 #include <mapmem.h>
 #include <serial.h>
 #include <spl.h>
+#include <spl_load.h>
 #include <system-constants.h>
 #include <asm/global_data.h>
 #include <asm-generic/gpio.h>
@@ -351,6 +352,15 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 
 	return 0;
 }
+
+#if SPL_LOAD_USERS > 1
+int spl_load(struct spl_image_info *spl_image,
+	     const struct spl_boot_device *bootdev, struct spl_load_info *info,
+	     size_t size, size_t offset)
+{
+	return _spl_load(spl_image, bootdev, info, size, offset);
+}
+#endif
 
 __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
@@ -718,8 +728,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	ret = boot_from_devices(&spl_image, spl_boot_list,
 				ARRAY_SIZE(spl_boot_list));
 	if (ret) {
-		if (CONFIG_IS_ENABLED(SHOW_ERRORS) &&
-		    CONFIG_IS_ENABLED(LIBCOMMON_SUPPORT))
+		if (CONFIG_IS_ENABLED(SHOW_ERRORS))
 			printf(SPL_TPL_PROMPT "failed to boot from all boot devices (err=%d)\n",
 			       ret);
 		else

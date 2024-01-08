@@ -131,10 +131,6 @@
 	phy-reset-post-delay = <100>;
 };
 
-&eqos {
-	compatible = "fsl,imx-eqos";
-};
-
 &ethphy1 {
 	reset-gpios = <&pcal6524 15 GPIO_ACTIVE_LOW>;
 	reset-assert-us = <15000>;

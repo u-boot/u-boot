@@ -7,10 +7,11 @@
 
 #define LOG_CATEGORY LOGC_ACPI
 
-#include <common.h>
 #include <acpi/acpi_table.h>
 #include <dm/acpi.h>
 #include <tables_csum.h>
+#include <linux/errno.h>
+#include <linux/string.h>
 
 int acpi_write_ssdt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 {
@@ -18,10 +19,9 @@ int acpi_write_ssdt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	int ret;
 
 	ssdt = ctx->current;
-	memset((void *)ssdt, '\0', sizeof(struct acpi_table_header));
+	memset(ssdt, '\0', sizeof(struct acpi_table_header));
 
 	acpi_fill_header(ssdt, "SSDT");
-	memcpy(ssdt->oem_table_id, OEM_TABLE_ID, sizeof(ssdt->oem_table_id));
 	ssdt->revision = acpi_get_table_revision(ACPITAB_SSDT);
 	ssdt->aslc_revision = 1;
 	ssdt->length = sizeof(struct acpi_table_header);

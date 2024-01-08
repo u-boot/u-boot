@@ -39,6 +39,9 @@ config TARGET_TH1520_LPI4A
 	bool "Support Sipeed's TH1520 Lichee PI 4A Board"
 	select SYS_CACHE_SHIFT_6
 
+config TARGET_XILINX_MBV
+	bool "Support AMD/Xilinx MicroBlaze V"
+
 endchoice
 
 config SYS_ICACHE_OFF
@@ -82,6 +85,7 @@ source "board/sifive/unmatched/Kconfig"
 source "board/sipeed/maix/Kconfig"
 source "board/starfive/visionfive2/Kconfig"
 source "board/thead/th1520_lpi4a/Kconfig"
+source "board/xilinx/mbv/Kconfig"
 
 # platform-specific options below
 source "arch/riscv/cpu/andesv5/Kconfig"

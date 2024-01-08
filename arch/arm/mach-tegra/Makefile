@@ -17,7 +17,6 @@ obj-y += board.o board2.o
 obj-y += cache.o
 obj-$(CONFIG_TEGRA_CLKRST) += clock.o
 obj-$(CONFIG_$(SPL_)TEGRA_CRYPTO) += crypto.o
-obj-$(CONFIG_TEGRA_PINCTRL) += pinmux-common.o
 obj-$(CONFIG_TEGRA_PMC) += powergate.o
 obj-y += xusb-padctl-dummy.o
 

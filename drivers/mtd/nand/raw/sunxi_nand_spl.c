@@ -524,9 +524,10 @@ static int nand_read_buffer(struct nfc_config *conf, uint32_t offs,
 	return 0;
 }
 
+static struct nfc_config conf;
+
 int nand_spl_load_image(uint32_t offs, unsigned int size, void *dest)
 {
-	static struct nfc_config conf = { };
 	int ret;
 
 	ret = nand_detect_config(&conf, offs, dest);
@@ -534,6 +535,11 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dest)
 		return ret;
 
 	return nand_read_buffer(&conf, offs, size, dest);
+}
+
+unsigned int nand_page_size(void)
+{
+	return conf.page_size;
 }
 
 void nand_deselect(void)

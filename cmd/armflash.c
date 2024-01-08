@@ -180,6 +180,7 @@ static int load_image(const char * const name, const ulong address)
 {
 	struct afs_image *afi = NULL;
 	int i;
+	loff_t len_read = 0;
 
 	parse_flash();
 	for (i = 0; i < num_afs_images; i++) {
@@ -197,6 +198,7 @@ static int load_image(const char * const name, const ulong address)
 
 	for (i = 0; i < afi->region_count; i++) {
 		ulong from, to;
+		u32 size;
 
 		from = afi->flash_mem_start + afi->regions[i].offset;
 		if (address) {
@@ -208,14 +210,20 @@ static int load_image(const char * const name, const ulong address)
 			return CMD_RET_FAILURE;
 		}
 
-		memcpy((void *)to, (void *)from, afi->regions[i].size);
+		size = afi->regions[i].size;
+		memcpy((void *)to, (void *)from, size);
 
 		printf("loaded region %d from %08lX to %08lX, %08X bytes\n",
 		       i,
 		       from,
 		       to,
-		       afi->regions[i].size);
+		       size);
+
+		len_read += size;
 	}
+
+	env_set_hex("filesize", len_read);
+
 	return CMD_RET_SUCCESS;
 }
 

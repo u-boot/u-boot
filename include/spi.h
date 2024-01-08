@@ -9,7 +9,6 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
-#include <common.h>
 #include <linux/bitops.h>
 
 /* SPI mode flags */

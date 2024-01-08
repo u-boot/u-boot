@@ -309,13 +309,6 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 }
 #endif
 
-#ifdef CONFIG_SCSI_AHCI_PLAT
-void arch_preboot_os(void)
-{
-	ahci_reset((void __iomem *)DWC_AHSATA_BASE);
-}
-#endif
-
 #ifdef CONFIG_TI_SECURE_DEVICE
 void board_fit_image_post_process(const void *fit, int node, void **p_image,
 				  size_t *p_size)

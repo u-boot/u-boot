@@ -18,10 +18,10 @@ CONFIG_FIT_SIGNATURE=y
 CONFIG_FIT_VERBOSE=y
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="mmc dev ${mmcdev}; if mmc rescan; then run do_bootscript_hab;if run loadbootscript; then run bootscript; else if run loadimage; then run mmcboot; fi; fi; fi"
+CONFIG_SYS_PBSIZE=532
 # CONFIG_BOARD_EARLY_INIT_F is not set
 CONFIG_HUSH_PARSER=y
 CONFIG_SYS_MAXARGS=32
-CONFIG_SYS_PBSIZE=532
 CONFIG_CMD_BOOTZ=y
 CONFIG_CMD_MEMTEST=y
 CONFIG_CMD_DFU=y

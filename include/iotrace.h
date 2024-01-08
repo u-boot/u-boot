@@ -6,7 +6,6 @@
 #ifndef __IOTRACE_H
 #define __IOTRACE_H
 
-//#include <common.h>
 #include <linux/types.h>
 
 /* Support up to the machine word length for now */

@@ -7,7 +7,6 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
-#include <common.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <log.h>
@@ -244,6 +243,13 @@ efi_status_t efi_init_obj_list(void)
 	ret = efi_init_variables();
 	if (ret != EFI_SUCCESS)
 		goto out;
+
+	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR)) {
+		/* update boot option after variable service initialized */
+		ret = efi_bootmgr_update_media_device_boot_option();
+		if (ret != EFI_SUCCESS)
+			goto out;
+	}
 
 	/* Define supported languages */
 	ret = efi_init_platform_lang();

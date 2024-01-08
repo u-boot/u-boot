@@ -171,8 +171,7 @@ static unsigned int cadence_qspi_wait_idle(void *reg_base)
 	}
 
 	/* Timeout, still in busy mode. */
-	printf("QSPI: QSPI is still busy after poll for %d times.\n",
-	       CQSPI_REG_RETRY);
+	printf("QSPI: QSPI is still busy after poll for %d ms.\n", timeout);
 	return 0;
 }
 

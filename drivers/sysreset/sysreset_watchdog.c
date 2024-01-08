@@ -29,7 +29,7 @@ static int wdt_reboot_request(struct udevice *dev, enum sysreset_t type)
 			return ret;
 		break;
 	default:
-		return -ENOSYS;
+		return -EPROTONOSUPPORT;
 	}
 
 	return -EINPROGRESS;

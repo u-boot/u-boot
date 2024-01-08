@@ -4,7 +4,6 @@
  */
 
 #ifndef USE_HOSTCC
-#include <common.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <malloc.h>
@@ -17,9 +16,9 @@
 #else
 #include "fdt_host.h"
 #include "mkimage.h"
+#include <linux/kconfig.h>
 #include <fdt_support.h>
 #endif
-#include <linux/kconfig.h>
 #include <u-boot/rsa-mod-exp.h>
 #include <u-boot/rsa.h>
 

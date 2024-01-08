@@ -4,7 +4,6 @@
 #define _PSU_INIT_GPL_H_
 
 #include <asm/io.h>
-#include <common.h>
 
 int mask_pollonvalue(unsigned long add, u32 mask, u32 value);
 

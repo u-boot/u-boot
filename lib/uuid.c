@@ -9,7 +9,6 @@
 
 #define LOG_CATEGOT LOGC_CORE
 
-#include <common.h>
 #include <command.h>
 #include <efi_api.h>
 #include <env.h>
@@ -18,7 +17,6 @@
 #include <uuid.h>
 #include <linux/ctype.h>
 #include <errno.h>
-#include <common.h>
 #include <asm/io.h>
 #include <part_efi.h>
 #include <malloc.h>

@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dtoc"
-version = "0.0.2"
+version = "0.0.6"
 authors = [
   { name="Simon Glass", email="sjg@chromium.org" },
 ]
-dependencies = ["pylibfdt", "u_boot_pylib"]
+dependencies = ["pylibfdt", "u_boot_pylib >= 0.0.6"]
 description = "Devicetree-to-C generator"
 readme = "README.rst"
 requires-python = ">=3.7"
@@ -19,7 +19,7 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://u-boot.readthedocs.io/en/latest/develop/driver-model/of-plat.html"
+"Homepage" = "https://docs.u-boot.org/en/latest/develop/driver-model/of-plat.html"
 "Bug Tracker" = "https://source.denx.de/groups/u-boot/-/issues"
 
 [project.scripts]

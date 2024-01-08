@@ -21,25 +21,8 @@
 	};
 };
 
-&cbass_main {
-	bootph-all;
-
-	timer@2400000 {
-		clock-frequency = <25000000>;
-		bootph-all;
-	};
-};
-
-&cbass_mcu {
-	bootph-all;
-};
-
-&cbass_wakeup {
-	bootph-all;
-};
-
-&chipid {
-	bootph-all;
+&main_timer0 {
+	clock-frequency = <25000000>;
 };
 
 &main_bcdma {
@@ -53,6 +36,7 @@
 	      <0x00 0x484c2000 0x00 0x2000>;
 	reg-names = "gcfg", "bchanrt", "rchanrt", "tchanrt",
 		    "ringrt" , "cfg", "tchan", "rchan";
+	bootph-all;
 };
 
 &main_pktdma {
@@ -98,31 +82,13 @@
 };
 
 &dmsc {
-	bootph-all;
-
 	k3_sysreset: sysreset-controller {
 		compatible = "ti,sci-sysreset";
 		bootph-all;
 	};
 };
 
-&dmss {
-	bootph-all;
-};
-
 &fss {
-	bootph-all;
-};
-
-&k3_clks {
-	bootph-all;
-};
-
-&k3_pds {
-	bootph-all;
-};
-
-&k3_reset {
 	bootph-all;
 };
 
@@ -156,10 +122,6 @@
 	};
 };
 
-&main_pmx0 {
-	bootph-all;
-};
-
 /* Verdin UART_3, used as the Linux console */
 &main_uart0 {
 	bootph-all;
@@ -167,10 +129,6 @@
 
 /* Verdin UART_1 */
 &main_uart1 {
-	bootph-all;
-};
-
-&mcu_pmx0 {
 	bootph-all;
 };
 
@@ -210,15 +168,7 @@
 	status = "disabled";
 };
 
-&secure_proxy_main {
-	bootph-all;
-};
-
 &verdin_ctrl_sleep_moci {
-	bootph-all;
-};
-
-&wkup_conf {
 	bootph-all;
 };
 

@@ -500,5 +500,11 @@ def test_ut(u_boot_console, ut_subtest):
             execute command 'ut foo bar'
     """
 
-    output = u_boot_console.run_command('ut ' + ut_subtest)
+    if ut_subtest == 'hush hush_test_simple_dollar':
+        # ut hush hush_test_simple_dollar prints "Unknown command" on purpose.
+        with u_boot_console.disable_check('unknown_command'):
+            output = u_boot_console.run_command('ut ' + ut_subtest)
+        assert('Unknown command \'quux\' - try \'help\'' in output)
+    else:
+        output = u_boot_console.run_command('ut ' + ut_subtest)
     assert output.endswith('Failures: 0')

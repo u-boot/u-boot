@@ -98,6 +98,23 @@ int ut_check_skipline(struct unit_test_state *uts);
 int ut_check_skip_to_line(struct unit_test_state *uts, const char *fmt, ...);
 
 /**
+ * ut_check_skip_to_linen() - skip output until a partial line is found
+ *
+ * This creates a string and then checks it against the following lines of
+ * console output obtained with console_record_readline() until it is found.
+ * Only the characters up to the length of the string are checked, so the line
+ * may extend further
+ *
+ * After the function returns, uts->expect_str holds the expected string and
+ * uts->actual_str holds the actual string read from the console.
+ *
+ * @uts: Test state
+ * @fmt: printf() format string to look for, followed by args
+ * Return: 0 if OK, -ENOENT if not found, other value on error
+ */
+int ut_check_skip_to_linen(struct unit_test_state *uts, const char *fmt, ...);
+
+/**
  * ut_check_console_end() - Check there is no more console output
  *
  * After the function returns, uts->actual_str holds the actual string read
@@ -351,6 +368,19 @@ int ut_check_console_dump(struct unit_test_state *uts, int total_bytes);
 	int __ret = 0;							\
 									\
 	if (ut_check_skip_to_line(uts, fmt, ##args)) {			\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 "console", "\nExpected '%s',\n     got to '%s'", \
+			 uts->expect_str, uts->actual_str);		\
+		return CMD_RET_FAILURE;					\
+	}								\
+	__ret;								\
+})
+
+/* Assert that a following console output line matches */
+#define ut_assert_skip_to_linen(fmt, args...) ({				\
+	int __ret = 0;							\
+									\
+	if (ut_check_skip_to_linen(uts, fmt, ##args)) {			\
 		ut_failf(uts, __FILE__, __LINE__, __func__,		\
 			 "console", "\nExpected '%s',\n     got to '%s'", \
 			 uts->expect_str, uts->actual_str);		\

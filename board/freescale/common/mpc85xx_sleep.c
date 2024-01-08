@@ -3,8 +3,8 @@
  * Copyright 2014 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <log.h>
+#include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/immap_85xx.h>
 #include "sleep.h"

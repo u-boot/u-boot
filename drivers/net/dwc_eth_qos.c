@@ -1711,6 +1711,10 @@ static const struct udevice_id eqos_ids[] = {
 		.compatible = "nxp,imx8mp-dwmac-eqos",
 		.data = (ulong)&eqos_imx_config
 	},
+	{
+		.compatible = "nxp,imx93-dwmac-eqos",
+		.data = (ulong)&eqos_imx_config
+	},
 #endif
 #if IS_ENABLED(CONFIG_DWC_ETH_QOS_ROCKCHIP)
 	{

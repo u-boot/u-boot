@@ -14,19 +14,8 @@
 
 #include "tegra30-common.h"
 
+/* High-level configuration options */
 #define CFG_TEGRA_BOARD_STRING		"LG X3 Board"
-
-#ifdef CONFIG_DEVICE_P880
-/* High-level configuration options */
-#undef CFG_TEGRA_BOARD_STRING
-#define CFG_TEGRA_BOARD_STRING		"LG Optimus 4X HD"
-#endif
-
-#ifdef CONFIG_DEVICE_P895
-/* High-level configuration options */
-#undef CFG_TEGRA_BOARD_STRING
-#define CFG_TEGRA_BOARD_STRING		"LG Optimus Vu"
-#endif
 
 #define X3_FLASH_UBOOT \
 	"flash_uboot=echo Preparing RAM;" \

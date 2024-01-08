@@ -21,12 +21,12 @@ CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 earlyprintk rw root=/dev/mmcblk0p2 rootfstype=ext4 rootwait quiet lpj=1990656"
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="mmc dev 0 0;mmc read ${loadaddr} ${k_offset} ${k_blksize};mmc read ${oftaddr} ${dtb_offset} ${dtb_blksize};bootz ${loadaddr} -  ${oftaddr}"
+CONFIG_SYS_CBSIZE=256
+CONFIG_SYS_PBSIZE=282
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_BOARD_EARLY_INIT_F=y
 CONFIG_HUSH_PARSER=y
 CONFIG_SYS_PROMPT="vinco => "
-CONFIG_SYS_CBSIZE=256
-CONFIG_SYS_PBSIZE=282
 CONFIG_CMD_BOOTZ=y
 # CONFIG_CMD_IMI is not set
 CONFIG_CMD_GPT=y

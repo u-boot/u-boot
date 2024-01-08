@@ -4,7 +4,6 @@
  * Copyright 2019, 2021-2022 NXP
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <command.h>
 #include <fdt_support.h>

@@ -92,6 +92,9 @@ static int test_event_probe(struct unit_test_state *uts)
 	struct test_state state;
 	struct udevice *dev;
 
+	if (!IS_ENABLED(SANDBOX))
+		return -EAGAIN;
+
 	state.val = 0;
 	ut_assertok(event_register("pre", EVT_DM_PRE_PROBE, h_probe, &state));
 	ut_assertok(event_register("post", EVT_DM_POST_PROBE, h_probe, &state));

@@ -39,6 +39,13 @@
 		gpios = <9 GPIO_ACTIVE_HIGH>;
 		line-name = "dio1";
 	};
+
+	tpm_rst {
+		gpio-hog;
+		output-high;
+		gpios = <11 GPIO_ACTIVE_HIGH>;
+		line-name = "tpm_rst#";
+	};
 };
 
 &gpio4 {

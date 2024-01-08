@@ -55,6 +55,15 @@ static int max77663_bind(struct udevice *dev)
 		}
 	}
 
+	if (IS_ENABLED(CONFIG_MAX77663_GPIO)) {
+		ret = device_bind_driver(dev, MAX77663_GPIO_DRIVER,
+					 "gpio", NULL);
+		if (ret) {
+			log_err("cannot bind GPIOs (ret = %d)\n", ret);
+			return ret;
+		}
+	}
+
 	regulators_node = dev_read_subnode(dev, "regulators");
 	if (!ofnode_valid(regulators_node)) {
 		log_err("%s regulators subnode not found!\n", dev->name);

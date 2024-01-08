@@ -220,7 +220,7 @@ static size_t create_fat(void *dst, size_t size, const char *filename,
 	bs->root_cluster = cpu_to_le32(root_sector);
 
 	vi->ext_boot_sign = 0x29;
-	memcpy(vi->fs_type, FAT32_SIGN, sizeof(vi->fs_type));
+	memcpy(vi->fs_type, "FAT32   ", sizeof(vi->fs_type));
 
 	memcpy(dst + 0x1fe, "\x55\xAA", 2);
 
@@ -320,10 +320,11 @@ static int spl_test_mmc_fs(struct unit_test_state *uts, const char *test_name,
 	const char *filename = CONFIG_SPL_FS_LOAD_PAYLOAD_NAME;
 	struct blk_desc *dev_desc;
 	size_t fs_size, fs_data, img_size, img_data,
-	       data_size = SPL_TEST_DATA_SIZE;
+	       plain_size = SPL_TEST_DATA_SIZE;
 	struct spl_image_info info_write = {
 		.name = test_name,
-		.size = data_size,
+		.size = type == LEGACY_LZMA ? lzma_compressed_size :
+					      plain_size,
 	}, info_read = { };
 	struct disk_partition part = {
 		.start = 1,
@@ -335,7 +336,7 @@ static int spl_test_mmc_fs(struct unit_test_state *uts, const char *test_name,
 		.boot_device = loader->boot_device,
 	};
 	void *fs;
-	char *data;
+	char *data, *plain;
 
 	img_size = create_image(NULL, type, &info_write, &img_data);
 	ut_assert(img_size);
@@ -345,7 +346,15 @@ static int spl_test_mmc_fs(struct unit_test_state *uts, const char *test_name,
 	ut_assertnonnull(fs);
 
 	data = fs + fs_data + img_data;
-	generate_data(data, data_size, test_name);
+	if (type == LEGACY_LZMA) {
+		plain = malloc(plain_size);
+		ut_assertnonnull(plain);
+		generate_data(plain, plain_size, "lzma");
+		memcpy(data, lzma_compressed, lzma_compressed_size);
+	} else {
+		plain = data;
+		generate_data(plain, plain_size, test_name);
+	}
 	ut_asserteq(img_size, create_image(fs + fs_data, type, &info_write,
 					   NULL));
 	ut_asserteq(fs_size, create_fs(fs, img_size, filename, NULL));
@@ -366,8 +375,12 @@ static int spl_test_mmc_fs(struct unit_test_state *uts, const char *test_name,
 		ut_assertok(loader->load_image(&info_read, &bootdev));
 	if (check_image_info(uts, &info_write, &info_read))
 		return CMD_RET_FAILURE;
-	ut_asserteq_mem(data, phys_to_virt(info_write.load_addr), data_size);
+	if (type == LEGACY_LZMA)
+		ut_asserteq(plain_size, info_read.size);
+	ut_asserteq_mem(plain, phys_to_virt(info_write.load_addr), plain_size);
 
+	if (type == LEGACY_LZMA)
+		free(plain);
 	free(fs);
 	return 0;
 }
@@ -382,6 +395,8 @@ static int spl_test_blk(struct unit_test_state *uts, const char *test_name,
 	return spl_test_mmc_fs(uts, test_name, type, create_ext2, true);
 }
 SPL_IMG_TEST(spl_test_blk, LEGACY, DM_FLAGS);
+SPL_IMG_TEST(spl_test_blk, LEGACY_LZMA, DM_FLAGS);
+SPL_IMG_TEST(spl_test_blk, IMX8, DM_FLAGS);
 SPL_IMG_TEST(spl_test_blk, FIT_EXTERNAL, DM_FLAGS);
 SPL_IMG_TEST(spl_test_blk, FIT_INTERNAL, DM_FLAGS);
 
@@ -409,12 +424,10 @@ static int spl_test_mmc(struct unit_test_state *uts, const char *test_name,
 	spl_mmc_clear_cache();
 	spl_fat_force_reregister();
 
-	if (type == LEGACY &&
-	    spl_test_mmc_fs(uts, test_name, type, create_ext2, false))
+	if (spl_test_mmc_fs(uts, test_name, type, create_ext2, false))
 		return CMD_RET_FAILURE;
 
-	if (type != IMX8 &&
-	    spl_test_mmc_fs(uts, test_name, type, create_fat, false))
+	if (spl_test_mmc_fs(uts, test_name, type, create_fat, false))
 		return CMD_RET_FAILURE;
 
 	return do_spl_test_load(uts, test_name, type,
@@ -423,6 +436,7 @@ static int spl_test_mmc(struct unit_test_state *uts, const char *test_name,
 				spl_test_mmc_write_image);
 }
 SPL_IMG_TEST(spl_test_mmc, LEGACY, DM_FLAGS);
+SPL_IMG_TEST(spl_test_mmc, LEGACY_LZMA, DM_FLAGS);
 SPL_IMG_TEST(spl_test_mmc, IMX8, DM_FLAGS);
 SPL_IMG_TEST(spl_test_mmc, FIT_EXTERNAL, DM_FLAGS);
 SPL_IMG_TEST(spl_test_mmc, FIT_INTERNAL, DM_FLAGS);

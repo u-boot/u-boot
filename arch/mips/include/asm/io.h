@@ -336,6 +336,22 @@ BUILDIO_MEM(b, u8)
 BUILDIO_MEM(w, u16)
 BUILDIO_MEM(l, u32)
 BUILDIO_MEM(q, u64)
+#define __raw_readb __raw_readb
+#define __raw_readw __raw_readw
+#define __raw_readl __raw_readl
+#define __raw_readq __raw_readq
+#define __raw_writeb __raw_writeb
+#define __raw_writew __raw_writew
+#define __raw_writel __raw_writel
+#define __raw_writeq __raw_writeq
+#define readb readb
+#define readw readw
+#define readl readl
+#define readq readq
+#define writeb writeb
+#define writew writew
+#define writel writel
+#define writeq writeq
 
 #define __BUILD_IOPORT_PFX(bus, bwlq, type)				\
 	__BUILD_IOPORT_SINGLE(bus, bwlq, type, )			\
@@ -405,7 +421,8 @@ static inline void writes##bwlq(volatile void __iomem *mem,		\
 	}								\
 }									\
 									\
-static inline void reads##bwlq(volatile void __iomem *mem, void *addr,	\
+static inline void reads##bwlq(const volatile void __iomem *mem,	\
+				void *addr,				\
 			       unsigned int count)			\
 {									\
 	volatile type *__addr = addr;					\
@@ -448,8 +465,24 @@ __BUILD_IOPORT_STRING(bwlq, type)
 BUILDSTRING(b, u8)
 BUILDSTRING(w, u16)
 BUILDSTRING(l, u32)
+#define readsb readsb
+#define readsw readsw
+#define readsl readsl
+#define writesb writesb
+#define writesw writesw
+#define writesl writesl
+#define outsb outsb
+#define outsw outsw
+#define outsl outsl
+#define insb insb
+#define insw insw
+#define insl insl
 #ifdef CONFIG_64BIT
 BUILDSTRING(q, u64)
+#define readsq readsq
+#define writesq writesq
+#define insq insq
+#define outsq outsq
 #endif
 
 

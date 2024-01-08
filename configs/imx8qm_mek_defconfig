@@ -29,6 +29,8 @@ CONFIG_OF_BOARD_SETUP=y
 CONFIG_OF_SYSTEM_SETUP=y
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="mmc dev ${mmcdev}; if mmc rescan; then if run loadbootscript; then run bootscript; else if test ${sec_boot} = yes; then if run loadcntr; then run mmcboot; else run netboot; fi; else if run loadimage; then run mmcboot; else run netboot; fi; fi; fi; else booti ${loadaddr} - ${fdt_addr}; fi"
+CONFIG_SYS_CBSIZE=256
+CONFIG_SYS_PBSIZE=276
 CONFIG_LOG=y
 CONFIG_BOARD_EARLY_INIT_F=y
 CONFIG_SPL_MAX_SIZE=0x1f000
@@ -51,8 +53,6 @@ CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR=0x800
 CONFIG_SPL_POWER_DOMAIN=y
 CONFIG_SPL_WATCHDOG=y
 CONFIG_HUSH_PARSER=y
-CONFIG_SYS_CBSIZE=256
-CONFIG_SYS_PBSIZE=276
 CONFIG_CMD_CPU=y
 # CONFIG_BOOTM_NETBSD is not set
 # CONFIG_CMD_EXPORTENV is not set

@@ -6,8 +6,6 @@
 #ifndef __SANDBOX_RESET_H
 #define __SANDBOX_RESET_H
 
-#include <common.h>
-
 struct udevice;
 
 int sandbox_reset_query(struct udevice *dev, unsigned long id);

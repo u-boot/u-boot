@@ -12,8 +12,6 @@
 #ifndef __ARP_H__
 #define __ARP_H__
 
-#include <common.h>
-
 extern struct in_addr net_arp_wait_packet_ip;
 /* MAC address of waiting packet's destination */
 extern uchar *arp_wait_packet_ethaddr;

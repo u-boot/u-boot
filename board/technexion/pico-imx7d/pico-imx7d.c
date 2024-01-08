@@ -13,6 +13,7 @@
 #include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
+#include <asm/mach-imx/boot_mode.h>
 #include <asm/io.h>
 #include <common.h>
 #include <miiphy.h>
@@ -24,6 +25,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_DSE_3P3V_49OHM | \
 	PAD_CTL_PUS_PU100KOHM | PAD_CTL_HYS)
+
+#define PICO_MMC0 0
+#define PICO_MMC0_BLK 2
+#define PICO_MMC1 1
+#define PICO_MMC1_BLK 0
 
 int dram_init(void)
 {
@@ -101,32 +107,6 @@ static int setup_fec(void)
 
 	return set_clk_enet(ENET_125MHZ);
 }
-
-int board_phy_config(struct phy_device *phydev)
-{
-	unsigned short val;
-
-	/* To enable AR8035 ouput a 125MHz clk from CLK_25M */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x7);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x8016);
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x4007);
-
-	val = phy_read(phydev, MDIO_DEVAD_NONE, 0xe);
-	val &= 0xffe7;
-	val |= 0x18;
-	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, val);
-
-	/* introduce tx clock delay */
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x5);
-	val = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
-	val |= 0x0100;
-	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, val);
-
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
-	return 0;
-}
 #endif
 
 static void setup_iomux_uart(void)
@@ -176,6 +156,12 @@ int board_late_init(void)
 
 	set_wdog_reset(wdog);
 
+#if CONFIG_IS_ENABLED(FSL_ESDHC_IMX)
+#if CONFIG_IS_ENABLED(ENV_IS_IN_MMC) || CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
+	board_late_mmc_env_init();
+#endif /* CONFIG_ENV_IS_IN_MMC or CONFIG_ENV_IS_NOWHERE */
+#endif
+
 	/*
 	 * Do not assert internal WDOG_RESET_B_DEB(controlled by bit 4),
 	 * since we use PMIC_PWRON to reset the board.
@@ -210,3 +196,53 @@ int board_ehci_hcd_init(int port)
 	}
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(FSL_ESDHC_IMX)
+#if CONFIG_IS_ENABLED(ENV_IS_IN_MMC) || CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
+int board_mmc_get_env_dev(int devno)
+{
+	int dev_env = 0;
+
+	switch (get_boot_device()) {
+	case SD3_BOOT:
+	case MMC3_BOOT:
+		env_set("bootdev", "MMC3");
+		dev_env = PICO_MMC0;
+		break;
+	case SD1_BOOT:
+		env_set("bootdev", "SD1");
+		dev_env = PICO_MMC1;
+		break;
+	default:
+		printf("Wrong boot device!");
+	}
+
+	return dev_env;
+}
+
+int mmc_map_to_kernel_blk(int dev_no)
+{
+	int blk_no = 0;
+
+	switch (dev_no) {
+	case PICO_MMC0:
+		blk_no = PICO_MMC0_BLK;
+		break;
+	case PICO_MMC1:
+		blk_no = PICO_MMC1_BLK;
+		break;
+	default:
+		printf("Invalid MMC device!");
+	}
+
+	return blk_no;
+}
+#endif
+
+#if CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
+int mmc_get_env_dev(void)
+{
+	return board_mmc_get_env_dev(0);
+}
+#endif
+#endif /* CONFIG_FSL_ESDHC_IMX */

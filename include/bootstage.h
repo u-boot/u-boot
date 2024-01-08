@@ -12,7 +12,9 @@
 #define _BOOTSTAGE_H
 
 #include <linux/types.h>
+#ifdef USE_HOSTCC
 #include <linux/kconfig.h>
+#endif
 
 /* Flags for each bootstage record */
 enum bootstage_flags {
@@ -147,7 +149,6 @@ enum bootstage_id {
 
 	BOOTSTAGE_ID_FIT_CONFIG = 110,
 	BOOTSTAGE_ID_FIT_TYPE,
-	BOOTSTAGE_ID_FIT_KERNEL_INFO,
 
 	BOOTSTAGE_ID_FIT_COMPRESSION,
 	BOOTSTAGE_ID_FIT_OS,
