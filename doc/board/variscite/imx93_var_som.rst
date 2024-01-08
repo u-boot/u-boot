@@ -1,7 +1,7 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
 imx93_var_som
-=======================
+=============
 
 U-Boot for the Variscite VAR-SOM-MX93 Symphony evaluation board
 
@@ -38,7 +38,7 @@ Get the DDR firmware
    $ cp firmware-imx-8.21/firmware/ddr/synopsys/lpddr4*.bin $(srctree)
 
 Get ahab-container.img
----------------------------------------
+----------------------
 
 .. code-block:: bash
 
