@@ -19,19 +19,6 @@ struct simple_panel_priv {
 	struct gpio_desc enable;
 };
 
-/* List of supported DSI panels */
-enum {
-	PANEL_NON_DSI,
-	PANASONIC_VVX10F004B00,
-};
-
-static const struct mipi_dsi_panel_plat panasonic_vvx10f004b00 = {
-	.mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_SYNC_PULSE |
-		      MIPI_DSI_CLOCK_NON_CONTINUOUS,
-	.format = MIPI_DSI_FMT_RGB888,
-	.lanes = 4,
-};
-
 static int simple_panel_enable_backlight(struct udevice *dev)
 {
 	struct simple_panel_priv *priv = dev_get_priv(dev);
@@ -111,7 +98,8 @@ static int simple_panel_probe(struct udevice *dev)
 {
 	struct simple_panel_priv *priv = dev_get_priv(dev);
 	struct mipi_dsi_panel_plat *plat = dev_get_plat(dev);
-	const u32 dsi_data = dev_get_driver_data(dev);
+	struct mipi_dsi_panel_plat *dsi_data =
+		(struct mipi_dsi_panel_plat *)dev_get_driver_data(dev);
 	int ret;
 
 	ret = regulator_set_enable_if_allowed(priv->reg, true);
@@ -121,15 +109,8 @@ static int simple_panel_probe(struct udevice *dev)
 		return ret;
 	}
 
-	switch (dsi_data) {
-	case PANASONIC_VVX10F004B00:
-		memcpy(plat, &panasonic_vvx10f004b00,
-		       sizeof(panasonic_vvx10f004b00));
-		break;
-	case PANEL_NON_DSI:
-	default:
-		break;
-	}
+	if (dsi_data)
+		memcpy(plat, dsi_data, sizeof(struct mipi_dsi_panel_plat));
 
 	return 0;
 }
@@ -138,6 +119,13 @@ static const struct panel_ops simple_panel_ops = {
 	.enable_backlight	= simple_panel_enable_backlight,
 	.set_backlight		= simple_panel_set_backlight,
 	.get_display_timing	= simple_panel_get_display_timing,
+};
+
+static const struct mipi_dsi_panel_plat panasonic_vvx10f004b00 = {
+	.mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_SYNC_PULSE |
+		      MIPI_DSI_CLOCK_NON_CONTINUOUS,
+	.format = MIPI_DSI_FMT_RGB888,
+	.lanes = 4,
 };
 
 static const struct udevice_id simple_panel_ids[] = {
@@ -150,7 +138,7 @@ static const struct udevice_id simple_panel_ids[] = {
 	{ .compatible = "sharp,lq123p1jx31" },
 	{ .compatible = "boe,nv101wxmn51" },
 	{ .compatible = "panasonic,vvx10f004b00",
-	  .data = PANASONIC_VVX10F004B00 },
+	  .data = (ulong)&panasonic_vvx10f004b00 },
 	{ }
 };
 
