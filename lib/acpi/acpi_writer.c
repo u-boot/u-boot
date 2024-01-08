@@ -48,7 +48,7 @@ int acpi_write_one(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	return 0;
 }
 
-#ifndef CONFIG_QEMU
+#ifndef CONFIG_QFW_ACPI
 static int acpi_write_all(struct acpi_ctx *ctx)
 {
 	const struct acpi_writer *writer =
@@ -115,7 +115,7 @@ ulong acpi_get_rsdp_addr(void)
 
 	return map_to_sysmem(gd->acpi_ctx->rsdp);
 }
-#endif /* QEMU */
+#endif /* QFW_ACPI */
 
 void acpi_setup_ctx(struct acpi_ctx *ctx, ulong start)
 {

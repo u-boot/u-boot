@@ -6,6 +6,7 @@ Emulation
 .. toctree::
    :maxdepth: 1
 
+   acpi
    blkdev
    ../../usage/semihosting
    qemu-arm

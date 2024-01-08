@@ -12,7 +12,7 @@ obj-$(CONFIG_$(SPL_)ACPIGEN) += acpi_table.o
 obj-y += acpi_writer.o
 
 # With QEMU the ACPI tables come from there, not from U-Boot
-ifndef CONFIG_QEMU
+ifndef CONFIG_QFW_ACPI
 obj-y += base.o
 obj-y += csrt.o
 obj-y += mcfg.o

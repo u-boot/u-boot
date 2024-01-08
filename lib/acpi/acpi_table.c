@@ -167,7 +167,7 @@ int acpi_add_table(struct acpi_ctx *ctx, void *table)
 	}
 
 	/* Add table to the RSDT */
-	rsdt->entry[i] = map_to_sysmem(table);
+	rsdt->entry[i] = nomap_to_sysmem(table);
 
 	/* Fix RSDT length or the kernel will assume invalid entries */
 	rsdt->header.length = sizeof(struct acpi_table_header) +
@@ -185,7 +185,7 @@ int acpi_add_table(struct acpi_ctx *ctx, void *table)
 	xsdt = ctx->xsdt;
 
 	/* Add table to the XSDT */
-	xsdt->entry[i] = map_to_sysmem(table);
+	xsdt->entry[i] = nomap_to_sysmem(table);
 
 	/* Fix XSDT length */
 	xsdt->header.length = sizeof(struct acpi_table_header) +

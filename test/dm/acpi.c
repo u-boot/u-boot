@@ -291,8 +291,8 @@ static int dm_test_acpi_write_tables(struct unit_test_state *uts)
 
 	/* Check that the pointers were added correctly */
 	for (i = 0; i < 3; i++) {
-		ut_asserteq(map_to_sysmem(dmar + i), ctx.rsdt->entry[i]);
-		ut_asserteq(map_to_sysmem(dmar + i), ctx.xsdt->entry[i]);
+		ut_asserteq(nomap_to_sysmem(dmar + i), ctx.rsdt->entry[i]);
+		ut_asserteq(nomap_to_sysmem(dmar + i), ctx.xsdt->entry[i]);
 	}
 	ut_asserteq(0, ctx.rsdt->entry[3]);
 	ut_asserteq(0, ctx.xsdt->entry[3]);
@@ -330,7 +330,7 @@ static int dm_test_acpi_basic(struct unit_test_state *uts)
 DM_TEST(dm_test_acpi_basic, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test setup_ctx_and_base_tables */
-static int dm_test_setup_ctx_and_base_tables(struct unit_test_state *uts)
+static int dm_test_acpi_ctx_and_base_tables(struct unit_test_state *uts)
 {
 	struct acpi_rsdp *rsdp;
 	struct acpi_rsdt *rsdt;
@@ -371,12 +371,12 @@ static int dm_test_setup_ctx_and_base_tables(struct unit_test_state *uts)
 	end = PTR_ALIGN((void *)xsdt + sizeof(*xsdt), 64);
 	ut_asserteq_ptr(end, ctx.current);
 
-	ut_asserteq(map_to_sysmem(rsdt), rsdp->rsdt_address);
-	ut_asserteq(map_to_sysmem(xsdt), rsdp->xsdt_address);
+	ut_asserteq(nomap_to_sysmem(rsdt), rsdp->rsdt_address);
+	ut_asserteq(nomap_to_sysmem(xsdt), rsdp->xsdt_address);
 
 	return 0;
 }
-DM_TEST(dm_test_setup_ctx_and_base_tables,
+DM_TEST(dm_test_acpi_ctx_and_base_tables,
 	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 
 /* Test 'acpi list' command */
@@ -445,7 +445,7 @@ static int dm_test_acpi_cmd_dump(struct unit_test_state *uts)
 	/* Now a real table */
 	console_record_reset();
 	run_command("acpi dump dmar", 0);
-	addr = ALIGN(map_to_sysmem(ctx.xsdt) + sizeof(struct acpi_xsdt), 64);
+	addr = ALIGN(nomap_to_sysmem(ctx.xsdt) + sizeof(struct acpi_xsdt), 64);
 	ut_assert_nextline("DMAR @ %16lx", addr);
 	ut_assert_nextlines_are_dump(0x30);
 	ut_assert_console_end();
