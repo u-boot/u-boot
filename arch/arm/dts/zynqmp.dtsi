@@ -737,7 +737,7 @@
 			compatible = "xlnx,zynqmp-ocmc-1.0";
 			reg = <0x0 0xff960000 0x0 0x1000>;
 			interrupt-parent = <&gic>;
-			interrupts = <0 10 4>;
+			interrupts = <GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
 		pcie: pcie@fd0e0000 {
