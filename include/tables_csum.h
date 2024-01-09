@@ -17,6 +17,6 @@
  * @len:	configuration table size
  * @return:	the 8-bit checksum
  */
-u8 table_compute_checksum(void *v, int len);
+u8 table_compute_checksum(const void *v, const int len);
 
 #endif
