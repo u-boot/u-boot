@@ -20,6 +20,21 @@ config TIMESTAMP
 	  loaded that does not, the message 'Wrong FIT format: no timestamp'
 	  is shown.
 
+config BUTTON_CMD
+	bool "Support for running a command if a button is held during boot"
+	depends on CMDLINE
+	depends on BUTTON
+	help
+	  For many embedded devices it's useful to enter a special flashing mode
+	  such as fastboot mode when a button is held during boot. This option
+	  allows arbitrary commands to be assigned to specific buttons. These will
+	  be run after "preboot" if the button is held. Configuration is done via
+	  the environment variables "button_cmd_N_name" and "button_cmd_N" where n is
+	  the button number (starting from 0). e.g:
+
+	    "button_cmd_0_name=vol_down"
+	    "button_cmd_0=fastboot usb 0"
+
 menuconfig FIT
 	bool "Flattened Image Tree (FIT)"
 	select HASH

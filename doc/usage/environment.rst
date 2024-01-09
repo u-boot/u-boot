@@ -190,6 +190,10 @@ bootm_size
 bootstopkeysha256, bootdelaykey, bootstopkey
     See README.autoboot
 
+button_cmd_0, button_cmd_0_name ... button_cmd_N, button_cmd_N_name
+    Used to map commands to run when a button is held during boot.
+    See CONFIG_BUTTON_CMD.
+
 updatefile
     Location of the software update file on a TFTP server, used
     by the automatic software update feature. Please refer to
