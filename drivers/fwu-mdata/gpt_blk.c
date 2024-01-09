@@ -159,6 +159,10 @@ static int fwu_mdata_gpt_blk_probe(struct udevice *dev)
 
 	priv->blk_dev = mdata_dev;
 
+	ret = fwu_mdata_copies_allocate();
+	if (ret)
+		return ret;
+
 	return 0;
 }
 
