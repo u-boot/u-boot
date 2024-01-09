@@ -230,7 +230,7 @@ static ulong load_serial(long offset)
 static int read_record(char *buf, ulong len)
 {
 	char *p;
-	char c;
+	int c;
 
 	--len;	/* always leave room for terminating '\0' byte */
 
@@ -827,7 +827,7 @@ static void handle_send_packet(int n)
 /* k_recv receives a OS Open image file over kermit line */
 static int k_recv(void)
 {
-	char new_char;
+	int new_char;
 	char k_state, k_state_saved;
 	int sum;
 	int done;

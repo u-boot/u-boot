@@ -540,7 +540,7 @@ static int cread_line_simple(const char *const prompt, char *p)
 	int n = 0;		/* buffer index */
 	int plen = 0;		/* prompt length */
 	int col;		/* output column cnt */
-	char c;
+	int c;
 
 	/* print prompt */
 	if (prompt) {
