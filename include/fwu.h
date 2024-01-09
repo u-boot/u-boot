@@ -52,8 +52,12 @@ struct fwu_mdata_ops {
 			   bool primary, uint32_t size);
 };
 
-#define FWU_MDATA_VERSION	0x1
+#define FWU_MDATA_VERSION	0x2
 #define FWU_IMAGE_ACCEPTED	0x1
+
+#define FWU_BANK_INVALID	0xFF
+#define FWU_BANK_VALID		0xFE
+#define FWU_BANK_ACCEPTED	0xFC
 
 /*
 * GUID value defined in the FWU specification for identification
