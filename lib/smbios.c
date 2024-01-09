@@ -467,7 +467,8 @@ static void smbios_write_type4_dm(struct smbios_type4 *t,
 	}
 #endif
 
-	t->processor_family = processor_family;
+	t->processor_family = 0xfe;
+	t->processor_family2 = processor_family;
 	t->processor_manufacturer = smbios_add_prop(ctx, NULL, vendor);
 	t->processor_version = smbios_add_prop(ctx, NULL, name);
 }
@@ -489,7 +490,6 @@ static int smbios_write_type4(ulong *current, int handle,
 	t->l1_cache_handle = 0xffff;
 	t->l2_cache_handle = 0xffff;
 	t->l3_cache_handle = 0xffff;
-	t->processor_family2 = t->processor_family;
 
 	len = t->length + smbios_string_table_len(ctx);
 	*current += len;

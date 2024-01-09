@@ -16,6 +16,8 @@ CFLAGS_boothart.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_boothart.o := $(CFLAGS_NON_EFI)
 CFLAGS_helloworld.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_helloworld.o := $(CFLAGS_NON_EFI)
+CFLAGS_smbiosdump.o := $(CFLAGS_EFI) -Os -ffreestanding
+CFLAGS_REMOVE_smbiosdump.o := $(CFLAGS_NON_EFI)
 CFLAGS_dtbdump.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_dtbdump.o := $(CFLAGS_NON_EFI)
 CFLAGS_initrddump.o := $(CFLAGS_EFI) -Os -ffreestanding
@@ -29,6 +31,11 @@ endif
 ifneq ($(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
 always += helloworld.efi
 targets += helloworld.o
+endif
+
+ifneq ($(CONFIG_GENERATE_SMBIOS_TABLE),)
+always += smbiosdump.efi
+targets += smbiosdump.o
 endif
 
 ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
