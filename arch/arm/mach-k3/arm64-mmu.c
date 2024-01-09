@@ -41,7 +41,7 @@ struct mm_region k3_mem_map[] = {
 	}, {
 		.virt = 0x500000000UL,
 		.phys = 0x500000000UL,
-		.size = 0x400000000UL,
+		.size = 0x380000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
