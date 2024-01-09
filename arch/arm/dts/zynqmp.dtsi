@@ -258,11 +258,17 @@
 				efuse_spkid: efuse-spkid@5c {
 					reg = <0x5c 0x4>;
 				};
+				efuse_aeskey: efuse-aeskey@60 {
+					reg = <0x60 0x20>;
+				};
 				efuse_ppk0hash: efuse-ppk0hash@a0 {
 					reg = <0xa0 0x30>;
 				};
 				efuse_ppk1hash: efuse-ppk1hash@d0 {
 					reg = <0xd0 0x30>;
+				};
+				efuse_pufuser: efuse-pufuser@100 {
+					reg = <0x100 0x7F>;
 				};
 			};
 
