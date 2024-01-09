@@ -273,7 +273,6 @@ static int dm_test_eth_prime(struct unit_test_state *uts)
 DM_TEST(dm_test_eth_prime, UT_TESTF_SCAN_FDT);
 #endif
 
-#if 0
 /**
  * This test case is trying to test the following scenario:
  *	- All ethernet devices are not probed
@@ -336,7 +335,6 @@ static int dm_test_eth_act(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_eth_act, UT_TESTF_SCAN_FDT);
-#endif
 
 /* Ensure that all addresses are loaded properly */
 static int dm_test_ethaddr(struct unit_test_state *uts)
