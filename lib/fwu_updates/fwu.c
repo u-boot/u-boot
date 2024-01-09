@@ -17,7 +17,7 @@
 
 #include <u-boot/crc.h>
 
-static struct fwu_mdata g_mdata; /* = {0} makes uninit crc32 always invalid */
+static struct fwu_mdata *g_mdata;
 static struct udevice *g_dev;
 static u8 in_trial;
 static u8 boottime_check;
@@ -108,21 +108,9 @@ out:
 
 static int in_trial_state(struct fwu_mdata *mdata)
 {
-	u32 i, active_bank;
-	struct fwu_image_entry *img_entry;
-	struct fwu_image_bank_info *img_bank_info;
+	u32 active_bank = mdata->active_index;
 
-	active_bank = mdata->active_index;
-	img_entry = &mdata->img_entry[0];
-	for (i = 0; i < CONFIG_FWU_NUM_IMAGES_PER_BANK; i++) {
-		img_bank_info = &img_entry[i].img_bank_info[active_bank];
-		if (!img_bank_info->accepted) {
-			log_info("System booting in Trial State\n");
-			return 1;
-		}
-	}
-
-	return 0;
+	return mdata->bank_state[active_bank] == FWU_BANK_VALID ? 1 : 0;
 }
 
 static int fwu_get_image_type_id(u8 image_index, efi_guid_t *image_type_id)
@@ -150,8 +138,9 @@ static int fwu_get_image_type_id(u8 image_index, efi_guid_t *image_type_id)
  */
 static int fwu_sync_mdata(struct fwu_mdata *mdata, int part)
 {
-	void *buf = &mdata->version;
 	int err;
+	uint32_t mdata_size;
+	void *buf = &mdata->version;
 
 	if (part == BOTH_PARTS) {
 		err = fwu_sync_mdata(mdata, SECONDARY_PART);
@@ -165,9 +154,10 @@ static int fwu_sync_mdata(struct fwu_mdata *mdata, int part)
 	 * and put the updated value in the FWU metadata crc32
 	 * field
 	 */
-	mdata->crc32 = crc32(0, buf, sizeof(*mdata) - sizeof(u32));
+	mdata_size = mdata->metadata_size;
+	mdata->crc32 = crc32(0, buf, mdata_size - sizeof(u32));
 
-	err = fwu_write_mdata(g_dev, mdata, part == PRIMARY_PART);
+	err = fwu_write_mdata(g_dev, mdata, part == PRIMARY_PART, mdata_size);
 	if (err) {
 		log_err("Unable to write %s mdata\n",
 			part == PRIMARY_PART ?  "primary" : "secondary");
@@ -175,7 +165,7 @@ static int fwu_sync_mdata(struct fwu_mdata *mdata, int part)
 	}
 
 	/* update the cached copy of meta-data */
-	memcpy(&g_mdata, mdata, sizeof(struct fwu_mdata));
+	memcpy(g_mdata, mdata, mdata_size);
 
 	return 0;
 }
@@ -183,8 +173,12 @@ static int fwu_sync_mdata(struct fwu_mdata *mdata, int part)
 static inline int mdata_crc_check(struct fwu_mdata *mdata)
 {
 	void *buf = &mdata->version;
-	u32 calc_crc32 = crc32(0, buf, sizeof(*mdata) - sizeof(u32));
+	u32 calc_crc32;
 
+	if (!mdata->metadata_size)
+		return -EINVAL;
+
+	calc_crc32 = crc32(0, buf, mdata->metadata_size - sizeof(u32));
 	return calc_crc32 == mdata->crc32 ? 0 : -EINVAL;
 }
 
@@ -309,27 +303,32 @@ __maybe_unused int fwu_get_banks_images(u8 *nbanks, u16 *nimages)
 int fwu_get_mdata(struct fwu_mdata *mdata)
 {
 	int err;
+	uint32_t mdata_size;
 	bool parts_ok[2] = { false };
-	struct fwu_mdata s, *parts_mdata[2];
+	struct fwu_mdata *parts_mdata[2];
 
-	parts_mdata[0] = &g_mdata;
-	parts_mdata[1] = &s;
+	err = fwu_get_mdata_size(&mdata_size);
+	if (err)
+		return err;
+
+	parts_mdata[0] = g_mdata;
+	parts_mdata[1] = (struct fwu_mdata *)((char *)g_mdata + mdata_size);
 
 	/* if mdata already read and ready */
-	err = mdata_crc_check(parts_mdata[0]);
-	if (!err)
+	if (!mdata_crc_check(parts_mdata[0]))
 		goto ret_mdata;
-	/* else read, verify and, if needed, fix mdata */
 
+	/* else read, verify and, if needed, fix mdata */
 	for (int i = 0; i < 2; i++) {
 		parts_ok[i] = false;
-		err = fwu_read_mdata(g_dev, parts_mdata[i], !i);
+		err = fwu_read_mdata(g_dev, parts_mdata[i], !i, mdata_size);
 		if (!err) {
 			err = mdata_crc_check(parts_mdata[i]);
 			if (!err)
 				parts_ok[i] = true;
 			else
-				log_debug("mdata : %s crc32 failed\n", i ? "secondary" : "primary");
+				log_debug("mdata : %s crc32 failed\n",
+					  i ? "secondary" : "primary");
 		}
 	}
 
@@ -338,7 +337,8 @@ int fwu_get_mdata(struct fwu_mdata *mdata)
 		 * Before returning, check that both the
 		 * FWU metadata copies are the same.
 		 */
-		err = memcmp(parts_mdata[0], parts_mdata[1], sizeof(struct fwu_mdata));
+		err = memcmp(parts_mdata[0], parts_mdata[1],
+			     mdata_size);
 		if (!err)
 			goto ret_mdata;
 
@@ -355,7 +355,8 @@ int fwu_get_mdata(struct fwu_mdata *mdata)
 		if (parts_ok[i])
 			continue;
 
-		memcpy(parts_mdata[i], parts_mdata[1 - i], sizeof(struct fwu_mdata));
+		memcpy(parts_mdata[i], parts_mdata[1 - i],
+		       mdata_size);
 		err = fwu_sync_mdata(parts_mdata[i], i ? SECONDARY_PART : PRIMARY_PART);
 		if (err) {
 			log_debug("mdata : %s write failed\n", i ? "secondary" : "primary");
@@ -365,7 +366,7 @@ int fwu_get_mdata(struct fwu_mdata *mdata)
 
 ret_mdata:
 	if (!err && mdata)
-		memcpy(mdata, parts_mdata[0], sizeof(struct fwu_mdata));
+		memcpy(mdata, parts_mdata[0], mdata_size);
 
 	return err;
 }
@@ -383,14 +384,16 @@ ret_mdata:
 int fwu_get_active_index(uint *active_idx)
 {
 	int ret = 0;
-	struct fwu_mdata *mdata = &g_mdata;
+	u8 num_banks;
+	struct fwu_mdata *mdata = g_mdata;
 
 	/*
 	 * Found the FWU metadata partition, now read the active_index
 	 * value
 	 */
 	*active_idx = mdata->active_index;
-	if (*active_idx >= CONFIG_FWU_NUM_BANKS) {
+	num_banks = mdata->fw_desc[0].num_banks;
+	if (*active_idx >= num_banks) {
 		log_debug("Active index value read is incorrect\n");
 		ret = -EINVAL;
 	}
@@ -410,9 +413,11 @@ int fwu_get_active_index(uint *active_idx)
 int fwu_set_active_index(uint active_idx)
 {
 	int ret;
-	struct fwu_mdata *mdata = &g_mdata;
+	u8 num_banks;
+	struct fwu_mdata *mdata = g_mdata;
 
-	if (active_idx >= CONFIG_FWU_NUM_BANKS) {
+	num_banks = mdata->fw_desc[0].num_banks;
+	if (active_idx >= num_banks) {
 		log_debug("Invalid active index value\n");
 		return -EINVAL;
 	}
@@ -452,9 +457,10 @@ int fwu_set_active_index(uint active_idx)
 int fwu_get_dfu_alt_num(u8 image_index, u8 *alt_num)
 {
 	int ret, i;
+	u16 num_images;
 	uint update_bank;
 	efi_guid_t *image_guid, image_type_id;
-	struct fwu_mdata *mdata = &g_mdata;
+	struct fwu_mdata *mdata = g_mdata;
 	struct fwu_image_entry *img_entry;
 	struct fwu_image_bank_info *img_bank_info;
 
@@ -473,15 +479,16 @@ int fwu_get_dfu_alt_num(u8 image_index, u8 *alt_num)
 
 	ret = -EINVAL;
 	/*
-	 * The FWU metadata has been read. Now get the image_uuid for the
+	 * The FWU metadata has been read. Now get the image_guid for the
 	 * image with the update_bank.
 	 */
-	for (i = 0; i < CONFIG_FWU_NUM_IMAGES_PER_BANK; i++) {
+	num_images = mdata->fw_desc[0].num_images;
+	for (i = 0; i < num_images; i++) {
 		if (!guidcmp(&image_type_id,
-			     &mdata->img_entry[i].image_type_uuid)) {
-			img_entry = &mdata->img_entry[i];
+			     &mdata->fw_desc[0].img_entry[i].image_type_guid)) {
+			img_entry = &mdata->fw_desc[0].img_entry[i];
 			img_bank_info = &img_entry->img_bank_info[update_bank];
-			image_guid = &img_bank_info->image_uuid;
+			image_guid = &img_bank_info->image_guid;
 			ret = fwu_plat_get_alt_num(g_dev, image_guid, alt_num);
 			if (ret)
 				log_debug("alt_num not found for partition with GUID %pUs\n",
@@ -515,7 +522,7 @@ int fwu_revert_boot_index(void)
 {
 	int ret;
 	u32 cur_active_index;
-	struct fwu_mdata *mdata = &g_mdata;
+	struct fwu_mdata *mdata = g_mdata;
 
 	/*
 	 * Swap the active index and previous_active_index fields
@@ -556,13 +563,15 @@ int fwu_revert_boot_index(void)
 static int fwu_clrset_image_accept(efi_guid_t *img_type_id, u32 bank, u8 action)
 {
 	int ret, i;
-	struct fwu_mdata *mdata = &g_mdata;
+	u16 num_images;
+	struct fwu_mdata *mdata = g_mdata;
 	struct fwu_image_entry *img_entry;
 	struct fwu_image_bank_info *img_bank_info;
 
-	img_entry = &mdata->img_entry[0];
-	for (i = 0; i < CONFIG_FWU_NUM_IMAGES_PER_BANK; i++) {
-		if (!guidcmp(&img_entry[i].image_type_uuid, img_type_id)) {
+	img_entry = &mdata->fw_desc[0].img_entry[0];
+	num_images = mdata->fw_desc[0].num_images;
+	for (i = 0; i < num_images; i++) {
+		if (!guidcmp(&img_entry[i].image_type_guid, img_type_id)) {
 			img_bank_info = &img_entry[i].img_bank_info[bank];
 			if (action == IMAGE_ACCEPT_SET)
 				img_bank_info->accepted |= FWU_IMAGE_ACCEPTED;
@@ -671,12 +680,15 @@ __weak int fwu_plat_get_update_index(uint *update_idx)
 {
 	int ret;
 	u32 active_idx;
+	u8 num_banks;
+	struct fwu_mdata *mdata = g_mdata;
 
 	ret = fwu_get_active_index(&active_idx);
 	if (ret < 0)
 		return -1;
 
-	*update_idx = (active_idx + 1) % CONFIG_FWU_NUM_BANKS;
+	num_banks = mdata->fw_desc[0].num_banks;
+	*update_idx = (active_idx + 1) % num_banks;
 
 	return ret;
 }
@@ -755,6 +767,7 @@ int fwu_trial_state_ctr_start(void)
 static int fwu_boottime_checks(void)
 {
 	int ret;
+	u8 num_banks;
 	u32 boot_idx, active_idx;
 
 	ret = uclass_first_device_err(UCLASS_FWU_MDATA, &g_dev);
@@ -785,7 +798,8 @@ static int fwu_boottime_checks(void)
 	 * update the active_index.
 	 */
 	fwu_plat_get_bootidx(&boot_idx);
-	if (boot_idx >= CONFIG_FWU_NUM_BANKS) {
+	num_banks = g_mdata->fw_desc[0].num_banks;
+	if (boot_idx >= num_banks) {
 		log_err("Received incorrect value of boot_index\n");
 		return 0;
 	}
@@ -807,7 +821,7 @@ static int fwu_boottime_checks(void)
 	if (efi_init_obj_list() != EFI_SUCCESS)
 		return 0;
 
-	in_trial = in_trial_state(&g_mdata);
+	in_trial = in_trial_state(g_mdata);
 	if (!in_trial || (ret = fwu_trial_count_update()) > 0)
 		ret = trial_counter_update(NULL);
 
