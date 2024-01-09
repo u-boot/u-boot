@@ -260,6 +260,10 @@ static int fwu_mdata_mtd_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	ret = fwu_mdata_copies_allocate();
+	if (ret)
+		return ret;
+
 	/* Read the metadata to get number of banks and images */
 	ret = fwu_get_banks_images(&nbanks, &nimages);
 	if (ret)
