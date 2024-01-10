@@ -23,6 +23,7 @@
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(VIRTIO, virtio, 0) \
+	func(VIRTIO, virtio, 1) \
 	func(SCSI, scsi, 0) \
 	func(DHCP, dhcp, na)
 
