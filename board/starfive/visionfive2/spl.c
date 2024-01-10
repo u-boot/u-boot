@@ -61,11 +61,13 @@ static const struct starfive_vf2_pro starfive_verb[] = {
 
 void spl_fdt_fixup_version_a(void *fdt)
 {
+	static const char compat[] = "starfive,visionfive-2-v1.2a\0starfive,jh7110";
 	u32 phandle;
 	u8 i;
 	int offset;
 	int ret;
 
+	fdt_setprop(fdt, fdt_path_offset(fdt, "/"), "compatible", compat, sizeof(compat));
 	fdt_setprop_string(fdt, fdt_path_offset(fdt, "/"), "model",
 			   "StarFive VisionFive 2 v1.2A");
 
@@ -106,11 +108,13 @@ void spl_fdt_fixup_version_a(void *fdt)
 
 void spl_fdt_fixup_version_b(void *fdt)
 {
+	static const char compat[] = "starfive,visionfive-2-v1.3b\0starfive,jh7110";
 	u32 phandle;
 	u8 i;
 	int offset;
 	int ret;
 
+	fdt_setprop(fdt, fdt_path_offset(fdt, "/"), "compatible", compat, sizeof(compat));
 	fdt_setprop_string(fdt, fdt_path_offset(fdt, "/"), "model",
 			   "StarFive VisionFive 2 v1.3B");
 
