@@ -216,7 +216,7 @@ void s_init(void)
 void board_init_f(ulong dummy)
 {
 	early_system_init();
-	mem_init();
+	omap3_mem_init();
 	/*
 	* Save the boot parameters passed from romcode.
 	* We cannot delay the saving further than this,

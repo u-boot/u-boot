@@ -256,7 +256,7 @@ int sandbox_eth_raw_os_send(void *packet, int length,
 		       strerror(errno));
 		return -errno;
 	}
-	return retval;
+	return 0;
 }
 
 int sandbox_eth_raw_os_recv(void *packet, int *length,
