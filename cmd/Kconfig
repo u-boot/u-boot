@@ -2702,6 +2702,7 @@ config JFFS2_PART_SIZE
 config CMD_MTDPARTS
 	bool "MTD partition support"
 	depends on MTD
+	select MTD_PARTITIONS
 	help
 	  MTD partitioning tool support.
 	  It is strongly encouraged to avoid using this command

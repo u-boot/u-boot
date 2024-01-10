@@ -55,7 +55,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply MICROCHIP_COREQSPI
 	imply MTD_SPI_NAND
 	imply CMD_MTD
-	imply MTD_PARTITIONS
 	imply CMD_MTDPARTS
 
 endif
