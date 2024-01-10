@@ -16,7 +16,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define RAM_SIZE	SZ_1G
+#define AC5_PTE_BLOCK_DEVICE \
+	(PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | \
+			 PTE_BLOCK_NON_SHARE | \
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN)
 
 static struct mm_region ac5_mem_map[] = {
 	{
@@ -31,30 +34,63 @@ static struct mm_region ac5_mem_map[] = {
 		.phys = 0x00000000,
 		.virt = 0xa0000000,
 		.size = 0x100000,
-
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+		.attrs = AC5_PTE_BLOCK_DEVICE,
 	},
 	{
 		/* MMIO regions */
 		.phys = 0x100000,
 		.virt = 0x100000,
 		.size = 0x3ff00000,
-
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+		.attrs = AC5_PTE_BLOCK_DEVICE,
 	},
 	{
-		/* MMIO regions */
 		.phys = 0x7F000000,
 		.virt = 0x7F000000,
-		.size = 0x21000000,
-
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+		.size = SZ_8M,
+		.attrs = AC5_PTE_BLOCK_DEVICE,
+	},
+	{
+		.phys = 0x7F800000,
+		.virt = 0x7F800000,
+		.size = SZ_4M,
+		.attrs = AC5_PTE_BLOCK_DEVICE,
+	},
+	{
+		.phys = 0x7FC00000,
+		.virt = 0x7FC00000,
+		.size = SZ_512K,
+		.attrs = AC5_PTE_BLOCK_DEVICE,
+	},
+	{
+		.phys = 0x7FC80000,
+		.virt = 0x7FC80000,
+		.size = SZ_512K,
+		.attrs = AC5_PTE_BLOCK_DEVICE,
+	},
+	{
+		.phys = 0x7FD00000,
+		.virt = 0x7FD00000,
+		.size = SZ_512K,
+		.attrs = AC5_PTE_BLOCK_DEVICE,
+	},
+	/* ATF region 0x7FE00000-0x7FE20000 not mapped */
+	{
+		.phys = 0x7FE80000,
+		.virt = 0x7FE80000,
+		.size = SZ_512K,
+		.attrs = AC5_PTE_BLOCK_DEVICE,
+	},
+	{
+		.phys = 0x7FFF0000,
+		.virt = 0x7FFF0000,
+		.size = SZ_1M,
+		.attrs = AC5_PTE_BLOCK_DEVICE,
+	},
+	{
+		.phys = 0x80000000,
+		.virt = 0x80000000,
+		.size = SZ_2G,
+		.attrs = AC5_PTE_BLOCK_DEVICE,
 	},
 	{
 		0,
