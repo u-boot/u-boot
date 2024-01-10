@@ -77,6 +77,7 @@ config ARCH_MTMIPS
 	select PINMUX
 	select PINCONF
 	select RESET_MTMIPS
+	imply MTD
 	imply DM_SPI
 	imply DM_SPI_FLASH
 	select LAST_STAGE_INIT
@@ -109,6 +110,7 @@ config ARCH_OCTEON
 	select MIPS_L2_CACHE
 	select MIPS_MACH_EARLY_INIT
 	select MIPS_TUNE_OCTEON3
+	select MTD
 	select ROM_EXCEPTION_VECTORS
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS64_OCTEON

@@ -88,6 +88,7 @@ config TARGET_GURNARD
 	select DM_GPIO
 	select DM_SERIAL
 	select DM_SPI
+	select MTD
 	select SPI
 	imply CMD_DM
 
@@ -294,6 +295,7 @@ config TARGET_TAURUS
 	select DM_GPIO
 	select DM_SERIAL
 	select DM_SPI
+	select MTD
 	select SPI
 	select SUPPORT_SPL
 	imply CMD_DM
@@ -312,6 +314,7 @@ config TARGET_VINCO
 	bool "Support VINCO"
 	select DM
 	select DM_SPI
+	select MTD
 	select SAMA5D4
 	select SPI
 	select SUPPORT_SPL

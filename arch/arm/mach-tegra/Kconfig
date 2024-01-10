@@ -55,6 +55,7 @@ config TEGRA_COMMON
 	select DM_SPI
 	select DM_SPI_FLASH
 	select MISC
+	select MTD
 	select OF_CONTROL
 	select SPI
 	select SYSRESET

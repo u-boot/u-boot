@@ -201,6 +201,7 @@ config TARGET_DISPLAY5
 	select DM_SPI
 	select DM_GPIO
 	select DM_SERIAL
+	select MTD
 	select SUPPORT_SPL
 	imply CMD_DM
 
@@ -261,6 +262,7 @@ config TARGET_MCCMON6
 	select DM_SERIAL
 	select DM_I2C
 	select DM_SPI
+	select MTD
 	imply CMD_DM
 
 config TARGET_MX6CUBOXI
@@ -602,6 +604,7 @@ config TARGET_TQMA6
 	imply DM
 	imply DM_GPIO
 	imply DM_MMC
+	imply MTD
 	imply DM_SPI
 	imply DM_SPI_FLASH
 	imply DM_I2C

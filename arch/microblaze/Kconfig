@@ -23,6 +23,7 @@ config TARGET_MICROBLAZE_GENERIC
 	select SYSRESET
 	select DM_SPI
 	select DM_SPI_FLASH
+	select MTD
 	select SPI
 	imply CMD_DM
 

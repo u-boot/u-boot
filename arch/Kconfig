@@ -149,6 +149,7 @@ config SANDBOX
 	select GZIP_COMPRESSED
 	select IO_TRACE
 	select LZO
+	select MTD
 	select OF_BOARD_SETUP
 	select PCI_ENDPOINT
 	select SPI
@@ -254,6 +255,7 @@ config X86
 	imply DM_RTC
 	imply SCSI
 	imply DM_SERIAL
+	imply MTD
 	imply DM_SPI
 	imply DM_SPI_FLASH
 	imply DM_USB

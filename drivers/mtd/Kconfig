@@ -9,6 +9,8 @@ config MTD
 	  Enable the MTD stack, necessary to interact with NAND, NOR,
 	  SPI-NOR, SPI-NAND, OneNAND, etc.
 
+if MTD
+
 config DM_MTD
 	bool "Enable Driver Model for MTD drivers"
 	depends on DM
@@ -24,7 +26,6 @@ config MTD_NOR_FLASH
 
 config MTD_CONCAT
 	bool "Enable MTD device concatenation"
-	depends on MTD
 	help
 	  Enable support for concatenating multiple physical MTD devices
 	  into a single logical device. The larger logical device can then
@@ -32,7 +33,6 @@ config MTD_CONCAT
 
 config SYS_MTDPARTS_RUNTIME
 	bool "Allow MTDPARTS to be configured at runtime"
-	depends on MTD
 	help
 	  This option allows to call the function board_mtdparts_default to
 	  dynamically build the variables mtdids and mtdparts at runtime.
@@ -271,5 +271,7 @@ source "drivers/mtd/spi/Kconfig"
 source "drivers/mtd/ubi/Kconfig"
 
 source "drivers/mtd/nvmxip/Kconfig"
+
+endif
 
 endmenu
