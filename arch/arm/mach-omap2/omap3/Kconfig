@@ -144,6 +144,7 @@ endchoice
 
 config SPL_OMAP3_ID_NAND
 	bool "Support OMAP3-specific ID and MFR function"
+	depends on NAND_OMAP_GPMC
 	help
 	  Support for an OMAP3-specific set of functions to return the
 	  ID and MFR of the first attached NAND chip, if present.
