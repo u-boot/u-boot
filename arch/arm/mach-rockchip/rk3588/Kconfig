@@ -132,6 +132,29 @@ config TARGET_QUARTZPRO64_RK3588
 	  Pine64 QuartzPro64 is a Rockchip RK3588 based SBC (Single Board
 	  Computer) by Pine64.
 
+config TARGET_TURINGRK1_RK3588
+	bool "Turing Machines RK1 RK3588 board"
+	select BOARD_LATE_INIT
+	help
+	  The Turing RK1 is a Rockchip RK3588 based SoM from Turing Machines.
+
+	  There are three variants depending on the DRAM size : 8G, 16G and 32G.
+
+	  Specifications:
+
+	  Rockchip RK3588 SoC
+	  4x ARM Cortex-A76, 4x ARM Cortex-A55
+	  8/16/32GB memory LPDDR4x
+	  Mali G610MC4 GPU
+	  32GB eMMC HS400
+	  2x USB 2.0, 2x USB 3.0
+	  2x MIPI CSI 4x lanes
+	  1x MIPI-DSI DPHY 2x lanes
+	  PCIe 2.0 x1, PCIe 3.0 x4
+	  1x HDMI 2.1 output, 1x DP 1.4 output
+	  Gigabit Ethernet
+	  Size: 69.6mm x 45mm (260-pin SO-DIMM connector)
+
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xfd588080
 
@@ -147,6 +170,7 @@ config SYS_MALLOC_F_LEN
 source board/edgeble/neural-compute-module-6/Kconfig
 source board/friendlyelec/nanopc-t6-rk3588/Kconfig
 source board/pine64/quartzpro64-rk3588/Kconfig
+source board/turing/turing-rk1-rk3588/Kconfig
 source board/rockchip/evb_rk3588/Kconfig
 source board/radxa/rock5a-rk3588s/Kconfig
 source board/radxa/rock5b-rk3588/Kconfig
