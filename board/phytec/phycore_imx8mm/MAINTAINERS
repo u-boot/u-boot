@@ -10,4 +10,6 @@ F:	arch/arm/dts/imx8mm-phygate-tauri-l-u-boot.dtsi
 F:      board/phytec/phycore_imx8mm/
 F:	configs/imx8mm-phygate-tauri-l_defconfig
 F:      configs/phycore-imx8mm_defconfig
+F:	doc/board/phytec/imx8mm-phygate-tauri-l.rst
+F:	doc/board/phytec/index.rst
 F:      include/configs/phycore_imx8mm.h
