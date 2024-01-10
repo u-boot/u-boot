@@ -8,7 +8,6 @@
 obj-$(CONFIG_NET)      += arp.o
 obj-$(CONFIG_CMD_BOOTP) += bootp.o
 obj-$(CONFIG_CMD_CDP)  += cdp.o
-obj-$(CONFIG_CMD_DNS)  += dns.o
 obj-$(CONFIG_DM_DSA)   += dsa-uclass.o
 obj-$(CONFIG_$(SPL_)DM_ETH) += eth-uclass.o
 obj-$(CONFIG_$(SPL_TPL_)BOOTDEV_ETH) += eth_bootdev.o
@@ -20,7 +19,6 @@ obj-$(CONFIG_IPV6)     += ndisc.o
 obj-$(CONFIG_$(SPL_)DM_ETH) += net.o
 obj-$(CONFIG_IPV6)     += net6.o
 obj-$(CONFIG_CMD_NFS)  += nfs.o
-obj-$(CONFIG_CMD_PING) += ping.o
 obj-$(CONFIG_CMD_PING6) += ping6.o
 obj-$(CONFIG_CMD_DHCP6) += dhcpv6.o
 obj-$(CONFIG_CMD_PCAP) += pcap.o
@@ -32,8 +30,9 @@ obj-$(CONFIG_$(SPL_TPL_)TCP_FUNCTION_FASTBOOT)  += fastboot_tcp.o
 obj-$(CONFIG_CMD_WOL)  += wol.o
 obj-$(CONFIG_PROT_UDP) += udp.o
 obj-$(CONFIG_PROT_TCP) += tcp.o
-obj-$(CONFIG_CMD_WGET) += wget.o
-
+ifndef CONFIG_SPL_BUILD
+obj-$(CONFIG_LWIP) += lwip/
+endif
 # Disable this warning as it is triggered by:
 # sprintf(buf, index ? "foo%d" : "foo", index)
 # and this is intentional usage.

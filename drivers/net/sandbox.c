@@ -397,9 +397,11 @@ static int sb_eth_write_hwaddr(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
 
-	debug("eth_sandbox %s: Write HW ADDR - %pM\n", dev->name,
-	      pdata->enetaddr);
+
 	memcpy(priv->fake_host_hwaddr, pdata->enetaddr, ARP_HLEN);
+	priv->fake_host_hwaddr[3] = 0xa;
+	debug("eth_sandbox %s: Write HW ADDR - %pM\n", dev->name,
+		priv->fake_host_hwaddr);
 	return 0;
 }
 

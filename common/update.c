@@ -15,6 +15,8 @@
 #include <env.h>
 #include <net.h>
 #include <net/tftp.h>
+#include <net/ulwip.h>
+#include <net/lwip.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <dfu.h>
@@ -24,57 +26,41 @@
 /* env variable holding the location of the update file */
 #define UPDATE_FILE_ENV		"updatefile"
 
-extern ulong tftp_timeout_ms;
-extern int tftp_timeout_count_max;
 #ifdef CONFIG_MTD_NOR_FLASH
 #include <flash.h>
 #include <mtd/cfi_flash.h>
 static uchar *saved_prot_info;
 #endif
+
 static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 {
 	int size, rv;
-	ulong saved_timeout_msecs;
-	int saved_timeout_count;
-	char *saved_netretry, *saved_bootfile;
+	int ret;
+	char *env, *end;
 
 	rv = 0;
-	/* save used globals and env variable */
-	saved_timeout_msecs = tftp_timeout_ms;
-	saved_timeout_count = tftp_timeout_count_max;
-	saved_netretry = strdup(env_get("netretry"));
-	saved_bootfile = strdup(net_boot_file_name);
 
-	/* set timeouts for auto-update */
-	tftp_timeout_ms = msec_max;
-	tftp_timeout_count_max = cnt_max;
+	ret = ulwip_init();
+	if (ret) {
+		log_err("ulwip_init err %d\n", ret);
+		return CMD_RET_FAILURE;
+	}
 
-	/* we don't want to retry the connection if errors occur */
-	env_set("netretry", "no");
+	ret = ulwip_tftp(addr, filename);
+	if (ret)
+		return ret;
 
-	/* download the update file */
-	image_load_addr = addr;
-	copy_filename(net_boot_file_name, filename, sizeof(net_boot_file_name));
-	size = net_loop(TFTPGET);
+	ret = ulwip_loop();
 
+	env = env_get("filesize");
+	if (!env)
+		return -1;
+
+	size = hextoul(env, &end);
 	if (size < 0)
 		rv = 1;
 	else if (size > 0)
 		flush_cache(addr, size);
-
-	/* restore changed globals and env variable */
-	tftp_timeout_ms = saved_timeout_msecs;
-	tftp_timeout_count_max = saved_timeout_count;
-
-	env_set("netretry", saved_netretry);
-	if (saved_netretry != NULL)
-		free(saved_netretry);
-
-	if (saved_bootfile != NULL) {
-		copy_filename(net_boot_file_name, saved_bootfile,
-			      sizeof(net_boot_file_name));
-		free(saved_bootfile);
-	}
 
 	return rv;
 }

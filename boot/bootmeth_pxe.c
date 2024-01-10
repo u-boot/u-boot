@@ -21,6 +21,8 @@
 #include <mapmem.h>
 #include <mmc.h>
 #include <net.h>
+#include <net/ulwip.h>
+#include <net/lwip.h>
 #include <pxe_utils.h>
 
 static int extlinux_pxe_getfile(struct pxe_context *ctx, const char *file_path,
@@ -116,18 +118,21 @@ static int extlinux_pxe_read_file(struct udevice *dev, struct bootflow *bflow,
 				  const char *file_path, ulong addr,
 				  ulong *sizep)
 {
-	char *tftp_argv[] = {"tftp", NULL, NULL, NULL};
-	struct pxe_context *ctx = dev_get_priv(dev);
-	char file_addr[17];
 	ulong size;
 	int ret;
 
-	sprintf(file_addr, "%lx", addr);
-	tftp_argv[1] = file_addr;
-	tftp_argv[2] = (void *)file_path;
+	ret = ulwip_init();
+	if (ret)
+		return log_msg_ret("ulwip_init", ret);
 
-	if (do_tftpb(ctx->cmdtp, 0, 3, tftp_argv))
-		return -ENOENT;
+	ret = ulwip_tftp(addr, file_path);
+	if (ret)
+		return log_msg_ret("ulwip_tftp", ret);
+
+	ret = ulwip_loop();
+	if (ret)
+		return log_msg_ret("ulwip_loop", ret);
+
 	ret = pxe_get_file_size(&size);
 	if (ret)
 		return log_msg_ret("tftp", ret);

@@ -1,0 +1,34 @@
+menu "lwIP"
+config LWIP
+	bool "Support LWIP library"
+	select LIB_RAND
+	help
+	  Enable the lwIP library code with
+	  all dependencies (commands are implemented with lwIP
+	  library. This option is automatically enabled if CONFIG_NET=y.
+	  lwIP library (https://git.savannah.nongnu.org/git/lwip.git) provides
+	  network stack and application code for U-Boot commands.
+	  Please see doc/develop/net_lwip.rst for more details.
+
+menu "LWIP options"
+
+config LWIP_LIB_DEBUG
+	bool "enable debug"
+	default n
+	help
+	  Enable DEBUG information for IP stack.
+	  File net/lwip/lwipopts.h can be modified
+	  to enable specific debug message like
+	  raw packets or IP debug.
+
+config LWIP_LIB_NOASSERT
+	bool "disable asserts"
+	default y
+	help
+	  Disabling asserts reduces binary size by 16k.
+          lwIP assers are useful for testing, but for
+	  the production code we can fight for the size
+	  and reduce it with compile out asserts.
+endmenu
+
+endmenu

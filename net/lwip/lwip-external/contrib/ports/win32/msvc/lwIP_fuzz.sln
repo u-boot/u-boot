@@ -1,0 +1,78 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lwIP", "lwIP.vcxproj", "{2CC276FA-B226-49C9-8F82-7FCD5A228E28}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lwip_fuzz", "lwip_fuzz.vcxproj", "{71B3B3F4-621C-11EE-8C99-0242AC120002}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_fuzz2|x64 = Debug_fuzz2|x64
+		Debug_fuzz2|x86 = Debug_fuzz2|x86
+		Debug_fuzz3|x64 = Debug_fuzz3|x64
+		Debug_fuzz3|x86 = Debug_fuzz3|x86
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release_fuzz2|x64 = Release_fuzz2|x64
+		Release_fuzz2|x86 = Release_fuzz2|x86
+		Release_fuzz3|x64 = Release_fuzz3|x64
+		Release_fuzz3|x86 = Release_fuzz3|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Debug_fuzz2|x64.ActiveCfg = Debug fuzz|x64
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Debug_fuzz2|x64.Build.0 = Debug fuzz|x64
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Debug_fuzz2|x86.ActiveCfg = Debug fuzz|Win32
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Debug_fuzz2|x86.Build.0 = Debug fuzz|Win32
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Debug_fuzz3|x64.ActiveCfg = Debug fuzz|x64
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Debug_fuzz3|x64.Build.0 = Debug fuzz|x64
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Debug_fuzz3|x86.ActiveCfg = Debug fuzz|Win32
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Debug_fuzz3|x86.Build.0 = Debug fuzz|Win32
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Debug|x64.ActiveCfg = Debug fuzz|x64
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Debug|x64.Build.0 = Debug fuzz|x64
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Debug|x86.ActiveCfg = Debug fuzz|Win32
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Debug|x86.Build.0 = Debug fuzz|Win32
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Release_fuzz2|x64.ActiveCfg = Release fuzz|x64
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Release_fuzz2|x64.Build.0 = Release fuzz|x64
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Release_fuzz2|x86.ActiveCfg = Release fuzz|Win32
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Release_fuzz2|x86.Build.0 = Release fuzz|Win32
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Release_fuzz3|x64.ActiveCfg = Release fuzz|x64
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Release_fuzz3|x64.Build.0 = Release fuzz|x64
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Release_fuzz3|x86.ActiveCfg = Release fuzz|Win32
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Release_fuzz3|x86.Build.0 = Release fuzz|Win32
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Release|x64.ActiveCfg = Release fuzz|x64
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Release|x64.Build.0 = Release fuzz|x64
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Release|x86.ActiveCfg = Release fuzz|Win32
+		{2CC276FA-B226-49C9-8F82-7FCD5A228E28}.Release|x86.Build.0 = Release fuzz|Win32
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Debug_fuzz2|x64.ActiveCfg = Debug fuzz2|x64
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Debug_fuzz2|x64.Build.0 = Debug fuzz2|x64
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Debug_fuzz2|x86.ActiveCfg = Debug fuzz2|Win32
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Debug_fuzz2|x86.Build.0 = Debug fuzz2|Win32
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Debug_fuzz3|x64.ActiveCfg = Debug fuzz3|x64
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Debug_fuzz3|x64.Build.0 = Debug fuzz3|x64
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Debug_fuzz3|x86.ActiveCfg = Debug fuzz3|Win32
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Debug_fuzz3|x86.Build.0 = Debug fuzz3|Win32
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Debug|x64.ActiveCfg = Debug|x64
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Debug|x64.Build.0 = Debug|x64
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Debug|x86.ActiveCfg = Debug|Win32
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Debug|x86.Build.0 = Debug|Win32
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Release_fuzz2|x64.ActiveCfg = Release fuzz2|x64
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Release_fuzz2|x64.Build.0 = Release fuzz2|x64
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Release_fuzz2|x86.ActiveCfg = Release fuzz2|Win32
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Release_fuzz2|x86.Build.0 = Release fuzz2|Win32
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Release_fuzz3|x64.ActiveCfg = Release fuzz3|x64
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Release_fuzz3|x64.Build.0 = Release fuzz3|x64
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Release_fuzz3|x86.ActiveCfg = Release fuzz3|Win32
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Release_fuzz3|x86.Build.0 = Release fuzz3|Win32
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Release|x64.ActiveCfg = Release|x64
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Release|x64.Build.0 = Release|x64
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Release|x86.ActiveCfg = Release|Win32
+		{71B3B3F4-621C-11EE-8C99-0242AC120002}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

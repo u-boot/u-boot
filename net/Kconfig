@@ -6,8 +6,11 @@ menuconfig NET
 	bool "Networking support"
 	default y
 	imply NETDEVICES
+	imply LWIP
 
 if NET
+
+source net/lwip/Kconfig
 
 config ARP_TIMEOUT
 	int "Milliseconds before trying ARP again"

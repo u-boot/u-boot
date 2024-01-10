@@ -21,6 +21,7 @@
 #include <net/pcap.h>
 #include "eth_internal.h"
 #include <eth_phy.h>
+#include <net/ulwip.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -32,6 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
 struct eth_device_priv {
 	enum eth_state_t state;
 	bool running;
+	ulwip ulwip;
 };
 
 /**
@@ -347,6 +349,16 @@ int eth_init(void)
 	return ret;
 }
 
+struct ulwip *eth_lwip_priv(struct udevice *current)
+{
+	struct eth_device_priv *priv = dev_get_uclass_priv(current);
+
+	if (!priv)
+		return NULL;
+
+	return &priv->ulwip;
+}
+
 void eth_halt(void)
 {
 	struct udevice *current;
@@ -420,8 +432,15 @@ int eth_rx(void)
 	for (i = 0; i < ETH_PACKETS_BATCH_RECV; i++) {
 		ret = eth_get_ops(current)->recv(current, flags, &packet);
 		flags = 0;
-		if (ret > 0)
-			net_process_received_packet(packet, ret);
+		if (ret > 0) {
+#ifndef CONFIG_SPL_BUILD
+			if (ulwip_active())
+				ulwip_poll(packet, ret);
+			else
+#endif
+				net_process_received_packet(packet, ret);
+		}
+
 		if (ret >= 0 && eth_get_ops(current)->free_pkt)
 			eth_get_ops(current)->free_pkt(current, packet, ret);
 		if (ret <= 0)
@@ -555,6 +574,7 @@ static int eth_post_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	unsigned char env_enetaddr[ARP_HLEN];
 	char *source = "DT";
+	int ret;
 
 	priv->state = ETH_STATE_INIT;
 	priv->running = false;
@@ -587,18 +607,26 @@ static int eth_post_probe(struct udevice *dev)
 		/* Override the ROM MAC address */
 		memcpy(pdata->enetaddr, env_enetaddr, ARP_HLEN);
 	} else if (is_valid_ethaddr(pdata->enetaddr)) {
-		eth_env_set_enetaddr_by_index("eth", dev_seq(dev),
-					      pdata->enetaddr);
+		ret = eth_env_set_enetaddr_by_index("eth", dev_seq(dev),
+						    pdata->enetaddr);
+		if (ret) {
+			log_err("Error update env for eth%d\n", dev_seq(dev));
+			return -EINVAL;
+		}
 	} else if (is_zero_ethaddr(pdata->enetaddr) ||
 		   !is_valid_ethaddr(pdata->enetaddr)) {
 #ifdef CONFIG_NET_RANDOM_ETHADDR
 		net_random_ethaddr(pdata->enetaddr);
 		printf("\nWarning: %s (eth%d) using random MAC address - %pM\n",
 		       dev->name, dev_seq(dev), pdata->enetaddr);
-		eth_env_set_enetaddr_by_index("eth", dev_seq(dev),
-					      pdata->enetaddr);
+		ret = eth_env_set_enetaddr_by_index("eth", dev_seq(dev),
+						    pdata->enetaddr);
+		if (ret) {
+			log_err("Error update env for eth%d\n", dev_seq(dev));
+			return -EINVAL;
+		}
 #else
-		printf("\nError: %s No valid MAC address found.\n",
+		log_err("\nError: %s No valid MAC address found.\n",
 		       dev->name);
 		return -EINVAL;
 #endif

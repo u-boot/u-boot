@@ -22,6 +22,7 @@
 #include <net/udp.h>
 #include <net/sntp.h>
 #include <net/ncsi.h>
+#include <net/lwip.h>
 
 static int netboot_common(enum proto_t, struct cmd_tbl *, int, char * const []);
 
@@ -40,19 +41,9 @@ U_BOOT_CMD(
 #endif
 
 #ifdef CONFIG_CMD_TFTPBOOT
-int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	int ret;
-
-	bootstage_mark_name(BOOTSTAGE_KERNELREAD_START, "tftp_start");
-	ret = netboot_common(TFTPGET, cmdtp, argc, argv);
-	bootstage_mark_name(BOOTSTAGE_KERNELREAD_STOP, "tftp_done");
-	return ret;
-}
-
 #if IS_ENABLED(CONFIG_IPV6)
 U_BOOT_CMD(
-	tftpboot,	4,	1,	do_tftpb,
+	tftpboot,	4,	1, do_lwip_tftp,
 	"boot image via network using TFTP protocol\n"
 	"To use IPv6 add -ipv6 parameter or use IPv6 hostIPaddr framed "
 	"with [] brackets",
@@ -60,7 +51,7 @@ U_BOOT_CMD(
 );
 #else
 U_BOOT_CMD(
-	tftpboot,	3,	1,	do_tftpb,
+	tftpboot,	3,	1,  do_lwip_tftp,
 	"load file via network using TFTP protocol",
 	"[loadAddress] [[hostIPaddr:]bootfilename]"
 );
@@ -139,7 +130,7 @@ U_BOOT_CMD(dhcp6,	3,	1,	do_dhcp6,
 static int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])
 {
-	return netboot_common(DHCP, cmdtp, argc, argv);
+	return do_lwip_dhcp();
 }
 
 U_BOOT_CMD(
@@ -196,13 +187,11 @@ U_BOOT_CMD(
 #endif
 
 #if defined(CONFIG_CMD_WGET)
-static int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
-{
-	return netboot_common(WGET, cmdtp, argc, argv);
-}
+int do_lwip_wget(struct cmd_tbl *cmdtp, int flag, int argc,
+		 char *const argv[]);
 
 U_BOOT_CMD(
-	wget,   3,      1,      do_wget,
+	wget,   3,      1, do_lwip_wget,
 	"boot image via network using HTTP protocol",
 	"[loadAddress] [[hostIPaddr:]path and image name]"
 );
@@ -456,28 +445,8 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 }
 
 #if defined(CONFIG_CMD_PING)
-static int do_ping(struct cmd_tbl *cmdtp, int flag, int argc,
-		   char *const argv[])
-{
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	net_ping_ip = string_to_ip(argv[1]);
-	if (net_ping_ip.s_addr == 0)
-		return CMD_RET_USAGE;
-
-	if (net_loop(PING) < 0) {
-		printf("ping failed; host %s is not alive\n", argv[1]);
-		return CMD_RET_FAILURE;
-	}
-
-	printf("host %s is alive\n", argv[1]);
-
-	return CMD_RET_SUCCESS;
-}
-
 U_BOOT_CMD(
-	ping,	2,	1,	do_ping,
+	ping,	2,	1, do_lwip_ping,
 	"send ICMP ECHO_REQUEST to network host",
 	"pingAddress"
 );
@@ -601,45 +570,8 @@ U_BOOT_CMD(
 #endif
 
 #if defined(CONFIG_CMD_DNS)
-int do_dns(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	if (argc == 1)
-		return CMD_RET_USAGE;
-
-	/*
-	 * We should check for a valid hostname:
-	 * - Each label must be between 1 and 63 characters long
-	 * - the entire hostname has a maximum of 255 characters
-	 * - only the ASCII letters 'a' through 'z' (case-insensitive),
-	 *   the digits '0' through '9', and the hyphen
-	 * - cannot begin or end with a hyphen
-	 * - no other symbols, punctuation characters, or blank spaces are
-	 *   permitted
-	 * but hey - this is a minimalist implmentation, so only check length
-	 * and let the name server deal with things.
-	 */
-	if (strlen(argv[1]) >= 255) {
-		printf("dns error: hostname too long\n");
-		return CMD_RET_FAILURE;
-	}
-
-	net_dns_resolve = argv[1];
-
-	if (argc == 3)
-		net_dns_env_var = argv[2];
-	else
-		net_dns_env_var = NULL;
-
-	if (net_loop(DNS) < 0) {
-		printf("dns lookup of %s failed, check setup\n", argv[1]);
-		return CMD_RET_FAILURE;
-	}
-
-	return CMD_RET_SUCCESS;
-}
-
 U_BOOT_CMD(
-	dns,	3,	1,	do_dns,
+	dns,	3,	1,	do_lwip_dns,
 	"lookup the IP of a hostname",
 	"hostname [envvar]"
 );
