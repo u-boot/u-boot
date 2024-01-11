@@ -754,6 +754,10 @@ static int efi_boot_add_uri(int argc, char *const argv[], u16 *var_name16,
 
 	uridp_len = sizeof(struct efi_device_path) + strlen(argv[3]) + 1;
 	uridp = efi_alloc(uridp_len + sizeof(END));
+	if (!uridp) {
+		log_err("Out of memory\n");
+		return CMD_RET_FAILURE;
+	}
 	uridp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
 	uridp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_URI;
 	uridp->dp.length = uridp_len;
