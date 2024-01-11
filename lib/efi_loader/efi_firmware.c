@@ -610,6 +610,7 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 	u16 **abort_reason)
 {
 	int ret;
+	u8 dfu_alt_num;
 	efi_status_t status;
 	struct fmp_state state = { 0 };
 
@@ -624,19 +625,25 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 	if (status != EFI_SUCCESS)
 		return EFI_EXIT(status);
 
+	/*
+	 * dfu_alt_num is assigned from 0 while image_index starts from 1.
+	 * dfu_alt_num is calculated by (image_index - 1) when multi bank update
+	 * is not used.
+	 */
+	dfu_alt_num = image_index - 1;
 	if (IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE)) {
 		/*
 		 * Based on the value of update bank, derive the
 		 * image index value.
 		 */
-		ret = fwu_get_image_index(&image_index);
+		ret = fwu_get_dfu_alt_num(image_index, &dfu_alt_num);
 		if (ret) {
 			log_debug("Unable to get FWU image_index\n");
 			return EFI_EXIT(EFI_DEVICE_ERROR);
 		}
 	}
 
-	if (dfu_write_by_alt(image_index - 1, (void *)image, image_size,
+	if (dfu_write_by_alt(dfu_alt_num, (void *)image, image_size,
 			     NULL, NULL))
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 
