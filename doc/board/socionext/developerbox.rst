@@ -113,8 +113,6 @@ configs/synquacer_developerbox_defconfig enables default FWU configuration ::
  CONFIG_FWU_MULTI_BANK_UPDATE=y
  CONFIG_FWU_MDATA=y
  CONFIG_FWU_MDATA_MTD=y
- CONFIG_FWU_NUM_BANKS=2
- CONFIG_FWU_NUM_IMAGES_PER_BANK=1
  CONFIG_CMD_FWU_METADATA=y
 
 And build it::
@@ -126,10 +124,9 @@ And build it::
   make -j `noproc`
   cd ../
 
-By default, the CONFIG_FWU_NUM_BANKS and CONFIG_FWU_NUM_IMAGES_PER_BANKS are
-set to 2 and 1 respectively. This uses FIP (Firmware Image Package) type image
-which contains TF-A, U-Boot and OP-TEE (the OP-TEE is optional).
-You can use fiptool to compose the FIP image from those firmware images.
+This uses FIP (Firmware Image Package) type image which contains TF-A,
+U-Boot and OP-TEE (the OP-TEE is optional). You can use fiptool to
+compose the FIP image from those firmware images.
 
 Rebuild SCP firmware
 --------------------
