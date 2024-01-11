@@ -206,18 +206,10 @@ void efi_firmware_fill_version_info(struct efi_firmware_image_descriptor *image_
 {
 	u16 varname[13]; /* u"FmpStateXXXX" */
 	efi_status_t ret;
-	efi_uintn_t size;
-	struct fmp_state var_state = { 0 };
-
-	efi_create_indexed_name(varname, sizeof(varname), "FmpState",
-				fw_array->image_index);
-	size = sizeof(var_state);
-	ret = efi_get_variable_int(varname, &fw_array->image_type_id,
-				   NULL, &size, &var_state, NULL);
-	if (ret == EFI_SUCCESS)
-		image_info->version = var_state.fw_version;
-	else
-		image_info->version = 0;
+	efi_uintn_t size, expected_size;
+	uint num_banks = 1;
+	uint active_index = 0;
+	struct fmp_state *var_state;
 
 	efi_firmware_get_lsv_from_dtb(fw_array->image_index,
 				      &fw_array->image_type_id,
@@ -226,6 +218,31 @@ void efi_firmware_fill_version_info(struct efi_firmware_image_descriptor *image_
 	image_info->version_name = NULL; /* not supported */
 	image_info->last_attempt_version = 0;
 	image_info->last_attempt_status = LAST_ATTEMPT_STATUS_SUCCESS;
+	image_info->version = 0;
+
+	/* get the fw_version */
+	efi_create_indexed_name(varname, sizeof(varname), "FmpState",
+				fw_array->image_index);
+	if (IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE)) {
+		ret = fwu_get_active_index(&active_index);
+		if (ret)
+			return;
+
+		num_banks = CONFIG_FWU_NUM_BANKS;
+	}
+
+	size = num_banks * sizeof(*var_state);
+	expected_size = size;
+	var_state = calloc(1, size);
+	if (!var_state)
+		return;
+
+	ret = efi_get_variable_int(varname, &fw_array->image_type_id,
+				   NULL, &size, var_state, NULL);
+	if (ret == EFI_SUCCESS && expected_size == size)
+		image_info->version = var_state[active_index].fw_version;
+
+	free(var_state);
 }
 
 /**
@@ -361,8 +378,11 @@ efi_status_t efi_firmware_set_fmp_state_var(struct fmp_state *state, u8 image_in
 {
 	u16 varname[13]; /* u"FmpStateXXXX" */
 	efi_status_t ret;
+	uint num_banks = 1;
+	uint update_bank = 0;
+	efi_uintn_t size;
 	efi_guid_t *image_type_id;
-	struct fmp_state var_state = { 0 };
+	struct fmp_state *var_state;
 
 	image_type_id = efi_firmware_get_image_type_id(image_index);
 	if (!image_type_id)
@@ -371,19 +391,44 @@ efi_status_t efi_firmware_set_fmp_state_var(struct fmp_state *state, u8 image_in
 	efi_create_indexed_name(varname, sizeof(varname), "FmpState",
 				image_index);
 
+	if (IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE)) {
+		ret = fwu_plat_get_update_index(&update_bank);
+		if (ret)
+			return EFI_INVALID_PARAMETER;
+
+		num_banks = CONFIG_FWU_NUM_BANKS;
+	}
+
+	size = num_banks * sizeof(*var_state);
+	var_state = calloc(1, size);
+	if (!var_state)
+		return EFI_OUT_OF_RESOURCES;
+
+	/*
+	 * GetVariable may fail, EFI_NOT_FOUND is returned if FmpState
+	 * variable has not been set yet.
+	 * Ignore the error here since the correct FmpState variable
+	 * is set later.
+	 */
+	efi_get_variable_int(varname, image_type_id, NULL, &size, var_state,
+			     NULL);
+
 	/*
 	 * Only the fw_version is set here.
 	 * lowest_supported_version in FmpState variable is ignored since
 	 * it can be tampered if the file based EFI variable storage is used.
 	 */
-	var_state.fw_version = state->fw_version;
+	var_state[update_bank].fw_version = state->fw_version;
 
+	size = num_banks * sizeof(*var_state);
 	ret = efi_set_variable_int(varname, image_type_id,
 				   EFI_VARIABLE_READ_ONLY |
 				   EFI_VARIABLE_NON_VOLATILE |
 				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
 				   EFI_VARIABLE_RUNTIME_ACCESS,
-				   sizeof(var_state), &var_state, false);
+				   size, var_state, false);
+
+	free(var_state);
 
 	return ret;
 }
