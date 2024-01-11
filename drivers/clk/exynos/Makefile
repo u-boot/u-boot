@@ -9,3 +9,4 @@
 
 obj-$(CONFIG_$(SPL_TPL_)CLK_CCF)	+= clk.o clk-pll.o
 obj-$(CONFIG_CLK_EXYNOS7420)		+= clk-exynos7420.o
+obj-$(CONFIG_CLK_EXYNOS850)		+= clk-exynos850.o
