@@ -591,8 +591,8 @@ ulong write_smbios_table(ulong addr)
 	table_addr = (ulong)map_sysmem(tables, 0);
 
 	/* now go back and write the SMBIOS3 header */
-	se = map_sysmem(start_addr, sizeof(struct smbios_entry));
-	memset(se, '\0', sizeof(struct smbios_entry));
+	se = map_sysmem(start_addr, sizeof(struct smbios3_entry));
+	memset(se, '\0', sizeof(struct smbios3_entry));
 	memcpy(se->anchor, "_SM3_", 5);
 	se->length = sizeof(struct smbios3_entry);
 	se->major_ver = SMBIOS_MAJOR_VER;
