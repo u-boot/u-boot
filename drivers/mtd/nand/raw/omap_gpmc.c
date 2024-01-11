@@ -8,13 +8,15 @@
 #include <log.h>
 #include <system-constants.h>
 #include <asm/io.h>
-#include <dm/uclass.h>
+#include <dm.h>
 #include <linux/errno.h>
 
 #ifdef CONFIG_ARCH_OMAP2PLUS
 #include <asm/arch/mem.h>
 #endif
 
+#include <linux/io.h>
+#include <linux/ioport.h>
 #include <linux/mtd/omap_gpmc.h>
 #include <linux/mtd/nand_ecc.h>
 #include <linux/mtd/rawnand.h>
@@ -1087,7 +1089,7 @@ int __maybe_unused omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
  *   nand_scan about special functionality. See the defines for further
  *   explanation
  */
-int gpmc_nand_init(struct nand_chip *nand)
+int gpmc_nand_init(struct nand_chip *nand, void __iomem *nand_base)
 {
 	int32_t gpmc_config = 0;
 	int cs = cs_next++;
@@ -1127,7 +1129,7 @@ int gpmc_nand_init(struct nand_chip *nand)
 	info->control = NULL;
 	info->cs = cs;
 	info->ws = wscfg[cs];
-	info->fifo = (void __iomem *)CFG_SYS_NAND_BASE;
+	info->fifo = nand_base;
 	nand_set_controller_data(nand, &omap_nand_info[cs]);
 	nand->cmd_ctrl	= omap_nand_hwcontrol;
 	nand->options	|= NAND_NO_PADDING | NAND_CACHEPRG;
@@ -1177,9 +1179,16 @@ static int gpmc_nand_probe(struct udevice *dev)
 {
 	struct nand_chip *nand = dev_get_priv(dev);
 	struct mtd_info *mtd = nand_to_mtd(nand);
+	struct resource res;
+	void __iomem *base;
 	int ret;
 
-	gpmc_nand_init(nand);
+	ret = dev_read_resource(dev, 0, &res);
+	if (ret)
+		return ret;
+
+	base = devm_ioremap(dev, res.start, resource_size(&res));
+	gpmc_nand_init(nand, base);
 
 	ret = nand_scan(mtd, CONFIG_SYS_NAND_MAX_CHIPS);
 	if (ret)
@@ -1233,7 +1242,7 @@ void board_nand_init(void)
 
 int board_nand_init(struct nand_chip *nand)
 {
-	return gpmc_nand_init(nand);
+	return gpmc_nand_init(nand, (void __iomem *)CFG_SYS_NAND_BASE);
 }
 
 #endif /* CONFIG_SYS_NAND_SELF_INIT */
