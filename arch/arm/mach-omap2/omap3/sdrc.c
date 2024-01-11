@@ -4,7 +4,7 @@
  *
  * This file has been created after exctracting and consolidating
  * the SDRC related content from mem.c and board.c, also created
- * generic init function (mem_init).
+ * generic init function (omap3_mem_init).
  *
  * Copyright (C) 2004-2010
  * Texas Instruments Incorporated - https://www.ti.com/
@@ -232,11 +232,11 @@ int dram_init_banksize(void)
 }
 
 /*
- * mem_init -
+ * omap3_mem_init -
  *  - Init the sdrc chip,
  *  - Selects CS0 and CS1,
  */
-void mem_init(void)
+void omap3_mem_init(void)
 {
 	/* only init up first bank here */
 	do_sdrc_init(CS0, EARLY_INIT);
