@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <asm/armv8/mmu.h>
+#include <linux/sizes.h>
 
 #if IS_ENABLED(CONFIG_EXYNOS7420)
 
@@ -95,4 +96,37 @@ static struct mm_region exynos7880_mem_map[] = {
 };
 
 struct mm_region *mem_map = exynos7880_mem_map;
+
+#elif IS_ENABLED(CONFIG_EXYNOS850)
+
+static struct mm_region exynos850_mem_map[] = {
+	{
+		/* Peripheral block */
+		.virt = 0x10000000UL,
+		.phys = 0x10000000UL,
+		.size = SZ_256M,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		/* DDR, 32-bit area */
+		.virt = 0x80000000UL,
+		.phys = 0x80000000UL,
+		.size = SZ_2G,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		/* DDR, 64-bit area */
+		.virt = 0x880000000UL,
+		.phys = 0x880000000UL,
+		.size = SZ_2G,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		/* List terminator */
+	}
+};
+
+struct mm_region *mem_map = exynos850_mem_map;
+
 #endif
