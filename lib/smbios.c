@@ -54,32 +54,38 @@ DECLARE_GLOBAL_DATA_PTR;
  *
  */
 struct map_sysinfo {
+	const char *si_node;
 	const char *si_str;
 	const char *dt_str;
 	int max;
 };
 
 static const struct map_sysinfo sysinfo_to_dt[] = {
-	{ .si_str = "product", .dt_str = "model", 2 },
-	{ .si_str = "manufacturer", .dt_str = "compatible", 1 },
+	{ .si_node = "system", .si_str = "product", .dt_str = "model", 2 },
+	{ .si_node = "system", .si_str = "manufacturer", .dt_str = "compatible", 1 },
+	{ .si_node = "baseboard", .si_str = "product", .dt_str = "model", 2 },
+	{ .si_node = "baseboard", .si_str = "manufacturer", .dt_str = "compatible", 1 },
 };
 
 /**
  * struct smbios_ctx - context for writing SMBIOS tables
  *
- * @node:	node containing the information to write (ofnode_null() if none)
- * @dev:	sysinfo device to use (NULL if none)
- * @eos:	end-of-string pointer for the table being processed. This is set
- *		up when we start processing a table
- * @next_ptr:	pointer to the start of the next string to be added. When the
- *		table is nopt empty, this points to the byte after the \0 of the
- *		previous string.
- * @last_str:	points to the last string that was written to the table, or NULL
- *		if none
+ * @node:		node containing the information to write (ofnode_null()
+ *			if none)
+ * @dev:		sysinfo device to use (NULL if none)
+ * @subnode_name:	sysinfo subnode_name. Used for DT fallback
+ * @eos:		end-of-string pointer for the table being processed.
+ *			This is set up when we start processing a table
+ * @next_ptr:		pointer to the start of the next string to be added.
+ *			When the table is not empty, this points to the byte
+ *			after the \0 of the previous string.
+ * @last_str:		points to the last string that was written to the table,
+ *			or NULL if none
  */
 struct smbios_ctx {
 	ofnode node;
 	struct udevice *dev;
+	const char *subnode_name;
 	char *eos;
 	char *next_ptr;
 	char *last_str;
@@ -108,12 +114,13 @@ struct smbios_write_method {
 	const char *subnode_name;
 };
 
-static const struct map_sysinfo *convert_sysinfo_to_dt(const char *si)
+static const struct map_sysinfo *convert_sysinfo_to_dt(const char *node, const char *si)
 {
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(sysinfo_to_dt); i++) {
-		if (!strcmp(si, sysinfo_to_dt[i].si_str))
+		if (node && !strcmp(node, sysinfo_to_dt[i].si_node) &&
+		    !strcmp(si, sysinfo_to_dt[i].si_str))
 			return &sysinfo_to_dt[i];
 	}
 
@@ -233,7 +240,7 @@ static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
 		} else {
 			const struct map_sysinfo *nprop;
 
-			nprop = convert_sysinfo_to_dt(prop);
+			nprop = convert_sysinfo_to_dt(ctx->subnode_name, prop);
 			get_str_from_dt(nprop, str_dt, sizeof(str_dt));
 			str = (const char *)str_dt;
 		}
@@ -574,9 +581,13 @@ ulong write_smbios_table(ulong addr)
 		int tmp;
 
 		method = &smbios_write_funcs[i];
-		if (IS_ENABLED(CONFIG_OF_CONTROL) && method->subnode_name)
-			ctx.node = ofnode_find_subnode(parent_node,
-						       method->subnode_name);
+		ctx.subnode_name = NULL;
+		if (method->subnode_name) {
+			ctx.subnode_name = method->subnode_name;
+			if (IS_ENABLED(CONFIG_OF_CONTROL))
+				ctx.node = ofnode_find_subnode(parent_node,
+							       method->subnode_name);
+		}
 		tmp = method->write((ulong *)&addr, handle++, &ctx);
 
 		max_struct_size = max(max_struct_size, tmp);
