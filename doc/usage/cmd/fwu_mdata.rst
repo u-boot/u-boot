@@ -23,10 +23,14 @@ The output may look like:
 
     => fwu_mdata_read
             FWU Metadata
-    crc32: 0xec4fb997
-    version: 0x1
-    active_index: 0x0
-    previous_active_index: 0x1
+    crc32: 0x13c330
+    version: 0x2
+    active_index: 0x1
+    previous_active_index: 0x0
+    bank_state[0]: 0xfc
+    bank_state[1]: 0xfc
+    bank_state[2]: 0xff
+    bank_state[3]: 0xff
             Image Info
 
     Image Type Guid: 19D5DF83-11B0-457B-BE2C-7559C13142A5
