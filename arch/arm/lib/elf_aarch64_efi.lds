@@ -28,6 +28,7 @@ SECTIONS
 		*(.dynamic);
 		. = ALIGN(512);
 	}
+	. = ALIGN(4096);
 	.rela.dyn : { *(.rela.dyn) }
 	.rela.plt : { *(.rela.plt) }
 	.rela.got : { *(.rela.got) }
