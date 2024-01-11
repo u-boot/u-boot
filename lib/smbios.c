@@ -48,20 +48,20 @@ DECLARE_GLOBAL_DATA_PTR;
 /**
  * struct map_sysinfo - Mapping of sysinfo strings to DT
  *
- * @sysinfo_str: sysinfo string
+ * @si_str: sysinfo string
  * @dt_str: DT string
  * @max: Max index of the tokenized string to pick. Counting starts from 0
  *
  */
 struct map_sysinfo {
-	const char *sysinfo_str;
+	const char *si_str;
 	const char *dt_str;
 	int max;
 };
 
 static const struct map_sysinfo sysinfo_to_dt[] = {
-	{ .sysinfo_str = "product", .dt_str = "model", 2 },
-	{ .sysinfo_str = "manufacturer", .dt_str = "compatible", 1 },
+	{ .si_str = "product", .dt_str = "model", 2 },
+	{ .si_str = "manufacturer", .dt_str = "compatible", 1 },
 };
 
 /**
@@ -108,12 +108,12 @@ struct smbios_write_method {
 	const char *subnode_name;
 };
 
-static const struct map_sysinfo *convert_sysinfo_to_dt(const char *sysinfo_str)
+static const struct map_sysinfo *convert_sysinfo_to_dt(const char *si)
 {
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(sysinfo_to_dt); i++) {
-		if (!strcmp(sysinfo_str, sysinfo_to_dt[i].sysinfo_str))
+		if (!strcmp(si, sysinfo_to_dt[i].si_str))
 			return &sysinfo_to_dt[i];
 	}
 
