@@ -1189,6 +1189,8 @@ static int gpmc_nand_probe(struct udevice *dev)
 
 	base = devm_ioremap(dev, res.start, resource_size(&res));
 	gpmc_nand_init(nand, base);
+	mtd->dev = dev;
+	nand_set_flash_node(nand, dev_ofnode(dev));
 
 	ret = nand_scan(mtd, CONFIG_SYS_NAND_MAX_CHIPS);
 	if (ret)
