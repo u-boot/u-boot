@@ -39,6 +39,25 @@ config CLEARFOG_SFP_25GB
 	  SGMII connection (requires a supporting SFP). By default, transfer speed
 	  of 1.25 Gbps is used, suitable for a more common 1 Gbps SFP module.
 
+choice CLEARFOG_GTR_SERDES0
+	prompt "Select Clearfog GTR SerDes 0 Function"
+	default CLEARFOG_GTR_SERDES0_PCIE
+	help
+	  Select function for SerDes 0 which is shared between CON3 and CON18
+	  for either pci-e or sata.
+
+config CLEARFOG_GTR_SERDES0_PCIE
+	bool "PCI-E on CON3"
+	help
+	  Configure SerDes 0 for PCI-E to enable CON3 mini-PCI-E connector.
+
+config CLEARFOG_GTR_SERDES0_SATA
+	bool "SATA on CON18"
+	help
+	  Configure SerDes 0 for SATA to enable CON18 SATA connector.
+
+endchoice
+
 config ENV_SIZE
 	hex "Environment Size"
 	default 0x10000
