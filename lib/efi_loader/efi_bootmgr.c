@@ -777,16 +777,19 @@ error:
  * efi_bootmgr_enumerate_boot_options() - enumerate the possible bootable media
  *
  * @opt:		pointer to the media boot option structure
+ * @index:		index of the opt array to store the boot option
  * @handles:		pointer to block device handles
  * @count:		On entry number of handles to block devices.
  *			On exit number of boot options.
+ * @removable:		flag to parse removable only
  * Return:		status code
  */
 static efi_status_t
 efi_bootmgr_enumerate_boot_options(struct eficonfig_media_boot_option *opt,
-				   efi_handle_t *handles, efi_uintn_t *count)
+				   efi_uintn_t index, efi_handle_t *handles,
+				   efi_uintn_t *count, bool removable)
 {
-	u32 i, num = 0;
+	u32 i, num = index;
 	struct efi_handler *handler;
 	efi_status_t ret = EFI_SUCCESS;
 
@@ -804,6 +807,9 @@ efi_bootmgr_enumerate_boot_options(struct eficonfig_media_boot_option *opt,
 		blkio = handler->protocol_interface;
 
 		if (blkio->media->logical_partition)
+			continue;
+
+		if (removable != (blkio->media->removable_media != 0))
 			continue;
 
 		ret = efi_search_protocol(handles[i], &efi_guid_device_path, &handler);
@@ -847,6 +853,9 @@ efi_bootmgr_enumerate_boot_options(struct eficonfig_media_boot_option *opt,
 		optional_data = (char *)opt[num].lo + (opt[num].size - u16_strsize(u"1234567"));
 		memcpy(optional_data, &efi_guid_bootmenu_auto_generated, sizeof(efi_guid_t));
 		num++;
+
+		if (num >= *count)
+			break;
 	}
 
 out:
@@ -1095,7 +1104,7 @@ efi_status_t efi_bootmgr_update_media_device_boot_option(void)
 {
 	u32 i;
 	efi_status_t ret;
-	efi_uintn_t count;
+	efi_uintn_t count, num, total;
 	efi_handle_t *handles = NULL;
 	struct eficonfig_media_boot_option *opt = NULL;
 
@@ -1112,9 +1121,19 @@ efi_status_t efi_bootmgr_update_media_device_boot_option(void)
 		goto out;
 	}
 
-	ret = efi_bootmgr_enumerate_boot_options(opt, handles, &count);
+	/* parse removable block io followed by fixed block io */
+	num = count;
+	ret = efi_bootmgr_enumerate_boot_options(opt, 0, handles, &num, true);
 	if (ret != EFI_SUCCESS)
 		goto out;
+
+	total = num;
+	num = count;
+	ret = efi_bootmgr_enumerate_boot_options(opt, total, handles, &num, false);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	total = num;
 
 	/*
 	 * System hardware configuration may vary depending on the user setup.
@@ -1122,12 +1141,12 @@ efi_status_t efi_bootmgr_update_media_device_boot_option(void)
 	 * If the device is not attached to the system, the boot option needs
 	 * to be deleted.
 	 */
-	ret = efi_bootmgr_delete_invalid_boot_option(opt, count);
+	ret = efi_bootmgr_delete_invalid_boot_option(opt, total);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
 	/* add non-existent boot option */
-	for (i = 0; i < count; i++) {
+	for (i = 0; i < total; i++) {
 		u32 boot_index;
 		u16 var_name[9];
 
@@ -1156,7 +1175,7 @@ efi_status_t efi_bootmgr_update_media_device_boot_option(void)
 
 out:
 	if (opt) {
-		for (i = 0; i < count; i++)
+		for (i = 0; i < total; i++)
 			free(opt[i].lo);
 	}
 	free(opt);
