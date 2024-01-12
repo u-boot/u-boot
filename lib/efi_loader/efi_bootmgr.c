@@ -294,14 +294,17 @@ err:
 }
 
 /**
- * check_disk_has_default_file() - load the default file
+ * fill_default_file_path() - get fallback boot device path for block device
+ *
+ * Provide the device path to the fallback UEFI boot file, e.g.
+ * EFI/BOOT/BOOTAA64.EFI if that file exists on the block device @blk.
  *
  * @blk:	pointer to the UCLASS_BLK udevice
- * @dp:		pointer to default file device path
+ * @dp:		pointer to store the fallback boot device path
  * Return:	status code
  */
-static efi_status_t check_disk_has_default_file(struct udevice *blk,
-						struct efi_device_path **dp)
+static efi_status_t fill_default_file_path(struct udevice *blk,
+					   struct efi_device_path **dp)
 {
 	efi_status_t ret;
 	struct udevice *partition;
@@ -348,7 +351,7 @@ static efi_status_t prepare_loaded_image(u16 *label, ulong addr, ulong size,
 	if (!ramdisk_blk)
 		return EFI_LOAD_ERROR;
 
-	ret = check_disk_has_default_file(ramdisk_blk, dp);
+	ret = fill_default_file_path(ramdisk_blk, dp);
 	if (ret != EFI_SUCCESS) {
 		log_info("Cannot boot from downloaded image\n");
 		goto err;
