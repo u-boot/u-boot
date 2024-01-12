@@ -644,6 +644,7 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 		if (!load)
 			return 1;
 		os.load = load;
+		images->ep = load;
 		debug("Allocated %lx bytes at %lx for kernel (size %lx) decompression\n",
 		      req_size, load, image_len);
 	}

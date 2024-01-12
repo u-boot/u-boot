@@ -94,6 +94,8 @@ LIBCRYPTO_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := \
 			generated/lib/fdt-libcrypto.o \
 			sunxi_toc0.o
 
+KWB_IMAGE_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := kwbimage.o
+
 ROCKCHIP_OBS = generated/lib/rc4.o rkcommon.o rkimage.o rksd.o rkspi.o
 
 # common objs for dumpimage and mkimage
@@ -114,7 +116,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			imximage.o \
 			imx8image.o \
 			imx8mimage.o \
-			kwbimage.o \
+			$(KWB_IMAGE_OBJS-y) \
 			generated/lib/md5.o \
 			lpc32xximage.o \
 			mxsimage.o \

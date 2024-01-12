@@ -47,6 +47,11 @@
 #define PA0_USB20_PLL_PREDIV		GENMASK(7, 6)
 #define PA0_RG_USB20_INTR_EN		BIT(5)
 
+#define U3P_USBPHYACR1			0x004
+#define PA1_RG_INTR_CAL			GENMASK(23, 19)
+#define PA1_RG_VRT_SEL			GENMASK(14, 12)
+#define PA1_RG_TERM_SEL			GENMASK(10, 8)
+
 #define U3P_USBPHYACR2			0x008
 #define PA2_RG_U2PLL_BW			GENMASK(21, 19)
 
@@ -56,8 +61,10 @@
 #define PA5_RG_U2_HS_100U_U3_EN		BIT(11)
 
 #define U3P_USBPHYACR6			0x018
+#define PA6_RG_U2_PRE_EMP		GENMASK(31, 30)
 #define PA6_RG_U2_BC11_SW_EN		BIT(23)
 #define PA6_RG_U2_OTG_VBUSCMP_EN	BIT(20)
+#define PA6_RG_U2_DISCTH		GENMASK(7, 4)
 #define PA6_RG_U2_SQTH			GENMASK(3, 0)
 
 #define U3P_U2PHYACR4			0x020
@@ -240,7 +247,7 @@ struct u3phy_banks {
 
 struct mtk_phy_instance {
 	void __iomem *port_base;
-	const struct device_node *np;
+	struct device_node *np;
 	union {
 		struct u2phy_banks u2_banks;
 		struct u3phy_banks u3_banks;
@@ -250,6 +257,11 @@ struct mtk_phy_instance {
 	struct clk da_ref_clk;	/* reference clock of analog phy */
 	u32 index;
 	u32 type;
+
+	u32 eye_vrt;
+	u32 eye_term;
+	u32 discth;
+	u32 pre_emphasis;
 };
 
 struct mtk_tphy {
@@ -564,6 +576,47 @@ static void phy_v2_banks_init(struct mtk_tphy *tphy,
 	}
 }
 
+static void phy_parse_property(struct mtk_tphy *tphy,
+			       struct mtk_phy_instance *instance)
+{
+	ofnode node = np_to_ofnode(instance->np);
+
+	if (instance->type != PHY_TYPE_USB2)
+		return;
+
+	ofnode_read_u32(node, "mediatek,eye-vrt", &instance->eye_vrt);
+	ofnode_read_u32(node, "mediatek,eye-term", &instance->eye_term);
+	ofnode_read_u32(node, "mediatek,discth", &instance->discth);
+	ofnode_read_u32(node, "mediatek,pre-emphasis", &instance->pre_emphasis);
+
+	dev_dbg(tphy->dev, "vrt:%d, term:%d, disc:%d, emp:%d\n",
+		instance->eye_vrt, instance->eye_term,
+		instance->discth, instance->pre_emphasis);
+}
+
+static void u2_phy_props_set(struct mtk_tphy *tphy,
+			     struct mtk_phy_instance *instance)
+{
+	struct u2phy_banks *u2_banks = &instance->u2_banks;
+	void __iomem *com = u2_banks->com;
+
+	if (instance->eye_vrt)
+		clrsetbits_le32(com + U3P_USBPHYACR1, PA1_RG_VRT_SEL,
+				FIELD_PREP(PA1_RG_VRT_SEL, instance->eye_vrt));
+
+	if (instance->eye_term)
+		clrsetbits_le32(com + U3P_USBPHYACR1, PA1_RG_TERM_SEL,
+				FIELD_PREP(PA1_RG_TERM_SEL, instance->eye_term));
+
+	if (instance->discth)
+		clrsetbits_le32(com + U3P_USBPHYACR6, PA6_RG_U2_DISCTH,
+				FIELD_PREP(PA6_RG_U2_DISCTH, instance->discth));
+
+	if (instance->pre_emphasis)
+		clrsetbits_le32(com + U3P_USBPHYACR6, PA6_RG_U2_PRE_EMP,
+				FIELD_PREP(PA6_RG_U2_PRE_EMP, instance->pre_emphasis));
+}
+
 static int mtk_phy_init(struct phy *phy)
 {
 	struct mtk_tphy *tphy = dev_get_priv(phy->dev);
@@ -586,6 +639,7 @@ static int mtk_phy_init(struct phy *phy)
 	switch (instance->type) {
 	case PHY_TYPE_USB2:
 		u2_phy_instance_init(tphy, instance);
+		u2_phy_props_set(tphy, instance);
 		break;
 	case PHY_TYPE_USB3:
 		u3_phy_instance_init(tphy, instance);
@@ -691,6 +745,8 @@ static int mtk_phy_xlate(struct phy *phy,
 		dev_err(phy->dev, "phy version is not supported\n");
 		return -EINVAL;
 	}
+
+	phy_parse_property(tphy, instance);
 
 	return 0;
 }
