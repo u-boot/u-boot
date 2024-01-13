@@ -12,14 +12,13 @@
 #define PHY_ANEG_TIMEOUT		20000
 
 #ifdef CONFIG_SPL_BUILD
-#define CFG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS						\
 	"dfu_alt_info_ram=u-boot.itb ram "				\
 			__stringify(CONFIG_SPL_LOAD_FIT_ADDRESS)	\
 			" 0x800000\0"
 #endif
 
-#define STM32MP_BOARD_EXTRA_ENV \
-	"usb_pgood_delay=1000\0" \
+#define STM32MP_BOARD_EXTRA_ENV						\
 	"dh_update_sd_to_emmc=" /* Install U-Boot from SD to eMMC */	\
 		"setexpr loadaddr1 ${loadaddr} + 0x1000000 && "		\
 		"load mmc 0:4 ${loadaddr1} boot/u-boot-spl.stm32 && "	\
@@ -49,7 +48,11 @@
 		"sf update ${loadaddr1} 0x40000 ${filesize1} && "	\
 		"sf update ${loadaddr} 0x80000 ${filesize} && "		\
 		"env set filesize1 && env set loadaddr1\0"		\
-	"update_sf=run dh_update_sd_to_sf\0"
+	"stdin=serial\0"						\
+	"stdout=serial\0"						\
+	"stderr=serial\0"						\
+	"update_sf=run dh_update_sd_to_sf\0"				\
+	"usb_pgood_delay=1000\0"
 
 
 #include <configs/stm32mp15_common.h>
