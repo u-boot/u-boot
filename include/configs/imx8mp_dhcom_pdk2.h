@@ -28,15 +28,9 @@
 #define CFG_SYS_FSL_USDHC_NUM	2
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
-#define CFG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS						\
 	"altbootcmd=run bootcmd ; reset\0"				\
 	"bootlimit=3\0"							\
-	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"		\
-	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"	\
-	"ramdisk_addr_r=0x58000000\0"					\
-	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"		\
-	/* Give slow devices beyond USB HUB chance to come up. */	\
-	"usb_pgood_delay=2000\0"					\
 	"dfu_alt_info="							\
 		/* RAM block at DRAM offset 256..768 MiB */		\
 		"ram ram0=ram ram 0x50000000 0x20000000&"		\
@@ -68,6 +62,15 @@
 	"dh_update_emmc_to_sf="						\
 		"load mmc 1:1 ${loadaddr} boot/flash.bin && "		\
 		"run dh_update_sf_gen_fcfb dh_update_sf_write_data\0"	\
+	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"		\
+	"pxefile_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"	\
+	"ramdisk_addr_r=0x58000000\0"					\
+	"scriptaddr=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"		\
+	"stdin=serial\0"						\
+	"stdout=serial\0"						\
+	"stderr=serial\0"						\
+	/* Give slow devices beyond USB HUB chance to come up. */	\
+	"usb_pgood_delay=2000\0"					\
 	BOOTENV
 
 #define BOOT_TARGET_DEVICES(func)	\
