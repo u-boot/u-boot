@@ -1,5 +1,8 @@
 .. SPDX-License-Identifier: GPL-2.0-or-later:
 
+.. index::
+   single: pause (command)
+
 pause command
 =============
 

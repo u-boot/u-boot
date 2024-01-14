@@ -1,6 +1,9 @@
 .. SPDX-License-Identifier: GPL-2.0+
 .. Copyright 2023, Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
 
+.. index::
+   single: blkcache (command)
+
 blkcache command
 ================
 

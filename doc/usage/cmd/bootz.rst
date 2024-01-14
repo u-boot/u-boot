@@ -1,5 +1,8 @@
 .. SPDX-License-Identifier: GPL-2.0+:
 
+.. index::
+   single: bootz (command)
+
 bootz command
 =============
 

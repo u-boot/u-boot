@@ -1,3 +1,6 @@
+.. index::
+   single: echo (command)
+
 echo command
 ============
 

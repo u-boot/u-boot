@@ -1,3 +1,6 @@
+.. index::
+   single: exception (command)
+
 exception command
 =================
 

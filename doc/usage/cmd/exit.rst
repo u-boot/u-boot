@@ -1,3 +1,6 @@
+.. index::
+   single: exit (command)
+
 exit command
 ============
 
