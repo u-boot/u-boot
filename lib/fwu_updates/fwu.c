@@ -125,16 +125,14 @@ static int in_trial_state(struct fwu_mdata *mdata)
 	return 0;
 }
 
-static int fwu_get_image_type_id(u8 *image_index, efi_guid_t *image_type_id)
+static int fwu_get_image_type_id(u8 image_index, efi_guid_t *image_type_id)
 {
-	u8 index;
 	int i;
 	struct efi_fw_image *image;
 
-	index = *image_index;
 	image = update_info.images;
 	for (i = 0; i < update_info.num_images; i++) {
-		if (index == image[i].image_index) {
+		if (image_index == image[i].image_index) {
 			guidcpy(image_type_id, &image[i].image_type_id);
 			return 0;
 		}
@@ -332,24 +330,20 @@ int fwu_set_active_index(uint active_idx)
 }
 
 /**
- * fwu_get_image_index() - Get the Image Index to be used for capsule update
- * @image_index: The Image Index for the image
- *
- * The FWU multi bank update feature computes the value of image_index at
- * runtime, based on the bank to which the image needs to be written to.
- * Derive the image_index value for the image.
+ * fwu_get_dfu_alt_num() - Get the dfu_alt_num to be used for capsule update
+ * @image_index:	The Image Index for the image
+ * @alt_num:		pointer to store dfu_alt_num
  *
  * Currently, the capsule update driver uses the DFU framework for
  * the updates. This function gets the DFU alt number which is to
- * be used as the Image Index
+ * be used for capsule update.
  *
  * Return: 0 if OK, -ve on error
  *
  */
-int fwu_get_image_index(u8 *image_index)
+int fwu_get_dfu_alt_num(u8 image_index, u8 *alt_num)
 {
 	int ret, i;
-	u8 alt_num;
 	uint update_bank;
 	efi_guid_t *image_guid, image_type_id;
 	struct fwu_mdata *mdata = &g_mdata;
@@ -365,7 +359,7 @@ int fwu_get_image_index(u8 *image_index)
 	ret = fwu_get_image_type_id(image_index, &image_type_id);
 	if (ret) {
 		log_debug("Unable to get image_type_id for image_index %u\n",
-			  *image_index);
+			  image_index);
 		goto out;
 	}
 
@@ -380,15 +374,13 @@ int fwu_get_image_index(u8 *image_index)
 			img_entry = &mdata->img_entry[i];
 			img_bank_info = &img_entry->img_bank_info[update_bank];
 			image_guid = &img_bank_info->image_uuid;
-			ret = fwu_plat_get_alt_num(g_dev, image_guid, &alt_num);
-			if (ret) {
+			ret = fwu_plat_get_alt_num(g_dev, image_guid, alt_num);
+			if (ret)
 				log_debug("alt_num not found for partition with GUID %pUs\n",
 					  image_guid);
-			} else {
+			else
 				log_debug("alt_num %d for partition %pUs\n",
-					  alt_num, image_guid);
-				*image_index = alt_num + 1;
-			}
+					  *alt_num, image_guid);
 
 			goto out;
 		}

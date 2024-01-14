@@ -122,21 +122,18 @@ int fwu_get_active_index(uint *active_idxp);
 int fwu_set_active_index(uint active_idx);
 
 /**
- * fwu_get_image_index() - Get the Image Index to be used for capsule update
- * @image_index: The Image Index for the image
- *
- * The FWU multi bank update feature computes the value of image_index at
- * runtime, based on the bank to which the image needs to be written to.
- * Derive the image_index value for the image.
+ * fwu_get_dfu_alt_num() - Get the dfu_alt_num to be used for capsule update
+ * @image_index:	The Image Index for the image
+ * @alt_num:		pointer to store dfu_alt_num
  *
  * Currently, the capsule update driver uses the DFU framework for
  * the updates. This function gets the DFU alt number which is to
- * be used as the Image Index
+ * be used for capsule update.
  *
  * Return: 0 if OK, -ve on error
  *
  */
-int fwu_get_image_index(u8 *image_index);
+int fwu_get_dfu_alt_num(u8 image_index, u8 *alt_num);
 
 /**
  * fwu_revert_boot_index() - Revert the active index in the FWU metadata

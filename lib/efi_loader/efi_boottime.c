@@ -1816,7 +1816,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 	if (device_path) {
 		info->device_handle = efi_dp_find_obj(device_path, NULL, NULL);
 
-		dp = efi_dp_append(device_path, file_path);
+		dp = efi_dp_concat(device_path, file_path, false);
 		if (!dp) {
 			ret = EFI_OUT_OF_RESOURCES;
 			goto failure;
