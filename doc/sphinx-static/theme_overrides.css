@@ -5,10 +5,13 @@
  * work for both normal and dark modes.
  */
 
+@import 'css/theme.css';
+@import 'pygments.css';
+
 /* Improve contrast and increase size for easier reading. */
 
 body {
-	font-family: serif;
+	font-family: sans-serif;
 	font-size: 100%;
 }
 
