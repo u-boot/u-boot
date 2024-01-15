@@ -70,6 +70,7 @@ void enable_caches(void)
 int arch_misc_init(void)
 {
 	setup_serial_number();
+	setup_mac_address();
 
 	return 0;
 }
