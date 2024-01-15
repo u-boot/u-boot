@@ -97,6 +97,7 @@ u32 get_bootauth(void);
 
 int get_eth_nb(void);
 int setup_mac_address(void);
+int setup_serial_number(void);
 
 /* board power management : configure vddcore according OPP */
 void board_vddcore_init(u32 voltage_mv);

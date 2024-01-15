@@ -69,6 +69,8 @@ void enable_caches(void)
 
 int arch_misc_init(void)
 {
+	setup_serial_number();
+
 	return 0;
 }
 
