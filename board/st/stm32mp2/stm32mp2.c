@@ -8,13 +8,27 @@
 #include <config.h>
 #include <env.h>
 #include <fdt_support.h>
+#include <log.h>
 #include <asm/global_data.h>
 #include <asm/arch/sys_proto.h>
+#include <dm/ofnode.h>
 
 /*
  * Get a global data pointer
  */
 DECLARE_GLOBAL_DATA_PTR;
+
+int checkboard(void)
+{
+	const char *fdt_compat;
+	int fdt_compat_len;
+
+	fdt_compat = ofnode_get_property(ofnode_root(), "compatible", &fdt_compat_len);
+
+	log_info("Board: stm32mp2 (%s)\n", fdt_compat && fdt_compat_len ? fdt_compat : "");
+
+	return 0;
+}
 
 /* board dependent setup after realloc */
 int board_init(void)
