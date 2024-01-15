@@ -14,6 +14,9 @@ ccflags-y += \
 	-I$(src)/external/mbedtls/library \
 	# This line is intentionally left blank
 
+# shim layer for hash
+obj-$(CONFIG_MBEDTLS_LIB_CRYPTO) += hash_shim.o
+
 obj-$(CONFIG_MBEDTLS_LIB_CRYPTO) += mbedtls_lib_crypto.o
 mbedtls_lib_crypto-y := \
 	$(MBEDTLS_LIB_DIR)/aes.o \
