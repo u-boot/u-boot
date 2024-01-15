@@ -144,6 +144,7 @@ config STM32_ECDSA_VERIFY
 
 config CMD_STM32KEY
 	bool "command stm32key to fuse public key hash"
+	depends on CMDLINE
 	help
 		fuse public key hash in corresponding fuse used to authenticate
 		binary.
