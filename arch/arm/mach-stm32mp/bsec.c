@@ -784,9 +784,16 @@ static const struct stm32mp_bsec_drvdata stm32mp15_data = {
 	.size = 96,
 	.ta = false,
 };
+
+static const struct stm32mp_bsec_drvdata stm32mp25_data = {
+	.size = 368, /* 384 but no access to HWKEY and STM32PRVKEY */
+	.ta = true,
+};
+
 static const struct udevice_id stm32mp_bsec_ids[] = {
 	{ .compatible = "st,stm32mp13-bsec", .data = (ulong)&stm32mp13_data},
 	{ .compatible = "st,stm32mp15-bsec", .data = (ulong)&stm32mp15_data},
+	{ .compatible = "st,stm32mp25-bsec", .data = (ulong)&stm32mp25_data},
 	{}
 };
 
