@@ -94,7 +94,7 @@ config SYS_PROMPT_HUSH_PS2
 
 config SYS_MAXARGS
 	int "Maximum number arguments accepted by commands"
-	default 16
+	default 64
 
 config SYS_XTRACE
 	bool "Command execution tracer"
