@@ -62,19 +62,24 @@
 		"load ${devtype} ${bootpart} ${rdaddr} ${actual_uboot_overlay}; " \
 		"fdt addr ${fdtaddr}; fdt resize ${fdt_buffer}; " \
 		"fdt apply ${rdaddr}; fdt resize ${fdt_buffer};\0" \
-	"virtualloadoverlay=if test -e ${devtype} ${bootpart} ${fdtdir}/overlays/${uboot_overlay}; then " \
-				"setenv actual_uboot_overlay ${fdtdir}/overlays/${uboot_overlay}; " \
+	"virtualloadoverlay=if test -e ${devtype} ${bootpart} ${fdtdir}/${uboot_overlay}; then " \
+				"setenv actual_uboot_overlay ${fdtdir}/${uboot_overlay}; " \
 				"run loadoverlay;" \
 			"else " \
-				"if test -e ${devtype} ${bootpart} /lib/firmware/${uboot_overlay}; then " \
-					"setenv actual_uboot_overlay /lib/firmware/${uboot_overlay}; " \
+				"if test -e ${devtype} ${bootpart} ${fdtdir}/overlays/${uboot_overlay}; then " \
+					"setenv actual_uboot_overlay ${fdtdir}/overlays/${uboot_overlay}; " \
 					"run loadoverlay;" \
 				"else " \
-					"if test -e ${devtype} ${bootpart} ${uboot_overlay}; then " \
-						"setenv actual_uboot_overlay ${uboot_overlay}; " \
+					"if test -e ${devtype} ${bootpart} /lib/firmware/${uboot_overlay}; then " \
+						"setenv actual_uboot_overlay /lib/firmware/${uboot_overlay}; " \
 						"run loadoverlay;" \
 					"else " \
-						"echo uboot_overlays: unable to find [${devtype} ${bootpart} ${uboot_overlay}]...;" \
+						"if test -e ${devtype} ${bootpart} ${uboot_overlay}; then " \
+							"setenv actual_uboot_overlay ${uboot_overlay}; " \
+							"run loadoverlay;" \
+						"else " \
+							"echo uboot_overlays: unable to find [${devtype} ${bootpart} ${uboot_overlay}]...;" \
+						"fi;" \
 					"fi;" \
 				"fi;" \
 			"fi;\0" \
