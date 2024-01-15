@@ -8,7 +8,7 @@ obj-y += syscon.o
 obj-y += bsec.o
 obj-y += soc.o
 
-obj-$(CONFIG_STM32MP15x) += stm32mp1/
+obj-$(CONFIG_STM32MP15X) += stm32mp1/
 obj-$(CONFIG_STM32MP13X) += stm32mp1/
 obj-$(CONFIG_STM32MP25X) += stm32mp2/
 

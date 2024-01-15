@@ -1,4 +1,4 @@
-if TARGET_ST_STM32MP15x
+if TARGET_ST_STM32MP15X
 
 config SYS_BOARD
 	default "stm32mp1"

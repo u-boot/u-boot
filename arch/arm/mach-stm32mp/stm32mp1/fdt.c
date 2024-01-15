@@ -275,7 +275,7 @@ static int stm32_fdt_fixup_etzpc(void *fdt, int soc_node)
 		array_size = ARRAY_SIZE(stm32mp13_ip_addr);
 	}
 
-	if (IS_ENABLED(CONFIG_STM32MP15x)) {
+	if (IS_ENABLED(CONFIG_STM32MP15X)) {
 		array = stm32mp15_ip_addr;
 		array_size = ARRAY_SIZE(stm32mp15_ip_addr);
 	}
@@ -494,7 +494,7 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 	if (IS_ENABLED(CONFIG_STM32MP13X))
 		stm32mp13_fdt_fixup(blob, soc, cpu, name);
 
-	if (IS_ENABLED(CONFIG_STM32MP15x)) {
+	if (IS_ENABLED(CONFIG_STM32MP15X)) {
 		stm32mp15_fdt_fixup(blob, soc, cpu, name);
 
 		/*
@@ -505,7 +505,7 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 		 * under CONFIG_STM32MP15x_STM32IMAGE only for compatibility
 		 * when FIP is not used by TF-A
 		 */
-		if (IS_ENABLED(CONFIG_STM32MP15x_STM32IMAGE) &&
+		if (IS_ENABLED(CONFIG_STM32MP15X_STM32IMAGE) &&
 		    !tee_find_device(NULL, NULL, NULL, NULL))
 			stm32_fdt_disable_optee(blob);
 	}

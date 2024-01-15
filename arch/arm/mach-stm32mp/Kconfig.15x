@@ -1,6 +1,6 @@
-if STM32MP15x
+if STM32MP15X
 
-config STM32MP15x_STM32IMAGE
+config STM32MP15X_STM32IMAGE
 	bool "Support STM32 image for generated U-Boot image"
 	depends on TFABOOT
 	help
@@ -11,7 +11,7 @@ choice
 	prompt "STM32MP15x board select"
 	optional
 
-config TARGET_ST_STM32MP15x
+config TARGET_ST_STM32MP15X
 	bool "STMicroelectronics STM32MP15x boards"
 	imply BOOTSTAGE
 	imply CMD_BOOTSTAGE
