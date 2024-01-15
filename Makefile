@@ -829,6 +829,12 @@ KBUILD_HOSTCFLAGS += $(if $(CONFIG_TOOLS_DEBUG),-g)
 UBOOTINCLUDE    := \
 	-Iinclude \
 	$(if $(KBUILD_SRC), -I$(srctree)/include) \
+	$(if $(KBUILD_SRC), \
+		$(if $(CONFIG_MBEDTLS_LIB), \
+			"-DMBEDTLS_CONFIG_FILE=\"mbedtls_def_config.h\"" \
+			-I$(srctree)/lib/mbedtls \
+			-I$(srctree)/lib/mbedtls/port \
+			-I$(srctree)/lib/mbedtls/external/mbedtls/include)) \
 	$(if $(CONFIG_$(SPL_)SYS_THUMB_BUILD), \
 		$(if $(CONFIG_HAS_THUMB2), \
 			$(if $(CONFIG_CPU_V7M), \
@@ -838,6 +844,13 @@ UBOOTINCLUDE    := \
 	-include $(srctree)/include/linux/kconfig.h
 
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
+
+ifeq ($(CONFIG_MBEDTLS_LIB),y)
+PLATFORM_CPPFLAGS += "-DMBEDTLS_CONFIG_FILE=\"mbedtls_def_config.h\"" \
+			-I$(srctree)/lib/mbedtls \
+			-I$(srctree)/lib/mbedtls/port \
+			-I$(srctree)/lib/mbedtls/external/mbedtls/include
+endif
 
 # FIX ME
 cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
