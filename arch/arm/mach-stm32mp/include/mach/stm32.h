@@ -71,7 +71,7 @@ enum forced_boot_mode {
  * only address used before device tree parsing
  */
 
-#if defined(CONFIG_STM32MP15x) || defined(CONFIG_STM32MP13x)
+#if defined(CONFIG_STM32MP15x) || defined(CONFIG_STM32MP13X)
 #define STM32_RCC_BASE			0x50000000
 #define STM32_PWR_BASE			0x50001000
 #define STM32_SYSCFG_BASE		0x50020000
@@ -92,7 +92,7 @@ enum forced_boot_mode {
 #define STM32_USART1_BASE		0x5C000000
 #define STM32_USART2_BASE		0x4000E000
 #endif
-#ifdef CONFIG_STM32MP13x
+#ifdef CONFIG_STM32MP13X
 #define STM32_USART1_BASE		0x4c000000
 #define STM32_USART2_BASE		0x4c001000
 #endif
@@ -149,7 +149,7 @@ enum forced_boot_mode {
 #define TAMP_COPRO_STATE_CRASH		5
 #endif
 
-#ifdef CONFIG_STM32MP13x
+#ifdef CONFIG_STM32MP13X
 #define TAMP_BOOTCOUNT			TAMP_BACKUP_REGISTER(31)
 #define TAMP_BOOT_CONTEXT		TAMP_BACKUP_REGISTER(30)
 #endif
@@ -188,7 +188,7 @@ enum forced_boot_mode {
 #define BSEC_OTP_MAC	57
 #define BSEC_OTP_BOARD	59
 #endif
-#ifdef CONFIG_STM32MP13x
+#ifdef CONFIG_STM32MP13X
 #define BSEC_OTP_RPN	1
 #define BSEC_OTP_SERIAL	13
 #define BSEC_OTP_MAC	57

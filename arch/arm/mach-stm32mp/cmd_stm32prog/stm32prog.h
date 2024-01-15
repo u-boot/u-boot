@@ -30,7 +30,7 @@
 #endif
 /* size of the OTP struct in NVMEM PTA */
 #define _OTP_SIZE_TA(otp)	(((otp) * 2 + 2) * 4)
-#if defined(CONFIG_STM32MP13x) || defined(CONFIG_STM32MP15x)
+#if defined(CONFIG_STM32MP13X) || defined(CONFIG_STM32MP15x)
 /* STM32MP1 with BSEC2 */
 #define OTP_SIZE_TA		_OTP_SIZE_TA(96)
 #else
