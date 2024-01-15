@@ -566,7 +566,8 @@ struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 		return NULL;
 	}
 
-	if (addr >= 0 && addr < PHY_MAX_ADDR && phy_id != PHY_FIXED_ID)
+	if (addr >= 0 && addr < PHY_MAX_ADDR && phy_id != PHY_FIXED_ID &&
+	    phy_id != PHY_NCSI_ID)
 		bus->phymap[addr] = dev;
 
 	return dev;
