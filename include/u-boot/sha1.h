@@ -41,6 +41,10 @@ extern "C" {
 
 #define SHA1_DEF_CHUNK_SZ 0x10000
 
+#define K_IPAD_VAL 0x36
+#define K_OPAD_VAL 0x5C
+#define K_PAD_LEN 64
+
 extern const uint8_t sha1_der_prefix[];
 
 #if defined(CONFIG_MBEDTLS_LIB_CRYPTO)
