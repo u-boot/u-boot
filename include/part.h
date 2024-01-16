@@ -685,8 +685,8 @@ int part_get_type_by_name(const char *name);
 /**
  * part_get_bootable() - Find the first bootable partition
  *
- * @desc: Block-device descriptor
- * @return first bootable partition, or 0 if there is none
+ * @desc:	Block-device descriptor
+ * Return:	first bootable partition, or 0 if there is none
  */
 int part_get_bootable(struct blk_desc *desc);
 
