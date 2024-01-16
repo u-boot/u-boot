@@ -32,6 +32,11 @@
 #include <errno.h>
 #include <usb.h>
 #include <serial.h>
+#include <u-boot/crc.h>
+#include "boot_img_scr.h"
+
+#include <spi.h>
+#include <spi_flash.h>
 
 #ifdef CONFIG_SPL_BUILD
 #include <spl.h>
@@ -64,6 +69,52 @@ void board_init_f(ulong arg)
 	init_clocks();
 	spl_early_init();
 	preloader_console_init();
+}
+
+static struct boot_img_src img_src[2];
+static int spi_load_boot_info(void)
+{
+	struct spi_flash *flash;
+	int err;
+
+	flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
+				CONFIG_SF_DEFAULT_CS,
+				CONFIG_SF_DEFAULT_SPEED,
+				CONFIG_SF_DEFAULT_MODE);
+	if (!flash) {
+		printf("%s: SPI probe err\n", __func__);
+		return -ENODEV;
+	}
+
+	/*
+	 * Load both boot info structs from SPI flash
+	 */
+	err = spi_flash_read(flash, SPI_FLASH_BOOT_SRC_OFFS,
+			     sizeof(img_src[0]),
+			     (void *)&img_src[0]);
+	if (err) {
+		debug("%s: First boot info NOR sector read error %d\n",
+		      __func__, err);
+		return err;
+	}
+
+	err = spi_flash_read(flash,
+			     SPI_FLASH_BOOT_SRC_OFFS + SPI_FLASH_SECTOR_SIZE,
+			     sizeof(img_src[0]),
+			     (void *)&img_src[1]);
+	if (err) {
+		debug("%s: First boot info NOR sector read error %d\n",
+		      __func__, err);
+		return err;
+	}
+
+	debug("%s: BI0 0x%x 0x%x 0x%x\n", __func__,
+	      img_src[0].magic, img_src[0].flags, img_src[0].crc8);
+
+	debug("%s: BI1 0x%x 0x%x 0x%x\n", __func__,
+	      img_src[1].magic, img_src[1].flags, img_src[1].crc8);
+
+	return 0;
 }
 
 static int boot_tiva0, boot_tiva1;
@@ -112,6 +163,40 @@ void spl_board_init(void)
 
 	boot_tiva0 = dm_gpio_get_value(&btiva0);
 	boot_tiva1 = dm_gpio_get_value(&btiva1);
+}
+
+int spl_mmc_emmc_boot_partition(struct mmc *mmc)
+{
+	int i, src_idx = -1, ret;
+
+	ret = spi_load_boot_info();
+	if (ret) {
+		printf("%s: Cannot read XEA boot info! [%d]\n", __func__, ret);
+		/* To avoid bricking board - by default boot from boot0 eMMC */
+		return 1;
+	}
+
+	for (i = 0; i < 2; i++) {
+		if (img_src[i].magic == 'B' &&
+		    img_src[i].crc8 == crc8(0, &img_src[i].magic, 2)) {
+			src_idx = i;
+			break;
+		}
+	}
+
+	debug("%s: src idx: %d\n", __func__, src_idx);
+
+	if (src_idx < 0)
+		/*
+		 * Always use eMMC (mmcblkX) boot0 if no
+		 * valid image source description found
+		 */
+		return 1;
+
+	if (img_src[src_idx].flags & BOOT_SRC_PART1)
+		return 2;
+
+	return 1;
 }
 
 void board_boot_order(u32 *spl_boot_list)

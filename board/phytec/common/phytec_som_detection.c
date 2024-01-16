@@ -5,8 +5,6 @@
  */
 
 #include <common.h>
-#include <asm/mach-imx/mxc_i2c.h>
-#include <asm/arch/sys_proto.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <i2c.h>
