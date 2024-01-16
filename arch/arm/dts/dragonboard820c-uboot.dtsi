@@ -30,15 +30,3 @@
 		};
 	};
 };
-
-&pm8994_pon {
-	key_vol_down {
-		gpios = <&pm8994_pon 1 0>;
-		label = "key_vol_down";
-	};
-
-	key_power {
-		gpios = <&pm8994_pon 0 0>;
-		label = "key_power";
-	};
-};

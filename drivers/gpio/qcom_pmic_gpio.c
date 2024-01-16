@@ -221,10 +221,13 @@ static int qcom_gpio_probe(struct udevice *dev)
 {
 	struct qcom_gpio_bank *priv = dev_get_priv(dev);
 	int reg;
+	u64 pid;
 
-	priv->pid = dev_read_addr(dev);
-	if (priv->pid == FDT_ADDR_T_NONE)
+	pid = dev_read_addr(dev);
+	if (pid == FDT_ADDR_T_NONE)
 		return log_msg_ret("bad address", -EINVAL);
+
+	priv->pid = pid;
 
 	/* Do a sanity check */
 	reg = pmic_reg_read(dev->parent, priv->pid + REG_TYPE);
@@ -242,14 +245,36 @@ static int qcom_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
+/*
+ * Parse basic GPIO count specified via the gpio-ranges property
+ * as specified in Linux devicetrees
+ * Returns < 0 on error, otherwise gpio count
+ */
+static int qcom_gpio_of_parse_ranges(struct udevice *dev)
+{
+	int ret;
+	struct ofnode_phandle_args args;
+
+	ret = ofnode_parse_phandle_with_args(dev_ofnode(dev), "gpio-ranges",
+					     NULL, 3, 0, &args);
+	if (ret)
+		return log_msg_ret("gpio-ranges", ret);
+
+	return args.args[2];
+}
+
 static int qcom_gpio_of_to_plat(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	int ret;
 
-	uc_priv->gpio_count = dev_read_u32_default(dev, "gpio-count", 0);
-	uc_priv->bank_name = dev_read_string(dev, "gpio-bank-name");
-	if (uc_priv->bank_name == NULL)
-		uc_priv->bank_name = "qcom_pmic";
+	ret = qcom_gpio_of_parse_ranges(dev);
+	if (ret > 0)
+		uc_priv->gpio_count = ret;
+	else
+		return ret;
+
+	uc_priv->bank_name = "pmic";
 
 	return 0;
 }
@@ -272,104 +297,3 @@ U_BOOT_DRIVER(qcom_pmic_gpio) = {
 	.priv_auto	= sizeof(struct qcom_gpio_bank),
 };
 
-
-/* Add pmic buttons as GPIO as well - there is no generic way for now */
-#define PON_INT_RT_STS                        0x10
-#define KPDPWR_ON_INT_BIT                     0
-#define RESIN_ON_INT_BIT                      1
-
-static int qcom_pwrkey_get_function(struct udevice *dev, unsigned offset)
-{
-	return GPIOF_INPUT;
-}
-
-static int qcom_pwrkey_get_value(struct udevice *dev, unsigned offset)
-{
-	struct qcom_gpio_bank *priv = dev_get_priv(dev);
-
-	int reg = pmic_reg_read(dev->parent, priv->pid + PON_INT_RT_STS);
-
-	if (reg < 0)
-		return 0;
-
-	switch (offset) {
-	case 0: /* Power button */
-		return (reg & BIT(KPDPWR_ON_INT_BIT)) != 0;
-		break;
-	case 1: /* Reset button */
-	default:
-		return (reg & BIT(RESIN_ON_INT_BIT)) != 0;
-		break;
-	}
-}
-
-/*
- * Since pmic buttons modelled as GPIO, we need empty direction functions
- * to trick u-boot button driver
- */
-static int qcom_pwrkey_direction_input(struct udevice *dev, unsigned int offset)
-{
-	return 0;
-}
-
-static int qcom_pwrkey_direction_output(struct udevice *dev, unsigned int offset, int value)
-{
-	return -EOPNOTSUPP;
-}
-
-static const struct dm_gpio_ops qcom_pwrkey_ops = {
-	.get_value		= qcom_pwrkey_get_value,
-	.get_function		= qcom_pwrkey_get_function,
-	.direction_input	= qcom_pwrkey_direction_input,
-	.direction_output	= qcom_pwrkey_direction_output,
-};
-
-static int qcom_pwrkey_probe(struct udevice *dev)
-{
-	struct qcom_gpio_bank *priv = dev_get_priv(dev);
-	int reg;
-
-	priv->pid = dev_read_addr(dev);
-	if (priv->pid == FDT_ADDR_T_NONE)
-		return log_msg_ret("bad address", -EINVAL);
-
-	/* Do a sanity check */
-	reg = pmic_reg_read(dev->parent, priv->pid + REG_TYPE);
-	if (reg != 0x1)
-		return log_msg_ret("bad type", -ENXIO);
-
-	reg = pmic_reg_read(dev->parent, priv->pid + REG_SUBTYPE);
-	if ((reg & 0x5) == 0)
-		return log_msg_ret("bad subtype", -ENXIO);
-
-	return 0;
-}
-
-static int qcom_pwrkey_of_to_plat(struct udevice *dev)
-{
-	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-
-	uc_priv->gpio_count = 2;
-	uc_priv->bank_name = dev_read_string(dev, "gpio-bank-name");
-	if (uc_priv->bank_name == NULL)
-		uc_priv->bank_name = "pwkey_qcom";
-
-	return 0;
-}
-
-static const struct udevice_id qcom_pwrkey_ids[] = {
-	{ .compatible = "qcom,pm8916-pwrkey" },
-	{ .compatible = "qcom,pm8994-pwrkey" },
-	{ .compatible = "qcom,pm8998-pwrkey" },
-	{ }
-};
-
-U_BOOT_DRIVER(pwrkey_qcom) = {
-	.name	= "pwrkey_qcom",
-	.id	= UCLASS_GPIO,
-	.of_match = qcom_pwrkey_ids,
-	.of_to_plat = qcom_pwrkey_of_to_plat,
-	.probe	= qcom_pwrkey_probe,
-	.ops	= &qcom_pwrkey_ops,
-	.priv_auto	= sizeof(struct qcom_gpio_bank),
-};

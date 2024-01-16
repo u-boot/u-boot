@@ -776,6 +776,8 @@ config ARCH_IPQ40XX
 	select CLK
 	select SMEM
 	select OF_CONTROL
+	select CLK_QCOM_IPQ4019
+	select PINCTRL_QCOM_IPQ4019
 	imply CMD_DM
 
 config ARCH_KEYSTONE
@@ -1076,6 +1078,7 @@ config ARCH_SNAPDRAGON
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select DM_RESET
 	select GPIO_EXTRA_HEADER
 	select MSM_SMEM
 	select OF_CONTROL

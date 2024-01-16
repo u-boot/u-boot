@@ -42,14 +42,3 @@
 		gpios = <&pm8916_gpios 3 0>;
 	};
 };
-
-
-&pm8916_pon {
-	key_vol_down {
-		gpios = <&pm8916_pon 1 0>;
-	};
-
-	key_power {
-		gpios = <&pm8916_pon 0 0>;
-	};
-};

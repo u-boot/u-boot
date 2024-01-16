@@ -5,9 +5,9 @@
  * (C) Copyright 2017 Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
  */
 
+#include <button.h>
 #include <cpu_func.h>
 #include <init.h>
-#include <asm/arch/sysmap-apq8096.h>
 #include <env.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -19,6 +19,11 @@
 #include <linux/bitops.h>
 #include <asm/psci.h>
 #include <asm/gpio.h>
+
+#define TLMM_BASE_ADDR                  (0x1010000)
+
+/* Strength (sdc1) */
+#define SDC1_HDRV_PULL_CTL_REG          (TLMM_BASE_ADDR + 0x0012D000)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -135,30 +140,18 @@ void reset_cpu(void)
 /* Check for vol- button - if pressed - stop autoboot */
 int misc_init_r(void)
 {
-	struct udevice *pon;
-	struct gpio_desc resin;
-	int node, ret;
+	struct udevice *btn;
+	int ret;
+	enum button_state_t state;
 
-	ret = uclass_get_device_by_name(UCLASS_GPIO, "pm8994_pon@800", &pon);
+	ret = button_get_by_label("pwrkey", &btn);
 	if (ret < 0) {
-		printf("Failed to find PMIC pon node. Check device tree\n");
-		return 0;
+		printf("Couldn't find power button!\n");
+		return ret;
 	}
 
-	node = fdt_subnode_offset(gd->fdt_blob, dev_of_offset(pon),
-				  "key_vol_down");
-	if (node < 0) {
-		printf("Failed to find key_vol_down node. Check device tree\n");
-		return 0;
-	}
-
-	if (gpio_request_by_name_nodev(offset_to_ofnode(node), "gpios", 0,
-				       &resin, 0)) {
-		printf("Failed to request key_vol_down button.\n");
-		return 0;
-	}
-
-	if (dm_gpio_get_value(&resin)) {
+	state = button_get_state(btn);
+	if (state == BUTTON_ON) {
 		env_set("bootdelay", "-1");
 		printf("Power button pressed - dropping to console.\n");
 	}

@@ -318,12 +318,11 @@ config CMD_PCA953X
 config QCOM_PMIC_GPIO
 	bool "Qualcomm generic PMIC GPIO/keypad driver"
 	depends on DM_GPIO && PMIC_QCOM
+	select BUTTON
 	help
 	  Support for GPIO pins and power/reset buttons found on
 	  Qualcomm SoCs PMIC.
-	  Default name for GPIO bank is "pm8916".
-	  Power and reset buttons are placed in "pwkey_qcom" bank and
-          have gpio numbers 0 and 1 respectively.
+	  The GPIO bank is called "pmic"
 
 config PCF8575_GPIO
 	bool "PCF8575 I2C GPIO Expander driver"

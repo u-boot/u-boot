@@ -9,7 +9,6 @@
 #define __CONFIGS_DRAGONBOARD410C_H
 
 #include <linux/sizes.h>
-#include <asm/arch/sysmap-apq8016.h>
 
 /* Build new ELF image from u-boot.bin (U-Boot + appended DTB) */
 

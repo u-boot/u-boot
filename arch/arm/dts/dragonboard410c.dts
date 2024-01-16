@@ -147,20 +147,31 @@
 				#address-cells = <0x1>;
 				#size-cells = <0x1>;
 
-				pm8916_pon: pm8916_pon@800 {
-					compatible = "qcom,pm8916-pwrkey";
-					reg = <0x800 0x96>;
-					#gpio-cells = <2>;
-					gpio-controller;
+				pon@800 {
+					compatible = "qcom,pm8916-pon";
+					reg = <0x800 0x100>;
+					mode-bootloader = <0x2>;
+					mode-recovery = <0x1>;
+
+					pwrkey {
+						compatible = "qcom,pm8941-pwrkey";
+						debounce = <15625>;
+						bias-pull-up;
+					};
+
+					pm8916_resin: resin {
+						compatible = "qcom,pm8941-resin";
+						debounce = <15625>;
+						bias-pull-up;
+					};
 				};
 
 				pm8916_gpios: pm8916_gpios@c000 {
 					compatible = "qcom,pm8916-gpio";
 					reg = <0xc000 0x400>;
 					gpio-controller;
-					gpio-count = <4>;
+					gpio-ranges = <&pm8916_gpios 0 0 4>;
 					#gpio-cells = <2>;
-					gpio-bank-name="pmic";
 				};
 			};
 

@@ -26,23 +26,13 @@
 			#power-domain-cells = <1>;
 		};
 
-		gpio_north: gpio_north@3900000 {
-			#gpio-cells = <2>;
+		tlmm: pinctrl@3400000 {
 			compatible = "qcom,sdm845-pinctrl";
-			reg = <0x3900000 0x400000>;
-			gpio-count = <150>;
-			gpio-controller;
-			gpio-ranges = <&gpio_north 0 0 150>;
-			gpio-bank-name = "soc_north.";
-		};
-
-		tlmm_north: pinctrl_north@3900000 {
-			compatible = "qcom,sdm845-pinctrl";
-			reg = <0x3900000 0x400000>;
+			reg = <0x3400000 0xc00000>;
 			gpio-count = <150>;
 			gpio-controller;
 			#gpio-cells = <2>;
-			gpio-ranges = <&tlmm_north 0 0 150>;
+			gpio-ranges = <&tlmm 0 0 150>;
 
 			/* DEBUG UART */
 			qup_uart9: qup-uart9-default {
@@ -73,7 +63,7 @@
 			reg = <0xc440000 0x1100>,
 			      <0xc600000 0x2000000>,
 			      <0xe600000 0x100000>;
-			reg-names = "cnfg", "core", "obsrvr";
+			reg-names = "core", "chnls", "obsrvr";
 			#address-cells = <0x1>;
 			#size-cells = <0x1>;
 
@@ -88,21 +78,33 @@
 				#address-cells = <0x1>;
 				#size-cells = <0x1>;
 
-				pm8998_pon: pm8998_pon@800 {
-					compatible = "qcom,pm8998-pwrkey";
+				pm8998_pon: pon@800 {
+					compatible = "qcom,pm8998-pon";
+
 					reg = <0x800 0x100>;
-					#gpio-cells = <2>;
-					gpio-controller;
-					gpio-bank-name = "pm8998_key.";
+					mode-bootloader = <0x2>;
+					mode-recovery = <0x1>;
+
+					pm8998_pwrkey: pwrkey {
+						compatible = "qcom,pm8941-pwrkey";
+						debounce = <15625>;
+						bias-pull-up;
+					};
+
+					pm8998_resin: resin {
+						compatible = "qcom,pm8941-resin";
+						debounce = <15625>;
+						bias-pull-up;
+						status = "disabled";
+					};
 				};
 
 				pm8998_gpios: pm8998_gpios@c000 {
 					compatible = "qcom,pm8998-gpio";
 					reg = <0xc000 0x1a00>;
 					gpio-controller;
-					gpio-count = <21>;
+					gpio-ranges = <&pm8998_gpios 0 0 26>;
 					#gpio-cells = <2>;
-					gpio-bank-name = "pm8998.";
 				};
 			};
 

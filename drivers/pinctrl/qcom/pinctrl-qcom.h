@@ -5,13 +5,16 @@
  * (C) Copyright 2018 Ramon Fried <ramon.fried@gmail.com>
  *
  */
-#ifndef _PINCTRL_SNAPDRAGON_H
-#define _PINCTRL_SNAPDRAGON_H
+#ifndef _PINCTRL_QCOM_H
+#define _PINCTRL_QCOM_H
+
+#include <asm/types.h>
+#include <mach/gpio.h>
 
 struct udevice;
 
 struct msm_pinctrl_data {
-	int pin_count;
+	struct msm_pin_data pin_data;
 	int functions_count;
 	const char *(*get_function_name)(struct udevice *dev,
 					 unsigned int selector);
@@ -25,9 +28,8 @@ struct pinctrl_function {
 	int val;
 };
 
-extern struct msm_pinctrl_data apq8016_data;
-extern struct msm_pinctrl_data apq8096_data;
-extern struct msm_pinctrl_data sdm845_data;
-extern struct msm_pinctrl_data qcs404_data;
+extern struct pinctrl_ops msm_pinctrl_ops;
+
+int msm_pinctrl_bind(struct udevice *dev);
 
 #endif
