@@ -946,6 +946,9 @@ int dw_hdmi_detect_hpd(struct dw_hdmi *hdmi)
 		return -ENODEV;
 	}
 
+	if (hdmi->ops && hdmi->ops->read_hpd)
+		hdmi->ops->read_hpd(hdmi, true);
+
 	return 0;
 }
 
