@@ -178,6 +178,10 @@ enum {
 	CLK_I2C3_DIV_CON_SHIFT		= 8,
 	CLK_I2C2_PLL_SEL_SHIFT		= 7,
 	CLK_I2C2_DIV_CON_SHIFT		= 0,
+
+	/* CLKSEL_CON40 */
+	CLK_HDMIPHY_DIV_CON_SHIFT	= 3,
+	CLK_HDMIPHY_DIV_CON_MASK	= 0x7 << CLK_HDMIPHY_DIV_CON_SHIFT,
 };
 
 #define VCO_MAX_KHZ	(3200 * (MHz / KHz))
@@ -660,6 +664,16 @@ static ulong rk3328_vop_set_clk(struct rk3328_clk_priv *priv,
 }
 #endif
 
+static ulong rk3328_hdmiphy_get_clk(struct rk3328_cru *cru)
+{
+	u32 div, con;
+
+	con = readl(&cru->clksel_con[40]);
+	div = (con & CLK_HDMIPHY_DIV_CON_MASK) >> CLK_HDMIPHY_DIV_CON_SHIFT;
+
+	return DIV_TO_RATE(GPLL_HZ, div);
+}
+
 static ulong rk3328_clk_get_rate(struct clk *clk)
 {
 	struct rk3328_clk_priv *priv = dev_get_priv(clk->dev);
@@ -688,6 +702,9 @@ static ulong rk3328_clk_get_rate(struct clk *clk)
 		break;
 	case SCLK_SPI:
 		rate = rk3328_spi_get_clk(priv->cru);
+		break;
+	case PCLK_HDMIPHY:
+		rate = rk3328_hdmiphy_get_clk(priv->cru);
 		break;
 	default:
 		return -ENOENT;
