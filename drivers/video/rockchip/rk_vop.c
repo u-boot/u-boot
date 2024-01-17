@@ -165,6 +165,7 @@ static void rkvop_mode_set(struct udevice *dev,
 {
 	struct rk_vop_priv *priv = dev_get_priv(dev);
 	struct rk3288_vop *regs = priv->regs;
+	struct rk3288_vop *dsp_regs = priv->regs + priv->dsp_offset;
 	struct rkvop_driverdata *data =
 		(struct rkvop_driverdata *)dev_get_driver_data(dev);
 
@@ -198,27 +199,27 @@ static void rkvop_mode_set(struct udevice *dev,
 
 	writel(V_HSYNC(hsync_len) |
 	       V_HORPRD(hsync_len + hback_porch + hactive + hfront_porch),
-			&regs->dsp_htotal_hs_end);
+			&dsp_regs->dsp_htotal_hs_end);
 
 	writel(V_HEAP(hsync_len + hback_porch + hactive) |
 	       V_HASP(hsync_len + hback_porch),
-	       &regs->dsp_hact_st_end);
+	       &dsp_regs->dsp_hact_st_end);
 
 	writel(V_VSYNC(vsync_len) |
 	       V_VERPRD(vsync_len + vback_porch + vactive + vfront_porch),
-	       &regs->dsp_vtotal_vs_end);
+	       &dsp_regs->dsp_vtotal_vs_end);
 
 	writel(V_VAEP(vsync_len + vback_porch + vactive)|
 	       V_VASP(vsync_len + vback_porch),
-	       &regs->dsp_vact_st_end);
+	       &dsp_regs->dsp_vact_st_end);
 
 	writel(V_HEAP(hsync_len + hback_porch + hactive) |
 	       V_HASP(hsync_len + hback_porch),
-	       &regs->post_dsp_hact_info);
+	       &dsp_regs->post_dsp_hact_info);
 
 	writel(V_VAEP(vsync_len + vback_porch + vactive)|
 	       V_VASP(vsync_len + vback_porch),
-	       &regs->post_dsp_vact_info);
+	       &dsp_regs->post_dsp_vact_info);
 
 	writel(0x01, &regs->reg_cfg_done); /* enable reg config */
 }
@@ -452,6 +453,7 @@ int rk_vop_probe(struct udevice *dev)
 
 	priv->regs = dev_read_addr_ptr(dev);
 	priv->win_offset = ops->win_offset;
+	priv->dsp_offset = ops->dsp_offset;
 
 	/*
 	 * Try all the ports until we find one that works. In practice this
