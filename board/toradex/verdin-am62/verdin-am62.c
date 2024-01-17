@@ -102,12 +102,13 @@ void spl_board_init(void)
 {
 	u32 val;
 
-	/* Set USB0 PHY core voltage to 0.85V */
+	/* Clear USB0_PHY_CTRL_CORE_VOLTAGE */
+	/* TI recommends to clear the bit independent of VDDA_CORE_USB */
 	val = readl(CTRLMMR_USB0_PHY_CTRL);
 	val &= ~(CORE_VOLTAGE);
 	writel(val, CTRLMMR_USB0_PHY_CTRL);
 
-	/* Set USB1 PHY core voltage to 0.85V */
+	/* Clear USB1_PHY_CTRL_CORE_VOLTAGE */
 	val = readl(CTRLMMR_USB1_PHY_CTRL);
 	val &= ~(CORE_VOLTAGE);
 	writel(val, CTRLMMR_USB1_PHY_CTRL);
