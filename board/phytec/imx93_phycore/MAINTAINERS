@@ -1,0 +1,10 @@
+phyCORE-i.MX93
+M:	Mathieu Othacehe <m.othacehe@gmail.com>
+W:      https://www.phytec.de/produkte/system-on-modules/phycore-imx-91-93/
+S:      Maintained
+F:      arch/arm/dts/imx93-phycore-segin.dts
+F:      arch/arm/dts/imx93-phycore-som.dtsi
+F:      arch/arm/dts/imx93-phycore-segin-u-boot.dtsi
+F:      board/phytec/imx93_phycore/
+F:      configs/imx93_phycore_defconfig
+F:      include/configs/imx93_phycore.h
