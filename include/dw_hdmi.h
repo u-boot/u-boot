@@ -539,6 +539,7 @@ struct dw_hdmi;
 struct dw_hdmi_phy_ops {
 	int (*phy_set)(struct dw_hdmi *hdmi, uint mpixelclock);
 	void (*read_hpd)(struct dw_hdmi *hdmi, bool hdp_status);
+	void (*setup_hpd)(struct dw_hdmi *hdmi);
 };
 
 struct dw_hdmi {

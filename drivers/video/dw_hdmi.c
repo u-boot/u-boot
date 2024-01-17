@@ -1061,4 +1061,7 @@ void dw_hdmi_init(struct dw_hdmi *hdmi)
 
 	/* enable i2c client nack % arbitration error irq */
 	hdmi_write(hdmi, ~0x44, HDMI_I2CM_CTLINT);
+
+	if (hdmi->ops && hdmi->ops->setup_hpd)
+		hdmi->ops->setup_hpd(hdmi);
 }
