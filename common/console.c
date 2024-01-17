@@ -1049,9 +1049,16 @@ int console_clear(void)
 	return 0;
 }
 
+static char *get_stdio(const u8 std)
+{
+	return stdio_devices[std] ? stdio_devices[std]->name : "No devices available!";
+}
+
 static void stdio_print_current_devices(void)
 {
-	char *stdinname, *stdoutname, *stderrname;
+	char *stdinname = NULL;
+	char *stdoutname = NULL;
+	char *stderrname = NULL;
 
 	if (CONFIG_IS_ENABLED(CONSOLE_MUX) &&
 	    CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV)) {
@@ -1059,21 +1066,11 @@ static void stdio_print_current_devices(void)
 		stdinname  = env_get("stdin");
 		stdoutname = env_get("stdout");
 		stderrname = env_get("stderr");
-
-		stdinname = stdinname ? : "No input devices available!";
-		stdoutname = stdoutname ? : "No output devices available!";
-		stderrname = stderrname ? : "No error devices available!";
-	} else {
-		stdinname = stdio_devices[stdin] ?
-			stdio_devices[stdin]->name :
-			"No input devices available!";
-		stdoutname = stdio_devices[stdout] ?
-			stdio_devices[stdout]->name :
-			"No output devices available!";
-		stderrname = stdio_devices[stderr] ?
-			stdio_devices[stderr]->name :
-			"No error devices available!";
 	}
+
+	stdinname = stdinname ? : get_stdio(stdin);
+	stdoutname = stdoutname ? : get_stdio(stdout);
+	stderrname = stderrname ? : get_stdio(stderr);
 
 	/* Print information */
 	puts("In:    ");
