@@ -5,6 +5,7 @@
  * @Descr: USB driver - Embedded Artists LPC3250 OEM Board support functions
  *
  * Copyright (c) 2015 Tyco Fire Protection Products.
+ * Copyright 2024 Timesys <piotr.wojtaszczyk@timesys.com>
  */
 
 #include <common.h>
@@ -19,6 +20,7 @@
 #include <asm/arch/i2c.h>
 #include <usb.h>
 #include <i2c.h>
+#include <generic-phy.h>
 
 /* OTG I2C controller module register structures */
 struct otgi2c_regs {
@@ -69,8 +71,6 @@ struct otg_regs {
 #define OTG1_DM_PULLDOWN		(1 << 3)
 #define OTG1_VBUS_DRV			(1 << 5)
 
-#define ISP1301_I2C_ADDR		CFG_USB_ISP1301_I2C_ADDR
-
 #define ISP1301_I2C_MODE_CONTROL_1_SET		0x04
 #define ISP1301_I2C_MODE_CONTROL_1_CLR		0x05
 #define ISP1301_I2C_MODE_CONTROL_2_SET		0x12
@@ -86,19 +86,11 @@ static struct clk_pm_regs *clk_pwr = (struct clk_pm_regs *)CLK_PM_BASE;
 
 static int isp1301_set_value(struct udevice *dev, int reg, u8 value)
 {
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	return i2c_write(ISP1301_I2C_ADDR, reg, 1, &value, 1);
-#else
 	return dm_i2c_write(dev, reg, &value, 1);
-#endif
 }
 
 static void isp1301_configure(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	i2c_set_bus_num(I2C_2);
-#endif
-
 	/*
 	 * LPC32XX only supports DAT_SE0 USB mode
 	 * This sequence is important
@@ -155,18 +147,10 @@ static int usbpll_setup(void)
 	return 0;
 }
 
-int usb_cpu_init(void)
+static int isp1301_phy_init(struct phy *usb_phy)
 {
 	u32 ret;
-	struct udevice *dev = NULL;
-
-#if CONFIG_IS_ENABLED(DM_I2C)
-	ret = i2c_get_chip_for_busnum(I2C_2, ISP1301_I2C_ADDR, 1, &dev);
-	if (ret) {
-		debug("%s: No bus %d\n", __func__, I2C_2);
-		return ret;
-	}
-#endif
+	struct udevice *dev = usb_phy->dev;
 
 	/*
 	 * USB pins routing setup is done by "lpc32xx_usb_init()" and should
@@ -211,21 +195,13 @@ int usb_cpu_init(void)
 	return 0;
 }
 
-int usb_cpu_stop(void)
+int isp1301_phy_exit(struct phy *usb_phy)
 {
-	struct udevice *dev = NULL;
+	struct udevice *dev = usb_phy->dev;
 	int ret = 0;
 
-#if CONFIG_IS_ENABLED(DM_I2C)
-	ret = i2c_get_chip_for_busnum(I2C_2, ISP1301_I2C_ADDR, 1, &dev);
-	if (ret) {
-		debug("%s: No bus %d\n", __func__, I2C_2);
-		return ret;
-	}
-#endif
-
 	/* vbus off */
-	isp1301_set_value(dev, ISP1301_I2C_OTG_CONTROL_1_SET, OTG1_VBUS_DRV);
+	isp1301_set_value(dev, ISP1301_I2C_OTG_CONTROL_1_CLR, OTG1_VBUS_DRV);
 
 	clrbits_le32(&otg->otg_sts_ctrl, OTG_HOST_EN);
 
@@ -234,7 +210,44 @@ int usb_cpu_stop(void)
 	return ret;
 }
 
-int usb_cpu_init_fail(void)
+static int isp1301_phy_set_on(struct phy *usb_phy)
 {
-	return usb_cpu_stop();
+	struct udevice *dev = usb_phy->dev;
+	int ret;
+	ret = isp1301_set_value(dev, ISP1301_I2C_OTG_CONTROL_1_SET, OTG1_VBUS_DRV);
+	mdelay(10); /* ramp up delay */
+	return ret;
 }
+
+static int isp1301_phy_set_off(struct phy *usb_phy)
+{
+	struct udevice *dev = usb_phy->dev;
+	int ret;
+	ret = isp1301_set_value(dev, ISP1301_I2C_OTG_CONTROL_1_CLR, OTG1_VBUS_DRV);
+	return ret;
+}
+
+int isp1301_probe(struct udevice *dev)
+{
+	return 0;
+}
+
+static const struct udevice_id isp1301_usb_phy_of_match[] = {
+	{.compatible = "nxp,isp1301" },
+	{},
+};
+
+struct phy_ops isp1301_usb_phy_ops = {
+	.init = isp1301_phy_init,
+	.power_on = isp1301_phy_set_on,
+	.power_off = isp1301_phy_set_off,
+	.exit = isp1301_phy_exit,
+};
+
+U_BOOT_DRIVER(nxp_isp1301_usb_phy) = {
+	.name = "nxp_isp1301_usb_phy",
+	.id = UCLASS_PHY,
+	.of_match = isp1301_usb_phy_of_match,
+	.probe = isp1301_probe,
+	.ops = &isp1301_usb_phy_ops,
+};

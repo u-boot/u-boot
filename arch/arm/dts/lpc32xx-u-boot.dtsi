@@ -6,6 +6,10 @@
 
 #include <config.h>
 
+&ohci {
+	compatible = "generic-ohci";
+};
+
 #ifdef CONFIG_SPL
 / {
 	binman: binman {
