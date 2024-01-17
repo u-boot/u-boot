@@ -936,6 +936,19 @@ int dw_hdmi_phy_wait_for_hpd(struct dw_hdmi *hdmi)
 	return -1;
 }
 
+int dw_hdmi_detect_hpd(struct dw_hdmi *hdmi)
+{
+	int ret;
+
+	ret = dw_hdmi_phy_wait_for_hpd(hdmi);
+	if (ret < 0) {
+		debug("hdmi can not get hpd signal\n");
+		return -ENODEV;
+	}
+
+	return 0;
+}
+
 void dw_hdmi_phy_init(struct dw_hdmi *hdmi)
 {
 	/* enable phy i2cm done irq */

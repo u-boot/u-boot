@@ -562,5 +562,6 @@ void dw_hdmi_phy_init(struct dw_hdmi *hdmi);
 int dw_hdmi_enable(struct dw_hdmi *hdmi, const struct display_timing *edid);
 int dw_hdmi_read_edid(struct dw_hdmi *hdmi, u8 *buf, int buf_size);
 void dw_hdmi_init(struct dw_hdmi *hdmi);
+int dw_hdmi_detect_hpd(struct dw_hdmi *hdmi);
 
 #endif

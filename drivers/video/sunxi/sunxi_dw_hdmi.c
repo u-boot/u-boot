@@ -358,11 +358,9 @@ static int sunxi_dw_hdmi_probe(struct udevice *dev)
 
 	sunxi_dw_hdmi_phy_init(&priv->hdmi);
 
-	ret = dw_hdmi_phy_wait_for_hpd(&priv->hdmi);
-	if (ret < 0) {
-		debug("hdmi can not get hpd signal\n");
-		return -1;
-	}
+	ret = dw_hdmi_detect_hpd(&priv->hdmi);
+	if (ret < 0)
+		return ret;
 
 	dw_hdmi_init(&priv->hdmi);
 
