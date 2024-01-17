@@ -20,6 +20,20 @@
 			no-expanded;
 		};
 	};
+
+	tiboot3-j721e_sr2-hs-evm.bin {
+		filename = "tiboot3-j721e_sr2-hs-evm.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl_sr2>;
+			core = "public";
+			load = <CONFIG_SPL_TEXT_BASE>;
+			keyfile = "custMpk.pem";
+		};
+		u_boot_spl_sr2: u-boot-spl {
+			no-expanded;
+		};
+	};
+
 	sysfw {
 		filename = "sysfw.bin";
 		ti-secure-rom {
@@ -40,9 +54,78 @@
 			optional;
 		};
 	};
+
+	sysfw_sr2 {
+		filename = "sysfw.bin_sr2";
+		ti-secure-rom {
+			content = <&ti_fs_cert_sr2>;
+			core = "secure";
+			load = <0x40000>;
+			keyfile = "custMpk.pem";
+			countersign;
+		};
+		ti_fs_cert_sr2: ti-fs-cert.bin {
+			filename = "ti-sysfw/ti-fs-firmware-j721e_sr2-hs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+		ti-fs-firmware-j721e_sr2-hs-enc.bin {
+			filename = "ti-sysfw/ti-fs-firmware-j721e_sr2-hs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+
 	itb {
 		filename = "sysfw-j721e_sr1_1-hs-evm.itb";
 		insert-template = <&itb_template>;
+	};
+
+	itb_sr2 {
+		filename = "sysfw-j721e_sr2-hs-evm.itb";
+		insert-template = <&itb_template>;
+		fit {
+			images {
+				sysfw.bin {
+					blob-ext {
+						filename = "sysfw.bin_sr2";
+					};
+				};
+				board-cfg.bin {
+					ti-secure {
+						content = <&board_cfg_sr2>;
+					};
+					board_cfg_sr2: board-cfg {
+						filename = "board-cfg.bin";
+					};
+				};
+				pm-cfg.bin {
+					ti-secure {
+						content = <&pm_cfg_sr2>;
+					};
+					pm_cfg_sr2: pm-cfg {
+						filename = "pm-cfg.bin";
+					};
+				};
+				rm-cfg.bin {
+					ti-secure {
+						content = <&rm_cfg_sr2>;
+					};
+					rm_cfg_sr2: rm-cfg {
+						filename = "rm-cfg.bin";
+					};
+				};
+				sec-cfg.bin {
+					ti-secure {
+						content = <&sec_cfg_sr2>;
+					};
+					sec_cfg_sr2: sec-cfg {
+						filename = "sec-cfg.bin";
+					};
+				};
+
+			};
+		};
 	};
 };
 

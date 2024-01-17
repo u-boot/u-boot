@@ -186,7 +186,7 @@ int cmd_process_error(struct cmd_tbl *cmdtp, int err);
  * Return: data size in bytes (1, 2, 4, 8) or CMD_DATA_SIZE_ERR for an invalid
  *	character, or CMD_DATA_SIZE_STR for a string
  */
-int cmd_get_data_size(char *arg, int default_size);
+int cmd_get_data_size(const char *arg, int default_size);
 #endif
 
 #ifdef CONFIG_CMD_BOOTD

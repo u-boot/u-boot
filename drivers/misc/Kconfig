@@ -554,6 +554,13 @@ config QFW_MMIO
 	  Hidden option to enable MMIO QEMU fw_cfg interface. This will be
 	  selected by the appropriate QEMU board.
 
+config QFW_SMBIOS
+	bool
+	default y
+	depends on QFW && SMBIOS && !SANDBOX
+	help
+	  Hidden option to read SMBIOS tables from QEMU.
+
 config I2C_EEPROM
 	bool "Enable driver for generic I2C-attached EEPROMs"
 	depends on MISC
