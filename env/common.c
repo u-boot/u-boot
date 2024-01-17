@@ -359,6 +359,14 @@ char *env_get_default(const char *name)
 	return NULL;
 }
 
+/*
+ * Look up the variable from the default environment and store its value in buf
+ */
+int env_get_default_into(const char *name, char *buf, unsigned int len)
+{
+	return env_get_from_linear(default_environment, name, buf, len);
+}
+
 void env_set_default(const char *s, int flags)
 {
 	if (s) {
