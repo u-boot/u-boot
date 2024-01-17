@@ -225,7 +225,7 @@ int console_simple_get_font(struct udevice *dev, int seq, struct vidfont_info *i
 {
 	info->name = fonts[seq].name;
 
-	return 0;
+	return info->name ? 0 : -ENOENT;
 }
 
 int console_simple_select_font(struct udevice *dev, const char *name, uint size)
