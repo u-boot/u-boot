@@ -39,11 +39,13 @@ enum vop_pol {
 	DCLK_INVERT    = 3
 };
 
-static void rkvop_enable(struct udevice *dev, struct rk3288_vop *regs, ulong fbbase,
+static void rkvop_enable(struct udevice *dev, ulong fbbase,
 			 int fb_bits_per_pixel,
 			 const struct display_timing *edid,
 			 struct reset_ctl *dclk_rst)
 {
+	struct rk_vop_priv *priv = dev_get_priv(dev);
+	struct rk3288_vop *regs = priv->regs;
 	u32 lb_mode;
 	u32 rgb_mode;
 	u32 hactive = edid->hactive.typ;
@@ -243,9 +245,7 @@ static void rkvop_mode_set(struct udevice *dev,
 static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 {
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct rk_vop_priv *priv = dev_get_priv(dev);
 	int vop_id, remote_vop_id;
-	struct rk3288_vop *regs = priv->regs;
 	struct display_timing timing;
 	struct udevice *disp;
 	int ret;
@@ -380,7 +380,7 @@ static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 		return ret;
 	}
 
-	rkvop_enable(dev, regs, fbbase, 1 << l2bpp, &timing, &dclk_rst);
+	rkvop_enable(dev, fbbase, 1 << l2bpp, &timing, &dclk_rst);
 
 	ret = display_enable(disp, 1 << l2bpp, &timing);
 	if (ret)
