@@ -534,6 +534,12 @@ struct hdmi_data_info {
 	struct hdmi_vmode video_mode;
 };
 
+struct dw_hdmi;
+
+struct dw_hdmi_phy_ops {
+	int (*phy_set)(struct dw_hdmi *hdmi, uint mpixelclock);
+};
+
 struct dw_hdmi {
 	ulong ioaddr;
 	const struct hdmi_mpll_config *mpll_cfg;
@@ -543,8 +549,8 @@ struct dw_hdmi {
 	u8 reg_io_width;
 	struct hdmi_data_info hdmi_data;
 	struct udevice *ddc_bus;
+	const struct dw_hdmi_phy_ops *ops;
 
-	int (*phy_set)(struct dw_hdmi *hdmi, uint mpixelclock);
 	void (*write_reg)(struct dw_hdmi *hdmi, u8 val, int offset);
 	u8 (*read_reg)(struct dw_hdmi *hdmi, int offset);
 };

@@ -988,7 +988,7 @@ int dw_hdmi_enable(struct dw_hdmi *hdmi, const struct display_timing *edid)
 
 	hdmi_av_composer(hdmi, edid);
 
-	ret = hdmi->phy_set(hdmi, edid->pixelclock.typ);
+	ret = hdmi->ops->phy_set(hdmi, edid->pixelclock.typ);
 	if (ret)
 		return ret;
 
@@ -1009,9 +1009,17 @@ int dw_hdmi_enable(struct dw_hdmi *hdmi, const struct display_timing *edid)
 	return 0;
 }
 
+static const struct dw_hdmi_phy_ops dw_hdmi_synopsys_phy_ops = {
+	.phy_set = dw_hdmi_phy_cfg,
+};
+
 void dw_hdmi_init(struct dw_hdmi *hdmi)
 {
 	uint ih_mute;
+
+	/* hook Synopsys PHYs ops */
+	if (!hdmi->ops)
+		hdmi->ops = &dw_hdmi_synopsys_phy_ops;
 
 	/*
 	 * boot up defaults are:

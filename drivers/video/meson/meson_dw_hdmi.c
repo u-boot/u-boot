@@ -375,6 +375,10 @@ static int meson_dw_hdmi_wait_hpd(struct dw_hdmi *hdmi)
 	return -ETIMEDOUT;
 }
 
+static const struct dw_hdmi_phy_ops dw_hdmi_meson_phy_ops = {
+	.phy_set = meson_dw_hdmi_phy_init,
+};
+
 static int meson_dw_hdmi_probe(struct udevice *dev)
 {
 	struct meson_dw_hdmi *priv = dev_get_priv(dev);
@@ -397,7 +401,7 @@ static int meson_dw_hdmi_probe(struct udevice *dev)
 
 	priv->hdmi.hdmi_data.enc_out_bus_format = MEDIA_BUS_FMT_RGB888_1X24;
 	priv->hdmi.hdmi_data.enc_in_bus_format = MEDIA_BUS_FMT_YUV8_1X24;
-	priv->hdmi.phy_set = meson_dw_hdmi_phy_init;
+	priv->hdmi.ops = &dw_hdmi_meson_phy_ops;
 	if (meson_hdmi_is_compatible(priv, HDMI_COMPATIBLE_G12A))
 		priv->hdmi.reg_io_width = 1;
 	else {
