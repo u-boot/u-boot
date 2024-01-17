@@ -68,11 +68,16 @@ static int setup_boottargets(void)
 	 * Make the default boot medium between SD Card and eMMC, the one that
 	 * was used to load U-Boot proper.
 	 */
-	bool sd_booted = !strcmp(boot_device, "/mmc@ff370000");
+	struct udevice *devp;
+
+	if (uclass_find_device_by_ofnode(UCLASS_MMC, ofnode_path(boot_device), &devp)) {
+		debug("%s: not reordering boot_targets, bootdev %s != MMC\n",
+		      __func__, boot_device);
+		return 0;
+	}
+
 	char *mmc0, *mmc1;
 
-	debug("%s: booted from %s\n", __func__,
-	      sd_booted ? "SD-Card" : "eMMC");
 	mmc0 = strstr(env, "mmc0");
 	mmc1 = strstr(env, "mmc1");
 
@@ -87,8 +92,8 @@ static int setup_boottargets(void)
 	 * If mmc1 comes first in the boot order and U-Boot proper was
 	 * loaded from mmc0, swap mmc0 and mmc1 in the list.
 	 */
-	if ((mmc0 < mmc1 && sd_booted) ||
-	    (mmc0 > mmc1 && !sd_booted)) {
+	if ((mmc0 < mmc1 && devp->seq_ == 1) ||
+	    (mmc0 > mmc1 && devp->seq_ == 0)) {
 		mmc0[3] = '1';
 		mmc1[3] = '0';
 		debug("%s: set boot_targets to: %s\n", __func__, env);
@@ -102,28 +107,37 @@ int mmc_get_env_dev(void)
 {
 	const char *boot_device =
 		ofnode_read_chosen_string("u-boot,spl-boot-device");
+	struct udevice *devp;
 
 	if (!boot_device) {
 		debug("%s: /chosen/u-boot,spl-boot-device not set\n",
 		      __func__);
+#ifdef CONFIG_SYS_MMC_ENV_DEV
 		return CONFIG_SYS_MMC_ENV_DEV;
+#else
+		return 0;
+#endif
 	}
 
 	debug("%s: booted from %s\n", __func__, boot_device);
 
-	if (!strcmp(boot_device, "/mmc@ff370000"))
-		return 1;
-
-	if (!strcmp(boot_device, "/mmc@ff390000"))
+	if (uclass_find_device_by_ofnode(UCLASS_MMC, ofnode_path(boot_device), &devp))
+#ifdef CONFIG_SYS_MMC_ENV_DEV
+		return CONFIG_SYS_MMC_ENV_DEV;
+#else
 		return 0;
+#endif
 
-	return CONFIG_SYS_MMC_ENV_DEV;
+	debug("%s: get MMC ENV from mmc%d\n", __func__, devp->seq_);
+
+	return devp->seq_;
 }
 
 enum env_location arch_env_get_location(enum env_operation op, int prio)
 {
 	const char *boot_device =
 		ofnode_read_chosen_string("u-boot,spl-boot-device");
+	struct udevice *devp;
 
 	if (prio > 0)
 		return ENVL_UNKNOWN;
@@ -137,8 +151,7 @@ enum env_location arch_env_get_location(enum env_operation op, int prio)
 	debug("%s: booted from %s\n", __func__, boot_device);
 
 	if (IS_ENABLED(CONFIG_ENV_IS_IN_MMC) &&
-	    (!strcmp(boot_device, "/mmc@ff370000") ||
-	     !strcmp(boot_device, "/mmc@ff390000")))
+	    !uclass_find_device_by_ofnode(UCLASS_MMC, ofnode_path(boot_device), &devp))
 		return ENVL_MMC;
 
 	printf("%s: No environment available: booted from %s but U-Boot "
