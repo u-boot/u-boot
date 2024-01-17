@@ -351,9 +351,11 @@ bool env_get_autostart(void)
  */
 char *env_get_default(const char *name)
 {
-	if (env_get_from_linear(default_environment, name,
-				(char *)(gd->env_buf),
-				sizeof(gd->env_buf)) >= 0)
+	int ret;
+
+	ret = env_get_default_into(name, (char *)(gd->env_buf),
+				   sizeof(gd->env_buf));
+	if (ret >= 0)
 		return (char *)(gd->env_buf);
 
 	return NULL;
