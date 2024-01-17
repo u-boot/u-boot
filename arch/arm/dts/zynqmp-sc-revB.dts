@@ -71,7 +71,7 @@
 		};
 	};
 
-	si5332_2: si5332_2 { /* u42 */
+	si5332_2: si5332-2 { /* u42 */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <26000000>;
@@ -344,7 +344,7 @@
 		};
 	};
 
-	pinctrl_i2c0_gpio: i2c0-gpio {
+	pinctrl_i2c0_gpio: i2c0-gpio-grp {
 		mux {
 			groups = "gpio0_34_grp", "gpio0_35_grp";
 			function = "gpio0";
@@ -371,7 +371,7 @@
 		};
 	};
 
-	pinctrl_i2c1_gpio: i2c1-gpio {
+	pinctrl_i2c1_gpio: i2c1-gpio-grp {
 		conf {
 			groups = "gpio0_24_grp", "gpio0_25_grp";
 			slew-rate = <SLEW_RATE_SLOW>;

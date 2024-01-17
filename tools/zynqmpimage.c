@@ -135,10 +135,59 @@ static int zynqmpimage_verify_header(unsigned char *ptr, int image_size,
 	return 0;
 }
 
+static struct image_header *
+find_partition_image(const struct zynqmp_header *zynqhdr,
+		     const struct partition_header *ph)
+{
+	struct partition_header *ph_walk;
+	struct image_header *ih;
+	int i;
+
+	for_each_zynqmp_image(zynqhdr, ih) {
+		for_each_zynqmp_part_in_image(zynqhdr, i, ph_walk, ih) {
+			if (ph == ph_walk)
+				return ih;
+		}
+	}
+
+	return NULL;
+}
+
+static void print_partition_name(const struct zynqmp_header *zynqhdr,
+				 const struct partition_header *ph)
+{
+	const struct image_header *ih;
+	size_t word_len;
+	char *name;
+	int i;
+
+	ih = find_partition_image(zynqhdr, ph);
+	if (!ih)
+		return;
+
+	/* Name is stored in big-endian words, find the terminating word and
+	 * byte-swap into a new buffer
+	 */
+	word_len = strlen((char *)ih->image_name);
+	word_len = ALIGN(word_len + 1, 4);
+
+	name = calloc(1, word_len);
+	if (!name)
+		return;
+
+	for (i = 0; i < word_len / 4; i++)
+		((uint32_t *)name)[i] = uswap_32(ih->image_name[i]);
+
+	printf("    Image name : %s\n", name);
+	free(name);
+}
+
 static void print_partition(const void *ptr, const struct partition_header *ph)
 {
 	uint32_t attr = le32_to_cpu(ph->attributes);
 	unsigned long len = le32_to_cpu(ph->len) * 4;
+	unsigned long len_enc = le32_to_cpu(ph->len_enc) * 4;
+	unsigned long len_unenc = le32_to_cpu(ph->len_unenc) * 4;
 	const char *part_owner;
 	const char *dest_devs[0x8] = {
 		"none", "PS", "PL", "PMU", "unknown", "unknown", "unknown",
@@ -161,8 +210,13 @@ static void print_partition(const void *ptr, const struct partition_header *ph)
 	       dest_cpus[(attr & PART_ATTR_DEST_CPU_MASK) >> 8],
 	       dest_devs[(attr & PART_ATTR_DEST_DEVICE_MASK) >> 4]);
 
+	print_partition_name(ptr, ph);
 	printf("    Offset     : 0x%08x\n", le32_to_cpu(ph->offset) * 4);
 	printf("    Size       : %lu (0x%lx) bytes\n", len, len);
+	if (len != len_unenc)
+		printf("    Size Data  : %lu (0x%lx) bytes\n", len_unenc, len_unenc);
+	if (len_unenc != len_enc)
+		printf("    Size Enc   : %lu (0x%lx) bytes\n", len_unenc, len_unenc);
 	printf("    Load       : 0x%08llx",
 	       (unsigned long long)le64_to_cpu(ph->load_address));
 	if (ph->load_address != ph->entry_point)
@@ -212,6 +266,7 @@ static void print_partition(const void *ptr, const struct partition_header *ph)
 void zynqmpimage_print_header(const void *ptr, struct image_tool_params *params)
 {
 	struct zynqmp_header *zynqhdr = (struct zynqmp_header *)ptr;
+	struct partition_header *ph;
 	int i;
 
 	printf("Image Type   : Xilinx ZynqMP Boot Image support\n");
@@ -249,25 +304,8 @@ void zynqmpimage_print_header(const void *ptr, struct image_tool_params *params)
 		       le32_to_cpu(zynqhdr->register_init[i].data));
 	}
 
-	if (zynqhdr->image_header_table_offset) {
-		struct image_header_table *iht = (void *)ptr +
-			zynqhdr->image_header_table_offset;
-		struct partition_header *ph;
-		uint32_t ph_offset;
-		uint32_t next;
-		int i;
-
-		ph_offset = le32_to_cpu(iht->partition_header_offset) * 4;
-		ph = (void *)ptr + ph_offset;
-		for (i = 0; i < le32_to_cpu(iht->nr_parts); i++) {
-			next = le32_to_cpu(ph->next_partition_offset) * 4;
-
-			/* Partition 0 is the base image itself */
-			if (i)
-				print_partition(ptr, ph);
-
-			ph = (void *)ptr + next;
-		}
+	for_each_zynqmp_part(zynqhdr, i, ph) {
+		print_partition(ptr, ph);
 	}
 
 	free(dynamic_header);
@@ -292,7 +330,7 @@ static int zynqmpimage_check_params(struct image_tool_params *params)
 		return -1;
 	}
 
-	return !(params->lflag || params->dflag);
+	return !(params->lflag || params->dflag || params->outfile);
 }
 
 static int zynqmpimage_check_image_types(uint8_t type)
@@ -427,6 +465,39 @@ static void zynqmpimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	zynqhdr->checksum = zynqmpimage_checksum(zynqhdr);
 }
 
+static int zynqmpimage_partition_extract(struct zynqmp_header *zynqhdr,
+					 const struct partition_header *ph,
+					 const char *filename)
+{
+	ulong data = (ulong)zynqmp_get_offset(zynqhdr, ph->offset);
+	unsigned long len = le32_to_cpu(ph->len_enc) * 4;
+
+	return imagetool_save_subimage(filename, data, len);
+}
+
+/**
+ * zynqmpimage_extract_contents - retrieve a sub-image component from the image
+ * @ptr: pointer to the image header
+ * @params: command line parameters
+ *
+ * returns:
+ *     zero in case of success or a negative value if fail.
+ */
+static int zynqmpimage_extract_contents(void *ptr, struct image_tool_params *params)
+{
+	struct zynqmp_header *zynqhdr = (struct zynqmp_header *)ptr;
+	struct partition_header *ph;
+	int i;
+
+	for_each_zynqmp_part(zynqhdr, i, ph) {
+		if (i == params->pflag)
+			return zynqmpimage_partition_extract(ptr, ph, params->outfile);
+	}
+
+	printf("No partition found\n");
+	return -1;
+}
+
 static int zynqmpimage_vrec_header(struct image_tool_params *params,
 				   struct image_type_params *tparams)
 {
@@ -480,7 +551,7 @@ U_BOOT_IMAGE_TYPE(
 	zynqmpimage_verify_header,
 	zynqmpimage_print_header,
 	zynqmpimage_set_header,
-	NULL,
+	zynqmpimage_extract_contents,
 	zynqmpimage_check_image_types,
 	NULL,
 	zynqmpimage_vrec_header
