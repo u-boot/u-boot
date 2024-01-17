@@ -1,6 +1,9 @@
 .. SPDX-License-Identifier: GPL-2.0+
 .. Copyright 2021, Kory Maincent <kory.maincent@bootlin.com>
 
+.. index::
+   single: extension (command)
+
 extension command
 =================
 

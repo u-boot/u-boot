@@ -60,6 +60,8 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply NVME_PCI
 	imply PCIE_ECAM_GENERIC
 	imply DM_RNG
+	imply DM_RTC
+	imply RTC_GOLDFISH
 	imply SCSI
 	imply SYS_NS16550
 	imply SIFIVE_SERIAL

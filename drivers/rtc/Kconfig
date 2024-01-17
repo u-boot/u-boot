@@ -122,6 +122,13 @@ config RTC_EMULATION
 	  CONFIG_BOOTP_NTPSERVER. The RTC time is advanced according to CPU
 	  ticks.
 
+config RTC_GOLDFISH
+	bool "Enable Goldfish driver"
+	depends on DM_RTC
+	help
+	  The Goldfish RTC is a virtual device which may be supplied by QEMU.
+	  It is enabled by default on QEMU's RISC-V virt machine.
+
 config RTC_ISL1208
 	bool "Enable ISL1208 driver"
 	depends on DM_RTC

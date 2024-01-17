@@ -1,8 +1,40 @@
 /* -*- coding: utf-8; mode: css -*-
  *
  * Sphinx HTML theme customization: read the doc
- *
+ * Please don't add any color definition here, as the theme should
+ * work for both normal and dark modes.
  */
+
+@import 'css/theme.css';
+@import 'pygments.css';
+
+/* Improve contrast and increase size for easier reading. */
+
+body {
+	font-family: sans-serif;
+	font-size: 100%;
+}
+
+h1, h2, .rst-content .toctree-wrapper p.caption, h3, h4, h5, h6, legend {
+	font-family: sans-serif;
+}
+
+div[class^="highlight"] pre {
+	font-family: monospace;
+	font-size: 100%;
+}
+
+.wy-menu-vertical {
+	font-family: sans-serif;
+}
+
+.c {
+	font-style: normal;
+}
+
+p {
+	font-size: 100%;
+}
 
 /* Interim: Code-blocks with line nos - lines and line numbers don't line up.
  * see: https://github.com/rtfd/sphinx_rtd_theme/issues/419
@@ -13,6 +45,16 @@ div[class^="highlight"] pre {
 }
 .rst-content .highlight > pre {
     line-height: normal;
+}
+
+/* Keep fields from being strangely far apart due to inheirited table CSS. */
+.rst-content table.field-list th.field-name {
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+.rst-content table.field-list td.field-body {
+    padding-top: 1px;
+    padding-bottom: 1px;
 }
 
 @media screen {
@@ -56,13 +98,10 @@ div[class^="highlight"] pre {
     /* Menu selection and keystrokes */
 
     span.menuselection {
-	color: blue;
 	font-family: "Courier New", Courier, monospace
     }
 
     code.kbd, code.kbd span {
-	color: white;
-	background-color: darkblue;
 	font-weight: bold;
 	font-family: "Courier New", Courier, monospace
     }

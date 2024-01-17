@@ -1,6 +1,9 @@
 .. SPDX-License-Identifier: GPL-2.0+
 .. Copyright 2022, Heinrich Schuchardt <xypron.glpk@gmx.de>
 
+.. index::
+   single: mtest (command)
+
 mtest command
 =============
 

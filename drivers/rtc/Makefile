@@ -15,6 +15,7 @@ obj-$(CONFIG_RTC_DS1374) += ds1374.o
 obj-$(CONFIG_RTC_DS3231) += ds3231.o
 obj-$(CONFIG_RTC_DS3232) += ds3232.o
 obj-$(CONFIG_RTC_EMULATION) += emul_rtc.o
+obj-$(CONFIG_RTC_GOLDFISH) += goldfish_rtc.o
 obj-$(CONFIG_RTC_HT1380) += ht1380.o
 obj-$(CONFIG_$(SPL_TPL_)RTC_SANDBOX) += i2c_rtc_emul.o
 obj-$(CONFIG_RTC_ISL1208) += isl1208.o

@@ -294,7 +294,7 @@ config CMD_BOOTMETH
 
 config BOOTM_EFI
 	bool "Support booting UEFI FIT images"
-	depends on BOOTEFI_BOOTMGR && CMD_BOOTM && FIT
+	depends on EFI_BINARY_EXEC && CMD_BOOTM && FIT
 	default y
 	help
 	  Support booting UEFI FIT images via the bootm command.
@@ -386,7 +386,7 @@ config CMD_BOOTEFI
 if CMD_BOOTEFI
 config CMD_BOOTEFI_BINARY
 	bool "Allow booting an EFI binary directly"
-	depends on BOOTEFI_BOOTMGR
+	depends on EFI_BINARY_EXEC
 	default y
 	help
 	  Select this option to enable direct execution of binary at 'bootefi'.
@@ -395,7 +395,7 @@ config CMD_BOOTEFI_BINARY
 
 config CMD_BOOTEFI_BOOTMGR
 	bool "UEFI Boot Manager command"
-	depends on BOOTEFI_BOOTMGR
+	depends on EFI_BOOTMGR
 	default y
 	help
 	  Select this option to enable the 'bootmgr' subcommand of 'bootefi'.
@@ -416,7 +416,7 @@ config CMD_BOOTEFI_HELLO_COMPILE
 
 config CMD_BOOTEFI_HELLO
 	bool "Allow booting a standard EFI hello world for testing"
-	depends on CMD_BOOTEFI_HELLO_COMPILE
+	depends on CMD_BOOTEFI_BINARY && CMD_BOOTEFI_HELLO_COMPILE
 	default y if CMD_BOOTEFI_SELFTEST
 	help
 	  This adds a standard EFI hello world application to U-Boot so that
@@ -2153,7 +2153,7 @@ config CMD_EFIDEBUG
 config CMD_EFICONFIG
 	bool "eficonfig - provide menu-driven uefi variables maintenance interface"
 	default y if !HAS_BOARD_SIZE_LIMIT
-	depends on BOOTEFI_BOOTMGR
+	depends on EFI_BOOTMGR
 	select MENU
 	help
 	  Enable the 'eficonfig' command which provides the menu-driven UEFI

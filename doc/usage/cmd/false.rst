@@ -1,3 +1,6 @@
+.. index::
+   single: false (command)
+
 false command
 =============
 

@@ -1,3 +1,6 @@
+.. index::
+   single: for (command)
+
 for command
 ===========
 

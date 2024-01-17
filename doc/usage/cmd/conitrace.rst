@@ -1,3 +1,6 @@
+.. index::
+   single: conitrace (command)
+
 conitrace command
 =================
 

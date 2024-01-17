@@ -1,6 +1,9 @@
 .. SPDX-License-Identifier: GPL-2.0+
 .. (C) Copyright 2011-2012 Pali Rohár <pali@kernel.org>
 
+.. index::
+   single: bootmenu (command)
+
 bootmenu command
 ================
 
