@@ -46,6 +46,7 @@ static void rkvop_enable(struct udevice *dev, ulong fbbase,
 {
 	struct rk_vop_priv *priv = dev_get_priv(dev);
 	struct rk3288_vop *regs = priv->regs;
+	struct rk3288_vop *win_regs = priv->regs + priv->win_offset;
 	u32 lb_mode;
 	u32 rgb_mode;
 	u32 hactive = edid->hactive.typ;
@@ -53,32 +54,32 @@ static void rkvop_enable(struct udevice *dev, ulong fbbase,
 	int ret;
 
 	writel(V_ACT_WIDTH(hactive - 1) | V_ACT_HEIGHT(vactive - 1),
-	       &regs->win0_act_info);
+	       &win_regs->win0_act_info);
 
 	writel(V_DSP_XST(edid->hsync_len.typ + edid->hback_porch.typ) |
 	       V_DSP_YST(edid->vsync_len.typ + edid->vback_porch.typ),
-	       &regs->win0_dsp_st);
+	       &win_regs->win0_dsp_st);
 
 	writel(V_DSP_WIDTH(hactive - 1) |
 		V_DSP_HEIGHT(vactive - 1),
-		&regs->win0_dsp_info);
+		&win_regs->win0_dsp_info);
 
-	clrsetbits_le32(&regs->win0_color_key, M_WIN0_KEY_EN | M_WIN0_KEY_COLOR,
+	clrsetbits_le32(&win_regs->win0_color_key, M_WIN0_KEY_EN | M_WIN0_KEY_COLOR,
 			V_WIN0_KEY_EN(0) | V_WIN0_KEY_COLOR(0));
 
 	switch (fb_bits_per_pixel) {
 	case 16:
 		rgb_mode = RGB565;
-		writel(V_RGB565_VIRWIDTH(hactive), &regs->win0_vir);
+		writel(V_RGB565_VIRWIDTH(hactive), &win_regs->win0_vir);
 		break;
 	case 24:
 		rgb_mode = RGB888;
-		writel(V_RGB888_VIRWIDTH(hactive), &regs->win0_vir);
+		writel(V_RGB888_VIRWIDTH(hactive), &win_regs->win0_vir);
 		break;
 	case 32:
 	default:
 		rgb_mode = ARGB8888;
-		writel(V_ARGB888_VIRWIDTH(hactive), &regs->win0_vir);
+		writel(V_ARGB888_VIRWIDTH(hactive), &win_regs->win0_vir);
 		break;
 	}
 
@@ -91,12 +92,12 @@ static void rkvop_enable(struct udevice *dev, ulong fbbase,
 	else
 		lb_mode = LB_RGB_1280X8;
 
-	clrsetbits_le32(&regs->win0_ctrl0,
+	clrsetbits_le32(&win_regs->win0_ctrl0,
 			M_WIN0_LB_MODE | M_WIN0_DATA_FMT | M_WIN0_EN,
 			V_WIN0_LB_MODE(lb_mode) | V_WIN0_DATA_FMT(rgb_mode) |
 			V_WIN0_EN(1));
 
-	writel(fbbase, &regs->win0_yrgb_mst);
+	writel(fbbase, &win_regs->win0_yrgb_mst);
 	writel(0x01, &regs->reg_cfg_done); /* enable reg config */
 
 	ret = reset_assert(dclk_rst);
@@ -415,6 +416,8 @@ int rk_vop_probe(struct udevice *dev)
 {
 	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct rk_vop_priv *priv = dev_get_priv(dev);
+	struct rkvop_driverdata *ops =
+		(struct rkvop_driverdata *)dev_get_driver_data(dev);
 	int ret = 0;
 	ofnode port, node;
 	struct reset_ctl ahb_rst;
@@ -448,6 +451,7 @@ int rk_vop_probe(struct udevice *dev)
 #endif
 
 	priv->regs = dev_read_addr_ptr(dev);
+	priv->win_offset = ops->win_offset;
 
 	/*
 	 * Try all the ports until we find one that works. In practice this

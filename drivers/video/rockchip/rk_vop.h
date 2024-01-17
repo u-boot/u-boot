@@ -11,6 +11,7 @@
 struct rk_vop_priv {
 	void *grf;
 	void *regs;
+	int win_offset;
 };
 
 enum vop_features {
@@ -18,6 +19,7 @@ enum vop_features {
 };
 
 struct rkvop_driverdata {
+	int win_offset;
 	/* configuration */
 	u32 features;
 	/* block-specific setters/getters */
