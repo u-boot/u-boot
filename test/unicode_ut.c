@@ -752,9 +752,10 @@ static int unicode_test_utf8_to_utf32_stream(struct unit_test_state *uts)
 
 	const u32 u1[] = {0x55, 0x2D, 0x42, 0x6F, 0x6F, 0x74, 0x0000};
 	const u32 u2[] = {0x6B, 0x61, 0x66, 0x62, 0xE1, 0x74, 0x75, 0x72, 0x00};
-	const u32 u3[] = {0x0392, 0x20, 0x69, 0x73, 0x20, 0x6E, 0x6F, 0x74,
-			  0x20, 0x42, 0x00};
+	const u32 u3[] = {0x6f5c, 0x6c34, 0x8266};
 	const u32 u4[] = {0x6A, 0x32, 0x6C, 0x00};
+	const u32 u5[] = {0x0392, 0x20, 0x69, 0x73, 0x20, 0x6E, 0x6F, 0x74,
+			  0x20, 0x42, 0x00};
 
 	memset(buf, 0, sizeof(buf));
 	utf8_to_utf32_stream_helper(d1, buf);
@@ -765,8 +766,12 @@ static int unicode_test_utf8_to_utf32_stream(struct unit_test_state *uts)
 	ut_asserteq_mem(u2, buf, sizeof(u2));
 
 	memset(buf, 0, sizeof(buf));
-	utf8_to_utf32_stream_helper(d5, buf);
+	utf8_to_utf32_stream_helper(d3, buf);
 	ut_asserteq_mem(u3, buf, sizeof(u3));
+
+	memset(buf, 0, sizeof(buf));
+	utf8_to_utf32_stream_helper(d5, buf);
+	ut_asserteq_mem(u5, buf, sizeof(u5));
 
 	memset(buf, 0, sizeof(buf));
 	utf8_to_utf32_stream_helper(j2, buf);
