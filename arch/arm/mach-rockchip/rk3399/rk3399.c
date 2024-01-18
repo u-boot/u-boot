@@ -175,12 +175,6 @@ void board_debug_uart_init(void)
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
-const char * const spl_boot_devices[BOOT_DEVICE_NONE + 1] = {
-	[BOOT_DEVICE_MMC2] = "/mmc@fe320000",
-	[BOOT_DEVICE_MMC1] = "/mmc@fe330000",
-	[BOOT_DEVICE_SPI] = "/spi@ff1d0000/flash@0",
-};
-
 static void rk3399_force_power_on_reset(void)
 {
 	ofnode node;

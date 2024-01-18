@@ -443,10 +443,3 @@ void board_debug_uart_init(void)
 #endif /* CONFIG_DEBUG_UART_BASE && CONFIG_DEBUG_UART_BASE == ... */
 }
 #endif /* CONFIG_DEBUG_UART_BOARD_INIT */
-
-#if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
-const char * const spl_boot_devices[BOOT_DEVICE_NONE + 1] = {
-	[BOOT_DEVICE_MMC2] = "/mmc@ff370000",
-	[BOOT_DEVICE_MMC1] = "/mmc@ff390000",
-};
-#endif
