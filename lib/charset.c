@@ -570,6 +570,10 @@ int utf8_to_utf32_stream(u8 c, char *buffer)
 		}
 		if (pos == end)
 			return 0;
+		/*
+		 * Appending the byte lead to an invalid UTF-8 byte sequence.
+		 * Consider it as the start of a new code sequence.
+		 */
 		*buffer = 0;
 	}
 }
