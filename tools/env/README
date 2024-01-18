@@ -58,6 +58,9 @@ DEVICEx_ENVSECTORS defines the number of sectors that may be used for
 this environment instance. On NAND this is used to limit the range
 within which bad blocks are skipped, on NOR it is not used.
 
+If DEVICEx_ESIZE and DEVICEx_ENVSECTORS are both zero, then a runtime
+detection is attempted for NOR and NAND mtd types.
+
 To prevent losing changes to the environment and to prevent confusing the MTD
 drivers, a lock file at /run/fw_printenv.lock is used to serialize access
 to the environment.

@@ -9,7 +9,6 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
-#include <common.h>
 #include <cpu_func.h>
 #include <efi_loader.h>
 #include <log.h>

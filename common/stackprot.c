@@ -18,3 +18,8 @@ void __stack_chk_fail(void)
 	panic("Stack smashing detected in function:\n%p relocated from %p",
 	      ra, ra - gd->reloc_off);
 }
+
+void __stack_chk_fail_local(void)
+{
+	__stack_chk_fail();
+}

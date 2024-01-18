@@ -176,6 +176,11 @@ config SPI_FLASH_MACRONIX
 	help
 	  Add support for various Macronix SPI flash chips (MX25Lxxx)
 
+config SPI_FLASH_SILICONKAISER
+	bool "Silicon Kaiser SPI flash support"
+	help
+	  Add support for various Silicon Kaiser SPI flash chips (SK25Lxxx)
+
 config SPI_FLASH_SPANSION
 	bool "Spansion SPI flash support"
 	help

@@ -6,7 +6,6 @@
 #ifndef __SANDBOX_CLK_H
 #define __SANDBOX_CLK_H
 
-#include <common.h>
 #include <clk.h>
 #include <dt-structs.h>
 #include <linux/clk-provider.h>

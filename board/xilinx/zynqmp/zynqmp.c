@@ -156,9 +156,12 @@ int board_init(void)
 #if defined(CONFIG_ZYNQMP_FIRMWARE)
 	struct udevice *dev;
 
-	uclass_get_device_by_name(UCLASS_FIRMWARE, "zynqmp-power", &dev);
-	if (!dev)
-		panic("PMU Firmware device not found - Enable it");
+	uclass_get_device_by_name(UCLASS_FIRMWARE, "power-management", &dev);
+	if (!dev) {
+		uclass_get_device_by_name(UCLASS_FIRMWARE, "zynqmp-power", &dev);
+		if (!dev)
+			panic("PMU Firmware device not found - Enable it");
+	}
 #endif
 
 #if defined(CONFIG_SPL_BUILD)
@@ -670,7 +673,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		len += snprintf(buf + len, DFU_ALT_BUF_LEN,
 			       ";%s raw 0x%x 0x500000",
 			       CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
-			       CONFIG_SYS_SPI_U_BOOT_OFFS);
+			       multiboot * SZ_32K + CONFIG_SYS_SPI_U_BOOT_OFFS);
 #endif
 		break;
 	default:
@@ -679,5 +682,20 @@ void set_dfu_alt_info(char *interface, char *devstr)
 
 	env_set("dfu_alt_info", buf);
 	puts("DFU alt info setting: done\n");
+}
+#endif
+
+#if defined(CONFIG_SPL_SPI_LOAD)
+unsigned int spl_spi_get_uboot_offs(struct spi_flash *flash)
+{
+	u32 offset;
+	int multiboot = multi_boot();
+
+	offset = multiboot * SZ_32K;
+	offset += CONFIG_SYS_SPI_U_BOOT_OFFS;
+
+	log_info("SPI offset:\t0x%x\n", offset);
+
+	return offset;
 }
 #endif

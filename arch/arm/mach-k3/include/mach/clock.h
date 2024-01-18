@@ -7,8 +7,6 @@
 #ifndef __ASM_ARCH_CLOCK_H
 #define __ASM_ARCH_CLOCK_H
 
-#include <config.h>
-
 /* Clock Defines */
 #define V_OSCK				24000000
 #define V_SCLK				V_OSCK

@@ -336,7 +336,14 @@ int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info,
 
 	if (store_needed) {
 		abc->crc32_le = ab_control_compute_crc(abc);
-		ab_control_store(dev_desc, part_info, abc, 0);
+		ret = ab_control_store(dev_desc, part_info, abc, 0);
+		if (ret < 0) {
+#if ANDROID_AB_BACKUP_OFFSET
+			free(backup_abc);
+#endif
+			free(abc);
+			return ret;
+		}
 	}
 
 #if ANDROID_AB_BACKUP_OFFSET
@@ -345,8 +352,13 @@ int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info,
 	 * to the backup offset
 	 */
 	if (memcmp(backup_abc, abc, sizeof(*abc)) != 0) {
-		ab_control_store(dev_desc, part_info, abc,
-				 ANDROID_AB_BACKUP_OFFSET);
+		ret = ab_control_store(dev_desc, part_info, abc,
+				       ANDROID_AB_BACKUP_OFFSET);
+		if (ret < 0) {
+			free(backup_abc);
+			free(abc);
+			return ret;
+		}
 	}
 	free(backup_abc);
 #endif

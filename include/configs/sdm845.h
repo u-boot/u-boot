@@ -9,7 +9,6 @@
 #define __CONFIGS_SDM845_H
 
 #include <linux/sizes.h>
-#include <asm/arch/sysmap-sdm845.h>
 
 #define CFG_SYS_BAUDRATE_TABLE	{ 115200, 230400, 460800, 921600 }
 

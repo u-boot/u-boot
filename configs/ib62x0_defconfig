@@ -18,11 +18,11 @@ CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="setenv bootargs ${console} ${mtdparts} ${bootargs_root}; ubi part root; ubifsmount ubi:rootfs; ubifsload 0x800000 ${kernel}; ubifsload 0x700000 ${fdt}; ubifsumount; fdt addr 0x700000; fdt resize; fdt chosen; bootz 0x800000 - 0x700000"
 CONFIG_USE_PREBOOT=y
+CONFIG_SYS_PBSIZE=1051
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_HUSH_PARSER=y
 CONFIG_SYS_PROMPT="ib62x0 => "
 CONFIG_SYS_MAXARGS=32
-CONFIG_SYS_PBSIZE=1051
 CONFIG_CMD_BOOTZ=y
 # CONFIG_CMD_FLASH is not set
 CONFIG_CMD_IDE=y

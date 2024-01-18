@@ -209,7 +209,7 @@ void board_init_f(ulong dummy)
 		if (ret)
 			panic("DRAM init failed: %d\n", ret);
 	}
-	spl_enable_dcache();
+	spl_enable_cache();
 }
 
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
@@ -222,11 +222,8 @@ u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 
 	switch (bootmode) {
 	case BOOT_DEVICE_EMMC:
-		if (IS_ENABLED(CONFIG_SUPPORT_EMMC_BOOT)) {
-			if (spl_mmc_emmc_boot_partition(mmc))
-				return MMCSD_MODE_EMMCBOOT;
-			return MMCSD_MODE_FS;
-		}
+		if (IS_ENABLED(CONFIG_SUPPORT_EMMC_BOOT))
+			return MMCSD_MODE_EMMCBOOT;
 		if (IS_ENABLED(CONFIG_SPL_FS_FAT) || IS_ENABLED(CONFIG_SPL_FS_EXT4))
 			return MMCSD_MODE_FS;
 		return MMCSD_MODE_EMMCBOOT;

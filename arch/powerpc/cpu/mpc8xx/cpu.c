@@ -16,7 +16,6 @@
  * Wolfgang Denk <wd@denx.de>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <display_options.h>
 #include <net.h>

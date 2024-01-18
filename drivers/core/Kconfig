@@ -87,7 +87,7 @@ config DM_STATS
 
 config SPL_DM_STATS
 	bool "Collect and show driver model stats in SPL"
-	depends on DM_SPL
+	depends on SPL_DM
 	help
 	  Enable this to collect and display memory statistics about driver
 	  model. This can help to figure out where all the memory is going and

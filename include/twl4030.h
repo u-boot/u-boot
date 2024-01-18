@@ -11,7 +11,6 @@
 #ifndef TWL4030_H
 #define TWL4030_H
 
-#include <common.h>
 #include <i2c.h>
 
 /* I2C chip addresses */

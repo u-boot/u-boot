@@ -70,7 +70,7 @@ static int spl_ram_load_image(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		debug("Found FIT\n");
-		load.bl_len = 1;
+		spl_set_bl_len(&load, 1);
 		load.read = spl_ram_load_read;
 		ret = spl_load_simple_fit(spl_image, &load, 0, header);
 	} else {

@@ -342,12 +342,11 @@ static int spl_test_image(struct unit_test_state *uts, const char *test_name,
 		if (check_image_info(uts, &info_write, &info_read))
 			return CMD_RET_FAILURE;
 	} else {
-		struct spl_load_info load = {
-			.bl_len = 1,
-			.priv = img,
-			.read = spl_test_read,
-		};
+		struct spl_load_info load;
 
+		spl_set_bl_len(&load, 1);
+		load.priv = img;
+		load.read = spl_test_read;
 		if (type == IMX8)
 			ut_assertok(spl_load_imx_container(&info_read, &load,
 							   0));
@@ -375,7 +374,7 @@ SPL_IMG_TEST(spl_test_image, FIT_EXTERNAL, 0);
  * LZMA is too complex to generate on the fly, so let's use some data I put in
  * the oven^H^H^H^H compressed earlier
  */
-static const char lzma_compressed[] = {
+const char lzma_compressed[] = {
 	0x5d, 0x00, 0x00, 0x80, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 	0xff, 0x00, 0x02, 0x05, 0x55, 0x4e, 0x82, 0xbc, 0xc2, 0x42, 0xf6, 0x88,
 	0x6c, 0x99, 0xd6, 0x82, 0x48, 0xa6, 0x06, 0x67, 0xf8, 0x46, 0x7c, 0xe9,
@@ -610,6 +609,8 @@ static const char lzma_compressed[] = {
 	0xc3, 0x7b, 0xaf, 0xe9, 0x6f, 0x37, 0x31, 0x9f, 0x79, 0xe7, 0x4f, 0x06,
 	0x1e, 0xff, 0xff, 0x80, 0x8e, 0x00, 0x00
 };
+
+const size_t lzma_compressed_size = sizeof(lzma_compressed);
 
 int do_spl_test_load(struct unit_test_state *uts, const char *test_name,
 		     enum spl_test_image type, struct spl_image_loader *loader,

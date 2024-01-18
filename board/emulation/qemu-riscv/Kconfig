@@ -33,6 +33,8 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select GENERIC_RISCV
 	select SUPPORT_SPL
+	select QFW if ACPI
+	select QFW_MMIO if QFW
 	imply AHCI
 	imply SMP
 	imply BOARD_LATE_INIT
@@ -58,8 +60,9 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply NVME_PCI
 	imply PCIE_ECAM_GENERIC
 	imply DM_RNG
+	imply DM_RTC
+	imply RTC_GOLDFISH
 	imply SCSI
-	imply DM_SCSI
 	imply SYS_NS16550
 	imply SIFIVE_SERIAL
 	imply HTIF_CONSOLE if 64BIT
@@ -82,5 +85,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply USB_XHCI_PCI
 	imply USB_KEYBOARD
 	imply CMD_USB
+	imply UFS
+	imply UFS_PCI
 
 endif

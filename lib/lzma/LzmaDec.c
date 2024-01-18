@@ -2,7 +2,6 @@
 2009-09-20 : Igor Pavlov : Public domain */
 
 #include <config.h>
-#include <common.h>
 #include <watchdog.h>
 #include "LzmaDec.h"
 

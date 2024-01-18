@@ -3,32 +3,6 @@
 # Copyright (C) 2021 Texas Instruments Incorporated - https://www.ti.com/
 #	David Huang <d-huang@ti.com>
 
-choice
-	prompt "K3 J721S2 board"
-	optional
-
-config TARGET_J721S2_A72_EVM
-	bool "TI K3 based J721S2 EVM running on A72"
-	select ARM64
-	select BOARD_LATE_INIT
-	imply TI_I2C_BOARD_DETECT
-	select SYS_DISABLE_DCACHE_OPS
-	select BINMAN
-
-config TARGET_J721S2_R5_EVM
-	bool "TI K3 based J721S2 EVM running on R5"
-	select CPU_V7R
-	select SYS_THUMB_BUILD
-	select K3_LOAD_SYSFW
-	select RAM
-	select SPL_RAM
-	select K3_DDRSS
-	select BINMAN
-	imply SYS_K3_SPL_ATF
-	imply TI_I2C_BOARD_DETECT
-
-endchoice
-
 if TARGET_J721S2_A72_EVM
 
 config SYS_BOARD

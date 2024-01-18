@@ -5,7 +5,6 @@
  * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
-#include <common.h>
 #include <charset.h>
 #include <cp1250.h>
 #include <cp437.h>

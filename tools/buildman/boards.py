@@ -119,7 +119,7 @@ class Expr:
         """Set up a new Expr object.
 
         Args:
-            expr (str): String cotaining regular expression to store
+            expr (str): String containing regular expression to store
         """
         self._expr = expr
         self._re = re.compile(expr)

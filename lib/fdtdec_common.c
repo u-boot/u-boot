@@ -8,7 +8,6 @@
  */
 
 #ifndef USE_HOSTCC
-#include <common.h>
 #include <log.h>
 #include <linux/libfdt.h>
 #include <fdtdec.h>

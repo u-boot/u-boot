@@ -6,7 +6,6 @@
 #ifndef _DDR_ML_WRAPPER_H
 #define _DDR_ML_WRAPPER_H
 
-#include <common.h>
 #include <i2c.h>
 #include <spl.h>
 #include <asm/io.h>

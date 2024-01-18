@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
 #include <env.h>
@@ -23,9 +24,6 @@
 #include <asm/io.h>
 #include <dm/ofnode.h>
 #include <tee/optee.h>
-
-/* adding a ramdisk needs 0x44 bytes in version 2008.10 */
-#define FDT_RAMDISK_OVERHEAD	0x80
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -447,45 +445,16 @@ static int select_fdt(struct bootm_headers *images, const char *select, u8 arch,
 	return 0;
 }
 
-/**
- * boot_get_fdt - main fdt handling routine
- * @argc: command argument count
- * @argv: command argument list
- * @arch: architecture (IH_ARCH_...)
- * @images: pointer to the bootm images structure
- * @of_flat_tree: pointer to a char* variable, will hold fdt start address
- * @of_size: pointer to a ulong variable, will hold fdt length
- *
- * boot_get_fdt() is responsible for finding a valid flat device tree image.
- * Currently supported are the following ramdisk sources:
- *      - multicomponent kernel/ramdisk image,
- *      - commandline provided address of decicated ramdisk image.
- *
- * returns:
- *     0, if fdt image was found and valid, or skipped
- *     of_flat_tree and of_size are set to fdt start address and length if
- *     fdt image is found and valid
- *
- *     1, if fdt image is found but corrupted
- *     of_flat_tree and of_size are set to 0 if no fdt exists
- */
-int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
-		 struct bootm_headers *images, char **of_flat_tree, ulong *of_size)
+int boot_get_fdt(void *buf, const char *select, uint arch,
+		 struct bootm_headers *images, char **of_flat_tree,
+		 ulong *of_size)
 {
-	ulong		img_addr;
-	ulong		fdt_addr;
-	char		*fdt_blob = NULL;
-	void		*buf;
-	const char *select = NULL;
+	char *fdt_blob = NULL;
+	ulong fdt_addr;
 
 	*of_flat_tree = NULL;
 	*of_size = 0;
 
-	img_addr = (argc == 0) ? image_load_addr : hextoul(argv[0], NULL);
-	buf = map_sysmem(img_addr, 0);
-
-	if (argc > 2)
-		select = argv[2];
 	if (select || genimg_has_config(images)) {
 		int ret;
 
@@ -604,12 +573,26 @@ __weak int arch_fixup_fdt(void *blob)
 }
 
 int image_setup_libfdt(struct bootm_headers *images, void *blob,
-		       int of_size, struct lmb *lmb)
+		       struct lmb *lmb)
 {
 	ulong *initrd_start = &images->initrd_start;
 	ulong *initrd_end = &images->initrd_end;
-	int ret = -EPERM;
-	int fdt_ret;
+	int ret, fdt_ret, of_size;
+
+	if (IS_ENABLED(CONFIG_OF_ENV_SETUP)) {
+		const char *fdt_fixup;
+
+		fdt_fixup = env_get("fdt_fixup");
+		if (fdt_fixup) {
+			set_working_fdt_addr(map_to_sysmem(blob));
+			ret = run_command_list(fdt_fixup, -1, 0);
+			if (ret)
+				printf("WARNING: fdt_fixup command returned %d\n",
+				       ret);
+		}
+	}
+
+	ret = -EPERM;
 
 	if (fdt_root(blob) < 0) {
 		printf("ERROR: root node setup failed\n");
@@ -666,6 +649,14 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 			goto err;
 		}
 	}
+
+	if (fdt_initrd(blob, *initrd_start, *initrd_end))
+		goto err;
+
+	if (!ft_verify_fdt(blob))
+		goto err;
+
+	/* after here we are using a livetree */
 	if (!of_live_active() && CONFIG_IS_ENABLED(EVENT)) {
 		struct event_ft_fixup fixup;
 
@@ -683,25 +674,16 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 
 	/* Delete the old LMB reservation */
 	if (lmb)
-		lmb_free(lmb, (phys_addr_t)(u32)(uintptr_t)blob,
-			 (phys_size_t)fdt_totalsize(blob));
+		lmb_free(lmb, map_to_sysmem(blob), fdt_totalsize(blob));
 
 	ret = fdt_shrink_to_minimum(blob, 0);
 	if (ret < 0)
 		goto err;
 	of_size = ret;
 
-	if (*initrd_start && *initrd_end) {
-		of_size += FDT_RAMDISK_OVERHEAD;
-		fdt_set_totalsize(blob, of_size);
-	}
 	/* Create a new LMB reservation */
 	if (lmb)
-		lmb_reserve(lmb, (ulong)blob, of_size);
-
-	fdt_initrd(blob, *initrd_start, *initrd_end);
-	if (!ft_verify_fdt(blob))
-		goto err;
+		lmb_reserve(lmb, map_to_sysmem(blob), of_size);
 
 #if defined(CONFIG_ARCH_KEYSTONE)
 	if (IS_ENABLED(CONFIG_OF_BOARD_SETUP))

@@ -43,7 +43,7 @@
 		reg = <0x0 0x0 0x0 0x80000000>;
 	};
 
-	si5332_1: si5332_1 { /* u142 - GEM0 */
+	si5332_1: si5332-1 { /* u142 - GEM0 */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <125000000>;
@@ -311,13 +311,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
-			clock_8t49n287: clock-generator@6c { /* u39 8T49N240 */
-				#clock-cells = <1>; /* author David Cater <david.cater@idt.com>*/
-				compatible = "idt,8t49n240", "idt,8t49n241"; /* FIXME no driver for 240 */
-				reg = <0x6c>;
-				/* Documentation/devicetree/bindings/clock/idt,idt8t49n24x.txt */
-				/* FIXME there input via J241 Samtec CLK1 and CLK0 from U38 - selection PIN */
-			};
+			/* u39 8T49N240 */
 		};
 		i2c@3 { /* PMBUS2_INA226 */
 			#address-cells = <1>;

@@ -56,7 +56,7 @@ config VIRTIO_SANDBOX
 
 config VIRTIO_NET
 	bool "virtio net driver"
-	depends on VIRTIO
+	depends on VIRTIO && NETDEVICES
 	help
 	  This is the virtual net driver for virtio. It can be used with
 	  QEMU based targets.

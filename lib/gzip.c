@@ -4,7 +4,6 @@
  * Lei Wen <leiwen@marvell.com>, Marvell Inc.
  */
 
-#include <common.h>
 #include <watchdog.h>
 #include <command.h>
 #include <gzip.h>

@@ -45,35 +45,23 @@
 		format = "a8r8g8b8";
 	};
 
-	gpio-keys {
-		compatible = "gpio-keys";
-
-		key-pwr {
-			label = "Power";
-			linux,code = <KEY_ENTER>;
-			gpios = <&pm8998_pon 0 GPIO_ACTIVE_LOW>;
-		};
-
-		key-vol-down {
-			label = "Volume Down";
-			linux,code = <KEY_DOWN>;
-			gpios = <&pm8998_pon 1 GPIO_ACTIVE_LOW>;
-		};
-	};
-
 	soc: soc {
 		serial@a84000 {
 			status = "okay";
 		};
+	};
+};
 
-		pinctrl_north@3900000 {
-			muic_i2c: muic_i2c {
-				pins = "GPIO_33", "GPIO_34";
-				drive-strength = <0x2>;
-				function = "gpio";
-				bias-disable;
-			};
-		};
+&pm8998_resin {
+	status = "okay";
+};
+
+&tlmm {
+	muic_i2c: muic-i2c-n {
+		pins = "GPIO_33", "GPIO_34";
+		drive-strength = <0x2>;
+		function = "gpio";
+		bias-disable;
 	};
 };
 

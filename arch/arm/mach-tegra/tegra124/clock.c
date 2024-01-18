@@ -1189,10 +1189,16 @@ struct clk_pll_simple *clock_get_simple_pll(enum clock_id clkid)
 	struct clk_rst_ctlr *clkrst =
 			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
 
-	if (clkid == CLOCK_ID_DP)
+	switch (clkid) {
+	case CLOCK_ID_XCPU:
+	case CLOCK_ID_EPCI:
+	case CLOCK_ID_SFROM32KHZ:
+		return &clkrst->crc_pll_simple[clkid - CLOCK_ID_FIRST_SIMPLE];
+	case CLOCK_ID_DP:
 		return &clkrst->plldp;
-
-	return NULL;
+	default:
+		return NULL;
+	}
 }
 
 struct periph_clk_init periph_clk_init_table[] = {

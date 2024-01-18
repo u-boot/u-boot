@@ -7,11 +7,13 @@
 
 #define LOG_CATEGORY LOGC_ACPI
 
-#include <common.h>
 #include <acpi/acpi_table.h>
 #include <dm/acpi.h>
 #include <mapmem.h>
 #include <tables_csum.h>
+#include <linux/sizes.h>
+#include <linux/errno.h>
+#include <linux/string.h>
 
 void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
 		     struct acpi_xsdt *xsdt)
@@ -21,10 +23,13 @@ void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
 	memcpy(rsdp->signature, RSDP_SIG, 8);
 	memcpy(rsdp->oem_id, OEM_ID, 6);
 
-	rsdp->length = sizeof(struct acpi_rsdp);
-	rsdp->rsdt_address = map_to_sysmem(rsdt);
+	if (rsdt)
+		rsdp->rsdt_address = nomap_to_sysmem(rsdt);
 
-	rsdp->xsdt_address = map_to_sysmem(xsdt);
+	if (xsdt)
+		rsdp->xsdt_address = nomap_to_sysmem(xsdt);
+
+	rsdp->length = sizeof(struct acpi_rsdp);
 	rsdp->revision = ACPI_RSDP_REV_ACPI_2_0;
 
 	/* Calculate checksums */
@@ -68,11 +73,15 @@ static void acpi_write_xsdt(struct acpi_xsdt *xsdt)
 static int acpi_write_base(struct acpi_ctx *ctx,
 			   const struct acpi_writer *entry)
 {
-	/* We need at least an RSDP and an RSDT Table */
+	/* We need at least an RSDP and an XSDT Table */
 	ctx->rsdp = ctx->current;
 	acpi_inc_align(ctx, sizeof(struct acpi_rsdp));
-	ctx->rsdt = ctx->current;
-	acpi_inc_align(ctx, sizeof(struct acpi_rsdt));
+	if (map_to_sysmem(ctx->current) < SZ_4G - SZ_64K) {
+		ctx->rsdt = ctx->current;
+		acpi_inc_align(ctx, sizeof(struct acpi_rsdt));
+	} else {
+		ctx->rsdt = 0;
+	}
 	ctx->xsdt = ctx->current;
 	acpi_inc_align(ctx, sizeof(struct acpi_xsdt));
 
@@ -80,7 +89,8 @@ static int acpi_write_base(struct acpi_ctx *ctx,
 	memset(ctx->base, '\0', ctx->current - ctx->base);
 
 	acpi_write_rsdp(ctx->rsdp, ctx->rsdt, ctx->xsdt);
-	acpi_write_rsdt(ctx->rsdt);
+	if (ctx->rsdt)
+		acpi_write_rsdt(ctx->rsdt);
 	acpi_write_xsdt(ctx->xsdt);
 
 	return 0;

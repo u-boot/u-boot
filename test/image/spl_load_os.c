@@ -16,14 +16,13 @@ struct text_ctx {
 	int fd;
 };
 
-static ulong read_fit_image(struct spl_load_info *load, ulong sector,
-			    ulong count, void *buf)
+static ulong read_fit_image(struct spl_load_info *load, ulong offset,
+			    ulong size, void *buf)
 {
 	struct text_ctx *text_ctx = load->priv;
-	off_t offset, ret;
+	off_t ret;
 	ssize_t res;
 
-	offset = sector * load->bl_len;
 	ret = os_lseek(text_ctx->fd, offset, OS_SEEK_SET);
 	if (ret != offset) {
 		printf("Failed to seek to %zx, got %zx (errno=%d)\n", offset,
@@ -31,14 +30,14 @@ static ulong read_fit_image(struct spl_load_info *load, ulong sector,
 		return 0;
 	}
 
-	res = os_read(text_ctx->fd, buf, count * load->bl_len);
+	res = os_read(text_ctx->fd, buf, size);
 	if (res == -1) {
 		printf("Failed to read %lx bytes, got %ld (errno=%d)\n",
-		       count * load->bl_len, res, errno);
+		       size, res, errno);
 		return 0;
 	}
 
-	return count;
+	return size;
 }
 
 static int spl_test_load(struct unit_test_state *uts)
@@ -52,13 +51,12 @@ static int spl_test_load(struct unit_test_state *uts)
 	int fd;
 
 	memset(&load, '\0', sizeof(load));
-	load.bl_len = 512;
+	spl_set_bl_len(&load, 512);
 	load.read = read_fit_image;
 
 	ret = sandbox_find_next_phase(fname, sizeof(fname), true);
 	if (ret)
 		ut_assertf(0, "%s not found, error %d\n", fname, ret);
-	load.filename = fname;
 
 	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
 

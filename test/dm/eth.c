@@ -263,12 +263,16 @@ static int dm_test_eth_act(struct unit_test_state *uts)
 
 	/* Prepare the test scenario */
 	for (i = 0; i < DM_TEST_ETH_NUM; i++) {
+		char *addr;
+
 		ut_assertok(uclass_find_device_by_name(UCLASS_ETH,
 						       ethname[i], &dev[i]));
 		ut_assertok(device_remove(dev[i], DM_REMOVE_NORMAL));
 
 		/* Invalidate MAC address */
-		strncpy(ethaddr[i], env_get(addrname[i]), 17);
+		addr = env_get(addrname[i]);
+		ut_assertnonnull(addr);
+		strncpy(ethaddr[i], addr, 17);
 		/* Must disable access protection for ethaddr before clearing */
 		env_set(".flags", addrname[i]);
 		env_set(addrname[i], NULL);
@@ -312,12 +316,16 @@ static int dm_test_ethaddr(struct unit_test_state *uts)
 
 	for (i = 0; i < ARRAY_SIZE(addr); i++) {
 		char addrname[10];
+		char *env_addr;
 
 		if (i)
 			snprintf(addrname, sizeof(addrname), "eth%daddr", i + 1);
 		else
 			strcpy(addrname, "ethaddr");
-		ut_asserteq_str(addr[i], env_get(addrname));
+
+		env_addr = env_get(addrname);
+		ut_assertnonnull(env_addr);
+		ut_asserteq_str(addr[i], env_addr);
 	}
 
 	return 0;

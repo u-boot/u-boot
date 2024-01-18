@@ -7,10 +7,13 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
-#include <common.h>
+#include <blk.h>
+#include <blkmap.h>
 #include <charset.h>
+#include <dm.h>
 #include <log.h>
 #include <malloc.h>
+#include <net.h>
 #include <efi_default_filename.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
@@ -18,6 +21,23 @@
 
 static const struct efi_boot_services *bs;
 static const struct efi_runtime_services *rs;
+
+/**
+ * struct uridp_context - uri device path resource
+ *
+ * @image_size:		image size
+ * @image_addr:		image address
+ * @loaded_dp:		pointer to loaded device path
+ * @ramdisk_blk_dev:	pointer to the ramdisk blk device
+ * @mem_handle:		efi_handle to the loaded PE-COFF image
+ */
+struct uridp_context {
+	ulong image_size;
+	ulong image_addr;
+	struct efi_device_path *loaded_dp;
+	struct udevice *ramdisk_blk_dev;
+	efi_handle_t mem_handle;
+};
 
 const efi_guid_t efi_guid_bootmenu_auto_generated =
 		EFICONFIG_AUTO_GENERATED_ENTRY_GUID;
@@ -110,7 +130,7 @@ static efi_status_t try_load_from_file_path(efi_handle_t *fs_handles,
 		if (!dp)
 			continue;
 
-		dp = efi_dp_append(dp, fp);
+		dp = efi_dp_concat(dp, fp, false);
 		if (!dp)
 			continue;
 
@@ -169,6 +189,364 @@ out:
 }
 
 /**
+ * mount_image() - mount the image with blkmap
+ *
+ * @lo_label:	u16 label string of load option
+ * @addr:	image address
+ * @size:	image size
+ * Return:	pointer to the UCLASS_BLK udevice, NULL if failed
+ */
+static struct udevice *mount_image(u16 *lo_label, ulong addr, ulong size)
+{
+	int err;
+	struct blkmap *bm;
+	struct udevice *bm_dev;
+	char *label = NULL, *p;
+
+	label = efi_alloc(utf16_utf8_strlen(lo_label) + 1);
+	if (!label)
+		return NULL;
+
+	p = label;
+	utf16_utf8_strcpy(&p, lo_label);
+	err = blkmap_create_ramdisk(label, addr, size, &bm_dev);
+	if (err) {
+		efi_free_pool(label);
+		return NULL;
+	}
+	bm = dev_get_plat(bm_dev);
+
+	efi_free_pool(label);
+
+	return bm->blk;
+}
+
+/**
+ * search_default_file() - search default file
+ *
+ * @dev:	pointer to the UCLASS_BLK or UCLASS_PARTITION udevice
+ * @loaded_dp:	pointer to default file device path
+ * Return:	status code
+ */
+static efi_status_t search_default_file(struct udevice *dev,
+					struct efi_device_path **loaded_dp)
+{
+	efi_status_t ret;
+	efi_handle_t handle;
+	u16 *default_file_name = NULL;
+	struct efi_file_handle *root, *f;
+	struct efi_device_path *dp = NULL, *fp = NULL;
+	struct efi_simple_file_system_protocol *file_system;
+	struct efi_device_path *device_path, *full_path = NULL;
+
+	if (dev_tag_get_ptr(dev, DM_TAG_EFI, (void **)&handle)) {
+		log_warning("DM_TAG_EFI not found\n");
+		return EFI_INVALID_PARAMETER;
+	}
+
+	ret = EFI_CALL(bs->open_protocol(handle, &efi_guid_device_path,
+					 (void **)&device_path, efi_root, NULL,
+					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	ret = EFI_CALL(bs->open_protocol(handle, &efi_simple_file_system_protocol_guid,
+					 (void **)&file_system, efi_root, NULL,
+					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	ret = EFI_CALL(file_system->open_volume(file_system, &root));
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	full_path = expand_media_path(device_path);
+	ret = efi_dp_split_file_path(full_path, &dp, &fp);
+	if (ret != EFI_SUCCESS)
+		goto err;
+
+	default_file_name = efi_dp_str(fp);
+	efi_free_pool(dp);
+	efi_free_pool(fp);
+	if (!default_file_name) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto err;
+	}
+
+	ret = EFI_CALL(root->open(root, &f, default_file_name,
+				  EFI_FILE_MODE_READ, 0));
+	efi_free_pool(default_file_name);
+	if (ret != EFI_SUCCESS)
+		goto err;
+
+	EFI_CALL(f->close(f));
+	EFI_CALL(root->close(root));
+
+	*loaded_dp = full_path;
+
+	return EFI_SUCCESS;
+
+err:
+	EFI_CALL(root->close(root));
+	efi_free_pool(full_path);
+
+	return ret;
+}
+
+/**
+ * check_disk_has_default_file() - load the default file
+ *
+ * @blk:	pointer to the UCLASS_BLK udevice
+ * @dp:		pointer to default file device path
+ * Return:	status code
+ */
+static efi_status_t check_disk_has_default_file(struct udevice *blk,
+						struct efi_device_path **dp)
+{
+	efi_status_t ret;
+	struct udevice *partition;
+
+	/* image that has no partition table but a file system */
+	ret = search_default_file(blk, dp);
+	if (ret == EFI_SUCCESS)
+		return ret;
+
+	/* try the partitions */
+	device_foreach_child(partition, blk) {
+		enum uclass_id id;
+
+		id = device_get_uclass_id(partition);
+		if (id != UCLASS_PARTITION)
+			continue;
+
+		ret = search_default_file(partition, dp);
+		if (ret == EFI_SUCCESS)
+			return ret;
+	}
+
+	return EFI_NOT_FOUND;
+}
+
+/**
+ * prepare_loaded_image() - prepare ramdisk for downloaded image
+ *
+ * @label:	label of load option
+ * @addr:	image address
+ * @size:	image size
+ * @dp:		pointer to default file device path
+ * @blk:	pointer to created blk udevice
+ * Return:	status code
+ */
+static efi_status_t prepare_loaded_image(u16 *label, ulong addr, ulong size,
+					 struct efi_device_path **dp,
+					 struct udevice **blk)
+{
+	efi_status_t ret;
+	struct udevice *ramdisk_blk;
+
+	ramdisk_blk = mount_image(label, addr, size);
+	if (!ramdisk_blk)
+		return EFI_LOAD_ERROR;
+
+	ret = check_disk_has_default_file(ramdisk_blk, dp);
+	if (ret != EFI_SUCCESS) {
+		log_info("Cannot boot from downloaded image\n");
+		goto err;
+	}
+
+	/*
+	 * TODO: expose the ramdisk to OS.
+	 * Need to pass the ramdisk information by the architecture-specific
+	 * methods such as 'pmem' device-tree node.
+	 */
+	ret = efi_add_memory_map(addr, size, EFI_RESERVED_MEMORY_TYPE);
+	if (ret != EFI_SUCCESS) {
+		log_err("Memory reservation failed\n");
+		goto err;
+	}
+
+	*blk = ramdisk_blk;
+
+	return EFI_SUCCESS;
+
+err:
+	if (blkmap_destroy(ramdisk_blk->parent))
+		log_err("Destroying blkmap failed\n");
+
+	return ret;
+}
+
+/**
+ * efi_bootmgr_release_uridp_resource() - cleanup uri device path resource
+ *
+ * @ctx:	event context
+ * Return:	status code
+ */
+efi_status_t efi_bootmgr_release_uridp_resource(struct uridp_context *ctx)
+{
+	efi_status_t ret = EFI_SUCCESS;
+
+	if (!ctx)
+		return ret;
+
+	/* cleanup for iso or img image */
+	if (ctx->ramdisk_blk_dev) {
+		ret = efi_add_memory_map(ctx->image_addr, ctx->image_size,
+					 EFI_CONVENTIONAL_MEMORY);
+		if (ret != EFI_SUCCESS)
+			log_err("Reclaiming memory failed\n");
+
+		if (blkmap_destroy(ctx->ramdisk_blk_dev->parent)) {
+			log_err("Destroying blkmap failed\n");
+			ret = EFI_DEVICE_ERROR;
+		}
+	}
+
+	/* cleanup for PE-COFF image */
+	if (ctx->mem_handle) {
+		ret = efi_uninstall_multiple_protocol_interfaces(
+			ctx->mem_handle, &efi_guid_device_path, ctx->loaded_dp,
+			NULL);
+		if (ret != EFI_SUCCESS)
+			log_err("Uninstall device_path protocol failed\n");
+	}
+
+	efi_free_pool(ctx->loaded_dp);
+	free(ctx);
+
+	return ret;
+}
+
+/**
+ * efi_bootmgr_image_return_notify() - return to efibootmgr callback
+ *
+ * @event:	the event for which this notification function is registered
+ * @context:	event context
+ */
+static void EFIAPI efi_bootmgr_image_return_notify(struct efi_event *event,
+						   void *context)
+{
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %p", event, context);
+	ret = efi_bootmgr_release_uridp_resource(context);
+	EFI_EXIT(ret);
+}
+
+/**
+ * try_load_from_uri_path() - Handle the URI device path
+ *
+ * @uridp:	uri device path
+ * @lo_label:	label of load option
+ * @handle:	pointer to handle for newly installed image
+ * Return:	status code
+ */
+static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
+					   u16 *lo_label,
+					   efi_handle_t *handle)
+{
+	char *s;
+	int err;
+	int uri_len;
+	efi_status_t ret;
+	void *source_buffer;
+	efi_uintn_t source_size;
+	struct uridp_context *ctx;
+	struct udevice *blk = NULL;
+	struct efi_event *event = NULL;
+	efi_handle_t mem_handle = NULL;
+	struct efi_device_path *loaded_dp;
+	static ulong image_size, image_addr;
+
+	ctx = calloc(1, sizeof(struct uridp_context));
+	if (!ctx)
+		return EFI_OUT_OF_RESOURCES;
+
+	s = env_get("loadaddr");
+	if (!s) {
+		log_err("Error: loadaddr is not set\n");
+		ret = EFI_INVALID_PARAMETER;
+		goto err;
+	}
+
+	image_addr = hextoul(s, NULL);
+	err = wget_with_dns(image_addr, uridp->uri);
+	if (err < 0) {
+		ret = EFI_INVALID_PARAMETER;
+		goto err;
+	}
+
+	image_size = env_get_hex("filesize", 0);
+	if (!image_size) {
+		ret = EFI_INVALID_PARAMETER;
+		goto err;
+	}
+
+	/*
+	 * If the file extension is ".iso" or ".img", mount it and try to load
+	 * the default file.
+	 * If the file is PE-COFF image, load the downloaded file.
+	 */
+	uri_len = strlen(uridp->uri);
+	if (!strncmp(&uridp->uri[uri_len - 4], ".iso", 4) ||
+	    !strncmp(&uridp->uri[uri_len - 4], ".img", 4)) {
+		ret = prepare_loaded_image(lo_label, image_addr, image_size,
+					   &loaded_dp, &blk);
+		if (ret != EFI_SUCCESS)
+			goto err;
+
+		source_buffer = NULL;
+		source_size = 0;
+	} else if (efi_check_pe((void *)image_addr, image_size, NULL) == EFI_SUCCESS) {
+		/*
+		 * loaded_dp must exist until efi application returns,
+		 * will be freed in return_to_efibootmgr event callback.
+		 */
+		loaded_dp = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
+					    (uintptr_t)image_addr, image_size);
+		ret = efi_install_multiple_protocol_interfaces(
+			&mem_handle, &efi_guid_device_path, loaded_dp, NULL);
+		if (ret != EFI_SUCCESS)
+			goto err;
+
+		source_buffer = (void *)image_addr;
+		source_size = image_size;
+	} else {
+		log_err("Error: file type is not supported\n");
+		ret = EFI_UNSUPPORTED;
+		goto err;
+	}
+
+	ctx->image_size = image_size;
+	ctx->image_addr = image_addr;
+	ctx->loaded_dp = loaded_dp;
+	ctx->ramdisk_blk_dev = blk;
+	ctx->mem_handle = mem_handle;
+
+	ret = EFI_CALL(efi_load_image(false, efi_root, loaded_dp, source_buffer,
+				      source_size, handle));
+	if (ret != EFI_SUCCESS)
+		goto err;
+
+	/* create event for cleanup when the image returns or error occurs */
+	ret = efi_create_event(EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
+			       efi_bootmgr_image_return_notify, ctx,
+			       &efi_guid_event_group_return_to_efibootmgr,
+			       &event);
+	if (ret != EFI_SUCCESS) {
+		log_err("Creating event failed\n");
+		goto err;
+	}
+
+	return ret;
+
+err:
+	efi_bootmgr_release_uridp_resource(ctx);
+
+	return ret;
+}
+
+/**
  * try_load_entry() - try to load image for boot option
  *
  * Attempt to load load-option number 'n', returning device_path and file_path
@@ -211,6 +589,13 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 		if (EFI_DP_TYPE(lo.file_path, MEDIA_DEVICE, FILE_PATH)) {
 			/* file_path doesn't contain a device path */
 			ret = try_load_from_short_path(lo.file_path, handle);
+		} else if (EFI_DP_TYPE(lo.file_path, MESSAGING_DEVICE, MSG_URI)) {
+			if (IS_ENABLED(CONFIG_EFI_HTTP_BOOT))
+				ret = try_load_from_uri_path(
+					(struct efi_device_path_uri *)lo.file_path,
+					lo.label, handle);
+			else
+				ret = EFI_LOAD_ERROR;
 		} else {
 			file_path = expand_media_path(lo.file_path);
 			ret = EFI_CALL(efi_load_image(true, efi_root, file_path,
@@ -728,4 +1113,41 @@ out:
 	if (ret == EFI_NOT_FOUND)
 		return EFI_SUCCESS;
 	return ret;
+}
+
+/**
+ * efi_bootmgr_run() - execute EFI boot manager
+ * @fdt:	Flat device tree
+ *
+ * Invoke EFI boot manager and execute a binary depending on
+ * boot options. If @fdt is not NULL, it will be passed to
+ * the executed binary.
+ *
+ * Return:	status code
+ */
+efi_status_t efi_bootmgr_run(void *fdt)
+{
+	efi_handle_t handle;
+	void *load_options;
+	efi_status_t ret;
+
+	/* Initialize EFI drivers */
+	ret = efi_init_obj_list();
+	if (ret != EFI_SUCCESS) {
+		log_err("Error: Cannot initialize UEFI sub-system, r = %lu\n",
+			ret & ~EFI_ERROR_MASK);
+		return CMD_RET_FAILURE;
+	}
+
+	ret = efi_install_fdt(fdt);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	ret = efi_bootmgr_load(&handle, &load_options);
+	if (ret != EFI_SUCCESS) {
+		log_notice("EFI boot manager: Cannot load any image\n");
+		return ret;
+	}
+
+	return do_bootefi_exec(handle, load_options);
 }

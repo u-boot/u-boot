@@ -99,4 +99,7 @@ Chromium OS-specific doc
 Indices and tables
 ==================
 
-* :ref:`genindex`
+.. toctree::
+   :maxdepth: 1
+
+   genindex

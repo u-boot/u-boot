@@ -7,7 +7,6 @@
  *	Dave Gerlach <d-gerlach@ti.com>
  */
 
-#include <common.h>
 #include <fdt_support.h>
 #include <spl.h>
 #include <asm/io.h>
@@ -348,6 +347,9 @@ static u32 __get_primary_bootmedia(u32 main_devstat)
 
 	case BOOT_DEVICE_EMMC:
 		return BOOT_DEVICE_MMC1;
+
+	case BOOT_DEVICE_NAND:
+		return BOOT_DEVICE_NAND;
 
 	case BOOT_DEVICE_MMC:
 		if ((bootmode_cfg & MAIN_DEVSTAT_PRIMARY_MMC_PORT_MASK) >>

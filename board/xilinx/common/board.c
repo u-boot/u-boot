@@ -25,6 +25,7 @@
 #include <i2c_eeprom.h>
 #include <net.h>
 #include <generated/dt.h>
+#include <rng.h>
 #include <slre.h>
 #include <soc.h>
 #include <linux/ctype.h>
@@ -652,6 +653,11 @@ int embedded_dtb_select(void)
 #endif
 
 #if defined(CONFIG_LMB)
+
+#ifndef MMU_SECTION_SIZE
+#define MMU_SECTION_SIZE        (1 * 1024 * 1024)
+#endif
+
 phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	phys_size_t size;
@@ -675,5 +681,53 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 		reg = gd->ram_top - size;
 
 	return reg + size;
+}
+#endif
+
+#ifdef CONFIG_OF_BOARD_SETUP
+#define MAX_RAND_SIZE 8
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	size_t n = MAX_RAND_SIZE;
+	struct udevice *dev;
+	u8 buf[MAX_RAND_SIZE];
+	int nodeoffset, ret;
+
+	if (uclass_get_device(UCLASS_RNG, 0, &dev) || !dev) {
+		debug("No RNG device\n");
+		return 0;
+	}
+
+	if (dm_rng_read(dev, buf, n)) {
+		debug("Reading RNG failed\n");
+		return 0;
+	}
+
+	if (!blob) {
+		debug("No FDT memory address configured. Please configure\n"
+		      "the FDT address via \"fdt addr <address>\" command.\n"
+		      "Aborting!\n");
+		return 0;
+	}
+
+	ret = fdt_check_header(blob);
+	if (ret < 0) {
+		debug("fdt_chosen: %s\n", fdt_strerror(ret));
+		return ret;
+	}
+
+	nodeoffset = fdt_find_or_add_subnode(blob, 0, "chosen");
+	if (nodeoffset < 0) {
+		debug("Reading chosen node failed\n");
+		return nodeoffset;
+	}
+
+	ret = fdt_setprop(blob, nodeoffset, "kaslr-seed", buf, sizeof(buf));
+	if (ret < 0) {
+		debug("Unable to set kaslr-seed on chosen node: %s\n", fdt_strerror(ret));
+		return ret;
+	}
+
+	return 0;
 }
 #endif

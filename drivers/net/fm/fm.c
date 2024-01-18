@@ -3,7 +3,6 @@
  * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *	Dave Liu <daveliu@freescale.com>
  */
-#include <common.h>
 #include <env.h>
 #include <fs_loader.h>
 #include <image.h>

@@ -60,6 +60,39 @@ struct cmd_tbl {
 #endif
 };
 
+/**
+ * cmd_arg_get() - Get a particular argument
+ *
+ * @argc: Number of arguments
+ * @argv: Argument vector of length @argc
+ * @argnum: Argument to get (0=first)
+ * Return: Pointer to argument @argnum if it exists, else NULL
+ */
+static inline const char *cmd_arg_get(int argc, char *const argv[], int argnum)
+{
+	return argc > argnum ? argv[argnum] : NULL;
+}
+
+static inline const char *cmd_arg0(int argc, char *const argv[])
+{
+	return cmd_arg_get(argc, argv, 0);
+}
+
+static inline const char *cmd_arg1(int argc, char *const argv[])
+{
+	return cmd_arg_get(argc, argv, 1);
+}
+
+static inline const char *cmd_arg2(int argc, char *const argv[])
+{
+	return cmd_arg_get(argc, argv, 2);
+}
+
+static inline const char *cmd_arg3(int argc, char *const argv[])
+{
+	return cmd_arg_get(argc, argv, 3);
+}
+
 #if defined(CONFIG_CMD_RUN)
 int do_run(struct cmd_tbl *cmdtp, int flag, int argc,
 	   char *const argv[]);
@@ -153,7 +186,7 @@ int cmd_process_error(struct cmd_tbl *cmdtp, int err);
  * Return: data size in bytes (1, 2, 4, 8) or CMD_DATA_SIZE_ERR for an invalid
  *	character, or CMD_DATA_SIZE_STR for a string
  */
-int cmd_get_data_size(char *arg, int default_size);
+int cmd_get_data_size(const char *arg, int default_size);
 #endif
 
 #ifdef CONFIG_CMD_BOOTD
@@ -390,7 +423,7 @@ int cmd_source_script(ulong addr, const char *fit_uname, const char *confname);
 #define U_BOOT_CMD_COMPLETE(_name, _maxargs, _rep, _cmd, _usage, _help, _comp) \
 	ll_entry_declare(struct cmd_tbl, _name, cmd) =			\
 		U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,	\
-						_usage, _help, _comp);
+						_usage, _help, _comp)
 
 #define U_BOOT_CMDREP_COMPLETE(_name, _maxargs, _cmd_rep, _usage,	\
 			       _help, _comp)				\

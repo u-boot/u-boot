@@ -6,7 +6,6 @@
 #ifndef _FSL_ERRATA_H
 #define _FSL_ERRATA_H
 
-#include <common.h>
 #if defined(CONFIG_PPC)
 #include <asm/processor.h>
 #elif defined(CONFIG_ARCH_LS1021A)

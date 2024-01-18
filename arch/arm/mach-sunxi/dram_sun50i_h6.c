@@ -15,7 +15,6 @@
 #include <asm/arch/prcm.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
-#include <linux/kconfig.h>
 
 /*
  * The DRAM controller structure on H6 is similar to the ones on A23/A80:

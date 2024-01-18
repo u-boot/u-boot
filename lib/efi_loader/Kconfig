@@ -32,14 +32,23 @@ config EFI_LOADER
 
 if EFI_LOADER
 
-config CMD_BOOTEFI_BOOTMGR
+config EFI_BINARY_EXEC
+	bool "Execute UEFI binary"
+	default y
+	help
+	  Select this option if you want to execute the UEFI binary after
+	  loading it with U-Boot load commands or other methods.
+	  You may enable CMD_BOOTEFI_BINARY so that you can use bootefi
+	  command to do that.
+
+config EFI_BOOTMGR
 	bool "UEFI Boot Manager"
 	default y
 	select BOOTMETH_GLOBAL if BOOTSTD
 	help
 	  Select this option if you want to select the UEFI binary to be booted
-	  via UEFI variables Boot####, BootOrder, and BootNext. This enables the
-	  'bootefi bootmgr' command.
+	  via UEFI variables Boot####, BootOrder, and BootNext. You should also
+	  normally enable CMD_BOOTEFI_BOOTMGR so that the command is available.
 
 choice
 	prompt "Store for non-volatile UEFI variables"
@@ -478,5 +487,14 @@ config EFI_RISCV_BOOT_PROTOCOL
 	  to the next boot stage. It should be enabled as it is meant to
 	  replace the transfer via the device-tree. The latter is not
 	  possible on systems using ACPI.
+
+config EFI_HTTP_BOOT
+	bool "EFI HTTP Boot support"
+	select CMD_DNS
+	select CMD_WGET
+	select BLKMAP
+	help
+	  Enabling this option adds EFI HTTP Boot support. It allows to
+	  directly boot from network.
 
 endif

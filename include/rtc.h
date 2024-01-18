@@ -16,6 +16,7 @@
 #include <bcd.h>
 #include <rtc_def.h>
 #include <linux/errno.h>
+#include <linux/types.h>
 
 typedef int64_t time64_t;
 struct udevice;

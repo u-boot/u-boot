@@ -13,7 +13,7 @@
 #define CFG_MXC_UART_BASE		UART5_IPS_BASE_ADDR
 
 /* MMC Config */
-#define CFG_SYS_FSL_ESDHC_ADDR	0
+#define CFG_SYS_FSL_ESDHC_ADDR	USDHC3_BASE_ADDR
 
 #define CFG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=" \
@@ -79,9 +79,11 @@
 		"name=rootfs,size=0,uuid=${uuid_gpt_rootfs}\0" \
 	"fastboot_partition_alias_system=rootfs\0" \
 	"setup_emmc=mmc dev 0; gpt write mmc 0 $partitions; reset;\0" \
+	"mmcautodetect=yes\0" \
 	PICO_BOOT_ENV
 
 #define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
 	func(PXE, pxe, na) \

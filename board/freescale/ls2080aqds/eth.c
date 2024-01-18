@@ -3,6 +3,9 @@
  * Copyright 2015 Freescale Semiconductor, Inc.
  */
 
+#include <config.h>
+#include <vsprintf.h>
+#include <linux/string.h>
 #include <asm/io.h>
 #include <asm/arch/fsl_serdes.h>
 #include <fsl-mc/fsl_mc.h>

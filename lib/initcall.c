@@ -3,7 +3,6 @@
  * Copyright (c) 2013 The Chromium OS Authors.
  */
 
-#include <common.h>
 #include <efi.h>
 #include <initcall.h>
 #include <log.h>

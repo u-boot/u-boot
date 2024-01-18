@@ -1,6 +1,9 @@
 .. SPDX-License-Identifier: GPL-2.0+
 .. (C) Copyright 2022, Masahisa Kojima <masahisa.kojima@linaro.org>
 
+.. index::
+   single: eficonfig (command)
+
 eficonfig command
 =================
 

@@ -55,7 +55,7 @@ static int riscv_zkr_read(struct udevice *dev, void *data, size_t len)
 			}
 			break;
 		case DEAD:
-			return -ENODEV;
+			return -ENOENT;
 		}
 	}
 
@@ -63,16 +63,16 @@ static int riscv_zkr_read(struct udevice *dev, void *data, size_t len)
 }
 
 /**
- * riscv_zkr_probe() - check if the seed register is available
+ * riscv_zkr_bind() - check if the seed register is available
  *
- * If the SBI software has not set mseccfg.sseed=1 or the Zkr
- * extension is not available this probe function will result
- * in an exception. Currently we cannot recover from this.
+ * If the SBI software has not set mseccfg.sseed=1 or the Zkr extension is not
+ * available, reading the seed register will result in an exception from which
+ * this function safely resumes.
  *
  * @dev:	RNG device
  * Return:	0 if successfully probed
  */
-static int riscv_zkr_probe(struct udevice *dev)
+static int riscv_zkr_bind(struct udevice *dev)
 {
 	struct resume_data resume;
 	int ret;
@@ -87,7 +87,24 @@ static int riscv_zkr_probe(struct udevice *dev)
 		val = read_seed();
 	set_resume(NULL);
 	if (ret)
-		return -ENODEV;
+		return -ENOENT;
+
+	return 0;
+}
+
+/**
+ * riscv_zkr_probe() - check if entropy is available
+ *
+ * The bind method already checked that the seed register can be read without
+ * excpetiong. Here we wait for the self test to finish and entropy becoming
+ * available.
+ *
+ * @dev:	RNG device
+ * Return:	0 if successfully probed
+ */
+static int riscv_zkr_probe(struct udevice *dev)
+{
+	u32 val;
 
 	do {
 		val = read_seed();
@@ -95,7 +112,7 @@ static int riscv_zkr_probe(struct udevice *dev)
 	} while (val == BIST || val == WAIT);
 
 	if (val == DEAD)
-		return -ENODEV;
+		return -ENOENT;
 
 	return 0;
 }
@@ -108,6 +125,7 @@ U_BOOT_DRIVER(riscv_zkr) = {
 	.name = DRIVER_NAME,
 	.id = UCLASS_RNG,
 	.ops = &riscv_zkr_ops,
+	.bind = riscv_zkr_bind,
 	.probe = riscv_zkr_probe,
 };
 

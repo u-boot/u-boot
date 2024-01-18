@@ -295,7 +295,7 @@ static int bcm63xx_hsspi_xfer_dummy_cs(struct udevice *dev, unsigned int data_by
 
 	/* transfer loop */
 	while (data_bytes > 0) {
-		size_t curr_step = min(step_size, data_bytes);
+		size_t curr_step = min(step_size, (size_t)data_bytes);
 		int ret;
 
 		/* copy tx data */

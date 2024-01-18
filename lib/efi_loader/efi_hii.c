@@ -6,7 +6,6 @@
  *  Copyright (c) 2018 AKASHI Takahiro, Linaro Limited
  */
 
-#include <common.h>
 #include <efi_loader.h>
 #include <malloc.h>
 #include <asm/unaligned.h>

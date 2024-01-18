@@ -30,12 +30,15 @@ K3 Based SoCs
 .. toctree::
    :maxdepth: 1
 
-   am62x_beagleplay
+   am62ax_sk
    am62x_sk
+   ../beagle/am62x_beagleplay
+   ../phytec/phycore-am62x
    ../toradex/verdin-am62
    am64x_evm
    am65x_evm
    j7200_evm
+   ../beagle/j721e_beagleboneai64
    j721e_evm
    j721s2_evm
 
@@ -101,6 +104,49 @@ firmware can be loaded on the now free core in the wakeup domain.
 
 For more information on the bootup process of your SoC, consult the
 device specific boot flow documentation.
+
+Secure Boot
+-----------
+
+K3 HS-SE (High Security - Security Enforced) devices enforce an
+authenticated boot flow for secure boot. HS-FS (High Security - Field
+Securable) is the state of a K3 device before it has been eFused with
+customer security keys.  In the HS-FS state the authentication still can
+function as in HS-SE but as there are no customer keys to verify the
+signatures against the authentication will pass for certificates signed
+with any key.
+
+Chain of trust
+^^^^^^^^^^^^^^
+
+1) Public ROM loads the tiboot3.bin (R5 SPL, TIFS)
+2) R5 SPL loads tispl.bin (ATF, OP-TEE, DM, SPL)
+3) SPL loads u-boot.img (U-Boot)
+4) U-Boot loads fitImage (Linux and DTBs)
+
+Steps 1-3 are all authenticated by either the Secure ROM or TIFS as the
+authenticating entity and step 4 uses U-boot standard mechanism for
+authenticating.
+
+All the authentication that are done for ROM/TIFS are done through x509
+certificates that are signed.
+
+Firewalls
+^^^^^^^^^
+
+1) Secure ROM comes up and sets up firewalls that are needed by itself
+2) TIFS will setup it's own firewalls to protect core system resources
+3) R5 SPL will remove any firewalls that are leftover from the Secure ROM stage
+   that are no longer required.
+4) Each stage beyond this: such as tispl.bin containing TFA/OPTEE uses OIDs to
+   set up firewalls to protect themselves (enforced by TIFS)
+5) TFA/OP-TEE can configure other firewalls at runtime if required as they
+   are already authenticated and firewalled off from illegal access.
+6) All later stages can setup or remove firewalls that have not been already
+   configured by previous stages, such as those created by TIFS, TFA, and OP-TEE.
+
+Futhur, firewalls have a lockdown bit in hardware that enforces the setting
+(and cannot be over-ridden) until the full system is reset.
 
 Software Sources
 ----------------
@@ -246,6 +292,8 @@ Building tiboot3.bin
    the final `tiboot3.bin` binary. (or the `sysfw.itb` if your device
    uses the split binary flow)
 
+.. _k3_rst_include_start_build_steps_spl_r5:
+
 .. k3_rst_include_start_build_steps_spl_r5
 .. prompt:: bash $
 
@@ -310,6 +358,8 @@ use the `lite` option.
    finished, we can jump back into U-Boot again, this time running on a
    64bit core in the main domain.
 
+.. _k3_rst_include_start_build_steps_uboot:
+
 .. k3_rst_include_start_build_steps_uboot
 .. prompt:: bash $
 
@@ -318,6 +368,13 @@ use the `lite` option.
  make CROSS_COMPILE=$CC64 BINMAN_INDIRS=$LNX_FW_PATH \
         BL31=$TFA_PATH/build/k3/$TFA_BOARD/release/bl31.bin \
         TEE=$OPTEE_PATH/out/arm-plat-k3/core/tee-raw.bin
+
+.. note::
+   It is also possible to pick up a custom DM binary by adding TI_DM argument
+   pointing to the file. If not provided, it defaults to picking up the DM
+   binary from BINMAN_INDIRS. This is only applicable to devices that utilize
+   split firmware.
+
 .. k3_rst_include_end_build_steps_uboot
 
 At this point you should have every binary needed initialize both the
@@ -328,144 +385,212 @@ wakeup and main domain and to boot to the U-Boot prompt
    | `tispl.bin` for HS devices or `tispl.bin_unsigned` for GP devices
    | `u-boot.img` for HS devices or `u-boot.img_unsigned` for GP devices
 
-Fit Signature Signing
+FIT signature signing
 ---------------------
 
-K3 Platforms have fit signature signing enabled by default on their primary
-platforms. Here we'll take an example for creating fit image for J721e platform
+K3 platforms have FIT signature signing enabled by default on their primary
+platforms. Here we'll take an example for creating FIT Image for J721E platform
 and the same can be extended to other platforms
 
-1. Describing FIT source
+Pre-requisites:
 
-  .. code-block:: bash
+* U-boot build (:ref:`U-boot build <k3_rst_include_start_build_steps_spl_r5>`)
+* Linux Image and Linux DTB prebuilt
+
+Describing FIT source
+^^^^^^^^^^^^^^^^^^^^^
+
+FIT Image is a packed structure containing binary blobs and configurations.
+The Kernel FIT Image that we have has Kernel Image, DTB and the DTBOs.  It
+supports packing multiple images and configurations that allow you to
+choose any configuration at runtime to boot from.
+
+.. code-block::
 
     /dts-v1/;
 
     / {
-            description = "Kernel fitImage for j721e-hs-evm";
-            #address-cells = <1>;
+        description = "FIT Image description";
+        #address-cells = <1>;
 
-            images {
-                    kernel-1 {
-                            description = "Linux kernel";
-                            data = /incbin/("Image");
-                            type = "kernel";
-                            arch = "arm64";
-                            os = "linux";
-                            compression = "none";
-                            load = <0x80080000>;
-                            entry = <0x80080000>;
-                            hash-1 {
-                                    algo = "sha512";
-                            };
+        images {
+            [image-1]
+            [image-2]
+            [fdt-1]
+            [fdt-2]
+        }
 
-                    };
-                    fdt-ti_k3-j721e-common-proc-board.dtb {
-                            description = "Flattened Device Tree blob";
-                            data = /incbin/("k3-j721e-common-proc-board.dtb");
-                            type = "flat_dt";
-                            arch = "arm64";
-                            compression = "none";
-                            load = <0x83000000>;
-                            hash-1 {
-                                    algo = "sha512";
-                            };
+        configurations {
+            default = <conf-1>
+            [conf-1: image-1,fdt-1]
+            [conf-2: image-2,fdt-1]
+        }
+    }
 
-                    };
+* Sample Images
+
+.. code-block::
+
+    kernel-1 {
+            description = "Linux kernel";
+            data = /incbin/("linux.bin");
+            type = "kernel";
+            arch = "arm64";
+            os = "linux";
+            compression = "gzip";
+            load = <0x81000000>;
+            entry = <0x81000000>;
+            hash-1 {
+                    algo = "sha512";
             };
-
-            configurations {
-                    default = "conf-ti_k3-j721e-common-proc-board.dtb";
-                    conf-ti_k3-j721e-common-proc-board.dtb {
-                            description = "Linux kernel, FDT blob";
-                            fdt = "fdt-ti_k3-j721e-common-proc-board.dtb";
-                            kernel = "kernel-1";
-                            signature-1 {
-                                    algo = "sha512,rsa4096";
-                                    key-name-hint = "custMpk";
-                                    sign-images = "kernel", "fdt";
-                            };
-                    };
+    };
+    fdt-ti_k3-j721e-common-proc-board.dtb {
+            description = "Flattened Device Tree blob";
+            data = /incbin/("arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dtb");
+            type = "flat_dt";
+            arch = "arm64";
+            compression = "none";
+            load = <0x83000000>;
+            hash-1 {
+                    algo = "sha512";
+            };
+    };
+    # Optional images
+    fdt-ti_k3-j721e-evm-virt-mac-client.dtbo {
+            description = "Flattened Device Tree blob";
+            data = /incbin/("arch/arm64/boot/dts/ti/k3-j721e-evm-virt-mac-client.dtbo");
+            type = "flat_dt";
+            arch = "arm64";
+            compression = "none";
+            load = <0x83080000>;
+            hash-1 {
+                    algo = "sha512";
             };
     };
 
-  You would require to change the '/incbin/' lines to point to the respective
-  files in your local machine and the key-name-hint also needs to be changed
-  if you are using some other key other than the TI dummy key that we are
-  using for this example.
+.. note::
 
-2. Compile U-boot for the respective board
+    Change the path in data variables to point to the respective files in your
+    local machine. For e.g change "linux.bin" to "<path-to-kernel-image>".
 
-.. include::  k3.rst
-    :start-after: .. k3_rst_include_start_build_steps_uboot
-    :end-before: .. k3_rst_include_end_build_steps_uboot
+For enabling usage of FIT signature, add the signature node to the
+corresponding configuration node as follows.
+
+* Sample Configurations
+
+.. code-block::
+
+    conf-ti_k3-j721e-common-proc-board.dtb {
+            description = "Linux kernel, FDT blob";
+            fdt = "fdt-ti_k3-j721e-common-proc-board.dtb";
+            kernel = "kernel-1";
+            signature-1 {
+                    algo = "sha512,rsa4096";
+                    key-name-hint = "custMpk";
+                    sign-images = "kernel", "fdt";
+            };
+    };
+    # Optional configurations
+    conf-ti_k3-j721e-evm-virt-mac-client.dtbo {
+            description = "FDTO blob";
+            fdt = "fdt-ti_k3-j721e-evm-virt-mac-client.dtbo";
+
+            signature-1 {
+                    algo = "sha512,rsa4096";
+                    key-name-hint = "custMpk";
+                    sign-images = "fdt";
+            };
+    };
+
+Specify all images you need the signature to authenticate as a part of
+sign-images. The key-name-hint needs to be changed if you are using some
+other key other than the TI dummy key that we are using for this example.
+It should be the name of the file containing the keys.
 
 .. note::
 
-    The changes only affect a72 binaries so the example just builds that
+    Generating new set of keys:
 
-3. Sign the fit image and embed the dtb in uboot
+    .. prompt:: bash $
 
-  Now once the build is done, you'll have a dtb for your board that you'll
-  be passing to mkimage for signing the fitImage and embedding the key in
-  the u-boot dtb.
+        mkdir keys
+        openssl genpkey -algorithm RSA -out keys/dev.key \
+        -pkeyopt rsa_keygen_bits:4096 -pkeyopt rsa_keygen_pubexp:65537
+        openssl req -batch -new -x509 -key keys/dev.key -out keys/dev.crt
 
-  .. prompt:: bash $
-
-    mkimage -r -f fitImage.its -k $UBOOT_PATH/board/ti/keys -K
-    $UBOOT_PATH/build/a72/dts/dt.dtb
-
-  For signing a secondary platform, pass the -K parameter to that DTB
-
-  .. prompt:: bash $
-
-    mkimage -f fitImage.its -k $UBOOT_PATH/board/ti/keys -K
-    $UBOOT_PATH/build/a72/arch/arm/dts/k3-j721e-sk.dtb
-
-  .. note::
-
-    If changing `CONFIG_DEFAULT_DEVICE_TREE` to the secondary platform,
-    binman changes would also be required so that correct dtb gets packaged.
-
-    .. code-block:: bash
-
-      diff --git a/arch/arm/dts/k3-j721e-binman.dtsi b/arch/arm/dts/k3-j721e-binman.dtsi
-      index 673be646b1e3..752fa805fe8d 100644
-      --- a/arch/arm/dts/k3-j721e-binman.dtsi
-      +++ b/arch/arm/dts/k3-j721e-binman.dtsi
-      @@ -299,8 +299,8 @@
-       #define SPL_J721E_SK_DTB "spl/dts/k3-j721e-sk.dtb"
-
-       #define UBOOT_NODTB "u-boot-nodtb.bin"
-      -#define J721E_EVM_DTB "u-boot.dtb"
-      -#define J721E_SK_DTB "arch/arm/dts/k3-j721e-sk.dtb"
-      +#define J721E_EVM_DTB "arch/arm/dts/k3-j721e-common-proc-board.dtb"
-      +#define J721E_SK_DTB "u-boot.dtb"
-
-5. Rebuilt u-boot
-
-   This is required so that the modified dtb gets updated in u-boot.img
-
-.. include::  k3.rst
-    :start-after: .. k3_rst_include_start_build_steps_uboot
-    :end-before: .. k3_rst_include_end_build_steps_uboot
-
-6. (Optional) Enabled FIT_SIGNATURE_ENFORCED
-
-   By default u-boot will boot up the fit image without any authentication as
-   such if the public key is not embedded properly, to check if the public key
-   nodes are proper you can enable FIT_SIGNATURE_ENFORCED that would not rely
-   on the dtb for anything else then the signature node for checking the fit
-   image, rest other things will be enforced such as the property of
-   required-keys. This is not an extensive check so do manual checks also
-
-   This is by default enabled for devices with TI_SECURE_DEVICE enabled.
+Generating the fitImage
+^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
 
-   The devices now also have distroboot enabled so if the fit image doesn't
-   work then the fallback to normal distroboot will be there on hs devices,
-   this will need to be explicitly disabled by changing the boot_targets.
+    For signing a secondary platform like SK boards, you'll require
+    additional steps
+
+    - Change the CONFIG_DEFAULT_DEVICE_TREE
+
+        For e.g
+
+        .. code-block::
+
+            diff --git a/configs/j721e_evm_a72_defconfig b/configs/j721e_evm_a72_defconfig
+            index a5c1df7e0054..6d0126d955ef 100644
+            --- a/configs/j721e_evm_a72_defconfig
+            +++ b/configs/j721e_evm_a72_defconfig
+            @@ -13,7 +13,7 @@ CONFIG_CUSTOM_SYS_INIT_SP_ADDR=0x80480000
+             CONFIG_ENV_SIZE=0x20000
+             CONFIG_DM_GPIO=y
+             CONFIG_SPL_DM_SPI=y
+            -CONFIG_DEFAULT_DEVICE_TREE="k3-j721e-common-proc-board"
+            +CONFIG_DEFAULT_DEVICE_TREE="k3-j721e-sk"
+             CONFIG_SPL_TEXT_BASE=0x80080000
+             CONFIG_DM_RESET=y
+             CONFIG_SPL_MMC=y
+
+    - Change the binman nodes to package u-boot.dtb for the correct set of platform
+
+        For e.g
+
+        .. code-block::
+
+            diff --git a/arch/arm/dts/k3-j721e-binman.dtsi b/arch/arm/dts/k3-j721e-binman.dtsi
+                  index 673be646b1e3..752fa805fe8d 100644
+                  --- a/arch/arm/dts/k3-j721e-binman.dtsi
+                  +++ b/arch/arm/dts/k3-j721e-binman.dtsi
+                  @@ -299,8 +299,8 @@
+                   #define SPL_J721E_SK_DTB "spl/dts/k3-j721e-sk.dtb"
+
+                   #define UBOOT_NODTB "u-boot-nodtb.bin"
+                  -#define J721E_EVM_DTB "u-boot.dtb"
+                  -#define J721E_SK_DTB "arch/arm/dts/k3-j721e-sk.dtb"
+                  +#define J721E_EVM_DTB "arch/arm/dts/k3-j721e-common-proc-board.dtb"
+                  +#define J721E_SK_DTB "u-boot.dtb"
+
+This step will embed the public key in the u-boot.dtb file that was already
+built during the initial u-boot build.
+
+.. prompt:: bash $
+
+    mkimage -r -f fitImage.its -k $UBOOT_PATH/board/ti/keys -K $UBOOT_PATH/build/$ARMV8/dts/dt.dtb fitImage
+
+.. note::
+
+    If you have another set of keys then change the -k argument to point to
+    the folder where your keys are present, the build requires the presence
+    of both .key and .crt file.
+
+Build u-boot again
+^^^^^^^^^^^^^^^^^^
+
+The updated u-boot.dtb needs to be packed in u-boot.img for authentication
+so rebuild U-boot ARMV8 without changing any parameters.
+Refer (:ref:`U-boot ARMV8 build <k3_rst_include_start_build_steps_uboot>`)
+
+.. note::
+
+   The devices now also have distroboot enabled so if the FIT image doesn't
+   work then the fallback to normal distroboot will be there on HS devices.
+   This will need to be explicitly disabled by changing the boot_targets to
+   disallow fallback during testing.
 
 Saving environment
 ------------------

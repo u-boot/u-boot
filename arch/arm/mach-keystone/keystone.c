@@ -6,7 +6,6 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  */
 
-#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <asm/io.h>

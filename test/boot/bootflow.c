@@ -374,7 +374,7 @@ static int bootflow_system(struct unit_test_state *uts)
 {
 	struct udevice *bootstd, *dev;
 
-	if (!IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR))
+	if (!IS_ENABLED(CONFIG_EFI_BOOTMGR))
 		return -EAGAIN;
 	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
 	ut_assertok(device_bind(bootstd, DM_DRIVER_GET(bootmeth_efi_mgr),
@@ -636,6 +636,102 @@ static int bootflow_cmd_menu(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootflow_cmd_menu, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+
+/* Check 'bootflow scan -m' to select a bootflow using a menu */
+static int bootflow_scan_menu(struct unit_test_state *uts)
+{
+	struct bootstd_priv *std;
+	const char **old_order, **new_order;
+	char prev[3];
+
+	/* get access to the current bootflow */
+	ut_assertok(bootstd_get_priv(&std));
+
+	ut_assertok(prep_mmc_bootdev(uts, "mmc4", false, &old_order));
+
+	/* Add keypresses to move to and select the second one in the list */
+	prev[0] = CTL_CH('n');
+	prev[1] = '\r';
+	prev[2] = '\0';
+	ut_asserteq(2, console_in_puts(prev));
+
+	ut_assertok(run_command("bootflow scan -lm", 0));
+	new_order = std->bootdev_order;
+	std->bootdev_order = old_order;
+
+	ut_assert_skip_to_line("No more bootdevs");
+	ut_assert_nextlinen("--");
+	ut_assert_nextline("(2 bootflows, 2 valid)");
+
+	ut_assert_nextline("Selected: Armbian");
+	ut_assertnonnull(std->cur_bootflow);
+	ut_assert_console_end();
+
+	/* Check not selecting anything */
+	prev[0] = '\e';
+	prev[1] = '\0';
+	ut_asserteq(1, console_in_puts(prev));
+
+	std->bootdev_order = new_order; /* Blue Monday */
+	ut_assertok(run_command("bootflow scan -lm", 0));
+	std->bootdev_order = old_order;
+
+	ut_assertnull(std->cur_bootflow);
+	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+	ut_assert_nextline("Nothing chosen");
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_scan_menu,
+	     UT_TESTF_DM | UT_TESTF_SCAN_FDT | UT_TESTF_CONSOLE_REC);
+
+/* Check 'bootflow scan -mb' to select and boot a bootflow using a menu */
+static int bootflow_scan_menu_boot(struct unit_test_state *uts)
+{
+	struct bootstd_priv *std;
+	const char **old_order;
+	char prev[3];
+
+	/* get access to the current bootflow */
+	ut_assertok(bootstd_get_priv(&std));
+
+	ut_assertok(prep_mmc_bootdev(uts, "mmc4", false, &old_order));
+
+	/* Add keypresses to move to and select the second one in the list */
+	prev[0] = CTL_CH('n');
+	prev[1] = '\r';
+	prev[2] = '\0';
+	ut_asserteq(2, console_in_puts(prev));
+
+	ut_assertok(run_command("bootflow scan -lmb", 0));
+	std->bootdev_order = old_order;
+
+	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+
+	ut_assert_nextline("Selected: Armbian");
+
+	if (gd->flags & GD_FLG_HUSH_OLD_PARSER) {
+		/*
+		 * With old hush, despite booti failing to boot, i.e. returning
+		 * CMD_RET_FAILURE, run_command() returns 0 which leads bootflow_boot(), as
+		 * we are using bootmeth_script here, to return -EFAULT.
+		 */
+		ut_assert_skip_to_line("Boot failed (err=-14)");
+	} else if (gd->flags & GD_FLG_HUSH_MODERN_PARSER) {
+		/*
+		 * While with modern one, run_command() propagates CMD_RET_FAILURE returned
+		 * by booti, so we get 1 here.
+		 */
+		ut_assert_skip_to_line("Boot failed (err=1)");
+	}
+	ut_assertnonnull(std->cur_bootflow);
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_scan_menu_boot,
+	     UT_TESTF_DM | UT_TESTF_SCAN_FDT | UT_TESTF_CONSOLE_REC);
 
 /* Check searching for a single bootdev using the hunters */
 static int bootflow_cmd_hunt_single(struct unit_test_state *uts)
@@ -1011,6 +1107,10 @@ static int bootflow_cmdline(struct unit_test_state *uts)
 
 	ut_asserteq(0, run_command("bootflow cmdline clear mary", 0));
 	ut_asserteq(0, run_command("bootflow cmdline get mary", 0));
+	ut_assert_nextline_empty();
+
+	ut_asserteq(0, run_command("bootflow cmdline set mary abc", 0));
+	ut_asserteq(0, run_command("bootflow cmdline set mary", 0));
 	ut_assert_nextline_empty();
 
 	ut_assert_console_end();

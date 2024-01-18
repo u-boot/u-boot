@@ -667,7 +667,6 @@ int fdt_record_loadable(void *blob, u32 index, const char *name,
 	return node;
 }
 
-/* Resize the fdt to its actual size + a bit of padding */
 int fdt_shrink_to_minimum(void *blob, uint extrasize)
 {
 	int i;

@@ -218,7 +218,8 @@ static inline u64 readq(const volatile void __iomem *addr)
 #define insw(p, d, l)			readsw(__io(p), d, l)
 #define insl(p, d, l)			readsl(__io(p), d, l)
 
-static inline void readsb(unsigned int *addr, void *data, int bytelen)
+static inline void readsb(const volatile void __iomem *addr, void *data,
+			  unsigned int bytelen)
 {
 	unsigned char *ptr;
 	unsigned char *ptr2;
@@ -233,7 +234,8 @@ static inline void readsb(unsigned int *addr, void *data, int bytelen)
 	}
 }
 
-static inline void readsw(unsigned int *addr, void *data, int wordlen)
+static inline void readsw(const volatile void __iomem *addr, void *data,
+			  unsigned int wordlen)
 {
 	unsigned short *ptr;
 	unsigned short *ptr2;
@@ -248,7 +250,8 @@ static inline void readsw(unsigned int *addr, void *data, int wordlen)
 	}
 }
 
-static inline void readsl(unsigned int *addr, void *data, int longlen)
+static inline void readsl(const volatile void __iomem *addr, void *data,
+			  unsigned int longlen)
 {
 	unsigned int *ptr;
 	unsigned int *ptr2;
@@ -263,7 +266,8 @@ static inline void readsl(unsigned int *addr, void *data, int longlen)
 	}
 }
 
-static inline void writesb(unsigned int *addr, const void *data, int bytelen)
+static inline void writesb(volatile void __iomem *addr, const void *data,
+			   unsigned int bytelen)
 {
 	unsigned char *ptr;
 	unsigned char *ptr2;
@@ -278,7 +282,8 @@ static inline void writesb(unsigned int *addr, const void *data, int bytelen)
 	}
 }
 
-static inline void writesw(unsigned int *addr, const void *data, int wordlen)
+static inline void writesw(volatile void __iomem *addr, const void *data,
+			   unsigned int wordlen)
 {
 	unsigned short *ptr;
 	unsigned short *ptr2;
@@ -293,7 +298,8 @@ static inline void writesw(unsigned int *addr, const void *data, int wordlen)
 	}
 }
 
-static inline void writesl(unsigned int *addr, const void *data, int longlen)
+static inline void writesl(volatile void __iomem *addr, const void *data,
+			   unsigned int longlen)
 {
 	unsigned int *ptr;
 	unsigned int *ptr2;
@@ -307,6 +313,14 @@ static inline void writesl(unsigned int *addr, const void *data, int longlen)
 		longlen--;
 	}
 }
+
+#define readsb readsb
+#define readsw readsw
+#define readsl readsl
+#define writesb writesb
+#define writesw writesw
+#define writesl writesl
+
 #endif
 
 #define outb_p(val, port)		outb((val), (port))

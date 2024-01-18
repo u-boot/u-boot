@@ -13,13 +13,12 @@
 #include <dm.h>
 #include <errno.h>
 #include <linux/delay.h>
+#include <linux/time.h>
 #include <misc.h>
 #include <serial.h>
 
 #define UART_OVERSAMPLING	32
 #define STALE_TIMEOUT	160
-
-#define USEC_PER_SEC	1000000L
 
 /* Registers*/
 #define GENI_FORCE_DEFAULT_REG	0x20
@@ -189,8 +188,8 @@ static int geni_serial_set_clock_rate(struct udevice *dev, u64 rate)
 	int ret;
 
 	clk = devm_clk_get(dev, NULL);
-	if (!clk)
-		return -EINVAL;
+	if (IS_ERR(clk))
+		return PTR_ERR(clk);
 
 	ret = clk_set_rate(clk, rate);
 	return ret;
@@ -249,11 +248,16 @@ static int msm_serial_setbrg(struct udevice *dev, int baud)
 	struct msm_serial_data *priv = dev_get_priv(dev);
 	u64 clk_rate;
 	u32 clk_div;
+	int ret;
 
 	priv->baud = baud;
 
 	clk_rate = get_clk_div_rate(baud, priv->oversampling, &clk_div);
-	geni_serial_set_clock_rate(dev, clk_rate);
+	ret = geni_serial_set_clock_rate(dev, clk_rate);
+	if (ret < 0) {
+		pr_err("%s: Couldn't set clock rate: %d\n", __func__, ret);
+		return ret;
+	}
 	geni_serial_baud(priv->base, clk_div, baud);
 
 	return 0;
@@ -486,12 +490,12 @@ static const struct dm_serial_ops msm_serial_ops = {
 	.setbrg = msm_serial_setbrg,
 };
 
-static void geni_set_oversampling(struct udevice *dev)
+static int geni_set_oversampling(struct udevice *dev)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
-	struct udevice *parent_dev = dev_get_parent(dev);
+	ofnode parent_node = ofnode_get_parent(dev_ofnode(dev));
 	u32 geni_se_version;
-	int ret;
+	fdt_addr_t addr;
 
 	priv->oversampling = UART_OVERSAMPLING;
 
@@ -499,16 +503,20 @@ static void geni_set_oversampling(struct udevice *dev)
 	 * It could happen that GENI SE IP is missing in the board's device
 	 * tree or GENI UART node is a direct child of SoC device tree node.
 	 */
-	if (device_get_uclass_id(parent_dev) != UCLASS_MISC)
-		return;
+	if (!ofnode_device_is_compatible(parent_node, "qcom,geni-se-qup")) {
+		pr_err("%s: UART node must be a child of geniqup node\n",
+		       __func__);
+		return -ENODEV;
+	}
 
-	ret = misc_read(parent_dev, QUP_HW_VER_REG,
-			&geni_se_version, sizeof(geni_se_version));
-	if (ret != sizeof(geni_se_version))
-		return;
+	/* Read the HW_VER register relative to the parents address space */
+	addr = ofnode_get_addr(parent_node);
+	geni_se_version = readl(addr + QUP_HW_VER_REG);
 
 	if (geni_se_version >= QUP_SE_VERSION_2_5)
 		priv->oversampling /= 2;
+
+	return 0;
 }
 
 static inline void geni_serial_init(struct udevice *dev)
@@ -553,8 +561,11 @@ static inline void geni_serial_init(struct udevice *dev)
 static int msm_serial_probe(struct udevice *dev)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
+	int ret;
 
-	geni_set_oversampling(dev);
+	ret = geni_set_oversampling(dev);
+	if (ret < 0)
+		return ret;
 
 	/* No need to reinitialize the UART after relocation */
 	if (gd->flags & GD_FLG_RELOC)

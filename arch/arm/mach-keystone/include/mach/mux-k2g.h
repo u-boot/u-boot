@@ -9,7 +9,6 @@
 #ifndef __ASM_ARCH_MUX_K2G_H
 #define __ASM_ARCH_MUX_K2G_H
 
-#include <common.h>
 #include <asm/io.h>
 
 #define K2G_PADCFG_REG	(KS2_DEVICE_STATE_CTRL_BASE + 0x1000)

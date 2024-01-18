@@ -135,7 +135,7 @@ static u32 npcm_clk_get_div(struct clk *clk)
 	return div;
 }
 
-static u32 npcm_clk_set_div(struct clk *clk, u32 div)
+static int npcm_clk_set_div(struct clk *clk, u32 div)
 {
 	struct npcm_clk_priv *priv = dev_get_priv(clk->dev);
 	struct npcm_clk_div *divider;
@@ -145,6 +145,9 @@ static u32 npcm_clk_set_div(struct clk *clk, u32 div)
 	if (!divider)
 		return -EINVAL;
 
+	if (divider->flags & DIV_RO)
+		return 0;
+
 	if (divider->flags & PRE_DIV2)
 		div = div >> 1;
 
@@ -152,6 +155,12 @@ static u32 npcm_clk_set_div(struct clk *clk, u32 div)
 		clkdiv = div - 1;
 	else
 		clkdiv = ilog2(div);
+
+	if (clkdiv > (divider->mask >> (ffs(divider->mask) - 1))) {
+		printf("clkdiv(%d) for clk(%ld) is over limit\n",
+		       clkdiv, clk->id);
+		return -EINVAL;
+	}
 
 	val = readl(priv->base + divider->reg);
 	val &= ~divider->mask;
@@ -253,8 +262,8 @@ static ulong npcm_clk_set_rate(struct clk *clk, ulong rate)
 	if (ret)
 		return ret;
 
-	debug("%s: rate %lu, new rate (%lu / %u)\n", __func__, rate, parent_rate, div);
-	return (parent_rate / div);
+	debug("%s: rate %lu, new rate %lu\n", __func__, rate, npcm_clk_get_rate(clk));
+	return npcm_clk_get_rate(clk);
 }
 
 static int npcm_clk_set_parent(struct clk *clk, struct clk *parent)

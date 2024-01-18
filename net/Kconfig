@@ -5,6 +5,7 @@
 menuconfig NET
 	bool "Networking support"
 	default y
+	imply NETDEVICES
 
 if NET
 

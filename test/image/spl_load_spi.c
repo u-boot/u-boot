@@ -34,6 +34,7 @@ static int spl_test_spi(struct unit_test_state *uts, const char *test_name,
 				spl_test_spi_write_image);
 }
 SPL_IMG_TEST(spl_test_spi, LEGACY, DM_FLAGS);
+SPL_IMG_TEST(spl_test_spi, LEGACY_LZMA, DM_FLAGS);
 SPL_IMG_TEST(spl_test_spi, IMX8, DM_FLAGS);
 SPL_IMG_TEST(spl_test_spi, FIT_INTERNAL, DM_FLAGS);
 #if !IS_ENABLED(CONFIG_SPL_LOAD_FIT_FULL)

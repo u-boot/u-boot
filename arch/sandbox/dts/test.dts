@@ -1544,10 +1544,10 @@
 			spmi_gpios: gpios@c000 {
 				compatible = "qcom,pm8916-gpio";
 				reg = <0xc000 0x400>;
+				gpio-ranges = <&spmi_gpios 0 0 4>;
 				gpio-controller;
 				gpio-count = <4>;
 				#gpio-cells = <2>;
-				gpio-bank-name="spmi";
 			};
 		};
 	};
@@ -1914,6 +1914,71 @@
 
 		sandbox-arm-ffa {
 				compatible = "sandbox,arm-ffa";
+		};
+	};
+
+	nand-controller {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "sandbox,nand";
+
+		nand@0 {
+			reg = <0>;
+			nand-ecc-mode = "soft";
+			sandbox,id = [00 e3];
+			sandbox,erasesize = <(8 * 1024)>;
+			sandbox,oobsize = <16>;
+			sandbox,pagesize = <512>;
+			sandbox,pages = <0x2000>;
+			sandbox,err-count = <1>;
+			sandbox,err-step-size = <512>;
+		};
+
+		/* MT29F64G08AKABA */
+		nand@1 {
+			reg = <1>;
+			nand-ecc-mode = "soft_bch";
+			sandbox,id = [2C 48 00 26 89 00 00 00];
+			sandbox,onfi = [
+				4f 4e 46 49 0e 00 5a 00
+				ff 01 00 00 00 00 03 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				4d 49 43 52 4f 4e 20 20
+				20 20 20 20 4d 54 32 39
+				46 36 34 47 30 38 41 4b
+				41 42 41 43 35 20 20 20
+				2c 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 10 00 00 e0 00 00 02
+				00 00 1c 00 80 00 00 00
+				00 10 00 00 02 23 01 50
+				00 01 05 01 00 00 04 00
+				04 01 1e 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				0e 1f 00 1f 00 f4 01 ac
+				0d 19 00 c8 00 00 00 00
+				00 00 00 00 00 00 0a 07
+				19 00 00 00 00 00 00 00
+				00 00 00 00 01 00 01 00
+				00 00 04 10 01 81 04 02
+				02 01 1e 90 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 03 20 7d
+			];
+			sandbox,erasesize = <(512 * 1024)>;
+			sandbox,oobsize = <224>;
+			sandbox,pagesize = <4096>;
+			sandbox,pages = <0x200000>;
+			sandbox,err-count = <3>;
+			sandbox,err-step-size = <512>;
 		};
 	};
 };

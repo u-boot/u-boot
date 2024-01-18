@@ -8,7 +8,6 @@
 #ifndef _EFI_LOADER_H
 #define _EFI_LOADER_H 1
 
-#include <common.h>
 #include <blk.h>
 #include <event.h>
 #include <log.h>
@@ -91,9 +90,7 @@ efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len);
  * back to u-boot world
  */
 void efi_restore_gd(void);
-/* Call this to set the current device name */
-void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
-		     void *buffer, size_t buffer_size);
+
 /* Called by networking code to memorize the dhcp ack package */
 void efi_net_set_dhcp_ack(void *pkt, int len);
 /* Print information about all loaded images */
@@ -115,9 +112,6 @@ static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 
 /* No loader configured, stub out EFI_ENTRY */
 static inline void efi_restore_gd(void) { }
-static inline void efi_set_bootdev(const char *dev, const char *devnr,
-				   const char *path, void *buffer,
-				   size_t buffer_size) { }
 static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
 static inline void efi_print_image_infos(void *pc) { }
 static inline efi_status_t efi_launch_capsules(void)
@@ -126,6 +120,20 @@ static inline efi_status_t efi_launch_capsules(void)
 }
 
 #endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
+
+#if CONFIG_IS_ENABLED(EFI_BINARY_EXEC)
+/* Call this to unset the current device name */
+void efi_clear_bootdev(void);
+/* Call this to set the current device name */
+void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
+		     void *buffer, size_t buffer_size);
+#else
+static inline void efi_clear_bootdev(void) { }
+
+static inline void efi_set_bootdev(const char *dev, const char *devnr,
+				   const char *path, void *buffer,
+				   size_t buffer_size) { }
+#endif
 
 /* Maximum number of configuration tables */
 #define EFI_MAX_CONFIGURATION_TABLES 16
@@ -290,6 +298,8 @@ extern const efi_guid_t efi_guid_event_group_memory_map_change;
 extern const efi_guid_t efi_guid_event_group_ready_to_boot;
 /* event group ResetSystem() invoked (before ExitBootServices) */
 extern const efi_guid_t efi_guid_event_group_reset_system;
+/* event group return to efibootmgr */
+extern const efi_guid_t efi_guid_event_group_return_to_efibootmgr;
 /* GUID of the device tree table */
 extern const efi_guid_t efi_guid_fdt;
 extern const efi_guid_t efi_guid_loaded_image;
@@ -526,14 +536,21 @@ efi_status_t efi_bootmgr_get_unused_bootoption(u16 *buf,
 efi_status_t efi_bootmgr_update_media_device_boot_option(void);
 /* Delete selected boot option */
 efi_status_t efi_bootmgr_delete_boot_option(u16 boot_index);
+/* Invoke EFI boot manager */
+efi_status_t efi_bootmgr_run(void *fdt);
 /* search the boot option index in BootOrder */
 bool efi_search_bootorder(u16 *bootorder, efi_uintn_t num, u32 target, u32 *index);
 /* Set up console modes */
 void efi_setup_console_size(void);
+/* Set up load options from environment variable */
+efi_status_t efi_env_set_load_options(efi_handle_t handle, const char *env_var,
+				      u16 **load_options);
 /* Install device tree */
 efi_status_t efi_install_fdt(void *fdt);
-/* Run loaded UEFI image */
-efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size);
+/* Execute loaded UEFI image */
+efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options);
+/* Run loaded UEFI image with given fdt */
+efi_status_t efi_binary_run(void *image, size_t size, void *fdt);
 /* Initialize variable services */
 efi_status_t efi_init_variables(void);
 /* Notify ExitBootServices() is called */
@@ -685,7 +702,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (
 					struct efi_event *event,
 					void *context),
-			      void *notify_context, efi_guid_t *group,
+			      void *notify_context, const efi_guid_t *group,
 			      struct efi_event **event);
 /* Call this to set a timer */
 efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
@@ -808,8 +825,6 @@ efi_uintn_t efi_dp_instance_size(const struct efi_device_path *dp);
 /* size of multi-instance device path excluding end node */
 efi_uintn_t efi_dp_size(const struct efi_device_path *dp);
 struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp);
-struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
-				      const struct efi_device_path *dp2);
 struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
 					   const struct efi_device_path *node);
 /* Create a device path node of given type, sub-type, length */
@@ -878,14 +893,12 @@ efi_status_t __efi_runtime EFIAPI efi_get_time(
 
 efi_status_t __efi_runtime EFIAPI efi_set_time(struct efi_time *time);
 
-#ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 /*
  * Entry point for the tests of the EFI API.
  * It is called by 'bootefi selftest'
  */
 efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 				 struct efi_system_table *systab);
-#endif
 
 efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 				     const efi_guid_t *vendor, u32 *attributes,
@@ -928,7 +941,8 @@ struct efi_load_option {
 struct efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
 				       const efi_guid_t *guid);
 struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
-				      const struct efi_device_path *dp2);
+				      const struct efi_device_path *dp2,
+				      bool split_end_node);
 struct efi_device_path *search_gpt_dp_node(struct efi_device_path *device_path);
 efi_status_t efi_deserialize_load_option(struct efi_load_option *lo, u8 *data,
 					 efi_uintn_t *size);

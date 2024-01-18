@@ -29,6 +29,9 @@ repo="--repository testpypi"
 # Non-empty to do the actual upload
 upload=1
 
+# Non-empty to delete files used for testing
+delete_testfiles=1
+
 tool="$1"
 shift
 flags="$*"
@@ -36,7 +39,7 @@ flags="$*"
 if [[ "${tool}" =~ ^(patman|buildman|dtoc|binman|u_boot_pylib)$ ]]; then
 	echo "Building dist package for tool ${tool}"
 else
-	echo "Unknown tool ${tool}: use patman, buildman, dtoc or binman"
+	echo "Unknown tool ${tool}: use u_boot_pylib, patman, buildman, dtoc or binman"
 	exit 1
 fi
 
@@ -56,6 +59,11 @@ if [ -n "${upload}" ]; then
 		echo "Please set TWINE_PASSWORD to your password and retry"
 		exit 1
 	fi
+fi
+
+if [[ "${tool}" =~ ^(patman|u_boot_pylib)$ ]]; then
+	# Leave test_util.py and patman test files alone
+	delete_testfiles=
 fi
 
 # Create a temp dir to work in
@@ -91,7 +99,9 @@ find ${dest} -name __pycache__ -type f -exec rm {} \;
 find ${dest} -depth -name __pycache__ -exec rmdir 112 \;
 
 # Remove test files
-rm -rf ${dest}/*test*
+if [ -n "${delete_testfiles}" ]; then
+	rm -rfv ${dest}/*test*
+fi
 
 mkdir ${dir}/tests
 cd ${dir}

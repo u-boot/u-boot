@@ -34,12 +34,6 @@ struct disk_partition;
 /* Maximum number of entry for long file name according to spec */
 #define MAX_LFN_SLOT	20
 
-/* Filesystem identifiers */
-#define FAT12_SIGN	"FAT12   "
-#define FAT16_SIGN	"FAT16   "
-#define FAT32_SIGN	"FAT32   "
-#define SIGNLEN		8
-
 /* File attributes */
 #define ATTR_RO	1
 #define ATTR_HIDDEN	2

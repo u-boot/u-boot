@@ -7,11 +7,13 @@
 
 #define LOG_CATEGORY LOGC_ACPI
 
-#include <common.h>
 #include <mapmem.h>
 #include <tables_csum.h>
 #include <acpi/acpi_table.h>
 #include <dm/acpi.h>
+#include <linux/errno.h>
+#include <linux/string.h>
+#include <linux/types.h>
 
 int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
 			      u16 seg_nr, u8 start, u8 end)

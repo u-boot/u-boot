@@ -19,11 +19,11 @@ CONFIG_SUPPORT_RAW_INITRD=y
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="mmc dev ${mmcdev}; if mmc rescan; then if run loadbootscript; then run bootscript; else if run loadimage; then run mmcboot; else run netboot; fi; fi; else booti ${loadaddr} - ${fdt_addr}; fi"
 CONFIG_DEFAULT_FDT_FILE="r8a774a1-beacon-rzg2m-kit.dtb"
+CONFIG_SYS_PBSIZE=2068
 # CONFIG_BOARD_EARLY_INIT_F is not set
 CONFIG_SYS_MALLOC_BOOTPARAMS=y
 CONFIG_HUSH_PARSER=y
 CONFIG_SYS_MAXARGS=64
-CONFIG_SYS_PBSIZE=2068
 CONFIG_CMD_BOOTZ=y
 CONFIG_CMD_GPIO=y
 CONFIG_CMD_I2C=y

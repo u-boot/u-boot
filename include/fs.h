@@ -5,7 +5,6 @@
 #ifndef _FS_H
 #define _FS_H
 
-#include <common.h>
 #include <rtc.h>
 
 struct cmd_tbl;

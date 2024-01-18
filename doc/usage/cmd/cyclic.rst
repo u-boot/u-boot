@@ -1,5 +1,8 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
+.. index::
+   single: cyclic (command)
+
 cyclic command
 ==============
 

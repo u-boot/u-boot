@@ -20,6 +20,20 @@
 			no-expanded;
 		};
 	};
+
+	tiboot3-j721e_sr2-hs-evm.bin {
+		filename = "tiboot3-j721e_sr2-hs-evm.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl_sr2>;
+			core = "public";
+			load = <CONFIG_SPL_TEXT_BASE>;
+			keyfile = "custMpk.pem";
+		};
+		u_boot_spl_sr2: u-boot-spl {
+			no-expanded;
+		};
+	};
+
 	sysfw {
 		filename = "sysfw.bin";
 		ti-secure-rom {
@@ -40,78 +54,76 @@
 			optional;
 		};
 	};
+
+	sysfw_sr2 {
+		filename = "sysfw.bin_sr2";
+		ti-secure-rom {
+			content = <&ti_fs_cert_sr2>;
+			core = "secure";
+			load = <0x40000>;
+			keyfile = "custMpk.pem";
+			countersign;
+		};
+		ti_fs_cert_sr2: ti-fs-cert.bin {
+			filename = "ti-sysfw/ti-fs-firmware-j721e_sr2-hs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+		ti-fs-firmware-j721e_sr2-hs-enc.bin {
+			filename = "ti-sysfw/ti-fs-firmware-j721e_sr2-hs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+
 	itb {
 		filename = "sysfw-j721e_sr1_1-hs-evm.itb";
+		insert-template = <&itb_template>;
+	};
+
+	itb_sr2 {
+		filename = "sysfw-j721e_sr2-hs-evm.itb";
+		insert-template = <&itb_template>;
 		fit {
-			description = "SYSFW and Config fragments";
-			#address-cells = <1>;
 			images {
 				sysfw.bin {
-					description = "sysfw";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
 					blob-ext {
-					    filename = "sysfw.bin";
+						filename = "sysfw.bin_sr2";
 					};
 				};
 				board-cfg.bin {
-					description = "board-cfg";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
 					ti-secure {
-						content = <&board_cfg>;
-						keyfile = "custMpk.pem";
+						content = <&board_cfg_sr2>;
 					};
-					board_cfg: board-cfg {
+					board_cfg_sr2: board-cfg {
 						filename = "board-cfg.bin";
-						type = "blob-ext";
 					};
-
 				};
 				pm-cfg.bin {
-					description = "pm-cfg";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
 					ti-secure {
-						content = <&pm_cfg>;
-						keyfile = "custMpk.pem";
+						content = <&pm_cfg_sr2>;
 					};
-					pm_cfg: pm-cfg {
+					pm_cfg_sr2: pm-cfg {
 						filename = "pm-cfg.bin";
-						type = "blob-ext";
 					};
 				};
 				rm-cfg.bin {
-					description = "rm-cfg";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
 					ti-secure {
-						content = <&rm_cfg>;
-						keyfile = "custMpk.pem";
+						content = <&rm_cfg_sr2>;
 					};
-					rm_cfg: rm-cfg {
+					rm_cfg_sr2: rm-cfg {
 						filename = "rm-cfg.bin";
-						type = "blob-ext";
 					};
 				};
 				sec-cfg.bin {
-					description = "sec-cfg";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
 					ti-secure {
-						content = <&sec_cfg>;
-						keyfile = "custMpk.pem";
+						content = <&sec_cfg_sr2>;
 					};
-					sec_cfg: sec-cfg {
+					sec_cfg_sr2: sec-cfg {
 						filename = "sec-cfg.bin";
-						type = "blob-ext";
 					};
 				};
+
 			};
 		};
 	};
@@ -145,62 +157,7 @@
 	};
 	itb_fs {
 		filename = "sysfw-j721e_sr2-hs-fs-evm.itb";
-		fit {
-			description = "SYSFW and Config fragments";
-			#address-cells = <1>;
-			images {
-				sysfw.bin {
-					description = "sysfw";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
-					blob-ext {
-					    filename = "sysfw.bin_fs";
-					};
-				};
-				board-cfg.bin {
-					description = "board-cfg";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
-					board-cfg {
-						filename = "board-cfg.bin";
-						type = "blob-ext";
-					};
-
-				};
-				pm-cfg.bin {
-					description = "pm-cfg";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
-					pm-cfg {
-						filename = "pm-cfg.bin";
-						type = "blob-ext";
-					};
-				};
-				rm-cfg.bin {
-					description = "rm-cfg";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
-					rm-cfg {
-						filename = "rm-cfg.bin";
-						type = "blob-ext";
-					};
-				};
-				sec-cfg.bin {
-					description = "sec-cfg";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
-					sec-cfg {
-						filename = "sec-cfg.bin";
-						type = "blob-ext";
-					};
-				};
-			};
-		};
+		insert-template = <&itb_unsigned_template>;
 	};
 };
 
@@ -237,53 +194,13 @@
 	itb_gp {
 		filename = "sysfw-j721e-gp-evm.itb";
 		symlink = "sysfw.itb";
+		insert-template = <&itb_unsigned_template>;
+
 		fit {
-			description = "SYSFW and Config fragments";
-			#address-cells = <1>;
 			images {
 				sysfw.bin {
-					description = "sysfw";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
 					blob-ext {
 					    filename = "sysfw.bin_gp";
-					};
-				};
-				board-cfg.bin {
-					description = "board-cfg";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
-					blob-ext {
-						filename = "board-cfg.bin";
-					};
-				};
-				pm-cfg.bin {
-					description = "pm-cfg";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
-					blob-ext {
-						filename = "pm-cfg.bin";
-					};
-				};
-				rm-cfg.bin {
-					description = "rm-cfg";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
-					blob-ext {
-						filename = "rm-cfg.bin";
-					};
-				};
-				sec-cfg.bin {
-					description = "sec-cfg";
-					type = "firmware";
-					arch = "arm";
-					compression = "none";
-					blob-ext {
-						filename = "sec-cfg.bin";
 					};
 				};
 			};
@@ -294,11 +211,9 @@
 
 #ifdef CONFIG_TARGET_J721E_A72_EVM
 
-#define SPL_NODTB "spl/u-boot-spl-nodtb.bin"
 #define SPL_J721E_EVM_DTB "spl/dts/k3-j721e-common-proc-board.dtb"
 #define SPL_J721E_SK_DTB "spl/dts/k3-j721e-sk.dtb"
 
-#define UBOOT_NODTB "u-boot-nodtb.bin"
 #define J721E_EVM_DTB "u-boot.dtb"
 #define J721E_SK_DTB "arch/arm/dts/k3-j721e-sk.dtb"
 
@@ -310,79 +225,133 @@
 		};
 	};
 	ti-spl {
-		filename = "tispl.bin";
-		pad-byte = <0xff>;
+		insert-template = <&ti_spl_template>;
 
 		fit {
-			description = "Configuration to load ATF and SPL";
-			#address-cells = <1>;
-
 			images {
-
 				atf {
-					description = "ARM Trusted Firmware";
-					type = "firmware";
-					arch = "arm64";
-					compression = "none";
-					os = "arm-trusted-firmware";
-					load = <CONFIG_K3_ATF_LOAD_ADDR>;
-					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
 					ti-secure {
-						content = <&atf>;
-						keyfile = "custMpk.pem";
-					};
-					atf: atf-bl31 {
+						auth-in-place = <0xa02>;
+
+						firewall-257-0 {
+							/* cpu_0_cpu_0_msmc Background Firewall */
+							insert-template = <&firewall_bg_1>;
+							id = <257>;
+							region = <0>;
+						};
+
+						firewall-257-1 {
+							/* cpu_0_cpu_0_msmc Foreground Firewall */
+							insert-template = <&firewall_armv8_atf_fg>;
+							id = <257>;
+							region = <1>;
+						};
+
+						firewall-284-0 {
+							/* dru_0_msmc Background Firewall */
+							insert-template = <&firewall_bg_3>;
+							id = <284>;
+							region = <0>;
+						};
+
+						firewall-284-1 {
+							/* dru_0_msmc Foreground Firewall */
+							insert-template = <&firewall_armv8_atf_fg>;
+							id = <284>;
+							region = <1>;
+						};
+
+						/*	firewall-4760-0 {
+						 *		nb_slv0__mem0 Background Firewall
+						 *		Already configured by the secure entity
+						 *	};
+						 */
+
+						firewall-4760-1 {
+							/* nb_slv0__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_atf_fg>;
+							id = <4760>;
+							region = <1>;
+						};
+
+						/*	firewall-4761-0 {
+						 *		nb_slv1__mem0 Background Firewall
+						 *		Already configured by the secure entity
+						 *	};
+						 */
+
+						firewall-4761-1 {
+							/* nb_slv1__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_atf_fg>;
+							id = <4761>;
+							region = <1>;
+						};
+
 					};
 				};
 
 				tee {
-					description = "OP-TEE";
-					type = "tee";
-					arch = "arm64";
-					compression = "none";
-					os = "tee";
-					load = <0x9e800000>;
-					entry = <0x9e800000>;
 					ti-secure {
-						content = <&tee>;
-						keyfile = "custMpk.pem";
-					};
-					tee: tee-os {
+						auth-in-place = <0xa02>;
+
+						/* cpu_0_cpu_0_msmc region 0 and 1 configured
+						 * during ATF Firewalling
+						 */
+
+						firewall-257-2 {
+							/* cpu_0_cpu_0_msmc Foreground Firewall */
+							insert-template = <&firewall_armv8_optee_fg>;
+							id = <257>;
+							region = <2>;
+						};
+
+						/* dru_0_msmc region 0 and 1 configured
+						 * during ATF Firewalling
+						 */
+
+						firewall-284-2 {
+							/* dru_0_msmc Foreground Firewall */
+							insert-template = <&firewall_armv8_optee_fg>;
+							id = <284>;
+							region = <2>;
+						};
+
+						firewall-4762-0 {
+							/* nb_slv2__mem0 Background Firewall */
+							insert-template = <&firewall_bg_3>;
+							id = <4762>;
+							region = <0>;
+						};
+
+						firewall-4762-1 {
+							/* nb_slv2__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_optee_fg>;
+							id = <4762>;
+							region = <1>;
+						};
+
+						firewall-4763-0 {
+							/* nb_slv3__mem0 Background Firewall */
+							insert-template = <&firewall_bg_3>;
+							id = <4763>;
+							region = <0>;
+						};
+
+						firewall-4763-1 {
+							/* nb_slv3__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_optee_fg>;
+							id = <4763>;
+							region = <1>;
+						};
 					};
 				};
-
 				dm {
-					description = "DM binary";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "DM";
-					load = <0x89000000>;
-					entry = <0x89000000>;
 					ti-secure {
 						content = <&dm>;
 						keyfile = "custMpk.pem";
 					};
-					dm: blob-ext {
+					dm: ti-dm {
 						filename = "ti-dm.bin";
-					};
-				};
-
-				spl {
-					description = "SPL (64-bit)";
-					type = "standalone";
-					os = "U-Boot";
-					arch = "arm64";
-					compression = "none";
-					load = <CONFIG_SPL_TEXT_BASE>;
-					entry = <CONFIG_SPL_TEXT_BASE>;
-					ti-secure {
-						content = <&u_boot_spl_nodtb>;
-						keyfile = "custMpk.pem";
-
-					};
-					u_boot_spl_nodtb: blob-ext {
-						filename = SPL_NODTB;
 					};
 				};
 
@@ -439,29 +408,12 @@
 
 &binman {
 	u-boot {
-		filename = "u-boot.img";
-		pad-byte = <0xff>;
-
+		insert-template = <&u_boot_template>;
 		fit {
-			description = "FIT image with multiple configurations";
 
 			images {
 				uboot {
-					description = "U-Boot for j721e board";
-					type = "firmware";
-					os = "u-boot";
-					arch = "arm";
-					compression = "none";
-					load = <CONFIG_TEXT_BASE>;
-					ti-secure {
-						content = <&u_boot_nodtb>;
-						keyfile = "custMpk.pem";
-					};
-					u_boot_nodtb: u-boot-nodtb {
-					};
-					hash {
-						algo = "crc32";
-					};
+					description = "U-Boot for J721E Board";
 				};
 
 				fdt-0 {
@@ -524,64 +476,13 @@
 
 &binman {
 	ti-spl_unsigned {
-		filename = "tispl.bin_unsigned";
-		pad-byte = <0xff>;
+		insert-template = <&ti_spl_unsigned_template>;
 
 		fit {
-			description = "Configuration to load ATF and SPL";
-			#address-cells = <1>;
-
 			images {
-
-				atf {
-					description = "ARM Trusted Firmware";
-					type = "firmware";
-					arch = "arm64";
-					compression = "none";
-					os = "arm-trusted-firmware";
-					load = <CONFIG_K3_ATF_LOAD_ADDR>;
-					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
-					atf-bl31 {
-						filename = "bl31.bin";
-					};
-				};
-
-				tee {
-					description = "OP-TEE";
-					type = "tee";
-					arch = "arm64";
-					compression = "none";
-					os = "tee";
-					load = <0x9e800000>;
-					entry = <0x9e800000>;
-					tee-os {
-						filename = "tee-raw.bin";
-					};
-				};
-
 				dm {
-					description = "DM binary";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "DM";
-					load = <0x89000000>;
-					entry = <0x89000000>;
-					blob-ext {
+					ti-dm {
 						filename = "ti-dm.bin";
-					};
-				};
-
-				spl {
-					description = "SPL (64-bit)";
-					type = "standalone";
-					os = "U-Boot";
-					arch = "arm64";
-					compression = "none";
-					load = <CONFIG_SPL_TEXT_BASE>;
-					entry = <CONFIG_SPL_TEXT_BASE>;
-					blob-ext {
-						filename = SPL_NODTB;
 					};
 				};
 
@@ -629,26 +530,12 @@
 
 &binman {
 	u-boot_unsigned {
-		filename = "u-boot.img_unsigned";
-		pad-byte = <0xff>;
+		insert-template = <&u_boot_unsigned_template>;
 
 		fit {
-			description = "FIT image with multiple configurations";
-
 			images {
 				uboot {
-					description = "U-Boot for j721e board";
-					type = "firmware";
-					os = "u-boot";
-					arch = "arm";
-					compression = "none";
-					load = <CONFIG_TEXT_BASE>;
-					blob {
-						filename = UBOOT_NODTB;
-					};
-					hash {
-						algo = "crc32";
-					};
+					description = "U-Boot for J721E Board";
 				};
 
 				fdt-0 {

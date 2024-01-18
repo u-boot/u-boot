@@ -50,6 +50,7 @@
 #define PRE_DIV2	BIT(2)	/* Pre divisor = 2 */
 #define POST_DIV2	BIT(3)	/* Post divisor = 2 */
 #define FIXED_PARENT	BIT(4)	/* clock source is fixed */
+#define DIV_RO		BIT(5)	/* divider is read-only */
 
 /* Parameters of PLL configuration */
 struct npcm_clk_pll {

@@ -20,9 +20,9 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * Image booting support
  */
-static int booti_start(struct cmd_tbl *cmdtp, int flag, int argc,
-		       char *const argv[], struct bootm_headers *images)
+static int booti_start(struct bootm_info *bmi)
 {
+	struct bootm_headers *images = bmi->images;
 	int ret;
 	ulong ld;
 	ulong relocated_addr;
@@ -34,16 +34,15 @@ static int booti_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	unsigned long decomp_len;
 	int ctype;
 
-	ret = do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START,
-			      images, 1);
+	ret = bootm_run_states(bmi, BOOTM_STATE_START);
 
 	/* Setup Linux kernel Image entry point */
-	if (!argc) {
+	if (!bmi->addr_img) {
 		ld = image_load_addr;
 		debug("*  kernel: default image load address = 0x%08lx\n",
 				image_load_addr);
 	} else {
-		ld = hextoul(argv[0], NULL);
+		ld = hextoul(bmi->addr_img, NULL);
 		debug("*  kernel: cmdline image address = 0x%08lx\n", ld);
 	}
 
@@ -75,7 +74,7 @@ static int booti_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	unmap_sysmem((void *)ld);
 
 	ret = booti_setup(ld, &relocated_addr, &image_size, false);
-	if (ret != 0)
+	if (ret || IS_ENABLED(CONFIG_SANDBOX))
 		return 1;
 
 	/* Handle BOOTM_STATE_LOADOS */
@@ -95,7 +94,8 @@ static int booti_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	 * Handle the BOOTM_STATE_FINDOTHER state ourselves as we do not
 	 * have a header that provide this informaiton.
 	 */
-	if (bootm_find_images(flag, argc, argv, relocated_addr, image_size))
+	if (bootm_find_images(image_load_addr, bmi->conf_ramdisk, bmi->conf_fdt,
+			      relocated_addr, image_size))
 		return 1;
 
 	return 0;
@@ -103,12 +103,25 @@ static int booti_start(struct cmd_tbl *cmdtp, int flag, int argc,
 
 int do_booti(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct bootm_info bmi;
+	int states;
 	int ret;
 
 	/* Consume 'booti' */
 	argc--; argv++;
 
-	if (booti_start(cmdtp, flag, argc, argv, &images))
+	bootm_init(&bmi);
+	if (argc)
+		bmi.addr_img = argv[0];
+	if (argc > 1)
+		bmi.conf_ramdisk = argv[1];
+	if (argc > 2)
+		bmi.conf_fdt = argv[2];
+	bmi.boot_progress = true;
+	bmi.cmd_name = "booti";
+	/* do not set up argc and argv[] since nothing uses them */
+
+	if (booti_start(&bmi))
 		return 1;
 
 	/*
@@ -118,19 +131,17 @@ int do_booti(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	bootm_disable_interrupts();
 
 	images.os.os = IH_OS_LINUX;
-#ifdef CONFIG_RISCV_SMODE
-	images.os.arch = IH_ARCH_RISCV;
-#elif CONFIG_ARM64
-	images.os.arch = IH_ARCH_ARM64;
-#endif
-	ret = do_bootm_states(cmdtp, flag, argc, argv,
-#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
-			      BOOTM_STATE_RAMDISK |
-#endif
-			      BOOTM_STATE_MEASURE |
-			      BOOTM_STATE_OS_PREP | BOOTM_STATE_OS_FAKE_GO |
-			      BOOTM_STATE_OS_GO,
-			      &images, 1);
+	if (IS_ENABLED(CONFIG_RISCV_SMODE))
+		images.os.arch = IH_ARCH_RISCV;
+	else if (IS_ENABLED(CONFIG_ARM64))
+		images.os.arch = IH_ARCH_ARM64;
+
+	states = BOOTM_STATE_MEASURE | BOOTM_STATE_OS_PREP |
+		BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO;
+	if (IS_ENABLED(CONFIG_SYS_BOOT_RAMDISK_HIGH))
+		states |= BOOTM_STATE_RAMDISK;
+
+	ret = bootm_run_states(&bmi, states);
 
 	return ret;
 }

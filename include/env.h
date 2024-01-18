@@ -73,6 +73,14 @@ enum env_redund_flags {
 int env_get_id(void);
 
 /**
+ * env_inc_id() - Increase the sequence number for the environment
+ *
+ * Increment the value that is used by env_get_id() to inform callers
+ * if the environment has changed since they last checked.
+ */
+void env_inc_id(void);
+
+/**
  * env_init() - Set up the pre-relocation environment
  *
  * This locates the environment or uses the default if nothing is available.

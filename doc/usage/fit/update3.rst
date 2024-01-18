@@ -19,7 +19,7 @@ Automatic software update: multiple files
                 type = "firmware";
                 load = <FF700000>;
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
             update-2 {
@@ -29,7 +29,7 @@ Automatic software update: multiple files
                 type = "firmware";
                 load = <FF8E0000>;
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
 
@@ -40,7 +40,7 @@ Automatic software update: multiple files
                 type = "firmware";
                 load = <FFAC0000>;
                 hash-1 {
-                    algo = "sha1";
+                    algo = "sha256";
                 };
             };
         };

@@ -14,7 +14,6 @@
  *  assembler source.
  */
 
-#include <config.h>
 #include <asm/unified.h>
 
 /*

@@ -15,6 +15,9 @@ config SPL_SYS_MALLOC_F_LEN
 config SDM845
 	bool "Qualcomm Snapdragon 845 SoC"
 	select LINUX_KERNEL_IMAGE_HEADER
+	imply CLK_QCOM_SDM845
+	imply PINCTRL_QCOM_SDM845
+	imply BUTTON_QCOM_PMIC
 
 config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 	default 0x80000000
@@ -26,6 +29,9 @@ config TARGET_DRAGONBOARD410C
 	bool "96Boards Dragonboard 410C"
 	select BOARD_LATE_INIT
 	select ENABLE_ARM_SOC_BOOT0_HOOK
+	imply CLK_QCOM_APQ8016
+	imply PINCTRL_QCOM_APQ8016
+	imply BUTTON_QCOM_PMIC
 	help
 	  Support for 96Boards Dragonboard 410C. This board complies with
 	  96Board Open Platform Specifications. Features:
@@ -39,6 +45,9 @@ config TARGET_DRAGONBOARD410C
 
 config TARGET_DRAGONBOARD820C
 	bool "96Boards Dragonboard 820C"
+	imply CLK_QCOM_APQ8096
+	imply PINCTRL_QCOM_APQ8096
+	imply BUTTON_QCOM_PMIC
 	help
 	  Support for 96Boards Dragonboard 820C. This board complies with
 	  96Board Open Platform Specifications. Features:
@@ -72,6 +81,8 @@ config TARGET_STARQLTECHN
 config TARGET_QCS404EVB
 	bool "Qualcomm Technologies, Inc. QCS404 EVB"
 	select LINUX_KERNEL_IMAGE_HEADER
+	imply CLK_QCOM_QCS404
+	imply PINCTRL_QCOM_QCS404
 	help
 	  Support for Qualcomm Technologies, Inc. QCS404 evaluation board.
 	  Features:

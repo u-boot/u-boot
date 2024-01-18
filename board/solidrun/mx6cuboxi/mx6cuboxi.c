@@ -381,6 +381,7 @@ static bool has_emmc(void)
 	return (mmc_get_op_cond(mmc, true) < 0) ? 0 : 1;
 }
 
+/* Override the default implementation, DT model is not accurate */
 int checkboard(void)
 {
 	request_detect_gpios();
@@ -495,12 +496,6 @@ int ft_board_setup(void *fdt, struct bd_info *bd)
 	return 0;
 }
 #endif
-
-/* Override the default implementation, DT model is not accurate */
-int show_board_info(void)
-{
-	return checkboard();
-}
 
 int board_late_init(void)
 {

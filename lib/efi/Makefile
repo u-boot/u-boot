@@ -2,7 +2,7 @@
 #
 # (C) Copyright 2015 Google, Inc
 
-obj-$(CONFIG_EFI_APP) += efi_app.o efi.o
+obj-$(CONFIG_EFI_APP) += efi_app.o efi.o efi_app_init.o
 obj-$(CONFIG_EFI_STUB) += efi_info.o
 
 CFLAGS_REMOVE_efi_stub.o := -mregparm=3 \

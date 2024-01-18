@@ -4,7 +4,6 @@
  */
 
 #ifndef USE_HOSTCC
-#include <common.h>
 #include <malloc.h>
 #endif
 #include <image.h>

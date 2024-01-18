@@ -323,6 +323,7 @@ err1:
 int usb_gadget_probe_driver(struct usb_gadget_driver *driver)
 {
 	struct usb_udc		*udc = NULL;
+	unsigned int		udc_count = 0;
 	int			ret;
 
 	if (!driver || !driver->bind || !driver->setup)
@@ -330,12 +331,22 @@ int usb_gadget_probe_driver(struct usb_gadget_driver *driver)
 
 	mutex_lock(&udc_lock);
 	list_for_each_entry(udc, &udc_list, list) {
+		udc_count++;
+
 		/* For now we take the first one */
 		if (!udc->driver)
 			goto found;
 	}
 
-	printf("couldn't find an available UDC\n");
+	if (!udc_count)
+		printf("No UDC available in the system\n");
+	else
+		/* When this happens, users should 'unbind <class> <index>'
+		 * using the output of 'dm tree' and looking at the line right
+		 * after the USB peripheral/device controller.
+		 */
+		printf("All UDCs in use (%d available), use the unbind command\n",
+		       udc_count);
 	mutex_unlock(&udc_lock);
 	return -ENODEV;
 found:

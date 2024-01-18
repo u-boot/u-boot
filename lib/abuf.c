@@ -7,7 +7,6 @@
  */
 
 #ifndef USE_HOSTCC
-#include <common.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <string.h>

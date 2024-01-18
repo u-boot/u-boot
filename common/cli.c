@@ -25,6 +25,14 @@
 #include <linux/errno.h>
 
 #ifdef CONFIG_CMDLINE
+
+static inline bool use_hush_old(void)
+{
+	return IS_ENABLED(CONFIG_HUSH_SELECTABLE) ?
+	gd->flags & GD_FLG_HUSH_OLD_PARSER :
+	IS_ENABLED(CONFIG_HUSH_OLD_PARSER);
+}
+
 /*
  * Run a command using the selected parser.
  *
@@ -44,11 +52,29 @@ int run_command(const char *cmd, int flag)
 
 	return 0;
 #else
-	int hush_flags = FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP;
+	if (use_hush_old()) {
+		int hush_flags = FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP;
 
-	if (flag & CMD_FLAG_ENV)
-		hush_flags |= FLAG_CONT_ON_NEWLINE;
-	return parse_string_outer(cmd, hush_flags);
+		if (flag & CMD_FLAG_ENV)
+			hush_flags |= FLAG_CONT_ON_NEWLINE;
+		return parse_string_outer(cmd, hush_flags);
+	}
+	/*
+	 * Possible values for flags are the following:
+	 * FLAG_EXIT_FROM_LOOP: This flags ensures we exit from loop in
+	 * parse_and_run_stream() after first iteration while normal
+	 * behavior, * i.e. when called from cli_loop(), is to loop
+	 * infinitely.
+	 * FLAG_PARSE_SEMICOLON: modern Hush parses ';' and does not stop
+	 * first time it sees one. So, I think we do not need this flag.
+	 * FLAG_REPARSING: For the moment, I do not understand the goal
+	 * of this flag.
+	 * FLAG_CONT_ON_NEWLINE: This flag seems to be used to continue
+	 * parsing even when reading '\n' when coming from
+	 * run_command(). In this case, modern Hush reads until it finds
+	 * '\0'. So, I think we do not need this flag.
+	 */
+	return parse_string_outer_modern(cmd, FLAG_EXIT_FROM_LOOP);
 #endif
 }
 
@@ -64,12 +90,23 @@ int run_command_repeatable(const char *cmd, int flag)
 #ifndef CONFIG_HUSH_PARSER
 	return cli_simple_run_command(cmd, flag);
 #else
+	int ret;
+
+	if (use_hush_old()) {
+		ret = parse_string_outer(cmd,
+					 FLAG_PARSE_SEMICOLON
+					 | FLAG_EXIT_FROM_LOOP);
+	} else {
+		ret = parse_string_outer_modern(cmd,
+					      FLAG_PARSE_SEMICOLON
+					      | FLAG_EXIT_FROM_LOOP);
+	}
+
 	/*
 	 * parse_string_outer() returns 1 for failure, so clean up
 	 * its result.
 	 */
-	if (parse_string_outer(cmd,
-			       FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP))
+	if (ret)
 		return -1;
 
 	return 0;
@@ -108,7 +145,11 @@ int run_command_list(const char *cmd, int len, int flag)
 		buff[len] = '\0';
 	}
 #ifdef CONFIG_HUSH_PARSER
-	rcode = parse_string_outer(buff, FLAG_PARSE_SEMICOLON);
+	if (use_hush_old()) {
+		rcode = parse_string_outer(buff, FLAG_PARSE_SEMICOLON);
+	} else {
+		rcode = parse_string_outer_modern(buff, FLAG_PARSE_SEMICOLON);
+	}
 #else
 	/*
 	 * This function will overwrite any \n it sees with a \0, which
@@ -254,8 +295,13 @@ err:
 void cli_loop(void)
 {
 	bootstage_mark(BOOTSTAGE_ID_ENTER_CLI_LOOP);
-#ifdef CONFIG_HUSH_PARSER
-	parse_file_outer();
+#if CONFIG_IS_ENABLED(HUSH_PARSER)
+	if (gd->flags & GD_FLG_HUSH_MODERN_PARSER)
+		parse_and_run_file();
+	else if (gd->flags & GD_FLG_HUSH_OLD_PARSER)
+		parse_file_outer();
+
+	printf("Problem\n");
 	/* This point is never reached */
 	for (;;);
 #elif defined(CONFIG_CMDLINE)
@@ -268,7 +314,23 @@ void cli_loop(void)
 void cli_init(void)
 {
 #ifdef CONFIG_HUSH_PARSER
-	u_boot_hush_start();
+	/* This if block is used to initialize hush parser gd flag. */
+	if (!(gd->flags & GD_FLG_HUSH_OLD_PARSER)
+		&& !(gd->flags & GD_FLG_HUSH_MODERN_PARSER)) {
+		if (CONFIG_IS_ENABLED(HUSH_OLD_PARSER))
+			gd->flags |= GD_FLG_HUSH_OLD_PARSER;
+		else if (CONFIG_IS_ENABLED(HUSH_MODERN_PARSER))
+			gd->flags |= GD_FLG_HUSH_MODERN_PARSER;
+	}
+
+	if (gd->flags & GD_FLG_HUSH_OLD_PARSER) {
+		u_boot_hush_start();
+	} else if (gd->flags & GD_FLG_HUSH_MODERN_PARSER) {
+		u_boot_hush_start_modern();
+	} else {
+		printf("No valid hush parser to use, cli will not initialized!\n");
+		return;
+	}
 #endif
 
 #if defined(CONFIG_HUSH_INIT_VAR)

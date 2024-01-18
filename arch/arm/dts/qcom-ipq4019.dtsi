@@ -66,14 +66,6 @@
 			status = "disabled";
 		};
 
-		reset: gcc-reset@1800000 {
-			compatible = "qcom,gcc-reset-ipq4019";
-			reg = <0x1800000 0x60000>;
-			#clock-cells = <1>;
-			#reset-cells = <1>;
-			bootph-all;
-		};
-
 		soc_gpios: pinctrl@1000000 {
 			compatible = "qcom,ipq4019-pinctrl";
 			reg = <0x1000000 0x300000>;
@@ -136,7 +128,7 @@
 			#phy-cells = <0>;
 			reg = <0x9a000 0x800>;
 			reg-names = "phy_base";
-			resets = <&reset USB3_UNIPHY_PHY_ARES>;
+			resets = <&gcc USB3_UNIPHY_PHY_ARES>;
 			reset-names = "por_rst";
 			status = "disabled";
 		};
@@ -146,7 +138,7 @@
 			#phy-cells = <0>;
 			reg = <0xa6000 0x40>;
 			reg-names = "phy_base";
-			resets = <&reset USB3_HSPHY_POR_ARES>, <&reset USB3_HSPHY_S_ARES>;
+			resets = <&gcc USB3_HSPHY_POR_ARES>, <&gcc USB3_HSPHY_S_ARES>;
 			reset-names = "por_rst", "srif_rst";
 			status = "disabled";
 		};
@@ -179,7 +171,7 @@
 			#phy-cells = <0>;
 			reg = <0xa8000 0x40>;
 			reg-names = "phy_base";
-			resets = <&reset USB2_HSPHY_POR_ARES>, <&reset USB2_HSPHY_S_ARES>;
+			resets = <&gcc USB2_HSPHY_POR_ARES>, <&gcc USB2_HSPHY_S_ARES>;
 			reset-names = "por_rst", "srif_rst";
 			status = "disabled";
 		};

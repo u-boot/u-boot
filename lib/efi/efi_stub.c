@@ -9,7 +9,6 @@
  * EFI application. It can be built either in 32-bit or 64-bit mode.
  */
 
-#include <common.h>
 #include <debug_uart.h>
 #include <efi.h>
 #include <efi_api.h>

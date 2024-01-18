@@ -11,12 +11,9 @@
 #include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <mach/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-/* Register offsets */
-#define GPIO_CONFIG_OFF(no)         ((no) * 0x1000)
-#define GPIO_IN_OUT_OFF(no)         ((no) * 0x1000 + 0x4)
 
 /* OE */
 #define GPIO_OE_DISABLE  (0x0 << 9)
@@ -29,57 +26,64 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct msm_gpio_bank {
 	phys_addr_t base;
+	const struct msm_pin_data *pin_data;
 };
+
+#define GPIO_CONFIG_REG(dev, x) \
+	(qcom_pin_offset(((struct msm_gpio_bank *)dev_get_priv(dev))->pin_data->pin_offsets, x))
+
+#define GPIO_IN_OUT_REG(dev, x) \
+	(GPIO_CONFIG_REG(dev, x) + 0x4)
 
 static int msm_gpio_direction_input(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
-	phys_addr_t reg = priv->base + GPIO_CONFIG_OFF(gpio);
 
 	/* Disable OE bit */
-	clrsetbits_le32(reg, GPIO_OE_MASK, GPIO_OE_DISABLE);
+	clrsetbits_le32(priv->base + GPIO_CONFIG_REG(dev, gpio),
+			GPIO_OE_MASK, GPIO_OE_DISABLE);
 
 	return 0;
 }
 
-static int msm_gpio_set_value(struct udevice *dev, unsigned gpio, int value)
+static int msm_gpio_set_value(struct udevice *dev, unsigned int gpio, int value)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
 	value = !!value;
 	/* set value */
-	writel(value << GPIO_OUT, priv->base + GPIO_IN_OUT_OFF(gpio));
+	writel(value << GPIO_OUT, priv->base + GPIO_IN_OUT_REG(dev, gpio));
 
 	return 0;
 }
 
-static int msm_gpio_direction_output(struct udevice *dev, unsigned gpio,
+static int msm_gpio_direction_output(struct udevice *dev, unsigned int gpio,
 				     int value)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
-	phys_addr_t reg = priv->base + GPIO_CONFIG_OFF(gpio);
 
 	value = !!value;
 	/* set value */
-	writel(value << GPIO_OUT, priv->base + GPIO_IN_OUT_OFF(gpio));
+	writel(value << GPIO_OUT, priv->base + GPIO_IN_OUT_REG(dev, gpio));
 	/* switch direction */
-	clrsetbits_le32(reg, GPIO_OE_MASK, GPIO_OE_ENABLE);
+	clrsetbits_le32(priv->base + GPIO_CONFIG_REG(dev, gpio),
+			GPIO_OE_MASK, GPIO_OE_ENABLE);
 
 	return 0;
 }
 
-static int msm_gpio_get_value(struct udevice *dev, unsigned gpio)
+static int msm_gpio_get_value(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
-	return !!(readl(priv->base + GPIO_IN_OUT_OFF(gpio)) >> GPIO_IN);
+	return !!(readl(priv->base + GPIO_IN_OUT_REG(dev, gpio)) >> GPIO_IN);
 }
 
-static int msm_gpio_get_function(struct udevice *dev, unsigned offset)
+static int msm_gpio_get_function(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
-	if (readl(priv->base + GPIO_CONFIG_OFF(offset)) & GPIO_OE_ENABLE)
+	if (readl(priv->base + GPIO_CONFIG_REG(dev, gpio)) & GPIO_OE_ENABLE)
 		return GPIOF_OUTPUT;
 
 	return GPIOF_INPUT;
@@ -98,6 +102,7 @@ static int msm_gpio_probe(struct udevice *dev)
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
 	priv->base = dev_read_addr(dev);
+	priv->pin_data = (struct msm_pin_data *)dev_get_driver_data(dev);
 
 	return priv->base == FDT_ADDR_T_NONE ? -EINVAL : 0;
 }
@@ -105,9 +110,10 @@ static int msm_gpio_probe(struct udevice *dev)
 static int msm_gpio_of_to_plat(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	const struct msm_pin_data *pin_data = (struct msm_pin_data *)dev_get_driver_data(dev);
 
-	uc_priv->gpio_count = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					     "gpio-count", 0);
+	/* Get the pin count from the pinctrl driver */
+	uc_priv->gpio_count = pin_data->pin_count;
 	uc_priv->bank_name = fdt_getprop(gd->fdt_blob, dev_of_offset(dev),
 					 "gpio-bank-name", NULL);
 	if (uc_priv->bank_name == NULL)

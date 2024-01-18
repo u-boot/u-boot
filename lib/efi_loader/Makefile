@@ -16,6 +16,8 @@ CFLAGS_boothart.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_boothart.o := $(CFLAGS_NON_EFI)
 CFLAGS_helloworld.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_helloworld.o := $(CFLAGS_NON_EFI)
+CFLAGS_smbiosdump.o := $(CFLAGS_EFI) -Os -ffreestanding
+CFLAGS_REMOVE_smbiosdump.o := $(CFLAGS_NON_EFI)
 CFLAGS_dtbdump.o := $(CFLAGS_EFI) -Os -ffreestanding
 CFLAGS_REMOVE_dtbdump.o := $(CFLAGS_NON_EFI)
 CFLAGS_initrddump.o := $(CFLAGS_EFI) -Os -ffreestanding
@@ -31,6 +33,11 @@ always += helloworld.efi
 targets += helloworld.o
 endif
 
+ifneq ($(CONFIG_GENERATE_SMBIOS_TABLE),)
+always += smbiosdump.efi
+targets += smbiosdump.o
+endif
+
 ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
 always += dtbdump.efi
 targets += dtbdump.o
@@ -42,7 +49,8 @@ targets += initrddump.o
 endif
 
 obj-$(CONFIG_CMD_BOOTEFI_HELLO) += helloworld_efi.o
-obj-$(CONFIG_CMD_BOOTEFI_BOOTMGR) += efi_bootmgr.o
+obj-$(CONFIG_EFI_BOOTMGR) += efi_bootmgr.o
+obj-$(CONFIG_EFI_BINARY_EXEC) += efi_bootbin.o
 obj-y += efi_boottime.o
 obj-y += efi_helper.o
 obj-$(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) += efi_capsule.o

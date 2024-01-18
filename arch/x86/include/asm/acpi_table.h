@@ -65,15 +65,6 @@ int acpi_write_dbg2_pci_uart(struct acpi_ctx *ctx, struct udevice *dev,
 int acpi_create_gnvs(struct acpi_global_nvs *gnvs);
 
 /**
- * acpi_get_rsdp_addr() - get ACPI RSDP table address
- *
- * This routine returns the ACPI RSDP table address in the system memory.
- *
- * @return:	ACPI RSDP table address
- */
-ulong acpi_get_rsdp_addr(void);
-
-/**
  * arch_read_sci_irq_select() - Read the system-control interrupt number
  *
  * @returns value of IRQ register in the PMC

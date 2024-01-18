@@ -1,7 +1,5 @@
-menu "Command line interface"
-
-config CMDLINE
-	bool "Support U-Boot commands"
+menuconfig CMDLINE
+	bool "Command line interface"
 	default y
 	help
 	  Enable U-Boot's command-line functions. This provides a means
@@ -11,9 +9,10 @@ config CMDLINE
 	  Depending on the number of commands enabled, this can add
 	  substantially to the size of U-Boot.
 
+if CMDLINE
+
 config HUSH_PARSER
 	bool "Use hush shell"
-	depends on CMDLINE
 	help
 	  This option enables the "hush" shell (from Busybox) as command line
 	  interpreter, thus enabling powerful command line syntax like
@@ -23,9 +22,33 @@ config HUSH_PARSER
 	  If disabled, you get the old, much simpler behaviour with a somewhat
 	  smaller memory footprint.
 
+menu "Hush flavor to use"
+depends on HUSH_PARSER
+
+config HUSH_OLD_PARSER
+	bool "Use hush old parser"
+	default y
+	help
+	  This option enables the old flavor of hush based on hush Busybox from
+	  2005.
+
+	  It is actually the default U-Boot shell when decided to use hush as shell.
+
+config HUSH_MODERN_PARSER
+	bool "Use hush modern parser"
+	help
+	  This option enables the new flavor of hush based on hush upstream
+	  Busybox.
+
+	  This parser is experimental and not well tested.
+
+config HUSH_SELECTABLE
+	bool
+	default y if HUSH_OLD_PARSER && HUSH_MODERN_PARSER
+endmenu
+
 config CMDLINE_EDITING
 	bool "Enable command line editing"
-	depends on CMDLINE
 	default y
 	help
 	  Enable editing and History functions for interactive command line
@@ -40,15 +63,13 @@ config CMDLINE_PS_SUPPORT
 
 config AUTO_COMPLETE
 	bool "Enable auto complete using TAB"
-	depends on CMDLINE
 	default y
 	help
 	  Enable auto completion of commands using TAB.
 
 config SYS_LONGHELP
 	bool "Enable long help messages"
-	depends on CMDLINE
-	default y if CMDLINE
+	default y
 	help
 	  Defined when you want long help messages included
 	  Do not set this option when short of memory.
@@ -75,24 +96,9 @@ config SYS_MAXARGS
 	int "Maximum number arguments accepted by commands"
 	default 16
 
-config SYS_CBSIZE
-	int "Console input buffer size"
-	default 2048 if ARCH_TEGRA || ARCH_VERSAL || ARCH_ZYNQ || ARCH_ZYNQMP || \
-		RCAR_GEN3 || TARGET_SOCFPGA_SOC64
-	default 512 if ARCH_MX5 || ARCH_MX6 || ARCH_MX7 || FSL_LSCH2 || \
-		FSL_LSCH3 || X86
-	default 256 if M68K || PPC
-	default 1024
-
-config SYS_PBSIZE
-	int "Buffer size for console output"
-	default 1024 if ARCH_SUNXI
-	default 1044
-
 config SYS_XTRACE
 	bool "Command execution tracer"
-	depends on CMDLINE
-	default y if CMDLINE
+	default y
 	help
 	  This option enables the possiblity to print all commands before
 	  executing them and after all variables are evaluated (similar
@@ -292,7 +298,7 @@ config CMD_BOOTMETH
 
 config BOOTM_EFI
 	bool "Support booting UEFI FIT images"
-	depends on CMD_BOOTEFI && CMD_BOOTM && FIT
+	depends on EFI_BINARY_EXEC && CMD_BOOTM && FIT
 	default y
 	help
 	  Support booting UEFI FIT images via the bootm command.
@@ -304,7 +310,7 @@ config CMD_BOOTZ
 
 config CMD_BOOTI
 	bool "booti"
-	depends on ARM64 || RISCV
+	depends on ARM64 || RISCV || SANDBOX
 	default y
 	help
 	  Boot an AArch64 Linux Kernel image from memory.
@@ -374,17 +380,6 @@ config BOOTM_VXWORKS
 	help
 	  Support booting VxWorks images via the bootm command.
 
-config SYS_BOOTM_LEN
-	hex "Maximum size of a decompresed OS image"
-	depends on CMD_BOOTM || CMD_BOOTI || CMD_BOOTZ || \
-		   LEGACY_IMAGE_FORMAT || SPL_LEGACY_IMAGE_FORMAT
-	default 0x4000000 if PPC || ARM64
-	default 0x1000000 if X86 || ARCH_MX6 || ARCH_MX7
-	default 0x800000
-	help
-	  This is the maximum size of the buffer that is used to decompress the OS
-	  image in to, if passing a compressed image to bootm/booti/bootz.
-
 config CMD_BOOTEFI
 	bool "bootefi"
 	depends on EFI_LOADER
@@ -392,9 +387,27 @@ config CMD_BOOTEFI
 	help
 	  Boot an EFI image from memory.
 
+if CMD_BOOTEFI
+config CMD_BOOTEFI_BINARY
+	bool "Allow booting an EFI binary directly"
+	depends on EFI_BINARY_EXEC
+	default y
+	help
+	  Select this option to enable direct execution of binary at 'bootefi'.
+	  This subcommand will allow you to load the UEFI binary using
+	  other U-Boot commands or external methods and then run it.
+
+config CMD_BOOTEFI_BOOTMGR
+	bool "UEFI Boot Manager command"
+	depends on EFI_BOOTMGR
+	default y
+	help
+	  Select this option to enable the 'bootmgr' subcommand of 'bootefi'.
+	  This subcommand will allow you to select the UEFI binary to be booted
+	  via UEFI variables Boot####, BootOrder, and BootNext.
+
 config CMD_BOOTEFI_HELLO_COMPILE
 	bool "Compile a standard EFI hello world binary for testing"
-	depends on CMD_BOOTEFI && !CPU_V7M
 	default y
 	help
 	  This compiles a standard EFI hello world application with U-Boot so
@@ -407,7 +420,7 @@ config CMD_BOOTEFI_HELLO_COMPILE
 
 config CMD_BOOTEFI_HELLO
 	bool "Allow booting a standard EFI hello world for testing"
-	depends on CMD_BOOTEFI_HELLO_COMPILE
+	depends on CMD_BOOTEFI_BINARY && CMD_BOOTEFI_HELLO_COMPILE
 	default y if CMD_BOOTEFI_SELFTEST
 	help
 	  This adds a standard EFI hello world application to U-Boot so that
@@ -416,6 +429,7 @@ config CMD_BOOTEFI_HELLO
 	  up EFI support on a new architecture.
 
 source lib/efi_selftest/Kconfig
+endif
 
 config CMD_BOOTMENU
 	bool "bootmenu"
@@ -505,6 +519,16 @@ config CMD_XIMG
 	default y
 	help
 	  Extract a part of a multi-image.
+
+config SYS_XIMG_LEN
+	hex "imxtract max gunzip size"
+	default 0x800000
+	depends on CMD_XIMG && GZIP
+	help
+	  This provides the size of the commad-line argument area
+	  used by imxtract for extracting pieces of FIT image.
+	  It should be large enough to fit uncompressed size of
+	  FIT piece we are extracting.
 
 config CMD_SPL
 	bool "spl export - Export boot information for Falcon boot"
@@ -981,7 +1005,6 @@ config CMD_ADC
 
 config CMD_BCB
 	bool "bcb"
-	depends on MMC
 	depends on PARTITIONS
 	help
 	  Read/modify/write the fields of Bootloader Control Block, usually
@@ -999,7 +1022,7 @@ config CMD_BCB
 config CMD_BIND
 	bool "bind/unbind - Bind or unbind a device to/from a driver"
 	depends on DM
-	default y if USB_ETHER
+	imply CMD_DM
 	help
 	  Bind or unbind a device to/from a driver from the command line.
 	  This is useful in situations where a device may be handled by several
@@ -1151,13 +1174,6 @@ config CMD_GPT
 	help
 	  Enable the 'gpt' command to ready and write GPT style partition
 	  tables.
-
-config RANDOM_UUID
-	bool "GPT Random UUID generation"
-	select LIB_UUID
-	help
-	  Enable the generation of partitions with random UUIDs if none
-	  are provided.
 
 config CMD_GPT_RENAME
 	bool "GPT partition renaming commands"
@@ -1549,7 +1565,7 @@ config CMD_TSI148
 	  Turndra tsi148 device. See the command help for full details.
 
 config CMD_UFS
-	bool "Enable UFS - Universal Flash Subsystem commands"
+	bool "ufs - Universal Flash Storage commands"
 	depends on UFS
 	help
 	  "This provides commands to initialise and configure universal flash
@@ -1710,7 +1726,6 @@ if NET
 menuconfig CMD_NET
 	bool "Network commands"
 	default y
-	imply NETDEVICES
 
 if CMD_NET
 
@@ -2142,7 +2157,7 @@ config CMD_EFIDEBUG
 config CMD_EFICONFIG
 	bool "eficonfig - provide menu-driven uefi variables maintenance interface"
 	default y if !HAS_BOARD_SIZE_LIMIT
-	depends on CMD_BOOTEFI_BOOTMGR
+	depends on EFI_BOOTMGR
 	select MENU
 	help
 	  Enable the 'eficonfig' command which provides the menu-driven UEFI
@@ -2257,6 +2272,8 @@ config CMD_SYSBOOT
 config CMD_QFW
 	bool "qfw"
 	select QFW
+	default y if TARGET_QEMU_ARM_32BIT || TARGET_QEMU_ARM_64BIT || \
+		TARGET_QEMU_X86 || TARGET_QEMU_X86_64
 	help
 	  This provides access to the QEMU firmware interface.  The main
 	  feature is to allow easy loading of files passed to qemu-system
@@ -2370,6 +2387,7 @@ config CMD_VIDCONSOLE
 config CMD_SELECT_FONT
 	bool "select font size"
 	depends on VIDEO
+	default y if CONSOLE_TRUETYPE
 	help
 	  Enabling this will provide 'font' command.
 	  Allows font selection at runtime.
@@ -2559,6 +2577,15 @@ config CMD_CROS_EC
 	  a number of sub-commands for performing EC tasks such as
 	  updating its flash, accessing a small saved context area
 	  and talking to the I2C bus behind the EC (if there is one).
+
+config CMD_SCMI
+	bool "Enable scmi command"
+	depends on SCMI_FIRMWARE
+	default n
+	help
+	  This command provides user interfaces to several SCMI (System
+	  Control and Management Interface) protocols available on Arm
+	  platforms to manage system resources.
 endmenu
 
 menu "Filesystem commands"
@@ -2902,4 +2929,5 @@ config CMD_MESON
 	default y
 	help
 	  Enable useful commands for the Meson Soc family developed by Amlogic Inc.
-endmenu
+
+endif

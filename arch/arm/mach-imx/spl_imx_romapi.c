@@ -53,16 +53,10 @@ static int is_boot_from_stream_device(u32 boot)
 }
 
 static ulong spl_romapi_read_seekable(struct spl_load_info *load,
-				      ulong sector, ulong count,
+				      ulong offset, ulong byte,
 				      void *buf)
 {
-	u32 pagesize = *(u32 *)load->priv;
-	ulong byte = count * pagesize;
-	u32 offset;
-
-	offset = sector * pagesize;
-
-	return spl_romapi_raw_seekable_read(offset, byte, buf) / pagesize;
+	return spl_romapi_raw_seekable_read(offset, byte, buf);
 }
 
 static int spl_romapi_load_image_seekable(struct spl_image_info *spl_image,
@@ -107,20 +101,18 @@ static int spl_romapi_load_image_seekable(struct spl_image_info *spl_image,
 		struct spl_load_info load;
 
 		memset(&load, 0, sizeof(load));
-		load.bl_len = pagesize;
+		spl_set_bl_len(&load, pagesize);
 		load.read = spl_romapi_read_seekable;
-		load.priv = &pagesize;
-		return spl_load_simple_fit(spl_image, &load, offset / pagesize, header);
+		return spl_load_simple_fit(spl_image, &load, offset, header);
 	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
 		   valid_container_hdr((void *)header)) {
 		struct spl_load_info load;
 
 		memset(&load, 0, sizeof(load));
-		load.bl_len = pagesize;
+		spl_set_bl_len(&load, pagesize);
 		load.read = spl_romapi_read_seekable;
-		load.priv = &pagesize;
 
-		ret = spl_load_imx_container(spl_image, &load, offset / pagesize);
+		ret = spl_load_imx_container(spl_image, &load, offset);
 	} else {
 		/* TODO */
 		puts("Can't support legacy image\n");
@@ -342,7 +334,7 @@ static int spl_romapi_load_image_stream(struct spl_image_info *spl_image,
 		ss.pagesize = pagesize;
 
 		memset(&load, 0, sizeof(load));
-		load.bl_len = 1;
+		spl_set_bl_len(&load, 1);
 		load.read = spl_romapi_read_stream;
 		load.priv = &ss;
 
@@ -366,7 +358,7 @@ static int spl_romapi_load_image_stream(struct spl_image_info *spl_image,
 		printf("ROM download failure %d\n", imagesize);
 
 	memset(&load, 0, sizeof(load));
-	load.bl_len = 1;
+	spl_set_bl_len(&load, 1);
 	load.read = spl_ram_load_read;
 
 	if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER))

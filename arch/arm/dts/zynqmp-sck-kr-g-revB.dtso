@@ -139,7 +139,7 @@
 	phys = <&psgtr 2 PHY_TYPE_USB3 0 2>;
 	reset-gpios = <&slg7xl45106 0 GPIO_ACTIVE_LOW>;
 	assigned-clock-rates = <250000000>, <20000000>;
-
+#if 0
 	usbhub0: usb-hub { /* u43 */
 		i2c-bus = <&usbhub_i2c0>;
 		compatible = "microchip,usb5744";
@@ -150,6 +150,7 @@
 		compatible = "microchip,usb2244";
 		reset-gpios = <&slg7xl45106 2 GPIO_ACTIVE_LOW>;
 	};
+#endif
 };
 
 &dwc3_0 {
@@ -273,7 +274,7 @@
 		};
 	};
 
-	pinctrl_i2c1_gpio: i2c1-gpio {
+	pinctrl_i2c1_gpio: i2c1-gpio-grp {
 		conf {
 			groups = "gpio0_24_grp", "gpio0_25_grp";
 			slew-rate = <SLEW_RATE_SLOW>;

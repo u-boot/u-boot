@@ -208,11 +208,6 @@
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
 			#clock-cells = <1>;
-		};
-
-		reset: gcc-reset@1800000 {
-			compatible = "qcom,gcc-reset-qcs404";
-			reg = <0x1800000 0x80000>;
 			#reset-cells = <1>;
 		};
 
@@ -245,8 +240,8 @@
 			clocks = <&gcc GCC_USB_HS_PHY_CFG_AHB_CLK>,
 				 <&gcc GCC_USB3_PHY_PIPE_CLK>;
 			clock-names = "ahb", "pipe";
-			resets = <&reset GCC_USB3_PHY_BCR>,
-				 <&reset GCC_USB3PHY_PHY_BCR>;
+			resets = <&gcc GCC_USB3_PHY_BCR>,
+				 <&gcc GCC_USB3PHY_PHY_BCR>;
 			reset-names = "com", "phy";
 		};
 
@@ -257,8 +252,8 @@
 			clocks = <&gcc GCC_USB_HS_PHY_CFG_AHB_CLK>,
 				 <&gcc GCC_USB2A_PHY_SLEEP_CLK>;
 			clock-names = "ahb", "sleep";
-			resets = <&reset GCC_USB_HS_PHY_CFG_AHB_BCR>,
-				 <&reset GCC_USB2A_PHY_BCR>;
+			resets = <&gcc GCC_USB_HS_PHY_CFG_AHB_BCR>,
+				 <&gcc GCC_USB2A_PHY_BCR>;
 			reset-names = "phy", "por";
 		};
 
@@ -269,8 +264,8 @@
 			clocks = <&gcc GCC_USB_HS_PHY_CFG_AHB_CLK>,
 				 <&gcc GCC_USB2A_PHY_SLEEP_CLK>;
 			clock-names = "ahb", "sleep";
-			resets = <&reset GCC_QUSB2_PHY_BCR>,
-				 <&reset GCC_USB2_HS_PHY_ONLY_BCR>;
+			resets = <&gcc GCC_QUSB2_PHY_BCR>,
+				 <&gcc GCC_USB2_HS_PHY_ONLY_BCR>;
 			reset-names = "phy", "por";
 		};
 
@@ -335,7 +330,7 @@
 				 <&gcc GCC_ETH_PTP_CLK>,
 				 <&gcc GCC_ETH_RGMII_CLK>;
 
-			resets = <&reset GCC_EMAC_BCR>;
+			resets = <&gcc GCC_EMAC_BCR>;
 			reset-names = "emac";
 
 			snps,tso;
@@ -367,9 +362,10 @@
 
 		spmi@200f000 {
 			compatible = "qcom,spmi-pmic-arb";
-			reg = <0x200f000 0x1000
-			       0x2400000 0x400000
-			       0x2c00000 0x400000>;
+			reg = <0x200f000 0x001000>,
+			      <0x2400000 0x800000>,
+			      <0x2c00000 0x800000>;
+			reg-names = "core", "chnls", "obsrvr";
 			#address-cells = <0x1>;
 			#size-cells = <0x1>;
 
@@ -383,9 +379,8 @@
 					compatible = "qcom,pms405-gpio";
 					reg = <0xc000 0x400>;
 					gpio-controller;
-					gpio-count = <12>;
+					gpio-ranges = <&pms405_gpios 0 0 12>;
 					#gpio-cells = <2>;
-					gpio-bank-name="pmic";
 				};
 			};
 		};

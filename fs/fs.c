@@ -256,7 +256,7 @@ static struct fstype_info fstypes[] = {
 		.ln = fs_ln_unsupported,
 	},
 #endif
-#ifdef CONFIG_SEMIHOSTING
+#if CONFIG_IS_ENABLED(SEMIHOSTING)
 	{
 		.fstype = FS_TYPE_SEMIHOSTING,
 		.name = "semihosting",
@@ -749,7 +749,7 @@ int do_load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 	if (argc > 7)
 		return CMD_RET_USAGE;
 
-	if (fs_set_blk_dev(argv[1], (argc >= 3) ? argv[2] : NULL, fstype)) {
+	if (fs_set_blk_dev(argv[1], cmd_arg2(argc, argv), fstype)) {
 		log_err("Can't set block device\n");
 		return 1;
 	}
@@ -791,10 +791,9 @@ int do_load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 		return 1;
 	}
 
-	if (IS_ENABLED(CONFIG_CMD_BOOTEFI))
-		efi_set_bootdev(argv[1], (argc > 2) ? argv[2] : "",
-				(argc > 4) ? argv[4] : "", map_sysmem(addr, 0),
-				len_read);
+	efi_set_bootdev(argv[1], (argc > 2) ? argv[2] : "",
+			(argc > 4) ? argv[4] : "", map_sysmem(addr, 0),
+			len_read);
 
 	printf("%llu bytes read in %lu ms", len_read, time);
 	if (time > 0) {
@@ -818,7 +817,7 @@ int do_ls(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 	if (argc > 4)
 		return CMD_RET_USAGE;
 
-	if (fs_set_blk_dev(argv[1], (argc >= 3) ? argv[2] : NULL, fstype))
+	if (fs_set_blk_dev(argv[1], cmd_arg2(argc, argv), fstype))
 		return 1;
 
 	if (fs_ls(argc >= 4 ? argv[3] : "/"))

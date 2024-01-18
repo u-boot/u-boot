@@ -527,18 +527,18 @@ config WINBOND_W83627
 	  legacy UART or other devices in the Winbond Super IO chips
 	  on X86 platforms.
 
-config QCOM_GENI_SE
-	bool "Qualcomm GENI Serial Engine Driver"
-	depends on ARCH_SNAPDRAGON
-	help
-	  The driver manages Generic Interface (GENI) firmware based
-	  Qualcomm Technologies, Inc. Universal Peripheral (QUP) Wrapper.
-
 config QFW
 	bool
 	help
 	  Hidden option to enable QEMU fw_cfg interface and uclass. This will
 	  be selected by either CONFIG_CMD_QFW or CONFIG_GENERATE_ACPI_TABLE.
+
+config QFW_ACPI
+	bool
+	default y
+	depends on QFW && GENERATE_ACPI_TABLE && !SANDBOX
+	help
+	  Hidden option to read ACPI tables from QEMU.
 
 config QFW_PIO
 	bool
@@ -553,6 +553,13 @@ config QFW_MMIO
 	help
 	  Hidden option to enable MMIO QEMU fw_cfg interface. This will be
 	  selected by the appropriate QEMU board.
+
+config QFW_SMBIOS
+	bool
+	default y
+	depends on QFW && SMBIOS && !SANDBOX
+	help
+	  Hidden option to read SMBIOS tables from QEMU.
 
 config I2C_EEPROM
 	bool "Enable driver for generic I2C-attached EEPROMs"

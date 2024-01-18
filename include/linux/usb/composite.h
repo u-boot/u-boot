@@ -21,7 +21,6 @@
  * the composite model the host can use both functions at the same time.
  */
 
-#include <common.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/bitmap.h>

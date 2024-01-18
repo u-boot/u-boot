@@ -20,13 +20,13 @@ CONFIG_BOARD_SIZE_LIMIT=520192
 CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="mmc dev ${mmcdev}; if mmc rescan; then if run loadbootscript; then run bootscript; else if run loadimage; then run mmcboot; else run netboot; fi; fi; else run netboot; fi"
+CONFIG_SYS_CBSIZE=256
+CONFIG_SYS_PBSIZE=276
 CONFIG_LOGLEVEL=3
 CONFIG_BOARD_EARLY_INIT_F=y
 CONFIG_HUSH_PARSER=y
 # CONFIG_CMDLINE_EDITING is not set
 # CONFIG_AUTO_COMPLETE is not set
-CONFIG_SYS_CBSIZE=256
-CONFIG_SYS_PBSIZE=276
 CONFIG_CMD_BOOTZ=y
 CONFIG_CMD_MEMTEST=y
 CONFIG_CMD_FUSE=y

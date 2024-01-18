@@ -447,6 +447,22 @@ config NAND_PXA3XX
 	  This enables the driver for the NAND flash device found on
 	  PXA3xx processors (NFCv1) and also on Armada 370/XP (NFCv2).
 
+config NAND_SANDBOX
+	bool "Support for NAND in sandbox"
+	depends on SANDBOX
+	select SYS_NAND_SELF_INIT
+	select SPL_SYS_NAND_SELF_INIT
+	select SPL_NAND_INIT
+	select SYS_NAND_SOFT_ECC
+	select BCH
+	select NAND_ECC_BCH
+	imply CMD_NAND
+	help
+	  Enable a dummy NAND driver for sandbox. It simulates any number of
+	  arbitrary NAND chips with a RAM buffer. It will also inject errors to
+	  test ECC. At the moment, only 8-bit busses and single-chip devices are
+	  supported.
+
 config NAND_SUNXI
 	bool "Support for NAND on Allwinner SoCs"
 	default ARCH_SUNXI
@@ -659,20 +675,13 @@ config SYS_NAND_ONFI_DETECTION
 	  And fetching device parameters flashed on device, by parsing
 	  ONFI parameter page.
 
-config SYS_NAND_PAGE_COUNT
-	hex "NAND chip page count"
-	depends on SPL_NAND_SUPPORT && (NAND_ATMEL || NAND_MXC || \
-		SPL_NAND_AM33XX_BCH || SPL_NAND_LOAD || SPL_NAND_SIMPLE || \
-		NAND_OMAP_GPMC)
-	help
-	  Number of pages in the NAND chip.
-
 config SYS_NAND_PAGE_SIZE
 	hex "NAND chip page size"
 	depends on ARCH_SUNXI || NAND_OMAP_GPMC || NAND_LPC32XX_SLC || \
 		SPL_NAND_SIMPLE || (NAND_MXC && SPL_NAND_SUPPORT) || \
 		MVEBU_SPL_BOOT_DEVICE_NAND || \
-		(NAND_ATMEL && SPL_NAND_SUPPORT) || SPL_GENERATE_ATMEL_PMECC_HEADER
+		(NAND_ATMEL && SPL_NAND_SUPPORT) || \
+		SPL_GENERATE_ATMEL_PMECC_HEADER || NAND_SANDBOX
 	depends on !NAND_MXS && !NAND_DENALI_DT && !NAND_LPC32XX_MLC && !NAND_MT7621
 	help
 	  Number of data bytes in one page for the NAND chip on the

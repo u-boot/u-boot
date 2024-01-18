@@ -34,13 +34,11 @@
 #define CFG_SYS_FSL_USDHC_NUM	2
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
-#define CFG_EXTRA_ENV_SETTINGS					\
+#define CFG_EXTRA_ENV_SETTINGS						\
 	"altbootcmd=setenv devpart 2 && run bootcmd ; reset\0"		\
 	"bootlimit=3\0"							\
 	"devtype=mmc\0"							\
 	"devpart=1\0"							\
-	/* Give slow devices beyond USB HUB chance to come up. */	\
-	"usb_pgood_delay=2000\0"					\
 	"dfu_alt_info="							\
 		/* RAM block at DRAM offset 256..768 MiB */		\
 		"ram ram0=ram ram 0x50000000 0x20000000&"		\
@@ -76,6 +74,11 @@
 			"setenv stderr ${stderr},nc && "		\
 			"setenv stdout ${stdout},nc && "		\
 			"setenv stdin ${stdin},nc ; "			\
-		"fi"
+		"fi\0"							\
+	"stdin=serial\0"						\
+	"stdout=serial\0"						\
+	"stderr=serial\0"						\
+	/* Give slow devices beyond USB HUB chance to come up. */	\
+	"usb_pgood_delay=2000\0"
 
 #endif

@@ -9,7 +9,6 @@
 #define __CONFIGS_DRAGONBOARD820C_H
 
 #include <linux/sizes.h>
-#include <asm/arch/sysmap-apq8096.h>
 
 /* Physical Memory Map */
 

@@ -32,7 +32,7 @@ int checkboard(void)
 {
 	puts("Model: Toradex Colibri T30 1GB\n");
 
-	return 0;
+	return tdx_checkboard();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

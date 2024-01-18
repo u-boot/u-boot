@@ -2,7 +2,7 @@ menu "UFS Host Controller Support"
 
 config UFS
 	bool "Support UFS controllers"
-	depends on DM_SCSI
+	depends on SCSI
 	select CHARSET
 	help
 	  This selects support for Universal Flash Subsystem (UFS).
@@ -14,6 +14,17 @@ config CADENCE_UFS
         help
 	  This selects the platform driver for the Cadence UFS host
 	  controller present on present TI's J721e devices.
+
+config UFS_PCI
+	bool "PCI bus based UFS Controller support"
+	depends on PCI && UFS
+	help
+	  This selects the PCI UFS Host Controller Interface. Select this if
+	  you have UFS Host Controller with PCI Interface.
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
 
 config TI_J721E_UFS
 	bool "Glue Layer driver for UFS on TI J721E devices"

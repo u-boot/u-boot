@@ -314,21 +314,6 @@
 #include <asm/immap_547x_8x.h>
 #include <asm/m547x_8x.h>
 
-#ifdef CONFIG_FSLDMAFEC
-#define FEC0_RX_TASK		0
-#define FEC0_TX_TASK		1
-#define FEC0_RX_PRIORITY	6
-#define FEC0_TX_PRIORITY	7
-#define FEC0_RX_INIT		16
-#define FEC0_TX_INIT		17
-#define FEC1_RX_TASK		2
-#define FEC1_TX_TASK		3
-#define FEC1_RX_PRIORITY	6
-#define FEC1_TX_PRIORITY	7
-#define FEC1_RX_INIT		30
-#define FEC1_TX_INIT		31
-#endif
-
 #define CFG_SYS_UART_BASE		(MMAP_UART0 + (CFG_SYS_UART_PORT * 0x100))
 
 #ifdef CONFIG_SLTTMR

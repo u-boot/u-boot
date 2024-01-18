@@ -10,7 +10,6 @@
  * Common EFI functions
  */
 
-#include <common.h>
 #include <debug_uart.h>
 #include <errno.h>
 #include <malloc.h>

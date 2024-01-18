@@ -9,9 +9,9 @@
  * Copyright 2009 Dirk Behme, dirk.behme@googlemail.com
  */
 
-#include <common.h>
 #include <net.h>
 #include <net6.h>
+#include <vsprintf.h>
 
 struct in_addr string_to_ip(const char *s)
 {

@@ -1,5 +1,8 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
+.. index::
+   single: scp03 (command)
+
 scp03 command
 =============
 

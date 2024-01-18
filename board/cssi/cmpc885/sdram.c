@@ -4,13 +4,15 @@
  * Charles Frey <charles.frey@c-s.fr>
  */
 
-#include <common.h>
+#include <config.h>
 #include <linux/sizes.h>
 #include <linux/delay.h>
 #include <init.h>
 #include <asm/io.h>
 #include <mpc8xx.h>
 #include <watchdog.h>
+#include <asm/ppc.h>
+#include <asm/immap_8xx.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

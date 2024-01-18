@@ -180,10 +180,7 @@
 
 #ifdef CONFIG_TARGET_J7200_A72_EVM
 
-#define SPL_NODTB "spl/u-boot-spl-nodtb.bin"
 #define SPL_J7200_EVM_DTB "spl/dts/k3-j7200-common-proc-board.dtb"
-
-#define UBOOT_NODTB "u-boot-nodtb.bin"
 #define J7200_EVM_DTB "u-boot.dtb"
 
 &binman {
@@ -194,79 +191,107 @@
 		};
 	};
 	ti-spl {
-		filename = "tispl.bin";
-		pad-byte = <0xff>;
+		insert-template = <&ti_spl_template>;
 
 		fit {
-			description = "Configuration to load ATF and SPL";
-			#address-cells = <1>;
-
 			images {
-
 				atf {
-					description = "ARM Trusted Firmware";
-					type = "firmware";
-					arch = "arm64";
-					compression = "none";
-					os = "arm-trusted-firmware";
-					load = <CONFIG_K3_ATF_LOAD_ADDR>;
-					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
 					ti-secure {
-						content = <&atf>;
-						keyfile = "custMpk.pem";
-					};
-					atf: atf-bl31 {
+						auth-in-place = <0xa02>;
+
+						firewall-257-0 {
+							/* cpu_0_cpu_0_msmc Background Firewall */
+							insert-template = <&firewall_bg_1>;
+							id = <257>;
+							region = <0>;
+						};
+
+						firewall-257-1 {
+							/* cpu_0_cpu_0_msmc Foreground Firewall */
+							insert-template = <&firewall_armv8_atf_fg>;
+							id = <257>;
+							region = <1>;
+						};
+
+						/*	firewall-4760-0 {
+						 *		nb_slv0__mem0 Background Firewall
+						 *		Already configured by the secure entity
+						 *	};
+						 */
+
+						firewall-4760-1 {
+							/* nb_slv0__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_atf_fg>;
+							id = <4760>;
+							region = <1>;
+						};
+
+						/*	firewall-4761-0 {
+						 *		nb_slv1__mem0 Background Firewall
+						 *		Already configured by the secure entity
+						 *	};
+						 */
+
+						firewall-4761-1 {
+							/* nb_slv1__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_atf_fg>;
+							id = <4761>;
+							region = <1>;
+						};
 					};
 				};
 
 				tee {
-					description = "OP-TEE";
-					type = "tee";
-					arch = "arm64";
-					compression = "none";
-					os = "tee";
-					load = <0x9e800000>;
-					entry = <0x9e800000>;
 					ti-secure {
-						content = <&tee>;
-						keyfile = "custMpk.pem";
-					};
-					tee: tee-os {
+						auth-in-place = <0xa02>;
+
+						/* cpu_0_cpu_0_msmc region 0 and 1 configured
+						 * during ATF Firewalling
+						 */
+
+						firewall-257-2 {
+							/* cpu_0_cpu_0_msmc Foreground Firewall */
+							insert-template = <&firewall_armv8_optee_fg>;
+							id = <257>;
+							region = <2>;
+						};
+
+						firewall-4762-0 {
+							/* nb_slv2__mem0 Background Firewall - 0 */
+							insert-template = <&firewall_bg_3>;
+							id = <4762>;
+							region = <0>;
+						};
+
+						firewall-4762-1 {
+							/* nb_slv2__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_optee_fg>;
+							id = <4762>;
+							region = <1>;
+						};
+
+						firewall-4763-0 {
+							/* nb_slv3__mem0 Background Firewall - 0 */
+							insert-template = <&firewall_bg_3>;
+							id = <4763>;
+							region = <0>;
+						};
+
+						firewall-4763-1 {
+							/* nb_slv3__mem0 Foreground Firewall */
+							insert-template = <&firewall_armv8_optee_fg>;
+							id = <4763>;
+							region = <1>;
+						};
 					};
 				};
-
 				dm {
-					description = "DM binary";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "DM";
-					load = <0x89000000>;
-					entry = <0x89000000>;
 					ti-secure {
 						content = <&dm>;
 						keyfile = "custMpk.pem";
 					};
-
-					dm: blob-ext {
+					dm: ti-dm {
 						filename = "ti-dm.bin";
-					};
-				};
-
-				spl {
-					description = "SPL (64-bit)";
-					type = "standalone";
-					os = "U-Boot";
-					arch = "arm64";
-					compression = "none";
-					load = <CONFIG_SPL_TEXT_BASE>;
-					entry = <CONFIG_SPL_TEXT_BASE>;
-					ti-secure {
-						content = <&u_boot_spl_nodtb>;
-						keyfile = "custMpk.pem";
-					};
-					u_boot_spl_nodtb: blob-ext {
-						filename = SPL_NODTB;
 					};
 				};
 
@@ -302,29 +327,12 @@
 
 &binman {
 	u-boot {
-		filename = "u-boot.img";
-		pad-byte = <0xff>;
+		insert-template = <&u_boot_template>;
 
 		fit {
-			description = "FIT image with multiple configurations";
-
 			images {
 				uboot {
-					description = "U-Boot for J7200 board";
-					type = "firmware";
-					os = "u-boot";
-					arch = "arm";
-					compression = "none";
-					load = <CONFIG_TEXT_BASE>;
-					ti-secure {
-						content = <&u_boot_nodtb>;
-						keyfile = "custMpk.pem";
-					};
-					u_boot_nodtb: u-boot-nodtb {
-					};
-					hash {
-						algo = "crc32";
-					};
+					description = "U-Boot for J7200 Board";
 				};
 
 				fdt-0 {
@@ -362,64 +370,13 @@
 
 &binman {
 	ti-spl_unsigned {
-		filename = "tispl.bin_unsigned";
-		pad-byte = <0xff>;
+		insert-template = <&ti_spl_unsigned_template>;
 
 		fit {
-			description = "Configuration to load ATF and SPL";
-			#address-cells = <1>;
-
 			images {
-
-				atf {
-					description = "ARM Trusted Firmware";
-					type = "firmware";
-					arch = "arm64";
-					compression = "none";
-					os = "arm-trusted-firmware";
-					load = <CONFIG_K3_ATF_LOAD_ADDR>;
-					entry = <CONFIG_K3_ATF_LOAD_ADDR>;
-					atf-bl31 {
-						filename = "bl31.bin";
-					};
-				};
-
-				tee {
-					description = "OP-TEE";
-					type = "tee";
-					arch = "arm64";
-					compression = "none";
-					os = "tee";
-					load = <0x9e800000>;
-					entry = <0x9e800000>;
-					tee-os {
-						filename = "tee-raw.bin";
-					};
-				};
-
 				dm {
-					description = "DM binary";
-					type = "firmware";
-					arch = "arm32";
-					compression = "none";
-					os = "DM";
-					load = <0x89000000>;
-					entry = <0x89000000>;
-					blob-ext {
+					ti-dm {
 						filename = "ti-dm.bin";
-					};
-				};
-
-				spl {
-					description = "SPL (64-bit)";
-					type = "standalone";
-					os = "U-Boot";
-					arch = "arm64";
-					compression = "none";
-					load = <CONFIG_SPL_TEXT_BASE>;
-					entry = <CONFIG_SPL_TEXT_BASE>;
-					blob {
-						filename = SPL_NODTB;
 					};
 				};
 
@@ -450,26 +407,12 @@
 
 &binman {
 	u-boot_unsigned {
-		filename = "u-boot.img_unsigned";
-		pad-byte = <0xff>;
+		insert-template = <&u_boot_unsigned_template>;
 
 		fit {
-			description = "FIT image with multiple configurations";
-
 			images {
 				uboot {
-					description = "U-Boot for J7200 board";
-					type = "firmware";
-					os = "u-boot";
-					arch = "arm";
-					compression = "none";
-					load = <CONFIG_TEXT_BASE>;
-					blob {
-						filename = UBOOT_NODTB;
-					};
-					hash {
-						algo = "crc32";
-					};
+					description = "U-Boot for J7200 Board";
 				};
 
 				fdt-1 {

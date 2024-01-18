@@ -1,5 +1,8 @@
 .. SPDX-License-Identifier: GPL-2.0+:
 
+.. index::
+   single: cmp (command)
+
 cmp command
 ===========
 
@@ -96,7 +99,7 @@ Configuration
 -------------
 
 The cmp command is only available if CONFIG_CMD_MEMORY=y. The cmp.q command is
-only available if additionally CONFIG_MEM_SUPPORT_64BIT_DATA=y.
+only available on 64-bit targets.
 
 Return value
 ------------

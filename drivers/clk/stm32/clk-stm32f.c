@@ -522,17 +522,20 @@ static ulong stm32_set_rate(struct clk *clk, ulong rate)
 
 	/* get the current PLLSAIR output freq */
 	pllsair_rate = stm32_clk_get_pllsai_rate(priv, PLLSAIR);
-	best_div = pllsair_rate / rate;
+	if ((pllsair_rate % rate) == 0) {
+		best_div = pllsair_rate / rate;
 
-	/* look into pllsaidivr_table if this divider is available*/
-	for (i = 0 ; i < sizeof(pllsaidivr_table); i++)
-		if (best_div == pllsaidivr_table[i]) {
-			/* set pll_saidivr with found value */
-			clrsetbits_le32(&regs->dckcfgr,
-					RCC_DCKCFGR_PLLSAIDIVR_MASK,
-					pllsaidivr_table[i]);
-			return rate;
-		}
+		/* look into pllsaidivr_table if this divider is available */
+		for (i = 0 ; i < sizeof(pllsaidivr_table); i++)
+			if (best_div == pllsaidivr_table[i]) {
+				/* set pll_saidivr with found value */
+				clrsetbits_le32(&regs->dckcfgr,
+						RCC_DCKCFGR_PLLSAIDIVR_MASK,
+						pllsaidivr_table[i] <<
+						RCC_DCKCFGR_PLLSAIDIVR_SHIFT);
+				return rate;
+			}
+	}
 
 	/*
 	 * As no pllsaidivr value is suitable to obtain requested freq,

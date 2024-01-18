@@ -1,5 +1,8 @@
 .. SPDX-License-Identifier: GPL-2.0+:
 
+.. index::
+   single: imxtract (command)
+
 imxtract command
 ================
 
@@ -45,14 +48,14 @@ Examples
 
 With verify=no incorrect hashes, signatures, or check sums don't stop the
 extraction. But correct hashes are still indicated in the output
-(here: md5, sha1).
+(here: sha256, sha512).
 
 .. code-block:: console
 
     => setenv verify no
     => imxtract $loadaddr kernel-1 $kernel_addr_r
     ## Copying 'kernel-1' subimage from FIT image at 40200000 ...
-    md5+ sha1+    Loading part 0 ... OK
+    sha256+ sha512+    Loading part 0 ... OK
     =>
 
 With verify=yes incorrect hashes, signatures, or check sums stop the extraction.
@@ -62,7 +65,7 @@ With verify=yes incorrect hashes, signatures, or check sums stop the extraction.
     => setenv verify yes
     => imxtract $loadaddr kernel-1 $kernel_addr_r
     ## Copying 'kernel-1' subimage from FIT image at 40200000 ...
-    md5 error!
+    sha256 error!
     Bad hash value for 'hash-1' hash node in 'kernel-1' image node
     Bad Data Hash
     =>

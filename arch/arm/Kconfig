@@ -79,6 +79,15 @@ config SPL_SYS_NO_VECTOR_TABLE
 	depends on SPL
 	bool
 
+config SPL_USE_SEPARATE_FAULT_HANDLERS
+	bool "Use separate fault handlers instead of a single common one"
+	depends on !SPL_SYS_NO_VECTOR_TABLE && !ARM64 && !CPU_V7M
+	help
+	  Instead of a common fault handler, generate a separate one for
+	  undefined_instruction, software_interrupt, prefetch_abort etc.
+	  This is for debugging purposes, when you want to set breakpoints
+	  on them separately.
+
 config LINUX_KERNEL_IMAGE_HEADER
 	depends on ARM64
 	bool
@@ -568,6 +577,7 @@ config ARCH_AT91
 	select GPIO_EXTRA_HEADER
 	select SPL_BOARD_INIT if SPL && !TARGET_SMARTWEB
 	select SPL_SEPARATE_BSS if SPL
+	imply SYS_THUMB_BUILD
 
 config ARCH_DAVINCI
 	bool "TI DaVinci"
@@ -766,6 +776,8 @@ config ARCH_IPQ40XX
 	select CLK
 	select SMEM
 	select OF_CONTROL
+	select CLK_QCOM_IPQ4019
+	select PINCTRL_QCOM_IPQ4019
 	imply CMD_DM
 
 config ARCH_KEYSTONE
@@ -1066,6 +1078,7 @@ config ARCH_SNAPDRAGON
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
+	select DM_RESET
 	select GPIO_EXTRA_HEADER
 	select MSM_SMEM
 	select OF_CONTROL
@@ -1133,7 +1146,6 @@ config ARCH_SUNXI
 	select DM_SPI_FLASH if SPI
 	select DM_KEYBOARD
 	select DM_MMC if MMC
-	select DM_SCSI if SCSI
 	select DM_SERIAL
 	select OF_BOARD_SETUP
 	select OF_CONTROL
@@ -1838,7 +1850,7 @@ config TARGET_SL28
 	select PCI
 	select DM_RNG
 	select DM_RTC
-	select DM_SCSI
+	select SCSI
 	select DM_SERIAL
 	select DM_SPI
 	select GPIO_EXTRA_HEADER
@@ -1945,7 +1957,7 @@ config ARCH_STM32MP
 	select REGMAP
 	select SYSCON
 	select SYSRESET
-	select SYS_THUMB_BUILD
+	select SYS_THUMB_BUILD if !ARM64
 	imply SPL_SYSRESET
 	imply CMD_DM
 	imply CMD_POWEROFF
@@ -2053,12 +2065,17 @@ config TARGET_POMELO
 	select PCI
 	select DM_PCI
 	select SCSI
-	select DM_SCSI
 	select DM_SERIAL
 	imply CMD_PCI
 	help
 	   Support for pomelo platform.
 	   It has 8GB Sdram, uart and pcie.
+
+config TARGET_PE2201
+	bool "Support Phytium PE2201 Platform"
+	select ARM64
+	help
+	  Support for pe2201 platform.It has 2GB Sdram, uart and pcie.
 
 config TARGET_PRESIDIO_ASIC
 	bool "Support Cortina Presidio ASIC Platform"
@@ -2336,6 +2353,7 @@ source "board/variscite/dart_6ul/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/phytium/durian/Kconfig"
 source "board/phytium/pomelo/Kconfig"
+source "board/phytium/pe2201/Kconfig"
 source "board/xen/xenguest_arm64/Kconfig"
 
 source "arch/arm/Kconfig.debug"

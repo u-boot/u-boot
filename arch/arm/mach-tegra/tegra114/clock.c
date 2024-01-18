@@ -299,7 +299,7 @@ static s8 periph_id_to_internal_id[PERIPH_ID_COUNT] = {
 	PERIPHC_UART3,
 
 	/* 56 */
-	NONE(RESERVED56),
+	NONE(MIPI_CAL),
 	PERIPHC_EMC,
 	NONE(USB2),
 	NONE(USB3),
@@ -457,6 +457,8 @@ struct clk_pll_info tegra_pll_info_table[CLOCK_ID_PLL_COUNT] = {
 	  .lock_ena = 9,  .lock_det = 11, .kcp_shift = 6, .kcp_mask = 3, .kvco_shift = 0, .kvco_mask = 1 },	/* PLLE */
 	{ .m_shift = 0, .m_mask = 0x0F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x07,
 	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLS (RESERVED) */
+	{ .m_shift = 0, .m_mask = 0x1F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x07,
+	  .lock_ena = 22, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLD2 */
 };
 
 /*
@@ -633,7 +635,6 @@ enum periph_id clk_id_to_periph_id(int clk_id)
 	case PERIPH_ID_RESERVED35:
 	case PERIPH_ID_RESERVED43:
 	case PERIPH_ID_RESERVED45:
-	case PERIPH_ID_RESERVED56:
 	case PERIPH_ID_RESERVED76:
 	case PERIPH_ID_RESERVED77:
 	case PERIPH_ID_RESERVED78:
@@ -671,6 +672,9 @@ enum clock_id clk_id_to_pll_id(int clk_id)
 	case TEGRA114_CLK_PLL_D:
 	case TEGRA114_CLK_PLL_D_OUT0:
 		return CLOCK_ID_DISPLAY;
+	case TEGRA114_CLK_PLL_D2:
+	case TEGRA114_CLK_PLL_D2_OUT0:
+		return CLOCK_ID_DISPLAY2;
 	case TEGRA114_CLK_PLL_X:
 		return CLOCK_ID_XCPU;
 	case TEGRA114_CLK_PLL_E_OUT0:
@@ -766,6 +770,23 @@ void arch_timer_init(void)
 	val |= TSC_CNTCR_ENABLE | TSC_CNTCR_HDBG;
 	writel(val, &sysctr->cntcr);
 	debug("%s: TSC CNTCR = 0x%08X\n", __func__, val);
+}
+
+struct clk_pll_simple *clock_get_simple_pll(enum clock_id clkid)
+{
+	struct clk_rst_ctlr *clkrst =
+			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+
+	switch (clkid) {
+	case CLOCK_ID_XCPU:
+	case CLOCK_ID_EPCI:
+	case CLOCK_ID_SFROM32KHZ:
+		return &clkrst->crc_pll_simple[clkid - CLOCK_ID_FIRST_SIMPLE];
+	case CLOCK_ID_DISPLAY2:
+		return &clkrst->plld2;
+	default:
+		return NULL;
+	}
 }
 
 struct periph_clk_init periph_clk_init_table[] = {

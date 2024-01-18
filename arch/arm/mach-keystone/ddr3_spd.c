@@ -5,8 +5,8 @@
  * (C) Copyright 2015-2016 Texas Instruments Incorporated, <www.ti.com>
  */
 
-#include <common.h>
 #include <log.h>
+#include <string.h>
 
 #include <i2c.h>
 #include <ddr_spd.h>

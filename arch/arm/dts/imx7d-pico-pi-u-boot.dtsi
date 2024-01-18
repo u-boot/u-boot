@@ -1,11 +1,12 @@
 #include "imx7s-u-boot.dtsi"
 
 /{
-    aliases {
-        mmc0 = &usdhc3;
-        usb0 = &usbotg1;
-        display0 = &lcdif;
-    };
+	aliases {
+		mmc0 = &usdhc3;
+		mmc1 = &usdhc1;
+		usb0 = &usbotg1;
+		display0 = &lcdif;
+	};
 
 	wdt-reboot {
 		compatible = "wdt-reboot";

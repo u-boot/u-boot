@@ -7,7 +7,6 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
-#include <common.h>
 #include <blk.h>
 #include <dm.h>
 #include <dm/root.h>
@@ -272,30 +271,27 @@ struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
 }
 
 /**
- * efi_dp_append_or_concatenate() - Append or concatenate two device paths.
- *				    Concatenated device path will be separated
- *				    by a sub-type 0xff end node
+ * efi_dp_concat() - Concatenate two device paths and add and terminate them
+ *                   with an end node.
  *
- * @dp1:	First device path
- * @dp2:	Second device path
- * @concat:	If true the two device paths will be concatenated and separated
- *		by an end of entrire device path sub-type 0xff end node.
- *		If true the second device path will be appended to the first and
- *		terminated by an end node
+ * @dp1:	    First device path
+ * @dp2:	    Second device path
+ * @split_end_node: If true the two device paths will be concatenated and
+ *                  separated by an end node (DEVICE_PATH_SUB_TYPE_END).
+ *		    If false the second device path will be concatenated to the
+ *		    first one as-is.
  *
  * Return:
  * concatenated device path or NULL. Caller must free the returned value
  */
-static struct
-efi_device_path *efi_dp_append_or_concatenate(const struct efi_device_path *dp1,
-					      const struct efi_device_path *dp2,
-					      bool concat)
+struct
+efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
+			       const struct efi_device_path *dp2,
+			       bool split_end_node)
 {
 	struct efi_device_path *ret;
-	size_t end_size = sizeof(END);
+	size_t end_size;
 
-	if (concat)
-		end_size = 2 * sizeof(END);
 	if (!dp1 && !dp2) {
 		/* return an end node */
 		ret = efi_dp_dup(&END);
@@ -307,14 +303,20 @@ efi_device_path *efi_dp_append_or_concatenate(const struct efi_device_path *dp1,
 		/* both dp1 and dp2 are non-null */
 		unsigned sz1 = efi_dp_size(dp1);
 		unsigned sz2 = efi_dp_size(dp2);
-		void *p = efi_alloc(sz1 + sz2 + end_size);
+		void *p;
+
+		if (split_end_node)
+			end_size = 2 * sizeof(END);
+		else
+			end_size = sizeof(END);
+		p = efi_alloc(sz1 + sz2 + end_size);
 		if (!p)
 			return NULL;
 		ret = p;
 		memcpy(p, dp1, sz1);
 		p += sz1;
 
-		if (concat) {
+		if (split_end_node) {
 			memcpy(p, &END, sizeof(END));
 			p += sizeof(END);
 		}
@@ -326,37 +328,6 @@ efi_device_path *efi_dp_append_or_concatenate(const struct efi_device_path *dp1,
 	}
 
 	return ret;
-}
-
-/**
- * efi_dp_append() - Append a device to an existing device path.
- *
- * @dp1:	First device path
- * @dp2:	Second device path
- *
- * Return:
- * concatenated device path or NULL. Caller must free the returned value
- */
-struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
-				      const struct efi_device_path *dp2)
-{
-	return efi_dp_append_or_concatenate(dp1, dp2, false);
-}
-
-/**
- * efi_dp_concat() - Concatenate 2 device paths. The final device path will
- *                   contain two device paths separated by and end node (0xff).
- *
- * @dp1:	First device path
- * @dp2:	Second device path
- *
- * Return:
- * concatenated device path or NULL. Caller must free the returned value
- */
-struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
-				      const struct efi_device_path *dp2)
-{
-	return efi_dp_append_or_concatenate(dp1, dp2, true);
 }
 
 struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
@@ -1090,7 +1061,8 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	if (path && !file)
 		return EFI_INVALID_PARAMETER;
 
-	if (!strcmp(dev, "Mem") || !strcmp(dev, "hostfs"))  {
+	if (IS_ENABLED(CONFIG_EFI_BINARY_EXEC) &&
+	    (!strcmp(dev, "Mem") || !strcmp(dev, "hostfs")))  {
 		/* loadm command and semihosting */
 		efi_get_image_parameters(&image_addr, &image_size);
 

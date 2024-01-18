@@ -14,6 +14,16 @@
 
 / {
 	aliases {
+		serial0 = &wkup_uart0;
+		serial1 = &mcu_uart0;
+		serial2 = &main_uart0;
+		serial3 = &main_uart1;
+		i2c0 = &wkup_i2c0;
+		i2c1 = &mcu_i2c0;
+		i2c2 = &main_i2c0;
+		i2c3 = &main_i2c1;
+		i2c4 = &main_i2c2;
+		i2c5 = &main_i2c3;
 		spi0 = &mcu_spi0;
 		mmc0 = &sdhci1;
 		mmc1 = &sdhci0;
@@ -21,7 +31,6 @@
 
 	chosen {
 		stdout-path = "serial3:115200n8";
-		bootargs = "earlycon=ns16550a,mmio32,0x02810000";
 	};
 
 	reserved-memory {
@@ -111,7 +120,7 @@
 };
 
 &wkup_pmx0 {
-	wkup_i2c0_pins_default: wkup-i2c0-pins-default {
+	wkup_i2c0_pins_default: wkup-i2c0-default-pins {
 		pinctrl-single,pins = <
 			/* (AC7) WKUP_I2C0_SCL */
 			AM65X_WKUP_IOPAD(0x00e0, PIN_INPUT,  0)
@@ -120,7 +129,7 @@
 		>;
 	};
 
-	mcu_i2c0_pins_default: mcu-i2c0-pins-default {
+	mcu_i2c0_pins_default: mcu-i2c0-default-pins {
 		pinctrl-single,pins = <
 			/* (AD8) MCU_I2C0_SCL */
 			AM65X_WKUP_IOPAD(0x00e8, PIN_INPUT,  0)
@@ -129,21 +138,21 @@
 		>;
 	};
 
-	arduino_i2c_aio_switch_pins_default: arduino-i2c-aio-switch-pins-default {
+	arduino_i2c_aio_switch_pins_default: arduino-i2c-aio-switch-default-pins {
 		pinctrl-single,pins = <
 			/* (R2) WKUP_GPIO0_21 */
 			AM65X_WKUP_IOPAD(0x0024, PIN_OUTPUT, 7)
 		>;
 	};
 
-	push_button_pins_default: push-button-pins-default {
+	push_button_pins_default: push-button-default-pins {
 		pinctrl-single,pins = <
 			/* (T1) MCU_OSPI1_CLK.WKUP_GPIO0_25 */
 			AM65X_WKUP_IOPAD(0x0034, PIN_INPUT,  7)
 		>;
 	};
 
-	arduino_uart_pins_default: arduino-uart-pins-default {
+	arduino_uart_pins_default: arduino-uart-default-pins {
 		pinctrl-single,pins = <
 			/* (P4) MCU_UART0_RXD */
 			AM65X_WKUP_IOPAD(0x0044, PIN_INPUT,  4)
@@ -152,7 +161,7 @@
 		>;
 	};
 
-	arduino_io_d2_to_d3_pins_default: arduino-io-d2-to-d3-pins-default {
+	arduino_io_d2_to_d3_pins_default: arduino-io-d2-to-d3-default-pins {
 		pinctrl-single,pins = <
 			/* (P1) WKUP_GPIO0_31 */
 			AM65X_WKUP_IOPAD(0x004C, PIN_OUTPUT, 7)
@@ -161,7 +170,7 @@
 		>;
 	};
 
-	arduino_io_oe_pins_default: arduino-io-oe-pins-default {
+	arduino_io_oe_pins_default: arduino-io-oe-default-pins {
 		pinctrl-single,pins = <
 			/* (N4) WKUP_GPIO0_34 */
 			AM65X_WKUP_IOPAD(0x0058, PIN_OUTPUT, 7)
@@ -176,7 +185,7 @@
 		>;
 	};
 
-	mcu_fss0_ospi0_pins_default: mcu-fss0-ospi0-pins-default {
+	mcu_fss0_ospi0_pins_default: mcu-fss0-ospi0-default-pins {
 		pinctrl-single,pins = <
 			/* (V1) MCU_OSPI0_CLK */
 			AM65X_WKUP_IOPAD(0x0000, PIN_OUTPUT, 0)
@@ -191,7 +200,7 @@
 		>;
 	};
 
-	db9_com_mode_pins_default: db9-com-mode-pins-default {
+	db9_com_mode_pins_default: db9-com-mode-default-pins {
 		pinctrl-single,pins = <
 			/* (AD3) WKUP_GPIO0_5, used as uart0 mode 0 */
 			AM65X_WKUP_IOPAD(0x00c4, PIN_OUTPUT, 7)
@@ -204,7 +213,7 @@
 		>;
 	};
 
-	leds_pins_default: leds-pins-default {
+	leds_pins_default: leds-default-pins {
 		pinctrl-single,pins = <
 			/* (T2) WKUP_GPIO0_17, used as user led1 red */
 			AM65X_WKUP_IOPAD(0x0014, PIN_OUTPUT, 7)
@@ -217,7 +226,7 @@
 		>;
 	};
 
-	mcu_spi0_pins_default: mcu-spi0-pins-default {
+	mcu_spi0_pins_default: mcu-spi0-default-pins {
 		pinctrl-single,pins = <
 			/* (Y1) MCU_SPI0_CLK */
 			AM65X_WKUP_IOPAD(0x0090, PIN_INPUT,  0)
@@ -230,7 +239,7 @@
 		>;
 	};
 
-	minipcie_pins_default: minipcie-pins-default {
+	minipcie_pins_default: minipcie-default-pins {
 		pinctrl-single,pins = <
 			/* (P2) MCU_OSPI1_DQS.WKUP_GPIO0_27 */
 			AM65X_WKUP_IOPAD(0x003C, PIN_OUTPUT, 7)
@@ -239,7 +248,7 @@
 };
 
 &main_pmx0 {
-	main_uart1_pins_default: main-uart1-pins-default {
+	main_uart1_pins_default: main-uart1-default-pins {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x0174, PIN_INPUT,  6)  /* (AE23) UART1_RXD */
 			AM65X_IOPAD(0x014c, PIN_OUTPUT, 6)  /* (AD23) UART1_TXD */
@@ -248,14 +257,14 @@
 		>;
 	};
 
-	main_i2c3_pins_default: main-i2c3-pins-default {
+	main_i2c3_pins_default: main-i2c3-default-pins {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x01c0, PIN_INPUT,  2)  /* (AF13) I2C3_SCL */
 			AM65X_IOPAD(0x01d4, PIN_INPUT,  2)  /* (AG12) I2C3_SDA */
 		>;
 	};
 
-	main_mmc1_pins_default: main-mmc1-pins-default {
+	main_mmc1_pins_default: main-mmc1-default-pins {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x02d4, PIN_INPUT_PULLDOWN, 0)  /* (C27) MMC1_CLK */
 			AM65X_IOPAD(0x02d8, PIN_INPUT_PULLUP,   0)  /* (C28) MMC1_CMD */
@@ -268,19 +277,19 @@
 		>;
 	};
 
-	usb0_pins_default: usb0-pins-default {
+	usb0_pins_default: usb0-default-pins {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x02bc, PIN_OUTPUT, 0)  /* (AD9) USB0_DRVVBUS */
 		>;
 	};
 
-	usb1_pins_default: usb1-pins-default {
+	usb1_pins_default: usb1-default-pins {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x02c0, PIN_OUTPUT, 0)  /* (AC8) USB1_DRVVBUS */
 		>;
 	};
 
-	arduino_io_d4_to_d9_pins_default: arduino-io-d4-to-d9-pins-default {
+	arduino_io_d4_to_d9_pins_default: arduino-io-d4-to-d9-default-pins {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x0084, PIN_OUTPUT, 7)  /* (AG18) GPIO0_33 */
 			AM65X_IOPAD(0x008C, PIN_OUTPUT, 7)  /* (AF17) GPIO0_35 */
@@ -291,7 +300,7 @@
 		>;
 	};
 
-	dss_vout1_pins_default: dss-vout1-pins-default {
+	dss_vout1_pins_default: dss-vout1-default-pins {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x0000, PIN_OUTPUT, 1)  /* VOUT1_DATA0 */
 			AM65X_IOPAD(0x0004, PIN_OUTPUT, 1)  /* VOUT1_DATA1 */
@@ -324,13 +333,13 @@
 		>;
 	};
 
-	dp_pins_default: dp-pins-default {
+	dp_pins_default: dp-default-pins {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x0078, PIN_OUTPUT, 7)  /* (AF18) DP rst_n */
 		>;
 	};
 
-	main_i2c2_pins_default: main-i2c2-pins-default {
+	main_i2c2_pins_default: main-i2c2-default-pins {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x0074, PIN_INPUT,  5)  /* (T27) I2C2_SCL */
 			AM65X_IOPAD(0x0070, PIN_INPUT,  5)  /* (R25) I2C2_SDA */
@@ -339,21 +348,21 @@
 };
 
 &main_pmx1 {
-	main_i2c0_pins_default: main-i2c0-pins-default {
+	main_i2c0_pins_default: main-i2c0-default-pins {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x0000, PIN_INPUT,  0)  /* (D20) I2C0_SCL */
 			AM65X_IOPAD(0x0004, PIN_INPUT,  0)  /* (C21) I2C0_SDA */
 		>;
 	};
 
-	main_i2c1_pins_default: main-i2c1-pins-default {
+	main_i2c1_pins_default: main-i2c1-default-pins {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x0008, PIN_INPUT,  0)  /* (B21) I2C1_SCL */
 			AM65X_IOPAD(0x000c, PIN_INPUT,  0)  /* (E21) I2C1_SDA */
 		>;
 	};
 
-	ecap0_pins_default: ecap0-pins-default {
+	ecap0_pins_default: ecap0-default-pins {
 		pinctrl-single,pins = <
 			AM65X_IOPAD(0x0010, PIN_INPUT,  0)  /* (D21) ECAP0_IN_APWM_OUT */
 		>;
@@ -366,15 +375,13 @@
 };
 
 &main_uart1 {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_uart1_pins_default>;
 };
 
-&main_uart2 {
-	status = "disabled";
-};
-
 &mcu_uart0 {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&arduino_uart_pins_default>;
 };
@@ -393,13 +400,12 @@
 
 &wkup_gpio0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <
-		&arduino_io_d2_to_d3_pins_default
-		&arduino_i2c_aio_switch_pins_default
-		&arduino_io_oe_pins_default
-		&push_button_pins_default
-		&db9_com_mode_pins_default
-	>;
+	pinctrl-0 =
+		<&arduino_io_d2_to_d3_pins_default>,
+		<&arduino_i2c_aio_switch_pins_default>,
+		<&arduino_io_oe_pins_default>,
+		<&push_button_pins_default>,
+		<&db9_com_mode_pins_default>;
 	gpio-line-names =
 		/* 0..9 */
 		"wkup_gpio0-base", "", "", "", "UART0-mode1", "UART0-mode0",
@@ -419,19 +425,21 @@
 };
 
 &wkup_i2c0 {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&wkup_i2c0_pins_default>;
 	clock-frequency = <400000>;
 };
 
 &mcu_i2c0 {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcu_i2c0_pins_default>;
 	clock-frequency = <400000>;
 
 	psu: regulator@60 {
 		compatible = "ti,tps62363";
-		reg =  <0x60>;
+		reg = <0x60>;
 		regulator-name = "tps62363-vout";
 		regulator-min-microvolt = <500000>;
 		regulator-max-microvolt = <1500000>;
@@ -484,11 +492,12 @@
 };
 
 &main_i2c0 {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c0_pins_default>;
 	clock-frequency = <400000>;
 
-	rtc: rtc8564@51 {
+	rtc: rtc@51 {
 		compatible = "nxp,pcf8563";
 		reg = <0x51>;
 	};
@@ -501,18 +510,21 @@
 };
 
 &main_i2c1 {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c1_pins_default>;
 	clock-frequency = <400000>;
 };
 
 &main_i2c2 {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c2_pins_default>;
 	clock-frequency = <400000>;
 };
 
 &main_i2c3 {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c3_pins_default>;
 	clock-frequency = <400000>;
@@ -552,6 +564,7 @@
 };
 
 &ecap0 {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&ecap0_pins_default>;
 };
@@ -576,25 +589,24 @@
 };
 
 &mcu_spi0 {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcu_spi0_pins_default>;
 
 	#address-cells = <1>;
-	#size-cells= <0>;
+	#size-cells = <0>;
 	ti,pindir-d0-out-d1-in;
 };
 
-&tscadc0 {
-	status = "disabled";
-};
-
 &tscadc1 {
+	status = "okay";
 	adc {
 		ti,adc-channels = <0 1 2 3 4 5>;
 	};
 };
 
 &ospi0 {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcu_fss0_ospi0_pins_default>;
 
@@ -609,8 +621,52 @@
 		cdns,tchsh-ns = <60>;
 		cdns,tslch-ns = <60>;
 		cdns,read-delay = <2>;
-		#address-cells = <1>;
-		#size-cells = <1>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			seboot@0 {
+				label = "seboot";
+				reg = <0x0 0x180000>; /* 1.5M */
+			};
+
+			tispl@180000 {
+				label = "tispl";
+				reg = <0x180000 0x200000>; /* 2M */
+			};
+
+			u-boot@380000 {
+				label = "u-boot";
+				reg = <0x380000 0x300000>; /* 3M */
+			};
+
+			env@680000 {
+				label = "env";
+				reg = <0x680000 0x20000>; /* 128K */
+			};
+
+			env-backup@6a0000 {
+				label = "env.backup";
+				reg = <0x6a0000 0x20000>; /* 128K */
+			};
+
+			otpcmd@6c0000 {
+				label = "otpcmd";
+				reg = <0x6c0000 0x10000>; /* 64K */
+			};
+
+			unused@6d0000 {
+				label = "unused";
+				reg = <0x6d0000 0x7b0000>; /* 7872K */
+			};
+
+			seboot-backup@e80000 {
+				label = "seboot.backup";
+				reg = <0xe80000 0x180000>; /* 1.5M */
+			};
+		};
 	};
 };
 
@@ -634,15 +690,8 @@
 	};
 };
 
-&pcie0_rc {
-	status = "disabled";
-};
-
-&pcie0_ep {
-	status = "disabled";
-};
-
 &pcie1_rc {
+	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&minipcie_pins_default>;
 
@@ -652,11 +701,8 @@
 	reset-gpios = <&wkup_gpio0 27 GPIO_ACTIVE_HIGH>;
 };
 
-&pcie1_ep {
-	status = "disabled";
-};
-
 &mailbox0_cluster0 {
+	status = "okay";
 	interrupts = <436>;
 
 	mbox_mcu_r5fss0_core0: mbox-mcu-r5fss0-core0 {
@@ -666,6 +712,7 @@
 };
 
 &mailbox0_cluster1 {
+	status = "okay";
 	interrupts = <432>;
 
 	mbox_mcu_r5fss0_core1: mbox-mcu-r5fss0-core1 {
@@ -674,71 +721,18 @@
 	};
 };
 
-&mailbox0_cluster2 {
-	status = "disabled";
-};
-
-&mailbox0_cluster3 {
-	status = "disabled";
-};
-
-&mailbox0_cluster4 {
-	status = "disabled";
-};
-
-&mailbox0_cluster5 {
-	status = "disabled";
-};
-
-&mailbox0_cluster6 {
-	status = "disabled";
-};
-
-&mailbox0_cluster7 {
-	status = "disabled";
-};
-
-&mailbox0_cluster8 {
-	status = "disabled";
-};
-
-&mailbox0_cluster9 {
-	status = "disabled";
-};
-
-&mailbox0_cluster10 {
-	status = "disabled";
-};
-
-&mailbox0_cluster11 {
-	status = "disabled";
-};
-
 &mcu_r5fss0_core0 {
 	memory-region = <&mcu_r5fss0_core0_dma_memory_region>,
 			<&mcu_r5fss0_core0_memory_region>;
-	mboxes = <&mailbox0_cluster0 &mbox_mcu_r5fss0_core0>;
+	mboxes = <&mailbox0_cluster0>, <&mbox_mcu_r5fss0_core0>;
 };
 
 &mcu_r5fss0_core1 {
 	memory-region = <&mcu_r5fss0_core1_dma_memory_region>,
 			<&mcu_r5fss0_core1_memory_region>;
-	mboxes = <&mailbox0_cluster1 &mbox_mcu_r5fss0_core1>;
+	mboxes = <&mailbox0_cluster1>, <&mbox_mcu_r5fss0_core1>;
 };
 
 &mcu_rti1 {
 	memory-region = <&wdt_reset_memory_region>;
-
-};
-
-&icssg0_mdio {
-	status = "disabled";
-};
-
-&icssg1_mdio {
-	status = "disabled";
-};
-
-&icssg2_mdio {
-	status = "disabled";
 };

@@ -43,6 +43,7 @@ Shell commands
    cmd/cat
    cmd/cbsysinfo
    cmd/cedit
+   cmd/cli
    cmd/cls
    cmd/cmp
    cmd/coninfo
@@ -94,6 +95,7 @@ Shell commands
    cmd/rng
    cmd/saves
    cmd/sbi
+   cmd/scmi
    cmd/scp03
    cmd/seama
    cmd/setexpr

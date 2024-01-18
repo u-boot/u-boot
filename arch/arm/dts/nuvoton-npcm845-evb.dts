@@ -2,6 +2,8 @@
 // Copyright (c) 2021 Nuvoton Technology tomer.maimon@nuvoton.com
 
 /dts-v1/;
+
+#include <dt-bindings/phy/nuvoton,npcm-usbphy.h>
 #include "nuvoton-npcm845.dtsi"
 #include "nuvoton-npcm845-pincfg.dtsi"
 
@@ -46,10 +48,10 @@
 		spi1 = &fiu1;
 		spi3 = &fiu3;
 		spi4 = &fiux;
-		spi5 = &spi1;
+		spi5 = &pspi;
 		usb0 = &udc0;
 		usb1 = &ehci1;
-		usb2 = &ehci2;
+		usb2 = &udc8;
 	};
 
 	chosen {
@@ -58,6 +60,17 @@
 
 	memory {
 		reg = <0x0 0x0 0x0 0x40000000>;
+	};
+
+	tpm@0 {
+		compatible = "microsoft,ftpm";
+	};
+
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
 	};
 
 	vsbr2: vsbr2 {
@@ -149,6 +162,8 @@
 	snps,reset-active-low;
 	snps,reset-delays-us = <0 10000 1000000>;
 	snps,reset-gpio = <&gpio5 2 GPIO_ACTIVE_LOW>;    /* gpio162 */
+	phy-supply = <&vsbr2>;
+	phy-supply-microvolt = <1800000>;
 	status = "okay";
 };
 
@@ -179,7 +194,7 @@
 	status = "okay";
 };
 
-&spi1 {
+&pspi {
 	status = "okay";
 };
 
@@ -197,7 +212,7 @@
 
 &udc0 {
 	status = "okay";
-	phys = <&usbphy1 0>;
+	phys = <&usbphy1 NPCM_UDC0_7>;
 };
 
 &sdhci0 {
@@ -207,12 +222,12 @@
 
 &ehci1 {
 	status = "okay";
-	phys = <&usbphy2 3>;
+	phys = <&usbphy2 NPCM_USBH1>;
 };
 
-&ehci2 {
+&udc8 {
 	status = "okay";
-	phys = <&usbphy3 4>;
+	phys = <&usbphy3 NPCM_UDC8>;
 };
 
 &rng {

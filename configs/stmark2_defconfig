@@ -16,12 +16,12 @@ CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 root=/dev/ram0 rw rootfstype=ramfs rdinit=/bin/init devtmpfs.mount=1"
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="sf probe 0:1 50000000; sf read ${loadaddr} 0x100000 ${kern_size}; bootm ${loadaddr}"
+CONFIG_SYS_PBSIZE=283
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_SYS_MALLOC_BOOTPARAMS=y
 CONFIG_HUSH_PARSER=y
 # CONFIG_CMDLINE_EDITING is not set
 CONFIG_SYS_PROMPT="stmark2 $ "
-CONFIG_SYS_PBSIZE=283
 # CONFIG_CMD_BDI is not set
 # CONFIG_CMD_CONSOLE is not set
 # CONFIG_CMD_EXPORTENV is not set

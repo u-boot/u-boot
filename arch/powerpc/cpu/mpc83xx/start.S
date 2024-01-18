@@ -20,6 +20,7 @@
 
 #include <asm/cache.h>
 #include <asm/mmu.h>
+#include <asm/fsl_lbc.h>
 #include <asm/u-boot.h>
 
 #include "hrcw/hrcw.h"

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <command.h>
 #include <display_options.h>
+#include <log.h>
 #include <mapmem.h>
 #include <acpi/acpi_table.h>
 #include <asm/acpi_table.h>
@@ -17,7 +18,8 @@ DECLARE_GLOBAL_DATA_PTR;
 /**
  * dump_hdr() - Dump an ACPI header
  *
- * If the header is for FACS then it shows the revision information as well
+ * Except for the Firmware ACPI Control Structure (FACS)
+ * additionally show the revision information.
  *
  * @hdr: ACPI header to dump
  */
@@ -25,7 +27,7 @@ static void dump_hdr(struct acpi_table_header *hdr)
 {
 	bool has_hdr = memcmp(hdr->signature, "FACS", ACPI_NAME_LEN);
 
-	printf("%.*s  %08lx  %5x", ACPI_NAME_LEN, hdr->signature,
+	printf("%.*s  %16lx  %5x", ACPI_NAME_LEN, hdr->signature,
 	       (ulong)map_to_sysmem(hdr), hdr->length);
 	if (has_hdr) {
 		printf("  v%02d %.6s %.8s %x %.4s %x\n", hdr->revision,
@@ -43,8 +45,8 @@ static int dump_table_name(const char *sig)
 	hdr = acpi_find_table(sig);
 	if (!hdr)
 		return -ENOENT;
-	printf("%.*s @ %08lx\n", ACPI_NAME_LEN, hdr->signature,
-	       (ulong)map_to_sysmem(hdr));
+	printf("%.*s @ %16lx\n", ACPI_NAME_LEN, hdr->signature,
+	       (ulong)nomap_to_sysmem(hdr));
 	print_buffer(0, hdr, 1, hdr->length, 0);
 
 	return 0;
@@ -52,53 +54,63 @@ static int dump_table_name(const char *sig)
 
 static void list_fadt(struct acpi_fadt *fadt)
 {
-	if (fadt->dsdt)
-		dump_hdr(map_sysmem(fadt->dsdt, 0));
-	if (fadt->firmware_ctrl)
-		dump_hdr(map_sysmem(fadt->firmware_ctrl, 0));
+	if (fadt->header.revision >= 3 && fadt->x_dsdt)
+		dump_hdr(nomap_sysmem(fadt->x_dsdt, 0));
+	else if (fadt->dsdt)
+		dump_hdr(nomap_sysmem(fadt->dsdt, 0));
+	if (!IS_ENABLED(CONFIG_X86) &&
+	    !(fadt->flags & ACPI_FADT_HW_REDUCED_ACPI))
+		log_err("FADT not ACPI-hardware-reduced-compliant\n");
+	if (fadt->header.revision >= 3 && fadt->x_firmware_ctrl)
+		dump_hdr(nomap_sysmem(fadt->x_firmware_ctrl, 0));
+	else if (fadt->firmware_ctrl)
+		dump_hdr(nomap_sysmem(fadt->firmware_ctrl, 0));
 }
 
-static int list_rsdt(struct acpi_rsdt *rsdt, struct acpi_xsdt *xsdt)
+static void list_rsdt(struct acpi_rsdp *rsdp)
 {
 	int len, i, count;
-
-	dump_hdr(&rsdt->header);
-	if (xsdt)
-		dump_hdr(&xsdt->header);
-	len = rsdt->header.length - sizeof(rsdt->header);
-	count = len / sizeof(u32);
-	for (i = 0; i < count; i++) {
-		struct acpi_table_header *hdr;
-
-		if (!rsdt->entry[i])
-			break;
-		hdr = map_sysmem(rsdt->entry[i], 0);
-		dump_hdr(hdr);
-		if (!memcmp(hdr->signature, "FACP", ACPI_NAME_LEN))
-			list_fadt((struct acpi_fadt *)hdr);
-		if (xsdt) {
-			if (xsdt->entry[i] != rsdt->entry[i]) {
-				printf("   (xsdt mismatch %llx)\n",
-				       xsdt->entry[i]);
-			}
-		}
-	}
-
-	return 0;
-}
-
-static int list_rsdp(struct acpi_rsdp *rsdp)
-{
 	struct acpi_rsdt *rsdt;
 	struct acpi_xsdt *xsdt;
 
-	printf("RSDP  %08lx  %5x  v%02d %.6s\n", (ulong)map_to_sysmem(rsdp),
-	       rsdp->length, rsdp->revision, rsdp->oem_id);
-	rsdt = map_sysmem(rsdp->rsdt_address, 0);
-	xsdt = map_sysmem(rsdp->xsdt_address, 0);
-	list_rsdt(rsdt, xsdt);
+	if (rsdp->rsdt_address) {
+		rsdt = nomap_sysmem(rsdp->rsdt_address, 0);
+		dump_hdr(&rsdt->header);
+	}
+	if (rsdp->xsdt_address) {
+		xsdt = nomap_sysmem(rsdp->xsdt_address, 0);
+		dump_hdr(&xsdt->header);
+		len = xsdt->header.length - sizeof(xsdt->header);
+		count = len / sizeof(u64);
+	} else if (rsdp->rsdt_address) {
+		len = rsdt->header.length - sizeof(rsdt->header);
+		count = len / sizeof(u32);
+	} else {
+		return;
+	}
 
-	return 0;
+	for (i = 0; i < count; i++) {
+		struct acpi_table_header *hdr;
+		u64 entry;
+
+		if (rsdp->xsdt_address)
+			entry = xsdt->entry[i];
+		else
+			entry = rsdt->entry[i];
+		if (!entry)
+			break;
+		hdr = nomap_sysmem(entry, 0);
+		dump_hdr(hdr);
+		if (!memcmp(hdr->signature, "FACP", ACPI_NAME_LEN))
+			list_fadt((struct acpi_fadt *)hdr);
+	}
+}
+
+static void list_rsdp(struct acpi_rsdp *rsdp)
+{
+	printf("RSDP  %16lx  %5x  v%02d %.6s\n", (ulong)map_to_sysmem(rsdp),
+	       rsdp->length, rsdp->revision, rsdp->oem_id);
+	list_rsdt(rsdp);
 }
 
 static int do_acpi_list(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -111,8 +123,8 @@ static int do_acpi_list(struct cmd_tbl *cmdtp, int flag, int argc,
 		printf("No ACPI tables present\n");
 		return 0;
 	}
-	printf("Name      Base   Size  Detail\n");
-	printf("----  --------  -----  ------\n");
+	printf("Name              Base   Size  Detail\n"
+	       "----  ----------------  -----  ----------------------------\n");
 	list_rsdp(rsdp);
 
 	return 0;
@@ -155,6 +167,9 @@ static int do_acpi_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 	const char *name;
 	char sig[ACPI_NAME_LEN];
 	int ret;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
 
 	name = argv[1];
 	if (strlen(name) != ACPI_NAME_LEN) {

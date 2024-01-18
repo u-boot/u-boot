@@ -32,14 +32,17 @@
 	bootph-all;
 };
 
-&eth0 {
-	/* G.hn does not work without additional configuration */
-	status = "disabled";
-};
-
 &eth1 {
 	fixed-link {
 		speed = <1000>;
 		full-duplex;
 	};
+};
+
+/*
+ * eDPU v2 has a MV88E6361 switch on the MDIO bus and U-boot is used
+ * to patch the Linux DTS if its found so enable MDIO by default.
+ */
+&mdio {
+	status = "okay";
 };

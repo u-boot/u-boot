@@ -12,7 +12,7 @@ import u_boot_utils as util
 TMPDIR = '/tmp/test_trace'
 
 # Decode a function-graph line
-RE_LINE = re.compile(r'.*\[000\]\s*([0-9.]*): func.*[|](\s*)(\S.*)?([{};])$')
+RE_LINE = re.compile(r'.*0\.\.\.\.\. \s*([0-9.]*): func.*[|](\s*)(\S.*)?([{};])$')
 
 
 def collect_trace(cons):
@@ -113,15 +113,15 @@ def check_function(cons, fname, proftool, map_fname, trace_dat):
     assert val > 50000  # Should be at least 50KB of symbols
 
     # Check that the trace has something useful
-    cmd = f"trace-cmd report {trace_dat} |grep -E '(initf_|initr_)'"
+    cmd = f"trace-cmd report -l {trace_dat} |grep -E '(initf_|initr_)'"
     out = util.run_and_log(cons, ['sh', '-c', cmd])
 
     # Format:
-    # unknown option 14
-    #      u-boot-1     [000]    60.805596: function:             initf_malloc
-    #      u-boot-1     [000]    60.805597: function:             initf_malloc
-    #      u-boot-1     [000]    60.805601: function:             initf_bootstage
-    #      u-boot-1     [000]    60.805607: function:             initf_bootstage
+    #      u-boot-1     0.....    60.805596: function:             initf_malloc
+    #      u-boot-1     0.....    60.805597: function:             initf_malloc
+    #      u-boot-1     0.....    60.805601: function:             initf_bootstage
+    #      u-boot-1     0.....    60.805607: function:             initf_bootstage
+
     lines = [line.replace(':', '').split() for line in out.splitlines()]
     vals = {items[4]: float(items[2]) for items in lines if len(items) == 5}
     base = None
@@ -161,21 +161,21 @@ def check_funcgraph(cons, fname, proftool, map_fname, trace_dat):
                'dump-ftrace', '-f', 'funcgraph'])
 
     # Check that the trace has what we expect
-    cmd = f'trace-cmd report {trace_dat} |head -n 70'
+    cmd = f'trace-cmd report -l {trace_dat} |head -n 70'
     out = util.run_and_log(cons, ['sh', '-c', cmd])
 
     # First look for this:
-    #  u-boot-1     [000]   282.101360: funcgraph_entry:        0.004 us   |    initf_malloc();
+    #  u-boot-1     0.....   282.101360: funcgraph_entry:        0.004 us   |    initf_malloc();
     # ...
-    #  u-boot-1     [000]   282.101369: funcgraph_entry:                   |    initf_bootstage() {
-    #  u-boot-1     [000]   282.101369: funcgraph_entry:                   |      bootstage_init() {
-    #  u-boot-1     [000]   282.101369: funcgraph_entry:                   |        dlmalloc() {
+    #  u-boot-1     0.....   282.101369: funcgraph_entry:                   |    initf_bootstage() {
+    #  u-boot-1     0.....   282.101369: funcgraph_entry:                   |      bootstage_init() {
+    #  u-boot-1     0.....   282.101369: funcgraph_entry:                   |        dlmalloc() {
     # ...
-    #  u-boot-1     [000]   282.101375: funcgraph_exit:         0.001 us   |        }
+    #  u-boot-1     0.....   282.101375: funcgraph_exit:         0.001 us   |        }
     # Then look for this:
-    #  u-boot-1     [000]   282.101375: funcgraph_exit:         0.006 us   |      }
+    #  u-boot-1     0.....   282.101375: funcgraph_exit:         0.006 us   |      }
     # Then check for this:
-    #  u-boot-1     [000]   282.101375: funcgraph_entry:        0.000 us   |    initcall_is_event();
+    #  u-boot-1     0.....   282.101375: funcgraph_entry:        0.000 us   |    initcall_is_event();
 
     expected_indent = None
     found_start = False
@@ -203,7 +203,7 @@ def check_funcgraph(cons, fname, proftool, map_fname, trace_dat):
 
     # Now look for initf_dm() and dm_timer_init() so we can check the bootstage
     # time
-    cmd = f"trace-cmd report {trace_dat} |grep -E '(initf_dm|dm_timer_init)'"
+    cmd = f"trace-cmd report -l {trace_dat} |grep -E '(initf_dm|dm_timer_init)'"
     out = util.run_and_log(cons, ['sh', '-c', cmd])
 
     start_timestamp = None

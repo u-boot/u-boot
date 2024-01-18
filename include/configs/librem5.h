@@ -56,6 +56,8 @@
 	"scriptaddr=0x80000000\0" \
 	"pxefile_addr_r=0x80100000\0" \
 	"kernel_addr_r=0x80800000\0" \
+	"kernel_comp_addr_r=0x90000000\0" \
+	"kernel_comp_size=0x08000000\0" \
 	"fdt_addr_r=0x84800000\0" \
 	"ramdisk_addr_r=0x85000000\0" \
 	"console=" CONSOLE ",115200\0" \

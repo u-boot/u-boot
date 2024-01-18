@@ -300,13 +300,6 @@ The following options need to be configured:
 		different from COUNTER_FREQUENCY, and can only be determined
 		at run time.
 
-- Tegra SoC options:
-		CONFIG_TEGRA_SUPPORT_NON_SECURE
-
-		Support executing U-Boot in non-secure (NS) mode. Certain
-		impossible actions will be skipped if the CPU is in NS mode,
-		such as ARM architectural timer initialization.
-
 - Linux Kernel Interface:
 		CONFIG_OF_LIBFDT
 
@@ -1191,11 +1184,10 @@ The following options need to be configured:
 		Support for a lightweight UBI (fastmap) scanner and
 		loader
 
-		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
-		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
-		CONFIG_SYS_NAND_BLOCK_SIZE, CONFIG_SYS_NAND_BAD_BLOCK_POS,
-		CFG_SYS_NAND_ECCPOS, CFG_SYS_NAND_ECCSIZE,
-		CFG_SYS_NAND_ECCBYTES
+		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_SIZE,
+		CONFIG_SYS_NAND_OOBSIZE, CONFIG_SYS_NAND_BLOCK_SIZE,
+		CONFIG_SYS_NAND_BAD_BLOCK_POS, CFG_SYS_NAND_ECCPOS,
+		CFG_SYS_NAND_ECCSIZE, CFG_SYS_NAND_ECCBYTES
 		Defines the size and behavior of the NAND that SPL uses
 		to read U-Boot
 
@@ -1247,9 +1239,6 @@ typically in board_init_f() and board_init_r().
 
 Configuration Settings:
 -----------------------
-
-- MEM_SUPPORT_64BIT_DATA: Defined automatically if compiled as 64-bit.
-		Optionally it can be defined to support 64-bit memory commands.
 
 - CONFIG_SYS_LONGHELP: Defined when you want long help messages included;
 		undefine this when you're short of memory.
@@ -1545,16 +1534,26 @@ Low Level (hardware related) configuration options:
 		globally (CONFIG_CMD_MEMORY).
 
 - CONFIG_SPL_BUILD
-		Set when the currently-running compilation is for an artifact
-		that will end up in the SPL (as opposed to the TPL or U-Boot
-		proper). Code that needs stage-specific behavior should check
-		this.
+		Set when the currently running compilation is for an artifact
+		that will end up in one of the 'xPL' builds, i.e. SPL, TPL or
+		VPL. Code that needs phase-specific behaviour can check this,
+		or (where possible) use spl_phase() instead.
+
+		Note that CONFIG_SPL_BUILD *is* always defined when either
+		of CONFIG_TPL_BUILD / CONFIG_VPL_BUILD is defined. This can be
+		counter-intuitive and should perhaps be changed.
 
 - CONFIG_TPL_BUILD
-		Set when the currently-running compilation is for an artifact
-		that will end up in the TPL (as opposed to the SPL or U-Boot
-		proper). Code that needs stage-specific behavior should check
-		this.
+		Set when the currently running compilation is for an artifact
+		that will end up in the TPL build (as opposed to SPL, VPL or
+		U-Boot proper). Code that needs phase-specific behaviour can
+		check this, or (where possible) use spl_phase() instead.
+
+- CONFIG_VPL_BUILD
+		Set when the currently running compilation is for an artifact
+		that will end up in the VPL build (as opposed to the SPL, TPL
+		or U-Boot proper). Code that needs phase-specific behaviour can
+		check this, or (where possible) use spl_phase() instead.
 
 - CONFIG_ARCH_MAP_SYSMEM
 		Generally U-Boot (and in particular the md command) uses
@@ -2650,5 +2649,5 @@ Contributing
 
 The U-Boot projects depends on contributions from the user community.
 If you want to participate, please, have a look at the 'General'
-section of https://u-boot.readthedocs.io/en/latest/develop/index.html
+section of https://docs.u-boot.org/en/latest/develop/index.html
 where we describe coding standards and the patch submission process.

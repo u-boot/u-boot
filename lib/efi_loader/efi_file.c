@@ -5,7 +5,6 @@
  * Copyright (c) 2017 Rob Clark
  */
 
-#include <common.h>
 #include <charset.h>
 #include <efi_loader.h>
 #include <log.h>

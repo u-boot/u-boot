@@ -14,6 +14,7 @@
 #include <mmc.h>
 #include <miiphy.h>
 #include <phy.h>
+#include <fdt_support.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
@@ -50,12 +51,15 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Single-chip mode */
 /* Switch Port Registers */
 #define MVEBU_SW_LINK_CTRL_REG		(1)
+#define MVEBU_SW_PORT_SWITCH_ID		(3)
 #define MVEBU_SW_PORT_CTRL_REG		(4)
 #define MVEBU_SW_PORT_BASE_VLAN		(6)
 
 /* Global 2 Registers */
 #define MVEBU_G2_SMI_PHY_CMD_REG	(24)
 #define MVEBU_G2_SMI_PHY_DATA_REG	(25)
+
+#define SWITCH_88E6361_PRODUCT_NUMBER	0x2610
 
 /*
  * Memory Controller Registers
@@ -72,6 +76,30 @@ DECLARE_GLOBAL_DATA_PTR;
 #define A3700_MC_CTRL2_SDRAM_TYPE_OFFS	4
 #define A3700_MC_CTRL2_SDRAM_TYPE_DDR3	2
 #define A3700_MC_CTRL2_SDRAM_TYPE_DDR4	3
+
+static bool is_edpu_plus(void)
+{
+	struct udevice *bus;
+	ofnode node;
+	int val;
+
+	if (!CONFIG_IS_ENABLED(DM_MDIO))
+		return false;
+
+	node = ofnode_by_compatible(ofnode_null(), "marvell,orion-mdio");
+	if (!ofnode_valid(node) ||
+	    uclass_get_device_by_ofnode(UCLASS_MDIO, node, &bus) ||
+	    device_probe(bus)) {
+		printf("Cannot find MDIO bus\n");
+		return -ENODEV;
+	}
+
+	val = dm_mdio_read(bus, 0x0, MDIO_DEVAD_NONE, MVEBU_SW_PORT_SWITCH_ID);
+	if (val == SWITCH_88E6361_PRODUCT_NUMBER)
+		return true;
+	else
+		return false;
+}
 
 int board_early_init_f(void)
 {
@@ -301,14 +329,12 @@ static int mii_multi_chip_mode_write(struct udevice *bus, int dev_smi_addr,
 	return 0;
 }
 
-/* Bring-up board-specific network stuff */
-static int last_stage_init(void)
+static int espressobin_last_stage_init(void)
 {
 	struct udevice *bus;
 	ofnode node;
 
-	if (!CONFIG_IS_ENABLED(DM_MDIO) ||
-	    !of_machine_is_compatible("globalscale,espressobin"))
+	if (!CONFIG_IS_ENABLED(DM_MDIO))
 		return 0;
 
 	node = ofnode_by_compatible(ofnode_null(), "marvell,orion-mdio");
@@ -358,23 +384,66 @@ static int last_stage_init(void)
 
 	return 0;
 }
-EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 
+static int edpu_plus_last_stage_init(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	if (is_edpu_plus()) {
+		ret = uclass_get_device_by_name(UCLASS_ETH,
+						"ethernet@40000",
+						&dev);
+		if (!ret) {
+			device_remove(dev, DM_REMOVE_NORMAL);
+			device_unbind(dev);
+		}
+
+		/* Currently no networking support on the eDPU+ board */
+		ret = uclass_get_device_by_name(UCLASS_ETH,
+						"ethernet@30000",
+						&dev);
+		if (!ret) {
+			device_remove(dev, DM_REMOVE_NORMAL);
+			device_unbind(dev);
+		}
+	} else {
+		ret = uclass_get_device_by_name(UCLASS_ETH,
+						"ethernet@30000",
+						&dev);
+		if (!ret) {
+			device_remove(dev, DM_REMOVE_NORMAL);
+			device_unbind(dev);
+		}
+	}
+
+	return 0;
+}
+
+/* Bring-up board-specific network stuff */
+static int last_stage_init(void)
+{
+
+	if (of_machine_is_compatible("globalscale,espressobin"))
+		return espressobin_last_stage_init();
+
+	if (of_machine_is_compatible("methode,edpu"))
+		return edpu_plus_last_stage_init();
+
+	return 0;
+}
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
-int ft_board_setup(void *blob, struct bd_info *bd)
+static int espressobin_fdt_setup(void *blob)
 {
-#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 	int ret;
 	int spi_off;
 	int parts_off;
 	int part_off;
 
 	/* Fill SPI MTD partitions for Linux kernel on Espressobin */
-	if (!of_machine_is_compatible("globalscale,espressobin"))
-		return 0;
-
 	spi_off = fdt_node_offset_by_compatible(blob, -1, "jedec,spi-nor");
 	if (spi_off < 0)
 		return 0;
@@ -459,7 +528,77 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		return 0;
 	}
 
+	return 0;
+}
+
+static int edpu_plus_fdt_setup(void *blob)
+{
+	const char *ports[] = { "downlink", "uplink" };
+	uint8_t mac[ETH_ALEN];
+	const char *path;
+	int i, ret;
+
+	if (is_edpu_plus()) {
+		ret = fdt_set_status_by_compatible(blob,
+						   "marvell,orion-mdio",
+						   FDT_STATUS_OKAY);
+		if (ret)
+			printf("Failed to enable MDIO!\n");
+
+		ret = fdt_set_status_by_alias(blob,
+					      "ethernet1",
+					      FDT_STATUS_DISABLED);
+		if (ret)
+			printf("Failed to disable ethernet1!\n");
+
+		path = fdt_get_alias(blob, "ethernet0");
+		if (path)
+			do_fixup_by_path_string(blob, path, "phy-mode", "2500base-x");
+		else
+			printf("Failed to update ethernet0 phy-mode to 2500base-x!\n");
+
+		ret = fdt_set_status_by_compatible(blob,
+						   "marvell,mv88e6190",
+						   FDT_STATUS_OKAY);
+		if (ret)
+			printf("Failed to enable MV88E6361!\n");
+
+		/*
+		 * MAC-s for Uplink and Downlink ports are stored under
+		 * non standard variable names, so lets manually fixup the
+		 * switch port nodes to have the desired MAC-s.
+		 */
+		for (i = 0; i < 2; i++) {
+			if (eth_env_get_enetaddr(ports[i], mac)) {
+				do_fixup_by_prop(blob,
+						 "label",
+						 ports[i],
+						 strlen(ports[i]) + 1,
+						 "mac-address",
+						 mac, ARP_HLEN, 1);
+
+				do_fixup_by_prop(blob,
+						 "label",
+						 ports[i],
+						 strlen(ports[i]) + 1,
+						 "local-mac-address",
+						 mac, ARP_HLEN, 1);
+			}
+		}
+	}
+
+	return 0;
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+	if (of_machine_is_compatible("globalscale,espressobin"))
+		return espressobin_fdt_setup(blob);
 #endif
+	if (of_machine_is_compatible("methode,edpu"))
+		return edpu_plus_fdt_setup(blob);
+
 	return 0;
 }
 #endif

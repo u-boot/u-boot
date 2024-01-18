@@ -45,7 +45,7 @@ int cmd_ut_category(const char *name, const char *prefix,
 	}
 
 	ret = ut_run_list(name, prefix, tests, n_ents,
-			  argc > 1 ? argv[1] : NULL, runs_per_text, force_run,
+			  cmd_arg1(argc, argv), runs_per_text, force_run,
 			  test_insert);
 
 	return ret ? CMD_RET_FAILURE : 0;
@@ -57,9 +57,12 @@ static struct cmd_tbl cmd_ut_sub[] = {
 #ifdef CONFIG_CMD_BDI
 	U_BOOT_CMD_MKENT(bdinfo, CONFIG_SYS_MAXARGS, 1, do_ut_bdinfo, "", ""),
 #endif
-#ifdef CONFIG_BOOTSTD
+#ifdef CONFIG_UT_BOOTSTD
 	U_BOOT_CMD_MKENT(bootstd, CONFIG_SYS_MAXARGS, 1, do_ut_bootstd,
 			 "", ""),
+#endif
+#ifdef CONFIG_CMDLINE
+	U_BOOT_CMD_MKENT(cmd, CONFIG_SYS_MAXARGS, 1, do_ut_cmd, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(common, CONFIG_SYS_MAXARGS, 1, do_ut_common, "", ""),
 #if defined(CONFIG_UT_DM)
@@ -117,6 +120,9 @@ static struct cmd_tbl cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(str, CONFIG_SYS_MAXARGS, 1, do_ut_str, "", ""),
 #ifdef CONFIG_CMD_ADDRMAP
 	U_BOOT_CMD_MKENT(addrmap, CONFIG_SYS_MAXARGS, 1, do_ut_addrmap, "", ""),
+#endif
+#if CONFIG_IS_ENABLED(HUSH_PARSER)
+	U_BOOT_CMD_MKENT(hush, CONFIG_SYS_MAXARGS, 1, do_ut_hush, "", ""),
 #endif
 #ifdef CONFIG_CMD_LOADM
 	U_BOOT_CMD_MKENT(loadm, CONFIG_SYS_MAXARGS, 1, do_ut_loadm, "", ""),
@@ -195,6 +201,9 @@ U_BOOT_LONGHELP(ut,
 #ifdef CONFIG_BOOTSTD
 	"\nbootstd - standard boot implementation"
 #endif
+#ifdef CONFIG_CMDLINE
+	"\ncmd - test various commands"
+#endif
 #ifdef CONFIG_SANDBOX
 	"\ncompression - compressors and bootm decompression"
 #endif
@@ -209,6 +218,9 @@ U_BOOT_LONGHELP(ut,
 #endif
 #ifdef CONFIG_CONSOLE_TRUETYPE
 	"\nfont - font command"
+#endif
+#if CONFIG_IS_ENABLED(HUSH_PARSER)
+	"\nhush - Test hush behavior"
 #endif
 #ifdef CONFIG_CMD_LOADM
 	"\nloadm - loadm command parameters and loading memory blob"

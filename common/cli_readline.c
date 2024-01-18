@@ -12,6 +12,8 @@
 #include <bootretry.h>
 #include <cli.h>
 #include <command.h>
+#include <hang.h>
+#include <malloc.h>
 #include <time.h>
 #include <watchdog.h>
 #include <asm/global_data.h>
@@ -85,7 +87,6 @@ static int hist_cur = -1;
 static unsigned hist_num;
 
 static char *hist_list[HIST_MAX];
-static char hist_lines[HIST_MAX][HIST_SIZE + 1];	/* Save room for NULL */
 
 #define add_idx_minus_one() ((hist_add_idx == 0) ? hist_max : hist_add_idx-1)
 
@@ -97,8 +98,9 @@ static void getcmd_putchars(int count, int ch)
 		getcmd_putch(ch);
 }
 
-static void hist_init(void)
+static int hist_init(void)
 {
+	unsigned char *hist;
 	int i;
 
 	hist_max = 0;
@@ -106,10 +108,14 @@ static void hist_init(void)
 	hist_cur = -1;
 	hist_num = 0;
 
-	for (i = 0; i < HIST_MAX; i++) {
-		hist_list[i] = hist_lines[i];
-		hist_list[i][0] = '\0';
-	}
+	hist = calloc(HIST_MAX, HIST_SIZE + 1);
+	if (!hist)
+		return -ENOMEM;
+
+	for (i = 0; i < HIST_MAX; i++)
+		hist_list[i] = hist + (i * (HIST_SIZE + 1));
+
+	return 0;
 }
 
 static void cread_add_to_hist(char *line)
@@ -493,8 +499,9 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 
 #else /* !CONFIG_CMDLINE_EDITING */
 
-static inline void hist_init(void)
+static inline int hist_init(void)
 {
+	return 0;
 }
 
 static int cread_line(const char *const prompt, char *buf, unsigned int *len,
@@ -643,8 +650,9 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 	 */
 	if (IS_ENABLED(CONFIG_CMDLINE_EDITING) && (gd->flags & GD_FLG_RELOC)) {
 		if (!initted) {
-			hist_init();
-			initted = 1;
+			rc = hist_init();
+			if (rc == 0)
+				initted = 1;
 		}
 
 		if (prompt)

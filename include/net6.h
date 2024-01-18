@@ -12,6 +12,7 @@
 
 #include <net.h>
 #include <linux/ctype.h>
+#include <linux/errno.h>
 
 /* struct in6_addr - 128 bits long IPv6 address */
 struct in6_addr {

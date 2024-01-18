@@ -346,8 +346,16 @@ config PXE_UTILS
 	help
 	  Utilities for parsing PXE file formats.
 
-config BOOT_DEFAULTS
-	bool  # Common defaults for standard boot and distroboot
+config BOOT_DEFAULTS_FEATURES
+	bool
+	select SUPPORT_RAW_INITRD
+	select ENV_VARS_UBOOT_CONFIG
+	imply USB_STORAGE
+	imply EFI_PARTITION
+	imply ISO_PARTITION
+
+config BOOT_DEFAULTS_CMDS
+	bool
 	imply USE_BOOTCOMMAND
 	select CMD_ENV_EXISTS
 	select CMD_EXT2
@@ -358,14 +366,14 @@ config BOOT_DEFAULTS
 	select CMD_DHCP if CMD_NET
 	select CMD_PING if CMD_NET
 	select CMD_PXE if CMD_NET
-	select SUPPORT_RAW_INITRD
-	select ENV_VARS_UBOOT_CONFIG
 	select CMD_BOOTI if ARM64
 	select CMD_BOOTZ if ARM && !ARM64
 	imply CMD_MII if NET
-	imply USB_STORAGE
-	imply EFI_PARTITION
-	imply ISO_PARTITION
+
+config BOOT_DEFAULTS
+	bool  # Common defaults for standard boot and distroboot
+	select BOOT_DEFAULTS_FEATURES
+	select BOOT_DEFAULTS_CMDS if CMDLINE
 	help
 	  These are not required but are commonly needed to support a good
 	  selection of booting methods. Enable this to improve the capability
@@ -431,7 +439,6 @@ config BOOTSTD_FULL
 config BOOTSTD_DEFAULTS
 	bool "Select some common defaults for standard boot"
 	depends on BOOTSTD
-	imply USE_BOOTCOMMAND
 	select BOOT_DEFAULTS
 	select BOOTMETH_DISTRO
 	help
@@ -451,6 +458,18 @@ config BOOTSTD_BOOTCOMMAND
 	  For now this is only selected if distro boot is NOT used, since
 	  standard boot does not support all of the features of distro boot
 	  yet.
+
+config BOOTSTD_PROG
+	bool "Use programmatic boot"
+	depends on !CMDLINE
+	default y
+	help
+	  Enable this to provide a board_run_command() function which can boot
+	  a systen without using commands. If the boot fails, then U-Boot will
+	  panic.
+
+	  Note: This currently has many limitations and is not a useful booting
+	  solution. Future work will eventually make this a viable option.
 
 config BOOTMETH_GLOBAL
 	bool
@@ -504,7 +523,7 @@ config BOOTMETH_EXTLINUX_PXE
 
 config BOOTMETH_EFILOADER
 	bool "Bootdev support for EFI boot"
-	depends on EFI_LOADER
+	depends on EFI_BINARY_EXEC
 	default y
 	help
 	  Enables support for EFI boot using bootdevs. This makes the
@@ -536,10 +555,10 @@ config BOOTMETH_VBE
 
 config BOOTMETH_DISTRO
 	bool  # Options needed to boot any distro
-	select BOOTMETH_SCRIPT  # E.g. Armbian uses scripts
+	select BOOTMETH_SCRIPT if CMDLINE # E.g. Armbian uses scripts
 	select BOOTMETH_EXTLINUX  # E.g. Debian uses these
 	select BOOTMETH_EXTLINUX_PXE if CMD_PXE && CMD_NET && DM_ETH
-	select BOOTMETH_EFILOADER if EFI_LOADER # E.g. Ubuntu uses this
+	select BOOTMETH_EFILOADER if EFI_BINARY_EXEC # E.g. Ubuntu uses this
 
 config SPL_BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded (SPL)"
@@ -664,6 +683,7 @@ config BOOTMETH_SANDBOX
 config BOOTMETH_SCRIPT
 	bool "Bootdev support for U-Boot scripts"
 	default y if BOOTSTD_FULL
+	depends on CMDLINE
 	select HUSH_PARSER
 	help
 	  Enables support for booting a distro via a U-Boot script. This makes
@@ -716,6 +736,17 @@ if MEASURED_BOOT
 	  this option should be enabled to ignore any existing data in the
 	  event log memory region.
 endif # MEASURED_BOOT
+
+config SYS_BOOTM_LEN
+	hex "Maximum size of a decompresed OS image"
+	depends on CMD_BOOTM || CMD_BOOTI || CMD_BOOTZ || \
+		LEGACY_IMAGE_FORMAT || SPL_LEGACY_IMAGE_FORMAT
+	default 0x4000000 if PPC || ARM64
+	default 0x1000000 if X86 || ARCH_MX6 || ARCH_MX7
+	default 0x800000
+	help
+	  This is the maximum size of the buffer that is used to decompress the OS
+	  image in to if attempting to boot a compressed image.
 
 config SUPPORT_RAW_INITRD
 	bool "Enable raw initrd images"
@@ -809,6 +840,7 @@ endmenu		# Boot images
 
 config DISTRO_DEFAULTS
 	bool "(deprecated) Script-based booting of Linux distributions"
+	select CMDLINE
 	select BOOT_DEFAULTS
 	select AUTO_COMPLETE
 	select CMDLINE_EDITING
@@ -1194,14 +1226,16 @@ menu "Autoboot options"
 
 config AUTOBOOT
 	bool "Autoboot"
+	depends on CMDLINE
 	default y
 	help
 	  This enables the autoboot.  See doc/README.autoboot for detail.
 
+if AUTOBOOT
+
 config BOOTDELAY
 	int "delay in seconds before automatically booting"
 	default 2
-	depends on AUTOBOOT
 	help
 	  Delay before automatically running bootcmd;
 	  set to 0 to autoboot with no delay, but you can stop it by key input.
@@ -1223,9 +1257,11 @@ config AUTOBOOT_KEYED
 	  U-Boot automatic booting process and bring the device
 	  to the U-Boot prompt for user input.
 
+if AUTOBOOT_KEYED
+
 config AUTOBOOT_FLUSH_STDIN
 	bool "Enable flushing stdin before starting to read the password"
-	depends on AUTOBOOT_KEYED && !SANDBOX
+	depends on !SANDBOX
 	help
 	  When this option is enabled stdin buffer will be flushed before
 	  starting to read the password.
@@ -1234,7 +1270,6 @@ config AUTOBOOT_FLUSH_STDIN
 
 config AUTOBOOT_PROMPT
 	string "Autoboot stop prompt"
-	depends on AUTOBOOT_KEYED
 	default "Autoboot in %d seconds\\n"
 	help
 	  This string is displayed before the boot delay selected by
@@ -1250,7 +1285,6 @@ config AUTOBOOT_PROMPT
 
 config AUTOBOOT_ENCRYPTION
 	bool "Enable encryption in autoboot stopping"
-	depends on AUTOBOOT_KEYED
 	help
 	  This option allows a string to be entered into U-Boot to stop the
 	  autoboot.
@@ -1277,7 +1311,7 @@ config AUTOBOOT_SHA256_FALLBACK
 
 config AUTOBOOT_DELAY_STR
 	string "Delay autobooting via specific input key / string"
-	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
+	depends on !AUTOBOOT_ENCRYPTION
 	help
 	  This option delays the automatic boot feature by issuing
 	  a specific input key or string. If CONFIG_AUTOBOOT_DELAY_STR
@@ -1289,7 +1323,7 @@ config AUTOBOOT_DELAY_STR
 
 config AUTOBOOT_STOP_STR
 	string "Stop autobooting via specific input key / string"
-	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
+	depends on !AUTOBOOT_ENCRYPTION
 	help
 	  This option enables stopping (aborting) of the automatic
 	  boot feature only by issuing a specific input key or
@@ -1301,7 +1335,7 @@ config AUTOBOOT_STOP_STR
 
 config AUTOBOOT_KEYED_CTRLC
 	bool "Enable Ctrl-C autoboot interruption"
-	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
+	depends on !AUTOBOOT_ENCRYPTION
 	help
 	  This option allows for the boot sequence to be interrupted
 	  by ctrl-c, in addition to the "bootdelaykey" and "bootstopkey".
@@ -1310,7 +1344,7 @@ config AUTOBOOT_KEYED_CTRLC
 
 config AUTOBOOT_NEVER_TIMEOUT
 	bool "Make the password entry never time-out"
-	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION && CRYPT_PW
+	depends on AUTOBOOT_ENCRYPTION && CRYPT_PW
 	help
 	  This option removes the timeout from the password entry
 	  when the user first presses the <Enter> key before entering
@@ -1318,7 +1352,7 @@ config AUTOBOOT_NEVER_TIMEOUT
 
 config AUTOBOOT_STOP_STR_ENABLE
 	bool "Enable fixed string to stop autobooting"
-	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION
+	depends on AUTOBOOT_ENCRYPTION
 	help
 	  This option enables the feature to add a fixed stop
 	  string that is defined at compile time.
@@ -1349,9 +1383,12 @@ config AUTOBOOT_STOP_STR_SHA256
 	  includes a ":", the portion prior to the ":" will be treated
 	  as a salt value.
 
+endif  # AUTOBOOT_KEYED
+
+if !AUTOBOOT_KEYED
+
 config AUTOBOOT_USE_MENUKEY
 	bool "Allow a specify key to run a menu from the environment"
-	depends on !AUTOBOOT_KEYED
 	help
 	  If a specific key is pressed to stop autoboot, then the commands in
 	  the environment variable 'menucmd' are executed before boot starts.
@@ -1365,6 +1402,10 @@ config AUTOBOOT_MENUKEY
 	  environment variable 'menucmd' will be executed before boot starts.
 	  For example, 33 means "!" in ASCII, so pressing ! at boot would take
 	  this action.
+
+endif
+
+endif  # AUTOBOOT
 
 config AUTOBOOT_MENU_SHOW
 	bool "Show a menu on boot"
@@ -1473,6 +1514,15 @@ if OF_LIBFDT
 
 menu "Devicetree fixup"
 
+config OF_ENV_SETUP
+	bool "Run a command from environment to set up device tree before boot"
+	depends on CMD_FDT
+	help
+	  This causes U-Boot to run a command from the environment variable
+	  fdt_fixup before booting into the operating system, which can use the
+	  fdt command to modify the device tree. The device tree is then passed
+	  to the OS.
+
 config OF_BOARD_SETUP
 	bool "Set up board-specific details in device tree before boot"
 	help
@@ -1561,6 +1611,7 @@ config BOOTARGS_SUBST
 
 config USE_BOOTCOMMAND
 	bool "Enable a default value for bootcmd"
+	depends on CMDLINE
 	help
 	  Provide a default value for the bootcmd entry in the environment.  If
 	  autoboot is enabled this is what will be run automatically.  Enable
@@ -1580,6 +1631,7 @@ config BOOTCOMMAND
 
 config USE_PREBOOT
 	bool "Enable preboot"
+	depends on CMDLINE
 	help
 	  When this option is enabled, the existence of the environment
 	  variable "preboot" will be checked immediately before starting the
@@ -1635,7 +1687,7 @@ menu "Configuration editor"
 
 config CEDIT
 	bool "Configuration editor"
-	depends on BOOTSTD
+	depends on EXPO
 	help
 	  Provides a way to deal with board configuration and present it to
 	  the user for adjustment.

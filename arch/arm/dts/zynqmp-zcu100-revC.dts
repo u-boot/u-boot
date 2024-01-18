@@ -103,15 +103,6 @@
 		};
 	};
 
-	ltc2954: ltc2954 { /* U7 */
-		compatible = "lltc,ltc2954", "lltc,ltc2952";
-		status = "disabled";
-		trigger-gpios = <&gpio 26 GPIO_ACTIVE_LOW>; /* INT line - input */
-		/* If there is HW watchdog on mezzanine this signal should be connected there */
-		watchdog-gpios = <&gpio 35 GPIO_ACTIVE_HIGH>; /* MIO on PAD */
-		kill-gpios = <&gpio 34 GPIO_ACTIVE_LOW>; /* KILL signal - output */
-	};
-
 	wmmcsdio_fixed: fixedregulator-mmcsdio {
 		compatible = "regulator-fixed";
 		regulator-name = "wmmcsdio_fixed";
@@ -284,7 +275,7 @@
 		};
 	};
 
-	pinctrl_i2c1_gpio: i2c1-gpio {
+	pinctrl_i2c1_gpio: i2c1-gpio-grp {
 		mux {
 			groups = "gpio0_4_grp", "gpio0_5_grp";
 			function = "gpio0";

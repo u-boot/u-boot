@@ -28,7 +28,6 @@
 #include <env.h>
 #include <linux/delay.h>
 #include <linux/sizes.h>
-#include <common.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <phy.h>

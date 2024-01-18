@@ -144,7 +144,7 @@
 &qspi { /* MIO 0-5 - U143 */
 	status = "okay";
 	spi_flash: flash@0 { /* MT25QU512A */
-		compatible = "mt25qu512a", "jedec,spi-nor"; /* 64MB */
+		compatible = "jedec,spi-nor"; /* 64MB */
 		reg = <0>;
 		spi-tx-bus-width = <4>;
 		spi-rx-bus-width = <4>;

@@ -46,7 +46,7 @@ static int palmas_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 static int palmas_bind(struct udevice *dev)
 {
 	ofnode pmic_node = ofnode_null(), regulators_node;
-	ofnode subnode;
+	ofnode subnode, gpio_node;
 	int children, ret;
 
 	if (IS_ENABLED(CONFIG_SYSRESET_PALMAS)) {
@@ -56,6 +56,14 @@ static int palmas_bind(struct udevice *dev)
 			log_err("cannot bind SYSRESET (ret = %d)\n", ret);
 			return ret;
 		}
+	}
+
+	gpio_node = ofnode_find_subnode(dev_ofnode(dev), "gpio");
+	if (ofnode_valid(gpio_node)) {
+		ret = device_bind_driver_to_node(dev, PALMAS_GPIO_DRIVER,
+						 "gpio", gpio_node, NULL);
+		if (ret)
+			log_err("cannot bind GPIOs (ret = %d)\n", ret);
 	}
 
 	dev_for_each_subnode(subnode, dev) {

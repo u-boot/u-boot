@@ -3,6 +3,8 @@
  * Copyright 2022 NXP
  */
 
+#include "imx93-u-boot.dtsi"
+
 / {
 	wdt-reboot {
 		compatible = "wdt-reboot";
@@ -129,10 +131,6 @@
 	phy-reset-gpios = <&pcal6524 16 GPIO_ACTIVE_LOW>;
 	phy-reset-duration = <15>;
 	phy-reset-post-delay = <100>;
-};
-
-&eqos {
-	compatible = "fsl,imx-eqos";
 };
 
 &ethphy1 {

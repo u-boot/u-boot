@@ -19,6 +19,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <net.h>
 #include <part.h>
 #include <search.h>
 #include <linux/ctype.h>
@@ -698,13 +699,76 @@ struct efi_device_path *create_initrd_dp(const char *dev, const char *part,
 	if (!short_fp)
 		short_fp = tmp_fp;
 
-	initrd_dp = efi_dp_append((const struct efi_device_path *)&id_dp,
-				  short_fp);
+	initrd_dp = efi_dp_concat((const struct efi_device_path *)&id_dp,
+				  short_fp, false);
 
 out:
 	efi_free_pool(tmp_dp);
 	efi_free_pool(tmp_fp);
 	return initrd_dp;
+}
+
+/**
+ * efi_boot_add_uri() - set URI load option
+ *
+ * @argc:		Number of arguments
+ * @argv:		Argument array
+ * @var_name16:		variable name buffer
+ * @var_name16_size:	variable name buffer size
+ * @lo:			pointer to the load option
+ * @file_path:		buffer to set the generated device path pointer
+ * @fp_size:		file_path size
+ * Return:		CMD_RET_SUCCESS on success,
+ *			CMD_RET_USAGE or CMD_RET_RET_FAILURE on failure
+ */
+static int efi_boot_add_uri(int argc, char *const argv[], u16 *var_name16,
+			    size_t var_name16_size, struct efi_load_option *lo,
+			    struct efi_device_path **file_path,
+			    efi_uintn_t *fp_size)
+{
+	int id;
+	char *pos;
+	char *endp;
+	u16 *label;
+	efi_uintn_t uridp_len;
+	struct efi_device_path_uri *uridp;
+
+	if (argc < 3 || lo->label)
+		return CMD_RET_USAGE;
+
+	id = (int)hextoul(argv[1], &endp);
+	if (*endp != '\0' || id > 0xffff)
+		return CMD_RET_USAGE;
+
+	label = efi_convert_string(argv[2]);
+	if (!label)
+		return CMD_RET_FAILURE;
+
+	if (!wget_validate_uri(argv[3])) {
+		printf("ERROR: invalid URI\n");
+		return CMD_RET_FAILURE;
+	}
+
+	efi_create_indexed_name(var_name16, var_name16_size, "Boot", id);
+	lo->label = label;
+
+	uridp_len = sizeof(struct efi_device_path) + strlen(argv[3]) + 1;
+	uridp = efi_alloc(uridp_len + sizeof(END));
+	if (!uridp) {
+		log_err("Out of memory\n");
+		return CMD_RET_FAILURE;
+	}
+	uridp->dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+	uridp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_URI;
+	uridp->dp.length = uridp_len;
+	strcpy(uridp->uri, argv[3]);
+	pos = (char *)uridp + uridp_len;
+	memcpy(pos, &END, sizeof(END));
+
+	*file_path = &uridp->dp;
+	*fp_size += uridp_len + sizeof(END);
+
+	return CMD_RET_SUCCESS;
 }
 
 /**
@@ -829,6 +893,21 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 			argc -= 1;
 			argv += 1;
 			break;
+		case 'u':
+			if (IS_ENABLED(CONFIG_EFI_HTTP_BOOT)) {
+				r = efi_boot_add_uri(argc, argv, var_name16,
+						     sizeof(var_name16), &lo,
+						     &file_path, &fp_size);
+				if (r != CMD_RET_SUCCESS)
+					goto out;
+				fp_free = file_path;
+				argc -= 3;
+				argv += 3;
+			} else{
+				r = CMD_RET_USAGE;
+				goto out;
+			}
+			break;
 		default:
 			r = CMD_RET_USAGE;
 			goto out;
@@ -841,7 +920,7 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
 		goto out;
 	}
 
-	final_fp = efi_dp_concat(file_path, initrd_dp);
+	final_fp = efi_dp_concat(file_path, initrd_dp, true);
 	if (!final_fp) {
 		printf("Cannot create final device path\n");
 		r = CMD_RET_FAILURE;
@@ -1335,7 +1414,7 @@ static __maybe_unused int do_efi_test_bootmgr(struct cmd_tbl *cmdtp, int flag,
 }
 
 static struct cmd_tbl cmd_efidebug_test_sub[] = {
-#ifdef CONFIG_CMD_BOOTEFI_BOOTMGR
+#ifdef CONFIG_EFI_BOOTMGR
 	U_BOOT_CMD_MKENT(bootmgr, CONFIG_SYS_MAXARGS, 1, do_efi_test_bootmgr,
 			 "", ""),
 #endif
@@ -1491,6 +1570,9 @@ U_BOOT_LONGHELP(efidebug,
 	"  -b|-B <bootid> <label> <interface> <devnum>[:<part>] <file path>\n"
 	"  -i|-I <interface> <devnum>[:<part>] <initrd file path>\n"
 	"  (-b, -i for short form device path)\n"
+#if (IS_ENABLED(CONFIG_EFI_HTTP_BOOT))
+	"  -u <bootid> <label> <uri>\n"
+#endif
 	"  -s '<optional data>'\n"
 	"efidebug boot rm <bootid#1> [<bootid#2> [<bootid#3> [...]]]\n"
 	"  - delete UEFI BootXXXX variables\n"
@@ -1526,7 +1608,7 @@ U_BOOT_LONGHELP(efidebug,
 	"  - show UEFI memory map\n"
 	"efidebug tables\n"
 	"  - show UEFI configuration tables\n"
-#ifdef CONFIG_CMD_BOOTEFI_BOOTMGR
+#ifdef CONFIG_EFI_BOOTMGR
 	"efidebug test bootmgr\n"
 	"  - run simple bootmgr for test\n"
 #endif

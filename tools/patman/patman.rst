@@ -280,7 +280,7 @@ Series-notes:
 
 Commit-notes:
     Similar, but for a single commit (patch). These notes will appear
-    immediately below the --- cut in the patch file::
+    immediately below the ``---`` cut in the patch file::
 
         Commit-notes:
         blah blah

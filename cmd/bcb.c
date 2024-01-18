@@ -25,9 +25,18 @@ enum bcb_cmd {
 	BCB_CMD_STORE,
 };
 
-static int bcb_dev = -1;
-static int bcb_part = -1;
+static const char * const fields[] = {
+	"command",
+	"status",
+	"recovery",
+	"stage"
+};
+
 static struct bootloader_message bcb __aligned(ARCH_DMA_MINALIGN) = { { 0 } };
+static struct disk_partition partition_data;
+
+static struct blk_desc *block;
+static struct disk_partition *partition = &partition_data;
 
 static int bcb_cmd_get(char *cmd)
 {
@@ -53,6 +62,9 @@ static int bcb_is_misused(int argc, char *const argv[])
 
 	switch (cmd) {
 	case BCB_CMD_LOAD:
+		if (argc != 3 && argc != 4)
+			goto err;
+		break;
 	case BCB_CMD_FIELD_SET:
 		if (argc != 3)
 			goto err;
@@ -78,7 +90,7 @@ static int bcb_is_misused(int argc, char *const argv[])
 		return -1;
 	}
 
-	if (cmd != BCB_CMD_LOAD && (bcb_dev < 0 || bcb_part < 0)) {
+	if (cmd != BCB_CMD_LOAD && !block) {
 		printf("Error: Please, load BCB first!\n");
 		return -1;
 	}
@@ -90,7 +102,7 @@ err:
 	return -1;
 }
 
-static int bcb_field_get(char *name, char **fieldp, int *sizep)
+static int bcb_field_get(const char *name, char **fieldp, int *sizep)
 {
 	if (!strcmp(name, "command")) {
 		*fieldp = bcb.command;
@@ -115,25 +127,30 @@ static int bcb_field_get(char *name, char **fieldp, int *sizep)
 	return 0;
 }
 
-static int __bcb_load(int devnum, const char *partp)
+static void __bcb_reset(void)
 {
-	struct blk_desc *desc;
-	struct disk_partition info;
-	u64 cnt;
+	block = NULL;
+	partition = &partition_data;
+	memset(&partition_data, 0, sizeof(struct disk_partition));
+	memset(&bcb, 0, sizeof(struct bootloader_message));
+}
+
+static int __bcb_initialize(const char *iface, int devnum, const char *partp)
+{
 	char *endp;
 	int part, ret;
 
-	desc = blk_get_devnum_by_uclass_id(UCLASS_MMC, devnum);
-	if (!desc) {
+	block = blk_get_dev(iface, devnum);
+	if (!block) {
 		ret = -ENODEV;
 		goto err_read_fail;
 	}
 
 	/*
-	 * always select the USER mmc hwpart in case another
+	 * always select the first hwpart in case another
 	 * blk operation selected a different hwpart
 	 */
-	ret = blk_dselect_hwpart(desc, 0);
+	ret = blk_dselect_hwpart(block, 0);
 	if (IS_ERR_VALUE(ret)) {
 		ret = -ENODEV;
 		goto err_read_fail;
@@ -141,59 +158,84 @@ static int __bcb_load(int devnum, const char *partp)
 
 	part = simple_strtoul(partp, &endp, 0);
 	if (*endp == '\0') {
-		ret = part_get_info(desc, part, &info);
+		ret = part_get_info(block, part, partition);
 		if (ret)
 			goto err_read_fail;
 	} else {
-		part = part_get_info_by_name(desc, partp, &info);
+		part = part_get_info_by_name(block, partp, partition);
 		if (part < 0) {
 			ret = part;
 			goto err_read_fail;
 		}
 	}
 
-	cnt = DIV_ROUND_UP(sizeof(struct bootloader_message), info.blksz);
-	if (cnt > info.size)
+	return CMD_RET_SUCCESS;
+
+err_read_fail:
+	printf("Error: %d %d:%s read failed (%d)\n", block->uclass_id,
+	       block->devnum, partition->name, ret);
+	__bcb_reset();
+	return CMD_RET_FAILURE;
+}
+
+static int __bcb_load(void)
+{
+	u64 cnt;
+	int ret;
+
+	cnt = DIV_ROUND_UP(sizeof(struct bootloader_message), partition->blksz);
+	if (cnt > partition->size)
 		goto err_too_small;
 
-	if (blk_dread(desc, info.start, cnt, &bcb) != cnt) {
+	if (blk_dread(block, partition->start, cnt, &bcb) != cnt) {
 		ret = -EIO;
 		goto err_read_fail;
 	}
 
-	bcb_dev = desc->devnum;
-	bcb_part = part;
-	debug("%s: Loaded from mmc %d:%d\n", __func__, bcb_dev, bcb_part);
+	debug("%s: Loaded from %d %d:%s\n", __func__, block->uclass_id,
+	      block->devnum, partition->name);
 
 	return CMD_RET_SUCCESS;
 err_read_fail:
-	printf("Error: mmc %d:%s read failed (%d)\n", devnum, partp, ret);
+	printf("Error: %d %d:%s read failed (%d)\n", block->uclass_id,
+	       block->devnum, partition->name, ret);
 	goto err;
 err_too_small:
-	printf("Error: mmc %d:%s too small!", devnum, partp);
-	goto err;
+	printf("Error: %d %d:%s too small!", block->uclass_id,
+	       block->devnum, partition->name);
 err:
-	bcb_dev = -1;
-	bcb_part = -1;
-
+	__bcb_reset();
 	return CMD_RET_FAILURE;
 }
 
 static int do_bcb_load(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
+	int ret;
+	int devnum;
 	char *endp;
-	int devnum = simple_strtoul(argv[1], &endp, 0);
+	char *iface = "mmc";
 
+	if (argc == 4) {
+		iface = argv[1];
+		argc--;
+		argv++;
+	}
+
+	devnum = simple_strtoul(argv[1], &endp, 0);
 	if (*endp != '\0') {
 		printf("Error: Device id '%s' not a number\n", argv[1]);
 		return CMD_RET_FAILURE;
 	}
 
-	return __bcb_load(devnum, argv[2]);
+	ret = __bcb_initialize(iface, devnum, argv[2]);
+	if (ret != CMD_RET_SUCCESS)
+		return ret;
+
+	return __bcb_load();
 }
 
-static int __bcb_set(char *fieldp, const char *valp)
+static int __bcb_set(const char *fieldp, const char *valp)
 {
 	int size, len;
 	char *field, *str, *found, *tmp;
@@ -293,31 +335,20 @@ static int do_bcb_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 
 static int __bcb_store(void)
 {
-	struct blk_desc *desc;
-	struct disk_partition info;
 	u64 cnt;
 	int ret;
 
-	desc = blk_get_devnum_by_uclass_id(UCLASS_MMC, bcb_dev);
-	if (!desc) {
-		ret = -ENODEV;
-		goto err;
-	}
+	cnt = DIV_ROUND_UP(sizeof(struct bootloader_message), partition->blksz);
 
-	ret = part_get_info(desc, bcb_part, &info);
-	if (ret)
-		goto err;
-
-	cnt = DIV_ROUND_UP(sizeof(struct bootloader_message), info.blksz);
-
-	if (blk_dwrite(desc, info.start, cnt, &bcb) != cnt) {
+	if (blk_dwrite(block, partition->start, cnt, &bcb) != cnt) {
 		ret = -EIO;
 		goto err;
 	}
 
 	return CMD_RET_SUCCESS;
 err:
-	printf("Error: mmc %d:%d write failed (%d)\n", bcb_dev, bcb_part, ret);
+	printf("Error: %d %d:%s write failed (%d)\n", block->uclass_id,
+	       block->devnum, partition->name, ret);
 
 	return CMD_RET_FAILURE;
 }
@@ -328,23 +359,59 @@ static int do_bcb_store(struct cmd_tbl *cmdtp, int flag, int argc,
 	return __bcb_store();
 }
 
-int bcb_write_reboot_reason(int devnum, char *partp, const char *reasonp)
+int bcb_find_partition_and_load(const char *iface, int devnum, char *partp)
 {
 	int ret;
 
-	ret = __bcb_load(devnum, partp);
+	__bcb_reset();
+
+	ret = __bcb_initialize(iface, devnum, partp);
 	if (ret != CMD_RET_SUCCESS)
 		return ret;
 
-	ret = __bcb_set("command", reasonp);
-	if (ret != CMD_RET_SUCCESS)
-		return ret;
+	return __bcb_load();
+}
 
-	ret = __bcb_store();
-	if (ret != CMD_RET_SUCCESS)
-		return ret;
+int bcb_load(struct blk_desc *block_description, struct disk_partition *disk_partition)
+{
+	__bcb_reset();
 
-	return 0;
+	block = block_description;
+	partition = disk_partition;
+
+	return __bcb_load();
+}
+
+int bcb_set(enum bcb_field field, const char *value)
+{
+	if (field > BCB_FIELD_STAGE)
+		return CMD_RET_FAILURE;
+	return __bcb_set(fields[field], value);
+}
+
+int bcb_get(enum bcb_field field, char *value_out, size_t value_size)
+{
+	int size;
+	char *field_value;
+
+	if (field > BCB_FIELD_STAGE)
+		return CMD_RET_FAILURE;
+	if (bcb_field_get(fields[field], &field_value, &size))
+		return CMD_RET_FAILURE;
+
+	strlcpy(value_out, field_value, value_size);
+
+	return CMD_RET_SUCCESS;
+}
+
+int bcb_store(void)
+{
+	return __bcb_store();
+}
+
+void bcb_reset(void)
+{
+	__bcb_reset();
 }
 
 static struct cmd_tbl cmd_bcb_sub[] = {
@@ -385,21 +452,23 @@ static int do_bcb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 U_BOOT_CMD(
 	bcb, CONFIG_SYS_MAXARGS, 1, do_bcb,
 	"Load/set/clear/test/dump/store Android BCB fields",
-	"load  <dev> <part>       - load  BCB from mmc <dev>:<part>\n"
-	"bcb set   <field> <val>      - set   BCB <field> to <val>\n"
-	"bcb clear [<field>]          - clear BCB <field> or all fields\n"
-	"bcb test  <field> <op> <val> - test  BCB <field> against <val>\n"
-	"bcb dump  <field>            - dump  BCB <field>\n"
-	"bcb store                    - store BCB back to mmc\n"
+	"load <interface> <dev> <part>  - load  BCB from <interface> <dev>:<part>\n"
+	"load <dev> <part>              - load  BCB from mmc <dev>:<part>\n"
+	"bcb set   <field> <val>        - set   BCB <field> to <val>\n"
+	"bcb clear [<field>]            - clear BCB <field> or all fields\n"
+	"bcb test  <field> <op> <val>   - test  BCB <field> against <val>\n"
+	"bcb dump  <field>              - dump  BCB <field>\n"
+	"bcb store                      - store BCB back to <interface>\n"
 	"\n"
 	"Legend:\n"
-	"<dev>   - MMC device index containing the BCB partition\n"
-	"<part>  - MMC partition index or name containing the BCB\n"
-	"<field> - one of {command,status,recovery,stage,reserved}\n"
-	"<op>    - the binary operator used in 'bcb test':\n"
-	"          '=' returns true if <val> matches the string stored in <field>\n"
-	"          '~' returns true if <val> matches a subset of <field>'s string\n"
-	"<val>   - string/text provided as input to bcb {set,test}\n"
-	"          NOTE: any ':' character in <val> will be replaced by line feed\n"
-	"          during 'bcb set' and used as separator by upper layers\n"
+	"<interface> - storage device interface (virtio, mmc, etc)\n"
+	"<dev>       - storage device index containing the BCB partition\n"
+	"<part>      - partition index or name containing the BCB\n"
+	"<field>     - one of {command,status,recovery,stage,reserved}\n"
+	"<op>        - the binary operator used in 'bcb test':\n"
+	"              '=' returns true if <val> matches the string stored in <field>\n"
+	"              '~' returns true if <val> matches a subset of <field>'s string\n"
+	"<val>       - string/text provided as input to bcb {set,test}\n"
+	"              NOTE: any ':' character in <val> will be replaced by line feed\n"
+	"              during 'bcb set' and used as separator by upper layers\n"
 );

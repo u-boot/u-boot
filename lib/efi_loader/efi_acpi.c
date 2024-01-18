@@ -5,7 +5,6 @@
  *  Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
 #include <efi_loader.h>
 #include <log.h>
 #include <mapmem.h>

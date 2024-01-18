@@ -9,7 +9,6 @@
 
 #ifdef CONFIG_FSL_IFC
 #include <config.h>
-#include <common.h>
 #include <part.h>
 #ifdef CONFIG_ARM
 #include <asm/arch/soc.h>

@@ -16,6 +16,7 @@
 #include <dm.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
+#include <malloc.h>
 
 /**
  * struct efi_mgr_priv - private info for the efi-mgr driver
@@ -65,6 +66,7 @@ static int efi_mgr_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 	bootorder = efi_get_var(u"BootOrder", &efi_global_variable_guid,
 				&size);
 	if (bootorder) {
+		free(bootorder);
 		bflow->state = BOOTFLOWST_READY;
 		return 0;
 	}
@@ -85,7 +87,7 @@ static int efi_mgr_boot(struct udevice *dev, struct bootflow *bflow)
 	int ret;
 
 	/* Booting is handled by the 'bootefi bootmgr' command */
-	ret = run_command("bootefi bootmgr", 0);
+	ret = efi_bootmgr_run(EFI_FDT_USE_INTERNAL);
 
 	return 0;
 }

@@ -22,7 +22,7 @@ This example makes use of the 'loadables' field::
                 load = <0xa0000000>;
                 entry = <0xa0000000>;
                 hash-1 {
-                    algo = "md5";
+                    algo = "sha256";
                 };
             };
 
@@ -34,7 +34,7 @@ This example makes use of the 'loadables' field::
                 compression = "none";
                 load = <0xb0000000>;
                 hash-1 {
-                    algo = "md5";
+                    algo = "sha256";
                 };
             };
 
@@ -46,7 +46,7 @@ This example makes use of the 'loadables' field::
                 compression = "none";
                 load = <0xb0400000>;
                 hash-1 {
-                    algo = "md5";
+                    algo = "sha256";
                 };
             };
 
@@ -60,7 +60,7 @@ This example makes use of the 'loadables' field::
                 load = <0xa0000000>;
                 entry = <0xa0000000>;
                 hash-1 {
-                    algo = "md5";
+                    algo = "sha256";
                 };
             };
         };

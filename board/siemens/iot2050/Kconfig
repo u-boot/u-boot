@@ -6,16 +6,6 @@
 #   Le Jin <le.jin@siemens.com>
 #   Jan Kiszka <jan.kiszka@siemens.com>
 
-config TARGET_IOT2050_A53
-	bool "IOT2050 running on A53"
-	select ARM64
-	select SOC_K3_AM654
-	select BOARD_LATE_INIT
-	select SYS_DISABLE_DCACHE_OPS
-	select BINMAN
-	help
-	  This builds U-Boot for the IOT2050 devices.
-
 if TARGET_IOT2050_A53
 
 config SYS_BOARD

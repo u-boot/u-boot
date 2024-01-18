@@ -135,6 +135,13 @@ config RESET_MTMIPS
 	help
 	  Support for reset controller on MediaTek MIPS platform.
 
+config RESET_NPCM
+	bool "Reset controller driver for Nuvoton BMCs"
+	depends on DM_RESET && ARCH_NPCM
+	default y
+	help
+	  Support for reset controller on Nuvotom BMCs.
+
 config RESET_SUNXI
 	bool "RESET support for Allwinner SoCs"
 	depends on DM_RESET && ARCH_SUNXI
@@ -155,13 +162,6 @@ config RESET_IMX7
 	default y
 	help
 	  Support for reset controller on i.MX7/8 SoCs.
-
-config RESET_QCOM
-	bool "Reset driver for Qualcomm SoCs"
-	depends on DM_RESET && (ARCH_SNAPDRAGON || ARCH_IPQ40XX)
-	default y
-	help
-	  Support for reset controller on Qualcomm SoCs.
 
 config RESET_SIFIVE
 	bool "Reset Driver for SiFive SoC's"

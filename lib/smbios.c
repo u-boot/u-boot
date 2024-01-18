@@ -5,15 +5,17 @@
  * Adapted from coreboot src/arch/x86/smbios.c
  */
 
-#include <common.h>
 #include <dm.h>
 #include <env.h>
 #include <linux/stringify.h>
+#include <linux/string.h>
 #include <mapmem.h>
 #include <smbios.h>
 #include <sysinfo.h>
 #include <tables_csum.h>
 #include <version.h>
+#include <malloc.h>
+#include <dm/ofnode.h>
 #ifdef CONFIG_CPU
 #include <cpu.h>
 #include <dm/uclass-internal.h>
@@ -42,6 +44,25 @@
 #define U_BOOT_DMI_DATE U_BOOT_DMI_MONTH "/" U_BOOT_DMI_DAY "/" U_BOOT_DMI_YEAR
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/**
+ * struct map_sysinfo - Mapping of sysinfo strings to DT
+ *
+ * @sysinfo_str: sysinfo string
+ * @dt_str: DT string
+ * @max: Max index of the tokenized string to pick. Counting starts from 0
+ *
+ */
+struct map_sysinfo {
+	const char *sysinfo_str;
+	const char *dt_str;
+	int max;
+};
+
+static const struct map_sysinfo sysinfo_to_dt[] = {
+	{ .sysinfo_str = "product", .dt_str = "model", 2 },
+	{ .sysinfo_str = "manufacturer", .dt_str = "compatible", 1 },
+};
 
 /**
  * struct smbios_ctx - context for writing SMBIOS tables
@@ -87,6 +108,18 @@ struct smbios_write_method {
 	const char *subnode_name;
 };
 
+static const struct map_sysinfo *convert_sysinfo_to_dt(const char *sysinfo_str)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(sysinfo_to_dt); i++) {
+		if (!strcmp(sysinfo_str, sysinfo_to_dt[i].sysinfo_str))
+			return &sysinfo_to_dt[i];
+	}
+
+	return NULL;
+}
+
 /**
  * smbios_add_string() - add a string to the string area
  *
@@ -101,9 +134,6 @@ static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
 {
 	int i = 1;
 	char *p = ctx->eos;
-
-	if (!*str)
-		str = "Unknown";
 
 	for (;;) {
 		if (!*p) {
@@ -128,31 +158,88 @@ static int smbios_add_string(struct smbios_ctx *ctx, const char *str)
 }
 
 /**
+ * get_str_from_dt - Get a substring from a DT property.
+ *                   After finding the property in the DT, the function
+ *                   will parse comma-separated values and return the value.
+ *                   If nprop->max exceeds the number of comma-separated
+ *                   elements, the last non NULL value will be returned.
+ *                   Counting starts from zero.
+ *
+ * @nprop: sysinfo property to use
+ * @str: pointer to fill with data
+ * @size: str buffer length
+ */
+static
+void get_str_from_dt(const struct map_sysinfo *nprop, char *str, size_t size)
+{
+	const char *dt_str;
+	int cnt = 0;
+	char *token;
+
+	memset(str, 0, size);
+	if (!nprop || !nprop->max)
+		return;
+
+	dt_str = ofnode_read_string(ofnode_root(), nprop->dt_str);
+	if (!dt_str)
+		return;
+
+	memcpy(str, dt_str, size);
+	token = strtok(str, ",");
+	while (token && cnt < nprop->max) {
+		strlcpy(str, token, strlen(token) + 1);
+		token = strtok(NULL, ",");
+		cnt++;
+	}
+}
+
+/**
  * smbios_add_prop_si() - Add a property from the devicetree or sysinfo
  *
  * Sysinfo is used if available, with a fallback to devicetree
  *
  * @ctx:	context for writing the tables
  * @prop:	property to write
+ * @dval:	Default value to use if the string is not found or is empty
  * Return:	0 if not found, else SMBIOS string number (1 or more)
  */
 static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
-			      int sysinfo_id)
+			      int sysinfo_id, const char *dval)
 {
+	int ret;
+
+	if (!dval || !*dval)
+		dval = "Unknown";
+
+	if (!prop)
+		return smbios_add_string(ctx, dval);
+
 	if (sysinfo_id && ctx->dev) {
 		char val[SMBIOS_STR_MAX];
-		int ret;
 
 		ret = sysinfo_get_str(ctx->dev, sysinfo_id, sizeof(val), val);
 		if (!ret)
 			return smbios_add_string(ctx, val);
 	}
 	if (IS_ENABLED(CONFIG_OF_CONTROL)) {
-		const char *str;
+		const char *str = NULL;
+		char str_dt[128] = { 0 };
+		/*
+		 * If the node is not valid fallback and try the entire DT
+		 * so we can at least fill in manufacturer and board type
+		 */
+		if (ofnode_valid(ctx->node)) {
+			str = ofnode_read_string(ctx->node, prop);
+		} else {
+			const struct map_sysinfo *nprop;
 
-		str = ofnode_read_string(ctx->node, prop);
-		if (str)
-			return smbios_add_string(ctx, str);
+			nprop = convert_sysinfo_to_dt(prop);
+			get_str_from_dt(nprop, str_dt, sizeof(str_dt));
+			str = (const char *)str_dt;
+		}
+
+		ret = smbios_add_string(ctx, str && *str ? str : dval);
+		return ret;
 	}
 
 	return 0;
@@ -161,12 +248,15 @@ static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
 /**
  * smbios_add_prop() - Add a property from the devicetree
  *
- * @prop:	property to write
+ * @prop:	property to write. The default string will be written if
+ *		prop is NULL
+ * @dval:	Default value to use if the string is not found or is empty
  * Return:	0 if not found, else SMBIOS string number (1 or more)
  */
-static int smbios_add_prop(struct smbios_ctx *ctx, const char *prop)
+static int smbios_add_prop(struct smbios_ctx *ctx, const char *prop,
+			   const char *dval)
 {
-	return smbios_add_prop_si(ctx, prop, SYSINFO_ID_NONE);
+	return smbios_add_prop_si(ctx, prop, SYSINFO_ID_NONE, dval);
 }
 
 static void smbios_set_eos(struct smbios_ctx *ctx, char *eos)
@@ -228,11 +318,9 @@ static int smbios_write_type0(ulong *current, int handle,
 	memset(t, 0, sizeof(struct smbios_type0));
 	fill_smbios_header(t, SMBIOS_BIOS_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
-	t->vendor = smbios_add_string(ctx, "U-Boot");
+	t->vendor = smbios_add_prop(ctx, NULL, "U-Boot");
 
-	t->bios_ver = smbios_add_prop(ctx, "version");
-	if (!t->bios_ver)
-		t->bios_ver = smbios_add_string(ctx, PLAIN_VERSION);
+	t->bios_ver = smbios_add_prop(ctx, "version", PLAIN_VERSION);
 	if (t->bios_ver)
 		gd->smbios_version = ctx->last_str;
 	log_debug("smbios_version = %p: '%s'\n", gd->smbios_version,
@@ -241,7 +329,7 @@ static int smbios_write_type0(ulong *current, int handle,
 	print_buffer((ulong)gd->smbios_version, gd->smbios_version,
 		     1, strlen(gd->smbios_version) + 1, 0);
 #endif
-	t->bios_release_date = smbios_add_string(ctx, U_BOOT_DMI_DATE);
+	t->bios_release_date = smbios_add_prop(ctx, NULL, U_BOOT_DMI_DATE);
 #ifdef CONFIG_ROM_SIZE
 	t->bios_rom_size = (CONFIG_ROM_SIZE / 65536) - 1;
 #endif
@@ -280,22 +368,19 @@ static int smbios_write_type1(ulong *current, int handle,
 	memset(t, 0, sizeof(struct smbios_type1));
 	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
-	t->manufacturer = smbios_add_prop(ctx, "manufacturer");
-	if (!t->manufacturer)
-		t->manufacturer = smbios_add_string(ctx, "Unknown");
-	t->product_name = smbios_add_prop(ctx, "product");
-	if (!t->product_name)
-		t->product_name = smbios_add_string(ctx, "Unknown Product");
+	t->manufacturer = smbios_add_prop(ctx, "manufacturer", "Unknown");
+	t->product_name = smbios_add_prop(ctx, "product", "Unknown");
 	t->version = smbios_add_prop_si(ctx, "version",
-					SYSINFO_ID_SMBIOS_SYSTEM_VERSION);
+					SYSINFO_ID_SMBIOS_SYSTEM_VERSION,
+					"Unknown");
 	if (serial_str) {
-		t->serial_number = smbios_add_string(ctx, serial_str);
+		t->serial_number = smbios_add_prop(ctx, NULL, serial_str);
 		strncpy((char *)t->uuid, serial_str, sizeof(t->uuid));
 	} else {
-		t->serial_number = smbios_add_prop(ctx, "serial");
+		t->serial_number = smbios_add_prop(ctx, "serial", "Unknown");
 	}
-	t->sku_number = smbios_add_prop(ctx, "sku");
-	t->family = smbios_add_prop(ctx, "family");
+	t->sku_number = smbios_add_prop(ctx, "sku", "Unknown");
+	t->family = smbios_add_prop(ctx, "family", "Unknown");
 
 	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
@@ -314,15 +399,12 @@ static int smbios_write_type2(ulong *current, int handle,
 	memset(t, 0, sizeof(struct smbios_type2));
 	fill_smbios_header(t, SMBIOS_BOARD_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
-	t->manufacturer = smbios_add_prop(ctx, "manufacturer");
-	if (!t->manufacturer)
-		t->manufacturer = smbios_add_string(ctx, "Unknown");
-	t->product_name = smbios_add_prop(ctx, "product");
-	if (!t->product_name)
-		t->product_name = smbios_add_string(ctx, "Unknown Product");
+	t->manufacturer = smbios_add_prop(ctx, "manufacturer", "Unknown");
+	t->product_name = smbios_add_prop(ctx, "product", "Unknown");
 	t->version = smbios_add_prop_si(ctx, "version",
-					SYSINFO_ID_SMBIOS_BASEBOARD_VERSION);
-	t->asset_tag_number = smbios_add_prop(ctx, "asset-tag");
+					SYSINFO_ID_SMBIOS_BASEBOARD_VERSION,
+					"Unknown");
+	t->asset_tag_number = smbios_add_prop(ctx, "asset-tag", "Unknown");
 	t->feature_flags = SMBIOS_BOARD_FEATURE_HOSTING;
 	t->board_type = SMBIOS_BOARD_MOTHERBOARD;
 
@@ -343,9 +425,7 @@ static int smbios_write_type3(ulong *current, int handle,
 	memset(t, 0, sizeof(struct smbios_type3));
 	fill_smbios_header(t, SMBIOS_SYSTEM_ENCLOSURE, len, handle);
 	smbios_set_eos(ctx, t->eos);
-	t->manufacturer = smbios_add_prop(ctx, "manufacturer");
-	if (!t->manufacturer)
-		t->manufacturer = smbios_add_string(ctx, "Unknown");
+	t->manufacturer = smbios_add_prop(ctx, "manufacturer", "Unknown");
 	t->chassis_type = SMBIOS_ENCLOSURE_DESKTOP;
 	t->bootup_state = SMBIOS_STATE_SAFE;
 	t->power_supply_state = SMBIOS_STATE_SAFE;
@@ -387,9 +467,10 @@ static void smbios_write_type4_dm(struct smbios_type4 *t,
 	}
 #endif
 
-	t->processor_family = processor_family;
-	t->processor_manufacturer = smbios_add_string(ctx, vendor);
-	t->processor_version = smbios_add_string(ctx, name);
+	t->processor_family = 0xfe;
+	t->processor_family2 = processor_family;
+	t->processor_manufacturer = smbios_add_prop(ctx, NULL, vendor);
+	t->processor_version = smbios_add_prop(ctx, NULL, name);
 }
 
 static int smbios_write_type4(ulong *current, int handle,
@@ -409,7 +490,6 @@ static int smbios_write_type4(ulong *current, int handle,
 	t->l1_cache_handle = 0xffff;
 	t->l2_cache_handle = 0xffff;
 	t->l3_cache_handle = 0xffff;
-	t->processor_family2 = t->processor_family;
 
 	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
@@ -464,15 +544,13 @@ static struct smbios_write_method smbios_write_funcs[] = {
 ulong write_smbios_table(ulong addr)
 {
 	ofnode parent_node = ofnode_null();
-	struct smbios_entry *se;
+	ulong table_addr, start_addr;
+	struct smbios3_entry *se;
 	struct smbios_ctx ctx;
-	ulong table_addr;
 	ulong tables;
 	int len = 0;
 	int max_struct_size = 0;
 	int handle = 0;
-	char *istart;
-	int isize;
 	int i;
 
 	ctx.node = ofnode_null();
@@ -484,14 +562,10 @@ ulong write_smbios_table(ulong addr)
 		ctx.dev = NULL;
 	}
 
-	/* 16 byte align the table address */
-	addr = ALIGN(addr, 16);
+	start_addr = addr;
 
-	se = map_sysmem(addr, sizeof(struct smbios_entry));
-	memset(se, 0, sizeof(struct smbios_entry));
-
-	addr += sizeof(struct smbios_entry);
-	addr = ALIGN(addr, 16);
+	/* move past the (so-far-unwritten) header to start writing structs */
+	addr = ALIGN(addr + sizeof(struct smbios3_entry), 16);
 	tables = addr;
 
 	/* populate minimum required tables */
@@ -509,40 +583,25 @@ ulong write_smbios_table(ulong addr)
 		len += tmp;
 	}
 
-	memcpy(se->anchor, "_SM_", 4);
-	se->length = sizeof(struct smbios_entry);
-	se->major_ver = SMBIOS_MAJOR_VER;
-	se->minor_ver = SMBIOS_MINOR_VER;
-	se->max_struct_size = max_struct_size;
-	memcpy(se->intermediate_anchor, "_DMI_", 5);
-	se->struct_table_length = len;
-
 	/*
 	 * We must use a pointer here so things work correctly on sandbox. The
 	 * user of this table is not aware of the mapping of addresses to
 	 * sandbox's DRAM buffer.
 	 */
 	table_addr = (ulong)map_sysmem(tables, 0);
-	if (sizeof(table_addr) > sizeof(u32) && table_addr > (ulong)UINT_MAX) {
-		/*
-		 * We need to put this >32-bit pointer into the table but the
-		 * field is only 32 bits wide.
-		 */
-		printf("WARNING: SMBIOS table_address overflow %llx\n",
-		       (unsigned long long)table_addr);
-		addr = 0;
-		goto out;
-	}
+
+	/* now go back and write the SMBIOS3 header */
+	se = map_sysmem(start_addr, sizeof(struct smbios_entry));
+	memset(se, '\0', sizeof(struct smbios_entry));
+	memcpy(se->anchor, "_SM3_", 5);
+	se->length = sizeof(struct smbios3_entry);
+	se->major_ver = SMBIOS_MAJOR_VER;
+	se->minor_ver = SMBIOS_MINOR_VER;
+	se->doc_rev = 0;
+	se->entry_point_rev = 1;
+	se->max_struct_size = len;
 	se->struct_table_address = table_addr;
-
-	se->struct_count = handle;
-
-	/* calculate checksums */
-	istart = (char *)se + SMBIOS_INTERMEDIATE_OFFSET;
-	isize = sizeof(struct smbios_entry) - SMBIOS_INTERMEDIATE_OFFSET;
-	se->intermediate_checksum = table_compute_checksum(istart, isize);
-	se->checksum = table_compute_checksum(se, sizeof(struct smbios_entry));
-out:
+	se->checksum = table_compute_checksum(se, sizeof(struct smbios3_entry));
 	unmap_sysmem(se);
 
 	return addr;

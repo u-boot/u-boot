@@ -31,14 +31,13 @@
 #include <linux/usb/gadget.h>
 #include <linux/bitfield.h>
 #include <linux/math64.h>
+#include <linux/time.h>
 
 #include "core.h"
 #include "gadget.h"
 #include "io.h"
 
 #include "linux-compat.h"
-
-#define NSEC_PER_SEC	1000000000L
 
 static LIST_HEAD(dwc3_list);
 /* -------------------------------------------------------------------------- */

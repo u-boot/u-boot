@@ -85,6 +85,13 @@ int console_record_readline(char *str, int maxlen);
 int console_record_avail(void);
 
 /**
+ * console_record_isempty() - Returns if console output is empty
+ *
+ * Return: true if empty
+ */
+bool console_record_isempty(void);
+
+/**
  * console_in_puts() - Write a string to the console input buffer
  *
  * This writes the given string to the console_in buffer which will then be
@@ -131,6 +138,12 @@ static inline int console_in_puts(const char *str)
 	return 0;
 }
 
+static inline bool console_record_isempty(void)
+{
+	/* Always empty */
+	return true;
+}
+
 #endif /* !CONFIG_CONSOLE_RECORD */
 
 /**
@@ -155,6 +168,16 @@ int console_announce_r(void);
  * @s: String to output
  */
 void console_puts_select_stderr(bool serial_only, const char *s);
+
+/**
+ * console_clear() - Clear the console
+ *
+ * Uses an ANSI sequence to clear the display, failing back to clearing the
+ * video display directly if !CONFIG_VIDEO_ANSI
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int console_clear(void);
 
 /*
  * CONSOLE multiplexing.

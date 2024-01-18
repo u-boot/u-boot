@@ -19,6 +19,8 @@ CONFIG_LEGACY_IMAGE_FORMAT=y
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTDELAY=5
 CONFIG_BOOTCOMMAND="if part number mmc 0 vbmeta is_avb; then  echo MMC with vbmeta partition detected.;  echo starting Android Verified boot.;  avb init 0;   if avb verify; then     set bootargs $bootargs $avb_bootargs;     part start mmc 0 boot boot_start;     part size mmc 0 boot boot_size;     mmc read ${load_addr} ${boot_start} ${boot_size};     bootm ${load_addr} ${load_addr} ${fdt_addr_r};   else;     echo AVB verification failed.;     exit;   fi; elif part number mmc 0 system is_non_avb_android; then   booti ${kernel_addr_r} ${initrd_addr_r} ${fdt_addr_r};else;  echo Booting FIT image.;  bootm ${load_addr} ${load_addr} ${fdt_addr_r}; fi;"
+CONFIG_SYS_CBSIZE=512
+CONFIG_SYS_PBSIZE=544
 # CONFIG_DISPLAY_CPUINFO is not set
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_AVB_VERIFY=y
@@ -26,15 +28,12 @@ CONFIG_AVB_BUF_ADDR=0x90000000
 CONFIG_AVB_BUF_SIZE=0x10000000
 CONFIG_SYS_PROMPT="TOTAL_COMPUTE# "
 CONFIG_SYS_MAXARGS=64
-CONFIG_SYS_CBSIZE=512
-CONFIG_SYS_PBSIZE=544
 # CONFIG_CMD_CONSOLE is not set
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_EDITENV is not set
 CONFIG_CMD_MEMTEST=y
 CONFIG_CMD_ARMFLASH=y
 CONFIG_CMD_GPT=y
-# CONFIG_RANDOM_UUID is not set
 # CONFIG_CMD_LOADS is not set
 CONFIG_CMD_MMC=y
 # CONFIG_CMD_ITEST is not set
@@ -60,4 +59,5 @@ CONFIG_SYS_FLASH_EMPTY_INFO=y
 CONFIG_SYS_FLASH_PROTECTION=y
 CONFIG_SYS_FLASH_CFI=y
 CONFIG_SYS_MAX_FLASH_SECT=256
+# CONFIG_RANDOM_UUID is not set
 CONFIG_LIBAVB=y

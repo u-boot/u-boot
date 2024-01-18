@@ -116,15 +116,15 @@ static int rsa_engine_get_pub_key(const char *keydir, const char *name,
 		if (keydir)
 			if (strstr(keydir, "object="))
 				snprintf(key_id, sizeof(key_id),
-					 "pkcs11:%s;type=public",
+					 "%s;type=public",
 					 keydir);
 			else
 				snprintf(key_id, sizeof(key_id),
-					 "pkcs11:%s;object=%s;type=public",
+					 "%s;object=%s;type=public",
 					 keydir, name);
 		else
 			snprintf(key_id, sizeof(key_id),
-				 "pkcs11:object=%s;type=public",
+				 "object=%s;type=public",
 				 name);
 	} else if (engine_id) {
 		if (keydir)
@@ -238,15 +238,15 @@ static int rsa_engine_get_priv_key(const char *keydir, const char *name,
 		if (keydir)
 			if (strstr(keydir, "object="))
 				snprintf(key_id, sizeof(key_id),
-					 "pkcs11:%s;type=private",
+					 "%s;type=private",
 					 keydir);
 			else
 				snprintf(key_id, sizeof(key_id),
-					 "pkcs11:%s;object=%s;type=private",
+					 "%s;object=%s;type=private",
 					 keydir, name);
 		else
 			snprintf(key_id, sizeof(key_id),
-				 "pkcs11:object=%s;type=private",
+				 "object=%s;type=private",
 				 name);
 	} else if (engine_id) {
 		if (keydir && name)
@@ -317,7 +317,8 @@ static int rsa_engine_init(const char *engine_id, ENGINE **pe)
 
 	e = ENGINE_by_id(engine_id);
 	if (!e) {
-		fprintf(stderr, "Engine isn't available\n");
+		fprintf(stderr, "Engine '%s' isn't available\n", engine_id);
+		ERR_print_errors_fp(stderr);
 		return -1;
 	}
 

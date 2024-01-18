@@ -4,12 +4,12 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <mpc8xx.h>
 #include <asm/global_data.h>
 #include <asm/processor.h>
 #include <asm/io.h>
+#include <asm/immap_8xx.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -612,41 +612,86 @@ int boot_get_setup(struct bootm_headers *images, uint8_t arch, ulong *setup_star
 #define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */
 #define IMAGE_FORMAT_ANDROID	0x03	/* Android boot image */
 
-ulong genimg_get_kernel_addr_fit(char * const img_addr,
-			         const char **fit_uname_config,
-			         const char **fit_uname_kernel);
+/**
+ * genimg_get_kernel_addr_fit() - Parse FIT specifier
+ *
+ * Get the real kernel start address from a string which is normally the first
+ * argv of bootm/bootz
+ *
+ * These cases are dealt with, based on the value of @img_addr:
+ *    NULL: Returns image_load_addr, does not set last two args
+ *    "<addr>": Returns address
+ *
+ * For FIT:
+ *    "[<addr>]#<conf>": Returns address (or image_load_addr),
+ *	sets fit_uname_config to config name
+ *    "[<addr>]:<subimage>": Returns address (or image_load_addr) and sets
+ *	fit_uname_kernel to the subimage name
+ *
+ * @img_addr: a string might contain real image address (or NULL)
+ * @fit_uname_config: Returns configuration unit name
+ * @fit_uname_kernel: Returns subimage name
+ *
+ * Returns: kernel start address
+ */
+ulong genimg_get_kernel_addr_fit(const char *const img_addr,
+				 const char **fit_uname_config,
+				 const char **fit_uname_kernel);
+
 ulong genimg_get_kernel_addr(char * const img_addr);
 int genimg_get_format(const void *img_addr);
 int genimg_has_config(struct bootm_headers *images);
 
-int boot_get_fpga(int argc, char *const argv[], struct bootm_headers *images,
-		  uint8_t arch, const ulong *ld_start, ulong * const ld_len);
-int boot_get_ramdisk(int argc, char *const argv[], struct bootm_headers *images,
-		     uint8_t arch, ulong *rd_start, ulong *rd_end);
+/**
+ * boot_get_fpga() - Locate the FPGA image
+ *
+ * @images: Information about images being loaded
+ * Return 0 if OK, non-zero on failure
+ */
+int boot_get_fpga(struct bootm_headers *images);
 
 /**
- * boot_get_loadable - routine to load a list of binaries to memory
- * @argc: Ignored Argument
- * @argv: Ignored Argument
+ * boot_get_ramdisk() - Locate the ramdisk
+ *
+ * @select: address or name of ramdisk to use, or NULL for default
  * @images: pointer to the bootm images structure
- * @arch: expected architecture for the image
- * @ld_start: Ignored Argument
- * @ld_len: Ignored Argument
+ * @arch: expected ramdisk architecture
+ * @rd_start: pointer to a ulong variable, will hold ramdisk start address
+ * @rd_end: pointer to a ulong variable, will hold ramdisk end
  *
- * boot_get_loadable() will take the given FIT configuration, and look
- * for a field named "loadables".  Loadables, is a list of elements in
- * the FIT given as strings.  exe:
+ * boot_get_ramdisk() is responsible for finding a valid ramdisk image.
+ * Currently supported are the following ramdisk sources:
+ *      - multicomponent kernel/ramdisk image,
+ *      - commandline provided address of decicated ramdisk image.
+ *
+ * returns:
+ *     0, if ramdisk image was found and valid, or skiped
+ *     rd_start and rd_end are set to ramdisk start/end addresses if
+ *     ramdisk image is found and valid
+ *
+ *     1, if ramdisk image is found but corrupted, or invalid
+ *     rd_start and rd_end are set to 0 if no ramdisk exists
+ */
+int boot_get_ramdisk(char const *select, struct bootm_headers *images,
+		     uint arch, ulong *rd_start, ulong *rd_end);
+
+/**
+ * boot_get_loadable() - load a list of binaries to memory
+ *
+ * @images: pointer to the bootm images structure
+ *
+ * Takes the given FIT configuration, then looks for a field named
+ * "loadables", a list of elements in the FIT given as strings, e.g.:
  *   loadables = "linux_kernel", "fdt-2";
- * this function will attempt to parse each string, and load the
- * corresponding element from the FIT into memory.  Once placed,
- * no aditional actions are taken.
  *
- * @return:
+ * Each string is parsed, loading the corresponding element from the FIT into
+ * memory.  Once placed, no additional actions are taken.
+ *
+ * Return:
  *     0, if only valid images or no images are found
  *     error code, if an error occurs during fit_image_load
  */
-int boot_get_loadable(int argc, char *const argv[], struct bootm_headers *images,
-		      uint8_t arch, const ulong *ld_start, ulong *const ld_len);
+int boot_get_loadable(struct bootm_headers *images);
 
 int boot_get_setup_fit(struct bootm_headers *images, uint8_t arch,
 		       ulong *setup_start, ulong *setup_len);
@@ -705,7 +750,13 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
  * @param load_op	Decribes what to do with the load address
  * @param datap		Returns address of loaded image
  * @param lenp		Returns length of loaded image
- * Return: node offset of image, or -ve error code on error
+ * Return: node offset of image, or -ve error code on error:
+ *   -ENOEXEC - unsupported architecture
+ *   -ENOENT - could not find image / subimage
+ *   -EACCES - hash, signature or decryptions failure
+ *   -EBADF - invalid OS or image type, or cannot get image load-address
+ *   -EXDEV - memory overwritten / overlap
+ *   -NOEXEC - image decompression error, or invalid FDT
  */
 int fit_image_load(struct bootm_headers *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
@@ -756,9 +807,33 @@ int image_locate_script(void *buf, int size, const char *fit_uname,
 int fit_get_node_from_config(struct bootm_headers *images,
 			     const char *prop_name, ulong addr);
 
-int boot_get_fdt(int flag, int argc, char *const argv[], uint8_t arch,
-		 struct bootm_headers *images,
-		 char **of_flat_tree, ulong *of_size);
+/**
+ * boot_get_fdt() - locate FDT devicetree to use for booting
+ *
+ * @buf: Pointer to image
+ * @select: FDT to select (this is normally argv[2] of the bootm command)
+ * @arch: architecture (IH_ARCH_...)
+ * @images: pointer to the bootm images structure
+ * @of_flat_tree: pointer to a char* variable, will hold fdt start address
+ * @of_size: pointer to a ulong variable, will hold fdt length
+ *
+ * boot_get_fdt() is responsible for finding a valid flat device tree image.
+ * Currently supported are the following FDT sources:
+ *      - multicomponent kernel/ramdisk/FDT image,
+ *      - commandline provided address of decicated FDT image.
+ *
+ * Return:
+ *     0, if fdt image was found and valid, or skipped
+ *     of_flat_tree and of_size are set to fdt start address and length if
+ *     fdt image is found and valid
+ *
+ *     1, if fdt image is found but corrupted
+ *     of_flat_tree and of_size are set to 0 if no fdt exists
+ */
+int boot_get_fdt(void *buf, const char *select, uint arch,
+		 struct bootm_headers *images, char **of_flat_tree,
+		 ulong *of_size);
+
 void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob);
 int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size);
 
@@ -936,7 +1011,7 @@ int image_decomp_type(const unsigned char *buf, ulong len);
  * @load:	Destination load address in U-Boot memory
  * @image_start Image start address (where we are decompressing from)
  * @type:	OS type (IH_OS_...)
- * @load_bug:	Place to decompress to
+ * @load_buf:	Place to decompress to
  * @image_buf:	Address to decompress from
  * @image_len:	Number of bytes in @image_buf to decompress
  * @unc_len:	Available space for decompression
@@ -953,12 +1028,11 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
  *
  * @images:	Images information
  * @blob:	FDT to update
- * @of_size:	Size of the FDT
  * @lmb:	Points to logical memory block structure
  * Return: 0 if ok, <0 on failure
  */
 int image_setup_libfdt(struct bootm_headers *images, void *blob,
-		       int of_size, struct lmb *lmb);
+		       struct lmb *lmb);
 
 /**
  * Set up the FDT to use for booting a kernel
@@ -1391,7 +1465,7 @@ int calculate_hash(const void *data, int data_len, const char *algo,
  * device
  */
 #if defined(USE_HOSTCC)
-# if defined(CONFIG_FIT_SIGNATURE)
+# if CONFIG_IS_ENABLED(FIT_SIGNATURE)
 #  define IMAGE_ENABLE_SIGN	1
 #  define FIT_IMAGE_ENABLE_VERIFY	1
 #  include <openssl/evp.h>
