@@ -7,6 +7,8 @@
 #ifndef __SOC_H
 #define __SOC_H
 
+#include <linux/errno.h>
+
 #define SOC_MAX_STR_SIZE	128
 
 struct udevice;

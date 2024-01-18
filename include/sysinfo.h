@@ -7,6 +7,8 @@
 #ifndef __SYSINFO_H__
 #define __SYSINFO_H__
 
+#include <linux/errno.h>
+
 struct udevice;
 
 /*

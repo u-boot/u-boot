@@ -7,6 +7,8 @@
 #ifndef _INCLUDE_REGULATOR_H_
 #define _INCLUDE_REGULATOR_H_
 
+#include <linux/errno.h>
+
 struct udevice;
 
 /**
