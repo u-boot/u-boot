@@ -11,7 +11,6 @@
 #include <spl_gpio.h>
 #include <syscon.h>
 #include <asm/armv8/mmu.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
@@ -22,8 +21,6 @@
 #include <linux/bitops.h>
 #include <linux/printk.h>
 #include <power/regulator.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define GRF_EMMCCORE_CON11 0xff77f02c
 #define GRF_BASE	0xff770000
