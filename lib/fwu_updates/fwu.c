@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * Copyright (c) 2022, Linaro Limited
+ * Copyright (c) 2024, Linaro Limited
  */
 
 #include <dm.h>
