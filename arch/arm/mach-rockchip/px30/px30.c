@@ -445,22 +445,26 @@ void board_debug_uart_init(void)
 #endif /* CONFIG_DEBUG_UART_BOARD_INIT */
 
 #if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
+const char * const spl_boot_devices[BOOT_DEVICE_NONE + 1] = {
+	[BOOT_DEVICE_MMC2] = "/mmc@ff370000",
+	[BOOT_DEVICE_MMC1] = "/mmc@ff390000",
+};
+
 const char *spl_decode_boot_device(u32 boot_device)
 {
-	int i;
-	static const struct {
-		u32 boot_device;
-		const char *ofpath;
-	} spl_boot_devices_tbl[] = {
-		{ BOOT_DEVICE_MMC2, "/mmc@ff370000" },
-		{ BOOT_DEVICE_MMC1, "/mmc@ff390000" },
-	};
+	const char *spl_bootdevice_ofpath = NULL;
 
-	for (i = 0; i < ARRAY_SIZE(spl_boot_devices_tbl); ++i)
-		if (spl_boot_devices_tbl[i].boot_device == boot_device)
-			return spl_boot_devices_tbl[i].ofpath;
+	if (boot_device < ARRAY_SIZE(spl_boot_devices))
+		spl_bootdevice_ofpath = spl_boot_devices[boot_device];
 
-	return NULL;
+	if (spl_bootdevice_ofpath)
+		debug("%s: spl_bootdevice_id %x maps to '%s'\n",
+		      __func__, boot_device, spl_bootdevice_ofpath);
+	else
+		debug("%s: failed to resolve spl_bootdevice_id %x\n",
+		      __func__, boot_device);
+
+	return spl_bootdevice_ofpath;
 }
 
 void spl_perform_fixups(struct spl_image_info *spl_image)
