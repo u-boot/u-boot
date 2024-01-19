@@ -543,8 +543,6 @@ static int do_bootflow_cmdline(struct cmd_tbl *cmdtp, int flag, int argc,
 	op = argv[1];
 	arg = argv[2];
 	if (*op == 's') {
-		if (argc < 3)
-			return CMD_RET_USAGE;
 		val = argv[3] ?: (const char *)BOOTFLOWCL_EMPTY;
 	}
 

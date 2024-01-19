@@ -7030,6 +7030,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFile('293_ti_board_cfg.dts')
         self.assertEqual(TI_BOARD_CONFIG_DATA, data)
 
+    def testTIBoardConfigLint(self):
+        """Test that an incorrectly linted config file would generate error"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('323_ti_board_cfg_phony.dts')
+        self.assertIn("Yamllint error", str(e.exception))
+
     def testTIBoardConfigCombined(self):
         """Test that a schema validated combined board config file can be generated"""
         data = self._DoReadFile('294_ti_board_cfg_combined.dts')

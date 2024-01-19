@@ -632,7 +632,7 @@ int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
 
 int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp)
 {
-	struct udevice *dev = *devp;
+	struct udevice *dev = *devp, *last_dev = NULL;
 	bool found;
 	int ret;
 
@@ -682,9 +682,19 @@ int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp)
 			}
 		} else {
 			ret = device_probe(dev);
+			if (!ret)
+				last_dev = dev;
 			if (ret) {
-				log_debug("Device '%s' failed to probe\n",
+				log_warning("Device '%s' failed to probe\n",
 					  dev->name);
+				if (last_dev == dev) {
+					/*
+					 * We have already tried this device
+					 * and it failed to probe. Give up.
+					 */
+					return log_msg_ret("probe", ret);
+				}
+				last_dev = dev;
 				dev = NULL;
 			}
 		}

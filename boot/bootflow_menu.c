@@ -120,7 +120,6 @@ int bootflow_menu_new(struct expo **expp)
 
 		if (ret < 0)
 			return log_msg_ret("itm", -EINVAL);
-		ret = 0;
 		priv->num_bootflows++;
 	}
 

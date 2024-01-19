@@ -361,7 +361,7 @@ static int bootflow_check(struct bootflow_iter *iter, struct bootflow *bflow)
 	}
 
 	/* Unless there is nothing more to try, move to the next device */
-	else if (ret != BF_NO_MORE_PARTS && ret != -ENOSYS) {
+	if (ret != BF_NO_MORE_PARTS && ret != -ENOSYS) {
 		log_debug("Bootdev '%s' part %d method '%s': Error %d\n",
 			  dev->name, iter->part, iter->method->name, ret);
 		/*
@@ -371,10 +371,8 @@ static int bootflow_check(struct bootflow_iter *iter, struct bootflow *bflow)
 		if (iter->flags & BOOTFLOWIF_ALL)
 			return log_msg_ret("all", ret);
 	}
-	if (ret)
-		return log_msg_ret("check", ret);
 
-	return 0;
+	return log_msg_ret("check", ret);
 }
 
 int bootflow_scan_first(struct udevice *dev, const char *label,

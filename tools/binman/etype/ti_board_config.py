@@ -9,6 +9,7 @@
 import os
 import struct
 import yaml
+import yamllint
 
 from collections import OrderedDict
 from jsonschema import validate
@@ -18,6 +19,7 @@ from binman.entry import Entry
 from binman.etype.section import Entry_section
 from dtoc import fdt_util
 from u_boot_pylib import tools
+from yamllint import config
 
 BOARDCFG = 0xB
 BOARDCFG_SEC = 0xD
@@ -244,6 +246,9 @@ class Entry_ti_board_config(Entry_section):
             with open(self._schema_file, 'r') as sch:
                 self.schema_yaml = yaml.safe_load(sch)
 
+            yaml_config = config.YamlLintConfig("extends: default")
+            for p in yamllint.linter.run(open(self._config_file, "r"), yaml_config):
+                self.Raise(f"Yamllint error: {p.line}: {p.rule}")
             try:
                 validate(self.file_yaml, self.schema_yaml)
             except Exception as e:

@@ -8,5 +8,5 @@
 
 pm-cfg:
     rev:
-        boardcfg_abi_maj : 0x0
-        boardcfg_abi_min : 0x1
+        boardcfg_abi_maj: 0x0
+        boardcfg_abi_min: 0x1

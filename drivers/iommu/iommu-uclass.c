@@ -86,16 +86,16 @@ int dev_iommu_enable(struct udevice *dev)
 		ret = dev_read_phandle_with_args(dev, "iommus",
 						 "#iommu-cells", 0, i, &args);
 		if (ret) {
-			debug("%s: dev_read_phandle_with_args failed: %d\n",
-			      __func__, ret);
+			log_err("%s: Failed to parse 'iommus' property for '%s': %d\n",
+				__func__, dev->name, ret);
 			return ret;
 		}
 
 		ret = uclass_get_device_by_ofnode(UCLASS_IOMMU, args.node,
 						  &dev_iommu);
 		if (ret) {
-			debug("%s: uclass_get_device_by_ofnode failed: %d\n",
-			      __func__, ret);
+			log_err("%s: Failed to find IOMMU device for '%s': %d\n",
+				__func__, dev->name, ret);
 			return ret;
 		}
 		dev->iommu = dev_iommu;
@@ -106,8 +106,11 @@ int dev_iommu_enable(struct udevice *dev)
 		ops = device_get_ops(dev->iommu);
 		if (ops && ops->connect) {
 			ret = ops->connect(dev);
-			if (ret)
+			if (ret) {
+				log_err("%s: Failed to connect '%s' to IOMMU '%s': %d\n",
+					__func__, dev->name, dev->iommu->name, ret);
 				return ret;
+			}
 		}
 	}
 
