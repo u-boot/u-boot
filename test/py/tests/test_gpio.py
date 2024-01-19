@@ -85,6 +85,13 @@ env__gpio_dev_config = {
         'gpio_ip_pin_clear':'66',
         'gpio_clear_value': 'value is 0',
         'gpio_set_value': 'value is 1',
+        # GPIO pin list to test gpio functionality for each pins, pin should be
+        # pin names (str)
+        'gpio_pin_list': ['gpio@1000031', 'gpio@1000032', 'gpio@20000033'],
+        # GPIO input output list for shorted gpio pins to test gpio
+        # functionality for each of pairs, where the first element is
+        # configured as input and second as output
+        'gpio_ip_op_list': [['gpio0', 'gpio1'], ['gpio2', 'gpio3']],
 }
 """
 
@@ -223,3 +230,86 @@ def test_gpio_input_generic(u_boot_console):
     response = u_boot_console.run_command(cmd)
     good_response = gpio_set_value
     assert good_response in response
+
+@pytest.mark.buildconfigspec('cmd_gpio')
+def test_gpio_pins_generic(u_boot_console):
+    """Test various gpio related functionality, such as the input, set, clear,
+       and toggle for the set of gpio pin list.
+
+       Specific set of gpio pins (by mentioning gpio pin name) configured as
+       input (mentioned as 'gpio_pin_list') to be tested for multiple gpio
+       commands.
+    """
+
+    f = u_boot_console.config.env.get('env__gpio_dev_config', False)
+    if not f:
+        pytest.skip('gpio not configured')
+
+    gpio_pins = f.get('gpio_pin_list', None)
+    if not gpio_pins:
+        pytest.skip('gpio pin list are not configured')
+
+    for gpin in gpio_pins:
+        # gpio input
+        u_boot_console.run_command(f'gpio input {gpin}')
+        expected_response = f'{gpin}: input:'
+        response = u_boot_console.run_command(f'gpio status -a {gpin}')
+        assert expected_response in response
+
+        # gpio set
+        u_boot_console.run_command(f'gpio set {gpin}')
+        expected_response = f'{gpin}: output: 1'
+        response = u_boot_console.run_command(f'gpio status -a {gpin}')
+        assert expected_response in response
+
+        # gpio clear
+        u_boot_console.run_command(f'gpio clear {gpin}')
+        expected_response = f'{gpin}: output: 0'
+        response = u_boot_console.run_command(f'gpio status -a {gpin}')
+        assert expected_response in response
+
+        # gpio toggle
+        u_boot_console.run_command(f'gpio toggle {gpin}')
+        expected_response = f'{gpin}: output: 1'
+        response = u_boot_console.run_command(f'gpio status -a {gpin}')
+        assert expected_response in response
+
+@pytest.mark.buildconfigspec('cmd_gpio')
+def test_gpio_pins_input_output_generic(u_boot_console):
+    """Test gpio related functionality such as input and output for the list of
+       shorted gpio pins provided as a pair of input and output pins. This test
+       will fail, if the gpio pins are not shorted properly.
+
+       Specific set of shorted gpio pins (by mentioning gpio pin name)
+       configured as input and output (mentioned as 'gpio_ip_op_list') as a
+       pair to be tested for gpio input output case.
+    """
+
+    f = u_boot_console.config.env.get('env__gpio_dev_config', False)
+    if not f:
+        pytest.skip('gpio not configured')
+
+    gpio_pins = f.get('gpio_ip_op_list', None)
+    if not gpio_pins:
+        pytest.skip('gpio pin list for input and output are not configured')
+
+    for gpins in gpio_pins:
+        u_boot_console.run_command(f'gpio input {gpins[0]}')
+        expected_response = f'{gpins[0]}: input:'
+        response = u_boot_console.run_command(f'gpio status -a {gpins[0]}')
+        assert expected_response in response
+
+        u_boot_console.run_command(f'gpio set {gpins[1]}')
+        expected_response = f'{gpins[1]}: output:'
+        response = u_boot_console.run_command(f'gpio status -a {gpins[1]}')
+        assert expected_response in response
+
+        u_boot_console.run_command(f'gpio clear {gpins[1]}')
+        expected_response = f'{gpins[0]}: input: 0'
+        response = u_boot_console.run_command(f'gpio status -a {gpins[0]}')
+        assert expected_response in response
+
+        u_boot_console.run_command(f'gpio set {gpins[1]}')
+        expected_response = f'{gpins[0]}: input: 1'
+        response = u_boot_console.run_command(f'gpio status -a {gpins[0]}')
+        assert expected_response in response
