@@ -731,8 +731,14 @@ int efi_disk_remove(void *ctx, struct event *event)
 	switch (id) {
 	case UCLASS_BLK:
 		desc = dev_get_uclass_plat(dev);
-		if (desc && desc->uclass_id != UCLASS_EFI_LOADER)
-			diskobj = (struct efi_disk_obj *)handle;
+		if (desc && desc->uclass_id == UCLASS_EFI_LOADER)
+			/*
+			 * EFI application/driver manages the EFI handle,
+			 * no need to delete EFI handle.
+			 */
+			return 0;
+
+		diskobj = (struct efi_disk_obj *)handle;
 		break;
 	case UCLASS_PARTITION:
 		diskobj = (struct efi_disk_obj *)handle;
@@ -744,10 +750,8 @@ int efi_disk_remove(void *ctx, struct event *event)
 		return 0;
 	}
 
-	if (diskobj) {
-		dp = diskobj->dp;
-		volume = diskobj->volume;
-	}
+	dp = diskobj->dp;
+	volume = diskobj->volume;
 
 	ret = efi_delete_handle(handle);
 	/* Do not delete DM device if there are still EFI drivers attached. */
