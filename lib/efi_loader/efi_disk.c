@@ -371,6 +371,20 @@ static int efi_fs_exists(struct blk_desc *desc, int part)
 	return 1;
 }
 
+static void efi_disk_free_diskobj(struct efi_disk_obj *diskobj)
+{
+	struct efi_device_path *dp = diskobj->dp;
+	struct efi_simple_file_system_protocol *volume = diskobj->volume;
+
+	/*
+	 * ignore error of efi_delete_handle() since this function
+	 * is expected to be called in error path.
+	 */
+	efi_delete_handle(&diskobj->header);
+	efi_free_pool(dp);
+	free(volume);
+}
+
 /**
  * efi_disk_add_dev() - create a handle for a partition or disk
  *
@@ -528,9 +542,7 @@ static efi_status_t efi_disk_add_dev(
 	}
 	return EFI_SUCCESS;
 error:
-	efi_delete_handle(&diskobj->header);
-	free(diskobj->volume);
-	free(diskobj);
+	efi_disk_free_diskobj(diskobj);
 	return ret;
 }
 
@@ -569,8 +581,7 @@ static int efi_disk_create_raw(struct udevice *dev, efi_handle_t agent_handle)
 		return ret;
 	}
 	if (efi_link_dev(&disk->header, dev)) {
-		efi_free_pool(disk->dp);
-		efi_delete_handle(&disk->header);
+		efi_disk_free_diskobj(disk);
 
 		return -EINVAL;
 	}
@@ -624,8 +635,9 @@ static int efi_disk_create_part(struct udevice *dev, efi_handle_t agent_handle)
 		return -1;
 	}
 	if (efi_link_dev(&disk->header, dev)) {
-		efi_free_pool(disk->dp);
-		efi_delete_handle(&disk->header);
+		efi_disk_free_diskobj(disk);
+
+		/* TODO: closing the parent EFI_BLOCK_IO_PROTOCOL is missing. */
 
 		return -1;
 	}
