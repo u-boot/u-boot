@@ -707,7 +707,9 @@ int efi_disk_remove(void *ctx, struct event *event)
 	struct udevice *dev = event->data.dm.dev;
 	efi_handle_t handle;
 	struct blk_desc *desc;
+	struct efi_device_path *dp = NULL;
 	struct efi_disk_obj *diskobj = NULL;
+	struct efi_simple_file_system_protocol *volume = NULL;
 	efi_status_t ret;
 
 	if (dev_tag_get_ptr(dev, DM_TAG_EFI, (void **)&handle))
@@ -718,14 +720,21 @@ int efi_disk_remove(void *ctx, struct event *event)
 	case UCLASS_BLK:
 		desc = dev_get_uclass_plat(dev);
 		if (desc && desc->uclass_id != UCLASS_EFI_LOADER)
-			diskobj = container_of(handle, struct efi_disk_obj,
-					       header);
+			diskobj = (struct efi_disk_obj *)handle;
 		break;
 	case UCLASS_PARTITION:
-		diskobj = container_of(handle, struct efi_disk_obj, header);
+		diskobj = (struct efi_disk_obj *)handle;
+
+		/* TODO: closing the parent EFI_BLOCK_IO_PROTOCOL is missing. */
+
 		break;
 	default:
 		return 0;
+	}
+
+	if (diskobj) {
+		dp = diskobj->dp;
+		volume = diskobj->volume;
 	}
 
 	ret = efi_delete_handle(handle);
@@ -733,9 +742,8 @@ int efi_disk_remove(void *ctx, struct event *event)
 	if (ret != EFI_SUCCESS)
 		return -1;
 
-	if (diskobj)
-		efi_free_pool(diskobj->dp);
-
+	efi_free_pool(dp);
+	free(volume);
 	dev_tag_del(dev, DM_TAG_EFI);
 
 	return 0;
