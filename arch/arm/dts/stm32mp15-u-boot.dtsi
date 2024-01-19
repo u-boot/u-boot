@@ -206,7 +206,7 @@
 	resets = <&rcc UART8_R>;
 };
 
-#if defined(CONFIG_STM32MP15x_STM32IMAGE)
+#if defined(CONFIG_STM32MP15X_STM32IMAGE)
 &binman {
 	u-boot-stm32 {
 		filename = "u-boot.stm32";

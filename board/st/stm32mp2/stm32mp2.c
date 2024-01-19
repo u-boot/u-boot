@@ -8,13 +8,50 @@
 #include <config.h>
 #include <env.h>
 #include <fdt_support.h>
+#include <log.h>
+#include <misc.h>
 #include <asm/global_data.h>
 #include <asm/arch/sys_proto.h>
+#include <dm/device.h>
+#include <dm/ofnode.h>
+#include <dm/uclass.h>
 
 /*
  * Get a global data pointer
  */
 DECLARE_GLOBAL_DATA_PTR;
+
+int checkboard(void)
+{
+	int ret;
+	u32 otp;
+	struct udevice *dev;
+	const char *fdt_compat;
+	int fdt_compat_len;
+
+	fdt_compat = ofnode_get_property(ofnode_root(), "compatible", &fdt_compat_len);
+
+	log_info("Board: stm32mp2 (%s)\n", fdt_compat && fdt_compat_len ? fdt_compat : "");
+
+	/* display the STMicroelectronics board identification */
+	if (CONFIG_IS_ENABLED(CMD_STBOARD)) {
+		ret = uclass_get_device_by_driver(UCLASS_MISC,
+						  DM_DRIVER_GET(stm32mp_bsec),
+						  &dev);
+		if (!ret)
+			ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_BOARD),
+					&otp, sizeof(otp));
+		if (ret > 0 && otp)
+			log_info("Board: MB%04x Var%d.%d Rev.%c-%02d\n",
+				 otp >> 16,
+				 (otp >> 12) & 0xF,
+				 (otp >> 4) & 0xF,
+				 ((otp >> 8) & 0xF) - 1 + 'A',
+				 otp & 0xF);
+	}
+
+	return 0;
+}
 
 /* board dependent setup after realloc */
 int board_init(void)

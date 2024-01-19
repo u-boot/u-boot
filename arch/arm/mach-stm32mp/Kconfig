@@ -35,9 +35,9 @@ config ENV_SIZE
 
 choice
 	prompt "Select STMicroelectronics STM32MPxxx Soc"
-	default STM32MP15x
+	default STM32MP15X
 
-config STM32MP13x
+config STM32MP13X
 	bool "Support STMicroelectronics STM32MP13x Soc"
 	select ARM_SMCCC
 	select CPU_V7A
@@ -55,7 +55,7 @@ config STM32MP13x
 		support of STMicroelectronics SOC STM32MP13x family
 		STMicroelectronics MPU with core ARMv7
 
-config STM32MP15x
+config STM32MP15X
 	bool "Support STMicroelectronics STM32MP15x Soc"
 	select ARCH_SUPPORT_PSCI
 	select BINMAN
@@ -127,7 +127,7 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
 
 config STM32_ETZPC
 	bool "STM32 Extended TrustZone Protection"
-	depends on STM32MP15x || STM32MP13x
+	depends on STM32MP15X || STM32MP13X
 	default y
 	imply BOOTP_SERVERIP
 	help
@@ -144,6 +144,7 @@ config STM32_ECDSA_VERIFY
 
 config CMD_STM32KEY
 	bool "command stm32key to fuse public key hash"
+	depends on CMDLINE
 	help
 		fuse public key hash in corresponding fuse used to authenticate
 		binary.

@@ -19,8 +19,8 @@
  * STM32MP13x: 0b111111 = 0x3F for OTP_SECURED closed device
  */
 #define STM32_OTP_CLOSE_ID		0
-#define STM32_OTP_STM32MP13x_CLOSE_MASK	0x3F
-#define STM32_OTP_STM32MP15x_CLOSE_MASK	BIT(6)
+#define STM32_OTP_STM32MP13X_CLOSE_MASK	0x3F
+#define STM32_OTP_STM32MP15X_CLOSE_MASK	BIT(6)
 
 /* PKH is the first element of the key list */
 #define STM32KEY_PKH 0
@@ -61,29 +61,29 @@ static u8 stm32key_index;
 
 static u8 get_key_nb(void)
 {
-	if (IS_ENABLED(CONFIG_STM32MP13x))
+	if (IS_ENABLED(CONFIG_STM32MP13X))
 		return ARRAY_SIZE(stm32mp13_list);
 
-	if (IS_ENABLED(CONFIG_STM32MP15x))
+	if (IS_ENABLED(CONFIG_STM32MP15X))
 		return ARRAY_SIZE(stm32mp15_list);
 }
 
 static const struct stm32key *get_key(u8 index)
 {
-	if (IS_ENABLED(CONFIG_STM32MP13x))
+	if (IS_ENABLED(CONFIG_STM32MP13X))
 		return &stm32mp13_list[index];
 
-	if (IS_ENABLED(CONFIG_STM32MP15x))
+	if (IS_ENABLED(CONFIG_STM32MP15X))
 		return &stm32mp15_list[index];
 }
 
 static u32 get_otp_close_mask(void)
 {
-	if (IS_ENABLED(CONFIG_STM32MP13x))
-		return STM32_OTP_STM32MP13x_CLOSE_MASK;
+	if (IS_ENABLED(CONFIG_STM32MP13X))
+		return STM32_OTP_STM32MP13X_CLOSE_MASK;
 
-	if (IS_ENABLED(CONFIG_STM32MP15x))
-		return STM32_OTP_STM32MP15x_CLOSE_MASK;
+	if (IS_ENABLED(CONFIG_STM32MP15X))
+		return STM32_OTP_STM32MP15X_CLOSE_MASK;
 }
 
 static int get_misc_dev(struct udevice **dev)

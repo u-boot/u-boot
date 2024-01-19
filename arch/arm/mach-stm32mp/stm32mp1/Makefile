@@ -5,8 +5,8 @@
 
 obj-y += cpu.o
 
-obj-$(CONFIG_STM32MP13x) += stm32mp13x.o
-obj-$(CONFIG_STM32MP15x) += stm32mp15x.o
+obj-$(CONFIG_STM32MP13X) += stm32mp13x.o
+obj-$(CONFIG_STM32MP15X) += stm32mp15x.o
 
 obj-$(CONFIG_STM32_ECDSA_VERIFY) += ecdsa_romapi.o
 ifdef CONFIG_SPL_BUILD

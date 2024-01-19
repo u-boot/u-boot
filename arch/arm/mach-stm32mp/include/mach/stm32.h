@@ -71,11 +71,11 @@ enum forced_boot_mode {
  * only address used before device tree parsing
  */
 
-#if defined(CONFIG_STM32MP15x) || defined(CONFIG_STM32MP13x)
+#if defined(CONFIG_STM32MP15X) || defined(CONFIG_STM32MP13X)
 #define STM32_RCC_BASE			0x50000000
 #define STM32_PWR_BASE			0x50001000
 #define STM32_SYSCFG_BASE		0x50020000
-#ifdef CONFIG_STM32MP15x
+#ifdef CONFIG_STM32MP15X
 #define STM32_DBGMCU_BASE		0x50081000
 #endif
 #define STM32_FMC2_BASE			0x58002000
@@ -88,11 +88,11 @@ enum forced_boot_mode {
 #define STM32_STGEN_BASE		0x5C008000
 #define STM32_TAMP_BASE			0x5C00A000
 
-#ifdef CONFIG_STM32MP15x
+#ifdef CONFIG_STM32MP15X
 #define STM32_USART1_BASE		0x5C000000
 #define STM32_USART2_BASE		0x4000E000
 #endif
-#ifdef CONFIG_STM32MP13x
+#ifdef CONFIG_STM32MP13X
 #define STM32_USART1_BASE		0x4c000000
 #define STM32_USART2_BASE		0x4c001000
 #endif
@@ -107,7 +107,7 @@ enum forced_boot_mode {
 #define STM32_SDMMC2_BASE		0x58007000
 #define STM32_SDMMC3_BASE		0x48004000
 
-#ifdef CONFIG_STM32MP15x
+#ifdef CONFIG_STM32MP15X
 #define STM32_SYSRAM_BASE		0x2FFC0000
 #define STM32_SYSRAM_SIZE		SZ_256K
 #endif
@@ -129,7 +129,7 @@ enum forced_boot_mode {
 /* TAMP registers */
 #define TAMP_BACKUP_REGISTER(x)		(STM32_TAMP_BASE + 0x100 + 4 * x)
 
-#ifdef CONFIG_STM32MP15x
+#ifdef CONFIG_STM32MP15X
 #define TAMP_BACKUP_MAGIC_NUMBER	TAMP_BACKUP_REGISTER(4)
 #define TAMP_BACKUP_BRANCH_ADDRESS	TAMP_BACKUP_REGISTER(5)
 #define TAMP_FWU_BOOT_INFO_REG		TAMP_BACKUP_REGISTER(10)
@@ -149,7 +149,7 @@ enum forced_boot_mode {
 #define TAMP_COPRO_STATE_CRASH		5
 #endif
 
-#ifdef CONFIG_STM32MP13x
+#ifdef CONFIG_STM32MP13X
 #define TAMP_BOOTCOUNT			TAMP_BACKUP_REGISTER(31)
 #define TAMP_BOOT_CONTEXT		TAMP_BACKUP_REGISTER(30)
 #endif
@@ -157,7 +157,7 @@ enum forced_boot_mode {
 #endif /* __ASSEMBLY__ */
 #endif /* CONFIG_STM32MP15X || CONFIG_STM32MP13X */
 
-#if CONFIG_STM32MP25X
+#ifdef CONFIG_STM32MP25X
 #define STM32_RCC_BASE			0x44200000
 #define STM32_TAMP_BASE			0x46010000
 
@@ -181,14 +181,14 @@ enum forced_boot_mode {
 #define STM32_BSEC_LOCK(id)		(STM32_BSEC_LOCK_OFFSET + (id) * 4)
 
 /* BSEC OTP index */
-#ifdef CONFIG_STM32MP15x
+#ifdef CONFIG_STM32MP15X
 #define BSEC_OTP_RPN	1
 #define BSEC_OTP_SERIAL	13
 #define BSEC_OTP_PKG	16
 #define BSEC_OTP_MAC	57
 #define BSEC_OTP_BOARD	59
 #endif
-#ifdef CONFIG_STM32MP13x
+#ifdef CONFIG_STM32MP13X
 #define BSEC_OTP_RPN	1
 #define BSEC_OTP_SERIAL	13
 #define BSEC_OTP_MAC	57
@@ -197,7 +197,9 @@ enum forced_boot_mode {
 #ifdef CONFIG_STM32MP25X
 #define BSEC_OTP_SERIAL	5
 #define BSEC_OTP_RPN	9
-#define BSEC_OTP_PKG	246
+#define BSEC_OTP_PKG	122
+#define BSEC_OTP_BOARD	246
+#define BSEC_OTP_MAC	247
 #endif
 
 #ifndef __ASSEMBLY__

@@ -28,7 +28,7 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 
-#if defined(CONFIG_STM32MP15x_STM32IMAGE) || defined(CONFIG_SPL)
+#if defined(CONFIG_STM32MP15X_STM32IMAGE) || defined(CONFIG_SPL)
 		partition@0 {
 			label = "fsbl1";
 			reg = <0x00000000 0x00040000>;
@@ -82,7 +82,7 @@
 				#address-cells = <1>;
 				#size-cells = <1>;
 
-#if defined(CONFIG_STM32MP15x_STM32IMAGE) || defined(CONFIG_SPL)
+#if defined(CONFIG_STM32MP15X_STM32IMAGE) || defined(CONFIG_SPL)
 				partition@0 {
 					label = "fsbl";
 					reg = <0x00000000 0x00200000>;

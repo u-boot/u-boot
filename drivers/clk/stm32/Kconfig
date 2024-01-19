@@ -23,7 +23,7 @@ config CLK_STM32_CORE
 config CLK_STM32MP1
 	bool "Enable RCC clock driver for STM32MP15"
 	depends on ARCH_STM32MP && CLK
-	default y if STM32MP15x
+	default y if STM32MP15X
 	help
 	  Enable the STM32 clock (RCC) driver. Enable support for
 	  manipulating STM32MP15's on-SoC clocks.
@@ -31,7 +31,7 @@ config CLK_STM32MP1
 config CLK_STM32MP13
 	bool "Enable RCC clock driver for STM32MP13"
 	depends on ARCH_STM32MP && CLK
-	default y if STM32MP13x
+	default y if STM32MP13X
 	select CLK_STM32_CORE
 	help
 	  Enable the STM32 clock (RCC) driver. Enable support for

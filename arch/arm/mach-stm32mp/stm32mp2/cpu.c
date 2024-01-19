@@ -67,19 +67,11 @@ void enable_caches(void)
 	dcache_enable();
 }
 
-/* used when CONFIG_DISPLAY_CPUINFO is activated */
-int print_cpuinfo(void)
-{
-	char name[SOC_NAME_SIZE];
-
-	get_soc_name(name);
-	printf("CPU: %s\n", name);
-
-	return 0;
-}
-
 int arch_misc_init(void)
 {
+	setup_serial_number();
+	setup_mac_address();
+
 	return 0;
 }
 

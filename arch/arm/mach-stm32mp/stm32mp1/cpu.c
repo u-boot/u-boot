@@ -14,8 +14,8 @@
 #include <log.h>
 #include <lmb.h>
 #include <misc.h>
-#include <net.h>
 #include <spl.h>
+#include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
@@ -158,17 +158,6 @@ void enable_caches(void)
 	dcache_enable();
 }
 
-/* used when CONFIG_DISPLAY_CPUINFO is activated */
-int print_cpuinfo(void)
-{
-	char name[SOC_NAME_SIZE];
-
-	get_soc_name(name);
-	printf("CPU: %s\n", name);
-
-	return 0;
-}
-
 static void setup_boot_mode(void)
 {
 	const u32 serial_addr[] = {
@@ -289,89 +278,6 @@ static void setup_boot_mode(void)
 
 	/* clear TAMP for next reboot */
 	clrsetbits_le32(TAMP_BOOT_CONTEXT, TAMP_BOOT_FORCED_MASK, BOOT_NORMAL);
-}
-
-/*
- * If there is no MAC address in the environment, then it will be initialized
- * (silently) from the value in the OTP.
- */
-__weak int setup_mac_address(void)
-{
-	int ret;
-	int i;
-	u32 otp[3];
-	uchar enetaddr[6];
-	struct udevice *dev;
-	int nb_eth, nb_otp, index;
-
-	if (!IS_ENABLED(CONFIG_NET))
-		return 0;
-
-	nb_eth = get_eth_nb();
-
-	/* 6 bytes for each MAC addr and 4 bytes for each OTP */
-	nb_otp = DIV_ROUND_UP(6 * nb_eth, 4);
-
-	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_DRIVER_GET(stm32mp_bsec),
-					  &dev);
-	if (ret)
-		return ret;
-
-	ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_MAC), otp, 4 * nb_otp);
-	if (ret < 0)
-		return ret;
-
-	for (index = 0; index < nb_eth; index++) {
-		/* MAC already in environment */
-		if (eth_env_get_enetaddr_by_index("eth", index, enetaddr))
-			continue;
-
-		for (i = 0; i < 6; i++)
-			enetaddr[i] = ((uint8_t *)&otp)[i + 6 * index];
-
-		if (!is_valid_ethaddr(enetaddr)) {
-			log_err("invalid MAC address %d in OTP %pM\n",
-				index, enetaddr);
-			return -EINVAL;
-		}
-		log_debug("OTP MAC address %d = %pM\n", index, enetaddr);
-		ret = eth_env_set_enetaddr_by_index("eth", index, enetaddr);
-		if (ret) {
-			log_err("Failed to set mac address %pM from OTP: %d\n",
-				enetaddr, ret);
-			return ret;
-		}
-	}
-
-	return 0;
-}
-
-static int setup_serial_number(void)
-{
-	char serial_string[25];
-	u32 otp[3] = {0, 0, 0 };
-	struct udevice *dev;
-	int ret;
-
-	if (env_get("serial#"))
-		return 0;
-
-	ret = uclass_get_device_by_driver(UCLASS_MISC,
-					  DM_DRIVER_GET(stm32mp_bsec),
-					  &dev);
-	if (ret)
-		return ret;
-
-	ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_SERIAL),
-			otp, sizeof(otp));
-	if (ret < 0)
-		return ret;
-
-	sprintf(serial_string, "%08X%08X%08X", otp[0], otp[1], otp[2]);
-	env_set("serial#", serial_string);
-
-	return 0;
 }
 
 __weak void stm32mp_misc_init(void)
