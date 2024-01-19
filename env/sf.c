@@ -210,8 +210,10 @@ static int env_sf_save(void)
 		saved_size = sect_size - CONFIG_ENV_SIZE;
 		saved_offset = CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE;
 		saved_buffer = malloc(saved_size);
-		if (!saved_buffer)
+		if (!saved_buffer) {
+			ret = -ENOMEM;
 			goto done;
+		}
 
 		ret = spi_flash_read(env_flash, saved_offset,
 			saved_size, saved_buffer);
