@@ -11,7 +11,6 @@
 #include <spl_gpio.h>
 #include <syscon.h>
 #include <asm/armv8/mmu.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
@@ -22,8 +21,6 @@
 #include <linux/bitops.h>
 #include <linux/printk.h>
 #include <power/regulator.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define GRF_EMMCCORE_CON11 0xff77f02c
 #define GRF_BASE	0xff770000
@@ -175,54 +172,6 @@ void board_debug_uart_init(void)
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
-const char *spl_decode_boot_device(u32 boot_device)
-{
-	int i;
-	static const struct {
-		u32 boot_device;
-		const char *ofpath;
-	} spl_boot_devices_tbl[] = {
-		{ BOOT_DEVICE_MMC2, "/mmc@fe320000" },
-		{ BOOT_DEVICE_MMC1, "/mmc@fe330000" },
-		{ BOOT_DEVICE_SPI, "/spi@ff1d0000/flash@0" },
-	};
-
-	for (i = 0; i < ARRAY_SIZE(spl_boot_devices_tbl); ++i)
-		if (spl_boot_devices_tbl[i].boot_device == boot_device)
-			return spl_boot_devices_tbl[i].ofpath;
-
-	return NULL;
-}
-
-void spl_perform_fixups(struct spl_image_info *spl_image)
-{
-	void *blob = spl_image->fdt_addr;
-	const char *boot_ofpath;
-	int chosen;
-
-	/*
-	 * Inject the ofpath of the device the full U-Boot (or Linux in
-	 * Falcon-mode) was booted from into the FDT, if a FDT has been
-	 * loaded at the same time.
-	 */
-	if (!blob)
-		return;
-
-	boot_ofpath = spl_decode_boot_device(spl_image->boot_device);
-	if (!boot_ofpath) {
-		pr_err("%s: could not map boot_device to ofpath\n", __func__);
-		return;
-	}
-
-	chosen = fdt_find_or_add_subnode(blob, 0, "chosen");
-	if (chosen < 0) {
-		pr_err("%s: could not find/create '/chosen'\n", __func__);
-		return;
-	}
-	fdt_setprop_string(blob, chosen,
-			   "u-boot,spl-boot-device", boot_ofpath);
-}
-
 static void rk3399_force_power_on_reset(void)
 {
 	ofnode node;

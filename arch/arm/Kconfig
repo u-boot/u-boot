@@ -1986,6 +1986,7 @@ config ARCH_ROCKCHIP
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
+	select DM_USB_GADGET if USB_DWC3_GADGET
 	select ENABLE_ARM_SOC_BOOT0_HOOK
 	select OF_CONTROL
 	select SPI

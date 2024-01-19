@@ -5,6 +5,8 @@ U-Boot for Anbernic RGxx3 Devices
 
 This allows U-Boot to boot the following Anbernic devices:
 
+ - Anbernic RG-ARC-D
+ - Anbernic RG-ARC-S
  - Anbernic RG353M
  - Anbernic RG353P
  - Anbernic RG353PS
@@ -12,18 +14,24 @@ This allows U-Boot to boot the following Anbernic devices:
  - Anbernic RG353VS
  - Anbernic RG503
 
+Additionally, the following very similar non-Anbernic devices are also
+supported:
+
+ - Powkiddy RGB30
+ - Powkiddy RK2023
+
 The correct device is detected automatically by comparing ADC values
 from ADC channel 1. In the event of an RG353V or RG353P, an attempt
 is then made to probe for an eMMC and if it fails the device is assumed
 to be an RG353VS or RG353PS. Based on the detected device, the
 environment variables "board", "board_name", and "fdtfile" are set to
 the correct values corresponding to the board which can be read by a
-boot script to boot with the correct device tree. If the board detected
-is not of type RG503 (which currently has only 1 panel revision) a
-panel detect is then performed by probing a "dummy" display on the DSI
-bus and then querying the display ID. The display ID is then compared
-to a table to get the known compatible string for use in Linux, and
-this string is saved as an environment variable of "panel".
+boot script to boot with the correct device tree. If a board is defined
+as requiring panel detection, a panel detect is then performed by
+probing a "dummy" display on the DSI bus and then querying the display
+ID. The display ID is then compared to a table to get the known
+compatible string for use in Linux, and this string is saved as an
+environment variable of "panel".
 
 FDT fixups are performed in the event of an RG353M to change the device
 name, or in the event the panel detected does not match the devicetree.

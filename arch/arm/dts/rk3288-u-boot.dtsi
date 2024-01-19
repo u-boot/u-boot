@@ -29,10 +29,10 @@
 
 	dmc: dmc@ff610000 {
 		compatible = "rockchip,rk3288-dmc", "syscon";
-		reg = <0xff610000 0x3fc
-		       0xff620000 0x294
-		       0xff630000 0x3fc
-		       0xff640000 0x294>;
+		reg = <0x0 0xff610000 0x0 0x3fc
+		       0x0 0xff620000 0x0 0x294
+		       0x0 0xff630000 0x0 0x3fc
+		       0x0 0xff640000 0x0 0x294>;
 		clocks = <&cru PCLK_DDRUPCTL0>, <&cru PCLK_PUBL0>,
 			 <&cru PCLK_DDRUPCTL1>, <&cru PCLK_PUBL1>,
 			 <&cru ARMCLK>;
@@ -50,7 +50,7 @@
 
 	noc: syscon@ffac0000 {
 		compatible = "rockchip,rk3288-noc", "syscon";
-		reg = <0xffac0000 0x2000>;
+		reg = <0x0 0xffac0000 0x0 0x2000>;
 		bootph-all;
 	};
 };
@@ -132,5 +132,9 @@
 };
 
 &vopl {
+	bootph-all;
+};
+
+&xin24m {
 	bootph-all;
 };

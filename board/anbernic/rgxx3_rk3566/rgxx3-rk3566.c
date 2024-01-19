@@ -16,7 +16,6 @@
 #include <mmc.h>
 #include <panel.h>
 #include <pwm.h>
-#include <rng.h>
 #include <stdlib.h>
 #include <video_bridge.h>
 
@@ -40,6 +39,7 @@ struct rg3xx_model {
 	const char *board;
 	const char *board_name;
 	const char *fdtfile;
+	const bool detect_panel;
 };
 
 enum rgxx3_device_id {
@@ -47,59 +47,106 @@ enum rgxx3_device_id {
 	RG353P,
 	RG353V,
 	RG503,
+	RGB30,
+	RK2023,
+	RGARCD,
 	/* Devices with duplicate ADC value */
 	RG353PS,
 	RG353VS,
+	RGARCS,
 };
 
 static const struct rg3xx_model rg3xx_model_details[] = {
 	[RG353M] = {
-		517, /* Observed average from device */
-		"rk3566-anbernic-rg353m",
-		"RG353M",
-		DTB_DIR "rk3566-anbernic-rg353p.dtb", /* Identical devices */
+		.adc_value = 517, /* Observed average from device */
+		.board = "rk3566-anbernic-rg353m",
+		.board_name = "RG353M",
+		/* Device is identical to RG353P. */
+		.fdtfile = DTB_DIR "rk3566-anbernic-rg353p.dtb",
+		.detect_panel = 1,
 	},
 	[RG353P] = {
-		860, /* Documented value of 860 */
-		"rk3566-anbernic-rg353p",
-		"RG353P",
-		DTB_DIR "rk3566-anbernic-rg353p.dtb",
+		.adc_value = 860, /* Documented value of 860 */
+		.board = "rk3566-anbernic-rg353p",
+		.board_name = "RG353P",
+		.fdtfile = DTB_DIR "rk3566-anbernic-rg353p.dtb",
+		.detect_panel = 1,
 	},
 	[RG353V] = {
-		695, /* Observed average from device */
-		"rk3566-anbernic-rg353v",
-		"RG353V",
-		DTB_DIR "rk3566-anbernic-rg353v.dtb",
+		.adc_value = 695, /* Observed average from device */
+		.board = "rk3566-anbernic-rg353v",
+		.board_name = "RG353V",
+		.fdtfile = DTB_DIR "rk3566-anbernic-rg353v.dtb",
+		.detect_panel = 1,
 	},
 	[RG503] = {
-		1023, /* Observed average from device */
-		"rk3566-anbernic-rg503",
-		"RG503",
-		DTB_DIR "rk3566-anbernic-rg503.dtb",
+		.adc_value = 1023, /* Observed average from device */
+		.board = "rk3566-anbernic-rg503",
+		.board_name = "RG503",
+		.fdtfile = DTB_DIR "rk3566-anbernic-rg503.dtb",
+		.detect_panel = 0,
+	},
+	[RGB30] = {
+		.adc_value = 383, /* Gathered from second hand information */
+		.board = "rk3566-powkiddy-rgb30",
+		.board_name = "RGB30",
+		.fdtfile = DTB_DIR "rk3566-powkiddy-rgb30.dtb",
+		.detect_panel = 0,
+	},
+	[RK2023] = {
+		.adc_value = 635, /* Observed average from device */
+		.board = "rk3566-powkiddy-rk2023",
+		.board_name = "RK2023",
+		.fdtfile = DTB_DIR "rk3566-powkiddy-rk2023.dtb",
+		.detect_panel = 0,
+	},
+	[RGARCD] = {
+		.adc_value = 183, /* Observed average from device */
+		.board = "rk3566-anbernic-rg-arc-d",
+		.board_name = "Anbernic RG ARC-D",
+		.fdtfile = DTB_DIR "rk3566-anbernic-rg-arc-d.dtb",
+		.detect_panel = 0,
 	},
 	/* Devices with duplicate ADC value */
 	[RG353PS] = {
-		860, /* Observed average from device */
-		"rk3566-anbernic-rg353ps",
-		"RG353PS",
-		DTB_DIR "rk3566-anbernic-rg353ps.dtb",
+		.adc_value = 860, /* Observed average from device */
+		.board = "rk3566-anbernic-rg353ps",
+		.board_name = "RG353PS",
+		.fdtfile = DTB_DIR "rk3566-anbernic-rg353ps.dtb",
+		.detect_panel = 1,
 	},
 	[RG353VS] = {
-		695, /* Gathered from second hand information */
-		"rk3566-anbernic-rg353vs",
-		"RG353VS",
-		DTB_DIR "rk3566-anbernic-rg353vs.dtb",
+		.adc_value = 695, /* Gathered from second hand information */
+		.board = "rk3566-anbernic-rg353vs",
+		.board_name = "RG353VS",
+		.fdtfile = DTB_DIR "rk3566-anbernic-rg353vs.dtb",
+		.detect_panel = 1,
+	},
+	[RGARCS] = {
+		.adc_value = 183, /* Observed average from device */
+		.board = "rk3566-anbernic-rg-arc-s",
+		.board_name = "Anbernic RG ARC-S",
+		.fdtfile = DTB_DIR "rk3566-anbernic-rg-arc-s.dtb",
+		.detect_panel = 0,
 	},
 };
 
 struct rg353_panel {
 	const u16 id;
-	const char *panel_compat;
+	const char *panel_compat[2];
 };
 
 static const struct rg353_panel rg353_panel_details[] = {
-	{ .id = 0x3052, .panel_compat = "newvision,nv3051d"},
-	{ .id = 0x3821, .panel_compat = "anbernic,rg353v-panel-v2"},
+	{
+		.id = 0x3052,
+		.panel_compat[0] = "anbernic,rg353p-panel",
+		.panel_compat[1] = "newvision,nv3051d",
+	},
+	{
+		.id = 0x3821,
+		.panel_compat[0] = "anbernic,rg353v-panel-v2",
+		.panel_compat[1] = NULL,
+	},
 };
 
 /*
@@ -115,34 +162,6 @@ void spl_board_init(void)
 	/* Set GPIO0_C5 and GPIO_C6 to 0 and GPIO0_C7 to 1. */
 	writel(GPIO_WRITEMASK(GPIO_C7 | GPIO_C6 | GPIO_C5) | GPIO_C7,
 	       (GPIO0_BASE + GPIO_SWPORT_DR_H));
-}
-
-/* Use hardware rng to seed Linux random. */
-int board_rng_seed(struct abuf *buf)
-{
-	struct udevice *dev;
-	size_t len = 0x8;
-	u64 *data;
-
-	data = malloc(len);
-	if (!data) {
-		printf("Out of memory\n");
-		return -ENOMEM;
-	}
-
-	if (uclass_get_device(UCLASS_RNG, 0, &dev) || !dev) {
-		printf("No RNG device\n");
-		return -ENODEV;
-	}
-
-	if (dm_rng_read(dev, data, len)) {
-		printf("Reading RNG failed\n");
-		return -EIO;
-	}
-
-	abuf_init_set(buf, data, len);
-
-	return 0;
 }
 
 /*
@@ -298,11 +317,10 @@ int rgxx3_detect_display(void)
 	if (!panel) {
 		printf("Unable to identify panel_id %x\n",
 		       (panel_id[0] << 8) | panel_id[1]);
-		env_set("panel", "unknown");
 		return -EINVAL;
 	}
 
-	env_set("panel", panel->panel_compat);
+	env_set("panel", panel->panel_compat[0]);
 
 	return 0;
 }
@@ -342,19 +360,21 @@ int rgxx3_detect_device(void)
 	}
 
 	/*
-	 * Try to access the eMMC on an RG353V or RG353P. If it's
-	 * missing, it's an RG353VS or RG353PS. Note we could also
-	 * check for a touchscreen at 0x1a on i2c2.
+	 * Try to access the eMMC on an RG353V, RG353P, or RG Arc D.
+	 * If it's missing, it's an RG353VS, RG353PS, or RG Arc S.
+	 * Note we could also check for a touchscreen at 0x1a on i2c2.
 	 */
-	if (board_id == RG353V || board_id == RG353P) {
+	if (board_id == RG353V || board_id == RG353P || board_id == RGARCD) {
 		mmc = find_mmc_device(0);
 		if (mmc) {
 			ret = mmc_init(mmc);
 			if (ret) {
 				if (board_id == RG353V)
 					board_id = RG353VS;
-				else
+				else if (board_id == RG353P)
 					board_id = RG353PS;
+				else
+					board_id = RGARCS;
 			}
 		}
 	}
@@ -367,13 +387,14 @@ int rgxx3_detect_device(void)
 		rg3xx_model_details[board_id].board_name);
 	env_set("fdtfile", rg3xx_model_details[board_id].fdtfile);
 
-	/* Detect the panel type for any device that isn't a 503. */
-	if (board_id == RG503)
+	/* Skip panel detection for when it is not needed. */
+	if (!rg3xx_model_details[board_id].detect_panel)
 		return 0;
 
+	/* Warn but don't fail for errors in auto-detection of the panel. */
 	ret = rgxx3_detect_display();
 	if (ret)
-		return ret;
+		printf("Failed to detect panel type\n");
 
 	return 0;
 }
@@ -400,7 +421,8 @@ int rk_board_late_init(void)
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	int node, ret;
+	const struct rg353_panel *panel = NULL;
+	int node, ret, i;
 	char *env;
 
 	/* No fixups necessary for the RG503 */
@@ -414,6 +436,12 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 			    rg3xx_model_details[RG353M].board_name,
 			    sizeof(rg3xx_model_details[RG353M].board_name));
 
+	env = env_get("panel");
+	if (!env) {
+		printf("Can't get panel env\n");
+		return 0;
+	}
+
 	/*
 	 * Check if the environment variable doesn't equal the panel.
 	 * If it doesn't, update the devicetree to the correct panel.
@@ -421,12 +449,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	node = fdt_path_offset(blob, "/dsi@fe060000/panel@0");
 	if (!(node > 0)) {
 		printf("Can't find the DSI node\n");
-		return -ENODEV;
-	}
-
-	env = env_get("panel");
-	if (!env) {
-		printf("Can't get panel env\n");
 		return -ENODEV;
 	}
 
@@ -438,8 +460,24 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	if (!ret)
 		return 0;
 
-	do_fixup_by_path_string(blob, "/dsi@fe060000/panel@0",
-				"compatible", env);
+	/* Panels don't match, search by first compatible value. */
+	for (i = 0; i < ARRAY_SIZE(rg353_panel_details); i++) {
+		if (!strcmp(env, rg353_panel_details[i].panel_compat[0])) {
+			panel = &rg353_panel_details[i];
+			break;
+		}
+	}
+
+	if (!panel) {
+		printf("Unable to identify panel by compat string\n");
+		return -ENODEV;
+	}
+
+	/* Set the compatible with the auto-detected values */
+	fdt_setprop_string(blob, node, "compatible", panel->panel_compat[0]);
+	if (panel->panel_compat[1])
+		fdt_appendprop_string(blob, node, "compatible",
+				      panel->panel_compat[1]);
 
 	return 0;
 }

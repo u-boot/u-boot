@@ -5,7 +5,6 @@
 #include <common.h>
 #include <init.h>
 #include <malloc.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/grf_rk3308.h>
 #include <asm/arch-rockchip/bootrom.h>
@@ -13,8 +12,6 @@
 #include <asm/gpio.h>
 #include <debug_uart.h>
 #include <linux/bitops.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #include <asm/armv8/mmu.h>
 static struct mm_region rk3308_mem_map[] = {

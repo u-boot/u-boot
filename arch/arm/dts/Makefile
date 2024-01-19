@@ -126,6 +126,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3308) += \
 dtb-$(CONFIG_ROCKCHIP_RK3328) += \
 	rk3328-evb.dtb \
 	rk3328-nanopi-r2c.dtb \
+	rk3328-nanopi-r2c-plus.dtb \
 	rk3328-nanopi-r2s.dtb \
 	rk3328-orangepi-r1-plus.dtb \
 	rk3328-orangepi-r1-plus-lts.dtb \
@@ -195,6 +196,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3588) += \
 	rk3588s-orangepi-5.dtb \
 	rk3588-orangepi-5-plus.dtb \
 	rk3588-quartzpro64.dtb \
+	rk3588-turing-rk1.dtb \
 	rk3588s-rock-5a.dtb \
 	rk3588-rock-5b.dtb
 

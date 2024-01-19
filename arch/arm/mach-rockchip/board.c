@@ -16,15 +16,12 @@
 #include <syscon.h>
 #include <uuid.h>
 #include <asm/cache.h>
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/boot_mode.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/periph.h>
 #include <asm/arch-rockchip/misc.h>
 #include <power/regulator.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && defined(CONFIG_EFI_PARTITION)
 
@@ -208,10 +205,8 @@ void enable_caches(void)
 }
 #endif
 
-#if defined(CONFIG_USB_GADGET)
+#if defined(CONFIG_USB_GADGET) && defined(CONFIG_USB_GADGET_DWC2_OTG)
 #include <usb.h>
-
-#if defined(CONFIG_USB_GADGET_DWC2_OTG)
 #include <linux/usb/otg.h>
 #include <usb/dwc2_udc.h>
 
@@ -287,32 +282,6 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 }
 #endif /* CONFIG_USB_GADGET_DWC2_OTG */
 
-#if defined(CONFIG_USB_DWC3_GADGET) && !defined(CONFIG_DM_USB_GADGET)
-#include <dwc3-uboot.h>
-
-static struct dwc3_device dwc3_device_data = {
-	.maximum_speed = USB_SPEED_HIGH,
-	.base = 0xfe800000,
-	.dr_mode = USB_DR_MODE_PERIPHERAL,
-	.index = 0,
-	.dis_u2_susphy_quirk = 1,
-	.hsphy_mode = USBPHY_INTERFACE_MODE_UTMIW,
-};
-
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	dwc3_uboot_handle_interrupt(dev);
-	return 0;
-}
-
-int board_usb_init(int index, enum usb_init_type init)
-{
-	return dwc3_uboot_init(&dwc3_device_data);
-}
-#endif /* CONFIG_USB_DWC3_GADGET */
-
-#endif /* CONFIG_USB_GADGET */
-
 #if IS_ENABLED(CONFIG_FASTBOOT)
 int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 {
@@ -346,5 +315,37 @@ __weak int misc_init_r(void)
 	ret = rockchip_setup_macaddr();
 
 	return ret;
+}
+#endif
+
+#if IS_ENABLED(CONFIG_BOARD_RNG_SEED) && IS_ENABLED(CONFIG_RNG_ROCKCHIP)
+#include <rng.h>
+
+/* Use hardware rng to seed Linux random. */
+__weak int board_rng_seed(struct abuf *buf)
+{
+	struct udevice *dev;
+	size_t len = 0x8;
+	u64 *data;
+
+	data = malloc(len);
+	if (!data) {
+		printf("Out of memory\n");
+		return -ENOMEM;
+	}
+
+	if (uclass_get_device(UCLASS_RNG, 0, &dev) || !dev) {
+		printf("No RNG device\n");
+		return -ENODEV;
+	}
+
+	if (dm_rng_read(dev, data, len)) {
+		printf("Reading RNG failed\n");
+		return -EIO;
+	}
+
+	abuf_init_set(buf, data, len);
+
+	return 0;
 }
 #endif

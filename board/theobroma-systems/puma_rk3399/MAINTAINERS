@@ -3,6 +3,7 @@ M:	Quentin Schulz <quentin.schulz@theobroma-systems.com>
 M:	Klaus Goger <klaus.goger@theobroma-systems.com>
 S:	Maintained
 F:	board/theobroma-systems/puma_rk3399
+F:	board/theobroma-systems/common
 F:	include/configs/puma_rk3399.h
 F:	arch/arm/dts/rk3399-puma.dts
 F:	configs/puma-rk3399_defconfig
