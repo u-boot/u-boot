@@ -49,7 +49,18 @@ static int hisi_reset_assert(struct reset_ctl *rst)
 static int hisi_reset_of_xlate(struct reset_ctl *rst,
 			       struct ofnode_phandle_args *args)
 {
-	if (args->args_count != 3) {
+	unsigned long polarity;
+
+	switch (args->args_count) {
+	case 2:
+		polarity = ASSERT_SET;
+		break;
+
+	case 3:
+		polarity = args->args[2];
+		break;
+
+	default:
 		debug("Invalid args_count: %d\n", args->args_count);
 		return -EINVAL;
 	}
@@ -57,7 +68,7 @@ static int hisi_reset_of_xlate(struct reset_ctl *rst,
 	/* Use .data field as register offset and .id field as bit shift */
 	rst->data = args->args[0];
 	rst->id = args->args[1];
-	rst->polarity = args->args[2];
+	rst->polarity = polarity;
 
 	return 0;
 }
