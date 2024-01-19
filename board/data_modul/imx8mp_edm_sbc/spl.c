@@ -80,6 +80,19 @@ int data_modul_imx_edm_sbc_board_power_init(void)
 	return 0;
 }
 
+void spl_board_init(void)
+{
+	/*
+	 * Set GIC clock to 500 MHz for OD VDD_SOC. Kernel driver does not
+	 * allow to change it. Should set the clock after PMIC setting done.
+	 * Default is 400 MHz (system_pll1_800m with div = 2) set by ROM for
+	 * ND VDD_SOC.
+	 */
+	clock_enable(CCGR_GIC, 0);
+	clock_set_target_val(GIC_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(5));
+	clock_enable(CCGR_GIC, 1);
+}
+
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
 	if (boot_dev_spl == SPI_NOR_BOOT)	/* SPI NOR */
