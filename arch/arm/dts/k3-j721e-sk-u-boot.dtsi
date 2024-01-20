@@ -89,6 +89,14 @@
 	bootph-all;
 };
 
+&serdes_ln_ctrl {
+	u-boot,mux-autoprobe;
+};
+
+&usb_serdes_mux {
+	u-boot,mux-autoprobe;
+};
+
 &main_usbss0_pins_default {
 	bootph-all;
 };

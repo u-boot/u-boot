@@ -333,20 +333,28 @@ static int cdns3_probe(struct cdns3 *cdns)
 	mutex_init(&cdns->mutex);
 
 	ret = generic_phy_get_by_name(dev, "cdns3,usb2-phy", &cdns->usb2_phy);
-	if (ret)
-		dev_warn(dev, "Unable to get USB2 phy (ret %d)\n", ret);
-
-	ret = generic_phy_init(&cdns->usb2_phy);
-	if (ret)
+	if (!ret) {
+		ret = generic_phy_init(&cdns->usb2_phy);
+		if (ret) {
+			dev_err(dev, "USB2 PHY init failed: %d\n", ret);
+			return ret;
+		}
+	} else if (ret != -ENOENT && ret != -ENODATA) {
+		dev_err(dev, "Couldn't get USB2 PHY:  %d\n", ret);
 		return ret;
+	}
 
 	ret = generic_phy_get_by_name(dev, "cdns3,usb3-phy", &cdns->usb3_phy);
-	if (ret)
-		dev_warn(dev, "Unable to get USB3 phy (ret %d)\n", ret);
-
-	ret = generic_phy_init(&cdns->usb3_phy);
-	if (ret)
+	if (!ret) {
+		ret = generic_phy_init(&cdns->usb3_phy);
+		if (ret) {
+			dev_err(dev, "USB3 PHY init failed: %d\n", ret);
+			return ret;
+		}
+	} else if (ret != -ENOENT && ret != -ENODATA) {
+		dev_err(dev, "Couldn't get USB3 PHY:  %d\n", ret);
 		return ret;
+	}
 
 	ret = generic_phy_power_on(&cdns->usb2_phy);
 	if (ret)
