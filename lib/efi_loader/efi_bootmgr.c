@@ -294,14 +294,17 @@ err:
 }
 
 /**
- * check_disk_has_default_file() - load the default file
+ * fill_default_file_path() - get fallback boot device path for block device
+ *
+ * Provide the device path to the fallback UEFI boot file, e.g.
+ * EFI/BOOT/BOOTAA64.EFI if that file exists on the block device @blk.
  *
  * @blk:	pointer to the UCLASS_BLK udevice
- * @dp:		pointer to default file device path
+ * @dp:		pointer to store the fallback boot device path
  * Return:	status code
  */
-static efi_status_t check_disk_has_default_file(struct udevice *blk,
-						struct efi_device_path **dp)
+static efi_status_t fill_default_file_path(struct udevice *blk,
+					   struct efi_device_path **dp)
 {
 	efi_status_t ret;
 	struct udevice *partition;
@@ -348,7 +351,7 @@ static efi_status_t prepare_loaded_image(u16 *label, ulong addr, ulong size,
 	if (!ramdisk_blk)
 		return EFI_LOAD_ERROR;
 
-	ret = check_disk_has_default_file(ramdisk_blk, dp);
+	ret = fill_default_file_path(ramdisk_blk, dp);
 	if (ret != EFI_SUCCESS) {
 		log_info("Cannot boot from downloaded image\n");
 		goto err;
@@ -547,6 +550,50 @@ err:
 }
 
 /**
+ * try_load_from_media() - load file from media
+ *
+ * @file_path:		file path
+ * @handle_img:		on return handle for the newly installed image
+ *
+ * If @file_path contains a file name, load the file.
+ * If @file_path does not have a file name, search the architecture-specific
+ * fallback boot file and load it.
+ * TODO: If the FilePathList[0] device does not support
+ * EFI_SIMPLE_FILE_SYSTEM_PROTOCOL but supports EFI_BLOCK_IO_PROTOCOL,
+ * call EFI_BOOT_SERVICES.ConnectController()
+ * TODO: FilePathList[0] device supports the EFI_SIMPLE_FILE_SYSTEM_PROTOCOL
+ * not based on EFI_BLOCK_IO_PROTOCOL
+ *
+ * Return:	status code
+ */
+static efi_status_t try_load_from_media(struct efi_device_path *file_path,
+					efi_handle_t *handle_img)
+{
+	efi_handle_t handle_blkdev;
+	efi_status_t ret = EFI_SUCCESS;
+	struct efi_device_path *rem, *dp = NULL;
+	struct efi_device_path *final_dp = file_path;
+
+	handle_blkdev = efi_dp_find_obj(file_path, &efi_block_io_guid, &rem);
+	if (handle_blkdev) {
+		if (rem->type == DEVICE_PATH_TYPE_END) {
+			/* no file name present, try default file */
+			ret = fill_default_file_path(handle_blkdev->dev, &dp);
+			if (ret != EFI_SUCCESS)
+				return ret;
+
+			final_dp = dp;
+		}
+	}
+
+	ret = EFI_CALL(efi_load_image(true, efi_root, final_dp, NULL, 0, handle_img));
+
+	efi_free_pool(dp);
+
+	return ret;
+}
+
+/**
  * try_load_entry() - try to load image for boot option
  *
  * Attempt to load load-option number 'n', returning device_path and file_path
@@ -580,7 +627,6 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 	}
 
 	if (lo.attributes & LOAD_OPTION_ACTIVE) {
-		struct efi_device_path *file_path;
 		u32 attributes;
 
 		log_debug("trying to load \"%ls\" from %pD\n", lo.label,
@@ -597,10 +643,7 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 			else
 				ret = EFI_LOAD_ERROR;
 		} else {
-			file_path = expand_media_path(lo.file_path);
-			ret = EFI_CALL(efi_load_image(true, efi_root, file_path,
-						      NULL, 0, handle));
-			efi_free_pool(file_path);
+			ret = try_load_from_media(lo.file_path, handle);
 		}
 		if (ret != EFI_SUCCESS) {
 			log_warning("Loading %ls '%ls' failed\n",
@@ -731,22 +774,26 @@ error:
 }
 
 /**
- * efi_bootmgr_enumerate_boot_option() - enumerate the possible bootable media
+ * efi_bootmgr_enumerate_boot_options() - enumerate the possible bootable media
  *
  * @opt:		pointer to the media boot option structure
- * @volume_handles:	pointer to the efi handles
- * @count:		number of efi handle
+ * @index:		index of the opt array to store the boot option
+ * @handles:		pointer to block device handles
+ * @count:		On entry number of handles to block devices.
+ *			On exit number of boot options.
+ * @removable:		flag to parse removable only
  * Return:		status code
  */
-static efi_status_t efi_bootmgr_enumerate_boot_option(struct eficonfig_media_boot_option *opt,
-						      efi_handle_t *volume_handles,
-						      efi_status_t count)
+static efi_status_t
+efi_bootmgr_enumerate_boot_options(struct eficonfig_media_boot_option *opt,
+				   efi_uintn_t index, efi_handle_t *handles,
+				   efi_uintn_t *count, bool removable)
 {
-	u32 i;
+	u32 i, num = index;
 	struct efi_handler *handler;
 	efi_status_t ret = EFI_SUCCESS;
 
-	for (i = 0; i < count; i++) {
+	for (i = 0; i < *count; i++) {
 		u16 *p;
 		u16 dev_name[BOOTMENU_DEVICE_NAME_MAX];
 		char *optional_data;
@@ -754,8 +801,18 @@ static efi_status_t efi_bootmgr_enumerate_boot_option(struct eficonfig_media_boo
 		char buf[BOOTMENU_DEVICE_NAME_MAX];
 		struct efi_device_path *device_path;
 		struct efi_device_path *short_dp;
+		struct efi_block_io *blkio;
 
-		ret = efi_search_protocol(volume_handles[i], &efi_guid_device_path, &handler);
+		ret = efi_search_protocol(handles[i], &efi_block_io_guid, &handler);
+		blkio = handler->protocol_interface;
+
+		if (blkio->media->logical_partition)
+			continue;
+
+		if (removable != (blkio->media->removable_media != 0))
+			continue;
+
+		ret = efi_search_protocol(handles[i], &efi_guid_device_path, &handler);
 		if (ret != EFI_SUCCESS)
 			continue;
 		ret = efi_protocol_open(handler, (void **)&device_path,
@@ -763,7 +820,7 @@ static efi_status_t efi_bootmgr_enumerate_boot_option(struct eficonfig_media_boo
 		if (ret != EFI_SUCCESS)
 			continue;
 
-		ret = efi_disk_get_device_name(volume_handles[i], buf, BOOTMENU_DEVICE_NAME_MAX);
+		ret = efi_disk_get_device_name(handles[i], buf, BOOTMENU_DEVICE_NAME_MAX);
 		if (ret != EFI_SUCCESS)
 			continue;
 
@@ -787,17 +844,23 @@ static efi_status_t efi_bootmgr_enumerate_boot_option(struct eficonfig_media_boo
 		 * to store guid, instead of realloc the load_option.
 		 */
 		lo.optional_data = "1234567";
-		opt[i].size = efi_serialize_load_option(&lo, (u8 **)&opt[i].lo);
-		if (!opt[i].size) {
+		opt[num].size = efi_serialize_load_option(&lo, (u8 **)&opt[num].lo);
+		if (!opt[num].size) {
 			ret = EFI_OUT_OF_RESOURCES;
 			goto out;
 		}
 		/* set the guid */
-		optional_data = (char *)opt[i].lo + (opt[i].size - u16_strsize(u"1234567"));
+		optional_data = (char *)opt[num].lo + (opt[num].size - u16_strsize(u"1234567"));
 		memcpy(optional_data, &efi_guid_bootmenu_auto_generated, sizeof(efi_guid_t));
+		num++;
+
+		if (num >= *count)
+			break;
 	}
 
 out:
+	*count = num;
+
 	return ret;
 }
 
@@ -1026,8 +1089,7 @@ efi_status_t efi_bootmgr_delete_boot_option(u16 boot_index)
 /**
  * efi_bootmgr_update_media_device_boot_option() - generate the media device boot option
  *
- * This function enumerates all devices supporting EFI_SIMPLE_FILE_SYSTEM_PROTOCOL
- * and generate the bootmenu entries.
+ * This function enumerates all BlockIo devices and add the boot option for it.
  * This function also provide the BOOT#### variable maintenance for
  * the media device entries.
  * - Automatically create the BOOT#### variable for the newly detected device,
@@ -1042,14 +1104,14 @@ efi_status_t efi_bootmgr_update_media_device_boot_option(void)
 {
 	u32 i;
 	efi_status_t ret;
-	efi_uintn_t count;
-	efi_handle_t *volume_handles = NULL;
+	efi_uintn_t count, num, total;
+	efi_handle_t *handles = NULL;
 	struct eficonfig_media_boot_option *opt = NULL;
 
 	ret = efi_locate_handle_buffer_int(BY_PROTOCOL,
-					   &efi_simple_file_system_protocol_guid,
+					   &efi_block_io_guid,
 					   NULL, &count,
-					   (efi_handle_t **)&volume_handles);
+					   (efi_handle_t **)&handles);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
@@ -1059,10 +1121,19 @@ efi_status_t efi_bootmgr_update_media_device_boot_option(void)
 		goto out;
 	}
 
-	/* enumerate all devices supporting EFI_SIMPLE_FILE_SYSTEM_PROTOCOL */
-	ret = efi_bootmgr_enumerate_boot_option(opt, volume_handles, count);
+	/* parse removable block io followed by fixed block io */
+	num = count;
+	ret = efi_bootmgr_enumerate_boot_options(opt, 0, handles, &num, true);
 	if (ret != EFI_SUCCESS)
 		goto out;
+
+	total = num;
+	num = count;
+	ret = efi_bootmgr_enumerate_boot_options(opt, total, handles, &num, false);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	total = num;
 
 	/*
 	 * System hardware configuration may vary depending on the user setup.
@@ -1070,12 +1141,12 @@ efi_status_t efi_bootmgr_update_media_device_boot_option(void)
 	 * If the device is not attached to the system, the boot option needs
 	 * to be deleted.
 	 */
-	ret = efi_bootmgr_delete_invalid_boot_option(opt, count);
+	ret = efi_bootmgr_delete_invalid_boot_option(opt, total);
 	if (ret != EFI_SUCCESS)
 		goto out;
 
 	/* add non-existent boot option */
-	for (i = 0; i < count; i++) {
+	for (i = 0; i < total; i++) {
 		u32 boot_index;
 		u16 var_name[9];
 
@@ -1104,11 +1175,11 @@ efi_status_t efi_bootmgr_update_media_device_boot_option(void)
 
 out:
 	if (opt) {
-		for (i = 0; i < count; i++)
+		for (i = 0; i < total; i++)
 			free(opt[i].lo);
 	}
 	free(opt);
-	efi_free_pool(volume_handles);
+	efi_free_pool(handles);
 
 	if (ret == EFI_NOT_FOUND)
 		return EFI_SUCCESS;
