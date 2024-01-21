@@ -84,6 +84,7 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-a1-ad401.dtb
 
 dtb-$(CONFIG_ARCH_TEGRA) += \
+	tegra20-acer-a500-picasso.dtb \
 	tegra20-asus-sl101.dtb \
 	tegra20-asus-tf101.dtb \
 	tegra20-asus-tf101g.dtb \
