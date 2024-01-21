@@ -3,8 +3,8 @@
  * Copyright (C) 2017-2023 Marek Vasut <marek.vasut+renesas@mailbox.org>
  */
 
-#include <common.h>
 #include <clock_legacy.h>
+#include <asm/arch/rmobile.h>
 #include <asm/io.h>
 
 #define CPGWPR  0xE6150900

@@ -5,7 +5,6 @@
  * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <malloc.h>

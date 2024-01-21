@@ -5,7 +5,6 @@
  * Copyright (C) 2013,2014 Renesas Electronics Corporation
  */
 
-#include <common.h>
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>

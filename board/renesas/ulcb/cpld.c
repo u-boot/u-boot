@@ -6,7 +6,6 @@
  * Copyright (C) 2017 Cogent Embedded, Inc.
  */
 
-#include <common.h>
 #include <command.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
