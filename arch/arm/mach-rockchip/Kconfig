@@ -265,6 +265,7 @@ config ROCKCHIP_RK3399
 	imply TPL_TINY_MEMSET
 	imply TPL_ROCKCHIP_COMMON_BOARD
 	imply SYS_BOOTCOUNT_SINGLEWORD if BOOTCOUNT_LIMIT
+	imply BOOTSTD_FULL
 	imply CMD_BOOTCOUNT if BOOTCOUNT_LIMIT
 	help
 	  The Rockchip RK3399 is a ARM-based SoC with a dual-core Cortex-A72
@@ -319,6 +320,7 @@ config ROCKCHIP_RK3588
 	imply MISC_INIT_R
 	imply CLK_SCMI
 	imply SCMI_FIRMWARE
+	imply BOOTSTD_FULL
 	help
 	  The Rockchip RK3588 is a ARM-based SoC with quad-core Cortex-A76 and
 	  quad-core Cortex-A55 including NEON and GPU, 6TOPS NPU, Mali-G610 MP4,
