@@ -10,7 +10,6 @@
  * Copyright (C) 2015 Renesas Electronics Corp.
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <linux/bitops.h>

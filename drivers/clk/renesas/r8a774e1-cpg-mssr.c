@@ -9,7 +9,6 @@
  * Copyright (C) 2015 Glider bvba
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <linux/bitops.h>

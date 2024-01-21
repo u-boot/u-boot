@@ -9,7 +9,6 @@
  * Copyright (C) 2013 Ideas On Board SPRL
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <linux/bitops.h>
