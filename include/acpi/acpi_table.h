@@ -57,8 +57,8 @@ struct __packed acpi_table_header {
 	char oem_id[6];		/* OEM identification */
 	char oem_table_id[8];	/* OEM table identification */
 	u32 oem_revision;	/* OEM revision number */
-	char aslc_id[4];	/* ASL compiler vendor ID */
-	u32 aslc_revision;	/* ASL compiler revision number */
+	char creator_id[4];	/* ASL compiler vendor ID */
+	u32 creator_revision;	/* ASL compiler revision number */
 };
 
 struct acpi_gen_regaddr {
@@ -831,7 +831,7 @@ void acpi_create_dbg2(struct acpi_dbg2_header *dbg2,
 /**
  * acpi_fill_header() - Set up a new table header
  *
- * This sets all fields except length, revision, checksum and aslc_revision
+ * This sets all fields except length, revision, checksum and creator_revision
  *
  * @header: ACPI header to update
  * @signature: Table signature to use (4 characters)

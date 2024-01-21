@@ -237,7 +237,7 @@ static int dm_test_acpi_fill_header(struct unit_test_state *uts)
 	hdr.length = 0x11;
 	hdr.revision = 0x22;
 	hdr.checksum = 0x33;
-	hdr.aslc_revision = 0x44;
+	hdr.creator_revision = 0x44;
 	acpi_fill_header(&hdr, "ABCD");
 
 	ut_asserteq_mem("ABCD", hdr.signature, sizeof(hdr.signature));
@@ -248,8 +248,8 @@ static int dm_test_acpi_fill_header(struct unit_test_state *uts)
 	ut_asserteq_mem(OEM_TABLE_ID, hdr.oem_table_id,
 			sizeof(hdr.oem_table_id));
 	ut_asserteq(OEM_REVISION, hdr.oem_revision);
-	ut_asserteq_mem(ASLC_ID, hdr.aslc_id, sizeof(hdr.aslc_id));
-	ut_asserteq(0x44, hdr.aslc_revision);
+	ut_asserteq_mem(ASLC_ID, hdr.creator_id, sizeof(hdr.creator_id));
+	ut_asserteq(0x44, hdr.creator_revision);
 
 	return 0;
 }
