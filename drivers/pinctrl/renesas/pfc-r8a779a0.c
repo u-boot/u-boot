@@ -7,7 +7,6 @@
  * This file is based on the drivers/pinctrl/renesas/pfc-r8a7795.c
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <dm/pinctrl.h>

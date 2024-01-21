@@ -6,7 +6,6 @@
  * Copyright (C) 2014-2017 Cogent Embedded, Inc.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <dm/pinctrl.h>
