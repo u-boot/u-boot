@@ -864,16 +864,6 @@ void acpi_create_dbg2(struct acpi_dbg2_header *dbg2,
 		      const char *device_path);
 
 /**
- * acpi_fill_header() - Set up a new table header
- *
- * This sets all fields except length, revision, checksum and creator_revision
- *
- * @header: ACPI header to update
- * @signature: Table signature to use (4 characters)
- */
-void acpi_fill_header(struct acpi_table_header *header, char *signature);
-
-/**
  * acpi_align() - Align the ACPI output pointer to a 16-byte boundary
  *
  * @ctx: ACPI context
