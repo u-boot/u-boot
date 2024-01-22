@@ -223,7 +223,8 @@ void efi_firmware_fill_version_info(struct efi_firmware_image_descriptor *image_
 	/* get the fw_version */
 	efi_create_indexed_name(varname, sizeof(varname), "FmpState",
 				fw_array->image_index);
-	if (IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE)) {
+	if (!IS_ENABLED(CONFIG_SANDBOX) &&
+	    IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE)) {
 		ret = fwu_get_active_index(&active_index);
 		if (ret)
 			return;
@@ -391,7 +392,8 @@ efi_status_t efi_firmware_set_fmp_state_var(struct fmp_state *state, u8 image_in
 	efi_create_indexed_name(varname, sizeof(varname), "FmpState",
 				image_index);
 
-	if (IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE)) {
+	if (!IS_ENABLED(CONFIG_SANDBOX) &&
+	    IS_ENABLED(CONFIG_FWU_MULTI_BANK_UPDATE)) {
 		ret = fwu_plat_get_update_index(&update_bank);
 		if (ret)
 			return EFI_INVALID_PARAMETER;
