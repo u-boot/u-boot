@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2016-2018 Intel Corporation <www.intel.com>
+ * Copyright (C) 2016-2023 Intel Corporation <www.intel.com>
  *
  */
 
@@ -397,6 +397,21 @@ unsigned int cm_get_spi_controller_clk_hz(void)
 unsigned int cm_get_l4_sys_free_clk_hz(void)
 {
 	return cm_get_l3_main_clk_hz() / 4;
+}
+
+/*
+ * Override weak dw_spi_get_clk implementation in designware_spi.c driver
+ */
+
+int dw_spi_get_clk(struct udevice *bus, ulong *rate)
+{
+	*rate = cm_get_spi_controller_clk_hz();
+	if (!*rate) {
+		printf("SPI: clock rate is zero");
+		return -EINVAL;
+	}
+
+	return 0;
 }
 
 void cm_print_clock_quick_summary(void)
