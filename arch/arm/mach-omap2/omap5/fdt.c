@@ -206,9 +206,28 @@ u32 dra7_opp_gpu_clk_rates[NUM_OPPS][OPP_GPU_CLK_NUM] = {
 	{1064000000, 532000000}, /* OPP_HIGH */
 };
 
+static int fdt_clock_output_name_eq_(const void *fdt, int offset,
+				     const char *s, int len)
+{
+	int olen;
+	const char *p = fdt_getprop(fdt, offset, "clock-output-names", &olen);
+
+	if (!p)
+		/* short match */
+		return 0;
+
+	if (memcmp(p, s, len) != 0)
+		return 0;
+
+	if (p[len] == '\0')
+		return 1;
+	else
+		return 0;
+}
+
 static int ft_fixup_clocks(void *fdt, const char **names, u32 *rates, int num)
 {
-	int offs, node_offs, ret, i;
+	int offs, node_offs, subnode, ret, i;
 	uint32_t phandle;
 
 	offs = fdt_path_offset(fdt, "/ocp/interconnect@4a000000/segment@0/target-module@5000/cm_core_aon@0/clocks");
@@ -223,9 +242,19 @@ static int ft_fixup_clocks(void *fdt, const char **names, u32 *rates, int num)
 	for (i = 0; i < num; i++) {
 		node_offs = fdt_subnode_offset(fdt, offs, names[i]);
 		if (node_offs < 0) {
-			debug("Could not find clock sub-node %s: %s\n",
-			      names[i], fdt_strerror(node_offs));
-			return offs;
+			for (subnode = fdt_first_subnode(fdt, offs);
+			     subnode >= 0;
+			     subnode = fdt_next_subnode(fdt, subnode)) {
+				ret = fdt_clock_output_name_eq_(fdt, subnode, names[i],
+								strlen(names[i]));
+				if (ret)
+					node_offs = subnode;
+			}
+			if (node_offs < 0) {
+				debug("Could not find clock sub-node %s: %s\n",
+				      names[i], fdt_strerror(node_offs));
+				return offs;
+			}
 		}
 
 		phandle = fdt_get_phandle(fdt, node_offs);
