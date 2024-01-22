@@ -163,6 +163,8 @@ char *cpu_get_name(char *name)
 	return ptr;
 }
 
+int print_cpuinfo(void) __attribute__((weak, alias("default_print_cpuinfo")));
+
 int default_print_cpuinfo(void)
 {
 	printf("CPU: %s, vendor %s, device %xh\n",
