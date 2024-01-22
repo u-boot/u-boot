@@ -13,7 +13,6 @@ config SYS_SOC
 	default "imxrt1170"
 
 config SYS_CONFIG_NAME
-	string
 	default "imxrt1170-evk"
 
 config IMX_CONFIG

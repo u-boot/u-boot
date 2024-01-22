@@ -102,7 +102,6 @@ config BOARD_MT7621_NAND_RFB
 endchoice
 
 config SYS_CONFIG_NAME
-	string "Board configuration name"
 	default "mt7621" if  BOARD_MT7621_RFB || BOARD_MT7621_NAND_RFB
 
 config SYS_BOARD

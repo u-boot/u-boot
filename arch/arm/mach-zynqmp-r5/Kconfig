@@ -13,14 +13,6 @@ config SYS_VENDOR
 config SYS_SOC
 	default "zynqmp-r5"
 
-config SYS_CONFIG_NAME
-	string "Board configuration name"
-	default "xilinx_zynqmp_r5"
-	help
-	  This option contains information about board configuration name.
-	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
-	  will be used for board configuration.
-
 config CPU_FREQ_HZ
 	int "CPU frequency"
 	default 800000000

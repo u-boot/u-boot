@@ -133,7 +133,6 @@ config SYS_BOARD
 	  be used.
 
 config SYS_CONFIG_NAME
-	string "Board configuration name"
 	default "mt7622" if TARGET_MT7622
 	default "mt7623" if TARGET_MT7623
 	default "mt7629" if TARGET_MT7629
@@ -145,11 +144,6 @@ config SYS_CONFIG_NAME
 	default "mt8512" if TARGET_MT8512
 	default "mt8516" if TARGET_MT8516
 	default "mt8518" if TARGET_MT8518
-	default ""
-	help
-	  This option contains information about board configuration name.
-	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
-	  will be used for board configuration.
 
 config MTK_BROM_HEADER_INFO
 	string
