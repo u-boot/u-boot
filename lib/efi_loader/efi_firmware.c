@@ -207,7 +207,8 @@ void efi_firmware_fill_version_info(struct efi_firmware_image_descriptor *image_
 	u16 varname[13]; /* u"FmpStateXXXX" */
 	efi_status_t ret;
 	efi_uintn_t size, expected_size;
-	uint num_banks = 1;
+	u8 num_banks = 1;
+	u16 __maybe_unused num_images;
 	uint active_index = 0;
 	struct fmp_state *var_state;
 
@@ -229,7 +230,9 @@ void efi_firmware_fill_version_info(struct efi_firmware_image_descriptor *image_
 		if (ret)
 			return;
 
-		num_banks = CONFIG_FWU_NUM_BANKS;
+		ret = fwu_get_banks_images(&num_banks, &num_images);
+		if (ret)
+			return;
 	}
 
 	size = num_banks * sizeof(*var_state);
@@ -379,7 +382,8 @@ efi_status_t efi_firmware_set_fmp_state_var(struct fmp_state *state, u8 image_in
 {
 	u16 varname[13]; /* u"FmpStateXXXX" */
 	efi_status_t ret;
-	uint num_banks = 1;
+	u8 num_banks = 1;
+	u16 __maybe_unused num_images;
 	uint update_bank = 0;
 	efi_uintn_t size;
 	efi_guid_t *image_type_id;
@@ -398,7 +402,9 @@ efi_status_t efi_firmware_set_fmp_state_var(struct fmp_state *state, u8 image_in
 		if (ret)
 			return EFI_INVALID_PARAMETER;
 
-		num_banks = CONFIG_FWU_NUM_BANKS;
+		ret = fwu_get_banks_images(&num_banks, &num_images);
+		if (ret)
+			return EFI_INVALID_PARAMETER;
 	}
 
 	size = num_banks * sizeof(*var_state);
