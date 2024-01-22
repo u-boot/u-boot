@@ -9,7 +9,4 @@ config SYS_VENDOR
 config SYS_SOC
 	default "hi3798mv200"
 
-config SYS_CONFIG_NAME
-	default "hc2910-2aghd05"
-
 endif
