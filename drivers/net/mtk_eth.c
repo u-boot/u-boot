@@ -1246,7 +1246,8 @@ static int mtk_phy_start(struct mtk_eth_priv *priv)
 	}
 
 	if (!priv->force_mode) {
-		if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII)
+		if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
+		    priv->phy_interface == PHY_INTERFACE_MODE_XGMII)
 			mtk_xphy_link_adjust(priv);
 		else
 			mtk_phy_link_adjust(priv);
@@ -1516,7 +1517,7 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 
 static void mtk_xmac_init(struct mtk_eth_priv *priv)
 {
-	u32 sts;
+	u32 force_link = 0;
 
 	switch (priv->phy_interface) {
 	case PHY_INTERFACE_MODE_USXGMII:
@@ -1531,14 +1532,18 @@ static void mtk_xmac_init(struct mtk_eth_priv *priv)
 		       SYSCFG0_GE_MODE_M << SYSCFG0_GE_MODE_S(priv->gmac_id),
 		       0);
 
-	if (priv->gmac_id == 1) {
+	if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII &&
+	    priv->gmac_id == 1) {
 		mtk_infra_rmw(priv, TOPMISC_NETSYS_PCS_MUX,
 			      NETSYS_PCS_MUX_MASK, MUX_G2_USXGMII_SEL);
-	} else if (priv->gmac_id == 2) {
-		sts = mtk_gmac_read(priv, XGMAC_STS(priv->gmac_id));
-		sts |= XGMAC_FORCE_LINK;
-		mtk_gmac_write(priv, XGMAC_STS(priv->gmac_id), sts);
 	}
+
+	if (priv->phy_interface == PHY_INTERFACE_MODE_XGMII ||
+	    priv->gmac_id == 2)
+		force_link = XGMAC_FORCE_LINK(priv->gmac_id);
+
+	mtk_gmac_rmw(priv, XGMAC_STS(priv->gmac_id),
+		     XGMAC_FORCE_LINK(priv->gmac_id), force_link);
 
 	/* Force GMAC link down */
 	mtk_gmac_write(priv, GMAC_PORT_MCR(priv->gmac_id), FORCE_MODE);
@@ -1828,7 +1833,8 @@ static int mtk_eth_probe(struct udevice *dev)
 	mtk_eth_mdc_init(priv);
 
 	/* Set MAC mode */
-	if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII)
+	if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
+	    priv->phy_interface == PHY_INTERFACE_MODE_XGMII)
 		mtk_xmac_init(priv);
 	else
 		mtk_mac_init(priv);

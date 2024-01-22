@@ -268,7 +268,7 @@ enum mkt_eth_capabilities {
 
 /* XGMAC Status Registers */
 #define XGMAC_STS(x)			(((x) == 2) ? 0x001C : 0x000C)
-#define XGMAC_FORCE_LINK		BIT(15)
+#define XGMAC_FORCE_LINK(x)		(((x) == 1) ? BIT(31) : BIT(15))
 
 /* XGMAC Registers */
 #define XGMAC_PORT_MCR(x)		(0x2000 + (((x) - 1) * 0x1000))
