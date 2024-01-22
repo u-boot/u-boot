@@ -137,6 +137,7 @@ struct mtk_eth_priv {
 	int force_mode;
 	int speed;
 	int duplex;
+	int mdc;
 	bool pn_swap;
 
 	struct phy_device *phydev;
@@ -1607,6 +1608,26 @@ static void mtk_eth_fifo_init(struct mtk_eth_priv *priv)
 	mtk_pdma_write(priv, PDMA_RST_IDX_REG, RST_DTX_IDX0 | RST_DRX_IDX0);
 }
 
+static void mtk_eth_mdc_init(struct mtk_eth_priv *priv)
+{
+	u32 divider;
+
+	if (priv->mdc == 0)
+		return;
+
+	divider = min_t(u32, DIV_ROUND_UP(MDC_MAX_FREQ, priv->mdc), MDC_MAX_DIVIDER);
+
+	/* Configure MDC turbo mode */
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V3))
+		mtk_gmac_rmw(priv, GMAC_MAC_MISC_REG, 0, MISC_MDC_TURBO);
+	else
+		mtk_gmac_rmw(priv, GMAC_PPSC_REG, 0, MISC_MDC_TURBO);
+
+	/* Configure MDC divider */
+	mtk_gmac_rmw(priv, GMAC_PPSC_REG, PHY_MDC_CFG,
+		     FIELD_PREP(PHY_MDC_CFG, divider));
+}
+
 static int mtk_eth_start(struct udevice *dev)
 {
 	struct mtk_eth_priv *priv = dev_get_priv(dev);
@@ -1803,6 +1824,9 @@ static int mtk_eth_probe(struct udevice *dev)
 		noncached_alloc(priv->soc->rxd_size * NUM_RX_DESC,
 				ARCH_DMA_MINALIGN);
 
+	/* Set MDC divider */
+	mtk_eth_mdc_init(priv);
+
 	/* Set MAC mode */
 	if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII)
 		mtk_xmac_init(priv);
@@ -1880,6 +1904,17 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 	}
 
 	priv->gmac_id = dev_read_u32_default(dev, "mediatek,gmac-id", 0);
+
+	priv->mdc = 0;
+	subnode = ofnode_find_subnode(dev_ofnode(dev), "mdio");
+	if (ofnode_valid(subnode)) {
+		priv->mdc = ofnode_read_u32_default(subnode, "clock-frequency", 2500000);
+		if (priv->mdc > MDC_MAX_FREQ ||
+		    priv->mdc < MDC_MAX_FREQ / MDC_MAX_DIVIDER) {
+			printf("error: MDIO clock frequency out of range\n");
+			return -EINVAL;
+		}
+	}
 
 	/* Interface mode is required */
 	pdata->phy_interface = dev_read_phy_mode(dev);

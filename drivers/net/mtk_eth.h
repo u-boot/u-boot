@@ -180,6 +180,12 @@ enum mkt_eth_capabilities {
 
 /* GMAC Registers */
 
+#define GMAC_PPSC_REG			0x0000
+#define PHY_MDC_CFG			GENMASK(29, 24)
+#define MDC_TURBO			BIT(20)
+#define MDC_MAX_FREQ			25000000
+#define MDC_MAX_DIVIDER			63
+
 #define GMAC_PIAC_REG			0x0004
 #define PHY_ACS_ST			BIT(31)
 #define MDIO_REG_ADDR_S			25
@@ -197,6 +203,7 @@ enum mkt_eth_capabilities {
 #define P1_XGMAC_FORCE_LINK		BIT(15)
 
 #define GMAC_MAC_MISC_REG		0x0010
+#define MISC_MDC_TURBO			BIT(4)
 
 #define GMAC_GSW_CFG_REG		0x0080
 #define GSWTX_IPG_M			0xF0000
