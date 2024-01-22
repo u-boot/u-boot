@@ -5,6 +5,7 @@ config IMX8M
 	select BINMAN
 	select GICV3 if ARMV8_PSCI
 	select HAS_CAAM
+	select LTO
 	select ROM_UNIFIED_SECTIONS
 	select ARMV8_CRYPTO
 
