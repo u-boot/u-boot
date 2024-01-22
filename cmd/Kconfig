@@ -1085,7 +1085,7 @@ config CMD_FASTBOOT
 config CMD_FLASH
 	bool "flinfo, erase, protect"
 	default y
-	depends on MTD || FLASH_CFI_DRIVER || MTD_NOR_FLASH
+	depends on FLASH_CFI_DRIVER || MTD_NOR_FLASH
 	help
 	  NOR flash support.
 	    flinfo - print FLASH memory information
@@ -2702,6 +2702,7 @@ config JFFS2_PART_SIZE
 config CMD_MTDPARTS
 	bool "MTD partition support"
 	depends on MTD
+	select MTD_PARTITIONS
 	help
 	  MTD partitioning tool support.
 	  It is strongly encouraged to avoid using this command

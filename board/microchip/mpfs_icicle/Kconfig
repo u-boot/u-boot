@@ -50,12 +50,12 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply CMD_I2C
 	imply DM_I2C
 	imply SYS_I2C_MICROCHIP
+	imply MTD
 	imply SPI
 	imply DM_SPI
 	imply MICROCHIP_COREQSPI
 	imply MTD_SPI_NAND
 	imply CMD_MTD
-	imply MTD_PARTITIONS
 	imply CMD_MTDPARTS
 
 endif

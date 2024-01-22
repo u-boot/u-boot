@@ -204,6 +204,7 @@ config TARGET_AM43XX_EVM
 	imply DM_I2C
 	imply DM_SPI
 	imply DM_SPI_FLASH
+	imply MTD
 	imply SPL_ENV_SUPPORT
 	imply SPL_FS_EXT4
 	imply SPL_FS_FAT
