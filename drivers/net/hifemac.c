@@ -418,7 +418,7 @@ static void hisi_femac_get_stats(struct udevice *dev, u64 *data)
 	}
 }
 
-int hisi_femac_of_to_plat(struct udevice *dev)
+static int hisi_femac_of_to_plat(struct udevice *dev)
 {
 	int ret, i;
 	struct hisi_femac_priv *priv = dev_get_priv(dev);
@@ -553,7 +553,7 @@ static int hisi_femac_phy_reset(struct hisi_femac_priv *priv)
 	return 0;
 }
 
-int hisi_femac_probe(struct udevice *dev)
+static int hisi_femac_probe(struct udevice *dev)
 {
 	struct hisi_femac_priv *priv = dev_get_priv(dev);
 	int ret, i;
