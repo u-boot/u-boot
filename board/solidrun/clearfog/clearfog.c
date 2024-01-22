@@ -90,9 +90,22 @@ int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 
 	/* Apply runtime detection changes */
 	if (sr_product_is(&cf_tlv_data, "Clearfog GTR")) {
-		board_serdes_map[0].serdes_type = PEX0;
-		board_serdes_map[0].serdes_speed = SERDES_SPEED_5_GBPS;
-		board_serdes_map[0].serdes_mode = PEX_ROOT_COMPLEX_X1;
+		if (IS_ENABLED(CONFIG_CLEARFOG_GTR_SERDES0_SATA)) {
+			/* serdes 0 is sata (like clearfog pro) */
+		} else if (IS_ENABLED(CONFIG_CLEARFOG_GTR_SERDES0_PCIE)) {
+			/* serdes 0 is pci */
+			board_serdes_map[0].serdes_type = PEX0;
+			board_serdes_map[0].serdes_speed = SERDES_SPEED_5_GBPS;
+			board_serdes_map[0].serdes_mode = PEX_ROOT_COMPLEX_X1;
+		}
+		/* serdes 1 is 2.5Gbps fixed link to ethernet switch */
+		board_serdes_map[1].serdes_type = SGMII1;
+		board_serdes_map[1].serdes_speed = SERDES_SPEED_3_125_GBPS;
+		board_serdes_map[1].serdes_mode = SERDES_DEFAULT_MODE;
+		/* serdes 2 is pci (like clearfog pro) */
+		/* serdes 3 is usb-3 (like clearfog pro) */
+		/* serdes 4 is pci (like clearfog pro) */
+		/* serdes 5 is sfp connector (like clearfog pro) */
 	} else if (sr_product_is(&cf_tlv_data, "Clearfog Pro")) {
 		/* handle recognized product as noop, no adjustment required */
 	} else if (sr_product_is(&cf_tlv_data, "Clearfog Base")) {
