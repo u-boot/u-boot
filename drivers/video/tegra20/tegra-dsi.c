@@ -743,6 +743,7 @@ static int tegra_dsi_panel_timings(struct udevice *dev,
 static void tegra_dsi_init_clocks(struct udevice *dev)
 {
 	struct tegra_dsi_priv *priv = dev_get_priv(dev);
+	struct tegra_dc_plat *dc_plat = dev_get_plat(dev);
 	struct mipi_dsi_device *device = &priv->device;
 	unsigned int mul, div;
 	unsigned long bclk, plld;
@@ -753,6 +754,19 @@ static void tegra_dsi_init_clocks(struct udevice *dev)
 					(div * device->lanes);
 
 	plld = DIV_ROUND_UP(bclk * 8, USEC_PER_SEC);
+
+	dc_plat->scdiv = ((plld * USEC_PER_SEC +
+		priv->timing.pixelclock.typ / 2) /
+		priv->timing.pixelclock.typ) - 2;
+
+	/*
+	 * BUG: If DISP1 is a PLLD/D2 child, it cannot go over 370MHz. The
+	 * cause of this is not quite clear. This can be overcomed by
+	 * halving the PLLD/D2 if the target rate is > 800MHz. This way
+	 * DISP1 and DSI clocks will be equal.
+	 */
+	if (plld > 800)
+		plld /= 2;
 
 	switch (clock_get_osc_freq()) {
 	case CLOCK_OSC_FREQ_12_0: /* OSC is 12Mhz */

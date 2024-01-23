@@ -23,6 +23,7 @@ struct tegra_dc_plat {
 	struct udevice *dev;		/* Display controller device */
 	struct dc_ctlr *dc;		/* Display controller regmap */
 	bool pipe;			/* DC number: 0 for A, 1 for B */
+	ulong scdiv;			/* Shift clock divider */
 };
 
 /* This holds information about a window which can be displayed */

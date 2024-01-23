@@ -46,6 +46,7 @@ struct tegra_lcd_priv {
 	fdt_addr_t frame_buffer;	/* Address of frame buffer */
 	unsigned pixel_clock;		/* Pixel clock in Hz */
 	int dc_clk[2];			/* Contains clk and its parent */
+	ulong scdiv;			/* Clock divider used by disp_clk_ctrl */
 	bool rotation;			/* 180 degree panel turn */
 	bool pipe;			/* DC controller: 0 for A, 1 for B */
 };
@@ -124,8 +125,6 @@ static int update_display_mode(struct tegra_lcd_priv *priv)
 	struct dc_disp_reg *disp = &priv->dc->disp;
 	struct display_timing *dt = &priv->timing;
 	unsigned long val;
-	unsigned long rate;
-	unsigned long div;
 
 	writel(0x0, &disp->disp_timing_opt);
 
@@ -148,21 +147,11 @@ static int update_display_mode(struct tegra_lcd_priv *priv)
 		writel(val, &disp->disp_interface_ctrl);
 	}
 
-	/*
-	 * The pixel clock divider is in 7.1 format (where the bottom bit
-	 * represents 0.5). Here we calculate the divider needed to get from
-	 * the display clock (typically 600MHz) to the pixel clock. We round
-	 * up or down as requried.
-	 */
-	rate = clock_get_periph_rate(priv->dc_clk[0], priv->dc_clk[1]);
-	div = ((rate * 2 + priv->pixel_clock / 2) / priv->pixel_clock) - 2;
-	debug("Display clock %lu, divider %lu\n", rate, div);
-
 	if (priv->soc->has_rgb)
 		writel(0x00010001, &disp->shift_clk_opt);
 
 	val = PIXEL_CLK_DIVIDER_PCD1 << PIXEL_CLK_DIVIDER_SHIFT;
-	val |= div << SHIFT_CLK_DIVIDER_SHIFT;
+	val |= priv->scdiv << SHIFT_CLK_DIVIDER_SHIFT;
 	writel(val, &disp->disp_clk_ctrl);
 
 	return 0;
@@ -313,6 +302,17 @@ static int tegra_display_probe(struct tegra_lcd_priv *priv,
 #endif
 
 	/*
+	 * The pixel clock divider is in 7.1 format (where the bottom bit
+	 * represents 0.5). Here we calculate the divider needed to get from
+	 * the display clock (typically 600MHz) to the pixel clock. We round
+	 * up or down as required.
+	 */
+	if (!priv->scdiv)
+		priv->scdiv = ((rate * 2 + priv->pixel_clock / 2)
+						/ priv->pixel_clock) - 2;
+	debug("Display clock %lu, divider %lu\n", rate, priv->scdiv);
+
+	/*
 	 * HOST1X is init by default at 150MHz with PLLC as parent
 	 */
 	clock_start_periph_pll(PERIPH_ID_HOST1X, CLOCK_ID_CGENERAL,
@@ -371,6 +371,14 @@ static int tegra_lcd_probe(struct udevice *dev)
 			log_err("failed to power up DISP gate: %d", ret);
 			return ret;
 		}
+	}
+
+	/* Get shift clock divider from Tegra DSI if used */
+	if (!strcmp(priv->panel->name, TEGRA_DSI_A) ||
+	    !strcmp(priv->panel->name, TEGRA_DSI_B)) {
+		struct tegra_dc_plat *dc_plat = dev_get_plat(priv->panel);
+
+		priv->scdiv = dc_plat->scdiv;
 	}
 
 	if (tegra_display_probe(priv, (void *)plat->base)) {
