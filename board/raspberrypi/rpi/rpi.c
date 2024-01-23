@@ -171,6 +171,11 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 		DTB_DIR "bcm2711-rpi-cm4.dtb",
 		true,
 	},
+	[0x17] = {
+		"5 Model B",
+		DTB_DIR "bcm2712-rpi-5-b.dtb",
+		true,
+	},
 };
 
 static const struct rpi_model rpi_models_old_scheme[] = {
@@ -429,15 +434,27 @@ static void get_board_revision(void)
 	int ret;
 	const struct rpi_model *models;
 	uint32_t models_count;
+	ofnode node;
 
 	BCM2835_MBOX_INIT_HDR(msg);
 	BCM2835_MBOX_INIT_TAG(&msg->get_board_rev, GET_BOARD_REV);
 
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg->hdr);
 	if (ret) {
-		printf("bcm2835: Could not query board revision\n");
 		/* Ignore error; not critical */
-		return;
+		node = ofnode_path("/system");
+		if (!ofnode_valid(node)) {
+			printf("bcm2835: Could not find /system node\n");
+			return;
+		}
+
+		ret = ofnode_read_u32(node, "linux,revision", &revision);
+		if (ret) {
+			printf("bcm2835: Could not find linux,revision\n");
+			return;
+		}
+	} else {
+		revision = msg->get_board_rev.body.resp.rev;
 	}
 
 	/*
@@ -451,7 +468,6 @@ static void get_board_revision(void)
 	 * http://www.raspberrypi.org/forums/viewtopic.php?f=63&t=98367&start=250
 	 * http://www.raspberrypi.org/forums/viewtopic.php?f=31&t=20594
 	 */
-	revision = msg->get_board_rev.body.resp.rev;
 	if (revision & 0x800000) {
 		rev_scheme = 1;
 		rev_type = (revision >> 4) & 0xff;
