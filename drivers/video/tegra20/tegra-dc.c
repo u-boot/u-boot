@@ -397,12 +397,6 @@ static int tegra_lcd_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = panel_set_backlight(priv->panel, BACKLIGHT_DEFAULT);
-	if (ret) {
-		debug("%s: Cannot set backlight to default, ret=%d\n", __func__, ret);
-		return ret;
-	}
-
 	mmu_set_region_dcache_behaviour(priv->frame_buffer, plat->size,
 					DCACHE_WRITETHROUGH);
 
@@ -415,7 +409,7 @@ static int tegra_lcd_probe(struct udevice *dev)
 	debug("LCD frame buffer at %08x, size %x\n", priv->frame_buffer,
 	      plat->size);
 
-	return 0;
+	return panel_set_backlight(priv->panel, BACKLIGHT_DEFAULT);
 }
 
 static int tegra_lcd_of_to_plat(struct udevice *dev)
