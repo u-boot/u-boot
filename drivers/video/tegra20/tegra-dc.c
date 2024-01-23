@@ -3,7 +3,6 @@
  * Copyright (c) 2011 The Chromium OS Authors.
  */
 
-#include <common.h>
 #include <backlight.h>
 #include <dm.h>
 #include <fdtdec.h>
@@ -23,9 +22,14 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/pwm.h>
 #include <asm/arch/display.h>
-#include <asm/arch-tegra/timer.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/* Holder of Tegra per-SOC DC differences */
+struct tegra_dc_soc_info {
+	bool has_timer;
+	bool has_rgb;
+};
 
 /* Information about the display controller */
 struct tegra_lcd_priv {
@@ -35,6 +39,7 @@ struct tegra_lcd_priv {
 	struct display_timing timing;
 	struct udevice *panel;
 	struct dc_ctlr *dc;		/* Display controller regmap */
+	const struct tegra_dc_soc_info *soc;
 	fdt_addr_t frame_buffer;	/* Address of frame buffer */
 	unsigned pixel_clock;		/* Pixel clock in Hz */
 	int dc_clk[2];			/* Contains clk and its parent */
@@ -43,8 +48,8 @@ struct tegra_lcd_priv {
 
 enum {
 	/* Maximum LCD size we support */
-	LCD_MAX_WIDTH		= 1920,
-	LCD_MAX_HEIGHT		= 1200,
+	LCD_MAX_WIDTH		= 2560,
+	LCD_MAX_HEIGHT		= 1600,
 	LCD_MAX_LOG2_BPP	= VIDEO_BPP16,
 };
 
@@ -110,9 +115,9 @@ static void update_window(struct tegra_lcd_priv *priv,
 	writel(val, &dc->cmd.state_ctrl);
 }
 
-static int update_display_mode(struct dc_disp_reg *disp,
-			       struct tegra_lcd_priv *priv)
+static int update_display_mode(struct tegra_lcd_priv *priv)
 {
+	struct dc_disp_reg *disp = &priv->dc->disp;
 	struct display_timing *dt = &priv->timing;
 	unsigned long val;
 	unsigned long rate;
@@ -128,14 +133,16 @@ static int update_display_mode(struct dc_disp_reg *disp,
 	       &disp->front_porch);
 	writel(dt->hactive.typ | (dt->vactive.typ << 16), &disp->disp_active);
 
-	val = DE_SELECT_ACTIVE << DE_SELECT_SHIFT;
-	val |= DE_CONTROL_NORMAL << DE_CONTROL_SHIFT;
-	writel(val, &disp->data_enable_opt);
+	if (priv->soc->has_rgb) {
+		val = DE_SELECT_ACTIVE << DE_SELECT_SHIFT;
+		val |= DE_CONTROL_NORMAL << DE_CONTROL_SHIFT;
+		writel(val, &disp->data_enable_opt);
 
-	val = DATA_FORMAT_DF1P1C << DATA_FORMAT_SHIFT;
-	val |= DATA_ALIGNMENT_MSB << DATA_ALIGNMENT_SHIFT;
-	val |= DATA_ORDER_RED_BLUE << DATA_ORDER_SHIFT;
-	writel(val, &disp->disp_interface_ctrl);
+		val = DATA_FORMAT_DF1P1C << DATA_FORMAT_SHIFT;
+		val |= DATA_ALIGNMENT_MSB << DATA_ALIGNMENT_SHIFT;
+		val |= DATA_ORDER_RED_BLUE << DATA_ORDER_SHIFT;
+		writel(val, &disp->disp_interface_ctrl);
+	}
 
 	/*
 	 * The pixel clock divider is in 7.1 format (where the bottom bit
@@ -147,7 +154,8 @@ static int update_display_mode(struct dc_disp_reg *disp,
 	div = ((rate * 2 + priv->pixel_clock / 2) / priv->pixel_clock) - 2;
 	debug("Display clock %lu, divider %lu\n", rate, div);
 
-	writel(0x00010001, &disp->shift_clk_opt);
+	if (priv->soc->has_rgb)
+		writel(0x00010001, &disp->shift_clk_opt);
 
 	val = PIXEL_CLK_DIVIDER_PCD1 << PIXEL_CLK_DIVIDER_SHIFT;
 	val |= div << SHIFT_CLK_DIVIDER_SHIFT;
@@ -174,6 +182,7 @@ static void basic_init(struct dc_cmd_reg *cmd)
 	writel(val, &cmd->disp_pow_ctrl);
 
 	val = readl(&cmd->disp_cmd);
+	val &= ~CTRL_MODE_MASK;
 	val |= CTRL_MODE_C_DISPLAY << CTRL_MODE_SHIFT;
 	writel(val, &cmd->disp_cmd);
 }
@@ -229,8 +238,8 @@ static void rgb_enable(struct dc_com_reg *com)
 		writel(rgb_sel_tab[i], &com->pin_output_sel[i]);
 }
 
-static int setup_window(struct disp_ctl_win *win,
-			struct tegra_lcd_priv *priv)
+static int setup_window(struct tegra_lcd_priv *priv,
+			struct disp_ctl_win *win)
 {
 	if (priv->rotation) {
 		win->x = priv->width * 2;
@@ -274,12 +283,11 @@ static int setup_window(struct disp_ctl_win *win,
  * You should pass in the U-Boot address here, and check the contents of
  * struct tegra_lcd_priv to see what was actually chosen.
  *
- * @param blob			Device tree blob
  * @param priv			Driver's private data
  * @param default_lcd_base	Default address of LCD frame buffer
  * Return: 0 if ok, -1 on error (unsupported bits per pixel)
  */
-static int tegra_display_probe(const void *blob, struct tegra_lcd_priv *priv,
+static int tegra_display_probe(struct tegra_lcd_priv *priv,
 			       void *default_lcd_base)
 {
 	struct disp_ctl_win window;
@@ -288,7 +296,7 @@ static int tegra_display_probe(const void *blob, struct tegra_lcd_priv *priv,
 	priv->frame_buffer = (u32)default_lcd_base;
 
 	/*
-	 * We halve the rate if DISP1 paret is PLLD, since actual parent
+	 * We halve the rate if DISP1 parent is PLLD, since actual parent
 	 * is plld_out0 which is PLLD divided by 2.
 	 */
 	if (priv->dc_clk[1] == CLOCK_ID_DISPLAY)
@@ -303,13 +311,17 @@ static int tegra_display_probe(const void *blob, struct tegra_lcd_priv *priv,
 			       rate);
 
 	basic_init(&priv->dc->cmd);
-	basic_init_timer(&priv->dc->disp);
-	rgb_enable(&priv->dc->com);
+
+	if (priv->soc->has_timer)
+		basic_init_timer(&priv->dc->disp);
+
+	if (priv->soc->has_rgb)
+		rgb_enable(&priv->dc->com);
 
 	if (priv->pixel_clock)
-		update_display_mode(&priv->dc->disp, priv);
+		update_display_mode(priv);
 
-	if (setup_window(&window, priv))
+	if (setup_window(priv, &window))
 		return -1;
 
 	update_window(priv, &window);
@@ -322,7 +334,6 @@ static int tegra_lcd_probe(struct udevice *dev)
 	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct tegra_lcd_priv *priv = dev_get_priv(dev);
-	const void *blob = gd->fdt_blob;
 	int ret;
 
 	/* Initialize the Tegra display controller */
@@ -330,8 +341,8 @@ static int tegra_lcd_probe(struct udevice *dev)
 	funcmux_select(PERIPH_ID_DISP1, FUNCMUX_DEFAULT);
 #endif
 
-	if (tegra_display_probe(blob, priv, (void *)plat->base)) {
-		printf("%s: Failed to probe display driver\n", __func__);
+	if (tegra_display_probe(priv, (void *)plat->base)) {
+		debug("%s: Failed to probe display driver\n", __func__);
 		return -1;
 	}
 
@@ -382,6 +393,8 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 		debug("%s: No display controller address\n", __func__);
 		return -EINVAL;
 	}
+
+	priv->soc = (struct tegra_dc_soc_info *)dev_get_driver_data(dev);
 
 	ret = clock_decode_pair(dev, priv->dc_clk);
 	if (ret < 0) {
@@ -464,19 +477,43 @@ static int tegra_lcd_bind(struct udevice *dev)
 static const struct video_ops tegra_lcd_ops = {
 };
 
+static const struct tegra_dc_soc_info tegra20_dc_soc_info = {
+	.has_timer = true,
+	.has_rgb = true,
+};
+
+static const struct tegra_dc_soc_info tegra30_dc_soc_info = {
+	.has_timer = false,
+	.has_rgb = true,
+};
+
+static const struct tegra_dc_soc_info tegra114_dc_soc_info = {
+	.has_timer = false,
+	.has_rgb = false,
+};
+
 static const struct udevice_id tegra_lcd_ids[] = {
-	{ .compatible = "nvidia,tegra20-dc" },
-	{ .compatible = "nvidia,tegra30-dc" },
-	{ }
+	{
+		.compatible = "nvidia,tegra20-dc",
+		.data = (ulong)&tegra20_dc_soc_info
+	}, {
+		.compatible = "nvidia,tegra30-dc",
+		.data = (ulong)&tegra30_dc_soc_info
+	}, {
+		.compatible = "nvidia,tegra114-dc",
+		.data = (ulong)&tegra114_dc_soc_info
+	}, {
+		/* sentinel */
+	}
 };
 
 U_BOOT_DRIVER(tegra_lcd) = {
-	.name	= "tegra_lcd",
-	.id	= UCLASS_VIDEO,
-	.of_match = tegra_lcd_ids,
-	.ops	= &tegra_lcd_ops,
-	.bind	= tegra_lcd_bind,
-	.probe	= tegra_lcd_probe,
+	.name		= "tegra_lcd",
+	.id		= UCLASS_VIDEO,
+	.of_match	= tegra_lcd_ids,
+	.ops		= &tegra_lcd_ops,
+	.bind		= tegra_lcd_bind,
+	.probe		= tegra_lcd_probe,
 	.of_to_plat	= tegra_lcd_of_to_plat,
 	.priv_auto	= sizeof(struct tegra_lcd_priv),
 };
