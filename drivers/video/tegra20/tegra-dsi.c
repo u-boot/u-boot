@@ -766,10 +766,6 @@ static int tegra_dsi_encoder_enable(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = panel_set_backlight(priv->panel, BACKLIGHT_DEFAULT);
-	if (ret)
-		return ret;
-
 	tegra_dsi_configure(dev, device->mode_flags);
 
 	tegra_dc_enable_controller(dev);
@@ -784,8 +780,10 @@ static int tegra_dsi_encoder_enable(struct udevice *dev)
 
 static int tegra_dsi_bridge_set_panel(struct udevice *dev, int percent)
 {
-	/* Is not used in tegra dc */
-	return 0;
+	struct tegra_dsi_priv *priv = dev_get_priv(dev);
+
+	/* Turn on/off backlight */
+	return panel_set_backlight(priv->panel, percent);
 }
 
 static int tegra_dsi_panel_timings(struct udevice *dev,
