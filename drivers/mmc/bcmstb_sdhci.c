@@ -38,14 +38,51 @@
  */
 #define BCMSTB_SDHCI_MINIMUM_CLOCK_FREQUENCY	400000
 
-/*
- * This driver has only been tested with eMMC devices; SD devices may
- * not work.
- */
+#define SDIO_CFG_CTRL				0x0
+#define  SDIO_CFG_CTRL_SDCD_N_TEST_EN		BIT(31)
+#define  SDIO_CFG_CTRL_SDCD_N_TEST_LEV		BIT(30)
+
+#define SDIO_CFG_SD_PIN_SEL			0x44
+#define  SDIO_CFG_SD_PIN_SEL_MASK		0x3
+#define  SDIO_CFG_SD_PIN_SEL_CARD		BIT(1)
+
 struct sdhci_bcmstb_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
 };
+
+struct sdhci_brcmstb_dev_priv {
+	int (*init)(struct udevice *dev);
+};
+
+static int sdhci_brcmstb_init_2712(struct udevice *dev)
+{
+	struct sdhci_host *host = dev_get_priv(dev);
+	void *cfg_regs;
+	u32 reg;
+
+	/* Map in the non-standard CFG registers */
+	cfg_regs = dev_remap_addr_name(dev, "cfg");
+	if (!cfg_regs)
+		return -ENOENT;
+
+	if ((host->mmc->host_caps & MMC_CAP_NONREMOVABLE) ||
+	    (host->mmc->host_caps & MMC_CAP_NEEDS_POLL)) {
+		/* Force presence */
+		reg = readl(cfg_regs + SDIO_CFG_CTRL);
+		reg &= ~SDIO_CFG_CTRL_SDCD_N_TEST_LEV;
+		reg |= SDIO_CFG_CTRL_SDCD_N_TEST_EN;
+		writel(reg, cfg_regs + SDIO_CFG_CTRL);
+	} else {
+		/* Enable card detection line */
+		reg = readl(cfg_regs + SDIO_CFG_SD_PIN_SEL);
+		reg &= ~SDIO_CFG_SD_PIN_SEL_MASK;
+		reg |= SDIO_CFG_SD_PIN_SEL_CARD;
+		writel(reg, cfg_regs + SDIO_CFG_SD_PIN_SEL);
+	}
+
+	return 0;
+}
 
 static int sdhci_bcmstb_bind(struct udevice *dev)
 {
@@ -54,13 +91,19 @@ static int sdhci_bcmstb_bind(struct udevice *dev)
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
 
+/* No specific SDHCI operations are required */
+static const struct sdhci_ops bcmstb_sdhci_ops = { 0 };
+
 static int sdhci_bcmstb_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sdhci_bcmstb_plat *plat = dev_get_plat(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
+	struct sdhci_brcmstb_dev_priv *dev_priv;
 	fdt_addr_t base;
 	int ret;
+
+	dev_priv = (struct sdhci_brcmstb_dev_priv *)dev_get_driver_data(dev);
 
 	base = dev_read_addr(dev);
 	if (base == FDT_ADDR_T_NONE)
@@ -75,6 +118,8 @@ static int sdhci_bcmstb_probe(struct udevice *dev)
 
 	host->mmc = &plat->mmc;
 	host->mmc->dev = dev;
+	host->ops = &bcmstb_sdhci_ops;
+
 	ret = sdhci_setup_cfg(&plat->cfg, host,
 			      BCMSTB_SDHCI_MAXIMUM_CLOCK_FREQUENCY,
 			      BCMSTB_SDHCI_MINIMUM_CLOCK_FREQUENCY);
@@ -84,10 +129,21 @@ static int sdhci_bcmstb_probe(struct udevice *dev)
 	upriv->mmc = &plat->mmc;
 	host->mmc->priv = host;
 
+	if (dev_priv && dev_priv->init) {
+		ret = dev_priv->init(dev);
+		if (ret)
+			return ret;
+	}
+
 	return sdhci_probe(dev);
 }
 
+static const struct sdhci_brcmstb_dev_priv match_priv_2712 = {
+	.init = sdhci_brcmstb_init_2712,
+};
+
 static const struct udevice_id sdhci_bcmstb_match[] = {
+	{ .compatible = "brcm,bcm2712-sdhci", .data = (ulong)&match_priv_2712 },
 	{ .compatible = "brcm,bcm7425-sdhci" },
 	{ .compatible = "brcm,sdhci-brcmstb" },
 	{ }
