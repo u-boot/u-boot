@@ -20,9 +20,9 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/display.h>
 #include <asm/arch-tegra30/dsi.h>
 
+#include "tegra-dc.h"
 #include "mipi-phy.h"
 
 struct tegra_dsi_priv {

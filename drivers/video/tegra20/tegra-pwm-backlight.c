@@ -15,7 +15,8 @@
 
 #include <asm/io.h>
 #include <asm/gpio.h>
-#include <asm/arch/display.h>
+
+#include "tegra-dc.h"
 
 #define TEGRA_DISPLAY_A_BASE		0x54200000
 #define TEGRA_DISPLAY_B_BASE		0x54240000

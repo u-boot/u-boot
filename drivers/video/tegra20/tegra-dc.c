@@ -21,7 +21,8 @@
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/pwm.h>
-#include <asm/arch/display.h>
+
+#include "tegra-dc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
