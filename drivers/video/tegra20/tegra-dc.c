@@ -242,8 +242,8 @@ static int setup_window(struct tegra_lcd_priv *priv,
 			struct disp_ctl_win *win)
 {
 	if (priv->rotation) {
-		win->x = priv->width * 2;
-		win->y = priv->height;
+		win->x = priv->width * 2 - 1;
+		win->y = priv->height - 1;
 	} else {
 		win->x = 0;
 		win->y = 0;
