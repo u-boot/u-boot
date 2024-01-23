@@ -218,8 +218,11 @@ static const u32 rgb_sel_tab[PIN_OUTPUT_SEL_COUNT] = {
 	0x00020000,
 };
 
-static void rgb_enable(struct dc_com_reg *com)
+static void rgb_enable(struct tegra_lcd_priv *priv)
 {
+	struct dc_com_reg *com = &priv->dc->com;
+	struct display_timing *dt = &priv->timing;
+	u32 value;
 	int i;
 
 	for (i = 0; i < PIN_REG_COUNT; i++) {
@@ -227,6 +230,21 @@ static void rgb_enable(struct dc_com_reg *com)
 		writel(rgb_polarity_tab[i], &com->pin_output_polarity[i]);
 		writel(rgb_data_tab[i], &com->pin_output_data[i]);
 	}
+
+	/* configure H- and V-sync signal polarities */
+	value = readl(&com->pin_output_polarity[1]);
+
+	if (dt->flags & DISPLAY_FLAGS_HSYNC_LOW)
+		value |= LHS_OUTPUT_POLARITY_LOW;
+	else
+		value &= ~LHS_OUTPUT_POLARITY_LOW;
+
+	if (dt->flags & DISPLAY_FLAGS_VSYNC_LOW)
+		value |= LVS_OUTPUT_POLARITY_LOW;
+	else
+		value &= ~LVS_OUTPUT_POLARITY_LOW;
+
+	writel(value, &com->pin_output_polarity[1]);
 
 	for (i = 0; i < PIN_OUTPUT_SEL_COUNT; i++)
 		writel(rgb_sel_tab[i], &com->pin_output_sel[i]);
@@ -327,7 +345,7 @@ static int tegra_display_probe(struct tegra_lcd_priv *priv,
 		basic_init_timer(&priv->dc->disp);
 
 	if (priv->soc->has_rgb)
-		rgb_enable(&priv->dc->com);
+		rgb_enable(priv);
 
 	if (priv->pixel_clock)
 		update_display_mode(priv);
