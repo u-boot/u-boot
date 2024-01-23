@@ -8,8 +8,7 @@
 
 #include <asm/arch/base.h>
 
-#define BCM2835_SDHCI_PHYSADDR ({ BUG_ON(!rpi_bcm283x_base); \
-				  rpi_bcm283x_base + 0x00300000; })
+#define BCM2835_SDHCI_PHYSADDR	rpi_sdhci_base
 
 int bcm2835_sdhci_init(u32 regbase, u32 emmc_freq);
 

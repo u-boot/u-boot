@@ -8,8 +8,7 @@
 
 #include <asm/arch/base.h>
 
-#define BCM2835_WDOG_PHYSADDR ({ BUG_ON(!rpi_bcm283x_base); \
-				 rpi_bcm283x_base + 0x00100000; })
+#define BCM2835_WDOG_PHYSADDR	rpi_wdog_base
 
 struct bcm2835_wdog_regs {
 	u32 unknown0[7];

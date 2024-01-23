@@ -146,7 +146,11 @@ static void rpi_update_mem_map(void)
 static void rpi_update_mem_map(void) {}
 #endif
 
-unsigned long rpi_bcm283x_base = 0x3f000000;
+/* Default bcm283x devices addresses */
+unsigned long rpi_mbox_base  = 0x3f00b880;
+unsigned long rpi_sdhci_base = 0x3f300000;
+unsigned long rpi_wdog_base  = 0x3f100000;
+unsigned long rpi_timer_base = 0x3f003000;
 
 int arch_cpu_init(void)
 {
@@ -157,22 +161,45 @@ int arch_cpu_init(void)
 
 int mach_cpu_init(void)
 {
-	int ret, soc_offset;
+	int ret, soc, offset;
 	u64 io_base, size;
 
 	rpi_update_mem_map();
 
 	/* Get IO base from device tree */
-	soc_offset = fdt_path_offset(gd->fdt_blob, "/soc");
-	if (soc_offset < 0)
-		return soc_offset;
+	soc = fdt_path_offset(gd->fdt_blob, "/soc");
+	if (soc < 0)
+		return soc;
 
-	ret = fdt_read_range((void *)gd->fdt_blob, soc_offset, 0, NULL,
-				&io_base, &size);
+	ret = fdt_read_range((void *)gd->fdt_blob, soc, 0, NULL,
+			     &io_base, &size);
 	if (ret)
 		return ret;
 
-	rpi_bcm283x_base = io_base;
+	rpi_mbox_base  = io_base + 0x00b880;
+	rpi_sdhci_base = io_base + 0x300000;
+	rpi_wdog_base  = io_base + 0x100000;
+	rpi_timer_base = io_base + 0x003000;
+
+	offset = fdt_node_offset_by_compatible(gd->fdt_blob, soc,
+					       "brcm,bcm2835-mbox");
+	if (offset > soc)
+		rpi_mbox_base = fdt_get_base_address(gd->fdt_blob, offset);
+
+	offset = fdt_node_offset_by_compatible(gd->fdt_blob, soc,
+					       "brcm,bcm2835-sdhci");
+	if (offset > soc)
+		rpi_sdhci_base = fdt_get_base_address(gd->fdt_blob, offset);
+
+	offset = fdt_node_offset_by_compatible(gd->fdt_blob, soc,
+					       "brcm,bcm2835-system-timer");
+	if (offset > soc)
+		rpi_timer_base = fdt_get_base_address(gd->fdt_blob, offset);
+
+	offset = fdt_node_offset_by_compatible(gd->fdt_blob, soc,
+					       "brcm,bcm2712-pm");
+	if (offset > soc)
+		rpi_wdog_base = fdt_get_base_address(gd->fdt_blob, offset);
 
 	return 0;
 }
