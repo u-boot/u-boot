@@ -4,6 +4,7 @@
  */
 
 #include <backlight.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <log.h>
@@ -380,6 +381,10 @@ static int tegra_lcd_probe(struct udevice *dev)
 
 		priv->scdiv = dc_plat->scdiv;
 	}
+
+	/* Clean the framebuffer area */
+	memset((u8 *)plat->base, 0, plat->size);
+	flush_dcache_all();
 
 	if (tegra_display_probe(priv, (void *)plat->base)) {
 		debug("%s: Failed to probe display driver\n", __func__);
