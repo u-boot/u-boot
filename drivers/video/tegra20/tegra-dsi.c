@@ -873,7 +873,7 @@ static int tegra_dsi_bridge_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	priv->video_fifo_depth = 480;
+	priv->video_fifo_depth = 1920;
 	priv->host_fifo_depth = 64;
 
 	ret = reset_get_by_name(dev, "dsi", &reset_ctl);
