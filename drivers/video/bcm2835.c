@@ -16,7 +16,7 @@ static int bcm2835_video_probe(struct udevice *dev)
 	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
-	int w, h, pitch;
+	int w, h, pitch, bpp;
 	ulong fb_base, fb_size, fb_start, fb_end;
 
 	debug("bcm2835: Query resolution...\n");
@@ -41,9 +41,23 @@ static int bcm2835_video_probe(struct udevice *dev)
 					DCACHE_WRITEBACK);
 	video_set_flush_dcache(dev, true);
 
+	bpp = pitch / w;
+	switch (bpp) {
+	case 2:
+		uc_priv->bpix = VIDEO_BPP16;
+		break;
+	case 4:
+		uc_priv->bpix = VIDEO_BPP32;
+		break;
+	default:
+		printf("bcm2835: unexpected bpp %d, pitch %d, width %d\n",
+		       bpp, pitch, w);
+		uc_priv->bpix = VIDEO_BPP32;
+		break;
+	}
+
 	uc_priv->xsize = w;
 	uc_priv->ysize = h;
-	uc_priv->bpix = VIDEO_BPP32;
 	plat->base = fb_base;
 	plat->size = fb_size;
 
