@@ -12,6 +12,7 @@
 #include <mipi_dsi.h>
 #include <backlight.h>
 #include <panel.h>
+#include <reset.h>
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/time.h>
@@ -863,6 +864,7 @@ static int tegra_dsi_bridge_probe(struct udevice *dev)
 	struct tegra_dsi_priv *priv = dev_get_priv(dev);
 	struct mipi_dsi_device *device = &priv->device;
 	struct mipi_dsi_panel_plat *mipi_plat;
+	struct reset_ctl reset_ctl;
 	int ret;
 
 	priv->version = dev_get_driver_data(dev);
@@ -875,6 +877,13 @@ static int tegra_dsi_bridge_probe(struct udevice *dev)
 
 	priv->video_fifo_depth = 480;
 	priv->host_fifo_depth = 64;
+
+	ret = reset_get_by_name(dev, "dsi", &reset_ctl);
+	if (ret) {
+		log_debug("%s: reset_get_by_name() failed: %d\n",
+			  __func__, ret);
+		return ret;
+	}
 
 	ret = uclass_get_device_by_phandle(UCLASS_REGULATOR, dev,
 					   "avdd-dsi-csi-supply", &priv->avdd);
@@ -914,11 +923,16 @@ static int tegra_dsi_bridge_probe(struct udevice *dev)
 
 	tegra_dsi_get_format(device->format, &priv->format);
 
+	reset_assert(&reset_ctl);
+
 	ret = regulator_set_enable_if_allowed(priv->avdd, true);
 	if (ret && ret != -ENOSYS)
 		return ret;
 
 	tegra_dsi_init_clocks(dev);
+
+	mdelay(2);
+	reset_deassert(&reset_ctl);
 
 	return 0;
 }
