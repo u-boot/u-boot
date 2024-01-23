@@ -412,7 +412,7 @@ static int tegra_lcd_probe(struct udevice *dev)
 	uc_priv->xsize = priv->width;
 	uc_priv->ysize = priv->height;
 	uc_priv->bpix = priv->log2_bpp;
-	debug("LCD frame buffer at %pa, size %x\n", &priv->frame_buffer,
+	debug("LCD frame buffer at %08x, size %x\n", priv->frame_buffer,
 	      plat->size);
 
 	return 0;
