@@ -14,6 +14,13 @@ config TARGET_RV1126_NEU2
 	  IO board and Neu2 needs to mount on top of this IO board in order to
 	  create complete Edgeble Neural Compute Module 2(Neu2) IO platform.
 
+config TARGET_RV1126_SONOFF_IHOST
+	bool "Sonoff iHost smart home hub"
+	help
+	  Sonoff iHost is a smart home gateway based on Rockchip RV1126 SoC.
+	  It features Wifi, Bluetooth and Zigbee radios that are used by many
+	  smart home devices.
+
 config SOC_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select HAS_CUSTOM_SYS_INIT_SP_ADDR
@@ -58,5 +65,6 @@ config TEXT_BASE
 	default 0x600000
 
 source board/edgeble/neural-compute-module-2/Kconfig
+source board/itead/sonoff-ihost/Kconfig
 
 endif
