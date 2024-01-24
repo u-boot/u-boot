@@ -39,7 +39,7 @@ static efi_status_t EFIAPI check_loaded_image_protocol
 				  NULL, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
 	if (ret != EFI_SUCCESS) {
 		cout->output_string(cout,
-				    u"Could not open loaded image protocol");
+				    u"Could not open loaded image protocol\n");
 		return ret;
 	}
 	if ((void *)check_loaded_image_protocol <
