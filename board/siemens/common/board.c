@@ -93,10 +93,6 @@ int board_init(void)
 
 	gpmc_init();
 
-#if CONFIG_IS_ENABLED(NAND_CS_INIT)
-	board_nand_cs_init();
-#endif
-
 	return 0;
 }
 #endif /* #ifndef CONFIG_SPL_BUILD */

@@ -358,30 +358,4 @@ U_BOOT_CMD(
 #endif /* #if defined(CONFIG_DRIVER_TI_CPSW) */
 #endif /* #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) */
 
-#if CONFIG_IS_ENABLED(NAND_CS_INIT)
-#define ETAMIN_NAND_GPMC_CONFIG1	0x00000800
-#define ETAMIN_NAND_GPMC_CONFIG2	0x001e1e00
-#define ETAMIN_NAND_GPMC_CONFIG3	0x001e1e00
-#define ETAMIN_NAND_GPMC_CONFIG4	0x16051807
-#define ETAMIN_NAND_GPMC_CONFIG5	0x00151e1e
-#define ETAMIN_NAND_GPMC_CONFIG6	0x16000f80
-
-/* GPMC definitions for second nand cs1 */
-static const u32 gpmc_nand_config[] = {
-	ETAMIN_NAND_GPMC_CONFIG1,
-	ETAMIN_NAND_GPMC_CONFIG2,
-	ETAMIN_NAND_GPMC_CONFIG3,
-	ETAMIN_NAND_GPMC_CONFIG4,
-	ETAMIN_NAND_GPMC_CONFIG5,
-	ETAMIN_NAND_GPMC_CONFIG6,
-	/*CONFIG7- computed as params */
-};
-
-static void board_nand_cs_init(void)
-{
-	enable_gpmc_cs_config(gpmc_nand_config, &gpmc_cfg->cs[1],
-			      0x18000000, GPMC_SIZE_16M);
-}
-#endif
-
 #include "../common/board.c"
