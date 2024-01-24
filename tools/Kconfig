@@ -148,6 +148,27 @@ config SERIAL_CLK_FREQUENCY
 	  Chip specific frequency: other value 30MHz
 	  1-30MHz  2-50MHz 3-60MHz 4-75MHz 5-80MHz 6-100MHz 7-133MHz 8-166MHz
 
+config FSPI_COL_ADDR_W
+	hex "Column Address With"
+	default 0x00
+	depends on FSPI_CONF_HEADER
+	help
+	  Default 0. For HyperBus protocol, it is fixed to 3
+
+config FSPI_CONTROLLER_MISC
+	hex "FSPI miscellaneous control"
+	default 0x00000000
+	depends on FSPI_CONF_HEADER
+	help
+	  Default 0. [0x40] Controller Misc Options
+
+config FSPI_FLASH_A1_SIZE
+	hex "Size in bytes of Flash A1"
+	default 0x10000000
+	depends on FSPI_CONF_HEADER
+	help
+	  Size of Flash connected to A1 in bytes
+
 config LUT_CUSTOM_SEQUENCE
 	hex "Enable Custom Look Up Table(LUT) Sequence"
 	default 0x00
