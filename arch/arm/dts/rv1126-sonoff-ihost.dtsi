@@ -5,24 +5,22 @@
  */
 
 / {
-	compatible = "edgeble,neural-compute-module-2", "rockchip,rv1126";
-
 	aliases {
+		ethernet0 = &gmac;
 		mmc0 = &emmc;
 	};
 
-	vccio_flash: vccio-flash-regulator {
+	chosen {
+		stdout-path = "serial2:1500000n8";
+	};
+
+	vcc5v0_sys: regulator-vcc5v0-sys {
 		compatible = "regulator-fixed";
-		enable-active-high;
-		gpio = <&gpio0 RK_PB3 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&flash_vol_sel>;
-		regulator-name = "vccio_flash";
+		regulator-name = "vcc5v0_sys";
 		regulator-always-on;
 		regulator-boot-on;
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		vin-supply = <&vcc_3v3>;
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
 	};
 
 	sdio_pwrseq: pwrseq-sdio {
@@ -35,18 +33,16 @@
 	};
 };
 
-&cpu0 {
-	cpu-supply = <&vdd_arm>;
-};
-
 &emmc {
 	bus-width = <8>;
+	cap-mmc-highspeed;
+	mmc-hs200-1_8v;
 	non-removable;
 	pinctrl-names = "default";
-	pinctrl-0 = <&emmc_bus8 &emmc_cmd &emmc_clk>;
+	pinctrl-0 = <&emmc_bus8 &emmc_cmd &emmc_clk &emmc_rstnout>;
 	rockchip,default-sample-phase = <90>;
 	vmmc-supply = <&vcc_3v3>;
-	vqmmc-supply = <&vccio_flash>;
+	vqmmc-supply = <&vcc_1v8>;
 	status = "okay";
 };
 
@@ -187,6 +183,7 @@
 
 			vcc_dovdd: LDO_REG5 {
 				regulator-name = "vcc_dovdd";
+				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
@@ -248,16 +245,65 @@
 	};
 };
 
+&i2c2 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	pcf8563: rtc@51 {
+		compatible = "nxp,pcf8563";
+		reg = <0x51>;
+		#clock-cells = <0>;
+		interrupt-parent = <&gpio0>;
+		interrupts = <RK_PA2 IRQ_TYPE_LEVEL_LOW>;
+		clock-output-names = "xin32k";
+	};
+};
+
+&gmac {
+	assigned-clocks = <&cru CLK_GMAC_SRC_M1>, <&cru CLK_GMAC_SRC>,
+			  <&cru CLK_GMAC_TX_RX>;
+	assigned-clock-parents = <&cru CLK_GMAC_RGMII_M1>, <&cru CLK_GMAC_SRC_M1>,
+				 <&cru RMII_MODE_CLK>;
+	assigned-clock-rates = <0>, <50000000>;
+	clock_in_out = "output";
+	phy-handle = <&phy>;
+	phy-mode = "rmii";
+	phy-supply = <&vcc_3v3>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&rgmiim1_miim &rgmiim1_rxer &rgmiim1_bus2 &rgmiim1_mclkinout>;
+	status = "okay";
+};
+
+&mdio {
+	phy: ethernet-phy@0 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0x0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&eth_phy_rst>;
+		reset-active-low;
+		reset-assert-us = <50000>;
+		reset-deassert-us = <10000>;
+		reset-gpios = <&gpio2 RK_PA6 GPIO_ACTIVE_LOW>;
+	};
+};
+
 &pinctrl {
-	bt {
-		bt_enable: bt-enable {
-			rockchip,pins = <3 RK_PA5 RK_FUNC_GPIO &pcfg_pull_none>;
+	ethernet {
+		eth_phy_rst: eth-phy-rst {
+			rockchip,pins = <2 RK_PA6 RK_FUNC_GPIO &pcfg_pull_down>;
 		};
 	};
+	bt {
+		bt_enable: bt-enable {
+			rockchip,pins = <1 RK_PC6 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
 
-	flash {
-		flash_vol_sel: flash-vol-sel {
-			rockchip,pins = <0 RK_PB3 RK_FUNC_GPIO &pcfg_pull_none>;
+		bt_wake_dev: bt-wake-dev {
+			rockchip,pins = <1 RK_PC7 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		bt_wake_host: bt-wake-host {
+			rockchip,pins = <1 RK_PC5 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 
@@ -277,7 +323,7 @@
 &pmu_io_domains {
 	pmuio0-supply = <&vcc1v8_pmu>;
 	pmuio1-supply = <&vcc3v3_sys>;
-	vccio1-supply = <&vccio_flash>;
+	vccio1-supply = <&vcc_1v8>;
 	vccio2-supply = <&vccio_sd>;
 	vccio3-supply = <&vcc_1v8>;
 	vccio4-supply = <&vcc_dovdd>;
@@ -290,22 +336,6 @@
 &saradc {
 	vref-supply = <&vcc_1v8>;
 	status = "okay";
-};
-
-&sfc {
-	pinctrl-names = "default";
-	pinctrl-0 = <&fspi_pins>;
-	#address-cells = <1>;
-	#size-cells = <0>;
-	status = "okay";
-
-	flash@0 {
-		compatible = "jedec,spi-nor";
-		reg = <0>;
-		spi-max-frequency = <50000000>;
-		spi-rx-bus-width = <4>;
-		spi-tx-bus-width = <1>;
-	};
 };
 
 &sdio {
@@ -323,23 +353,52 @@
 	vmmc-supply = <&vcc3v3_sys>;
 	vqmmc-supply = <&vcc_1v8>;
 	status = "okay";
-	#address-cells = <1>;
-	#size-cells = <0>;
+};
+
+&sdmmc {
+	bus-width = <4>;
+	cap-mmc-highspeed;
+	cap-sd-highspeed;
+	card-detect-delay = <200>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc0_clk &sdmmc0_cmd &sdmmc0_bus4 &sdmmc0_det>;
+	rockchip,default-sample-phase = <90>;
+	sd-uhs-sdr12;
+	sd-uhs-sdr25;
+	sd-uhs-sdr104;
+	vqmmc-supply = <&vccio_sd>;
+	status = "okay";
 };
 
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_xfer &uart0_ctsn &uart0_rtsn>;
+	uart-has-rtscts;
 	status = "okay";
 
 	bluetooth {
-		compatible = "qcom,qca9377-bt";
-		clocks = <&rk809 1>;
-		enable-gpios = <&gpio3 RK_PA5 GPIO_ACTIVE_HIGH>; /* BT_RST */
+		compatible = "realtek,rtl8723ds-bt";
+		device-wake-gpios = <&gpio1 RK_PC7 GPIO_ACTIVE_HIGH>; /* BT_WAKE */
+		enable-gpios = <&gpio1 RK_PC6 GPIO_ACTIVE_HIGH>; /* BT_RST */
+		host-wake-gpios = <&gpio1 RK_PC5 GPIO_ACTIVE_HIGH>; /* BT_WAKE_HOST */
 		max-speed = <2000000>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&bt_enable>;
-		vddxo-supply = <&vcc3v3_sys>;
-		vddio-supply = <&vcc_1v8>;
+		pinctrl-0 = <&bt_enable>, <&bt_wake_dev>, <&bt_wake_host>;
 	};
+};
+
+&uart2 {
+	status = "okay";
+};
+
+&uart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart3m2_xfer>;
+	status = "okay";
+};
+
+&uart4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart4m2_xfer>;
+	status = "okay";
 };
