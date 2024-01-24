@@ -159,7 +159,7 @@ static int draco_read_nand_geometry(void)
 /*
  * Read header information from EEPROM into global structure.
  */
-static int read_eeprom(void)
+int draco_read_eeprom(void)
 {
 	/* Read Siemens eeprom data (DDR3) */
 	if (siemens_ee_read_data(SIEMENS_EE_ADDR_DDR3, (uchar *)&settings.ddr3,
@@ -195,7 +195,7 @@ static int read_eeprom(void)
 	return draco_read_nand_geometry();
 }
 
-static void board_init_ddr(void)
+void draco_init_ddr(void)
 {
 struct emif_regs draco_ddr3_emif_reg_data = {
 	.zq_config = 0x50074BE4,
@@ -242,7 +242,7 @@ struct ctrl_ioregs draco_ddr3_ioregs = {
 		   &draco_ddr3_cmd_ctrl_data, &draco_ddr3_emif_reg_data, 0);
 }
 
-static void spl_siemens_board_init(void)
+void spl_draco_board_init(void)
 {
 	return;
 }
@@ -357,5 +357,3 @@ U_BOOT_CMD(
 );
 #endif /* #if defined(CONFIG_DRIVER_TI_CPSW) */
 #endif /* #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) */
-
-#include "../common/board.c"

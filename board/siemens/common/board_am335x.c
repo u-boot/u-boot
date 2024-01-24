@@ -33,6 +33,7 @@
 #include <cpsw.h>
 #include <watchdog.h>
 #include <asm/mach-types.h>
+#include "board_am335x.h"
 #include "eeprom.h"
 #include "factoryset.h"
 
@@ -56,7 +57,7 @@ void set_mux_conf_regs(void)
 	gd->have_console = 1;
 
 	siemens_ee_setup();
-	if (read_eeprom() < 0)
+	if (draco_read_eeprom() < 0)
 		puts("Could not get board ID.\n");
 
 	enable_board_pin_mux();
@@ -64,8 +65,8 @@ void set_mux_conf_regs(void)
 
 void sdram_init(void)
 {
-	spl_siemens_board_init();
-	board_init_ddr();
+	spl_draco_board_init();
+	draco_init_ddr();
 
 	return;
 }

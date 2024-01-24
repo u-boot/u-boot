@@ -35,7 +35,7 @@
 #include <miiphy.h>
 #include <cpsw.h>
 #include <watchdog.h>
-#include "board.h"
+#include "../common/board_am335x.h"
 #include "../common/eeprom.h"
 #include "../common/factoryset.h"
 #include "pmic.h"
@@ -43,7 +43,7 @@
 #include <bmp_layout.h>
 
 #ifdef CONFIG_SPL_BUILD
-static void board_init_ddr(void)
+void draco_init_ddr(void)
 {
 struct emif_regs pxm2_ddr3_emif_reg_data = {
 	.sdram_config = 0x41805332,
@@ -135,7 +135,7 @@ int voltage_update(unsigned int module, unsigned char vddx_op_vol_sel)
 const struct dpll_params dpll_mpu_pxm2 = {
 		720, OSC-1, 1, -1, -1, -1, -1};
 
-void spl_siemens_board_init(void)
+void spl_draco_board_init(void)
 {
 	uchar buf[4];
 	/*
@@ -162,7 +162,7 @@ void spl_siemens_board_init(void)
 	}
 }
 
-int read_eeprom(void)
+int draco_read_eeprom(void)
 {
 	/* nothing ToDo here for this board */
 
@@ -275,5 +275,3 @@ int board_late_init(void)
 	return 0;
 }
 #endif
-
-#include "../common/board.c"
