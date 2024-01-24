@@ -107,7 +107,7 @@ const struct dss_features dss_am625_feats = {
 
 	.num_planes = 2,
 	/* note: vid is plane_id 0 and vidl1 is plane_id 1 */
-	.vid_name = { "vidl1", "vid1" },
+	.vid_name = { "vidl1", "vid" },
 	.vid_lite = { true, false },
 	.vid_order = { 1, 0 },
 };
@@ -814,13 +814,13 @@ static int tidss_drv_probe(struct udevice *dev)
 		priv->bus_format = &dss_bus_formats[8];
 
 	/* Common address */
-	priv->base_common = dev_remap_addr_index(dev, 0);
+	priv->base_common = dev_remap_addr_name(dev, priv->feat->common);
 	if (!priv->base_common)
 		return -EINVAL;
 
 	/* plane address setup and enable */
 	for (i = 0; i < priv->feat->num_planes; i++) {
-		priv->base_vid[i] = dev_remap_addr_index(dev, i + 2);
+		priv->base_vid[i] = dev_remap_addr_name(dev, priv->feat->vid_name[i]);
 		if (!priv->base_vid[i])
 			return -EINVAL;
 	}
@@ -841,8 +841,8 @@ static int tidss_drv_probe(struct udevice *dev)
 
 	/* video port address clocks and enable */
 	for (i = 0; i < priv->feat->num_vps; i++) {
-		priv->base_ovr[i] = dev_remap_addr_index(dev, i + 4);
-		priv->base_vp[i] = dev_remap_addr_index(dev, i + 6);
+		priv->base_ovr[i] = dev_remap_addr_name(dev, priv->feat->ovr_name[i]);
+		priv->base_vp[i] = dev_remap_addr_name(dev, priv->feat->vp_name[i]);
 	}
 
 	ret = clk_get_by_name(dev, "vp1", &priv->vp_clk[0]);
