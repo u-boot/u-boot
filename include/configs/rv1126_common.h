@@ -28,7 +28,6 @@
 	"kernel_addr_r=0x02008000\0" \
 	"ramdisk_addr_r=0x0a200000\0"
 
-#include <config_distro_bootcmd.h>
 #define CFG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0x0fffffff\0" \
 	"initrd_high=0x0fffffff\0" \
@@ -36,6 +35,6 @@
 	"partitions=" PARTS_DEFAULT \
 	ENV_MEM_LAYOUT_SETTINGS	 \
 	ROCKCHIP_DEVICE_SETTINGS \
-	BOOTENV
+	"boot_targets=" BOOT_TARGETS "\0"
 
 #endif /* __CONFIG_RV1126_COMMON_H */
