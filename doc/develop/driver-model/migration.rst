@@ -13,7 +13,7 @@ CONFIG_DM
 * Status: In progress
 * Deadline: 2020.01
 
-Starting with the 2010.01 release CONFIG_DM will be enabled for all boards.
+Starting with the 2020.01 release CONFIG_DM will be enabled for all boards.
 This does not concern CONFIG_DM_SPL and CONFIG_DM_TPL. The conversion date for
 these configuration items still needs to be defined.
 
