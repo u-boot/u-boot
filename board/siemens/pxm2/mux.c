@@ -17,7 +17,7 @@
 #include <asm/arch/mux.h>
 #include <asm/io.h>
 #include <i2c.h>
-#include "board.h"
+#include "eeprom.h"
 
 static struct module_pin_mux uart0_pin_mux[] = {
 	{OFFSET(uart0_rxd), (MODE(0) | PULLUP_EN | RXACTIVE)},	/* UART0_RXD */

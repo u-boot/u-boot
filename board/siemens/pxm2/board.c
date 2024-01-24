@@ -161,7 +161,6 @@ void spl_siemens_board_init(void)
 		printf("voltage update failed\n");
 	}
 }
-#endif /* if def CONFIG_SPL_BUILD */
 
 int read_eeprom(void)
 {
@@ -169,6 +168,7 @@ int read_eeprom(void)
 
 	return 0;
 }
+#endif /* if def CONFIG_SPL_BUILD */
 
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
 	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD))

@@ -18,4 +18,7 @@
 #define SIEMENS_EE_ADDR_CHIP		0x120
 #define SIEMENS_EE_ADDR_FACTORYSET	0x400
 
+int siemens_ee_setup(void);
+int siemens_ee_read_data(uint address, uchar *buffer, int len);
+
 #endif /* _COMMON_EEPROM_H_ */

@@ -138,8 +138,8 @@ static int draco_read_nand_geometry(void)
 	struct am335x_nand_geometry geo;
 
 	/* Read NAND geometry */
-	if (i2c_read(SIEMENS_EE_I2C_ADDR, SIEMENS_EE_ADDR_NAND_GEO, 2,
-		     (uchar *)&geo, sizeof(struct am335x_nand_geometry))) {
+	if (siemens_ee_read_data(SIEMENS_EE_ADDR_NAND_GEO, (uchar *)&geo,
+				 sizeof(struct am335x_nand_geometry))) {
 		printf("Could not read the NAND geomtery; something fundamentally wrong on the I2C bus.\n");
 		return -EIO;
 	}
@@ -155,27 +155,21 @@ static int draco_read_nand_geometry(void)
 	return 0;
 }
 
+#ifdef CONFIG_SPL_BUILD
 /*
  * Read header information from EEPROM into global structure.
  */
 static int read_eeprom(void)
 {
-	/* Check if baseboard eeprom is available */
-	if (i2c_probe(SIEMENS_EE_I2C_ADDR)) {
-		printf("Could not probe the EEPROM; something fundamentally wrong on the I2C bus.\n");
-		return 1;
-	}
-
-#ifdef CONFIG_SPL_BUILD
 	/* Read Siemens eeprom data (DDR3) */
-	if (i2c_read(SIEMENS_EE_I2C_ADDR, SIEMENS_EE_ADDR_DDR3, 2,
-		     (uchar *)&settings.ddr3, sizeof(struct ddr3_data))) {
+	if (siemens_ee_read_data(SIEMENS_EE_ADDR_DDR3, (uchar *)&settings.ddr3,
+				 sizeof(struct ddr3_data))) {
 		printf("Could not read the EEPROM; something fundamentally wrong on the I2C bus.\nUse default DDR3 timings\n");
 		set_default_ddr3_timings();
 	}
 	/* Read Siemens eeprom data (CHIP) */
-	if (i2c_read(SIEMENS_EE_I2C_ADDR, SIEMENS_EE_ADDR_CHIP, 2,
-		     (uchar *)&settings.chip, sizeof(settings.chip)))
+	if (siemens_ee_read_data(SIEMENS_EE_ADDR_CHIP, (uchar *)&settings.chip,
+				 sizeof(settings.chip)))
 		printf("Could not read chip settings\n");
 
 	if (ddr3_default.magic == settings.ddr3.magic &&
@@ -199,11 +193,8 @@ static int read_eeprom(void)
 	print_ddr3_timings();
 
 	return draco_read_nand_geometry();
-#endif
-	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
 static void board_init_ddr(void)
 {
 struct emif_regs draco_ddr3_emif_reg_data = {

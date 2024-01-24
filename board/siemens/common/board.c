@@ -29,7 +29,6 @@
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
-#include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
 #include <watchdog.h>
@@ -38,6 +37,7 @@
 #include "factoryset.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
 
 #ifdef CONFIG_SPL_BUILD
 void set_uart_mux_conf(void)
@@ -49,12 +49,13 @@ void set_mux_conf_regs(void)
 {
 	/* Initalize the board header */
 	enable_i2c0_pin_mux();
-	i2c_set_bus_num(0);
 
 	/* enable early the console */
 	gd->baudrate = CONFIG_BAUDRATE;
 	serial_init();
 	gd->have_console = 1;
+
+	siemens_ee_setup();
 	if (read_eeprom() < 0)
 		puts("Could not get board ID.\n");
 
@@ -79,8 +80,7 @@ int board_init(void)
 #if defined(CONFIG_HW_WATCHDOG)
 	hw_watchdog_init();
 #endif /* defined(CONFIG_HW_WATCHDOG) */
-	i2c_set_bus_num(0);
-	if (read_eeprom() < 0)
+	if (siemens_ee_setup() < 0)
 		puts("Could not get board ID.\n");
 #ifdef CONFIG_MACH_TYPE
 	gd->bd->bi_arch_number = CONFIG_MACH_TYPE;
