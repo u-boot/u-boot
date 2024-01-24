@@ -26,7 +26,7 @@
 	"fdt_addr_r=0x08300000\0" \
 	"fdtoverlay_addr_r=0x02000000\0" \
 	"kernel_addr_r=0x02008000\0" \
-	"ramdisk_addr_r=0x0a200000\0"
+	"ramdisk_addr_r=0x0a400000\0"
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0x0fffffff\0" \
