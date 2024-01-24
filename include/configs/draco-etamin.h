@@ -69,9 +69,6 @@
 /* Physical Memory Map */
 #define CFG_MAX_RAM_BANK_SIZE       (1024 << 20)    /* 1GB */
 
-#define EEPROM_ADDR_DDR3 0x90
-#define EEPROM_ADDR_CHIP 0x120
-
 /* nedded by compliance test in read mode */
 
 #undef COMMON_ENV_DFU_ARGS

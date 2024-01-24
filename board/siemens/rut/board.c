@@ -36,6 +36,7 @@
 #include <watchdog.h>
 #include <linux/delay.h>
 #include "board.h"
+#include "../common/eeprom.h"
 #include "../common/factoryset.h"
 
 /*

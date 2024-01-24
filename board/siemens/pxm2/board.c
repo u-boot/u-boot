@@ -36,6 +36,7 @@
 #include <cpsw.h>
 #include <watchdog.h>
 #include "board.h"
+#include "../common/eeprom.h"
 #include "../common/factoryset.h"
 #include "pmic.h"
 #include <nand.h>

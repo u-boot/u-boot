@@ -22,11 +22,11 @@
 #include <net.h>
 #include <errno.h>
 #include <g_dnl.h>
+#include "eeprom.h"
 #include "factoryset.h"
 
-#define EEPR_PG_SZ		0x80
-#define EEPROM_FATORYSET_OFFSET	0x400
-#define OFF_PG            EEPROM_FATORYSET_OFFSET/EEPR_PG_SZ
+#define EEPR_PG_SZ	0x80
+#define OFF_PG		(SIEMENS_EE_ADDR_FACTORYSET / EEPR_PG_SZ)
 
 /* Global variable that contains necessary information from FactorySet */
 struct factorysetcontainer factory_dat;
@@ -159,7 +159,7 @@ int factoryset_read_eeprom(int i2c_addr)
 #endif
 
 #if CONFIG_IS_ENABLED(DM_I2C)
-	ret = uclass_get_device_by_seq(UCLASS_I2C, EEPROM_I2C_BUS, &bus);
+	ret = uclass_get_device_by_seq(UCLASS_I2C, SIEMENS_EE_I2C_BUS, &bus);
 	if (ret)
 		goto err;
 
@@ -171,14 +171,14 @@ int factoryset_read_eeprom(int i2c_addr)
 	if (ret)
 		goto err;
 
-	ret = dm_i2c_read(dev, EEPROM_FATORYSET_OFFSET, hdr, sizeof(hdr));
+	ret = dm_i2c_read(dev, SIEMENS_EE_ADDR_FACTORYSET, hdr, sizeof(hdr));
 	if (ret)
 		goto err;
 #else
 	if (i2c_probe(i2c_addr))
 		goto err;
 
-	if (i2c_read(i2c_addr, EEPROM_FATORYSET_OFFSET, 2, hdr, sizeof(hdr)))
+	if (i2c_read(i2c_addr, SIEMENS_EE_ADDR_FACTORYSET, 2, hdr, sizeof(hdr)))
 		goto err;
 #endif
 

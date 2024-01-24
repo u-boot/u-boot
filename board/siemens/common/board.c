@@ -34,7 +34,8 @@
 #include <cpsw.h>
 #include <watchdog.h>
 #include <asm/mach-types.h>
-#include "../common/factoryset.h"
+#include "eeprom.h"
+#include "factoryset.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -70,7 +71,6 @@ void sdram_init(void)
 #endif /* #ifdef CONFIG_SPL_BUILD */
 
 #ifndef CONFIG_SPL_BUILD
-#define FACTORYSET_EEPROM_ADDR		0x50
 /*
  * Basic board specific setup.  Pinmux has been handled already.
  */
@@ -88,7 +88,7 @@ int board_init(void)
 	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_FACTORYSET
-	factoryset_read_eeprom(FACTORYSET_EEPROM_ADDR);
+	factoryset_read_eeprom(SIEMENS_EE_I2C_ADDR);
 #endif
 
 	gpmc_init();
