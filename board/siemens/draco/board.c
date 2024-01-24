@@ -12,34 +12,21 @@
  * Copyright (C) 2011, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
-#include <common.h>
 #include <command.h>
-#include <env.h>
-#include <errno.h>
-#include <init.h>
-#include <net.h>
-#include <spl.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/omap.h>
-#include <asm/arch/ddr_defs.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/mmc_host_def.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/arch/mem.h>
-#include <asm/io.h>
-#include <asm/emif.h>
-#include <asm/gpio.h>
-#include <i2c.h>
-#include <miiphy.h>
 #include <cpsw.h>
-#include <watchdog.h>
+#include <env.h>
+#include <init.h>
 #include <linux/delay.h>
+#include <nand.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/ddr_defs.h>
+#include <asm/arch/mem.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/gpio.h>
+#include <asm/io.h>
 #include "board.h"
 #include "../common/eeprom.h"
 #include "../common/factoryset.h"
-#include <nand.h>
 
 #ifdef CONFIG_SPL_BUILD
 static struct draco_baseboard_id __section(".data") settings;

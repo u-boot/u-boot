@@ -9,29 +9,12 @@
  * Copyright (C) 2011, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
-#include <common.h>
 #include <command.h>
-#include <env.h>
-#include <errno.h>
-#include <init.h>
-#include <malloc.h>
 #include <serial.h>
-#include <spl.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/omap.h>
-#include <asm/arch/ddr_defs.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/mmc_host_def.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
-#include <asm/io.h>
-#include <asm/emif.h>
-#include <asm/gpio.h>
-#include <miiphy.h>
-#include <cpsw.h>
 #include <watchdog.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/gpio.h>
 #include <asm/mach-types.h>
 #include "board_am335x.h"
 #include "eeprom.h"
