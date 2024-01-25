@@ -240,12 +240,14 @@ USER uboot:uboot
 # COPY / ADD directives don't work as we need them to.
 RUN wget -O /tmp/pytest-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/test/py/requirements.txt
 RUN wget -O /tmp/sphinx-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/doc/sphinx/requirements.txt
+RUN wget -O /tmp/buildman-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/tools/buildman/requirements.txt
 RUN virtualenv -p /usr/bin/python3 /tmp/venv && \
 	. /tmp/venv/bin/activate && \
 	pip install -r /tmp/pytest-requirements.txt \
-		-r /tmp/sphinx-requirements.txt && \
+		-r /tmp/sphinx-requirements.txt \
+		-r /tmp/buildman-requirements.txt && \
 	deactivate && \
-	rm -rf /tmp/venv /tmp/pytest-requirements.txt /tmp/sphinx-requirements.txt
+	rm -rf /tmp/venv /tmp/*-requirements.txt
 
 # Create the buildman config file
 RUN /bin/echo -e "[toolchain]\nroot = /usr" > ~/.buildman

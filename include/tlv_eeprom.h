@@ -7,6 +7,8 @@
 #ifndef __TLV_EEPROM_H_
 #define __TLV_EEPROM_H_
 
+#include <linux/errno.h>
+
 /*
  *  The Definition of the TlvInfo EEPROM format can be found at onie.org or
  *  github.com/onie

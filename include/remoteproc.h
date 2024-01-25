@@ -14,6 +14,7 @@
  * platforms have moved to dm/fdt.
  */
 #include <dm/platdata.h>	/* For platform data support - non dt world */
+#include <linux/errno.h>
 
 /**
  * struct fw_rsc_hdr - firmware resource entry header

@@ -6,6 +6,8 @@
 #ifndef _HWSPINLOCK_H_
 #define _HWSPINLOCK_H_
 
+#include <linux/errno.h>
+
 /**
  * Implement a hwspinlock uclass.
  * Hardware spinlocks are used to perform hardware protection of

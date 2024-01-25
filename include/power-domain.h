@@ -6,6 +6,8 @@
 #ifndef _POWER_DOMAIN_H
 #define _POWER_DOMAIN_H
 
+#include <linux/errno.h>
+
 /**
  * A power domain is a portion of an SoC or chip that is powered by a
  * switchable source of power. In many cases, software has control over the

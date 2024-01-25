@@ -38,29 +38,6 @@ static void fdt_fixup_pru_node_am625(void *blob, int has_pru)
 		fdt_del_node_path(blob, "/bus@f0000/pruss@30040000");
 }
 
-static int k3_get_core_nr(void)
-{
-	u32 full_devid = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
-
-	return (full_devid & JTAG_DEV_CORE_NR_MASK) >> JTAG_DEV_CORE_NR_SHIFT;
-}
-
-static int k3_has_pru(void)
-{
-	u32 full_devid = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
-	u32 feature_mask = (full_devid & JTAG_DEV_FEATURES_MASK) >>
-			   JTAG_DEV_FEATURES_SHIFT;
-
-	return !(feature_mask & JTAG_DEV_FEATURE_NO_PRU);
-}
-
-static int k3_has_gpu(void)
-{
-	u32 full_devid = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
-
-	return (full_devid & JTAG_DEV_GPU_MASK) >> JTAG_DEV_GPU_SHIFT;
-}
-
 int ft_system_setup(void *blob, struct bd_info *bd)
 {
 	fdt_fixup_cores_nodes_am625(blob, k3_get_core_nr());

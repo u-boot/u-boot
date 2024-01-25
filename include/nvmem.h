@@ -6,6 +6,8 @@
 #ifndef NVMEM_H
 #define NVMEM_H
 
+#include <linux/errno.h>
+
 /**
  * DOC: Design
  *
