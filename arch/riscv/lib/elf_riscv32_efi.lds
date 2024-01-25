@@ -1,8 +1,6 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: BSD-2-Clause */
 /*
  * U-Boot riscv32 EFI linker script
- *
- * SPDX-License-Identifier:	BSD-2-Clause
  *
  * Modified from arch/arm/lib/elf_aarch64_efi.lds
  */
