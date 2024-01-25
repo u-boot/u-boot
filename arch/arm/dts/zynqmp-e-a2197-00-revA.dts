@@ -449,6 +449,7 @@
 				factory-fout = <156250000>;
 				clock-frequency = <156250000>;
 				clock-output-names = "si570_zsfp_clk";
+				silabs,skip-recall;
 			};
 		};
 		i2c@6 { /* USER_SI570_1 */
@@ -463,6 +464,7 @@
 				factory-fout = <100000000>;
 				clock-frequency = <100000000>;
 				clock-output-names = "si570_user1";
+				silabs,skip-recall;
 			};
 
 		};
@@ -560,6 +562,7 @@
 				factory-fout = <200000000>;
 				clock-frequency = <200000000>;
 				clock-output-names = "si570_lpddr4_clk2";
+				silabs,skip-recall;
 			};
 		};
 		i2c@5 { /* LPDDR4_SI570_CLK1 */
@@ -574,6 +577,7 @@
 				factory-fout = <200000000>;
 				clock-frequency = <200000000>;
 				clock-output-names = "si570_lpddr4_clk1";
+				silabs,skip-recall;
 			};
 		};
 		i2c@6 { /* HSDP_SI570 */
@@ -588,6 +592,7 @@
 				factory-fout = <156250000>;
 				clock-frequency = <156250000>;
 				clock-output-names = "si570_hsdp_clk";
+				silabs,skip-recall;
 			};
 		};
 		i2c@7 { /* 8A34001 - U219B and J310 connector */
