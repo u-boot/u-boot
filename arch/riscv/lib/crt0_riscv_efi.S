@@ -155,7 +155,7 @@ section_table:
 	.short	0		/* NumberOfLineNumbers  (0 for executables) */
 	.long	0xe0500020	/* Characteristics (section flags) */
 
-	.align	9
+	.align		12
 _start:
 	addi		sp, sp, -(SIZE_LONG * 3)
 	SAVE_LONG(a0, 0)
