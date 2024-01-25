@@ -103,6 +103,7 @@ Shell commands
    cmd/size
    cmd/sleep
    cmd/sm
+   cmd/smbios
    cmd/sound
    cmd/source
    cmd/temperature
