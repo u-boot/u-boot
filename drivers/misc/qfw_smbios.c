@@ -90,7 +90,7 @@ static int qfw_parse_smbios_anchor(struct udevice *dev,
 		entry->length = sizeof(struct smbios3_entry);
 		entry->major_ver = entry2->major_ver;
 		entry->minor_ver = entry2->minor_ver;
-		entry->max_struct_size = entry2->max_struct_size;
+		entry->max_struct_size = entry2->struct_table_length;
 	} else {
 		ret = -ENOENT;
 		goto out;
