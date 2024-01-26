@@ -21,10 +21,6 @@
 	};
 };
 
-&combphy2_psu {
-	status = "okay";
-};
-
 &fspim2_pins {
 	bootph-all;
 };
@@ -126,10 +122,6 @@
 };
 
 &usb_host1_xhci {
-	status = "okay";
-};
-
-&usb_host2_xhci {
 	status = "okay";
 };
 
