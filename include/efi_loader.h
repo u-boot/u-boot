@@ -546,6 +546,8 @@ void efi_setup_console_size(void);
 /* Set up load options from environment variable */
 efi_status_t efi_env_set_load_options(efi_handle_t handle, const char *env_var,
 				      u16 **load_options);
+/* Get EFI configuration table */
+void *efi_get_configuration_table(const efi_guid_t *guid);
 /* Install device tree */
 efi_status_t efi_install_fdt(void *fdt);
 /* Execute loaded UEFI image */

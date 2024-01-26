@@ -380,12 +380,12 @@ done:
 }
 
 /**
- * get_config_table() - get configuration table
+ * efi_get_configuration_table() - get configuration table
  *
  * @guid:	GUID of the configuration table
  * Return:	pointer to configuration table or NULL
  */
-static void *get_config_table(const efi_guid_t *guid)
+void *efi_get_configuration_table(const efi_guid_t *guid)
 {
 	size_t i;
 
@@ -430,7 +430,7 @@ efi_status_t efi_install_fdt(void *fdt)
 		uintptr_t fdt_addr;
 
 		/* Look for device tree that is already installed */
-		if (get_config_table(&efi_guid_fdt))
+		if (efi_get_configuration_table(&efi_guid_fdt))
 			return EFI_SUCCESS;
 		/* Check if there is a hardware device tree */
 		fdt_opt = env_get("fdt_addr");
