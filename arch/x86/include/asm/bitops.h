@@ -256,15 +256,20 @@ static __inline__ int variable_test_bit(int nr, volatile void * addr)
  constant_test_bit((nr),(addr)) : \
  variable_test_bit((nr),(addr)))
 
+
+#define find_first_zero_bit(p,sz)	_find_first_zero_bit(p,sz)
+#define find_next_zero_bit(p,sz,off)	_find_next_zero_bit(p,sz,off)
+
 /**
- * find_first_zero_bit - find the first zero bit in a memory region
+ * _find_first_zero_bit - find the first zero bit in a memory region
  * @addr: The address to start the search at
  * @size: The maximum size to search
  *
  * Returns the bit-number of the first zero bit, not the number of the byte
  * containing a bit.
  */
-static __inline__ int find_first_zero_bit(void * addr, unsigned size)
+static __inline__ unsigned long _find_first_zero_bit(const unsigned long *addr,
+						     unsigned long size)
 {
 	int d0, d1, d2;
 	int res;
@@ -289,12 +294,14 @@ static __inline__ int find_first_zero_bit(void * addr, unsigned size)
 }
 
 /**
- * find_next_zero_bit - find the first zero bit in a memory region
+ * _find_next_zero_bit - find the first zero bit in a memory region
  * @addr: The address to base the search on
  * @offset: The bitnumber to start searching at
  * @size: The maximum size to search
  */
-static __inline__ int find_next_zero_bit (void * addr, int size, int offset)
+static __inline__ long unsigned int _find_next_zero_bit (const long unsigned int * addr,
+							long unsigned int size,
+							long unsigned offset)
 {
 	unsigned long * p = ((unsigned long *) addr) + (offset >> 5);
 	int set = 0, bit = offset & 31, res;
