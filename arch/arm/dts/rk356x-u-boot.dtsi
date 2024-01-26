@@ -141,6 +141,11 @@
 	bootph-pre-ram;
 };
 
+&uart2 {
+	bootph-pre-ram;
+	clock-frequency = <24000000>;
+};
+
 #ifdef CONFIG_ROCKCHIP_SPI_IMAGE
 &binman {
 	simple-bin-spi {

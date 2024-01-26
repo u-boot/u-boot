@@ -2,12 +2,6 @@
 
 #include "rk356x-u-boot.dtsi"
 
-/ {
-	chosen {
-		stdout-path = &uart2;
-	};
-};
-
 &fspi_dual_io_pins {
 	bootph-all;
 };
@@ -28,10 +22,4 @@
 	flash@0 {
 		bootph-pre-ram;
 	};
-};
-
-&uart2 {
-	bootph-all;
-	clock-frequency = <24000000>;
-	status = "okay";
 };

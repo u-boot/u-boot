@@ -4,7 +4,6 @@
 
 / {
 	chosen {
-		stdout-path = &uart2;
 		u-boot,spl-boot-order = "same-as-spl", &sdmmc1, &sdmmc0;
 	};
 
@@ -86,11 +85,5 @@
 	non-removable;
 	vmmc-supply = <&vcc_3v3>;
 	vqmmc-supply = <&vcc_1v8>;
-	status = "okay";
-};
-
-&uart2 {
-	clock-frequency = <24000000>;
-	bootph-all;
 	status = "okay";
 };
