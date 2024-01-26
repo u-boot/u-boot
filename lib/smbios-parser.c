@@ -223,21 +223,24 @@ static void clear_smbios_table(struct smbios_header *header,
 	}
 }
 
-void smbios_prepare_measurement(const struct smbios_entry *entry,
+void smbios_prepare_measurement(const struct smbios3_entry *entry,
 				struct smbios_header *smbios_copy)
 {
 	u32 i, j;
+	void *table_end;
 	struct smbios_header *header;
+
+	table_end = (void *)((u8 *)smbios_copy + entry->max_struct_size);
 
 	for (i = 0; i < ARRAY_SIZE(smbios_filter_tables); i++) {
 		header = smbios_copy;
-		for (j = 0; j < entry->struct_count; j++) {
+		for (j = 0; (void *)header < table_end; j++) {
 			if (header->type == smbios_filter_tables[i].type)
 				break;
 
 			header = get_next_header(header);
 		}
-		if (j >= entry->struct_count)
+		if ((void *)header >= table_end)
 			continue;
 
 		clear_smbios_table(header,

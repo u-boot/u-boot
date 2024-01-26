@@ -1075,12 +1075,17 @@ error:
  */
 static efi_status_t
 tcg2_measure_smbios(struct udevice *dev,
-		    const struct smbios_entry *entry)
+		    const struct smbios3_entry *entry)
 {
 	efi_status_t ret;
 	struct smbios_header *smbios_copy;
 	struct smbios_handoff_table_pointers2 *event = NULL;
 	u32 event_size;
+	const char smbios3_anchor[] = "_SM3_";
+
+	/* We only support SMBIOS 3.0 Entry Point structure */
+	if (memcmp(entry->anchor, smbios3_anchor, sizeof(smbios3_anchor) - 1))
+		return EFI_UNSUPPORTED;
 
 	/*
 	 * TCG PC Client PFP Spec says
@@ -1093,7 +1098,7 @@ tcg2_measure_smbios(struct udevice *dev,
 	 */
 	event_size = sizeof(struct smbios_handoff_table_pointers2) +
 		     FIELD_SIZEOF(struct efi_configuration_table, guid) +
-		     entry->struct_table_length;
+		     entry->max_struct_size;
 	event = calloc(1, event_size);
 	if (!event) {
 		ret = EFI_OUT_OF_RESOURCES;
@@ -1104,11 +1109,11 @@ tcg2_measure_smbios(struct udevice *dev,
 	memcpy(event->table_description, SMBIOS_HANDOFF_TABLE_DESC,
 	       sizeof(SMBIOS_HANDOFF_TABLE_DESC));
 	put_unaligned_le64(1, &event->number_of_tables);
-	guidcpy(&event->table_entry[0].guid, &smbios_guid);
+	guidcpy(&event->table_entry[0].guid, &smbios3_guid);
 	smbios_copy = (struct smbios_header *)((uintptr_t)&event->table_entry[0].table);
 	memcpy(&event->table_entry[0].table,
 	       (void *)((uintptr_t)entry->struct_table_address),
-	       entry->struct_table_length);
+	       entry->max_struct_size);
 
 	smbios_prepare_measurement(entry, smbios_copy);
 
@@ -1133,7 +1138,7 @@ static void *find_smbios_table(void)
 	u32 i;
 
 	for (i = 0; i < systab.nr_tables; i++) {
-		if (!guidcmp(&smbios_guid, &systab.tables[i].guid))
+		if (!guidcmp(&smbios3_guid, &systab.tables[i].guid))
 			return systab.tables[i].table;
 	}
 
@@ -1360,7 +1365,7 @@ efi_status_t efi_tcg2_measure_efi_app_invocation(struct efi_loaded_image_obj *ha
 	u32 pcr_index;
 	struct udevice *dev;
 	u32 event = 0;
-	struct smbios_entry *entry;
+	struct smbios3_entry *entry;
 
 	if (!is_tcg2_protocol_installed())
 		return EFI_SUCCESS;
@@ -1382,7 +1387,7 @@ efi_status_t efi_tcg2_measure_efi_app_invocation(struct efi_loaded_image_obj *ha
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	entry = (struct smbios_entry *)find_smbios_table();
+	entry = (struct smbios3_entry *)find_smbios_table();
 	if (entry) {
 		ret = tcg2_measure_smbios(dev, entry);
 		if (ret != EFI_SUCCESS)
