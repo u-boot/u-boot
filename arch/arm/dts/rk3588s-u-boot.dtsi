@@ -17,7 +17,6 @@
 	dmc {
 		compatible = "rockchip,rk3588-dmc";
 		bootph-all;
-		status = "okay";
 	};
 
 	usb_host0_xhci: usb@fc000000 {
@@ -165,17 +164,14 @@
 
 &xin24m {
 	bootph-all;
-	status = "okay";
 };
 
 &cru {
 	bootph-pre-ram;
-	status = "okay";
 };
 
 &sys_grf {
 	bootph-pre-ram;
-	status = "okay";
 };
 
 &pmu1grf {
@@ -217,9 +213,8 @@
 };
 
 &uart2 {
-	clock-frequency = <24000000>;
 	bootph-pre-ram;
-	status = "okay";
+	clock-frequency = <24000000>;
 };
 
 &uart2m0_xfer {

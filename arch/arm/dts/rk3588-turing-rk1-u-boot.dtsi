@@ -15,5 +15,4 @@
 &uart9 {
 	bootph-pre-ram;
 	clock-frequency = <24000000>;
-	status = "okay";
 };
