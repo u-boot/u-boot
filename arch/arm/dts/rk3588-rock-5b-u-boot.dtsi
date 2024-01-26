@@ -7,10 +7,6 @@
 #include <dt-bindings/usb/pd.h>
 
 / {
-	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &sdhci;
-	};
-
 	vcc12v_dcin: vcc12v-dcin-regulator {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc12v_dcin";

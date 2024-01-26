@@ -10,6 +10,10 @@
 		spi5 = &sfc;
 	};
 
+	chosen {
+		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &sdhci;
+	};
+
 	dmc {
 		compatible = "rockchip,rk3588-dmc";
 		bootph-all;
