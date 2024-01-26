@@ -25,37 +25,37 @@
 		io-channels = <&u14 0>, <&u14 1>, <&u14 2>;
 	};
 
-	si5332_0: si5332-0 { /* u17 - GEM0/1 */
+	clk_125: si5332-0 { /* u17 - GEM0/1 */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <125000000>;
 	};
 
-	si5332_1: si5332-1 { /* u17 - DP */
+	clk_27: si5332-1 { /* u17 - DP */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <27000000>;
 	};
 
-	si5332_2: si5332-2 { /* u17 - USB */
+	clk_26: si5332-2 { /* u17 - USB */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <26000000>;
 	};
 
-	si5332_3: si5332-3 { /* u17 - SFP+ */
+	clk_156: si5332-3 { /* u17 - SFP+ */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <156250000>;
 	};
 
-	si5332_4: si5332-4 { /* u17 - GEM2 */
+	clk_25_0: si5332-4 { /* u17 - GEM2 */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <25000000>;
 	};
 
-	si5332_5: si5332-5 { /* u17 - GEM3 */
+	clk_25_1: si5332-5 { /* u17 - GEM3 */
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
 		clock-frequency = <25000000>;
@@ -115,7 +115,7 @@
 &psgtr {
 	status = "okay";
 	/* gem0/1, dp, usb */
-	clocks = <&si5332_0>, <&si5332_1>, <&si5332_2>;
+	clocks = <&clk_125>, <&clk_27>, <&clk_26>;
 	clock-names = "ref0", "ref1", "ref2";
 };
 
