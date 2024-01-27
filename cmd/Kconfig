@@ -232,6 +232,12 @@ config CMD_SBI
 	help
 	  Display information about the SBI implementation.
 
+config CMD_SMBIOS
+	bool "smbios"
+	depends on SMBIOS
+	help
+	  Display the SMBIOS information.
+
 endmenu
 
 menu "Boot commands"

@@ -139,6 +139,7 @@ struct __packed smbios_type2 {
 	u8 chassis_location;
 	u16 chassis_handle;
 	u8 board_type;
+	u8 number_contained_objects;
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
@@ -326,10 +327,10 @@ int smbios_update_version_full(void *smbios_tab, const char *version);
  * This function clear the device dependent parameters such as
  * serial number for the measurement.
  *
- * @entry: pointer to a struct smbios_entry
+ * @entry: pointer to a struct smbios3_entry
  * @header: pointer to a struct smbios_header
  */
-void smbios_prepare_measurement(const struct smbios_entry *entry,
+void smbios_prepare_measurement(const struct smbios3_entry *entry,
 				struct smbios_header *header);
 
 #endif /* _SMBIOS_H_ */
