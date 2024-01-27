@@ -431,7 +431,7 @@ struct mmc_cid {
 };
 
 struct mmc_cmd {
-	ushort cmdidx;
+	uint cmdidx;
 	uint resp_type;
 	uint cmdarg;
 	uint response[4];
