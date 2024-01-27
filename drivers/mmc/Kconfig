@@ -20,10 +20,18 @@ config MMC_WRITE
 
 config MMC_PWRSEQ
 	bool "HW reset support for eMMC"
-	depends on PWRSEQ
+	depends on PWRSEQ && DM_GPIO
 	help
-	  Ths select Hardware reset support aka pwrseq-emmc for eMMC
+	  This select Hardware reset support aka pwrseq-emmc for eMMC
 	  devices.
+
+config SPL_MMC_PWRSEQ
+	bool "HW reset support for eMMC in SPL"
+	depends on SPL_PWRSEQ && SPL_DM_GPIO
+	default y if MMC_PWRSEQ
+	help
+	  This select Hardware reset support aka pwrseq-emmc for eMMC
+	  devices in SPL.
 
 config MMC_BROKEN_CD
 	bool "Poll for broken card detection case"
