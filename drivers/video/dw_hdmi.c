@@ -78,10 +78,10 @@ static void dw_hdmi_write(struct dw_hdmi *hdmi, u8 val, int offset)
 {
 	switch (hdmi->reg_io_width) {
 	case 1:
-		writeb(val, hdmi->ioaddr + offset);
+		writeb(val, (void *)(hdmi->ioaddr + offset));
 		break;
 	case 4:
-		writel(val, hdmi->ioaddr + (offset << 2));
+		writel(val, (void *)(hdmi->ioaddr + (offset << 2)));
 		break;
 	default:
 		debug("reg_io_width has unsupported width!\n");
@@ -93,9 +93,9 @@ static u8 dw_hdmi_read(struct dw_hdmi *hdmi, int offset)
 {
 	switch (hdmi->reg_io_width) {
 	case 1:
-		return readb(hdmi->ioaddr + offset);
+		return readb((void *)(hdmi->ioaddr + offset));
 	case 4:
-		return readl(hdmi->ioaddr + (offset << 2));
+		return readl((void *)(hdmi->ioaddr + (offset << 2)));
 	default:
 		debug("reg_io_width has unsupported width!\n");
 		break;
