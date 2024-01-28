@@ -15,7 +15,7 @@ const struct smbios_entry *smbios_entry(u64 address, u32 size)
 {
 	const struct smbios_entry *entry = (struct smbios_entry *)(uintptr_t)address;
 
-	if (!address | !size)
+	if (!address || !size)
 		return NULL;
 
 	if (memcmp(entry->anchor, "_SM_", 4))
