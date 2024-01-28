@@ -131,6 +131,8 @@ struct rcar_gen4_cpg_pll_config {
 	u8 pll6_mult;
 	u8 pll6_div;
 	u8 osc_prediv;
+	u8 pll7_mult;
+	u8 pll7_div;
 };
 
 #define CPG_RST_MODEMR	0x060

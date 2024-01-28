@@ -306,6 +306,12 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 						gen4_pll_config->pll6_div,
 						"PLL6");
 
+	case CLK_TYPE_GEN4_PLL7:
+		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
+						0, gen4_pll_config->pll7_mult,
+						gen4_pll_config->pll7_div,
+						"PLL7");
+
 	case CLK_TYPE_FF:
 		return gen3_clk_get_rate64_pll_mul_reg(priv, &parent,
 						0, core->mult, core->div,
