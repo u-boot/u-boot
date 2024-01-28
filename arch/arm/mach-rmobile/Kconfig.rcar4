@@ -20,6 +20,12 @@ config R8A779G0
 	imply CLK_R8A779G0
 	imply PINCTRL_PFC_R8A779G0
 
+config R8A779H0
+	bool "Renesas SoC R8A779H0"
+	select GICV3
+	imply CLK_R8A779H0
+	imply PINCTRL_PFC_R8A779H0
+
 endmenu
 
 choice
