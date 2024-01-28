@@ -6,7 +6,6 @@
  * Copyright (C) 2017 Renesas Electronics Corporation
  */
 
-#include <common.h>
 #include <image.h>
 #include <init.h>
 #include <malloc.h>

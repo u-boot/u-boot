@@ -6,7 +6,6 @@
  * Copyright (C) 2015 Cogent Embedded, Inc.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <hang.h>

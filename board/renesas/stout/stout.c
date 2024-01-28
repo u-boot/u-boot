@@ -8,7 +8,6 @@
  * Copyright (C) 2015 Cogent Embedded, Inc.
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <env.h>
 #include <init.h>

@@ -11,7 +11,6 @@
 
 #define DRV_NAME "sh-pfc"
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <dm/device_compat.h>

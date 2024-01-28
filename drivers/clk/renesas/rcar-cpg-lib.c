@@ -10,7 +10,6 @@
  * Copyright (C) 2016 Glider bvba
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>

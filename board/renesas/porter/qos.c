@@ -7,7 +7,6 @@
  *
  */
 
-#include <common.h>
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>

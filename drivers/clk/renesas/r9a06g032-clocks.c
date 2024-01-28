@@ -7,7 +7,6 @@
  * Michel Pollet <michel.pollet@bp.renesas.com>, <buserror@gmail.com>
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dm/device_compat.h>

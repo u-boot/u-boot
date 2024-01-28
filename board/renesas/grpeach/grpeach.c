@@ -4,12 +4,13 @@
  * Copyright (C) Chris Brandt
  */
 
-#include <common.h>
 #include <cpu_func.h>
+#include <errno.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/u-boot.h>
 
 #define RZA1_WDT_BASE	0xfcfe0000
 #define WTCSR		0x00

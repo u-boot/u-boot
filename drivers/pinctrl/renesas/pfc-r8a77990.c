@@ -11,7 +11,6 @@
  * Copyright (C) 2016-2017 Renesas Electronics Corp.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <dm/pinctrl.h>

@@ -7,7 +7,6 @@
  *
  */
 
-#include <common.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm.h>

@@ -5,7 +5,6 @@
  * Copyright (C) 2014 Renesas Electronics Corporation
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <cpu_func.h>
 #include <env.h>

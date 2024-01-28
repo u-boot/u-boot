@@ -5,7 +5,6 @@
  * Copyright (C) 2014, 2015 Renesas Electronics Corporation
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <hang.h>

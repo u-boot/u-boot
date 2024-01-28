@@ -7,7 +7,6 @@
  * Copyright (C) 2015 Cogent Embedded, Inc.
  */
 
-#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <asm/io.h>

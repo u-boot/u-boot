@@ -7,7 +7,6 @@
  * Copyright (C) 2013 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <cpu_func.h>
 #include <env.h>

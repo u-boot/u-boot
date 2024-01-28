@@ -6,7 +6,6 @@
  * Copyright (C) 2017 Marek Vasut <marek.vasut+renesas@gmail.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <hang.h>
 #include <init.h>

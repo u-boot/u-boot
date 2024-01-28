@@ -7,7 +7,6 @@
  * Copyright (C) 2015 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <fdt_support.h>
 #include <hang.h>

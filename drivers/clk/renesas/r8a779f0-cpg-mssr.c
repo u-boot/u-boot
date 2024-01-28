@@ -7,7 +7,6 @@
  * Based on r8a779a0-cpg-mssr.c
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 
