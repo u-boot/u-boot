@@ -1172,7 +1172,8 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 dtb-$(CONFIG_RCAR_GEN4) += \
 	r8a779a0-falcon-u-boot.dtb \
 	r8a779f0-spider-u-boot.dtb \
-	r8a779g0-white-hawk-u-boot.dtb
+	r8a779g0-white-hawk-u-boot.dtb \
+	r8a779h0-gray-hawk-u-boot.dtb
 
 dtb-$(CONFIG_TARGET_RZG2L) += \
 	r9a07g044l2-smarc.dts
