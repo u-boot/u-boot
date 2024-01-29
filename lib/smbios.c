@@ -422,6 +422,7 @@ static int smbios_write_type2(ulong *current, int handle,
 	t->asset_tag_number = smbios_add_prop(ctx, "asset-tag", NULL);
 	t->feature_flags = SMBIOS_BOARD_FEATURE_HOSTING;
 	t->board_type = SMBIOS_BOARD_MOTHERBOARD;
+	t->chassis_handle = handle + 1;
 
 	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
@@ -550,6 +551,7 @@ static struct smbios_write_method smbios_write_funcs[] = {
 	{ smbios_write_type0, "bios", },
 	{ smbios_write_type1, "system", },
 	{ smbios_write_type2, "baseboard", },
+	/* Type 3 must immediately follow type 2 due to chassis handle. */
 	{ smbios_write_type3, "chassis", },
 	{ smbios_write_type4, },
 	{ smbios_write_type32, },
