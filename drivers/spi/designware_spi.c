@@ -111,6 +111,9 @@
 #define SR_TX_ERR			BIT(5)
 #define SR_DCOL				BIT(6)
 
+/* Bit field in RISR */
+#define RISR_INT_RXOI			BIT(3)
+
 #define RX_TIMEOUT			1000		/* timeout in ms */
 
 struct dw_spi_plat {
@@ -588,7 +591,7 @@ static int dw_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	struct dw_spi_priv *priv = dev_get_priv(bus);
 	u8 op_len = op->cmd.nbytes + op->addr.nbytes + op->dummy.nbytes;
 	u8 op_buf[op_len];
-	u32 cr0;
+	u32 cr0, sts;
 
 	if (read)
 		priv->tmode = CTRLR0_TMOD_EPROMREAD;
@@ -632,12 +635,21 @@ static int dw_spi_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	 * them to fail because we are not reading/writing the fifo fast enough.
 	 */
 	if (read) {
-		priv->rx = op->data.buf.in;
+		void *prev_rx = priv->rx = op->data.buf.in;
 		priv->rx_end = priv->rx + op->data.nbytes;
 
 		dw_write(priv, DW_SPI_SER, 1 << spi_chip_select(slave->dev));
-		while (priv->rx != priv->rx_end)
+		while (priv->rx != priv->rx_end) {
 			dw_reader(priv);
+			if (prev_rx == priv->rx) {
+				sts = dw_read(priv, DW_SPI_RISR);
+				if (sts & RISR_INT_RXOI) {
+					dev_err(bus, "FIFO overflow on Rx\n");
+					return -EIO;
+				}
+			}
+			prev_rx = priv->rx;
+		}
 	} else {
 		u32 val;
 

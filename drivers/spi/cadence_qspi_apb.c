@@ -469,6 +469,9 @@ int cadence_qspi_apb_command_read(struct cadence_spi_priv *priv,
 	else
 		opcode = op->cmd.opcode;
 
+	if (opcode == CMD_4BYTE_OCTAL_READ && !priv->dtr)
+		opcode = CMD_4BYTE_FAST_READ;
+
 	reg = opcode << CQSPI_REG_CMDCTRL_OPCODE_LSB;
 
 	/* Set up dummy cycles. */
