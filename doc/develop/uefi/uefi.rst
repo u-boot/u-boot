@@ -193,7 +193,7 @@ on the sandbox
 .. code-block:: bash
 
     cd <U-Boot source directory>
-    pytest.py test/py/tests/test_efi_secboot/test_signed.py --bd sandbox
+    pytest test/py/tests/test_efi_secboot/test_signed.py --bd sandbox
 
 UEFI binaries may be signed by Microsoft using the following certificates:
 

@@ -400,18 +400,18 @@ efi_status_t efi_firmware_set_fmp_state_var(struct fmp_state *state, u8 image_in
 	}
 
 	size = num_banks * sizeof(*var_state);
-	var_state = calloc(1, size);
+	var_state = malloc(size);
 	if (!var_state)
 		return EFI_OUT_OF_RESOURCES;
 
 	/*
 	 * GetVariable may fail, EFI_NOT_FOUND is returned if FmpState
 	 * variable has not been set yet.
-	 * Ignore the error here since the correct FmpState variable
-	 * is set later.
 	 */
-	efi_get_variable_int(varname, image_type_id, NULL, &size, var_state,
-			     NULL);
+	ret = efi_get_variable_int(varname, image_type_id, NULL, &size,
+				   var_state, NULL);
+	if (ret != EFI_SUCCESS)
+		memset(var_state, 0, num_banks * sizeof(*var_state));
 
 	/*
 	 * Only the fw_version is set here.

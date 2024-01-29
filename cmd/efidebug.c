@@ -173,15 +173,12 @@ EFI_ESRT_UPDATE_STATUS_NUM  > (idx) ? efi_update_status_str[(idx)] : "error"\
 static int do_efi_capsule_esrt(struct cmd_tbl *cmdtp, int flag,
 			       int argc, char * const argv[])
 {
-	struct efi_system_resource_table *esrt = NULL;
+	struct efi_system_resource_table *esrt;
 
 	if (argc != 1)
 		return CMD_RET_USAGE;
 
-	for (int idx = 0; idx < systab.nr_tables; idx++)
-		if (!guidcmp(&efi_esrt_guid, &systab.tables[idx].guid))
-			esrt = (struct efi_system_resource_table *)systab.tables[idx].table;
-
+	esrt = efi_get_configuration_table(&efi_esrt_guid);
 	if (!esrt) {
 		log_info("ESRT: table not present\n");
 		return CMD_RET_SUCCESS;

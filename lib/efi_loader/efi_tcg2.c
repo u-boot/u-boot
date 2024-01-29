@@ -1129,23 +1129,6 @@ out:
 }
 
 /**
- * find_smbios_table() - find smbios table
- *
- * Return:	pointer to the smbios table
- */
-static void *find_smbios_table(void)
-{
-	u32 i;
-
-	for (i = 0; i < systab.nr_tables; i++) {
-		if (!guidcmp(&smbios3_guid, &systab.tables[i].guid))
-			return systab.tables[i].table;
-	}
-
-	return NULL;
-}
-
-/**
  * tcg2_measure_gpt_table() - measure gpt table
  *
  * @dev:		TPM device
@@ -1387,7 +1370,7 @@ efi_status_t efi_tcg2_measure_efi_app_invocation(struct efi_loaded_image_obj *ha
 	if (ret != EFI_SUCCESS)
 		goto out;
 
-	entry = (struct smbios3_entry *)find_smbios_table();
+	entry = efi_get_configuration_table(&smbios3_guid);
 	if (entry) {
 		ret = tcg2_measure_smbios(dev, entry);
 		if (ret != EFI_SUCCESS)
