@@ -473,6 +473,12 @@
 			status = "disabled";
 		};
 
+		power-controller@17030000 {
+			compatible = "starfive,jh7110-pmu";
+			reg = <0x0 0x17030000 0x0 0x10000>;
+			interrupts = <111>;
+		};
+
 		qspi: spi@13010000 {
 			compatible = "cdns,qspi-nor";
 			reg = <0x0 0x13010000 0x0 0x10000
