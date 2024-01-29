@@ -25,6 +25,10 @@ static const char *smbios_get_string(void *table, int index)
 {
 	const char *str = (char *)table +
 			  ((struct smbios_header *)table)->length;
+	static const char fallback[] = "Not Specified";
+
+	if (!index)
+		return fallback;
 
 	if (!*str)
 		++str;
@@ -41,7 +45,7 @@ static struct smbios_header *next_table(struct smbios_header *table)
 	if (table->type == SMBIOS_END_OF_TABLE)
 		return NULL;
 
-	str = smbios_get_string(table, 0);
+	str = smbios_get_string(table, -1);
 	return (struct smbios_header *)(++str);
 }
 
