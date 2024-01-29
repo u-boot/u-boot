@@ -95,9 +95,9 @@ static void smbios_print_type2(struct smbios_type2 *table)
 	smbios_print_str("Version", table, table->version);
 	smbios_print_str("Serial Number", table, table->serial_number);
 	smbios_print_str("Asset Tag", table, table->asset_tag_number);
-	printf("\tFeature Flags: 0x%2x\n", table->feature_flags);
+	printf("\tFeature Flags: 0x%04x\n", table->feature_flags);
 	smbios_print_str("Chassis Location", table, table->chassis_location);
-	printf("\tChassis Handle: 0x%2x\n", table->chassis_handle);
+	printf("\tChassis Handle: 0x%04x\n", table->chassis_handle);
 	smbios_print_str("Board Type", table, table->board_type);
 	printf("\tContained Object Handles: ");
 	handle = (void *)table->eos;
