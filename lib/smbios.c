@@ -207,6 +207,7 @@ void get_str_from_dt(const struct map_sysinfo *nprop, char *str, size_t size)
  *
  * @ctx:	context for writing the tables
  * @prop:	property to write
+ * @sysinfo_id: unique identifier for the string value to be read
  * @dval:	Default value to use if the string is not found or is empty
  * Return:	0 if not found, else SMBIOS string number (1 or more)
  */
