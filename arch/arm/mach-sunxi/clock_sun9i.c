@@ -9,7 +9,6 @@
  *                    Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/prcm.h>

@@ -8,7 +8,6 @@
  * (C) Copyright 2015      Hans de Goede <hdegoede@redhat.com>
  * (C) Copyright 2015      Jens Kuske <jenskuske@gmail.com>
  */
-#include <common.h>
 #include <init.h>
 #include <log.h>
 #include <asm/io.h>

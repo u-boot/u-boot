@@ -5,7 +5,6 @@
  * (C) Copyright 2017      Icenowy Zheng <icenowy@aosc.io>
  *
  */
-#include <common.h>
 #include <init.h>
 #include <log.h>
 #include <asm/io.h>

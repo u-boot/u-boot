@@ -833,11 +833,8 @@ static int sun8i_emac_eth_of_to_plat(struct udevice *dev)
 	priv->use_internal_phy = false;
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "phy-handle");
-	if (offset < 0) {
-		debug("%s: Cannot find PHY address\n", __func__);
-		return -EINVAL;
-	}
-	priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
+	if (offset >= 0)
+		priv->phyaddr = fdtdec_get_int(gd->fdt_blob, offset, "reg", -1);
 
 	pdata->phy_interface = dev_read_phy_mode(dev);
 	debug("phy interface %d\n", pdata->phy_interface);

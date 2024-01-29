@@ -12,7 +12,6 @@
  * (C) Copyright 2020 Jernej Skrabec <jernej.skrabec@siol.net>
  *
  */
-#include <common.h>
 #include <init.h>
 #include <log.h>
 #include <asm/io.h>

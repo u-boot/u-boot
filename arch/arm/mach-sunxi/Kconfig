@@ -161,6 +161,23 @@ config SUNXI_RVBAR_ALTERNATIVE
 	for all other SoCs, so the content of the SRAM_VER_REG becomes
 	irrelevant there, and we can use the same code.
 
+config SUNXI_BL31_BASE
+	hex
+	default 0x00044000 if MACH_SUN50I || MACH_SUN50I_H5
+	default 0x00104000 if MACH_SUN50I_H6
+	default 0x40000000 if MACH_SUN50I_H616
+	default 0x0
+	help
+	  Address where BL31 (TF-A) is loaded, or zero if BL31 is not used.
+
+config SUNXI_SCP_BASE
+	hex
+	default 0x00050000 if MACH_SUN50I || MACH_SUN50I_H5
+	default 0x00114000 if MACH_SUN50I_H6
+	default 0x0
+	help
+	  Address where SCP firmware is loaded, or zero if it is not used.
+
 config SUNXI_A64_TIMER_ERRATUM
 	bool
 
@@ -182,7 +199,7 @@ config SUNXI_GEN_SUN6I
 config SUN50I_GEN_H6
 	bool
 	select FIT
-	select SPL_LOAD_FIT
+	select SPL_LOAD_FIT if SPL
 	select MMC_SUNXI_HAS_NEW_MODE
 	select SUPPORT_SPL
 	---help---
@@ -272,7 +289,7 @@ config MACH_SUN6I
 	select ARCH_SUPPORT_PSCI
 	select SPL_ARMV7_SET_CORTEX_SMPEN
 	select DRAM_SUN6I
-	select SPL_I2C
+	select SPL_I2C if SPL
 	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
@@ -300,7 +317,7 @@ config MACH_SUN8I_A23
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN8I_A23
-	select SPL_I2C
+	select SPL_I2C if SPL
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select SYS_I2C_SUN8I_RSB
@@ -313,7 +330,7 @@ config MACH_SUN8I_A33
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
 	select DRAM_SUN8I_A33
-	select SPL_I2C
+	select SPL_I2C if SPL
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select SYS_I2C_SUN8I_RSB
@@ -323,7 +340,7 @@ config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"
 	select CPU_V7A
 	select DRAM_SUN8I_A83T
-	select SPL_I2C
+	select SPL_I2C if SPL
 	select SUNXI_GEN_SUN6I
 	select MMC_SUNXI_HAS_NEW_MODE
 	select MMC_SUNXI_HAS_MODE_SWITCH
@@ -382,7 +399,7 @@ config MACH_SUN9I
 	select CPU_V7A
 	select SPL_ARMV7_SET_CORTEX_SMPEN
 	select DRAM_SUN9I
-	select SPL_I2C
+	select SPL_I2C if SPL
 	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
@@ -398,7 +415,7 @@ config MACH_SUN50I
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT
 	select FIT
-	select SPL_LOAD_FIT
+	select SPL_LOAD_FIT if SPL
 	select SUNXI_A64_TIMER_ERRATUM
 
 config MACH_SUN50I_H5
@@ -407,7 +424,7 @@ config MACH_SUN50I_H5
 	select MACH_SUNXI_H3_H5
 	select MMC_SUNXI_HAS_NEW_MODE
 	select FIT
-	select SPL_LOAD_FIT
+	select SPL_LOAD_FIT if SPL
 
 config MACH_SUN50I_H6
 	bool "sun50i (Allwinner H6)"

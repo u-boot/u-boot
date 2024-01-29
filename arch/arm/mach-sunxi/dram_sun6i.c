@@ -9,7 +9,6 @@
  *
  * (C) Copyright 2014 Hans de Goede <hdegoede@redhat.com>
  */
-#include <common.h>
 #include <errno.h>
 #include <init.h>
 #include <asm/io.h>

@@ -9,7 +9,7 @@
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/dram.h>

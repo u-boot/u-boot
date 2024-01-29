@@ -5,7 +5,6 @@
  * Tom Cubie <tangliang@allwinnertech.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>

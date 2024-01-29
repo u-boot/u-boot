@@ -9,7 +9,6 @@
  */
 
 #include <axp_pmic.h>
-#include <common.h>
 #include <dm.h>
 #include <asm/arch/p2wi.h>
 #include <asm/arch/rsb.h>

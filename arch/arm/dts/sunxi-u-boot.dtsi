@@ -1,13 +1,9 @@
 #include <config.h>
 
-#ifdef CONFIG_MACH_SUN50I_H6
-#define BL31_ADDR 0x104000
-#define  SCP_ADDR 0x114000
-#elif defined(CONFIG_MACH_SUN50I_H616)
-#define BL31_ADDR 0x40000000
+#ifdef CONFIG_ARM64
+#define ARCH "arm64"
 #else
-#define BL31_ADDR  0x44000
-#define  SCP_ADDR  0x50000
+#define ARCH "arm"
 #endif
 
 / {
@@ -44,47 +40,52 @@
 			filename = "spl/sunxi-spl.bin";
 		};
 
-#ifdef CONFIG_ARM64
+#ifdef CONFIG_SPL_LOAD_FIT
 		fit {
-			description = "Configuration to load ATF before U-Boot";
+			description = "Configuration to load U-Boot and firmware";
 			#address-cells = <1>;
 			fit,fdt-list = "of-list";
 
 			images {
 				uboot {
-					description = "U-Boot (64-bit)";
+					description = "U-Boot";
 					type = "standalone";
 					os = "u-boot";
-					arch = "arm64";
+					arch = ARCH;
 					compression = "none";
 					load = <CONFIG_TEXT_BASE>;
+#if CONFIG_SUNXI_BL31_BASE == 0
+					entry = <CONFIG_TEXT_BASE>;
+#endif
 
 					u-boot-nodtb {
 					};
 				};
 
+#if CONFIG_SUNXI_BL31_BASE
 				atf {
 					description = "ARM Trusted Firmware";
 					type = "firmware";
 					os = "arm-trusted-firmware";
-					arch = "arm64";
+					arch = ARCH;
 					compression = "none";
-					load = <BL31_ADDR>;
-					entry = <BL31_ADDR>;
+					load = <CONFIG_SUNXI_BL31_BASE>;
+					entry = <CONFIG_SUNXI_BL31_BASE>;
 
 					atf-bl31 {
 						filename = "bl31.bin";
 						missing-msg = "atf-bl31-sunxi";
 					};
 				};
+#endif
 
-#ifdef SCP_ADDR
+#if CONFIG_SUNXI_SCP_BASE
 				scp {
 					description = "SCP firmware";
 					type = "firmware";
 					arch = "or1k";
 					compression = "none";
-					load = <SCP_ADDR>;
+					load = <CONFIG_SUNXI_SCP_BASE>;
 
 					scp {
 						filename = "scp.bin";
@@ -105,11 +106,15 @@
 
 				@config-SEQ {
 					description = "NAME";
+#if CONFIG_SUNXI_BL31_BASE
 					firmware = "atf";
-#ifndef SCP_ADDR
-					loadables = "uboot";
 #else
+					firmware = "uboot";
+#endif
+#if CONFIG_SUNXI_SCP_BASE
 					loadables = "scp", "uboot";
+#else
+					loadables = "uboot";
 #endif
 					fdt = "fdt-SEQ";
 				};
