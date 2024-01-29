@@ -104,9 +104,6 @@ static inline int __test_and_change_bit(int nr, void *addr)
 	return (old & mask) != 0;
 }
 
-extern int find_first_zero_bit(void *addr, unsigned size);
-extern int find_next_zero_bit(void *addr, int size, int offset);
-
 /*
  * This routine doesn't need to be atomic.
  */
