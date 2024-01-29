@@ -76,7 +76,7 @@ static void smbios_print_type1(struct smbios_type1 *table)
 	smbios_print_str("Version", table, table->version);
 	smbios_print_str("Serial Number", table, table->serial_number);
 	if (table->length >= 0x19) {
-		printf("\tUUID %pUl\n", table->uuid);
+		printf("\tUUID: %pUl\n", table->uuid);
 		smbios_print_str("Wake Up Type", table, table->serial_number);
 	}
 	if (table->length >= 0x1b) {
