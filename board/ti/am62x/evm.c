@@ -60,27 +60,9 @@ int dram_init_banksize(void)
 }
 
 #if defined(CONFIG_SPL_BUILD)
-static int video_setup(void)
-{
-	if (CONFIG_IS_ENABLED(VIDEO)) {
-		ulong addr;
-		int ret;
-
-		addr = gd->relocaddr;
-		ret = video_reserve(&addr);
-		if (ret)
-			return ret;
-		debug("Reserving %luk for video at: %08lx\n",
-		      ((unsigned long)gd->relocaddr - addr) >> 10, addr);
-		gd->relocaddr = addr;
-	}
-
-	return 0;
-}
 
 void spl_board_init(void)
 {
-	video_setup();
 	enable_caches();
 	if (IS_ENABLED(CONFIG_SPL_SPLASH_SCREEN) && IS_ENABLED(CONFIG_SPL_BMP))
 		splash_display();

@@ -65,6 +65,15 @@ CONFIG_SPL_NAND_LOAD (drivers/mtd/nand/raw/nand_spl_load.o)
 CONFIG_SPL_SPI_LOAD (drivers/mtd/spi/spi_spl_load.o)
 CONFIG_SPL_RAM_DEVICE (common/spl/spl.c)
 CONFIG_SPL_WATCHDOG (drivers/watchdog/libwatchdog.o)
+CONFIG_SPL_SYSCON (drivers/core/syscon-uclass.o)
+CONFIG_SPL_GZIP (lib/gzip.o)
+CONFIG_SPL_VIDEO (drivers/video/video-uclass.o drivers/video/vidconsole-uclass.o)
+CONFIG_SPL_SPLASH_SCREEN (common/splash.o)
+CONFIG_SPL_SPLASH_SOURCE (common/splash_source.o)
+CONFIG_SPL_GPIO (drivers/gpio)
+CONFIG_SPL_DM_GPIO (drivers/gpio/gpio-uclass.o)
+CONFIG_SPL_BMP (drivers/video/bmp.o)
+CONFIG_SPL_BLOBLIST (common/bloblist.o)
 
 Adding SPL-specific code
 ------------------------
@@ -164,3 +173,31 @@ cflow will spit out a number of warnings as it does not parse
 the config files and picks functions based on #ifdef.  Parsing the '.i'
 files instead introduces another set of headaches.  These warnings are
 not usually important to understanding the flow, however.
+
+
+Reserving memory in SPL
+-----------------------
+
+If memory needs to be reserved in RAM during SPL stage with the requirement that
+the SPL reserved memory remains preserved across further boot stages too
+then it needs to be reserved mandatorily starting from end of RAM. This is to
+ensure that further stages can simply skip this region before carrying out
+further reservations or updating the relocation address.
+
+Also out of these regions which are to be preserved across further stages of
+boot, video framebuffer memory region must be reserved first starting from
+end of RAM for which helper function spl_reserve_video_from_ram_top is provided
+which makes sure that video memory is placed at top of reservation area with
+further reservations below it.
+
+The corresponding information of reservation for those regions can be passed to
+further boot stages using a bloblist. For e.g. the information for
+framebuffer area reserved by SPL can be passed onto U-boot using
+BLOBLISTT_U_BOOT_VIDEO.
+
+The further boot stages need to parse each of the bloblist passed from SPL stage
+starting from video bloblist and skip this whole SPL reserved memory area from
+end of RAM as per the bloblists received, before carrying out further
+reservations or updating the relocation address. For e.g, U-boot proper uses
+function "setup_relocaddr_from_bloblist" to parse the bloblists passed from
+previous stage and skip the memory reserved from previous stage accordingly.

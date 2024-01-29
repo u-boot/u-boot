@@ -123,6 +123,9 @@ int video_reserve(ulong *addrp)
 	struct udevice *dev;
 	ulong size;
 
+	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && spl_phase() == PHASE_BOARD_F)
+		return 0;
+
 	gd->video_top = *addrp;
 	for (uclass_find_first_device(UCLASS_VIDEO, &dev);
 	     dev;
@@ -140,16 +143,6 @@ int video_reserve(ulong *addrp)
 	gd->fb_base = *addrp;
 	debug("Video frame buffers from %lx to %lx\n", gd->video_bottom,
 	      gd->video_top);
-
-	if (spl_phase() == PHASE_SPL && CONFIG_IS_ENABLED(VIDEO_HANDOFF)) {
-		struct video_handoff *ho;
-
-		ho = bloblist_add(BLOBLISTT_U_BOOT_VIDEO, sizeof(*ho), 0);
-		if (!ho)
-			return log_msg_ret("blf", -ENOENT);
-		ho->fb = *addrp;
-		ho->size = size;
-	}
 
 	return 0;
 }
@@ -208,11 +201,14 @@ int video_fill_part(struct udevice *dev, int xstart, int ystart, int xend,
 
 int video_reserve_from_bloblist(struct video_handoff *ho)
 {
+	if (!ho->fb || ho->size == 0)
+		return -ENOENT;
+
 	gd->video_bottom = ho->fb;
 	gd->fb_base = ho->fb;
 	gd->video_top = ho->fb + ho->size;
-	debug("Reserving %luk for video using blob at: %08x\n",
-	      ((unsigned long)ho->size) >> 10, (u32)ho->fb);
+	debug("%s: Reserving %lx bytes at %08x as per bloblist received\n",
+	      __func__, (unsigned long)ho->size, (u32)ho->fb);
 
 	return 0;
 }
@@ -545,6 +541,26 @@ static int video_post_probe(struct udevice *dev)
 		priv->line_length = priv->xsize * VNBYTES(priv->bpix);
 
 	priv->fb_size = priv->line_length * priv->ysize;
+
+	/*
+	 * Set up video handoff fields for passing video blob to next stage
+	 * NOTE:
+	 * This assumes that reserved video memory only uses a single framebuffer
+	 */
+	if (spl_phase() == PHASE_SPL && CONFIG_IS_ENABLED(BLOBLIST)) {
+		struct video_handoff *ho;
+
+		ho = bloblist_add(BLOBLISTT_U_BOOT_VIDEO, sizeof(*ho), 0);
+		if (!ho)
+			return log_msg_ret("blf", -ENOENT);
+		ho->fb = gd->video_bottom;
+		/* Fill aligned size here as calculated in video_reserve() */
+		ho->size = gd->video_top - gd->video_bottom;
+		ho->xsize = priv->xsize;
+		ho->ysize = priv->ysize;
+		ho->line_length = priv->line_length;
+		ho->bpix = priv->bpix;
+	}
 
 	if (IS_ENABLED(CONFIG_VIDEO_COPY) && plat->copy_base)
 		priv->copy_fb = map_sysmem(plat->copy_base, plat->size);

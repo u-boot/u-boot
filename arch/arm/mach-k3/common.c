@@ -525,19 +525,26 @@ void remove_fwl_configs(struct fwl_data *fwl_data, size_t fwl_data_size)
 void spl_enable_cache(void)
 {
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
-	phys_addr_t ram_top = CFG_SYS_SDRAM_BASE;
+	gd->ram_top = CFG_SYS_SDRAM_BASE;
+	int ret = 0;
 
 	dram_init();
 
 	/* reserve TLB table */
 	gd->arch.tlb_size = PGTABLE_SIZE;
 
-	ram_top += get_effective_memsize();
+	gd->ram_top += get_effective_memsize();
 	/* keep ram_top in the 32-bit address space */
-	if (ram_top >= 0x100000000)
-		ram_top = (phys_addr_t) 0x100000000;
+	if (gd->ram_top >= 0x100000000)
+		gd->ram_top = (phys_addr_t)0x100000000;
 
-	gd->arch.tlb_addr = ram_top - gd->arch.tlb_size;
+	gd->relocaddr = gd->ram_top;
+
+	ret = spl_reserve_video_from_ram_top();
+	if (ret)
+		panic("Failed to reserve framebuffer memory (%d)\n", ret);
+
+	gd->arch.tlb_addr = gd->relocaddr - gd->arch.tlb_size;
 	gd->arch.tlb_addr &= ~(0x10000 - 1);
 	debug("TLB table from %08lx to %08lx\n", gd->arch.tlb_addr,
 	      gd->arch.tlb_addr + gd->arch.tlb_size);
