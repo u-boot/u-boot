@@ -127,6 +127,11 @@
 	pinctrl-0 = <&i2c5_pins>;
 	status = "okay";
 
+	pmic@36 {
+		compatible = "x-powers,axp15060";
+		reg = <0x36>;
+	};
+
 	eeprom@50 {
 		compatible = "atmel,24c04";
 		reg = <0x50>;
