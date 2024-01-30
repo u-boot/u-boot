@@ -882,6 +882,11 @@ int board_interface_eth_init(struct udevice *dev, phy_interface_t interface_type
 	    device_is_compatible(dev, "nxp,imx93-dwmac-eqos"))
 		return imx93_eqos_interface_init(dev, interface_type);
 
+	if (IS_ENABLED(CONFIG_IMX93) &&
+	    IS_ENABLED(CONFIG_FEC_MXC) &&
+	    device_is_compatible(dev, "fsl,imx93-fec"))
+		return 0;
+
 	return -EINVAL;
 }
 
