@@ -50,8 +50,7 @@ Current Status
 
 * U-Boot v2024.01 was released on Mon 08 January 2024.
 
-* The Merge Window for the next release (v2024.04) is **open** until the -rc1
-  release on Mon 29 January 2024.
+* The Merge Window for the next release (v2024.04) is **closed**.
 
 * The next branch is now **closed**.
 
@@ -63,9 +62,9 @@ Future Releases
 .. The following commented out dates are for when release candidates are
    planned to be tagged.
 
-.. For the next scheduled release, release candidates were made on::
+For the next scheduled release, release candidates were made on::
 
-.. * U-Boot v2024.01-rc1 was released on Mon 29 January 2024.
+* U-Boot v2024.01-rc1 was released on Mon 29 January 2024.
 
 .. * U-Boot v2024.01-rc2 was released on Mon 12 February 2024.
 
