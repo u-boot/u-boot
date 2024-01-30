@@ -60,6 +60,12 @@
 		#clock-cells = <0>;
 		clock-frequency = <25000000>;
 	};
+
+	clk_74: clock6 { /* u88 - SLVC-EC */
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <74250000>;
+	};
 };
 
 &i2c1 { /* I2C_SCK C26/C27 - MIO from SOM */
