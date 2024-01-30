@@ -49,3 +49,15 @@ config TI_COMMON_CMD_OPTIONS
 	imply CMD_SPI
 	imply CMD_TIME
 	imply CMD_USB if USB
+
+config TI_FDT_FOLDER_PATH
+	string "Location of Folder path where dtb is present"
+	default "ti/davinci" if ARCH_DAVINCI
+	default "ti/keystone" if ARCH_KEYSTONE
+	default "ti/omap" if ARCH_OMAP2PLUS
+	default "ti" if ARCH_K3
+	depends on ARCH_DAVINCI || ARCH_KEYSTONE || ARCH_OMAP2PLUS || ARCH_K3
+	help
+	   Folder path for kernel device tree default.
+	   This is used along with fdtfile path to locate the kernel
+	   device tree blob.
