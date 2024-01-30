@@ -362,7 +362,6 @@ static int atcspi200_spi_get_clk(struct udevice *bus)
 		return -EINVAL;
 
 	ns->clock = clk_rate;
-	clk_free(&clk);
 
 	return 0;
 }

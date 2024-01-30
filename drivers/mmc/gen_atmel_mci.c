@@ -559,27 +559,20 @@ static int atmel_mci_enable_clk(struct udevice *dev)
 	int ret = 0;
 
 	ret = clk_get_by_index(dev, 0, &clk);
-	if (ret) {
-		ret = -EINVAL;
-		goto failed;
-	}
+	if (ret)
+		return -EINVAL;
 
 	ret = clk_enable(&clk);
 	if (ret)
-		goto failed;
+		return ret;
 
 	clk_rate = clk_get_rate(&clk);
-	if (!clk_rate) {
-		ret = -EINVAL;
-		goto failed;
-	}
+	if (!clk_rate)
+		return -EINVAL;
 
 	priv->bus_clk_rate = clk_rate;
 
-failed:
-	clk_free(&clk);
-
-	return ret;
+	return 0;
 }
 
 static int atmel_mci_probe(struct udevice *dev)

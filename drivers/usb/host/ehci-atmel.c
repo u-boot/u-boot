@@ -70,13 +70,7 @@ static int ehci_atmel_enable_clk(struct udevice *dev)
 	if (ret)
 		return -EINVAL;
 
-	ret = clk_enable(&clk);
-	if (ret)
-		return ret;
-
-	clk_free(&clk);
-
-	return 0;
+	return clk_enable(&clk);
 }
 
 static int ehci_atmel_probe(struct udevice *dev)

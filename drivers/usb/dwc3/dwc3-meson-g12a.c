@@ -361,10 +361,8 @@ static int dwc3_meson_g12a_clk_init(struct dwc3_meson_g12a *priv)
 
 #if CONFIG_IS_ENABLED(CLK)
 	ret = clk_enable(&priv->clk);
-	if (ret) {
-		clk_free(&priv->clk);
+	if (ret)
 		return ret;
-	}
 #endif
 
 	return 0;

@@ -253,8 +253,6 @@ static int atmel_serial_enable_clk(struct udevice *dev)
 
 	priv->usart_clk_rate = clk_rate;
 
-	clk_free(&clk);
-
 	return 0;
 }
 #endif

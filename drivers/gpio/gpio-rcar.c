@@ -165,7 +165,6 @@ static int rcar_gpio_probe(struct udevice *dev)
 	}
 
 	ret = clk_enable(&clk);
-	clk_free(&clk);
 	if (ret) {
 		dev_err(dev, "Failed to enable GPIO bank clock\n");
 		return ret;

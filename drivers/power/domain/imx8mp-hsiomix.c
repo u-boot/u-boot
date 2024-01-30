@@ -111,7 +111,7 @@ static int imx8mp_hsiomix_probe(struct udevice *dev)
 
 	ret = power_domain_get_by_name(dev, &priv->pd_bus, "bus");
 	if (ret < 0)
-		goto err_pd_bus;
+		return ret;
 
 	ret = power_domain_get_by_name(dev, &priv->pd_usb, "usb");
 	if (ret < 0)
@@ -133,8 +133,6 @@ err_pd_usb_phy1:
 	power_domain_free(&priv->pd_usb);
 err_pd_usb:
 	power_domain_free(&priv->pd_bus);
-err_pd_bus:
-	clk_free(&priv->clk_usb);
 	return ret;
 }
 

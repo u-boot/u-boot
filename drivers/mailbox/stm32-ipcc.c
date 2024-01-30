@@ -134,18 +134,13 @@ static int stm32_ipcc_probe(struct udevice *dev)
 
 	ret = clk_enable(&clk);
 	if (ret)
-		goto clk_free;
+		return ret;
 
 	/* get channel number */
 	ipcc->n_chans = readl(ipcc->reg_base + IPCC_HWCFGR);
 	ipcc->n_chans &= IPCFGR_CHAN_MASK;
 
 	return 0;
-
-clk_free:
-	clk_free(&clk);
-
-	return ret;
 }
 
 static const struct udevice_id stm32_ipcc_ids[] = {

@@ -1999,10 +1999,8 @@ atmel_hsmc_nand_controller_remove(struct atmel_nand_controller *nc)
 
 	hsmc_nc = container_of(nc, struct atmel_hsmc_nand_controller, base);
 
-	if (hsmc_nc->clk) {
+	if (hsmc_nc->clk)
 		clk_disable_unprepare(hsmc_nc->clk);
-		devm_clk_put(nc->dev, hsmc_nc->clk);
-	}
 
 	return 0;
 }

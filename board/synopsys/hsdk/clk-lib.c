@@ -56,8 +56,6 @@ int soc_clk_ctl(const char *name, ulong *rate, enum clk_ctl_ops ctl)
 
 	priv_rate = clk_get_rate(&clk);
 
-	clk_free(&clk);
-
 	mhz_rate = ceil(priv_rate, HZ_IN_MHZ);
 
 	if (ctl & CLK_MHZ)

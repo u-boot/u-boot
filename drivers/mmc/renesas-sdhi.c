@@ -979,19 +979,19 @@ static int rzg2l_sdhi_setup(struct udevice *dev)
 	ret = clk_get_by_name(dev, "cd", &imclk2);
 	if (ret < 0) {
 		dev_err(dev, "failed to get imclk2 (chip detect clk)\n");
-		goto err_get_imclk2;
+		return ret;
 	}
 
 	ret = clk_get_by_name(dev, "aclk", &aclk);
 	if (ret < 0) {
 		dev_err(dev, "failed to get aclk\n");
-		goto err_get_aclk;
+		return ret;
 	}
 
 	ret = clk_enable(&imclk2);
 	if (ret < 0) {
 		dev_err(dev, "failed to enable imclk2 (chip detect clk)\n");
-		goto err_imclk2;
+		return ret;
 	}
 
 	ret = clk_enable(&aclk);
@@ -1026,11 +1026,6 @@ err_get_reset:
 	clk_disable(&aclk);
 err_aclk:
 	clk_disable(&imclk2);
-err_imclk2:
-	clk_free(&aclk);
-err_get_aclk:
-	clk_free(&imclk2);
-err_get_imclk2:
 	return ret;
 }
 
@@ -1071,7 +1066,7 @@ static int renesas_sdhi_probe(struct udevice *dev)
 		ret = clk_set_rate(&priv->clkh, 800000000);
 		if (ret < 0) {
 			dev_err(dev, "failed to set rate for SDnH clock (%d)\n", ret);
-			goto err_clk;
+			return ret;
 		}
 	}
 
@@ -1079,13 +1074,13 @@ static int renesas_sdhi_probe(struct udevice *dev)
 	ret = clk_set_rate(&priv->clk, 200000000);
 	if (ret < 0) {
 		dev_err(dev, "failed to set rate for SDn clock (%d)\n", ret);
-		goto err_clkh;
+		return ret;
 	}
 
 	ret = clk_enable(&priv->clk);
 	if (ret) {
 		dev_err(dev, "failed to enable SDn clock (%d)\n", ret);
-		goto err_clkh;
+		return ret;
 	}
 
 	if (device_is_compatible(dev, "renesas,sdhi-r9a07g044"))
@@ -1107,10 +1102,6 @@ static int renesas_sdhi_probe(struct udevice *dev)
 
 err_tmio_probe:
 	clk_disable(&priv->clk);
-err_clkh:
-	clk_free(&priv->clkh);
-err_clk:
-	clk_free(&priv->clk);
 	return ret;
 }
 

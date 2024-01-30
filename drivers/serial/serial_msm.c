@@ -185,7 +185,6 @@ static int msm_uart_clk_init(struct udevice *dev)
 		return ret;
 
 	ret = clk_set_rate(&clk, clk_rate);
-	clk_free(&clk);
 	if (ret < 0)
 		return ret;
 

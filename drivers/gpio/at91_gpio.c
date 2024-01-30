@@ -603,8 +603,6 @@ static int at91_gpio_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	clk_free(&clk);
-
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	plat->base_addr = dev_read_addr(dev);
 #endif

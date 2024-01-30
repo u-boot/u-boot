@@ -890,7 +890,7 @@ static int stm32_i2c_probe(struct udevice *dev)
 
 	ret = clk_enable(&i2c_priv->clk);
 	if (ret)
-		goto clk_free;
+		return ret;
 
 	ret = reset_get_by_index(dev, 0, &reset_ctl);
 	if (ret)
@@ -904,8 +904,6 @@ static int stm32_i2c_probe(struct udevice *dev)
 
 clk_disable:
 	clk_disable(&i2c_priv->clk);
-clk_free:
-	clk_free(&i2c_priv->clk);
 
 	return ret;
 }

@@ -1143,8 +1143,6 @@ static void ast2600_clk_dump(struct udevice *dev)
 		ret = clk_get_rate(&clk);
 		rate = ret;
 
-		clk_free(&clk);
-
 		if (ret == -EINVAL) {
 			printf("clk ID %lu not supported yet\n",
 			       aspeed_clk_names[i].id);

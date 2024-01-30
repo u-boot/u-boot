@@ -370,7 +370,6 @@ static int rpc_hf_probe(struct udevice *dev)
 	}
 
 	ret = clk_enable(&clk);
-	clk_free(&clk);
 	if (ret) {
 		dev_err(dev, "Failed to enable RPC clock\n");
 		return ret;

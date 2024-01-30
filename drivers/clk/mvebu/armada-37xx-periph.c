@@ -454,7 +454,6 @@ static int armada_37xx_periph_clk_set_parent(struct clk *clk,
 	if (parent->dev != check_parent.dev)
 		ret = -EINVAL;
 
-	clk_free(&check_parent);
 	if (ret < 0)
 		return ret;
 
@@ -596,7 +595,6 @@ static int armada_37xx_periph_clk_probe(struct udevice *dev)
 		}
 
 		priv->parents[i] = clk_get_rate(&clk);
-		clk_free(&clk);
 	}
 
 	return 0;

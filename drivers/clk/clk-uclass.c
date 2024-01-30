@@ -437,8 +437,6 @@ int clk_release_all(struct clk *clk, unsigned int count)
 		ret = clk_disable(&clk[i]);
 		if (ret && ret != -ENOSYS)
 			return ret;
-
-		clk_free(&clk[i]);
 	}
 
 	return 0;
@@ -461,24 +459,9 @@ int clk_request(struct udevice *dev, struct clk *clk)
 	return ops->request(clk);
 }
 
-void clk_free(struct clk *clk)
-{
-	const struct clk_ops *ops;
-
-	debug("%s(clk=%p)\n", __func__, clk);
-	if (!clk_valid(clk))
-		return;
-	ops = clk_dev_ops(clk->dev);
-
-	if (ops->rfree)
-		ops->rfree(clk);
-	return;
-}
-
 ulong clk_get_rate(struct clk *clk)
 {
 	const struct clk_ops *ops;
-	ulong ret;
 
 	debug("%s(clk=%p)\n", __func__, clk);
 	if (!clk_valid(clk))
@@ -488,11 +471,7 @@ ulong clk_get_rate(struct clk *clk)
 	if (!ops->get_rate)
 		return -ENOSYS;
 
-	ret = ops->get_rate(clk);
-	if (ret)
-		return log_ret(ret);
-
-	return 0;
+	return ops->get_rate(clk);
 }
 
 struct clk *clk_get_parent(struct clk *clk)
@@ -791,22 +770,12 @@ bool clk_is_match(const struct clk *p, const struct clk *q)
 	return false;
 }
 
-static void devm_clk_release(struct udevice *dev, void *res)
-{
-	clk_free(res);
-}
-
-static int devm_clk_match(struct udevice *dev, void *res, void *data)
-{
-	return res == data;
-}
-
 struct clk *devm_clk_get(struct udevice *dev, const char *id)
 {
 	int rc;
 	struct clk *clk;
 
-	clk = devres_alloc(devm_clk_release, sizeof(struct clk), __GFP_ZERO);
+	clk = devm_kzalloc(dev, sizeof(*clk), GFP_KERNEL);
 	if (unlikely(!clk))
 		return ERR_PTR(-ENOMEM);
 
@@ -814,19 +783,7 @@ struct clk *devm_clk_get(struct udevice *dev, const char *id)
 	if (rc)
 		return ERR_PTR(rc);
 
-	devres_add(dev, clk);
 	return clk;
-}
-
-void devm_clk_put(struct udevice *dev, struct clk *clk)
-{
-	int rc;
-
-	if (!clk)
-		return;
-
-	rc = devres_release(dev, devm_clk_release, devm_clk_match, clk);
-	WARN_ON(rc);
 }
 
 int clk_uclass_post_probe(struct udevice *dev)

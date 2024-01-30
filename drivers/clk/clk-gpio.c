@@ -3,19 +3,23 @@
  * Copyright (C) 2023 Marek Vasut <marek.vasut+renesas@mailbox.org>
  */
 
-#include <asm/gpio.h>
-#include <common.h>
+#include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <linux/clk-provider.h>
+
+#include <asm/gpio.h>
 
 struct clk_gpio_priv {
-	struct gpio_desc	enable;
+	struct gpio_desc	enable;	/* GPIO, controlling the gate */
+	struct clk		*clk;	/* Gated clock */
 };
 
 static int clk_gpio_enable(struct clk *clk)
 {
 	struct clk_gpio_priv *priv = dev_get_priv(clk->dev);
 
+	clk_enable(priv->clk);
 	dm_gpio_set_value(&priv->enable, 1);
 
 	return 0;
@@ -26,21 +30,45 @@ static int clk_gpio_disable(struct clk *clk)
 	struct clk_gpio_priv *priv = dev_get_priv(clk->dev);
 
 	dm_gpio_set_value(&priv->enable, 0);
+	clk_disable(priv->clk);
 
 	return 0;
+}
+
+static ulong clk_gpio_get_rate(struct clk *clk)
+{
+	struct clk_gpio_priv *priv = dev_get_priv(clk->dev);
+
+	return clk_get_rate(priv->clk);
 }
 
 const struct clk_ops clk_gpio_ops = {
 	.enable		= clk_gpio_enable,
 	.disable	= clk_gpio_disable,
+	.get_rate	= clk_gpio_get_rate,
 };
 
 static int clk_gpio_probe(struct udevice *dev)
 {
 	struct clk_gpio_priv *priv = dev_get_priv(dev);
+	int ret;
 
-	return gpio_request_by_name(dev, "enable-gpios", 0,
-				    &priv->enable, GPIOD_IS_OUT);
+	priv->clk = devm_clk_get(dev, NULL);
+	if (IS_ERR(priv->clk)) {
+		log_debug("%s: Could not get gated clock: %ld\n",
+			  __func__, PTR_ERR(priv->clk));
+		return PTR_ERR(priv->clk);
+	}
+
+	ret = gpio_request_by_name(dev, "enable-gpios", 0,
+				   &priv->enable, GPIOD_IS_OUT);
+	if (ret) {
+		log_debug("%s: Could not decode enable-gpios (%d)\n",
+			  __func__, ret);
+		return ret;
+	}
+
+	return 0;
 }
 
 /*

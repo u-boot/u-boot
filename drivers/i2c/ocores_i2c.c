@@ -396,8 +396,6 @@ static int ocores_i2c_enable_clk(struct udevice *dev)
 
 	bus->ip_clk_khz = clk_rate / 1000;
 
-	clk_free(&bus->clk);
-
 	return 0;
 }
 

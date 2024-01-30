@@ -570,7 +570,6 @@ static int npcm_i2c_probe(struct udevice *dev)
 		printf("%s: fail to get rate\n", __func__);
 		return -EINVAL;
 	}
-	clk_free(&clk);
 
 	bus->num = dev->seq_;
 	bus->reg = dev_read_addr_ptr(dev);

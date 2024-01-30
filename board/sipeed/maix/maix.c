@@ -32,7 +32,6 @@ static int sram_init(void)
 			continue;
 
 		ret = clk_enable(&clk);
-		clk_free(&clk);
 		if (ret)
 			return ret;
 	}

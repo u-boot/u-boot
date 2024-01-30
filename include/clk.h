@@ -247,19 +247,6 @@ static inline struct clk *devm_clk_get_optional(struct udevice *dev,
  */
 int clk_release_all(struct clk *clk, unsigned int count);
 
-/**
- * devm_clk_put	- "free" a managed clock source
- * @dev: device used to acquire the clock
- * @clk: clock source acquired with devm_clk_get()
- *
- * Note: drivers must ensure that all clk_enable calls made on this
- * clock source are balanced by clk_disable calls prior to calling
- * this function.
- *
- * clk_put should not be called from within interrupt context.
- */
-void devm_clk_put(struct udevice *dev, struct clk *clk);
-
 #else
 
 static inline int clk_get_by_phandle(struct udevice *dev, const
@@ -312,10 +299,6 @@ clk_get_by_name_nodev(ofnode node, const char *name, struct clk *clk)
 static inline int clk_release_all(struct clk *clk, unsigned int count)
 {
 	return -ENOSYS;
-}
-
-static inline void devm_clk_put(struct udevice *dev, struct clk *clk)
-{
 }
 #endif
 
@@ -440,15 +423,6 @@ static inline int clk_release_bulk(struct clk_bulk *bulk)
  * Return: 0 if OK, or a negative error code.
  */
 int clk_request(struct udevice *dev, struct clk *clk);
-
-/**
- * clk_free() - Free a previously requested clock.
- * @clk:	A clock struct that was previously successfully requested by
- *		clk_request/get_by_*().
- *
- * Free resources allocated by clk_request() (or any clk_get_* function).
- */
-void clk_free(struct clk *clk);
 
 /**
  * clk_get_rate() - Get current clock rate.
@@ -592,11 +566,6 @@ bool clk_dev_binded(struct clk *clk);
 static inline int clk_request(struct udevice *dev, struct clk *clk)
 {
 	return -ENOSYS;
-}
-
-static inline void clk_free(struct clk *clk)
-{
-	return;
 }
 
 static inline ulong clk_get_rate(struct clk *clk)

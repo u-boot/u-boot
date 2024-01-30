@@ -172,7 +172,6 @@ static int rcar_gen2_phy_remove(struct udevice *dev)
 	struct rcar_gen2_phy *priv = dev_get_priv(dev);
 
 	clk_disable(&priv->clk);
-	clk_free(&priv->clk);
 
 	return 0;
 }

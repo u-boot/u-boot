@@ -147,8 +147,6 @@ static int atmel_sdhci_probe(struct udevice *dev)
 	host->ops = &atmel_sdhci_ops;
 	upriv->mmc = host->mmc;
 
-	clk_free(&clk);
-
 	ret = sdhci_probe(dev);
 	if (ret)
 		return ret;

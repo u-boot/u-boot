@@ -239,7 +239,6 @@ static int bcm6345_serial_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 	priv->uartclk = clk_get_rate(&clk);
-	clk_free(&clk);
 
 	/* initialize serial */
 	return bcm6345_serial_init(priv->base, priv->uartclk, CONFIG_BAUDRATE);

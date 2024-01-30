@@ -284,10 +284,8 @@ static int dwc3_meson_gxl_clk_init(struct dwc3_meson_gxl *priv)
 
 #if CONFIG_IS_ENABLED(CLK)
 	ret = clk_enable(&priv->clk);
-	if (ret) {
-		clk_free(&priv->clk);
+	if (ret)
 		return ret;
-	}
 #endif
 
 	return 0;

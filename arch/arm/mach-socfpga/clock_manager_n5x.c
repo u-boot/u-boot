@@ -36,8 +36,6 @@ static ulong cm_get_rate_dm(u32 id)
 
 	rate = clk_get_rate(&clk);
 
-	clk_free(&clk);
-
 	if ((rate == (unsigned long)-ENXIO) ||
 	    (rate == (unsigned long)-EIO)) {
 		debug("%s id %u: clk_get_rate err: %ld\n",

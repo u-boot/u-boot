@@ -575,7 +575,6 @@ static int eqos_remove_resources_qcom(struct udevice *dev)
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
-	clk_free(&eqos->clk_tx);
 	dm_gpio_free(dev, &eqos->phy_reset_gpio);
 	reset_free(&eqos->reset_ctl);
 

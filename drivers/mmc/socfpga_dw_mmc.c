@@ -99,7 +99,6 @@ static int socfpga_dwmmc_get_clk_rate(struct udevice *dev)
 
 	host->bus_hz = clk_get_rate(&clk);
 
-	clk_free(&clk);
 #else
 	/* Fixed clock divide by 4 which due to the SDMMC wrapper */
 	host->bus_hz = cm_get_mmc_controller_clk_hz();

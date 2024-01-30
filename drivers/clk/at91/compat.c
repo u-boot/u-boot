@@ -516,7 +516,6 @@ static ulong periph_get_rate(struct clk *clk)
 {
 	struct udevice *dev;
 	struct clk clk_dev;
-	ulong clk_rate;
 	int ret;
 
 	dev = dev_get_parent(clk->dev);
@@ -525,11 +524,7 @@ static ulong periph_get_rate(struct clk *clk)
 	if (ret)
 		return ret;
 
-	clk_rate = clk_get_rate(&clk_dev);
-
-	clk_free(&clk_dev);
-
-	return clk_rate;
+	return clk_get_rate(&clk_dev);
 }
 
 static struct clk_ops periph_clk_ops = {
@@ -762,7 +757,6 @@ static ulong generic_clk_get_rate(struct clk *clk)
 	struct pmc_plat *plat = dev_get_plat(clk->dev);
 	struct at91_pmc *pmc = plat->reg_base;
 	struct clk parent;
-	ulong clk_rate;
 	u32 tmp, gckdiv;
 	u8 clock_source, parent_index;
 	int ret;
@@ -778,11 +772,7 @@ static ulong generic_clk_get_rate(struct clk *clk)
 	if (ret)
 		return 0;
 
-	clk_rate = clk_get_rate(&parent) / (gckdiv + 1);
-
-	clk_free(&parent);
-
-	return clk_rate;
+	return clk_get_rate(&parent) / (gckdiv + 1);
 }
 
 static ulong generic_clk_set_rate(struct clk *clk, ulong rate)

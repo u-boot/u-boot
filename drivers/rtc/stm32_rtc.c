@@ -223,10 +223,8 @@ static int stm32_rtc_init(struct udevice *dev)
 		return ret;
 
 	ret = clk_enable(&clk);
-	if (ret) {
-		clk_free(&clk);
+	if (ret)
 		return ret;
-	}
 
 	rate = clk_get_rate(&clk);
 
@@ -275,10 +273,8 @@ static int stm32_rtc_init(struct udevice *dev)
 unlock:
 	stm32_rtc_lock(dev);
 
-	if (ret) {
+	if (ret)
 		clk_disable(&clk);
-		clk_free(&clk);
-	}
 
 	return ret;
 }
@@ -298,17 +294,13 @@ static int stm32_rtc_probe(struct udevice *dev)
 		return ret;
 
 	ret = clk_enable(&clk);
-	if (ret) {
-		clk_free(&clk);
+	if (ret)
 		return ret;
-	}
 
 	ret = stm32_rtc_init(dev);
 
-	if (ret) {
+	if (ret)
 		clk_disable(&clk);
-		clk_free(&clk);
-	}
 
 	return ret;
 }

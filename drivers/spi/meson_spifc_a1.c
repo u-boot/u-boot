@@ -343,15 +343,6 @@ static int amlogic_spifc_a1_probe(struct udevice *dev)
 	return 0;
 }
 
-static int amlogic_spifc_a1_remove(struct udevice *dev)
-{
-	struct amlogic_spifc_a1 *spifc = dev_get_priv(dev);
-
-	clk_free(&spifc->clk);
-
-	return 0;
-}
-
 static const struct udevice_id meson_spifc_ids[] = {
 	{ .compatible = "amlogic,a1-spifc", },
 	{ }
@@ -379,6 +370,5 @@ U_BOOT_DRIVER(meson_spifc_a1) = {
 	.of_match	= meson_spifc_ids,
 	.ops		= &amlogic_spifc_a1_ops,
 	.probe		= amlogic_spifc_a1_probe,
-	.remove		= amlogic_spifc_a1_remove,
 	.priv_auto	= sizeof(struct amlogic_spifc_a1),
 };

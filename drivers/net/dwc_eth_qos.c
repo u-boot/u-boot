@@ -1382,38 +1382,30 @@ static int eqos_probe_resources_tegra186(struct udevice *dev)
 	ret = clk_get_by_name(dev, "master_bus", &eqos->clk_master_bus);
 	if (ret) {
 		pr_err("clk_get_by_name(master_bus) failed: %d", ret);
-		goto err_free_clk_slave_bus;
+		goto err_free_gpio_phy_reset;
 	}
 
 	ret = clk_get_by_name(dev, "rx", &eqos->clk_rx);
 	if (ret) {
 		pr_err("clk_get_by_name(rx) failed: %d", ret);
-		goto err_free_clk_master_bus;
+		goto err_free_gpio_phy_reset;
 	}
 
 	ret = clk_get_by_name(dev, "ptp_ref", &eqos->clk_ptp_ref);
 	if (ret) {
 		pr_err("clk_get_by_name(ptp_ref) failed: %d", ret);
-		goto err_free_clk_rx;
+		goto err_free_gpio_phy_reset;
 	}
 
 	ret = clk_get_by_name(dev, "tx", &eqos->clk_tx);
 	if (ret) {
 		pr_err("clk_get_by_name(tx) failed: %d", ret);
-		goto err_free_clk_ptp_ref;
+		goto err_free_gpio_phy_reset;
 	}
 
 	debug("%s: OK\n", __func__);
 	return 0;
 
-err_free_clk_ptp_ref:
-	clk_free(&eqos->clk_ptp_ref);
-err_free_clk_rx:
-	clk_free(&eqos->clk_rx);
-err_free_clk_master_bus:
-	clk_free(&eqos->clk_master_bus);
-err_free_clk_slave_bus:
-	clk_free(&eqos->clk_slave_bus);
 err_free_gpio_phy_reset:
 	dm_gpio_free(dev, &eqos->phy_reset_gpio);
 err_free_reset_eqos:
@@ -1451,13 +1443,13 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 	ret = clk_get_by_name(dev, "mac-clk-rx", &eqos->clk_rx);
 	if (ret) {
 		pr_err("clk_get_by_name(rx) failed: %d", ret);
-		goto err_free_clk_master_bus;
+		goto err_probe;
 	}
 
 	ret = clk_get_by_name(dev, "mac-clk-tx", &eqos->clk_tx);
 	if (ret) {
 		pr_err("clk_get_by_name(tx) failed: %d", ret);
-		goto err_free_clk_rx;
+		goto err_probe;
 	}
 
 	/*  Get ETH_CLK clocks (optional) */
@@ -1468,10 +1460,6 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 	debug("%s: OK\n", __func__);
 	return 0;
 
-err_free_clk_rx:
-	clk_free(&eqos->clk_rx);
-err_free_clk_master_bus:
-	clk_free(&eqos->clk_master_bus);
 err_probe:
 
 	debug("%s: returns %d\n", __func__, ret);
@@ -1489,13 +1477,6 @@ static int eqos_remove_resources_tegra186(struct udevice *dev)
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
-#ifdef CONFIG_CLK
-	clk_free(&eqos->clk_tx);
-	clk_free(&eqos->clk_ptp_ref);
-	clk_free(&eqos->clk_rx);
-	clk_free(&eqos->clk_slave_bus);
-	clk_free(&eqos->clk_master_bus);
-#endif
 	dm_gpio_free(dev, &eqos->phy_reset_gpio);
 	reset_free(&eqos->reset_ctl);
 
@@ -1505,19 +1486,7 @@ static int eqos_remove_resources_tegra186(struct udevice *dev)
 
 static int eqos_remove_resources_stm32(struct udevice *dev)
 {
-	struct eqos_priv * __maybe_unused eqos = dev_get_priv(dev);
-
 	debug("%s(dev=%p):\n", __func__, dev);
-
-#ifdef CONFIG_CLK
-	clk_free(&eqos->clk_tx);
-	clk_free(&eqos->clk_rx);
-	clk_free(&eqos->clk_master_bus);
-	if (clk_valid(&eqos->clk_ck))
-		clk_free(&eqos->clk_ck);
-#endif
-
-	debug("%s: OK\n", __func__);
 	return 0;
 }
 
