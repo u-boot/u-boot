@@ -8,6 +8,7 @@ import pytest
 import u_boot_utils
 import uuid
 import datetime
+import re
 
 """
 Note: This test relies on boardenv_* containing configuration values to define
@@ -30,6 +31,12 @@ env__net_uses_pci = True
 # If DHCP testing is not possible or desired, this variable may be omitted or
 # set to False.
 env__net_dhcp_server = True
+
+# False or omitted if a DHCP server is attached to the network, and dhcp abort
+# case should be tested.
+# If DHCP abort testing is not possible or desired, set this variable to True.
+# For example: On some setup, dhcp is too fast and this case may not work.
+env__dhcp_abort_test_skip = True
 
 # True if a DHCPv6 server is attached to the network, and should be tested.
 # If DHCPv6 testing is not possible or desired, this variable may be omitted or
@@ -119,6 +126,57 @@ def test_net_dhcp(u_boot_console):
 
     global net_set_up
     net_set_up = True
+
+@pytest.mark.buildconfigspec('cmd_dhcp')
+@pytest.mark.buildconfigspec('cmd_mii')
+def test_net_dhcp_abort(u_boot_console):
+    """Test the dhcp command by pressing ctrl+c in the middle of dhcp request
+
+    The boardenv_* file may be used to enable/disable this test; see the
+    comment at the beginning of this file.
+    """
+
+    test_dhcp = u_boot_console.config.env.get('env__net_dhcp_server', False)
+    if not test_dhcp:
+        pytest.skip('No DHCP server available')
+
+    if u_boot_console.config.env.get('env__dhcp_abort_test_skip', True):
+        pytest.skip('DHCP abort test is not enabled!')
+
+    u_boot_console.run_command('setenv autoload no')
+
+    # Phy reset before running dhcp command
+    output = u_boot_console.run_command('mii device')
+    if not re.search(r"Current device: '(.+?)'", output):
+        pytest.skip('PHY device does not exist!')
+    eth_num = re.search(r"Current device: '(.+?)'", output).groups()[0]
+    u_boot_console.run_command(f'mii device {eth_num}')
+    output = u_boot_console.run_command('mii info')
+    eth_addr = hex(int(re.search(r'PHY (.+?):', output).groups()[0], 16))
+    u_boot_console.run_command(f'mii modify {eth_addr} 0 0x8000 0x8000')
+
+    u_boot_console.run_command('dhcp', wait_for_prompt=False)
+    try:
+        u_boot_console.wait_for('Waiting for PHY auto negotiation to complete')
+    except:
+        pytest.skip('Timeout waiting for PHY auto negotiation to complete')
+
+    u_boot_console.wait_for('done')
+
+    try:
+        # Sending Ctrl-C
+        output = u_boot_console.run_command(
+            chr(3), wait_for_echo=False, send_nl=False
+        )
+        assert 'TIMEOUT' not in output
+        assert 'DHCP client bound to address ' not in output
+        assert 'Abort' in output
+    finally:
+        # Provide a time to recover from Abort - if it is not performed
+        # There is message like: ethernet@ff0e0000: No link.
+        u_boot_console.run_command('sleep 1')
+        # Run the dhcp test to setup the network configuration
+        test_net_dhcp(u_boot_console)
 
 @pytest.mark.buildconfigspec('cmd_dhcp6')
 def test_net_dhcp6(u_boot_console):
