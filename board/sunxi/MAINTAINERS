@@ -460,6 +460,11 @@ M:	Jernej Skrabec <jernej.skrabec@siol.net>
 S:	Maintained
 F:	configs/orangepi_zero2_defconfig
 
+ORANGEPI ZERO 2W BOARD
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/orangepi_zero2w_defconfig
+
 ORANGEPI ZERO 3 BOARD
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
