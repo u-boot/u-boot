@@ -12,4 +12,6 @@ config SYS_CONFIG_NAME
 config CMD_BAT
 	bool "Enable board-specific battery command"
 
+source "board/ti/common/Kconfig"
+
 endif
