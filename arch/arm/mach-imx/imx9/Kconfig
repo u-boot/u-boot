@@ -37,9 +37,15 @@ config TARGET_IMX93_VAR_SOM
 	select IMX93
 	select IMX9_LPDDR4X
 
+config TARGET_PHYCORE_IMX93
+	bool "phycore_imx93"
+	select IMX93
+	select IMX9_LPDDR4X
+
 endchoice
 
 source "board/freescale/imx93_evk/Kconfig"
+source "board/phytec/phycore_imx93/Kconfig"
 source "board/variscite/imx93_var_som/Kconfig"
 
 endif
