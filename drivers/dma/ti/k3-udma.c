@@ -876,13 +876,20 @@ static int udma_alloc_tx_resources(struct udma_chan *uc)
 {
 	struct k3_nav_ring_cfg ring_cfg;
 	struct udma_dev *ud = uc->ud;
-	int ret;
+	struct udma_tchan *tchan;
+	int ring_idx, ret;
 
 	ret = udma_get_tchan(uc);
 	if (ret)
 		return ret;
 
-	ret = k3_nav_ringacc_request_rings_pair(ud->ringacc, uc->tchan->id, -1,
+	tchan = uc->tchan;
+	if (tchan->tflow_id >= 0)
+		ring_idx = tchan->tflow_id;
+	else
+		ring_idx = ud->bchan_cnt + tchan->id;
+
+	ret = k3_nav_ringacc_request_rings_pair(ud->ringacc, ring_idx, -1,
 						&uc->tchan->t_ring,
 						&uc->tchan->tc_ring);
 	if (ret) {
