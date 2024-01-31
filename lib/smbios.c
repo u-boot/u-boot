@@ -566,7 +566,6 @@ ulong write_smbios_table(ulong addr)
 	struct smbios_ctx ctx;
 	ulong tables;
 	int len = 0;
-	int max_struct_size = 0;
 	int handle = 0;
 	int i;
 
@@ -588,7 +587,6 @@ ulong write_smbios_table(ulong addr)
 	/* populate minimum required tables */
 	for (i = 0; i < ARRAY_SIZE(smbios_write_funcs); i++) {
 		const struct smbios_write_method *method;
-		int tmp;
 
 		method = &smbios_write_funcs[i];
 		ctx.subnode_name = NULL;
@@ -598,10 +596,7 @@ ulong write_smbios_table(ulong addr)
 				ctx.node = ofnode_find_subnode(parent_node,
 							       method->subnode_name);
 		}
-		tmp = method->write((ulong *)&addr, handle++, &ctx);
-
-		max_struct_size = max(max_struct_size, tmp);
-		len += tmp;
+		len += method->write((ulong *)&addr, handle++, &ctx);
 	}
 
 	/*
