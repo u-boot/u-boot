@@ -86,7 +86,7 @@ static int qcom_pwrkey_probe(struct udevice *dev)
 	}
 
 	ret = pmic_reg_read(priv->pmic, priv->base + REG_SUBTYPE);
-	if ((ret & 0x7) == 0) {
+	if (ret < 0 || (ret & 0x7) == 0) {
 		printf("%s: unexpected PMCI function subtype %d\n", dev->name, ret);
 		return -ENXIO;
 	}
