@@ -7,6 +7,16 @@ config VIDEO_BRIDGE
 	  requires LVDS, an eDP->LVDS bridge chip can be used to provide the
 	  necessary conversion. This option enables support for these devices.
 
+config VIDEO_BRIDGE_PARADE_DP501
+	bool "Support Parade DP501 DP & DVI/HDMI dual mode transmitter"
+	depends on PANEL && DM_GPIO
+	select DM_I2C
+	help
+	  The Parade DP501 is a DP & DVI/HDMI dual-mode transmitter. It
+	  enables an RGB/Parallel SOC output to be converted, packed and
+	  serialized into either DP or TMDS output device. Only DisplayPort
+	  functionality of this transmitter has been implemented and tested.
+
 config VIDEO_BRIDGE_PARADE_PS862X
 	bool "Support Parade PS862X DP->LVDS bridge"
 	depends on VIDEO_BRIDGE
