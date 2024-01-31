@@ -10,7 +10,12 @@
 	model = "Generic RK3566/RK3568";
 	compatible = "rockchip,rk3568";
 
-	chosen: chosen {
+	aliases {
+		mmc0 = &sdhci;
+		mmc1 = &sdmmc;
+	};
+
+	chosen {
 		stdout-path = "serial2:1500000n8";
 	};
 };
@@ -18,6 +23,9 @@
 &sdhci {
 	bus-width = <8>;
 	cap-mmc-highspeed;
+	mmc-hs200-1_8v;
+	no-sd;
+	no-sdio;
 	non-removable;
 	pinctrl-names = "default";
 	pinctrl-0 = <&emmc_bus8 &emmc_clk &emmc_cmd>;
@@ -28,6 +36,8 @@
 	bus-width = <4>;
 	cap-sd-highspeed;
 	disable-wp;
+	no-mmc;
+	no-sdio;
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdmmc0_bus4 &sdmmc0_clk &sdmmc0_cmd>;
 	status = "okay";
