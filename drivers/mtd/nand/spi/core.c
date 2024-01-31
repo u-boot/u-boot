@@ -26,6 +26,7 @@
 #include <watchdog.h>
 #include <spi.h>
 #include <spi-mem.h>
+#include <ubi_uboot.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
 #include <linux/bitops.h>
@@ -1181,8 +1182,13 @@ static int spinand_bind(struct udevice *dev)
 {
 	if (blk_enabled()) {
 		struct spinand_plat *plat = dev_get_plat(dev);
+		int ret;
 
-		return mtd_bind(dev, &plat->mtd);
+		ret = mtd_bind(dev, &plat->mtd);
+		if (ret)
+			return ret;
+
+		return ubi_bind(dev);
 	}
 
 	return 0;
