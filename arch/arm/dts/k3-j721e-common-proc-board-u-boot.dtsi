@@ -93,6 +93,14 @@
 	bootph-all;
 };
 
+&serdes_ln_ctrl {
+	bootph-all;
+};
+
+&usb_serdes_mux {
+	bootph-all;
+};
+
 &main_usbss0_pins_default {
 	bootph-all;
 };

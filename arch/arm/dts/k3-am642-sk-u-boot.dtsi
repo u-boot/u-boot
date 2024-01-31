@@ -184,6 +184,10 @@
 	bootph-all;
 };
 
+&serdes_ln_ctrl {
+	bootph-all;
+};
+
 &usbss0 {
 	bootph-all;
 };
