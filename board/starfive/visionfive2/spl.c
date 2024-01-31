@@ -45,6 +45,10 @@ static const struct starfive_vf2_pro starfive_verb[] = {
 	{"/soc/ethernet@16030000/mdio/ethernet-phy@0",
 		"motorcomm,tx-clk-1000-inverted", NULL},
 	{"/soc/ethernet@16030000/mdio/ethernet-phy@0",
+		"motorcomm,rx-clk-drv-microamp", "3970"},
+	{"/soc/ethernet@16030000/mdio/ethernet-phy@0",
+		"motorcomm,rx-data-drv-microamp", "2910"},
+	{"/soc/ethernet@16030000/mdio/ethernet-phy@0",
 		"rx-internal-delay-ps", "1900"},
 	{"/soc/ethernet@16030000/mdio/ethernet-phy@0",
 		"tx-internal-delay-ps", "1500"},
@@ -54,6 +58,10 @@ static const struct starfive_vf2_pro starfive_verb[] = {
 	{ "/soc/ethernet@16040000/mdio/ethernet-phy@1",
 		"motorcomm,tx-clk-100-inverted", NULL},
 	{"/soc/ethernet@16040000/mdio/ethernet-phy@1",
+		"motorcomm,rx-clk-drv-microamp", "3970"},
+	{"/soc/ethernet@16040000/mdio/ethernet-phy@1",
+		"motorcomm,rx-data-drv-microamp", "2910"},
+	{"/soc/ethernet@16040000/mdio/ethernet-phy@1",
 		"rx-internal-delay-ps", "0"},
 	{"/soc/ethernet@16040000/mdio/ethernet-phy@1",
 		"tx-internal-delay-ps", "0"},
@@ -61,11 +69,13 @@ static const struct starfive_vf2_pro starfive_verb[] = {
 
 void spl_fdt_fixup_version_a(void *fdt)
 {
+	static const char compat[] = "starfive,visionfive-2-v1.2a\0starfive,jh7110";
 	u32 phandle;
 	u8 i;
 	int offset;
 	int ret;
 
+	fdt_setprop(fdt, fdt_path_offset(fdt, "/"), "compatible", compat, sizeof(compat));
 	fdt_setprop_string(fdt, fdt_path_offset(fdt, "/"), "model",
 			   "StarFive VisionFive 2 v1.2A");
 
@@ -106,11 +116,13 @@ void spl_fdt_fixup_version_a(void *fdt)
 
 void spl_fdt_fixup_version_b(void *fdt)
 {
+	static const char compat[] = "starfive,visionfive-2-v1.3b\0starfive,jh7110";
 	u32 phandle;
 	u8 i;
 	int offset;
 	int ret;
 
+	fdt_setprop(fdt, fdt_path_offset(fdt, "/"), "compatible", compat, sizeof(compat));
 	fdt_setprop_string(fdt, fdt_path_offset(fdt, "/"), "model",
 			   "StarFive VisionFive 2 v1.3B");
 

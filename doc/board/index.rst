@@ -46,6 +46,7 @@ Board-specific doc
    sifive/index
    sipeed/index
    socionext/index
+   sophgo/index
    st/index
    starfive/index
    ste/index

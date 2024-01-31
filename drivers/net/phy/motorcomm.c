@@ -23,6 +23,12 @@
 
 #define YTPHY_SYNCE_CFG_REG			0xA012
 
+#define YT8531_PAD_DRIVE_STRENGTH_CFG_REG		0xA010
+#define YT8531_RGMII_RXC_DS_MASK		GENMASK(15, 13)
+#define YT8531_RGMII_RXD_DS_HI_MASK		BIT(12)		/* Bit 2 of rxd_ds */
+#define YT8531_RGMII_RXD_DS_LOW_MASK		GENMASK(5, 4)	/* Bit 1/0 of rxd_ds */
+#define YT8531_RGMII_RX_DS_DEFAULT		0x3
+
 #define YTPHY_DTS_OUTPUT_CLK_DIS		0
 #define YTPHY_DTS_OUTPUT_CLK_25M		25000000
 #define YTPHY_DTS_OUTPUT_CLK_125M		125000000
@@ -113,6 +119,10 @@
  */
 #define YT8531_CCR_RXC_DLY_EN			BIT(8)
 #define YT8531_CCR_RXC_DLY_1_900_NS		1900
+
+#define YT8531_CCR_CFG_LDO_MASK		GENMASK(5, 4)
+#define YT8531_CCR_CFG_LDO_3V3			0x0
+#define YT8531_CCR_CFG_LDO_1V8			0x2
 
 /* bits in struct ytphy_plat_priv->flag */
 #define TX_CLK_ADJ_ENABLED			BIT(0)
@@ -222,6 +232,17 @@ static int ytphy_modify_ext(struct phy_device *phydev, u16 regnum, u16 mask,
 		return ret;
 
 	return phy_modify(phydev, MDIO_DEVAD_NONE, YTPHY_PAGE_DATA, mask, set);
+}
+
+static int ytphy_read_ext(struct phy_device *phydev, u16 regnum)
+{
+	int ret;
+
+	ret = phy_write(phydev, MDIO_DEVAD_NONE, YTPHY_PAGE_SELECT, regnum);
+	if (ret < 0)
+		return ret;
+
+	return phy_read(phydev, MDIO_DEVAD_NONE, YTPHY_PAGE_DATA);
 }
 
 static int ytphy_rgmii_clk_delay_config(struct phy_device *phydev)
@@ -425,6 +446,111 @@ static int yt8511_config(struct phy_device *phydev)
 	return 0;
 }
 
+/**
+ * struct ytphy_ldo_vol_map - map a current value to a register value
+ * @vol: ldo voltage
+ * @ds:  value in the register
+ * @cur: value in device configuration
+ */
+struct ytphy_ldo_vol_map {
+	u32 vol;
+	u32 ds;
+	u32 cur;
+};
+
+static const struct ytphy_ldo_vol_map yt8531_ldo_vol[] = {
+	{.vol = YT8531_CCR_CFG_LDO_1V8, .ds = 0, .cur = 1200},
+	{.vol = YT8531_CCR_CFG_LDO_1V8, .ds = 1, .cur = 2100},
+	{.vol = YT8531_CCR_CFG_LDO_1V8, .ds = 2, .cur = 2700},
+	{.vol = YT8531_CCR_CFG_LDO_1V8, .ds = 3, .cur = 2910},
+	{.vol = YT8531_CCR_CFG_LDO_1V8, .ds = 4, .cur = 3110},
+	{.vol = YT8531_CCR_CFG_LDO_1V8, .ds = 5, .cur = 3600},
+	{.vol = YT8531_CCR_CFG_LDO_1V8, .ds = 6, .cur = 3970},
+	{.vol = YT8531_CCR_CFG_LDO_1V8, .ds = 7, .cur = 4350},
+	{.vol = YT8531_CCR_CFG_LDO_3V3, .ds = 0, .cur = 3070},
+	{.vol = YT8531_CCR_CFG_LDO_3V3, .ds = 1, .cur = 4080},
+	{.vol = YT8531_CCR_CFG_LDO_3V3, .ds = 2, .cur = 4370},
+	{.vol = YT8531_CCR_CFG_LDO_3V3, .ds = 3, .cur = 4680},
+	{.vol = YT8531_CCR_CFG_LDO_3V3, .ds = 4, .cur = 5020},
+	{.vol = YT8531_CCR_CFG_LDO_3V3, .ds = 5, .cur = 5450},
+	{.vol = YT8531_CCR_CFG_LDO_3V3, .ds = 6, .cur = 5740},
+	{.vol = YT8531_CCR_CFG_LDO_3V3, .ds = 7, .cur = 6140},
+};
+
+static u32 yt8531_get_ldo_vol(struct phy_device *phydev)
+{
+	u32 val;
+
+	val = ytphy_read_ext(phydev, YT8531_CHIP_CONFIG_REG);
+	val = FIELD_GET(YT8531_CCR_CFG_LDO_MASK, val);
+
+	return val <= YT8531_CCR_CFG_LDO_1V8 ? val : YT8531_CCR_CFG_LDO_1V8;
+}
+
+static int yt8531_get_ds_map(struct phy_device *phydev, u32 cur)
+{
+	u32 vol;
+	int i;
+
+	vol = yt8531_get_ldo_vol(phydev);
+	for (i = 0; i < ARRAY_SIZE(yt8531_ldo_vol); i++) {
+		if (yt8531_ldo_vol[i].vol == vol && yt8531_ldo_vol[i].cur == cur)
+			return yt8531_ldo_vol[i].ds;
+	}
+
+	return -EINVAL;
+}
+
+static int yt8531_set_ds(struct phy_device *phydev)
+{
+	u32 ds_field_low, ds_field_hi, val;
+	int ret, ds;
+
+	/* set rgmii rx clk driver strength */
+	if (!ofnode_read_u32(phydev->node, "motorcomm,rx-clk-drv-microamp", &val)) {
+		ds = yt8531_get_ds_map(phydev, val);
+		if (ds < 0) {
+			pr_warn("No matching current value was found.");
+			return -EINVAL;
+		}
+	} else {
+		ds = YT8531_RGMII_RX_DS_DEFAULT;
+	}
+
+	ret = ytphy_modify_ext(phydev,
+			       YT8531_PAD_DRIVE_STRENGTH_CFG_REG,
+			       YT8531_RGMII_RXC_DS_MASK,
+			       FIELD_PREP(YT8531_RGMII_RXC_DS_MASK, ds));
+	if (ret < 0)
+		return ret;
+
+	/* set rgmii rx data driver strength */
+	if (!ofnode_read_u32(phydev->node, "motorcomm,rx-data-drv-microamp", &val)) {
+		ds = yt8531_get_ds_map(phydev, val);
+		if (ds < 0) {
+			pr_warn("No matching current value was found.");
+			return -EINVAL;
+		}
+	} else {
+		ds = YT8531_RGMII_RX_DS_DEFAULT;
+	}
+
+	ds_field_hi = FIELD_GET(BIT(2), ds);
+	ds_field_hi = FIELD_PREP(YT8531_RGMII_RXD_DS_HI_MASK, ds_field_hi);
+
+	ds_field_low = FIELD_GET(GENMASK(1, 0), ds);
+	ds_field_low = FIELD_PREP(YT8531_RGMII_RXD_DS_LOW_MASK, ds_field_low);
+
+	ret = ytphy_modify_ext(phydev,
+			       YT8531_PAD_DRIVE_STRENGTH_CFG_REG,
+			       YT8531_RGMII_RXD_DS_LOW_MASK | YT8531_RGMII_RXD_DS_HI_MASK,
+			       ds_field_low | ds_field_hi);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
 static int yt8531_config(struct phy_device *phydev)
 {
 	struct ytphy_plat_priv	*priv = phydev->priv;
@@ -486,6 +612,10 @@ static int yt8531_config(struct phy_device *phydev)
 		if (ret < 0)
 			return ret;
 	}
+
+	ret = yt8531_set_ds(phydev);
+	if (ret < 0)
+		return ret;
 
 	return 0;
 }
