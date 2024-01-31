@@ -55,4 +55,8 @@ extern struct ubi_device *ubi_devices[];
 int cmd_ubifs_mount(char *vol_name);
 int cmd_ubifs_umount(void);
 
+#if IS_ENABLED(CONFIG_BLK)
+int ubi_bind(struct udevice *dev);
+#endif
+
 #endif
