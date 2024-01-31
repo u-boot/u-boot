@@ -142,7 +142,7 @@ static int do_smbios(struct cmd_tbl *cmdtp, int flag, int argc,
 			 entry3->major_ver, entry3->minor_ver, entry3->doc_rev);
 		table = (void *)(uintptr_t)entry3->struct_table_address;
 		size = entry3->length;
-		table_maximum_size = entry3->max_struct_size;
+		table_maximum_size = entry3->table_maximum_size;
 	} else if (!memcmp(entry, smbios_sig, sizeof(smbios_sig) - 1)) {
 		struct smbios_entry *entry2 = entry;
 

@@ -615,7 +615,7 @@ ulong write_smbios_table(ulong addr)
 	se->minor_ver = SMBIOS_MINOR_VER;
 	se->doc_rev = 0;
 	se->entry_point_rev = 1;
-	se->max_struct_size = len;
+	se->table_maximum_size = len;
 	se->struct_table_address = table_addr;
 	se->checksum = table_compute_checksum(se, sizeof(struct smbios3_entry));
 	unmap_sysmem(se);

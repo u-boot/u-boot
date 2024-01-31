@@ -75,7 +75,7 @@ struct __packed smbios3_entry {
 	/** @reserved: reserved */
 	u8 reserved;
 	/** maximum size of SMBIOS table */
-	u32 max_struct_size;
+	u32 table_maximum_size;
 	/** @struct_table_address: 64-bit physical starting address */
 	u64 struct_table_address;
 };
