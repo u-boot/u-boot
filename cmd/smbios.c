@@ -126,7 +126,7 @@ static int do_smbios(struct cmd_tbl *cmdtp, int flag, int argc,
 	static const char smbios_sig[] = "_SM_";
 	static const char smbios3_sig[] = "_SM3_";
 	size_t count = 0;
-	u32 max_struct_size;
+	u32 table_maximum_size;
 
 	addr = gd_smbios_start();
 	if (!addr) {
@@ -142,7 +142,7 @@ static int do_smbios(struct cmd_tbl *cmdtp, int flag, int argc,
 			 entry3->major_ver, entry3->minor_ver, entry3->doc_rev);
 		table = (void *)(uintptr_t)entry3->struct_table_address;
 		size = entry3->length;
-		max_struct_size = entry3->max_struct_size;
+		table_maximum_size = entry3->max_struct_size;
 	} else if (!memcmp(entry, smbios_sig, sizeof(smbios_sig) - 1)) {
 		struct smbios_entry *entry2 = entry;
 
@@ -150,7 +150,7 @@ static int do_smbios(struct cmd_tbl *cmdtp, int flag, int argc,
 			 entry2->major_ver, entry2->minor_ver);
 		table = (void *)(uintptr_t)entry2->struct_table_address;
 		size = entry2->length;
-		max_struct_size = entry2->max_struct_size;
+		table_maximum_size = entry2->struct_table_length;
 	} else {
 		log_err("Unknown SMBIOS anchor format\n");
 		return CMD_RET_FAILURE;
@@ -163,7 +163,7 @@ static int do_smbios(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	for (struct smbios_header *pos = table; pos; pos = next_table(pos))
 		++count;
-	printf("%zd structures occupying %d bytes\n", count, max_struct_size);
+	printf("%zd structures occupying %d bytes\n", count, table_maximum_size);
 	printf("Table at 0x%llx\n", (unsigned long long)map_to_sysmem(table));
 
 	for (struct smbios_header *pos = table; pos; pos = next_table(pos)) {
