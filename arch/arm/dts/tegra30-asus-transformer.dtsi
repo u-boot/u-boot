@@ -1150,6 +1150,16 @@
 		clock-output-names = "pmic-oscillator";
 	};
 
+	extcon-keys {
+		compatible = "gpio-keys";
+
+		switch-dock-hall-sensor {
+			label = "Lid sensor";
+			gpios = <&gpio TEGRA_GPIO(S, 6) GPIO_ACTIVE_LOW>;
+			linux,code = <SW_LID>;
+		};
+	};
+
 	gpio-keys {
 		compatible = "gpio-keys";
 
