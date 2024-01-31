@@ -816,9 +816,6 @@ int atmel_pmecc_wait_rdy(struct atmel_pmecc_user *user)
 }
 EXPORT_SYMBOL_GPL(atmel_pmecc_wait_rdy);
 
-#define ATMEL_BASE_PMECC	0xffffe000
-#define ATMEL_BASE_PMERRLOC	0xffffe600
-
 static struct atmel_pmecc *
 atmel_pmecc_create(struct udevice *dev,
 		   const struct atmel_pmecc_caps *caps,
