@@ -184,10 +184,6 @@
 	bootph-all;
 };
 
-&serdes_ln_ctrl {
-	u-boot,mux-autoprobe;
-};
-
 &usbss0 {
 	bootph-all;
 };
