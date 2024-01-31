@@ -22,6 +22,13 @@ F:	configs/evb-rk3588_defconfig
 F:	arch/arm/dts/rk3588-evb1-v10.dts
 F:	arch/arm/dts/rk3588-evb1-v10-u-boot.dtsi
 
+GENERIC-RK3588
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	configs/generic-rk3588_defconfig
+F:	arch/arm/dts/rk3588-generic.dts
+F:	arch/arm/dts/rk3588-generic-u-boot.dtsi
+
 ORANGEPI-5-RK3588
 M:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
