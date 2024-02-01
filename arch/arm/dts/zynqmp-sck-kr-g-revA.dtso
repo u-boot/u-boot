@@ -174,12 +174,13 @@
 	phys = <&psgtr 3 PHY_TYPE_USB3 1 2>;
 	reset-gpios = <&slg7xl45106 1 GPIO_ACTIVE_LOW>;
 	assigned-clock-rates = <250000000>, <20000000>;
-
+#if 0
 	usbhub1: usb-hub { /* u84 */
 		i2c-bus = <&usbhub_i2c1>;
 		compatible = "microchip,usb5744";
 		reset-gpios = <&slg7xl45106 4 GPIO_ACTIVE_LOW>;
 	};
+#endif
 };
 
 &dwc3_1 {
