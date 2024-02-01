@@ -303,10 +303,6 @@
 			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
 	};
 
-	edac {
-		compatible = "arm,cortex-a53-edac";
-	};
-
 	fpga_full: fpga-region {
 		compatible = "fpga-region";
 		fpga-mgr = <&zynqmp_pcap>;
