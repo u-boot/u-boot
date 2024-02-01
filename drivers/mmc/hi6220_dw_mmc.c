@@ -37,6 +37,7 @@ struct hi6220_dwmmc_priv_data {
 struct hisi_mmc_data {
 	unsigned int clock;
 	bool use_fifo;
+	u32 fifoth_val;
 };
 
 static int hi6220_dwmmc_of_to_plat(struct udevice *dev)
@@ -125,6 +126,7 @@ static int hi6220_dwmmc_probe(struct udevice *dev)
 	host->mmc = &plat->mmc;
 
 	host->fifo_mode = mmc_data->use_fifo;
+	host->fifoth_val = mmc_data->fifoth_val;
 	host->mmc->priv = &priv->host;
 	upriv->mmc = host->mmc;
 	host->mmc->dev = dev;
@@ -154,13 +156,20 @@ static const struct hisi_mmc_data hi6220_mmc_data = {
 	.use_fifo = false,
 };
 
+static const struct hisi_mmc_data hi3798mv2x_mmc_data = {
+	.clock = 50000000,
+	.use_fifo = false,
+	// FIFO depth is 256
+	.fifoth_val = MSIZE(4) | RX_WMARK(0x7f) | TX_WMARK(0x80),
+};
+
 static const struct udevice_id hi6220_dwmmc_ids[] = {
 	{ .compatible = "hisilicon,hi6220-dw-mshc",
 	  .data = (ulong)&hi6220_mmc_data },
 	{ .compatible = "hisilicon,hi3798cv200-dw-mshc",
 	  .data = (ulong)&hi6220_mmc_data },
 	{ .compatible = "hisilicon,hi3798mv200-dw-mshc",
-	  .data = (ulong)&hi6220_mmc_data },
+	  .data = (ulong)&hi3798mv2x_mmc_data },
 	{ .compatible = "hisilicon,hi3660-dw-mshc",
 	  .data = (ulong)&hi3660_mmc_data },
 	{ }
