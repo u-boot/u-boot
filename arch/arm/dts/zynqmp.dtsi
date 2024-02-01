@@ -307,7 +307,7 @@
 		compatible = "arm,cortex-a53-edac";
 	};
 
-	fpga_full: fpga-full {
+	fpga_full: fpga-region {
 		compatible = "fpga-region";
 		fpga-mgr = <&zynqmp_pcap>;
 		#address-cells = <2>;
