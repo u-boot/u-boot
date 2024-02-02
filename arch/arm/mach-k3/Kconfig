@@ -116,13 +116,6 @@ config K3_EARLY_CONS_IDX
 	  Use this option to set the index of the serial device to be used
 	  for the early console during SPL execution.
 
-config SYS_K3_SPL_ATF
-	bool "Start Cortex-A from SPL"
-	depends on CPU_V7R
-	help
-	  Enabling this will try to start Cortex-A (typically with ATF)
-	  after SPL from R5.
-
 config K3_ATF_LOAD_ADDR
 	hex "Load address of ATF image"
 	default 0x70000000
