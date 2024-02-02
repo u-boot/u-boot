@@ -247,6 +247,50 @@ void disable_linefill_optimization(void)
 	asm("mcr p15, 0, %0, c1, c0, 1" : : "r" (actlr));
 }
 
+static void remove_fwl_regions(struct fwl_data fwl_data, size_t num_regions,
+			       enum k3_firewall_region_type fwl_type)
+{
+	struct ti_sci_fwl_ops *fwl_ops;
+	struct ti_sci_handle *ti_sci;
+	struct ti_sci_msg_fwl_region region;
+	size_t j;
+
+	ti_sci = get_ti_sci_handle();
+	fwl_ops = &ti_sci->ops.fwl_ops;
+
+	for (j = 0; j < fwl_data.regions; j++) {
+		region.fwl_id = fwl_data.fwl_id;
+		region.region = j;
+		region.n_permission_regs = 3;
+
+		fwl_ops->get_fwl_region(ti_sci, &region);
+
+		/* Don't disable the background regions */
+		if (region.control != 0 &&
+		    ((region.control >> K3_FIREWALL_BACKGROUND_BIT) & 1) == fwl_type) {
+			pr_debug("Attempting to disable firewall %5d (%25s)\n",
+				 region.fwl_id, fwl_data.name);
+			region.control = 0;
+
+			if (fwl_ops->set_fwl_region(ti_sci, &region))
+				pr_err("Could not disable firewall %5d (%25s)\n",
+				       region.fwl_id, fwl_data.name);
+		}
+	}
+}
+
+void remove_fwl_configs(struct fwl_data *fwl_data, size_t fwl_data_size)
+{
+	size_t i;
+
+	for (i = 0; i < fwl_data_size; i++) {
+		remove_fwl_regions(fwl_data[i], fwl_data[i].regions,
+				   K3_FIREWALL_REGION_FOREGROUND);
+		remove_fwl_regions(fwl_data[i], fwl_data[i].regions,
+				   K3_FIREWALL_REGION_BACKGROUND);
+	}
+}
+
 #if CONFIG_IS_ENABLED(FIT_IMAGE_POST_PROCESS)
 void board_fit_image_post_process(const void *fit, int node, void **p_image,
 				  size_t *p_size)
