@@ -9,6 +9,11 @@
 	aliases {
 		mmc1 = &usdhc3;
 	};
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog2>;
+		bootph-pre-ram;
+	};
 };
 
 &usdhc3 {
@@ -16,5 +21,9 @@
 };
 
 &pinctrl_usdhc3 {
+	bootph-pre-ram;
+};
+
+&wdog2 {
 	bootph-pre-ram;
 };
