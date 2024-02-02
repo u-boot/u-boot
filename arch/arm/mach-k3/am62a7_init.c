@@ -142,6 +142,9 @@ void board_init_f(ulong dummy)
 		panic("ROM has not loaded TIFS firmware\n");
 
 	k3_sysfw_loader(true, NULL, NULL);
+
+	/* Disable ROM configured firewalls right after loading sysfw */
+	remove_fwl_configs(cbass_main_fwls, ARRAY_SIZE(cbass_main_fwls));
 #endif
 
 #if defined(CONFIG_CPU_V7R)
@@ -169,9 +172,6 @@ void board_init_f(ulong dummy)
 
 	/* Output System Firmware version info */
 	k3_sysfw_print_ver();
-
-       /* Disable ROM configured firewalls right after loading sysfw */
-       remove_fwl_configs(cbass_main_fwls, ARRAY_SIZE(cbass_main_fwls));
 
 #if defined(CONFIG_K3_AM62A_DDRSS)
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
