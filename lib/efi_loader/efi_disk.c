@@ -574,7 +574,8 @@ static int efi_disk_create_raw(struct udevice *dev, efi_handle_t agent_handle)
 			log_notice("Disk %s not ready\n", dev->name);
 			ret = -EBUSY;
 		} else {
-			log_err("Adding disk for %s failed (err=%ld/%#lx)\n", dev->name, ret, ret);
+			log_err("Adding block device %s failed, r = %lu\n",
+				dev->name, ret & ~EFI_ERROR_MASK);
 			ret = -ENOENT;
 		}
 
