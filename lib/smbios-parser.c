@@ -15,7 +15,7 @@ const struct smbios_entry *smbios_entry(u64 address, u32 size)
 {
 	const struct smbios_entry *entry = (struct smbios_entry *)(uintptr_t)address;
 
-	if (!address | !size)
+	if (!address || !size)
 		return NULL;
 
 	if (memcmp(entry->anchor, "_SM_", 4))
@@ -230,7 +230,7 @@ void smbios_prepare_measurement(const struct smbios3_entry *entry,
 	void *table_end;
 	struct smbios_header *header;
 
-	table_end = (void *)((u8 *)smbios_copy + entry->max_struct_size);
+	table_end = (void *)((u8 *)smbios_copy + entry->table_maximum_size);
 
 	for (i = 0; i < ARRAY_SIZE(smbios_filter_tables); i++) {
 		header = smbios_copy;

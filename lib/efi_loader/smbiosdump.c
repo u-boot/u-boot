@@ -329,7 +329,7 @@ efi_status_t do_check(void)
 			return EFI_LOAD_ERROR;
 		}
 		table = (void *)(uintptr_t)smbios3_anchor->struct_table_address;
-		len = smbios3_anchor->max_struct_size;
+		len = smbios3_anchor->table_maximum_size;
 	} else {
 		struct smbios_entry *smbios_anchor;
 		int r;
@@ -469,7 +469,7 @@ static efi_status_t do_save(u16 *filename)
 
 	smbios3_anchor = get_config_table(&smbios3_guid);
 	if (smbios3_anchor) {
-		size = 0x20 + smbios3_anchor->max_struct_size;
+		size = 0x20 + smbios3_anchor->table_maximum_size;
 		ret = bs->allocate_pool(EFI_LOADER_DATA, size, (void **)&buf);
 		if (ret != EFI_SUCCESS) {
 			error(u"Out of memory\n");
@@ -480,7 +480,7 @@ static efi_status_t do_save(u16 *filename)
 		memcpy(buf, smbios3_anchor, smbios3_anchor->length);
 		memcpy(buf + 0x20,
 		       (void *)(uintptr_t)smbios3_anchor->struct_table_address,
-		       smbios3_anchor->max_struct_size);
+		       smbios3_anchor->table_maximum_size);
 
 		smbios3_anchor = (struct smbios3_entry *)buf;
 		smbios3_anchor->struct_table_address = 0x20;

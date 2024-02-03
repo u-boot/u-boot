@@ -1098,7 +1098,7 @@ tcg2_measure_smbios(struct udevice *dev,
 	 */
 	event_size = sizeof(struct smbios_handoff_table_pointers2) +
 		     FIELD_SIZEOF(struct efi_configuration_table, guid) +
-		     entry->max_struct_size;
+		     entry->table_maximum_size;
 	event = calloc(1, event_size);
 	if (!event) {
 		ret = EFI_OUT_OF_RESOURCES;
@@ -1113,7 +1113,7 @@ tcg2_measure_smbios(struct udevice *dev,
 	smbios_copy = (struct smbios_header *)((uintptr_t)&event->table_entry[0].table);
 	memcpy(&event->table_entry[0].table,
 	       (void *)((uintptr_t)entry->struct_table_address),
-	       entry->max_struct_size);
+	       entry->table_maximum_size);
 
 	smbios_prepare_measurement(entry, smbios_copy);
 

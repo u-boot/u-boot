@@ -25,6 +25,10 @@ static const char *smbios_get_string(void *table, int index)
 {
 	const char *str = (char *)table +
 			  ((struct smbios_header *)table)->length;
+	static const char fallback[] = "Not Specified";
+
+	if (!index)
+		return fallback;
 
 	if (!*str)
 		++str;
@@ -41,7 +45,7 @@ static struct smbios_header *next_table(struct smbios_header *table)
 	if (table->type == SMBIOS_END_OF_TABLE)
 		return NULL;
 
-	str = smbios_get_string(table, 0);
+	str = smbios_get_string(table, -1);
 	return (struct smbios_header *)(++str);
 }
 
@@ -76,7 +80,7 @@ static void smbios_print_type1(struct smbios_type1 *table)
 	smbios_print_str("Version", table, table->version);
 	smbios_print_str("Serial Number", table, table->serial_number);
 	if (table->length >= 0x19) {
-		printf("\tUUID %pUl\n", table->uuid);
+		printf("\tUUID: %pUl\n", table->uuid);
 		smbios_print_str("Wake Up Type", table, table->serial_number);
 	}
 	if (table->length >= 0x1b) {
@@ -95,9 +99,9 @@ static void smbios_print_type2(struct smbios_type2 *table)
 	smbios_print_str("Version", table, table->version);
 	smbios_print_str("Serial Number", table, table->serial_number);
 	smbios_print_str("Asset Tag", table, table->asset_tag_number);
-	printf("\tFeature Flags: 0x%2x\n", table->feature_flags);
+	printf("\tFeature Flags: 0x%04x\n", table->feature_flags);
 	smbios_print_str("Chassis Location", table, table->chassis_location);
-	printf("\tChassis Handle: 0x%2x\n", table->chassis_handle);
+	printf("\tChassis Handle: 0x%04x\n", table->chassis_handle);
 	smbios_print_str("Board Type", table, table->board_type);
 	printf("\tContained Object Handles: ");
 	handle = (void *)table->eos;
@@ -122,7 +126,7 @@ static int do_smbios(struct cmd_tbl *cmdtp, int flag, int argc,
 	static const char smbios_sig[] = "_SM_";
 	static const char smbios3_sig[] = "_SM3_";
 	size_t count = 0;
-	u32 max_struct_size;
+	u32 table_maximum_size;
 
 	addr = gd_smbios_start();
 	if (!addr) {
@@ -138,7 +142,7 @@ static int do_smbios(struct cmd_tbl *cmdtp, int flag, int argc,
 			 entry3->major_ver, entry3->minor_ver, entry3->doc_rev);
 		table = (void *)(uintptr_t)entry3->struct_table_address;
 		size = entry3->length;
-		max_struct_size = entry3->max_struct_size;
+		table_maximum_size = entry3->table_maximum_size;
 	} else if (!memcmp(entry, smbios_sig, sizeof(smbios_sig) - 1)) {
 		struct smbios_entry *entry2 = entry;
 
@@ -146,7 +150,7 @@ static int do_smbios(struct cmd_tbl *cmdtp, int flag, int argc,
 			 entry2->major_ver, entry2->minor_ver);
 		table = (void *)(uintptr_t)entry2->struct_table_address;
 		size = entry2->length;
-		max_struct_size = entry2->max_struct_size;
+		table_maximum_size = entry2->struct_table_length;
 	} else {
 		log_err("Unknown SMBIOS anchor format\n");
 		return CMD_RET_FAILURE;
@@ -159,7 +163,7 @@ static int do_smbios(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	for (struct smbios_header *pos = table; pos; pos = next_table(pos))
 		++count;
-	printf("%zd structures occupying %d bytes\n", count, max_struct_size);
+	printf("%zd structures occupying %d bytes\n", count, table_maximum_size);
 	printf("Table at 0x%llx\n", (unsigned long long)map_to_sysmem(table));
 
 	for (struct smbios_header *pos = table; pos; pos = next_table(pos)) {
