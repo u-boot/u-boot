@@ -240,7 +240,11 @@ static int mbr_test_run(struct unit_test_state *uts)
 	ut_assert(ofnode_valid(node));
 	ut_assertok(lists_bind_fdt(gd->dm_root, node, &dev, NULL, false));
 
-	mbr_parts_max = sizeof('\0') + 2 +
+	/*
+	 * 1 byte for null character
+	 * 2 reserved bytes
+	 */
+	mbr_parts_max = 1 + 2 +
 		strlen(mbr_parts_header) +
 		strlen(mbr_parts_p1) +
 		strlen(mbr_parts_p2) +
