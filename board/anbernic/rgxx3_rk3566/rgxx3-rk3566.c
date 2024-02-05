@@ -50,6 +50,7 @@ enum rgxx3_device_id {
 	RGB30,
 	RK2023,
 	RGARCD,
+	RGB10MAX3,
 	/* Devices with duplicate ADC value */
 	RG353PS,
 	RG353VS,
@@ -105,6 +106,13 @@ static const struct rg3xx_model rg3xx_model_details[] = {
 		.board = "rk3566-anbernic-rg-arc-d",
 		.board_name = "Anbernic RG ARC-D",
 		.fdtfile = DTB_DIR "rk3566-anbernic-rg-arc-d.dtb",
+		.detect_panel = 0,
+	},
+	[RGB10MAX3] = {
+		.adc_value = 765, /* Observed average from device */
+		.board = "rk3566-powkiddy-rgb10max3",
+		.board_name = "Powkiddy RGB10MAX3",
+		.fdtfile = DTB_DIR "rk3566-powkiddy-rgb10max3.dtb",
 		.detect_panel = 0,
 	},
 	/* Devices with duplicate ADC value */

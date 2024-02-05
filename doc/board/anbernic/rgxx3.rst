@@ -17,6 +17,7 @@ This allows U-Boot to boot the following Anbernic devices:
 Additionally, the following very similar non-Anbernic devices are also
 supported:
 
+ - Powkiddy RGB10MAX3
  - Powkiddy RGB30
  - Powkiddy RK2023
 
