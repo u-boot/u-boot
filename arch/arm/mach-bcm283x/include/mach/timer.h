@@ -11,8 +11,7 @@
 #include <linux/bug.h>
 #endif
 
-#define BCM2835_TIMER_PHYSADDR ({ BUG_ON(!rpi_bcm283x_base); \
-				  rpi_bcm283x_base + 0x00003000; })
+#define BCM2835_TIMER_PHYSADDR	rpi_timer_base
 
 #define BCM2835_TIMER_CS_M3	(1 << 3)
 #define BCM2835_TIMER_CS_M2	(1 << 2)
