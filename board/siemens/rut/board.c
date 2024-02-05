@@ -10,44 +10,30 @@
  * Copyright (C) 2011, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
-#include <common.h>
-#include <env.h>
-#include <errno.h>
-#include <init.h>
-#include <malloc.h>
-#include <net.h>
-#include <spi.h>
-#include <spl.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/omap.h>
-#include <asm/arch/ddr_defs.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/mmc_host_def.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/io.h>
-#include <asm/emif.h>
-#include <asm/gpio.h>
-#include <i2c.h>
-#include <miiphy.h>
 #include <cpsw.h>
-#include <video.h>
-#include <watchdog.h>
+#include <env.h>
+#include <init.h>
 #include <linux/delay.h>
-#include "board.h"
+#include <nand.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/ddr_defs.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/gpio.h>
+#include <asm/io.h>
+#include "../common/board_am335x.h"
+#include "../common/eeprom.h"
 #include "../common/factoryset.h"
 
+#ifdef CONFIG_SPL_BUILD
 /*
  * Read header information from EEPROM into global structure.
  */
-static int read_eeprom(void)
+int draco_read_eeprom(void)
 {
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
-static void board_init_ddr(void)
+void draco_init_ddr(void)
 {
 struct emif_regs rut_ddr3_emif_reg_data = {
 	.sdram_config = 0x61C04AB2,
@@ -124,7 +110,7 @@ err:
 #define REQUEST_AND_PULSE_RESET(N) \
 		request_and_pulse_reset(N, #N);
 
-static void spl_siemens_board_init(void)
+void spl_draco_board_init(void)
 {
 	REQUEST_AND_PULSE_RESET(ETH_PHY_RESET_GPIO);
 	REQUEST_AND_PULSE_RESET(MAXTOUCH_RESET_GPIO);
@@ -244,5 +230,3 @@ int board_late_init(void)
 	return 0;
 }
 #endif
-
-#include "../common/board.c"

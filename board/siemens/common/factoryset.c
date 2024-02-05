@@ -7,26 +7,18 @@
 
 #if !defined(CONFIG_SPL_BUILD)
 
-#include <common.h>
 #include <env.h>
-#include <dm.h>
-#include <env_internal.h>
-#include <i2c.h>
-#include <log.h>
+#include <g_dnl.h>
+#include <net.h>
 #include <asm/io.h>
-#if !CONFIG_IS_ENABLED(TARGET_GIEDI) && !CONFIG_IS_ENABLED(TARGET_DENEB)
+#if CONFIG_IS_ENABLED(AM33XX)
 #include <asm/arch/cpu.h>
 #endif
-#include <asm/arch/sys_proto.h>
-#include <asm/unaligned.h>
-#include <net.h>
-#include <errno.h>
-#include <g_dnl.h>
+#include "eeprom.h"
 #include "factoryset.h"
 
-#define EEPR_PG_SZ		0x80
-#define EEPROM_FATORYSET_OFFSET	0x400
-#define OFF_PG            EEPROM_FATORYSET_OFFSET/EEPR_PG_SZ
+#define EEPR_PG_SZ	0x80
+#define OFF_PG		(SIEMENS_EE_ADDR_FACTORYSET / EEPR_PG_SZ)
 
 /* Global variable that contains necessary information from FactorySet */
 struct factorysetcontainer factory_dat;
@@ -148,39 +140,14 @@ int factoryset_read_eeprom(int i2c_addr)
 	int i, pages = 0, size = 0;
 	unsigned char eeprom_buf[0x3c00], hdr[4], buf[MAX_STRING_LENGTH];
 	unsigned char *cp, *cp1;
-#if CONFIG_IS_ENABLED(DM_I2C)
-	struct udevice *bus, *dev;
-	int ret;
-#endif
 
 #if defined(CONFIG_DFU_OVER_USB)
 	factory_dat.usb_vendor_id = CONFIG_USB_GADGET_VENDOR_NUM;
 	factory_dat.usb_product_id = CONFIG_USB_GADGET_PRODUCT_NUM;
 #endif
 
-#if CONFIG_IS_ENABLED(DM_I2C)
-	ret = uclass_get_device_by_seq(UCLASS_I2C, EEPROM_I2C_BUS, &bus);
-	if (ret)
+	if (siemens_ee_read_data(SIEMENS_EE_ADDR_FACTORYSET, hdr, sizeof(hdr)))
 		goto err;
-
-	ret = dm_i2c_probe(bus, i2c_addr, 0, &dev);
-	if (ret)
-		goto err;
-
-	ret = i2c_set_chip_offset_len(dev, 2);
-	if (ret)
-		goto err;
-
-	ret = dm_i2c_read(dev, EEPROM_FATORYSET_OFFSET, hdr, sizeof(hdr));
-	if (ret)
-		goto err;
-#else
-	if (i2c_probe(i2c_addr))
-		goto err;
-
-	if (i2c_read(i2c_addr, EEPROM_FATORYSET_OFFSET, 2, hdr, sizeof(hdr)))
-		goto err;
-#endif
 
 	if ((hdr[0] != 0x99) || (hdr[1] != 0x80)) {
 		printf("FactorySet is not right in eeprom.\n");
@@ -201,33 +168,16 @@ int factoryset_read_eeprom(int i2c_addr)
 	 * data after every time we got a record from eeprom
 	 */
 	debug("Read eeprom page :\n");
-	for (i = 0; i < pages; i++) {
-#if CONFIG_IS_ENABLED(DM_I2C)
-		ret = dm_i2c_read(dev, (OFF_PG + i) * EEPR_PG_SZ,
-				  eeprom_buf + (i * EEPR_PG_SZ), EEPR_PG_SZ);
-		if (ret)
+	for (i = 0; i < pages; i++)
+		if (siemens_ee_read_data((OFF_PG + i) * EEPR_PG_SZ,
+					 eeprom_buf + (i * EEPR_PG_SZ), EEPR_PG_SZ))
 			goto err;
-#else
-		if (i2c_read(i2c_addr, (OFF_PG + i) * EEPR_PG_SZ, 2,
-			     eeprom_buf + (i * EEPR_PG_SZ), EEPR_PG_SZ))
-			goto err;
-#endif
-	}
 
-	if (size % EEPR_PG_SZ) {
-#if CONFIG_IS_ENABLED(DM_I2C)
-		ret = dm_i2c_read(dev, (OFF_PG + pages) * EEPR_PG_SZ,
-				  eeprom_buf + (pages * EEPR_PG_SZ),
-				  size % EEPR_PG_SZ);
-		if (ret)
+	if (size % EEPR_PG_SZ)
+		if (siemens_ee_read_data((OFF_PG + pages) * EEPR_PG_SZ,
+					 eeprom_buf + (pages * EEPR_PG_SZ),
+					 size % EEPR_PG_SZ))
 			goto err;
-#else
-		if (i2c_read(i2c_addr, (OFF_PG + pages) * EEPR_PG_SZ, 2,
-			     eeprom_buf + (pages * EEPR_PG_SZ),
-			     (size % EEPR_PG_SZ)))
-			goto err;
-#endif
-	}
 
 	/* we do below just for eeprom align */
 	for (i = 0; i < size; i++)
@@ -247,11 +197,10 @@ int factoryset_read_eeprom(int i2c_addr)
 		cp1 += 3;
 	}
 
-#if CONFIG_IS_ENABLED(TARGET_GIEDI) || CONFIG_IS_ENABLED(TARGET_DENEB)
+#if CONFIG_IS_ENABLED(IMX8)
 	/* get mac address for WLAN */
-	ret = get_factory_record_val(cp, size, (uchar *)"WLAN1", (uchar *)"mac",
-				     buf, MAX_STRING_LENGTH);
-	if (ret > 0) {
+	if (get_factory_record_val(cp, size, (uchar *)"WLAN1", (uchar *)"mac",
+				   buf, MAX_STRING_LENGTH) > 0) {
 		cp1 = buf;
 		for (i = 0; i < 6; i++) {
 			factory_dat.mac_wlan[i] = hextoul((char *)cp1, NULL);
@@ -355,7 +304,7 @@ static int factoryset_mac_env_set(void)
 
 	eth_env_set_enetaddr("ethaddr", mac_addr);
 
-#if CONFIG_IS_ENABLED(TARGET_GIEDI) || CONFIG_IS_ENABLED(TARGET_DENEB)
+#if CONFIG_IS_ENABLED(IMX8)
 	eth_env_set_enetaddr("eth1addr", mac_addr);
 
 	/* wlan mac */

@@ -4,6 +4,7 @@
 #
 
 obj-y += board.o
+obj-y += ../common/eeprom.o
 
 ifdef CONFIG_SPL_BUILD
 obj-y += spl.o

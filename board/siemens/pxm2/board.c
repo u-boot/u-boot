@@ -12,37 +12,24 @@
  * Copyright (C) 2011, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
-#include <common.h>
-#include <env.h>
-#include <errno.h>
-#include <init.h>
-#include <log.h>
-#include <malloc.h>
-#include <net.h>
-#include <spl.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/omap.h>
-#include <asm/arch/ddr_defs.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/mmc_host_def.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/io.h>
-#include <asm/emif.h>
-#include <asm/gpio.h>
-#include <i2c.h>
-#include <miiphy.h>
 #include <cpsw.h>
-#include <watchdog.h>
-#include "board.h"
-#include "../common/factoryset.h"
-#include "pmic.h"
+#include <env.h>
+#include <i2c.h>
+#include <init.h>
 #include <nand.h>
-#include <bmp_layout.h>
+#include <net.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/ddr_defs.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/gpio.h>
+#include <asm/io.h>
+#include "pmic.h"
+#include "../common/board_am335x.h"
+#include "../common/eeprom.h"
+#include "../common/factoryset.h"
 
 #ifdef CONFIG_SPL_BUILD
-static void board_init_ddr(void)
+void draco_init_ddr(void)
 {
 struct emif_regs pxm2_ddr3_emif_reg_data = {
 	.sdram_config = 0x41805332,
@@ -134,7 +121,7 @@ int voltage_update(unsigned int module, unsigned char vddx_op_vol_sel)
 const struct dpll_params dpll_mpu_pxm2 = {
 		720, OSC-1, 1, -1, -1, -1, -1};
 
-void spl_siemens_board_init(void)
+void spl_draco_board_init(void)
 {
 	uchar buf[4];
 	/*
@@ -160,14 +147,14 @@ void spl_siemens_board_init(void)
 		printf("voltage update failed\n");
 	}
 }
-#endif /* if def CONFIG_SPL_BUILD */
 
-int read_eeprom(void)
+int draco_read_eeprom(void)
 {
 	/* nothing ToDo here for this board */
 
 	return 0;
 }
+#endif /* if def CONFIG_SPL_BUILD */
 
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
 	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD))
@@ -274,5 +261,3 @@ int board_late_init(void)
 	return 0;
 }
 #endif
-
-#include "../common/board.c"

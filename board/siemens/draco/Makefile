@@ -14,6 +14,8 @@ obj-y	:= mux.o
 endif
 
 obj-y	+= board.o
+obj-y += ../common/board_am335x.o
+obj-y += ../common/eeprom.o
 ifndef CONFIG_SPL_BUILD
 obj-y += ../common/factoryset.o
 endif

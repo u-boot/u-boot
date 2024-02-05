@@ -9,34 +9,19 @@
  * Copyright (C) 2011, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
-#include <common.h>
 #include <command.h>
-#include <env.h>
-#include <errno.h>
-#include <init.h>
-#include <malloc.h>
 #include <serial.h>
-#include <spl.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/omap.h>
-#include <asm/arch/ddr_defs.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/mmc_host_def.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/global_data.h>
-#include <asm/io.h>
-#include <asm/emif.h>
-#include <asm/gpio.h>
-#include <i2c.h>
-#include <miiphy.h>
-#include <cpsw.h>
 #include <watchdog.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/gpio.h>
 #include <asm/mach-types.h>
-#include "../common/factoryset.h"
+#include "board_am335x.h"
+#include "eeprom.h"
+#include "factoryset.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
 
 #ifdef CONFIG_SPL_BUILD
 void set_uart_mux_conf(void)
@@ -48,13 +33,14 @@ void set_mux_conf_regs(void)
 {
 	/* Initalize the board header */
 	enable_i2c0_pin_mux();
-	i2c_set_bus_num(0);
 
 	/* enable early the console */
 	gd->baudrate = CONFIG_BAUDRATE;
 	serial_init();
 	gd->have_console = 1;
-	if (read_eeprom() < 0)
+
+	siemens_ee_setup();
+	if (draco_read_eeprom() < 0)
 		puts("Could not get board ID.\n");
 
 	enable_board_pin_mux();
@@ -62,15 +48,14 @@ void set_mux_conf_regs(void)
 
 void sdram_init(void)
 {
-	spl_siemens_board_init();
-	board_init_ddr();
+	spl_draco_board_init();
+	draco_init_ddr();
 
 	return;
 }
 #endif /* #ifdef CONFIG_SPL_BUILD */
 
 #ifndef CONFIG_SPL_BUILD
-#define FACTORYSET_EEPROM_ADDR		0x50
 /*
  * Basic board specific setup.  Pinmux has been handled already.
  */
@@ -79,8 +64,7 @@ int board_init(void)
 #if defined(CONFIG_HW_WATCHDOG)
 	hw_watchdog_init();
 #endif /* defined(CONFIG_HW_WATCHDOG) */
-	i2c_set_bus_num(0);
-	if (read_eeprom() < 0)
+	if (siemens_ee_setup() < 0)
 		puts("Could not get board ID.\n");
 #ifdef CONFIG_MACH_TYPE
 	gd->bd->bi_arch_number = CONFIG_MACH_TYPE;
@@ -88,14 +72,10 @@ int board_init(void)
 	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 
 #ifdef CONFIG_FACTORYSET
-	factoryset_read_eeprom(FACTORYSET_EEPROM_ADDR);
+	factoryset_read_eeprom(SIEMENS_EE_I2C_ADDR);
 #endif
 
 	gpmc_init();
-
-#if CONFIG_IS_ENABLED(NAND_CS_INIT)
-	board_nand_cs_init();
-#endif
 
 	return 0;
 }
