@@ -1,0 +1,80 @@
+* Firewall and privilege register settings in device tree
+
+Required properties:
+--------------------
+
+- compatible: should contain "intel,socfpga-dtreg"
+- reg: Physical base address and size of block register.
+- intel,offset-settings: 32-bit offset address of block register,
+			 followed by 32-bit value settings and
+			 the masking bits, only masking bit
+			 set to 1 allows modification.
+
+The device tree node which describes secure and privilege register access
+configuration in compile time.
+
+Most of these registers are expected to work except for the case which some
+registers configuration are required for granting access to some other
+registers, for example CCU registers have to be properly configured before
+allowing register configuration access to fpga2sdram firewall as shown in
+below example.
+
+Some registers depend on runtime data for proper configuration are expected
+to be part of driver that generating these data for example configuration for
+soc_noc_fw_ddr_mpu_inst_0_ddr_scr block register depend on DDR size parsed from
+memory device tree node.
+
+Please refer details of tested examples below for both fpga2sdram and QoS
+configuration with default reset value and the comments.
+
+Example:
+--------
+
+Configuration for multiple dtreg node support in device tree:
+
+	socfpga_dtreg0: socfpga-dtreg0 {
+		compatible = "intel,socfpga-dtreg";
+						#address-cells = <1>;
+                        #size-cells = <1>;
+		        bootph-all;
+
+                        coh_cpu0_bypass_OC_Firewall_main_Firewall@f7100200 {
+							reg = <0xf7100200 0x00000014>;
+                                intel,offset-settings =
+										/*
+										 * Disable ocram security at CCU for
+										 * non secure access
+										 */
+                                        <0x0000004 0x8000ffff 0xe007ffff>,
+                                        <0x0000008 0x8000ffff 0xe007ffff>,
+                                        <0x000000c 0x8000ffff 0xe007ffff>,
+                                        <0x0000010 0x8000ffff 0xe007ffff>;
+                                bootph-all;
+                        };
+					};
+
+	socfpga_dtreg1: socfpga-dtreg1 {
+		compatible = "intel,socfpga-dtreg";
+						#address-cells = <1>;
+                        #size-cells = <1>;
+						bootph-all;
+
+                        soc_noc_fw_mpfe_csr_inst_0_mpfe_scr@f8020000 {
+                                reg = <0xf8020000 0x0000001c>;
+                                intel,offset-settings =
+                                        /* Disable MPFE firewall for SMMU */
+                                        <0x00000000 0x00010101 0x00010101>,
+                                        /*
+										 * Disable MPFE firewall for HMC
+										 * adapter
+										 */
+                                        <0x00000004 0x00000001 0x00010101>;
+								bootph-all;
+                        };
+					};
+
+To call the nodes use:
+
+	ret = uclass_get_device_by_name(UCLASS_NOP, "socfpga-dtreg0", &dev);
+	ret = uclass_get_device_by_name(UCLASS_NOP, "socfpga-dtreg1", &dev);
+
