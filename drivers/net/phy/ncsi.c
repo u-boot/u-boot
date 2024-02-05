@@ -551,7 +551,7 @@ static int ncsi_send_command(unsigned int np, unsigned int nc, unsigned int cmd,
 	checksum = ncsi_calculate_checksum((unsigned char *)hdr,
 					   sizeof(*hdr) + len);
 	pchecksum = (__be32 *)((void *)(hdr + 1) + len);
-	put_unaligned_be32(htonl(checksum), pchecksum);
+	put_unaligned_be32(checksum, pchecksum);
 
 	if (wait) {
 		net_set_timeout_handler(1000UL, ncsi_timeout_handler);
