@@ -286,11 +286,11 @@ static void ncsi_rsp_gc(struct ncsi_rsp_pkt *pkt)
 	}
 
 	c = &ncsi_priv->packages[np].channels[nc];
-	c->cap_generic = ntohl(gc->cap) & NCSI_CAP_GENERIC_MASK;
-	c->cap_bc = ntohl(gc->bc_cap) & NCSI_CAP_BC_MASK;
-	c->cap_mc = ntohl(gc->mc_cap) & NCSI_CAP_MC_MASK;
-	c->cap_aen = ntohl(gc->aen_cap) & NCSI_CAP_AEN_MASK;
-	c->cap_vlan = ntohl(gc->vlan_mode) & NCSI_CAP_VLAN_MASK;
+	c->cap_generic = get_unaligned_be32(&gc->cap) & NCSI_CAP_GENERIC_MASK;
+	c->cap_bc = get_unaligned_be32(&gc->bc_cap) & NCSI_CAP_BC_MASK;
+	c->cap_mc = get_unaligned_be32(&gc->mc_cap) & NCSI_CAP_MC_MASK;
+	c->cap_aen = get_unaligned_be32(&gc->aen_cap) & NCSI_CAP_AEN_MASK;
+	c->cap_vlan = gc->vlan_mode & NCSI_CAP_VLAN_MASK;
 
 	/* End of probe for this channel */
 }
