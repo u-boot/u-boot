@@ -358,11 +358,12 @@ capsule_esl_input_file=$(srctree)/lib/efi_loader/capsule_esl.dtsi.in
 capsule_esl_dtsi = .capsule_esl.dtsi
 capsule_esl_path=$(abspath $(srctree)/$(subst $(quote),,$(CONFIG_EFI_CAPSULE_ESL_FILE)))
 
+dtsi_include_list_deps := $(addprefix $(u_boot_dtsi_loc),$(subst $(quote),,$(dtsi_include_list)))
+
 ifdef CONFIG_EFI_CAPSULE_AUTHENTICATE
 dtsi_include_list += $(capsule_esl_dtsi)
+dtsi_include_list_deps += $(obj)/$(capsule_esl_dtsi)
 endif
-
-dtsi_include_list_deps = $(addprefix $(u_boot_dtsi_loc),$(subst $(quote),,$(dtsi_include_list)))
 
 ifneq ($(CHECK_DTBS),)
 DT_CHECKER ?= dt-validate
