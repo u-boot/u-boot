@@ -142,6 +142,64 @@ static int fwu_get_image_type_id(u8 image_index, efi_guid_t *image_type_id)
 }
 
 /**
+ * fwu_img_entry_offset() - Get pointer to struct fwu_image_entry
+ * @mdata: Pointer to the FWU metadata
+ * @idx: Image index for which pointer is to be returned
+ *
+ * Fetches pointer to am array element of type struct fwu_image_entry.
+ * This returns back a pointer to a structure which is providing
+ * information on a updatable image.
+ *
+ * Return: Pointer to an array element of type struct fwu_image_entry
+ *
+ */
+struct fwu_image_entry *fwu_img_entry_offset(struct fwu_mdata *mdata, u16 idx)
+{
+	u8 num_banks;
+	size_t offset;
+
+	num_banks = fwu_get_fw_desc(mdata)->num_banks;
+
+	offset = sizeof(struct fwu_mdata) +
+		sizeof(struct fwu_fw_store_desc) +
+		(sizeof(struct fwu_image_entry) +
+		 sizeof(struct fwu_image_bank_info) * num_banks) * idx;
+
+	return (struct fwu_image_entry *)((char *)mdata + offset);
+}
+
+/**
+ * fwu_img_bank_info_offset() - Get pointer to struct fwu_image_bank_info
+ * @mdata: Pointer to the FWU metadata
+ * @idx: Image index for which information is needed
+ * @bank: Bank for which pointer is to be returned
+ *
+ * Fetches pointer to an array element of type struct fwu_image_bank_info
+ * for a given image. This returns back a pointer to a structure which
+ * is providing information for a given bank for a particular image.
+ *
+ * Return: Pointer to an array element of type fwu_image_bank_info
+ *
+ */
+struct fwu_image_bank_info *fwu_img_bank_info_offset(struct fwu_mdata *mdata,
+						     u16 idx, u8 bank)
+{
+	u8 num_banks;
+	size_t offset;
+
+	num_banks = fwu_get_fw_desc(mdata)->num_banks;
+
+	offset = sizeof(struct fwu_mdata) +
+		sizeof(struct fwu_fw_store_desc) +
+		(sizeof(struct fwu_image_entry) +
+		 sizeof(struct fwu_image_bank_info) * num_banks) * idx +
+		sizeof(struct fwu_image_entry) +
+		sizeof(struct fwu_image_bank_info) * bank;
+
+	return (struct fwu_image_bank_info *)((char *)mdata + offset);
+}
+
+/**
  * fwu_sync_mdata() - Update given meta-data partition(s) with the copy provided
  * @mdata: FWU metadata structure
  * @part: Bitmask of FWU metadata partitions to be written to

@@ -8,6 +8,7 @@
 
 #include <blk.h>
 #include <efi.h>
+#include <fwu_mdata.h>
 #include <mtd.h>
 #include <uuid.h>
 
@@ -81,6 +82,50 @@ struct fwu_mdata_ops {
 	EFI_GUID(0x0c996046, 0xbcc0, 0x4d04, 0x85, 0xec, \
 		 0xe1, 0xfc, 0xed, 0xf1, 0xc6, 0xf8)
 
+
+/**
+ * fwu_get_fw_desc() - Return pointer to firmware descriptor store struct
+ * @mdata: Pointer to the FWU metadata
+ *
+ * Returns pointer to the firmware store descriptor of the FWU metadata
+ * containing information on updatable images.
+ *
+ * Return: Pointer to the struct fwu_fw_store_desc
+ */
+static inline struct fwu_fw_store_desc *fwu_get_fw_desc(struct fwu_mdata *mdata)
+{
+	return (struct fwu_fw_store_desc *)((u8 *)mdata + sizeof(*mdata));
+}
+
+/**
+ * fwu_img_entry_offset() - Get pointer to struct fwu_image_entry
+ * @mdata: Pointer to the FWU metadata
+ * @idx: Image index for which pointer is to be returned
+ *
+ * Fetches pointer to am array element of type struct fwu_image_entry.
+ * This returns back a pointer to a structure which is providing
+ * information on a updatable image.
+ *
+ * Return: Pointer to an array element of type struct fwu_image_entry
+ *
+ */
+struct fwu_image_entry *fwu_img_entry_offset(struct fwu_mdata *mdata, u16 idx);
+
+/**
+ * fwu_img_bank_info_offset() - Get pointer to struct fwu_image_bank_info
+ * @mdata: Pointer to the FWU metadata
+ * @idx: Image index for which information is needed
+ * @bank: Bank for which pointer is to be returned
+ *
+ * Fetches pointer to an array element of type struct fwu_image_bank_info
+ * for a given image. This returns back a pointer to a structure which
+ * is providing information for a given bank for a particular image.
+ *
+ * Return: Pointer to an array element of type fwu_image_bank_info
+ *
+ */
+struct fwu_image_bank_info *fwu_img_bank_info_offset(struct fwu_mdata *mdata,
+						     u16 idx, u8 bank);
 /**
  * fwu_read_mdata() - Wrapper around fwu_mdata_ops.read_mdata()
  */
