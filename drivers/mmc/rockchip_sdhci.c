@@ -71,7 +71,6 @@
 #define DLL_RXCLK_NO_INVERTER		BIT(29)
 #define DLL_RXCLK_ORI_GATE		BIT(31)
 #define DLL_TXCLK_TAPNUM_DEFAULT	0x10
-#define DLL_TXCLK_TAPNUM_90_DEGREES	0x9
 #define DLL_TXCLK_TAPNUM_FROM_SW	BIT(24)
 #define DLL_TXCLK_NO_INVERTER		BIT(29)
 #define DLL_STRBIN_TAPNUM_DEFAULT	0x4
@@ -314,8 +313,10 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 	int val, ret;
 	u32 extra, txclk_tapnum;
 
-	if (!enable)
+	if (!enable) {
+		sdhci_writel(host, 0, DWCMSHC_EMMC_DLL_CTRL);
 		return 0;
+	}
 
 	if (clock >= 100 * MHz) {
 		/* reset DLL */
@@ -648,7 +649,7 @@ static const struct sdhci_data rk3568_data = {
 	.config_dll = rk3568_sdhci_config_dll,
 	.flags = FLAG_INVERTER_FLAG_IN_RXCLK,
 	.hs200_txclk_tapnum = DLL_TXCLK_TAPNUM_DEFAULT,
-	.hs400_txclk_tapnum = DLL_TXCLK_TAPNUM_DEFAULT,
+	.hs400_txclk_tapnum = 0x8,
 };
 
 static const struct sdhci_data rk3588_data = {
@@ -656,7 +657,7 @@ static const struct sdhci_data rk3588_data = {
 	.set_clock = rk3568_sdhci_set_clock,
 	.config_dll = rk3568_sdhci_config_dll,
 	.hs200_txclk_tapnum = DLL_TXCLK_TAPNUM_DEFAULT,
-	.hs400_txclk_tapnum = DLL_TXCLK_TAPNUM_90_DEGREES,
+	.hs400_txclk_tapnum = 0x9,
 };
 
 static const struct udevice_id sdhci_ids[] = {

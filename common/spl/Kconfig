@@ -371,7 +371,8 @@ config SPL_SHARES_INIT_SP_ADDR
 
 config SPL_STACK
 	hex "Initial stack pointer location"
-	depends on (ARM || ARCH_JZ47XX || MICROBLAZE || RISCV) && SPL_FRAMEWORK
+	depends on (ARM || ARCH_JZ47XX || MICROBLAZE || RISCV) && \
+		SPL_FRAMEWORK || ROCKCHIP_RK3036
 	depends on !SPL_SHARES_INIT_SP_ADDR
 	default 0x946bb8 if ARCH_MX7
 	default 0x93ffb8 if ARCH_MX6 && MX6_OCRAM_256KB

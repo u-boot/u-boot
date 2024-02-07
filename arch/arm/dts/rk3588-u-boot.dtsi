@@ -7,7 +7,7 @@
 
 / {
 	usb_host1_xhci: usb@fc400000 {
-		compatible = "rockchip,rk3588-dwc3", "rockchip,rk3568-dwc3", "snps,dwc3";
+		compatible = "rockchip,rk3588-dwc3", "snps,dwc3";
 		reg = <0x0 0xfc400000 0x0 0x400000>;
 		interrupts = <GIC_SPI 221 IRQ_TYPE_LEVEL_HIGH 0>;
 		clocks = <&cru REF_CLK_USB3OTG1>, <&cru SUSPEND_CLK_USB3OTG1>,

@@ -2,15 +2,8 @@
 
 #include "rk356x-u-boot.dtsi"
 
-/ {
-	chosen {
-		stdout-path = &uart2;
-	};
-};
-
 &sdhci {
 	cap-mmc-highspeed;
-	mmc-ddr-1_8v;
 	pinctrl-names = "default";
 	pinctrl-0 = <&emmc_bus8 &emmc_clk &emmc_cmd &emmc_datastrobe>;
 };
@@ -22,12 +15,6 @@
 	flash@0 {
 		bootph-pre-ram;
 	};
-};
-
-&uart2 {
-	bootph-all;
-	clock-frequency = <24000000>;
-	status = "okay";
 };
 
 &usb_host0_xhci {

@@ -129,6 +129,7 @@ List of mainline supported Rockchip boards:
 
 * rv1126
      - Edgeble Neural Compute Module 2 SoM - Neu2/Neu2k (neu2-io-r1126)
+     - Itead Sonoff iHost (sonoff-ihost-rv1126)
 
 Building
 --------

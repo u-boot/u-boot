@@ -12,10 +12,4 @@
 
 #include <configs/rv1126_common.h>
 
-#undef BOOT_TARGET_DEVICES
-
-#define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0) \
-	func(MMC, mmc, 1)
-
 #endif /* __NEURAL_COMPUTE_MODULE_2_H */

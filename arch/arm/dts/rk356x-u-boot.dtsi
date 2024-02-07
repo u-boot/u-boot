@@ -19,7 +19,6 @@
 	dmc: dmc {
 		compatible = "rockchip,rk3568-dmc";
 		bootph-all;
-		status = "okay";
 	};
 
 	otp: nvmem@fe38c000 {
@@ -27,7 +26,6 @@
 		reg = <0x0 0xfe38c000 0x0 0x4000>;
 		#address-cells = <1>;
 		#size-cells = <1>;
-		status = "okay";
 
 		cpu_id: id@a {
 			reg = <0x0a 0x10>;
@@ -37,27 +35,22 @@
 
 &xin24m {
 	bootph-all;
-	status = "okay";
 };
 
 &cru {
 	bootph-all;
-	status = "okay";
 };
 
 &pmucru {
 	bootph-all;
-	status = "okay";
 };
 
 &grf {
 	bootph-all;
-	status = "okay";
 };
 
 &pmugrf {
 	bootph-all;
-	status = "okay";
 };
 
 &pinctrl {
@@ -139,6 +132,11 @@
 
 &sdmmc0 {
 	bootph-pre-ram;
+};
+
+&uart2 {
+	bootph-pre-ram;
+	clock-frequency = <24000000>;
 };
 
 #ifdef CONFIG_ROCKCHIP_SPI_IMAGE

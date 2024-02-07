@@ -6,12 +6,6 @@
 
 #include "rk356x-u-boot.dtsi"
 
-/ {
-	chosen {
-		stdout-path = &uart2;
-	};
-};
-
 &pcie3x2 {
 	pinctrl-0 = <&pcie3x2_reset_h>;
 };
@@ -26,7 +20,6 @@
 
 &sdhci {
 	cap-mmc-highspeed;
-	mmc-ddr-1_8v;
 	mmc-hs200-1_8v;
 	mmc-hs400-1_8v;
 	mmc-hs400-enhanced-strobe;
@@ -47,10 +40,4 @@
 		spi-rx-bus-width = <4>;
 		spi-tx-bus-width = <1>;
 	};
-};
-
-&uart2 {
-	clock-frequency = <24000000>;
-	bootph-all;
-	status = "okay";
 };

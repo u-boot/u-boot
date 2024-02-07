@@ -5,19 +5,6 @@
 
 #include "rk356x-u-boot.dtsi"
 
-/ {
-	chosen {
-		stdout-path = &uart2;
-	};
-};
-
 &sdhci {
 	cap-mmc-highspeed;
-	mmc-ddr-1_8v;
-};
-
-&uart2 {
-	clock-frequency = <24000000>;
-	bootph-all;
-	status = "okay";
 };

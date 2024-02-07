@@ -9,6 +9,28 @@
 	chosen {
 		u-boot,spl-boot-order = "same-as-spl", &spi_flash, &sdmmc, &sdhci;
 	};
+
+        smbios {
+                compatible = "u-boot,sysinfo-smbios";
+                smbios {
+                        system {
+                                manufacturer = "Pine64";
+                                product = "RockPro64";
+                        };
+
+                        baseboard {
+                                manufacturer = "Pine64";
+                                product = "RockPro64";
+                        };
+
+                        chassis {
+                                manufacturer = "Pine64";
+                                product = "RockPro64";
+                        };
+                };
+        };
+
+
 };
 
 &sdhci {

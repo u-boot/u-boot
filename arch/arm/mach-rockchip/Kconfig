@@ -265,6 +265,7 @@ config ROCKCHIP_RK3399
 	imply TPL_TINY_MEMSET
 	imply TPL_ROCKCHIP_COMMON_BOARD
 	imply SYS_BOOTCOUNT_SINGLEWORD if BOOTCOUNT_LIMIT
+	imply BOOTSTD_FULL
 	imply CMD_BOOTCOUNT if BOOTCOUNT_LIMIT
 	help
 	  The Rockchip RK3399 is a ARM-based SoC with a dual-core Cortex-A72
@@ -292,6 +293,8 @@ config ROCKCHIP_RK3568
 	imply OF_LIBFDT_OVERLAY
 	imply ROCKCHIP_OTP
 	imply MISC_INIT_R
+	imply MMC_HS200_SUPPORT if MMC_SDHCI_ROCKCHIP
+	imply SPL_MMC_HS200_SUPPORT if SPL_MMC && MMC_HS200_SUPPORT
 	help
 	  The Rockchip RK3568 is a ARM-based SoC with quad-core Cortex-A55,
 	  including NEON and GPU, 512K L3 cache, Mali-G52 based graphics,
@@ -317,8 +320,11 @@ config ROCKCHIP_RK3588
 	imply OF_LIBFDT_OVERLAY
 	imply ROCKCHIP_OTP
 	imply MISC_INIT_R
+	imply MMC_HS200_SUPPORT if MMC_SDHCI_ROCKCHIP
+	imply SPL_MMC_HS200_SUPPORT if SPL_MMC && MMC_HS200_SUPPORT
 	imply CLK_SCMI
 	imply SCMI_FIRMWARE
+	imply BOOTSTD_FULL
 	help
 	  The Rockchip RK3588 is a ARM-based SoC with quad-core Cortex-A76 and
 	  quad-core Cortex-A55 including NEON and GPU, 6TOPS NPU, Mali-G610 MP4,
@@ -359,6 +365,7 @@ config ROCKCHIP_RV1126
 	select PMIC_RK8XX
 	select BOARD_LATE_INIT
 	imply ROCKCHIP_COMMON_BOARD
+	select SPL_OPTEE_IMAGE if SPL_FIT
 	imply OF_LIBFDT_OVERLAY
 	imply ROCKCHIP_OTP
 	imply MISC_INIT_R

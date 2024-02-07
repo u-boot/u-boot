@@ -7,22 +7,20 @@
 
 / {
 	aliases {
-		spi0 = &spi0;
-		spi1 = &spi1;
-		spi2 = &spi2;
-		spi3 = &spi3;
-		spi4 = &spi4;
 		spi5 = &sfc;
+	};
+
+	chosen {
+		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &sdhci;
 	};
 
 	dmc {
 		compatible = "rockchip,rk3588-dmc";
 		bootph-all;
-		status = "okay";
 	};
 
 	usb_host0_xhci: usb@fc000000 {
-		compatible = "rockchip,rk3588-dwc3", "rockchip,rk3568-dwc3", "snps,dwc3";
+		compatible = "rockchip,rk3588-dwc3", "snps,dwc3";
 		reg = <0x0 0xfc000000 0x0 0x400000>;
 		interrupts = <GIC_SPI 220 IRQ_TYPE_LEVEL_HIGH 0>;
 		clocks = <&cru REF_CLK_USB3OTG0>, <&cru SUSPEND_CLK_USB3OTG0>,
@@ -41,33 +39,6 @@
 		snps,dis-del-phy-power-chg-quirk;
 		snps,dis-tx-ipgap-linecheck-quirk;
 		status = "disabled";
-	};
-
-	usb_host2_xhci: usb@fcd00000 {
-		compatible = "rockchip,rk3588-dwc3", "rockchip,rk3568-dwc3", "snps,dwc3";
-		reg = <0x0 0xfcd00000 0x0 0x400000>;
-		interrupts = <GIC_SPI 222 IRQ_TYPE_LEVEL_HIGH 0>;
-		clocks = <&cru REF_CLK_USB3OTG2>, <&cru SUSPEND_CLK_USB3OTG2>,
-			 <&cru ACLK_USB3OTG2>, <&cru CLK_UTMI_OTG2>,
-			 <&cru CLK_PIPEPHY2_PIPE_U3_G>;
-		clock-names = "ref_clk", "suspend_clk", "bus_clk", "utmi", "pipe";
-		dr_mode = "host";
-		phys = <&combphy2_psu PHY_TYPE_USB3>;
-		phy-names = "usb3-phy";
-		phy_type = "utmi_wide";
-		resets = <&cru SRST_A_USB3OTG2>;
-		snps,dis_enblslpm_quirk;
-		snps,dis-u2-freeclk-exists-quirk;
-		snps,dis-del-phy-power-chg-quirk;
-		snps,dis-tx-ipgap-linecheck-quirk;
-		snps,dis_rxdet_inp3_quirk;
-		status = "disabled";
-	};
-
-	pmu1_grf: syscon@fd58a000 {
-		bootph-all;
-		compatible = "rockchip,rk3588-pmu1-grf", "syscon";
-		reg = <0x0 0xfd58a000 0x0 0x2000>;
 	};
 
 	usbdpphy0_grf: syscon@fd5c8000 {
@@ -193,17 +164,18 @@
 
 &xin24m {
 	bootph-all;
-	status = "okay";
 };
 
 &cru {
 	bootph-pre-ram;
-	status = "okay";
 };
 
 &sys_grf {
 	bootph-pre-ram;
-	status = "okay";
+};
+
+&pmu1grf {
+	bootph-all;
 };
 
 &scmi {
@@ -241,9 +213,8 @@
 };
 
 &uart2 {
-	clock-frequency = <24000000>;
 	bootph-pre-ram;
-	status = "okay";
+	clock-frequency = <24000000>;
 };
 
 &uart2m0_xfer {

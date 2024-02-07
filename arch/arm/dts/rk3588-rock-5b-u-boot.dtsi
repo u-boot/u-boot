@@ -7,10 +7,6 @@
 #include <dt-bindings/usb/pd.h>
 
 / {
-	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &sdhci;
-	};
-
 	vcc12v_dcin: vcc12v-dcin-regulator {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc12v_dcin";
@@ -19,10 +15,6 @@
 		regulator-min-microvolt = <12000000>;
 		regulator-max-microvolt = <12000000>;
 	};
-};
-
-&combphy2_psu {
-	status = "okay";
 };
 
 &fspim2_pins {
@@ -39,7 +31,6 @@
 
 &sdhci {
 	cap-mmc-highspeed;
-	mmc-ddr-1_8v;
 	mmc-hs200-1_8v;
 };
 
@@ -126,10 +117,6 @@
 };
 
 &usb_host1_xhci {
-	status = "okay";
-};
-
-&usb_host2_xhci {
 	status = "okay";
 };
 

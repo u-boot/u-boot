@@ -2,19 +2,12 @@
 
 #include "rk356x-u-boot.dtsi"
 
-/ {
-	chosen {
-		stdout-path = &uart2;
-	};
-};
-
 &fspi_dual_io_pins {
 	bootph-all;
 };
 
 &sdhci {
 	cap-mmc-highspeed;
-	mmc-ddr-1_8v;
 	mmc-hs200-1_8v;
 	mmc-hs400-1_8v;
 	mmc-hs400-enhanced-strobe;
@@ -28,10 +21,4 @@
 	flash@0 {
 		bootph-pre-ram;
 	};
-};
-
-&uart2 {
-	bootph-all;
-	clock-frequency = <24000000>;
-	status = "okay";
 };
