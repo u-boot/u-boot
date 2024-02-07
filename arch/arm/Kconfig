@@ -678,7 +678,7 @@ config ARCH_BCMBCA
 config TARGET_VEXPRESS_CA9X4
 	bool "Support vexpress_ca9x4"
 	select CPU_V7A
-	select PL011_SERIAL
+	select PL01X_SERIAL
 
 config TARGET_BCMNS
 	bool "Support Broadcom Northstar"

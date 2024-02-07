@@ -236,21 +236,27 @@ static int ti_sci_do_xfer(struct ti_sci_info *info,
 {
 	struct k3_sec_proxy_msg *msg = &xfer->tx_message;
 	u8 secure_buf[info->desc->max_msg_size];
-	struct ti_sci_secure_msg_hdr secure_hdr;
+	struct ti_sci_secure_msg_hdr *secure_hdr = (struct ti_sci_secure_msg_hdr *)secure_buf;
 	int ret;
 
+	/*
+	 * The reason why we need the is_secure code is because of boot R5.
+	 * boot R5 starts off in "secure mode" when it hands off from Boot
+	 * ROM over to the Secondary bootloader. The initial set of calls
+	 * we have to make need to be on a secure pipe.
+	 */
 	if (info->is_secure) {
 		/* ToDo: get checksum of the entire message */
-		secure_hdr.checksum = 0;
-		secure_hdr.reserved = 0;
-		memcpy(&secure_buf[sizeof(secure_hdr)], xfer->tx_message.buf,
+		secure_hdr->checksum = 0;
+		secure_hdr->reserved = 0;
+		memcpy(&secure_buf[sizeof(*secure_hdr)], xfer->tx_message.buf,
 		       xfer->tx_message.len);
 
 		xfer->tx_message.buf = (u32 *)secure_buf;
-		xfer->tx_message.len += sizeof(secure_hdr);
+		xfer->tx_message.len += sizeof(*secure_hdr);
 
 		if (xfer->rx_len)
-			xfer->rx_len += sizeof(secure_hdr);
+			xfer->rx_len += sizeof(*secure_hdr);
 	}
 
 	/* Send the message */
