@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <mmc.h>
 #include <dm/device_compat.h>
+#include <dm.h>
 
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
@@ -25,8 +26,6 @@
 #include "arm_pl180_mmci.h"
 #include <linux/delay.h>
 
-#ifdef CONFIG_DM_MMC
-#include <dm.h>
 #define MMC_CLOCK_MAX	48000000
 #define MMC_CLOCK_MIN	400000
 
@@ -34,7 +33,6 @@ struct arm_pl180_mmc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
 };
-#endif
 
 static int wait_for_command_end(struct mmc *dev, struct mmc_cmd *cmd)
 {
@@ -358,65 +356,6 @@ static int  host_set_ios(struct mmc *dev)
 	return 0;
 }
 
-#ifndef CONFIG_DM_MMC
-/* MMC uses open drain drivers in the enumeration phase */
-static int mmc_host_reset(struct mmc *dev)
-{
-	struct pl180_mmc_host *host = dev->priv;
-
-	writel(host->pwr_init, &host->base->power);
-
-	return 0;
-}
-
-static const struct mmc_ops arm_pl180_mmci_ops = {
-	.send_cmd = host_request,
-	.set_ios = host_set_ios,
-	.init = mmc_host_reset,
-};
-
-/*
- * mmc_host_init - initialize the mmc controller.
- * Set initial clock and power for mmc slot.
- * Initialize mmc struct and register with mmc framework.
- */
-
-int arm_pl180_mmci_init(struct pl180_mmc_host *host, struct mmc **mmc)
-{
-	u32 sdi_u32;
-
-	writel(host->pwr_init, &host->base->power);
-	writel(host->clkdiv_init, &host->base->clock);
-	udelay(CLK_CHANGE_DELAY);
-
-	/* Disable mmc interrupts */
-	sdi_u32 = readl(&host->base->mask0) & ~SDI_MASK0_MASK;
-	writel(sdi_u32, &host->base->mask0);
-
-	host->cfg.name = host->name;
-	host->cfg.ops = &arm_pl180_mmci_ops;
-
-	/* TODO remove the duplicates */
-	host->cfg.host_caps = host->caps;
-	host->cfg.voltages = host->voltages;
-	host->cfg.f_min = host->clock_min;
-	host->cfg.f_max = host->clock_max;
-	if (host->b_max != 0)
-		host->cfg.b_max = host->b_max;
-	else
-		host->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
-
-	*mmc = mmc_create(&host->cfg, host);
-	if (!*mmc)
-		return -1;
-	debug("registered mmc interface number is:%d\n",
-	      (*mmc)->block_dev.devnum);
-
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_DM_MMC
 static void arm_pl180_mmc_init(struct pl180_mmc_host *host)
 {
 	u32 sdi_u32;
@@ -477,7 +416,7 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 		host->version2 = true;
 		break;
 	default:
-		host->version2 = true;
+		host->version2 = false; /* ARM variant */
 	}
 
 	gpio_request_by_name(dev, "cd-gpios", 0, &host->cd_gpio, GPIOD_IS_IN);
@@ -561,4 +500,3 @@ U_BOOT_DRIVER(arm_pl180_mmc) = {
 	.priv_auto	= sizeof(struct pl180_mmc_host),
 	.plat_auto	= sizeof(struct arm_pl180_mmc_plat),
 };
-#endif
