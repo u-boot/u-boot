@@ -908,6 +908,64 @@ int imximage_check_params(struct image_tool_params *params)
 		(params->xflag) || !(strlen(params->imagename));
 }
 
+#ifdef CONFIG_FSPI_CONF_HEADER
+static void generate_fspi_header(int ifd)
+{
+	int i = 0;
+	char *val;
+	char lut_str[] = CONFIG_LUT_SEQUENCE;
+
+	fspi_conf fspi_conf_data = {
+	.tag = {0x46, 0x43, 0x46, 0x42},
+	.version = {0x00, 0x00, 0x01, 0x56},
+	.reserved_1 = {0x00, 0x00, 0x00, 0x00},
+	.read_sample = CONFIG_READ_CLK_SOURCE,
+	.datahold =  0x03,
+	.datasetup = 0x03,
+	.coladdrwidth = CONFIG_FSPI_COL_ADDR_W,
+	.devcfgenable = 0x00,
+	.deviceModeType = 0x00,
+	.waitTimeCfgCommands = 0x0000,
+	.devmodeseq =  {0x00, 0x00, 0x00, 0x00},
+	.devmodearg =  0x00000000,
+	.cmd_enable =  0x00,
+	.configModeType = {0x00},
+	.cmd_seq = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+							0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+	.cmd_arg = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+							0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+	.controllermisc = cpu_to_le32(CONFIG_FSPI_CONTROLLER_MISC),
+	.dev_type = CONFIG_DEVICE_TYPE,
+	.sflash_pad = CONFIG_FLASH_PAD_TYPE,
+	.serial_clk = CONFIG_SERIAL_CLK_FREQUENCY,
+	.lut_custom = CONFIG_LUT_CUSTOM_SEQUENCE,
+	.reserved_2 = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+	.sflashA1  =  cpu_to_le32(CONFIG_FSPI_FLASH_A1_SIZE),
+	.sflashA2 = 0x00000000,
+	.sflashB1 = 0x00000000,
+	.sflashB2 = 0x00000000,
+	.cspadover = 0x00000000,
+	.sclkpadover = 0x00000000,
+	.datapadover = 0x00000000,
+	.dqspadover = 0x00000000,
+	.timeout =  0x00000000,
+	.commandInt = 0x00000000,
+	.datavalid  = {0x0000, 0x0000},
+	.busyoffset = 0x0000,
+	.busybitpolarity = 0x0000,
+	.lutCustomSeq = {0x00},
+	.reserved_3 = {0x00}
+	};
+
+	for (val = strtok(lut_str, ","); val; val = strtok(NULL, ","))
+		fspi_conf_data.lut[i++] = strtoul(val, NULL, 16);
+
+	lseek(ifd, 0, SEEK_CUR);
+	if (write(ifd, &fspi_conf_data, sizeof(fspi_conf_data)) == -1)
+		exit(EXIT_FAILURE);
+}
+#endif
+
 static int imximage_generate(struct image_tool_params *params,
 	struct image_type_params *tparams)
 {
@@ -916,6 +974,11 @@ static int imximage_generate(struct image_tool_params *params,
 	struct stat sbuf;
 	char *datafile = params->datafile;
 	uint32_t pad_len, header_size;
+
+#ifdef CONFIG_FSPI_CONF_HEADER
+	int fspi_fd;
+	char *fspi;
+#endif
 
 	memset(&imximage_header, 0, sizeof(imximage_header));
 
@@ -976,6 +1039,20 @@ static int imximage_generate(struct image_tool_params *params,
 	}
 
 	pad_len = ROUND(sbuf.st_size, 4096) - sbuf.st_size;
+
+#ifdef CONFIG_FSPI_CONF_HEADER
+	fspi = CONFIG_FSPI_CONF_FILE;
+	fspi_fd = open(fspi, O_RDWR | O_CREAT, S_IRWXU);
+	if (fspi_fd < 0) {
+		fprintf(stderr, "Can't open %s: %s\n",
+			fspi, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	generate_fspi_header(fspi_fd);
+	close(fspi_fd);
+
+#endif
 
 	return pad_len;
 }

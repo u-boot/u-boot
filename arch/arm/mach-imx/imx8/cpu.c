@@ -45,6 +45,45 @@ struct pass_over_info_t *get_pass_over_info(void)
 	return p;
 }
 
+static char *get_reset_cause(void)
+{
+	sc_pm_reset_reason_t reason;
+
+	if (sc_pm_reset_reason(-1, &reason) != SC_ERR_NONE)
+		return "Unknown reset";
+
+	switch (reason) {
+	case SC_PM_RESET_REASON_POR:
+		return "POR";
+	case SC_PM_RESET_REASON_JTAG:
+		return "JTAG reset ";
+	case SC_PM_RESET_REASON_SW:
+		return "Software reset";
+	case SC_PM_RESET_REASON_WDOG:
+		return "Watchdog reset";
+	case SC_PM_RESET_REASON_LOCKUP:
+		return "SCU lockup reset";
+	case SC_PM_RESET_REASON_SNVS:
+		return "SNVS reset";
+	case SC_PM_RESET_REASON_TEMP:
+		return "Temp panic reset";
+	case SC_PM_RESET_REASON_MSI:
+		return "MSI reset";
+	case SC_PM_RESET_REASON_UECC:
+		return "ECC reset";
+	case SC_PM_RESET_REASON_SCFW_WDOG:
+		return "SCFW watchdog reset";
+	case SC_PM_RESET_REASON_ROM_WDOG:
+		return "SCU ROM watchdog reset";
+	case SC_PM_RESET_REASON_SECO:
+		return "SECO reset";
+	case SC_PM_RESET_REASON_SCFW_FAULT:
+		return "SCFW fault reset";
+	default:
+		return "Unknown reset";
+	}
+}
+
 int arch_cpu_init(void)
 {
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_RECOVER_DATA_SECTION)
@@ -321,6 +360,8 @@ int print_bootinfo(void)
 		printf("Unknown device %u\n", bt_dev);
 		break;
 	}
+
+	printf("Reset cause: %s\n", get_reset_cause());
 
 	return 0;
 }

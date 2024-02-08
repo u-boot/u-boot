@@ -46,6 +46,10 @@ int board_late_init(void)
 	case MMC3_BOOT:
 		env_set_ulong("mmcdev", 2);
 		break;
+	case USB_BOOT:
+		printf("Detect USB boot. Will enter fastboot mode!\n");
+		env_set_ulong("dofastboot", 1);
+		break;
 	default:
 		break;
 	}
