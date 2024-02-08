@@ -670,6 +670,7 @@ static const struct dm_spi_ops mxc_spi_ops = {
 
 static const struct udevice_id mxc_spi_ids[] = {
 	{ .compatible = "fsl,imx51-ecspi" },
+	{ .compatible = "fsl,imx6ul-ecspi" },
 	{ }
 };
 
