@@ -70,6 +70,10 @@
 	bootph-pre-ram;
 };
 
+&usb_dwc3_0 {
+	dr_mode = "peripheral";
+};
+
 &usdhc2 {
 	bootph-pre-ram;
 };
