@@ -216,13 +216,11 @@ int setexpr_regex_sub(char *data, uint data_size, char *nbuf, uint nbuf_size,
 		if (res == 0) {
 			if (loop == 0) {
 				debug("%s: No match\n", data);
-				return 1;
 			} else {
-				break;
+				debug("## MATCH ## %s\n", data);
 			}
+			break;
 		}
-
-		debug("## MATCH ## %s\n", data);
 
 		if (!s)
 			return 1;
@@ -540,7 +538,8 @@ U_BOOT_CMD(
 	"    - For each substring matching the regular expression <r> in the\n"
 	"      string <t>, substitute the string <s>.  The result is\n"
 	"      assigned to <name>.  If <t> is not supplied, use the old\n"
-	"      value of <name>\n"
+	"      value of <name>. If no substring matching <r> is found in <t>,\n"
+	"      assign <t> to <name>.\n"
 	"setexpr name sub r s [t]\n"
 	"    - Just like gsub(), but replace only the first matching substring"
 #endif

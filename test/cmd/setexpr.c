@@ -179,6 +179,16 @@ static int setexpr_test_regex(struct unit_test_state *uts)
 	val = env_get("mary");
 	ut_asserteq_str("this is a test", val);
 
+	/* No match */
+	ut_assertok(run_command("setenv fred 'this is a test'", 0));
+	ut_assertok(run_command("setenv mary ''", 0));
+	ut_assertok(run_command("setexpr fred gsub us is \"${fred}\"", 0));
+	ut_assertok(run_command("setexpr mary gsub us is \"${fred}\"", 0));
+	val = env_get("fred");
+	ut_asserteq_str("this is a test", val);
+	val = env_get("mary");
+	ut_asserteq_str("this is a test", val);
+
 	unmap_sysmem(buf);
 
 	return 0;
