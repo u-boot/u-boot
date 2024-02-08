@@ -45,6 +45,9 @@
 };
 
 &ecspi1 {
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-rates;
+	/delete-property/ assigned-clock-parents;
 	bootph-pre-ram;
 	flash@0 {
 		bootph-pre-ram;
