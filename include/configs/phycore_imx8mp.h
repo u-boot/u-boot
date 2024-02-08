@@ -19,6 +19,11 @@
 	"fdt_addr=0x48000000\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"ip_dyn=yes\0" \
+	"dofastboot=0\0" \
+	"fastboot_raw_partition_bootloader=64 8128\0" \
+	"fastboot_raw_partition_all=0 4194304\0" \
+	"emmc_dev=2\0" \
+	"sd_dev=1\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=1\0" \
 	"mmcroot=2\0" \
