@@ -10,6 +10,7 @@ mkfwumdata \- create FWU metadata image
 .OP \-a activeidx
 .OP \-p previousidx
 .OP \-g
+.OP \-V vendor-file
 .BI \-i\~ imagecount
 .BI \-b\~ bankcount
 .I UUIDs
@@ -55,6 +56,12 @@ whichever is non-negative.
 Convert the
 .IR UUIDs
 as GUIDs before use.
+.
+.TP
+.B \-V
+Pass
+.IR vendor-file
+for appending vendor data to the metadata. Supported only with version 2.
 .
 .TP
 .B \-i
