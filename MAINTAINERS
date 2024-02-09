@@ -59,6 +59,7 @@ F:	lib/acpi/
 
 ANDROID AB
 M:	Igor Opaniuk <igor.opaniuk@gmail.com>
+M:	Mattijs Korpershoek <mkorpershoek@baylibre.com>
 R:	Sam Protsenko <semen.protsenko@linaro.org>
 S:	Maintained
 F:	boot/android_ab.c
@@ -69,6 +70,7 @@ F:	test/py/tests/test_android/test_ab.py
 
 ANDROID AVB
 M:	Igor Opaniuk <igor.opaniuk@gmail.com>
+M:	Mattijs Korpershoek <mkorpershoek@baylibre.com>
 S:	Maintained
 F:	cmd/avb.c
 F:	common/avb_verify.c
