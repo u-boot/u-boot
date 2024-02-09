@@ -38,16 +38,22 @@ AVB 2.0 U-Boot shell commands
 Provides CLI interface to invoke AVB 2.0 verification + misc. commands for
 different testing purposes::
 
-    avb init <dev> - initialize avb 2.0 for <dev>
-    avb verify - run verification process using hash data from vbmeta structure
+    avb init <dev> - initialize avb 2 for <dev>
     avb read_rb <num> - read rollback index at location <num>
     avb write_rb <num> <rb> - write rollback index <rb> to <num>
     avb is_unlocked - returns unlock status of the device
-    avb get_uuid <partname> - read and print uuid of partition <partname>
+    avb get_uuid <partname> - read and print uuid of partition <part>
     avb read_part <partname> <offset> <num> <addr> - read <num> bytes from
-    partition <partname> to buffer <addr>
+        partition <partname> to buffer <addr>
+    avb read_part_hex <partname> <offset> <num> - read <num> bytes from
+        partition <partname> and print to stdout
     avb write_part <partname> <offset> <num> <addr> - write <num> bytes to
-    <partname> by <offset> using data from <addr>
+        <partname> by <offset> using data from <addr>
+    avb read_pvalue <name> <bytes> - read a persistent value <name>
+    avb write_pvalue <name> <value> - write a persistent value <name>
+    avb verify [slot_suffix] - run verification process using hash data
+        from vbmeta structure
+        [slot_suffix] - _a, _b, etc (if vbmeta partition is slotted)
 
 Partitions tampering (example)
 ------------------------------
