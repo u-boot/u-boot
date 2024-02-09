@@ -133,7 +133,7 @@ static int button_qcom_pmic_bind(struct udevice *parent)
 		} else if (NODE_IS_RESIN(node)) {
 			uc_plat->label = "vol_down";
 		} else {
-			printf("Unknown button node '%s' should be 'pwrkey' or 'resin'\n",
+			debug("Unknown button node '%s' should be 'pwrkey' or 'resin'\n",
 			       ofnode_get_name(node));
 			device_unbind(dev);
 		}
