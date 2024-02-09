@@ -250,6 +250,7 @@ int do_avb_verify_part(struct cmd_tbl *cmdtp, int flag,
 	const char * const requested_partitions[] = {"boot", NULL};
 	AvbSlotVerifyResult slot_result;
 	AvbSlotVerifyData *out_data;
+	enum avb_boot_state boot_state;
 	char *cmdline;
 	char *extra_args;
 	char *slot_suffix = "";
@@ -287,18 +288,23 @@ int do_avb_verify_part(struct cmd_tbl *cmdtp, int flag,
 				AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE,
 				&out_data);
 
-	switch (slot_result) {
-	case AVB_SLOT_VERIFY_RESULT_OK:
-		/* Until we don't have support of changing unlock states, we
-		 * assume that we are by default in locked state.
-		 * So in this case we can boot only when verification is
-		 * successful; we also supply in cmdline GREEN boot state
-		 */
+	/*
+	 * LOCKED devices with custom root of trust setup is not supported (YELLOW)
+	 */
+	if (slot_result == AVB_SLOT_VERIFY_RESULT_OK) {
 		printf("Verification passed successfully\n");
 
-		/* export additional bootargs to AVB_BOOTARGS env var */
+		/*
+		 * ORANGE state indicates that device may be freely modified.
+		 * Device integrity is left to the user to verify out-of-band.
+		 */
+		if (unlocked)
+			boot_state = AVB_ORANGE;
+		else
+			boot_state = AVB_GREEN;
 
-		extra_args = avb_set_state(avb_ops, AVB_GREEN);
+		/* export boot state to AVB_BOOTARGS env var */
+		extra_args = avb_set_state(avb_ops, boot_state);
 		if (extra_args)
 			cmdline = append_cmd_line(out_data->cmdline,
 						  extra_args);
@@ -308,30 +314,8 @@ int do_avb_verify_part(struct cmd_tbl *cmdtp, int flag,
 		env_set(AVB_BOOTARGS, cmdline);
 
 		res = CMD_RET_SUCCESS;
-		break;
-	case AVB_SLOT_VERIFY_RESULT_ERROR_VERIFICATION:
-		printf("Verification failed\n");
-		break;
-	case AVB_SLOT_VERIFY_RESULT_ERROR_IO:
-		printf("I/O error occurred during verification\n");
-		break;
-	case AVB_SLOT_VERIFY_RESULT_ERROR_OOM:
-		printf("OOM error occurred during verification\n");
-		break;
-	case AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_METADATA:
-		printf("Corrupted dm-verity metadata detected\n");
-		break;
-	case AVB_SLOT_VERIFY_RESULT_ERROR_UNSUPPORTED_VERSION:
-		printf("Unsupported version of avbtool was used\n");
-		break;
-	case AVB_SLOT_VERIFY_RESULT_ERROR_ROLLBACK_INDEX:
-		printf("Rollback index check failed\n");
-		break;
-	case AVB_SLOT_VERIFY_RESULT_ERROR_PUBLIC_KEY_REJECTED:
-		printf("Public key was rejected\n");
-		break;
-	default:
-		printf("Unknown error occurred\n");
+	} else {
+		printf("Verification failed, reason: %s\n", str_avb_slot_error(slot_result));
 	}
 
 	if (out_data)
