@@ -58,9 +58,9 @@ void spl_board_init(void)
 
 	mdelay(1);
 
-	ret = gpio_direction_output(STM32_RST, 1);
+	ret = gpio_direction_input(STM32_RST);
 	if (ret) {
-		debug("Failed to configure STM32_RST as output high\n");
+		debug("Failed to configure STM32_RST as input\n");
 		return;
 	}
 }
