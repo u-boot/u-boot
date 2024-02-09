@@ -298,6 +298,15 @@ int gen2_clk_probe(struct udevice *dev)
 	if (!priv->cpg_pll_config->extal_div)
 		return -EINVAL;
 
+	if (info->reg_layout == CLK_REG_LAYOUT_RCAR_GEN2_AND_GEN3) {
+		priv->info->status_regs = mstpsr;
+		priv->info->control_regs = smstpcr;
+		priv->info->reset_regs = srcr;
+		priv->info->reset_clear_regs = srstclr;
+	} else {
+		return -EINVAL;
+	}
+
 	ret = clk_get_by_name(dev, "extal", &priv->clk_extal);
 	if (ret < 0)
 		return ret;
