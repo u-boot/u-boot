@@ -279,9 +279,9 @@ static unsigned long mmc_read_and_flush(struct mmc_part *part,
 	 * Reading fails on unaligned buffers, so we have to
 	 * use aligned temporary buffer and then copy to destination
 	 */
-
 	if (unaligned) {
-		printf("Handling unaligned read buffer..\n");
+		debug("%s: handling unaligned read buffer, addr = 0x%p\n",
+		      __func__, buffer);
 		tmp_buf = get_sector_buf();
 		buf_size = get_sector_buf_size();
 		if (sectors > buf_size / part->info.blksz)
@@ -320,7 +320,8 @@ static unsigned long mmc_write(struct mmc_part *part, lbaint_t start,
 	if (unaligned) {
 		tmp_buf = get_sector_buf();
 		buf_size = get_sector_buf_size();
-		printf("Handling unaligned wrire buffer..\n");
+		debug("%s: handling unaligned read buffer, addr = 0x%p\n",
+		      __func__, buffer);
 		if (sectors > buf_size / part->info.blksz)
 			sectors = buf_size / part->info.blksz;
 
@@ -348,30 +349,35 @@ static struct mmc_part *get_partition(AvbOps *ops, const char *partition)
 	dev_num = get_boot_device(ops);
 	part->mmc = find_mmc_device(dev_num);
 	if (!part->mmc) {
-		printf("No MMC device at slot %x\n", dev_num);
+		printf("%s: no MMC device at slot %x\n", __func__, dev_num);
 		goto err;
 	}
 
-	if (mmc_init(part->mmc)) {
-		printf("MMC initialization failed\n");
+	ret = mmc_init(part->mmc);
+	if (ret) {
+		printf("%s: MMC initialization failed, err = %d\n",
+		       __func__, ret);
 		goto err;
 	}
 
 	if (IS_MMC(part->mmc)) {
 		ret = mmc_switch_part(part->mmc, part_num);
-		if (ret)
+		if (ret) {
+			printf("%s: MMC part switch failed, err = %d\n",
+			       __func__, ret);
 			goto err;
+		}
 	}
 
 	mmc_blk = mmc_get_blk_desc(part->mmc);
 	if (!mmc_blk) {
-		printf("Error - failed to obtain block descriptor\n");
+		printf("%s: failed to obtain block descriptor\n", __func__);
 		goto err;
 	}
 
 	ret = part_get_info_by_name(mmc_blk, partition, &part->info);
 	if (ret < 0) {
-		printf("Can't find partition '%s'\n", partition);
+		printf("%s: can't find partition '%s'\n", __func__, partition);
 		goto err;
 	}
 
@@ -684,7 +690,7 @@ static AvbIOResult read_rollback_index(AvbOps *ops,
 {
 #ifndef CONFIG_OPTEE_TA_AVB
 	/* For now we always return 0 as the stored rollback index. */
-	printf("%s not supported yet\n", __func__);
+	debug("%s: rollback protection is not implemented\n", __func__);
 
 	if (out_rollback_index)
 		*out_rollback_index = 0;
@@ -730,7 +736,7 @@ static AvbIOResult write_rollback_index(AvbOps *ops,
 {
 #ifndef CONFIG_OPTEE_TA_AVB
 	/* For now this is a no-op. */
-	printf("%s not supported yet\n", __func__);
+	debug("%s: rollback protection is not implemented\n", __func__);
 
 	return AVB_IO_RESULT_OK;
 #else
@@ -766,8 +772,7 @@ static AvbIOResult read_is_device_unlocked(AvbOps *ops, bool *out_is_unlocked)
 {
 #ifndef CONFIG_OPTEE_TA_AVB
 	/* For now we always return that the device is unlocked. */
-
-	printf("%s not supported yet\n", __func__);
+	debug("%s: device locking is not implemented\n", __func__);
 
 	*out_is_unlocked = true;
 
