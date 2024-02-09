@@ -7,6 +7,7 @@
 
 #include <asm/arch/clock.h>
 #include <asm/arch/ddr.h>
+#include <asm/arch/mu.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/trdc.h>
 #include <asm/mach-imx/boot_mode.h>
@@ -99,7 +100,6 @@ int power_init_board(void)
 	return 0;
 }
 
-extern int imx9_probe_mu(void *ctx, struct event *event);
 void board_init_f(ulong dummy)
 {
 	int ret;
