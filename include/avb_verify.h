@@ -1,8 +1,6 @@
-
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2018, Linaro Limited
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef	_AVB_VERIFY_H
