@@ -358,9 +358,11 @@ static struct mmc_part *get_partition(AvbOps *ops, const char *partition)
 		goto err;
 	}
 
-	ret = mmc_switch_part(part->mmc, part_num);
-	if (ret)
-		goto err;
+	if (IS_MMC(part->mmc)) {
+		ret = mmc_switch_part(part->mmc, part_num);
+		if (ret)
+			goto err;
+	}
 
 	mmc_blk = mmc_get_blk_desc(part->mmc);
 	if (!mmc_blk) {
