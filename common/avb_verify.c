@@ -119,6 +119,55 @@ static const unsigned char avb_root_pub[1032] = {
 	0xd8, 0x7e,
 };
 
+const char *str_avb_io_error(AvbIOResult res)
+{
+	switch (res) {
+	case AVB_IO_RESULT_OK:
+		return "Requested operation was successful";
+	case AVB_IO_RESULT_ERROR_IO:
+		return "Underlying hardware encountered an I/O error";
+	case AVB_IO_RESULT_ERROR_OOM:
+		return "Unable to allocate memory";
+	case AVB_IO_RESULT_ERROR_NO_SUCH_PARTITION:
+		return "Requested partition does not exist";
+	case AVB_IO_RESULT_ERROR_RANGE_OUTSIDE_PARTITION:
+		return "Bytes requested is outside the range of partition";
+	case AVB_IO_RESULT_ERROR_NO_SUCH_VALUE:
+		return "Named persistent value does not exist";
+	case AVB_IO_RESULT_ERROR_INVALID_VALUE_SIZE:
+		return "Named persistent value size is not supported";
+	case AVB_IO_RESULT_ERROR_INSUFFICIENT_SPACE:
+		return "Buffer is too small for the requested operation";
+	default:
+		return "Unknown AVB error";
+	}
+}
+
+const char *str_avb_slot_error(AvbSlotVerifyResult res)
+{
+	switch (res) {
+	case AVB_SLOT_VERIFY_RESULT_OK:
+		return "Verification passed successfully";
+	case AVB_SLOT_VERIFY_RESULT_ERROR_OOM:
+		return "Allocation of memory failed";
+	case AVB_SLOT_VERIFY_RESULT_ERROR_IO:
+		return "I/O error occurred while trying to load data";
+	case AVB_SLOT_VERIFY_RESULT_ERROR_VERIFICATION:
+		return "Digest didn't match or signature checks failed";
+	case AVB_SLOT_VERIFY_RESULT_ERROR_ROLLBACK_INDEX:
+		return "Rollback index is less than its stored value";
+	case AVB_SLOT_VERIFY_RESULT_ERROR_PUBLIC_KEY_REJECTED:
+		return "Public keys are not accepted";
+	case AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_METADATA:
+		return "Metadata is invalid or inconsistent";
+	case AVB_SLOT_VERIFY_RESULT_ERROR_UNSUPPORTED_VERSION:
+		return "Metadata requires a newer version of libavb";
+	case AVB_SLOT_VERIFY_RESULT_ERROR_INVALID_ARGUMENT:
+		return "Invalid arguments are used";
+	default:
+		return "Unknown AVB slot verification error";
+	}
+}
 /**
  * ============================================================================
  * Boot states support (GREEN, YELLOW, ORANGE, RED) and dm_verity
