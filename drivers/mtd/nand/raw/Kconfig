@@ -504,6 +504,15 @@ config NAND_ARASAN
 	  controller. This uses the hardware ECC for read and
 	  write operations.
 
+config NAND_MESON
+	bool "Meson NAND support"
+	select SYS_NAND_SELF_INIT
+	depends on DM_MTD && ARCH_MESON
+	imply CMD_NAND
+	help
+	  This enables Nand driver support for Meson raw NAND flash
+	  controller.
+
 config NAND_MXC
 	bool "MXC NAND support"
 	depends on CPU_ARM926EJS || CPU_ARM1136 || MX5
