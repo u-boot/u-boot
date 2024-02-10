@@ -14,6 +14,18 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static const char * const wakeup_type_strings[] = {
+	"Reserved",		/* 0x00 */
+	"Other",		/* 0x01 */
+	"Unknown",		/* 0x02 */
+	"APM Timer",		/* 0x03 */
+	"Modem Ring",		/* 0x04 */
+	"Lan Remote",		/* 0x05 */
+	"Power Switch",		/* 0x06 */
+	"PCI PME#",		/* 0x07 */
+	"AC Power Restored",	/* 0x08 */
+};
+
 /**
  * smbios_get_string() - get SMBIOS string from table
  *
@@ -72,6 +84,14 @@ void smbios_print_str(const char *label, void *table, u8 index)
 	printf("\t%s: %s\n", label, smbios_get_string(table, index));
 }
 
+const char *smbios_wakeup_type_str(u8 wakeup_type)
+{
+	if (wakeup_type >= ARRAY_SIZE(wakeup_type_strings))
+		/* Values over 0x08 are reserved. */
+		wakeup_type = 0;
+	return wakeup_type_strings[wakeup_type];
+}
+
 static void smbios_print_type1(struct smbios_type1 *table)
 {
 	printf("System Information\n");
@@ -81,11 +101,12 @@ static void smbios_print_type1(struct smbios_type1 *table)
 	smbios_print_str("Serial Number", table, table->serial_number);
 	if (table->length >= 0x19) {
 		printf("\tUUID: %pUl\n", table->uuid);
-		smbios_print_str("Wake Up Type", table, table->serial_number);
+		printf("\tWake-up Type: %s\n",
+		       smbios_wakeup_type_str(table->wakeup_type));
 	}
 	if (table->length >= 0x1b) {
-		smbios_print_str("Serial Number", table, table->serial_number);
 		smbios_print_str("SKU Number", table, table->sku_number);
+		smbios_print_str("Family", table, table->family);
 	}
 }
 
