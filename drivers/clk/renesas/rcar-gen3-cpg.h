@@ -41,6 +41,7 @@ enum rcar_gen3_clk_types {
 	CLK_TYPE_GEN4_PLL5,
 	CLK_TYPE_GEN4_PLL4,
 	CLK_TYPE_GEN4_PLL6,
+	CLK_TYPE_GEN4_PLL7,
 	CLK_TYPE_GEN4_SDSRC,
 	CLK_TYPE_GEN4_SDH,
 	CLK_TYPE_GEN4_SD,
@@ -130,6 +131,8 @@ struct rcar_gen4_cpg_pll_config {
 	u8 pll6_mult;
 	u8 pll6_div;
 	u8 osc_prediv;
+	u8 pll7_mult;
+	u8 pll7_div;
 };
 
 #define CPG_RST_MODEMR	0x060
