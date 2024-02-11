@@ -500,13 +500,14 @@ config BUILD_TARGET
 
 config HAS_BOARD_SIZE_LIMIT
 	bool "Define a maximum size for the U-Boot image"
-	default y if RCAR_64
+	default y if RCAR_32 || RCAR_64
 	help
 	  In some cases, we need to enforce a hard limit on how big the U-Boot
 	  image itself can be.
 
 config BOARD_SIZE_LIMIT
 	int "Maximum size of the U-Boot image in bytes"
+	default 524288 if RCAR_32
 	default 1048576 if RCAR_64
 	depends on HAS_BOARD_SIZE_LIMIT
 	help
