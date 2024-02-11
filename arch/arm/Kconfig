@@ -1076,6 +1076,7 @@ config ARCH_RMOBILE
 	select DM
 	select DM_SERIAL
 	select GPIO_EXTRA_HEADER
+	select LTO
 	imply BOARD_EARLY_INIT_F
 	imply CMD_DM
 	imply FAT_WRITE
