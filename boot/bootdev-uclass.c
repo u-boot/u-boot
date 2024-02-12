@@ -39,7 +39,6 @@ int bootdev_add_bootflow(struct bootflow *bflow)
 	struct bootflow *new;
 	int ret;
 
-	assert(bflow->dev);
 	ret = bootstd_get_priv(&std);
 	if (ret)
 		return ret;
