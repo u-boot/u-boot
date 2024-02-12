@@ -5,7 +5,6 @@
  * Copyright (c) 2018, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
-#include <common.h>
 #include <command.h>
 
 static int do_unaligned(struct cmd_tbl *cmdtp, int flag, int argc,
