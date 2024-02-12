@@ -133,14 +133,14 @@ Sample boot log from StarFive VisionFive2 board
 	Trying to boot from MMC2
 
 	OpenSBI v1.2-80-g4b28afc
-	____                    _____ ____ _____
-	/ __ \                  / ____|  _ \_   _|
+	  ____                    _____ ____ _____
+	 / __ \                  / ____|  _ \_   _|
 	| |  | |_ __   ___ _ __ | (___ | |_) || |
 	| |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
 	| |__| | |_) |  __/ | | |____) | |_) || |_
-	\____/| .__/ \___|_| |_|_____/|___/_____|
-			| |
-			|_|
+	 \____/| .__/ \___|_| |_|_____/|____/_____|
+	       | |
+	       |_|
 
 	Platform Name             : StarFive VisionFive 2 v1.3B
 	Platform Features         : medeleg

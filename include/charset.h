@@ -324,11 +324,21 @@ int utf_to_cp(s32 *c, const u16 *codepage);
 int utf8_to_cp437_stream(u8 c, char *buffer);
 
 /**
- * utf8_to_utf32_stream() - convert UTF-8 stream to UTF-32
+ * utf8_to_utf32_stream() - convert UTF-8 byte stream to Unicode code points
+ *
+ * The function is called for each byte @c in a UTF-8 stream. The byte is
+ * appended to the temporary storage @buffer until the UTF-8 stream in
+ * @buffer describes a Unicode code point.
+ *
+ * When a new code point has been decoded it is returned and buffer[0] is
+ * set to '\0', otherwise the return value is 0.
+ *
+ * The buffer must be at least 5 characters long. Before the first function
+ * invocation buffer[0] must be set to '\0'."
  *
  * @c:		next UTF-8 character to convert
  * @buffer:	buffer, at least 5 characters
- * Return:	next codepage 437 character or 0
+ * Return:	Unicode code point or 0
  */
 int utf8_to_utf32_stream(u8 c, char *buffer);
 
