@@ -9,11 +9,10 @@
 
 #define LOG_CATEGORY UCLASS_RNG
 
-#include <common.h>
 #include <dm.h>
-#include <linux/kernel.h>
 #include <rng.h>
 #include <asm/system.h>
+#include <linux/kernel.h>
 
 #define DRIVER_NAME	"arm-rndr"
 

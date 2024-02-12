@@ -2,14 +2,14 @@
 /*
  * Copyright (c) 2020 Fuzhou Rockchip Electronics Co., Ltd
  */
+
+#include <dm.h>
+#include <rng.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/io.h>
-#include <common.h>
-#include <dm.h>
 #include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <linux/string.h>
-#include <rng.h>
 
 #define RK_HW_RNG_MAX 32
 

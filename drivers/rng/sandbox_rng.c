@@ -3,11 +3,10 @@
  * Copyright (c) 2019, Linaro Limited
  */
 
-#include <common.h>
 #include <dm.h>
 #include <rand.h>
 #include <rng.h>
-
+#include <time.h>
 #include <linux/string.h>
 
 static int sandbox_rng_read(struct udevice *dev, void *data, size_t len)

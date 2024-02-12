@@ -6,6 +6,8 @@
 #if !defined _RNG_H_
 #define _RNG_H_
 
+#include <linux/types.h>
+
 struct udevice;
 
 /**
