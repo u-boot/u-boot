@@ -189,6 +189,9 @@ config ROCKCHIP_RK3328
 	select ENABLE_ARM_SOC_BOOT0_HOOK
 	select DEBUG_UART_BOARD_INIT
 	select SYS_NS16550
+	imply MISC
+	imply ROCKCHIP_EFUSE
+	imply MISC_INIT_R
 	help
 	  The Rockchip RK3328 is a ARM-based SoC with a quad-core Cortex-A53.
 	  including NEON and GPU, 1MB L2 cache, Mali-T7 graphics, two
