@@ -107,7 +107,7 @@ static int virtio_pci_get_config(struct udevice *udev, unsigned int offset,
 	int i;
 
 	for (i = 0; i < len; i++)
-		ptr[i] = ioread8(ioaddr + i);
+		ptr[i] = ioread8(ioaddr + offset + i);
 
 	return 0;
 }
@@ -121,7 +121,7 @@ static int virtio_pci_set_config(struct udevice *udev, unsigned int offset,
 	int i;
 
 	for (i = 0; i < len; i++)
-		iowrite8(ptr[i], ioaddr + i);
+		iowrite8(ptr[i], ioaddr + offset + i);
 
 	return 0;
 }
