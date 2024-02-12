@@ -3,3 +3,4 @@
 
 obj-${CONFIG_TI_I2C_BOARD_DETECT} += board_detect.o
 obj-${CONFIG_CMD_EXTENSION} += cape_detect.o
+obj-${CONFIG_OF_LIBFDT} += fdt_ops.o
