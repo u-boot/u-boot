@@ -75,10 +75,10 @@ static const struct ccu_clk_gate a80_mmc_gates[] = {
 };
 
 static const struct ccu_reset a80_mmc_resets[] = {
-	[0]			= GATE(0x0, BIT(18)),
-	[1]			= GATE(0x4, BIT(18)),
-	[2]			= GATE(0x8, BIT(18)),
-	[3]			= GATE(0xc, BIT(18)),
+	[0]			= RESET(0x0, BIT(18)),
+	[1]			= RESET(0x4, BIT(18)),
+	[2]			= RESET(0x8, BIT(18)),
+	[3]			= RESET(0xc, BIT(18)),
 };
 
 const struct ccu_desc a80_ccu_desc = {
