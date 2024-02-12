@@ -14,6 +14,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/imx93_pins.h>
+#include <asm/arch/mu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/boot_mode.h>
@@ -91,7 +92,6 @@ int power_init_board(void)
 }
 #endif
 
-extern int imx9_probe_mu(void *ctx, struct event *event);
 void board_init_f(ulong dummy)
 {
 	int ret;
