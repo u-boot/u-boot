@@ -5,10 +5,11 @@
  *
  * Copyright (C) 2022 Texas Instruments Incorporated - https://www.ti.com/
  */
-#include <asm/arch/hardware.h>
-#include "common.h"
 
-struct k3_qos_data am62a_qos_data[] = {
+#include <asm/arch/k3-qos.h>
+#include "am62a_qos.h"
+
+struct k3_qos_data qos_data[] = {
 	/* modules_qosConfig0 - 1 endpoints, 4 channels */
 	{
 		.reg = K3_DSS_UL_MAIN_0_VBUSM_DMA + 0x100 + 0x4 * 0,
@@ -43,4 +44,4 @@ struct k3_qos_data am62a_qos_data[] = {
 	},
 };
 
-uint32_t am62a_qos_count = sizeof(am62a_qos_data) / sizeof(am62a_qos_data[0]);
+u32 qos_count = ARRAY_SIZE(qos_data);

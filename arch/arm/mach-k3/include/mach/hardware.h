@@ -30,7 +30,6 @@
 
 #ifdef CONFIG_SOC_K3_AM62A7
 #include "am62a_hardware.h"
-#include "am62a_qos.h"
 #endif
 
 /* Assuming these addresses and definitions stay common across K3 devices */
@@ -96,13 +95,5 @@ struct rom_extended_boot_data {
 	char header[8];
 	u32 num_components;
 };
-
-struct k3_qos_data {
-	u32 reg;
-	u32 val;
-};
-
-extern struct k3_qos_data am62a_qos_data[];
-extern u32 am62a_qos_count;
 
 #endif /* _ASM_ARCH_HARDWARE_H_ */

@@ -69,20 +69,6 @@ static void ctrl_mmr_unlock(void)
 	mmr_unlock(PADCFG_MMR1_BASE, 1);
 }
 
-#if (IS_ENABLED(CONFIG_CPU_V7R))
-static void setup_qos(void)
-{
-	u32 i;
-
-	for (i = 0; i < am62a_qos_count; i++)
-		writel(am62a_qos_data[i].val, (uintptr_t)am62a_qos_data[i].reg);
-}
-#else
-static void setup_qos(void)
-{
-}
-#endif
-
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
