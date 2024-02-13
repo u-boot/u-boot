@@ -5,11 +5,15 @@
  * Copyright (C) 2018 Texas Instruments Incorporated - https://www.ti.com/
  */
 
+#include <clk.h>
 #include <common.h>
+#include <dm/device_compat.h>
 #include <log.h>
 #include <malloc.h>
+#include <phy.h>
 #include <asm/io.h>
 #include <miiphy.h>
+#include <soc.h>
 #include <wait_bit.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -22,6 +26,7 @@ struct cpsw_mdio_regs {
 #define CONTROL_FAULT		BIT(19)
 #define CONTROL_FAULT_ENABLE	BIT(18)
 #define CONTROL_DIV_MASK	GENMASK(15, 0)
+#define CONTROL_MAX_DIV		CONTROL_DIV_MASK
 
 #define MDIO_MAN_MDCLK_O        BIT(2)
 #define MDIO_MAN_OE             BIT(1)
@@ -72,6 +77,8 @@ struct cpsw_mdio_regs {
  */
 #define CPSW_MDIO_TIMEOUT            100 /* msecs */
 
+#define CPSW_MDIO_DEF_BUS_FREQ		2200000 /* 2.2 MHz */
+
 enum cpsw_mdio_manual {
 	MDIO_PIN = 0,
 	MDIO_OE,
@@ -82,7 +89,34 @@ struct cpsw_mdio {
 	struct cpsw_mdio_regs *regs;
 	struct mii_dev *bus;
 	int div;
+	bool manual_mode;
+	struct clk clk;
+	unsigned long bus_freq;
 };
+
+static int cpsw_mdio_enable(struct cpsw_mdio *data)
+{
+	int ret;
+
+	/* set enable and clock divider */
+	writel(data->div | CONTROL_ENABLE, &data->regs->control);
+	ret = wait_for_bit_le32(&data->regs->control,
+				CONTROL_IDLE, false, CPSW_MDIO_TIMEOUT, true);
+	if (ret)
+		return ret;
+
+	/*
+	 * wait for scan logic to settle:
+	 * the scan time consists of (a) a large fixed component, and (b) a
+	 * small component that varies with the mii bus frequency.  These
+	 * were estimated using measurements at 1.1 and 2.2 MHz on tnetv107x
+	 * silicon.  Since the effect of (b) was found to be largely
+	 * negligible, we keep things simple here.
+	 */
+	mdelay(1);
+
+	return 0;
+}
 
 static void cpsw_mdio_disable(struct cpsw_mdio *mdio)
 {
@@ -206,10 +240,16 @@ static void cpsw_mdio_sw_preamble(struct cpsw_mdio *mdio)
 	}
 }
 
+#if defined(CONFIG_DM_MDIO)
+#define MII_TO_CPSW_MDIO(bus)	(dev_get_priv((struct udevice *)(bus)->priv))
+#else
+#define MII_TO_CPSW_MDIO(bus)	((bus)->priv)
+#endif
+
 static int cpsw_mdio_sw_read(struct mii_dev *bus, int phy_id,
 			     int dev_addr, int phy_reg)
 {
-	struct cpsw_mdio *mdio = bus->priv;
+	struct cpsw_mdio *mdio = MII_TO_CPSW_MDIO(bus);
 	u32 reg, i;
 	u8 ack;
 
@@ -266,7 +306,7 @@ static int cpsw_mdio_sw_read(struct mii_dev *bus, int phy_id,
 static int cpsw_mdio_sw_write(struct mii_dev *bus, int phy_id,
 			      int dev_addr, int phy_reg, u16 phy_data)
 {
-	struct cpsw_mdio *mdio = bus->priv;
+	struct cpsw_mdio *mdio = MII_TO_CPSW_MDIO(bus);
 
 	if ((phy_reg & ~PHY_REG_MASK) || (phy_id & ~PHY_ID_MASK))
 		return -EINVAL;
@@ -316,7 +356,7 @@ static int cpsw_mdio_wait_for_user_access(struct cpsw_mdio *mdio)
 static int cpsw_mdio_read(struct mii_dev *bus, int phy_id,
 			  int dev_addr, int phy_reg)
 {
-	struct cpsw_mdio *mdio = bus->priv;
+	struct cpsw_mdio *mdio = MII_TO_CPSW_MDIO(bus);
 	int data, ret;
 	u32 reg;
 
@@ -342,7 +382,7 @@ static int cpsw_mdio_read(struct mii_dev *bus, int phy_id,
 static int cpsw_mdio_write(struct mii_dev *bus, int phy_id, int dev_addr,
 			   int phy_reg, u16 data)
 {
-	struct cpsw_mdio *mdio = bus->priv;
+	struct cpsw_mdio *mdio = MII_TO_CPSW_MDIO(bus);
 	u32 reg;
 	int ret;
 
@@ -361,9 +401,10 @@ static int cpsw_mdio_write(struct mii_dev *bus, int phy_id, int dev_addr,
 	return cpsw_mdio_wait_for_user_access(mdio);
 }
 
+#if !defined(CONFIG_MDIO_TI_CPSW)
 u32 cpsw_mdio_get_alive(struct mii_dev *bus)
 {
-	struct cpsw_mdio *mdio = bus->priv;
+	struct cpsw_mdio *mdio = MII_TO_CPSW_MDIO(bus);
 	u32 val;
 
 	val = readl(&mdio->regs->alive);
@@ -396,22 +437,11 @@ struct mii_dev *cpsw_mdio_init(const char *name, phys_addr_t mdio_base,
 	else
 		cpsw_mdio->div = (fck_freq / bus_freq) - 1;
 	cpsw_mdio->div &= CONTROL_DIV_MASK;
-
-	/* set enable and clock divider */
-	writel(cpsw_mdio->div | CONTROL_ENABLE | CONTROL_FAULT |
-	       CONTROL_FAULT_ENABLE, &cpsw_mdio->regs->control);
-	wait_for_bit_le32(&cpsw_mdio->regs->control,
-			  CONTROL_IDLE, false, CPSW_MDIO_TIMEOUT, true);
-
-	/*
-	 * wait for scan logic to settle:
-	 * the scan time consists of (a) a large fixed component, and (b) a
-	 * small component that varies with the mii bus frequency.  These
-	 * were estimated using measurements at 1.1 and 2.2 MHz on tnetv107x
-	 * silicon.  Since the effect of (b) was found to be largely
-	 * negligible, we keep things simple here.
-	 */
-	mdelay(1);
+	ret = cpsw_mdio_enable(cpsw_mdio);
+	if (ret) {
+		debug("mdio_enable failed: %d\n", ret);
+		goto free_bus;
+	}
 
 	if (manual_mode) {
 		cpsw_mdio->bus->read = cpsw_mdio_sw_read;
@@ -452,3 +482,129 @@ void cpsw_mdio_free(struct mii_dev *bus)
 	mdio_free(bus);
 	free(mdio);
 }
+
+#else
+
+static int cpsw_mdio_init_clk(struct cpsw_mdio *data)
+{
+	u32 mdio_in, div;
+
+	mdio_in = clk_get_rate(&data->clk);
+	div = (mdio_in / data->bus_freq) - 1;
+	if (div > CONTROL_MAX_DIV)
+		div = CONTROL_MAX_DIV;
+
+	data->div = div;
+	return cpsw_mdio_enable(data);
+}
+
+static int cpsw_mdio_bus_read(struct udevice *dev, int addr,
+			      int devad, int reg)
+{
+	struct mdio_perdev_priv *pdata = (dev) ? dev_get_uclass_priv(dev) :
+						 NULL;
+	struct cpsw_mdio *priv = dev_get_priv(dev);
+
+	if (pdata && pdata->mii_bus) {
+		if (priv->manual_mode)
+			return cpsw_mdio_sw_read(pdata->mii_bus, addr, devad, reg);
+		else
+			return cpsw_mdio_read(pdata->mii_bus, addr, devad, reg);
+	}
+
+	return -1;
+}
+
+static int cpsw_mdio_bus_write(struct udevice *dev, int addr,
+			       int devad, int reg, u16 val)
+{
+	struct mdio_perdev_priv *pdata = (dev) ? dev_get_uclass_priv(dev) :
+						 NULL;
+	struct cpsw_mdio *priv = dev_get_priv(dev);
+
+	if (pdata && pdata->mii_bus) {
+		if (priv->manual_mode)
+			return cpsw_mdio_sw_write(pdata->mii_bus, addr, devad, reg, val);
+		else
+			return cpsw_mdio_write(pdata->mii_bus, addr, devad, reg, val);
+	}
+
+	return -1;
+}
+
+static const struct mdio_ops cpsw_mdio_ops = {
+	.read = cpsw_mdio_bus_read,
+	.write = cpsw_mdio_bus_write,
+};
+
+static const struct soc_attr k3_mdio_soc_data[] = {
+	{ .family = "AM62X", .revision = "SR1.0" },
+	{ .family = "AM64X", .revision = "SR1.0" },
+	{ .family = "AM64X", .revision = "SR2.0" },
+	{ .family = "AM65X", .revision = "SR1.0" },
+	{ .family = "AM65X", .revision = "SR2.0" },
+	{ .family = "J7200", .revision = "SR1.0" },
+	{ .family = "J7200", .revision = "SR2.0" },
+	{ .family = "J721E", .revision = "SR1.0" },
+	{ .family = "J721E", .revision = "SR1.1" },
+	{ .family = "J721S2", .revision = "SR1.0" },
+	{ /* sentinel */ },
+};
+
+static const struct udevice_id cpsw_mdio_ids[] = {
+	{ .compatible = "ti,davinci_mdio", },
+	{ .compatible = "ti,cpsw-mdio", },
+	{ /* sentinel */ },
+};
+
+static int cpsw_mdio_probe(struct udevice *dev)
+{
+	struct cpsw_mdio *priv = dev_get_priv(dev);
+	int ret;
+
+	if (!priv) {
+		dev_err(dev, "dev_get_priv(dev %p) = NULL\n", dev);
+		return -ENOMEM;
+	}
+
+	priv->regs = dev_remap_addr(dev);
+
+	if (soc_device_match(k3_mdio_soc_data))
+		priv->manual_mode = true;
+
+	ret = clk_get_by_name(dev, "fck", &priv->clk);
+	if (ret) {
+		dev_err(dev, "failed to get clock %d\n", ret);
+		return ret;
+	}
+
+	priv->bus_freq = dev_read_u32_default(dev, "bus_freq",
+					      CPSW_MDIO_DEF_BUS_FREQ);
+	ret = cpsw_mdio_init_clk(priv);
+	if (ret) {
+		dev_err(dev, "init clock failed: %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int cpsw_mdio_remove(struct udevice *dev)
+{
+	struct cpsw_mdio *priv = dev_get_priv(dev);
+
+	cpsw_mdio_disable(priv);
+
+	return 0;
+}
+
+U_BOOT_DRIVER(cpsw_mdio) = {
+	.name = "cpsw_mdio",
+	.id = UCLASS_MDIO,
+	.of_match = cpsw_mdio_ids,
+	.probe = cpsw_mdio_probe,
+	.remove = cpsw_mdio_remove,
+	.ops = &cpsw_mdio_ops,
+	.priv_auto = sizeof(struct cpsw_mdio),
+};
+#endif /* CONFIG_MDIO_TI_CPSW */
