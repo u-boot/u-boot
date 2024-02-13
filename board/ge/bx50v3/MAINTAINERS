@@ -1,5 +1,5 @@
 GE BX50V3 BOARD
-M:	Ian Ray <ian.ray@ge.com>
+M:	Ian Ray <ian.ray@gehealthcare.com>
 M:	Martyn Welch <martyn.welch@collabora.com>
 S:	Maintained
 F:	arch/arm/dts/imx6q-b450v3.dts
