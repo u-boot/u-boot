@@ -909,6 +909,9 @@ ulong spl_relocate_stack_gd(void)
 #if CONFIG_IS_ENABLED(DM)
 	dm_fixup_for_gd_move(new_gd);
 #endif
+#if CONFIG_IS_ENABLED(LOG)
+	log_fixup_for_gd_move(new_gd);
+#endif
 #if !defined(CONFIG_ARM) && !defined(CONFIG_RISCV)
 	gd = new_gd;
 #endif
