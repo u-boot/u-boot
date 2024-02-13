@@ -63,3 +63,11 @@
 &pmic {
 	bootph-pre-ram;
 };
+
+&uart2 {
+	bootph-pre-ram;
+};
+
+&pinctrl_uart2 {
+	bootph-pre-ram;
+};
