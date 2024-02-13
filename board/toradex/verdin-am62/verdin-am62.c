@@ -14,12 +14,9 @@
 #include <fdt_support.h>
 #include <init.h>
 #include <k3-ddrss.h>
-#include <power/regulator.h>
 #include <spl.h>
 
 #include "../common/tdx-cfg-block.h"
-
-#define VDD_CORE_REG "buck1"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -53,37 +50,9 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
-static u32 get_vdd_core_nominal(void)
-{
-	int core_uvolt;
-
-	switch (k3_get_speed_grade()) {
-	case 'G':
-	case 'K':
-	case 'S':
-		core_uvolt = 750000;
-		break;
-	case 'T':
-	default:
-		core_uvolt = 850000;
-		break;
-	}
-	return core_uvolt;
-}
-
 #if IS_ENABLED(CONFIG_OF_LIBFDT) && IS_ENABLED(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	int core_uvolt;
-
-	core_uvolt = get_vdd_core_nominal();
-	if (core_uvolt != 850000) {
-		do_fixup_by_path_u32(blob, "/bus@f0000/i2c@20000000/pmic@30/regulators/buck1",
-				     "regulator-max-microvolt", core_uvolt, 0);
-		do_fixup_by_path_u32(blob, "/bus@f0000/i2c@20000000/pmic@30/regulators/buck1",
-				     "regulator-min-microvolt", core_uvolt, 0);
-	}
-
 	return ft_common_board_setup(blob, bd);
 }
 #endif
@@ -118,22 +87,6 @@ static void select_dt_from_module_version(void)
 
 int board_late_init(void)
 {
-	int ret;
-	int core_uvolt;
-	struct udevice *dev = NULL;
-
-	core_uvolt = get_vdd_core_nominal();
-	if (core_uvolt != 850000) {
-		/* Set CPU core voltage to 0.75V for slower speed grades */
-		ret = regulator_get_by_devname(VDD_CORE_REG, &dev);
-		if (ret)
-			pr_err("VDD CORE Regulator get error: %d\n", ret);
-
-		ret = regulator_set_value_force(dev, core_uvolt);
-		if (ret)
-			pr_err("VDD CORE Regulator value setting error: %d\n", ret);
-	}
-
 	select_dt_from_module_version();
 
 	return 0;

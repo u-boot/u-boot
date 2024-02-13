@@ -1196,6 +1196,12 @@ static int gpmc_probe(struct udevice *dev)
 	gpmc_cfg = (struct gpmc *)priv->base;
 	gpmc_base = priv->base;
 
+	/*
+	 * Disable all IRQs as some bootroms might leave them enabled
+	 * and that will cause a lock-up later
+	 */
+	gpmc_write_reg(GPMC_IRQENABLE, 0);
+
 	priv->l3_clk = devm_clk_get(dev, "fck");
 	if (IS_ERR(priv->l3_clk))
 		return PTR_ERR(priv->l3_clk);

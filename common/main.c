@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <autoboot.h>
+#include <button.h>
 #include <bootstage.h>
 #include <bootstd.h>
 #include <cli.h>
@@ -61,6 +62,8 @@ void main_loop(void)
 		if (efi_init_obj_list() == EFI_SUCCESS)
 			efi_launch_capsules();
 	}
+
+	process_button_cmds();
 
 	s = bootdelay_process();
 	if (cli_process_fdt(&s))

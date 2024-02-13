@@ -74,4 +74,13 @@ enum button_state_t button_get_state(struct udevice *dev);
  */
 int button_get_code(struct udevice *dev);
 
+#if IS_ENABLED(CONFIG_BUTTON_CMD)
+/* Process button command mappings specified in the environment,
+ * running the commands for buttons which are pressed
+ */
+void process_button_cmds(void);
+#else
+static inline void process_button_cmds(void) {}
+#endif /* CONFIG_BUTTON_CMD */
+
 #endif
