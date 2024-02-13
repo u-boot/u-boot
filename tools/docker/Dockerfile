@@ -231,6 +231,17 @@ RUN mkdir /tmp/trace && \
     sudo make install && \
     rm -rf /tmp/trace
 
+# Build coreboot
+RUN wget -O - https://coreboot.org/releases/coreboot-4.22.01.tar.xz | tar -C /tmp -xJ && \
+    cd /tmp/coreboot-4.22.01 && \
+    make crossgcc-i386 CPUS=$(nproc) && \
+    make -C payloads/coreinfo olddefconfig && \
+    make -C payloads/coreinfo && \
+    make olddefconfig && \
+    make -j $(nproc) && \
+    sudo mkdir /opt/coreboot && \
+    sudo cp build/coreboot.rom build/cbfstool /opt/coreboot/
+
 # Create our user/group
 RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot
 RUN useradd -m -U uboot
