@@ -35,13 +35,15 @@ static const char zynqmp_family[] = "ZynqMP";
 #define IDCODE2_PL_INIT_SHIFT	9
 #define IDCODE2_PL_INIT_MASK	BIT(IDCODE2_PL_INIT_SHIFT)
 
-#define ZYNQMP_VERSION_SIZE	7
+#define ZYNQMP_VERSION_SIZE	10
 
 enum {
 	ZYNQMP_VARIANT_EG = BIT(0),
 	ZYNQMP_VARIANT_EV = BIT(1),
 	ZYNQMP_VARIANT_CG = BIT(2),
 	ZYNQMP_VARIANT_DR = BIT(3),
+	ZYNQMP_VARIANT_DR_SE = BIT(4),
+	ZYNQMP_VARIANT_EG_SE = BIT(5),
 };
 
 struct zynqmp_device {
@@ -106,6 +108,11 @@ static const struct zynqmp_device zynqmp_devices[] = {
 		.variants = ZYNQMP_VARIANT_EG,
 	},
 	{
+		.id = 0x04741093,
+		.device = 11,
+		.variants = ZYNQMP_VARIANT_EG_SE,
+	},
+	{
 		.id = 0x04750093,
 		.device = 15,
 		.variants = ZYNQMP_VARIANT_EG,
@@ -119,6 +126,11 @@ static const struct zynqmp_device zynqmp_devices[] = {
 		.id = 0x04758093,
 		.device = 19,
 		.variants = ZYNQMP_VARIANT_EG,
+	},
+	{
+		.id = 0x0475C093,
+		.device = 19,
+		.variants = ZYNQMP_VARIANT_EG_SE,
 	},
 	{
 		.id = 0x047E1093,
@@ -171,6 +183,11 @@ static const struct zynqmp_device zynqmp_devices[] = {
 		.variants = ZYNQMP_VARIANT_DR,
 	},
 	{
+		.id = 0x047FA093,
+		.device = 47,
+		.variants = ZYNQMP_VARIANT_DR_SE,
+	},
+	{
 		.id = 0x047FB093,
 		.device = 48,
 		.variants = ZYNQMP_VARIANT_DR,
@@ -184,6 +201,11 @@ static const struct zynqmp_device zynqmp_devices[] = {
 		.id = 0x046d0093,
 		.device = 67,
 		.variants = ZYNQMP_VARIANT_DR,
+	},
+	{
+		.id = 0x046d7093,
+		.device = 67,
+		.variants = ZYNQMP_VARIANT_DR_SE,
 	},
 	{
 		.id = 0x04712093,
@@ -271,8 +293,12 @@ static int soc_xilinx_zynqmp_detect_machine(struct udevice *dev, u32 idcode,
 			"cg" : "eg", sizeof(priv->machine));
 	} else if (device->variants & ZYNQMP_VARIANT_EG) {
 		strlcat(priv->machine, "eg", sizeof(priv->machine));
+	} else if (device->variants & ZYNQMP_VARIANT_EG_SE) {
+		strlcat(priv->machine, "eg_SE", sizeof(priv->machine));
 	} else if (device->variants & ZYNQMP_VARIANT_DR) {
 		strlcat(priv->machine, "dr", sizeof(priv->machine));
+	} else if (device->variants & ZYNQMP_VARIANT_DR_SE) {
+		strlcat(priv->machine, "dr_SE", sizeof(priv->machine));
 	}
 
 	return 0;

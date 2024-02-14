@@ -18,6 +18,7 @@
 #include <ahci.h>
 #include <scsi.h>
 #include <soc.h>
+#include <spl.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <wdt.h>
