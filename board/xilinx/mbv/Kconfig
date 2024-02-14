@@ -15,12 +15,23 @@ config SYS_CONFIG_NAME
 config TEXT_BASE
 	default 0x21200000
 
+config SPL_TEXT_BASE
+	default 0x20000000
+
+config SPL_OPENSBI_LOAD_ADDR
+	hex
+	default 0x20200000
+
 config BOARD_SPECIFIC_OPTIONS
 	def_bool y
 	select GENERIC_RISCV
+	select SUPPORT_SPL
 	imply BOARD_LATE_INIT
+	imply SPL_RAM_SUPPORT
+	imply SPL_RAM_DEVICE
 	imply CMD_SBI
 	imply CMD_PING
+	imply OF_HAS_PRIOR_STAGE
 
 source "board/xilinx/Kconfig"
 
