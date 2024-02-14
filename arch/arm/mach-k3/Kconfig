@@ -123,10 +123,11 @@ config SYS_K3_SPL_ATF
 
 config K3_ATF_LOAD_ADDR
 	hex "Load address of ATF image"
+	default 0x9e780000 if (SOC_K3_AM625 || SOC_K3_AM62A7)
 	default 0x70000000
 	help
-	  The load address for the ATF image. This value defaults to 0x70000000
-	  if not provided in the board defconfig file.
+	  The load address for the ATF image. This value is used to build the
+	  FIT image header that places ATF in memory where it will run.
 
 config K3_DM_FW
 	bool "Separate DM firmware image"
