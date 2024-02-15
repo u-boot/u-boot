@@ -37,7 +37,7 @@ with open(os.path.join(srcdir, "../README"), "r") as fh:
     long_description = fh.read()
 
 # Decodes a Makefile assignment line into key and value (and plus for +=)
-RE_KEY_VALUE = re.compile('(?P<key>\w+) *(?P<plus>[+])?= *(?P<value>.*)$')
+RE_KEY_VALUE = re.compile(r'(?P<key>\w+) *(?P<plus>[+])?= *(?P<value>.*)$')
 
 def get_top_builddir():
     if '--top-builddir' in sys.argv:
