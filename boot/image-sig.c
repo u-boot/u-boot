@@ -17,6 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define IMAGE_MAX_HASHED_NODES		100
 
 struct checksum_algo checksum_algos[] = {
+#if CONFIG_IS_ENABLED(SHA1)
 	{
 		.name = "sha1",
 		.checksum_len = SHA1_SUM_LEN,
@@ -24,6 +25,8 @@ struct checksum_algo checksum_algos[] = {
 		.der_prefix = sha1_der_prefix,
 		.calculate = hash_calculate,
 	},
+#endif
+#if CONFIG_IS_ENABLED(SHA256)
 	{
 		.name = "sha256",
 		.checksum_len = SHA256_SUM_LEN,
@@ -31,7 +34,8 @@ struct checksum_algo checksum_algos[] = {
 		.der_prefix = sha256_der_prefix,
 		.calculate = hash_calculate,
 	},
-#ifdef CONFIG_SHA384
+#endif
+#if CONFIG_IS_ENABLED(SHA384)
 	{
 		.name = "sha384",
 		.checksum_len = SHA384_SUM_LEN,
@@ -40,7 +44,7 @@ struct checksum_algo checksum_algos[] = {
 		.calculate = hash_calculate,
 	},
 #endif
-#ifdef CONFIG_SHA512
+#if CONFIG_IS_ENABLED(SHA512)
 	{
 		.name = "sha512",
 		.checksum_len = SHA512_SUM_LEN,
