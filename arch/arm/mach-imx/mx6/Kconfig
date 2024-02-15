@@ -356,6 +356,15 @@ config TARGET_MX6Q_ACC
 	select DM_THERMAL
 	select SUPPORT_SPL
 
+config TARGET_MX6S_SIELAFF
+	bool "Sielaff i.MX6 Solo Board"
+	depends on MX6S
+	select BINMAN
+	select DM
+	select DM_THERMAL
+	select SUPPORT_SPL
+	imply CMD_DM
+
 config TARGET_MX6SABREAUTO
 	bool "mx6sabreauto"
 	depends on MX6QDL
@@ -708,6 +717,7 @@ source "board/softing/vining_2000/Kconfig"
 source "board/liebherr/display5/Kconfig"
 source "board/liebherr/mccmon6/Kconfig"
 source "board/logicpd/imx6/Kconfig"
+source "board/sielaff/imx6dl-sielaff/Kconfig"
 source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/somlabs/visionsom-6ull/Kconfig"
 source "board/technexion/pico-imx6/Kconfig"
