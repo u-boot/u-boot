@@ -320,4 +320,8 @@ unsigned long sifive_prci_hfpclkplldiv_recalc_rate(struct __prci_clock *pc,
 
 int sifive_prci_clock_enable(struct __prci_clock *pc, bool enable);
 
+/* Clock driver data */
+extern const struct prci_clk_desc prci_clk_fu540;
+extern const struct prci_clk_desc prci_clk_fu740;
+
 #endif /* __SIFIVE_CLK_SIFIVE_PRCI_H */
