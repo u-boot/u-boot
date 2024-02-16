@@ -15,14 +15,14 @@ static int simple_video_probe(struct udevice *dev)
 {
 	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
-	const void *blob = gd->fdt_blob;
-	const int node = dev_of_offset(dev);
+	ofnode node = dev_ofnode(dev);
 	const char *format;
+	int ret;
 	fdt_addr_t base;
 	fdt_size_t size;
+	u32 width, height, rot;
 
-	base = fdtdec_get_addr_size_auto_parent(blob, dev_of_offset(dev->parent),
-			node, "reg", 0, &size, false);
+	base = dev_read_addr_size(dev, &size);
 	if (base == FDT_ADDR_T_NONE) {
 		debug("%s: Failed to decode memory region\n", __func__);
 		return -EINVAL;
@@ -41,16 +41,24 @@ static int simple_video_probe(struct udevice *dev)
 
 	debug("%s: Query resolution...\n", __func__);
 
-	uc_priv->xsize = fdtdec_get_uint(blob, node, "width", 0);
-	uc_priv->ysize = fdtdec_get_uint(blob, node, "height", 0);
-	uc_priv->rot = fdtdec_get_uint(blob, node, "rot", 0);
-	if (uc_priv->rot > 3) {
-		log_debug("%s: invalid rot\n", __func__);
-		return log_msg_ret("rot", -EINVAL);
+	ret = ofnode_read_u32(node, "width", &width);
+	ret = ret ?: ofnode_read_u32(node, "height", &height);
+	if (ret || !width || !height) {
+		log_err("%s: invalid width or height: %d\n", __func__, ret);
+		return ret ?: -EINVAL;
 	}
+	ofnode_read_u32(node, "rot", &rot);
+	uc_priv->rot = rot;
+	uc_priv->xsize = width;
+	uc_priv->ysize = height;
 
-	format = fdt_getprop(blob, node, "format", NULL);
+	format = ofnode_read_string(node, "format");
 	debug("%s: %dx%d@%s\n", __func__, uc_priv->xsize, uc_priv->ysize, format);
+
+	if (!format) {
+		log_err("%s: please add required property \"format\"\n", __func__);
+		return -EINVAL;
+	}
 
 	if (strcmp(format, "r5g6b5") == 0) {
 		uc_priv->bpix = VIDEO_BPP16;
@@ -67,7 +75,7 @@ static int simple_video_probe(struct udevice *dev)
 		uc_priv->bpix = VIDEO_BPP32;
 		uc_priv->format = VIDEO_X2R10G10B10;
 	} else {
-		printf("%s: invalid format: %s\n", __func__, format);
+		log_err("%s: invalid format: %s\n", __func__, format);
 		return -EINVAL;
 	}
 
