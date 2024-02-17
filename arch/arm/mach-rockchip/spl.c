@@ -3,7 +3,7 @@
  * (C) Copyright 2019 Rockchip Electronics Co., Ltd
  */
 
-#include <common.h>
+#include <cpu_func.h>
 #include <debug_uart.h>
 #include <dm.h>
 #include <hang.h>
@@ -136,6 +136,20 @@ void board_init_f(ulong dummy)
 	}
 	gd->ram_top = gd->ram_base + get_effective_memsize();
 	gd->ram_top = board_get_usable_ram_top(gd->ram_size);
+
+	if (IS_ENABLED(CONFIG_ARM64) && !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)) {
+		gd->relocaddr = gd->ram_top;
+		arch_reserve_mmu();
+		enable_caches();
+	}
 #endif
 	preloader_console_init();
+}
+
+void spl_board_prepare_for_boot(void)
+{
+	if (!IS_ENABLED(CONFIG_ARM64) || CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		return;
+
+	cleanup_before_linux();
 }
