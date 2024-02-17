@@ -11,12 +11,14 @@ NANOPI-R2C-RK3328
 M:      Tianling Shen <cnsztl@gmail.com>
 S:      Maintained
 F:      configs/nanopi-r2c-rk3328_defconfig
+F:      arch/arm/dts/rk3328-nanopi-r2c.dts
 F:      arch/arm/dts/rk3328-nanopi-r2c-u-boot.dtsi
 
 NANOPI-R2C-PLUS-RK3328
 M:      Tianling Shen <cnsztl@gmail.com>
 S:      Maintained
 F:      configs/nanopi-r2c-plus-rk3328_defconfig
+F:      arch/arm/dts/rk3328-nanopi-r2c-plus.dts
 F:      arch/arm/dts/rk3328-nanopi-r2c-plus-u-boot.dtsi
 
 NANOPI-R2S-RK3328
