@@ -38,8 +38,93 @@
 	bootph-all;
 };
 
+&emmc {
+	bootph-pre-ram;
+	bootph-some-ram;
+
+	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
+	u-boot,spl-fifo-mode;
+};
+
+&emmc_bus8 {
+	bootph-pre-ram;
+};
+
+&emmc_clk {
+	bootph-pre-ram;
+};
+
+&emmc_cmd {
+	bootph-pre-ram;
+};
+
+&gpio0 {
+	bootph-pre-ram;
+};
+
 &grf {
 	bootph-all;
+};
+
+&pcfg_pull_none {
+	bootph-all;
+};
+
+&pcfg_pull_none_8ma {
+	bootph-pre-ram;
+};
+
+&pcfg_pull_none_12ma {
+	bootph-pre-ram;
+};
+
+&pcfg_pull_up {
+	bootph-all;
+};
+
+&pcfg_pull_up_4ma {
+	bootph-pre-ram;
+};
+
+&pcfg_pull_up_8ma {
+	bootph-pre-ram;
+};
+
+&pcfg_pull_up_12ma {
+	bootph-pre-ram;
+};
+
+&pinctrl {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc {
+	bootph-pre-ram;
+	bootph-some-ram;
+
+	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
+	u-boot,spl-fifo-mode;
+};
+
+&sdmmc0_bus4 {
+	bootph-pre-ram;
+};
+
+&sdmmc0_clk {
+	bootph-pre-ram;
+};
+
+&sdmmc0_cmd {
+	bootph-pre-ram;
+};
+
+&sdmmc0_dectn {
+	bootph-pre-ram;
+};
+
+&sdmmc0m1_pin {
+	bootph-pre-ram;
 };
 
 &uart2 {
@@ -47,24 +132,10 @@
 	clock-frequency = <24000000>;
 };
 
-&emmc {
+&uart2m1_xfer {
 	bootph-all;
-
-	/* mmc to sram can't do dma, prevent aborts transfering TF-A parts */
-	u-boot,spl-fifo-mode;
-};
-
-&sdmmc {
-	bootph-all;
-
-	/* mmc to sram can't do dma, prevent aborts transfering TF-A parts */
-	u-boot,spl-fifo-mode;
 };
 
 &usb20_otg {
 	hnp-srp-disable;
-};
-
-&spi0 {
-	bootph-all;
 };
