@@ -28,7 +28,7 @@
 	};
 
 	rng: rng@ff060000 {
-		compatible = "rockchip,cryptov1-rng";
+		compatible = "rockchip,rk3328-crypto";
 		reg = <0x0 0xff060000 0x0 0x4000>;
 		status = "okay";
 	};
