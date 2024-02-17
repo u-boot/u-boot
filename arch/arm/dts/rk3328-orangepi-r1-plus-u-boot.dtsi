@@ -17,6 +17,22 @@
 	};
 };
 
+&spi0m2_clk {
+	bootph-pre-ram;
+};
+
+&spi0m2_cs0 {
+	bootph-pre-ram;
+};
+
+&spi0m2_rx {
+	bootph-pre-ram;
+};
+
+&spi0m2_tx {
+	bootph-pre-ram;
+};
+
 &vcc_sd {
 	bootph-pre-ram;
 };
