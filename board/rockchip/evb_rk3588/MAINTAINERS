@@ -1,3 +1,10 @@
+COOLPI-4B-RK3588S
+M:	Andy Yan <andyshrk@163.com>
+S:	Maintained
+F:	configs/coolpi-4b-rk3588s_defconfig
+F:	arch/arm/dts/rk3588s-coolpi-4b.dts
+F:	arch/arm/dts/rk3588s-coolpi-u-boot.dtsi
+
 EVB-RK3588
 M:	Kever Yang <kever.yang@rock-chips.com>
 S:	Maintained
