@@ -192,6 +192,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3568) += \
 
 dtb-$(CONFIG_ROCKCHIP_RK3588) += \
 	rk3588s-coolpi-4b.dts \
+	rk3588-coolpi-cm5-evb.dts \
 	rk3588-edgeble-neu6a-io.dtb \
 	rk3588-edgeble-neu6b-io.dtb \
 	rk3588-evb1-v10.dtb \
