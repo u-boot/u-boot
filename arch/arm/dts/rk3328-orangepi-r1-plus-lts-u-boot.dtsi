@@ -28,12 +28,6 @@
 	bootph-pre-ram;
 };
 
-&gmac2io {
-	snps,reset-gpio = <&gpio1 RK_PC2 GPIO_ACTIVE_LOW>;
-	snps,reset-active-low;
-	snps,reset-delays-us = <0 10000 50000>;
-};
-
 &spi0 {
 	spi_flash: spiflash@0 {
 		bootph-all;
