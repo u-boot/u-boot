@@ -96,40 +96,33 @@ int atsha204a_wakeup(struct udevice *dev)
 {
 	u8 req[4];
 	struct atsha204a_resp resp;
-	int try, res;
+	int res;
 
 	debug("Waking up ATSHA204A\n");
 
-	for (try = 1; try <= 10; ++try) {
-		debug("Try %i... ", try);
+	/*
+	 * The device ignores any levels or transitions on the SCL pin
+	 * when the device is idle, asleep or during waking up.
+	 * Don't check for error when waking up the device.
+	 */
+	memset(req, 0, 4);
+	atsha204a_send(dev, req, 4);
 
-		/*
-		 * The device ignores any levels or transitions on the SCL pin
-		 * when the device is idle, asleep or during waking up.
-		 * Don't check for error when waking up the device.
-		 */
-		memset(req, 0, 4);
-		atsha204a_send(dev, req, 4);
+	udelay(ATSHA204A_TWLO_US + ATSHA204A_TWHI_US);
 
-		udelay(ATSHA204A_TWLO_US + ATSHA204A_TWHI_US);
-
-		res = atsha204a_recv_resp(dev, &resp);
-		if (res) {
-			debug("failed on receiving response, ending\n");
-			return res;
-		}
-
-		if (resp.code != ATSHA204A_STATUS_AFTER_WAKE) {
-			debug ("failed (responce code = %02x), ending\n",
-			       resp.code);
-			return -EBADMSG;
-		}
-
-		debug("success\n");
-		return 0;
+	res = atsha204a_recv_resp(dev, &resp);
+	if (res) {
+		debug("failed on receiving response, ending\n");
+		return res;
 	}
 
-	return -ETIMEDOUT;
+	if (resp.code != ATSHA204A_STATUS_AFTER_WAKE) {
+		debug("failed (response code = %02x), ending\n", resp.code);
+		return -EBADMSG;
+	}
+
+	debug("success\n");
+	return 0;
 }
 
 int atsha204a_idle(struct udevice *dev)
