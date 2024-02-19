@@ -139,7 +139,7 @@ int atsha204a_idle(struct udevice *dev)
 int atsha204a_sleep(struct udevice *dev)
 {
 	int res;
-	u8 req = ATSHA204A_FUNC_IDLE;
+	u8 req = ATSHA204A_FUNC_SLEEP;
 
 	res = atsha204a_send(dev, &req, 1);
 	if (res)
