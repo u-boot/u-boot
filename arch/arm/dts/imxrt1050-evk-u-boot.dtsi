@@ -8,6 +8,10 @@
 #include "imxrt1050-pinfunc.h"
 
 / {
+	binman: binman {
+		multiple-images;
+	};
+
 	aliases {
 		display0 = &lcdif;
 		usbphy0 = &usbphy1;
@@ -111,6 +115,33 @@
 		fsl,memory-size = <MEM_SIZE_32M>;
 		bootph-pre-ram;
 	};
+};
+
+&binman {
+#ifdef CONFIG_FSPI_CONF_HEADER
+	imx-boot {
+		filename = "flash.bin";
+		pad-byte = <0x00>;
+
+		fspi_conf_block {
+			filename = CONFIG_FSPI_CONF_FILE;
+			type = "blob-ext";
+			offset = <0x0>;
+		};
+
+		spl {
+			filename = "SPL";
+			offset = <0x1000>;
+			type = "blob-ext";
+		};
+
+		binman_uboot: uboot {
+			filename = "u-boot.img";
+			offset = <0x10000>;
+			type = "blob-ext";
+		};
+	};
+#endif
 };
 
 &osc {

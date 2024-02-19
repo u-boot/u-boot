@@ -5,6 +5,10 @@
  */
 
 / {
+	binman: binman {
+		multiple-images;
+	};
+
 	chosen {
 		bootph-pre-ram;
 	};
