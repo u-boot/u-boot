@@ -1,6 +1,5 @@
 GE PPD BOARD
-M:	Antti Mäentausta <antti.maentausta@ge.com>
-M:	Ian Ray <ian.ray@ge.com>
+M:	Ian Ray <ian.ray@gehealthcare.com>
 M:	Martyn Welch <martyn.welch@collabora.com>
 S:	Maintained
 F:	arch/arm/dts/imx53-ppd*

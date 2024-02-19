@@ -9,6 +9,11 @@
 	model = "MSC SM2S-IMX8MPLUS";
 	compatible = "avnet,sm2s-imx8mp", "fsl,imx8mp";
 
+	aliases {
+		mmc0 = &usdhc3;
+		mmc1 = &usdhc2;
+	};
+
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
@@ -61,5 +66,13 @@
 };
 
 &pmic {
+	bootph-pre-ram;
+};
+
+&uart2 {
+	bootph-pre-ram;
+};
+
+&pinctrl_uart2 {
 	bootph-pre-ram;
 };
