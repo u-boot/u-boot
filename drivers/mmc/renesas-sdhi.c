@@ -605,7 +605,7 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 		caps = priv->caps;
 		priv->caps &= ~TMIO_SD_CAP_DMA_INTERNAL;
 
-		ret = mmc_send_tuning(mmc, opcode, NULL);
+		ret = mmc_send_tuning(mmc, opcode);
 
 		priv->caps = caps;
 

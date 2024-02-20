@@ -1653,6 +1653,12 @@ static int octeontx_mmc_test_cmd(struct mmc *mmc, u32 opcode, int *statp)
 	return err;
 }
 
+static int octeontx_mmc_send_tuning(struct mmc *mmc, u32 opcode, int *error)
+{
+	*error = 0;
+	return mmc_send_tuning(mmc, opcode);
+}
+
 static int octeontx_mmc_test_get_ext_csd(struct mmc *mmc, u32 opcode,
 					 int *statp)
 {
@@ -2006,7 +2012,7 @@ struct adj adj[] = {
 	{ "CMD_IN", 48, octeontx_mmc_test_cmd, MMC_CMD_SEND_STATUS,
 	  false, false, false, 2, },
 /*	{ "CMD_OUT", 32, octeontx_mmc_test_cmd, MMC_CMD_SEND_STATUS, },*/
-	{ "DATA_IN(HS200)", 16, mmc_send_tuning,
+	{ "DATA_IN(HS200)", 16, octeontx_mmc_send_tuning,
 		MMC_CMD_SEND_TUNING_BLOCK_HS200, false, true, false, 2, },
 	{ "DATA_IN", 16, octeontx_mmc_test_get_ext_csd, 0, false, false,
 	  true, 2, },
