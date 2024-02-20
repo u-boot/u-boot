@@ -174,8 +174,10 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 
 	debug("enabling power on all ports\n");
 	for (i = 0; i < dev->maxchild; i++) {
-		usb_set_port_feature(dev, i + 1, USB_PORT_FEAT_RESET);
-		debug("Reset : port %d returns %lX\n", i + 1, dev->status);
+		if (usb_hub_is_superspeed(dev)) {
+			usb_set_port_feature(dev, i + 1, USB_PORT_FEAT_RESET);
+			debug("Reset : port %d returns %lX\n", i + 1, dev->status);
+		}
 		usb_set_port_feature(dev, i + 1, USB_PORT_FEAT_POWER);
 		debug("PowerOn : port %d returns %lX\n", i + 1, dev->status);
 	}
