@@ -2,7 +2,7 @@ if ARCH_EXYNOS
 
 config BOARD_COMMON
 	def_bool y
-	depends on !TARGET_SMDKV310 && !TARGET_ARNDALE
+	depends on !TARGET_SMDKV310 && !TARGET_ARNDALE && !TARGET_E850_96
 
 config SPI_BOOTING
 	bool
@@ -57,6 +57,15 @@ config ARCH_EXYNOS7
 	  Samsung Exynos7 SoC family are based on ARM Cortex-A57 CPU or
 	  Cortex-A53 CPU (and some in a big.LITTLE configuration). There are
 	  multiple SoCs in this family including Exynos7420.
+
+config ARCH_EXYNOS9
+	bool "Exynos9 SoC family"
+	select ARM64
+	select BLK
+	select DM_MMC
+	help
+	  Samsung Exynos9 SoC family are based on ARMv8 Cortex CPU. There are
+	  multiple SoCs in this family including Exynos850.
 
 endchoice
 
@@ -228,6 +237,22 @@ config  TARGET_A3Y17LTE
 endchoice
 endif
 
+if ARCH_EXYNOS9
+
+choice
+	prompt "EXYNOS9 board select"
+
+config TARGET_E850_96
+	bool "WinLink E850-96 board"
+	select ARM64
+	select CLK_EXYNOS
+	select OF_CONTROL
+	select PINCTRL
+	select PINCTRL_EXYNOS850
+
+endchoice
+endif
+
 config SYS_SOC
 	default "exynos"
 
@@ -252,5 +277,6 @@ source "board/samsung/smdk5250/Kconfig"
 source "board/samsung/smdk5420/Kconfig"
 source "board/samsung/espresso7420/Kconfig"
 source "board/samsung/axy17lte/Kconfig"
+source "board/samsung/e850-96/Kconfig"
 
 endif

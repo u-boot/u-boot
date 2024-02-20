@@ -10,8 +10,15 @@
 #include <errno.h>
 #include <clk-uclass.h>
 #include <asm/io.h>
+#include <div64.h>
 #include <dt-bindings/clock/exynos7420-clk.h>
-#include "clk-pll.h"
+
+#define PLL145X_MDIV_SHIFT	16
+#define PLL145X_MDIV_MASK	0x3ff
+#define PLL145X_PDIV_SHIFT	8
+#define PLL145X_PDIV_MASK	0x3f
+#define PLL145X_SDIV_SHIFT	0
+#define PLL145X_SDIV_MASK	0x7
 
 #define DIVIDER(reg, shift, mask)	\
 	(((readl(reg) >> shift) & mask) + 1)
@@ -63,6 +70,22 @@ struct exynos7420_clk_top0_priv {
 	unsigned long mout_top0_bus0_pll_half;
 	unsigned long sclk_uart2;
 };
+
+static unsigned long pll145x_get_rate(unsigned int *con1,
+				      unsigned long fin_freq)
+{
+	unsigned long pll_con1 = readl(con1);
+	unsigned long mdiv, sdiv, pdiv;
+	u64 fvco = fin_freq;
+
+	mdiv = (pll_con1 >> PLL145X_MDIV_SHIFT) & PLL145X_MDIV_MASK;
+	pdiv = (pll_con1 >> PLL145X_PDIV_SHIFT) & PLL145X_PDIV_MASK;
+	sdiv = (pll_con1 >> PLL145X_SDIV_SHIFT) & PLL145X_SDIV_MASK;
+
+	fvco *= mdiv;
+	do_div(fvco, (pdiv << sdiv));
+	return (unsigned long)fvco;
+}
 
 static ulong exynos7420_topc_get_rate(struct clk *clk)
 {
