@@ -75,6 +75,9 @@
 
 #define CTRLMMR_MCU_RST_CTRL			(MCU_CTRL_MMR0_BASE + 0x18170)
 
+/* Debounce register configuration */
+#define CTRLMMR_DBOUNCE_CFG(index)		(MCU_CTRL_MMR0_BASE + 0x4080 + (index * 4))
+
 #define ROM_EXTENDED_BOOT_DATA_INFO		0x43c3f1e0
 
 #define TI_SRAM_SCRATCH_BOARD_EEPROM_START	0x43c30000
