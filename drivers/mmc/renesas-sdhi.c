@@ -568,8 +568,8 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 	struct mmc *mmc = upriv->mmc;
 	unsigned int tap_num;
 	unsigned int taps = 0;
-	int i, ret = 0;
-	u32 caps;
+	int i, ret = 0, sret;
+	u32 caps, reg;
 
 	/* Only supported on Renesas RCar */
 	if (!(priv->caps & TMIO_SD_CAP_RCAR_UHS))
@@ -612,8 +612,8 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 		if (ret == 0)
 			taps |= BIT(i);
 
-		ret = renesas_sdhi_compare_scc_data(priv);
-		if (ret == 0)
+		reg = renesas_sdhi_compare_scc_data(priv);
+		if (reg == 0)
 			priv->smpcmp |= BIT(i);
 
 		mdelay(1);
@@ -624,9 +624,9 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 		 * eMMC.
 		 */
 		if (ret && (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200)) {
-			ret = mmc_send_stop_transmission(mmc, false);
-			if (ret < 0)
-				dev_dbg(dev, "Tuning abort fail (%d)\n", ret);
+			sret = mmc_send_stop_transmission(mmc, false);
+			if (sret < 0)
+				dev_dbg(dev, "Tuning abort fail (%d)\n", sret);
 		}
 	}
 
