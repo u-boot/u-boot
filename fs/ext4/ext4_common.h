@@ -54,6 +54,8 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos, loff_t len,
 		     char *buf, loff_t *actread);
 int ext4fs_find_file(const char *path, struct ext2fs_node *rootnode,
 			struct ext2fs_node **foundnode, int expecttype);
+int ext4fs_find_file1(const char *currpath, struct ext2fs_node *currroot,
+		      struct ext2fs_node **currfound, int *foundtype);
 int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 			struct ext2fs_node **fnode, int *ftype);
 
