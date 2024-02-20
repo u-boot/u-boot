@@ -59,8 +59,32 @@ static void crystal_32k_enable(void)
 	}
 }
 
+static void debounce_configure(void)
+{
+	/* Configure debounce one time from R5 */
+	if (IS_ENABLED(CONFIG_CPU_V7R)) {
+		/*
+		 * Setup debounce time registers.
+		 * arbitrary values. Times are approx
+		 */
+		/* 1.9ms debounce @ 32k */
+		writel(0x1, CTRLMMR_DBOUNCE_CFG(1));
+		/* 5ms debounce @ 32k */
+		writel(0x5, CTRLMMR_DBOUNCE_CFG(2));
+		/* 20ms debounce @ 32k */
+		writel(0x14, CTRLMMR_DBOUNCE_CFG(3));
+		/* 46ms debounce @ 32k */
+		writel(0x18, CTRLMMR_DBOUNCE_CFG(4));
+		/* 100ms debounce @ 32k */
+		writel(0x1c, CTRLMMR_DBOUNCE_CFG(5));
+		/* 156ms debounce @ 32k */
+		writel(0x1f, CTRLMMR_DBOUNCE_CFG(6));
+	}
+}
+
 void spl_board_init(void)
 {
 	crystal_32k_enable();
+	debounce_configure();
 }
 #endif
