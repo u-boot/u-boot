@@ -16,6 +16,7 @@
 #include <env.h>
 
 #include "../common/board_detect.h"
+#include "../common/fdt_ops.h"
 
 #define board_is_am64x_gpevm() (board_ti_k3_is("AM64-GPEVM") || \
 				board_ti_k3_is("AM64-EVM") || \
@@ -181,6 +182,12 @@ int checkboard(void)
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
+static struct ti_fdt_map ti_am64_evm_fdt_map[] = {
+	{"am64x_gpevm", "k3-am642-evm.dtb"},
+	{"am64x_skevm", "k3-am642-sk.dtb"},
+	{ /* Sentinel. */ }
+};
+
 static void setup_board_eeprom_env(void)
 {
 	char *name = "am64x_gpevm";
@@ -198,6 +205,7 @@ static void setup_board_eeprom_env(void)
 
 invalid_eeprom:
 	set_board_info_env_am6(name);
+	ti_set_fdt_env(name, ti_am64_evm_fdt_map);
 }
 
 static void setup_serial(void)
