@@ -884,10 +884,10 @@ static int udma_alloc_tx_resources(struct udma_chan *uc)
 		return ret;
 
 	tchan = uc->tchan;
-	if (tchan->tflow_id >= 0)
+	if (tchan->tflow_id > 0)
 		ring_idx = tchan->tflow_id;
 	else
-		ring_idx = ud->bchan_cnt + tchan->id;
+		ring_idx = tchan->id;
 
 	ret = k3_nav_ringacc_request_rings_pair(ud->ringacc, ring_idx, -1,
 						&uc->tchan->t_ring,
