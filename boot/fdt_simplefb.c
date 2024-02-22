@@ -107,7 +107,6 @@ static int fdt_simplefb_enable_existing_node(void *blob)
 #if IS_ENABLED(CONFIG_VIDEO)
 int fdt_simplefb_enable_and_mem_rsv(void *blob)
 {
-	struct fdt_memory mem;
 	int ret;
 
 	/* nothing to do when video is not active */
@@ -118,15 +117,6 @@ int fdt_simplefb_enable_and_mem_rsv(void *blob)
 	if (ret)
 		return ret;
 
-	/* nothing to do when the frame buffer is not defined */
-	if (gd->video_bottom == gd->video_top)
-		return 0;
-
-	/* reserved with no-map tag the video buffer */
-	mem.start = gd->video_bottom;
-	mem.end = gd->video_top - 1;
-
-	return fdtdec_add_reserved_memory(blob, "framebuffer", &mem, NULL, 0, NULL,
-					  FDTDEC_RESERVED_MEMORY_NO_MAP);
+	return fdt_add_fb_mem_rsv(blob);
 }
 #endif
