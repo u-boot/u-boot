@@ -404,6 +404,10 @@ bool video_is_active(void)
 {
 	struct udevice *dev;
 
+	/* Assume video to be active if SPL passed video hand-off to U-boot */
+	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && spl_phase() > PHASE_SPL)
+		return true;
+
 	for (uclass_find_first_device(UCLASS_VIDEO, &dev);
 	     dev;
 	     uclass_find_next_device(&dev)) {
