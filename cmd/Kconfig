@@ -740,6 +740,7 @@ config CRC32_VERIFY
 
 config CMD_EEPROM
 	bool "eeprom - EEPROM subsystem"
+	depends on DM_I2C || SYS_I2C_LEGACY
 	help
 	  (deprecated, needs conversion to driver model)
 	  Provides commands to read and write EEPROM (Electrically Erasable
