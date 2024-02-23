@@ -99,6 +99,12 @@ static const struct soc_attr ti_k3_soc_pd_data[] = {
 		.data = &am62ax_pd_platdata,
 	},
 #endif
+#ifdef CONFIG_SOC_K3_J784S4
+	{
+		.family = "J784S4",
+		.data = &j784s4_pd_platdata,
+	},
+#endif
 	{ /* sentinel */ }
 };
 
