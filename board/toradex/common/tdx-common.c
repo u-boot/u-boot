@@ -103,7 +103,6 @@ int tdx_checkboard(void)
 	if (read_tdx_cfg_block()) {
 		printf("MISSING TORADEX CONFIG BLOCK\n");
 		get_mac_from_serial(tdx_serial, &tdx_eth_addr);
-		checkboard();
 	} else {
 		snprintf(tdx_serial_str, sizeof(tdx_serial_str),
 			 "%08u", tdx_serial);
