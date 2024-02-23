@@ -126,7 +126,6 @@ static int settings_r(void)
 
 	if (read_tdx_cfg_block()) {
 		printf("MISSING TORADEX CONFIG BLOCK\n");
-		get_mac_from_serial(tdx_serial, &tdx_eth_addr);
 
 		/* Board can run even if config block is not present */
 		return 0;
