@@ -16,3 +16,5 @@ M:	Apurva Nandan <a-nandan@ti.com>
 S:	Maintained
 F:	arch/arm/dts/k3-am69-sk-u-boot.dtsi
 F:	arch/arm/dts/k3-am69-r5-sk.dts
+F:	configs/am69_sk_r5_defconfig
+F:	configs/am69_sk_a72_defconfig
