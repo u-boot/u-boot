@@ -41,6 +41,7 @@ K3 Based SoCs
    ../beagle/j721e_beagleboneai64
    j721e_evm
    j721s2_evm
+   j784s4_evm
 
 Boot Flow Overview
 ------------------
