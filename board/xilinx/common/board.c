@@ -43,7 +43,7 @@ struct efi_fw_image fw_images[] = {
 		.image_index = 1,
 	},
 #endif
-#if defined(XILINX_UBOOT_IMAGE_GUID)
+#if defined(XILINX_UBOOT_IMAGE_GUID) && defined(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME)
 	{
 		.image_type_id = XILINX_UBOOT_IMAGE_GUID,
 		.fw_name = u"XILINX-UBOOT",
