@@ -20,6 +20,12 @@
 	sysinfo {
 		compatible = "toradex,sysinfo";
 	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		bootph-pre-ram;
+	};
 };
 
 &wdog1 {
