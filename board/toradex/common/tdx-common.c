@@ -103,53 +103,68 @@ __weak int print_bootinfo(void)
 
 int checkboard(void)
 {
-	unsigned char ethaddr[6];
-
-	if (read_tdx_cfg_block()) {
-		printf("MISSING TORADEX CONFIG BLOCK\n");
-		get_mac_from_serial(tdx_serial, &tdx_eth_addr);
-	} else {
-		snprintf(tdx_serial_str, sizeof(tdx_serial_str),
-			 "%08u", tdx_serial);
-		snprintf(tdx_board_rev_str, sizeof(tdx_board_rev_str),
-			 "V%1d.%1d%s",
-			 tdx_hw_tag.ver_major,
-			 tdx_hw_tag.ver_minor,
-			 get_board_assembly(tdx_hw_tag.ver_assembly));
-
-		env_set("serial#", tdx_serial_str);
-
+	if (valid_cfgblock) {
 		printf("Model: Toradex %04d %s %s\n",
 		       tdx_hw_tag.prodid,
 		       toradex_modules[tdx_hw_tag.prodid].name,
 		       tdx_board_rev_str);
 		printf("Serial#: %s\n", tdx_serial_str);
-#ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
-		if (read_tdx_cfg_block_carrier()) {
-			printf("MISSING TORADEX CARRIER CONFIG BLOCKS\n");
-			try_migrate_tdx_cfg_block_carrier();
-		} else {
-			tdx_carrier_board_name =
-				get_toradex_carrier_boards(tdx_car_hw_tag.prodid);
-
-			snprintf(tdx_car_serial_str, sizeof(tdx_car_serial_str),
-				 "%08u", tdx_car_serial);
-			snprintf(tdx_car_rev_str, sizeof(tdx_car_rev_str),
-				 "V%1d.%1d%s",
-				 tdx_car_hw_tag.ver_major,
-				 tdx_car_hw_tag.ver_minor,
-				 get_board_assembly(tdx_car_hw_tag.ver_assembly));
-
-			env_set("carrier_serial#", tdx_car_serial_str);
-			printf("Carrier: Toradex %s %s, Serial# %s\n",
-			       tdx_carrier_board_name,
-			       tdx_car_rev_str,
-			       tdx_car_serial_str);
-		}
-#endif
 	}
 
+#ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
+	if (tdx_carrier_board_name)
+		printf("Carrier: Toradex %s %s, Serial# %s\n",
+		       tdx_carrier_board_name,
+		       tdx_car_rev_str,
+		       tdx_car_serial_str);
+#endif
+
 	print_bootinfo();
+
+	return 0;
+}
+
+static int settings_r(void)
+{
+	unsigned char ethaddr[6];
+
+	if (read_tdx_cfg_block()) {
+		printf("MISSING TORADEX CONFIG BLOCK\n");
+		get_mac_from_serial(tdx_serial, &tdx_eth_addr);
+
+		/* Board can run even if config block is not present */
+		return 0;
+	}
+
+	snprintf(tdx_serial_str, sizeof(tdx_serial_str),
+		 "%08u", tdx_serial);
+	snprintf(tdx_board_rev_str, sizeof(tdx_board_rev_str),
+		 "V%1d.%1d%s",
+		 tdx_hw_tag.ver_major,
+		 tdx_hw_tag.ver_minor,
+		 get_board_assembly(tdx_hw_tag.ver_assembly));
+
+	env_set("serial#", tdx_serial_str);
+
+#ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
+	if (read_tdx_cfg_block_carrier()) {
+		printf("MISSING TORADEX CARRIER CONFIG BLOCKS\n");
+		try_migrate_tdx_cfg_block_carrier();
+	} else {
+		tdx_carrier_board_name =
+			get_toradex_carrier_boards(tdx_car_hw_tag.prodid);
+
+		snprintf(tdx_car_serial_str, sizeof(tdx_car_serial_str),
+			 "%08u", tdx_car_serial);
+		snprintf(tdx_car_rev_str, sizeof(tdx_car_rev_str),
+			 "V%1d.%1d%s",
+			 tdx_car_hw_tag.ver_major,
+			 tdx_car_hw_tag.ver_minor,
+			 get_board_assembly(tdx_car_hw_tag.ver_assembly));
+
+		env_set("carrier_serial#", tdx_car_serial_str);
+	}
+#endif
 
 	/*
 	 * Check if environment contains a valid MAC address,
@@ -171,6 +186,7 @@ int checkboard(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_SETTINGS_R, settings_r);
 
 #ifdef CONFIG_TDX_CFG_BLOCK_USB_GADGET_PID
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
