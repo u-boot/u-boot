@@ -9,6 +9,12 @@
 	soc {
 		bootph-pre-ram;
 	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		bootph-pre-ram;
+	};
 };
 
 &aips2 {
@@ -24,5 +30,9 @@
 };
 
 &usdhc1 {
+	bootph-pre-ram;
+};
+
+&wdog1 {
 	bootph-pre-ram;
 };
