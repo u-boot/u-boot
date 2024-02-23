@@ -43,13 +43,13 @@
 #define JTAG_ID_VARIANT_MASK	(0xf << 28)
 #define JTAG_ID_PARTNO_SHIFT	12
 #define JTAG_ID_PARTNO_MASK	(0xffff << 12)
-#define JTAG_ID_PARTNO_AM65X	0xbb5a
-#define JTAG_ID_PARTNO_J721E	0xbb64
-#define JTAG_ID_PARTNO_J7200	0xbb6d
-#define JTAG_ID_PARTNO_AM64X	0xbb38
-#define JTAG_ID_PARTNO_J721S2	0xbb75
-#define JTAG_ID_PARTNO_AM62X	0xbb7e
 #define JTAG_ID_PARTNO_AM62AX   0xbb8d
+#define JTAG_ID_PARTNO_AM62X	0xbb7e
+#define JTAG_ID_PARTNO_AM64X	0xbb38
+#define JTAG_ID_PARTNO_AM65X	0xbb5a
+#define JTAG_ID_PARTNO_J7200	0xbb6d
+#define JTAG_ID_PARTNO_J721E	0xbb64
+#define JTAG_ID_PARTNO_J721S2	0xbb75
 
 #define K3_SOC_ID(id, ID) \
 static inline bool soc_is_##id(void) \
