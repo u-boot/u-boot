@@ -19,6 +19,10 @@
 	memory@80000000 {
 		bootph-all;
 	};
+
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
 };
 
 &main_timer0 {

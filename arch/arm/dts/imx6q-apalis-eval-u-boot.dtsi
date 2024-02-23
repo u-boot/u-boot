@@ -19,6 +19,10 @@
 		mmc1 = &usdhc1;
 		mmc2 = &usdhc2;
 	};
+
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
 };
 
 &wdog1 {

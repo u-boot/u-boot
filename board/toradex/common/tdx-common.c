@@ -3,15 +3,16 @@
  * Copyright (c) 2016 Toradex, Inc.
  */
 
+#include <dm.h>
 #include <common.h>
 #include <env.h>
 #include <g_dnl.h>
 #include <init.h>
 #include <linux/libfdt.h>
+#include <sysinfo.h>
 
 #ifdef CONFIG_VIDEO
 #include <bmp_logo.h>
-#include <dm.h>
 #include <splash.h>
 #include <video.h>
 #endif
@@ -103,13 +104,8 @@ __weak int print_bootinfo(void)
 
 int checkboard(void)
 {
-	if (valid_cfgblock) {
-		printf("Model: Toradex %04d %s %s\n",
-		       tdx_hw_tag.prodid,
-		       toradex_modules[tdx_hw_tag.prodid].name,
-		       tdx_board_rev_str);
+	if (valid_cfgblock)
 		printf("Serial#: %s\n", tdx_serial_str);
-	}
 
 #ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
 	if (tdx_carrier_board_name)
@@ -187,6 +183,46 @@ static int settings_r(void)
 	return 0;
 }
 EVENT_SPY_SIMPLE(EVT_SETTINGS_R, settings_r);
+
+static int tdx_detect(struct udevice *dev)
+{
+	return valid_cfgblock ? 0 : -EINVAL;
+}
+
+static int tdx_get_str(struct udevice *dev, int id, size_t size, char *val)
+{
+	int ret = -ENOTSUPP;
+
+	switch (id) {
+	case SYSINFO_ID_BOARD_MODEL:
+		snprintf(val, size,
+			 "Toradex %04d %s %s",
+			 tdx_hw_tag.prodid,
+			 toradex_modules[tdx_hw_tag.prodid].name,
+			 tdx_board_rev_str);
+
+		ret = 0;
+	}
+
+	return ret;
+}
+
+static const struct udevice_id sysinfo_tdx_ids[] = {
+	{ .compatible = "toradex,sysinfo" },
+	{ /* sentinel */ }
+};
+
+static const struct sysinfo_ops sysinfo_tdx_ops = {
+	.detect		= tdx_detect,
+	.get_str	= tdx_get_str,
+};
+
+U_BOOT_DRIVER(sysinfo_toradex) = {
+	.name		= "sysinfo_toradex",
+	.id		= UCLASS_SYSINFO,
+	.of_match	= sysinfo_tdx_ids,
+	.ops		= &sysinfo_tdx_ops,
+};
 
 #ifdef CONFIG_TDX_CFG_BLOCK_USB_GADGET_PID
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)

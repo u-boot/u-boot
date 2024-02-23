@@ -9,6 +9,10 @@
 		usb0 = &usbotg1; /* required for ums */
 		display0 = &lcdif;
 	};
+
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
 };
 
 &pinctrl_uart1 {

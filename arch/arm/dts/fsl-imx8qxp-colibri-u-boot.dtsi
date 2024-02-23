@@ -3,6 +3,12 @@
  * Copyright 2019 Toradex AG
  */
 
+/ {
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
+};
+
 &{/imx8qx-pm} {
 
 	bootph-some-ram;

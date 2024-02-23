@@ -11,6 +11,10 @@
 		mmc0 = &usdhc3;
 		mmc1 = &usdhc1;
 	};
+
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
 };
 
 &lcdif {

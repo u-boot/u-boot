@@ -12,6 +12,10 @@
 		eeprom2 = &eeprom_display_adapter;
 	};
 
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
+
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		bootph-pre-ram;
