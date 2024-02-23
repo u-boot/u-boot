@@ -208,16 +208,6 @@ void board_preboot_os(void)
 	gpio_direction_output(BKL1_GPIO, 0);
 }
 
-int checkboard(void)
-{
-	puts("Model: Toradex Apalis iMX8\n");
-
-	build_info();
-	print_bootinfo();
-
-	return tdx_checkboard();
-}
-
 static enum pcb_rev_t get_pcb_revision(void)
 {
 	unsigned int pcb_vers = 0;

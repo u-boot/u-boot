@@ -96,7 +96,12 @@ static const char *get_board_assembly(u16 ver_assembly)
 	return ver_name;
 }
 
-int tdx_checkboard(void)
+__weak int print_bootinfo(void)
+{
+	return 0;
+}
+
+int checkboard(void)
 {
 	unsigned char ethaddr[6];
 
@@ -143,6 +148,8 @@ int tdx_checkboard(void)
 		}
 #endif
 	}
+
+	print_bootinfo();
 
 	/*
 	 * Check if environment contains a valid MAC address,

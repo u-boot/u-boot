@@ -114,16 +114,6 @@ int board_phy_config(struct phy_device *phydev)
 }
 #endif
 
-int checkboard(void)
-{
-	puts("Model: Toradex Colibri iMX8X\n");
-
-	build_info();
-	print_bootinfo();
-
-	return tdx_checkboard();
-}
-
 static void select_dt_from_module_version(void)
 {
 	/*
