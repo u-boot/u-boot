@@ -4,6 +4,15 @@ choice
 	prompt "Texas Instruments' K3 based SoC select"
 	optional
 
+config SOC_K3_AM625
+	bool "TI's K3 based AM625 SoC Family Support"
+
+config SOC_K3_AM62A7
+	bool "TI's K3 based AM62A7 SoC Family Support"
+
+config SOC_K3_AM642
+	bool "TI's K3 based AM642 SoC Family Support"
+
 config SOC_K3_AM654
 	bool "TI's K3 based AM654 SoC Family Support"
 
@@ -12,15 +21,6 @@ config SOC_K3_J721E
 
 config SOC_K3_J721S2
 	bool "TI's K3 based J721S2 SoC Family Support"
-
-config SOC_K3_AM642
-	bool "TI's K3 based AM642 SoC Family Support"
-
-config SOC_K3_AM625
-	bool "TI's K3 based AM625 SoC Family Support"
-
-config SOC_K3_AM62A7
-	bool "TI's K3 based AM62A7 SoC Family Support"
 
 endchoice
 
