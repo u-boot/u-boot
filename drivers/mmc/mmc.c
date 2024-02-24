@@ -2034,9 +2034,9 @@ static int mmc_select_hs400(struct mmc *mmc)
 	mmc_set_clock(mmc, mmc->tran_speed, false);
 
 	/* execute tuning if needed */
-	mmc->hs400_tuning = 1;
+	mmc->hs400_tuning = true;
 	err = mmc_execute_tuning(mmc, MMC_CMD_SEND_TUNING_BLOCK_HS200);
-	mmc->hs400_tuning = 0;
+	mmc->hs400_tuning = false;
 	if (err) {
 		debug("tuning failed\n");
 		return err;
