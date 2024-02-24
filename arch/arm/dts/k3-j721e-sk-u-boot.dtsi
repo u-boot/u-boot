@@ -157,9 +157,5 @@
 
 	flash@0 {
 		bootph-all;
-
-		partition@3fc0000 {
-			bootph-all;
-		};
 	};
 };
