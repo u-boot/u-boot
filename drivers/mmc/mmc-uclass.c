@@ -124,7 +124,13 @@ static int dm_mmc_execute_tuning(struct udevice *dev, uint opcode)
 
 int mmc_execute_tuning(struct mmc *mmc, uint opcode)
 {
-	return dm_mmc_execute_tuning(mmc->dev, opcode);
+	int ret;
+
+	mmc->tuning = true;
+	ret = dm_mmc_execute_tuning(mmc->dev, opcode);
+	mmc->tuning = false;
+
+	return ret;
 }
 #endif
 

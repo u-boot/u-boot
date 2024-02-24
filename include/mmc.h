@@ -736,6 +736,7 @@ struct mmc {
 				  * accessing the boot partitions
 				  */
 	u32 quirks;
+	bool tuning:1;
 	bool hs400_tuning:1;
 
 	enum bus_mode user_speed_mode; /* input speed mode from user */
