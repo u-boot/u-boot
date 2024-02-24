@@ -4,3 +4,4 @@ S:	Maintained
 F:	board/freescale/imxrt1050-evk
 F:	include/configs/imxrt1050-evk.h
 F:	configs/imxrt1050-evk_defconfig
+F:	configs/imxrt1050-evk_fspi_defconfig

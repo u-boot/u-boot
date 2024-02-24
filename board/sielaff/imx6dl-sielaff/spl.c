@@ -93,8 +93,8 @@ int board_mmc_init(struct bd_info *bis)
 			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 			break;
 		default:
-			printf("Warning: you configured more USDHC controllers \
-				(%d) than supported by the board\n", i + 1);
+			printf("Warning: you configured more USDHC controllers (%d) than supported by the board\n",
+			       i + 1);
 			return -EINVAL;
 		}
 

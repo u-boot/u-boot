@@ -25,4 +25,10 @@
 		"stderr=serial,vidconsole\0"
 #endif
 
+/*
+ * Address of U-Boot for SPI NOR boot
+ */
+
+#define CFG_SYS_UBOOT_BASE			0x60010000
+
 #endif /* __IMXRT1050_EVK_H */
