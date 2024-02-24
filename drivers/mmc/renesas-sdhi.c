@@ -798,9 +798,12 @@ static int renesas_sdhi_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
+	struct mmc *mmc = upriv->mmc;
 
-	renesas_sdhi_check_scc_error(dev);
+	if (!mmc->tuning)
+		renesas_sdhi_check_scc_error(dev);
 
 	if (cmd->cmdidx == MMC_CMD_SEND_STATUS)
 		renesas_sdhi_adjust_hs400_mode_enable(priv);
