@@ -6,22 +6,15 @@
  * Copyright (C) 2020 Amarula Solutions(India)
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
-#include <asm/global_data.h>
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <generic-phy.h>
-#include <reset.h>
+#include <regmap.h>
 #include <syscon.h>
-#include <asm/gpio.h>
-#include <asm/io.h>
-#include <linux/iopoll.h>
 #include <asm/arch-rockchip/clock.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define usleep_range(a, b) udelay((b))
 #define BIT_WRITEABLE_SHIFT	16
@@ -61,30 +54,39 @@ struct rockchip_usb2phy_cfg {
 };
 
 struct rockchip_usb2phy {
-	void *reg_base;
+	struct regmap *reg_base;
 	struct clk phyclk;
 	const struct rockchip_usb2phy_cfg *phy_cfg;
 };
 
-static inline int property_enable(void *reg_base,
+static inline int property_enable(struct regmap *base,
 				  const struct usb2phy_reg *reg, bool en)
 {
 	unsigned int val, mask, tmp;
+
+	if (!reg->offset && !reg->enable && !reg->disable)
+		return 0;
 
 	tmp = en ? reg->enable : reg->disable;
 	mask = GENMASK(reg->bitend, reg->bitstart);
 	val = (tmp << reg->bitstart) | (mask << BIT_WRITEABLE_SHIFT);
 
-	return writel(val, reg_base + reg->offset);
+	return regmap_write(base, reg->offset, val);
 }
 
-static inline bool property_enabled(void *reg_base,
+static inline bool property_enabled(struct regmap *base,
 				    const struct usb2phy_reg *reg)
 {
+	int ret;
 	unsigned int tmp, orig;
 	unsigned int mask = GENMASK(reg->bitend, reg->bitstart);
 
-	orig = readl(reg_base + reg->offset);
+	if (!reg->offset && !reg->enable && !reg->disable)
+		return false;
+
+	ret = regmap_read(base, reg->offset, &orig);
+	if (ret)
+		return false;
 
 	tmp = (orig & mask) >> reg->bitstart;
 	return tmp != reg->disable;
@@ -248,7 +250,11 @@ static int rockchip_usb2phy_probe(struct udevice *dev)
 	unsigned int reg;
 	int index, ret;
 
-	priv->reg_base = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+	if (dev_read_bool(dev, "rockchip,usbgrf"))
+		priv->reg_base =
+			syscon_regmap_lookup_by_phandle(dev, "rockchip,usbgrf");
+	else
+		priv->reg_base = syscon_get_regmap(dev_get_parent(dev));
 	if (IS_ERR(priv->reg_base))
 		return PTR_ERR(priv->reg_base);
 
@@ -305,11 +311,8 @@ static int rockchip_usb2phy_bind(struct udevice *dev)
 	int ret = 0;
 
 	dev_for_each_subnode(node, dev) {
-		if (!ofnode_valid(node)) {
-			dev_info(dev, "subnode %s not found\n", dev->name);
-			ret = -ENXIO;
-			goto bind_fail;
-		}
+		if (!ofnode_is_enabled(node))
+			continue;
 
 		name = ofnode_get_name(node);
 		dev_dbg(dev, "subnode %s\n", name);
