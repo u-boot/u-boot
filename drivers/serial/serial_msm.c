@@ -252,3 +252,40 @@ U_BOOT_DRIVER(serial_msm) = {
 	.probe = msm_serial_probe,
 	.ops	= &msm_serial_ops,
 };
+
+#ifdef CONFIG_DEBUG_UART_MSM
+
+static struct msm_serial_data init_serial_data = {
+	.base = CONFIG_VAL(DEBUG_UART_BASE),
+	.clk_rate = 7372800,
+};
+
+#include <debug_uart.h>
+
+/* Uncomment to turn on UART clocks when debugging U-Boot as aboot on MSM8916 */
+//int apq8016_clk_init_uart(phys_addr_t gcc_base);
+
+static inline void _debug_uart_init(void)
+{
+	/* Uncomment to turn on UART clocks when debugging U-Boot as aboot on MSM8916 */
+	//apq8016_clk_init_uart(0x1800000);
+	uart_dm_init(&init_serial_data);
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	struct msm_serial_data *priv = &init_serial_data;
+
+	while (!(readl(priv->base + UARTDM_SR) & UARTDM_SR_TX_EMPTY) &&
+	       !(readl(priv->base + UARTDM_ISR) & UARTDM_ISR_TX_READY))
+		;
+
+	writel(UARTDM_CR_CMD_RESET_TX_READY, priv->base + UARTDM_CR);
+
+	writel(1, priv->base + UARTDM_NCF_TX);
+	writel(ch, priv->base + UARTDM_TF);
+}
+
+DEBUG_UART_FUNCS
+
+#endif
