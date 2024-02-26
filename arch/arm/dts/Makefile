@@ -626,8 +626,8 @@ dtb-$(CONFIG_TARGET_TEN64) += fsl-ls1088a-ten64.dtb
 
 dtb-$(CONFIG_ARCH_SNAPDRAGON) += dragonboard410c.dtb \
 	dragonboard820c.dtb \
-	dragonboard845c.dtb \
-	starqltechn.dtb \
+	sdm845-db845c.dtb \
+	sdm845-samsung-starqltechn.dtb \
 	qcs404-evb.dtb
 
 dtb-$(CONFIG_TARGET_STEMMY) += ste-ux500-samsung-stemmy.dtb
