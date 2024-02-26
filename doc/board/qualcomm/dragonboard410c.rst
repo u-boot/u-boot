@@ -14,6 +14,8 @@ through LK. This is no longer the case, now U-Boot can replace LK entirely.
 
 .. _96Boards product page: https://www.96boards.org/product/dragonboard410c/
 
+.. _MSM8916/SD410/APQ8016 Technical Reference Manual: https://web.archive.org/web/20210525022203/https://developer.qualcomm.com/qfile/35259/lm80-p0436-100_d_snapdragon_410e_apq8016e_tech_reference_manual_revd.pdf
+
 Installation
 ------------
 First, setup ``CROSS_COMPILE`` for aarch64. Then, build U-Boot for ``dragonboard410c``::
