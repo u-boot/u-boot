@@ -12,7 +12,7 @@
 
 / {
 	model = "Qualcomm Technologies, Inc. Dragonboard 410c";
-	compatible = "qcom,dragonboard", "qcom,apq8016-sbc";
+	compatible = "qcom,apq8016-sbc", "qcom,apq8016";
 	qcom,msm-id = <0xce 0x0 0xf8 0x0 0xf9 0x0 0xfa 0x0 0xf7 0x0>;
 	qcom,board-id = <0x10018 0x0>;
 	#address-cells = <0x2>;
@@ -79,6 +79,7 @@
 			reg = <0x1800000 0x80000>;
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
+			#clock-cells = <0x1>;
 		};
 
 		serial@78b0000 {
@@ -91,15 +92,25 @@
 		};
 
 		ehci@78d9000 {
-			compatible = "qcom,ehci-host";
+			compatible = "qcom,ci-hdrc";
 			reg = <0x78d9000 0x400>;
 			phys = <&ehci_phy>;
-		};
 
-		ehci_phy: ehci_phy@78d9000 {
-			compatible = "qcom,apq8016-usbphy";
-			reg = <0x78d9000 0x400>;
-			#phy-cells = <0>;
+			ulpi {
+				usb_hs_phy: phy {
+					compatible = "qcom,usb-hs-phy-msm8916",
+						     "qcom,usb-hs-phy";
+					#phy-cells = <0>;
+					clocks = <&xo_board>, <&gcc GCC_USB2A_PHY_SLEEP_CLK>;
+					clock-names = "ref", "sleep";
+					resets = <&gcc GCC_USB2A_PHY_BCR>, <&usb 0>;
+					reset-names = "phy", "por";
+					qcom,init-seq = /bits/ 8 <0x0 0x44>,
+								 <0x1 0x6b>,
+								 <0x2 0x24>,
+								 <0x3 0x13>;
+				};
+			};
 		};
 
 		sdhci@07824000 {

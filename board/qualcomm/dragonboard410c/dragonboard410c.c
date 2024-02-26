@@ -9,6 +9,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <dm/pinctrl.h>
 #include <env.h>
 #include <init.h>
 #include <net.h>
@@ -23,84 +24,32 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int dram_init(void)
-{
-	gd->ram_size = PHYS_SDRAM_1_SIZE;
-
-	return 0;
-}
-
-int dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
-	return 0;
-}
+#define USB_HUB_RESET_GPIO 2
+#define USB_SW_SELECT_GPIO 3
 
 int board_usb_init(int index, enum usb_init_type init)
 {
-	static struct udevice *pmic_gpio;
-	static struct gpio_desc hub_reset, usb_sel;
-	int ret = 0, node;
+	struct udevice *usb;
+	int ret = 0;
 
-	if (!pmic_gpio) {
-		ret = uclass_get_device_by_name(UCLASS_GPIO,
-						"pm8916_gpios@c000",
-						&pmic_gpio);
-		if (ret < 0) {
-			printf("Failed to find pm8916_gpios@c000 node.\n");
-			return ret;
-		}
+	/* USB device */
+	ret = device_find_global_by_ofnode(ofnode_path("/soc/usb"), &usb);
+	if (ret) {
+		printf("Cannot find USB device\n");
+		return ret;
 	}
 
-	/* Try to request gpios needed to start usb host on dragonboard */
-	if (!dm_gpio_is_valid(&hub_reset)) {
-		node = fdt_subnode_offset(gd->fdt_blob,
-					  dev_of_offset(pmic_gpio),
-					  "usb_hub_reset_pm");
-		if (node < 0) {
-			printf("Failed to find usb_hub_reset_pm dt node.\n");
-			return node;
-		}
-		ret = gpio_request_by_name_nodev(offset_to_ofnode(node),
-						 "gpios", 0, &hub_reset, 0);
-		if (ret < 0) {
-			printf("Failed to request usb_hub_reset_pm gpio.\n");
-			return ret;
-		}
-	}
-
-	if (!dm_gpio_is_valid(&usb_sel)) {
-		node = fdt_subnode_offset(gd->fdt_blob,
-					  dev_of_offset(pmic_gpio),
-					  "usb_sw_sel_pm");
-		if (node < 0) {
-			printf("Failed to find usb_sw_sel_pm dt node.\n");
-			return 0;
-		}
-		ret = gpio_request_by_name_nodev(offset_to_ofnode(node),
-						 "gpios", 0, &usb_sel, 0);
-		if (ret < 0) {
-			printf("Failed to request usb_sw_sel_pm gpio.\n");
-			return ret;
-		}
-	}
-
-	if (init == USB_INIT_HOST) {
-		/* Start USB Hub */
-		dm_gpio_set_dir_flags(&hub_reset,
-				      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
-		mdelay(100);
-		/* Switch usb to host connectors */
-		dm_gpio_set_dir_flags(&usb_sel,
-				      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
-		mdelay(100);
-	} else { /* Device */
-		/* Disable hub */
-		dm_gpio_set_dir_flags(&hub_reset, GPIOD_IS_OUT);
-		/* Switch back to device connector */
-		dm_gpio_set_dir_flags(&usb_sel, GPIOD_IS_OUT);
+	/* Select "default" or "device" pinctrl */
+	switch (init) {
+	case USB_INIT_HOST:
+		pinctrl_select_state(usb, "default");
+		break;
+	case USB_INIT_DEVICE:
+		pinctrl_select_state(usb, "device");
+		break;
+	default:
+		debug("Unknown usb_init_type %d\n", init);
+		break;
 	}
 
 	return 0;
