@@ -14,18 +14,18 @@
 #define MAX_PIN_NAME_LEN 32
 static char pin_name[MAX_PIN_NAME_LEN] __section(".data");
 static const char * const msm_pinctrl_pins[] = {
-	"SDC1_CLK",
-	"SDC1_CMD",
-	"SDC1_DATA",
-	"SDC2_CLK",
-	"SDC2_CMD",
-	"SDC2_DATA",
-	"QDSD_CLK",
-	"QDSD_CMD",
-	"QDSD_DATA0",
-	"QDSD_DATA1",
-	"QDSD_DATA2",
-	"QDSD_DATA3",
+	"sdc1_clk",
+	"sdc1_cmd",
+	"sdc1_data",
+	"sdc2_clk",
+	"sdc2_cmd",
+	"sdc2_data",
+	"qdsd_clk",
+	"qdsd_cmd",
+	"qdsd_data0",
+	"qdsd_data1",
+	"qdsd_data2",
+	"qdsd_data3",
 };
 
 static const struct pinctrl_function msm_pinctrl_functions[] = {
@@ -42,7 +42,7 @@ static const char *apq8016_get_pin_name(struct udevice *dev,
 					unsigned int selector)
 {
 	if (selector < 122) {
-		snprintf(pin_name, MAX_PIN_NAME_LEN, "GPIO_%u", selector);
+		snprintf(pin_name, MAX_PIN_NAME_LEN, "gpio%u", selector);
 		return pin_name;
 	} else {
 		return msm_pinctrl_pins[selector - 122];
