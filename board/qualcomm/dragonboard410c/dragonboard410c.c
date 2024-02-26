@@ -88,7 +88,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-int board_late_init(void)
+int qcom_late_init(void)
 {
 	char serial[16];
 
