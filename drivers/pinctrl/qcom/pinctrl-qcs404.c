@@ -61,8 +61,11 @@ static unsigned int qcs404_get_function_mux(unsigned int selector)
 	return msm_pinctrl_functions[selector].val;
 }
 
-static struct msm_pinctrl_data qcs404_data = {
-	.pin_data = { .pin_count = 126, },
+static const struct msm_pinctrl_data qcs404_data = {
+	.pin_data = {
+		.pin_count = 126,
+		.special_pins_start = 120,
+	},
 	.functions_count = ARRAY_SIZE(msm_pinctrl_functions),
 	.get_function_name = qcs404_get_function_name,
 	.get_function_mux = qcs404_get_function_mux,

@@ -75,10 +75,11 @@ static unsigned int sdm845_get_function_mux(unsigned int selector)
 	return msm_pinctrl_functions[selector].val;
 }
 
-static struct msm_pinctrl_data sdm845_data = {
+static const struct msm_pinctrl_data sdm845_data = {
 	.pin_data = {
 		.pin_offsets = sdm845_pin_offsets,
-		.pin_count = ARRAY_SIZE(sdm845_pin_offsets),
+		.pin_count = 154,
+		.special_pins_start = 150,
 	},
 	.functions_count = ARRAY_SIZE(msm_pinctrl_functions),
 	.get_function_name = sdm845_get_function_name,
