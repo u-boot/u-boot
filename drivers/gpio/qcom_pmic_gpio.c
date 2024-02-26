@@ -209,12 +209,34 @@ static int qcom_gpio_set_value(struct udevice *dev, unsigned offset,
 				       REG_CTL_OUTPUT_MASK, !!value);
 }
 
+static int qcom_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
+			   struct ofnode_phandle_args *args)
+{
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	if (args->args_count < 1)
+		return -EINVAL;
+
+	/* GPIOs in DT are 1-based */
+	desc->offset = args->args[0] - 1;
+	if (desc->offset >= uc_priv->gpio_count)
+		return -EINVAL;
+
+	if (args->args_count < 2)
+		return 0;
+
+	desc->flags = gpio_flags_xlate(args->args[1]);
+
+	return 0;
+}
+
 static const struct dm_gpio_ops qcom_gpio_ops = {
 	.direction_input	= qcom_gpio_direction_input,
 	.direction_output	= qcom_gpio_direction_output,
 	.get_value		= qcom_gpio_get_value,
 	.set_value		= qcom_gpio_set_value,
 	.get_function		= qcom_gpio_get_function,
+	.xlate			= qcom_gpio_xlate,
 };
 
 static int qcom_gpio_probe(struct udevice *dev)
