@@ -119,14 +119,14 @@ section_table:
 	.short	0		/* NumberOfLineNumbers  (0 for executables) */
 	.long	0xe0500020	/* Characteristics (section flags) */
 
-	.align		9
+	.align		12
 _start:
 	stmfd		sp!, {r0-r2, lr}
 
 	adr		r1, .L_DYNAMIC
 	ldr		r0, [r1]
 	add		r1, r0, r1
-	adr		r0, image_base
+	adrl		r0, image_base
 	bl		_relocate
 	teq		r0, #0
 	bne		0f
