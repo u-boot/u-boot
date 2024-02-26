@@ -176,6 +176,11 @@ config SPI_FLASH_MACRONIX
 	help
 	  Add support for various Macronix SPI flash chips (MX25Lxxx)
 
+config SPI_FLASH_PUYA
+	bool "Puya Semiconductor SPI flash support"
+	help
+	  Add support for various Puya Semiconductor SPI flash chips (P25xxx)
+
 config SPI_FLASH_SILICONKAISER
 	bool "Silicon Kaiser SPI flash support"
 	help
