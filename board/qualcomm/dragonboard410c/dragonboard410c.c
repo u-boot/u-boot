@@ -23,37 +23,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define USB_HUB_RESET_GPIO 2
-#define USB_SW_SELECT_GPIO 3
-
-int board_usb_init(int index, enum usb_init_type init)
-{
-	struct udevice *usb;
-	int ret = 0;
-
-	/* USB device */
-	ret = device_find_global_by_ofnode(ofnode_path("/soc/usb"), &usb);
-	if (ret) {
-		printf("Cannot find USB device\n");
-		return ret;
-	}
-
-	/* Select "default" or "device" pinctrl */
-	switch (init) {
-	case USB_INIT_HOST:
-		pinctrl_select_state(usb, "default");
-		break;
-	case USB_INIT_DEVICE:
-		pinctrl_select_state(usb, "device");
-		break;
-	default:
-		debug("Unknown usb_init_type %d\n", init);
-		break;
-	}
-
-	return 0;
-}
-
 /* UNSTUFF_BITS macro taken from Linux Kernel: drivers/mmc/core/sd.c */
 #define UNSTUFF_BITS(resp, start, size) \
 	({ \
@@ -119,11 +88,6 @@ int misc_init_r(void)
 	return 0;
 }
 
-int board_init(void)
-{
-	return 0;
-}
-
 int board_late_init(void)
 {
 	char serial[16];
@@ -165,9 +129,4 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	do_fixup_by_compat(blob, "qcom,wcnss-bt",
 			   "local-bd-address", mac, ARP_HLEN, 1);
 	return 0;
-}
-
-void reset_cpu(void)
-{
-	psci_system_reset();
 }
