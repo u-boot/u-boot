@@ -25,6 +25,7 @@
 #include <lmb.h>
 #include <malloc.h>
 #include <usb.h>
+#include <sort.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -296,7 +297,7 @@ int board_late_init(void)
 
 static void build_mem_map(void)
 {
-	int i;
+	int i, j;
 
 	/*
 	 * Ensure the peripheral block is sized to correctly cover the address range
@@ -312,28 +313,23 @@ static void build_mem_map(void)
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN;
 
-	debug("Configured memory map:\n");
-	debug("  0x%016llx - 0x%016llx: Peripheral block\n",
-	      mem_map[0].phys, mem_map[0].phys + mem_map[0].size);
-
-	/*
-	 * Now add memory map entries for each DRAM bank, ensuring we don't
-	 * overwrite the list terminator
-	 */
-	for (i = 0; i < ARRAY_SIZE(rbx_mem_map) - 2 && gd->bd->bi_dram[i].size; i++) {
-		if (i == ARRAY_SIZE(rbx_mem_map) - 1) {
-			log_warning("Too many DRAM banks!\n");
-			break;
-		}
-		mem_map[i + 1].phys = gd->bd->bi_dram[i].start;
-		mem_map[i + 1].virt = mem_map[i + 1].phys;
-		mem_map[i + 1].size = gd->bd->bi_dram[i].size;
-		mem_map[i + 1].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-				     PTE_BLOCK_INNER_SHARE;
-
-		debug("  0x%016llx - 0x%016llx: DDR bank %d\n",
-		      mem_map[i + 1].phys, mem_map[i + 1].phys + mem_map[i + 1].size, i);
+	for (i = 1, j = 0; i < ARRAY_SIZE(rbx_mem_map) - 1 && gd->bd->bi_dram[j].size; i++, j++) {
+		mem_map[i].phys = gd->bd->bi_dram[j].start;
+		mem_map[i].virt = mem_map[i].phys;
+		mem_map[i].size = gd->bd->bi_dram[j].size;
+		mem_map[i].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) | \
+				   PTE_BLOCK_INNER_SHARE;
 	}
+
+	mem_map[i].phys = UINT64_MAX;
+	mem_map[i].size = 0;
+
+#ifdef DEBUG
+	debug("Configured memory map:\n");
+	for (i = 0; mem_map[i].size; i++)
+		debug("  0x%016llx - 0x%016llx: entry %d\n",
+		      mem_map[i].phys, mem_map[i].phys + mem_map[i].size, i);
+#endif
 }
 
 u64 get_page_table_size(void)
@@ -341,10 +337,132 @@ u64 get_page_table_size(void)
 	return SZ_64K;
 }
 
+static int fdt_cmp_res(const void *v1, const void *v2)
+{
+	const struct fdt_resource *res1 = v1, *res2 = v2;
+
+	return res1->start - res2->start;
+}
+
+#define N_RESERVED_REGIONS 32
+
+/* Mark all no-map regions as PTE_TYPE_FAULT to prevent speculative access.
+ * On some platforms this is enough to trigger a security violation and trap
+ * to EL3.
+ */
+static void carve_out_reserved_memory(void)
+{
+	static struct fdt_resource res[N_RESERVED_REGIONS] = { 0 };
+	int parent, rmem, count, i = 0;
+	phys_addr_t start;
+	size_t size;
+
+	/* Some reserved nodes must be carved out, as the cache-prefetcher may otherwise
+	 * attempt to access them, causing a security exception.
+	 */
+	parent = fdt_path_offset(gd->fdt_blob, "/reserved-memory");
+	if (parent <= 0) {
+		log_err("No reserved memory regions found\n");
+		return;
+	}
+
+	/* Collect the reserved memory regions */
+	fdt_for_each_subnode(rmem, gd->fdt_blob, parent) {
+		const fdt32_t *ptr;
+		int len;
+		if (!fdt_getprop(gd->fdt_blob, rmem, "no-map", NULL))
+			continue;
+
+		if (i == N_RESERVED_REGIONS) {
+			log_err("Too many reserved regions!\n");
+			break;
+		}
+
+		/* Read the address and size out from the reg property. Doing this "properly" with
+		 * fdt_get_resource() takes ~70ms on SDM845, but open-coding the happy path here
+		 * takes <1ms... Oh the woes of no dcache.
+		 */
+		ptr = fdt_getprop(gd->fdt_blob, rmem, "reg", &len);
+		if (ptr) {
+			/* Qualcomm devices use #address/size-cells = <2> but all reserved regions are within
+			 * the 32-bit address space. So we can cheat here for speed.
+			 */
+			res[i].start = fdt32_to_cpu(ptr[1]);
+			res[i].end = res[i].start + fdt32_to_cpu(ptr[3]);
+			i++;
+		}
+	}
+
+	/* Sort the reserved memory regions by address */
+	count = i;
+	qsort(res, count, sizeof(struct fdt_resource), fdt_cmp_res);
+
+	/* Now set the right attributes for them. Often a lot of the regions are tightly packed together
+	 * so we can optimise the number of calls to mmu_change_region_attr() by combining adjacent
+	 * regions.
+	 */
+	start = ALIGN_DOWN(res[0].start, SZ_2M);
+	size = ALIGN(res[0].end - start, SZ_2M);
+	for (i = 1; i <= count; i++) {
+		/* We ideally want to 2M align everything for more efficient pagetables, but we must avoid
+		 * overwriting reserved memory regions which shouldn't be mapped as FAULT (like those with
+		 * compatible properties).
+		 * If within 2M of the previous region, bump the size to include this region. Otherwise
+		 * start a new region.
+		 */
+		if (i == count || start + size < res[i].start - SZ_2M) {
+			debug("  0x%016llx - 0x%016llx: reserved\n",
+			      start, start + size);
+			mmu_change_region_attr(start, size, PTE_TYPE_FAULT);
+			/* If this is the final region then quit here before we index
+			 * out of bounds...
+			 */
+			if (i == count)
+				break;
+			start = ALIGN_DOWN(res[i].start, SZ_2M);
+			size = ALIGN(res[i].end - start, SZ_2M);
+		} else {
+			/* Bump size if this region is immediately after the previous one */
+			size = ALIGN(res[i].end - start, SZ_2M);
+		}
+	}
+}
+
+/* This function open-codes setup_all_pgtables() so that we can
+ * insert additional mappings *before* turning on the MMU.
+ */
 void enable_caches(void)
 {
+	u64 tlb_addr = gd->arch.tlb_addr;
+	u64 tlb_size = gd->arch.tlb_size;
+	u64 pt_size;
+	ulong carveout_start;
+
+	gd->arch.tlb_fillptr = tlb_addr;
+
 	build_mem_map();
 
 	icache_enable();
+
+	/* Create normal system page tables */
+	setup_pgtables();
+
+	pt_size = (uintptr_t)gd->arch.tlb_fillptr -
+		  (uintptr_t)gd->arch.tlb_addr;
+	debug("Primary pagetable size: %lluKiB\n", pt_size / 1024);
+
+	/* Create emergency page tables */
+	gd->arch.tlb_size -= pt_size;
+	gd->arch.tlb_addr = gd->arch.tlb_fillptr;
+	setup_pgtables();
+	gd->arch.tlb_emerg = gd->arch.tlb_addr;
+	gd->arch.tlb_addr = tlb_addr;
+	gd->arch.tlb_size = tlb_size;
+
+	carveout_start = get_timer(0);
+	/* Takes ~20-50ms on SDM845 */
+	carve_out_reserved_memory();
+	debug("carveout time: %lums\n", get_timer(carveout_start));
+
 	dcache_enable();
 }
