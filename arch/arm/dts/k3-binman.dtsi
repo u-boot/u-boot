@@ -293,6 +293,7 @@
 						keyfile = "custMpk.pem";
 					};
 					tee: tee-os {
+						optional;
 					};
 				};
 
@@ -360,6 +361,7 @@
 					entry = <0x9e800000>;
 					tee-os {
 						filename = "tee-raw.bin";
+						optional;
 					};
 				};
 
