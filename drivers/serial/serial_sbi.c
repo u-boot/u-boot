@@ -17,7 +17,7 @@ static inline void _debug_uart_putc(int c)
 
 #else
 
-static int sbi_dbcn_available;
+static int sbi_dbcn_available __section(".data");
 
 static inline void _debug_uart_init(void)
 {
