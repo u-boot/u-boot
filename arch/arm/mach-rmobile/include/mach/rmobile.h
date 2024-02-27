@@ -48,7 +48,7 @@
 #include <asm/types.h>
 
 const u8 *rzg_get_cpu_name(void);
-u32 rmobile_get_cpu_type(void);
+u32 renesas_get_cpu_type(void);
 u32 rmobile_get_cpu_rev_integer(void);
 u32 rmobile_get_cpu_rev_fraction(void);
 #endif /* __ASSEMBLY__ */

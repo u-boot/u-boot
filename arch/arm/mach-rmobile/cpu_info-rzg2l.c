@@ -47,7 +47,7 @@ const u8 *rzg_get_cpu_name(void)
 	return get_tfa_info()->cpu_name;
 }
 
-u32 rmobile_get_cpu_type(void)
+u32 renesas_get_cpu_type(void)
 {
 	return get_tfa_info()->cpu_type;
 }

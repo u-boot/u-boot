@@ -40,7 +40,7 @@ static u32 __rmobile_get_cpu_type(void)
 {
 	return 0x0;
 }
-u32 rmobile_get_cpu_type(void)
+u32 renesas_get_cpu_type(void)
 		__attribute__((weak, alias("__rmobile_get_cpu_type")));
 
 static u32 __rmobile_get_cpu_rev_integer(void)
@@ -83,7 +83,7 @@ static const struct {
 
 static int rmobile_cpuinfo_idx(void)
 {
-	u32 cpu_type = rmobile_get_cpu_type();
+	u32 cpu_type = renesas_get_cpu_type();
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(rmobile_cpuinfo) - 1; i++)

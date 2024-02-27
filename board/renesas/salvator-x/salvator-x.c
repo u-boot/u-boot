@@ -76,7 +76,7 @@ void reset_cpu(void)
 int board_fit_config_name_match(const char *name)
 {
 	/* PRR driver is not available yet */
-	u32 cpu_type = rmobile_get_cpu_type();
+	u32 cpu_type = renesas_get_cpu_type();
 
 	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7795) &&
 	    !strcmp(name, "r8a77950-salvator-x-u-boot"))

@@ -21,7 +21,7 @@ static u32 rmobile_get_prr(void)
 	return readl(0xFF000044);
 }
 
-u32 rmobile_get_cpu_type(void)
+u32 renesas_get_cpu_type(void)
 {
 	return (rmobile_get_prr() & 0x00007F00) >> 8;
 }

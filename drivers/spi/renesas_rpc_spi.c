@@ -203,7 +203,7 @@ static void rpc_spi_flush_read_cache(struct udevice *dev)
 static u32 rpc_spi_get_strobe_delay(void)
 {
 #ifndef CONFIG_RZA1
-	u32 cpu_type = rmobile_get_cpu_type();
+	u32 cpu_type = renesas_get_cpu_type();
 
 	/*
 	 * NOTE: RPC_PHYCNT_STRTIM value:
