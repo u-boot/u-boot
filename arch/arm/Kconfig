@@ -1071,7 +1071,7 @@ config ARCH_QEMU
 	imply USB_KEYBOARD
 	imply CMD_USB
 
-config ARCH_RMOBILE
+config ARCH_RENESAS
 	bool "Renesas ARM SoCs"
 	select DM
 	select DM_SERIAL

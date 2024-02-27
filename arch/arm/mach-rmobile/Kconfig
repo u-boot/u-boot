@@ -1,4 +1,4 @@
-if ARCH_RMOBILE
+if ARCH_RENESAS
 
 # Renesas ARM SoCs R-Car Gen3/Gen4 (64bit)
 config RCAR_64
@@ -88,7 +88,7 @@ config RZG2L
 endchoice
 
 config SYS_SOC
-	default "rmobile" if ARCH_RMOBILE
+	default "rmobile" if ARCH_RENESAS
 
 source "arch/arm/mach-rmobile/Kconfig.32"
 source "arch/arm/mach-rmobile/Kconfig.64"

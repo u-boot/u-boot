@@ -544,7 +544,7 @@ config SPL_SYS_I2C_SANDBOX
 
 config SYS_I2C_SH
 	bool "Legacy SuperH I2C interface"
-	depends on ARCH_RMOBILE && SYS_I2C_LEGACY
+	depends on ARCH_RENESAS && SYS_I2C_LEGACY
 	help
 	  Enable the legacy SuperH I2C interface.
 

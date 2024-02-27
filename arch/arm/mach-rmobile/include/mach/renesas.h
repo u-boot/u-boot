@@ -1,7 +1,7 @@
-#ifndef __ASM_ARCH_RMOBILE_H
-#define __ASM_ARCH_RMOBILE_H
+#ifndef __ASM_ARCH_RENESAS_H
+#define __ASM_ARCH_RENESAS_H
 
-#if defined(CONFIG_ARCH_RMOBILE)
+#if defined(CONFIG_ARCH_RENESAS)
 #if defined(CONFIG_R8A7790)
 #include <asm/arch/r8a7790.h>
 #elif defined(CONFIG_R8A7791)
@@ -22,7 +22,7 @@
 #else
 #error "SOC Name not defined"
 #endif
-#endif /* CONFIG_ARCH_RMOBILE */
+#endif /* CONFIG_ARCH_RENESAS */
 
 /* PRR CPU IDs */
 #define RENESAS_CPU_TYPE_R8A7740	0x40
@@ -53,4 +53,4 @@ u32 renesas_get_cpu_rev_integer(void);
 u32 renesas_get_cpu_rev_fraction(void);
 #endif /* __ASSEMBLY__ */
 
-#endif /* __ASM_ARCH_RMOBILE_H */
+#endif /* __ASM_ARCH_RENESAS_H */
