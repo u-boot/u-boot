@@ -122,7 +122,7 @@ endchoice
 config TMU_TIMER
 	bool
 
-config RMOBILE_EXTRAM_BOOT
+config RENESAS_EXTRAM_BOOT
 	bool "Enable boot from RAM"
 	depends on TARGET_ALT || TARGET_BLANCHE || TARGET_KOELSCH || TARGET_LAGER || TARGET_PORTER || TARGET_SILK || TARGET_STOUT
 
