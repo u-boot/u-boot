@@ -81,7 +81,7 @@ static const struct {
 	{ 0x0, "CPU" },
 };
 
-static int rmobile_cpuinfo_idx(void)
+static int renesas_cpuinfo_idx(void)
 {
 	u32 cpu_type = renesas_get_cpu_type();
 	int i;
@@ -104,7 +104,7 @@ static const u8 *get_cpu_name(int idx)
 #ifdef CONFIG_ARCH_MISC_INIT
 int arch_misc_init(void)
 {
-	int i, idx = rmobile_cpuinfo_idx();
+	int i, idx = renesas_cpuinfo_idx();
 	const u8 *cpu_name = get_cpu_name(idx);
 	char cpu[10] = { 0 };
 
@@ -119,7 +119,7 @@ int arch_misc_init(void)
 
 int print_cpuinfo(void)
 {
-	int i = rmobile_cpuinfo_idx();
+	int i = renesas_cpuinfo_idx();
 
 	if (rmobile_cpuinfo[i].cpu_type == RENESAS_CPU_TYPE_R8A7796 &&
 	    renesas_get_cpu_rev_integer() == 1 &&
