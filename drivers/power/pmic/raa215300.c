@@ -29,6 +29,15 @@ static const struct udevice_id raa215300_ids[] = {
 
 static int raa215300_bind(struct udevice *dev)
 {
+	if (IS_ENABLED(CONFIG_SYSRESET_RAA215300)) {
+		struct driver *drv = lists_driver_lookup_name("raa215300_sysreset");
+		if (!drv)
+			return -ENOENT;
+
+		return device_bind(dev, drv, dev->name, NULL, dev_ofnode(dev),
+				   NULL);
+	}
+
 	return 0;
 }
 
