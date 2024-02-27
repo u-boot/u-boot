@@ -1,9 +1,9 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-U-Boot for JetHub J100 (A113X)
-==============================
+U-Boot for JetHub J100/J110 (A113X)
+===================================
 
-JetHome Jethub D1 (http://jethome.ru/jethub-d1) is a home automation controller device
+JetHome Jethub D1/D1+ (http://jethome.ru/jethub-d1p) is a home automation controller device
 manufactured by JetHome with the following specifications:
 
  - Amlogic A113X (ARM Cortex-A53) quad-core up to 1.5GHz
@@ -23,7 +23,10 @@ manufactured by JetHome with the following specifications:
 
 The basic version also has:
 
- - TI CC2538 + CC2592 Zigbee Wireless with upto 20dBm output power and Zigbee 3.0
+ - Zigbee module one from:
+   - TI CC2538 + CC2592 Zigbee 3.0 Wireless
+   - TI CC2652P1 Zigbee 3.0 Wireless
+   - Silicon Labs EFT32MG21 Zigbee 3.0/Thread Wireless
  - 1 x 1-Wire
  - 2 x RS-485
  - 4 x dry contact digital GPIO inputs
