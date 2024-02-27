@@ -7,10 +7,10 @@
 #include <init.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_ARCH_RMOBILE_BOARD_STRING
+#ifdef CONFIG_ARCH_RENESAS_BOARD_STRING
 int checkboard(void)
 {
-	printf("Board: %s\n", CONFIG_ARCH_RMOBILE_BOARD_STRING);
+	printf("Board: %s\n", CONFIG_ARCH_RENESAS_BOARD_STRING);
 	return 0;
 }
 #endif
