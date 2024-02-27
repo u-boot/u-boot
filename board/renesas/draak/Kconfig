@@ -1,7 +1,7 @@
 if TARGET_DRAAK
 
 config SYS_SOC
-	default "rmobile"
+	default "renesas"
 
 config SYS_BOARD
 	default "draak"

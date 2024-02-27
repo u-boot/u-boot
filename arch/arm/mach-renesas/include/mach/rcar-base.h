@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * arch/arm/include/asm/arch-rmobile/rcar-base.h
+ * arch/arm/include/asm/arch-renesas/rcar-base.h
  *
  * Copyright (C) 2013,2014 Renesas Electronics Corporation
  */

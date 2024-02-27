@@ -2269,7 +2269,7 @@ source "arch/arm/mach-orion5x/Kconfig"
 
 source "arch/arm/mach-owl/Kconfig"
 
-source "arch/arm/mach-rmobile/Kconfig"
+source "arch/arm/mach-renesas/Kconfig"
 
 source "arch/arm/mach-meson/Kconfig"
 

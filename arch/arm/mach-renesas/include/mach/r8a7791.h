@@ -1,17 +1,16 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * arch/arm/include/asm/arch-rmobile/r8a7793.h
+ * arch/arm/include/asm/arch-renesas/r8a7791.h
  *
- * Copyright (C) 2014 Renesas Electronics Corporation
+ * Copyright (C) 2013,2014 Renesas Electronics Corporation
  */
 
-#ifndef __ASM_ARCH_R8A7793_H
-#define __ASM_ARCH_R8A7793_H
+#ifndef __ASM_ARCH_R8A7791_H
+#define __ASM_ARCH_R8A7791_H
 
 #include "rcar-base.h"
-
 /*
- * R8A7793 I/O Addresses
+ * R-Car (R8A7791) I/O Addresses
  */
 
 /* SDHI */
@@ -49,12 +48,7 @@
 #define DBSC3_1_QOS_W13_BASE	0xE67A2D00
 #define DBSC3_1_QOS_W14_BASE	0xE67A2E00
 #define DBSC3_1_QOS_W15_BASE	0xE67A2F00
-
 #define DBSC3_1_DBADJ2		0xE67A00C8
-
-/*
- * R8A7793 I/O Product Information
- */
 
 /* Module stop control/status register bits */
 #define MSTP0_BITS	0x00640801
@@ -69,8 +63,8 @@
 #define MSTP10_BITS	0xFFFEFFE0
 #define MSTP11_BITS	0x000001C0
 
-#define R8A7793_CUT_ES2X	2
-#define IS_R8A7793_ES2() \
-	(renesas_get_cpu_rev_integer() == R8A7793_CUT_ES2X)
+#define R8A7791_CUT_ES2X	2
+#define IS_R8A7791_ES2()	\
+	(renesas_get_cpu_rev_integer() == R8A7791_CUT_ES2X)
 
-#endif /* __ASM_ARCH_R8A7793_H */
+#endif /* __ASM_ARCH_R8A7791_H */

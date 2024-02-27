@@ -88,12 +88,12 @@ config RZG2L
 endchoice
 
 config SYS_SOC
-	default "rmobile" if ARCH_RENESAS
+	default "renesas" if ARCH_RENESAS
 
-source "arch/arm/mach-rmobile/Kconfig.32"
-source "arch/arm/mach-rmobile/Kconfig.64"
-source "arch/arm/mach-rmobile/Kconfig.rza1"
-source "arch/arm/mach-rmobile/Kconfig.rzn1"
-source "arch/arm/mach-rmobile/Kconfig.rzg2l"
+source "arch/arm/mach-renesas/Kconfig.32"
+source "arch/arm/mach-renesas/Kconfig.64"
+source "arch/arm/mach-renesas/Kconfig.rza1"
+source "arch/arm/mach-renesas/Kconfig.rzn1"
+source "arch/arm/mach-renesas/Kconfig.rzg2l"
 
 endif
