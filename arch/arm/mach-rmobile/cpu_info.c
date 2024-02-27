@@ -61,7 +61,7 @@ u32 renesas_get_cpu_rev_fraction(void)
 static const struct {
 	u16 cpu_type;
 	u8 cpu_name[10];
-} rmobile_cpuinfo[] = {
+} renesas_cpuinfo[] = {
 	{ RENESAS_CPU_TYPE_R8A7790, "R8A7790" },
 	{ RENESAS_CPU_TYPE_R8A7791, "R8A7791" },
 	{ RENESAS_CPU_TYPE_R8A7792, "R8A7792" },
@@ -86,19 +86,19 @@ static int renesas_cpuinfo_idx(void)
 	u32 cpu_type = renesas_get_cpu_type();
 	int i;
 
-	for (i = 0; i < ARRAY_SIZE(rmobile_cpuinfo) - 1; i++)
-		if (rmobile_cpuinfo[i].cpu_type == cpu_type)
+	for (i = 0; i < ARRAY_SIZE(renesas_cpuinfo) - 1; i++)
+		if (renesas_cpuinfo[i].cpu_type == cpu_type)
 			return i;
 
 	/* Unknown "CPU" entry */
-	return ARRAY_SIZE(rmobile_cpuinfo) - 1;
+	return ARRAY_SIZE(renesas_cpuinfo) - 1;
 }
 
 static const u8 *get_cpu_name(int idx)
 {
 	const  u8 *cpu_name = rzg_get_cpu_name();
 
-	return cpu_name ? cpu_name : rmobile_cpuinfo[idx].cpu_name;
+	return cpu_name ? cpu_name : renesas_cpuinfo[idx].cpu_name;
 }
 
 #ifdef CONFIG_ARCH_MISC_INIT
@@ -121,7 +121,7 @@ int print_cpuinfo(void)
 {
 	int i = renesas_cpuinfo_idx();
 
-	if (rmobile_cpuinfo[i].cpu_type == RENESAS_CPU_TYPE_R8A7796 &&
+	if (renesas_cpuinfo[i].cpu_type == RENESAS_CPU_TYPE_R8A7796 &&
 	    renesas_get_cpu_rev_integer() == 1 &&
 	    renesas_get_cpu_rev_fraction() == 1) {
 		printf("CPU:   Renesas Electronics %s rev 1.1/1.2\n", get_cpu_name(i));
