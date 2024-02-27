@@ -286,6 +286,15 @@ config TARGET_SAMA7G5EK
        select BOARD_EARLY_INIT_F
        select BOARD_LATE_INIT
 
+config TARGET_SAMA7G54_CURIOSITY
+	bool "SAMA7G54 CURIOSITY board"
+	select SAMA7G5
+	select CPU_V7A
+	help
+	  The SAMA7G54 Curiosity embeds SAMA7G54D2G SiP (System in Package)
+	  with 2Gbit DDR3-SDRAM, 64Mbit QSPI nor-flash with MAC-address,
+	  4Gbit SLC nand-flash, MCP16502 PMIC, 2 x Mikrobus connectors,
+	  1 x SD-Card connector, 1 x M.2 slot, 3 x USB
 
 config TARGET_TAURUS
 	bool "Support taurus"
@@ -366,6 +375,7 @@ source "board/atmel/at91sam9x5ek/Kconfig"
 source "board/atmel/sam9x60ek/Kconfig"
 source "board/atmel/sam9x60_curiosity/Kconfig"
 source "board/atmel/sama7g5ek/Kconfig"
+source "board/atmel/sama7g54_curiosity/Kconfig"
 source "board/atmel/sama5d2_ptc_ek/Kconfig"
 source "board/atmel/sama5d2_xplained/Kconfig"
 source "board/atmel/sama5d27_som1_ek/Kconfig"
