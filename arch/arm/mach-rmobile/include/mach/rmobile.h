@@ -2,9 +2,7 @@
 #define __ASM_ARCH_RMOBILE_H
 
 #if defined(CONFIG_ARCH_RMOBILE)
-#if defined(CONFIG_R8A7740)
-#include <asm/arch/r8a7740.h>
-#elif defined(CONFIG_R8A7790)
+#if defined(CONFIG_R8A7790)
 #include <asm/arch/r8a7790.h>
 #elif defined(CONFIG_R8A7791)
 #include <asm/arch/r8a7791.h>

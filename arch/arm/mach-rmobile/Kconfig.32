@@ -10,9 +10,6 @@ config RCAR_GEN2
 	select PHY_RCAR_GEN2
 	select TMU_TIMER
 
-config R8A7740
-	bool "Renesas SoC R8A7740"
-
 config R8A7790
 	bool "Renesas SoC R8A7790"
 	select RCAR_GEN2
