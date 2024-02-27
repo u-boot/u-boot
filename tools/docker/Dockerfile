@@ -2,7 +2,7 @@
 # This Dockerfile is used to build an image containing basic stuff to be used
 # to build U-Boot and run our test suites.
 
-FROM ubuntu:jammy-20240111
+FROM ubuntu:jammy-20240125
 MAINTAINER Tom Rini <trini@konsulko.com>
 LABEL Description=" This image is for building U-Boot inside a container"
 
@@ -230,6 +230,17 @@ RUN mkdir /tmp/trace && \
     make -j$(nproc) && \
     sudo make install && \
     rm -rf /tmp/trace
+
+# Build coreboot
+RUN wget -O - https://coreboot.org/releases/coreboot-4.22.01.tar.xz | tar -C /tmp -xJ && \
+    cd /tmp/coreboot-4.22.01 && \
+    make crossgcc-i386 CPUS=$(nproc) && \
+    make -C payloads/coreinfo olddefconfig && \
+    make -C payloads/coreinfo && \
+    make olddefconfig && \
+    make -j $(nproc) && \
+    sudo mkdir /opt/coreboot && \
+    sudo cp build/coreboot.rom build/cbfstool /opt/coreboot/
 
 # Create our user/group
 RUN echo uboot ALL=NOPASSWD: ALL > /etc/sudoers.d/uboot
