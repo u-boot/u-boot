@@ -92,7 +92,7 @@ static const u8 r8a77990_calib_table[2][CALIB_TABLE_MAX] = {
 	 11, 12, 13, 15, 16, 17, 17, 18, 18, 19, 20, 22, 24, 25, 26, 26 }
 };
 
-static int rmobile_is_gen3_mmc0(struct tmio_sd_priv *priv)
+static int rcar_is_gen3_mmc0(struct tmio_sd_priv *priv)
 {
 	/* On R-Car Gen3, MMC0 is at 0xee140000 */
 	return (uintptr_t)(priv->regbase) == 0xee140000;
@@ -913,7 +913,7 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 		priv->adjust_hs400_offset = 3;
 		priv->hs400_bad_tap = BIT(1) | BIT(3) | BIT(5) | BIT(7);
 		priv->adjust_hs400_calib_table =
-			r8a7796_rev13_calib_table[!rmobile_is_gen3_mmc0(priv)];
+			r8a7796_rev13_calib_table[!rcar_is_gen3_mmc0(priv)];
 	}
 
 	/* M3W+ bad taps */
@@ -926,7 +926,7 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 		priv->adjust_hs400_enable = true;
 		priv->adjust_hs400_offset = 3;
 		priv->adjust_hs400_calib_table =
-			r8a77965_calib_table[!rmobile_is_gen3_mmc0(priv)];
+			r8a77965_calib_table[!rcar_is_gen3_mmc0(priv)];
 	}
 
 	/* E3 can use HS400 with manual adjustment */
@@ -934,7 +934,7 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 		priv->adjust_hs400_enable = true;
 		priv->adjust_hs400_offset = 3;
 		priv->adjust_hs400_calib_table =
-			r8a77990_calib_table[!rmobile_is_gen3_mmc0(priv)];
+			r8a77990_calib_table[!rcar_is_gen3_mmc0(priv)];
 	}
 
 	/* H3 ES1.x, ES2.0 and M3W ES1.[0123] uses 4 tuning taps */
