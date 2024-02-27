@@ -52,12 +52,12 @@ u32 renesas_get_cpu_type(void)
 	return get_tfa_info()->cpu_type;
 }
 
-u32 rmobile_get_cpu_rev_integer(void)
+u32 renesas_get_cpu_rev_integer(void)
 {
 	return (readl(SYSC_LSI_DEVID) >> 28) + 1;
 }
 
-u32 rmobile_get_cpu_rev_fraction(void)
+u32 renesas_get_cpu_rev_fraction(void)
 {
 	return 0;
 }

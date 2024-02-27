@@ -212,7 +212,7 @@ static u32 rpc_spi_get_strobe_delay(void)
 	 *       7: On other R-Car Gen3
 	 *      15: On R-Car Gen4
 	 */
-	if (cpu_type == RMOBILE_CPU_TYPE_R8A7796 && rmobile_get_cpu_rev_integer() == 1)
+	if (cpu_type == RMOBILE_CPU_TYPE_R8A7796 && renesas_get_cpu_rev_integer() == 1)
 		return RPC_PHYCNT_STRTIM(6);
 	else if (cpu_type == RMOBILE_CPU_TYPE_R8A779F0 ||
 		 cpu_type == RMOBILE_CPU_TYPE_R8A779G0 ||

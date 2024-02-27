@@ -2419,7 +2419,7 @@ static void qos_init_es2(void)
 
 void qos_init(void)
 {
-	if (rmobile_get_cpu_rev_integer() >= R8A7790_CUT_ES2X)
+	if (renesas_get_cpu_rev_integer() >= R8A7790_CUT_ES2X)
 		qos_init_es2();
 	else
 		qos_init_es1();

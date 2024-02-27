@@ -26,7 +26,7 @@ u32 renesas_get_cpu_type(void)
 	return (rmobile_get_prr() & 0x00007F00) >> 8;
 }
 
-u32 rmobile_get_cpu_rev_integer(void)
+u32 renesas_get_cpu_rev_integer(void)
 {
 	const u32 prr = rmobile_get_prr();
 	const u32 rev = prr & PRR_MASK;
@@ -38,7 +38,7 @@ u32 rmobile_get_cpu_rev_integer(void)
 		return ((prr & 0x000000F0) >> 4) + 1;
 }
 
-u32 rmobile_get_cpu_rev_fraction(void)
+u32 renesas_get_cpu_rev_fraction(void)
 {
 	const u32 prr = rmobile_get_prr();
 	const u32 rev = prr & PRR_MASK;
