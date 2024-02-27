@@ -4,7 +4,7 @@
  *
  */
 
-#include <mach/rmobile.h>
+#include <mach/renesas.h>
 #include <asm/io.h>
 #include <linux/libfdt.h>
 

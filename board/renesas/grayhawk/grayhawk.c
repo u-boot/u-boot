@@ -6,7 +6,7 @@
  * Copyright (C) 2023 Renesas Electronics Corp.
  */
 
-#include <asm/arch/rmobile.h>
+#include <asm/arch/renesas.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

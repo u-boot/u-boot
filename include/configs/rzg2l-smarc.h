@@ -6,7 +6,7 @@
 #ifndef __RENESAS_RZG2L_H
 #define __RENESAS_RZG2L_H
 
-#include <asm/arch/rmobile.h>
+#include <asm/arch/renesas.h>
 
 /* console */
 #define CFG_SYS_BAUDRATE_TABLE	{ 115200, 38400 }

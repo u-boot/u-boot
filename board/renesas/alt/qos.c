@@ -9,7 +9,7 @@
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>
-#include <asm/arch/rmobile.h>
+#include <asm/arch/renesas.h>
 
 #if defined(CONFIG_RENESAS_EXTRAM_BOOT)
 /* QoS version 0.311 for ES1 and version 0.321 for ES2 */
