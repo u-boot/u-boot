@@ -524,6 +524,13 @@ config SYS_I2C_ROCKCHIP
 	  have several I2C ports and all are provided, controlled by the
 	  device tree.
 
+config SYS_I2C_RZ_RIIC
+	bool "Renesas RZ/G2L RIIC driver"
+	depends on RZG2L && DM_I2C
+	help
+	  Support for the I2C controller (RIIC) on the Renesas RZ/G2L SoC
+	  family.
+
 config SYS_I2C_SANDBOX
 	bool "Sandbox I2C driver"
 	depends on SANDBOX && DM_I2C
