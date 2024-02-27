@@ -36,26 +36,20 @@ __weak const u8 *rzg_get_cpu_name(void)
 	return 0;
 }
 
-static u32 __rmobile_get_cpu_type(void)
+__weak u32 renesas_get_cpu_type(void)
 {
 	return 0x0;
 }
-u32 renesas_get_cpu_type(void)
-		__attribute__((weak, alias("__rmobile_get_cpu_type")));
 
-static u32 __rmobile_get_cpu_rev_integer(void)
+__weak u32 renesas_get_cpu_rev_integer(void)
 {
 	return 0;
 }
-u32 renesas_get_cpu_rev_integer(void)
-		__attribute__((weak, alias("__rmobile_get_cpu_rev_integer")));
 
-static u32 __rmobile_get_cpu_rev_fraction(void)
+__weak u32 renesas_get_cpu_rev_fraction(void)
 {
 	return 0;
 }
-u32 renesas_get_cpu_rev_fraction(void)
-		__attribute__((weak, alias("__rmobile_get_cpu_rev_fraction")));
 
 /* CPU information table */
 static const struct {
