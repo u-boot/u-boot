@@ -31,6 +31,11 @@ static int fdt_get_key(struct ecdsa_public_key *key, const void *fdt, int node)
 	int x_len, y_len;
 
 	key->curve_name = fdt_getprop(fdt, node, "ecdsa,curve", NULL);
+	if (!key->curve_name) {
+		debug("Error: ecdsa cannot get 'ecdsa,curve' property from key. Likely not an ecdsa key.\n");
+		return -ENOMSG;
+	}
+
 	key->size_bits = ecdsa_key_size(key->curve_name);
 	if (key->size_bits == 0) {
 		debug("Unknown ECDSA curve '%s'", key->curve_name);
