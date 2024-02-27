@@ -13,7 +13,6 @@ config SYS_VENDOR
         default "sysam"
 
 config SYS_CONFIG_NAME
-        string
         default "amcore"
 
 endif

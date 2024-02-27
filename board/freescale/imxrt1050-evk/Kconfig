@@ -13,7 +13,6 @@ config SYS_SOC
 	default "imxrt1050"
 
 config SYS_CONFIG_NAME
-	string
 	default "imxrt1050-evk"
 
 config IMX_CONFIG

@@ -4,4 +4,3 @@ S:	Maintained
 F:	arch/riscv/dts/xilinx-mbv*
 F:	board/xilinx/mbv/
 F:	configs/xilinx_mbv*
-F:	include/configs/xilinx_mbv.h

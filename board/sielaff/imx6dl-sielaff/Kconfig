@@ -9,7 +9,6 @@ config SYS_VENDOR
 	default "sielaff"
 
 config SYS_CONFIG_NAME
-	string
 	default "imx6dl-sielaff"
 
 endif

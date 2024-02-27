@@ -67,7 +67,6 @@ config CPU_FREQ_MULTI
 	default 7 if CPU_FREQ_620MHZ
 
 config SYS_CONFIG_NAME
-	string "Board configuration name"
 	default "mt7620" if  BOARD_MT7620_RFB || BOARD_MT7620_MT7530_RFB
 
 config SYS_BOARD

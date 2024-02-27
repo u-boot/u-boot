@@ -9,9 +9,6 @@ config SYS_VENDOR
 config SYS_SOC
 	default "quark"
 
-config SYS_CONFIG_NAME
-	default "galileo"
-
 config TEXT_BASE
 	default 0xfff10000
 

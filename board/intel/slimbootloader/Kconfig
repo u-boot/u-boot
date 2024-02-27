@@ -13,9 +13,6 @@ config SYS_VENDOR
 config SYS_SOC
 	default "slimbootloader"
 
-config SYS_CONFIG_NAME
-	default "slimbootloader"
-
 config TEXT_BASE
 	default 0x00100000
 
