@@ -188,6 +188,16 @@ RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 	make -j$(nproc) all install && \
 	rm -rf /tmp/qemu
 
+# Build fiptool
+RUN git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git /tmp/tf-a && \
+	cd /tmp/tf-a/ && \
+	git checkout v2.10.0 && \
+	cd tools/fiptool && \
+	make && \
+	mkdir -p /usr/local/bin && \
+	cp fiptool /usr/local/bin && \
+	rm -rf /tmp/tf-a
+
 # Build genimage (required by some targets to generate disk images)
 RUN wget -O - https://github.com/pengutronix/genimage/releases/download/v14/genimage-14.tar.xz | tar -C /tmp -xJ && \
 	cd /tmp/genimage-14 && \
