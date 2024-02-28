@@ -116,6 +116,7 @@ RUN apt-get update && apt-get install -y \
 	virtualenv \
 	vboot-kernel-utils \
 	vboot-utils \
+	xilinx-bootgen \
 	xxd \
 	zip \
 	&& rm -rf /var/lib/apt/lists/*
