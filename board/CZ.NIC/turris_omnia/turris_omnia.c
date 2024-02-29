@@ -18,18 +18,21 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <asm/unaligned.h>
 #include <dm/uclass.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <fdt_support.h>
 #include <hexdump.h>
 #include <time.h>
 #include <linux/bitops.h>
+#include <linux/bitrev.h>
 #include <linux/delay.h>
 #include <u-boot/crc.h>
 
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"
 #include <../serdes/a38x/high_speed_env_spec.h>
 #include "../turris_atsha_otp.h"
+#include "../turris_common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -71,6 +74,9 @@ enum mcu_commands {
 
 	/* available if EXT_CMD bit set in features */
 	CMD_EXT_CONTROL		= 0x12,
+
+	/* available if BOARD_INFO it set in features */
+	CMD_BOARD_INFO_GET	= 0x2c,
 };
 
 enum status_word_bits {
@@ -88,6 +94,7 @@ enum status_word_bits {
 enum features_e {
 	FEAT_PERIPH_MCU		= BIT(0),
 	FEAT_EXT_CMDS		= BIT(1),
+	FEAT_BOARD_INFO		= BIT(15),
 };
 
 /* CMD_EXT_CONTROL */
@@ -212,6 +219,70 @@ static bool omnia_mcu_has_feature(u16 feature)
 		return false;
 
 	return feature & features;
+}
+
+static u32 omnia_mcu_crc32(const void *p, size_t len)
+{
+	u32 val, crc = 0;
+
+	compiletime_assert(!(len % 4), "length has to be a multiple of 4");
+
+	while (len) {
+		val = bitrev32(get_unaligned_le32(p));
+		crc = crc32(crc, (void *)&val, 4);
+		p += 4;
+		len -= 4;
+	}
+
+	return ~bitrev32(crc);
+}
+
+/* Can only be called after relocation, since it needs cleared BSS */
+static int omnia_mcu_board_info(char *serial, u8 *mac, char *version)
+{
+	static u8 reply[17];
+	static bool cached;
+
+	if (!cached) {
+		u8 csum;
+		int ret;
+
+		ret = omnia_mcu_read(CMD_BOARD_INFO_GET, reply, sizeof(reply));
+		if (ret)
+			return ret;
+
+		if (reply[0] != 16)
+			return -EBADMSG;
+
+		csum = reply[16];
+		reply[16] = 0;
+
+		if ((omnia_mcu_crc32(&reply[1], 16) & 0xff) != csum)
+			return -EBADMSG;
+
+		cached = true;
+	}
+
+	if (serial) {
+		const char *serial_env;
+
+		serial_env = env_get("serial#");
+		if (serial_env && strlen(serial_env) == 16) {
+			strcpy(serial, serial_env);
+		} else {
+			sprintf(serial, "%016llX",
+				get_unaligned_le64(&reply[1]));
+			env_set("serial#", serial);
+		}
+	}
+
+	if (mac)
+		memcpy(mac, &reply[9], ETH_ALEN);
+
+	if (version)
+		sprintf(version, "%u", reply[15]);
+
+	return 0;
 }
 
 static void enable_a385_watchdog(unsigned int timeout_minutes)
@@ -989,14 +1060,24 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	char serial[17];
+	char serial[17], version[4];
+	bool has_version;
 	int err;
 
-	err = turris_atsha_otp_get_serial_number(serial);
 	printf("Model: Turris Omnia\n");
 	printf("  MCU type: %s\n", omnia_get_mcu_type());
 	printf("  MCU version: %s\n", omnia_get_mcu_version());
 	printf("  RAM size: %i MiB\n", omnia_get_ram_size_gb() * 1024);
+
+	if (omnia_mcu_has_feature(FEAT_BOARD_INFO)) {
+		err = omnia_mcu_board_info(serial, NULL, version);
+		has_version = !err;
+	} else {
+		err = turris_atsha_otp_get_serial_number(serial);
+		has_version = false;
+	}
+
+	printf("  Board version: %s\n", has_version ? version : "unknown");
 	printf("  Serial Number: %s\n", !err ? serial : "unknown");
 
 	return 0;
@@ -1004,8 +1085,17 @@ int checkboard(void)
 
 int misc_init_r(void)
 {
-	turris_atsha_otp_init_mac_addresses(1);
-	turris_atsha_otp_init_serial_number();
+	if (omnia_mcu_has_feature(FEAT_BOARD_INFO)) {
+		char serial[17];
+		u8 first_mac[6];
+
+		if (!omnia_mcu_board_info(serial, first_mac, NULL))
+			turris_init_mac_addresses(1, first_mac);
+	} else {
+		turris_atsha_otp_init_mac_addresses(1);
+		turris_atsha_otp_init_serial_number();
+	}
+
 	return 0;
 }
 
