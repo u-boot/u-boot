@@ -90,11 +90,11 @@
 };
 
 &serdes_ln_ctrl {
-	u-boot,mux-autoprobe;
+	bootph-all;
 };
 
 &usb_serdes_mux {
-	u-boot,mux-autoprobe;
+	bootph-all;
 };
 
 &main_usbss0_pins_default {

@@ -165,7 +165,6 @@
 
 &serdes_ln_ctrl {
 	bootph-all;
-	u-boot,mux-autoprobe;
 };
 
 &serdes2_usb_link {
@@ -174,7 +173,6 @@
 
 &usb_serdes_mux {
 	bootph-all;
-	u-boot,mux-autoprobe;
 };
 
 &serdes_wiz2 {
