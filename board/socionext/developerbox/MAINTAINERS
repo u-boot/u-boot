@@ -1,5 +1,5 @@
 DEVELOPER BOX
-M:	Jassi Brar <jaswinder.singh@linaro.org>
+M:	Masahisa Kojima <kojima.masahisa@socionext.com>
 S:	Maintained
 F:	arch/arm/dts/synquacer-*
 F:	board/socionext/developerbox/*
