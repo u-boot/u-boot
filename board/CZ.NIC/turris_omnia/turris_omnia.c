@@ -75,6 +75,9 @@ enum mcu_commands {
 	/* available if EXT_CMD bit set in features */
 	CMD_EXT_CONTROL		= 0x12,
 
+	/* available if CRYPTO bit set in features */
+	CMD_CRYPTO_GET_PUBLIC_KEY	= 0x29,
+
 	/* available if BOARD_INFO it set in features */
 	CMD_BOARD_INFO_GET	= 0x2c,
 };
@@ -94,6 +97,7 @@ enum status_word_bits {
 enum features_e {
 	FEAT_PERIPH_MCU		= BIT(0),
 	FEAT_EXT_CMDS		= BIT(1),
+	FEAT_CRYPTO		= BIT(14),
 	FEAT_BOARD_INFO		= BIT(15),
 };
 
@@ -281,6 +285,24 @@ static int omnia_mcu_board_info(char *serial, u8 *mac, char *version)
 
 	if (version)
 		sprintf(version, "%u", reply[15]);
+
+	return 0;
+}
+
+static int omnia_mcu_get_board_public_key(char pub_key[static 67])
+{
+	u8 reply[34];
+	int ret;
+
+	ret = omnia_mcu_read(CMD_CRYPTO_GET_PUBLIC_KEY, reply, sizeof(reply));
+	if (ret)
+		return ret;
+
+	if (reply[0] != 33)
+		return -EBADMSG;
+
+	bin2hex(pub_key, &reply[1], 33);
+	reply[66] = '\0';
 
 	return 0;
 }
@@ -1060,7 +1082,7 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	char serial[17], version[4];
+	char serial[17], version[4], pub_key[67];
 	bool has_version;
 	int err;
 
@@ -1079,6 +1101,11 @@ int checkboard(void)
 
 	printf("  Board version: %s\n", has_version ? version : "unknown");
 	printf("  Serial Number: %s\n", !err ? serial : "unknown");
+
+	if (omnia_mcu_has_feature(FEAT_CRYPTO)) {
+		err = omnia_mcu_get_board_public_key(pub_key);
+		printf("  ECDSA Public Key: %s\n", !err ? pub_key : "unknown");
+	}
 
 	return 0;
 }
