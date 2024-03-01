@@ -366,16 +366,6 @@ int board_init(void)
 	return 0;
 }
 
-int checkboard(void)
-{
-	if (is_colibri_vf61())
-		puts("Model: Toradex Colibri VF61\n");
-	else
-		puts("Model: Toradex Colibri VF50\n");
-
-	return tdx_checkboard();
-}
-
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {

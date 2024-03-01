@@ -4,6 +4,7 @@
 menuconfig TDX_CFG_BLOCK
 	bool "Enable Toradex config block support"
 	select OF_BOARD_SETUP
+	select SYSINFO
 	help
 	  The Toradex config block stored production data on the on-module
 	  flash device (NAND, NOR or eMMC). The area is normally preserved by

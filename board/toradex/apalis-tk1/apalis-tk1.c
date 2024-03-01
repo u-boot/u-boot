@@ -91,13 +91,6 @@ int arch_misc_init(void)
 	return 0;
 }
 
-int checkboard(void)
-{
-	puts("Model: Toradex Apalis TK1 2GB\n");
-
-	return tdx_checkboard();
-}
-
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {

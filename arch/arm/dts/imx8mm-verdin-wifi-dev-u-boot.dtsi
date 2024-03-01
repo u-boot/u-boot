@@ -6,17 +6,21 @@
 #include "imx8mm-u-boot.dtsi"
 
 / {
+	aliases {
+		eeprom0 = &eeprom_module;
+		eeprom1 = &eeprom_carrier_board;
+		eeprom2 = &eeprom_display_adapter;
+	};
+
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
+
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		bootph-pre-ram;
 		wdt = <&wdog1>;
 	};
-};
-
-&{/aliases} {
-	eeprom0 = &eeprom_module;
-	eeprom1 = &eeprom_carrier_board;
-	eeprom2 = &eeprom_display_adapter;
 };
 
 &{/soc@0/bus@30800000/i2c@30a20000/pmic@25} {
