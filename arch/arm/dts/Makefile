@@ -624,10 +624,11 @@ dtb-$(CONFIG_TARGET_SL28) += fsl-ls1028a-kontron-sl28.dtb \
 
 dtb-$(CONFIG_TARGET_TEN64) += fsl-ls1088a-ten64.dtb
 
-dtb-$(CONFIG_TARGET_DRAGONBOARD410C) += dragonboard410c.dtb
-dtb-$(CONFIG_TARGET_DRAGONBOARD820C) += dragonboard820c.dtb
-dtb-$(CONFIG_TARGET_STARQLTECHN) += starqltechn.dtb
-dtb-$(CONFIG_TARGET_QCS404EVB) += qcs404-evb.dtb
+dtb-$(CONFIG_ARCH_SNAPDRAGON) += apq8016-sbc.dtb \
+	apq8096-db820c.dtb \
+	sdm845-db845c.dtb \
+	sdm845-samsung-starqltechn.dtb \
+	qcs404-evb-4000.dtb
 
 dtb-$(CONFIG_TARGET_STEMMY) += ste-ux500-samsung-stemmy.dtb
 

@@ -193,24 +193,18 @@ static ulong qcs404_clk_set_rate(struct clk *clk, ulong rate)
 
 	switch (clk->id) {
 	case GCC_BLSP1_UART2_APPS_CLK:
-		/* UART: 115200 */
+		/* UART: 1843200Hz for a fixed 115200 baudrate (19200000 * (12/125)) */
 		clk_rcg_set_rate_mnd(priv->base, &uart2_regs, 0, 12, 125,
 				     CFG_CLK_SRC_CXO, 16);
 		clk_enable_cbc(priv->base + BLSP1_UART2_APPS_CBCR);
-		break;
-	case GCC_BLSP1_AHB_CLK:
-		clk_enable_vote_clk(priv->base, &gcc_blsp1_ahb_clk);
-		break;
+		return 1843200;
 	case GCC_SDCC1_APPS_CLK:
 		/* SDCC1: 200MHz */
 		clk_rcg_set_rate_mnd(priv->base, &sdc_regs, 7, 0, 0,
 				     CFG_CLK_SRC_GPLL0, 8);
 		clk_enable_gpll0(priv->base, &gpll0_vote_clk);
 		clk_enable_cbc(priv->base + SDCC_APPS_CBCR(1));
-		break;
-	case GCC_SDCC1_AHB_CLK:
-		clk_enable_cbc(priv->base + SDCC_AHB_CBCR(1));
-		break;
+		return rate;
 	case GCC_ETH_RGMII_CLK:
 		if (rate == 250000000)
 			clk_rcg_set_rate_mnd(priv->base, &emac_regs, 3, 0, 0,
@@ -224,11 +218,15 @@ static ulong qcs404_clk_set_rate(struct clk *clk, ulong rate)
 		else if (rate == 5000000)
 			clk_rcg_set_rate_mnd(priv->base, &emac_regs, 3, 1, 50,
 					     CFG_CLK_SRC_GPLL1, 8);
-		break;
-	default:
-		return 0;
+		return rate;
 	}
 
+	/* There is a bug only seeming to affect this board where the MMC driver somehow calls
+	 * clk_set_rate() on a clock with id 0 which is associated with the qcom_clk device.
+	 * The only clock with ID 0 is the xo_board clock which should not be associated with
+	 * this device...
+	 */
+	log_debug("Unknown clock id %ld\n", clk->id);
 	return 0;
 }
 
@@ -304,6 +302,9 @@ static int qcs404_clk_enable(struct clk *clk)
 		clk_enable_cbc(priv->base + BLSP1_QUP4_I2C_APPS_CBCR);
 		clk_rcg_set_rate(priv->base, &blsp1_qup4_i2c_apps_regs, 0,
 				 CFG_CLK_SRC_CXO);
+		break;
+	case GCC_SDCC1_AHB_CLK:
+		clk_enable_cbc(priv->base + SDCC_AHB_CBCR(1));
 		break;
 	default:
 		return 0;

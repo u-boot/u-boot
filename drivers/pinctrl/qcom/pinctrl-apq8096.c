@@ -14,13 +14,13 @@
 #define MAX_PIN_NAME_LEN 32
 static char pin_name[MAX_PIN_NAME_LEN] __section(".data");
 static const char * const msm_pinctrl_pins[] = {
-	"SDC1_CLK",
-	"SDC1_CMD",
-	"SDC1_DATA",
-	"SDC2_CLK",
-	"SDC2_CMD",
-	"SDC2_DATA",
-	"SDC1_RCLK",
+	"sdc1_clk",
+	"sdc1_cmd",
+	"sdc1_data",
+	"sdc2_clk",
+	"sdc2_cmd",
+	"sdc2_data",
+	"sdc1_rclk",
 };
 
 static const struct pinctrl_function msm_pinctrl_functions[] = {
@@ -37,7 +37,7 @@ static const char *apq8096_get_pin_name(struct udevice *dev,
 					unsigned int selector)
 {
 	if (selector < 150) {
-		snprintf(pin_name, MAX_PIN_NAME_LEN, "GPIO_%u", selector);
+		snprintf(pin_name, MAX_PIN_NAME_LEN, "gpio%u", selector);
 		return pin_name;
 	} else {
 		return msm_pinctrl_pins[selector - 150];
@@ -50,7 +50,10 @@ static unsigned int apq8096_get_function_mux(unsigned int selector)
 }
 
 static const struct msm_pinctrl_data apq8096_data = {
-	.pin_data = { .pin_count = 157, },
+	.pin_data = {
+		.pin_count = 157,
+		.special_pins_start = 150,
+	},
 	.functions_count = ARRAY_SIZE(msm_pinctrl_functions),
 	.get_function_name = apq8096_get_function_name,
 	.get_function_mux = apq8096_get_function_mux,
