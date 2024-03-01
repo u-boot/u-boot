@@ -1039,6 +1039,25 @@ static int fixup_mcu_gpio_in_eth_wan_node(void *blob)
 	return 0;
 }
 
+static void fixup_atsha_node(void *blob)
+{
+	int node;
+
+	if (!omnia_mcu_has_feature(FEAT_CRYPTO))
+		return;
+
+	node = fdt_node_offset_by_compatible(blob, -1, "atmel,atsha204a");
+	if (node < 0) {
+		printf("Cannot find ATSHA204A node!\n");
+		return;
+	}
+
+	if (fdt_status_disabled(blob, node) < 0)
+		printf("Cannot disable ATSHA204A node!\n");
+	else
+		debug("Disabled ATSHA204A node\n");
+}
+
 #endif
 
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
@@ -1051,6 +1070,8 @@ int board_fix_fdt(void *blob)
 
 	fixup_msata_port_nodes(blob);
 	fixup_wwan_port_nodes(blob);
+
+	fixup_atsha_node(blob);
 
 	return 0;
 }
@@ -1243,6 +1264,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	fixup_spi_nor_partitions(blob);
 	fixup_msata_port_nodes(blob);
 	fixup_wwan_port_nodes(blob);
+
+	fixup_atsha_node(blob);
 
 	return 0;
 }
