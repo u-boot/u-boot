@@ -1881,7 +1881,7 @@ include/config/uboot.release: include/config/auto.conf FORCE
 # version.h and scripts_basic is processed / created.
 
 # Listed in dependency order
-PHONY += prepare archprepare prepare0 prepare1 prepare2 prepare3
+PHONY += prepare update_submodule archprepare prepare0 prepare1 prepare2 prepare3
 
 # prepare3 is used to check if we are building in a separate output directory,
 # and if so do:
@@ -1917,8 +1917,13 @@ archprepare: prepare1 scripts_basic
 prepare0: archprepare FORCE
 	$(Q)$(MAKE) $(build)=.
 
+update_submodule:
+	@echo "Updating Git submodule..."
+	git submodule init
+	git submodule update
+
 # All the preparing..
-prepare: prepare0
+prepare: update_submodule prepare0
 
 # Generate some files
 # ---------------------------------------------------------------------------
