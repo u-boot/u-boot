@@ -23,10 +23,18 @@
 #include <linux/iopoll.h>
 #include <reset-uclass.h>
 #include <reset.h>
+#include <wait_bit.h>
 
 #include "rzg2l-cpg.h"
 
+/*
+ * Monitor registers for both clock and reset signals are offset by 0x180 from
+ * the corresponding control registers.
+ */
 #define CLK_MON_R(reg)		(0x180 + (reg))
+#define RST_MON_R(reg)		(0x180 + (reg))
+
+#define CPG_TIMEOUT_MSEC	100
 
 static ulong rzg2l_cpg_clk_get_rate_by_id(struct udevice *dev, unsigned int id);
 static ulong rzg2l_cpg_clk_get_rate_by_name(struct udevice *dev, const char *name);
@@ -83,9 +91,9 @@ static int rzg2l_cpg_clk_set(struct clk *clk, bool enable)
 		value |= BIT(mod_clk->bit);
 	writel(value, data->base + mod_clk->off);
 
-	if (enable && readl_poll_timeout(data->base + CLK_MON_R(mod_clk->off),
-					 value, (value & BIT(mod_clk->bit)),
-					 10)) {
+	if (enable && wait_for_bit_32(data->base + CLK_MON_R(mod_clk->off),
+				      BIT(mod_clk->bit), enable,
+				      CPG_TIMEOUT_MSEC, false)) {
 		dev_err(clk->dev, "Timeout\n");
 		return -ETIMEDOUT;
 	}
@@ -420,7 +428,8 @@ static int rzg2l_cpg_rst_set(struct reset_ctl *reset_ctl, bool asserted)
 		value |= BIT(rst->bit);
 	writel(value, data->base + rst->off);
 
-	return 0;
+	return wait_for_bit_32(data->base + RST_MON_R(rst->off), BIT(rst->bit),
+			       asserted, CPG_TIMEOUT_MSEC, false);
 }
 
 static int rzg2l_cpg_rst_assert(struct reset_ctl *reset_ctl)
