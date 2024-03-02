@@ -138,8 +138,11 @@ config ROCKCHIP_STIMER_BASE
 config SYS_SOC
 	default "rk3399"
 
+config ROCKCHIP_COMMON_STACK_ADDR
+	default y
+
 config SYS_MALLOC_F_LEN
-	default 0x4000
+	default 0x4000 if !SPL_SHARES_INIT_SP_ADDR
 
 config SPL_LIBCOMMON_SUPPORT
 	default y
@@ -157,7 +160,7 @@ config TPL_TEXT_BASE
         default 0xff8c2000
 
 config SPL_STACK_R_ADDR
-	default 0x04000000
+	default 0x04000000 if !SPL_SHARES_INIT_SP_ADDR
 
 if BOOTCOUNT_LIMIT
 
