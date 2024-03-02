@@ -215,8 +215,11 @@ config ROCKCHIP_STIMER_BASE
 config SYS_SOC
 	default "rk3588"
 
-config SYS_MALLOC_F_LEN
-	default 0x80000
+config ROCKCHIP_COMMON_STACK_ADDR
+	default y
+
+config TEXT_BASE
+	default 0x00a00000
 
 source board/edgeble/neural-compute-module-6/Kconfig
 source board/friendlyelec/nanopc-t6-rk3588/Kconfig
