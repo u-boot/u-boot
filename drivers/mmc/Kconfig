@@ -393,7 +393,7 @@ config HSMMC2_8BIT
 
 config SH_MMCIF
 	bool "SuperH/Renesas ARM SoCs on-chip MMCIF host controller support"
-	depends on ARCH_RMOBILE || SH
+	depends on ARCH_RENESAS || SH
 	help
 	  Support for the on-chip MMCIF host controller on SuperH/Renesas ARM SoCs platform
 
@@ -408,7 +408,7 @@ config MMC_UNIPHIER
 
 config RENESAS_SDHI
 	bool "Renesas R-Car SD/MMC Host Controller support"
-	depends on ARCH_RMOBILE
+	depends on ARCH_RENESAS
 	depends on BLK && DM_MMC
 	depends on OF_CONTROL
 	select BOUNCE_BUFFER

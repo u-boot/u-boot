@@ -4,7 +4,7 @@
  *
  */
 
-#include <mach/rmobile.h>
+#include <mach/renesas.h>
 #include <asm/io.h>
 #include <linux/libfdt.h>
 
@@ -21,7 +21,7 @@ struct tfa_info {
 };
 
 static const struct tfa_info tfa_info[] = {
-	{ "renesas,r9a07g044l2", "R9A07G044L", RMOBILE_CPU_TYPE_R9A07G044L },
+	{ "renesas,r9a07g044l2", "R9A07G044L", RENESAS_CPU_TYPE_R9A07G044L },
 };
 
 static const struct tfa_info invalid_tfa_info = { NULL, "(invalid)", 0 };
@@ -47,17 +47,17 @@ const u8 *rzg_get_cpu_name(void)
 	return get_tfa_info()->cpu_name;
 }
 
-u32 rmobile_get_cpu_type(void)
+u32 renesas_get_cpu_type(void)
 {
 	return get_tfa_info()->cpu_type;
 }
 
-u32 rmobile_get_cpu_rev_integer(void)
+u32 renesas_get_cpu_rev_integer(void)
 {
 	return (readl(SYSC_LSI_DEVID) >> 28) + 1;
 }
 
-u32 rmobile_get_cpu_rev_fraction(void)
+u32 renesas_get_cpu_rev_fraction(void)
 {
 	return 0;
 }

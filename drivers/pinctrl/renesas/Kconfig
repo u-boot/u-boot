@@ -1,8 +1,8 @@
-if ARCH_RMOBILE
+if ARCH_RENESAS
 
 config PINCTRL_PFC
 	bool "Renesas pin control drivers"
-	depends on DM && ARCH_RMOBILE
+	depends on DM && ARCH_RENESAS
 	default n if CPU_RZA1
 	help
 	  Support pin multiplexing control on Renesas SoCs.

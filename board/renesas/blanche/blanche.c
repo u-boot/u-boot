@@ -9,10 +9,8 @@
 #include <cpu_func.h>
 #include <init.h>
 #include <net.h>
-#include <asm/arch/mmc.h>
 #include <asm/arch/rcar-mstp.h>
-#include <asm/arch/rmobile.h>
-#include <asm/arch/sh_sdhi.h>
+#include <asm/arch/renesas.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>
@@ -51,7 +49,7 @@ static void blanche_init_sys(void)
 	struct rcar_swdt *swdt = (struct rcar_swdt *)SWDT_BASE;
 	u32 cpu_type;
 
-	cpu_type = rmobile_get_cpu_type();
+	cpu_type = renesas_get_cpu_type();
 	if (cpu_type == 0x4A) {
 		writel(0x4D000000, CPG_PLL1CR);
 		writel(0x4F000000, CPG_PLL3CR);

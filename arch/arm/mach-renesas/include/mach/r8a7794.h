@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * arch/arm/include/asm/arch-rmobile/r8a7794.h
+ * arch/arm/include/asm/arch-renesas/r8a7794.h
  *
  * Copyright (C) 2014 Renesas Electronics Corporation
  */
@@ -28,6 +28,6 @@
 
 #define R8A7794_CUT_ES2		2
 #define IS_R8A7794_ES2()	\
-	(rmobile_get_cpu_rev_integer() == R8A7794_CUT_ES2)
+	(renesas_get_cpu_rev_integer() == R8A7794_CUT_ES2)
 
 #endif /* __ASM_ARCH_R8A7794_H */

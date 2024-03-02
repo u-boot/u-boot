@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * arch/arm/cpu/armv7/rmobile/cpu_info-rcar.c
+ * arch/arm/mach-renesas/cpu_info-rcar.c
  *
  * Copyright (C) 2013,2014 Renesas Electronics Corporation
  */
@@ -13,7 +13,7 @@
 #define R8A7796_REV_1_3		0x5211
 #define R8A77995_REV_1_1	0x5810
 
-static u32 rmobile_get_prr(void)
+static u32 renesas_get_prr(void)
 {
 	if (IS_ENABLED(CONFIG_RCAR_64))
 		return readl(0xFFF00044);
@@ -21,14 +21,14 @@ static u32 rmobile_get_prr(void)
 	return readl(0xFF000044);
 }
 
-u32 rmobile_get_cpu_type(void)
+u32 renesas_get_cpu_type(void)
 {
-	return (rmobile_get_prr() & 0x00007F00) >> 8;
+	return (renesas_get_prr() & 0x00007F00) >> 8;
 }
 
-u32 rmobile_get_cpu_rev_integer(void)
+u32 renesas_get_cpu_rev_integer(void)
 {
-	const u32 prr = rmobile_get_prr();
+	const u32 prr = renesas_get_prr();
 	const u32 rev = prr & PRR_MASK;
 
 	if (rev == R8A7796_REV_1_1 || rev == R8A7796_REV_1_3 ||
@@ -38,9 +38,9 @@ u32 rmobile_get_cpu_rev_integer(void)
 		return ((prr & 0x000000F0) >> 4) + 1;
 }
 
-u32 rmobile_get_cpu_rev_fraction(void)
+u32 renesas_get_cpu_rev_fraction(void)
 {
-	const u32 prr = rmobile_get_prr();
+	const u32 prr = renesas_get_prr();
 	const u32 rev = prr & PRR_MASK;
 
 	if (rev == R8A7796_REV_1_1 || rev == R8A77995_REV_1_1)

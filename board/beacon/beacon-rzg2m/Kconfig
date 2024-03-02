@@ -1,7 +1,7 @@
 if TARGET_BEACON_RZG2M
 
 config SYS_SOC
-	default "rmobile"
+	default "renesas"
 
 config SYS_BOARD
 	default "beacon-rzg2m"

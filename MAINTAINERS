@@ -497,7 +497,7 @@ M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 M:	Marek Vasut <marek.vasut+renesas@mailbox.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-sh.git
-F:	arch/arm/mach-rmobile/
+F:	arch/arm/mach-renesas/
 F:	drivers/clk/renesas/
 F:	drivers/gpio/gpio-rcar.c
 F:	drivers/i2c/rcar_*

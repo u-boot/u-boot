@@ -392,8 +392,8 @@ static int ravb_dmac_init(struct udevice *dev)
 	writel(0x00222210, eth->iobase + RAVB_REG_TGC);
 
 	/* Delay CLK: 2ns (not applicable on R-Car E3/D3) */
-	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77990) ||
-	    (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77995))
+	if ((renesas_get_cpu_type() == RENESAS_CPU_TYPE_R8A77990) ||
+	    (renesas_get_cpu_type() == RENESAS_CPU_TYPE_R8A77995))
 		return 0;
 
 	if (!dev_read_u32(dev, "rx-internal-delay-ps", &delay)) {
