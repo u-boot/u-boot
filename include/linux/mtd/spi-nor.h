@@ -48,6 +48,8 @@
 #define SPINOR_OP_WRSR		0x01	/* Write status register 1 byte */
 #define SPINOR_OP_RDSR2		0x3f	/* Read status register 2 */
 #define SPINOR_OP_WRSR2		0x3e	/* Write status register 2 */
+#define SPINOR_OP_RDSR3		0x15	/* Read status register 3 */
+#define SPINOR_OP_WRSR3		0x11	/* Write status register 3 */
 #define SPINOR_OP_READ		0x03	/* Read data bytes (low frequency) */
 #define SPINOR_OP_READ_FAST	0x0b	/* Read data bytes (high frequency) */
 #define SPINOR_OP_READ_1_1_2	0x3b	/* Read data bytes (Dual Output SPI) */
@@ -185,6 +187,9 @@
  * in stacked/parallel configuration
  */
 #define SNOR_FLASH_CNT_MAX	2
+
+/* Status Register 3 bits. */
+#define SR3_WPS			BIT(2)
 
 /* For Cypress flash. */
 #define SPINOR_OP_RD_ANY_REG			0x65	/* Read any register */
