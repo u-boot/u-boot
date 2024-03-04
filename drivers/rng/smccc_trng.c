@@ -165,7 +165,7 @@ static int smccc_trng_probe(struct udevice *dev)
 	struct smccc_trng_priv *priv = dev_get_priv(dev);
 	struct arm_smccc_res res;
 
-	if (!(smccc_trng_is_supported(smccc->invoke_fn)))
+	if (!smccc || !(smccc_trng_is_supported(smccc->invoke_fn)))
 		return -ENODEV;
 
 	/* At least one of 64bit and 32bit interfaces is available */
