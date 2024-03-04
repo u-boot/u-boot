@@ -29,6 +29,7 @@ ifdef CONFIG_SPL_BUILD
 CFLAGS_rsa_helper.o += -I$(obj)
 endif
 
+ifneq ($(CONFIG_MBEDTLS_LIB_X509), y)
 #
 # X.509 Certificate handling
 #
@@ -45,6 +46,7 @@ $(obj)/x509_cert_parser.o: \
 
 $(obj)/x509.asn1.o: $(obj)/x509.asn1.c $(obj)/x509.asn1.h
 $(obj)/x509_akid.asn1.o: $(obj)/x509_akid.asn1.c $(obj)/x509_akid.asn1.h
+endif
 
 #
 # PKCS#7 message handling
