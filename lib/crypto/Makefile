@@ -65,6 +65,7 @@ $(obj)/pkcs7.asn1.o: $(obj)/pkcs7.asn1.c $(obj)/pkcs7.asn1.h
 endif
 obj-$(CONFIG_$(SPL_)PKCS7_VERIFY) += pkcs7_verify.o
 
+ifneq ($(CONFIG_MBEDTLS_LIB_X509), y)
 #
 # Signed PE binary-wrapped key handling
 #
@@ -76,3 +77,4 @@ mscode-y := \
 
 $(obj)/mscode_parser.o: $(obj)/mscode.asn1.h $(obj)/mscode.asn1.h
 $(obj)/mscode.asn1.o: $(obj)/mscode.asn1.c $(obj)/mscode.asn1.h
+endif
