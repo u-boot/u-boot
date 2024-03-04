@@ -288,12 +288,6 @@ endmenu
 config RISCV_ISA_A
 	def_bool y
 
-config 32BIT
-	bool
-
-config 64BIT
-	bool
-
 config DMA_ADDR_T_64BIT
 	bool
 	default y if 64BIT
