@@ -6,6 +6,7 @@ config SYS_ARCH
 
 config ARM64
 	bool
+	select 64BIT
 	select PHYS_64BIT
 	select SYS_CACHE_SHIFT_6
 	imply SPL_SEPARATE_BSS
