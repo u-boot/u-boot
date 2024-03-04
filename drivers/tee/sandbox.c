@@ -14,7 +14,7 @@
 #include "optee/optee_private.h"
 
 /*
- * The sandbox tee driver tries to emulate a generic Trusted Exectution
+ * The sandbox tee driver tries to emulate a generic Trusted Execution
  * Environment (TEE) with the Trusted Applications (TA) OPTEE_TA_AVB and
  * OPTEE_TA_RPC_TEST available.
  */
@@ -23,7 +23,7 @@ static const u32 pstorage_max = 16;
 /**
  * struct ta_entry - TA entries
  * @uuid:		UUID of an emulated TA
- * @open_session	Called when a session is openened to the TA
+ * @open_session	Called when a session is opened to the TA
  * @invoke_func		Called when a function in the TA is to be invoked
  *
  * This struct is used to register TAs in this sandbox emulation of a TEE.
@@ -140,8 +140,8 @@ static u32 pta_scp03_invoke_func(struct udevice *dev, u32 func, uint num_params,
 			provisioned = true;
 
 		/*
-		 * Either way, we asume both operations succeeded and that
-		 * the communication channel has now been stablished
+		 * Either way, we assume both operations succeeded and that
+		 * the communication channel has now been established
 		 */
 
 		return TEE_SUCCESS;
