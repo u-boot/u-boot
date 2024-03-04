@@ -2214,9 +2214,8 @@ static char *ext4fs_read_symlink(struct ext2fs_node *node)
 	return symlink;
 }
 
-static int ext4fs_find_file1(const char *currpath,
-			     struct ext2fs_node *currroot,
-			     struct ext2fs_node **currfound, int *foundtype)
+int ext4fs_find_file1(const char *currpath, struct ext2fs_node *currroot,
+		      struct ext2fs_node **currfound, int *foundtype)
 {
 	char fpath[strlen(currpath) + 1];
 	char *name = fpath;

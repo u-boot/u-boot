@@ -5,11 +5,10 @@
  * Driver for Raspberry Pi hardware random number generator
  */
 
-#include <common.h>
 #include <dm.h>
-#include <linux/delay.h>
 #include <rng.h>
 #include <asm/io.h>
+#include <linux/delay.h>
 
 #define usleep_range(a, b) udelay((b))
 

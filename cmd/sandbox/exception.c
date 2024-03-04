@@ -5,7 +5,6 @@
  * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
-#include <common.h>
 #include <command.h>
 
 static int do_sigsegv(struct cmd_tbl *cmdtp, int flag, int argc,

@@ -5,7 +5,6 @@
  * Driver for Amlogic hardware random number generator
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <rng.h>

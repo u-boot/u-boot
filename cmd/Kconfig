@@ -740,6 +740,7 @@ config CRC32_VERIFY
 
 config CMD_EEPROM
 	bool "eeprom - EEPROM subsystem"
+	depends on DM_I2C || SYS_I2C_LEGACY
 	help
 	  (deprecated, needs conversion to driver model)
 	  Provides commands to read and write EEPROM (Electrically Erasable
@@ -2749,15 +2750,6 @@ config MTDPARTS_DEFAULT
 	help
 	  Defines a default MTD partitioning scheme in the Linux MTD command
 	  line partitions format
-
-config CMD_REISER
-	bool "reiser - Access to reiserfs filesystems"
-	help
-	  This provides two commands which operate on a resierfs filesystem,
-	  commonly used some years ago:
-
-	    reiserls - list files
-	    reiserload - load a file
 
 config CMD_YAFFS2
 	bool "yaffs2 - Access of YAFFS2 filesystem"

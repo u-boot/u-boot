@@ -10,8 +10,6 @@ source "fs/cbfs/Kconfig"
 
 source "fs/ext4/Kconfig"
 
-source "fs/reiserfs/Kconfig"
-
 source "fs/fat/Kconfig"
 
 source "fs/jffs2/Kconfig"

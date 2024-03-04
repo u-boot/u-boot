@@ -87,10 +87,12 @@
 			pins = "SPI2_CSB", "SPI2_MISO", "SPI2_MOSI",
 			       "SPI2_CLK", "SPI2_HOLD";
 			input-enable;
+			drive-strength = <MTK_DRIVE_4mA>;
 		};
 
 		conf-clk {
 			pins = "SPI2_WP";
+			drive-strength = <MTK_DRIVE_4mA>;
 		};
 	};
 };

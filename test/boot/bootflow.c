@@ -544,7 +544,7 @@ static int prep_mmc_bootdev(struct unit_test_state *uts, const char *mmc_dev,
 				"bootmeth_script", 0, ofnode_null(), &dev));
 
 	/* Enable the cros bootmeth if needed */
-	if (bind_cros) {
+	if (IS_ENABLED(CONFIG_BOOTMETH_CROS) && bind_cros) {
 		ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
 		ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_cros),
 					"cros", 0, ofnode_null(), &dev));

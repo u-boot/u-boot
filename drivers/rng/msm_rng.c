@@ -9,12 +9,11 @@
  * Based on Linux driver
  */
 
-#include <asm/io.h>
 #include <clk.h>
-#include <common.h>
 #include <dm.h>
-#include <linux/bitops.h>
 #include <rng.h>
+#include <asm/io.h>
+#include <linux/bitops.h>
 
 /* Device specific register offsets */
 #define PRNG_DATA_OUT		0x0000

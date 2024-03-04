@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_RNG
 
-#include <common.h>
 #include <dm.h>
 #include <rng.h>
 

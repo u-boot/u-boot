@@ -15,7 +15,7 @@ if [ ${#dtc} -eq 0 ]; then
 	exit 1
 fi
 
-if ! which $dtc >/dev/null ; then
+if ! which $dtc > /dev/null 2>&1 ; then
 	echo "Error: Cannot find dtc: $dtc"
 	exit 1
 fi

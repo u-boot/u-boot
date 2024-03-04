@@ -5,16 +5,14 @@
 
 #define LOG_CATEGORY UCLASS_RNG
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>
 #include <reset.h>
 #include <rng.h>
+#include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
-
-#include <asm/io.h>
 #include <linux/iopoll.h>
 #include <linux/kernel.h>
 

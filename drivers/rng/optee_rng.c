@@ -4,8 +4,6 @@
  */
 #define LOG_CATEGORY UCLASS_RNG
 
-#include <common.h>
-
 #include <rng.h>
 #include <tee.h>
 #include <dm/device.h>

@@ -137,6 +137,7 @@ struct mtk_eth_priv {
 	int force_mode;
 	int speed;
 	int duplex;
+	int mdc;
 	bool pn_swap;
 
 	struct phy_device *phydev;
@@ -1245,7 +1246,8 @@ static int mtk_phy_start(struct mtk_eth_priv *priv)
 	}
 
 	if (!priv->force_mode) {
-		if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII)
+		if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
+		    priv->phy_interface == PHY_INTERFACE_MODE_XGMII)
 			mtk_xphy_link_adjust(priv);
 		else
 			mtk_phy_link_adjust(priv);
@@ -1515,7 +1517,7 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 
 static void mtk_xmac_init(struct mtk_eth_priv *priv)
 {
-	u32 sts;
+	u32 force_link = 0;
 
 	switch (priv->phy_interface) {
 	case PHY_INTERFACE_MODE_USXGMII:
@@ -1530,14 +1532,18 @@ static void mtk_xmac_init(struct mtk_eth_priv *priv)
 		       SYSCFG0_GE_MODE_M << SYSCFG0_GE_MODE_S(priv->gmac_id),
 		       0);
 
-	if (priv->gmac_id == 1) {
+	if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII &&
+	    priv->gmac_id == 1) {
 		mtk_infra_rmw(priv, TOPMISC_NETSYS_PCS_MUX,
 			      NETSYS_PCS_MUX_MASK, MUX_G2_USXGMII_SEL);
-	} else if (priv->gmac_id == 2) {
-		sts = mtk_gmac_read(priv, XGMAC_STS(priv->gmac_id));
-		sts |= XGMAC_FORCE_LINK;
-		mtk_gmac_write(priv, XGMAC_STS(priv->gmac_id), sts);
 	}
+
+	if (priv->phy_interface == PHY_INTERFACE_MODE_XGMII ||
+	    priv->gmac_id == 2)
+		force_link = XGMAC_FORCE_LINK(priv->gmac_id);
+
+	mtk_gmac_rmw(priv, XGMAC_STS(priv->gmac_id),
+		     XGMAC_FORCE_LINK(priv->gmac_id), force_link);
 
 	/* Force GMAC link down */
 	mtk_gmac_write(priv, GMAC_PORT_MCR(priv->gmac_id), FORCE_MODE);
@@ -1605,6 +1611,26 @@ static void mtk_eth_fifo_init(struct mtk_eth_priv *priv)
 	mtk_pdma_write(priv, RX_CRX_IDX_REG(0), NUM_RX_DESC - 1);
 
 	mtk_pdma_write(priv, PDMA_RST_IDX_REG, RST_DTX_IDX0 | RST_DRX_IDX0);
+}
+
+static void mtk_eth_mdc_init(struct mtk_eth_priv *priv)
+{
+	u32 divider;
+
+	if (priv->mdc == 0)
+		return;
+
+	divider = min_t(u32, DIV_ROUND_UP(MDC_MAX_FREQ, priv->mdc), MDC_MAX_DIVIDER);
+
+	/* Configure MDC turbo mode */
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V3))
+		mtk_gmac_rmw(priv, GMAC_MAC_MISC_REG, 0, MISC_MDC_TURBO);
+	else
+		mtk_gmac_rmw(priv, GMAC_PPSC_REG, 0, MISC_MDC_TURBO);
+
+	/* Configure MDC divider */
+	mtk_gmac_rmw(priv, GMAC_PPSC_REG, PHY_MDC_CFG,
+		     FIELD_PREP(PHY_MDC_CFG, divider));
 }
 
 static int mtk_eth_start(struct udevice *dev)
@@ -1803,8 +1829,12 @@ static int mtk_eth_probe(struct udevice *dev)
 		noncached_alloc(priv->soc->rxd_size * NUM_RX_DESC,
 				ARCH_DMA_MINALIGN);
 
+	/* Set MDC divider */
+	mtk_eth_mdc_init(priv);
+
 	/* Set MAC mode */
-	if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII)
+	if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
+	    priv->phy_interface == PHY_INTERFACE_MODE_XGMII)
 		mtk_xmac_init(priv);
 	else
 		mtk_mac_init(priv);
@@ -1880,6 +1910,17 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 	}
 
 	priv->gmac_id = dev_read_u32_default(dev, "mediatek,gmac-id", 0);
+
+	priv->mdc = 0;
+	subnode = ofnode_find_subnode(dev_ofnode(dev), "mdio");
+	if (ofnode_valid(subnode)) {
+		priv->mdc = ofnode_read_u32_default(subnode, "clock-frequency", 2500000);
+		if (priv->mdc > MDC_MAX_FREQ ||
+		    priv->mdc < MDC_MAX_FREQ / MDC_MAX_DIVIDER) {
+			printf("error: MDIO clock frequency out of range\n");
+			return -EINVAL;
+		}
+	}
 
 	/* Interface mode is required */
 	pdata->phy_interface = dev_read_phy_mode(dev);

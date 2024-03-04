@@ -531,6 +531,10 @@ Then the iterator is set up to according to the parameters given:
     `BOOTFLOWIF_SINGLE_MEDIA` is set. In this case, moving to the next bootdev
     processes just the children of the media device. Hunters are used, in this
     example just the "mmc" hunter.
+  - If `label` indicates a particular partition in a particular media device
+    (e.g. "mmc1:3") then `BOOTFLOWIF_SINGLE_PARTITION` is set. In this case,
+    only a single partition within a bootdev is processed. Hunters are used, in
+    this example just the "mmc" hunter.
   - If `label` indicates a media uclass (e.g. "mmc") then
     `BOOTFLOWIF_SINGLE_UCLASS` is set. In this case, all bootdevs in that uclass
     are used. Hunters are used, in this example just the "mmc" hunter

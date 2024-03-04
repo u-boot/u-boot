@@ -699,15 +699,6 @@ config TARGET_BCMNS
 	  ARMv7 Cortex-A9 SoC family including BCM4708, BCM47094,
 	  BCM5301x etc.
 
-config TARGET_BCMNS2
-	bool "Support Broadcom Northstar2"
-	select ARM64
-	select GPIO_EXTRA_HEADER
-	help
-	  Support for Broadcom Northstar 2 SoCs.  NS2 is a quad-core 64-bit
-	  ARMv8 Cortex-A57 processors targeting a broad range of networking
-	  applications.
-
 config TARGET_BCMNS3
 	bool "Support Broadcom NS3"
 	select ARM64

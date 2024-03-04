@@ -100,6 +100,22 @@ static int pinctrl_select_state_full(struct udevice *dev, const char *statename)
 	return 0;
 }
 
+static bool ofnode_pre_reloc_recursive(ofnode parent)
+{
+	ofnode child;
+
+	if (ofnode_pre_reloc(parent))
+		return true;
+
+	if (CONFIG_IS_ENABLED(PINCONF_RECURSIVE)) {
+		ofnode_for_each_subnode(child, parent)
+			if (ofnode_pre_reloc_recursive(child))
+				return true;
+	}
+
+	return false;
+}
+
 /**
  * pinconfig_post_bind() - post binding for PINCONFIG uclass
  * Recursively bind its children as pinconfig devices.
@@ -119,7 +135,7 @@ static int pinconfig_post_bind(struct udevice *dev)
 
 	dev_for_each_subnode(node, dev) {
 		if (pre_reloc_only &&
-		    !ofnode_pre_reloc(node))
+		    !ofnode_pre_reloc_recursive(node))
 			continue;
 		/*
 		 * If this node has "compatible" property, this is not
