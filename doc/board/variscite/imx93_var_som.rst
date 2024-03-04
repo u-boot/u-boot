@@ -42,10 +42,10 @@ Get ahab-container.img
 
 .. code-block:: bash
 
-   $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-sentinel-0.10.bin
-   $ chmod +x firmware-sentinel-0.10.bin
-   $ ./firmware-sentinel-0.10.bin
-   $ cp firmware-sentinel-0.10/mx93a0-ahab-container.img $(srctree)
+   $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-sentinel-0.11.bin
+   $ chmod +x firmware-sentinel-0.11.bin
+   $ ./firmware-sentinel-0.11.bin
+   $ cp firmware-sentinel-0.11/mx93a1-ahab-container.img $(srctree)
 
 Build U-Boot
 ------------
