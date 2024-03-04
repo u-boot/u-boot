@@ -884,10 +884,10 @@ static int udma_alloc_tx_resources(struct udma_chan *uc)
 		return ret;
 
 	tchan = uc->tchan;
-	if (tchan->tflow_id >= 0)
+	if (tchan->tflow_id > 0)
 		ring_idx = tchan->tflow_id;
 	else
-		ring_idx = ud->bchan_cnt + tchan->id;
+		ring_idx = tchan->id;
 
 	ret = k3_nav_ringacc_request_rings_pair(ud->ringacc, ring_idx, -1,
 						&uc->tchan->t_ring,
@@ -1770,9 +1770,11 @@ static int udma_probe(struct udevice *dev)
 		return PTR_ERR(ud->ringacc);
 
 	ud->dev = dev;
-	ud->ch_count = setup_resources(ud);
-	if (ud->ch_count <= 0)
-		return ud->ch_count;
+	ret = setup_resources(ud);
+	if (ret < 0)
+		return ret;
+
+	ud->ch_count = ret;
 
 	for (i = 0; i < ud->bchan_cnt; i++) {
 		struct udma_bchan *bchan = &ud->bchans[i];
@@ -1831,7 +1833,7 @@ static int udma_probe(struct udevice *dev)
 
 	uc_priv->supported = DMA_SUPPORTS_MEM_TO_MEM | DMA_SUPPORTS_MEM_TO_DEV;
 
-	return ret;
+	return 0;
 }
 
 static int udma_push_to_ring(struct k3_nav_ring *ring, void *elem)

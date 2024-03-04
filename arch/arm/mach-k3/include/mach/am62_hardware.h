@@ -42,6 +42,10 @@
 
 #define JTAG_DEV_FEATURE_NO_PRU			0x4
 
+#define JTAG_DEV_TEMP_COMMERCIAL		0x3
+#define JTAG_DEV_TEMP_INDUSTRIAL		0x4
+#define JTAG_DEV_TEMP_AUTOMOTIVE		0x5
+
 #define CTRLMMR_MAIN_DEVSTAT			(WKUP_CTRL_MMR0_BASE + 0x30)
 #define MAIN_DEVSTAT_PRIMARY_BOOTMODE_MASK	GENMASK(6, 3)
 #define MAIN_DEVSTAT_PRIMARY_BOOTMODE_SHIFT	3
@@ -103,6 +107,19 @@ static inline int k3_get_temp_grade(void)
 	u32 full_devid = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
 
 	return (full_devid & JTAG_DEV_TEMP_MASK) >> JTAG_DEV_TEMP_SHIFT;
+}
+
+static inline int k3_get_max_temp(void)
+{
+	switch (k3_get_temp_grade()) {
+	case JTAG_DEV_TEMP_INDUSTRIAL:
+		return 105;
+	case JTAG_DEV_TEMP_AUTOMOTIVE:
+		return 125;
+	case JTAG_DEV_TEMP_COMMERCIAL:
+	default:
+		return 95;
+	}
 }
 
 static inline int k3_has_pru(void)
