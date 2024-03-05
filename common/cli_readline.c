@@ -110,7 +110,7 @@ static int hist_init(void)
 
 	hist = calloc(HIST_MAX, HIST_SIZE + 1);
 	if (!hist)
-		return -ENOMEM;
+		panic("%s: calloc: out of memory!\n", __func__);
 
 	for (i = 0; i < HIST_MAX; i++)
 		hist_list[i] = hist + (i * (HIST_SIZE + 1));
