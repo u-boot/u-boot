@@ -211,3 +211,19 @@
 &serdes_refclk {
 	bootph-all;
 };
+
+&ospi0_pins_default {
+	bootph-all;
+};
+
+&fss {
+	bootph-all;
+};
+
+&ospi0 {
+ 	bootph-all;
+
+	flash@0 {
+		bootph-all;
+	};
+};

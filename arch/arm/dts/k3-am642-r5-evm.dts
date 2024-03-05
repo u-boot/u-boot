@@ -120,3 +120,8 @@
 	/delete-property/ assigned-clock-parents;
 	/delete-property/ power-domains;
 };
+
+&ospi0 {
+	reg = <0x00 0x0fc40000 0x00 0x100>,
+	      <0x00 0x60000000 0x00 0x8000000>;
+};
