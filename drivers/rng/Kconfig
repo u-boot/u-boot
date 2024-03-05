@@ -105,4 +105,12 @@ config RNG_JH7110
 	help
 	  Enable True Random Number Generator in StarFive JH7110 SoCs.
 
+config RNG_TURRIS_RWTM
+	bool "Turris Mox TRNG in Secure Processor"
+	depends on DM_RNG && ARMADA_3700
+	help
+	  Use TRNG in Turris Mox Secure Processor Firmware. Can be used
+	  on other Armada-3700 devices (like EspressoBin) if Secure
+	  Firmware from CZ.NIC is used.
+
 endif
