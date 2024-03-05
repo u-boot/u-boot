@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/lists.h>
+#include <eth_phy.h>
 #include <log.h>
 #include <malloc.h>
 #include <miiphy.h>
@@ -121,6 +123,42 @@ static int mdio_reset(struct mii_dev *mii_bus)
 	return dm_mdio_reset(mii_bus->priv);
 }
 
+static int mdio_bind_phy_nodes(struct udevice *mdio_dev)
+{
+	ofnode mdio_node, phy_node;
+	struct udevice *phy_dev;
+	const char *node_name;
+	int ret;
+
+	mdio_node = dev_ofnode(mdio_dev);
+	if (!ofnode_valid(mdio_node)) {
+		dev_dbg(mdio_dev, "invalid ofnode for mdio_dev\n");
+		return -ENXIO;
+	}
+
+	ofnode_for_each_subnode(phy_node, mdio_node) {
+		node_name = ofnode_get_name(phy_node);
+		dev_dbg(mdio_dev, "* Found child node: '%s'\n", node_name);
+		ret = device_bind_driver_to_node(mdio_dev,
+						 "eth_phy_generic_drv",
+						 node_name, phy_node, &phy_dev);
+		if (ret) {
+			dev_dbg(mdio_dev, "  - Eth phy binding error: %d\n", ret);
+			continue;
+		}
+
+		dev_dbg(mdio_dev, "  - bound phy device: '%s'\n", node_name);
+		ret = device_probe(phy_dev);
+		if (ret) {
+			dev_dbg(mdio_dev, "Device '%s' probe failed\n", phy_dev->name);
+			device_unbind(phy_dev);
+			continue;
+		}
+	}
+
+	return 0;
+}
+
 static int dm_mdio_post_probe(struct udevice *dev)
 {
 	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(dev);
@@ -153,6 +191,9 @@ static int dm_mdio_post_probe(struct udevice *dev)
 			return ret;
 		}
 	}
+
+	if (CONFIG_IS_ENABLED(DM_ETH_PHY))
+		mdio_bind_phy_nodes(dev);
 
 	return mdio_register(pdata->mii_bus);
 }
