@@ -1881,7 +1881,7 @@ include/config/uboot.release: include/config/auto.conf FORCE
 # version.h and scripts_basic is processed / created.
 
 # Listed in dependency order
-PHONY += prepare update_submodule archprepare prepare0 prepare1 prepare2 prepare3
+PHONY += prepare apply_mbedtls_patches update_submodule archprepare prepare0 prepare1 prepare2 prepare3
 
 # prepare3 is used to check if we are building in a separate output directory,
 # and if so do:
@@ -1922,8 +1922,23 @@ update_submodule:
 	git submodule init
 	git submodule update
 
+# FIXME: Apply the patches of MbedTLS before they are merged into upstream.
+MBEDTLS_PATCH_DIR := $(srctree)/lib/mbedtls/patch
+MBEDTLS_PATCH_FILES := $(wildcard $(MBEDTLS_PATCH_DIR)/*.patch)
+
+# Skip the patch if it was applied and do not save any backup files
+PATCH_OPTIONS := -N --no-backup-if-mismatch -r ''
+
+apply_mbedtls_patches: $(MBEDTLS_PATCH_FILES)
+	@echo "Applying mbedtls patches..."
+	@for patch_file in $^; do \
+		echo "Applying patch: $${patch_file}"; \
+		patch -d $(srctree)/lib/mbedtls/external/mbedtls \
+			$(PATCH_OPTIONS) -p1 < $${patch_file} 2>/dev/null || true; \
+	done
+
 # All the preparing..
-prepare: update_submodule prepare0
+prepare: update_submodule apply_mbedtls_patches prepare0
 
 # Generate some files
 # ---------------------------------------------------------------------------
