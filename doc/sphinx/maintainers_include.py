@@ -78,8 +78,8 @@ class MaintainersInclude(Include):
             # Drop needless input whitespace.
             line = line.rstrip()
 
-            # Linkify all non-wildcard refs to ReST files in Documentation/.
-            pat = r'(Documentation/([^\s\?\*]*)\.rst)'
+            # Linkify all non-wildcard refs to ReST files in doc/.
+            pat = r'(doc/([^\s\?\*]*)\.rst)'
             m = re.search(pat, line)
             if m:
                 # maintainers.rst is in a subdirectory, so include "../".
@@ -177,11 +177,11 @@ class MaintainersInclude(Include):
         if not self.state.document.settings.file_insertion_enabled:
             raise self.warning('"%s" directive disabled.' % self.name)
 
-        # Walk up source path directories to find Documentation/../
+        # Walk up source path directories to find doc/../
         path = self.state_machine.document.attributes['source']
         path = os.path.realpath(path)
         tail = path
-        while tail != "Documentation" and tail != "":
+        while tail != "doc" and tail != "":
             (path, tail) = os.path.split(path)
 
         # Append "MAINTAINERS"
