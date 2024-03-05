@@ -55,7 +55,7 @@ int initcall_run_list(const init_fnc_t init_sequence[])
 	init_fnc_t func;
 	int ret = 0;
 
-	for (ptr = init_sequence; func = *ptr, !ret && func; ptr++) {
+	for (ptr = init_sequence; func = *ptr, func; ptr++) {
 		type = initcall_is_event(func);
 
 		if (type) {
@@ -71,6 +71,8 @@ int initcall_run_list(const init_fnc_t init_sequence[])
 		}
 
 		ret = type ? event_notify_null(type) : func();
+		if (ret)
+			break;
 	}
 
 	if (ret) {
