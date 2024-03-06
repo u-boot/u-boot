@@ -34,7 +34,7 @@
 #define FMC2_RB_DELAY_US		30
 
 /* Max chip enable */
-#define FMC2_MAX_CE			2
+#define FMC2_MAX_CE			4
 
 /* Timings */
 #define FMC2_THIZ			1
@@ -160,6 +160,11 @@ static inline struct stm32_fmc2_nand *to_fmc2_nand(struct nand_chip *chip)
 	return container_of(chip, struct stm32_fmc2_nand, chip);
 }
 
+struct stm32_fmc2_nfc_data {
+	int max_ncs;
+	struct udevice *(*get_cdev)(struct udevice *dev);
+};
+
 struct stm32_fmc2_nfc {
 	struct nand_hw_control base;
 	struct stm32_fmc2_nand nand;
@@ -169,6 +174,7 @@ struct stm32_fmc2_nfc {
 	fdt_addr_t cmd_base[FMC2_MAX_CE];
 	fdt_addr_t addr_base[FMC2_MAX_CE];
 	struct clk clk;
+	const struct stm32_fmc2_nfc_data *data;
 
 	u8 cs_assigned;
 	int cs_sel;
@@ -815,7 +821,7 @@ static int stm32_fmc2_nfc_parse_child(struct stm32_fmc2_nfc *nfc, ofnode node)
 	}
 
 	for (i = 0; i < nand->ncs; i++) {
-		if (cs[i] >= FMC2_MAX_CE) {
+		if (cs[i] >= nfc->data->max_ncs) {
 			log_err("Invalid reg value: %d\n", nand->cs_used[i]);
 			return -EINVAL;
 		}
@@ -906,9 +912,17 @@ static int stm32_fmc2_nfc_probe(struct udevice *dev)
 	spin_lock_init(&nfc->controller.lock);
 	init_waitqueue_head(&nfc->controller.wq);
 
-	cdev = stm32_fmc2_nfc_get_cdev(dev);
-	if (!cdev)
+	nfc->data = (void *)dev_get_driver_data(dev);
+	if (!nfc->data)
 		return -EINVAL;
+
+	if (nfc->data->get_cdev) {
+		cdev = nfc->data->get_cdev(dev);
+		if (!cdev)
+			return -EINVAL;
+	} else {
+		cdev = dev->parent;
+	}
 
 	ret = stm32_fmc2_nfc_parse_dt(dev, nfc);
 	if (ret)
@@ -921,7 +935,7 @@ static int stm32_fmc2_nfc_probe(struct udevice *dev)
 	if (dev == cdev)
 		start_region = 1;
 
-	for (chip_cs = 0, mem_region = start_region; chip_cs < FMC2_MAX_CE;
+	for (chip_cs = 0, mem_region = start_region; chip_cs < nfc->data->max_ncs;
 	     chip_cs++, mem_region += 3) {
 		if (!(nfc->cs_assigned & BIT(chip_cs)))
 			continue;
@@ -1033,9 +1047,28 @@ static int stm32_fmc2_nfc_probe(struct udevice *dev)
 	return nand_register(0, mtd);
 }
 
+static const struct stm32_fmc2_nfc_data stm32_fmc2_nfc_mp1_data = {
+	.max_ncs = 2,
+	.get_cdev = stm32_fmc2_nfc_get_cdev,
+};
+
+static const struct stm32_fmc2_nfc_data stm32_fmc2_nfc_mp25_data = {
+	.max_ncs = 4,
+};
+
 static const struct udevice_id stm32_fmc2_nfc_match[] = {
-	{ .compatible = "st,stm32mp15-fmc2" },
-	{ .compatible = "st,stm32mp1-fmc2-nfc" },
+	{
+		.compatible = "st,stm32mp15-fmc2",
+		.data = (ulong)&stm32_fmc2_nfc_mp1_data,
+	},
+	{
+		.compatible = "st,stm32mp1-fmc2-nfc",
+		.data = (ulong)&stm32_fmc2_nfc_mp1_data,
+	},
+	{
+		.compatible = "st,stm32mp25-fmc2-nfc",
+		.data = (ulong)&stm32_fmc2_nfc_mp25_data,
+	},
 	{ /* Sentinel */ }
 };
 
