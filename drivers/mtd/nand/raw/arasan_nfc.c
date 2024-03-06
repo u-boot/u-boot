@@ -1233,6 +1233,7 @@ static int arasan_probe(struct udevice *dev)
 	struct mtd_info *mtd;
 	ofnode child;
 	int err = -1;
+	const char *str;
 
 	info->reg = dev_read_addr_ptr(dev);
 	mtd = nand_to_mtd(nand_chip);
@@ -1261,6 +1262,12 @@ static int arasan_probe(struct udevice *dev)
 	if (nand_scan_ident(mtd, CONFIG_SYS_NAND_MAX_CHIPS, NULL)) {
 		printf("%s: nand_scan_ident failed\n", __func__);
 		goto fail;
+	}
+
+	str = ofnode_read_string(nand_chip->flash_node, "nand-ecc-mode");
+	if (!str || strcmp(str, "hw") != 0) {
+		printf("%s ecc mode is not supported\n", str);
+		return -EINVAL;
 	}
 
 	nand_chip->ecc.mode = NAND_ECC_HW;
