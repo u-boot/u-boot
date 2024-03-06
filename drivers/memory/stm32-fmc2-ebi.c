@@ -23,8 +23,14 @@
 #define FMC2_BTR(x)			((x) * 0x8 + FMC2_BTR1)
 #define FMC2_PCSCNTR			0x20
 #define FMC2_CFGR			0x20
+#define FMC2_SR				0x84
 #define FMC2_BWTR1			0x104
 #define FMC2_BWTR(x)			((x) * 0x8 + FMC2_BWTR1)
+#define FMC2_SECCFGR			0x300
+#define FMC2_CIDCFGR0			0x30c
+#define FMC2_CIDCFGR(x)			((x) * 0x8 + FMC2_CIDCFGR0)
+#define FMC2_SEMCR0			0x310
+#define FMC2_SEMCR(x)			((x) * 0x8 + FMC2_SEMCR0)
 
 /* Register: FMC2_BCR1 */
 #define FMC2_BCR1_CCLKEN		BIT(20)
@@ -67,8 +73,23 @@
 #define FMC2_CFGR_CCLKEN		BIT(20)
 #define FMC2_CFGR_FMC2EN		BIT(31)
 
+/* Register: FMC2_SR */
+#define FMC2_SR_ISOST			GENMASK(1, 0)
+
+/* Register: FMC2_CIDCFGR */
+#define FMC2_CIDCFGR_CFEN		BIT(0)
+#define FMC2_CIDCFGR_SEMEN		BIT(1)
+#define FMC2_CIDCFGR_SCID		GENMASK(6, 4)
+#define FMC2_CIDCFGR_SEMWLC1		BIT(17)
+
+/* Register: FMC2_SEMCR */
+#define FMC2_SEMCR_SEM_MUTEX		BIT(0)
+#define FMC2_SEMCR_SEMCID		GENMASK(6, 4)
+
 #define FMC2_MAX_EBI_CE			4
 #define FMC2_MAX_BANKS			5
+#define FMC2_MAX_RESOURCES		6
+#define FMC2_CID1			1
 
 #define FMC2_BCR_CPSIZE_0		0x0
 #define FMC2_BCR_CPSIZE_128		0x1
@@ -163,6 +184,7 @@ struct stm32_fmc2_ebi_data {
 	u32 fmc2_enable_reg;
 	u32 fmc2_enable_bit;
 	int (*nwait_used_by_ctrls)(struct stm32_fmc2_ebi *ebi);
+	int (*check_rif)(struct stm32_fmc2_ebi *ebi, u32 resource);
 };
 
 struct stm32_fmc2_ebi {
@@ -170,6 +192,7 @@ struct stm32_fmc2_ebi {
 	fdt_addr_t io_base;
 	const struct stm32_fmc2_ebi_data *data;
 	u8 bank_assigned;
+	bool access_granted;
 };
 
 /*
@@ -239,6 +262,28 @@ static int stm32_fmc2_ebi_check_sync_trans(struct stm32_fmc2_ebi *ebi,
 		return 0;
 
 	return -EINVAL;
+}
+
+static int stm32_fmc2_ebi_mp25_check_cclk(struct stm32_fmc2_ebi *ebi,
+					  const struct stm32_fmc2_prop *prop,
+					  int cs)
+{
+	if (!ebi->access_granted)
+		return -EACCES;
+
+	return stm32_fmc2_ebi_check_sync_trans(ebi, prop, cs);
+}
+
+static int stm32_fmc2_ebi_mp25_check_clk_period(struct stm32_fmc2_ebi *ebi,
+						const struct stm32_fmc2_prop *prop,
+						int cs)
+{
+	u32 cfgr = readl(ebi->io_base + FMC2_CFGR);
+
+	if (cfgr & FMC2_CFGR_CCLKEN && !ebi->access_granted)
+		return -EACCES;
+
+	return stm32_fmc2_ebi_check_sync_trans(ebi, prop, cs);
 }
 
 static int stm32_fmc2_ebi_check_async_trans(struct stm32_fmc2_ebi *ebi,
@@ -960,7 +1005,7 @@ static const struct stm32_fmc2_prop stm32_fmc2_mp25_child_props[] = {
 		.bprop = true,
 		.reg_type = FMC2_REG_CFGR,
 		.reg_mask = FMC2_CFGR_CCLKEN,
-		.check = stm32_fmc2_ebi_check_sync_trans,
+		.check = stm32_fmc2_ebi_mp25_check_cclk,
 		.set = stm32_fmc2_ebi_set_bit_field,
 	},
 	{
@@ -1058,7 +1103,7 @@ static const struct stm32_fmc2_prop stm32_fmc2_mp25_child_props[] = {
 	{
 		.name = "st,fmc2-ebi-cs-clk-period-ns",
 		.reset_val = FMC2_CFGR_CLKDIV_MAX + 1,
-		.check = stm32_fmc2_ebi_check_sync_trans,
+		.check = stm32_fmc2_ebi_mp25_check_clk_period,
 		.calculate = stm32_fmc2_ebi_ns_to_clock_cycles,
 		.set = stm32_fmc2_ebi_mp25_set_clk_period,
 	},
@@ -1112,6 +1157,70 @@ static const struct stm32_fmc2_prop stm32_fmc2_mp25_child_props[] = {
 		.set = stm32_fmc2_ebi_mp25_set_max_low_pulse,
 	},
 };
+
+static int stm32_fmc2_ebi_mp25_check_rif(struct stm32_fmc2_ebi *ebi, u32 resource)
+{
+	u32 seccfgr, cidcfgr, semcr;
+	int cid;
+
+	if (resource >= FMC2_MAX_RESOURCES)
+		return -EINVAL;
+
+	seccfgr = readl(ebi->io_base + FMC2_SECCFGR);
+	if (seccfgr & BIT(resource)) {
+		if (resource)
+			log_err("resource %d is configured as secure\n",
+				resource);
+
+		return -EACCES;
+	}
+
+	cidcfgr = readl(ebi->io_base + FMC2_CIDCFGR(resource));
+	if (!(cidcfgr & FMC2_CIDCFGR_CFEN))
+		/* CID filtering is turned off: access granted */
+		return 0;
+
+	if (!(cidcfgr & FMC2_CIDCFGR_SEMEN)) {
+		/* Static CID mode */
+		cid = FIELD_GET(FMC2_CIDCFGR_SCID, cidcfgr);
+		if (cid != FMC2_CID1) {
+			if (resource)
+				log_err("static CID%d set for resource %d\n",
+					cid, resource);
+
+			return -EACCES;
+		}
+
+		return 0;
+	}
+
+	/* Pass-list with semaphore mode */
+	if (!(cidcfgr & FMC2_CIDCFGR_SEMWLC1)) {
+		if (resource)
+			log_err("CID1 is block-listed for resource %d\n",
+				resource);
+
+		return -EACCES;
+	}
+
+	semcr = readl(ebi->io_base + FMC2_SEMCR(resource));
+	if (!(semcr & FMC2_SEMCR_SEM_MUTEX)) {
+		setbits_le32(ebi->io_base + FMC2_SEMCR(resource),
+			     FMC2_SEMCR_SEM_MUTEX);
+		semcr = readl(ebi->io_base + FMC2_SEMCR(resource));
+	}
+
+	cid = FIELD_GET(FMC2_SEMCR_SEMCID, semcr);
+	if (cid != FMC2_CID1) {
+		if (resource)
+			log_err("resource %d is already used by CID%d\n",
+				resource, cid);
+
+		return -EACCES;
+	}
+
+	return 0;
+}
 
 static int stm32_fmc2_ebi_parse_prop(struct stm32_fmc2_ebi *ebi,
 				     ofnode node,
@@ -1196,6 +1305,9 @@ static int stm32_fmc2_ebi_nwait_used_by_ctrls(struct stm32_fmc2_ebi *ebi)
 
 static void stm32_fmc2_ebi_enable(struct stm32_fmc2_ebi *ebi)
 {
+	if (!ebi->access_granted)
+		return;
+
 	setbits_le32(ebi->io_base + ebi->data->fmc2_enable_reg,
 		     ebi->data->fmc2_enable_bit);
 }
@@ -1247,6 +1359,14 @@ static int stm32_fmc2_ebi_parse_dt(struct udevice *dev,
 		if (ebi->bank_assigned & BIT(bank)) {
 			dev_err(dev, "bank already assigned: %d\n", bank);
 			return -EINVAL;
+		}
+
+		if (ebi->data->check_rif) {
+			ret = ebi->data->check_rif(ebi, bank + 1);
+			if (ret) {
+				dev_err(dev, "bank access failed: %d\n", bank);
+				return ret;
+			}
 		}
 
 		if (bank < FMC2_MAX_EBI_CE) {
@@ -1306,6 +1426,21 @@ static int stm32_fmc2_ebi_probe(struct udevice *dev)
 		reset_deassert(&reset);
 	}
 
+	/* Check if CFGR register can be modified */
+	ebi->access_granted = true;
+	if (ebi->data->check_rif) {
+		ret = ebi->data->check_rif(ebi, 0);
+		if (ret) {
+			ebi->access_granted = false;
+
+			/* In case of CFGR is secure, just check that the FMC2 is enabled */
+			if (readl(ebi->io_base + FMC2_SR) & FMC2_SR_ISOST) {
+				dev_err(dev, "FMC2 is not ready to be used.\n");
+				return -EACCES;
+			}
+		}
+	}
+
 	return stm32_fmc2_ebi_parse_dt(dev, ebi);
 }
 
@@ -1322,6 +1457,7 @@ static const struct stm32_fmc2_ebi_data stm32_fmc2_ebi_mp25_data = {
 	.nb_child_props = ARRAY_SIZE(stm32_fmc2_mp25_child_props),
 	.fmc2_enable_reg = FMC2_CFGR,
 	.fmc2_enable_bit = FMC2_CFGR_FMC2EN,
+	.check_rif = stm32_fmc2_ebi_mp25_check_rif,
 };
 
 static const struct udevice_id stm32_fmc2_ebi_match[] = {
