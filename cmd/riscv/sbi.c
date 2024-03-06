@@ -99,7 +99,7 @@ static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
 			}
 		}
 		if (i == ARRAY_SIZE(implementations))
-			printf("Unknown implementation ID %ld", ret);
+			printf("\nUnknown implementation ID 0x%x", impl_id);
 	}
 	printf("\nMachine:\n");
 	ret = sbi_get_mvendorid(&mvendorid);
