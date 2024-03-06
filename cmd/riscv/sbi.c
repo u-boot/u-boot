@@ -81,6 +81,7 @@ static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
 					break;
 				switch (impl_id) {
 				case 1: /* OpenSBI */
+				case 8: /* PolarFire Hart Software Services */
 					printf("%ld.%ld",
 					       vers >> 16, vers & 0xffff);
 					break;
