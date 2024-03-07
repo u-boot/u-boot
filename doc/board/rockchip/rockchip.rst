@@ -160,7 +160,7 @@ For SoCs whose TF-A code is not available as open source, use BL31 binary provid
 TPL
 ^^^
 
-For some SoCs U-Boot sources lack of support to inizialize DRAM.
+For some SoCs, the U-Boot sources lack the support to initialize DRAM.
 In these cases, to get a fully functional image following :ref:`PackageWithTPLandSPL`, use DDR binary provided by Rockchip rkbin repository as ROCKCHIP_TPL when building U-Boot.
 Otherwise, follow :ref:`PackageWithRockchipMiniloader`. 
 
