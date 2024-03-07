@@ -168,7 +168,7 @@
 		bootph-all;
 	};
 
-	pmu {
+	pmu: pmu {
 		compatible = "arm,armv8-pmuv3";
 		interrupt-parent = <&gic>;
 		interrupts = <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH>,
