@@ -490,6 +490,17 @@ config CMD_ELF
 	help
 	  Boot an ELF/vxWorks image from the memory.
 
+config CMD_ELF_FDT_SETUP
+	bool "Flattened Device Tree setup in bootelf cmd"
+	default n
+	depends on CMD_ELF
+	select LIB_LIBFDT
+	select LMB
+	help
+	  Do FDT setup in bootelf command optionally by param -d, which
+	  allows to bring additional system info (e.g. /memory node) to
+	  the Operating System or application.
+
 config CMD_FDT
 	bool "Flattened Device Tree utility commands"
 	default y
