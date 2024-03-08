@@ -2233,6 +2233,7 @@ clean: $(clean-dirs)
 		-o -name modules.builtin -o -name '.tmp_*.o.*' \
 		-o -name 'dsdt_generated.aml' -o -name 'dsdt_generated.asl.tmp' \
 		-o -name 'dsdt_generated.c' \
+		-o -name 'generated_defconfig' \
 		-o -name '*.efi' -o -name '*.gcno' -o -name '*.so' \) \
 		-type f -print | xargs rm -f
 
