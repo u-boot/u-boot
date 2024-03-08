@@ -89,36 +89,6 @@ int setup_boottargets(void)
 	return 0;
 }
 
-int mmc_get_env_dev(void)
-{
-	const char *boot_device =
-		ofnode_read_chosen_string("u-boot,spl-boot-device");
-	struct udevice *devp;
-
-	if (!boot_device) {
-		debug("%s: /chosen/u-boot,spl-boot-device not set\n",
-		      __func__);
-#ifdef CONFIG_SYS_MMC_ENV_DEV
-		return CONFIG_SYS_MMC_ENV_DEV;
-#else
-		return 0;
-#endif
-	}
-
-	debug("%s: booted from %s\n", __func__, boot_device);
-
-	if (uclass_find_device_by_ofnode(UCLASS_MMC, ofnode_path(boot_device), &devp))
-#ifdef CONFIG_SYS_MMC_ENV_DEV
-		return CONFIG_SYS_MMC_ENV_DEV;
-#else
-		return 0;
-#endif
-
-	debug("%s: get MMC ENV from mmc%d\n", __func__, devp->seq_);
-
-	return devp->seq_;
-}
-
 enum env_location arch_env_get_location(enum env_operation op, int prio)
 {
 	const char *boot_device =

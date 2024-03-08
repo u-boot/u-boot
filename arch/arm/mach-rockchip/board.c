@@ -13,6 +13,7 @@
 #include <cpu_func.h>
 #include <env.h>
 #include <dm.h>
+#include <dm/uclass-internal.h>
 #include <efi_loader.h>
 #include <fastboot.h>
 #include <hash.h>
@@ -503,3 +504,33 @@ __weak int board_rng_seed(struct abuf *buf)
 	return 0;
 }
 #endif
+
+int mmc_get_env_dev(void)
+{
+	int devnum;
+	const char *boot_device;
+	struct udevice *dev;
+
+#ifdef CONFIG_SYS_MMC_ENV_DEV
+	devnum = CONFIG_SYS_MMC_ENV_DEV;
+#else
+	devnum = 0;
+#endif
+
+	boot_device = ofnode_read_chosen_string("u-boot,spl-boot-device");
+	if (!boot_device) {
+		debug("%s: /chosen/u-boot,spl-boot-device not set\n", __func__);
+		return devnum;
+	}
+
+	debug("%s: booted from %s\n", __func__, boot_device);
+
+	if (uclass_find_device_by_ofnode(UCLASS_MMC, ofnode_path(boot_device), &dev)) {
+		debug("%s: no U-Boot device found for %s\n", __func__, boot_device);
+		return devnum;
+	}
+
+	devnum = dev->seq_;
+	debug("%s: get MMC env from mmc%d\n", __func__, devnum);
+	return devnum;
+}
