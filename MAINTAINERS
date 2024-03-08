@@ -683,13 +683,6 @@ F:	tools/stm32image.c
 N:	stm
 N:	stm32
 
-
-ARM STM STV0991
-M:	Vikas Manocha <vikas.manocha@st.com>
-S:	Maintained
-F:	arch/arm/cpu/armv7/stv0991/
-F:	arch/arm/include/asm/arch-stv0991/
-
 ARM SUNXI
 M:	Jagan Teki <jagan@amarulasolutions.com>
 M:	Andre Przywara <andre.przywara@arm.com>
