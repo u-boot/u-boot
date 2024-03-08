@@ -192,7 +192,7 @@
 	status = "okay";
 	/* QSPI should also have PINCTRL setup */
 	flash@0 {
-		compatible = "mt25qu512a", "m25p80", "jedec,spi-nor"; /* mt25qu512abb8e12 512Mib */
+		compatible = "m25p80", "jedec,spi-nor"; /* mt25qu512abb8e12 512Mib */
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0>;
