@@ -1,5 +1,5 @@
 STARFIVE JH7110 VISIONFIVE2 BOARD
-M:	Yanhong Wang <yanhong.wang@starfivetech.com>
+M:	Minda Chen <minda.chen@starfivetech.com>
 S:	Maintained
 F:	arch/riscv/include/asm/arch-jh7110/
 F:	board/starfive/visionfive2/
