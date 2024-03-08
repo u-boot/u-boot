@@ -789,6 +789,7 @@ static int stm32_sdmmc2_bind(struct udevice *dev)
 
 static const struct udevice_id stm32_sdmmc2_ids[] = {
 	{ .compatible = "st,stm32-sdmmc2" },
+	{ .compatible = "st,stm32mp25-sdmmc2" },
 	{ }
 };
 
