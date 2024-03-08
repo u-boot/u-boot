@@ -35,16 +35,7 @@
 #define CLK_CON_GAT_GATE_CLKCMU_PERI_IP		0x2084
 #define CLK_CON_GAT_GATE_CLKCMU_PERI_UART	0x2088
 
-static const struct samsung_pll_clock top_pure_pll_clks[] = {
-	PLL(pll_0822x, CLK_FOUT_SHARED0_PLL, "fout_shared0_pll", "clock-oscclk",
-	    PLL_CON3_PLL_SHARED0),
-	PLL(pll_0822x, CLK_FOUT_SHARED1_PLL, "fout_shared1_pll", "clock-oscclk",
-	    PLL_CON3_PLL_SHARED1),
-	PLL(pll_0831x, CLK_FOUT_MMC_PLL, "fout_mmc_pll", "clock-oscclk",
-	    PLL_CON3_PLL_MMC),
-};
-
-/* List of parent clocks for Muxes in CMU_TOP */
+/* List of parent clocks for Muxes in CMU_TOP: for PURECLKCOMP */
 PNAME(mout_shared0_pll_p)	= { "clock-oscclk", "fout_shared0_pll" };
 PNAME(mout_shared1_pll_p)	= { "clock-oscclk", "fout_shared1_pll" };
 PNAME(mout_mmc_pll_p)		= { "clock-oscclk", "fout_mmc_pll" };
@@ -55,6 +46,17 @@ PNAME(mout_peri_uart_p)		= { "clock-oscclk", "dout_shared0_div4",
 PNAME(mout_peri_ip_p)		= { "clock-oscclk", "dout_shared0_div4",
 				    "dout_shared1_div4", "clock-oscclk" };
 
+/* PURECLKCOMP */
+
+static const struct samsung_pll_clock top_pure_pll_clks[] = {
+	PLL(pll_0822x, CLK_FOUT_SHARED0_PLL, "fout_shared0_pll", "clock-oscclk",
+	    PLL_CON3_PLL_SHARED0),
+	PLL(pll_0822x, CLK_FOUT_SHARED1_PLL, "fout_shared1_pll", "clock-oscclk",
+	    PLL_CON3_PLL_SHARED1),
+	PLL(pll_0831x, CLK_FOUT_MMC_PLL, "fout_mmc_pll", "clock-oscclk",
+	    PLL_CON3_PLL_MMC),
+};
+
 static const struct samsung_mux_clock top_pure_mux_clks[] = {
 	MUX(CLK_MOUT_SHARED0_PLL, "mout_shared0_pll", mout_shared0_pll_p,
 	    PLL_CON0_PLL_SHARED0, 4, 1),
@@ -62,15 +64,6 @@ static const struct samsung_mux_clock top_pure_mux_clks[] = {
 	    PLL_CON0_PLL_SHARED1, 4, 1),
 	MUX(CLK_MOUT_MMC_PLL, "mout_mmc_pll", mout_mmc_pll_p,
 	    PLL_CON0_PLL_MMC, 4, 1),
-};
-
-static const struct samsung_mux_clock top_peri_mux_clks[] = {
-	MUX(CLK_MOUT_PERI_BUS, "mout_peri_bus", mout_peri_bus_p,
-	    CLK_CON_MUX_MUX_CLKCMU_PERI_BUS, 0, 1),
-	MUX(CLK_MOUT_PERI_UART, "mout_peri_uart", mout_peri_uart_p,
-	    CLK_CON_MUX_MUX_CLKCMU_PERI_UART, 0, 2),
-	MUX(CLK_MOUT_PERI_IP, "mout_peri_ip", mout_peri_ip_p,
-	    CLK_CON_MUX_MUX_CLKCMU_PERI_IP, 0, 2),
 };
 
 static const struct samsung_div_clock top_pure_div_clks[] = {
@@ -88,13 +81,15 @@ static const struct samsung_div_clock top_pure_div_clks[] = {
 	    CLK_CON_DIV_PLL_SHARED1_DIV4, 0, 1),
 };
 
-static const struct samsung_div_clock top_peri_div_clks[] = {
-	DIV(CLK_DOUT_PERI_BUS, "dout_peri_bus", "gout_peri_bus",
-	    CLK_CON_DIV_CLKCMU_PERI_BUS, 0, 4),
-	DIV(CLK_DOUT_PERI_UART, "dout_peri_uart", "gout_peri_uart",
-	    CLK_CON_DIV_CLKCMU_PERI_UART, 0, 4),
-	DIV(CLK_DOUT_PERI_IP, "dout_peri_ip", "gout_peri_ip",
-	    CLK_CON_DIV_CLKCMU_PERI_IP, 0, 4),
+/* PERI */
+
+static const struct samsung_mux_clock top_peri_mux_clks[] = {
+	MUX(CLK_MOUT_PERI_BUS, "mout_peri_bus", mout_peri_bus_p,
+	    CLK_CON_MUX_MUX_CLKCMU_PERI_BUS, 0, 1),
+	MUX(CLK_MOUT_PERI_UART, "mout_peri_uart", mout_peri_uart_p,
+	    CLK_CON_MUX_MUX_CLKCMU_PERI_UART, 0, 2),
+	MUX(CLK_MOUT_PERI_IP, "mout_peri_ip", mout_peri_ip_p,
+	    CLK_CON_MUX_MUX_CLKCMU_PERI_IP, 0, 2),
 };
 
 static const struct samsung_gate_clock top_peri_gate_clks[] = {
@@ -104,6 +99,15 @@ static const struct samsung_gate_clock top_peri_gate_clks[] = {
 	     CLK_CON_GAT_GATE_CLKCMU_PERI_UART, 21, 0, 0),
 	GATE(CLK_GOUT_PERI_IP, "gout_peri_ip", "mout_peri_ip",
 	     CLK_CON_GAT_GATE_CLKCMU_PERI_IP, 21, 0, 0),
+};
+
+static const struct samsung_div_clock top_peri_div_clks[] = {
+	DIV(CLK_DOUT_PERI_BUS, "dout_peri_bus", "gout_peri_bus",
+	    CLK_CON_DIV_CLKCMU_PERI_BUS, 0, 4),
+	DIV(CLK_DOUT_PERI_UART, "dout_peri_uart", "gout_peri_uart",
+	    CLK_CON_DIV_CLKCMU_PERI_UART, 0, 4),
+	DIV(CLK_DOUT_PERI_IP, "dout_peri_ip", "gout_peri_ip",
+	    CLK_CON_DIV_CLKCMU_PERI_IP, 0, 4),
 };
 
 static const struct samsung_clk_group top_cmu_clks[] = {
