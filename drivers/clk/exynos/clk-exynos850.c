@@ -10,6 +10,11 @@
 #include <dt-bindings/clock/exynos850.h>
 #include "clk.h"
 
+enum exynos850_cmu_id {
+	CMU_TOP,
+	CMU_PERI,
+};
+
 /* ---- CMU_TOP ------------------------------------------------------------- */
 
 /* Register Offset definitions for CMU_TOP (0x120e0000) */
@@ -124,7 +129,7 @@ static const struct samsung_clk_group top_cmu_clks[] = {
 
 static int exynos850_cmu_top_probe(struct udevice *dev)
 {
-	return samsung_cmu_register_one(dev, top_cmu_clks,
+	return samsung_cmu_register_one(dev, CMU_TOP, top_cmu_clks,
 					ARRAY_SIZE(top_cmu_clks));
 }
 
@@ -133,11 +138,13 @@ static const struct udevice_id exynos850_cmu_top_ids[] = {
 	{ }
 };
 
+SAMSUNG_CLK_OPS(exynos850_cmu_top, CMU_TOP);
+
 U_BOOT_DRIVER(exynos850_cmu_top) = {
 	.name		= "exynos850-cmu-top",
 	.id		= UCLASS_CLK,
 	.of_match	= exynos850_cmu_top_ids,
-	.ops		= &ccf_clk_ops,
+	.ops		= &exynos850_cmu_top_clk_ops,
 	.probe		= exynos850_cmu_top_probe,
 	.flags		= DM_FLAG_PRE_RELOC,
 };
@@ -175,7 +182,8 @@ static const struct samsung_clk_group peri_cmu_clks[] = {
 
 static int exynos850_cmu_peri_probe(struct udevice *dev)
 {
-	return samsung_register_cmu(dev, peri_cmu_clks, exynos850_cmu_top);
+	return samsung_register_cmu(dev, CMU_PERI, peri_cmu_clks,
+				    exynos850_cmu_top);
 }
 
 static const struct udevice_id exynos850_cmu_peri_ids[] = {
@@ -183,11 +191,13 @@ static const struct udevice_id exynos850_cmu_peri_ids[] = {
 	{ }
 };
 
+SAMSUNG_CLK_OPS(exynos850_cmu_peri, CMU_PERI);
+
 U_BOOT_DRIVER(exynos850_cmu_peri) = {
 	.name		= "exynos850-cmu-peri",
 	.id		= UCLASS_CLK,
 	.of_match	= exynos850_cmu_peri_ids,
-	.ops		= &ccf_clk_ops,
+	.ops		= &exynos850_cmu_peri_clk_ops,
 	.probe		= exynos850_cmu_peri_probe,
 	.flags		= DM_FLAG_PRE_RELOC,
 };
