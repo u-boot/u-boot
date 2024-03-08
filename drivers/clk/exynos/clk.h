@@ -179,22 +179,6 @@ struct samsung_clk_group {
 	unsigned int nr_clk;
 };
 
-void samsung_clk_register_mux(void __iomem *base,
-			      const struct samsung_mux_clock *clk_list,
-			      unsigned int nr_clk);
-void samsung_clk_register_div(void __iomem *base,
-			      const struct samsung_div_clock *clk_list,
-			      unsigned int nr_clk);
-void samsung_clk_register_gate(void __iomem *base,
-			       const struct samsung_gate_clock *clk_list,
-			       unsigned int nr_clk);
-void samsung_clk_register_pll(void __iomem *base,
-			      const struct samsung_pll_clock *clk_list,
-			      unsigned int nr_clk);
-
-void samsung_cmu_register_clocks(void __iomem *base,
-				 const struct samsung_clk_group *clk_groups,
-				 unsigned int nr_groups);
 int samsung_cmu_register_one(struct udevice *dev,
 			     const struct samsung_clk_group *clk_groups,
 			     unsigned int nr_groups);

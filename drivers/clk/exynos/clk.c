@@ -10,7 +10,7 @@
 #include <dm.h>
 #include "clk.h"
 
-void samsung_clk_register_mux(void __iomem *base,
+static void samsung_clk_register_mux(void __iomem *base,
 			      const struct samsung_mux_clock *clk_list,
 			      unsigned int nr_clk)
 {
@@ -28,7 +28,7 @@ void samsung_clk_register_mux(void __iomem *base,
 	}
 }
 
-void samsung_clk_register_div(void __iomem *base,
+static void samsung_clk_register_div(void __iomem *base,
 			      const struct samsung_div_clock *clk_list,
 			      unsigned int nr_clk)
 {
@@ -46,7 +46,7 @@ void samsung_clk_register_div(void __iomem *base,
 	}
 }
 
-void samsung_clk_register_gate(void __iomem *base,
+static void samsung_clk_register_gate(void __iomem *base,
 			       const struct samsung_gate_clock *clk_list,
 			       unsigned int nr_clk)
 {
@@ -84,9 +84,9 @@ static const samsung_clk_register_fn samsung_clk_register_fns[] = {
  * Having the array of clock groups @clk_groups makes it possible to keep a
  * correct clocks registration order.
  */
-void samsung_cmu_register_clocks(void __iomem *base,
-				 const struct samsung_clk_group *clk_groups,
-				 unsigned int nr_groups)
+static void samsung_cmu_register_clocks(void __iomem *base,
+				const struct samsung_clk_group *clk_groups,
+				unsigned int nr_groups)
 {
 	unsigned int i;
 
