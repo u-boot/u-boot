@@ -95,20 +95,23 @@ ulong imx8_clk_get_rate(struct clk *clk)
 		resource = SC_R_SDHC_2;
 		pm_clk = SC_PM_CLK_PER;
 		break;
-	case IMX8QM_UART0_IPG_CLK:
 	case IMX8QM_UART0_CLK:
+	case IMX8QM_UART0_IPG_CLK:
 		resource = SC_R_UART_0;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QM_UART1_CLK:
+	case IMX8QM_UART1_IPG_CLK:
 		resource = SC_R_UART_1;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QM_UART2_CLK:
+	case IMX8QM_UART2_IPG_CLK:
 		resource = SC_R_UART_2;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QM_UART3_CLK:
+	case IMX8QM_UART3_IPG_CLK:
 		resource = SC_R_UART_3;
 		pm_clk = SC_PM_CLK_PER;
 		break;
@@ -181,18 +184,22 @@ ulong imx8_clk_set_rate(struct clk *clk, unsigned long rate)
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QM_UART0_CLK:
+	case IMX8QM_UART0_IPG_CLK:
 		resource = SC_R_UART_0;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QM_UART1_CLK:
+	case IMX8QM_UART1_IPG_CLK:
 		resource = SC_R_UART_1;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QM_UART2_CLK:
+	case IMX8QM_UART2_IPG_CLK:
 		resource = SC_R_UART_2;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QM_UART3_CLK:
+	case IMX8QM_UART3_IPG_CLK:
 		resource = SC_R_UART_3;
 		pm_clk = SC_PM_CLK_PER;
 		break;
@@ -283,18 +290,22 @@ int __imx8_clk_enable(struct clk *clk, bool enable)
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QM_UART0_CLK:
+	case IMX8QM_UART0_IPG_CLK:
 		resource = SC_R_UART_0;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QM_UART1_CLK:
+	case IMX8QM_UART1_IPG_CLK:
 		resource = SC_R_UART_1;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QM_UART2_CLK:
+	case IMX8QM_UART2_IPG_CLK:
 		resource = SC_R_UART_2;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QM_UART3_CLK:
+	case IMX8QM_UART3_IPG_CLK:
 		resource = SC_R_UART_3;
 		pm_clk = SC_PM_CLK_PER;
 		break;
