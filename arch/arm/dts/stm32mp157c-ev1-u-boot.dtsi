@@ -33,11 +33,11 @@
 			label = "fsbl1";
 			reg = <0x00000000 0x00040000>;
 		};
-		partition@80000 {
+		partition@40000 {
 			label = "fsbl2";
 			reg = <0x00040000 0x00040000>;
 		};
-		partition@100000 {
+		partition@80000 {
 			label = "ssbl";
 			reg = <0x00080000 0x00200000>;
 		};
@@ -58,7 +58,7 @@
 			label = "fsbl2";
 			reg = <0x00040000 0x00040000>;
 		};
-		partition@100000 {
+		partition@80000 {
 			label = "fip";
 			reg = <0x00080000 0x00400000>;
 		};
@@ -112,7 +112,7 @@
 					label = "fip2";
 					reg = <0x00600000 0x00400000>;
 				};
-				partition@1200000 {
+				partition@a00000 {
 					label = "UBI";
 					reg = <0x00a00000 0x3f600000>;
 				};
