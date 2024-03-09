@@ -568,6 +568,19 @@ config MMC_SDHCI_CADENCE
 
 	  If unsure, say N.
 
+config MMC_SDHCI_CV1800B
+	bool "SDHCI support for the CV1800B SD/SDIO/eMMC controller"
+	depends on BLK && DM_MMC
+	depends on MMC_SDHCI
+	depends on OF_CONTROL
+	help
+	  This selects the CV1800B SD/SDIO/eMMC driver.
+
+	  If you have a controller with this interface,
+	  say Y here.
+
+	  If unsure, say N.
+
 config MMC_SDHCI_AM654
 	bool "SDHCI Controller on TI's Am654 devices"
 	depends on ARCH_K3
