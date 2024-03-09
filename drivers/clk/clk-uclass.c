@@ -178,7 +178,7 @@ int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk)
 bulk_get_err:
 	err = clk_release_all(bulk->clks, bulk->count);
 	if (err)
-		debug("%s: could release all clocks for %p\n",
+		debug("%s: could not release all clocks for %p\n",
 		      __func__, dev);
 
 	return ret;
