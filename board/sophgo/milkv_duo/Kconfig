@@ -7,7 +7,7 @@ config SYS_VENDOR
 	default "sophgo"
 
 config SYS_CPU
-	default "generic"
+	default "cv1800b"
 
 config SYS_CONFIG_NAME
 	default "milkv_duo"
@@ -23,6 +23,6 @@ config ENV_SECT_SIZE
 
 config BOARD_SPECIFIC_OPTIONS
 	def_bool y
-	select GENERIC_RISCV
+	select SOPHGO_CV1800B
 
 endif
