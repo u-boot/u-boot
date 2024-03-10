@@ -70,12 +70,21 @@ config USB_GADGET_PRODUCT_NUM
 	hex "Product ID of the USB device"
 	default 0x701a if ARCH_TEGRA
 	default 0x1010 if ARCH_SUNXI
-	default 0x310a if ROCKCHIP_RK3036
+	default 0x110a if ROCKCHIP_RV1108
+	default 0x110b if ROCKCHIP_RV1126
 	default 0x300a if ROCKCHIP_RK3066
+	default 0x301a if ROCKCHIP_RK3036
+	default 0x310b if ROCKCHIP_RK3188
 	default 0x310c if ROCKCHIP_RK3128
-	default 0x320a if ROCKCHIP_RK3229 || ROCKCHIP_RK3288
-	default 0x330a if ROCKCHIP_RK3328
+	default 0x320a if ROCKCHIP_RK3288
+	default 0x320b if ROCKCHIP_RK322X
+	default 0x320c if ROCKCHIP_RK3328
+	default 0x330a if ROCKCHIP_RK3368
 	default 0x330c if ROCKCHIP_RK3399
+	default 0x330d if ROCKCHIP_PX30
+	default 0x330e if ROCKCHIP_RK3308
+	default 0x350a if ROCKCHIP_RK3568
+	default 0x350b if ROCKCHIP_RK3588
 	default 0x0
 	help
 	  Product ID of the USB device emulated, reported to the host device.
