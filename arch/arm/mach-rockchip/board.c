@@ -220,7 +220,8 @@ void enable_caches(void)
 }
 #endif
 
-#if defined(CONFIG_USB_GADGET) && defined(CONFIG_USB_GADGET_DWC2_OTG)
+#if IS_ENABLED(CONFIG_USB_GADGET)
+#if IS_ENABLED(CONFIG_USB_GADGET_DWC2_OTG) && !IS_ENABLED(CONFIG_DM_USB_GADGET)
 #include <usb.h>
 #include <linux/usb/otg.h>
 #include <usb/dwc2_udc.h>
@@ -296,6 +297,7 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 	return 0;
 }
 #endif /* CONFIG_USB_GADGET_DWC2_OTG */
+#endif /* CONFIG_USB_GADGET */
 
 #if IS_ENABLED(CONFIG_FASTBOOT)
 int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
