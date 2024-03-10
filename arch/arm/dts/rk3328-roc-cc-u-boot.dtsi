@@ -29,6 +29,10 @@
 	};
 };
 
+&usb20_otg {
+	hnp-srp-disable;
+};
+
 &vcc_sd {
 	bootph-pre-ram;
 };

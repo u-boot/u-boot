@@ -33,6 +33,10 @@
 	bootph-pre-ram;
 };
 
+&usb20_otg {
+	dr_mode = "peripheral";
+};
+
 &vcc_sd {
 	bootph-pre-ram;
 };

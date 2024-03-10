@@ -29,6 +29,15 @@
 	};
 };
 
+&u2phy_host {
+	phy-supply = <&vcc_host_5v>;
+};
+
+&vcc_host_5v {
+	/delete-property/ regulator-always-on;
+	/delete-property/ regulator-boot-on;
+};
+
 &vcc_sd {
 	bootph-pre-ram;
 };

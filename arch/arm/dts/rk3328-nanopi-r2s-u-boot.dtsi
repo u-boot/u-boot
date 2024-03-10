@@ -15,6 +15,10 @@
 	bootph-all;
 };
 
+&usb20_otg {
+	dr_mode = "peripheral";
+};
+
 &vcc_io_sdio {
 	bootph-pre-ram;
 };
