@@ -221,8 +221,23 @@ void enable_caches(void)
 #endif
 
 #if IS_ENABLED(CONFIG_USB_GADGET)
-#if IS_ENABLED(CONFIG_USB_GADGET_DWC2_OTG) && !IS_ENABLED(CONFIG_DM_USB_GADGET)
 #include <usb.h>
+
+#if IS_ENABLED(CONFIG_USB_GADGET_DOWNLOAD)
+#define ROCKCHIP_G_DNL_UMS_PRODUCT_NUM	0x0010
+
+int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
+{
+	if (!strcmp(name, "usb_dnl_ums"))
+		put_unaligned(ROCKCHIP_G_DNL_UMS_PRODUCT_NUM, &dev->idProduct);
+	else
+		put_unaligned(CONFIG_USB_GADGET_PRODUCT_NUM, &dev->idProduct);
+
+	return 0;
+}
+#endif /* CONFIG_USB_GADGET_DOWNLOAD */
+
+#if IS_ENABLED(CONFIG_USB_GADGET_DWC2_OTG) && !IS_ENABLED(CONFIG_DM_USB_GADGET)
 #include <linux/usb/otg.h>
 #include <usb/dwc2_udc.h>
 
