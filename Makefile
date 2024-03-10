@@ -1300,12 +1300,17 @@ OBJCOPYFLAGS_u-boot-nodtb.bin := -O binary \
 		$(if $(CONFIG_MPC85XX_HAVE_RESET_VECTOR),$(if $(CONFIG_OF_SEPARATE),-R .bootpg -R .resetvec))
 
 binary_size_check: u-boot-nodtb.bin FORCE
-	@file_size=$(shell wc -c u-boot-nodtb.bin | awk '{print $$1}') ; \
+	@file_size=$(shell wc -c u-boot-nodtb.bin | awk '{ print $$1 }') ; \
 	map_size=$(shell cat u-boot.map | \
-		awk '/_image_copy_start/ {start = $$1} /_image_binary_end/ {end = $$1} END {if (start != "" && end != "") print "ibase=16; " toupper(end) " - " toupper(start)}' \
-		| sed 's/0X//g' \
-		| bc); \
-	if [ "" != "$$map_size" ]; then \
+		awk ' \
+			/_image_copy_start/ { start = $$1 } \
+			/_image_binary_end/ { end = $$1 } \
+			END { \
+				if (start != "" && end != "") \
+					print end " " start; \
+			}' \
+		| sh -c 'read end start && echo $$((end - start))'); \
+	if [ -n "$$map_size" ]; then \
 		if test $$map_size -ne $$file_size; then \
 			echo "u-boot.map shows a binary size of $$map_size" >&2 ; \
 			echo "  but u-boot-nodtb.bin shows $$file_size" >&2 ; \
