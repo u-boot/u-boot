@@ -2,7 +2,7 @@ if ARCH_SNAPDRAGON || ARCH_IPQ40XX
 
 config CLK_QCOM
 	bool
-	depends on CLK && DM_RESET
+	depends on CLK && DM_RESET && POWER_DOMAIN
 	def_bool n
 
 menu "Qualcomm clock drivers"

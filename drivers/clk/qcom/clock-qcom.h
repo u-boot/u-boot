@@ -59,9 +59,15 @@ struct qcom_reset_map {
 	u8 bit;
 };
 
+struct qcom_power_map {
+	unsigned int reg;
+};
+
 struct clk;
 
 struct msm_clk_data {
+	const struct qcom_power_map	*power_domains;
+	unsigned long			num_power_domains;
 	const struct qcom_reset_map	*resets;
 	unsigned long			num_resets;
 	const struct gate_clk		*clks;

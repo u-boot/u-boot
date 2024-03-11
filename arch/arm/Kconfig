@@ -1078,6 +1078,7 @@ config ARCH_SNAPDRAGON
 	select DM_GPIO
 	select DM_SERIAL
 	select DM_RESET
+	select POWER_DOMAIN
 	select GPIO_EXTRA_HEADER
 	select MSM_SMEM
 	select OF_CONTROL

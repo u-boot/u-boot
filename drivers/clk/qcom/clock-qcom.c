@@ -22,13 +22,22 @@
 #include <linux/bug.h>
 #include <linux/delay.h>
 #include <linux/bitops.h>
+#include <linux/iopoll.h>
 #include <reset-uclass.h>
+#include <power-domain-uclass.h>
 
 #include "clock-qcom.h"
 
 /* CBCR register fields */
 #define CBCR_BRANCH_ENABLE_BIT  BIT(0)
 #define CBCR_BRANCH_OFF_BIT     BIT(31)
+
+#define GDSC_SW_COLLAPSE_MASK		BIT(0)
+#define GDSC_POWER_DOWN_COMPLETE	BIT(15)
+#define GDSC_POWER_UP_COMPLETE		BIT(16)
+#define GDSC_PWR_ON_MASK		BIT(31)
+#define CFG_GDSCR_OFFSET		0x4
+#define GDSC_STATUS_POLL_TIMEOUT_US	1500
 
 /* Enable clock controlled by CBC soft macro */
 void clk_enable_cbc(phys_addr_t cbcr)
@@ -223,7 +232,7 @@ U_BOOT_DRIVER(qcom_clk) = {
 int qcom_cc_bind(struct udevice *parent)
 {
 	struct msm_clk_data *data = (struct msm_clk_data *)dev_get_driver_data(parent);
-	struct udevice *clkdev, *rstdev;
+	struct udevice *clkdev = NULL, *rstdev = NULL, *pwrdev;
 	struct driver *drv;
 	int ret;
 
@@ -238,20 +247,41 @@ int qcom_cc_bind(struct udevice *parent)
 	if (ret)
 		return ret;
 
-	/* Bail out early if resets are not specified for this platform */
-	if (!data->resets)
-		return ret;
+	if (data->resets) {
+		/* Get a handle to the common reset handler */
+		drv = lists_driver_lookup_name("qcom_reset");
+		if (!drv) {
+			ret = -ENOENT;
+			goto unbind_clkdev;
+		}
 
-	/* Get a handle to the common reset handler */
-	drv = lists_driver_lookup_name("qcom_reset");
-	if (!drv)
-		return -ENOENT;
+		/* Register the reset controller */
+		ret = device_bind_with_driver_data(parent, drv, "qcom_reset", (ulong)data,
+						   dev_ofnode(parent), &rstdev);
+		if (ret)
+			goto unbind_clkdev;
+	}
 
-	/* Register the reset controller */
-	ret = device_bind_with_driver_data(parent, drv, "qcom_reset", (ulong)data,
-					   dev_ofnode(parent), &rstdev);
-	if (ret)
-		device_unbind(clkdev);
+	if (data->power_domains) {
+		/* Get a handle to the common power domain handler */
+		drv = lists_driver_lookup_name("qcom_power");
+		if (!drv) {
+			ret = -ENOENT;
+			goto unbind_rstdev;
+		}
+		/* Register the power domain controller */
+		ret = device_bind_with_driver_data(parent, drv, "qcom_power", (ulong)data,
+						   dev_ofnode(parent), &pwrdev);
+		if (ret)
+			goto unbind_rstdev;
+	}
+
+	return 0;
+
+unbind_rstdev:
+	device_unbind(rstdev);
+unbind_clkdev:
+	device_unbind(clkdev);
 
 	return ret;
 }
@@ -305,4 +335,80 @@ U_BOOT_DRIVER(qcom_reset) = {
 	.id = UCLASS_RESET,
 	.ops = &qcom_reset_ops,
 	.probe = qcom_reset_probe,
+};
+
+static int qcom_power_set(struct power_domain *pwr, bool on)
+{
+	struct msm_clk_data *data = (struct msm_clk_data *)dev_get_driver_data(pwr->dev);
+	void __iomem *base = dev_get_priv(pwr->dev);
+	const struct qcom_power_map *map;
+	u32 value;
+	int ret;
+
+	if (pwr->id >= data->num_power_domains)
+		return -ENODEV;
+
+	map = &data->power_domains[pwr->id];
+
+	if (!map->reg)
+		return -ENODEV;
+
+	value = readl(base + map->reg);
+
+	if (on)
+		value &= ~GDSC_SW_COLLAPSE_MASK;
+	else
+		value |= GDSC_SW_COLLAPSE_MASK;
+
+	writel(value, base + map->reg);
+
+	if (on)
+		ret = readl_poll_timeout(base + map->reg + CFG_GDSCR_OFFSET,
+					 value,
+					 (value & GDSC_POWER_UP_COMPLETE) ||
+					 (value & GDSC_PWR_ON_MASK),
+					 GDSC_STATUS_POLL_TIMEOUT_US);
+
+	else
+		ret = readl_poll_timeout(base + map->reg + CFG_GDSCR_OFFSET,
+					 value,
+					 (value & GDSC_POWER_DOWN_COMPLETE) ||
+					 !(value & GDSC_PWR_ON_MASK),
+					 GDSC_STATUS_POLL_TIMEOUT_US);
+
+
+	if (ret == -ETIMEDOUT)
+		printf("WARNING: GDSC %lu is stuck during power on/off\n",
+		       pwr->id);
+	return ret;
+}
+
+static int qcom_power_on(struct power_domain *pwr)
+{
+	return qcom_power_set(pwr, true);
+}
+
+static int qcom_power_off(struct power_domain *pwr)
+{
+	return qcom_power_set(pwr, false);
+}
+
+static const struct power_domain_ops qcom_power_ops = {
+	.on = qcom_power_on,
+	.off = qcom_power_off,
+};
+
+static int qcom_power_probe(struct udevice *dev)
+{
+	/* Set our priv pointer to the base address */
+	dev_set_priv(dev, (void *)dev_read_addr(dev));
+
+	return 0;
+}
+
+U_BOOT_DRIVER(qcom_power) = {
+	.name = "qcom_power",
+	.id = UCLASS_POWER_DOMAIN,
+	.ops = &qcom_power_ops,
+	.probe = qcom_power_probe,
 };
