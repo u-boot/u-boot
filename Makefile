@@ -3,7 +3,7 @@
 VERSION = 2024
 PATCHLEVEL = 04
 SUBLEVEL =
-EXTRAVERSION = -rc3
+EXTRAVERSION = -rc4
 NAME =
 
 # *DOCUMENTATION*
@@ -1293,7 +1293,7 @@ spl/u-boot-spl.srec: spl/u-boot-spl FORCE
 	$(call if_changed,objcopy)
 
 %.scif: %.srec
-	$(Q)$(MAKE) $(build)=arch/arm/mach-rmobile $@
+	$(Q)$(MAKE) $(build)=arch/arm/mach-renesas $@
 
 OBJCOPYFLAGS_u-boot-nodtb.bin := -O binary \
 		$(if $(CONFIG_X86_16BIT_INIT),-R .start16 -R .resetvec) \

@@ -71,6 +71,9 @@ struct phy_device *phy_connect_phy_id(struct mii_dev *bus, struct udevice *dev,
 		}
 	}
 
+	if (phyaddr == -1)
+		phyaddr = ofnode_read_u32_default(phandle_args.node, "reg", -1);
+
 	id =  vendor << 16 | device;
 	phydev = phy_device_create(bus, phyaddr, id, false);
 	if (phydev)

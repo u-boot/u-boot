@@ -1062,7 +1062,7 @@ config ARCH_QEMU
 	imply USB_KEYBOARD
 	imply CMD_USB
 
-config ARCH_RMOBILE
+config ARCH_RENESAS
 	bool "Renesas ARM SoCs"
 	select DM
 	select DM_SERIAL
@@ -2264,7 +2264,7 @@ source "arch/arm/mach-orion5x/Kconfig"
 
 source "arch/arm/mach-owl/Kconfig"
 
-source "arch/arm/mach-rmobile/Kconfig"
+source "arch/arm/mach-renesas/Kconfig"
 
 source "arch/arm/mach-meson/Kconfig"
 

@@ -404,6 +404,15 @@ config PMIC_TPS65219
 	help
 	The TPS65219 is a PMIC containing a bunch of SMPS & LDOs.
 	This driver binds the pmic children.
+
+config PMIC_RAA215300
+	bool "Renesas RAA215300 PMIC driver"
+	depends on DM_PMIC
+	help
+	  The Renesas RAA215300 PMIC driver includes RTC support, system reset
+	  support and several voltage regulators. For now, this driver simply
+	  allows register access and will bind the sysreset driver
+	  (CONFIG_SYSRESET_RAA215300) if it is enabled.
 endif
 
 config PMIC_TPS65217

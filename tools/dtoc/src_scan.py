@@ -291,8 +291,8 @@ class Scanner:
         """
         structs = {}
 
-        re_struct = re.compile('^struct ([a-z0-9_]+) {$')
-        re_asm = re.compile('../arch/[a-z0-9]+/include/asm/(.*)')
+        re_struct = re.compile(r'^struct ([a-z0-9_]+) {$')
+        re_asm = re.compile(r'../arch/[a-z0-9]+/include/asm/(.*)')
         prefix = ''
         for line in buff.splitlines():
             # Handle line continuation
@@ -470,8 +470,8 @@ class Scanner:
         re_of_match = re.compile(
             r'\.of_match\s*=\s*(of_match_ptr\()?([a-z0-9_]+)([^,]*),')
 
-        re_phase = re.compile('^\s*DM_PHASE\((.*)\).*$')
-        re_hdr = re.compile('^\s*DM_HEADER\((.*)\).*$')
+        re_phase = re.compile(r'^\s*DM_PHASE\((.*)\).*$')
+        re_hdr = re.compile(r'^\s*DM_HEADER\((.*)\).*$')
         re_alias = re.compile(r'DM_DRIVER_ALIAS\(\s*(\w+)\s*,\s*(\w+)\s*\)')
 
         # Matches the struct name for priv, plat

@@ -117,6 +117,8 @@ enum sun4i_spi_bits {
 	SPI_TCR_XCH,
 	SPI_TCR_CS_MANUAL,
 	SPI_TCR_CS_LEVEL,
+	SPI_TCR_SDC,
+	SPI_TCR_SDM,
 	SPI_FCR_TF_RST,
 	SPI_FCR_RF_RST,
 	SPI_FSR_RF_CNT_MASK,
@@ -128,6 +130,7 @@ struct sun4i_spi_variant {
 	u32 fifo_depth;
 	bool has_soft_reset;
 	bool has_burst_ctl;
+	bool has_clk_ctl;
 };
 
 struct sun4i_spi_plat {
@@ -302,7 +305,19 @@ static int sun4i_spi_claim_bus(struct udevice *dev)
 	setbits_le32(SPI_REG(priv, SPI_TCR), SPI_BIT(priv, SPI_TCR_CS_MANUAL) |
 		     SPI_BIT(priv, SPI_TCR_CS_ACTIVE_LOW));
 
-	sun4i_spi_set_speed_mode(dev->parent);
+	if (priv->variant->has_clk_ctl) {
+		sun4i_spi_set_speed_mode(dev->parent);
+	} else {
+		/*
+		 * At this moment there is no ability to change input clock.
+		 * Therefore, we can only use default HOSC@24MHz clock and
+		 * set SPI sampling mode to normal
+		 */
+		clrsetbits_le32(SPI_REG(priv, SPI_TCR),
+				SPI_BIT(priv, SPI_TCR_SDC) |
+				SPI_BIT(priv, SPI_TCR_SDM),
+				SPI_BIT(priv, SPI_TCR_SDM));
+	}
 
 	return 0;
 }
@@ -516,6 +531,8 @@ static const u32 sun6i_spi_bits[] = {
 	[SPI_TCR_CS_MASK]	= 0x30,
 	[SPI_TCR_CS_MANUAL]	= BIT(6),
 	[SPI_TCR_CS_LEVEL]	= BIT(7),
+	[SPI_TCR_SDC]		= BIT(11),
+	[SPI_TCR_SDM]		= BIT(13),
 	[SPI_TCR_XCH]		= BIT(31),
 	[SPI_FCR_RF_RST]	= BIT(15),
 	[SPI_FCR_TF_RST]	= BIT(31),
@@ -526,6 +543,7 @@ static const struct sun4i_spi_variant sun4i_a10_spi_variant = {
 	.regs			= sun4i_spi_regs,
 	.bits			= sun4i_spi_bits,
 	.fifo_depth		= 64,
+	.has_clk_ctl		= true,
 };
 
 static const struct sun4i_spi_variant sun6i_a31_spi_variant = {
@@ -534,9 +552,19 @@ static const struct sun4i_spi_variant sun6i_a31_spi_variant = {
 	.fifo_depth		= 128,
 	.has_soft_reset		= true,
 	.has_burst_ctl		= true,
+	.has_clk_ctl		= true,
 };
 
 static const struct sun4i_spi_variant sun8i_h3_spi_variant = {
+	.regs			= sun6i_spi_regs,
+	.bits			= sun6i_spi_bits,
+	.fifo_depth		= 64,
+	.has_soft_reset		= true,
+	.has_burst_ctl		= true,
+	.has_clk_ctl		= true,
+};
+
+static const struct sun4i_spi_variant sun50i_r329_spi_variant = {
 	.regs			= sun6i_spi_regs,
 	.bits			= sun6i_spi_bits,
 	.fifo_depth		= 64,
@@ -556,6 +584,10 @@ static const struct udevice_id sun4i_spi_ids[] = {
 	{
 	  .compatible = "allwinner,sun8i-h3-spi",
 	  .data = (ulong)&sun8i_h3_spi_variant,
+	},
+	{
+	  .compatible = "allwinner,sun50i-r329-spi",
+	  .data = (ulong)&sun50i_r329_spi_variant,
 	},
 	{ /* sentinel */ }
 };

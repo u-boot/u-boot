@@ -70,16 +70,6 @@ int arch_misc_init(void)
 	return 0;
 }
 
-int checkboard(void)
-{
-	printf("Model: Toradex Colibri T20 %dMB V%s\n",
-	       (gd->ram_size == 0x10000000) ? 256 : 512,
-	       (get_nand_dev_by_index(0)->erasesize >> 10 == 512) ?
-	       ((gd->ram_size == 0x10000000) ? "1.1B" : "1.1C") : "1.2A");
-
-	return tdx_checkboard();
-}
-
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {

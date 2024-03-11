@@ -8,7 +8,7 @@
 #ifndef __RCAR_GEN2_COMMON_H
 #define __RCAR_GEN2_COMMON_H
 
-#include <asm/arch/rmobile.h>
+#include <asm/arch/renesas.h>
 
 /* console */
 #define CFG_SYS_BAUDRATE_TABLE	{ 38400, 115200 }

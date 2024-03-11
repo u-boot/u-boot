@@ -41,7 +41,6 @@ CONFIG_CMD_MEMINFO=y
 # CONFIG_CMD_LZMADEC is not set
 # CONFIG_CMD_UNLZ4 is not set
 # CONFIG_CMD_UNZIP is not set
-# CONFIG_CMD_FLASH is not set
 CONFIG_CMD_GPT=y
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set

@@ -31,7 +31,6 @@ CONFIG_BOOTARGS="console=ttyS0,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21
 CONFIG_BOOTCOMMAND="fsl_mc apply dpl 0x580d00000 && cp.b $kernel_start $kernel_load $kernel_size && bootm $kernel_load"
 CONFIG_SYS_PBSIZE=532
 CONFIG_RESET_PHY_R=y
-CONFIG_SYS_MAXARGS=64
 CONFIG_CMD_GREPENV=y
 CONFIG_CMD_EEPROM=y
 CONFIG_SYS_EEPROM_PAGE_WRITE_BITS=3

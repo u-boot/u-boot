@@ -4,7 +4,7 @@
 if TARGET_RZG2L_SMARC_EVK
 
 config SYS_SOC
-	default "rmobile"
+	default "renesas"
 
 config SYS_BOARD
 	default "rzg2l"

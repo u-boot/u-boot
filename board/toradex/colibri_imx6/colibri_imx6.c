@@ -636,26 +636,6 @@ int board_late_init(void)
 }
 #endif /* CONFIG_BOARD_LATE_INIT */
 
-int checkboard(void)
-{
-	char it[] = " IT";
-	int minc, maxc;
-
-	switch (get_cpu_temp_grade(&minc, &maxc)) {
-	case TEMP_AUTOMOTIVE:
-	case TEMP_INDUSTRIAL:
-		break;
-	case TEMP_EXTCOMMERCIAL:
-	default:
-		it[0] = 0;
-	};
-	printf("Model: Toradex Colibri iMX6 %s %sMB%s\n",
-	       is_cpu_type(MXC_CPU_MX6DL) ? "DualLite" : "Solo",
-	       (gd->ram_size == 0x20000000) ? "512" : "256", it);
-
-	return tdx_checkboard();
-}
-
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {

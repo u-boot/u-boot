@@ -10,10 +10,10 @@
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>
-#include <asm/arch/rmobile.h>
+#include <asm/arch/renesas.h>
 
 /* QoS version 0.955 for ES1 and version 0.973 for ES2 */
-#if defined(CONFIG_ARCH_RMOBILE_EXTRAM_BOOT)
+#if defined(CONFIG_RENESAS_EXTRAM_BOOT)
 enum {
 	DBSC3_00, DBSC3_01, DBSC3_02, DBSC3_03, DBSC3_04,
 	DBSC3_05, DBSC3_06, DBSC3_07, DBSC3_08, DBSC3_09,
@@ -2421,13 +2421,13 @@ static void qos_init_es2(void)
 
 void qos_init(void)
 {
-	if (rmobile_get_cpu_rev_integer() >= R8A7790_CUT_ES2X)
+	if (renesas_get_cpu_rev_integer() >= R8A7790_CUT_ES2X)
 		qos_init_es2();
 	else
 		qos_init_es1();
 }
-#else /* CONFIG_ARCH_RMOBILE_EXTRAM_BOOT */
+#else /* CONFIG_RENESAS_EXTRAM_BOOT */
 void qos_init(void)
 {
 }
-#endif /* CONFIG_ARCH_RMOBILE_EXTRAM_BOOT */
+#endif /* CONFIG_RENESAS_EXTRAM_BOOT */

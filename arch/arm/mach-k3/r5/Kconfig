@@ -1,6 +1,14 @@
 config K3_LOAD_SYSFW
 	bool
 
+config K3_QOS
+	bool "Enable Quality of Service (QoS) Settings for TI K3 SoCs"
+	default y if SOC_K3_AM62A7
+	help
+	  This option enables the R5 SPL to apply QoS settings for various
+	  HW controllers inside the TI K3 SoCs. The files for QoS settings are
+	  generated from Sysconfig and k3-resource-partitioning tools.
+
 config K3_SYSFW_IMAGE_NAME
 	string "File name of SYSFW firmware and configuration blob"
 	depends on K3_LOAD_SYSFW

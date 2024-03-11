@@ -45,14 +45,6 @@ int arch_misc_init(void)
 	return 0;
 }
 
-int checkboard(void)
-{
-	printf("Model: Toradex Apalis T30 %dGB\n",
-	       (gd->ram_size == 0x40000000) ? 1 : 2);
-
-	return tdx_checkboard();
-}
-
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {

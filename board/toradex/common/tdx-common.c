@@ -3,15 +3,16 @@
  * Copyright (c) 2016 Toradex, Inc.
  */
 
+#include <dm.h>
 #include <common.h>
 #include <env.h>
 #include <g_dnl.h>
 #include <init.h>
 #include <linux/libfdt.h>
+#include <sysinfo.h>
 
 #ifdef CONFIG_VIDEO
 #include <bmp_logo.h>
-#include <dm.h>
 #include <splash.h>
 #include <video.h>
 #endif
@@ -96,54 +97,69 @@ static const char *get_board_assembly(u16 ver_assembly)
 	return ver_name;
 }
 
-int tdx_checkboard(void)
+__weak int print_bootinfo(void)
+{
+	return 0;
+}
+
+int checkboard(void)
+{
+	if (valid_cfgblock)
+		printf("Serial#: %s\n", tdx_serial_str);
+
+#ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
+	if (tdx_carrier_board_name)
+		printf("Carrier: Toradex %s %s, Serial# %s\n",
+		       tdx_carrier_board_name,
+		       tdx_car_rev_str,
+		       tdx_car_serial_str);
+#endif
+
+	print_bootinfo();
+
+	return 0;
+}
+
+static int settings_r(void)
 {
 	unsigned char ethaddr[6];
 
 	if (read_tdx_cfg_block()) {
 		printf("MISSING TORADEX CONFIG BLOCK\n");
-		get_mac_from_serial(tdx_serial, &tdx_eth_addr);
-		checkboard();
-	} else {
-		snprintf(tdx_serial_str, sizeof(tdx_serial_str),
-			 "%08u", tdx_serial);
-		snprintf(tdx_board_rev_str, sizeof(tdx_board_rev_str),
-			 "V%1d.%1d%s",
-			 tdx_hw_tag.ver_major,
-			 tdx_hw_tag.ver_minor,
-			 get_board_assembly(tdx_hw_tag.ver_assembly));
 
-		env_set("serial#", tdx_serial_str);
-
-		printf("Model: Toradex %04d %s %s\n",
-		       tdx_hw_tag.prodid,
-		       toradex_modules[tdx_hw_tag.prodid].name,
-		       tdx_board_rev_str);
-		printf("Serial#: %s\n", tdx_serial_str);
-#ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
-		if (read_tdx_cfg_block_carrier()) {
-			printf("MISSING TORADEX CARRIER CONFIG BLOCKS\n");
-			try_migrate_tdx_cfg_block_carrier();
-		} else {
-			tdx_carrier_board_name =
-				get_toradex_carrier_boards(tdx_car_hw_tag.prodid);
-
-			snprintf(tdx_car_serial_str, sizeof(tdx_car_serial_str),
-				 "%08u", tdx_car_serial);
-			snprintf(tdx_car_rev_str, sizeof(tdx_car_rev_str),
-				 "V%1d.%1d%s",
-				 tdx_car_hw_tag.ver_major,
-				 tdx_car_hw_tag.ver_minor,
-				 get_board_assembly(tdx_car_hw_tag.ver_assembly));
-
-			env_set("carrier_serial#", tdx_car_serial_str);
-			printf("Carrier: Toradex %s %s, Serial# %s\n",
-			       tdx_carrier_board_name,
-			       tdx_car_rev_str,
-			       tdx_car_serial_str);
-		}
-#endif
+		/* Board can run even if config block is not present */
+		return 0;
 	}
+
+	snprintf(tdx_serial_str, sizeof(tdx_serial_str),
+		 "%08u", tdx_serial);
+	snprintf(tdx_board_rev_str, sizeof(tdx_board_rev_str),
+		 "V%1d.%1d%s",
+		 tdx_hw_tag.ver_major,
+		 tdx_hw_tag.ver_minor,
+		 get_board_assembly(tdx_hw_tag.ver_assembly));
+
+	env_set("serial#", tdx_serial_str);
+
+#ifdef CONFIG_TDX_CFG_BLOCK_EXTRA
+	if (read_tdx_cfg_block_carrier()) {
+		printf("MISSING TORADEX CARRIER CONFIG BLOCKS\n");
+		try_migrate_tdx_cfg_block_carrier();
+	} else {
+		tdx_carrier_board_name =
+			get_toradex_carrier_boards(tdx_car_hw_tag.prodid);
+
+		snprintf(tdx_car_serial_str, sizeof(tdx_car_serial_str),
+			 "%08u", tdx_car_serial);
+		snprintf(tdx_car_rev_str, sizeof(tdx_car_rev_str),
+			 "V%1d.%1d%s",
+			 tdx_car_hw_tag.ver_major,
+			 tdx_car_hw_tag.ver_minor,
+			 get_board_assembly(tdx_car_hw_tag.ver_assembly));
+
+		env_set("carrier_serial#", tdx_car_serial_str);
+	}
+#endif
 
 	/*
 	 * Check if environment contains a valid MAC address,
@@ -165,6 +181,47 @@ int tdx_checkboard(void)
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_SETTINGS_R, settings_r);
+
+static int tdx_detect(struct udevice *dev)
+{
+	return valid_cfgblock ? 0 : -EINVAL;
+}
+
+static int tdx_get_str(struct udevice *dev, int id, size_t size, char *val)
+{
+	int ret = -ENOTSUPP;
+
+	switch (id) {
+	case SYSINFO_ID_BOARD_MODEL:
+		snprintf(val, size,
+			 "Toradex %04d %s %s",
+			 tdx_hw_tag.prodid,
+			 toradex_modules[tdx_hw_tag.prodid].name,
+			 tdx_board_rev_str);
+
+		ret = 0;
+	}
+
+	return ret;
+}
+
+static const struct udevice_id sysinfo_tdx_ids[] = {
+	{ .compatible = "toradex,sysinfo" },
+	{ /* sentinel */ }
+};
+
+static const struct sysinfo_ops sysinfo_tdx_ops = {
+	.detect		= tdx_detect,
+	.get_str	= tdx_get_str,
+};
+
+U_BOOT_DRIVER(sysinfo_toradex) = {
+	.name		= "sysinfo_toradex",
+	.id		= UCLASS_SYSINFO,
+	.of_match	= sysinfo_tdx_ids,
+	.ops		= &sysinfo_tdx_ops,
+};
 
 #ifdef CONFIG_TDX_CFG_BLOCK_USB_GADGET_PID
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)

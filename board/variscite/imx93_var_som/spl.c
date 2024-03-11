@@ -20,6 +20,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/arch-mx7ulp/gpio.h>
 #include <asm/sections.h>
+#include <asm/mach-imx/ele_api.h>
 #include <asm/mach-imx/syscounter.h>
 #include <dm/uclass.h>
 #include <dm/device.h>
@@ -47,8 +48,13 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 void spl_board_init(void)
 {
 	struct var_eeprom *ep = VAR_EEPROM_DATA;
+	int ret;
 
 	puts("Normal Boot\n");
+
+	ret = ele_start_rng();
+	if (ret)
+		printf("Fail to start RNG: %d\n", ret);
 
 	/* Copy EEPROM contents to DRAM */
 	memcpy(ep, &eeprom, sizeof(*ep));

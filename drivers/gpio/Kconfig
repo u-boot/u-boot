@@ -333,7 +333,7 @@ config PCF8575_GPIO
 
 config RCAR_GPIO
 	bool "Renesas RCar GPIO driver"
-	depends on DM_GPIO && ARCH_RMOBILE
+	depends on DM_GPIO && ARCH_RENESAS
 	help
 	  This driver supports the GPIO banks on Renesas RCar SoCs.
 

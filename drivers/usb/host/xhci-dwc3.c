@@ -197,7 +197,7 @@ static int xhci_dwc3_probe(struct udevice *dev)
 		reg |= DWC3_GUSB2PHYCFG_USBTRDTIM_16BIT;
 	}
 
-	if (dev_read_bool(dev, "snps,dis_enblslpm-quirk"))
+	if (dev_read_bool(dev, "snps,dis_enblslpm_quirk"))
 		reg &= ~DWC3_GUSB2PHYCFG_ENBLSLPM;
 
 	if (dev_read_bool(dev, "snps,dis-u2-freeclk-exists-quirk"))

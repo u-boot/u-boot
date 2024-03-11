@@ -28,5 +28,5 @@ obj-$(CONFIG_DRAM_SUN20I_D1) += sunxi/
 
 obj-$(CONFIG_ARCH_OCTEON) += octeon/
 
-obj-$(CONFIG_ARCH_RMOBILE) += renesas/
+obj-$(CONFIG_ARCH_RENESAS) += renesas/
 obj-$(CONFIG_CADENCE_DDR_CTRL) += cadence/

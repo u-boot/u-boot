@@ -1,7 +1,7 @@
 if TARGET_ULCB
 
 config SYS_SOC
-	default "rmobile"
+	default "renesas"
 
 config SYS_BOARD
 	default "ulcb"

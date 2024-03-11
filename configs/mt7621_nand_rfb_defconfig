@@ -41,7 +41,6 @@ CONFIG_SPL_NAND_IDENT=y
 # CONFIG_CMD_XIMG is not set
 # CONFIG_CMD_CRC32 is not set
 # CONFIG_CMD_DM is not set
-# CONFIG_CMD_FLASH is not set
 CONFIG_CMD_GPIO=y
 # CONFIG_CMD_LOADS is not set
 CONFIG_CMD_MMC=y
