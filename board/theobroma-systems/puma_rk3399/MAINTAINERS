@@ -4,6 +4,7 @@ M:	Klaus Goger <klaus.goger@theobroma-systems.com>
 S:	Maintained
 F:	board/theobroma-systems/puma_rk3399
 F:	board/theobroma-systems/common
+F:	doc/board/theobroma-systems
 F:	include/configs/puma_rk3399.h
 F:	arch/arm/dts/rk3399-puma*
 F:	configs/puma-rk3399_defconfig

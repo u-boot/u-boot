@@ -7,3 +7,4 @@ Theobroma Systems
    :maxdepth: 2
 
    jaguar_rk3588
+   puma_rk3399
