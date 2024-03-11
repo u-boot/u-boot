@@ -11,7 +11,6 @@
 #include <syscon.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/gpio.h>

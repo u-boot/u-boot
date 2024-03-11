@@ -9,7 +9,6 @@
 #include <dm.h>
 #include <ram.h>
 #include <syscon.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/cru_rv1126.h>

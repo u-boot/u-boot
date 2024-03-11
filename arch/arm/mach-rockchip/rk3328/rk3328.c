@@ -10,7 +10,6 @@
 #include <asm/arch-rockchip/grf_rk3328.h>
 #include <asm/arch-rockchip/uart.h>
 #include <asm/armv8/mmu.h>
-#include <asm/io.h>
 
 #define CRU_BASE		0xFF440000
 #define GRF_BASE		0xFF100000

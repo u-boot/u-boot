@@ -6,7 +6,6 @@
 #include <dm.h>
 #include <rng.h>
 #include <asm/arch-rockchip/hardware.h>
-#include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/iopoll.h>
 #include <linux/string.h>

@@ -6,7 +6,6 @@
 #include <dm.h>
 #include <syscon.h>
 #include <dm/pinctrl.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
