@@ -24,6 +24,7 @@
 #include <linux/sizes.h>
 #include <lmb.h>
 #include <malloc.h>
+#include <fdt_support.h>
 #include <usb.h>
 #include <sort.h>
 
@@ -93,7 +94,9 @@ void *board_fdt_blob_setup(int *err)
 	 * try and use the FDT built into U-Boot if there is one...
 	 * This avoids having a hard dependency on the previous stage bootloader
 	 */
-	if (IS_ENABLED(CONFIG_OF_SEPARATE) && (!fdt || fdt != ALIGN(fdt, SZ_4K))) {
+
+	if (IS_ENABLED(CONFIG_OF_SEPARATE) && (!fdt || fdt != ALIGN(fdt, SZ_4K) ||
+					       fdt_check_header((void *)fdt))) {
 		debug("%s: Using built in FDT, bootloader gave us %#llx\n", __func__, fdt);
 		return (void *)gd->fdt_blob;
 	}
