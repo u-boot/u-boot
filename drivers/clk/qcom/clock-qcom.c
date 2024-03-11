@@ -117,7 +117,8 @@ void clk_rcg_set_rate_mnd(phys_addr_t base, const struct bcr_regs *regs,
 
 	/* setup src select and divider */
 	cfg  = readl(base + regs->cfg_rcgr);
-	cfg &= ~(CFG_SRC_SEL_MASK | CFG_MODE_MASK | CFG_HW_CLK_CTRL_MASK);
+	cfg &= ~(CFG_SRC_SEL_MASK | CFG_MODE_MASK | CFG_HW_CLK_CTRL_MASK |
+		 CFG_SRC_DIV_MASK);
 	cfg |= source & CFG_SRC_SEL_MASK; /* Select clock source */
 
 	if (div)
