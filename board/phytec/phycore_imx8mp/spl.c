@@ -46,8 +46,10 @@ void spl_dram_init(void)
 	if (!ret)
 		phytec_print_som_info(NULL);
 
-	ret = phytec_get_rev(NULL);
-	if (ret >= 3 && ret != PHYTEC_EEPROM_INVAL) {
+	u8 rev = phytec_get_rev(NULL);
+	u8 somtype = phytec_get_som_type(NULL);
+
+	if (rev != PHYTEC_EEPROM_INVAL && (rev >= 3 || (somtype == SOM_TYPE_PCL && rev >= 1))) {
 		dram_timing.ddrc_cfg[3].val = 0x1323;
 		dram_timing.ddrc_cfg[4].val = 0x1e84800;
 		dram_timing.ddrc_cfg[5].val = 0x7a0118;
