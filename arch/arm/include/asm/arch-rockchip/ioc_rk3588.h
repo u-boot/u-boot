@@ -5,6 +5,8 @@
 #ifndef _ASM_ARCH_IOC_RK3588_H
 #define _ASM_ARCH_IOC_RK3588_H
 
+#define BUS_IOC_BASE	0xfd5f8000
+
 struct rk3588_bus_ioc {
 	unsigned int reserved0000[3];      /* Address Offset: 0x0000 */
 	unsigned int gpio0b_iomux_sel_h;   /* Address Offset: 0x000C */
@@ -48,6 +50,8 @@ struct rk3588_bus_ioc {
 
 check_member(rk3588_bus_ioc, gpio4d_iomux_sel_h, 0x009C);
 
+#define PMU1_IOC_BASE	0xfd5f0000
+
 struct rk3588_pmu1_ioc {
 	unsigned int gpio0a_iomux_sel_l;   /* Address Offset: 0x0000 */
 	unsigned int gpio0a_iomux_sel_h;   /* Address Offset: 0x0004 */
@@ -69,6 +73,8 @@ struct rk3588_pmu1_ioc {
 };
 
 check_member(rk3588_pmu1_ioc, xin_con, 0x0040);
+
+#define PMU2_IOC_BASE	0xfd5f4000
 
 struct rk3588_pmu2_ioc {
 	unsigned int gpio0b_iomux_sel_h;  /* Address Offset: 0x0000 */
