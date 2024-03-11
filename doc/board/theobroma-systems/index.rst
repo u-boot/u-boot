@@ -8,3 +8,4 @@ Theobroma Systems
 
    jaguar_rk3588
    puma_rk3399
+   ringneck_px30
