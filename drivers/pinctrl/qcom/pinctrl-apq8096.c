@@ -44,7 +44,8 @@ static const char *apq8096_get_pin_name(struct udevice *dev,
 	}
 }
 
-static unsigned int apq8096_get_function_mux(unsigned int selector)
+static unsigned int apq8096_get_function_mux(__maybe_unused unsigned int pin,
+					     unsigned int selector)
 {
 	return msm_pinctrl_functions[selector].val;
 }

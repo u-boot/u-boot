@@ -94,7 +94,8 @@ static const char *qcs404_get_pin_name(struct udevice *dev,
 	}
 }
 
-static unsigned int qcs404_get_function_mux(unsigned int selector)
+static unsigned int qcs404_get_function_mux(__maybe_unused unsigned int pin,
+					    unsigned int selector)
 {
 	return msm_pinctrl_functions[selector].val;
 }
