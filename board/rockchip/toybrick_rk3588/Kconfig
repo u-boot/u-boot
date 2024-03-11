@@ -1,0 +1,12 @@
+if TARGET_TOYBRICK_RK3588
+
+config SYS_BOARD
+	default "toybrick_rk3588"
+
+config SYS_VENDOR
+	default "rockchip"
+
+config SYS_CONFIG_NAME
+	default "toybrick_rk3588"
+
+endif

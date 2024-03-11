@@ -182,6 +182,30 @@ config TARGET_TURINGRK1_RK3588
 	  Gigabit Ethernet
 	  Size: 69.6mm x 45mm (260-pin SO-DIMM connector)
 
+config TARGET_TOYBRICK_RK3588
+	bool "Toybrick TB-RK3588X board"
+	select BOARD_LATE_INIT
+	help
+	  Rockchip Toybrick TB-RK3588X is a Rockchip RK3588 based development board.
+	  TB-RK3588X adopts core board and mainboard design. The core board is connected
+	  with the mainboard through the MXM314Pin standard interface, which can form
+	  a complete industry development board.
+
+	  Specifications:
+
+	  Rockchip RK3588 SoC
+	  4x ARM Cortex-A76, 4x ARM Cortex-A55
+	  8/16GB Memory LPDDR4x
+	  Mali G610MC4 GPU
+	  2× MIPI-CSI0 Connector
+	  1x 2Lanes PCIe3.0 Connector
+	  1x SATA3.0 Connector
+	  32GB eMMC Module
+	  2x USB2.0, 2x USB3.0
+	  1x HDMI Output, 1x HDMI Input
+	  2x Ethernet Port
+
+
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xfd588080
 
@@ -198,9 +222,10 @@ source board/edgeble/neural-compute-module-6/Kconfig
 source board/friendlyelec/nanopc-t6-rk3588/Kconfig
 source board/pine64/quartzpro64-rk3588/Kconfig
 source board/turing/turing-rk1-rk3588/Kconfig
-source board/rockchip/evb_rk3588/Kconfig
 source board/radxa/rock5a-rk3588s/Kconfig
 source board/radxa/rock5b-rk3588/Kconfig
+source board/rockchip/evb_rk3588/Kconfig
+source board/rockchip/toybrick_rk3588/Kconfig
 source board/theobroma-systems/jaguar_rk3588/Kconfig
 
 endif
