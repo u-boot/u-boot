@@ -32,7 +32,6 @@
 #include <asm/arch-rockchip/boot_mode.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/periph.h>
-#include <asm/arch-rockchip/misc.h>
 #include <power/regulator.h>
 
 #if defined(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && defined(CONFIG_EFI_PARTITION)
@@ -146,6 +145,10 @@ void set_dfu_alt_info(char *interface, char *devstr)
 
 	log_debug("dfu_alt_info => %s\n", buf);
 	env_set("dfu_alt_info", buf);
+}
+
+__weak void rockchip_capsule_update_board_setup(void)
+{
 }
 
 static void gpt_capsule_update_setup(void)
