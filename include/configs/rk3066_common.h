@@ -6,7 +6,6 @@
 #ifndef __CONFIG_RK3066_COMMON_H
 #define __CONFIG_RK3066_COMMON_H
 
-#include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
 #define CFG_IRAM_BASE		0x10080000
