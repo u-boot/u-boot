@@ -102,7 +102,7 @@ int rockchip_cpuid_set(const u8 *cpuid, const u32 cpuid_length)
 	int i;
 
 	memset(cpuid_str, 0, sizeof(cpuid_str));
-	for (i = 0; i < 16; i++)
+	for (i = 0; i < cpuid_length; i++)
 		sprintf(&cpuid_str[i * 2], "%02x", cpuid[i]);
 
 	debug("cpuid: %s\n", cpuid_str);
@@ -111,13 +111,13 @@ int rockchip_cpuid_set(const u8 *cpuid, const u32 cpuid_length)
 	 * Mix the cpuid bytes using the same rules as in
 	 *   ${linux}/drivers/soc/rockchip/rockchip-cpuinfo.c
 	 */
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < cpuid_length / 2; i++) {
 		low[i] = cpuid[1 + (i << 1)];
 		high[i] = cpuid[i << 1];
 	}
 
-	serialno = crc32_no_comp(0, low, 8);
-	serialno |= (u64)crc32_no_comp(serialno, high, 8) << 32;
+	serialno = crc32_no_comp(0, low, cpuid_length / 2);
+	serialno |= (u64)crc32_no_comp(serialno, high, cpuid_length / 2) << 32;
 	snprintf(serialno_str, sizeof(serialno_str), "%016llx", serialno);
 
 	oldid = env_get("cpuid#");
