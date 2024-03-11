@@ -188,11 +188,13 @@
 
 &sdmmc {
 	bootph-pre-ram;
+	bootph-some-ram;
 	u-boot,spl-fifo-mode;
 };
 
 &sdhci {
 	bootph-pre-ram;
+	bootph-some-ram;
 	u-boot,spl-fifo-mode;
 };
 
