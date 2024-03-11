@@ -501,6 +501,30 @@ config SPL_ROCKCHIP_EARLYRETURN_TO_BROM
 	  This enables support code in the BOOT0 hook for the SPL stage
 	  to allow multiple entries.
 
+config ROCKCHIP_DISABLE_FORCE_JTAG
+	bool "Disable force_jtag feature"
+	default y
+	depends on SPL
+	help
+	  Rockchip SoCs can automatically switch between jtag and sdmmc based
+	  on the following rules:
+	  - all the SDMMC pins including SDMMC_DET set as SDMMC function in
+	    GRF,
+	  - force_jtag bit in GRF is 1,
+	  - SDMMC_DET is low (no card detected),
+
+	  Some HW design may not route the SD card card detect to SDMMC_DET
+	  pin, thus breaking the SD card support in some cases because JTAG
+	  would be auto-enabled by mistake.
+
+	  Also, enabling JTAG at runtime may be an undesired feature, e.g.
+	  because it could be a security vulnerability.
+
+	  This disables force_jtag feature, which you may want for debugging
+	  purposes.
+
+	  If unsure, say Y.
+
 config TPL_ROCKCHIP_EARLYRETURN_TO_BROM
         bool "TPL requires early-return (for RK3188-style BROM) to BROM"
 	depends on TPL && ENABLE_ARM_SOC_BOOT0_HOOK

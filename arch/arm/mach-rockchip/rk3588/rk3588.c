@@ -9,6 +9,7 @@
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
+#include <asm/arch-rockchip/grf_rk3588.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/ioc_rk3588.h>
 
@@ -34,6 +35,8 @@
 #define BUS_IOC_GPIO2D_IOMUX_SEL_L	0x58
 #define BUS_IOC_GPIO2D_IOMUX_SEL_H	0x5c
 #define BUS_IOC_GPIO3A_IOMUX_SEL_L	0x60
+
+#define SYS_GRF_FORCE_JTAG		BIT(14)
 
 /**
  * Boot-device identifiers used by the BROM on RK3588 when device is booted
@@ -134,6 +137,9 @@ void rockchip_stimer_init(void)
 int arch_cpu_init(void)
 {
 #ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_ROCKCHIP_DISABLE_FORCE_JTAG
+	static struct rk3588_sysgrf * const sys_grf = (void *)SYS_GRF_BASE;
+#endif
 	int secure_reg;
 
 	/* Set the SDMMC eMMC crypto_ns FSPI access secure area */
@@ -168,6 +174,11 @@ int arch_cpu_init(void)
 	secure_reg = readl(FIREWALL_SYSMEM_BASE + FW_SYSM_MST27_REG);
 	secure_reg &= 0xffff0000;
 	writel(secure_reg, FIREWALL_SYSMEM_BASE + FW_SYSM_MST27_REG);
+
+#ifdef CONFIG_ROCKCHIP_DISABLE_FORCE_JTAG
+	/* Disable JTAG exposed on SDMMC */
+	rk_clrreg(&sys_grf->soc_con[6], SYS_GRF_FORCE_JTAG);
+#endif
 #endif
 
 	return 0;
