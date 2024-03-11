@@ -53,6 +53,7 @@ Board-specific doc
    ste/index
    tbs/index
    thead/index
+   theobroma-systems/index
    ti/index
    toradex/index
    variscite/index

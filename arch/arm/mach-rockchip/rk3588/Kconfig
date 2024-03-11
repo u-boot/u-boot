@@ -6,6 +6,33 @@ config TARGET_EVB_RK3588
 	help
 	  RK3588 EVB is a evaluation board for Rockchp RK3588.
 
+config TARGET_JAGUAR_RK3588
+	bool "Theobroma Systems SBC-RK3588-AMR (Jaguar)"
+	select BOARD_LATE_INIT
+	help
+	  The SBC-RK3588-AMR is a Single Board Computer designed by
+	  Theobroma Systems for autonomous mobile robots.
+
+	  It provides the following features:
+	    * up to 32GB LDDR4
+	    * up to 128GB on-module eMMC (with 8-bit 1.8V interface)
+	    * SD card
+	    * Gigabit Ethernet
+	    * 1x USB-A 2.0 host
+	    * PCIe M.2 2230 Key M (Gen 2 1-lane) for WiFi+BT
+	    * PCIe M.2 2280 Key M (Gen 3 4-lane) for NVMe
+	    * CAN
+	    * RS485 UART
+	    * 2x USB Type-C 3.1 host/device
+	    * HDMI output
+	    * 2x camera connectors (MIPI-CSI 2-lane + I2C/SPI for IMUs + GPIOs)
+	    * EEPROM
+	    * Secure Element
+	    * ATtiny companion controller implementing:
+	      - low-power RTC functionality (ISL1208 emulation)
+	      - fan controller (AMC6821 emulation)
+	    * 80-pin Mezzanine connector
+
 config TARGET_NANOPCT6_RK3588
 	bool "FriendlyElec NanoPC-T6 RK3588 board"
 	select BOARD_LATE_INIT
@@ -174,5 +201,6 @@ source board/turing/turing-rk1-rk3588/Kconfig
 source board/rockchip/evb_rk3588/Kconfig
 source board/radxa/rock5a-rk3588s/Kconfig
 source board/radxa/rock5b-rk3588/Kconfig
+source board/theobroma-systems/jaguar_rk3588/Kconfig
 
 endif

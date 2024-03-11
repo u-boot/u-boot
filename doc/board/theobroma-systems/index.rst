@@ -1,0 +1,9 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
+Theobroma Systems
+=================
+
+.. toctree::
+   :maxdepth: 2
+
+   jaguar_rk3588
